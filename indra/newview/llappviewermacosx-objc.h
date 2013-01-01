@@ -16,4 +16,4 @@ bool initViewer();
 void handleQuit();
 bool runMainLoop();
 void initMainLoop();
-void destroyMainLoop();
+void cleanupViewer();

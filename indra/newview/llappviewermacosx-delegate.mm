@@ -23,17 +23,26 @@
 	frameTimer = nil;
 	
 	setLLNSWindowRef([self window]);
-	setLLOpenGLViewRef([self glview]);
+	//setLLOpenGLViewRef([self glview]);
 	if (initViewer())
 	{
-		frameTimer = [NSTimer scheduledTimerWithTimeInterval:1.0/60 target:self selector:@selector(mainLoop) userInfo:nil repeats:YES];
+		frameTimer = [NSTimer scheduledTimerWithTimeInterval:0.0 target:self selector:@selector(mainLoop) userInfo:nil repeats:YES];
 	} else {
 		handleQuit();
 	}
 }
 
-- (void) applicationWillTerminate:(NSNotification *)notification
+- (NSApplicationDelegateReply) applicationShouldTerminate:(NSApplication *)sender
 {
+	if (!runMainLoop())
+	{
+		handleQuit();
+		return NSTerminateCancel;
+	} else {
+		[frameTimer release];
+		cleanupViewer();
+		return NSTerminateNow;
+	}
 }
 
 - (void) mainLoop
@@ -42,7 +51,8 @@
 	if (appExiting)
 	{
 		[frameTimer release];
-		handleQuit();
+		cleanupViewer();
+		[[NSApplication sharedApplication] terminate:self];
 	}
 }
 

@@ -55,15 +55,6 @@ namespace
 	char** gArgV;
 	
 	LLAppViewerMacOSX* gViewerAppPtr;
-	
-	OSErr AEQuitHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn)
-	{
-		OSErr result = noErr;
-		
-		LLAppViewer::instance()->userQuit();
-		
-		return(result);
-	}
 }
 
 bool initViewer()
@@ -95,6 +86,24 @@ bool initViewer()
 
 void handleQuit()
 {
+	LLAppViewer::instance()->userQuit();
+}
+
+bool runMainLoop()
+{
+	bool ret = LLApp::isQuitting();
+	if (!ret && gViewerAppPtr != NULL)
+	{
+		ret = gViewerAppPtr->mainLoop();
+	} else {
+		ret = true;
+	}
+	
+	return ret;
+}
+
+void cleanupViewer()
+{
 	if(!LLApp::isError())
 	{
 		gViewerAppPtr->cleanup();
@@ -102,17 +111,6 @@ void handleQuit()
 	
 	delete gViewerAppPtr;
 	gViewerAppPtr = NULL;
-}
-
-bool runMainLoop()
-{
-	bool ret = LLApp::isQuitting();
-	if (!ret)
-	{
-		ret = gViewerAppPtr->mainLoop();
-	}
-	
-	return ret;
 }
 
 int main( int argc, char **argv ) 

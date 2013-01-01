@@ -654,7 +654,6 @@ BOOL LLViewerKeyboard::modeFromString(const std::string& string, S32 *mode)
 BOOL LLViewerKeyboard::handleKey(KEY translated_key,  MASK translated_mask, BOOL repeated)
 {
 	LL_INFOS("Keyboard Handling") << "Handling key " << translated_key << LL_ENDL;
-	LL_INFOS("Keyboard Handling") << "Keyboard has focus? " << gFocusMgr.getKeyboardFocus() << LL_ENDL;
 	// check for re-map
 	EKeyboardMode mode = gViewerKeyboard.getMode();
 	U32 keyidx = (translated_mask<<16) | translated_key;
@@ -677,6 +676,7 @@ BOOL LLViewerKeyboard::handleKey(KEY translated_key,  MASK translated_mask, BOOL
 	if(mKeysSkippedByUI.find(translated_key) != mKeysSkippedByUI.end()) 
 	{
 		mKeyHandledByUI[translated_key] = FALSE;
+		LL_INFOS("Keyboard Handling") << "Key wasn't handled by UI!" << LL_ENDL;
 	}
 	else
 	{

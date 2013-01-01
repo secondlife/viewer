@@ -255,6 +255,15 @@ void convertScreenToWindow(NSWindowRef window, float *coord)
 	coord[1] = point.y;
 }
 
+void convertScreenToView(NSWindowRef window, float *coord)
+{
+	NSRect point;
+	point.origin.x = coord[0];
+	point.origin.y = coord[1];
+	point.origin = [(LLNSWindow*)window convertScreenToBase:point.origin];
+	point.origin = [[(LLNSWindow*)window contentView] convertPoint:point.origin fromView:nil];
+}
+
 void convertWindowToScreen(NSWindowRef window, float *coord)
 {
 	NSPoint point;
@@ -265,73 +274,20 @@ void convertWindowToScreen(NSWindowRef window, float *coord)
 	coord[1] = point.y;
 }
 
-void registerKeyUpCallback(NSWindowRef window, std::tr1::function<void(unsigned short, unsigned int)> callback)
+void closeWindow(NSWindowRef window)
 {
-	[(LLNSWindow*)window registerKeyUpCallback:callback];
+	[(LLNSWindow*)window close];
 }
 
-void registerKeyDownCallback(NSWindowRef window, std::tr1::function<void(unsigned short, unsigned int)> callback)
+void removeGLView(GLViewRef view)
 {
-	[(LLNSWindow*)window registerKeyDownCallback:callback];
-}
-
-void registerUnicodeCallback(NSWindowRef window, std::tr1::function<void(wchar_t, unsigned int)> callback)
-{
-	[(LLNSWindow*)window registerUnicodeCallback:callback];
-}
-
-void registerMouseUpCallback(NSWindowRef window, MouseCallback callback)
-{
-	[(LLNSWindow*)window registerMouseUpCallback:callback];
-}
-
-void registerMouseDownCallback(NSWindowRef window, MouseCallback callback)
-{
-	[(LLNSWindow*)window registerMouseDownCallback:callback];
-}
-
-void registerRightMouseUpCallback(NSWindowRef window, MouseCallback callback)
-{
-	[(LLNSWindow*)window registerRightMouseUpCallback:callback];
-}
-
-void registerRightMouseDownCallback(NSWindowRef window, MouseCallback callback)
-{
-	[(LLNSWindow*)window registerRightMouseDownCallback:callback];
-}
-
-void registerDoubleClickCallback(NSWindowRef window, MouseCallback callback)
-{
-	[(LLNSWindow*)window registerDoubleClickCallback:callback];
-}
-
-void registerResizeEventCallback(GLViewRef glview, ResizeCallback callback)
-{
-	[(LLOpenGLView*)glview registerResizeCallback:callback];
-}
-
-void registerMouseMovedCallback(NSWindowRef window, MouseCallback callback)
-{
-	[(LLNSWindow*)window registerMouseMovedCallback:callback];
-}
-
-void registerScrollCallback(NSWindowRef window, ScrollWheelCallback callback)
-{
-	[(LLNSWindow*)window registerScrollCallback:callback];
-}
-
-void registerMouseExitCallback(NSWindowRef window, VoidCallback callback)
-{
-	[(LLNSWindow*)window registerMouseExitCallback:callback];
-}
-
-void registerDeltaUpdateCallback(NSWindowRef window, MouseCallback callback)
-{
-	[(LLNSWindow*)window registerDeltaUpdateCallback:callback];
+	[(LLOpenGLView*)view removeFromSuperview];
+	[(LLOpenGLView*)view release];
 }
 
 NSWindowRef getMainAppWindow()
 {
+	[(LLNSWindow*)winRef setAcceptsMouseMovedEvents:TRUE];
 	return winRef;
 }
 

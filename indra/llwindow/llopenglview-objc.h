@@ -15,7 +15,6 @@
 @interface LLOpenGLView : NSOpenGLView
 {
 	NSPoint mousePos;
-	ResizeCallback mResizeCallback;
 }
 
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync;
@@ -33,41 +32,12 @@
 - (CGLContextObj) getCGLContextObj;
 - (CGLPixelFormatObj*)getCGLPixelFormatObj;
 
-- (void) registerResizeCallback:(ResizeCallback)callback;
 @end
 
 @interface LLNSWindow : NSWindow {
 	float mMousePos[2];
 	unsigned int mModifiers;
-	
-	KeyCallback mKeyDownCallback;
-	KeyCallback mKeyUpCallback;
-	UnicodeCallback mUnicodeCallback;
-	ModifierCallback mModifierCallback;
-	MouseCallback mMouseDownCallback;
-	MouseCallback mMouseUpCallback;
-	MouseCallback mMouseDoubleClickCallback;
-	MouseCallback mRightMouseDownCallback;
-	MouseCallback mRightMouseUpCallback;
-	MouseCallback mMouseMovedCallback;
-	ScrollWheelCallback mScrollWhellCallback;
-	VoidCallback mMouseExitCallback;
-	MouseCallback mDeltaUpdateCallback;
 }
-
-- (void) registerKeyDownCallback:(KeyCallback)callback;
-- (void) registerKeyUpCallback:(KeyCallback)callback;
-- (void) registerUnicodeCallback:(UnicodeCallback)callback;
-- (void) registerModifierCallback:(ModifierCallback)callback;
-- (void) registerMouseDownCallback:(MouseCallback)callback;
-- (void) registerMouseUpCallback:(MouseCallback)callback;
-- (void) registerRightMouseDownCallback:(MouseCallback)callback;
-- (void) registerRightMouseUpCallback:(MouseCallback)callback;
-- (void) registerDoubleClickCallback:(MouseCallback)callback;
-- (void) registerMouseMovedCallback:(MouseCallback)callback;
-- (void) registerScrollCallback:(ScrollWheelCallback)callback;
-- (void) registerMouseExitCallback:(VoidCallback)callback;
-- (void) registerDeltaUpdateCallback:(MouseCallback)callback;
 
 @end
 

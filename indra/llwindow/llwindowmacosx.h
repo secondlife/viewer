@@ -121,7 +121,7 @@ public:
 	void* getWindow() { return mWindow; }
 	LLWindowCallbacks* getCallbacks() { return mCallbacks; }
 	
-	void updateMouseDeltas();
+	void updateMouseDeltas(float* deltas);
 	void getMouseDeltas(float* delta);
 
 

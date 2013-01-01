@@ -65,21 +65,33 @@ void getCursorPos(NSWindowRef window, float* pos);
 void makeWindowOrderFront(NSWindowRef window);
 void convertScreenToWindow(NSWindowRef window, float *coord);
 void convertWindowToScreen(NSWindowRef window, float *coord);
+void convertScreenToView(NSWindowRef window, float *coord);
 void setWindowPos(NSWindowRef window, float* pos);
+void closeWindow(NSWindowRef window);
+void removeGLView(GLViewRef view);
 
-void registerKeyUpCallback(NSWindowRef window, KeyCallback callback);
-void registerKeyDownCallback(NSWindowRef window, KeyCallback callback);
-void registerUnicodeCallback(NSWindowRef window, UnicodeCallback callback);
-void registerMouseUpCallback(NSWindowRef window, MouseCallback callback);
-void registerMouseDownCallback(NSWindowRef window, MouseCallback callback);
-void registerRightMouseUpCallback(NSWindowRef window, MouseCallback callback);
-void registerRightMouseDownCallback(NSWindowRef window, MouseCallback callback);
-void registerDoubleClickCallback(NSWindowRef window, MouseCallback callback);
-void registerResizeEventCallback(GLViewRef window, ResizeCallback callback);
-void registerMouseMovedCallback(NSWindowRef window, MouseCallback callback);
-void registerScrollCallback(NSWindowRef window, ScrollWheelCallback callback);
-void registerMouseExitCallback(NSWindowRef window, VoidCallback callback);
-void registerDeltaUpdateCallback(NSWindowRef window, MouseCallback callback);
+// These are all implemented in llwindowmacosx.cpp.
+// This is largely for easier interop between Obj-C and C++ (at least in the viewer's case due to the BOOL vs. BOOL conflict)
+void callKeyUp(unsigned short key, unsigned int mask);
+void callKeyDown(unsigned short key, unsigned int mask);
+void callUnicodeCallback(wchar_t character, unsigned int mask);
+void callRightMouseDown(float *pos, unsigned int mask);
+void callRightMouseUp(float *pos, unsigned int mask);
+void callLeftMouseDown(float *pos, unsigned int mask);
+void callLeftMouseUp(float *pos, unsigned int mask);
+void callDoubleClick(float *pos, unsigned int mask);
+void callResize(unsigned int width, unsigned int height);
+void callMouseMoved(float *pos, unsigned int mask);
+void callScrollMoved(float delta);
+void callMouseExit();
+void callWindowFocus();
+void callWindowUnfocus();
+void callDeltaUpdate(float *delta, unsigned int mask);
+void callMiddleMouseDown(float *pos, unsigned int mask);
+void callMiddleMouseUp(float *pos, unsigned int mask);
+void callFocus();
+void callFocusLost();
+
 NSWindowRef getMainAppWindow();
 GLViewRef getGLView(NSWindowRef window);
 

@@ -19,12 +19,9 @@
 
 - (void)windowResized:(NSNotification *)notification;
 {
-	if (mResizeCallback != nil)
-	{
-		NSSize size = [[self window] frame].size;
-		
-		mResizeCallback(size.width, size.height);
-	}
+	NSSize size = [self frame].size;
+	
+	callResize(size.width, size.height);
 }
 
 - (void)dealloc
@@ -125,11 +122,6 @@
 	return (CGLPixelFormatObj*)[fmt	CGLPixelFormatObj];
 }
 
-- (void) registerResizeCallback:(ResizeCallback)callback
-{
-	mResizeCallback = callback;
-}
-
 // Various events can be intercepted by our view, thus not reaching our window.
 // Intercept these events, and pass them to the window as needed. - Geenz
 
@@ -183,6 +175,16 @@
 	[super flagsChanged:theEvent];
 }
 
+- (BOOL) becomeFirstResponder
+{
+	return [super becomeFirstResponder];
+}
+
+- (BOOL) resignFirstResponder
+{
+	return [super resignFirstResponder];
+}
+
 @end
 
 // We use a custom NSWindow for our event handling.
@@ -196,30 +198,19 @@
 	return self;
 }
 
-- (void) keyDown:(NSEvent *)theEvent {
-	if (mKeyDownCallback != nil && mUnicodeCallback != nil)
+- (void) keyDown:(NSEvent *)theEvent
+{
+	callKeyDown([theEvent keyCode], [theEvent modifierFlags]);
+	
+	NSString *chars = [theEvent characters];
+	for (uint i = 0; i < [chars length]; i++)
 	{
-		mKeyDownCallback([theEvent keyCode], [theEvent modifierFlags]);
-		
-		NSString *chars = [theEvent charactersIgnoringModifiers];
-		for (uint i = 0; i < [chars length]; i++)
-		{
-			mUnicodeCallback([chars characterAtIndex:i], [theEvent modifierFlags]);
-		}
-		
-		// The viewer expects return to be submitted separately as a unicode character.
-		if ([theEvent keyCode] == 3 || [theEvent keyCode] == 13)
-		{
-			mUnicodeCallback([theEvent keyCode], [theEvent modifierFlags]);
-		}
+		callUnicodeCallback([chars characterAtIndex:i], [theEvent modifierFlags]);
 	}
 }
 
 - (void) keyUp:(NSEvent *)theEvent {
-	if (mKeyUpCallback != nil)
-	{
-		mKeyUpCallback([theEvent keyCode], [theEvent modifierFlags]);
-	}
+	callKeyUp([theEvent keyCode], [theEvent modifierFlags]);
 }
 
 - (void)flagsChanged:(NSEvent *)theEvent {
@@ -228,59 +219,42 @@
 
 - (void) mouseDown:(NSEvent *)theEvent
 {
-	if (mMouseDoubleClickCallback != nil && mMouseDownCallback != nil)
+	if ([theEvent clickCount] >= 2)
 	{
-		if ([theEvent clickCount] == 2)
-		{
-			mMouseDoubleClickCallback(mMousePos, [theEvent modifierFlags]);
-		} else if ([theEvent clickCount] == 1) {
-			mMouseDownCallback(mMousePos, [theEvent modifierFlags]);
-		}
+		callDoubleClick(mMousePos, [theEvent modifierFlags]);
+	} else if ([theEvent clickCount] == 1) {
+		callLeftMouseDown(mMousePos, [theEvent modifierFlags]);
 	}
 }
 
 - (void) mouseUp:(NSEvent *)theEvent
 {
-	if (mMouseUpCallback != nil)
-	{
-		mMouseUpCallback(mMousePos, [theEvent modifierFlags]);
-	}
+	callLeftMouseUp(mMousePos, [theEvent modifierFlags]);
 }
 
 - (void) rightMouseDown:(NSEvent *)theEvent
 {
-	if (mRightMouseDownCallback != nil)
-	{
-		mRightMouseDownCallback(mMousePos, [theEvent modifierFlags]);
-	}
+	callRightMouseDown(mMousePos, [theEvent modifierFlags]);
 }
 
 - (void) rightMouseUp:(NSEvent *)theEvent
 {
-	if (mRightMouseUpCallback != nil)
-	{
-		mRightMouseUpCallback(mMousePos, [theEvent modifierFlags]);
-	}
+	callRightMouseUp(mMousePos, [theEvent modifierFlags]);
 }
 
-- (void)mouseMoved:(NSEvent *)theEvent {
-	if (mDeltaUpdateCallback != nil && mMouseMovedCallback != nil)
-	{
-		float mouseDeltas[2] = {
-			[theEvent deltaX],
-			[theEvent deltaZ]
-		};
-		
-		mDeltaUpdateCallback(mouseDeltas, 0);
-		
-		NSPoint mPoint = [theEvent locationInWindow];
-		mMousePos[0] = mPoint.x;
-		mMousePos[1] = mPoint.y;
-		if (mMouseMovedCallback != nil)
-		{
-			mMouseMovedCallback(mMousePos, 0);
-		}
-	}
+- (void)mouseMoved:(NSEvent *)theEvent
+{
+	float mouseDeltas[2] = {
+		[theEvent deltaX],
+		[theEvent deltaY]
+	};
+	
+	callDeltaUpdate(mouseDeltas, 0);
+	
+	NSPoint mPoint = [theEvent locationInWindow];
+	mMousePos[0] = mPoint.x;
+	mMousePos[1] = mPoint.y;
+	callMouseMoved(mMousePos, 0);
 }
 
 // NSWindow doesn't trigger mouseMoved when the mouse is being clicked and dragged.
@@ -288,101 +262,59 @@
 
 - (void) mouseDragged:(NSEvent *)theEvent
 {
-	if (mDeltaUpdateCallback != nil && mMouseMovedCallback != nil)
-	{
-		float mouseDeltas[2] = {
-			[theEvent deltaX],
-			[theEvent deltaZ]
-		};
-		
-		mDeltaUpdateCallback(mouseDeltas, 0);
-		
-		NSPoint mPoint = [theEvent locationInWindow];
-		mMousePos[0] = mPoint.x;
-		mMousePos[1] = mPoint.y;
-		mMouseMovedCallback(mMousePos, 0);
-	}
+	// Trust the deltas supplied by NSEvent.
+	// The old CoreGraphics APIs we previously relied on are now flagged as obsolete.
+	// NSEvent isn't obsolete, and provides us with the correct deltas.
+	float mouseDeltas[2] = {
+		[theEvent deltaX],
+		[theEvent deltaY]
+	};
+	
+	callDeltaUpdate(mouseDeltas, 0);
+	
+	NSPoint mPoint = [theEvent locationInWindow];
+	mMousePos[0] = mPoint.x;
+	mMousePos[1] = mPoint.y;
+	callMouseMoved(mMousePos, 0);
+}
+
+- (void) otherMouseDown:(NSEvent *)theEvent
+{
+	callMiddleMouseDown(mMousePos, 0);
+}
+
+- (void) otherMouseUp:(NSEvent *)theEvent
+{
+	callMiddleMouseUp(mMousePos, 0);
+}
+
+- (void) otherMouseDragged:(NSEvent *)theEvent
+{
+	
 }
 
 - (void) scrollWheel:(NSEvent *)theEvent
 {
-	if (mScrollWhellCallback != nil)
-	{
-		mScrollWhellCallback(-[theEvent deltaY]);
-	}
+	callScrollMoved(-[theEvent deltaY]);
 }
 
 - (void) mouseExited:(NSEvent *)theEvent
 {
-	if (mMouseExitCallback != nil)
-	{
-		mMouseExitCallback();
-	}
+	callMouseExit();
 }
 
-- (void) registerKeyDownCallback:(KeyCallback)callback
+- (BOOL) becomeFirstResponder
 {
-	mKeyDownCallback = callback;
+	NSLog(@"Window gained focus!");
+	callFocus();
+	return true;
 }
 
-- (void) registerKeyUpCallback:(KeyCallback)callback
+- (BOOL) resignFirstResponder
 {
-	mKeyUpCallback = callback;
-}
-
-- (void) registerUnicodeCallback:(UnicodeCallback)callback
-{
-	mUnicodeCallback = callback;
-}
-
-- (void) registerModifierCallback:(ModifierCallback)callback
-{
-	mModifierCallback = callback;
-}
-
-- (void) registerMouseDownCallback:(MouseCallback)callback
-{
-	mMouseDownCallback = callback;
-}
-
-- (void) registerMouseUpCallback:(MouseCallback)callback
-{
-	mMouseUpCallback = callback;
-}
-
-- (void) registerRightMouseDownCallback:(MouseCallback)callback
-{
-	mRightMouseDownCallback = callback;
-}
-
-- (void) registerRightMouseUpCallback:(MouseCallback)callback
-{
-	mRightMouseUpCallback = callback;
-}
-
-- (void) registerDoubleClickCallback:(MouseCallback)callback
-{
-	mMouseDoubleClickCallback = callback;
-}
-
-- (void) registerMouseMovedCallback:(MouseCallback)callback
-{
-	mMouseMovedCallback = callback;
-}
-
-- (void) registerScrollCallback:(ScrollWheelCallback)callback
-{
-	mScrollWhellCallback = callback;
-}
-
-- (void) registerMouseExitCallback:(VoidCallback)callback
-{
-	mMouseExitCallback = callback;
-}
-
-- (void) registerDeltaUpdateCallback:(MouseCallback)callback
-{
-	mDeltaUpdateCallback = callback;
+	NSLog(@"Window lost focus!");
+	callFocus();
+	return true;
 }
 
 @end

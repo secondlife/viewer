@@ -198,7 +198,7 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 	
 }
 
-// These functions are used as callbacks for event handling within Cocoa.
+// These functions are used as wrappers for our internal event handling callbacks.
 // It's a good idea to wrap these to avoid reworking more code than we need to within LLWindow.
 
 void callKeyUp(unsigned short key, unsigned int mask)
@@ -216,9 +216,14 @@ void callUnicodeCallback(wchar_t character, unsigned int mask)
 	gWindowImplementation->getCallbacks()->handleUnicodeChar(character, mask);
 }
 
-void callModifierCallback(unsigned int mask)
+void callFocus()
 {
-	
+	gWindowImplementation->getCallbacks()->handleFocus(gWindowImplementation);
+}
+
+void callFocusLost()
+{
+	gWindowImplementation->getCallbacks()->handleFocusLost(gWindowImplementation);
 }
 
 void callRightMouseDown(float *pos, MASK mask)
@@ -302,17 +307,41 @@ void callWindowUnfocus()
 
 void callDeltaUpdate(float *delta, MASK mask)
 {
-	gWindowImplementation->updateMouseDeltas();
+	gWindowImplementation->updateMouseDeltas(delta);
 }
 
-void LLWindowMacOSX::updateMouseDeltas()
+void callMiddleMouseDown(float *pos, MASK mask)
+{
+	LLCoordGL		outCoords;
+	outCoords.mX = llround(pos[0]);
+	outCoords.mY = llround(pos[1]);
+	float deltas[2];
+	gWindowImplementation->getMouseDeltas(deltas);
+	outCoords.mX += deltas[0];
+	outCoords.mY += deltas[1];
+	gWindowImplementation->getCallbacks()->handleMiddleMouseDown(gWindowImplementation, outCoords, mask);
+}
+
+void callMiddleMouseUp(float *pos, MASK mask)
+{
+	LLCoordGL outCoords;
+	outCoords.mX = llround(pos[0]);
+	outCoords.mY = llround(pos[1]);
+	float deltas[2];
+	gWindowImplementation->getMouseDeltas(deltas);
+	outCoords.mX += deltas[0];
+	outCoords.mY += deltas[1];
+	gWindowImplementation->getCallbacks()->handleMiddleMouseUp(gWindowImplementation, outCoords, mask);
+}
+
+void LLWindowMacOSX::updateMouseDeltas(float* deltas)
 {
 	if (mCursorDecoupled)
 	{
-		CGMouseDelta x, y;
-		CGGetLastMouseDelta( &x, &y );
-		mCursorLastEventDeltaX = x;
-		mCursorLastEventDeltaY = y;
+		mCursorLastEventDeltaX = llround(deltas[0]);
+		mCursorLastEventDeltaY = llround(-deltas[1]);
+		
+		
 		
 		if (mCursorIgnoreNextDelta)
 		{
@@ -320,6 +349,7 @@ void LLWindowMacOSX::updateMouseDeltas()
 			mCursorLastEventDeltaY = 0;
 			mCursorIgnoreNextDelta = FALSE;
 		}
+		LL_INFOS("Delta Update") << "Last event delta: " << mCursorLastEventDeltaX << ", " << mCursorLastEventDeltaY << LL_ENDL;
 	} else {
 		mCursorLastEventDeltaX = 0;
 		mCursorLastEventDeltaY = 0;
@@ -342,6 +372,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 	{
 		LL_INFOS("Window") << "Creating window..." << LL_ENDL;
 		mWindow = getMainAppWindow();
+		/*
 		LL_INFOS("Window") << "Registering key callbacks..." << LL_ENDL;
 		registerKeyDownCallback(mWindow, callKeyDown);
 		registerKeyUpCallback(mWindow, callKeyUp);
@@ -355,6 +386,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		registerScrollCallback(mWindow, callScrollMoved);
 		registerDeltaUpdateCallback(mWindow, callDeltaUpdate);
 		registerMouseExitCallback(mWindow, callMouseExit);
+		 */
 	}
 
 	if(mContext == NULL)
@@ -363,7 +395,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		// Our OpenGL view is already defined within SecondLife.xib.
 		// Get the view instead.
 		mGLView = createOpenGLView(mWindow);
-		registerResizeEventCallback(mGLView, callResize);
+		//registerResizeEventCallback(mGLView, callResize);
 		mContext = getCGLContextObj(mGLView);
 		// Since we just created the context, it needs to be set up.
 		glNeedsInit = TRUE;
@@ -439,9 +471,7 @@ void LLWindowMacOSX::destroyContext()
 	if(mContext != NULL)
 	{
 		LL_DEBUGS("Window") << "destroyContext: unhooking drawable " << LL_ENDL;
-
 		CGLSetCurrentContext(NULL);
-		mContext = NULL;
 	}
 
 	// Clean up remaining GL state before blowing away window
@@ -454,15 +484,24 @@ void LLWindowMacOSX::destroyContext()
 		mPixelFormat = NULL;
 	}
 
-	// Close the window
-	if(mWindow != NULL)
-	{
-	}
-
 	// Clean up the GL context
 	if(mContext != NULL)
 	{
 		CGLDestroyContext(mContext);
+	}
+	
+	// Destroy our LLOpenGLView
+	if(mGLView != NULL)
+	{
+		removeGLView(mGLView);
+		mGLView = NULL;
+	}
+	
+	// Close the window
+	if(mWindow != NULL)
+	{
+		closeWindow(mWindow);
+		mWindow = NULL;
 	}
 
 }
