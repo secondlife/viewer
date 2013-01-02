@@ -676,6 +676,11 @@ bool LLAppViewer::init()
 	// we run the "program crashed last time" error handler below.
 	//
 	LLFastTimer::reset();
+	
+	
+#ifdef LL_DARWIN
+	mMainLoopInitialized = false;
+#endif
 
 	// initialize SSE options
 	LLVector4a::initClass();
@@ -1196,7 +1201,9 @@ LLMemType mt1(LLMemType::MTYPE_MAIN);
 
 bool LLAppViewer::mainLoop()
 {
+#ifdef LL_DARWIN
 	if (!mMainLoopInitialized)
+#endif
 	{
 		mMainloopTimeout = new LLWatchdogTimeout();
 		
@@ -1218,13 +1225,16 @@ bool LLAppViewer::mainLoop()
 		joystick = LLViewerJoystick::getInstance();
 		joystick->setNeedsReset(true);
 		
-		
-		// As we do not (yet) send data on the mainloop LLEventPump that varies
-		// with each frame, no need to instantiate a new LLSD event object each
-		// time. Obviously, if that changes, just instantiate the LLSD at the
-		// point of posting.
+#ifdef LL_DARWIN
+		// Ensure that this section of code never gets called again on OS X.
 		mMainLoopInitialized = true;
+#endif
 	}
+	// As we do not (yet) send data on the mainloop LLEventPump that varies
+	// with each frame, no need to instantiate a new LLSD event object each
+	// time. Obviously, if that changes, just instantiate the LLSD at the
+	// point of posting.
+	
 	LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
 	
     LLSD newFrame;
