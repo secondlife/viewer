@@ -412,8 +412,8 @@ bool LLConversationLog::saveToFile(const std::string& filename)
 		// [1343221177] 0 1 0 John Doe| 7e4ec5be-783f-49f5-71dz-16c58c64c145 4ec62a74-c246-0d25-2af6-846beac2aa55 john.doe|
 		// [1343222639] 2 0 0 Ad-hoc Conference| c3g67c89-c479-4c97-b21d-32869bcfe8rc 68f1c33e-4135-3e3e-a897-8c9b23115c09 Ad-hoc Conference hash597394a0-9982-766d-27b8-c75560213b9a|
 
-		fprintf(fp, "[%ld] %d %d %d %s| %s %s %s|\n",
-				conv_it->getTime(),
+		fprintf(fp, "[%lld] %d %d %d %s| %s %s %s|\n",
+				(S64)conv_it->getTime(),
 				(S32)conv_it->getConversationType(),
 				(S32)0,
 				(S32)conv_it->hasOfflineMessages(),

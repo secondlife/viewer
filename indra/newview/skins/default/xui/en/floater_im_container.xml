@@ -113,11 +113,12 @@
                 </layout_panel>
             </layout_stack>
             <panel
+             bottom="-5"
              follows="all"
              layout="topleft"
              name="conversations_list_panel"
              opaque="true"
-             top_pad="0"
+             top="35"
              left="5"
              right="-1"/>
         </layout_panel>
@@ -127,7 +128,7 @@
          name="messages_layout_panel"
          expanded_min_dim="222">
             <panel_container
-             bottom="-1"
+             bottom="-5"
              follows="all"
              layout="topleft"
              left="0"

@@ -86,7 +86,7 @@ LLFloaterIMSession::LLFloaterIMSession(const LLUUID& session_id)
     mCommitCallbackRegistrar.add("Avatar.GearDoToSelected", boost::bind(&LLFloaterIMSession::GearDoToSelected, this, _2));
     mEnableCallbackRegistrar.add("Avatar.CheckGearItem", boost::bind(&LLFloaterIMSession::checkGearMenuItem, this, _2));
 
-	setDocked(true);
+    setDocked(true);
 }
 
 
@@ -754,7 +754,7 @@ void LLFloaterIMSession::sessionInitReplyReceived(const LLUUID& im_session_id)
 	}
 
 	initIMFloater();
-	
+	LLFloaterIMSessionTab::updateGearBtn();
 	//*TODO here we should remove "starting session..." warning message if we added it in postBuild() (IB)
 
 	//need to send delayed messages collected while waiting for session initialization

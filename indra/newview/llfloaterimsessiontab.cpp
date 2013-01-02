@@ -240,7 +240,24 @@ BOOL LLFloaterIMSessionTab::postBuild()
 		result = LLDockableFloater::postBuild();
 	}
 
-	// Now ready to build the conversation and participants list
+	// Create the root using an ad-hoc base item
+	LLConversationItem* base_item = new LLConversationItem(mSessionID, mConversationViewModel);
+    LLFolderView::Params p(LLUICtrlFactory::getDefaultParams<LLFolderView>());
+    p.rect = LLRect(0, 0, getRect().getWidth(), 0);
+    p.parent_panel = mParticipantListPanel;
+    p.listener = base_item;
+    p.view_model = &mConversationViewModel;
+    p.root = NULL;
+    p.use_ellipses = true;
+    p.options_menu = "menu_conversation.xml";
+	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
+    mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
+	// Attach that root to the scroller
+	mScroller->addChild(mConversationsRoot);
+	mConversationsRoot->setScrollContainer(mScroller);
+	mConversationsRoot->setFollowsAll();
+	mConversationsRoot->addChild(mConversationsRoot->mStatusTextBox);
+
 	buildConversationViewParticipant();
 	refreshConversation();
 
@@ -387,31 +404,6 @@ void LLFloaterIMSessionTab::buildConversationViewParticipant()
 		// Nothing to do if the model list is inexistent
 		return;
 	}
-	
-	// Create or recreate the root folder: this is a dummy folder (not shown) but required by the LLFolderView architecture 
-	// We need to redo this when rebuilding as the session id (mSessionID) *may* have changed
-	if (mConversationsRoot)
-	{
-		// Remove the old root if any
-		mScroller->removeChild(mConversationsRoot);
-	}
-	// Create the root using an ad-hoc base item
-	LLConversationItem* base_item = new LLConversationItem(mSessionID, mConversationViewModel);
-    LLFolderView::Params p(LLUICtrlFactory::getDefaultParams<LLFolderView>());
-    p.rect = LLRect(0, 0, getRect().getWidth(), 0);
-    p.parent_panel = mParticipantListPanel;
-    p.listener = base_item;
-    p.view_model = &mConversationViewModel;
-    p.root = NULL;
-    p.use_ellipses = true;
-    p.options_menu = "menu_conversation.xml";
-	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
-    mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
-	// Attach that root to the scroller
-	mScroller->addChild(mConversationsRoot);
-	mConversationsRoot->setScrollContainer(mScroller);
-	mConversationsRoot->setFollowsAll();
-	mConversationsRoot->addChild(mConversationsRoot->mStatusTextBox);
 	
 	// Create the participants widgets now
 	LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = item->getChildrenBegin();

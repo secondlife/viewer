@@ -1273,35 +1273,35 @@
              label="User’s guide"
              name="User’s guide">
              <menu_item_call.on_click
-                 function="Advanced.WebBrowserTest"
+                 function="Advanced.ShowURL"
                  parameter="http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-User-s-Guide/ta-p/1244857"/>
         </menu_item_call>
         <menu_item_call
              label="Knowledge Base"
              name="Knowledge Base">
              <menu_item_call.on_click
-                 function="Advanced.WebBrowserTest"
+                 function="Advanced.ShowURL"
                  parameter="http://community.secondlife.com/t5/tkb/communitypage"/>
         </menu_item_call>
         <menu_item_call
              label="Wiki"
              name="Wiki">
              <menu_item_call.on_click
-                 function="Advanced.WebBrowserTest"
+                 function="Advanced.ShowURL"
                  parameter="http://wiki.secondlife.com"/>
         </menu_item_call>
         <menu_item_call
              label="Community Forums"
              name="Community Forums">
              <menu_item_call.on_click
-                 function="Advanced.WebBrowserTest"
+                 function="Advanced.ShowURL"
                  parameter="http://community.secondlife.com/t5/Forums/ct-p/Forums"/>
         </menu_item_call>         
         <menu_item_call
              label="Support portal"
              name="Support portal">
              <menu_item_call.on_click
-                 function="Advanced.WebBrowserTest"
+                 function="Advanced.ShowURL"
                  parameter="https://support.secondlife.com/"/>         
         </menu_item_call>
         <menu_item_separator/>
@@ -1309,14 +1309,14 @@
              label="[SECOND_LIFE] News"
              name="Second Life News">
              <menu_item_call.on_click
-                 function="Advanced.WebBrowserTest"
+                 function="Advanced.ShowURL"
                  parameter="http://community.secondlife.com/t5/Featured-News/bg-p/blog_feature_news"/>  
         </menu_item_call>
         <menu_item_call
              label="[SECOND_LIFE] Blogs"
              name="Second Life Blogs">
              <menu_item_call.on_click
-                 function="Advanced.WebBrowserTest"
+                 function="Advanced.ShowURL"
                  parameter="http://community.secondlife.com/t5/Blogs/ct-p/Blogs"/>
         </menu_item_call>
         <menu_item_separator/>

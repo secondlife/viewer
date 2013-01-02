@@ -17,12 +17,10 @@
      Conversations are not being logged. To log conversations in the future, select "Save IM logs on my computer" under Preferences > Privacy.
   </string>
   <panel
-   bottom="0"
    follows="left|top|right"
    height="32"
    left="0"
    name="buttons_panel"
-   right="0"
    top="0">
     <filter_editor
      follows="left|top|right"
