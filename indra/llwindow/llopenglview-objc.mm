@@ -30,6 +30,11 @@
 	[super dealloc];
 }
 
+- (id) init
+{
+	return [self initWithFrame:[self bounds] withSamples:2 andVsync:TRUE];
+}
+
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync
 {
 	
@@ -205,7 +210,14 @@
 	NSString *chars = [theEvent characters];
 	for (uint i = 0; i < [chars length]; i++)
 	{
-		callUnicodeCallback([chars characterAtIndex:i], [theEvent modifierFlags]);
+		// Enter and Return are special cases.
+		unichar returntest = [chars characterAtIndex:i];
+		if ((returntest == NSCarriageReturnCharacter || returntest == NSEnterCharacter) && !([theEvent modifierFlags] & NSCommandKeyMask) && !([theEvent modifierFlags] & NSAlternateKeyMask) && !([theEvent modifierFlags] & NSControlKeyMask))
+		{
+			callUnicodeCallback(returntest, 0);
+		} else {
+			callUnicodeCallback([chars characterAtIndex:i], [theEvent modifierFlags]);
+		}
 	}
 }
 

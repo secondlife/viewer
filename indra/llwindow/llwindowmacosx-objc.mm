@@ -291,7 +291,7 @@ NSWindowRef getMainAppWindow()
 	return winRef;
 }
 
-GLViewRef getGLView(NSWindowRef window)
+GLViewRef getGLView()
 {
 	return glviewRef;
 }

@@ -93,6 +93,6 @@ void callFocus();
 void callFocusLost();
 
 NSWindowRef getMainAppWindow();
-GLViewRef getGLView(NSWindowRef window);
+GLViewRef getGLView();
 
 unsigned int getModifiers();

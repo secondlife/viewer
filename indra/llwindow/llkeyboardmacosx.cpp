@@ -206,7 +206,7 @@ MASK LLKeyboardMacOSX::updateModifiers(const U32 mask)
 		out_mask |= MASK_SHIFT;
 	}
 
-	if(mask & (MAC_CTRL_KEY | MAC_CMD_KEY))
+	if(mask & MAC_CTRL_KEY || mask & MAC_CMD_KEY)
 	{
 		out_mask |= MASK_CONTROL;
 	}

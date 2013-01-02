@@ -11,7 +11,6 @@
 @implementation LLAppDelegate
 
 @synthesize window;
-@synthesize glview;
 
 - (void)dealloc
 {
@@ -23,7 +22,7 @@
 	frameTimer = nil;
 	
 	setLLNSWindowRef([self window]);
-	//setLLOpenGLViewRef([self glview]);
+	
 	if (initViewer())
 	{
 		frameTimer = [NSTimer scheduledTimerWithTimeInterval:0.0 target:self selector:@selector(mainLoop) userInfo:nil repeats:YES];

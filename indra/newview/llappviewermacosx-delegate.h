@@ -12,12 +12,10 @@
 
 @interface LLAppDelegate : NSObject <NSApplicationDelegate> {
 	LLNSWindow *window;
-	LLOpenGLView *glview;
 	NSTimer *frameTimer;
 }
 
 @property (assign) IBOutlet LLNSWindow *window;
-@property (assign) IBOutlet LLOpenGLView *glview;
 
 - (void) mainLoop;
 

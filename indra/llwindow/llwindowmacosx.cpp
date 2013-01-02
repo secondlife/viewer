@@ -270,7 +270,10 @@ void callDoubleClick(float *pos, MASK mask)
 
 void callResize(unsigned int width, unsigned int height)
 {
-	gWindowImplementation->getCallbacks()->handleResize(gWindowImplementation, width, height);
+	if (gWindowImplementation != NULL)
+	{
+		gWindowImplementation->getCallbacks()->handleResize(gWindowImplementation, width, height);
+	}
 }
 
 void callMouseMoved(float *pos, MASK mask)
