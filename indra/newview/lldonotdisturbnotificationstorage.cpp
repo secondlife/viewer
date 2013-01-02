@@ -29,11 +29,6 @@
 
 #include "lldonotdisturbnotificationstorage.h"
 
-#define XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT 0
-
-#if XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT
-#include "llchannelmanager.h"
-#endif // XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT
 #include "llcommunicationchannel.h"
 #include "lldir.h"
 #include "llerror.h"
@@ -41,9 +36,6 @@
 #include "llnotifications.h"
 #include "llnotificationhandler.h"
 #include "llnotificationstorage.h"
-#if XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT
-#include "llscreenchannel.h"
-#endif // XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT
 #include "llscriptfloater.h"
 #include "llsd.h"
 #include "llsingleton.h"
@@ -109,12 +101,6 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 	{
 		return;
 	}
-
-#if XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT
-	LLNotificationsUI::LLScreenChannel* notification_channel =
-		dynamic_cast<LLNotificationsUI::LLScreenChannel*>(LLNotificationsUI::LLChannelManager::getInstance()->
-		findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
-#endif // XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT
 	
 	LLNotifications& instance = LLNotifications::instance();
 	
@@ -146,17 +132,6 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 			
 			instance.add(notification);
 		}
-
-#if XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT
-		// hide script floaters so they don't confuse the user and don't overlap startup toast
-		LLScriptFloaterManager::getInstance()->setFloaterVisible(notification->getID(), false);
-		
-		if(notification_channel)
-		{
-			// hide saved toasts so they don't confuse the user
-			notification_channel->hideToast(notification->getID());
-		}
-#endif // XXX_STINSON_HIDE_NOTIFICATIONS_ON_DND_EXIT
 	}
 
 	// Clear the communication channel history and rewrite the save file to empty it as well
