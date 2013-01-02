@@ -48,7 +48,7 @@
 namespace tut
 {
 	LLSD storage;
-	
+
 	class LLSDStorageNode : public LLHTTPNode
 	{
 	public:
@@ -82,8 +82,13 @@ namespace tut
 	{
 	public:
 		HTTPClientTestData():
-			local_server(STRINGIZE("http://127.0.0.1:" << getenv("PORT") << "/"))
+			PORT(getenv("PORT")),
+			// Turning NULL PORT into empty string doesn't make things work;
+			// that's just to keep this initializer from blowing up. We test
+			// PORT separately in the constructor body.
+			local_server(STRINGIZE("http://127.0.0.1:" << (PORT? PORT : "") << "/"))
 		{
+			ensure("Set environment variable PORT to local test server port", PORT);
 			apr_pool_create(&mPool, NULL);
 			LLCurl::initClass(false);
 			mServerPump = new LLPumpIO(mPool);
@@ -91,7 +96,7 @@ namespace tut
 
 			LLHTTPClient::setPump(*mClientPump);
 		}
-		
+
 		~HTTPClientTestData()
 		{
 			delete mServerPump;
@@ -107,7 +112,7 @@ namespace tut
 			LLHTTPStandardServices::useServices();
 			LLHTTPRegistrar::buildAllServices(root);
 		}
-		
+
 		void runThePump(float timeout = 100.0f)
 		{
 			LLTimer timer;
@@ -134,6 +139,7 @@ namespace tut
 			mServerPump = NULL;
 		}
 
+		const char* const PORT;
 		const std::string local_server;
 
 	private:
@@ -148,11 +154,11 @@ namespace tut
 			{
 				std::string msg =
 					llformat("error() called when not expected, status %d",
-						mStatus); 
+						mStatus);
 				fail(msg);
 			}
 		}
-	
+
 		void ensureStatusError()
 		{
 			if (!mSawError)
@@ -160,7 +166,7 @@ namespace tut
 				fail("error() wasn't called");
 			}
 		}
-		
+
 		LLSD getResult()
 		{
 			return mResult;
@@ -169,7 +175,7 @@ namespace tut
 		{
 			return mHeader;
 		}
-	
+
 	protected:
 		bool mSawError;
 		U32 mStatus;
@@ -187,18 +193,18 @@ namespace tut
 				: mClient(client)
 			{
 			}
-		
+
 		public:
 			static Result* build(HTTPClientTestData& client)
 			{
 				return new Result(client);
 			}
-			
+
 			~Result()
 			{
 				mClient.mResultDeleted = true;
 			}
-			
+
 			virtual void error(U32 status, const std::string& reason)
 			{
 				mClient.mSawError = true;
@@ -216,7 +222,7 @@ namespace tut
 							const LLSD& content)
 			{
 				LLHTTPClient::Responder::completed(status, reason, content);
-				
+
 				mClient.mSawCompleted = true;
 			}
 
@@ -244,12 +250,12 @@ namespace tut
 			mResult.clear();
 			mHeader.clear();
 			mResultDeleted = false;
-			
+
 			return Result::build(*this);
 		}
 	};
-	
-	
+
+
 	typedef test_group<HTTPClientTestData>	HTTPClientTestGroup;
 	typedef HTTPClientTestGroup::object		HTTPClientTestObject;
 	HTTPClientTestGroup httpClientTestGroup("http_client");
