@@ -51,7 +51,6 @@
 	if (appExiting)
 	{
 		[frameTimer release];
-		cleanupViewer();
 		[[NSApplication sharedApplication] terminate:self];
 	}
 }

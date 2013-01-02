@@ -283,6 +283,7 @@ void callMouseMoved(float *pos, MASK mask)
 	outCoords.mX += deltas[0];
 	outCoords.mY += deltas[1];
 	gWindowImplementation->getCallbacks()->handleMouseMove(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
+	
 }
 
 void callScrollMoved(float delta)
@@ -339,9 +340,7 @@ void LLWindowMacOSX::updateMouseDeltas(float* deltas)
 	if (mCursorDecoupled)
 	{
 		mCursorLastEventDeltaX = llround(deltas[0]);
-		mCursorLastEventDeltaY = llround(-deltas[1]);
-		
-		
+		mCursorLastEventDeltaY = llround(deltas[1]);
 		
 		if (mCursorIgnoreNextDelta)
 		{
@@ -372,21 +371,6 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 	{
 		LL_INFOS("Window") << "Creating window..." << LL_ENDL;
 		mWindow = getMainAppWindow();
-		/*
-		LL_INFOS("Window") << "Registering key callbacks..." << LL_ENDL;
-		registerKeyDownCallback(mWindow, callKeyDown);
-		registerKeyUpCallback(mWindow, callKeyUp);
-		registerUnicodeCallback(mWindow, callUnicodeCallback);
-		registerMouseDownCallback(mWindow, callLeftMouseDown);
-		registerMouseUpCallback(mWindow, callLeftMouseUp);
-		registerRightMouseDownCallback(mWindow, callRightMouseDown);
-		registerRightMouseUpCallback(mWindow, callRightMouseUp);
-		registerDoubleClickCallback(mWindow, callDoubleClick);
-		registerMouseMovedCallback(mWindow, callMouseMoved);
-		registerScrollCallback(mWindow, callScrollMoved);
-		registerDeltaUpdateCallback(mWindow, callDeltaUpdate);
-		registerMouseExitCallback(mWindow, callMouseExit);
-		 */
 	}
 
 	if(mContext == NULL)
@@ -395,7 +379,6 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		// Our OpenGL view is already defined within SecondLife.xib.
 		// Get the view instead.
 		mGLView = createOpenGLView(mWindow);
-		//registerResizeEventCallback(mGLView, callResize);
 		mContext = getCGLContextObj(mGLView);
 		// Since we just created the context, it needs to be set up.
 		glNeedsInit = TRUE;
