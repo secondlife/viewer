@@ -34,9 +34,12 @@
 #include "llerror.h"
 #include "llfasttimer_class.h"
 #include "llnotifications.h"
+#include "llnotificationhandler.h"
 #include "llnotificationstorage.h"
+#include "llscriptfloater.h"
 #include "llsd.h"
 #include "llsingleton.h"
+#include "lluuid.h"
 
 LLDoNotDisturbNotificationStorage::LLDoNotDisturbNotificationStorage()
 	: LLSingleton<LLDoNotDisturbNotificationStorage>()
@@ -85,6 +88,59 @@ static LLFastTimer::DeclareTimer FTM_LOAD_DND_NOTIFICATIONS("Load DND Notificati
 
 void LLDoNotDisturbNotificationStorage::loadNotifications()
 {
+	LLFastTimer _(FTM_LOAD_DND_NOTIFICATIONS);
+	
+	LLSD input;
+	if (!readNotifications(input) ||input.isUndefined())
+	{
+		return;
+	}
+	
+	LLSD& data = input["data"];
+	if (data.isUndefined())
+	{
+		return;
+	}
+	
+	LLNotifications& instance = LLNotifications::instance();
+	
+	for (LLSD::array_const_iterator notification_it = data.beginArray();
+		 notification_it != data.endArray();
+		 ++notification_it)
+	{
+		LLSD notification_params = *notification_it;
+		LLNotificationPtr notification(new LLNotification(notification_params));
+		
+		const LLUUID& notificationID = notification->id();
+		if (instance.find(notificationID))
+		{
+			instance.update(notification);
+		}
+		else
+		{
+			LLNotificationResponderInterface* responder = createResponder(notification_params["name"], notification_params["responder"]);
+			if (responder == NULL)
+			{
+				LL_WARNS("LLDoNotDisturbNotificationStorage") << "cannot create responder for notification of type '"
+					<< notification->getType() << "'" << LL_ENDL;
+			}
+			else
+			{
+				LLNotificationResponderPtr responderPtr(responder);
+				notification->setResponseFunctor(responderPtr);
+			}
+			
+			instance.add(notification);
+		}
+	}
+
+	// Clear the communication channel history and rewrite the save file to empty it as well
+	LLNotificationChannelPtr channelPtr = getCommunicationChannel();
+	LLCommunicationChannel *commChannel = dynamic_cast<LLCommunicationChannel*>(channelPtr.get());
+	llassert(commChannel != NULL);
+	commChannel->clearHistory();
+	
+	saveNotifications();
 }
 
 LLNotificationChannelPtr LLDoNotDisturbNotificationStorage::getCommunicationChannel() const

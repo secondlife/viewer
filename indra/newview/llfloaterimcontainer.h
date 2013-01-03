@@ -106,6 +106,8 @@ public:
     bool enableContextMenuItem(const std::string& item, uuid_vec_t& selectedIDS);
     void doToParticipants(const std::string& item, uuid_vec_t& selectedIDS);
 
+	void assignResizeLimits();
+
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
 	avatarID_panel_map_t mSessions;
@@ -154,7 +156,6 @@ private:
 	void toggleAllowTextChat(const LLUUID& participant_uuid);
 	void toggleMute(const LLUUID& participant_id, U32 flags);
 	void openNearbyChat();
-	void assignResizeLimits();
 
 	LLButton* mExpandCollapseBtn;
 	LLButton* mStubCollapseBtn;

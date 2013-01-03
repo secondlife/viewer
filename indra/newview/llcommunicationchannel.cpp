@@ -39,6 +39,7 @@
 
 LLCommunicationChannel::LLCommunicationChannel(const std::string& pName, const std::string& pParentName)
 	: LLNotificationChannel(pName, pParentName, filterByDoNotDisturbStatus)
+	, mHistory()
 {
 }
 
@@ -59,6 +60,11 @@ LLCommunicationChannel::history_list_t::const_iterator LLCommunicationChannel::b
 LLCommunicationChannel::history_list_t::const_iterator LLCommunicationChannel::endHistory() const
 {
 	return mHistory.end();
+}
+
+void LLCommunicationChannel::clearHistory()
+{
+	mHistory.clear();
 }
 
 void LLCommunicationChannel::onFilterFail(LLNotificationPtr pNotificationPtr)
