@@ -1101,6 +1101,11 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 	uuid_vec_t uuids;
 	getParticipantUUIDs(uuids);
 
+	if ("conversation_log" == item)
+	{
+		return gSavedSettings.getBOOL("KeepConversationLogTranscripts");
+	}
+
 	//Enable Chat history item for ad-hoc and group conversations
 	if ("can_chat_history" == item)
 	{
@@ -1127,11 +1132,6 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 
 bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_vec_t& uuids)
 {
-	if ("conversation_log" == item)
-	{
-		return gSavedSettings.getBOOL("KeepConversationLogTranscripts");
-	}
-
 	// Extract the single select info
 	bool is_single_select = (uuids.size() == 1);
 	const LLUUID& single_id = uuids.front();
