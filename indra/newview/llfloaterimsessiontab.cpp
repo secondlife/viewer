@@ -84,7 +84,7 @@ LLFloaterIMSessionTab::~LLFloaterIMSessionTab()
 	delete mRefreshTimer;
 
 	// Select Nearby Chat session
-	LLFloaterIMContainer* container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+	LLFloaterIMContainer* container = LLFloaterReg::findTypedInstance<LLFloaterIMContainer>("im_container");
 	if (container)
 	{
 		container->selectConversationPair(LLUUID(NULL), true);
@@ -329,7 +329,7 @@ void LLFloaterIMSessionTab::onFocusReceived()
 
 	LLTransientDockableFloater::onFocusReceived();
 
-	LLFloaterIMContainer* container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+	LLFloaterIMContainer* container = LLFloaterReg::findTypedInstance<LLFloaterIMContainer>("im_container");
 	if (container)
 	{
 		container->selectConversationPair(mSessionID, true);
