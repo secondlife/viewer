@@ -233,7 +233,8 @@ const LLMaterialPtr LLMaterialMgr::setMaterial(const LLUUID& region_id, const LL
 	material_map_t::const_iterator itMaterial = mMaterials.find(material_id);
 	if (mMaterials.end() == itMaterial)
 	{
-		std::pair<material_map_t::const_iterator, bool> ret = mMaterials.insert(std::pair<LLMaterialID, LLMaterialPtr>(material_id, new LLMaterial(material_data)));
+		LLMaterialPtr newMaterial(new LLMaterial(material_data));
+		std::pair<material_map_t::const_iterator, bool> ret = mMaterials.insert(std::pair<LLMaterialID, LLMaterialPtr>(material_id, newMaterial));
 		itMaterial = ret.first;
 	}
 
@@ -615,12 +616,16 @@ void LLMaterialMgr::onRegionRemoved(LLViewerRegion* regionp)
 
 	// Get
 	mGetQueue.erase(region_id);
-	for (get_pending_map_t::const_iterator itPending = mGetPending.begin(); itPending != mGetPending.end();)
+	for (get_pending_map_t::iterator itPending = mGetPending.begin(); itPending != mGetPending.end();)
 	{
 		if (region_id == itPending->first.first)
+		{
 			mGetPending.erase(itPending++);
+		}
 		else
+		{
 			++itPending;
+		}
 	}
 
 	// Get all

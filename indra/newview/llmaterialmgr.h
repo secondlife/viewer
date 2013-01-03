@@ -35,7 +35,7 @@ class LLViewerRegion;
 
 class LLMaterialMgr : public LLSingleton<LLMaterialMgr>
 {
-	friend LLSingleton<LLMaterialMgr>;
+	friend class LLSingleton<LLMaterialMgr>;
 protected:
 	LLMaterialMgr();
 	virtual ~LLMaterialMgr();
@@ -69,8 +69,8 @@ protected:
 	typedef std::set<LLMaterialID> material_queue_t;
 	typedef std::map<LLUUID, material_queue_t> get_queue_t;
 	get_queue_t        mGetQueue;
-	typedef std::pair<LLUUID, LLMaterialID> pending_material_t;
-	typedef std::map<pending_material_t, F64> get_pending_map_t;
+	typedef std::pair<const LLUUID, LLMaterialID> pending_material_t;
+	typedef std::map<const pending_material_t, F64> get_pending_map_t;
 	get_pending_map_t  mGetPending;
 	typedef std::map<LLMaterialID, get_callback_t*> get_callback_map_t;
 	get_callback_map_t mGetCallbacks;
