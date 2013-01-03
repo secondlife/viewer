@@ -60,11 +60,22 @@ MasterThreadRecorder& getMasterThreadRecorder()
 	return *gMasterThreadRecorder;
 }
 
-LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder()
+LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder_ptr()
 {
 	static LLThreadLocalPointer<ThreadRecorder> s_thread_recorder;
 	return s_thread_recorder;
 }
+
+const LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder()
+{
+	return get_thread_recorder_ptr();
+}
+
+void set_thread_recorder(ThreadRecorder* recorder)
+{
+	get_thread_recorder_ptr() = recorder;
+}
+
 
 TimeBlockTreeNode::TimeBlockTreeNode() 
 :	mBlock(NULL),

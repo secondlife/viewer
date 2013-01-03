@@ -90,7 +90,7 @@ template <typename DERIVED_TYPE>
 class LLSingleton : private boost::noncopyable
 {
 	
-private:
+protected:
 	typedef enum e_init_state
 	{
 		UNINITIALIZED,
@@ -124,7 +124,7 @@ private:
 public:
 	virtual ~LLSingleton()
 	{
-		SingletonInstanceData& data = getData();
+		SingletonInstanceData& data = getSingletonData();
 		data.mSingletonInstance = NULL;
 		data.mInitState = DELETED;
 	}
@@ -151,29 +151,15 @@ public:
 	 */
 	static void deleteSingleton()
 	{
-		delete getData().mSingletonInstance;
-		getData().mSingletonInstance = NULL;
-		getData().mInitState = DELETED;
-	}
-
-	static SingletonInstanceData& getData()
-	{
-		// this is static to cache the lookup results
-		static void * & registry = LLSingletonRegistry::get<DERIVED_TYPE>();
-
-		// *TODO - look into making this threadsafe
-		if(NULL == registry)
-		{
-			static SingletonInstanceData data;
-			registry = &data;
-		}
-
-		return *static_cast<SingletonInstanceData *>(registry);
+		SingletonInstanceData& data = getSingletonData();
+		delete data.mSingletonInstance;
+		data.mSingletonInstance = NULL;
+		data.mInitState = DELETED;
 	}
 
 	static DERIVED_TYPE* getInstance()
 	{
-		SingletonInstanceData& data = getData();
+		SingletonInstanceData& data = getSingletonData();
 
 		if (data.mInitState == CONSTRUCTING)
 		{
@@ -197,6 +183,12 @@ public:
 		return data.mSingletonInstance;
 	}
 
+	static DERIVED_TYPE* getIfExists()
+	{
+		SingletonInstanceData& data = getSingletonData();
+		return data.mSingletonInstance;
+	}
+
 	// Reference version of getInstance()
 	// Preferred over getInstance() as it disallows checking for NULL
 	static DERIVED_TYPE& instance()
@@ -208,17 +200,31 @@ public:
 	// Use this to avoid accessing singletons before the can safely be constructed
 	static bool instanceExists()
 	{
-		return getData().mInitState == INITIALIZED;
+		return getSingletonData().mInitState == INITIALIZED;
 	}
 	
 	// Has this singleton already been deleted?
 	// Use this to avoid accessing singletons from a static object's destructor
 	static bool destroyed()
 	{
-		return getData().mInitState == DELETED;
+		return getSingletonData().mInitState == DELETED;
 	}
 
 private:
+	static SingletonInstanceData& getSingletonData()
+	{
+		// this is static to cache the lookup results
+		static void * & registry = LLSingletonRegistry::get<DERIVED_TYPE>();
+
+		// *TODO - look into making this threadsafe
+		if(NULL == registry)
+		{
+			static SingletonInstanceData data;
+			registry = &data;
+		}
+
+		return *static_cast<SingletonInstanceData *>(registry);
+	}
 	virtual void initSingleton() {}
 };
 

@@ -70,8 +70,6 @@ U64         TimeBlock::sClockResolution = 1000000000; // Nanosecond resolution
 U64         TimeBlock::sClockResolution = 1000000; // Microsecond resolution
 #endif
 
-LLThreadLocalPointer<CurTimerData> TimeBlock::sCurTimerData;
-
 static LLMutex*			sLogLock = NULL;
 static std::queue<LLSD> sLogQueue;
 
@@ -118,7 +116,7 @@ struct SortTimerByName
 	}
 };
 
-TimeBlock& TimeBlock::getRootTimer()
+TimeBlock& TimeBlock::getRootTimeBlock()
 {
 	static TimeBlock root_timer("root", true, NULL);
 	return root_timer;
@@ -185,7 +183,7 @@ void TimeBlock::processTimes()
 {
 	get_clock_count(); // good place to calculate clock frequency
 	U64 cur_time = getCPUClockCount64();
-	CurTimerData* cur_data = sCurTimerData.get();
+	BlockTimerStackRecord* stack_record = ThreadTimerStack::getInstance();
 
 	// set up initial tree
 	for (LLInstanceTracker<TimeBlock>::instance_iter it = LLInstanceTracker<TimeBlock>::beginInstances(), end_it = LLInstanceTracker<TimeBlock>::endInstances(); 
@@ -193,11 +191,11 @@ void TimeBlock::processTimes()
 		++it)
 	{
 		TimeBlock& timer = *it;
-		if (&timer == &TimeBlock::getRootTimer()) continue;
+		if (&timer == &TimeBlock::getRootTimeBlock()) continue;
 
 		// bootstrap tree construction by attaching to last timer to be on stack
 		// when this timer was called
-		if (timer.getParent() == &TimeBlock::getRootTimer())
+		if (timer.getParent() == &TimeBlock::getRootTimeBlock())
 		{
 			TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
 
@@ -214,20 +212,21 @@ void TimeBlock::processTimes()
 	// bump timers up tree if they have been flagged as being in the wrong place
 	// do this in a bottom up order to promote descendants first before promoting ancestors
 	// this preserves partial order derived from current frame's observations
-	for(timer_tree_bottom_up_iterator_t it = begin_timer_tree_bottom_up(TimeBlock::getRootTimer());
+	for(timer_tree_bottom_up_iterator_t it = begin_timer_tree_bottom_up(TimeBlock::getRootTimeBlock());
 		it != end_timer_tree_bottom_up();
 		++it)
 	{
 		TimeBlock* timerp = *it;
 
 		// sort timers by time last called, so call graph makes sense
-		if (timerp->getTreeNode().mNeedsSorting)
+		TimeBlockTreeNode& tree_node = timerp->getTreeNode();
+		if (tree_node.mNeedsSorting)
 		{
-			std::sort(timerp->beginChildren(), timerp->endChildren(), SortTimerByName());
+			std::sort(tree_node.mChildren.begin(), tree_node.mChildren.end(), SortTimerByName());
 		}
 
 		// skip root timer
-		if (timerp != &TimeBlock::getRootTimer())
+		if (timerp != &TimeBlock::getRootTimeBlock())
 		{
 			TimeBlockAccumulator* accumulator = timerp->getPrimaryAccumulator();
 
@@ -250,27 +249,27 @@ void TimeBlock::processTimes()
 	}
 
 	// walk up stack of active timers and accumulate current time while leaving timing structures active
-	BlockTimer* cur_timer = cur_data->mCurTimer;
-	TimeBlockAccumulator* accumulator = cur_data->mTimerData->getPrimaryAccumulator();
+	BlockTimer* cur_timer = stack_record->mActiveTimer;
+	TimeBlockAccumulator* accumulator = stack_record->mTimeBlock->getPrimaryAccumulator();
 	// root defined by parent pointing to self
-	while(cur_timer && cur_timer->mLastTimerData.mCurTimer != cur_timer)
+	while(cur_timer && cur_timer->mLastTimerData.mActiveTimer != cur_timer)
 	{
 		U64 cumulative_time_delta = cur_time - cur_timer->mStartTime;
-		U64 self_time_delta = cumulative_time_delta - cur_data->mChildTime;
-		cur_data->mChildTime = 0;
+		U64 self_time_delta = cumulative_time_delta - stack_record->mChildTime;
+		stack_record->mChildTime = 0;
 		accumulator->mSelfTimeCounter += self_time_delta;
 		accumulator->mTotalTimeCounter += cumulative_time_delta;
 
 		cur_timer->mStartTime = cur_time;
 
-		cur_data = &cur_timer->mLastTimerData;
-		cur_data->mChildTime += cumulative_time_delta;
-		if (cur_data->mTimerData)
+		stack_record = &cur_timer->mLastTimerData;
+		stack_record->mChildTime += cumulative_time_delta;
+		if (stack_record->mTimeBlock)
 		{
-			accumulator = cur_data->mTimerData->getPrimaryAccumulator();
+			accumulator = stack_record->mTimeBlock->getPrimaryAccumulator();
 		}
 
-		cur_timer = cur_timer->mLastTimerData.mCurTimer;
+		cur_timer = cur_timer->mLastTimerData.mActiveTimer;
 	}
 
 
@@ -374,7 +373,7 @@ void TimeBlock::dumpCurTimes()
 	LLTrace::Recording& last_frame_recording = frame_recording.getLastRecordingPeriod();
 
 	// walk over timers in depth order and output timings
-	for(timer_tree_dfs_iterator_t it = begin_timer_tree(TimeBlock::getRootTimer());
+	for(timer_tree_dfs_iterator_t it = begin_timer_tree(TimeBlock::getRootTimeBlock());
 		it != end_timer_tree();
 		++it)
 	{

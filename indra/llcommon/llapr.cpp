@@ -29,7 +29,7 @@
 #include "linden_common.h"
 #include "llapr.h"
 #include "apr_dso.h"
-#include "llthreadlocalpointer.h"
+#include "llthreadlocalstorage.h"
 
 apr_pool_t *gAPRPoolp = NULL; // Global APR memory pool
 LLVolatileAPRPool *LLAPRFile::sAPRFilePoolp = NULL ; //global volatile APR memory pool.

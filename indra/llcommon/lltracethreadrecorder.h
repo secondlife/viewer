@@ -62,13 +62,12 @@ namespace LLTrace
 
 			void moveBaselineToTarget();
 		};
-		Recording					mFullRecording;
+		Recording					mThreadRecording;
 		std::list<ActiveRecording>	mActiveRecordings;
 
-		struct CurTimerData*	mRootTimerData;
-		class BlockTimer*		mRootTimer;
-		TimeBlockTreeNode*		mTimeBlockTreeNodes;
-		size_t					mNumTimeBlockTreeNodes;
+		class BlockTimer*				mRootTimer;
+		TimeBlockTreeNode*				mTimeBlockTreeNodes;
+		size_t							mNumTimeBlockTreeNodes;
 	};
 
 	class LL_COMMON_API MasterThreadRecorder : public ThreadRecorder

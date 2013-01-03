@@ -242,6 +242,7 @@ set(llcommon_HEADER_FILES
     llstringtable.h
     llsys.h
     llthread.h
+    llthreadlocalstorage.h
     llthreadsafequeue.h
     lltimer.h
     lltrace.h

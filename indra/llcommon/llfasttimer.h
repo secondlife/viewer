@@ -38,11 +38,27 @@ class LLMutex;
 namespace LLTrace
 {
 
-struct CurTimerData
+struct BlockTimerStackRecord
 {
-	class BlockTimer*	mCurTimer;
-	class TimeBlock*	mTimerData;
+	class BlockTimer*	mActiveTimer;
+	class TimeBlock*	mTimeBlock;
 	U64					mChildTime;
+};
+
+class ThreadTimerStack 
+:	public BlockTimerStackRecord, 
+	public LLThreadLocalSingleton<ThreadTimerStack>
+{
+	friend LLThreadLocalSingleton<ThreadTimerStack>;
+	ThreadTimerStack() 
+	{}
+
+public:
+	ThreadTimerStack& operator=(const BlockTimerStackRecord& other)
+	{
+		BlockTimerStackRecord::operator=(other);
+		return *this;
+	}
 };
 
 class BlockTimer
@@ -58,7 +74,7 @@ public:
 private:
 
 	U64				mStartTime;
-	CurTimerData	mLastTimerData;
+	BlockTimerStackRecord	mLastTimerData;
 };
 
 // stores a "named" timer instance to be reused via multiple BlockTimer stack instances
@@ -67,7 +83,7 @@ class TimeBlock
 	public LLInstanceTracker<TimeBlock>
 {
 public:
-	TimeBlock(const char* name, bool open = false, TimeBlock* parent = &getRootTimer());
+	TimeBlock(const char* name, bool open = false, TimeBlock* parent = &getRootTimeBlock());
 
 	TimeBlockTreeNode& getTreeNode() const;
 	TimeBlock* getParent() const { return getTreeNode().getParent(); }
@@ -92,7 +108,7 @@ public:
 		return static_cast<TraceType<TimeBlockAccumulator::SelfTimeAspect>&>(*(TraceType<TimeBlockAccumulator>*)this);
 	}
 
-	static TimeBlock& getRootTimer();
+	static TimeBlock& getRootTimeBlock();
 	static void pushLog(LLSD sd);
 	static void setLogLock(LLMutex* mutex);
 	static void writeLog(std::ostream& os);
@@ -252,7 +268,6 @@ public:
 	static std::string							sLogName;
 	static bool									sMetricLog,
 												sLog;	
-	static LLThreadLocalPointer<CurTimerData>	sCurTimerData;
 	static U64									sClockResolution;
 };
 
@@ -261,8 +276,8 @@ LL_FORCE_INLINE BlockTimer::BlockTimer(TimeBlock& timer)
 #if FAST_TIMER_ON
 	mStartTime = TimeBlock::getCPUClockCount64();
 
-	CurTimerData* cur_timer_data = TimeBlock::sCurTimerData.get();
-	TimeBlockAccumulator* accumulator = cur_timer_data->mTimerData->getPrimaryAccumulator();
+	BlockTimerStackRecord* cur_timer_data = ThreadTimerStack::getIfExists();
+	TimeBlockAccumulator* accumulator = cur_timer_data->mTimeBlock->getPrimaryAccumulator();
 	accumulator->mActiveCount++;
 	// keep current parent as long as it is active when we are
 	accumulator->mMoveUpTree |= (accumulator->mParent->getPrimaryAccumulator()->mActiveCount == 0);
@@ -270,8 +285,8 @@ LL_FORCE_INLINE BlockTimer::BlockTimer(TimeBlock& timer)
 	// store top of stack
 	mLastTimerData = *cur_timer_data;
 	// push new information
-	cur_timer_data->mCurTimer = this;
-	cur_timer_data->mTimerData = &timer;
+	cur_timer_data->mActiveTimer = this;
+	cur_timer_data->mTimeBlock = &timer;
 	cur_timer_data->mChildTime = 0;
 #endif
 }
@@ -280,8 +295,8 @@ LL_FORCE_INLINE BlockTimer::~BlockTimer()
 {
 #if FAST_TIMER_ON
 	U64 total_time = TimeBlock::getCPUClockCount64() - mStartTime;
-	CurTimerData* cur_timer_data = TimeBlock::sCurTimerData.get();
-	TimeBlockAccumulator* accumulator = cur_timer_data->mTimerData->getPrimaryAccumulator();
+	BlockTimerStackRecord* cur_timer_data = ThreadTimerStack::getIfExists();
+	TimeBlockAccumulator* accumulator = cur_timer_data->mTimeBlock->getPrimaryAccumulator();
 
 	accumulator->mCalls++;
 	accumulator->mSelfTimeCounter += total_time - cur_timer_data->mChildTime;
@@ -290,12 +305,12 @@ LL_FORCE_INLINE BlockTimer::~BlockTimer()
 
 	// store last caller to bootstrap tree creation
 	// do this in the destructor in case of recursion to get topmost caller
-	accumulator->mLastCaller = mLastTimerData.mTimerData;
+	accumulator->mLastCaller = mLastTimerData.mTimeBlock;
 
 	// we are only tracking self time, so subtract our total time delta from parents
 	mLastTimerData.mChildTime += total_time;
 
-	*TimeBlock::sCurTimerData = mLastTimerData;
+	*ThreadTimerStack::getIfExists() = mLastTimerData;
 #endif
 }
 

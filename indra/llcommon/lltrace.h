@@ -34,7 +34,7 @@
 #include "llrefcount.h"
 #include "llunit.h"
 #include "llapr.h"
-#include "llthreadlocalpointer.h"
+#include "llthreadlocalstorage.h"
 
 #include <list>
 
@@ -70,7 +70,8 @@ namespace LLTrace
 	void cleanup();
 	bool isInitialized();
 
-	LLThreadLocalPointer<class ThreadRecorder>& get_thread_recorder();
+	const LLThreadLocalPointer<class ThreadRecorder>& get_thread_recorder();
+	void set_thread_recorder(class ThreadRecorder*);
 
 	class MasterThreadRecorder& getMasterThreadRecorder();
 
@@ -106,9 +107,9 @@ namespace LLTrace
 
 		~AccumulatorBuffer()
 		{
-			if (sPrimaryStorage == mStorage)
+			if (LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance() == mStorage)
 			{
-				sPrimaryStorage = getDefaultBuffer()->mStorage;
+				LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(getDefaultBuffer()->mStorage);
 			}
 			delete[] mStorage;
 		}
@@ -151,17 +152,17 @@ namespace LLTrace
 
 		void makePrimary()
 		{
-			sPrimaryStorage = mStorage;
+			LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(mStorage);
 		}
 
 		bool isPrimary() const
 		{
-			return sPrimaryStorage == mStorage;
+			return LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance() == mStorage;
 		}
 
 		LL_FORCE_INLINE static ACCUMULATOR* getPrimaryStorage() 
 		{ 
-			return sPrimaryStorage.get(); 
+			return LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance(); 
 		}
 
 		// NOTE: this is not thread-safe.  We assume that slots are reserved in the main thread before any child threads are spawned
@@ -214,7 +215,6 @@ namespace LLTrace
 		{
 			// this buffer is allowed to leak so that trace calls from global destructors have somewhere to put their data
 			// so as not to trigger an access violation
-			//TODO: make this thread local but need to either demand-init apr or remove apr dependency
 			static self_t* sBuffer = new AccumulatorBuffer(StaticAllocationMarker());
 			static bool sInitialized = false;
 			if (!sInitialized)
@@ -229,9 +229,7 @@ namespace LLTrace
 		ACCUMULATOR*								mStorage;
 		size_t										mStorageSize;
 		size_t										mNextStorageSlot;
-		static LLThreadLocalPointer<ACCUMULATOR>	sPrimaryStorage;
 	};
-	template<typename ACCUMULATOR> LLThreadLocalPointer<ACCUMULATOR> AccumulatorBuffer<ACCUMULATOR>::sPrimaryStorage;
 
 	//TODO: replace with decltype when C++11 is enabled
 	template<typename T>
@@ -250,10 +248,9 @@ namespace LLTrace
 		TraceType(const char* name, const char* description = NULL)
 		:	LLInstanceTracker<TraceType<ACCUMULATOR>, std::string>(name),
 			mName(name),
-			mDescription(description ? description : "")	
-		{
-			mAccumulatorIndex = AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer()->reserveSlot();
-		}
+			mDescription(description ? description : ""),
+			mAccumulatorIndex(AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer()->reserveSlot())
+		{}
 
 		LL_FORCE_INLINE ACCUMULATOR* getPrimaryAccumulator() const
 		{
@@ -263,13 +260,12 @@ namespace LLTrace
 
 		size_t getIndex() const { return mAccumulatorIndex; }
 
-		std::string& getName() { return mName; }
 		const std::string& getName() const { return mName; }
 
 	protected:
-		std::string	mName;
-		std::string mDescription;
-		size_t		mAccumulatorIndex;
+		const std::string	mName;
+		const std::string	mDescription;
+		const size_t		mAccumulatorIndex;
 	};
 
 	template<typename T>
