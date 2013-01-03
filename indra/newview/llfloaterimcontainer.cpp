@@ -1101,12 +1101,20 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 	uuid_vec_t uuids;
 	getParticipantUUIDs(uuids);
 
+	//Enable Chat history item for ad-hoc and group conversations
+	if ("can_chat_history" == item)
+	{
+		if (getCurSelectedViewModelItem()->getType() != LLConversationItem::CONV_PARTICIPANT)
+		{
+			return isConversationLoggingAllowed();
+		}
+	}
 
-	// If nothing is selected, everything needs to be disabled
+	// If nothing is selected(and selected item is not group chat), everything needs to be disabled
 	if (uuids.size() <= 0)
-    {
-        return false;
-    }
+	{
+		return getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_GROUP;
+	}
 
 	if("can_activate_group" == item)
     {
@@ -1123,7 +1131,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
 	{
 		return gSavedSettings.getBOOL("KeepConversationLogTranscripts");
 	}
-	
+
 	// Extract the single select info
 	bool is_single_select = (uuids.size() == 1);
 	const LLUUID& single_id = uuids.front();
