@@ -215,15 +215,28 @@ private:
 	LLThreadLocalSingleton(const LLThreadLocalSingleton& other);
 	virtual void initSingleton() {}
 
+#ifdef LL_WINDOWS
 	static __declspec(thread) DERIVED_TYPE* sInstance;
 	static __declspec(thread) EInitState sInitState;
+#elif LL_LINUX
+	static __thread DERIVED_TYPE* sInstance;
+	static __thread EInitState sInitState;
+#endif
 };
 
+#ifdef LL_WINDOWS
 template<typename DERIVED_TYPE>
 __declspec(thread) DERIVED_TYPE* LLThreadLocalSingleton<DERIVED_TYPE>::sInstance = NULL;
 
 template<typename DERIVED_TYPE>
 __declspec(thread) typename LLThreadLocalSingleton<DERIVED_TYPE>::EInitState LLThreadLocalSingleton<DERIVED_TYPE>::sInitState = LLThreadLocalSingleton<DERIVED_TYPE>::UNINITIALIZED;
+#elif LL_LINUX
+template<typename DERIVED_TYPE>
+__thread DERIVED_TYPE* LLThreadLocalSingleton<DERIVED_TYPE>::sInstance = NULL;
+
+template<typename DERIVED_TYPE>
+__thread typename LLThreadLocalSingleton<DERIVED_TYPE>::EInitState LLThreadLocalSingleton<DERIVED_TYPE>::sInitState = LLThreadLocalSingleton<DERIVED_TYPE>::UNINITIALIZED;
+#endif
 
 template<typename DERIVED_TYPE>
 class LLThreadLocalSingletonPointer
@@ -245,10 +258,18 @@ public:
 	}
 
 private:
+#ifdef LL_WINDOWS
 	static __declspec(thread) DERIVED_TYPE* sInstance;
+#elif LL_LINUX
+	static __thread DERIVED_TYPE* sInstance;
+#endif
 };
 
 template<typename DERIVED_TYPE>
+#ifdef LL_WINDOWS
 __declspec(thread) DERIVED_TYPE* LLThreadLocalSingletonPointer<DERIVED_TYPE>::sInstance = NULL;
+#elif LL_LINUX
+__thread DERIVED_TYPE* LLThreadLocalSingletonPointer<DERIVED_TYPE>::sInstance = NULL;
+#endif
 
 #endif // LL_LLTHREADLOCALSTORAGE_H

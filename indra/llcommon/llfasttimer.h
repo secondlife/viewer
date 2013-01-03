@@ -49,7 +49,7 @@ class ThreadTimerStack
 :	public BlockTimerStackRecord, 
 	public LLThreadLocalSingleton<ThreadTimerStack>
 {
-	friend LLThreadLocalSingleton<ThreadTimerStack>;
+	friend class LLThreadLocalSingleton<ThreadTimerStack>;
 	ThreadTimerStack() 
 	{}
 

@@ -614,7 +614,7 @@ struct MemFootprint<T*>
 
 	static size_t measure()
 	{
-		return MemFootPrint<T>::measure();
+		return MemFootprint<T>::measure();
 	}
 };
 
@@ -730,17 +730,17 @@ public:
 	}
 
 	// claim memory associated with other objects/data as our own, adding to our calculated footprint
-	template<typename T>
-	T& memClaim(T& value)
+	template<typename CLAIM_T>
+	CLAIM_T& memClaim(CLAIM_T& value)
 	{
-		TrackMemImpl<T>::claim(*this, value);
+		TrackMemImpl<CLAIM_T>::claim(*this, value);
 		return value;
 	}
 
-	template<typename T>
-	const T& memClaim(const T& value)
+	template<typename CLAIM_T>
+	const CLAIM_T& memClaim(const CLAIM_T& value)
 	{
-		TrackMemImpl<T>::claim(*this, value);
+		TrackMemImpl<CLAIM_T>::claim(*this, value);
 		return value;
 	}
 
@@ -756,17 +756,17 @@ public:
 	}
 
 	// remove memory we had claimed from our calculated footprint
-	template<typename T>
-	T& memDisclaim(T& value)
+	template<typename CLAIM_T>
+	CLAIM_T& memDisclaim(CLAIM_T& value)
 	{
-		TrackMemImpl<T>::disclaim(*this, value);
+		TrackMemImpl<CLAIM_T>::disclaim(*this, value);
 		return value;
 	}
 
-	template<typename T>
-	const T& memDisclaim(const T& value)
+	template<typename CLAIM_T>
+	const CLAIM_T& memDisclaim(const CLAIM_T& value)
 	{
-		TrackMemImpl<T>::disclaim(*this, value);
+		TrackMemImpl<CLAIM_T>::disclaim(*this, value);
 		return value;
 	}
 
