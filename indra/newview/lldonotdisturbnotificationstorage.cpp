@@ -118,7 +118,7 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 		}
 		else
 		{
-			LLNotificationResponderInterface* responder = createResponder(notification_params["name"], notification_params["responder"]);
+			LLNotificationResponderInterface* responder = createResponder(notification_params["responder_sd"]["responder_type"], notification_params["responder_sd"]);
 			if (responder == NULL)
 			{
 				LL_WARNS("LLDoNotDisturbNotificationStorage") << "cannot create responder for notification of type '"

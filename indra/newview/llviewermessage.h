@@ -229,6 +229,7 @@ public:
 
 	void forceResponse(InventoryOfferResponse response);
 
+    static std::string mResponderType;
 	EInstantMessage mIM;
 	LLUUID mFromID;
 	BOOL mFromGroup;

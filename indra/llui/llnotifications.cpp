@@ -517,6 +517,11 @@ LLSD LLNotification::asLLSD()
 	p.expiry = mExpiresAt;
 	p.priority = mPriority;
 
+    if(mResponder)
+    {
+        p.functor.responder_sd = mResponder->asLLSD();
+    }
+    
 	if(!mResponseFunctorName.empty())
 	{
 		p.functor.name = mResponseFunctorName;

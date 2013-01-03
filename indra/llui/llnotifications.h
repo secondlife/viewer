@@ -322,11 +322,13 @@ public:
 			Alternative<std::string>										name;
 			Alternative<LLNotificationFunctorRegistry::ResponseFunctor>	function;
 			Alternative<LLNotificationResponderPtr>						responder;
+            Alternative<LLSD>						                    responder_sd;
 
 			Functor()
 			:	name("responseFunctor"),
 				function("functor"),
-				responder("responder")
+				responder("responder"),
+                responder_sd("responder_sd")
 			{}
 		};
 		Optional<Functor>						functor;
