@@ -1430,11 +1430,10 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	{
 		is_widget_selected = widget->isSelected();
 		new_selection = mConversationsRoot->getNextFromChild(widget);
-		if(new_selection == NULL)
+		if (!new_selection)
 		{
 			new_selection = mConversationsRoot->getPreviousFromChild(widget);
 		}
-
 		widget->destroyView();
 	}
 	
@@ -1446,14 +1445,20 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	if (change_focus)
 	{
 		setFocus(TRUE);
-		if(new_selection != NULL)
+		if (new_selection)
 		{
 			if (mConversationsWidgets.size() == 1)
-				new_selection = new_selection->getParentFolder();
-			LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(new_selection->getViewModelItem());
-			if(vmi != NULL)
 			{
-				selectConversationPair(vmi->getUUID(), true);
+				// If only one widget is left, it has to be the Nearby Chat. Select it directly.
+				selectConversationPair(LLUUID(NULL), true);
+			}
+			else
+			{
+				LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(new_selection->getViewModelItem());
+				if (vmi)
+				{
+					selectConversationPair(vmi->getUUID(), true);
+				}
 			}
 		}
 	}
