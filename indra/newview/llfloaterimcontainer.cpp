@@ -605,6 +605,12 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 	LLMultiFloater::setVisible(visible);
 }
 
+void LLFloaterIMContainer::updateResizeLimits()
+{
+	LLMultiFloater::updateResizeLimits();
+	assignResizeLimits();
+}
+
 void LLFloaterIMContainer::collapseMessagesPane(bool collapse)
 {
 	if (mMessagesPane->isCollapsed() == collapse)

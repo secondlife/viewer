@@ -60,6 +60,7 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void draw();
 	/*virtual*/ void setVisible(BOOL visible);
+	/*virtual*/ void updateResizeLimits();
 	void onCloseFloater(LLUUID& id);
 
 	/*virtual*/ void addFloater(LLFloater* floaterp, 

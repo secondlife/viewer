@@ -751,11 +751,6 @@ void LLFloaterIMSessionTab::onTearOffClicked()
 	{
 		forceReshape();
 	}
-	LLFloaterIMContainer* container = LLFloaterIMContainer::getInstance();
-	if (container)
-	{
-		container->assignResizeLimits();
-	}
 	refreshConversation();
 	updateGearBtn();
 }
