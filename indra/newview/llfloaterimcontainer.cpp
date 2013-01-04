@@ -700,8 +700,6 @@ void LLFloaterIMContainer::updateState(bool collapse, S32 delta_width)
 {
 	LLRect floater_rect = getRect();
 	floater_rect.mRight += ((collapse ? -1 : 1) * delta_width);
-S32 debug_var = floater_rect.getWidth();
-debug_var = debug_var + 1;
 
 	// Set by_user = true so that reshaped rect is saved in user_settings.
 	setShape(floater_rect, true);
@@ -729,6 +727,8 @@ void LLFloaterIMContainer::assignResizeLimits()
 	bool is_conv_pane_expanded = !mConversationsPane->isCollapsed();
 	bool is_msg_pane_expanded = !mMessagesPane->isCollapsed();
 
+	// With two panels visible number of borders is three, because the borders
+	// between the panels are merged into one
     S32 number_of_visible_borders = llmin((is_conv_pane_expanded? 2 : 0) + (is_msg_pane_expanded? 2 : 0), 3);
     S32 summary_width_of_visible_borders = number_of_visible_borders * LLPANEL_BORDER_WIDTH;
 	S32 conv_pane_current_width = is_conv_pane_expanded? mConversationsPane->getRect().getWidth() : mConversationsPane->getMinDim();
@@ -1410,11 +1410,6 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 			participant_view->addToFolder(widget);
 			current_participant_model++;
 		}
-	}
-
-	if (uuid.notNull() && im_sessionp->isP2PSessionType())
-	{
-		item->fetchAvatarName(LLIMModel::getInstance()->getOtherParticipantID(uuid));
 	}
 
 	// Do that too for the conversation dialog
