@@ -634,7 +634,8 @@ public:
 	LLPointer<LLHUDText> mText;
 	LLPointer<LLHUDIcon> mIcon;
 
-	static			BOOL		sUseSharedDrawables;
+	static	BOOL				sUseSharedDrawables;
+	static	LLTrace::MemStat	sMemStat;
 
 protected:
 	// delete an item in the inventory, but don't tell the
@@ -748,7 +749,6 @@ protected:
 
 	static			S32			sAxisArrowLength;
 
-	static			LLTrace::MemStat sMemStat;
 
 	// These two caches are only correct for non-parented objects right now!
 	mutable LLVector3		mPositionRegion;
