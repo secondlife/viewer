@@ -6066,12 +6066,13 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 	S32 max_t = volume->getPath().mPath.size();
 
 	// S32 i;
-	S32 num_vertices = 0, num_indices = 0;
+	//S32 num_vertices = 0;
+	//S32 num_indices = 0;
 	S32	grid_size = (profile.size()-1)/4;
-	S32	quad_count = (grid_size * grid_size);
+	//S32	quad_count = (grid_size * grid_size);
 
-	num_vertices = (grid_size+1)*(grid_size+1);
-	num_indices = quad_count * 4;
+	//num_vertices = (grid_size+1)*(grid_size+1);
+	//num_indices = quad_count * 4;
 
 	LLVector4a& min = mExtents[0];
 	LLVector4a& max = mExtents[1];
@@ -6667,10 +6668,6 @@ void LLVolumeFace::resizeVertices(S32 num_verts)
 		mPositions = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 		ll_assert_aligned(mPositions, 16);
 		mNormals = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
-		if ( ((int)mNormals & 0xF) != 0 )
-		{
-			__debugbreak();
-		}
 		ll_assert_aligned(mNormals, 16);
 
 		//pad texture coordinate block end to allow for QWORD reads
