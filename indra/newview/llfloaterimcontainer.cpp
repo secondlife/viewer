@@ -678,6 +678,7 @@ void LLFloaterIMContainer::collapseConversationsPane(bool collapse)
 		    {
 		    	widget->setOpen(false);
 		    }
+		    widget->requestArrange();
 }
 	}
 }
