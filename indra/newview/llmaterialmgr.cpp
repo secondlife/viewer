@@ -384,20 +384,22 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 
 		for (LLSD::array_const_iterator faceIter = response_data.beginArray(); faceIter != response_data.endArray(); ++faceIter)
 		{
-			const LLSD& face_data = *faceIter;
+#           ifndef LL_RELEASE_FOR_DOWNLOAD
+			const LLSD& face_data = *faceIter; // conditional to avoid unused variable warning
+#           endif
 			llassert(face_data.isMap());
 
 			llassert(face_data.has(MATERIALS_CAP_OBJECT_ID_FIELD));
 			llassert(face_data[MATERIALS_CAP_OBJECT_ID_FIELD].isInteger());
-//			U32 local_id = face_data[MATERIALS_CAP_OBJECT_ID_FIELD].asInteger();
+			// U32 local_id = face_data[MATERIALS_CAP_OBJECT_ID_FIELD].asInteger();
 
 			llassert(face_data.has(MATERIALS_CAP_FACE_FIELD));
 			llassert(face_data[MATERIALS_CAP_FACE_FIELD].isInteger());
-//			S32 te = face_data[MATERIALS_CAP_FACE_FIELD].asInteger();
+			// S32 te = face_data[MATERIALS_CAP_FACE_FIELD].asInteger();
 
 			llassert(face_data.has(MATERIALS_CAP_MATERIAL_ID_FIELD));
 			llassert(face_data[MATERIALS_CAP_MATERIAL_ID_FIELD].isBinary());
-//			LLMaterialID material_id(face_data[MATERIALS_CAP_MATERIAL_ID_FIELD].asBinary());
+			// LLMaterialID material_id(face_data[MATERIALS_CAP_MATERIAL_ID_FIELD].asBinary());
 
 			// *TODO: do we really still need to process this?
 		}
