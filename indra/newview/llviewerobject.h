@@ -670,8 +670,6 @@ protected:
 	void deleteParticleSource();
 	void setParticleSource(const LLPartSysData& particle_parameters, const LLUUID& owner_id);
 	
-public:
-		
 private:
 	void setNameValueList(const std::string& list);		// clears nv pairs and then individually adds \n separated NV pairs from \0 terminated string
 	void deleteTEImages(); // correctly deletes list of images
@@ -749,6 +747,8 @@ protected:
 	static			BOOL		sPulseEnabled;
 
 	static			S32			sAxisArrowLength;
+
+	static			LLTrace::MemStat sMemStat;
 
 	// These two caches are only correct for non-parented objects right now!
 	mutable LLVector3		mPositionRegion;

@@ -94,10 +94,12 @@ public:
 	/*virtual*/ void			localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const;
 	/*virtual*/ BOOL			hasMouseCapture();
 
-	S32							getStart() const 					{ return mStart; }
-	void						setStart(S32 start)					{ mStart = start; }
-	S32							getEnd() const						{ return mEnd; }
-	void						setEnd( S32 end )					{ mEnd = end; }
+	S32						getStart() const 					{ return mStart; }
+	void					setStart(S32 start)					{ mStart = start; }
+	S32						getEnd() const						{ return mEnd; }
+	void					setEnd( S32 end )					{ mEnd = end; }
+
+	static LLTrace::MemStat sMemStat;
 
 protected:
 	S32				mStart;

@@ -314,6 +314,7 @@ public:
 	LLSpatialBridge* getSpatialBridge() { return (LLSpatialBridge*) (LLDrawable*) mSpatialBridge; }
 	
 	static F32 sCurPixelAngle; //current pixels per radian
+	static LLTrace::MemStat sMemStat;
 
 private:
 	typedef std::vector<LLFace*> face_list_t;
