@@ -202,14 +202,14 @@ Maximum 200 per group daily
             Drag and drop item here to attach it:
         </text>
         <icon
-         height="72"
+         height="48"
          image_name="DropTarget"
          layout="topleft"
          left_pad="10"
          mouse_opaque="true"
          name="drop_icon"
          top_delta="-10"
-         width="72" />
+         width="110" />
         <button
          follows="left|top"
          layout="topleft"
