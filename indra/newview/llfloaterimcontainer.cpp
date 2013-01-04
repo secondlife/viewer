@@ -56,8 +56,8 @@
 //
 // LLFloaterIMContainer
 //
-LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed)
-:	LLMultiFloater(seed),
+LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& params /*= getDefaultParams()*/)
+:	LLMultiFloater(seed, params),
 	mExpandCollapseBtn(NULL),
 	mConversationsRoot(NULL),
 	mConversationsEventStream("ConversationsEvents"),
@@ -153,6 +153,9 @@ void LLFloaterIMContainer::onCurrentChannelChanged(const LLUUID& session_id)
 
 BOOL LLFloaterIMContainer::postBuild()
 {
+	mOrigMinWidth = getMinWidth();
+	mOrigMinHeight = getMinHeight();
+
 	mNewMessageConnection = LLIMModel::instance().mNewMsgSignal.connect(boost::bind(&LLFloaterIMContainer::onNewMessageReceived, this, _1));
 	// Do not call base postBuild to not connect to mCloseSignal to not close all floaters via Close button
 	// mTabContainer will be initialized in LLMultiFloater::addChild()
@@ -657,7 +660,7 @@ void LLFloaterIMContainer::collapseConversationsPane(bool collapse)
 	button_panel->setVisible(!collapse);
 	mExpandCollapseBtn->setImageOverlay(getString(collapse ? "expand_icon" : "collapse_icon"));
 
-	// Save current width of panels before collapsing/expanding right pane.
+	// Save current width of Conversation panel before collapsing/expanding right pane.
 	S32 conv_pane_width = mConversationsPane->getRect().getWidth();
 
 	if (collapse)
@@ -1408,6 +1411,12 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 			current_participant_model++;
 		}
 	}
+
+	if (uuid.notNull() && im_sessionp->isP2PSessionType())
+	{
+		item->fetchAvatarName(LLIMModel::getInstance()->getOtherParticipantID(uuid));
+	}
+
 	// Do that too for the conversation dialog
     LLFloaterIMSessionTab *conversation_floater = (uuid.isNull() ? (LLFloaterIMSessionTab*)(LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat")) : (LLFloaterIMSessionTab*)(LLFloaterIMSession::findInstance(uuid)));
 	if (conversation_floater)
