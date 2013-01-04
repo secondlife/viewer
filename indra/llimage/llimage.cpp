@@ -666,8 +666,17 @@ void LLImageRaw::fill( const LLColor4U& color )
 	}
 }
 
+LLPointer<LLImageRaw> LLImageRaw::duplicate()
+{
+	if(getNumRefs() < 2)
+	{
+		return this; //nobody else refences to this image, no need to duplicate.
+	}
 
-
+	//make a duplicate
+	LLPointer<LLImageRaw> dup = new LLImageRaw(getData(), getWidth(), getHeight(), getComponents());
+	return dup; 
+}
 
 // Src and dst can be any size.  Src and dst can each have 3 or 4 components.
 void LLImageRaw::copy(LLImageRaw* src)
