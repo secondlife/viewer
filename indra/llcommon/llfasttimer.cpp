@@ -137,12 +137,12 @@ void TimeBlock::setLogLock(LLMutex* lock)
 
 //static
 #if (LL_DARWIN || LL_LINUX || LL_SOLARIS) && !(defined(__i386__) || defined(__amd64__))
-U64 TimeBlock::countsPerSecond() // counts per second for the *64-bit* timer
+U64 TimeBlock::countsPerSecond()
 {
 	return sClockResolution;
 }
 #else // windows or x86-mac or x86-linux or x86-solaris
-U64 TimeBlock::countsPerSecond() // counts per second for the *64-bit* timer
+U64 TimeBlock::countsPerSecond()
 {
 #if LL_FASTTIMER_USE_RDTSC || !LL_WINDOWS
 	//getCPUFrequency returns MHz and sCPUClockFrequency wants to be in Hz
@@ -165,7 +165,7 @@ U64 TimeBlock::countsPerSecond() // counts per second for the *64-bit* timer
 #endif
 
 TimeBlock::TimeBlock(const char* name, bool open, TimeBlock* parent)
-:	TraceType(name),
+:	TraceType<TimeBlockAccumulator>(name),
 	mCollapsed(true)
 {
 	setCollapsed(!open);
