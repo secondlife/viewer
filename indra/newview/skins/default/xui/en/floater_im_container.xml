@@ -14,7 +14,8 @@
  title="CONVERSATIONS"
  bottom="-50"
  right="-5"
- width="450">
+ width="450"
+ min_width="38">
     <string
      name="collapse_icon"
      value="Conv_toolbar_collapse"/>
