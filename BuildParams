@@ -21,13 +21,8 @@ email_status_this_is_os = true
 # Limit extent of codeticket updates to revisions after...
 codeticket_since = 3.3.0-release
 
-clean_on_success = false
-run_tests = false
-build_Darwin_Debug = false
-build_Darwin_RelWithDebInfo = false
-    
 # ========================================
-# Viewer Development --
+# Viewer Development
 # ========================================
 
 # Report changes since...
@@ -120,17 +115,6 @@ viewer-mesh.viewer_channel = "Project Viewer - Mesh"
 viewer-mesh.login_channel = "Project Viewer - Mesh"
 viewer-mesh.viewer_grid = aditi
 viewer-mesh.email = shining@lists.lindenlab.com
-
-# ========================================
-# viewer-adult-check
-# ========================================
-
-viewer-adult-check.viewer_channel = "Project Viewer - AdultCheck"
-viewer-adult-check.login_channel = "Project Viewer - AdultCheck"
-viewer-adult-check.viewer_grid = agni
-viewer-adult-check.build_debug_release_separately = true
-viewer-adult-check.build_CYGWIN_Debug = false
-viewer-adult-check.build_viewer_update_version_manager = false
 
 # ========================================
 # viewer-pathfinding

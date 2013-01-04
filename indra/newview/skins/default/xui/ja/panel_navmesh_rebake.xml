@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="panel_navmesh_rebake">
-	<button label="地域の再構築" name="navmesh_btn" tool_tip="クリックしてこの地域のナビメッシュを再構築します。"/>
-	<button label="再構築をリクエスト中" name="navmesh_btn_sending" tool_tip="再構築リクエストをサーバーに送信しています。"/>
-	<button label="地域（リージョン）を再構築中" name="navmesh_btn_baking" tool_tip="地域を再構築しています。完了すると、このボタンは消えます。"/>
-</panel>
