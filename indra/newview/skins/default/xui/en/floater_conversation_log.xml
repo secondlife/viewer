@@ -5,7 +5,7 @@
  positioning="cascading"
  height="200"
  min_height="100"
- min_width="200"
+ min_width="230"
  layout="topleft"
  name="floater_conversation_log"
  save_rect="true"

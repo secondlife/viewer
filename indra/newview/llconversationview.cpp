@@ -547,27 +547,6 @@ void LLConversationViewParticipant::onMouseLeave(S32 x, S32 y, MASK mask)
     LLFolderViewItem::onMouseLeave(x, y, mask);
 }
 
-BOOL LLConversationViewParticipant::handleMouseDown( S32 x, S32 y, MASK mask )
-{
-	LLConversationItem* item = NULL;
-	LLConversationViewSession* session_widget =
-			dynamic_cast<LLConversationViewSession *>(this->getParentFolder());
-	if (session_widget)
-	{
-	    item = dynamic_cast<LLConversationItem*>(session_widget->getViewModelItem());
-	}
-    LLUUID session_id = item? item->getUUID() : LLUUID();
-    BOOL result = LLFolderViewItem::handleMouseDown(x, y, mask);
-
-    if(result)
-    {
-        (LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container"))->
-            selectConversationPair(session_id, false);
-    }
-
-	return result;
-}
-
 S32 LLConversationViewParticipant::getLabelXPos()
 {
     return getIndentation() + mAvatarIcon->getRect().getWidth() + mIconPad;

@@ -159,7 +159,7 @@ void on_new_message(const LLSD& msg)
     LLUUID session_id = msg["session_id"].asUUID();
     LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
 
-    // determine action for this session
+    //  determine action for this session
 
     if (session_id.isNull())
     {
@@ -185,13 +185,14 @@ void on_new_message(const LLSD& msg)
         action = gSavedSettings.getString("NotificationGroupChatOptions");
     }
 
-    // do not show notification in "do not disturb" mode or it goes from agent
+    // do not show notification which goes from agent
     if (gAgent.getID() == participant_id)
     {
         return;
     }
 
     // execution of the action
+
     LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
 
@@ -210,19 +211,13 @@ void on_new_message(const LLSD& msg)
 
     if ("toast" == action)
     {
-        // Skip toasting if we have open window of IM with this session id
+        // Skip toasting and flashing if we have open window of IM with this session id
         if (session_floater
             && session_floater->isInVisibleChain()
             && session_floater->hasFocus()
             && !session_floater->isMinimized()
             && !(session_floater->getHost() && session_floater->getHost()->isMinimized())
             )
-        {
-            return;
-        }
-
-	    // Skip toasting for system messages and for nearby chat
-	    if (participant_id.isNull())
         {
             return;
         }
@@ -238,7 +233,8 @@ void on_new_message(const LLSD& msg)
                 gToolBarView->flashCommand(LLCommandId("chat"), true);
 
                 //Show IM toasts (upper right toasts)
-                if(session_id.notNull())
+                // Skip toasting for system messages and for nearby chat
+                if(session_id.notNull() && participant_id.notNull())
                 {
                     LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
                 }

@@ -132,8 +132,6 @@ public:
     void addToFolder(LLFolderViewFolder* folder);
 	void addToSession(const LLUUID& session_id);
 
-    /*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
-
     void onMouseEnter(S32 x, S32 y, MASK mask);
     void onMouseLeave(S32 x, S32 y, MASK mask);
 

@@ -49,6 +49,15 @@
   <floater.string
      name="end_call_button_tooltip"
      value="Close voice connection"/>
+   <floater.string
+     name="expcol_button_not_tearoff_tooltip"
+     value="Collapse this pane"/>
+   <floater.string
+     name="expcol_button_tearoff_and_expanded_tooltip"
+     value="Collapse participant list"/>
+   <floater.string
+     name="expcol_button_tearoff_and_collapsed_tooltip"
+     value="Expand participant list"/>
     <view
         follows="all"
         layout="topleft"
