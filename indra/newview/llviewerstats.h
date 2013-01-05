@@ -38,7 +38,7 @@ namespace LLStatViewer
 struct SimMeasurementSampler : public LLInstanceTracker<SimMeasurementSampler, ESimStatID>
 {
 	SimMeasurementSampler(ESimStatID id)
-	:	LLInstanceTracker(id)
+	:	LLInstanceTracker<SimMeasurementSampler, ESimStatID>(id)
 	{}
 	virtual ~SimMeasurementSampler() {}
 	virtual void sample(F64 value) = 0;
