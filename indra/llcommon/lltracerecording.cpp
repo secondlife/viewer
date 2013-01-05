@@ -60,7 +60,7 @@ Recording::Recording( const Recording& other )
 	mStackTimers       = other.mStackTimers;
 	mMemStats		   = other.mMemStats;
 
-	LLStopWatchControlsMixin::initTo(other.getPlayState());
+	LLStopWatchControlsMixin<Recording>::initTo(other.getPlayState());
 }
 
 
