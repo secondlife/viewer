@@ -84,6 +84,7 @@ protected:
 	 * @return true - if current selected panel is not null and selected item is a landmark
 	 */
 	bool isLandmarkSelected() const;
+	bool isFolderSelected() const;
 	bool isReceivedFolderSelected() const;
 	void doActionOnCurSelectedLandmark(LLLandmarkList::loaded_callback_t cb);
 	LLFolderViewItem* getCurSelectedItem() const;

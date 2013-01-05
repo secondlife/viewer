@@ -31,8 +31,8 @@
 #include <set>
 
 // common includes
-#include "llstat.h"
 #include "llstring.h"
+#include "lltrace.h"
 
 // project includes
 #include "llviewerobject.h"
@@ -195,7 +195,7 @@ protected:
 	std::vector<OrphanInfo> mOrphanChildren;	// UUID's of orphaned objects
 	S32 mNumOrphans;
 
-	static LLStat sCacheHitRate;
+	static LLTrace::Measurement<> sCacheHitRate;
 
 	typedef std::vector<LLPointer<LLViewerObject> > vobj_list_t;
 

@@ -34,8 +34,8 @@
 #include "llgl.h"
 #include "llfontgl.h"
 
-#include "llstat.h"
 #include "lluictrlfactory.h"
+#include "lltracerecording.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -45,17 +45,20 @@ LLStatBar::LLStatBar(const Params& p)
 	  mUnitLabel(p.unit_label),
 	  mMinBar(p.bar_min),
 	  mMaxBar(p.bar_max),
-	  mStatp(LLStat::getStat(p.stat)),
+	  mCountFloatp(LLTrace::Count<>::getInstance(p.stat)),
+	  mCountIntp(LLTrace::Count<S64>::getInstance(p.stat)),
+	  mMeasurementFloatp(LLTrace::Measurement<>::getInstance(p.stat)),
+	  mMeasurementIntp(LLTrace::Measurement<S64>::getInstance(p.stat)),
 	  mTickSpacing(p.tick_spacing),
 	  mLabelSpacing(p.label_spacing),
 	  mPrecision(p.precision),
 	  mUpdatesPerSec(p.update_rate),
+	  mUnitScale(p.unit_scale),
 	  mPerSec(p.show_per_sec),
 	  mDisplayBar(p.show_bar),
 	  mDisplayHistory(p.show_history),
 	  mDisplayMean(p.show_mean)
-{
-}
+{}
 
 BOOL LLStatBar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
@@ -84,29 +87,72 @@ BOOL LLStatBar::handleMouseDown(S32 x, S32 y, MASK mask)
 
 void LLStatBar::draw()
 {
-	if (!mStatp)
+	F32 current = 0.f, 
+		min = 0.f, 
+		max = 0.f,
+		mean = 0.f;
+
+	LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
+
+	if (mCountFloatp)
 	{
-//		llinfos << "No stats for statistics bar!" << llendl;
-		return;
+		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecordingPeriod(); 
+
+		if (mPerSec)
+		{
+			current = last_frame_recording.getPerSec(*mCountFloatp);
+			min = frame_recording.getPeriodMinPerSec(*mCountFloatp);
+			max = frame_recording.getPeriodMaxPerSec(*mCountFloatp);
+			mean = frame_recording.getPeriodMeanPerSec(*mCountFloatp);
+		}
+		else
+		{
+			current = last_frame_recording.getSum(*mCountFloatp);
+			min = frame_recording.getPeriodMin(*mCountFloatp);
+			max = frame_recording.getPeriodMax(*mCountFloatp);
+			mean = frame_recording.getPeriodMean(*mCountFloatp);
+		}
+	}
+	else if (mCountIntp)
+	{
+		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecordingPeriod(); 
+
+		if (mPerSec)
+		{
+			current = last_frame_recording.getPerSec(*mCountIntp);
+			min = frame_recording.getPeriodMinPerSec(*mCountIntp);
+			max = frame_recording.getPeriodMaxPerSec(*mCountIntp);
+			mean = frame_recording.getPeriodMeanPerSec(*mCountIntp);
+		}
+		else
+		{
+			current = last_frame_recording.getSum(*mCountIntp);
+			min = frame_recording.getPeriodMin(*mCountIntp);
+			max = frame_recording.getPeriodMax(*mCountIntp);
+			mean = frame_recording.getPeriodMean(*mCountIntp);
+		}
+	}
+	else if (mMeasurementFloatp)
+	{
+		LLTrace::Recording& recording = frame_recording.getTotalRecording();
+		current = recording.getLastValue(*mMeasurementFloatp);
+		min = recording.getMin(*mMeasurementFloatp);
+		max = recording.getMax(*mMeasurementFloatp);
+		mean = recording.getMean(*mMeasurementFloatp);
+	}
+	else if (mMeasurementIntp)
+	{
+		LLTrace::Recording& recording = frame_recording.getTotalRecording();
+		current = recording.getLastValue(*mMeasurementIntp);
+		min = recording.getMin(*mMeasurementIntp);
+		max = recording.getMax(*mMeasurementIntp);
+		mean = recording.getMean(*mMeasurementIntp);
 	}
 
-	// Get the values.
-	F32 current, min, max, mean;
-	if (mPerSec)
-	{
-		current = mStatp->getCurrentPerSec();
-		min = mStatp->getMinPerSec();
-		max = mStatp->getMaxPerSec();
-		mean = mStatp->getMeanPerSec();
-	}
-	else
-	{
-		current = mStatp->getCurrent();
-		min = mStatp->getMin();
-		max = mStatp->getMax();
-		mean = mStatp->getMean();
-	}
-
+	current *= mUnitScale;
+	min *= mUnitScale;
+	max *= mUnitScale;
+	mean *= mUnitScale;
 
 	if ((mUpdatesPerSec == 0.f) || (mUpdateTimer.getElapsedTimeF32() > 1.f/mUpdatesPerSec) || (mValue == 0.f))
 	{
@@ -153,7 +199,7 @@ void LLStatBar::draw()
 											 LLFontGL::RIGHT, LLFontGL::TOP);
 
 	value_format = llformat( "%%.%df", mPrecision);
-	if (mDisplayBar)
+	if (mDisplayBar && (mCountFloatp || mCountIntp || mMeasurementFloatp || mMeasurementIntp))
 	{
 		std::string tick_label;
 
@@ -196,7 +242,7 @@ void LLStatBar::draw()
 		right = width;
 		gl_rect_2d(left, top, right, bottom, LLColor4(0.f, 0.f, 0.f, 0.25f));
 
-		if (mStatp->getNumValues() == 0)
+		if (frame_recording.getNumPeriods() == 0)
 		{
 			// No data, don't draw anything...
 			return;
@@ -213,26 +259,58 @@ void LLStatBar::draw()
 		right = (S32) ((max - mMinBar) * value_scale);
 		gl_rect_2d(left, top, right, bottom, LLColor4(1.f, 0.f, 0.f, 0.25f));
 
-		S32 num_values = mStatp->getNumValues() - 1;
-		if (mDisplayHistory)
+		if (mDisplayHistory && (mCountFloatp || mCountIntp || mMeasurementFloatp || mMeasurementIntp))
 		{
+			S32 num_values = frame_recording.getNumPeriods() - 1;
 			S32 i;
-			for (i = 0; i < num_values; i++)
+			for (i = 1; i <= num_values; i++)
 			{
-				if (i == mStatp->getNextBin())
-				{
-					continue;
-				}
 				if (mPerSec)
 				{
-					left = (S32)((mStatp->getPrevPerSec(i) - mMinBar) * value_scale);
-					right = (S32)((mStatp->getPrevPerSec(i) - mMinBar) * value_scale) + 1;
+					if (mCountFloatp)
+					{
+						left = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mCountFloatp)  - mMinBar) * value_scale);
+						right = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mCountFloatp)  - mMinBar) * value_scale) + 1;
+					}
+					else if (mCountIntp)
+					{
+						left = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mCountIntp)  - mMinBar) * value_scale);
+						right = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mCountIntp)  - mMinBar) * value_scale) + 1;
+					}
+					else if (mMeasurementFloatp)
+					{
+						left = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mMeasurementFloatp)  - mMinBar) * value_scale);
+						right = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mMeasurementFloatp)  - mMinBar) * value_scale) + 1;
+					}
+					else if (mMeasurementIntp)
+					{
+						left = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mMeasurementIntp)  - mMinBar) * value_scale);
+						right = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mMeasurementIntp)  - mMinBar) * value_scale) + 1;
+					}
 					gl_rect_2d(left, bottom+i+1, right, bottom+i, LLColor4(1.f, 0.f, 0.f, 1.f));
 				}
 				else
 				{
-					left = (S32)((mStatp->getPrev(i) - mMinBar) * value_scale);
-					right = (S32)((mStatp->getPrev(i) - mMinBar) * value_scale) + 1;
+					if (mCountFloatp)
+					{
+						left = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mCountFloatp)  - mMinBar) * value_scale);
+						right = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mCountFloatp)  - mMinBar) * value_scale) + 1;
+					}
+					else if (mCountIntp)
+					{
+						left = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mCountIntp)  - mMinBar) * value_scale);
+						right = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mCountIntp)  - mMinBar) * value_scale) + 1;
+					}
+					else if (mMeasurementFloatp)
+					{
+						left = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mMeasurementFloatp)  - mMinBar) * value_scale);
+						right = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mMeasurementFloatp)  - mMinBar) * value_scale) + 1;
+					}
+					else if (mMeasurementIntp)
+					{
+						left = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mMeasurementIntp)  - mMinBar) * value_scale);
+						right = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mMeasurementIntp)  - mMinBar) * value_scale) + 1;
+					}
 					gl_rect_2d(left, bottom+i+1, right, bottom+i, LLColor4(1.f, 0.f, 0.f, 1.f));
 				}
 			}
@@ -256,6 +334,15 @@ void LLStatBar::draw()
 	LLView::draw();
 }
 
+void LLStatBar::setStat(const std::string& stat_name)
+{
+	mCountFloatp = LLTrace::Count<>::getInstance(stat_name);
+	mCountIntp = LLTrace::Count<S64>::getInstance(stat_name);
+	mMeasurementFloatp = LLTrace::Measurement<>::getInstance(stat_name);
+	mMeasurementIntp = LLTrace::Measurement<S64>::getInstance(stat_name);
+}
+
+
 void LLStatBar::setRange(F32 bar_min, F32 bar_max, F32 tick_spacing, F32 label_spacing)
 {
 	mMinBar = bar_min;
@@ -272,7 +359,7 @@ LLRect LLStatBar::getRequiredRect()
 	{
 		if (mDisplayHistory)
 		{
-			rect.mTop = 35 + mStatp->getNumBins();
+			rect.mTop = 35 + LLTrace::get_frame_recording().getNumPeriods();
 		}
 		else
 		{

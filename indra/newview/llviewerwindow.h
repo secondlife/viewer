@@ -41,15 +41,14 @@
 #include "llcursortypes.h"
 #include "llwindowcallbacks.h"
 #include "lltimer.h"
-#include "llstat.h"
 #include "llmousehandler.h"
 #include "llhandle.h"
 #include "llinitparam.h"
+#include "lltrace.h"
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
 #include <boost/scoped_ptr.hpp>
-
 
 class LLView;
 class LLViewerObject;
@@ -251,7 +250,7 @@ public:
 	S32				getCurrentMouseDX()		const	{ return mCurrentMouseDelta.mX; }
 	S32				getCurrentMouseDY()		const	{ return mCurrentMouseDelta.mY; }
 	LLCoordGL		getCurrentMouseDelta()	const	{ return mCurrentMouseDelta; }
-	LLStat *		getMouseVelocityStat()		{ return &mMouseVelocityStat; }
+	static LLTrace::Measurement<>*	getMouseVelocityStat()		{ return &sMouseVelocityStat; }
 	BOOL			getLeftMouseDown()	const	{ return mLeftMouseDown; }
 	BOOL			getMiddleMouseDown()	const	{ return mMiddleMouseDown; }
 	BOOL			getRightMouseDown()	const	{ return mRightMouseDown; }
@@ -428,7 +427,6 @@ private:
 	LLCoordGL		mCurrentMousePoint;			// last mouse position in GL coords
 	LLCoordGL		mLastMousePoint;		// Mouse point at last frame.
 	LLCoordGL		mCurrentMouseDelta;		//amount mouse moved this frame
-	LLStat			mMouseVelocityStat;
 	BOOL			mLeftMouseDown;
 	BOOL			mMiddleMouseDown;
 	BOOL			mRightMouseDown;
@@ -483,6 +481,8 @@ private:
 	
 	// Object temporarily hovered over while dragging
 	LLPointer<LLViewerObject>	mDragHoveredObject;
+
+	static LLTrace::Measurement<>	sMouseVelocityStat;
 };
 
 //

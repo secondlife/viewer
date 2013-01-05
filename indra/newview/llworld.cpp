@@ -138,7 +138,6 @@ void LLWorld::destroyClass()
 
 LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 {
-	LLMemType mt(LLMemType::MTYPE_REGIONS);
 	llinfos << "Add region with handle: " << region_handle << " on host " << host << llendl;
 	LLViewerRegion *regionp = getRegionFromHandle(region_handle);
 	if (regionp)
@@ -644,7 +643,6 @@ void LLWorld::updateVisibilities()
 
 void LLWorld::updateRegions(F32 max_update_time)
 {
-	LLMemType mt_ur(LLMemType::MTYPE_IDLE_UPDATE_REGIONS);
 	LLTimer update_timer;
 	BOOL did_one = FALSE;
 	
@@ -694,8 +692,10 @@ void LLWorld::updateNetStats()
 	{
 		LLViewerRegion* regionp = *iter;
 		regionp->updateNetStats();
-		bits += regionp->mBitStat.getCurrent();
-		packets += llfloor( regionp->mPacketsStat.getCurrent() );
+		bits += regionp->mBitsReceived;
+		packets += llfloor( regionp->mPacketsReceived );
+		regionp->mBitsReceived = 0.f;
+		regionp->mPacketsReceived = 0.f;
 	}
 
 	S32 packets_in = gMessageSystem->mPacketsIn - mLastPacketsIn;
@@ -704,19 +704,16 @@ void LLWorld::updateNetStats()
 
 	S32 actual_in_bits = gMessageSystem->mPacketRing.getAndResetActualInBits();
 	S32 actual_out_bits = gMessageSystem->mPacketRing.getAndResetActualOutBits();
-	LLViewerStats::getInstance()->mActualInKBitStat.addValue(actual_in_bits/1024.f);
-	LLViewerStats::getInstance()->mActualOutKBitStat.addValue(actual_out_bits/1024.f);
-	LLViewerStats::getInstance()->mKBitStat.addValue(bits/1024.f);
-	LLViewerStats::getInstance()->mPacketsInStat.addValue(packets_in);
-	LLViewerStats::getInstance()->mPacketsOutStat.addValue(packets_out);
-	LLViewerStats::getInstance()->mPacketsLostStat.addValue(gMessageSystem->mDroppedPackets);
+
+	LLStatViewer::ACTUAL_IN_KBIT.add<LLTrace::Bits>(actual_in_bits);
+	LLStatViewer::ACTUAL_OUT_KBIT.add<LLTrace::Bits>(actual_out_bits);
+	LLStatViewer::KBIT.add<LLTrace::Bits>(bits);
+	LLStatViewer::PACKETS_IN.add(packets_in);
+	LLStatViewer::PACKETS_OUT.add(packets_out);
+	LLStatViewer::PACKETS_LOST.add(packets_lost);
 	if (packets_in)
 	{
-		LLViewerStats::getInstance()->mPacketsLostPercentStat.addValue(100.f*((F32)packets_lost/(F32)packets_in));
-	}
-	else
-	{
-		LLViewerStats::getInstance()->mPacketsLostPercentStat.addValue(0.f);
+		LLStatViewer::PACKETS_LOST_PERCENT.sample(100.f*((F32)packets_lost/(F32)packets_in));
 	}
 
 	mLastPacketsIn = gMessageSystem->mPacketsIn;
@@ -1129,6 +1126,7 @@ void send_agent_pause()
 	}
 
 	gObjectList.mWasPaused = TRUE;
+	LLViewerStats::instance().getRecording().stop();
 }
 
 
@@ -1158,8 +1156,8 @@ void send_agent_resume()
 		gMessageSystem->sendReliable(regionp->getHost());
 	}
 
-	// Reset the FPS counter to avoid an invalid fps
-	LLViewerStats::getInstance()->mFPSStat.start();
+	// Resume data collection to ignore invalid rates
+	LLViewerStats::instance().getRecording().resume();//getInstance()->mFPSStat.reset();
 
 	LLAppViewer::instance()->resumeMainloopTimeout();
 }
@@ -1194,7 +1192,7 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 	{
 		LLVOAvatar* pVOAvatar = (LLVOAvatar*) *iter;
 
-		if (!pVOAvatar->isDead() && !pVOAvatar->isSelf())
+		if (!pVOAvatar->isDead() && !pVOAvatar->isSelf() && !pVOAvatar->mIsDummy)
 		{
 			LLVector3d pos_global = pVOAvatar->getPositionGlobal();
 			LLUUID uuid = pVOAvatar->getID();

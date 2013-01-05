@@ -752,7 +752,7 @@ void LLAgent::setFlying(BOOL fly)
 		}
 		if( !was_flying )
 		{
-			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_FLY_COUNT);
+			LLStatViewer::FLY.add(1);
 		}
 		setControlFlags(AGENT_CONTROL_FLY);
 	}
@@ -3806,7 +3806,7 @@ bool LLAgent::teleportCore(bool is_local)
 	gAgentCamera.resetView(FALSE);
 
 	// local logic
-	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TELEPORT_COUNT);
+	LLStatViewer::TELEPORT.add(1);
 	if (is_local)
 	{
 		gAgent.setTeleportState( LLAgent::TELEPORT_LOCAL );
@@ -4123,7 +4123,7 @@ void LLAgent::setTeleportState(ETeleportState state)
 
 		case TELEPORT_ARRIVING:
 		// First two position updates after a teleport tend to be weird
-		LLViewerStats::getInstance()->mAgentPositionSnaps.mCountOfNextUpdatesToIgnore = 2;
+		//LLViewerStats::getInstance()->mAgentPositionSnaps.mCountOfNextUpdatesToIgnore = 2;
 
 		// Let the interested parties know we've teleported.
 		LLViewerParcelMgr::getInstance()->onTeleportFinished(false, getPositionGlobal());

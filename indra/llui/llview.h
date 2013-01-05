@@ -101,7 +101,8 @@ class LLView
 :	public LLMouseHandler,			// handles mouse events
 	public LLFocusableElement,		// handles keyboard events
 	public LLMortician,				// lazy deletion
-	public LLHandleProvider<LLView>	// passes out weak references to self
+	public LLHandleProvider<LLView>,     // passes out weak references to self
+	public LLTrace::MemTrackable<LLView> // track memory usage
 {
 public:
 	struct Follows : public LLInitParam::ChoiceBlock<Follows>
@@ -672,6 +673,7 @@ public:
 	static S32 sLastLeftXML;
 	static S32 sLastBottomXML;
 	static BOOL sForceReshape;
+	static LLTrace::MemStat sMemStat;
 };
 
 class LLCompareByTabOrder

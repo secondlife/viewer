@@ -58,6 +58,7 @@ const F32 MIN_SHADOW_CASTER_RADIUS = 2.0f;
 static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
 
 extern bool gShiftFrame;
+LLTrace::MemStat	LLDrawable::sMemStat("LLDrawable");
 
 
 ////////////////////////
@@ -256,8 +257,6 @@ S32 LLDrawable::findReferences(LLDrawable *drawablep)
 
 LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 {
-	LLMemType mt(LLMemType::MTYPE_DRAWABLE);
-	
 	LLFace *face = new LLFace(this, mVObjp);
 	if (!face) llerrs << "Allocating new Face: " << mFaces.size() << llendl;
 	
@@ -280,8 +279,6 @@ LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 
 LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep)
 {
-	LLMemType mt(LLMemType::MTYPE_DRAWABLE);
-	
 	LLFace *face;
 	face = new LLFace(this, mVObjp);
 
@@ -624,7 +621,7 @@ BOOL LLDrawable::updateMove()
 	{
 		return FALSE;
 	}
-
+	
 	makeActive();
 
 	BOOL done;
@@ -764,8 +761,6 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 
 void LLDrawable::updateTexture()
 {
-	LLMemType mt(LLMemType::MTYPE_DRAWABLE);
-	
 	if (isDead())
 	{
 		llwarns << "Dead drawable updating texture!" << llendl;
@@ -1410,7 +1405,7 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 		markDead();
 		return;
 	}
-
+	
 	if (gShiftFrame)
 	{
 		return;
@@ -1497,7 +1492,7 @@ void LLSpatialBridge::cleanupReferences()
 		
 		DON'T DO THIS -- this should happen through octree destruction
 
-		mDrawable->setSpatialGroup(NULL);
+			mDrawable->setSpatialGroup(NULL);
 		if (mDrawable->getVObj())
 		{
 			LLViewerObject::const_child_list_t& child_list = mDrawable->getVObj()->getChildren();
@@ -1508,9 +1503,9 @@ void LLSpatialBridge::cleanupReferences()
 				LLDrawable* drawable = child->mDrawable;					
 				if (drawable)
 				{
-					drawable->setSpatialGroup(NULL);
+						drawable->setSpatialGroup(NULL);
+					}
 				}
-			}
 		}*/
 
 		LLDrawable* drawablep = mDrawable;

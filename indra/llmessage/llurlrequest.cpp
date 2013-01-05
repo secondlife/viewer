@@ -33,8 +33,8 @@
 #include <openssl/x509_vfy.h>
 #include <openssl/ssl.h>
 #include "llcurl.h"
+#include "llfasttimer.h"
 #include "llioutil.h"
-#include "llmemtype.h"
 #include "llproxy.h"
 #include "llpumpio.h"
 #include "llsd.h"
@@ -81,7 +81,6 @@ LLURLRequestDetail::LLURLRequestDetail() :
 	mIsBodyLimitSet(false),
     mSSLVerifyCallback(NULL)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	mCurlRequest = new LLCurlEasyRequest();
 	
 	if(!mCurlRequest->isValid()) //failed.
@@ -93,7 +92,6 @@ LLURLRequestDetail::LLURLRequestDetail() :
 
 LLURLRequestDetail::~LLURLRequestDetail()
 {
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	delete mCurlRequest;
 	mLastRead = NULL;
 }
@@ -156,7 +154,6 @@ std::string LLURLRequest::actionAsVerb(LLURLRequest::ERequestAction action)
 LLURLRequest::LLURLRequest(LLURLRequest::ERequestAction action) :
 	mAction(action)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	initialize();
 }
 
@@ -165,21 +162,18 @@ LLURLRequest::LLURLRequest(
 	const std::string& url) :
 	mAction(action)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	initialize();
 	setURL(url);
 }
 
 LLURLRequest::~LLURLRequest()
 {
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	delete mDetail;
 	mDetail = NULL ;
 }
 
 void LLURLRequest::setURL(const std::string& url)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	mDetail->mURL = url;
 }
 
@@ -190,7 +184,6 @@ std::string LLURLRequest::getURL() const
 
 void LLURLRequest::addHeader(const char* header)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	mDetail->mCurlRequest->slist_append(header);
 }
 
@@ -202,7 +195,6 @@ void LLURLRequest::setBodyLimit(U32 size)
 
 void LLURLRequest::setCallback(LLURLRequestComplete* callback)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	mCompletionCallback = callback;
 	mDetail->mCurlRequest->setHeaderCallback(&headerCallback, (void*)callback);
 }
@@ -267,8 +259,6 @@ LLIOPipe::EStatus LLURLRequest::handleError(
 	LLIOPipe::EStatus status,
 	LLPumpIO* pump)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
-	
 	if(!isValid())
 	{
 		return STATUS_EXPIRED ;
@@ -291,6 +281,8 @@ LLIOPipe::EStatus LLURLRequest::handleError(
 static LLFastTimer::DeclareTimer FTM_PROCESS_URL_REQUEST("URL Request");
 static LLFastTimer::DeclareTimer FTM_PROCESS_URL_REQUEST_GET_RESULT("Get Result");
 static LLFastTimer::DeclareTimer FTM_URL_PERFORM("Perform");
+static LLFastTimer::DeclareTimer FTM_PROCESS_URL_PUMP_RESPOND("Pump Respond");
+static LLFastTimer::DeclareTimer FTM_URL_ADJUST_TIMEOUT("Adjust Timeout");
 
 // virtual
 LLIOPipe::EStatus LLURLRequest::process_impl(
@@ -302,7 +294,6 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 {
 	LLFastTimer t(FTM_PROCESS_URL_REQUEST);
 	PUMP_DEBUG;
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	//llinfos << "LLURLRequest::process_impl()" << llendl;
 	if (!buffer) return STATUS_ERROR;
 	
@@ -311,7 +302,6 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 	const S32 MIN_ACCUMULATION = 100000;
 	if(pump && (mDetail->mByteAccumulator > MIN_ACCUMULATION))
 	{
-		static LLFastTimer::DeclareTimer FTM_URL_ADJUST_TIMEOUT("Adjust Timeout");
 		LLFastTimer t(FTM_URL_ADJUST_TIMEOUT);
 		 // This is a pretty sloppy calculation, but this
 		 // tries to make the gross assumption that if data
@@ -409,7 +399,6 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 						link.mChannels = LLBufferArray::makeChannelConsumer(
 							channels);
 						chain.push_back(link);
-						static LLFastTimer::DeclareTimer FTM_PROCESS_URL_PUMP_RESPOND("Pump Respond");
 						{
 							LLFastTimer t(FTM_PROCESS_URL_PUMP_RESPOND);
 							pump->respond(chain, buffer, context);
@@ -455,7 +444,6 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 
 void LLURLRequest::initialize()
 {
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	mState = STATE_INITIALIZED;
 	mDetail = new LLURLRequestDetail;
 
@@ -476,7 +464,6 @@ bool LLURLRequest::configure()
 {
 	LLFastTimer t(FTM_URL_REQUEST_CONFIGURE);
 	
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	bool rv = false;
 	S32 bytes = mDetail->mResponseBuffer->countAfter(
    		mDetail->mChannels.in(),
@@ -556,7 +543,6 @@ size_t LLURLRequest::downCallback(
 	size_t nmemb,
 	void* user)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	LLURLRequest* req = (LLURLRequest*)user;
 	if(STATE_WAITING_FOR_RESPONSE == req->mState)
 	{
@@ -592,7 +578,6 @@ size_t LLURLRequest::upCallback(
 	size_t nmemb,
 	void* user)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	LLURLRequest* req = (LLURLRequest*)user;
 	S32 bytes = llmin(
 		(S32)(size * nmemb),
@@ -690,7 +675,6 @@ LLIOPipe::EStatus LLContextURLExtractor::process_impl(
 {
 	LLFastTimer t(FTM_PROCESS_URL_EXTRACTOR);
 	PUMP_DEBUG;
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	// The destination host is in the context.
 	if(context.isUndefined() || !mRequest)
 	{
@@ -718,13 +702,11 @@ LLIOPipe::EStatus LLContextURLExtractor::process_impl(
 LLURLRequestComplete::LLURLRequestComplete() :
 	mRequestStatus(LLIOPipe::STATUS_ERROR)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 }
 
 // virtual
 LLURLRequestComplete::~LLURLRequestComplete()
 {
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 }
 
 //virtual 
@@ -763,7 +745,6 @@ void LLURLRequestComplete::noResponse()
 
 void LLURLRequestComplete::responseStatus(LLIOPipe::EStatus status)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	mRequestStatus = status;
 }
 

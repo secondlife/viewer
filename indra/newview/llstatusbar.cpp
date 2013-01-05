@@ -37,7 +37,6 @@
 #include "llviewercontrol.h"
 #include "llfloaterbuycurrency.h"
 #include "llbuycurrencyhtml.h"
-#include "llfloaterlagmeter.h"
 #include "llpanelnearbymedia.h"
 #include "llpanelvolumepulldown.h"
 #include "llfloaterregioninfo.h"
@@ -199,10 +198,10 @@ BOOL LLStatusBar::postBuild()
 	sgp.rect(r);
 	sgp.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
 	sgp.mouse_opaque(false);
+	sgp.stat.count_stat_float(&LLStatViewer::KBIT);
+	sgp.units("Kbps");
+	sgp.precision(0);
 	mSGBandwidth = LLUICtrlFactory::create<LLStatGraph>(sgp);
-	mSGBandwidth->setStat(&LLViewerStats::getInstance()->mKBitStat);
-	mSGBandwidth->setUnits("Kbps");
-	mSGBandwidth->setPrecision(0);
 	addChild(mSGBandwidth);
 	x -= SIM_STAT_WIDTH + 2;
 
@@ -213,17 +212,20 @@ BOOL LLStatusBar::postBuild()
 	pgp.rect(r);
 	pgp.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
 	pgp.mouse_opaque(false);
+	pgp.stat.measurement_stat_float(&LLStatViewer::PACKETS_LOST_PERCENT);
+	pgp.units("%");
+	pgp.min(0.f);
+	pgp.max(5.f);
+	pgp.precision(1);
+	pgp.per_sec(false);
+	LLStatGraph::Thresholds thresholds;
+	thresholds.threshold.add(LLStatGraph::ThresholdParams().value(0.1).color(LLColor4::green))
+						.add(LLStatGraph::ThresholdParams().value(0.25f).color(LLColor4::yellow))
+						.add(LLStatGraph::ThresholdParams().value(0.6f).color(LLColor4::red));
+
+	pgp.thresholds(thresholds);
 
 	mSGPacketLoss = LLUICtrlFactory::create<LLStatGraph>(pgp);
-	mSGPacketLoss->setStat(&LLViewerStats::getInstance()->mPacketsLostPercentStat);
-	mSGPacketLoss->setUnits("%");
-	mSGPacketLoss->setMin(0.f);
-	mSGPacketLoss->setMax(5.f);
-	mSGPacketLoss->setThreshold(0, 0.5f);
-	mSGPacketLoss->setThreshold(1, 1.f);
-	mSGPacketLoss->setThreshold(2, 3.f);
-	mSGPacketLoss->setPrecision(1);
-	mSGPacketLoss->mPerSec = FALSE;
 	addChild(mSGPacketLoss);
 
 	mPanelVolumePulldown = new LLPanelVolumePulldown();
@@ -253,9 +255,9 @@ void LLStatusBar::refresh()
 		F32 bwtotal = gViewerThrottle.getMaxBandwidth() / 1000.f;
 		mSGBandwidth->setMin(0.f);
 		mSGBandwidth->setMax(bwtotal*1.25f);
-		mSGBandwidth->setThreshold(0, bwtotal*0.75f);
-		mSGBandwidth->setThreshold(1, bwtotal);
-		mSGBandwidth->setThreshold(2, bwtotal);
+		//mSGBandwidth->setThreshold(0, bwtotal*0.75f);
+		//mSGBandwidth->setThreshold(1, bwtotal);
+		//mSGBandwidth->setThreshold(2, bwtotal);
 	}
 	
 	// update clock every 10 seconds

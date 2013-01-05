@@ -464,7 +464,7 @@ LLNotification::LLNotification(const LLNotification::Params& p) :
 	mTimestamp(p.time_stamp), 
 	mSubstitutions(p.substitutions),
 	mPayload(p.payload),
-	mExpiresAt(0),
+	mExpiresAt(0.0),
 	mTemporaryResponder(false),
 	mRespondedTo(false),
 	mPriority(p.priority),
@@ -1433,7 +1433,7 @@ bool LLNotifications::loadTemplates()
 	std::string base_filename = search_paths.front();
 	LLXMLNodePtr root;
 	BOOL success  = LLXMLNode::getLayeredXMLNode(root, search_paths);
-
+	
 	if (!success || root.isNull() || !root->hasName( "notifications" ))
 	{
 		llerrs << "Problem reading XML from UI Notifications file: " << base_filename << llendl;

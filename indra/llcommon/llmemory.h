@@ -26,7 +26,12 @@
 #ifndef LLMEMORY_H
 #define LLMEMORY_H
 
-#include "llmemtype.h"
+#include "linden_common.h"
+#if !LL_WINDOWS
+#include <stdint.h>
+#endif
+
+class LLMutex ;
 
 #if LL_WINDOWS && LL_DEBUG
 #define LL_CHECK_MEMORY llassert(_CrtCheckMemory());

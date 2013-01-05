@@ -1105,17 +1105,26 @@ void LLFloater::handleReshape(const LLRect& new_rect, bool by_user)
 	const LLRect old_rect = getRect();
 	LLView::handleReshape(new_rect, by_user);
 
-	if (by_user && !isMinimized())
+	if (by_user && !getHost())
 	{
+		static_cast<LLFloaterView*>(getParent())->adjustToFitScreen(this, !isMinimized());
+	}
+
+	// if not minimized, adjust all snapped dependents to new shape
+	if (!isMinimized())
+	{
+		if (by_user)
+		{
+			if (isDocked())
+			{
+				setDocked( false, false);
+			}
 		storeRectControl();
 		mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
 		LLRect screen_rect = calcScreenRect();
 		mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
 	}
 
-	// if not minimized, adjust all snapped dependents to new shape
-	if (!isMinimized())
-	{
 		// gather all snapped dependents
 		for(handle_set_iter_t dependent_it = mDependents.begin();
 			dependent_it != mDependents.end(); ++dependent_it)
@@ -1712,55 +1721,9 @@ void LLFloater::onClickHelp( LLFloater* self )
 }
 
 // static 
-LLFloater* LLFloater::getClosableFloaterFromFocus()
+void LLFloater::closeFrontmostFloater()
 {
-	LLFloater* focused_floater = NULL;
-	LLInstanceTracker<LLFloater>::instance_iter it = beginInstances();
-	LLInstanceTracker<LLFloater>::instance_iter end_it = endInstances();
-	for (; it != end_it; ++it)
-	{
-		if (it->hasFocus())
-		{
-			LLFloater& floater = *it;
-			focused_floater = &floater;
-			break;
-		}
-	}
-
-	if (it == endInstances())
-	{
-		// nothing found, return
-		return NULL;
-	}
-
-	// The focused floater may not be closable,
-	// Find and close a parental floater that is closeable, if any.
-	LLFloater* prev_floater = NULL;
-	for(LLFloater* floater_to_close = focused_floater;
-		NULL != floater_to_close; 
-		floater_to_close = gFloaterView->getParentFloater(floater_to_close))
-	{
-		if(floater_to_close->isCloseable())
-		{
-			return floater_to_close;
-		}
-
-		// If floater has as parent root view
-		// gFloaterView->getParentFloater(floater_to_close) returns
-		// the same floater_to_close, so we need to check this.
-		if (prev_floater == floater_to_close) {
-			break;
-		}
-		prev_floater = floater_to_close;
-	}
-
-	return NULL;
-}
-
-// static
-void LLFloater::closeFocusedFloater()
-{
-	LLFloater* floater_to_close = LLFloater::getClosableFloaterFromFocus();
+	LLFloater* floater_to_close = gFloaterView->getFrontmostClosableFloater();
 	if(floater_to_close)
 	{
 		floater_to_close->closeFloater();
@@ -2478,6 +2441,24 @@ void LLFloaterView::highlightFocusedFloater()
 	}
 }
 
+LLFloater* LLFloaterView::getFrontmostClosableFloater()
+{
+	child_list_const_iter_t child_it;
+	LLFloater* frontmost_floater = NULL;
+
+	for ( child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
+	{
+		frontmost_floater = (LLFloater *)(*child_it);
+
+		if (frontmost_floater->isInVisibleChain() && frontmost_floater->isCloseable())
+		{
+			return frontmost_floater;
+		}
+	}
+
+	return NULL;
+}
+
 void LLFloaterView::unhighlightFocusedFloater()
 {
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
@@ -3104,7 +3085,7 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 			parser.readXUI(node, output_params, LLUICtrlFactory::getInstance()->getCurFileName());
 			setupParamsForExport(output_params, parent);
 			output_node->setName(node->getName()->mString);
-			parser.writeXUI(output_node, output_params, &default_params);
+			parser.writeXUI(output_node, output_params, LLInitParam::default_parse_rules(), &default_params);
 			return TRUE;
 		}
 
@@ -3134,9 +3115,8 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 	{
 		Params output_params(params);
 		setupParamsForExport(output_params, parent);
-        Params default_params(LLUICtrlFactory::getDefaultParams<LLFloater>());
 		output_node->setName(node->getName()->mString);
-		parser.writeXUI(output_node, output_params, &default_params);
+		parser.writeXUI(output_node, output_params, LLInitParam::default_parse_rules(), &default_params);
 	}
 
 	// Default floater position to top-left corner of screen

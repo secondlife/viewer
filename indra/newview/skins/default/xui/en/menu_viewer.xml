@@ -276,30 +276,39 @@
              parameter="gestures" />
         </menu_item_check>
         <menu_item_separator/>
-        <menu_item_call
+        <menu_item_check
          label="Friends"
          name="My Friends"
          shortcut="control|shift|F">
-            <menu_item_call.on_click
+            <menu_item_check.on_check
+             function="SideTray.CheckPanelPeopleTab"
+             parameter="friends_panel" />
+            <menu_item_check.on_click
              function="SideTray.PanelPeopleTab"
              parameter="friends_panel" />
-            </menu_item_call>
-        <menu_item_call
+            </menu_item_check>
+        <menu_item_check
          label="Groups"
          name="My Groups"
          shortcut="control|shift|G">
-            <menu_item_call.on_click
+         	<menu_item_check.on_check
+             function="SideTray.CheckPanelPeopleTab"
+             parameter="groups_panel" />
+            <menu_item_check.on_click
              function="SideTray.PanelPeopleTab"
              parameter="groups_panel" />
-        </menu_item_call>
-        <menu_item_call
+        </menu_item_check>
+        <menu_item_check
          label="Nearby people"
          name="Active Speakers"
          shortcut="control|shift|A">
-            <menu_item_call.on_click
+        	 <menu_item_check.on_check
+             function="SideTray.CheckPanelPeopleTab"
+             parameter="nearby_panel" />
+            <menu_item_check.on_click
               function="SideTray.PanelPeopleTab"
               parameter="nearby_panel" />
-        </menu_item_call>
+        </menu_item_check>
         <menu_item_call
          label="Block List"
          name="Block List">

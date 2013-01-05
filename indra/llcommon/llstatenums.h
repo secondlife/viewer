@@ -26,7 +26,7 @@
 #ifndef LL_LLSTATENUMS_H
 #define LL_LLSTATENUMS_H
 
-enum
+enum ESimStatID
 {
 	LL_SIM_STAT_TIME_DILATION         =  0,
 	LL_SIM_STAT_FPS                   =  1,

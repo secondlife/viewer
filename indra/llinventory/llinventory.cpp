@@ -28,6 +28,7 @@
 #include "llinventory.h"
 
 #include "lldbstrings.h"
+#include "llfasttimer.h"
 #include "llinventorydefines.h"
 #include "llxorcipher.h"
 #include "llsd.h"

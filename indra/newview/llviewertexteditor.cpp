@@ -1144,6 +1144,14 @@ void LLViewerTextEditor::openEmbeddedTexture( LLInventoryItem* item, llwchar wc 
 	{
 		preview->setAuxItem( item );
 		preview->setNotecardInfo(mNotecardInventoryID, mObjectID);
+		if (preview->hasString("Title"))
+		{
+			LLStringUtil::format_map_t args;
+			args["[NAME]"] = item->getName();
+			LLUIString title = preview->getString("Title", args);
+			preview->setTitle(title.getString());
+		}
+		preview->getChild<LLUICtrl>("desc")->setValue(item->getDescription());
 	}
 }
 

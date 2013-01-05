@@ -290,7 +290,9 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mCacheLoaded(FALSE),
 	mCacheDirty(FALSE),
 	mReleaseNotesRequested(FALSE),
-	mCapabilitiesReceived(false)
+	mCapabilitiesReceived(false),
+	mBitsReceived(0.f),
+	mPacketsReceived(0.f)
 {
 	mWidth = region_width_meters;
 	mImpl->mOriginGlobal = from_region_handle(handle); 
@@ -719,7 +721,6 @@ void LLViewerRegion::dirtyHeights()
 
 BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 {
-	LLMemType mt_ivr(LLMemType::MTYPE_IDLE_UPDATE_VIEWER_REGION);
 	// did_update returns TRUE if we did at least one significant update
 	BOOL did_update = mImpl->mLandp->idleUpdate(max_update_time);
 	
@@ -909,9 +910,8 @@ void LLViewerRegion::updateNetStats()
 	mPacketsLost =				cdp->getPacketsLost();
 	mPingDelay =				cdp->getPingDelay();
 
-	mBitStat.addValue(mBitsIn - mLastBitsIn);
-	mPacketsStat.addValue(mPacketsIn - mLastPacketsIn);
-	mPacketsLostStat.addValue(mPacketsLost);
+	mBitsReceived += mBitsIn - mLastBitsIn;
+	mPacketsReceived += mPacketsIn - mLastPacketsIn;
 }
 
 
@@ -1342,11 +1342,8 @@ void LLViewerRegion::requestCacheMisses()
 
 	mCacheDirty = TRUE ;
 	// llinfos << "KILLDEBUG Sent cache miss full " << full_count << " crc " << crc_count << llendl;
-	#if LL_RECORD_VIEWER_STATS
-	LLViewerStatsRecorder::instance()->beginObjectUpdateEvents(this);
-	LLViewerStatsRecorder::instance()->recordRequestCacheMissesEvent(full_count + crc_count);
-	LLViewerStatsRecorder::instance()->endObjectUpdateEvents();
-	#endif
+	LLViewerStatsRecorder::instance().requestCacheMissesEvent(full_count + crc_count);
+	LLViewerStatsRecorder::instance().log(0.2f);
 }
 
 void LLViewerRegion::dumpCache()

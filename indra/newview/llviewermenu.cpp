@@ -342,7 +342,8 @@ LLMenuParcelObserver::~LLMenuParcelObserver()
 
 void LLMenuParcelObserver::changed()
 {
-	gMenuHolder->childSetEnabled("Land Buy Pass", LLPanelLandGeneral::enableBuyPass(NULL));
+	LLParcel *parcel = LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
+	gMenuHolder->childSetEnabled("Land Buy Pass", LLPanelLandGeneral::enableBuyPass(NULL) && !(parcel->getOwnerID()== gAgent.getID()));
 	
 	BOOL buyable = enable_buy_land(NULL);
 	gMenuHolder->childSetEnabled("Land Buy", buyable);
@@ -1313,22 +1314,6 @@ class LLAdvancedPrintAgentInfo : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		print_agent_nvpairs(NULL);
-		return true;
-	}
-};
-
-
-
-////////////////////////////////
-// PRINT TEXTURE MEMORY STATS //
-////////////////////////////////
-
-
-class LLAdvancedPrintTextureMemoryStats : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		output_statistics(NULL);
 		return true;
 	}
 };
@@ -3464,6 +3449,20 @@ bool enable_sitdown_self()
     return isAgentAvatarValid() && !gAgentAvatarp->isSitting() && !gAgent.getFlying();
 }
 
+class LLCheckPanelPeopleTab : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+		{
+			std::string panel_name = userdata.asString();
+
+			LLPanel *panel = LLFloaterSidePanelContainer::getPanel("people", panel_name);
+			if(panel && panel->isInVisibleChain())
+			{
+				return true;
+			}
+			return false;
+		}
+};
 // Toggle one of "People" panel tabs in side tray.
 class LLTogglePanelPeopleTab : public view_listener_t
 {
@@ -3941,6 +3940,7 @@ class LLViewToggleUI : public view_listener_t
 		if (option == 0) // OK
 		{
 			gViewerWindow->setUIVisibility(!gViewerWindow->getUIVisibility());
+			LLPanelStandStopFlying::getInstance()->setVisible(gViewerWindow->getUIVisibility());
 		}
 	}
 };
@@ -3973,72 +3973,6 @@ void handle_duplicate_in_place(void*)
 	LLVector3 offset(0.f, 0.f, 0.f);
 	LLSelectMgr::getInstance()->selectDuplicate(offset, TRUE);
 }
-
-/* dead code 30-apr-2008
-void handle_deed_object_to_group(void*)
-{
-	LLUUID group_id;
-	
-	LLSelectMgr::getInstance()->selectGetGroup(group_id);
-	LLSelectMgr::getInstance()->sendOwner(LLUUID::null, group_id, FALSE);
-	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_RELEASE_COUNT);
-}
-
-BOOL enable_deed_object_to_group(void*)
-{
-	if(LLSelectMgr::getInstance()->getSelection()->isEmpty()) return FALSE;
-	LLPermissions perm;
-	LLUUID group_id;
-
-	if (LLSelectMgr::getInstance()->selectGetGroup(group_id) &&
-		gAgent.hasPowerInGroup(group_id, GP_OBJECT_DEED) &&
-		LLSelectMgr::getInstance()->selectGetPermissions(perm) &&
-		perm.deedToGroup(gAgent.getID(), group_id))
-	{
-		return TRUE;
-	}
-	return FALSE;
-}
-
-*/
-
-
-/*
- * No longer able to support viewer side manipulations in this way
- *
-void god_force_inv_owner_permissive(LLViewerObject* object,
-									LLInventoryObject::object_list_t* inventory,
-									S32 serial_num,
-									void*)
-{
-	typedef std::vector<LLPointer<LLViewerInventoryItem> > item_array_t;
-	item_array_t items;
-
-	LLInventoryObject::object_list_t::const_iterator inv_it = inventory->begin();
-	LLInventoryObject::object_list_t::const_iterator inv_end = inventory->end();
-	for ( ; inv_it != inv_end; ++inv_it)
-	{
-		if(((*inv_it)->getType() != LLAssetType::AT_CATEGORY))
-		{
-			LLInventoryObject* obj = *inv_it;
-			LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem((LLViewerInventoryItem*)obj);
-			LLPermissions perm(new_item->getPermissions());
-			perm.setMaskBase(PERM_ALL);
-			perm.setMaskOwner(PERM_ALL);
-			new_item->setPermissions(perm);
-			items.push_back(new_item);
-		}
-	}
-	item_array_t::iterator end = items.end();
-	item_array_t::iterator it;
-	for(it = items.begin(); it != end; ++it)
-	{
-		// since we have the inventory item in the callback, it should not
-		// invalidate iteration through the selection manager.
-		object->updateInventory((*it), TASK_INVENTORY_ITEM_KEY, false);
-	}
-}
-*/
 
 void handle_object_owner_permissive(void*)
 {
@@ -7394,7 +7328,7 @@ void handle_dump_avatar_local_textures(void*)
 
 void handle_dump_timers()
 {
-	LLFastTimer::dumpCurTimes();
+	LLTrace::TimeBlock::dumpCurTimes();
 }
 
 void handle_debug_avatar_textures(void*)
@@ -8466,7 +8400,6 @@ void initialize_menus()
 	commit.add("Advanced.DumpFocusHolder", boost::bind(&handle_dump_focus) );
 	view_listener_t::addMenu(new LLAdvancedPrintSelectedObjectInfo(), "Advanced.PrintSelectedObjectInfo");
 	view_listener_t::addMenu(new LLAdvancedPrintAgentInfo(), "Advanced.PrintAgentInfo");
-	view_listener_t::addMenu(new LLAdvancedPrintTextureMemoryStats(), "Advanced.PrintTextureMemoryStats");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugClicks(), "Advanced.ToggleDebugClicks");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugClicks(), "Advanced.CheckDebugClicks");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugViews(), "Advanced.CheckDebugViews");
@@ -8585,6 +8518,7 @@ void initialize_menus()
 
 	// we don't use boost::bind directly to delay side tray construction
 	view_listener_t::addMenu( new LLTogglePanelPeopleTab(), "SideTray.PanelPeopleTab");
+	view_listener_t::addMenu( new LLCheckPanelPeopleTab(), "SideTray.CheckPanelPeopleTab");
 
 	 // Avatar pie menu
 	view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");

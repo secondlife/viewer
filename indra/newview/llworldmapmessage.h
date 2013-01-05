@@ -27,6 +27,8 @@
 #ifndef LL_LLWORLDMAPMESSAGE_H
 #define LL_LLWORLDMAPMESSAGE_H
 
+#include "boost/function.hpp"
+
 // Handling of messages (send and process) as well as SLURL callback if necessary
 class LLMessageSystem;
 

@@ -30,6 +30,8 @@
 
 #include "stdtypes.h" // from llcommon
 
+#include <list>
+
 #include "llstreamingaudio.h"
 
 class LLAudioStreamManagerFMOD;

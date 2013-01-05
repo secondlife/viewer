@@ -390,6 +390,15 @@ bool LLToolTip::hasClickCallback()
 	return mHasClickCallback; 
 }
 
+void LLToolTip::getToolTipMessage(std::string & message)
+{
+	if (mTextBox)
+	{
+		message = mTextBox->getText();
+	}
+}
+
+
 
 //
 // LLToolTipMgr
@@ -593,6 +602,15 @@ void LLToolTipMgr::updateToolTipVisibility()
 	}
 }
 
+
+// Return the current tooltip text
+void LLToolTipMgr::getToolTipMessage(std::string & message)
+{
+	if (toolTipVisible())
+	{
+		mToolTip->getToolTipMessage(message);
+	}
+}
 
 
 // EOF

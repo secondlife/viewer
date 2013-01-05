@@ -248,6 +248,9 @@ std::string	LLViewerWindow::sSnapshotDir;
 
 std::string	LLViewerWindow::sMovieBaseName;
 
+LLTrace::Measurement<> LLViewerWindow::sMouseVelocityStat("Mouse Velocity");
+
+
 class RecordToChatConsole : public LLError::Recorder, public LLSingleton<RecordToChatConsole>
 {
 public:
@@ -334,26 +337,23 @@ public:
 		
 		if (gSavedSettings.getBOOL("DebugShowTime"))
 		{
-			const U32 y_inc2 = 15;
-			for (std::map<S32,LLFrameTimer>::reverse_iterator iter = gDebugTimers.rbegin();
-				 iter != gDebugTimers.rend(); ++iter)
 			{
-				S32 idx = iter->first;
-				LLFrameTimer& timer = iter->second;
+			const U32 y_inc2 = 15;
+				LLFrameTimer& timer = gTextureTimer;
 				F32 time = timer.getElapsedTimeF32();
 				S32 hours = (S32)(time / (60*60));
 				S32 mins = (S32)((time - hours*(60*60)) / 60);
 				S32 secs = (S32)((time - hours*(60*60) - mins*60));
-				std::string label = gDebugTimerLabel[idx];
-				if (label.empty()) label = llformat("Debug: %d", idx);
-				addText(xpos, ypos, llformat(" %s: %d:%02d:%02d", label.c_str(), hours,mins,secs)); ypos += y_inc2;
+				addText(xpos, ypos, llformat("Texture: %d:%02d:%02d", hours,mins,secs)); ypos += y_inc2;
 			}
 			
+			{
 			F32 time = gFrameTimeSeconds;
 			S32 hours = (S32)(time / (60*60));
 			S32 mins = (S32)((time - hours*(60*60)) / 60);
 			S32 secs = (S32)((time - hours*(60*60) - mins*60));
 			addText(xpos, ypos, llformat("Time: %d:%02d:%02d", hours,mins,secs)); ypos += y_inc;
+		}
 		}
 		
 #if LL_WINDOWS
@@ -736,7 +736,7 @@ public:
 			{
 				if(gTotalTextureBytesPerBoostLevel[i] > 0)
 				{
-					addText(xpos, ypos, llformat("Boost_Level %d:  %.3f MB", i, (F32)gTotalTextureBytesPerBoostLevel[i] / (1024 * 1024)));
+					addText(xpos, ypos, llformat("Boost_Level %d:  %.3f MB", i, LLUnit<LLUnits::Megabytes, F32>(gTotalTextureBytesPerBoostLevel[i]).value()));
 					ypos += y_inc;
 				}
 			}
@@ -1407,10 +1407,11 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 		FillRect(hdc, &wnd_rect, CreateSolidBrush(RGB(255, 255, 255)));
 
 		std::string temp_str;
+		LLTrace::Recording& recording = LLViewerStats::instance().getRecording();
 		temp_str = llformat( "FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
-				LLViewerStats::getInstance()->mFPSStat.getMeanPerSec(),
-				LLViewerStats::getInstance()->mSimPhysicsFPS.getPrev(0),
-				LLViewerStats::getInstance()->mSimTimeDilation.getPrev(0));
+				recording.getPerSec(LLStatViewer::FPS), //mFPSStat.getMeanPerSec(),
+				recording.getLastValue(LLStatViewer::SIM_PHYSICS_FPS), 
+				recording.getLastValue(LLStatViewer::SIM_TIME_DILATION));
 		S32 len = temp_str.length();
 		TextOutA(hdc, 0, 0, temp_str.c_str(), len); 
 
@@ -1934,9 +1935,9 @@ void LLViewerWindow::initWorldUI()
 	panel_ssf_container->addChild(panel_stand_stop_flying);
 
 	panel_ssf_container->setVisible(TRUE);
-	
-	LLMenuOptionPathfindingRebakeNavmesh::getInstance()->initialize();
 
+	LLMenuOptionPathfindingRebakeNavmesh::getInstance()->initialize();
+	
 	// Load and make the toolbars visible
 	// Note: we need to load the toolbars only *after* the user is logged in and IW
 	if (gToolBarView)
@@ -2185,8 +2186,8 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 			}
 		}
 
-		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_WIDTH, (F64)width);
-		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_HEIGHT, (F64)height);
+		LLStatViewer::WINDOW_WIDTH.sample((F64)width);
+		LLStatViewer::WINDOW_HEIGHT.sample((F64)height);
 
 		LLLayoutStack::updateClass();
 	}
@@ -2762,11 +2763,12 @@ void append_xui_tooltip(LLView* viewp, LLToolTip::Params& params)
 	}
 }
 
+static LLFastTimer::DeclareTimer ftm("Update UI");
+
 // Update UI based on stored mouse position from mouse-move
 // event processing.
 void LLViewerWindow::updateUI()
 {
-	static LLFastTimer::DeclareTimer ftm("Update UI");
 	LLFastTimer t(ftm);
 
 	static std::string last_handle_msg;
@@ -3236,8 +3238,8 @@ void LLViewerWindow::updateMouseDelta()
 		static F32 fdy = 0.f;
 
 		F32 amount = 16.f;
-		fdx = fdx + ((F32) dx - fdx) * llmin(gFrameIntervalSeconds*amount,1.f);
-		fdy = fdy + ((F32) dy - fdy) * llmin(gFrameIntervalSeconds*amount,1.f);
+		fdx = fdx + ((F32) dx - fdx) * llmin(gFrameIntervalSeconds.value()*amount,1.f);
+		fdy = fdy + ((F32) dy - fdy) * llmin(gFrameIntervalSeconds.value()*amount,1.f);
 
 		mCurrentMouseDelta.set(llround(fdx), llround(fdy));
 		mouse_vel.setVec(fdx,fdy);
@@ -3248,7 +3250,7 @@ void LLViewerWindow::updateMouseDelta()
 		mouse_vel.setVec((F32) dx, (F32) dy);
 	}
     
-	mMouseVelocityStat.addValue(mouse_vel.magVec());
+	sMouseVelocityStat.sample(mouse_vel.magVec());
 }
 
 void LLViewerWindow::updateKeyboardFocus()
@@ -4273,12 +4275,12 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
 		if (!reset_deferred)
 		{
-			// if image cropping or need to enlarge the scene, compute a scale_factor
-			F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
-			snapshot_width  = (S32)(ratio * image_width) ;
-			snapshot_height = (S32)(ratio * image_height) ;
-			scale_factor = llmax(1.0f, 1.0f / ratio) ;
-		}
+		// if image cropping or need to enlarge the scene, compute a scale_factor
+		F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
+		snapshot_width  = (S32)(ratio * image_width) ;
+		snapshot_height = (S32)(ratio * image_height) ;
+		scale_factor = llmax(1.0f, 1.0f / ratio) ;
+	}
 	}
 	
 	if (show_ui && scale_factor > 1.f)
@@ -4480,7 +4482,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	{
 		send_agent_resume();
 	}
-	
+
 	return ret;
 }
 
@@ -4739,7 +4741,7 @@ void LLViewerWindow::stopGL(BOOL save_state)
 		gGLManager.mIsDisabled = TRUE;
 		stop_glerror();
 		
-		llinfos << "Remaining allocated texture memory: " << LLImageGL::sGlobalTextureMemoryInBytes << " bytes" << llendl;
+		llinfos << "Remaining allocated texture memory: " << LLImageGL::sGlobalTextureMemory.value() << " bytes" << llendl;
 	}
 }
 

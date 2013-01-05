@@ -29,11 +29,14 @@
 
 #include "llfloater.h"
 #include "llfasttimer.h"
+#include "llunit.h"
+#include "lltracerecording.h"
 
 class LLFastTimerView : public LLFloater
 {
 public:
 	LLFastTimerView(const LLSD&);
+	~LLFastTimerView();
 	BOOL postBuild();
 
 	static BOOL sAnalyzePerformance;
@@ -46,6 +49,7 @@ private:
 	static LLSD analyzePerformanceLogDefault(std::istream& is) ;
 	static void exportCharts(const std::string& base, const std::string& target);
 	void onPause();
+	LLTrace::TimeBlock& getFrameTimer();
 
 public:
 
@@ -58,7 +62,7 @@ public:
 	virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual void draw();
 
-	LLFastTimer::NamedTimer* getLegendID(S32 y);
+	LLTrace::TimeBlock* getLegendID(S32 y);
 	F64 getTime(const std::string& name);
 
 protected:
@@ -77,21 +81,21 @@ private:
 		ALIGN_COUNT
 	} ChildAlignment;
 
-	ChildAlignment mDisplayCenter;
-	S32 mDisplayCalls;
-	S32 mDisplayHz;
-	U64 mAvgCountTotal;
-	U64 mMaxCountTotal;
-	LLRect mBarRect;
-	S32	mScrollIndex;
-	LLFastTimer::NamedTimer* mHoverID;
-	LLFastTimer::NamedTimer* mHoverTimer;
-	LLRect					mToolTipRect;
-	S32 mHoverBarIndex;
-	LLFrameTimer mHighlightTimer;
-	S32 mPrintStats;
-	S32 mAverageCyclesPerTimer;
-	LLRect mGraphRect;
+	ChildAlignment                mDisplayCenter;
+	bool                          mDisplayCalls,
+								  mDisplayHz;
+	LLUnit<LLUnits::Seconds, F64> mAllTimeMax;
+	LLRect                        mBarRect;
+	S32						      mScrollIndex;
+	LLTrace::TimeBlock*           mHoverID;
+	LLTrace::TimeBlock*           mHoverTimer;
+	LLRect						  mToolTipRect;
+	S32                           mHoverBarIndex;
+	LLFrameTimer                  mHighlightTimer;
+	S32                           mPrintStats;
+	LLRect                        mGraphRect;
+	LLTrace::PeriodicRecording*	  mRecording;
+	bool						  mPauseHistory;
 };
 
 #endif

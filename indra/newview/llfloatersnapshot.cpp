@@ -992,7 +992,7 @@ void LLSnapshotLivePreview::saveTexture()
 		llwarns << "Error encoding snapshot" << llendl;
 	}
 
-	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_SNAPSHOT_COUNT );
+	LLStatViewer::SNAPSHOT.add(1);
 	
 	mDataSize = 0;
 }

@@ -105,7 +105,6 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 	  mMenuAdd(NULL),
 	  mNeedUploadCost(true)
 {
-	LLMemType mt(LLMemType::MTYPE_INVENTORY_VIEW_INIT);
 	// Menu Callbacks (non contex menus)
 	mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLPanelMainInventory::doToSelected, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.CloseAllFolders", boost::bind(&LLPanelMainInventory::closeAllFolders, this));
@@ -604,7 +603,6 @@ void LLPanelMainInventory::setFilterTextFromFilter()
 
 void LLPanelMainInventory::toggleFindOptions()
 {
-	LLMemType mt(LLMemType::MTYPE_INVENTORY_VIEW_TOGGLE);
 	LLFloater *floater = getFinder();
 	if (!floater)
 	{
@@ -726,7 +724,6 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
 
 void LLFloaterInventoryFinder::draw()
 {
-	LLMemType mt(LLMemType::MTYPE_INVENTORY_DRAW);
 	U64 filter = 0xffffffffffffffffULL;
 	BOOL filtered_by_all_types = TRUE;
 

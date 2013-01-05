@@ -29,7 +29,7 @@
 #include "llxuiparser.h"
 
 #include "llxmlnode.h"
-
+#include "llfasttimer.h"
 #ifdef LL_STANDALONE
 #include <expat.h>
 #else
@@ -861,11 +861,11 @@ bool LLXUIParser::readAttributes(LLXMLNodePtr nodep, LLInitParam::BaseBlock& blo
 	return any_parsed;
 }
 
-void LLXUIParser::writeXUI(LLXMLNodePtr node, const LLInitParam::BaseBlock &block, const LLInitParam::BaseBlock* diff_block)
+void LLXUIParser::writeXUIImpl(LLXMLNodePtr node, const LLInitParam::BaseBlock &block, const LLInitParam::predicate_rule_t rules, const LLInitParam::BaseBlock* diff_block)
 {
 	mWriteRootNode = node;
 	name_stack_t name_stack = Parser::name_stack_t();
-	block.serializeBlock(*this, name_stack, diff_block);
+	block.serializeBlock(*this, name_stack, rules, diff_block);
 	mOutNodes.clear();
 }
 
@@ -880,16 +880,24 @@ LLXMLNodePtr LLXUIParser::getNode(name_stack_t& stack)
 		it = next_it)
 	{
 		++next_it;
+		bool force_new_node = false;
+
 		if (it->first.empty())
 		{
 			it->second = false;
 			continue;
 		}
 
+		if (next_it != stack.end() && next_it->first.empty() && next_it->second)
+		{
+			force_new_node = true;
+		}
+
+
 		out_nodes_t::iterator found_it = mOutNodes.find(it->first);
 
 		// node with this name not yet written
-		if (found_it == mOutNodes.end() || it->second)
+		if (found_it == mOutNodes.end() || it->second || force_new_node)
 		{
 			// make an attribute if we are the last element on the name stack
 			bool is_attribute = next_it == stack.end();

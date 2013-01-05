@@ -33,6 +33,7 @@
 #include <string>
 
 #include "stdtypes.h"
+#include "llunit.h"
 
 /** 
  * @class LLDate
@@ -56,9 +57,9 @@ public:
 	/** 
 	 * @brief Construct a date from a seconds since epoch value.
 	 *
-	 * @pararm seconds_since_epoch The number of seconds since UTC epoch.
+	 * @param seconds_since_epoch The number of seconds since UTC epoch.
 	 */
-	LLDate(F64 seconds_since_epoch);
+	LLDate(LLUnit<LLUnits::Seconds, F64> seconds_since_epoch);
 
 	/** 
 	 * @brief Construct a date from a string representation

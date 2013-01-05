@@ -38,7 +38,6 @@
 #include "llvector4a.h"
 #include "llquaternion.h"
 #include "xform.h"
-#include "llmemtype.h"
 #include "lldarray.h"
 #include "llviewerobject.h"
 #include "llrect.h"
@@ -60,7 +59,9 @@ const U32 SILHOUETTE_HIGHLIGHT = 0;
 
 // All data for new renderer goes into this class.
 LL_ALIGN_PREFIX(16)
-class LLDrawable : public LLRefCount
+class LLDrawable 
+:	public LLRefCount,
+	public LLTrace::MemTrackable<LLDrawable>
 {
 public:
 	LLDrawable(const LLDrawable& rhs)
@@ -87,7 +88,6 @@ public:
 	}
 
 	LLDrawable()				{ init(); }
-	MEM_TYPE_NEW(LLMemType::MTYPE_DRAWABLE);
 	
 	void markDead();			// Mark this drawable as dead
 	BOOL isDead() const			{ return isState(DEAD); }
@@ -314,28 +314,28 @@ public:
 	LLSpatialBridge* getSpatialBridge() { return (LLSpatialBridge*) (LLDrawable*) mSpatialBridge; }
 	
 	static F32 sCurPixelAngle; //current pixels per radian
+	static LLTrace::MemStat sMemStat;
 
 private:
 	typedef std::vector<LLFace*> face_list_t;
 	
-	U32				mState;
-	S32				mRenderType;
-	LLPointer<LLViewerObject> mVObjp;
-	face_list_t     mFaces;
-	LLSpatialGroup* mSpatialGroupp;
-	LLPointer<LLDrawable> mSpatialBridge;
+	U32							mState;
+	S32							mRenderType;
+	LLPointer<LLViewerObject>	mVObjp;
+	face_list_t					mFaces;
+	LLSpatialGroup*				mSpatialGroupp;
+	LLPointer<LLDrawable>		mSpatialBridge;
 	
-	mutable U32		mVisible;
-	F32				mRadius;
-	F32				mBinRadius;
-	mutable S32		mBinIndex;
-	S32				mGeneration;
-	
-	LLVector3		mCurrentScale;
-	
-	static U32 sCurVisible; // Counter for what value of mVisible means currently visible
+	mutable U32					mVisible;
+	F32							mRadius;
+	F32							mBinRadius;
+	mutable S32					mBinIndex;
+	S32							mGeneration;
 
-	static U32 sNumZombieDrawables;
+	LLVector3					mCurrentScale;
+	
+	static U32					sCurVisible; // Counter for what value of mVisible means currently visible
+	static U32					sNumZombieDrawables;
 	static LLDynamicArrayPtr<LLPointer<LLDrawable> > sDeadList;
 } LL_ALIGN_POSTFIX(16);
 

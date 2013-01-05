@@ -28,6 +28,7 @@
 
 #include "llstl.h"
 #include "lltimer.h"	// ms_sleep()
+#include "lltracethreadrecorder.h"
 
 //============================================================================
 
@@ -134,8 +135,8 @@ S32 LLQueuedThread::updateQueue(F32 max_time_ms)
 		pending = getPending();
 		if(pending > 0)
 		{
-			unpause();
-		}
+		unpause();
+	}
 	}
 	else
 	{
@@ -508,6 +509,9 @@ void LLQueuedThread::run()
 		threadedUpdate();
 		
 		int res = processNextRequest();
+
+		LLTrace::get_thread_recorder()->pushToMaster();
+
 		if (res == 0)
 		{
 			mIdleThread = TRUE;

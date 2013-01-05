@@ -39,7 +39,6 @@
 #include "llimagebmp.h"
 #include "llimagej2c.h"
 #include "llimagetga.h"
-#include "llmemtype.h"
 #include "llstl.h"
 #include "llvfile.h"
 #include "llvfs.h"
@@ -65,6 +64,11 @@
 #include "lltexturecache.h"
 ///////////////////////////////////////////////////////////////////////////////
 
+// extern
+const LLUnit<LLUnits::Megabytes, S32> gMinVideoRam = 32;
+const LLUnit<LLUnits::Megabytes, S32> gMaxVideoRam = 512;
+
+
 // statics
 LLPointer<LLViewerTexture>        LLViewerTexture::sNullImagep = NULL;
 LLPointer<LLViewerTexture>        LLViewerTexture::sBlackImagep = NULL;
@@ -83,11 +87,11 @@ S32 LLViewerTexture::sAuxCount = 0;
 LLFrameTimer LLViewerTexture::sEvaluationTimer;
 F32 LLViewerTexture::sDesiredDiscardBias = 0.f;
 F32 LLViewerTexture::sDesiredDiscardScale = 1.1f;
-S32 LLViewerTexture::sBoundTextureMemoryInBytes = 0;
-S32 LLViewerTexture::sTotalTextureMemoryInBytes = 0;
-S32 LLViewerTexture::sMaxBoundTextureMemInMegaBytes = 0;
-S32 LLViewerTexture::sMaxTotalTextureMemInMegaBytes = 0;
-S32 LLViewerTexture::sMaxDesiredTextureMemInBytes = 0 ;
+LLUnit<LLUnits::Bytes, S32> LLViewerTexture::sBoundTextureMemory = 0;
+LLUnit<LLUnits::Bytes, S32> LLViewerTexture::sTotalTextureMemory = 0;
+LLUnit<LLUnits::Megabytes, S32> LLViewerTexture::sMaxBoundTextureMem = 0;
+LLUnit<LLUnits::Megabytes, S32> LLViewerTexture::sMaxTotalTextureMem = 0;
+LLUnit<LLUnits::Bytes, S32> LLViewerTexture::sMaxDesiredTextureMem = 0 ;
 S8  LLViewerTexture::sCameraMovingDiscardBias = 0 ;
 F32 LLViewerTexture::sCameraMovingBias = 0.0f ;
 S32 LLViewerTexture::sMaxSculptRez = 128 ; //max sculpt image size
@@ -519,17 +523,17 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 		LLViewerMediaTexture::updateClass() ;
 	}
 
-	sBoundTextureMemoryInBytes = LLImageGL::sBoundTextureMemoryInBytes;//in bytes
-	sTotalTextureMemoryInBytes = LLImageGL::sGlobalTextureMemoryInBytes;//in bytes
-	sMaxBoundTextureMemInMegaBytes = gTextureList.getMaxResidentTexMem();//in MB	
-	sMaxTotalTextureMemInMegaBytes = gTextureList.getMaxTotalTextureMem() ;//in MB
-	sMaxDesiredTextureMemInBytes = MEGA_BYTES_TO_BYTES(sMaxTotalTextureMemInMegaBytes) ; //in Bytes, by default and when total used texture memory is small.
+	sBoundTextureMemory = LLImageGL::sBoundTextureMemory;//in bytes
+	sTotalTextureMemory = LLImageGL::sGlobalTextureMemory;//in bytes
+	sMaxBoundTextureMem = gTextureList.getMaxResidentTexMem();//in MB	
+	sMaxTotalTextureMem = gTextureList.getMaxTotalTextureMem() ;//in MB
+	sMaxDesiredTextureMem = sMaxTotalTextureMem ; //in Bytes, by default and when total used texture memory is small.
 
-	if (BYTES_TO_MEGA_BYTES(sBoundTextureMemoryInBytes) >= sMaxBoundTextureMemInMegaBytes ||
-		BYTES_TO_MEGA_BYTES(sTotalTextureMemoryInBytes) >= sMaxTotalTextureMemInMegaBytes)
+	if (sBoundTextureMemory >= sMaxBoundTextureMem ||
+		sTotalTextureMemory >= sMaxTotalTextureMem)
 	{
-		//when texture memory overflows, lower down the threashold to release the textures more aggressively.
-		sMaxDesiredTextureMemInBytes = llmin((S32)(sMaxDesiredTextureMemInBytes * 0.75f) , MEGA_BYTES_TO_BYTES(MAX_VIDEO_RAM_IN_MEGA_BYTES)) ;//512 MB
+		//when texture memory overflows, lower down the threshold to release the textures more aggressively.
+		sMaxDesiredTextureMem = llmin(sMaxDesiredTextureMem * 0.75f, LLUnit<LLUnits::Bytes, S32>(gMaxVideoRam));
 	
 		// If we are using more texture memory than we should,
 		// scale up the desired discard level
@@ -545,8 +549,8 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 		sEvaluationTimer.reset();
 	}
 	else if (sDesiredDiscardBias > 0.0f &&
-			 BYTES_TO_MEGA_BYTES(sBoundTextureMemoryInBytes) < sMaxBoundTextureMemInMegaBytes * texmem_lower_bound_scale &&
-			 BYTES_TO_MEGA_BYTES(sTotalTextureMemoryInBytes) < sMaxTotalTextureMemInMegaBytes * texmem_lower_bound_scale)
+			 sBoundTextureMemory < sMaxBoundTextureMem * texmem_lower_bound_scale &&
+			 sTotalTextureMemory < sMaxTotalTextureMem * texmem_lower_bound_scale)
 	{			 
 		// If we are using less texture memory than we should,
 		// scale down the desired discard level
@@ -564,8 +568,8 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 	sCameraMovingBias = llmax(0.2f * camera_moving_speed, 2.0f * camera_angular_speed - 1);
 	sCameraMovingDiscardBias = (S8)(sCameraMovingBias);
 
-	LLViewerTexture::sFreezeImageScalingDown = (BYTES_TO_MEGA_BYTES(sBoundTextureMemoryInBytes) < 0.75f * sMaxBoundTextureMemInMegaBytes * texmem_middle_bound_scale) &&
-				(BYTES_TO_MEGA_BYTES(sTotalTextureMemoryInBytes) < 0.75f * sMaxTotalTextureMemInMegaBytes * texmem_middle_bound_scale) ;
+	LLViewerTexture::sFreezeImageScalingDown = (sBoundTextureMemory < 0.75f * sMaxBoundTextureMem * texmem_middle_bound_scale) &&
+				(sTotalTextureMemory < 0.75f * sMaxTotalTextureMem * texmem_middle_bound_scale) ;
 }
 
 //end of static functions
@@ -1921,13 +1925,13 @@ void LLViewerFetchedTexture::updateVirtualSize()
 				{
 					if (getBoostLevel() == LLViewerTexture::BOOST_NONE && 
 						drawable->getVObj() && drawable->getVObj()->isSelected())
-					{
+		{
 						setBoostLevel(LLViewerTexture::BOOST_SELECTED);
 					}
-					addTextureStats(facep->getVirtualSize()) ;
-					setAdditionalDecodePriority(facep->getImportanceToCamera()) ;
-				}
-			}
+			addTextureStats(facep->getVirtualSize()) ;
+			setAdditionalDecodePriority(facep->getImportanceToCamera()) ;
+		}
+	}
 		}
 	}
 
@@ -3331,13 +3335,13 @@ void LLViewerLODTexture::processTextureStats()
 				scaleDown() ;
 			}
 			// Limit the amount of GL memory bound each frame
-			else if ( BYTES_TO_MEGA_BYTES(sBoundTextureMemoryInBytes) > sMaxBoundTextureMemInMegaBytes * texmem_middle_bound_scale &&
+			else if ( sBoundTextureMemory > sMaxBoundTextureMem * texmem_middle_bound_scale &&
 				(!getBoundRecently() || mDesiredDiscardLevel >= mCachedRawDiscardLevel))
 			{
 				scaleDown() ;
 			}
 			// Only allow GL to have 2x the video card memory
-			else if ( BYTES_TO_MEGA_BYTES(sTotalTextureMemoryInBytes) > sMaxTotalTextureMemInMegaBytes*texmem_middle_bound_scale &&
+			else if ( sTotalTextureMemory > sMaxTotalTextureMem * texmem_middle_bound_scale &&
 				(!getBoundRecently() || mDesiredDiscardLevel >= mCachedRawDiscardLevel))
 			{
 				scaleDown() ;

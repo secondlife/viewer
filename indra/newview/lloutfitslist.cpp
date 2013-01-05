@@ -117,6 +117,8 @@ public:
 		registrar.add("Gear.Rename", boost::bind(&LLOutfitListGearMenu::onRename, this));
 		registrar.add("Gear.Delete", boost::bind(&LLOutfitsList::removeSelected, mOutfitList));
 		registrar.add("Gear.Create", boost::bind(&LLOutfitListGearMenu::onCreate, this, _2));
+		registrar.add("Gear.Collapse", boost::bind(&LLOutfitsList::collapse_all_folders, mOutfitList));
+		registrar.add("Gear.Expand", boost::bind(&LLOutfitsList::expand_all_folders, mOutfitList));
 
 		registrar.add("Gear.WearAdd", boost::bind(&LLOutfitListGearMenu::onAdd, this));
 
@@ -740,6 +742,34 @@ void LLOutfitsList::getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const
 		S32 prev_size = selected_uuids.size();
 		selected_uuids.resize(prev_size + uuids.size());
 		std::copy(uuids.begin(), uuids.end(), selected_uuids.begin() + prev_size);
+	}
+}
+
+void LLOutfitsList::collapse_all_folders()
+{
+	for (outfits_map_t::iterator iter = mOutfitsMap.begin();
+			iter != mOutfitsMap.end();
+			++iter)
+	{
+		LLAccordionCtrlTab*	tab = iter->second;
+		if(tab && tab->isExpanded())
+		{
+			tab->changeOpenClose(true);
+		}
+	}
+}
+
+void LLOutfitsList::expand_all_folders()
+{
+	for (outfits_map_t::iterator iter = mOutfitsMap.begin();
+			iter != mOutfitsMap.end();
+			++iter)
+	{
+		LLAccordionCtrlTab*	tab = iter->second;
+		if(tab && !tab->isExpanded())
+		{
+			tab->changeOpenClose(false);
+		}
 	}
 }
 

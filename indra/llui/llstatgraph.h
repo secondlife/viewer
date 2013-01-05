@@ -30,29 +30,86 @@
 #include "llview.h"
 #include "llframetimer.h"
 #include "v4color.h"
-
-class LLStat;
+#include "lltrace.h"
 
 class LLStatGraph : public LLView
 {
 public:
-	LLStatGraph(const LLView::Params&);
+	struct ThresholdParams : public LLInitParam::Block<ThresholdParams>
+	{
+		Mandatory<F32>	value;
+		Optional<LLUIColor>	color;
 
-	virtual void draw();
+		ThresholdParams()
+		:	value("value"),
+			color("color", LLColor4::white)
+		{}
+	};
 
-	void setLabel(const std::string& label);
-	void setUnits(const std::string& units);
-	void setPrecision(const S32 precision);
-	void setStat(LLStat *statp);
-	void setThreshold(const S32 i, F32 value);
+	struct Thresholds : public LLInitParam::Block<Thresholds>
+	{
+		Multiple<ThresholdParams> threshold;
+
+		Thresholds()
+		:	threshold("threshold")
+		{}
+	};
+
+	struct StatParams : public LLInitParam::ChoiceBlock<StatParams>
+	{
+		Alternative<LLTrace::TraceType<LLTrace::CountAccumulator<F64> >* >		count_stat_float;
+		Alternative<LLTrace::TraceType<LLTrace::CountAccumulator<S64> >* >		count_stat_int;
+		Alternative<LLTrace::TraceType<LLTrace::MeasurementAccumulator<F64> >* >	measurement_stat_float;
+		Alternative<LLTrace::TraceType<LLTrace::MeasurementAccumulator<S64> >* >	measurement_stat_int;
+	};
+
+	struct Params : public LLInitParam::Block<Params, LLView::Params>
+	{
+		Mandatory<StatParams>	stat;
+		Optional<std::string>	label,
+								units;
+		Optional<S32>			precision;
+		Optional<F32>			min,
+								max;
+		Optional<bool>			per_sec;
+		Optional<F32>			value;
+
+		Optional<Thresholds>	thresholds;
+
+		Params()
+		:	stat("stat"),
+			label("label"),
+			units("units"),
+			precision("precision", 0),
+			min("min", 0.f),
+			max("max", 125.f),
+			per_sec("per_sec", true),
+			value("value", 0.f),
+			thresholds("thresholds")
+		{
+			Thresholds _thresholds;
+			_thresholds.threshold.add(ThresholdParams().value(0.f).color(LLColor4::green))
+								.add(ThresholdParams().value(0.33f).color(LLColor4::yellow))
+								.add(ThresholdParams().value(0.5f).color(LLColor4::red))
+								.add(ThresholdParams().value(0.75f).color(LLColor4::red));
+			thresholds = _thresholds;
+		}
+	};
+	LLStatGraph(const Params&);
+
 	void setMin(const F32 min);
 	void setMax(const F32 max);
 
+	virtual void draw();
+
 	/*virtual*/ void setValue(const LLSD& value);
 	
-	LLStat *mStatp;
-	BOOL mPerSec;
 private:
+	LLTrace::TraceType<LLTrace::CountAccumulator<F64> >*	mNewStatFloatp;
+	LLTrace::TraceType<LLTrace::CountAccumulator<S64> >*	mNewStatIntp;
+
+	BOOL mPerSec;
+
 	F32 mValue;
 
 	F32 mMin;
@@ -62,9 +119,25 @@ private:
 	std::string mUnits;
 	S32 mPrecision; // Num of digits of precision after dot
 
-	S32 mNumThresholds;
-	F32 mThresholds[4];
-	LLColor4 mThresholdColors[4];
+	struct Threshold
+	{
+		Threshold(F32 value, const LLUIColor& color)
+		:	mValue(value),
+			mColor(color)
+		{}
+
+		F32 mValue;
+		LLUIColor mColor;
+		bool operator <(const Threshold& other)
+		{
+			return mValue < other.mValue;
+		}
+	};
+	typedef std::vector<Threshold> threshold_vec_t;
+	threshold_vec_t mThresholds;
+	//S32 mNumThresholds;
+	//F32 mThresholds[4];
+	//LLColor4 mThresholdColors[4];
 };
 
 #endif  // LL_LLSTATGRAPH_H

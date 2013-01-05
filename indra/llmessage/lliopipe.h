@@ -31,6 +31,7 @@
 
 #include <boost/intrusive_ptr.hpp>
 #include <boost/shared_ptr.hpp>
+#include "llwin32headerslean.h"
 #include "apr_poll.h"
 
 #include "llsd.h"

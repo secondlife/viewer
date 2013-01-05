@@ -28,7 +28,7 @@
  */
 
 #if LL_WINDOWS
-#include <windows.h>
+#include "llwin32headerslean.h"
 #include <stdlib.h>                 // Windows errno
 #else
 #include <errno.h>

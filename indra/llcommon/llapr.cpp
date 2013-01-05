@@ -29,6 +29,7 @@
 #include "linden_common.h"
 #include "llapr.h"
 #include "apr_dso.h"
+#include "llthreadlocalstorage.h"
 
 apr_pool_t *gAPRPoolp = NULL; // Global APR memory pool
 LLVolatileAPRPool *LLAPRFile::sAPRFilePoolp = NULL ; //global volatile APR memory pool.
@@ -52,8 +53,10 @@ void ll_init_apr()
 
 	if(!LLAPRFile::sAPRFilePoolp)
 	{
-		LLAPRFile::sAPRFilePoolp = new LLVolatileAPRPool(FALSE) ;
+		LLAPRFile::sAPRFilePoolp = new LLVolatileAPRPool(FALSE);
 	}
+
+	LLThreadLocalPointerBase::initAllThreadLocalStorage();
 }
 
 
@@ -77,6 +80,9 @@ void ll_cleanup_apr()
 		apr_thread_mutex_destroy(gCallStacksLogMutexp);
 		gCallStacksLogMutexp = NULL;
 	}
+
+	LLThreadLocalPointerBase::destroyAllThreadLocalStorage();
+
 	if (gAPRPoolp)
 	{
 		apr_pool_destroy(gAPRPoolp);
@@ -84,7 +90,7 @@ void ll_cleanup_apr()
 	}
 	if (LLAPRFile::sAPRFilePoolp)
 	{
-		delete LLAPRFile::sAPRFilePoolp ;
+		delete LLAPRFile::sAPRFilePoolp ;	
 		LLAPRFile::sAPRFilePoolp = NULL ;
 	}
 	apr_terminate();
@@ -474,6 +480,77 @@ S32 LLAPRFile::write(const void *buf, S32 nbytes)
 S32 LLAPRFile::seek(apr_seek_where_t where, S32 offset)
 {
 	return LLAPRFile::seek(mFile, where, offset) ;
+}
+
+//
+//LLThreadLocalPointerBase
+//
+bool LLThreadLocalPointerBase::sInitialized = false;
+
+void LLThreadLocalPointerBase::set( void* value )
+{
+	llassert(sInitialized && mThreadKey);
+
+	apr_status_t result = apr_threadkey_private_set((void*)value, mThreadKey);
+	if (result != APR_SUCCESS)
+	{
+		ll_apr_warn_status(result);
+		llerrs << "Failed to set thread local data" << llendl;
+	}
+}
+
+void LLThreadLocalPointerBase::initStorage( )
+{
+	apr_status_t result = apr_threadkey_private_create(&mThreadKey, NULL, gAPRPoolp);
+	if (result != APR_SUCCESS)
+	{
+		ll_apr_warn_status(result);
+		llerrs << "Failed to allocate thread local data" << llendl;
+	}
+}
+
+void LLThreadLocalPointerBase::destroyStorage()
+{
+	if (sInitialized)
+	{
+		if (mThreadKey)
+		{
+			apr_status_t result = apr_threadkey_private_delete(mThreadKey);
+			if (result != APR_SUCCESS)
+			{
+				ll_apr_warn_status(result);
+				llerrs << "Failed to delete thread local data" << llendl;
+			}
+		}
+	}
+}
+
+void LLThreadLocalPointerBase::initAllThreadLocalStorage()
+{
+	if (!sInitialized)
+	{
+		for (LLInstanceTracker<LLThreadLocalPointerBase>::instance_iter it = beginInstances(), end_it = endInstances();
+			it != end_it;
+			++it)
+		{
+			(*it).initStorage();
+		}
+		sInitialized = true;
+	}
+}
+
+void LLThreadLocalPointerBase::destroyAllThreadLocalStorage()
+{
+	if (sInitialized)
+	{
+		//for (LLInstanceTracker<LLThreadLocalPointerBase>::instance_iter it = beginInstances(), end_it = endInstances();
+		//	it != end_it;
+		//	++it)
+		//{
+		//	(*it).destroyStorage();
+		//}
+		sInitialized = false;
+	}
 }
 
 //

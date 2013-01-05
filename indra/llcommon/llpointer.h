@@ -97,24 +97,13 @@ public:
 
 	LLPointer<Type>& operator =(Type* ptr)                   
 	{ 
-		if( mPointer != ptr )
-		{
-			unref(); 
-			mPointer = ptr; 
-			ref();
-		}
-
+		assign(ptr);
 		return *this; 
 	}
 
 	LLPointer<Type>& operator =(const LLPointer<Type>& ptr)  
 	{ 
-		if( mPointer != ptr.mPointer )
-		{
-			unref(); 
-			mPointer = ptr.mPointer;
-			ref();
-		}
+		assign(ptr);
 		return *this; 
 	}
 
@@ -122,12 +111,7 @@ public:
 	template<typename Subclass>
 	LLPointer<Type>& operator =(const LLPointer<Subclass>& ptr)  
 	{ 
-		if( mPointer != ptr.get() )
-		{
-			unref(); 
-			mPointer = ptr.get();
-			ref();
-		}
+		assign(ptr.get());
 		return *this; 
 	}
 	
@@ -144,6 +128,16 @@ protected:
 	void ref();                             
 	void unref();
 #else
+
+	void assign(const LLPointer<Type>& ptr)
+	{
+		if( mPointer != ptr.mPointer )
+		{
+			unref(); 
+			mPointer = ptr.mPointer;
+			ref();
+		}
+	}
 	void ref()                             
 	{ 
 		if (mPointer)
@@ -156,9 +150,9 @@ protected:
 	{
 		if (mPointer)
 		{
-			Type *tempp = mPointer;
+			Type *temp = mPointer;
 			mPointer = NULL;
-			tempp->unref();
+			temp->unref();
 			if (mPointer != NULL)
 			{
 				llwarns << "Unreference did assignment to non-NULL because of destructor" << llendl;
@@ -169,6 +163,55 @@ protected:
 #endif
 protected:
 	Type*	mPointer;
+};
+
+template<typename Type>
+class LLCopyOnWritePointer
+{
+public:
+	typedef LLCopyOnWritePointer<Type> self_t;
+
+	LLCopyOnWritePointer() 
+	{}
+
+	LLCopyOnWritePointer(Type* ptr) 
+	:	mPointer(ptr)
+	{}
+
+	LLCopyOnWritePointer(LLPointer<Type>& ptr)
+	:	mPointer(ptr)
+	{}
+
+	Type* write()
+	{
+		makeUnique();
+		return mPointer.get();
+	}
+
+	void makeUnique()
+	{
+		if (mPointer.notNull() && mPointer.get()->getNumRefs() > 1)
+		{
+			mPointer = new Type(*mPointer.get());
+		}
+	}
+
+	operator BOOL()  const						{ return (BOOL)mPointer; }
+	operator bool()  const						{ return (bool)mPointer; }
+	bool operator!() const						{ return !mPointer; }
+	bool isNull() const							{ return mPointer.isNull(); }
+	bool notNull() const						{ return mPointer.notNull(); }
+
+	bool operator !=(Type* ptr) const           { return (mPointer.get() != ptr); 	}
+	bool operator ==(Type* ptr) const           { return (mPointer.get() == ptr); 	}
+	bool operator ==(const LLCopyOnWritePointer<Type>& ptr) const     { return (mPointer == ptr.mPointer); 	}
+	bool operator < (const LLCopyOnWritePointer<Type>& ptr) const     { return (mPointer < ptr.mPointer); 	}
+	bool operator > (const LLCopyOnWritePointer<Type>& ptr) const     { return (mPointer > ptr.mPointer); 	}
+
+	operator const Type*()   const				{ return mPointer.get(); }
+	const Type*	operator->() const				{ return mPointer.get(); }
+protected:
+	 LLPointer<Type> mPointer;
 };
 
 #endif

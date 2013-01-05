@@ -34,7 +34,6 @@
 #include "llhudicon.h"
 #include "llinventory.h"
 #include "llrefcount.h"
-#include "llmemtype.h"
 #include "llprimitive.h"
 #include "lluuid.h"
 #include "llvoinventorylistener.h"
@@ -108,7 +107,11 @@ struct PotentialReturnableObject
 
 //============================================================================
 
-class LLViewerObject : public LLPrimitive, public LLRefCount, public LLGLUpdate
+class LLViewerObject 
+:	public LLPrimitive, 
+	public LLRefCount, 
+	public LLGLUpdate,
+	public LLTrace::MemTrackable<LLViewerObject>
 {
 protected:
 	~LLViewerObject(); // use unref()
@@ -128,7 +131,6 @@ public:
 	typedef const child_list_t const_child_list_t;
 
 	LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, BOOL is_global = FALSE);
-	MEM_TYPE_NEW(LLMemType::MTYPE_OBJECT);
 
 	virtual void markDead();				// Mark this object as dead, and clean up its references
 	BOOL isDead() const									{return mDead;}
@@ -632,7 +634,8 @@ public:
 	LLPointer<LLHUDText> mText;
 	LLPointer<LLHUDIcon> mIcon;
 
-	static			BOOL		sUseSharedDrawables;
+	static	BOOL				sUseSharedDrawables;
+	static	LLTrace::MemStat	sMemStat;
 
 protected:
 	// delete an item in the inventory, but don't tell the
@@ -668,8 +671,6 @@ protected:
 	void deleteParticleSource();
 	void setParticleSource(const LLPartSysData& particle_parameters, const LLUUID& owner_id);
 	
-public:
-		
 private:
 	void setNameValueList(const std::string& list);		// clears nv pairs and then individually adds \n separated NV pairs from \0 terminated string
 	void deleteTEImages(); // correctly deletes list of images
@@ -747,6 +748,7 @@ protected:
 	static			BOOL		sPulseEnabled;
 
 	static			S32			sAxisArrowLength;
+
 
 	// These two caches are only correct for non-parented objects right now!
 	mutable LLVector3		mPositionRegion;

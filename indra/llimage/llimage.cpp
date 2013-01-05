@@ -30,7 +30,6 @@
 
 #include "llmath.h"
 #include "v4coloru.h"
-#include "llmemtype.h"
 
 #include "llimagebmp.h"
 #include "llimagetga.h"
@@ -51,6 +50,7 @@ LLMutex* LLImage::sMutex = NULL;
 bool LLImage::sUseNewByteRange = false;
 S32  LLImage::sMinimalReverseByteRangePercent = 75;
 LLPrivateMemoryPool* LLImageBase::sPrivatePoolp = NULL ;
+LLTrace::MemStat	LLImageBase::sMemStat("LLImage");
 
 //static
 void LLImage::initClass(bool use_new_byte_range, S32 minimal_reverse_byte_range_percent)
@@ -96,8 +96,7 @@ LLImageBase::LLImageBase()
 	  mHeight(0),
 	  mComponents(0),
 	  mBadBufferAllocation(false),
-	  mAllowOverSize(false),
-	  mMemType(LLMemType::MTYPE_IMAGEBASE)
+	  mAllowOverSize(false)
 {
 }
 
@@ -159,7 +158,8 @@ void LLImageBase::sanityCheck()
 // virtual
 void LLImageBase::deleteData()
 {
-	FREE_MEM(sPrivatePoolp, mData) ;
+	FREE_MEM(sPrivatePoolp, mData);
+	memDisclaim(mDataSize);
 	mData = NULL;
 	mDataSize = 0;
 }
@@ -167,8 +167,6 @@ void LLImageBase::deleteData()
 // virtual
 U8* LLImageBase::allocateData(S32 size)
 {
-	LLMemType mt1(mMemType);
-	
 	if (size < 0)
 	{
 		size = mWidth * mHeight * mComponents;
@@ -205,6 +203,7 @@ U8* LLImageBase::allocateData(S32 size)
 			mBadBufferAllocation = true ;
 		}
 		mDataSize = size;
+		memClaim(mDataSize);
 	}
 
 	return mData;
@@ -213,7 +212,6 @@ U8* LLImageBase::allocateData(S32 size)
 // virtual
 U8* LLImageBase::reallocateData(S32 size)
 {
-	LLMemType mt1(mMemType);
 	U8 *new_datap = (U8*)ALLOCATE_MEM(sPrivatePoolp, size);
 	if (!new_datap)
 	{
@@ -227,7 +225,9 @@ U8* LLImageBase::reallocateData(S32 size)
 		FREE_MEM(sPrivatePoolp, mData) ;
 	}
 	mData = new_datap;
+	memDisclaim(mDataSize);
 	mDataSize = size;
+	memClaim(mDataSize);
 	return mData;
 }
 
@@ -279,14 +279,12 @@ S32 LLImageRaw::sRawImageCount = 0;
 LLImageRaw::LLImageRaw()
 	: LLImageBase()
 {
-	mMemType = LLMemType::MTYPE_IMAGERAW;
 	++sRawImageCount;
 }
 
 LLImageRaw::LLImageRaw(U16 width, U16 height, S8 components)
 	: LLImageBase()
 {
-	mMemType = LLMemType::MTYPE_IMAGERAW;
 	//llassert( S32(width) * S32(height) * S32(components) <= MAX_IMAGE_DATA_SIZE );
 	allocateDataSize(width, height, components);
 	++sRawImageCount;
@@ -295,8 +293,6 @@ LLImageRaw::LLImageRaw(U16 width, U16 height, S8 components)
 LLImageRaw::LLImageRaw(U8 *data, U16 width, U16 height, S8 components, bool no_copy)
 	: LLImageBase()
 {
-	mMemType = LLMemType::MTYPE_IMAGERAW;
-
 	if(no_copy)
 	{
 		setDataAndSize(data, width, height, components);
@@ -375,29 +371,6 @@ BOOL LLImageRaw::resize(U16 width, U16 height, S8 components)
 	return TRUE;
 }
 
-#if 0
-U8 * LLImageRaw::getSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height) const
-{
-	LLMemType mt1(mMemType);
-	U8 *data = new U8[width*height*getComponents()];
-
-	// Should do some simple bounds checking
-	if (!data)
-	{
-		llerrs << "Out of memory in LLImageRaw::getSubImage" << llendl;
-		return NULL;
-	}
-
-	U32 i;
-	for (i = y_pos; i < y_pos+height; i++)
-	{
-		memcpy(data + i*width*getComponents(),		/* Flawfinder: ignore */
-				getData() + ((y_pos + i)*getWidth() + x_pos)*getComponents(), getComponents()*width);
-	}
-	return data;
-}
-#endif
-
 BOOL LLImageRaw::setSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height,
 							 const U8 *data, U32 stride, BOOL reverse_y)
 {
@@ -462,7 +435,6 @@ void LLImageRaw::clear(U8 r, U8 g, U8 b, U8 a)
 // Reverses the order of the rows in the image
 void LLImageRaw::verticalFlip()
 {
-	LLMemType mt1(mMemType);
 	S32 row_bytes = getWidth() * getComponents();
 	llassert(row_bytes > 0);
 	std::vector<U8> line_buffer(row_bytes);
@@ -595,7 +567,6 @@ void LLImageRaw::composite( LLImageRaw* src )
 // Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
 void LLImageRaw::compositeScaled4onto3(LLImageRaw* src)
 {
-	LLMemType mt1(mMemType);
 	llinfos << "compositeScaled4onto3" << llendl;
 
 	LLImageRaw* dst = this;  // Just for clarity.
@@ -837,7 +808,6 @@ void LLImageRaw::copyUnscaled3onto4( LLImageRaw* src )
 // Src and dst can be any size.  Src and dst have same number of components.
 void LLImageRaw::copyScaled( LLImageRaw* src )
 {
-	LLMemType mt1(mMemType);
 	LLImageRaw* dst = this;  // Just for clarity.
 
 	llassert_always( (1 == src->getComponents()) || (3 == src->getComponents()) || (4 == src->getComponents()) );
@@ -866,57 +836,9 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 	}
 }
 
-#if 0
-//scale down image by not blending a pixel with its neighbors.
-BOOL LLImageRaw::scaleDownWithoutBlending( S32 new_width, S32 new_height)
-{
-	LLMemType mt1(mMemType);
-
-	S8 c = getComponents() ;
-	llassert((1 == c) || (3 == c) || (4 == c) );
-
-	S32 old_width = getWidth();
-	S32 old_height = getHeight();
-	
-	S32 new_data_size = old_width * new_height * c ;
-	llassert_always(new_data_size > 0);
-
-	F32 ratio_x = (F32)old_width / new_width ;
-	F32 ratio_y = (F32)old_height / new_height ;
-	if( ratio_x < 1.0f || ratio_y < 1.0f )
-	{
-		return TRUE;  // Nothing to do.
-	}
-	ratio_x -= 1.0f ;
-	ratio_y -= 1.0f ;
-
-	U8* new_data = allocateMemory(new_data_size) ;
-	llassert_always(new_data != NULL) ;
-
-	U8* old_data = getData() ;
-	S32 i, j, k, s, t;
-	for(i = 0, s = 0, t = 0 ; i < new_height ; i++)
-	{
-		for(j = 0 ; j < new_width ; j++)
-		{
-			for(k = 0 ; k < c ; k++)
-			{
-				new_data[s++] = old_data[t++] ;
-			}
-			t += (S32)(ratio_x * c + 0.1f) ;
-		}
-		t += (S32)(ratio_y * old_width * c + 0.1f) ;
-	}
-
-	setDataAndSize(new_data, new_width, new_height, c) ;
-	
-	return TRUE ;
-}
-#endif
 
 BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 {
-	LLMemType mt1(mMemType);
 	llassert((1 == getComponents()) || (3 == getComponents()) || (4 == getComponents()) );
 
 	S32 old_width = getWidth();
@@ -1346,7 +1268,6 @@ LLImageFormatted::LLImageFormatted(S8 codec)
 	  mDiscardLevel(-1),
 	  mLevels(0)
 {
-	mMemType = LLMemType::MTYPE_IMAGEFORMATTED;
 }
 
 // virtual
@@ -1668,7 +1589,9 @@ static void avg4_colors2(const U8* a, const U8* b, const U8* c, const U8* d, U8*
 void LLImageBase::setDataAndSize(U8 *data, S32 size)
 { 
 	ll_assert_aligned(data, 16);
+	memDisclaim(mDataSize);
 	mData = data; mDataSize = size; 
+	memClaim(mDataSize);
 }	
 
 //static
