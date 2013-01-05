@@ -55,6 +55,8 @@
 #include "lltexteditor.h"
 #include "lltextbox.h"
 
+static const S32 LINE_HEIGHT = 15;
+
 S32		LLView::sDepth = 0;
 bool	LLView::sDebugRects = false;
 bool	LLView::sDebugRectsShowNames = true;
@@ -1203,11 +1205,24 @@ void LLView::drawDebugRect()
 			&& preview_iter == sPreviewHighlightedElements.end()
 			&& sDebugRectsShowNames)
 		{
-			//char temp[256];
 			S32 x, y;
 			gGL.color4fv( border_color.mV );
-			x = debug_rect.getWidth()/2;
-			y = debug_rect.getHeight()/2;
+
+			x = debug_rect.getWidth() / 2;
+
+			S32 rect_height = debug_rect.getHeight();
+			S32 lines = rect_height / LINE_HEIGHT + 1;
+
+			S32 depth = 0;
+			LLView * viewp = this;
+			while (NULL != viewp)
+			{
+				viewp = viewp->getParent();
+				depth++;
+			}
+
+			y = rect_height - LINE_HEIGHT * (depth % lines + 1);
+
 			std::string debug_text = llformat("%s (%d x %d)", getName().c_str(),
 										debug_rect.getWidth(), debug_rect.getHeight());
 			LLFontGL::getFontSansSerifSmall()->renderUTF8(debug_text, 0, (F32)x, (F32)y, border_color,

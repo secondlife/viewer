@@ -66,6 +66,8 @@ public:
 
 	void onStartUpToastClick(S32 x, S32 y, MASK mask);
 
+	void setSysWellChiclet(LLSysWellChiclet* chiclet);
+
 	// size constants for the window and for its elements
 	static const S32 MAX_WINDOW_HEIGHT		= 200;
 	static const S32 MIN_WINDOW_WIDTH		= 318;
@@ -83,6 +85,11 @@ protected:
 	// pointer to a corresponding channel's instance
 	LLNotificationsUI::LLScreenChannel*	mChannel;
 	LLFlatListView*	mMessageList;
+
+	/**
+	 * Reference to an appropriate Well chiclet to release "new message" state. EXT-3147
+	 */
+	LLSysWellChiclet* mSysWellChiclet;
 
 	bool mIsReshapedByUser;
 };

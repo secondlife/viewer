@@ -27,21 +27,212 @@
 #include "llviewerprecompiledheaders.h" // must be first include
 #include "llchiclet.h"
 
+#include "llchicletbar.h"
 #include "llfloaterimsession.h"
 #include "llfloaterimcontainer.h"
 #include "llfloaterreg.h"
 #include "lllocalcliprect.h"
-#include "llnotifications.h"
 #include "llscriptfloater.h"
 #include "llsingleton.h"
+#include "llsyswellwindow.h"
 
 static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
+static LLDefaultChildRegistry::Register<LLNotificationChiclet> t2("chiclet_notification");
 static LLDefaultChildRegistry::Register<LLScriptChiclet> t6("chiclet_script");
 static LLDefaultChildRegistry::Register<LLInvOfferChiclet> t7("chiclet_offer");
 
 boost::signals2::signal<LLChiclet* (const LLUUID&),
 		LLIMChiclet::CollectChicletCombiner<std::list<LLChiclet*> > >
 		LLIMChiclet::sFindChicletsSignal;
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+LLSysWellChiclet::Params::Params()
+	: button("button")
+	, unread_notifications("unread_notifications")
+	, max_displayed_count("max_displayed_count", 99)
+{
+	button.name = "button";
+	button.tab_stop = FALSE;
+	button.label = LLStringUtil::null;
+}
+
+LLSysWellChiclet::LLSysWellChiclet(const Params& p)
+	: LLChiclet(p)
+	, mButton(NULL)
+	, mCounter(0)
+	, mMaxDisplayedCount(p.max_displayed_count)
+	, mIsNewMessagesState(false)
+	, mFlashToLitTimer(NULL)
+	, mContextMenu(NULL)
+{
+	LLButton::Params button_params = p.button;
+	mButton = LLUICtrlFactory::create<LLButton>(button_params);
+	addChild(mButton);
+
+	mFlashToLitTimer = new LLFlashTimer(boost::bind(&LLSysWellChiclet::changeLitState, this, _1));
+}
+
+LLSysWellChiclet::~LLSysWellChiclet()
+{
+	mFlashToLitTimer->unset();
+}
+
+void LLSysWellChiclet::setCounter(S32 counter)
+{
+	// do nothing if the same counter is coming. EXT-3678.
+	if (counter == mCounter) return;
+
+	// note same code in LLChicletNotificationCounterCtrl::setCounter(S32 counter)
+	std::string s_count;
+	if(counter != 0)
+	{
+		static std::string more_messages_exist("+");
+		std::string more_messages(counter > mMaxDisplayedCount ? more_messages_exist : "");
+		s_count = llformat("%d%s"
+			, llmin(counter, mMaxDisplayedCount)
+			, more_messages.c_str()
+			);
+	}
+
+	mButton->setLabel(s_count);
+
+	mCounter = counter;
+}
+
+boost::signals2::connection LLSysWellChiclet::setClickCallback(
+	const commit_callback_t& cb)
+{
+	return mButton->setClickedCallback(cb);
+}
+
+void LLSysWellChiclet::setToggleState(BOOL toggled) {
+	mButton->setToggleState(toggled);
+}
+
+void LLSysWellChiclet::changeLitState(bool blink)
+{
+	setNewMessagesState(!mIsNewMessagesState);
+}
+
+void LLSysWellChiclet::setNewMessagesState(bool new_messages)
+{
+	/*
+	Emulate 4 states of button by background images, see detains in EXT-3147
+	xml attribute           Description
+	image_unselected        "Unlit" - there are no new messages
+	image_selected          "Unlit" + "Selected" - there are no new messages and the Well is open
+	image_pressed           "Lit" - there are new messages
+	image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well is open
+	*/
+	mButton->setForcePressedState(new_messages);
+
+	mIsNewMessagesState = new_messages;
+}
+
+void LLSysWellChiclet::updateWidget(bool is_window_empty)
+{
+	mButton->setEnabled(!is_window_empty);
+
+	if (LLChicletBar::instanceExists())
+	{
+		LLChicletBar::getInstance()->showWellButton(getName(), !is_window_empty);
+	}
+}
+// virtual
+BOOL LLSysWellChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	if(!mContextMenu)
+	{
+		createMenu();
+	}
+	if (mContextMenu)
+	{
+		mContextMenu->show(x, y);
+		LLMenuGL::showPopup(this, mContextMenu, x, y);
+	}
+	return TRUE;
+}
+
+/************************************************************************/
+/*               LLNotificationChiclet implementation                   */
+/************************************************************************/
+LLNotificationChiclet::LLNotificationChiclet(const Params& p)
+:	LLSysWellChiclet(p),
+	mUreadSystemNotifications(0)
+{
+	mNotificationChannel.reset(new ChicletNotificationChannel(this));
+	// ensure that notification well window exists, to synchronously
+	// handle toast add/delete events.
+	LLNotificationWellWindow::getInstance()->setSysWellChiclet(this);
+}
+
+void LLNotificationChiclet::onMenuItemClicked(const LLSD& user_data)
+{
+	std::string action = user_data.asString();
+	if("close all" == action)
+	{
+		LLNotificationWellWindow::getInstance()->closeAll();
+	}
+}
+
+bool LLNotificationChiclet::enableMenuItem(const LLSD& user_data)
+{
+	std::string item = user_data.asString();
+	if (item == "can close all")
+	{
+		return mUreadSystemNotifications != 0;
+	}
+	return true;
+}
+
+void LLNotificationChiclet::createMenu()
+{
+	if(mContextMenu)
+	{
+		llwarns << "Menu already exists" << llendl;
+		return;
+	}
+
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+	registrar.add("NotificationWellChicletMenu.Action",
+		boost::bind(&LLNotificationChiclet::onMenuItemClicked, this, _2));
+
+	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+	enable_registrar.add("NotificationWellChicletMenu.EnableItem",
+		boost::bind(&LLNotificationChiclet::enableMenuItem, this, _2));
+
+	mContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>
+		("menu_notification_well_button.xml",
+		 LLMenuGL::sMenuContainer,
+		 LLViewerMenuHolderGL::child_registry_t::instance());
+}
+
+/*virtual*/
+void LLNotificationChiclet::setCounter(S32 counter)
+{
+	LLSysWellChiclet::setCounter(counter);
+	updateWidget(getCounter() == 0);
+	
+}
+
+bool LLNotificationChiclet::ChicletNotificationChannel::filterNotification( LLNotificationPtr notification )
+{
+	if (notification->getName() == "ScriptDialog")
+	{
+		return false;
+	}
+
+	if( !(notification->canLogToIM() && notification->hasFormElements())
+		&& (!notification->getPayload().has("give_inventory_notification")
+			|| notification->getPayload()["give_inventory_notification"]))
+	{
+		return true;
+	}
+	return false;
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -57,12 +248,6 @@ LLChiclet::LLChiclet(const Params& p)
 , mSessionId(LLUUID::null)
 , mShowCounter(p.show_counter)
 {
-
-}
-
-LLChiclet::~LLChiclet()
-{
-
 }
 
 boost::signals2::connection LLChiclet::setLeftButtonClickCallback(
@@ -123,6 +308,15 @@ BOOL LLIMChiclet::postBuild()
 	mChicletButton->setCommitCallback(boost::bind(&LLIMChiclet::onMouseDown, this));
 	mChicletButton->setDoubleClickCallback(boost::bind(&LLIMChiclet::onMouseDown, this));
 	return TRUE;
+}
+
+void LLIMChiclet::enableCounterControl(bool enable) 
+{
+	mCounterEnabled = enable;
+	if(!enable)
+	{
+		LLChiclet::setShowCounter(false);
+	}
 }
 
 void LLIMChiclet::setRequiredWidth()
@@ -791,12 +985,18 @@ bool LLChicletPanel::isAnyIMFloaterDoked()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
+LLChicletNotificationCounterCtrl::Params::Params()
+	: max_displayed_count("max_displayed_count", 99)
+{
+}
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 LLChicletAvatarIconCtrl::LLChicletAvatarIconCtrl(const Params& p)
  : LLAvatarIconCtrl(p)
 {
 }
-
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

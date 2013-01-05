@@ -49,6 +49,11 @@
 /// LLOutboxNotification class
 ///----------------------------------------------------------------------------
 
+LLNotificationsUI::LLOutboxNotification::LLOutboxNotification()
+	: LLSystemNotificationHandler("Outbox", "outbox")
+{
+}
+
 bool LLNotificationsUI::LLOutboxNotification::processNotification(const LLNotificationPtr& notify)
 {
 	LLFloaterOutbox* outbox_floater = LLFloaterReg::getTypedInstance<LLFloaterOutbox>("outbox");
@@ -60,10 +65,10 @@ bool LLNotificationsUI::LLOutboxNotification::processNotification(const LLNotifi
 
 void LLNotificationsUI::LLOutboxNotification::onDelete(LLNotificationPtr p)
 {
-	LLNotificationsUI::LLSysHandler * sys_handler = dynamic_cast<LLNotificationsUI::LLSysHandler*>(LLNotifications::instance().getChannel("AlertModal").get());
-	if (sys_handler)
+	LLNotificationsUI::LLNotificationHandler * notification_handler = dynamic_cast<LLNotificationsUI::LLNotificationHandler*>(LLNotifications::instance().getChannel("AlertModal").get());
+	if (notification_handler)
 	{
-		sys_handler->onDelete(p);
+		notification_handler->onDelete(p);
 	}
 }
 
@@ -524,9 +529,9 @@ void LLFloaterOutbox::initializationReportError(U32 status, const LLSD& content)
 
 void LLFloaterOutbox::showNotification(const LLNotificationPtr& notification)
 {
-	LLNotificationsUI::LLSysHandler * sys_handler = dynamic_cast<LLNotificationsUI::LLSysHandler*>(LLNotifications::instance().getChannel("AlertModal").get());
-	llassert(sys_handler);
+	LLNotificationsUI::LLNotificationHandler * notification_handler = dynamic_cast<LLNotificationsUI::LLNotificationHandler*>(LLNotifications::instance().getChannel("AlertModal").get());
+	llassert(notification_handler);
 	
-	sys_handler->processNotification(notification);
+	notification_handler->processNotification(notification);
 }
 

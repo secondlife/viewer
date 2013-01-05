@@ -102,35 +102,44 @@ void LLConversationItem::showProperties(void)
 {
 }
 
-void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t&   items)
+void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t& items, U32 flags)
 {
-    items.push_back(std::string("view_profile"));
-    items.push_back(std::string("im"));
-    items.push_back(std::string("offer_teleport"));
-    items.push_back(std::string("voice_call"));
-    items.push_back(std::string("chat_history"));
-    items.push_back(std::string("separator_chat_history"));
-    items.push_back(std::string("add_friend"));
-    items.push_back(std::string("remove_friend"));
-    items.push_back(std::string("invite_to_group"));
-    items.push_back(std::string("separator_invite_to_group"));
-    items.push_back(std::string("map"));
-    items.push_back(std::string("share"));
-    items.push_back(std::string("pay"));
-    items.push_back(std::string("block_unblock"));
-    items.push_back(std::string("MuteText"));
-
-	if(this->getType() != CONV_SESSION_1_ON_1 && mDisplayModeratorOptions)
+	if (flags & ITEM_IN_MULTI_SELECTION)
 	{
-		items.push_back(std::string("Moderator Options Separator"));
-		items.push_back(std::string("Moderator Options"));
-		items.push_back(std::string("AllowTextChat"));
-		items.push_back(std::string("moderate_voice_separator"));
-		items.push_back(std::string("ModerateVoiceToggleMuteSelected"));
-		items.push_back(std::string("ModerateVoiceMute"));
-		items.push_back(std::string("ModerateVoiceUnmute"));
+		items.push_back(std::string("im"));
+		items.push_back(std::string("offer_teleport"));
+		items.push_back(std::string("voice_call"));
+		items.push_back(std::string("remove_friends"));
 	}
+	else 
+	{
+		items.push_back(std::string("view_profile"));
+		items.push_back(std::string("im"));
+		items.push_back(std::string("offer_teleport"));
+		items.push_back(std::string("voice_call"));
+		items.push_back(std::string("chat_history"));
+		items.push_back(std::string("separator_chat_history"));
+		items.push_back(std::string("add_friend"));
+		items.push_back(std::string("remove_friend"));
+		items.push_back(std::string("invite_to_group"));
+		items.push_back(std::string("separator_invite_to_group"));
+		items.push_back(std::string("map"));
+		items.push_back(std::string("share"));
+		items.push_back(std::string("pay"));
+		items.push_back(std::string("block_unblock"));
+		items.push_back(std::string("MuteText"));
 
+		if ((getType() != CONV_SESSION_1_ON_1) && mDisplayModeratorOptions)
+		{
+			items.push_back(std::string("Moderator Options Separator"));
+			items.push_back(std::string("Moderator Options"));
+			items.push_back(std::string("AllowTextChat"));
+			items.push_back(std::string("moderate_voice_separator"));
+			items.push_back(std::string("ModerateVoiceToggleMuteSelected"));
+			items.push_back(std::string("ModerateVoiceMute"));
+			items.push_back(std::string("ModerateVoiceUnmute"));
+		}
+	}
 }
 
 //
@@ -306,7 +315,7 @@ void LLConversationItemSession::buildContextMenu(LLMenuGL& menu, U32 flags)
     {
         items.push_back(std::string("close_conversation"));
         items.push_back(std::string("separator_disconnect_from_voice"));
-        buildParticipantMenuOptions(items);
+        buildParticipantMenuOptions(items, flags);
     }
     else if(this->getType() == CONV_SESSION_GROUP)
     {
@@ -475,7 +484,7 @@ void LLConversationItemParticipant::buildContextMenu(LLMenuGL& menu, U32 flags)
     menuentry_vec_t items;
     menuentry_vec_t disabled_items;
 	
-	buildParticipantMenuOptions(items);
+	buildParticipantMenuOptions(items, flags);
 	
     hide_context_entries(menu, items, disabled_items);
 }

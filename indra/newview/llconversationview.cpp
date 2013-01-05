@@ -81,7 +81,9 @@ LLConversationViewSession::LLConversationViewSession(const LLConversationViewSes
 	mSpeakingIndicator(NULL),
 	mVoiceClientObserver(NULL),
 	mCollapsedMode(false),
-    mHasArrow(true)
+    mHasArrow(true),
+	mFlashStateOn(false),
+	mFlashStarted(false)
 {
 	mFlashTimer = new LLFlashTimer();
 }
@@ -101,7 +103,17 @@ LLConversationViewSession::~LLConversationViewSession()
 void LLConversationViewSession::setFlashState(bool flash_state)
 {
 	mFlashStateOn = flash_state;
-	(flash_state ? mFlashTimer->startFlashing() : mFlashTimer->stopFlashing());
+	mFlashStarted = false;
+	mFlashTimer->stopFlashing();
+}
+
+void LLConversationViewSession::startFlashing()
+{
+	if (mFlashStateOn && !mFlashStarted)
+	{
+		mFlashStarted = true;
+		mFlashTimer->startFlashing();
+	}
 }
 
 bool LLConversationViewSession::isHighlightAllowed()
@@ -198,8 +210,11 @@ void LLConversationViewSession::draw()
 		drawOpenFolderArrow(default_params, sFgColor);
 	}
 
+	// Indicate that flash can start (moot operation if already started, done or not flashing)
+	startFlashing();
+
 	// draw highlight for selected items
-	drawHighlight(show_context, true, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
+	drawHighlight(show_context, true, sHighlightBgColor, sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
 
 	// Draw children if root folder, or any other folder that is open. Do not draw children when animating to closed state or you get rendering overlap.
 	bool draw_children = getRoot() == static_cast<LLFolderViewFolder*>(this) || isOpen();
@@ -231,6 +246,7 @@ BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
     if(result && getRoot()->getCurSelectedItem() == this)
 	{
 		LLFloaterIMContainer *im_container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+		im_container->clearAllFlashStates();
 		im_container->selectConversationPair(session_id, false);
 		im_container->collapseMessagesPane(false);
 	}
@@ -427,6 +443,7 @@ void LLConversationViewParticipant::draw()
 	static LLUIColor sFgDisabledColor = LLUIColorTable::instance().getColor("MenuItemDisabledColor", DEFAULT_WHITE);
     static LLUIColor sHighlightFgColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
     static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
+    static LLUIColor sFlashBgColor = LLUIColorTable::instance().getColor("MenuItemFlashBgColor", DEFAULT_WHITE);
     static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
     static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
 
@@ -450,7 +467,7 @@ void LLConversationViewParticipant::draw()
 		color = mIsSelected ? sHighlightFgColor : sFgColor;
 	}
 
-    drawHighlight(show_context, mIsSelected, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
+    drawHighlight(show_context, mIsSelected, sHighlightBgColor, sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
     drawLabel(font, text_left, y, color, right_x);
 	refresh();
 
@@ -528,27 +545,6 @@ void LLConversationViewParticipant::onMouseLeave(S32 x, S32 y, MASK mask)
     mInfoBtn->setVisible(false);
     updateChildren();
     LLFolderViewItem::onMouseLeave(x, y, mask);
-}
-
-BOOL LLConversationViewParticipant::handleMouseDown( S32 x, S32 y, MASK mask )
-{
-	LLConversationItem* item = NULL;
-	LLConversationViewSession* session_widget =
-			dynamic_cast<LLConversationViewSession *>(this->getParentFolder());
-	if (session_widget)
-	{
-	    item = dynamic_cast<LLConversationItem*>(session_widget->getViewModelItem());
-	}
-    LLUUID session_id = item? item->getUUID() : LLUUID();
-    BOOL result = LLFolderViewItem::handleMouseDown(x, y, mask);
-
-    if(result)
-    {
-        (LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container"))->
-            selectConversationPair(session_id, false);
-    }
-
-	return result;
 }
 
 S32 LLConversationViewParticipant::getLabelXPos()

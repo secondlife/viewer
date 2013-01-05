@@ -33,6 +33,27 @@
 
 using namespace LLNotificationsUI;
 
-void LLHintHandler::onAdd(LLNotificationPtr p) { LLHints::show(p); }
-void LLHintHandler::onLoad(LLNotificationPtr p) { LLHints::show(p); }
-void LLHintHandler::onDelete(LLNotificationPtr p) { LLHints::hide(p); }
+LLHintHandler::LLHintHandler()
+	: LLSystemNotificationHandler("Hints", "hint")
+{
+}
+
+void LLHintHandler::onAdd(LLNotificationPtr p)
+{
+	LLHints::show(p);
+}
+
+void LLHintHandler::onLoad(LLNotificationPtr p)
+{
+	LLHints::show(p);
+}
+
+void LLHintHandler::onDelete(LLNotificationPtr p)
+{
+	LLHints::hide(p);
+}
+
+bool LLHintHandler::processNotification(const LLNotificationPtr& p)
+{
+	return false;
+}

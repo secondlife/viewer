@@ -3696,7 +3696,6 @@ Do Not Disturb is on.  You will not be notified of incoming communications.
 - Other residents will receive your Do Not Disturb response (set in Preferences &gt; General).
 - Teleportation offers will be declined.
 - Voice calls will be rejected.
-- Inventory offers will go to your Trash.
     <usetemplate
      ignoretext="I change my status to Do Not Disturb mode"
      name="okignore"
@@ -6584,7 +6583,7 @@ However, this region contains content accessible to adults only.
    log_to_im="true"
    log_to_chat="false"
    show_toast="false"
-   type="offer">
+   type="notify">
 	Teleport offer sent to [TO_NAME]
   </notification>
 
@@ -6637,7 +6636,7 @@ However, this region contains content accessible to adults only.
    name="FriendshipOffered"
    log_to_im="true"   
    show_toast="false"   
-   type="offer">
+   type="notify">
     <tag>friendship</tag>
 	You have offered friendship to [TO_NAME]
   </notification>
@@ -6667,7 +6666,7 @@ However, this region contains content accessible to adults only.
    icon="notify.tga"
    name="FriendshipAccepted"
    log_to_im="true"   
-   type="offer">
+   type="notify">
     <tag>friendship</tag>
 &lt;nolink&gt;[NAME]&lt;/nolink&gt; accepted your friendship offer.
   </notification>
@@ -6687,7 +6686,7 @@ However, this region contains content accessible to adults only.
    name="FriendshipAcceptedByMe"
    log_to_im="true"   
    show_toast="false"
-   type="offer">
+   type="notify">
     <tag>friendship</tag>
 Friendship offer accepted.
   </notification>
@@ -6697,7 +6696,7 @@ Friendship offer accepted.
    name="FriendshipDeclinedByMe"
    log_to_im="true"   
    show_toast="false"   
-   type="offer">
+   type="notify">
     <tag>friendship</tag>
 Friendship offer declined.
   </notification>

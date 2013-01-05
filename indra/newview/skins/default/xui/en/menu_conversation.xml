@@ -76,6 +76,13 @@
         <on_enable function="Avatar.EnableItem" parameter="can_delete" />
     </menu_item_call>	
     <menu_item_call
+     label="Remove friends"
+     layout="topleft"
+     name="remove_friends">
+        <on_click function="Avatar.DoToSelected" parameter="remove_friend" />
+        <on_enable function="Avatar.EnableItem" parameter="can_delete" />
+    </menu_item_call>	
+    <menu_item_call
      label="Invite to group..."
      layout="topleft"
      name="invite_to_group">

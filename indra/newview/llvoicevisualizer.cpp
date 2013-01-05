@@ -45,7 +45,6 @@
 //29de489d-0491-fb00-7dab-f9e686d31e83
 
 
-#ifdef XXX_STINSON_CHUI_REWORK
 //--------------------------------------------------------------------------------------
 // sound symbol constants
 //--------------------------------------------------------------------------------------
@@ -61,7 +60,6 @@ const F32	BASE_BRIGHTNESS		= 0.7f;		// gray level of the voice indicator when qu
 const F32	DOT_SIZE			= 0.05f;	// size of the dot billboard texture
 const F32	DOT_OPACITY			= 0.7f;		// how opaque the dot is
 const F32	WAVE_MOTION_RATE	= 1.5f;		// scalar applied to consecutive waves as a function of speaking amplitude
-#endif // XXX_STINSON_CHUI_REWORK
 
 //--------------------------------------------------------------------------------------
 // gesticulation constants
@@ -69,13 +67,11 @@ const F32	WAVE_MOTION_RATE	= 1.5f;		// scalar applied to consecutive waves as a 
 const F32 DEFAULT_MINIMUM_GESTICULATION_AMPLITUDE	= 0.2f; 
 const F32 DEFAULT_MAXIMUM_GESTICULATION_AMPLITUDE	= 1.0f;
 
-#ifdef XXX_STINSON_CHUI_REWORK
 //--------------------------------------------------------------------------------------
 // other constants
 //--------------------------------------------------------------------------------------
 const F32 ONE_HALF = 1.0f; // to clarify intent and reduce magic numbers in the code. 
 const LLVector3 WORLD_UPWARD_DIRECTION = LLVector3( 0.0f, 0.0f, 1.0f ); // Z is up in SL
-#endif // XXX_STINSON_CHUI_REWORK
 
 //------------------------------------------------------------------
 // Initialize the statics
@@ -98,28 +94,12 @@ F32	 LLVoiceVisualizer::sAahPowerTransfersf = 0.0f;
 //-----------------------------------------------
 // constructor
 //-----------------------------------------------
-#ifdef XXX_STINSON_CHUI_REWORK
 LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
 	: LLHUDEffect(type)
-#else // XXX_STINSON_CHUI_REWORK
-LLVoiceVisualizer::LLVoiceVisualizer()
-	: LLRefCount(),
-	mTimer(),
-	mStartTime(0.0),
-	mCurrentlySpeaking(false),
-	mSpeakingAmplitude(0.0f),
-	mMaxGesticulationAmplitude(DEFAULT_MAXIMUM_GESTICULATION_AMPLITUDE),
-	mMinGesticulationAmplitude(DEFAULT_MINIMUM_GESTICULATION_AMPLITUDE)
-#endif // XXX_STINSON_CHUI_REWORK
 {
-#ifdef XXX_STINSON_CHUI_REWORK
 	mCurrentTime					= mTimer.getTotalSeconds();
 	mPreviousTime					= mCurrentTime;
 	mStartTime						= mCurrentTime;
-#else // XXX_STINSON_CHUI_REWORK
-	mStartTime						= mTimer.getTotalSeconds();
-#endif // XXX_STINSON_CHUI_REWORK
-#ifdef XXX_STINSON_CHUI_REWORK
 	mVoiceSourceWorldPosition		= LLVector3( 0.0f, 0.0f, 0.0f );
 	mSpeakingAmplitude				= 0.0f;
 	mCurrentlySpeaking				= false;
@@ -128,11 +108,9 @@ LLVoiceVisualizer::LLVoiceVisualizer()
 	mMaxGesticulationAmplitude		= DEFAULT_MAXIMUM_GESTICULATION_AMPLITUDE;
 	mSoundSymbol.mActive			= true;
 	mSoundSymbol.mPosition			= LLVector3( 0.0f, 0.0f, 0.0f );
-#endif // XXX_STINSON_CHUI_REWORK
 	
 	mTimer.reset();
 	
-#ifdef XXX_STINSON_CHUI_REWORK
 	const char* sound_level_img[] = 
 	{
 		"voice_meter_dot.j2c",
@@ -154,7 +132,6 @@ LLVoiceVisualizer::LLVoiceVisualizer()
 	}
 
 	mSoundSymbol.mTexture[0]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
-#endif // XXX_STINSON_CHUI_REWORK
 
 	// The first instance loads the initial state from prefs.
 	if (!sPrefsInitialized)
@@ -174,7 +151,6 @@ LLVoiceVisualizer::LLVoiceVisualizer()
 
 }//---------------------------------------------------
 
-#ifdef XXX_STINSON_CHUI_REWORK
 //---------------------------------------------------
 void LLVoiceVisualizer::setMinGesticulationAmplitude( F32 m )
 {
@@ -195,16 +171,13 @@ void LLVoiceVisualizer::setVoiceEnabled( bool v )
 	mVoiceEnabled = v;
 
 }//---------------------------------------------------
-#endif // XXX_STINSON_CHUI_REWORK
 
 //---------------------------------------------------
 void LLVoiceVisualizer::setStartSpeaking()
 {
 	mStartTime				= mTimer.getTotalSeconds();
 	mCurrentlySpeaking		= true;
-#ifdef XXX_STINSON_CHUI_REWORK
 	mSoundSymbol.mActive	= true;
-#endif // XXX_STINSON_CHUI_REWORK
 		
 }//---------------------------------------------------
 
@@ -359,7 +332,6 @@ void LLVoiceVisualizer::lipSyncOohAah( F32& ooh, F32& aah )
 }//---------------------------------------------------
 
 
-#ifdef XXX_STINSON_CHUI_REWORK
 //---------------------------------------------------
 // this method is inherited from HUD Effect
 //---------------------------------------------------
@@ -558,7 +530,6 @@ void LLVoiceVisualizer::setVoiceSourceWorldPosition( const LLVector3 &p )
 	mVoiceSourceWorldPosition	= p;
 
 }//---------------------------------------------------
-#endif // XXX_STINSON_CHUI_REWORK
 
 //---------------------------------------------------
 VoiceGesticulationLevel LLVoiceVisualizer::getCurrentGesticulationLevel()
@@ -589,7 +560,6 @@ LLVoiceVisualizer::~LLVoiceVisualizer()
 }//----------------------------------------------
 
 
-#ifdef XXX_STINSON_CHUI_REWORK
 //---------------------------------------------------
 // "packData" is inherited from HUDEffect
 //---------------------------------------------------
@@ -639,5 +609,3 @@ void LLVoiceVisualizer::markDead()
 
 	LLHUDEffect::markDead();
 }//------------------------------------------------------------------
-
-#endif // XXX_STINSON_CHUI_REWORK

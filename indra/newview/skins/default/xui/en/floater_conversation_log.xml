@@ -1,91 +1,86 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 
 <floater
-  can_resize="true"
-  positioning="cascading"
-  height="400"
-  min_height="100"
-  min_width="390"
-  layout="topleft"
-  name="floater_conversation_log"
-  save_rect="true"
-  single_instance="true"
-  reuse_instance="true"
-  title="CONVERSATION LOG"
-  width="450">
-  
+ can_resize="true"
+ positioning="cascading"
+ height="200"
+ min_height="100"
+ min_width="230"
+ layout="topleft"
+ name="floater_conversation_log"
+ save_rect="true"
+ single_instance="true"
+ reuse_instance="true"
+ title="CONVERSATION LOG"
+ width="300">
   <string name="logging_calls_disabled">
      Conversations are not being logged. To log conversations in the future, select "Save IM logs on my computer" under Preferences > Privacy.
   </string>
-  
-	<panel
-      follows="left|top|right"
-      height="27"
-      layout="topleft"
-      left="0"
-      name="buttons_panel"
-      top="0">
-        <filter_editor
-          follows="left|top|right"
-          height="23"
-          layout="topleft"
-          left="8"
-          label="Filter People"
-          max_length_chars="300"
-          name="people_filter_input"
-          text_color="Black"
-          text_pad_left="10"
-          top="4"
-          width="364" />
-        <menu_button
-          follows="right"
-          height="25"
-          image_hover_unselected="Toolbar_Middle_Over"
-          image_overlay="Conv_toolbar_sort"
-          image_selected="Toolbar_Middle_Selected"
-          image_unselected="Toolbar_Middle_Off"
-          layout="topleft"
-          left_pad="5"
-          menu_filename="menu_conversation_log_view.xml"
-          menu_position="bottomleft"
-          name="conversation_view_btn"
-          tool_tip="View/sort options"
-          top="3"
-          width="31" />
-        <menu_button
-          follows="right"
-          height="25"
-          image_hover_unselected="Toolbar_Middle_Over"
-          image_overlay="OptionsMenu_Off"
-          image_selected="Toolbar_Middle_Selected"
-          image_unselected="Toolbar_Middle_Off"
-          layout="topleft"
-          left_pad="2"
-          name="conversations_gear_btn"
-          tool_tip="Actions on selected person or group"
-          top="3"
-          width="31" />
-    </panel>
-    <panel
-      follows="all"
-      height="370"
-      layout="topleft"
-      left="5"
-      name="buttons_panel"
-      right="-5"
-      top_pad="5">
+  <panel
+   follows="left|top|right"
+   height="32"
+   left="0"
+   name="buttons_panel"
+   top="0">
+    <filter_editor
+     follows="left|top|right"
+     height="23"
+     layout="topleft"
+     left="8"
+     label="Filter People"
+     max_length_chars="300"
+     name="people_filter_input"
+     text_color="Black"
+     text_pad_left="10"
+     top="4"
+     width="204" />
+    <menu_button
+     follows="top|right"
+     height="25"
+     image_hover_unselected="Toolbar_Middle_Over"
+     image_overlay="Conv_toolbar_sort"
+     image_selected="Toolbar_Middle_Selected"
+     image_unselected="Toolbar_Middle_Off"
+     layout="topleft"
+     left_pad="8"
+     menu_filename="menu_conversation_log_view.xml"
+     menu_position="bottomleft"
+     name="conversation_view_btn"
+     tool_tip="View/sort options"
+     top="3"
+     width="31" />
+    <menu_button
+     follows="top|right"
+     height="25"
+     image_hover_unselected="Toolbar_Middle_Over"
+     image_overlay="OptionsMenu_Off"
+     image_selected="Toolbar_Middle_Selected"
+     image_unselected="Toolbar_Middle_Off"
+     layout="topleft"
+     left_pad="8"
+     name="conversations_gear_btn"
+     tool_tip="Actions on selected person or group"
+     top="3"
+     width="31" />
+  </panel>
+  <panel
+   bottom="-1"
+   follows="all"
+   left="0"
+   name="log_panel"
+   right="-1"
+   top="32">
     <conversation_log_list
-      opaque="true"
-      allow_select="true"
-      follows="all"
-      height="360"
-      layout="topleft"
-      left="3"
-      keep_selection_visible_on_reshape="true"
-      item_pad="2"
-      multi_select="false"
-      name="conversation_log_list"
-      right="-3"
-      top="5" />
-    </panel>
+     allow_select="true"
+     bottom="-8"
+     opaque="true"
+     follows="all"
+     left="8"
+     keep_selection_visible_on_reshape="true"
+     item_pad="2"
+     multi_select="false"
+     name="conversation_log_list"
+     right="-8"
+     top="0" />
+  </panel>
 </floater>

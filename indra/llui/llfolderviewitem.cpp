@@ -50,6 +50,7 @@ std::map<U8, LLFontGL*> LLFolderViewItem::sFonts; // map of styles to fonts
 bool LLFolderViewItem::sColorSetInitialized = false;
 LLUIColor LLFolderViewItem::sFgColor;
 LLUIColor LLFolderViewItem::sHighlightBgColor;
+LLUIColor LLFolderViewItem::sFlashBgColor;
 LLUIColor LLFolderViewItem::sFocusOutlineColor;
 LLUIColor LLFolderViewItem::sMouseOverColor;
 LLUIColor LLFolderViewItem::sFilterBGColor;
@@ -151,6 +152,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	{
 		sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
 		sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
+		sFlashBgColor = LLUIColorTable::instance().getColor("MenuItemFlashBgColor", DEFAULT_WHITE);
 		sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
 		sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
 		sFilterBGColor = LLUIColorTable::instance().getColor("FilterBackgroundColor", DEFAULT_WHITE);
@@ -686,26 +688,31 @@ void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const L
 	return mIsCurSelection;
 }
 
-void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeyboardFocus, const LLUIColor &bgColor, 
+void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeyboardFocus, const LLUIColor &selectColor, const LLUIColor &flashColor,  
                                                         const LLUIColor &focusOutlineColor, const LLUIColor &mouseOverColor)
 {
-
-    //--------------------------------------------------------------------------------//
-    // Draw highlight for selected items
-    //
-
     const S32 focus_top = getRect().getHeight();
     const S32 focus_bottom = getRect().getHeight() - mItemHeight;
     const bool folder_open = (getRect().getHeight() > mItemHeight + 4);
     const S32 FOCUS_LEFT = 1;
+	
+	// Determine which background color to use for highlighting
+	LLUIColor bgColor = (isFlashing() ? flashColor : selectColor);
 
-    if (isHighlightAllowed())	// always render "current" item (only render other selected items if
-    							// mShowSingleSelection is FALSE) or flashing item
+    //--------------------------------------------------------------------------------//
+    // Draw highlight for selected items
+	// Note: Always render "current" item or flashing item, only render other selected 
+	// items if mShowSingleSelection is FALSE.
+    //
+    if (isHighlightAllowed())	
+    							
     {
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-        LLColor4 bg_color = bgColor;
-        if (!isHighlightActive())
+		
+		// Highlight for selected but not current items
+        if (!isHighlightActive() && !isFlashing())
         {
+			LLColor4 bg_color = bgColor;
             // do time-based fade of extra objects
             F32 fade_time = (getRoot() ? getRoot()->getSelectionFadeElapsedTime() : 0.0f);
             if (getRoot() && getRoot()->getShowSingleSelection())
@@ -718,25 +725,30 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
                 // fading in
                 bg_color.mV[VALPHA] = clamp_rescale(fade_time, 0.f, 0.4f, 0.f, bg_color.mV[VALPHA]);
             }
+        	gl_rect_2d(FOCUS_LEFT,
+					   focus_top,
+					   getRect().getWidth() - 2,
+					   focus_bottom,
+					   bg_color, hasKeyboardFocus);
         }
 
-        if (isHighlightAllowed() || isHighlightActive())
+		// Highlight for currently selected or flashing item
+        if (isHighlightActive())
         {
+			// Background
         	gl_rect_2d(FOCUS_LEFT,
                 focus_top,
                 getRect().getWidth() - 2,
                 focus_bottom,
-                bg_color, hasKeyboardFocus);
-        }
-
-        if (isHighlightActive())
-        {
+                bgColor, hasKeyboardFocus);
+			// Outline
             gl_rect_2d(FOCUS_LEFT, 
                 focus_top, 
                 getRect().getWidth() - 2,
                 focus_bottom,
                 focusOutlineColor, FALSE);
         }
+
         if (folder_open)
         {
             gl_rect_2d(FOCUS_LEFT,
@@ -810,7 +822,7 @@ void LLFolderViewItem::draw()
 
     drawOpenFolderArrow(default_params, sFgColor);
 
-    drawHighlight(show_context, filled, sHighlightBgColor, sFocusOutlineColor, sMouseOverColor);
+    drawHighlight(show_context, filled, sHighlightBgColor, sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
 
 	//--------------------------------------------------------------------------------//
 	// Draw open icon
@@ -1481,17 +1493,20 @@ void LLFolderViewFolder::extendSelectionTo(LLFolderViewItem* new_selection)
 
 void LLFolderViewFolder::destroyView()
 {
-	std::for_each(mItems.begin(), mItems.end(), DeletePointer());
-	mItems.clear();
+    while (!mItems.empty())
+    {
+    	LLFolderViewItem *itemp = mItems.back();
+    	itemp->destroyView(); // LLFolderViewItem::destroyView() removes entry from mItems
+    }
 
 	while (!mFolders.empty())
 	{
 		LLFolderViewFolder *folderp = mFolders.back();
-		folderp->destroyView(); // removes entry from mFolders
+		folderp->destroyView(); // LLFolderVievFolder::destroyView() removes entry from mFolders
 	}
 
 	LLFolderViewItem::destroyView();
-	}
+}
 
 // extractItem() removes the specified item from the folder, but
 // doesn't delete it.

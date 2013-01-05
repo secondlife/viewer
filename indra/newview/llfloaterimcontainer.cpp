@@ -51,8 +51,8 @@
 #include "llconversationview.h"
 #include "llcallbacklist.h"
 #include "llworld.h"
-
 #include "llsdserialize.h"
+
 //
 // LLFloaterIMContainer
 //
@@ -171,6 +171,9 @@ BOOL LLFloaterIMContainer::postBuild()
 	// Open IM session with selected participant on double click event
 	mConversationsListPanel->setDoubleClickCallback(boost::bind(&LLFloaterIMContainer::doToSelected, this, LLSD("im")));
 
+	// The resize limits for LLFloaterIMContainer should be updated, based on current values of width of conversation and message panels
+	mConversationsPane->getResizeBar()->setResizeListener(boost::bind(&LLFloaterIMContainer::assignResizeLimits, this));
+
 	// Create the root model and view for all conversation sessions
 	LLConversationItem* base_item = new LLConversationItem(getRootViewModel());
 
@@ -247,6 +250,7 @@ void LLFloaterIMContainer::onOpen(const LLSD& key)
 {
 	LLMultiFloater::onOpen(key);
 	openNearbyChat();
+	assignResizeLimits();
 }
 
 // virtual
@@ -306,26 +310,6 @@ void LLFloaterIMContainer::onCloseFloater(LLUUID& id)
 {
 	mSessions.erase(id);
 	setFocus(TRUE);
-}
-
-// virtual
-void LLFloaterIMContainer::computeResizeLimits(S32& new_min_width, S32& new_min_height)
-{
-	// possibly increase floater's minimum height according to children's minimums
-	for (S32 tab_idx = 0; tab_idx < mTabContainer->getTabCount(); ++tab_idx)
-	{
-		LLFloater* floaterp = dynamic_cast<LLFloater*>(mTabContainer->getPanelByIndex(tab_idx));
-		if (floaterp)
-		{
-			new_min_height = llmax(new_min_height, floaterp->getMinHeight());
-		}
-	}
-
-	S32 conversations_pane_min_dim = mConversationsPane->getRelevantMinDim();
-	S32 messages_pane_min_dim = mMessagesPane->getRelevantMinDim();
-
-	// set floater's minimum width according to relevant minimal children's dimensionals
-	new_min_width = conversations_pane_min_dim + messages_pane_min_dim + LLPANEL_BORDER_WIDTH*2;
 }
 
 void LLFloaterIMContainer::onNewMessageReceived(const LLSD& data)
@@ -621,6 +605,12 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 	LLMultiFloater::setVisible(visible);
 }
 
+void LLFloaterIMContainer::updateResizeLimits()
+{
+	LLMultiFloater::updateResizeLimits();
+	assignResizeLimits();
+}
+
 void LLFloaterIMContainer::collapseMessagesPane(bool collapse)
 {
 	if (mMessagesPane->isCollapsed() == collapse)
@@ -694,6 +684,7 @@ void LLFloaterIMContainer::collapseConversationsPane(bool collapse)
 		    {
 		    	widget->setOpen(false);
 		    }
+		    widget->requestArrange();
 }
 	}
 }
@@ -728,6 +719,15 @@ void LLFloaterIMContainer::updateState(bool collapse, S32 delta_width)
         setResizeLimits(expanded_min_size, expanded_min_size);
 	}
 
+    assignResizeLimits();
+}
+
+void LLFloaterIMContainer::assignResizeLimits()
+{
+	const LLRect& conv_rect = mConversationsPane->isCollapsed() ? LLRect() : mConversationsPane->getRect();
+	S32 msg_limits  = mMessagesPane->isCollapsed() ? 0 : mMessagesPane->getExpandedMinDim();
+	S32 x_limits = conv_rect.getWidth() + msg_limits;
+	setResizeLimits(x_limits + LLPANEL_BORDER_WIDTH * 3, getMinHeight());
 }
 
 void LLFloaterIMContainer::onAddButtonClicked()
@@ -1108,7 +1108,27 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 	uuid_vec_t uuids;
 	getParticipantUUIDs(uuids);
 
-    if("can_activate_group" == item)
+	if ("conversation_log" == item)
+	{
+		return gSavedSettings.getBOOL("KeepConversationLogTranscripts");
+	}
+
+	//Enable Chat history item for ad-hoc and group conversations
+	if ("can_chat_history" == item)
+	{
+		if (getCurSelectedViewModelItem()->getType() != LLConversationItem::CONV_PARTICIPANT)
+		{
+			return isConversationLoggingAllowed();
+		}
+	}
+
+	// If nothing is selected(and selected item is not group chat), everything needs to be disabled
+	if (uuids.size() <= 0)
+	{
+		return getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_GROUP;
+	}
+
+	if("can_activate_group" == item)
     {
     	LLUUID selected_group_id = getCurSelectedViewModelItem()->getUUID();
     	return gAgent.getGroupID() != selected_group_id;
@@ -1119,17 +1139,6 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 
 bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_vec_t& uuids)
 {
-	if ("conversation_log" == item)
-	{
-		return gSavedSettings.getBOOL("KeepConversationLogTranscripts");
-	}
-
-	// If nothing is selected, everything needs to be disabled
-	if (uuids.size() <= 0)
-    {
-        return false;
-    }
-	
 	// Extract the single select info
 	bool is_single_select = (uuids.size() == 1);
 	const LLUUID& single_id = uuids.front();
@@ -1236,6 +1245,19 @@ void LLFloaterIMContainer::showConversation(const LLUUID& session_id)
     selectConversationPair(session_id, true);
 }
 
+void LLFloaterIMContainer::clearAllFlashStates()
+{
+	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
+	for (;widget_it != mConversationsWidgets.end(); ++widget_it)
+	{
+		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
+		if (widget)
+		{
+			widget->setFlashState(false);
+		}
+	}
+}
+
 void LLFloaterIMContainer::selectConversation(const LLUUID& session_id)
 {
     selectConversationPair(session_id, true);
@@ -1247,17 +1269,6 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
     BOOL handled = TRUE;
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
 
-	// On selection, stop the flash state on all conversation widgets
-	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
-	for (;widget_it != mConversationsWidgets.end(); ++widget_it)
-	{
-		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
-		if (widget)
-		{
-			widget->setFlashState(false);
-		}
-	}
-	
     /* widget processing */
     if (select_widget)
     {
@@ -1419,14 +1430,14 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	// Delete the widget and the associated conversation item
 	// Note : since the mConversationsItems is also the listener to the widget, deleting 
 	// the widget will also delete its listener
-	bool isWidgetSelected = false;
+	bool is_widget_selected = false;
 	LLFolderViewItem* new_selection = NULL;
 	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,uuid);
 	if (widget)
 	{
-		isWidgetSelected = widget->isSelected();
+		is_widget_selected = widget->isSelected();
 		new_selection = mConversationsRoot->getNextFromChild(widget);
-		if(new_selection == NULL)
+		if (!new_selection)
 		{
 			new_selection = mConversationsRoot->getPreviousFromChild(widget);
 		}
@@ -1441,18 +1452,24 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	if (change_focus)
 	{
 		setFocus(TRUE);
-		if(new_selection != NULL)
+		if (new_selection)
 		{
 			if (mConversationsWidgets.size() == 1)
-				new_selection = new_selection->getParentFolder();
-			LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(new_selection->getViewModelItem());
-			if(vmi != NULL)
 			{
-				selectConversationPair(vmi->getUUID(), true);
+				// If only one widget is left, it has to be the Nearby Chat. Select it directly.
+				selectConversationPair(LLUUID(NULL), true);
+			}
+			else
+			{
+				LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(new_selection->getViewModelItem());
+				if (vmi)
+				{
+					selectConversationPair(vmi->getUUID(), true);
+				}
 			}
 		}
 	}
-	return isWidgetSelected;
+	return is_widget_selected;
 }
 
 LLConversationViewSession* LLFloaterIMContainer::createConversationItemWidget(LLConversationItem* item)

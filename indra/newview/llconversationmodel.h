@@ -130,7 +130,7 @@ public:
 	
 	void postEvent(const std::string& event_type, LLConversationItemSession* session, LLConversationItemParticipant* participant);
 	
-    void buildParticipantMenuOptions(menuentry_vec_t&   items);
+    void buildParticipantMenuOptions(menuentry_vec_t& items, U32 flags);
 
 protected:
 	std::string mName;	// Name of the session or the participant

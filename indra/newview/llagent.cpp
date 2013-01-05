@@ -41,6 +41,7 @@
 #include "llchannelmanager.h"
 #include "llchicletbar.h"
 #include "llconsole.h"
+#include "lldonotdisturbnotificationstorage.h"
 #include "llenvmanager.h"
 #include "llfirstuse.h"
 #include "llfloatercamera.h"
@@ -1389,11 +1390,16 @@ BOOL LLAgent::getAFK() const
 //-----------------------------------------------------------------------------
 // setDoNotDisturb()
 //-----------------------------------------------------------------------------
-void LLAgent::setDoNotDisturb(bool pIsDotNotDisturb)
+void LLAgent::setDoNotDisturb(bool pIsDoNotDisturb)
 {
-	mIsDoNotDisturb = pIsDotNotDisturb;
-	sendAnimationRequest(ANIM_AGENT_DO_NOT_DISTURB, (pIsDotNotDisturb ? ANIM_REQUEST_START : ANIM_REQUEST_STOP));
-	LLNotificationsUI::LLChannelManager::getInstance()->muteAllChannels(pIsDotNotDisturb);
+	bool isDoNotDisturbSwitchedOff = (mIsDoNotDisturb && !pIsDoNotDisturb);
+	mIsDoNotDisturb = pIsDoNotDisturb;
+	sendAnimationRequest(ANIM_AGENT_DO_NOT_DISTURB, (pIsDoNotDisturb ? ANIM_REQUEST_START : ANIM_REQUEST_STOP));
+	LLNotificationsUI::LLChannelManager::getInstance()->muteAllChannels(pIsDoNotDisturb);
+	if (isDoNotDisturbSwitchedOff)
+	{
+		LLDoNotDisturbNotificationStorage::getInstance()->loadNotifications();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -2541,51 +2547,21 @@ void LLMaturityPreferencesResponder::error(U32 pStatus, const std::string& pReas
 
 U8 LLMaturityPreferencesResponder::parseMaturityFromServerResponse(const LLSD &pContent)
 {
-	// stinson 05/24/2012 Pathfinding regions have re-defined the response behavior.  In the old server code,
-	// if you attempted to change the preferred maturity to the same value, the response content would be an
-	// undefined LLSD block.  In the new server code with pathfinding, the response content should always be
-	// defined.  Thus, the check for isUndefined() can be replaced with an assert after pathfinding is merged
-	// into server trunk and fully deployed.
 	U8 maturity = SIM_ACCESS_MIN;
-	if (pContent.isUndefined())
+
+	llassert(!pContent.isUndefined());
+	llassert(pContent.isMap());
+	llassert(pContent.has("access_prefs"));
+	llassert(pContent.get("access_prefs").isMap());
+	llassert(pContent.get("access_prefs").has("max"));
+	llassert(pContent.get("access_prefs").get("max").isString());
+	if (!pContent.isUndefined() && pContent.isMap() && pContent.has("access_prefs")
+		&& pContent.get("access_prefs").isMap() && pContent.get("access_prefs").has("max")
+		&& pContent.get("access_prefs").get("max").isString())
 	{
-		maturity = mPreferredMaturity;
-	}
-	else
-	{
-		llassert(!pContent.isUndefined());
-		llassert(pContent.isMap());
-	
-		if (!pContent.isUndefined() && pContent.isMap())
-		{
-			// stinson 05/24/2012 Pathfinding regions have re-defined the response syntax.  The if statement catches
-			// the new syntax, and the else statement catches the old syntax.  After pathfinding is merged into
-			// server trunk and fully deployed, we can remove the else statement.
-			if (pContent.has("access_prefs"))
-			{
-				llassert(pContent.has("access_prefs"));
-				llassert(pContent.get("access_prefs").isMap());
-				llassert(pContent.get("access_prefs").has("max"));
-				llassert(pContent.get("access_prefs").get("max").isString());
-				if (pContent.get("access_prefs").isMap() && pContent.get("access_prefs").has("max") &&
-					pContent.get("access_prefs").get("max").isString())
-				{
-					LLSD::String actualPreference = pContent.get("access_prefs").get("max").asString();
-					LLStringUtil::trim(actualPreference);
-					maturity = LLViewerRegion::shortStringToAccess(actualPreference);
-				}
-			}
-			else if (pContent.has("max"))
-			{
-				llassert(pContent.get("max").isString());
-				if (pContent.get("max").isString())
-				{
-					LLSD::String actualPreference = pContent.get("max").asString();
-					LLStringUtil::trim(actualPreference);
-					maturity = LLViewerRegion::shortStringToAccess(actualPreference);
-				}
-			}
-		}
+		LLSD::String actualPreference = pContent.get("access_prefs").get("max").asString();
+		LLStringUtil::trim(actualPreference);
+		maturity = LLViewerRegion::shortStringToAccess(actualPreference);
 	}
 
 	return maturity;

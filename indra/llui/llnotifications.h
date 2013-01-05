@@ -92,7 +92,6 @@
 #include "llevents.h"
 #include "llfunctorregistry.h"
 #include "llinitparam.h"
-#include "llnotificationslistener.h"
 #include "llnotificationptr.h"
 #include "llpointer.h"
 #include "llrefcount.h"
@@ -681,7 +680,6 @@ namespace LLNotificationComparators
 };
 
 typedef boost::function<bool (LLNotificationPtr)> LLNotificationFilter;
-typedef boost::function<bool (LLNotificationPtr, LLNotificationPtr)> LLNotificationComparator;
 typedef std::set<LLNotificationPtr, LLNotificationComparators::orderByUUID> LLNotificationSet;
 typedef std::multimap<std::string, LLNotificationPtr> LLNotificationMap;
 
@@ -776,6 +774,9 @@ protected:
 	virtual void onDelete(LLNotificationPtr p) {}
 	virtual void onChange(LLNotificationPtr p) {}
 
+	virtual void onFilterPass(LLNotificationPtr p) {}
+	virtual void onFilterFail(LLNotificationPtr p) {}
+
 	bool updateItem(const LLSD& payload, LLNotificationPtr pNotification);
 	LLNotificationFilter mFilter;
 };
@@ -831,7 +832,6 @@ public:
 private:
 	std::string mName;
 	std::string mParent;
-	LLNotificationComparator mComparator;
 };
 
 // An interface class to provide a clean linker seam to the LLNotifications class.
@@ -951,7 +951,6 @@ private:
 
 	bool mIgnoreAllNotifications;
 
-    boost::scoped_ptr<LLNotificationsListener> mListener;
 	std::vector<LLNotificationChannelPtr> mDefaultChannels;
 };
 
@@ -1030,7 +1029,7 @@ protected:
 
 // Stores only persistent notifications.
 // Class users can use connectChanged() to process persistent notifications
-// (see LLNotificationStorage for example).
+// (see LLPersistentNotificationStorage for example).
 class LLPersistentNotificationChannel : public LLNotificationChannel
 {
 	LOG_CLASS(LLPersistentNotificationChannel);

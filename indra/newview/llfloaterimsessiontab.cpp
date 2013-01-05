@@ -82,6 +82,13 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
 LLFloaterIMSessionTab::~LLFloaterIMSessionTab()
 {
 	delete mRefreshTimer;
+
+	// Select Nearby Chat session
+	LLFloaterIMContainer* container = LLFloaterReg::findTypedInstance<LLFloaterIMContainer>("im_container");
+	if (container)
+	{
+		container->selectConversationPair(LLUUID(NULL), true);
+	}
 }
 
 //static
@@ -177,6 +184,7 @@ void LLFloaterIMSessionTab::addToHost(const LLUUID& session_id)
 				// LLFloater::mLastHostHandle = floater_container (a "future" host)
 				conversp->setHost(floater_container);
 				conversp->setHost(NULL);
+				conversp->forceReshape();
 			}
 			// Added floaters share some state (like sort order) with their host
 			conversp->setSortOrder(floater_container->getSortOrder());
@@ -196,6 +204,8 @@ BOOL LLFloaterIMSessionTab::postBuild()
 
 	mTearOffBtn = getChild<LLButton>("tear_off_btn");
 	mTearOffBtn->setCommitCallback(boost::bind(&LLFloaterIMSessionTab::onTearOffClicked, this));
+
+	mGearBtn = getChild<LLButton>("gear_btn");
 
 	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
 	
@@ -224,7 +234,8 @@ BOOL LLFloaterIMSessionTab::postBuild()
 
 	setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
 
-	mSaveRect = isTornOff();
+	mSaveRect = isNearbyChat()
+					&&  !gSavedSettings.getBOOL("NearbyChatIsNotTornOff");
 	initRectControl();
 
 	if (isChatMultiTab())
@@ -236,14 +247,31 @@ BOOL LLFloaterIMSessionTab::postBuild()
 		result = LLDockableFloater::postBuild();
 	}
 
-	// Now ready to build the conversation and participants list
+	// Create the root using an ad-hoc base item
+	LLConversationItem* base_item = new LLConversationItem(mSessionID, mConversationViewModel);
+    LLFolderView::Params p(LLUICtrlFactory::getDefaultParams<LLFolderView>());
+    p.rect = LLRect(0, 0, getRect().getWidth(), 0);
+    p.parent_panel = mParticipantListPanel;
+    p.listener = base_item;
+    p.view_model = &mConversationViewModel;
+    p.root = NULL;
+    p.use_ellipses = true;
+    p.options_menu = "menu_conversation.xml";
+	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
+    mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
+	// Attach that root to the scroller
+	mScroller->addChild(mConversationsRoot);
+	mConversationsRoot->setScrollContainer(mScroller);
+	mConversationsRoot->setFollowsAll();
+	mConversationsRoot->addChild(mConversationsRoot->mStatusTextBox);
+
 	buildConversationViewParticipant();
 	refreshConversation();
-		
+
 	// Zero expiry time is set only once to allow initial update.
 	mRefreshTimer->setTimerExpirySec(0);
 	mRefreshTimer->start();
-
+	initBtns();
 	return result;
 }
 
@@ -301,10 +329,10 @@ void LLFloaterIMSessionTab::onFocusReceived()
 
 	LLTransientDockableFloater::onFocusReceived();
 
-	LLFloaterIMContainer* container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+	LLFloaterIMContainer* container = LLFloaterReg::findTypedInstance<LLFloaterIMContainer>("im_container");
 	if (container)
 	{
-		container->selectConversationPair(mSessionID, ! getHost());
+		container->selectConversationPair(mSessionID, true);
 		container->showStub(! getHost());
 	}
 }
@@ -383,31 +411,6 @@ void LLFloaterIMSessionTab::buildConversationViewParticipant()
 		// Nothing to do if the model list is inexistent
 		return;
 	}
-	
-	// Create or recreate the root folder: this is a dummy folder (not shown) but required by the LLFolderView architecture 
-	// We need to redo this when rebuilding as the session id (mSessionID) *may* have changed
-	if (mConversationsRoot)
-	{
-		// Remove the old root if any
-		mScroller->removeChild(mConversationsRoot);
-	}
-	// Create the root using an ad-hoc base item
-	LLConversationItem* base_item = new LLConversationItem(mSessionID, mConversationViewModel);
-    LLFolderView::Params p(LLUICtrlFactory::getDefaultParams<LLFolderView>());
-    p.rect = LLRect(0, 0, getRect().getWidth(), 0);
-    p.parent_panel = mParticipantListPanel;
-    p.listener = base_item;
-    p.view_model = &mConversationViewModel;
-    p.root = NULL;
-    p.use_ellipses = true;
-    p.options_menu = "menu_conversation.xml";
-	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
-    mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
-	// Attach that root to the scroller
-	mScroller->addChild(mConversationsRoot);
-	mConversationsRoot->setScrollContainer(mScroller);
-	mConversationsRoot->setFollowsAll();
-	mConversationsRoot->addChild(mConversationsRoot->mStatusTextBox);
 	
 	// Create the participants widgets now
 	LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = item->getChildrenBegin();
@@ -610,8 +613,8 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 	// prevent start conversation before its container
     LLFloaterIMContainer::getInstance();
 
-	bool is_torn_off = checkIfTornOff();
-	if (!is_torn_off)
+	bool is_not_torn_off = !checkIfTornOff();
+	if (is_not_torn_off)
 	{
 		hideAllStandardButtons();
 	}
@@ -620,7 +623,7 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 
 	// Participant list should be visible only in torn off floaters.
 	bool is_participant_list_visible =
-			is_torn_off
+			!is_not_torn_off
 			&& gSavedSettings.getBOOL("IMShowControlPanel")
 			&& !mIsP2PChat;
 
@@ -628,27 +631,42 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 
 	// Display collapse image (<<) if the floater is hosted
 	// or if it is torn off but has an open control panel.
-	bool is_expanded = !is_torn_off || is_participant_list_visible;
+	bool is_expanded = is_not_torn_off || is_participant_list_visible;
 	mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
+	mExpandCollapseBtn->setToolTip(
+			is_not_torn_off?
+				getString("expcol_button_not_tearoff_tooltip") :
+				(is_expanded?
+					getString("expcol_button_tearoff_and_expanded_tooltip") :
+					getString("expcol_button_tearoff_and_collapsed_tooltip")));
 
 	// toggle floater's drag handle and title visibility
 	if (mDragHandle)
 	{
-		mDragHandle->setTitleVisible(is_torn_off);
+		mDragHandle->setTitleVisible(!is_not_torn_off);
 	}
 
 	// The button (>>) should be disabled for torn off P2P conversations.
-	mExpandCollapseBtn->setEnabled(!is_torn_off || !mIsP2PChat);
+	mExpandCollapseBtn->setEnabled(is_not_torn_off || !mIsP2PChat);
 
-	mTearOffBtn->setImageOverlay(getString(is_torn_off? "return_icon" : "tear_off_icon"));
-	mTearOffBtn->setToolTip(getString(!is_torn_off? "tooltip_to_separate_window" : "tooltip_to_main_window"));
+	mTearOffBtn->setImageOverlay(getString(is_not_torn_off? "tear_off_icon" : "return_icon"));
+	mTearOffBtn->setToolTip(getString(is_not_torn_off? "tooltip_to_separate_window" : "tooltip_to_main_window"));
 
-	mCloseBtn->setVisible(!is_torn_off && !mIsNearbyChat);
+	mCloseBtn->setVisible(is_not_torn_off && !mIsNearbyChat);
 
 	enableDisableCallBtn();
 
 	showTranslationCheckbox();
 }
+ 
+void LLFloaterIMSessionTab::forceReshape()
+{
+    LLRect floater_rect = getRect();
+    reshape(llmax(floater_rect.getWidth(), this->getMinWidth()),
+    		llmax(floater_rect.getHeight(), this->getMinHeight()),
+    		true);
+}
+
 
 void LLFloaterIMSessionTab::reshapeChatHistory()
 {
@@ -735,19 +753,6 @@ void LLFloaterIMSessionTab::onOpen(const LLSD& key)
 	}
 }
 
-// virtual
-void LLFloaterIMSessionTab::onClose(bool app_quitting)
-{
-	// Always suppress the IM from the conversations list on close if present for any reason
-	if (LLFloaterIMSessionTab::isChatMultiTab())
-	{
-		LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
-		if (im_box)
-		{
-            im_box->removeConversationListItem(mKey);
-        }
-    }
-}
 
 void LLFloaterIMSessionTab::onTearOffClicked()
 {
@@ -755,7 +760,58 @@ void LLFloaterIMSessionTab::onTearOffClicked()
     mSaveRect = isTornOff();
     initRectControl();
 	LLFloater::onClickTearOff(this);
+	if (isTornOff())
+	{
+		forceReshape();
+	}
 	refreshConversation();
+	updateGearBtn();
+}
+
+void LLFloaterIMSessionTab::updateGearBtn()
+{
+
+	BOOL prevVisibility = mGearBtn->getVisible();
+	mGearBtn->setVisible(checkIfTornOff() && mIsP2PChat);
+
+
+	// Move buttons if Gear button changed visibility
+	if(prevVisibility != mGearBtn->getVisible())
+	{
+		LLRect gear_btn_rect =  mGearBtn->getRect();
+		LLRect add_btn_rect = getChild<LLButton>("add_btn")->getRect();
+		LLRect call_btn_rect = getChild<LLButton>("voice_call_btn")->getRect();
+		S32 gap_width = call_btn_rect.mLeft - add_btn_rect.mRight;
+		S32 right_shift = gear_btn_rect.getWidth() + gap_width;
+		if(mGearBtn->getVisible())
+		{
+			// Move buttons to the right to give space for Gear button
+			add_btn_rect.translate(right_shift,0);
+			call_btn_rect.translate(right_shift,0);
+		}
+		else
+		{
+			add_btn_rect.translate(-right_shift,0);
+			call_btn_rect.translate(-right_shift,0);
+		}
+		getChild<LLButton>("add_btn")->setRect(add_btn_rect);
+		getChild<LLButton>("voice_call_btn")->setRect(call_btn_rect);
+	}
+}
+
+void LLFloaterIMSessionTab::initBtns()
+{
+	LLRect gear_btn_rect =  mGearBtn->getRect();
+	LLRect add_btn_rect = getChild<LLButton>("add_btn")->getRect();
+	LLRect call_btn_rect = getChild<LLButton>("voice_call_btn")->getRect();
+	S32 gap_width = call_btn_rect.mLeft - add_btn_rect.mRight;
+	S32 right_shift = gear_btn_rect.getWidth() + gap_width;
+
+	add_btn_rect.translate(-right_shift,0);
+	call_btn_rect.translate(-right_shift,0);
+
+	getChild<LLButton>("add_btn")->setRect(add_btn_rect);
+	getChild<LLButton>("voice_call_btn")->setRect(call_btn_rect);
 }
 
 // static

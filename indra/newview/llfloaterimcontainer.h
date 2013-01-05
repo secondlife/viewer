@@ -60,6 +60,7 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void draw();
 	/*virtual*/ void setVisible(BOOL visible);
+	/*virtual*/ void updateResizeLimits();
 	void onCloseFloater(LLUUID& id);
 
 	/*virtual*/ void addFloater(LLFloater* floaterp, 
@@ -69,6 +70,7 @@ public:
     void showConversation(const LLUUID& session_id);
     void selectConversation(const LLUUID& session_id);
     BOOL selectConversationPair(const LLUUID& session_id, bool select_widget);
+    void clearAllFlashStates();
 
 	/*virtual*/ void tabClose();
 	void showStub(bool visible);
@@ -105,12 +107,14 @@ public:
     bool enableContextMenuItem(const std::string& item, uuid_vec_t& selectedIDS);
     void doToParticipants(const std::string& item, uuid_vec_t& selectedIDS);
 
+	void assignResizeLimits();
+
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
 	avatarID_panel_map_t mSessions;
 	boost::signals2::connection mNewMessageConnection;
 
-	/*virtual*/ void computeResizeLimits(S32& new_min_width, S32& new_min_height);
+	/*virtual*/ void computeResizeLimits(S32& new_min_width, S32& new_min_height) {}
 
 	void onNewMessageReceived(const LLSD& data);
 

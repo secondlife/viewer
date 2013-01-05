@@ -3,9 +3,8 @@
  can_close="true"  
  can_minimize="true"
  can_resize="true"
- height="230"
+ height="210"
  layout="topleft"
- min_height="50"
  name="floater_im_box"
  help_topic="floater_im_box"
  save_rect="true"
@@ -24,22 +23,20 @@
      value="Conv_toolbar_expand"/>
     <layout_stack
      animate="true" 
+     bottom="-1"
      follows="all"
-     height="230"
      layout="topleft"
      left="0"
      name="conversations_stack"
      orientation="horizontal"
-     top="0"
-     width="450">
+     right="-1"
+     top="0">
         <layout_panel
          auto_resize="false"
          user_resize="true"        
-         height="430"
          name="conversations_layout_panel"
          min_dim="38"
-         width="268"
-         expanded_min_dim="120">
+         expanded_min_dim="156">
             <layout_stack
              animate="false" 
              follows="left|top|right"
@@ -48,8 +45,8 @@
              left="0"
              name="conversations_pane_buttons_stack"
              orientation="horizontal"
-             top="0"
-             width="268">
+             right="-1"
+             top="0">
                 <layout_panel
                  auto_resize="true"
                  height="35"
@@ -109,46 +106,44 @@
                      image_unselected="Toolbar_Middle_Off"
                      layout="topleft"
                      top="5"
-                     left="5"
+                     left="1"
                      name="expand_collapse_btn"
                      tool_tip="Collapse/Expand this list"
                      width="31" />
                 </layout_panel>
             </layout_stack>
             <panel
+             bottom="-5"
              follows="all"
              layout="topleft"
              name="conversations_list_panel"
              opaque="true"
-             top_pad="0"
+             top="35"
              left="5"
-             height="390"
-             width="263"/>
+             right="-1"/>
         </layout_panel>
         <layout_panel
          auto_resize="true"
          user_resize="true"
-         height="430"
          name="messages_layout_panel"
-         width="412"
-         expanded_min_dim="225">
+         expanded_min_dim="222">
             <panel_container
+             bottom="-5"
              follows="all"
-             height="430"
              layout="topleft"
              left="0"
              name="im_box_tab_container"
-             top="0"
-             width="412">
+             right="-1"
+             top="0">
              <panel
+               bottom="-1"
                follows="all"
                layout="topleft"
                name="stub_panel"
                opaque="true"
                top_pad="0"
                left="0"
-               height="430"
-               width="412">
+               right="-1">
                  <button
                  follows="right|top"
                  height="25"

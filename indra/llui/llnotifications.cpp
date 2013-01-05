@@ -39,7 +39,6 @@
 #include "lldir.h"
 #include "llsdserialize.h"
 #include "lltrans.h"
-#include "llnotificationslistener.h"
 #include "llstring.h"
 #include "llsdparam.h"
 #include "llsdutil.h"
@@ -993,10 +992,12 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 	bool abortProcessing = false;
 	if (passesFilter)
 	{
+		onFilterPass(pNotification);
 		abortProcessing = mPassedFilter(payload);
 	}
 	else
 	{
+		onFilterFail(pNotification);
 		abortProcessing = mFailedFilter(payload);
 	}
 	
@@ -1168,8 +1169,6 @@ LLNotifications::LLNotifications()
 	mIgnoreAllNotifications(false)
 {
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Notification.Show", boost::bind(&LLNotifications::addFromCallback, this, _2));
-
-    mListener.reset(new LLNotificationsListener(*this));
 }
 
 

@@ -41,8 +41,16 @@
 
 using namespace LLNotificationsUI;
 
-LLSysHandler::LLSysHandler(const std::string& name, const std::string& notification_type)
-:	LLNotificationChannel(name, "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, notification_type))
+LLNotificationHandler::LLNotificationHandler(const std::string& name, const std::string& notification_type, const std::string& parentName)
+:	LLNotificationChannel(name, parentName, LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, notification_type))
+{}
+
+LLSystemNotificationHandler::LLSystemNotificationHandler(const std::string& name, const std::string& notification_type)
+	: LLNotificationHandler(name, notification_type, "System")
+{}
+
+LLCommunicationNotificationHandler::LLCommunicationNotificationHandler(const std::string& name, const std::string& notification_type)
+	: LLNotificationHandler(name, notification_type, "Communication")
 {}
 
 // static

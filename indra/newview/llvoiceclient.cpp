@@ -541,6 +541,7 @@ void LLVoiceClient::setMuteMic(bool muted)
 {
 	mMuteMic = muted;
 	updateMicMuteLogic();
+	mMicroChangedSignal();
 }
 
 

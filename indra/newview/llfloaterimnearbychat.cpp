@@ -113,8 +113,8 @@ BOOL LLFloaterIMNearbyChat::postBuild()
     BOOL result = LLFloaterIMSessionTab::postBuild();
 	
 	mInputEditor->setCommitCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxCommit, this));
-	mInputEditor->setKeystrokeCallback(boost::bind(&onChatBoxKeystroke, _1, this));
-	mInputEditor->setFocusLostCallback(boost::bind(&onChatBoxFocusLost, _1, this));
+	mInputEditor->setKeystrokeCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxKeystroke, this));
+	mInputEditor->setFocusLostCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxFocusLost, this));
 	mInputEditor->setFocusReceivedCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxFocusReceived, this));
 	mInputEditor->setLabel(LLTrans::getString("NearbyChatTitle"));
 
@@ -354,13 +354,11 @@ BOOL LLFloaterIMNearbyChat::matchChatTypeTrigger(const std::string& in_str, std:
 	return string_was_found;
 }
 
-void LLFloaterIMNearbyChat::onChatBoxKeystroke(LLTextEditor* caller, void* userdata)
+void LLFloaterIMNearbyChat::onChatBoxKeystroke()
 {
 	LLFirstUse::otherAvatarChatFirst(false);
 
-	LLFloaterIMNearbyChat* self = (LLFloaterIMNearbyChat *)userdata;
-
-	LLWString raw_text = self->mInputEditor->getWText();
+	LLWString raw_text = mInputEditor->getWText();
 
 	// Can't trim the end, because that will cause autocompletion
 	// to eat trailing spaces that might be part of a gesture.
@@ -386,8 +384,8 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke(LLTextEditor* caller, void* userd
 		// the selection will already be deleted, but we need to trim
 		// off the character before
 		std::string new_text = raw_text.substr(0, length-1);
-		self->mInputEditor->setText( new_text );
-		self->mInputEditor->setCursorToEnd();
+		mInputEditor->setText( new_text );
+		mInputEditor->setCursorToEnd();
 		length = length - 1;
 	}
 	*/
@@ -407,17 +405,17 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke(LLTextEditor* caller, void* userd
 		if (LLGestureMgr::instance().matchPrefix(utf8_trigger, &utf8_out_str))
 		{
 			std::string rest_of_match = utf8_out_str.substr(utf8_trigger.size());
-			self->mInputEditor->setText(utf8_trigger + rest_of_match); // keep original capitalization for user-entered part
+			mInputEditor->setText(utf8_trigger + rest_of_match); // keep original capitalization for user-entered part
 
 			// Select to end of line, starting from the character
 			// after the last one the user typed.
-			self->mInputEditor->selectNext(rest_of_match, false);
+			mInputEditor->selectNext(rest_of_match, false);
 		}
 		else if (matchChatTypeTrigger(utf8_trigger, &utf8_out_str))
 		{
 			std::string rest_of_match = utf8_out_str.substr(utf8_trigger.size());
-			self->mInputEditor->setText(utf8_trigger + rest_of_match + " "); // keep original capitalization for user-entered part
-			self->mInputEditor->endOfDoc();
+			mInputEditor->setText(utf8_trigger + rest_of_match + " "); // keep original capitalization for user-entered part
+			mInputEditor->endOfDoc();
 		}
 
 		//llinfos << "GESTUREDEBUG " << trigger 
@@ -428,7 +426,7 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke(LLTextEditor* caller, void* userd
 }
 
 // static
-void LLFloaterIMNearbyChat::onChatBoxFocusLost(LLFocusableElement* caller, void* userdata)
+void LLFloaterIMNearbyChat::onChatBoxFocusLost()
 {
 	// stop typing animation
 	gAgent.stopTyping();
