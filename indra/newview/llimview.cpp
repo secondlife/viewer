@@ -101,6 +101,43 @@ BOOL LLSessionTimeoutTimer::tick()
 	return TRUE;
 }
 
+
+
+void process_dnd_im(const LLSD& notification)
+{
+    LLSD data = notification["substitutions"];
+    LLUUID sessionID = data["SESSION_ID"].asUUID();
+
+    //re-create the IM session if needed 
+    //(when coming out of DND mode upon app restart)
+    if(!gIMMgr->hasSession(sessionID))
+    {
+        //reconstruct session using data from the notification
+        std::string name = data["FROM"];
+        LLAvatarName av_name;
+        if (LLAvatarNameCache::get(data["FROM_ID"], &av_name))
+        {
+            name = av_name.getDisplayName();
+        }
+
+        
+        LLIMModel::getInstance()->newSession(sessionID, 
+            name, 
+            IM_NOTHING_SPECIAL, 
+            data["FROM_ID"], 
+            false, 
+            false); //will need slight refactor to retrieve whether offline message or not (assume online for now)
+    }
+
+    //For now always flash conversation line item
+    LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+    im_box->flashConversationItemWidget(sessionID, true);
+
+    //And flash toolbar button
+    gToolBarView->flashCommand(LLCommandId("chat"), true);
+}
+
+
 static void on_avatar_name_cache_toast(const LLUUID& agent_id,
 									   const LLAvatarName& av_name,
 									   LLSD msg)

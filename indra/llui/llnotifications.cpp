@@ -475,7 +475,8 @@ LLNotification::LLNotification(const LLSDParamAdapter<Params>& p) :
 	mIgnored(false),
 	mResponderObj(NULL),
 	mId(p.id.isProvided() ? p.id : LLUUID::generateNewID()),
-	mOfferFromAgent(p.offer_from_agent)
+	mOfferFromAgent(p.offer_from_agent),
+    mIsDND(p.is_dnd)
 {
 	if (p.functor.name.isChosen())
 	{

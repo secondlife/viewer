@@ -316,6 +316,7 @@ public:
 		Optional<LLNotificationContext*>		context;
 		Optional<void*>							responder;
 		Optional<bool>							offer_from_agent;
+        Optional<bool>							is_dnd;
 
 		struct Functor : public LLInitParam::ChoiceBlock<Functor>
 		{
@@ -342,7 +343,8 @@ public:
 			form_elements("form"),
 			substitutions("substitutions"),
 			expiry("expiry"),
-			offer_from_agent("offer_from_agent", false)
+			offer_from_agent("offer_from_agent", false),
+            is_dnd("is_dnd", false)
 		{
 			time_stamp = LLDate::now();
 			responder = NULL;
@@ -356,7 +358,8 @@ public:
 			form_elements("form"),
 			substitutions("substitutions"),
 			expiry("expiry"),
-			offer_from_agent("offer_from_agent", false)
+			offer_from_agent("offer_from_agent", false),
+            is_dnd("is_dnd", false)
 		{
 			functor.name = _name;
 			name = _name;
@@ -383,6 +386,7 @@ private:
 	void* mResponderObj; // TODO - refactor/remove this field
 	LLNotificationResponderPtr mResponder;
 	bool mOfferFromAgent;
+    bool mIsDND;
 
 	// a reference to the template
 	LLNotificationTemplatePtr mTemplatep;
@@ -522,6 +526,16 @@ public:
 	{
 		return mOfferFromAgent;
 	}
+
+    bool isDND() const
+    {
+        return mIsDND;
+    }
+
+    void setDND(const bool flag)
+    {
+        mIsDND = flag;
+    }
 
 	std::string getType() const;
 	std::string getMessage() const;
