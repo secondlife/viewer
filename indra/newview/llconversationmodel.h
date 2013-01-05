@@ -195,14 +195,16 @@ public:
 
 	virtual const bool getDistanceToAgent(F64& dist) const { dist = mDistToAgent; return (dist >= 0.0); }
 
-	void fetchAvatarName();
+	void fetchAvatarName();		// fetch and update the avatar name
+	void updateAvatarName();	// get from the cache (do *not* fetch) and update the avatar name
 	LLConversationItemSession* getParentSession();
 
 	void dumpDebugData();
 	void setModeratorOptionsVisible(bool visible) { mDisplayModeratorOptions = visible; }
 
 private:
-	void onAvatarNameCache(const LLAvatarName& av_name);
+	void onAvatarNameCache(const LLAvatarName& av_name);	// callback used by fetchAvatarName
+	void updateAvatarName(const LLAvatarName& av_name);
 
 	bool mIsMuted;		// default is false
 	bool mIsModerator;	// default is false

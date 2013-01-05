@@ -434,24 +434,31 @@ void LLConversationItemParticipant::fetchAvatarName()
 	}
 }
 
-void LLConversationItemParticipant::buildContextMenu(LLMenuGL& menu, U32 flags)
+void LLConversationItemParticipant::updateAvatarName()
 {
-    menuentry_vec_t items;
-    menuentry_vec_t disabled_items;
-
-	buildParticipantMenuOptions(items);
-	
-    hide_context_entries(menu, items, disabled_items);
+	llassert(getUUID().notNull());
+	if (getUUID().notNull())
+	{
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(getUUID(),&av_name))
+		{
+			updateAvatarName(av_name);
+		}
+	}
 }
 
 void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_name)
 {
 	mAvatarNameCacheConnection.disconnect();
+	updateAvatarName(av_name);
+}
 
+void LLConversationItemParticipant::updateAvatarName(const LLAvatarName& av_name)
+{
 	mName = av_name.getUserName();
 	mDisplayName = av_name.getDisplayName();
 	mNeedsRefresh = true;
-	if(mParent != NULL)
+	if (mParent != NULL)
 	{
 		LLConversationItemSession* parent_session = dynamic_cast<LLConversationItemSession*>(mParent);
 		if (parent_session != NULL)
@@ -461,6 +468,16 @@ void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_nam
 			postEvent("update_participant", parent_session, this);
 		}
 	}
+}
+
+void LLConversationItemParticipant::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+    menuentry_vec_t items;
+    menuentry_vec_t disabled_items;
+	
+	buildParticipantMenuOptions(items);
+	
+    hide_context_entries(menu, items, disabled_items);
 }
 
 LLConversationItemSession* LLConversationItemParticipant::getParentSession()

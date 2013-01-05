@@ -1682,6 +1682,17 @@ LLPanelPreference::LLPanelPreference()
 //virtual
 BOOL LLPanelPreference::postBuild()
 {
+	////////////////////// PanelGeneral ///////////////////
+	if (hasChild("display_names_check"))
+	{
+		BOOL use_people_api = gSavedSettings.getBOOL("UsePeopleAPI");
+		LLCheckBoxCtrl* ctrl_display_name = getChild<LLCheckBoxCtrl>("display_names_check");
+		ctrl_display_name->setEnabled(use_people_api);
+		if (!use_people_api)
+		{
+			ctrl_display_name->setValue(FALSE);
+		}
+	}
 
 	////////////////////// PanelVoice ///////////////////
 	if (hasChild("voice_unavailable"))
@@ -1732,7 +1743,7 @@ BOOL LLPanelPreference::postBuild()
 		getChild<LLCheckBoxCtrl>("favorites_on_login_check")->setCommitCallback(boost::bind(&showFavoritesOnLoginWarning, _1, _2));
 	}
 
-	// Panel Advanced
+	//////////////////////PanelAdvanced ///////////////////
 	if (hasChild("modifier_combo"))
 	{
 		//localizing if push2talk button is set to middle mouse

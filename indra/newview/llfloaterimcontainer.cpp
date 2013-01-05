@@ -393,7 +393,7 @@ void LLFloaterIMContainer::processParticipantsStyleUpdate()
 		{
 			LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
 			// Get the avatar name for this participant id from the cache and update the model
-			participant_model->fetchAvatarName();
+			participant_model->updateAvatarName();
 			// Next participant
 			current_participant_model++;
 		}
