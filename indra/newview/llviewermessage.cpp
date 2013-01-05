@@ -1361,6 +1361,8 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 			gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(blocked_id));
 }
 
+std::string LLOfferInfo::mResponderType = "offer_info";
+
 LLOfferInfo::LLOfferInfo()
  : LLNotificationResponderInterface()
  , mFromGroup(FALSE)
@@ -1406,6 +1408,7 @@ LLOfferInfo::LLOfferInfo(const LLOfferInfo& info)
 LLSD LLOfferInfo::asLLSD()
 {
 	LLSD sd;
+    sd["responder_type"] = mResponderType;
 	sd["im_type"] = mIM;
 	sd["from_id"] = mFromID;
 	sd["from_group"] = mFromGroup;

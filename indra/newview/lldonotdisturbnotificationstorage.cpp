@@ -109,16 +109,20 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 		 ++notification_it)
 	{
 		LLSD notification_params = *notification_it;
-		LLNotificationPtr notification(new LLNotification(notification_params));
+        const LLUUID& notificationID = notification_params["id"];
+        LLNotificationPtr notification = instance.find(notificationID);
 		
-		const LLUUID& notificationID = notification->id();
-		if (instance.find(notificationID))
+        //Notification already exists in notification pipeline (same instance of app running)
+		if (notification)
 		{
+            notification->setDND(true);
 			instance.update(notification);
 		}
+        //Notification doesn't exist (different instance since restarted app while in DND mode)
 		else
 		{
-			LLNotificationResponderInterface* responder = createResponder(notification_params["name"], notification_params["responder"]);
+            notification = (LLNotificationPtr) new LLNotification(notification_params.with("is_dnd", true));
+			LLNotificationResponderInterface* responder = createResponder(notification_params["responder_sd"]["responder_type"], notification_params["responder_sd"]);
 			if (responder == NULL)
 			{
 				LL_WARNS("LLDoNotDisturbNotificationStorage") << "cannot create responder for notification of type '"
