@@ -652,25 +652,10 @@ void LLFloaterTexturePicker::draw()
 		{
 			folder_view->setPinningSelectedItem(mSelectedItemPinned);
 			folder_view->getViewModelItem()->dirtyFilter();
-			//TODO RN: test..still works without this?
-			//folder_view->arrangeFromRoot();
-
 			mSelectedItemPinned = TRUE;
 		}
 	}
 }
-
-// static
-/*
-void LLFloaterTexturePicker::onSaveAnotherCopyDialog( S32 option, void* userdata )
-{
-	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-	if( 0 == option )
-	{
-		self->copyToInventoryFinal();
-	}
-}
-*/
 
 const LLUUID& LLFloaterTexturePicker::findItemID(const LLUUID& asset_id, BOOL copyable_only)
 {

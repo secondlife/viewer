@@ -42,8 +42,6 @@
 #include "llclipboard.h"
 #include "lltrans.h"
 
-//TODO RN: fix use of static cast as much as possible
-
 LLFastTimer::DeclareTimer FT_FILTER_CLIPBOARD("Filter Clipboard");
 
 LLInventoryFilter::FilterOps::FilterOps(const Params& p)
@@ -83,7 +81,7 @@ LLInventoryFilter::LLInventoryFilter(const Params& p)
 
 bool LLInventoryFilter::check(const LLFolderViewModelItem* item) 
 {
-	const LLFolderViewModelItemInventory* listener = static_cast<const LLFolderViewModelItemInventory*>(item);
+	const LLFolderViewModelItemInventory* listener = dynamic_cast<const LLFolderViewModelItemInventory*>(item);
 	// Clipboard cut items are *always* filtered so we need this value upfront
 	const BOOL passed_clipboard = (listener ? checkAgainstClipboard(listener->getUUID()) : TRUE);
 
@@ -122,7 +120,7 @@ bool LLInventoryFilter::check(const LLInventoryItem* item)
 
 bool LLInventoryFilter::checkFolder(const LLFolderViewModelItem* item) const
 {
-	const LLFolderViewModelItemInventory* listener = static_cast<const LLFolderViewModelItemInventory*>(item);
+	const LLFolderViewModelItemInventory* listener = dynamic_cast<const LLFolderViewModelItemInventory*>(item);
 	if (!listener)
 	{
 		llerrs << "Folder view event listener not found." << llendl;
@@ -384,8 +382,7 @@ const std::string& LLInventoryFilter::getFilterSubString(BOOL trim) const
 
 std::string::size_type LLInventoryFilter::getStringMatchOffset(LLFolderViewModelItem* item) const
 {
-	const LLFolderViewModelItemInventory* listener = static_cast<const LLFolderViewModelItemInventory*>(item);
-	return mFilterSubString.size() ? listener->getSearchableName().find(mFilterSubString) : std::string::npos;
+	return mFilterSubString.size() ? item->getSearchableName().find(mFilterSubString) : std::string::npos;
 }
 
 bool LLInventoryFilter::isDefault() const

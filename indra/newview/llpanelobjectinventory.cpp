@@ -1555,6 +1555,10 @@ void LLPanelObjectInventory::reset()
 
 	mCommitCallbackRegistrar.pushScope(); // push local callbacks
 	
+	// Reset the inventory model to show all folders by default
+	mInventoryViewModel.getFilter().setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
+	
+	// Create a new folder view root
 	LLRect dummy_rect(0, 1, 1, 0);
 	LLFolderView::Params p;
 	p.name = "task inventory";
@@ -1566,11 +1570,7 @@ void LLPanelObjectInventory::reset()
 	p.view_model = &mInventoryViewModel;
 	p.root = NULL;
 	mFolders = LLUICtrlFactory::create<LLFolderView>(p);
-	// this ensures that we never say "searching..." or "no items found"
-	//TODO RN: make this happen by manipulating filter object directly
-  	LLInventoryFilter& inventoryFilter = dynamic_cast<LLInventoryFilter&>(mFolders->getFolderViewModel()->getFilter());
-   	inventoryFilter.setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
-  
+
 	mFolders->setCallbackRegistrar(&mCommitCallbackRegistrar);
 
 	if (hasFocus())

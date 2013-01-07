@@ -401,8 +401,8 @@ public:
 	virtual const FilterType& getFilter() const		 { return mFilter; }
 	virtual void setFilter(const FilterType& filter) { mFilter = filter; }
 
-	// TODO RN: remove this and put all filtering logic in view model
-	// add getStatusText and isFiltering()
+	// By default, we assume the content is available. If a network fetch mechanism is implemented for the model,
+	// this method needs to be overloaded and return the relevant fetch status.
 	virtual bool contentsReady()					{ return true; }
 
 
