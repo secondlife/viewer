@@ -134,6 +134,8 @@ public:
 	BOOL  	 	 	 	 	updateJointLODs();
 	void					updateLODRiggedAttachments( void );
 	/*virtual*/ BOOL   	 	 	isActive() const; // Whether this object needs to do an idleUpdate.
+	void 						collectTextureUUIDs(std::set<LLUUID>& ids, S32& local_mem, S32& baked_mem);
+	void						releaseOldTextures();
 	/*virtual*/ void   	 	 	updateTextures();
 	/*virtual*/ S32    	 	 	setTETexture(const U8 te, const LLUUID& uuid); // If setting a baked texture, need to request it from a non-local sim.
 	/*virtual*/ void   	 	 	onShift(const LLVector4a& shift_vector);
@@ -528,6 +530,7 @@ protected:
 
 	LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ; 
 	BOOL mLoadedCallbacksPaused;
+	std::set<LLUUID>	mTextureIDs;
 	//--------------------------------------------------------------------
 	// Local Textures
 	//--------------------------------------------------------------------

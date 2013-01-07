@@ -4004,8 +4004,81 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
 //------------------------------------------------------------------------
 // LLVOAvatar::updateTextures()
 //------------------------------------------------------------------------
+void LLVOAvatar::collectTextureUUIDs(std::set<LLUUID>& ids, S32& local_mem, S32& baked_mem)
+{
+	for (U32 texture_index = 0; texture_index < getNumTEs(); texture_index++)
+	{
+		LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex)texture_index);
+		U32 num_wearables = gAgentWearables.getWearableCount(wearable_type);
+
+		LLViewerFetchedTexture *imagep = NULL;
+		for (U32 wearable_index = 0; wearable_index < num_wearables; wearable_index++)
+		{
+			imagep = LLViewerTextureManager::staticCastToFetchedTexture(getImage(texture_index, wearable_index), TRUE);
+			if (imagep)
+			{
+				const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture((ETextureIndex)texture_index);
+				if (texture_dict->mIsLocalTexture)
+				{
+					local_mem += imagep->getTextureMemory();
+					ids.insert(imagep->getID());
+				}
+			}
+		}
+		if (isIndexBakedTexture((ETextureIndex) texture_index))
+		{
+			imagep = LLViewerTextureManager::staticCastToFetchedTexture(getImage(texture_index,0), TRUE);
+			if (imagep)
+			{
+				baked_mem += imagep->getTextureMemory();
+				ids.insert(imagep->getID());
+			}
+		}
+	}
+	ids.erase(IMG_DEFAULT);
+	ids.erase(IMG_DEFAULT_AVATAR);
+	ids.erase(IMG_INVISIBLE);
+}
+
+void LLVOAvatar::releaseOldTextures()
+{
+	S32 current_texture_mem = 0;
+	
+	// Any textures that we used to be using but are no longer using should no longer be flagged as "NO_DELETE"
+	std::set<LLUUID> new_texture_ids;
+	S32 local_mem = 0, baked_mem = 0;
+	collectTextureUUIDs(new_texture_ids, local_mem, baked_mem);
+	LL_DEBUGS("Avatar") << getFullname() << " local_mem: " << local_mem << " baked_mem: " << baked_mem << llendl;  
+	for (std::set<LLUUID>::iterator it = mTextureIDs.begin(); it != mTextureIDs.end(); ++it)
+	{
+		if (new_texture_ids.find(*it) == new_texture_ids.end())
+		{
+			LLViewerFetchedTexture *imagep = gTextureList.findImage(*it);
+			if (imagep)
+			{
+				current_texture_mem += imagep->getTextureMemory();
+				if (imagep->getTextureState() == LLGLTexture::NO_DELETE)
+				{
+					// This will allow the texture to be deleted if not in use.
+					imagep->forceActive();
+
+					// This resets the clock to being flagged as
+					// unused, preventing the texture from being
+					// deleted immediately. If other avatars or
+					// objects are using it, it can still be flagged
+					// no-delete by them.
+					imagep->forceUpdateBindStats();
+				}
+			}
+		}
+	}
+	mTextureIDs = new_texture_ids;
+}
+
 void LLVOAvatar::updateTextures()
 {
+	releaseOldTextures();
+	
 	BOOL render_avatar = TRUE;
 
 	if (mIsDummy)

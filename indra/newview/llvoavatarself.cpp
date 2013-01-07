@@ -177,7 +177,7 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
 }
 
 // Called periodically for diagnostics, return true when done.
-bool output_texture_diagnostics()
+bool output_self_av_texture_diagnostics()
 {
 	if (!isAgentAvatarValid())
 		return true; // done checking
@@ -221,7 +221,7 @@ void LLVOAvatarSelf::initInstance()
 		return;
 	}
 
-	//doPeriodically(output_texture_diagnostics, 30.0);
+	doPeriodically(output_self_av_texture_diagnostics, 30.0);
 }
 
 // virtual
@@ -2039,14 +2039,15 @@ const std::string LLVOAvatarSelf::verboseDebugDumpLocalTextureDataInfo(const LLV
 				 ++local_tex_iter)
 			{
 				const ETextureIndex tex_index = *local_tex_iter;
-				outbuf << "  tex_index " << (S32) tex_index << "\n";
+				const std::string tex_name = LLAvatarAppearanceDictionary::getInstance()->getTexture(tex_index)->mName;
+				outbuf << "  tex_index " << (S32) tex_index << " name " << tex_name << "\n";
 				const LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getTEWearableType(tex_index);
 				const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 				if (wearable_count > 0)
 				{
 					for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 					{
-						outbuf << "    " << LLWearableType::getTypeName(wearable_type) << " " << wearable_index << "\n";
+						outbuf << "    " << LLWearableType::getTypeName(wearable_type) << " " << wearable_index << ":";
 						const LLLocalTextureObject *local_tex_obj = getLocalTextureObject(tex_index, wearable_index);
 						if (local_tex_obj)
 						{
@@ -2055,7 +2056,7 @@ const std::string LLVOAvatarSelf::verboseDebugDumpLocalTextureDataInfo(const LLV
 								&& local_tex_obj->getID() != IMG_DEFAULT_AVATAR
 								&& !image->isMissingAsset())
 							{
-								outbuf << "      id: " << image->getID()
+								outbuf << " id: " << image->getID()
 									   << " refs: " << image->getNumRefs()
 									   << " glocdisc: " << getLocalDiscardLevel(tex_index, wearable_index)
 									   << " discard: " << image->getDiscardLevel()
@@ -2067,9 +2068,10 @@ const std::string LLVOAvatarSelf::verboseDebugDumpLocalTextureDataInfo(const LLV
 									   << " fl: " << image->isFullyLoaded() // this is not an accessor for mFullyLoaded - see comment there.
 									   << " mvs: " << image->getMaxVirtualSize()
 									   << " mvsc: " << image->getMaxVirtualSizeResetCounter()
-									   << "\n";
+									   << " mem: " << image->getTextureMemory();
 							}
 						}
+						outbuf << "\n";
 					}
 				}
 			}
@@ -2077,6 +2079,23 @@ const std::string LLVOAvatarSelf::verboseDebugDumpLocalTextureDataInfo(const LLV
 		}
 	}
 	return outbuf.str();
+}
+
+void LLVOAvatarSelf::dumpAllTextures() const
+{
+	std::string vd_text = "Local textures per baked index and wearable:\n";
+	for (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
+		 baked_iter != LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().end();
+		 ++baked_iter)
+	{
+		const LLAvatarAppearanceDefines::EBakedTextureIndex baked_index = baked_iter->first;
+		const LLViewerTexLayerSet *layerset = debugGetLayerSet(baked_index);
+		if (!layerset) continue;
+		const LLViewerTexLayerSetBuffer *layerset_buffer = layerset->getViewerComposite();
+		if (!layerset_buffer) continue;
+		vd_text += verboseDebugDumpLocalTextureDataInfo(layerset);
+	}
+	LL_DEBUGS("Avatar") << vd_text << llendl;
 }
 
 const std::string LLVOAvatarSelf::debugDumpLocalTextureDataInfo(const LLViewerTexLayerSet* layerset) const
@@ -2348,24 +2367,28 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 {
 	if (!isIndexLocalTexture(type)) return;
 
-	if (getLocalTextureID(type, index) != IMG_DEFAULT_AVATAR && imagep->getDiscardLevel() != 0)
+	if (getLocalTextureID(type, index) != IMG_DEFAULT_AVATAR)
 	{
-		F32 desired_pixels;
-		desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
+		imagep->setNoDelete();
+		if (imagep->getDiscardLevel() != 0)
+		{
+			F32 desired_pixels;
+			desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
 
-		// DRANO what priority should wearable-based textures have?
-		if (isUsingLocalAppearance())
-		{
-			imagep->setBoostLevel(getAvatarBoostLevel());
-			imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
-		}
-		imagep->resetTextureStats();
-		imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
-		imagep->addTextureStats( desired_pixels / texel_area_ratio );
-		imagep->forceUpdateBindStats() ;
-		if (imagep->getDiscardLevel() < 0)
-		{
-			mHasGrey = TRUE; // for statistics gathering
+			// DRANO what priority should wearable-based textures have?
+			if (isUsingLocalAppearance())
+			{
+				imagep->setBoostLevel(getAvatarBoostLevel());
+				imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
+			}
+			imagep->resetTextureStats();
+			imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
+			imagep->addTextureStats( desired_pixels / texel_area_ratio );
+			imagep->forceUpdateBindStats() ;
+			if (imagep->getDiscardLevel() < 0)
+			{
+				mHasGrey = TRUE; // for statistics gathering
+			}
 		}
 	}
 	else
@@ -2538,19 +2561,8 @@ void LLVOAvatarSelf::outputRezDiagnostics() const
 		if (!layerset_buffer) continue;
 		LL_DEBUGS("Avatar") << layerset_buffer->dumpTextureInfo() << llendl;
 	}
-	std::string vd_text = "Local textures per baked index and wearable:\n";
-	for (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
-		 baked_iter != LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().end();
-		 ++baked_iter)
-	{
-		const LLAvatarAppearanceDefines::EBakedTextureIndex baked_index = baked_iter->first;
-		const LLViewerTexLayerSet *layerset = debugGetLayerSet(baked_index);
-		if (!layerset) continue;
-		const LLViewerTexLayerSetBuffer *layerset_buffer = layerset->getViewerComposite();
-		if (!layerset_buffer) continue;
-		vd_text += verboseDebugDumpLocalTextureDataInfo(layerset);
-	}
-	LL_DEBUGS("Avatar") << vd_text << llendl;
+
+	dumpAllTextures();
 }
 
 void LLVOAvatarSelf::outputRezTiming(const std::string& msg) const
