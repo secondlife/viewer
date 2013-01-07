@@ -60,7 +60,7 @@ void ll_init_apr()
 }
 
 
-void ll_cleanup_apr()
+void ll_cleanup_apr(bool destroy_pools)
 {
 	LL_INFOS("APR") << "Cleaning up APR" << LL_ENDL;
 
@@ -83,7 +83,7 @@ void ll_cleanup_apr()
 
 	LLThreadLocalPointerBase::destroyAllThreadLocalStorage();
 
-	if (gAPRPoolp)
+	if (gAPRPoolp && destroy_pools)
 	{
 		apr_pool_destroy(gAPRPoolp);
 		gAPRPoolp = NULL;

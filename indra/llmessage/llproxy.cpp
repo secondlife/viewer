@@ -57,8 +57,7 @@ LLProxy::LLProxy():
 		mAuthMethodSelected(METHOD_NOAUTH),
 		mSocksUsername(),
 		mSocksPassword()
-{
-}
+{}
 
 LLProxy::~LLProxy()
 {

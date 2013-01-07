@@ -127,7 +127,7 @@ std::list<ThreadRecorder::ActiveRecording>::iterator ThreadRecorder::update( Rec
 
 	if (it == end_it)
 	{
-		llerrs << "Recording not active on this thread" << llendl;
+		llwarns << "Recording not active on this thread" << llendl;
 	}
 
 	return it;

@@ -643,7 +643,7 @@ int main(int argc, char **argv)
 		s.close();
 	}
 
-	ll_cleanup_apr();
+	ll_cleanup_apr(false);
 
 	int retval = (success ? 0 : 1);
 	return retval;
