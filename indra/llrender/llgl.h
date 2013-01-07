@@ -115,6 +115,8 @@ public:
 	BOOL mHasARBEnvCombine;
 	BOOL mHasCubeMap;
 	BOOL mHasDebugOutput;
+	BOOL mHassRGBTexture;
+	BOOL mHassRGBFramebuffer;
 
 	// Vendor-specific extensions
 	BOOL mIsATI;

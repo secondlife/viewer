@@ -80,7 +80,7 @@ LLDrawPoolWater::LLDrawPoolWater() :
 	mWaterImagep->setNoDelete();
 	mOpaqueWaterImagep = LLViewerTextureManager::getFetchedTexture(OPAQUE_WATER_TEXTURE);
 	llassert(mOpaqueWaterImagep);
-	mWaterNormp = LLViewerTextureManager::getFetchedTexture(DEFAULT_WATER_NORMAL);
+	mWaterNormp = LLViewerTextureManager::getFetchedTexture(DEFAULT_WATER_NORMAL, TRUE, LLViewerTexture::BOOST_BUMP);
 	mWaterNormp->setNoDelete();
 
 	restoreGL();
@@ -563,7 +563,7 @@ void LLDrawPoolWater::shade()
 	// change mWaterNormp if needed
 	if (mWaterNormp->getID() != param_mgr->getNormalMapID())
 	{
-		mWaterNormp = LLViewerTextureManager::getFetchedTexture(param_mgr->getNormalMapID());
+		mWaterNormp = LLViewerTextureManager::getFetchedTexture(param_mgr->getNormalMapID(), TRUE, LLViewerTexture::BOOST_BUMP);
 	}
 
 	mWaterNormp->addTextureStats(1024.f*1024.f);

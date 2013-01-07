@@ -969,6 +969,15 @@ void LLGLManager::initExtensions()
 							ExtensionExists("GL_EXT_framebuffer_multisample", gGLHExts.mSysExts) &&
 							ExtensionExists("GL_EXT_packed_depth_stencil", gGLHExts.mSysExts);
 #endif
+#ifdef GL_EXT_texture_sRGB
+	mHassRGBTexture = ExtensionExists("GL_EXT_texture_sRGB", gGLHExts.mSysExts);
+#endif
+	
+#ifdef GL_ARB_framebuffer_sRGB
+	mHassRGBFramebuffer = ExtensionExists("GL_ARB_framebuffer_sRGB", gGLHExts.mSysExts);
+#else
+	mHassRGBFramebuffer = ExtensionExists("GL_EXT_framebuffer_sRGB", gGLHExts.mSysExts);
+#endif
 	
 	mHasMipMapGeneration = mHasFramebufferObject || mGLVersion >= 1.4f;
 
