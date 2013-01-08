@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "llopenglview-objc.h"
-#include "llappviewermacosx-objc.h"
+#include "llwindowmacosx-objc.h"
 
 @interface LLAppDelegate : NSObject <NSApplicationDelegate> {
 	LLNSWindow *window;

@@ -6,7 +6,7 @@
 //
 //
 
-#import "llappviewermacosx-delegate.h"
+#import "llappdelegate-objc.h"
 
 @implementation LLAppDelegate
 
@@ -20,8 +20,6 @@
 - (void) applicationDidFinishLaunching:(NSNotification *)notification
 {
 	frameTimer = nil;
-	
-	setLLNSWindowRef([self window]);
 	
 	if (initViewer())
 	{

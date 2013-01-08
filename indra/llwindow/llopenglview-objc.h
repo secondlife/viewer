@@ -40,8 +40,3 @@
 }
 
 @end
-
-void setLLNSWindowRef(LLNSWindow* window);
-void setLLOpenGLViewRef(LLOpenGLView* view);
-LLNSWindow* winRef;
-LLOpenGLView* glviewRef;

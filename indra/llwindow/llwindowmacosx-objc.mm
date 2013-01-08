@@ -29,6 +29,7 @@
 #include <Cocoa/Cocoa.h>
 #include "llwindowmacosx-objc.h"
 #include "llopenglview-objc.h"
+#include "llappdelegate-objc.h"
 
 /*
  * These functions are broken out into a separate file because the
@@ -36,6 +37,11 @@
  * llcommon/stdtypes.h.  This makes it impossible to use the standard
  * linden headers with any objective-C++ source.
  */
+
+int createNSApp(int argc, const char *argv[])
+{
+	return NSApplicationMain(argc, argv);
+}
 
 void setupCocoa()
 {
@@ -49,20 +55,43 @@ void setupCocoa()
 		// ie. running './secondlife -set Language fr' would cause a pop-up saying can't open document 'fr' 
 		// when init'ing the Cocoa App window.		
 		[[NSUserDefaults standardUserDefaults] setObject:@"NO" forKey:@"NSTreatUnknownArgumentsAsOpen"];
-		
-		// This is a bit of voodoo taken from the Apple sample code "CarbonCocoa_PictureCursor":
-		//   http://developer.apple.com/samplecode/CarbonCocoa_PictureCursor/index.html
-		
-		//	Needed for Carbon based applications which call into Cocoa
-		// NSApplicationLoad();
-
-		//	Must first call [[[NSWindow alloc] init] release] to get the NSWindow machinery set up so that NSCursor can use a window to cache the cursor image
-		//[[[NSWindow alloc] init] release];
 
 		[pool release];
 		
 		inited = true;
 	}
+}
+
+bool copyToPBoard(const unsigned short *str, unsigned int len)
+{
+	NSPasteboard *pboard = [NSPasteboard generalPasteboard];
+	[pboard clearContents];
+	
+	NSArray *contentsToPaste = [[NSArray alloc] initWithObjects:[NSString stringWithCharacters:str length:len], nil];
+	
+	return [pboard writeObjects:contentsToPaste];
+}
+
+bool pasteBoardAvailable()
+{
+	NSArray *classArray = [NSArray arrayWithObject:[NSString class]];
+	return [[NSPasteboard generalPasteboard] canReadObjectForClasses:classArray options:[NSDictionary dictionary]];
+}
+
+const unsigned short *copyFromPBoard()
+{
+	NSPasteboard *pboard = [NSPasteboard generalPasteboard];
+	NSArray *classArray = [NSArray arrayWithObject:[NSString class]];
+	NSString *str = NULL;
+	BOOL ok = [pboard canReadObjectForClasses:classArray options:[NSDictionary dictionary]];
+	if (ok)
+	{
+		NSArray *objToPaste = [pboard readObjectsForClasses:classArray options:[NSDictionary dictionary]];
+		str = [objToPaste objectAtIndex:0];
+	}
+	unichar* temp = (unichar*)calloc([str length], sizeof(unichar));
+	[str getCharacters:temp];
+	return temp;
 }
 
 CursorRef createImageCursor(const char *fullpath, int hotspotX, int hotspotY)
@@ -287,13 +316,10 @@ void removeGLView(GLViewRef view)
 
 NSWindowRef getMainAppWindow()
 {
-	[(LLNSWindow*)winRef setAcceptsMouseMovedEvents:TRUE];
+	LLNSWindow *winRef = [(LLAppDelegate*)[[NSApplication sharedApplication] delegate] window];
+	
+	[winRef setAcceptsMouseMovedEvents:TRUE];
 	return winRef;
-}
-
-GLViewRef getGLView()
-{
-	return glviewRef;
 }
 
 unsigned int getModifiers()

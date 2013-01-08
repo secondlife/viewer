@@ -167,13 +167,15 @@ void LLKeyboardMacOSX::resetMaskKeys()
 	// MBW -- XXX -- This mirrors the operation of the Windows version of resetMaskKeys().
 	//    It looks a bit suspicious, as it won't correct for keys that have been released.
 	//    Is this the way it's supposed to work?
+	
+	// We apply the modifier masks directly within getModifiers.  So check to see which masks we've applied.
 
 	if(mask & MAC_SHIFT_KEY)
 	{
 		mKeyLevel[KEY_SHIFT] = TRUE;
 	}
 
-	if(mask & (MAC_CTRL_KEY))
+	if(mask & MAC_CTRL_KEY)
 	{
 		mKeyLevel[KEY_CONTROL] = TRUE;
 	}
@@ -198,25 +200,9 @@ static BOOL translateKeyMac(const U16 key, const U32 mask, KEY &outKey, U32 &out
 
 MASK LLKeyboardMacOSX::updateModifiers(const U32 mask)
 {
-	// translate the mask
-	MASK out_mask = 0;
-
-	if(mask & MAC_SHIFT_KEY)
-	{
-		out_mask |= MASK_SHIFT;
-	}
-
-	if(mask & MAC_CTRL_KEY || mask & MAC_CMD_KEY)
-	{
-		out_mask |= MASK_CONTROL;
-	}
-
-	if(mask & MAC_ALT_KEY)
-	{
-		out_mask |= MASK_ALT;
-	}
-
-	return out_mask;
+	// This is handled for us in LLNSWindow on OS X.
+	
+	return mask;
 }
 
 BOOL LLKeyboardMacOSX::handleKeyDown(const U16 key, const U32 mask)
@@ -231,12 +217,7 @@ BOOL LLKeyboardMacOSX::handleKeyDown(const U16 key, const U32 mask)
 	{
 		handled = handleTranslatedKeyDown(translated_key, translated_mask);
 	}
-	if (!handled)
-	{
-		LL_INFOS("Keyboard") << "Unhandled key: " << mTranslateKeyMap[key] << LL_ENDL;
-	} else {
-		LL_INFOS("Keyboard") << "Handled key: " << mTranslateKeyMap[key] << LL_ENDL;
-	}
+	
 	return handled;
 }
 
@@ -272,7 +253,7 @@ MASK LLKeyboardMacOSX::currentMask(BOOL for_mouse_event)
 		if (mask & MAC_CMD_KEY) result |= MASK_CONTROL;
 	}
 
-	return result;
+	return mask;
 }
 
 void LLKeyboardMacOSX::scanKeyboard()

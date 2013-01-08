@@ -132,62 +132,72 @@
 
 - (void) mouseDragged:(NSEvent *)theEvent
 {
-	[super mouseDragged:theEvent];
+	[_window mouseDragged:theEvent];
 }
 
 - (void) scrollWheel:(NSEvent *)theEvent
 {
-	[super scrollWheel:theEvent];
+	[_window scrollWheel:theEvent];
 }
 
 - (void) mouseDown:(NSEvent *)theEvent
 {
-	[super mouseDown:theEvent];
+	[_window mouseDown:theEvent];
 }
 
 - (void) mouseUp:(NSEvent *)theEvent
 {
-	[super mouseUp:theEvent];
+	[_window mouseUp:theEvent];
 }
 
 - (void) rightMouseDown:(NSEvent *)theEvent
 {
-	[super rightMouseDown:theEvent];
+	[_window rightMouseDown:theEvent];
 }
 
 - (void) rightMouseUp:(NSEvent *)theEvent
 {
-	[super rightMouseUp:theEvent];
+	[_window rightMouseUp:theEvent];
+}
+
+- (void) otherMouseDown:(NSEvent *)theEvent
+{
+	[_window otherMouseDown:theEvent];
+}
+
+- (void) otherMouseUp:(NSEvent *)theEvent
+{
+	[_window otherMouseUp:theEvent];
 }
 
 - (void) keyUp:(NSEvent *)theEvent
 {
-	[super keyUp:theEvent];
+	[_window keyUp:theEvent];
 }
 
 - (void) keyDown:(NSEvent *)theEvent
 {
-	[super keyDown:theEvent];
+	[_window keyDown:theEvent];
 }
 
 - (void) mouseMoved:(NSEvent *)theEvent
 {
-	[super mouseMoved:theEvent];
+	[_window mouseMoved:theEvent];
 }
 
 - (void) flagsChanged:(NSEvent *)theEvent
 {
-	[super flagsChanged:theEvent];
+	[_window flagsChanged:theEvent];
 }
 
 - (BOOL) becomeFirstResponder
 {
-	return [super becomeFirstResponder];
+	return [_window becomeFirstResponder];
 }
 
 - (BOOL) resignFirstResponder
 {
-	return [super resignFirstResponder];
+	return [_window resignFirstResponder];
 }
 
 @end
@@ -200,58 +210,99 @@
 
 - (id) init
 {
+	//[self registerForDraggedTypes:[NSArray arrayWithObject:NSFilenamesPboardType, nil]];
 	return self;
 }
 
 - (void) keyDown:(NSEvent *)theEvent
 {
-	callKeyDown([theEvent keyCode], [theEvent modifierFlags]);
-	
+	callKeyDown([theEvent keyCode], mModifiers);
 	NSString *chars = [theEvent characters];
 	for (uint i = 0; i < [chars length]; i++)
 	{
 		// Enter and Return are special cases.
 		unichar returntest = [chars characterAtIndex:i];
-		if ((returntest == NSCarriageReturnCharacter || returntest == NSEnterCharacter) && !([theEvent modifierFlags] & NSCommandKeyMask) && !([theEvent modifierFlags] & NSAlternateKeyMask) && !([theEvent modifierFlags] & NSControlKeyMask))
+		if ((returntest == NSCarriageReturnCharacter || returntest == NSEnterCharacter) &&
+			!([theEvent modifierFlags] & NSCommandKeyMask) &&
+			!([theEvent modifierFlags] & NSAlternateKeyMask) &&
+			!([theEvent modifierFlags] & NSControlKeyMask))
 		{
-			callUnicodeCallback(returntest, 0);
+			callUnicodeCallback(13, 0);
 		} else {
-			callUnicodeCallback([chars characterAtIndex:i], [theEvent modifierFlags]);
+			// The command key being pressed is also a special case.
+			// Control + <character> produces an ASCII control character code.
+			// Command + <character> produces just the character's code.
+			// Check to see if the command key is pressed, then filter through the different character ranges that are relevant to control characters, and subtract the appropriate range.
+			if ([theEvent modifierFlags] & NSCommandKeyMask)
+			{
+				if (returntest >= 64 && returntest <= 95)
+				{
+					callUnicodeCallback(returntest - 63, mModifiers);
+				} else if (returntest >= 97 && returntest <= 122)
+				{
+					callUnicodeCallback(returntest - 96, mModifiers);
+				}
+			} else {
+				callUnicodeCallback(returntest, mModifiers);
+			}
 		}
 	}
 }
 
 - (void) keyUp:(NSEvent *)theEvent {
-	callKeyUp([theEvent keyCode], [theEvent modifierFlags]);
+	callKeyUp([theEvent keyCode], mModifiers);
 }
 
 - (void)flagsChanged:(NSEvent *)theEvent {
-	mModifiers = [theEvent modifierFlags];
+	uint modifiers = [theEvent modifierFlags];
+	
+	// Filter through our modifier keys, and only pick out the ones we care about.
+	
+	mModifiers = 0;
+	if (modifiers & NSCommandKeyMask)
+	{
+		mModifiers |= 0x0001;
+	}
+	
+	if (modifiers & NSAlternateKeyMask)
+	{
+		mModifiers |= 0x0002;
+	}
+	
+	if (modifiers & NSShiftKeyMask)
+	{
+		mModifiers |= 0x0004;
+	}
+	
+	if (modifiers & NSControlKeyMask)
+	{
+		mModifiers |= 0x0001;
+	}
 }
 
 - (void) mouseDown:(NSEvent *)theEvent
 {
 	if ([theEvent clickCount] >= 2)
 	{
-		callDoubleClick(mMousePos, [theEvent modifierFlags]);
+		callDoubleClick(mMousePos, mModifiers);
 	} else if ([theEvent clickCount] == 1) {
-		callLeftMouseDown(mMousePos, [theEvent modifierFlags]);
+		callLeftMouseDown(mMousePos, mModifiers);
 	}
 }
 
 - (void) mouseUp:(NSEvent *)theEvent
 {
-	callLeftMouseUp(mMousePos, [theEvent modifierFlags]);
+	callLeftMouseUp(mMousePos, mModifiers);
 }
 
 - (void) rightMouseDown:(NSEvent *)theEvent
 {
-	callRightMouseDown(mMousePos, [theEvent modifierFlags]);
+	callRightMouseDown(mMousePos, mModifiers);
 }
 
 - (void) rightMouseUp:(NSEvent *)theEvent
 {
-	callRightMouseUp(mMousePos, [theEvent modifierFlags]);
+	callRightMouseUp(mMousePos, mModifiers);
 }
 
 - (void)mouseMoved:(NSEvent *)theEvent
@@ -292,12 +343,12 @@
 
 - (void) otherMouseDown:(NSEvent *)theEvent
 {
-	callMiddleMouseDown(mMousePos, 0);
+	callMiddleMouseDown(mMousePos, mModifiers);
 }
 
 - (void) otherMouseUp:(NSEvent *)theEvent
 {
-	callMiddleMouseUp(mMousePos, 0);
+	callMiddleMouseUp(mMousePos, mModifiers);
 }
 
 - (void) otherMouseDragged:(NSEvent *)theEvent
@@ -330,13 +381,3 @@
 }
 
 @end
-
-void setLLNSWindowRef(LLNSWindow* window)
-{
-	winRef = window;
-}
-
-void setLLOpenGLViewRef(LLOpenGLView* view)
-{
-	glviewRef = view;
-}

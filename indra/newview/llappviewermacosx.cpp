@@ -31,7 +31,7 @@
 #endif
 
 #include "llappviewermacosx.h"
-#include "llappviewermacosx-objc.h"
+#include "llwindowmacosx-objc.h"
 #include "llcommandlineparser.h"
 
 #include "llmemtype.h"

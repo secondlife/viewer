@@ -1029,25 +1029,27 @@ void LLWindowMacOSX::flashIcon(F32 seconds)
 
 BOOL LLWindowMacOSX::isClipboardTextAvailable()
 {
-	BOOL result = false;
-	// TODO: Clipboard support.
-	return result;
+	return pasteBoardAvailable();
 }
 
 BOOL LLWindowMacOSX::pasteTextFromClipboard(LLWString &dst)
-{
-	BOOL result = false;
-	
-	// TODO: Clipboard support.
-
-	return result;
+{	
+	llutf16string str(copyFromPBoard());
+	dst = utf16str_to_wstring(str);
+	if (dst != L"")
+	{
+		return true;
+	} else {
+		return false;
+	}
 }
 
 BOOL LLWindowMacOSX::copyTextToClipboard(const LLWString &s)
 {
 	BOOL result = false;
+	llutf16string utf16str = wstring_to_utf16str(s);
 	
-	// TODO: Clipboard support.
+	result = copyToPBoard(utf16str.data(), utf16str.length());
 
 	return result;
 }

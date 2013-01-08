@@ -82,6 +82,7 @@ if (DARWIN)
     llwindowmacosx.h
     llwindowmacosx-objc.h
     llopenglview-objc.h
+    llappdelegate-objc.h
     )
 
   # We use a bunch of deprecated system APIs.
