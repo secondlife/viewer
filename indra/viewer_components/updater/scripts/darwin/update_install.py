@@ -162,7 +162,7 @@ def main(dmgfile, markerfile, markertext, appdir=None):
             os.rename(logname, logname + ".old")
         except OSError, err:
             # Nonexistence is okay. Anything else, not so much.
-            if err.errno != errno.EEXIST:
+            if err.errno != errno.ENOENT:
                 raise
 
         # Open new updater.log.
