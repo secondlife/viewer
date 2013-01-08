@@ -500,6 +500,10 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 	{
 		LL_WARNS("RenderInit") << "GPU '" << rawRenderer << "' not recognized" << LL_ENDL;
 	}
+
+#if LL_DARWIN // never go over "Mid" settings by default on OS X
+	mGPUClass = llmin(mGPUClass, GPU_CLASS_2);
+#endif
 }
 
 // responder saves table into file
@@ -709,34 +713,27 @@ void LLFeatureManager::setGraphicsLevel(S32 level, bool skipFeatures)
 			{ //same as low, but with "Basic Shaders" enabled
 				maskFeatures("Low");
 			}
-			maskFeatures("Class0");
 			break;
 		case 1:
-			maskFeatures("Mid");
-			maskFeatures("Class1");
+			maskFeatures("LowMid");
 			break;
 		case 2:
-			maskFeatures("High");
-			maskFeatures("Class2");
+			maskFeatures("Mid");
 			break;
 		case 3:
-			maskFeatures("High");
-			maskFeatures("Class3");
+			maskFeatures("MidHigh");
 			break;
 		case 4:
 			maskFeatures("High");
-			maskFeatures("Class4");
 			break;
 		case 5:
-			maskFeatures("High");
-			maskFeatures("Class5");
+			maskFeatures("HighUltra");
 			break;
 		case 6:
 			maskFeatures("Ultra");
 			break;
 		default:
 			maskFeatures("Low");
-			maskFeatures("Class0");
 			break;
 	}
 

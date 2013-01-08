@@ -1,8 +1,8 @@
 /** 
- * @file llversionviewer.h
- * @brief
+ * @file llvfs_objc.h
+ * @brief Definition of directory utilities class for Mac OS X
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -22,20 +22,22 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */
+ */ 
 
-#ifndef LL_LLVERSIONVIEWER_H
-#define LL_LLVERSIONVIEWER_H
+#if !LL_DARWIN
+#error This header must not be included when compiling for any target other than Mac OS. Consider including lldir.h instead.
+#endif // !LL_DARWIN
 
-const S32 LL_VERSION_MAJOR = 3;
-const S32 LL_VERSION_MINOR = 4;
-const S32 LL_VERSION_PATCH = 5;
-const S32 LL_VERSION_BUILD = 0;
+#ifndef LL_LLVFS_OBJC_H
+#define LL_LLVFS_OBJC_H
 
-const char * const LL_CHANNEL = "Second Life Developer";
+#include <iostream>
 
-#if LL_DARWIN
-const char * const LL_VERSION_BUNDLE_ID = "com.secondlife.indra.viewer";
-#endif
+std::string* getSystemTempFolder();
+std::string* getSystemCacheFolder();
+std::string* getSystemApplicationSupportFolder();
+std::string* getSystemResourceFolder();
+std::string* getSystemExecutableFolder();
 
-#endif
+
+#endif LL_LLVFS_OBJC_H

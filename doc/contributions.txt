@@ -891,6 +891,8 @@ Nicholaz Beresford
 	VWR-2682
 	VWR-2684
 Nick Rhodes
+NickyD
+	MAINT-873
 Nicky Dasmijn
 	VWR-29228
 	MAINT-873

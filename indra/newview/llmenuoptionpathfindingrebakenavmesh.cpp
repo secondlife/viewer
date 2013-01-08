@@ -54,23 +54,21 @@ LLMenuOptionPathfindingRebakeNavmesh::LLMenuOptionPathfindingRebakeNavmesh()
 
 LLMenuOptionPathfindingRebakeNavmesh::~LLMenuOptionPathfindingRebakeNavmesh() 
 {
-	if (mRebakeNavMeshMode == kRebakeNavMesh_RequestSent)
-	{
-		LL_WARNS("navmeshRebaking") << "During destruction of the LLMenuOptionPathfindingRebakeNavmesh "
-			<< "singleton, the mode indicates that a request has been sent for which a response has yet "
-			<< "to be received.  This could contribute to a crash on exit." << LL_ENDL;
-	}
-
-	llassert(!mIsInitialized);
 	if (mIsInitialized)
 	{
+		if (mRebakeNavMeshMode == kRebakeNavMesh_RequestSent)
+		{
+			LL_WARNS("navmeshRebaking") << "During destruction of the LLMenuOptionPathfindingRebakeNavmesh "
+				<< "singleton, the mode indicates that a request has been sent for which a response has yet "
+				<< "to be received.  This could contribute to a crash on exit." << LL_ENDL;
+		}
+
 		quit();
 	}
 }
 
 void LLMenuOptionPathfindingRebakeNavmesh::initialize()
 {
-	llassert(!mIsInitialized);
 	if (!mIsInitialized)
 	{
 		mIsInitialized = true;
@@ -94,7 +92,6 @@ void LLMenuOptionPathfindingRebakeNavmesh::initialize()
 
 void LLMenuOptionPathfindingRebakeNavmesh::quit()
 {
-	llassert(mIsInitialized);
 	if (mIsInitialized)
 	{
 		if (mNavMeshSlot.connected())
@@ -175,51 +172,60 @@ void LLMenuOptionPathfindingRebakeNavmesh::handleAgentState(BOOL pCanRebakeRegio
 void LLMenuOptionPathfindingRebakeNavmesh::handleRebakeNavMeshResponse(bool pResponseStatus)
 {
 	llassert(mIsInitialized);
-	if (getMode() == kRebakeNavMesh_RequestSent)
+	if (mIsInitialized)
 	{
-		setMode(pResponseStatus ? kRebakeNavMesh_InProgress : kRebakeNavMesh_Default);
-	}
+		if (getMode() == kRebakeNavMesh_RequestSent)
+		{
+			setMode(pResponseStatus ? kRebakeNavMesh_InProgress : kRebakeNavMesh_Default);
+		}
 
-	if (!pResponseStatus)
-	{
-		LLNotificationsUtil::add("PathfindingCannotRebakeNavmesh");
+		if (!pResponseStatus)
+		{
+			LLNotificationsUtil::add("PathfindingCannotRebakeNavmesh");
+		}
 	}
 }
 
 void LLMenuOptionPathfindingRebakeNavmesh::handleNavMeshStatus(const LLPathfindingNavMeshStatus &pNavMeshStatus)
 {
 	llassert(mIsInitialized);
-	ERebakeNavMeshMode rebakeNavMeshMode = kRebakeNavMesh_Default;
-	if (pNavMeshStatus.isValid())
+	if (mIsInitialized)
 	{
-		switch (pNavMeshStatus.getStatus())
+		ERebakeNavMeshMode rebakeNavMeshMode = kRebakeNavMesh_Default;
+		if (pNavMeshStatus.isValid())
 		{
-		case LLPathfindingNavMeshStatus::kPending :
-		case LLPathfindingNavMeshStatus::kRepending :
-			rebakeNavMeshMode = kRebakeNavMesh_Available;
-			break;
-		case LLPathfindingNavMeshStatus::kBuilding :
-			rebakeNavMeshMode = kRebakeNavMesh_InProgress;
-			break;
-		case LLPathfindingNavMeshStatus::kComplete :
-			rebakeNavMeshMode = kRebakeNavMesh_NotAvailable;
-			break;
-		default : 
-			rebakeNavMeshMode = kRebakeNavMesh_Default;
-			llassert(0);
-			break;
+			switch (pNavMeshStatus.getStatus())
+			{
+			case LLPathfindingNavMeshStatus::kPending :
+			case LLPathfindingNavMeshStatus::kRepending :
+				rebakeNavMeshMode = kRebakeNavMesh_Available;
+				break;
+			case LLPathfindingNavMeshStatus::kBuilding :
+				rebakeNavMeshMode = kRebakeNavMesh_InProgress;
+				break;
+			case LLPathfindingNavMeshStatus::kComplete :
+				rebakeNavMeshMode = kRebakeNavMesh_NotAvailable;
+				break;
+			default : 
+				rebakeNavMeshMode = kRebakeNavMesh_Default;
+				llassert(0);
+				break;
+			}
 		}
-	}
 
-	setMode(rebakeNavMeshMode);
+		setMode(rebakeNavMeshMode);
+	}
 }
 
 void LLMenuOptionPathfindingRebakeNavmesh::handleRegionBoundaryCrossed()
 {
 	llassert(mIsInitialized);
-	createNavMeshStatusListenerForCurrentRegion();
-	mCanRebakeRegion = FALSE;
-	LLPathfindingManager::getInstance()->requestGetAgentState();
+	if (mIsInitialized)
+	{
+		createNavMeshStatusListenerForCurrentRegion();
+		mCanRebakeRegion = FALSE;
+		LLPathfindingManager::getInstance()->requestGetAgentState();
+	}
 }
 
 void LLMenuOptionPathfindingRebakeNavmesh::createNavMeshStatusListenerForCurrentRegion()
