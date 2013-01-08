@@ -29,6 +29,7 @@
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
 #include "lltooldraganddrop.h"
+#include "llfavoritesbar.h"
 
 //
 // class LLFolderViewModelInventory
@@ -236,39 +237,31 @@ const LLFolderViewModelInventory* LLInventoryPanel::getFolderViewModel() const
 
 bool LLInventorySort::operator()(const LLFolderViewModelItemInventory* const& a, const LLFolderViewModelItemInventory* const& b) const
 {
-	// ignore sort order for landmarks in the Favorites folder.
-	// they should be always sorted as in Favorites bar. See EXT-719
-	//TODO RN: fix sorting in favorites folder
-	//if (a->getSortGroup() == SG_ITEM
-	//	&& b->getSortGroup() == SG_ITEM
-	//	&& a->getInventoryType() == LLInventoryType::IT_LANDMARK
-	//	&& b->getInventoryType() == LLInventoryType::IT_LANDMARK)
-	//{
-
-	//	static const LLUUID& favorites_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-
-	//	LLUUID a_uuid = a->getParentFolder()->getUUID();
-	//	LLUUID b_uuid = b->getParentFolder()->getUUID();
-
-	//	if ((a_uuid == favorites_folder_id && b_uuid == favorites_folder_id))
-	//	{
-	//		// *TODO: mantipov: probably it is better to add an appropriate method to LLFolderViewItem
-	//		// or to LLInvFVBridge
-	//		LLViewerInventoryItem* aitem = (static_cast<const LLItemBridge*>(a))->getItem();
-	//		LLViewerInventoryItem* bitem = (static_cast<const LLItemBridge*>(b))->getItem();
-	//		if (!aitem || !bitem)
-	//			return false;
-	//		S32 a_sort = aitem->getSortField();
-	//		S32 b_sort = bitem->getSortField();
-	//		return a_sort < b_sort;
-	//	}
-	//}
+	// Ignore sort order for landmarks in the Favorites folder.
+	// In that folder, landmarks should be always sorted as in the Favorites bar. See EXT-719
+	if (a->getSortGroup() == SG_ITEM
+		&& b->getSortGroup() == SG_ITEM
+		&& a->getInventoryType() == LLInventoryType::IT_LANDMARK
+		&& b->getInventoryType() == LLInventoryType::IT_LANDMARK)
+	{
+		static const LLUUID& favorites_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+		// If both landmarks are in the favorite folder...
+		if (gInventory.isObjectDescendentOf(a->getUUID(), favorites_folder_id) && gInventory.isObjectDescendentOf(b->getUUID(), favorites_folder_id))
+		{
+			// Get their index in that folder
+			S32 a_sort = LLFavoritesOrderStorage::instance().getSortIndex(a->getUUID());
+			S32 b_sort = LLFavoritesOrderStorage::instance().getSortIndex(b->getUUID());
+			// Note: since there are both in the favorite, we shouldn't get negative index value...
+			if (!((a_sort < 0) && (b_sort < 0)))
+			{
+				return a_sort < b_sort;
+			}
+		}
+	}
 
 	// We sort by name if we aren't sorting by date
 	// OR if these are folders and we are sorting folders by name.
-	bool by_name = (!mByDate 
-		|| (mFoldersByName 
-		&& (a->getSortGroup() != SG_ITEM)));
+	bool by_name = (!mByDate || (mFoldersByName && (a->getSortGroup() != SG_ITEM)));
 
 	if (a->getSortGroup() != b->getSortGroup())
 	{
