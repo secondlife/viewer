@@ -135,7 +135,6 @@ void LLFolderViewModelItemInventory::setPassedFilter(bool passed, S32 filter_gen
 
 	if (passed_filter_before != mPrevPassedAllFilters)
 	{
-		//TODO RN: ensure this still happens, but without dependency on folderview
 		LLFolderViewFolder* parent_folder = mFolderViewItem->getParentFolder();
 		if (parent_folder)
 		{

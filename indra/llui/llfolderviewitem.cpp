@@ -1664,16 +1664,16 @@ void LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 
 void LLFolderViewFolder::requestArrange()
 { 
-	//if ( mLastArrangeGeneration != -1)
+	if ( mLastArrangeGeneration != -1)
 	{
-	mLastArrangeGeneration = -1; 
-	// flag all items up to root
-	if (mParentFolder)
-	{
-		mParentFolder->requestArrange();
-	}
+		mLastArrangeGeneration = -1; 
+		// flag all items up to root
+		if (mParentFolder)
+		{
+			mParentFolder->requestArrange();
 		}
 	}
+}
 
 void LLFolderViewFolder::toggleOpen()
 {
