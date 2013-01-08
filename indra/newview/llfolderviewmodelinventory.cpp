@@ -245,13 +245,13 @@ bool LLInventorySort::operator()(const LLFolderViewModelItemInventory* const& a,
 		&& b->getInventoryType() == LLInventoryType::IT_LANDMARK)
 	{
 		static const LLUUID& favorites_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-		// If both landmarks are in the favorite folder...
+		// If both landmarks are in the Favorites folder...
 		if (gInventory.isObjectDescendentOf(a->getUUID(), favorites_folder_id) && gInventory.isObjectDescendentOf(b->getUUID(), favorites_folder_id))
 		{
 			// Get their index in that folder
 			S32 a_sort = LLFavoritesOrderStorage::instance().getSortIndex(a->getUUID());
 			S32 b_sort = LLFavoritesOrderStorage::instance().getSortIndex(b->getUUID());
-			// Note: since there are both in the favorite, we shouldn't get negative index value...
+			// Note: this test is a bit overkill: since they are both in the Favorites folder, we shouldn't get negative index values...
 			if (!((a_sort < 0) && (b_sort < 0)))
 			{
 				return a_sort < b_sort;
