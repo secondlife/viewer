@@ -246,6 +246,7 @@ public:
 	bool getElementEnabled(const std::string& element_name) const;
 	void setElementEnabled(const std::string& element_name, bool enabled);
 	void addElement(const std::string& type, const std::string& name, const LLSD& value = LLSD(), bool enabled = true);
+    void addElement(const LLSD &element);
 	void formatElements(const LLSD& substitutions);
 	// appends form elements from another form serialized as LLSD
 	void append(const LLSD& sub_form);

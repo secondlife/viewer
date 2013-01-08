@@ -343,156 +343,156 @@ void LLToastNotifyPanel::onClickButton(void* data)
 
 void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 {
-	deleteAllChildren();
+    deleteAllChildren();
 
-	mTextBox = NULL;
-	mInfoPanel = NULL;
-	mControlPanel = NULL;
-	mNumOptions = 0;
-	mNumButtons = 0;
-	mAddedDefaultBtn = false;
+    mTextBox = NULL;
+    mInfoPanel = NULL;
+    mControlPanel = NULL;
+    mNumOptions = 0;
+    mNumButtons = 0;
+    mAddedDefaultBtn = false;
 
-	buildFromFile( "panel_notification.xml");
-	if(rect != LLRect::null)
-	{
-		this->setShape(rect);
-	}		 
-	mInfoPanel = getChild<LLPanel>("info_panel");
-	mInfoPanel->setFollowsAll();
+    buildFromFile( "panel_notification.xml");
+    if(rect != LLRect::null)
+    {
+        this->setShape(rect);
+    }		 
+    mInfoPanel = getChild<LLPanel>("info_panel");
+    mInfoPanel->setFollowsAll();
 
-	mControlPanel = getChild<LLPanel>("control_panel");
-	BUTTON_WIDTH = gSavedSettings.getS32("ToastButtonWidth");
-	// customize panel's attributes
-	// is it intended for displaying a tip?
-	mIsTip = mNotification->getType() == "notifytip";
-	// is it a script dialog?
-	mIsScriptDialog = (mNotification->getName() == "ScriptDialog" || mNotification->getName() == "ScriptDialogGroup");
-	// is it a caution?
-	//
-	// caution flag can be set explicitly by specifying it in the notification payload, or it can be set implicitly if the
-	// notify xml template specifies that it is a caution
-	// tip-style notification handle 'caution' differently -they display the tip in a different color
-	mIsCaution = mNotification->getPriority() >= NOTIFICATION_PRIORITY_HIGH;
+    mControlPanel = getChild<LLPanel>("control_panel");
+    BUTTON_WIDTH = gSavedSettings.getS32("ToastButtonWidth");
+    // customize panel's attributes
+    // is it intended for displaying a tip?
+    mIsTip = mNotification->getType() == "notifytip";
+    // is it a script dialog?
+    mIsScriptDialog = (mNotification->getName() == "ScriptDialog" || mNotification->getName() == "ScriptDialogGroup");
+    // is it a caution?
+    //
+    // caution flag can be set explicitly by specifying it in the notification payload, or it can be set implicitly if the
+    // notify xml template specifies that it is a caution
+    // tip-style notification handle 'caution' differently -they display the tip in a different color
+    mIsCaution = mNotification->getPriority() >= NOTIFICATION_PRIORITY_HIGH;
 
-	// setup parameters
-	// get a notification message
-	mMessage = mNotification->getMessage();
-	// init font variables
-	if (!sFont)
-{
-		sFont = LLFontGL::getFontSansSerif();
-		sFontSmall = LLFontGL::getFontSansSerifSmall();
-}
-	// initialize
-	setFocusRoot(!mIsTip);
-	// get a form for the notification
-	LLNotificationFormPtr form(mNotification->getForm());
-	// get number of elements
-	mNumOptions = form->getNumElements();
+    // setup parameters
+    // get a notification message
+    mMessage = mNotification->getMessage();
+    // init font variables
+    if (!sFont)
+    {
+        sFont = LLFontGL::getFontSansSerif();
+        sFontSmall = LLFontGL::getFontSansSerifSmall();
+    }
+    // initialize
+    setFocusRoot(!mIsTip);
+    // get a form for the notification
+    LLNotificationFormPtr form(mNotification->getForm());
+    // get number of elements
+    mNumOptions = form->getNumElements();
 
-	// customize panel's outfit
-	// preliminary adjust panel's layout
-	//move to the end 
-	//mIsTip ? adjustPanelForTipNotice() : adjustPanelForScriptNotice(form);
+    // customize panel's outfit
+    // preliminary adjust panel's layout
+    //move to the end 
+    //mIsTip ? adjustPanelForTipNotice() : adjustPanelForScriptNotice(form);
 
-	// adjust text options according to the notification type
-	// add a caution textbox at the top of a caution notification
-	if (mIsCaution && !mIsTip)
-	{
-		mTextBox = getChild<LLTextBox>("caution_text_box");
-	}
-	else
-	{
-		mTextBox = getChild<LLTextEditor>("text_editor_box"); 
-	}
+    // adjust text options according to the notification type
+    // add a caution textbox at the top of a caution notification
+    if (mIsCaution && !mIsTip)
+    {
+        mTextBox = getChild<LLTextBox>("caution_text_box");
+    }
+    else
+    {
+        mTextBox = getChild<LLTextEditor>("text_editor_box"); 
+    }
 
-	mTextBox->setMaxTextLength(MAX_LENGTH);
-	mTextBox->setVisible(TRUE);
-	mTextBox->setPlainText(!show_images);
-	mTextBox->setValue(mNotification->getMessage());
+    mTextBox->setMaxTextLength(MAX_LENGTH);
+    mTextBox->setVisible(TRUE);
+    mTextBox->setPlainText(!show_images);
+    mTextBox->setValue(mNotification->getMessage());
 
-	// add buttons for a script notification
-	if (mIsTip)
-	{
-		adjustPanelForTipNotice();
-	}
-	else
-{
-		std::vector<index_button_pair_t> buttons;
-		buttons.reserve(mNumOptions);
-		S32 buttons_width = 0;
-		// create all buttons and accumulate they total width to reshape mControlPanel
-		for (S32 i = 0; i < mNumOptions; i++)
-	{
-			LLSD form_element = form->getElement(i);
-			if (form_element["type"].asString() != "button")
-		{
-				// not a button.
-				continue;
-		}
-			if (form_element["name"].asString() == TEXTBOX_MAGIC_TOKEN)
-			{
-				// a textbox pretending to be a button.
-				continue;
-	}
-			LLButton* new_button = createButton(form_element, TRUE);
-			buttons_width += new_button->getRect().getWidth();
-			S32 index = form_element["index"].asInteger();
-			buttons.push_back(index_button_pair_t(index,new_button));
-}
-		if (buttons.empty())
-{
-			addDefaultButton();
-	}
-		else
-	{
-			const S32 button_panel_width = mControlPanel->getRect().getWidth();// do not change width of the panel
-			S32 button_panel_height = mControlPanel->getRect().getHeight();
-			//try get an average h_pad to spread out buttons
-			S32 h_pad = (button_panel_width - buttons_width) / (S32(buttons.size()));
-			if(h_pad < 2*HPAD)
-	{
-				/*
-				* Probably it is a scriptdialog toast
-				* for a scriptdialog toast h_pad can be < 2*HPAD if we have a lot of buttons.
-				* In last case set default h_pad to avoid heaping of buttons 
-				*/
-				S32 button_per_row = button_panel_width / BUTTON_WIDTH;
-				h_pad = (button_panel_width % BUTTON_WIDTH) / (button_per_row - 1);// -1  because we do not need space after last button in a row   
-				if(h_pad < 2*HPAD) // still not enough space between buttons ?
-	{
-					h_pad = 2*HPAD;
-	}
-}
-			if (mIsScriptDialog)
-{
-				// we are using default width for script buttons so we can determinate button_rows
-				//to get a number of rows we divide the required width of the buttons to button_panel_width
-				S32 button_rows = llceil(F32(buttons.size() - 1) * (BUTTON_WIDTH + h_pad) / button_panel_width);
-				//S32 button_rows = (buttons.size() - 1) * (BUTTON_WIDTH + h_pad) / button_panel_width;
-				//reserve one row for the ignore_btn
-				button_rows++;
-				//calculate required panel height for scripdialog notification.
-				button_panel_height = button_rows * (BTN_HEIGHT + VPAD)	+ IGNORE_BTN_TOP_DELTA + BOTTOM_PAD;
-			}
-			else
-	{
-				// in common case buttons can have different widths so we need to calculate button_rows according to buttons_width
-				//S32 button_rows = llceil(F32(buttons.size()) * (buttons_width + h_pad) / button_panel_width);
-				S32 button_rows = llceil(F32((buttons.size() - 1) * h_pad + buttons_width) / button_panel_width);
-				//calculate required panel height 
-				button_panel_height = button_rows * (BTN_HEIGHT + VPAD)	+ BOTTOM_PAD;
-}
+    // add buttons for a script notification
+    if (mIsTip)
+    {
+        adjustPanelForTipNotice();
+    }
+    else
+    {
+        std::vector<index_button_pair_t> buttons;
+        buttons.reserve(mNumOptions);
+        S32 buttons_width = 0;
+        // create all buttons and accumulate they total width to reshape mControlPanel
+        for (S32 i = 0; i < mNumOptions; i++)
+        {
+            LLSD form_element = form->getElement(i);
+            if (form_element["type"].asString() != "button")
+            {
+                // not a button.
+                continue;
+            }
+            if (form_element["name"].asString() == TEXTBOX_MAGIC_TOKEN)
+            {
+                // a textbox pretending to be a button.
+                continue;
+            }
+            LLButton* new_button = createButton(form_element, TRUE);
+            buttons_width += new_button->getRect().getWidth();
+            S32 index = form_element["index"].asInteger();
+            buttons.push_back(index_button_pair_t(index,new_button));
+        }
+        if (buttons.empty())
+        {
+            addDefaultButton();
+        }
+        else
+        {
+            const S32 button_panel_width = mControlPanel->getRect().getWidth();// do not change width of the panel
+            S32 button_panel_height = mControlPanel->getRect().getHeight();
+            //try get an average h_pad to spread out buttons
+            S32 h_pad = (button_panel_width - buttons_width) / (S32(buttons.size()));
+            if(h_pad < 2*HPAD)
+            {
+                /*
+                * Probably it is a scriptdialog toast
+                * for a scriptdialog toast h_pad can be < 2*HPAD if we have a lot of buttons.
+                * In last case set default h_pad to avoid heaping of buttons 
+                */
+                S32 button_per_row = button_panel_width / BUTTON_WIDTH;
+                h_pad = (button_panel_width % BUTTON_WIDTH) / (button_per_row - 1);// -1  because we do not need space after last button in a row   
+                if(h_pad < 2*HPAD) // still not enough space between buttons ?
+                {
+                    h_pad = 2*HPAD;
+                }
+            }
+            if (mIsScriptDialog)
+            {
+                // we are using default width for script buttons so we can determinate button_rows
+                //to get a number of rows we divide the required width of the buttons to button_panel_width
+                S32 button_rows = llceil(F32(buttons.size() - 1) * (BUTTON_WIDTH + h_pad) / button_panel_width);
+                //S32 button_rows = (buttons.size() - 1) * (BUTTON_WIDTH + h_pad) / button_panel_width;
+                //reserve one row for the ignore_btn
+                button_rows++;
+                //calculate required panel height for scripdialog notification.
+                button_panel_height = button_rows * (BTN_HEIGHT + VPAD)	+ IGNORE_BTN_TOP_DELTA + BOTTOM_PAD;
+            }
+            else
+            {
+                // in common case buttons can have different widths so we need to calculate button_rows according to buttons_width
+                //S32 button_rows = llceil(F32(buttons.size()) * (buttons_width + h_pad) / button_panel_width);
+                S32 button_rows = llceil(F32((buttons.size() - 1) * h_pad + buttons_width) / button_panel_width);
+                //calculate required panel height 
+                button_panel_height = button_rows * (BTN_HEIGHT + VPAD)	+ BOTTOM_PAD;
+            }
 
-			// we need to keep min width and max height to make visible all buttons, because width of the toast can not be changed
-			adjustPanelForScriptNotice(button_panel_width, button_panel_height);
-			updateButtonsLayout(buttons, h_pad);
-			// save buttons for later use in disableButtons()
-			//mButtons.assign(buttons.begin(), buttons.end());
-		}
-	}
-	// adjust panel's height to the text size
-	snapToMessageHeight(mTextBox, MAX_LENGTH);
+            // we need to keep min width and max height to make visible all buttons, because width of the toast can not be changed
+            adjustPanelForScriptNotice(button_panel_width, button_panel_height);
+            updateButtonsLayout(buttons, h_pad);
+            // save buttons for later use in disableButtons()
+            //mButtons.assign(buttons.begin(), buttons.end());
+        }
+    }
+    // adjust panel's height to the text size
+    snapToMessageHeight(mTextBox, MAX_LENGTH);
 
 
 }

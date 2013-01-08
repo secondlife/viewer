@@ -320,6 +320,11 @@ void LLNotificationForm::addElement(const std::string& type, const std::string& 
 	mFormData.append(element);
 }
 
+void LLNotificationForm::addElement(const LLSD& element)
+{
+    mFormData.append(element);
+}
+
 void LLNotificationForm::append(const LLSD& sub_form)
 {
 	if (sub_form.isArray())
@@ -818,7 +823,18 @@ void LLNotification::init(const std::string& template_name, const LLSD& form_ele
 	//mSubstitutions["_ARGS"] = get_all_arguments_as_text(mSubstitutions);
 
 	mForm = LLNotificationFormPtr(new LLNotificationForm(*mTemplatep->mForm));
-	mForm->append(form_elements);
+
+    //Prevents appending elements(buttons) that the template already had
+    if(form_elements.isArray()
+        && mForm->getNumElements() < form_elements.size())
+    {
+        LLSD::array_const_iterator it = form_elements.beginArray() + mForm->getNumElements();;
+
+        for(; it != form_elements.endArray(); ++it)
+        {
+            mForm->addElement(*it);
+        }
+    }
 
 	// apply substitution to form labels
 	mForm->formatElements(mSubstitutions);
