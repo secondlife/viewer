@@ -64,7 +64,7 @@ public:
 	LLConversationItem(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	LLConversationItem(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	LLConversationItem(LLFolderViewModelInterface& root_view_model);
-	virtual ~LLConversationItem() {}
+	virtual ~LLConversationItem();
 
 	// Stub those things we won't really be using in this conversation context
 	virtual const std::string& getName() const { return mName; }
@@ -132,27 +132,31 @@ public:
 	
     void buildParticipantMenuOptions(menuentry_vec_t& items, U32 flags);
 
+	void fetchAvatarName(bool isParticipant = true);		// fetch and update the avatar name
+
 protected:
+	virtual void onAvatarNameCache(const LLAvatarName& av_name) {}
+
 	std::string mName;	// Name of the session or the participant
 	LLUUID mUUID;		// UUID of the session or the participant
 	EConversationType mConvType;	// Type of conversation item
 	bool mNeedsRefresh;	// Flag signaling to the view that something changed for this item
 	F64  mLastActiveTime;
 	bool mDisplayModeratorOptions;
-};
+	boost::signals2::connection mAvatarNameCacheConnection;
+};	
 
 class LLConversationItemSession : public LLConversationItem
 {
 public:
 	LLConversationItemSession(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	LLConversationItemSession(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
-	virtual ~LLConversationItemSession() {}
 	
 	/*virtual*/ bool hasChildren() const;
     LLPointer<LLUIImage> getIcon() const { return NULL; }
 	void setSessionID(const LLUUID& session_id) { mUUID = session_id; mNeedsRefresh = true; }
 	void addParticipant(LLConversationItemParticipant* participant);
-	void updateParticipantName(LLConversationItemParticipant* participant);
+	void updateName(LLConversationItemParticipant* participant);
 	void removeParticipant(LLConversationItemParticipant* participant);
 	void removeParticipant(const LLUUID& participant_id);
 	void clearParticipants();
@@ -172,6 +176,8 @@ public:
 	void dumpDebugData(bool dump_children = false);
 
 private:
+	/*virtual*/ void onAvatarNameCache(const LLAvatarName& av_name);
+
 	bool mIsLoaded;		// true if at least one participant has been added to the session, false otherwise
 };
 
@@ -180,7 +186,6 @@ class LLConversationItemParticipant : public LLConversationItem
 public:
 	LLConversationItemParticipant(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
 	LLConversationItemParticipant(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
-	virtual ~LLConversationItemParticipant();
 	
 	virtual const std::string& getDisplayName() const { return mDisplayName; }
 
@@ -195,8 +200,7 @@ public:
 
 	virtual const bool getDistanceToAgent(F64& dist) const { dist = mDistToAgent; return (dist >= 0.0); }
 
-	void fetchAvatarName();		// fetch and update the avatar name
-	void updateAvatarName();	// get from the cache (do *not* fetch) and update the avatar name
+	void updateName();	// get from the cache (do *not* fetch) and update the avatar name
 	LLConversationItemSession* getParentSession();
 
 	void dumpDebugData();
@@ -204,7 +208,7 @@ public:
 
 private:
 	void onAvatarNameCache(const LLAvatarName& av_name);	// callback used by fetchAvatarName
-	void updateAvatarName(const LLAvatarName& av_name);
+	void updateName(const LLAvatarName& av_name);
 
 	bool mIsMuted;		// default is false
 	bool mIsModerator;	// default is false
