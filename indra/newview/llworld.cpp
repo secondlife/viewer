@@ -55,7 +55,7 @@
 #include "message.h"
 #include "pipeline.h"
 #include "llappviewer.h"		// for do_disconnect()
-
+#include "llscenemonitor.h"
 #include <deque>
 #include <queue>
 #include <map>
@@ -110,6 +110,7 @@ LLWorld::LLWorld() :
 	gGL.getTexUnit(0)->bind(mDefaultWaterTexturep);
 	mDefaultWaterTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
+	LLViewerRegion::sVOCacheCullingEnabled = (BOOL)gSavedSettings.getBOOL("ObjectCacheViewCullingEnabled");
 }
 
 
@@ -133,6 +134,11 @@ void LLWorld::destroyClass()
 	{
 		mEdgeWaterObjects[i] = NULL;
 	}
+
+	//make all visible drawbles invisible.
+	LLDrawable::incrementVisible();
+
+	LLSceneMonitor::getInstance()->destroyClass();
 }
 
 
@@ -599,7 +605,8 @@ void LLWorld::updateVisibilities()
 		if (part)
 		{
 			LLSpatialGroup* group = (LLSpatialGroup*) part->mOctree->getListener(0);
-			if (LLViewerCamera::getInstance()->AABBInFrustum(group->mBounds[0], group->mBounds[1]))
+			const LLVector4a* bounds = group->getBounds();
+			if (LLViewerCamera::getInstance()->AABBInFrustum(bounds[0], bounds[1]))
 			{
 				mCulledRegionList.erase(curiter);
 				mVisibleRegionList.push_back(regionp);
@@ -622,7 +629,8 @@ void LLWorld::updateVisibilities()
 		if (part)
 		{
 			LLSpatialGroup* group = (LLSpatialGroup*) part->mOctree->getListener(0);
-			if (LLViewerCamera::getInstance()->AABBInFrustum(group->mBounds[0], group->mBounds[1]))
+			const LLVector4a* bounds = group->getBounds();
+			if (LLViewerCamera::getInstance()->AABBInFrustum(bounds[0], bounds[1]))
 			{
 				regionp->calculateCameraDistance();
 				regionp->getLand().updatePatchVisibilities(gAgent);
@@ -644,8 +652,8 @@ void LLWorld::updateVisibilities()
 void LLWorld::updateRegions(F32 max_update_time)
 {
 	LLTimer update_timer;
-	BOOL did_one = FALSE;
-	
+	BOOL did_one = FALSE;	
+
 	// Perform idle time updates for the regions (and associated surfaces)
 	for (region_list_t::iterator iter = mRegionList.begin();
 		 iter != mRegionList.end(); ++iter)
@@ -659,6 +667,13 @@ void LLWorld::updateRegions(F32 max_update_time)
 		{
 			did_one = TRUE;
 		}
+	}
+
+	mNumOfActiveCachedObjects = 0;
+	for (region_list_t::iterator iter = mRegionList.begin();
+		 iter != mRegionList.end(); ++iter)
+	{
+		mNumOfActiveCachedObjects += (*iter)->getNumOfActiveCachedObjects();
 	}
 }
 
