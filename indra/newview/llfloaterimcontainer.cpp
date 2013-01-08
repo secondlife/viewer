@@ -1124,16 +1124,23 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 	//Enable Chat history item for ad-hoc and group conversations
 	if ("can_chat_history" == item)
 	{
-		if (getCurSelectedViewModelItem()->getType() != LLConversationItem::CONV_PARTICIPANT)
+		if(getCurSelectedViewModelItem())
 		{
-			return isConversationLoggingAllowed();
+			if (getCurSelectedViewModelItem()->getType() != LLConversationItem::CONV_PARTICIPANT)
+			{
+				return isConversationLoggingAllowed();
+			}
 		}
 	}
 
 	// If nothing is selected(and selected item is not group chat), everything needs to be disabled
 	if (uuids.size() <= 0)
 	{
-		return getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_GROUP;
+		if(getCurSelectedViewModelItem())
+		{
+			return getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_GROUP;
+		}
+		return false;
 	}
 
 	if("can_activate_group" == item)
