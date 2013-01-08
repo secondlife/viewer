@@ -267,28 +267,11 @@ void LLFolderViewItem::refresh()
 	mIconOpen = vmi.getIconOpen();
 	mIconOverlay = vmi.getIconOverlay();
 
-		if (mRoot->useLabelSuffix())
-		{
+	if (mRoot->useLabelSuffix())
+	{
 		mLabelStyle = vmi.getLabelStyle();
 		mLabelSuffix = vmi.getLabelSuffix();
-}
-
-	//TODO RN: make sure this logic still fires
-	//std::string searchable_label(mLabel);
-	//searchable_label.append(mLabelSuffix);
-	//LLStringUtil::toUpper(searchable_label);
-
-	//if (mSearchableLabel.compare(searchable_label))
-	//{
-	//	mSearchableLabel.assign(searchable_label);
-	//	vmi.dirtyFilter();
-	//	// some part of label has changed, so overall width has potentially changed, and sort order too
-	//	if (mParentFolder)
-	//	{
-	//		mParentFolder->requestSort();
-	//		mParentFolder->requestArrange();
-	//	}
-	//}
+	}
 
 	mLabelWidthDirty = true;
 	vmi.dirtyFilter();
@@ -1125,22 +1108,6 @@ BOOL LLFolderViewFolder::needsArrange()
 	return mLastArrangeGeneration < getRoot()->getArrangeGeneration(); 
 }
 
-//TODO RN: get height resetting working
-//void LLFolderViewFolder::setPassedFilter(BOOL passed, BOOL passed_folder, S32 filter_generation)
-//{
-//	// if this folder is now filtered, but wasn't before
-//	// (it just passed)
-//	if (passed && !passedFilter(filter_generation))
-//	{
-//		// reset current height, because last time we drew it
-//		// it might have had more visible items than now
-//		mCurHeight = 0.f;
-//	}
-//
-//	LLFolderViewItem::setPassedFilter(passed, passed_folder, filter_generation);
-//}
-
-
 // Passes selection information on to children and record selection
 // information if necessary.
 BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL openitem,
@@ -1620,20 +1587,6 @@ void LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	{
 		getViewModelItem()->addChild(item->getViewModelItem());
 	}
-	
-	//TODO RN - make sort bubble up as long as parent Folder doesn't have anything matching sort criteria
-	//// Traverse parent folders and update creation date and resort, if necessary
-	//LLFolderViewFolder* parentp = this;
-	//while (parentp)
-	//{
-	//	if (parentp->mSortFunction.isByDate())
-	//	{
-	//		// parent folder doesn't have a time stamp yet, so get it from us
-	//		parentp->requestSort();
-	//	}
-
-	//	parentp = parentp->getParentFolder();
-	//}
 }
 
 // this is an internal method used for adding items to folders. 
