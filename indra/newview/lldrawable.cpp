@@ -254,11 +254,17 @@ S32 LLDrawable::findReferences(LLDrawable *drawablep)
 	return count;
 }
 
+static LLFastTimer::DeclareTimer FTM_ALLOCATE_FACE("Allocate Face", true);
+
 LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 {
-	LLMemType mt(LLMemType::MTYPE_DRAWABLE);
 	
-	LLFace *face = new LLFace(this, mVObjp);
+	LLFace *face;
+	{
+		LLFastTimer t(FTM_ALLOCATE_FACE);
+		face = new LLFace(this, mVObjp);
+	}
+
 	if (!face) llerrs << "Allocating new Face: " << mFaces.size() << llendl;
 	
 	if (face)
@@ -280,10 +286,12 @@ LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 
 LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep)
 {
-	LLMemType mt(LLMemType::MTYPE_DRAWABLE);
-	
 	LLFace *face;
-	face = new LLFace(this, mVObjp);
+
+	{
+		LLFastTimer t(FTM_ALLOCATE_FACE);
+		face = new LLFace(this, mVObjp);
+	}
 
 	face->setTEOffset(mFaces.size());
 	face->setTexture(texturep);
@@ -764,8 +772,6 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 
 void LLDrawable::updateTexture()
 {
-	LLMemType mt(LLMemType::MTYPE_DRAWABLE);
-	
 	if (isDead())
 	{
 		llwarns << "Dead drawable updating texture!" << llendl;

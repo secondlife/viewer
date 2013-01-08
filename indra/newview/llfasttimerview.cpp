@@ -95,7 +95,6 @@ LLFastTimerView::LLFastTimerView(const LLSD& key)
 	mHoverBarIndex = -1;
 	FTV_NUM_TIMERS = LLFastTimer::NamedTimer::instanceCount();
 	mPrintStats = -1;	
-	mAverageCyclesPerTimer = 0;
 }
 
 void LLFastTimerView::onPause()
@@ -161,7 +160,7 @@ LLFastTimer::NamedTimer* LLFastTimerView::getLegendID(S32 y)
 
 BOOL LLFastTimerView::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	for(timer_tree_iterator_t it = begin_timer_tree(LLFastTimer::NamedTimer::getRootNamedTimer());
+	for(timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
 		it != end_timer_tree();
 		++it)
 	{
@@ -258,7 +257,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 		}
 
 		S32 i = 0;
-		for(timer_tree_iterator_t it = begin_timer_tree(LLFastTimer::NamedTimer::getRootNamedTimer());
+		for(timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
 			it != end_timer_tree();
 			++it, ++i)
 		{
@@ -379,12 +378,6 @@ void LLFastTimerView::draw()
 	S32 xleft = margin;
 	S32 ytop = margin;
 	
-	mAverageCyclesPerTimer = LLFastTimer::sTimerCalls == 0 
-		? 0 
-		: llround(lerp((F32)mAverageCyclesPerTimer, (F32)(LLFastTimer::sTimerCycles / (U64)LLFastTimer::sTimerCalls), 0.1f));
-	LLFastTimer::sTimerCycles = 0;
-	LLFastTimer::sTimerCalls = 0;
-
 	// Draw some help
 	{
 		
@@ -392,10 +385,6 @@ void LLFastTimerView::draw()
 		y = height - ytop;
 		texth = (S32)LLFontGL::getFontMonospace()->getLineHeight();
 
-#if TIME_FAST_TIMERS
-		tdesc = llformat("Cycles per timer call: %d", mAverageCyclesPerTimer);
-		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
-#else
 		char modedesc[][32] = {
 			"2 x Average ",
 			"Max         ",
@@ -419,7 +408,6 @@ void LLFastTimerView::draw()
 
 		LLFontGL::getFontMonospace()->renderUTF8(std::string("[Right-Click log selected] [ALT-Click toggle counts] [ALT-SHIFT-Click sub hidden]"),
 										 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
-#endif
 		y -= (texth + 2);
 	}
 
@@ -431,11 +419,11 @@ void LLFastTimerView::draw()
 
 	y -= (texth + 2);
 
-	sTimerColors[&LLFastTimer::NamedTimer::getRootNamedTimer()] = LLColor4::grey;
+	sTimerColors[&getFrameTimer()] = LLColor4::grey;
 
 	F32 hue = 0.f;
 
-	for (timer_tree_iterator_t it = begin_timer_tree(LLFastTimer::NamedTimer::getRootNamedTimer());
+	for (timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
 		it != timer_tree_iterator_t();
 		++it)
 	{
@@ -460,7 +448,7 @@ void LLFastTimerView::draw()
 		S32 cur_line = 0;
 		ft_display_idx.clear();
 		std::map<LLFastTimer::NamedTimer*, S32> display_line;
-		for (timer_tree_iterator_t it = begin_timer_tree(LLFastTimer::NamedTimer::getRootNamedTimer());
+		for (timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
 			it != timer_tree_iterator_t();
 			++it)
 		{
@@ -526,6 +514,7 @@ void LLFastTimerView::draw()
 			while(!is_child_of_hover_item && next_parent)
 			{
 				is_child_of_hover_item = (mHoverID == next_parent);
+				if (next_parent->getParent() == next_parent) break;
 				next_parent = next_parent->getParent();
 			}
 
@@ -570,7 +559,7 @@ void LLFastTimerView::draw()
 		U64 totalticks;
 		if (!LLFastTimer::sPauseHistory)
 		{
-			U64 ticks = LLFastTimer::NamedTimer::getRootNamedTimer().getHistoricalCount(mScrollIndex);
+			U64 ticks = getFrameTimer().getHistoricalCount(mScrollIndex);
 
 			if (LLFastTimer::getCurFrameIndex() >= 10)
 			{
@@ -610,7 +599,7 @@ void LLFastTimerView::draw()
 			totalticks = 0;
 			for (S32 j=0; j<histmax; j++)
 			{
-				U64 ticks = LLFastTimer::NamedTimer::getRootNamedTimer().getHistoricalCount(j);
+				U64 ticks = getFrameTimer().getHistoricalCount(j);
 
 				if (ticks > totalticks)
 					totalticks = ticks;
@@ -716,7 +705,7 @@ void LLFastTimerView::draw()
 			LLFastTimer::NamedTimer* prev_id = NULL;
 
 			S32 i = 0;
-			for(timer_tree_iterator_t it = begin_timer_tree(LLFastTimer::NamedTimer::getRootNamedTimer());
+			for(timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
 				it != end_timer_tree();
 				++it, ++i)
 			{
@@ -793,6 +782,7 @@ void LLFastTimerView::draw()
 					while(!is_child_of_hover_item && next_parent)
 					{
 						is_child_of_hover_item = (mHoverID == next_parent);
+						if (next_parent->getParent() == next_parent) break;
 						next_parent = next_parent->getParent();
 					}
 
@@ -879,7 +869,7 @@ void LLFastTimerView::draw()
 			}
 			
 			U64 cur_max = 0;
-			for(timer_tree_iterator_t it = begin_timer_tree(LLFastTimer::NamedTimer::getRootNamedTimer());
+			for(timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
 				it != end_timer_tree();
 				++it)
 			{
@@ -980,7 +970,7 @@ void LLFastTimerView::draw()
 	{
 		std::string legend_stat;
 		bool first = true;
-		for(timer_tree_iterator_t it = begin_timer_tree(LLFastTimer::NamedTimer::getRootNamedTimer());
+		for(timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
 			it != end_timer_tree();
 			++it)
 		{
@@ -1002,7 +992,7 @@ void LLFastTimerView::draw()
 
 		std::string timer_stat;
 		first = true;
-		for(timer_tree_iterator_t it = begin_timer_tree(LLFastTimer::NamedTimer::getRootNamedTimer());
+		for(timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
 			it != end_timer_tree();
 			++it)
 		{
@@ -1562,4 +1552,10 @@ void	LLFastTimerView::onClickCloseBtn()
 {
 	setVisible(false);
 }
+
+LLFastTimer::NamedTimer& LLFastTimerView::getFrameTimer()
+{
+	return FTM_FRAME.getNamedTimer();
+}
+
 

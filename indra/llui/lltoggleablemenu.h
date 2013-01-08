@@ -47,6 +47,8 @@ public:
 
 	virtual void handleVisibilityChange (BOOL curVisibilityIn);
 
+	virtual bool addChild (LLView* view, S32 tab_group = 0);
+
 	const LLRect& getButtonRect() const { return mButtonRect; }
 
 	// Converts the given local button rect to a screen rect
