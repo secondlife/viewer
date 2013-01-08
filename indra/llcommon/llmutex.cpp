@@ -56,12 +56,15 @@ LLMutex::~LLMutex()
 	//bad assertion, the subclass LLSignal might be "locked", and that's OK
 	//llassert_always(!isLocked()); // better not be locked!
 #endif
-	apr_thread_mutex_destroy(mAPRMutexp);
-	mAPRMutexp = NULL;
-	if (mIsLocalPool)
+	if (ll_apr_is_initialized())
 	{
-		apr_pool_destroy(mAPRPoolp);
+		apr_thread_mutex_destroy(mAPRMutexp);
+		if (mIsLocalPool)
+		{
+			apr_pool_destroy(mAPRPoolp);
+		}
 	}
+	mAPRMutexp = NULL;
 }
 
 

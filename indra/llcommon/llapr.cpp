@@ -38,12 +38,15 @@ apr_thread_mutex_t *gCallStacksLogMutexp = NULL;
 
 const S32 FULL_VOLATILE_APR_POOL = 1024 ; //number of references to LLVolatileAPRPool
 
+bool gAPRInitialized = false;
+
 void ll_init_apr()
 {
+	// Initialize APR and create the global pool
+	apr_initialize();
+	
 	if (!gAPRPoolp)
 	{
-		// Initialize APR and create the global pool
-		apr_initialize();
 		apr_pool_create(&gAPRPoolp, NULL);
 		
 		// Initialize the logging mutex
@@ -57,11 +60,19 @@ void ll_init_apr()
 	}
 
 	LLThreadLocalPointerBase::initAllThreadLocalStorage();
+	gAPRInitialized = true;
 }
 
 
-void ll_cleanup_apr(bool destroy_pools)
+bool ll_apr_is_initialized()
 {
+	return gAPRInitialized;
+}
+
+void ll_cleanup_apr()
+{
+	gAPRInitialized = false;
+
 	LL_INFOS("APR") << "Cleaning up APR" << LL_ENDL;
 
 	if (gLogMutexp)
@@ -83,7 +94,7 @@ void ll_cleanup_apr(bool destroy_pools)
 
 	LLThreadLocalPointerBase::destroyAllThreadLocalStorage();
 
-	if (gAPRPoolp && destroy_pools)
+	if (gAPRPoolp)
 	{
 		apr_pool_destroy(gAPRPoolp);
 		gAPRPoolp = NULL;

@@ -70,7 +70,10 @@ void LL_COMMON_API ll_init_apr();
 /** 
  * @brief Cleanup those common apr constructs.
  */
-void LL_COMMON_API ll_cleanup_apr(bool destroy_pools = true);
+void LL_COMMON_API ll_cleanup_apr();
+
+bool LL_COMMON_API ll_apr_is_initialized();
+
 
 //
 //LL apr_pool

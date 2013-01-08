@@ -31,6 +31,7 @@
 #include "lliohttpserver.h"
 #include "llsdhttpserver.h"
 #include "llsdserialize.h"
+#include "llcommon.h"
 
 #include "llpipeutil.h"
 
@@ -76,10 +77,16 @@ namespace tut
 		HTTPServiceTestData()
 			: mResponse(NULL)
 		{
+			LLCommon::initClass();
 			LLHTTPStandardServices::useServices();
 			LLHTTPRegistrar::buildAllServices(mRoot);
 			mRoot.addNode("/delayed/echo", new DelayedEcho(this));
 			mRoot.addNode("/wire/hello", new LLHTTPNodeForPipe<WireHello>);
+		}
+
+		~HTTPServiceTestData()
+		{
+			LLCommon::cleanupClass();
 		}
 		
 		LLHTTPNode mRoot;
