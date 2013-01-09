@@ -228,7 +228,8 @@ void on_new_message(const LLSD& msg)
             //The conversation floater isn't focused/open
             if(conversation_floater_not_focused)
             {
-            	if(!LLMuteList::getInstance()->isMuted(participant_id))
+            	if(!LLMuteList::getInstance()->isMuted(participant_id) 
+                    && !gAgent.isDoNotDisturb())
             	{
             		gToolBarView->flashCommand(LLCommandId("chat"), true);
             	}
