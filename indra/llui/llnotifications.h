@@ -813,6 +813,7 @@ public:
 	std::string getParentChannelName() { return mParent; }
     
     bool isEmpty() const;
+    S32 size() const;
     
     Iterator begin();
     Iterator end();

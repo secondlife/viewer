@@ -117,9 +117,10 @@ namespace tut
 		std::string savefile(gDirUtilp->add(tempdir, "lluuidhashmap_tut.save.txt"));
 		const int numElementsToCheck = 32*256*32;
 		std::vector<LLUUID> idList;
-		if (gDirUtilp->fileExists(savefile))
+		if ((! getenv("TEAMCITY_PROJECT_NAME")) && gDirUtilp->fileExists(savefile))
 		{
-			// We have saved data from a previous failed run. Reload that data.
+			// This is not a TeamCity build, and we have saved data from a
+			// previous failed run. Reload that data.
 			std::ifstream inf(savefile.c_str());
 			if (! inf.is_open())
 			{
@@ -139,8 +140,8 @@ namespace tut
 		}
 		else
 		{
-			// savefile does not exist (normal case): regenerate idList from
-			// scratch.
+			// This is a TeamCity build, or (normal case) savefile does not
+			// exist: regenerate idList from scratch.
 			for (int i = 0; i < numElementsToCheck; ++i)
 			{
 				LLUUID id;
