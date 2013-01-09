@@ -457,8 +457,6 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 		texturep->createGLTexture(0, raw);
 	}
 	texturep->setSubImage(raw, tex_x_begin, tex_y_begin, tex_x_end - tex_x_begin, tex_y_end - tex_y_begin);
-	LLSurface::sTextureUpdateTime += gen_timer.getElapsedTimeF32();
-	LLSurface::sTexelsUpdated += (tex_x_end - tex_x_begin) * (tex_y_end - tex_y_begin);
 
 	for (S32 i = 0; i < 4; i++)
 	{

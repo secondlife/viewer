@@ -46,6 +46,7 @@ private:
 	static LLSD analyzePerformanceLogDefault(std::istream& is) ;
 	static void exportCharts(const std::string& base, const std::string& target);
 	void onPause();
+	LLFastTimer::NamedTimer& getFrameTimer();
 
 public:
 
@@ -90,7 +91,6 @@ private:
 	S32 mHoverBarIndex;
 	LLFrameTimer mHighlightTimer;
 	S32 mPrintStats;
-	S32 mAverageCyclesPerTimer;
 	LLRect mGraphRect;
 };
 

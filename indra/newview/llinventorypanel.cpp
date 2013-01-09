@@ -44,6 +44,7 @@
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llsidepanelinventory.h"
+#include "lltrans.h"
 #include "llviewerattachmenu.h"
 #include "llviewerfoldertype.h"
 #include "llvoavatarself.h"
@@ -191,8 +192,6 @@ void LLInventoryPanel::buildFolderView(const LLInventoryPanel::Params& params)
 
 void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 {
-	LLMemType mt(LLMemType::MTYPE_INVENTORY_POST_BUILD);
-
 	mCommitCallbackRegistrar.pushScope(); // registered as a widget; need to push callback scope ourselves
 	
 	buildFolderView(params);
@@ -975,7 +974,6 @@ bool LLInventoryPanel::beginIMSession()
 	std::set<LLUUID> selected_items = mFolderRoot->getSelectionList();
 
 	std::string name;
-	static int session_num = 1;
 
 	LLDynamicArray<LLUUID> members;
 	EInstantMessage type = IM_SESSION_CONFERENCE_START;
@@ -1055,7 +1053,7 @@ bool LLInventoryPanel::beginIMSession()
 
 	if (name.empty())
 	{
-		name = llformat("Session %d", session_num++);
+		name = LLTrans::getString("conference-title");
 	}
 
 	LLUUID session_id = gIMMgr->addSession(name, type, members[0], members);

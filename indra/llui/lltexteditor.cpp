@@ -239,7 +239,8 @@ LLTextEditor::Params::Params()
 	show_line_numbers("show_line_numbers", false),
 	default_color("default_color"),
     commit_on_focus_lost("commit_on_focus_lost", false),
-	show_context_menu("show_context_menu")
+	show_context_menu("show_context_menu"),
+	enable_tooltip_paste("enable_tooltip_paste")
 {
 	addSynonym(prevalidate_callback, "text_type");
 }
@@ -258,7 +259,8 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
 	mTabsToNextField(p.ignore_tab),
 	mPrevalidateFunc(p.prevalidate_callback()),
 	mContextMenu(NULL),
-	mShowContextMenu(p.show_context_menu)
+	mShowContextMenu(p.show_context_menu),
+	mEnableTooltipPaste(p.enable_tooltip_paste)
 {
 	mSourceID.generate();
 
@@ -1411,6 +1413,23 @@ void LLTextEditor::pasteHelper(bool is_primary)
 
 	// Clean up string (replace tabs and remove characters that our fonts don't support).
 	LLWString clean_string(paste);
+	cleanStringForPaste(clean_string);
+
+	// Insert the new text into the existing text.
+
+	//paste text with linebreaks.
+	pasteTextWithLinebreaks(clean_string);
+
+	deselect();
+
+	onKeyStroke();
+	mParseOnTheFly = TRUE;
+}
+
+
+// Clean up string (replace tabs and remove characters that our fonts don't support).
+void LLTextEditor::cleanStringForPaste(LLWString & clean_string)
+{
 	LLWStringUtil::replaceTabsWithSpaces(clean_string, SPACES_PER_TAB);
 	if( mAllowEmbeddedItems )
 	{
@@ -1429,10 +1448,11 @@ void LLTextEditor::pasteHelper(bool is_primary)
 			}
 		}
 	}
+}
 
-	// Insert the new text into the existing text.
 
-	//paste text with linebreaks.
+void LLTextEditor::pasteTextWithLinebreaks(LLWString & clean_string)
+{
 	std::basic_string<llwchar>::size_type start = 0;
 	std::basic_string<llwchar>::size_type pos = clean_string.find('\n',start);
 	
@@ -1451,14 +1471,7 @@ void LLTextEditor::pasteHelper(bool is_primary)
 
 	std::basic_string<llwchar> str = std::basic_string<llwchar>(clean_string,start,clean_string.length()-start);
 	setCursorPos(mCursorPos + insert(mCursorPos, str, FALSE, LLTextSegmentPtr()));
-
-	deselect();
-
-	onKeyStroke();
-	mParseOnTheFly = TRUE;
 }
-
-
 
 // copy selection to primary
 void LLTextEditor::copyPrimary()
@@ -1680,19 +1693,50 @@ BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask )
 	{
 		return FALSE;
 	}
-		
+
 	if (mReadOnly && mScroller)
 	{
 		handled = (mScroller && mScroller->handleKeyHere( key, mask ))
 				|| handleSelectionKey(key, mask)
 				|| handleControlKey(key, mask);
+	}
+	else 
+	{
+		if (mEnableTooltipPaste &&
+			LLToolTipMgr::instance().toolTipVisible() && 
+			KEY_TAB == key)
+		{	// Paste the first line of a tooltip into the editor
+			std::string message;
+			LLToolTipMgr::instance().getToolTipMessage(message);
+			LLWString tool_tip_text(utf8str_to_wstring(message));
+
+			if (tool_tip_text.size() > 0)
+			{
+				// Delete any selected characters (the tooltip text replaces them)
+				if(hasSelection())
+				{
+					deleteSelection(TRUE);
+				}
+
+				std::basic_string<llwchar>::size_type pos = tool_tip_text.find('\n',0);
+				if (pos != -1)
+				{	// Extract the first line of the tooltip
+					tool_tip_text = std::basic_string<llwchar>(tool_tip_text, 0, pos);
+				}
+
+				// Add the text
+				cleanStringForPaste(tool_tip_text);
+				pasteTextWithLinebreaks(tool_tip_text);
+				handled = TRUE;
+			}
 		}
-		else 
-		{
-		handled = handleNavigationKey( key, mask )
-				|| handleSelectionKey(key, mask)
-				|| handleControlKey(key, mask)
-				|| handleSpecialKey(key, mask);
+		else
+		{	// Normal key handling
+			handled = handleNavigationKey( key, mask )
+					|| handleSelectionKey(key, mask)
+					|| handleControlKey(key, mask)
+					|| handleSpecialKey(key, mask);
+		}
 	}
 
 	if( handled )

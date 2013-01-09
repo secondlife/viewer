@@ -30,7 +30,6 @@
 #include "llbufferstream.h"
 
 #include "llbuffer.h"
-#include "llmemtype.h"
 #include "llthread.h"
 
 static const S32 DEFAULT_OUTPUT_SEGMENT_SIZE = 1024 * 4;
@@ -44,19 +43,16 @@ LLBufferStreamBuf::LLBufferStreamBuf(
 	mChannels(channels),
 	mBuffer(buffer)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_BUFFER);
 }
 
 LLBufferStreamBuf::~LLBufferStreamBuf()
 {
-	LLMemType m1(LLMemType::MTYPE_IO_BUFFER);
 	sync();
 }
 
 // virtual
 int LLBufferStreamBuf::underflow()
 {
-	LLMemType m1(LLMemType::MTYPE_IO_BUFFER);
 	//lldebugs << "LLBufferStreamBuf::underflow()" << llendl;
 	if(!mBuffer)
 	{
@@ -129,7 +125,6 @@ int LLBufferStreamBuf::underflow()
 // virtual
 int LLBufferStreamBuf::overflow(int c)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_BUFFER);
 	if(!mBuffer)
 	{
 		return EOF;
@@ -169,7 +164,6 @@ int LLBufferStreamBuf::overflow(int c)
 // virtual
 int LLBufferStreamBuf::sync()
 {
-	LLMemType m1(LLMemType::MTYPE_IO_BUFFER);
 	int return_value = -1;
 	if(!mBuffer)
 	{
@@ -251,7 +245,6 @@ streampos LLBufferStreamBuf::seekoff(
 	std::ios::openmode which)
 #endif
 {
-	LLMemType m1(LLMemType::MTYPE_IO_BUFFER);
 	if(!mBuffer
 	   || ((way == std::ios::beg) && (off < 0))
 	   || ((way == std::ios::end) && (off > 0)))
@@ -343,10 +336,8 @@ LLBufferStream::LLBufferStream(
 	std::iostream(&mStreamBuf),
 	mStreamBuf(channels, buffer)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_BUFFER);
 }
 
 LLBufferStream::~LLBufferStream()
 {
-	LLMemType m1(LLMemType::MTYPE_IO_BUFFER);
 }

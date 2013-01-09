@@ -211,7 +211,6 @@ LLSelectMgr::LLSelectMgr()
 
 	mGridMode = GRID_MODE_WORLD;
 	gSavedSettings.setS32("GridMode", (S32)GRID_MODE_WORLD);
-	mGridValid = FALSE;
 
 	mSelectedObjects = new LLObjectSelection();
 	mHoverObjects = new LLObjectSelection();
@@ -1170,7 +1169,6 @@ void LLSelectMgr::setGridMode(EGridMode mode)
 	mGridMode = mode;
 	gSavedSettings.setS32("GridMode", mode);
 	updateSelectionCenter();
-	mGridValid = FALSE;
 }
 
 void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &scale)
@@ -1271,7 +1269,6 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 	origin = mGridOrigin;
 	rotation = mGridRotation;
 	scale = mGridScale;
-	mGridValid = TRUE;
 }
 
 //-----------------------------------------------------------------------------
@@ -2941,116 +2938,148 @@ BOOL LLSelectMgr::selectGetRootsCopy()
 	return TRUE;
 }
 
-//-----------------------------------------------------------------------------
-// selectGetCreator()
-// Creator information only applies to root objects.
-//-----------------------------------------------------------------------------
-BOOL LLSelectMgr::selectGetCreator(LLUUID& result_id, std::string& name)
+struct LLSelectGetFirstTest
 {
-	BOOL identical = TRUE;
-	BOOL first = TRUE;
-	LLUUID first_id;
-	for (LLObjectSelection::root_object_iterator iter = getSelection()->root_object_begin();
-		 iter != getSelection()->root_object_end(); iter++ )
+	LLSelectGetFirstTest() : mIdentical(true), mFirst(true)	{ }
+	virtual ~LLSelectGetFirstTest() { }
+
+	// returns false to break out of the iteration.
+	bool checkMatchingNode(LLSelectNode* node)
 	{
-		LLSelectNode* node = *iter;	
-		if (!node->mValid)
+		if (!node || !node->mValid)
 		{
-			return FALSE;
+			return false;
 		}
 
-		if (first)
+		if (mFirst)
 		{
-			first_id = node->mPermissions->getCreator();
-			first = FALSE;
+			mFirstValue = getValueFromNode(node);
+			mFirst = false;
 		}
 		else
 		{
-			if ( !(first_id == node->mPermissions->getCreator() ) )
+			if ( mFirstValue != getValueFromNode(node) )
 			{
-				identical = FALSE;
+				mIdentical = false;
+				// stop testing once we know not all selected are identical.
+				return false;
+			}
+		}
+		// continue testing.
+		return true;
+	}
+
+	bool mIdentical;
+	LLUUID mFirstValue;
+
+protected:
+	virtual const LLUUID& getValueFromNode(LLSelectNode* node) = 0;
+
+private:
+	bool mFirst;
+};
+
+void LLSelectMgr::getFirst(LLSelectGetFirstTest* test)
+{
+	if (gSavedSettings.getBOOL("EditLinkedParts"))
+	{
+		for (LLObjectSelection::valid_iterator iter = getSelection()->valid_begin();
+			iter != getSelection()->valid_end(); ++iter )
+		{
+			if (!test->checkMatchingNode(*iter))
+			{
 				break;
 			}
 		}
 	}
-	if (first_id.isNull())
+	else
+	{
+		for (LLObjectSelection::root_object_iterator iter = getSelection()->root_object_begin();
+			iter != getSelection()->root_object_end(); ++iter )
+		{
+			if (!test->checkMatchingNode(*iter))
+			{
+				break;
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// selectGetCreator()
+// Creator information only applies to roots unless editing linked parts.
+//-----------------------------------------------------------------------------
+struct LLSelectGetFirstCreator : public LLSelectGetFirstTest
+{
+protected:
+	virtual const LLUUID& getValueFromNode(LLSelectNode* node)
+	{
+		return node->mPermissions->getCreator();
+	}
+};
+
+BOOL LLSelectMgr::selectGetCreator(LLUUID& result_id, std::string& name)
+{
+	LLSelectGetFirstCreator test;
+	getFirst(&test);
+
+	if (test.mFirstValue.isNull())
 	{
 		name = LLTrans::getString("AvatarNameNobody");
 		return FALSE;
 	}
 	
-	result_id = first_id;
+	result_id = test.mFirstValue;
 	
-	if (identical)
+	if (test.mIdentical)
 	{
-		name = LLSLURL("agent", first_id, "inspect").getSLURLString();
+		name = LLSLURL("agent", test.mFirstValue, "inspect").getSLURLString();
 	}
 	else
 	{
 		name = LLTrans::getString("AvatarNameMultiple");
 	}
 
-	return identical;
+	return test.mIdentical;
 }
-
 
 //-----------------------------------------------------------------------------
 // selectGetOwner()
-// Owner information only applies to roots.
+// Owner information only applies to roots unless editing linked parts.
 //-----------------------------------------------------------------------------
+struct LLSelectGetFirstOwner : public LLSelectGetFirstTest
+{
+protected:
+	virtual const LLUUID& getValueFromNode(LLSelectNode* node)
+	{
+		// Don't use 'getOwnership' since we return a reference, not a copy.
+		// Will return LLUUID::null if unowned (which is not allowed and should never happen.)
+		return node->mPermissions->isGroupOwned() ? node->mPermissions->getGroup() : node->mPermissions->getOwner();
+	}
+};
+
 BOOL LLSelectMgr::selectGetOwner(LLUUID& result_id, std::string& name)
 {
-	BOOL identical = TRUE;
-	BOOL first = TRUE;
-	BOOL first_group_owned = FALSE;
-	LLUUID first_id;
-	for (LLObjectSelection::root_object_iterator iter = getSelection()->root_object_begin();
-		 iter != getSelection()->root_object_end(); iter++ )
-	{
-		LLSelectNode* node = *iter;	
-		if (!node->mValid)
-		{
-			return FALSE;
-		}
-		
-		if (first)
-		{
-			node->mPermissions->getOwnership(first_id, first_group_owned);
-			first = FALSE;
-		}
-		else
-		{
-			LLUUID owner_id;
-			BOOL is_group_owned = FALSE;
-			if (!(node->mPermissions->getOwnership(owner_id, is_group_owned))
-				|| owner_id != first_id || is_group_owned != first_group_owned)
-			{
-				identical = FALSE;
-				break;
-			}
-		}
-	}
-	if (first_id.isNull())
+	LLSelectGetFirstOwner test;
+	getFirst(&test);
+
+	if (test.mFirstValue.isNull())
 	{
 		return FALSE;
 	}
 
-	result_id = first_id;
+	result_id = test.mFirstValue;
 	
-	if (identical)
+	if (test.mIdentical)
 	{
-		BOOL public_owner = (first_id.isNull() && !first_group_owned);
-		if (first_group_owned)
+		bool group_owned = selectIsGroupOwned();
+		if (group_owned)
 		{
-			name = LLSLURL("group", first_id, "inspect").getSLURLString();
-		}
-		else if(!public_owner)
-		{
-			name = LLSLURL("agent", first_id, "inspect").getSLURLString();
+			name = LLSLURL("group", test.mFirstValue, "inspect").getSLURLString();
 		}
 		else
 		{
-			name = LLTrans::getString("AvatarNameNobody");
+			name = LLSLURL("agent", test.mFirstValue, "inspect").getSLURLString();
 		}
 	}
 	else
@@ -3058,131 +3087,92 @@ BOOL LLSelectMgr::selectGetOwner(LLUUID& result_id, std::string& name)
 		name = LLTrans::getString("AvatarNameMultiple");
 	}
 
-	return identical;
+	return test.mIdentical;
 }
-
 
 //-----------------------------------------------------------------------------
 // selectGetLastOwner()
-// Owner information only applies to roots.
+// Owner information only applies to roots unless editing linked parts.
 //-----------------------------------------------------------------------------
+struct LLSelectGetFirstLastOwner : public LLSelectGetFirstTest
+{
+protected:
+	virtual const LLUUID& getValueFromNode(LLSelectNode* node)
+	{
+		return node->mPermissions->getLastOwner();
+	}
+};
+
 BOOL LLSelectMgr::selectGetLastOwner(LLUUID& result_id, std::string& name)
 {
-	BOOL identical = TRUE;
-	BOOL first = TRUE;
-	LLUUID first_id;
-	for (LLObjectSelection::root_object_iterator iter = getSelection()->root_object_begin();
-		 iter != getSelection()->root_object_end(); iter++ )
-	{
-		LLSelectNode* node = *iter;	
-		if (!node->mValid)
-		{
-			return FALSE;
-		}
+	LLSelectGetFirstLastOwner test;
+	getFirst(&test);
 
-		if (first)
-		{
-			first_id = node->mPermissions->getLastOwner();
-			first = FALSE;
-		}
-		else
-		{
-			if ( !(first_id == node->mPermissions->getLastOwner() ) )
-			{
-				identical = FALSE;
-				break;
-			}
-		}
-	}
-	if (first_id.isNull())
+	if (test.mFirstValue.isNull())
 	{
 		return FALSE;
 	}
 
-	result_id = first_id;
+	result_id = test.mFirstValue;
 	
-	if (identical)
+	if (test.mIdentical)
 	{
-		BOOL public_owner = (first_id.isNull());
-		if(!public_owner)
-		{
-			name = LLSLURL("agent", first_id, "inspect").getSLURLString();
-		}
-		else
-		{
-			name.assign("Public or Group");
-		}
+		name = LLSLURL("agent", test.mFirstValue, "inspect").getSLURLString();
 	}
 	else
 	{
 		name.assign( "" );
 	}
 
-	return identical;
+	return test.mIdentical;
 }
-
 
 //-----------------------------------------------------------------------------
 // selectGetGroup()
-// Group information only applies to roots.
+// Group information only applies to roots unless editing linked parts.
 //-----------------------------------------------------------------------------
+struct LLSelectGetFirstGroup : public LLSelectGetFirstTest
+{
+protected:
+	virtual const LLUUID& getValueFromNode(LLSelectNode* node)
+	{
+		return node->mPermissions->getGroup();
+	}
+};
+
 BOOL LLSelectMgr::selectGetGroup(LLUUID& result_id)
 {
-	BOOL identical = TRUE;
-	BOOL first = TRUE;
-	LLUUID first_id;
-	for (LLObjectSelection::root_object_iterator iter = getSelection()->root_object_begin();
-		 iter != getSelection()->root_object_end(); iter++ )
-	{
-		LLSelectNode* node = *iter;	
-		if (!node->mValid)
-		{
-			return FALSE;
-		}
+	LLSelectGetFirstGroup test;
+	getFirst(&test);
 
-		if (first)
-		{
-			first_id = node->mPermissions->getGroup();
-			first = FALSE;
-		}
-		else
-		{
-			if ( !(first_id == node->mPermissions->getGroup() ) )
-			{
-				identical = FALSE;
-				break;
-			}
-		}
-	}
-
-	result_id = first_id;
-
-	return identical;
+	result_id = test.mFirstValue;
+	return test.mIdentical;
 }
 
 //-----------------------------------------------------------------------------
 // selectIsGroupOwned()
-// Only operates on root nodes.  
-// Returns TRUE if all have valid data and they are all group owned.
+// Only operates on root nodes unless editing linked parts.  
+// Returns TRUE if the first selected is group owned.
 //-----------------------------------------------------------------------------
+struct LLSelectGetFirstGroupOwner : public LLSelectGetFirstTest
+{
+protected:
+	virtual const LLUUID& getValueFromNode(LLSelectNode* node)
+	{
+		if (node->mPermissions->isGroupOwned())
+		{
+			return node->mPermissions->getGroup();
+		}
+		return LLUUID::null;
+	}
+};
+
 BOOL LLSelectMgr::selectIsGroupOwned()
 {
-	BOOL found_one = FALSE;
-	for (LLObjectSelection::root_object_iterator iter = getSelection()->root_object_begin();
-		 iter != getSelection()->root_object_end(); iter++ )
-	{
-		LLSelectNode* node = *iter;	
-		if (!node->mValid)
-		{
-			return FALSE;
-		}
-		found_one = TRUE;
-		if (!node->mPermissions->isGroupOwned())
-		{
-			return FALSE;
-		}
-	}	
-	return found_one ? TRUE : FALSE;
+	LLSelectGetFirstGroupOwner test;
+	getFirst(&test);
+
+	return test.mFirstValue.notNull() ? TRUE : FALSE;
 }
 
 //-----------------------------------------------------------------------------
@@ -4987,7 +4977,11 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 		} func(id);
 		LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode(&func);
 
-		if (node)
+		if (!node)
+		{
+			llwarns << "Couldn't find object " << id << " selected." << llendl;
+		}
+		else
 		{
 			if (node->mInventorySerial != inv_serial)
 			{
@@ -5057,13 +5051,6 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 	}
 
 	dialog_refresh_all();
-
-	// silly hack to allow 'save into inventory' 
-	if(gPopupMenuView->getVisible())
-	{
-		gPopupMenuView->setItemEnabled(SAVE_INTO_INVENTORY,
-									   enable_save_into_inventory(NULL));
-	}
 
 	// hack for left-click buy object
 	LLToolPie::selectionPropertiesReceived();
