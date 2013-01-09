@@ -35,6 +35,7 @@ include(LLXML)
 include(LScript)
 include(Linking)
 include(NDOF)
+include(NVAPI)
 include(GooglePerfTools)
 include(TemplateCheck)
 include(UI)
@@ -1817,6 +1818,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLCOREHTTP_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     ${NDOF_LIBRARY}
+    ${NVAPI_LIBRARY}
     ${HUNSPELL_LIBRARY}
     ${viewer_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}

@@ -3212,6 +3212,7 @@ bool LLTextureFetch::receiveImageHeader(const LLHost& host, const LLUUID& id, U8
 
 	worker->lockWorkMutex();
 
+
 	//	Copy header data into image object
 	worker->mImageCodec = codec;
 	worker->mTotalPackets = packets;

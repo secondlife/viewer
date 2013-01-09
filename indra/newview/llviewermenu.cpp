@@ -1639,6 +1639,54 @@ class LLAdvancedForceParamsToDefault : public view_listener_t
 };
 
 
+//////////////////////////
+//   ANIMATION SPEED    //
+//////////////////////////
+
+// Utility function to set all AV time factors to the same global value
+static void set_all_animation_time_factors(F32	time_factor)
+{
+	LLMotionController::setCurrentTimeFactor(time_factor);
+	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
+		iter != LLCharacter::sInstances.end(); ++iter)
+	{
+		(*iter)->setAnimTimeFactor(time_factor);
+	}
+}
+
+class LLAdvancedAnimTenFaster : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		//llinfos << "LLAdvancedAnimTenFaster" << llendl;
+		F32 time_factor = LLMotionController::getCurrentTimeFactor();
+		time_factor = llmin(time_factor + 0.1f, 2.f);	// Upper limit is 200% speed
+		set_all_animation_time_factors(time_factor);
+		return true;
+	}
+};
+
+class LLAdvancedAnimTenSlower : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		//llinfos << "LLAdvancedAnimTenSlower" << llendl;
+		F32 time_factor = LLMotionController::getCurrentTimeFactor();
+		time_factor = llmax(time_factor - 0.1f, 0.1f);	// Lower limit is at 10% of normal speed
+		set_all_animation_time_factors(time_factor);
+		return true;
+	}
+};
+
+class LLAdvancedAnimResetAll : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		set_all_animation_time_factors(1.f);
+		return true;
+	}
+};
+
 
 //////////////////////////
 // RELOAD VERTEX SHADER //
@@ -3909,25 +3957,27 @@ class LLViewToggleUI : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLNotification::Params params("ConfirmHideUI");
-		params.functor.function(boost::bind(&LLViewToggleUI::confirm, this, _1, _2));
-		LLSD substitutions;
+		if(gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
+		{
+			LLNotification::Params params("ConfirmHideUI");
+			params.functor.function(boost::bind(&LLViewToggleUI::confirm, this, _1, _2));
+			LLSD substitutions;
 #if LL_DARWIN
-		substitutions["SHORTCUT"] = "Cmd+Shift+U";
+			substitutions["SHORTCUT"] = "Cmd+Shift+U";
 #else
-		substitutions["SHORTCUT"] = "Ctrl+Shift+U";
+			substitutions["SHORTCUT"] = "Ctrl+Shift+U";
 #endif
-		params.substitutions = substitutions;
-		if (gViewerWindow->getUIVisibility())
-		{
-			// hiding, so show notification
-			LLNotifications::instance().add(params);
+			params.substitutions = substitutions;
+			if (!gSavedSettings.getBOOL("HideUIControls"))
+			{
+				// hiding, so show notification
+				LLNotifications::instance().add(params);
+			}
+			else
+			{
+				LLNotifications::instance().forceResponse(params, 0);
+			}
 		}
-		else
-		{
-			LLNotifications::instance().forceResponse(params, 0);
-		}
-
 		return true;
 	}
 
@@ -3937,8 +3987,9 @@ class LLViewToggleUI : public view_listener_t
 
 		if (option == 0) // OK
 		{
-			gViewerWindow->setUIVisibility(!gViewerWindow->getUIVisibility());
-			LLPanelStandStopFlying::getInstance()->setVisible(gViewerWindow->getUIVisibility());
+			gViewerWindow->setUIVisibility(gSavedSettings.getBOOL("HideUIControls"));
+			LLPanelStandStopFlying::getInstance()->setVisible(gSavedSettings.getBOOL("HideUIControls"));
+			gSavedSettings.setBOOL("HideUIControls",!gSavedSettings.getBOOL("HideUIControls"));
 		}
 	}
 };
@@ -7506,6 +7557,7 @@ class LLToolsUseSelectionForGrid : public view_listener_t
 		} func;
 		LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func);
 		LLSelectMgr::getInstance()->setGridMode(GRID_MODE_REF_OBJECT);
+		LLFloaterTools::setGridMode((S32)GRID_MODE_REF_OBJECT);
 		return true;
 	}
 };
@@ -8437,6 +8489,11 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedTestMale(), "Advanced.TestMale");
 	view_listener_t::addMenu(new LLAdvancedTestFemale(), "Advanced.TestFemale");
 	
+	// Advanced > Character > Animation Speed
+	view_listener_t::addMenu(new LLAdvancedAnimTenFaster(), "Advanced.AnimTenFaster");
+	view_listener_t::addMenu(new LLAdvancedAnimTenSlower(), "Advanced.AnimTenSlower");
+	view_listener_t::addMenu(new LLAdvancedAnimResetAll(), "Advanced.AnimResetAll");
+
 	// Advanced > Character (toplevel)
 	view_listener_t::addMenu(new LLAdvancedForceParamsToDefault(), "Advanced.ForceParamsToDefault");
 	view_listener_t::addMenu(new LLAdvancedReloadVertexShader(), "Advanced.ReloadVertexShader");
