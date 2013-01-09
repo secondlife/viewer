@@ -416,14 +416,6 @@ public:
 		}
 	}
 
-	~LLWholeModelFeeResponder()
-	{
-		if (mThread)
-		{
-			mThread->stopRequest();
-		}
-	}
-
 	virtual void completed(U32 status,
 						   const std::string& reason,
 						   const LLSD& content)
