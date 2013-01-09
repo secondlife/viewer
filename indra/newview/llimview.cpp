@@ -129,11 +129,7 @@ void process_dnd_im(const LLSD& notification)
             false); //will need slight refactor to retrieve whether offline message or not (assume online for now)
     }
 
-    //For now always flash conversation line item
-    LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-    im_box->flashConversationItemWidget(sessionID, true);
-
-    //And flash toolbar button
+    //Flash toolbar button for now, eventually the user's preference will be taken into account
     gToolBarView->flashCommand(LLCommandId("chat"), true);
 }
 
