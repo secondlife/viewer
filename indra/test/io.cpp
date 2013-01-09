@@ -831,7 +831,6 @@ namespace tut
 	public:
 		PumpAndChainTestData()
 		{
-			LLCommon::initClass();
 			apr_pool_create(&mPool, NULL);
 			mPump = new LLPumpIO(mPool);
 		}
@@ -841,7 +840,6 @@ namespace tut
 			mChain.clear();
 			delete mPump;
 			apr_pool_destroy(mPool);
-			LLCommon::cleanupClass();
 		}
 	};
 	typedef test_group<PumpAndChainTestData>	PumpAndChainTestGroup;
@@ -912,7 +910,6 @@ namespace tut
 		
 		pipe_and_pump_fitness()
 		{
-			LLCommon::initClass();
 			LLFrameTimer::updateFrameTime();
 			apr_pool_create(&mPool, NULL);
 			mPump = new LLPumpIO(mPool);
@@ -927,7 +924,6 @@ namespace tut
 			mSocket.reset();
 			delete mPump;
 			apr_pool_destroy(mPool);
-			LLCommon::cleanupClass();
 		}
 
 	protected:
@@ -1191,11 +1187,9 @@ namespace tut
 			LLSimpleRPCResponse(LLSD* response) :
 				mResponsePtr(response)
 			{
-				LLCommon::initClass();
 			}
 			~LLSimpleRPCResponse() 
 			{
-				LLCommon::cleanupClass();
 			}
 			virtual bool response(LLPumpIO* pump)
 			{

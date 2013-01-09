@@ -77,7 +77,6 @@ namespace tut
 		HTTPServiceTestData()
 			: mResponse(NULL)
 		{
-			LLCommon::initClass();
 			LLHTTPStandardServices::useServices();
 			LLHTTPRegistrar::buildAllServices(mRoot);
 			mRoot.addNode("/delayed/echo", new DelayedEcho(this));
@@ -86,7 +85,6 @@ namespace tut
 
 		~HTTPServiceTestData()
 		{
-			LLCommon::cleanupClass();
 		}
 		
 		LLHTTPNode mRoot;

@@ -30,7 +30,7 @@
 #include "lltracethreadrecorder.h"
 #include "llfasttimer.h"
 
-static bool sInitialized;
+static S32 sInitializationCount = 0;
 
 namespace LLTrace
 {
@@ -39,19 +39,24 @@ static MasterThreadRecorder* gMasterThreadRecorder = NULL;
 
 void init()
 {
-	gMasterThreadRecorder = new MasterThreadRecorder();
-	sInitialized = true;
+	if (sInitializationCount++ == 0)
+	{
+		gMasterThreadRecorder = new MasterThreadRecorder();
+	}
 }
 
 bool isInitialized()
 {
-	return sInitialized; 
+	return sInitializationCount > 0; 
 }
 
 void cleanup()
 {
-	delete gMasterThreadRecorder;
-	gMasterThreadRecorder = NULL;
+	if (--sInitializationCount == 0)
+	{
+		delete gMasterThreadRecorder;
+		gMasterThreadRecorder = NULL;
+	}
 }
 
 MasterThreadRecorder& getMasterThreadRecorder()

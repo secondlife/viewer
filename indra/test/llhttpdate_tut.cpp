@@ -41,11 +41,9 @@ namespace tut
     {
 		httpdate_data() 
 		{ 
-			LLCommon::initClass();
 		}
 		~httpdate_data() 
 		{ 
-			LLCommon::cleanupClass();
 		}
         LLDate some_date;
     };

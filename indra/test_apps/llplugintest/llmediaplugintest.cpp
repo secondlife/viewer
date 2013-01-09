@@ -41,7 +41,6 @@
 #if LL_WINDOWS
 #pragma warning(disable: 4263)
 #pragma warning(disable: 4264)
-#undef NOMINMAX
 #endif
 
 #if __APPLE__

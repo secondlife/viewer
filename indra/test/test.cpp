@@ -514,8 +514,8 @@ int main(int argc, char **argv)
 #endif
 
 	ll_init_apr();
-	LLTrace::init();
 	
+	LLTrace::init();
 	apr_getopt_t* os = NULL;
 	if(APR_SUCCESS != apr_getopt_init(&os, gAPRPoolp, argc, argv))
 	{

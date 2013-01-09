@@ -28,9 +28,13 @@
 #define LL_LLWINDOWS_H
 
 #ifdef LL_WINDOWS
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #undef WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <windows.h>
+#undef NOMINMAX
 #endif
 
 #endif
