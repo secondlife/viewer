@@ -29,7 +29,7 @@ from janitor import Janitor
 from messageframe import MessageFrame
 import Tkinter, tkMessageBox
 
-TITLE = "SecondLife Updater"
+TITLE = "Second Life Viewer Updater"
 # Magic bundle identifier used by all Second Life viewer bundles
 BUNDLE_IDENTIFIER = "com.secondlife.indra.viewer"
 
