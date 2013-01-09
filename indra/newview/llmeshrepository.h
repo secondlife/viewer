@@ -411,12 +411,9 @@ public:
 					   LLHandle<LLWholeModelFeeObserver> fee_observer= (LLHandle<LLWholeModelFeeObserver>()), LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
 	~LLMeshUploadThread();
 
-	void startRequest() { ++mPendingUploads; }
+	void startRequest(); { ++mPendingUploads; }
 	void stopRequest() { --mPendingUploads; }
-
-	void startRequest() { ++mPendingUploads; }
-	void stopRequest() { --mPendingUploads; }
-
+		
 	bool finished() { return mFinished; }
 	virtual void run();
 	void preStart();
