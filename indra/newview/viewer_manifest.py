@@ -672,7 +672,9 @@ class DarwinManifest(ViewerManifest):
             self.path("../packages/lib/release/libndofdev.dylib", dst="Resources/libndofdev.dylib")
             self.path("../packages/lib/release/libhunspell-1.3.0.dylib", dst="Resources/libhunspell-1.3.0.dylib")
 
-            self.path("../viewer_components/updater/scripts/darwin/update_install", "MacOS/update_install")
+            if self.prefix(dst="MacOS"):
+                self.path2basename("../viewer_components/updater/scripts/darwin", "*.py")
+                self.end_prefix()
 
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
@@ -764,7 +766,6 @@ class DarwinManifest(ViewerManifest):
                 
                 # our apps
                 for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
-                                         ("mac_updater", "mac-updater.app"),
                                          # plugin launcher
                                          (os.path.join("llplugin", "slplugin"), "SLPlugin.app"),
                                          ):
@@ -810,7 +811,7 @@ class DarwinManifest(ViewerManifest):
     def copy_finish(self):
         # Force executable permissions to be set for scripts
         # see CHOP-223 and http://mercurial.selenic.com/bts/issue1802
-        for script in 'Contents/MacOS/update_install',:
+        for script in 'Contents/MacOS/update_install.py',:
             self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
