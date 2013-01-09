@@ -257,6 +257,8 @@ set(llcommon_HEADER_FILES
     lluuidhashmap.h
     llversionserver.h
     llversionviewer.h
+    llwin32headers.h
+    llwin32headerslean.h
     llworkerthread.h
     ll_template_cast.h
     metaclass.h
