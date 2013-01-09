@@ -882,9 +882,12 @@ void LLPanelEditWearable::setWearable(LLViewerWearable *wearable, BOOL disable_c
 
 //static 
 void LLPanelEditWearable::onBackButtonClicked(void* userdata)
-{
-    LLPanelEditWearable *panel = (LLPanelEditWearable*) userdata;
-	panel->saveChanges(true);
+{	
+	LLPanelEditWearable *panel = (LLPanelEditWearable*) userdata;    
+	if ( panel->isDirty() )
+	{
+		LLAppearanceMgr::instance().setOutfitDirty( true );		
+	}
 }
 
 //static 
