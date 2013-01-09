@@ -242,6 +242,7 @@ public:
 	S32 getNumElements() { return mFormData.size(); }
 	LLSD getElement(S32 index) { return mFormData.get(index); }
 	LLSD getElement(const std::string& element_name);
+    void getElements(LLSD& elements, S32 offset = 0);
 	bool hasElement(const std::string& element_name) const;
 	bool getElementEnabled(const std::string& element_name) const;
 	void setElementEnabled(const std::string& element_name, bool enabled);
@@ -456,7 +457,7 @@ public:
 	// ["time"] = time at which notification was generated;
 	// ["expiry"] = time at which notification expires;
 	// ["responseFunctor"] = name of registered functor that handles responses to notification;
-	LLSD asLLSD();
+	LLSD asLLSD(bool excludeTemplateElements = false);
 
 	const LLNotificationFormPtr getForm();
 	void updateForm(const LLNotificationFormPtr& form);

@@ -279,6 +279,18 @@ bool LLNotificationForm::hasElement(const std::string& element_name) const
 	return false;
 }
 
+void LLNotificationForm::getElements(LLSD& elements, S32 offset)
+{
+    //Finds elements that the template did not add
+    LLSD::array_const_iterator it = mFormData.beginArray() + offset;
+
+    //Keeps track of only the dynamic elements
+    for(; it != mFormData.endArray(); ++it)
+    {
+        elements.append(*it);
+    }
+}
+
 bool LLNotificationForm::getElementEnabled(const std::string& element_name) const
 {
 	for (LLSD::array_const_iterator it = mFormData.beginArray();
@@ -503,21 +515,36 @@ LLNotification::LLNotification(const LLSDParamAdapter<Params>& p) :
 }
 
 
-LLSD LLNotification::asLLSD()
+LLSD LLNotification::asLLSD(bool excludeTemplateElements)
 {
 	LLParamSDParser parser;
 
 	Params p;
 	p.id = mId;
 	p.name = mTemplatep->mName;
-	p.form_elements = getForm()->asLLSD();
-	
 	p.substitutions = mSubstitutions;
 	p.payload = mPayload;
 	p.time_stamp = mTimestamp;
 	p.expiry = mExpiresAt;
 	p.priority = mPriority;
 
+    LLNotificationFormPtr templateForm = mTemplatep->mForm;
+    LLSD formElements = mForm->asLLSD();
+
+    //All form elements (dynamic or not)
+    if(!excludeTemplateElements)
+    {
+        p.form_elements = formElements;
+    }
+    //Only dynamic form elements (exclude template elements)
+    else if(templateForm->getNumElements() < formElements.size())
+    {
+        LLSD dynamicElements;
+        //Offset to dynamic elements and store them
+        mForm->getElements(dynamicElements, templateForm->getNumElements());
+        p.form_elements = dynamicElements;
+    }
+    
     if(mResponder)
     {
         p.functor.responder_sd = mResponder->asLLSD();
@@ -818,7 +845,7 @@ void LLNotification::init(const std::string& template_name, const LLSD& form_ele
 	//mSubstitutions["_ARGS"] = get_all_arguments_as_text(mSubstitutions);
 
 	mForm = LLNotificationFormPtr(new LLNotificationForm(*mTemplatep->mForm));
-	mForm->append(form_elements);
+    mForm->append(form_elements);
 
 	// apply substitution to form labels
 	mForm->formatElements(mSubstitutions);

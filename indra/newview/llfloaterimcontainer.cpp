@@ -56,8 +56,8 @@
 //
 // LLFloaterIMContainer
 //
-LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed)
-:	LLMultiFloater(seed),
+LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& params /*= getDefaultParams()*/)
+:	LLMultiFloater(seed, params),
 	mExpandCollapseBtn(NULL),
 	mConversationsRoot(NULL),
 	mConversationsEventStream("ConversationsEvents"),
@@ -153,6 +153,9 @@ void LLFloaterIMContainer::onCurrentChannelChanged(const LLUUID& session_id)
 
 BOOL LLFloaterIMContainer::postBuild()
 {
+	mOrigMinWidth = getMinWidth();
+	mOrigMinHeight = getMinHeight();
+
 	mNewMessageConnection = LLIMModel::instance().mNewMsgSignal.connect(boost::bind(&LLFloaterIMContainer::onNewMessageReceived, this, _1));
 	// Do not call base postBuild to not connect to mCloseSignal to not close all floaters via Close button
 	// mTabContainer will be initialized in LLMultiFloater::addChild()
@@ -618,34 +621,34 @@ void LLFloaterIMContainer::collapseMessagesPane(bool collapse)
 		return;
 	}
 
+	// Save current width of panels before collapsing/expanding right pane.
+	S32 conv_pane_width = mConversationsPane->getRect().getWidth();
+    S32 msg_pane_width = mMessagesPane->getRect().getWidth();
+
 	if (collapse)
 	{
 		// Save the messages pane width before collapsing it.
-		gSavedPerAccountSettings.setS32("ConversationsMessagePaneWidth", mMessagesPane->getRect().getWidth());
+		gSavedPerAccountSettings.setS32("ConversationsMessagePaneWidth", msg_pane_width);
 
 		// Save the order in which the panels are closed to reverse user's last action.
 		gSavedPerAccountSettings.setBOOL("ConversationsExpandMessagePaneFirst", mConversationsPane->isCollapsed());
 	}
 
-	// Save left pane rectangle before collapsing/expanding right pane.
-	LLRect prevRect = mConversationsPane->getRect();
-
 	// Show/hide the messages pane.
 	mConversationsStack->collapsePanel(mMessagesPane, collapse);
 
-	if (!collapse)
-	{
-		// Make sure layout is updated before resizing conversation pane.
-		mConversationsStack->updateLayout();
-	}
+	// Make sure layout is updated before resizing conversation pane.
+	mConversationsStack->updateLayout();
 
 	updateState(collapse, gSavedPerAccountSettings.getS32("ConversationsMessagePaneWidth"));
+
 	if (!collapse)
 	{
 		// Restore conversation's pane previous width after expanding messages pane.
-		mConversationsPane->setTargetDim(prevRect.getWidth());
+		mConversationsPane->setTargetDim(conv_pane_width);
 	}
 }
+
 void LLFloaterIMContainer::collapseConversationsPane(bool collapse)
 {
 	if (mConversationsPane->isCollapsed() == collapse)
@@ -657,10 +660,13 @@ void LLFloaterIMContainer::collapseConversationsPane(bool collapse)
 	button_panel->setVisible(!collapse);
 	mExpandCollapseBtn->setImageOverlay(getString(collapse ? "expand_icon" : "collapse_icon"));
 
+	// Save current width of Conversation panel before collapsing/expanding right pane.
+	S32 conv_pane_width = mConversationsPane->getRect().getWidth();
+
 	if (collapse)
 	{
 		// Save the conversations pane width before collapsing it.
-		gSavedPerAccountSettings.setS32("ConversationsListPaneWidth", mConversationsPane->getRect().getWidth());
+		gSavedPerAccountSettings.setS32("ConversationsListPaneWidth", conv_pane_width);
 
 		// Save the order in which the panels are closed to reverse user's last action.
 		gSavedPerAccountSettings.setBOOL("ConversationsExpandMessagePaneFirst", !mMessagesPane->isCollapsed());
@@ -668,8 +674,9 @@ void LLFloaterIMContainer::collapseConversationsPane(bool collapse)
 
 	mConversationsStack->collapsePanel(mConversationsPane, collapse);
 
-	S32 collapsed_width = mConversationsPane->getMinDim();
-	updateState(collapse, gSavedPerAccountSettings.getS32("ConversationsListPaneWidth") - collapsed_width);
+	S32 delta_width = gSavedPerAccountSettings.getS32("ConversationsListPaneWidth") - mConversationsPane->getMinDim();
+
+	updateState(collapse, delta_width);
 
 	for (conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
 			widget_it != mConversationsWidgets.end(); ++widget_it)
@@ -685,7 +692,7 @@ void LLFloaterIMContainer::collapseConversationsPane(bool collapse)
 		    	widget->setOpen(false);
 		    }
 		    widget->requestArrange();
-}
+        }
 	}
 }
 
@@ -705,29 +712,30 @@ void LLFloaterIMContainer::updateState(bool collapse, S32 delta_width)
 	setCanResize(is_left_pane_expanded || is_right_pane_expanded);
 	setCanMinimize(is_left_pane_expanded || is_right_pane_expanded);
 
+    assignResizeLimits();
+
     // force set correct size for the title after show/hide minimize button
 	LLRect cur_rect = getRect();
 	LLRect force_rect = cur_rect;
 	force_rect.mRight = cur_rect.mRight + 1;
     setRect(force_rect);
     setRect(cur_rect);
-
-    // restore floater's resize limits (prevent collapse when left panel is expanded)
-	if (is_left_pane_expanded && !is_right_pane_expanded)
-	{
-		S32 expanded_min_size = mConversationsPane->getExpandedMinDim();
-        setResizeLimits(expanded_min_size, expanded_min_size);
-	}
-
-    assignResizeLimits();
 }
 
 void LLFloaterIMContainer::assignResizeLimits()
 {
-	const LLRect& conv_rect = mConversationsPane->isCollapsed() ? LLRect() : mConversationsPane->getRect();
-	S32 msg_limits  = mMessagesPane->isCollapsed() ? 0 : mMessagesPane->getExpandedMinDim();
-	S32 x_limits = conv_rect.getWidth() + msg_limits;
-	setResizeLimits(x_limits + LLPANEL_BORDER_WIDTH * 3, getMinHeight());
+	bool is_conv_pane_expanded = !mConversationsPane->isCollapsed();
+	bool is_msg_pane_expanded = !mMessagesPane->isCollapsed();
+
+	// With two panels visible number of borders is three, because the borders
+	// between the panels are merged into one
+    S32 number_of_visible_borders = llmin((is_conv_pane_expanded? 2 : 0) + (is_msg_pane_expanded? 2 : 0), 3);
+    S32 summary_width_of_visible_borders = number_of_visible_borders * LLPANEL_BORDER_WIDTH;
+	S32 conv_pane_current_width = is_conv_pane_expanded? mConversationsPane->getRect().getWidth() : mConversationsPane->getMinDim();
+	S32 msg_pane_min_width  = is_msg_pane_expanded ? mMessagesPane->getExpandedMinDim() : 0;
+	S32 new_min_width = conv_pane_current_width + msg_pane_min_width + summary_width_of_visible_borders;
+
+	setResizeLimits(new_min_width, getMinHeight());
 }
 
 void LLFloaterIMContainer::onAddButtonClicked()
@@ -1116,16 +1124,23 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 	//Enable Chat history item for ad-hoc and group conversations
 	if ("can_chat_history" == item)
 	{
-		if (getCurSelectedViewModelItem()->getType() != LLConversationItem::CONV_PARTICIPANT)
+		if(getCurSelectedViewModelItem())
 		{
-			return isConversationLoggingAllowed();
+			if (getCurSelectedViewModelItem()->getType() != LLConversationItem::CONV_PARTICIPANT)
+			{
+				return isConversationLoggingAllowed();
+			}
 		}
 	}
 
 	// If nothing is selected(and selected item is not group chat), everything needs to be disabled
 	if (uuids.size() <= 0)
 	{
-		return getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_GROUP;
+		if(getCurSelectedViewModelItem())
+		{
+			return getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_GROUP;
+		}
+		return false;
 	}
 
 	if("can_activate_group" == item)
@@ -1403,6 +1418,7 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 			current_participant_model++;
 		}
 	}
+
 	// Do that too for the conversation dialog
     LLFloaterIMSessionTab *conversation_floater = (uuid.isNull() ? (LLFloaterIMSessionTab*)(LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat")) : (LLFloaterIMSessionTab*)(LLFloaterIMSession::findInstance(uuid)));
 	if (conversation_floater)
