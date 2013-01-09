@@ -684,8 +684,9 @@ void LLInventoryPanel::initializeViews()
 	}
 	else
 	{
-		buildNewViews(gInventory.getRootFolderID());
-		buildNewViews(gInventory.getLibraryRootFolderID());
+		// Default case: always add "My Inventory" first, "Library" second
+		buildNewViews(gInventory.getRootFolderID());		// My Inventory
+		buildNewViews(gInventory.getLibraryRootFolderID());	// Library
 	}
 
 	gIdleCallbacks.addFunction(idle, this);
@@ -1354,6 +1355,21 @@ void LLInventoryPanel::doToSelected(const LLSD& userdata)
 	return;
 }
 
+BOOL LLInventoryPanel::handleKeyHere( KEY key, MASK mask )
+{
+	BOOL handled = FALSE;
+	switch (key)
+	{
+	case KEY_RETURN:
+		// Open selected items if enter key hit on the inventory panel
+		if (mask == MASK_NONE)
+		{
+			LLInventoryAction::doToSelected(mInventory, mFolderRoot, "open");
+			handled = TRUE;
+		}
+	}
+	return handled;
+}
 
 /************************************************************************/
 /* Recent Inventory Panel related class                                 */

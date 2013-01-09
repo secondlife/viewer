@@ -163,10 +163,6 @@ public:
 	// Deletion functionality
  	void removeSelectedItems();
 
-	// Open the selected item
-	void openSelectedItems( void );
-	void propertiesSelectedItems( void );
-
 	void autoOpenItem(LLFolderViewFolder* item);
 	void closeAutoOpenedFolders();
 	BOOL autoOpenTest(LLFolderViewFolder* item);

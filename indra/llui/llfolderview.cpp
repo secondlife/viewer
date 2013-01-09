@@ -275,17 +275,6 @@ BOOL LLFolderView::canFocusChildren() const
 void LLFolderView::addFolder( LLFolderViewFolder* folder)
 {
 	LLFolderViewFolder::addFolder(folder);
-		
-	// TODO RN: enforce sort order of My Inventory followed by Library
-	//mFolders.remove(folder);
-	//if (((LLFolderViewModelItemInventory*)folder->getViewModelItem())->getUUID() == gInventory.getLibraryRootFolderID())
-	//{
-	//	mFolders.push_back(folder);
-	//}
-	//else
-	//{
-	//	mFolders.insert(mFolders.begin(), folder);
-	//}
 }
 
 void LLFolderView::closeAllFolders()
@@ -793,76 +782,6 @@ void LLFolderView::removeSelectedItems()
 	}
 }
 
-// TODO RN: abstract 
-// open the selected item.
-void LLFolderView::openSelectedItems( void )
-{
-	//TODO RN: get working again
-	//if(getVisible() && getEnabled())
-	//{
-	//	if (mSelectedItems.size() == 1)
-	//	{
-	//		mSelectedItems.front()->openItem();
-	//	}
-	//	else
-	//	{
-	//		LLMultiPreview* multi_previewp = new LLMultiPreview();
-	//		LLMultiProperties* multi_propertiesp = new LLMultiProperties();
-
-	//		selected_items_t::iterator item_it;
-	//		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
-	//		{
-	//			// IT_{OBJECT,ATTACHMENT} creates LLProperties
-	//			// floaters; others create LLPreviews.  Put
-	//			// each one in the right type of container.
-	//			LLFolderViewModelItemInventory* listener = static_cast<LLFolderViewModelItemInventory*>((*item_it)->getViewModelItem());
-	//			bool is_prop = listener && (listener->getInventoryType() == LLInventoryType::IT_OBJECT || listener->getInventoryType() == LLInventoryType::IT_ATTACHMENT);
-	//			if (is_prop)
-	//				LLFloater::setFloaterHost(multi_propertiesp);
-	//			else
-	//				LLFloater::setFloaterHost(multi_previewp);
-	//			listener->openItem();
-	//		}
-
-	//		LLFloater::setFloaterHost(NULL);
-	//		// *NOTE: LLMulti* will safely auto-delete when open'd
-	//		// without any children.
-	//		multi_previewp->openFloater(LLSD());
-	//		multi_propertiesp->openFloater(LLSD());
-	//	}
-	//}
-	}
-
-void LLFolderView::propertiesSelectedItems( void )
-{
-	//TODO RN: get working again
-	//if(getVisible() && getEnabled())
-	//{
-	//	if (mSelectedItems.size() == 1)
-	//	{
-	//		LLFolderViewItem* folder_item = mSelectedItems.front();
-	//		if(!folder_item) return;
-	//		folder_item->getViewModelItem()->showProperties();
-	//	}
-	//	else
-	//	{
-	//		LLMultiProperties* multi_propertiesp = new LLMultiProperties();
-
-	//		LLFloater::setFloaterHost(multi_propertiesp);
-
-	//		selected_items_t::iterator item_it;
-	//		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
-	//		{
-	//			(*item_it)->getViewModelItem()->showProperties();
-	//		}
-
-	//		LLFloater::setFloaterHost(NULL);
-	//		multi_propertiesp->openFloater(LLSD());
-	//	}
-	//}
-	}
-
-
 void LLFolderView::autoOpenItem( LLFolderViewFolder* item )
 {
 	if ((mAutoOpenItems.check() == item) || 
@@ -1149,11 +1068,6 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 			{
 				finishRenamingItem();
 				mSearchString.clear();
-				handled = TRUE;
-			}
-			else
-			{
-				LLFolderView::openSelectedItems();
 				handled = TRUE;
 			}
 		}

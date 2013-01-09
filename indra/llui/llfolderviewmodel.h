@@ -127,7 +127,7 @@ public:
 	virtual bool startDrag(std::vector<LLFolderViewModelItem*>& items) = 0;
 };
 
-// This is am abstract base class that users of the folderview classes
+// This is an abstract base class that users of the folderview classes
 // would use to bridge the folder view with the underlying data
 class LLFolderViewModelItem : public LLRefCount
 {
