@@ -76,7 +76,7 @@
          parameter="privacy_preferences" />
     </menu_item_call>
     <menu_item_check
-         label="Open conversation log"
+         label="Conversation log..."
          name="Conversation"
          visible="true">
         <menu_item_check.on_check

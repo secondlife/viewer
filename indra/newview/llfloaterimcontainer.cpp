@@ -162,7 +162,7 @@ BOOL LLFloaterIMContainer::postBuild()
 	
 	setTabContainer(getChild<LLTabContainer>("im_box_tab_container"));
 	mStubPanel = getChild<LLPanel>("stub_panel");
-    mStubTextBox = getChild<LLTextBox>("stub_textbox_2");
+    mStubTextBox = getChild<LLTextBox>("stub_textbox");
     mStubTextBox->setURLClickedCallback(boost::bind(&LLFloaterIMContainer::returnFloaterToHost, this));
 
 	mConversationsStack = getChild<LLLayoutStack>("conversations_stack");
