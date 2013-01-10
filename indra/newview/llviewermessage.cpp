@@ -4483,30 +4483,42 @@ void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_
 
 static LLFastTimer::DeclareTimer FTM_PROCESS_OBJECTS("Process Kill Objects");
 
+const U32 KILLOBJECT_DELETE_OPCODE = 0;
+
 
 void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 {
 	LLFastTimer t(FTM_PROCESS_OBJECTS);
 
-	LLUUID		id;
-	U32			local_id;
-	S32			i;
-	S32			num_objects;
+	LLUUID id;
 
-	num_objects = mesgsys->getNumberOfBlocksFast(_PREHASH_ObjectData);
-
-	for (i = 0; i < num_objects; i++)
+	U32 ip = mesgsys->getSenderIP();
+	U32 port = mesgsys->getSenderPort();
+	LLViewerRegion* regionp = NULL;
 	{
-		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
+		LLHost host(ip, port);
+		regionp = LLWorld::getInstance()->getRegion(host);
+	}
 
-		LLViewerObjectList::getUUIDFromLocal(id,
-											local_id,
-											gMessageSystem->getSenderIP(),
-											gMessageSystem->getSenderPort());
+	bool delete_object = false;
+	S32	num_objects = mesgsys->getNumberOfBlocksFast(_PREHASH_ObjectData);
+	for (S32 i = 0; i < num_objects; ++i)
+	{
+		U32	local_id;
+		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
+		if (local_id == KILLOBJECT_DELETE_OPCODE)
+		{
+			// This local_id is invalid, but was sent by the server to flag
+			// all subsequent local_id's as objects that were actually deleted
+			// rather than unsubscribed from interestlist.
+			delete_object = true;
+			continue;
+		}
+
+		LLViewerObjectList::getUUIDFromLocal(id, local_id, ip, port); 
 		if (id == LLUUID::null)
 		{
 			LL_DEBUGS("Messaging") << "Unknown kill for local " << local_id << LL_ENDL;
-			gObjectList.mNumUnknownKills++;
 			continue;
 		}
 		else
@@ -4514,34 +4526,35 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 			LL_DEBUGS("Messaging") << "Kill message for local " << local_id << LL_ENDL;
 		}
 
-		// ...don't kill the avatar
-		if (!(id == gAgentID))
+		if (id == gAgentID)
 		{
-			LLViewerObject *objectp = gObjectList.findObject(id);
-			if (objectp)
-			{
-				// Display green bubble on kill
-				if ( gShowObjectUpdates )
-				{
-					LLColor4 color(0.f,1.f,0.f,1.f);
-					gPipeline.addDebugBlip(objectp->getPositionAgent(), color);
-				}
+			// never kill our avatar
+			continue;
+		}
 
-				// Do the kill
-				gObjectList.killObject(objectp);
-			}
-			else
+		LLViewerObject *objectp = gObjectList.findObject(id);
+		if (objectp)
+		{
+			// Display green bubble on kill
+			if ( gShowObjectUpdates )
 			{
-				LL_WARNS("Messaging") << "Object in UUID lookup, but not on object list in kill!" << LL_ENDL;
-				gObjectList.mNumUnknownKills++;
+				LLColor4 color(0.f,1.f,0.f,1.f);
+				gPipeline.addDebugBlip(objectp->getPositionAgent(), color);
 			}
+
+			// Do the kill
+			gObjectList.killObject(objectp);
+		}
+
+		if(delete_object)
+		{
+			regionp->killCacheEntry(local_id);
 		}
 
 		// We should remove the object from selection after it is marked dead by gObjectList to make LLToolGrab,
         // which is using the object, release the mouse capture correctly when the object dies.
         // See LLToolGrab::handleHoverActive() and LLToolGrab::handleHoverNonPhysical().
 		LLSelectMgr::getInstance()->removeObjectFromSelections(id);
-
 	}
 }
 

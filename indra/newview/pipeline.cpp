@@ -86,6 +86,7 @@
 #include "llviewerregion.h" // for audio debugging.
 #include "llviewerwindow.h" // For getSpinAxis
 #include "llvoavatarself.h"
+#include "llvocache.h"
 #include "llvoground.h"
 #include "llvosky.h"
 #include "llvotree.h"
@@ -111,6 +112,7 @@
 #include "llfloaterpathfindingconsole.h"
 #include "llfloaterpathfindingcharacters.h"
 #include "llpathfindingpathtool.h"
+#include "llscenemonitor.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -1410,18 +1412,18 @@ S32 LLPipeline::setLightingDetail(S32 level)
 	return mLightingDetail;
 }
 
-class LLOctreeDirtyTexture : public LLOctreeTraveler<LLDrawable>
+class LLOctreeDirtyTexture : public OctreeTraveler
 {
 public:
 	const std::set<LLViewerFetchedTexture*>& mTextures;
 
 	LLOctreeDirtyTexture(const std::set<LLViewerFetchedTexture*>& textures) : mTextures(textures) { }
 
-	virtual void visit(const LLOctreeNode<LLDrawable>* node)
+	virtual void visit(const OctreeNode* node)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
 
-		if (!group->isState(LLSpatialGroup::GEOM_DIRTY) && !group->isEmpty())
+		if (!group->hasState(LLSpatialGroup::GEOM_DIRTY) && !group->isEmpty())
 		{
 			for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
 			{
@@ -1610,10 +1612,8 @@ void LLPipeline::addPool(LLDrawPool *new_poolp)
 
 void LLPipeline::allocDrawable(LLViewerObject *vobj)
 {
-	LLDrawable *drawable = new LLDrawable();
+	LLDrawable *drawable = new LLDrawable(vobj);
 	vobj->mDrawable = drawable;
-	
-	drawable->mVObjp     = vobj;
 	
 	//encompass completely sheared objects by taking 
 	//the most extreme point possible (<1,1,0.5>)
@@ -2038,7 +2038,7 @@ void check_references(LLSpatialGroup* group, LLDrawable* drawable)
 {
 	for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 	{
-		if (drawable == *i)
+		if (drawable == (LLDrawable*)(*i)->getDrawable())
 		{
 			llerrs << "LLDrawable deleted while actively reference by LLPipeline." << llendl;
 		}
@@ -2060,8 +2060,11 @@ void check_references(LLSpatialGroup* group, LLFace* face)
 {
 	for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 	{
-		LLDrawable* drawable = *i;
-		check_references(drawable, face);
+		LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
+		if(drawable)
+		{
+			check_references(drawable, face);
+		}
 	}			
 }
 
@@ -2385,6 +2388,13 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 				}
 			}
 		}
+
+		//scan the VO Cache tree
+		LLVOCachePartition* vo_part = region->getVOCachePartition();
+		if(vo_part)
+		{
+			vo_part->cull(camera);
+		}
 	}
 
 	if (bound_shader)
@@ -2452,14 +2462,15 @@ void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera)
 		return;
 	}
 
+	const LLVector4a* bounds = group->getBounds();
 	if (sMinRenderSize > 0.f && 
-			llmax(llmax(group->mBounds[1][0], group->mBounds[1][1]), group->mBounds[1][2]) < sMinRenderSize)
+			llmax(llmax(bounds[1][0], bounds[1][1]), bounds[1][2]) < sMinRenderSize)
 	{
 		return;
 	}
 
 	assertInitialized();
-	
+		
 	if (!group->mSpatialPartition->mRenderByGroup)
 	{ //render by drawable
 		sCull->pushDrawableGroup(group);
@@ -3041,14 +3052,14 @@ void LLPipeline::markRebuild(LLSpatialGroup* group, BOOL priority)
 
 		if (priority)
 		{
-			if (!group->isState(LLSpatialGroup::IN_BUILD_Q1))
+			if (!group->hasState(LLSpatialGroup::IN_BUILD_Q1))
 			{
 				llassert_always(!mGroupQ1Locked);
 
 				mGroupQ1.push_back(group);
 				group->setState(LLSpatialGroup::IN_BUILD_Q1);
 
-				if (group->isState(LLSpatialGroup::IN_BUILD_Q2))
+				if (group->hasState(LLSpatialGroup::IN_BUILD_Q2))
 				{
 					LLSpatialGroup::sg_vector_t::iterator iter = std::find(mGroupQ2.begin(), mGroupQ2.end(), group);
 					if (iter != mGroupQ2.end())
@@ -3059,7 +3070,7 @@ void LLPipeline::markRebuild(LLSpatialGroup* group, BOOL priority)
 				}
 			}
 		}
-		else if (!group->isState(LLSpatialGroup::IN_BUILD_Q2 | LLSpatialGroup::IN_BUILD_Q1))
+		else if (!group->hasState(LLSpatialGroup::IN_BUILD_Q2 | LLSpatialGroup::IN_BUILD_Q1))
 		{
 			llassert_always(!mGroupQ2Locked);
 			mGroupQ2.push_back(group);
@@ -3134,7 +3145,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 			group->setVisible();
 			for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 			{
-				markVisible(*i, camera);
+				markVisible((LLDrawable*)(*i)->getDrawable(), camera);
 			}
 
 			if (!sDelayVBUpdate)
@@ -3212,7 +3223,9 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 		}
 	}
 		
-	postSort(camera);	
+	postSort(camera);
+
+	LLSceneMonitor::getInstance()->fetchQueryResult();
 }
 
 void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
@@ -3221,8 +3234,7 @@ void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
 	{
 		for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 		{
-			LLDrawable* drawablep = *i;
-			stateSort(drawablep, camera);
+			stateSort((LLDrawable*)(*i)->getDrawable(), camera);
 		}
 
 		if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
@@ -3341,7 +3353,10 @@ void forAllDrawables(LLCullResult::sg_iterator begin,
 	{
 		for (LLSpatialGroup::element_iter j = (*i)->getDataBegin(); j != (*i)->getDataEnd(); ++j)
 		{
-			func(*j);	
+			if((*j)->hasDrawable())
+			{
+				func((LLDrawable*)(*j)->getDrawable());	
+			}
 		}
 	}
 }
@@ -3569,7 +3584,7 @@ void LLPipeline::postSort(LLCamera& camera)
 			continue;
 		}
 
-		if (group->isState(LLSpatialGroup::NEW_DRAWINFO) && group->isState(LLSpatialGroup::GEOM_DIRTY))
+		if (group->hasState(LLSpatialGroup::NEW_DRAWINFO) && group->hasState(LLSpatialGroup::GEOM_DIRTY))
 		{ //no way this group is going to be drawable without a rebuild
 			group->rebuildGeom();
 		}
