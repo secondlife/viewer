@@ -349,6 +349,7 @@ set(viewer_SOURCE_FILES
     llmediactrl.cpp
     llmediadataclient.cpp
     llmemoryview.cpp
+    llmenuoptionpathfindingrebakenavmesh.cpp
     llmeshrepository.cpp
     llmimetypes.cpp
     llmorphview.cpp
@@ -410,7 +411,6 @@ set(viewer_SOURCE_FILES
     llpanelonlinestatus.cpp
     llpaneloutfitedit.cpp
     llpaneloutfitsinventory.cpp
-    llpanelpathfindingrebakenavmesh.cpp
     llpanelpeople.cpp
     llpanelpeoplemenus.cpp
     llpanelpermissions.cpp
@@ -936,6 +936,7 @@ set(viewer_HEADER_FILES
     llmediactrl.h
     llmediadataclient.h
     llmemoryview.h
+    llmenuoptionpathfindingrebakenavmesh.h
     llmeshrepository.h
     llmimetypes.h
     llmorphview.h
@@ -991,7 +992,6 @@ set(viewer_HEADER_FILES
     llpanelonlinestatus.h
     llpaneloutfitedit.h
     llpaneloutfitsinventory.h
-    llpanelpathfindingrebakenavmesh.h
     llpanelpeople.h
     llpanelpeoplemenus.h
     llpanelpermissions.h
@@ -1590,9 +1590,9 @@ if (WINDOWS)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
         # *TODO -reenable this once we get server usage sorted out
-        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS ${TCMALLOC_LINK_FLAGS}"
-        LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
-        LINK_FLAGS_RELEASE "/FORCE:MULTIPLE /MAP\"secondlife-bin.MAP\" /OPT:REF"
+        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS ${TCMALLOC_LINK_FLAGS} /LARGEADDRESSAWARE"
+        LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO /LARGEADDRESSAWARE"
+        LINK_FLAGS_RELEASE "/FORCE:MULTIPLE /MAP\"secondlife-bin.MAP\" /OPT:REF /LARGEADDRESSAWARE"
         )
     if(USE_PRECOMPILED_HEADERS)
         set_target_properties(
@@ -2098,6 +2098,12 @@ if (LL_TESTS)
     lltranslate.cpp
     PROPERTIES
     LL_TEST_ADDITIONAL_LIBRARIES "${JSONCPP_LIBRARIES}"
+  )
+
+  set_source_files_properties(
+    lllogininstance.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
   )
 
   ##################################################

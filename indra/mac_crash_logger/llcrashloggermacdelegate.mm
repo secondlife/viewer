@@ -1,8 +1,8 @@
 /** 
- * @file lldir_mac.h
- * @brief Definition of directory utilities class for Mac OS X
+ * @file llcrashloggermacdelegate.mm
+ * @brief Mac OSX crash logger implementation
  *
- * $LicenseInfo:firstyear=2000&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2003&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -22,35 +22,54 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */ 
+ */
 
-#if !LL_DARWIN
-#error This header must not be included when compiling for any target other than Mac OS. Consider including lldir.h instead.
-#endif // !LL_DARWIN
 
-#ifndef LL_LLDIR_MAC_H
-#define LL_LLDIR_MAC_H
+/*
+#import "llcrashloggermacdelegate.h"
+#include <iostream>
 
-#include "lldir.h"
+extern std::string gUserNotes;
+extern bool gSendReport;
+extern bool gRememberChoice;
 
-#include <dirent.h>
+@implementation LLCrashLoggerMacDelegate
 
-class LLDir_Mac : public LLDir
+- (void)setWindow:(NSWindow *)window
 {
-public:
-	LLDir_Mac();
-	virtual ~LLDir_Mac();
+    _window = window;
+}
 
-	/*virtual*/ void initAppDirs(const std::string &app_name,
-		const std::string& app_read_only_data_dir);
+- (NSWindow *)window
+{
+    return _window;
+}
 
-	virtual std::string getCurPath();
-	virtual bool fileExists(const std::string &filename) const;
+- (void)dealloc
+{
+    [super dealloc];
+}
 
-	/*virtual*/ std::string getLLPluginLauncher();
-	/*virtual*/ std::string getLLPluginFilename(std::string base_name);
-};
+std::string* NSToString( NSString *ns_str )
+{
+    return ( new std::string([ns_str UTF8String]) );
+}
 
-#endif // LL_LLDIR_MAC_H
+- (IBAction)remember:(id)sender
+{
+    gRememberChoice = [rememberCheck state];
+}
 
+- (IBAction)send:(id)sender
+{
+    std::string* user_input = NSToString([crashText stringValue]);
+    gUserNotes = *user_input;
+    gSendReport = true;
+}
 
+- (IBAction)cancel:(id)sender
+{
+    [ _window close];
+}
+@end
+*/

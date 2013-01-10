@@ -1,6 +1,6 @@
 /** 
- * @file lldir_win32.h
- * @brief Definition of directory utilities class for windows
+ * @file llvfs_objc.h
+ * @brief Definition of directory utilities class for Mac OS X
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,38 +22,22 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */
+ */ 
 
-#if !LL_WINDOWS
-#error This header must not be included when compiling for any target other than Windows. Consider including lldir.h instead.
-#endif // !LL_WINDOWS
+#if !LL_DARWIN
+#error This header must not be included when compiling for any target other than Mac OS. Consider including lldir.h instead.
+#endif // !LL_DARWIN
 
-#ifndef LL_LLDIR_WIN32_H
-#define LL_LLDIR_WIN32_H
+#ifndef LL_LLVFS_OBJC_H
+#define LL_LLVFS_OBJC_H
 
-#include "lldir.h"
+#include <iostream>
 
-class LLDir_Win32 : public LLDir
-{
-public:
-	LLDir_Win32();
-	virtual ~LLDir_Win32();
-
-	/*virtual*/ void initAppDirs(const std::string &app_name,
-		const std::string& app_read_only_data_dir);
-
-	/*virtual*/ std::string getCurPath();
-	/*virtual*/ U32 countFilesInDir(const std::string &dirname, const std::string &mask);
-	/*virtual*/ bool fileExists(const std::string &filename) const;
-
-	/*virtual*/ std::string getLLPluginLauncher();
-	/*virtual*/ std::string getLLPluginFilename(std::string base_name);
-
-private:
-	void* mDirSearch_h;
-	llutf16string mCurrentDir;
-};
-
-#endif // LL_LLDIR_WIN32_H
+std::string* getSystemTempFolder();
+std::string* getSystemCacheFolder();
+std::string* getSystemApplicationSupportFolder();
+std::string* getSystemResourceFolder();
+std::string* getSystemExecutableFolder();
 
 
+#endif LL_LLVFS_OBJC_H
