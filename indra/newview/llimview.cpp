@@ -129,11 +129,7 @@ void process_dnd_im(const LLSD& notification)
             false); //will need slight refactor to retrieve whether offline message or not (assume online for now)
     }
 
-    //For now always flash conversation line item
-    LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-    im_box->flashConversationItemWidget(sessionID, true);
-
-    //And flash toolbar button
+    //Flash toolbar button for now, eventually the user's preference will be taken into account
     gToolBarView->flashCommand(LLCommandId("chat"), true);
 }
 
@@ -225,12 +221,18 @@ void on_new_message(const LLSD& msg)
         //User is not focused on conversation containing the message
         if(session_floater_not_focused)
         {
-            im_box->flashConversationItemWidget(session_id, true);
-
+        	if(!LLMuteList::getInstance()->isMuted(participant_id))
+        	{
+        		im_box->flashConversationItemWidget(session_id, true);
+        	}
             //The conversation floater isn't focused/open
             if(conversation_floater_not_focused)
             {
-                gToolBarView->flashCommand(LLCommandId("chat"), true);
+            	if(!LLMuteList::getInstance()->isMuted(participant_id) 
+                    && !gAgent.isDoNotDisturb())
+            	{
+            		gToolBarView->flashCommand(LLCommandId("chat"), true);
+            	}
 
                 //Show IM toasts (upper right toasts)
                 // Skip toasting for system messages and for nearby chat
