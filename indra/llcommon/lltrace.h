@@ -781,7 +781,7 @@ public:
 			accumulator->mAllocatedCount--;
 			accumulator->mDeallocatedCount++;
 		}
-		deallocAligned<ALIGNMENT, sizeof(size_T)>(ptr);
+		deallocAligned<ALIGNMENT, sizeof(size_t)>(ptr);
 	}
 
 	// claim memory associated with other objects/data as our own, adding to our calculated footprint
