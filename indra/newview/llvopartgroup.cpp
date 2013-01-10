@@ -489,8 +489,8 @@ U32 LLVOPartGroup::getPartitionType() const
 	return LLViewerRegion::PARTITION_PARTICLE; 
 }
 
-LLParticlePartition::LLParticlePartition()
-: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, GL_STREAM_DRAW_ARB)
+LLParticlePartition::LLParticlePartition(LLViewerRegion* regionp)
+: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, GL_STREAM_DRAW_ARB, regionp)
 {
 	mRenderPass = LLRenderPass::PASS_ALPHA;
 	mDrawableType = LLPipeline::RENDER_TYPE_PARTICLES;
@@ -499,8 +499,8 @@ LLParticlePartition::LLParticlePartition()
 	mLODPeriod = 1;
 }
 
-LLHUDParticlePartition::LLHUDParticlePartition() :
-	LLParticlePartition()
+LLHUDParticlePartition::LLHUDParticlePartition(LLViewerRegion* regionp) :
+	LLParticlePartition(regionp)
 {
 	mDrawableType = LLPipeline::RENDER_TYPE_HUD_PARTICLES;
 	mPartitionType = LLViewerRegion::PARTITION_HUD_PARTICLE;
@@ -510,7 +510,7 @@ static LLFastTimer::DeclareTimer FTM_REBUILD_PARTICLE_VBO("Particle VBO");
 
 void LLParticlePartition::rebuildGeom(LLSpatialGroup* group)
 {
-	if (group->isDead() || !group->isState(LLSpatialGroup::GEOM_DIRTY))
+	if (group->isDead() || !group->hasState(LLSpatialGroup::GEOM_DIRTY))
 	{
 		return;
 	}
@@ -558,9 +558,9 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 	LLViewerCamera* camera = LLViewerCamera::getInstance();
 	for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 	{
-		LLDrawable* drawablep = *i;
+		LLDrawable* drawablep = (LLDrawable*)(*i)->getDrawable();
 		
-		if (drawablep->isDead())
+		if (!drawablep || drawablep->isDead())
 		{
 			continue;
 		}
@@ -699,8 +699,10 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 			LLDrawInfo* info = new LLDrawInfo(start,end,count,offset,facep->getTexture(), 
 				//facep->getTexture(),
 				buffer, fullbright); 
-			info->mExtents[0] = group->mObjectExtents[0];
-			info->mExtents[1] = group->mObjectExtents[1];
+
+			const LLVector4a* exts = group->getObjectExtents();
+			info->mExtents[0] = exts[0];
+			info->mExtents[1] = exts[1];
 			info->mVSize = vsize;
 			draw_vec.push_back(info);
 			//for alpha sorting
