@@ -1,10 +1,149 @@
 #! /bin/bash
-INSTALL_DIR=$(cd "$(dirname "$0")/.." ; pwd)
-export LD_LIBRARY_PATH="$INSTALL_DIR/lib"
-bin/linux-updater.bin --file "$1" --dest "$INSTALL_DIR" --name "Second Life Viewer" --stringsdir "$INSTALL_DIR/skins/default/xui/en" --stringsfile "strings.xml"
 
-if [ $? -ne 0 ]
-   then echo $3 >> "$2"
+# @file   update_install
+# @author Nat Goodspeed
+# @date   2013-01-09
+# @brief  Update the containing Second Life application bundle to the version in
+#         the specified tarball.
+# 
+#         This bash implementation is derived from the previous linux-updater.bin
+#         application.
+# 
+# $LicenseInfo:firstyear=2013&license=viewerlgpl$
+# Copyright (c) 2013, Linden Research, Inc.
+# $/LicenseInfo$
+
+tarball="$1"                        # the file to install
+markerfile="$2"                     # create this file on failure
+mandatory="$3"                      # what to write to markerfile on failure
+
+function log {
+    # our log file will be open as stderr -- but until we set up that
+    # redirection, logging to stderr is better than nothing
+    echo "$*" 1>&2
+}
+
+function status {
+    log "$@"
+    # Prefix with '#' so xmenity will recognize it as a status message
+    echo "#$*"
+}
+
+function fail {
+    # Log the message
+    log "$@"
+    # tell subsequent viewer things went south
+    echo "$mandatory" > "$markerfile"
+    # add boilerplate
+    local msg="An error occurred while updating Second Life:
+$*
+Please download the latest viewer from www.secondlife.com."
+    # Restate test from xmenity to detect whether we can use zenity or must
+    # fall back to xmessage
+    zenpath="$(which zenity)"
+    if [ -n "$zenpath" -a -x "$zenpath" ]
+    then "$zenpath" --error --title "Second Life Viewer Updater" \
+                    --width=320 --height=120 --text="$msg"
+    else xmessage -buttons -OK:2 -center "$msg"
+    fi
+    exit 1
+}
+
+function sudo_mv {
+    # If we have write permission to both parent directories, shouldn't need
+    # sudo.
+    if [ -w "$(dirname "$1")" -a -w "$(dirname "$2")" ]
+    then mv "$1" "$2" || fail "Couldn't move $1 to $2"
+    else # use one of the likely sudo programs
+         sudo="$(which gksudo)"
+         if [ -z "$sudo" ]
+         then sudo="$(which kdesu)"
+         fi
+         if [ -z "$sudo" ]
+         then # couldn't find either one, just try it anyway
+              mv "$1" "$2" || fail "Couldn't move $1 to $2"
+         else # even with sudo, could fail, e.g. different filesystems
+              "$sudo" mv "$1" "$2" || fail "Couldn't move $1 to $2"
+         fi
+    fi
+}
+
+# empty array
+cleanups=()
+
+function cleanup {
+    # wacky bash syntax for appending to array
+    cleanups[${#cleanups[*]}]="$*"
+}
+
+function onexit {
+    for action in "${cleanups[@]}"
+    do # don't quote, support actions consisting of multiple words
+       $action
+    done
+}
+
+trap 'onexit' EXIT
+
+mydir="$(dirname "$0")"
+# We happen to know that the viewer specifies a marker-file pathname within
+# the logs directory.
+logsdir="$(dirname "$markerfile")"
+logname="$logsdir/updater.log"
+
+# move aside old updater.log; we're about to create a new one
+[ -f "$logname" ] && mv "$logname" "$logname.old"
+
+# Set up redirections for this script such that stderr is logged, while
+# special stdout messages drive our UI, as described in xmenity.
+exec 2> "$logname" | "$mydir/xmenity"
+# Piping to xmenity requires that we end with a line consisting of the string
+# "100" to terminate zenity progress bar.
+cleanup echo 100
+
+# Rather than setting up a special pipeline to timestamp every line of stderr,
+# produce header lines into log file indicating timestamp and the arguments
+# with which we were invoked.
+date 1>&2
+log "$0 $*"
+
+# Log every command we execute, along with any stderr it might produce
+set -x
+
+status 'Installing Second Life...'
+
+# Creating tempdir under /tmp means it's possible that tempdir is on a
+# different filesystem than INSTALL_DIR. One is tempted to create tempdir on a
+# path derived from `dirname INSTALL_DIR`, but then we might need to add
+# another sudo prompt to create it.
+tempdir="/tmp/$(basename "$0").$$"
+tempinstall="$tempdir/install"
+mkdir -p "$tempinstall" || fail "Couldn't create $tempinstall"
+cleanup rm -rf "$tempdir"
+
+# If we already knew the name of the tarball's top-level directory, we could
+# just move that when all was said and done. Since we don't, untarring to the
+# 'install' subdir with --strip 1 effectively renames that top-level
+# directory.
+tar --strip 1 -xjf "$tarball" -C "$tempinstall" || fail "Untar command failed"
+
+INSTALL_DIR="$(cd "$mydir/.." ; pwd)"
+
+# Considering we're launched from a subdirectory of INSTALL_DIR, would be
+# surprising if it did NOT already exist...
+if [ -f "$INSTALL_DIR" ]
+then backup="$INSTALL_DIR.backup"
+     backupn=1
+     while [ -f "$backup" ]
+     do backup="$INSTALL_DIR.backup.$backupn"
+        ((backupn += 1))
+     done
+     sudo_mv "$INSTALL_DIR" "$backup"
 fi
+# We unpacked the tarball into tempinstall. Move that.
+sudo_mv "$tempinstall" "$INSTALL_DIR"
 
-rm -f "$1"
+rm -f "$tarball"
+
+# launch the updated viewer
+"$INSTALL_DIR/secondlife" &
