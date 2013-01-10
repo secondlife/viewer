@@ -906,7 +906,7 @@ const LLConversationItem * LLFloaterIMContainer::getCurSelectedViewModelItem()
         mConversationsRoot->getCurSelectedItem()->getViewModelItem())
     {
 		LLFloaterIMSessionTab *selected_session_floater = LLFloaterIMSessionTab::getConversation(mSelectedSession);
-		if (selected_session_floater && !selected_session_floater->getHost())
+		if (selected_session_floater && !selected_session_floater->getHost() && selected_session_floater->getCurSelectedViewModelItem())
 		{
 			conversation_item = selected_session_floater->getCurSelectedViewModelItem();
 		}
