@@ -1569,6 +1569,8 @@ void LLPanelObjectInventory::reset()
 	p.folder_indentation = -14; // subtract space normally reserved for folder expanders
 	p.view_model = &mInventoryViewModel;
 	p.root = NULL;
+    p.options_menu = "menu_inventory.xml";
+
 	mFolders = LLUICtrlFactory::create<LLFolderView>(p);
 
 	mFolders->setCallbackRegistrar(&mCommitCallbackRegistrar);

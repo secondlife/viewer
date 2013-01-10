@@ -181,7 +181,7 @@ LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
 																	LLAssetType::AT_CATEGORY,
 																	LLInventoryType::IT_CATEGORY,
 																	this,
-        &mInventoryViewModel,
+																	&mInventoryViewModel,
 																	NULL,
 																	root_id);
     p.view_model = &mInventoryViewModel;
@@ -218,7 +218,7 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 		mFolderRoot = createFolderRoot(root_id);
 	
 		addItemID(root_id, mFolderRoot);
-}
+	}
 	mCommitCallbackRegistrar.popScope();
 	mFolderRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
 	
