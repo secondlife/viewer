@@ -514,7 +514,7 @@ void LLFastTimerView::draw()
 			else
 			{
 				ms = LLUnit<LLUnits::Seconds, F64>(frame_recording.getPeriodMean(*idp));
-				calls = frame_recording.getPeriodMean((F32)idp->callCount());
+				calls = (S32)frame_recording.getPeriodMean((F32)idp->callCount());
 			}
 
 			if (mDisplayCalls)
@@ -728,7 +728,7 @@ void LLFastTimerView::draw()
 				}
 				else if (prev_id && get_depth(prev_id) < get_depth(idp))
 				{
-					U64 sublevelticks = 0;
+					F64 sublevelticks = 0;
 
 					for (TimeBlock::child_const_iter it = prev_id->beginChildren();
 						it != prev_id->endChildren();
@@ -736,7 +736,7 @@ void LLFastTimerView::draw()
 					{
 						sublevelticks += (tidx == -1)
 							? frame_recording.getPeriodMean(**it).value()
-							: (U64)frame_recording.getPrevRecordingPeriod(tidx).getSum(**it).value();
+							: frame_recording.getPrevRecordingPeriod(tidx).getSum(**it).value();
 					}
 
 					F32 subfrac = (F32)sublevelticks / (F32)total_time.value();
