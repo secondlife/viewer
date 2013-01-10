@@ -680,7 +680,7 @@ void* allocAligned(size_t size)
 #elif LL_DARWIN
 		padded_allocation = ll_aligned_malloc(size_with_reserve, ALIGNMENT);
 #else
-		padded_allocation = posix_memalign(&padded_allocation, ALIGNMENT, size_with_reserve);
+		posix_memalign(&padded_allocation, ALIGNMENT, size_with_reserve);
 #endif
 	}
 	return (char*)padded_allocation + aligned_reserve;
