@@ -724,9 +724,14 @@ void gl_draw_rotated_image(S32 x, S32 y, F32 degrees, LLTexture* image, const LL
 	gl_draw_scaled_rotated_image( x, y, image->getWidth(0), image->getHeight(0), degrees, image, color, uv_rect );
 }
 
-void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degrees, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect)
+void gl_draw_scaled_target(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* target, const LLColor4& color, const LLRectf& uv_rect)
 {
-	if (NULL == image)
+	gl_draw_scaled_rotated_image(x, y, width, height, 0.f, NULL, color, uv_rect, target);
+}
+
+void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degrees, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect, LLRenderTarget* target)
+{
+	if (!image && !target)
 	{
 		llwarns << "image == NULL; aborting function" << llendl;
 		return;
@@ -734,8 +739,14 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 
 	LLGLSUIDefault gls_ui;
 
-
-	gGL.getTexUnit(0)->bind(image, true);
+	if(image != NULL)
+	{
+		gGL.getTexUnit(0)->bind(image, true);
+	}
+	else
+	{
+		gGL.getTexUnit(0)->bind(target);
+	}
 
 	gGL.color4fv(color.mV);
 
@@ -788,7 +799,14 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 
 		LLMatrix3 quat(0.f, 0.f, degrees*DEG_TO_RAD);
 		
-		gGL.getTexUnit(0)->bind(image, true);
+		if(image != NULL)
+		{
+			gGL.getTexUnit(0)->bind(image, true);
+		}
+		else
+		{
+			gGL.getTexUnit(0)->bind(target);
+		}
 
 		gGL.color4fv(color.mV);
 		
