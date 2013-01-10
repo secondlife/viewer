@@ -53,7 +53,7 @@ function sudo_mv {
     # If we have write permission to both parent directories, shouldn't need
     # sudo.
     if [ -w "$(dirname "$1")" -a -w "$(dirname "$2")" ]
-    then mv "$1" "$2" || fail "Couldn't move $1 to $2"
+    then mv "$1" "$2"
     else # use one of the likely sudo programs
          sudo="$(which gksudo)"
          if [ -z "$sudo" ]
@@ -61,9 +61,9 @@ function sudo_mv {
          fi
          if [ -z "$sudo" ]
          then # couldn't find either one, just try it anyway
-              mv "$1" "$2" || fail "Couldn't move $1 to $2"
+              mv "$1" "$2"
          else # even with sudo, could fail, e.g. different filesystems
-              "$sudo" mv "$1" "$2" || fail "Couldn't move $1 to $2"
+              "$sudo" mv "$1" "$2"
          fi
     fi
 }
@@ -94,9 +94,9 @@ logname="$logsdir/updater.log"
 # move aside old updater.log; we're about to create a new one
 [ -f "$logname" ] && mv "$logname" "$logname.old"
 
-# Set up redirections for this script such that stderr is logged, while
-# special stdout messages drive our UI, as described in xmenity.
-exec 2> "$logname" | "$mydir/xmenity"
+# Set up redirections for this script such that stderr is logged. (But first
+# move the previous stderr to file descriptor 3.)
+exec 3>&2- 2> "$logname"
 # Piping to xmenity requires that we end with a line consisting of the string
 # "100" to terminate zenity progress bar.
 cleanup echo 100
@@ -131,19 +131,25 @@ INSTALL_DIR="$(cd "$mydir/.." ; pwd)"
 
 # Considering we're launched from a subdirectory of INSTALL_DIR, would be
 # surprising if it did NOT already exist...
-if [ -f "$INSTALL_DIR" ]
+if [ -e "$INSTALL_DIR" ]
 then backup="$INSTALL_DIR.backup"
      backupn=1
-     while [ -f "$backup" ]
+     while [ -e "$backup" ]
      do backup="$INSTALL_DIR.backup.$backupn"
         ((backupn += 1))
      done
-     sudo_mv "$INSTALL_DIR" "$backup"
+     sudo_mv "$INSTALL_DIR" "$backup" || fail "Couldn't move $INSTALL_DIR to $backup"
 fi
 # We unpacked the tarball into tempinstall. Move that.
-sudo_mv "$tempinstall" "$INSTALL_DIR"
+if ! sudo_mv "$tempinstall" "$INSTALL_DIR"
+then # If we failed to move the temp install to INSTALL_DIR, try to restore
+     # INSTALL_DIR from backup
+     sudo_mv "$backup" "$INSTALL_DIR"
+     fail "Couldn't move $1 to $2"
+fi
 
 rm -f "$tarball"
 
-# launch the updated viewer
-"$INSTALL_DIR/secondlife" &
+# Launch the updated viewer. Restore original stderr from file descriptor 3,
+# though -- otherwise updater.log gets cluttered with the viewer log!
+"$INSTALL_DIR/secondlife" 2>&3- &
