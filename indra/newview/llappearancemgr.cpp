@@ -155,6 +155,11 @@ LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id, const std::string
 	}
 }
 
+// We want this to be much lower (e.g. 15.0 is usually fine), bumping
+// up for now until we can diagnose some cases of very slow response
+// to requests.
+const F32 DEFAULT_RETRY_AFTER_INTERVAL = 300.0;
+
 class LLCallAfterInventoryBatchMgr: public LLEventTimer 
 {
 public:
@@ -162,7 +167,7 @@ public:
 								 const std::string& phase_name,
 								 nullary_func_t on_completion_func,
 								 nullary_func_t on_failure_func = no_op,
-								 F32 retry_after = 15.0,
+								 F32 retry_after = DEFAULT_RETRY_AFTER_INTERVAL,
 								 S32 max_retries = 2
 		):
 		mDstCatID(dst_cat_id),
@@ -365,7 +370,7 @@ public:
 								const std::string& phase_name,
 								nullary_func_t on_completion_func,
 								nullary_func_t on_failure_func = no_op,
-								 F32 retry_after = 15.0,
+								 F32 retry_after = DEFAULT_RETRY_AFTER_INTERVAL,
 								 S32 max_retries = 2
 		):
 		LLCallAfterInventoryBatchMgr(dst_cat_id, phase_name, on_completion_func, on_failure_func, retry_after, max_retries)
@@ -403,7 +408,7 @@ public:
 								const std::string& phase_name,
 								nullary_func_t on_completion_func,
 								nullary_func_t on_failure_func = no_op,
-								 F32 retry_after = 15.0,
+								 F32 retry_after = DEFAULT_RETRY_AFTER_INTERVAL,
 								 S32 max_retries = 2
 		):
 		LLCallAfterInventoryBatchMgr(dst_cat_id, phase_name, on_completion_func, on_failure_func, retry_after, max_retries)
