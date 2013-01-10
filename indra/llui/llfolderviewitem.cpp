@@ -409,7 +409,7 @@ void LLFolderViewItem::selectItem(void)
 BOOL LLFolderViewItem::isMovable()
 {
 	return getViewModelItem()->isItemMovable();
-	}
+}
 
 BOOL LLFolderViewItem::isRemovable()
 {
@@ -438,19 +438,19 @@ BOOL LLFolderViewItem::remove()
 		return FALSE;
 	}
 	return getViewModelItem()->removeItem();
-	}
+}
 
 // Build an appropriate context menu for the item.
 void LLFolderViewItem::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	getViewModelItem()->buildContextMenu(menu, flags);
-	}
+}
 
 void LLFolderViewItem::openItem( void )
 {
 	if (mAllowOpen)
 	{
-	getViewModelItem()->openItem();
+		getViewModelItem()->openItem();
 	}
 }
 
