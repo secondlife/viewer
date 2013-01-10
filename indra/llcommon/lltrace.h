@@ -660,7 +660,57 @@ struct MemFootprint<std::list<T> >
 	}
 };
 
-template<typename DERIVED>
+template <size_t ALIGNMENT, size_t RESERVE>
+void* allocAligned(size_t size)
+{
+	llstatic_assert((ALIGNMENT > 0) && (ALIGNMENT & (ALIGNMENT - 1)) == 0, "Alignment must be a power of 2");
+
+	void* padded_allocation;
+	const size_t aligned_reserve = (RESERVE / ALIGNMENT) 
+		+ ((RESERVE % ALIGNMENT) ? ALIGNMENT : 0);
+	const size_t size_with_reserve = size + aligned_reserve;
+	if (ALIGNMENT <= LL_DEFAULT_HEAP_ALIGN)
+	{
+		padded_allocation = malloc(size_with_reserve);
+	}
+	else
+	{
+#if LL_WINDOWS
+		padded_allocation = _aligned_malloc(size_with_reserve, ALIGNMENT);
+#elif LL_DARWIN
+		padded_allocation = ll_aligned_malloc(size_with_reserve, ALIGNMENT);
+#else
+		posix_memalign(&padded_allocation, ALIGNMENT, size_with_reserve);
+#endif
+	}
+	return (char*)padded_allocation + aligned_reserve;
+}
+
+template<size_t ALIGNMENT, size_t RESERVE>
+void deallocAligned(void* ptr)
+{
+	const size_t aligned_reserve = (RESERVE / ALIGNMENT) 
+		+ ((RESERVE % ALIGNMENT) ? ALIGNMENT : 0);
+
+	void* original_allocation = (char*)ptr - aligned_reserve;
+
+	if (ALIGNMENT <= LL_DEFAULT_HEAP_ALIGN)
+	{
+		free(original_allocation);
+	}
+	else
+	{
+#if LL_WINDOWS
+		_aligned_free(original_allocation);
+#elif LL_DARWIN
+		ll_aligned_free(original_allocation);
+#else
+		free(original_allocation);		
+#endif
+	}	
+}
+
+template<typename DERIVED, size_t ALIGNMENT = LL_DEFAULT_HEAP_ALIGN>
 class MemTrackable
 {
 	template<typename TRACKED, typename TRACKED_IS_TRACKER>
@@ -676,44 +726,49 @@ public:
 		memDisclaim(mMemFootprint);
 	}
 
-	void* operator new(size_t allocation_size) 
+	void* operator new(size_t size) 
 	{
-		// reserve 8 bytes for allocation size (and preserving 8 byte alignment of structs)
-		void* allocation = ::operator new(allocation_size + 8);
-		*(size_t*)allocation = allocation_size;
-		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
-		if (accumulator)
-		{
-			accumulator->mSize += allocation_size;
-			accumulator->mAllocatedCount++;
-		}
-		return (void*)((char*)allocation + 8);
-	}
-
-	void operator delete(void* ptr)
-	{
-		size_t* allocation_size = (size_t*)((char*)ptr - 8);
-		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
-		if (accumulator)
-		{
-			accumulator->mSize -= *allocation_size;
-			accumulator->mAllocatedCount--;
-			accumulator->mDeallocatedCount++;
-		}
-		::delete((char*)ptr - 8);
-	}
-
-	void *operator new [](size_t size)
-	{
-		size_t* result = (size_t*)malloc(size + 8);
-		*result = size;
 		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 		if (accumulator)
 		{
 			accumulator->mSize += size;
 			accumulator->mAllocatedCount++;
 		}
-		return (void*)((char*)result + 8);
+
+		// reserve 4 bytes for allocation size (and preserving requested alignment)
+		void* allocation = allocAligned<ALIGNMENT, sizeof(size_t)>(size);
+		((size_t*)allocation)[-1] = size;
+
+		return allocation;
+	}
+
+	void operator delete(void* ptr)
+	{
+		size_t allocation_size = ((size_t*)ptr)[-1];
+		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+		if (accumulator)
+		{
+			accumulator->mSize -= allocation_size;
+			accumulator->mAllocatedCount--;
+			accumulator->mDeallocatedCount++;
+		}
+		deallocAligned<ALIGNMENT, sizeof(size_t)>(ptr);
+	}
+
+	void *operator new [](size_t size)
+	{
+		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+		if (accumulator)
+		{
+			accumulator->mSize += size;
+			accumulator->mAllocatedCount++;
+		}
+
+		// reserve 4 bytes for allocation size (and preserving requested alignment)
+		void* allocation = allocAligned<ALIGNMENT, sizeof(size_t)>(size);
+		((size_t*)allocation)[-1] = size;
+
+		return allocation;
 	}
 
 	void operator delete[](void* ptr)
@@ -726,7 +781,7 @@ public:
 			accumulator->mAllocatedCount--;
 			accumulator->mDeallocatedCount++;
 		}
-		::delete[]((char*)ptr - 8);
+		deallocAligned<ALIGNMENT, sizeof(size_T)>(ptr);
 	}
 
 	// claim memory associated with other objects/data as our own, adding to our calculated footprint
@@ -782,6 +837,8 @@ public:
 
 private:
 	size_t mMemFootprint;
+
+
 
 	template<typename TRACKED, typename TRACKED_IS_TRACKER = void>
 	struct TrackMemImpl

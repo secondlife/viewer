@@ -61,7 +61,7 @@ const U32 SILHOUETTE_HIGHLIGHT = 0;
 LL_ALIGN_PREFIX(16)
 class LLDrawable 
 :	public LLRefCount,
-	public LLTrace::MemTrackable<LLDrawable>
+	public LLTrace::MemTrackable<LLDrawable, 16>
 {
 public:
 	LLDrawable(const LLDrawable& rhs)
@@ -76,16 +76,6 @@ public:
 	}
 
 	static void initClass();
-
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
 
 	LLDrawable()				{ init(); }
 	

@@ -39,6 +39,20 @@ class LLMutex ;
 #define LL_CHECK_MEMORY
 #endif
 
+#if LL_WINDOWS
+#define LL_ALIGN_OF __alignof
+#else
+#define LL_ALIGN_OF __align_of__
+#endif
+
+#if LL_WINDOWS
+#define LL_DEFAULT_HEAP_ALIGN 8
+#elif LL_DARWIN
+#define LL_DEFAULT_HEAP_ALIGN 16
+#elif LL_LINUX
+#define LL_DEFAULT_HEAP_ALIGN 8
+#endif
+
 inline void* ll_aligned_malloc( size_t size, int align )
 {
 	void* mem = malloc( size + (align - 1) + sizeof(void*) );
