@@ -29,6 +29,10 @@
 #include "llerror.h"
 #include "llregionhandle.h"
 #include "llviewercontrol.h"
+#include "llviewerobjectlist.h"
+#include "lldrawable.h"
+#include "llviewerregion.h"
+#include "pipeline.h"
 
 BOOL check_read(LLAPRFile* apr_file, void* src, S32 n_bytes) 
 {
@@ -46,12 +50,16 @@ BOOL check_write(LLAPRFile* apr_file, void* src, S32 n_bytes)
 //---------------------------------------------------------------------------
 
 LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &dp)
-	:
+	: LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY),
 	mLocalID(local_id),
 	mCRC(crc),
 	mHitCount(0),
 	mDupeCount(0),
-	mCRCChangeCount(0)
+	mCRCChangeCount(0),
+	mState(INACTIVE),
+	mRepeatedVisCounter(0),
+	mVisFrameRange(64),
+	mSceneContrib(0.f)
 {
 	mBuffer = new U8[dp.getBufferSize()];
 	mDP.assignBuffer(mBuffer, dp.getBufferSize());
@@ -59,24 +67,35 @@ LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &
 }
 
 LLVOCacheEntry::LLVOCacheEntry()
-	:
+	: LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY),
 	mLocalID(0),
 	mCRC(0),
 	mHitCount(0),
 	mDupeCount(0),
 	mCRCChangeCount(0),
-	mBuffer(NULL)
+	mBuffer(NULL),
+	mState(INACTIVE),
+	mRepeatedVisCounter(0),
+	mVisFrameRange(64),
+	mSceneContrib(0.f)
 {
 	mDP.assignBuffer(mBuffer, 0);
 }
 
 LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
-	: mBuffer(NULL)
+	: LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY), 
+	mBuffer(NULL),
+	mState(INACTIVE),
+	mRepeatedVisCounter(0),
+	mVisFrameRange(64),
+	mSceneContrib(0.f)
 {
 	S32 size = -1;
 	BOOL success;
 
 	mDP.assignBuffer(mBuffer, 0);
+	setOctreeEntry(NULL);
+
 	success = check_read(apr_file, &mLocalID, sizeof(U32));
 	if(success)
 	{
@@ -93,6 +112,36 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	if(success)
 	{
 		success = check_read(apr_file, &mCRCChangeCount, sizeof(S32));
+	}
+	if(success)
+	{
+		success = check_read(apr_file, &mState, sizeof(U32));
+	}
+	if(success)
+	{
+		F32 ext[8];
+		success = check_read(apr_file, (void*)ext, sizeof(F32) * 8);
+
+		LLVector4a exts[2];
+		exts[0].load4a(ext);
+		exts[1].load4a(&ext[4]);
+	
+		setSpatialExtents(exts[0], exts[1]);
+	}
+	if(success)
+	{
+		LLVector4 pos;
+		success = check_read(apr_file, (void*)pos.mV, sizeof(LLVector4));
+
+		LLVector4a pos_;
+		pos_.load4a(pos.mV);
+		setPositionGroup(pos_);
+	}
+	if(success)
+	{
+		F32 rad;
+		success = check_read(apr_file, &rad, sizeof(F32));
+		setBinRadius(rad);
 	}
 	if(success)
 	{
@@ -132,32 +181,100 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 		mDupeCount = 0;
 		mCRCChangeCount = 0;
 		mBuffer = NULL;
+		mEntry = NULL;
+		mState = 0;
 	}
 }
 
 LLVOCacheEntry::~LLVOCacheEntry()
 {
 	mDP.freeBuffer();
+	//llassert(mState == INACTIVE);
 }
 
-
-// New CRC means the object has changed.
-void LLVOCacheEntry::assignCRC(U32 crc, LLDataPackerBinaryBuffer &dp)
+//virtual 
+void LLVOCacheEntry::setOctreeEntry(LLViewerOctreeEntry* entry)
 {
-	if (  (mCRC != crc)
-		||(mDP.getBufferSize() == 0))
+	if(!entry && mDP.getBufferSize() > 0)
 	{
-		mCRC = crc;
-		mHitCount = 0;
-		mCRCChangeCount++;
+		LLUUID fullid;
+		mDP.reset();
+		mDP.unpackUUID(fullid, "ID");
+		mDP.reset();
 
-		mDP.freeBuffer();
-		mBuffer = new U8[dp.getBufferSize()];
-		mDP.assignBuffer(mBuffer, dp.getBufferSize());
-		mDP = dp;
+		LLViewerObject* obj = gObjectList.findObject(fullid);
+		if(obj && obj->mDrawable)
+		{
+			entry = obj->mDrawable->getEntry();
+		}
+	}
+
+	LLViewerOctreeEntryData::setOctreeEntry(entry);
+}
+
+void LLVOCacheEntry::copyTo(LLVOCacheEntry* new_entry)
+{
+	//copy LLViewerOctreeEntry
+	if(mEntry.notNull())
+	{
+		new_entry->setOctreeEntry(mEntry);
+		mEntry = NULL;
+	}
+
+	//copy children
+	S32 num_children = getNumOfChildren();
+	for(S32 i = 0; i < num_children; i++)
+	{
+		new_entry->addChild(getChild(i));
 	}
 }
 
+void LLVOCacheEntry::setState(U32 state)
+{
+	mState &= 0xffff0000; //clear the low 16 bits
+	state &= 0x0000ffff;  //clear the high 16 bits;
+	mState |= state;
+
+	if(getState() == ACTIVE)
+	{
+		const S32 MIN_REAVTIVE_INTERVAL = 20;
+		U32 last_visible = getVisible();
+		
+		setVisible();
+
+		if(getVisible() - last_visible < MIN_REAVTIVE_INTERVAL + mVisFrameRange)
+		{
+			mRepeatedVisCounter++;
+		}
+		else
+		{
+			mRepeatedVisCounter = 0;
+			mVisFrameRange = 64;
+		}
+
+		if(mRepeatedVisCounter > 2) 
+		{
+			//if repeatedly becomes visible immediately after invisible, enlarge the visible frame range
+
+			mRepeatedVisCounter = 0;
+			mVisFrameRange *= 2;
+		}
+	}
+}
+
+//virtual 
+S32  LLVOCacheEntry::getMinVisFrameRange()const
+{
+	return mVisFrameRange;
+}
+
+void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
+{
+	llassert(entry != NULL);
+
+	mChildrenList.push_back(entry);
+}
+	
 LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP(U32 crc)
 {
 	if (  (mCRC != crc)
@@ -170,6 +287,16 @@ LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP(U32 crc)
 	return &mDP;
 }
 
+LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP()
+{
+	if (mDP.getBufferSize() == 0)
+	{
+		//llinfos << "Not getting cache entry, invalid!" << llendl;
+		return NULL;
+	}
+	
+	return &mDP;
+}
 
 void LLVOCacheEntry::recordHit()
 {
@@ -189,6 +316,11 @@ void LLVOCacheEntry::dump() const
 
 BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 {
+	if(!mEntry)
+	{
+		return FALSE;
+	}
+
 	BOOL success;
 	success = check_write(apr_file, (void*)&mLocalID, sizeof(U32));
 	if(success)
@@ -209,6 +341,33 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 	}
 	if(success)
 	{
+		U32 state = mState & 0xffff0000; //only store the high 16 bits.
+		success = check_write(apr_file, (void*)&state, sizeof(U32));
+	}
+	if(success)
+	{
+		const LLVector4a* exts = getSpatialExtents() ;
+		LLVector4 ext(exts[0][0], exts[0][1], exts[0][2], exts[0][3]);
+		success = check_write(apr_file, ext.mV, sizeof(LLVector4));		
+		if(success)
+		{
+			ext.set(exts[1][0], exts[1][1], exts[1][2], exts[1][3]);
+			success = check_write(apr_file, ext.mV, sizeof(LLVector4));		
+		}
+	}
+	if(success)
+	{
+		const LLVector4a pos_ = getPositionGroup() ;
+		LLVector4 pos(pos_[0], pos_[1], pos_[2], pos_[3]);
+		success = check_write(apr_file, pos.mV, sizeof(LLVector4));		
+	}
+	if(success)
+	{
+		F32 rad = getBinRadius();
+		success = check_write(apr_file, (void*)&rad, sizeof(F32));
+	}
+	if(success)
+	{
 		S32 size = mDP.getBufferSize();
 		success = check_write(apr_file, (void*)&size, sizeof(S32));
 	
@@ -219,6 +378,121 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 	}
 
 	return success ;
+}
+
+void LLVOCacheEntry::calcSceneContribution(const LLVector3& camera_origin, bool needs_update, U32 last_update)
+{
+	if(!needs_update && getVisible() >= last_update)
+	{
+		return; //no need to update
+	}
+
+	const LLVector4a& center = getPositionGroup();
+	
+	LLVector4a origin;
+	origin.load3(camera_origin.mV);
+
+	LLVector4a lookAt;
+	lookAt.setSub(center, origin);
+	F32 squared_dist = lookAt.dot3(lookAt).getF32();
+
+	F32 rad = getBinRadius();
+	mSceneContrib = rad * rad / squared_dist;
+
+	setVisible();
+}
+
+//-------------------------------------------------------------------
+//LLVOCachePartition
+//-------------------------------------------------------------------
+LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
+{
+	mRegionp = regionp;
+	mPartitionType = LLViewerRegion::PARTITION_VO_CACHE;
+	mVisitedTime = 0;
+
+	new LLviewerOctreeGroup(mOctree);
+}
+
+void LLVOCachePartition::addEntry(LLViewerOctreeEntry* entry)
+{
+	llassert(entry->hasVOCacheEntry());
+
+	mOctree->insert(entry);
+}
+	
+void LLVOCachePartition::removeEntry(LLViewerOctreeEntry* entry)
+{
+	entry->getVOCacheEntry()->setGroup(NULL);
+
+	llassert(!entry->getGroup());
+}
+	
+class LLVOCacheOctreeCull : public LLViewerOctreeCull
+{
+public:
+	LLVOCacheOctreeCull(LLCamera* camera, LLViewerRegion* regionp, const LLVector3& shift) : LLViewerOctreeCull(camera), mRegionp(regionp) 
+	{
+		mLocalShift = shift;
+	}
+
+	virtual S32 frustumCheck(const LLviewerOctreeGroup* group)
+	{
+		//S32 res = AABBInRegionFrustumGroupBounds(group);
+		
+		S32 res = AABBInRegionFrustumNoFarClipGroupBounds(group);
+		if (res != 0)
+		{
+			res = llmin(res, AABBRegionSphereIntersectGroupExtents(group, mLocalShift));
+		}
+		return res;
+	}
+
+	virtual S32 frustumCheckObjects(const LLviewerOctreeGroup* group)
+	{
+		//S32 res = AABBInRegionFrustumObjectBounds(group);
+
+		S32 res = AABBInRegionFrustumNoFarClipObjectBounds(group);
+		if (res != 0)
+		{
+			res = llmin(res, AABBRegionSphereIntersectObjectExtents(group, mLocalShift));
+		}
+		return res;
+	}
+
+	virtual void processGroup(LLviewerOctreeGroup* base_group)
+	{
+		mRegionp->addVisibleGroup(base_group);
+	}
+
+private:
+	LLViewerRegion* mRegionp;
+	LLVector3       mLocalShift; //shift vector from agent space to local region space.
+};
+
+S32 LLVOCachePartition::cull(LLCamera &camera)
+{
+	if(!LLViewerRegion::sVOCacheCullingEnabled)
+	{
+		return 0;
+	}
+
+	if(mVisitedTime == LLViewerOctreeEntryData::getCurrentFrame())
+	{
+		return 0; //already visited.
+	}
+	mVisitedTime = LLViewerOctreeEntryData::getCurrentFrame();
+
+	((LLviewerOctreeGroup*)mOctree->getListener(0))->rebound();
+
+	//localize the camera
+	LLVector3 region_agent = mRegionp->getOriginAgent();
+	camera.calcRegionFrustumPlanes(region_agent);
+
+	LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent);
+	culler.traverse(mOctree);
+
+	return 0;
 }
 
 //-------------------------------------------------------------------
@@ -625,11 +899,10 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 				{
 					for (S32 i = 0; i < num_entries; i++)
 					{
-						LLVOCacheEntry* entry = new LLVOCacheEntry(&apr_file);
+						LLPointer<LLVOCacheEntry> entry = new LLVOCacheEntry(&apr_file);
 						if (!entry->getLocalID())
 						{
 							llwarns << "Aborting cache file load for " << filename << ", cache file corruption!" << llendl;
-							delete entry ;
 							success = false ;
 							break ;
 						}

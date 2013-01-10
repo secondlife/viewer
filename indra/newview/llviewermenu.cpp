@@ -122,6 +122,7 @@
 #include "llwindow.h"
 #include "llpathfindingmanager.h"
 #include "boost/unordered_map.hpp"
+#include "llscenemonitor.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -529,7 +530,10 @@ class LLAdvancedToggleConsole : public view_listener_t
 		{
 			toggle_visibility( (void*)gSceneView);
 		}
-
+		else if ("scene monitor" == console_type)
+		{
+			toggle_visibility( (void*)gSceneMonitorView);
+		}
 #if MEM_TRACK_MEM
 		else if ("memory view" == console_type)
 		{
@@ -557,9 +561,9 @@ class LLAdvancedCheckConsole : public view_listener_t
 		{
 			new_value = LLFloaterReg::instanceVisible("fast_timers");
 		}
-		else if ("scene view" == console_type)
+		else if ("scene monitor" == console_type)
 		{
-			new_value = get_visibility( (void*) gSceneView);
+			new_value = get_visibility( (void*) gSceneMonitorView);
 		}
 #if MEM_TRACK_MEM
 		else if ("memory view" == console_type)

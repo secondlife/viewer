@@ -49,6 +49,8 @@
 #include "llviewertexturelist.h"
 #include "llvovolume.h"
 #include "llviewerstats.h"
+#include "llworld.h"
+#include "llviewerobjectlist.h"
 
 // For avatar texture view
 #include "llvoavatarself.h"
@@ -517,6 +519,9 @@ void LLGLTexMemBar::draw()
 	LLUnit<LLUnits::Bytes, F32> total_texture_downloaded = gTotalTextureData;
 	LLUnit<LLUnits::Bytes, F32> total_object_downloaded = gTotalObjectData;
 	U32 total_http_requests = LLAppViewer::getTextureFetch()->getTotalNumHTTPRequests() ;
+	U32 total_active_cached_objects = LLWorld::getInstance()->getNumOfActiveCachedObjects();
+	U32 total_objects = gObjectList.getNumObjects();
+
 	//----------------------------------------------------------------------------
 	LLGLSUIDefault gls_ui;
 	LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);
@@ -549,9 +554,11 @@ void LLGLTexMemBar::draw()
 	U32 cache_read(0U), cache_write(0U), res_wait(0U);
 	LLAppViewer::getTextureFetch()->getStateStats(&cache_read, &cache_write, &res_wait);
 	
-	text = llformat("Net Tot Tex: %.1f MB Tot Obj: %.1f MB Tot Htp: %d Cread: %u Cwrite: %u Rwait: %u",
+	text = llformat("Net Tot Tex: %.1f MB Tot Obj: %.1f MB #Objs/#Cached: %d/%d Tot Htp: %d Cread: %u Cwrite: %u Rwait: %u",
 					total_texture_downloaded.value(),
 					total_object_downloaded.value(),
+					total_objects, 
+					total_active_cached_objects,
 					total_http_requests,
 					cache_read,
 					cache_write,

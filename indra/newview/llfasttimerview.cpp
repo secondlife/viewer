@@ -514,7 +514,7 @@ void LLFastTimerView::draw()
 			else
 			{
 				ms = LLUnit<LLUnits::Seconds, F64>(frame_recording.getPeriodMean(*idp));
-				calls = (S32)frame_recording.getPeriodMean((F32)idp->callCount());
+				calls = (S32)frame_recording.getPeriodMean(idp->callCount());
 			}
 
 			if (mDisplayCalls)
