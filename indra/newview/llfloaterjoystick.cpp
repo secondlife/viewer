@@ -42,14 +42,20 @@
 #include "llviewerjoystick.h"
 #include "llcheckboxctrl.h"
 
-static LLTrace::Measurement<> sJoystickAxes[6] = 
+static LLTrace::Measurement<> sJoystickAxis1("Joystick axis 1"),
+								sJoystickAxis2("Joystick axis 2"),
+								sJoystickAxis3("Joystick axis 3"),
+								sJoystickAxis4("Joystick axis 4"),
+								sJoystickAxis5("Joystick axis 5"),
+								sJoystickAxis6("Joystick axis 6");
+static LLTrace::Measurement<>* sJoystickAxes[6] = 
 {
-	LLTrace::Measurement<>("Joystick axis 1"),
-	LLTrace::Measurement<>("Joystick axis 2"),
-	LLTrace::Measurement<>("Joystick axis 3"),
-	LLTrace::Measurement<>("Joystick axis 4"),
-	LLTrace::Measurement<>("Joystick axis 5"),
-	LLTrace::Measurement<>("Joystick axis 6")
+	&sJoystickAxis1,
+	&sJoystickAxis2,
+	&sJoystickAxis3,
+	&sJoystickAxis4,
+	&sJoystickAxis5,
+	&sJoystickAxis6
 };
 
 LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)
@@ -71,7 +77,7 @@ void LLFloaterJoystick::draw()
 	for (U32 i = 0; i < 6; i++)
 	{
 		F32 value = joystick->getJoystickAxis(i);
-		sJoystickAxes[i].sample(value * gFrameIntervalSeconds.value());
+		sJoystickAxes[i]->sample(value * gFrameIntervalSeconds.value());
 		if (mAxisStatsBar[i])
 		{
 			F32 minbar, maxbar;
