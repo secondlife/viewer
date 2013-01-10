@@ -1549,8 +1549,6 @@ BOOL LLSpatialPartition::remove(LLDrawable *drawablep, LLSpatialGroup *curp)
 		drawablep->setGroup(NULL);
 	}
 
-	drawablep->setSpatialGroup(NULL);
-
 	assert_octree_valid(mOctree);
 	
 	return TRUE;

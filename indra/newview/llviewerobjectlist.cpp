@@ -356,7 +356,7 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 		}
 		justCreated = true;
 		mNumNewObjects++;
-		sCacheHitRate.addValue(100.f);
+		sCacheHitRate.sample(100.f);
 	}
 
 	if (objectp->isDead())
@@ -578,8 +578,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			}
 			justCreated = TRUE;
 			mNumNewObjects++;
-			sCacheHitRate.sample(cached ? 100.f : 0.f);
-
 		}
 
 
@@ -672,7 +670,7 @@ void LLViewerObjectList::processCachedObjectUpdate(LLMessageSystem *mesgsys,
 
 			continue; // no data packer, skip this object
 		}
-		sCacheHitRate.addValue(100.f);
+		sCacheHitRate.sample(100.f);
 	}
 
 	return;

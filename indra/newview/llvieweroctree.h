@@ -94,6 +94,16 @@ public:
 	S32	 getBinIndex() const			        {return mBinIndex; }
 	void setBinIndex(S32 index) const	        {mBinIndex = index; }
 
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 private:
 	void addData(LLViewerOctreeEntryData* data);			
 
@@ -238,8 +248,9 @@ public:
 	element_list& getData() { return mOctreeNode->getData(); }
 	element_iter getDataBegin() { return mOctreeNode->getDataBegin(); }
 	element_iter getDataEnd() { return mOctreeNode->getDataEnd(); }
-	U32 getElementCount() const { return mOctreeNode->getElementCount(); }	
-
+	U32 getElementCount() const { return mOctreeNode->getElementCount(); }
+	bool hasElement(LLViewerOctreeEntryData* data);
+	
 private:
 	virtual bool boundObjects(BOOL empty, LLVector4a& minOut, LLVector4a& maxOut);	
 	

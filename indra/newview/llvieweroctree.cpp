@@ -347,6 +347,15 @@ LLviewerOctreeGroup::LLviewerOctreeGroup(OctreeNode* node) :
 	mOctreeNode->addListener(this);
 }
 
+bool LLviewerOctreeGroup::hasElement(LLViewerOctreeEntryData* data) 
+{ 
+	if(!data->getEntry())
+	{
+		return false;
+	}
+	return std::find(getDataBegin(), getDataEnd(), data->getEntry()) != getDataEnd(); 
+}
+
 bool LLviewerOctreeGroup::removeFromGroup(LLViewerOctreeEntryData* data)
 {
 	return removeFromGroup(data->getEntry());

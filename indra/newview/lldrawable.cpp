@@ -1009,13 +1009,15 @@ bool LLDrawable::isRecentlyVisible() const
 
 void LLDrawable::setGroup(LLviewerOctreeGroup *groupp)
 {
-    //precondition: mGroupp MUST be null or DEAD or mGroupp MUST NOT contain this
-	llassert(!getGroup() || getGroup()->isDead() || !getGroup()->hasElement(this));
+	LLSpatialGroup* cur_groupp = (LLSpatialGroup*)getGroup();
+    
+	//precondition: mGroupp MUST be null or DEAD or mGroupp MUST NOT contain this
+	//llassert(!cur_groupp || cur_groupp->isDead() || !cur_groupp->hasElement(this));
 
 	//precondition: groupp MUST be null or groupp MUST contain this
-	llassert(!groupp || groupp->hasElement(this));
+	llassert(!groupp || (LLSpatialGroup*)groupp->hasElement(this));
 
-	if (getGroup() != groupp && getVOVolume())
+	if (cur_groupp != groupp && getVOVolume())
 	{ //NULL out vertex buffer references for volumes on spatial group change to maintain
 		//requirement that every face vertex buffer is either NULL or points to a vertex buffer
 		//contained by its drawable's spatial group
@@ -1031,8 +1033,8 @@ void LLDrawable::setGroup(LLviewerOctreeGroup *groupp)
 
 	//postcondition: if next group is NULL, previous group must be dead OR NULL OR binIndex must be -1
 	//postcondition: if next group is NOT NULL, binIndex must not be -1
-	llassert(groupp == NULL ? (getGroup() == NULL || getGroup()->isDead()) || getBinIndex() == -1 :
-							getBinIndex() != -1);
+	//llassert(groupp == NULL ? (cur_groupp == NULL || cur_groupp->isDead()) || (!getEntry() || getEntry()->getBinIndex() == -1) :
+	//						(getEntry() && getEntry()->getBinIndex() != -1));
 
 	LLViewerOctreeEntryData::setGroup(groupp);
 }
@@ -1498,6 +1500,8 @@ void LLSpatialBridge::cleanupReferences()
 				{
 					drawable->setGroup(NULL);				
 				}
+			}
+		}
 
 		LLDrawable* drawablep = mDrawable;
 		mDrawable = NULL;
