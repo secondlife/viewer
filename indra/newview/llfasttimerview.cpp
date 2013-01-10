@@ -514,7 +514,7 @@ void LLFastTimerView::draw()
 			else
 			{
 				ms = LLUnit<LLUnits::Seconds, F64>(frame_recording.getPeriodMean(*idp));
-				calls = frame_recording.getPeriodMean(idp->callCount());
+				calls = frame_recording.getPeriodMean((F32)idp->callCount());
 			}
 
 			if (mDisplayCalls)
@@ -736,7 +736,7 @@ void LLFastTimerView::draw()
 					{
 						sublevelticks += (tidx == -1)
 							? frame_recording.getPeriodMean(**it).value()
-							: frame_recording.getPrevRecordingPeriod(tidx).getSum(**it).value();
+							: (U64)frame_recording.getPrevRecordingPeriod(tidx).getSum(**it).value();
 					}
 
 					F32 subfrac = (F32)sublevelticks / (F32)total_time.value();
@@ -934,7 +934,7 @@ void LLFastTimerView::draw()
 			max_time = llmax(LLUnit<LLUnits::Microseconds, F32>(1), LLUnit<LLUnits::Microseconds, F32>(cur_max));
 		}
 
-		max_calls = lerp((F32)max_calls, (F32) cur_max_calls, LLCriticalDamp::getInterpolant(0.1f));
+		max_calls = llround(lerp((F32)max_calls, (F32) cur_max_calls, LLCriticalDamp::getInterpolant(0.1f)));
 		if (llabs((S32)(max_calls - cur_max_calls)) <= 1)
 		{
 			max_calls = cur_max_calls;
@@ -1011,7 +1011,7 @@ void LLFastTimerView::draw()
 			}
 			LLUnit<LLUnits::Milliseconds, F32> ms = ticks;
 
-			timer_stat += llformat("%.1f",ms);
+			timer_stat += llformat("%.1f",ms.value());
 
 			if (idp->getCollapsed())
 			{
