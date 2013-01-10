@@ -47,7 +47,8 @@ LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& u
 	mNeedsRefresh(true),
 	mConvType(CONV_UNKNOWN),
 	mLastActiveTime(0.0),
-	mDisplayModeratorOptions(false)
+	mDisplayModeratorOptions(false),
+	mAvatarNameCacheConnection()
 {
 }
 
@@ -58,7 +59,8 @@ LLConversationItem::LLConversationItem(const LLUUID& uuid, LLFolderViewModelInte
 	mNeedsRefresh(true),
 	mConvType(CONV_UNKNOWN),
 	mLastActiveTime(0.0),
-	mDisplayModeratorOptions(false)
+	mDisplayModeratorOptions(false),
+	mAvatarNameCacheConnection()
 {
 }
 
@@ -69,8 +71,19 @@ LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_mod
 	mNeedsRefresh(true),
 	mConvType(CONV_UNKNOWN),
 	mLastActiveTime(0.0),
-	mDisplayModeratorOptions(false)
+	mDisplayModeratorOptions(false),
+	mAvatarNameCacheConnection()
 {
+}
+
+LLConversationItem::~LLConversationItem()
+{
+	// Disconnect any previous avatar name cache connection to ensure
+	// that the callback method is not called after destruction
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 }
 
 void LLConversationItem::postEvent(const std::string& event_type, LLConversationItemSession* session, LLConversationItemParticipant* participant)
@@ -142,6 +155,37 @@ void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t& items, U32
 	}
 }
 
+// method does subscription to changes in avatar name cache for current session/participant conversation item.
+void LLConversationItem::fetchAvatarName(bool isParticipant /*= true*/)
+{
+	LLUUID item_id = getUUID();
+
+	// item should not be null for participants
+	if (isParticipant)
+	{
+		llassert(item_id.notNull());
+	}
+
+	// disconnect any previous avatar name cache connection
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+
+	// exclude nearby chat item
+	if (item_id.notNull())
+	{
+		// for P2P session item, override it as item of called agent
+		if (CONV_SESSION_1_ON_1 == getType())
+		{
+			item_id = LLIMModel::getInstance()->getOtherParticipantID(item_id);
+		}
+
+		// subscribe on avatar name cache changes for participant and session items
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(item_id, boost::bind(&LLConversationItem::onAvatarNameCache, this, _2));
+	}
+}
+
 //
 // LLConversationItemSession
 // 
@@ -169,11 +213,11 @@ void LLConversationItemSession::addParticipant(LLConversationItemParticipant* pa
 	addChild(participant);
 	mIsLoaded = true;
 	mNeedsRefresh = true;
-	updateParticipantName(participant);
+	updateName(participant);
 	postEvent("add_participant", this, participant);
 }
 
-void LLConversationItemSession::updateParticipantName(LLConversationItemParticipant* participant)
+void LLConversationItemSession::updateName(LLConversationItemParticipant* participant)
 {
 	EConversationType conversation_type = getType();
 	// We modify the session name only in the case of an ad-hoc session or P2P session, exit otherwise (nothing to do)
@@ -181,11 +225,13 @@ void LLConversationItemSession::updateParticipantName(LLConversationItemParticip
 	{
 		return;
 	}
+
 	// Avoid changing the default name if no participant present yet
 	if (mChildren.size() == 0)
 	{
 		return;
 	}
+
 	uuid_vec_t temp_uuids; // uuids vector for building the added participants' names string
 	if (conversation_type == CONV_SESSION_AD_HOC)
 	{
@@ -210,12 +256,14 @@ void LLConversationItemSession::updateParticipantName(LLConversationItemParticip
 	}
 	else if (conversation_type == CONV_SESSION_1_ON_1)
 	{
-		// In the case of a P2P conversersation, we need to grab the name of the other participant in the session instance itself
+		// In the case of a P2P conversation, we need to grab the name of the other participant in the session instance itself
 		// as we do not create participants for such a session.
-        LLFloaterIMSession *conversationFloater = LLFloaterIMSession::findInstance(mUUID);
-        LLUUID participantID = conversationFloater->getOtherParticipantUUID();
-        temp_uuids.push_back(participantID);
+		if (gAgentID != participant->getUUID())
+		{
+			temp_uuids.push_back(participant->getUUID());
+		}
 	}
+
 	if (temp_uuids.size() != 0)
 	{
 		std::string new_session_name;
@@ -229,7 +277,7 @@ void LLConversationItemSession::removeParticipant(LLConversationItemParticipant*
 {
 	removeChild(participant);
 	mNeedsRefresh = true;
-	updateParticipantName(participant);
+	updateName(participant);
 	postEvent("remove_participant", this, participant);
 }
 
@@ -393,6 +441,18 @@ void LLConversationItemSession::dumpDebugData(bool dump_children)
 	}
 }
 
+// should be invoked only for P2P sessions
+void LLConversationItemSession::onAvatarNameCache(const LLAvatarName& av_name)
+{
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+
+	renameItem(av_name.getDisplayName());
+	postEvent("update_session", this, NULL);
+}
+
 //
 // LLConversationItemParticipant
 // 
@@ -401,8 +461,7 @@ LLConversationItemParticipant::LLConversationItemParticipant(std::string display
 	LLConversationItem(display_name,uuid,root_view_model),
 	mIsMuted(false),
 	mIsModerator(false),
-	mDistToAgent(-1.0),
-	mAvatarNameCacheConnection()
+	mDistToAgent(-1.0)
 {
 	mDisplayName = display_name;
 	mConvType = CONV_PARTICIPANT;
@@ -412,38 +471,12 @@ LLConversationItemParticipant::LLConversationItemParticipant(const LLUUID& uuid,
 	LLConversationItem(uuid,root_view_model),
 	mIsMuted(false),
 	mIsModerator(false),
-	mDistToAgent(-1.0),
-	mAvatarNameCacheConnection()
+	mDistToAgent(-1.0)
 {
 	mConvType = CONV_PARTICIPANT;
 }
 
-LLConversationItemParticipant::~LLConversationItemParticipant()
-{
-	// Disconnect any previous avatar name cache connection to ensure
-	// that the callback method is not called after destruction
-	if (mAvatarNameCacheConnection.connected())
-	{
-		mAvatarNameCacheConnection.disconnect();
-	}
-}
-
-void LLConversationItemParticipant::fetchAvatarName()
-{
-	// Request the avatar name from the cache
-	llassert(getUUID().notNull());
-	if (getUUID().notNull())
-	{
-		// Disconnect any previous avatar name cache connection
-		if (mAvatarNameCacheConnection.connected())
-		{
-			mAvatarNameCacheConnection.disconnect();
-		}
-		mAvatarNameCacheConnection = LLAvatarNameCache::get(getUUID(), boost::bind(&LLConversationItemParticipant::onAvatarNameCache, this, _2));
-	}
-}
-
-void LLConversationItemParticipant::updateAvatarName()
+void LLConversationItemParticipant::updateName()
 {
 	llassert(getUUID().notNull());
 	if (getUUID().notNull())
@@ -451,29 +484,33 @@ void LLConversationItemParticipant::updateAvatarName()
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(getUUID(),&av_name))
 		{
-			updateAvatarName(av_name);
+			updateName(av_name);
 		}
 	}
 }
 
 void LLConversationItemParticipant::onAvatarNameCache(const LLAvatarName& av_name)
 {
-	mAvatarNameCacheConnection.disconnect();
-	updateAvatarName(av_name);
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+
+	updateName(av_name);
 }
 
-void LLConversationItemParticipant::updateAvatarName(const LLAvatarName& av_name)
+void LLConversationItemParticipant::updateName(const LLAvatarName& av_name)
 {
 	mName = av_name.getUserName();
 	mDisplayName = av_name.getDisplayName();
-	mNeedsRefresh = true;
+	renameItem(mDisplayName);
 	if (mParent != NULL)
 	{
 		LLConversationItemSession* parent_session = dynamic_cast<LLConversationItemSession*>(mParent);
 		if (parent_session != NULL)
 		{
 			parent_session->requestSort();
-			parent_session->updateParticipantName(this);
+			parent_session->updateName(this);
 			postEvent("update_participant", parent_session, this);
 		}
 	}

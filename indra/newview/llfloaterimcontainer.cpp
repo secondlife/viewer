@@ -380,7 +380,7 @@ void LLFloaterIMContainer::processParticipantsStyleUpdate()
 		{
 			LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
 			// Get the avatar name for this participant id from the cache and update the model
-			participant_model->updateAvatarName();
+			participant_model->updateName();
 			// Next participant
 			current_participant_model++;
 		}
@@ -906,7 +906,7 @@ const LLConversationItem * LLFloaterIMContainer::getCurSelectedViewModelItem()
         mConversationsRoot->getCurSelectedItem()->getViewModelItem())
     {
 		LLFloaterIMSessionTab *selected_session_floater = LLFloaterIMSessionTab::getConversation(mSelectedSession);
-		if (selected_session_floater && !selected_session_floater->getHost())
+		if (selected_session_floater && !selected_session_floater->getHost() && selected_session_floater->getCurSelectedViewModelItem())
 		{
 			conversation_item = selected_session_floater->getCurSelectedViewModelItem();
 		}
@@ -1390,7 +1390,7 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 		return NULL;
 	}
 	item->renameItem(display_name);
-	item->updateParticipantName(NULL);
+	item->updateName(NULL);
 	
 	mConversationsItems[uuid] = item;
 
@@ -1417,6 +1417,11 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 			participant_view->addToFolder(widget);
 			current_participant_model++;
 		}
+	}
+
+	if (uuid.notNull() && im_sessionp->isP2PSessionType())
+	{
+		item->fetchAvatarName(false);
 	}
 
 	// Do that too for the conversation dialog
