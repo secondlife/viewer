@@ -736,7 +736,7 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
                 getRect().getWidth() - 2,
                 0,
                 focusOutlineColor, FALSE);
-            if (showContent)
+            if (showContent && !isFlashing())
             {
                 gl_rect_2d(FOCUS_LEFT,
                     focus_bottom + 1,
