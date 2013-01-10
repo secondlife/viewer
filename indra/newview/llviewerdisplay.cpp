@@ -417,14 +417,21 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gAgent.setTeleportMessage(
 				LLAgent::sTeleportProgressMessages["arriving"]);
 			gTextureList.mForceResetTextureStats = TRUE;
-			gAgentCamera.resetView(TRUE, TRUE);
-			
+			gAgentCamera.resetView(TRUE, TRUE);	
+			if ( gSavedSettings.getBOOL("DisablePrecacheDelayAfterTeleporting") )
+			{
+				gViewerWindow->setShowProgress(FALSE);
+				gTeleportDisplay = FALSE;
+				gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
+			}
+				
 			break;
 
 		case LLAgent::TELEPORT_ARRIVING:
 			// Make the user wait while content "pre-caches"
 			{
 				F32 arrival_fraction = (gTeleportArrivalTimer.getElapsedTimeF32() / TELEPORT_ARRIVAL_DELAY);
+			
 				if( arrival_fraction > 1.f )
 				{
 					arrival_fraction = 1.f;

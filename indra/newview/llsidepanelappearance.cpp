@@ -375,6 +375,7 @@ void LLSidepanelAppearance::toggleOutfitEditPanel(BOOL visible, BOOL disable_cam
 		if (!disable_camera_switch)   // if we're just switching between outfit and wearable editing, don't end customization.
 		{
 			LLVOAvatarSelf::onCustomizeEnd(disable_camera_switch);
+			LLAppearanceMgr::getInstance()->setOutfitDirty( FALSE );
 		}
 	}
 }
