@@ -506,13 +506,10 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 		}
 		make_ui_sound("UISndClick");
 	}
-    //Just re-select the item since it is clicked without ctrl or shift
-    else if(!(mask & (MASK_CONTROL | MASK_SHIFT)))
-    {
-        getRoot()->setSelection(this, FALSE);
-    }
 	else
 	{
+		// If selected, we reserve the decision of deselecting/reselecting to the mouse up moment.
+		// This is necessary so we maintain selection consistent when starting a drag.
 		mSelectPending = TRUE;
 	}
 
