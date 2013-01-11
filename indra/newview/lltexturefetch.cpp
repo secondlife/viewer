@@ -3742,11 +3742,12 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	main_stats.getStats(stats, true);
 	//LLSD merged_llsd = main_stats.asLLSD();
 
+	bool initial_report = !reporting_started;
 	stats.session_id = mSessionID;
 	stats.agent_id = mAgentID;
 	stats.message = "ViewerAssetMetrics";
 	stats.sequence = static_cast<bool>(report_sequence);
-	stats.initial = static_cast<bool>(!reporting_started);
+	stats.initial = initial_report;
 	stats.break_ = static_cast<bool>(LLTextureFetch::svMetricsDataBreak);
 
 	LLSD sd;
