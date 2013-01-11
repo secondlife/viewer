@@ -2358,6 +2358,10 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	mHttpMetricsHeaders = new LLCore::HttpHeaders;
 	mHttpMetricsHeaders->mHeaders.push_back("Content-Type: application/llsd+xml");
 	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicyDefault();
+
+	//reset the texture timer.
+	gTextureTimer.reset();
+	gTextureTimer.pause();
 }
 
 LLTextureFetch::~LLTextureFetch()
