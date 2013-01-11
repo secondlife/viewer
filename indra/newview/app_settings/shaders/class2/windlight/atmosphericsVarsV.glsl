@@ -33,18 +33,20 @@ vec3 sunlit_color;
 vec3 amblit_color;
 vec3 position_eye;
 
+uniform float global_gamma;
+
 vec3 getSunlitColor()
 {
-	return sunlit_color;
+	return pow(sunlit_color, vec3(global_gamma)) * global_gamma;
 }
 vec3 getAmblitColor()
 {
-	return amblit_color;
+	return pow(amblit_color, vec3(global_gamma)) * global_gamma;
 }
 
 vec3 getAdditiveColor()
 {
-	return additive_color;
+	return pow(additive_color, vec3(global_gamma)) * global_gamma;
 }
 vec3 getAtmosAttenuation()
 {

@@ -108,6 +108,7 @@ void main()
 	if (spec.a > 0.0)
 	{
 		float sa = dot(normalize(lv-normalize(pos)),norm);
+		spec.rgb += pow(1 - dot(-normalize(pos), norm), 2) * da * 3;
 		if (sa > 0.0)
 		{
 			sa = texture2D(lightFunc, vec2(sa, spec.a)).r * min(dist_atten*4.0, 1.0);

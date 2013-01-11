@@ -79,6 +79,11 @@ vec3 vary_AmblitColor;
 vec3 vary_AdditiveColor;
 vec3 vary_AtmosAttenuation;
 
+vec3 samplesRGB(vec3 color)
+{
+	return pow(color, vec3(2.2));
+}
+
 vec4 getPosition_d(vec2 pos_screen, float depth)
 {
 	vec2 sc = pos_screen.xy*2.0;
@@ -103,15 +108,15 @@ vec3 getPositionEye()
 }
 vec3 getSunlitColor()
 {
-	return vary_SunlitColor;
+	return samplesRGB(vary_SunlitColor) * 4.4;
 }
 vec3 getAmblitColor()
 {
-	return vary_AmblitColor;
+	return samplesRGB(vary_AmblitColor) * 2.2;
 }
 vec3 getAdditiveColor()
 {
-	return vary_AdditiveColor;
+	return samplesRGB(vary_AdditiveColor) * 2.2;
 }
 vec3 getAtmosAttenuation()
 {
@@ -318,7 +323,7 @@ void main()
 
 			//add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
-			col = mix(col.rgb, textureCube(environmentMap, env_vec).rgb, 
+			col = mix(col.rgb, samplesRGB(textureCube(environmentMap, env_vec).rgb) * 2.2, 
 				max(spec.a-diffuse.a*2.0, 0.0)); 
 		}
 			

@@ -498,9 +498,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>61ead113e6479452e6b690c84b4e9d30</string>
+              <string>481a87c5a964a4fa33b7411036d4c71d</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmod-private/rev/221852/arch/Darwin/installer/fmod-3.75-darwin-20110222.tar.bz2</string>
+              <string>file:///Users/geenz/Devel/3p-fmod/fmod-3.75-darwin-20120315.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1062,9 +1062,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a5b2dff0d97b643227a58473e5c57906</string>
+              <string>691008f5ec3cec2d7fc9d8814036d25b</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/256978/arch/Darwin/installer/kdu-7.0.0-darwin-20120515.tar.bz2</string>
+              <string>file:///Users/geenz/Devel/kakadu/lib/Mac-x86-32-gcc/kdu.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1343,6 +1343,58 @@
         <key>version</key>
         <string>0.2</string>
       </map>
+		<key>llphysicsextensions_tpv</key>
+		<map>
+			<key>license</key>
+			<string>TEMPORARY</string>
+			<key>license_file</key>
+			<string>LICENSES/llphysicsextensions.txt</string>
+			<key>name</key>
+			<string>llphysicsextensions_tpv</string>
+			<key>platforms</key>
+			<map>
+				<key>darwin</key>
+				<map>
+					<key>archive</key>
+					<map>
+						<key>hash</key>
+						<string>51313d6a13b946b1b8dd14412057344c</string>
+						<key>hash_algorithm</key>
+						<string>md5</string>
+						<key>url</key>
+						<string>file:///Users/geenz/Devel/llphysicsextensions_tpv-0.3-darwin-20121227.tar.bz2</string>
+					</map>
+					<key>name</key>
+					<string>darwin</string>
+				</map>
+				<key>linux</key>
+				<map>
+					<key>archive</key>
+					<map>
+						<key>hash</key>
+						<string>3fba5443cb0b869005591b143fa48a42</string>
+						<key>url</key>
+						<string>file:///build/llPhysicsExtensions/llphysicsextensions_tpv-0.3-linux-20120814.tar.bz2</string>
+					</map>
+					<key>name</key>
+					<string>linux</string>
+				</map>
+				<key>windows</key>
+				<map>
+					<key>archive</key>
+					<map>
+						<key>hash</key>
+						<string>1444bf3b1305a5e6909123d691991d4b</string>
+						<key>url</key>
+						<string>file:///c:/static/llphysicsextensions_tpv-0.3-windows-20120814.tar.bz2</string>
+					</map>
+					<key>name</key>
+					<string>windows</string>
+				</map>
+			</map>
+			<key>version</key>
+			<string>0.3</string>
+		</map>
       <key>llqtwebkit</key>
       <map>
         <key>license</key>
