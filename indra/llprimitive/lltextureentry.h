@@ -31,6 +31,7 @@
 #include "v4color.h"
 #include "llsd.h"
 #include "llmaterialid.h"
+#include "llmaterial.h"
 
 // These bits are used while unpacking TEM messages to tell which aspects of
 // the texture entry changed.
@@ -197,6 +198,7 @@ protected:
 	U8					mMediaFlags;			// replace with web page, movie, etc.
 	F32                 mGlow;
 	LLMaterialID        mMaterialID;
+	LLMaterialPtr		mMaterial;
 
 	// Note the media data is not sent via the same message structure as the rest of the TE
 	LLMediaEntry*		mMediaEntry;			// The media data for the face

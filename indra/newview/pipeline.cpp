@@ -377,6 +377,7 @@ BOOL	LLPipeline::sRenderDeferred = FALSE;
 BOOL    LLPipeline::sMemAllocationThrottled = FALSE;
 S32		LLPipeline::sVisibleLightCount = 0;
 F32		LLPipeline::sMinRenderSize = 0.f;
+BOOL	LLPipeline::sRenderingHUDs;
 
 
 static LLCullResult* sCull = NULL;
@@ -396,7 +397,7 @@ void validate_framebuffer_object();
 
 bool addDeferredAttachments(LLRenderTarget& target)
 {
-	return target.addColorAttachment(GL_RGBA) && //specular
+	return target.addColorAttachment(GL_SRGB_ALPHA) && //specular
 			target.addColorAttachment(GL_RGB10_A2); //normal+z
 }
 
@@ -898,11 +899,11 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		BOOL ssao = RenderDeferredSSAO;
 		
 		//allocate deferred rendering color buffers
-		if (!mDeferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		if (!mDeferredScreen.allocate(resX, resY, GL_SRGB8_ALPHA8, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!addDeferredAttachments(mDeferredScreen)) return false;
 		
-		if (!mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		if (!mScreen.allocate(resX, resY, GL_RGBA12, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (samples > 0)
 		{
 			if (!mFXAABuffer.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
@@ -3602,8 +3603,8 @@ void LLPipeline::postSort(LLCamera& camera)
 	for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
-		if (sUseOcclusion && 
-			group->isOcclusionState(LLSpatialGroup::OCCLUDED) ||
+		if ((sUseOcclusion && 
+			group->isOcclusionState(LLSpatialGroup::OCCLUDED)) ||
 			(RenderAutoHideSurfaceAreaLimit > 0.f && 
 			group->mSurfaceArea > RenderAutoHideSurfaceAreaLimit*llmax(group->mObjectBoxSize, 10.f)))
 		{
@@ -5034,8 +5035,8 @@ void LLPipeline::renderDebug()
 			LLSpatialPartition* part = region->getSpatialPartition(i);
 			if (part)
 			{
-				if ( hud_only && (part->mDrawableType == RENDER_TYPE_HUD || part->mDrawableType == RENDER_TYPE_HUD_PARTICLES) ||
-					 !hud_only && hasRenderType(part->mDrawableType) )
+				if ( (hud_only && (part->mDrawableType == RENDER_TYPE_HUD || part->mDrawableType == RENDER_TYPE_HUD_PARTICLES)) ||
+					 (!hud_only && hasRenderType(part->mDrawableType)) )
 				{
 					part->renderDebug();
 				}
@@ -7382,6 +7383,13 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 					mScreen.bindTexture(0, channel);
 					gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 				}
+				
+				if (!LLViewerCamera::getInstance()->cameraUnderWater())
+				{
+					shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2);
+				} else {
+					shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 1.0);
+				}
 
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
 				shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
@@ -7422,6 +7430,13 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			if (channel > -1)
 			{
 				mScreen.bindTexture(0, channel);
+			}
+			
+			if (!LLViewerCamera::getInstance()->cameraUnderWater())
+			{
+				shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2);
+			} else {
+				shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 1.0);
 			}
 
 			gGL.begin(LLRender::TRIANGLE_STRIP);

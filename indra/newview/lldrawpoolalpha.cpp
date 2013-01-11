@@ -240,6 +240,12 @@ void LLDrawPoolAlpha::render(S32 pass)
 			{
 				fullbright_shader->bind();
 				fullbright_shader->setMinimumAlpha(0.33f);
+				if (LLPipeline::sRenderingHUDs || !LLPipeline::sRenderDeferred)
+				{
+					fullbright_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.0f);
+				} else {
+					fullbright_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+				}
 			}
 			pushBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 			//LLGLSLShader::bindNoShader();
@@ -423,6 +429,17 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 						if (use_shaders) 
 						{
 							target_shader = fullbright_shader;
+							if (LLPipeline::sRenderDeferred)
+							{
+								if (params.mFace->getViewerObject()->isHUDAttachment())
+								{
+									target_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.0);
+								} else {
+									target_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2);
+								}
+							} else {
+								target_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.0);
+							}
 						}
 						else
 						{

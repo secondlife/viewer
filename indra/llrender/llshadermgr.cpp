@@ -1121,6 +1121,9 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("lightMap");
 	mReservedUniforms.push_back("bloomMap");
 	mReservedUniforms.push_back("projectionMap");
+	
+	mReservedUniforms.push_back("global_gamma");
+	mReservedUniforms.push_back("texture_gamma");
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

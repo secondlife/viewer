@@ -37,6 +37,7 @@ uniform mat4 inv_proj;
 uniform vec2 screen_res;
 uniform float max_cof;
 uniform float res_scale;
+uniform float global_gamma;
 
 VARYING vec2 vary_fragcoord;
 
@@ -123,6 +124,6 @@ void main()
 
 		diff /= w;
 	}
-		
+	diff.rgb = pow(diff.rgb, vec3(1.0/global_gamma));
 	frag_color = diff;
 }
