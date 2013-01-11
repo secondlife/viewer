@@ -31,34 +31,95 @@
 #include "lldatapacker.h"
 #include "lldlinked.h"
 #include "lldir.h"
-
+#include "llvieweroctree.h"
 
 //---------------------------------------------------------------------------
 // Cache entries
 class LLVOCacheEntry;
+class LLCamera;
 
-class LLVOCacheEntry
+class LLVOCacheEntry : public LLViewerOctreeEntryData
 {
+public:
+	enum
+	{
+		INACTIVE = 0x00000000,     //not visible
+		IN_QUEUE = 0x00000001,     //in visible queue, object to be created
+		WAITING  = 0x00000002,     //object creation request sent
+		ACTIVE   = 0x00000004      //object created, and in rendering pipeline.
+	};
+
+	enum
+	{
+		ADD_TO_CACHE_TREE = 0x00010000, //has parent
+	};
+
+	struct CompareVOCacheEntry
+	{
+		bool operator()(const LLVOCacheEntry* const& lhs, const LLVOCacheEntry* const& rhs)
+		{
+			F32 lpa = lhs->getSceneContribution();
+			F32 rpa = rhs->getSceneContribution();
+
+			//larger pixel area first
+			if(lpa > rpa)		
+			{
+				return true;
+			}
+			else if(lpa < rpa)
+			{
+				return false;
+			}
+			else
+			{
+				return lhs < rhs;
+			}			
+		}
+	};
+protected:
+	~LLVOCacheEntry();
 public:
 	LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &dp);
 	LLVOCacheEntry(LLAPRFile* apr_file);
-	LLVOCacheEntry();
-	~LLVOCacheEntry();
+	LLVOCacheEntry();	
 
+	void setState(U32 state);
+	void clearState(U32 state) {mState &= ~state;}
+	void addState(U32 state)   {mState |= state;}
+	bool isState(U32 state)    {return (mState & 0xffff) == state;}
+	bool hasState(U32 state)   {return mState & state;}
+	U32  getState() const      {return (mState & 0xffff);}
+	U32  getFullState() const  {return mState;}
+	
 	U32 getLocalID() const			{ return mLocalID; }
 	U32 getCRC() const				{ return mCRC; }
 	S32 getHitCount() const			{ return mHitCount; }
 	S32 getCRCChangeCount() const	{ return mCRCChangeCount; }
+	S32 getMinVisFrameRange()const;	
+
+	void calcSceneContribution(const LLVector3& camera_origin, bool needs_update, U32 last_update);
+	void setSceneContribution(F32 scene_contrib) {mSceneContrib = scene_contrib;}
+	F32 getSceneContribution() const             { return mSceneContrib;}
 
 	void dump() const;
 	BOOL writeToFile(LLAPRFile* apr_file) const;
-	void assignCRC(U32 crc, LLDataPackerBinaryBuffer &dp);
 	LLDataPackerBinaryBuffer *getDP(U32 crc);
+	LLDataPackerBinaryBuffer *getDP();
 	void recordHit();
 	void recordDupe() { mDupeCount++; }
+	
+	void copyTo(LLVOCacheEntry* new_entry); //copy variables 
+	/*virtual*/ void setOctreeEntry(LLViewerOctreeEntry* entry);
+
+	void addChild(LLVOCacheEntry* entry);
+	LLVOCacheEntry* getChild(S32 i) {return mChildrenList[i];}
+	S32  getNumOfChildren()         {return mChildrenList.size();}
+	void clearChildrenList()        {mChildrenList.clear();}
 
 public:
-	typedef std::map<U32, LLVOCacheEntry*>	vocache_entry_map_t;
+	typedef std::map<U32, LLPointer<LLVOCacheEntry> >	   vocache_entry_map_t;
+	typedef std::set<LLVOCacheEntry*>                      vocache_entry_set_t;
+	typedef std::set<LLVOCacheEntry*, CompareVOCacheEntry> vocache_entry_priority_list_t;	
 
 protected:
 	U32							mLocalID;
@@ -68,6 +129,25 @@ protected:
 	S32							mCRCChangeCount;
 	LLDataPackerBinaryBuffer	mDP;
 	U8							*mBuffer;
+
+	F32                         mSceneContrib; //projected scene contributuion of this object.
+	S32                         mVisFrameRange;
+	S32                         mRepeatedVisCounter; //number of repeatedly visible within a short time.
+	U32                         mState; //high 16 bits reserved for special use.
+	std::vector<LLVOCacheEntry*> mChildrenList; //children entries in a linked set.
+};
+
+class LLVOCachePartition : public LLViewerOctreePartition
+{
+public:
+	LLVOCachePartition(LLViewerRegion* regionp);
+
+	void addEntry(LLViewerOctreeEntry* entry);
+	void removeEntry(LLViewerOctreeEntry* entry);
+	/*virtual*/ S32 cull(LLCamera &camera);
+
+private:
+	U32 mVisitedTime;
 };
 
 //
