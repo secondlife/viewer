@@ -77,6 +77,7 @@
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llpostprocess.h"
+#include "llscenemonitor.h"
 
 extern LLPointer<LLViewerTexture> gStartTexture;
 extern bool gShiftFrame;
@@ -991,6 +992,11 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		LLPipeline::sUnderWaterRender = FALSE;
 
+		{
+			//capture the frame buffer.
+			LLSceneMonitor::getInstance()->capture();
+		}
+
 		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderUI");
 		if (!for_snapshot)
 		{
@@ -1224,6 +1230,15 @@ void render_ui(F32 zoom_factor, int subfield)
 		glh_set_current_modelview(glh_copy_matrix(gGLLastModelView));
 	}
 	
+	if(LLSceneMonitor::getInstance()->needsUpdate())
+	{
+		gGL.pushMatrix();
+		gViewerWindow->setup2DRender();
+		LLSceneMonitor::getInstance()->compare();
+		gViewerWindow->setup3DRender();
+		gGL.popMatrix();
+	}
+
 	{
 		BOOL to_texture = gPipeline.canUseVertexShaders() &&
 							LLPipeline::sRenderGlow;

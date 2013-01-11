@@ -462,6 +462,7 @@ set(viewer_SOURCE_FILES
     llremoteparcelrequest.cpp
     llsavedsettingsglue.cpp
     llsaveoutfitcombobtn.cpp
+	llscenemonitor.cpp
     llsceneview.cpp
     llscreenchannel.cpp
     llscriptfloater.cpp
@@ -586,6 +587,7 @@ set(viewer_SOURCE_FILES
     llviewernetwork.cpp
     llviewerobject.cpp
     llviewerobjectlist.cpp
+	llvieweroctree.cpp
     llviewerparcelmedia.cpp
     llviewerparcelmediaautoplay.cpp
     llviewerparcelmgr.cpp
@@ -1028,6 +1030,7 @@ set(viewer_HEADER_FILES
     llrootview.h
     llsavedsettingsglue.h
     llsaveoutfitcombobtn.h
+	llscenemonitor.h
     llsceneview.h
     llscreenchannel.h
     llscriptfloater.h
@@ -1152,6 +1155,7 @@ set(viewer_HEADER_FILES
     llviewernetwork.h
     llviewerobject.h
     llviewerobjectlist.h
+	llvieweroctree.h
     llviewerparcelmedia.h
     llviewerparcelmediaautoplay.h
     llviewerparcelmgr.h
