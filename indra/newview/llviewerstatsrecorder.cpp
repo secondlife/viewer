@@ -223,7 +223,7 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 		}
 		else
 		{
-			llwarns << "Couldn't open " << STATS_FILE_NAME << " for logging." << llendl;
+			//llwarns << "Couldn't open " << STATS_FILE_NAME << " for logging." << llendl;
 			return;
 		}
 	}
