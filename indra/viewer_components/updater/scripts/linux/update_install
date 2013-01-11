@@ -171,7 +171,7 @@ status 'Installing Second Life...'
 # different filesystem than INSTALL_DIR. One is tempted to create tempdir on a
 # path derived from `dirname INSTALL_DIR` -- but it seems modern 'mv' can
 # handle moving across filesystems??
-tempdir="/tmp/$(basename "$0").$$"
+tempdir="$(mktemp -d)"
 tempinstall="$tempdir/install"
 # capture the actual error message, if any
 err="$(mkdir -p "$tempinstall" 2>&1)" || fail "$err"
