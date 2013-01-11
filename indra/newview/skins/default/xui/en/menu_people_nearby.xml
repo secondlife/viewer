@@ -75,7 +75,7 @@
      layout="topleft"
      name="Request Teleport">
         <menu_item_call.on_click
-         function="Avatar.RequestTeleport" />
+         function="Avatar.TeleportRequest" />
     </menu_item_call>
     <menu_item_check
      label="Block/Unblock"

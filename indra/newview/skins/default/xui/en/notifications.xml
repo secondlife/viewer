@@ -6153,7 +6153,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    icon="notify.tga"
    name="TeleportRequest"
    type="notify">
-[NAME] is requesting to be teleported your to your location.
+[NAME_SLURL] is requesting to be teleported your to your location.
 
 Will you permit this?
     <tag>confirm</tag>
@@ -6168,8 +6168,8 @@ Will you permit this?
        text="No"/>
       <button
        index="2"
-       name="Mute"
-       text="Block"/>
+       name="IM"
+       text="IM"/>
     </form>
   </notification>
 

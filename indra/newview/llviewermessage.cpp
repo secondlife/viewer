@@ -1992,13 +1992,20 @@ bool lure_callback(const LLSD& notification, const LLSD& response)
 }
 static LLNotificationFunctorRegistration lure_callback_reg("TeleportOffered", lure_callback);
 
-bool teleport_requested_callback(const LLSD& notification, const LLSD& response)
+bool teleport_request_callback(const LLSD& notification, const LLSD& response)
 {
 	LLUUID from_id = notification["payload"]["from_id"].asUUID();
+	if(from_id.isNull())
+	{
+		llwarns << "from_id is NULL" << llendl;
+		return false;
+	}
+
 	std::string from_name;
 	gCacheName->getFullName(from_id, from_name);
+llwarns << "DBG " << from_name << " " << from_id << llendl;
 
-	if(from_id.isNull() || (LLMuteList::getInstance()->isMuted(from_id) && !LLMuteList::getInstance()->isLinden(from_name)))
+	if(LLMuteList::getInstance()->isMuted(from_id) && !LLMuteList::getInstance()->isLinden(from_name))
 	{
 		return false;
 	}
@@ -2027,18 +2034,27 @@ bool teleport_requested_callback(const LLSD& notification, const LLSD& response)
 	default:
 		break;
 
-	// Block
+	// IM
 	case 2:
 		{
-			LLMute mute(from_id, from_name, LLMute::AGENT);
-			LLPanelBlockedList::showPanelAndSelect(mute.mID);
+llwarns << "DBG start IM" << llendl;
+			LLAvatarActions::startIM(from_id);
 		}
 		break;
+
+/*	// Block
+	case 3:
+		{
+			LLMute mute(from_id, from_name, LLMute::AGENT);
+			LLMuteList::getInstance()->add(mute);
+			LLPanelBlockedList::showPanelAndSelect(mute.mID);
+		}
+		break; */
 	}
 	return false;
 }
 
-static LLNotificationFunctorRegistration teleport_requested_callback_reg("TeleportRequested", teleport_requested_callback);
+static LLNotificationFunctorRegistration teleport_request_callback_reg("TeleportRequest", teleport_request_callback);
 
 bool goto_url_callback(const LLSD& notification, const LLSD& response)
 {
@@ -2163,7 +2179,7 @@ static std::string clean_name_from_im(const std::string& name, EInstantMessage t
 	case IM_LURE_ACCEPTED:
 	case IM_LURE_DECLINED:
 	case IM_GODLIKE_LURE_USER:
-	case IM_YET_TO_BE_USED:
+	case IM_TELEPORT_REQUEST:
 	case IM_GROUP_ELECTION_DEPRECATED:
 	//IM_GOTO_URL
 	//IM_FROM_TASK_AS_ALERT
@@ -2914,7 +2930,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		break;
 		
 	case IM_LURE_USER:
+	case IM_TELEPORT_REQUEST:
 		{
+llwarns << "DBG teleport processing" << llendl;
 			if (is_muted)
 			{ 
 				return;
@@ -2949,7 +2967,23 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				payload["lure_id"] = session_id;
 				payload["godlike"] = FALSE;
 
-			    LLNotification::Params params("TeleportOffered");
+				LLNotification::Params params;
+				if (IM_LURE_USER == dialog)
+				{
+llwarns << "DBG LURE_USER received (treating as TELPORT_REQUEST" << llendl;
+//					params.name = "TeleportOffered";
+//					params.functor.name = "TeleportOffered";
+					params.name = "TeleportRequest";
+					params.functor.name = "TeleportRequest";
+				}
+
+				if (IM_TELEPORT_REQUEST == dialog)
+				{
+llwarns << "DBG TELEPORT_REQUEST received" << llendl;
+					params.name = "TeleportRequest";
+					params.functor.name = "TeleportRequest";
+				}
+
 			    params.substitutions = args;
 			    params.payload = payload;
 			    LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);

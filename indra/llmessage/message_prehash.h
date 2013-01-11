@@ -1379,5 +1379,4 @@ extern char const* const _PREHASH_ProductSKU;
 extern char const* const _PREHASH_SeeAVs;
 extern char const* const _PREHASH_AnyAVSounds;
 extern char const* const _PREHASH_GroupAVSounds;
-extern char const* const _PREHASH_RequestTeleport;
 #endif

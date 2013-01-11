@@ -111,7 +111,7 @@ public:
 	/**
 	 * Request teleport from other avatar
 	 */
-	static void requestTeleport(const LLUUID& id);
+	static void teleportRequest(const LLUUID& id);
 
 	/**
 	 * Share items with the avatar.
