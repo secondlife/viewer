@@ -346,7 +346,7 @@ void LLSceneMonitor::calcDiffAggregate()
 		glBeginQueryARB(GL_SAMPLES_PASSED_ARB, mQueryObject);
 	}
 
-	gl_draw_scaled_target(0, 0, mDiff->getWidth() * mDiffPixelRatio, mDiff->getHeight() * mDiffPixelRatio, mDiff);
+	gl_draw_scaled_target(0, 0, S32(mDiff->getWidth() * mDiffPixelRatio), S32(mDiff->getHeight() * mDiffPixelRatio), mDiff);
 
 	if(mHasNewDiff)
 	{
@@ -424,8 +424,8 @@ void LLSceneMonitorView::draw()
 	}
 
 	F32 ratio = LLSceneMonitor::getInstance()->getDiffPixelRatio();
-	S32 height = target->getHeight() * ratio;
-	S32 width = target->getWidth() * ratio;
+	S32 height = (S32)(target->getHeight() * ratio);
+	S32 width = (S32)(target->getWidth() * ratio);
 	//S32 height = (S32) (gViewerWindow->getWindowRectScaled().getHeight()*0.5f);
 	//S32 width = (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.5f);
 	
