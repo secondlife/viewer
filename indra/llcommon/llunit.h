@@ -75,15 +75,21 @@ struct LLUnit
 	typedef LLUnit<UNIT_TYPE, STORAGE_TYPE> self_t;
 	typedef STORAGE_TYPE storage_t;
 
-	// value initialization
-	LLUnit(storage_t value = storage_t())
-	:	mValue(value)
+	// default initialization
+	LLUnit()
+	:	mValue(storage_t())
 	{}
 
 	// unit initialization and conversion
 	template<typename OTHER_UNIT, typename OTHER_STORAGE>
 	LLUnit(LLUnit<OTHER_UNIT, OTHER_STORAGE> other)
 	:	mValue(convert(other))
+	{}
+
+	// value initialization
+	template<typename CONVERTABLE_TYPE>
+	LLUnit(CONVERTABLE_TYPE value)
+	: mValue(value)
 	{}
 	
 	// value assignment
