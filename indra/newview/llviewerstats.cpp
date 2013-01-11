@@ -394,7 +394,7 @@ void update_statistics()
 		static LLFrameTimer texture_stats_timer;
 		if (texture_stats_timer.getElapsedTimeF32() >= texture_stats_freq)
 		{
-			gTotalTextureData = LLTrace::Bytes(LLViewerStats::instance().getRecording().getSum(LLStatViewer::TEXTURE_KBIT)).value();
+			gTotalTextureData = LLTrace::Bytes(LLViewerStats::instance().getRecording().getSum(LLStatViewer::TEXTURE_KBIT));
 			texture_stats_timer.reset();
 		}
 	}
