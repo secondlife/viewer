@@ -85,6 +85,7 @@ protected:
 	static void		onCommitBump(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitTexGen(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitShiny(			LLUICtrl* ctrl, void* userdata);
+	static void		onCommitAlphaMode(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitFullbright(		LLUICtrl* ctrl, void* userdata);
 	static void     onCommitGlow(           LLUICtrl* ctrl, void *userdata);
 	static void		onCommitPlanarAlign(	LLUICtrl* ctrl, void* userdata);
