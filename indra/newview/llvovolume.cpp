@@ -1146,9 +1146,10 @@ void LLVOVolume::sculpt()
 		}
 		else if (current_discard > MAX_DISCARD_LEVEL)
 		{
+#if 0
 			llwarns << "WARNING!!: Current discard of sculpty at " << current_discard 
 				<< " is more than than allowed max of " << MAX_DISCARD_LEVEL << llendl;
-			
+#endif
 			// corrupted volume... don't update the sculpty			
 			return;
 		}

@@ -1161,7 +1161,7 @@ void LLViewerFetchedTexture::destroyTexture()
 		return ;
 	}
 
-	LL_DEBUGS("Avatar") << mID << llendl;
+	//LL_DEBUGS("Avatar") << mID << llendl;
 	destroyGLTexture() ;
 	mFullyLoaded = FALSE ;
 }

@@ -49,6 +49,7 @@
 #include "llvoavatarself.h"
 #include "llviewerregion.h"
 #include "llwearablelist.h"
+#include "llsdutil.h"
 
 std::string self_av_string()
 {
@@ -160,6 +161,11 @@ LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id, const std::string
 // to requests.
 const F32 DEFAULT_RETRY_AFTER_INTERVAL = 300.0;
 
+// Given the current back-end problems, retrying is causing too many
+// duplicate items. Bump this back to 2 once they are resolved (or can
+// leave at 0 if the operations become actually reliable).
+const S32 DEFAULT_MAX_RETRIES = 0;
+
 class LLCallAfterInventoryBatchMgr: public LLEventTimer 
 {
 public:
@@ -168,7 +174,7 @@ public:
 								 nullary_func_t on_completion_func,
 								 nullary_func_t on_failure_func = no_op,
 								 F32 retry_after = DEFAULT_RETRY_AFTER_INTERVAL,
-								 S32 max_retries = 2
+								 S32 max_retries = DEFAULT_MAX_RETRIES
 		):
 		mDstCatID(dst_cat_id),
 		mTrackingPhase(phase_name),
@@ -228,6 +234,13 @@ public:
 
 	void onOp(const LLUUID& src_id, const LLUUID& dst_id, LLTimer timestamp)
 	{
+		if (ll_frand() < gSavedSettings.getF32("InventoryDebugSimulateLateOpRate"))
+		{
+			llwarns << "Simulating late operation by punting handling to later" << llendl;
+			doAfterInterval(boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,src_id,dst_id,timestamp),
+							mRetryAfter);
+			return;
+		}
 		mPendingRequests--;
 		F32 elapsed = timestamp.getElapsedTimeF32();
 		LL_DEBUGS("Avatar") << "op done, src_id " << src_id << " dst_id " << dst_id << " after " << elapsed << " seconds" << llendl;
@@ -371,7 +384,7 @@ public:
 								nullary_func_t on_completion_func,
 								nullary_func_t on_failure_func = no_op,
 								 F32 retry_after = DEFAULT_RETRY_AFTER_INTERVAL,
-								 S32 max_retries = 2
+								 S32 max_retries = DEFAULT_MAX_RETRIES
 		):
 		LLCallAfterInventoryBatchMgr(dst_cat_id, phase_name, on_completion_func, on_failure_func, retry_after, max_retries)
 	{
@@ -409,7 +422,7 @@ public:
 								nullary_func_t on_completion_func,
 								nullary_func_t on_failure_func = no_op,
 								 F32 retry_after = DEFAULT_RETRY_AFTER_INTERVAL,
-								 S32 max_retries = 2
+								 S32 max_retries = DEFAULT_MAX_RETRIES
 		):
 		LLCallAfterInventoryBatchMgr(dst_cat_id, phase_name, on_completion_func, on_failure_func, retry_after, max_retries)
 	{
@@ -1653,6 +1666,7 @@ void LLAppearanceMgr::purgeCategory(const LLUUID& category, bool keep_outfit_lin
 			continue;
 		if (item->getIsLinkType())
 		{
+#if 0
 			if (keep_items && keep_items->find(item) != LLInventoryModel::item_array_t::FAIL)
 			{
 				llinfos << "preserved item" << llendl;
@@ -1661,7 +1675,10 @@ void LLAppearanceMgr::purgeCategory(const LLUUID& category, bool keep_outfit_lin
 			{
 				gInventory.purgeObject(item->getUUID());
 			}
+#else
+		gInventory.purgeObject(item->getUUID());
 		}
+#endif
 	}
 }
 
@@ -2981,13 +2998,27 @@ public:
 	// Successful completion.
 	/* virtual */ void result(const LLSD& content)
 	{
-		llinfos << "request OK" << llendl;
+		LL_DEBUGS("Avatar") << "content: " << ll_pretty_print_sd(content) << LL_ENDL;
+		if (content["success"].asBoolean())
+		{
+			LL_DEBUGS("Avatar") << "OK" << LL_ENDL;
+		}
+		else
+		{
+			onFailure(200);
+		}
 	}
 
 	// Error
-	/*virtual*/ void error(U32 status, const std::string& reason)
+	/*virtual*/ void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
 		llwarns << "appearance update request failed, status: " << status << " reason: " << reason << llendl;
+		LL_DEBUGS("Avatar") << "content: " << ll_pretty_print_sd(content) << LL_ENDL;
+		onFailure(status);
+	}	
+
+	void onFailure(U32 status)
+	{
 		F32 seconds_to_wait;
 		if (mRetryPolicy->shouldRetry(status,seconds_to_wait))
 		{
@@ -3001,7 +3032,7 @@ public:
 		{
 			llwarns << "giving up after too many retries" << llendl;
 		}
-	}	
+	}
 
 	LLPointer<LLHTTPRetryPolicy> mRetryPolicy;
 };

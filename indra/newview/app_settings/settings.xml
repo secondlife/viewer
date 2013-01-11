@@ -4326,6 +4326,17 @@
       <key>Value</key>
         <real>0.0</real>
     </map>
+    <key>InventoryDebugSimulateLateOpRate</key>
+    <map>
+      <key>Comment</key>
+        <string>Rate at which we simulate late-completing copy/link requests in some operations</string>
+      <key>Persist</key>
+        <integer>1</integer>
+      <key>Type</key>
+        <string>F32</string>
+      <key>Value</key>
+        <real>0.0</real>
+    </map>
     <key>InventoryDisplayInbox</key>
     <map>
         <key>Comment</key>

@@ -2256,7 +2256,7 @@ void LLVOAvatarSelf::sendAppearanceChangeMetrics()
 	if (S32_MAX == ++report_sequence)
 		report_sequence = 0;
 
-	LL_DEBUGS("Avatar") << avString() << "message: " << ll_pretty_print_sd(msg) << LL_ENDL;
+//	LL_DEBUGS("Avatar") << avString() << "message: " << ll_pretty_print_sd(msg) << LL_ENDL;
 	std::string	caps_url;
 	if (getRegion())
 	{
