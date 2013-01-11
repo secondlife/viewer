@@ -221,7 +221,7 @@ void LLVOAvatarSelf::initInstance()
 		return;
 	}
 
-	doPeriodically(output_self_av_texture_diagnostics, 30.0);
+	//doPeriodically(output_self_av_texture_diagnostics, 30.0);
 }
 
 // virtual
