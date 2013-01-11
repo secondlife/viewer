@@ -152,43 +152,48 @@ public:
 	virtual ~LLThreadLocalSingleton()
 	{
 		sInstance = NULL;
-		sInitState = DELETED;
+		setInitState(DELETED);
 	}
 
 	static void deleteSingleton()
 	{
 		delete sInstance;
 		sInstance = NULL;
-		sInitState = DELETED;
+		setInitState(DELETED);
 	}
 
 	static DERIVED_TYPE* getInstance()
 	{
-		if (sInitState == CONSTRUCTING)
+        EInitState init_state = getInitState();
+		if (init_state == CONSTRUCTING)
 		{
 			llerrs << "Tried to access singleton " << typeid(DERIVED_TYPE).name() << " from singleton constructor!" << llendl;
 		}
 
-		if (sInitState == DELETED)
+		if (init_state == DELETED)
 		{
 			llwarns << "Trying to access deleted singleton " << typeid(DERIVED_TYPE).name() << " creating new instance" << llendl;
 		}
 
-		if (!sInstance) 
+		if (!getIfExists())
 		{
-			sInitState = CONSTRUCTING;
+			setInitState(CONSTRUCTING);
 			sInstance = new DERIVED_TYPE(); 
-			sInitState = INITIALIZING;
+			setInitState(INITIALIZING);
 			sInstance->initSingleton(); 
-			sInitState = INITIALIZED;	
+			setInitState(INITIALIZED);
 		}
 
-		return sInstance;
+        return getIfExists();
 	}
 
 	static DERIVED_TYPE* getIfExists()
 	{
+#if LL_DARWIN
+        return sInstance.get();
+#else
 		return sInstance;
+#endif
 	}
 
 	// Reference version of getInstance()
@@ -202,16 +207,33 @@ public:
 	// Use this to avoid accessing singletons before the can safely be constructed
 	static bool instanceExists()
 	{
-		return sInitState == INITIALIZED;
+		return getInitState() == INITIALIZED;
 	}
 
 	// Has this singleton already been deleted?
 	// Use this to avoid accessing singletons from a static object's destructor
 	static bool destroyed()
 	{
-		return sInitState == DELETED;
+		return getInitState() == DELETED;
 	}
 private:
+    static EInitState getInitState()
+    {
+#if LL_DARWIN
+        return (EInitState)(int)sInitState.get();
+#else
+        return sInitState;
+#endif
+    }
+    
+    static void setInitState(EInitState state)
+    {
+#if LL_DARWIN
+        sInitState = (int*)state;
+#else
+        sInitState = state;
+#endif
+    }
 	LLThreadLocalSingleton(const LLThreadLocalSingleton& other);
 	virtual void initSingleton() {}
 
@@ -221,10 +243,13 @@ private:
 #elif LL_LINUX
 	static __thread DERIVED_TYPE* sInstance;
 	static __thread EInitState sInitState;
+#elif LL_DARWIN
+    static LLThreadLocalPointer<DERIVED_TYPE> sInstance;
+    static LLThreadLocalPointer<int> sInitState;
 #endif
 };
 
-#ifdef LL_WINDOWS
+#if LL_WINDOWS
 template<typename DERIVED_TYPE>
 __declspec(thread) DERIVED_TYPE* LLThreadLocalSingleton<DERIVED_TYPE>::sInstance = NULL;
 
@@ -236,6 +261,12 @@ __thread DERIVED_TYPE* LLThreadLocalSingleton<DERIVED_TYPE>::sInstance = NULL;
 
 template<typename DERIVED_TYPE>
 __thread typename LLThreadLocalSingleton<DERIVED_TYPE>::EInitState LLThreadLocalSingleton<DERIVED_TYPE>::sInitState = LLThreadLocalSingleton<DERIVED_TYPE>::UNINITIALIZED;
+#elif LL_DARWIN
+template<typename DERIVED_TYPE>
+LLThreadLocalPointer<DERIVED_TYPE> LLThreadLocalSingleton<DERIVED_TYPE>::sInstance;
+
+template<typename DERIVED_TYPE>
+LLThreadLocalPointer<int> LLThreadLocalSingleton<DERIVED_TYPE>::sInitState;
 #endif
 
 template<typename DERIVED_TYPE>
@@ -249,7 +280,11 @@ public:
 
 	LL_FORCE_INLINE static DERIVED_TYPE* getInstance()
 	{
+#if LL_DARWIN
+        return sInstance.get();
+#else
 		return sInstance;
+#endif
 	}
 
 	LL_FORCE_INLINE static void setInstance(DERIVED_TYPE* instance)
@@ -258,18 +293,24 @@ public:
 	}
 
 private:
-#ifdef LL_WINDOWS
+#if LL_WINDOWS
 	static __declspec(thread) DERIVED_TYPE* sInstance;
 #elif LL_LINUX
 	static __thread DERIVED_TYPE* sInstance;
+#elif LL_DARWIN
+    static LLThreadLocalPointer<DERIVED_TYPE> sInstance;
 #endif
 };
 
+#if LL_WINDOWS
 template<typename DERIVED_TYPE>
-#ifdef LL_WINDOWS
 __declspec(thread) DERIVED_TYPE* LLThreadLocalSingletonPointer<DERIVED_TYPE>::sInstance = NULL;
 #elif LL_LINUX
+template<typename DERIVED_TYPE>
 __thread DERIVED_TYPE* LLThreadLocalSingletonPointer<DERIVED_TYPE>::sInstance = NULL;
+#elif LL_DARWIN
+template<typename DERIVED_TYPE>
+LLThreadLocalPointer<DERIVED_TYPE> LLThreadLocalSingletonPointer<DERIVED_TYPE>::sInstance;
 #endif
 
 #endif // LL_LLTHREADLOCALSTORAGE_H
