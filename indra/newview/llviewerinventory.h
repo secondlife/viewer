@@ -34,7 +34,7 @@
 
 #include <boost/signals2.hpp>	// boost::signals2::trackable
 
-class LLFolderView;
+class LLInventoryPanel;
 class LLFolderBridge;
 class LLViewerInventoryCategory;
 
@@ -60,10 +60,6 @@ public:
 	virtual const LLUUID& getAssetUUID() const;
 	virtual const LLUUID& getProtectedAssetUUID() const; // returns LLUUID::null if current agent does not have permission to expose this asset's UUID to the user
 	virtual const std::string& getName() const;
-	virtual S32 getSortField() const;
-	virtual void setSortField(S32 sortField);
-	virtual void getSLURL(); //Caches SLURL for landmark. //*TODO: Find a better way to do it and remove this method from here.
-	virtual const LLPermissions& getPermissions() const;
 	virtual const bool getIsFullPerm() const; // 'fullperm' in the popular sense: modify-ok & copy-ok & transfer-ok, no special god rules applied
 	virtual const LLUUID& getCreatorUUID() const;
 	virtual const std::string& getDescription() const;
@@ -72,8 +68,11 @@ public:
 	virtual bool isWearableType() const;
 	virtual LLWearableType::EType getWearableType() const;
 	virtual U32 getFlags() const;
-	virtual time_t getCreationDate() const;
-	virtual U32 getCRC32() const; // really more of a checksum.
+
+    using LLInventoryItem::getPermissions;
+	using LLInventoryItem::getCreationDate;
+	using LLInventoryItem::setCreationDate;
+	using LLInventoryItem::getCRC32;
 
 	static BOOL extractSortFieldAndDisplayName(const std::string& name, S32* sortField, std::string* displayName);
 
@@ -285,18 +284,6 @@ public:
 	void fire(const LLUUID& inv_item);
 };
 
-class AddFavoriteLandmarkCallback : public LLInventoryCallback
-{
-public:
-	AddFavoriteLandmarkCallback() : mTargetLandmarkId(LLUUID::null) {}
-	void setTargetLandmarkId(const LLUUID& target_uuid) { mTargetLandmarkId = target_uuid; }
-
-private:
-	void fire(const LLUUID& inv_item);
-
-	LLUUID mTargetLandmarkId;
-};
-
 // misc functions
 //void inventory_reliable_callback(void**, S32 status);
 
@@ -372,7 +359,7 @@ void copy_inventory_from_notecard(const LLUUID& destination_id,
 								  U32 callback_id = 0);
 
 
-void menu_create_inventory_item(LLFolderView* root,
+void menu_create_inventory_item(LLInventoryPanel* root,
 								LLFolderBridge* bridge,
 								const LLSD& userdata,
 								const LLUUID& default_parent_uuid = LLUUID::null);

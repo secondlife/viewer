@@ -51,11 +51,11 @@
 #include "llfloaterabout.h"
 #include "llfloaterhardwaresettings.h"
 #include "llfloatersidepanelcontainer.h"
-#include "llimfloater.h"
+#include "llfloaterimsession.h"
 #include "llkeyboard.h"
 #include "llmodaldialog.h"
 #include "llnavigationbar.h"
-#include "llnearbychat.h"
+#include "llfloaterimnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llnotificationtemplate.h"
@@ -425,13 +425,7 @@ void LLFloaterPreference::saveAvatarProperties( void )
 
 BOOL LLFloaterPreference::postBuild()
 {
-	gSavedSettings.getControl("PlainTextChatHistory")->getSignal()->connect(boost::bind(&LLIMFloater::processChatHistoryStyleUpdate, _2));
-
-	gSavedSettings.getControl("PlainTextChatHistory")->getSignal()->connect(boost::bind(&LLNearbyChat::processChatHistoryStyleUpdate, _2));
-
-	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLIMFloater::processChatHistoryStyleUpdate, _2));
-
-	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLNearbyChat::processChatHistoryStyleUpdate, _2));
+	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate));
 
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLViewerChat::signalChatFontChanged));
 
@@ -449,26 +443,29 @@ BOOL LLFloaterPreference::postBuild()
 
 	getChild<LLComboBox>("language_combobox")->setCommitCallback(boost::bind(&LLFloaterPreference::onLanguageChange, this));
 
-	// if floater is opened before login set default localized busy message
+	getChild<LLComboBox>("FriendIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"FriendIMOptions"));
+	getChild<LLComboBox>("NonFriendIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"NonFriendIMOptions"));
+	getChild<LLComboBox>("ConferenceIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"ConferenceIMOptions"));
+	getChild<LLComboBox>("GroupChatOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"GroupChatOptions"));
+	getChild<LLComboBox>("NearbyChatOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"NearbyChatOptions"));
+
+	// if floater is opened before login set default localized do not disturb message
 	if (LLStartUp::getStartupState() < STATE_STARTED)
 	{
-		gSavedPerAccountSettings.setString("BusyModeResponse", LLTrans::getString("BusyModeResponseDefault"));
+		gSavedPerAccountSettings.setString("DoNotDisturbModeResponse", LLTrans::getString("DoNotDisturbModeResponseDefault"));
 	}
 
 	return TRUE;
 }
 
-void LLFloaterPreference::onBusyResponseChanged()
+void LLFloaterPreference::onDoNotDisturbResponseChanged()
 {
-	// set "BusyResponseChanged" TRUE if user edited message differs from default, FALSE otherwise
-	if (LLTrans::getString("BusyModeResponseDefault") != getChild<LLUICtrl>("busy_response")->getValue().asString())
-	{
-		gSavedPerAccountSettings.setBOOL("BusyResponseChanged", TRUE );
-	}
-	else
-	{
-		gSavedPerAccountSettings.setBOOL("BusyResponseChanged", FALSE );
-	}
+	// set "DoNotDisturbResponseChanged" TRUE if user edited message differs from default, FALSE otherwise
+	bool response_changed_flag =
+			LLTrans::getString("DoNotDisturbModeResponseDefault")
+					!= getChild<LLUICtrl>("do_not_disturb_response")->getValue().asString();
+
+	gSavedPerAccountSettings.setBOOL("DoNotDisturbResponseChanged", response_changed_flag );
 }
 
 LLFloaterPreference::~LLFloaterPreference()
@@ -551,14 +548,8 @@ void LLFloaterPreference::apply()
 		LLViewerMedia::setProxyConfig(proxy_enable, proxy_address, proxy_port);
 	}
 	
-//	LLWString busy_response = utf8str_to_wstring(getChild<LLUICtrl>("busy_response")->getValue().asString());
-//	LLWStringUtil::replaceTabsWithSpaces(busy_response, 4);
-
-	gSavedSettings.setBOOL("PlainTextChatHistory", getChild<LLUICtrl>("plain_text_chat_history")->getValue().asBoolean());
-	
 	if (mGotPersonalInfo)
 	{ 
-//		gSavedSettings.setString("BusyModeResponse2", std::string(wstring_to_utf8str(busy_response)));
 		bool new_im_via_email = getChild<LLUICtrl>("send_im_to_email")->getValue().asBoolean();
 		bool new_hide_online = getChild<LLUICtrl>("online_visibility")->getValue().asBoolean();		
 	
@@ -644,21 +635,21 @@ void LLFloaterPreference::cancel()
 void LLFloaterPreference::onOpen(const LLSD& key)
 {
 	
-	// this variable and if that follows it are used to properly handle busy mode response message
+	// this variable and if that follows it are used to properly handle do not disturb mode response message
 	static bool initialized = FALSE;
-	// if user is logged in and we haven't initialized busy_response yet, do it
+	// if user is logged in and we haven't initialized do not disturb mode response yet, do it
 	if (!initialized && LLStartUp::getStartupState() == STATE_STARTED)
 	{
-		// Special approach is used for busy response localization, because "BusyModeResponse" is
+		// Special approach is used for do not disturb response localization, because "DoNotDisturbModeResponse" is
 		// in non-localizable xml, and also because it may be changed by user and in this case it shouldn't be localized.
-		// To keep track of whether busy response is default or changed by user additional setting BusyResponseChanged
+		// To keep track of whether do not disturb response is default or changed by user additional setting DoNotDisturbResponseChanged
 		// was added into per account settings.
 
 		// initialization should happen once,so setting variable to TRUE
 		initialized = TRUE;
-		// this connection is needed to properly set "BusyResponseChanged" setting when user makes changes in
-		// busy response message.
-		gSavedPerAccountSettings.getControl("BusyModeResponse")->getSignal()->connect(boost::bind(&LLFloaterPreference::onBusyResponseChanged, this));
+		// this connection is needed to properly set "DoNotDisturbResponseChanged" setting when user makes changes in
+		// do not disturb response message.
+		gSavedPerAccountSettings.getControl("DoNotDisturbModeResponse")->getSignal()->connect(boost::bind(&LLFloaterPreference::onDoNotDisturbResponseChanged, this));
 	}
 	gAgent.sendAgentUserInfoRequest();
 
@@ -705,6 +696,14 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	// while preferences floater was closed.
 	buildPopupLists();
 
+
+	//get the options that were checked
+	onNotificationsChange("FriendIMOptions");
+	onNotificationsChange("NonFriendIMOptions");
+	onNotificationsChange("ConferenceIMOptions");
+	onNotificationsChange("GroupChatOptions");
+	onNotificationsChange("NearbyChatOptions");
+
 	LLPanelLogin::setAlwaysRefresh(true);
 	refresh();
 	
@@ -720,12 +719,12 @@ void LLFloaterPreference::onVertexShaderEnable()
 }
 
 //static
-void LLFloaterPreference::initBusyResponse()
+void LLFloaterPreference::initDoNotDisturbResponse()
 	{
-		if (!gSavedPerAccountSettings.getBOOL("BusyResponseChanged"))
+		if (!gSavedPerAccountSettings.getBOOL("DoNotDisturbResponseChanged"))
 		{
-			//LLTrans::getString("BusyModeResponseDefault") is used here for localization (EXT-5885)
-			gSavedPerAccountSettings.setString("BusyModeResponse", LLTrans::getString("BusyModeResponseDefault"));
+			//LLTrans::getString("DoNotDisturbModeResponseDefault") is used here for localization (EXT-5885)
+			gSavedPerAccountSettings.setString("DoNotDisturbModeResponse", LLTrans::getString("DoNotDisturbModeResponseDefault"));
 		}
 	}
 
@@ -879,6 +878,23 @@ void LLFloaterPreference::onLanguageChange()
 		LLNotificationsUtil::add("ChangeLanguage");
 		mLanguageChanged = true;
 	}
+}
+
+void LLFloaterPreference::onNotificationsChange(const std::string& OptionName)
+{
+	mNotificationOptions[OptionName] = getChild<LLComboBox>(OptionName)->getSelectedItemLabel();
+
+	bool show_notifications_alert = true;
+	for (notifications_map::iterator it_notification = mNotificationOptions.begin(); it_notification != mNotificationOptions.end(); it_notification++)
+	{
+		if(it_notification->second != "None")
+		{
+			show_notifications_alert = false;
+			break;
+		}
+	}
+
+	getChild<LLTextBox>("notifications_alert")->setVisible(show_notifications_alert);
 }
 
 void LLFloaterPreference::onNameTagOpacityChange(const LLSD& newvalue)
@@ -1443,17 +1459,12 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	getChild<LLUICtrl>("online_visibility")->setLabelArg("[DIR_VIS]", mDirectoryVisibility);
 	getChildView("send_im_to_email")->setEnabled(TRUE);
 	getChild<LLUICtrl>("send_im_to_email")->setValue(im_via_email);
-	getChildView("plain_text_chat_history")->setEnabled(TRUE);
-	getChild<LLUICtrl>("plain_text_chat_history")->setValue(gSavedSettings.getBOOL("PlainTextChatHistory"));
 	getChildView("log_instant_messages")->setEnabled(TRUE);
 //	getChildView("log_chat")->setEnabled(TRUE);
-//	getChildView("busy_response")->setEnabled(TRUE);
 //	getChildView("log_instant_messages_timestamp")->setEnabled(TRUE);
 //	getChildView("log_chat_timestamp")->setEnabled(TRUE);
 	getChildView("log_chat_IM")->setEnabled(TRUE);
 	getChildView("log_date_timestamp")->setEnabled(TRUE);
-	
-//	getChild<LLUICtrl>("busy_response")->setValue(gSavedSettings.getString("BusyModeResponse2"));
 	
 	getChildView("favorites_on_login_check")->setEnabled(TRUE);
 	getChildView("log_nearby_chat")->setEnabled(TRUE);
@@ -1526,7 +1537,8 @@ void LLFloaterPreference::onChangeMaturity()
 // but the UI for this will still be enabled
 void LLFloaterPreference::onClickBlockList()
 {
-	LLFloaterSidePanelContainer::showPanel("people", "panel_block_list_sidetray", LLSD());
+	LLFloaterSidePanelContainer::showPanel("people", "panel_people",
+		LLSD().with("people_panel_tab_name", "blocked_panel"));
 }
 
 void LLFloaterPreference::onClickProxySettings()
@@ -1592,6 +1604,26 @@ void LLFloaterPreference::setCacheLocation(const LLStringExplicit& location)
 	cache_location_editor->setToolTip(location);
 }
 
+void LLFloaterPreference::selectPanel(const LLSD& name)
+{
+	LLTabContainer * tab_containerp = getChild<LLTabContainer>("pref core");
+	LLPanel * panel = tab_containerp->getPanelByName(name);
+	if (NULL != panel)
+	{
+		tab_containerp->selectTabPanel(panel);
+	}
+}
+
+void LLFloaterPreference::selectPrivacyPanel()
+{
+	selectPanel("im");
+}
+
+void LLFloaterPreference::selectChatPanel()
+{
+	selectPanel("chat");
+}
+
 //------------------------------Updater---------------------------------------
 
 static bool handleBandwidthChanged(const LLSD& newvalue)
@@ -1650,6 +1682,17 @@ LLPanelPreference::LLPanelPreference()
 //virtual
 BOOL LLPanelPreference::postBuild()
 {
+	////////////////////// PanelGeneral ///////////////////
+	if (hasChild("display_names_check"))
+	{
+		BOOL use_people_api = gSavedSettings.getBOOL("UsePeopleAPI");
+		LLCheckBoxCtrl* ctrl_display_name = getChild<LLCheckBoxCtrl>("display_names_check");
+		ctrl_display_name->setEnabled(use_people_api);
+		if (!use_people_api)
+		{
+			ctrl_display_name->setValue(FALSE);
+		}
+	}
 
 	////////////////////// PanelVoice ///////////////////
 	if (hasChild("voice_unavailable"))
@@ -1677,7 +1720,6 @@ BOOL LLPanelPreference::postBuild()
 	if (hasChild("online_visibility") && hasChild("send_im_to_email"))
 	{
 		getChild<LLUICtrl>("email_address")->setValue(getString("log_in_to_change") );
-//		getChild<LLUICtrl>("busy_response")->setValue(getString("log_in_to_change"));		
 	}
 	
 	//////////////////////PanelPrivacy ///////////////////
@@ -1701,7 +1743,7 @@ BOOL LLPanelPreference::postBuild()
 		getChild<LLCheckBoxCtrl>("favorites_on_login_check")->setCommitCallback(boost::bind(&showFavoritesOnLoginWarning, _1, _2));
 	}
 
-	// Panel Advanced
+	//////////////////////PanelAdvanced ///////////////////
 	if (hasChild("modifier_combo"))
 	{
 		//localizing if push2talk button is set to middle mouse

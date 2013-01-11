@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ name="menu_modes"
+ left="0" bottom="0" visible="false"
+ mouse_opaque="false">
+    <menu_item_check
+       label="Compact view"
+       name="compact_view">
+      <menu_item_check.on_click
+         function="IMSession.Menu.Action"
+         parameter="compact_view"/>
+      <menu_item_check.on_check
+         function="IMSession.Menu.CompactExpandedModes.CheckItem"
+         parameter="compact_view"/>
+    </menu_item_check>
+    <menu_item_check
+       label="Expanded view"
+       name="expanded_view">
+      <menu_item_check.on_click
+         function="IMSession.Menu.Action"
+         parameter="expanded_view"/>
+      <menu_item_check.on_check
+         function="IMSession.Menu.CompactExpandedModes.CheckItem"
+         parameter="expanded_view"/>
+    </menu_item_check>
+    <menu_item_separator layout="topleft" />
+    <menu_item_check name="IMShowTime" label="Show time">
+        <menu_item_check.on_click
+         function="IMSession.Menu.Action"
+         parameter="IMShowTime" />
+        <menu_item_check.on_check
+         function="IMSession.Menu.ShowModes.CheckItem"
+         parameter="IMShowTime" />
+        <menu_item_check.on_enable
+         function="IMSession.Menu.ShowModes.Enable"
+         parameter="IMShowTime" />
+    </menu_item_check>
+    <menu_item_check name="IMShowNamesForP2PConv" label="Show names in one-to-one conversations">
+        <menu_item_check.on_click
+         function="IMSession.Menu.Action"
+         parameter="IMShowNamesForP2PConv" />
+        <menu_item_check.on_check
+         function="IMSession.Menu.ShowModes.CheckItem"
+         parameter="IMShowNamesForP2PConv" />
+        <menu_item_check.on_enable
+         function="IMSession.Menu.ShowModes.Enable"
+         parameter="IMShowNamesForP2PConv" />
+         
+    </menu_item_check>
+</toggleable_menu>

@@ -47,7 +47,7 @@ class LLNotificationForm;
  * @deprecated this class will be removed after all toast panel types are
  *  implemented in separate classes.
  */
-class LLToastNotifyPanel: public LLToastPanel 
+class LLToastNotifyPanel: public LLToastPanel, public LLInstanceTracker<LLToastNotifyPanel, LLUUID>
 {
 public:
 	/**
@@ -61,10 +61,14 @@ public:
 	 * implement right class for desired toast panel. @see LLGenericTipPanel as example.
 	 */
 	LLToastNotifyPanel(const LLNotificationPtr& pNotification, const LLRect& rect = LLRect::null, bool show_images = true);
+
+	virtual void init( LLRect rect, bool show_images );
+
 	virtual ~LLToastNotifyPanel();
 	LLPanel * getControlPanel() { return mControlPanel; }
 
-	void setCloseNotificationOnDestroy(bool close) { mCloseNotificationOnDestroy = close; }
+	virtual void updateNotification() {}
+
 protected:
 	LLButton* createButton(const LLSD& form_element, BOOL is_option);
 
@@ -75,8 +79,6 @@ protected:
 		std::string	mButtonName;
 	};
 	std::vector<InstanceAndS32*> mBtnCallbackData;
-
-	bool mCloseNotificationOnDestroy;
 
 	typedef std::pair<int,LLButton*> index_button_pair_t; 
 	void adjustPanelForScriptNotice(S32 max_width, S32 max_height);
@@ -93,9 +95,9 @@ protected:
 	/**
 	 * Disable specific button(s) based on notification name and clicked button
 	 */
-	void disableButtons(const std::string& notification_name, const std::string& selected_button);
+	//void disableButtons(const std::string& notification_name, const std::string& selected_button);
 
-	std::vector<index_button_pair_t> mButtons;
+	//std::vector<index_button_pair_t> mButtons;
 
 	// panel elements
 	LLTextBase*		mTextBox;
@@ -118,7 +120,7 @@ protected:
 	/**
 	 * Process response data. Will disable selected options
 	 */
-	void disableRespondedOptions(const LLNotificationPtr& notification);
+	//void disableRespondedOptions(const LLNotificationPtr& notification);
 
 	bool mIsTip;
 	bool mAddedDefaultBtn;
@@ -137,13 +139,23 @@ class LLIMToastNotifyPanel : public LLToastNotifyPanel
 {
 public:
 
-	LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLUUID& session_id, const LLRect& rect = LLRect::null, bool show_images = true);
+	LLIMToastNotifyPanel(LLNotificationPtr& pNotification, 
+						const LLUUID& session_id, 
+						const LLRect& rect = LLRect::null, 
+						bool show_images = true, 
+						LLTextBase* parent_text = NULL);
+
+	void compactButtons();
+
+	virtual void updateNotification();
+	virtual void init( LLRect rect, bool show_images );
 
 	~LLIMToastNotifyPanel();
 
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 protected:
+	LLTextBase* mParentText;
 	LLUUID	mSessionID;
 };
 

@@ -51,6 +51,7 @@ LLContextMenu* NearbyMenu::createMenu()
 	// set up the callbacks for all of the avatar menu items
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+	LLContextMenu* menu;
 
 	if ( mUUIDs.size() == 1 )
 	{
@@ -67,20 +68,22 @@ LLContextMenu* NearbyMenu::createMenu()
 		registrar.add("Avatar.Share",			boost::bind(&LLAvatarActions::share,					id));
 		registrar.add("Avatar.Pay",				boost::bind(&LLAvatarActions::pay,						id));
 		registrar.add("Avatar.BlockUnblock",	boost::bind(&LLAvatarActions::toggleBlock,				id));
+		registrar.add("Avatar.InviteToGroup",	boost::bind(&LLAvatarActions::inviteToGroup,			id));
+		registrar.add("Avatar.Calllog",			boost::bind(&LLAvatarActions::viewChatHistory,			id));
 
 		enable_registrar.add("Avatar.EnableItem", boost::bind(&NearbyMenu::enableContextMenuItem,	this, _2));
 		enable_registrar.add("Avatar.CheckItem",  boost::bind(&NearbyMenu::checkContextMenuItem,	this, _2));
 
 		// create the context menu from the XUI
-		return createFromFile("menu_people_nearby.xml");
+		menu = createFromFile("menu_people_nearby.xml");
 	}
 	else
 	{
 		// Set up for multi-selected People
 
 		// registrar.add("Avatar.AddFriend",	boost::bind(&LLAvatarActions::requestFriendshipDialog,	mUUIDs)); // *TODO: unimplemented
-		registrar.add("Avatar.IM",			boost::bind(&LLAvatarActions::startConference,			mUUIDs));
-		registrar.add("Avatar.Call",		boost::bind(&LLAvatarActions::startAdhocCall,			mUUIDs));
+		registrar.add("Avatar.IM",			boost::bind(&LLAvatarActions::startConference,			mUUIDs, LLUUID::null));
+		registrar.add("Avatar.Call",		boost::bind(&LLAvatarActions::startAdhocCall,			mUUIDs, LLUUID::null));
 		registrar.add("Avatar.OfferTeleport",	boost::bind(&NearbyMenu::offerTeleport,					this));
 		registrar.add("Avatar.RemoveFriend",boost::bind(&LLAvatarActions::removeFriendsDialog,		mUUIDs));
 		// registrar.add("Avatar.Share",		boost::bind(&LLAvatarActions::startIM,					mUUIDs)); // *TODO: unimplemented
@@ -88,8 +91,10 @@ LLContextMenu* NearbyMenu::createMenu()
 		enable_registrar.add("Avatar.EnableItem",	boost::bind(&NearbyMenu::enableContextMenuItem,	this, _2));
 
 		// create the context menu from the XUI
-		return createFromFile("menu_people_nearby_multiselect.xml");
+		menu = createFromFile("menu_people_nearby_multiselect.xml");
 	}
+
+    return menu;
 }
 
 bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)

@@ -28,6 +28,7 @@
 #include "lloutputmonitorctrl.h"
 
 // library includes 
+#include "llfloaterreg.h"
 #include "llui.h"
 
 // viewer includes
@@ -72,8 +73,8 @@ LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
 	mAutoUpdate(p.auto_update),
 	mSpeakerId(p.speaker_id),
 	mIsAgentControl(false),
-	mIsSwitchDirty(false),
-	mShouldSwitchOn(false)
+	mIndicatorToggled(false),
+	mShowParticipantsSpeaking(false)
 {
 	//static LLUIColor output_monitor_muted_color = LLUIColorTable::instance().getColor("OutputMonitorMutedColor", LLColor4::orange);
 	//static LLUIColor output_monitor_overdriven_color = LLUIColorTable::instance().getColor("OutputMonitorOverdrivenColor", LLColor4::red);
@@ -114,26 +115,6 @@ void LLOutputMonitorCtrl::setPower(F32 val)
 
 void LLOutputMonitorCtrl::draw()
 {
-	// see also switchIndicator()
-	if (mIsSwitchDirty)
-	{
-		mIsSwitchDirty = false;
-		if (mShouldSwitchOn)
-		{
-			// just notify parent visibility may have changed
-			notifyParentVisibilityChanged();
-		}
-		else
-		{
-			// make itself invisible and notify parent about this
-			setVisible(FALSE);
-			notifyParentVisibilityChanged();
-
-			// no needs to render for invisible element
-			return;
-		}
-	}
-
 	// Copied from llmediaremotectrl.cpp
 	// *TODO: Give the LLOutputMonitorCtrl an agent-id to monitor, then
 	// call directly into LLVoiceClient::getInstance() to ask if that agent-id is muted, is
@@ -153,6 +134,24 @@ void LLOutputMonitorCtrl::draw()
 		else
 		{
 			setIsTalking(LLVoiceClient::getInstance()->getIsSpeaking(mSpeakerId));
+		}
+	}
+
+	if ((mPower == 0.f && !mIsTalking) && mShowParticipantsSpeaking)
+	{
+		std::set<LLUUID> participant_uuids;
+		LLVoiceClient::instance().getParticipantList(participant_uuids);
+		std::set<LLUUID>::const_iterator part_it = participant_uuids.begin();
+
+		F32 power = 0;
+		for (; part_it != participant_uuids.end(); ++part_it)
+		{
+			power = LLVoiceClient::instance().getCurrentPower(*part_it);
+			if (power)
+			{
+				mPower = power;
+				break;
+			}
 		}
 	}
 
@@ -241,14 +240,34 @@ void LLOutputMonitorCtrl::draw()
 		gl_rect_2d(0, monh, monw, 0, sColorBound, FALSE);
 }
 
-void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& session_id/* = LLUUID::null*/)
+// virtual
+BOOL LLOutputMonitorCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+	if (mSpeakerId != gAgentID && !mShowParticipantsSpeaking)
+	{
+		LLFloaterReg::showInstance("floater_voice_volume", LLSD().with("avatar_id", mSpeakerId));
+	}
+	else if(mShowParticipantsSpeaking)
+	{
+		LLFloaterReg::showInstance("chat_voice", LLSD());
+	}
+
+	return TRUE;
+}
+
+void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& session_id/* = LLUUID::null*/, bool show_other_participants_speaking /* = false */)
 {
 	if (speaker_id.isNull() && mSpeakerId.notNull())
 	{
 		LLSpeakingIndicatorManager::unregisterSpeakingIndicator(mSpeakerId, this);
+        switchIndicator(false);
+        mSpeakerId = speaker_id;
 	}
 
-	if (speaker_id.isNull() || speaker_id == mSpeakerId) return;
+	if (speaker_id.isNull() || (speaker_id == mSpeakerId))
+	{
+		return;
+	}
 
 	if (mSpeakerId.notNull())
 	{
@@ -256,6 +275,7 @@ void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& s
 		LLSpeakingIndicatorManager::unregisterSpeakingIndicator(mSpeakerId, this);
 	}
 
+	mShowParticipantsSpeaking = show_other_participants_speaking;
 	mSpeakerId = speaker_id;
 	LLSpeakingIndicatorManager::registerSpeakingIndicator(mSpeakerId, this, session_id);
 
@@ -284,26 +304,28 @@ void LLOutputMonitorCtrl::onChange()
 // virtual
 void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
 {
-	// ensure indicator is visible in case it is not in visible chain
-	// to be called when parent became visible next time to notify parent that visibility is changed.
-	setVisible(TRUE);
 
-	// if parent is in visible chain apply switch_on state and notify it immediately
-	if (getParent() && getParent()->isInVisibleChain())
-	{
-		LL_DEBUGS("SpeakingIndicator") << "Indicator is in visible chain, notifying parent: " << mSpeakerId << LL_ENDL;
-		setVisible((BOOL)switch_on);
-		notifyParentVisibilityChanged();
-	}
+    if(getVisible() != (BOOL)switch_on)
+    {
+        setVisible(switch_on);
+        
+        //Let parent adjust positioning of icons adjacent to speaker indicator
+        //(when speaker indicator hidden, adjacent icons move to right and when speaker
+        //indicator visible, adjacent icons move to the left) 
+        if (getParent() && getParent()->isInVisibleChain())
+        {
+            notifyParentVisibilityChanged();
+            //Ignore toggled state in case it was set when parent visibility was hidden
+            mIndicatorToggled = false;
+        }
+        else
+        {
+            //Makes sure to only adjust adjacent icons when parent becomes visible
+            //(!mIndicatorToggled ensures that changes of TFT and FTF are discarded, real state changes are TF or FT)
+            mIndicatorToggled = !mIndicatorToggled;
+        }
 
-	// otherwise remember necessary state and mark itself as dirty.
-	// State will be applied in next draw when parents chain becomes visible.
-	else
-	{
-		LL_DEBUGS("SpeakingIndicator") << "Indicator is not in visible chain, parent won't be notified: " << mSpeakerId << LL_ENDL;
-		mIsSwitchDirty = true;
-		mShouldSwitchOn = switch_on;
-	}
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////

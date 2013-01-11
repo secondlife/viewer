@@ -28,10 +28,10 @@
 #define LL_LLOUTPUTMONITORCTRL_H
 
 #include "v4color.h"
-#include "llview.h"
+#include "../llui/llview.h"
 #include "llmutelist.h"
 #include "llspeakingindicatormanager.h"
-#include "lluiimage.h"
+#include "../llui/lluiimage.h"
 
 class LLTextBox;
 class LLUICtrlFactory;
@@ -68,6 +68,7 @@ public:
 
 	// llview overrides
 	virtual void	draw();
+	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 
 	void			setPower(F32 val);
 	F32				getPower(F32 val) const { return mPower; }
@@ -81,6 +82,8 @@ public:
 
 	void			setIsTalking(bool val) { mIsTalking = val; }
 
+	void			setShowParticipantsSpeaking(bool show) { mShowParticipantsSpeaking = show; }
+
 	/**
 	 * Sets avatar UUID to interact with voice channel.
 	 *
@@ -89,7 +92,7 @@ public:
 	 *		If this parameter is set registered indicator will be shown only in voice channel
 	 *		which has the same session id (EXT-5562).
 	 */
-	void			setSpeakerId(const LLUUID& speaker_id, const LLUUID& session_id = LLUUID::null);
+	void			setSpeakerId(const LLUUID& speaker_id, const LLUUID& session_id = LLUUID::null, bool show_other_participants_speaking = false);
 
 	//called by mute list
 	virtual void onChange();
@@ -105,6 +108,8 @@ public:
 	 * It will be applied in next draw and parent will be notified.
 	 */
 	virtual void	switchIndicator(bool switch_on);
+    bool getIndicatorToggled() { return mIndicatorToggled;}
+    void setIndicatorToggled(bool value) { mIndicatorToggled = value;}
 
 private:
 
@@ -131,6 +136,7 @@ private:
 	bool			mIsAgentControl;
 	bool			mIsMuted;
 	bool			mIsTalking;
+	bool			mShowParticipantsSpeaking;
 	LLPointer<LLUIImage> mImageMute;
 	LLPointer<LLUIImage> mImageOff;
 	LLPointer<LLUIImage> mImageOn;
@@ -144,9 +150,7 @@ private:
 	/** uuid of a speaker being monitored */
 	LLUUID			mSpeakerId;
 
-	/** indicates if the instance is dirty and should notify parent */
-	bool			mIsSwitchDirty;
-	bool			mShouldSwitchOn;
+    bool mIndicatorToggled;
 };
 
 #endif

@@ -2864,8 +2864,6 @@ void LLViewerObject::updateInventory(
 	U8 key,
 	bool is_new)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-
 	// This slices the object into what we're concerned about on the
 	// viewer. The simulator will take the permissions and transfer
 	// ownership.

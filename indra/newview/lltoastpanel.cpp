@@ -70,7 +70,7 @@ void LLToastPanel::snapToMessageHeight(LLTextBase* message, S32 maxLineCount)
 	if (message->getVisible())
 	{
 		S32 heightDelta = 0;
-		S32 maxTextHeight = message->getDefaultFont()->getLineHeight() * maxLineCount;
+		S32 maxTextHeight = message->getFont()->getLineHeight() * maxLineCount;
 
 		LLRect messageRect = message->getRect();
 		S32 oldTextHeight = messageRect.getHeight();
@@ -80,11 +80,14 @@ void LLToastPanel::snapToMessageHeight(LLTextBase* message, S32 maxLineCount)
 		S32 requiredTextHeight = message->getTextBoundingRect().getHeight();
 		S32 newTextHeight = llmin(requiredTextHeight, maxTextHeight);
 
-		//Calculate last delta height deducting previous heightDelta 
-		heightDelta = newTextHeight - oldTextHeight - heightDelta;
+		heightDelta = newTextHeight - oldTextHeight;
+		S32 new_panel_height = llmax(getRect().getHeight() + heightDelta, MIN_PANEL_HEIGHT);
 
 		//reshape the panel with new height
-		reshape( getRect().getWidth(), llmax(getRect().getHeight() + heightDelta, MIN_PANEL_HEIGHT));
+		if (new_panel_height != getRect().getHeight())
+		{
+			reshape( getRect().getWidth(), new_panel_height);
+		}
 	}
 }
 
@@ -98,7 +101,7 @@ LLToastPanel* LLToastPanel::buidPanelFromNotification(
 	if ("notifytip" == notification->getType())
 	{
 		// if it is online/offline notification
-		if ("FriendOffline" == notification->getName() || "FriendOnline" == notification->getName())
+		if ("FriendOnlineOffline" == notification->getName())
 		{
 			res = new LLPanelOnlineStatus(notification);
 		}

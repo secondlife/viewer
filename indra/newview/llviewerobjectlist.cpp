@@ -948,7 +948,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	std::vector<LLViewerObject*>::iterator idle_end = idle_list.begin()+idle_count;
 
 	if (gSavedSettings.getBOOL("FreezeTime"))
-	{	
+	{
 		
 		for (std::vector<LLViewerObject*>::iterator iter = idle_list.begin();
 			iter != idle_end; iter++)
@@ -969,14 +969,14 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			llassert(objectp->isActive());
 			objectp->idleUpdate(agent, world, frame_time);
 
-		}
+			}
 
 		//update flexible objects
 		LLVolumeImplFlexible::updateClass();
 
 		//update animated textures
 		LLViewerTextureAnim::updateClass();
-	}
+			}
 
 
 

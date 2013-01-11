@@ -145,6 +145,7 @@ LLTextBase::Params::Params()
 :	cursor_color("cursor_color"),
 	text_color("text_color"),
 	text_readonly_color("text_readonly_color"),
+	text_tentative_color("text_tentative_color"),
 	bg_visible("bg_visible", false),
 	border_visible("border_visible", false),
 	bg_readonly_color("bg_readonly_color"),
@@ -179,7 +180,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 :	LLUICtrl(p, LLTextViewModelPtr(new LLTextViewModel)),
 	mURLClickSignal(NULL),
 	mMaxTextByteLength( p.max_text_length ),
-	mDefaultFont(p.font),
+	mFont(p.font),
 	mFontShadow(p.font_shadow),
 	mPopupMenu(NULL),
 	mReadOnly(p.read_only),
@@ -190,6 +191,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mFgColor(p.text_color),
 	mBorderVisible( p.border_visible ),
 	mReadOnlyFgColor(p.text_readonly_color),
+	mTentativeFgColor(p.text_tentative_color()),
 	mWriteableBgColor(p.bg_writeable_color),
 	mReadOnlyBgColor(p.bg_readonly_color),
 	mFocusBgColor(p.bg_focus_color),
@@ -319,21 +321,26 @@ bool LLTextBase::truncate()
 	return did_truncate;
 }
 
-const LLStyle::Params& LLTextBase::getDefaultStyleParams()
+const LLStyle::Params& LLTextBase::getStyleParams()
 {
 	//FIXME: convert mDefaultStyle to a flyweight http://www.boost.org/doc/libs/1_40_0/libs/flyweight/doc/index.html
 	//and eliminate color member values
 	if (mStyleDirty)
 	{
-		  mDefaultStyle
+		  mStyle
 				  .color(LLUIColor(&mFgColor))						// pass linked color instead of copy of mFGColor
 				  .readonly_color(LLUIColor(&mReadOnlyFgColor))
 				  .selected_color(LLUIColor(&mTextSelectedColor))
-				  .font(mDefaultFont)
+				  .font(mFont)
 				  .drop_shadow(mFontShadow);
 		  mStyleDirty = false;
 	}
-	return mDefaultStyle;
+	return mStyle;
+}
+
+void LLTextBase::beforeValueChange()
+{
+
 }
 
 void LLTextBase::onValueChange(S32 start, S32 end)
@@ -522,11 +529,17 @@ void LLTextBase::drawCursor()
 
 void LLTextBase::drawText()
 {
-	const S32 text_len = getLength();
-	if( text_len <= 0 )
+	S32 text_len = getLength();
+
+	if (text_len <= 0 && mLabel.empty())
 	{
 		return;
 	}
+	else if (useLabel())
+	{
+		text_len = mLabel.getWString().length();
+	}
+
 	S32 selection_left = -1;
 	S32 selection_right = -1;
 	// Draw selection even if we don't have keyboard focus for search/replace
@@ -739,6 +752,8 @@ void LLTextBase::drawText()
 
 S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::segment_vec_t* segments )
 {
+    beforeValueChange();
+
 	S32 old_len = getLength();		// length() returns character length
 	S32 insert_len = wstr.length();
 
@@ -770,7 +785,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 	else
 	{
 		// create default editable segment to hold new text
-		LLStyleConstSP sp(new LLStyle(getDefaultStyleParams()));
+		LLStyleConstSP sp(new LLStyle(getStyleParams()));
 		default_segment = new LLNormalTextSegment( sp, pos, pos + insert_len, *this);
 	}
 
@@ -814,6 +829,8 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 
 S32 LLTextBase::removeStringNoUndo(S32 pos, S32 length)
 {
+
+    beforeValueChange();
 	segment_set_t::iterator seg_iter = getSegIterContaining(pos);
 	while(seg_iter != mSegments.end())
 	{
@@ -872,6 +889,8 @@ S32 LLTextBase::removeStringNoUndo(S32 pos, S32 length)
 
 S32 LLTextBase::overwriteCharNoUndo(S32 pos, llwchar wc)
 {
+    beforeValueChange();
+
 	if (pos > (S32)getLength())
 	{
 		return 0;
@@ -890,7 +909,7 @@ void LLTextBase::createDefaultSegment()
 	// ensures that there is always at least one segment
 	if (mSegments.empty())
 	{
-		LLStyleConstSP sp(new LLStyle(getDefaultStyleParams()));
+		LLStyleConstSP sp(new LLStyle(getStyleParams()));
 		LLTextSegmentPtr default_segment = new LLNormalTextSegment( sp, 0, getLength() + 1, *this);
 		mSegments.insert(default_segment);
 		default_segment->linkToDocument(this);
@@ -1336,6 +1355,25 @@ void LLTextBase::onSpellCheckSettingsChange()
 	// Recheck the spelling on every change
 	mMisspellRanges.clear();
 	mSpellCheckStart = mSpellCheckEnd = -1;
+}
+
+void LLTextBase::onFocusReceived()
+{
+	LLUICtrl::onFocusReceived();
+	if (!getLength() && !mLabel.empty())
+	{
+		// delete label which is LLLabelTextSegment
+		clearSegments();
+	}
+}
+
+void LLTextBase::onFocusLost()
+{
+	LLUICtrl::onFocusLost();
+	if (!getLength() && !mLabel.empty())
+	{
+		resetLabel();
+	}
 }
 
 // Sets the scrollbar from the cursor position
@@ -1924,7 +1962,7 @@ static LLFastTimer::DeclareTimer FTM_PARSE_HTML("Parse HTML");
 void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params)
 {
 	LLStyle::Params style_params(input_params);
-	style_params.fillFrom(getDefaultStyleParams());
+	style_params.fillFrom(getStyleParams());
 
 	S32 part = (S32)LLTextParser::WHOLE;
 	if (mParseHTML && !style_params.is_link) // Don't search for URLs inside a link segment (STORM-358).
@@ -2007,6 +2045,44 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 	if(prepend_newline)
 		appendLineBreakSegment(input_params);
 	appendTextImpl(new_text,input_params);
+}
+
+void LLTextBase::setLabel(const LLStringExplicit& label)
+{
+	mLabel = label;
+	resetLabel();
+}
+
+BOOL LLTextBase::setLabelArg(const std::string& key, const LLStringExplicit& text )
+{
+	mLabel.setArg(key, text);
+	return TRUE;
+}
+
+void LLTextBase::resetLabel()
+{
+	if (useLabel())
+	{
+		clearSegments();
+
+		LLStyle* style = new LLStyle(getStyleParams());
+		style->setColor(mTentativeFgColor);
+		LLStyleConstSP sp(style);
+
+		LLTextSegmentPtr label = new LLLabelTextSegment(sp, 0, mLabel.getWString().length() + 1, *this);
+		insertSegment(label);
+	}
+}
+
+bool LLTextBase::useLabel()
+{
+    return !getLength() && !mLabel.empty() && !hasFocus();
+}
+
+void LLTextBase::setFont(const LLFontGL* font)
+{
+	mFont = font;
+	mStyleDirty = true;
 }
 
 void LLTextBase::needsReflow(S32 index)
@@ -2399,7 +2475,7 @@ LLRect LLTextBase::getLocalRectFromDocIndex(S32 pos) const
 	{ 
 		// return default height rect in upper left
 		local_rect = content_window_rect;
-		local_rect.mBottom = local_rect.mTop - mDefaultFont->getLineHeight();
+		local_rect.mBottom = local_rect.mTop - mFont->getLineHeight();
 		return local_rect;
 	}
 
@@ -2904,7 +2980,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 {
 	F32 alpha = LLViewDrawContext::getCurrentContext().mAlpha;
 
-	const LLWString &text = mEditor.getWText();
+	const LLWString &text = getWText();
 
 	F32 right_x = rect.mLeft;
 	if (!mStyle->isVisible())
@@ -3067,7 +3143,7 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 	if (num_chars > 0)
 	{
 		height = mFontHeight;
-		const LLWString &text = mEditor.getWText();
+		const LLWString &text = getWText();
 		// if last character is a newline, then return true, forcing line break
 		width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
 	}
@@ -3076,7 +3152,7 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 
 S32	LLNormalTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const
 {
-	const LLWString &text = mEditor.getWText();
+	const LLWString &text = getWText();
 	return mStyle->getFont()->charFromPixelOffset(text.c_str(), mStart + start_offset,
 											   (F32)segment_local_x_coord,
 											   F32_MAX,
@@ -3086,7 +3162,7 @@ S32	LLNormalTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, 
 
 S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const
 {
-	const LLWString &text = mEditor.getWText();
+	const LLWString &text = getWText();
 
 	LLUIImagePtr image = mStyle->getImage();
 	if( image.notNull())
@@ -3122,7 +3198,7 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 	S32 last_char_in_run = mStart + segment_offset + num_chars;
 	// check length first to avoid indexing off end of string
 	if (last_char_in_run < mEnd 
-		&& (last_char_in_run >= mEditor.getLength() ))
+		&& (last_char_in_run >= getLength()))
 	{
 		num_chars++;
 	}
@@ -3138,6 +3214,39 @@ void LLNormalTextSegment::dump() const
 		mStart << ", " <<
 		getEnd() << "]" <<
 		llendl;
+}
+
+/*virtual*/
+const LLWString& LLNormalTextSegment::getWText()	const
+{
+	return mEditor.getWText();
+}
+
+/*virtual*/
+const S32 LLNormalTextSegment::getLength() const
+{
+	return mEditor.getLength();
+}
+
+LLLabelTextSegment::LLLabelTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor )
+:	LLNormalTextSegment(style, start, end, editor)
+{
+}
+
+LLLabelTextSegment::LLLabelTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible)
+:	LLNormalTextSegment(color, start, end, editor, is_visible)
+{
+}
+
+/*virtual*/
+const LLWString& LLLabelTextSegment::getWText()	const
+{
+	return mEditor.getWlabel();
+}
+/*virtual*/
+const S32 LLLabelTextSegment::getLength() const
+{
+	return mEditor.getWlabel().length();
 }
 
 //

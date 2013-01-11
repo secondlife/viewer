@@ -50,12 +50,12 @@ public:
 				const LLUUID& from_id,
 				const std::string& line);
 
-	/** @deprecated @see loadAllHistory() */
+	/** @deprecated @see loadChatHistory() */
 	static void loadHistory(const std::string& filename, 
 		                    void (*callback)(ELogLineType, const LLSD&, void*), 
 							void* userdata);
 
-	static void loadAllHistory(const std::string& file_name, std::list<LLSD>& messages);
+	static void loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params = LLSD());
 private:
 	static std::string cleanFileName(std::string filename);
 };
@@ -105,7 +105,7 @@ public:
 	 *
 	 * @return false if failed to parse mandatory data - message text
 	 */
-	static bool parse(std::string& raw, LLSD& im);
+	static bool parse(std::string& raw, LLSD& im, const LLSD& parse_params = LLSD());
 
 protected:
 	LLChatLogParser();

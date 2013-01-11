@@ -25,197 +25,138 @@
 */
 
 #include "llviewerprecompiledheaders.h" // must be first include
+
 #include "llnotificationstorage.h"
 
-#include "llxmlnode.h" // for linux compilers
+#include <string>
+#include <map>
 
-#include "llchannelmanager.h"
-#include "llscreenchannel.h"
-#include "llscriptfloater.h"
+#include "llerror.h"
+#include "llfile.h"
+#include "llnotifications.h"
+#include "llpointer.h"
+#include "llsd.h"
 #include "llsdserialize.h"
+#include "llsingleton.h"
 #include "llviewermessage.h"
 
-//////////////////////////////////////////////////////////////////////////
 
-class LLResponderRegistry
+class LLResponderRegistry : public LLSingleton<LLResponderRegistry>
 {
 public:
-
-	static void registerResponders();
-
-	static LLNotificationResponderInterface* createResponder(const std::string& notification_name, const LLSD& params);
-
+	LLResponderRegistry();
+	~LLResponderRegistry();
+	
+	LLNotificationResponderInterface* createResponder(const std::string& pNotificationName, const LLSD& pParams);
+	
+protected:
+	
 private:
-
-	template<typename RESPONDER_TYPE>
-	static LLNotificationResponderInterface* create(const LLSD& params)
-	{
-		RESPONDER_TYPE* responder = new RESPONDER_TYPE();
-		responder->fromLLSD(params);
-		return responder;
-	}
-
+	template<typename RESPONDER_TYPE> static LLNotificationResponderInterface* create(const LLSD& pParams);
+	
 	typedef boost::function<LLNotificationResponderInterface* (const LLSD& params)> responder_constructor_t;
-
-	static void add(const std::string& notification_name, const responder_constructor_t& ctr);
-
-private:
-
+	
+	void add(const std::string& pNotificationName, const responder_constructor_t& pConstructor);
+	
 	typedef std::map<std::string, responder_constructor_t> build_map_t;
-
-	static build_map_t sBuildMap;
+	build_map_t mBuildMap;
 };
 
-//////////////////////////////////////////////////////////////////////////
-
-LLPersistentNotificationStorage::LLPersistentNotificationStorage()
+LLNotificationStorage::LLNotificationStorage(std::string pFileName)
+	: mFileName(pFileName)
 {
-	mFileName = gDirUtilp->getExpandedFilename ( LL_PATH_PER_SL_ACCOUNT, "open_notifications.xml" );
 }
 
-bool LLPersistentNotificationStorage::onPersistentChannelChanged(const LLSD& payload)
+LLNotificationStorage::~LLNotificationStorage()
 {
-	// we ignore "load" messages, but rewrite the persistence file on any other
-	const std::string sigtype = payload["sigtype"].asString();
-	if ("load" != sigtype)
-	{
-		saveNotifications();
-	}
-	return false;
 }
 
-void LLPersistentNotificationStorage::saveNotifications()
+bool LLNotificationStorage::writeNotifications(const LLSD& pNotificationData) const
 {
-	// TODO - think about save optimization.
 
-	llofstream notify_file(mFileName.c_str());
-	if (!notify_file.is_open())
+	llofstream notifyFile(mFileName.c_str());
+	bool didFileOpen = notifyFile.is_open();
+
+	if (!didFileOpen)
 	{
-		llwarns << "Failed to open " << mFileName << llendl;
-		return;
+		LL_WARNS("LLNotificationStorage") << "Failed to open file '" << mFileName << "'" << LL_ENDL;
+	}
+	else
+	{
+		LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
+		formatter->format(pNotificationData, notifyFile, LLSDFormatter::OPTIONS_PRETTY);
 	}
 
-	LLSD output;
-	LLSD& data = output["data"];
+	return didFileOpen;
+}
 
-	LLNotificationChannelPtr history_channel = LLNotifications::instance().getChannel("Persistent");
-	LLNotificationSet::iterator it = history_channel->begin();
+bool LLNotificationStorage::readNotifications(LLSD& pNotificationData) const
+{
+	bool didFileRead;
 
-	for ( ; history_channel->end() != it; ++it)
+	pNotificationData.clear();
+
+	llifstream notifyFile(mFileName.c_str());
+	didFileRead = notifyFile.is_open();
+	if (!didFileRead)
 	{
-		LLNotificationPtr notification = *it;
-
-		// After a notification was placed in Persist channel, it can become
-		// responded, expired or canceled - in this case we are should not save it
-		if(notification->isRespondedTo() || notification->isCancelled()
-			|| notification->isExpired())
+		LL_WARNS("LLNotificationStorage") << "Failed to open file '" << mFileName << "'" << LL_ENDL;
+	}
+	else
+	{
+		LLPointer<LLSDParser> parser = new LLSDXMLParser();
+		didFileRead = (parser->parse(notifyFile, pNotificationData, LLSDSerialize::SIZE_UNLIMITED) >= 0);
+		if (!didFileRead)
 		{
-			continue;
-		}
-
-		data.append(notification->asLLSD());
-	}
-
-	LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
-	formatter->format(output, notify_file, LLSDFormatter::OPTIONS_PRETTY);
-}
-
-void LLPersistentNotificationStorage::loadNotifications()
-{
-	LLResponderRegistry::registerResponders();
-
-	LLNotifications::instance().getChannel("Persistent")->
-		connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
-
-	llifstream notify_file(mFileName.c_str());
-	if (!notify_file.is_open())
-	{
-		llwarns << "Failed to open " << mFileName << llendl;
-		return;
-	}
-
-	LLSD input;
-	LLPointer<LLSDParser> parser = new LLSDXMLParser();
-	if (parser->parse(notify_file, input, LLSDSerialize::SIZE_UNLIMITED) < 0)
-	{
-		llwarns << "Failed to parse open notifications" << llendl;
-		return;
-	}
-
-	if (input.isUndefined())
-	{
-		return;
-	}
-
-	LLSD& data = input["data"];
-	if (data.isUndefined())
-	{
-		return;
-	}
-
-	using namespace LLNotificationsUI;
-	LLScreenChannel* notification_channel = dynamic_cast<LLScreenChannel*>(LLChannelManager::getInstance()->
-		findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
-
-	LLNotifications& instance = LLNotifications::instance();
-
-	for (LLSD::array_const_iterator notification_it = data.beginArray();
-		notification_it != data.endArray();
-		++notification_it)
-	{
-		LLSD notification_params = *notification_it;
-		LLNotificationPtr notification(new LLNotification(notification_params));
-
-		LLNotificationResponderPtr responder(LLResponderRegistry::
-			createResponder(notification_params["name"], notification_params["responder"]));
-		notification->setResponseFunctor(responder);
-
-		instance.add(notification);
-
-		// hide script floaters so they don't confuse the user and don't overlap startup toast
-		LLScriptFloaterManager::getInstance()->setFloaterVisible(notification->getID(), false);
-
-		if(notification_channel)
-		{
-			// hide saved toasts so they don't confuse the user
-			notification_channel->hideToast(notification->getID());
+			LL_WARNS("LLNotificationStorage") << "Failed to parse open notifications from file '" << mFileName 
+				<< "'" << LL_ENDL;
 		}
 	}
+
+	return didFileRead;
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-LLResponderRegistry::build_map_t LLResponderRegistry::sBuildMap;
-
-void LLResponderRegistry::registerResponders()
+LLNotificationResponderInterface* LLNotificationStorage::createResponder(const std::string& pNotificationName, const LLSD& pParams) const
 {
-	sBuildMap.clear();
+	return LLResponderRegistry::getInstance()->createResponder(pNotificationName, pParams);
+}
 
+LLResponderRegistry::LLResponderRegistry()
+	: LLSingleton<LLResponderRegistry>()
+	, mBuildMap()
+{
 	add("ObjectGiveItem", &create<LLOfferInfo>);
 	add("UserGiveItem", &create<LLOfferInfo>);
+    add("offer_info", &create<LLOfferInfo>);
 }
 
-LLNotificationResponderInterface* LLResponderRegistry::createResponder(const std::string& notification_name, const LLSD& params)
+LLResponderRegistry::~LLResponderRegistry()
 {
-	build_map_t::const_iterator it = sBuildMap.find(notification_name);
-	if(sBuildMap.end() == it)
+}
+
+LLNotificationResponderInterface* LLResponderRegistry::createResponder(const std::string& pNotificationName, const LLSD& pParams)
+{
+	build_map_t::const_iterator it = mBuildMap.find(pNotificationName);
+	if(mBuildMap.end() == it)
 	{
 		return NULL;
 	}
 	responder_constructor_t ctr = it->second;
-	return ctr(params);
+	return ctr(pParams);
 }
 
-void LLResponderRegistry::add(const std::string& notification_name, const responder_constructor_t& ctr)
+template<typename RESPONDER_TYPE> LLNotificationResponderInterface* LLResponderRegistry::create(const LLSD& pParams)
 {
-	if(sBuildMap.find(notification_name) != sBuildMap.end())
-	{
-		llwarns << "Responder is already registered : " << notification_name << llendl;
-		llassert(!"Responder already registered");
-	}
-	sBuildMap[notification_name] = ctr;
+	RESPONDER_TYPE* responder = new RESPONDER_TYPE();
+	responder->fromLLSD(pParams);
+	return responder;
 }
-
-// EOF
+	
+void LLResponderRegistry::add(const std::string& pNotificationName, const responder_constructor_t& pConstructor)
+{
+	if (mBuildMap.find(pNotificationName) != mBuildMap.end())
+	{
+		LL_ERRS("LLResponderRegistry") << "Responder is already registered : " << pNotificationName << LL_ENDL;
+	}
+	mBuildMap.insert(std::make_pair<std::string, responder_constructor_t>(pNotificationName, pConstructor));
+}

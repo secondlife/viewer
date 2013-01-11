@@ -27,6 +27,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include <boost/signals2.hpp>
+
 #include "llavataractions.h"
 #include "llavatarlistitem.h"
 
@@ -38,6 +40,7 @@
 #include "llavatarnamecache.h"
 #include "llavatariconctrl.h"
 #include "lloutputmonitorctrl.h"
+#include "lltooldraganddrop.h"
 
 bool LLAvatarListItem::sStaticInitialized = false;
 S32 LLAvatarListItem::sLeftPadding = 0;
@@ -58,7 +61,8 @@ LLAvatarListItem::Params::Params()
 
 
 LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
-:	LLPanel(),
+	: LLPanel(),
+	LLFriendObserver(),
 	mAvatarIcon(NULL),
 	mAvatarName(NULL),
 	mLastInteractionTime(NULL),
@@ -73,7 +77,8 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 	mShowInfoBtn(true),
 	mShowProfileBtn(true),
 	mShowPermissions(false),
-	mHovered(false)
+	mHovered(false),
+	mAvatarNameCacheConnection()
 {
 	if (not_from_ui_factory)
 	{
@@ -86,7 +91,14 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 LLAvatarListItem::~LLAvatarListItem()
 {
 	if (mAvatarId.notNull())
+	{
 		LLAvatarTracker::instance().removeParticularFriendObserver(mAvatarId, this);
+	}
+
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 }
 
 BOOL  LLAvatarListItem::postBuild()
@@ -127,6 +139,29 @@ BOOL  LLAvatarListItem::postBuild()
 	}
 
 	return TRUE;
+}
+
+void LLAvatarListItem::handleVisibilityChange ( BOOL new_visibility )
+{
+    //Adjust positions of icons (info button etc) when 
+    //speaking indicator visibility was changed/toggled while panel was closed (not visible)
+    if(new_visibility && mSpeakingIndicator->getIndicatorToggled())
+    {
+        updateChildren();
+        mSpeakingIndicator->setIndicatorToggled(false);
+    }
+}
+
+void LLAvatarListItem::fetchAvatarName()
+{
+	if (mAvatarId.notNull())
+	{
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
+	}
 }
 
 S32 LLAvatarListItem::notifyParent(const LLSD& info)
@@ -259,8 +294,7 @@ void LLAvatarListItem::setAvatarId(const LLUUID& id, const LLUUID& session_id, b
 		mAvatarIcon->setValue(id);
 
 		// Set avatar name.
-		LLAvatarNameCache::get(id,
-			boost::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
+		fetchAvatarName();
 	}
 }
 
@@ -334,6 +368,61 @@ BOOL LLAvatarListItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 	return LLPanel::handleDoubleClick(x, y, mask);
 }
 
+BOOL LLAvatarListItem::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	if (LLUICtrl::handleMouseDown(x, y, mask))
+	{
+		return TRUE;
+	}
+
+	gFocusMgr.setMouseCapture(this);
+
+	S32 screen_x;
+	S32 screen_y;
+	localPointToScreen(x, y, &screen_x, &screen_y);
+	LLToolDragAndDrop::getInstance()->setDragStart(screen_x, screen_y);
+
+	return TRUE;
+}
+
+BOOL LLAvatarListItem::handleMouseUp( S32 x, S32 y, MASK mask )
+{
+	if (LLUICtrl::childrenHandleMouseUp(x, y, mask))
+	{
+		return TRUE;
+	}
+
+	if(hasMouseCapture())
+	{
+		gFocusMgr.setMouseCapture(NULL);
+	}
+	return TRUE;
+}
+
+BOOL LLAvatarListItem::handleHover(S32 x, S32 y, MASK mask)
+{
+	bool handled = hasMouseCapture();
+	if(handled)
+	{
+		S32 screen_x;
+		S32 screen_y;
+		localPointToScreen(x, y, &screen_x, &screen_y);
+
+		if(LLToolDragAndDrop::getInstance()->isOverThreshold(screen_x, screen_y))
+		{
+			// First, create the global drag and drop object
+			std::vector<EDragAndDropType> types;
+			uuid_vec_t cargo_ids;
+			types.push_back(DAD_PERSON);
+			cargo_ids.push_back(mAvatarId);
+			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_PEOPLE;
+			LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, src);
+		}
+	}
+
+	return handled;
+}
+
 void LLAvatarListItem::setValue( const LLSD& value )
 {
 	if (!value.isMap()) return;;
@@ -358,8 +447,7 @@ std::string LLAvatarListItem::getAvatarToolTip() const
 
 void LLAvatarListItem::updateAvatarName()
 {
-	LLAvatarNameCache::get(getAvatarId(),
-			boost::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
+	fetchAvatarName();
 }
 
 //== PRIVATE SECITON ==========================================================
@@ -371,8 +459,10 @@ void LLAvatarListItem::setNameInternal(const std::string& name, const std::strin
 
 void LLAvatarListItem::onAvatarNameCache(const LLAvatarName& av_name)
 {
-	setAvatarName(av_name.mDisplayName);
-	setAvatarToolTip(av_name.mUsername);
+	mAvatarNameCacheConnection.disconnect();
+
+	setAvatarName(av_name.getDisplayName());
+	setAvatarToolTip(av_name.getUserName());
 
 	//requesting the list to resort
 	notifyParent(LLSD().with("sort", LLSD()));

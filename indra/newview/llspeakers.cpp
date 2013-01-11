@@ -84,6 +84,19 @@ bool LLSpeaker::isInVoiceChannel()
 	return mStatus <= LLSpeaker::STATUS_VOICE_ACTIVE || mStatus == LLSpeaker::STATUS_MUTED;
 }
 
+LLSpeakerUpdateSpeakerEvent::LLSpeakerUpdateSpeakerEvent(LLSpeaker* source)
+: LLEvent(source, "Speaker update speaker event"),
+  mSpeakerID (source->mID)
+{
+}
+
+LLSD LLSpeakerUpdateSpeakerEvent::getValue()
+{
+	LLSD ret;
+	ret["id"] = mSpeakerID;
+	return ret;
+}
+
 LLSpeakerUpdateModeratorEvent::LLSpeakerUpdateModeratorEvent(LLSpeaker* source)
 : LLEvent(source, "Speaker add moderator event"),
   mSpeakerID (source->mID),
@@ -241,6 +254,51 @@ bool LLSpeakersDelayActionsStorage::onTimerActionCallback(const LLUUID& speaker_
 	return true;
 }
 
+bool LLSpeakersDelayActionsStorage::isTimerStarted(const LLUUID& speaker_id)
+{
+	return (mActionTimersMap.size() > 0) && (mActionTimersMap.find(speaker_id) != mActionTimersMap.end());
+}
+
+//
+// ModerationResponder
+//
+
+class ModerationResponder : public LLHTTPClient::Responder
+{
+public:
+	ModerationResponder(const LLUUID& session_id)
+	{
+		mSessionID = session_id;
+	}
+	
+	virtual void error(U32 status, const std::string& reason)
+	{
+		llwarns << status << ": " << reason << llendl;
+		
+		if ( gIMMgr )
+		{
+			//403 == you're not a mod
+			//should be disabled if you're not a moderator
+			if ( 403 == status )
+			{
+				gIMMgr->showSessionEventError(
+											  "mute",
+											  "not_a_mod_error",
+											  mSessionID);
+			}
+			else
+			{
+				gIMMgr->showSessionEventError(
+											  "mute",
+											  "generic_request_error",
+											  mSessionID);
+			}
+		}
+	}
+	
+private:
+	LLUUID mSessionID;
+};
 
 //
 // LLSpeakerMgr
@@ -374,6 +432,7 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 				{
 					speakerp->mLastSpokeTime = mSpeechTimer.getElapsedTimeF32();
 					speakerp->mHasSpoken = TRUE;
+					fireEvent(new LLSpeakerUpdateSpeakerEvent(speakerp), "update_speaker");
 				}
 				speakerp->mStatus = LLSpeaker::STATUS_SPEAKING;
 				// interpolate between active color and full speaking color based on power of speech output
@@ -448,24 +507,42 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 
 void LLSpeakerMgr::updateSpeakerList()
 {
-	// are we bound to the currently active voice channel?
+	// Are we bound to the currently active voice channel?
 	if ((!mVoiceChannel && LLVoiceClient::getInstance()->inProximalChannel()) || (mVoiceChannel && mVoiceChannel->isActive()))
 	{
-	        std::set<LLUUID> participants;
-	        LLVoiceClient::getInstance()->getParticipantList(participants);
-		// add new participants to our list of known speakers
-		for (std::set<LLUUID>::iterator participant_it = participants.begin();
-			 participant_it != participants.end(); 
-			 ++participant_it)
+		std::set<LLUUID> participants;
+		LLVoiceClient::getInstance()->getParticipantList(participants);
+		// If we are, add all voice client participants to our list of known speakers
+		for (std::set<LLUUID>::iterator participant_it = participants.begin(); participant_it != participants.end(); ++participant_it)
 		{
 				setSpeaker(*participant_it, 
 						   LLVoiceClient::getInstance()->getDisplayName(*participant_it),
 						   LLSpeaker::STATUS_VOICE_ACTIVE, 
 						   (LLVoiceClient::getInstance()->isParticipantAvatar(*participant_it)?LLSpeaker::SPEAKER_AGENT:LLSpeaker::SPEAKER_EXTERNAL));
-
-
 		}
 	}
+	else 
+	{
+		// If not, check if the list is empty, except if it's Nearby Chat (session_id NULL).
+		LLUUID session_id = getSessionID();
+		if ((mSpeakers.size() == 0) && (!session_id.isNull()))
+		{
+			// If the list is empty, we update it with whatever was used to initiate the call so that it doesn't stay empty too long.
+			// *TODO: Fix the server side code that sometimes forgets to send back the list of agents after a chat started 
+			// (IOW, fix why we get no ChatterBoxSessionAgentListUpdates message after the initial ChatterBoxSessionStartReply)
+			LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
+			for (uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();it!=session->mInitialTargetIDs.end();++it)
+			{
+				// Add buddies if they are on line, add any other avatar.
+				if (!LLAvatarTracker::instance().isBuddy(*it) || LLAvatarTracker::instance().isBuddyOnline(*it))
+				{
+					setSpeaker(*it, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
+				}
+			}
+		}
+	}
+	// Finally, always add the current agent (it has to be there no matter what...)
+	setSpeaker(gAgentID, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
 }
 
 void LLSpeakerMgr::setSpeakerNotInChannel(LLSpeaker* speakerp)
@@ -530,6 +607,10 @@ const LLUUID LLSpeakerMgr::getSessionID()
 	return mVoiceChannel->getSessionID(); 
 }
 
+bool LLSpeakerMgr::isSpeakerToBeRemoved(const LLUUID& speaker_id)
+{
+	return mSpeakerDelayRemover && mSpeakerDelayRemover->isTimerStarted(speaker_id);
+}
 
 void LLSpeakerMgr::setSpeakerTyping(const LLUUID& speaker_id, BOOL typing)
 {
@@ -548,6 +629,7 @@ void LLSpeakerMgr::speakerChatted(const LLUUID& speaker_id)
 	{
 		speakerp->mLastSpokeTime = mSpeechTimer.getElapsedTimeF32();
 		speakerp->mHasSpoken = TRUE;
+		fireEvent(new LLSpeakerUpdateSpeakerEvent(speakerp), "update_speaker");
 	}
 }
 
@@ -717,43 +799,6 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 		}
 	}
 }
-
-class ModerationResponder : public LLHTTPClient::Responder
-{
-public:
-	ModerationResponder(const LLUUID& session_id)
-	{
-		mSessionID = session_id;
-	}
-
-	virtual void error(U32 status, const std::string& reason)
-	{
-		llwarns << status << ": " << reason << llendl;
-
-		if ( gIMMgr )
-		{
-			//403 == you're not a mod
-			//should be disabled if you're not a moderator
-			if ( 403 == status )
-			{
-				gIMMgr->showSessionEventError(
-					"mute",
-					"not_a_mod_error",
-					mSessionID);
-			}
-			else
-			{
-				gIMMgr->showSessionEventError(
-					"mute",
-					"generic_request_error",
-					mSessionID);
-			}
-		}
-	}
-
-private:
-	LLUUID mSessionID;
-};
 
 void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
 {

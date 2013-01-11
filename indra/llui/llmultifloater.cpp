@@ -37,12 +37,10 @@
 //
 
 LLMultiFloater::LLMultiFloater(const LLSD& key, const LLFloater::Params& params)
-	: LLFloater(key),
-	  mTabContainer(NULL),
-	  mTabPos(LLTabContainer::TOP),
-	  mAutoResize(TRUE),
-	  mOrigMinWidth(0),
-	  mOrigMinHeight(0)
+	: LLFloater(key)
+	, mTabContainer(NULL)
+	, mTabPos(LLTabContainer::TOP)
+	, mAutoResize(TRUE)
 {
 }
 
@@ -173,7 +171,7 @@ void LLMultiFloater::addFloater(LLFloater* floaterp, BOOL select_added_floater, 
 	else if (floaterp->getHost())
 	{
 		// floaterp is hosted by somebody else and
-		// this is adding it, so remove it from it's old host
+		// this is adding it, so remove it from its old host
 		floaterp->getHost()->removeFloater(floaterp);
 	}
 	else if (floaterp->getParent() == gFloaterView)
@@ -188,11 +186,13 @@ void LLMultiFloater::addFloater(LLFloater* floaterp, BOOL select_added_floater, 
 	floater_data.mHeight = floaterp->getRect().getHeight();
 	floater_data.mCanMinimize = floaterp->isMinimizeable();
 	floater_data.mCanResize = floaterp->isResizable();
+    floater_data.mSaveRect = floaterp->mSaveRect;
 
 	// remove minimize and close buttons
 	floaterp->setCanMinimize(FALSE);
 	floaterp->setCanResize(FALSE);
 	floaterp->setCanDrag(FALSE);
+	floaterp->mSaveRect = FALSE;
 	floaterp->storeRectControl();
 	// avoid double rendering of floater background (makes it more opaque)
 	floaterp->setBackgroundVisible(FALSE);
@@ -291,6 +291,7 @@ void LLMultiFloater::removeFloater(LLFloater* floaterp)
 	{
 		LLFloaterData& floater_data = found_data_it->second;
 		floaterp->setCanMinimize(floater_data.mCanMinimize);
+		floaterp->mSaveRect = floater_data.mSaveRect;
 		if (!floater_data.mCanResize)
 		{
 			// restore original size
@@ -468,23 +469,12 @@ BOOL LLMultiFloater::postBuild()
 
 void LLMultiFloater::updateResizeLimits()
 {
-	static LLUICachedControl<S32> tabcntr_close_btn_size ("UITabCntrCloseBtnSize", 0);
-	const LLFloater::Params& default_params = LLFloater::getDefaultParams();
-	S32 floater_header_size = default_params.header_height;
-	S32 tabcntr_header_height = LLPANEL_BORDER_WIDTH + tabcntr_close_btn_size;
 	// initialize minimum size constraint to the original xml values.
 	S32 new_min_width = mOrigMinWidth;
 	S32 new_min_height = mOrigMinHeight;
-	// possibly increase minimum size constraint due to children's minimums.
-	for (S32 tab_idx = 0; tab_idx < mTabContainer->getTabCount(); ++tab_idx)
-	{
-		LLFloater* floaterp = (LLFloater*)mTabContainer->getPanelByIndex(tab_idx);
-		if (floaterp)
-		{
-			new_min_width = llmax(new_min_width, floaterp->getMinWidth() + LLPANEL_BORDER_WIDTH * 2);
-			new_min_height = llmax(new_min_height, floaterp->getMinHeight() + floater_header_size + tabcntr_header_height);
-		}
-	}
+
+	computeResizeLimits(new_min_width, new_min_height);
+
 	setResizeLimits(new_min_width, new_min_height);
 
 	S32 cur_height = getRect().getHeight();
@@ -508,5 +498,24 @@ void LLMultiFloater::updateResizeLimits()
 		// make sure this window is visible on screen when it has been modified
 		// (tab added, etc)
 		gFloaterView->adjustToFitScreen(this, TRUE);
+	}
+}
+
+void LLMultiFloater::computeResizeLimits(S32& new_min_width, S32& new_min_height)
+{
+	static LLUICachedControl<S32> tabcntr_close_btn_size ("UITabCntrCloseBtnSize", 0);
+	const LLFloater::Params& default_params = LLFloater::getDefaultParams();
+	S32 floater_header_size = default_params.header_height;
+	S32 tabcntr_header_height = LLPANEL_BORDER_WIDTH + tabcntr_close_btn_size;
+
+	// possibly increase minimum size constraint due to children's minimums.
+	for (S32 tab_idx = 0; tab_idx < mTabContainer->getTabCount(); ++tab_idx)
+	{
+		LLFloater* floaterp = (LLFloater*)mTabContainer->getPanelByIndex(tab_idx);
+		if (floaterp)
+		{
+			new_min_width = llmax(new_min_width, floaterp->getMinWidth() + LLPANEL_BORDER_WIDTH * 2);
+			new_min_height = llmax(new_min_height, floaterp->getMinHeight() + floater_header_size + tabcntr_header_height);
+		}
 	}
 }

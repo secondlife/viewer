@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<conversation_view_participant
+  folder_arrow_image="Folder_Arrow"
+  item_height="24" 
+  item_top_pad="0"
+  selection_image="Rounded_Square"
+  mouse_opaque="true"
+  follows="left|top|right"
+  left_pad="0"
+  icon_pad="10"
+  icon_width="20"
+  text_pad="7"
+  text_pad_right="4"
+  arrow_size="12"
+  max_folder_item_overlap="2"
+>
+<avatar_icon
+	 follows="left"
+     height="20"
+     default_icon_name="Generic_Person"
+	 layout="topleft"
+	 top="2"
+     width="20" />
+<info_button
+	 follows="right"
+     height="16"
+     image_pressed="Info_Press"
+     image_unselected="Info_Over"
+     right="-28"
+     name="info_btn"
+     width="16" />
+<output_monitor
+	follows="right"
+	auto_update="true"
+	draw_border="false"
+	height="16"
+	right="-3"
+	mouse_opaque="true"
+	name="speaking_indicator"
+	visible="true"
+	width="20" />	 
+</conversation_view_participant>

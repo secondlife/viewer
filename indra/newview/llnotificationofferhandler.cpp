@@ -40,16 +40,14 @@
 using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
-LLOfferHandler::LLOfferHandler(e_notification_type type, const LLSD& id)
+LLOfferHandler::LLOfferHandler()
+:	LLCommunicationNotificationHandler("Offer", "offer")
 {
-	mType = type;
-
 	// Getting a Channel for our notifications
 	LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();
 	if(channel)
 	{
 		channel->setControlHovering(true);
-		channel->setOnRejectToastCallback(boost::bind(&LLOfferHandler::onRejectToast, this, _1));
 		mChannel = channel->getHandle();
 	}
 }
@@ -68,17 +66,12 @@ void LLOfferHandler::initChannel()
 }
 
 //--------------------------------------------------------------------------
-bool LLOfferHandler::processNotification(const LLSD& notify)
+bool LLOfferHandler::processNotification(const LLNotificationPtr& notification)
 {
 	if(mChannel.isDead())
 	{
 		return false;
 	}
-
-	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
-
-	if(!notification)
-		return false;
 
 	// arrange a channel on a screen
 	if(!mChannel.get()->getVisible())
@@ -86,129 +79,108 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 		initChannel();
 	}
 
-	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
+
+	if( notification->getPayload().has("give_inventory_notification")
+		&& notification->getPayload()["give_inventory_notification"].asBoolean() == false)
 	{
-
-
-		if( notification->getPayload().has("give_inventory_notification")
-			&& !notification->getPayload()["give_inventory_notification"] )
-		{
-			// This is an original inventory offer, so add a script floater
-			LLScriptFloaterManager::instance().onAddNotification(notification->getID());
-		}
-		else
-		{
-			notification->setReusable(LLHandlerUtil::isNotificationReusable(notification));
-
-			LLUUID session_id;
-			if (LLHandlerUtil::canSpawnIMSession(notification))
-			{
-				const std::string name = LLHandlerUtil::getSubstitutionName(notification);
-
-				LLUUID from_id = notification->getPayload()["from_id"];
-
-				session_id = LLHandlerUtil::spawnIMSession(name, from_id);
-			}
-
-			bool show_toast = LLHandlerUtil::canSpawnToast(notification);
-			bool add_notid_to_im = LLHandlerUtil::canAddNotifPanelToIM(notification);
-			if (add_notid_to_im)
-			{
-				LLHandlerUtil::addNotifPanelToIM(notification);
-			}
-
-			if (notification->getPayload().has("SUPPRESS_TOAST")
-						&& notification->getPayload()["SUPPRESS_TOAST"])
-			{
-				LLNotificationsUtil::cancel(notification);
-			}
-			else if(show_toast)
-			{
-				LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
-				// don't close notification on panel destroy since it will be used by IM floater
-				notify_box->setCloseNotificationOnDestroy(!add_notid_to_im);
-				LLToast::Params p;
-				p.notif_id = notification->getID();
-				p.notification = notification;
-				p.panel = notify_box;
-				p.on_delete_toast = boost::bind(&LLOfferHandler::onDeleteToast, this, _1);
-				// we not save offer notifications to the syswell floater that should be added to the IM floater
-				p.can_be_stored = !add_notid_to_im;
-
-				LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
-				if(channel)
-					channel->addToast(p);
-
-				// if we not add notification to IM - add it to notification well
-				if (!add_notid_to_im)
-				{
-					// send a signal to the counter manager
-					mNewNotificationSignal();
-				}
-			}
-
-			if (LLHandlerUtil::canLogToIM(notification))
-			{
-				// log only to file if notif panel can be embedded to IM and IM is opened
-				if (add_notid_to_im && LLHandlerUtil::isIMFloaterOpened(notification))
-				{
-					LLHandlerUtil::logToIMP2P(notification, true);
-				}
-				else
-				{
-					LLHandlerUtil::logToIMP2P(notification);
-				}
-			}
-		}
+		// This is an original inventory offer, so add a script floater
+		LLScriptFloaterManager::instance().onAddNotification(notification->getID());
 	}
-	else if (notify["sigtype"].asString() == "delete")
+	else
 	{
-		if( notification->getPayload().has("give_inventory_notification")
-			&& !notification->getPayload()["give_inventory_notification"] )
+		bool add_notif_to_im = notification->canLogToIM() && notification->hasFormElements();
+
+		if (add_notif_to_im)
 		{
-			// Remove original inventory offer script floater
-			LLScriptFloaterManager::instance().onRemoveNotification(notification->getID());
+			const std::string name = LLHandlerUtil::getSubstitutionName(notification);
+
+			LLUUID from_id = notification->getPayload()["from_id"];
+
+			LLHandlerUtil::spawnIMSession(name, from_id);
+			LLHandlerUtil::addNotifPanelToIM(notification);
 		}
-		else
+
+		if (!notification->canShowToast())
 		{
-			if (LLHandlerUtil::canAddNotifPanelToIM(notification)
-					&& !LLHandlerUtil::isIMFloaterOpened(notification))
-			{
-				LLHandlerUtil::decIMMesageCounter(notification);
-			}
-			mChannel.get()->killToastByNotificationID(notification->getID());
+			LLNotificationsUtil::cancel(notification);
+		}
+		else if(!notification->canLogToIM() || !LLHandlerUtil::isIMFloaterOpened(notification))
+		{
+			LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
+			LLToast::Params p;
+			p.notif_id = notification->getID();
+			p.notification = notification;
+			p.panel = notify_box;
+			// we not save offer notifications to the syswell floater that should be added to the IM floater
+			p.can_be_stored = !add_notif_to_im;
+			p.force_show = notification->getOfferFromAgent();
+
+			LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
+			if(channel)
+				channel->addToast(p);
+
+            //Will not play a notification sound for inventory and teleport offer based upon chat preference
+            bool playSound = !((notification->getName() == "UserGiveItem"
+                                    && gSavedSettings.getBOOL("PlaySoundInventoryOffer") == FALSE)
+                                ||  notification->getName() == "TeleportOffered"
+                                    && gSavedSettings.getBOOL("PlaySoundTeleportOffer") == FALSE);
+
+            if(playSound)
+            {
+                notification->playSound();
+            }
+		}
+
+		if (notification->canLogToIM())
+		{
+			// log only to file if notif panel can be embedded to IM and IM is opened
+			bool file_only = add_notif_to_im && LLHandlerUtil::isIMFloaterOpened(notification);
+			LLHandlerUtil::logToIMP2P(notification, file_only);
 		}
 	}
 
 	return false;
 }
 
-//--------------------------------------------------------------------------
-
-void LLOfferHandler::onDeleteToast(LLToast* toast)
+/*virtual*/ void LLOfferHandler::onChange(LLNotificationPtr p)
 {
-	if (!LLHandlerUtil::canAddNotifPanelToIM(toast->getNotification()))
+	LLToastNotifyPanel* panelp = LLToastNotifyPanel::getInstance(p->getID());
+	if (panelp)
 	{
-		// send a signal to the counter manager
-		mDelNotificationSignal();
-	}
-
-	// send a signal to a listener to let him perform some action
-	// in this case listener is a SysWellWindow and it will remove a corresponding item from its list
-	mNotificationIDSignal(toast->getNotificationID());
-}
-
-//--------------------------------------------------------------------------
-void LLOfferHandler::onRejectToast(LLUUID& id)
-{
-	LLNotificationPtr notification = LLNotifications::instance().find(id);
-
-	if (notification
-			&& LLNotificationManager::getInstance()->getHandlerForNotification(
-					notification->getType()) == this
-					// don't delete notification since it may be used by IM floater
-					&& !LLHandlerUtil::canAddNotifPanelToIM(notification))
-	{
-		LLNotifications::instance().cancel(notification);
+		//
+		// HACK: if we're dealing with a notification embedded in IM, update it
+		// otherwise remove its toast
+		//
+		if (dynamic_cast<LLIMToastNotifyPanel*>(panelp))
+		{
+			panelp->updateNotification();
+		}
+		else
+		{
+			// if notification has changed, hide it
+			mChannel.get()->removeToastByNotificationID(p->getID());
+		}
 	}
 }
+
+
+/*virtual*/ void LLOfferHandler::onDelete(LLNotificationPtr notification)
+{
+	if( notification->getPayload().has("give_inventory_notification")
+		&& !notification->getPayload()["give_inventory_notification"] )
+	{
+		// Remove original inventory offer script floater
+		LLScriptFloaterManager::instance().onRemoveNotification(notification->getID());
+	}
+	else
+	{
+		if (notification->canLogToIM() 
+			&& notification->hasFormElements()
+			&& !LLHandlerUtil::isIMFloaterOpened(notification))
+		{
+			LLHandlerUtil::decIMMesageCounter(notification);
+		}
+		mChannel.get()->removeToastByNotificationID(notification->getID());
+	}
+}
+

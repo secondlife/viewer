@@ -45,6 +45,8 @@ class LLSliderCtrl;
 class LLSD;
 class LLTextBox;
 
+typedef std::map<std::string, std::string> notifications_map;
+
 typedef enum
 	{
 		GS_LOW_GRAPHICS,
@@ -75,13 +77,15 @@ public:
 	// refresh all the graphics preferences menus
 	static void refreshEnabledGraphics();
 	
-	// translate user's busy response message according to current locale if message is default, otherwise do nothing
-	static void initBusyResponse();
+	// translate user's do not disturb response message according to current locale if message is default, otherwise do nothing
+	static void initDoNotDisturbResponse();
 
 	void processProperties( void* pData, EAvatarProcessorType type );
 	void processProfileProperties(const LLAvatarData* pAvatarData );
 	void storeAvatarProperties( const LLAvatarData* pAvatarData );
 	void saveAvatarProperties( void );
+	void selectPrivacyPanel();
+	void selectChatPanel();
 
 protected:	
 	void		onBtnOK();
@@ -91,11 +95,12 @@ protected:
 	void		onClickClearCache();			// Clear viewer texture cache, vfs, and VO cache on next startup
 	void		onClickBrowserClearCache();		// Clear web history and caches as well as viewer caches above
 	void		onLanguageChange();
+	void		onNotificationsChange(const std::string& OptionName);
 	void		onNameTagOpacityChange(const LLSD& newvalue);
 
-	// set value of "BusyResponseChanged" in account settings depending on whether busy response
+	// set value of "DoNotDisturbResponseChanged" in account settings depending on whether do not disturb response
 	// string differs from default after user changes.
-	void onBusyResponseChanged();
+	void onDoNotDisturbResponseChanged();
 	// if the custom settings box is clicked
 	void onChangeCustom();
 	void updateMeterText(LLUICtrl* ctrl);
@@ -164,8 +169,11 @@ public:
 	
 	void buildPopupLists();
 	static void refreshSkin(void* data);
+	void selectPanel(const LLSD& name);
+
 private:
 	static std::string sSkin;
+	notifications_map mNotificationOptions;
 	bool mClickActionDirty; ///< Set to true when the click/double-click options get changed by user.
 	bool mGotPersonalInfo;
 	bool mOriginalIMViaEmail;
