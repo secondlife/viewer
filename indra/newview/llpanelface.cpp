@@ -69,15 +69,15 @@
 // Constant definitions for comboboxes
 // Must match the commbobox definitions in panel_tools_texture.xml
 //
-const U32 MATMEDIA_MATERIAL = 0;	// Material
-const U32 MATMEDIA_MEDIA = 1;		// Media
-const U32 MATTYPE_DIFFUSE = 0;		// Diffuse material texture
-const U32 MATTYPE_NORMAL = 1;		// Normal map
-const U32 MATTYPE_SPECULAR = 2;		// Specular map
-const U32 ALPHAMODE_NONE = 0;		// No alpha mask applied
-const U32 ALPHAMODE_MASK = 2;		// Alpha masking mode
-const U32 BUMPY_TEXTURE = 18;		// use supplied normal map
-const U32 SHINY_TEXTURE = 4;		// use supplied specular map
+const S32 MATMEDIA_MATERIAL = 0;	// Material
+const S32 MATMEDIA_MEDIA = 1;		// Media
+const S32 MATTYPE_DIFFUSE = 0;		// Diffuse material texture
+const S32 MATTYPE_NORMAL = 1;		// Normal map
+const S32 MATTYPE_SPECULAR = 2;		// Specular map
+const S32 ALPHAMODE_NONE = 0;		// No alpha mask applied
+const S32 ALPHAMODE_MASK = 2;		// Alpha masking mode
+const S32 BUMPY_TEXTURE = 18;		// use supplied normal map
+const S32 SHINY_TEXTURE = 4;		// use supplied specular map
 
 //
 // Methods
@@ -85,8 +85,6 @@ const U32 SHINY_TEXTURE = 4;		// use supplied specular map
 
 BOOL	LLPanelFace::postBuild()
 {
-	childSetCommitCallback("combobox matmedia",&LLPanelFace::onCommitMaterialsMedia,this);
-	childSetCommitCallback("combobox mattype",&LLPanelFace::onCommitMaterialType,this);
 	childSetCommitCallback("combobox shininess",&LLPanelFace::onCommitShiny,this);
 	childSetCommitCallback("combobox bumpiness",&LLPanelFace::onCommitBump,this);
 	childSetCommitCallback("combobox alphamode",&LLPanelFace::onCommitAlphaMode,this);
@@ -104,6 +102,8 @@ BOOL	LLPanelFace::postBuild()
 	LLColorSwatchCtrl*	mColorSwatch;
 
 	LLComboBox*		mComboTexGen;
+	LLComboBox*		mComboMatMedia;
+	LLComboBox*		mComboMatType;
 
 	LLCheckBoxCtrl	*mCheckFullbright;
 	
@@ -167,6 +167,20 @@ BOOL	LLPanelFace::postBuild()
 	{
 		mComboTexGen->setCommitCallback(LLPanelFace::onCommitTexGen, this);
 		mComboTexGen->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);	
+	}
+
+	mComboMatMedia = getChild<LLComboBox>("combobox matmedia");
+	if(mComboMatMedia)
+	{
+		mComboMatMedia->setCommitCallback(LLPanelFace::onCommitMaterialsMedia,this);
+		mComboMatMedia->selectNthItem(MATMEDIA_MATERIAL);
+	}
+
+	mComboMatType = getChild<LLComboBox>("combobox mattype");
+	if(mComboMatType)
+	{
+		mComboMatType->setCommitCallback(LLPanelFace::onCommitMaterialType, this);
+		mComboMatType->selectNthItem(MATTYPE_DIFFUSE);
 	}
 
 	mCtrlGlow = getChild<LLSpinCtrl>("glow");
