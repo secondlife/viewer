@@ -1001,7 +1001,10 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 		{
 			if(vo_entry->getState() >= LLVOCacheEntry::WAITING)
 			{
-				iter = mImpl->mVisibleEntries.erase(iter);
+				LLVOCacheEntry::vocache_entry_set_t::iterator next_iter = iter;
+				++next_iter;
+				mImpl->mVisibleEntries.erase(iter);
+				iter = next_iter;
 			}
 			else
 			{
