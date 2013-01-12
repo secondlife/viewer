@@ -533,7 +533,7 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 		sTotalTextureMemory >= sMaxTotalTextureMem)
 	{
 		//when texture memory overflows, lower down the threshold to release the textures more aggressively.
-		sMaxDesiredTextureMem = (S32)llmin(sMaxDesiredTextureMem * 0.75f, LLUnit<LLUnits::Bytes, S32>(gMaxVideoRam));
+		sMaxDesiredTextureMem = llmin(sMaxDesiredTextureMem * 0.75f, LLUnit<LLUnits::Bytes, S32>(gMaxVideoRam));
 	
 		// If we are using more texture memory than we should,
 		// scale up the desired discard level
@@ -549,8 +549,8 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 		sEvaluationTimer.reset();
 	}
 	else if (sDesiredDiscardBias > 0.0f &&
-			 sBoundTextureMemory < (S32)(sMaxBoundTextureMem * texmem_lower_bound_scale) &&
-			 sTotalTextureMemory < (S32)(sMaxTotalTextureMem * texmem_lower_bound_scale))
+			 sBoundTextureMemory < sMaxBoundTextureMem * texmem_lower_bound_scale &&
+			 sTotalTextureMemory < sMaxTotalTextureMem * texmem_lower_bound_scale)
 	{			 
 		// If we are using less texture memory than we should,
 		// scale down the desired discard level
@@ -568,8 +568,8 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 	sCameraMovingBias = llmax(0.2f * camera_moving_speed, 2.0f * camera_angular_speed - 1);
 	sCameraMovingDiscardBias = (S8)(sCameraMovingBias);
 
-	LLViewerTexture::sFreezeImageScalingDown = (sBoundTextureMemory < (S32)(0.75f * sMaxBoundTextureMem * texmem_middle_bound_scale)) &&
-				(sTotalTextureMemory < (S32)(0.75f * sMaxTotalTextureMem * texmem_middle_bound_scale));
+	LLViewerTexture::sFreezeImageScalingDown = (sBoundTextureMemory < 0.75f * sMaxBoundTextureMem * texmem_middle_bound_scale) &&
+				(sTotalTextureMemory < 0.75f * sMaxTotalTextureMem * texmem_middle_bound_scale) ;
 }
 
 //end of static functions

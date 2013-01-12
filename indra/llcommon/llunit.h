@@ -75,7 +75,7 @@ struct LLUnit
 	typedef LLUnit<UNIT_TYPE, STORAGE_TYPE> self_t;
 	typedef STORAGE_TYPE storage_t;
 
-	// default initialization
+	// value initialization
 	LLUnit(storage_t value = storage_t())
 	:	mValue(value)
 	{}
@@ -301,13 +301,13 @@ LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> operator - (SCALAR_TYPE first, LLUnitImp
 template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
 LLUnit<UNIT_TYPE, STORAGE_TYPE> operator * (SCALAR_TYPE first, LLUnit<UNIT_TYPE, STORAGE_TYPE> second)
 {
-	return LLUnit<UNIT_TYPE, STORAGE_TYPE>(first * second.value());
+	return LLUnit<UNIT_TYPE, STORAGE_TYPE>((STORAGE_TYPE)(first * second.value()));
 }
 
 template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
 LLUnit<UNIT_TYPE, STORAGE_TYPE> operator * (LLUnit<UNIT_TYPE, STORAGE_TYPE> first, SCALAR_TYPE second)
 {
-	return LLUnit<UNIT_TYPE, STORAGE_TYPE>(first.value() * second);
+	return LLUnit<UNIT_TYPE, STORAGE_TYPE>((STORAGE_TYPE)(first.value() * second));
 }
 
 template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>
@@ -350,7 +350,7 @@ SCALAR_TYPE operator / (SCALAR_TYPE first, LLUnit<UNIT_TYPE, STORAGE_TYPE> secon
 template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
 LLUnit<UNIT_TYPE, STORAGE_TYPE> operator / (LLUnit<UNIT_TYPE, STORAGE_TYPE> first, SCALAR_TYPE second)
 {
-	return LLUnit<UNIT_TYPE, STORAGE_TYPE>(first.value() / second);
+	return LLUnit<UNIT_TYPE, STORAGE_TYPE>((STORAGE_TYPE)(first.value() / second));
 }
 
 template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>
@@ -363,7 +363,7 @@ STORAGE_TYPE1 operator / (LLUnit<UNIT_TYPE1, STORAGE_TYPE1> first, LLUnit<UNIT_T
 template<typename UNIT_TYPE, typename STORAGE_TYPE, typename SCALAR_TYPE>
 LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> operator / (LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> first, SCALAR_TYPE second)
 {
-	return LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE>(first.value() / second);
+	return LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE>((STORAGE_TYPE)(first.value() / second));
 }
 
 template<typename UNIT_TYPE1, typename STORAGE_TYPE1, typename UNIT_TYPE2, typename STORAGE_TYPE2>
