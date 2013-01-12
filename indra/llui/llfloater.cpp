@@ -2394,7 +2394,6 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 {
 	if (mFrontChild == child)
 	{
-		child->setFocus(true);
 		return;
 	}
 
