@@ -134,36 +134,32 @@ void process_dnd_im(const LLSD& notification)
 void useMostItrusiveIMNotification()
 {
     LLFloaterPreference * instance = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
-    if (instance)
-    {    
-        LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+    LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
 
-        //conv. floater is closed
-        bool conversation_floater_is_closed =
-            !(  im_box
-            && im_box->isInVisibleChain()
-            && !im_box->isMinimized());
+    //conv. floater is closed
+    bool conversation_floater_is_closed =
+        !(  im_box
+        && im_box->isInVisibleChain()
+        && !im_box->isMinimized());
 
-        //conversation floater not focused (visible or not)
-        bool conversation_floater_not_focused =
-            conversation_floater_is_closed || !im_box->hasFocus();
+    //conversation floater not focused (visible or not)
+    bool conversation_floater_not_focused =
+        conversation_floater_is_closed || !im_box->hasFocus();
 
+    //Only notify user of stored DND IM messages when conversation floater isn't focused
+    if (instance && conversation_floater_not_focused)
+    {
         switch(instance->getHighestNotificationIndex())
         {
-            //Highest priority to lowest (cases correspond to options in drop down box inside Preferences->Chat)
-
             //open conversation floater
             case 0:
-                    LLFloaterReg::showInstance("im_container");
+                LLFloaterReg::showInstance("im_container");
                 break;
             //pop up message
             case 1:
             //flash toolbar button
             case 2:
-                if(conversation_floater_not_focused)
-                {
-                    gToolBarView->flashCommand(LLCommandId("chat"), true);
-                }
+                gToolBarView->flashCommand(LLCommandId("chat"), true);
                 break;
         }
     }
@@ -284,13 +280,22 @@ void on_new_message(const LLSD& msg)
     {
     	if (conversation_floater_not_focused)
     	{
-            if(session_floater_not_focused)
+            if(session_floater_not_focused && !gAgent.isDoNotDisturb())
             {
             	//User is not focused on conversation containing the message
                 gToolBarView->flashCommand(LLCommandId("chat"), true);
             }
 
             im_box->flashConversationItemWidget(session_id, true);
+
+            //If a DND message, allow notification to be stored so upon DND exit 
+            //useMostItrusiveIMNotification will be called to notify user a message exists
+            if(session_id.notNull() 
+                && participant_id.notNull() 
+                && gAgent.isDoNotDisturb())
+            {
+                LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+            }
         }
     }
 
@@ -302,8 +307,20 @@ void on_new_message(const LLSD& msg)
             //Flash line item
             im_box->flashConversationItemWidget(session_id, true);
 
-            //Surface conversations floater
-            LLFloaterReg::showInstance("im_container");
+            if(!gAgent.isDoNotDisturb())
+            {
+                //Surface conversations floater
+                LLFloaterReg::showInstance("im_container");
+            }
+
+            //If in DND mode, allow notification to be stored so upon DND exit 
+            //useMostItrusiveIMNotification will be called to notify user a message exists
+            if(session_id.notNull() 
+                && participant_id.notNull()
+                && gAgent.isDoNotDisturb())
+            {
+                LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+            }
         }
     }
 }

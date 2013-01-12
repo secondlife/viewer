@@ -1626,12 +1626,11 @@ void LLFloaterPreference::selectChatPanel()
 
 S32 LLFloaterPreference::getHighestNotificationIndex() //change this name
 {
-    static const S32 comboBoxNamesLength = 5;
-    static std::string comboBoxNames[comboBoxNamesLength] = {"NearbyChatOptions",
-                                            "FriendIMOptions",
-                                            "NonFriendIMOptions",
-                                            "ConferenceIMOptions",
-                                            "GroupChatOptions"};
+    static const S32 comboBoxNamesLength = 4;
+    static std::string comboBoxNames[comboBoxNamesLength] = {"FriendIMOptions",
+                                                                "NonFriendIMOptions",
+                                                                "ConferenceIMOptions",
+                                                                "GroupChatOptions"};
     S32 selectedIndex;
     S32 priorityindex = 3;
     LLComboBox * comboBox;
