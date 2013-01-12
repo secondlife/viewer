@@ -48,6 +48,7 @@ public:
 	history_list_t::const_iterator endHistory() const;
 	
 	void clearHistory();
+    void removeItem(history_list_t::const_iterator itemToRemove);
 
 protected:
 	virtual void onFilterFail(LLNotificationPtr pNotificationPtr);

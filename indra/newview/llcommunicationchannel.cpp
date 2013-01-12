@@ -67,12 +67,18 @@ void LLCommunicationChannel::clearHistory()
 	mHistory.clear();
 }
 
+void LLCommunicationChannel::removeItem(history_list_t::const_iterator itemToRemove)
+{
+    mHistory.erase(itemToRemove);
+}
+
 void LLCommunicationChannel::onFilterFail(LLNotificationPtr pNotificationPtr)
 {
 	std::string notificationType = pNotificationPtr->getType();
 	if ((notificationType == "groupnotify")
 		|| (notificationType == "offer")
-		|| (notificationType == "notifytoast"))
+		|| (notificationType == "notifytoast")
+        && !pNotificationPtr->isCancelled())
 	{
 		mHistory.insert(std::make_pair<LLDate, LLNotificationPtr>(pNotificationPtr->getDate(), pNotificationPtr));
 	}

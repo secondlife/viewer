@@ -52,6 +52,7 @@
 #include "llchat.h"
 #include "llfloaterimsession.h"
 #include "llfloaterimcontainer.h"
+#include "llfloaterpreference.h"
 #include "llgroupiconctrl.h"
 #include "llmd5.h"
 #include "llmutelist.h"
@@ -128,11 +129,46 @@ void process_dnd_im(const LLSD& notification)
             false, 
             false); //will need slight refactor to retrieve whether offline message or not (assume online for now)
     }
-
-    //Flash toolbar button for now, eventually the user's preference will be taken into account
-    gToolBarView->flashCommand(LLCommandId("chat"), true);
 }
 
+void useMostItrusiveIMNotification()
+{
+    LLFloaterPreference * instance = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
+    if (instance)
+    {    
+        LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+
+        //conv. floater is closed
+        bool conversation_floater_is_closed =
+            !(  im_box
+            && im_box->isInVisibleChain()
+            && !im_box->isMinimized());
+
+        //conversation floater not focused (visible or not)
+        bool conversation_floater_not_focused =
+            conversation_floater_is_closed || !im_box->hasFocus();
+
+        switch(instance->getHighestNotificationIndex())
+        {
+            //Highest priority to lowest (cases correspond to options in drop down box inside Preferences->Chat)
+
+            //open conversation floater
+            case 0:
+                    LLFloaterReg::showInstance("im_container");
+                break;
+            //pop up message
+            case 1:
+            //flash toolbar button
+            case 2:
+                if(conversation_floater_not_focused)
+                {
+                    gToolBarView->flashCommand(LLCommandId("chat"), true);
+                }
+                break;
+        }
+    }
+
+}
 
 static void on_avatar_name_cache_toast(const LLUUID& agent_id,
 									   const LLAvatarName& av_name,

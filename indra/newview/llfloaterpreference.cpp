@@ -1624,6 +1624,36 @@ void LLFloaterPreference::selectChatPanel()
 	selectPanel("chat");
 }
 
+S32 LLFloaterPreference::getHighestNotificationIndex() //change this name
+{
+    static const S32 comboBoxNamesLength = 5;
+    static std::string comboBoxNames[comboBoxNamesLength] = {"NearbyChatOptions",
+                                            "FriendIMOptions",
+                                            "NonFriendIMOptions",
+                                            "ConferenceIMOptions",
+                                            "GroupChatOptions"};
+    S32 selectedIndex;
+    S32 priorityindex = 3;
+    LLComboBox * comboBox;
+
+    for(S32 i = 0; i < comboBoxNamesLength; ++i)
+    {
+        comboBox = getChild<LLComboBox>(comboBoxNames[i]);
+
+        if(comboBox)
+        {
+            selectedIndex = comboBox->getCurrentIndex();
+
+            if(selectedIndex < priorityindex)
+            {
+                priorityindex = selectedIndex;
+            }
+        }
+    }
+
+    return priorityindex;
+}
+
 //------------------------------Updater---------------------------------------
 
 static bool handleBandwidthChanged(const LLSD& newvalue)

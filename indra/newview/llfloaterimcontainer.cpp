@@ -39,6 +39,7 @@
 #include "llavatariconctrl.h"
 #include "llavatarnamecache.h"
 #include "llcallbacklist.h"
+#include "lldonotdisturbnotificationstorage.h"
 #include "llgroupactions.h"
 #include "llgroupiconctrl.h"
 #include "llflashtimer.h"
@@ -1291,6 +1292,10 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
     	if (widget && widget->getParentFolder())
     	{
     		widget->getParentFolder()->setSelection(widget, FALSE, FALSE);
+            if(gAgent.isDoNotDisturb())
+            {
+                LLDoNotDisturbNotificationStorage::getInstance()->removeIMNotification(session_id);
+            }
     	}
     }
 
@@ -1312,6 +1317,11 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 				// Switch to the conversation floater that is being selected
 				selectFloater(session_floater);
 			}
+
+            if(gAgent.isDoNotDisturb())
+            {
+                LLDoNotDisturbNotificationStorage::getInstance()->removeIMNotification(session_id);
+            }
 		}
 
 		// Set the focus on the selected floater

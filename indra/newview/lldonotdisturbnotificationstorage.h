@@ -45,6 +45,7 @@ public:
 
 	void saveNotifications();
 	void loadNotifications();
+    void removeIMNotification(const LLUUID& session_id);
 
 protected:
 

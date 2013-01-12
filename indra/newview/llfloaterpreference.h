@@ -86,6 +86,7 @@ public:
 	void saveAvatarProperties( void );
 	void selectPrivacyPanel();
 	void selectChatPanel();
+    S32 getHighestNotificationIndex();
 
 protected:	
 	void		onBtnOK();
