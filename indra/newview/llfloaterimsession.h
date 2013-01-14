@@ -132,6 +132,8 @@ public:
 	static boost::signals2::connection setIMFloaterShowedCallback(const floater_showed_signal_t::slot_type& cb);
 	static floater_showed_signal_t sIMFloaterShowedSignal;
 
+	bool hasSpecialTitle() { return mOtherTyping; }
+	std::string getSpecialTitle() { return getTitle(); }
 private:
 
 	/*virtual*/ void refresh();

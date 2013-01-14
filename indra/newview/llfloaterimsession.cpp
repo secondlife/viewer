@@ -705,7 +705,7 @@ BOOL LLFloaterIMSession::getVisible()
 		// getVisible() returns TRUE when Tabbed IM window is minimized.
 			visible = is_active && !im_container->isMinimized()
 						&& im_container->getVisible();
-	}
+		}
 	}
 	else
 	{

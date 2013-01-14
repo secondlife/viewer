@@ -238,6 +238,9 @@ BOOL LLFloaterIMContainer::postBuild()
 	// Init the sort order now that the root had been created
 	setSortOrder(LLConversationSort(gSavedSettings.getU32("ConversationSortOrder")));
 	
+	// Keep the xml set title around for when we have to overwrite it
+	mGeneralTitle = getTitle();
+	
 	mInitialized = true;
 
 	// Add callbacks:
@@ -515,6 +518,9 @@ void LLFloaterIMContainer::draw()
 
 			current_participant_model++;
 		}
+		// is P2P? Test if we can change the title
+		LLFloaterIMSession * conversation_floaterp = LLFloaterIMSession::findInstance(current_session->getUUID());
+		setTitle(conversation_floaterp && conversation_floaterp->hasSpecialTitle() ? conversation_floaterp->getSpecialTitle() : mGeneralTitle);
 	}
 
 	LLFloater::draw();
