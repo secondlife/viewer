@@ -4486,7 +4486,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	{
 		send_agent_resume();
 	}
-
+	
 	return ret;
 }
 

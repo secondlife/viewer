@@ -458,7 +458,9 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 		json << "{'label' : '" << label << "',\n" << 
 			"'regexp' : '" << expr << "',\n" <<
 			"'class' : '" << cls << "',\n" <<
-			"'supported' : '" << supported << "'\n},\n";
+			"'supported' : '" << supported << "',\n" <<
+			"'stats_based' : " << stats_based <<  ",\n" <<
+			"'gl_version' : " << expected_gl_version << "\n},\n";
 #endif
 
 		for (U32 i = 0; i < expr.length(); i++)	 /*Flawfinder: ignore*/
@@ -498,6 +500,10 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 	{
 		LL_WARNS("RenderInit") << "GPU '" << rawRenderer << "' not recognized" << LL_ENDL;
 	}
+
+#if LL_DARWIN // never go over "Mid" settings by default on OS X
+	mGPUClass = llmin(mGPUClass, GPU_CLASS_2);
+#endif
 }
 
 // responder saves table into file

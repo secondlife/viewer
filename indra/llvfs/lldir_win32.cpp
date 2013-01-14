@@ -249,7 +249,7 @@ std::string LLDir_Win32::getCurPath()
 }
 
 
-BOOL LLDir_Win32::fileExists(const std::string &filename) const
+bool LLDir_Win32::fileExists(const std::string &filename) const
 {
 	llstat stat_data;
 	// Check the age of the file

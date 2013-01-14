@@ -67,6 +67,9 @@ class LLAutoReplaceSettings
 	/// Inserts a new list at the end of the priority order
 	AddListResult addList(const LLSD& newList);
 
+	/// Inserts a list in place of an existing list of the same name
+	AddListResult replaceList(const LLSD& newList);
+
 	/// Removes the named list, @returns false if not found
 	bool removeReplacementList(std::string listName);
 
