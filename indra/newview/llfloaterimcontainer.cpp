@@ -893,7 +893,18 @@ void LLFloaterIMContainer::getSelectedUUIDs(uuid_vec_t& selected_uuids)
     for (; it != it_end; ++it)
     {
         conversationItem = static_cast<LLConversationItem *>((*it)->getViewModelItem());
-        selected_uuids.push_back(conversationItem->getUUID());
+      
+		//When a one-on-one conversation exists, retrieve the participant id from the conversation floater
+		if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
+		{
+			LLFloaterIMSession * conversation_floaterp = LLFloaterIMSession::findInstance(conversationItem->getUUID());
+			LLUUID participant_id = conversation_floaterp->getOtherParticipantUUID();
+			selected_uuids.push_back(participant_id);
+		}
+		else
+		{
+			selected_uuids.push_back(conversationItem->getUUID());
+		}
     }
 }
 
@@ -929,17 +940,7 @@ void LLFloaterIMContainer::getParticipantUUIDs(uuid_vec_t& selected_uuids)
 		return;
 	}
 
-    if (conversation_item->getType() == LLConversationItem::CONV_PARTICIPANT)
-    {
-        getSelectedUUIDs(selected_uuids);
-    }
-    //When a one-on-one conversation exists, retrieve the participant id from the conversation floater
-    else if(conversation_item->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
-    {
-        LLFloaterIMSession * conversation_floaterp = LLFloaterIMSession::findInstance(conversation_item->getUUID());
-        LLUUID participant_id = conversation_floaterp->getOtherParticipantUUID();
-        selected_uuids.push_back(participant_id);
-    }    
+	getSelectedUUIDs(selected_uuids);  
 }
 
 void LLFloaterIMContainer::doToParticipants(const std::string& command, uuid_vec_t& selectedIDS)
