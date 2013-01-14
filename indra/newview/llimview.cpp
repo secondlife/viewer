@@ -52,7 +52,6 @@
 #include "llchat.h"
 #include "llfloaterimsession.h"
 #include "llfloaterimcontainer.h"
-#include "llfloaterpreference.h"
 #include "llgroupiconctrl.h"
 #include "llmd5.h"
 #include "llmutelist.h"
@@ -129,42 +128,17 @@ void process_dnd_im(const LLSD& notification)
             false, 
             false); //will need slight refactor to retrieve whether offline message or not (assume online for now)
     }
-}
 
-void useMostItrusiveIMNotification()
-{
-    LLFloaterPreference * instance = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
-    LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-
-    //conv. floater is closed
-    bool conversation_floater_is_closed =
-        !(  im_box
-        && im_box->isInVisibleChain()
-        && !im_box->isMinimized());
-
-    //conversation floater not focused (visible or not)
-    bool conversation_floater_not_focused =
-        conversation_floater_is_closed || !im_box->hasFocus();
-
-    //Only notify user of stored DND IM messages when conversation floater isn't focused
-    if (instance && conversation_floater_not_focused)
+    // open conversation floater
+	LLFloaterIMContainer* container_floater =
+			LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+	if (container_floater && !(container_floater->isFrontmost()))
     {
-        switch(instance->getHighestNotificationIndex())
-        {
-            //open conversation floater
-            case 0:
-                LLFloaterReg::showInstance("im_container");
-                break;
-            //pop up message
-            case 1:
-            //flash toolbar button
-            case 2:
-                gToolBarView->flashCommand(LLCommandId("chat"), true);
-                break;
-        }
+		container_floater->openFloater();
+		container_floater->setFrontmost(TRUE);
     }
-
 }
+
 
 static void on_avatar_name_cache_toast(const LLUUID& agent_id,
 									   const LLAvatarName& av_name,
@@ -309,9 +283,9 @@ void on_new_message(const LLSD& msg)
 
             if(!gAgent.isDoNotDisturb())
             {
-                //Surface conversations floater
-                LLFloaterReg::showInstance("im_container");
-            }
+            //Surface conversations floater
+            LLFloaterReg::showInstance("im_container");
+        }
 
             //If in DND mode, allow notification to be stored so upon DND exit 
             //useMostItrusiveIMNotification will be called to notify user a message exists
@@ -320,8 +294,8 @@ void on_new_message(const LLSD& msg)
                 && gAgent.isDoNotDisturb())
             {
                 LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
-            }
-        }
+    }
+}
     }
 }
 
@@ -2582,25 +2556,6 @@ void LLIMMgr::addMessage(
 		new_session_id = computeSessionID(dialog, other_participant_id);
 	}
 
-	// Open conversation log if offline messages are present and user allows a Call Log
-	if (is_offline_msg)
-    {
-		if (gSavedSettings.getBOOL("KeepConversationLogTranscripts"))
-		{
-			LLFloaterConversationLog* floater_log =
-					LLFloaterReg::getTypedInstance<LLFloaterConversationLog>("conversation");
-			if (floater_log && !(floater_log->isFrontmost()))
-			{
-				floater_log->openFloater();
-				floater_log->setFrontmost(TRUE);
-			}
-		}
-		else
-		{
-           gToolBarView->flashCommand(LLCommandId("chat"), true);
-		}
-    }
-
 	//*NOTE session_name is empty in case of incoming P2P sessions
 	std::string fixed_session_name = from;
 	bool name_is_setted = false;
@@ -2667,6 +2622,19 @@ void LLIMMgr::addMessage(
 	{
 		LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg);
 	}
+
+	// Open conversation floater if offline messages are present
+	if (is_offline_msg)
+    {
+		LLFloaterIMContainer* container_floater =
+				LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+		if (container_floater && !(container_floater->isFrontmost()))
+		{
+			container_floater->openFloater();
+			container_floater->setFrontmost(TRUE);
+		}
+    }
+
 }
 
 void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& message_name, const LLSD& args)

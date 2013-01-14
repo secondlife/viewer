@@ -26,11 +26,12 @@
 
 #include "linden_common.h"
 #include "llcrashloggermac.h"
+#include "indra_constants.h"
 
+#include <iostream>
+    
 int main(int argc, char **argv)
 {
-	llinfos << "Starting crash reporter." << llendl;
-
 	LLCrashLoggerMac app;
 	app.parseCommandOptions(argc, argv);
 
@@ -39,9 +40,16 @@ int main(int argc, char **argv)
 		llwarns << "Unable to initialize application." << llendl;
 		return 1;
 	}
+    if (app.getCrashBehavior() != CRASH_BEHAVIOR_ALWAYS_SEND)
+    {
+//        return NSApplicationMain(argc, (const char **)argv);
+    }
 
 	app.mainLoop();
+
 	app.cleanup();
+
 	llinfos << "Crash reporter finished normally." << llendl;
+    
 	return 0;
 }

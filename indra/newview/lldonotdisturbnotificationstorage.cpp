@@ -41,8 +41,6 @@
 #include "llsingleton.h"
 #include "lluuid.h"
 
-extern void useMostItrusiveIMNotification();
-
 LLDoNotDisturbNotificationStorage::LLDoNotDisturbNotificationStorage()
 	: LLSingleton<LLDoNotDisturbNotificationStorage>()
 	, LLNotificationStorage(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "dnd_notifications.xml"))
@@ -105,21 +103,14 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 	}
 	
 	LLNotifications& instance = LLNotifications::instance();
-    bool imToastExists = false;
 	
 	for (LLSD::array_const_iterator notification_it = data.beginArray();
 		 notification_it != data.endArray();
 		 ++notification_it)
 	{
 		LLSD notification_params = *notification_it;
-        const std::string notificationName = notification_params["name"].asString();
         const LLUUID& notificationID = notification_params["id"];
         LLNotificationPtr notification = instance.find(notificationID);
-		
-        if(notificationName == "IMToast")
-        {
-            imToastExists = true;
-        }
 
         //Notification already exists in notification pipeline (same instance of app running)
 		if (notification)
@@ -146,11 +137,6 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 			instance.add(notification);
 		}
 	}
-
-    if(imToastExists)
-    {
-        useMostItrusiveIMNotification();
-    }
 
 	// Clear the communication channel history and rewrite the save file to empty it as well
 	LLNotificationChannelPtr channelPtr = getCommunicationChannel();
