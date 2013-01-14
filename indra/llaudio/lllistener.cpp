@@ -42,7 +42,6 @@ LLListener::LLListener()
 //-----------------------------------------------------------------------
 LLListener::~LLListener()
 {
-	// temporarily adding unnecessary comment to test committing to the repository and builds on TeamCity
 }
 
 //-----------------------------------------------------------------------
