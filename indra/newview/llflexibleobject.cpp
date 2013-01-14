@@ -96,18 +96,6 @@ LLVolumeImplFlexible::~LLVolumeImplFlexible()
 //static
 void LLVolumeImplFlexible::updateClass()
 {
-	// XXX stinson 11/13/2012 : This hack removes the optimization for limiting the number of flexi-prims
-	// updated.  With the optimization, flexi-prims attached to the users avatar were not being
-	// animated correctly immediately following teleport.  With the optimization removed, the bug went away.
-#define XXX_STINSON_MAINT_1890_HACK_FIX 1
-#if XXX_STINSON_MAINT_1890_HACK_FIX
-	for (std::vector<LLVolumeImplFlexible*>::iterator iter = sInstanceList.begin();
-		iter != sInstanceList.end();
-		++iter)
-	{
-		(*iter)->doIdleUpdate();
-	}
-#else // XXX_STINSON_MAINT_1890_HACK_FIX
 	std::vector<S32>::iterator delay_iter = sUpdateDelay.begin();
 
 	for (std::vector<LLVolumeImplFlexible*>::iterator iter = sInstanceList.begin();
@@ -121,7 +109,6 @@ void LLVolumeImplFlexible::updateClass()
 		}
 		++delay_iter;
 	}
-#endif // XXX_STINSON_MAINT_1890_HACK_FIX
 }
 
 LLVector3 LLVolumeImplFlexible::getFramePosition() const
@@ -373,6 +360,8 @@ void LLVolumeImplFlexible::doIdleUpdate()
 				F32 pixel_area = mVO->getPixelArea();
 
 				U32 update_period = (U32) (LLViewerCamera::getInstance()->getScreenPixelArea()*0.01f/(pixel_area*(sUpdateFactor+1.f)))+1;
+				// MAINT-1890 Clamp the update period to ensure that the update_period is no greater than 32 frames
+				update_period = llclamp(update_period, 0U, 32U);
 
 				if	(visible)
 				{

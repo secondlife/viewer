@@ -129,8 +129,14 @@ void process_dnd_im(const LLSD& notification)
             false); //will need slight refactor to retrieve whether offline message or not (assume online for now)
     }
 
-    //Flash toolbar button for now, eventually the user's preference will be taken into account
-    gToolBarView->flashCommand(LLCommandId("chat"), true);
+    // open conversation floater
+	LLFloaterIMContainer* container_floater =
+			LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+	if (container_floater && !(container_floater->isFrontmost()))
+	{
+		container_floater->openFloater();
+		container_floater->setFrontmost(TRUE);
+	}
 }
 
 
@@ -2529,25 +2535,6 @@ void LLIMMgr::addMessage(
 		new_session_id = computeSessionID(dialog, other_participant_id);
 	}
 
-	// Open conversation log if offline messages are present and user allows a Call Log
-	if (is_offline_msg)
-    {
-		if (gSavedSettings.getBOOL("KeepConversationLogTranscripts"))
-		{
-			LLFloaterConversationLog* floater_log =
-					LLFloaterReg::getTypedInstance<LLFloaterConversationLog>("conversation");
-			if (floater_log && !(floater_log->isFrontmost()))
-			{
-				floater_log->openFloater();
-				floater_log->setFrontmost(TRUE);
-			}
-		}
-		else
-		{
-           gToolBarView->flashCommand(LLCommandId("chat"), true);
-		}
-    }
-
 	//*NOTE session_name is empty in case of incoming P2P sessions
 	std::string fixed_session_name = from;
 	bool name_is_setted = false;
@@ -2614,6 +2601,19 @@ void LLIMMgr::addMessage(
 	{
 		LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg);
 	}
+
+	// Open conversation floater if offline messages are present
+	if (is_offline_msg)
+    {
+		LLFloaterIMContainer* container_floater =
+				LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+		if (container_floater && !(container_floater->isFrontmost()))
+		{
+			container_floater->openFloater();
+			container_floater->setFrontmost(TRUE);
+		}
+    }
+
 }
 
 void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& message_name, const LLSD& args)

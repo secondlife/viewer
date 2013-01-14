@@ -511,8 +511,10 @@ BOOL LLInvFVBridge::isClipboardPasteable() const
 		// Each item must be copyable to be pastable
 		LLItemBridge item_br(mInventoryPanel.get(), mRoot, item_id);
 		if (!item_br.isItemCopyable())
-				return FALSE;
-			}
+		{
+			return FALSE;
+		}
+	}
 	return TRUE;
 }
 
