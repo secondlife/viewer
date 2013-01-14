@@ -36,6 +36,8 @@ set(llvfs_HEADER_FILES
 if (DARWIN)
   LIST(APPEND llvfs_SOURCE_FILES lldir_mac.cpp)
   LIST(APPEND llvfs_HEADER_FILES lldir_mac.h)
+  LIST(APPEND llvfs_SOURCE_FILES llvfs_objc.mm)
+  LIST(APPEND llvfs_HEADER_FILES llvfs_objc.h)
 endif (DARWIN)
 
 if (LINUX)
@@ -73,8 +75,8 @@ target_link_libraries(llvfs
 
 if (DARWIN)
   include(CMakeFindFrameworks)
-  find_library(CARBON_LIBRARY Carbon)
-  target_link_libraries(llvfs ${CARBON_LIBRARY})
+  find_library(COCOA_LIBRARY Cocoa)
+  target_link_libraries(llvfs ${COCOA_LIBRARY})
 endif (DARWIN)
 
 
