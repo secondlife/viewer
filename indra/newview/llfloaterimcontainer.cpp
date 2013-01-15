@@ -238,6 +238,9 @@ BOOL LLFloaterIMContainer::postBuild()
 	// Init the sort order now that the root had been created
 	setSortOrder(LLConversationSort(gSavedSettings.getU32("ConversationSortOrder")));
 	
+	// Keep the xml set title around for when we have to overwrite it
+	mGeneralTitle = getTitle();
+	
 	mInitialized = true;
 
 	// Add callbacks:
@@ -502,10 +505,10 @@ void LLFloaterIMContainer::draw()
 		collapseMessagesPane(true);
 	}
 	
-	//Update moderator options visibility
 	const LLConversationItem *current_session = getCurSelectedViewModelItem();
 	if (current_session)
 	{
+		// Update moderator options visibility
 		LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = current_session->getChildrenBegin();
 		LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = current_session->getChildrenEnd();
 		while (current_participant_model != end_participant_model)
@@ -515,6 +518,9 @@ void LLFloaterIMContainer::draw()
 
 			current_participant_model++;
 		}
+		// Update floater's title as required by the currently selected session or use the default title
+		LLFloaterIMSession * conversation_floaterp = LLFloaterIMSession::findInstance(current_session->getUUID());
+		setTitle(conversation_floaterp && conversation_floaterp->needsTitleOverwrite() ? conversation_floaterp->getTitle() : mGeneralTitle);
 	}
 
 	LLFloater::draw();
