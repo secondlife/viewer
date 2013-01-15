@@ -70,6 +70,7 @@ LLFloaterIMSession::LLFloaterIMSession(const LLUUID& session_id)
 	mShouldSendTypingState(false),
 	mMeTyping(false),
 	mOtherTyping(false),
+	mSessionNameUpdatedForTyping(false),
 	mTypingTimer(),
 	mTypingTimeoutTimer(),
 	mPositioned(false),
@@ -556,6 +557,7 @@ void LLFloaterIMSession::updateSessionName(const std::string& name)
 		LLFloaterIMSessionTab::updateSessionName(name);
 		mTypingStart.setArg("[NAME]", name);
 		setTitle (mOtherTyping ? mTypingStart.getString() : name);
+		mSessionNameUpdatedForTyping = mOtherTyping;
 	}
 }
 
