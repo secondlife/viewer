@@ -190,6 +190,11 @@
 	[_window flagsChanged:theEvent];
 }
 
+- (void) mouseExited:(NSEvent *)theEvent
+{
+	[_window mouseExited:theEvent];
+}
+
 - (BOOL) becomeFirstResponder
 {
 	return [_window becomeFirstResponder];
@@ -217,6 +222,7 @@
 - (void) keyDown:(NSEvent *)theEvent
 {
 	callKeyDown([theEvent keyCode], mModifiers);
+	NSLog(@"Keycode: %hu", [theEvent keyCode]);
 	NSString *chars = [theEvent characters];
 	for (uint i = 0; i < [chars length]; i++)
 	{
@@ -254,30 +260,7 @@
 }
 
 - (void)flagsChanged:(NSEvent *)theEvent {
-	uint modifiers = [theEvent modifierFlags];
-	
-	// Filter through our modifier keys, and only pick out the ones we care about.
-	
-	mModifiers = 0;
-	if (modifiers & NSCommandKeyMask)
-	{
-		mModifiers |= 0x0001;
-	}
-	
-	if (modifiers & NSAlternateKeyMask)
-	{
-		mModifiers |= 0x0002;
-	}
-	
-	if (modifiers & NSShiftKeyMask)
-	{
-		mModifiers |= 0x0004;
-	}
-	
-	if (modifiers & NSControlKeyMask)
-	{
-		mModifiers |= 0x0001;
-	}
+	mModifiers = [theEvent modifierFlags];
 }
 
 - (void) mouseDown:(NSEvent *)theEvent

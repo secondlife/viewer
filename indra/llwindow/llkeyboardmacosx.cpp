@@ -200,9 +200,25 @@ static BOOL translateKeyMac(const U16 key, const U32 mask, KEY &outKey, U32 &out
 
 MASK LLKeyboardMacOSX::updateModifiers(const U32 mask)
 {
-	// This is handled for us in LLNSWindow on OS X.
-	
-	return mask;
+	// translate the mask
+	MASK out_mask = 0;
+
+	if(mask & MAC_SHIFT_KEY)
+	{
+		out_mask |= MASK_SHIFT;
+	}
+
+	if(mask & MAC_CTRL_KEY || mask & MAC_CMD_KEY)
+	{
+		out_mask |= MASK_CONTROL;
+	}
+
+	if(mask & MAC_ALT_KEY)
+	{
+		out_mask |= MASK_ALT;
+	}
+
+	return out_mask;
 }
 
 BOOL LLKeyboardMacOSX::handleKeyDown(const U16 key, const U32 mask)
@@ -232,6 +248,7 @@ BOOL LLKeyboardMacOSX::handleKeyUp(const U16 key, const U32 mask)
 
 	if(translateNumpadKey(key, &translated_key))
 	{
+		LL_INFOS("Keyboard") << "Handled key!" << LL_ENDL;
 		handled = handleTranslatedKeyUp(translated_key, translated_mask);
 	}
 
@@ -252,8 +269,8 @@ MASK LLKeyboardMacOSX::currentMask(BOOL for_mouse_event)
 	{
 		if (mask & MAC_CMD_KEY) result |= MASK_CONTROL;
 	}
-
-	return mask;
+	
+	return result;
 }
 
 void LLKeyboardMacOSX::scanKeyboard()
