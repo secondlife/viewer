@@ -109,7 +109,11 @@ protected:
 	//
 	bool onIMShowModesMenuItemCheck(const LLSD& userdata);
 	bool onIMShowModesMenuItemEnable(const LLSD& userdata);
+	bool isTranslatingEnabled(const LLSD& userdata);
+	bool isTranslationOn(const LLSD& userdata);
 	static void onSlide(LLFloaterIMSessionTab *self);
+
+	void toggleTranslation(const LLSD& userdata);
 
 	// refresh a visual state of the Call button
 	void updateCallBtnState(bool callIsActive);

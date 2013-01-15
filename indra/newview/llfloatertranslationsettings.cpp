@@ -225,11 +225,10 @@ void LLFloaterTranslationSettings::updateControlsEnabledState()
 	mGoogleVerifyBtn->setEnabled(on && google_selected &&
 		!mGoogleKeyVerified && !getEnteredGoogleKey().empty());
 
-	mOKBtn->setEnabled(
-		!on || (
-		(bing_selected && mBingKeyVerified) ||
-		(google_selected && mGoogleKeyVerified)
-	));
+	bool service_verified = (bing_selected && mBingKeyVerified) || (google_selected && mGoogleKeyVerified);
+	gSavedPerAccountSettings.setBOOL("TranslatingEnabled", service_verified);
+
+	mOKBtn->setEnabled(!on || service_verified);
 }
 
 void LLFloaterTranslationSettings::verifyKey(int service, const std::string& key, bool alert)
@@ -285,7 +284,16 @@ void LLFloaterTranslationSettings::onBtnGoogleVerify()
 		verifyKey(LLTranslate::SERVICE_GOOGLE, key);
 	}
 }
+void LLFloaterTranslationSettings::onClose(bool app_quitting)
+{
+	std::string service = gSavedSettings.getString("TranslationService");
+	bool bing_selected = service == "bing";
+	bool google_selected = service == "google";
 
+	bool service_verified = (bing_selected && mBingKeyVerified) || (google_selected && mGoogleKeyVerified);
+	gSavedPerAccountSettings.setBOOL("TranslatingEnabled", service_verified);
+
+}
 void LLFloaterTranslationSettings::onBtnOK()
 {
 	gSavedSettings.setBOOL("TranslateChat", mMachineTranslationCB->getValue().asBoolean());

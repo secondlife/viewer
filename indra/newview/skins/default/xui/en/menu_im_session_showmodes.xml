@@ -44,7 +44,23 @@
          parameter="IMShowNamesForP2PConv" />
         <menu_item_check.on_enable
          function="IMSession.Menu.ShowModes.Enable"
-         parameter="IMShowNamesForP2PConv" />
-         
+         parameter="IMShowNamesForP2PConv" />    
     </menu_item_check>
+    <menu_item_separator layout="topleft" />
+    <menu_item_check name="Translate_chat" label="Translate chat">
+        <menu_item_check.on_click
+         function="Translating.Toggle" />
+        <menu_item_check.on_check
+         function="Translating.On" />
+        <menu_item_check.on_enable
+         function="Translating.Enabled" />
+    </menu_item_check>
+    <menu_item_check name="Translation_settings" label="Translation settings...">
+    <menu_item_check.on_check
+         function="Floater.Visible"
+         parameter="prefs_translation" />
+        <menu_item_check.on_click
+         function="Floater.Toggle"
+         parameter="prefs_translation" />
+    </menu_item_check>     
 </toggleable_menu>
