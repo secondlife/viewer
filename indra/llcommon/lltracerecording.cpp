@@ -60,7 +60,7 @@ Recording::Recording( const Recording& other )
 	mStackTimers       = other.mStackTimers;
 	mMemStats		   = other.mMemStats;
 
-	LLStopWatchControlsMixin<Recording>::initTo(other.getPlayState());
+	LLStopWatchControlsMixin<Recording>::setPlayState(other.getPlayState());
 }
 
 
@@ -345,14 +345,14 @@ U32 Recording::getSampleCount( const TraceType<MeasurementAccumulator<S64> >& st
 // PeriodicRecording
 ///////////////////////////////////////////////////////////////////////
 
-PeriodicRecording::PeriodicRecording( S32 num_periods, EStopWatchState state) 
+PeriodicRecording::PeriodicRecording( S32 num_periods, EPlayState state) 
 :	mNumPeriods(num_periods),
 	mCurPeriod(0),
 	mTotalValid(false),
 	mRecordingPeriods( new Recording[num_periods])
 {
 	llassert(mNumPeriods > 0);
-	initTo(state);
+	setPlayState(state);
 }
 
 PeriodicRecording::PeriodicRecording(PeriodicRecording& other)
@@ -377,7 +377,7 @@ PeriodicRecording::~PeriodicRecording()
 
 void PeriodicRecording::nextPeriod()
 {
-	EStopWatchState play_state = getPlayState();
+	EPlayState play_state = getPlayState();
 	Recording& old_recording = getCurRecordingPeriod();
 	mCurPeriod = (mCurPeriod + 1) % mNumPeriods;
 	old_recording.splitTo(getCurRecordingPeriod());
@@ -458,8 +458,14 @@ void PeriodicRecording::splitFrom(PeriodicRecording& other)
 
 void ExtendableRecording::extend()
 {
+	// stop recording to get latest data
+	mPotentialRecording.stop();
+	// push the data back to accepted recording
 	mAcceptedRecording.appendRecording(mPotentialRecording);
+	// flush data, so we can start from scratch
 	mPotentialRecording.reset();
+	// go back to play state we were in initially
+	mPotentialRecording.setPlayState(getPlayState());
 }
 
 void ExtendableRecording::start()
@@ -514,7 +520,7 @@ PeriodicRecording& get_frame_recording()
 
 void LLStopWatchControlsMixinCommon::start()
 {
-	switch (mState)
+	switch (mPlayState)
 	{
 	case STOPPED:
 		handleReset();
@@ -530,12 +536,12 @@ void LLStopWatchControlsMixinCommon::start()
 		llassert(false);
 		break;
 	}
-	mState = STARTED;
+	mPlayState = STARTED;
 }
 
 void LLStopWatchControlsMixinCommon::stop()
 {
-	switch (mState)
+	switch (mPlayState)
 	{
 	case STOPPED:
 		break;
@@ -549,12 +555,12 @@ void LLStopWatchControlsMixinCommon::stop()
 		llassert(false);
 		break;
 	}
-	mState = STOPPED;
+	mPlayState = STOPPED;
 }
 
 void LLStopWatchControlsMixinCommon::pause()
 {
-	switch (mState)
+	switch (mPlayState)
 	{
 	case STOPPED:
 		break;
@@ -567,12 +573,12 @@ void LLStopWatchControlsMixinCommon::pause()
 		llassert(false);
 		break;
 	}
-	mState = PAUSED;
+	mPlayState = PAUSED;
 }
 
 void LLStopWatchControlsMixinCommon::resume()
 {
-	switch (mState)
+	switch (mPlayState)
 	{
 	case STOPPED:
 		handleStart();
@@ -586,12 +592,12 @@ void LLStopWatchControlsMixinCommon::resume()
 		llassert(false);
 		break;
 	}
-	mState = STARTED;
+	mPlayState = STARTED;
 }
 
 void LLStopWatchControlsMixinCommon::restart()
 {
-	switch (mState)
+	switch (mPlayState)
 	{
 	case STOPPED:
 		handleReset();
@@ -608,7 +614,7 @@ void LLStopWatchControlsMixinCommon::restart()
 		llassert(false);
 		break;
 	}
-	mState = STARTED;
+	mPlayState = STARTED;
 }
 
 void LLStopWatchControlsMixinCommon::reset()
@@ -616,21 +622,23 @@ void LLStopWatchControlsMixinCommon::reset()
 	handleReset();
 }
 
-void LLStopWatchControlsMixinCommon::initTo( EStopWatchState state )
+void LLStopWatchControlsMixinCommon::setPlayState( EPlayState state )
 {
 	switch(state)
 	{
 	case STOPPED:
+		stop();
 		break;
 	case PAUSED:
+		pause();
 		break;
 	case STARTED:
-		handleStart();
+		start();
 		break;
 	default:
 		llassert(false);
 		break;
 	}
 
-	mState = state;
+	mPlayState = state;
 }

@@ -297,7 +297,7 @@ LLViewerAssetStats::LLViewerAssetStats(const LLViewerAssetStats & src)
 		it->second.makeUnique();
 	}
 
-	LLStopWatchControlsMixin<LLViewerAssetStats>::initTo(src.getPlayState());
+	LLStopWatchControlsMixin<LLViewerAssetStats>::setPlayState(src.getPlayState());
 }
 
 void LLViewerAssetStats::handleStart()
