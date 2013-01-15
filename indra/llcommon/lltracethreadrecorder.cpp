@@ -63,7 +63,7 @@ ThreadRecorder::ThreadRecorder()
 
 		TimeBlockAccumulator* accumulator = it->getPrimaryAccumulator();
 		accumulator->mParent = &root_time_block;
-		accumulator->mBlock = time_block;
+		accumulator->mBlock = &time_block;
 	}
 
 	mRootTimer = new BlockTimer(root_time_block);
