@@ -92,6 +92,7 @@
 #include "llevents.h"
 #include "llfunctorregistry.h"
 #include "llinitparam.h"
+#include "llmortician.h"
 #include "llnotificationptr.h"
 #include "llpointer.h"
 #include "llrefcount.h"
@@ -981,7 +982,7 @@ private:
  *  1 create class derived from LLPostponedNotification;
  *  2 call LLPostponedNotification::add method;
  */
-class LLPostponedNotification
+class LLPostponedNotification : public LLMortician
 {
 public:
 	/**
@@ -1014,7 +1015,7 @@ private:
 
 	void cleanup()
 	{
-		delete this;
+		die();
 	}
 
 protected:

@@ -1852,6 +1852,7 @@ void LLPostponedNotification::fetchAvatarName(const LLUUID& id)
 		{
 			mAvatarNameCacheConnection.disconnect();
 		}
+
 		mAvatarNameCacheConnection = LLAvatarNameCache::get(id, boost::bind(&LLPostponedNotification::onAvatarNameCache, this, _1, _2));
 	}
 }
@@ -1860,7 +1861,7 @@ void LLPostponedNotification::onAvatarNameCache(const LLUUID& agent_id,
 												const LLAvatarName& av_name)
 {
 	mAvatarNameCacheConnection.disconnect();
-	
+
 	std::string name = av_name.getCompleteName();
 
 	// from PE merge - we should figure out if this is the right thing to do
