@@ -31,6 +31,7 @@
 #include "llmath.h"
 #include "llfloater.h"
 #include "llcharacter.h"
+#include "lltracerecording.h"
 
 class LLCharacter;
 class LLRenderTarget;
@@ -61,6 +62,8 @@ public:
 	bool isEnabled()const {return mEnabled;}
 	bool needsUpdate() const;
 	
+	LLTrace::ExtendableRecording* getRecording() const {return mRecording;}
+
 private:
 	void freezeScene();
 	void unfreezeScene();
@@ -86,6 +89,8 @@ private:
 	F32     mDiffPixelRatio; //ratio of pixels used for comparison against the original mDiff size along one dimension
 
 	std::vector<LLAnimPauseRequest> mAvatarPauseHandles;
+
+	LLTrace::ExtendableRecording* mRecording;
 };
 
 class LLSceneMonitorView : public LLFloater

@@ -37,6 +37,7 @@
 #include "llwindow.h"
 #include "llpointer.h"
 #include "llspatialpartition.h"
+#include "llagent.h"
 
 LLSceneMonitorView* gSceneMonitorView = NULL;
 
@@ -67,7 +68,10 @@ LLSceneMonitor::LLSceneMonitor() :
 	mDiffPixelRatio(0.5f)
 {
 	mFrames[0] = NULL;
-	mFrames[1] = NULL;	
+	mFrames[1] = NULL;
+
+	mRecording = new LLTrace::ExtendableRecording();
+	mRecording->start();
 }
 
 LLSceneMonitor::~LLSceneMonitor()
@@ -78,6 +82,9 @@ LLSceneMonitor::~LLSceneMonitor()
 void LLSceneMonitor::destroyClass()
 {
 	reset();
+
+	delete mRecording;
+	mRecording = NULL;
 }
 
 void LLSceneMonitor::reset()
@@ -135,6 +142,11 @@ bool LLSceneMonitor::preCapture()
 	if(!mEnabled)
 	{
 		return false;
+	}
+
+	if(gAgent.isPositionChanged())
+	{
+		mRecording->reset();
 	}
 
 	if(timer.getElapsedTimeF32() < mSamplingTime)
@@ -388,6 +400,10 @@ void LLSceneMonitor::fetchQueryResult()
 	
 	mDiffResult = count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * mDiffPixelRatio * mDiffPixelRatio); //0.5 -> (front face + back face)
 
+	if(mDiffResult > 0.01f)
+	{
+		mRecording->extend();
+	}
 	//llinfos << count << " : " << mDiffResult << llendl;
 }
 //-------------------------------------------------------------------------------------------------------------
@@ -454,6 +470,11 @@ void LLSceneMonitorView::draw()
 
 	num_str = llformat("Sampling time: %.3f seconds", LLSceneMonitor::getInstance()->getSamplingTime());
 	LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::LEFT, LLFontGL::TOP);
+	lines++;
+
+	num_str = llformat("Scene Loading time: %.3f seconds", (F32)LLSceneMonitor::getInstance()->getRecording()->getAcceptedRecording().getDuration().value());
+	LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::LEFT, LLFontGL::TOP);
+	lines++;
 
 	LLView::draw();
 }
