@@ -179,7 +179,7 @@ LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumul
 
 LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat) const
 {
-	return (F64)(*mStackTimers)[stat.getIndex()].mSelfTimeCounter / (F64)LLTrace::TimeBlock::countsPerSecond();
+	return ((F64)(*mStackTimers)[stat.getIndex()].mTotalTimeCounter - (F64)(*mStackTimers)[stat.getIndex()].mChildTimeCounter) / (F64)LLTrace::TimeBlock::countsPerSecond();
 }
 
 
@@ -195,7 +195,7 @@ LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccu
 
 LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat) const
 {
-	return (F64)(*mStackTimers)[stat.getIndex()].mSelfTimeCounter / ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds);
+	return ((F64)(*mStackTimers)[stat.getIndex()].mTotalTimeCounter - (F64)(*mStackTimers)[stat.getIndex()].mChildTimeCounter) / ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds);
 }
 
 F32 Recording::getPerSec(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat) const
