@@ -151,15 +151,17 @@ public:
 	
 	virtual ~LLThreadLocalSingleton()
 	{
-		sInstance = NULL;
+#if LL_DARWIN
+        //pthread_setspecific(sInstanceKey, NULL);
+#else
+        sInstance = NULL;
+#endif
 		setInitState(DELETED);
 	}
 
 	static void deleteSingleton()
 	{
-		delete sInstance;
-		sInstance = NULL;
-		setInitState(DELETED);
+		delete getIfExists();
 	}
 
 	static DERIVED_TYPE* getInstance()
@@ -178,9 +180,24 @@ public:
 		if (!getIfExists())
 		{
 			setInitState(CONSTRUCTING);
-			sInstance = new DERIVED_TYPE(); 
+            DERIVED_TYPE* instancep = new DERIVED_TYPE();
+#if LL_DARWIN
+            /*static S32 sKeyCreated = pthread_key_create(&sInstanceKey, NULL);
+            if (sKeyCreated != 0)
+            {
+                llerrs << "Could not create thread local storage" << llendl;
+            }
+            
+            S32 result = pthread_setspecific(sInstanceKey, (void*)instancep);
+            if (result != 0)
+            {
+                llerrs << "Could not set thread local storage" << llendl;
+            }*/
+#else
+			sInstance = instancep;
+#endif
 			setInitState(INITIALIZING);
-			sInstance->initSingleton(); 
+			instancep->initSingleton();
 			setInitState(INITIALIZED);
 		}
 
@@ -190,7 +207,7 @@ public:
 	static DERIVED_TYPE* getIfExists()
 	{
 #if LL_DARWIN
-        return sInstance.get();
+        return NULL;//(DERIVED_TYPE*)pthread_getspecific(sInstanceKey);
 #else
 		return sInstance;
 #endif
@@ -217,10 +234,23 @@ public:
 		return getInitState() == DELETED;
 	}
 private:
+#if LL_DARWIN
+    static EInitState& threadLocalInitState()
+    {
+        /*static S32 sKeyCreated = pthread_key_create(&sInitStateKey, NULL);
+        if (sKeyCreated != 0)
+        {
+            llerrs << "Could not create thread local storage" << llendl;
+        }
+        return *(EInitState*)pthread_getspecific(sInitStateKey);*/
+        static EInitState state;
+        return state;
+    }
+#endif
     static EInitState getInitState()
     {
 #if LL_DARWIN
-        return (EInitState)(int)sInitState.get();
+        return threadLocalInitState();
 #else
         return sInitState;
 #endif
@@ -229,7 +259,7 @@ private:
     static void setInitState(EInitState state)
     {
 #if LL_DARWIN
-        sInitState = (int*)state;
+        threadLocalInitState() = state;
 #else
         sInitState = state;
 #endif
@@ -244,8 +274,8 @@ private:
 	static __thread DERIVED_TYPE* sInstance;
 	static __thread EInitState sInitState;
 #elif LL_DARWIN
-    static LLThreadLocalPointer<DERIVED_TYPE> sInstance;
-    static LLThreadLocalPointer<int> sInitState;
+    //static pthread_key_t sInstanceKey;
+    //static pthread_key_t sInitStateKey;
 #endif
 };
 
@@ -262,11 +292,11 @@ __thread DERIVED_TYPE* LLThreadLocalSingleton<DERIVED_TYPE>::sInstance = NULL;
 template<typename DERIVED_TYPE>
 __thread typename LLThreadLocalSingleton<DERIVED_TYPE>::EInitState LLThreadLocalSingleton<DERIVED_TYPE>::sInitState = LLThreadLocalSingleton<DERIVED_TYPE>::UNINITIALIZED;
 #elif LL_DARWIN
-template<typename DERIVED_TYPE>
-LLThreadLocalPointer<DERIVED_TYPE> LLThreadLocalSingleton<DERIVED_TYPE>::sInstance;
+/*template<typename DERIVED_TYPE>
+pthread_key_t LLThreadLocalSingleton<DERIVED_TYPE>::sInstanceKey;
 
 template<typename DERIVED_TYPE>
-LLThreadLocalPointer<int> LLThreadLocalSingleton<DERIVED_TYPE>::sInitState;
+pthread_key_t LLThreadLocalSingleton<DERIVED_TYPE>::sInitStateKey;*/
 #endif
 
 template<typename DERIVED_TYPE>
