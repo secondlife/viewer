@@ -128,16 +128,9 @@ void process_dnd_im(const LLSD& notification)
             false, 
             false); //will need slight refactor to retrieve whether offline message or not (assume online for now)
     }
-
-    // open conversation floater
-	LLFloaterIMContainer* container_floater =
-			LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-	if (container_floater && !(container_floater->isFrontmost()))
-    {
-		container_floater->openFloater();
-		container_floater->setFrontmost(TRUE);
-    }
 }
+
+
 
 
 static void on_avatar_name_cache_toast(const LLUUID& agent_id,
@@ -2626,13 +2619,7 @@ void LLIMMgr::addMessage(
 	// Open conversation floater if offline messages are present
 	if (is_offline_msg)
     {
-		LLFloaterIMContainer* container_floater =
-				LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-		if (container_floater && !(container_floater->isFrontmost()))
-		{
-			container_floater->openFloater();
-			container_floater->setFrontmost(TRUE);
-		}
+        LLFloaterReg::showInstance("im_container");
     }
 
 }

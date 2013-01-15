@@ -33,6 +33,7 @@
 #include "lldir.h"
 #include "llerror.h"
 #include "llfasttimer_class.h"
+#include "llfloaterreg.h"
 #include "llnotifications.h"
 #include "llnotificationhandler.h"
 #include "llnotificationstorage.h"
@@ -103,6 +104,7 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 	}
 	
 	LLNotifications& instance = LLNotifications::instance();
+    bool imToastExists = false;
 	
 	for (LLSD::array_const_iterator notification_it = data.beginArray();
 		 notification_it != data.endArray();
@@ -110,7 +112,13 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 	{
 		LLSD notification_params = *notification_it;
         const LLUUID& notificationID = notification_params["id"];
+        std::string notificationName = notification_params["name"];
         LLNotificationPtr notification = instance.find(notificationID);
+
+        if(notificationName == "IMToast")
+        {
+            imToastExists = true;
+        }
 
         //Notification already exists in notification pipeline (same instance of app running)
 		if (notification)
@@ -137,6 +145,11 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 			instance.add(notification);
 		}
 	}
+
+    if(imToastExists)
+    {
+        LLFloaterReg::showInstance("im_container");
+    }
 
 	// Clear the communication channel history and rewrite the save file to empty it as well
 	LLNotificationChannelPtr channelPtr = getCommunicationChannel();
