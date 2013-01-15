@@ -95,6 +95,21 @@ private:
 	LLUUID mCurrentObjectID;
 	BOOL mDone;
 
+	bool mBulkChangeIncludeAnimations;
+	bool mBulkChangeIncludeBodyParts;
+	bool mBulkChangeIncludeClothing;
+	bool mBulkChangeIncludeGestures;
+	bool mBulkChangeIncludeNotecards;
+	bool mBulkChangeIncludeObjects;
+	bool mBulkChangeIncludeScripts;
+	bool mBulkChangeIncludeSounds;
+	bool mBulkChangeIncludeTextures;
+	bool mBulkChangeShareWithGroup;
+	bool mBulkChangeEveryoneCopy;
+	bool mBulkChangeNextOwnerModify;
+	bool mBulkChangeNextOwnerCopy;
+	bool mBulkChangeNextOwnerTransfer;
+
 	LLUUID mID;
 
 	const char* mStartString;

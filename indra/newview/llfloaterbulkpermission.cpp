@@ -67,6 +67,21 @@ LLFloaterBulkPermission::LLFloaterBulkPermission(const LLSD& seed)
 
 BOOL LLFloaterBulkPermission::postBuild()
 {
+	mBulkChangeIncludeAnimations = gSavedSettings.getBOOL("BulkChangeIncludeAnimations");
+	mBulkChangeIncludeBodyParts = gSavedSettings.getBOOL("BulkChangeIncludeBodyParts");
+	mBulkChangeIncludeClothing = gSavedSettings.getBOOL("BulkChangeIncludeClothing");
+	mBulkChangeIncludeGestures = gSavedSettings.getBOOL("BulkChangeIncludeGestures");
+	mBulkChangeIncludeNotecards = gSavedSettings.getBOOL("BulkChangeIncludeNotecards");
+	mBulkChangeIncludeObjects = gSavedSettings.getBOOL("BulkChangeIncludeObjects");
+	mBulkChangeIncludeScripts = gSavedSettings.getBOOL("BulkChangeIncludeScripts");
+	mBulkChangeIncludeSounds = gSavedSettings.getBOOL("BulkChangeIncludeSounds");
+	mBulkChangeIncludeTextures = gSavedSettings.getBOOL("BulkChangeIncludeTextures");
+	mBulkChangeShareWithGroup = gSavedSettings.getBOOL("BulkChangeShareWithGroup");
+	mBulkChangeEveryoneCopy = gSavedSettings.getBOOL("BulkChangeEveryoneCopy");
+	mBulkChangeNextOwnerModify = gSavedSettings.getBOOL("BulkChangeNextOwnerModify");
+	mBulkChangeNextOwnerCopy = gSavedSettings.getBOOL("BulkChangeNextOwnerCopy");
+	mBulkChangeNextOwnerTransfer = gSavedSettings.getBOOL("BulkChangeNextOwnerTransfer");
+
 	return TRUE;
 }
 
@@ -158,6 +173,20 @@ void LLFloaterBulkPermission::onApplyBtn()
 
 void LLFloaterBulkPermission::onCloseBtn()
 {
+	gSavedSettings.setBOOL("BulkChangeIncludeAnimations", mBulkChangeIncludeAnimations);
+	gSavedSettings.setBOOL("BulkChangeIncludeBodyParts", mBulkChangeIncludeBodyParts);
+	gSavedSettings.setBOOL("BulkChangeIncludeClothing", mBulkChangeIncludeClothing);
+	gSavedSettings.setBOOL("BulkChangeIncludeGestures", mBulkChangeIncludeGestures);
+	gSavedSettings.setBOOL("BulkChangeIncludeNotecards", mBulkChangeIncludeNotecards);
+	gSavedSettings.setBOOL("BulkChangeIncludeObjects", mBulkChangeIncludeObjects);
+	gSavedSettings.setBOOL("BulkChangeIncludeScripts", mBulkChangeIncludeScripts);
+	gSavedSettings.setBOOL("BulkChangeIncludeSounds", mBulkChangeIncludeSounds);
+	gSavedSettings.setBOOL("BulkChangeIncludeTextures", mBulkChangeIncludeTextures);
+	gSavedSettings.setBOOL("BulkChangeShareWithGroup", mBulkChangeShareWithGroup);
+	gSavedSettings.setBOOL("BulkChangeEveryoneCopy", mBulkChangeEveryoneCopy);
+	gSavedSettings.setBOOL("BulkChangeNextOwnerModify", mBulkChangeNextOwnerModify);
+	gSavedSettings.setBOOL("BulkChangeNextOwnerCopy", mBulkChangeNextOwnerCopy);
+	gSavedSettings.setBOOL("BulkChangeNextOwnerTransfer", mBulkChangeNextOwnerTransfer);
 	closeFloater();
 }
 
