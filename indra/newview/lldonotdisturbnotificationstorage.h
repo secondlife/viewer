@@ -28,11 +28,25 @@
 #define LL_LLDONOTDISTURBNOTIFICATIONSTORAGE_H
 
 #include "llerror.h"
+#include "lleventtimer.h"
 #include "llnotifications.h"
 #include "llnotificationstorage.h"
 #include "llsingleton.h"
 
 class LLSD;
+
+class LLDoNotDisturbNotificationStorageTimer : public LLEventTimer
+{
+public:
+    LLDoNotDisturbNotificationStorageTimer();
+    ~LLDoNotDisturbNotificationStorageTimer();
+
+public:
+    void startTimer();
+    void stopTimer();
+    bool isRunning();
+    BOOL tick();
+};
 
 class LLDoNotDisturbNotificationStorage : public LLSingleton<LLDoNotDisturbNotificationStorage>, public LLNotificationStorage
 {
@@ -42,14 +56,19 @@ public:
 	~LLDoNotDisturbNotificationStorage();
 
 	void initialize();
-
+    bool getDirty();
+    void resetDirty();
 	void saveNotifications();
 	void loadNotifications();
+    void updateNotifications();
     void removeIMNotification(const LLUUID& session_id);
 
 protected:
 
 private:
+    bool mDirty;
+    LLDoNotDisturbNotificationStorageTimer mTimer;
+
 	LLNotificationChannelPtr getCommunicationChannel() const;
 	bool                     onChannelChanged(const LLSD& pPayload);
 };

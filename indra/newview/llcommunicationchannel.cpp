@@ -52,6 +52,11 @@ bool LLCommunicationChannel::filterByDoNotDisturbStatus(LLNotificationPtr)
 	return !gAgent.isDoNotDisturb();
 }
 
+S32 LLCommunicationChannel::getHistorySize() const
+{
+    return mHistory.size();
+}
+
 LLCommunicationChannel::history_list_t::const_iterator LLCommunicationChannel::beginHistory() const
 {
 	return mHistory.begin();
@@ -62,14 +67,37 @@ LLCommunicationChannel::history_list_t::const_iterator LLCommunicationChannel::e
 	return mHistory.end();
 }
 
+LLCommunicationChannel::history_list_t::iterator LLCommunicationChannel::beginHistory()
+{
+    return mHistory.begin();
+}
+
+LLCommunicationChannel::history_list_t::iterator LLCommunicationChannel::endHistory()
+{
+    return mHistory.end();
+}
+
 void LLCommunicationChannel::clearHistory()
 {
 	mHistory.clear();
 }
 
-void LLCommunicationChannel::removeItem(history_list_t::const_iterator itemToRemove)
+void LLCommunicationChannel::removeItemFromHistory(LLNotificationPtr p)
 {
-    mHistory.erase(itemToRemove);
+    //Find the notification and removes it from mHistory
+    for(history_list_t::iterator it = beginHistory(); it != endHistory(); ++it)
+    {
+        if(it->second == p)
+        {
+            mHistory.erase(it);
+            break;
+        }
+    }
+}
+
+void LLCommunicationChannel::onDelete(LLNotificationPtr p) 
+{
+    removeItemFromHistory(p);
 }
 
 void LLCommunicationChannel::onFilterFail(LLNotificationPtr pNotificationPtr)
