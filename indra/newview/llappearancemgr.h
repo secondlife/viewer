@@ -129,8 +129,8 @@ public:
 				 LLPointer<LLInventoryCallback> cb);
 
 	// Add COF link to individual item.
-	void addCOFItemLink(const LLUUID& item_id, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL);
-	void addCOFItemLink(const LLInventoryItem *item, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL);
+	void addCOFItemLink(const LLUUID& item_id, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL, const std::string description = "");
+	void addCOFItemLink(const LLInventoryItem *item, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL, const std::string description = "");
 
 	// Find COF entries referencing the given item.
 	LLInventoryModel::item_array_t findCOFItemLinks(const LLUUID& item_id);

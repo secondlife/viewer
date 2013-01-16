@@ -1056,36 +1056,47 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
         U32 index = gAgentWearables.getWearableIndex(mWearablePtr);
 
         std::string new_name = mNameEditor->getText();
+
+		// Find an existing link to this wearable's inventory item, if any, and its description field.
+		LLInventoryItem *link_item = NULL;
+		std::string description;
+		LLInventoryModel::item_array_t links =
+			LLAppearanceMgr::instance().findCOFItemLinks(mWearablePtr->getItemID());
+		if (links.size()>0)
+		{
+			link_item = links.get(0).get();
+			if (link_item && link_item->getIsLinkType())
+			{
+				description = link_item->getActualDescription();
+			}
+		}
+
         if (force_save_as)
         {
-                // the name of the wearable has changed, re-save wearable with new name
-                LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID());
-                gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, new_name, FALSE);
-                mNameEditor->setText(mWearableItem->getName());
+			// the name of the wearable has changed, re-save wearable with new name
+			LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID());
+			gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, new_name, description, FALSE);
+			mNameEditor->setText(mWearableItem->getName());
         }
         else
         {
-			LLInventoryModel::item_array_t links =
-				LLAppearanceMgr::instance().findCOFItemLinks(mWearablePtr->getItemID());
-			if (links.size()>0)
+			// Make another copy of this link, with the same
+			// description.  This is needed to bump the COF
+			// version so texture baking service knows appearance has changed.
+			if (link_item)
 			{
-				// Make another copy of this link, with the same description.
-				LLInventoryItem *item = links.get(0).get();
-				if (item)
-				{
-					const std::string description = item->getIsLinkType() ? item->getActualDescription() : "";
-					link_inventory_item( gAgent.getID(),
-										 item->getLinkedUUID(),
-										 LLAppearanceMgr::instance().getCOF(),
-										 item->getName(),
-										 description,
-										 LLAssetType::AT_LINK,
-										 NULL);
-					gInventory.purgeObject(item->getUUID());
-				}
+				// Create new link
+				link_inventory_item( gAgent.getID(),
+									 link_item->getLinkedUUID(),
+									 LLAppearanceMgr::instance().getCOF(),
+									 link_item->getName(),
+									 description,
+									 LLAssetType::AT_LINK,
+									 NULL);
+				// Remove old link
+				gInventory.purgeObject(link_item->getUUID());
 			}
 			gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
-
         }
 }
 

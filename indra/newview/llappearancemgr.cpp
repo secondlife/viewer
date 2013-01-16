@@ -1902,7 +1902,7 @@ static void remove_non_link_items(LLInventoryModel::item_array_t &items)
 }
 
 //a predicate for sorting inventory items by actual descriptions
-bool sort_by_description(const LLInventoryItem* item1, const LLInventoryItem* item2)
+bool sort_by_actual_description(const LLInventoryItem* item1, const LLInventoryItem* item2)
 {
 	if (!item1 || !item2) 
 	{
@@ -2345,10 +2345,11 @@ bool areMatchingWearables(const LLViewerInventoryItem *a, const LLViewerInventor
 class LLDeferredCOFLinkObserver: public LLInventoryObserver
 {
 public:
-	LLDeferredCOFLinkObserver(const LLUUID& item_id, bool do_update, LLPointer<LLInventoryCallback> cb = NULL):
+	LLDeferredCOFLinkObserver(const LLUUID& item_id, bool do_update, LLPointer<LLInventoryCallback> cb = NULL, std::string description = ""):
 		mItemID(item_id),
 		mDoUpdate(do_update),
-		mCallback(cb)
+		mCallback(cb),
+		mDescription(description)
 	{
 	}
 
@@ -2370,23 +2371,24 @@ public:
 private:
 	const LLUUID mItemID;
 	bool mDoUpdate;
+	std::string mDescription;
 	LLPointer<LLInventoryCallback> mCallback;
 };
 
 
 // BAP - note that this runs asynchronously if the item is not already loaded from inventory.
 // Dangerous if caller assumes link will exist after calling the function.
-void LLAppearanceMgr::addCOFItemLink(const LLUUID &item_id, bool do_update, LLPointer<LLInventoryCallback> cb)
+void LLAppearanceMgr::addCOFItemLink(const LLUUID &item_id, bool do_update, LLPointer<LLInventoryCallback> cb, const std::string description)
 {
 	const LLInventoryItem *item = gInventory.getItem(item_id);
 	if (!item)
 	{
-		LLDeferredCOFLinkObserver *observer = new LLDeferredCOFLinkObserver(item_id, do_update, cb);
+		LLDeferredCOFLinkObserver *observer = new LLDeferredCOFLinkObserver(item_id, do_update, cb, description);
 		gInventory.addObserver(observer);
 	}
 	else
 	{
-		addCOFItemLink(item, do_update, cb);
+		addCOFItemLink(item, do_update, cb, description);
 	}
 }
 
@@ -2409,8 +2411,9 @@ void modified_cof_cb(const LLUUID& inv_item)
 	}
 }
 
-void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item, bool do_update, LLPointer<LLInventoryCallback> cb)
+void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item, bool do_update, LLPointer<LLInventoryCallback> cb, const std::string description)
 {		
+	std::string link_description = description;
 	const LLViewerInventoryItem *vitem = dynamic_cast<const LLViewerInventoryItem*>(item);
 	if (!vitem)
 	{
@@ -2474,12 +2477,15 @@ void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item, bool do_update
 		{
 			cb = new LLBoostFuncInventoryCallback(modified_cof_cb);
 		}
-		const std::string description = vitem->getIsLinkType() ? vitem->getDescription() : "";
+		if (vitem->getIsLinkType())
+		{
+			link_description = vitem->getActualDescription();
+		}
 		link_inventory_item( gAgent.getID(),
 							 vitem->getLinkedUUID(),
 							 getCOF(),
 							 vitem->getName(),
-							 description,
+							 link_description,
 							 LLAssetType::AT_LINK,
 							 cb);
 	}
@@ -3240,7 +3246,7 @@ void LLAppearanceMgr::sortItemsByActualDescription(LLInventoryModel::item_array_
 {
 	if (items.size() < 2) return;
 
-	std::sort(items.begin(), items.end(), sort_by_description);
+	std::sort(items.begin(), items.end(), sort_by_actual_description);
 }
 
 //#define DUMP_CAT_VERBOSE
