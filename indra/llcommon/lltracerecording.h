@@ -390,6 +390,7 @@ namespace LLTrace
 	class ExtendableRecording
 	:	public LLStopWatchControlsMixin<ExtendableRecording>
 	{
+	public:
 		void extend();
 
 		// implementation for LLStopWatchControlsMixin
@@ -401,6 +402,8 @@ namespace LLTrace
 		/*virtual*/ void reset();
 		/*virtual*/ void splitTo(ExtendableRecording& other);
 		/*virtual*/ void splitFrom(ExtendableRecording& other);
+
+		const Recording& getAcceptedRecording() const {return mAcceptedRecording;}
 	private:
 		Recording mAcceptedRecording;
 		Recording mPotentialRecording;
