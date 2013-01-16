@@ -2620,8 +2620,9 @@ void LLIMMgr::addMessage(
 	if (is_offline_msg)
     {
         LLFloaterReg::showInstance("im_container");
+	    LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container")->
+	    		flashConversationItemWidget(session_id, true);
     }
-
 }
 
 void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& message_name, const LLSD& args)
