@@ -194,7 +194,6 @@ set(viewer_SOURCE_FILES
     llfloaterbuyland.cpp
     llfloatercamera.cpp
     llfloatercolorpicker.cpp
-    llfloaterdebugmaterials.cpp
     llfloaterdeleteenvpreset.cpp
     llfloaterdestinations.cpp
     llfloaterdisplayname.cpp
@@ -773,7 +772,6 @@ set(viewer_HEADER_FILES
     llfloaterbuyland.h
     llfloatercamera.h
     llfloatercolorpicker.h
-    llfloaterdebugmaterials.h
     llfloaterdeleteenvpreset.h
     llfloaterdestinations.h
     llfloaterdisplayname.h
