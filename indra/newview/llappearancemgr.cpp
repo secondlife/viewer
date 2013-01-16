@@ -451,7 +451,7 @@ public:
 								item->getLinkedUUID(),
 								mDstCatID,
 								item->getName(),
-								item->LLInventoryItem::getDescription(),
+								item->getActualDescription(),
 								LLAssetType::AT_LINK,
 								new LLBoostFuncInventoryCallback(
 									boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item_id,_1,LLTimer())));
@@ -1467,13 +1467,13 @@ void LLAppearanceMgr::shallowCopyCategoryContents(const LLUUID& src_id, const LL
 		{
 			case LLAssetType::AT_LINK:
 			{
-				//LLInventoryItem::getDescription() is used for a new description 
+				//getActualDescription() is used for a new description 
 				//to propagate ordering information saved in descriptions of links
 				link_inventory_item(gAgent.getID(),
 									item->getLinkedUUID(),
 									dst_id,
 									item->getName(),
-									item->LLInventoryItem::getDescription(),
+									item->getActualDescription(),
 									LLAssetType::AT_LINK, cb);
 				break;
 			}
@@ -1718,7 +1718,7 @@ void LLAppearanceMgr::linkAll(const LLUUID& cat_uuid,
 							item->getLinkedUUID(),
 							cat_uuid,
 							item->getName(),
-							item->LLInventoryItem::getDescription(),
+							item->getActualDescription(),
 							LLAssetType::AT_LINK,
 							cb);
 
@@ -1910,7 +1910,7 @@ bool sort_by_description(const LLInventoryItem* item1, const LLInventoryItem* it
 		return true;
 	}
 
-	return item1->LLInventoryItem::getDescription() < item2->LLInventoryItem::getDescription();
+	return item1->getActualDescription() < item2->getActualDescription();
 }
 
 void item_array_diff(LLInventoryModel::item_array_t& full_list,
@@ -2486,6 +2486,33 @@ void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item, bool do_update
 	return;
 }
 
+LLInventoryModel::item_array_t LLAppearanceMgr::findCOFItemLinks(const LLUUID& item_id)
+{
+
+	LLInventoryModel::item_array_t result;
+	const LLViewerInventoryItem *vitem =
+		dynamic_cast<const LLViewerInventoryItem*>(gInventory.getItem(item_id));
+
+	if (vitem)
+	{
+		LLInventoryModel::cat_array_t cat_array;
+		LLInventoryModel::item_array_t item_array;
+		gInventory.collectDescendents(LLAppearanceMgr::getCOF(),
+									  cat_array,
+									  item_array,
+									  LLInventoryModel::EXCLUDE_TRASH);
+		for (S32 i=0; i<item_array.count(); i++)
+		{
+			const LLViewerInventoryItem* inv_item = item_array.get(i).get();
+			if (inv_item->getLinkedUUID() == vitem->getLinkedUUID())
+			{
+				result.put(item_array.get(i));
+			}
+		}
+	}
+	return result;
+}
+
 void LLAppearanceMgr::removeAllClothesFromAvatar()
 {
 	// Fetch worn clothes (i.e. the ones in COF).
@@ -2644,7 +2671,7 @@ void LLAppearanceMgr::updateIsDirty()
 
 			if (item1->getLinkedUUID() != item2->getLinkedUUID() || 
 				item1->getName() != item2->getName() ||
-				item1->LLInventoryItem::getDescription() != item2->LLInventoryItem::getDescription())
+				item1->getActualDescription() != item2->getActualDescription())
 			{
 				mOutfitIsDirty = true;
 				return;
@@ -2855,8 +2882,8 @@ struct WearablesOrderComparator
 			return true;
 		}
 		
-		const std::string& desc1 = item1->LLInventoryItem::getDescription();
-		const std::string& desc2 = item2->LLInventoryItem::getDescription();
+		const std::string& desc1 = item1->getActualDescription();
+		const std::string& desc2 = item2->getActualDescription();
 		
 		bool item1_valid = (desc1.size() == mControlSize) && (ORDER_NUMBER_SEPARATOR == desc1[0]);
 		bool item2_valid = (desc2.size() == mControlSize) && (ORDER_NUMBER_SEPARATOR == desc2[0]);
@@ -2914,7 +2941,7 @@ void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id, bool update_base
 			if (!item) continue;
 
 			std::string new_order_str = build_order_string((LLWearableType::EType)type, i);
-			if (new_order_str == item->LLInventoryItem::getDescription()) continue;
+			if (new_order_str == item->getActualDescription()) continue;
 
 			item->setDescription(new_order_str);
 			item->setComplete(TRUE);
@@ -3179,8 +3206,8 @@ bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_b
 	closer_to_body ? --it : ++it;
 	LLViewerInventoryItem* swap_item = *it;
 	if (!swap_item) return false;
-	std::string tmp = swap_item->LLInventoryItem::getDescription();
-	swap_item->setDescription(item->LLInventoryItem::getDescription());
+	std::string tmp = swap_item->getActualDescription();
+	swap_item->setDescription(item->getActualDescription());
 	item->setDescription(tmp);
 
 

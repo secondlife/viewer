@@ -379,6 +379,11 @@ const std::string& LLInventoryItem::getDescription() const
 	return mDescription;
 }
 
+const std::string& LLInventoryItem::getActualDescription() const
+{
+	return mDescription;
+}
+
 time_t LLInventoryItem::getCreationDate() const
 {
 	return mCreationDate;

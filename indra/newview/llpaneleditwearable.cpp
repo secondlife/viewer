@@ -1065,7 +1065,27 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
         }
         else
         {
-                gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
+			LLInventoryModel::item_array_t links =
+				LLAppearanceMgr::instance().findCOFItemLinks(mWearablePtr->getItemID());
+			if (links.size()>0)
+			{
+				// Make another copy of this link, with the same description.
+				LLInventoryItem *item = links.get(0).get();
+				if (item)
+				{
+					const std::string description = item->getIsLinkType() ? item->getActualDescription() : "";
+					link_inventory_item( gAgent.getID(),
+										 item->getLinkedUUID(),
+										 LLAppearanceMgr::instance().getCOF(),
+										 item->getName(),
+										 description,
+										 LLAssetType::AT_LINK,
+										 NULL);
+					gInventory.purgeObject(item->getUUID());
+				}
+			}
+			gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
+
         }
 }
 
