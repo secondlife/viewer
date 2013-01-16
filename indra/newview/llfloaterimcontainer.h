@@ -169,6 +169,7 @@ private:
 	bool mInitialized;
 
 	LLUUID mSelectedSession;
+	std::string mGeneralTitle;
 
 	// Conversation list implementation
 public:

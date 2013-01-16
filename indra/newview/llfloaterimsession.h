@@ -132,6 +132,7 @@ public:
 	static boost::signals2::connection setIMFloaterShowedCallback(const floater_showed_signal_t::slot_type& cb);
 	static floater_showed_signal_t sIMFloaterShowedSignal;
 
+	bool needsTitleOverwrite() { return mSessionNameUpdatedForTyping && mOtherTyping; }
 private:
 
 	/*virtual*/ void refresh();
@@ -182,6 +183,7 @@ private:
 	bool mShouldSendTypingState;
 	LLFrameTimer mTypingTimer;
 	LLFrameTimer mTypingTimeoutTimer;
+	bool mSessionNameUpdatedForTyping;
 
 	bool mSessionInitialized;
 	LLSD mQueuedMsgsForInit;
