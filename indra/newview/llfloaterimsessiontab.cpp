@@ -88,13 +88,6 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
 LLFloaterIMSessionTab::~LLFloaterIMSessionTab()
 {
 	delete mRefreshTimer;
-
-	// Select Nearby Chat session
-	LLFloaterIMContainer* container = LLFloaterReg::findTypedInstance<LLFloaterIMContainer>("im_container");
-	if (container)
-	{
-		container->selectConversationPair(LLUUID(NULL), true);
-	}
 }
 
 //static
