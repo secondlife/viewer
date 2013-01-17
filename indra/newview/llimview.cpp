@@ -128,16 +128,9 @@ void process_dnd_im(const LLSD& notification)
             false, 
             false); //will need slight refactor to retrieve whether offline message or not (assume online for now)
     }
-
-    // open conversation floater
-	LLFloaterIMContainer* container_floater =
-			LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-	if (container_floater && !(container_floater->isFrontmost()))
-	{
-		container_floater->openFloater();
-		container_floater->setFrontmost(TRUE);
-	}
 }
+
+
 
 
 static void on_avatar_name_cache_toast(const LLUUID& agent_id,
@@ -254,13 +247,22 @@ void on_new_message(const LLSD& msg)
     {
     	if (conversation_floater_not_focused)
     	{
-            if(session_floater_not_focused)
+            if(session_floater_not_focused && !gAgent.isDoNotDisturb())
             {
             	//User is not focused on conversation containing the message
                 gToolBarView->flashCommand(LLCommandId("chat"), true);
             }
 
             im_box->flashConversationItemWidget(session_id, true);
+
+            //If a DND message, allow notification to be stored so upon DND exit 
+            //useMostItrusiveIMNotification will be called to notify user a message exists
+            if(session_id.notNull() 
+                && participant_id.notNull() 
+                && gAgent.isDoNotDisturb())
+            {
+                LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+            }
         }
     }
 
@@ -272,9 +274,21 @@ void on_new_message(const LLSD& msg)
             //Flash line item
             im_box->flashConversationItemWidget(session_id, true);
 
+            if(!gAgent.isDoNotDisturb())
+            {
             //Surface conversations floater
             LLFloaterReg::showInstance("im_container");
         }
+
+            //If in DND mode, allow notification to be stored so upon DND exit 
+            //useMostItrusiveIMNotification will be called to notify user a message exists
+            if(session_id.notNull() 
+                && participant_id.notNull()
+                && gAgent.isDoNotDisturb())
+            {
+                LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+    }
+}
     }
 }
 
@@ -2605,13 +2619,7 @@ void LLIMMgr::addMessage(
 	// Open conversation floater if offline messages are present
 	if (is_offline_msg)
     {
-		LLFloaterIMContainer* container_floater =
-				LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-		if (container_floater && !(container_floater->isFrontmost()))
-		{
-			container_floater->openFloater();
-			container_floater->setFrontmost(TRUE);
-		}
+        LLFloaterReg::showInstance("im_container");
     }
 
 }

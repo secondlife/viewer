@@ -1397,7 +1397,7 @@ void LLAgent::setDoNotDisturb(bool pIsDoNotDisturb)
 	LLNotificationsUI::LLChannelManager::getInstance()->muteAllChannels(pIsDoNotDisturb);
 	if (isDoNotDisturbSwitchedOff)
 	{
-		LLDoNotDisturbNotificationStorage::getInstance()->loadNotifications();
+		LLDoNotDisturbNotificationStorage::getInstance()->updateNotifications();
 	}
 }
 
