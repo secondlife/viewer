@@ -47,12 +47,12 @@ const std::string toastName = "IMToast";
 
 LLDoNotDisturbNotificationStorageTimer::LLDoNotDisturbNotificationStorageTimer() : LLEventTimer(DND_TIMER)
 {
-    //mEventTimer.start();
+
 }
 
 LLDoNotDisturbNotificationStorageTimer::~LLDoNotDisturbNotificationStorageTimer()
 {
-    //mEventTimer.stop();
+
 }
 
 BOOL LLDoNotDisturbNotificationStorageTimer::tick()
