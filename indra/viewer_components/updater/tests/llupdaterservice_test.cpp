@@ -63,7 +63,7 @@ class LLDir_Mock : public LLDir
 							const std::string &mask, 
 							std::string &fname) {}
 	std::string getCurPath() { return ""; }
-	BOOL fileExists(const std::string &filename) const { return false; }
+	bool fileExists(const std::string &filename) const { return false; }
 	std::string getLLPluginLauncher() { return ""; }
 	std::string getLLPluginFilename(std::string base_name) { return ""; }
 
@@ -78,7 +78,9 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname,
 void LLDir::setChatLogsDir(const std::string &path){}		
 void LLDir::setPerAccountChatLogsDir(const std::string &username){}
 void LLDir::setLindenUserDir(const std::string &username){}		
-void LLDir::setSkinFolder(const std::string &skin_folder){}
+void LLDir::setSkinFolder(const std::string &skin_folder, const std::string& language){}
+std::string LLDir::getSkinFolder() const { return "default"; }
+std::string LLDir::getLanguage() const { return "en"; }
 bool LLDir::setCacheDir(const std::string &path){ return true; }
 void LLDir::dumpCurrentDirectories() {}
 

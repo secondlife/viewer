@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
-	<panel.string name="create_account_url">
-		http://de.secondlife.com/registration/
-	</panel.string>
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php?lang=de
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
+			<text name="log_in_text">
+				ANMELDEN
+			</text>
 			<text name="username_text">
 				Benutzername:
 			</text>
@@ -15,17 +15,10 @@
 			<text name="password_text">
 				Kennwort:
 			</text>
-			<check_box label="Kennwort merken" name="remember_check"/>
-			<button label="Anmelden" name="connect_btn"/>
-			<text name="mode_selection_text">
-				Modus:
-			</text>
-			<combo_box name="mode_combo" tool_tip="Wählen Sie den gewünschten Modus aus. Basis: Second Life schnell und einfach erkunden und chatten. Erweitert: Zugriff auf zusätzliche Funktionen.">
-				<combo_box.item label="Basis" name="Basic"/>
-				<combo_box.item label="Erweitert" name="Advanced"/>
-			</combo_box>
+		</layout_panel>
+		<layout_panel name="start_location_panel">
 			<text name="start_location_text">
-				Hier anfangen:
+				Hier starten:
 			</text>
 			<combo_box name="start_location_combo">
 				<combo_box.item label="Mein letzter Standort" name="MyLastLocation"/>
@@ -33,16 +26,21 @@
 				<combo_box.item label="&lt;Region eingeben&gt;" name="Typeregionname"/>
 			</combo_box>
 		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_new_account_text">
-				Registrieren
+		<layout_panel name="links_login_panel">
+			<text name="login_help">
+				Brauchen Sie Hilfe beim Anmelden?
 			</text>
 			<text name="forgot_password_text">
 				Benutzernamen oder Kennwort vergessen?
 			</text>
-			<text name="login_help">
-				Sie brauchen Hilfe?
+			<button label="Anmelden" name="connect_btn"/>
+			<check_box label="Kennwort speichern" name="remember_check"/>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_account_text">
+				IHR KONTO ERSTELLEN
 			</text>
+			<button label="Jetzt starten" name="create_new_account_btn"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

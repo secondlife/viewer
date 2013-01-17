@@ -99,7 +99,7 @@
 	<button label="" label_selected="" name="ToolRing" tool_tip="Anneau"/>
 	<button label="" label_selected="" name="ToolTree" tool_tip="Arbre"/>
 	<button label="" label_selected="" name="ToolGrass" tool_tip="Herbe"/>
-	<check_box label="Maintenir l&apos;outil sélectionné" name="checkbox sticky"/>
+	<check_box label="Maintenir l&apos;outil sélect." name="checkbox sticky"/>
 	<check_box label="Copier la sélection" name="checkbox copy selection"/>
 	<check_box initial_value="true" label="Centrer" name="checkbox copy centers"/>
 	<check_box label="Pivoter" name="checkbox copy rotates"/>
@@ -147,6 +147,12 @@
 			</panel.string>
 			<panel.string name="text modify info 4">
 				Vous ne pouvez pas modifier ces objets
+			</panel.string>
+			<panel.string name="text modify info 5">
+				Impossible de modifier cet objet au-delà de la frontière d&apos;une région
+			</panel.string>
+			<panel.string name="text modify info 6">
+				Impossible de modifier ces objets au-delà de la frontière d&apos;une région
 			</panel.string>
 			<panel.string name="text modify warning">
 				Sélectionnez l&apos;objet en entier
@@ -197,12 +203,12 @@
 				<combo_box.item label="Zoomer" name="Zoom"/>
 			</combo_box>
 			<check_box label="À vendre :" name="checkbox for sale"/>
+			<spinner label="L$" name="Edit Cost"/>
 			<combo_box name="sale type">
 				<combo_box.item label="Copie" name="Copy"/>
 				<combo_box.item label="Contenus" name="Contents"/>
 				<combo_box.item label="Original" name="Original"/>
 			</combo_box>
-			<spinner label="Prix : L$" name="Edit Cost"/>
 			<check_box label="Afficher dans la recherche" name="search_check" tool_tip="Afficher l&apos;objet dans les résultats de recherche"/>
 			<panel name="perms_build">
 				<text name="perm_modify">
@@ -236,6 +242,11 @@
 				</text>
 				<text name="F:">
 					F :
+				</text>
+			</panel>
+			<panel name="pathfinding_attrs_panel">
+				<text name="pathfinding_attributes_label">
+					Attributs de recherche de chemin :
 				</text>
 			</panel>
 		</panel>

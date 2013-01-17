@@ -7,28 +7,34 @@
 		讓渡
 	</panel.string>
 	<panel.string name="text modify info 1">
-		你可以修改這個物件
+		你能修改這個物件
 	</panel.string>
 	<panel.string name="text modify info 2">
-		你可以修改這些物件
+		你能修改這些物件
 	</panel.string>
 	<panel.string name="text modify info 3">
-		你不可以修改這個物件
+		你不能修改這個物件
 	</panel.string>
 	<panel.string name="text modify info 4">
-		你不可以修改這些物件
+		你不能修改這些物件
+	</panel.string>
+	<panel.string name="text modify info 5">
+		無法跨地區修改這個物件
+	</panel.string>
+	<panel.string name="text modify info 6">
+		無法跨地區修改這些物件
 	</panel.string>
 	<panel.string name="text modify warning">
-		這個物件有聯結到其他部分
+		這個物件含有聯結的部分
 	</panel.string>
 	<panel.string name="Cost Default">
 		價格： L$
 	</panel.string>
 	<panel.string name="Cost Total">
-		總價： L$
+		總價：L$
 	</panel.string>
 	<panel.string name="Cost Per Unit">
-		單價： L$
+		單價：L$
 	</panel.string>
 	<panel.string name="Cost Mixed">
 		混合價格
@@ -37,7 +43,7 @@
 		混合銷售
 	</panel.string>
 	<text name="title" value="物件檔案"/>
-	<text name="where" value="(Inworld)"/>
+	<text name="where" value="（在虛擬世界）"/>
 	<panel label="" name="properties_panel">
 		<text name="Name:">
 			名稱：
@@ -49,23 +55,23 @@
 			創造者：
 		</text>
 		<text name="Owner:">
-			擁有者：
+			所有人：
 		</text>
 		<text name="Group_label">
 			群組：
 		</text>
-		<button name="button set group" tool_tip="選擇一個群組以分享這個物件的權限"/>
+		<button name="button set group" tool_tip="選擇一個群組以分享這物件的權限"/>
 		<name_box initial_value="載入中..." name="Group Name Proxy"/>
-		<button label="讓渡" label_selected="讓渡" name="button deed" tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."/>
+		<button label="讓渡" label_selected="讓渡" name="button deed" tool_tip="「讓渡」會把這物件贈送出去並賦予「下一個所有人」權限。 群組所分享的物件可由群組職員加以讓渡。"/>
 		<text name="label click action">
-			點擊以：
+			點按以：
 		</text>
 		<combo_box name="clickaction">
 			<combo_box.item label="觸碰（預設）" name="Touch/grab(default)"/>
 			<combo_box.item label="坐在物件上" name="Sitonobject"/>
 			<combo_box.item label="購買物件" name="Buyobject"/>
 			<combo_box.item label="支付物件" name="Payobject"/>
-			<combo_box.item label="開啟" name="Open"/>
+			<combo_box.item label="打開" name="Open"/>
 		</combo_box>
 		<panel name="perms_inv">
 			<text name="perm_modify">
@@ -74,27 +80,30 @@
 			<text name="Anyone can:">
 				任何人：
 			</text>
-			<check_box label="覆製" name="checkbox allow everyone copy"/>
+			<check_box label="恚庨" name="checkbox allow everyone copy"/>
 			<check_box label="移動" name="checkbox allow everyone move"/>
 			<text name="GroupLabel">
 				群組：
 			</text>
-			<check_box label="分享" name="checkbox share with group" tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."/>
+			<check_box label="分享" name="checkbox share with group" tool_tip="允許此群組所有成員共享你修改此物件的權限。 你必須讓渡才能啟動角色限制。"/>
 			<text name="NextOwnerLabel">
-				下一個擁有者：
+				下一個所有人：
 			</text>
 			<check_box label="修改" name="checkbox next owner can modify"/>
-			<check_box label="覆製" name="checkbox next owner can copy"/>
-			<check_box label="轉移" name="checkbox next owner can transfer" tool_tip="下一個擁有者可以送出或轉售這個物件"/>
+			<check_box label="恚庨" name="checkbox next owner can copy"/>
+			<check_box label="轉移" name="checkbox next owner can transfer" tool_tip="下一個所有人可贈送或轉售這個物件"/>
 		</panel>
 		<check_box label="出售" name="checkbox for sale"/>
 		<combo_box name="sale type">
-			<combo_box.item label="副本" name="Copy"/>
+			<combo_box.item label="恚庨" name="Copy"/>
 			<combo_box.item label="內容" name="Contents"/>
 			<combo_box.item label="原件" name="Original"/>
 		</combo_box>
 		<spinner label="價格： L$" name="Edit Cost"/>
 		<check_box label="顯示在搜尋中" name="search_check" tool_tip="讓其他人可以在搜尋結果中察看到此物件"/>
+		<text name="pathfinding_attributes_label">
+			尋徑屬性：
+		</text>
 		<text name="B:">
 			B:
 		</text>
@@ -115,7 +124,7 @@
 		</text>
 	</panel>
 	<panel name="button_panel">
-		<button label="開啟" name="open_btn"/>
+		<button label="打開" name="open_btn"/>
 		<button label="支付" name="pay_btn"/>
 		<button label="購買" name="buy_btn"/>
 		<button label="細節" name="details_btn"/>

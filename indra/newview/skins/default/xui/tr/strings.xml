@@ -137,7 +137,7 @@
 		Çık
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/
+		http://join.secondlife.com/index.php?lang=tr-TR&amp;sourceid=[sourceid]
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Kullandığınız görüntüleyici ile artık Second Life&apos;a erişemezsiniz. Yeni bir görüntüleyiciyi karşıdan yüklemek için lütfen şu sayfayı ziyaret edin:
@@ -1003,6 +1003,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="script_files">
 		Komut Dosyaları
 	</string>
+	<string name="dictionary_files">
+		Sözlükler
+	</string>
 	<string name="AvatarSetNotAway">
 		Uzakta Değil
 	</string>
@@ -1408,6 +1411,12 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="InvFolder favorite">
 		Favorilerim
 	</string>
+	<string name="InvFolder Favorites">
+		Sık Kullanılanlarım
+	</string>
+	<string name="InvFolder favorites">
+		Sık Kullanılanlarım
+	</string>
 	<string name="InvFolder Current Outfit">
 		Mevcut Dış Görünüm
 	</string>
@@ -1422,6 +1431,12 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="InvFolder Meshes">
 		Örgüler
+	</string>
+	<string name="InvFolder Received Items">
+		Alınan Öğeler
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		Satıcı Giden Kutusu
 	</string>
 	<string name="InvFolder Friends">
 		Arkadaşlar
@@ -3861,6 +3876,12 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	<string name="LocationCtrlSeeAVsTooltip">
 		Bu parselin dışında avatarlar görünür durumda ve sohbete izin veriliyor
 	</string>
+	<string name="LocationCtrlPathfindingDirtyTooltip">
+		Bölge yeniden kaydedilinceye kadar hareket eden nesneler bu bölgede doğru davranmayabilir.
+	</string>
+	<string name="LocationCtrlPathfindingDisabledTooltip">
+		Bu bölgede dinamik yol bulma etkin değil.
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] Güncelleştirme
 	</string>
@@ -5013,6 +5034,21 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="Normal">
 		Normal
 	</string>
+	<string name="Pathfinding_Wiki_URL">
+		http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+	</string>
+	<string name="Pathfinding_Object_Attr_None">
+		Hiçbiri
+	</string>
+	<string name="Pathfinding_Object_Attr_Permanent">
+		Navigasyon örgüsünü etkiler
+	</string>
+	<string name="Pathfinding_Object_Attr_Character">
+		Karakter
+	</string>
+	<string name="Pathfinding_Object_Attr_MultiSelect">
+		(Birden çok)
+	</string>
 	<string name="snapshot_quality_very_low">
 		Çok Düşük
 	</string>
@@ -5027,5 +5063,11 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="snapshot_quality_very_high">
 		Çok Yüksek
+	</string>
+	<string name="TeleportMaturityExceeded">
+		Sakin bu bölgeyi ziyaret edemez.
+	</string>
+	<string name="UserDictionary">
+		[User]
 	</string>
 </strings>

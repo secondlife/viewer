@@ -292,6 +292,7 @@ public:
 		RIGGED			= 0x08000000,
 		PARTITION_MOVE	= 0x10000000,
 		ANIMATED_CHILD  = 0x20000000,
+		ACTIVE_CHILD	= 0x40000000,
 	} EDrawableFlags;
 
 private: //aligned members
@@ -305,8 +306,6 @@ public:
 	LLPointer<LLDrawable> mParent;
 
 	F32				mDistanceWRTCamera;
-	
-	S32				mQuietCount;
 
 	static S32 getCurrentFrame() { return sCurVisible; }
 	static S32 getMinVisFrameRange();

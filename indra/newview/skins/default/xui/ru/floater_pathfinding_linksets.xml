@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_pathfinding_linksets" title="Наборы связей для поиска пути">
+	<floater.string name="messaging_get_inprogress">
+		Запрос наборов связей для поиска пути...
+	</floater.string>
+	<floater.string name="messaging_get_error">
+		Ошибка при запросе наборов связей для поиска пути.
+	</floater.string>
+	<floater.string name="messaging_set_inprogress">
+		Изменение выбранных наборов связей для поиска пути...
+	</floater.string>
+	<floater.string name="messaging_set_error">
+		Ошибка при изменении выбранных наборов связей для поиска пути.
+	</floater.string>
+	<floater.string name="messaging_complete_none_found">
+		Нет наборов связей для поиска пути.
+	</floater.string>
+	<floater.string name="messaging_complete_available">
+		Выбрано наборов связей: [NUM_SELECTED] из [NUM_TOTAL].
+	</floater.string>
+	<floater.string name="messaging_not_enabled">
+		В этом регионе не разрешен поиск пути.
+	</floater.string>
+	<floater.string name="linkset_terrain_name">
+		[Ландшафт]
+	</floater.string>
+	<floater.string name="linkset_terrain_description">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_owner">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_scripted">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_land_impact">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_dist_from_you">
+		--
+	</floater.string>
+	<floater.string name="linkset_owner_loading">
+		[Загрузка]
+	</floater.string>
+	<floater.string name="linkset_owner_unknown">
+		[Неизвестно]
+	</floater.string>
+	<floater.string name="linkset_owner_group">
+		[группа]
+	</floater.string>
+	<floater.string name="linkset_is_scripted">
+		Да
+	</floater.string>
+	<floater.string name="linkset_is_not_scripted">
+		Нет
+	</floater.string>
+	<floater.string name="linkset_is_unknown_scripted">
+		Неизвестно
+	</floater.string>
+	<floater.string name="linkset_use_walkable">
+		Проходимое место
+	</floater.string>
+	<floater.string name="linkset_use_static_obstacle">
+		Статичное препятствие
+	</floater.string>
+	<floater.string name="linkset_use_dynamic_obstacle">
+		Перемещаемое препятствие
+	</floater.string>
+	<floater.string name="linkset_use_material_volume">
+		Материальный объем
+	</floater.string>
+	<floater.string name="linkset_use_exclusion_volume">
+		Исключающий объем
+	</floater.string>
+	<floater.string name="linkset_use_dynamic_phantom">
+		Перемещаемый фантом
+	</floater.string>
+	<floater.string name="linkset_is_terrain">
+		[неизменяемый]
+	</floater.string>
+	<floater.string name="linkset_is_restricted_state">
+		[ограниченный]
+	</floater.string>
+	<floater.string name="linkset_is_non_volume_state">
+		[вогнутый]
+	</floater.string>
+	<floater.string name="linkset_is_restricted_non_volume_state">
+		[ограниченный,вогнутый]
+	</floater.string>
+	<floater.string name="linkset_choose_use">
+		Выберите степень использования наборов связей...
+	</floater.string>
+	<panel>
+		<combo_box name="filter_by_linkset_use">
+			<combo_box.item label="Фильтр по степени использования наборов связей..." name="filter_by_linkset_use_none"/>
+			<combo_box.item label="Проходимое место" name="filter_by_linkset_use_walkable"/>
+			<combo_box.item label="Статичное препятствие" name="filter_by_linkset_use_static_obstacle"/>
+			<combo_box.item label="Перемещаемое препятствие" name="filter_by_linkset_use_dynamic_obstacle"/>
+			<combo_box.item label="Материальный объем" name="filter_by_linkset_use_material_volume"/>
+			<combo_box.item label="Исключающий объем" name="filter_by_linkset_use_exclusion_volume"/>
+			<combo_box.item label="Перемещаемый фантом" name="filter_by_linkset_use_dynamic_phantom"/>
+		</combo_box>
+		<button label="Применить" name="apply_filters"/>
+		<button label="Чисто" name="clear_filters"/>
+		<scroll_list name="objects_scroll_list">
+			<scroll_list.columns label="Имя (корневой примитив)" name="name"/>
+			<scroll_list.columns label="Описание (корневой примитив)" name="description"/>
+			<scroll_list.columns label="Владелец" name="owner"/>
+			<scroll_list.columns label="Скриптовые" name="scripted"/>
+			<scroll_list.columns label="Воздействие" name="land_impact"/>
+			<scroll_list.columns label="Расстояние" name="dist_from_you"/>
+			<scroll_list.columns label="Использование набора связей" name="linkset_use"/>
+			<scroll_list.columns label="A %" name="a_percent"/>
+			<scroll_list.columns label="B %" name="b_percent"/>
+			<scroll_list.columns label="C %" name="c_percent"/>
+			<scroll_list.columns label="D %" name="d_percent"/>
+		</scroll_list>
+		<text name="messaging_status">
+			Наборы связей:
+		</text>
+		<button label="Обновить список" name="refresh_objects_list"/>
+		<button label="Выбрать все" name="select_all_objects"/>
+		<button label="Отменить выбор" name="select_none_objects"/>
+	</panel>
+	<panel>
+		<check_box label="Показать метку" name="show_beacon"/>
+		<button label="Взять" name="take_objects"/>
+		<button label="Сделать копию" name="take_copy_objects"/>
+		<button label="Телепортировать меня туда" name="teleport_me_to_object"/>
+		<button label="Возврат" name="return_objects"/>
+		<button label="Удалить" name="delete_objects"/>
+	</panel>
+	<panel>
+		<text name="walkability_coefficients_label">
+			Проходимость:
+		</text>
+		<text name="edit_a_label">
+			A
+		</text>
+		<line_editor name="edit_a_value" tool_tip="Проходимость для персонажей типа A.  Пример персонажа – гуманоид."/>
+		<text name="edit_b_label">
+			B
+		</text>
+		<line_editor name="edit_b_value" tool_tip="Проходимость для персонажей типа B.  Пример персонажа – существо."/>
+		<text name="edit_c_label">
+			C
+		</text>
+		<line_editor name="edit_c_value" tool_tip="Проходимость для персонажей типа C.  Пример персонажа – механизм."/>
+		<text name="edit_d_label">
+			D
+		</text>
+		<line_editor name="edit_d_value" tool_tip="Проходимость для персонажей типа D.  Пример персонажа – иное."/>
+		<button label="Применить изменения" name="apply_edit_values"/>
+		<text name="suggested_use_a_label">
+			(Гуманоид)
+		</text>
+		<text name="suggested_use_b_label">
+			(Существо)
+		</text>
+		<text name="suggested_use_c_label">
+			(Механизм)
+		</text>
+		<text name="suggested_use_d_label">
+			(Иное)
+		</text>
+	</panel>
+</floater>

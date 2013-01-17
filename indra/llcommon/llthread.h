@@ -88,6 +88,11 @@ public:
 
 	U32 getID() const { return mID; }
 
+	// Called by threads *not* created via LLThread to register some
+	// internal state used by LLMutex.  You must call this once early
+	// in the running thread to prevent collisions with the main thread.
+	static void registerThreadID();
+	
 private:
 	BOOL				mPaused;
 	

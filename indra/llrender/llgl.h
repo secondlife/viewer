@@ -424,6 +424,10 @@ const U32 FENCE_WAIT_TIME_NANOSECONDS = 1000;  //1 ms
 class LLGLFence
 {
 public:
+	virtual ~LLGLFence()
+	{
+	}
+
 	virtual void placeFence() = 0;
 	virtual bool isCompleted() = 0;
 	virtual void wait() = 0;

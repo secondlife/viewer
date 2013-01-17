@@ -45,10 +45,23 @@
 	<text name="total_time_refetch_vis_cache_label">
 		15, キャッシュから表示テクスチャを再取得、時間：[TIME] 秒、取得：[SIZE]KB、[PIXEL]メガピクセル
 	</text>
-	<text name="total_time_refetch_vis_http_label">
-		16, HTTP から表示テクスチャを再取得、時間：[TIME] 秒、取得：[SIZE]KB、[PIXEL]メガピクセル
+	<text name="total_time_refetch_all_cache_label">
+		16、キャッシュからすべてのテクスチャを再フェッチ中、時間: [TIME] 秒、フェッチ済み: [SIZE]KB、[PIXEL]メガピクセル
 	</text>
-	<spinner label="17, テクセル／ピクセルの比率：" name="texel_pixel_ratio"/>
+	<text name="total_time_refetch_vis_http_label">
+		17、HTTP から可視ファイルを再フェッチ中、時間: [TIME] 秒、フェッチ済み: [SIZE]KB、[PIXEL]メガピクセル
+	</text>
+	<text name="total_time_refetch_all_http_label">
+		18、HTTP からすべてのテクスチャを再フェッチ中、時間: [TIME] 秒、フェッチ済み: [SIZE]KB、[PIXEL]メガピクセル
+	</text>
+	<spinner label="19、テセル/ピクセル比:" name="texel_pixel_ratio"/>
+	<text name="texture_source_label">
+		20、テクスチャ ソース:
+	</text>
+	<radio_group name="texture_source">
+		<radio_item label="キャッシュ + HTTP" name="0"/>
+		<radio_item label="HTTP のみ" name="1"/>
+	</radio_group>
 	<button label="開始" name="start_btn"/>
 	<button label="リセット" name="clear_btn"/>
 	<button label="閉じる" name="close_btn"/>
@@ -58,5 +71,7 @@
 	<button label="デコード" name="decode_btn"/>
 	<button label="GL テクスチャ" name="gl_btn"/>
 	<button label="キャッシュ表示テクスチャ再取得" name="refetchviscache_btn"/>
+	<button label="すべてのキャッシュを再フェッチ" name="refetchallcache_btn"/>
 	<button label="HTTP表示テクスチャ再取得" name="refetchvishttp_btn"/>
+	<button label="すべての HTTP を再フェッチ" name="refetchallhttp_btn"/>
 </floater>

@@ -86,7 +86,7 @@ public:
 
 	BOOL isInRole(const LLUUID& role_id) { return (mRolesList.find(role_id) != mRolesList.end()); }
 
-protected:
+private:
 	LLUUID	mID;
 	S32		mContribution;
 	U64		mAgentPowers;
@@ -233,6 +233,11 @@ public:
 	BOOL isRoleMemberDataComplete() { return mRoleMemberDataComplete; }
 	BOOL isGroupPropertiesDataComplete() { return mGroupPropertiesDataComplete; }
 
+	F32 getAccessTime() const { return mAccessTime; }
+	void setAccessed();
+
+	const LLUUID& getMemberVersion() const { return mMemberVersion; }
+
 public:
 	typedef	std::map<LLUUID,LLGroupMemberData*> member_list_t;
 	typedef	std::map<LLUUID,LLGroupRoleData*> role_list_t;
@@ -280,6 +285,10 @@ private:
 	BOOL				mGroupPropertiesDataComplete;
 
 	BOOL				mPendingRoleMemberRequest;
+	F32					mAccessTime;
+
+	// Generate a new ID every time mMembers
+	LLUUID				mMemberVersion;
 };
 
 struct LLRoleAction
@@ -336,6 +345,10 @@ public:
 	static void sendGroupMemberEjects(const LLUUID& group_id,
 									  uuid_vec_t& member_ids);
 
+	// BAKER
+	void sendCapGroupMembersRequest(const LLUUID& group_id);
+	static void processCapGroupMembersRequest(const LLSD& content);
+
 	void cancelGroupRoleChanges(const LLUUID& group_id);
 
 	static void processGroupPropertiesReply(LLMessageSystem* msg, void** data);
@@ -371,6 +384,8 @@ private:
 	typedef std::set<LLParticularGroupObserver*> observer_set_t;
 	typedef std::map<LLUUID,observer_set_t> observer_map_t;
 	observer_map_t mParticularObservers;
+
+	S32 mLastGroupMembersRequestFrame;
 };
 
 

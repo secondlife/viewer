@@ -10,31 +10,31 @@
 		描述：
 	</text>
 	<text name="dimensions">
-		[WIDTH]px x [HEIGHT]px
+		[WIDTH] 像素 X [HEIGHT] 像素
 	</text>
 	<text name="aspect_ratio">
-		Preview aspect ratio
+		預覽長寬比
 	</text>
-	<combo_box name="combo_aspect_ratio" tool_tip="Preview at a fixed aspect ratio">
+	<combo_box name="combo_aspect_ratio" tool_tip="以固定長寬比預覽">
 		<combo_item name="Unconstrained">
-			Unconstrained
+			不受限
 		</combo_item>
-		<combo_item name="1:1" tool_tip="Group insignia or Real World profile">
+		<combo_item name="1:1" tool_tip="群組徽章或現實世界小檔案">
 			1:1
 		</combo_item>
 		<combo_item name="4:3" tool_tip="[SECOND_LIFE] 檔案">
 			4:3
 		</combo_item>
-		<combo_item name="10:7" tool_tip="Classifieds and search listings, landmarks">
+		<combo_item name="10:7" tool_tip="個人廣告和搜索刊登廣告、地標">
 			10:7
 		</combo_item>
-		<combo_item name="3:2" tool_tip="關於土地">
+		<combo_item name="3:2" tool_tip="土地資料">
 			3:2
 		</combo_item>
 		<combo_item name="16:10">
 			16:10
 		</combo_item>
-		<combo_item name="16:9" tool_tip="Profile picks">
+		<combo_item name="16:9" tool_tip="個人檔案精選">
 			16:9
 		</combo_item>
 		<combo_item name="2:1">
@@ -42,6 +42,6 @@
 		</combo_item>
 	</combo_box>
 	<button label="確定" name="Keep"/>
-	<button label="Discard" name="Discard"/>
-	<button label="另存" name="save_tex_btn"/>
+	<button label="丟棄" name="Discard"/>
+	<button label="另存為" name="save_tex_btn"/>
 </floater>

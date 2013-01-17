@@ -12,7 +12,7 @@
 		</combo_item>
 	</combo_box>
 	<text name="owner_label">
-		擁有者
+		所有人
 	</text>
 	<check_box initial_value="false" label="允許導航與互動" name="perms_owner_interact"/>
 	<check_box initial_value="false" label="顯示控制列" name="perms_owner_control"/>

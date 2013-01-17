@@ -119,8 +119,25 @@ public:
 	void createGLBuffers();
 	void createLUTBuffers();
 
-	void allocateScreenBuffer(U32 resX, U32 resY);
+	//allocate the largest screen buffer possible up to resX, resY
+	//returns true if full size buffer allocated, false if some other size is allocated
+	bool allocateScreenBuffer(U32 resX, U32 resY);
+
+	typedef enum {
+		FBO_SUCCESS_FULLRES = 0,
+		FBO_SUCCESS_LOWRES,
+		FBO_FAILURE
+	} eFBOStatus;
+
+private:
+	//implementation of above, wrapped for easy error handling
+	eFBOStatus doAllocateScreenBuffer(U32 resX, U32 resY);
+public:
+
+	//attempt to allocate screen buffers at resX, resY
+	//returns true if allocation successful, false otherwise
 	bool allocateScreenBuffer(U32 resX, U32 resY, U32 samples);
+
 	void allocatePhysicsBuffer();
 	
 	void resetVertexBuffers(LLDrawable* drawable);
@@ -150,6 +167,8 @@ public:
 	void		 allocDrawable(LLViewerObject *obj);
 
 	void		 unlinkDrawable(LLDrawable*);
+
+	static void removeMutedAVsLights(LLVOAvatar*);
 
 	// Object related methods
 	void        markVisible(LLDrawable *drawablep, LLCamera& camera);
@@ -223,6 +242,7 @@ public:
 	void updateGL();
 	void rebuildPriorityGroups();
 	void rebuildGroups();
+	void clearRebuildGroups();
 
 	//calculate pixel area of given box from vantage point of given camera
 	static F32 calcPixelArea(LLVector3 center, LLVector3 size, LLCamera& camera);
@@ -382,6 +402,7 @@ private:
 	BOOL updateDrawableGeom(LLDrawable* drawable, BOOL priority);
 	void assertInitializedDoError();
 	bool assertInitialized() { const bool is_init = isInit(); if (!is_init) assertInitializedDoError(); return is_init; };
+	void connectRefreshCachedSettingsSafe(const std::string name);
 	void hideDrawable( LLDrawable *pDrawable );
 	void unhideDrawable( LLDrawable *pDrawable );
 public:
@@ -663,6 +684,8 @@ protected:
 	LLDrawable::drawable_list_t 	mBuildQ2; // non-priority
 	LLSpatialGroup::sg_vector_t		mGroupQ1; //priority
 	LLSpatialGroup::sg_vector_t		mGroupQ2; // non-priority
+
+	LLSpatialGroup::sg_vector_t		mGroupSaveQ1; // a place to save mGroupQ1 until it is safe to unref
 
 	LLSpatialGroup::sg_vector_t		mMeshDirtyGroup; //groups that need rebuildMesh called
 	U32 mMeshDirtyQueryObject;

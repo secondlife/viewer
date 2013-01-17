@@ -30,26 +30,6 @@
         function="EnableEdit"/>
   </menu_item_call>
   <menu_item_call
-      label="Show in linksets"
-      name="show_in_linksets">
-    <menu_item_call.on_click
-        function="Pathfinding.Linksets.Select" />
-    <menu_item_call.on_enable
-        function="EnableSelectInPathfindingLinksets"/>
-    <menu_item_call.on_visible
-        function="EnableSelectInPathfindingLinksets"/>
-  </menu_item_call>
-  <menu_item_call
-      label="Show in characters"
-      name="show_in_characters">
-    <menu_item_call.on_click
-        function="Pathfinding.Characters.Select" />
-    <menu_item_call.on_enable
-        function="EnableSelectInPathfindingCharacters"/>
-    <menu_item_call.on_visible
-        function="EnableSelectInPathfindingCharacters"/>
-  </menu_item_call>
-  <menu_item_call
       enabled="false"
       label="Open"
       name="Open">
@@ -89,6 +69,26 @@
       name="Zoom In">
     <menu_item_call.on_click
         function="Object.ZoomIn" />
+  </menu_item_call>
+  <menu_item_call
+      label="Show in linksets"
+      name="show_in_linksets">
+    <menu_item_call.on_click
+        function="Pathfinding.Linksets.Select" />
+    <menu_item_call.on_enable
+        function="EnableSelectInPathfindingLinksets"/>
+    <menu_item_call.on_visible
+        function="EnableSelectInPathfindingLinksets"/>
+  </menu_item_call>
+  <menu_item_call
+      label="Show in characters"
+      name="show_in_characters">
+    <menu_item_call.on_click
+        function="Pathfinding.Characters.Select" />
+    <menu_item_call.on_enable
+        function="EnableSelectInPathfindingCharacters"/>
+    <menu_item_call.on_visible
+        function="EnableSelectInPathfindingCharacters"/>
   </menu_item_call>
   <menu_item_separator layout="topleft" />
   <context_menu

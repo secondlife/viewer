@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="autoreplace_floater" title="自動取代設定">
+	<check_box label="啟用自動取代" name="autoreplace_enable" tool_tip="在輸入聊天內容的同時，將輸入的關鍵字代換為相應的取代文字。"/>
+	<button label="匯入清單…" name="autoreplace_import_list" tool_tip="從檔案載入先前匯出過的清單。"/>
+	<button label="匯出清單…" name="autoreplace_export_list" tool_tip="將所選清單儲存到檔案以便和他人分享。"/>
+	<button label="新的清單…" name="autoreplace_new_list" tool_tip="新建一個清單。"/>
+	<button label="刪除清單" name="autoreplace_delete_list" tool_tip="刪除所選清單。"/>
+	<button name="autoreplace_list_up" tool_tip="提高此清單的優先次序。"/>
+	<button name="autoreplace_list_down" tool_tip="降低此清單的優先次序。"/>
+	<scroll_list name="autoreplace_list_replacements">
+		<scroll_list.columns label="關鍵字" name="keyword"/>
+		<scroll_list.columns label="取代文字" name="replacement"/>
+	</scroll_list>
+	<button label="添加..." name="autoreplace_add_entry"/>
+	<button label="移除" name="autoreplace_delete_entry"/>
+	<button label="儲存項目" name="autoreplace_save_entry" tool_tip="儲存此項目。"/>
+	<button label="儲存變更" name="autoreplace_save_changes" tool_tip="儲存所有變更。"/>
+	<button label="取消" name="autoreplace_cancel" tool_tip="放棄所有變更。"/>
+</floater>
+<!--
+  <text 
+   top_pad="10"
+   left="10"
+   height="16"
+   width="260"
+   follows="left|top"
+   halign="center"
+   mouse_opaque="true"
+   name="autoreplace_text2">
+    Entries
+  </text>
+-->

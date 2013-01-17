@@ -49,6 +49,8 @@
 #include "llstring.h"
 #include "llhudnametag.h"
 #include "lldrawable.h"
+#include "llflexibleobject.h"
+#include "llviewertextureanim.h"
 #include "xform.h"
 #include "llsky.h"
 #include "llviewercamera.h"
@@ -78,11 +80,9 @@
 extern F32 gMinObjectDistance;
 extern BOOL gAnimateTextures;
 
-void dialog_refresh_all();
+#define MAX_CONCURRENT_PHYSICS_REQUESTS 256
 
-#define CULL_VIS
-//#define ORPHAN_SPAM
-//#define IGNORE_DEAD
+void dialog_refresh_all();
 
 // Global lists of objects - should go away soon.
 LLViewerObjectList gObjectList;
@@ -909,8 +909,6 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 
 	const F64 frame_time = LLFrameTimer::getElapsedSeconds();
 	
-	std::vector<LLViewerObject*> kill_list;
-	S32 num_active_objects = 0;
 	LLViewerObject *objectp = NULL;	
 	
 	// Make a copy of the list in case something in idleUpdate() messes with it
@@ -950,7 +948,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	std::vector<LLViewerObject*>::iterator idle_end = idle_list.begin()+idle_count;
 
 	if (gSavedSettings.getBOOL("FreezeTime"))
-	{
+	{	
 		
 		for (std::vector<LLViewerObject*>::iterator iter = idle_list.begin();
 			iter != idle_end; iter++)
@@ -968,23 +966,19 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			idle_iter != idle_end; idle_iter++)
 		{
 			objectp = *idle_iter;
-			if (objectp->idleUpdate(agent, world, frame_time))
-			{
-				num_active_objects++;				
-			}
-			else
-			{
-				//  If Idle Update returns false, kill object!
-				kill_list.push_back(objectp);
-			}
+			llassert(objectp->isActive());
+			objectp->idleUpdate(agent, world, frame_time);
+
 		}
-		for (std::vector<LLViewerObject*>::iterator kill_iter = kill_list.begin();
-			kill_iter != kill_list.end(); kill_iter++)
-		{
-			objectp = *kill_iter;
-			killObject(objectp);
-		}
+
+		//update flexible objects
+		LLVolumeImplFlexible::updateClass();
+
+		//update animated textures
+		LLViewerTextureAnim::updateClass();
 	}
+
+
 
 	fetchObjectCosts();
 	fetchPhysicsFlags();
@@ -1052,7 +1046,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	*/
 
 	LLViewerStats::getInstance()->mNumObjectsStat.addValue((S32) mObjects.size());
-	LLViewerStats::getInstance()->mNumActiveObjectsStat.addValue(num_active_objects);
+	LLViewerStats::getInstance()->mNumActiveObjectsStat.addValue(idle_count);
 	LLViewerStats::getInstance()->mNumSizeCulledStat.addValue(mNumSizeCulled);
 	LLViewerStats::getInstance()->mNumVisCulledStat.addValue(mNumVisCulled);
 }
@@ -1073,8 +1067,6 @@ void LLViewerObjectList::fetchObjectCosts()
 				LLSD id_list;
 				U32 object_index = 0;
 
-				U32 count = 0;
-
 				for (
 					std::set<LLUUID>::iterator iter = mStaleObjectCost.begin();
 					iter != mStaleObjectCost.end();
@@ -1091,7 +1083,7 @@ void LLViewerObjectList::fetchObjectCosts()
 
 					mStaleObjectCost.erase(iter++);
 
-					if (count++ >= 450)
+					if (object_index >= MAX_CONCURRENT_PHYSICS_REQUESTS)
 					{
 						break;
 					}
@@ -1136,7 +1128,7 @@ void LLViewerObjectList::fetchPhysicsFlags()
 				for (
 					std::set<LLUUID>::iterator iter = mStalePhysicsFlags.begin();
 					iter != mStalePhysicsFlags.end();
-					++iter)
+					)
 				{
 					// Check to see if a request for this object
 					// has already been made.
@@ -1146,12 +1138,14 @@ void LLViewerObjectList::fetchPhysicsFlags()
 						mPendingPhysicsFlags.insert(*iter);
 						id_list[object_index++] = *iter;
 					}
-				}
 
-				// id_list should now contain all
-				// requests in mStalePhysicsFlags before, so clear
-				// it now
-				mStalePhysicsFlags.clear();
+					mStalePhysicsFlags.erase(iter++);
+					
+					if (object_index >= MAX_CONCURRENT_PHYSICS_REQUESTS)
+					{
+						break;
+					}
+				}
 
 				if ( id_list.size() > 0 )
 				{

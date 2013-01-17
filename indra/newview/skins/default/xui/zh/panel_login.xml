@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
-	<panel.string name="create_account_url">
-		http://join.secondlife.com/
-	</panel.string>
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
+			<text name="log_in_text">
+				登入
+			</text>
 			<text name="username_text">
 				使用者名稱：
 			</text>
@@ -15,34 +15,32 @@
 			<text name="password_text">
 				密碼：
 			</text>
-			<check_box label="記住密碼：" name="remember_check"/>
-			<button label="登入" name="connect_btn"/>
-			<text name="mode_selection_text">
-				模式：
-			</text>
-			<combo_box name="mode_combo" tool_tip="請選擇你的模式。選用基本模式可以快速、簡單地探索與聊天；選用進階模式則可以使用更多功能。">
-				<combo_box.item label="基本" name="Basic"/>
-				<combo_box.item label="進階" name="Advanced"/>
-			</combo_box>
+		</layout_panel>
+		<layout_panel name="start_location_panel">
 			<text name="start_location_text">
 				開始地點：
 			</text>
 			<combo_box name="start_location_combo">
 				<combo_box.item label="我上一次位置" name="MyLastLocation"/>
 				<combo_box.item label="我的家" name="MyHome"/>
-				<combo_box.item label="&lt; 請輸入地區名稱 &gt;" name="Typeregionname"/>
+				<combo_box.item label="&lt;請輸入地區名稱&gt;" name="Typeregionname"/>
 			</combo_box>
 		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_new_account_text">
-				註冊
+		<layout_panel name="links_login_panel">
+			<text name="login_help">
+				登入時需要幫助？
 			</text>
 			<text name="forgot_password_text">
 				忘記你的使用者名稱或密碼？
 			</text>
-			<text name="login_help">
-				登入時需要幫助？
+			<button label="登入" name="connect_btn"/>
+			<check_box label="記住密碼：" name="remember_check"/>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_account_text">
+				建立你的帳號
 			</text>
+			<button label="現在就開始" name="create_new_account_btn"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

@@ -122,11 +122,11 @@
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
+#include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llmodaldialog.h"
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h"
-#include "llpanelpathfindingrebakenavmesh.h"
 #include "llpaneltopinfobar.h"
 #include "llpopupview.h"
 #include "llpreviewtexture.h"
@@ -1558,8 +1558,12 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 
 	LLNotifications::instance().getChannel("VW_alerts")->connectChanged(&LLViewerWindow::onAlert);
 	LLNotifications::instance().getChannel("VW_alertmodal")->connectChanged(&LLViewerWindow::onAlert);
-	LLNotifications::instance().setIgnoreAllNotifications(gSavedSettings.getBOOL("IgnoreAllNotifications"));
-	llinfos << "NOTE: ALL NOTIFICATIONS THAT OCCUR WILL GET ADDED TO IGNORE LIST FOR LATER RUNS." << llendl;
+	bool ignore = gSavedSettings.getBOOL("IgnoreAllNotifications");
+	LLNotifications::instance().setIgnoreAllNotifications(ignore);
+	if (ignore)
+	{
+		llinfos << "NOTE: ALL NOTIFICATIONS THAT OCCUR WILL GET ADDED TO IGNORE LIST FOR LATER RUNS." << llendl;
+	}
 
 	// Default to application directory.
 	LLViewerWindow::sSnapshotBaseName = "Snapshot";
@@ -1688,8 +1692,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	LLFontGL::initClass( gSavedSettings.getF32("FontScreenDPI"),
 								mDisplayScale.mV[VX],
 								mDisplayScale.mV[VY],
-								gDirUtilp->getAppRODataDir(),
-								LLUI::getXUIPaths());
+								gDirUtilp->getAppRODataDir());
 	
 	// Create container for all sub-views
 	LLView::Params rvp;
@@ -1930,11 +1933,10 @@ void LLViewerWindow::initWorldUI()
 	LLPanelStandStopFlying* panel_stand_stop_flying	= LLPanelStandStopFlying::getInstance();
 	panel_ssf_container->addChild(panel_stand_stop_flying);
 
-	LLPanelPathfindingRebakeNavmesh *panel_rebake_navmesh = LLPanelPathfindingRebakeNavmesh::getInstance();
-	panel_ssf_container->addChild(panel_rebake_navmesh);
-
 	panel_ssf_container->setVisible(TRUE);
 	
+	LLMenuOptionPathfindingRebakeNavmesh::getInstance()->initialize();
+
 	// Load and make the toolbars visible
 	// Note: we need to load the toolbars only *after* the user is logged in and IW
 	if (gToolBarView)
@@ -2003,6 +2005,8 @@ void LLViewerWindow::shutdownViews()
 	delete mRootView;
 	mRootView = NULL;
 	llinfos << "RootView deleted." << llendl ;
+
+	LLMenuOptionPathfindingRebakeNavmesh::getInstance()->quit();
 
 	// Automatically deleted as children of mRootView.  Fix the globals.
 	gStatusBar = NULL;
@@ -4233,14 +4237,48 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		image_height = llmin(image_height, window_height);
 	}
 
+	S32 original_width = 0;
+	S32 original_height = 0;
+	bool reset_deferred = false;
+
+	LLRenderTarget scratch_space;
+
 	F32 scale_factor = 1.0f ;
 	if (!keep_window_aspect || (image_width > window_width) || (image_height > window_height))
 	{	
-		// if image cropping or need to enlarge the scene, compute a scale_factor
-		F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
-		snapshot_width  = (S32)(ratio * image_width) ;
-		snapshot_height = (S32)(ratio * image_height) ;
-		scale_factor = llmax(1.0f, 1.0f / ratio) ;
+		if ((image_width > window_width || image_height > window_height) && LLPipeline::sRenderDeferred && !show_ui)
+		{
+			if (scratch_space.allocate(image_width, image_height, GL_RGBA, true, true))
+			{
+				original_width = gPipeline.mDeferredScreen.getWidth();
+				original_height = gPipeline.mDeferredScreen.getHeight();
+
+				if (gPipeline.allocateScreenBuffer(image_width, image_height))
+				{
+					window_width = image_width;
+					window_height = image_height;
+					snapshot_width = image_width;
+					snapshot_height = image_height;
+					reset_deferred = true;
+					mWorldViewRectRaw.set(0, image_height, image_width, 0);
+					scratch_space.bindTarget();
+				}
+				else
+				{
+					scratch_space.release();
+					gPipeline.allocateScreenBuffer(original_width, original_height);
+				}
+			}
+		}
+
+		if (!reset_deferred)
+		{
+			// if image cropping or need to enlarge the scene, compute a scale_factor
+			F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
+			snapshot_width  = (S32)(ratio * image_width) ;
+			snapshot_height = (S32)(ratio * image_height) ;
+			scale_factor = llmax(1.0f, 1.0f / ratio) ;
+		}
 	}
 	
 	if (show_ui && scale_factor > 1.f)
@@ -4429,11 +4467,20 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		gPipeline.resetDrawOrders();
 	}
 
+	if (reset_deferred)
+	{
+		mWorldViewRectRaw = window_rect;
+		scratch_space.flush();
+		scratch_space.release();
+		gPipeline.allocateScreenBuffer(original_width, original_height);
+		
+	}
+
 	if (high_res)
 	{
 		send_agent_resume();
 	}
-
+	
 	return ret;
 }
 
@@ -4760,8 +4807,7 @@ void LLViewerWindow::initFonts(F32 zoom_factor)
 	LLFontGL::initClass( gSavedSettings.getF32("FontScreenDPI"),
 								mDisplayScale.mV[VX] * zoom_factor,
 								mDisplayScale.mV[VY] * zoom_factor,
-								gDirUtilp->getAppRODataDir(),
-								LLUI::getXUIPaths());
+								gDirUtilp->getAppRODataDir());
 	// Force font reloads, which can be very slow
 	LLFontGL::loadDefaultFonts();
 }

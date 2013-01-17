@@ -18,6 +18,12 @@
 	<panel.string name="text modify info 4">
 		Você não pode modificar estes objetos
 	</panel.string>
+	<panel.string name="text modify info 5">
+		Não é possível modificar este objeto através de uma demarcação da região
+	</panel.string>
+	<panel.string name="text modify info 6">
+		Não é possível modificar estes objetos através de uma demarcação da região
+	</panel.string>
 	<panel.string name="text modify warning">
 		O objeto contém links ligando suas partes
 	</panel.string>
@@ -95,6 +101,9 @@
 		</combo_box>
 		<spinner label="Preço: L$" name="Edit Cost"/>
 		<check_box label="Mostrar nos resultados de busca" name="search_check" tool_tip="Incluir o objeto nos resultados de busca"/>
+		<text name="pathfinding_attributes_label">
+			Atributos do pathfinding:
+		</text>
 		<text name="B:">
 			B:
 		</text>

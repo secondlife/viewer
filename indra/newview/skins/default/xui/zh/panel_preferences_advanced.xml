@@ -3,6 +3,19 @@
 	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
 	</panel.string>
+	<text name="Cache:">
+		快取：
+	</text>
+	<spinner label="快取大小 (64 - 9984MB)" name="cachesizespinner"/>
+	<text name="text_box5">
+		MB
+	</text>
+	<button label="清除快取" label_selected="清除快取" name="clear_cache"/>
+	<text name="Cache location">
+		快取位置：
+	</text>
+	<button label="瀏覽" label_selected="瀏覽" name="set_cache"/>
+	<button label="預設位置" label_selected="預設位置" name="default_cache_location"/>
 	<text name="UI Size:">
 		使用者界面尺寸：
 	</text>

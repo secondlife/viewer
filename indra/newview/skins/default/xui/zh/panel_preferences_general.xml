@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="一般" name="general_panel">
+<panel label="基本設定" name="general_panel">
 	<text name="language_textbox">
 		語言：
 	</text>
 	<combo_box name="language_combobox">
 		<combo_box.item label="系統預設" name="System Default Language"/>
-		<combo_box.item label="English （英語）" name="English"/>
-		<combo_box.item label="Dansk （丹麥語） - Beta" name="Danish"/>
-		<combo_box.item label="Deutsch （德語） - Beta" name="Deutsch(German)"/>
-		<combo_box.item label="Español （西班牙語） - Beta" name="Spanish"/>
-		<combo_box.item label="Français （法語） - Beta" name="French"/>
-		<combo_box.item label="Italiano （義大利語） - Beta" name="Italian"/>
-		<combo_box.item label="Polski （波蘭語） - Beta" name="Polish"/>
-		<combo_box.item label="Português （葡萄牙語） - Beta" name="Portugese"/>
-		<combo_box.item label="日本語 （日語） - Beta" name="(Japanese)"/>
+		<combo_box.item label="英語" name="English"/>
+		<combo_box.item label="Dansk（丹麥語）- 試用版" name="Danish"/>
+		<combo_box.item label="Deutsch（德語）- 試用版" name="Deutsch(German)"/>
+		<combo_box.item label="Español（西班牙語）- 試用版" name="Spanish"/>
+		<combo_box.item label="Français（法語）- 試用版" name="French"/>
+		<combo_box.item label="Italiano（義大利語）- 試用版" name="Italian"/>
+		<combo_box.item label="Polski（波蘭語）- 試用版" name="Polish"/>
+		<combo_box.item label="Português（葡萄牙語）- 試用版" name="Portugese"/>
+		<combo_box.item label="Русский（俄羅斯語）- 測試版" name="Russian"/>
+		<combo_box.item label="Türkçe（土耳其語）- 試用版" name="Turkish"/>
+		<combo_box.item label="日本語（日語）- 試用版" name="(Japanese)"/>
+		<combo_box.item label="正體中文 - 測試版" name="Traditional Chinese"/>
 	</combo_box>
 	<text name="language_textbox2">
 		（須重新啟動）
@@ -38,15 +41,15 @@
 		名稱標籤：
 	</text>
 	<radio_group name="Name_Tag_Preference">
-		<radio_item label="Off" name="radio" value="0"/>
-		<radio_item label="On" name="radio2" value="1"/>
+		<radio_item label="關閉" name="radio" value="0"/>
+		<radio_item label="啟動" name="radio2" value="1"/>
 		<radio_item label="簡短顯示" name="radio3" value="2"/>
 	</radio_group>
 	<check_box label="我的名字" name="show_my_name_checkbox1"/>
 	<check_box label="使用者名稱" name="show_slids" tool_tip="顯示使用者名稱，就像 bobsmith123 這類的"/>
-	<check_box label="群組頭銜" name="show_all_title_checkbox1" tool_tip="顯示群組頭銜，像是 Officer 或成員"/>
+	<check_box label="群組頭銜" name="show_all_title_checkbox1" tool_tip="顯示群組頭銜，如職員或成員"/>
 	<check_box label="高亮標示朋友" name="show_friends" tool_tip="高亮顯示你朋友的名稱標籤"/>
-	<check_box label="察看顯示名稱" name="display_names_check" tool_tip="Check to use display names in chat, IM, name tags, etc."/>
+	<check_box label="察看顯示名稱" name="display_names_check" tool_tip="若勾選，將在聊天、IM 和名稱標籤等處使用顯示名稱。"/>
 	<text name="inworld_typing_rg_label">
 		按下字母鍵：
 	</text>

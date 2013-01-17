@@ -1,23 +1,35 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="texture picker" title="PICK: TEXTURE">
+<floater name="texture picker" title="精選：材質">
 	<floater.string name="choose_picture">
-		點擊以挑選圖像
+		點按以挑選圖片
 	</floater.string>
 	<floater.string name="pick title">
-		Pick:
+		精選地點：
 	</floater.string>
 	<text name="Multiple">
-		Multiple textures
+		多重材質
 	</text>
+	<radio_group name="mode_selection">
+		<radio_item label="收納區" name="inventory" value="0"/>
+		<radio_item label="本地" name="local" value="1"/>
+	</radio_group>
 	<text name="unknown">
 		尺寸：[DIMENSIONS]
 	</text>
 	<button label="預設" label_selected="預設" name="Default"/>
+	<button label="空白" label_selected="空白" name="Blank"/>
 	<button label="無" label_selected="無" name="None"/>
-	<button label="Blank" label_selected="Blank" name="Blank"/>
-	<check_box initial_value="true" label="立即套用" name="apply_immediate_check"/>
+	<check_box initial_value="true" label="實時預覽" name="apply_immediate_check"/>
+	<text name="preview_disabled" value="已停用預覽"/>
 	<filter_editor label="材質過濾器" name="inventory search editor"/>
 	<check_box initial_value="false" label="顯示資料夾" name="show_folders_check"/>
+	<button label="添加" label_selected="添加" name="l_add_btn"/>
+	<button label="移除" label_selected="移除" name="l_rem_btn"/>
+	<button label="上傳" label_selected="上傳" name="l_upl_btn"/>
+	<scroll_list name="l_name_list">
+		<column label="名稱" name="unit_name"/>
+		<column label="ID" name="unit_id_HIDDEN"/>
+	</scroll_list>
 	<button label="確定" label_selected="確定" name="Select"/>
 	<button label="取消" label_selected="取消" name="Cancel"/>
 </floater>

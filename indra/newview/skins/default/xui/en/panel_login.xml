@@ -7,11 +7,7 @@
     name="panel_login"
     focus_root="true" 
     top="600"
-    width="996">
-  <panel.string
-      name="create_account_url">
-    http://join.secondlife.com/
-  </panel.string>
+    width="1130">
   <string name="reg_in_client_url" translate="false">
     http://secondlife.eniac15.lindenlab.com/reg-in-client/
   </string>
@@ -32,59 +28,82 @@
       start_url=""
       top="0"
       height="600"
-      width="980"/>
+      width="996"/>
   <layout_stack
+      animate="false"
+      clip="false"
       follows="left|bottom|right"
       name="login_widgets"
       layout="topleft"
       orientation="horizontal"
       top="519"
-      width="996"
+      width="1130"
       height="80">
     <layout_panel
         auto_resize="false"
         follows="left|bottom"
         name="login"
         layout="topleft"
-        width="705"
-        min_width="705"
+        width="310"
+        min_width="310"
         height="80">
+      <text
+          follows="left|bottom"
+          font="SansSerif"
+          font.style="BOLD"
+          font.size="Large"
+          height="16"
+          name="log_in_text"
+          top="8"
+          left="15"
+          width="150">
+        LOG IN
+      </text>
       <text
           follows="left|bottom"
           font="SansSerifSmall"
           height="16"
           name="username_text"
-          top="20"
-          left="20"
+          top="35"
+          left="15"
           width="150">
         Username:
       </text>
+      <!-- STEAM-14: Turn off commit_on_focus_lost so if user presses Enter
+           with focus in this combo_box, we can use commit action to initiate
+           login -->
       <combo_box
           allow_text_entry="true"
           follows="left|bottom"
           height="22"
           left_delta="0"
           max_chars="128"
+          commit_on_focus_lost="false"
           combo_editor.prevalidate_callback="ascii"
           tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
           top_pad="0"
           name="username_combo"
           width="178">
+<!-- empirically, displayed width is 150 anyway?!? -->
         <combo_box.combo_button
             visible ="false"/>
         <combo_box.drop_down_button
             visible ="false"/>
       </combo_box>
+<!-- left="175" based on actual "username_combo" width of 150 vs. 178 -->
       <text
           follows="left|bottom"
           font="SansSerifSmall"
-          height="15"
-          left_pad="-19"
+          height="16"
           name="password_text"
-          top="20"
+          top="35"
+          left="175"
           width="150">
         Password:
       </text>
+      <!-- STEAM-14: Turn off commit_on_focus_lost so if user presses Enter
+           with focus in this line_editor, we can use commit action to
+           initiate login -->
       <line_editor
           follows="left|bottom"
           height="22"
@@ -92,36 +111,25 @@
           name="password_edit"
           is_password="true" 
           select_on_focus="true"
+          commit_on_focus_lost="false"
           top_pad="0"
           width="135" />
-      <check_box
-          control_name="RememberPassword"
-          follows="left|bottom"
-          font="SansSerifSmall"
-          height="16"
-          label="Remember password"
-          top_pad="3"
-          name="remember_check"
-          width="135" />
-      <button
-          follows="left|bottom"
-          height="23"
-          image_unselected="PushButton_On"
-          image_selected="PushButton_On_Selected"
-          label="Log In"
-          label_color="White"
-          layout="topleft"
-          left_pad="10"
-          name="connect_btn"
-          top="35"
-          width="90" />
+    </layout_panel>
+    <layout_panel
+        auto_resize="false"
+        follows="left|bottom"
+        name="start_location_panel"
+        layout="topleft"
+        width="175"
+        min_width="175"
+        height="80">
       <text
           follows="left|bottom"
           font="SansSerifSmall"
-          height="15"
-          left_pad="8"
+          height="16"
+          left="10"
           name="start_location_text"
-          top="20"
+          top="35"
           width="130">
         Start at:
       </text>
@@ -129,7 +137,7 @@
           allow_text_entry="true"
           control_name="NextLoginLocation"
           follows="left|bottom"
-          height="23"
+          height="22"
           max_chars="128"
           top_pad="0"
           name="start_location_combo"
@@ -146,60 +154,112 @@
             label="&lt;Type region name&gt;"
             name="Typeregionname"   value="" />
       </combo_box>
+    </layout_panel>
+    <layout_panel
+        auto_resize="false"
+        follows="left|bottom"
+        name="grid_panel"
+        layout="topleft"
+        width="145"
+        height="80"
+        visible="false">
       <combo_box
           allow_text_entry="false"
           font="SansSerifSmall"
           follows="left|right|bottom"
           height="23"
           max_chars="256"
+          left="10"
+          top="51"
           layout="topleft"
           top_pad="2"
           name="server_combo"
-          width="250"
-          visible="false" />
+          width="135" />
+    </layout_panel>
+    <layout_panel
+        auto_resize="false"
+        follows="left|bottom"
+        name="links_login_panel"
+        layout="topleft"
+        width="290"
+        height="80">
+      <text
+          follows="left|bottom"
+          font="SansSerifSmall"
+          text_color="EmphasisColor"
+          left="10"
+          height="16"
+          name="login_help"
+          top="19"
+          width="280">
+        Need help logging in?
+      </text>
+      <text
+          follows="left|bottom"
+          font="SansSerifSmall"
+          text_color="EmphasisColor"
+          height="16"
+          name="forgot_password_text"
+          top="35"
+          width="280">
+        Forgot your username or password?
+      </text>
+      <button
+          follows="left|bottom"
+          top_pad="0"
+          height="23"
+          image_unselected="PushButton_On"
+          image_selected="PushButton_On_Selected"
+          label="Log In"
+          label_color="White"
+          layout="topleft"
+          name="connect_btn"
+          width="90" />
+      <check_box
+          control_name="RememberPassword"
+          follows="left|bottom"
+          font="SansSerifSmall"
+          left="110"
+          top="56"
+          height="16"
+          label="Remember password"
+          top_pad="3"
+          name="remember_check"
+          width="145" />
     </layout_panel>
     <layout_panel
         tab_stop="false"
         follows="right|bottom"
-        name="links"
-        width="205"
-        min_width="205"
+        name="links" 
+        width="210"
+        min_width="100"
         height="80">
       <text
           follows="right|bottom"
-          font="SansSerifSmall"
-          text_color="EmphasisColor"
+          font="SansSerif"
+          font.style="BOLD"
+          font.size="Large"
           halign="right"
           height="16"
-          top="12"
-          right="-10"
-          name="create_new_account_text"
+          name="create_account_text"
+          top="8"
+          right="-15"
           width="200">
-        Sign up
+        CREATE YOUR ACCOUNT
       </text>
-      <text
+      <button
           follows="right|bottom"
-          font="SansSerifSmall"
-          text_color="EmphasisColor"
-          halign="right"
-          height="16"
-          name="forgot_password_text"
-          top_pad="12"
-          right="-10"
-          width="200">
-        Forgot your username or password?
-      </text>
-      <text
-          follows="right|bottom"
-          font="SansSerifSmall"
-          text_color="EmphasisColor"
-          halign="right"
-          height="16"
-          name="login_help"
-          top_pad="2"
-          right="-10"
-          width="200">
-      Need help logging in?   </text>
+          top="35"
+          right="-15"
+          height="23"
+          image_unselected="PushButton_On"
+          image_selected="PushButton_On_Selected"
+          label="Start now"
+          label_color="White"
+          layout="topleft"
+          left_pad="10"
+          name="create_new_account_btn"
+          width="90" />
     </layout_panel>
   </layout_stack>
 </panel>

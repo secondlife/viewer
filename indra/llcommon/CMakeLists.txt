@@ -116,6 +116,7 @@ set(llcommon_HEADER_FILES
     bitpack.h
     ctype_workaround.h
     doublelinkedlist.h
+    fix_macros.h
     imageids.h
     indra_constants.h
     linden_common.h
@@ -174,6 +175,7 @@ set(llcommon_HEADER_FILES
     llfoldertype.h
     llformat.h
     llframetimer.h
+    llhandle.h
     llhash.h
     llheartbeat.h
     llhttpstatuscodes.h

@@ -292,11 +292,6 @@ public:
 	// Return the ISO639 language name ("en", "ko", etc.) for the viewer UI.
 	// http://www.loc.gov/standards/iso639-2/php/code_list.php
 	static std::string getLanguage();
-	
-	static void setupPaths();
-	static const std::vector<std::string>& getXUIPaths() { return sXUIPaths; }
-	static std::string getSkinPath() { return sXUIPaths.front(); }
-	static std::string getLocalizedSkinPath() { return sXUIPaths.back(); }  //all files may not exist at the localized path
 
 	//helper functions (should probably move free standing rendering helper functions here)
 	static LLView* getRootView() { return sRootView; }

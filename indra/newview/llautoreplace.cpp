@@ -536,6 +536,46 @@ LLAutoReplaceSettings::AddListResult LLAutoReplaceSettings::addList(const LLSD& 
 	return result;
 }
 
+LLAutoReplaceSettings::AddListResult LLAutoReplaceSettings::replaceList(const LLSD& newList)
+{
+	AddListResult result = AddListInvalidList;
+	if ( listIsValid( newList ) )
+	{
+		std::string listName = newList[AUTOREPLACE_LIST_NAME].asString();
+		bool listFound = false;
+		S32 search_index;
+		LLSD targetList;
+		// The following is working around the fact that LLSD arrays containing maps also seem to have undefined entries... see LLSD-30
+		for ( search_index = 0, targetList = mLists[0];
+			  !listFound && search_index < mLists.size();
+			  search_index += 1, targetList = mLists[search_index]
+			 )
+		{
+			if ( targetList.isMap() )
+			{
+				if ( listNameMatches( targetList, listName) )
+				{
+					LL_DEBUGS("AutoReplace")<<"list to replace found at "<<search_index<<LL_ENDL;
+					mLists.erase(search_index);
+					mLists.insert(search_index, newList);
+					listFound = true;
+					result = AddListOk;
+				}
+			}
+		}
+		
+		if ( ! listFound )
+		{
+			LL_WARNS("AutoReplace") << "attempt to replace unconfigured list" << LL_ENDL;
+		}
+	}
+	else
+	{
+		LL_WARNS("AutoReplace") << "attempt to add invalid list" << LL_ENDL;
+	}
+	return result;
+}
+
 bool LLAutoReplaceSettings::removeReplacementList(std::string listName)
 {
 	bool found = false;

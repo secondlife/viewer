@@ -38,10 +38,6 @@
 #include "llglslshader.h"
 #include "llmemory.h"
 
-#if LL_DARWIN
-#define LL_VBO_POOLING 1
-#else
-#endif
 //Next Highest Power Of Two
 //helper function, returns first number > v that is a power of 2, or v if v is already a power of 2
 U32 nhpo2(U32 v)
@@ -292,6 +288,7 @@ void LLVBOPool::seedPool()
 		}
 	}
 }
+
 
 
 void LLVBOPool::cleanup()
@@ -558,8 +555,21 @@ void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos, con
 	gGL.syncMatrices();
 
 	U32 count = pos.size();
-	llassert_always(norm.size() >= pos.size());
-	llassert_always(count > 0);
+	
+	llassert(norm.size() >= pos.size());
+	llassert(count > 0);
+
+	if( count == 0 )
+	{
+		llwarns << "Called drawArrays with 0 vertices" << llendl;
+		return;
+	}
+
+	if( norm.size() < pos.size() )
+	{
+		llwarns << "Called drawArrays with #" << norm.size() << " normals and #" << pos.size() << " vertices" << llendl;
+		return;
+	}
 
 	unbind();
 	

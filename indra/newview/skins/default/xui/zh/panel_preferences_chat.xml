@@ -27,31 +27,9 @@
 	</text>
 	<check_box label="群組聊天" name="EnableGroupChatPopups" tool_tip="當群組聊天訊息抵達時查看突顯式視窗"/>
 	<check_box label="IM 聊天" name="EnableIMChatPopups" tool_tip="當即時訊息抵達時查看突顯式視窗"/>
-	<spinner label="Nearby chat toasts life time:" name="nearby_toasts_lifetime"/>
-	<spinner label="Nearby chat toasts fading time:" name="nearby_toasts_fadingtime"/>
-	<text name="translate_chb_label">
-		聊天時使用機器自動進行翻譯
-	</text>
-	<text name="translate_language_text">
-		聊天翻譯為：
-	</text>
-	<combo_box name="translate_language_combobox">
-		<combo_box.item label="系統預設" name="System Default Language"/>
-		<combo_box.item label="English" name="English"/>
-		<combo_box.item label="Dansk (Danish)" name="Danish"/>
-		<combo_box.item label="Deutsch (German)" name="German"/>
-		<combo_box.item label="Español (Spanish)" name="Spanish"/>
-		<combo_box.item label="Français (French)" name="French"/>
-		<combo_box.item label="Italiano (Italian)" name="Italian"/>
-		<combo_box.item label="Magyar (Hungarian)" name="Hungarian"/>
-		<combo_box.item label="Nederlands (Dutch)" name="Dutch"/>
-		<combo_box.item label="Polski (Polish)" name="Polish"/>
-		<combo_box.item label="Português (Portuguese)" name="Portugese"/>
-		<combo_box.item label="Русский (Russian)" name="Russian"/>
-		<combo_box.item label="Türkçe (Turkish)" name="Turkish"/>
-		<combo_box.item label="Українська (Ukrainian)" name="Ukrainian"/>
-		<combo_box.item label="中文 (正體) (Chinese)" name="Chinese"/>
-		<combo_box.item label="日本語 (Japanese)" name="Japanese"/>
-		<combo_box.item label="한국어 (Korean)" name="Korean"/>
-	</combo_box>
+	<spinner label="附近聊天內容提示框停駐時間：" name="nearby_toasts_lifetime"/>
+	<spinner label="附近聊天內容提示框消退時間：" name="nearby_toasts_fadingtime"/>
+	<button label="翻譯…" name="ok_btn"/>
+	<button label="自動取代…" name="autoreplace_showgui"/>
+	<button label="拼字檢查…" name="spellcheck_showgui"/>
 </panel>

@@ -343,8 +343,8 @@ public:
 	static void onClickColumn(void *userdata);
 
 	virtual void updateColumns();
-	void calcColumnWidths();
-	S32 getMaxContentWidth() { return mMaxContentWidth; }
+	S32 calcMaxContentWidth();
+	bool updateColumnWidths();
 
 	void setHeadingHeight(S32 heading_height);
 	/**
@@ -374,6 +374,7 @@ public:
 	std::string     getSortColumnName();
 	BOOL			getSortAscending() { return mSortColumns.empty() ? TRUE : mSortColumns.back().second; }
 	BOOL			hasSortOrder() const;
+	void			clearSortOrder();
 
 	S32		selectMultiple( uuid_vec_t ids );
 	// conceptually const, but mutates mItemList
@@ -439,16 +440,17 @@ private:
 	S32				mHeadingHeight;	// the height of the column header buttons, if visible
 	U32				mMaxSelectable; 
 	LLScrollbar*	mScrollbar;
-	BOOL 			mAllowMultipleSelection;
-	BOOL			mAllowKeyboardMovement;
-	BOOL			mCommitOnKeyboardMovement;
-	BOOL			mCommitOnSelectionChange;
-	BOOL			mSelectionChanged;
-	BOOL			mNeedsScroll;
-	BOOL			mMouseWheelOpaque;
-	BOOL			mCanSelect;
-	const BOOL		mDisplayColumnHeaders;
-	BOOL			mColumnsDirty;
+	bool 			mAllowMultipleSelection;
+	bool			mAllowKeyboardMovement;
+	bool			mCommitOnKeyboardMovement;
+	bool			mCommitOnSelectionChange;
+	bool			mSelectionChanged;
+	bool			mNeedsScroll;
+	bool			mMouseWheelOpaque;
+	bool			mCanSelect;
+	bool			mDisplayColumnHeaders;
+	bool			mColumnsDirty;
+	bool			mColumnWidthsDirty;
 
 	mutable item_list	mItemList;
 
@@ -457,7 +459,6 @@ private:
 	S32				mMaxItemCount; 
 
 	LLRect			mItemListRect;
-	S32				mMaxContentWidth;
 	S32             mColumnPadding;
 
 	BOOL			mBackgroundVisible;
@@ -497,7 +498,7 @@ private:
 	typedef std::map<std::string, LLScrollListColumn*> column_map_t;
 	column_map_t mColumns;
 
-	BOOL			mDirty;
+	bool			mDirty;
 	S32				mOriginalSelection;
 
 	ContextMenuType mContextMenuType;

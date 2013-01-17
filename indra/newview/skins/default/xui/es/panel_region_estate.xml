@@ -26,7 +26,7 @@
 		Permitir únicamente el acceso a los Residentes que:
 	</text>
 	<check_box label="Han aportado la información de pago." name="limit_payment" tool_tip="Para poder acceder a este estado los Residentes deben haber aportado información de pago en su cuenta. Para más información, ver [SUPPORT_SITE]."/>
-	<check_box label="Han verificado su edad" name="limit_age_verified" tool_tip="Para poder acceder a este estado los Residentes deben haber verificado su edad. Para más información, ver [SUPPORT_SITE]."/>
+	<check_box label="Son mayores de 18 años" name="limit_age_verified" tool_tip="Para poder acceder a este estado, los Residentes deben ser mayores de 18 años. Para más información, consulta [SUPPORT_SITE]."/>
 	<check_box label="Permitir el chat de voz" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<check_box label="Permitir el teleporte a cualquier punto" name="allow_direct_teleport"/>

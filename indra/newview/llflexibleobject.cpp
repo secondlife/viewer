@@ -44,6 +44,8 @@
 #include "llvoavatar.h"
 
 /*static*/ F32 LLVolumeImplFlexible::sUpdateFactor = 1.0f;
+std::vector<LLVolumeImplFlexible*> LLVolumeImplFlexible::sInstanceList;
+std::vector<S32> LLVolumeImplFlexible::sUpdateDelay;
 
 static LLFastTimer::DeclareTimer FTM_FLEXIBLE_REBUILD("Rebuild");
 static LLFastTimer::DeclareTimer FTM_DO_FLEXIBLE_UPDATE("Update");
@@ -70,7 +72,44 @@ LLVolumeImplFlexible::LLVolumeImplFlexible(LLViewerObject* vo, LLFlexibleObjectD
 	{
 		mVO->mDrawable->makeActive() ;
 	}
+
+	mInstanceIndex = sInstanceList.size();
+	sInstanceList.push_back(this);
+	sUpdateDelay.push_back(0);
 }//-----------------------------------------------
+
+LLVolumeImplFlexible::~LLVolumeImplFlexible()
+{
+	S32 end_idx = sInstanceList.size()-1;
+	
+	if (end_idx != mInstanceIndex)
+	{
+		sInstanceList[mInstanceIndex] = sInstanceList[end_idx];
+		sInstanceList[mInstanceIndex]->mInstanceIndex = mInstanceIndex;
+		sUpdateDelay[mInstanceIndex] = sUpdateDelay[end_idx];
+	}
+
+	sInstanceList.pop_back();
+	sUpdateDelay.pop_back();
+}
+
+//static
+void LLVolumeImplFlexible::updateClass()
+{
+	std::vector<S32>::iterator delay_iter = sUpdateDelay.begin();
+
+	for (std::vector<LLVolumeImplFlexible*>::iterator iter = sInstanceList.begin();
+			iter != sInstanceList.end();
+			++iter)
+	{
+		--(*delay_iter);
+		if (*delay_iter <= 0)
+		{
+			(*iter)->doIdleUpdate();
+		}
+		++delay_iter;
+	}
+}
 
 LLVector3 LLVolumeImplFlexible::getFramePosition() const
 {
@@ -296,22 +335,17 @@ void LLVolumeImplFlexible::updateRenderRes()
 // optimization similar to what Havok does for objects that are stationary. 
 //---------------------------------------------------------------------------------
 static LLFastTimer::DeclareTimer FTM_FLEXIBLE_UPDATE("Update Flexies");
-void LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLVolumeImplFlexible::doIdleUpdate()
 {
 	LLDrawable* drawablep = mVO->mDrawable;
 
 	if (drawablep)
 	{
 		//LLFastTimer ftm(FTM_FLEXIBLE_UPDATE);
-
-		//flexible objects never go static
-		drawablep->mQuietCount = 0;
-		if (!drawablep->isRoot())
-		{
-			LLViewerObject* parent = (LLViewerObject*) mVO->getParent();
-			parent->mDrawable->mQuietCount = 0;
-		}
-
+		
+		//ensure drawable is active
+		drawablep->makeActive();
+			
 		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))
 		{
 			bool visible = drawablep->isVisible();
@@ -321,31 +355,47 @@ void LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F6
 				updateRenderRes();
 				gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
 			}
-			else if	(visible &&
-				!drawablep->isState(LLDrawable::IN_REBUILD_Q1) &&
-				mVO->getPixelArea() > 256.f)
+			else
 			{
-				U32 id;
 				F32 pixel_area = mVO->getPixelArea();
 
-				if (mVO->isRootEdit())
+				U32 update_period = (U32) (LLViewerCamera::getInstance()->getScreenPixelArea()*0.01f/(pixel_area*(sUpdateFactor+1.f)))+1;
+				// MAINT-1890 Clamp the update period to ensure that the update_period is no greater than 32 frames
+				update_period = llclamp(update_period, 0U, 32U);
+
+				if	(visible)
 				{
-					id = mID;
+					if (!drawablep->isState(LLDrawable::IN_REBUILD_Q1) &&
+					mVO->getPixelArea() > 256.f)
+					{
+						U32 id;
+				
+						if (mVO->isRootEdit())
+						{
+							id = mID;
+						}
+						else
+						{
+							LLVOVolume* parent = (LLVOVolume*) mVO->getParent();
+							id = parent->getVolumeInterfaceID();
+						}
+
+						if ((LLDrawable::getCurrentFrame()+id)%update_period == 0)
+						{
+							sUpdateDelay[mInstanceIndex] = (S32) update_period-1;
+
+							updateRenderRes();
+
+							gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
+						}
+					}
 				}
 				else
 				{
-					LLVOVolume* parent = (LLVOVolume*) mVO->getParent();
-					id = parent->getVolumeInterfaceID();
-				}
-
-				U32 update_period = (U32) (LLViewerCamera::getInstance()->getScreenPixelArea()*0.01f/(pixel_area*(sUpdateFactor+1.f)))+1;
-
-				if ((LLDrawable::getCurrentFrame()+id)%update_period == 0)
-				{
-					updateRenderRes();
-					gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
+					sUpdateDelay[mInstanceIndex] = (S32) update_period;
 				}
 			}
+
 		}
 	}
 }
@@ -370,7 +420,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	{
 		BOOL force_update = mSimulateRes == 0 ? TRUE : FALSE;
 
-		doIdleUpdate(gAgent, *LLWorld::getInstance(), 0.0);
+		doIdleUpdate();
 
 		if (!force_update || !gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))
 		{
@@ -382,6 +432,15 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	{
 		//the object is not visible
 		return ;
+	}
+
+	// stinson 11/12/2012: Need to check with davep on the following.
+	// Skipping the flexible update if render res is negative.  If we were to continue with a negative value,
+	// the subsequent S32 num_render_sections = 1<<mRenderRes; code will specify a really large number of
+	// render sections which will then create a length exception in the std::vector::resize() method.
+	if (mRenderRes < 0)
+	{
+		return;
 	}
 	
 	S32 num_sections = 1 << mSimulateRes;

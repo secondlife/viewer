@@ -5,10 +5,10 @@
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</floater.string>
 	<floater.string name="AboutCompiler">
-		Built with [COMPILER] version [COMPILER_VERSION]
+		以 [COMPILER_VERSION] 版本 [COMPILER] 建置
 	</floater.string>
 	<floater.string name="AboutPosition">
-		You are at [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] located at &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+		你的方位是 [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1]，地區名：[REGION]，主機：&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 [SERVER_VERSION]
 [SERVER_RELEASE_NOTES_URL]
 	</floater.string>
@@ -20,10 +20,10 @@
 顯示卡：[GRAPHICS_CARD]
 	</floater.string>
 	<floater.string name="AboutDriver">
-		Windows Graphics Driver Version: [GRAPHICS_DRIVER_VERSION]
+		Windows 顯示驅動程式版本：[GRAPHICS_DRIVER_VERSION]
 	</floater.string>
 	<floater.string name="AboutLibs">
-		OpenGL Version: [OPENGL_VERSION]
+		OpenGL 版本：[OPENGL_VERSION]
 
 libcurl 版本： [LIBCURL_VERSION]
 J2C 解碼器版本： [J2C_VERSION]
@@ -37,47 +37,60 @@ Qt Webkit 版本： [QT_WEBKIT_VERSION]
 	<floater.string name="AboutTraffic">
 		封包損失：[PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
 	</floater.string>
+	<floater.string name="ErrorFetchingServerReleaseNotesURL">
+		擷取伺服器版本說明 URL 時出錯。
+	</floater.string>
 	<tab_container name="about_tab">
 		<panel label="資訊" name="support_panel">
 			<button label="覆製到剪貼簿" name="copy_btn"/>
 		</panel>
-		<panel label="Credits" name="credits_panel">
-			<text_editor name="credits_editor">
-				Second Life is brought to you by ..., and many others.
-
-Thank you to the following Residents for helping to ensure that this is the best version yet: ..., and many others.
-
-
-
-
-&quot;The work goes on, the cause endures, the hope still lives, and the dreams shall never die&quot; - Edward Kennedy
+		<panel label="貸記" name="credits_panel">
+			<text name="linden_intro">
+				「第二人生」由以下的 Linden 家族帶給你：
+			</text>
+			<text name="contrib_intro">
+				這些人士做了開放源碼的貢獻：
+			</text>
+			<text_editor name="contrib_names">
+				執行時期被取代的假名稱
+			</text_editor>
+			<text name="trans_intro">
+				以下人士提供翻譯：
+			</text>
+			<text_editor name="trans_names">
+				執行時期被取代的假名稱
 			</text_editor>
 		</panel>
-		<panel label="Licenses" name="licenses_panel">
+		<panel label="許可" name="licenses_panel">
 			<text_editor name="credits_editor">
-				3Dconnexion SDK Copyright (C) 1992-2007 3Dconnexion
-APR Copyright (C) 2000-2004 The Apache Software Foundation
-cURL Copyright (C) 1996-2002, Daniel Stenberg, (daniel@haxx.se)
-DBus/dbus-glib Copyright (C) 2002, 2003  CodeFactory AB / Copyright (C) 2003, 2004 Red Hat, Inc.
-expat Copyright (C) 1998, 1999, 2000 Thai Open Source Software Center Ltd.
-FreeType Copyright (C) 1996-2002, The FreeType Project (www.freetype.org).
-GL Copyright (C) 1999-2004 Brian Paul.
-google-perftools Copyright (c) 2005, Google Inc.
-Havok.com(TM) Copyright (C) 1999-2001, Telekinesys Research Limited.
-jpeg2000 Copyright (C) 2001, David Taubman, The University of New South Wales (UNSW)
-jpeglib Copyright (C) 1991-1998, Thomas G. Lane.
-ogg/vorbis Copyright (C) 2001, Xiphophorus
-OpenSSL Copyright (C) 1998-2002 The OpenSSL Project.
-Pth Copyright (C) 1999-2006 Ralf S. Engelschall &lt;rse@gnu.org&gt;
-SDL Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 Sam Lantinga
-SSLeay Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
-xmlrpc-epi Copyright (C) 2000 Epinions, Inc.
-zlib Copyright (C) 1995-2002 Jean-loup Gailly and Mark Adler.
-google-perftools Copyright (c) 2005, Google Inc.
+				3Dconnexion SDK Copyright (C) 1992-2009 3Dconnexion
+        APR Copyright (C) 2011 The Apache Software Foundation
+        Collada DOM Copyright 2006 Sony Computer Entertainment Inc.
+        cURL Copyright (C) 1996-2010, Daniel Stenberg, (daniel@haxx.se)
+        DBus/dbus-glib Copyright (C) 2002, 2003  CodeFactory AB / Copyright (C) 2003, 2004 Red Hat, Inc.
+        expat Copyright (C) 1998, 1999, 2000 Thai Open Source Software Center Ltd.
+        FreeType Copyright (C) 1996-2002, 2006 David Turner, Robert Wilhelm, and Werner Lemberg.
+        GL Copyright (C) 1999-2004 Brian Paul.
+        GLOD Copyright (C) 2003-04 Jonathan Cohen, Nat Duca, Chris Niski, Johns Hopkins University and David Luebke, Brenden Schubert, University of Virginia.
+        google-perftools Copyright (c) 2005, Google Inc.
+        Havok.com(TM) Copyright (C) 1999-2001, Telekinesys Research Limited.
+        jpeg2000 Copyright (C) 2001, David Taubman, The University of New South Wales (UNSW)
+        jpeglib Copyright (C) 1991-1998, Thomas G. Lane.
+        ogg/vorbis Copyright (C) 2002, Xiphophorus
+        OpenSSL Copyright (C) 1998-2008 The OpenSSL Project.
+        PCRE Copyright (c) 1997-2012 University of Cambridge
+        SDL Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 Sam Lantinga
+        SSLeay Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
+        xmlrpc-epi Copyright (C) 2000 Epinions, Inc.
+        zlib Copyright (C) 1995-2012 Jean-loup Gailly and Mark Adler.
 
-All rights reserved.  See licenses.txt for details.
+        第二人生 Viewer 採用 Havok (TM) 物理引擎。 (c)Copyright 1999-2010 Havok.com Inc.（及其放照人）。 保留一切權利。 詳情見 www.havok.com。
 
-語音聊天音頻編碼：Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
+        本軟體含有 NVIDIA Corporation 提供的源程式碼。
+
+        保留一切權利。  詳情見 licenses.txt。
+
+        語音聊天音頻技術：Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
 			</text_editor>
 		</panel>
 	</tab_container>

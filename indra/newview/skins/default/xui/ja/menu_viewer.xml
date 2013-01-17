@@ -28,6 +28,7 @@
 		<menu_item_call label="環境設定..." name="Preferences"/>
 		<menu_item_call label="ツールバーのボタン..." name="Toolbars"/>
 		<menu_item_call label="全てのコントロールを非表示にする" name="Hide UI"/>
+		<menu_item_check label="HUD を表示" name="Show HUD Attachments"/>
 		<menu_item_call label="[APP_NAME] を終了" name="Quit"/>
 	</menu>
 	<menu label="コミュニケーション" name="Communicate">
@@ -39,6 +40,7 @@
 		<menu_item_call label="フレンド" name="My Friends"/>
 		<menu_item_call label="グループ" name="My Groups"/>
 		<menu_item_call label="近くにいる人" name="Active Speakers"/>
+		<menu_item_call label="リストをブロック" name="Block List"/>
 	</menu>
 	<menu label="世界" name="World">
 		<menu_item_call label="現在地をランドマーク" name="Create Landmark Here"/>
@@ -124,6 +126,11 @@
 			<menu_item_call label="スクリプトを実行中にする" name="Set Scripts to Running"/>
 			<menu_item_call label="スクリプトを実行停止にする" name="Set Scripts to Not Running"/>
 		</menu>
+		<menu label="パスファインディング" name="Pathfinding">
+			<menu_item_call label="リンクセット..." name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="キャラクター..." name="pathfinding_characters_menu_item"/>
+			<menu_item_call label="表示/テスト..." name="pathfinding_console_menu_item"/>
+		</menu>
 		<menu label="オプション" name="Options">
 			<menu_item_check label="権限の詳細を表示する" name="DebugPermissions"/>
 			<menu_item_check label="私のオブジェクトだけを選択する" name="Select Only My Objects"/>
@@ -174,7 +181,6 @@
 			<menu_item_check label="パーティクルを非表示にする" name="Hide Particles"/>
 			<menu_item_check label="選択したものを非表示にする" name="Hide Selected"/>
 			<menu_item_check label="透明部分をハイライトする" name="Highlight Transparent"/>
-			<menu_item_check label="HUD を表示する" name="Show HUD Attachments"/>
 			<menu_item_check label="一人称視点のときに十字線を表示する" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="レンダリング（種類）" name="Rendering Types">
@@ -377,7 +383,6 @@
 				<menu_item_call label="キャラクタジオメトリの切り替え" name="Toggle Character Geometry"/>
 				<menu_item_call label="男性アバターのテスト" name="Test Male"/>
 				<menu_item_call label="女性アバターのテスト" name="Test Female"/>
-				<menu_item_call label="PG のトグル" name="Toggle PG"/>
 				<menu_item_check label="選択アバター許可" name="Allow Select Avatar"/>
 			</menu>
 			<menu_item_call label="パラメータを強制的にデフォルトにする" name="Force Params to Default"/>

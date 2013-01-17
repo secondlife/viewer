@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_search" title="尋找">
+<floater name="floater_search" title="">
 	<floater.string name="loading_text">
 		載入中...
 	</floater.string>
 	<floater.string name="done_text">
-		Done
+		完成
 	</floater.string>
 	<layout_stack name="stack1">
 		<layout_panel name="browser_layout">
 			<text name="refresh_search">
-				Redo search to reflect current God level
+				以目前具備的神階級再搜尋一次
 			</text>
 		</layout_panel>
 	</layout_stack>

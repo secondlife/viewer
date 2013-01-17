@@ -29,10 +29,13 @@
 		快取清除中...
 	</string>
 	<string name="StartupInitializingTextureCache">
-		材質快取初始化中...
+		正在初始化材質快取...
 	</string>
 	<string name="StartupInitializingVFS">
 		VFS 初始化中...
+	</string>
+	<string name="StartupRequireDriverUpdate">
+		顯像初始化失敗。 請更新你的顯像卡驅動程式！
 	</string>
 	<string name="ProgressRestoring">
 		回存中...
@@ -44,7 +47,7 @@
 		全亮（舊版）
 	</string>
 	<string name="LoginInProgress">
-		登入中。[APP_NAME] 可能出現凍結狀態。請耐心稍等。
+		登入中。[APP_NAME] 可能看似凍結，請耐心稍等。  請稍候。
 	</string>
 	<string name="LoginInProgressNoFrozen">
 		登入中...
@@ -56,7 +59,7 @@
 		進行帳戶維護...
 	</string>
 	<string name="LoginAttempt">
-		先前企圖嘗試登入失敗。現登入中，嘗試 [NUMBER]
+		前一次登入失敗。 登入中，第 [NUMBER] 次嘗試
 	</string>
 	<string name="LoginPrecaching">
 		世界載入中...
@@ -74,10 +77,10 @@
 		驗證快取檔案（約需 60-90 秒左右）...
 	</string>
 	<string name="LoginProcessingResponse">
-		回應處理中...
+		正在處理回應...
 	</string>
 	<string name="LoginInitializingWorld">
-		世界初始化中...
+		正在初始化虛擬世界…
 	</string>
 	<string name="LoginDecodingImages">
 		圖像解碼中...
@@ -91,6 +94,12 @@
 	<string name="LoginQuicktimeOK">
 		QuickTime 已成功初始化。
 	</string>
+	<string name="LoginRequestSeedCapGrant">
+		詢問地區負荷力…
+	</string>
+	<string name="LoginRetrySeedCapGrant">
+		詢問地區負荷力，第 [NUMBER] 次嘗試…
+	</string>
 	<string name="LoginWaitingForRegionHandshake">
 		地區交握等待中...
 	</string>
@@ -101,25 +110,25 @@
 		服裝下載中...
 	</string>
 	<string name="InvalidCertificate">
-		伺服器回傳一個無效果損壞的憑證。請連繫網格管理者。
+		伺服器回傳一個無效或損壞的憑證。 請聯絡網格管理員。
 	</string>
 	<string name="CertInvalidHostname">
-		An invalid hostname was used to access the server, please check your SLURL or Grid hostname.
+		用了無效的主機名來聯絡伺服器，請檢查你的 SLURL 或網格主機名。
 	</string>
 	<string name="CertExpired">
-		The certificate returned by the Grid appears to be expired.  Please check your system clock, or contact your Grid administrator.
+		網格傳回的憑證似乎已過期。  請檢查系統時鐘，或聯絡網格管理員。
 	</string>
 	<string name="CertKeyUsage">
-		The certificate returned by the server could not be used for SSL.  Please contact your Grid administrator.
+		伺服器傳回的憑證無法用於 SSL。  請聯絡網格管理員。
 	</string>
 	<string name="CertBasicConstraints">
-		Too many certificates were in the servers Certificate chain.  Please contact your Grid administrator.
+		伺服器憑證鍊中的憑證數目太多。  請聯絡網格管理員。
 	</string>
 	<string name="CertInvalidSignature">
-		The certificate signature returned by the Grid server could not be verified.  Please contact your Grid administrator.
+		無法檢驗通過網格伺服器傳回的憑證簽名。  請聯絡網格管理員。
 	</string>
 	<string name="LoginFailedNoNetwork">
-		Network Error: Could not establish connection, please check your network connection.
+		網路錯誤：無法建立連線，請檢查網路連線是否正常。
 	</string>
 	<string name="LoginFailed">
 		登入失敗。
@@ -128,10 +137,138 @@
 		結束退出
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/
+		http://join.secondlife.com/?sourceid=[sourceid]
+	</string>
+	<string name="LoginFailedViewerNotPermitted">
+		你目前所用的 Viewer 已經無法再進入第二人生。 請到這個頁面下載最新 Viewer：
+http://secondlife.com/download
+
+欲知詳情，請參閱下面的常見問題集：
+http://secondlife.com/viewer-access-faq
+	</string>
+	<string name="LoginIntermediateOptionalUpdateAvailable">
+		有可以選擇性安裝的更新版：[VERSION]
+	</string>
+	<string name="LoginFailedRequiredUpdate">
+		你必須更新為這個版本：[VERSION]
+	</string>
+	<string name="LoginFailedAlreadyLoggedIn">
+		此用戶已經登入。
+	</string>
+	<string name="LoginFailedAuthenticationFailed">
+		抱歉！ 我們無法讓你登入。
+請檢查確定你輸入了正確的
+    * 使用者名稱（例：bobsmith123 或 steller.sunshine）
+    * 密碼
+並請確定鍵盤沒有鎖定大寫鍵。
+	</string>
+	<string name="LoginFailedPasswordChanged">
+		為了安全起見，已經變更你的密碼。
+請到位於 http://secondlife.com/password 的帳號頁面
+回答安全驗證問題後，重設密碼。
+如有造成不便請多包涵。
+	</string>
+	<string name="LoginFailedPasswordReset">
+		我們系統有所變更，你必須重設密碼。
+請到位於 http://secondlife.com/password 的帳號頁面
+回答安全驗證問題後，重設密碼。
+如有造成不便請多包涵。
+	</string>
+	<string name="LoginFailedEmployeesOnly">
+		第二人生目前暫時關閉進行維護。
+目前僅允許林登員工登入。
+請到 www.secondlife.com/status 察看最新公告。
+	</string>
+	<string name="LoginFailedPremiumOnly">
+		第二人生此時暫時限制登入，以確保不影響效能，讓目前虛擬世界裡的用戶享受最佳的體驗。
+
+免費帳戶的用戶此時暫時無法進入第二人生，因為我們必須優先容納付費用戶。
+	</string>
+	<string name="LoginFailedComputerProhibited">
+		無法從這部電腦進入第二人生。
+如你認為這是我們弄錯，請聯絡 support@secondlife.com。
+	</string>
+	<string name="LoginFailedAcountSuspended">
+		你的帳號要等到 [TIME] （太平洋時間）才可使用。
+	</string>
+	<string name="LoginFailedAccountDisabled">
+		此時無法完成你的請求。
+請到 http://secondlife.com/support 聯絡支援人員獲得幫助。
+如果你無法變更密碼，請致電 (866) 476-9763 （美國）。
+	</string>
+	<string name="LoginFailedTransformError">
+		登入時的資料不一致。
+請聯絡 support@secondlife.com。
+	</string>
+	<string name="LoginFailedAccountMaintenance">
+		你的帳號目前正在進行小規模的維護。
+你的帳號要等到 [TIME] （太平洋時間）才可使用。
+如你認為這是我們弄錯，請聯絡 support@secondlife.com。
+	</string>
+	<string name="LoginFailedPendingLogoutFault">
+		模擬器回應：登出請求出錯。
+	</string>
+	<string name="LoginFailedPendingLogout">
+		系統正在處理你的登出。
+你的帳號要等到 [TIME] （太平洋時間）才可使用。
+	</string>
+	<string name="LoginFailedUnableToCreateSession">
+		無法建立有效的時域。
+	</string>
+	<string name="LoginFailedUnableToConnectToSimulator">
+		無法連接到模擬器。
+	</string>
+	<string name="LoginFailedRestrictedHours">
+		你的帳號僅能在 [START] 到 [END] （太平洋時間）時段進入第二人生。
+請耐心等到該時段再回來。
+如你認為這是我們弄錯，請聯絡 support@secondlife.com。
+	</string>
+	<string name="LoginFailedIncorrectParameters">
+		錯誤的參數。
+如你認為這是我們弄錯，請聯絡 support@secondlife.com。
+	</string>
+	<string name="LoginFailedFirstNameNotAlphanumeric">
+		全名的第一個字(first name)須為英文字母或數字。
+如你認為這是我們弄錯，請聯絡 support@secondlife.com。
+	</string>
+	<string name="LoginFailedLastNameNotAlphanumeric">
+		全名的第二個字(last name)須為英文字母或數字。
+如你認為這是我們弄錯，請聯絡 support@secondlife.com。
+	</string>
+	<string name="LogoutFailedRegionGoingOffline">
+		地區即將離線。
+請稍待一分鐘再試。
+	</string>
+	<string name="LogoutFailedAgentNotInRegion">
+		用戶不在地區裡。
+請稍待一分鐘再試。
+	</string>
+	<string name="LogoutFailedPendingLogin">
+		地區正在登入另一個時域。
+請稍待一分鐘再試。
+	</string>
+	<string name="LogoutFailedLoggingOut">
+		地區正在登入上一個時域。
+請稍待一分鐘再試。
+	</string>
+	<string name="LogoutFailedStillLoggingOut">
+		地區正在登出上一個時域。
+請稍待一分鐘再試。
+	</string>
+	<string name="LogoutSucceeded">
+		地區剛剛登出上一個時域。
+請稍待一分鐘再試。
+	</string>
+	<string name="LogoutFailedLogoutBegun">
+		地區已經開始登出程序。
+請稍待一分鐘再試。
+	</string>
+	<string name="LoginFailedLoggingOutSession">
+		系統已經開始登出你的上一個時域。
+請稍待一分鐘再試。
 	</string>
 	<string name="AgentLostConnection">
-		這個地區可能遭遇問題，請檢查你的網路連線。
+		本區域可能正發生問題。  請檢查你的網際網路連線是否正常。
 	</string>
 	<string name="SavingSettings">
 		你的設定儲存中...
@@ -158,7 +295,7 @@
 		（無名稱）
 	</string>
 	<string name="TooltipOwner">
-		擁有者：
+		所有人：
 	</string>
 	<string name="TooltipPublic">
 		公開
@@ -196,60 +333,90 @@
 	<string name="TooltipMustSingleDrop">
 		只有一個物品可以被拖曳到此處
 	</string>
-	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
+	<string name="TooltipPrice" value="L$[AMOUNT]："/>
+	<string name="TooltipOutboxDragToWorld">
+		商家發件匣內的物項無法產生到虛擬世界
+	</string>
+	<string name="TooltipOutboxNoTransfer">
+		至少一個物件無法出售或轉移。
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		你的商家發件匣只能接受直接來自收納區的物項。
+	</string>
+	<string name="TooltipOutboxWorn">
+		你穿著中的物項無法放入商家發件匣。
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		名片不得放入商家發件匣
+	</string>
+	<string name="TooltipOutboxFolderLevels">
+		巢狀資料夾深度超過 3
+	</string>
+	<string name="TooltipOutboxTooManyFolders">
+		頂層資料夾的子資料夾數目超過 20
+	</string>
+	<string name="TooltipOutboxTooManyObjects">
+		頂層資料夾物項數目超過 200
+	</string>
+	<string name="TooltipDragOntoOwnChild">
+		資料夾不得移到其子資料夾底下
+	</string>
+	<string name="TooltipDragOntoSelf">
+		資料夾移動的目標不得為它本身
+	</string>
 	<string name="TooltipHttpUrl">
-		點擊以察看這個網頁
+		點按以察看這個網頁
 	</string>
 	<string name="TooltipSLURL">
-		點擊以察看這個位置資訊
+		點按以察看這個位置資訊
 	</string>
 	<string name="TooltipAgentUrl">
-		點擊以察看這個居民檔案
+		點按以察看這個居民檔案
 	</string>
 	<string name="TooltipAgentInspect">
 		瞭解更多有關這個居民
 	</string>
 	<string name="TooltipAgentMute">
-		點擊以封鎖這位居民
+		點按以封鎖這位居民
 	</string>
 	<string name="TooltipAgentUnmute">
-		點擊以解除封鎖這位居民
+		點按以解除封鎖這位居民
 	</string>
 	<string name="TooltipAgentIM">
-		點擊開始 IM 這位居民
+		點按開始 IM 這位居民
 	</string>
 	<string name="TooltipAgentPay">
-		點擊以支付這位居民
+		點按以支付這位居民
 	</string>
 	<string name="TooltipAgentOfferTeleport">
-		點擊以送出瞬間傳送邀請給這位居民
+		點按以送出瞬間傳送邀請給這位居民
 	</string>
 	<string name="TooltipAgentRequestFriend">
-		點擊以送出交友邀請給這位居民
+		點按以送出交友邀請給這位居民
 	</string>
 	<string name="TooltipGroupUrl">
-		點擊以察看這個群組的描述
+		點按以察看這個群組的描述
 	</string>
 	<string name="TooltipEventUrl">
-		點擊以察看這個活動的描述
+		點按以察看這個活動的描述
 	</string>
 	<string name="TooltipClassifiedUrl">
-		Click to view this classified
+		點按察看這個個人廣告
 	</string>
 	<string name="TooltipParcelUrl">
-		點擊以察看這個地段的描述
+		點按以察看這個地段的描述
 	</string>
 	<string name="TooltipTeleportUrl">
-		點擊以傳送到這個位置
+		點按以傳送到這個位置
 	</string>
 	<string name="TooltipObjectIMUrl">
-		點擊以察看這個物件的描述
+		點按以察看這個物件的描述
 	</string>
 	<string name="TooltipMapUrl">
-		點擊以察看此處在地圖上的位置
+		點按以察看此處在地圖上的位置
 	</string>
 	<string name="TooltipSLAPP">
-		點擊以執行 secondlife:// 指令
+		點按以執行 secondlife:// 指令
 	</string>
 	<string name="CurrentURL" value="目前網址：[CurrentURL]"/>
 	<string name="SLurlLabelTeleport">
@@ -304,7 +471,7 @@
 		搜尋中...
 	</string>
 	<string name="NoneFound">
-		未發現。
+		查無結果。
 	</string>
 	<string name="RetrievingData">
 		檢索...
@@ -328,7 +495,7 @@
 		（無）
 	</string>
 	<string name="AvalineCaller">
-		Avaline Caller [ORDER]
+		Avaline 通話者 [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		無錯誤
@@ -355,10 +522,10 @@
 		檔案傳輸逾時
 	</string>
 	<string name="AssetErrorCircuitGone">
-		Circuit gone
+		失去線路
 	</string>
 	<string name="AssetErrorPriceMismatch">
-		Viewer and server do not agree on price
+		Viewer 和伺服器無法同意價格
 	</string>
 	<string name="AssetErrorUnknownStatus">
 		未知狀態
@@ -391,13 +558,13 @@
 		資料夾
 	</string>
 	<string name="root">
-		root
+		根目錄
 	</string>
 	<string name="lsl2 script">
-		LSL2 script
+		LSL2 腳本
 	</string>
 	<string name="lsl bytecode">
-		LSL bytecode
+		LSL 位元組碼
 	</string>
 	<string name="tga texture">
 		tga 材質
@@ -409,7 +576,7 @@
 		快照
 	</string>
 	<string name="lost and found">
-		Lost and Found
+		失物招領
 	</string>
 	<string name="targa image">
 		targa 圖像
@@ -438,6 +605,9 @@
 	<string name="symbolic folder link">
 		資料夾聯結
 	</string>
+	<string name="mesh">
+		網面
+	</string>
 	<string name="AvatarEditingAppearance">
 		（外觀編輯中）
 	</string>
@@ -457,88 +627,88 @@
 		生氣
 	</string>
 	<string name="anim_away">
-		Away
+		離開
 	</string>
 	<string name="anim_backflip">
-		Backflip
+		後空翻
 	</string>
 	<string name="anim_express_laugh">
-		Belly Laugh
+		捧腹大笑
 	</string>
 	<string name="anim_express_toothsmile">
-		BigSmile
+		大微笑
 	</string>
 	<string name="anim_blowkiss">
-		Blow Kiss
+		飛吻
 	</string>
 	<string name="anim_express_bored">
 		無聊
 	</string>
 	<string name="anim_bow">
-		Bow
+		彎腰點頭
 	</string>
 	<string name="anim_clap">
 		拍手
 	</string>
 	<string name="anim_courtbow">
-		Court Bow
+		宮廷鞠躬
 	</string>
 	<string name="anim_express_cry">
 		哭泣
 	</string>
 	<string name="anim_dance1">
-		Dance 1
+		跳舞1
 	</string>
 	<string name="anim_dance2">
-		Dance 2
+		跳舞2
 	</string>
 	<string name="anim_dance3">
-		Dance 3
+		跳舞3
 	</string>
 	<string name="anim_dance4">
-		Dance 4
+		跳舞4
 	</string>
 	<string name="anim_dance5">
-		Dance 5
+		跳舞5
 	</string>
 	<string name="anim_dance6">
-		Dance 6
+		跳舞6
 	</string>
 	<string name="anim_dance7">
-		Dance 7
+		跳舞7
 	</string>
 	<string name="anim_dance8">
-		Dance 8
+		跳舞8
 	</string>
 	<string name="anim_express_disdain">
-		Disdain
+		鄙視
 	</string>
 	<string name="anim_drink">
-		Drink
+		喝一口
 	</string>
 	<string name="anim_express_embarrased">
-		Embarrassed
+		尷尬
 	</string>
 	<string name="anim_angry_fingerwag">
-		Finger Wag
+		揮動食指
 	</string>
 	<string name="anim_fist_pump">
-		Fist Pump
+		高舉右拳
 	</string>
 	<string name="anim_yoga_float">
-		Floating Yoga
+		漂浮瑜伽
 	</string>
 	<string name="anim_express_frown">
-		Frown
+		皺眉
 	</string>
 	<string name="anim_impatient">
-		Impatient
+		不耐煩
 	</string>
 	<string name="anim_jumpforjoy">
-		Jump For Joy
+		雀躍
 	</string>
 	<string name="anim_kissmybutt">
-		Kiss My Butt
+		親我屁股！
 	</string>
 	<string name="anim_express_kiss">
 		親吻
@@ -547,55 +717,55 @@
 		笑
 	</string>
 	<string name="anim_musclebeach">
-		Muscle Beach
+		秀健美肌肉
 	</string>
 	<string name="anim_no_unhappy">
 		不（不快樂）
 	</string>
 	<string name="anim_no_head">
-		不
+		否
 	</string>
 	<string name="anim_nyanya">
 		Nya-nya-nya
 	</string>
 	<string name="anim_punch_onetwo">
-		One-Two Punch
+		連續左右出拳
 	</string>
 	<string name="anim_express_open_mouth">
-		Open Mouth
+		張口
 	</string>
 	<string name="anim_peace">
-		Peace
+		和平手勢
 	</string>
 	<string name="anim_point_you">
-		Point at Other
+		指著別人
 	</string>
 	<string name="anim_point_me">
-		Point at Self
+		指著自己
 	</string>
 	<string name="anim_punch_l">
-		Punch Left
+		左出拳
 	</string>
 	<string name="anim_punch_r">
-		Punch Right
+		右出拳
 	</string>
 	<string name="anim_rps_countdown">
-		RPS count
+		剪刀石頭布預備動作
 	</string>
 	<string name="anim_rps_paper">
-		RPS paper
+		剪刀石頭布：布
 	</string>
 	<string name="anim_rps_rock">
-		RPS rock
+		剪刀石頭布：石頭
 	</string>
 	<string name="anim_rps_scissors">
-		RPS scissors
+		剪刀石頭布：剪刀
 	</string>
 	<string name="anim_express_repulsed">
-		Repulsed
+		作噁
 	</string>
 	<string name="anim_kick_roundhouse_r">
-		Roundhouse Kick
+		旋踢
 	</string>
 	<string name="anim_express_sad">
 		傷心
@@ -604,37 +774,37 @@
 		敬禮
 	</string>
 	<string name="anim_shout">
-		Shout
+		吶喊
 	</string>
 	<string name="anim_express_shrug">
-		Shrug
+		聳聳肩
 	</string>
 	<string name="anim_express_smile">
 		微笑
 	</string>
 	<string name="anim_smoke_idle">
-		Smoke Idle
+		悠閒抽菸
 	</string>
 	<string name="anim_smoke_inhale">
-		Smoke Inhale
+		吸一口菸
 	</string>
 	<string name="anim_smoke_throw_down">
-		Smoke Throw Down
+		甩菸蒂
 	</string>
 	<string name="anim_express_surprise">
 		驚喜
 	</string>
 	<string name="anim_sword_strike_r">
-		Sword Strike
+		劍擊
 	</string>
 	<string name="anim_angry_tantrum">
-		Tantrum
+		鬧脾氣
 	</string>
 	<string name="anim_express_tongue_out">
-		TongueOut
+		吐舌頭
 	</string>
 	<string name="anim_hello">
-		Wave
+		揮手
 	</string>
 	<string name="anim_whisper">
 		耳語
@@ -657,6 +827,9 @@
 	<string name="anim_yes_head">
 		是
 	</string>
+	<string name="multiple_textures">
+		多個
+	</string>
 	<string name="texture_loading">
 		載入中...
 	</string>
@@ -664,19 +837,19 @@
 		離線
 	</string>
 	<string name="worldmap_item_tooltip_format">
-		[AREA] m² L$[PRICE]
+		[AREA] 平方公尺 L$[PRICE]
 	</string>
 	<string name="worldmap_results_none_found">
-		沒有發現。
+		查無結果。
 	</string>
 	<string name="Ok">
 		確定
 	</string>
 	<string name="Premature end of file">
-		Premature end of file
+		檔案異常中止
 	</string>
 	<string name="ST_NO_JOINT">
-		Can&apos;t find ROOT or JOINT.
+		找不到 ROOT 或旋軸。
 	</string>
 	<string name="whisper">
 		低語：
@@ -700,34 +873,37 @@
 		現在你將重新聯接到附近的語音聊天
 	</string>
 	<string name="ScriptQuestionCautionChatGranted">
-		&apos;[OBJECTNAME]&apos;, an object owned by &apos;[OWNERNAME]&apos;, located in [REGIONNAME] at [REGIONPOS], has been granted permission to: [PERMISSIONS].
+		物件「[OBJECTNAME]&apos;」（所有人「[OWNERNAME]」，位於「[REGIONNAME]」，方位「[REGIONPOS]」）已獲得下列權限：[PERMISSIONS]。
 	</string>
 	<string name="ScriptQuestionCautionChatDenied">
-		&apos;[OBJECTNAME]&apos;, an object owned by &apos;[OWNERNAME]&apos;, located in [REGIONNAME] at [REGIONPOS], has been denied permission to: [PERMISSIONS].
+		物件「[OBJECTNAME]&apos;」（所有人「[OWNERNAME]」，位於「[REGIONNAME]」，方位「[REGIONPOS]」）已被撤除下列權限：[PERMISSIONS]。
+	</string>
+	<string name="AdditionalPermissionsRequestHeader">
+		你如果打開帳戶權限，也將一併允許該物件：
 	</string>
 	<string name="ScriptTakeMoney">
 		由你身上拿走林登幣（L$）
 	</string>
 	<string name="ActOnControlInputs">
-		Act on your control inputs
+		按你的控制輸入行動
 	</string>
 	<string name="RemapControlInputs">
-		Remap your control inputs
+		重新規劃你的控制輸入
 	</string>
 	<string name="AnimateYourAvatar">
-		Animate your avatar
+		使化身動起來
 	</string>
 	<string name="AttachToYourAvatar">
-		Attach to your avatar
+		附加到化身
 	</string>
 	<string name="ReleaseOwnership">
-		Release ownership and become public
+		釋出所有權，開放給所有人
 	</string>
 	<string name="LinkAndDelink">
-		Link and delink from other objects
+		連結其他物件或去除連結
 	</string>
 	<string name="AddAndRemoveJoints">
-		Add and remove joints with other objects
+		和其他物件建立或移除旋軸
 	</string>
 	<string name="ChangePermissions">
 		變更它的權限
@@ -737,6 +913,9 @@
 	</string>
 	<string name="ControlYourCamera">
 		控制你的攝影機
+	</string>
+	<string name="TeleportYourAgent">
+		瞬間傳送你本人
 	</string>
 	<string name="NotConnected">
 		未聯接
@@ -799,7 +978,7 @@
 		AVI 視頻檔案
 	</string>
 	<string name="xaf_animation_file">
-		XAF Anim File
+		XAF 動畫檔案
 	</string>
 	<string name="xml_file">
 		XML 檔案
@@ -815,6 +994,12 @@
 	</string>
 	<string name="choose_the_directory">
 		選擇目錄
+	</string>
+	<string name="script_files">
+		腳本
+	</string>
+	<string name="dictionary_files">
+		字典
 	</string>
 	<string name="AvatarSetNotAway">
 		非離開
@@ -991,19 +1176,19 @@
 		送出由
 	</string>
 	<string name="GroupNotifyAttached">
-		Attached:
+		附件：
 	</string>
 	<string name="GroupNotifyViewPastNotices">
-		View past notices or opt-out of receiving these messages here.
+		在這裡察看舊通知或選擇不接收訊息。
 	</string>
 	<string name="GroupNotifyOpenAttachment">
-		Open Attachment
+		開啟附件
 	</string>
 	<string name="GroupNotifySaveAttachment">
-		Save Attachment
+		儲存附件
 	</string>
 	<string name="TeleportOffer">
-		Teleport offering
+		發出「瞬間傳送」邀請
 	</string>
 	<string name="StartUpNotifications">
 		當你離開時有新的通知送達。
@@ -1042,16 +1227,75 @@
 		按下 ESC 鍵回復到世界的視角
 	</string>
 	<string name="InventoryNoMatchingItems">
-		沒有發現你想要找的嗎？試試 [secondlife:///app/search/all/[SEARCH_TERM] 搜尋]。
+		找不到你要找的嗎？ 請試試 [secondlife:///app/search/places/ 搜尋]。
 	</string>
 	<string name="PlacesNoMatchingItems">
-		沒有發現你想要找的嗎？試試 [secondlife:///app/search/places/[SEARCH_TERM] 搜尋]。
+		找不到你要找的嗎？ 請試試 [secondlife:///app/search/places/[SEARCH_TERM] 搜尋]。
 	</string>
 	<string name="FavoritesNoMatchingItems">
-		Drag a landmark here to add it to your favorites.
+		將一個地標拖曳到這裡，加進「我的最愛」。
 	</string>
 	<string name="InventoryNoTexture">
-		You do not have a copy of this texture in your inventory
+		你的收納區裡沒有這個材質的副本
+	</string>
+	<string name="InventoryInboxNoItems">
+		你從第二人生購物市集購買的物品將出現在這裡。 你可以把它們拖曳到你的收納區，開始使用。
+	</string>
+	<string name="MarketplaceURL">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
+	</string>
+	<string name="MarketplaceURL_CreateStore">
+		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4
+	</string>
+	<string name="MarketplaceURL_Dashboard">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard
+	</string>
+	<string name="MarketplaceURL_Imports">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports
+	</string>
+	<string name="MarketplaceURL_LearnMore">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
+	</string>
+	<string name="InventoryOutboxNotMerchantTitle">
+		任何人都可在第二人生購物市集出售物品。
+	</string>
+	<string name="InventoryOutboxNotMerchantTooltip"/>
+	<string name="InventoryOutboxNotMerchant">
+		如果你想成為商家，你需要在第二人生購物市集[[MARKETPLACE_CREATE_STORE_URL]開設一間商店]。
+	</string>
+	<string name="InventoryOutboxNoItemsTitle">
+		你的發件匣目前是空的。
+	</string>
+	<string name="InventoryOutboxNoItemsTooltip"/>
+	<string name="InventoryOutboxNoItems">
+		將資料夾拖曳到這個區域，再點按「送往第二人生購物市集」，即可在[[MARKETPLACE_DASHBOARD_URL]第二人生購物市集]登列出售。
+	</string>
+	<string name="Marketplace Error None">
+		零錯誤
+	</string>
+	<string name="Marketplace Error Not Merchant">
+		發生錯誤：將物項送往第二人生購物市集之前，你必須取得商家的身份（免費）。
+	</string>
+	<string name="Marketplace Error Empty Folder">
+		錯誤：此資料夾沒有內容。
+	</string>
+	<string name="Marketplace Error Unassociated Products">
+		錯誤：此物項上傳失敗，因為你的商家帳戶有太多和產品無關聯的物項。  要解決這個問題，請登入第二人生購物市集網站，減低你的無關聯物項數目。
+	</string>
+	<string name="Marketplace Error Object Limit">
+		錯誤：此物項包含太多物件。  要解決這錯誤，請將物件裝箱，使總物件數目不超過 200。
+	</string>
+	<string name="Marketplace Error Folder Depth">
+		錯誤：此物項含有太多層的巢狀資料夾。  請加以重新整理，至多允許 3 層的巢狀資料夾。
+	</string>
+	<string name="Marketplace Error Unsellable Item">
+		錯誤：此物項無法在第二人生購物市集出售。
+	</string>
+	<string name="Marketplace Error Internal Import">
+		錯誤：這個物項有問題。  請稍候再試一次。
+	</string>
+	<string name="Open landmarks">
+		開啟地標
 	</string>
 	<string name="no_transfer" value="（禁止轉讓）"/>
 	<string name="no_modify" value="（禁止修改）"/>
@@ -1066,7 +1310,7 @@
 		無內容
 	</string>
 	<string name="WornOnAttachmentPoint" value="（已穿 [ATTACHMENT_POINT]）"/>
-	<string name="ActiveGesture" value="[GESLABEL] (active)"/>
+	<string name="ActiveGesture" value="[GESLABEL]（使用中）"/>
 	<string name="PermYes">
 		是
 	</string>
@@ -1078,29 +1322,26 @@
 	<string name="Wait" value="--- 等待："/>
 	<string name="AnimFlagStop" value="停止動作："/>
 	<string name="AnimFlagStart" value="開始動作："/>
-	<string name="Wave" value="Wave"/>
+	<string name="Wave" value="揮手"/>
 	<string name="GestureActionNone" value="無"/>
-	<string name="HelloAvatar" value="Hello, avatar!"/>
+	<string name="HelloAvatar" value="你好，化身！"/>
 	<string name="ViewAllGestures" value="察看全部 &gt;&gt;"/>
 	<string name="GetMoreGestures" value="取得更多 &gt;&gt;"/>
-	<string name="Animations" value="動作,"/>
-	<string name="Calling Cards" value="名片,"/>
-	<string name="Clothing" value="服裝,"/>
-	<string name="Gestures" value="姿勢,"/>
-	<string name="Landmarks" value="地標,"/>
-	<string name="Notecards" value="記事卡,"/>
-	<string name="Objects" value="物件,"/>
-	<string name="Scripts" value="腳本,"/>
-	<string name="Sounds" value="聲音,"/>
-	<string name="Textures" value="材質,"/>
-	<string name="Snapshots" value="快照,"/>
-	<string name="No Filters" value="No"/>
+	<string name="Animations" value="動作，"/>
+	<string name="Calling Cards" value="名片，"/>
+	<string name="Clothing" value="服裝，"/>
+	<string name="Gestures" value="姿勢，"/>
+	<string name="Landmarks" value="地標，"/>
+	<string name="Notecards" value="記事卡，"/>
+	<string name="Objects" value="物件，"/>
+	<string name="Scripts" value="腳本，"/>
+	<string name="Sounds" value="聲音，"/>
+	<string name="Textures" value="材質，"/>
+	<string name="Snapshots" value="快照，"/>
+	<string name="No Filters" value="否"/>
 	<string name="Since Logoff" value="- 自上次登出"/>
 	<string name="InvFolder My Inventory">
 		我的收納區
-	</string>
-	<string name="InvFolder My Favorites">
-		我的最愛
 	</string>
 	<string name="InvFolder Library">
 		資源庫
@@ -1136,7 +1377,7 @@
 		收納區
 	</string>
 	<string name="InvFolder Uncompressed Images">
-		Uncompressed Images
+		未壓縮圖像
 	</string>
 	<string name="InvFolder Body Parts">
 		身體部位
@@ -1148,10 +1389,10 @@
 		相簿
 	</string>
 	<string name="InvFolder Lost And Found">
-		Lost And Found
+		失物招領
 	</string>
 	<string name="InvFolder Uncompressed Sounds">
-		無壓縮聲音
+		未壓縮聲音
 	</string>
 	<string name="InvFolder Animations">
 		動作
@@ -1163,6 +1404,12 @@
 		我的最愛
 	</string>
 	<string name="InvFolder favorite">
+		我的最愛
+	</string>
+	<string name="InvFolder Favorites">
+		我的最愛
+	</string>
+	<string name="InvFolder favorites">
 		我的最愛
 	</string>
 	<string name="InvFolder Current Outfit">
@@ -1177,17 +1424,32 @@
 	<string name="InvFolder Accessories">
 		配件
 	</string>
+	<string name="InvFolder Meshes">
+		網面
+	</string>
+	<string name="InvFolder Received Items">
+		收到的物項
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		商家發件匣
+	</string>
 	<string name="InvFolder Friends">
 		朋友
 	</string>
 	<string name="InvFolder All">
 		全部
 	</string>
+	<string name="no_attachments">
+		未穿著任何附件
+	</string>
+	<string name="Attachments remain">
+		附件（尚可容納 [COUNT] 件）
+	</string>
 	<string name="Buy">
 		購買
 	</string>
 	<string name="BuyforL$">
-		Buy for L$
+		出價購買：L$
 	</string>
 	<string name="Stone">
 		石頭
@@ -1211,13 +1473,13 @@
 		橡膠
 	</string>
 	<string name="Light">
-		Light
+		光源
 	</string>
 	<string name="KBShift">
-		Shift
+		Shift 鍵
 	</string>
 	<string name="KBCtrl">
-		Ctrl
+		Ctrl 鍵
 	</string>
 	<string name="Chest">
 		胸部
@@ -1250,7 +1512,7 @@
 		骨盆
 	</string>
 	<string name="Mouth">
-		嘴
+		嘴巴
 	</string>
 	<string name="Chin">
 		下巴
@@ -1309,23 +1571,29 @@
 	<string name="Right Pec">
 		右胸肌
 	</string>
+	<string name="Neck">
+		頸部
+	</string>
+	<string name="Avatar Center">
+		化身中心
+	</string>
 	<string name="Invalid Attachment">
-		無效的附件聯接點
+		無效的附接點
 	</string>
 	<string name="YearsMonthsOld">
-		[AGEYEARS] [AGEMONTHS] old
+		年齡：[AGEYEARS] 年 [AGEMONTHS] 月
 	</string>
 	<string name="YearsOld">
-		[AGEYEARS] old
+		年齡：[AGEYEARS] 年
 	</string>
 	<string name="MonthsOld">
-		[AGEMONTHS] old
+		[AGEMONTHS] 月
 	</string>
 	<string name="WeeksOld">
-		[AGEWEEKS] old
+		[AGEWEEKS] 週
 	</string>
 	<string name="DaysOld">
-		[AGEDAYS] old
+		[AGEDAYS] 天
 	</string>
 	<string name="TodayOld">
 		今日剛加入
@@ -1367,40 +1635,40 @@
 		[COUNT] 天
 	</string>
 	<string name="GroupMembersA">
-		[COUNT] 成員
+		[COUNT] 位成員
 	</string>
 	<string name="GroupMembersB">
-		[COUNT] 成員
+		[COUNT] 位成員
 	</string>
 	<string name="GroupMembersC">
-		[COUNT] 成員
+		[COUNT] 位成員
 	</string>
 	<string name="AcctTypeResident">
 		居民
 	</string>
 	<string name="AcctTypeTrial">
-		Trial
+		試用
 	</string>
 	<string name="AcctTypeCharterMember">
-		Charter Member
+		老牌 Charter 成員
 	</string>
 	<string name="AcctTypeEmployee">
 		林登實驗室員工
 	</string>
 	<string name="PaymentInfoUsed">
-		Payment Info Used
+		使用的付款資料
 	</string>
 	<string name="PaymentInfoOnFile">
-		Payment Info On File
+		預留付款資料
 	</string>
 	<string name="NoPaymentInfoOnFile">
-		No Payment Info On File
+		未預留付款資料
 	</string>
 	<string name="AgeVerified">
-		已年齡驗證
+		通過年齡驗證
 	</string>
 	<string name="NotAgeVerified">
-		未年齡驗證
+		未通過年齡驗證
 	</string>
 	<string name="Center 2">
 		中央 2
@@ -1427,22 +1695,22 @@
 		右下
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
-		已下載，現在進行編譯中
+		已下載，正在編譯中
 	</string>
 	<string name="CompileQueueScriptNotFound">
 		伺服器上未發現腳本。
 	</string>
 	<string name="CompileQueueProblemDownloading">
-		問題下載中
+		下載時出問題
 	</string>
 	<string name="CompileQueueInsufficientPermDownload">
-		Insufficient permissions to download a script.
+		下載腳本的權限不足。
 	</string>
 	<string name="CompileQueueInsufficientPermFor">
-		Insufficient permissions for
+		權限不足：
 	</string>
 	<string name="CompileQueueUnknownFailure">
-		Unknown failure to download
+		下載失敗，原因不明
 	</string>
 	<string name="CompileQueueTitle">
 		重新編譯進度
@@ -1457,19 +1725,19 @@
 		重設
 	</string>
 	<string name="RunQueueTitle">
-		設定執行中程序
+		設定「執行中」進度
 	</string>
 	<string name="RunQueueStart">
-		設為執行中
+		設為「執行中」
 	</string>
 	<string name="NotRunQueueTitle">
-		設定非執行中程序
+		設定「非執行中」進度
 	</string>
 	<string name="NotRunQueueStart">
-		設為非執行中
+		設為「非執行中」
 	</string>
 	<string name="CompileSuccessful">
-		編譯成功!!
+		編譯成功！
 	</string>
 	<string name="CompileSuccessfulSaving">
 		編譯成功，儲存中...
@@ -1490,36 +1758,42 @@
 	<string name="Unknown">
 		（未知）
 	</string>
-	<string name="SummaryForTheWeek" value="Summary for this week, beginning on"/>
+	<string name="SummaryForTheWeek" value="本週摘要，起始日："/>
 	<string name="NextStipendDay" value="下一個發薪日為"/>
-	<string name="GroupIndividualShare" value="Group       Individual Share"/>
+	<string name="GroupPlanningDate">
+		[mthnum,datetime,utc]/[day,datetime,utc]/[year,datetime,utc]
+	</string>
+	<string name="GroupIndividualShare" value="群組       個人份額"/>
 	<string name="GroupColumn" value="群組"/>
 	<string name="Balance">
-		Balance
+		餘額
 	</string>
 	<string name="Credits">
-		Credits
+		貸記
 	</string>
 	<string name="Debits">
-		Debits
+		借記
 	</string>
 	<string name="Total">
-		Total
+		總額
 	</string>
 	<string name="NoGroupDataFound">
-		無群組資料發現
+		查無群組資料
 	</string>
 	<string name="IMParentEstate">
-		parent estate
+		母領地
 	</string>
 	<string name="IMMainland">
-		mainland
+		大陸
 	</string>
 	<string name="IMTeen">
-		teen
+		青少年
+	</string>
+	<string name="Anyone">
+		任何人
 	</string>
 	<string name="RegionInfoError">
-		error
+		錯誤
 	</string>
 	<string name="RegionInfoAllEstatesOwnedBy">
 		[OWNER] 所擁有的的全部領地
@@ -1528,13 +1802,13 @@
 		你所擁有的全部領地
 	</string>
 	<string name="RegionInfoAllEstatesYouManage">
-		all estates that you manage for [OWNER]
+		你為 [OWNER] 管理的全部領地
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		Allowed Residents: ([ALLOWEDAGENTS], max [MAXACCESS])
+		允許居民：（[ALLOWEDAGENTS]，最多 [MAXACCESS]）
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		允許的群群組：（[ALLOWEDGROUPS]，最大 [MAXACCESS]）
+		允許的群組：（[ALLOWEDGROUPS]，最多 [MAXACCESS]）
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		地段腳本記憶體
@@ -1549,28 +1823,28 @@
 		記憶體用量：[COUNT] kb
 	</string>
 	<string name="ScriptLimitsParcelScriptURLs">
-		地段腳本 URLs
+		地段腳本的 URL
 	</string>
 	<string name="ScriptLimitsURLsUsed">
-		URLs used: [COUNT] out of [MAX]; [AVAILABLE] available
+		URL 使用狀況：最多可用 [MAX]，已用 [COUNT]，剩餘 [AVAILABLE]
 	</string>
 	<string name="ScriptLimitsURLsUsedSimple">
-		URLs used: [COUNT]
+		已用 URL：[COUNT]
 	</string>
 	<string name="ScriptLimitsRequestError">
-		Error requesting information
+		調資料時出錯
 	</string>
 	<string name="ScriptLimitsRequestNoParcelSelected">
-		無地段被選擇
+		未選擇地段
 	</string>
 	<string name="ScriptLimitsRequestWrongRegion">
-		Error: script information is only available in your current region
+		錯誤：只能在你目前所處區域取得腳本資訊
 	</string>
 	<string name="ScriptLimitsRequestWaiting">
-		Retrieving information...
+		正在調閱資料...
 	</string>
 	<string name="ScriptLimitsRequestDontOwnParcel">
-		You do not have permission to examine this parcel
+		你無權審視此地段
 	</string>
 	<string name="SITTING_ON">
 		坐在
@@ -1666,34 +1940,34 @@
 		左胸肌
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
-		HUD Center 2
+		擡頭顯示中央 2
 	</string>
 	<string name="ATTACH_HUD_TOP_RIGHT">
-		HUD Top Right
+		擡頭顯示右上
 	</string>
 	<string name="ATTACH_HUD_TOP_CENTER">
-		HUD Top Center
+		擡頭顯示中央上方
 	</string>
 	<string name="ATTACH_HUD_TOP_LEFT">
-		HUD Top Left
+		擡頭顯示左上
 	</string>
 	<string name="ATTACH_HUD_CENTER_1">
-		HUD Center 1
+		擡頭顯示中央 1
 	</string>
 	<string name="ATTACH_HUD_BOTTOM_LEFT">
-		HUD Bottom Left
+		擡頭顯示左下
 	</string>
 	<string name="ATTACH_HUD_BOTTOM">
-		HUD Bottom
+		擡頭顯示下方
 	</string>
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
-		HUD Bottom Right
+		擡頭顯示右下
 	</string>
 	<string name="CursorPos">
-		Line [LINE], Column [COLUMN]
+		橫行 [LINE]，縱列 [COLUMN]
 	</string>
 	<string name="PanelDirCountFound">
-		[COUNT] found
+		找到 [COUNT]
 	</string>
 	<string name="PanelDirTimeStr">
 		[hour12,datetime,slt]:[min,datetime,slt] [ampm,datetime,slt]
@@ -1702,16 +1976,16 @@
 		[mthnum,datetime,slt]/[day,datetime,slt]
 	</string>
 	<string name="PanelContentsTooltip">
-		物件的內容
+		物件內容
 	</string>
 	<string name="PanelContentsNewScript">
 		新腳本
 	</string>
 	<string name="BusyModeResponseDefault">
-		你傳送訊息的居民目前處於忙碌模式中，這意味著他要求不被打擾。你所傳的訊息仍將會留存並顯示於 IM 面板上供他稍後時查閱。
+		你傳訊過去的居民目前處於忙碌狀態，這意味著他要求不被打擾。  你的訊息仍將留存並顯示於對���的 IM 面板上供稍後查閱。
 	</string>
 	<string name="MuteByName">
-		（由名稱）
+		（按名稱）
 	</string>
 	<string name="MuteAgent">
 		（居民）
@@ -1726,12 +2000,12 @@
 		（外部）
 	</string>
 	<string name="RegionNoCovenant">
-		此領地未提供任何契約要求。
+		此領地沒有任何契約要求。
 	</string>
 	<string name="RegionNoCovenantOtherOwner">
-		There is no Covenant provided for this Estate. The land on this estate is being sold by the Estate owner, not Linden Lab.  Please contact the Estate Owner for sales details.
+		此領地沒有任何契約要求。 本領地土地的出售人是領地所有人，不是林登實驗室。  請聯絡領地所有人獲知售地詳情。
 	</string>
-	<string name="covenant_last_modified" value="最後修改於："/>
+	<string name="covenant_last_modified" value="最後修改時間："/>
 	<string name="none_text" value="（無）"/>
 	<string name="never_text" value="（絕不）"/>
 	<string name="GroupOwned">
@@ -1740,14 +2014,20 @@
 	<string name="Public">
 		公開
 	</string>
+	<string name="LocalSettings">
+		本地設定
+	</string>
+	<string name="RegionSettings">
+		地區設定
+	</string>
 	<string name="ClassifiedClicksTxt">
-		Clicks: [TELEPORT] teleport, [MAP] map, [PROFILE] profile
+		點按：[TELEPORT] 瞬間傳送，[MAP] 地圖，[PROFILE] 檔案
 	</string>
 	<string name="ClassifiedUpdateAfterPublish">
-		（將於發布後自動更新）
+		（將於發布後更新）
 	</string>
 	<string name="NoPicksClassifiedsText">
-		You haven&apos;t created any Picks or Classifieds. Click the Plus button below to create a Pick or Classified.
+		你尚未建立任何精選地點或個人廣告。 點按下面的 + 按鈕建立精選地點或個人廣告。
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		使用者無精選地點或個人廣告
@@ -1762,86 +2042,89 @@
 		屬性
 	</string>
 	<string name="InvOfferAnObjectNamed">
-		An object named
+		一個物件，名為
 	</string>
 	<string name="InvOfferOwnedByGroup">
-		群組所擁有
+		屬於群組
 	</string>
 	<string name="InvOfferOwnedByUnknownGroup">
-		由一個未知的群組所擁有
+		屬於一個未知群組
 	</string>
 	<string name="InvOfferOwnedBy">
-		owned by
+		所有人：
 	</string>
 	<string name="InvOfferOwnedByUnknownUser">
-		owned by an unknown user
+		屬於某未知使用者
 	</string>
 	<string name="InvOfferGaveYou">
-		gave you
+		給予你
 	</string>
 	<string name="InvOfferDecline">
-		You decline [DESC] from &lt;nolink&gt;[NAME]&lt;/nolink&gt;.
+		你拒絕了來自 &lt;nolink&gt;[NAME]&lt;/nolink&gt; 的 [DESC]。
 	</string>
 	<string name="GroupMoneyTotal">
-		Total
+		總額
 	</string>
 	<string name="GroupMoneyBought">
-		bought
+		買了
 	</string>
 	<string name="GroupMoneyPaidYou">
-		paid you
+		支付給你
 	</string>
 	<string name="GroupMoneyPaidInto">
-		paid into
+		支付給
 	</string>
 	<string name="GroupMoneyBoughtPassTo">
-		bought pass to
+		買了通行權：
 	</string>
 	<string name="GroupMoneyPaidFeeForEvent">
-		paid fee for event
+		付了費用參加活動
 	</string>
 	<string name="GroupMoneyPaidPrizeForEvent">
-		paid prize for event
+		付了賞金參加活動
 	</string>
 	<string name="GroupMoneyBalance">
-		Balance
+		餘額
 	</string>
 	<string name="GroupMoneyCredits">
-		Credits
+		貸記
 	</string>
 	<string name="GroupMoneyDebits">
-		Debits
+		借記
+	</string>
+	<string name="GroupMoneyDate">
+		[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]
 	</string>
 	<string name="ViewerObjectContents">
-		Contents
+		內容
 	</string>
 	<string name="AcquiredItems">
-		Acquired Items
+		取得物品
 	</string>
 	<string name="Cancel">
 		取消
 	</string>
 	<string name="UploadingCosts">
-		花費 L$ [AMOUNT] 上傳 [NAME]
+		上傳 [NAME] 費用 L$ [AMOUNT]
 	</string>
 	<string name="BuyingCosts">
-		花費 L$ [AMOUNT] 購買這個
+		購買這個需要 L$ [AMOUNT]
 	</string>
 	<string name="UnknownFileExtension">
 		未知的副檔名 .%s
-預期為 .wav, .tga, .bmp, .jpg, .jpeg, or .bvh　類型
+應該是 .wav、.tga、.bmp、.jpg、.jpeg 或 .bvh
 	</string>
 	<string name="MuteObject2">
-		Block
+		封鎖
 	</string>
 	<string name="MuteAvatar">
-		Block
+		封鎖
 	</string>
 	<string name="UnmuteObject">
-		Unblock
+		解除封鎖
 	</string>
 	<string name="UnmuteAvatar">
-		Unblock
+		解除封鎖
 	</string>
 	<string name="AddLandmarkNavBarMenu">
 		添加到我的地標...
@@ -1877,25 +2160,25 @@
 		接收中
 	</string>
 	<string name="AM">
-		AM
+		上午
 	</string>
 	<string name="PM">
-		PM
+		下午
 	</string>
 	<string name="PST">
-		PST
+		太平洋時間
 	</string>
 	<string name="PDT">
-		PDT
+		太平洋日光節約時間
 	</string>
 	<string name="Direction_Forward">
 		向前
 	</string>
 	<string name="Direction_Left">
-		向左
+		左移鍵
 	</string>
 	<string name="Direction_Right">
-		向右
+		右移鍵
 	</string>
 	<string name="Direction_Back">
 		向後
@@ -1913,46 +2196,46 @@
 		東
 	</string>
 	<string name="Direction_Up">
-		向上
+		上移鍵
 	</string>
 	<string name="Direction_Down">
-		向下
+		下移鍵
 	</string>
 	<string name="Any Category">
 		任何類別
 	</string>
 	<string name="Shopping">
-		採購
+		購物
 	</string>
 	<string name="Land Rental">
-		Land Rental
+		土地租賃
 	</string>
 	<string name="Property Rental">
-		Property Rental
+		房產租賃
 	</string>
 	<string name="Special Attraction">
-		Special Attraction
+		熱門地點
 	</string>
 	<string name="New Products">
-		New Products
+		新產品
 	</string>
 	<string name="Employment">
-		Employment
+		徵人
 	</string>
 	<string name="Wanted">
-		Wanted
+		徵求
 	</string>
 	<string name="Service">
-		Service
+		服務
 	</string>
 	<string name="Personal">
-		Personal
+		交友
 	</string>
 	<string name="None">
 		無
 	</string>
 	<string name="Linden Location">
-		Linden Location
+		林登位置
 	</string>
 	<string name="Adult">
 		完全成人
@@ -1973,25 +2256,25 @@
 		聚會所
 	</string>
 	<string name="Newcomer Friendly">
-		新手友善
+		歡迎新手光臨
 	</string>
 	<string name="Parks&amp;Nature">
-		公園與自然
+		公園與自然景觀
 	</string>
 	<string name="Residential">
 		住宅
 	</string>
 	<string name="Stage">
-		Stage
+		舞臺
 	</string>
 	<string name="Other">
-		Other
+		其他
 	</string>
 	<string name="Rental">
-		Rental
+		出租
 	</string>
 	<string name="Any">
-		Any
+		任何
 	</string>
 	<string name="You">
 		你
@@ -2027,7 +2310,7 @@
 		多媒體
 	</string>
 	<string name="Play Media">
-		播放／暫停 媒體
+		播放/暫停媒體
 	</string>
 	<string name="MBCmdLineError">
 		解析命令列時發現錯誤。
@@ -2038,1510 +2321,1510 @@
 		[APP_NAME] 命令列用法：
 	</string>
 	<string name="MBUnableToAccessFile">
-		[APP_NAME] 無法存取它所需要的檔案。
+		[APP_NAME] 無法存取它所需的檔案。
 
-This can be because you somehow have multiple copies running, or your system incorrectly thinks a file is open.
-If this message persists, restart your computer and try again.
-If it continues to persist, you may need to completely uninstall [APP_NAME] and reinstall it.
+你可能有多重實例執行中，或你的系統誤以為某檔案已經開啟。
+如果這個訊息持續出現，請重新啟動你的電腦。
+如果問題仍然存在，你可能需要徹底卸除 [APP_NAME] 再重新安裝。
 	</string>
 	<string name="MBFatalError">
 		致命錯誤
 	</string>
 	<string name="MBRequiresAltiVec">
-		[APP_NAME] requires a processor with AltiVec (G4 or later).
+		[APP_NAME] 需要有 AltiVec（G4 或更新版）的處理器。
 	</string>
 	<string name="MBAlreadyRunning">
 		[APP_NAME] 已經在執行中。
-請檢查你的工作列裡是否有其他最小化的相同程式。
+請檢查你的工作列裡是否已有最小化的相同程式。
 如果這個訊息持續出現，請重新啟動你的電腦。
 	</string>
 	<string name="MBFrozenCrashed">
-		[APP_NAME] appears to have frozen or crashed on the previous run.
-Would you like to send a crash report?
+		[APP_NAME] 上次執行時好像出現凍結或當掉。
+你是否想要報告當機事例？
 	</string>
 	<string name="MBAlert">
 		通知
 	</string>
 	<string name="MBNoDirectX">
-		[APP_NAME] is unable to detect DirectX 9.0b or greater.
-[APP_NAME] uses DirectX to detect hardware and/or outdated drivers that can cause stability problems, poor performance and crashes.  While you can run [APP_NAME] without it, we highly recommend running with DirectX 9.0b.
+		[APP_NAME] 偵測不到 DirectX 9.0b 或更新版。
+[APP_NAME] 使用 DirectX 來偵測可能導致不穩定、執行效能不佳或當機發生的硬體或老舊驅動器。  你可以選擇不用 DirectX 9.0b 來執行 [APP_NAME]，但我們大力推薦你使用。
 
-Do you wish to continue?
+你確定要繼續嗎？
 	</string>
 	<string name="MBWarning">
 		警告
 	</string>
 	<string name="MBNoAutoUpdate">
-		Automatic updating is not yet implemented for Linux.
-Please download the latest version from www.secondlife.com.
+		尚無試用於 Linux 的自動更新功能。
+請到 www.secondlife.com 下載最新版本。
 	</string>
 	<string name="MBRegClassFailed">
-		RegisterClass failed
+		RegisterClass 失敗
 	</string>
 	<string name="MBError">
 		錯誤
 	</string>
 	<string name="MBFullScreenErr">
-		無法執行全螢幕於 [WIDTH] x [HEIGHT].
-執行於視窗中。
+		[WIDTH] x [HEIGHT] 解析度下無法執行全螢幕。
+在視窗中執行。
 	</string>
 	<string name="MBDestroyWinFailed">
-		Shutdown Error while destroying window (DestroyWindow() failed)
+		消滅視窗時發生強行關閉錯誤（DestroyWindow()失敗）
 	</string>
 	<string name="MBShutdownErr">
-		Shutdown Error
+		強行關閉出錯
 	</string>
 	<string name="MBDevContextErr">
-		Can&apos;t make GL device context
+		無法建立 GL 裝置環境
 	</string>
 	<string name="MBPixelFmtErr">
-		Can&apos;t find suitable pixel format
+		找不到適合的像素格式
 	</string>
 	<string name="MBPixelFmtDescErr">
-		Can&apos;t get pixel format description
+		無法取得像素格式描述
 	</string>
 	<string name="MBTrueColorWindow">
-		[APP_NAME] requires True Color (32-bit) to run.
-Please go to your computer&apos;s display settings and set the color mode to 32-bit.
+		[APP_NAME] 需要全彩（32位元）才能執行。
+請到電腦的顯示設定，將色彩模式設為 32 位元。
 	</string>
 	<string name="MBAlpha">
-		[APP_NAME] is unable to run because it can&apos;t get an 8 bit alpha channel.  Usually this is due to video card driver issues.
-Please make sure you have the latest video card drivers installed.
-Also be sure your monitor is set to True Color (32-bit) in Control Panels &gt; Display &gt; Settings.
-If you continue to receive this message, contact the [SUPPORT_SITE].
+		[APP_NAME] 無法執行，無法取得 8 位元 alpha 頻道。  這通常是因為顯示卡驅動程式出問題。
+請確定你安裝了最新的顯示卡驅動程式。
+請到控制台 &gt; 顯示 &gt; 設定處將螢幕設為全彩（32 位元）。
+如果你繼續看到此訊息，請聯絡 [SUPPORT_SITE]。
 	</string>
 	<string name="MBPixelFmtSetErr">
 		無法設定像素格式
 	</string>
 	<string name="MBGLContextErr">
-		Can&apos;t create GL rendering context
+		無法建立 GL 呈像環境
 	</string>
 	<string name="MBGLContextActErr">
-		Can&apos;t activate GL rendering context
+		無法啟動 GL 呈像環境
 	</string>
 	<string name="MBVideoDrvErr">
-		[APP_NAME] is unable to run because your video card drivers did not install properly, are out of date, or are for unsupported hardware. Please make sure you have the latest video card drivers and even if you do have the latest, try reinstalling them.
+		[APP_NAME] 無法執行，這可能因為你的顯示卡驅動程式安裝不當、版本過舊，或者你的硬體不受支援。 請確定你安裝了最新的顯示卡驅動程式。如果已裝了最新驅動程式，請再重新安裝。
 
-If you continue to receive this message, contact the [SUPPORT_SITE].
+如果你繼續看到此訊息，請聯絡 [SUPPORT_SITE]。
 	</string>
 	<string name="5 O&apos;Clock Shadow">
-		5 O&apos;Clock Shadow
+		下午五點的新鬍渣
 	</string>
 	<string name="All White">
 		全白
 	</string>
 	<string name="Anime Eyes">
-		Anime Eyes
+		日式動漫眼
 	</string>
 	<string name="Arced">
-		Arced
+		彎拱的
 	</string>
 	<string name="Arm Length">
-		Arm Length
+		臂長
 	</string>
 	<string name="Attached">
-		Attached
+		貼附的
 	</string>
 	<string name="Attached Earlobes">
-		Attached Earlobes
+		附著耳垂
 	</string>
 	<string name="Back Fringe">
-		Back Fringe
+		後瀏海
 	</string>
 	<string name="Baggy">
-		Baggy
+		袋型的
 	</string>
 	<string name="Bangs">
-		Bangs
+		瀏海
 	</string>
 	<string name="Beady Eyes">
-		Beady Eyes
+		珠圓銳光眼
 	</string>
 	<string name="Belly Size">
-		Belly Size
+		腹部大小
 	</string>
 	<string name="Big">
-		Big
+		大
 	</string>
 	<string name="Big Butt">
-		Big Butt
+		大臀部
 	</string>
 	<string name="Big Hair Back">
-		Big Hair: Back
+		大型頭髮：後面
 	</string>
 	<string name="Big Hair Front">
-		Big Hair: Front
+		大型頭髮：前面
 	</string>
 	<string name="Big Hair Top">
-		Big Hair: Top
+		大型頭髮：頂部
 	</string>
 	<string name="Big Head">
-		Big Head
+		大頭
 	</string>
 	<string name="Big Pectorals">
-		Big Pectorals
+		大胸肌
 	</string>
 	<string name="Big Spikes">
-		Big Spikes
+		大尖直髮
 	</string>
 	<string name="Black">
-		Black
+		黑色
 	</string>
 	<string name="Blonde">
-		Blonde
+		金色
 	</string>
 	<string name="Blonde Hair">
-		Blonde Hair
+		金髮
 	</string>
 	<string name="Blush">
-		Blush
+		腮紅
 	</string>
 	<string name="Blush Color">
-		Blush Color
+		淺粉色
 	</string>
 	<string name="Blush Opacity">
-		Blush Opacity
+		腮紅不透明度：
 	</string>
 	<string name="Body Definition">
-		Body Definition
+		身體結實度
 	</string>
 	<string name="Body Fat">
-		Body Fat
+		體脂肪
 	</string>
 	<string name="Body Freckles">
-		Body Freckles
+		身體雀斑
 	</string>
 	<string name="Body Thick">
-		Body Thick
+		寬厚體型
 	</string>
 	<string name="Body Thickness">
-		Body Thickness
+		體型厚度
 	</string>
 	<string name="Body Thin">
-		Body Thin
+		窄瘦體型
 	</string>
 	<string name="Bow Legged">
-		Bow Legged
+		弓形腿
 	</string>
 	<string name="Breast Buoyancy">
-		Breast Buoyancy
+		乳房彈性
 	</string>
 	<string name="Breast Cleavage">
-		Breast Cleavage
+		乳溝深淺
 	</string>
 	<string name="Breast Size">
-		Breast Size
+		乳房尺寸
 	</string>
 	<string name="Bridge Width">
-		Bridge Width
+		兩眼間距
 	</string>
 	<string name="Broad">
-		Broad
+		寬
 	</string>
 	<string name="Brow Size">
-		Brow Size
+		眉毛大小
 	</string>
 	<string name="Bug Eyes">
-		Bug Eyes
+		突眼
 	</string>
 	<string name="Bugged Eyes">
-		Bugged Eyes
+		突眼
 	</string>
 	<string name="Bulbous">
-		Bulbous
+		球狀
 	</string>
 	<string name="Bulbous Nose">
-		Bulbous Nose
+		球狀鼻
 	</string>
 	<string name="Breast Physics Mass">
-		Breast Mass
+		乳房質量
 	</string>
 	<string name="Breast Physics Smoothing">
-		Breast Smoothing
+		乳房增圓滑
 	</string>
 	<string name="Breast Physics Gravity">
-		Breast Gravity
+		乳房重力特性
 	</string>
 	<string name="Breast Physics Drag">
-		Breast Drag
+		乳房阻力
 	</string>
 	<string name="Breast Physics InOut Max Effect">
-		Max Effect
+		最大效果
 	</string>
 	<string name="Breast Physics InOut Spring">
-		Spring
+		彈跳
 	</string>
 	<string name="Breast Physics InOut Gain">
-		Gain
+		增益
 	</string>
 	<string name="Breast Physics InOut Damping">
-		Damping
+		阻尼
 	</string>
 	<string name="Breast Physics UpDown Max Effect">
-		Max Effect
+		最大效果
 	</string>
 	<string name="Breast Physics UpDown Spring">
-		Spring
+		彈跳
 	</string>
 	<string name="Breast Physics UpDown Gain">
-		Gain
+		增益
 	</string>
 	<string name="Breast Physics UpDown Damping">
-		Damping
+		阻尼
 	</string>
 	<string name="Breast Physics LeftRight Max Effect">
-		Max Effect
+		最大效果
 	</string>
 	<string name="Breast Physics LeftRight Spring">
-		Spring
+		彈跳
 	</string>
 	<string name="Breast Physics LeftRight Gain">
-		Gain
+		增益
 	</string>
 	<string name="Breast Physics LeftRight Damping">
-		Damping
+		阻尼
 	</string>
 	<string name="Belly Physics Mass">
-		Belly Mass
+		腹部質量
 	</string>
 	<string name="Belly Physics Smoothing">
-		Belly Smoothing
+		腹部增圓滑
 	</string>
 	<string name="Belly Physics Gravity">
-		Belly Gravity
+		腹部重力特性
 	</string>
 	<string name="Belly Physics Drag">
-		Belly Drag
+		腹部阻力
 	</string>
 	<string name="Belly Physics UpDown Max Effect">
-		Max Effect
+		最大效果
 	</string>
 	<string name="Belly Physics UpDown Spring">
-		Spring
+		彈跳
 	</string>
 	<string name="Belly Physics UpDown Gain">
-		Gain
+		增益
 	</string>
 	<string name="Belly Physics UpDown Damping">
-		Damping
+		阻尼
 	</string>
 	<string name="Butt Physics Mass">
-		Butt Mass
+		臀部質量
 	</string>
 	<string name="Butt Physics Smoothing">
-		Butt Smoothing
+		臀部增圓滑
 	</string>
 	<string name="Butt Physics Gravity">
-		Butt Gravity
+		臀部重力特性
 	</string>
 	<string name="Butt Physics Drag">
-		Butt Drag
+		臀部阻力
 	</string>
 	<string name="Butt Physics UpDown Max Effect">
-		Max Effect
+		最大效果
 	</string>
 	<string name="Butt Physics UpDown Spring">
-		Spring
+		彈跳
 	</string>
 	<string name="Butt Physics UpDown Gain">
-		Gain
+		增益
 	</string>
 	<string name="Butt Physics UpDown Damping">
-		Damping
+		阻尼
 	</string>
 	<string name="Butt Physics LeftRight Max Effect">
-		Max Effect
+		最大效果
 	</string>
 	<string name="Butt Physics LeftRight Spring">
-		Spring
+		彈跳
 	</string>
 	<string name="Butt Physics LeftRight Gain">
-		Gain
+		增益
 	</string>
 	<string name="Butt Physics LeftRight Damping">
-		Damping
+		阻尼
 	</string>
 	<string name="Bushy Eyebrows">
-		Bushy Eyebrows
+		濃眉
 	</string>
 	<string name="Bushy Hair">
-		Bushy Hair
+		濃密頭髮
 	</string>
 	<string name="Butt Size">
-		Butt Size
+		臀部大小
 	</string>
 	<string name="Butt Gravity">
-		Butt Gravity
+		臀部重力特性
 	</string>
 	<string name="bustle skirt">
-		Bustle Skirt
+		側皺過膝長裙
 	</string>
 	<string name="no bustle">
-		No Bustle
+		無側皺
 	</string>
 	<string name="more bustle">
-		More Bustle
+		增加側皺
 	</string>
 	<string name="Chaplin">
 		Chaplin
 	</string>
 	<string name="Cheek Bones">
-		Cheek Bones
+		顴骨
 	</string>
 	<string name="Chest Size">
-		Chest Size
+		胸部大小
 	</string>
 	<string name="Chin Angle">
 		下巴角度
 	</string>
 	<string name="Chin Cleft">
-		Chin Cleft
+		下巴裂度
 	</string>
 	<string name="Chin Curtains">
-		Chin Curtains
+		絡腮鬍
 	</string>
 	<string name="Chin Depth">
-		Chin Depth
+		下巴深度
 	</string>
 	<string name="Chin Heavy">
-		Chin Heavy
+		下巴厚重
 	</string>
 	<string name="Chin In">
-		Chin In
+		下巴後縮
 	</string>
 	<string name="Chin Out">
-		Chin Out
+		下巴突出
 	</string>
 	<string name="Chin-Neck">
-		Chin-Neck
+		下巴-頸部
 	</string>
 	<string name="Clear">
 		清除
 	</string>
 	<string name="Cleft">
-		Cleft
+		分裂
 	</string>
 	<string name="Close Set Eyes">
-		Close Set Eyes
+		雙眼靠近
 	</string>
 	<string name="Closed">
-		Closed
+		閉合
 	</string>
 	<string name="Closed Back">
-		Closed Back
+		後閉合
 	</string>
 	<string name="Closed Front">
-		Closed Front
+		前閉合
 	</string>
 	<string name="Closed Left">
-		Closed Left
+		左閉合
 	</string>
 	<string name="Closed Right">
-		Closed Right
+		右閉合
 	</string>
 	<string name="Coin Purse">
-		Coin Purse
+		小錢包
 	</string>
 	<string name="Collar Back">
-		Collar Back
+		後 Collar
 	</string>
 	<string name="Collar Front">
-		Collar Front
+		前 Collar
 	</string>
 	<string name="Corner Down">
-		Corner Down
+		角落朝下
 	</string>
 	<string name="Corner Up">
-		Corner Up
+		角落朝上
 	</string>
 	<string name="Creased">
-		Creased
+		皺褶
 	</string>
 	<string name="Crooked Nose">
-		Crooked Nose
+		彎曲鼻
 	</string>
 	<string name="Cuff Flare">
-		Cuff Flare
+		袖口裝飾
 	</string>
 	<string name="Dark">
-		Dark
+		深暗
 	</string>
 	<string name="Dark Green">
-		Dark Green
+		深綠
 	</string>
 	<string name="Darker">
-		Darker
+		更深暗
 	</string>
 	<string name="Deep">
-		Deep
+		深
 	</string>
 	<string name="Default Heels">
-		Default Heels
+		預設高跟鞋
 	</string>
 	<string name="Dense">
-		Dense
+		稠密
 	</string>
 	<string name="Double Chin">
-		Double Chin
+		雙下巴
 	</string>
 	<string name="Downturned">
-		Downturned
+		嘴角下垂
 	</string>
 	<string name="Duffle Bag">
-		Duffle Bag
+		旅行袋
 	</string>
 	<string name="Ear Angle">
-		Ear Angle
+		耳朵角度
 	</string>
 	<string name="Ear Size">
-		Ear Size
+		耳朵大小
 	</string>
 	<string name="Ear Tips">
-		Ear Tips
+		耳端
 	</string>
 	<string name="Egg Head">
-		Egg Head
+		蛋形頭
 	</string>
 	<string name="Eye Bags">
-		Eye Bags
+		眼袋
 	</string>
 	<string name="Eye Color">
-		Eye Color
+		眼睛顏色
 	</string>
 	<string name="Eye Depth">
-		Eye Depth
+		眼睛深度
 	</string>
 	<string name="Eye Lightness">
-		Eye Lightness
+		眼睛亮度
 	</string>
 	<string name="Eye Opening">
-		Eye Opening
+		眼睛垂直大小
 	</string>
 	<string name="Eye Pop">
-		Eye Pop
+		眼睛 Pop
 	</string>
 	<string name="Eye Size">
-		Eye Size
+		眼睛大小
 	</string>
 	<string name="Eye Spacing">
-		Eye Spacing
+		雙眼間距
 	</string>
 	<string name="Eyebrow Arc">
-		Eyebrow Arc
+		眉毛弧度
 	</string>
 	<string name="Eyebrow Density">
-		Eyebrow Density
+		眉毛密度
 	</string>
 	<string name="Eyebrow Height">
-		Eyebrow Height
+		眉毛高度
 	</string>
 	<string name="Eyebrow Points">
-		Eyebrow Points
+		眉毛點
 	</string>
 	<string name="Eyebrow Size">
-		Eyebrow Size
+		眉毛尺寸
 	</string>
 	<string name="Eyelash Length">
-		Eyelash Length
+		睫毛長度
 	</string>
 	<string name="Eyeliner">
-		Eyeliner
+		眼線筆
 	</string>
 	<string name="Eyeliner Color">
-		Eyeliner Color
+		眼影筆顏色
 	</string>
 	<string name="Eyes Bugged">
-		Eyes Bugged
+		突眼
 	</string>
 	<string name="Face Shear">
-		Face Shear
+		臉部偏移
 	</string>
 	<string name="Facial Definition">
-		Facial Definition
+		臉部結實度
 	</string>
 	<string name="Far Set Eyes">
-		Far Set Eyes
+		雙眼距離遠
 	</string>
 	<string name="Fat Lips">
-		Fat Lips
+		厚脣
 	</string>
 	<string name="Female">
-		Female
+		女性
 	</string>
 	<string name="Fingerless">
-		Fingerless
+		無手指
 	</string>
 	<string name="Fingers">
-		Fingers
+		手指
 	</string>
 	<string name="Flared Cuffs">
-		Flared Cuffs
+		帶裝飾袖口
 	</string>
 	<string name="Flat">
-		Flat
+		平
 	</string>
 	<string name="Flat Butt">
-		Flat Butt
+		臀部扁平
 	</string>
 	<string name="Flat Head">
-		Flat Head
+		頭部扁平
 	</string>
 	<string name="Flat Toe">
-		Flat Toe
+		腳趾扁平
 	</string>
 	<string name="Foot Size">
-		Foot Size
+		腳部大小
 	</string>
 	<string name="Forehead Angle">
-		Forehead Angle
+		前額角度
 	</string>
 	<string name="Forehead Heavy">
-		Forehead Heavy
+		前額寬厚
 	</string>
 	<string name="Freckles">
-		Freckles
+		雀斑
 	</string>
 	<string name="Front Fringe">
-		Front Fringe
+		前瀏海
 	</string>
 	<string name="Full Back">
-		Full Back
+		後部飽滿
 	</string>
 	<string name="Full Eyeliner">
-		Full Eyeliner
+		厚重眼線
 	</string>
 	<string name="Full Front">
-		Full Front
+		前面飽滿
 	</string>
 	<string name="Full Hair Sides">
-		Full Hair Sides
+		側髮飽滿
 	</string>
 	<string name="Full Sides">
-		Full Sides
+		兩側飽滿
 	</string>
 	<string name="Glossy">
-		Glossy
+		光亮
 	</string>
 	<string name="Glove Fingers">
-		Glove Fingers
+		手套手指
 	</string>
 	<string name="Glove Length">
-		Glove Length
+		手套長度
 	</string>
 	<string name="Hair">
 		頭髮
 	</string>
 	<string name="Hair Back">
-		Hair: Back
+		頭髮：後面
 	</string>
 	<string name="Hair Front">
-		Hair: Front
+		頭髮：前面
 	</string>
 	<string name="Hair Sides">
-		Hair: Sides
+		頭髮：側面
 	</string>
 	<string name="Hair Sweep">
-		Hair Sweep
+		頭髮垂擺
 	</string>
 	<string name="Hair Thickess">
-		Hair Thickness
+		頭髮厚度
 	</string>
 	<string name="Hair Thickness">
-		Hair Thickness
+		頭髮厚度
 	</string>
 	<string name="Hair Tilt">
-		Hair Tilt
+		頭髮傾度
 	</string>
 	<string name="Hair Tilted Left">
-		Hair Tilted Left
+		頭髮傾左
 	</string>
 	<string name="Hair Tilted Right">
-		Hair Tilted Right
+		頭髮傾右
 	</string>
 	<string name="Hair Volume">
-		Hair: Volume
+		頭髮：髮量
 	</string>
 	<string name="Hand Size">
-		Hand Size
+		手部大小
 	</string>
 	<string name="Handlebars">
-		Handlebars
+		把手
 	</string>
 	<string name="Head Length">
-		Head Length
+		頭部長度
 	</string>
 	<string name="Head Shape">
-		Head Shape
+		頭型
 	</string>
 	<string name="Head Size">
-		Head Size
+		頭部大小
 	</string>
 	<string name="Head Stretch">
-		Head Stretch
+		頭部延展度
 	</string>
 	<string name="Heel Height">
-		Heel Height
+		腳踵高度
 	</string>
 	<string name="Heel Shape">
-		Heel Shape
+		腳踵形狀
 	</string>
 	<string name="Height">
-		Height
+		高度
 	</string>
 	<string name="High">
-		High
+		高
 	</string>
 	<string name="High Heels">
-		High Heels
+		高跟鞋
 	</string>
 	<string name="High Jaw">
-		High Jaw
+		高顎
 	</string>
 	<string name="High Platforms">
-		High Platforms
+		高平臺
 	</string>
 	<string name="High and Tight">
-		High and Tight
+		高而緊緻
 	</string>
 	<string name="Higher">
-		Higher
+		更高
 	</string>
 	<string name="Hip Length">
-		Hip Length
+		腰長
 	</string>
 	<string name="Hip Width">
-		Hip Width
+		腰寬
 	</string>
 	<string name="In">
-		In
+		向內
 	</string>
 	<string name="In Shdw Color">
-		Inner Shadow Color
+		內陰影顏色
 	</string>
 	<string name="In Shdw Opacity">
-		Inner Shadow Opacity
+		內陰影不透明度
 	</string>
 	<string name="Inner Eye Corner">
-		Inner Eye Corner
+		眼內角
 	</string>
 	<string name="Inner Eye Shadow">
-		Inner Eye Shadow
+		內眼陰影
 	</string>
 	<string name="Inner Shadow">
-		Inner Shadow
+		內陰影
 	</string>
 	<string name="Jacket Length">
-		Jacket Length
+		外套長度
 	</string>
 	<string name="Jacket Wrinkles">
-		Jacket Wrinkles
+		外套皺褶
 	</string>
 	<string name="Jaw Angle">
-		Jaw Angle
+		顎角度
 	</string>
 	<string name="Jaw Jut">
-		Jaw Jut
+		顎突出
 	</string>
 	<string name="Jaw Shape">
-		Jaw Shape
+		顎形
 	</string>
 	<string name="Join">
-		Join
+		加入
 	</string>
 	<string name="Jowls">
-		Jowls
+		下頜
 	</string>
 	<string name="Knee Angle">
-		Knee Angle
+		膝部角度
 	</string>
 	<string name="Knock Kneed">
-		Knock Kneed
+		八字腿
 	</string>
 	<string name="Large">
-		Large
+		大
 	</string>
 	<string name="Large Hands">
-		Large Hands
+		大手掌
 	</string>
 	<string name="Left Part">
-		Left Part
+		左邊分
 	</string>
 	<string name="Leg Length">
-		Leg Length
+		腿長
 	</string>
 	<string name="Leg Muscles">
-		Leg Muscles
+		腿肌肉
 	</string>
 	<string name="Less">
-		Less
+		更少
 	</string>
 	<string name="Less Body Fat">
-		Less Body Fat
+		體脂肪較少
 	</string>
 	<string name="Less Curtains">
-		Less Curtains
+		絡腮鬍較短
 	</string>
 	<string name="Less Freckles">
-		Less Freckles
+		雀斑較少
 	</string>
 	<string name="Less Full">
-		Less Full
+		較不飽滿
 	</string>
 	<string name="Less Gravity">
-		Less Gravity
+		較少重力
 	</string>
 	<string name="Less Love">
-		Less Love
+		少一點愛
 	</string>
 	<string name="Less Muscles">
-		Less Muscles
+		少一點肌肉
 	</string>
 	<string name="Less Muscular">
-		Less Muscular
+		少一點肌壯感
 	</string>
 	<string name="Less Rosy">
-		Less Rosy
+		少一點紅潤
 	</string>
 	<string name="Less Round">
-		Less Round
+		少一點圓度
 	</string>
 	<string name="Less Saddle">
-		Less Saddle
+		腿靠攏一點
 	</string>
 	<string name="Less Square">
-		Less Square
+		少一點方形
 	</string>
 	<string name="Less Volume">
-		Less Volume
+		少一點量
 	</string>
 	<string name="Less soul">
-		Less soul
+		少一點靈魂
 	</string>
 	<string name="Lighter">
-		Lighter
+		亮一點
 	</string>
 	<string name="Lip Cleft">
-		Lip Cleft
+		脣裂度
 	</string>
 	<string name="Lip Cleft Depth">
-		Lip Cleft Depth
+		脣裂深度
 	</string>
 	<string name="Lip Fullness">
-		Lip Fullness
+		脣豐度
 	</string>
 	<string name="Lip Pinkness">
-		Lip Pinkness
+		脣色粉紅度
 	</string>
 	<string name="Lip Ratio">
-		Lip Ratio
+		脣比率
 	</string>
 	<string name="Lip Thickness">
-		Lip Thickness
+		脣厚度
 	</string>
 	<string name="Lip Width">
-		Lip Width
+		脣寬度
 	</string>
 	<string name="Lipgloss">
-		Lipgloss
+		脣蜜
 	</string>
 	<string name="Lipstick">
-		Lipstick
+		脣膏
 	</string>
 	<string name="Lipstick Color">
-		Lipstick Color
+		脣膏顏色
 	</string>
 	<string name="Long">
-		Long
+		長
 	</string>
 	<string name="Long Head">
-		Long Head
+		長臉
 	</string>
 	<string name="Long Hips">
-		Long Hips
+		高腰
 	</string>
 	<string name="Long Legs">
-		Long Legs
+		長腿
 	</string>
 	<string name="Long Neck">
-		Long Neck
+		長頸
 	</string>
 	<string name="Long Pigtails">
-		Long Pigtails
+		長辮子
 	</string>
 	<string name="Long Ponytail">
-		Long Ponytail
+		長馬尾辮
 	</string>
 	<string name="Long Torso">
-		Long Torso
+		長軀幹
 	</string>
 	<string name="Long arms">
-		Long arms
+		長臂
 	</string>
 	<string name="Loose Pants">
-		Loose Pants
+		寬鬆褲子
 	</string>
 	<string name="Loose Shirt">
-		Loose Shirt
+		寬鬆襯衫
 	</string>
 	<string name="Loose Sleeves">
-		Loose Sleeves
+		寬鬆袖子
 	</string>
 	<string name="Love Handles">
-		Love Handles
+		腰間贅肉
 	</string>
 	<string name="Low">
-		Low
+		低
 	</string>
 	<string name="Low Heels">
-		Low Heels
+		低跟鞋
 	</string>
 	<string name="Low Jaw">
-		Low Jaw
+		低顎
 	</string>
 	<string name="Low Platforms">
-		Low Platforms
+		低平臺
 	</string>
 	<string name="Low and Loose">
-		Low and Loose
+		低而寬鬆
 	</string>
 	<string name="Lower">
-		Lower
+		降低
 	</string>
 	<string name="Lower Bridge">
-		Lower Bridge
+		鼻樑低一點
 	</string>
 	<string name="Lower Cheeks">
-		Lower Cheeks
+		雙頰低一點
 	</string>
 	<string name="Male">
 		男性
 	</string>
 	<string name="Middle Part">
-		Middle Part
+		中間邊分
 	</string>
 	<string name="More">
 		更多
 	</string>
 	<string name="More Blush">
-		More Blush
+		增加腮紅
 	</string>
 	<string name="More Body Fat">
-		More Body Fat
+		增加體脂肪
 	</string>
 	<string name="More Curtains">
-		More Curtains
+		增加絡腮鬍
 	</string>
 	<string name="More Eyeshadow">
-		More Eyeshadow
+		增加眼影
 	</string>
 	<string name="More Freckles">
-		More Freckles
+		增加雀斑
 	</string>
 	<string name="More Full">
-		More Full
+		更飽滿
 	</string>
 	<string name="More Gravity">
-		More Gravity
+		增加重力
 	</string>
 	<string name="More Lipstick">
-		More Lipstick
+		多一點脣膏
 	</string>
 	<string name="More Love">
-		More Love
+		多一點愛
 	</string>
 	<string name="More Lower Lip">
-		More Lower Lip
+		下脣更豐滿
 	</string>
 	<string name="More Muscles">
-		More Muscles
+		多一點肌肉
 	</string>
 	<string name="More Muscular">
-		More Muscular
+		增加肌壯感
 	</string>
 	<string name="More Rosy">
-		More Rosy
+		更加紅潤
 	</string>
 	<string name="More Round">
-		More Round
+		增加圓度
 	</string>
 	<string name="More Saddle">
-		More Saddle
+		腿更加張開
 	</string>
 	<string name="More Sloped">
-		More Sloped
+		更加傾斜
 	</string>
 	<string name="More Square">
-		More Square
+		增加方形
 	</string>
 	<string name="More Upper Lip">
-		More Upper Lip
+		上脣更豐滿
 	</string>
 	<string name="More Vertical">
-		More Vertical
+		更加垂直
 	</string>
 	<string name="More Volume">
-		More Volume
+		多一點量
 	</string>
 	<string name="More soul">
-		More soul
+		多一點靈魂
 	</string>
 	<string name="Moustache">
-		Moustache
+		髭鬍
 	</string>
 	<string name="Mouth Corner">
-		Mouth Corner
+		嘴角
 	</string>
 	<string name="Mouth Position">
-		Mouth Position
+		嘴巴位置
 	</string>
 	<string name="Mowhawk">
-		Mowhawk
+		莫霍克髮型
 	</string>
 	<string name="Muscular">
-		Muscular
+		肌肉發達
 	</string>
 	<string name="Mutton Chops">
-		Mutton Chops
+		羊排式絡腮鬍
 	</string>
 	<string name="Nail Polish">
-		Nail Polish
+		指甲油
 	</string>
 	<string name="Nail Polish Color">
-		Nail Polish Color
+		指甲油顏色
 	</string>
 	<string name="Narrow">
-		Narrow
+		窄
 	</string>
 	<string name="Narrow Back">
-		Narrow Back
+		後窄
 	</string>
 	<string name="Narrow Front">
-		Narrow Front
+		前窄
 	</string>
 	<string name="Narrow Lips">
-		Narrow Lips
+		窄脣
 	</string>
 	<string name="Natural">
-		Natural
+		自然
 	</string>
 	<string name="Neck Length">
-		Neck Length
+		頸長
 	</string>
 	<string name="Neck Thickness">
-		Neck Thickness
+		頸部厚度
 	</string>
 	<string name="No Blush">
-		No Blush
+		無腮紅
 	</string>
 	<string name="No Eyeliner">
-		No Eyeliner
+		無眼線
 	</string>
 	<string name="No Eyeshadow">
-		No Eyeshadow
+		無眼影
 	</string>
 	<string name="No Lipgloss">
-		No Lipgloss
+		無脣蜜
 	</string>
 	<string name="No Lipstick">
-		No Lipstick
+		無脣膏
 	</string>
 	<string name="No Part">
-		No Part
+		無邊分
 	</string>
 	<string name="No Polish">
-		No Polish
+		無指甲油
 	</string>
 	<string name="No Red">
-		No Red
+		去紅色
 	</string>
 	<string name="No Spikes">
-		No Spikes
+		無尖直形
 	</string>
 	<string name="No White">
-		No White
+		去白色
 	</string>
 	<string name="No Wrinkles">
-		No Wrinkles
+		無皺紋
 	</string>
 	<string name="Normal Lower">
-		Normal Lower
+		正常下半
 	</string>
 	<string name="Normal Upper">
-		Normal Upper
+		正常上半
 	</string>
 	<string name="Nose Left">
-		Nose Left
+		左鼻
 	</string>
 	<string name="Nose Right">
-		Nose Right
+		右鼻
 	</string>
 	<string name="Nose Size">
-		Nose Size
+		鼻部大小
 	</string>
 	<string name="Nose Thickness">
-		Nose Thickness
+		鼻子厚度
 	</string>
 	<string name="Nose Tip Angle">
-		Nose Tip Angle
+		鼻尖角度
 	</string>
 	<string name="Nose Tip Shape">
-		Nose Tip Shape
+		鼻尖形狀
 	</string>
 	<string name="Nose Width">
-		Nose Width
+		鼻寬
 	</string>
 	<string name="Nostril Division">
-		Nostril Division
+		鼻孔分開度
 	</string>
 	<string name="Nostril Width">
-		Nostril Width
+		鼻孔寬
 	</string>
 	<string name="Opaque">
-		Opaque
+		不透明
 	</string>
 	<string name="Open">
-		Open
+		打開
 	</string>
 	<string name="Open Back">
-		Open Back
+		後開
 	</string>
 	<string name="Open Front">
-		Open Front
+		前開
 	</string>
 	<string name="Open Left">
-		Open Left
+		左開
 	</string>
 	<string name="Open Right">
-		Open Right
+		右開
 	</string>
 	<string name="Orange">
-		Orange
+		橘色
 	</string>
 	<string name="Out">
-		Out
+		外
 	</string>
 	<string name="Out Shdw Color">
-		Outer Shadow Color
+		外陰影顏色
 	</string>
 	<string name="Out Shdw Opacity">
-		Outer Shadow Opacity
+		外陰影不透明度
 	</string>
 	<string name="Outer Eye Corner">
-		Outer Eye Corner
+		眼外角
 	</string>
 	<string name="Outer Eye Shadow">
-		Outer Eye Shadow
+		外眼陰影
 	</string>
 	<string name="Outer Shadow">
-		Outer Shadow
+		外陰影
 	</string>
 	<string name="Overbite">
-		Overbite
+		齙牙
 	</string>
 	<string name="Package">
-		Package
+		配套
 	</string>
 	<string name="Painted Nails">
-		Painted Nails
+		美甲
 	</string>
 	<string name="Pale">
-		Pale
+		蒼白
 	</string>
 	<string name="Pants Crotch">
-		Pants Crotch
+		褲襠
 	</string>
 	<string name="Pants Fit">
-		Pants Fit
+		褲子合身度
 	</string>
 	<string name="Pants Length">
-		Pants Length
+		褲長
 	</string>
 	<string name="Pants Waist">
-		Pants Waist
+		褲腰
 	</string>
 	<string name="Pants Wrinkles">
-		Pants Wrinkles
+		褲子皺褶
 	</string>
 	<string name="Part">
-		Part
+		邊分
 	</string>
 	<string name="Part Bangs">
-		Part Bangs
+		邊分瀏海
 	</string>
 	<string name="Pectorals">
-		Pectorals
+		胸肌
 	</string>
 	<string name="Pigment">
-		Pigment
+		色素
 	</string>
 	<string name="Pigtails">
-		Pigtails
+		辮子
 	</string>
 	<string name="Pink">
-		Pink
+		粉紅
 	</string>
 	<string name="Pinker">
-		Pinker
+		增加粉紅
 	</string>
 	<string name="Platform Height">
-		Platform Height
+		平臺高度
 	</string>
 	<string name="Platform Width">
-		Platform Width
+		平臺寬度
 	</string>
 	<string name="Pointy">
-		Pointy
+		尖狀
 	</string>
 	<string name="Pointy Heels">
-		Pointy Heels
+		尖狀高跟鞋
 	</string>
 	<string name="Ponytail">
-		Ponytail
+		馬尾辮
 	</string>
 	<string name="Poofy Skirt">
-		Poofy Skirt
+		蓬蓬裙
 	</string>
 	<string name="Pop Left Eye">
-		Pop Left Eye
+		左眼 Pop
 	</string>
 	<string name="Pop Right Eye">
-		Pop Right Eye
+		右眼 Pop
 	</string>
 	<string name="Puffy">
-		Puffy
+		眼腫
 	</string>
 	<string name="Puffy Eyelids">
-		Puffy Eyelids
+		眼瞼腫
 	</string>
 	<string name="Rainbow Color">
-		Rainbow Color
+		虹彩
 	</string>
 	<string name="Red Hair">
-		Red Hair
+		紅髮
 	</string>
 	<string name="Regular">
-		Regular
+		一般
 	</string>
 	<string name="Right Part">
-		Right Part
+		右邊分
 	</string>
 	<string name="Rosy Complexion">
-		Rosy Complexion
+		臉色紅潤
 	</string>
 	<string name="Round">
-		Round
+		圓
 	</string>
 	<string name="Ruddiness">
-		Ruddiness
+		紅潤度
 	</string>
 	<string name="Ruddy">
-		Ruddy
+		紅潤
 	</string>
 	<string name="Rumpled Hair">
-		Rumpled Hair
+		亂髮
 	</string>
 	<string name="Saddle Bags">
-		Saddle Bags
+		馬鞍型工具袋
 	</string>
 	<string name="Scrawny Leg">
-		Scrawny Leg
+		削瘦的腿
 	</string>
 	<string name="Separate">
-		Separate
+		分開
 	</string>
 	<string name="Shallow">
-		Shallow
+		淺
 	</string>
 	<string name="Shear Back">
-		Shear Back
+		後偏移
 	</string>
 	<string name="Shear Face">
-		Shear Face
+		臉部偏移
 	</string>
 	<string name="Shear Front">
-		Shear Front
+		前偏移
 	</string>
 	<string name="Shear Left Up">
-		Shear Left Up
+		左上偏移
 	</string>
 	<string name="Shear Right Up">
-		Shear Right Up
+		右上偏移
 	</string>
 	<string name="Sheared Back">
-		Sheared Back
+		後偏移
 	</string>
 	<string name="Sheared Front">
-		Sheared Front
+		前偏移
 	</string>
 	<string name="Shift Left">
-		Shift Left
+		左移
 	</string>
 	<string name="Shift Mouth">
-		Shift Mouth
+		嘴部偏移
 	</string>
 	<string name="Shift Right">
-		Shift Right
+		右移
 	</string>
 	<string name="Shirt Bottom">
-		Shirt Bottom
+		襯衫底
 	</string>
 	<string name="Shirt Fit">
-		Shirt Fit
+		襯衫合身度
 	</string>
 	<string name="Shirt Wrinkles">
-		Shirt Wrinkles
+		襯衫皺褶
 	</string>
 	<string name="Shoe Height">
-		Shoe Height
+		鞋高
 	</string>
 	<string name="Short">
-		Short
+		短
 	</string>
 	<string name="Short Arms">
-		Short Arms
+		短臂
 	</string>
 	<string name="Short Legs">
-		Short Legs
+		短腿
 	</string>
 	<string name="Short Neck">
-		Short Neck
+		短頸
 	</string>
 	<string name="Short Pigtails">
-		Short Pigtails
+		短辮子
 	</string>
 	<string name="Short Ponytail">
-		Short Ponytail
+		短馬尾辮
 	</string>
 	<string name="Short Sideburns">
-		Short Sideburns
+		短鬢鬚
 	</string>
 	<string name="Short Torso">
-		Short Torso
+		短軀幹
 	</string>
 	<string name="Short hips">
-		Short hips
+		短腰
 	</string>
 	<string name="Shoulders">
-		Shoulders
+		肩膀
 	</string>
 	<string name="Side Fringe">
-		Side Fringe
+		側瀏海
 	</string>
 	<string name="Sideburns">
-		Sideburns
+		鬢鬚
 	</string>
 	<string name="Sides Hair">
-		Sides Hair
+		側面頭髮
 	</string>
 	<string name="Sides Hair Down">
-		Sides Hair Down
+		側面頭髮下部
 	</string>
 	<string name="Sides Hair Up">
-		Sides Hair Up
+		側面頭髮上部
 	</string>
 	<string name="Skinny Neck">
-		Skinny Neck
+		削瘦頸部
 	</string>
 	<string name="Skirt Fit">
-		Skirt Fit
+		裙子合身度
 	</string>
 	<string name="Skirt Length">
-		Skirt Length
+		裙長
 	</string>
 	<string name="Slanted Forehead">
-		Slanted Forehead
+		斜前額
 	</string>
 	<string name="Sleeve Length">
-		Sleeve Length
+		袖長
 	</string>
 	<string name="Sleeve Looseness">
-		Sleeve Looseness
+		袖子寬鬆度
 	</string>
 	<string name="Slit Back">
-		Slit: Back
+		後分
 	</string>
 	<string name="Slit Front">
-		Slit: Front
+		前分
 	</string>
 	<string name="Slit Left">
-		Slit: Left
+		左分
 	</string>
 	<string name="Slit Right">
-		Slit: Right
+		右分
 	</string>
 	<string name="Small">
-		Small
+		小
 	</string>
 	<string name="Small Hands">
-		Small Hands
+		小手
 	</string>
 	<string name="Small Head">
-		Small Head
+		小頭
 	</string>
 	<string name="Smooth">
-		Smooth
+		平滑
 	</string>
 	<string name="Smooth Hair">
-		Smooth Hair
+		平滑頭髮
 	</string>
 	<string name="Socks Length">
-		Socks Length
+		襪長
 	</string>
 	<string name="Soulpatch">
-		Soulpatch
+		脣下撮鬍
 	</string>
 	<string name="Sparse">
-		Sparse
+		稀疏
 	</string>
 	<string name="Spiked Hair">
-		Spiked Hair
+		尖直頭髮
 	</string>
 	<string name="Square">
-		Square
+		方形
 	</string>
 	<string name="Square Toe">
-		Square Toe
+		平頭鞋
 	</string>
 	<string name="Squash Head">
-		Squash Head
+		長瓜形臉
 	</string>
 	<string name="Stretch Head">
-		Stretch Head
+		延展頭部
 	</string>
 	<string name="Sunken">
-		Sunken
+		深陷
 	</string>
 	<string name="Sunken Chest">
-		Sunken Chest
+		胸部內陷
 	</string>
 	<string name="Sunken Eyes">
-		Sunken Eyes
+		眼睛深陷
 	</string>
 	<string name="Sweep Back">
-		Sweep Back
+		後垂擺
 	</string>
 	<string name="Sweep Forward">
-		Sweep Forward
+		前垂擺
 	</string>
 	<string name="Tall">
-		Tall
+		高
 	</string>
 	<string name="Taper Back">
-		Taper Back
+		後漸細
 	</string>
 	<string name="Taper Front">
-		Taper Front
+		前漸細
 	</string>
 	<string name="Thick Heels">
-		Thick Heels
+		粗腳跟
 	</string>
 	<string name="Thick Neck">
-		Thick Neck
+		粗頸
 	</string>
 	<string name="Thick Toe">
-		Thick Toe
+		粗腳趾
 	</string>
 	<string name="Thin">
-		Thin
+		瘦
 	</string>
 	<string name="Thin Eyebrows">
-		Thin Eyebrows
+		細眉
 	</string>
 	<string name="Thin Lips">
-		Thin Lips
+		細脣
 	</string>
 	<string name="Thin Nose">
-		Thin Nose
+		細鼻
 	</string>
 	<string name="Tight Chin">
-		Tight Chin
+		緊緻下巴
 	</string>
 	<string name="Tight Cuffs">
-		Tight Cuffs
+		緊緻袖口
 	</string>
 	<string name="Tight Pants">
-		Tight Pants
+		緊緻褲子
 	</string>
 	<string name="Tight Shirt">
-		Tight Shirt
+		緊緻襯衫
 	</string>
 	<string name="Tight Skirt">
-		Tight Skirt
+		緊緻裙子
 	</string>
 	<string name="Tight Sleeves">
-		Tight Sleeves
+		緊緻袖子
 	</string>
 	<string name="Toe Shape">
-		Toe Shape
+		腳趾形狀
 	</string>
 	<string name="Toe Thickness">
-		Toe Thickness
+		腳趾粗細
 	</string>
 	<string name="Torso Length">
-		Torso Length
+		軀幹長度
 	</string>
 	<string name="Torso Muscles">
-		Torso Muscles
+		軀幹肌肉
 	</string>
 	<string name="Torso Scrawny">
-		Torso Scrawny
+		軀幹削瘦
 	</string>
 	<string name="Unattached">
-		Unattached
+		未附著
 	</string>
 	<string name="Uncreased">
-		Uncreased
+		無皺痕
 	</string>
 	<string name="Underbite">
-		Underbite
+		戽斗
 	</string>
 	<string name="Unnatural">
-		Unnatural
+		不自然
 	</string>
 	<string name="Upper Bridge">
-		Upper Bridge
+		上鼻梁
 	</string>
 	<string name="Upper Cheeks">
-		Upper Cheeks
+		上臉頰
 	</string>
 	<string name="Upper Chin Cleft">
-		Upper Chin Cleft
+		上部顎裂
 	</string>
 	<string name="Upper Eyelid Fold">
-		Upper Eyelid Fold
+		上眼瞼皺褶
 	</string>
 	<string name="Upturned">
-		Upturned
+		嘴角上翹
 	</string>
 	<string name="Very Red">
-		Very Red
+		大紅
 	</string>
 	<string name="Waist Height">
-		Waist Height
+		腰高
 	</string>
 	<string name="Well-Fed">
-		Well-Fed
+		飽食的
 	</string>
 	<string name="White Hair">
-		White Hair
+		白髮
 	</string>
 	<string name="Wide">
-		Wide
+		寬
 	</string>
 	<string name="Wide Back">
-		Wide Back
+		後寬
 	</string>
 	<string name="Wide Front">
-		Wide Front
+		前寬
 	</string>
 	<string name="Wide Lips">
-		Wide Lips
+		寬脣
 	</string>
 	<string name="Wild">
-		Wild
+		狂野
 	</string>
 	<string name="Wrinkles">
-		Wrinkles
+		皺紋
 	</string>
 	<string name="LocationCtrlAddLandmarkTooltip">
 		添加到我的地標
@@ -3585,6 +3868,15 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="LocationCtrlGeneralIconTooltip">
 		一般普級地區
 	</string>
+	<string name="LocationCtrlSeeAVsTooltip">
+		可看到本地段外的化身，並與之交談
+	</string>
+	<string name="LocationCtrlPathfindingDirtyTooltip">
+		地區重新產出之前，可移動物件可能無法正常運作。
+	</string>
+	<string name="LocationCtrlPathfindingDisabledTooltip">
+		這地區並未啟用動態尋徑。
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] 更新
 	</string>
@@ -3595,7 +3887,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		[APP_NAME] 安裝中...
 	</string>
 	<string name="UpdaterUpdatingDescriptive">
-		Your [APP_NAME] Viewer is being updated to the latest release.  This may take some time, so please be patient.
+		你的 [APP_NAME] Viewer 正在更新為最新發行版。  可能要等一會兒，請耐心稍候。
 	</string>
 	<string name="UpdaterProgressBarTextWithEllipses">
 		更新下載中...
@@ -3607,7 +3899,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		夏載更新失敗
 	</string>
 	<string name="UpdaterFailUpdateDescriptive">
-		An error occurred while updating [APP_NAME]. Please download the latest version from www.secondlife.com.
+		[APP_NAME] 更新時出錯。 請到 www.secondlife.com 下載最新版本。
 	</string>
 	<string name="UpdaterFailInstallTitle">
 		安裝更新失敗
@@ -3616,13 +3908,13 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		啟動瀏覽器失敗
 	</string>
 	<string name="ItemsComingInTooFastFrom">
-		[APP_NAME]: Items coming in too fast from [FROM_NAME], automatic preview disabled for [TIME] seconds
+		[APP_NAME]：來自 [FROM_NAME] 的項目速度過快，因此自動預覽暫停 [TIME] 秒
 	</string>
 	<string name="ItemsComingInTooFast">
-		[APP_NAME]: Items coming in too fast, automatic preview disabled for [TIME] seconds
+		[APP_NAME]：進來的項目速度過快，因此自動預覽暫停 [TIME] 秒
 	</string>
 	<string name="IM_logging_string">
-		-- Instant message logging enabled --
+		-- 已開啟及時訊息記錄 --
 	</string>
 	<string name="IM_typing_start_string">
 		[NAME] 正在輸入...
@@ -3631,43 +3923,46 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		（未命名）
 	</string>
 	<string name="IM_moderated_chat_label">
-		(Moderated: Voices off by default)
+		（有人主持：預設關閉語音）
 	</string>
 	<string name="IM_unavailable_text_label">
-		Text chat is not available for this call.
+		這次通話無法使用文字聊天。
 	</string>
 	<string name="IM_muted_text_label">
-		Your text chat has been disabled by a Group Moderator.
+		群組主持人已禁止你進行文字聊天。
 	</string>
 	<string name="IM_default_text_label">
-		點擊此處以傳送即時訊息。
+		點按此處以傳送即時訊息。
 	</string>
 	<string name="IM_to_label">
 		至
 	</string>
 	<string name="IM_moderator_label">
-		(Moderator)
+		（主持人）
 	</string>
 	<string name="Saved_message">
-		(Saved [LONG_TIMESTAMP])
+		（於 [LONG_TIMESTAMP] 儲存）
+	</string>
+	<string name="IM_unblock_only_groups_friends">
+		要察看這訊息，你必須到「偏好設定 / 隱私」，取消勾選「只有我的朋友和群組可以 IM 或與我通話」。
 	</string>
 	<string name="answered_call">
-		Your call has been answered
+		你的通話已經接通
 	</string>
 	<string name="you_started_call">
-		You started a voice call
+		你發起了語音通話
 	</string>
 	<string name="you_joined_call">
-		You joined the voice call
+		你發起了語音通話
 	</string>
 	<string name="name_started_call">
-		[NAME] started a voice call
+		[NAME] 發起了語音通話
 	</string>
 	<string name="ringing-im">
 		加入語音通話...
 	</string>
 	<string name="connected-im">
-		Connected, click Leave Call to hang up
+		已接通，要掛斷請按「離開通話」
 	</string>
 	<string name="hang_up-im">
 		離開語音通話
@@ -3676,40 +3971,40 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		聯接中...
 	</string>
 	<string name="conference-title">
-		Ad-hoc Conference
+		臨時多方通話
 	</string>
 	<string name="conference-title-incoming">
-		Conference with [AGENT_NAME]
+		和 [AGENT_NAME] 多方通話
 	</string>
 	<string name="inventory_item_offered-im">
-		Inventory item offered
+		收納區物品已發送
 	</string>
 	<string name="share_alert">
-		Drag items from inventory here
+		將收納區物品拖曳到這裡
 	</string>
 	<string name="no_session_message">
 		（IM 會話不存在）
 	</string>
 	<string name="only_user_message">
-		You are the only user in this session.
+		這次會話只有你一人。
 	</string>
 	<string name="offline_message">
 		[NAME] 離線。
 	</string>
 	<string name="invite_message">
-		Click the [BUTTON NAME] button to accept/connect to this voice chat.
+		點按 [BUTTON NAME] 按鈕接受並連通到這個語音聊天。
 	</string>
 	<string name="muted_message">
-		You have blocked this Resident. Sending a message will automatically unblock them.
+		你已經封鎖這位居民。 發送訊息將會自動解除封鎖。
 	</string>
 	<string name="generic">
-		Error making request, please try again later.
+		送出請求時出錯，請稍候再試。
 	</string>
 	<string name="generic_request_error">
-		Error making request, please try again later.
+		送出請求時出錯，請稍候再試。
 	</string>
 	<string name="insufficient_perms_error">
-		You do not have sufficient permissions.
+		你權限不足。
 	</string>
 	<string name="session_does_not_exist_error">
 		此會話不再存在
@@ -3721,25 +4016,25 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		你並不具有這個能力。
 	</string>
 	<string name="not_a_mod_error">
-		You are not a session moderator.
+		你不具會話主持人身份。
 	</string>
 	<string name="muted">
-		A group moderator disabled your text chat.
+		某群組主持人禁止了你的文字聊天。
 	</string>
 	<string name="muted_error">
-		A group moderator disabled your text chat.
+		某群組主持人禁止了你的文字聊天。
 	</string>
 	<string name="add_session_event">
-		Unable to add users to chat session with [RECIPIENT].
+		無法新增使用者加入與 [RECIPIENT] 的聊天會話。
 	</string>
 	<string name="message">
-		Unable to send your message to the chat session with [RECIPIENT].
+		你的訊息無法傳送給與 [RECIPIENT] 的聊天會話。
 	</string>
 	<string name="message_session_event">
-		Unable to send your message to the chat session with [RECIPIENT].
+		你的訊息無法傳送給與 [RECIPIENT] 的聊天會話。
 	</string>
 	<string name="mute">
-		Error while moderating.
+		主持期間發生錯誤。
 	</string>
 	<string name="removed">
 		你已經由群組中被移除。
@@ -3748,49 +4043,64 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		你已經由群組中被移除。
 	</string>
 	<string name="close_on_no_ability">
-		You no longer have the ability to be in the chat session.
+		你已無法進入這個聊天會話。
 	</string>
 	<string name="unread_chat_single">
-		[SOURCES] has said something new
+		[SOURCES] 又說了一些話
 	</string>
 	<string name="unread_chat_multiple">
-		[SOURCES] have said something new
+		[SOURCES] 又說了一些話
 	</string>
 	<string name="session_initialization_timed_out_error">
-		The session initialization is timed out
+		會話初始化逾時，無法完成
+	</string>
+	<string name="Home position set.">
+		我的家位置已定。
 	</string>
 	<string name="voice_morphing_url">
 		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
-		[NAME] paid you L$[AMOUNT] [REASON].
+		[NAME] 支付你 L$[AMOUNT]（[REASON]）。
 	</string>
 	<string name="paid_you_ldollars_no_reason">
-		[NAME] paid you L$[AMOUNT].
+		[NAME] 支付你 L$[AMOUNT]。
 	</string>
 	<string name="you_paid_ldollars">
-		You paid [NAME] L$[AMOUNT] [REASON].
+		你支付 L$[AMOUNT] 給 [NAME]（[REASON]）。
 	</string>
 	<string name="you_paid_ldollars_no_info">
-		You paid L$[AMOUNT].
+		你支付了 L$[AMOUNT]。
 	</string>
 	<string name="you_paid_ldollars_no_reason">
-		You paid [NAME] L$[AMOUNT].
+		你支付 L$[AMOUNT] 給 [NAME]。
 	</string>
 	<string name="you_paid_ldollars_no_name">
-		You paid L$[AMOUNT] [REASON].
+		你支付了 L$[AMOUNT]（[REASON]）。
+	</string>
+	<string name="you_paid_failure_ldollars">
+		你支付 L$[AMOUNT] 給 [NAME] 時出錯：[REASON]。
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		你支付 L$[AMOUNT] 時出錯。
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		你支付 L$[AMOUNT] 給 [NAME] 時出錯。
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		你支付 L$[AMOUNT] 時出錯：[REASON]。
 	</string>
 	<string name="for item">
-		for [ITEM]
+		購買 [ITEM]
 	</string>
 	<string name="for a parcel of land">
-		for a parcel of land
+		購買一土地地段
 	</string>
 	<string name="for a land access pass">
-		for a land access pass
+		購買土地出入通行權
 	</string>
 	<string name="for deeding land">
-		for deeding land
+		讓渡土地
 	</string>
 	<string name="to create a group">
 		以創造群組
@@ -3802,39 +4112,39 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		以上傳
 	</string>
 	<string name="to publish a classified ad">
-		to publish a classified ad
+		發布一則個人廣告
 	</string>
 	<string name="giving">
-		Giving L$ [AMOUNT]
+		捐贈 L$ [AMOUNT]
 	</string>
 	<string name="uploading_costs">
 		上傳花費 L$ [AMOUNT]
 	</string>
 	<string name="this_costs">
-		This costs L$ [AMOUNT]
+		本次花費 L$ [AMOUNT]
 	</string>
 	<string name="buying_selected_land">
-		Buying selected land for L$ [AMOUNT]
+		花費 L$ [AMOUNT] 購買所選土地
 	</string>
 	<string name="this_object_costs">
-		This object costs L$ [AMOUNT]
+		本物件價格 L$ [AMOUNT]
 	</string>
 	<string name="group_role_everyone">
 		任何人
 	</string>
 	<string name="group_role_officers">
-		Officers
+		職員
 	</string>
 	<string name="group_role_owners">
-		擁有者
+		所有人
 	</string>
 	<string name="group_member_status_online">
 		上線
 	</string>
 	<string name="uploading_abuse_report">
 		上傳中...
-  
-舉報濫用
+
+違規舉報
 	</string>
 	<string name="New Shape">
 		新體形
@@ -3861,7 +4171,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		新襪子
 	</string>
 	<string name="New Jacket">
-		新夾克
+		新外套
 	</string>
 	<string name="New Gloves">
 		新手套
@@ -3912,7 +4222,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		女性姿勢
 	</string>
 	<string name="Other Gestures">
-		其他姿勢
+		其他���勢
 	</string>
 	<string name="Speech Gestures">
 		演說姿勢
@@ -3921,91 +4231,172 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		一般姿勢
 	</string>
 	<string name="Male - Excuse me">
-		Male - Excuse me
+		男性 - Excuse me
 	</string>
 	<string name="Male - Get lost">
-		Male - Get lost
+		Male - 給我滾蛋！
 	</string>
 	<string name="Male - Blow kiss">
-		Male - Blow kiss
+		男性 - 飛吻
 	</string>
 	<string name="Male - Boo">
-		Male - Boo
+		男性 - 我噓你
 	</string>
 	<string name="Male - Bored">
-		Male - Bored
+		男性 - 無聊狀
 	</string>
 	<string name="Male - Hey">
-		Male - Hey
+		男性 - 嘿！
 	</string>
 	<string name="Male - Laugh">
-		Male - Laugh
+		男性 - 笑
 	</string>
 	<string name="Male - Repulsed">
-		Male - Repulsed
+		男性 - 作噁
 	</string>
 	<string name="Male - Shrug">
-		Male - Shrug
+		男性 - 聳聳肩
 	</string>
 	<string name="Male - Stick tougue out">
-		Male - Stick tougue out
+		男性 - 吐舌頭
 	</string>
 	<string name="Male - Wow">
-		Male - Wow
+		男性 - 哇塞
 	</string>
 	<string name="Female - Chuckle">
-		Female - Chuckle
+		女性 - 咯咯笑
 	</string>
 	<string name="Female - Cry">
-		Female - Cry
+		女性 - 哭
 	</string>
 	<string name="Female - Embarrassed">
-		Female - Embarrassed
+		女性 - 尷尬
 	</string>
 	<string name="Female - Excuse me">
-		Female - Excuse me
+		男性 - Excuse me
 	</string>
 	<string name="Female - Get lost">
-		Female - Get lost
+		女性 - 給我滾蛋！
 	</string>
 	<string name="Female - Blow kiss">
-		Female - Blow kiss
+		女性 - 飛吻
 	</string>
 	<string name="Female - Boo">
-		Female - Boo
+		女性 - 我噓你
 	</string>
 	<string name="Female - Bored">
-		Female - Bored
+		女性 - 無聊狀
 	</string>
 	<string name="Female - Hey">
-		Female - Hey
+		女性 - 嘿！
 	</string>
 	<string name="Female - Hey baby">
-		Female - Hey baby
+		女性 - 嘿，寶貝
 	</string>
 	<string name="Female - Laugh">
-		Female - Laugh
+		女性 - 笑
 	</string>
 	<string name="Female - Looking good">
-		Female - Looking good
+		女性 - 看我美不美
 	</string>
 	<string name="Female - Over here">
-		Female - Over here
+		女性 - 我在這兒
 	</string>
 	<string name="Female - Please">
-		Female - Please
+		女性 - 請
 	</string>
 	<string name="Female - Repulsed">
-		Female - Repulsed
+		女性 - 作噁
 	</string>
 	<string name="Female - Shrug">
-		Female - Shrug
+		女性 - 聳聳肩
 	</string>
 	<string name="Female - Stick tougue out">
-		Female - Stick tougue out
+		女性 - 吐舌頭
 	</string>
 	<string name="Female - Wow">
-		Female - Wow
+		女性 - 哇塞
+	</string>
+	<string name="/bow">
+		/彎腰點頭
+	</string>
+	<string name="/clap">
+		/拍手
+	</string>
+	<string name="/count">
+		/計數
+	</string>
+	<string name="/extinguish">
+		/熄菸
+	</string>
+	<string name="/kmb">
+		/給我一個吻
+	</string>
+	<string name="/muscle">
+		/肌肉
+	</string>
+	<string name="/no">
+		/不
+	</string>
+	<string name="/no!">
+		/不！
+	</string>
+	<string name="/paper">
+		/布
+	</string>
+	<string name="/pointme">
+		/指自己
+	</string>
+	<string name="/pointyou">
+		/指向你
+	</string>
+	<string name="/rock">
+		/石頭
+	</string>
+	<string name="/scissor">
+		/剪刀
+	</string>
+	<string name="/smoke">
+		/抽菸
+	</string>
+	<string name="/stretch">
+		/伸展
+	</string>
+	<string name="/whistle">
+		/吹口哨
+	</string>
+	<string name="/yes">
+		/是
+	</string>
+	<string name="/yes!">
+		/是！
+	</string>
+	<string name="afk">
+		暫時離開
+	</string>
+	<string name="dance1">
+		跳舞1
+	</string>
+	<string name="dance2">
+		跳舞2
+	</string>
+	<string name="dance3">
+		跳舞3
+	</string>
+	<string name="dance4">
+		跳舞4
+	</string>
+	<string name="dance5">
+		跳舞5
+	</string>
+	<string name="dance6">
+		跳舞6
+	</string>
+	<string name="dance7">
+		跳舞7
+	</string>
+	<string name="dance8">
+		跳舞8
 	</string>
 	<string name="AvatarBirthDateFormat">
 		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
@@ -4018,34 +4409,34 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
-		Despite our best efforts, something unexpected has gone wrong.
+		儘管我們努力避免，還是發生意料外的錯誤。
 
-	Please check status.secondlifegrid.net to see if there is a known problem with the service.  
-        If you continue to experience problems, please check your network and firewall setup.
+	請察訪 status.secondlifegrid.net 看是否發生了已知狀況。
+        如果文體繼續發生，請檢查你的網路和防火牆設定。
 	</string>
 	<string name="dateTimeWeekdaysNames">
-		Sunday:Monday:Tuesday:Wednesday:Thursday:Friday:Saturday
+		星期日:星期一:星期二:星期三:星期四:星期五:星期六
 	</string>
 	<string name="dateTimeWeekdaysShortNames">
-		Sun:Mon:Tue:Wed:Thu:Fri:Sat
+		星期日:星期一:星期二:星期三:星期四:星期五:星期六
 	</string>
 	<string name="dateTimeMonthNames">
-		January:February:March:April:May:June:July:August:September:October:November:December
+		一月:二月:三月:四月:五月:六月:七月:八月:九月:十月:十一月:十二月
 	</string>
 	<string name="dateTimeMonthShortNames">
-		Jan:Feb:Mar:Apr:May:Jun:Jul:Aug:Sep:Oct:Nov:Dec
+		一月:二月:三月:四月:五月:六月:七月:八月:九月:十月:十一月:十二月
 	</string>
 	<string name="dateTimeDayFormat">
 		[MDAY]
 	</string>
 	<string name="dateTimeAM">
-		AM
+		上午
 	</string>
 	<string name="dateTimePM">
-		PM
+		下午
 	</string>
 	<string name="LocalEstimateUSD">
-		US$ [AMOUNT]
+		$ [AMOUNT] 美元
 	</string>
 	<string name="Membership">
 		成員資格
@@ -4054,25 +4445,25 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		角色
 	</string>
 	<string name="Group Identity">
-		Group Identity
+		群組身份
 	</string>
 	<string name="Parcel Management">
 		地段管理
 	</string>
 	<string name="Parcel Identity">
-		Parcel Identity
+		地段名
 	</string>
 	<string name="Parcel Settings">
 		地段設定
 	</string>
 	<string name="Parcel Powers">
-		Parcel Powers
+		地段權利
 	</string>
 	<string name="Parcel Access">
-		Parcel Access
+		地段出入
 	</string>
 	<string name="Parcel Content">
-		Parcel Content
+		地段內容
 	</string>
 	<string name="Object Management">
 		物件管理
@@ -4090,7 +4481,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		刪除所選取的物品？
 	</string>
 	<string name="DeleteItem">
-		刪除所選取的物品？
+		刪除所選取的物���？
 	</string>
 	<string name="EmptyOutfitText">
 		沒有任何物品在這個裝扮內
@@ -4099,72 +4490,78 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		選擇一個編輯器使用 ExternalEditor 設定。
 	</string>
 	<string name="ExternalEditorNotFound">
-		Cannot find the external editor you specified.
-Try enclosing path to the editor with double quotes.
-(e.g. &quot;/path to my/editor&quot; &quot;%s&quot;)
+		找不到你指定的外部編輯器。
+請嘗試在編輯器路經前後加上英文雙括號。
+（例：&quot;/path to my/editor&quot; &quot;%s&quot;）
 	</string>
 	<string name="ExternalEditorCommandParseError">
-		Error parsing the external editor command.
+		解析外部編輯器指令時出錯。
 	</string>
 	<string name="ExternalEditorFailedToRun">
 		執行外部編輯器失敗。
 	</string>
+	<string name="TranslationFailed">
+		無法翻譯：[REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		無法剖析平移回應。
+	</string>
 	<string name="Esc">
-		Esc
+		Esc 鍵
 	</string>
 	<string name="Space">
-		Space
+		空間鍵
 	</string>
 	<string name="Enter">
-		Enter
+		Enter 鍵
 	</string>
 	<string name="Tab">
-		Tab
+		Tab 鍵
 	</string>
 	<string name="Ins">
-		Ins
+		Ins 鍵
 	</string>
 	<string name="Del">
-		Del
+		Del 鍵
 	</string>
 	<string name="Backsp">
-		Backsp
+		Backspace 鍵
 	</string>
 	<string name="Shift">
-		Shift
+		Shift 鍵
 	</string>
 	<string name="Ctrl">
-		Ctrl
+		Ctrl 鍵
 	</string>
 	<string name="Alt">
-		Alt
+		Alt 鍵
 	</string>
 	<string name="CapsLock">
-		CapsLock
+		CapsLock 鍵
 	</string>
 	<string name="Left">
-		Left
+		左移鍵
 	</string>
 	<string name="Right">
-		Right
+		右移鍵
 	</string>
 	<string name="Up">
-		Up
+		上移鍵
 	</string>
 	<string name="Down">
-		Down
+		下移鍵
 	</string>
 	<string name="Home">
-		Home
+		Home 鍵
 	</string>
 	<string name="End">
-		End
+		End 鍵
 	</string>
 	<string name="PgUp">
-		PgUp
+		PgUp 鍵
 	</string>
 	<string name="PgDn">
-		PgDn
+		PgDn 鍵
 	</string>
 	<string name="F1">
 		F1
@@ -4203,16 +4600,16 @@ Try enclosing path to the editor with double quotes.
 		F12
 	</string>
 	<string name="Add">
-		Add
+		添加
 	</string>
 	<string name="Subtract">
-		Subtract
+		減
 	</string>
 	<string name="Multiply">
-		Multiply
+		乘
 	</string>
 	<string name="Divide">
-		Divide
+		除
 	</string>
 	<string name="PAD_DIVIDE">
 		PAD_DIVIDE
@@ -4392,7 +4789,7 @@ Try enclosing path to the editor with double quotes.
 		M
 	</string>
 	<string name="N">
-		N
+		北
 	</string>
 	<string name="O">
 		O
@@ -4407,7 +4804,7 @@ Try enclosing path to the editor with double quotes.
 		R
 	</string>
 	<string name="S">
-		S
+		南
 	</string>
 	<string name="T">
 		T
@@ -4419,7 +4816,7 @@ Try enclosing path to the editor with double quotes.
 		V
 	</string>
 	<string name="W">
-		W
+		西
 	</string>
 	<string name="X">
 		X
@@ -4431,24 +4828,243 @@ Try enclosing path to the editor with double quotes.
 		Z
 	</string>
 	<string name="BeaconParticle">
-		Viewing particle beacons (blue)
+		檢視粒子效果的導引（藍色）
 	</string>
 	<string name="BeaconPhysical">
-		Viewing physical object beacons (green)
+		檢視具體物件的導引（綠色）
 	</string>
 	<string name="BeaconScripted">
-		Viewing scripted object beacons (red)
+		檢視腳本物件的導引（紅色）
 	</string>
 	<string name="BeaconScriptedTouch">
-		Viewing scripted object with touch function beacons (red)
+		檢視帶有觸摸函式腳本物件的導引（紅色）
 	</string>
 	<string name="BeaconSound">
-		Viewing sound beacons (yellow)
+		檢視聲音的導引（黃色）
 	</string>
 	<string name="BeaconMedia">
-		Viewing media beacons (white)
+		檢視媒體的導引（白色）
 	</string>
 	<string name="ParticleHiding">
-		Hiding Particles
+		隱藏粒子效果
+	</string>
+	<string name="Command_AboutLand_Label">
+		土地資料
+	</string>
+	<string name="Command_Appearance_Label">
+		編輯外觀
+	</string>
+	<string name="Command_Avatar_Label">
+		化身
+	</string>
+	<string name="Command_Build_Label">
+		建造
+	</string>
+	<string name="Command_Chat_Label">
+		聊天
+	</string>
+	<string name="Command_Compass_Label">
+		羅盤
+	</string>
+	<string name="Command_Destinations_Label">
+		目的地
+	</string>
+	<string name="Command_Gestures_Label">
+		姿勢
+	</string>
+	<string name="Command_HowTo_Label">
+		簡易教學
+	</string>
+	<string name="Command_Inventory_Label">
+		收納區
+	</string>
+	<string name="Command_Map_Label">
+		地圖
+	</string>
+	<string name="Command_Marketplace_Label">
+		第二人生購物市集
+	</string>
+	<string name="Command_MiniMap_Label">
+		迷你地圖
+	</string>
+	<string name="Command_Move_Label">
+		行走 / 跑步 / 飛行
+	</string>
+	<string name="Command_Outbox_Label">
+		商家發件匣
+	</string>
+	<string name="Command_People_Label">
+		人群
+	</string>
+	<string name="Command_Picks_Label">
+		精選地點
+	</string>
+	<string name="Command_Places_Label">
+		地點
+	</string>
+	<string name="Command_Preferences_Label">
+		偏好設定
+	</string>
+	<string name="Command_Profile_Label">
+		檔案
+	</string>
+	<string name="Command_Search_Label">
+		搜尋
+	</string>
+	<string name="Command_Snapshot_Label">
+		快照
+	</string>
+	<string name="Command_Speak_Label">
+		說話
+	</string>
+	<string name="Command_View_Label">
+		攝影機控制
+	</string>
+	<string name="Command_Voice_Label">
+		語音設定
+	</string>
+	<string name="Command_AboutLand_Tooltip">
+		有關你所處土地的資訊
+	</string>
+	<string name="Command_Appearance_Tooltip">
+		改變化身
+	</string>
+	<string name="Command_Avatar_Tooltip">
+		選擇一個完整的化身
+	</string>
+	<string name="Command_Build_Tooltip">
+		建製物件和重塑地形
+	</string>
+	<string name="Command_Chat_Tooltip">
+		透過文字和附近人們聊天
+	</string>
+	<string name="Command_Compass_Tooltip">
+		指南針
+	</string>
+	<string name="Command_Destinations_Tooltip">
+		你可能感興趣的目的地
+	</string>
+	<string name="Command_Gestures_Tooltip">
+		你化身可用的姿勢
+	</string>
+	<string name="Command_HowTo_Tooltip">
+		如何完成常用的動作
+	</string>
+	<string name="Command_Inventory_Tooltip">
+		察看並使用你擁有的物件
+	</string>
+	<string name="Command_Map_Tooltip">
+		世界地圖
+	</string>
+	<string name="Command_Marketplace_Tooltip">
+		前往購物
+	</string>
+	<string name="Command_MiniMap_Tooltip">
+		顯示附近的人
+	</string>
+	<string name="Command_Move_Tooltip">
+		移動化身
+	</string>
+	<string name="Command_Outbox_Tooltip">
+		將物項轉移到第二人生購物市集待售
+	</string>
+	<string name="Command_People_Tooltip">
+		朋友、群組和附近的人
+	</string>
+	<string name="Command_Picks_Tooltip">
+		顯示在你的小檔案中的最愛地點
+	</string>
+	<string name="Command_Places_Tooltip">
+		你儲存的地點
+	</string>
+	<string name="Command_Preferences_Tooltip">
+		偏好設定
+	</string>
+	<string name="Command_Profile_Tooltip">
+		編輯或察看你的小檔案
+	</string>
+	<string name="Command_Search_Tooltip">
+		尋找地點、活動、其他人
+	</string>
+	<string name="Command_Snapshot_Tooltip">
+		拍一張照片
+	</string>
+	<string name="Command_Speak_Tooltip">
+		用麥克風和附近人們交談
+	</string>
+	<string name="Command_View_Tooltip">
+		調整攝影機角度
+	</string>
+	<string name="Command_Voice_Tooltip">
+		在虛擬世界裡通話和附近人群的音量控制
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		目前位在你的底部工具列
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		目前位在你的左工具列
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		目前位在你的右工具列
+	</string>
+	<string name="Retain%">
+		保留%
+	</string>
+	<string name="Detail">
+		細節
+	</string>
+	<string name="Better Detail">
+		更多細節
+	</string>
+	<string name="Surface">
+		表面
+	</string>
+	<string name="Solid">
+		固體
+	</string>
+	<string name="Wrap">
+		Wrap
+	</string>
+	<string name="Preview">
+		預覽
+	</string>
+	<string name="Normal">
+		正常
+	</string>
+	<string name="Pathfinding_Wiki_URL">
+		http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+	</string>
+	<string name="Pathfinding_Object_Attr_None">
+		無
+	</string>
+	<string name="Pathfinding_Object_Attr_Permanent">
+		影響導航網面
+	</string>
+	<string name="Pathfinding_Object_Attr_Character">
+		角色
+	</string>
+	<string name="Pathfinding_Object_Attr_MultiSelect">
+		（多項）
+	</string>
+	<string name="snapshot_quality_very_low">
+		很低
+	</string>
+	<string name="snapshot_quality_low">
+		低
+	</string>
+	<string name="snapshot_quality_medium">
+		中
+	</string>
+	<string name="snapshot_quality_high">
+		高
+	</string>
+	<string name="snapshot_quality_very_high">
+		很高
+	</string>
+	<string name="TeleportMaturityExceeded">
+		此居民不得進入此地區。
+	</string>
+	<string name="UserDictionary">
+		[User]
 	</string>
 </strings>

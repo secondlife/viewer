@@ -33,13 +33,13 @@
 	<text name="AnyoneLabel">
 		任何人：
 	</text>
-	<check_box label="覆製" name="everyone_copy"/>
+	<check_box label="恚庨" name="everyone_copy"/>
 	<text name="NextOwnerLabel">
-		下一個擁有者：
+		下一個所有人：
 	</text>
 	<check_box label="修改" name="next_owner_modify"/>
-	<check_box label="覆製" name="next_owner_copy"/>
-	<check_box initial_value="true" label="轉移" name="next_owner_transfer" tool_tip="下一個擁有者能送出或轉售這個物件"/>
+	<check_box label="恚庨" name="next_owner_copy"/>
+	<check_box initial_value="true" label="轉移" name="next_owner_transfer" tool_tip="下一個所有人可贈送或轉售這個物件"/>
 	<button label="確定" name="apply"/>
 	<button label="取消" name="close"/>
 </floater>

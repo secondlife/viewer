@@ -896,8 +896,7 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
 	option="0"
 	name="url"
 	target = "_external">
-
-			http://join.secondlife.com/
+		[create_account_url]
     </url>
     <usetemplate
      name="okcancelbuttons"
@@ -2929,12 +2928,11 @@ You can use [SECOND_LIFE] normally and other people will see you correctly.
 [APP_NAME] installation is complete.
 
 If this is your first time using [SECOND_LIFE], you will need to create an account before you can log in.
-Return to [http://join.secondlife.com secondlife.com] to create a new account?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Continue"
-     yestext="New Account..."/>
+     yestext="Create Account..."/>
   </notification>
 
   <notification
@@ -6074,26 +6072,6 @@ This area has building disabled. You can&apos;t build or rez objects here.
      type="notify">
     <unique/>
     Dynamic pathfinding is not enabled on this region.  Scripted objects using pathfinding LSL calls may not operate as expected on this region.
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="PathfindingRebakeNavmesh"
-   type="alertmodal">
-    <unique/>
-    Changing certain objects in this region could cause other moving objects to behave incorrectly.  To make moving objects behave correctly, click the “Rebake region” button.  Choose “Help” for more information.
-    <url
-      option="1"
-      name="url"
-      target = "_external">
-      http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
-    </url>
-    <usetemplate
-     name="okhelpignore"
-     ignoretext="Changing certain objects in this region could cause other moving objects to behave incorrectly."
-     yestext="OK"
-     helptext="Help"
-     />
   </notification>
 
   <notification

@@ -28,6 +28,7 @@
 		<menu_item_call label="Preferenze..." name="Preferences"/>
 		<menu_item_call label="Pulsanti barra strumenti..." name="Toolbars"/>
 		<menu_item_call label="Nascondi tutti i controlli" name="Hide UI"/>
+		<menu_item_check label="Mostra elementi HUD" name="Show HUD Attachments"/>
 		<menu_item_call label="Esci da [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Comunica" name="Communicate">
@@ -39,6 +40,7 @@
 		<menu_item_call label="Amici" name="My Friends"/>
 		<menu_item_call label="Gruppi" name="My Groups"/>
 		<menu_item_call label="Persone vicine" name="Active Speakers"/>
+		<menu_item_call label="Blocca lista" name="Block List"/>
 	</menu>
 	<menu label="Mondo" name="World">
 		<menu_item_call label="Crea punto di riferimento per questo luogo" name="Create Landmark Here"/>
@@ -124,6 +126,11 @@
 			<menu_item_call label="Imposta gli script come in esecuzione" name="Set Scripts to Running"/>
 			<menu_item_call label="Imposta script come non in esecuzione" name="Set Scripts to Not Running"/>
 		</menu>
+		<menu label="Pathfinding" name="Pathfinding">
+			<menu_item_call label="Set collegati..." name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="Personaggi..." name="pathfinding_characters_menu_item"/>
+			<menu_item_call label="Visualizza / test..." name="pathfinding_console_menu_item"/>
+		</menu>
 		<menu label="Opzioni" name="Options">
 			<menu_item_check label="Mostra autorizzazioni avanzate" name="DebugPermissions"/>
 			<menu_item_check label="Seleziona solo i miei oggetti" name="Select Only My Objects"/>
@@ -174,7 +181,6 @@
 			<menu_item_check label="Nascondi particelle" name="Hide Particles"/>
 			<menu_item_check label="Nascondi selezionati" name="Hide Selected"/>
 			<menu_item_check label="Evidenzia trasparenza" name="Highlight Transparent"/>
-			<menu_item_check label="Mostra elementi HUD" name="Show HUD Attachments"/>
 			<menu_item_check label="Mostra mirino visuale soggettiva" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="Modalità di rendering" name="Rendering Types">

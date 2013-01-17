@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Login Menu">
-	<menu label="自己" name="File">
-		<menu_item_call label="偏好設定" name="Preferences..."/>
-		<menu_item_call label="結束退出 [APP_NAME]" name="Quit"/>
+	<menu label="我自己" name="File">
+		<menu_item_call label="偏好設定…" name="Preferences..."/>
+		<menu_item_call label="退出 [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="幫助" name="Help">
 		<menu_item_call label="[SECOND_LIFE] 幫助" name="Second Life Help"/>
@@ -14,11 +14,11 @@
 		<menu_item_call label="UI / 顏色 設定" name="UI/Color Settings"/>
 		<menu_item_call label="XUI 預覽工具" name="UI Preview Tool"/>
 		<menu label="UI 測試" name="UI Tests"/>
-		<menu_item_call label="設定視窗尺寸大小..." name="Set Window Size..."/>
+		<menu_item_call label="設定視窗大小..." name="Set Window Size..."/>
 		<menu_item_call label="顯示 TOS" name="TOS"/>
 		<menu_item_call label="顯示嚴重訊息" name="Critical"/>
-		<menu_item_call label="媒體瀏覽器測試" name="Web Browser Test"/>
-		<menu_item_call label="網頁內容浮動視窗測試" name="Web Content Floater Test"/>
+		<menu_item_call label="網頁內容浮動視窗除錯測試" name="Web Content Floater Debug Test"/>
+		<menu label="設定記錄細節" name="Set Logging Level"/>
 		<menu_item_check label="顯示網格挑選器" name="Show Grid Picker"/>
 		<menu_item_call label="顯示通知控制台" name="Show Notifications Console"/>
 	</menu>

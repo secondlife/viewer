@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="nearby_chat" title="YAKINDAKİ SOHBET">
-	<check_box label="Sohbeti çevir" name="translate_chat_checkbox"/>
-</floater>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="圖形" name="Display panel">
+<panel label="顯像" name="Display panel">
 	<text name="QualitySpeed">
 		品質與速度：
 	</text>
@@ -27,8 +27,20 @@
 		</text>
 		<check_box initial_value="true" label="清澈透明的水" name="TransparentWater"/>
 		<check_box initial_value="true" label="凹凸映射與光澤效果" name="BumpShiny"/>
+		<check_box initial_value="true" label="本地光線" name="LocalLights"/>
 		<check_box initial_value="true" label="基本著色" name="BasicShaders" tool_tip="關閉此一選項可能避免部分顯示卡驅動程式損毀當機"/>
 		<check_box initial_value="true" label="大氣著色" name="WindLightUseAtmosShaders"/>
+		<check_box initial_value="true" label="光線和陰影" name="UseLightShaders"/>
+		<check_box initial_value="true" label="環境光遮蔽" name="UseSSAO"/>
+		<check_box initial_value="true" label="景深" name="UseDoF"/>
+		<text name="shadows_label">
+			陰影：
+		</text>
+		<combo_box name="ShadowDetail">
+			<combo_box.item label="無" name="0"/>
+			<combo_box.item label="日 / 月" name="1"/>
+			<combo_box.item label="日 / 月 + 投影物" name="2"/>
+		</combo_box>
 		<text name="reflection_label">
 			水文反射：
 		</text>
@@ -45,11 +57,11 @@
 		</text>
 		<slider label="描繪距離：" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
-			m
+			公尺
 		</text>
 		<slider label="最大粒子效果數量：" name="MaxParticleCount"/>
-		<slider label="Max. # of non-impostor avatars:" name="MaxNumberAvatarDrawn"/>
-		<slider label="後製品質：" name="RenderPostProcess"/>
+		<slider label="非假冒化身上限：" name="MaxNumberAvatarDrawn"/>
+		<slider label="後處理品質：" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			網面細節：
 		</text>
@@ -81,10 +93,10 @@
 			低
 		</text>
 		<text name="AvatarRenderingText">
-			Avatar Rendering:
+			化身呈像：
 		</text>
-		<check_box initial_value="true" label="Avatar impostors" name="AvatarImpostors"/>
-		<check_box initial_value="true" label="Hardware skinning" name="AvatarVertexProgram"/>
+		<check_box initial_value="true" label="化身假冒者" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="硬體換膚" name="AvatarVertexProgram"/>
 		<check_box initial_value="true" label="化身衣服" name="AvatarCloth"/>
 		<text name="TerrainDetailText">
 			地形細節：

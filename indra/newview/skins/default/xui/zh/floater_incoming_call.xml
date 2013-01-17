@@ -4,28 +4,28 @@
 		5
 	</floater.string>
 	<floater.string name="localchat">
-		附近的音聊天
+		附近的語音聊天
 	</floater.string>
 	<floater.string name="anonymous">
 		匿名
 	</floater.string>
 	<floater.string name="VoiceInviteP2P">
-		通話中。
+		來電中。
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
-		已加訴入會議交談中的語音聊天。
+		已加入多方語音通話。
 	</floater.string>
 	<floater.string name="VoiceInviteGroup">
 		剛加入 &apos;[GROUP]&apos; 語音頻道。
 	</floater.string>
 	<floater.string name="VoiceInviteQuestionGroup">
-		Would you like to leave [CURRENT_CHAT] and join the call with &apos;[GROUP]&apos;?
+		是否離開 [CURRENT_CHAT] 並加入和「[GROUP]」通話？
 	</floater.string>
 	<floater.string name="VoiceInviteQuestionDefault">
-		Do you want to leave [CURRENT_CHAT] and join this voice chat?
+		是否離開 [CURRENT_CHAT] 並加入這個語音聊天？
 	</floater.string>
 	<text name="question">
-		Do you want to leave [CURRENT_CHAT] and join this voice chat?
+		是否離開 [CURRENT_CHAT] 並加入這個語音聊天？
 	</text>
 	<button label="接受" label_selected="接受" name="Accept"/>
 	<button label="拒絕" label_selected="拒絕" name="Reject"/>

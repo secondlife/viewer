@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="volumepulldown_floater" width="215">
+	<slider label="General" label_width="55" name="System Volume" width="155"/>
+	<slider label="Botones" label_width="55" name="UI Volume" width="155"/>
+	<slider label="Ambiental" label_width="55" name="Wind Volume" width="155"/>
+	<slider label="Sonidos" label_width="55" name="SFX Volume" width="155"/>
+	<check_box name="gesture_audio_play_btn" tool_tip="Activar sonidos de los gestos"/>
+	<slider label="Música" label_width="55" name="Music Volume" width="155"/>
+	<check_box name="enable_music" tool_tip="Activar música en streaming"/>
+	<slider label="Media" label_width="55" name="Media Volume" width="155"/>
+	<check_box name="enable_media" tool_tip="Activar media en streaming"/>
+	<slider label="Voz" label_width="55" name="Voice Volume" width="155"/>
+	<check_box name="enable_voice_check" tool_tip="Activar el chat de voz"/>
+</panel>
