@@ -89,6 +89,9 @@ BOOL LLPanelBlockedList::postBuild()
 	case E_SORT_BY_TYPE:
 		mBlockedList->sortByType();
 		break;
+	default:
+		llwarns << "Unrecognized sort order for blocked list" << llendl;
+		break;
 	}
 
 	// Use the context menu of the Block list for the Block tab gear menu.
