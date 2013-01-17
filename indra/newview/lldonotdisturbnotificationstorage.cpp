@@ -43,15 +43,16 @@
 #include "lluuid.h"
 
 static const F32 DND_TIMER = 3.0;
+const std::string toastName = "IMToast";
 
 LLDoNotDisturbNotificationStorageTimer::LLDoNotDisturbNotificationStorageTimer() : LLEventTimer(DND_TIMER)
 {
-    mEventTimer.start();
+    //mEventTimer.start();
 }
 
 LLDoNotDisturbNotificationStorageTimer::~LLDoNotDisturbNotificationStorageTimer()
 {
-    mEventTimer.stop();
+    //mEventTimer.stop();
 }
 
 BOOL LLDoNotDisturbNotificationStorageTimer::tick()
@@ -152,27 +153,27 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
         std::string notificationName = notification_params["name"];
         LLNotificationPtr notification = instance.find(notificationID);
 
-        if(notificationName == "IMToast")
+        if(notificationName == toastName)
         {
             imToastExists = true;
         }
 
         //New notification needs to be added
-            notification = (LLNotificationPtr) new LLNotification(notification_params.with("is_dnd", true));
-			LLNotificationResponderInterface* responder = createResponder(notification_params["responder_sd"]["responder_type"], notification_params["responder_sd"]);
-			if (responder == NULL)
-			{
-				LL_WARNS("LLDoNotDisturbNotificationStorage") << "cannot create responder for notification of type '"
-					<< notification->getType() << "'" << LL_ENDL;
-			}
-			else
-			{
-				LLNotificationResponderPtr responderPtr(responder);
-				notification->setResponseFunctor(responderPtr);
-			}
-			
-			instance.add(notification);
+        notification = (LLNotificationPtr) new LLNotification(notification_params.with("is_dnd", true));
+		LLNotificationResponderInterface* responder = createResponder(notification_params["responder_sd"]["responder_type"], notification_params["responder_sd"]);
+		if (responder == NULL)
+		{
+			LL_WARNS("LLDoNotDisturbNotificationStorage") << "cannot create responder for notification of type '"
+				<< notification->getType() << "'" << LL_ENDL;
 		}
+		else
+		{
+			LLNotificationResponderPtr responderPtr(responder);
+			notification->setResponseFunctor(responderPtr);
+		}
+			
+		instance.add(notification);
+	}
 
     if(imToastExists)
     {
@@ -200,7 +201,7 @@ void LLDoNotDisturbNotificationStorage::updateNotifications()
         LLNotificationPtr notification = it->second;
         std::string notificationName = notification->getName();
 
-        if(notificationName == "IMToast")
+        if(notificationName == toastName)
         {
             imToastExists = true;
         }
@@ -221,9 +222,9 @@ void LLDoNotDisturbNotificationStorage::updateNotifications()
     //When exit DND mode, write empty notifications file
     if(commChannel->getHistorySize())
     {
-	commChannel->clearHistory();
-	saveNotifications();
-}
+	    commChannel->clearHistory();
+	    saveNotifications();
+    }
 }
 
 LLNotificationChannelPtr LLDoNotDisturbNotificationStorage::getCommunicationChannel() const
@@ -241,6 +242,7 @@ void LLDoNotDisturbNotificationStorage::removeIMNotification(const LLUUID& sessi
     LLNotificationPtr notification;
     LLSD substitutions;
     LLUUID notificationSessionID;
+    std::string notificationName;
     LLCommunicationChannel::history_list_t::iterator it;
     std::vector<LLCommunicationChannel::history_list_t::iterator> itemsToRemove;
 
@@ -252,8 +254,10 @@ void LLDoNotDisturbNotificationStorage::removeIMNotification(const LLUUID& sessi
         notification = it->second;
         substitutions = notification->getSubstitutions();
         notificationSessionID = substitutions["SESSION_ID"].asUUID();
+        notificationName = notification->getName();
 
-        if(session_id == notificationSessionID)
+        if(notificationName == toastName
+            && session_id == notificationSessionID)
         {
             itemsToRemove.push_back(it);
         }
@@ -263,14 +267,14 @@ void LLDoNotDisturbNotificationStorage::removeIMNotification(const LLUUID& sessi
     //Remove the notifications
     if(itemsToRemove.size())
     {
-    while(itemsToRemove.size())
-    {
-        it = itemsToRemove.back();
-        notification = it->second;
+        while(itemsToRemove.size())
+        {
+            it = itemsToRemove.back();
+            notification = it->second;
             commChannel->removeItemFromHistory(notification);
-        instance.cancel(notification);
-        itemsToRemove.pop_back();
-    }
+            instance.cancel(notification);
+            itemsToRemove.pop_back();
+        }
         //Trigger saving of notifications to xml once all have been removed
         saveNotifications();
     }

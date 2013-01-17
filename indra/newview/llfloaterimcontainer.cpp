@@ -1299,11 +1299,14 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
     	if (widget && widget->getParentFolder())
     	{
     		widget->getParentFolder()->setSelection(widget, FALSE, FALSE);
-            if(gAgent.isDoNotDisturb())
-            {
-                LLDoNotDisturbNotificationStorage::getInstance()->removeIMNotification(session_id);
-            }
     	}
+
+        //When in DND mode, remove stored IM notifications
+        //Nearby chat (Null) IMs are not stored while in DND mode, so can ignore removal
+        if(gAgent.isDoNotDisturb() && session_id.notNull())
+        {
+            LLDoNotDisturbNotificationStorage::getInstance()->removeIMNotification(session_id);
+        }
     }
 
     /* floater processing */
@@ -1324,11 +1327,6 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 				// Switch to the conversation floater that is being selected
 				selectFloater(session_floater);
 			}
-
-            if(gAgent.isDoNotDisturb())
-            {
-                LLDoNotDisturbNotificationStorage::getInstance()->removeIMNotification(session_id);
-            }
 		}
 
 		// Set the focus on the selected floater
