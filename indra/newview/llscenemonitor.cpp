@@ -38,6 +38,7 @@
 #include "llpointer.h"
 #include "llspatialpartition.h"
 #include "llagent.h"
+#include "pipeline.h"
 
 LLSceneMonitorView* gSceneMonitorView = NULL;
 
@@ -209,6 +210,9 @@ void LLSceneMonitor::freezeScene()
 
 	// freeze everything else
 	gSavedSettings.setBOOL("FreezeTime", TRUE);
+
+	gPipeline.clearRenderTypeMask(LLPipeline::RENDER_TYPE_SKY, LLPipeline::RENDER_TYPE_WL_SKY, 
+		LLPipeline::RENDER_TYPE_WATER, LLPipeline::RENDER_TYPE_CLOUDS, LLPipeline::END_RENDER_TYPES);
 }
 
 void LLSceneMonitor::unfreezeScene()
@@ -218,6 +222,9 @@ void LLSceneMonitor::unfreezeScene()
 
 	// thaw everything else
 	gSavedSettings.setBOOL("FreezeTime", FALSE);
+
+	gPipeline.setRenderTypeMask(LLPipeline::RENDER_TYPE_SKY, LLPipeline::RENDER_TYPE_WL_SKY, 
+		LLPipeline::RENDER_TYPE_WATER, LLPipeline::RENDER_TYPE_CLOUDS, LLPipeline::END_RENDER_TYPES);
 }
 
 void LLSceneMonitor::capture()
