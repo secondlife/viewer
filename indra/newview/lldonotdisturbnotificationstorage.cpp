@@ -33,6 +33,7 @@
 #include "lldir.h"
 #include "llerror.h"
 #include "llfasttimer_class.h"
+#include "llfloaterreg.h"
 #include "llnotifications.h"
 #include "llnotificationhandler.h"
 #include "llnotificationstorage.h"
@@ -41,9 +42,34 @@
 #include "llsingleton.h"
 #include "lluuid.h"
 
+static const F32 DND_TIMER = 3.0;
+
+LLDoNotDisturbNotificationStorageTimer::LLDoNotDisturbNotificationStorageTimer() : LLEventTimer(DND_TIMER)
+{
+    mEventTimer.start();
+}
+
+LLDoNotDisturbNotificationStorageTimer::~LLDoNotDisturbNotificationStorageTimer()
+{
+    mEventTimer.stop();
+}
+
+BOOL LLDoNotDisturbNotificationStorageTimer::tick()
+{
+    LLDoNotDisturbNotificationStorage * doNotDisturbNotificationStorage =  LLDoNotDisturbNotificationStorage::getInstance();
+
+    if(doNotDisturbNotificationStorage
+        && doNotDisturbNotificationStorage->getDirty())
+    {
+        doNotDisturbNotificationStorage->saveNotifications();
+    }
+    return FALSE;
+}
+
 LLDoNotDisturbNotificationStorage::LLDoNotDisturbNotificationStorage()
 	: LLSingleton<LLDoNotDisturbNotificationStorage>()
 	, LLNotificationStorage(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "dnd_notifications.xml"))
+    , mDirty(false)
 {
 }
 
@@ -54,6 +80,16 @@ LLDoNotDisturbNotificationStorage::~LLDoNotDisturbNotificationStorage()
 void LLDoNotDisturbNotificationStorage::initialize()
 {
 	getCommunicationChannel()->connectFailedFilter(boost::bind(&LLDoNotDisturbNotificationStorage::onChannelChanged, this, _1));
+}
+
+bool LLDoNotDisturbNotificationStorage::getDirty()
+{
+    return mDirty;
+}
+
+void LLDoNotDisturbNotificationStorage::resetDirty()
+{
+    mDirty = false;
 }
 
 static LLFastTimer::DeclareTimer FTM_SAVE_DND_NOTIFICATIONS("Save DND Notifications");
@@ -82,6 +118,8 @@ void LLDoNotDisturbNotificationStorage::saveNotifications()
 	}
 
 	writeNotifications(output);
+
+    resetDirty();
 }
 
 static LLFastTimer::DeclareTimer FTM_LOAD_DND_NOTIFICATIONS("Load DND Notifications");
@@ -103,6 +141,7 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 	}
 	
 	LLNotifications& instance = LLNotifications::instance();
+    bool imToastExists = false;
 	
 	for (LLSD::array_const_iterator notification_it = data.beginArray();
 		 notification_it != data.endArray();
@@ -110,17 +149,15 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 	{
 		LLSD notification_params = *notification_it;
         const LLUUID& notificationID = notification_params["id"];
+        std::string notificationName = notification_params["name"];
         LLNotificationPtr notification = instance.find(notificationID);
-		
-        //Notification already exists in notification pipeline (same instance of app running)
-		if (notification)
-		{
-            notification->setDND(true);
-			instance.update(notification);
-		}
-        //Notification doesn't exist (different instance since restarted app while in DND mode)
-		else
-		{
+
+        if(notificationName == "IMToast")
+        {
+            imToastExists = true;
+        }
+
+        //New notification needs to be added
             notification = (LLNotificationPtr) new LLNotification(notification_params.with("is_dnd", true));
 			LLNotificationResponderInterface* responder = createResponder(notification_params["responder_sd"]["responder_type"], notification_params["responder_sd"]);
 			if (responder == NULL)
@@ -136,15 +173,57 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 			
 			instance.add(notification);
 		}
-	}
 
-	// Clear the communication channel history and rewrite the save file to empty it as well
+    if(imToastExists)
+    {
+        LLFloaterReg::showInstance("im_container");
+    }
+
+    //writes out empty .xml file (since LLCommunicationChannel::mHistory is empty)
+	saveNotifications();
+}
+
+void LLDoNotDisturbNotificationStorage::updateNotifications()
+{
+
 	LLNotificationChannelPtr channelPtr = getCommunicationChannel();
 	LLCommunicationChannel *commChannel = dynamic_cast<LLCommunicationChannel*>(channelPtr.get());
 	llassert(commChannel != NULL);
+
+    LLNotifications& instance = LLNotifications::instance();
+    bool imToastExists = false;
+  
+    for (LLCommunicationChannel::history_list_t::const_iterator it = commChannel->beginHistory();
+        it != commChannel->endHistory();
+        ++it)
+    {
+        LLNotificationPtr notification = it->second;
+        std::string notificationName = notification->getName();
+
+        if(notificationName == "IMToast")
+        {
+            imToastExists = true;
+        }
+
+        //Notification already exists in notification pipeline (same instance of app running)
+        if (notification)
+        {
+            notification->setDND(true);
+            instance.update(notification);
+        }
+    }
+
+    if(imToastExists)
+    {   
+        LLFloaterReg::showInstance("im_container");
+    }
+
+    //When exit DND mode, write empty notifications file
+    if(commChannel->getHistorySize())
+    {
 	commChannel->clearHistory();
-	
 	saveNotifications();
+}
 }
 
 LLNotificationChannelPtr LLDoNotDisturbNotificationStorage::getCommunicationChannel() const
@@ -154,12 +233,55 @@ LLNotificationChannelPtr LLDoNotDisturbNotificationStorage::getCommunicationChan
 	return channelPtr;
 }
 
+void LLDoNotDisturbNotificationStorage::removeIMNotification(const LLUUID& session_id)
+{
+    LLNotifications& instance = LLNotifications::instance();
+    LLNotificationChannelPtr channelPtr = getCommunicationChannel();
+    LLCommunicationChannel *commChannel = dynamic_cast<LLCommunicationChannel*>(channelPtr.get());
+    LLNotificationPtr notification;
+    LLSD substitutions;
+    LLUUID notificationSessionID;
+    LLCommunicationChannel::history_list_t::iterator it;
+    std::vector<LLCommunicationChannel::history_list_t::iterator> itemsToRemove;
+
+    //Find notification with the matching session id
+    for (it = commChannel->beginHistory();
+        it != commChannel->endHistory(); 
+        ++it)
+    {
+        notification = it->second;
+        substitutions = notification->getSubstitutions();
+        notificationSessionID = substitutions["SESSION_ID"].asUUID();
+
+        if(session_id == notificationSessionID)
+        {
+            itemsToRemove.push_back(it);
+        }
+    }
+
+   
+    //Remove the notifications
+    if(itemsToRemove.size())
+    {
+    while(itemsToRemove.size())
+    {
+        it = itemsToRemove.back();
+        notification = it->second;
+            commChannel->removeItemFromHistory(notification);
+        instance.cancel(notification);
+        itemsToRemove.pop_back();
+    }
+        //Trigger saving of notifications to xml once all have been removed
+        saveNotifications();
+    }
+}
+
 
 bool LLDoNotDisturbNotificationStorage::onChannelChanged(const LLSD& pPayload)
 {
 	if (pPayload["sigtype"].asString() != "load")
 	{
-		saveNotifications();
+        mDirty = true;
 	}
 
 	return false;
