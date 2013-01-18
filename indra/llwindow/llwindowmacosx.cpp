@@ -285,8 +285,9 @@ void callMouseMoved(float *pos, MASK mask)
 	gWindowImplementation->getMouseDeltas(deltas);
 	outCoords.mX += deltas[0];
 	outCoords.mY += deltas[1];
+	LL_INFOS("Mouse Movement") << "Moved coords: " << outCoords.mX << ", " << outCoords.mY << LL_ENDL;
 	gWindowImplementation->getCallbacks()->handleMouseMove(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
-	
+	gWindowImplementation->getCallbacks()->handleScrollWheel(gWindowImplementation, 0);
 }
 
 void callScrollMoved(float delta)
@@ -343,7 +344,7 @@ void LLWindowMacOSX::updateMouseDeltas(float* deltas)
 	if (mCursorDecoupled)
 	{
 		mCursorLastEventDeltaX = llround(deltas[0]);
-		mCursorLastEventDeltaY = llround(deltas[1]);
+		mCursorLastEventDeltaY = llround(-deltas[1]);
 		
 		if (mCursorIgnoreNextDelta)
 		{
@@ -351,7 +352,6 @@ void LLWindowMacOSX::updateMouseDeltas(float* deltas)
 			mCursorLastEventDeltaY = 0;
 			mCursorIgnoreNextDelta = FALSE;
 		}
-		LL_INFOS("Delta Update") << "Last event delta: " << mCursorLastEventDeltaX << ", " << mCursorLastEventDeltaY << LL_ENDL;
 	} else {
 		mCursorLastEventDeltaX = 0;
 		mCursorLastEventDeltaY = 0;
@@ -738,7 +738,7 @@ void LLWindowMacOSX::swapBuffers()
 
 F32 LLWindowMacOSX::getGamma()
 {
-	F32 result = 1.8;	// Default to something sane
+	F32 result = 2.2;	// Default to something sane
 
 	CGGammaValue redMin;
 	CGGammaValue redMax;
