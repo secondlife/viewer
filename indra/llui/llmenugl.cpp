@@ -1751,16 +1751,18 @@ void LLMenuGL::setCanTearOff(BOOL tear_off)
 
 bool LLMenuGL::addChild(LLView* view, S32 tab_group)
 {
-	if (LLMenuGL* menup = dynamic_cast<LLMenuGL*>(view))
+	LLMenuGL* menup = dynamic_cast<LLMenuGL*>(view);
+	if (menup)
 	{
-		appendMenu(menup);
-		return true;
+		return appendMenu(menup);
 	}
-	else if (LLMenuItemGL* itemp = dynamic_cast<LLMenuItemGL*>(view))
+	
+	LLMenuItemGL* itemp = dynamic_cast<LLMenuItemGL*>(view);
+	if (itemp)
 	{
-		append(itemp);
-		return true;
+		return append(itemp);
 	}
+	
 	return false;
 }
 
@@ -1771,16 +1773,28 @@ bool LLMenuGL::addContextChild(LLView* view, S32 tab_group)
 {
 	LLContextMenu* context = dynamic_cast<LLContextMenu*>(view);
 	if (context)
+	{
 		return appendContextSubMenu(context);
+	}
 
 	LLMenuItemSeparatorGL* separator = dynamic_cast<LLMenuItemSeparatorGL*>(view);
 	if (separator)
+	{
 		return append(separator);
+	}
 
 	LLMenuItemGL* item = dynamic_cast<LLMenuItemGL*>(view);
 	if (item)
+	{
 		return append(item);
-
+	}
+	
+	LLMenuGL* menup = dynamic_cast<LLMenuGL*>(view);
+	if (menup)
+	{
+		return appendMenu(menup);
+	}
+	
 	return false;
 }
 

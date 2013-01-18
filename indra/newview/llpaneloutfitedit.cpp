@@ -169,7 +169,7 @@ public:
 
 		return menu;
 	}
-
+	
 private:
 	static void onCreate(const LLSD& param)
 	{

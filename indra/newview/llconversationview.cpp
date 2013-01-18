@@ -202,14 +202,6 @@ void LLConversationViewSession::draw()
 	const LLFolderViewItem::Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
 	const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
 
-	// we don't draw the open folder arrow in minimized mode
-	if (mHasArrow && !mCollapsedMode)
-	{
-		// update the rotation angle of open folder arrow
-		updateLabelRotation();
-		drawOpenFolderArrow(default_params, sFgColor);
-	}
-
 	// Indicate that flash can start (moot operation if already started, done or not flashing)
 	startFlashing();
 
@@ -232,6 +224,14 @@ void LLConversationViewSession::draw()
 		(*iit)->setVisible(draw_children);
 	}
 
+	// we don't draw the open folder arrow in minimized mode
+	if (mHasArrow && !mCollapsedMode)
+	{
+		// update the rotation angle of open folder arrow
+		updateLabelRotation();
+		drawOpenFolderArrow(default_params, sFgColor);
+	}
+
 	LLView::draw();
 }
 
@@ -246,7 +246,7 @@ BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
     if(result && getRoot()->getCurSelectedItem() == this)
 	{
 		LLFloaterIMContainer *im_container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-		im_container->clearAllFlashStates();
+		im_container->flashConversationItemWidget(session_id,false);
 		im_container->selectConversationPair(session_id, false);
 		im_container->collapseMessagesPane(false);
 	}
