@@ -34,6 +34,7 @@
 #include "llvoavatarself.h"
 #include "llbufferstream.h"
 #include "llfile.h"
+#include "llmenugl.h"
 #ifdef LL_STANDALONE
 # include "expat.h"
 #else
@@ -69,6 +70,9 @@
 #include "apr_base64.h"
 
 #define USE_SESSION_GROUPS 0
+
+extern LLMenuBarGL* gMenuBarView;
+extern void handle_voice_morphing_subscribe();
 
 const F32 VOLUME_SCALE_VIVOX = 0.01f;
 
@@ -6739,9 +6743,105 @@ void LLVivoxVoiceClient::removeObserver(LLVoiceEffectObserver* observer)
 	mVoiceFontObservers.erase(observer);
 }
 
+// method checks the item in VoiceMorphing menu for appropriate current voice font
+bool LLVivoxVoiceClient::onCheckVoiceEffect(const std::string& voice_effect_name)
+{
+	LLVoiceEffectInterface * effect_interfacep = LLVoiceClient::instance().getVoiceEffectInterface();
+	if (NULL != effect_interfacep)
+	{
+		const LLUUID& currect_voice_effect_id = effect_interfacep->getVoiceEffect();
+
+		if (currect_voice_effect_id.isNull())
+		{
+			if (voice_effect_name == "NoVoiceMorphing")
+			{
+				return true;
+			}
+		}
+		else
+		{
+			const LLSD& voice_effect_props = effect_interfacep->getVoiceEffectProperties(currect_voice_effect_id);
+			if (voice_effect_props["name"].asString() == voice_effect_name)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+// method changes voice font for selected VoiceMorphing menu item
+void LLVivoxVoiceClient::onClickVoiceEffect(const std::string& voice_effect_name)
+{
+	LLVoiceEffectInterface * effect_interfacep = LLVoiceClient::instance().getVoiceEffectInterface();
+	if (NULL != effect_interfacep)
+	{
+		if (voice_effect_name == "NoVoiceMorphing")
+		{
+			effect_interfacep->setVoiceEffect(LLUUID());
+			return;
+		}
+		const voice_effect_list_t& effect_list = effect_interfacep->getVoiceEffectList();
+		if (!effect_list.empty())
+		{
+			for (voice_effect_list_t::const_iterator it = effect_list.begin(); it != effect_list.end(); ++it)
+			{
+				if (voice_effect_name == it->first)
+				{
+					effect_interfacep->setVoiceEffect(it->second);
+					return;
+				}
+			}
+		}
+	}
+}
+
+// it updates VoiceMorphing menu items in accordance with purchased properties 
+void LLVivoxVoiceClient::updateVoiceMorphingMenu()
+{
+	if (mVoiceFontListDirty)
+	{
+		LLVoiceEffectInterface * effect_interfacep = LLVoiceClient::instance().getVoiceEffectInterface();
+		if (effect_interfacep)
+		{
+			const voice_effect_list_t& effect_list = effect_interfacep->getVoiceEffectList();
+			if (!effect_list.empty())
+			{
+				LLMenuGL * voice_morphing_menup = gMenuBarView->findChildMenuByName("VoiceMorphing", TRUE);
+
+				if (NULL != voice_morphing_menup)
+				{
+					S32 items = voice_morphing_menup->getItemCount();
+					if (items > 0)
+					{
+						voice_morphing_menup->erase(1, items - 3, false);
+
+						S32 pos = 1;
+						for (voice_effect_list_t::const_iterator it = effect_list.begin(); it != effect_list.end(); ++it)
+						{
+							LLMenuItemCheckGL::Params p;
+							p.name = it->first;
+							p.label = it->first;
+							p.on_check.function(boost::bind(&LLVivoxVoiceClient::onCheckVoiceEffect, this, it->first));
+							p.on_click.function(boost::bind(&LLVivoxVoiceClient::onClickVoiceEffect, this, it->first));
+							LLMenuItemCheckGL * voice_effect_itemp = LLUICtrlFactory::create<LLMenuItemCheckGL>(p);
+							voice_morphing_menup->insert(pos++, voice_effect_itemp, false);
+						}
+
+						voice_morphing_menup->needsArrange();
+					}
+				}
+			}
+		}
+	}
+}
+
 void LLVivoxVoiceClient::notifyVoiceFontObservers()
 {
 	LL_DEBUGS("Voice") << "Notifying voice effect observers. Lists changed: " << mVoiceFontListDirty << LL_ENDL;
+
+	updateVoiceMorphingMenu();
 
 	for (voice_font_observer_set_t::iterator it = mVoiceFontObservers.begin();
 		 it != mVoiceFontObservers.end();

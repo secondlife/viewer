@@ -2461,6 +2461,56 @@ void LLMenuGL::empty( void )
 	deleteAllChildren();
 }
 
+// erase group of items from menu
+void LLMenuGL::erase( S32 begin, S32 end, bool arrange/* = true*/)
+{
+	S32 items = mItems.size();
+
+	if ( items == 0 || begin >= end || begin < 0 || end > items )
+	{
+		return;
+	}
+
+	item_list_t::const_iterator start_position = mItems.begin();
+	std::advance(start_position, begin);
+
+	item_list_t::const_iterator end_position = mItems.begin();
+	std::advance(end_position, end);
+
+	for (item_list_t::const_iterator position_iter = start_position; position_iter != end_position; position_iter++)
+	{
+		LLUICtrl::removeChild(*position_iter);
+	}
+
+	mItems.erase(start_position, end_position);
+
+	if (arrange)
+	{
+		needsArrange();
+	}
+}
+
+// add new item at position
+void LLMenuGL::insert( S32 position, LLView * ctrl, bool arrange /*= true*/ )
+{
+	LLMenuItemGL * item = dynamic_cast<LLMenuItemGL *>(ctrl);
+
+	if (NULL == item || position < 0 || position >= mItems.size())
+	{
+		return;
+	}
+
+	item_list_t::const_iterator position_iter = mItems.begin();
+	std::advance(position_iter, position);
+	mItems.insert(position_iter, item);
+	LLUICtrl::addChild(item);
+
+	if (arrange)
+	{
+		needsArrange();
+	}
+}
+
 // Adjust rectangle of the menu
 void LLMenuGL::setLeftAndBottom(S32 left, S32 bottom)
 {
@@ -2502,7 +2552,8 @@ BOOL LLMenuGL::append( LLMenuItemGL* item )
 // add a separator to this menu
 BOOL LLMenuGL::addSeparator()
 {
-	LLMenuItemGL* separator = new LLMenuItemSeparatorGL();
+	LLMenuItemSeparatorGL::Params p;
+	LLMenuItemGL* separator = LLUICtrlFactory::create<LLMenuItemSeparatorGL>(p);
 	return addChild(separator);
 }
 

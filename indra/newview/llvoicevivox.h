@@ -246,6 +246,8 @@ public:
 
 	//@}
 
+	bool onCheckVoiceEffect(const std::string& voice_effect_name);
+	void onClickVoiceEffect(const std::string& voice_effect_name);
 
 protected:
 	//////////////////////
@@ -854,6 +856,7 @@ private:
 	void accountGetTemplateFontsSendMessage();
 	void sessionSetVoiceFontSendMessage(sessionState *session);
 
+	void updateVoiceMorphingMenu();
 	void notifyVoiceFontObservers();
 
 	typedef enum e_voice_font_type
