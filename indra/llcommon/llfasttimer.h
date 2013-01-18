@@ -74,7 +74,7 @@ public:
 private:
 
 	U64				mStartTime;
-	BlockTimerStackRecord	mLastTimerData;
+	BlockTimerStackRecord	mParentTimerData;
 };
 
 // stores a "named" timer instance to be reused via multiple BlockTimer stack instances
@@ -280,10 +280,11 @@ LL_FORCE_INLINE BlockTimer::BlockTimer(TimeBlock& timer)
 	TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
 	accumulator->mActiveCount++;
 	// keep current parent as long as it is active when we are
+	llassert(accumulator->mParent);
 	accumulator->mMoveUpTree |= (accumulator->mParent->getPrimaryAccumulator()->mActiveCount == 0);
 
 	// store top of stack
-	mLastTimerData = *cur_timer_data;
+	mParentTimerData = *cur_timer_data;
 	// push new information
 	cur_timer_data->mActiveTimer = this;
 	cur_timer_data->mAccumulator = accumulator;
@@ -305,13 +306,13 @@ LL_FORCE_INLINE BlockTimer::~BlockTimer()
 
 	// store last caller to bootstrap tree creation
 	// do this in the destructor in case of recursion to get topmost caller
-	accumulator->mLastAccumulator = mLastTimerData.mAccumulator;
+	accumulator->mLastAccumulator = mParentTimerData.mAccumulator;
 
 	// we are only tracking self time, so subtract our total time delta from parents
-	mLastTimerData.mChildTime += total_time;
+	mParentTimerData.mChildTime += total_time;
 
 	//pop stack
-	*cur_timer_data = mLastTimerData;
+	*cur_timer_data = mParentTimerData;
 #endif
 }
 
