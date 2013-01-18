@@ -1622,12 +1622,6 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			{
 				opener = discard_agent_offer;
 			}
-			
-			
-			if (gAgent.isDoNotDisturb() && (!mFromGroup && !mFromObject))
-			{
-				send_do_not_disturb_message(gMessageSystem, mFromID);
-			}
 
 			if (modified_form != NULL)
 			{
@@ -1994,6 +1988,11 @@ void inventory_offer_handler(LLOfferInfo* info)
 		
 		// In viewer 2 we're now auto receiving inventory offers and messaging as such (not sending reject messages).
 		info->send_auto_receive_response();
+
+        if (gAgent.isDoNotDisturb()) 
+        {
+            send_do_not_disturb_message(gMessageSystem, info->mFromID);
+        }
 
 		// Inform user that there is a script floater via toast system
 		{

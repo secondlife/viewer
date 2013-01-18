@@ -38,29 +38,42 @@
 #include "llsd.h"
 #include "llsdserialize.h"
 #include "llsingleton.h"
-#include "llviewermessage.h"
+#include "llregistry.h"
+#include "llviewermessage.h" 
 
+typedef boost::function<LLNotificationResponderInterface * (const LLSD& pParams)> responder_constructor_t;
 
-class LLResponderRegistry : public LLSingleton<LLResponderRegistry>
+class LLResponderRegistry : public LLRegistrySingleton<std::string, responder_constructor_t, LLResponderRegistry>
 {
-public:
-	LLResponderRegistry();
-	~LLResponderRegistry();
-	
-	LLNotificationResponderInterface* createResponder(const std::string& pNotificationName, const LLSD& pParams);
-	
-protected:
-	
-private:
-	template<typename RESPONDER_TYPE> static LLNotificationResponderInterface* create(const LLSD& pParams);
-	
-	typedef boost::function<LLNotificationResponderInterface* (const LLSD& params)> responder_constructor_t;
-	
-	void add(const std::string& pNotificationName, const responder_constructor_t& pConstructor);
-	
-	typedef std::map<std::string, responder_constructor_t> build_map_t;
-	build_map_t mBuildMap;
+    public:
+        template<typename RESPONDER_TYPE> static LLNotificationResponderInterface * create(const LLSD& pParams);
+        LLNotificationResponderInterface * createResponder(const std::string& pNotificationName, const LLSD& pParams);
 };
+
+template<typename RESPONDER_TYPE> LLNotificationResponderInterface * LLResponderRegistry::create(const LLSD& pParams)
+{
+    RESPONDER_TYPE* responder = new RESPONDER_TYPE();
+    responder->fromLLSD(pParams);
+    return responder;
+}
+
+
+LLNotificationResponderInterface * LLResponderRegistry::createResponder(const std::string& pNotificationName, const LLSD& pParams)
+{
+    responder_constructor_t * factoryFunc = (LLResponderRegistry::getValue(pNotificationName));
+
+    if(factoryFunc)
+    {
+        return (*factoryFunc)(pParams);
+    }
+    
+    return NULL;
+}
+
+LLResponderRegistry::StaticRegistrar sRegisterObjectGiveItem("ObjectGiveItem", &LLResponderRegistry::create<LLOfferInfo>);
+LLResponderRegistry::StaticRegistrar sRegisterUserGiveItem("UserGiveItem", &LLResponderRegistry::create<LLOfferInfo>);
+LLResponderRegistry::StaticRegistrar sRegisterOfferInfo("offer_info", &LLResponderRegistry::create<LLOfferInfo>);
+
 
 LLNotificationStorage::LLNotificationStorage(std::string pFileName)
 	: mFileName(pFileName)
@@ -116,47 +129,7 @@ bool LLNotificationStorage::readNotifications(LLSD& pNotificationData) const
 	return didFileRead;
 }
 
-LLNotificationResponderInterface* LLNotificationStorage::createResponder(const std::string& pNotificationName, const LLSD& pParams) const
+LLNotificationResponderInterface * LLNotificationStorage::createResponder(const std::string& pNotificationName, const LLSD& pParams) const
 {
 	return LLResponderRegistry::getInstance()->createResponder(pNotificationName, pParams);
-}
-
-LLResponderRegistry::LLResponderRegistry()
-	: LLSingleton<LLResponderRegistry>()
-	, mBuildMap()
-{
-	add("ObjectGiveItem", &create<LLOfferInfo>);
-	add("UserGiveItem", &create<LLOfferInfo>);
-    add("offer_info", &create<LLOfferInfo>);
-}
-
-LLResponderRegistry::~LLResponderRegistry()
-{
-}
-
-LLNotificationResponderInterface* LLResponderRegistry::createResponder(const std::string& pNotificationName, const LLSD& pParams)
-{
-	build_map_t::const_iterator it = mBuildMap.find(pNotificationName);
-	if(mBuildMap.end() == it)
-	{
-		return NULL;
-	}
-	responder_constructor_t ctr = it->second;
-	return ctr(pParams);
-}
-
-template<typename RESPONDER_TYPE> LLNotificationResponderInterface* LLResponderRegistry::create(const LLSD& pParams)
-{
-	RESPONDER_TYPE* responder = new RESPONDER_TYPE();
-	responder->fromLLSD(pParams);
-	return responder;
-}
-	
-void LLResponderRegistry::add(const std::string& pNotificationName, const responder_constructor_t& pConstructor)
-{
-	if (mBuildMap.find(pNotificationName) != mBuildMap.end())
-	{
-		LL_ERRS("LLResponderRegistry") << "Responder is already registered : " << pNotificationName << LL_ENDL;
-	}
-	mBuildMap.insert(std::make_pair<std::string, responder_constructor_t>(pNotificationName, pConstructor));
 }
