@@ -246,7 +246,7 @@ BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
     if(result && getRoot()->getCurSelectedItem() == this)
 	{
 		LLFloaterIMContainer *im_container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-		im_container->clearAllFlashStates();
+		im_container->flashConversationItemWidget(session_id,false);
 		im_container->selectConversationPair(session_id, false);
 		im_container->collapseMessagesPane(false);
 	}
