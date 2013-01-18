@@ -6515,6 +6515,29 @@ However, this region contains content accessible to adults only.
 	Teleport offer sent to [TO_NAME]
   </notification>
 
+  <notification
+   icon="notify.tga"
+   name="TeleportRequest"
+   type="notify">
+[NAME_SLURL] is requesting to be teleported your to your location.
+
+Will you permit this?
+    <tag>confirm</tag>
+    <form name="form">
+      <button
+       index="0"
+       name="Yes"
+       text="Yes"/>
+      <button
+       index="1"
+       name="No"
+       text="No"/>
+      <button
+       index="2"
+       name="IM"
+       text="IM"/>
+    </form>
+  </notification>
 
   <notification
    icon="notify.tga"
