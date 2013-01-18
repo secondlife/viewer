@@ -155,8 +155,6 @@ class LLPanelOutfitEditGearMenu
 public:
 	static LLToggleableMenu* create()
 	{
-		llinfos << "Merov debug : Create wearable gear menu" << llendl;
-
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
 		registrar.add("Wearable.Create", boost::bind(onCreate, _2));
@@ -172,12 +170,6 @@ public:
 		return menu;
 	}
 	
-	static void pressed(LLToggleableMenu* menu)
-	{
-		menu->toggleVisibility();
-		llinfos << "Merov debug : The button is pressed! Show the menu!!!" << llendl;
-	}
-
 private:
 	static void onCreate(const LLSD& param)
 	{
@@ -197,8 +189,6 @@ private:
 		LLView* menu_clothes	= gMenuHolder->getChildView("COF.Gear.New_Clothes", FALSE);
 		LLView* menu_bp			= gMenuHolder->getChildView("COF.Geear.New_Body_Parts", FALSE);
 
-		llinfos << "Merov debug : Populate wearable gear menu" << llendl;
-		
 		for (U8 i = LLWearableType::WT_SHAPE; i != (U8) LLWearableType::WT_COUNT; ++i)
 		{
 			LLWearableType::EType type = (LLWearableType::EType) i;
@@ -207,7 +197,6 @@ private:
 			LLMenuItemCallGL::Params p;
 			p.name = type_name;
 			p.label = LLTrans::getString(LLWearableType::getTypeDefaultNewName(type));
-			llinfos << "Merov debug :    menu label = " << LLTrans::getString(LLWearableType::getTypeDefaultNewName(type)) << llendl;
 			p.on_click.function_name = "Wearable.Create";
 			p.on_click.parameter = LLSD(type_name);
 
@@ -215,8 +204,6 @@ private:
 				menu_clothes : menu_bp;
 			LLUICtrlFactory::create<LLMenuItemCallGL>(p, parent);
 		}
-		
-		llinfos << "Merov debug : clothes size = " << menu_clothes->getChildCount() << ", body part size = " << menu_bp->getChildCount() << llendl;
 	}
 };
 
@@ -577,7 +564,6 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mWearablesGearMenuBtn->setMenu(mAddWearablesGearMenu);
 
 	mGearMenu = LLPanelOutfitEditGearMenu::create();
-	mGearMenuBtn->setMouseDownCallback(boost::bind(&LLPanelOutfitEditGearMenu::pressed, mGearMenu));
 	mGearMenuBtn->setMenu(mGearMenu);
 
 	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this));
