@@ -2888,7 +2888,11 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		{
 			central_bake_version = getRegion()->getCentralBakeVersion();
 		}
-		addDebugText(llformat("mLocal: %d, mEdit: %d, mUSB: %d, CBV: %d",
+		bool all_baked_downloaded = allBakedTexturesCompletelyDownloaded();
+		bool all_local_downloaded = allLocalTexturesCompletelyDownloaded();
+		addDebugText(llformat("%s%s - mLocal: %d, mEdit: %d, mUSB: %d, CBV: %d",
+							  all_local_downloaded ? "L" : "l",
+							  all_baked_downloaded ? "B" : "b",
 							  mUseLocalAppearance, mIsEditingAppearance,
 							  mUseServerBakes, central_bake_version));
 	}
@@ -4001,10 +4005,48 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
 	return 6;
 }
 
-//------------------------------------------------------------------------
-// LLVOAvatar::updateTextures()
-//------------------------------------------------------------------------
-void LLVOAvatar::collectTextureUUIDs(std::set<LLUUID>& ids, S32& local_mem, S32& baked_mem)
+bool LLVOAvatar::allTexturesCompletelyDownloaded(std::set<LLUUID>& ids)
+{
+	for (std::set<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); ++it)
+	{
+		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it);
+		if (imagep && imagep->getDiscardLevel()!=0)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool LLVOAvatar::allLocalTexturesCompletelyDownloaded()
+{
+	std::set<LLUUID> local_ids;
+	collectLocalTextureUUIDs(local_ids);
+	return allTexturesCompletelyDownloaded(local_ids);
+}
+
+bool LLVOAvatar::allBakedTexturesCompletelyDownloaded()
+{
+	std::set<LLUUID> baked_ids;
+	collectLocalTextureUUIDs(baked_ids);
+	return allTexturesCompletelyDownloaded(baked_ids);
+}
+
+S32 LLVOAvatar::totalTextureMemForUUIDS(std::set<LLUUID>& ids)
+{
+	S32 result = 0;
+	for (std::set<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); ++it)
+	{
+		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it);
+		if (imagep)
+		{
+			result += imagep->getTextureMemory();
+		}
+	}
+	return result;
+}
+	
+void LLVOAvatar::collectLocalTextureUUIDs(std::set<LLUUID>& ids)
 {
 	for (U32 texture_index = 0; texture_index < getNumTEs(); texture_index++)
 	{
@@ -4020,17 +4062,26 @@ void LLVOAvatar::collectTextureUUIDs(std::set<LLUUID>& ids, S32& local_mem, S32&
 				const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture((ETextureIndex)texture_index);
 				if (texture_dict->mIsLocalTexture)
 				{
-					local_mem += imagep->getTextureMemory();
 					ids.insert(imagep->getID());
 				}
 			}
 		}
+	}
+	ids.erase(IMG_DEFAULT);
+	ids.erase(IMG_DEFAULT_AVATAR);
+	ids.erase(IMG_INVISIBLE);
+}
+
+void LLVOAvatar::collectBakedTextureUUIDs(std::set<LLUUID>& ids)
+{
+	for (U32 texture_index = 0; texture_index < getNumTEs(); texture_index++)
+	{
+		LLViewerFetchedTexture *imagep = NULL;
 		if (isIndexBakedTexture((ETextureIndex) texture_index))
 		{
 			imagep = LLViewerTextureManager::staticCastToFetchedTexture(getImage(texture_index,0), TRUE);
 			if (imagep)
 			{
-				baked_mem += imagep->getTextureMemory();
 				ids.insert(imagep->getID());
 			}
 		}
@@ -4040,15 +4091,36 @@ void LLVOAvatar::collectTextureUUIDs(std::set<LLUUID>& ids, S32& local_mem, S32&
 	ids.erase(IMG_INVISIBLE);
 }
 
+void LLVOAvatar::collectTextureUUIDs(std::set<LLUUID>& ids)
+{
+	collectLocalTextureUUIDs(ids);
+	collectBakedTextureUUIDs(ids);
+}
+
 void LLVOAvatar::releaseOldTextures()
 {
 	S32 current_texture_mem = 0;
 	
 	// Any textures that we used to be using but are no longer using should no longer be flagged as "NO_DELETE"
+	std::set<LLUUID> baked_texture_ids;
+	collectBakedTextureUUIDs(baked_texture_ids);
+	S32 new_baked_mem = totalTextureMemForUUIDS(baked_texture_ids);
+
+	std::set<LLUUID> local_texture_ids;
+	collectLocalTextureUUIDs(local_texture_ids);
+	S32 new_local_mem = totalTextureMemForUUIDS(local_texture_ids);
+
 	std::set<LLUUID> new_texture_ids;
-	S32 local_mem = 0, baked_mem = 0;
-	collectTextureUUIDs(new_texture_ids, local_mem, baked_mem);
-	LL_DEBUGS("Avatar") << getFullname() << " local_mem: " << local_mem << " baked_mem: " << baked_mem << llendl;  
+	new_texture_ids.insert(baked_texture_ids.begin(),baked_texture_ids.end());
+	new_texture_ids.insert(local_texture_ids.begin(),local_texture_ids.end());
+	S32 new_total_mem = totalTextureMemForUUIDS(new_texture_ids);
+
+	S32 old_total_mem = totalTextureMemForUUIDS(mTextureIDs);
+	LL_DEBUGS("Avatar") << getFullname() << " old_total_mem: " << old_total_mem << " new_total_mem (L/B): " << new_total_mem << " (" << new_local_mem <<", " << new_baked_mem << ")" << llendl;  
+	if (!isSelf() && new_total_mem > new_baked_mem)
+	{
+			llwarns << "extra local textures stored for non-self av" << llendl;
+	}
 	for (std::set<LLUUID>::iterator it = mTextureIDs.begin(); it != mTextureIDs.end(); ++it)
 	{
 		if (new_texture_ids.find(*it) == new_texture_ids.end())
@@ -4062,8 +4134,8 @@ void LLVOAvatar::releaseOldTextures()
 					// This will allow the texture to be deleted if not in use.
 					imagep->forceActive();
 
-					// This resets the clock to being flagged as
-					// unused, preventing the texture from being
+					// This resets the clock to texture being flagged
+					// as unused, preventing the texture from being
 					// deleted immediately. If other avatars or
 					// objects are using it, it can still be flagged
 					// no-delete by them.

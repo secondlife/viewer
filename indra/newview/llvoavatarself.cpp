@@ -2066,6 +2066,7 @@ const std::string LLVOAvatarSelf::verboseDebugDumpLocalTextureDataInfo(const LLV
 									   << " ts: " << image->getTextureState()
 									   << " bl: " << image->getBoostLevel()
 									   << " fl: " << image->isFullyLoaded() // this is not an accessor for mFullyLoaded - see comment there.
+									   << " cl: " << (image->isFullyLoaded() && image->getDiscardLevel()==0) // "completely loaded"
 									   << " mvs: " << image->getMaxVirtualSize()
 									   << " mvsc: " << image->getMaxVirtualSizeResetCounter()
 									   << " mem: " << image->getTextureMemory();

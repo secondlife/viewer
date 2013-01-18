@@ -124,17 +124,23 @@ protected:
 public:
 	/*virtual*/ void			updateGL();
 	/*virtual*/ LLVOAvatar*		asAvatar();
-	virtual U32    	 	 	processUpdateMessage(LLMessageSystem *mesgsys,
+	virtual U32    	 	 		processUpdateMessage(LLMessageSystem *mesgsys,
 													 void **user_data,
 													 U32 block_num,
 													 const EObjectUpdateType update_type,
 													 LLDataPacker *dp);
-	virtual void   	 	 	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+	virtual void   	 	 		idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 	/*virtual*/ BOOL   	 	 	updateLOD();
-	BOOL  	 	 	 	 	updateJointLODs();
-	void					updateLODRiggedAttachments( void );
+	BOOL  	 	 	 	 		updateJointLODs();
+	void						updateLODRiggedAttachments( void );
 	/*virtual*/ BOOL   	 	 	isActive() const; // Whether this object needs to do an idleUpdate.
-	void 						collectTextureUUIDs(std::set<LLUUID>& ids, S32& local_mem, S32& baked_mem);
+	S32 						totalTextureMemForUUIDS(std::set<LLUUID>& ids);
+	bool 						allTexturesCompletelyDownloaded(std::set<LLUUID>& ids);
+	bool 						allLocalTexturesCompletelyDownloaded();
+	bool 						allBakedTexturesCompletelyDownloaded();
+	void 						collectLocalTextureUUIDs(std::set<LLUUID>& ids);
+	void 						collectBakedTextureUUIDs(std::set<LLUUID>& ids);
+	void 						collectTextureUUIDs(std::set<LLUUID>& ids);
 	void						releaseOldTextures();
 	/*virtual*/ void   	 	 	updateTextures();
 	/*virtual*/ S32    	 	 	setTETexture(const U8 te, const LLUUID& uuid); // If setting a baked texture, need to request it from a non-local sim.
