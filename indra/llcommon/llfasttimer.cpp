@@ -183,7 +183,6 @@ void TimeBlock::processTimes()
 {
 	get_clock_count(); // good place to calculate clock frequency
 	U64 cur_time = getCPUClockCount64();
-	BlockTimerStackRecord* stack_record = ThreadTimerStack::getInstance();
 
 	// set up initial tree
 	for (LLInstanceTracker<TimeBlock>::instance_iter it = LLInstanceTracker<TimeBlock>::beginInstances(), end_it = LLInstanceTracker<TimeBlock>::endInstances(); 
@@ -202,6 +201,7 @@ void TimeBlock::processTimes()
 			if (accumulator->mLastAccumulator)
 			{
 				TimeBlock* parent = accumulator->mLastAccumulator->mBlock;
+				llassert(parent);
 				timer.setParent(parent);
 				accumulator->mParent = parent;
 			}
@@ -250,26 +250,28 @@ void TimeBlock::processTimes()
 	}
 
 	// walk up stack of active timers and accumulate current time while leaving timing structures active
-	BlockTimer* cur_timer = stack_record->mActiveTimer;
-	TimeBlockAccumulator* accumulator = stack_record->mAccumulator;
+	BlockTimerStackRecord* stack_record			= ThreadTimerStack::getInstance();
+	BlockTimer* cur_timer						= stack_record->mActiveTimer;
+	TimeBlockAccumulator* accumulator			= stack_record->mAccumulator;
+
+	llassert(accumulator);
+
 	// root defined by parent pointing to self
-	while(cur_timer && cur_timer->mLastTimerData.mActiveTimer != cur_timer)
+	while(cur_timer && cur_timer->mParentTimerData.mActiveTimer != cur_timer)
 	{
 		U64 cumulative_time_delta = cur_time - cur_timer->mStartTime;
+	
+		accumulator->mTotalTimeCounter += cumulative_time_delta;
 		accumulator->mChildTimeCounter += stack_record->mChildTime;
 		stack_record->mChildTime = 0;
-		accumulator->mTotalTimeCounter += cumulative_time_delta;
 
 		cur_timer->mStartTime = cur_time;
 
-		stack_record = &cur_timer->mLastTimerData;
-		stack_record->mChildTime += cumulative_time_delta;
-		if (stack_record->mAccumulator)
-		{
-			accumulator = stack_record->mAccumulator;
-		}
+		stack_record = &cur_timer->mParentTimerData;
+		accumulator = stack_record->mAccumulator;
+		cur_timer = stack_record->mActiveTimer;
 
-		cur_timer = cur_timer->mLastTimerData.mActiveTimer;
+		stack_record->mChildTime += cumulative_time_delta;
 	}
 
 
@@ -423,7 +425,8 @@ TimeBlockAccumulator::TimeBlockAccumulator()
 	mLastAccumulator(NULL),
 	mActiveCount(0),
 	mMoveUpTree(false),
-	mParent(NULL)
+	mParent(NULL),
+	mBlock(NULL)
 {}
 
 void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other )
@@ -435,6 +438,7 @@ void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other )
 	mActiveCount = other.mActiveCount;
 	mMoveUpTree = other.mMoveUpTree;
 	mParent = other.mParent;
+	mBlock = other.mBlock;
 }
 
 void TimeBlockAccumulator::reset( const TimeBlockAccumulator* other )
