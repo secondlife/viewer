@@ -2970,11 +2970,8 @@ llwarns << "DBG teleport processing" << llendl;
 				LLNotification::Params params;
 				if (IM_LURE_USER == dialog)
 				{
-llwarns << "DBG LURE_USER received (treating as TELPORT_REQUEST" << llendl;
-//					params.name = "TeleportOffered";
-//					params.functor.name = "TeleportOffered";
-					params.name = "TeleportRequest";
-					params.functor.name = "TeleportRequest";
+					params.name = "TeleportOffered";
+					params.functor.name = "TeleportOffered";
 				}
 
 				if (IM_TELEPORT_REQUEST == dialog)
