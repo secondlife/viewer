@@ -429,11 +429,6 @@ void LLAvatarActions::teleportRequest(const LLUUID& id)
 			EMPTY_BINARY_BUCKET,
 			EMPTY_BINARY_BUCKET_SIZE);
 
-/*	msg->newMessageFast(_PREHASH_TeleportRequest);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, id);
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID()); */
-
 	gAgent.sendReliableMessage();
 llwarns << "DBG REQUEST_TELEPORT sent" << llendl;
 }
