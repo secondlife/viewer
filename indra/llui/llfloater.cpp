@@ -655,7 +655,7 @@ void LLFloater::openFloater(const LLSD& key)
 {
 	llinfos << "Opening floater " << getName() << llendl;
 	mKey = key; // in case we need to open ourselves again
-	
+
 	if (getSoundFlags() != SILENT 
 	// don't play open sound for hosted (tabbed) windows
 		&& !getHost() 
@@ -2394,6 +2394,11 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 {
 	if (mFrontChild == child)
 	{
+
+		if (give_focus && !gFocusMgr.childHasKeyboardFocus(child))
+		{
+			child->setFocus(TRUE);
+		}
 		return;
 	}
 
