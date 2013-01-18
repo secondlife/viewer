@@ -198,12 +198,10 @@ void TimeBlock::processTimes()
 		{
 			TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
 
-			if (accumulator->mLastAccumulator)
+			if (accumulator->mLastCaller)
 			{
-				TimeBlock* parent = accumulator->mLastAccumulator->mBlock;
-				llassert(parent);
-				timer.setParent(parent);
-				accumulator->mParent = parent;
+				timer.setParent(accumulator->mLastCaller);
+				accumulator->mParent = accumulator->mLastCaller;
 			}
 			// no need to push up tree on first use, flag can be set spuriously
 			accumulator->mMoveUpTree = false;
@@ -252,10 +250,8 @@ void TimeBlock::processTimes()
 	// walk up stack of active timers and accumulate current time while leaving timing structures active
 	BlockTimerStackRecord* stack_record			= ThreadTimerStack::getInstance();
 	BlockTimer* cur_timer						= stack_record->mActiveTimer;
-	TimeBlockAccumulator* accumulator			= stack_record->mAccumulator;
-
-	llassert(accumulator);
-
+	TimeBlockAccumulator* accumulator = stack_record->mTimeBlock->getPrimaryAccumulator();
+	
 	// root defined by parent pointing to self
 	while(cur_timer && cur_timer->mParentTimerData.mActiveTimer != cur_timer)
 	{
@@ -268,7 +264,7 @@ void TimeBlock::processTimes()
 		cur_timer->mStartTime = cur_time;
 
 		stack_record = &cur_timer->mParentTimerData;
-		accumulator = stack_record->mAccumulator;
+		accumulator = stack_record->mTimeBlock->getPrimaryAccumulator();
 		cur_timer = stack_record->mActiveTimer;
 
 		stack_record->mChildTime += cumulative_time_delta;
@@ -284,7 +280,7 @@ void TimeBlock::processTimes()
 		TimeBlock& timer = *it;
 		TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
 
-		accumulator->mLastAccumulator = NULL;
+		accumulator->mLastCaller = NULL;
 		accumulator->mMoveUpTree = false;
 	}
 
@@ -422,11 +418,10 @@ TimeBlockAccumulator::TimeBlockAccumulator()
 :	mChildTimeCounter(0),
 	mTotalTimeCounter(0),
 	mCalls(0),
-	mLastAccumulator(NULL),
+	mLastCaller(NULL),
 	mActiveCount(0),
 	mMoveUpTree(false),
-	mParent(NULL),
-	mBlock(NULL)
+	mParent(NULL)
 {}
 
 void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other )
@@ -434,11 +429,10 @@ void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other )
 	mChildTimeCounter += other.mChildTimeCounter;
 	mTotalTimeCounter += other.mTotalTimeCounter;
 	mCalls += other.mCalls;
-	mLastAccumulator = other.mLastAccumulator;
+	mLastCaller = other.mLastCaller;
 	mActiveCount = other.mActiveCount;
 	mMoveUpTree = other.mMoveUpTree;
 	mParent = other.mParent;
-	mBlock = other.mBlock;
 }
 
 void TimeBlockAccumulator::reset( const TimeBlockAccumulator* other )
