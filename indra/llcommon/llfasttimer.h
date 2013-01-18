@@ -40,9 +40,9 @@ namespace LLTrace
 
 struct BlockTimerStackRecord
 {
-	class BlockTimer*	mActiveTimer;
-	class TimeBlock*	mTimeBlock;
-	U64					mChildTime;
+	class BlockTimer*			mActiveTimer;
+	class TimeBlockAccumulator*	mAccumulator;
+	U64							mChildTime;
 };
 
 class ThreadTimerStack 
@@ -277,7 +277,7 @@ LL_FORCE_INLINE BlockTimer::BlockTimer(TimeBlock& timer)
 	mStartTime = TimeBlock::getCPUClockCount64();
 
 	BlockTimerStackRecord* cur_timer_data = ThreadTimerStack::getIfExists();
-	TimeBlockAccumulator* accumulator = cur_timer_data->mTimeBlock->getPrimaryAccumulator();
+	TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
 	accumulator->mActiveCount++;
 	// keep current parent as long as it is active when we are
 	accumulator->mMoveUpTree |= (accumulator->mParent->getPrimaryAccumulator()->mActiveCount == 0);
@@ -286,7 +286,7 @@ LL_FORCE_INLINE BlockTimer::BlockTimer(TimeBlock& timer)
 	mLastTimerData = *cur_timer_data;
 	// push new information
 	cur_timer_data->mActiveTimer = this;
-	cur_timer_data->mTimeBlock = &timer;
+	cur_timer_data->mAccumulator = accumulator;
 	cur_timer_data->mChildTime = 0;
 #endif
 }
@@ -296,21 +296,22 @@ LL_FORCE_INLINE BlockTimer::~BlockTimer()
 #if FAST_TIMER_ON
 	U64 total_time = TimeBlock::getCPUClockCount64() - mStartTime;
 	BlockTimerStackRecord* cur_timer_data = ThreadTimerStack::getIfExists();
-	TimeBlockAccumulator* accumulator = cur_timer_data->mTimeBlock->getPrimaryAccumulator();
+	TimeBlockAccumulator* accumulator = cur_timer_data->mAccumulator;
 
 	accumulator->mCalls++;
-	accumulator->mSelfTimeCounter += total_time - cur_timer_data->mChildTime;
+	accumulator->mChildTimeCounter += cur_timer_data->mChildTime;
 	accumulator->mTotalTimeCounter += total_time;
 	accumulator->mActiveCount--;
 
 	// store last caller to bootstrap tree creation
 	// do this in the destructor in case of recursion to get topmost caller
-	accumulator->mLastCaller = mLastTimerData.mTimeBlock;
+	accumulator->mLastAccumulator = mLastTimerData.mAccumulator;
 
 	// we are only tracking self time, so subtract our total time delta from parents
 	mLastTimerData.mChildTime += total_time;
 
-	*ThreadTimerStack::getIfExists() = mLastTimerData;
+	//pop stack
+	*cur_timer_data = mLastTimerData;
 #endif
 }
 
