@@ -39,7 +39,7 @@ class LLStopWatchControlsMixinCommon
 public:
 	virtual ~LLStopWatchControlsMixinCommon() {}
 
-	enum EStopWatchState
+	enum EPlayState
 	{
 		STOPPED,
 		PAUSED,
@@ -53,19 +53,18 @@ public:
 	virtual void restart();
 	virtual void reset();
 
-	bool isStarted() const { return mState == STARTED; }
-	bool isPaused() const  { return mState == PAUSED; }
-	bool isStopped() const { return mState == STOPPED; }
-	EStopWatchState getPlayState() const { return mState; }
+	bool isStarted() const { return mPlayState == STARTED; }
+	bool isPaused() const  { return mPlayState == PAUSED; }
+	bool isStopped() const { return mPlayState == STOPPED; }
+	EPlayState getPlayState() const { return mPlayState; }
+	// force play state to specific value by calling appropriate handle* methods
+	void setPlayState(EPlayState state);
 
 protected:
 	LLStopWatchControlsMixinCommon()
-	:	mState(STOPPED)
+	:	mPlayState(STOPPED)
 	{}
 
-	// derived classes can call this from their copy constructor in order
-	// to duplicate play state of source
-	void initTo(EStopWatchState state);
 private:
 	// trigger active behavior (without reset)
 	virtual void handleStart(){};
@@ -74,7 +73,7 @@ private:
 	// clear accumulated state, can be called while started
 	virtual void handleReset(){};
 
-	EStopWatchState mState;
+	EPlayState mPlayState;
 };
 
 template<typename DERIVED>
@@ -245,7 +244,7 @@ namespace LLTrace
 	:	public LLStopWatchControlsMixin<PeriodicRecording>
 	{
 	public:
-		PeriodicRecording(S32 num_periods, EStopWatchState state = STOPPED);
+		PeriodicRecording(S32 num_periods, EPlayState state = STOPPED);
 		PeriodicRecording(PeriodicRecording& recording);
 		~PeriodicRecording();
 
