@@ -42,9 +42,6 @@ public:
     ~LLDoNotDisturbNotificationStorageTimer();
 
 public:
-    void startTimer();
-    void stopTimer();
-    bool isRunning();
     BOOL tick();
 };
 

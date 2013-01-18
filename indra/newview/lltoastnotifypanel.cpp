@@ -356,9 +356,8 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     if(rect != LLRect::null)
     {
         this->setShape(rect);
-    }		 
+    }
     mInfoPanel = getChild<LLPanel>("info_panel");
-    mInfoPanel->setFollowsAll();
 
     mControlPanel = getChild<LLPanel>("control_panel");
     BUTTON_WIDTH = gSavedSettings.getS32("ToastButtonWidth");
@@ -453,10 +452,10 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
             if(h_pad < 2*HPAD)
             {
                 /*
-                * Probably it is a scriptdialog toast
-                * for a scriptdialog toast h_pad can be < 2*HPAD if we have a lot of buttons.
-                * In last case set default h_pad to avoid heaping of buttons 
-                */
+                 * Probably it is a scriptdialog toast
+                 * for a scriptdialog toast h_pad can be < 2*HPAD if we have a lot of buttons.
+                 * In last case set default h_pad to avoid heaping of buttons 
+                 */
                 S32 button_per_row = button_panel_width / BUTTON_WIDTH;
                 h_pad = (button_panel_width % BUTTON_WIDTH) / (button_per_row - 1);// -1  because we do not need space after last button in a row   
                 if(h_pad < 2*HPAD) // still not enough space between buttons ?
@@ -491,10 +490,10 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
             //mButtons.assign(buttons.begin(), buttons.end());
         }
     }
+
     // adjust panel's height to the text size
+    mInfoPanel->setFollowsAll();
     snapToMessageHeight(mTextBox, MAX_LENGTH);
-
-
 }
 
 
