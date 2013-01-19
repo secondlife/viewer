@@ -4,17 +4,21 @@
 ## These options are for self-assisted troubleshooting during this beta
 ## testing phase; you should not usually need to touch them.
 
+## - Avoids using any FMOD Ex audio driver.
+#export LL_BAD_FMODEX_DRIVER=x
 ## - Avoids using any OpenAL audio driver.
 #export LL_BAD_OPENAL_DRIVER=x
 ## - Avoids using any FMOD audio driver.
 #export LL_BAD_FMOD_DRIVER=x
 
+## - Avoids using the FMOD Ex PulseAudio audio driver.
+#export LL_BAD_FMOD_PULSEAUDIO=x
+## - Avoids using the FMOD or FMOD Ex ALSA audio driver.
+#export LL_BAD_FMOD_ALSA=x
+## - Avoids using the FMOD or FMOD Ex OSS audio driver.
+#export LL_BAD_FMOD_OSS=x
 ## - Avoids using the FMOD ESD audio driver.
 #export LL_BAD_FMOD_ESD=x
-## - Avoids using the FMOD OSS audio driver.
-#export LL_BAD_FMOD_OSS=x
-## - Avoids using the FMOD ALSA audio driver.
-#export LL_BAD_FMOD_ALSA=x
 
 ## - Avoids the optional OpenGL extensions which have proven most problematic
 ##   on some hardware.  Disabling this option may cause BETTER PERFORMANCE but

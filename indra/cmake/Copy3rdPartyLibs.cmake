@@ -62,6 +62,11 @@ if(WINDOWS)
       set(release_files ${release_files} libtcmalloc_minimal.dll)
     endif(USE_TCMALLOC)
 
+    if (FMODEX)
+      set(debug_files ${debug_files} fmodexL.dll)
+      set(release_files ${release_files} fmodex.dll)
+    endif (FMODEX)
+
     if (FMOD)
       set(debug_files ${debug_files} fmod.dll)
       set(release_files ${release_files} fmod.dll)
@@ -222,9 +227,15 @@ elseif(DARWIN)
         libcollada14dom.dylib
        )
 
-    # fmod is statically linked on darwin
-    set(fmod_files "")
+    if (FMODEX)
+      #set(debug_files ${debug_files} libfmodexL.dylib)
+      set(release_files ${release_files} libfmodex.dylib)
+    endif (FMODEX)
 
+    if (FMOD)
+        # fmod is statically linked on darwin
+       set(fmod_files "")
+    endif (FMOD)
 elseif(LINUX)
     # linux is weird, multiple side by side configurations aren't supported
     # and we don't seem to have any debug shared libs built yet anyways...

@@ -5,7 +5,13 @@ project(llaudio)
 include(00-Common)
 include(Audio)
 include(LLAudio)
-include(FMOD)
+if (FMODEX)
+  include(FMODEX)
+  set(FMOD OFF)
+endif (FMODEX)
+if (NOT FMODEX)
+  include(FMOD)
+endif (NOT FMODEX)
 include(OPENAL)
 include(LLCommon)
 include(LLMath)
@@ -24,7 +30,6 @@ include_directories(
     ${VORBIS_INCLUDE_DIRS}
     ${OPENAL_LIB_INCLUDE_DIRS}
     ${FREEAULT_LIB_INCLUDE_DIRS}
-    ${FMOD_INCLUDE_DIR}
     )
 
 set(llaudio_SOURCE_FILES
@@ -43,6 +48,23 @@ set(llaudio_HEADER_FILES
     llvorbisencode.h
     llwindgen.h
     )
+
+if (FMODEX)
+    include_directories(
+        ${FMODEX_INCLUDE_DIR}
+        )
+    list(APPEND llaudio_SOURCE_FILES
+         llaudioengine_fmodex.cpp
+         lllistener_fmodex.cpp
+         llstreamingaudio_fmodex.cpp
+         )
+
+    list(APPEND llaudio_HEADER_FILES
+         llaudioengine_fmodex.h
+         lllistener_fmodex.h
+         llstreamingaudio_fmodex.h
+         )
+endif (FMODEX)
 
 if (FMOD)
     include_directories(

@@ -26,6 +26,7 @@ set(cmake_SOURCE_FILES
     FindCARes.cmake
     FindELFIO.cmake
     FindFMOD.cmake
+    FindFMODEX.cmake
     FindGooglePerfTools.cmake
     FindMono.cmake
     FindMySQL.cmake
@@ -33,6 +34,7 @@ set(cmake_SOURCE_FILES
     FindXmlRpcEpi.cmake
     FindZLIB.cmake
     FMOD.cmake
+    FMODEX.cmake
     FreeType.cmake
     GLOD.cmake
     GStreamer010Plugin.cmake

@@ -6,7 +6,7 @@
 # Open source devs should use the -DFMOD:BOOL=ON then if they want to build with FMOD, whether
 # they are using STANDALONE or not.
 if (INSTALL_PROPRIETARY)
-  set(FMOD ON CACHE BOOL "Use FMOD sound library.")
+  set(FMOD OFF CACHE BOOL "Use FMOD sound library.")
 endif (INSTALL_PROPRIETARY)
 
 if (FMOD)

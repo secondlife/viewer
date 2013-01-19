@@ -531,6 +531,30 @@
           </map>
         </map>
       </map>
+      <key>fmodex</key>
+      <map>
+        <key>license</key>
+        <string>fmodex</string>
+        <key>license_file</key>
+        <string>LICENSES/fmodex.txt</string>
+        <key>name</key>
+        <string>fmodex</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>3590b83d65b7dc4dd7f6040c179b49f3</string>
+              <key>url</key>
+              <string>http://private-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-fmodex-private/arch/Darwin/fmodex-4.44.04-darwin-20130118.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+        </map>
+      </map>
       <key>fontconfig</key>
       <map>
         <key>license</key>

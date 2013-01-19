@@ -10,7 +10,8 @@ include(DirectX)
 include(OpenSSL)
 include(DragDrop)
 include(EXPAT)
-include(FMOD)
+include(FMODEX)
+set(FMOD OFF)
 include(OPENAL)
 include(FindOpenGL)
 include(Hunspell)
@@ -52,6 +53,14 @@ if (NOT HAVOK_TPV)
    add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
 endif (NOT HAVOK_TPV)
 
+if(FMODEX)
+  include_directories(${FMODEX_INCLUDE_DIR})
+endif(FMODEX)
+
+if(FMOD)
+  include_directories(${FMOD_INCLUDE_DIR})
+endif(FMOD)
+
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
     ${JSONCPP_INCLUDE_DIR}
@@ -61,7 +70,6 @@ include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLCOREHTTP_INCLUDE_DIRS}
     ${LLPHYSICS_INCLUDE_DIRS}
-    ${FMOD_INCLUDE_DIR}
     ${LLIMAGE_INCLUDE_DIRS}
     ${LLKDU_INCLUDE_DIRS}
     ${LLINVENTORY_INCLUDE_DIRS}
@@ -1521,10 +1529,15 @@ if (OPENAL)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_OPENAL")
 endif (OPENAL)
 
-if (FMOD)
-  set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMOD")
+if (FMOD OR FMODEX)
+  if (FMODEX)
+    set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMODEX")
+  endif (FMODEX)
+  if (FMOD)
+    set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMOD")
+  endif (FMOD)
 
-  if (DARWIN)
+  if (DARWIN AND FMOD)
     set(fmodwrapper_SOURCE_FILES fmodwrapper.cpp)
     add_library(fmodwrapper SHARED ${fmodwrapper_SOURCE_FILES})
     set(fmodwrapper_needed_LIBRARIES ${FMOD_LIBRARY} ${CARBON_LIBRARY})
@@ -1537,11 +1550,16 @@ if (FMOD)
       )
     set(FMODWRAPPER_LIBRARY fmodwrapper)
     target_link_libraries(fmodwrapper ${fmodwrapper_needed_LIBRARIES})
-  else (DARWIN)
-    # fmodwrapper unnecessary on linux or windows
-    set(FMODWRAPPER_LIBRARY ${FMOD_LIBRARY})
-  endif (DARWIN)
-endif (FMOD)
+  else (DARWIN AND FMOD)
+    # fmodwrapper unnecessary on linux or windows for fmod and darwin for fmodex
+    if (FMODEX)
+       set(FMODWRAPPER_LIBRARY ${FMODEX_LIBRARY})
+    endif (FMODEX)
+    if (FMOD)
+       set(FMODWRAPPER_LIBRARY ${FMOD_LIBRARY})
+    endif (FMOD)
+  endif (DARWIN AND FMOD)
+endif (FMOD OR FMODEX)
 
 set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
 
@@ -1616,9 +1634,6 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/Release/openjpeg.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/openjpeg.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/openjpegd.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
-      ${SHARED_LIB_STAGING_DIR}/Debug/fmod.dll
       ${SHARED_LIB_STAGING_DIR}/Release/msvcr100.dll
       ${SHARED_LIB_STAGING_DIR}/Release/msvcp100.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcr100.dll
@@ -1682,6 +1697,22 @@ if (WINDOWS)
       windows-crash-logger
       windows-updater
       )
+
+    if (FMODEX)
+      list(APPEND COPY_INPUT_DEPENDENCIES
+           ${SHARED_LIB_STAGING_DIR}/Release/fmodex.dll
+           ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmodex.dll
+           ${SHARED_LIB_STAGING_DIR}/Debug/fmodexL.dll
+          )
+    endif (FMODEX)
+
+    if (FMOD)
+      list(APPEND COPY_INPUT_DEPENDENCIES
+           ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
+           ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
+           ${SHARED_LIB_STAGING_DIR}/Debug/fmod.dll
+          )
+    endif (FMOD)
 
     add_custom_command(
       OUTPUT  ${CMAKE_CFG_INTDIR}/copy_touched.bat
