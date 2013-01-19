@@ -312,6 +312,7 @@ then
     if $build_viewer_deb && [ "$last_built_variant" == "Release" ]
     then
       begin_section "Build Viewer Debian Package"
+      local have_private_repo=false
       # mangle the changelog
       dch --force-bad-version \
           --distribution unstable \
@@ -346,6 +347,7 @@ then
       done
       for deb_file in `/bin/ls ../packages_private/*.deb 2>/dev/null`; do
         upload_item debian_private $deb_file binary/octet-stream
+        have_private_repo=true
       done
 
       create_deb_repo
@@ -357,6 +359,14 @@ then
           mv $build_log_dir/$debian_repo_type $build_log_dir/${debian_repo_type}_pushed
         fi
       done
+
+      if [ $have_private_repo = true ]; then
+        eval "$python_command \"$redirect\" '\${private_S3PROXY_URL}${S3PREFIX}repo/$repo/rev/$revision/index.html'"\
+            >"$build_log_dir/private.html" || fatal generating redirect
+        upload_item global_redirect "$build_log_dir/private.html" text/html
+        
+      fi
+
       end_section "Upload Debian Repository"
       
     else
