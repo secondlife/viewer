@@ -2471,13 +2471,13 @@ void LLMenuGL::erase( S32 begin, S32 end, bool arrange/* = true*/)
 		return;
 	}
 
-	item_list_t::const_iterator start_position = mItems.begin();
+	item_list_t::iterator start_position = mItems.begin();
 	std::advance(start_position, begin);
 
-	item_list_t::const_iterator end_position = mItems.begin();
+	item_list_t::iterator end_position = mItems.begin();
 	std::advance(end_position, end);
 
-	for (item_list_t::const_iterator position_iter = start_position; position_iter != end_position; position_iter++)
+	for (item_list_t::iterator position_iter = start_position; position_iter != end_position; position_iter++)
 	{
 		LLUICtrl::removeChild(*position_iter);
 	}
@@ -2500,7 +2500,7 @@ void LLMenuGL::insert( S32 position, LLView * ctrl, bool arrange /*= true*/ )
 		return;
 	}
 
-	item_list_t::const_iterator position_iter = mItems.begin();
+	item_list_t::iterator position_iter = mItems.begin();
 	std::advance(position_iter, position);
 	mItems.insert(position_iter, item);
 	LLUICtrl::addChild(item);
