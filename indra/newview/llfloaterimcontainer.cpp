@@ -431,7 +431,9 @@ bool LLFloaterIMContainer::onConversationModelEvent(const LLSD& event)
 		return false;
 	}
 	LLConversationViewParticipant* participant_view = session_view->findParticipant(participant_id);
-    LLFloaterIMSessionTab *conversation_floater = (session_id.isNull() ? (LLFloaterIMSessionTab*)(LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat")) : (LLFloaterIMSessionTab*)(LLFloaterIMSession::findInstance(session_id)));
+    LLFloaterIMSessionTab *conversation_floater = (session_id.isNull() ?
+    		(LLFloaterIMSessionTab*)(LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))
+    		: (LLFloaterIMSessionTab*)(LLFloaterIMSession::findInstance(session_id)));
 
 	if (type == "remove_participant")
 	{

@@ -60,6 +60,7 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
   , mInputEditorTopPad(0)
   , mRefreshTimer(new LLTimer())
   , mIsHostAttached(false)
+  , mHasVisibleBeenInitialized(false)
 {
     setAutoFocus(FALSE);
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
@@ -120,12 +121,14 @@ LLFloaterIMSessionTab* LLFloaterIMSessionTab::getConversation(const LLUUID& uuid
 
 void LLFloaterIMSessionTab::setVisible(BOOL visible)
 {
-	LLTransientDockableFloater::setVisible(visible);
-
-	if(visible)
+	if(visible && !mHasVisibleBeenInitialized)
 	{
-			LLFloaterIMSessionTab::addToHost(mSessionID);
+		mHasVisibleBeenInitialized = true;
+		LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container")->setVisible(true);
+		LLFloaterIMSessionTab::addToHost(mSessionID);
 	}
+
+	LLTransientDockableFloater::setVisible(visible);
 }
 
 /*virtual*/
