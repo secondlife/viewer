@@ -646,6 +646,7 @@ Jonathan Yap
 	STORM-1872
 	STORM-1858
 	STORM-1862
+	OPEN-161
 Kadah Coba
 	STORM-1060
     STORM-1843
@@ -1163,6 +1164,7 @@ Techwolf Lupindo
 	SNOW-746
 	VWR-12385
 	VWR-20893
+	OPEN-161
 Templar Merlin
 tenebrous pau
 	VWR-247
