@@ -67,7 +67,7 @@ using namespace llsd;
 #	include <sys/sysctl.h>
 #	include <sys/utsname.h>
 #	include <stdint.h>
-#	include <Carbon/Carbon.h>
+#	include <CoreServices/CoreServices.h>
 #   include <stdexcept>
 #	include <mach/host_info.h>
 #	include <mach/mach_host.h>

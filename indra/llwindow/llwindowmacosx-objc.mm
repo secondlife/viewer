@@ -298,7 +298,7 @@ void convertWindowToScreen(NSWindowRef window, float *coord)
 	NSPoint point;
 	point.x = coord[0];
 	point.y = coord[1];
-	point = [(LLNSWindow*)window convertBaseToScreen:point];
+	point = [(LLNSWindow*)window convertToScreenFromLocalPoint:point relativeToView:[(LLNSWindow*)window contentView]];
 	coord[0] = point.x;
 	coord[1] = point.y;
 }

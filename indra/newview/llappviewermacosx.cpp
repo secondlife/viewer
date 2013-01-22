@@ -41,7 +41,7 @@
 #include "llmd5.h"
 #include "llfloaterworldmap.h"
 #include "llurldispatcher.h"
-#include <Carbon/Carbon.h>
+#include <ApplicationServices/ApplicationServices.h>
 #include "lldir.h"
 #include <signal.h>
 #include <CoreAudio/CoreAudio.h>	// for systemwide mute
