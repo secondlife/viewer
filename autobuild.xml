@@ -546,9 +546,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3590b83d65b7dc4dd7f6040c179b49f3</string>
+              <string>c6f551e728295ff798d5804aa4e3671f</string>
               <key>url</key>
-              <string>http://private-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-fmodex-private/arch/Darwin/fmodex-4.44.04-darwin-20130118.tar.bz2</string>
+              <string>http://private-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-fmodex-private/arch/Darwin/fmodex-4.44.04-darwin-20130122.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
