@@ -2025,11 +2025,11 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 	if (success)
 	{
 		gObjectPreviewProgram.mName = "Simple Shader";
-		gObjectPreviewProgram.mFeatures.calculatesLighting = true;
+		gObjectPreviewProgram.mFeatures.calculatesLighting = false;
 		gObjectPreviewProgram.mFeatures.calculatesAtmospherics = false;
-		gObjectPreviewProgram.mFeatures.hasGamma = true;
+		gObjectPreviewProgram.mFeatures.hasGamma = false;
 		gObjectPreviewProgram.mFeatures.hasAtmospherics = false;
-		gObjectPreviewProgram.mFeatures.hasLighting = true;
+		gObjectPreviewProgram.mFeatures.hasLighting = false;
 		gObjectPreviewProgram.mFeatures.mIndexedTextureChannels = 0;
 		gObjectPreviewProgram.mFeatures.disableTextureIndex = true;
 		gObjectPreviewProgram.mShaderFiles.clear();
@@ -2037,6 +2037,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectPreviewProgram.mShaderFiles.push_back(make_pair("objects/previewF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gObjectPreviewProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
 		success = gObjectPreviewProgram.createShader(NULL, NULL);
+		gObjectPreviewProgram.mFeatures.hasLighting = true;
 	}
 
 	if (success)
