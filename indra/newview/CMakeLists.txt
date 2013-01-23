@@ -1231,6 +1231,8 @@ source_group("CMake Rules" FILES ViewerInstall.cmake)
 
 if (DARWIN)
   LIST(APPEND viewer_SOURCE_FILES llappviewermacosx.cpp)
+  LIST(APPEND viewer_SOURCE_FILES llfilepicker_mac.mm)
+  LIST(APPEND viewer_HEADER_FILES llfilepicker_mac.h)
 
   find_library(AGL_LIBRARY AGL)
   find_library(APPKIT_LIBRARY AppKit)
