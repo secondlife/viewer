@@ -31,6 +31,7 @@
 #include "llagent.h"
 #include "llappviewer.h"
 #include "llimview.h"
+#include "llgroupmgr.h"
 #include "llsdutil.h"
 #include "lluicolortable.h"
 #include "llviewerobjectlist.h"
@@ -321,7 +322,11 @@ LLSpeakerMgr::~LLSpeakerMgr()
 
 LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const LLUUID& id, const std::string& name, LLSpeaker::ESpeakerStatus status, LLSpeaker::ESpeakerType type)
 {
-	if (id.isNull()) return NULL;
+	LLUUID session_id = getSessionID();
+	if (id.isNull() || (id == session_id))
+	{
+		return NULL;
+	}
 
 	LLPointer<LLSpeaker> speakerp;
 	if (mSpeakers.find(id) == mSpeakers.end())
@@ -527,22 +532,52 @@ void LLSpeakerMgr::updateSpeakerList()
 		LLUUID session_id = getSessionID();
 		if ((mSpeakers.size() == 0) && (!session_id.isNull()))
 		{
-			// If the list is empty, we update it with whatever was used to initiate the call so that it doesn't stay empty too long.
+			// If the list is empty, we update it with whatever we have locally so that it doesn't stay empty too long.
 			// *TODO: Fix the server side code that sometimes forgets to send back the list of agents after a chat started 
 			// (IOW, fix why we get no ChatterBoxSessionAgentListUpdates message after the initial ChatterBoxSessionStartReply)
 			LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
-			for (uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();it!=session->mInitialTargetIDs.end();++it)
+			if (session->isGroupSessionType())
 			{
-				// Add buddies if they are on line, add any other avatar.
-				if (!LLAvatarTracker::instance().isBuddy(*it) || LLAvatarTracker::instance().isBuddyOnline(*it))
+				// For groups, we need to hit the group manager
+				LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(session_id);
+				if (!gdatap)
 				{
-					setSpeaker(*it, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
+					// Request the data the first time around
+					LLGroupMgr::getInstance()->sendCapGroupMembersRequest(session_id);
 				}
+				else if (gdatap->isMemberDataComplete() && !gdatap->mMembers.empty())
+				{
+					LLGroupMgrGroupData::member_list_t::iterator member_it = gdatap->mMembers.begin();
+					while (member_it != gdatap->mMembers.end())
+					{
+						LLGroupMemberData* member = member_it->second;
+						// Add only the members who are online
+						if (member->getOnlineStatus() == "Online")
+						{
+							setSpeaker(member_it->first, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
+						}
+						++member_it;
+					}
+					// Always add the current agent (it has to be there no matter what...)
+					setSpeaker(gAgentID, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
+				}
+			}
+			else
+			{
+				// For all other types (ad-hoc, P2P, avaline), we use the initial targets list
+				for (uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();it!=session->mInitialTargetIDs.end();++it)
+				{
+					// Add buddies if they are on line, add any other avatar.
+					if (!LLAvatarTracker::instance().isBuddy(*it) || LLAvatarTracker::instance().isBuddyOnline(*it))
+					{
+						setSpeaker(*it, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
+					}
+				}
+				// Always add the current agent (it has to be there no matter what...)
+				setSpeaker(gAgentID, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
 			}
 		}
 	}
-	// Finally, always add the current agent (it has to be there no matter what...)
-	setSpeaker(gAgentID, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
 }
 
 void LLSpeakerMgr::setSpeakerNotInChannel(LLSpeaker* speakerp)
