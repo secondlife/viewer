@@ -1184,6 +1184,21 @@ S32 LLAppearanceMgr::getCOFVersion() const
 	}
 }
 
+S32 LLAppearanceMgr::getLastUpdateRequestCOFVersion() const
+{
+	return mLastUpdateRequestCOFVersion;
+}
+
+S32 LLAppearanceMgr::getLastAppearanceUpdateCOFVersion() const
+{
+	return mLastAppearanceUpdateCOFVersion;
+}
+
+void LLAppearanceMgr::setLastAppearanceUpdateCOFVersion(S32 new_val)
+{
+	mLastAppearanceUpdateCOFVersion = new_val;
+}
+
 const LLViewerInventoryItem* LLAppearanceMgr::getBaseOutfitLink()
 {
 	const LLUUID& current_outfit_cat = getCOF();
@@ -3293,7 +3308,8 @@ LLAppearanceMgr::LLAppearanceMgr():
 	mOutfitIsDirty(false),
 	mOutfitLocked(false),
 	mIsInUpdateAppearanceFromCOF(false),
-	mLastUpdateRequestCOFVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
+	mLastUpdateRequestCOFVersion(LLViewerInventoryCategory::VERSION_UNKNOWN),
+	mLastAppearanceUpdateCOFVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
 {
 	LLOutfitObserver& outfit_observer = LLOutfitObserver::instance();
 
