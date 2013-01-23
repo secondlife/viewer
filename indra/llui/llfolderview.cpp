@@ -399,6 +399,10 @@ LLFolderViewItem* LLFolderView::getCurSelectedItem( void )
 	return NULL;
 }
 
+LLFolderView::selected_items_t& LLFolderView::getSelectedItems( void )
+{
+    return mSelectedItems;
+}
 
 // Record the selected item and pass it down the hierachy.
 BOOL LLFolderView::setSelection(LLFolderViewItem* selection, BOOL openitem,
@@ -752,8 +756,8 @@ void LLFolderView::removeSelectedItems()
 				{
 					// change selection on successful delete
 					setSelection(item_to_select, item_to_select ? item_to_select->isOpen() : false, mParentPanel->hasFocus());
-					}
 				}
+			}
 			arrangeAll();
 		}
 		else if (count > 1)

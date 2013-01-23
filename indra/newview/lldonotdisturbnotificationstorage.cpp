@@ -43,7 +43,8 @@
 #include "lluuid.h"
 
 static const F32 DND_TIMER = 3.0;
-const std::string toastName = "IMToast";
+const char * LLDoNotDisturbNotificationStorage::toastName = "IMToast";
+const char * LLDoNotDisturbNotificationStorage::offerName = "UserGiveItem";
 
 LLDoNotDisturbNotificationStorageTimer::LLDoNotDisturbNotificationStorageTimer() : LLEventTimer(DND_TIMER)
 {
@@ -72,6 +73,8 @@ LLDoNotDisturbNotificationStorage::LLDoNotDisturbNotificationStorage()
 	, LLNotificationStorage(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "dnd_notifications.xml"))
     , mDirty(false)
 {
+    nameToPayloadParameterMap[toastName] = "SESSION_ID";
+    nameToPayloadParameterMap[offerName] = "object_id";
 }
 
 LLDoNotDisturbNotificationStorage::~LLDoNotDisturbNotificationStorage()
@@ -234,15 +237,16 @@ LLNotificationChannelPtr LLDoNotDisturbNotificationStorage::getCommunicationChan
 	return channelPtr;
 }
 
-void LLDoNotDisturbNotificationStorage::removeIMNotification(const LLUUID& session_id)
+void LLDoNotDisturbNotificationStorage::removeNotification(const char * name, const LLUUID& id)
 {
     LLNotifications& instance = LLNotifications::instance();
     LLNotificationChannelPtr channelPtr = getCommunicationChannel();
     LLCommunicationChannel *commChannel = dynamic_cast<LLCommunicationChannel*>(channelPtr.get());
     LLNotificationPtr notification;
-    LLSD substitutions;
-    LLUUID notificationSessionID;
+    LLSD payload;
+    LLUUID notificationObjectID;
     std::string notificationName;
+    std::string payloadVariable = nameToPayloadParameterMap[name];
     LLCommunicationChannel::history_list_t::iterator it;
     std::vector<LLCommunicationChannel::history_list_t::iterator> itemsToRemove;
 
@@ -252,18 +256,18 @@ void LLDoNotDisturbNotificationStorage::removeIMNotification(const LLUUID& sessi
         ++it)
     {
         notification = it->second;
-        substitutions = notification->getSubstitutions();
-        notificationSessionID = substitutions["SESSION_ID"].asUUID();
+        payload = notification->getPayload();
+        notificationObjectID = payload[payloadVariable].asUUID();
         notificationName = notification->getName();
 
-        if(notificationName == toastName
-            && session_id == notificationSessionID)
+        if(notificationName == name
+            && id == notificationObjectID)
         {
             itemsToRemove.push_back(it);
         }
     }
 
-   
+
     //Remove the notifications
     if(itemsToRemove.size())
     {

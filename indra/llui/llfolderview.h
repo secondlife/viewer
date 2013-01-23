@@ -101,6 +101,7 @@ public:
 	};
 
 	friend class LLFolderViewScrollContainer;
+    typedef std::deque<LLFolderViewItem*> selected_items_t;
 
 	LLFolderView(const Params&);
 	virtual ~LLFolderView( void );
@@ -138,6 +139,7 @@ public:
 
 	// Get the last selected item
 	virtual LLFolderViewItem* getCurSelectedItem( void );
+    selected_items_t& getSelectedItems( void );
 
 	// Record the selected item and pass it down the hierarchy.
 	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem,
@@ -261,7 +263,6 @@ protected:
 protected:
 	LLHandle<LLView>					mPopupMenuHandle;
 	
-	typedef std::deque<LLFolderViewItem*> selected_items_t;
 	selected_items_t				mSelectedItems;
 	BOOL							mKeyboardSelection;
 	BOOL							mAllowMultiSelect;

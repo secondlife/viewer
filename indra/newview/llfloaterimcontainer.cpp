@@ -1316,7 +1316,7 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
         //Nearby chat (Null) IMs are not stored while in DND mode, so can ignore removal
         if(gAgent.isDoNotDisturb() && session_id.notNull())
         {
-            LLDoNotDisturbNotificationStorage::getInstance()->removeIMNotification(session_id);
+            LLDoNotDisturbNotificationStorage::getInstance()->removeNotification(LLDoNotDisturbNotificationStorage::toastName, session_id);
         }
     }
 
