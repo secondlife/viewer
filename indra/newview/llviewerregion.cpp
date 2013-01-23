@@ -1721,9 +1721,26 @@ LLVOCacheEntry* LLViewerRegion::getCacheEntry(U32 local_id)
 	return NULL;
 }
 
+//estimate weight of cache missed object
+F32 LLViewerRegion::calcObjectWeight(U32 flags)
+{
+	LLVector3 pos((F32)(flags & 0xff), (F32)((flags >> 8) & 0xff), (F32)((flags >> 16) & 0xff) * 16.f);
+	F32 rad = (F32)((flags >> 24) & 0xff);
+
+	pos += getOriginAgent();
+	pos -= LLViewerCamera::getInstance()->getOrigin();
+
+	return rad * rad / pos.lengthSquared();
+}
+
+void LLViewerRegion::addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type, F32 weight)
+{
+	mCacheMissList.insert(CacheMissItem(id, miss_type, weight));
+}
+
 // Get data packer for this object, if we have cached data
 // AND the CRC matches. JC
-bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U8 &cache_miss_type)
+bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss_type)
 {
 	//llassert(mCacheLoaded);  This assert failes often, changing to early-out -- davep, 2010/10/18
 
@@ -1749,15 +1766,14 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U8 &cache_miss_type)
 		else
 		{
 			// llinfos << "CRC miss for " << local_id << llendl;
-			cache_miss_type = CACHE_MISS_TYPE_CRC;
-			mCacheMissCRC.put(local_id);
+
+			addCacheMiss(local_id, CACHE_MISS_TYPE_CRC, calcObjectWeight(flags));
 		}
 	}
 	else
 	{
 		// llinfos << "Cache miss for " << local_id << llendl;
-		cache_miss_type = CACHE_MISS_TYPE_FULL;
-		mCacheMissFull.put(local_id);
+		addCacheMiss(local_id, CACHE_MISS_TYPE_FULL, calcObjectWeight(flags));
 	}
 
 	return false;
@@ -1765,23 +1781,22 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U8 &cache_miss_type)
 
 void LLViewerRegion::addCacheMissFull(const U32 local_id)
 {
-	mCacheMissFull.put(local_id);
+	addCacheMiss(local_id, CACHE_MISS_TYPE_FULL, 100.f);
 }
 
 void LLViewerRegion::requestCacheMisses()
 {
-	S32 full_count = mCacheMissFull.count();
-	S32 crc_count = mCacheMissCRC.count();
-	if (full_count == 0 && crc_count == 0) return;
+	if (!mCacheMissList.size()) 
+	{
+		return;
+	}
 
 	LLMessageSystem* msg = gMessageSystem;
 	BOOL start_new_message = TRUE;
 	S32 blocks = 0;
-	S32 i;
-
-	// Send full cache miss updates.  For these, we KNOW we don't
-	// have a viewer object.
-	for (i = 0; i < full_count; i++)
+	
+	//send requests for all cache-missed objects
+	for (CacheMissItem::cache_miss_list_t::iterator iter = mCacheMissList.begin(); iter != mCacheMissList.end(); ++iter)
 	{
 		if (start_new_message)
 		{
@@ -1793,34 +1808,8 @@ void LLViewerRegion::requestCacheMisses()
 		}
 
 		msg->nextBlockFast(_PREHASH_ObjectData);
-		msg->addU8Fast(_PREHASH_CacheMissType, CACHE_MISS_TYPE_FULL);
-		msg->addU32Fast(_PREHASH_ID, mCacheMissFull[i]);
-		blocks++;
-
-		if (blocks >= 255)
-		{
-			sendReliableMessage();
-			start_new_message = TRUE;
-			blocks = 0;
-		}
-	}
-
-	// Send CRC miss updates.  For these, we _might_ have a viewer object,
-	// but probably not.
-	for (i = 0; i < crc_count; i++)
-	{
-		if (start_new_message)
-		{
-			msg->newMessageFast(_PREHASH_RequestMultipleObjects);
-			msg->nextBlockFast(_PREHASH_AgentData);
-			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			start_new_message = FALSE;
-		}
-
-		msg->nextBlockFast(_PREHASH_ObjectData);
-		msg->addU8Fast(_PREHASH_CacheMissType, CACHE_MISS_TYPE_CRC);
-		msg->addU32Fast(_PREHASH_ID, mCacheMissCRC[i]);
+		msg->addU8Fast(_PREHASH_CacheMissType, (*iter).mType);
+		msg->addU32Fast(_PREHASH_ID, (*iter).mID);
 		blocks++;
 
 		if (blocks >= 255)
@@ -1835,14 +1824,14 @@ void LLViewerRegion::requestCacheMisses()
 	if (!start_new_message)
 	{
 		sendReliableMessage();
-	}
-	mCacheMissFull.reset();
-	mCacheMissCRC.reset();
+	}	
 
 	mCacheDirty = TRUE ;
 	// llinfos << "KILLDEBUG Sent cache miss full " << full_count << " crc " << crc_count << llendl;
-	LLViewerStatsRecorder::instance().requestCacheMissesEvent(full_count + crc_count);
+	LLViewerStatsRecorder::instance().requestCacheMissesEvent(mCacheMissList.size());
 	LLViewerStatsRecorder::instance().log(0.2f);
+
+	mCacheMissList.clear();
 }
 
 void LLViewerRegion::dumpCache()
