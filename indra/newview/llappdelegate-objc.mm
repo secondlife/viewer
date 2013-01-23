@@ -31,12 +31,12 @@
 
 - (void) applicationDidBecomeActive:(NSNotification *)notification
 {
-	
+	callWindowFocus();
 }
 
 - (void) applicationDidResignActive:(NSNotification *)notification
 {
-	
+	callWindowUnfocus();
 }
 
 - (NSApplicationDelegateReply) applicationShouldTerminate:(NSApplication *)sender
