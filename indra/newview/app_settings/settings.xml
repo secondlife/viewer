@@ -3259,17 +3259,6 @@
       <key>Value</key>
       <string>http://events.secondlife.com/viewer/embed/event/</string>
     </map>
-    <key>EveryoneCopy</key>
-      <map>
-        <key>Comment</key>
-        <string>Everyone can copy the newly created objects</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>Boolean</string>
-        <key>Value</key>
-        <integer>0</integer>
-    </map>
 	<key>FeatureManagerHTTPTable</key>
       <map>
         <key>Comment</key>
@@ -9509,17 +9498,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShareWithGroup</key>
-    <map>
-      <key>Comment</key>
-      <string>Newly created objects are shared with the currently active group</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>ShowAdvancedGraphicsSettings</key>
     <map>
       <key>Comment</key>
@@ -13657,7 +13635,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>NotecardsNextOwnerModify</key>
     <map>
@@ -13668,7 +13646,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>NotecardsNextOwnerTransfer</key>
     <map>
@@ -13712,7 +13690,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>GesturesNextOwnerModify</key>
     <map>
@@ -13723,7 +13701,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>GesturesNextOwnerTransfer</key>
     <map>
