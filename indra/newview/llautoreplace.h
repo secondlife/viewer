@@ -132,7 +132,7 @@ class LLAutoReplaceSettings
 	LLSD getExampleLLSD();
 
 	/// Get the actual settings as LLSD
-	const LLSD& getAsLLSD();
+	const LLSD& asLLSD();
 	///< @note for use only in AutoReplace::saveToUserSettings
 	
   private:
@@ -190,42 +190,37 @@ class LLAutoReplaceSettings
  */
 class LLAutoReplace : public LLSingleton<LLAutoReplace>
 {
-  public:
-	LLAutoReplace();
-	~LLAutoReplace();
+public:
+    /// Callback that provides the hook for use in text entry methods
+    void autoreplaceCallback(LLWString& inputText, S32& cursorPos);
 
-	/// @return a pointer to the active instance
-	static LLAutoReplace* getInstance();
+    /// Get a copy of the current settings
+    LLAutoReplaceSettings getSettings();
 
-	/// Callback that provides the hook for use in text entry methods
-	void autoreplaceCallback(LLUIString& inputText, S32& cursorPos);
+    /// Commit new settings after making changes
+    void setSettings(const LLAutoReplaceSettings& settings);
 
-	/// Get a copy of the current settings
-	LLAutoReplaceSettings getSettings();
+private:
+    friend class LLSingleton<LLAutoReplace>;
+    LLAutoReplace();
+    /*virtual*/ void initSingleton();
 
-	/// Commit new settings after making changes
-	void setSettings(const LLAutoReplaceSettings& settings);
-
-  private:
-	friend class LLSingleton<LLAutoReplace>;
-	static LLAutoReplace* sInstance; ///< the active settings instance
-
-	LLAutoReplaceSettings mSettings; ///< configuration information
+    LLAutoReplaceSettings mSettings; ///< configuration information
 	
-	/// Read settings from persistent storage
-	void loadFromSettings();
+    /// Read settings from persistent storage
+    void loadFromSettings();
 
-	/// Make the newSettings active and write them to user storage
-	void saveToUserSettings();
+    /// Make the newSettings active and write them to user storage
+    void saveToUserSettings();
 
-	/// Compute the user settings file name
-	std::string getUserSettingsFileName();
+    /// Compute the user settings file name
+    std::string getUserSettingsFileName();
 
-	/// Compute the (read-ony) application settings file name
-	std::string getAppSettingsFileName();
+    /// Compute the (read-ony) application settings file name
+    std::string getAppSettingsFileName();
 
-	/// basename for the settings files
-	static const char* SETTINGS_FILE_NAME;
+    /// basename for the settings files
+    static const char* SETTINGS_FILE_NAME;
 };
 
 #endif /* LLAUTOREPLACE_H */

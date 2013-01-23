@@ -157,8 +157,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mHighlightColor(p.highlight_color()),
 	mPreeditBgColor(p.preedit_bg_color()),
 	mGLFont(p.font),
-	mContextMenuHandle(),
-	mAutoreplaceCallback()
+	mContextMenuHandle()
 {
 	llassert( mMaxLengthBytes > 0 );
 
@@ -969,12 +968,6 @@ void LLLineEditor::addChar(const llwchar uni_char)
 	else
 	{
 		LLUI::reportBadKeystroke();
-	}
-
-	if (!mReadOnly && mAutoreplaceCallback != NULL)
-	{
-		// call callback
-		mAutoreplaceCallback(mText, mCursorPos);
 	}
 
 	getWindow()->hideCursorUntilMouseMove();

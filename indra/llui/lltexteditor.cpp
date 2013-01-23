@@ -246,7 +246,8 @@ LLTextEditor::Params::Params()
 }
 
 LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
-	LLTextBase(p),
+    LLTextBase(p),
+    mAutoreplaceCallback(),
 	mBaseDocIsPristine(TRUE),
 	mPristineCmd( NULL ),
 	mLastCmd( NULL ),
@@ -1097,7 +1098,14 @@ void LLTextEditor::addChar(llwchar wc)
 	}
 
 	setCursorPos(mCursorPos + addChar( mCursorPos, wc ));
+
+    if (!mReadOnly && mAutoreplaceCallback != NULL)
+    {
+        // call callback
+        mAutoreplaceCallback(getViewModel()->getEditableDisplay(), mCursorPos);
+    }
 }
+
 void LLTextEditor::addLineBreakChar()
 {
 	if( !getEnabled() )
