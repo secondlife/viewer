@@ -30,29 +30,17 @@
 #include "llviewercontrol.h"
 #include "llnotificationsutil.h"
 
-LLAutoReplace* LLAutoReplace::sInstance;
-
 const char* LLAutoReplace::SETTINGS_FILE_NAME = "autoreplace.xml";
 
-LLAutoReplace::LLAutoReplace()
-{
-}
-
-LLAutoReplace::~LLAutoReplace()
-{
-	sInstance = NULL;
-}
-
-void LLAutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
+void LLAutoReplace::autoreplaceCallback(LLWString& inputText, S32& cursorPos)
 {
 	static LLCachedControl<bool> perform_autoreplace(gSavedSettings, "AutoReplace");
 	if(perform_autoreplace)
 	{
 		S32 wordEnd = cursorPos-1;
-		LLWString text = inputText.getWString();
 
-		bool atSpace  = (text[wordEnd] == ' ');
-		bool haveWord = (LLWStringUtil::isPartOfWord(text[wordEnd]));
+		bool atSpace  = (inputText[wordEnd] == ' ');
+		bool haveWord = (LLWStringUtil::isPartOfWord(inputText[wordEnd]));
 
 		if (atSpace || haveWord)
 		{
@@ -60,7 +48,7 @@ void LLAutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
 			{
 				// find out if this space immediately follows a word
 				wordEnd--;
-				haveWord  = (LLWStringUtil::isPartOfWord(text[wordEnd]));
+				haveWord  = (LLWStringUtil::isPartOfWord(inputText[wordEnd]));
 			}
 			if (haveWord)
 			{
@@ -68,14 +56,14 @@ void LLAutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
 				std::string word;
 				S32 wordStart = wordEnd;
 				for ( S32 backOne = wordStart - 1;
-					  backOne >= 0 && LLWStringUtil::isPartOfWord(text[backOne]);
+					  backOne >= 0 && LLWStringUtil::isPartOfWord(inputText[backOne]);
 					  backOne--
 					 )
 				{
 					wordStart--; // walk wordStart back to the beginning of the word
 				}
 				LL_DEBUGS("AutoReplace")<<"wordStart: "<<wordStart<<" wordEnd: "<<wordEnd<<LL_ENDL;
-				std::string strText  = std::string(text.begin(), text.end());
+				std::string strText  = std::string(inputText.begin(), inputText.end());
 				std::string lastWord = strText.substr(wordStart, wordEnd-wordStart+1);
 				std::string replacementWord( mSettings.replaceWord( lastWord ) );
 
@@ -89,24 +77,13 @@ void LLAutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
 						LLWString strOld = utf8str_to_wstring(lastWord);
 						int size_change = strNew.size() - strOld.size();
 
-						text.replace(wordStart,lastWord.length(),strNew);
-						inputText = wstring_to_utf8str(text);
+						inputText.replace(wordStart,lastWord.length(),strNew);
 						cursorPos+=size_change;
 					}
 				}
 			}
 		}
 	}
-}
-
-LLAutoReplace* LLAutoReplace::getInstance()
-{
-	if(!sInstance)
-	{
-		sInstance = new LLAutoReplace();
-		sInstance->loadFromSettings();
-	}
-	return sInstance;
 }
 
 std::string LLAutoReplace::getUserSettingsFileName()
@@ -145,6 +122,15 @@ void LLAutoReplace::setSettings(const LLAutoReplaceSettings& newSettings)
 	mSettings.set(newSettings);
 	/// Make the newSettings active and write them to user storage
 	saveToUserSettings();
+}
+
+LLAutoReplace::LLAutoReplace()
+{
+}
+
+void LLAutoReplace::initSingleton()
+{
+    loadFromSettings();
 }
 
 void LLAutoReplace::loadFromSettings()
@@ -220,7 +206,7 @@ void LLAutoReplace::saveToUserSettings()
 	std::string filename=getUserSettingsFileName();
 	llofstream file;
 	file.open(filename.c_str());
-	LLSDSerialize::toPrettyXML(mSettings.getAsLLSD(), file);
+	LLSDSerialize::toPrettyXML(mSettings.asLLSD(), file);
 	file.close();
 	LL_INFOS("AutoReplace") << "settings saved to '" << filename << "'" << LL_ENDL;
 }
@@ -801,7 +787,7 @@ LLSD LLAutoReplaceSettings::getExampleLLSD()
 	return example;
 }
 
-const LLSD& LLAutoReplaceSettings::getAsLLSD()
+const LLSD& LLAutoReplaceSettings::asLLSD()
 {
 	return mLists;
 }

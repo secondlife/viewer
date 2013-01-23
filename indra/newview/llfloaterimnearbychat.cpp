@@ -66,6 +66,7 @@
 #include "llrootview.h"
 #include "llviewerchat.h"
 #include "lltranslate.h"
+#include "llautoreplace.h"
 
 S32 LLFloaterIMNearbyChat::sLastSpecialChatChannel = 0;
 
@@ -112,6 +113,7 @@ BOOL LLFloaterIMNearbyChat::postBuild()
     setIsSingleInstance(TRUE);
     BOOL result = LLFloaterIMSessionTab::postBuild();
 	
+    mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2));
 	mInputEditor->setCommitCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxCommit, this));
 	mInputEditor->setKeystrokeCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxKeystroke, this));
 	mInputEditor->setFocusLostCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxFocusLost, this));
