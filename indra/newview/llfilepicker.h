@@ -39,8 +39,8 @@
 #include <Carbon/Carbon.h>
 
 // AssertMacros.h does bad things.
-#include "fix_macros.h"
 #undef verify
+#undef check
 #undef require
 
 #include <vector>
@@ -85,7 +85,8 @@ public:
 		FFLOAD_MODEL = 9,
 		FFLOAD_COLLADA = 10,
 		FFLOAD_SCRIPT = 11,
-		FFLOAD_DICTIONARY = 12
+		FFLOAD_DICTIONARY = 12,
+        FFLOAD_DIRECTORY = 13   //To call from lldirpicker. 
 	};
 
 	enum ESaveFilter
@@ -158,15 +159,14 @@ private:
 #endif
 
 #if LL_DARWIN
-	NavDialogCreationOptions mNavOptions;
+    S32 mPickOptions;
 	std::vector<std::string> mFileVector;
 	UInt32 mFileIndex;
 	
-	OSStatus doNavChooseDialog(ELoadFilter filter);
-	OSStatus doNavSaveDialog(ESaveFilter filter, const std::string& filename);
-	void getFilePath(SInt32 index);
-	void getFileName(SInt32 index);
-	static Boolean navOpenFilterProc(AEDesc *theItem, void *info, void *callBackUD, NavFilterModes filterMode);
+	bool doNavChooseDialog(ELoadFilter filter);
+	bool doNavSaveDialog(ESaveFilter filter, const std::string& filename);
+	//static Boolean navOpenFilterProc(AEDesc *theItem, void *info, void *callBackUD, NavFilterModes filterMode);
+    std::vector<std::string>* navOpenFilterProc(ELoadFilter filter);
 #endif
 
 #if LL_GTK
