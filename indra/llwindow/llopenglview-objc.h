@@ -14,7 +14,6 @@
 
 @interface LLOpenGLView : NSOpenGLView
 {
-	NSPoint mousePos;
 	std::string mLastDraggedUrl;
 }
 

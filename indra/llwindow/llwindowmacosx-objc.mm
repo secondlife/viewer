@@ -64,11 +64,12 @@ void setupCocoa()
 
 bool copyToPBoard(const unsigned short *str, unsigned int len)
 {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc]init];
 	NSPasteboard *pboard = [NSPasteboard generalPasteboard];
 	[pboard clearContents];
 	
 	NSArray *contentsToPaste = [[NSArray alloc] initWithObjects:[NSString stringWithCharacters:str length:len], nil];
-	
+	[pool release];
 	return [pboard writeObjects:contentsToPaste];
 }
 
@@ -80,6 +81,7 @@ bool pasteBoardAvailable()
 
 const unsigned short *copyFromPBoard()
 {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc]init];
 	NSPasteboard *pboard = [NSPasteboard generalPasteboard];
 	NSArray *classArray = [NSArray arrayWithObject:[NSString class]];
 	NSString *str = NULL;
@@ -91,6 +93,7 @@ const unsigned short *copyFromPBoard()
 	}
 	unichar* temp = (unichar*)calloc([str length], sizeof(unichar));
 	[str getCharacters:temp];
+	[pool release];
 	return temp;
 }
 
@@ -312,6 +315,7 @@ void convertWindowToScreen(NSWindowRef window, float *coord)
 void closeWindow(NSWindowRef window)
 {
 	[(LLNSWindow*)window close];
+	[(LLNSWindow*)window release];
 }
 
 void removeGLView(GLViewRef view)

@@ -294,37 +294,48 @@
 
 - (void) keyDown:(NSEvent *)theEvent
 {
-	callKeyDown([theEvent keyCode], mModifiers);
-	NSLog(@"Keycode: %hu", [theEvent keyCode]);
-	NSString *chars = [theEvent characters];
-	for (uint i = 0; i < [chars length]; i++)
-	{
-		// Enter and Return are special cases.
-		unichar returntest = [chars characterAtIndex:i];
-		if ((returntest == NSCarriageReturnCharacter || returntest == NSEnterCharacter) &&
-			!([theEvent modifierFlags] & NSCommandKeyMask) &&
-			!([theEvent modifierFlags] & NSAlternateKeyMask) &&
-			!([theEvent modifierFlags] & NSControlKeyMask))
-		{
-			callUnicodeCallback(13, 0);
-		} else {
-			// The command key being pressed is also a special case.
-			// Control + <character> produces an ASCII control character code.
-			// Command + <character> produces just the character's code.
-			// Check to see if the command key is pressed, then filter through the different character ranges that are relevant to control characters, and subtract the appropriate range.
-			if ([theEvent modifierFlags] & NSCommandKeyMask)
-			{
-				if (returntest >= 64 && returntest <= 95)
+	uint keycode = [theEvent keyCode];
+	
+	switch (keycode) {
+		case 0x7b:
+		case 0x7c:
+		case 0x7d:
+		case 0x7e:
+			callKeyDown(keycode, mModifiers);
+			break;
+			
+		default:
+			callKeyDown(keycode, mModifiers);
+			NSString *chars = [theEvent characters];
+			for (uint i = 0; i < [chars length]; i++) {
+				// Enter and Return are special cases.
+				unichar returntest = [chars characterAtIndex:i];
+				if ((returntest == NSCarriageReturnCharacter || returntest == NSEnterCharacter) &&
+					!([theEvent modifierFlags] & NSCommandKeyMask) &&
+					!([theEvent modifierFlags] & NSAlternateKeyMask) &&
+					!([theEvent modifierFlags] & NSControlKeyMask))
 				{
-					callUnicodeCallback(returntest - 63, mModifiers);
-				} else if (returntest >= 97 && returntest <= 122)
-				{
-					callUnicodeCallback(returntest - 96, mModifiers);
+					callUnicodeCallback(13, 0);
+				} else {
+					// The command key being pressed is also a special case.
+					// Control + <character> produces an ASCII control character code.
+					// Command + <character> produces just the character's code.
+					// Check to see if the command key is pressed, then filter through the different character ranges that are relevant to control characters, and subtract the appropriate range.
+					if ([theEvent modifierFlags] & NSCommandKeyMask)
+					{
+						if (returntest >= 64 && returntest <= 95)
+						{
+							callUnicodeCallback(returntest - 63, mModifiers);
+						} else if (returntest >= 97 && returntest <= 122)
+						{
+							callUnicodeCallback(returntest - 96, mModifiers);
+						}
+					} else {
+						callUnicodeCallback(returntest, mModifiers);
+					}
 				}
-			} else {
-				callUnicodeCallback(returntest, mModifiers);
 			}
-		}
+			break;
 	}
 }
 

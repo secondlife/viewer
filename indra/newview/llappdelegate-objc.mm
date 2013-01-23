@@ -29,6 +29,16 @@
 	}
 }
 
+- (void) applicationDidBecomeActive:(NSNotification *)notification
+{
+	
+}
+
+- (void) applicationDidResignActive:(NSNotification *)notification
+{
+	
+}
+
 - (NSApplicationDelegateReply) applicationShouldTerminate:(NSApplication *)sender
 {
 	if (!runMainLoop())
