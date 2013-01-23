@@ -1135,20 +1135,23 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 
 void LLInventoryAction::removeItemFromDND(LLFolderView* root)
 {
-    //Get selected items
-    LLFolderView::selected_items_t selectedItems = root->getSelectedItems();
-    LLFolderViewModelItemInventory * viewModel = NULL;
-
-    //If user is in DND and deletes item, make sure the notification is not displayed by removing the notification
-    //from DND history and .xml file. Once this is done, upon exit of DND mode the item deleted will not show a notification.
-    for(LLFolderView::selected_items_t::iterator it = selectedItems.begin(); it != selectedItems.end(); ++it)
+    if(gAgent.isDoNotDisturb())
     {
-        viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*it)->getViewModelItem());
+        //Get selected items
+        LLFolderView::selected_items_t selectedItems = root->getSelectedItems();
+        LLFolderViewModelItemInventory * viewModel = NULL;
 
-        if(viewModel && viewModel->getUUID().notNull())
+        //If user is in DND and deletes item, make sure the notification is not displayed by removing the notification
+        //from DND history and .xml file. Once this is done, upon exit of DND mode the item deleted will not show a notification.
+        for(LLFolderView::selected_items_t::iterator it = selectedItems.begin(); it != selectedItems.end(); ++it)
         {
-            //Will remove the item offer notification
-            LLDoNotDisturbNotificationStorage::instance().removeNotification(LLDoNotDisturbNotificationStorage::offerName, viewModel->getUUID());
+            viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*it)->getViewModelItem());
+
+            if(viewModel && viewModel->getUUID().notNull())
+            {
+                //Will remove the item offer notification
+                LLDoNotDisturbNotificationStorage::instance().removeNotification(LLDoNotDisturbNotificationStorage::offerName, viewModel->getUUID());
+            }
         }
     }
 }
@@ -1158,6 +1161,8 @@ void LLInventoryAction::onItemsRemovalConfirmation( const LLSD& notification, co
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0)
 	{
+        //Need to remove item from DND before item is removed from root folder view
+        //because once removed from root folder view the item is no longer a selected item
         removeItemFromDND(root);
 		root->removeSelectedItems();
 	}

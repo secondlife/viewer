@@ -260,7 +260,7 @@ void LLDoNotDisturbNotificationStorage::removeNotification(const char * name, co
         notificationObjectID = payload[payloadVariable].asUUID();
         notificationName = notification->getName();
 
-        if(notificationName == name
+        if((notificationName == name)
             && id == notificationObjectID)
         {
             itemsToRemove.push_back(it);
