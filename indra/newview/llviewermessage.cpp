@@ -2068,7 +2068,40 @@ llwarns << "DBG " << from_name << " " << from_id << llendl;
 	// Yes
 	case 0:
 		{
-			LLAvatarActions::offerTeleport(from_id);
+			std::string text = "Join me in ";
+			LLSLURL slurl;
+			LLAgentUI::buildSLURL(slurl);
+			text.append("\r\n").append(slurl.getSLURLString());
+
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessageFast(_PREHASH_StartLure);
+			msg->nextBlockFast(_PREHASH_AgentData);
+			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			msg->nextBlockFast(_PREHASH_Info);
+			msg->addU8Fast(_PREHASH_LureType, (U8)0); // sim will fill this in.
+			msg->addStringFast(_PREHASH_Message, text);
+
+			msg->nextBlockFast(_PREHASH_TargetData);
+			msg->addUUIDFast(_PREHASH_TargetID, from_id);
+
+			// Record the offer.
+			std::string target_name;
+			gCacheName->getFullName(from_id, target_name);  // for im log filenames
+			LLSD args;
+			args["TO_NAME"] = LLSLURL("agent", from_id, "displayname").getSLURLString();;
+	
+			LLSD payload;
+
+			//*TODO please rewrite all keys to the same case, lower or upper
+			payload["from_id"] = from_id;
+			payload["SUPPRESS_TOAST"] = true;
+			LLNotificationsUtil::add("TeleportOfferSent", args, payload);
+
+			// Add the recepient to the recent people list.
+			LLRecentPeople::instance().add(from_id);
+
+			gAgent.sendReliableMessage();
 		}
 		break;
 
