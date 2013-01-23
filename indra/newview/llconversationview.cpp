@@ -82,6 +82,7 @@ LLConversationViewSession::LLConversationViewSession(const LLConversationViewSes
 	mVoiceClientObserver(NULL),
 	mCollapsedMode(false),
     mHasArrow(true),
+	mIsInActiveVoiceChannel(false),
 	mFlashStateOn(false),
 	mFlashStarted(false)
 {
@@ -178,6 +179,7 @@ BOOL LLConversationViewSession::postBuild()
 			LLIconCtrl* icon = mItemPanel->getChild<LLIconCtrl>("nearby_chat_icon");
 			icon->setVisible(true);
 			mSpeakingIndicator->setSpeakerId(gAgentID, LLUUID::null, true);
+			mIsInActiveVoiceChannel = true;
 			if(LLVoiceClient::instanceExists())
 			{
 				LLNearbyVoiceClientStatusObserver* mVoiceClientObserver = new LLNearbyVoiceClientStatusObserver(this);
@@ -231,6 +233,8 @@ void LLConversationViewSession::draw()
 		items_t::iterator iit = iter++;
 		(*iit)->setVisible(draw_children);
 	}
+
+	refresh();
 
 	LLView::draw();
 }
@@ -351,6 +355,25 @@ void LLConversationViewSession::refresh()
 
 	// Update all speaking indicators
 	LLSpeakingIndicatorManager::updateSpeakingIndicators();
+
+	// we should show indicator for specified voice session only if this is current channel. EXT-5562.
+	if (!mIsInActiveVoiceChannel)
+	{
+		if (mSpeakingIndicator)
+		{
+			mSpeakingIndicator->setVisible(false);
+		}
+		LLConversationViewParticipant* participant = NULL;
+		items_t::const_iterator iter;
+		for (iter = getItemsBegin(); iter != getItemsEnd(); iter++)
+		{
+			participant = dynamic_cast<LLConversationViewParticipant*>(*iter);
+			if (participant)
+			{
+				participant->hideSpeakingIndicator();
+			}
+		}
+	}
 	
 	// Do the regular upstream refresh
 	LLFolderViewFolder::refresh();
@@ -362,8 +385,8 @@ void LLConversationViewSession::onCurrentVoiceSessionChanged(const LLUUID& sessi
 
 	if (vmi)
 	{
-		bool is_active = vmi->getUUID() == session_id;
-		mCallIconLayoutPanel->setVisible(is_active);
+		mIsInActiveVoiceChannel = vmi->getUUID() == session_id;
+		mCallIconLayoutPanel->setVisible(mIsInActiveVoiceChannel);
 	}
 }
 
@@ -621,6 +644,11 @@ LLView* LLConversationViewParticipant::getItemChildView(EAvatarListItemChildInde
     }
 
     return child_view;
+}
+
+void LLConversationViewParticipant::hideSpeakingIndicator()
+{
+	mSpeakingIndicator->setVisible(false);
 }
 
 // EOF

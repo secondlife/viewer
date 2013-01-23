@@ -102,6 +102,8 @@ private:
 	bool					mCollapsedMode;
     bool                    mHasArrow;
 
+	bool					mIsInActiveVoiceChannel;
+
 	LLVoiceClientStatusObserver* mVoiceClientObserver;
 	
 	boost::signals2::connection mActiveVoiceChannelConnection;
@@ -136,6 +138,8 @@ public:
     void onMouseLeave(S32 x, S32 y, MASK mask);
 
     /*virtual*/ S32 getLabelXPos();
+
+	void hideSpeakingIndicator();
 
 protected:
 	friend class LLUICtrlFactory;
