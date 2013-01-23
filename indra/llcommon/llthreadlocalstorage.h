@@ -177,12 +177,14 @@ public:
 			llwarns << "Trying to access deleted singleton " << typeid(DERIVED_TYPE).name() << " creating new instance" << llendl;
 		}
 
+#if LL_DARWIN
+        createTLSInstance();
+#endif
 		if (!getIfExists())
 		{
 			setInitState(CONSTRUCTING);
             DERIVED_TYPE* instancep = new DERIVED_TYPE();
 #if LL_DARWIN
-            createTLSInstance();
             S32 result = pthread_setspecific(sInstanceKey, (void*)instancep);
             if (result != 0)
             {
