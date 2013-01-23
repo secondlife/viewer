@@ -182,6 +182,7 @@ private:
 
 	bool checkIfTornOff();
     bool mIsHostAttached;
+    bool mHasVisibleBeenInitialized;
 
 	LLTimer* mRefreshTimer; ///< Defines the rate at which refresh() is called.
 };
