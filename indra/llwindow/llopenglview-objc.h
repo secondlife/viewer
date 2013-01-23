@@ -15,6 +15,7 @@
 @interface LLOpenGLView : NSOpenGLView
 {
 	NSPoint mousePos;
+	std::string mLastDraggedUrl;
 }
 
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync;

@@ -24,14 +24,6 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#include <boost/tr1/functional.hpp>
-typedef std::tr1::function<void(unsigned short, unsigned int)> KeyCallback;
-typedef std::tr1::function<void(unsigned int)> ModifierCallback;
-typedef std::tr1::function<void(float*, unsigned int)> MouseCallback;
-typedef std::tr1::function<void(wchar_t, unsigned int)> UnicodeCallback;
-typedef std::tr1::function<void(unsigned int, unsigned int)> ResizeCallback;
-typedef std::tr1::function<void(float)> ScrollWheelCallback;
-typedef std::tr1::function<void()> VoidCallback;
 
 // This will actually hold an NSCursor*, but that type is only available in objective C.
 typedef void *CursorRef;
@@ -59,6 +51,7 @@ void setIBeamCursor();
 void setPointingHandCursor();
 void setCopyCursor();
 void setCrossCursor();
+void setNotAllowedCursor();
 void hideNSCursor();
 void showNSCursor();
 void hideNSCursorTillMove(bool hide);
@@ -102,6 +95,12 @@ void callMiddleMouseDown(float *pos, unsigned int mask);
 void callMiddleMouseUp(float *pos, unsigned int mask);
 void callFocus();
 void callFocusLost();
+
+#include <string>
+void callHandleDragEntered(std::string url);
+void callHandleDragExited(std::string url);
+void callHandleDragUpdated(std::string url);
+void callHandleDragDropped(std::string url);
 
 NSWindowRef getMainAppWindow();
 GLViewRef getGLView();

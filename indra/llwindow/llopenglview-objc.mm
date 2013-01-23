@@ -61,12 +61,13 @@
 
 - (id) init
 {
+	//[self registerForDraggedTypes:[NSArray arrayWithObjects:NSURLPboardType, NSFilenamesPboardType, nil]];
 	return [self initWithFrame:[self bounds] withSamples:2 andVsync:TRUE];
 }
 
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync
 {
-	
+	[self registerForDraggedTypes:[NSArray arrayWithObject:NSURLPboardType]];
 	[self initWithFrame:frame];
 	
 	// Initialize with a default "safe" pixel format that will work with versions dating back to OS X 10.6.
@@ -234,6 +235,49 @@
 	return [_window resignFirstResponder];
 }
 
+- (NSDragOperation) draggingEntered:(id<NSDraggingInfo>)sender
+{
+	NSPasteboard *pboard;
+    NSDragOperation sourceDragMask;
+	
+	sourceDragMask = [sender draggingSourceOperationMask];
+	
+	pboard = [sender draggingPasteboard];
+	
+	if ([[pboard types] containsObject:NSURLPboardType])
+	{
+		if (sourceDragMask & NSDragOperationLink) {
+			NSURL *fileUrl = [[pboard readObjectsForClasses:[NSArray arrayWithObject:[NSURL class]] options:[NSDictionary dictionary]] objectAtIndex:0];
+			mLastDraggedUrl = [[fileUrl absoluteString] UTF8String];
+            return NSDragOperationLink;
+        }
+	}
+	return NSDragOperationNone;
+}
+
+- (NSDragOperation)draggingUpdated:(id <NSDraggingInfo>)sender
+{
+	callHandleDragUpdated(mLastDraggedUrl);
+	
+	return NSDragOperationLink;
+}
+
+- (void) draggingExited:(id<NSDraggingInfo>)sender
+{
+	callHandleDragExited(mLastDraggedUrl);
+}
+
+- (BOOL)prepareForDragOperation:(id < NSDraggingInfo >)sender
+{
+	return YES;
+}
+
+- (BOOL) performDragOperation:(id<NSDraggingInfo>)sender
+{
+	callHandleDragDropped(mLastDraggedUrl);
+	return true;
+}
+
 @end
 
 // We use a custom NSWindow for our event handling.
@@ -244,7 +288,7 @@
 
 - (id) init
 {
-	//[self registerForDraggedTypes:[NSArray arrayWithObject:NSFilenamesPboardType, nil]];
+	
 	return self;
 }
 
@@ -377,6 +421,8 @@
 {
 	callMouseExit();
 }
+
+
 
 - (NSPoint)convertToScreenFromLocalPoint:(NSPoint)point relativeToView:(NSView *)view
 {

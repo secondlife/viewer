@@ -143,6 +143,12 @@ void setCrossCursor()
 	[cursor set];
 }
 
+void setNotAllowedCursor()
+{
+	NSCursor *cursor = [NSCursor operationNotAllowedCursor];
+	[cursor set];
+}
+
 void hideNSCursor()
 {
 	[NSCursor hide];

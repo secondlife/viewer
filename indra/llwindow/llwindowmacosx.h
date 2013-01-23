@@ -123,7 +123,8 @@ public:
 	
 	void updateMouseDeltas(float* deltas);
 	void getMouseDeltas(float* delta);
-
+	
+	void handleDragNDrop(std::string url, LLWindowCallbacks::DragNDropAction action);
 
 protected:
 	LLWindowMacOSX(LLWindowCallbacks* callbacks,
@@ -164,12 +165,11 @@ protected:
 	static MASK modifiersToMask(S16 modifiers);
 	
 #if LL_OS_DRAGDROP_ENABLED
-	/*
-	static OSErr dragTrackingHandler(DragTrackingMessage message, WindowRef theWindow,
-									 void * handlerRefCon, DragRef theDrag);
-	static OSErr dragReceiveHandler(WindowRef theWindow, void * handlerRefCon,	DragRef theDrag);
-	OSErr handleDragNDrop(DragRef theDrag, LLWindowCallbacks::DragNDropAction action);
-	 */
+	
+	//static OSErr dragTrackingHandler(DragTrackingMessage message, WindowRef theWindow, void * handlerRefCon, DragRef theDrag);
+	//static OSErr dragReceiveHandler(WindowRef theWindow, void * handlerRefCon,	DragRef theDrag);
+	
+	
 #endif // LL_OS_DRAGDROP_ENABLED
 	
 	//
@@ -202,7 +202,7 @@ protected:
 	U32			mFSAASamples;
 	BOOL		mForceRebuild;
 	
-	S32			mDragOverrideCursor;
+	S32	mDragOverrideCursor;
 	
 	F32			mBounceTime;
 	//NMRec		mBounceRec;

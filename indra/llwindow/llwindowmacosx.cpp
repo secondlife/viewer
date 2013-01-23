@@ -248,7 +248,6 @@ void callLeftMouseDown(float *pos, MASK mask)
 	outCoords.mX = llround(pos[0]);
 	outCoords.mY = llround(pos[1]);
 	gWindowImplementation->getCallbacks()->handleMouseDown(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
-	LL_INFOS("Window") << outCoords.mX << ", " << outCoords.mY << LL_ENDL;
 }
 
 void callLeftMouseUp(float *pos, MASK mask)
@@ -285,7 +284,6 @@ void callMouseMoved(float *pos, MASK mask)
 	gWindowImplementation->getMouseDeltas(deltas);
 	outCoords.mX += deltas[0];
 	outCoords.mY += deltas[1];
-	LL_INFOS("Mouse Movement") << "Moved coords: " << outCoords.mX << ", " << outCoords.mY << LL_ENDL;
 	gWindowImplementation->getCallbacks()->handleMouseMove(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
 	gWindowImplementation->getCallbacks()->handleScrollWheel(gWindowImplementation, 0);
 }
@@ -337,6 +335,26 @@ void callMiddleMouseUp(float *pos, MASK mask)
 	outCoords.mX += deltas[0];
 	outCoords.mY += deltas[1];
 	gWindowImplementation->getCallbacks()->handleMiddleMouseUp(gWindowImplementation, outCoords, mask);
+}
+
+void callHandleDragEntered(std::string url)
+{
+	gWindowImplementation->handleDragNDrop(url, LLWindowCallbacks::DNDA_START_TRACKING);
+}
+
+void callHandleDragExited(std::string url)
+{
+	gWindowImplementation->handleDragNDrop(url, LLWindowCallbacks::DNDA_STOP_TRACKING);
+}
+
+void callHandleDragUpdated(std::string url)
+{
+	gWindowImplementation->handleDragNDrop(url, LLWindowCallbacks::DNDA_TRACK);
+}
+
+void callHandleDragDropped(std::string url)
+{
+	gWindowImplementation->handleDragNDrop(url, LLWindowCallbacks::DNDA_DROPPED);
 }
 
 void LLWindowMacOSX::updateMouseDeltas(float* deltas)
@@ -1784,7 +1802,6 @@ S16 LLWindowMacOSX::dragTrackingHandler(DragTrackingMessage message, WindowRef t
 
 	return result;
 }
-
 OSErr LLWindowMacOSX::dragReceiveHandler(WindowRef theWindow, void * handlerRefCon,
 										 DragRef drag)
 {
@@ -1792,126 +1809,69 @@ OSErr LLWindowMacOSX::dragReceiveHandler(WindowRef theWindow, void * handlerRefC
 	return self->handleDragNDrop(drag, LLWindowCallbacks::DNDA_DROPPED);
 
 }
-
-OSErr LLWindowMacOSX::handleDragNDrop(DragRef drag, LLWindowCallbacks::DragNDropAction action)
+*/
+void LLWindowMacOSX::handleDragNDrop(std::string url, LLWindowCallbacks::DragNDropAction action)
 {
-	OSErr result = dragNotAcceptedErr;	// overall function result
-	OSErr err = noErr;	// for local error handling
+	MASK mask = LLWindowMacOSX::modifiersToMask(getModifiers());
 
-	// Get the mouse position and modifiers of this drag.
-	SInt16 modifiers, mouseDownModifiers, mouseUpModifiers;
-	::GetDragModifiers(drag, &modifiers, &mouseDownModifiers, &mouseUpModifiers);
-	MASK mask = LLWindowMacOSX::modifiersToMask(modifiers);
-
-	Point mouse_point;
+	float mouse_point[2];
 	// This will return the mouse point in global screen coords
-	::GetDragMouse(drag, &mouse_point, NULL);
-	LLCoordScreen screen_coords(mouse_point.h, mouse_point.v);
+	getCursorPos(mWindow, mouse_point);
+	LLCoordScreen screen_coords(mouse_point[0], mouse_point[1]);
 	LLCoordGL gl_pos;
 	convertCoords(screen_coords, &gl_pos);
-
-	// Look at the pasteboard and try to extract an URL from it
-	PasteboardRef   pasteboard;
-	if(GetDragPasteboard(drag, &pasteboard) == noErr)
+	
+	if(!url.empty())
 	{
-		ItemCount num_items = 0;
-		// Treat an error here as an item count of 0
-		(void)PasteboardGetItemCount(pasteboard, &num_items);
-
-		// Only deal with single-item drags.
-		if(num_items == 1)
+		LLWindowCallbacks::DragNDropResult res =
+		mCallbacks->handleDragNDrop(this, gl_pos, mask, action, url);
+		
+		switch (res) {
+			case LLWindowCallbacks::DND_NONE:		// No drop allowed
+				if (action == LLWindowCallbacks::DNDA_TRACK)
+				{
+					mDragOverrideCursor = 0;
+				}
+				else {
+					mDragOverrideCursor = -1;
+				}
+				break;
+			case LLWindowCallbacks::DND_MOVE:		// Drop accepted would result in a "move" operation
+				mDragOverrideCursor = UI_CURSOR_NO;
+				break;
+			case LLWindowCallbacks::DND_COPY:		// Drop accepted would result in a "copy" operation
+				mDragOverrideCursor = UI_CURSOR_ARROWCOPY;
+				break;
+			default:
+				mDragOverrideCursor = -1;
+				break;
+		}
+		// This overrides the cursor being set by setCursor.
+		// This is a bit of a hack workaround because lots of areas
+		// within the viewer just blindly set the cursor.
+		if (mDragOverrideCursor == -1)
 		{
-			PasteboardItemID item_id = NULL;
-			CFArrayRef flavors = NULL;
-			CFDataRef data = NULL;
-
-			err = PasteboardGetItemIdentifier(pasteboard, 1, &item_id); // Yes, this really is 1-based.
-
-			// Try to extract an URL from the pasteboard
-			if(err == noErr)
-			{
-				err = PasteboardCopyItemFlavors( pasteboard, item_id, &flavors);
-			}
-
-			if(err == noErr)
-			{
-				if(CFArrayContainsValue(flavors, CFRangeMake(0, CFArrayGetCount(flavors)), kUTTypeURL))
-				{
-					// This is an URL.
-					err = PasteboardCopyItemFlavorData(pasteboard, item_id, kUTTypeURL, &data);
-				}
-				else if(CFArrayContainsValue(flavors, CFRangeMake(0, CFArrayGetCount(flavors)), kUTTypeUTF8PlainText))
-				{
-					// This is a string that might be an URL.
-					err = PasteboardCopyItemFlavorData(pasteboard, item_id, kUTTypeUTF8PlainText, &data);
-				}
-
-			}
-
-			if(flavors != NULL)
-			{
-				CFRelease(flavors);
-			}
-
-			if(data != NULL)
-			{
-				std::string url;
-				url.assign((char*)CFDataGetBytePtr(data), CFDataGetLength(data));
-				CFRelease(data);
-
-				if(!url.empty())
-				{
-					LLWindowCallbacks::DragNDropResult res =
-						mCallbacks->handleDragNDrop(this, gl_pos, mask, action, url);
-
-					switch (res) {
-						case LLWindowCallbacks::DND_NONE:		// No drop allowed
-							if (action == LLWindowCallbacks::DNDA_TRACK)
-							{
-								mDragOverrideCursor = kThemeNotAllowedCursor;
-							}
-							else {
-								mDragOverrideCursor = -1;
-							}
-							break;
-						case LLWindowCallbacks::DND_MOVE:		// Drop accepted would result in a "move" operation
-							mDragOverrideCursor = kThemePointingHandCursor;
-							result = noErr;
-							break;
-						case LLWindowCallbacks::DND_COPY:		// Drop accepted would result in a "copy" operation
-							mDragOverrideCursor = kThemeCopyArrowCursor;
-							result = noErr;
-							break;
-						case LLWindowCallbacks::DND_LINK:		// Drop accepted would result in a "link" operation:
-							mDragOverrideCursor = kThemeAliasArrowCursor;
-							result = noErr;
-							break;
-						default:
-							mDragOverrideCursor = -1;
-							break;
-					}
-					// This overrides the cursor being set by setCursor.
-					// This is a bit of a hack workaround because lots of areas
-					// within the viewer just blindly set the cursor.
-					if (mDragOverrideCursor == -1)
-					{
-						// Restore the cursor
-						ECursorType temp_cursor = mCurrentCursor;
-						// get around the "setting the same cursor" code in setCursor()
-						mCurrentCursor = UI_CURSOR_COUNT;
- 						setCursor(temp_cursor);
-					}
-					else {
-						// Override the cursor
-						SetThemeCursor(mDragOverrideCursor);
-					}
-
-				}
-			}
+			// Restore the cursor
+			ECursorType temp_cursor = mCurrentCursor;
+			// get around the "setting the same cursor" code in setCursor()
+			mCurrentCursor = UI_CURSOR_COUNT;
+			setCursor(temp_cursor);
+		}
+		else {
+			// Override the cursor
+			switch (mDragOverrideCursor) {
+				case 0:
+					setArrowCursor();
+					break;
+				case UI_CURSOR_NO:
+					setNotAllowedCursor();
+				case UI_CURSOR_ARROWCOPY:
+					setCopyCursor();
+				default:
+					break;
+			};
 		}
 	}
-
-	return result;
 }
-*/
+
 #endif // LL_OS_DRAGDROP_ENABLED
