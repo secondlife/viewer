@@ -35,28 +35,6 @@
 DECLARE_bool(heap_profile_use_stack_trace);
 //DECLARE_double(tcmalloc_release_rate);
 
-// static
-void LLAllocator::pushMemType(S32 type)
-{
-    if(isProfiling())
-    {
-    	PushMemType(type);
-    }
-}
-
-// static
-S32 LLAllocator::popMemType()
-{
-    if (isProfiling())
-    {
-    	return PopMemType();
-    }
-    else
-    {
-        return -1;
-    }
-}
-
 void LLAllocator::setProfilingEnabled(bool should_enable)
 {
     // NULL disables dumping to disk
@@ -93,17 +71,6 @@ std::string LLAllocator::getRawProfile()
 //
 // stub implementations for when tcmalloc is disabled
 //
-
-// static
-void LLAllocator::pushMemType(S32 type)
-{
-}
-
-// static
-S32 LLAllocator::popMemType()
-{
-    return -1;
-}
 
 void LLAllocator::setProfilingEnabled(bool should_enable)
 {

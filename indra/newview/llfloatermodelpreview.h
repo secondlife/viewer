@@ -311,6 +311,15 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 	typedef boost::signals2::signal<void (bool)> model_updated_signal_t;
 
 public:
+
+	typedef enum
+	{
+		LOD_FROM_FILE = 0,
+		GENERATE,
+		USE_LOD_ABOVE,
+	} eLoDMode;
+
+public:
 	LLModelPreview(S32 width, S32 height, LLFloater* fmp);
 	virtual ~LLModelPreview();
 

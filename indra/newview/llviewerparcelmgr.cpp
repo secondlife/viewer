@@ -1540,6 +1540,17 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 	// Actually extract the data.
 	if (parcel)
 	{
+		if (sequence_id == SELECTED_PARCEL_SEQ_ID
+			&& parcel->getLocalID() != INVALID_PARCEL_ID
+			&& parcel->getLocalID() != local_id)
+		{
+			// The parcel has a valid parcel ID but it doesn't match the parcel
+			// for the data received.
+			llinfos << "Expecting data for parcel " << parcel->getLocalID() \
+					<< " but got data for parcel " << local_id << llendl;
+			return;
+		}
+
 		parcel->init(owner_id,
 			FALSE, FALSE, FALSE,
 			claim_date, claim_price_per_meter, rent_price_per_meter,

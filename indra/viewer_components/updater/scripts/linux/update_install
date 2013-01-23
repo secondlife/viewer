@@ -1,10 +1,217 @@
 #! /bin/bash
-INSTALL_DIR=$(cd "$(dirname "$0")/.." ; pwd)
-export LD_LIBRARY_PATH="$INSTALL_DIR/lib"
-bin/linux-updater.bin --file "$1" --dest "$INSTALL_DIR" --name "Second Life Viewer" --stringsdir "$INSTALL_DIR/skins/default/xui/en" --stringsfile "strings.xml"
 
-if [ $? -ne 0 ]
-   then echo $3 >> "$2"
+# @file   update_install
+# @author Nat Goodspeed
+# @date   2013-01-09
+# @brief  Update the containing Second Life application bundle to the version in
+#         the specified tarball.
+# 
+#         This bash implementation is derived from the previous linux-updater.bin
+#         application.
+# 
+# $LicenseInfo:firstyear=2013&license=viewerlgpl$
+# Copyright (c) 2013, Linden Research, Inc.
+# $/LicenseInfo$
+
+# ****************************************************************************
+#   script parameters
+# ****************************************************************************
+tarball="$1"                        # the file to install
+markerfile="$2"                     # create this file on failure
+mandatory="$3"                      # what to write to markerfile on failure
+
+# ****************************************************************************
+#   helper functions
+# ****************************************************************************
+# empty array
+cleanups=()
+
+# add a cleanup action to execute on exit
+function cleanup {
+    # wacky bash syntax for appending to array
+    cleanups[${#cleanups[*]}]="$*"
+}
+
+# called implicitly on exit
+function onexit {
+    for action in "${cleanups[@]}"
+    do # don't quote, support actions consisting of multiple words
+       $action
+    done
+}
+trap 'onexit' EXIT
+
+# write to log file
+function log {
+    # our log file will be open as stderr -- but until we set up that
+    # redirection, logging to stderr is better than nothing
+    echo "$*" 1>&2
+}
+
+# We display status by leaving one background xmessage process running. This
+# is the pid of that process.
+statuspid=""
+
+function clear_message {
+    [ -n "$statuspid" ] && kill $statuspid
+    statuspid=""
+}
+
+# make sure we remove any message box we might have put up
+cleanup clear_message
+
+# can we use zenity, or must we fall back to xmessage?
+zenpath="$(which zenity)"
+if [ -n "$zenpath" ]
+then # zenity on PATH and is executable
+     # display a message box and continue
+     function status {
+         # clear any previous message
+         clear_message
+         # put up a new zenity box and capture its pid
+         "$zenpath" --info --title "Second Life Viewer Updater" \
+                    --width=320 --height=120 --text="$*" &
+         statuspid=$!
+     }
+
+     # display an error box and wait for user
+     function errorbox {
+         "$zenpath" --error --title "Second Life Viewer Updater" \
+                    --width=320 --height=120 --text="$*"
+     }
+
+else # no zenity, use xmessage instead
+     # display a message box and continue
+     function status {
+         # clear any previous message
+         clear_message
+         # put up a new xmessage and capture its pid
+         xmessage -buttons OK:2 -center "$*" &
+         statuspid=$!
+     }
+
+     # display an error box and wait for user
+     function errorbox {
+         xmessage -buttons OK:2 -center "$*"
+     }
 fi
 
-rm -f "$1"
+# display an error box and terminate
+function fail {
+    # Log the message
+    log "$@"
+    # tell subsequent viewer things went south
+    echo "$mandatory" > "$markerfile"
+    # add boilerplate
+    errorbox "An error occurred while updating Second Life:
+$*
+Please download the latest viewer from www.secondlife.com."
+    exit 1
+}
+
+# Find a graphical sudo program and define mysudo function. On error, $? is
+# nonzero; output is in $err instead of being written to stdout/stderr.
+gksudo="$(which gksudo)"
+kdesu="$(which kdesu)"
+if [ -n "$gksudo" ]
+then function mysudo {
+         # gksudo allows you to specify description
+         err="$("$gksudo" --description "Second Life Viewer Updater" "$@" 2>&1)"
+     }
+elif [ -n "$kdesu" ]
+then function mysudo {
+         err="$("$kdesu" "$@" 2>&1)"
+     }
+else # couldn't find either one, just try it anyway
+     function mysudo {
+         err="$("$@" 2>&1)"
+     }
+fi
+
+# Move directories, using mysudo if we think it necessary. On error, $? is
+# nonzero; output is in $err instead of being written to stdout/stderr.
+function sudo_mv {
+    # If we have write permission to both parent directories, shouldn't need
+    # sudo.
+    if [ -w "$(dirname "$1")" -a -w "$(dirname "$2")" ]
+    then err="$(mv "$@" 2>&1)"
+    else # use available sudo program; mysudo sets $? and $err
+         mysudo mv "$@"
+    fi
+}
+
+# ****************************************************************************
+#   main script logic
+# ****************************************************************************
+mydir="$(dirname "$0")"
+# We happen to know that the viewer specifies a marker-file pathname within
+# the logs directory.
+logsdir="$(dirname "$markerfile")"
+logname="$logsdir/updater.log"
+
+# move aside old updater.log; we're about to create a new one
+[ -f "$logname" ] && mv "$logname" "$logname.old"
+
+# Set up redirections for this script such that stderr is logged. (But first
+# move the previous stderr to file descriptor 3.)
+exec 3>&2- 2> "$logname"
+
+# Rather than setting up a special pipeline to timestamp every line of stderr,
+# produce header lines into log file indicating timestamp and the arguments
+# with which we were invoked.
+date 1>&2
+log "$0 $*"
+
+# Log every command we execute, along with any stderr it might produce
+set -x
+
+status 'Installing Second Life...'
+
+# Creating tempdir under /tmp means it's possible that tempdir is on a
+# different filesystem than INSTALL_DIR. One is tempted to create tempdir on a
+# path derived from `dirname INSTALL_DIR` -- but it seems modern 'mv' can
+# handle moving across filesystems??
+tempdir="$(mktemp -d)"
+tempinstall="$tempdir/install"
+# capture the actual error message, if any
+err="$(mkdir -p "$tempinstall" 2>&1)" || fail "$err"
+cleanup rm -rf "$tempdir"
+
+# If we already knew the name of the tarball's top-level directory, we could
+# just move that when all was said and done. Since we don't, untarring to the
+# 'install' subdir with --strip 1 effectively renames that top-level
+# directory.
+# untar failures tend to be voluminous -- don't even try to capture, just log
+tar --strip 1 -xjf "$tarball" -C "$tempinstall" || fail "Untar command failed"
+
+INSTALL_DIR="$(cd "$mydir/.." ; pwd)"
+
+# Considering we're launched from a subdirectory of INSTALL_DIR, would be
+# surprising if it did NOT already exist...
+if [ -e "$INSTALL_DIR" ]
+then backup="$INSTALL_DIR.backup"
+     backupn=1
+     while [ -e "$backup" ]
+     do backup="$INSTALL_DIR.backup.$backupn"
+        ((backupn += 1))
+     done
+     # on error, fail with actual error message from sudo_mv: permissions,
+     # cross-filesystem mv, ...?
+     sudo_mv "$INSTALL_DIR" "$backup" || fail "$err"
+fi
+# We unpacked the tarball into tempinstall. Move that.
+if ! sudo_mv "$tempinstall" "$INSTALL_DIR"
+then # If we failed to move the temp install to INSTALL_DIR, try to restore
+     # INSTALL_DIR from backup. Save $err because next sudo_mv will trash it!
+     realerr="$err"
+     sudo_mv "$backup" "$INSTALL_DIR"
+     fail "$realerr"
+fi
+
+# Removing the tarball here, rather than with a 'cleanup' action, means we
+# only remove it if we succeeded.
+rm -f "$tarball"
+
+# Launch the updated viewer. Restore original stderr from file descriptor 3,
+# though -- otherwise updater.log gets cluttered with the viewer log!
+"$INSTALL_DIR/secondlife" 2>&3- &
