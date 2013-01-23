@@ -2890,23 +2890,20 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		}
 		bool all_baked_downloaded = allBakedTexturesCompletelyDownloaded();
 		bool all_local_downloaded = allLocalTexturesCompletelyDownloaded();
-		S32 curr_cof_version = -1;
-		S32 last_request_cof_version = -1;
-		S32 last_received_cof_version = -1;
+		std::string debug_line = llformat("%s%s - mLocal: %d, mEdit: %d, mUSB: %d, CBV: %d",
+										  all_local_downloaded ? "L" : "l",
+										  all_baked_downloaded ? "B" : "b",
+										  mUseLocalAppearance, mIsEditingAppearance,
+										  mUseServerBakes, central_bake_version);
 		if (isSelf())
 		{
-			curr_cof_version = LLAppearanceMgr::instance().getCOFVersion();
-			last_request_cof_version = LLAppearanceMgr::instance().getLastUpdateRequestCOFVersion();
-			last_received_cof_version = LLAppearanceMgr::instance().getLastAppearanceUpdateCOFVersion();
+			S32 curr_cof_version = LLAppearanceMgr::instance().getCOFVersion();
+			S32 last_request_cof_version = LLAppearanceMgr::instance().getLastUpdateRequestCOFVersion();
+			S32 last_received_cof_version = LLAppearanceMgr::instance().getLastAppearanceUpdateCOFVersion();
+			debug_line += llformat(" - cof: %d req: %d rcv:%d",
+								   curr_cof_version, last_request_cof_version, last_received_cof_version);
 		}
-		
-		addDebugText(llformat("%s%s - mLocal: %d, mEdit: %d, mUSB: %d, CBV: %d - cof: %d req: %d rcv:%d",
-							  all_local_downloaded ? "L" : "l",
-							  all_baked_downloaded ? "B" : "b",
-							  mUseLocalAppearance, mIsEditingAppearance,
-							  mUseServerBakes, central_bake_version,
-							  curr_cof_version, last_request_cof_version, last_received_cof_version
-						 ));
+		addDebugText(debug_line);
 	}
 	if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
 	{
@@ -4040,7 +4037,7 @@ bool LLVOAvatar::allLocalTexturesCompletelyDownloaded()
 bool LLVOAvatar::allBakedTexturesCompletelyDownloaded()
 {
 	std::set<LLUUID> baked_ids;
-	collectLocalTextureUUIDs(baked_ids);
+	collectBakedTextureUUIDs(baked_ids);
 	return allTexturesCompletelyDownloaded(baked_ids);
 }
 
