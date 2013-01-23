@@ -6651,7 +6651,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		return;
 	}
 
-	mUseServerBakes = (appearance_version > 0);
+	setIsUsingServerBakes(appearance_version > 0);
 
 	applyParsedTEMessage(tec);
 
@@ -7274,6 +7274,11 @@ void LLVOAvatar::bodySizeChanged()
 		// but not if we are in the middle of updating appearance
 		gAgent.sendAgentSetAppearance();
 	}
+}
+
+BOOL LLVOAvatar::isUsingServerBakes() const
+{
+	return mUseServerBakes;
 }
 
 void LLVOAvatar::setIsUsingServerBakes(BOOL newval)

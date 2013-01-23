@@ -653,7 +653,7 @@ public:
 
 	// True if this avatar should fetch its baked textures via the new
 	// appearance mechanism.
-	/*virtual*/ BOOL	isUsingServerBakes() const { return mUseServerBakes; }
+	BOOL				isUsingServerBakes() const;
 	void 				setIsUsingServerBakes(BOOL newval);
 
 
