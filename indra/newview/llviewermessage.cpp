@@ -2035,103 +2035,6 @@ bool mature_lure_callback(const LLSD& notification, const LLSD& response)
 }
 static LLNotificationFunctorRegistration mature_lure_callback_reg("TeleportOffered_MaturityExceeded", mature_lure_callback);
 
-bool teleport_request_callback(const LLSD& notification, const LLSD& response)
-{
-	LLUUID from_id = notification["payload"]["from_id"].asUUID();
-	if(from_id.isNull())
-	{
-		llwarns << "from_id is NULL" << llendl;
-		return false;
-	}
-
-	std::string from_name;
-	gCacheName->getFullName(from_id, from_name);
-llwarns << "DBG " << from_name << " " << from_id << llendl;
-
-	if(LLMuteList::getInstance()->isMuted(from_id) && !LLMuteList::getInstance()->isLinden(from_name))
-	{
-		return false;
-	}
-
-	S32 option = 0;
-	if (response.isInteger()) 
-	{
-		option = response.asInteger();
-	}
-	else
-	{
-		option = LLNotificationsUtil::getSelectedOption(notification, response);
-	}
-
-	switch(option)
-	{
-	// Yes
-	case 0:
-		{
-			std::string text = "Join me in ";
-			LLSLURL slurl;
-			LLAgentUI::buildSLURL(slurl);
-			text.append("\r\n").append(slurl.getSLURLString());
-
-			LLMessageSystem* msg = gMessageSystem;
-			msg->newMessageFast(_PREHASH_StartLure);
-			msg->nextBlockFast(_PREHASH_AgentData);
-			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			msg->nextBlockFast(_PREHASH_Info);
-			msg->addU8Fast(_PREHASH_LureType, (U8)0); // sim will fill this in.
-			msg->addStringFast(_PREHASH_Message, text);
-
-			msg->nextBlockFast(_PREHASH_TargetData);
-			msg->addUUIDFast(_PREHASH_TargetID, from_id);
-
-			// Record the offer.
-			std::string target_name;
-			gCacheName->getFullName(from_id, target_name);  // for im log filenames
-			LLSD args;
-			args["TO_NAME"] = LLSLURL("agent", from_id, "displayname").getSLURLString();;
-	
-			LLSD payload;
-
-			//*TODO please rewrite all keys to the same case, lower or upper
-			payload["from_id"] = from_id;
-			payload["SUPPRESS_TOAST"] = true;
-			LLNotificationsUtil::add("TeleportOfferSent", args, payload);
-
-			// Add the recepient to the recent people list.
-			LLRecentPeople::instance().add(from_id);
-
-			gAgent.sendReliableMessage();
-		}
-		break;
-
-	// No
-	case 1:
-	default:
-		break;
-
-	// IM
-	case 2:
-		{
-llwarns << "DBG start IM" << llendl;
-			LLAvatarActions::startIM(from_id);
-		}
-		break;
-
-/*	// Block
-	case 3:
-		{
-			LLMute mute(from_id, from_name, LLMute::AGENT);
-			LLMuteList::getInstance()->add(mute);
-			LLPanelBlockedList::showPanelAndSelect(mute.mID);
-		}
-		break; */
-	}
-	return false;
-}
-
-static LLNotificationFunctorRegistration teleport_request_callback_reg("TeleportRequest", teleport_request_callback);
-
 bool goto_url_callback(const LLSD& notification, const LLSD& response)
 {
 	std::string url = notification["payload"]["url"].asString();
@@ -3012,7 +2915,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	case IM_LURE_USER:
 	case IM_TELEPORT_REQUEST:
 		{
-llwarns << "DBG teleport processing" << llendl;
 			if (is_muted)
 			{ 
 				return;
@@ -3114,7 +3016,7 @@ llwarns << "DBG teleport processing" << llendl;
 					}
 					else if (IM_TELEPORT_REQUEST == dialog)
 					{
-						llwarns << "DBG TELEPORT_REQUEST received" << llendl;
+llwarns << "DBG TELEPORT_REQUEST received" << llendl;
 						params.name = "TeleportRequest";
 						params.functor.name = "TeleportRequest";
 					}
@@ -6860,6 +6762,10 @@ void send_group_notice(const LLUUID& group_id,
 
 bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 {
+// Caution: this function is also called directly by teleport_request_callback using dummied-up parameters.
+// If you make a change here that uses additional fields in notification or response
+// make sure to add appropriate dummy values in teleport_request_callback.
+ 
 	static const unsigned OFFER_RECIPIENT_LIMIT = 250;
 	if(notification["payload"]["ids"].size() > OFFER_RECIPIENT_LIMIT) 
 	{
@@ -6955,6 +6861,78 @@ void handle_lure(const uuid_vec_t& ids)
 	}
 }
 
+bool teleport_request_callback(const LLSD& notification, const LLSD& response)
+{
+	LLUUID from_id = notification["payload"]["from_id"].asUUID();
+	if(from_id.isNull())
+	{
+		llwarns << "from_id is NULL" << llendl;
+		return false;
+	}
+
+	std::string from_name;
+	gCacheName->getFullName(from_id, from_name);
+
+	if(LLMuteList::getInstance()->isMuted(from_id) && !LLMuteList::getInstance()->isLinden(from_name))
+	{
+		return false;
+	}
+
+	S32 option = 0;
+	if (response.isInteger()) 
+	{
+		option = response.asInteger();
+	}
+	else
+	{
+		option = LLNotificationsUtil::getSelectedOption(notification, response);
+	}
+
+	switch(option)
+	{
+	// Yes
+	case 0:
+		{
+			LLSD notification;
+			notification["payload"]["ids"] = from_id;
+			notification["form"][0]["type"] = "button";
+			notification["form"][0]["index"] = 0;
+
+			LLSD response;
+			response["message"] = "Join me in ";
+			response["name"][0] = 1;
+
+			// Calling handle_lure_callback directly is a bit of a hack to avoid having to copy most of
+			// the code from this routine.
+			handle_lure_callback(notification, response);
+		}
+		break;
+
+	// No
+	case 1:
+	default:
+		break;
+
+	// IM
+	case 2:
+		{
+			LLAvatarActions::startIM(from_id);
+		}
+		break;
+
+/*	// Block
+	case 3:
+		{
+			LLMute mute(from_id, from_name, LLMute::AGENT);
+			LLMuteList::getInstance()->add(mute);
+			LLPanelBlockedList::showPanelAndSelect(mute.mID);
+		}
+		break; */
+	}
+	return false;
+}
+
+static LLNotificationFunctorRegistration teleport_request_callback_reg("TeleportRequest", teleport_request_callback);
 
 void send_improved_im(const LLUUID& to_id,
 							const std::string& name,
