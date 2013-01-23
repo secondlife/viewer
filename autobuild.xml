@@ -553,6 +553,18 @@
             <key>name</key>
             <string>darwin</string>
           </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>00f752f73774e0e72d737099860582af</string>
+              <key>url</key>
+              <string>http://private-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-fmodex-private/arch/CYGWIN/fmodex-4.44.04-windows-20130123.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
         </map>
       </map>
       <key>fontconfig</key>
