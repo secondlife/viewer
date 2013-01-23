@@ -70,6 +70,7 @@ class LLHUDNameTag;
 class LLHUDEffectSpiral;
 class LLTexGlobalColor;
 class LLViewerJoint;
+struct LLAppearanceMessageContents;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
@@ -635,6 +636,7 @@ protected:
  **/
 
 public:
+	void 			parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMessageContents& msg);
 	void 			processAvatarAppearance(LLMessageSystem* mesgsys);
 	void 			hideSkirt();
 	void			startAppearanceAnimation();

@@ -6574,6 +6574,91 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 	}
 }
 
+struct LLAppearanceMessageContents
+{
+	LLAppearanceMessageContents():
+		mAppearanceVersion(0),
+		mCOFVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
+	{
+	}
+	
+	LLTEContents mTEContents;
+	U8 mAppearanceVersion;
+	S32 mCOFVersion;
+	// For future use:
+	//U32 appearance_flags = 0;
+	std::vector<F32> mParams;
+};
+
+void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMessageContents& contents)
+{
+	parseTEMessage(mesgsys, _PREHASH_ObjectData, -1, contents.mTEContents);
+
+	// Parse the AppearanceData field, if any.
+	if (mesgsys->has(_PREHASH_AppearanceData))
+	{
+		mesgsys->getU8Fast(_PREHASH_AppearanceData, _PREHASH_AppearanceVersion, contents.mAppearanceVersion, 0);
+		mesgsys->getS32Fast(_PREHASH_AppearanceData, _PREHASH_CofVersion, contents.mCOFVersion, 0);
+		// For future use:
+		//mesgsys->getU32Fast(_PREHASH_AppearanceData, _PREHASH_Flags, appearance_flags, 0);
+	}
+
+	// Parse visual params, if any.
+	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
+	bool drop_visual_params_debug = gSavedSettings.getBOOL("BlockSomeAvatarAppearanceVisualParams") && (ll_rand(2) == 0); // pretend that ~12% of AvatarAppearance messages arrived without a VisualParam block, for testing
+	if( num_blocks > 1 && !drop_visual_params_debug)
+	{
+		LL_DEBUGS("Avatar") << avString() << " handle visual params, num_blocks " << num_blocks << LL_ENDL;
+		
+		LLVisualParam* param = getFirstVisualParam();
+		llassert(param); // if this ever fires, we should do the same as when num_blocks<=1
+		if (!param)
+		{
+			llwarns << "No visual params!" << llendl;
+		}
+		else
+		{
+			for( S32 i = 0; i < num_blocks; i++ )
+			{
+				while( param && (param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) ) // should not be any of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
+				{
+					param = getNextVisualParam();
+				}
+						
+				if( !param )
+				{
+					// more visual params supplied than expected - just process what we know about
+					break;
+				}
+
+				U8 value;
+				mesgsys->getU8Fast(_PREHASH_VisualParam, _PREHASH_ParamValue, value, i);
+				F32 newWeight = U8_to_F32(value, param->getMinWeight(), param->getMaxWeight());
+				contents.mParams.push_back(newWeight);
+
+				param = getNextVisualParam();
+			}
+		}
+
+		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE); // don't worry about VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
+		if (num_blocks != expected_tweakable_count)
+		{
+			llinfos << "Number of params in AvatarAppearance msg (" << num_blocks << ") does not match number of tweakable params in avatar xml file (" << expected_tweakable_count << ").  Processing what we can.  object: " << getID() << llendl;
+		}
+	}
+	else
+	{
+		if (drop_visual_params_debug)
+		{
+			llinfos << "Debug-faked lack of parameters on AvatarAppearance for object: "  << getID() << llendl;
+		}
+		else
+		{
+			llinfos << "AvatarAppearance msg received without any parameters, object: " << getID() << llendl;
+		}
+	}
+}
+
 //-----------------------------------------------------------------------------
 // processAvatarAppearance()
 //-----------------------------------------------------------------------------
@@ -6598,22 +6683,12 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 	ESex old_sex = getSex();
 
-	LLTEContents tec;
-	parseTEMessage(mesgsys, _PREHASH_ObjectData, -1, tec);
+	LLAppearanceMessageContents contents;
+	parseAppearanceMessage(mesgsys, contents);
 
-	U8 appearance_version = 0;
-	S32 this_update_cof_version = LLViewerInventoryCategory::VERSION_UNKNOWN;
+	U8 appearance_version = contents.mAppearanceVersion;
+	S32 this_update_cof_version = contents.mCOFVersion;
 	S32 last_update_request_cof_version = LLAppearanceMgr::instance().mLastUpdateRequestCOFVersion;
-	// For future use:
-	//U32 appearance_flags = 0;
-
-	if (mesgsys->has(_PREHASH_AppearanceData))
-	{
-		mesgsys->getU8Fast(_PREHASH_AppearanceData, _PREHASH_AppearanceVersion, appearance_version, 0);
-		mesgsys->getS32Fast(_PREHASH_AppearanceData, _PREHASH_CofVersion, this_update_cof_version, 0);
-		// For future use:
-		//mesgsys->getU32Fast(_PREHASH_AppearanceData, _PREHASH_Flags, appearance_flags, 0);
-	}
 
 	// Only now that we have result of appearance_version can we decide whether to bail out.
 	if( isSelf() )
@@ -6634,7 +6709,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		}
 	}
 
-
 	// Check for stale update.
 	if (isSelf()
 		&& (appearance_version>0)
@@ -6653,7 +6727,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 	setIsUsingServerBakes(appearance_version > 0);
 
-	applyParsedTEMessage(tec);
+	applyParsedTEMessage(contents.mTEContents);
 
 	// prevent the overwriting of valid baked textures with invalid baked textures
 	for (U8 baked_index = 0; baked_index < mBakedTextureDatas.size(); baked_index++)
@@ -6667,7 +6741,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		}
 	}
 
-
 	// runway - was
 	// if (!is_first_appearance_message )
 	// which means it would be called on second appearance message - probably wrong.
@@ -6680,9 +6753,8 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	gPipeline.markGLRebuild(this);
 
 	// parse visual params
-	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
-	bool drop_visual_params_debug = gSavedSettings.getBOOL("BlockSomeAvatarAppearanceVisualParams") && (ll_rand(2) == 0); // pretend that ~12% of AvatarAppearance messages arrived without a VisualParam block, for testing
-	if( num_blocks > 1 && !drop_visual_params_debug)
+	S32 num_blocks = contents.mParams.size();
+	if( num_blocks > 1)
 	{
 		LL_DEBUGS("Avatar") << avString() << " handle visual params, num_blocks " << num_blocks << LL_ENDL;
 		BOOL params_changed = FALSE;
@@ -6696,7 +6768,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		}
 		else
 		{
-			std::vector<F32> params_for_dump;
 			for( S32 i = 0; i < num_blocks; i++ )
 			{
 				while( param && (param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) ) // should not be any of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
@@ -6710,14 +6781,10 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 					break;
 				}
 
-				U8 value;
-				mesgsys->getU8Fast(_PREHASH_VisualParam, _PREHASH_ParamValue, value, i);
-				F32 newWeight = U8_to_F32(value, param->getMinWeight(), param->getMaxWeight());
-				params_for_dump.push_back(newWeight);
+				F32 newWeight = contents.mParams[i];
 
 				if (is_first_appearance_message || (param->getWeight() != newWeight))
 				{
-					//llinfos << "Received update for param " << param->getDisplayName() << " at value " << newWeight << llendl;
 					params_changed = TRUE;
 					if(is_first_appearance_message)
 					{
@@ -6732,7 +6799,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 				param = getNextVisualParam();
 			}
 			if (enable_verbose_dumps)
-				dumpAppearanceMsgParams(dump_prefix + "appearance_msg", params_for_dump, tec);
+				dumpAppearanceMsgParams(dump_prefix + "appearance_msg", contents.mParams, contents.mTEContents);
 		}
 
 		if (enable_verbose_dumps) { dumpArchetypeXML(dump_prefix + "process_post_set_weights"); }
@@ -6764,14 +6831,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	{
 		// AvatarAppearance message arrived without visual params
 		LL_DEBUGS("Avatar") << avString() << "no visual params" << LL_ENDL;
-		if (drop_visual_params_debug)
-		{
-			llinfos << "Debug-faked lack of parameters on AvatarAppearance for object: "  << getID() << llendl;
-		}
-		else
-		{
-			llinfos << "AvatarAppearance msg received without any parameters, object: " << getID() << llendl;
-		}
 
 		const F32 LOADING_TIMEOUT_SECONDS = 60.f;
 		// this isn't really a problem if we already have a non-default shape
@@ -6802,7 +6861,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	updateMeshTextures();
 
 	if (enable_verbose_dumps) dumpArchetypeXML(dump_prefix + "process_end");
-//	llinfos << "processAvatarAppearance end " << mID << llendl;
 }
 
 // static
