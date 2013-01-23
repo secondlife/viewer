@@ -449,9 +449,8 @@ namespace LLTrace
 		U64							mChildTimeCounter,
 									mTotalTimeCounter;
 		U32							mCalls;
-		class TimeBlock*			mBlock;			// block associated with this accumulator
 		class TimeBlock*			mParent;		// last acknowledged parent of this time block
-		TimeBlockAccumulator*		mLastAccumulator;	// used to bootstrap tree construction
+		class TimeBlock*			mLastCaller;	// used to bootstrap tree construction
 		U16							mActiveCount;	// number of timers with this ID active on stack
 		bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
 

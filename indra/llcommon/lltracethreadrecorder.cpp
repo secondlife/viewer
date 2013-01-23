@@ -43,15 +43,13 @@ ThreadRecorder::ThreadRecorder()
 	TimeBlock& root_time_block = TimeBlock::getRootTimeBlock();
 
 	ThreadTimerStack* timer_stack = ThreadTimerStack::getInstance();
+	timer_stack->mTimeBlock = &root_time_block;
+	timer_stack->mActiveTimer = NULL;
 
 	mNumTimeBlockTreeNodes = AccumulatorBuffer<TimeBlockAccumulator>::getDefaultBuffer()->size();
 	mTimeBlockTreeNodes = new TimeBlockTreeNode[mNumTimeBlockTreeNodes];
 
 	mThreadRecording.start();
-
-	timer_stack->mAccumulator = root_time_block.getPrimaryAccumulator();
-	timer_stack->mActiveTimer = NULL;
-
 
 	// initialize time block parent pointers
 	for (LLInstanceTracker<TimeBlock>::instance_iter it = LLInstanceTracker<TimeBlock>::beginInstances(), end_it = LLInstanceTracker<TimeBlock>::endInstances(); 
@@ -63,9 +61,7 @@ ThreadRecorder::ThreadRecorder()
 		tree_node.mBlock = &time_block;
 		tree_node.mParent = &root_time_block;
 
-		TimeBlockAccumulator* accumulator = it->getPrimaryAccumulator();
-		accumulator->mParent = &root_time_block;
-		accumulator->mBlock = &time_block;
+		it->getPrimaryAccumulator()->mParent = &root_time_block;
 	}
 
 	mRootTimer = new BlockTimer(root_time_block);
