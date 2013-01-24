@@ -1796,11 +1796,13 @@ S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
 			return setTETextureCore(te, uuid, url);
 		}
 
+		llinfos << "get texture from host " << uuid << llendl;
 		LLHost target_host = getObjectHost();
 		return setTETextureCore(te, uuid, target_host);
 	}
 	else
 	{
+		llinfos << "get texture from other " << uuid << llendl;
 		return setTETextureCore(te, uuid, LLHost::invalid);
 	}
 }
@@ -6577,17 +6579,18 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 struct LLAppearanceMessageContents
 {
 	LLAppearanceMessageContents():
-		mAppearanceVersion(0),
+		mAppearanceVersion(-1),
 		mCOFVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
 	{
 	}
 	
 	LLTEContents mTEContents;
-	U8 mAppearanceVersion;
+	S32 mAppearanceVersion;
 	S32 mCOFVersion;
 	// For future use:
 	//U32 appearance_flags = 0;
-	std::vector<F32> mParams;
+	std::vector<F32> mParamWeights;
+	std::vector<LLVisualParam*> mParams;
 };
 
 void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMessageContents& contents)
@@ -6597,7 +6600,10 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 	// Parse the AppearanceData field, if any.
 	if (mesgsys->has(_PREHASH_AppearanceData))
 	{
-		mesgsys->getU8Fast(_PREHASH_AppearanceData, _PREHASH_AppearanceVersion, contents.mAppearanceVersion, 0);
+		U8 av_u8;
+		mesgsys->getU8Fast(_PREHASH_AppearanceData, _PREHASH_AppearanceVersion, av_u8, 0);
+		contents.mAppearanceVersion = av_u8;
+		llinfos << "appversion set by AppearanceData field: " << contents.mAppearanceVersion << llendl;
 		mesgsys->getS32Fast(_PREHASH_AppearanceData, _PREHASH_CofVersion, contents.mCOFVersion, 0);
 		// For future use:
 		//mesgsys->getU32Fast(_PREHASH_AppearanceData, _PREHASH_Flags, appearance_flags, 0);
@@ -6634,7 +6640,8 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 				U8 value;
 				mesgsys->getU8Fast(_PREHASH_VisualParam, _PREHASH_ParamValue, value, i);
 				F32 newWeight = U8_to_F32(value, param->getMinWeight(), param->getMaxWeight());
-				contents.mParams.push_back(newWeight);
+				contents.mParamWeights.push_back(newWeight);
+				contents.mParams.push_back(param);
 
 				param = getNextVisualParam();
 			}
@@ -6656,6 +6663,28 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 		{
 			llinfos << "AvatarAppearance msg received without any parameters, object: " << getID() << llendl;
 		}
+	}
+
+	if (contents.mAppearanceVersion < 0) // not set explicitly, try to get from visual param.
+	{
+		LLVisualParam* appearance_version_param = getVisualParam(11000);
+		if (appearance_version_param)
+		{
+			std::vector<LLVisualParam*>::iterator it = std::find(contents.mParams.begin(), contents.mParams.end(),appearance_version_param);
+			if (it != contents.mParams.end())
+			{
+				S32 index = it - contents.mParams.begin();
+				llinfos << "index: " << index << llendl;
+				S32 appearance_version = llround(contents.mParamWeights[index]);
+				contents.mAppearanceVersion = appearance_version;
+				llinfos << "appversion set by appearance_version param: " << contents.mAppearanceVersion << llendl;
+			}
+		}
+	}
+	if (contents.mAppearanceVersion < 0) // still not set, go with 0.
+	{
+		contents.mAppearanceVersion = 0;
+		llinfos << "appversion set by default: " << contents.mAppearanceVersion << llendl;
 	}
 }
 
@@ -6725,6 +6754,17 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		return;
 	}
 
+	S32 num_params = contents.mParamWeights.size();
+	if (num_params <= 1)
+	{
+		// In this case, we have no reliable basis for knowing
+		// appearance version, which may cause us to look for baked
+		// textures in the wrong place and flag them as missing
+		// assets.
+		llinfos << "ignoring appearance message due to lack of params" << llendl;
+		return;
+	}
+
 	setIsUsingServerBakes(appearance_version > 0);
 
 	applyParsedTEMessage(contents.mTEContents);
@@ -6752,62 +6792,41 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	setCompositeUpdatesEnabled( FALSE );
 	gPipeline.markGLRebuild(this);
 
-	// parse visual params
-	S32 num_blocks = contents.mParams.size();
-	if( num_blocks > 1)
+	// Apply visual params
+	if( num_params > 1)
 	{
-		LL_DEBUGS("Avatar") << avString() << " handle visual params, num_blocks " << num_blocks << LL_ENDL;
+		LL_DEBUGS("Avatar") << avString() << " handle visual params, num_params " << num_params << LL_ENDL;
 		BOOL params_changed = FALSE;
 		BOOL interp_params = FALSE;
 		
-		LLVisualParam* param = getFirstVisualParam();
-		llassert(param); // if this ever fires, we should do the same as when num_blocks<=1
-		if (!param)
+		for( S32 i = 0; i < num_params; i++ )
 		{
-			llwarns << "No visual params!" << llendl;
-		}
-		else
-		{
-			for( S32 i = 0; i < num_blocks; i++ )
+			LLVisualParam* param = contents.mParams[i];
+			F32 newWeight = contents.mParamWeights[i];
+
+			if (is_first_appearance_message || (param->getWeight() != newWeight))
 			{
-				while( param && (param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) ) // should not be any of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
+				params_changed = TRUE;
+				if(is_first_appearance_message)
 				{
-					param = getNextVisualParam();
+					param->setWeight(newWeight, FALSE);
 				}
-						
-				if( !param )
+				else
 				{
-					// more visual params supplied than expected - just process what we know about
-					break;
+					interp_params = TRUE;
+					param->setAnimationTarget(newWeight, FALSE);
 				}
-
-				F32 newWeight = contents.mParams[i];
-
-				if (is_first_appearance_message || (param->getWeight() != newWeight))
-				{
-					params_changed = TRUE;
-					if(is_first_appearance_message)
-					{
-						param->setWeight(newWeight, FALSE);
-					}
-					else
-					{
-						interp_params = TRUE;
-						param->setAnimationTarget(newWeight, FALSE);
-					}
-				}
-				param = getNextVisualParam();
 			}
-			if (enable_verbose_dumps)
-				dumpAppearanceMsgParams(dump_prefix + "appearance_msg", contents.mParams, contents.mTEContents);
 		}
+		if (enable_verbose_dumps)
+			dumpAppearanceMsgParams(dump_prefix + "appearance_msg", contents.mParamWeights, contents.mTEContents);
 
 		if (enable_verbose_dumps) { dumpArchetypeXML(dump_prefix + "process_post_set_weights"); }
 
 		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE); // don't worry about VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
-		if (num_blocks != expected_tweakable_count)
+		if (num_params != expected_tweakable_count)
 		{
-			llinfos << "Number of params in AvatarAppearance msg (" << num_blocks << ") does not match number of tweakable params in avatar xml file (" << expected_tweakable_count << ").  Processing what we can.  object: " << getID() << llendl;
+			llinfos << "Number of params in AvatarAppearance msg (" << num_params << ") does not match number of tweakable params in avatar xml file (" << expected_tweakable_count << ").  Processing what we can.  object: " << getID() << llendl;
 		}
 
 		if (params_changed)
