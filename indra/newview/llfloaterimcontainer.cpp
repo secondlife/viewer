@@ -224,7 +224,7 @@ BOOL LLFloaterIMContainer::postBuild()
 
 	collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
 	collapseConversationsPane(gSavedPerAccountSettings.getBOOL("ConversationsListPaneCollapsed"));
-	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate));
+	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate, false));
 	mMicroChangedSignal = LLVoiceClient::getInstance()->MicroChangedCallback(boost::bind(&LLFloaterIMContainer::updateSpeakBtnState, this));
 	if (! mMessagesPane->isCollapsed())
 	{
@@ -1142,7 +1142,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 
 	if ("conversation_log" == item)
 	{
-		return gSavedSettings.getBOOL("KeepConversationLogTranscripts");
+		return gSavedSettings.getS32("KeepConversationLogTranscripts") > 0;
 	}
 
 	//Enable Chat history item for ad-hoc and group conversations
@@ -1793,7 +1793,7 @@ void LLFloaterIMContainer::updateSpeakBtnState()
 
 bool LLFloaterIMContainer::isConversationLoggingAllowed()
 {
-	return gSavedSettings.getBOOL("KeepConversationLogTranscripts");
+	return gSavedSettings.getS32("KeepConversationLogTranscripts") > 0;
 }
 
 void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id, bool is_flashes)

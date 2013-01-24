@@ -378,15 +378,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	}
 
 	buildHistoryFileName();
-
-	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
-	{
-		std::list<LLSD> chat_history;
-
-		//involves parsing of a chat history
-		LLLogChat::loadChatHistory(mHistoryFileName, chat_history);
-		addMessagesFromHistory(chat_history);
-	}
+	loadHistory();
 
 	// Localizing name of ad-hoc session. STORM-153
 	// Changing name should happen here- after the history file was created, so that
@@ -579,11 +571,11 @@ void LLIMModel::LLIMSession::addMessagesFromHistory(const std::list<LLSD>& histo
 	{
 		const LLSD& msg = *it;
 
-		std::string from = msg[IM_FROM];
+		std::string from = msg[LL_IM_FROM];
 		LLUUID from_id;
-		if (msg[IM_FROM_ID].isDefined())
+		if (msg[LL_IM_FROM_ID].isDefined())
 		{
-			from_id = msg[IM_FROM_ID].asUUID();
+			from_id = msg[LL_IM_FROM_ID].asUUID();
 		}
 		else
 		{
@@ -592,8 +584,8 @@ void LLIMModel::LLIMSession::addMessagesFromHistory(const std::list<LLSD>& histo
  			gCacheName->getUUID(legacy_name, from_id);
 		}
 
-		std::string timestamp = msg[IM_TIME];
-		std::string text = msg[IM_TEXT];
+		std::string timestamp = msg[LL_IM_TIME];
+		std::string text = msg[LL_IM_TEXT];
 
 		addMessage(from, from_id, text, timestamp, true);
 
@@ -614,6 +606,20 @@ void LLIMModel::LLIMSession::chatFromLogFile(LLLogChat::ELogLineType type, const
 	else if (type == LLLogChat::LOG_LLSD)
 	{
 		self->addMessage(msg["from"].asString(), msg["from_id"].asUUID(), msg["message"].asString(), msg["time"].asString(), true);
+	}
+}
+
+void LLIMModel::LLIMSession::loadHistory()
+{
+	mMsgs.clear();
+
+	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
+	{
+		std::list<LLSD> chat_history;
+
+		//involves parsing of a chat history
+		LLLogChat::loadChatHistory(mHistoryFileName, chat_history);
+		addMessagesFromHistory(chat_history);
 	}
 }
 
@@ -921,8 +927,7 @@ bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, 
 
 bool LLIMModel::logToFile(const std::string& file_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
 {
-	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages")
-			&& gSavedSettings.getBOOL("KeepConversationLogTranscripts"))
+	if (gSavedSettings.getS32("KeepConversationLogTranscripts") > 1)
 	{	
 		std::string from_name = from;
 

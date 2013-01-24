@@ -90,7 +90,8 @@ LLDir::LLDir()
 	mCAFile(""),
 	mTempDir(""),
 	mDirDelimiter("/"), // fallback to forward slash if not overridden
-	mLanguage("en")
+	mLanguage("en"),
+	mUserName("undefined")
 {
 }
 
@@ -814,6 +815,11 @@ void LLDir::setChatLogsDir(const std::string &path)
 	}
 }
 
+void LLDir::updatePerAccountChatLogsDir()
+{
+	mPerAccountChatLogsDir = add(getChatLogsDir(), mUserName);
+}
+
 void LLDir::setPerAccountChatLogsDir(const std::string &username)
 {
 	// if both first and last aren't set, assume we're grabbing the cached dir
@@ -824,13 +830,14 @@ void LLDir::setPerAccountChatLogsDir(const std::string &username)
 		std::string userlower(username);
 		LLStringUtil::toLower(userlower);
 		LLStringUtil::replaceChar(userlower, ' ', '_');
-		mPerAccountChatLogsDir = add(getChatLogsDir(), userlower);
+
+		mUserName = userlower;
+		updatePerAccountChatLogsDir();
 	}
 	else
 	{
 		llerrs << "NULL name for LLDir::setPerAccountChatLogsDir" << llendl;
 	}
-	
 }
 
 void LLDir::setSkinFolder(const std::string &skin_folder, const std::string& language)
