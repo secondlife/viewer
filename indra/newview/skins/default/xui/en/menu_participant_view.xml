@@ -89,4 +89,24 @@
          function="Avatar.EnableItem"
          parameter="conversation_log" />
     </menu_item_check>
+    <menu_item_separator layout="topleft" />
+    <menu_item_check name="Translate_chat" label="Translate Nearby chat">
+        <menu_item_check.on_click
+         function="IMFloaterContainer.Action" 
+         parameter="Translating.Toggle" />
+        <menu_item_check.on_check
+         function="IMFloaterContainer.Check" 
+         parameter="Translating.On" />
+        <menu_item_check.on_enable
+         function="IMFloaterContainer.Check" 
+         parameter="Translating.Enabled" />
+    </menu_item_check>
+    <menu_item_check name="Translation_settings" label="Translation settings...">
+    <menu_item_check.on_check
+         function="Floater.Visible"
+         parameter="prefs_translation" />
+        <menu_item_check.on_click
+         function="Floater.Toggle"
+         parameter="prefs_translation" />
+    </menu_item_check>
 </toggleable_menu>
