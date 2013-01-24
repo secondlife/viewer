@@ -429,7 +429,6 @@ void LLAvatarActions::teleport_request_callback(const LLSD& notification, const 
 			EMPTY_BINARY_BUCKET_SIZE);
 
 	gAgent.sendReliableMessage();
-llwarns << "DBG REQUEST_TELEPORT sent" << llendl;
 }
 
 // static

@@ -3016,7 +3016,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 					}
 					else if (IM_TELEPORT_REQUEST == dialog)
 					{
-llwarns << "DBG TELEPORT_REQUEST received" << llendl;
 						params.name = "TeleportRequest";
 						params.functor.name = "TeleportRequest";
 					}
@@ -6760,13 +6759,53 @@ void send_group_notice(const LLUUID& group_id,
 			bin_bucket_size);
 }
 
+void send_lures(const LLSD& notification, const LLSD& response)
+{
+	std::string text = response["message"].asString();
+	LLSLURL slurl;
+	LLAgentUI::buildSLURL(slurl);
+	text.append("\r\n").append(slurl.getSLURLString());
+
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_StartLure);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->nextBlockFast(_PREHASH_Info);
+	msg->addU8Fast(_PREHASH_LureType, (U8)0); // sim will fill this in.
+	msg->addStringFast(_PREHASH_Message, text);
+	for(LLSD::array_const_iterator it = notification["payload"]["ids"].beginArray();
+		it != notification["payload"]["ids"].endArray();
+		++it)
+	{
+		LLUUID target_id = it->asUUID();
+
+		msg->nextBlockFast(_PREHASH_TargetData);
+		msg->addUUIDFast(_PREHASH_TargetID, target_id);
+
+		// Record the offer.
+		{
+			std::string target_name;
+			gCacheName->getFullName(target_id, target_name);  // for im log filenames
+			LLSD args;
+			args["TO_NAME"] = LLSLURL("agent", target_id, "displayname").getSLURLString();;
+	
+			LLSD payload;
+				
+			//*TODO please rewrite all keys to the same case, lower or upper
+			payload["from_id"] = target_id;
+			payload["SUPPRESS_TOAST"] = true;
+			LLNotificationsUtil::add("TeleportOfferSent", args, payload);
+
+			// Add the recepient to the recent people list.
+			LLRecentPeople::instance().add(target_id);
+		}
+	}
+	gAgent.sendReliableMessage();
+}
+
 bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 {
-// Caution: this function is also called directly by teleport_request_callback using dummied-up parameters.
-// If you make a change here that uses additional fields in notification or response
-// make sure to add appropriate dummy values in teleport_request_callback.
-llwarns << "DBB notification=" << notification << llendl;
-llwarns << "DBG response=" << response << llendl; 
 	static const unsigned OFFER_RECIPIENT_LIMIT = 250;
 	if(notification["payload"]["ids"].size() > OFFER_RECIPIENT_LIMIT) 
 	{
@@ -6778,51 +6817,12 @@ llwarns << "DBG response=" << response << llendl;
 		LLNotificationsUtil::add("TooManyTeleportOffers", args);
 		return false;
 	}
-	
-	std::string text = response["message"].asString();
-	LLSLURL slurl;
-	LLAgentUI::buildSLURL(slurl);
-	text.append("\r\n").append(slurl.getSLURLString());
+
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	if(0 == option)
 	{
-		LLMessageSystem* msg = gMessageSystem;
-		msg->newMessageFast(_PREHASH_StartLure);
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		msg->nextBlockFast(_PREHASH_Info);
-		msg->addU8Fast(_PREHASH_LureType, (U8)0); // sim will fill this in.
-		msg->addStringFast(_PREHASH_Message, text);
-		for(LLSD::array_const_iterator it = notification["payload"]["ids"].beginArray();
-			it != notification["payload"]["ids"].endArray();
-			++it)
-		{
-			LLUUID target_id = it->asUUID();
-
-			msg->nextBlockFast(_PREHASH_TargetData);
-			msg->addUUIDFast(_PREHASH_TargetID, target_id);
-
-			// Record the offer.
-			{
-				std::string target_name;
-				gCacheName->getFullName(target_id, target_name);  // for im log filenames
-				LLSD args;
-				args["TO_NAME"] = LLSLURL("agent", target_id, "displayname").getSLURLString();;
-	
-				LLSD payload;
-				
-				//*TODO please rewrite all keys to the same case, lower or upper
-				payload["from_id"] = target_id;
-				payload["SUPPRESS_TOAST"] = true;
-				LLNotificationsUtil::add("TeleportOfferSent", args, payload);
-
-				// Add the recepient to the recent people list.
-				LLRecentPeople::instance().add(target_id);
-			}
-		}
-		gAgent.sendReliableMessage();
+		send_lures(notification, response);
 	}
 
 	return false;
@@ -6896,18 +6896,11 @@ bool teleport_request_callback(const LLSD& notification, const LLSD& response)
 		{
 			LLSD dummy_notification;
 			dummy_notification["payload"]["ids"][0] = from_id;
-			dummy_notification["form"]["name"][0] = "OK";
-			dummy_notification["form"]["text"][0] = "OK";
-			dummy_notification["form"]["type"][0] = "button";
-
 
 			LLSD dummy_response;
 			dummy_response["message"] = response["message"];
-			dummy_response["OK"] = 1;
 
-			// Calling handle_lure_callback directly is a bit of a hack to avoid having to copy most of
-			// the code from this routine.
-			handle_lure_callback(dummy_notification, dummy_response);
+			send_lures(dummy_notification, dummy_response);
 		}
 		break;
 
