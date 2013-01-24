@@ -302,35 +302,26 @@ protected:
 };
 
 /**
- * This class is needed to update an item being copied to the favorites folder
+ * This callback is needed to update an item being copied to the favorites folder
  * with a sort field value (required to save favorites bar's tabs order).
  * See method handleNewFavoriteDragAndDrop for more details on how this class is used.
  */
-class LLItemCopiedCallback : public LLInventoryCallback
+void item_copied_cb(const LLUUID& inv_item, S32 sort_field)
 {
-public:
-	LLItemCopiedCallback(S32 sortField): mSortField(sortField) {}
-
-	virtual void fire(const LLUUID& inv_item)
+	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+	
+	if (item)
 	{
-		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
-
-		if (item)
-		{
-			item->setSortField(mSortField);
-			item->setComplete(TRUE);
-			item->updateServer(FALSE);
-
-			gInventory.updateItem(item);
-			gInventory.notifyObservers();
-		}
-
-		LLView::getWindow()->setCursor(UI_CURSOR_ARROW);
+		item->setSortField(sort_field);
+		item->setComplete(TRUE);
+		item->updateServer(FALSE);
+		
+		gInventory.updateItem(item);
+		gInventory.notifyObservers();
 	}
-
-private:
-	S32 mSortField;
-};
+	
+	LLView::getWindow()->setCursor(UI_CURSOR_ARROW);
+}
 
 // updateButtons's helper
 struct LLFavoritesSort
@@ -574,7 +565,7 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 	}
 
 	int sortField = 0;
-	LLPointer<LLItemCopiedCallback> cb;
+	LLPointer<LLInventoryCallback> cb;
 
 	// current order is saved by setting incremental values (1, 2, 3, ...) for the sort field
 	for (LLInventoryModel::item_array_t::iterator i = mItems.begin(); i != mItems.end(); ++i)
@@ -583,7 +574,7 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 
 		if (currItem->getUUID() == item->getUUID())
 		{
-			cb = new LLItemCopiedCallback(++sortField);
+			cb = new LLBoostFuncInventoryCallback(boost::bind(item_copied_cb, _1, ++sortField));
 		}
 		else
 		{

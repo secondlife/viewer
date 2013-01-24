@@ -380,7 +380,7 @@ public:
 
 			if (isAgentAvatarValid())
 			{
-				tvector = gAgent.getPosGlobalFromAgent(gAgentAvatarp->mRoot.getWorldPosition());
+				tvector = gAgent.getPosGlobalFromAgent(gAgentAvatarp->mRoot->getWorldPosition());
 				agent_root_center_text = llformat("AgentRootCenter %f %f %f",
 												  (F32)(tvector.mdV[VX]), (F32)(tvector.mdV[VY]), (F32)(tvector.mdV[VZ]));
 			}
@@ -730,7 +730,7 @@ public:
 		if(log_texture_traffic)
 		{	
 			U32 old_y = ypos ;
-			for(S32 i = LLViewerTexture::BOOST_NONE; i < LLViewerTexture::MAX_GL_IMAGE_CATEGORY; i++)
+			for(S32 i = LLGLTexture::BOOST_NONE; i < LLGLTexture::MAX_GL_IMAGE_CATEGORY; i++)
 			{
 				if(gTotalTextureBytesPerBoostLevel[i] > 0)
 				{
@@ -1386,43 +1386,6 @@ void LLViewerWindow::handleMenuSelect(LLWindow *window,  S32 menu_item)
 
 BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S32 height)
 {
-	// *TODO: Enable similar information output for other platforms?  DK 2011-02-18
-#if LL_WINDOWS
-	if (gHeadlessClient)
-	{
-		HWND window_handle = (HWND)window->getPlatformWindow();
-		PAINTSTRUCT ps; 
-		HDC hdc; 
- 
-		RECT wnd_rect;
-		wnd_rect.left = 0;
-		wnd_rect.top = 0;
-		wnd_rect.bottom = 200;
-		wnd_rect.right = 500;
-
-		hdc = BeginPaint(window_handle, &ps); 
-		//SetBKColor(hdc, RGB(255, 255, 255));
-		FillRect(hdc, &wnd_rect, CreateSolidBrush(RGB(255, 255, 255)));
-
-		std::string temp_str;
-		temp_str = llformat( "FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
-				LLViewerStats::getInstance()->mFPSStat.getMeanPerSec(),
-				LLViewerStats::getInstance()->mSimPhysicsFPS.getPrev(0),
-				LLViewerStats::getInstance()->mSimTimeDilation.getPrev(0));
-		S32 len = temp_str.length();
-		TextOutA(hdc, 0, 0, temp_str.c_str(), len); 
-
-
-		LLVector3d pos_global = gAgent.getPositionGlobal();
-		temp_str = llformat( "Avatar pos %6.1lf %6.1lf %6.1lf", pos_global.mdV[0], pos_global.mdV[1], pos_global.mdV[2]);
-		len = temp_str.length();
-		TextOutA(hdc, 0, 25, temp_str.c_str(), len); 
-
-		TextOutA(hdc, 0, 50, "Set \"HeadlessClient FALSE\" in settings.ini file to reenable", 61);
-		EndPaint(window_handle, &ps); 
-		return TRUE;
-	}
-#endif
 	return FALSE;
 }
 
@@ -1570,12 +1533,12 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	resetSnapshotLoc();
 
 	// create window
+	const BOOL clear_bg = FALSE;
 	mWindow = LLWindowManager::createWindow(this,
 		p.title, p.name, p.x, p.y, p.width, p.height, 0,
 		p.fullscreen, 
-		gHeadlessClient,
+		clear_bg,
 		gSavedSettings.getBOOL("DisableVerticalSync"),
-		!gHeadlessClient,
 		p.ignore_pixel_depth,
 		gSavedSettings.getBOOL("RenderDeferred") ? 0 : gSavedSettings.getU32("RenderFSAASamples")); //don't use window level anti-aliasing if FBOs are enabled
 
@@ -1680,7 +1643,8 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 		
 	// Init the image list.  Must happen after GL is initialized and before the images that
 	// LLViewerWindow needs are requested.
-	LLImageGL::initClass(LLViewerTexture::MAX_GL_IMAGE_CATEGORY) ;
+	const BOOL SKIP_ANALYZE_ALPHA=FALSE;
+	LLImageGL::initClass(LLGLTexture::MAX_GL_IMAGE_CATEGORY, SKIP_ANALYZE_ALPHA) ;
 	gTextureList.init();
 	LLViewerTextureManager::init() ;
 	gBumpImageList.init();
@@ -2143,7 +2107,7 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 
 		calcDisplayScale();
 	
-		BOOL display_scale_changed = mDisplayScale != LLUI::sGLScaleFactor;
+		BOOL display_scale_changed = mDisplayScale != LLUI::getScaleFactor();
 		LLUI::setScaleFactor(mDisplayScale);
 
 		// update our window rectangle
@@ -2349,7 +2313,7 @@ void LLViewerWindow::draw()
 		// scale view by UI global scale factor and aspect ratio correction factor
 		gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
 
-		LLVector2 old_scale_factor = LLUI::sGLScaleFactor;
+		LLVector2 old_scale_factor = LLUI::getScaleFactor();
 		// apply camera zoom transform (for high res screenshots)
 		F32 zoom_factor = LLViewerCamera::getInstance()->getZoomFactor();
 		S16 sub_region = LLViewerCamera::getInstance()->getZoomSubRegion();
@@ -2363,7 +2327,7 @@ void LLViewerWindow::draw()
 						(F32)getWindowHeightScaled() * -(F32)pos_y, 
 						0.f);
 			gGL.scalef(zoom_factor, zoom_factor, 1.f);
-			LLUI::sGLScaleFactor *= zoom_factor;
+			LLUI::getScaleFactor() *= zoom_factor;
 		}
 
 		// Draw tool specific overlay on world
@@ -2411,7 +2375,7 @@ void LLViewerWindow::draw()
 				LLFontGL::HCENTER, LLFontGL::TOP);
 		}
 
-		LLUI::sGLScaleFactor = old_scale_factor;
+		LLUI::setScaleFactor(old_scale_factor);
 	}
 	LLUI::popMatrix();
 	gGL.popMatrix();
@@ -2818,7 +2782,6 @@ void LLViewerWindow::updateUI()
 
 	BOOL handled = FALSE;
 
-	BOOL handled_by_top_ctrl = FALSE;
 	LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
 	LLMouseHandler* mouse_captor = gFocusMgr.getMouseCapture();
 	LLView* captor_view = dynamic_cast<LLView*>(mouse_captor);
@@ -3003,7 +2966,6 @@ void LLViewerWindow::updateUI()
 				S32 local_x, local_y;
 				top_ctrl->screenPointToLocal( x, y, &local_x, &local_y );
 				handled = top_ctrl->pointInView(local_x, local_y) && top_ctrl->handleHover(local_x, local_y, mask);
-				handled_by_top_ctrl = TRUE;
 			}
 
 			if ( !handled )
@@ -3211,8 +3173,8 @@ void LLViewerWindow::updateLayout()
 
 void LLViewerWindow::updateMouseDelta()
 {
-	S32 dx = lltrunc((F32) (mCurrentMousePoint.mX - mLastMousePoint.mX) * LLUI::sGLScaleFactor.mV[VX]);
-	S32 dy = lltrunc((F32) (mCurrentMousePoint.mY - mLastMousePoint.mY) * LLUI::sGLScaleFactor.mV[VY]);
+	S32 dx = lltrunc((F32) (mCurrentMousePoint.mX - mLastMousePoint.mX) * LLUI::getScaleFactor().mV[VX]);
+	S32 dy = lltrunc((F32) (mCurrentMousePoint.mY - mLastMousePoint.mY) * LLUI::getScaleFactor().mV[VY]);
 
 	//RN: fix for asynchronous notification of mouse leaving window not working
 	LLCoordWindow mouse_pos;
@@ -4777,7 +4739,7 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		gResizeScreenTexture = TRUE;
 		gWindowResized = TRUE;
 
-		if (isAgentAvatarValid() && !gAgentAvatarp->isUsingBakedTextures())
+		if (isAgentAvatarValid() && gAgentAvatarp->isEditingAppearance())
 		{
 			LLVisualParamHint::requestHintUpdates();
 		}
@@ -5041,11 +5003,6 @@ LLRect LLViewerWindow::getChatConsoleRect()
 bool LLViewerWindow::onAlert(const LLSD& notify)
 {
 	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
-
-	if (gHeadlessClient)
-	{
-		llinfos << "Alert: " << notification->getName() << llendl;
-	}
 
 	// If we're in mouselook, the mouse is hidden and so the user can't click 
 	// the dialog buttons.  In that case, change to First Person instead.

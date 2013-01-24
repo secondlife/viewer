@@ -47,9 +47,9 @@
 // * A simulator for a class can be implemented here. Please comment and document thoroughly.
 
 // Stub image calls
-void LLViewerTexture::setBoostLevel(S32 ) { }
-void LLViewerTexture::setAddressMode(LLTexUnit::eTextureAddressMode ) { }
-LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(const LLUUID&, BOOL, LLViewerTexture::EBoostLevel, S8,
+void LLGLTexture::setBoostLevel(S32 ) { }
+void LLGLTexture::setAddressMode(LLTexUnit::eTextureAddressMode ) { }
+LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(const LLUUID&, BOOL, LLGLTexture::EBoostLevel, S8,
 																  LLGLint, LLGLenum, LLHost ) { return NULL; }
 
 // Stub related map calls

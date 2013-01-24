@@ -20,6 +20,9 @@ include_directories(
     ${LLVFS_INCLUDE_DIRS}
     ${CURL_INCLUDE_DIRS}
     )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    )
 
 set(updater_service_SOURCE_FILES
     llupdaterservice.cpp

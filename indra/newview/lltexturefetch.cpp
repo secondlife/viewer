@@ -1183,11 +1183,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 			else if(!mUrl.empty() && mCanUseHTTP)
 			{
-				if (!(mUrl.compare(0, 7, "http://") == 0))
-				{
-					// *TODO:?remove this warning
-					llwarns << "Unknown URL Type: " << mUrl << llendl;
-				}
 				setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 				mState = WAIT_HTTP_RESOURCE;
 			}

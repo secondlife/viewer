@@ -2490,7 +2490,6 @@ void LLTextEditor::updateSegments()
 		mKeywords.findSegments(&segment_list, getWText(), mDefaultColor.get(), *this);
 
 		clearSegments();
-		segment_set_t::iterator insert_it = mSegments.begin();
 		for (segment_vec_t::iterator list_it = segment_list.begin(); list_it != segment_list.end(); ++list_it)
 		{
 			insertSegment(*list_it);
@@ -2887,7 +2886,7 @@ void LLTextEditor::markAsPreedit(S32 position, S32 length)
 
 S32 LLTextEditor::getPreeditFontSize() const
 {
-	return llround((F32)mDefaultFont->getLineHeight() * LLUI::sGLScaleFactor.mV[VY]);
+	return llround((F32)mDefaultFont->getLineHeight() * LLUI::getScaleFactor().mV[VY]);
 }
 
 BOOL LLTextEditor::isDirty() const

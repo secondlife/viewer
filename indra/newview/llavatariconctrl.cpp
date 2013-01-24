@@ -37,6 +37,8 @@
 #include "lluictrlfactory.h"
 #include "llagentdata.h"
 #include "llimfloater.h"
+#include "llviewertexture.h"
+#include "llavatarappearancedefines.h"
 
 // library includes
 #include "llavatarnamecache.h"

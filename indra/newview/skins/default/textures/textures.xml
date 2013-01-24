@@ -712,9 +712,6 @@ with the same filename but different name
   <texture name="icon_for_sale.tga" file_name="icons/Icon_For_Sale.png" />
   <texture name="icon_top_pick.tga" />
 
-  <texture name="inv_folder_mesh.tga"/>
-  <texture name="inv_item_mesh.tga"/>
-
   <texture name="lag_status_critical.tga" />
   <texture name="lag_status_good.tga" />
   <texture name="lag_status_warning.tga" />

@@ -2236,7 +2236,8 @@ void LLVivoxVoiceClient::giveUp()
 
 static void oldSDKTransform (LLVector3 &left, LLVector3 &up, LLVector3 &at, LLVector3d &pos, LLVector3 &vel)
 {
-	F32 nat[3], nup[3], nl[3], nvel[3]; // the new at, up, left vectors and the  new position and velocity
+	F32 nat[3], nup[3], nl[3]; // the new at, up, left vectors and the  new position and velocity
+//	F32 nvel[3]; 
 	F64 npos[3];
 	
 	// The original XML command was sent like this:
@@ -2286,9 +2287,9 @@ static void oldSDKTransform (LLVector3 &left, LLVector3 &up, LLVector3 &at, LLVe
 	npos[1] = pos.mdV[VZ];
 	npos[2] = pos.mdV[VY];
 
-	nvel[0] = vel.mV[VX];
-	nvel[1] = vel.mV[VZ];
-	nvel[2] = vel.mV[VY];
+//	nvel[0] = vel.mV[VX];
+//	nvel[1] = vel.mV[VZ];
+//	nvel[2] = vel.mV[VY];
 
 	for(int i=0;i<3;++i) {
 		at.mV[i] = nat[i];
@@ -3942,7 +3943,6 @@ void LLVivoxVoiceClient::messageEvent(
 			bool is_busy = gAgent.getBusy();
 			bool is_muted = LLMuteList::getInstance()->isMuted(session->mCallerID, session->mName, LLMute::flagTextChat);
 			bool is_linden = LLMuteList::getInstance()->isLinden(session->mName);
-			bool quiet_chat = false;
 			LLChat chat;
 
 			chat.mMuted = is_muted && !is_linden;
@@ -3955,7 +3955,6 @@ void LLVivoxVoiceClient::messageEvent(
 
 				if(is_busy && !is_linden)
 				{
-					quiet_chat = true;
 					// TODO: Question: Return busy mode response here?  Or maybe when session is started instead?
 				}
 				

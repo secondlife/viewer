@@ -401,8 +401,6 @@ void LLInventoryPanel::modelChanged(U32 mask)
 	static LLFastTimer::DeclareTimer FTM_REFRESH("Inventory Refresh");
 	LLFastTimer t2(FTM_REFRESH);
 
-	bool handled = false;
-
 	if (!mViewsInitialized) return;
 	
 	const LLInventoryModel* model = getModel();
@@ -428,7 +426,6 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		// Empty out the display name for relabel.
 		if (mask & LLInventoryObserver::LABEL)
 		{
-			handled = true;
 			if (view_item)
 			{
 				// Request refresh on this item (also flags for filtering)
@@ -447,7 +444,6 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		// Destroy and regenerate the UI.
 		if (mask & LLInventoryObserver::REBUILD)
 		{
-			handled = true;
 			if (model_item && view_item)
 			{
 				view_item->destroyView();
@@ -487,8 +483,6 @@ void LLInventoryPanel::modelChanged(U32 mask)
 					LLInventoryObserver::ADD |
 					LLInventoryObserver::REMOVE))
 		{
-			handled = true;
-
 			//////////////////////////////
 			// ADD Operation
 			// Item exists in memory but a UI element hasn't been created for it.

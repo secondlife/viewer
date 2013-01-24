@@ -242,48 +242,13 @@ public:
 	virtual void fire(const LLUUID& inv_item) = 0;
 };
 
-class WearOnAvatarCallback : public LLInventoryCallback
-{
-public:
-	WearOnAvatarCallback(bool do_replace = false) : mReplace(do_replace) {}
-	
-	void fire(const LLUUID& inv_item);
-
-protected:
-	bool mReplace;
-};
-
-class ModifiedCOFCallback : public LLInventoryCallback
-{
-	void fire(const LLUUID& inv_item);
-};
-
 class LLViewerJointAttachment;
 
-class RezAttachmentCallback : public LLInventoryCallback
-{
-public:
-	RezAttachmentCallback(LLViewerJointAttachment *attachmentp);
-	void fire(const LLUUID& inv_item);
+void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachmentp);
 
-protected:
-	~RezAttachmentCallback();
+void activate_gesture_cb(const LLUUID& inv_item);
 
-private:
-	LLViewerJointAttachment* mAttach;
-};
-
-class ActivateGestureCallback : public LLInventoryCallback
-{
-public:
-	void fire(const LLUUID& inv_item);
-};
-
-class CreateGestureCallback : public LLInventoryCallback
-{
-public:
-	void fire(const LLUUID& inv_item);
-};
+void create_gesture_cb(const LLUUID& inv_item);
 
 class AddFavoriteLandmarkCallback : public LLInventoryCallback
 {
@@ -295,6 +260,42 @@ private:
 	void fire(const LLUUID& inv_item);
 
 	LLUUID mTargetLandmarkId;
+};
+
+typedef boost::function<void(const LLUUID&)> inventory_func_type;
+void no_op_inventory_func(const LLUUID&); // A do-nothing inventory_func
+
+typedef boost::function<void()> nullary_func_type;
+void no_op(); // A do-nothing nullary func.
+
+// Shim between inventory callback and boost function/callable
+class LLBoostFuncInventoryCallback: public LLInventoryCallback
+{
+public:
+
+	LLBoostFuncInventoryCallback(inventory_func_type fire_func,
+								 nullary_func_type destroy_func = no_op):
+		mFireFunc(fire_func),
+		mDestroyFunc(destroy_func)
+	{
+	}
+
+	// virtual
+	void fire(const LLUUID& item_id)
+	{
+		mFireFunc(item_id);
+	}
+
+	// virtual
+	~LLBoostFuncInventoryCallback()
+	{
+		mDestroyFunc();
+	}
+	
+
+private:
+	inventory_func_type mFireFunc;
+	nullary_func_type mDestroyFunc;
 };
 
 // misc functions

@@ -186,7 +186,7 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
 			 const std::string& title, S32 x, S32 y, S32 width,
 			 S32 height, U32 flags,
 			 BOOL fullscreen, BOOL clearBg,
-			 BOOL disable_vsync, BOOL use_gl,
+			 BOOL disable_vsync,
 			 BOOL ignore_pixel_depth, U32 fsaa_samples)
 	: LLWindow(callbacks, fullscreen, flags),
 	  Lock_Display(NULL),
@@ -197,7 +197,6 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
 	gKeyboard->setCallbacks(callbacks);
 	// Note that we can't set up key-repeat until after SDL has init'd video
 
-	// Ignore use_gl for now, only used for drones on PC
 	mWindow = NULL;
 	mNeedsResize = FALSE;
 	mOverrideAspectRatio = 0.f;
@@ -1644,24 +1643,24 @@ void check_vm_bloat()
 		const long long significant_vm_difference = 250 * 1024*1024;
 		const long long significant_rss_difference = 50 * 1024*1024;
 
-		ssize_t res;
 		size_t dummy;
 		char *ptr;
-		for (int i=0; i<22; ++i) // parse past the values we don't want
+		size_t delim_result = 0;
+		for (int i=0; i<22 && delim_result > -1; ++i) // parse past the values we don't want
 		{
 			ptr = NULL;
-			res = getdelim(&ptr, &dummy, ' ', fp);
+			delim_result = getdelim(&ptr, &dummy, ' ', fp);
 			free(ptr);
 		}
 		// 23rd space-delimited entry is vsize
 		ptr = NULL;
-		res = getdelim(&ptr, &dummy, ' ', fp);
+		delim_result = getdelim(&ptr, &dummy, ' ', fp);
 		llassert(ptr);
 		long long this_vm_size = atoll(ptr);
 		free(ptr);
 		// 24th space-delimited entry is RSS
 		ptr = NULL;
-		res = getdelim(&ptr, &dummy, ' ', fp);
+		delim_result = getdelim(&ptr, &dummy, ' ', fp);
 		llassert(ptr);
 		long long this_rss_size = getpagesize() * atoll(ptr);
 		free(ptr);

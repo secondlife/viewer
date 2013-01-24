@@ -69,7 +69,7 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
 	sDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainScale");
 	sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
 	mAlphaRampImagep = LLViewerTextureManager::getFetchedTextureFromFile("alpha_gradient.tga", 
-													TRUE, LLViewerTexture::BOOST_UI, 
+													TRUE, LLGLTexture::BOOST_UI, 
 													LLViewerTexture::FETCHED_TEXTURE,
 													format, int_format,
 													LLUUID("e97cf410-8e61-7005-ec06-629eba4cd1fb"));
@@ -78,7 +78,7 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
 	mAlphaRampImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 	m2DAlphaRampImagep = LLViewerTextureManager::getFetchedTextureFromFile("alpha_gradient_2d.j2c", 
-													TRUE, LLViewerTexture::BOOST_UI, 
+													TRUE, LLGLTexture::BOOST_UI, 
 													LLViewerTexture::FETCHED_TEXTURE,
 													format, int_format,
 													LLUUID("38b86f85-2575-52a9-a531-23108d8da837"));
@@ -86,7 +86,7 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
 	//gGL.getTexUnit(0)->bind(m2DAlphaRampImagep.get());
 	m2DAlphaRampImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 	
-	mTexturep->setBoostLevel(LLViewerTexture::BOOST_TERRAIN);
+	mTexturep->setBoostLevel(LLGLTexture::BOOST_TERRAIN);
 	
 	//gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 }
@@ -170,7 +170,7 @@ void LLDrawPoolTerrain::render(S32 pass)
 	LLVLComposition *compp = regionp->getComposition();
 	for (S32 i = 0; i < 4; i++)
 	{
-		compp->mDetailTextures[i]->setBoostLevel(LLViewerTexture::BOOST_TERRAIN);
+		compp->mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_TERRAIN);
 		compp->mDetailTextures[i]->addTextureStats(1024.f*1024.f); // assume large pixel area
 	}
 

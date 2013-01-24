@@ -351,7 +351,6 @@ void LLTextBase::drawSelectionBackground()
 
 		S32 selection_left		= llmin( mSelectionStart, mSelectionEnd );
 		S32 selection_right		= llmax( mSelectionStart, mSelectionEnd );
-		LLRect selection_rect = mVisibleTextRect;
 
 		// Skip through the lines we aren't drawing.
 		LLRect content_display_rect = getVisibleDocumentRect();
@@ -513,8 +512,8 @@ void LLTextBase::drawCursor()
 			LLRect screen_pos = calcScreenRect();
 			LLCoordGL ime_pos( screen_pos.mLeft + llfloor(cursor_rect.mLeft), screen_pos.mBottom + llfloor(cursor_rect.mTop) );
 
-			ime_pos.mX = (S32) (ime_pos.mX * LLUI::sGLScaleFactor.mV[VX]);
-			ime_pos.mY = (S32) (ime_pos.mY * LLUI::sGLScaleFactor.mV[VY]);
+			ime_pos.mX = (S32) (ime_pos.mX * LLUI::getScaleFactor().mV[VX]);
+			ime_pos.mY = (S32) (ime_pos.mY * LLUI::getScaleFactor().mV[VY]);
 			getWindow()->setLanguageTextInput( ime_pos );
 		}
 	}
@@ -2239,7 +2238,6 @@ const LLWString& LLTextBase::getWText() const
 S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round, bool hit_past_end_of_line) const
 {
 	// Figure out which line we're nearest to.
-	LLRect visible_region = getVisibleDocumentRect();
 	LLRect doc_rect = mDocumentView->getRect();
 
 	S32 doc_y = local_y - doc_rect.mBottom;

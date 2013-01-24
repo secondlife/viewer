@@ -2674,7 +2674,6 @@ void LLIMMgr::inviteToSession(
 	// voice invite question is different from default only for group call (EXT-7118)
 	std::string question_type = "VoiceInviteQuestionDefault";
 
-	BOOL ad_hoc_invite = FALSE;
 	BOOL voice_invite = FALSE;
 	bool is_linden = LLMuteList::getInstance()->isLinden(caller_name);
 
@@ -2697,13 +2696,11 @@ void LLIMMgr::inviteToSession(
 		//else it's an ad-hoc
 		//and a voice ad-hoc
 		notify_box_type = "VoiceInviteAdHoc";
-		ad_hoc_invite = TRUE;
 		voice_invite = TRUE;
 	}
 	else if ( inv_type == INVITATION_TYPE_IMMEDIATE )
 	{
 		notify_box_type = "InviteAdHoc";
-		ad_hoc_invite = TRUE;
 	}
 
 	LLSD payload;
@@ -3269,10 +3266,9 @@ public:
 			}
 			std::string buffer = saved + message;
 
-			BOOL is_this_agent = FALSE;
 			if(from_id == gAgentID)
 			{
-				is_this_agent = TRUE;
+				return;
 			}
 			gIMMgr->addMessage(
 				session_id,

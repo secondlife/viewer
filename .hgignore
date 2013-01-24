@@ -10,7 +10,7 @@ syntax: glob
 .*.swp
 #OSX image cache file
 *.DS_Store
-*.orig
+#*.orig
 LICENSES
 indra/.distcc
 build-linux-*
@@ -50,6 +50,11 @@ indra/web/doc/asset-upload/plugins/verify-texture
 installed.xml
 libraries
 tarfile_tmp
+debian/secondlife-viewer*
+debian/secondlife-appearance-utility*
+debian/files
+build-stamp
+configure-stamp
 ^indra/lib/python/mulib.*
 ^web/locale.*
 ^web/secondlife.com.*
@@ -69,4 +74,4 @@ glob:indra/newview/filters.xml
 glob:indra/newview/avatar_icons_cache.txt
 glob:indra/newview/avatar_lad.log
 glob:*.diff
-*.rej
+#*.rej

@@ -57,12 +57,7 @@
 BOOL gDebugSession = FALSE;
 BOOL gDebugGL = FALSE;
 BOOL gClothRipple = FALSE;
-BOOL gHeadlessClient = FALSE;
 BOOL gGLActive = FALSE;
-
-static const std::string HEADLESS_VENDOR_STRING("Linden Lab");
-static const std::string HEADLESS_RENDERER_STRING("Headless");
-static const std::string HEADLESS_VERSION_STRING("1.0");
 
 std::ofstream gFailLog;
 
@@ -393,7 +388,7 @@ PFNGLACTIVETEXTUREARBPROC glActiveTextureARB = NULL;
 PFNGLCLIENTACTIVETEXTUREARBPROC glClientActiveTextureARB = NULL;
 PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements = NULL;
 #endif // LL_LINUX_NV_GL_HEADERS
-#endif
+#endif // (LL_WINDOWS || LL_LINUX || LL_SOLARIS)  && !LL_MESA_HEADLESS
 
 LLGLManager gGLManager;
 
@@ -597,11 +592,12 @@ bool LLGLManager::initGL()
 	if (mGLVendor.substr(0,4) == "ATI ")
 	{
 		mGLVendorShort = "ATI";
-		BOOL mobile = FALSE;
-		if (mGLRenderer.find("MOBILITY") != std::string::npos)
-		{
-			mobile = TRUE;
-		}
+		// "mobile" appears to be unused, and this code was causing warnings.
+		//BOOL mobile = FALSE;
+		//if (mGLRenderer.find("MOBILITY") != std::string::npos)
+		//{
+		//	mobile = TRUE;
+		//}
 		mIsATI = TRUE;
 
 #if LL_WINDOWS && !LL_MESA_HEADLESS
@@ -788,19 +784,9 @@ void LLGLManager::setToDebugGPU()
 
 void LLGLManager::getGLInfo(LLSD& info)
 {
-	if (gHeadlessClient)
-	{
-		info["GLInfo"]["GLVendor"] = HEADLESS_VENDOR_STRING;
-		info["GLInfo"]["GLRenderer"] = HEADLESS_RENDERER_STRING;
-		info["GLInfo"]["GLVersion"] = HEADLESS_VERSION_STRING;
-		return;
-	}
-	else
-	{
-		info["GLInfo"]["GLVendor"] = std::string((const char *)glGetString(GL_VENDOR));
-		info["GLInfo"]["GLRenderer"] = std::string((const char *)glGetString(GL_RENDERER));
-		info["GLInfo"]["GLVersion"] = std::string((const char *)glGetString(GL_VERSION));
-	}
+	info["GLInfo"]["GLVendor"] = std::string((const char *)glGetString(GL_VENDOR));
+	info["GLInfo"]["GLRenderer"] = std::string((const char *)glGetString(GL_RENDERER));
+	info["GLInfo"]["GLVersion"] = std::string((const char *)glGetString(GL_VERSION));
 
 #if !LL_MESA_HEADLESS
 	std::string all_exts = ll_safe_string((const char *)gGLHExts.mSysExts);
@@ -817,18 +803,9 @@ std::string LLGLManager::getGLInfoString()
 {
 	std::string info_str;
 
-	if (gHeadlessClient)
-	{
-		info_str += std::string("GL_VENDOR      ") + HEADLESS_VENDOR_STRING + std::string("\n");
-		info_str += std::string("GL_RENDERER    ") + HEADLESS_RENDERER_STRING + std::string("\n");
-		info_str += std::string("GL_VERSION     ") + HEADLESS_VERSION_STRING + std::string("\n");
-	}
-	else
-	{
-		info_str += std::string("GL_VENDOR      ") + ll_safe_string((const char *)glGetString(GL_VENDOR)) + std::string("\n");
-		info_str += std::string("GL_RENDERER    ") + ll_safe_string((const char *)glGetString(GL_RENDERER)) + std::string("\n");
-		info_str += std::string("GL_VERSION     ") + ll_safe_string((const char *)glGetString(GL_VERSION)) + std::string("\n");
-	}
+	info_str += std::string("GL_VENDOR      ") + ll_safe_string((const char *)glGetString(GL_VENDOR)) + std::string("\n");
+	info_str += std::string("GL_RENDERER    ") + ll_safe_string((const char *)glGetString(GL_RENDERER)) + std::string("\n");
+	info_str += std::string("GL_VERSION     ") + ll_safe_string((const char *)glGetString(GL_VERSION)) + std::string("\n");
 
 #if !LL_MESA_HEADLESS 
 	std::string all_exts= ll_safe_string(((const char *)gGLHExts.mSysExts));
@@ -841,18 +818,9 @@ std::string LLGLManager::getGLInfoString()
 
 void LLGLManager::printGLInfoString()
 {
-	if (gHeadlessClient)
-	{
-		LL_INFOS("RenderInit") << "GL_VENDOR:     " << HEADLESS_VENDOR_STRING << LL_ENDL;
-		LL_INFOS("RenderInit") << "GL_RENDERER:   " << HEADLESS_RENDERER_STRING << LL_ENDL;
-		LL_INFOS("RenderInit") << "GL_VERSION:    " << HEADLESS_VERSION_STRING << LL_ENDL;
-	}
-	else
-	{
-		LL_INFOS("RenderInit") << "GL_VENDOR:     " << ((const char *)glGetString(GL_VENDOR)) << LL_ENDL;
-		LL_INFOS("RenderInit") << "GL_RENDERER:   " << ((const char *)glGetString(GL_RENDERER)) << LL_ENDL;
-		LL_INFOS("RenderInit") << "GL_VERSION:    " << ((const char *)glGetString(GL_VERSION)) << LL_ENDL;
-	}
+	LL_INFOS("RenderInit") << "GL_VENDOR:     " << ((const char *)glGetString(GL_VENDOR)) << LL_ENDL;
+	LL_INFOS("RenderInit") << "GL_RENDERER:   " << ((const char *)glGetString(GL_RENDERER)) << LL_ENDL;
+	LL_INFOS("RenderInit") << "GL_VERSION:    " << ((const char *)glGetString(GL_VERSION)) << LL_ENDL;
 
 #if !LL_MESA_HEADLESS
 	std::string all_exts= ll_safe_string(((const char *)gGLHExts.mSysExts));
@@ -864,14 +832,7 @@ void LLGLManager::printGLInfoString()
 std::string LLGLManager::getRawGLString()
 {
 	std::string gl_string;
-	if (gHeadlessClient)
-	{
-		gl_string = HEADLESS_VENDOR_STRING + " " + HEADLESS_RENDERER_STRING;
-	}
-	else
-	{
-		gl_string = ll_safe_string((char*)glGetString(GL_VENDOR)) + " " + ll_safe_string((char*)glGetString(GL_RENDERER));
-	}
+	gl_string = ll_safe_string((char*)glGetString(GL_VENDOR)) + " " + ll_safe_string((char*)glGetString(GL_RENDERER));
 	return gl_string;
 }
 
@@ -937,7 +898,7 @@ void LLGLManager::initExtensions()
 	mHasCubeMap = FALSE;
 	mHasOcclusionQuery = FALSE;
 	mHasPointParameters = FALSE;
-	mHasShaderObjects = FALSE;
+	mHasShaderObjects = TRUE;
 	mHasVertexShader = FALSE;
 	mHasFragmentShader = FALSE;
 	mHasTextureRectangle = FALSE;
@@ -1490,8 +1451,7 @@ void assert_glerror()
 void clear_glerror()
 {
 	//  Create or update texture to be used with this data 
-	GLenum error;
-	error = glGetError();
+    glGetError();
 }
 
 ///////////////////////////////////////////////////////////////
@@ -1990,7 +1950,10 @@ LLGLState::LLGLState(LLGLenum state, S32 enabled) :
 	if (mState)
 	{
 		mWasEnabled = sStateMap[state];
-		llassert(mWasEnabled == glIsEnabled(state));
+		if (gDebugGL)
+		{
+			llassert(mWasEnabled == glIsEnabled(state));
+		}
 		setEnabled(enabled);
 		stop_glerror();
 	}
