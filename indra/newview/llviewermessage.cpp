@@ -189,70 +189,74 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 	const LLSD& payload = notification["payload"];
 	LLNotificationPtr notification_ptr = LLNotifications::instance().find(notification["id"].asUUID());
 
-	// add friend to recent people list
-	LLRecentPeople::instance().add(payload["from_id"]);
+    // this will be skipped if the user offering friendship is blocked
+    if (notification_ptr)
+    {
+	    // add friend to recent people list
+	    LLRecentPeople::instance().add(payload["from_id"]);
 
-	switch(option)
-	{
-	case 0:
-	{
-		// accept
-		LLAvatarTracker::formFriendship(payload["from_id"]);
+	    switch(option)
+	    {
+	    case 0:
+	    {
+		    // accept
+		    LLAvatarTracker::formFriendship(payload["from_id"]);
 
-		const LLUUID fid = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
+		    const LLUUID fid = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
 
-		// This will also trigger an onlinenotification if the user is online
-		msg->newMessageFast(_PREHASH_AcceptFriendship);
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		msg->nextBlockFast(_PREHASH_TransactionBlock);
-		msg->addUUIDFast(_PREHASH_TransactionID, payload["session_id"]);
-		msg->nextBlockFast(_PREHASH_FolderData);
-		msg->addUUIDFast(_PREHASH_FolderID, fid);
-		msg->sendReliable(LLHost(payload["sender"].asString()));
+		    // This will also trigger an onlinenotification if the user is online
+		    msg->newMessageFast(_PREHASH_AcceptFriendship);
+		    msg->nextBlockFast(_PREHASH_AgentData);
+		    msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+		    msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+		    msg->nextBlockFast(_PREHASH_TransactionBlock);
+		    msg->addUUIDFast(_PREHASH_TransactionID, payload["session_id"]);
+		    msg->nextBlockFast(_PREHASH_FolderData);
+		    msg->addUUIDFast(_PREHASH_FolderID, fid);
+		    msg->sendReliable(LLHost(payload["sender"].asString()));
 
-		LLSD payload = notification["payload"];
-		LLNotificationsUtil::add("FriendshipAcceptedByMe",
-				notification["substitutions"], payload);
-		break;
-	}
-	case 1: // Decline
-	{
-		LLSD payload = notification["payload"];
-		LLNotificationsUtil::add("FriendshipDeclinedByMe",
-				notification["substitutions"], payload);
-	}
-	// fall-through
-	case 2: // Send IM - decline and start IM session
-		{
-			// decline
-			// We no longer notify other viewers, but we DO still send
-			// the rejection to the simulator to delete the pending userop.
-			msg->newMessageFast(_PREHASH_DeclineFriendship);
-			msg->nextBlockFast(_PREHASH_AgentData);
-			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			msg->nextBlockFast(_PREHASH_TransactionBlock);
-			msg->addUUIDFast(_PREHASH_TransactionID, payload["session_id"]);
-			msg->sendReliable(LLHost(payload["sender"].asString()));
+		    LLSD payload = notification["payload"];
+		    LLNotificationsUtil::add("FriendshipAcceptedByMe",
+				    notification["substitutions"], payload);
+		    break;
+	    }
+	    case 1: // Decline
+	    {
+		    LLSD payload = notification["payload"];
+		    LLNotificationsUtil::add("FriendshipDeclinedByMe",
+				    notification["substitutions"], payload);
+	    }
+	    // fall-through
+	    case 2: // Send IM - decline and start IM session
+		    {
+			    // decline
+			    // We no longer notify other viewers, but we DO still send
+			    // the rejection to the simulator to delete the pending userop.
+			    msg->newMessageFast(_PREHASH_DeclineFriendship);
+			    msg->nextBlockFast(_PREHASH_AgentData);
+			    msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+			    msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			    msg->nextBlockFast(_PREHASH_TransactionBlock);
+			    msg->addUUIDFast(_PREHASH_TransactionID, payload["session_id"]);
+			    msg->sendReliable(LLHost(payload["sender"].asString()));
 
-			// start IM session
-			if(2 == option)
-			{
-				LLAvatarActions::startIM(payload["from_id"].asUUID());
-			}
-	}
-	default:
-		// close button probably, possibly timed out
-		break;
-	}
+			    // start IM session
+			    if(2 == option)
+			    {
+				    LLAvatarActions::startIM(payload["from_id"].asUUID());
+			    }
+	    }
+	    default:
+		    // close button probably, possibly timed out
+		    break;
+	    }
 
-	LLNotificationFormPtr modified_form(new LLNotificationForm(*notification_ptr->getForm()));
-	modified_form->setElementEnabled("Accept", false);
-	modified_form->setElementEnabled("Decline", false);
-	notification_ptr->updateForm(modified_form);
-	notification_ptr->repost();
+	    LLNotificationFormPtr modified_form(new LLNotificationForm(*notification_ptr->getForm()));
+	    modified_form->setElementEnabled("Accept", false);
+	    modified_form->setElementEnabled("Decline", false);
+	    notification_ptr->updateForm(modified_form);
+	    notification_ptr->repost();
+    }
 
 	return false;
 }
@@ -1618,12 +1622,6 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			{
 				opener = discard_agent_offer;
 			}
-			
-			
-			if (gAgent.isDoNotDisturb() && (!mFromGroup && !mFromObject))
-			{
-				send_do_not_disturb_message(gMessageSystem, mFromID);
-			}
 
 			if (modified_form != NULL)
 			{
@@ -1990,6 +1988,11 @@ void inventory_offer_handler(LLOfferInfo* info)
 		
 		// In viewer 2 we're now auto receiving inventory offers and messaging as such (not sending reject messages).
 		info->send_auto_receive_response();
+
+        if (gAgent.isDoNotDisturb()) 
+        {
+            send_do_not_disturb_message(gMessageSystem, info->mFromID);
+        }
 
 		// Inform user that there is a script floater via toast system
 		{

@@ -60,6 +60,7 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
   , mInputEditorTopPad(0)
   , mRefreshTimer(new LLTimer())
   , mIsHostAttached(false)
+  , mHasVisibleBeenInitialized(false)
 {
     setAutoFocus(FALSE);
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
@@ -72,12 +73,6 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
 			boost::bind(&LLFloaterIMSessionTab::onIMShowModesMenuItemCheck,   this, _2));
 	mEnableCallbackRegistrar.add("IMSession.Menu.ShowModes.Enable",
 			boost::bind(&LLFloaterIMSessionTab::onIMShowModesMenuItemEnable,  this, _2));
-	mEnableCallbackRegistrar.add("Translating.Enabled",
-				boost::bind(&LLFloaterIMSessionTab::isTranslatingEnabled,  this, _2));
-	mEnableCallbackRegistrar.add("Translating.On",
-					boost::bind(&LLFloaterIMSessionTab::isTranslationOn,  this, _2));
-	mCommitCallbackRegistrar.add("Translating.Toggle",
-				boost::bind(&LLFloaterIMSessionTab::toggleTranslation,  this, _2));
 
 	// Right click menu handling
     mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLFloaterIMSessionTab::checkContextMenuItem,	this, _2));
@@ -88,13 +83,6 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
 LLFloaterIMSessionTab::~LLFloaterIMSessionTab()
 {
 	delete mRefreshTimer;
-
-	// Select Nearby Chat session
-	LLFloaterIMContainer* container = LLFloaterReg::findTypedInstance<LLFloaterIMContainer>("im_container");
-	if (container)
-	{
-		container->selectConversationPair(LLUUID(NULL), true);
-	}
 }
 
 //static
@@ -133,12 +121,14 @@ LLFloaterIMSessionTab* LLFloaterIMSessionTab::getConversation(const LLUUID& uuid
 
 void LLFloaterIMSessionTab::setVisible(BOOL visible)
 {
-	LLTransientDockableFloater::setVisible(visible);
-
-	if(visible)
+	if(visible && !mHasVisibleBeenInitialized)
 	{
-			LLFloaterIMSessionTab::addToHost(mSessionID);
+		mHasVisibleBeenInitialized = true;
+		LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container")->setVisible(true);
+		LLFloaterIMSessionTab::addToHost(mSessionID);
 	}
+
+	LLTransientDockableFloater::setVisible(visible);
 }
 
 /*virtual*/
@@ -558,11 +548,6 @@ void LLFloaterIMSessionTab::onIMSessionMenuItemClicked(const LLSD& userdata)
 	LLFloaterIMSessionTab::processChatHistoryStyleUpdate();
 }
 
-void LLFloaterIMSessionTab::toggleTranslation(const LLSD& userdata)
-{
-	gSavedSettings.setBOOL("TranslateChat", !gSavedSettings.getBOOL("TranslateChat"));
-}
-
 bool LLFloaterIMSessionTab::onIMCompactExpandedMenuItemCheck(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
@@ -584,16 +569,6 @@ bool LLFloaterIMSessionTab::onIMShowModesMenuItemEnable(const LLSD& userdata)
 	bool plain_text = gSavedSettings.getBOOL("PlainTextChatHistory");
 	bool is_not_names = (item != "IMShowNamesForP2PConv");
 	return (plain_text && (is_not_names || mIsP2PChat));
-}
-
-bool LLFloaterIMSessionTab::isTranslatingEnabled(const LLSD& userdata)
-{
-	return gSavedPerAccountSettings.getBOOL("TranslatingEnabled");
-}
-
-bool LLFloaterIMSessionTab::isTranslationOn(const LLSD& userdata)
-{
-	return gSavedSettings.getBOOL("TranslateChat");
 }
 
 void LLFloaterIMSessionTab::hideOrShowTitle()

@@ -43,15 +43,17 @@
 #include "lluuid.h"
 
 static const F32 DND_TIMER = 3.0;
+const char * LLDoNotDisturbNotificationStorage::toastName = "IMToast";
+const char * LLDoNotDisturbNotificationStorage::offerName = "UserGiveItem";
 
 LLDoNotDisturbNotificationStorageTimer::LLDoNotDisturbNotificationStorageTimer() : LLEventTimer(DND_TIMER)
 {
-    mEventTimer.start();
+
 }
 
 LLDoNotDisturbNotificationStorageTimer::~LLDoNotDisturbNotificationStorageTimer()
 {
-    mEventTimer.stop();
+
 }
 
 BOOL LLDoNotDisturbNotificationStorageTimer::tick()
@@ -71,6 +73,8 @@ LLDoNotDisturbNotificationStorage::LLDoNotDisturbNotificationStorage()
 	, LLNotificationStorage(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "dnd_notifications.xml"))
     , mDirty(false)
 {
+    nameToPayloadParameterMap[toastName] = "SESSION_ID";
+    nameToPayloadParameterMap[offerName] = "object_id";
 }
 
 LLDoNotDisturbNotificationStorage::~LLDoNotDisturbNotificationStorage()
@@ -152,27 +156,27 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
         std::string notificationName = notification_params["name"];
         LLNotificationPtr notification = instance.find(notificationID);
 
-        if(notificationName == "IMToast")
+        if(notificationName == toastName)
         {
             imToastExists = true;
         }
 
         //New notification needs to be added
-            notification = (LLNotificationPtr) new LLNotification(notification_params.with("is_dnd", true));
-			LLNotificationResponderInterface* responder = createResponder(notification_params["responder_sd"]["responder_type"], notification_params["responder_sd"]);
-			if (responder == NULL)
-			{
-				LL_WARNS("LLDoNotDisturbNotificationStorage") << "cannot create responder for notification of type '"
-					<< notification->getType() << "'" << LL_ENDL;
-			}
-			else
-			{
-				LLNotificationResponderPtr responderPtr(responder);
-				notification->setResponseFunctor(responderPtr);
-			}
-			
-			instance.add(notification);
+        notification = (LLNotificationPtr) new LLNotification(notification_params.with("is_dnd", true));
+		LLNotificationResponderInterface* responder = createResponder(notification_params["responder_sd"]["responder_type"], notification_params["responder_sd"]);
+		if (responder == NULL)
+		{
+			LL_WARNS("LLDoNotDisturbNotificationStorage") << "cannot create responder for notification of type '"
+				<< notification->getType() << "'" << LL_ENDL;
 		}
+		else
+		{
+			LLNotificationResponderPtr responderPtr(responder);
+			notification->setResponseFunctor(responderPtr);
+		}
+			
+		instance.add(notification);
+	}
 
     if(imToastExists)
     {
@@ -200,7 +204,7 @@ void LLDoNotDisturbNotificationStorage::updateNotifications()
         LLNotificationPtr notification = it->second;
         std::string notificationName = notification->getName();
 
-        if(notificationName == "IMToast")
+        if(notificationName == toastName)
         {
             imToastExists = true;
         }
@@ -221,9 +225,9 @@ void LLDoNotDisturbNotificationStorage::updateNotifications()
     //When exit DND mode, write empty notifications file
     if(commChannel->getHistorySize())
     {
-	commChannel->clearHistory();
-	saveNotifications();
-}
+	    commChannel->clearHistory();
+	    saveNotifications();
+    }
 }
 
 LLNotificationChannelPtr LLDoNotDisturbNotificationStorage::getCommunicationChannel() const
@@ -233,14 +237,16 @@ LLNotificationChannelPtr LLDoNotDisturbNotificationStorage::getCommunicationChan
 	return channelPtr;
 }
 
-void LLDoNotDisturbNotificationStorage::removeIMNotification(const LLUUID& session_id)
+void LLDoNotDisturbNotificationStorage::removeNotification(const char * name, const LLUUID& id)
 {
     LLNotifications& instance = LLNotifications::instance();
     LLNotificationChannelPtr channelPtr = getCommunicationChannel();
     LLCommunicationChannel *commChannel = dynamic_cast<LLCommunicationChannel*>(channelPtr.get());
     LLNotificationPtr notification;
-    LLSD substitutions;
-    LLUUID notificationSessionID;
+    LLSD payload;
+    LLUUID notificationObjectID;
+    std::string notificationName;
+    std::string payloadVariable = nameToPayloadParameterMap[name];
     LLCommunicationChannel::history_list_t::iterator it;
     std::vector<LLCommunicationChannel::history_list_t::iterator> itemsToRemove;
 
@@ -250,27 +256,29 @@ void LLDoNotDisturbNotificationStorage::removeIMNotification(const LLUUID& sessi
         ++it)
     {
         notification = it->second;
-        substitutions = notification->getSubstitutions();
-        notificationSessionID = substitutions["SESSION_ID"].asUUID();
+        payload = notification->getPayload();
+        notificationObjectID = payload[payloadVariable].asUUID();
+        notificationName = notification->getName();
 
-        if(session_id == notificationSessionID)
+        if((notificationName == name)
+            && id == notificationObjectID)
         {
             itemsToRemove.push_back(it);
         }
     }
 
-   
+
     //Remove the notifications
     if(itemsToRemove.size())
     {
-    while(itemsToRemove.size())
-    {
-        it = itemsToRemove.back();
-        notification = it->second;
+        while(itemsToRemove.size())
+        {
+            it = itemsToRemove.back();
+            notification = it->second;
             commChannel->removeItemFromHistory(notification);
-        instance.cancel(notification);
-        itemsToRemove.pop_back();
-    }
+            instance.cancel(notification);
+            itemsToRemove.pop_back();
+        }
         //Trigger saving of notifications to xml once all have been removed
         saveNotifications();
     }

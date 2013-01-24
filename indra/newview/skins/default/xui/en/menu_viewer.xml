@@ -268,17 +268,36 @@
              parameter="conversation" />
         </menu_item_check>
         <menu_item_separator/>
-        <menu_item_check
-         label="Voice morphing..."
-         name="ShowVoice"
+        <menu
+         label="Voice morphing"
+         name="VoiceMorphing"
          visibility_control="VoiceMorphingEnabled">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="voice_effect" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="voice_effect" />
-        </menu_item_check>
+            <menu_item_check
+             label="No voice morphing"
+             name="NoVoiceMorphing">
+                <menu_item_check.on_check
+                 function="Communicate.VoiceMorphing.NoVoiceMorphing.Check" />
+                <menu_item_check.on_click
+                 function="Communicate.VoiceMorphing.NoVoiceMorphing.Click" />
+            </menu_item_check>
+            <menu_item_separator/>
+            <menu_item_check
+             label="Preview..."
+             name="Preview">
+                <menu_item_check.on_check
+                 function="Floater.Visible"
+                 parameter="voice_effect" />
+                <menu_item_check.on_click
+                 function="Floater.Toggle"
+                 parameter="voice_effect" />
+            </menu_item_check>
+            <menu_item_call
+             label="Subscribe..."
+             name="Subscribe">
+                <menu_item_call.on_click
+                 function="Communicate.VoiceMorphing.Subscribe" />
+            </menu_item_call>
+        </menu>
         <menu_item_check
          label="Gestures..."
          name="Gestures"

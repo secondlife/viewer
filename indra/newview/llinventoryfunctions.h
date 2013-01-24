@@ -433,6 +433,7 @@ struct LLInventoryAction
 	static void doToSelected(class LLInventoryModel* model, class LLFolderView* root, const std::string& action);
 
 	static void onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response, LLFolderView* root);
+    static void removeItemFromDND(LLFolderView* root);
 };
 
 

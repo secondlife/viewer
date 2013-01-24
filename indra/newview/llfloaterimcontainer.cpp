@@ -431,7 +431,9 @@ bool LLFloaterIMContainer::onConversationModelEvent(const LLSD& event)
 		return false;
 	}
 	LLConversationViewParticipant* participant_view = session_view->findParticipant(participant_id);
-    LLFloaterIMSessionTab *conversation_floater = (session_id.isNull() ? (LLFloaterIMSessionTab*)(LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat")) : (LLFloaterIMSessionTab*)(LLFloaterIMSession::findInstance(session_id)));
+    LLFloaterIMSessionTab *conversation_floater = (session_id.isNull() ?
+    		(LLFloaterIMSessionTab*)(LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))
+    		: (LLFloaterIMSessionTab*)(LLFloaterIMSession::findInstance(session_id)));
 
 	if (type == "remove_participant")
 	{
@@ -813,6 +815,10 @@ void LLFloaterIMContainer::onCustomAction(const LLSD& userdata)
 			floater_prefp->selectPrivacyPanel();
 		}
 	}
+	if ("Translating.Toggle" == command)
+	{
+		gSavedSettings.setBOOL("TranslateChat", !gSavedSettings.getBOOL("TranslateChat"));
+	}
 }
 
 BOOL LLFloaterIMContainer::isActionChecked(const LLSD& userdata)
@@ -843,7 +849,14 @@ BOOL LLFloaterIMContainer::isActionChecked(const LLSD& userdata)
 	{
 		return (order.getSortOrderParticipants() == LLConversationFilter::SO_DISTANCE);
 	}
-	
+	if ("Translating.Enabled" == command)
+	{
+		return gSavedPerAccountSettings.getBOOL("TranslatingEnabled");
+	}
+	if ("Translating.On" == command)
+	{
+		return gSavedSettings.getBOOL("TranslateChat");
+	}
 	return FALSE;
 }
 
@@ -1299,11 +1312,14 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
     	if (widget && widget->getParentFolder())
     	{
     		widget->getParentFolder()->setSelection(widget, FALSE, FALSE);
-            if(gAgent.isDoNotDisturb())
-            {
-                LLDoNotDisturbNotificationStorage::getInstance()->removeIMNotification(session_id);
-            }
     	}
+
+        //When in DND mode, remove stored IM notifications
+        //Nearby chat (Null) IMs are not stored while in DND mode, so can ignore removal
+        if(gAgent.isDoNotDisturb() && session_id.notNull())
+        {
+            LLDoNotDisturbNotificationStorage::getInstance()->removeNotification(LLDoNotDisturbNotificationStorage::toastName, session_id);
+        }
     }
 
     /* floater processing */
@@ -1324,11 +1340,6 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 				// Switch to the conversation floater that is being selected
 				selectFloater(session_floater);
 			}
-
-            if(gAgent.isDoNotDisturb())
-            {
-                LLDoNotDisturbNotificationStorage::getInstance()->removeIMNotification(session_id);
-            }
 		}
 
 		// Set the focus on the selected floater

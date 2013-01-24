@@ -42,9 +42,6 @@ public:
     ~LLDoNotDisturbNotificationStorageTimer();
 
 public:
-    void startTimer();
-    void stopTimer();
-    bool isRunning();
     BOOL tick();
 };
 
@@ -52,6 +49,9 @@ class LLDoNotDisturbNotificationStorage : public LLSingleton<LLDoNotDisturbNotif
 {
 	LOG_CLASS(LLDoNotDisturbNotificationStorage);
 public:
+    static const char * toastName;
+    static const char * offerName;
+
 	LLDoNotDisturbNotificationStorage();
 	~LLDoNotDisturbNotificationStorage();
 
@@ -61,7 +61,7 @@ public:
 	void saveNotifications();
 	void loadNotifications();
     void updateNotifications();
-    void removeIMNotification(const LLUUID& session_id);
+    void removeNotification(const char * name, const LLUUID& id);
 
 protected:
 
@@ -71,6 +71,7 @@ private:
 
 	LLNotificationChannelPtr getCommunicationChannel() const;
 	bool                     onChannelChanged(const LLSD& pPayload);
+    std::map<std::string, std::string> nameToPayloadParameterMap;
 };
 
 #endif // LL_LLDONOTDISTURBNOTIFICATIONSTORAGE_H
