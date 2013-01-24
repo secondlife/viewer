@@ -6765,7 +6765,8 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 // Caution: this function is also called directly by teleport_request_callback using dummied-up parameters.
 // If you make a change here that uses additional fields in notification or response
 // make sure to add appropriate dummy values in teleport_request_callback.
- 
+llwarns << "DBB notification=" << notification << llendl;
+llwarns << "DBG response=" << response << llendl; 
 	static const unsigned OFFER_RECIPIENT_LIMIT = 250;
 	if(notification["payload"]["ids"].size() > OFFER_RECIPIENT_LIMIT) 
 	{
@@ -6893,18 +6894,20 @@ bool teleport_request_callback(const LLSD& notification, const LLSD& response)
 	// Yes
 	case 0:
 		{
-			LLSD notification;
-			notification["payload"]["ids"] = from_id;
-			notification["form"][0]["type"] = "button";
-			notification["form"][0]["index"] = 0;
+			LLSD dummy_notification;
+			dummy_notification["payload"]["ids"][0] = from_id;
+			dummy_notification["form"]["name"][0] = "OK";
+			dummy_notification["form"]["text"][0] = "OK";
+			dummy_notification["form"]["type"][0] = "button";
 
-			LLSD response;
-			response["message"] = "Join me in ";
-			response["name"][0] = 1;
+
+			LLSD dummy_response;
+			dummy_response["message"] = response["message"];
+			dummy_response["OK"] = 1;
 
 			// Calling handle_lure_callback directly is a bit of a hack to avoid having to copy most of
 			// the code from this routine.
-			handle_lure_callback(notification, response);
+			handle_lure_callback(dummy_notification, dummy_response);
 		}
 		break;
 
