@@ -49,8 +49,7 @@ mWidth(0),
 mHeight(0),
 mComponents(0),
 mBadBufferAllocation(false),
-mAllowOverSize(false),
-mMemType(LLMemType::MTYPE_IMAGEBASE)
+mAllowOverSize(false)
 {
 }
 LLImageBase::~LLImageBase() {}

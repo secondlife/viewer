@@ -108,6 +108,16 @@ public:
 	 */
 	bool hasItemSelected();
 
+	/**
+	Collapses all outfit accordions.
+	*/
+	void collapse_all_folders();
+	/**
+	Expands all outfit accordions.
+	*/
+	void expand_all_folders();
+
+
 private:
 
 	void onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response);

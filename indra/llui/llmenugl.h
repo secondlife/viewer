@@ -519,6 +519,9 @@ public:
 	void resetScrollPositionOnShow(bool reset_scroll_pos) { mResetScrollPositionOnShow = reset_scroll_pos; }
 	bool isScrollPositionOnShowReset() { return mResetScrollPositionOnShow; }
 
+	// add a context menu branch
+	BOOL appendContextSubMenu(LLMenuGL *menu);
+
 protected:
 	void createSpilloverBranch();
 	void cleanupSpilloverBranch();
@@ -527,6 +530,10 @@ protected:
 
 	// add a menu - this will create a cascading menu
 	virtual BOOL appendMenu( LLMenuGL* menu );
+
+	// Used in LLContextMenu and in LLTogleableMenu
+	// to add an item of context menu branch
+	bool addContextChild(LLView* view, S32 tab_group);
 
 	// TODO: create accessor methods for these?
 	typedef std::list< LLMenuItemGL* > item_list_t;
@@ -679,8 +686,6 @@ public:
 
 	virtual bool	addChild			(LLView* view, S32 tab_group = 0);
 
-			BOOL	appendContextSubMenu(LLContextMenu *menu);
-
 			LLHandle<LLContextMenu> getHandle() { return getDerivedHandle<LLContextMenu>(); }
 
 			LLView*	getSpawningView() const		{ return mSpawningViewHandle.get(); }
@@ -693,6 +698,38 @@ protected:
 	LLHandle<LLView>			mSpawningViewHandle;
 };
 
+
+//-----------------------------------------------------------------------------
+// class LLContextMenuBranch
+// A branch to another context menu
+//-----------------------------------------------------------------------------
+class LLContextMenuBranch : public LLMenuItemGL
+{
+public:
+	struct Params : public LLInitParam::Block<Params, LLMenuItemGL::Params>
+	{
+		Mandatory<LLContextMenu*> branch;
+	};
+
+	LLContextMenuBranch(const Params&);
+
+	virtual ~LLContextMenuBranch()
+	{}
+
+	// called to rebuild the draw label
+	virtual void	buildDrawLabel( void );
+
+	// onCommit() - do the primary funcationality of the menu item.
+	virtual void	onCommit( void );
+
+	LLContextMenu*	getBranch() { return mBranch.get(); }
+	void			setHighlight( BOOL highlight );
+
+protected:
+	void	showSubMenu();
+
+	LLHandle<LLContextMenu> mBranch;
+};
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

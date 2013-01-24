@@ -34,8 +34,6 @@
 #include "llwindowmacosx-objc.h"
 #include "llcommandlineparser.h"
 
-#include "llmemtype.h"
-
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
 #include "llmd5.h"
@@ -59,8 +57,10 @@ namespace
 
 bool initViewer()
 {
-	LLMemType mt1(LLMemType::MTYPE_STARTUP);
-	
+#if LL_SOLARIS && defined(__sparc)
+	asm ("ta\t6");		 // NOTE:  Make sure memory alignment is enforced on SPARC
+#endif
+
 	// Set the working dir to <bundle>/Contents/Resources
 	if (chdir(gDirUtilp->getAppRODataDir().c_str()) == -1)
 	{

@@ -43,6 +43,9 @@ class LLWatchdogTimeout;
 class LLUpdaterService;
 class LLViewerJoystick;
 
+extern LLFastTimer::DeclareTimer FTM_FRAME;
+
+
 class LLAppViewer : public LLApp
 {
 public:
