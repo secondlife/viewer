@@ -517,44 +517,44 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	F32 dist_squared = 0.f;
 	F32 camdist2 = (mDistanceWRTCamera * mDistanceWRTCamera);
 
-	if (isVisible())
+	if (damped && isVisible())
 	{
-		if (damped)
+		F32 lerp_amt = llclamp(LLCriticalDamp::getInterpolant(OBJECT_DAMPING_TIME_CONSTANT), 0.f, 1.f);
+		LLVector3 new_pos = lerp(old_pos, target_pos, lerp_amt);
+		dist_squared = dist_vec_squared(new_pos, target_pos);
+
+		LLQuaternion new_rot = nlerp(lerp_amt, old_rot, target_rot);
+		// FIXME: This can be negative! It is be possible for some rots to 'cancel out' pos or size changes.
+		dist_squared += (1.f - dot(new_rot, target_rot)) * 10.f;
+
+		LLVector3 new_scale = lerp(old_scale, target_scale, lerp_amt);
+		dist_squared += dist_vec_squared(new_scale, target_scale);
+
+		if ((dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED * camdist2) &&
+			(dist_squared <= MAX_INTERPOLATE_DISTANCE_SQUARED))
 		{
-			F32 lerp_amt = llclamp(LLCriticalDamp::getInterpolant(OBJECT_DAMPING_TIME_CONSTANT), 0.f, 1.f);
-			LLVector3 new_pos = lerp(old_pos, target_pos, lerp_amt);
-			dist_squared = dist_vec_squared(new_pos, target_pos);
-
-			LLQuaternion new_rot = nlerp(lerp_amt, old_rot, target_rot);
-			dist_squared += (1.f - dot(new_rot, target_rot)) * 10.f;
-
-			LLVector3 new_scale = lerp(old_scale, target_scale, lerp_amt);
-			dist_squared += dist_vec_squared(new_scale, target_scale);
-
-			if ((dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED * camdist2) &&
-				(dist_squared <= MAX_INTERPOLATE_DISTANCE_SQUARED))
-			{
-				// interpolate
-				target_pos = new_pos;
-				target_rot = new_rot;
-				target_scale = new_scale;
-			}
-			else if (mVObjp->getAngularVelocity().isExactlyZero())
-			{
-				// snap to final position (only if no target omega is applied)
-				dist_squared = 0.0f;
-				if (getVOVolume() && !isRoot())
-				{ //child prim snapping to some position, needs a rebuild
-					gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
-				}
+			// interpolate
+			target_pos = new_pos;
+			target_rot = new_rot;
+			target_scale = new_scale;
+		}
+		else if (mVObjp->getAngularVelocity().isExactlyZero())
+		{
+			// snap to final position (only if no target omega is applied)
+			dist_squared = 0.0f;
+			if (getVOVolume() && !isRoot())
+			{ //child prim snapping to some position, needs a rebuild
+				gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 			}
 		}
-		else
-		{
-			dist_squared = dist_vec_squared(old_pos, target_pos);
-			dist_squared += (1.f - dot(old_rot, target_rot)) * 10.f;
-			dist_squared += dist_vec_squared(old_scale, target_scale);
-		}
+	}
+	else
+	{
+		dist_squared = dist_vec_squared(old_pos, target_pos);
+
+		// The following "makes sense" and fixes MAINT-2247 but causes MAINT-2275
+		//dist_squared += (1.f - dot(old_rot, target_rot)) * 10.f;
+		//dist_squared += dist_vec_squared(old_scale, target_scale);
 	}
 
 	LLVector3 vec = mCurrentScale-target_scale;
