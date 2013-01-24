@@ -62,15 +62,28 @@ public:
 	virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual void draw();
 
+
+
 	LLTrace::TimeBlock* getLegendID(S32 y);
 	F64 getTime(const std::string& name);
 
 protected:
 	virtual	void	onClickCloseBtn();
+
 private:	
-	typedef std::vector<std::vector<S32> > bar_positions_t;
-	bar_positions_t mBarStart;
-	bar_positions_t mBarEnd;
+	void drawTicks(LLUnit<LLUnits::Seconds, F64> total_time);
+	void drawLineGraph();
+	void drawLegend(S32 y);
+	S32 drawHelp(S32 y);
+	void drawBorders( S32 y, const S32 x_start, S32 barh, S32 dy);
+	void drawBars();
+
+	void printLineStats();
+	void generateUniqueColors();
+	LLUnit<LLUnits::Seconds, F64> getTotalTime();
+
+
+	std::vector<LLRect>* mBarRects;
 	S32 mDisplayMode;
 
 	typedef enum child_alignment
