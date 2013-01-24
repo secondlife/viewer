@@ -14070,6 +14070,18 @@
         <real>1.0</real>
       </array>
     </map>
+    
+    <key>HideUIControls</key>
+    <map>
+      <key>Comment</key>
+      <string>Hide all menu items and buttons</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
 
   <key>SimulateFBOFailure</key>
   <map>

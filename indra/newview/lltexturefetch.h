@@ -39,6 +39,7 @@
 #include "llimageworker.h"
 #include "llstat.h"
 #include "llcurl.h"
+#include "llstat.h"
 #include "httprequest.h"
 #include "httpoptions.h"
 #include "httpheaders.h"

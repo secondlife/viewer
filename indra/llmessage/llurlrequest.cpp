@@ -356,7 +356,8 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 			}
 		}
 
-		while(1)
+		bool keep_looping = true;
+		while(keep_looping)
 		{
 			CURLcode result;
 
@@ -408,8 +409,9 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 				case CURLE_FAILED_INIT:
 				case CURLE_COULDNT_CONNECT:
 					status = STATUS_NO_CONNECTION;
+					keep_looping = false;
 					break;
-				default:
+				default:			// CURLE_URL_MALFORMAT
 					llwarns << "URLRequest Error: " << result
 							<< ", "
 							<< LLCurl::strerror(result)
@@ -417,6 +419,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 							<< (mDetail->mURL.empty() ? "<EMPTY URL>" : mDetail->mURL)
 							<< llendl;
 					status = STATUS_ERROR;
+					keep_looping = false;
 					break;
 			}
 		}
