@@ -550,9 +550,10 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	}
 	else
 	{
-		dist_squared = dist_vec_squared(old_pos, target_pos);
+		// The following fixes MAINT-1742 but breaks vehicles similar to MAINT-2275
+		// dist_squared = dist_vec_squared(old_pos, target_pos);
 
-		// The following "makes sense" and fixes MAINT-2247 but causes MAINT-2275
+		// The following fixes MAINT-2247 but causes MAINT-2275
 		//dist_squared += (1.f - dot(old_rot, target_rot)) * 10.f;
 		//dist_squared += dist_vec_squared(old_scale, target_scale);
 	}
