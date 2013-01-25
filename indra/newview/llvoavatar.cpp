@@ -6695,7 +6695,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 {
 	bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
 	std::string dump_prefix = getFullname() + "_" + (isSelf()?"s":"o") + "_";
-	if (enable_verbose_dumps) { dumpArchetypeXML(dump_prefix + "process_start"); }
+	//if (enable_verbose_dumps) { dumpArchetypeXML(dump_prefix + "process_start"); }
 	if (gSavedSettings.getBOOL("BlockAvatarAppearanceMessages"))
 	{
 		llwarns << "Blocking AvatarAppearance message" << llendl;
@@ -6819,9 +6819,11 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			}
 		}
 		if (enable_verbose_dumps)
+		{
 			dumpAppearanceMsgParams(dump_prefix + "appearance_msg", contents.mParamWeights, contents.mTEContents);
+		}
 
-		if (enable_verbose_dumps) { dumpArchetypeXML(dump_prefix + "process_post_set_weights"); }
+		//if (enable_verbose_dumps) { dumpArchetypeXML(dump_prefix + "process_post_set_weights"); }
 
 		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE); // don't worry about VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
 		if (num_params != expected_tweakable_count)
@@ -6879,7 +6881,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 	updateMeshTextures();
 
-	if (enable_verbose_dumps) dumpArchetypeXML(dump_prefix + "process_end");
+	//if (enable_verbose_dumps) dumpArchetypeXML(dump_prefix + "process_end");
 }
 
 // static
@@ -7355,12 +7357,24 @@ void LLVOAvatar::bodySizeChanged()
 
 BOOL LLVOAvatar::isUsingServerBakes() const
 {
+#if 1
+	// Sanity check - visual param for appearance version should match mUseServerBakes
+	LLVisualParam* appearance_version_param = getVisualParam(11000);
+	llassert(appearance_version_param);
+	F32 wt = appearance_version_param->getWeight();
+	F32 expect_wt = mUseServerBakes ? 1.0 : 0.0;
+	llassert(is_approx_equal(wt,expect_wt));
+#endif
+
 	return mUseServerBakes;
 }
 
 void LLVOAvatar::setIsUsingServerBakes(BOOL newval)
 {
 	mUseServerBakes = newval;
+	LLVisualParam* appearance_version_param = getVisualParam(11000);
+	llassert(appearance_version_param);
+	appearance_version_param->setWeight(newval ? 1.0 : 0.0, false);
 }
 
 // virtual
