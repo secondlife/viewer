@@ -123,13 +123,20 @@ void main()
 			if (spec.a > 0.0)
 			{
 				//vec3 ref = dot(pos+lv, norm);
+				vec3 h = normalize(lv+npos);
+				float nh = dot(norm, h);
+				float nv = dot(norm, npos);
+				float vh = dot(npos, h);
+				float sa = nh;
+				vec3 fres = spec.rgb + pow(1 - dot(h, npos), 5) * (1 - spec.rgb);
+				float gtdenom = 2 * nh;
+				float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
 				
-				float sa = dot(normalize(lv+npos),norm);
 				
 				if (sa > 0.0)
 				{
-					sa = texture2D(lightFunc, vec2(sa, spec.a)).r * min(dist_atten*4.0, 1.0);
-					col += da*sa*light_col[i].rgb*spec.rgb;
+					vec3 scol = (fres * texture2D(lightFunc, vec2(nh, spec.a)).r * gt) / (nh * da);
+					col += lit*scol*light_col[i].rgb;
 				}
 			}
 			
