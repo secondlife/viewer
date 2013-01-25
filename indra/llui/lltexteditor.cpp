@@ -1101,16 +1101,17 @@ void LLTextEditor::addChar(llwchar wc)
 
 	if (!mReadOnly && mAutoreplaceCallback != NULL)
 	{
-		// autoreplace on a copy of the text (so we can go through proper channels to set it later)
-		LLWString new_text(getWText());
-		S32 new_cursor_pos(mCursorPos);
-		mAutoreplaceCallback(new_text, new_cursor_pos);
-		
-		if (new_text != getWText())
+		// autoreplace the text, if necessary
+		S32 replacement_start;
+		S32 replacement_length;
+		LLWString replacement_string;
+		S32 new_cursor_pos = mCursorPos;
+		mAutoreplaceCallback(replacement_start, replacement_length, replacement_string, new_cursor_pos, getWText());
+
+		if (replacement_length > 0 || !replacement_string.empty())
 		{
-			// setText() might be simpler here but it wipes the undo stack (bad)
-			remove(0, getWText().length(), true);
-			insert(0, new_text, false, LLTextSegmentPtr());
+			remove(replacement_start, replacement_length, true);
+			insert(replacement_start, replacement_string, false, LLTextSegmentPtr());
 			setCursorPos(new_cursor_pos);
 		}
 	}

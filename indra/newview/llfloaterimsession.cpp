@@ -332,7 +332,7 @@ BOOL LLFloaterIMSession::postBuild()
 	BOOL result = LLFloaterIMSessionTab::postBuild();
 
 	mInputEditor->setMaxTextLength(1023);
-	mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2));
+	mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2, _3, _4, _5));
 	mInputEditor->setFocusReceivedCallback( boost::bind(onInputEditorFocusReceived, _1, this) );
 	mInputEditor->setFocusLostCallback( boost::bind(onInputEditorFocusLost, _1, this) );
 	mInputEditor->setKeystrokeCallback( boost::bind(onInputEditorKeystroke, _1, this) );

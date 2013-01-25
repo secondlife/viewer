@@ -183,7 +183,8 @@ class LLAutoReplaceSettings
  * When the end of a word is detected (defined as any punctuation character,
  * or any whitespace except newline or return), the preceding word is used
  * as a lookup key in an ordered list of maps.  If a match is found in any
- * map, the keyword is replaced by the associated value from the map.
+ * map, the replacement start index and length are returned along with the
+ * new replacement string.
  *
  * See the autoreplaceCallback method for how to add autoreplace functionality
  * to a text entry tool.
@@ -192,7 +193,7 @@ class LLAutoReplace : public LLSingleton<LLAutoReplace>
 {
 public:
     /// Callback that provides the hook for use in text entry methods
-    void autoreplaceCallback(LLWString& inputText, S32& cursorPos);
+    void autoreplaceCallback(S32& replacement_start, S32& replacement_length, LLWString& replacement_string, S32& cursor_pos, const LLWString& input_text);
 
     /// Get a copy of the current settings
     LLAutoReplaceSettings getSettings();

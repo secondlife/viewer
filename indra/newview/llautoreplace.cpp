@@ -32,53 +32,58 @@
 
 const char* LLAutoReplace::SETTINGS_FILE_NAME = "autoreplace.xml";
 
-void LLAutoReplace::autoreplaceCallback(LLWString& inputText, S32& cursorPos)
+void LLAutoReplace::autoreplaceCallback(S32& replacement_start, S32& replacement_length, LLWString& replacement_string, S32& cursor_pos, const LLWString& input_text)
 {
+	// make sure these returned values are cleared in case there is no replacement
+	replacement_start = 0;
+	replacement_length = 0;
+	replacement_string.clear();
+
 	static LLCachedControl<bool> perform_autoreplace(gSavedSettings, "AutoReplace");
-	if(perform_autoreplace)
+	if (perform_autoreplace)
 	{
-		S32 wordEnd = cursorPos-1;
+		S32 word_end = cursor_pos - 1;
 
-		bool atSpace  = (inputText[wordEnd] == ' ');
-		bool haveWord = (LLWStringUtil::isPartOfWord(inputText[wordEnd]));
+		bool at_space  = (input_text[word_end] == ' ');
+		bool have_word = (LLWStringUtil::isPartOfWord(input_text[word_end]));
 
-		if (atSpace || haveWord)
+		if (at_space || have_word)
 		{
-			if (atSpace && wordEnd > 0)
+			if (at_space && word_end > 0)
 			{
 				// find out if this space immediately follows a word
-				wordEnd--;
-				haveWord  = (LLWStringUtil::isPartOfWord(inputText[wordEnd]));
+				word_end--;
+				have_word  = (LLWStringUtil::isPartOfWord(input_text[word_end]));
 			}
-			if (haveWord)
+			if (have_word)
 			{
-				// wordEnd points to the end of a word, now find the start of the word
+				// word_end points to the end of a word, now find the start of the word
 				std::string word;
-				S32 wordStart = wordEnd;
-				for ( S32 backOne = wordStart - 1;
-					  backOne >= 0 && LLWStringUtil::isPartOfWord(inputText[backOne]);
-					  backOne--
-					 )
+				S32 word_start = word_end;
+				for (S32 back_one = word_start - 1;
+					 back_one >= 0 && LLWStringUtil::isPartOfWord(input_text[back_one]);
+					 back_one--
+					)
 				{
-					wordStart--; // walk wordStart back to the beginning of the word
+					word_start--; // walk word_start back to the beginning of the word
 				}
-				LL_DEBUGS("AutoReplace")<<"wordStart: "<<wordStart<<" wordEnd: "<<wordEnd<<LL_ENDL;
-				std::string strText  = std::string(inputText.begin(), inputText.end());
-				std::string lastWord = strText.substr(wordStart, wordEnd-wordStart+1);
-				std::string replacementWord( mSettings.replaceWord( lastWord ) );
+				LL_DEBUGS("AutoReplace") << "word_start: " << word_start << " word_end: " << word_end << LL_ENDL;
+				std::string str_text  = std::string(input_text.begin(), input_text.end());
+				std::string last_word = str_text.substr(word_start, word_end - word_start + 1);
+				std::string replacement_word(mSettings.replaceWord(last_word));
 
-				if ( replacementWord != lastWord )
+				if (replacement_word != last_word)
 				{
 					// The last word is one for which we have a replacement
-					if (atSpace)
+					if (at_space)
 					{
-						// replace the last word in the input
-						LLWString strNew = utf8str_to_wstring(replacementWord);
-						LLWString strOld = utf8str_to_wstring(lastWord);
-						int size_change = strNew.size() - strOld.size();
-
-						inputText.replace(wordStart,lastWord.length(),strNew);
-						cursorPos+=size_change;
+						// return the replacement string
+						replacement_start = word_start;
+						replacement_length = last_word.length();
+						replacement_string = utf8str_to_wstring(replacement_word);
+						LLWString old_string = utf8str_to_wstring(last_word);
+						S32 size_change = replacement_string.size() - old_string.size();
+						cursor_pos += size_change;
 					}
 				}
 			}
