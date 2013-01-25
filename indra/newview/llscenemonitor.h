@@ -35,6 +35,7 @@
 
 class LLCharacter;
 class LLRenderTarget;
+class LLViewerTexture;
 
 class LLSceneMonitor :  public LLSingleton<LLSceneMonitor>
 {
@@ -69,6 +70,7 @@ private:
 	void unfreezeScene();
 	void reset();
 	bool preCapture();
+	void generateDitheringTexture(S32 width, S32 height);
 
 private:
 	BOOL mEnabled;
@@ -87,6 +89,12 @@ private:
 
 	F32     mSamplingTime; //time interval to capture frames, in seconds
 	F32     mDiffPixelRatio; //ratio of pixels used for comparison against the original mDiff size along one dimension
+
+	LLPointer<LLViewerTexture> mDitheringTexture;
+	S32                        mDitherMatrixWidth;
+	F32                        mDitherScale;
+	F32                        mDitherScaleS;
+	F32                        mDitherScaleT;
 
 	std::vector<LLAnimPauseRequest> mAvatarPauseHandles;
 
