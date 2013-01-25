@@ -4369,6 +4369,26 @@ S32 LLViewerObject::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID
 	return retval;
 }
 
+S32 LLViewerObject::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams)
+{
+	S32 retval = 0;
+	const LLTextureEntry *tep = getTE(te);
+	if (!tep)
+	{
+		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+	}
+	else if (pMaterialParams != tep->getMaterialParams())
+	{
+		retval = LLPrimitive::setTEMaterialParams(te, pMaterialParams);
+		setChanged(TEXTURE);
+		if (mDrawable.notNull() && retval)
+		{
+			gPipeline.markTextured(mDrawable);
+		}
+	}
+	return retval;
+}
+
 
 S32 LLViewerObject::setTEScale(const U8 te, const F32 s, const F32 t)
 {
