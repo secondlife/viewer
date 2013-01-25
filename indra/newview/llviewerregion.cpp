@@ -1724,13 +1724,13 @@ LLVOCacheEntry* LLViewerRegion::getCacheEntry(U32 local_id)
 //estimate weight of cache missed object
 F32 LLViewerRegion::calcObjectWeight(U32 flags)
 {
-	LLVector3 pos((F32)(flags & 0xff), (F32)((flags >> 8) & 0xff), (F32)((flags >> 16) & 0xff) * 16.f);
+	LLVector3 pos((F32)(flags & 0xff) + 0.5f, (F32)((flags >> 8) & 0xff) + 0.5f, (F32)((flags >> 16) & 0xff) * 16.f + 8.0f);
 	F32 rad = (F32)((flags >> 24) & 0xff);
 
 	pos += getOriginAgent();
 	pos -= LLViewerCamera::getInstance()->getOrigin();
 
-	return rad * rad / pos.lengthSquared();
+	return 100.f * rad * rad / pos.lengthSquared();
 }
 
 void LLViewerRegion::addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type, F32 weight)
