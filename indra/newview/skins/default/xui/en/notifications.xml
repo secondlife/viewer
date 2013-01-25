@@ -3931,7 +3931,7 @@ Join me in [REGION]
    icon="alertmodal.tga"
    name="TeleportRequestPrompt"
    type="alertmodal">
-Request a teleport to their location with the following message
+Request a teleport to [NAME] location with the following message
     <tag>confirm</tag>
     <form name="form">
       <input name="message" type="text">
@@ -6478,7 +6478,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    type="offer">
 [NAME_SLURL] has offered to teleport you to their location:
 
-“[MESSAGE]”
+"[MESSAGE]”
 &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; - [MATURITY_STR]
     <tag>confirm</tag>
     <form name="form">
@@ -6543,7 +6543,7 @@ However, this region contains content accessible to adults only.
 [NAME_SLURL] is requesting to be teleported your to your location.
 [MESSAGE]
 
-Will you permit this?
+Offer a teleport?
     <tag>confirm</tag>
     <form name="form">
       <button

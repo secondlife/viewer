@@ -399,43 +399,62 @@ void LLAvatarActions::pay(const LLUUID& id)
 
 void LLAvatarActions::teleport_request_callback(const LLSD& notification, const LLSD& response)
 {
-	LLMessageSystem* msg = gMessageSystem;
+	S32 option;
+	if (response.isInteger()) 
+	{
+		option = response.asInteger();
+	}
+	else
+	{
+		option = LLNotificationsUtil::getSelectedOption(notification, response);
+	}
 
-	msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	if (0 == option)
+	{
+		LLMessageSystem* msg = gMessageSystem;
 
-	msg->nextBlockFast(_PREHASH_MessageBlock);
-	msg->addBOOLFast(_PREHASH_FromGroup, FALSE);
-	msg->addUUIDFast(_PREHASH_ToAgentID, notification["substitutions"]["uuid"] );
-	msg->addU8Fast(_PREHASH_Offline, IM_ONLINE);
-	msg->addU8Fast(_PREHASH_Dialog, IM_TELEPORT_REQUEST);
-	msg->addUUIDFast(_PREHASH_ID, LLUUID::null);
-	msg->addU32Fast(_PREHASH_Timestamp, NO_TIMESTAMP); // no timestamp necessary
+		msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 
-	std::string name;
-	LLAgentUI::buildFullname(name);
+		msg->nextBlockFast(_PREHASH_MessageBlock);
+		msg->addBOOLFast(_PREHASH_FromGroup, FALSE);
+		msg->addUUIDFast(_PREHASH_ToAgentID, notification["substitutions"]["uuid"] );
+		msg->addU8Fast(_PREHASH_Offline, IM_ONLINE);
+		msg->addU8Fast(_PREHASH_Dialog, IM_TELEPORT_REQUEST);
+		msg->addUUIDFast(_PREHASH_ID, LLUUID::null);
+		msg->addU32Fast(_PREHASH_Timestamp, NO_TIMESTAMP); // no timestamp necessary
 
-	msg->addStringFast(_PREHASH_FromAgentName, name);
-	msg->addStringFast(_PREHASH_Message, response["message"]);
-	msg->addU32Fast(_PREHASH_ParentEstateID, 0);
-	msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
-	msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
+		std::string name;
+		LLAgentUI::buildFullname(name);
 
-	gMessageSystem->addBinaryDataFast(
-			_PREHASH_BinaryBucket,
-			EMPTY_BINARY_BUCKET,
-			EMPTY_BINARY_BUCKET_SIZE);
+		msg->addStringFast(_PREHASH_FromAgentName, name);
+		msg->addStringFast(_PREHASH_Message, response["message"]);
+		msg->addU32Fast(_PREHASH_ParentEstateID, 0);
+		msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
+		msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
 
-	gAgent.sendReliableMessage();
+		gMessageSystem->addBinaryDataFast(
+				_PREHASH_BinaryBucket,
+				EMPTY_BINARY_BUCKET,
+				EMPTY_BINARY_BUCKET_SIZE);
+
+		gAgent.sendReliableMessage();
+	}
 }
 
 // static
 void LLAvatarActions::teleportRequest(const LLUUID& id)
 {
+	std::string name;
+	gCacheName->getFullName(id, name);
+	gCacheName->cleanFullName(name);
+
 	LLSD notification;
 	notification["uuid"] = id;
+	notification["NAME"] = name + "'s";
+
 	LLSD payload;
 
 	LLNotificationsUtil::add("TeleportRequestPrompt", notification, payload, teleport_request_callback);

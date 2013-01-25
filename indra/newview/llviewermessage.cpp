@@ -2936,7 +2936,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				bool canUserAccessDstRegion = true;
 				bool doesUserRequireMaturityIncrease = false;
 
-				if (parse_lure_bucket(region_info, region_handle, pos, look_at, region_access))
+				// Do not parse the (empty) lure bucket for TELEPORT_REQUEST
+				if (IM_TELEPORT_REQUEST != dialog && parse_lure_bucket(region_info, region_handle, pos, look_at, region_access))
 				{
 					region_access_str = LLViewerRegion::accessToString(region_access);
 					region_access_icn = LLViewerRegion::getAccessIcon(region_access);
@@ -6915,15 +6916,6 @@ bool teleport_request_callback(const LLSD& notification, const LLSD& response)
 			LLAvatarActions::startIM(from_id);
 		}
 		break;
-
-/*	// Block
-	case 3:
-		{
-			LLMute mute(from_id, from_name, LLMute::AGENT);
-			LLMuteList::getInstance()->add(mute);
-			LLPanelBlockedList::showPanelAndSelect(mute.mID);
-		}
-		break; */
 	}
 	return false;
 }
