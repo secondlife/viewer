@@ -157,10 +157,10 @@ public:
 	BOOL			isPristine() const;
 	BOOL			allowsEmbeddedItems() const { return mAllowEmbeddedItems; }
 
-    // Autoreplace (formerly part of LLLineEditor)
-    typedef boost::function<void(LLWString&, S32&)> autoreplace_callback_t;
-    autoreplace_callback_t mAutoreplaceCallback;
-    void			setAutoreplaceCallback(autoreplace_callback_t cb) { mAutoreplaceCallback = cb; }
+	// Autoreplace (formerly part of LLLineEditor)
+	typedef boost::function<void(LLWString&, S32&)> autoreplace_callback_t;
+	autoreplace_callback_t mAutoreplaceCallback;
+	void			setAutoreplaceCallback(autoreplace_callback_t cb) { mAutoreplaceCallback = cb; }
 
 	//
 	// Text manipulation

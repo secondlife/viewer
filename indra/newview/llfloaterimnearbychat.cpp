@@ -112,8 +112,8 @@ BOOL LLFloaterIMNearbyChat::postBuild()
 {
     setIsSingleInstance(TRUE);
     BOOL result = LLFloaterIMSessionTab::postBuild();
-	
-    mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2));
+
+	mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2));
 	mInputEditor->setCommitCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxCommit, this));
 	mInputEditor->setKeystrokeCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxKeystroke, this));
 	mInputEditor->setFocusLostCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxFocusLost, this));

@@ -246,8 +246,8 @@ LLTextEditor::Params::Params()
 }
 
 LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
-    LLTextBase(p),
-    mAutoreplaceCallback(),
+	LLTextBase(p),
+	mAutoreplaceCallback(),
 	mBaseDocIsPristine(TRUE),
 	mPristineCmd( NULL ),
 	mLastCmd( NULL ),
@@ -1099,11 +1099,21 @@ void LLTextEditor::addChar(llwchar wc)
 
 	setCursorPos(mCursorPos + addChar( mCursorPos, wc ));
 
-    if (!mReadOnly && mAutoreplaceCallback != NULL)
-    {
-        // call callback
-        mAutoreplaceCallback(getViewModel()->getEditableDisplay(), mCursorPos);
-    }
+	if (!mReadOnly && mAutoreplaceCallback != NULL)
+	{
+		// autoreplace on a copy of the text (so we can go through proper channels to set it later)
+		LLWString new_text(getWText());
+		S32 new_cursor_pos(mCursorPos);
+		mAutoreplaceCallback(new_text, new_cursor_pos);
+		
+		if (new_text != getWText())
+		{
+			// setText() might be simpler here but it wipes the undo stack (bad)
+			remove(0, getWText().length(), true);
+			insert(0, new_text, false, LLTextSegmentPtr());
+			setCursorPos(new_cursor_pos);
+		}
+	}
 }
 
 void LLTextEditor::addLineBreakChar()
