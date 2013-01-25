@@ -119,7 +119,7 @@ public:
 	/*virtual*/ const LLVector4a*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh){index = 0; poly_mesh = NULL; return NULL;};
 
 protected:
-	LL_ALIGN_16(LLVector4a>-mDefaultVec);
+	LL_ALIGN_16(LLVector4a mDefaultVec);
 	typedef std::map<LLJoint*, LLVector3> joint_vec_map_t;
 	joint_vec_map_t mJointScales;
 	joint_vec_map_t mJointOffsets;
