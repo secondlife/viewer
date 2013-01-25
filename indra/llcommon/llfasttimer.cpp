@@ -270,7 +270,6 @@ void TimeBlock::processTimes()
 		stack_record->mChildTime += cumulative_time_delta;
 	}
 
-
 	// reset for next frame
 	for (LLInstanceTracker<TimeBlock>::instance_iter it = LLInstanceTracker<TimeBlock>::beginInstances(),
 			end_it = LLInstanceTracker<TimeBlock>::endInstances();
@@ -283,20 +282,6 @@ void TimeBlock::processTimes()
 		accumulator->mLastCaller = NULL;
 		accumulator->mMoveUpTree = false;
 	}
-
-	// traverse tree in DFS post order, or bottom up
-	//for(timer_tree_bottom_up_iterator_t it = begin_timer_tree_bottom_up(TimeBlock::getRootTimer());
-	//	it != end_timer_tree_bottom_up();
-	//	++it)
-	//{
-	//	TimeBlock* timerp = (*it);
-	//	TimeBlockAccumulator& accumulator = timerp->getPrimaryAccumulator();
-	//	timerp->mTreeTimeCounter = accumulator.mSelfTimeCounter;
-	//	for (child_const_iter child_it = timerp->beginChildren(); child_it != timerp->endChildren(); ++child_it)
-	//	{
-	//		timerp->mTreeTimeCounter += (*child_it)->mTreeTimeCounter;
-	//	}
-	//}
 }
 
 

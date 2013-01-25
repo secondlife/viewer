@@ -107,7 +107,7 @@ LLFastTimerView::LLFastTimerView(const LLSD& key)
 	mRecording(&get_frame_recording()),
 	mPauseHistory(false)
 {
-	mBarRects = new std::vector<LLRect>[MAX_VISIBLE_HISTORY];
+	mBarRects = new std::vector<LLRect>[MAX_VISIBLE_HISTORY + 1];
 }
 
 LLFastTimerView::~LLFastTimerView()
@@ -189,7 +189,7 @@ TimeBlock* LLFastTimerView::getLegendID(S32 y)
 
 BOOL LLFastTimerView::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	for(timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
+	for(timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
 		it != end_timer_tree();
 		++it)
 	{
@@ -277,7 +277,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 		}
 
 		S32 i = 0;
-		for(timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
+		for(timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
 			it != end_timer_tree();
 			++it, ++i)
 		{
@@ -412,7 +412,7 @@ void LLFastTimerView::draw()
 	printLineStats();
 	LLView::draw();
 		
-	mAllTimeMax = llmax(mAllTimeMax, mRecording->getLastRecordingPeriod().getSum(getFrameTimer()));
+	mAllTimeMax = llmax(mAllTimeMax, mRecording->getLastRecordingPeriod().getSum(FTM_FRAME));
 	mHoverID = NULL;
 	mHoverBarIndex = -1;
 }
@@ -935,11 +935,6 @@ void	LLFastTimerView::onClickCloseBtn()
 	setVisible(false);
 }
 
-TimeBlock& LLFastTimerView::getFrameTimer()
-{
-	return FTM_FRAME;
-}
-
 void LLFastTimerView::printLineStats()
 {
 	// Output stats for clicked bar to log
@@ -947,7 +942,7 @@ void LLFastTimerView::printLineStats()
 	{
 		std::string legend_stat;
 		bool first = true;
-		for(timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
+		for(timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
 			it != end_timer_tree();
 			++it)
 		{
@@ -969,7 +964,7 @@ void LLFastTimerView::printLineStats()
 
 		std::string timer_stat;
 		first = true;
-		for(timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
+		for(timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
 			it != end_timer_tree();
 			++it)
 		{
@@ -1061,7 +1056,7 @@ void LLFastTimerView::drawLineGraph()
 
 	LLUnit<LLUnits::Seconds, F32> cur_max = 0;
 	U32 cur_max_calls = 0;
-	for(timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
+	for(timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
 		it != end_timer_tree();
 		++it)
 	{
@@ -1169,7 +1164,7 @@ void LLFastTimerView::drawLegend( S32 y )
 		S32 cur_line = 0;
 		ft_display_idx.clear();
 		std::map<TimeBlock*, S32> display_line;
-		for (timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
+		for (timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
 			it != timer_tree_iterator_t();
 			++it)
 		{
@@ -1258,11 +1253,11 @@ void LLFastTimerView::generateUniqueColors()
 {
 	// generate unique colors
 	{
-		sTimerColors[&getFrameTimer()] = LLColor4::grey;
+		sTimerColors[&FTM_FRAME] = LLColor4::grey;
 
 		F32 hue = 0.f;
 
-		for (timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
+		for (timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
 			it != timer_tree_iterator_t();
 			++it)
 		{
@@ -1388,14 +1383,14 @@ LLUnit<LLUnits::Seconds, F64> LLFastTimerView::getTotalTime()
 	switch(mDisplayMode)
 	{
 	case 0:
-		total_time = mRecording->getPeriodMean(getFrameTimer())*2;
+		total_time = mRecording->getPeriodMean(FTM_FRAME)*2;
 		break;
 	case 1:
 		total_time = mAllTimeMax;
 		break;
 	case 2:
 		// Calculate the max total ticks for the current history
-		total_time = mRecording->getPeriodMax(getFrameTimer());
+		total_time = mRecording->getPeriodMax(FTM_FRAME);
 		break;
 	default:
 		total_time = LLUnit<LLUnits::Milliseconds, F32>(100);
@@ -1443,7 +1438,7 @@ void LLFastTimerView::drawBars()
 		TimeBlock* prev_id = NULL;
 
 		S32 i = 0;
-		for(timer_tree_iterator_t it = begin_timer_tree(getFrameTimer());
+		for(timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
 			it != end_timer_tree();
 			++it, ++i)
 		{
