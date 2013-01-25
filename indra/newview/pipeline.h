@@ -57,6 +57,7 @@ class LLRenderFunc;
 class LLCubeMap;
 class LLCullResult;
 class LLVOAvatar;
+class LLVOPartGroup;
 class LLGLSLShader;
 class LLCurlRequest;
 
@@ -193,6 +194,12 @@ public:
 												LLVector3* normal = NULL,               // return the surface normal at the intersection point
 												LLVector3* bi_normal = NULL             // return the surface bi-normal at the intersection point  
 		);
+
+	//get the closest particle to start between start and end, returns the LLVOPartGroup and particle index
+	LLVOPartGroup* lineSegmentIntersectParticle(const LLVector3& start, const LLVector3& end, LLVector3* intersection,
+														S32* face_hit);
+
+
 	LLViewerObject* lineSegmentIntersectInHUD(const LLVector3& start, const LLVector3& end,
 											  BOOL pick_transparent,
 											  S32* face_hit,                          // return the face hit
