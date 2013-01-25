@@ -263,6 +263,7 @@ protected:
 
 	typedef std::map<LLUUID, LLPointer<LLSpeaker> > speaker_map_t;
 	speaker_map_t		mSpeakers;
+	bool                mSpeakerListUpdated;
 
 	speaker_list_t		mSpeakersSorted;
 	LLFrameTimer		mSpeechTimer;

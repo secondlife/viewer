@@ -537,11 +537,9 @@ LLIMToastNotifyPanel::~LLIMToastNotifyPanel()
 }
 
 void LLIMToastNotifyPanel::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)
-	{
-	LLToastPanel::reshape(width, height, called_from_parent);
-
+{
 	snapToMessageHeight(mTextBox, MAX_LENGTH);
-	}
+}
 
 void LLIMToastNotifyPanel::compactButtons()
 {
