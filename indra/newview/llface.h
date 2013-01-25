@@ -111,6 +111,8 @@ public:
 	void			setTextureIndex(U8 index);
 	U8				getTextureIndex() const		{ return mTextureIndex; }
 	void			setTexture(LLViewerTexture* tex) ;
+	void			setNormalMap(LLViewerTexture* tex);
+	void			setSpecularMap(LLViewerTexture* tex);
 	void            switchTexture(LLViewerTexture* new_texture);
 	void            dirtyTexture();
 	LLXformMatrix*	getXform()			const	{ return mXform; }
@@ -266,6 +268,8 @@ public:
 	F32			mLastSkinTime;
 	F32			mLastMoveTime;
 	LLMatrix4*	mTextureMatrix;
+	LLMatrix4*	mSpecMapMatrix;
+	LLMatrix4*	mNormalMapMatrix;
 	LLDrawInfo* mDrawInfo;
 
 private:
@@ -285,6 +289,8 @@ private:
 
 	LLXformMatrix* mXform;
 	LLPointer<LLViewerTexture> mTexture;
+	LLPointer<LLViewerTexture> mSpecMap;
+	LLPointer<LLViewerTexture> mNormalMap;
 	LLPointer<LLDrawable> mDrawablep;
 	LLPointer<LLViewerObject> mVObjp;
 	S32			mTEOffset;

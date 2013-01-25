@@ -540,6 +540,16 @@ S32 LLTextureEntry::setMaterialID(const LLMaterialID& pMaterialID)
 	return TEM_CHANGE_NONE;
 }
 
+S32 LLTextureEntry::setMaterialParams(const LLMaterialPtr pMaterialParams)
+{
+	if (mMaterial != pMaterialParams)
+	{
+		mMaterial = pMaterialParams;
+		return TEM_CHANGE_TEXTURE;
+	}
+	return TEM_CHANGE_NONE;
+}
+
 void LLTextureEntry::setMediaData(const LLMediaEntry &media_entry)
 {
     mMediaFlags |= MF_HAS_MEDIA;

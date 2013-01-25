@@ -1124,6 +1124,8 @@ void LLShaderMgr::initAttribsAndUniforms()
 	
 	mReservedUniforms.push_back("global_gamma");
 	mReservedUniforms.push_back("texture_gamma");
+	
+	mReservedUniforms.push_back("specular_color");
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

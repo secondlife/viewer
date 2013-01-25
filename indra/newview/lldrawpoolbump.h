@@ -100,8 +100,9 @@ enum EBumpEffect
 	BE_NO_BUMP = 0,
 	BE_BRIGHTNESS = 1,
 	BE_DARKNESS = 2,
-	BE_STANDARD_0 = 3,  // Standard must always be the last one
-	BE_COUNT = 4
+	BE_CUSTOM = 3,
+	BE_STANDARD_0 = 4,  // Standard must always be the last one
+	BE_COUNT = 5
 };
 
 ////////////////////////////////////////////////////////////////

@@ -168,6 +168,8 @@ public:
 		GLOBAL_GAMMA,
 		TEXTURE_GAMMA,
 		
+		SPECULAR_COLOR,
+		
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 

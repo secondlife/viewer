@@ -271,7 +271,6 @@ S32  LLPrimitive::setTEScale(const U8 index, const F32 s, const F32 t)
 	return mTextureList.setScale(index, s, t);
 }
 
-
 // BUG: slow - done this way because texture entries have some
 // voodoo related to texture coords
 S32 LLPrimitive::setTEScaleS(const U8 index, const F32 s)
@@ -372,6 +371,10 @@ S32 LLPrimitive::setTEMaterialID(const U8 index, const LLMaterialID& pMaterialID
 	return mTextureList.setMaterialID(index, pMaterialID);
 }
 
+S32 LLPrimitive::setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams)
+{
+	return mTextureList.setMaterialParams(index, pMaterialParams);
+}
 
 LLPCode LLPrimitive::legacyToPCode(const U8 legacy)
 {
@@ -1349,6 +1352,7 @@ S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_nam
 		retval |= setTEMediaTexGen(i, media_flags[i]);
 		retval |= setTEGlow(i, (F32)glow[i] / (F32)0xFF);
 		retval |= setTEMaterialID(i, material_ids[i]);
+		
 		coloru = LLColor4U(colors + 4*i);
 
 		// Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)

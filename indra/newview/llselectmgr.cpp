@@ -1927,7 +1927,7 @@ void LLSelectMgr::selectionSetMedia(U8 media_type, const LLSD &media_data)
 					llassert(mMediaData.isMap());
 					const LLTextureEntry *texture_entry = object->getTE(te);
 					if (!mMediaData.isMap() ||
-						(NULL != texture_entry) && !texture_entry->hasMedia() && !mMediaData.has(LLMediaEntry::HOME_URL_KEY))
+						((NULL != texture_entry) && !texture_entry->hasMedia() && !mMediaData.has(LLMediaEntry::HOME_URL_KEY)))
 					{
 						// skip adding/updating media
 					}

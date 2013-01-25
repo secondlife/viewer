@@ -316,6 +316,48 @@ void LLFace::setTexture(LLViewerTexture* tex)
 	mTexture = tex ;
 }
 
+void LLFace::setNormalMap(LLViewerTexture* tex)
+{
+	if(mNormalMap == tex)
+	{
+		return ;
+	}
+	
+	if(mNormalMap.notNull())
+	{
+		mNormalMap->removeFace(this) ;
+		removeAtlas() ;
+	}
+	
+	if(tex)
+	{
+		tex->addFace(this) ;
+	}
+	
+	mNormalMap = tex ;
+}
+
+void LLFace::setSpecularMap(LLViewerTexture* tex)
+{
+	if(mSpecMap == tex)
+	{
+		return ;
+	}
+	
+	if(mSpecMap.notNull())
+	{
+		mSpecMap->removeFace(this) ;
+		removeAtlas() ;
+	}
+	
+	if(tex)
+	{
+		tex->addFace(this) ;
+	}
+	
+	mSpecMap = tex ;
+}
+
 void LLFace::dirtyTexture()
 {
 	LLDrawable* drawablep = getDrawable();

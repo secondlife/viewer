@@ -292,7 +292,11 @@ public:
 	/*virtual*/	void	setNumTEs(const U8 num_tes);
 	/*virtual*/	void	setTE(const U8 te, const LLTextureEntry &texture_entry);
 	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid);
+	/*virtual*/ S32		setTENormalMap(const U8 te, const LLUUID &uuid);
+	/*virtual*/ S32		setTESpecularMap(const U8 te, const LLUUID &uuid);
 	S32 setTETextureCore(const U8 te, const LLUUID& uuid, LLHost host);
+	S32 setTENormalMapCore(const U8 te, const LLUUID& uuid, LLHost host);
+	S32 setTESpecularMapCore(const U8 te, const LLUUID& uuid, LLHost host);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor3 &color);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor4 &color);
 	/*virtual*/ S32		setTEScale(const U8 te, const F32 s, const F32 t);
@@ -313,7 +317,11 @@ public:
 	/*virtual*/	BOOL	setMaterial(const U8 material);
 	virtual		void	setTEImage(const U8 te, LLViewerTexture *imagep); // Not derived from LLPrimitive
 	virtual     void    changeTEImage(S32 index, LLViewerTexture* new_image)  ;
+	virtual     void    changeTENormalMap(S32 index, LLViewerTexture* new_image)  ;
+	virtual     void    changeTESpecularMap(S32 index, LLViewerTexture* new_image)  ;
 	LLViewerTexture		*getTEImage(const U8 te) const;
+	LLViewerTexture		*getTENormalMap(const U8 te) const;
+	LLViewerTexture		*getTESpecularMap(const U8 te) const;
 	
 	void fitFaceTexture(const U8 face);
 	void sendTEUpdate() const;			// Sends packed representation of all texture entry information
@@ -588,6 +596,8 @@ public:
 	S32				mListIndex;
 
 	LLPointer<LLViewerTexture> *mTEImages;
+	LLPointer<LLViewerTexture> *mTENormalMaps;
+	LLPointer<LLViewerTexture> *mTESpecularMaps;
 
 	// Selection, picking and rendering variables
 	U32				mGLName;			// GL "name" used by selection code

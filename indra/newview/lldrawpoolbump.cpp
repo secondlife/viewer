@@ -632,6 +632,11 @@ void LLDrawPoolBump::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL
 BOOL LLDrawPoolBump::bindBumpMap(LLDrawInfo& params, S32 channel)
 {
 	U8 bump_code = params.mBump;
+	if (params.mNormalMap.notNull())
+	{
+		bump_code = BE_CUSTOM;
+		return bindBumpMap(bump_code, params.mNormalMap, params.mVSize, channel);
+	}
 
 	return bindBumpMap(bump_code, params.mTexture, params.mVSize, channel);
 }
@@ -670,7 +675,9 @@ BOOL LLDrawPoolBump::bindBumpMap(U8 bump_code, LLViewerTexture* texture, F32 vsi
 	case BE_DARKNESS:
 		bump = gBumpImageList.getBrightnessDarknessImage( tex, bump_code );		
 		break;
-
+	case BE_CUSTOM:
+		bump = tex;
+		break;
 	default:
 		if( bump_code < LLStandardBumpmap::sStandardBumpmapCount )
 		{
@@ -855,7 +862,9 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
 	for (LLCullResult::drawinfo_iterator i = begin; i != end; ++i)	
 	{
 		LLDrawInfo& params = **i;
-
+		
+		gDeferredBumpProgram.uniform4fv(LLShaderMgr::SPECULAR_COLOR, 4, (GLfloat*)params.mSpecColor.mV);
+		
 		LLDrawPoolBump::bindBumpMap(params, bump_channel);
 		pushBatch(params, mask, TRUE);
 	}
