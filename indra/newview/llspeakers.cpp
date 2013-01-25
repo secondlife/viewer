@@ -31,6 +31,7 @@
 #include "llagent.h"
 #include "llappviewer.h"
 #include "llimview.h"
+#include "llgroupmgr.h"
 #include "llsdutil.h"
 #include "lluicolortable.h"
 #include "llviewerobjectlist.h"
@@ -305,9 +306,10 @@ private:
 //
 
 LLSpeakerMgr::LLSpeakerMgr(LLVoiceChannel* channelp) : 
-	mVoiceChannel(channelp)
-, mVoiceModerated(false)
-, mModerateModeHandledFirstTime(false)
+	mVoiceChannel(channelp),
+	mVoiceModerated(false),
+	mModerateModeHandledFirstTime(false),
+	mSpeakerListUpdated(false)
 {
 	static LLUICachedControl<F32> remove_delay ("SpeakerParticipantRemoveDelay", 10.0);
 
@@ -321,7 +323,11 @@ LLSpeakerMgr::~LLSpeakerMgr()
 
 LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const LLUUID& id, const std::string& name, LLSpeaker::ESpeakerStatus status, LLSpeaker::ESpeakerType type)
 {
-	if (id.isNull()) return NULL;
+	LLUUID session_id = getSessionID();
+	if (id.isNull() || (id == session_id))
+	{
+		return NULL;
+	}
 
 	LLPointer<LLSpeaker> speakerp;
 	if (mSpeakers.find(id) == mSpeakers.end())
@@ -525,23 +531,60 @@ void LLSpeakerMgr::updateSpeakerList()
 	{
 		// If not, check if the list is empty, except if it's Nearby Chat (session_id NULL).
 		LLUUID session_id = getSessionID();
-		if ((mSpeakers.size() == 0) && (!session_id.isNull()))
+		if (!session_id.isNull() && !mSpeakerListUpdated)
 		{
-			// If the list is empty, we update it with whatever was used to initiate the call so that it doesn't stay empty too long.
-			// *TODO: Fix the server side code that sometimes forgets to send back the list of agents after a chat started 
+			// If the list is empty, we update it with whatever we have locally so that it doesn't stay empty too long.
+			// *TODO: Fix the server side code that sometimes forgets to send back the list of participants after a chat started.
 			// (IOW, fix why we get no ChatterBoxSessionAgentListUpdates message after the initial ChatterBoxSessionStartReply)
 			LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
-			for (uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();it!=session->mInitialTargetIDs.end();++it)
+			if (session->isGroupSessionType() && (mSpeakers.size() <= 1))
 			{
-				// Add buddies if they are on line, add any other avatar.
-				if (!LLAvatarTracker::instance().isBuddy(*it) || LLAvatarTracker::instance().isBuddyOnline(*it))
+				// For groups, we need to hit the group manager.
+				// Note: The session uuid and the group uuid are actually one and the same. If that was to change, this will fail.
+				LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(session_id);
+				if (!gdatap)
 				{
-					setSpeaker(*it, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
+					// Request the data the first time around
+					LLGroupMgr::getInstance()->sendCapGroupMembersRequest(session_id);
 				}
+				else if (gdatap->isMemberDataComplete() && !gdatap->mMembers.empty())
+				{
+					// Add group members when we get the complete list (note: can take a while before we get that list)
+					LLGroupMgrGroupData::member_list_t::iterator member_it = gdatap->mMembers.begin();
+					while (member_it != gdatap->mMembers.end())
+					{
+						LLGroupMemberData* member = member_it->second;
+						// Add only the members who are online
+						if (member->getOnlineStatus() == "Online")
+						{
+							setSpeaker(member_it->first, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
+						}
+						++member_it;
+					}
+					mSpeakerListUpdated = true;
+				}
+			}
+			else if (mSpeakers.size() == 0)
+			{
+				// For all other session type (ad-hoc, P2P, avaline), we use the initial participants targets list
+				for (uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();it!=session->mInitialTargetIDs.end();++it)
+				{
+					// Add buddies if they are on line, add any other avatar.
+					if (!LLAvatarTracker::instance().isBuddy(*it) || LLAvatarTracker::instance().isBuddyOnline(*it))
+					{
+						setSpeaker(*it, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
+					}
+				}
+				mSpeakerListUpdated = true;
+			}
+			else
+			{
+				// The list has been updated the normal way (i.e. by a ChatterBoxSessionAgentListUpdates received from the server)
+				mSpeakerListUpdated = true;
 			}
 		}
 	}
-	// Finally, always add the current agent (it has to be there no matter what...)
+	// Always add the current agent (it has to be there...). Will do nothing if already there.
 	setSpeaker(gAgentID, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
 }
 

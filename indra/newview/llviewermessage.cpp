@@ -1649,12 +1649,6 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		delete this;
 	}
 
-	if (notification_ptr != NULL)
-	{
-		notification_ptr->updateForm(modified_form);
-		notification_ptr->repost();
-	}
-
 	return false;
 }
 
