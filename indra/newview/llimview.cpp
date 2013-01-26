@@ -144,7 +144,7 @@ static void on_avatar_name_cache_toast(const LLUUID& agent_id,
 	args["FROM"] = av_name.getCompleteName();
 	args["FROM_ID"] = msg["from_id"];
 	args["SESSION_ID"] = msg["session_id"];
-	LLNotificationsUtil::add("IMToast", args, args, boost::bind(&LLFloaterIMContainer::showConversation, LLFloaterIMContainer::getInstance(), msg["session_id"].asUUID()));
+	LLNotificationsUtil::add("IMToast", args, LLSD(), boost::bind(&LLFloaterIMContainer::showConversation, LLFloaterIMContainer::getInstance(), msg["session_id"].asUUID()));
 }
 
 void on_new_message(const LLSD& msg)
@@ -239,6 +239,12 @@ void on_new_message(const LLSD& msg)
                 {
                     LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
                 }
+
+				// Make sure the message actually appears, without having to click on the conversation
+				if(!conversation_floater_is_closed)
+				{
+					im_box->selectConversation(session_id);
+				}
             }
         }
     }
@@ -276,9 +282,9 @@ void on_new_message(const LLSD& msg)
 
             if(!gAgent.isDoNotDisturb())
             {
-            //Surface conversations floater
-            LLFloaterReg::showInstance("im_container");
-        }
+				//Surface conversations floater
+				LLFloaterReg::showInstance("im_container");
+			}
 
             //If in DND mode, allow notification to be stored so upon DND exit 
             //useMostItrusiveIMNotification will be called to notify user a message exists
@@ -287,8 +293,8 @@ void on_new_message(const LLSD& msg)
                 && gAgent.isDoNotDisturb())
             {
                 LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
-    }
-}
+			}
+		}
     }
 }
 
