@@ -4602,6 +4602,16 @@ void LLCallingCardBridge::performAction(LLInventoryModel* model, std::string act
 			LLAvatarActions::offerTeleport(item->getCreatorUUID());
 		}
 	}
+	else if ("request_lure" == action)
+	{
+		LLViewerInventoryItem *item = getItem();
+		if (item && (item->getCreatorUUID() != gAgent.getID()) &&
+			(!item->getCreatorUUID().isNull()))
+		{
+			LLAvatarActions::teleportRequest(item->getCreatorUUID());
+		}
+	}
+
 	else LLItemBridge::performAction(model, action);
 }
 
@@ -4684,6 +4694,7 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		items.push_back(std::string("Send Instant Message Separator"));
 		items.push_back(std::string("Send Instant Message"));
 		items.push_back(std::string("Offer Teleport..."));
+		items.push_back(std::string("Request Teleport..."));
 		items.push_back(std::string("Conference Chat"));
 
 		if (!good_card)
@@ -4693,6 +4704,7 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		if (!good_card || !user_online)
 		{
 			disabled_items.push_back(std::string("Offer Teleport..."));
+			disabled_items.push_back(std::string("Request Teleport..."));
 			disabled_items.push_back(std::string("Conference Chat"));
 		}
 	}
