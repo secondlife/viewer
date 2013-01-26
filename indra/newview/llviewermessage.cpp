@@ -3017,6 +3017,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 					}
 					else if (IM_TELEPORT_REQUEST == dialog)
 					{
+						payload["SUPPRESS_TOAST"] = true;
 						params.name = "TeleportRequest";
 						params.functor.name = "TeleportRequest";
 					}
