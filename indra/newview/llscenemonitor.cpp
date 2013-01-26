@@ -37,6 +37,8 @@
 #include "llwindow.h"
 #include "llpointer.h"
 #include "llspatialpartition.h"
+#include "llagent.h"
+#include "pipeline.h"
 
 LLSceneMonitorView* gSceneMonitorView = NULL;
 
@@ -67,7 +69,10 @@ LLSceneMonitor::LLSceneMonitor() :
 	mDiffPixelRatio(0.5f)
 {
 	mFrames[0] = NULL;
-	mFrames[1] = NULL;	
+	mFrames[1] = NULL;
+
+	mRecording = new LLTrace::ExtendableRecording();
+	mRecording->start();
 }
 
 LLSceneMonitor::~LLSceneMonitor()
@@ -78,6 +83,10 @@ LLSceneMonitor::~LLSceneMonitor()
 void LLSceneMonitor::destroyClass()
 {
 	reset();
+
+	delete mRecording;
+	mRecording = NULL;
+	mDitheringTexture = NULL;
 }
 
 void LLSceneMonitor::reset()
@@ -98,6 +107,67 @@ void LLSceneMonitor::reset()
 		release_occlusion_query_object_name(mQueryObject);
 		mQueryObject = 0;
 	}
+}
+
+void LLSceneMonitor::generateDitheringTexture(S32 width, S32 height)
+{
+#if 1
+	//4 * 4 matrix
+	mDitherMatrixWidth = 4;	
+	S32 dither_matrix[4][4] = 
+	{
+		{1, 9, 3, 11}, 
+		{13, 5, 15, 7}, 
+		{4, 12, 2, 10}, 
+		{16, 8, 14, 6}
+	};
+	
+	mDitherScale = 255.f / 17;
+#else
+	//8 * 8 matrix
+	mDitherMatrixWidth = 16;	
+	S32 dither_matrix[16][16] = 
+	{
+		{1, 49, 13, 61, 4, 52, 16, 64, 1, 49, 13, 61, 4, 52, 16, 64}, 
+		{33, 17, 45, 29, 36, 20, 48, 32, 33, 17, 45, 29, 36, 20, 48, 32}, 
+		{9, 57, 5, 53, 12, 60, 8, 56, 9, 57, 5, 53, 12, 60, 8, 56}, 
+		{41, 25, 37, 21, 44, 28, 40, 24, 41, 25, 37, 21, 44, 28, 40, 24},
+		{3, 51, 15, 63, 2, 50, 14, 62, 3, 51, 15, 63, 2, 50, 14, 62},
+		{35, 19, 47, 31, 34, 18, 46, 30, 35, 19, 47, 31, 34, 18, 46, 30},
+		{11, 59, 7, 55, 10, 58, 6, 54, 11, 59, 7, 55, 10, 58, 6, 54},
+		{43, 27, 39, 23, 42, 26, 38, 22, 43, 27, 39, 23, 42, 26, 38, 22},
+		{1, 49, 13, 61, 4, 52, 16, 64, 1, 49, 13, 61, 4, 52, 16, 64}, 
+		{33, 17, 45, 29, 36, 20, 48, 32, 33, 17, 45, 29, 36, 20, 48, 32}, 
+		{9, 57, 5, 53, 12, 60, 8, 56, 9, 57, 5, 53, 12, 60, 8, 56}, 
+		{41, 25, 37, 21, 44, 28, 40, 24, 41, 25, 37, 21, 44, 28, 40, 24},
+		{3, 51, 15, 63, 2, 50, 14, 62, 3, 51, 15, 63, 2, 50, 14, 62},
+		{35, 19, 47, 31, 34, 18, 46, 30, 35, 19, 47, 31, 34, 18, 46, 30},
+		{11, 59, 7, 55, 10, 58, 6, 54, 11, 59, 7, 55, 10, 58, 6, 54},
+		{43, 27, 39, 23, 42, 26, 38, 22, 43, 27, 39, 23, 42, 26, 38, 22}
+	};
+
+	mDitherScale = 255.f / 65;
+#endif
+
+	LLPointer<LLImageRaw> image_raw = new LLImageRaw(mDitherMatrixWidth, mDitherMatrixWidth, 3);
+	U8* data = image_raw->getData();
+	for (S32 i = 0; i < mDitherMatrixWidth; i++)
+	{
+		for (S32 j = 0; j < mDitherMatrixWidth; j++)
+		{
+			U8 val = dither_matrix[i][j];
+			*data++ = val;
+			*data++ = val;
+			*data++ = val;
+		}
+	}
+
+	mDitheringTexture = LLViewerTextureManager::getLocalTexture(image_raw.get(), FALSE) ;
+	mDitheringTexture->setAddressMode(LLTexUnit::TAM_WRAP);
+	mDitheringTexture->setFilteringOption(LLTexUnit::TFO_POINT);
+	
+	mDitherScaleS = (F32)width / mDitherMatrixWidth;
+	mDitherScaleT = (F32)height / mDitherMatrixWidth;
 }
 
 void LLSceneMonitor::setDebugViewerVisible(BOOL visible) 
@@ -135,6 +205,11 @@ bool LLSceneMonitor::preCapture()
 	if(!mEnabled)
 	{
 		return false;
+	}
+
+	if(gAgent.isPositionChanged())
+	{
+		mRecording->reset();
 	}
 
 	if(timer.getElapsedTimeF32() < mSamplingTime)
@@ -197,6 +272,9 @@ void LLSceneMonitor::freezeScene()
 
 	// freeze everything else
 	gSavedSettings.setBOOL("FreezeTime", TRUE);
+
+	gPipeline.clearRenderTypeMask(LLPipeline::RENDER_TYPE_SKY, LLPipeline::RENDER_TYPE_WL_SKY, 
+		LLPipeline::RENDER_TYPE_WATER, LLPipeline::RENDER_TYPE_CLOUDS, LLPipeline::END_RENDER_TYPES);
 }
 
 void LLSceneMonitor::unfreezeScene()
@@ -206,6 +284,9 @@ void LLSceneMonitor::unfreezeScene()
 
 	// thaw everything else
 	gSavedSettings.setBOOL("FreezeTime", FALSE);
+
+	gPipeline.setRenderTypeMask(LLPipeline::RENDER_TYPE_SKY, LLPipeline::RENDER_TYPE_WL_SKY, 
+		LLPipeline::RENDER_TYPE_WATER, LLPipeline::RENDER_TYPE_CLOUDS, LLPipeline::END_RENDER_TYPES);
 }
 
 void LLSceneMonitor::capture()
@@ -268,10 +349,13 @@ void LLSceneMonitor::compare()
 	{
 		mDiff = new LLRenderTarget();
 		mDiff->allocate(width, height, GL_RGBA, false, false, LLTexUnit::TT_TEXTURE, true);
+
+		generateDitheringTexture(width, height);
 	}
 	else if(mDiff->getWidth() != width || mDiff->getHeight() != height)
 	{
 		mDiff->resize(width, height, GL_RGBA);
+		generateDitheringTexture(width, height);
 	}
 
 	mDiff->bindTarget();
@@ -279,6 +363,10 @@ void LLSceneMonitor::compare()
 	
 	gTwoTextureCompareProgram.bind();
 	
+	gTwoTextureCompareProgram.uniform1f("dither_scale", mDitherScale);
+	gTwoTextureCompareProgram.uniform1f("dither_scale_s", mDitherScaleS);
+	gTwoTextureCompareProgram.uniform1f("dither_scale_t", mDitherScaleT);
+
 	gGL.getTexUnit(0)->activate();
 	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(0)->bind(mFrames[0]);
@@ -289,6 +377,11 @@ void LLSceneMonitor::compare()
 	gGL.getTexUnit(1)->bind(mFrames[1]);
 	gGL.getTexUnit(1)->activate();	
 	
+	gGL.getTexUnit(2)->activate();
+	gGL.getTexUnit(2)->enable(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(2)->bind(mDitheringTexture);
+	gGL.getTexUnit(2)->activate();	
+
 	gl_rect_2d_simple_tex(width, height);
 	
 	mDiff->flush();	
@@ -299,6 +392,8 @@ void LLSceneMonitor::compare()
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(1)->disable();
 	gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(2)->disable();
+	gGL.getTexUnit(2)->unbind(LLTexUnit::TT_TEXTURE);
 
 	mHasNewDiff = TRUE;
 	
@@ -388,6 +483,10 @@ void LLSceneMonitor::fetchQueryResult()
 	
 	mDiffResult = count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * mDiffPixelRatio * mDiffPixelRatio); //0.5 -> (front face + back face)
 
+	if(mDiffResult > 0.01f)
+	{
+		mRecording->extend();
+	}
 	//llinfos << count << " : " << mDiffResult << llendl;
 }
 //-------------------------------------------------------------------------------------------------------------
@@ -454,6 +553,11 @@ void LLSceneMonitorView::draw()
 
 	num_str = llformat("Sampling time: %.3f seconds", LLSceneMonitor::getInstance()->getSamplingTime());
 	LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::LEFT, LLFontGL::TOP);
+	lines++;
+
+	num_str = llformat("Scene Loading time: %.3f seconds", (F32)LLSceneMonitor::getInstance()->getRecording()->getAcceptedRecording().getDuration().value());
+	LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::LEFT, LLFontGL::TOP);
+	lines++;
 
 	LLView::draw();
 }
