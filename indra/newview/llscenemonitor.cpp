@@ -463,6 +463,7 @@ void LLSceneMonitor::calcDiffAggregate()
 	}	
 }
 
+static LLTrace::Measurement<> sFramePixelDiff("FramePixelDifference");
 void LLSceneMonitor::fetchQueryResult()
 {
 	if(!mHasNewQueryResult)
@@ -486,6 +487,7 @@ void LLSceneMonitor::fetchQueryResult()
 	if(mDiffResult > 0.01f)
 	{
 		mRecording->extend();
+		sFramePixelDiff.sample(mDiffResult);
 	}
 	//llinfos << count << " : " << mDiffResult << llendl;
 }
