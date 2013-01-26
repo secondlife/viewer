@@ -30,6 +30,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llappviewer.h"
+#include "lldeferredsounds.h"
 #include "llvieweraudio.h"
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
@@ -388,6 +389,12 @@ void audio_update_volume(bool force_update)
 		gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelRolloff"));
 		gAudiop->setMuted(mute_audio || progress_view_visible);
 		
+		//Play any deferred sounds when unmuted
+		if(!gAudiop->getMuted())
+		{
+			LLDeferredSounds::instance().playdeferredSounds();
+		}
+
 		if (force_update)
 		{
 			audio_update_wind(true);

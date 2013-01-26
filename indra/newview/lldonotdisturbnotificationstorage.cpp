@@ -146,6 +146,7 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 	
 	LLNotifications& instance = LLNotifications::instance();
     bool imToastExists = false;
+    bool offerExists = false;
 	
 	for (LLSD::array_const_iterator notification_it = data.beginArray();
 		 notification_it != data.endArray();
@@ -159,6 +160,10 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
         if(notificationName == toastName)
         {
             imToastExists = true;
+        }
+        else if(notificationName == offerName)
+        {
+            offerExists = true;
         }
 
         //New notification needs to be added
@@ -183,6 +188,11 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
         LLFloaterReg::showInstance("im_container");
     }
 
+    if(imToastExists || offerExists)
+    {
+		make_ui_sound_deferred("UISndNewIncomingIMSession");
+    }
+
     //writes out empty .xml file (since LLCommunicationChannel::mHistory is empty)
 	saveNotifications();
 }
@@ -196,6 +206,7 @@ void LLDoNotDisturbNotificationStorage::updateNotifications()
 
     LLNotifications& instance = LLNotifications::instance();
     bool imToastExists = false;
+    bool offerExists = false;
   
     for (LLCommunicationChannel::history_list_t::const_iterator it = commChannel->beginHistory();
         it != commChannel->endHistory();
@@ -207,6 +218,10 @@ void LLDoNotDisturbNotificationStorage::updateNotifications()
         if(notificationName == toastName)
         {
             imToastExists = true;
+        }
+        else if(notificationName == offerName)
+        {
+            offerExists = true;
         }
 
         //Notification already exists in notification pipeline (same instance of app running)
@@ -220,6 +235,11 @@ void LLDoNotDisturbNotificationStorage::updateNotifications()
     if(imToastExists)
     {   
         LLFloaterReg::showInstance("im_container");
+    }
+
+    if(imToastExists || offerExists)
+    {
+        make_ui_sound("UISndNewIncomingIMSession");
     }
 
     //When exit DND mode, write empty notifications file
