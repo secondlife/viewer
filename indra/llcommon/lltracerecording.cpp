@@ -470,43 +470,51 @@ void ExtendableRecording::extend()
 
 void ExtendableRecording::start()
 {
+	LLStopWatchControlsMixin<ExtendableRecording>::start();
 	mPotentialRecording.start();
 }
 
 void ExtendableRecording::stop()
 {
+	LLStopWatchControlsMixin<ExtendableRecording>::stop();
 	mPotentialRecording.stop();
 }
 
 void ExtendableRecording::pause()
 {
+	LLStopWatchControlsMixin<ExtendableRecording>::pause();
 	mPotentialRecording.pause();
 }
 
 void ExtendableRecording::resume()
 {
+	LLStopWatchControlsMixin<ExtendableRecording>::resume();
 	mPotentialRecording.resume();
 }
 
 void ExtendableRecording::restart()
 {
+	LLStopWatchControlsMixin<ExtendableRecording>::restart();
 	mAcceptedRecording.reset();
 	mPotentialRecording.restart();
 }
 
 void ExtendableRecording::reset()
 {
+	LLStopWatchControlsMixin<ExtendableRecording>::reset();
 	mAcceptedRecording.reset();
 	mPotentialRecording.reset();
 }
 
 void ExtendableRecording::splitTo(ExtendableRecording& other)
 {
+	LLStopWatchControlsMixin<ExtendableRecording>::splitTo(other);
 	mPotentialRecording.splitTo(other.mPotentialRecording);
 }
 
 void ExtendableRecording::splitFrom(ExtendableRecording& other)
 {
+	LLStopWatchControlsMixin<ExtendableRecording>::splitFrom(other);
 	mPotentialRecording.splitFrom(other.mPotentialRecording);
 }
 
