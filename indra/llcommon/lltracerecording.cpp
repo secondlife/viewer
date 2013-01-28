@@ -109,8 +109,18 @@ void Recording::handleSplitTo(Recording& other)
 {
 	stop();
 	other.restart();
+	syncTo(other);
+}
+
+void Recording::syncTo(Recording& other)
+{
+	other.mCountsFloat.write()->reset(mCountsFloat);
 	other.mMeasurementsFloat.write()->reset(mMeasurementsFloat);
+	other.mCounts.write()->reset(mCounts);
 	other.mMeasurements.write()->reset(mMeasurements);
+	other.mStackTimers.write()->reset(mStackTimers);
+	other.mMemStats.write()->reset(mMemStats);
+
 	//TODO: figure out how to get seamless handoff of timing stats
 }
 

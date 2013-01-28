@@ -76,7 +76,7 @@ ThreadRecorder::~ThreadRecorder()
 
 	while(mActiveRecordings.size())
 	{
-		mActiveRecordings.front().mTargetRecording->stop();
+		mActiveRecordings.front()->mTargetRecording->stop();
 	}
 	set_thread_recorder(NULL);
 	delete[] mTimeBlockTreeNodes;
@@ -94,31 +94,37 @@ TimeBlockTreeNode* ThreadRecorder::getTimeBlockTreeNode(S32 index)
 
 void ThreadRecorder::activate( Recording* recording )
 {
-	mActiveRecordings.push_front(ActiveRecording(recording));
-	mActiveRecordings.front().mBaseline.makePrimary();
+	ActiveRecording* active_recording = new ActiveRecording(recording);
+	if (!mActiveRecordings.empty())
+	{
+		mActiveRecordings.front()->mBaseline.syncTo(active_recording->mBaseline);
+	}
+	mActiveRecordings.push_front(active_recording);
+
+	mActiveRecordings.front()->mBaseline.makePrimary();
 }
 
-std::list<ThreadRecorder::ActiveRecording>::iterator ThreadRecorder::update( Recording* recording )
+ThreadRecorder::active_recording_list_t::iterator ThreadRecorder::update( Recording* recording )
 {
-	std::list<ActiveRecording>::iterator it, end_it;
+	active_recording_list_t::iterator it, end_it;
 	for (it = mActiveRecordings.begin(), end_it = mActiveRecordings.end();
 		it != end_it;
 		++it)
 	{
-		std::list<ActiveRecording>::iterator next_it = it;
+		active_recording_list_t::iterator next_it = it;
 		++next_it;
 
 		// if we have another recording further down in the stack...
 		if (next_it != mActiveRecordings.end())
 		{
 			// ...push our gathered data down to it
-			next_it->mBaseline.appendRecording(it->mBaseline);
+			(*next_it)->mBaseline.appendRecording((*it)->mBaseline);
 		}
 
 		// copy accumulated measurements into result buffer and clear accumulator (mBaseline)
-		it->moveBaselineToTarget();
+		(*it)->moveBaselineToTarget();
 
-		if (it->mTargetRecording == recording)
+		if ((*it)->mTargetRecording == recording)
 		{
 			// found the recording, so return it
 			break;
@@ -142,17 +148,18 @@ AccumulatorBuffer<MemStatAccumulator>			gMemStats;
 
 void ThreadRecorder::deactivate( Recording* recording )
 {
-	std::list<ActiveRecording>::iterator it = update(recording);
+	active_recording_list_t::iterator it = update(recording);
 	if (it != mActiveRecordings.end())
 	{
 		// and if we've found the recording we wanted to update
-		std::list<ActiveRecording>::iterator next_it = it;
+		active_recording_list_t::iterator next_it = it;
 		++next_it;
 		if (next_it != mActiveRecordings.end())
 		{
-			next_it->mTargetRecording->makePrimary();
+			(*next_it)->mTargetRecording->makePrimary();
 		}
 
+		delete *it;
 		mActiveRecordings.erase(it);
 	}
 }
@@ -244,7 +251,7 @@ void MasterThreadRecorder::pullFromSlaveThreads()
 
 	LLMutexLock lock(&mSlaveListMutex);
 
-	Recording& target_recording = mActiveRecordings.front().mBaseline;
+	Recording& target_recording = mActiveRecordings.front()->mBaseline;
 	for (slave_thread_recorder_list_t::iterator it = mSlaveThreadRecorders.begin(), end_it = mSlaveThreadRecorders.end();
 		it != end_it;
 		++it)

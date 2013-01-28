@@ -425,6 +425,13 @@ void TimeBlockAccumulator::reset( const TimeBlockAccumulator* other )
 	mTotalTimeCounter = 0;
 	mChildTimeCounter = 0;
 	mCalls = 0;
+	if (other)
+	{
+		mLastCaller = other->mLastCaller;
+		mActiveCount = other->mActiveCount;
+		mMoveUpTree = other->mMoveUpTree;
+		mParent = other->mParent;
+	}
 }
 
 } // namespace LLTrace

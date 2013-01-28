@@ -70,7 +70,7 @@ protected:
 	virtual	void	onClickCloseBtn();
 
 private:	
-	void drawTicks(LLUnit<LLUnits::Seconds, F64> total_time);
+	void drawTicks();
 	void drawLineGraph();
 	void drawLegend(S32 y);
 	S32 drawHelp(S32 y);
@@ -79,10 +79,18 @@ private:
 
 	void printLineStats();
 	void generateUniqueColors();
-	LLUnit<LLUnits::Seconds, F64> getTotalTime();
+	void updateTotalTime();
 
+	struct TimerBar
+	{
+		LLRect		mRect;
+		LLColor4	mColor;
+		F32			mStartFraction,
+					mEndFraction;
+	};
+	LLRect updateTimerBars(LLTrace::TimeBlock* time_block, LLRect bar_rect, std::vector<TimerBar>& bars, S32 history_index);
 
-	std::vector<LLRect>* mBarRects;
+	std::vector<TimerBar>* mTimerBars;
 	S32 mDisplayMode;
 
 	typedef enum child_alignment
@@ -96,7 +104,8 @@ private:
 	ChildAlignment                mDisplayCenter;
 	bool                          mDisplayCalls,
 								  mDisplayHz;
-	LLUnit<LLUnits::Seconds, F64> mAllTimeMax;
+	LLUnit<LLUnits::Seconds, F64> mAllTimeMax,
+								  mTotalTimeDisplay;
 	LLRect                        mBarRect;
 	S32						      mScrollIndex;
 	LLTrace::TimeBlock*           mHoverID;

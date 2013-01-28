@@ -243,8 +243,6 @@ namespace LLTrace
 	:	 public LLInstanceTracker<TraceType<ACCUMULATOR>, std::string>
 	{
 	public:
-		typedef typename MeanValueType<TraceType<ACCUMULATOR> >::type  mean_t;
-
 		TraceType(const char* name, const char* description = NULL)
 		:	LLInstanceTracker<TraceType<ACCUMULATOR>, std::string>(name),
 			mName(name),
@@ -468,7 +466,6 @@ namespace LLTrace
 	:	public TraceType<TimeBlockAccumulator>
 	{
 	public:
-		typedef F32 mean_t;
 
 		TraceType(const char* name, const char* description = "")
 		:	TraceType<TimeBlockAccumulator>(name, description)
@@ -476,16 +473,29 @@ namespace LLTrace
 	};
 
 	template<>
+	struct MeanValueType<TraceType<TimeBlockAccumulator::CallCountAspect> >
+	{
+		typedef F64 type;
+	};
+
+
+	template<>
 	class TraceType<TimeBlockAccumulator::SelfTimeAspect>
 		:	public TraceType<TimeBlockAccumulator>
 	{
 	public:
-		typedef F32 mean_t;
 
 		TraceType(const char* name, const char* description = "")
 			:	TraceType<TimeBlockAccumulator>(name, description)
 		{}
 	};
+
+	template<>
+	struct MeanValueType<TraceType<TimeBlockAccumulator::SelfTimeAspect> >
+	{
+		typedef LLUnit<LLUnits::Seconds, F64> type;
+	};
+
 
 	class TimeBlock;
 	class TimeBlockTreeNode

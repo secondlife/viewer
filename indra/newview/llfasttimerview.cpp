@@ -107,7 +107,7 @@ LLFastTimerView::LLFastTimerView(const LLSD& key)
 	mRecording(&get_frame_recording()),
 	mPauseHistory(false)
 {
-	mBarRects = new std::vector<LLRect>[MAX_VISIBLE_HISTORY + 1];
+	mTimerBars = new std::vector<TimerBar>[MAX_VISIBLE_HISTORY + 1];
 }
 
 LLFastTimerView::~LLFastTimerView()
@@ -117,7 +117,7 @@ LLFastTimerView::~LLFastTimerView()
 		delete mRecording;
 	}
 	mRecording = NULL;
-	delete [] mBarRects;
+	delete [] mTimerBars;
 }
 
 void LLFastTimerView::onPause()
@@ -282,7 +282,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 			++it, ++i)
 		{
 			// is mouse over bar for this timer?
-			if (mBarRects[mHoverBarIndex][i].pointInRect(x, y))
+			if (mTimerBars[mHoverBarIndex][i].mRect.pointInRect(x, y))
 			{
 				mHoverID = (*it);
 				if (mHoverTimer != *it)
@@ -294,7 +294,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 					mHoverTimer = (*it);
 				}
 
-				mToolTipRect = mBarRects[mHoverBarIndex][i];
+				mToolTipRect = mTimerBars[mHoverBarIndex][i].mRect;
 			}
 
 			if ((*it)->getCollapsed())
@@ -1311,11 +1311,11 @@ S32 LLFastTimerView::drawHelp( S32 y )
 	}	return y;
 }
 
-void LLFastTimerView::drawTicks( LLUnit<LLUnits::Seconds, F64> total_time )
+void LLFastTimerView::drawTicks()
 {
 	// Draw MS ticks
 	{
-		LLUnit<LLUnits::Milliseconds, U32> ms = total_time;
+		LLUnit<LLUnits::Milliseconds, U32> ms = mTotalTimeDisplay;
 		std::string tick_label;
 		S32 x;
 		S32 barw = mBarRect.getWidth();
@@ -1377,172 +1377,70 @@ void LLFastTimerView::drawBorders( S32 y, const S32 x_start, S32 bar_height, S32
 	}
 }
 
-LLUnit<LLUnits::Seconds, F64> LLFastTimerView::getTotalTime()
+void LLFastTimerView::updateTotalTime()
 {
-	LLUnit<LLUnits::Seconds, F64> total_time;
 	switch(mDisplayMode)
 	{
 	case 0:
-		total_time = mRecording->getPeriodMean(FTM_FRAME)*2;
+		mTotalTimeDisplay = mRecording->getPeriodMean(FTM_FRAME)*2;
 		break;
 	case 1:
-		total_time = mAllTimeMax;
+		mTotalTimeDisplay = mAllTimeMax;
 		break;
 	case 2:
 		// Calculate the max total ticks for the current history
-		total_time = mRecording->getPeriodMax(FTM_FRAME);
+		mTotalTimeDisplay = mRecording->getPeriodMax(FTM_FRAME);
 		break;
 	default:
-		total_time = LLUnit<LLUnits::Milliseconds, F32>(100);
+		mTotalTimeDisplay = LLUnit<LLUnits::Milliseconds, F32>(100);
 		break;
 	}
-	return total_time;
 }
 
 void LLFastTimerView::drawBars()
 {
-	LLUnit<LLUnits::Seconds, F64> total_time = getTotalTime();
-	if (total_time <= 0.0) return;
+	updateTotalTime();
+	if (mTotalTimeDisplay <= 0.0) return;
 
-	LLPointer<LLUIImage> box_imagep = LLUI::getUIImage("Rounded_Square");
 	LLLocalClipRect clip(mBarRect);
 
 	S32 bar_height = (mBarRect.mTop - MARGIN - LINE_GRAPH_HEIGHT) / (MAX_VISIBLE_HISTORY + 2);
 	S32 vpad = llmax(1, bar_height / 4); // spacing between bars
 	bar_height -= vpad;
 
-	drawTicks(total_time);
+	drawTicks();
 	S32 y = mBarRect.mTop - ((S32)LLFontGL::getFontMonospace()->getLineHeight() + 4);
 	drawBorders(y, mBarRect.mLeft, bar_height, vpad);
 
 	// Draw bars for each history entry
 	// Special: -1 = show running average
-	gGL.getTexUnit(0)->bind(box_imagep->getImage());
+	LLPointer<LLUIImage> bar_image = LLUI::getUIImage("Rounded_Square");
+	gGL.getTexUnit(0)->bind(bar_image->getImage());
 	const S32 histmax = llmin(mRecording->getNumPeriods()+1, MAX_VISIBLE_HISTORY);
 
 	for (S32 j = -1; j < histmax && y > LINE_GRAPH_HEIGHT; j++)
 	{
-		mBarRects[llmax(j, 0)].clear();
-		int sublevel_dx[FTV_MAX_DEPTH];
-		int sublevel_left[FTV_MAX_DEPTH];
-		int sublevel_right[FTV_MAX_DEPTH];
-		S32 tidx = (j >= 0)
+		S32 history_index = (j >= 0)
 			? j + 1 + mScrollIndex
 			: -1;
+		S32 rect_index = llmax(j, 0);
+		mTimerBars[rect_index].clear();
 
-		// draw the bars for each stat
-		std::vector<S32> xpos;
-		S32 deltax = 0;
-		xpos.push_back(mBarRect.mLeft);
+		updateTimerBars(&FTM_FRAME, LLRect(mBarRect.mLeft, 0, mBarRect.mRight, -bar_height), mTimerBars[rect_index], history_index);
 
-		TimeBlock* prev_id = NULL;
-
-		S32 i = 0;
-		for(timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
-			it != end_timer_tree();
-			++it, ++i)
+		for (std::vector<TimerBar>::iterator it = mTimerBars[rect_index].begin(), end_it = mTimerBars[rect_index].end();
+			it != end_it;
+			++it)
 		{
-			TimeBlock* idp = (*it);
-			F32 frac = tidx == -1
-				? (mRecording->getPeriodMean(*idp) / total_time) 
-				: (mRecording->getPrevRecordingPeriod(tidx).getSum(*idp).value() / total_time.value());
+			TimerBar& timer_bar = *it;
+			gGL.color4fv(timer_bar.mColor.mV);
+			gl_segmented_rect_2d_fragment_tex(timer_bar.mRect.mLeft, timer_bar.mRect.mTop, timer_bar.mRect.mRight, timer_bar.mRect.mBottom,
+				bar_image->getTextureWidth(), bar_image->getTextureHeight(), 
+				16, 
+				timer_bar.mStartFraction, timer_bar.mEndFraction);
 
-			S32 dx = llround(frac * (F32)mBarRect.getWidth());
-			S32 prev_delta_x = deltax;
-			deltax = dx;
-
-			const int level = get_depth(idp) - 1;
-			while ((S32)xpos.size() > level + 1)
-			{
-				xpos.pop_back();
-			}
-
-			LLRect bar_rect;
-			bar_rect.setLeftTopAndSize(xpos.back(), y, dx, bar_height);
-			mBarRects[llmax(j, 0)].push_back(bar_rect);
-
-			if (level == 0)
-			{
-				sublevel_left[level] = mBarRect.mLeft;
-				sublevel_dx[level] = dx;
-				sublevel_right[level] = sublevel_left[level] + sublevel_dx[level];
-			}
-			else if (prev_id && get_depth(prev_id) < get_depth(idp))
-			{
-				F64 sublevelticks = 0;
-
-				for (TimeBlock::child_const_iter it = prev_id->beginChildren();
-					it != prev_id->endChildren();
-					++it)
-				{
-					sublevelticks += (tidx == -1)
-						? mRecording->getPeriodMean(**it).value()
-						: mRecording->getPrevRecordingPeriod(tidx).getSum(**it).value();
-				}
-
-				F32 subfrac = (F32)sublevelticks / (F32)total_time.value();
-				sublevel_dx[level] = (int)(subfrac * (F32)mBarRect.getWidth() + .5f);
-
-				if (mDisplayCenter == ALIGN_CENTER)
-				{
-					bar_rect.mLeft += (prev_delta_x - sublevel_dx[level])/2;
-				}
-				else if (mDisplayCenter == ALIGN_RIGHT)
-				{
-					bar_rect.mLeft += (prev_delta_x - sublevel_dx[level]);
-				}
-
-				sublevel_left[level] = bar_rect.mLeft;
-				sublevel_right[level] = sublevel_left[level] + sublevel_dx[level];
-			}				
-
-			xpos.back() = bar_rect.mRight;
-			xpos.push_back(bar_rect.mLeft);
-
-			if (bar_rect.getWidth() > 0)
-			{
-				LLColor4 color = sTimerColors[idp];
-				S32 scale_offset = 0;
-
-				BOOL is_child_of_hover_item = (idp == mHoverID);
-				TimeBlock* next_parent = idp->getParent();
-				while(!is_child_of_hover_item && next_parent)
-				{
-					is_child_of_hover_item = (mHoverID == next_parent);
-					if (next_parent->getParent() == next_parent) break;
-					next_parent = next_parent->getParent();
-				}
-
-				if (idp == mHoverID)
-				{
-					scale_offset = llfloor(sinf(mHighlightTimer.getElapsedTimeF32() * 6.f) * 3.f);
-					//color = lerp(color, LLColor4::black, -0.4f);
-				}
-				else if (mHoverID != NULL && !is_child_of_hover_item)
-				{
-					color = lerp(color, LLColor4::grey, 0.8f);
-				}
-
-				gGL.color4fv(color.mV);
-				F32 start_fragment = llclamp((F32)(bar_rect.mLeft - sublevel_left[level]) / (F32)sublevel_dx[level], 0.f, 1.f);
-				F32 end_fragment = llclamp((F32)(bar_rect.mRight - sublevel_left[level]) / (F32)sublevel_dx[level], 0.f, 1.f);
-				gl_segmented_rect_2d_fragment_tex(
-					sublevel_left[level], 
-					bar_rect.mTop - level + scale_offset, 
-					sublevel_right[level], 
-					bar_rect.mBottom + level - scale_offset, 
-					box_imagep->getTextureWidth(), box_imagep->getTextureHeight(), 
-					16, 
-					start_fragment, end_fragment);
-			}
-
-			if ((*it)->getCollapsed())
-			{
-				it.skipDescendants();
-			}
-
-			prev_id = idp;
 		}
+			
 		y -= (bar_height + vpad);
 		if (j < 0)
 			y -= bar_height;
@@ -1550,14 +1448,99 @@ void LLFastTimerView::drawBars()
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 }
 
+LLRect LLFastTimerView::updateTimerBars(LLTrace::TimeBlock* time_block, LLRect bar_rect, std::vector<TimerBar>& bars, S32 history_index)
+{
+	F32 self_time_frame_fraction = history_index == -1
+		? (mRecording->getPeriodMean(time_block->selfTime()) / mTotalTimeDisplay) 
+		: (mRecording->getPrevRecordingPeriod(history_index).getSum(time_block->selfTime()) / mTotalTimeDisplay);
+
+	S32 self_time_width = llround(self_time_frame_fraction * (F32)mBarRect.getWidth());
+	LLRect child_rect = bar_rect;
+
+	if (mDisplayCenter == ALIGN_CENTER)
+	{
+		child_rect.mLeft += self_time_width / 2;
+		self_time_width -= self_time_width / 2;
+	}
+	else if (mDisplayCenter == ALIGN_RIGHT)
+	{
+		child_rect.mLeft += self_time_width;
+		self_time_width = 0;
+	}
+
+	if (child_rect.getHeight() > 3)
+	{
+		child_rect.mTop -= 1;
+		child_rect.mBottom += 1;
+	}
+	child_rect.mRight = child_rect.mLeft;
+
+	// reserve a spot for this bar to be rendered before its children
+	// even though we don't know its size yet
+	S32 first_child_left = child_rect.mLeft;
+	S32 bar_rect_index = bars.size();
+	bars.push_back(TimerBar());
+
+	for (TimeBlock::child_iter it = time_block->beginChildren(), end_it = time_block->endChildren(); it != end_it; ++it)
+	{
+		child_rect = updateTimerBars(*it, child_rect, bars, history_index);
+
+		// advance for next child
+		child_rect.mLeft = child_rect.mRight;
+	}
+
+	// now loop through children and figure out portion of bar image covered by each bar, now that we know the
+	// sum of all children
+	//S32 total_width_children = child_rect.mRight - first_child_left;
+	//S32 child_bar_index = bar_rect_index + 1;
+	//F32 bar_fraction_start = 0.f;
+	//for (TimeBlock::child_iter it = time_block->beginChildren(), end_it = time_block->endChildren(); 
+	//	it != end_it; 
+	//	++it)
+	//{
+	//	TimerBar& child_timer_bar = bars[child_bar_index];
+
+	//	child_timer_bar.mStartFraction = bar_fraction_start;
+	//	child_timer_bar.mEndFraction = (F32)child_timer_bar.mRect.getWidth() / (F32)total_width_children;
+
+	//	bar_fraction_start = child_timer_bar.mEndFraction;
+
+	//	// advance for next child
+	//	child_bar_index++;
+	//}
 
 
+	bar_rect.mRight = child_rect.mRight + self_time_width;
 
+	if (bar_rect.getWidth() > 0)
+	{
+		LLColor4 color = sTimerColors[time_block];
+		S32 scale_offset = 0;
 
+		BOOL is_child_of_hover_item = (time_block == mHoverID);
+		TimeBlock* next_parent = time_block->getParent();
+		while(!is_child_of_hover_item && next_parent)
+		{
+			is_child_of_hover_item = (mHoverID == next_parent);
+			if (next_parent->getParent() == next_parent) break;
+			next_parent = next_parent->getParent();
+		}
 
+		if (time_block == mHoverID)
+		{
+			scale_offset = llfloor(sinf(mHighlightTimer.getElapsedTimeF32() * 6.f) * 3.f);
+		}
+		else if (mHoverID != NULL && !is_child_of_hover_item)
+		{
+			color = lerp(color, LLColor4::grey, 0.8f);
+		}
 
+		bar_rect.mTop += scale_offset;
+		bar_rect.mBottom -= scale_offset;
 
+		bars[bar_rect_index].mRect = bar_rect;
+		bars[bar_rect_index].mColor = color;
+	}
 
-
-
-
+	return bar_rect;
+}

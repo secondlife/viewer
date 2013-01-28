@@ -119,6 +119,7 @@ namespace LLTrace
 		// gather data from recording, ignoring time relationship (for example, pulling data from slave threads)
 		void mergeRecording(const Recording& other);
 
+		// grab latest recorded data
 		void update();
 
 		// Timer accessors
@@ -216,6 +217,8 @@ namespace LLTrace
 		U32 getSampleCount(const TraceType<MeasurementAccumulator<S64> >& stat) const;
 
 		LLUnit<LLUnits::Seconds, F64> getDuration() const { return LLUnit<LLUnits::Seconds, F64>(mElapsedSeconds); }
+
+		void syncTo(Recording& other);
 
 	private:
 		friend class ThreadRecorder;
@@ -337,9 +340,9 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		typename TraceType<T>::mean_t getPeriodMean(const TraceType<T>& stat) const
+		typename MeanValueType<TraceType<T> >::type getPeriodMean(const TraceType<T>& stat) const
 		{
-			typename TraceType<T>::mean_t mean = 0.0;
+			typename MeanValueType<TraceType<T> >::type mean = 0.0;
 			for (S32 i = 0; i < mNumPeriods; i++)
 			{
 				if (mRecordingPeriods[i].getDuration() > 0.f)
@@ -352,9 +355,9 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		typename TraceType<T>::mean_t getPeriodMeanPerSec(const TraceType<T>& stat) const
+		typename MeanValueType<TraceType<T> >::type getPeriodMeanPerSec(const TraceType<T>& stat) const
 		{
-			typename TraceType<T>::mean_t mean = 0.0;
+			typename MeanValueType<TraceType<T> >::type mean = 0.0;
 			for (S32 i = 0; i < mNumPeriods; i++)
 			{
 				if (mRecordingPeriods[i].getDuration() > 0.f)

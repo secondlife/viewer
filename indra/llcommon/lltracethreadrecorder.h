@@ -39,13 +39,14 @@ namespace LLTrace
 	{
 	protected:
 		struct ActiveRecording;
+		typedef std::list<ActiveRecording*> active_recording_list_t;
 	public:
 		ThreadRecorder();
 
 		virtual ~ThreadRecorder();
 
 		void activate(Recording* recording);
-		std::list<struct ActiveRecording>::iterator update(Recording* recording);
+		active_recording_list_t::iterator update(Recording* recording);
 		void deactivate(Recording* recording);
 
 		virtual void pushToMaster() = 0;
@@ -63,11 +64,12 @@ namespace LLTrace
 			void moveBaselineToTarget();
 		};
 		Recording					mThreadRecording;
-		std::list<ActiveRecording>	mActiveRecordings;
 
-		class BlockTimer*				mRootTimer;
-		TimeBlockTreeNode*				mTimeBlockTreeNodes;
-		size_t							mNumTimeBlockTreeNodes;
+		active_recording_list_t		mActiveRecordings;
+
+		class BlockTimer*			mRootTimer;
+		TimeBlockTreeNode*			mTimeBlockTreeNodes;
+		size_t						mNumTimeBlockTreeNodes;
 	};
 
 	class LL_COMMON_API MasterThreadRecorder : public ThreadRecorder
