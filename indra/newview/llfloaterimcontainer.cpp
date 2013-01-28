@@ -1086,7 +1086,10 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         }
         else
         {
-            doToParticipants(command, selectedIDS);
+        	if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
+        	{
+        		doToParticipants(command, selectedIDS);
+        	}
         }
     }
 }
