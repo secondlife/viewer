@@ -70,6 +70,7 @@ class LLHUDNameTag;
 class LLHUDEffectSpiral;
 class LLTexGlobalColor;
 class LLViewerJoint;
+struct LLAppearanceMessageContents;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
@@ -138,6 +139,9 @@ public:
 	bool 						allTexturesCompletelyDownloaded(std::set<LLUUID>& ids);
 	bool 						allLocalTexturesCompletelyDownloaded();
 	bool 						allBakedTexturesCompletelyDownloaded();
+	void 						bakedTextureOriginCounts(S32 &sb_count, S32 &host_count,
+														 S32 &both_count, S32 &neither_count);
+	std::string 				bakedTextureOriginInfo();
 	void 						collectLocalTextureUUIDs(std::set<LLUUID>& ids);
 	void 						collectBakedTextureUUIDs(std::set<LLUUID>& ids);
 	void 						collectTextureUUIDs(std::set<LLUUID>& ids);
@@ -635,6 +639,7 @@ protected:
  **/
 
 public:
+	void 			parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMessageContents& msg);
 	void 			processAvatarAppearance(LLMessageSystem* mesgsys);
 	void 			hideSkirt();
 	void			startAppearanceAnimation();
@@ -653,7 +658,7 @@ public:
 
 	// True if this avatar should fetch its baked textures via the new
 	// appearance mechanism.
-	/*virtual*/ BOOL	isUsingServerBakes() const { return mUseServerBakes; }
+	BOOL				isUsingServerBakes() const;
 	void 				setIsUsingServerBakes(BOOL newval);
 
 
