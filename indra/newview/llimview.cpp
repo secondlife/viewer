@@ -204,19 +204,16 @@ void on_new_message(const LLSD& msg)
     bool conversation_floater_not_focused =
     		conversation_floater_is_closed || !im_box->hasFocus();
 
+    // Skip toasting and flashing if we have open window of IM with this session id
+    if (session_floater
+    && session_floater->isInVisibleChain()
+    && !session_floater->isMinimized()
+    && !(session_floater->getHost() && session_floater->getHost()->isMinimized()))
+    {
+       return;
+    }
     if ("toast" == action)
     {
-        // Skip toasting and flashing if we have open window of IM with this session id
-        if (session_floater
-            && session_floater->isInVisibleChain()
-            && session_floater->hasFocus()
-            && !session_floater->isMinimized()
-            && !(session_floater->getHost() && session_floater->getHost()->isMinimized())
-            )
-        {
-            return;
-        }
-
         //User is not focused on conversation containing the message
         if(session_floater_not_focused)
         {
