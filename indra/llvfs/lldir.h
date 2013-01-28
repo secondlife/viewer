@@ -186,6 +186,7 @@ class LLDir
 	virtual std::string getSkinFolder() const;
 	virtual std::string getLanguage() const;
 	virtual bool setCacheDir(const std::string &path);
+	virtual void updatePerAccountChatLogsDir();
 
 	virtual void dumpCurrentDirectories();
 
@@ -243,6 +244,7 @@ protected:
 	std::vector<std::string> mSearchSkinDirs;
 	std::string mLanguage;              // Current viewer language
 	std::string mLLPluginDir;			// Location for plugins and plugin shell
+	std::string mUserName;				// Current user name
 };
 
 void dir_exists_or_crash(const std::string &dir_name);

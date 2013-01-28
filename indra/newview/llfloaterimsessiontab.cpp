@@ -702,7 +702,7 @@ void LLFloaterIMSessionTab::showTranslationCheckbox(BOOL show)
 }
 
 // static
-void LLFloaterIMSessionTab::processChatHistoryStyleUpdate()
+void LLFloaterIMSessionTab::processChatHistoryStyleUpdate(bool clean_messages/* = false*/)
 {
 	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
 	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
@@ -711,14 +711,14 @@ void LLFloaterIMSessionTab::processChatHistoryStyleUpdate()
 		LLFloaterIMSession* floater = dynamic_cast<LLFloaterIMSession*>(*iter);
 		if (floater)
 		{
-			floater->reloadMessages();
+			floater->reloadMessages(clean_messages);
 		}
 	}
 
 	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 	if (nearby_chat)
 	{
-             nearby_chat->reloadMessages();
+             nearby_chat->reloadMessages(clean_messages);
 	}
 }
 

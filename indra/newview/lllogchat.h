@@ -49,6 +49,7 @@ public:
 				const std::string& from,
 				const LLUUID& from_id,
 				const std::string& line);
+	static void getListOfTranscriptFiles(std::vector<std::string>& list);
 
 	/** @deprecated @see loadChatHistory() */
 	static void loadHistory(const std::string& filename, 
@@ -56,8 +57,13 @@ public:
 							void* userdata);
 
 	static void loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params = LLSD());
+
+	typedef boost::signals2::signal<void ()> save_history_signal_t;
+	static boost::signals2::connection setSaveHistorySignal(const save_history_signal_t::slot_type& cb);
+
 private:
 	static std::string cleanFileName(std::string filename);
+	static save_history_signal_t * sSaveHistorySignal;
 };
 
 /**
@@ -113,9 +119,10 @@ protected:
 };
 
 // LLSD map lookup constants
-extern const std::string IM_TIME; //("time");
-extern const std::string IM_TEXT; //("message");
-extern const std::string IM_FROM; //("from");
-extern const std::string IM_FROM_ID; //("from_id");
+extern const std::string LL_IM_TIME; //("time");
+extern const std::string LL_IM_TEXT; //("message");
+extern const std::string LL_IM_FROM; //("from");
+extern const std::string LL_IM_FROM_ID; //("from_id");
+extern const std::string LL_TRANSCRIPT_FILE_EXTENSION; //("ll.txt");
 
 #endif

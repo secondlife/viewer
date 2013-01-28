@@ -148,8 +148,14 @@ void LLFloaterIMNearbyChat::refresh()
 	}
 }
 
-void LLFloaterIMNearbyChat::reloadMessages()
+void LLFloaterIMNearbyChat::reloadMessages(bool clean_messages/* = false*/)
 {
+	if (clean_messages)
+	{
+		mMessageArchive.clear();
+		loadHistory();
+	}
+
 	mChatHistory->clear();
 
 	LLSD do_not_log;
@@ -174,11 +180,11 @@ void LLFloaterIMNearbyChat::loadHistory()
 	{
 		const LLSD& msg = *it;
 
-		std::string from = msg[IM_FROM];
+		std::string from = msg[LL_IM_FROM];
 		LLUUID from_id;
-		if (msg[IM_FROM_ID].isDefined())
+		if (msg[LL_IM_FROM_ID].isDefined())
 		{
-			from_id = msg[IM_FROM_ID].asUUID();
+			from_id = msg[LL_IM_FROM_ID].asUUID();
 		}
 		else
  		{
@@ -189,8 +195,8 @@ void LLFloaterIMNearbyChat::loadHistory()
 		LLChat chat;
 		chat.mFromName = from;
 		chat.mFromID = from_id;
-		chat.mText = msg[IM_TEXT].asString();
-		chat.mTimeStr = msg[IM_TIME].asString();
+		chat.mText = msg[LL_IM_TEXT].asString();
+		chat.mTimeStr = msg[LL_IM_TIME].asString();
 		chat.mChatStyle = CHAT_STYLE_HISTORY;
 
 		chat.mSourceType = CHAT_SOURCE_AGENT;
@@ -519,20 +525,21 @@ void LLFloaterIMNearbyChat::sendChat( EChatType type )
 	}
 }
 
-void	LLFloaterIMNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
+void LLFloaterIMNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
 {
 	appendMessage(chat, args);
 
 	if(archive)
 	{
 		mMessageArchive.push_back(chat);
-		if(mMessageArchive.size()>200)
+		if(mMessageArchive.size() > 200)
+		{
 			mMessageArchive.erase(mMessageArchive.begin());
+		}
 	}
 
 	// logging
-	if (!args["do_not_log"].asBoolean()
-			&& gSavedPerAccountSettings.getBOOL("LogNearbyChat"))
+	if (!args["do_not_log"].asBoolean() && gSavedSettings.getS32("KeepConversationLogTranscripts") > 1)
 	{
 		std::string from_name = chat.mFromName;
 

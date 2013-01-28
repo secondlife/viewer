@@ -35,7 +35,9 @@
 
 #include "llfloater.h"
 #include "llavatarpropertiesprocessor.h"
+#include "llconversationlog.h"
 
+class LLConversationLogObserver;
 class LLPanelPreference;
 class LLPanelLCD;
 class LLPanelDebug;
@@ -58,7 +60,7 @@ typedef enum
 
 
 // Floater to control preferences (display, audio, bandwidth, general.
-class LLFloaterPreference : public LLFloater, public LLAvatarPropertiesObserver
+class LLFloaterPreference : public LLFloater, public LLAvatarPropertiesObserver, public LLConversationLogObserver
 {
 public: 
 	LLFloaterPreference(const LLSD& key);
@@ -70,9 +72,11 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/	void onClose(bool app_quitting);
+	/*virtual*/ void changed();
+	/*virtual*/ void changed(const LLUUID& session_id, U32 mask) {};
 
 	// static data update, called from message handler
-	static void updateUserInfo(const std::string& visibility, bool im_via_email, const std::string& email);
+	static void updateUserInfo(const std::string& visibility, bool im_via_email);
 
 	// refresh all the graphics preferences menus
 	static void refreshEnabledGraphics();
@@ -134,15 +138,13 @@ public:
 	void setKey(KEY key);
 	void onClickSetMiddleMouse();
 	void onClickSetSounds();
-//	void onClickSkipDialogs();
-//	void onClickResetDialogs();
 	void onClickEnablePopup();
 	void onClickDisablePopup();	
 	void resetAllIgnored();
 	void setAllIgnored();
 	void onClickLogPath();	
 	void enableHistory();
-	void setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string& email);
+	void setPersonalInfo(const std::string& visibility, bool im_via_email);
 	void refreshEnabledState();
 	void disableUnavailableSettings();
 	void onCommitWindowedMode();
@@ -166,12 +168,17 @@ public:
 	void onClickSpellChecker();
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
-	
+	void onLogChatHistorySaved();	
 	void buildPopupLists();
 	static void refreshSkin(void* data);
 	void selectPanel(const LLSD& name);
 
 private:
+
+	void onDeleteTranscripts();
+	void onDeleteTranscriptsResponse(const LLSD& notification, const LLSD& response);
+	void updateDeleteTranscriptsButton();
+
 	static std::string sSkin;
 	notifications_map mNotificationOptions;
 	bool mClickActionDirty; ///< Set to true when the click/double-click options get changed by user.

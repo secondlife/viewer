@@ -56,7 +56,7 @@ public:
 	/*virtual*/ void setVisible(BOOL visible);
 
 	void loadHistory();
-    void reloadMessages();
+    void reloadMessages(bool clean_messages = false);
 	void removeScreenChat();
 
 	void show();
