@@ -2897,6 +2897,8 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 										  all_baked_downloaded ? "B" : "b",
 										  mUseLocalAppearance, mIsEditingAppearance,
 										  mUseServerBakes, central_bake_version);
+		std::string origin_string = bakedTextureOriginInfo();
+		debug_line += " [" + origin_string + "]";
 		if (isSelf())
 		{
 			S32 curr_cof_version = LLAppearanceMgr::instance().getCOFVersion();
@@ -4041,6 +4043,60 @@ bool LLVOAvatar::allBakedTexturesCompletelyDownloaded()
 	std::set<LLUUID> baked_ids;
 	collectBakedTextureUUIDs(baked_ids);
 	return allTexturesCompletelyDownloaded(baked_ids);
+}
+
+void LLVOAvatar::bakedTextureOriginCounts(S32 &sb_count, // server-bake, has origin URL.
+										  S32 &host_count, // host-based bake, has host.
+										  S32 &both_count, // error - both host and URL set.
+										  S32 &neither_count) // error - neither set.
+{
+	sb_count = host_count = both_count = neither_count = 0;
+	
+	std::set<LLUUID> baked_ids;
+	collectBakedTextureUUIDs(baked_ids);
+	for (std::set<LLUUID>::const_iterator it = baked_ids.begin(); it != baked_ids.end(); ++it)
+	{
+		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it);
+		bool has_url = false, has_host = false;
+		if (!imagep->getUrl().empty())
+		{
+			has_url = true;
+		}
+		if (imagep->getTargetHost().isOk())
+		{
+			has_host = true;
+		}
+		if (has_url && !has_host) sb_count++;
+		else if (has_host && !has_url) host_count++;
+		else if (has_host && has_url) both_count++;
+		else if (!has_host && !has_url) neither_count++;
+	}
+}
+
+std::string LLVOAvatar::bakedTextureOriginInfo()
+{
+	std::string result;
+	
+	std::set<LLUUID> baked_ids;
+	collectBakedTextureUUIDs(baked_ids);
+	for (std::set<LLUUID>::const_iterator it = baked_ids.begin(); it != baked_ids.end(); ++it)
+	{
+		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it);
+		bool has_url = false, has_host = false;
+		if (!imagep->getUrl().empty())
+		{
+			has_url = true;
+		}
+		if (imagep->getTargetHost().isOk())
+		{
+			has_host = true;
+		}
+		if (has_url && !has_host) result += "u"; // server-bake texture with url 
+		else if (has_host && !has_url) result += "h"; // old-style texture on sim
+		else if (has_host && has_url) result += "?"; // both origins?
+		else if (!has_host && !has_url) result += "n"; // no origin?
+	}
+	return result;
 }
 
 S32 LLVOAvatar::totalTextureMemForUUIDS(std::set<LLUUID>& ids)
@@ -7363,7 +7419,10 @@ BOOL LLVOAvatar::isUsingServerBakes() const
 	llassert(appearance_version_param);
 	F32 wt = appearance_version_param->getWeight();
 	F32 expect_wt = mUseServerBakes ? 1.0 : 0.0;
-	llassert(is_approx_equal(wt,expect_wt));
+	if (!is_approx_equal(wt,expect_wt))
+	{
+		llwarns << "wt " << wt << " differs from expected " << expect_wt << llendl;
+	}
 #endif
 
 	return mUseServerBakes;

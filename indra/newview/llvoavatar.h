@@ -139,6 +139,9 @@ public:
 	bool 						allTexturesCompletelyDownloaded(std::set<LLUUID>& ids);
 	bool 						allLocalTexturesCompletelyDownloaded();
 	bool 						allBakedTexturesCompletelyDownloaded();
+	void 						bakedTextureOriginCounts(S32 &sb_count, S32 &host_count,
+														 S32 &both_count, S32 &neither_count);
+	std::string 				bakedTextureOriginInfo();
 	void 						collectLocalTextureUUIDs(std::set<LLUUID>& ids);
 	void 						collectBakedTextureUUIDs(std::set<LLUUID>& ids);
 	void 						collectTextureUUIDs(std::set<LLUUID>& ids);

@@ -2032,7 +2032,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 	}
 	// DRANO really should wait for the appearance message to set this.
 	// verify that deleting this line doesn't break anything.
-	gAgentAvatarp->setIsUsingServerBakes(gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion());
+	//gAgentAvatarp->setIsUsingServerBakes(gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion());
 	
 	//dumpCat(getCOF(),"COF, start");
 
