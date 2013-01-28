@@ -285,7 +285,7 @@
 		<menu label="Rendering" name="Rendering">
 			<menu_item_check label="Axes" name="Axes"/>
 			<menu_item_check label="Wireframe" name="Wireframe"/>
-			<menu_item_check label="Luces y sombras" name="Lighting and Shadows"/>
+			<menu_item_check label="Luces y sombras" name="Advanced Lighting Model"/>
 			<menu_item_check label="Sombras del sol/la luna/proyectores" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAO y sombras suavizadas" name="SSAO and Shadow Smoothing"/>
 			<menu_item_check label="Capas alfa automáticas (deferidas)" name="Automatic Alpha Masks (deferred)"/>
