@@ -141,6 +141,7 @@ namespace LLMarketplaceImport
 
 			if ((status == MarketplaceErrorCodes::IMPORT_REDIRECT) ||
 				(status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR) ||
+				(status == MarketplaceErrorCodes::IMPORT_FORBIDDEN) ||
 				(status == MarketplaceErrorCodes::IMPORT_JOB_TIMEOUT))
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
@@ -187,6 +188,7 @@ namespace LLMarketplaceImport
 			}
 			
 			if ((status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR) ||
+				(status == MarketplaceErrorCodes::IMPORT_FORBIDDEN) ||
 				(status == MarketplaceErrorCodes::IMPORT_JOB_TIMEOUT))
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
@@ -356,6 +358,7 @@ LLMarketplaceInventoryImporter::LLMarketplaceInventoryImporter()
 	: mAutoTriggerImport(false)
 	, mImportInProgress(false)
 	, mInitialized(false)
+	, mMarketPlaceStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
 	, mErrorInitSignal(NULL)
 	, mStatusChangedSignal(NULL)
 	, mStatusReportSignal(NULL)
@@ -398,13 +401,19 @@ void LLMarketplaceInventoryImporter::initialize()
 
 	if (!LLMarketplaceImport::hasSessionCookie())
 	{
+		mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING;
 		LLMarketplaceImport::establishMarketplaceSessionCookie();
+	}
+	else
+	{
+		mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_MERCHANT;
 	}
 }
 
 void LLMarketplaceInventoryImporter::reinitializeAndTriggerImport()
 {
 	mInitialized = false;
+	mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED();
 
 	initialize();
 
