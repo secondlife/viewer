@@ -413,7 +413,7 @@ void LLMarketplaceInventoryImporter::initialize()
 void LLMarketplaceInventoryImporter::reinitializeAndTriggerImport()
 {
 	mInitialized = false;
-	mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED();
+	mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED;
 
 	initialize();
 
