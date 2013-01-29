@@ -414,9 +414,7 @@ void LLMarketplaceInventoryImporter::reinitializeAndTriggerImport()
 {
 	mInitialized = false;
 	mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED;
-
 	initialize();
-
 	mAutoTriggerImport = true;
 }
 
@@ -468,17 +466,21 @@ void LLMarketplaceInventoryImporter::updateImport()
 				
 				if (mInitialized)
 				{
+					mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_MERCHANT;
 					// Follow up with auto trigger of import
 					if (mAutoTriggerImport)
 					{
 						mAutoTriggerImport = false;
-
 						mImportInProgress = triggerImport();
 					}
 				}
-				else if (mErrorInitSignal)
+				else
 				{
-					(*mErrorInitSignal)(LLMarketplaceImport::getResultStatus(), LLMarketplaceImport::getResults());
+					mMarketPlaceStatus = (LLMarketplaceImport::getResultStatus() == MarketplaceErrorCodes::IMPORT_FORBIDDEN ? MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT : MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
+					if (mErrorInitSignal && (mMarketPlaceStatus == MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE))
+					{
+						(*mErrorInitSignal)(LLMarketplaceImport::getResultStatus(), LLMarketplaceImport::getResults());
+					}
 				}
 			}
 		}
