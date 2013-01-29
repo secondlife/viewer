@@ -4586,18 +4586,6 @@ void LLPipeline::renderPhysicsDisplay()
 		}
 	}
 
-	for (LLCullResult::bridge_iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
-	{
-		LLSpatialBridge* bridge = *i;
-		if (!bridge->isDead() && hasRenderType(bridge->mDrawableType))
-		{
-			gGL.pushMatrix();
-			gGL.multMatrix((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
-			bridge->renderPhysicsShapes();
-			gGL.popMatrix();
-		}
-	}
-
 	gGL.flush();
 
 	if (LLGLSLShader::sNoFixedFunction)
