@@ -162,7 +162,7 @@ void LLFloaterIMSession::newIMCallback(const LLSD& data)
 		LLFloaterIMSession* floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>("impanel", session_id);
 
         // update if visible, otherwise will be updated when opened
-		if (floater && (floater->getHost()? floater->hasFocus() : floater->getVisible()))
+		if (floater && floater->isInVisibleChain())
 		{
 			floater->updateMessages();
 		}

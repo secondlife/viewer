@@ -239,14 +239,8 @@ void on_new_message(const LLSD& msg)
                 {
                     LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
                 }
-
-				// Make sure the message actually appears, without having to click on the conversation
-				if(!conversation_floater_is_closed)
-				{
-					im_box->selectConversation(session_id);
-				}
             }
-        }
+		}
     }
 
     else if ("flash" == action)
