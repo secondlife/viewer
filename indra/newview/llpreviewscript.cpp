@@ -86,6 +86,7 @@
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llappviewer.h"
+#include "llexperiencecache.h"
 
 const std::string HELLO_LSL =
 	"default\n"
@@ -370,11 +371,20 @@ LLScriptEdCore::~LLScriptEdCore()
 	delete mLiveFile;
 }
 
+void LLScriptEdCore::experienceChanged()
+{
+	enableSave(TRUE);
+	getChildView("Save_btn")->setEnabled(true);
+}
+
 BOOL LLScriptEdCore::postBuild()
 {
 	mErrorList = getChild<LLScrollListCtrl>("lsl errors");
 
 	mFunctions = getChild<LLComboBox>( "Insert...");
+
+	mExperiences = getChild<LLComboBox>("Experiences...");
+	mExperiences->setCommitCallback(boost::bind(&LLScriptEdCore::experienceChanged, this));
 
 	childSetCommitCallback("Insert...", &LLScriptEdCore::onBtnInsertFunction, this);
 
@@ -385,6 +395,10 @@ BOOL LLScriptEdCore::postBuild()
 	childSetAction("Edit_btn", boost::bind(&LLScriptEdCore::openInExternalEditor, this));
 
 	initMenu();
+	
+
+
+	requestExperiences();
 
 
 	std::vector<std::string> funcs;
@@ -1186,6 +1200,86 @@ bool LLScriptEdCore::enableLoadFromFileMenu(void* userdata)
 	LLScriptEdCore* self = (LLScriptEdCore*)userdata;
 	return (self && self->mEditor) ? self->mEditor->canLoadOrSaveToFile() : FALSE;
 }
+
+
+void AddExperienceResult(LLHandle<LLScriptEdCore> panel, const LLSD& experience)
+{
+	LLScriptEdCore* scriptCore = panel.get();
+	if(scriptCore)
+	{
+		scriptCore->addExperienceInfo(experience);
+	}
+}
+
+
+class ExperienceResponder : public LLHTTPClient::Responder
+{
+public:
+	ExperienceResponder(const LLHandle<LLScriptEdCore>& parent):mParent(parent)
+	{
+	}
+
+	LLHandle<LLScriptEdCore> mParent;
+
+	virtual void result(const LLSD& content)
+	{
+		LLScriptEdCore* scriptCore = mParent.get();
+		if(!scriptCore)
+			return;
+
+		scriptCore->clearExperiences();
+
+		LLSD experiences = content["experiences"];
+		LLSD::array_const_iterator it = experiences.beginArray();
+		for( /**/ ; it != experiences.endArray(); ++it)
+		{
+			LLUUID public_key = it->asUUID();
+
+			LLExperienceCache::get(public_key, LLExperienceCache::PUBLIC_KEY, boost::bind(AddExperienceResult, mParent, _1));
+		}
+	}
+};
+
+void LLScriptEdCore::requestExperiences()
+{
+	mExperiences->setEnabled(FALSE);
+
+	LLViewerRegion* region = gAgent.getRegion();
+	if (region)
+	{
+		std::string lookup_url=region->getCapability("GetExperiences"); 
+		if(!lookup_url.empty())
+		{
+			LLHTTPClient::get(lookup_url, new ExperienceResponder(getDerivedHandle<LLScriptEdCore>()));
+		}
+	}
+}
+
+void LLScriptEdCore::addExperienceInfo( const LLSD& experience )
+{
+	mExperiences->setEnabled(TRUE);
+	mExperiences->add(experience[LLExperienceCache::NAME], experience);
+}
+
+void LLScriptEdCore::clearExperiences()
+{
+	mExperiences->removeall();
+	mExperiences->add("No Experience");
+}
+
+LLUUID LLScriptEdCore::getSelectedExperience()const
+{
+	LLSD value = mExperiences->getSelectedValue();
+	if(value.has(LLExperienceCache::PUBLIC_KEY))
+	{
+		return value[LLExperienceCache::PUBLIC_KEY].asUUID();
+	}
+	return LLUUID::null;
+}
+
+
+
+
 
 /// ---------------------------------------------------------------------------
 /// LLScriptEdContainer
@@ -2142,8 +2236,8 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
 	mPendingUploads++;
 	BOOL is_running = getChild<LLCheckBoxCtrl>( "running")->get();
 	if (!url.empty())
-	{
-		uploadAssetViaCaps(url, filename, mObjectUUID, mItemUUID, is_running);
+	{		
+		uploadAssetViaCaps(url, filename, mObjectUUID, mItemUUID, is_running, mScriptEd->getSelectedExperience());
 	}
 	else if (gAssetStorage)
 	{
@@ -2151,11 +2245,7 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
 	}
 }
 
-void LLLiveLSLEditor::uploadAssetViaCaps(const std::string& url,
-										 const std::string& filename,
-										 const LLUUID& task_id,
-										 const LLUUID& item_id,
-										 BOOL is_running)
+void LLLiveLSLEditor::uploadAssetViaCaps( const std::string& url, const std::string& filename, const LLUUID& task_id, const LLUUID& item_id, BOOL is_running, const LLUUID& experience_public_id )
 {
 	llinfos << "Update Task Inventory via capability " << url << llendl;
 	LLSD body;
@@ -2163,6 +2253,7 @@ void LLLiveLSLEditor::uploadAssetViaCaps(const std::string& url,
 	body["item_id"] = item_id;
 	body["is_script_running"] = is_running;
 	body["target"] = monoChecked() ? "mono" : "lsl2";
+	body["experience"] = experience_public_id;
 	LLHTTPClient::post(url, body,
 		new LLUpdateTaskInventoryResponder(body, filename, LLAssetType::AT_LSL_TEXT));
 }

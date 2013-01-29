@@ -204,4 +204,13 @@
      right="400"
      name="Edit_btn"
      width="81" />
+    <combo_box
+      follows="right|bottom"
+      height="23"
+      label="Experience..."
+      layout="topleft"
+      name="Experiences..."
+      width="196"
+      right="487"
+      top_pad="5" />
 </panel>

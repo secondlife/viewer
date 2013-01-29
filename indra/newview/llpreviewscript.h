@@ -106,6 +106,9 @@ public:
 	static bool		enableLoadFromFileMenu(void* userdata);
 
 	virtual bool	hasAccelerators() const { return true; }
+	void			addExperienceInfo( const LLSD& experience );
+	void			clearExperiences();
+	LLUUID 			getSelectedExperience()const;
 
 private:
 	void		onBtnHelp();
@@ -119,6 +122,9 @@ private:
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 	
 	void enableSave(BOOL b) {mEnableSave = b;}
+
+	void requestExperiences();
+	void experienceChanged();
 
 protected:
 	void deleteBridges();
@@ -135,6 +141,7 @@ private:
 	void			(*mSearchReplaceCallback) (void* userdata);
 	void*			mUserdata;
 	LLComboBox		*mFunctions;
+	LLComboBox		*mExperiences;
 	BOOL			mForceClose;
 	LLPanel*		mCodePanel;
 	LLScrollListCtrl* mErrorList;
@@ -237,11 +244,7 @@ private:
 	virtual void loadAsset();
 	void loadAsset(BOOL is_new);
 	/*virtual*/ void saveIfNeeded(bool sync = true);
-	void uploadAssetViaCaps(const std::string& url,
-							const std::string& filename, 
-							const LLUUID& task_id,
-							const LLUUID& item_id,
-							BOOL is_running);
+	void uploadAssetViaCaps(const std::string& url, const std::string& filename, const LLUUID& task_id, const LLUUID& item_id, BOOL is_running, const LLUUID& experience_public_id);
 	void uploadAssetLegacy(const std::string& filename,
 						   LLViewerObject* object,
 						   const LLTransactionID& tid,
