@@ -35,6 +35,7 @@
 #include "llsdutil.h"
 #include "llconversationmodel.h"
 #include "llimview.h" //For LLIMModel
+#include "lltrans.h"
 
 //
 // Conversation items : common behaviors
@@ -461,6 +462,7 @@ LLConversationItemParticipant::LLConversationItemParticipant(std::string display
 	LLConversationItem(display_name,uuid,root_view_model),
 	mIsMuted(false),
 	mIsModerator(false),
+	mDisplayModeratorLabel(false),
 	mDistToAgent(-1.0)
 {
 	mDisplayName = display_name;
@@ -471,6 +473,7 @@ LLConversationItemParticipant::LLConversationItemParticipant(const LLUUID& uuid,
 	LLConversationItem(uuid,root_view_model),
 	mIsMuted(false),
 	mIsModerator(false),
+	mDisplayModeratorLabel(false),
 	mDistToAgent(-1.0)
 {
 	mConvType = CONV_PARTICIPANT;
@@ -503,6 +506,12 @@ void LLConversationItemParticipant::updateName(const LLAvatarName& av_name)
 {
 	mName = av_name.getUserName();
 	mDisplayName = av_name.getDisplayName();
+	
+	if (mDisplayModeratorLabel)
+	{
+		mDisplayName += " " + LLTrans::getString("IM_moderator_label");
+	}
+	
 	renameItem(mDisplayName);
 	if (mParent != NULL)
 	{
@@ -539,6 +548,15 @@ LLConversationItemSession* LLConversationItemParticipant::getParentSession()
 void LLConversationItemParticipant::dumpDebugData()
 {
 	llinfos << "Merov debug : participant, uuid = " << mUUID << ", name = " << mName << ", display name = " << mDisplayName << ", muted = " << mIsMuted << ", moderator = " << mIsModerator << llendl;
+}
+
+void LLConversationItemParticipant::setDisplayModeratorRole(bool displayRole)
+{ 
+	if (displayRole != mDisplayModeratorLabel)
+	{
+		mDisplayModeratorLabel = displayRole;
+		updateName();
+	}
 }
 
 //

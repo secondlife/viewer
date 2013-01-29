@@ -247,6 +247,7 @@ LLTextEditor::Params::Params()
 
 LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
 	LLTextBase(p),
+	mAutoreplaceCallback(),
 	mBaseDocIsPristine(TRUE),
 	mPristineCmd( NULL ),
 	mLastCmd( NULL ),
@@ -1097,7 +1098,25 @@ void LLTextEditor::addChar(llwchar wc)
 	}
 
 	setCursorPos(mCursorPos + addChar( mCursorPos, wc ));
+
+	if (!mReadOnly && mAutoreplaceCallback != NULL)
+	{
+		// autoreplace the text, if necessary
+		S32 replacement_start;
+		S32 replacement_length;
+		LLWString replacement_string;
+		S32 new_cursor_pos = mCursorPos;
+		mAutoreplaceCallback(replacement_start, replacement_length, replacement_string, new_cursor_pos, getWText());
+
+		if (replacement_length > 0 || !replacement_string.empty())
+		{
+			remove(replacement_start, replacement_length, true);
+			insert(replacement_start, replacement_string, false, LLTextSegmentPtr());
+			setCursorPos(new_cursor_pos);
+		}
+	}
 }
+
 void LLTextEditor::addLineBreakChar()
 {
 	if( !getEnabled() )

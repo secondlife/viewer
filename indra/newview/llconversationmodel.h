@@ -205,13 +205,15 @@ public:
 
 	void dumpDebugData();
 	void setModeratorOptionsVisible(bool visible) { mDisplayModeratorOptions = visible; }
+	void setDisplayModeratorRole(bool displayRole);
 
 private:
 	void onAvatarNameCache(const LLAvatarName& av_name);	// callback used by fetchAvatarName
 	void updateName(const LLAvatarName& av_name);
 
-	bool mIsMuted;		// default is false
-	bool mIsModerator;	// default is false
+	bool mIsMuted;		         // default is false
+	bool mIsModerator;	         // default is false
+	bool mDisplayModeratorLabel; // default is false
 	std::string mDisplayName;
 	F64  mDistToAgent;  // Distance to the agent. A negative (meaningless) value means the distance has not been set.
 	boost::signals2::connection mAvatarNameCacheConnection;

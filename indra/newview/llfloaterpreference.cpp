@@ -306,7 +306,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mAvatarDataInitialized(false),
 	mClickActionDirty(false)
 {
-	
+	LLConversationLog::instance().addObserver(this);
+
 	//Build Floater is now Called from 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);
 	
 	static bool registered_dialog = false;
@@ -329,8 +330,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.VoiceSetKey",			boost::bind(&LLFloaterPreference::onClickSetKey, this));
 	mCommitCallbackRegistrar.add("Pref.VoiceSetMiddleMouse",	boost::bind(&LLFloaterPreference::onClickSetMiddleMouse, this));
 	mCommitCallbackRegistrar.add("Pref.SetSounds",				boost::bind(&LLFloaterPreference::onClickSetSounds, this));
-//	mCommitCallbackRegistrar.add("Pref.ClickSkipDialogs",		boost::bind(&LLFloaterPreference::onClickSkipDialogs, this));
-//	mCommitCallbackRegistrar.add("Pref.ClickResetDialogs",		boost::bind(&LLFloaterPreference::onClickResetDialogs, this));
 	mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",		boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
 	mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",		boost::bind(&LLFloaterPreference::onClickDisablePopup, this));	
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
@@ -351,13 +350,16 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 
 	sSkin = gSavedSettings.getString("SkinCurrent");
 
-	mCommitCallbackRegistrar.add("Pref.ClickActionChange",				boost::bind(&LLFloaterPreference::onClickActionChange, this));
+	mCommitCallbackRegistrar.add("Pref.ClickActionChange",		boost::bind(&LLFloaterPreference::onClickActionChange, this));
 
 	gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(boost::bind(&handleDisplayNamesOptionChanged,  _2));
 	
 	LLAvatarPropertiesProcessor::getInstance()->addObserver( gAgent.getID(), this );
+
+	mCommitCallbackRegistrar.add("Pref.ClearLog",				boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));
+	mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      boost::bind(&LLFloaterPreference::onDeleteTranscripts, this));
 }
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
@@ -425,7 +427,7 @@ void LLFloaterPreference::saveAvatarProperties( void )
 
 BOOL LLFloaterPreference::postBuild()
 {
-	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate));
+	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate, false));
 
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLViewerChat::signalChatFontChanged));
 
@@ -455,7 +457,22 @@ BOOL LLFloaterPreference::postBuild()
 		gSavedPerAccountSettings.setString("DoNotDisturbModeResponse", LLTrans::getString("DoNotDisturbModeResponseDefault"));
 	}
 
+	// set 'enable' property for 'Clear log...' button
+	changed();
+
+	// set 'enable' property for 'Delete transcripts...' button
+	updateDeleteTranscriptsButton();
+
+	LLLogChat::setSaveHistorySignal(boost::bind(&LLFloaterPreference::onLogChatHistorySaved, this));
+
 	return TRUE;
+}
+
+void LLFloaterPreference::updateDeleteTranscriptsButton()
+{
+	std::vector<std::string> list_of_transcriptions_file_names;
+	LLLogChat::getListOfTranscriptFiles(list_of_transcriptions_file_names);
+	getChild<LLButton>("delete_transcripts")->setEnabled(list_of_transcriptions_file_names.size() > 0);
 }
 
 void LLFloaterPreference::onDoNotDisturbResponseChanged()
@@ -476,6 +493,8 @@ LLFloaterPreference::~LLFloaterPreference()
 	{
 		ctrl_window_size->setCurrentByIndex(i);
 	}
+
+	LLConversationLog::instance().removeObserver(this);
 }
 
 void LLFloaterPreference::draw()
@@ -833,12 +852,12 @@ void LLFloaterPreference::onBtnCancel()
 }
 
 // static 
-void LLFloaterPreference::updateUserInfo(const std::string& visibility, bool im_via_email, const std::string& email)
+void LLFloaterPreference::updateUserInfo(const std::string& visibility, bool im_via_email)
 {
 	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
 	if (instance)
 	{
-		instance->setPersonalInfo(visibility, im_via_email, email);	
+		instance->setPersonalInfo(visibility, im_via_email);	
 	}
 }
 
@@ -1425,10 +1444,21 @@ void LLFloaterPreference::onClickLogPath()
 		return; //Canceled!
 	}
 
-	gSavedPerAccountSettings.setString("InstantMessageLogPath", picker.getDirName());
+	std::string dir_name = picker.getDirName();
+	gSavedPerAccountSettings.setString("InstantMessageLogPath", dir_name);
+	
+	gDirUtilp->setChatLogsDir(dir_name);
+	gDirUtilp->updatePerAccountChatLogsDir();
+	LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
+
+	// refresh IM floaters with new logs from files from new selected directory
+	LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
+
+	// enable/disable 'Delete transcripts button
+	updateDeleteTranscriptsButton();
 }
 
-void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string& email)
+void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im_via_email)
 {
 	mGotPersonalInfo = true;
 	mOriginalIMViaEmail = im_via_email;
@@ -1450,32 +1480,14 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	}
 	
 	getChild<LLUICtrl>("online_searchresults")->setEnabled(TRUE);
-
-	getChildView("include_im_in_chat_history")->setEnabled(TRUE);
-	getChildView("show_timestamps_check_im")->setEnabled(TRUE);
 	getChildView("friends_online_notify_checkbox")->setEnabled(TRUE);
-	
 	getChild<LLUICtrl>("online_visibility")->setValue(mOriginalHideOnlineStatus); 	 
 	getChild<LLUICtrl>("online_visibility")->setLabelArg("[DIR_VIS]", mDirectoryVisibility);
 	getChildView("send_im_to_email")->setEnabled(TRUE);
 	getChild<LLUICtrl>("send_im_to_email")->setValue(im_via_email);
-	getChildView("log_instant_messages")->setEnabled(TRUE);
-//	getChildView("log_chat")->setEnabled(TRUE);
-//	getChildView("log_instant_messages_timestamp")->setEnabled(TRUE);
-//	getChildView("log_chat_timestamp")->setEnabled(TRUE);
-	getChildView("log_chat_IM")->setEnabled(TRUE);
-	getChildView("log_date_timestamp")->setEnabled(TRUE);
-	
 	getChildView("favorites_on_login_check")->setEnabled(TRUE);
-	getChildView("log_nearby_chat")->setEnabled(TRUE);
-	getChildView("log_instant_messages")->setEnabled(TRUE);
-	getChildView("show_timestamps_check_im")->setEnabled(TRUE);
 	getChildView("log_path_string")->setEnabled(FALSE);// LineEditor becomes readonly in this case.
 	getChildView("log_path_button")->setEnabled(TRUE);
-	childEnable("logfile_name_datestamp");	
-	std::string display_email(email);
-	getChild<LLUICtrl>("email_address")->setValue(display_email);
-
 }
 
 void LLFloaterPreference::onUpdateSliderText(LLUICtrl* ctrl, const LLSD& name)
@@ -1566,6 +1578,35 @@ void LLFloaterPreference::onClickActionChange()
 	mClickActionDirty = true;
 }
 
+void LLFloaterPreference::onDeleteTranscripts()
+{
+	LLNotificationsUtil::add("PreferenceChatDeleteTranscripts", LLSD(), LLSD(), boost::bind(&LLFloaterPreference::onDeleteTranscriptsResponse, this, _1, _2));
+}
+
+void LLFloaterPreference::onDeleteTranscriptsResponse(const LLSD& notification, const LLSD& response)
+{
+	if (0 == LLNotificationsUtil::getSelectedOption(notification, response))
+	{
+		gDirUtilp->deleteFilesInDir(gDirUtilp->getPerAccountChatLogsDir(), "*." + LL_TRANSCRIPT_FILE_EXTENSION);
+
+		std::vector<std::string> list_of_transcriptions_file_names;
+		LLLogChat::getListOfTranscriptFiles(list_of_transcriptions_file_names);
+		getChild<LLButton>("delete_transcripts")->setEnabled(list_of_transcriptions_file_names.size() > 0);
+
+		LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
+	}
+}
+
+void LLFloaterPreference::onLogChatHistorySaved()
+{
+	LLButton * delete_transcripts_buttonp = getChild<LLButton>("delete_transcripts");
+
+	if (!delete_transcripts_buttonp->getEnabled())
+	{
+		delete_transcripts_buttonp->setEnabled(true);
+	}
+}
+
 void LLFloaterPreference::updateClickActionSettings()
 {
 	const int single_clk_action = getChild<LLComboBox>("single_click_action_combo")->getValue().asInteger();
@@ -1622,6 +1663,11 @@ void LLFloaterPreference::selectPrivacyPanel()
 void LLFloaterPreference::selectChatPanel()
 {
 	selectPanel("chat");
+}
+
+void LLFloaterPreference::changed()
+{
+	getChild<LLButton>("clear_log")->setEnabled(LLConversationLog::instance().getConversations().size() > 0);
 }
 
 //------------------------------Updater---------------------------------------
@@ -1717,11 +1763,6 @@ BOOL LLPanelPreference::postBuild()
 
 	}
 
-	if (hasChild("online_visibility") && hasChild("send_im_to_email"))
-	{
-		getChild<LLUICtrl>("email_address")->setValue(getString("log_in_to_change") );
-	}
-	
 	//////////////////////PanelPrivacy ///////////////////
 	if (hasChild("media_enabled"))
 	{
@@ -1898,7 +1939,7 @@ public:
 			for (control_values_map_t::iterator it = mSavedValues.begin(); it != mSavedValues.end(); )
 			{
 				const std::string setting = it->first->getName();
-				if (std::find(mAccountIndependentSettings.begin(),
+				if (find(mAccountIndependentSettings.begin(),
 					mAccountIndependentSettings.end(), setting) == mAccountIndependentSettings.end())
 				{
 					mSavedValues.erase(it++);
@@ -2187,4 +2228,4 @@ void LLFloaterPreferenceProxy::onChangeSocksSettings()
 		otherHttpProxy->selectFirstItem();
 	}
 
-};
+}
