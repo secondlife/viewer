@@ -4110,8 +4110,8 @@ S32 LLViewerObject::setTENormalMapCore(const U8 te, const LLUUID& uuid, LLHost h
 {
 	LL_INFOS("Materials") << "Maybe normal maps! " << uuid << LL_ENDL;
 	S32 retval = 0;
-	if (uuid != getTE(te)->getMaterialParams()->getNormalID() ||
-		uuid == LLUUID::null)
+	//if (uuid != getTE(te)->getMaterialParams()->getNormalID() ||
+		//uuid == LLUUID::null)
 	{
 		LL_INFOS("Materials") << "Normal maps! " << uuid << LL_ENDL;
 		retval = TEM_CHANGE_TEXTURE;
@@ -4380,6 +4380,7 @@ S32 LLViewerObject::setTEMaterialParams(const U8 te, const LLMaterialPtr pMateri
 	else if (pMaterialParams != tep->getMaterialParams())
 	{
 		retval = LLPrimitive::setTEMaterialParams(te, pMaterialParams);
+		setTENormalMap(te, tep->getMaterialParams()->getNormalID());
 		setChanged(TEXTURE);
 		if (mDrawable.notNull() && retval)
 		{

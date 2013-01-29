@@ -677,6 +677,7 @@ BOOL LLDrawPoolBump::bindBumpMap(U8 bump_code, LLViewerTexture* texture, F32 vsi
 		break;
 	case BE_CUSTOM:
 		bump = tex;
+		bump->addTextureStats(vsize);
 		break;
 	default:
 		if( bump_code < LLStandardBumpmap::sStandardBumpmapCount )
