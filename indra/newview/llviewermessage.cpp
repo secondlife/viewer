@@ -6943,7 +6943,7 @@ void process_user_info_reply(LLMessageSystem* msg, void**)
 	std::string dir_visibility;
 	msg->getString( "UserData", "DirectoryVisibility", dir_visibility);
 
-	LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email, email);
+	LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email);
 	LLFloaterSnapshot::setAgentEmail(email);
 }
 

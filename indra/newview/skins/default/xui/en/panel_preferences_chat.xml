@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
     border="true"
-    follows="left|top|right|bottom"
+    has_border="true"
     height="408"
     label="Text Chat"
     layout="topleft"
@@ -12,8 +12,7 @@
 
   <panel
       border="false"
-      follows="left|top"
-      height="90"
+      height="60"
       layout="topleft"
       top="10"
       left="13"
@@ -27,7 +26,9 @@
         layout="topleft"
         top="0"
         name="play_typing_animation"
-        width="330" />
+        width="330">
+    </check_box>
+
     <check_box
         enabled="false"
         height="16"
@@ -35,26 +36,21 @@
         layout="topleft"
         name="send_im_to_email"
         top_pad="6"
-        width="330" />
+        width="330">
+    </check_box>
+
     <check_box
-        control_name="KeepConversationLogTranscripts"
+        control_name="VoiceCallsFriendsOnly"
         height="16"
-        label="Keep a conversation log and transcripts"
+        label="Only friends and groups can call or IM me"
         layout="topleft"
-        name="keep_convo_log_and_transcripts"
+        name="voice_call_friends_only_check"
         top_pad="6"
-        width="330" />
-    <check_box
-        control_name="UseChatBubbles"
-        follows="left|top"
-        height="16"
-        label="Bubble Chat"
-        layout="topleft"
-        top_pad="6"
-        name="bubble_text_chat"
-        width="330" />
+        width="350">
+      <check_box.label_text text_color="White" />
+    </check_box>
+
     <text
-        follows="left|top"
         layout="topleft"
         left="345"
         height="12"
@@ -63,67 +59,65 @@
         top="0">
       Font size:
     </text>
-    <radio_group
-        height="90"
-        layout="topleft"
-        left="352"
+
+    <combo_box
         control_name="ChatFontSize"
+        height="23"
+        layout="topleft"
+        left="341"
         name="chat_font_size"
-        top_pad="0"
-        width="50">
-      <radio_item
-          height="16"
+        top_pad="5"
+        width="100">
+      <item
           label="Small"
-          layout="topleft"
-          name="radio"
-          value="0"
-          top="10"
-          width="125" />
-      <radio_item
-          height="16"
+          name="Small"
+          value="0"/>
+      <item
           label="Medium"
-          layout="topleft"
-          name="radio2"
-          value="1"
-          top_pad="6"
-          width="125" />
-      <radio_item
-          height="16"
+          name="Medium"
+          value="1"/>
+      <item
           label="Large"
-          layout="topleft"
-          name="radio3"
-          value="2"
-          top_pad="6"
-          width="125" />
-    </radio_group>    
-    
-  </panel>  
+          name="Large"
+          value="2"/>
+      <combo_box.drop_down_button label_color="White" />
+    </combo_box>
+
+    <check_box
+        control_name="UseChatBubbles"
+        height="16"
+        label="Bubble Chat"
+        layout="topleft"
+        top_pad="4"
+        name="bubble_text_chat"
+        width="330">
+    </check_box>
+      
+  </panel>
 
   <panel
       border="false"
-      follows="left|top"
-      height="198"
+      height="165"
       layout="topleft"
       left="13"
       width="517">
 
     <text
-        follows="left|top"
         layout="topleft"
         height="12"
         name="notifications"
         left="0"
+        text_color="White"
         width="120">
-      Notifications:
+      Notifications
     </text>
     <text
-        follows="left|top"
         layout="topleft"
         height="12"
         name="friend_ims"
         width="145"
         left="0"
-        top_pad="15">
+        top_pad="13">
       Friend IMs:
     </text>
     <combo_box
@@ -134,31 +128,30 @@
         top_delta="-6"
         name="FriendIMOptions"
         width="223">
-      <combo_box.item
+      <item
           label="Open Conversations window"
           name="OpenConversationsWindow"
           value="openconversations"/>      
-      <combo_box.item
+      <item
           label="Pop up the message"
           name="PopUpMessage"
           value="toast"/>
-      <combo_box.item
+      <item
           label="Flash toolbar button"
           name="FlashToolbarButton"
           value="flash"/>
-      <combo_box.item
+      <item
           label="None"
           name="None"
           value="none"/>
     </combo_box>
     <text
-        follows="left|top"
         layout="topleft"
         height="12"
         name="non_friend_ims"
         width="145"
         left="0"
-        top_pad="15">
+        top_pad="9">
       Non-friend IMs:
     </text>
     <combo_box
@@ -169,31 +162,30 @@
         top_delta="-6"
         name="NonFriendIMOptions"
         width="223">
-      <combo_box.item
+      <item
           label="Open Conversations window"
           name="OpenConversationsWindow"
           value="openconversations"/>
-      <combo_box.item
+      <item
           label="Pop up the message"
           name="PopUpMessage"
           value="toast"/>
-      <combo_box.item
+      <item
           label="Flash toolbar button"
           name="FlashToolbarButton"
           value="flash"/>
-      <combo_box.item
+      <item
           label="None"
           name="None"
           value="none"/>
     </combo_box>
     <text
-        follows="left|top"
         layout="topleft"
         left="0"
         height="13"
         name="conference_ims"
         width="145"
-        top_pad="14">
+        top_pad="9">
       Conference IMs:
     </text>
     <combo_box
@@ -204,31 +196,30 @@
         top_delta="-6"
         name="ConferenceIMOptions"
         width="223">
-      <combo_box.item
+      <item
           label="Open Conversations window"
           name="OpenConversationsWindow"
           value="openconversations"/>
-      <combo_box.item
+      <item
           label="Pop up the message"
           name="PopUpMessage"
           value="toast"/>
-      <combo_box.item
+      <item
           label="Flash toolbar button"
           name="FlashToolbarButton"
           value="flash"/>
-      <combo_box.item
+      <item
           label="None"
           name="None"
           value="none"/>
     </combo_box>
     <text
-        follows="left|top"
         layout="topleft"
         left="0"
         height="13"
         name="group_chat"
         width="145"
-        top_pad="14">
+        top_pad="9">
       Group chat:
     </text>
     <combo_box
@@ -239,31 +230,30 @@
         top_delta="-6"
         name="GroupChatOptions"
         width="223">
-      <combo_box.item
+      <item
           label="Open Conversations window"
           name="OpenConversationsWindow"
           value="openconversations"/>
-      <combo_box.item
+      <item
           label="Pop up the message"
           name="PopUpMessage"
           value="toast"/>
-      <combo_box.item
+      <item
           label="Flash toolbar button"
           name="FlashToolbarButton"
           value="flash"/>
-      <combo_box.item
+      <item
           label="None"
           name="None"
           value="none"/>
     </combo_box>
     <text
-        follows="left|top"
         layout="topleft"
         left="0"
         height="12"
         name="nearby_chat"
         width="145"
-        top_pad="14">
+        top_pad="9">
       Nearby chat:
     </text>
     <combo_box
@@ -274,31 +264,30 @@
         top_delta="-6"
         name="NearbyChatOptions"
         width="223">
-      <combo_box.item
+      <item
           label="Open Conversations window"
           name="OpenConversationsWindow"
           value="openconversations"/>
-      <combo_box.item
+      <item
           label="Pop up the message"
           name="PopUpMessage"
           value="toast"/>
-      <combo_box.item
+      <item
           label="Flash toolbar button"
           name="FlashToolBarButton"
           value="flash"/>
-      <combo_box.item
+      <item
           label="None"
           name="None"
           value="none"/>
     </combo_box>
     <text
-        follows="left|top"
         layout="topleft"
         left="0"
         height="13"
         name="notifications_alert"
         width="500"
-        top_pad="11"
+        top_pad="9"
         visible="true"
         text_color="DrYellow">
       To temporarily stop all notifications, use Communicate &gt; Do Not Disturb.
@@ -308,14 +297,13 @@
 
   <panel
       border="false"
-      follows="left|top"
-      height="67"
+      height="50"
       layout="topleft"
       left="13"
+      top_pad="10"
       width="517">
 
     <text
-        follows="left|top"
         layout="topleft"
         left="0"
         name="play_sound"
@@ -360,9 +348,123 @@
         width="150" />
 
   </panel>
+
+  <view_border
+      bevel_style="none"
+      height="0"
+      layout="topleft"
+      left="13"
+      name="cost_text_border"
+      top_pad="5"
+      width="495"/>
+
+  <panel
+      height="50"
+      layout="topleft"
+      left="13"
+      top_pad="10"
+      width="505">
+
+    <text
+        layout="topleft"
+        left="0"
+        text_color="White"
+        height="12"
+        top="5"
+        width="55">
+        Save:
+    </text>
+
+    <combo_box
+        control_name="KeepConversationLogTranscripts"
+        height="23"
+        layout="topleft"
+        left_pad="5"
+        name="chat_font_size"
+        top="0"
+        width="165">
+        <item
+            label="Log and transcripts"
+            value="2"/>
+        <item
+            label="Log only"
+            value="1"/>
+        <item
+            label="No log or transcripts"
+            value="0"/>
+        <drop_down_button label_color="White" />
+    </combo_box>
+
+    <button
+        enabled="false"
+        height="23"
+        label="Clear log..."
+        label_color="White"
+        layout="topleft"
+        left_pad="5"
+        top="0"
+        name="clear_log"
+        width="110">
+        <commit_callback
+            function="Pref.ClearLog" />
+    </button>
+  
+    <button
+        enabled="false"
+        height="23"
+        label="Delete transcripts..."
+        label_color="White"
+        layout="topleft"
+        left_pad="5"
+        top="0"
+        name="delete_transcripts"
+        width="147">
+        <button.commit_callback
+            function="Pref.DeleteTranscripts" />
+    </button>
+  
+    <text
+        layout="topleft"
+        left="0"
+        text_color="White"
+        height="12"
+        top_pad="15"
+        width="55">
+        Location:
+    </text>
+  
+    <line_editor
+        control_name="InstantMessageLogPath"
+        border_style="line"
+        border_thickness="1"
+        font="SansSerif"
+        height="23"
+        layout="topleft"
+        left_pad="55"
+        max_length="4096"
+        name="log_path_string"
+        top_delta="-5"
+        width="185">
+    </line_editor>
+  
+    <button
+        enabled="false"
+        follows="left|top"
+        height="23"
+        label="Browse..."
+        label_color="White"
+        label_selected="Browse"
+        layout="topleft"
+        left_pad="5"
+        name="log_path_button"
+        top_delta="0"
+        width="112">
+      <commit_callback function="Pref.LogPath" />
+    </button>
+
+  </panel>
   
   <button
-      follows="left|top"
       height="23"
       label="Translation..."
       layout="topleft"
@@ -370,11 +472,10 @@
       name="ok_btn"
       top="-29"
       width="170">
-    <button.commit_callback
+    <commit_callback
         function="Pref.TranslationSettings" />
   </button>
   <button
-      follows="top|left"
       height="23"
       layout="topleft"
       top_pad="-23"
@@ -385,7 +486,6 @@
       width="150">
   </button>
   <button
-      follows="top|left"
       height="23"
       layout="topleft"
       top_pad="-23"

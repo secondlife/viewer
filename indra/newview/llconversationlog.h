@@ -31,7 +31,7 @@
 #include "llimview.h"
 
 class LLConversationLogObserver;
-struct Conversation_params;
+struct ConversationParams;
 
 typedef LLIMModel::LLIMSession::SType SessionType;
 
@@ -43,7 +43,7 @@ class LLConversation
 {
 public:
 
-	LLConversation(const Conversation_params& params);
+	LLConversation(const ConversationParams& params);
 	LLConversation(const LLIMModel::LLIMSession& session);
 	LLConversation(const LLConversation& conversation);
 
@@ -138,6 +138,9 @@ public:
 	 */
 	void cache();
 
+	void onClearLog();
+	void onClearLogResponse(const LLSD& notification, const LLSD& response);
+
 private:
 
 	LLConversationLog();
@@ -149,7 +152,7 @@ private:
 		}
 	}
 	
-	void enableLogging(bool enable);
+	void enableLogging(S32 log_mode);
 
 	/**
 	 * adds conversation to the conversation list and notifies observers
@@ -182,7 +185,7 @@ private:
 
 	LLFriendObserver* mFriendObserver;		// Observer of the LLAvatarTracker instance
 
-	boost::signals2::connection newMessageSignalConnection;
+	boost::signals2::connection mNewMessageSignalConnection;
 	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
