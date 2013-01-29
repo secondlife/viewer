@@ -71,7 +71,7 @@ VolumeCatcherImpl::VolumeCatcherImpl()
 {
 	mSystemIsVistaOrHigher = isWindowsVistaOrHigher();
 
-	if ( mSystemIsVistaOrHigher )
+	if ( ! mSystemIsVistaOrHigher )
 	{
 		HMODULE handle = ::LoadLibrary(L"winmm.dll");
 		if(handle)
@@ -90,7 +90,7 @@ void VolumeCatcherImpl::setVolume(F32 volume)
 {
 	mVolume = volume;
 
-	if ( ! mSystemIsVistaOrHigher )
+	if ( mSystemIsVistaOrHigher )
 	{
 		// set both left/right to same volume
 		// TODO: use pan value to set independently
