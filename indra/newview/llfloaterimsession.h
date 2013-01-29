@@ -86,7 +86,7 @@ public:
 
 	// get new messages from LLIMModel
 	/*virtual*/ void updateMessages();
-	void reloadMessages();
+	void reloadMessages(bool clean_messages = false);
 	static void onSendMsg(LLUICtrl*, void*);
 	void sendMsgFromInputEditor();
 	void sendMsg(const std::string& msg);

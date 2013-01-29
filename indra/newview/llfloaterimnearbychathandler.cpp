@@ -604,6 +604,14 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 			toast_msg = chat_msg.mText;
 		}
 
+		//Don't show nearby toast, if conversation is visible but not focused
+		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(LLUUID());
+		if (session_floater
+		    && session_floater->isInVisibleChain() && !session_floater->isMinimized()
+		    && !(session_floater->getHost() && session_floater->getHost()->isMinimized()))
+		{
+			return;
+		}
 
         //Will show toast when chat preference is set        
         if(gSavedSettings.getString("NotificationNearbyChatOptions") == "toast")

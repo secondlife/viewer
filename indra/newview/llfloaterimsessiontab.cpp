@@ -497,6 +497,28 @@ void LLFloaterIMSessionTab::refreshConversation()
 		}
 		updateSessionName(session_name);
 	}
+
+	LLParticipantList* participant_list = getParticipantList();
+	if (participant_list)
+	{
+		LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = participant_list->getChildrenBegin();
+		LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = participant_list->getChildrenEnd();
+		LLIMSpeakerMgr *speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
+		while (current_participant_model != end_participant_model)
+		{
+			LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
+			if (speaker_mgr && participant_model)
+			{
+				LLSpeaker *participant_speaker = speaker_mgr->findSpeaker(participant_model->getUUID());
+				LLSpeaker *agent_speaker = speaker_mgr->findSpeaker(gAgentID);
+				if (participant_speaker && agent_speaker)
+				{
+					participant_model->setDisplayModeratorRole(agent_speaker->mIsModerator && participant_speaker->mIsModerator);
+				}
+			}
+			current_participant_model++;
+		}
+	}
 	
 	mConversationViewModel.requestSortAll();
 	if(mConversationsRoot != NULL)
@@ -680,7 +702,7 @@ void LLFloaterIMSessionTab::showTranslationCheckbox(BOOL show)
 }
 
 // static
-void LLFloaterIMSessionTab::processChatHistoryStyleUpdate()
+void LLFloaterIMSessionTab::processChatHistoryStyleUpdate(bool clean_messages/* = false*/)
 {
 	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
 	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
@@ -689,14 +711,14 @@ void LLFloaterIMSessionTab::processChatHistoryStyleUpdate()
 		LLFloaterIMSession* floater = dynamic_cast<LLFloaterIMSession*>(*iter);
 		if (floater)
 		{
-			floater->reloadMessages();
+			floater->reloadMessages(clean_messages);
 		}
 	}
 
 	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 	if (nearby_chat)
 	{
-             nearby_chat->reloadMessages();
+             nearby_chat->reloadMessages(clean_messages);
 	}
 }
 
