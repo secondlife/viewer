@@ -90,7 +90,7 @@ void VolumeCatcherImpl::setVolume(F32 volume)
 {
 	mVolume = volume;
 
-	if ( mSystemIsVistaOrHigher )
+	if ( ! mSystemIsVistaOrHigher )
 	{
 		// set both left/right to same volume
 		// TODO: use pan value to set independently
