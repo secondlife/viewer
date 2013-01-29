@@ -221,8 +221,6 @@
 #include "llmachineid.h"
 #include "llmainlooprepeater.h"
 
-#include <queue>
-
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
 // this app, or another 'component' of the viewer. App globals should be 
@@ -458,11 +456,11 @@ void idle_afk_check()
 }
 
 // A callback set in LLAppViewer::init()
-void ui_audio_callback(const LLUUID& uuid)
+static void ui_audio_callback(const LLUUID& uuid)
 {
 	if (gAudiop)
 	{
-		gAudiop->triggerSound(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI);
+		gAudiop->triggerSound(SoundData(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI));
 	}
 }
 
@@ -471,7 +469,7 @@ static void deferred_ui_audio_callback(const LLUUID& uuid)
 {
 	if (gAudiop)
 	{
-		LLDeferredSounds::instance().deferSound(uuid);
+		LLDeferredSounds::instance().deferSound(SoundData(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI));
 	}
 }
 

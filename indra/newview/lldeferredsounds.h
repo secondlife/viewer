@@ -29,13 +29,15 @@
 
 #include "llsingleton.h"
 
+struct SoundData;
+
 class LLDeferredSounds : public LLSingleton<LLDeferredSounds>
 {
 private:
-	std::queue<LLUUID> soundQueue;
+	std::vector<SoundData> soundVector;
 public:
 	//Add sounds to be played once progress bar is hidden (such as after teleport or loading screen)
-	void deferSound(LLUUID sound);
+	void deferSound(SoundData& sound);
 
 	void playdeferredSounds();
 };
