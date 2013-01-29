@@ -460,7 +460,8 @@ static void ui_audio_callback(const LLUUID& uuid)
 {
 	if (gAudiop)
 	{
-		gAudiop->triggerSound(SoundData(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI));
+		SoundData soundData(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI);
+		gAudiop->triggerSound(soundData);
 	}
 }
 
@@ -469,7 +470,8 @@ static void deferred_ui_audio_callback(const LLUUID& uuid)
 {
 	if (gAudiop)
 	{
-		LLDeferredSounds::instance().deferSound(SoundData(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI));
+		SoundData soundData(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI);
+		LLDeferredSounds::instance().deferSound(soundData);
 	}
 }
 
