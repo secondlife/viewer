@@ -2542,6 +2542,13 @@ void LLIMMgr::addMessage(
 	bool link_name) // If this is true, then we insert the name and link it to a profile
 {
 	LLUUID other_participant_id = target_id;
+
+	// Agent can't create session with himself
+	if (other_participant_id == gAgentID)
+	{
+		return;
+	}
+
 	LLUUID new_session_id = session_id;
 	if (new_session_id.isNull())
 	{
