@@ -72,7 +72,7 @@ static LLGLSLShader* shader = NULL;
 static S32 cube_channel = -1;
 static S32 diffuse_channel = -1;
 static S32 bump_channel = -1;
-
+static S32 spec_channel = -1;
 // static 
 void LLStandardBumpmap::init()
 {
@@ -634,7 +634,7 @@ BOOL LLDrawPoolBump::bindBumpMap(LLDrawInfo& params, S32 channel)
 	U8 bump_code = params.mBump;
 	if (params.mNormalMap.notNull())
 	{
-		bump_code = BE_CUSTOM;
+		bump_code = 99;
 		return bindBumpMap(bump_code, params.mNormalMap, params.mVSize, channel);
 	}
 
@@ -675,7 +675,7 @@ BOOL LLDrawPoolBump::bindBumpMap(U8 bump_code, LLViewerTexture* texture, F32 vsi
 	case BE_DARKNESS:
 		bump = gBumpImageList.getBrightnessDarknessImage( tex, bump_code );		
 		break;
-	case BE_CUSTOM:
+	case 99:
 		bump = tex;
 		bump->addTextureStats(vsize);
 		break;
@@ -828,6 +828,7 @@ void LLDrawPoolBump::beginDeferredPass(S32 pass)
 	gDeferredBumpProgram.bind();
 	diffuse_channel = gDeferredBumpProgram.enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	bump_channel = gDeferredBumpProgram.enableTexture(LLViewerShaderMgr::BUMP_MAP);
+	spec_channel = gDeferredBumpProgram.enableTexture(LLViewerShaderMgr::SPECULAR_MAP);
 	gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(bump_channel)->unbind(LLTexUnit::TT_TEXTURE);
 }
@@ -842,6 +843,7 @@ void LLDrawPoolBump::endDeferredPass(S32 pass)
 	mShiny = FALSE;
 	gDeferredBumpProgram.disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	gDeferredBumpProgram.disableTexture(LLViewerShaderMgr::BUMP_MAP);
+	gDeferredBumpProgram.disableTexture(LLViewerShaderMgr::SPECULAR_MAP);
 	gDeferredBumpProgram.unbind();
 	gGL.getTexUnit(0)->activate();
 }
@@ -864,7 +866,16 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
 	{
 		LLDrawInfo& params = **i;
 		
-		gDeferredBumpProgram.uniform4fv(LLShaderMgr::SPECULAR_COLOR, 4, (GLfloat*)params.mSpecColor.mV);
+		gDeferredBumpProgram.uniform4f(LLShaderMgr::SPECULAR_COLOR, params.mSpecColor.mV[0], params.mSpecColor.mV[1], params.mSpecColor.mV[2], params.mSpecColor.mV[3]);
+		gDeferredBumpProgram.uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, params.mEnvIntensity);
+		
+		if (params.mSpecularMap)
+		{
+			params.mSpecularMap->addTextureStats(params.mVSize);
+			gGL.getTexUnit(spec_channel)->bind(params.mSpecularMap);
+		} else {
+			gGL.getTexUnit(spec_channel)->bind(LLViewerFetchedTexture::sWhiteImagep);
+		}
 		
 		LLDrawPoolBump::bindBumpMap(params, bump_channel);
 		pushBatch(params, mask, TRUE);

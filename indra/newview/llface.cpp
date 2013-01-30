@@ -2077,9 +2077,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			LLFastTimer t(FTM_FACE_GEOM_BINORMAL);
 			mVertexBuffer->getBinormalStrider(binorm, mGeomIndex, mGeomCount, map_range);
 			F32* binormals = (F32*) binorm.get();
-		
+			
+			mVObjp->getVolume()->genBinormals(f);
+			
 			for (S32 i = 0; i < num_vertices; i++)
-			{	
+			{
 				LLVector4a binormal;
 				mat_normal.rotate(vf.mBinormals[i], binormal);
 				binormal.normalize3fast();

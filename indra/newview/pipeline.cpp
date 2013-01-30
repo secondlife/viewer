@@ -1262,31 +1262,26 @@ void LLPipeline::createLUTBuffers()
 			U32 lightResY = gSavedSettings.getU32("RenderSpecularResY");
 			F32* ls = new F32[lightResX*lightResY];
 			//F32 specExp = gSavedSettings.getF32("RenderSpecularExponent"); // Note: only use this when creating new specular lighting functions.
-            // Calculate the (normalized) Gaussian specular lookup texture. (with a few tweaks)
+            // Calculate the (normalized) blinn-phong specular lookup texture. (with a few tweaks)
 			for (U32 y = 0; y < lightResY; ++y)
 			{
 				for (U32 x = 0; x < lightResX; ++x)
 				{
 					ls[y*lightResX+x] = 0;
 					F32 sa = (F32) x/(lightResX-1);
-					F32 spec = (F32) y/(lightResY);
-					F32 n = spec;
+					F32 spec = (F32) y/(lightResY-1);
+					F32 n = spec * spec * 368;
 					
-					float angleNormalHalf = acosf(sa);
-					float exponent = angleNormalHalf / ((1 - n));
-					exponent = -(exponent * exponent);
-					spec = expf(exponent);
+					// Nothing special here.  Just your typical blinn-phong term.
+					spec = powf(sa, n);
 					
 					// Apply our normalization function.
-					// This is based around the phong normalization function, trading n+2 for n+1 instead.
-					// Since we're using a gaussian model here, we actually don't really need as large of an exponent as blinn-phong shading.
-					// Instead, we assume that the correct exponent is 8 here.
-					// This was achieved through much tweaking to find a decent "middleground" with our specular highlights with the gaussian term.
-					// Bigger highlights don't look too soft, smaller highlights don't look too bright, and everything in the middle seems to have a well maintained highlight curvature.
-					// There isn't really much theory behind this one.  This was done purely to produce a nice and mostly customizable BRDF.
+					// Note: This is the full equation that applies the full normalization curve, not an approximation.
+					// This is fine, given we only need to create our LUT once per buffer initialization.
+					spec *= (((n + 2) * (n + 4)) / (8 * F_PI * (powf(2, -n/2) + n)));
 					
-					spec = lerpf(spec, spec * (n * 8 + 1) / 4.5, n);
-					
+					// Since we use R16F, we no longer have a dynamic range issue we need to work around here.
+					// Though some older drivers may not like this, newer drivers shouldn't have this problem.
 					ls[y*lightResX+x] = spec;
 				}
 			}

@@ -4108,12 +4108,10 @@ S32 LLViewerObject::setTETextureCore(const U8 te, const LLUUID& uuid, LLHost hos
 
 S32 LLViewerObject::setTENormalMapCore(const U8 te, const LLUUID& uuid, LLHost host)
 {
-	LL_INFOS("Materials") << "Maybe normal maps! " << uuid << LL_ENDL;
 	S32 retval = 0;
 	//if (uuid != getTE(te)->getMaterialParams()->getNormalID() ||
-		//uuid == LLUUID::null)
+	//	uuid == LLUUID::null)
 	{
-		LL_INFOS("Materials") << "Normal maps! " << uuid << LL_ENDL;
 		retval = TEM_CHANGE_TEXTURE;
 		getTE(te)->getMaterialParams()->setNormalID(uuid);
 		mTENormalMaps[te] = LLViewerTextureManager::getFetchedTexture(uuid, TRUE, LLViewerTexture::BOOST_BUMP, LLViewerTexture::LOD_TEXTURE, 0, 0, host);
@@ -4128,12 +4126,10 @@ S32 LLViewerObject::setTENormalMapCore(const U8 te, const LLUUID& uuid, LLHost h
 
 S32 LLViewerObject::setTESpecularMapCore(const U8 te, const LLUUID& uuid, LLHost host)
 {
-	LL_INFOS("Materials") << "Maybe specular maps! " << uuid << LL_ENDL;
 	S32 retval = 0;
-	if (uuid != getTE(te)->getMaterialParams()->getSpecularID()	||
-		uuid == LLUUID::null)
+	//if (uuid != getTE(te)->getMaterialParams()->getSpecularID()	||
+	//	uuid == LLUUID::null)
 	{
-		LL_INFOS("Materials") << "Specular maps! " << uuid << LL_ENDL;
 		retval = TEM_CHANGE_TEXTURE;
 		getTE(te)->getMaterialParams()->setSpecularID(uuid);
 		mTESpecularMaps[te] = LLViewerTextureManager::getFetchedTexture(uuid, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host);
@@ -4381,6 +4377,7 @@ S32 LLViewerObject::setTEMaterialParams(const U8 te, const LLMaterialPtr pMateri
 	{
 		retval = LLPrimitive::setTEMaterialParams(te, pMaterialParams);
 		setTENormalMap(te, tep->getMaterialParams()->getNormalID());
+		setTESpecularMap(te, tep->getMaterialParams()->getSpecularID());
 		setChanged(TEXTURE);
 		if (mDrawable.notNull() && retval)
 		{

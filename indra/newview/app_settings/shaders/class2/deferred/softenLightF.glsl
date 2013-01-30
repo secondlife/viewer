@@ -283,8 +283,8 @@ void main()
 	vec2 tc = vary_fragcoord.xy;
 	float depth = texture2DRect(depthMap, tc.xy).r;
 	vec3 pos = getPosition_d(tc, depth).xyz;
-	vec3 norm = texture2DRect(normalMap, tc).xyz;
-	norm = (norm.xyz-0.5)*2.0; // unpack norm
+	vec4 norm = texture2DRect(normalMap, tc);
+	norm.xyz = (norm.xyz-0.5)*2.0; // unpack norm
 		
 	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
 	
@@ -324,7 +324,7 @@ void main()
 			//add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
 			col = mix(col.rgb, samplesRGB(textureCube(environmentMap, env_vec).rgb) * 2.2, 
-				max(spec.a-diffuse.a*2.0, 0.0)); 
+				max(norm.a-diffuse.a*2.0, 0.0)); 
 		}
 			
 		col = atmosLighting(col);
