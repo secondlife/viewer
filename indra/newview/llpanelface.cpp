@@ -666,7 +666,7 @@ void LLPanelFace::getState()
 			{
 				LLGLenum get(LLViewerObject* object, S32 te_index)
 				{
-					LLGLenum image_format;
+					LLGLenum image_format = GL_RGB;
 					
 					LLViewerTexture* image = object->getTEImage(te_index);
 					if (image) image_format  = image->getPrimaryFormat();
