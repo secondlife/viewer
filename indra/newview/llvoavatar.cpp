@@ -1776,29 +1776,42 @@ U32 LLVOAvatar::processUpdateMessage(LLMessageSystem *mesgsys,
 	return retval;
 }
 
-// virtual
-S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
+LLViewerFetchedTexture *LLVOAvatar::getBakedTextureImage(const U8 te, const LLUUID& uuid)
 {
-	// The core setTETexture() method requests images, so we need
-	// to redirect certain avatar texture requests to different sims.
-	if (isIndexBakedTexture((ETextureIndex)te))
+	LLViewerFetchedTexture *result;
+	
+	const std::string url = getImageURL(te,uuid);
+	if (!url.empty())
 	{
-		const std::string url = getImageURL(te,uuid);
-		if (!url.empty())
-		{
-			llinfos << "texture URL " << url << llendl;
-			return setTETextureCore(te, uuid, url);
-		}
-
-		llinfos << "get texture from host " << uuid << llendl;
-		LLHost target_host = getObjectHost();
-		return setTETextureCore(te, uuid, target_host);
+		llinfos << "texture URL " << url << llendl;
+		result = LLViewerTextureManager::getFetchedTextureFromUrl(
+			url, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, uuid);
 	}
 	else
 	{
-		llinfos << "ignoring texture in non-baked slot " << uuid << " - will use null " << LLUUID::null << llendl;
-		return setTETextureCore(te, LLUUID::null, LLHost::invalid);
+		llinfos << "get texture from host " << uuid << llendl;
+		LLHost host = getObjectHost();
+		result = LLViewerTextureManager::getFetchedTexture(
+			uuid, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host);
 	}
+	return result;
+}
+
+// virtual
+S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
+{
+	if (!isIndexBakedTexture((ETextureIndex)te))
+	{
+		if (!uuid.isNull())
+		{
+			llinfos << "ignoring texture " << uuid << " in non-baked slot " << (S32)te << " - will use null " << llendl;
+		}
+		return LLViewerObject::setTETexture(te, LLUUID::null);
+	}
+
+	LLViewerFetchedTexture *image = getBakedTextureImage(te,uuid);
+	llassert(image);
+	return setTETextureCore(te, image);
 }
 
 static LLFastTimer::DeclareTimer FTM_AVATAR_UPDATE("Avatar Update");
@@ -6070,6 +6083,8 @@ void LLVOAvatar::updateMeshTextures()
 			last_id_string = "A";
 		else if (mBakedTextureDatas[i].mLastTextureID == IMG_DEFAULT)
 			last_id_string = "D";
+		else if (mBakedTextureDatas[i].mLastTextureID == IMG_INVISIBLE)
+			last_id_string = "I";
 		else
 			last_id_string = "*";
 		bool is_ltda = layerset
@@ -6750,12 +6765,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		return;
 	}
 
-	BOOL is_first_appearance_message = !mFirstAppearanceMessageReceived;
-	mFirstAppearanceMessageReceived = TRUE;
-
-	LL_INFOS("Avatar") << avString() << "processAvatarAppearance start " << mID
-			<< " first? " << is_first_appearance_message << " self? " << isSelf() << LL_ENDL;
-
 
 	ESex old_sex = getSex();
 
@@ -6831,6 +6840,12 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	// runway - was
 	// if (!is_first_appearance_message )
 	// which means it would be called on second appearance message - probably wrong.
+	BOOL is_first_appearance_message = !mFirstAppearanceMessageReceived;
+	mFirstAppearanceMessageReceived = TRUE;
+
+	LL_INFOS("Avatar") << avString() << "processAvatarAppearance start " << mID
+			<< " first? " << is_first_appearance_message << " self? " << isSelf() << LL_ENDL;
+
 	if (is_first_appearance_message )
 	{
 		onFirstTEMessageReceived();

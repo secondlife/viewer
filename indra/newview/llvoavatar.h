@@ -147,6 +147,7 @@ public:
 	void 						collectTextureUUIDs(std::set<LLUUID>& ids);
 	void						releaseOldTextures();
 	/*virtual*/ void   	 	 	updateTextures();
+	LLViewerFetchedTexture*		getBakedTextureImage(const U8 te, const LLUUID& uuid);
 	/*virtual*/ S32    	 	 	setTETexture(const U8 te, const LLUUID& uuid); // If setting a baked texture, need to request it from a non-local sim.
 	/*virtual*/ void   	 	 	onShift(const LLVector4a& shift_vector);
 	/*virtual*/ U32    	 	 	getPartitionType() const;

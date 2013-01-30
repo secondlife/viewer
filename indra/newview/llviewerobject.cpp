@@ -4034,32 +4034,15 @@ void LLViewerObject::setTEImage(const U8 te, LLViewerTexture *imagep)
 	}
 }
 
-
-S32 LLViewerObject::setTETextureCore(const U8 te, const LLUUID& uuid, const std::string &url )
+S32 LLViewerObject::setTETextureCore(const U8 te, LLViewerTexture *image)
 {
+	const LLUUID& uuid = image->getID();
 	S32 retval = 0;
 	if (uuid != getTE(te)->getID() ||
 		uuid == LLUUID::null)
 	{
 		retval = LLPrimitive::setTETexture(te, uuid);
-		mTEImages[te] = LLViewerTextureManager::getFetchedTextureFromUrl  (url, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, uuid);
-		setChanged(TEXTURE);
-		if (mDrawable.notNull())
-		{
-			gPipeline.markTextured(mDrawable);
-		}
-	}
-	return retval;
-}
-
-S32 LLViewerObject::setTETextureCore(const U8 te, const LLUUID& uuid, LLHost host)
-{
-	S32 retval = 0;
-	if (uuid != getTE(te)->getID() ||
-		uuid == LLUUID::null)
-	{
-		retval = LLPrimitive::setTETexture(te, uuid);
-		mTEImages[te] = LLViewerTextureManager::getFetchedTexture(uuid, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host);
+		mTEImages[te] = image;
 		setChanged(TEXTURE);
 		if (mDrawable.notNull())
 		{
@@ -4082,7 +4065,9 @@ void LLViewerObject::changeTEImage(S32 index, LLViewerTexture* new_image)
 S32 LLViewerObject::setTETexture(const U8 te, const LLUUID& uuid)
 {
 	// Invalid host == get from the agent's sim
-	return setTETextureCore(te, uuid, LLHost::invalid);
+	LLViewerFetchedTexture *image = LLViewerTextureManager::getFetchedTexture(
+		uuid, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, LLHost::invalid);
+	return setTETextureCore(te,image);
 }
 
 
