@@ -3454,12 +3454,10 @@ public:
 				(time_t) message_params["timestamp"].asInteger();
 
 			BOOL is_do_not_disturb = gAgent.isDoNotDisturb();
-			BOOL is_muted = LLMuteList::getInstance()->isMuted(
-				from_id,
-				name,
-				LLMute::flagTextChat);
 
-			if (is_do_not_disturb || is_muted)
+			//don't return if user is muted b/c proper way to ignore a muted user who
+			//initiated an adhoc/group conference is to create then leave the session (see STORM-1731)
+			if (is_do_not_disturb)
 			{
 				return;
 			}

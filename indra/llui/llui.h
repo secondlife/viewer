@@ -62,6 +62,7 @@ class LLHelp;
 // UI colors
 extern const LLColor4 UI_VERTEX_COLOR;
 void make_ui_sound(const char* name);
+void make_ui_sound_deferred(const char * name);
 
 BOOL ui_point_in_rect(S32 x, S32 y, S32 left, S32 top, S32 right, S32 bottom);
 void gl_state_for_2d(S32 width, S32 height);
@@ -274,6 +275,7 @@ public:
 	static void initClass(const settings_map_t& settings,
 						  LLImageProviderInterface* image_provider,
 						  LLUIAudioCallback audio_callback = NULL,
+						  LLUIAudioCallback deferred_audio_callback = NULL,
 						  const LLVector2 *scale_factor = NULL,
 						  const std::string& language = LLStringUtil::null);
 	static void cleanupClass();
@@ -359,6 +361,7 @@ public:
 	//
 	static settings_map_t sSettingGroups;
 	static LLUIAudioCallback sAudioCallback;
+	static LLUIAudioCallback sDeferredAudioCallback;
 	static LLVector2		sGLScaleFactor;
 	static LLWindow*		sWindow;
 	static LLView*			sRootView;
