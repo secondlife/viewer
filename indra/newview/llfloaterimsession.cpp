@@ -162,7 +162,7 @@ void LLFloaterIMSession::newIMCallback(const LLSD& data)
 		LLFloaterIMSession* floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>("impanel", session_id);
 
         // update if visible, otherwise will be updated when opened
-		if (floater && (floater->getHost()? floater->hasFocus() : floater->getVisible()))
+		if (floater && floater->isInVisibleChain())
 		{
 			floater->updateMessages();
 		}
@@ -332,13 +332,7 @@ BOOL LLFloaterIMSession::postBuild()
 	BOOL result = LLFloaterIMSessionTab::postBuild();
 
 	mInputEditor->setMaxTextLength(1023);
-	// enable line history support for instant message bar
-	// XXX stinson TODO : resolve merge by adding autoreplace to text editors
-#if 0
-	// *TODO Establish LineEditor with autoreplace callback
-	mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2));
-#endif
-	
+	mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2, _3, _4, _5));
 	mInputEditor->setFocusReceivedCallback( boost::bind(onInputEditorFocusReceived, _1, this) );
 	mInputEditor->setFocusLostCallback( boost::bind(onInputEditorFocusLost, _1, this) );
 	mInputEditor->setKeystrokeCallback( boost::bind(onInputEditorKeystroke, _1, this) );
@@ -853,8 +847,18 @@ void LLFloaterIMSession::updateMessages()
 	}
 }
 
-void LLFloaterIMSession::reloadMessages()
+void LLFloaterIMSession::reloadMessages(bool clean_messages/* = false*/)
 {
+	if (clean_messages)
+	{
+		LLIMModel::LLIMSession * sessionp = LLIMModel::instance().findIMSession(mSessionID);
+
+		if (NULL != sessionp)
+		{
+			sessionp->loadHistory();
+		}
+	}
+
 	mChatHistory->clear();
 	mLastMessageIndex = -1;
 	updateMessages();

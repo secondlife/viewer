@@ -101,6 +101,8 @@ public:
 		/** ad-hoc sessions involve sophisticated chat history file naming schemes */
 		void buildHistoryFileName();
 
+		void loadHistory();
+
 		LLUUID mSessionID;
 		std::string mName;
 		EInstantMessage mType;

@@ -28,13 +28,14 @@
 #include "llagent.h"
 #include "llavatarnamecache.h"
 #include "llconversationlog.h"
+#include "llnotificationsutil.h"
 #include "lltrans.h"
 
 const int CONVERSATION_LIFETIME = 30; // lifetime of LLConversation is 30 days by spec
 
-struct Conversation_params
+struct ConversationParams
 {
-	Conversation_params(time_t time)
+	ConversationParams(time_t time)
 	:	mTime(time),
 		mTimestamp(LLConversation::createTimestamp(time))
 	{}
@@ -53,7 +54,7 @@ struct Conversation_params
 /*             LLConversation implementation                            */
 /************************************************************************/
 
-LLConversation::LLConversation(const Conversation_params& params)
+LLConversation::LLConversation(const ConversationParams& params)
 :	mTime(params.mTime),
 	mTimestamp(params.mTimestamp),
 	mConversationType(params.mConversationType),
@@ -188,33 +189,24 @@ void LLConversationLogFriendObserver::changed(U32 mask)
 LLConversationLog::LLConversationLog() :
 	mAvatarNameCacheConnection()
 {
-	LLControlVariable* log_instant_message = gSavedPerAccountSettings.getControl("LogInstantMessages").get();
-	LLControlVariable* keep_convers_log = gSavedSettings.getControl("KeepConversationLogTranscripts").get();
-	bool is_log_message = false;
-	bool is_keep_log = false;
+	LLControlVariable * keep_log_ctrlp = gSavedSettings.getControl("KeepConversationLogTranscripts").get();
+	S32 log_mode = keep_log_ctrlp->getValue();
 
-	if (log_instant_message)
+	if (log_mode > 0)
 	{
-		log_instant_message->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
-		is_log_message = log_instant_message->getValue().asBoolean();
+		keep_log_ctrlp->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
+		enableLogging(log_mode);
 	}
-	if (keep_convers_log)
-	{
-		keep_convers_log->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
-		is_keep_log = keep_convers_log->getValue().asBoolean();
-	}
-
-	enableLogging(is_log_message && is_keep_log);
 }
 
-void LLConversationLog::enableLogging(bool enable)
+void LLConversationLog::enableLogging(S32 log_mode)
 {
-	if (enable)
+	if (log_mode > 0)
 	{
 		loadFromFile(getFileName());
 
 		LLIMMgr::instance().addSessionObserver(this);
-		newMessageSignalConnection = LLIMModel::instance().addNewMsgCallback(boost::bind(&LLConversationLog::onNewMessageReceived, this, _1));
+		mNewMessageSignalConnection = LLIMModel::instance().addNewMsgCallback(boost::bind(&LLConversationLog::onNewMessageReceived, this, _1));
 
 		mFriendObserver = new LLConversationLogFriendObserver;
 		LLAvatarTracker::instance().addObserver(mFriendObserver);
@@ -224,7 +216,7 @@ void LLConversationLog::enableLogging(bool enable)
 		saveToFile(getFileName());
 
 		LLIMMgr::instance().removeSessionObserver(this);
-		newMessageSignalConnection.disconnect();
+		mNewMessageSignalConnection.disconnect();
 		LLAvatarTracker::instance().removeObserver(mFriendObserver);
 		mConversations.clear();
 	}
@@ -377,7 +369,7 @@ void LLConversationLog::sessionAdded(const LLUUID& session_id, const std::string
 
 void LLConversationLog::cache()
 {
-	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
+	if (gSavedSettings.getS32("KeepConversationLogTranscripts") > 0)
 	{
 		saveToFile(getFileName());
 	}
@@ -450,9 +442,9 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 	char part_id_buffer[MAX_STRING];
 	char conv_id_buffer[MAX_STRING];
 	char history_file_name[MAX_STRING];
-	int has_offline_ims;
-	int stype;
-	time_t time;
+	S32 has_offline_ims;
+	S32 stype;
+	S64 time;
 	// before CHUI-348 it was a flag of conversation voice state
 	int prereserved_unused;
 
@@ -462,7 +454,7 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 		part_id_buffer[0]	= '\0';
 		conv_id_buffer[0]	= '\0';
 
-		sscanf(buffer, "[%ld] %d %d %d %[^|]| %s %s %[^|]|",
+		sscanf(buffer, "[%lld] %d %d %d %[^|]| %s %s %[^|]|",
 				&time,
 				&stype,
 				&prereserved_unused,
@@ -472,7 +464,7 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 				conv_id_buffer,
 				history_file_name);
 
-		Conversation_params params(time);
+		ConversationParams params((time_t)time);
 		params.mConversationType = (SessionType)stype;
 		params.mHasOfflineIMs = has_offline_ims;
 		params.mConversationName = std::string(conv_name_buffer);
@@ -529,4 +521,18 @@ void LLConversationLog::onAvatarNameCache(const LLUUID& participant_id, const LL
 {
 	mAvatarNameCacheConnection.disconnect();
 	updateConversationName(session, av_name.getCompleteName());
+}
+
+void LLConversationLog::onClearLog()
+{
+	LLNotificationsUtil::add("PreferenceChatClearLog", LLSD(), LLSD(), boost::bind(&LLConversationLog::onClearLogResponse, this, _1, _2));
+}
+
+void LLConversationLog::onClearLogResponse(const LLSD& notification, const LLSD& response)
+{
+	if (0 == LLNotificationsUtil::getSelectedOption(notification, response))
+	{
+		mConversations.clear();
+		notifyObservers();
+	}
 }
