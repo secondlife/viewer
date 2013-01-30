@@ -200,10 +200,12 @@
                 Mask cutoff
             </text>
             <spinner
-             decimal_digits="3"
+             decimal_digits="0"
+             min_val="0"
+             max_val="255"
              follows="left|top"
              height="19"
-             initial_value="0"
+             initial_value="55"
              layout="topleft"
              top_pad="4"
              left_delta="0"
@@ -388,6 +390,8 @@
             </text>
             <spinner
              decimal_digits="3"
+             min_value="0"
+             max_value="1"
              follows="left|top"
              height="19"
              initial_value="0"
@@ -411,6 +415,8 @@
             </text>
             <spinner
              decimal_digits="3"
+             min_value="0"
+             max_value="1"
              follows="left|top"
              height="19"
              initial_value="0"
@@ -596,6 +602,132 @@
              left="10"
              min_val="-1"
              name="TexOffsetV"
+             width="265" />
+            <spinner
+             follows="left|top"
+             height="19"
+             initial_value="0"
+             label="Horizontal scale"
+             label_width="205"
+             layout="topleft"
+             left="10"
+             min_val="-100"
+             max_val="100"
+             name="bumpyScaleU"
+             top_delta="-115"
+             width="265" />
+            <spinner
+             follows="left|top"
+             height="19"
+             initial_value="0"
+             label="Vertical scale"
+             label_width="205"
+             layout="topleft"
+             left="10"
+             min_val="-100"
+             max_val="100"
+             name="bumpyScaleV"
+             width="265" />
+           <spinner
+             decimal_digits="2"
+             follows="left|top"
+             height="19"
+             top_pad="27"
+             increment="1"
+             initial_value="0"
+			 label="Rotation degrees"
+             layout="topleft"
+			 label_width="205"
+             left="10"
+             max_val="9999"
+             min_val="-9999"
+             name="bumpyRot"
+             width="265" />
+
+            <spinner
+             follows="left|top"
+             height="19"
+             initial_value="0"
+             label="Horizontal offset"
+             label_width="205"
+             layout="topleft"
+             left="10"
+             min_val="-1"
+             name="bumpyOffsetU"
+             width="265" />
+            <spinner
+             follows="left|top"
+             height="19"
+             initial_value="0"
+             label="Vertical offset"
+             label_width="205"
+             layout="topleft"
+             left="10"
+             min_val="-1"
+             name="bumpyOffsetV"
+             width="265" />
+            <spinner
+             follows="left|top"
+             height="19"
+             initial_value="0"
+             label="Horizontal scale"
+             label_width="205"
+             layout="topleft"
+             left="10"
+             min_val="-100"
+             max_val="100"
+             name="shinyScaleU"
+             top_delta="-115"
+             width="265" />
+            <spinner
+             follows="left|top"
+             height="19"
+             initial_value="0"
+             label="Vertical scale"
+             label_width="205"
+             layout="topleft"
+             left="10"
+             min_val="-100"
+             max_val="100"
+             name="shinyScaleV"
+             width="265" />
+           <spinner
+             decimal_digits="2"
+             follows="left|top"
+             height="19"
+             top_pad="27"
+             increment="1"
+             initial_value="0"
+			 label="Rotation degrees"
+             layout="topleft"
+			 label_width="205"
+             left="10"
+             max_val="9999"
+             min_val="-9999"
+             name="shinyRot"
+             width="265" />
+
+            <spinner
+             follows="left|top"
+             height="19"
+             initial_value="0"
+             label="Horizontal offset"
+             label_width="205"
+             layout="topleft"
+             left="10"
+             min_val="-1"
+             name="shinyOffsetU"
+             width="265" />
+            <spinner
+             follows="left|top"
+             height="19"
+             initial_value="0"
+             label="Vertical offset"
+             label_width="205"
+             layout="topleft"
+             left="10"
+             min_val="-1"
+             name="shinyOffsetV"
              width="265" />
             <check_box
              follows="top|left"

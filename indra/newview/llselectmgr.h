@@ -43,6 +43,7 @@
 #include "llpermissions.h"
 #include "llcontrol.h"
 #include "llviewerobject.h"	// LLObjectSelection::getSelectedTEValue template
+#include "llmaterial.h"
 
 #include <deque>
 #include <boost/iterator/filter_iterator.hpp>
@@ -537,6 +538,7 @@ public:
 	void selectionSetClickAction(U8 action);
 	void selectionSetIncludeInSearch(bool include_in_search);
 	void selectionSetGlow(const F32 glow);
+	void selectionSetMaterial(LLMaterial& material);
 
 	void selectionSetObjectPermissions(U8 perm_field, BOOL set, U32 perm_mask, BOOL override = FALSE);
 	void selectionSetObjectName(const std::string& name);

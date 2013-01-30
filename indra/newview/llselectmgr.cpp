@@ -63,6 +63,7 @@
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llinventorymodel.h"
+#include "llmaterialmgr.h"
 #include "llmenugl.h"
 #include "llmeshrepository.h"
 #include "llmutelist.h"
@@ -1993,6 +1994,37 @@ void LLSelectMgr::selectionSetGlow(F32 glow)
 			return true;
 		}
 	} func1(glow);
+	mSelectedObjects->applyToTEs( &func1 );
+
+	struct f2 : public LLSelectedObjectFunctor
+	{
+		virtual bool apply(LLViewerObject* object)
+		{
+			if (object->permModify())
+			{
+				object->sendTEUpdate();
+			}
+			return true;
+		}
+	} func2;
+	mSelectedObjects->applyToObjects( &func2 );
+}
+
+void LLSelectMgr::selectionSetMaterial(LLMaterial& material)
+{
+	struct f1 : public LLSelectedTEFunctor
+	{
+		LLMaterial mMaterial;
+		f1(LLMaterial material) : mMaterial(material) {};
+		bool apply(LLViewerObject* object, S32 face)
+		{
+			if (object->permModify())
+			{
+				LLMaterialMgr::getInstance()->put(object->getID(),face,mMaterial);
+			}
+			return true;
+		}
+	} func1(material);
 	mSelectedObjects->applyToTEs( &func1 );
 
 	struct f2 : public LLSelectedObjectFunctor
