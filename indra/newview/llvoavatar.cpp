@@ -6703,26 +6703,36 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 		}
 	}
 
-	if (contents.mAppearanceVersion < 0) // not set explicitly, try to get from visual param.
+	LLVisualParam* appearance_version_param = getVisualParam(11000);
+	S32 param_appearance_version = -1;
+	if (appearance_version_param)
 	{
-		LLVisualParam* appearance_version_param = getVisualParam(11000);
-		if (appearance_version_param)
+		std::vector<LLVisualParam*>::iterator it = std::find(contents.mParams.begin(), contents.mParams.end(),appearance_version_param);
+		if (it != contents.mParams.end())
 		{
-			std::vector<LLVisualParam*>::iterator it = std::find(contents.mParams.begin(), contents.mParams.end(),appearance_version_param);
-			if (it != contents.mParams.end())
-			{
-				S32 index = it - contents.mParams.begin();
-				llinfos << "index: " << index << llendl;
-				S32 appearance_version = llround(contents.mParamWeights[index]);
-				contents.mAppearanceVersion = appearance_version;
-				llinfos << "appversion set by appearance_version param: " << contents.mAppearanceVersion << llendl;
-			}
+			S32 index = it - contents.mParams.begin();
+			llinfos << "index: " << index << llendl;
+			param_appearance_version = llround(contents.mParamWeights[index]);
+			LL_DEBUGS("Avatar") << "appversion req by appearance_version param: " << contents.mAppearanceVersion << llendl;
 		}
+	}
+	if ((contents.mAppearanceVersion) >= 0 &&
+		(param_appearance_version >= 0) &&
+		(contents.mAppearanceVersion != param_appearance_version))
+	{
+		llwarns << "inconsistent appearance_version settings - field: " <<
+			contents.mAppearanceVersion << ", param: " <<  param_appearance_version << llendl;
+	}
+	if (contents.mAppearanceVersion < 0 &&
+		param_appearance_version >= 0) // not set explicitly, try to get from visual param.
+	{
+		contents.mAppearanceVersion = param_appearance_version;
+		LL_DEBUGS("Avatar") << "appversion set by appearance_version param: " << contents.mAppearanceVersion << llendl;
 	}
 	if (contents.mAppearanceVersion < 0) // still not set, go with 0.
 	{
 		contents.mAppearanceVersion = 0;
-		llinfos << "appversion set by default: " << contents.mAppearanceVersion << llendl;
+		LL_DEBUGS("Avatar") << "appversion set by default: " << contents.mAppearanceVersion << llendl;
 	}
 }
 
