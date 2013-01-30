@@ -5168,7 +5168,7 @@
       <key>Comment</key>
       <string>Center the focal point of the minimap.</string>
       <key>Persist</key>
-      <integer>0</integer>
+      <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -8120,6 +8120,18 @@
   <map>
     <key>Comment</key>
     <string>Whether to use depth of field effect when lighting and shadows are enabled</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+
+  <key>RenderDepthOfFieldInEditMode</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether to use depth of field effect when in edit mode</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -14069,6 +14081,18 @@
         <real>1.0</real>
         <real>1.0</real>
       </array>
+    </map>
+    
+    <key>HideUIControls</key>
+    <map>
+      <key>Comment</key>
+      <string>Hide all menu items and buttons</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
 
   <key>SimulateFBOFailure</key>

@@ -322,7 +322,9 @@ public:
 
 	virtual void run();
 
+	void lockAndLoadMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
 	void loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
+
 	bool fetchMeshHeader(const LLVolumeParams& mesh_params, U32& count);
 	bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, U32& count);
 	bool headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size);
@@ -351,6 +353,10 @@ public:
 	//  (should hold onto mesh_id and try again later if header info does not exist)
 	bool fetchMeshPhysicsShape(const LLUUID& mesh_id);
 
+	static void incActiveLODRequests();
+	static void decActiveLODRequests();
+	static void incActiveHeaderRequests();
+	static void decActiveHeaderRequests();
 
 };
 

@@ -169,9 +169,6 @@ public:
 	
 	F32 mDetailTextureScale;	//  Number of times to repeat detail texture across this surface 
 
-	static F32 sTextureUpdateTime;
-	static S32 sTexelsUpdated;
-
 protected:
 	void createSTexture();
 	void createWaterTexture();

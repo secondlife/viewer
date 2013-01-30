@@ -139,13 +139,6 @@ BOOL LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 		
 		if( valid_rect.localPointInRect( screen_x, screen_y ) && mResizingView )
 		{
-			// undock floater when user resize it
-			LLFloater* parent = dynamic_cast<LLFloater*>( getParent());
-			if (parent && parent->isDocked())
-			{
-				parent->setDocked( false, false);
-			}
-
 			// Resize the parent
 			LLRect orig_rect = mResizingView->getRect();
 			LLRect scaled_rect = orig_rect;
@@ -219,20 +212,66 @@ BOOL LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 
 			// update last valid mouse cursor position based on resized view's actual size
 			LLRect new_rect = mResizingView->getRect();
+
 			switch(mSide)
 			{
 			case LEFT:
-				mDragLastScreenX += new_rect.mLeft - orig_rect.mLeft;
+			{
+				S32 actual_delta_x = new_rect.mLeft - orig_rect.mLeft;
+				if (actual_delta_x != delta_x)
+				{
+					// restore everything by left
+					new_rect.mBottom = orig_rect.mBottom;
+					new_rect.mTop = orig_rect.mTop;
+					new_rect.mRight = orig_rect.mRight;
+					mResizingView->setShape(new_rect, true);
+				}
+				mDragLastScreenX += actual_delta_x;
+
 				break;
+			}
 			case RIGHT:
+			{
+				S32 actual_delta_x = new_rect.mRight - orig_rect.mRight;
+				if (actual_delta_x != delta_x)
+				{
+					// restore everything by left
+					new_rect.mBottom = orig_rect.mBottom;
+					new_rect.mTop = orig_rect.mTop;
+					new_rect.mLeft = orig_rect.mLeft;
+					mResizingView->setShape(new_rect, true);
+				}
 				mDragLastScreenX += new_rect.mRight - orig_rect.mRight;
 				break;
+			}
 			case TOP:
+			{
+				S32 actual_delta_y = new_rect.mTop - orig_rect.mTop;
+				if (actual_delta_y != delta_y)
+				{
+					// restore everything by left
+					new_rect.mBottom = orig_rect.mBottom;
+					new_rect.mLeft = orig_rect.mLeft;
+					new_rect.mRight = orig_rect.mRight;
+					mResizingView->setShape(new_rect, true);
+				}
 				mDragLastScreenY += new_rect.mTop - orig_rect.mTop;
 				break;
+			}
 			case BOTTOM:
+			{
+				S32 actual_delta_y = new_rect.mBottom - orig_rect.mBottom;
+				if (actual_delta_y != delta_y)
+				{
+					// restore everything by left
+					new_rect.mTop = orig_rect.mTop;
+					new_rect.mLeft = orig_rect.mLeft;
+					new_rect.mRight = orig_rect.mRight;
+					mResizingView->setShape(new_rect, true);
+				}
 				mDragLastScreenY += new_rect.mBottom- orig_rect.mBottom;
 				break;
+			}
 			default:
 				break;
 			}

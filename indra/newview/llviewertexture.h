@@ -116,9 +116,9 @@ public:
 		BOOST_SCULPTED      ,
 		
 		BOOST_HIGH 			= 10,
-		BOOST_BUMP          ,
-		BOOST_TERRAIN		, // has to be high priority for minimap / low detail
 		BOOST_SELECTED		,		
+		BOOST_BUMP          ,
+		BOOST_TERRAIN		, // has to be high priority for minimap / low detail		
 		BOOST_AVATAR_BAKED_SELF	,
 		BOOST_AVATAR_SELF	, // needed for baking avatar
 		BOOST_SUPER_HIGH    , //textures higher than this need to be downloaded at the required resolution without delay.

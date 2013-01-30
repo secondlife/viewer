@@ -28,8 +28,26 @@
  * @endcond
  */
 
+//Protos for ObjectiveC classes (cannot import cocoa here due to BOOL conflict)
+class NSWindow;
 
 /* Defined in slplugin-objc.mm: */
-void setupCocoa();
-void createAutoReleasePool();
-void deleteAutoReleasePool();
+
+class LLCocoaPlugin
+{
+public:  
+    LLCocoaPlugin();
+    void setupCocoa();
+    void createAutoReleasePool();
+    void deleteAutoReleasePool();
+    void setupGroup();
+    void updateWindows();
+    void processEvents();
+public:
+    //EventTargetRef mEventTarget;
+    NSWindow* mFrontWindow;
+    NSWindow* mPluginWindow;
+    int mHackState;
+};
+
+

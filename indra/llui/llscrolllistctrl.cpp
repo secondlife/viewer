@@ -580,6 +580,15 @@ BOOL LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos, BOOL r
 			addColumn(col_params);
 		}
 
+		S32 num_cols = item->getNumColumns();
+		S32 i = 0;
+		for (LLScrollListCell* cell = item->getColumn(i); i < num_cols; cell = item->getColumn(++i))
+		{
+			if (i >= (S32)mColumnsIndexed.size()) break;
+
+			cell->setWidth(mColumnsIndexed[i]->getWidth());
+		}
+
 		updateLineHeightInsert(item);
 
 		updateLayout();
@@ -606,7 +615,6 @@ S32 LLScrollListCtrl::calcMaxContentWidth()
 
 		if (mColumnWidthsDirty)
 		{
-			mColumnWidthsDirty = false;
 			// update max content width for this column, by looking at all items
 			column->mMaxContentWidth = column->mHeader ? LLFontGL::getFontSansSerifSmall()->getWidth(column->mLabel) + mColumnPadding + HEADING_TEXT_PADDING : 0;
 			item_list::iterator iter;
@@ -620,6 +628,7 @@ S32 LLScrollListCtrl::calcMaxContentWidth()
 		}
 		max_item_width += column->mMaxContentWidth;
 	}
+	mColumnWidthsDirty = false;
 
 	return max_item_width;
 }
@@ -634,7 +643,7 @@ bool LLScrollListCtrl::updateColumnWidths()
 		if (!column) continue;
 
 		// update column width
-		S32 new_width = column->getWidth();
+		S32 new_width = 0;
 		if (column->mRelWidth >= 0)
 		{
 			new_width = (S32)llround(column->mRelWidth*mItemListRect.getWidth());
@@ -642,6 +651,10 @@ bool LLScrollListCtrl::updateColumnWidths()
 		else if (column->mDynamicWidth)
 		{
 			new_width = (mItemListRect.getWidth() - mTotalStaticColumnWidth - mTotalColumnPadding) / mNumDynamicWidthColumns;
+		}
+		else
+		{
+			new_width = column->getWidth();
 		}
 
 		if (column->getWidth() != new_width)
@@ -684,9 +697,9 @@ void LLScrollListCtrl::updateLineHeightInsert(LLScrollListItem* itemp)
 }
 
 
-void LLScrollListCtrl::updateColumns()
+void LLScrollListCtrl::updateColumns(bool force_update)
 {
-	if (!mColumnsDirty)
+	if (!mColumnsDirty && !force_update)
 		return;
 
 	mColumnsDirty = false;
@@ -740,7 +753,7 @@ void LLScrollListCtrl::updateColumns()
 	}
 
 	// propagate column widths to individual cells
-	if (columns_changed_width)
+	if (columns_changed_width || force_update)
 	{
 		item_list::iterator iter;
 		for (iter = mItemList.begin(); iter != mItemList.end(); iter++)

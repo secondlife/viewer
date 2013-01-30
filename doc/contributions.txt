@@ -477,6 +477,7 @@ Hiro Sommambulist
 Hitomi Tiponi
 	STORM-1741
 	STORM-1862
+	BUG-1067
 Holger Gilruth
 Horatio Freund
 Hoze Menges
@@ -895,6 +896,7 @@ NickyD
 	MAINT-873
 Nicky Dasmijn
 	VWR-29228
+	MAINT-873
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1062,9 +1064,12 @@ Shawn Kaufmat
 	SNOW-240
 Sheet Spotter
 Shnurui Troughton
+Shyotl Kuhr
+	MAINT-1138
 Siana Gearz
 	STORM-960
 	STORM-1088
+	MAINT-1138
 sicarius Thorne
 Sicarius Toxx
 SignpostMarv Martin

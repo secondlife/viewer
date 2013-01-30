@@ -37,7 +37,9 @@
 #include "lltextureinfo.h"
 #include "llapr.h"
 #include "llimageworker.h"
+#include "llstat.h"
 #include "llcurl.h"
+#include "llstat.h"
 #include "httprequest.h"
 #include "httpoptions.h"
 #include "httpheaders.h"
@@ -449,7 +451,6 @@ private:
 		LLPointer<LLImageRaw> mRawImage;
 		e_curl_state mCurlState;
 		S32 mCurlReceivedSize;
-		S32 mHTTPFailCount;
 		LLCore::HttpHandle mHttpHandle;
 
 		FetchEntry() :
@@ -465,7 +466,6 @@ private:
 			mFetchedSize(f_size),
 			mDecodedSize(d_size),
 			mNeedsAux(false),
-			mHTTPFailCount(0),
 			mHttpHandle(LLCORE_HTTP_HANDLE_INVALID)
 			{}
 	};

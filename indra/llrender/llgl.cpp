@@ -44,7 +44,6 @@
 #include "llmath.h"
 #include "m4math.h"
 #include "llstring.h"
-#include "llmemtype.h"
 #include "llstacktrace.h"
 
 #include "llglheaders.h"
@@ -1133,7 +1132,8 @@ void LLGLManager::initExtensions()
 	// Misc
 	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, (GLint*) &mGLMaxVertexRange);
 	glGetIntegerv(GL_MAX_ELEMENTS_INDICES, (GLint*) &mGLMaxIndexRange);
-	
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &mGLMaxTextureSize);
+
 #if (LL_WINDOWS || LL_LINUX || LL_SOLARIS) && !LL_MESA_HEADLESS
 	LL_DEBUGS("RenderInit") << "GL Probe: Getting symbols" << LL_ENDL;
 	if (mHasVertexBufferObject)
@@ -2323,7 +2323,6 @@ void LLGLNamePool::release(GLuint name)
 //static
 void LLGLNamePool::upkeepPools()
 {
-	LLMemType mt(LLMemType::MTYPE_UPKEEP_POOLS);
 	for (tracker_t::instance_iter iter = beginInstances(); iter != endInstances(); ++iter)
 	{
 		LLGLNamePool & pool = *iter;

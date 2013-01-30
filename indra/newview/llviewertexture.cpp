@@ -39,7 +39,6 @@
 #include "llimagebmp.h"
 #include "llimagej2c.h"
 #include "llimagetga.h"
-#include "llmemtype.h"
 #include "llstl.h"
 #include "llvfile.h"
 #include "llvfs.h"
@@ -1532,7 +1531,12 @@ void LLViewerFetchedTexture::addToCreateTexture()
 							destroyRawImage();
 							return ;
 						}
-						mRawImage->scale(w >> i, h >> i) ;					
+
+						{
+							//make a duplicate in case somebody else is using this raw image
+							mRawImage = mRawImage->duplicate(); 
+							mRawImage->scale(w >> i, h >> i) ;					
+						}
 					}
 				}
 			}
@@ -1765,7 +1769,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 	else if (pixel_priority < 0.001f && !have_all_data)
 	{
 		// Not on screen but we might want some data
-		if (mBoostLevel > BOOST_HIGH)
+		if (mBoostLevel > BOOST_SELECTED)
 		{
 			// Always want high boosted images
 			priority = 1.f;
@@ -2900,7 +2904,11 @@ void LLViewerFetchedTexture::setCachedRawImage()
 				--i ;
 			}
 			
-			mRawImage->scale(w >> i, h >> i) ;
+			{
+				//make a duplicate in case somebody else is using this raw image
+				mRawImage = mRawImage->duplicate(); 
+				mRawImage->scale(w >> i, h >> i) ;
+			}
 		}
 		mCachedRawImage = mRawImage ;
 		mRawDiscardLevel += i ;

@@ -698,19 +698,28 @@ void LLPanelStandStopFlying::updatePosition()
 
 	S32 y_pos = 0;
 	S32 bottom_tb_center = 0;
-	if (LLToolBar* toolbar_bottom = gToolBarView->getChild<LLToolBar>("toolbar_bottom"))
+	if (LLToolBar* toolbar_bottom = gToolBarView->getToolbar(LLToolBarView::TOOLBAR_BOTTOM))
 	{
 		y_pos = toolbar_bottom->getRect().getHeight();
 		bottom_tb_center = toolbar_bottom->getRect().getCenterX();
 	}
 
 	S32 left_tb_width = 0;
-	if (LLToolBar* toolbar_left = gToolBarView->getChild<LLToolBar>("toolbar_left"))
+	if (LLToolBar* toolbar_left = gToolBarView->getToolbar(LLToolBarView::TOOLBAR_LEFT))
 	{
 		left_tb_width = toolbar_left->getRect().getWidth();
 	}
 
-	if(LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("state_management_buttons_container"))
+	if (!mStateManagementButtons.get())
+	{
+		LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("state_management_buttons_container");
+		if (panel_ssf_container)
+		{
+			mStateManagementButtons = panel_ssf_container->getHandle();
+		}
+	}
+
+	if(LLPanel* panel_ssf_container = mStateManagementButtons.get())
 	{
 		panel_ssf_container->setOrigin(0, y_pos);
 	}

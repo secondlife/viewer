@@ -31,6 +31,7 @@
 #include <vector>
 #include <boost/function.hpp>
 #include <boost/type_traits/is_convertible.hpp>
+#include <boost/type_traits/is_enum.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -209,9 +210,7 @@ namespace LLInitParam
 	class LL_COMMON_API Parser
 	{
 		LOG_CLASS(Parser);
-
 	public:
-		
 		typedef std::vector<std::pair<std::string, bool> >					name_stack_t;
 		typedef std::pair<name_stack_t::iterator, name_stack_t::iterator>	name_stack_range_t;
 		typedef std::vector<std::string>									possible_values_t;
@@ -224,32 +223,81 @@ namespace LLInitParam
 		typedef std::map<const std::type_info*, parser_write_func_t>	parser_write_func_map_t;
 		typedef std::map<const std::type_info*, parser_inspect_func_t>	parser_inspect_func_map_t;
 
+	private:
+		template<typename T, bool is_enum = boost::is_enum<T>::value>
+		struct ReaderWriter
+		{
+			static bool read(T& param, Parser* parser)
+			{
+				parser_read_func_map_t::iterator found_it = parser->mParserReadFuncs->find(&typeid(T));
+				if (found_it != parser->mParserReadFuncs->end())
+				{
+					return found_it->second(*parser, (void*)&param);
+				}
+				return false;
+			}
+			
+			static bool write(const T& param, Parser* parser, name_stack_t& name_stack)
+			{
+				parser_write_func_map_t::iterator found_it = parser->mParserWriteFuncs->find(&typeid(T));
+				if (found_it != parser->mParserWriteFuncs->end())
+				{
+					return found_it->second(*parser, (const void*)&param, name_stack);
+				}
+				return false;
+			}
+		};
+
+		// read enums as ints
+		template<typename T>
+		struct ReaderWriter<T, true>
+		{
+			static bool read(T& param, Parser* parser)
+			{
+				// read all enums as ints
+				parser_read_func_map_t::iterator found_it = parser->mParserReadFuncs->find(&typeid(S32));
+				if (found_it != parser->mParserReadFuncs->end())
+				{
+					S32 value;
+					if (found_it->second(*parser, (void*)&value))
+					{
+						param = (T)value;
+						return true;
+					}
+				}
+				return false;
+			}
+
+			static bool write(const T& param, Parser* parser, name_stack_t& name_stack)
+			{
+				parser_write_func_map_t::iterator found_it = parser->mParserWriteFuncs->find(&typeid(S32));
+				if (found_it != parser->mParserWriteFuncs->end())
+				{
+					return found_it->second(*parser, (const void*)&param, name_stack);
+				}
+				return false;
+			}
+		};
+
+	public:
+
 		Parser(parser_read_func_map_t& read_map, parser_write_func_map_t& write_map, parser_inspect_func_map_t& inspect_map)
 		:	mParseSilently(false),
 			mParserReadFuncs(&read_map),
 			mParserWriteFuncs(&write_map),
 			mParserInspectFuncs(&inspect_map)
 		{}
+
 		virtual ~Parser();
 
 		template <typename T> bool readValue(T& param)
 	    {
-		    parser_read_func_map_t::iterator found_it = mParserReadFuncs->find(&typeid(T));
-		    if (found_it != mParserReadFuncs->end())
-		    {
-			    return found_it->second(*this, (void*)&param);
-		    }
-		    return false;
+			return ReaderWriter<T>::read(param, this);
 	    }
 
 		template <typename T> bool writeValue(const T& param, name_stack_t& name_stack)
 		{
-		    parser_write_func_map_t::iterator found_it = mParserWriteFuncs->find(&typeid(T));
-		    if (found_it != mParserWriteFuncs->end())
-		    {
-			    return found_it->second(*this, (const void*)&param, name_stack);
-		    }
-		    return false;
+			return ReaderWriter<T>::write(param, this, name_stack);
 		}
 
 		// dispatch inspection to registered inspection functions, for each parameter in a param block
@@ -841,30 +889,24 @@ namespace LLInitParam
 			self_t& typed_param = static_cast<self_t&>(param);
 			// no further names in stack, attempt to parse value now
 			if (name_stack_range.first == name_stack_range.second)
-			{
-				if (parser.readValue(typed_param.getValue()))
+			{	
+				std::string name;
+
+				// try to parse a known named value
+				if(name_value_lookup_t::valueNamesExist()
+					&& parser.readValue(name)
+					&& name_value_lookup_t::getValueFromName(name, typed_param.getValue()))
+				{
+					typed_param.setValueName(name);
+					typed_param.setProvided();
+					return true;
+				}
+				// try to read value directly
+				else if (parser.readValue(typed_param.getValue()))
 				{
 					typed_param.clearValueName();
 					typed_param.setProvided();
 					return true;
-				}
-				
-				// try to parse a known named value
-				if(name_value_lookup_t::valueNamesExist())
-				{
-					// try to parse a known named value
-					std::string name;
-					if (parser.readValue(name))
-					{
-						// try to parse a per type named value
-						if (name_value_lookup_t::getValueFromName(name, typed_param.getValue()))
-						{
-							typed_param.setValueName(name);
-							typed_param.setProvided();
-							return true;
-						}
-
-					}
 				}
 			}
 			return false;
@@ -987,30 +1029,29 @@ namespace LLInitParam
 		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack_range, bool new_name)
 		{ 
 			self_t& typed_param = static_cast<self_t&>(param);
-			// attempt to parse block...
+
+			if (name_stack_range.first == name_stack_range.second)
+			{	// try to parse a known named value
+				std::string name;
+
+				if(name_value_lookup_t::valueNamesExist()
+					&& parser.readValue(name)				
+					&& name_value_lookup_t::getValueFromName(name, typed_param.getValue()))
+				{
+					typed_param.setValueName(name);
+					typed_param.setProvided();
+					return true;
+				}
+			}
+			
 			if(typed_param.deserializeBlock(parser, name_stack_range, new_name))
-			{
+			{	// attempt to parse block...
 				typed_param.clearValueName();
 				typed_param.setProvided();
 				return true;
 			}
 
-			if(name_value_lookup_t::valueNamesExist())
-			{
-				// try to parse a known named value
-				std::string name;
-				if (parser.readValue(name))
-				{
-					// try to parse a per type named value
-					if (name_value_lookup_t::getValueFromName(name, typed_param.getValue()))
-					{
-						typed_param.setValueName(name);
-						typed_param.setProvided();
-						return true;
-					}
 
-				}
-			}
 			return false;
 		}
 
@@ -1160,30 +1201,22 @@ namespace LLInitParam
 			value_t value;
 			// no further names in stack, attempt to parse value now
 			if (name_stack_range.first == name_stack_range.second)
-			{
-				// attempt to read value directly
-				if (parser.readValue(value))
+			{	
+				std::string name;
+				
+				// try to parse a known named value
+				if(name_value_lookup_t::valueNamesExist()
+					&& parser.readValue(name)
+					&& name_value_lookup_t::getValueFromName(name, value))
+				{
+					typed_param.add(value);
+					typed_param.mValues.back().setValueName(name);
+					return true;
+				}
+				else if (parser.readValue(value)) 	// attempt to read value directly
 				{
 					typed_param.add(value);
 					return true;
-				}
-				
-				// try to parse a known named value
-				if(name_value_lookup_t::valueNamesExist())
-				{
-					// try to parse a known named value
-					std::string name;
-					if (parser.readValue(name))
-					{
-						// try to parse a per type named value
-						if (name_value_lookup_t::getValueFromName(name, value))
-						{
-							typed_param.add(value);
-							typed_param.mValues.back().setValueName(name);
-							return true;
-						}
-
-					}
 				}
 			}
 			return false;
@@ -1362,28 +1395,27 @@ namespace LLInitParam
 
 			param_value_t& value = typed_param.mValues.back();
 
+			if (name_stack_range.first == name_stack_range.second)
+			{	// try to parse a known named value
+				std::string name;
+
+				if(name_value_lookup_t::valueNamesExist()
+					&& parser.readValue(name)
+					&& name_value_lookup_t::getValueFromName(name, value.getValue()))
+				{
+					typed_param.mValues.back().setValueName(name);
+					typed_param.setProvided();
+					return true;
+				}
+			}
+
 			// attempt to parse block...
 			if(value.deserializeBlock(parser, name_stack_range, new_name))
 			{
 				typed_param.setProvided();
 				return true;
 			}
-			else if(name_value_lookup_t::valueNamesExist())
-			{
-				// try to parse a known named value
-				std::string name;
-				if (parser.readValue(name))
-				{
-					// try to parse a per type named value
-					if (name_value_lookup_t::getValueFromName(name, value.getValue()))
-					{
-						typed_param.mValues.back().setValueName(name);
-						typed_param.setProvided();
-						return true;
-					}
 
-				}
-			}
 
 			if (new_value)
 			{	// failed to parse new value, pop it off
