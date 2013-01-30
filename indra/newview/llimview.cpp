@@ -2610,8 +2610,15 @@ void LLIMMgr::addMessage(
         }
 	}
 
-	bool skip_message = (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") &&
-		LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL);
+	bool skip_message = false;
+	if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly"))
+	{
+		// Evaluate if we need to skip this message when that setting is true (default is false)
+		LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
+		skip_message = (LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL);	// Skip non friends...
+		skip_message &= !session->isGroupSessionType();			// Do not skip group chats...
+		skip_message &= !(other_participant_id == gAgentID);	// You are your best friend... Don't skip yourself
+	}
 
 	if (!LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !skip_message)
 	{
