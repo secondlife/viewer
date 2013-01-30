@@ -443,6 +443,7 @@ void LLAvatarActions::share(const LLUUID& id)
 {
 	LLSD key;
 	LLFloaterSidePanelContainer::showPanel("inventory", key);
+	LLFloaterReg::showInstance("im_container");
 
 	LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL,id);
 
