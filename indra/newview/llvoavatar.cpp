@@ -1778,21 +1778,32 @@ U32 LLVOAvatar::processUpdateMessage(LLMessageSystem *mesgsys,
 
 LLViewerFetchedTexture *LLVOAvatar::getBakedTextureImage(const U8 te, const LLUUID& uuid)
 {
-	LLViewerFetchedTexture *result;
-	
-	const std::string url = getImageURL(te,uuid);
-	if (!url.empty())
+	LLViewerFetchedTexture *result = NULL;
+
+	if (uuid == IMG_DEFAULT_AVATAR ||
+		uuid == IMG_DEFAULT ||
+		uuid == IMG_INVISIBLE)
 	{
-		llinfos << "texture URL " << url << llendl;
-		result = LLViewerTextureManager::getFetchedTextureFromUrl(
-			url, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, uuid);
+		// Should already exist, don't need to find it on sim or baked-texture host.
+		result = gTextureList.findImage(uuid);
 	}
-	else
+
+	if (!result)
 	{
-		llinfos << "get texture from host " << uuid << llendl;
-		LLHost host = getObjectHost();
-		result = LLViewerTextureManager::getFetchedTexture(
-			uuid, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host);
+		const std::string url = getImageURL(te,uuid);
+		if (!url.empty())
+		{
+			llinfos << "texture URL " << url << llendl;
+			result = LLViewerTextureManager::getFetchedTextureFromUrl(
+				url, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, uuid);
+		}
+		else
+		{
+			llinfos << "get texture from host " << uuid << llendl;
+			LLHost host = getObjectHost();
+			result = LLViewerTextureManager::getFetchedTexture(
+				uuid, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host);
+		}
 	}
 	return result;
 }
