@@ -29,6 +29,7 @@
 
 #include "v4color.h"
 #include "llpanel.h"
+#include "llmaterial.h"
 
 class LLButton;
 class LLCheckBoxCtrl;
@@ -42,6 +43,7 @@ class LLTextureCtrl;
 class LLUICtrl;
 class LLViewerObject;
 class LLFloater;
+class LLMaterialID;
 
 class LLPanelFace : public LLPanel
 {
@@ -74,17 +76,25 @@ protected:
 	void 	onCommitTexture(const LLSD& data);
 	void 	onCancelTexture(const LLSD& data);
 	void 	onSelectTexture(const LLSD& data);
+	void 	onCommitMaterialTexture(const LLSD& data);
+	void 	onCancelMaterialTexture(const LLSD& data);
+	void 	onSelectMaterialTexture(const LLSD& data);
 	void 	onCommitColor(const LLSD& data);
+	void 	onCommitShinyColor(const LLSD& data);
 	void 	onCommitAlpha(const LLSD& data);
 	void 	onCancelColor(const LLSD& data);
 	void 	onSelectColor(const LLSD& data);
+	void    onMaterialLoaded(const LLMaterialID& material_id, const LLMaterialPtr material);
+	void    updateMaterial();
 	
 	static 	void onCommitTextureInfo( 		LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterial(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialsMedia(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialType(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitBump(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitTexGen(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitShiny(			LLUICtrl* ctrl, void* userdata);
+	static void		onCommitAlphaMode(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitFullbright(		LLUICtrl* ctrl, void* userdata);
 	static void     onCommitGlow(           LLUICtrl* ctrl, void *userdata);
 	static void		onCommitPlanarAlign(	LLUICtrl* ctrl, void* userdata);
@@ -102,6 +112,9 @@ private:
 	 */
 	void onTextureSelectionChanged(LLInventoryItem* itemp);
 
+	LLMaterialID mMaterialID;
+	LLMaterialPtr mMaterial;
+	BOOL mIsAlpha;
 };
 
 #endif

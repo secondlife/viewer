@@ -305,7 +305,7 @@
 			<menu_item_call label="已選取材質資訊基礎" name="Selected Texture Info Basis"/>
 			<menu_item_check label="線框" name="Wireframe"/>
 			<menu_item_check label="物件導向的遮蔽" name="Object-Object Occlusion"/>
-			<menu_item_check label="光線和陰影" name="Lighting and Shadows"/>
+			<menu_item_check label="光線和陰影" name="Advanced Lighting Model"/>
 			<menu_item_check label="來自日/月/投影物的陰影" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="屏幕空間環境光遮蔽和陰影平滑技術" name="SSAO and Shadow Smoothing"/>
 			<menu_item_check label="GL 除錯" name="Debug GL"/>

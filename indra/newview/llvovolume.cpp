@@ -4172,7 +4172,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 				specColor.mV[2] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[2] * (1.0 / 255);
 				specColor.mV[3] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightExponent() * (1.0 / 255);
 				draw_info->mSpecColor = specColor;
-				LL_INFOS("Materials") << "Specular Color: " << specColor << LL_ENDL;
 				draw_info->mEnvIntensity = facep->getTextureEntry()->getMaterialParams()->getEnvironmentIntensity() * (1.0 / 255);
 				draw_info->mAlphaMaskCutoff = facep->getTextureEntry()->getMaterialParams()->getAlphaMaskCutoff() * (1.0 / 255);
 				draw_info->mDiffuseAlphaMode = facep->getTextureEntry()->getMaterialParams()->getDiffuseAlphaMode();
