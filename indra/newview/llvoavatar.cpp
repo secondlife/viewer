@@ -1796,8 +1796,8 @@ S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
 	}
 	else
 	{
-		llinfos << "get texture from other " << uuid << llendl;
-		return setTETextureCore(te, uuid, LLHost::invalid);
+		llinfos << "ignoring texture in non-baked slot " << uuid << " - will use null " << LLUUID::null << llendl;
+		return setTETextureCore(te, LLUUID::null, LLHost::invalid);
 	}
 }
 

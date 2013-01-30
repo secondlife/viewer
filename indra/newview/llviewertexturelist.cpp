@@ -374,7 +374,21 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 	}
 
 	LLPointer<LLViewerFetchedTexture> imagep = findImage(new_id);
-	
+
+	if (!imagep.isNull())
+	{
+		LLViewerFetchedTexture *texture = imagep.get();
+		if (texture->getUrl().empty())
+		{
+			llwarns << "Requested texture " << new_id << " already exists but does not have a URL" << llendl;
+		}
+		else if (texture->getUrl() != url)
+		{
+			llwarns << "Requested texture " << new_id << " already exists with a different url, requested: " 
+					<< url << " current: " << texture->getUrl() << llendl;
+		}
+		
+	}
 	if (imagep.isNull())
 	{
 		switch(texture_type)
@@ -436,7 +450,23 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 	}
 	
 	LLPointer<LLViewerFetchedTexture> imagep = findImage(image_id);
-	
+	if (!imagep.isNull())
+	{
+		LLViewerFetchedTexture *texture = imagep.get();
+		if (request_from_host.isOk() &&
+			!texture->getTargetHost().isOk())
+		{
+			llwarns << "Requested texture " << image_id << " already exists but does not have a host" << llendl;
+		}
+		else if (request_from_host.isOk() &&
+				 texture->getTargetHost().isOk() &&
+				 request_from_host != texture->getTargetHost())
+		{
+			llwarns << "Requested texture " << image_id << " already exists with a different target host, requested: " 
+					<< request_from_host << " current: " << texture->getTargetHost() << llendl;
+		}
+		
+	}
 	if (imagep.isNull())
 	{
 		imagep = createImage(image_id, usemipmaps, boost_priority, texture_type, internal_format, primary_format, request_from_host) ;
