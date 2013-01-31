@@ -2020,6 +2020,7 @@ void LLSelectMgr::selectionSetMaterial(LLMaterial& material)
 		{
 			if (object->permModify())
 			{
+			        llinfos << "Putting material on object " << object->getID() << " face " << face << ", material: " << mMaterial.asLLSD() << llendl;
 				LLMaterialMgr::getInstance()->put(object->getID(),face,mMaterial);
 			}
 			return true;
