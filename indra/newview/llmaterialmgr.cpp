@@ -96,10 +96,10 @@ void LLMaterialsResponder::result(const LLSD& pContent)
 
 void LLMaterialsResponder::error(U32 pStatus, const std::string& pReason)
 {
-	LL_WARNS("debugMaterials") << "--------------------------------------------------------------------------" << LL_ENDL;
-	LL_WARNS("debugMaterials") << mMethod << " Error[" << pStatus << "] cannot access cap '" << MATERIALS_CAPABILITY_NAME
+	LL_WARNS("Materials") << "--------------------------------------------------------------------------" << LL_ENDL;
+	LL_WARNS("Materials") << mMethod << " Error[" << pStatus << "] cannot access cap '" << MATERIALS_CAPABILITY_NAME
 		<< "' with url '" << mCapabilityURL	<< "' because " << pReason << LL_ENDL;
-	LL_WARNS("debugMaterials") << "--------------------------------------------------------------------------" << LL_ENDL;
+	LL_WARNS("Materials") << "--------------------------------------------------------------------------" << LL_ENDL;
 
 	LLSD emptyResult;
 	mCallback(false, emptyResult);
@@ -271,7 +271,7 @@ void LLMaterialMgr::onGetResponse(bool success, const LLSD& content, const LLUUI
 	LLSD response_data;
 	if (!unzip_llsd(response_data, content_stream, content_binary.size()))
 	{
-		LL_ERRS("debugMaterials") << "Cannot unzip LLSD binary content" << LL_ENDL;
+		LL_ERRS("Materials") << "Cannot unzip LLSD binary content" << LL_ENDL;
 		return;
 	}
 
@@ -311,7 +311,7 @@ void LLMaterialMgr::onGetAllResponse(bool success, const LLSD& content, const LL
 	LLSD response_data;
 	if (!unzip_llsd(response_data, content_stream, content_binary.size()))
 	{
-		LL_ERRS("debugMaterials") << "Cannot unzip LLSD binary content" << LL_ENDL;
+		LL_ERRS("Materials") << "Cannot unzip LLSD binary content" << LL_ENDL;
 		return;
 	}
 
@@ -375,7 +375,7 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 	LLSD response_data;
 	if (!unzip_llsd(response_data, content_stream, content_binary.size()))
 	{
-		LL_ERRS("debugMaterials") << "Cannot unzip LLSD binary content" << LL_ENDL;
+		LL_ERRS("Materials") << "Cannot unzip LLSD binary content" << LL_ENDL;
 		return;
 	}
 	else
@@ -446,7 +446,7 @@ void LLMaterialMgr::processGetQueue()
 		const LLViewerRegion* regionp = LLWorld::instance().getRegionFromID(region_id);
 		if (!regionp)
 		{
-			LL_WARNS("debugMaterials") << "Unknown region with id " << region_id.asString() << LL_ENDL;
+			LL_WARNS("Materials") << "Unknown region with id " << region_id.asString() << LL_ENDL;
 			mGetQueue.erase(itRegionQueue);
 			continue;
 		}
@@ -463,7 +463,7 @@ void LLMaterialMgr::processGetQueue()
 		const std::string capURL = regionp->getCapability(MATERIALS_CAPABILITY_NAME);
 		if (capURL.empty())
 		{
-			LL_WARNS("debugMaterials") << "Capability '" << MATERIALS_CAPABILITY_NAME
+			LL_WARNS("Materials") << "Capability '" << MATERIALS_CAPABILITY_NAME
 				<< "' is not defined on region '" << regionp->getName() << "'" << LL_ENDL;
 			mGetQueue.erase(itRegionQueue);
 			continue;
@@ -486,7 +486,7 @@ void LLMaterialMgr::processGetQueue()
 		S32 materialSize = materialString.size();
 		if (materialSize <= 0)
 		{
-			LL_ERRS("debugMaterials") << "cannot zip LLSD binary content" << LL_ENDL;
+			LL_ERRS("Materials") << "cannot zip LLSD binary content" << LL_ENDL;
 			return;
 		}
 
@@ -513,7 +513,7 @@ void LLMaterialMgr::processGetAllQueue()
 		LLViewerRegion* regionp = LLWorld::instance().getRegionFromID(region_id);
 		if (regionp == NULL)
 		{
-			LL_WARNS("debugMaterials") << "Unknown region with id " << region_id.asString() << LL_ENDL;
+			LL_WARNS("Materials") << "Unknown region with id " << region_id.asString() << LL_ENDL;
 			mGetAllQueue.erase(itRegion);
 			continue;
 		}
@@ -525,7 +525,7 @@ void LLMaterialMgr::processGetAllQueue()
 		std::string capURL = regionp->getCapability(MATERIALS_CAPABILITY_NAME);
 		if (capURL.empty())
 		{
-			LL_WARNS("debugMaterials") << "Capability '" << MATERIALS_CAPABILITY_NAME
+			LL_WARNS("Materials") << "Capability '" << MATERIALS_CAPABILITY_NAME
 				<< "' is not defined on the current region '" << regionp->getName() << "'" << LL_ENDL;
 			mGetAllQueue.erase(itRegion);
 			continue;
@@ -549,7 +549,7 @@ void LLMaterialMgr::processPutQueue()
 		const LLViewerObject* objectp = gObjectList.findObject(object_id);
 		if ( (!objectp) || (!objectp->getRegion()) )
 		{
-			LL_WARNS("debugMaterials") << "Object or object region is NULL" << LL_ENDL;
+			LL_WARNS("Materials") << "Object or object region is NULL" << LL_ENDL;
 
 			mPutQueue.erase(itQueue);
 			continue;
@@ -564,7 +564,7 @@ void LLMaterialMgr::processPutQueue()
 		std::string capURL = regionp->getCapability(MATERIALS_CAPABILITY_NAME);
 		if (capURL.empty())
 		{
-			LL_WARNS("debugMaterials") << "Capability '" << MATERIALS_CAPABILITY_NAME
+			LL_WARNS("Materials") << "Capability '" << MATERIALS_CAPABILITY_NAME
 				<< "' is not defined on region '" << regionp->getName() << "'" << LL_ENDL;
 
 			mPutQueue.erase(itQueue);
@@ -592,7 +592,7 @@ void LLMaterialMgr::processPutQueue()
 		S32 materialSize = materialString.size();
 		if (materialSize <= 0)
 		{
-			LL_ERRS("debugMaterials") << "cannot zip LLSD binary content" << LL_ENDL;
+			LL_ERRS("Materials") << "cannot zip LLSD binary content" << LL_ENDL;
 
 			mPutQueue.erase(itQueue);
 			continue;
