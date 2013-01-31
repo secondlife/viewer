@@ -1306,10 +1306,7 @@ void gl_segmented_rect_2d_tex(const S32 left,
 }
 
 //FIXME: rewrite to use scissor?
-void gl_segmented_rect_2d_fragment_tex(const S32 left, 
-									   const S32 top, 
-									   const S32 right, 
-									   const S32 bottom, 
+void gl_segmented_rect_2d_fragment_tex(const LLRect& rect, 
 									   const S32 texture_width, 
 									   const S32 texture_height, 
 									   const S32 border_size, 
@@ -1317,6 +1314,10 @@ void gl_segmented_rect_2d_fragment_tex(const S32 left,
 									   const F32 end_fragment, 
 									   const U32 edges)
 {
+	const S32 left = rect.mLeft;
+	const S32 right = rect.mRight;
+	const S32 top = rect.mTop;
+	const S32 bottom = rect.mBottom;
 	S32 width = llabs(right - left);
 	S32 height = llabs(top - bottom);
 
@@ -1354,9 +1355,9 @@ void gl_segmented_rect_2d_fragment_tex(const S32 left,
 	{
 		if (start_fragment < middle_start)
 		{
-			u_min = (start_fragment / middle_start) * border_uv_scale.mV[VX];
+			u_min = (start_fragment / middle_start)			* border_uv_scale.mV[VX];
 			u_max = llmin(end_fragment / middle_start, 1.f) * border_uv_scale.mV[VX];
-			x_min = (start_fragment / middle_start) * border_width_left;
+			x_min = (start_fragment / middle_start)			* border_width_left;
 			x_max = llmin(end_fragment / middle_start, 1.f) * border_width_left;
 
 			// draw bottom left
@@ -1446,10 +1447,10 @@ void gl_segmented_rect_2d_fragment_tex(const S32 left,
 
 		if (end_fragment > middle_end)
 		{
-			u_min = (1.f - llmax(0.f, ((start_fragment - middle_end) / middle_start))) * border_uv_scale.mV[VX];
-			u_max = (1.f - ((end_fragment - middle_end) / middle_start)) * border_uv_scale.mV[VX];
-			x_min = width_vec - ((1.f - llmax(0.f, ((start_fragment - middle_end) / middle_start))) * border_width_right);
-			x_max = width_vec - ((1.f - ((end_fragment - middle_end) / middle_start)) * border_width_right);
+			u_min = 1.f			- ((1.f - llmax(0.f, (start_fragment - middle_end) / middle_start)) * border_uv_scale.mV[VX]);
+			u_max = 1.f			- ((1.f - ((end_fragment - middle_end) / middle_start)) * border_uv_scale.mV[VX]);
+			x_min = width_vec	- ((1.f - llmax(0.f, (start_fragment - middle_end) / middle_start)) * border_width_right);
+			x_max = width_vec	- ((1.f - ((end_fragment - middle_end) / middle_start)) * border_width_right);
 
 			// draw bottom right
 			gGL.texCoord2f(u_min, 0.f);

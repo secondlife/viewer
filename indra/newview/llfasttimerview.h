@@ -83,12 +83,26 @@ private:
 
 	struct TimerBar
 	{
-		LLRect		mRect;
+		TimerBar()
+		:	mWidth(0),
+			mSelfWidth(0),
+			mVisible(true),
+			mStartFraction(0.f),
+			mEndFraction(1.f)
+		{}
+		S32			mWidth;
+		S32			mSelfWidth;
+		LLRect		mVisibleRect,
+					mChildrenRect;
 		LLColor4	mColor;
+		bool		mVisible;
 		F32			mStartFraction,
 					mEndFraction;
 	};
-	LLRect updateTimerBars(LLTrace::TimeBlock* time_block, LLRect bar_rect, std::vector<TimerBar>& bars, S32 history_index);
+	S32 updateTimerBarWidths(LLTrace::TimeBlock* time_block, std::vector<TimerBar>& bars, S32 history_index);
+	S32 updateTimerBarFractions(LLTrace::TimeBlock* time_block, S32 timer_bar_index, std::vector<TimerBar>& bars, S32 history_index, bool draw);
+	S32 drawBar(LLTrace::TimeBlock* time_block, LLRect bar_rect, std::vector<TimerBar>& bars, S32 bar_index, LLPointer<LLUIImage>& bar_image);
+	void updatePauseState();
 
 	std::vector<TimerBar>* mTimerBars;
 	S32 mDisplayMode;
