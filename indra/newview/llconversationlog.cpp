@@ -229,7 +229,7 @@ void LLConversationLog::logConversation(const LLUUID& session_id, BOOL has_offli
 	const LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
 	LLConversation* conversation = findConversation(session);
 
-	if (session)
+	if (session && session->mOtherParticipantID != gAgentID)
 	{
     	if (conversation)
 		{
