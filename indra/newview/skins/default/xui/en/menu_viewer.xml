@@ -310,30 +310,39 @@
              parameter="gestures" />
         </menu_item_check>
         <menu_item_separator/>
-        <menu_item_call
+        <menu_item_check
          label="Friends"
          name="My Friends"
          shortcut="control|shift|F">
-            <menu_item_call.on_click
+            <menu_item_check.on_check
+             function="SideTray.CheckPanelPeopleTab"
+             parameter="friends_panel" />
+            <menu_item_check.on_click
              function="SideTray.PanelPeopleTab"
              parameter="friends_panel" />
-            </menu_item_call>
-        <menu_item_call
+            </menu_item_check>
+        <menu_item_check
          label="Groups"
          name="My Groups"
          shortcut="control|shift|G">
-            <menu_item_call.on_click
+         	<menu_item_check.on_check
+             function="SideTray.CheckPanelPeopleTab"
+             parameter="groups_panel" />
+            <menu_item_check.on_click
              function="SideTray.PanelPeopleTab"
              parameter="groups_panel" />
-        </menu_item_call>
-        <menu_item_call
+        </menu_item_check>
+        <menu_item_check
          label="Nearby people"
          name="Active Speakers"
          shortcut="control|shift|A">
-            <menu_item_call.on_click
+        	 <menu_item_check.on_check
+             function="SideTray.CheckPanelPeopleTab"
+             parameter="nearby_panel" />
+            <menu_item_check.on_click
               function="SideTray.PanelPeopleTab"
               parameter="nearby_panel" />
-        </menu_item_call>
+        </menu_item_check>
         <menu_item_call
          label="Block List"
          name="Block List">
@@ -918,14 +927,6 @@
                function="Tools.TakeCopy" />
 			<menu_item_call.on_enable
                function="Tools.EnableTakeCopy" />
-          </menu_item_call>
-          <menu_item_call
-			 label="Save Back to My Inventory"
-			 name="Save Object Back to My Inventory">
-			<menu_item_call.on_click
-               function="Tools.SaveToInventory" />
-			<menu_item_call.on_enable
-               function="Tools.EnableSaveToInventory" />
           </menu_item_call>
           <menu_item_call
 			 label="Save Back to Object Contents"
@@ -3280,6 +3281,40 @@
                      parameter="AllowSelectAvatar" />
                 </menu_item_check>
             </menu>
+            <menu
+             create_jump_keys="true"
+             label="Animation Speed"
+             name="Animation Speed"
+             tear_off="true">
+                <menu_item_call
+                 label="All Animations 10% Faster"
+                 name="All Animations 10 Faster">
+                    <menu_item_call.on_click
+                     function="Advanced.AnimTenFaster" />
+                </menu_item_call>
+                <menu_item_call
+                 label="All Animations 10% Slower"
+                 name="All Animations 10 Slower">
+                    <menu_item_call.on_click
+                     function="Advanced.AnimTenSlower" />
+                </menu_item_call>
+                <menu_item_call
+                 label="Reset All Animation Speed"
+                 name="Reset All Animation Speed">
+                    <menu_item_call.on_click
+                     function="Advanced.AnimResetAll" />
+                </menu_item_call>
+				<menu_item_check
+				 label="Slow Motion Animations"
+				 name="Slow Motion Animations">
+					<menu_item_check.on_check
+					 function="CheckControl"
+					 parameter="SlowMotionAnimation" />
+					<menu_item_check.on_click
+					 function="ToggleControl"
+					 parameter="SlowMotionAnimation" />
+				</menu_item_check>
+            </menu>
             <menu_item_call
              label="Force Params to Default"
              name="Force Params to Default">
@@ -3295,16 +3330,6 @@
                 <menu_item_check.on_click
                  function="Advanced.ToggleAnimationInfo"
                  parameter="" />
-            </menu_item_check>
-            <menu_item_check
-             label="Slow Motion Animations"
-             name="Slow Motion Animations">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="SlowMotionAnimation" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="SlowMotionAnimation" />
             </menu_item_check>
             <menu_item_check
              label="Show Look At"

@@ -737,6 +737,20 @@ void LLFloaterModelPreview::onAutoFillCommit(LLUICtrl* ctrl, void* userdata)
 void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
 {
 	mModelPreview->onLODParamCommit(lod, enforce_tri_limit);
+
+	//refresh LoDs that reference this one
+	for (S32 i = lod - 1; i >= 0; --i)
+	{
+		LLComboBox* lod_source_combo = getChild<LLComboBox>("lod_source_" + lod_name[i]);
+		if (lod_source_combo->getCurrentIndex() == LLModelPreview::USE_LOD_ABOVE)
+		{
+			onLoDSourceCommit(i);
+		}
+		else
+		{
+			break;
+		}
+	}
 }
 
 
@@ -3870,14 +3884,29 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 
 	U32 triangle_count = 0;
 
-	for (LLModelLoader::model_list::iterator iter = mBaseModel.begin(); iter != mBaseModel.end(); ++iter)
+	U32 instanced_triangle_count = 0;
+
+	//get the triangle count for the whole scene
+	for (LLModelLoader::scene::iterator iter = mBaseScene.begin(), endIter = mBaseScene.end(); iter != endIter; ++iter)
 	{
-		LLModel* mdl = *iter;
-		for (S32 i = 0; i < mdl->getNumVolumeFaces(); ++i)
+		for (LLModelLoader::model_instance_list::iterator instance = iter->second.begin(), end_instance = iter->second.end(); instance != end_instance; ++instance)
 		{
-			triangle_count += mdl->getVolumeFace(i).mNumIndices/3;
+			LLModel* mdl = instance->mModel;
+			if (mdl)
+			{
+				instanced_triangle_count += mdl->getNumTriangles();
+			}
 		}
 	}
+
+	//get the triangle count for the non-instanced set of models
+	for (U32 i = 0; i < mBaseModel.size(); ++i)
+	{
+		triangle_count += mBaseModel[i]->getNumTriangles();
+	}
+	
+	//get ratio of uninstanced triangles to instanced triangles
+	F32 triangle_ratio = (F32) triangle_count / (F32) instanced_triangle_count;
 
 	U32 base_triangle_count = triangle_count;
 
@@ -3912,6 +3941,8 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		if (which_lod > -1 && which_lod < NUM_LOD)
 		{
 			limit = mFMP->childGetValue("lod_triangle_limit_" + lod_name[which_lod]).asInteger();
+			//convert from "scene wide" to "non-instanced" triangle limit
+			limit = (S32) ( (F32) limit*triangle_ratio );
 		}
 	}
 	else
@@ -4017,7 +4048,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		U32 actual_verts = 0;
 		U32 submeshes = 0;
 
-		mRequestedTriangleCount[lod] = triangle_count;
+		mRequestedTriangleCount[lod] = (S32) ( (F32) triangle_count / triangle_ratio );
 		mRequestedErrorThreshold[lod] = lod_error_threshold;
 
 		glodGroupParameteri(mGroup, GLOD_ADAPT_MODE, lod_mode);
@@ -4199,28 +4230,36 @@ void LLModelPreview::updateStatusMessages()
 		//initialize total for this lod to 0
 		total_tris[lod] = total_verts[lod] = total_submeshes[lod] = 0;
 
-		for (U32 i = 0; i < mModel[lod].size(); ++i)
-		{ //for each model in the lod
-			S32 cur_tris = 0;
-			S32 cur_verts = 0;
-			S32 cur_submeshes = mModel[lod][i]->getNumVolumeFaces();
+		for (LLModelLoader::scene::iterator iter = mScene[lod].begin(), endIter = mScene[lod].end(); iter != endIter; ++iter)
+		{
+			for (LLModelLoader::model_instance_list::iterator instance = iter->second.begin(), end_instance = iter->second.end(); instance != end_instance; ++instance)
+			{
+				LLModel* model = instance->mModel;
+				if (model)
+				{
+					 //for each model in the lod
+					S32 cur_tris = 0;
+					S32 cur_verts = 0;
+					S32 cur_submeshes = model->getNumVolumeFaces();
 
-			for (S32 j = 0; j < cur_submeshes; ++j)
-			{ //for each submesh (face), add triangles and vertices to current total
-				const LLVolumeFace& face = mModel[lod][i]->getVolumeFace(j);
-				cur_tris += face.mNumIndices/3;
-				cur_verts += face.mNumVertices;
+					for (S32 j = 0; j < cur_submeshes; ++j)
+					{ //for each submesh (face), add triangles and vertices to current total
+						const LLVolumeFace& face = model->getVolumeFace(j);
+						cur_tris += face.mNumIndices/3;
+						cur_verts += face.mNumVertices;
+					}
+
+					//add this model to the lod total
+					total_tris[lod] += cur_tris;
+					total_verts[lod] += cur_verts;
+					total_submeshes[lod] += cur_submeshes;
+
+					//store this model's counts to asset data
+					tris[lod].push_back(cur_tris);
+					verts[lod].push_back(cur_verts);
+					submeshes[lod].push_back(cur_submeshes);
+				}
 			}
-
-			//add this model to the lod total
-			total_tris[lod] += cur_tris;
-			total_verts[lod] += cur_verts;
-			total_submeshes[lod] += cur_submeshes;
-
-			//store this model's counts to asset data
-			tris[lod].push_back(cur_tris);
-			verts[lod].push_back(cur_verts);
-			submeshes[lod].push_back(cur_submeshes);
 		}
 	}
 
@@ -4397,34 +4436,38 @@ void LLModelPreview::updateStatusMessages()
 	}
 	
 	//add up physics triangles etc
-	S32 start = 0;
-	S32 end = mModel[LLModel::LOD_PHYSICS].size();
-
 	S32 phys_tris = 0;
 	S32 phys_hulls = 0;
 	S32 phys_points = 0;
 
-	for (S32 i = start; i < end; ++i)
-	{ //add up hulls and points and triangles for selected mesh(es)
-		LLModel* model = mModel[LLModel::LOD_PHYSICS][i];
-		S32 cur_submeshes = model->getNumVolumeFaces();
-
-		LLModel::convex_hull_decomposition& decomp = model->mPhysics.mHull;
-
-		if (!decomp.empty())
+	//get the triangle count for the whole scene
+	for (LLModelLoader::scene::iterator iter = mScene[LLModel::LOD_PHYSICS].begin(), endIter = mScene[LLModel::LOD_PHYSICS].end(); iter != endIter; ++iter)
+	{
+		for (LLModelLoader::model_instance_list::iterator instance = iter->second.begin(), end_instance = iter->second.end(); instance != end_instance; ++instance)
 		{
-			phys_hulls += decomp.size();
-			for (U32 i = 0; i < decomp.size(); ++i)
+			LLModel* model = instance->mModel;
+			if (model)
 			{
-				phys_points += decomp[i].size();
-			}
-		}
-		else
-		{ //choose physics shape OR decomposition, can't use both
-			for (S32 j = 0; j < cur_submeshes; ++j)
-			{ //for each submesh (face), add triangles and vertices to current total
-				const LLVolumeFace& face = model->getVolumeFace(j);
-				phys_tris += face.mNumIndices/3;
+				S32 cur_submeshes = model->getNumVolumeFaces();
+
+				LLModel::convex_hull_decomposition& decomp = model->mPhysics.mHull;
+
+				if (!decomp.empty())
+				{
+					phys_hulls += decomp.size();
+					for (U32 i = 0; i < decomp.size(); ++i)
+					{
+						phys_points += decomp[i].size();
+					}
+				}
+				else
+				{ //choose physics shape OR decomposition, can't use both
+					for (S32 j = 0; j < cur_submeshes; ++j)
+					{ //for each submesh (face), add triangles and vertices to current total
+						const LLVolumeFace& face = model->getVolumeFace(j);
+						phys_tris += face.mNumIndices/3;
+					}
+				}
 			}
 		}
 	}
@@ -4588,7 +4631,7 @@ void LLModelPreview::updateLodControls(S32 lod)
 	if (!lod_combo) return;
 
 	S32 lod_mode = lod_combo->getCurrentIndex();
-	if (lod_mode == 0) // LoD from file
+	if (lod_mode == LOD_FROM_FILE) // LoD from file
 	{
 		fmp->mLODMode[lod] = 0;
 		for (U32 i = 0; i < num_file_controls; ++i)
@@ -4601,7 +4644,7 @@ void LLModelPreview::updateLodControls(S32 lod)
 			mFMP->childHide(lod_controls[i] + lod_name[lod]);
 		}
 	}
-	else if (lod_mode == 2) // use LoD above
+	else if (lod_mode == USE_LOD_ABOVE) // use LoD above
 	{
 		fmp->mLODMode[lod] = 2;
 		for (U32 i = 0; i < num_file_controls; ++i)
@@ -5073,6 +5116,11 @@ BOOL LLModelPreview::render()
 		refresh();
 	}
 
+	if (use_shaders)
+	{
+		gObjectPreviewProgram.bind();
+	}
+
 	gGL.loadIdentity();
 	gPipeline.enableLightsPreview();
 
@@ -5097,11 +5145,6 @@ BOOL LLModelPreview::render()
 	gGL.color3f(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS);
 
 	const U32 type_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
-
-	if (use_shaders)
-	{
-		gObjectPreviewProgram.bind();
-	}
 
 	LLGLEnable normalize(GL_NORMALIZE);
 
@@ -5291,7 +5334,7 @@ BOOL LLModelPreview::render()
 											hull_colors.push_back(LLColor4U(rand()%128+127, rand()%128+127, rand()%128+127, 128));
 										}
 
-										glColor4ubv(hull_colors[i].mV);
+										gGL.diffuseColor4ubv(hull_colors[i].mV);
 										LLVertexBuffer::drawArrays(LLRender::TRIANGLES, physics.mMesh[i].mPositions, physics.mMesh[i].mNormals);
 
 										if (explode > 0.f)
@@ -5762,6 +5805,12 @@ void LLFloaterModelPreview::onLoDSourceCommit(S32 lod)
 {
 	mModelPreview->updateLodControls(lod);
 	refresh();
+
+	LLComboBox* lod_source_combo = getChild<LLComboBox>("lod_source_" + lod_name[lod]);
+	if (lod_source_combo->getCurrentIndex() == LLModelPreview::GENERATE)
+	{ //rebuild LoD to update triangle counts
+		onLODParamCommit(lod, true);
+	}
 }
 
 void LLFloaterModelPreview::resetDisplayOptions()

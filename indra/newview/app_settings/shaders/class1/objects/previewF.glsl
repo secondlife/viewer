@@ -1,10 +1,9 @@
 /** 
- * @file llmemoryview.h
- * @brief LLMemoryView class definition
+ * @file previewF.glsl
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,39 +23,19 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMEMORYVIEW_H
-#define LL_LLMEMORYVIEW_H
-
-#include "llview.h"
-
-class LLAllocator;
-
-class LLMemoryView : public LLView
-{
-public:
-	struct Params : public LLInitParam::Block<Params, LLView::Params>
-	{
-		Params()
-		{
-			changeDefault(mouse_opaque, true);
-			changeDefault(visible, false);
-		}
-	};
-	LLMemoryView(const LLMemoryView::Params&);
-	virtual ~LLMemoryView();
-
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
-	virtual void draw();
-
-	void refreshProfile();
-
-private:
-    std::vector<LLWString> mLines;
-	LLAllocator* mAlloc;
-	BOOL mPaused ;
-
-};
-
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
 #endif
+
+uniform sampler2D diffuseMap;
+
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
+
+void main()
+{
+	vec4 color = texture2D(diffuseMap,vary_texcoord0.xy) * vertex_color;
+	frag_color = color;
+}

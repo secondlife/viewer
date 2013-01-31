@@ -32,7 +32,6 @@
 #include "llcommunicationchannel.h"
 #include "lldir.h"
 #include "llerror.h"
-#include "llfasttimer_class.h"
 #include "llfloaterreg.h"
 #include "llnotifications.h"
 #include "llnotificationhandler.h"

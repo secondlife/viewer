@@ -65,6 +65,7 @@ public:
 								show_line_numbers,
 								commit_on_focus_lost,
 								show_context_menu,
+								enable_tooltip_paste,
 								auto_indent;
 
 		//colors
@@ -297,6 +298,8 @@ private:
 	// Methods
 	//
 	void	        pasteHelper(bool is_primary);
+	void			cleanStringForPaste(LLWString & clean_string);
+	void			pasteTextWithLinebreaks(LLWString & clean_string);
 
 	void			drawLineNumbers();
 
@@ -330,6 +333,7 @@ private:
 	BOOL			mAllowEmbeddedItems;
 	bool			mShowContextMenu;
 	bool			mParseOnTheFly;
+	bool			mEnableTooltipPaste;
 	bool			mPassDelete;
 
 	LLUUID			mSourceID;

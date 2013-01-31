@@ -3035,11 +3035,11 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				}
 				else
 				{
-					LLNotification::Params params("TeleportOffered");
-					params.substitutions = args;
-					params.payload = payload;
-					LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
-				}
+			    LLNotification::Params params("TeleportOffered");
+			    params.substitutions = args;
+			    params.payload = payload;
+			    LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
+			}
 
 			}
 		}
@@ -3130,10 +3130,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
-				// do not show a message box, because you're about to be
-				// teleported.
-				LLNotifications::instance().forceResponse(LLNotification::Params("TeleportOffered").payload(payload), 0);
-			}
+			// do not show a message box, because you're about to be
+			// teleported.
+			LLNotifications::instance().forceResponse(LLNotification::Params("TeleportOffered").payload(payload), 0);
+		}
 		}
 		break;
 
@@ -4303,7 +4303,7 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 		msg_number += 1;
 		if (head_rot_chg < THRESHOLD_HEAD_ROT_QDOT)
 		{
-			//LL_INFOS("Messaging") << " head rot " << head_rotation << LL_ENDL;
+			//LL_INFOS("Messaging") << "head rot " << head_rotation << LL_ENDL;
 			LL_INFOS("Messaging") << "msg " << msg_number << ", frame " << LLFrameTimer::getFrameCount() << ", head_rot_chg " << head_rot_chg << LL_ENDL;
 		}
 		if (cam_rot_chg.magVec() > ROTATION_THRESHOLD) 
@@ -4322,7 +4322,7 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 		{
 			LL_INFOS("Messaging") << "msg " << msg_number << ", frame " << LLFrameTimer::getFrameCount() << ", dcf = " << control_flag_change << LL_ENDL;
 		}
-		*/
+*/
 
 		duplicate_count = 0;
 	}
@@ -4447,7 +4447,6 @@ extern U32 gObjectBits;
 
 void process_object_update(LLMessageSystem *mesgsys, void **user_data)
 {	
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
 	// Update the data counters
 	if (mesgsys->getReceiveCompressedSize())
 	{
@@ -4464,7 +4463,6 @@ void process_object_update(LLMessageSystem *mesgsys, void **user_data)
 
 void process_compressed_object_update(LLMessageSystem *mesgsys, void **user_data)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
 	// Update the data counters
 	if (mesgsys->getReceiveCompressedSize())
 	{
@@ -4481,7 +4479,6 @@ void process_compressed_object_update(LLMessageSystem *mesgsys, void **user_data
 
 void process_cached_object_update(LLMessageSystem *mesgsys, void **user_data)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
 	// Update the data counters
 	if (mesgsys->getReceiveCompressedSize())
 	{
@@ -4499,7 +4496,6 @@ void process_cached_object_update(LLMessageSystem *mesgsys, void **user_data)
 
 void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_data)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
 	if (mesgsys->getReceiveCompressedSize())
 	{
 		gObjectBits += mesgsys->getReceiveCompressedSize() * 8;
@@ -4512,7 +4508,7 @@ void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_
 	gObjectList.processCompressedObjectUpdate(mesgsys, user_data, OUT_TERSE_IMPROVED);
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_OBJECTS("Process Objects");
+static LLFastTimer::DeclareTimer FTM_PROCESS_OBJECTS("Process Kill Objects");
 
 
 void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
@@ -5654,14 +5650,14 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 bool handle_prompt_for_maturity_level_change_callback(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	
+
 	if (0 == option)
 	{
 		// set the preference to the maturity of the region we're calling
 		U8 preferredMaturity = static_cast<U8>(notification["payload"]["_region_access"].asInteger());
 		gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(preferredMaturity));
 	}
-	
+
 	return false;
 }
 
@@ -5724,7 +5720,7 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 			gAgent.clearTeleportRequest();
 			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
 			returnValue = true;
-
+	
 			notifySuffix = "_NotifyAdultsOnly";
 		}
 		else if (gAgent.prefersPG() || gAgent.prefersMature())
@@ -5821,7 +5817,7 @@ bool handle_teleport_access_blocked(LLSD& llsdBlock)
 			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
 			returnValue = true;
 		}
-	}
+		}
 
 	if ((maturityLevelNotification == NULL) || maturityLevelNotification->isIgnored())
 	{
@@ -5987,8 +5983,8 @@ void process_alert_core(const std::string& message, BOOL modal)
 		std::string alert_name(message.substr(ALERT_PREFIX.length()));
 		if (!handle_special_alerts(alert_name))
 		{
-			LLNotificationsUtil::add(alert_name);
-		}
+		LLNotificationsUtil::add(alert_name);
+	}
 	}
 	else if (message.find(NOTIFY_PREFIX) == 0)
 	{

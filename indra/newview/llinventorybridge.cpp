@@ -3363,6 +3363,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 
 	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	const LLUUID lost_and_found_id = model->findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
+	const LLUUID favorites = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 
 	if (lost_and_found_id == mUUID)
 	{
@@ -3376,7 +3377,10 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		disabled_items.push_back(std::string("New Clothes"));
 		disabled_items.push_back(std::string("New Body Parts"));
 	}
-
+	if (favorites == mUUID)
+	{
+		disabled_items.push_back(std::string("New Folder"));
+	}
 	if(trash_id == mUUID)
 	{
 		// This is the trash.
@@ -4802,6 +4806,10 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			disabled_items.push_back(std::string("Share"));
 		}
+		if ((flags & FIRST_SELECTED_ITEM) == 0)
+		{
+		disabled_items.push_back(std::string("Open"));
+		}
 		addOpenRightClickMenuOption(items);
 		items.push_back(std::string("Properties"));
 
@@ -5768,7 +5776,8 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		items.push_back(std::string("Wearable Edit"));
 
-		if ((flags & FIRST_SELECTED_ITEM) == 0)
+		bool modifiable = !gAgentWearables.isWearableModifiable(item->getUUID());
+		if (((flags & FIRST_SELECTED_ITEM) == 0) || modifiable)
 		{
 			disabled_items.push_back(std::string("Wearable Edit"));
 		}

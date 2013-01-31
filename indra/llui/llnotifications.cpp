@@ -1147,6 +1147,11 @@ bool LLNotificationChannel::isEmpty() const
 	return mItems.empty();
 }
 
+S32 LLNotificationChannel::size() const
+{
+	return mItems.size();
+}
+
 LLNotificationChannel::Iterator LLNotificationChannel::begin()
 {
 	return mItems.begin();

@@ -498,25 +498,28 @@ void LLFloaterIMSessionTab::refreshConversation()
 		updateSessionName(session_name);
 	}
 
-	LLParticipantList* participant_list = getParticipantList();
-	if (participant_list)
+	if (mSessionID.notNull())
 	{
-		LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = participant_list->getChildrenBegin();
-		LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = participant_list->getChildrenEnd();
-		LLIMSpeakerMgr *speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
-		while (current_participant_model != end_participant_model)
+		LLParticipantList* participant_list = getParticipantList();
+		if (participant_list)
 		{
-			LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
-			if (speaker_mgr && participant_model)
+			LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = participant_list->getChildrenBegin();
+			LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = participant_list->getChildrenEnd();
+			LLIMSpeakerMgr *speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
+			while (current_participant_model != end_participant_model)
 			{
-				LLSpeaker *participant_speaker = speaker_mgr->findSpeaker(participant_model->getUUID());
-				LLSpeaker *agent_speaker = speaker_mgr->findSpeaker(gAgentID);
-				if (participant_speaker && agent_speaker)
+				LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
+				if (speaker_mgr && participant_model)
 				{
-					participant_model->setDisplayModeratorRole(agent_speaker->mIsModerator && participant_speaker->mIsModerator);
+					LLSpeaker *participant_speaker = speaker_mgr->findSpeaker(participant_model->getUUID());
+					LLSpeaker *agent_speaker = speaker_mgr->findSpeaker(gAgentID);
+					if (participant_speaker && agent_speaker)
+					{
+						participant_model->setDisplayModeratorRole(agent_speaker->mIsModerator && participant_speaker->mIsModerator);
+					}
 				}
+				current_participant_model++;
 			}
-			current_participant_model++;
 		}
 	}
 	

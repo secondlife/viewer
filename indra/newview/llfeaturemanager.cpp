@@ -479,6 +479,7 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 			mGPUString = label;
 			mGPUClass = (EGPUClass) strtol(cls.c_str(), NULL, 10);
 			mGPUSupported = (BOOL) strtol(supported.c_str(), NULL, 10);
+			sscanf(expected_gl_version.c_str(), "%f", &mExpectedGLVersion);
 		}
 	}
 #if LL_EXPORT_GPU_TABLE

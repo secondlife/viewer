@@ -962,7 +962,6 @@ void LLSaveFolderState::setApply(BOOL apply)
 
 void LLSaveFolderState::doFolder(LLFolderViewFolder* folder)
 {
-	LLMemType mt(LLMemType::MTYPE_INVENTORY_DO_FOLDER);
 	LLInvFVBridge* bridge = (LLInvFVBridge*)folder->getViewModelItem();
 	if(!bridge) return;
 	

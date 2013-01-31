@@ -46,8 +46,7 @@
         layout="topleft"
         name="voice_call_friends_only_check"
         top_pad="6"
-        width="350">
-      <check_box.label_text text_color="White" />
+        width="350">     
     </check_box>
 
     <text
@@ -79,8 +78,7 @@
       <item
           label="Large"
           name="Large"
-          value="2"/>
-      <combo_box.drop_down_button label_color="White" />
+          value="2"/>  
     </combo_box>
 
     <check_box
@@ -107,7 +105,6 @@
         height="12"
         name="notifications"
         left="0"
-        text_color="White"
         width="120">
       Notifications
     </text>
@@ -392,14 +389,12 @@
         <item
             label="No log or transcripts"
             value="0"/>
-        <drop_down_button label_color="White" />
     </combo_box>
 
     <button
         enabled="false"
         height="23"
         label="Clear log..."
-        label_color="White"
         layout="topleft"
         left_pad="5"
         top="0"
@@ -413,7 +408,6 @@
         enabled="false"
         height="23"
         label="Delete transcripts..."
-        label_color="White"
         layout="topleft"
         left_pad="5"
         top="0"
@@ -452,7 +446,6 @@
         follows="left|top"
         height="23"
         label="Browse..."
-        label_color="White"
         label_selected="Browse"
         layout="topleft"
         left_pad="5"
