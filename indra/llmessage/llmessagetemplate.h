@@ -29,7 +29,6 @@
 
 #include "lldarray.h"
 #include "message.h" // TODO: babbage: Remove...
-#include "llstat.h"
 #include "llstl.h"
 
 class LLMsgVarData
@@ -263,6 +262,7 @@ enum EMsgDeprecation
 	MD_DEPRECATED
 };
 
+
 class LLMessageTemplate
 {
 public:
@@ -364,7 +364,6 @@ public:
 	{
 		if (mHandlerFunc)
 		{
-            LLPerfBlock msg_cb_time("msg_cb", mName);
 			mHandlerFunc(msgsystem, mUserData);
 			return TRUE;
 		}

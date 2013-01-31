@@ -2587,9 +2587,7 @@ BOOL LLMenuGL::appendMenu( LLMenuGL* menu )
 }
 
 // add a context menu branch
-
 BOOL LLMenuGL::appendContextSubMenu(LLMenuGL *menu)
-
 {
 	if (menu == this)
 	{
@@ -2598,7 +2596,6 @@ BOOL LLMenuGL::appendContextSubMenu(LLMenuGL *menu)
 
 	LLContextMenuBranch *item;
 	LLContextMenuBranch::Params p;
-
 	p.name = menu->getName();
 	p.label = menu->getLabel();
 	p.branch = (LLContextMenu *)menu;
@@ -2606,6 +2603,7 @@ BOOL LLMenuGL::appendContextSubMenu(LLMenuGL *menu)
 	p.disabled_color=LLUIColorTable::instance().getColor("MenuItemDisabledColor");
 	p.highlight_bg_color=LLUIColorTable::instance().getColor("MenuItemHighlightBgColor");
 	p.highlight_fg_color=LLUIColorTable::instance().getColor("MenuItemHighlightFgColor");
+
 	item = LLUICtrlFactory::create<LLContextMenuBranch>(p);
 	LLMenuGL::sMenuContainer->addChild(item->getBranch());
 

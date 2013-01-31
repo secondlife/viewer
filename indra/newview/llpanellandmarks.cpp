@@ -405,13 +405,13 @@ void LLLandmarksPanel::setItemSelected(const LLUUID& obj_id, BOOL take_keyboard_
 bool LLLandmarksPanel::isLandmarkSelected() const 
 {
 	LLFolderViewModelItemInventory* current_item = getCurSelectedViewModelItem();
+	return current_item && (current_item->getInventoryType() == LLInventoryType::IT_LANDMARK);
+}
 
-	if(current_item && current_item->getInventoryType() == LLInventoryType::IT_LANDMARK)
-	{
-		return true;
-	}
-
-	return false;
+bool LLLandmarksPanel::isFolderSelected() const
+{
+	LLFolderViewModelItemInventory* current_item = getCurSelectedViewModelItem();
+	return current_item && (current_item->getInventoryType() == LLInventoryType::IT_CATEGORY);
 }
 
 bool LLLandmarksPanel::isReceivedFolderSelected() const
@@ -709,7 +709,7 @@ void LLLandmarksPanel::initListCommandsHandlers()
 void LLLandmarksPanel::updateListCommands()
 {
 	bool add_folder_enabled = isActionEnabled("category");
-	bool trash_enabled = isActionEnabled("delete");
+	bool trash_enabled = isActionEnabled("delete") && (isFolderSelected() || isLandmarkSelected());
 
 	// keep Options & Add Landmark buttons always enabled
 	mListCommands->getChildView(ADD_FOLDER_BUTTON_NAME)->setEnabled(add_folder_enabled);

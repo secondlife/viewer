@@ -103,7 +103,8 @@ public:
 		mTableVersion(0),
 		mSafe(FALSE),
 		mGPUClass(GPU_CLASS_UNKNOWN),
-		mGPUSupported(FALSE)
+		mExpectedGLVersion(0.f),
+		mGPUSupported(FALSE)		
 	{
 	}
 	~LLFeatureManager() {cleanupFeatureTables();}
@@ -118,6 +119,7 @@ public:
 	EGPUClass getGPUClass() 			{ return mGPUClass; }
 	std::string& getGPUString() 		{ return mGPUString; }
 	BOOL isGPUSupported()				{ return mGPUSupported; }
+	F32 getExpectedGLVersion()			{ return mExpectedGLVersion; }
 	
 	void cleanupFeatureTables();
 
@@ -157,6 +159,7 @@ protected:
 	S32			mTableVersion;
 	BOOL		mSafe;					// Reinitialize everything to the "safe" mask
 	EGPUClass	mGPUClass;
+	F32			mExpectedGLVersion;		//expected GL version according to gpu table
 	std::string	mGPUString;
 	BOOL		mGPUSupported;
 };

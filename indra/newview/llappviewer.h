@@ -42,6 +42,9 @@ class LLTextureFetch;
 class LLWatchdogTimeout;
 class LLUpdaterService;
 
+extern LLFastTimer::DeclareTimer FTM_FRAME;
+
+
 class LLAppViewer : public LLApp
 {
 public:

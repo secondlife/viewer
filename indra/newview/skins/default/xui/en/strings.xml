@@ -1450,7 +1450,7 @@ integer llScriptDanger(vector pos)
 Returns TRUE if pos is over public land, sandbox land, land that doesn&apos;t allow everyone to edit and build, or land that doesn&apos;t allow outside scripts
 	</string>
 	<string name="LSLTipText_llDialog" translate="false">
-llDialog(key avatar, string message, list buttons, integer chat_channel
+llDialog(key avatar, string message, list buttons, integer chat_channel)
 Shows a dialog box on the avatar&apos;s screen with a message and up to 12 buttons.
 If a button is pressed, the avatar says the text of the button label on chat_channel.
 	</string>
@@ -3326,7 +3326,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="LocationCtrlAdultIconTooltip">Adult Region</string>
   <string name="LocationCtrlModerateIconTooltip">Moderate Region</string>
   <string name="LocationCtrlGeneralIconTooltip">General Region</string>
-  <string name="LocationCtrlSeeAVsTooltip">Avatars visible and chat allowed outside of this parcel</string>
+  <string name="LocationCtrlSeeAVsTooltip">Avatars inside this parcel cannot be seen or heard by avatars outside this parcel</string>
   <string name="LocationCtrlPathfindingDirtyTooltip">Objects that move may not behave correctly in this region until the region is rebaked.</string>
   <string name="LocationCtrlPathfindingDisabledTooltip">Dynamic pathfinding is not enabled on this region.</string>
   <!-- Strings used by the (currently Linux) auto-updater app -->

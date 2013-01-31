@@ -33,8 +33,6 @@
 #include "llappviewermacosx.h"
 #include "llcommandlineparser.h"
 
-#include "llmemtype.h"
-
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
 #include "llmd5.h"
@@ -67,8 +65,6 @@ namespace
 
 int main( int argc, char **argv ) 
 {
-	LLMemType mt1(LLMemType::MTYPE_STARTUP);
-
 #if LL_SOLARIS && defined(__sparc)
 	asm ("ta\t6");		 // NOTE:  Make sure memory alignment is enforced on SPARC
 #endif

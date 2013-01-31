@@ -41,7 +41,6 @@
 #include "llcursortypes.h"
 #include "llwindowcallbacks.h"
 #include "lltimer.h"
-#include "llstat.h"
 #include "llmousehandler.h"
 #include "llnotifications.h"
 #include "llhandle.h"
@@ -51,7 +50,7 @@
 #include <boost/signals2.hpp>
 #include <boost/scoped_ptr.hpp>
 
-
+class LLStat;
 class LLView;
 class LLViewerObject;
 class LLUUID;
@@ -252,7 +251,7 @@ public:
 	S32				getCurrentMouseDX()		const	{ return mCurrentMouseDelta.mX; }
 	S32				getCurrentMouseDY()		const	{ return mCurrentMouseDelta.mY; }
 	LLCoordGL		getCurrentMouseDelta()	const	{ return mCurrentMouseDelta; }
-	LLStat *		getMouseVelocityStat()		{ return &mMouseVelocityStat; }
+	LLStat*			getMouseVelocityStat()		{ return mMouseVelocityStat; }
 	BOOL			getLeftMouseDown()	const	{ return mLeftMouseDown; }
 	BOOL			getMiddleMouseDown()	const	{ return mMiddleMouseDown; }
 	BOOL			getRightMouseDown()	const	{ return mRightMouseDown; }
@@ -433,7 +432,7 @@ private:
 	LLCoordGL		mCurrentMousePoint;			// last mouse position in GL coords
 	LLCoordGL		mLastMousePoint;		// Mouse point at last frame.
 	LLCoordGL		mCurrentMouseDelta;		//amount mouse moved this frame
-	LLStat			mMouseVelocityStat;
+	LLStat*			mMouseVelocityStat;
 	BOOL			mLeftMouseDown;
 	BOOL			mMiddleMouseDown;
 	BOOL			mRightMouseDown;

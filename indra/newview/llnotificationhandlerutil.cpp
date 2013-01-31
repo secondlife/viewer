@@ -129,7 +129,8 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_fi
 
 		if (from_id.isNull())
 		{
-			llwarns << " from_id for notification " << notification->getName() << " is null " << llendl;
+			// Normal behavior for system generated messages, don't spam.
+			// llwarns << " from_id for notification " << notification->getName() << " is null " << llendl;
 			return;
 		}
 
