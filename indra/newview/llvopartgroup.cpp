@@ -599,7 +599,6 @@ static LLFastTimer::DeclareTimer FTM_REBUILD_PARTICLE_GEOM("Particle Geom");
 
 void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	LLFastTimer ftm(FTM_REBUILD_PARTICLE_GEOM);
 
 	std::sort(mFaceList.begin(), mFaceList.end(), LLFace::CompareDistanceGreater());

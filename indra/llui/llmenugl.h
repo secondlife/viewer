@@ -716,19 +716,24 @@ public:
 
 	LLContextMenuBranch(const Params&);
 
-	// Called to rebuild strings for this item
+	virtual ~LLContextMenuBranch()
+	{}
+
+	// called to rebuild the draw label
 	virtual void	buildDrawLabel( void );
 
-	// Performed when menu item clicked
+	// onCommit() - do the primary funcationality of the menu item.
 	virtual void	onCommit( void );
 
 	LLContextMenu*	getBranch() { return mBranch.get(); }
 	void			setHighlight( BOOL highlight );
 
 protected:
-	void			showSubMenu();
+	void	showSubMenu();
+
 	LLHandle<LLContextMenu> mBranch;
 };
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLMenuBarGL

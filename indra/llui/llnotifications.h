@@ -840,6 +840,7 @@ public:
 	void connectToChannel(const std::string& channel_name);
     
     bool isEmpty() const;
+    S32 size() const;
     
     Iterator begin();
     Iterator end();

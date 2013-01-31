@@ -117,7 +117,8 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 	mButtonEnterSignal(NULL),
 	mButtonLeaveSignal(NULL),
 	mButtonRemoveSignal(NULL),
-	mDragAndDropTarget(false)
+	mDragAndDropTarget(false),
+	mCaretIcon(NULL)
 {
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_WITH_TEXT] = p.button_icon_and_text;
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_ONLY] = p.button_icon;
@@ -830,7 +831,12 @@ void LLToolBar::draw()
 	LLUI::translate((F32)getRect().mLeft, (F32)getRect().mBottom);
 
 	// Position the caret 
-	LLIconCtrl* caret = getChild<LLIconCtrl>("caret");
+	if (!mCaretIcon)
+	{
+		mCaretIcon = getChild<LLIconCtrl>("caret");
+	}
+
+	LLIconCtrl* caret = mCaretIcon;
 	caret->setVisible(FALSE);
 	if (mDragAndDropTarget && !mButtonCommands.empty())
 	{

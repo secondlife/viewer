@@ -456,10 +456,10 @@ void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 void LLSidepanelAppearance::editWearable(LLWearable *wearable, LLView *data, BOOL disable_camera_switch)
 {
 	LLFloaterSidePanelContainer::showPanel("appearance", LLSD());
-
 	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(data);
 	if (panel)
 	{
+		panel->showOutfitsInventoryPanel();
 		panel->showWearableEditPanel(wearable, disable_camera_switch);
 	}
 }
