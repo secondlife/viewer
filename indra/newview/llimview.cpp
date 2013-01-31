@@ -847,8 +847,9 @@ bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, co
 
 bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, bool voice, bool has_offline_msg)
 {
-	uuid_vec_t no_ids;
-	return newSession(session_id, name, type, other_participant_id, no_ids, voice, has_offline_msg);
+	uuid_vec_t ids;
+	ids.push_back(other_participant_id);
+	return newSession(session_id, name, type, other_participant_id, ids, voice, has_offline_msg);
 }
 
 bool LLIMModel::clearSession(const LLUUID& session_id)
