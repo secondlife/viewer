@@ -194,6 +194,7 @@ LLConversationLog::LLConversationLog() :
 
 	if (log_mode > 0)
 	{
+		loadFromFile(getFileName());
 		keep_log_ctrlp->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
 		enableLogging(log_mode);
 	}
@@ -203,8 +204,6 @@ void LLConversationLog::enableLogging(S32 log_mode)
 {
 	if (log_mode > 0)
 	{
-		loadFromFile(getFileName());
-
 		LLIMMgr::instance().addSessionObserver(this);
 		mNewMessageSignalConnection = LLIMModel::instance().addNewMsgCallback(boost::bind(&LLConversationLog::onNewMessageReceived, this, _1));
 
@@ -229,7 +228,7 @@ void LLConversationLog::logConversation(const LLUUID& session_id, BOOL has_offli
 	const LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
 	LLConversation* conversation = findConversation(session);
 
-    if (session)
+	if (session)
 	{
     	if (conversation)
 		{
