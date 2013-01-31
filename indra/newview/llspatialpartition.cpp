@@ -4672,7 +4672,12 @@ LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
 	mGroup(NULL),
 	mFace(NULL),
 	mDistance(0.f),
-	mDrawMode(LLRender::TRIANGLES)
+	mDrawMode(LLRender::TRIANGLES),
+	mSpecColor(1.0f, 1.0f, 1.0f, 0.5f),
+	mEnvIntensity(0.0f),
+	mAlphaMaskCutoff(0.5f),
+	mDiffuseAlphaMode(0),
+	mMaterialID(NULL)
 {
 	mVertexBuffer->validateRange(mStart, mEnd, mCount, mOffset);
 	

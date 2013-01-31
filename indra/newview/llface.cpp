@@ -316,6 +316,48 @@ void LLFace::setTexture(LLViewerTexture* tex)
 	mTexture = tex ;
 }
 
+void LLFace::setNormalMap(LLViewerTexture* tex)
+{
+	if(mNormalMap == tex)
+	{
+		return ;
+	}
+	
+	if(mNormalMap.notNull())
+	{
+		mNormalMap->removeFace(this) ;
+		removeAtlas() ;
+	}
+	
+	if(tex)
+	{
+		tex->addFace(this) ;
+	}
+	
+	mNormalMap = tex ;
+}
+
+void LLFace::setSpecularMap(LLViewerTexture* tex)
+{
+	if(mSpecMap == tex)
+	{
+		return ;
+	}
+	
+	if(mSpecMap.notNull())
+	{
+		mSpecMap->removeFace(this) ;
+		removeAtlas() ;
+	}
+	
+	if(tex)
+	{
+		tex->addFace(this) ;
+	}
+	
+	mSpecMap = tex ;
+}
+
 void LLFace::dirtyTexture()
 {
 	LLDrawable* drawablep = getDrawable();
@@ -2035,9 +2077,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			LLFastTimer t(FTM_FACE_GEOM_BINORMAL);
 			mVertexBuffer->getBinormalStrider(binorm, mGeomIndex, mGeomCount, map_range);
 			F32* binormals = (F32*) binorm.get();
-		
+			
+			mVObjp->getVolume()->genBinormals(f);
+			
 			for (S32 i = 0; i < num_vertices; i++)
-			{	
+			{
 				LLVector4a binormal;
 				mat_normal.rotate(vf.mBinormals[i], binormal);
 				binormal.normalize3fast();
