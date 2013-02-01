@@ -37,6 +37,8 @@
 #include "llimview.h" //For LLIMModel
 #include "lltrans.h"
 
+#include <boost/foreach.hpp>
+
 //
 // Conversation items : common behaviors
 //
@@ -234,15 +236,19 @@ void LLConversationItemSession::updateName(LLConversationItemParticipant* partic
 	}
 
 	uuid_vec_t temp_uuids; // uuids vector for building the added participants' names string
-	if (conversation_type == CONV_SESSION_AD_HOC)
+	if (conversation_type == CONV_SESSION_AD_HOC || conversation_type == CONV_SESSION_1_ON_1)
 	{
 		// Build a string containing the participants UUIDs (minus own agent) and check if ready for display (we don't want "(waiting)" in there)
 		// Note: we don't bind ourselves to the LLAvatarNameCache event as updateParticipantName() is called by
 		// onAvatarNameCache() which is itself attached to the same event.
-		child_list_t::iterator iter = mChildren.begin();
-		while (iter != mChildren.end())
+
+		// In the case of a P2P conversation, we need to grab the name of the other participant in the session instance itself
+		// as we do not create participants for such a session.
+
+		LLFolderViewModelItem * itemp;
+		BOOST_FOREACH(itemp, mChildren)
 		{
-			LLConversationItemParticipant* current_participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
+			LLConversationItem* current_participant = dynamic_cast<LLConversationItem*>(itemp);
 			// Add the avatar uuid to the list (except if it's the own agent uuid)
 			if (current_participant->getUUID() != gAgentID)
 			{
@@ -250,18 +256,13 @@ void LLConversationItemSession::updateName(LLConversationItemParticipant* partic
 				if (LLAvatarNameCache::get(current_participant->getUUID(), &av_name))
 				{
 					temp_uuids.push_back(current_participant->getUUID());
+
+					if (conversation_type == CONV_SESSION_1_ON_1)
+					{
+						break;
+					}
 				}
 			}
-			iter++;
-		}
-	}
-	else if (conversation_type == CONV_SESSION_1_ON_1)
-	{
-		// In the case of a P2P conversation, we need to grab the name of the other participant in the session instance itself
-		// as we do not create participants for such a session.
-		if (gAgentID != participant->getUUID())
-		{
-			temp_uuids.push_back(participant->getUUID());
 		}
 	}
 
