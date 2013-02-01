@@ -6645,11 +6645,13 @@ struct LLAppearanceMessageContents
 {
 	LLAppearanceMessageContents():
 		mAppearanceVersion(-1),
+		mParamAppearanceVersion(-1),
 		mCOFVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
 	{
 	}
 	LLTEContents mTEContents;
 	S32 mAppearanceVersion;
+	S32 mParamAppearanceVersion;
 	S32 mCOFVersion;
 	// For future use:
 	//U32 appearance_flags = 0;
@@ -6730,7 +6732,6 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 	}
 
 	LLVisualParam* appearance_version_param = getVisualParam(11000);
-	S32 param_appearance_version = -1;
 	if (appearance_version_param)
 	{
 		std::vector<LLVisualParam*>::iterator it = std::find(contents.mParams.begin(), contents.mParams.end(),appearance_version_param);
@@ -6738,28 +6739,38 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 		{
 			S32 index = it - contents.mParams.begin();
 			llinfos << "index: " << index << llendl;
-			param_appearance_version = llround(contents.mParamWeights[index]);
-			LL_DEBUGS("Avatar") << "appversion req by appearance_version param: " << contents.mAppearanceVersion << llendl;
+			contents.mParamAppearanceVersion = llround(contents.mParamWeights[index]);
+			LL_DEBUGS("Avatar") << "appversion req by appearance_version param: " << contents.mParamAppearanceVersion << llendl;
 		}
 	}
+}
+
+bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32& appearance_version)
+{
 	if ((contents.mAppearanceVersion) >= 0 &&
-		(param_appearance_version >= 0) &&
-		(contents.mAppearanceVersion != param_appearance_version))
+		(contents.mParamAppearanceVersion >= 0) &&
+		(contents.mAppearanceVersion != contents.mParamAppearanceVersion))
 	{
 		llwarns << "inconsistent appearance_version settings - field: " <<
-			contents.mAppearanceVersion << ", param: " <<  param_appearance_version << llendl;
+			contents.mAppearanceVersion << ", param: " <<  contents.mParamAppearanceVersion << llendl;
+		return false;
 	}
-	if (contents.mAppearanceVersion < 0 &&
-		param_appearance_version >= 0) // not set explicitly, try to get from visual param.
+	if (contents.mParamAppearanceVersion >= 0) // use visual param if available.
 	{
-		contents.mAppearanceVersion = param_appearance_version;
-		LL_DEBUGS("Avatar") << "appversion set by appearance_version param: " << contents.mAppearanceVersion << llendl;
+		appearance_version = contents.mParamAppearanceVersion;
+		LL_DEBUGS("Avatar") << "appversion set by appearance_version param: " << appearance_version << llendl;
+	}
+	if (contents.mAppearanceVersion >= 0)
+	{
+		appearance_version = contents.mAppearanceVersion;
+		LL_DEBUGS("Avatar") << "appversion set by appearance_version field: " << appearance_version << llendl;
 	}
 	if (contents.mAppearanceVersion < 0) // still not set, go with 0.
 	{
-		contents.mAppearanceVersion = 0;
-		LL_DEBUGS("Avatar") << "appversion set by default: " << contents.mAppearanceVersion << llendl;
+		appearance_version = 0;
+		LL_DEBUGS("Avatar") << "appversion set by default: " << appearance_version << llendl;
 	}
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -6776,13 +6787,21 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		return;
 	}
 
-
 	ESex old_sex = getSex();
 
 	LLAppearanceMessageContents contents;
 	parseAppearanceMessage(mesgsys, contents);
+	if (enable_verbose_dumps)
+	{
+		dumpAppearanceMsgParams(dump_prefix + "appearance_msg", contents.mParamWeights, contents.mTEContents);
+	}
 
-	U8 appearance_version = contents.mAppearanceVersion;
+	S32 appearance_version;
+	if (!resolve_appearance_version(contents, appearance_version))
+	{
+		llwarns << "bad appearance version info, discarding" << llendl;
+		return;
+	}
 	S32 this_update_cof_version = contents.mCOFVersion;
 	S32 last_update_request_cof_version = LLAppearanceMgr::instance().mLastUpdateRequestCOFVersion;
 
@@ -6891,13 +6910,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 				}
 			}
 		}
-		if (enable_verbose_dumps)
-		{
-			dumpAppearanceMsgParams(dump_prefix + "appearance_msg", contents.mParamWeights, contents.mTEContents);
-		}
-
-		//if (enable_verbose_dumps) { dumpArchetypeXML(dump_prefix + "process_post_set_weights"); }
-
 		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE); // don't worry about VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
 		if (num_params != expected_tweakable_count)
 		{

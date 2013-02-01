@@ -816,6 +816,7 @@ void LLAgent::handleServerBakeRegionTransition(const LLUUID& region_id)
 		!gAgentAvatarp->isUsingServerBakes() &&
 		(mRegionp->getCentralBakeVersion()>0))
 	{
+		llinfos << "update requested due to region transition" << llendl;
 		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
 	}
 }

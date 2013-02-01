@@ -384,8 +384,11 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 		}
 		else if (texture->getUrl() != url)
 		{
-			llwarns << "Requested texture " << new_id << " already exists with a different url, requested: " 
-					<< url << " current: " << texture->getUrl() << llendl;
+			// This is not an error as long as the images really match -
+			// e.g. could be two avatars wearing the same outfit.
+			LL_DEBUGS("Avatar") << "Requested texture " << new_id
+								<< " already exists with a different url, requested: " << url
+								<< " current: " << texture->getUrl() << llendl;
 		}
 		
 	}
