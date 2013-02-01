@@ -6617,7 +6617,7 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 	}
 	else
 	{
-		llinfos << "xmlfile write handle obtained : " << fullpath << llendl;
+		LL_DEBUGS("Avatar") << "dumping appearance message to " << fullpath << llendl;
 	}
 
 
@@ -6758,18 +6758,18 @@ bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32
 	if (contents.mParamAppearanceVersion >= 0) // use visual param if available.
 	{
 		appearance_version = contents.mParamAppearanceVersion;
-		LL_DEBUGS("Avatar") << "appversion set by appearance_version param: " << appearance_version << llendl;
 	}
 	if (contents.mAppearanceVersion >= 0)
 	{
 		appearance_version = contents.mAppearanceVersion;
-		LL_DEBUGS("Avatar") << "appversion set by appearance_version field: " << appearance_version << llendl;
 	}
 	if (contents.mAppearanceVersion < 0) // still not set, go with 0.
 	{
 		appearance_version = 0;
-		LL_DEBUGS("Avatar") << "appversion set by default: " << appearance_version << llendl;
 	}
+	LL_DEBUGS("Avatar") << "appearance version info - field " << contents.mAppearanceVersion
+						<< " param: " << contents.mParamAppearanceVersion
+						<< " final: " << appearance_version << llendl;
 	return true;
 }
 

@@ -4282,6 +4282,49 @@ void LLAgent::requestLeaveGodMode()
 	sendReliableMessage();
 }
 
+extern void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value);
+extern std::string get_sequential_numbered_file_name(const std::string& prefix,
+													 const std::string& suffix);
+
+// For debugging, trace agent state at times appearance message are sent out.
+void LLAgent::dumpSentAppearance(const std::string& dump_prefix)
+{
+	std::string outfilename = get_sequential_numbered_file_name(dump_prefix,".xml");
+
+	LLAPRFile outfile;
+	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
+	outfile.open(fullpath, LL_APR_WB );
+	apr_file_t* file = outfile.getFileHandle();
+	if (!file)
+	{
+		return;
+	}
+	else
+	{
+		LL_DEBUGS("Avatar") << "dumping sent appearance message to " << fullpath << llendl;
+	}
+
+	LLVisualParam* appearance_version_param = gAgentAvatarp->getVisualParam(11000);
+	if (appearance_version_param)
+	{
+		F32 value = appearance_version_param->getWeight();
+		dump_visual_param(file, appearance_version_param, value);
+	}
+	for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
+		 iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
+		 ++iter)
+	{
+		const ETextureIndex index = iter->first;
+		const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
+		if (texture_dict->mIsBakedTexture)
+		{
+			LLTextureEntry* entry = gAgentAvatarp->getTE((U8) index);
+			const LLUUID& uuid = entry->getID();
+			apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", index, uuid.asString().c_str());
+		}
+	}
+}
+
 //-----------------------------------------------------------------------------
 // sendAgentSetAppearance()
 //-----------------------------------------------------------------------------
@@ -4378,6 +4421,12 @@ void LLAgent::sendAgentSetAppearance()
 	// composites to false, and update mesh textures.
 	if (textures_current)
 	{
+		bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
+		std::string dump_prefix = gAgentAvatarp->getFullname() + "_sent_appearance";
+		if (enable_verbose_dumps)
+		{
+			dumpSentAppearance(dump_prefix);
+		}
 		LL_INFOS("Avatar") << gAgentAvatarp->avString() << "TAT: Sending cached texture data" << LL_ENDL;
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 		{
