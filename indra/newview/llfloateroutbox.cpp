@@ -528,7 +528,7 @@ void LLFloaterOutbox::importStatusChanged(bool inProgress)
 
 void LLFloaterOutbox::initializationReportError(U32 status, const LLSD& content)
 {
-	if (status != MarketplaceErrorCodes::IMPORT_DONE)
+	if (status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST)
 	{
 		char status_string[16];
 		sprintf(status_string, "%d", status);

@@ -135,20 +135,15 @@ namespace LLMarketplaceImport
 				llinfos << " SLM POST status: " << status << llendl;
 				llinfos << " SLM POST reason: " << reason << llendl;
 				llinfos << " SLM POST content: " << content.asString() << llendl;
-
 				llinfos << " SLM POST timer: " << slmPostTimer.getElapsedTimeF32() << llendl;
 			}
 
-			if ((status == MarketplaceErrorCodes::IMPORT_REDIRECT) ||
-				(status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR) ||
-				(status == MarketplaceErrorCodes::IMPORT_FORBIDDEN) ||
-				(status == MarketplaceErrorCodes::IMPORT_JOB_TIMEOUT))
+			if (status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST)
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 				{
-					llinfos << " SLM POST clearing marketplace cookie due to authentication failure or timeout" << llendl;
+					llinfos << " SLM POST clearing marketplace cookie due to client or server error" << llendl;
 				}
-
 				sMarketplaceCookie.clear();
 			}
 
@@ -183,19 +178,15 @@ namespace LLMarketplaceImport
 				llinfos << " SLM GET status: " << status << llendl;
 				llinfos << " SLM GET reason: " << reason << llendl;
 				llinfos << " SLM GET content: " << content.asString() << llendl;
-
 				llinfos << " SLM GET timer: " << slmGetTimer.getElapsedTimeF32() << llendl;
 			}
 			
-			if ((status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR) ||
-				(status == MarketplaceErrorCodes::IMPORT_FORBIDDEN) ||
-				(status == MarketplaceErrorCodes::IMPORT_JOB_TIMEOUT))
+			if (status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST)
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 				{
-					llinfos << " SLM GET clearing marketplace cookie due to authentication failure or timeout" << llendl;
+					llinfos << " SLM GET clearing marketplace cookie due to client or server error" << llendl;
 				}
-
 				sMarketplaceCookie.clear();
 			}
 
@@ -476,7 +467,17 @@ void LLMarketplaceInventoryImporter::updateImport()
 				}
 				else
 				{
-					mMarketPlaceStatus = (LLMarketplaceImport::getResultStatus() == MarketplaceErrorCodes::IMPORT_FORBIDDEN ? MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT : MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
+					U32 status = LLMarketplaceImport::getResultStatus();
+					if ((status == MarketplaceErrorCodes::IMPORT_FORBIDDEN) ||
+						(status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR) ||
+						(status == MarketplaceErrorCodes::IMPORT_NOT_FOUND))
+					{
+						mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT;
+					}
+					else 
+					{
+						mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE;
+					}
 					if (mErrorInitSignal && (mMarketPlaceStatus == MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE))
 					{
 						(*mErrorInitSignal)(LLMarketplaceImport::getResultStatus(), LLMarketplaceImport::getResults());
