@@ -1573,8 +1573,8 @@ void LLPanelFace::updateAlphaControls(LLUICtrl* ctrl, void* userdata)
 // static
 void LLPanelFace::onCommitAlphaMode(LLUICtrl* ctrl, void* userdata)
 {
-	LLPanelFace* self = (LLPanelFace*) userdata;
-	self->updateAlphaControls(ctrl,userdata);
+	//LLPanelFace* self = (LLPanelFace*) userdata;
+	updateAlphaControls(ctrl,userdata);
 	llinfos << "updating material" << llendl;
 	//self->updateMaterial();
 }
