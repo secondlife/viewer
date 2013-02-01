@@ -290,6 +290,10 @@ elseif(LINUX)
       set(release_files ${release_files} "libtcmalloc_minimal.so")
     endif (USE_TCMALLOC)
 
+    if (FMODEX)
+      set(release_file ${release_files} "libfmodex-4.44.so")
+    endif (FMODEX)
+
 else(WINDOWS)
     message(STATUS "WARNING: unrecognized platform for staging 3rd party libs, skipping...")
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-linux")
