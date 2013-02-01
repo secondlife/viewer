@@ -1,7 +1,7 @@
 /** 
  * @file listener_fmodex.cpp
  * @brief Implementation of LISTENER class abstracting the audio
- * support as a FMODEX implementation (windows only)
+ * support as a FMODEX implementation
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code

@@ -376,10 +376,6 @@ class WindowsManifest(ViewerManifest):
             except:
                 print "Skipping fmodex audio library(assuming other audio engine)"
 
-            # Get fmod dll, continue if missing
-            if not self.path("fmod.dll"):
-                print "Skipping fmod.dll"
-
             # For textures
             if self.args['configuration'].lower() == 'debug':
                 self.path("openjpegd.dll")

@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_STREAMINGAUDIO_FMOD_H
-#define LL_STREAMINGAUDIO_FMOD_H
+#ifndef LL_STREAMINGAUDIO_FMODEX_H
+#define LL_STREAMINGAUDIO_FMODEX_H
 
 #include "stdtypes.h" // from llcommon
 
@@ -72,4 +72,4 @@ private:
 };
 
 
-#endif // LL_STREAMINGAUDIO_FMOD_H
+#endif // LL_STREAMINGAUDIO_FMODEX_H

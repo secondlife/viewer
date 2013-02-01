@@ -6,7 +6,6 @@ include(00-Common)
 include(Audio)
 include(LLAudio)
 include(FMODEX)
-set(FMOD OFF)
 include(OPENAL)
 include(LLCommon)
 include(LLMath)
@@ -60,30 +59,6 @@ if (FMODEX)
          llstreamingaudio_fmodex.h
          )
 endif (FMODEX)
-
-if (FMOD)
-    include_directories(
-        ${FMOD_INCLUDE_DIR}
-        )
-
-    list(APPEND llaudio_SOURCE_FILES
-         llaudioengine_fmod.cpp
-         lllistener_fmod.cpp
-         llstreamingaudio_fmod.cpp
-         )
-
-    list(APPEND llaudio_HEADER_FILES
-         llaudioengine_fmod.h
-         lllistener_fmod.h
-         llstreamingaudio_fmod.h
-         )
-
-    if (LINUX OR DARWIN)
-      set_source_files_properties(llaudioengine_fmod.cpp
-                                  llstreamingaudio_fmod.cpp
-                                  COMPILE_FLAGS -Wno-write-strings)
-    endif (LINUX OR DARWIN)
-endif (FMOD)
 
 if (OPENAL)
   list(APPEND llaudio_SOURCE_FILES

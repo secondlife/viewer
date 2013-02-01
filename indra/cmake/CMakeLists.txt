@@ -25,7 +25,6 @@ set(cmake_SOURCE_FILES
     FindBerkeleyDB.cmake
     FindCARes.cmake
     FindELFIO.cmake
-    FindFMOD.cmake
     FindFMODEX.cmake
     FindGooglePerfTools.cmake
     FindMono.cmake
@@ -33,7 +32,6 @@ set(cmake_SOURCE_FILES
     FindOpenJPEG.cmake
     FindXmlRpcEpi.cmake
     FindZLIB.cmake
-    FMOD.cmake
     FMODEX.cmake
     FreeType.cmake
     GLOD.cmake
