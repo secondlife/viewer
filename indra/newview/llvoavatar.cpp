@@ -6747,6 +6747,8 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 
 bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32& appearance_version)
 {
+	appearance_version = -1;
+	
 	if ((contents.mAppearanceVersion) >= 0 &&
 		(contents.mParamAppearanceVersion >= 0) &&
 		(contents.mAppearanceVersion != contents.mParamAppearanceVersion))
@@ -6763,7 +6765,7 @@ bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32
 	{
 		appearance_version = contents.mAppearanceVersion;
 	}
-	if (contents.mAppearanceVersion < 0) // still not set, go with 0.
+	if (appearance_version < 0) // still not set, go with 0.
 	{
 		appearance_version = 0;
 	}
@@ -6822,6 +6824,10 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		{
 			return;
 		}
+	}
+	else
+	{
+		LL_DEBUGS("Avatar") << "appearance message received" << llendl;
 	}
 
 	// Check for stale update.
