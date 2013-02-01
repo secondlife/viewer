@@ -138,6 +138,16 @@ namespace LLMarketplaceImport
 				llinfos << " SLM POST timer: " << slmPostTimer.getElapsedTimeF32() << llendl;
 			}
 
+			// MAINT-2301 : we determined we can safely ignore that error in that context
+			if (status == MarketplaceErrorCodes::IMPORT_JOB_TIMEOUT)
+			{
+				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
+				{
+					llinfos << " SLM POST : Ignoring time out status and treating it as success" << llendl;
+				}
+				status = MarketplaceErrorCodes::IMPORT_DONE;
+			}
+			
 			if (status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST)
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
