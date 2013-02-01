@@ -6554,10 +6554,6 @@ Offer a teleport?
        index="1"
        name="No"
        text="No"/>
-      <button
-       index="2"
-       name="IM"
-       text="IM"/>
     </form>
   </notification>
 

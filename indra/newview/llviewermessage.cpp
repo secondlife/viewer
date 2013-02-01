@@ -6909,14 +6909,8 @@ bool teleport_request_callback(const LLSD& notification, const LLSD& response)
 	case 1:
 	default:
 		break;
-
-	// IM
-	case 2:
-		{
-			LLAvatarActions::startIM(from_id);
-		}
-		break;
 	}
+
 	return false;
 }
 
