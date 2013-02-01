@@ -6539,7 +6539,7 @@ However, this region contains content accessible to adults only.
   <notification
    icon="notify.tga"
    name="TeleportRequest"
-   type="notify">
+   type="offer">
 [NAME_SLURL] is requesting to be teleported your to your location.
 [MESSAGE]
 
