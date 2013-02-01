@@ -6780,6 +6780,8 @@ bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32
 //-----------------------------------------------------------------------------
 void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 {
+	LL_DEBUGS("Avatar") << starts << llendl;
+	
 	bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
 	std::string dump_prefix = getFullname() + "_" + (isSelf()?"s":"o") + "_";
 	//if (enable_verbose_dumps) { dumpArchetypeXML(dump_prefix + "process_start"); }
