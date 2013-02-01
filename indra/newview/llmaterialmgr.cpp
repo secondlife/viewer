@@ -2,9 +2,9 @@
  * @file llmaterialmgr.cpp
  * @brief Material manager
  *
- * $LicenseInfo:firstyear=2006&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2013&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -128,23 +128,31 @@ bool LLMaterialMgr::isGetPending(const LLUUID& region_id, const LLMaterialID& ma
 
 const LLMaterialPtr LLMaterialMgr::get(const LLUUID& region_id, const LLMaterialID& material_id)
 {
+	LL_DEBUGS("Materials") << "region " << region_id << " material id " << material_id << LL_ENDL;
+	LLMaterialPtr material;
 	material_map_t::const_iterator itMaterial = mMaterials.find(material_id);
 	if (mMaterials.end() != itMaterial)
 	{
-		return itMaterial->second;
+		material = itMaterial->second;
+		LL_DEBUGS("Materials") << " found material " << LL_ENDL;
 	}
-
-	if (!isGetPending(region_id, material_id))
+	else
 	{
-		get_queue_t::iterator itQueue = mGetQueue.find(region_id);
-		if (mGetQueue.end() == itQueue)
+		if (!isGetPending(region_id, material_id))
 		{
-			std::pair<get_queue_t::iterator, bool> ret = mGetQueue.insert(std::pair<LLUUID, material_queue_t>(region_id, material_queue_t()));
-			itQueue = ret.first;
+			LL_DEBUGS("Materials") << " material pending " << material_id << LL_ENDL;
+			get_queue_t::iterator itQueue = mGetQueue.find(region_id);
+			if (mGetQueue.end() == itQueue)
+			{
+				std::pair<get_queue_t::iterator, bool> ret = mGetQueue.insert(std::pair<LLUUID, material_queue_t>(region_id, material_queue_t()));
+				itQueue = ret.first;
+			}
+			itQueue->second.insert(material_id);
 		}
-		itQueue->second.insert(material_id);
+		LL_DEBUGS("Materials") << " returning empty material " << LL_ENDL;
+		material = LLMaterialPtr();
 	}
-	return LLMaterialPtr();
+	return material;
 }
 
 boost::signals2::connection LLMaterialMgr::get(const LLUUID& region_id, const LLMaterialID& material_id, LLMaterialMgr::get_callback_t::slot_type cb)
@@ -188,7 +196,12 @@ void LLMaterialMgr::getAll(const LLUUID& region_id)
 {
 	if (!isGetAllPending(region_id))
 	{
+		LL_DEBUGS("Materials") << "queuing for region " << region_id << LL_ENDL;
 		mGetAllQueue.insert(region_id);
+	}
+	else
+	{
+		LL_DEBUGS("Materials") << "already pending for region " << region_id << LL_ENDL;
 	}
 }
 
@@ -210,6 +223,7 @@ boost::signals2::connection LLMaterialMgr::getAll(const LLUUID& region_id, LLMat
 
 void LLMaterialMgr::put(const LLUUID& object_id, const U8 te, const LLMaterial& material)
 {
+	LL_DEBUGS("Materials") << "object " << object_id << LL_ENDL;
 	put_queue_t::iterator itQueue = mPutQueue.find(object_id);
 	if (mPutQueue.end() == itQueue)
 	{
@@ -230,9 +244,11 @@ void LLMaterialMgr::put(const LLUUID& object_id, const U8 te, const LLMaterial& 
 
 const LLMaterialPtr LLMaterialMgr::setMaterial(const LLUUID& region_id, const LLMaterialID& material_id, const LLSD& material_data)
 {
+	LL_DEBUGS("Materials") << "region " << region_id << " material id " << material_id << LL_ENDL;
 	material_map_t::const_iterator itMaterial = mMaterials.find(material_id);
 	if (mMaterials.end() == itMaterial)
 	{
+		LL_DEBUGS("Materials") << "new material" << LL_ENDL;
 		LLMaterialPtr newMaterial(new LLMaterial(material_data));
 		std::pair<material_map_t::const_iterator, bool> ret = mMaterials.insert(std::pair<LLMaterialID, LLMaterialPtr>(material_id, newMaterial));
 		itMaterial = ret.first;
@@ -257,6 +273,7 @@ void LLMaterialMgr::onGetResponse(bool success, const LLSD& content, const LLUUI
 	if (!success)
 	{
 		// *TODO: is there any kind of error handling we can do here?
+		LL_WARNS("Materials")<< "failed"<<LL_ENDL;
 		return;
 	}
 
@@ -271,7 +288,7 @@ void LLMaterialMgr::onGetResponse(bool success, const LLSD& content, const LLUUI
 	LLSD response_data;
 	if (!unzip_llsd(response_data, content_stream, content_binary.size()))
 	{
-		LL_ERRS("Materials") << "Cannot unzip LLSD binary content" << LL_ENDL;
+		LL_WARNS("Materials") << "Cannot unzip LLSD binary content" << LL_ENDL;
 		return;
 	}
 
@@ -297,6 +314,7 @@ void LLMaterialMgr::onGetAllResponse(bool success, const LLSD& content, const LL
 	if (!success)
 	{
 		// *TODO: is there any kind of error handling we can do here?
+		LL_WARNS("Materials")<< "failed"<<LL_ENDL;
 		return;
 	}
 
@@ -311,7 +329,7 @@ void LLMaterialMgr::onGetAllResponse(bool success, const LLSD& content, const LL
 	LLSD response_data;
 	if (!unzip_llsd(response_data, content_stream, content_binary.size()))
 	{
-		LL_ERRS("Materials") << "Cannot unzip LLSD binary content" << LL_ENDL;
+		LL_WARNS("Materials") << "Cannot unzip LLSD binary content" << LL_ENDL;
 		return;
 	}
 
@@ -361,6 +379,7 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 	if (!success)
 	{
 		// *TODO: is there any kind of error handling we can do here?
+		LL_WARNS("Materials")<< "failed"<<LL_ENDL;
 		return;
 	}
 
@@ -375,7 +394,7 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 	LLSD response_data;
 	if (!unzip_llsd(response_data, content_stream, content_binary.size()))
 	{
-		LL_ERRS("Materials") << "Cannot unzip LLSD binary content" << LL_ENDL;
+		LL_WARNS("Materials") << "Cannot unzip LLSD binary content" << LL_ENDL;
 		return;
 	}
 	else

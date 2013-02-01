@@ -150,6 +150,13 @@ std::string LLMaterialID::asString() const
 	return materialIDString;
 }
 
+std::ostream& operator<<(std::ostream& s, const LLMaterialID &material_id)
+{
+	s << material_id.asString();
+	return s;
+}
+
+
 void LLMaterialID::parseFromBinary (const LLSD::Binary& pMaterialID)
 {
 	llassert(pMaterialID.size() == (MATERIAL_ID_SIZE * sizeof(U8)));
