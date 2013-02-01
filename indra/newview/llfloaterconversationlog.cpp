@@ -72,6 +72,7 @@ BOOL LLFloaterConversationLog::postBuild()
 
 void LLFloaterConversationLog::draw()
 {
+	getChild<LLMenuButton>("conversations_gear_btn")->setEnabled(mConversationLogList->getSelectedItem() != NULL);
 	LLFloater::draw();
 }
 
