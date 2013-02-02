@@ -30,6 +30,8 @@
 	#error "Use only with Mac OS X"
 #endif
 
+#define LL_CARBON_CRASH_HANDLER 1
+
 #include "llappviewermacosx.h"
 #include "llwindowmacosx-objc.h"
 #include "llcommandlineparser.h"
@@ -40,6 +42,9 @@
 #include "llfloaterworldmap.h"
 #include "llurldispatcher.h"
 #include <ApplicationServices/ApplicationServices.h>
+#ifdef LL_CARBON_CRASH_HANDLER
+#include <Carbon/Carbon.h>
+#endif
 #include "lldir.h"
 #include <signal.h>
 #include <CoreAudio/CoreAudio.h>	// for systemwide mute
@@ -51,8 +56,18 @@ namespace
 	// They are not used immediately by the app.
 	int gArgC;
 	char** gArgV;
-	
+	bool sCrashReporterIsRunning = false;
 	LLAppViewerMacOSX* gViewerAppPtr;
+#ifdef LL_CARBON_CRASH_HANDLER
+	OSErr AEQuitHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn)
+	{
+		OSErr result = noErr;
+		
+		LLAppViewer::instance()->userQuit();
+		
+		return(result);
+	}
+#endif
 }
 
 bool initViewer()
@@ -263,9 +278,39 @@ bool LLAppViewerMacOSX::restoreErrorTrap()
 	return reset_count == 0;
 }
 
+#ifdef LL_CARBON_CRASH_HANDLER
+static OSStatus CarbonEventHandler(EventHandlerCallRef inHandlerCallRef,
+								   EventRef inEvent,
+								   void* inUserData)
+{
+    ProcessSerialNumber psn;
+	
+    GetEventParameter(inEvent,
+					  kEventParamProcessID,
+					  typeProcessSerialNumber,
+					  NULL,
+					  sizeof(psn),
+					  NULL,
+					  &psn);
+	
+    if( GetEventKind(inEvent) == kEventAppTerminated )
+	{
+		Boolean matching_psn = FALSE;
+		OSErr os_result = SameProcess(&psn, (ProcessSerialNumber*)inUserData, &matching_psn);
+		if(os_result >= 0 && matching_psn)
+		{
+			sCrashReporterIsRunning = false;
+			QuitApplicationEventLoop();
+		}
+    }
+    return noErr;
+}
+#endif
+
 void LLAppViewerMacOSX::handleCrashReporting(bool reportFreeze)
 {
-	// This used to use fork&exec, but is switched to LSOpenApplication to 
+#ifdef LL_CARBON_CRASH_HANDLER
+	// This used to use fork&exec, but is switched to LSOpenApplication to
 	// Make sure the crash reporter launches in front of the SL window.
 	
 	std::string command_str;
@@ -283,8 +328,75 @@ void LLAppViewerMacOSX::handleCrashReporting(bool reportFreeze)
 		memset(&appParams, 0, sizeof(appParams));
 	 	appParams.version = 0;
 		appParams.flags = kLSLaunchNoParams | kLSLaunchStartClassic;
+		
 		appParams.application = &appRef;
+		
+		if(reportFreeze)
+		{
+			// Make sure freeze reporting launches the crash logger synchronously, lest
+			// Log files get changed by SL while the logger is running.
+			
+			// *NOTE:Mani A better way - make a copy of the data that the crash reporter will send
+			// and let SL go about its business. This way makes the mac work like windows and linux
+			// and is the smallest patch for the issue.
+			sCrashReporterIsRunning = false;
+			ProcessSerialNumber o_psn;
+			
+			static EventHandlerRef sCarbonEventsRef = NULL;
+			static const EventTypeSpec kEvents[] =
+			{
+				{ kEventClassApplication, kEventAppTerminated }
+			};
+			
+			// Install the handler to detect crash logger termination
+			InstallEventHandler(GetApplicationEventTarget(),
+								(EventHandlerUPP) CarbonEventHandler,
+								GetEventTypeCount(kEvents),
+								kEvents,
+								&o_psn,
+								&sCarbonEventsRef
+								);
+			
+			// Remove, temporarily the quit handler - which has *crash* behavior before
+			// the mainloop gets running!
+			AERemoveEventHandler(kCoreEventClass,
+								 kAEQuitApplication,
+								 NewAEEventHandlerUPP(AEQuitHandler),
+								 false);
+			
+			// Launch the crash reporter.
+			os_result = LSOpenApplication(&appParams, &o_psn);
+			
+			if(os_result >= 0)
+			{
+				sCrashReporterIsRunning = true;
+			}
+			
+			while(sCrashReporterIsRunning)
+			{
+				RunApplicationEventLoop();
+			}
+			
+			// Re-install the apps quit handler.
+			AEInstallEventHandler(kCoreEventClass,
+								  kAEQuitApplication,
+								  NewAEEventHandlerUPP(AEQuitHandler),
+								  0,
+								  false);
+			
+			// Remove the crash reporter quit handler.
+			RemoveEventHandler(sCarbonEventsRef);
+		}
+		else
+		{
+			appParams.flags |= kLSLaunchAsync;
+			clear_signals();
+			
+			ProcessSerialNumber o_psn;
+			os_result = LSOpenApplication(&appParams, &o_psn);
+		}
 	}
+#endif
 }
 
 std::string LLAppViewerMacOSX::generateSerialNumber()

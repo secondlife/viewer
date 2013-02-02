@@ -1350,7 +1350,7 @@ void LLWindowMacOSX::updateCursor()
 	{
 	default:
 	case UI_CURSOR_ARROW:
-		InitCursor();
+		setArrowCursor();
 		if(mCursorHidden)
 		{
 			// Since InitCursor resets the hide level, correct for it here.
@@ -1410,7 +1410,7 @@ void LLWindowMacOSX::updateCursor()
 
 	if(result != noErr)
 	{
-		InitCursor();
+		setArrowCursor();
 	}
 
 	mCurrentCursor = mNextCursor;
