@@ -61,8 +61,6 @@ public:
 	virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual void draw();
 
-
-
 	LLTrace::TimeBlock* getLegendID(S32 y);
 	F64 getTime(const std::string& name);
 
@@ -99,10 +97,10 @@ private:
 		F32			mStartFraction,
 					mEndFraction;
 	};
-	S32 updateTimerBarWidths(LLTrace::TimeBlock* time_block, std::vector<TimerBar>& bars, S32 history_index);
-	S32 updateTimerBarFractions(LLTrace::TimeBlock* time_block, S32 timer_bar_index, std::vector<TimerBar>& bars, S32 history_index, bool draw);
+	S32 updateTimerBarWidths(LLTrace::TimeBlock* time_block, std::vector<TimerBar>& bars, S32 history_index, bool visible);
+	S32 updateTimerBarFractions(LLTrace::TimeBlock* time_block, S32 timer_bar_index, std::vector<TimerBar>& bars);
 	S32 drawBar(LLTrace::TimeBlock* time_block, LLRect bar_rect, std::vector<TimerBar>& bars, S32 bar_index, LLPointer<LLUIImage>& bar_image);
-	void updatePauseState();
+	void setPauseState(bool pause_state);
 
 	std::vector<TimerBar>* mTimerBars;
 	S32 mDisplayMode;

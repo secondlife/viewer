@@ -530,7 +530,7 @@ void ExtendableRecording::splitFrom(ExtendableRecording& other)
 
 PeriodicRecording& get_frame_recording()
 {
-	static LLThreadLocalPointer<PeriodicRecording> sRecording(new PeriodicRecording(64, PeriodicRecording::STARTED));
+	static LLThreadLocalPointer<PeriodicRecording> sRecording(new PeriodicRecording(200, PeriodicRecording::STARTED));
 	return *sRecording;
 }
 
