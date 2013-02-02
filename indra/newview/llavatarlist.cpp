@@ -46,6 +46,7 @@
 #include "lluuid.h"
 #include "llvoiceclient.h"
 #include "llviewercontrol.h"	// for gSavedSettings
+#include "lltooldraganddrop.h"
 
 static LLDefaultChildRegistry::Register<LLAvatarList> r("avatar_list");
 
@@ -459,6 +460,57 @@ BOOL LLAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		getSelectedUUIDs(selected_uuids);
 		mContextMenu->show(this, selected_uuids, x, y);
 	}
+	return handled;
+}
+
+BOOL LLAvatarList::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	gFocusMgr.setMouseCapture(this);
+
+	S32 screen_x;
+	S32 screen_y;
+	localPointToScreen(x, y, &screen_x, &screen_y);
+	LLToolDragAndDrop::getInstance()->setDragStart(screen_x, screen_y);
+
+	return LLFlatListViewEx::handleMouseDown(x, y, mask);
+}
+
+BOOL LLAvatarList::handleMouseUp( S32 x, S32 y, MASK mask )
+{
+	if(hasMouseCapture())
+	{
+		gFocusMgr.setMouseCapture(NULL);
+	}
+
+	return LLFlatListViewEx::handleMouseUp(x, y, mask);
+}
+
+BOOL LLAvatarList::handleHover(S32 x, S32 y, MASK mask)
+{
+	bool handled = hasMouseCapture();
+	if(handled)
+	{
+		S32 screen_x;
+		S32 screen_y;
+		localPointToScreen(x, y, &screen_x, &screen_y);
+
+		if(LLToolDragAndDrop::getInstance()->isOverThreshold(screen_x, screen_y))
+		{
+			// First, create the global drag and drop object
+			std::vector<EDragAndDropType> types;
+			uuid_vec_t cargo_ids;
+			getSelectedUUIDs(cargo_ids);
+			types.resize(cargo_ids.size(), DAD_PERSON);
+			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_PEOPLE;
+			LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, src);
+		}
+	}
+
+	if(!handled)
+	{
+		handled = LLFlatListViewEx::handleHover(x, y, mask);
+	}
+
 	return handled;
 }
 
