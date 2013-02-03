@@ -590,14 +590,7 @@ void LLMaterialMgr::processPutQueue()
 		std::string materialString = zip_llsd(materialsData);
 
 		S32 materialSize = materialString.size();
-		if (materialSize <= 0)
-		{
-			LL_ERRS("debugMaterials") << "cannot zip LLSD binary content" << LL_ENDL;
-
-			mPutQueue.erase(itQueue);
-			continue;
-		}
-		else
+		if (materialSize > 0)
 		{
 			LLSD::Binary materialBinary;
 			materialBinary.resize(materialSize);
@@ -609,6 +602,11 @@ void LLMaterialMgr::processPutQueue()
 			LLHTTPClient::ResponderPtr materialsResponder = new LLMaterialsResponder("PUT", capURL, boost::bind(&LLMaterialMgr::onPutResponse, this, _1, _2));
 			LLHTTPClient::put(capURL, putData, materialsResponder);
 		}
+		else
+		{
+			LL_ERRS("debugMaterials") << "cannot zip LLSD binary content" << LL_ENDL;
+		}
+		mPutQueue.erase(itQueue);
 	}
 }
 
@@ -636,6 +634,5 @@ void LLMaterialMgr::onRegionRemoved(LLViewerRegion* regionp)
 	mGetAllPending.erase(region_id);
 	mGetAllCallbacks.erase(region_id);
 
-	// Put
-//	mPutQueue.erase(region_id);
+	// Put doesn't need clearing: objects that can't be found will clean up in processPutQueue()
 }
