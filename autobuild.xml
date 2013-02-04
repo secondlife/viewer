@@ -505,18 +505,6 @@
             <key>name</key>
             <string>darwin</string>
           </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>b278ee4734ddb050ba2b67bbac709574</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269873/arch/CYGWIN/installer/fmodex-4.44-windows-201300201.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
           <key>linux</key>
           <map>
             <key>archive</key>
@@ -528,6 +516,18 @@
             </map>
             <key>name</key>
             <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>b278ee4734ddb050ba2b67bbac709574</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269873/arch/CYGWIN/installer/fmodex-4.44-windows-201300201.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
           </map>
         </map>
       </map>
