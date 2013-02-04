@@ -498,9 +498,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5b3e7ac9d43f317a78807ef42d0557cf</string>
+	      <string>7c7d0d40327e8d94b45540f50246ec93</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269872/arch/Darwin/installer/fmodex-4.44-darwin-20130201.tar.bz2</string>
+	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269882/arch/Darwin/installer/fmodex-4.44-darwin-20130201.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -510,9 +510,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2781f3e844a8c5e6a3633b4d77a018d7</string>
+	      <string>fc26cfdca9351b271a8a21ce002d7613</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269873/arch/Linux/installer/fmodex-4.44-linux-201300202.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269881/arch/Linux/installer/fmodex-4.44-linux-20130202.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -522,9 +522,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b278ee4734ddb050ba2b67bbac709574</string>
+	      <string>6d19913034d44784e82e5ff8e05da3d6</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269873/arch/CYGWIN/installer/fmodex-4.44-windows-201300201.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269881/arch/CYGWIN/installer/fmodex-4.44-windows-20130201.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
