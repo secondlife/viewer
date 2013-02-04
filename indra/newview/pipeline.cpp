@@ -233,6 +233,7 @@ LLFastTimer::DeclareTimer FTM_RENDER_WL_SKY("Windlight Sky");
 LLFastTimer::DeclareTimer FTM_RENDER_ALPHA("Alpha Objects");
 LLFastTimer::DeclareTimer FTM_RENDER_CHARACTERS("Avatars");
 LLFastTimer::DeclareTimer FTM_RENDER_BUMP("Bump");
+LLFastTimer::DeclareTimer FTM_RENDER_MATERIALS("Materials");
 LLFastTimer::DeclareTimer FTM_RENDER_FULLBRIGHT("Fullbright");
 LLFastTimer::DeclareTimer FTM_RENDER_GLOW("Glow");
 LLFastTimer::DeclareTimer FTM_GEO_UPDATE("Geo Update");
@@ -262,6 +263,7 @@ std::string gPoolNames[] =
 	"POOL_GROUND",
 	"POOL_FULLBRIGHT",
 	"POOL_BUMP",
+	"POOL_MATERIALS",
 	"POOL_TERRAIN,"	
 	"POOL_SKY",
 	"POOL_WL_SKY",
@@ -490,6 +492,7 @@ void LLPipeline::init()
 	getPool(LLDrawPool::POOL_FULLBRIGHT);
 	getPool(LLDrawPool::POOL_INVISIBLE);
 	getPool(LLDrawPool::POOL_BUMP);
+	getPool(LLDrawPool::POOL_MATERIALS);
 	getPool(LLDrawPool::POOL_GLOW);
 
 	LLViewerStats::getInstance()->mTrianglesDrawnStat.reset();
@@ -1520,7 +1523,9 @@ LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerTexture *tex0)
 	case LLDrawPool::POOL_BUMP:
 		poolp = mBumpPool;
 		break;
-
+	case LLDrawPool::POOL_MATERIALS:
+		poolp = mMaterialsPool;
+		break;
 	case LLDrawPool::POOL_ALPHA:
 		poolp = mAlphaPool;
 		break;
@@ -1598,9 +1603,12 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 	{
 		return LLDrawPool::POOL_ALPHA;
 	}
-	else if ((te->getBumpmap() || te->getShiny()))
+	else if ((te->getBumpmap() || te->getShiny()) && te->getMaterialID().isNull())
 	{
 		return LLDrawPool::POOL_BUMP;
+	} else if (!te->getMaterialID().isNull() && !alpha)
+	{
+		return LLDrawPool::POOL_MATERIALS;
 	}
 	else
 	{
@@ -5421,7 +5429,17 @@ void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 			mBumpPool = new_poolp;
 		}
 		break;
-
+	case LLDrawPool::POOL_MATERIALS:
+		if (mMaterialsPool)
+		{
+			llassert(0);
+			llwarns << "Ignorning duplicate materials pool." << llendl;
+		}
+		else
+		{
+			mMaterialsPool = new_poolp;
+		}
+		break;
 	case LLDrawPool::POOL_ALPHA:
 		if( mAlphaPool )
 		{
@@ -5562,7 +5580,12 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 		llassert( poolp == mBumpPool );
 		mBumpPool = NULL;
 		break;
-	
+			
+	case LLDrawPool::POOL_MATERIALS:
+		llassert(poolp == mMaterialsPool);
+		mMaterialsPool = NULL;
+		break;
+			
 	case LLDrawPool::POOL_ALPHA:
 		llassert( poolp == mAlphaPool );
 		mAlphaPool = NULL;

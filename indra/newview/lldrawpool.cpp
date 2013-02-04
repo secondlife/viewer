@@ -35,6 +35,7 @@
 #include "lldrawpoolalpha.h"
 #include "lldrawpoolavatar.h"
 #include "lldrawpoolbump.h"
+#include "lldrawpoolmaterials.h"
 #include "lldrawpoolground.h"
 #include "lldrawpoolsimple.h"
 #include "lldrawpoolsky.h"
@@ -97,6 +98,9 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
 		break;
 	case POOL_BUMP:
 		poolp = new LLDrawPoolBump();
+		break;
+	case POOL_MATERIALS:
+		poolp = new LLDrawPoolMaterials();
 		break;
 	case POOL_WL_SKY:
 		poolp = new LLDrawPoolWLSky();

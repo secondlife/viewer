@@ -207,6 +207,17 @@ LLGLSLShader			gDeferredWLCloudProgram;
 LLGLSLShader			gDeferredStarProgram;
 LLGLSLShader			gNormalMapGenProgram;
 
+// Deferred materials shaders
+LLGLSLShader			gDeferredMaterialShiny;
+LLGLSLShader			gDeferredMaterialNormal;
+LLGLSLShader			gDeferredMaterialShinyNormal;
+LLGLSLShader			gDeferredMaterialShinyAlphaTest;
+LLGLSLShader			gDeferredMaterialNormalAlphaTest;
+LLGLSLShader			gDeferredMaterialShinyNormalAlphaTest;
+LLGLSLShader			gDeferredMaterialShinyEmissive;
+LLGLSLShader			gDeferredMaterialNormalEmissive;
+LLGLSLShader			gDeferredMaterialShinyNormalEmissive;
+
 LLViewerShaderMgr::LLViewerShaderMgr() :
 	mVertexShaderLevel(SHADER_COUNT, 0),
 	mMaxAvatarShaderLevel(0)
@@ -1105,6 +1116,12 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredWLCloudProgram.unload();
 		gDeferredStarProgram.unload();
 		gNormalMapGenProgram.unload();
+		gDeferredMaterialShiny.unload();
+		gDeferredMaterialNormal.unload();
+		gDeferredMaterialShinyAlphaTest.unload();
+		gDeferredMaterialNormalAlphaTest.unload();
+		gDeferredMaterialShinyEmissive.unload();
+		gDeferredMaterialNormalEmissive.unload();
 		return TRUE;
 	}
 
@@ -1217,6 +1234,114 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredBumpProgram.mShaderFiles.push_back(make_pair("deferred/bumpF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredBumpProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredBumpProgram.createShader(NULL, NULL);
+	}
+	
+	if (success)
+	{
+		gDeferredMaterialShiny.mName = "Deferred Shiny Material Shader";
+		gDeferredMaterialShiny.mShaderFiles.clear();
+		gDeferredMaterialShiny.mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredMaterialShiny.mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredMaterialShiny.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		gDeferredMaterialShiny.addPermutation("SHINY_MATERIAL", "1");
+		success = gDeferredMaterialShiny.createShader(NULL, NULL);
+	}
+	
+	if (success)
+	{
+		gDeferredMaterialNormal.mName = "Deferred Normal Mapped Material Shader";
+		gDeferredMaterialNormal.mShaderFiles.clear();
+		gDeferredMaterialNormal.mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredMaterialNormal.mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredMaterialNormal.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		gDeferredMaterialNormal.addPermutation("NORMAL_MATERIAL", "1");
+		success = gDeferredMaterialNormal.createShader(NULL, NULL);
+	}
+	
+	if (success)
+	{
+		gDeferredMaterialShinyNormal.mName = "Deferred Normal Mapped Shiny Material Shader";
+		gDeferredMaterialShinyNormal.mShaderFiles.clear();
+		gDeferredMaterialShinyNormal.mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredMaterialShinyNormal.mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredMaterialShinyNormal.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		gDeferredMaterialShinyNormal.addPermutation("NORMAL_MATERIAL", "1");
+		gDeferredMaterialShinyNormal.addPermutation("SHINY_MATERIAL", "1");
+		success = gDeferredMaterialShinyNormal.createShader(NULL, NULL);
+	}
+	
+	if (success)
+	{
+		gDeferredMaterialShinyAlphaTest.mName = "Deferred Alpha Tested Shiny Material Shader";
+		gDeferredMaterialShinyAlphaTest.mShaderFiles.clear();
+		gDeferredMaterialShinyAlphaTest.mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredMaterialShinyAlphaTest.mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredMaterialShinyAlphaTest.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		gDeferredMaterialShinyAlphaTest.addPermutation("SHINY_MATERIAL", "1");
+		gDeferredMaterialShinyAlphaTest.addPermutation("ALPHA_TEST", "1");
+		success = gDeferredMaterialShinyAlphaTest.createShader(NULL, NULL);
+	}
+	
+	if (success)
+	{
+		gDeferredMaterialNormalAlphaTest.mName = "Deferred Alpha Tested Normal Mapped Material Shader";
+		gDeferredMaterialNormalAlphaTest.mShaderFiles.clear();
+		gDeferredMaterialNormalAlphaTest.mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredMaterialNormalAlphaTest.mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredMaterialNormalAlphaTest.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		gDeferredMaterialNormalAlphaTest.addPermutation("NORMAL_MATERIAL", "1");
+		gDeferredMaterialNormalAlphaTest.addPermutation("ALPHA_TEST", "1");
+		success = gDeferredMaterialNormalAlphaTest.createShader(NULL, NULL);
+	}
+	
+	if (success)
+	{
+		gDeferredMaterialNormalAlphaTest.mName = "Deferred Alpha Tested Shiny Normal Mapped Material Shader";
+		gDeferredMaterialShinyNormalAlphaTest.mShaderFiles.clear();
+		gDeferredMaterialShinyNormalAlphaTest.mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredMaterialShinyNormalAlphaTest.mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredMaterialShinyNormalAlphaTest.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		gDeferredMaterialShinyNormalAlphaTest.addPermutation("NORMAL_MATERIAL", "1");
+		gDeferredMaterialShinyNormalAlphaTest.addPermutation("SHINY_MATERIAL", "1");
+		gDeferredMaterialShinyNormalAlphaTest.addPermutation("ALPHA_TEST", "1");
+		success = gDeferredMaterialShinyNormalAlphaTest.createShader(NULL, NULL);
+	}
+	
+	if (success)
+	{
+		gDeferredMaterialShinyEmissive.mName = "Deferred Emissive Mask Shiny Material Shader";
+		gDeferredMaterialShinyEmissive.mShaderFiles.clear();
+		gDeferredMaterialShinyEmissive.mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredMaterialShinyEmissive.mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredMaterialShinyEmissive.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		gDeferredMaterialShinyEmissive.addPermutation("SHINY_MATERIAL", "1");
+		gDeferredMaterialShinyEmissive.addPermutation("EMISSIVE_MASK", "1");
+		success = gDeferredMaterialShinyEmissive.createShader(NULL, NULL);
+	}
+	
+	if (success)
+	{
+		gDeferredMaterialNormalEmissive.mName = "Deferred Emissive Mask Normal Mapped Material Shader";
+		gDeferredMaterialNormalEmissive.mShaderFiles.clear();
+		gDeferredMaterialNormalEmissive.mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredMaterialNormalEmissive.mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredMaterialNormalEmissive.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		gDeferredMaterialNormalEmissive.addPermutation("NORMAL_MATERIAL", "1");
+		gDeferredMaterialNormalEmissive.addPermutation("EMISSIVE_MASK", "1");
+		success = gDeferredMaterialNormalEmissive.createShader(NULL, NULL);
+	}
+	
+	if (success)
+	{
+		gDeferredMaterialShinyNormalEmissive.mName = "Deferred Emissive Mask Normal Mapped Material Shader";
+		gDeferredMaterialShinyNormalEmissive.mShaderFiles.clear();
+		gDeferredMaterialShinyNormalEmissive.mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredMaterialShinyNormalEmissive.mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredMaterialShinyNormalEmissive.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		gDeferredMaterialShinyNormalEmissive.addPermutation("NORMAL_MATERIAL", "1");
+		gDeferredMaterialShinyNormalEmissive.addPermutation("SHINY_MATERIAL", "1");
+		gDeferredMaterialShinyNormalEmissive.addPermutation("EMISSIVE_MASK", "1");
+		success = gDeferredMaterialShinyNormalEmissive.createShader(NULL, NULL);
 	}
 
 	if (success)

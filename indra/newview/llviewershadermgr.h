@@ -362,4 +362,15 @@ extern LLGLSLShader			gDeferredWLCloudProgram;
 extern LLGLSLShader			gDeferredStarProgram;
 extern LLGLSLShader			gNormalMapGenProgram;
 
+// Deferred materials shaders
+extern LLGLSLShader			gDeferredMaterialShiny;
+extern LLGLSLShader			gDeferredMaterialNormal;
+extern LLGLSLShader			gDeferredMaterialShinyNormal;
+extern LLGLSLShader			gDeferredMaterialShinyAlphaTest;
+extern LLGLSLShader			gDeferredMaterialNormalAlphaTest;
+extern LLGLSLShader			gDeferredMaterialShinyNormalAlphaTest;
+extern LLGLSLShader			gDeferredMaterialShinyEmissive;
+extern LLGLSLShader			gDeferredMaterialNormalEmissive;
+extern LLGLSLShader			gDeferredMaterialShinyNormalEmissive;
+
 #endif

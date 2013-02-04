@@ -95,6 +95,7 @@ extern LLFastTimer::DeclareTimer FTM_RENDER_WL_SKY;
 extern LLFastTimer::DeclareTimer FTM_RENDER_ALPHA;
 extern LLFastTimer::DeclareTimer FTM_RENDER_CHARACTERS;
 extern LLFastTimer::DeclareTimer FTM_RENDER_BUMP;
+extern LLFastTimer::DeclareTimer FTM_RENDER_MATERIALS;
 extern LLFastTimer::DeclareTimer FTM_RENDER_FULLBRIGHT;
 extern LLFastTimer::DeclareTimer FTM_RENDER_GLOW;
 extern LLFastTimer::DeclareTimer FTM_STATESORT;
@@ -419,6 +420,7 @@ public:
 		RENDER_TYPE_GRASS						= LLDrawPool::POOL_GRASS,
 		RENDER_TYPE_FULLBRIGHT					= LLDrawPool::POOL_FULLBRIGHT,
 		RENDER_TYPE_BUMP						= LLDrawPool::POOL_BUMP,
+		RENDER_TYPE_MATERIALS					= LLDrawPool::POOL_MATERIALS,
 		RENDER_TYPE_AVATAR						= LLDrawPool::POOL_AVATAR,
 		RENDER_TYPE_TREE						= LLDrawPool::POOL_TREE,
 		RENDER_TYPE_INVISIBLE					= LLDrawPool::POOL_INVISIBLE,
@@ -435,6 +437,7 @@ public:
 		RENDER_TYPE_PASS_SHINY					= LLRenderPass::PASS_SHINY,
 		RENDER_TYPE_PASS_BUMP					= LLRenderPass::PASS_BUMP,
 		RENDER_TYPE_PASS_POST_BUMP				= LLRenderPass::PASS_POST_BUMP,
+		RENDER_TYPE_PASS_MATERIALS				= LLRenderPass::PASS_MATERIALS,
 		RENDER_TYPE_PASS_GLOW					= LLRenderPass::PASS_GLOW,
 		RENDER_TYPE_PASS_ALPHA					= LLRenderPass::PASS_ALPHA,
 		RENDER_TYPE_PASS_ALPHA_MASK				= LLRenderPass::PASS_ALPHA_MASK,
@@ -776,6 +779,7 @@ protected:
 	LLDrawPool*					mInvisiblePool;
 	LLDrawPool*					mGlowPool;
 	LLDrawPool*					mBumpPool;
+	LLDrawPool*					mMaterialsPool;
 	LLDrawPool*					mWLSkyPool;
 	// Note: no need to keep an quick-lookup to avatar pools, since there's only one per avatar
 	

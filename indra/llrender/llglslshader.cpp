@@ -386,7 +386,7 @@ void LLGLSLShader::removePermutation(std::string name)
 
 GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
 {
-	if (type >= GL_SAMPLER_1D_ARB && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB ||
+	if ((type >= GL_SAMPLER_1D_ARB && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB) ||
 		type == GL_SAMPLER_2D_MULTISAMPLE)
 	{	//this here is a texture
 		glUniform1iARB(location, mActiveTextureChannels);

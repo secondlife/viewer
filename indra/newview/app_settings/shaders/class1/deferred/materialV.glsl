@@ -1,5 +1,5 @@
 /** 
- * @file bumpF.glsl
+ * @file bumpV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,35 +22,36 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
-#else
-#define frag_data gl_FragData
-#endif
 
-uniform sampler2D diffuseMap;
-uniform sampler2D bumpMap;
+uniform mat3 normal_matrix;
+uniform mat4 texture_matrix0;
+uniform mat4 modelview_projection_matrix;
+
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec4 diffuse_color;
+ATTRIBUTE vec3 normal;
+ATTRIBUTE vec2 texcoord0;
+ATTRIBUTE vec3 binormal;
 
 VARYING vec3 vary_mat0;
 VARYING vec3 vary_mat1;
 VARYING vec3 vary_mat2;
-
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
-void main() 
+void main()
 {
-	vec3 col = vertex_color.rgb * texture2D(diffuseMap, vary_texcoord0.xy).rgb;
-	vec3 norm = texture2D(bumpMap, vary_texcoord0.xy).rgb * 2.0 - 1.0;
-
-	vec3 tnorm = vec3(dot(norm,vary_mat0),
-			  dot(norm,vary_mat1),
-			  dot(norm,vary_mat2));
-						
-	frag_data[0] = vec4(col * (1 - vertex_color.a), 0.0);
-	frag_data[1] = vertex_color.aaaa; // spec
-	//frag_data[1] = vec4(vec3(vertex_color.a), vertex_color.a+(1.0-vertex_color.a)*vertex_color.a); // spec - from former class3 - maybe better, but not so well tested
-	vec3 nvn = normalize(tnorm);
-	frag_data[2] = vec4(nvn.xyz * 0.5 + 0.5, vertex_color.a);
+	//transform vertex
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
+	
+	vec3 n = normalize(normal_matrix * normal);
+	vec3 b = normalize(normal_matrix * binormal);
+	vec3 t = cross(b, n);
+	
+	vary_mat0 = vec3(t.x, b.x, n.x);
+	vary_mat1 = vec3(t.y, b.y, n.y);
+	vary_mat2 = vec3(t.z, b.z, n.z);
+	
+	vertex_color = diffuse_color;
 }

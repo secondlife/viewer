@@ -650,13 +650,6 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			text[count++] = strdup("#define shadow2DRect(a,b) vec2(texture(a,b))\n");
 		}
 	}
-
-	//copy preprocessor definitions into buffer
-	for (std::map<std::string,std::string>::iterator iter = mDefinitions.begin(); iter != mDefinitions.end(); ++iter)
-	{
-		std::string define = "#define " + iter->first + " " + iter->second + "\n";
-		text[count++] = (GLcharARB *) strdup(define.c_str());
-	}
 	
 	for (boost::unordered_map<std::string,std::string>::iterator iter = defines.begin(); iter != defines.end(); ++iter)
 	{

@@ -1995,7 +1995,6 @@ void LLVOVolume::setTEMaterialParamsCallback(const LLMaterialID &pMaterialID, co
 	{
 		if (getTE(i)->getMaterialID() == pMaterialID)
 		{
-			LL_INFOS("Materials") << "Material params callback triggered!" << LL_ENDL;
 			setTEMaterialParams(i, pMaterialParams);
 		}
 	}
@@ -2005,13 +2004,10 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 {
 	if (!pMaterialID.isNull())
 	{
-		LL_INFOS("Materials") << "Oh god it's a material! " << pMaterialID.asString() << LL_ENDL;
 		S32 res = LLViewerObject::setTEMaterialID(te, pMaterialID);
 		if (res)
 		{
-			LL_INFOS("Materials") << "We have a material!" << LL_ENDL;
 			LLMaterialMgr::instance().get(getRegion()->getRegionID(), pMaterialID, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2));
-			//setTEMaterialParams(te, pMatParam);
 			gPipeline.markTextured(mDrawable);
 			mFaceMappingChanged = TRUE;
 		}
@@ -5215,9 +5211,13 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 							registerFace(group, facep, LLRenderPass::PASS_POST_BUMP);
 						}
 					}
-					else if (te->getBumpmap() || te->getMaterialParams() != NULL)
+					else if (te->getBumpmap() && !te->getMaterialParams())
 					{ //register in deferred bump pass
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
+					}
+					else if (te->getMaterialParams())
+					{
+						registerFace(group, facep, LLRenderPass::PASS_MATERIALS);
 					}
 					else
 					{ //register in deferred simple pass (deferred simple includes shiny)
@@ -5250,9 +5250,13 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				}
 				else
 				{
-					if (LLPipeline::sRenderDeferred && LLPipeline::sRenderBump && (te->getBumpmap() || te->getMaterialParams()))
+					if (LLPipeline::sRenderDeferred && LLPipeline::sRenderBump && (te->getBumpmap() && !te->getMaterialParams()))
 					{ //non-shiny or fullbright deferred bump
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
+					}
+					else if (te->getMaterialParams())
+					{
+						registerFace(group, facep, LLRenderPass::PASS_MATERIALS);
 					}
 					else
 					{ //all around simple
