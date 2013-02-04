@@ -1206,23 +1206,6 @@ void LLPanelFace::refresh()
 void LLPanelFace::onMaterialLoaded(const LLMaterialID& material_id, const LLMaterialPtr material)
 {
 	mMaterial = material;
-#if 0
-	static LLMaterialID old_material_id = LLMaterialID::null;
-	if (material_id == old_material_id)
-	{
-		llinfos << "Material ID " << material_id.asString()
-			<< " unchanged, not updating" << llendl;
-		return;
-	}
-	else
-	{
-		llinfos << "Material ID changed, old " << old_material_id.asString()
-			<< ", new " << material_id.asString()
-			<< ", updating controls: " << material->asLLSD()
-			<< llendl;
-	}
-	old_material_id = material_id;
-#endif
 	// Alpha
 	LLCtrlSelectionInterface* combobox_alphamode =
 	      childGetSelectionInterface("combobox alphamode");
@@ -1385,8 +1368,7 @@ void LLPanelFace::onCommitColor(const LLSD& data)
 
 void LLPanelFace::onCommitShinyColor(const LLSD& data)
 {
-	llinfos << "updating material" << llendl;
-	//updateMaterial();
+	updateMaterial();
 }
 
 void LLPanelFace::onCommitAlpha(const LLSD& data)
@@ -1528,7 +1510,6 @@ void LLPanelFace::onCommitTexGen(LLUICtrl* ctrl, void* userdata)
 // static
 void LLPanelFace::updateShinyControls(LLUICtrl* ctrl, void* userdata)
 {
-	llinfos << "Entered." << llendl;
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	LLComboBox* comboShiny = self->getChild<LLComboBox>("combobox shininess");
 	if (!comboShiny)
@@ -1550,14 +1531,12 @@ void LLPanelFace::onCommitShiny(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	self->sendShiny();
-	llinfos << "updating material" << llendl;
-	//self->updateMaterial();
+	self->updateMaterial();
 }
 
 // static
 void LLPanelFace::updateAlphaControls(LLUICtrl* ctrl, void* userdata)
 {
-	llinfos << "Entered." << llendl;
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	LLComboBox* comboAlphaMode = self->getChild<LLComboBox>("combobox alphamode");
 	if (!comboAlphaMode)
@@ -1573,10 +1552,9 @@ void LLPanelFace::updateAlphaControls(LLUICtrl* ctrl, void* userdata)
 // static
 void LLPanelFace::onCommitAlphaMode(LLUICtrl* ctrl, void* userdata)
 {
-	//LLPanelFace* self = (LLPanelFace*) userdata;
+	LLPanelFace* self = (LLPanelFace*) userdata;
 	updateAlphaControls(ctrl,userdata);
-	llinfos << "updating material" << llendl;
-	//self->updateMaterial();
+	self->updateMaterial();
 }
 
 // static
@@ -1630,29 +1608,25 @@ void LLPanelFace::onSelectTexture(const LLSD& data)
 
 void LLPanelFace::onCommitMaterialTexture( const LLSD& data )
 {
-	llinfos << "updating material" << llendl;
-	//updateMaterial();
+	updateMaterial();
 }
 
 void LLPanelFace::onCancelMaterialTexture(const LLSD& data)
 {
 	// not sure what to do here other than
-	llinfos << "updating material" << llendl;
-	//updateMaterial();
+	updateMaterial();
 }
 
 void LLPanelFace::onSelectMaterialTexture(const LLSD& data)
 {
-	llinfos << "updating material" << llendl;
-	//updateMaterial();
+	updateMaterial();
 }
 
 //static
 void LLPanelFace::onCommitMaterial(LLUICtrl* ctrl, void* userdata)
 {
-	llinfos << "updating material" << llendl;
-	//LLPanelFace* self = (LLPanelFace*) userdata;
-	//self->updateMaterial();
+	LLPanelFace* self = (LLPanelFace*) userdata;
+	self->updateMaterial();
 }
 
 // static
