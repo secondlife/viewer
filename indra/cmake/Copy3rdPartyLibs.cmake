@@ -223,7 +223,7 @@ elseif(DARWIN)
        )
 
     if (FMODEX)
-      #set(debug_files ${debug_files} libfmodexL.dylib)
+      set(debug_files ${debug_files} libfmodexL.dylib)
       set(release_files ${release_files} libfmodex.dylib)
     endif (FMODEX)
 
@@ -291,7 +291,7 @@ elseif(LINUX)
     endif (USE_TCMALLOC)
 
     if (FMODEX)
-      set(release_file ${release_files} "libfmodex-4.44.so")
+      set(release_file ${release_files} "libfmodex.so")
     endif (FMODEX)
 
 else(WINDOWS)
