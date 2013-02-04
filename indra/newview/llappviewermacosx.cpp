@@ -317,12 +317,19 @@ void LLAppViewerMacOSX::handleCrashReporting(bool reportFreeze)
 	//command_str = "open Second Life.app/Contents/Resources/mac-crash-logger.app";
 	command_str = "mac-crash-logger.app/Contents/MacOS/mac-crash-logger";
 	
+	CFURLRef urlRef = CFURLCreateFromFileSystemRepresentation(NULL, (UInt8*)command_str.c_str(), strlen(command_str.c_str()), FALSE);
+	
+	// FSRef apparently isn't deprecated.
+	// There's other funcitonality that depends on it existing as well that isn't deprecated.
+	// There doesn't seem to be much to directly verify what the status of FSRef is, outside of some documentation pointing at FSRef being valid, and other documentation pointing to everything in Files.h being deprecated.
+	// We'll assume it isn't for now, since all non-deprecated functions that use it seem to assume similar.
+	
 	FSRef appRef;
-	Boolean isDir = 0;
-	OSStatus os_result = FSPathMakeRef((UInt8*)command_str.c_str(),
-									   &appRef,
-									   &isDir);
-	if(os_result >= 0)
+	Boolean pathstatus = CFURLGetFSRef(urlRef, &appRef);
+	
+	OSStatus os_result = noErr;
+	
+	if(pathstatus == true)
 	{
 		LSApplicationParameters appParams;
 		memset(&appParams, 0, sizeof(appParams));
