@@ -291,11 +291,6 @@ LLAudioStreamManagerFMODEX::LLAudioStreamManagerFMODEX(FMOD::System *system, con
 {
 	mInternetStreamURL = url;
 
-	/*FMOD_CREATESOUNDEXINFO exinfo;
-	memset(&exinfo,0,sizeof(exinfo));
-	exinfo.cbsize = sizeof(exinfo);
-	exinfo.suggestedsoundtype = FMOD_SOUND_TYPE_OGGVORBIS;	//Hint to speed up loading.*/
-
 	FMOD_RESULT result = mSystem->createStream(url.c_str(), FMOD_2D | FMOD_NONBLOCKING | FMOD_MPEGSEARCH | FMOD_IGNORETAGS, 0, &mInternetStream);
 
 	if (result!= FMOD_OK)
@@ -338,10 +333,6 @@ bool LLAudioStreamManagerFMODEX::stopStream()
 		case FMOD_OPENSTATE_CONNECTING:
 			close = false;
 			break;
-		/*case FSOUND_STREAM_NET_NOTCONNECTED:
-		case FSOUND_STREAM_NET_BUFFERING:
-		case FSOUND_STREAM_NET_READY:
-		case FSOUND_STREAM_NET_ERROR:*/
 		default:
 			close = true;
 		}
