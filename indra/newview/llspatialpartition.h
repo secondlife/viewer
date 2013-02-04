@@ -119,6 +119,17 @@ public:
 	LL_ALIGN_16(LLFace* mFace); //associated face
 	F32 mDistance;
 	U32 mDrawMode;
+		
+	const LLMaterialID *mMaterialID; // If this is false, the following parameters are unused.
+	LLPointer<LLViewerTexture> mSpecularMap;
+	const LLMatrix4* mSpecularMapMatrix;
+	LLPointer<LLViewerTexture> mNormalMap;
+	const LLMatrix4* mNormalMapMatrix;
+	LLVector4 mSpecColor; // XYZ = Specular RGB, W = Specular Exponent
+	F32  mEnvIntensity;
+	F32  mAlphaMaskCutoff;
+	U8   mDiffuseAlphaMode;
+
 
 	struct CompareTexture
 	{
@@ -169,7 +180,7 @@ public:
 		}
 
 	};
-
+	
 	struct CompareBump
 	{
 		bool operator()(const LLPointer<LLDrawInfo>& lhs, const LLPointer<LLDrawInfo>& rhs) 

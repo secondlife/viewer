@@ -60,7 +60,7 @@ public:
 	F32			getSpecularRotation() const { return mSpecularRotation; }
 	void		setSpecularRotation(F32 rot) { mSpecularRotation = rot; }
 
-	const LLColor4U& getSpecularLightColor() const { return mSpecularLightColor; }
+	const LLColor4U getSpecularLightColor() const { return mSpecularLightColor; }
 	void		setSpecularLightColor(const LLColor4U& color) { mSpecularLightColor = color; }
 	U8			getSpecularLightExponent() const { return mSpecularLightExponent; }
 	void		setSpecularLightExponent(U8 exponent) { mSpecularLightExponent = exponent; }

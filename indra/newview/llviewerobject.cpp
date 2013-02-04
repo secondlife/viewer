@@ -202,6 +202,8 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mTotalCRC(0),
 	mListIndex(-1),
 	mTEImages(NULL),
+	mTENormalMaps(NULL),
+	mTESpecularMaps(NULL),
 	mGLName(0),
 	mbCanSelect(TRUE),
 	mFlags(0),
@@ -322,6 +324,18 @@ void LLViewerObject::deleteTEImages()
 {
 	delete[] mTEImages;
 	mTEImages = NULL;
+	
+	if (mTENormalMaps != NULL)
+	{
+		delete[] mTENormalMaps;
+		mTENormalMaps = NULL;
+	}
+	
+	if (mTESpecularMaps != NULL)
+	{
+		delete[] mTESpecularMaps;
+		mTESpecularMaps = NULL;
+	}	
 }
 
 void LLViewerObject::markDead()
@@ -3935,25 +3949,39 @@ void LLViewerObject::setNumTEs(const U8 num_tes)
 		{
 			LLPointer<LLViewerTexture> *new_images;
 			new_images = new LLPointer<LLViewerTexture>[num_tes];
+			
+			LLPointer<LLViewerTexture> *new_normmaps;
+			new_normmaps = new LLPointer<LLViewerTexture>[num_tes];
+			
+			LLPointer<LLViewerTexture> *new_specmaps;
+			new_specmaps = new LLPointer<LLViewerTexture>[num_tes];
 			for (i = 0; i < num_tes; i++)
 			{
 				if (i < getNumTEs())
 				{
 					new_images[i] = mTEImages[i];
+					new_normmaps[i] = mTENormalMaps[i];
+					new_specmaps[i] = mTESpecularMaps[i];
 				}
 				else if (getNumTEs())
 				{
 					new_images[i] = mTEImages[getNumTEs()-1];
+					new_normmaps[i] = mTENormalMaps[i];
+					new_specmaps[i] = mTESpecularMaps[i];
 				}
 				else
 				{
 					new_images[i] = NULL;
+					new_normmaps[i] = NULL;
+					new_specmaps[i] = NULL;
 				}
 			}
 
 			deleteTEImages();
 			
 			mTEImages = new_images;
+			mTENormalMaps = new_normmaps;
+			mTESpecularMaps = new_specmaps;
 		}
 		else
 		{
@@ -4032,12 +4060,18 @@ void LLViewerObject::sendTEUpdate() const
 void LLViewerObject::setTE(const U8 te, const LLTextureEntry &texture_entry)
 {
 	LLPrimitive::setTE(te, texture_entry);
-//  This doesn't work, don't get any textures.
-//	if (mDrawable.notNull() && mDrawable->isVisible())
-//	{
-		const LLUUID& image_id = getTE(te)->getID();
-		mTEImages[te] = LLViewerTextureManager::getFetchedTexture(image_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-//	}
+
+	const LLUUID& image_id = getTE(te)->getID();
+	mTEImages[te] = LLViewerTextureManager::getFetchedTexture(image_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+	
+	if (getTE(te)->getMaterialParams() != NULL)
+	{
+		const LLUUID& norm_id = getTE(te)->getMaterialParams()->getNormalID();
+		mTENormalMaps[te] = LLViewerTextureManager::getFetchedTexture(norm_id, TRUE, LLViewerTexture::BOOST_BUMP, LLViewerTexture::LOD_TEXTURE);
+		
+		const LLUUID& spec_id = getTE(te)->getMaterialParams()->getSpecularID();
+		mTESpecularMaps[te] = LLViewerTextureManager::getFetchedTexture(spec_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+	}
 }
 
 void LLViewerObject::setTEImage(const U8 te, LLViewerTexture *imagep)
@@ -4072,6 +4106,42 @@ S32 LLViewerObject::setTETextureCore(const U8 te, const LLUUID& uuid, LLHost hos
 	return retval;
 }
 
+S32 LLViewerObject::setTENormalMapCore(const U8 te, const LLUUID& uuid, LLHost host)
+{
+	S32 retval = 0;
+	//if (uuid != getTE(te)->getMaterialParams()->getNormalID() ||
+	//	uuid == LLUUID::null)
+	{
+		retval = TEM_CHANGE_TEXTURE;
+		getTE(te)->getMaterialParams()->setNormalID(uuid);
+		mTENormalMaps[te] = LLViewerTextureManager::getFetchedTexture(uuid, TRUE, LLViewerTexture::BOOST_BUMP, LLViewerTexture::LOD_TEXTURE, 0, 0, host);
+		setChanged(TEXTURE);
+		if (mDrawable.notNull())
+		{
+			gPipeline.markTextured(mDrawable);
+		}
+	}
+	return retval;
+}
+
+S32 LLViewerObject::setTESpecularMapCore(const U8 te, const LLUUID& uuid, LLHost host)
+{
+	S32 retval = 0;
+	//if (uuid != getTE(te)->getMaterialParams()->getSpecularID()	||
+	//	uuid == LLUUID::null)
+	{
+		retval = TEM_CHANGE_TEXTURE;
+		getTE(te)->getMaterialParams()->setSpecularID(uuid);
+		mTESpecularMaps[te] = LLViewerTextureManager::getFetchedTexture(uuid, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host);
+		setChanged(TEXTURE);
+		if (mDrawable.notNull())
+		{
+			gPipeline.markTextured(mDrawable);
+		}
+	}
+	return retval;
+}
+
 //virtual
 void LLViewerObject::changeTEImage(S32 index, LLViewerTexture* new_image) 
 {
@@ -4082,12 +4152,39 @@ void LLViewerObject::changeTEImage(S32 index, LLViewerTexture* new_image)
 	mTEImages[index] = new_image ;
 }
 
+void LLViewerObject::changeTENormalMap(S32 index, LLViewerTexture* new_image)
+{
+	if(index < 0 || index >= getNumTEs())
+	{
+		return ;
+	}
+	mTENormalMaps[index] = new_image ;
+}
+
+void LLViewerObject::changeTESpecularMap(S32 index, LLViewerTexture* new_image)
+{
+	if(index < 0 || index >= getNumTEs())
+	{
+		return ;
+	}
+	mTESpecularMaps[index] = new_image ;
+}
+
 S32 LLViewerObject::setTETexture(const U8 te, const LLUUID& uuid)
 {
 	// Invalid host == get from the agent's sim
 	return setTETextureCore(te, uuid, LLHost::invalid);
 }
 
+S32 LLViewerObject::setTENormalMap(const U8 te, const LLUUID& uuid)
+{
+	return setTENormalMapCore(te, uuid, LLHost::invalid);
+}
+
+S32 LLViewerObject::setTESpecularMap(const U8 te, const LLUUID& uuid)
+{
+	return setTESpecularMapCore(te, uuid, LLHost::invalid);
+}
 
 S32 LLViewerObject::setTEColor(const U8 te, const LLColor3& color)
 {
@@ -4254,11 +4351,44 @@ S32 LLViewerObject::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID
 	const LLTextureEntry *tep = getTE(te);
 	if (!tep)
 	{
-		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+		LL_WARNS("Material") << "No texture entry for te " << (S32)te
+							 << ", object " << mID
+							 << ", material " << pMaterialID
+							 << LL_ENDL;
 	}
 	else if (pMaterialID != tep->getMaterialID())
 	{
+		LL_DEBUGS("Material") << "Changing texture entry for te " << (S32)te
+							 << ", object " << mID
+							 << ", material " << pMaterialID
+							 << LL_ENDL;
 		retval = LLPrimitive::setTEMaterialID(te, pMaterialID);
+		setChanged(TEXTURE);
+		if (mDrawable.notNull() && retval)
+		{
+			gPipeline.markTextured(mDrawable);
+		}
+	}
+	return retval;
+}
+
+S32 LLViewerObject::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams)
+{
+	S32 retval = 0;
+	const LLTextureEntry *tep = getTE(te);
+	if (!tep)
+	{
+		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+	}
+	else if (pMaterialParams != tep->getMaterialParams())
+	{
+		retval = LLPrimitive::setTEMaterialParams(te, pMaterialParams);
+		LL_DEBUGS("Material") << "Changing material params for te " << (S32)te
+							  << ", object " << mID
+			                  << " (" << retval << ")"
+							  << LL_ENDL;
+		setTENormalMap(te, tep->getMaterialParams()->getNormalID());
+		setTESpecularMap(te, tep->getMaterialParams()->getSpecularID());
 		setChanged(TEXTURE);
 		if (mDrawable.notNull() && retval)
 		{
@@ -4368,6 +4498,50 @@ LLViewerTexture *LLViewerObject::getTEImage(const U8 face) const
 	return NULL;
 }
 
+
+LLViewerTexture *LLViewerObject::getTENormalMap(const U8 face) const
+{
+	//	llassert(mTEImages);
+	
+	if (face < getNumTEs())
+	{
+		LLViewerTexture* image = mTENormalMaps[face];
+		if (image)
+		{
+			return image;
+		}
+		else
+		{
+			return (LLViewerTexture*)(LLViewerFetchedTexture::sDefaultImagep);
+		}
+	}
+	
+	llerrs << llformat("Requested Image from invalid face: %d/%d",face,getNumTEs()) << llendl;
+	
+	return NULL;
+}
+
+LLViewerTexture *LLViewerObject::getTESpecularMap(const U8 face) const
+{
+	//	llassert(mTEImages);
+	
+	if (face < getNumTEs())
+	{
+		LLViewerTexture* image = mTESpecularMaps[face];
+		if (image)
+		{
+			return image;
+		}
+		else
+		{
+			return (LLViewerTexture*)(LLViewerFetchedTexture::sDefaultImagep);
+		}
+	}
+	
+	llerrs << llformat("Requested Image from invalid face: %d/%d",face,getNumTEs()) << llendl;
+	
+	return NULL;
+}
 
 void LLViewerObject::fitFaceTexture(const U8 face)
 {

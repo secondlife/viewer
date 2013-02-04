@@ -77,6 +77,7 @@
 #include "llviewershadermgr.h"
 #include "llvoavatar.h"
 #include "llvocache.h"
+#include "llmaterialmgr.h"
 
 const S32 MIN_QUIET_FRAMES_COALESCE = 30;
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
@@ -919,6 +920,12 @@ LLFace* LLVOVolume::addFace(S32 f)
 {
 	const LLTextureEntry* te = getTE(f);
 	LLViewerTexture* imagep = getTEImage(f);
+	if (te->getMaterialParams() != NULL)
+	{
+		LLViewerTexture* normalp = getTENormalMap(f);
+		LLViewerTexture* specularp = getTESpecularMap(f);
+		return mDrawable->addFace(te, imagep, normalp, specularp);
+	}
 	return mDrawable->addFace(te, imagep);
 }
 
@@ -1404,6 +1411,11 @@ void LLVOVolume::regenFaces()
 
 		facep->setTEOffset(i);
 		facep->setTexture(getTEImage(i));
+		if (facep->getTextureEntry()->getMaterialParams() != NULL)
+		{
+			facep->setNormalMap(getTENormalMap(i));
+			facep->setSpecularMap(getTESpecularMap(i));
+		}
 		facep->setViewerObject(this);
 		
 		// If the face had media on it, this will have broken the link between the LLViewerMediaTexture and the face.
@@ -1977,15 +1989,47 @@ S32 LLVOVolume::setTEGlow(const U8 te, const F32 glow)
 	return  res;
 }
 
+void LLVOVolume::setTEMaterialParamsCallback(const LLMaterialID &pMaterialID, const LLMaterialPtr pMaterialParams)
+{
+	for (U8 i = 0; i < getNumTEs(); i++)
+	{
+		if (getTE(i)->getMaterialID() == pMaterialID)
+		{
+			LL_INFOS("Materials") << "Material params callback triggered!" << LL_ENDL;
+			setTEMaterialParams(i, pMaterialParams);
+		}
+	}
+}
+
 S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 {
-	S32 res = LLViewerObject::setTEMaterialID(te, pMaterialID);
+	if (!pMaterialID.isNull())
+	{
+		LL_INFOS("Materials") << " " << pMaterialID.asString() << LL_ENDL;
+		S32 res = LLViewerObject::setTEMaterialID(te, pMaterialID);
+		if (res)
+		{
+			LL_INFOS("Materials") << "We have a material!" << LL_ENDL;
+			LLMaterialMgr::instance().get(getRegion()->getRegionID(), pMaterialID, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2));
+			//setTEMaterialParams(te, pMatParam);
+			gPipeline.markTextured(mDrawable);
+			mFaceMappingChanged = TRUE;
+		}
+		return  res;
+	}
+	return 0;
+}
+
+S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams)
+{
+	S32 res = LLViewerObject::setTEMaterialParams(te, pMaterialParams);
 	if (res)
 	{
 		gPipeline.markTextured(mDrawable);
 		mFaceMappingChanged = TRUE;
 	}
-	return  res;
+	
+	return res;
 }
 
 S32 LLVOVolume::setTEScale(const U8 te, const F32 s, const F32 t)
@@ -4050,6 +4094,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	LLViewerTexture* tex = facep->getTexture();
 
 	U8 index = facep->getTextureIndex();
+	
+	const LLMaterialID* matid = &facep->getTextureEntry()->getMaterialID();
 
 	bool batchable = false;
 
@@ -4084,7 +4130,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec[idx]->mFullbright == fullbright &&
 		draw_vec[idx]->mBump == bump &&
 		draw_vec[idx]->mTextureMatrix == tex_mat &&
-		draw_vec[idx]->mModelMatrix == model_mat)
+		draw_vec[idx]->mModelMatrix == model_mat &&
+		draw_vec[idx]->mMaterialID == matid)
 	{
 		draw_vec[idx]->mCount += facep->getIndicesCount();
 		draw_vec[idx]->mEnd += facep->getGeomCount();
@@ -4106,12 +4153,46 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		U32 offset = facep->getIndicesStart();
 		U32 count = facep->getIndicesCount();
 		LLPointer<LLDrawInfo> draw_info = new LLDrawInfo(start,end,count,offset, tex, 
-			facep->getVertexBuffer(), fullbright, bump); 
+			facep->getVertexBuffer(), fullbright, bump);
 		draw_info->mGroup = group;
 		draw_info->mVSize = facep->getVirtualSize();
 		draw_vec.push_back(draw_info);
 		draw_info->mTextureMatrix = tex_mat;
 		draw_info->mModelMatrix = model_mat;
+		if (!facep->getTextureEntry()->getMaterialID().isNull())
+		{
+			
+			if (facep->getTextureEntry()->getMaterialParams() != NULL)
+			{
+				// We have a material.  Update our draw info accordingly.
+				draw_info->mMaterialID = &facep->getTextureEntry()->getMaterialID();
+				LLVector4 specColor;
+				specColor.mV[0] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[0] * (1.0 / 255);
+				specColor.mV[1] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[1] * (1.0 / 255);
+				specColor.mV[2] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[2] * (1.0 / 255);
+				specColor.mV[3] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightExponent() * (1.0 / 255);
+				draw_info->mSpecColor = specColor;
+				draw_info->mEnvIntensity = facep->getTextureEntry()->getMaterialParams()->getEnvironmentIntensity() * (1.0 / 255);
+				draw_info->mAlphaMaskCutoff = facep->getTextureEntry()->getMaterialParams()->getAlphaMaskCutoff() * (1.0 / 255);
+				draw_info->mDiffuseAlphaMode = facep->getTextureEntry()->getMaterialParams()->getDiffuseAlphaMode();
+				draw_info->mNormalMap = facep->getViewerObject()->getTENormalMap(facep->getTextureIndex());
+				draw_info->mSpecularMap = facep->getViewerObject()->getTESpecularMap(facep->getTextureIndex());
+			}
+		} else {
+			U8 shiny = facep->getTextureEntry()->getShiny();
+			float alpha[4] =
+			{
+				0.00f,
+				0.25f,
+				0.5f,
+				0.75f
+			};
+			float spec = alpha[shiny];
+			LLVector4 specColor(spec, spec, spec, spec);
+			draw_info->mSpecColor = specColor;
+			draw_info->mEnvIntensity = spec;
+		}
+		
 		if (type == LLRenderPass::PASS_ALPHA)
 		{ //for alpha sorting
 			facep->setDrawInfo(draw_info);
@@ -4267,7 +4348,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			}
 
 			if (vobj->isMesh() &&
-				(vobj->getVolume() && !vobj->getVolume()->isMeshAssetLoaded() || !gMeshRepo.meshRezEnabled()))
+				((vobj->getVolume() && !vobj->getVolume()->isMeshAssetLoaded()) || !gMeshRepo.meshRezEnabled()))
 			{
 				continue;
 			}
@@ -4563,7 +4644,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						if (gPipeline.canUseWindLightShadersOnObjects()
 							&& LLPipeline::sRenderBump)
 						{
-							if (te->getBumpmap())
+							if (te->getBumpmap() || te->getMaterialParams()	!= NULL)
 							{ //needs normal + binormal
 								bump_faces.push_back(facep);
 							}
@@ -5134,7 +5215,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 							registerFace(group, facep, LLRenderPass::PASS_POST_BUMP);
 						}
 					}
-					else if (te->getBumpmap())
+					else if (te->getBumpmap() || te->getMaterialParams() != NULL)
 					{ //register in deferred bump pass
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
 					}
@@ -5169,7 +5250,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				}
 				else
 				{
-					if (LLPipeline::sRenderDeferred && LLPipeline::sRenderBump && te->getBumpmap())
+					if (LLPipeline::sRenderDeferred && LLPipeline::sRenderBump && (te->getBumpmap() || te->getMaterialParams()))
 					{ //non-shiny or fullbright deferred bump
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
 					}
