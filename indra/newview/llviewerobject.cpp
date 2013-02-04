@@ -4351,10 +4351,17 @@ S32 LLViewerObject::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID
 	const LLTextureEntry *tep = getTE(te);
 	if (!tep)
 	{
-		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+		LL_WARNS("Material") << "No texture entry for te " << (S32)te
+							 << ", object " << mID
+							 << ", material " << pMaterialID
+							 << LL_ENDL;
 	}
 	else if (pMaterialID != tep->getMaterialID())
 	{
+		LL_DEBUGS("Material") << "Changing texture entry for te " << (S32)te
+							 << ", object " << mID
+							 << ", material " << pMaterialID
+							 << LL_ENDL;
 		retval = LLPrimitive::setTEMaterialID(te, pMaterialID);
 		setChanged(TEXTURE);
 		if (mDrawable.notNull() && retval)
@@ -4376,6 +4383,10 @@ S32 LLViewerObject::setTEMaterialParams(const U8 te, const LLMaterialPtr pMateri
 	else if (pMaterialParams != tep->getMaterialParams())
 	{
 		retval = LLPrimitive::setTEMaterialParams(te, pMaterialParams);
+		LL_DEBUGS("Material") << "Changing material params for te " << (S32)te
+							  << ", object " << mID
+			                  << " (" << retval << ")"
+							  << LL_ENDL;
 		setTENormalMap(te, tep->getMaterialParams()->getNormalID());
 		setTESpecularMap(te, tep->getMaterialParams()->getSpecularID());
 		setChanged(TEXTURE);

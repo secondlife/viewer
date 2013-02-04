@@ -93,7 +93,9 @@ protected:
 	static void		onCommitMaterialType(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitBump(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitTexGen(			LLUICtrl* ctrl, void* userdata);
+	static void		updateShinyControls(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitShiny(			LLUICtrl* ctrl, void* userdata);
+	static void		updateAlphaControls(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitAlphaMode(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitFullbright(		LLUICtrl* ctrl, void* userdata);
 	static void     onCommitGlow(           LLUICtrl* ctrl, void *userdata);
