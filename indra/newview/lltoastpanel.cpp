@@ -81,9 +81,7 @@ void LLToastPanel::snapToMessageHeight(LLTextBase* message, S32 maxLineCount)
 		S32 newTextHeight = llmin(requiredTextHeight, maxTextHeight);
 
 		heightDelta = newTextHeight - oldTextHeight;
-		S32 new_panel_height = llmin(
-				llmax(getRect().getHeight() + heightDelta, MIN_PANEL_HEIGHT),
-				maxTextHeight);
+		S32 new_panel_height = llmax(getRect().getHeight() + heightDelta, MIN_PANEL_HEIGHT);
 
 		//reshape the panel with new height
 		if (new_panel_height != getRect().getHeight())
