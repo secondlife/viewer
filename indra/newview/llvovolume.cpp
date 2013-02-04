@@ -2005,7 +2005,7 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 {
 	if (!pMaterialID.isNull())
 	{
-		LL_INFOS("Materials") << "Oh god it's a material! " << pMaterialID.asString() << LL_ENDL;
+		LL_INFOS("Materials") << " " << pMaterialID.asString() << LL_ENDL;
 		S32 res = LLViewerObject::setTEMaterialID(te, pMaterialID);
 		if (res)
 		{

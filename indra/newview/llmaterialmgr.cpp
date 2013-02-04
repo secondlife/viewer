@@ -293,6 +293,7 @@ void LLMaterialMgr::onGetResponse(bool success, const LLSD& content, const LLUUI
 	}
 
 	llassert(response_data.isArray());
+	LL_DEBUGS("Materials") << "response has "<< response_data.size() << " materials" << LL_ENDL;
 	for (LLSD::array_const_iterator itMaterial = response_data.beginArray(); itMaterial != response_data.endArray(); ++itMaterial)
 	{
 		const LLSD& material_data = *itMaterial;
@@ -337,6 +338,7 @@ void LLMaterialMgr::onGetAllResponse(bool success, const LLSD& content, const LL
 	material_map_t materials;
 
 	llassert(response_data.isArray());
+	LL_DEBUGS("Materials") << "response has "<< response_data.size() << " materials" << LL_ENDL;
 	for (LLSD::array_const_iterator itMaterial = response_data.beginArray(); itMaterial != response_data.endArray(); ++itMaterial)
 	{
 		const LLSD& material_data = *itMaterial;
@@ -400,7 +402,7 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 	else
 	{
 		llassert(response_data.isArray());
-
+		LL_DEBUGS("Materials") << "response has "<< response_data.size() << " materials" << LL_ENDL;
 		for (LLSD::array_const_iterator faceIter = response_data.beginArray(); faceIter != response_data.endArray(); ++faceIter)
 		{
 #           ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -550,6 +552,7 @@ void LLMaterialMgr::processGetAllQueue()
 			continue;
 		}
 
+		LL_DEBUGS("Materials") << "getAll for region " << region_id << LL_ENDL;
 		LLHTTPClient::ResponderPtr materialsResponder = new LLMaterialsResponder("GET", capURL, boost::bind(&LLMaterialMgr::onGetAllResponse, this, _1, _2, *itRegion));
 		LLHTTPClient::get(capURL, materialsResponder);
 		mGetAllPending.insert(std::pair<LLUUID, F64>(region_id, LLFrameTimer::getTotalSeconds()));
@@ -625,6 +628,7 @@ void LLMaterialMgr::processPutQueue()
 			LLSD putData = LLSD::emptyMap();
 			putData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
 
+			LL_DEBUGS("Materials") << "put for " << facesData.size() << " faces; object " << object_id << LL_ENDL;
 			LLHTTPClient::ResponderPtr materialsResponder = new LLMaterialsResponder("PUT", capURL, boost::bind(&LLMaterialMgr::onPutResponse, this, _1, _2));
 			LLHTTPClient::put(capURL, putData, materialsResponder);
 		}
