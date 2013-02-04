@@ -8,7 +8,7 @@
 #export LL_BAD_FMODEX_DRIVER=x
 ## - Avoids using any OpenAL audio driver.
 #export LL_BAD_OPENAL_DRIVER=x
-s
+
 ## - Avoids using the FMOD Ex PulseAudio audio driver.
 #export LL_BAD_FMOD_PULSEAUDIO=x
 ## - Avoids using the FMOD or FMOD Ex ALSA audio driver.
