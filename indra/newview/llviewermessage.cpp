@@ -2391,7 +2391,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// do nothing -- don't distract newbies in
 			// Prelude with global IMs
 		}
-		else if (offline == IM_ONLINE && is_do_not_disturb && name != SYSTEM_FROM)
+		else if (offline == IM_ONLINE && is_do_not_disturb && from_id.notNull())
 		{
 			// return a standard "do not disturb" message, but only do it to online IM 
 			// (i.e. not other auto responses and not store-and-forward IM)

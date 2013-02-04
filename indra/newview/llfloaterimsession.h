@@ -69,6 +69,13 @@ public:
 	/*virtual*/ BOOL getVisible();
 	// Check typing timeout timer.
 
+	/*virtual*/ void draw();
+	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+		EDragAndDropType cargo_type,
+		void* cargo_data,
+		EAcceptance* accept,
+		std::string& tooltip_msg);
+
 	static LLFloaterIMSession* findInstance(const LLUUID& session_id);
 	static LLFloaterIMSession* getInstance(const LLUUID& session_id);
 
@@ -116,13 +123,6 @@ public:
 	void processIMTyping(const LLIMInfo* im_info, BOOL typing);
 	void processAgentListUpdates(const LLSD& body);
 	void processSessionUpdate(const LLSD& session_update);
-
-	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-									   EDragAndDropType cargo_type,
-									   void* cargo_data,
-									   EAcceptance* accept,
-									   std::string& tooltip_msg);
-
 
 	//used as a callback on receiving new IM message
 	static void sRemoveTypingIndicator(const LLSD& data);
@@ -189,6 +189,7 @@ private:
 	LLSD mQueuedMsgsForInit;
 
 	uuid_vec_t mInvitedParticipants;
+	uuid_vec_t mPendingParticipants;
 
 	// connection to voice channel state change signal
 	boost::signals2::connection mVoiceChannelStateChangeConnection;

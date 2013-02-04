@@ -1044,6 +1044,19 @@ void LLFloaterIMSession::processSessionUpdate(const LLSD& session_update)
 }
 
 // virtual
+void LLFloaterIMSession::draw()
+{
+	// add people who were added via dropPerson()
+	if (!mPendingParticipants.empty())
+	{
+		addSessionParticipants(mPendingParticipants);
+		mPendingParticipants.clear();
+	}
+
+	LLFloaterIMSessionTab::draw();
+}
+
+// virtual
 BOOL LLFloaterIMSession::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									EDragAndDropType cargo_type,
 									void* cargo_data,
@@ -1081,7 +1094,9 @@ bool LLFloaterIMSession::dropPerson(LLUUID* person_id, bool drop)
 		res = canAddSelectedToChat(ids);
 		if(res && drop)
 		{
-			addSessionParticipants(ids);
+			// these people will be added during the next draw() call
+			// (so they can be added all at once)
+			mPendingParticipants.push_back(*person_id);
 		}
 	}
 

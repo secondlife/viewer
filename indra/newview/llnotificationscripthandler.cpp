@@ -27,6 +27,7 @@
 
 #include "llviewerprecompiledheaders.h" // must be first include
 
+#include "llagent.h"
 #include "llnotificationhandler.h"
 #include "lltoastnotifypanel.h"
 #include "llviewercontrol.h"
@@ -95,6 +96,10 @@ bool LLScriptHandler::processNotification(const LLNotificationPtr& notification)
 		p.notification = notification;
 		p.panel = notify_box;
 		p.on_delete_toast = boost::bind(&LLScriptHandler::onDeleteToast, this, _1);
+		if(gAgent.isDoNotDisturb())
+		{ 
+			p.force_show = notification->getName() == "SystemMessage" || notification->getPriority() >= NOTIFICATION_PRIORITY_HIGH;
+		}
 
 		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
 		if(channel)
