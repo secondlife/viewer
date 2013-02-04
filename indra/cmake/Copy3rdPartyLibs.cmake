@@ -63,7 +63,6 @@ if(WINDOWS)
     endif(USE_TCMALLOC)
 
     if (FMODEX)
-      set(debug_files ${debug_files} fmodexL.dll)
       set(release_files ${release_files} fmodex.dll)
     endif (FMODEX)
 
