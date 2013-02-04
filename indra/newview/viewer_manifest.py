@@ -1125,13 +1125,6 @@ class Linux_i686Manifest(LinuxManifest):
                 pass
 
             try:
-                    self.path("libfmod-3.75.so")
-                    pass
-            except:
-                    print "Skipping libfmod-3.75.so - not found"
-                    pass
-
-            try:
                     self.path("libfmodex-*.so")
                     self.path("libfmodex.so")
                     pass
