@@ -500,7 +500,7 @@
               <key>hash</key>
 	      <string>39817c0f0961a8b82558d9cef1c759bd</string>
               <key>url</key>
-	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269882/arch/Darwin/installer/fmodex-4.44-darwin-20130204.tar.bz2</string>
+	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269940/arch/Darwin/installer/fmodex-4.44-darwin-20130204.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -512,7 +512,7 @@
               <key>hash</key>
               <string>6edb8c10d6cada8af476c27659dcfb92</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269881/arch/Linux/installer/fmodex-4.44-linux-20130204.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269934/arch/Linux/installer/fmodex-4.44-linux-20130204.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
