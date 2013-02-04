@@ -260,7 +260,7 @@ bool LLAudioEngine_FMODEX::init(const S32 num_channels, void* userdata)
 	mSystem->getSoftwareFormat(&r_samplerate, NULL, &r_channels, NULL, NULL, &r_bits);
 	mSystem->getDriverInfo(0, r_name, 255, 0);
 	r_name[255] = '\0';
-	int latency = 1000.0 * r_bufferlength * r_numbuffers /r_samplerate;
+	int latency = (int)(1000.0f * r_bufferlength * r_numbuffers / r_samplerate);
 
 	LL_INFOS("AppInit") << "FMOD device: "<< r_name << "\n"
 		<< "FMOD Ex parameters: " << r_samplerate << " Hz * " << r_channels << " * " <<r_bits <<" bit\n"

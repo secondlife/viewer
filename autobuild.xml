@@ -498,9 +498,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-	      <string>39817c0f0961a8b82558d9cef1c759bd</string>
+	      <string>6ce79e860182dceb52bceea943b3cc2c</string>
               <key>url</key>
-	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269940/arch/Darwin/installer/fmodex-4.44-darwin-20130204.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269947/arch/Darwin/installer/fmodex-4.44-darwin-20130204.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -510,7 +510,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6edb8c10d6cada8af476c27659dcfb92</string>
+	      <string>33e494c9a7044c99bcd6ce2995316659</string>
               <key>url</key>
               <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269934/arch/Linux/installer/fmodex-4.44-linux-20130204.tar.bz2</string>
             </map>
@@ -522,10 +522,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-
-	      <string>a1713cb64a792b0ad44cf640e862dc33</string>
+	      <string>3ae0fb5bdfda862f3e55644eaa9d09c2</string>
               <key>url</key>
-	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269934/arch/CYGWIN/installer/fmodex-4.44-windows-20130204.tar.bz2</string>
+	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269946/arch/CYGWIN/installer/fmodex-4.44-windows-20130204.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
