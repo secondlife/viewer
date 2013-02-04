@@ -90,7 +90,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 		bindNormalMap(params.mNormalMap);
 		
 		params.mSpecularMap->addTextureStats(params.mVSize);
-		bindSpecularMap(params.mNormalMap);
+		bindSpecularMap(params.mSpecularMap);
 		
 		diffuse_channel = mShader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
 		pushBatch(params, VERTEX_DATA_MASK, TRUE);
