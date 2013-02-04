@@ -1526,24 +1526,7 @@ endif (OPENAL)
 
 if (FMODEX)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMODEX")
-
-  if (DARWIN)
-    set(fmodwrapper_SOURCE_FILES fmodwrapper.cpp)
-    add_library(fmodwrapper SHARED ${fmodwrapper_SOURCE_FILES})
-    set(fmodwrapper_needed_LIBRARIES ${FMODEX_LIBRARY} ${CARBON_LIBRARY})
-    set_target_properties(
-      fmodwrapper
-      PROPERTIES
-      BUILD_WITH_INSTALL_RPATH 1
-      INSTALL_NAME_DIR "@executable_path/../Resources"
-      LINK_FLAGS "-unexported_symbols_list ${CMAKE_CURRENT_SOURCE_DIR}/fmod_hidden_symbols.exp"
-      )
-    set(FMODWRAPPER_LIBRARY fmodwrapper)
-    target_link_libraries(fmodwrapper ${fmodwrapper_needed_LIBRARIES})
-  else (DARWIN)
-    # fmodwrapper unnecessary on linux or windows
-    set(FMODWRAPPER_LIBRARY ${FMODEX_LIBRARY})
-  endif (DARWIN)
+  set(FMODWRAPPER_LIBRARY ${FMODEX_LIBRARY})
 endif (FMODEX)
 
 set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")

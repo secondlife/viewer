@@ -762,11 +762,7 @@ class DarwinManifest(ViewerManifest):
                                 'SLVoice',
                                 ):
                      self.path2basename(libdir, libfile)
-                
-                # FMOD for sound
-                libfile = "libfmodwrapper.dylib"
-                path_optional(os.path.join(self.args['configuration'], libfile), libfile)
-                
+
                 # our apps
                 for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
                                          ("mac_updater", "mac-updater.app"),
