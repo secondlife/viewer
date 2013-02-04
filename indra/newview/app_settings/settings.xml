@@ -8143,7 +8143,7 @@
   <key>RenderSpotLightsInNondeferred</key>
   <map>
     <key>Comment</key>
-    <string>Whether to support projectors as spotlights when Lighting and Shadows is disabled</string>
+    <string>Whether to support projectors as spotlights when Advanced Lighting Model is disabled</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -8314,7 +8314,7 @@
   <key>RenderDeferred</key>
   <map>
     <key>Comment</key>
-    <string>Use deferred rendering pipeline.</string>
+    <string>Use deferred rendering pipeline (Advanced Lighting Model).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -8502,7 +8502,7 @@
     <key>RenderAutoMaskAlphaNonDeferred</key>
     <map>
       <key>Comment</key>
-      <string>Use alpha masks where appropriate, in the non-deferred (non-'Lighting and Shadows') graphics mode</string>
+      <string>Use alpha masks where appropriate when not using the Advanced Lighting Model</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8513,7 +8513,7 @@
     <key>RenderAutoMaskAlphaDeferred</key>
     <map>
       <key>Comment</key>
-      <string>Use alpha masks where appropriate, in the deferred ('Lighting and Shadows') graphics mode</string>
+      <string>Use alpha masks where appropriate in the Advanced Lighting Model</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

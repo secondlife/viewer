@@ -1051,6 +1051,7 @@ void render_hud_attachments()
 
 	if (LLPipeline::sShowHUDAttachments && !gDisconnected && setup_hud_matrices())
 	{
+		LLPipeline::sRenderingHUDs = TRUE;
 		LLCamera hud_cam = *LLViewerCamera::getInstance();
 		LLVector3 origin = hud_cam.getOrigin();
 		hud_cam.setOrigin(-1.f,0,0);
@@ -1124,6 +1125,7 @@ void render_hud_attachments()
 			gPipeline.toggleRenderDebugFeature((void*) LLPipeline::RENDER_DEBUG_FEATURE_UI);
 		}
 		LLPipeline::sUseOcclusion = use_occlusion;
+		LLPipeline::sRenderingHUDs = FALSE;
 	}
 	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.popMatrix();

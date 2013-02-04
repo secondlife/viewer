@@ -33,6 +33,7 @@
 #include "llglslshader.h"
 #include "lluictrlfactory.h"
 #include "llsliderctrl.h"
+#include "pipeline.h"
 
 #include <llgl.h>
 
@@ -126,6 +127,13 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 				stop_glerror();
 			}
 		}
+	}
+	
+	if (LLPipeline::sRenderDeferred && !LLPipeline::sReflectionRender)
+	{
+		shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2);
+	} else {
+		shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 1.0);
 	}
 }
 

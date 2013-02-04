@@ -2584,8 +2584,8 @@
           <menu_item_separator />
 
           <menu_item_check
-                       label="Lighting and Shadows"
-                       name="Lighting and Shadows">
+                       label="Advanced Lighting Model"
+                       name="Advanced Lighting Model">
             <menu_item_check.on_check
              function="CheckControl"
              parameter="RenderDeferred" />
@@ -2621,16 +2621,6 @@
           </menu_item_check>
 
           <menu_item_separator/>
-
-          <menu_item_call
-              label="Debug materials ..."
-              name="DebugMaterialsMenu">
-            <menu_item_call.on_click
-                function="Floater.ToggleOrBringToFront"
-                parameter="floater_debug_materials" />
-          </menu_item_call>
-
-          <menu_item_separator />
 
           <menu_item_check
              label="Debug GL"

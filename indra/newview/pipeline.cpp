@@ -377,6 +377,7 @@ BOOL	LLPipeline::sRenderDeferred = FALSE;
 BOOL    LLPipeline::sMemAllocationThrottled = FALSE;
 S32		LLPipeline::sVisibleLightCount = 0;
 F32		LLPipeline::sMinRenderSize = 0.f;
+BOOL	LLPipeline::sRenderingHUDs;
 
 
 static LLCullResult* sCull = NULL;
@@ -396,7 +397,7 @@ void validate_framebuffer_object();
 
 bool addDeferredAttachments(LLRenderTarget& target)
 {
-	return target.addColorAttachment(GL_RGBA) && //specular
+	return target.addColorAttachment(GL_SRGB_ALPHA) && //specular
 			target.addColorAttachment(GL_RGB10_A2); //normal+z
 }
 
@@ -898,11 +899,11 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		BOOL ssao = RenderDeferredSSAO;
 		
 		//allocate deferred rendering color buffers
-		if (!mDeferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		if (!mDeferredScreen.allocate(resX, resY, GL_SRGB8_ALPHA8, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!addDeferredAttachments(mDeferredScreen)) return false;
 		
-		if (!mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		if (!mScreen.allocate(resX, resY, GL_RGBA12, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (samples > 0)
 		{
 			if (!mFXAABuffer.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
@@ -1195,7 +1196,7 @@ void LLPipeline::createGLBuffers()
 
 		for (U32 i = 0; i < 3; i++)
 		{
-			mGlow[i].allocate(512,glow_res,GL_RGBA,FALSE,FALSE);
+			mGlow[i].allocate(512,glow_res,sRenderDeferred ? GL_RGB10_A2 : GL_RGB10_A2,FALSE,FALSE);
 		}
 
 		allocateScreenBuffer(resX,resY);
@@ -1261,31 +1262,26 @@ void LLPipeline::createLUTBuffers()
 			U32 lightResY = gSavedSettings.getU32("RenderSpecularResY");
 			F32* ls = new F32[lightResX*lightResY];
 			//F32 specExp = gSavedSettings.getF32("RenderSpecularExponent"); // Note: only use this when creating new specular lighting functions.
-            // Calculate the (normalized) Gaussian specular lookup texture. (with a few tweaks)
+            // Calculate the (normalized) blinn-phong specular lookup texture. (with a few tweaks)
 			for (U32 y = 0; y < lightResY; ++y)
 			{
 				for (U32 x = 0; x < lightResX; ++x)
 				{
 					ls[y*lightResX+x] = 0;
 					F32 sa = (F32) x/(lightResX-1);
-					F32 spec = (F32) y/(lightResY);
-					F32 n = spec;
+					F32 spec = (F32) y/(lightResY-1);
+					F32 n = spec * spec * 368;
 					
-					float angleNormalHalf = acosf(sa);
-					float exponent = angleNormalHalf / ((1 - n));
-					exponent = -(exponent * exponent);
-					spec = expf(exponent);
+					// Nothing special here.  Just your typical blinn-phong term.
+					spec = powf(sa, n);
 					
 					// Apply our normalization function.
-					// This is based around the phong normalization function, trading n+2 for n+1 instead.
-					// Since we're using a gaussian model here, we actually don't really need as large of an exponent as blinn-phong shading.
-					// Instead, we assume that the correct exponent is 8 here.
-					// This was achieved through much tweaking to find a decent "middleground" with our specular highlights with the gaussian term.
-					// Bigger highlights don't look too soft, smaller highlights don't look too bright, and everything in the middle seems to have a well maintained highlight curvature.
-					// There isn't really much theory behind this one.  This was done purely to produce a nice and mostly customizable BRDF.
+					// Note: This is the full equation that applies the full normalization curve, not an approximation.
+					// This is fine, given we only need to create our LUT once per buffer initialization.
+					spec *= (((n + 2) * (n + 4)) / (8 * F_PI * (powf(2, -n/2) + n)));
 					
-					spec = lerpf(spec, spec * (n * 8 + 1) / 4.5, n);
-					
+					// Since we use R16F, we no longer have a dynamic range issue we need to work around here.
+					// Though some older drivers may not like this, newer drivers shouldn't have this problem.
 					ls[y*lightResX+x] = spec;
 				}
 			}
@@ -3602,8 +3598,8 @@ void LLPipeline::postSort(LLCamera& camera)
 	for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
-		if (sUseOcclusion && 
-			group->isOcclusionState(LLSpatialGroup::OCCLUDED) ||
+		if ((sUseOcclusion && 
+			group->isOcclusionState(LLSpatialGroup::OCCLUDED)) ||
 			(RenderAutoHideSurfaceAreaLimit > 0.f && 
 			group->mSurfaceArea > RenderAutoHideSurfaceAreaLimit*llmax(group->mObjectBoxSize, 10.f)))
 		{
@@ -5034,8 +5030,8 @@ void LLPipeline::renderDebug()
 			LLSpatialPartition* part = region->getSpatialPartition(i);
 			if (part)
 			{
-				if ( hud_only && (part->mDrawableType == RENDER_TYPE_HUD || part->mDrawableType == RENDER_TYPE_HUD_PARTICLES) ||
-					 !hud_only && hasRenderType(part->mDrawableType) )
+				if ( (hud_only && (part->mDrawableType == RENDER_TYPE_HUD || part->mDrawableType == RENDER_TYPE_HUD_PARTICLES)) ||
+					 (!hud_only && hasRenderType(part->mDrawableType)) )
 				{
 					part->renderDebug();
 				}
@@ -7382,6 +7378,13 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 					mScreen.bindTexture(0, channel);
 					gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 				}
+				
+				if (!LLViewerCamera::getInstance()->cameraUnderWater())
+				{
+					shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2);
+				} else {
+					shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 1.0);
+				}
 
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
 				shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
@@ -7422,6 +7425,13 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			if (channel > -1)
 			{
 				mScreen.bindTexture(0, channel);
+			}
+			
+			if (!LLViewerCamera::getInstance()->cameraUnderWater())
+			{
+				shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2);
+			} else {
+				shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 1.0);
 			}
 
 			gGL.begin(LLRender::TRIANGLE_STRIP);
@@ -7843,6 +7853,22 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	}
 }
 
+LLColor3 pow3f(LLColor3 v, F32 f)
+{
+	v.mV[0] = powf(v.mV[0], f);
+	v.mV[1] = powf(v.mV[1], f);
+	v.mV[2] = powf(v.mV[2], f);
+	return v;
+}
+
+LLVector4 pow4fsrgb(LLVector4 v, F32 f)
+{
+	v.mV[0] = powf(v.mV[0], f);
+	v.mV[1] = powf(v.mV[1], f);
+	v.mV[2] = powf(v.mV[2], f);
+	return v;
+}
+
 static LLFastTimer::DeclareTimer FTM_GI_TRACE("Trace");
 static LLFastTimer::DeclareTimer FTM_GI_GATHER("Gather");
 static LLFastTimer::DeclareTimer FTM_SUN_SHADOW("Shadow Map");
@@ -8178,7 +8204,7 @@ void LLPipeline::renderDeferredLighting()
 							LLFastTimer ftm(FTM_LOCAL_LIGHTS);
 							gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);
-							gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
+							gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, pow3f(col, 2.2f).mV);
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
 							gGL.syncMatrices();
 							
@@ -8234,7 +8260,7 @@ void LLPipeline::renderDeferredLighting()
 					
 					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
 					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);
-					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
+					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, pow3f(col, 2.2f).mV);
 					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
 					gGL.syncMatrices();
 										
@@ -8281,7 +8307,7 @@ void LLPipeline::renderDeferredLighting()
 					light_colors.pop_front();
 
 					far_z = llmin(light[count].mV[2]-sqrtf(light[count].mV[3]), far_z);
-
+					col[count] = pow4fsrgb(col[count], 2.2f);
 					count++;
 					if (count == max_count || fullscreen_lights.empty())
 					{
@@ -8325,7 +8351,7 @@ void LLPipeline::renderDeferredLighting()
 					
 					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, tc.v);
 					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);
-					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
+					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, pow3f(col, 2.2f).mV);
 					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
 					mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 				}
