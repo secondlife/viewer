@@ -460,9 +460,6 @@ BOOL LLFloaterPreference::postBuild()
 	// set 'enable' property for 'Clear log...' button
 	changed();
 
-	// set 'enable' property for 'Delete transcripts...' button
-	updateDeleteTranscriptsButton();
-
 	LLLogChat::setSaveHistorySignal(boost::bind(&LLFloaterPreference::onLogChatHistorySaved, this));
 
 	return TRUE;
@@ -1587,13 +1584,8 @@ void LLFloaterPreference::onDeleteTranscriptsResponse(const LLSD& notification, 
 {
 	if (0 == LLNotificationsUtil::getSelectedOption(notification, response))
 	{
-		gDirUtilp->deleteFilesInDir(gDirUtilp->getPerAccountChatLogsDir(), "*." + LL_TRANSCRIPT_FILE_EXTENSION);
-
-		std::vector<std::string> list_of_transcriptions_file_names;
-		LLLogChat::getListOfTranscriptFiles(list_of_transcriptions_file_names);
-		getChild<LLButton>("delete_transcripts")->setEnabled(list_of_transcriptions_file_names.size() > 0);
-
-		LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
+		LLConversationLog::instance().deleteTranscripts();
+		updateDeleteTranscriptsButton();
 	}
 }
 
@@ -1668,6 +1660,10 @@ void LLFloaterPreference::selectChatPanel()
 void LLFloaterPreference::changed()
 {
 	getChild<LLButton>("clear_log")->setEnabled(LLConversationLog::instance().getConversations().size() > 0);
+
+	// set 'enable' property for 'Delete transcripts...' button
+	updateDeleteTranscriptsButton();
+
 }
 
 //------------------------------Updater---------------------------------------
