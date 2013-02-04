@@ -473,6 +473,11 @@ void LLMaterialMgr::processGetQueue()
 
 		material_queue_t& materials = itRegionQueue->second;
 		material_queue_t::iterator loopMaterial = materials.begin();
+		if (materials.end() == loopMaterial)
+		{
+			//LL_INFOS("Material") << "Get queue for region empty, trying next region." << LL_ENDL;
+			continue;
+		}
 		while ( (materials.end() != loopMaterial) && (materialsData.size() <= MATERIALS_GET_MAX_ENTRIES) )
 		{
 			material_queue_t::iterator itMaterial = loopMaterial++;
