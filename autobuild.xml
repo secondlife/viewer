@@ -546,9 +546,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5b3e7ac9d43f317a78807ef42d0557cf</string>
+	      <string>7c7d0d40327e8d94b45540f50246ec93</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269872/arch/Darwin/installer/fmodex-4.44-darwin-20130201.tar.bz2</string>
+	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269882/arch/Darwin/installer/fmodex-4.44-darwin-20130201.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
