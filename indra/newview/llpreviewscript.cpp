@@ -50,11 +50,9 @@
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcell.h"
+#include "llsdserialize.h"
 #include "llslider.h"
 #include "lscript_rt_interface.h"
-#include "lscript_library.h"
-#include "lscript_export.h"
-#include "lltextbox.h"
 #include "lltooldraganddrop.h"
 #include "llvfile.h"
 
@@ -386,39 +384,11 @@ BOOL LLScriptEdCore::postBuild()
 
 	initMenu();
 
+	mEditor->mKeywords.initialise();
 
+	// FIX: Refactor LLTextEditor::loadKeywords so these can be removed.
 	std::vector<std::string> funcs;
 	std::vector<std::string> tooltips;
-	for (std::vector<LLScriptLibraryFunction>::const_iterator i = gScriptLibrary.mFunctions.begin();
-	i != gScriptLibrary.mFunctions.end(); ++i)
-	{
-		// Make sure this isn't a god only function, or the agent is a god.
-		if (!i->mGodOnly || gAgent.isGodlike())
-		{
-			std::string name = i->mName;
-			funcs.push_back(name);
-			
-			std::string desc_name = "LSLTipText_";
-			desc_name += name;
-			std::string desc = LLTrans::getString(desc_name);
-			
-			F32 sleep_time = i->mSleepTime;
-			if( sleep_time )
-			{
-				desc += "\n";
-				
-				LLStringUtil::format_map_t args;
-				args["[SLEEP_TIME]"] = llformat("%.1f", sleep_time );
-				desc += LLTrans::getString("LSLTipSleepTime", args);
-			}
-			
-			// A \n linefeed is not part of xml. Let's add one to keep all
-			// the tips one-per-line in strings.xml
-			LLStringUtil::replaceString( desc, "\\n", "\n" );
-			
-			tooltips.push_back(desc);
-		}
-	}
 	
 	LLColor3 color(0.5f, 0.0f, 0.15f);
 	mEditor->loadKeywords(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"keywords.ini"), funcs, tooltips, color);
@@ -430,6 +400,7 @@ BOOL LLScriptEdCore::postBuild()
 	for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
 	{
 		token = token_it->second;
+		// FIX: change this to use the new Token Type enum entries.
 		if (token->getColor() == color) // Wow, what a disgusting hack.
 		{
 			primary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
@@ -655,7 +626,7 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 	std::vector<LLTextSegmentPtr>::iterator segment_iter;
 	for (segment_iter = selected_segments.begin(); segment_iter != selected_segments.end(); ++segment_iter)
 	{
-		if((*segment_iter)->getToken() && (*segment_iter)->getToken()->getType() == LLKeywordToken::WORD)
+		if((*segment_iter)->getToken() && (*segment_iter)->getToken()->getType() == LLKeywordToken::TT_WORD)
 		{
 			segment = *segment_iter;
 			break;
@@ -666,7 +637,7 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 	if (!segment)
 	{
 		const LLTextSegmentPtr test_segment = mEditor->getPreviousSegment();
-		if(test_segment->getToken() && test_segment->getToken()->getType() == LLKeywordToken::WORD)
+		if(test_segment->getToken() && test_segment->getToken()->getType() == LLKeywordToken::TT_WORD)
 		{
 			segment = test_segment;
 		}

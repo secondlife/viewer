@@ -2416,14 +2416,8 @@ void LLTextEditor::loadKeywords(const std::string& filename,
 								const LLColor3& color)
 {
 	LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
-	if(mKeywords.loadFromFile(filename))
+	if(mKeywords.loadFromFile())
 	{
-		S32 count = llmin(funcs.size(), tooltips.size());
-		for(S32 i = 0; i < count; i++)
-		{
-			std::string name = utf8str_trim(funcs[i]);
-			mKeywords.addToken(LLKeywordToken::WORD, name, color, tooltips[i] );
-		}
 		segment_vec_t segment_list;
 		mKeywords.findSegments(&segment_list, getWText(), mDefaultColor.get(), *this);
 
