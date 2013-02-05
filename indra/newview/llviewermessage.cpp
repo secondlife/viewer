@@ -2371,7 +2371,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	LLNotification::Params params;
 
 	switch(dialog)
-	{
+	{ 
 	case IM_CONSOLE_AND_CHAT_HISTORY:
 		args["MESSAGE"] = message;
 		payload["from_id"] = from_id;
@@ -2391,7 +2391,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// do nothing -- don't distract newbies in
 			// Prelude with global IMs
 		}
-		else if (offline == IM_ONLINE && is_do_not_disturb && from_id.notNull())
+		else if (offline == IM_ONLINE 
+					&& is_do_not_disturb
+					&& from_id.notNull() //not a system message
+					&& to_id.notNull()) //not global message
 		{
 			// return a standard "do not disturb" message, but only do it to online IM 
 			// (i.e. not other auto responses and not store-and-forward IM)
