@@ -186,8 +186,11 @@ private:
 	// Populate the menu with items like "New Skin", "New Pants", etc.
 	static void populateCreateWearableSubmenus(LLMenuGL* menu)
 	{
-		LLView* menu_clothes	= gMenuHolder->getChildView("COF.Gear.New_Clothes", FALSE);
-		LLView* menu_bp			= gMenuHolder->getChildView("COF.Geear.New_Body_Parts", FALSE);
+        // MAINT-2276...these menus are created as dummies because they are not available
+        // when this function is called. This prevents their parent from popping up later.
+        //
+		//LLView* menu_clothes	= gMenuHolder->getChildView("COF.Gear.New_Clothes", FALSE);
+		//LLView* menu_bp			= gMenuHolder->getChildView("COF.Geear.New_Body_Parts", FALSE);
 
 		for (U8 i = LLWearableType::WT_SHAPE; i != (U8) LLWearableType::WT_COUNT; ++i)
 		{
@@ -200,8 +203,11 @@ private:
 			p.on_click.function_name = "Wearable.Create";
 			p.on_click.parameter = LLSD(type_name);
 
-			LLView* parent = LLWearableType::getAssetType(type) == LLAssetType::AT_CLOTHING ?
-				menu_clothes : menu_bp;
+            //LLView* parent = LLWearableType::getAssetType(type) == LLAssetType::AT_CLOTHING ? menu_clothes : menu_bp;
+            // This is a work-around for MAINT-2276 wherein the parent toggleable menu does not appear
+            // It puts everything under one menu, but that menu appears, which is better than not.
+            // 
+			LLView* parent =  menu;
 			LLUICtrlFactory::create<LLMenuItemCallGL>(p, parent);
 		}
 	}
