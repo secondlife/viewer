@@ -571,7 +571,7 @@ void hide_context_entries(LLMenuGL& menu,
 
 		// descend into split menus:
 		LLMenuItemBranchGL* branchp = dynamic_cast<LLMenuItemBranchGL*>(menu_item);
-		if (NULL != branchp)
+		if ((name == "More") && branchp)
 		{
 			hide_context_entries(*branchp->getBranch(), entries_to_show, disabled_entries);
 		}

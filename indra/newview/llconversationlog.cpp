@@ -532,7 +532,14 @@ void LLConversationLog::onClearLogResponse(const LLSD& notification, const LLSD&
 {
 	if (0 == LLNotificationsUtil::getSelectedOption(notification, response))
 	{
+		deleteTranscripts();
 		mConversations.clear();
 		notifyObservers();
 	}
+}
+
+void LLConversationLog::deleteTranscripts()
+{
+	gDirUtilp->deleteFilesInDir(gDirUtilp->getPerAccountChatLogsDir(), "*." + LL_TRANSCRIPT_FILE_EXTENSION);
+	LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
 }

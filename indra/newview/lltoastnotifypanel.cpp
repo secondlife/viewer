@@ -223,104 +223,6 @@ void LLToastNotifyPanel::adjustPanelForTipNotice()
 	}
 }
 
-//typedef std::set<std::string> button_name_set_t;
-//typedef std::map<std::string, button_name_set_t> disable_button_map_t;
-//
-//disable_button_map_t initUserGiveItemDisableButtonMap()
-//{
-//	// see EXT-5905 for disable rules
-//
-//	disable_button_map_t disable_map;
-//	button_name_set_t buttons;
-//
-//	buttons.insert("Show");
-//	disable_map.insert(std::make_pair("Show", buttons));
-//
-//	buttons.insert("Discard");
-//	disable_map.insert(std::make_pair("Discard", buttons));
-//
-//	buttons.insert("Mute");
-//	disable_map.insert(std::make_pair("Mute", buttons));
-//
-//	return disable_map;
-//}
-//
-//disable_button_map_t initTeleportOfferedDisableButtonMap()
-//{
-//	disable_button_map_t disable_map;
-//	button_name_set_t buttons;
-//
-//	buttons.insert("Teleport");
-//	buttons.insert("Cancel");
-//
-//	disable_map.insert(std::make_pair("Teleport", buttons));
-//	disable_map.insert(std::make_pair("Cancel", buttons));
-//
-//	return disable_map;
-//}
-//
-//disable_button_map_t initFriendshipOfferedDisableButtonMap()
-//{
-//	disable_button_map_t disable_map;
-//	button_name_set_t buttons;
-//
-//	buttons.insert("Accept");
-//	buttons.insert("Decline");
-//
-//	disable_map.insert(std::make_pair("Accept", buttons));
-//	disable_map.insert(std::make_pair("Decline", buttons));
-//
-//	return disable_map;
-//}
-//
-//button_name_set_t getButtonDisableList(const std::string& notification_name, const std::string& button_name)
-//{
-//	static disable_button_map_t user_give_item_disable_map = initUserGiveItemDisableButtonMap();
-//	static disable_button_map_t teleport_offered_disable_map = initTeleportOfferedDisableButtonMap();
-//	static disable_button_map_t friendship_offered_disable_map = initFriendshipOfferedDisableButtonMap();
-//
-//	disable_button_map_t::const_iterator it;
-//	disable_button_map_t::const_iterator it_end;
-//	disable_button_map_t search_map;
-//
-//	if("UserGiveItem" == notification_name)
-//	{
-//		search_map = user_give_item_disable_map;
-//	}
-//	else if("TeleportOffered" == notification_name)
-//	{
-//		search_map = teleport_offered_disable_map;
-//	}
-//	else if("OfferFriendship" == notification_name)
-//	{
-//		search_map = friendship_offered_disable_map;
-//	}
-//
-//	it = search_map.find(button_name);
-//	it_end = search_map.end();
-//
-//	if(it_end != it)
-//	{
-//		return it->second;
-//	}
-//	return button_name_set_t();
-//}
-
-//void LLToastNotifyPanel::disableButtons(const std::string& notification_name, const std::string& selected_button)
-//{
-	//button_name_set_t buttons = getButtonDisableList(notification_name, selected_button);
-
-	//std::vector<index_button_pair_t>::const_iterator it = mButtons.begin();
-	//for ( ; it != mButtons.end(); it++)
-	//{
-	//	LLButton* btn = it->second;
-	//	if(buttons.find(btn->getName()) != buttons.end())
-	//	{
-	//		btn->setEnabled(FALSE);
-	//	}
-	//}
-//}
-
 // static
 void LLToastNotifyPanel::onClickButton(void* data)
 {
@@ -352,7 +254,17 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     mNumButtons = 0;
     mAddedDefaultBtn = false;
 
-    buildFromFile( "panel_notification.xml");
+	LLRect current_rect = getRect();
+
+	setXMLFilename("");
+	buildFromFile("panel_notification.xml");
+
+	// reshape the panel to its previous size
+	if (current_rect.notEmpty())
+	{
+		reshape(current_rect.getWidth(), current_rect.getHeight());
+	}
+
     if(rect != LLRect::null)
     {
         this->setShape(rect);
@@ -491,36 +403,8 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
         }
     }
 
-    // adjust panel's height to the text size
-    mInfoPanel->setFollowsAll();
     snapToMessageHeight(mTextBox, MAX_LENGTH);
 }
-
-
-
-//void LLToastNotifyPanel::onToastPanelButtonClicked(const LLUUID& notification_id, const std::string btn_name)
-//{
-//	if(mNotification->getID() == notification_id)
-//	{
-//		disableButtons(mNotification->getName(), btn_name);
-//	}
-//}
-
-//void LLToastNotifyPanel::disableRespondedOptions(const LLNotificationPtr& notification)
-//{
-//	LLSD response = notification->getResponse();
-//	for (LLSD::map_const_iterator response_it = response.beginMap(); 
-//		response_it != response.endMap(); ++response_it)
-//	{
-//		if (response_it->second.isBoolean() && response_it->second.asBoolean())
-//		{
-//			// that after multiple responses there can be many pressed buttons
-//			// need to process them all
-//			disableButtons(notification->getName(), response_it->first);
-//		}
-//	}
-//}
-
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -538,13 +422,12 @@ LLIMToastNotifyPanel::~LLIMToastNotifyPanel()
 
 void LLIMToastNotifyPanel::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)
 {
+	LLToastPanel::reshape(width, height, called_from_parent);
 	snapToMessageHeight(mTextBox, MAX_LENGTH);
 }
 
 void LLIMToastNotifyPanel::compactButtons()
 {
-	mTextBox->setFollowsAll();
-
 	//we can't set follows in xml since it broke toasts behavior
 	setFollows(FOLLOWS_LEFT|FOLLOWS_RIGHT|FOLLOWS_TOP);
 
@@ -589,7 +472,6 @@ void LLIMToastNotifyPanel::init( LLRect rect, bool show_images )
 
 	compactButtons();
 }
-
 
 // EOF
 

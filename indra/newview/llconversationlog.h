@@ -140,6 +140,7 @@ public:
 
 	void onClearLog();
 	void onClearLogResponse(const LLSD& notification, const LLSD& response);
+	void deleteTranscripts();
 
 	bool getIsLoggingEnabled() { return mLoggingEnabled; }
 	bool isLogEmpty() { return mConversations.empty(); }

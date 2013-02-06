@@ -1591,6 +1591,11 @@ LLUUID LLIMMgr::computeSessionID(
 			session_id = other_participant_id ^ agent_id;
 		}
 	}
+
+	if (gAgent.isInGroup(session_id) && (session_id != other_participant_id))
+	{
+		llwarns << "Group session id different from group id: IM type = " << dialog << ", session id = " << session_id << ", group id = " << other_participant_id << llendl;
+	}
 	return session_id;
 }
 

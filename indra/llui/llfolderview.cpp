@@ -924,23 +924,27 @@ void LLFolderView::cut()
 {
 	// clear the inventory clipboard
 	LLClipboard::instance().reset();
-	S32 count = mSelectedItems.size();
-	if(getVisible() && getEnabled() && (count > 0))
+	if(getVisible() && getEnabled() && (mSelectedItems.size() > 0))
 	{
+		// Find out which item will be selected once the selection will be cut
 		LLFolderViewItem* item_to_select = getNextUnselectedItem();
+		
+		// Get the selection: removeItem() modified mSelectedItems and makes iterating on it unwise
+		std::set<LLFolderViewItem*> inventory_selected = getSelectionList();
 
-		selected_items_t::iterator item_it;
-		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
+		// Move each item to the clipboard and out of their folder
+		for (std::set<LLFolderViewItem*>::iterator item_it = inventory_selected.begin(); item_it != inventory_selected.end(); ++item_it)
 		{
 			LLFolderViewItem* item_to_cut = *item_it;
 			LLFolderViewModelItem* listener = item_to_cut->getViewModelItem();
-			if(listener)
+			if (listener)
 			{
 				listener->cutToClipboard();
 				listener->removeItem();
 			}
 		}
-
+		
+		// Update the selection
 		setSelection(item_to_select, item_to_select ? item_to_select->isOpen() : false, mParentPanel->hasFocus());
 	}
 	mSearchString.clear();

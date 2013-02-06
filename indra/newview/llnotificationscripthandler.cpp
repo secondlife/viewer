@@ -98,7 +98,9 @@ bool LLScriptHandler::processNotification(const LLNotificationPtr& notification)
 		p.on_delete_toast = boost::bind(&LLScriptHandler::onDeleteToast, this, _1);
 		if(gAgent.isDoNotDisturb())
 		{ 
-			p.force_show = notification->getName() == "SystemMessage" || notification->getPriority() >= NOTIFICATION_PRIORITY_HIGH;
+			p.force_show = notification->getName() == "SystemMessage" 
+							||	notification->getName() == "GodMessage" 
+							|| notification->getPriority() >= NOTIFICATION_PRIORITY_HIGH;
 		}
 
 		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());

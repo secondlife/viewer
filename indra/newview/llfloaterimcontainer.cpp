@@ -1118,19 +1118,18 @@ void LLFloaterIMContainer::doToSelected(const LLSD& userdata)
 void LLFloaterIMContainer::doToSelectedGroup(const LLSD& userdata)
 {
     std::string action = userdata.asString();
-    LLUUID selected_group = getCurSelectedViewModelItem()->getUUID();
 
     if (action == "group_profile")
     {
-        LLGroupActions::show(selected_group);
+        LLGroupActions::show(mSelectedSession);
     }
     else if (action == "activate_group")
     {
-        LLGroupActions::activate(selected_group);
+        LLGroupActions::activate(mSelectedSession);
     }
     else if (action == "leave_group")
     {
-        LLGroupActions::leave(selected_group);
+        LLGroupActions::leave(mSelectedSession);
     }
 }
 
