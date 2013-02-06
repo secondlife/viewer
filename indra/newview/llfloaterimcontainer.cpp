@@ -1141,7 +1141,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 
 	if ("conversation_log" == item)
 	{
-		return gSavedSettings.getS32("KeepConversationLogTranscripts") > 0;
+		return gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 0;
 	}
 
 	//Enable Chat history item for ad-hoc and group conversations
@@ -1792,7 +1792,7 @@ void LLFloaterIMContainer::updateSpeakBtnState()
 
 bool LLFloaterIMContainer::isConversationLoggingAllowed()
 {
-	return gSavedSettings.getS32("KeepConversationLogTranscripts") > 0;
+	return gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 0;
 }
 
 void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id, bool is_flashes)

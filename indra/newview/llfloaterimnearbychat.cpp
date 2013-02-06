@@ -542,7 +542,7 @@ void LLFloaterIMNearbyChat::addMessage(const LLChat& chat,bool archive,const LLS
 	}
 
 	// logging
-	if (!args["do_not_log"].asBoolean() && gSavedSettings.getS32("KeepConversationLogTranscripts") > 1)
+	if (!args["do_not_log"].asBoolean() && gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 1)
 	{
 		std::string from_name = chat.mFromName;
 

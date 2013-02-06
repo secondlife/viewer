@@ -190,7 +190,7 @@ LLConversationLog::LLConversationLog() :
 	mAvatarNameCacheConnection(),
 	mLoggingEnabled(false)
 {
-	LLControlVariable * keep_log_ctrlp = gSavedSettings.getControl("KeepConversationLogTranscripts").get();
+	LLControlVariable * keep_log_ctrlp = gSavedPerAccountSettings.getControl("KeepConversationLogTranscripts").get();
 	S32 log_mode = keep_log_ctrlp->getValue();
 
 	if (log_mode > 0)
@@ -369,7 +369,7 @@ void LLConversationLog::sessionAdded(const LLUUID& session_id, const std::string
 
 void LLConversationLog::cache()
 {
-	if (gSavedSettings.getS32("KeepConversationLogTranscripts") > 0)
+	if (gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 0)
 	{
 		saveToFile(getFileName());
 	}
