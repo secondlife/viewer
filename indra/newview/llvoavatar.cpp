@@ -1776,29 +1776,53 @@ U32 LLVOAvatar::processUpdateMessage(LLMessageSystem *mesgsys,
 	return retval;
 }
 
-// virtual
-S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
+LLViewerFetchedTexture *LLVOAvatar::getBakedTextureImage(const U8 te, const LLUUID& uuid)
 {
-	// The core setTETexture() method requests images, so we need
-	// to redirect certain avatar texture requests to different sims.
-	if (isIndexBakedTexture((ETextureIndex)te))
+	LLViewerFetchedTexture *result = NULL;
+
+	if (uuid == IMG_DEFAULT_AVATAR ||
+		uuid == IMG_DEFAULT ||
+		uuid == IMG_INVISIBLE)
+	{
+		// Should already exist, don't need to find it on sim or baked-texture host.
+		result = gTextureList.findImage(uuid);
+	}
+
+	if (!result)
 	{
 		const std::string url = getImageURL(te,uuid);
 		if (!url.empty())
 		{
 			llinfos << "texture URL " << url << llendl;
-			return setTETextureCore(te, uuid, url);
+			result = LLViewerTextureManager::getFetchedTextureFromUrl(
+				url, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, uuid);
 		}
+		else
+		{
+			llinfos << "get texture from host " << uuid << llendl;
+			LLHost host = getObjectHost();
+			result = LLViewerTextureManager::getFetchedTexture(
+				uuid, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host);
+		}
+	}
+	return result;
+}
 
-		llinfos << "get texture from host " << uuid << llendl;
-		LLHost target_host = getObjectHost();
-		return setTETextureCore(te, uuid, target_host);
-	}
-	else
+// virtual
+S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
+{
+	if (!isIndexBakedTexture((ETextureIndex)te))
 	{
-		llinfos << "get texture from other " << uuid << llendl;
-		return setTETextureCore(te, uuid, LLHost::invalid);
+		if (!uuid.isNull())
+		{
+			llinfos << "ignoring texture " << uuid << " in non-baked slot " << (S32)te << " - will use null " << llendl;
+		}
+		return LLViewerObject::setTETexture(te, LLUUID::null);
 	}
+
+	LLViewerFetchedTexture *image = getBakedTextureImage(te,uuid);
+	llassert(image);
+	return setTETextureCore(te, image);
 }
 
 static LLFastTimer::DeclareTimer FTM_AVATAR_UPDATE("Avatar Update");
@@ -6070,6 +6094,8 @@ void LLVOAvatar::updateMeshTextures()
 			last_id_string = "A";
 		else if (mBakedTextureDatas[i].mLastTextureID == IMG_DEFAULT)
 			last_id_string = "D";
+		else if (mBakedTextureDatas[i].mLastTextureID == IMG_INVISIBLE)
+			last_id_string = "I";
 		else
 			last_id_string = "*";
 		bool is_ltda = layerset
@@ -6591,7 +6617,7 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 	}
 	else
 	{
-		llinfos << "xmlfile write handle obtained : " << fullpath << llendl;
+		LL_DEBUGS("Avatar") << "dumping appearance message to " << fullpath << llendl;
 	}
 
 
@@ -6619,11 +6645,13 @@ struct LLAppearanceMessageContents
 {
 	LLAppearanceMessageContents():
 		mAppearanceVersion(-1),
+		mParamAppearanceVersion(-1),
 		mCOFVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
 	{
 	}
 	LLTEContents mTEContents;
 	S32 mAppearanceVersion;
+	S32 mParamAppearanceVersion;
 	S32 mCOFVersion;
 	// For future use:
 	//U32 appearance_flags = 0;
@@ -6703,27 +6731,48 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 		}
 	}
 
-	if (contents.mAppearanceVersion < 0) // not set explicitly, try to get from visual param.
+	LLVisualParam* appearance_version_param = getVisualParam(11000);
+	if (appearance_version_param)
 	{
-		LLVisualParam* appearance_version_param = getVisualParam(11000);
-		if (appearance_version_param)
+		std::vector<LLVisualParam*>::iterator it = std::find(contents.mParams.begin(), contents.mParams.end(),appearance_version_param);
+		if (it != contents.mParams.end())
 		{
-			std::vector<LLVisualParam*>::iterator it = std::find(contents.mParams.begin(), contents.mParams.end(),appearance_version_param);
-			if (it != contents.mParams.end())
-			{
-				S32 index = it - contents.mParams.begin();
-				llinfos << "index: " << index << llendl;
-				S32 appearance_version = llround(contents.mParamWeights[index]);
-				contents.mAppearanceVersion = appearance_version;
-				llinfos << "appversion set by appearance_version param: " << contents.mAppearanceVersion << llendl;
-			}
+			S32 index = it - contents.mParams.begin();
+			llinfos << "index: " << index << llendl;
+			contents.mParamAppearanceVersion = llround(contents.mParamWeights[index]);
+			LL_DEBUGS("Avatar") << "appversion req by appearance_version param: " << contents.mParamAppearanceVersion << llendl;
 		}
 	}
-	if (contents.mAppearanceVersion < 0) // still not set, go with 0.
+}
+
+bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32& appearance_version)
+{
+	appearance_version = -1;
+	
+	if ((contents.mAppearanceVersion) >= 0 &&
+		(contents.mParamAppearanceVersion >= 0) &&
+		(contents.mAppearanceVersion != contents.mParamAppearanceVersion))
 	{
-		contents.mAppearanceVersion = 0;
-		llinfos << "appversion set by default: " << contents.mAppearanceVersion << llendl;
+		llwarns << "inconsistent appearance_version settings - field: " <<
+			contents.mAppearanceVersion << ", param: " <<  contents.mParamAppearanceVersion << llendl;
+		return false;
 	}
+	if (contents.mParamAppearanceVersion >= 0) // use visual param if available.
+	{
+		appearance_version = contents.mParamAppearanceVersion;
+	}
+	if (contents.mAppearanceVersion >= 0)
+	{
+		appearance_version = contents.mAppearanceVersion;
+	}
+	if (appearance_version < 0) // still not set, go with 0.
+	{
+		appearance_version = 0;
+	}
+	LL_DEBUGS("Avatar") << "appearance version info - field " << contents.mAppearanceVersion
+						<< " param: " << contents.mParamAppearanceVersion
+						<< " final: " << appearance_version << llendl;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -6731,6 +6780,8 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 //-----------------------------------------------------------------------------
 void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 {
+	LL_DEBUGS("Avatar") << "starts" << llendl;
+	
 	bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
 	std::string dump_prefix = getFullname() + "_" + (isSelf()?"s":"o") + "_";
 	//if (enable_verbose_dumps) { dumpArchetypeXML(dump_prefix + "process_start"); }
@@ -6740,19 +6791,21 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		return;
 	}
 
-	BOOL is_first_appearance_message = !mFirstAppearanceMessageReceived;
-	mFirstAppearanceMessageReceived = TRUE;
-
-	LL_INFOS("Avatar") << avString() << "processAvatarAppearance start " << mID
-			<< " first? " << is_first_appearance_message << " self? " << isSelf() << LL_ENDL;
-
-
 	ESex old_sex = getSex();
 
 	LLAppearanceMessageContents contents;
 	parseAppearanceMessage(mesgsys, contents);
+	if (enable_verbose_dumps)
+	{
+		dumpAppearanceMsgParams(dump_prefix + "appearance_msg", contents.mParamWeights, contents.mTEContents);
+	}
 
-	U8 appearance_version = contents.mAppearanceVersion;
+	S32 appearance_version;
+	if (!resolve_appearance_version(contents, appearance_version))
+	{
+		llwarns << "bad appearance version info, discarding" << llendl;
+		return;
+	}
 	S32 this_update_cof_version = contents.mCOFVersion;
 	S32 last_update_request_cof_version = LLAppearanceMgr::instance().mLastUpdateRequestCOFVersion;
 
@@ -6773,6 +6826,10 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		{
 			return;
 		}
+	}
+	else
+	{
+		LL_DEBUGS("Avatar") << "appearance message received" << llendl;
 	}
 
 	// Check for stale update.
@@ -6821,6 +6878,12 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	// runway - was
 	// if (!is_first_appearance_message )
 	// which means it would be called on second appearance message - probably wrong.
+	BOOL is_first_appearance_message = !mFirstAppearanceMessageReceived;
+	mFirstAppearanceMessageReceived = TRUE;
+
+	LL_INFOS("Avatar") << avString() << "processAvatarAppearance start " << mID
+			<< " first? " << is_first_appearance_message << " self? " << isSelf() << LL_ENDL;
+
 	if (is_first_appearance_message )
 	{
 		onFirstTEMessageReceived();
@@ -6855,13 +6918,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 				}
 			}
 		}
-		if (enable_verbose_dumps)
-		{
-			dumpAppearanceMsgParams(dump_prefix + "appearance_msg", contents.mParamWeights, contents.mTEContents);
-		}
-
-		//if (enable_verbose_dumps) { dumpArchetypeXML(dump_prefix + "process_post_set_weights"); }
-
 		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE); // don't worry about VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
 		if (num_params != expected_tweakable_count)
 		{

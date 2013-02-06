@@ -759,6 +759,15 @@ U32  LLVOAvatarSelf::processUpdateMessage(LLMessageSystem *mesgsys,
 {
 	U32 retval = LLVOAvatar::processUpdateMessage(mesgsys,user_data,block_num,update_type,dp);
 
+#if 0
+	// DRANO - it's not clear this does anything useful. If we wait
+	// until an appearance message has been received, we already have
+	// the texture ids. If we don't wait, we don't yet know where to
+	// look for baked textures, because we haven't received the
+	// appearance version data from the appearance message. This looks
+	// like an old optimization that's incompatible with server-side
+	// texture baking.
+	
 	// FIXME DRANO - skipping in the case of !mFirstAppearanceMessageReceived prevents us from trying to
 	// load textures before we know where they come from (ie, from baking service or not);
 	// unknown impact on performance.
@@ -783,6 +792,7 @@ U32  LLVOAvatarSelf::processUpdateMessage(LLMessageSystem *mesgsys,
 
 		mInitialBakesLoaded = true;
 	}
+#endif
 
 	return retval;
 }
