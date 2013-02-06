@@ -260,6 +260,7 @@ void LLFloaterIMNearbyChat::onOpen(const LLSD& key)
 void LLFloaterIMNearbyChat::onClose(bool app_quitting)
 {
 	// Override LLFloaterIMSessionTab::onClose() so that Nearby Chat is not removed from the conversation floater
+	onClickCloseBtn();
 }
 
 // virtual
