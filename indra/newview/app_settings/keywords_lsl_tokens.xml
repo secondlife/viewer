@@ -240,6 +240,15 @@
             <key>description</key>
             <string>Texture animation is on.</string>
          </map>
+         <key>ATTACH_AVATAR_CENTER</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>40</integer>
+            <key>description</key>
+            <string/>
+         </map>
          <key>ATTACH_BACK</key>
          <map>
             <key>type</key>
@@ -247,7 +256,7 @@
             <key>value</key>
             <integer>9</integer>
             <key>description</key>
-            <string>Attach to the avatar back.</string>
+            <string>Attach to the avatar's back.</string>
          </map>
          <key>ATTACH_BELLY</key>
          <map>
@@ -256,7 +265,7 @@
             <key>value</key>
             <integer>28</integer>
             <key>description</key>
-            <string>Attach to the avatar belly.</string>
+            <string>Attach to the avatar's belly.</string>
          </map>
          <key>ATTACH_CHEST</key>
          <map>
@@ -265,7 +274,7 @@
             <key>value</key>
             <integer>1</integer>
             <key>description</key>
-            <string>Attach to the avatar chest.</string>
+            <string>Attach to the avatar's chest.</string>
          </map>
          <key>ATTACH_CHIN</key>
          <map>
@@ -274,7 +283,7 @@
             <key>value</key>
             <integer>12</integer>
             <key>description</key>
-            <string>Attach to the avatar chin.</string>
+            <string>Attach to the avatar's chin.</string>
          </map>
          <key>ATTACH_HEAD</key>
          <map>
@@ -283,7 +292,7 @@
             <key>value</key>
             <integer>2</integer>
             <key>description</key>
-            <string>Attach to the avatar head.</string>
+            <string>Attach to the avatar's head.</string>
          </map>
          <key>ATTACH_HUD_BOTTOM</key>
          <map>
@@ -364,7 +373,7 @@
             <key>value</key>
             <integer>13</integer>
             <key>description</key>
-            <string>Attach to the avatar left ear.</string>
+            <string>Attach to the avatar's left ear.</string>
          </map>
          <key>ATTACH_LEFT_PEC</key>
          <map>
@@ -373,7 +382,7 @@
             <key>value</key>
             <integer>29</integer>
             <key>description</key>
-            <string>Attach to the avatar left pectoral.</string>
+            <string>Attach to the avatar's left pectoral.</string>
          </map>
          <key>ATTACH_LEYE</key>
          <map>
@@ -382,7 +391,7 @@
             <key>value</key>
             <integer>15</integer>
             <key>description</key>
-            <string>Attach to the avatar left eye.</string>
+            <string>Attach to the avatar's left eye.</string>
          </map>
          <key>ATTACH_LFOOT</key>
          <map>
@@ -391,7 +400,7 @@
             <key>value</key>
             <integer>7</integer>
             <key>description</key>
-            <string>Attach to the avatar left foot.</string>
+            <string>Attach to the avatar's left foot.</string>
          </map>
          <key>ATTACH_LHAND</key>
          <map>
@@ -400,7 +409,7 @@
             <key>value</key>
             <integer>5</integer>
             <key>description</key>
-            <string>Attach to the avatar left hand.</string>
+            <string>Attach to the avatar's left hand.</string>
          </map>
          <key>ATTACH_LHIP</key>
          <map>
@@ -409,7 +418,7 @@
             <key>value</key>
             <integer>25</integer>
             <key>description</key>
-            <string>Attach to the avatar left hip.</string>
+            <string>Attach to the avatar's left hip.</string>
          </map>
          <key>ATTACH_LLARM</key>
          <map>
@@ -418,7 +427,7 @@
             <key>value</key>
             <integer>21</integer>
             <key>description</key>
-            <string>Attach to the avatar left lower arm.</string>
+            <string>Attach to the avatar's left lower arm.</string>
          </map>
          <key>ATTACH_LLLEG</key>
          <map>
@@ -427,7 +436,7 @@
             <key>value</key>
             <integer>27</integer>
             <key>description</key>
-            <string>Attach to the avatar lower left leg.</string>
+            <string>Attach to the avatar's lower left leg.</string>
          </map>
          <key>ATTACH_LPEC</key>
          <map>
@@ -436,7 +445,7 @@
             <key>value</key>
             <integer>30</integer>
             <key>description</key>
-            <string>Attach to the avatar right pectoral. (Deprecated, use ATTACH_RIGHT_PEC)</string>
+            <string>Attach to the avatar's right pectoral. (Deprecated, use ATTACH_RIGHT_PEC)</string>
          </map>
          <key>ATTACH_LSHOULDER</key>
          <map>
@@ -445,7 +454,7 @@
             <key>value</key>
             <integer>3</integer>
             <key>description</key>
-            <string>Attach to the avatar left shoulder.</string>
+            <string>Attach to the avatar's left shoulder.</string>
          </map>
          <key>ATTACH_LUARM</key>
          <map>
@@ -454,7 +463,7 @@
             <key>value</key>
             <integer>20</integer>
             <key>description</key>
-            <string>Attach to the avatar left upper arm.</string>
+            <string>Attach to the avatar's left upper arm.</string>
          </map>
          <key>ATTACH_LULEG</key>
          <map>
@@ -463,7 +472,7 @@
             <key>value</key>
             <integer>27</integer>
             <key>description</key>
-            <string>Attach to the avatar lower upper leg.</string>
+            <string>Attach to the avatar's lower upper leg.</string>
          </map>
          <key>ATTACH_MOUTH</key>
          <map>
@@ -472,7 +481,16 @@
             <key>value</key>
             <integer>11</integer>
             <key>description</key>
-            <string>Attach to the avatar mouth.</string>
+            <string>Attach to the avatar's mouth.</string>
+         </map>
+         <key>ATTACH_NECK</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>39</integer>
+            <key>description</key>
+            <string>Attach to the avatar's neck.</string>
          </map>
          <key>ATTACH_NOSE</key>
          <map>
@@ -481,7 +499,7 @@
             <key>value</key>
             <integer>17</integer>
             <key>description</key>
-            <string>Attach to the avatar nose.</string>
+            <string>Attach to the avatar's nose.</string>
          </map>
          <key>ATTACH_PELVIS</key>
          <map>
@@ -490,7 +508,7 @@
             <key>value</key>
             <integer>10</integer>
             <key>description</key>
-            <string>Attach to the avatar pelvis.</string>
+            <string>Attach to the avatar's pelvis.</string>
          </map>
          <key>ATTACH_REAR</key>
          <map>
@@ -499,7 +517,7 @@
             <key>value</key>
             <integer>14</integer>
             <key>description</key>
-            <string>Attach to the avatar right ear.</string>
+            <string>Attach to the avatar's right ear.</string>
          </map>
          <key>ATTACH_REYE</key>
          <map>
@@ -508,7 +526,7 @@
             <key>value</key>
             <integer>16</integer>
             <key>description</key>
-            <string>Attach to the avatar right eye.</string>
+            <string>Attach to the avatar's right eye.</string>
          </map>
          <key>ATTACH_RFOOT</key>
          <map>
@@ -517,7 +535,7 @@
             <key>value</key>
             <integer>8</integer>
             <key>description</key>
-            <string>Attach to the avatar right foot.</string>
+            <string>Attach to the avatar's right foot.</string>
          </map>
          <key>ATTACH_RHAND</key>
          <map>
@@ -526,7 +544,7 @@
             <key>value</key>
             <integer>6</integer>
             <key>description</key>
-            <string>Attach to the avatar right hand.</string>
+            <string>Attach to the avatar's right hand.</string>
          </map>
          <key>ATTACH_RHIP</key>
          <map>
@@ -535,7 +553,7 @@
             <key>value</key>
             <integer>22</integer>
             <key>description</key>
-            <string>Attach to the avatar right hip.</string>
+            <string>Attach to the avatar's right hip.</string>
          </map>
          <key>ATTACH_RIGHT_PEC</key>
          <map>
@@ -544,7 +562,7 @@
             <key>value</key>
             <integer>30</integer>
             <key>description</key>
-            <string>Attach to the avatar right pectoral.</string>
+            <string>Attach to the avatar's right pectoral.</string>
          </map>
          <key>ATTACH_RLARM</key>
          <map>
@@ -553,7 +571,7 @@
             <key>value</key>
             <integer>19</integer>
             <key>description</key>
-            <string>Attach to the avatar right lower arm.</string>
+            <string>Attach to the avatar's right lower arm.</string>
          </map>
          <key>ATTACH_RLLEG</key>
          <map>
@@ -562,7 +580,7 @@
             <key>value</key>
             <integer>24</integer>
             <key>description</key>
-            <string>Attach to the avatar right lower leg.</string>
+            <string>Attach to the avatar's right lower leg.</string>
          </map>
          <key>ATTACH_RPEC</key>
          <map>
@@ -571,7 +589,7 @@
             <key>value</key>
             <integer>29</integer>
             <key>description</key>
-            <string>Attach to the avatar left pectoral. (deprecated, use ATTACH_LEFT_PEC)</string>
+            <string>Attach to the avatar's left pectoral. (deprecated, use ATTACH_LEFT_PEC)</string>
          </map>
          <key>ATTACH_RSHOULDER</key>
          <map>
@@ -580,7 +598,7 @@
             <key>value</key>
             <integer>4</integer>
             <key>description</key>
-            <string>Attach to the avatar right shoulder.</string>
+            <string>Attach to the avatar's right shoulder.</string>
          </map>
          <key>ATTACH_RUARM</key>
          <map>
@@ -589,7 +607,7 @@
             <key>value</key>
             <integer>18</integer>
             <key>description</key>
-            <string>Attach to the avatar right upper arm.</string>
+            <string>Attach to the avatar's right upper arm.</string>
          </map>
          <key>ATTACH_RULEG</key>
          <map>
@@ -598,7 +616,7 @@
             <key>value</key>
             <integer>23</integer>
             <key>description</key>
-            <string>Attach to the avatar right upper leg.</string>
+            <string>Attach to the avatar's right upper leg.</string>
          </map>
          <key>AVOID_CHARACTERS</key>
          <map>
@@ -851,6 +869,15 @@
             <integer>0x10</integer>
             <key>description</key>
             <string>The texture offset, scale rotation, or simply the object texture has changed.</string>
+         </map>
+         <key>CHARACTER_ACCOUNT_FOR_SKIPPED_FRAMES</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>14</integer>
+            <key>description</key>
+            <string>If set to false, character will not attempt to catch up on lost time when pathfinding performance is low, potentially providing more reliable movement (albeit while potentially appearing to be more stuttery). Default is true to match pre-existing behavior.</string>
          </map>
          <key>CHARACTER_AVOIDANCE_MODE</key>
          <map>
@@ -1399,15 +1426,6 @@
             <key>description</key>
             <string>Used with llSetPhysicsMaterial to enable the friction value. Must be between 0.0 and 255.0</string>
          </map>
-         <key>GET_NAV_POINT_RADIUS</key>
-         <map>
-            <key>type</key>
-            <string>integer</string>
-            <key>value</key>
-            <integer>0</integer>
-            <key>description</key>
-            <string/>
-         </map>
          <key>GRAVITY_MULTIPLIER</key>
          <map>
             <key>type</key>
@@ -1444,6 +1462,15 @@
             <key>description</key>
             <string/>
          </map>
+         <key>HTTP_CUSTOM_HEADER</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>5</integer>
+            <key>description</key>
+            <string>Add an extra custom HTTP header to the request. The first string is the name of the parameter to change, e.g. "Pragma", and the second string is the value, e.g. "no-cache". Up to 8 custom headers may be configured per request. Note that certain headers, such as the default headers, are blocked for security reasons.</string>
+         </map>
          <key>HTTP_METHOD</key>
          <map>
             <key>type</key>
@@ -1461,6 +1488,15 @@
             <integer>1</integer>
             <key>description</key>
             <string/>
+         </map>
+         <key>HTTP_PRAGMA_NO_CACHE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>6</integer>
+            <key>description</key>
+            <string>Usage: [HTTP_PRAGMA_NO_CACHE, integer SendHeader]. When SendHeader is TRUE, the "Pragma: no-cache" header is sent by the script. This matches the default behavior. When SendHeader is FALSE, no "Pragma" header is sent by the script.</string>
          </map>
          <key>HTTP_VERBOSE_THROTTLE</key>
          <map>
@@ -1975,6 +2011,15 @@
             <key>description</key>
             <string/>
          </map>
+         <key>OBJECT_ATTACHED_POINT</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>19</integer>
+            <key>description</key>
+            <string>Returns 0 if the object is not an attachment (or is an avatar, etc).</string>
+         </map>
          <key>OBJECT_CHARACTER_TIME</key>
          <map>
             <key>type</key>
@@ -1982,7 +2027,7 @@
             <key>value</key>
             <integer>17</integer>
             <key>description</key>
-            <string>units in seconds</string>
+            <string>Units in seconds</string>
          </map>
          <key>OBJECT_CREATOR</key>
          <map>
@@ -2029,6 +2074,33 @@
             <key>description</key>
             <string>Gets an object's owner's key. If id is group owned, a NULL_KEY is returned.</string>
          </map>
+         <key>OBJECT_PATHFINDING_TYPE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>20</integer>
+            <key>description</key>
+            <string/>
+         </map>
+         <key>OBJECT_PHANTOM</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>22</integer>
+            <key>description</key>
+            <string/>
+         </map>
+         <key>OBJECT_PHYSICS</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>21</integer>
+            <key>description</key>
+            <string/>
+         </map>
          <key>OBJECT_PHYSICS_COST</key>
          <map>
             <key>type</key>
@@ -2055,6 +2127,15 @@
             <integer>13</integer>
             <key>description</key>
             <string/>
+         </map>
+         <key>OBJECT_ROOT</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>18</integer>
+            <key>description</key>
+            <string>If id is an avatar, return the id of the root prim of the linkset the avatar is sitting on (or the avatar's own id if the avatar is not sitting on an object within the region).</string>
          </map>
          <key>OBJECT_ROT</key>
          <map>
@@ -2110,6 +2191,15 @@
             <key>description</key>
             <string/>
          </map>
+         <key>OBJECT_TEMP_ON_REZ</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>23</integer>
+            <key>description</key>
+            <string/>
+         </map>
          <key>OBJECT_TOTAL_SCRIPT_COUNT</key>
          <map>
             <key>type</key>
@@ -2136,6 +2226,78 @@
             <integer>5</integer>
             <key>description</key>
             <string>Gets the object's velocity.</string>
+         </map>
+         <key>OPT_AVATAR</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>1</integer>
+            <key>description</key>
+            <string/>
+         </map>
+         <key>OPT_CHARACTER</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>2</integer>
+            <key>description</key>
+            <string/>
+         </map>
+         <key>OPT_EXCLUSION_VOLUME</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>6</integer>
+            <key>description</key>
+            <string/>
+         </map>
+         <key>OPT_LEGACY_LINKSET</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>0</integer>
+            <key>description</key>
+            <string/>
+         </map>
+         <key>OPT_MATERIAL_VOLUME</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>5</integer>
+            <key>description</key>
+            <string/>
+         </map>
+         <key>OPT_OTHER</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>-1</integer>
+            <key>description</key>
+            <string/>
+         </map>
+         <key>OPT_STATIC_OBSTACLE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>4</integer>
+            <key>description</key>
+            <string/>
+         </map>
+         <key>OPT_WALKABLE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>3</integer>
+            <key>description</key>
+            <string/>
          </map>
          <key>PARCEL_COUNT_GROUP</key>
          <map>
@@ -2703,6 +2865,15 @@
             <integer>0x4</integer>
             <key>description</key>
             <string>If this permission enabled, the object can successfully call the llTakeControls libray call.</string>
+         </map>
+         <key>PERMISSION_TELEPORT</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>0x1000</integer>
+            <key>description</key>
+            <string/>
          </map>
          <key>PERMISSION_TRACK_CAMERA</key>
          <map>
@@ -4453,6 +4624,15 @@
             <integer>0x8</integer>
             <key>description</key>
             <string>Scripted in-world objects.</string>
+         </map>
+         <key>SIM_STAT_PCT_CHARS_STEPPED</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>0</integer>
+            <key>description</key>
+            <string>The returned value corresponds to the "Characters Updated" stat in the viewer's Statistics Bar.</string>
          </map>
          <key>SMOOTH</key>
          <map>
@@ -6614,6 +6794,30 @@
             <key>description</key>
             <string>Attach to avatar at point iAttachmentPoint.\n
 			Requires the PERMISSION_ATTACH runtime permission.</string>
+         </map>
+         <key>llAttachToAvatarTemp</key>
+         <map>
+            <key>energy</key>
+            <real>0</real>
+            <key>sleep</key>
+            <real>0</real>
+            <key>return</key>
+            <string>void</string>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>name</key>
+                  <string>AttachPoint</string>
+                  <key>type</key>
+                  <string>integer</string>
+                  <key>description</key>
+                  <string>Valid attachment poit or ATTACH_* constant.</string>
+               </map>
+            </array>
+            <key>summary</key>
+            <string>Follows the same convention as llAttachToAvatar, with the exception that the object will not create new inventory for the user, and will disappear on detach or disconnect.</string>
+            <key>description</key>
+            <string/>
          </map>
          <key>llAvatarOnLinkSitTarget</key>
          <map>
@@ -10030,6 +10234,30 @@
             <string>Returns TRUE if the script named is running.</string>
             <key>description</key>
             <string>Returns TRUE if ScriptName is running.</string>
+         </map>
+         <key>llGetSimStats</key>
+         <map>
+            <key>energy</key>
+            <real>0</real>
+            <key>sleep</key>
+            <real>0</real>
+            <key>return</key>
+            <string>float</string>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>name</key>
+                  <string>StatType</string>
+                  <key>type</key>
+                  <string>integer</string>
+                  <key>description</key>
+                  <string>Statistic type. Currently only SIM_STAT_PCT_CHARS_STEPPED is supported.</string>
+               </map>
+            </array>
+            <key>summary</key>
+            <string>Returns a float that is the requested statistic.</string>
+            <key>description</key>
+            <string/>
          </map>
          <key>llGetSimulatorHostname</key>
          <map>
@@ -16941,6 +17169,103 @@
             <string>Removes target number.</string>
             <key>description</key>
             <string>Remove target number.</string>
+         </map>
+         <key>llTeleportAgent</key>
+         <map>
+            <key>energy</key>
+            <real>0</real>
+            <key>sleep</key>
+            <real>0</real>
+            <key>return</key>
+            <string>void</string>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>name</key>
+                  <string>AvatarID</string>
+                  <key>type</key>
+                  <string>key</string>
+                  <key>description</key>
+                  <string>UUID of avatar.</string>
+               </map>
+               <map>
+                  <key>name</key>
+                  <string>LandmarkName</string>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>description</key>
+                  <string>Name of landmark (in object contents), or empty string, to use.</string>
+               </map>
+               <map>
+                  <key>name</key>
+                  <string>Position</string>
+                  <key>type</key>
+                  <string>vector</string>
+                  <key>description</key>
+                  <string>If no landmark was provided, the position within the current region to teleport the avatar to.</string>
+               </map>
+               <map>
+                  <key>name</key>
+                  <string>LookAtPoint</string>
+                  <key>type</key>
+                  <string>vector</string>
+                  <key>description</key>
+                  <string>The position within the target region that the avatar should be turned to face upon arrival.</string>
+               </map>
+            </array>
+            <key>summary</key>
+            <string>Requests a teleport of avatar to a landmark stored in the object's inventory. If no landmark is provided (an empty string), the avatar is teleported to the location position in the current region. In either case, the avatar is turned to face the position given by look_at in local coordinates.
+				Requires the PERMISSION_TELEPORT permission. This function can only teleport the owner of the object.</string>
+            <key>description</key>
+            <string/>
+         </map>
+         <key>llTeleportAgentGlobalCoords</key>
+         <map>
+            <key>energy</key>
+            <real>0</real>
+            <key>sleep</key>
+            <real>0</real>
+            <key>return</key>
+            <string>void</string>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>name</key>
+                  <string>AvatarID</string>
+                  <key>type</key>
+                  <string>key</string>
+                  <key>description</key>
+                  <string>UUID of avatar.</string>
+               </map>
+               <map>
+                  <key>name</key>
+                  <string>GlobalPosition</string>
+                  <key>type</key>
+                  <string>vector</string>
+                  <key>description</key>
+                  <string>Global coordinates of the destination region. Can be retrieved by using llRequestSimulatorData(region_name, DATA_SIM_POS).</string>
+               </map>
+               <map>
+                  <key>name</key>
+                  <string>RegionPosition</string>
+                  <key>type</key>
+                  <string>vector</string>
+                  <key>description</key>
+                  <string>The position within the target region to teleport the avatar to, if no landmark was provided.</string>
+               </map>
+               <map>
+                  <key>name</key>
+                  <string>LookAtPoint</string>
+                  <key>type</key>
+                  <string>vector</string>
+                  <key>description</key>
+                  <string>The position within the target region that the avatar should be turned to face upon arrival.</string>
+               </map>
+            </array>
+            <key>summary</key>
+            <string>Teleports an agent to set of a region_coordinates within a region at the specified global_coordinates. The agent lands facing the position defined by look_at local coordinates.</string>
+            <key>description</key>
+            <string/>
          </map>
          <key>llTeleportAgentHome</key>
          <map>
