@@ -141,6 +141,9 @@ public:
 	void onClearLog();
 	void onClearLogResponse(const LLSD& notification, const LLSD& response);
 
+	bool getIsLoggingEnabled() { return mLoggingEnabled; }
+	bool isLogEmpty() { return mConversations.empty(); }
+
 private:
 
 	LLConversationLog();
@@ -187,6 +190,8 @@ private:
 
 	boost::signals2::connection mNewMessageSignalConnection;
 	boost::signals2::connection mAvatarNameCacheConnection;
+
+	bool mLoggingEnabled;
 };
 
 class LLConversationLogObserver

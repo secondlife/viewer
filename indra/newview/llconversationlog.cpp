@@ -187,7 +187,8 @@ void LLConversationLogFriendObserver::changed(U32 mask)
 /************************************************************************/
 
 LLConversationLog::LLConversationLog() :
-	mAvatarNameCacheConnection()
+	mAvatarNameCacheConnection(),
+	mLoggingEnabled(false)
 {
 	LLControlVariable * keep_log_ctrlp = gSavedSettings.getControl("KeepConversationLogTranscripts").get();
 	S32 log_mode = keep_log_ctrlp->getValue();
@@ -202,6 +203,7 @@ LLConversationLog::LLConversationLog() :
 
 void LLConversationLog::enableLogging(S32 log_mode)
 {
+	mLoggingEnabled = log_mode > 0;
 	if (log_mode > 0)
 	{
 		LLIMMgr::instance().addSessionObserver(this);
@@ -217,7 +219,6 @@ void LLConversationLog::enableLogging(S32 log_mode)
 		LLIMMgr::instance().removeSessionObserver(this);
 		mNewMessageSignalConnection.disconnect();
 		LLAvatarTracker::instance().removeObserver(mFriendObserver);
-		mConversations.clear();
 	}
 
 	notifyObservers();
