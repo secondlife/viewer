@@ -84,28 +84,6 @@ def get_default_platform(dummy):
             'darwin':'darwin'
             }[sys.platform]
 
-def get_default_version(srctree):
-    # look up llversion.h and parse out the version info
-    paths = [os.path.join(srctree, x, 'llversionviewer.h') for x in ['llcommon', '../llcommon', '../../indra/llcommon.h']]
-    for p in paths:
-        if os.path.exists(p):
-            contents = open(p, 'r').read()
-            major = re.search("LL_VERSION_MAJOR\s=\s([0-9]+)", contents).group(1)
-            minor = re.search("LL_VERSION_MINOR\s=\s([0-9]+)", contents).group(1)
-            patch = re.search("LL_VERSION_PATCH\s=\s([0-9]+)", contents).group(1)
-            build = re.search("LL_VERSION_BUILD\s=\s([0-9]+)", contents).group(1)
-            return major, minor, patch, build
-
-def get_channel(srctree):
-    # look up llversionserver.h and parse out the version info
-    paths = [os.path.join(srctree, x, 'llversionviewer.h') for x in ['llcommon', '../llcommon', '../../indra/llcommon.h']]
-    for p in paths:
-        if os.path.exists(p):
-            contents = open(p, 'r').read()
-            channel = re.search("LL_CHANNEL\s=\s\"(.+)\";\s*$", contents, flags = re.M).group(1)
-            return channel
-    
-
 DEFAULT_SRCTREE = os.path.dirname(sys.argv[0])
 DEFAULT_CHANNEL = 'Second Life Release'
 
@@ -140,7 +118,7 @@ ARGUMENTS=[
          default=""),
     dict(name='channel',
          description="""The channel to use for updates, packaging, settings name, etc.""",
-         default=get_channel),
+         default='CHANNEL UNSET'),
     dict(name='login_channel',
          description="""The channel to use for login handshake/updates only.""",
          default=None),
@@ -164,10 +142,8 @@ ARGUMENTS=[
         contain the name of the final package in a form suitable
         for use by a .bat file.""",
          default=None),
-    dict(name='version',
-         description="""This specifies the version of Second Life that is
-        being packaged up.""",
-         default=get_default_version),
+    dict(name='versionfile',
+         description="""The name of a file containing the full version number."""),
     dict(name='signature',
          description="""This specifies an identity to sign the viewer with, if any.
         If no value is supplied, the default signature will be used, if any. Currently
@@ -232,9 +208,14 @@ def main():
                 args[arg['name']] = default
 
     # fix up version
-    if isinstance(args.get('version'), str):
-        args['version'] = args['version'].split('.')
-        
+    if isinstance(args.get('versionfile'), str):
+        try: # read in the version string
+            vf = open(args['versionfile'], 'r')
+            args['version'] = vf.read().strip().split('.')
+        except:
+            print "Unable to read versionfile '%s'" % args['versionfile']
+            raise
+
     # default and agni are default
     if args['grid'] in ['default', 'agni']:
         args['grid'] = ''

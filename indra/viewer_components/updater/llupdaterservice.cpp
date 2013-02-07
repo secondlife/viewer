@@ -32,7 +32,6 @@
 #include "lltimer.h"
 #include "llupdatechecker.h"
 #include "llupdateinstaller.h"
-#include "llversionviewer.h"
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -44,6 +43,12 @@
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
 
+#if ! defined(LL_VIEWER_VERSION_MAJOR)			\
+ || ! defined(LL_VIEWER_VERSION_MINOR)			\
+ || ! defined(LL_VIEWER_VERSION_PATCH)			\
+ || ! defined(LL_VIEWER_VERSION_BUILD)
+#error "Version information is undefined"
+#endif
 
 namespace 
 {
@@ -609,10 +614,10 @@ std::string const & ll_get_version(void) {
 	
 	if (version.empty()) {
 		std::ostringstream stream;
-		stream << LL_VERSION_MAJOR << "."
-		<< LL_VERSION_MINOR << "."
-		<< LL_VERSION_PATCH << "."
-		<< LL_VERSION_BUILD;
+		stream << LL_VIEWER_VERSION_MAJOR << "."
+			   << LL_VIEWER_VERSION_MINOR << "."
+			   << LL_VIEWER_VERSION_PATCH << "."
+			   << LL_VIEWER_VERSION_BUILD;
 		version = stream.str();
 	}
 	

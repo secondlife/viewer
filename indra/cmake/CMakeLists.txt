@@ -12,7 +12,6 @@ set(cmake_SOURCE_FILES
     Audio.cmake
     BerkeleyDB.cmake
     Boost.cmake
-    BuildVersion.cmake
     CARes.cmake
     CURL.cmake
     CMakeCopyIfDifferent.cmake

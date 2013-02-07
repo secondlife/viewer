@@ -159,21 +159,6 @@ fi
 # Check to see if we're skipping the platform
 eval '$build_'"$arch" || pass
 
-# Run the version number update script
-# File no longer exists in code-sep branch, so let's make sure it exists in order to use it.
-if test -f scripts/update_version_files.py ; then
-  begin_section UpdateVer
-  eval $(python scripts/update_version_files.py \
-                --channel="$viewer_channel" \
-                --server_channel="$server_channel" \
-                --revision=$revision \
-                --verbose \
-         | sed -n -e "s,Setting viewer channel/version: '\([^']*\)' / '\([^']*\)',VIEWER_CHANNEL='\1';VIEWER_VERSION='\2',p")\
-  || fail update_version_files.py
-  echo "{\"Type\":\"viewer\",\"Version\":\"${VIEWER_VERSION}\"}" > summary.json
-  end_section UpdateVer
-fi
-
 if [ -z "$AUTOBUILD" ]
 then
   export autobuild_dir="$here/../../../autobuild/bin/"

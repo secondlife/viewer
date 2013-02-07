@@ -25,74 +25,78 @@
  * $/LicenseInfo$
  */
 
-#include "llviewerprecompiledheaders.h"
+#include <iostream>
+#include <sstream>
 #include "llversioninfo.h"
 
-#include "llversionviewer.h"
+#if ! defined(LL_VIEWER_VERSION_MAJOR) \
+ || ! defined(LL_VIEWER_VERSION_MINOR) \
+ || ! defined(LL_VIEWER_VERSION_PATCH) \
+ || ! defined(LL_VIEWER_VERSION_BUILD)
+ #error "Version information is undefined"
+#endif
+
+#ifndef LL_VIEWER_CHANNEL
+#define LL_VIEWER_CHANNEL "Second Life Test"
+#endif
+const char * const LL_CHANNEL = LL_VIEWER_CHANNEL;
 
 //
-// Set the version numbers in indra/llcommon/llversionviewer.h
+// Set the version numbers in indra/VIEWER_VERSION
 //
 
 //static
 S32 LLVersionInfo::getMajor()
 {
-	return LL_VERSION_MAJOR;
+	return LL_VIEWER_VERSION_MAJOR;
 }
 
 //static
 S32 LLVersionInfo::getMinor()
 {
-	return LL_VERSION_MINOR;
+	return LL_VIEWER_VERSION_MINOR;
 }
 
 //static
 S32 LLVersionInfo::getPatch()
 {
-	return LL_VERSION_PATCH;
+	return LL_VIEWER_VERSION_PATCH;
 }
 
 //static
 S32 LLVersionInfo::getBuild()
 {
-	return LL_VERSION_BUILD;
+	return LL_VIEWER_VERSION_BUILD;
 }
 
 //static
 const std::string &LLVersionInfo::getVersion()
 {
 	static std::string version("");
-
 	if (version.empty())
 	{
-		// cache the version string
 		std::ostringstream stream;
-		stream << LL_VERSION_MAJOR << "."
-		       << LL_VERSION_MINOR << "."
-		       << LL_VERSION_PATCH << "."
-		       << LL_VERSION_BUILD;
+		stream << LLVersionInfo::getShortVersion() << "." << LLVersionInfo::getBuild();
+		// cache the version string
 		version = stream.str();
 	}
-
 	return version;
 }
 
 //static
 const std::string &LLVersionInfo::getShortVersion()
 {
-	static std::string version("");
-
-	if (version.empty())
+	static std::string short_version("");
+	if(short_version.empty())
 	{
 		// cache the version string
 		std::ostringstream stream;
-		stream << LL_VERSION_MAJOR << "."
-		       << LL_VERSION_MINOR << "."
-		       << LL_VERSION_PATCH;
-		version = stream.str();
+		stream << LL_VIEWER_VERSION_MAJOR << "."
+		       << LL_VIEWER_VERSION_MINOR << "."
+		       << LL_VIEWER_VERSION_PATCH;
+		short_version = stream.str();
 	}
-
-	return version;
+	return short_version;
 }
 
 namespace
@@ -100,7 +104,7 @@ namespace
 	/// Storage of the channel name the viewer is using.
 	//  The channel name is set by hardcoded constant, 
 	//  or by calling LLVersionInfo::resetChannel()
-	std::string sWorkingChannelName(LL_CHANNEL);
+	std::string sWorkingChannelName(LL_VIEWER_CHANNEL);
 
 	// Storage for the "version and channel" string.
 	// This will get reset too.
@@ -113,11 +117,7 @@ const std::string &LLVersionInfo::getChannelAndVersion()
 	if (sVersionChannel.empty())
 	{
 		// cache the version string
-		std::ostringstream stream;
-		stream << LLVersionInfo::getChannel()
-			   << " "
-			   << LLVersionInfo::getVersion();
-		sVersionChannel = stream.str();
+		sVersionChannel = LLVersionInfo::getChannel() + " " + LLVersionInfo::getVersion();
 	}
 
 	return sVersionChannel;

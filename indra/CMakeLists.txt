@@ -19,6 +19,7 @@ project(${ROOT_PROJECT_NAME})
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 include(Variables)
+include(BuildVersion)
 
 if (DARWIN)
   # 2.6.4 fixes a Mac bug in get_target_property(... "SLPlugin" LOCATION):
