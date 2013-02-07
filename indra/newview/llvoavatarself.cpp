@@ -1462,7 +1462,9 @@ BOOL LLVOAvatarSelf::isAllLocalTextureDataFinal() const
 			const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 			for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 			{
-				if (getLocalDiscardLevel(*local_tex_iter, wearable_index) > (S32)(desired_tex_discard_level))
+				S32 local_discard_level = getLocalDiscardLevel(*local_tex_iter, wearable_index);
+				if ((local_discard_level > (S32)(desired_tex_discard_level)) ||
+					(local_discard_level < 0 ))
 				{
 					return FALSE;
 				}
@@ -2177,20 +2179,13 @@ LLSD LLVOAvatarSelf::metricsData()
 	// runway - add region info
 	LLSD result;
 	result["rez_status"] = LLVOAvatar::rezStatusToString(getRezzedStatus());
-	std::vector<S32> rez_counts;
-	LLVOAvatar::getNearbyRezzedStats(rez_counts);
-	result["nearby"] = LLSD::emptyMap();
-	for (S32 i=0; i<rez_counts.size(); ++i)
-	{
-		std::string rez_status_name = LLVOAvatar::rezStatusToString(i);
-		result["nearby"][rez_status_name] = rez_counts[i];
-	}
 	result["timers"]["debug_existence"] = mDebugExistenceTimer.getElapsedTimeF32();
 	result["timers"]["ruth_debug"] = mRuthDebugTimer.getElapsedTimeF32();
 	result["timers"]["ruth"] = mRuthTimer.getElapsedTimeF32();
 	result["timers"]["invisible"] = mInvisibleTimer.getElapsedTimeF32();
 	result["timers"]["fully_loaded"] = mFullyLoadedTimer.getElapsedTimeF32();
 	result["startup"] = LLStartUp::getPhases().dumpPhases();
+	result["phases"] = getPhases().dumpPhases();
 	
 	return result;
 }
@@ -2261,7 +2256,7 @@ void LLVOAvatarSelf::sendAppearanceChangeMetrics()
 	if (S32_MAX == ++report_sequence)
 		report_sequence = 0;
 
-//	LL_DEBUGS("Avatar") << avString() << "message: " << ll_pretty_print_sd(msg) << LL_ENDL;
+	LL_DEBUGS("Avatar") << avString() << "message: " << ll_pretty_print_sd(msg) << LL_ENDL;
 	std::string	caps_url;
 	if (getRegion())
 	{

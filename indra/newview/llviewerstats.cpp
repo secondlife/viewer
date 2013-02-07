@@ -733,23 +733,23 @@ void send_stats()
 	LLHTTPClient::post(url, body, new ViewerStatsResponder());
 }
 
-LLFrameTimer& LLViewerStats::PhaseMap::getPhaseTimer(const std::string& phase_name)
+LLTimer& LLViewerStats::PhaseMap::getPhaseTimer(const std::string& phase_name)
 {
 	phase_map_t::iterator iter = mPhaseMap.find(phase_name);
 	if (iter == mPhaseMap.end())
 	{
-		LLFrameTimer timer;
+		LLTimer timer;
 		mPhaseMap[phase_name] = timer;
 	}
-	LLFrameTimer& timer = mPhaseMap[phase_name];
+	LLTimer& timer = mPhaseMap[phase_name];
 	return timer;
 }
 
 void LLViewerStats::PhaseMap::startPhase(const std::string& phase_name)
 {
-	LLFrameTimer& timer = getPhaseTimer(phase_name);
+	LLTimer& timer = getPhaseTimer(phase_name);
 	lldebugs << "startPhase " << phase_name << llendl;
-	timer.unpause();
+	timer.start();
 }
 
 void LLViewerStats::PhaseMap::stopPhase(const std::string& phase_name)
@@ -763,7 +763,7 @@ void LLViewerStats::PhaseMap::stopPhase(const std::string& phase_name)
 			recordPhaseStat(phase_name,iter->second.getElapsedTimeF32());
 		}
 		lldebugs << "stopPhase " << phase_name << llendl;
-		iter->second.pause();
+		iter->second.stop();
 	}
 	else
 	{
@@ -783,7 +783,7 @@ void LLViewerStats::PhaseMap::stopAllPhases()
 			recordPhaseStat(phase_name,iter->second.getElapsedTimeF32());
 		}
 		lldebugs << "stopPhase (all) " << phase_name << llendl;
-		iter->second.pause();
+		iter->second.stop();
 	}
 }
 

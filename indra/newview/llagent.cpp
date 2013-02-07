@@ -4341,7 +4341,7 @@ void LLAgent::sendAgentSetAppearance()
 		gAgentAvatarp->getPhases().stopPhase("process_initial_wearables_update");
 		gAgentAvatarp->getPhases().stopPhase("wear_inventory_category");
 	}
-	
+
 	gAgentAvatarp->sendAppearanceChangeMetrics();
 
 	if (!isAgentAvatarValid() || (getRegion() && getRegion()->getCentralBakeVersion())) return;
@@ -4409,6 +4409,7 @@ void LLAgent::sendAgentSetAppearance()
 		// IMG_DEFAULT_AVATAR means not baked. 0 index should be ignored for baked textures
 		if (!gAgentAvatarp->isTextureDefined(texture_index, 0))
 		{
+			LL_DEBUGS("Avatar") << "texture not current for baked " << (S32)baked_index << " local " << (S32)texture_index << llendl;
 			textures_current = FALSE;
 			break;
 		}
