@@ -1365,6 +1365,14 @@ BOOL LLInventoryPanel::handleKeyHere( KEY key, MASK mask )
 			LLInventoryAction::doToSelected(mInventory, mFolderRoot, "open");
 			handled = TRUE;
 		}
+		break;
+	case KEY_DELETE:
+		if (mask == MASK_NONE)
+		{
+			LLInventoryAction::doToSelected(mInventory, mFolderRoot, "delete");
+			handled = TRUE;
+		}
+		break;
 	}
 	return handled;
 }

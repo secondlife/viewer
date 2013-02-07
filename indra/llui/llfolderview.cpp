@@ -1336,29 +1336,6 @@ BOOL LLFolderView::handleUnicodeCharHere(llwchar uni_char)
 }
 
 
-BOOL LLFolderView::canDoDelete() const
-{
-	if (mSelectedItems.size() == 0) return FALSE;
-
-	for (selected_items_t::const_iterator item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
-	{
-		if (!(*item_it)->getViewModelItem()->isItemRemovable())
-		{
-			return FALSE;
-		}
-	}
-	return TRUE;
-}
-
-void LLFolderView::doDelete()
-{
-	if(mSelectedItems.size() > 0)
-	{				
-		removeSelectedItems();
-	}
-}
-
-
 BOOL LLFolderView::handleMouseDown( S32 x, S32 y, MASK mask )
 {
 	mKeyboardSelection = FALSE;
