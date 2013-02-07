@@ -1275,20 +1275,6 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 		break;
 	}
 
-	if (!handled && mParentPanel->hasFocus())
-	{
-		if (key == KEY_BACKSPACE)
-		{
-			mSearchTimer.reset();
-			if (mSearchString.size())
-			{
-				mSearchString.erase(mSearchString.size() - 1, 1);
-			}
-			search(getCurSelectedItem(), mSearchString, FALSE);
-			handled = TRUE;
-		}
-	}
-
 	return handled;
 }
 

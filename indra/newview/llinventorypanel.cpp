@@ -1367,6 +1367,9 @@ BOOL LLInventoryPanel::handleKeyHere( KEY key, MASK mask )
 		}
 		break;
 	case KEY_DELETE:
+	case KEY_BACKSPACE:
+		// Delete selected items if delete or backspace key hit on the inventory panel
+		// Note: on Mac laptop keyboards, backspace and delete are one and the same
 		if (mask == MASK_NONE)
 		{
 			LLInventoryAction::doToSelected(mInventory, mFolderRoot, "delete");
