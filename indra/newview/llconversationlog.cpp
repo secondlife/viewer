@@ -187,9 +187,10 @@ void LLConversationLogFriendObserver::changed(U32 mask)
 /************************************************************************/
 
 LLConversationLog::LLConversationLog() :
-	mAvatarNameCacheConnection()
+	mAvatarNameCacheConnection(),
+	mLoggingEnabled(false)
 {
-	LLControlVariable * keep_log_ctrlp = gSavedSettings.getControl("KeepConversationLogTranscripts").get();
+	LLControlVariable * keep_log_ctrlp = gSavedPerAccountSettings.getControl("KeepConversationLogTranscripts").get();
 	S32 log_mode = keep_log_ctrlp->getValue();
 
 	if (log_mode > 0)
@@ -202,6 +203,7 @@ LLConversationLog::LLConversationLog() :
 
 void LLConversationLog::enableLogging(S32 log_mode)
 {
+	mLoggingEnabled = log_mode > 0;
 	if (log_mode > 0)
 	{
 		LLIMMgr::instance().addSessionObserver(this);
@@ -217,7 +219,6 @@ void LLConversationLog::enableLogging(S32 log_mode)
 		LLIMMgr::instance().removeSessionObserver(this);
 		mNewMessageSignalConnection.disconnect();
 		LLAvatarTracker::instance().removeObserver(mFriendObserver);
-		mConversations.clear();
 	}
 
 	notifyObservers();
@@ -368,7 +369,7 @@ void LLConversationLog::sessionAdded(const LLUUID& session_id, const std::string
 
 void LLConversationLog::cache()
 {
-	if (gSavedSettings.getS32("KeepConversationLogTranscripts") > 0)
+	if (gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 0)
 	{
 		saveToFile(getFileName());
 	}
@@ -531,14 +532,8 @@ void LLConversationLog::onClearLogResponse(const LLSD& notification, const LLSD&
 {
 	if (0 == LLNotificationsUtil::getSelectedOption(notification, response))
 	{
-		deleteTranscripts();
+		LLLogChat::deleteTranscripts();
 		mConversations.clear();
 		notifyObservers();
 	}
-}
-
-void LLConversationLog::deleteTranscripts()
-{
-	gDirUtilp->deleteFilesInDir(gDirUtilp->getPerAccountChatLogsDir(), "*." + LL_TRANSCRIPT_FILE_EXTENSION);
-	LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
 }

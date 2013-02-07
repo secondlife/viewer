@@ -3908,4 +3908,15 @@ Try enclosing path to the editor with double quotes.
   <!-- Spell check settings floater -->
   <string name="UserDictionary">[User]</string>
   
+  <!-- Conversation log messages -->
+  <string name="logging_calls_disabled_log_empty">
+    Conversations are not being logged. To begin keeping a log, choose "Save: Log only" or "Save: Log and transcripts" under Preferences > Chat.
+  </string>
+  <string name="logging_calls_disabled_log_not_empty">
+    No more conversations will be logged. To resume keeping a log, choose "Save: Log only" or "Save: Log and transcripts" under Preferences > Chat.
+  </string>
+  <string name="logging_calls_enabled_log_empty">
+    There are no logged conversations. After you contact someone, or someone contacts you, a log entry will be shown here.
+  </string>
+  
   </strings>

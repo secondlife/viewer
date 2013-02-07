@@ -33,6 +33,7 @@
 #include "llviewercontrol.h"
 
 #include "lldiriterator.h"
+#include "llfloaterimsessiontab.h"
 #include "llinstantmessage.h"
 #include "llsingleton.h" // for LLSingleton
 
@@ -40,6 +41,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/regex.hpp>
 #include <boost/regex/v4/match_results.hpp>
+#include <boost/foreach.hpp>
 
 #if LL_MSVC
 #pragma warning(push)  
@@ -62,7 +64,7 @@ const std::string LL_IM_TIME("time");
 const std::string LL_IM_TEXT("message");
 const std::string LL_IM_FROM("from");
 const std::string LL_IM_FROM_ID("from_id");
-const std::string LL_TRANSCRIPT_FILE_EXTENSION("ll.txt");
+const std::string LL_TRANSCRIPT_FILE_EXTENSION("txt");
 
 const static std::string IM_SEPARATOR(": ");
 const static std::string NEW_LINE("\n");
@@ -85,6 +87,7 @@ const static std::string MULTI_LINE_PREFIX(" ");
  * Note: "You" was used as an avatar names in viewers of previous versions
  */
 const static boost::regex TIMESTAMP_AND_STUFF("^(\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+\\d{1,2}:\\d{2}\\]\\s+|\\[\\d{1,2}:\\d{2}\\]\\s+)?(.*)$");
+const static boost::regex TIMESTAMP("^(\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+\\d{1,2}:\\d{2}\\]|\\[\\d{1,2}:\\d{2}\\]).*");
 
 /**
  *  Regular expression suitable to match names like
@@ -328,69 +331,6 @@ void LLLogChat::saveHistory(const std::string& filename,
 	}
 }
 
-void LLLogChat::loadHistory(const std::string& filename, void (*callback)(ELogLineType, const LLSD&, void*), void* userdata)
-{
-	if(!filename.size())
-	{
-		llwarns << "Filename is Empty!" << llendl;
-		return ;
-	}
-		
-	LLFILE* fptr = LLFile::fopen(makeLogFileName(filename), "r");		/*Flawfinder: ignore*/
-	if (!fptr)
-	{
-		callback(LOG_EMPTY, LLSD(), userdata);
-		return;			//No previous conversation with this name.
-	}
-	else
-	{
-		char buffer[LOG_RECALL_SIZE];		/*Flawfinder: ignore*/
-		char *bptr;
-		S32 len;
-		bool firstline=TRUE;
-
-		if ( fseek(fptr, (LOG_RECALL_SIZE - 1) * -1  , SEEK_END) )		
-		{	//File is smaller than recall size.  Get it all.
-			firstline = FALSE;
-			if ( fseek(fptr, 0, SEEK_SET) )
-			{
-				fclose(fptr);
-				return;
-			}
-		}
-
-		while ( fgets(buffer, LOG_RECALL_SIZE, fptr)  && !feof(fptr) ) 
-		{
-			len = strlen(buffer) - 1;		/*Flawfinder: ignore*/
-			for ( bptr = (buffer + len); (*bptr == '\n' || *bptr == '\r') && bptr>buffer; bptr--)	*bptr='\0';
-			
-			if (!firstline)
-			{
-				LLSD item;
-				std::string line(buffer);
-				std::istringstream iss(line);
-				
-				if (!LLChatLogParser::parse(line, item))
-				{
-					item["message"]	= line;
-					callback(LOG_LINE, item, userdata);
-				}
-				else
-				{
-					callback(LOG_LLSD, item, userdata);
-				}
-			}
-			else
-			{
-				firstline = FALSE;
-			}
-		}
-		callback(LOG_END, LLSD(), userdata);
-		
-		fclose(fptr);
-	}
-}
-
 // static
 void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params)
 {
@@ -506,19 +446,46 @@ std::string LLLogChat::oldLogFileName(std::string filename)
 void LLLogChat::getListOfTranscriptFiles(std::vector<std::string>& list_of_transcriptions)
 {
 	// get Users log directory
-	std::string directory = gDirUtilp->getPerAccountChatLogsDir();
+	std::string dirname = gDirUtilp->getPerAccountChatLogsDir();
 
 	// add final OS dependent delimiter
-	directory += gDirUtilp->getDirDelimiter();
+	dirname += gDirUtilp->getDirDelimiter();
 
 	// create search pattern
 	std::string pattern = "*." + LL_TRANSCRIPT_FILE_EXTENSION;
 
-	LLDirIterator iter(directory, pattern);
-	std::string scanResult;
-	while (iter.next(scanResult))
+	LLDirIterator iter(dirname, pattern);
+	std::string filename;
+	while (iter.next(filename))
 	{
-		list_of_transcriptions.push_back(scanResult);
+		std::string fullname = gDirUtilp->add(dirname, filename);
+
+		LLFILE * filep = LLFile::fopen(fullname, "rb");
+		if (NULL != filep)
+		{
+			char buffer[LOG_RECALL_SIZE];
+
+			fseek(filep, 0, SEEK_END);			// seek to end of file
+			S32 bytes_to_read = ftell(filep);	// get current file pointer
+			fseek(filep, 0, SEEK_SET);			// seek back to beginning of file
+
+			// limit the number characters to read from file
+			if (bytes_to_read >= LOG_RECALL_SIZE)
+			{
+				bytes_to_read = LOG_RECALL_SIZE - 1;
+			}
+
+			if (bytes_to_read > 0 && NULL != fgets(buffer, bytes_to_read, filep))
+			{
+				//matching a timestamp
+				boost::match_results<std::string::const_iterator> matches;
+				if (boost::regex_match(std::string(buffer), matches, TIMESTAMP))
+				{
+					list_of_transcriptions.push_back(gDirUtilp->add(dirname, filename));
+				}
+			}
+			LLFile::close(filep);
+		}
 	}
 }
 
@@ -531,6 +498,46 @@ boost::signals2::connection LLLogChat::setSaveHistorySignal(const save_history_s
 	}
 
 	return sSaveHistorySignal->connect(cb);
+}
+
+//static
+void LLLogChat::deleteTranscripts()
+{
+	std::vector<std::string> list_of_transcriptions;
+	getListOfTranscriptFiles(list_of_transcriptions);
+
+	BOOST_FOREACH(const std::string& fullpath, list_of_transcriptions)
+	{
+		S32 retry_count = 0;
+		while (retry_count < 5)
+		{
+			if (0 != LLFile::remove(fullpath))
+			{
+				retry_count++;
+				S32 result = errno;
+				LL_WARNS("LLLogChat::deleteTranscripts") << "Problem removing " << fullpath << " - errorcode: "
+					<< result << " attempt " << retry_count << LL_ENDL;
+
+				if(retry_count >= 5)
+				{
+					LL_WARNS("LLLogChat::deleteTranscripts") << "Failed to remove " << fullpath << LL_ENDL;
+					return;
+				}
+
+				ms_sleep(100);
+			}
+			else
+			{
+				if (retry_count)
+				{
+					LL_WARNS("LLLogChat::deleteTranscripts") << "Successfully removed " << fullpath << LL_ENDL;
+				}
+				break;
+			}			
+		}
+	}
+
+	LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
 }
 
 //*TODO mark object's names in a special way so that they will be distinguishable form avatar name 

@@ -13,9 +13,6 @@
  reuse_instance="true"
  title="CONVERSATION LOG"
  width="300">
-  <string name="logging_calls_disabled">
-     Conversations are not being logged. To log conversations in the future, select "Save IM logs on my computer" under Preferences > Privacy.
-  </string>
   <panel
    follows="left|top|right"
    height="32"

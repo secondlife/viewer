@@ -33,6 +33,7 @@
 #include "llconversationloglist.h"
 #include "llconversationloglistitem.h"
 #include "llviewermenu.h"
+#include "lltrans.h"
 
 static LLDefaultChildRegistry::Register<LLConversationLogList> r("conversation_log_list");
 
@@ -200,8 +201,9 @@ void LLConversationLogList::rebuildList()
 	clear();
 
 	bool have_filter = !mNameFilter.empty();
+	LLConversationLog &log_instance = LLConversationLog::instance();
 
-	const std::vector<LLConversation>& conversations = LLConversationLog::instance().getConversations();
+	const std::vector<LLConversation>& conversations = log_instance.getConversations();
 	std::vector<LLConversation>::const_iterator iter = conversations.begin();
 
 	for (; iter != conversations.end(); ++iter)
@@ -211,6 +213,26 @@ void LLConversationLogList::rebuildList()
 			continue;
 
 		addNewItem(&*iter);
+	}
+	
+
+	bool logging_enabled = log_instance.getIsLoggingEnabled();
+	bool log_empty = log_instance.isLogEmpty();
+	if (!logging_enabled && log_empty)
+	{
+		setNoItemsCommentText(LLTrans::getString("logging_calls_disabled_log_empty"));
+	}
+	else if (!logging_enabled && !log_empty)
+	{
+		setNoItemsCommentText(LLTrans::getString("logging_calls_disabled_log_not_empty"));
+	}
+	else if (logging_enabled && log_empty)
+	{
+		setNoItemsCommentText(LLTrans::getString("logging_calls_enabled_log_empty"));
+	}
+	else if (logging_enabled && !log_empty)
+	{
+		setNoItemsCommentText("");
 	}
 }
 
