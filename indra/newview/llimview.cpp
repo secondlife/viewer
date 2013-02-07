@@ -107,6 +107,7 @@ void process_dnd_im(const LLSD& notification)
 {
     LLSD data = notification["substitutions"];
     LLUUID sessionID = data["SESSION_ID"].asUUID();
+	LLUUID fromID = data["FROM_ID"].asUUID();
 
     //re-create the IM session if needed 
     //(when coming out of DND mode upon app restart)
@@ -119,14 +120,22 @@ void process_dnd_im(const LLSD& notification)
         {
             name = av_name.getDisplayName();
         }
-
+		
         
         LLIMModel::getInstance()->newSession(sessionID, 
             name, 
             IM_NOTHING_SPECIAL, 
-            data["FROM_ID"], 
+            fromID, 
             false, 
             false); //will need slight refactor to retrieve whether offline message or not (assume online for now)
+
+		LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+		
+		if (im_box)
+		{
+			im_box->flashConversationItemWidget(sessionID, true);
+		}
+
     }
 }
 
