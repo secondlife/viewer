@@ -2010,18 +2010,19 @@ void LLSelectMgr::selectionSetGlow(F32 glow)
 	mSelectedObjects->applyToObjects( &func2 );
 }
 
-void LLSelectMgr::selectionSetMaterial(LLMaterial& material)
+void LLSelectMgr::selectionSetMaterial(LLMaterialPtr material)
 {
 	struct f1 : public LLSelectedTEFunctor
 	{
-		LLMaterial mMaterial;
-		f1(LLMaterial material) : mMaterial(material) {};
+		LLMaterialPtr mMaterial;
+		f1(LLMaterialPtr material) : mMaterial(material) {};
 		bool apply(LLViewerObject* object, S32 face)
 		{
 			if (object->permModify())
 			{
-			        llinfos << "Putting material on object " << object->getID() << " face " << face << ", material: " << mMaterial.asLLSD() << llendl;
-				LLMaterialMgr::getInstance()->put(object->getID(),face,mMaterial);
+			        llinfos << "Putting material on object " << object->getID() << " face " << face << ", material: " << mMaterial->asLLSD() << llendl;
+				LLMaterialMgr::getInstance()->put(object->getID(),face,*mMaterial);
+				object->setTEMaterialParams(face,mMaterial);
 			}
 			return true;
 		}
