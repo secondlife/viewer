@@ -273,14 +273,19 @@ void LLFloaterIMContainer::addFloater(LLFloater* floaterp,
 		openFloater(floaterp->getKey());
 		return;
 	}
+
+	LLUUID session_id = floaterp->getKey();
 	
 	// Make sure the message panel is open when adding a floater or it stays mysteriously hidden
-	collapseMessagesPane(false);
+	if (session_id != LLUUID())
+	{
+		collapseMessagesPane(false);
+	}
 
 	// Add the floater
 	LLMultiFloater::addFloater(floaterp, select_added_floater, insertion_point);
 
-	LLUUID session_id = floaterp->getKey();
+
 	
 	LLIconCtrl* icon = 0;
 
