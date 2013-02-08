@@ -62,6 +62,7 @@
 #include "llvovolume.h"
 #include "llsdutil.h"
 #include "llstartup.h"
+#include "llsdserialize.h"
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -2166,6 +2167,8 @@ const std::string LLVOAvatarSelf::debugDumpAllLocalTextureDataInfo() const
 	return text;
 }
 
+
+#if 0
 // Dump avatar metrics data.
 LLSD LLVOAvatarSelf::metricsData()
 {
@@ -2178,10 +2181,10 @@ LLSD LLVOAvatarSelf::metricsData()
 	result["timers"]["invisible"] = mInvisibleTimer.getElapsedTimeF32();
 	result["timers"]["fully_loaded"] = mFullyLoadedTimer.getElapsedTimeF32();
 	result["startup"] = LLStartUp::getPhases().dumpPhases();
-	result["phases"] = getPhases().dumpPhases();
 	
 	return result;
 }
+#endif
 
 class ViewerAppearanceChangeMetricsResponder: public LLCurl::Responder
 {
@@ -2241,19 +2244,65 @@ bool LLVOAvatarSelf::updateAvatarRezMetrics(bool force_send)
 		// complete.  This will give us stats for any timers that
 		// haven't finished as of the metric's being sent.
 		LLVOAvatar::logPendingPhasesAllAvatars();
-		sendAppearanceChangeMetrics();
+		sendViewerAppearanceChangeMetrics();
 	}
 
 	return false;
 }
 
-void LLVOAvatarSelf::sendAppearanceChangeMetrics()
+void LLVOAvatarSelf::addMetricsTimerRecord(const LLSD& record)
+{
+	mPendingTimerRecords.push_back(record);
+}
+
+bool operator<(const LLSD& a, const LLSD& b)
+{
+	std::ostringstream aout, bout;
+	aout << LLSDNotationStreamer(a);
+	bout << LLSDNotationStreamer(b);
+	return aout.str() < bout.str();
+
+}
+
+// Given a vector of LLSD records, return an LLSD array of bucketed stats for val_field.
+LLSD summarize_by_buckets(std::vector<LLSD> in_records,
+						  std::vector<std::string> by_fields,
+						  std::string& val_field)
+{
+	LLSD result = LLSD::emptyArray();
+	std::map<LLSD,LLViewerStats::StatsAccumulator> accum;
+	for (std::vector<LLSD>::iterator in_record_iter = in_records.begin();
+		 in_record_iter != in_records.end(); ++in_record_iter)
+	{
+		LLSD& record = *in_record_iter;
+		LLSD key;
+		for (std::vector<std::string>::iterator field_iter = by_fields.begin();
+			 field_iter != by_fields.end(); ++field_iter)
+		{
+			const std::string& field = *field_iter;
+			key[field] = record[field];
+			LLViewerStats::StatsAccumulator& stats = accum[key];
+			F32 value = record[val_field].asReal();
+			stats.push(value);
+		}
+	}
+	for (std::map<LLSD,LLViewerStats::StatsAccumulator>::iterator accum_it = accum.begin();
+		 accum_it != accum.end(); ++accum_it)
+	{
+		LLSD out_record = accum_it->first;
+		out_record["stats"] = accum_it->second.getData();
+		result.append(out_record);
+	}
+	return result;
+}
+
+void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
 {
 	// gAgentAvatarp->stopAllPhases();
 	static volatile bool reporting_started(false);
 	static volatile S32 report_sequence(0);
 
-	LLSD msg = metricsData();
+	LLSD msg; // = metricsData();
 	msg["message"] = "ViewerAppearanceChangeMetrics";
 	msg["session_id"] = gAgentSessionID;
 	msg["agent_id"] = gAgentID;
@@ -2261,8 +2310,35 @@ void LLVOAvatarSelf::sendAppearanceChangeMetrics()
 	msg["initial"] = !reporting_started;
 	msg["break"] = false;
 	msg["duration"] = mTimeSinceLastRezMessage.getElapsedTimeF32();
-	mTimeSinceLastRezMessage.reset();
-	
+
+	// Status of our own rezzing.
+	msg["rez_status"] = LLVOAvatar::rezStatusToString(getRezzedStatus());
+
+	// Status of all nearby avs including ourself.
+	msg["nearby"] = LLSD::emptyArray();
+	std::vector<S32> rez_counts;
+	LLVOAvatar::getNearbyRezzedStats(rez_counts);
+	for (S32 rez_stat=0; rez_stat < rez_counts.size(); ++rez_stat)
+	{
+		std::string rez_status_name = LLVOAvatar::rezStatusToString(rez_stat);
+		msg["nearby"][rez_status_name] = rez_counts[rez_stat];
+	}
+
+	//	std::vector<std::string> bucket_fields("timer_name","agent_id","is_self","grid_x","grid_y","is_using_server_bake");
+	std::vector<std::string> by_fields;
+	by_fields.push_back("timer_name");
+	by_fields.push_back("agent_id");
+	by_fields.push_back("completed");
+	by_fields.push_back("grid_x");
+	by_fields.push_back("grid_y");
+	by_fields.push_back("is_using_server_bake");
+	by_fields.push_back("is_self");
+	by_fields.push_back("cbv");
+	LLSD summary = summarize_by_buckets(mPendingTimerRecords, by_fields, std::string("elapsed"));
+	msg["timers"] = summary;
+
+	mPendingTimerRecords.clear();
+
 	// Update sequence number
 	if (S32_MAX == ++report_sequence)
 		report_sequence = 0;
@@ -2282,6 +2358,7 @@ void LLVOAvatarSelf::sendAppearanceChangeMetrics()
 						   new ViewerAppearanceChangeMetricsResponder(report_sequence,
 																	  report_sequence,
 																	  reporting_started));
+		mTimeSinceLastRezMessage.reset();
 	}
 }
 

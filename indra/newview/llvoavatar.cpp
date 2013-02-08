@@ -99,6 +99,7 @@
 
 #include "lldebugmessagebox.h"
 #include "llsdutil.h"
+#include "llsdserialize.h"
 
 extern F32 SPEED_ADJUST_MAX;
 extern F32 SPEED_ADJUST_MAX_SEC;
@@ -5964,12 +5965,13 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 	LLSD record;
 	record["timer_name"] = phase_name;
 	record["agent_id"] = gAgent.getID();
+	record["avatar_id"] = getID();
 	record["elapsed"] = elapsed;
 	record["completed"] = completed;
 	U32 grid_x(0), grid_y(0);
 	if (getRegion())
 	{
-		record["cbv"] = getRegion()->getCentralBakeVersion();
+		record["central_bake_version"] = getRegion()->getCentralBakeVersion();
 		grid_from_region_handle(getRegion()->getHandle(), &grid_x, &grid_y);
 	}
 	record["grid_x"] = LLSD::Integer(grid_x);
@@ -5977,7 +5979,15 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 	record["is_using_server_bake"] = isUsingServerBakes();
 	record["is_self"] = isSelf();
 	
-	LL_DEBUGS("Avatar") << "record\n" << ll_pretty_print_sd(record) << llendl;
+
+	std::ostringstream ostr;
+	ostr << LLSDNotationStreamer(record);
+	LL_DEBUGS("Avatar") << "record\n" << ostr.str() << llendl;
+
+	if (isAgentAvatarValid())
+	{
+		gAgentAvatarp->addMetricsTimerRecord(record);
+	}
 }
 
 void LLVOAvatar::stopPhase(const std::string& phase_name)
