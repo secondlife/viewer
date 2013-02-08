@@ -62,7 +62,8 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
 	mExpandCollapseBtn(NULL),
 	mConversationsRoot(NULL),
 	mConversationsEventStream("ConversationsEvents"),
-	mInitialized(false)
+	mInitialized(false),
+	mIsFirstLaunch(false)
 {
     mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLFloaterIMContainer::isActionChecked, this, _2));
 	mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLFloaterIMContainer::onCustomAction,  this, _2));
@@ -243,6 +244,7 @@ BOOL LLFloaterIMContainer::postBuild()
 	mGeneralTitle = getTitle();
 	
 	mInitialized = true;
+	mIsFirstLaunch = true;
 
 	// Add callbacks:
 	// We'll take care of view updates on idle
@@ -277,7 +279,7 @@ void LLFloaterIMContainer::addFloater(LLFloater* floaterp,
 	LLUUID session_id = floaterp->getKey();
 	
 	// Make sure the message panel is open when adding a floater or it stays mysteriously hidden
-	if (session_id != LLUUID())
+	if (!mIsFirstLaunch)
 	{
 		collapseMessagesPane(false);
 	}
@@ -632,6 +634,12 @@ void LLFloaterIMContainer::collapseMessagesPane(bool collapse)
 {
 	if (mMessagesPane->isCollapsed() == collapse)
 	{
+		return;
+	}
+
+	if (mIsFirstLaunch)
+	{
+		mIsFirstLaunch = false;
 		return;
 	}
 
