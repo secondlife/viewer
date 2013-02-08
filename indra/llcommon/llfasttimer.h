@@ -71,7 +71,7 @@ public:
 	BlockTimer(TimeBlock& timer);
 	~BlockTimer();
 
-	void logCurrentTime();
+	LLUnit<LLUnits::Seconds, F64> getElapsedTime();
 
 private:
 

@@ -434,4 +434,12 @@ void TimeBlockAccumulator::reset( const TimeBlockAccumulator* other )
 	}
 }
 
+LLUnit<LLUnits::Seconds, F64> BlockTimer::getElapsedTime()
+{
+	U64 total_time = TimeBlock::getCPUClockCount64() - mStartTime;
+
+	return (F64)total_time / (F64)TimeBlock::countsPerSecond();
+}
+
+
 } // namespace LLTrace
