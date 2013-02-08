@@ -292,12 +292,16 @@ public:
 
 	S32				mLastRezzedStatus;
 
-	LLViewerStats::PhaseMap& getPhases()
-	{
-		return mPhases;
-	}
+	
+	void 			startPhase(const std::string& phase_name);
+	void 			stopPhase(const std::string& phase_name);
+	void			clearPhases();
+	void 			logPendingPhases();
+	static void 	logPendingPhasesAllAvatars();
+	void 			logMetricsTimerRecord(const std::string& phase_name, F32 elapsed, bool completed);
 
 protected:
+	LLViewerStats::PhaseMap& getPhases() { return mPhases; }
 	BOOL			updateIsFullyLoaded();
 	BOOL			processFullyLoadedChange(bool loading);
 	void			updateRuthTimer(bool loading);

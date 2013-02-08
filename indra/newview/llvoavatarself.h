@@ -379,6 +379,10 @@ public:
 		LLUUID			mAvatarID;
 		LLAvatarAppearanceDefines::ETextureIndex	mIndex;
 	};
+
+	LLTimer					mTimeSinceLastRezMessage;
+	bool					updateAvatarRezMetrics(bool force_send);
+	
 	void 					debugWearablesLoaded() { mDebugTimeWearablesLoaded = mDebugSelfLoadTimer.getElapsedTimeF32(); }
 	void 					debugAvatarVisible() { mDebugTimeAvatarVisible = mDebugSelfLoadTimer.getElapsedTimeF32(); }
 	void 					outputRezDiagnostics() const;
@@ -416,7 +420,8 @@ BOOL isAgentAvatarValid();
 
 void selfStartPhase(const std::string& phase_name);
 void selfStopPhase(const std::string& phase_name);
-void selfStopAllPhases();
 void selfClearPhases();
+
+void update_avatar_rez_metrics(bool force_send);
 
 #endif // LL_VO_AVATARSELF_H

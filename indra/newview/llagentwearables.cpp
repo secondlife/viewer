@@ -797,7 +797,7 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 	if (isAgentAvatarValid())
 	{
 		//gAgentAvatarp->clearPhases(); // reset phase timers for outfit loading.
-		gAgentAvatarp->getPhases().startPhase("process_initial_wearables_update");
+		gAgentAvatarp->startPhase("process_initial_wearables_update");
 		gAgentAvatarp->outputRezTiming("Received initial wearables update");
 	}
 

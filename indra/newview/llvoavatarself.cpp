@@ -81,7 +81,7 @@ void selfStartPhase(const std::string& phase_name)
 {
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatarp->getPhases().startPhase(phase_name);
+		gAgentAvatarp->startPhase(phase_name);
 	}
 }
 
@@ -89,7 +89,7 @@ void selfStopPhase(const std::string& phase_name)
 {
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatarp->getPhases().stopPhase(phase_name);
+		gAgentAvatarp->stopPhase(phase_name);
 	}
 }
 
@@ -97,16 +97,8 @@ void selfClearPhases()
 {
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatarp->getPhases().clearPhases();
+		gAgentAvatarp->clearPhases();
 		gAgentAvatarp->mLastRezzedStatus = -1;
-	}
-}
-
-void selfStopAllPhases()
-{
-	if (isAgentAvatarValid())
-	{
-		gAgentAvatarp->getPhases().stopAllPhases();
 	}
 }
 
@@ -222,6 +214,7 @@ void LLVOAvatarSelf::initInstance()
 	}
 
 	//doPeriodically(output_self_av_texture_diagnostics, 30.0);
+	doPeriodically(boost::bind(&LLVOAvatarSelf::updateAvatarRezMetrics, this, false), 5.0);
 }
 
 // virtual
@@ -2238,6 +2231,22 @@ private:
 	volatile bool & mReportingStarted;
 };
 
+bool LLVOAvatarSelf::updateAvatarRezMetrics(bool force_send)
+{
+	F32 send_period = 30.0;
+
+	if (force_send || mTimeSinceLastRezMessage.getElapsedTimeF32() > send_period)
+	{
+		// Stats for completed phases have been getting logged as they
+		// complete.  This will give us stats for any timers that
+		// haven't finished as of the metric's being sent.
+		LLVOAvatar::logPendingPhasesAllAvatars();
+		sendAppearanceChangeMetrics();
+	}
+
+	return false;
+}
+
 void LLVOAvatarSelf::sendAppearanceChangeMetrics()
 {
 	// gAgentAvatarp->stopAllPhases();
@@ -2251,7 +2260,9 @@ void LLVOAvatarSelf::sendAppearanceChangeMetrics()
 	msg["sequence"] = report_sequence;
 	msg["initial"] = !reporting_started;
 	msg["break"] = false;
-
+	msg["duration"] = mTimeSinceLastRezMessage.getElapsedTimeF32();
+	mTimeSinceLastRezMessage.reset();
+	
 	// Update sequence number
 	if (S32_MAX == ++report_sequence)
 		report_sequence = 0;

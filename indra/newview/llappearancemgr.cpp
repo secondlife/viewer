@@ -2006,8 +2006,6 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 		llwarns << "Called updateAppearanceFromCOF inside updateAppearanceFromCOF, skipping" << llendl;
 		return;
 	}
-
-	LLVOAvatar::ScopedPhaseSetter(gAgentAvatarp,"update_appearance_from_cof");
 	
 	BoolSetter setIsInUpdateAppearanceFromCOF(mIsInUpdateAppearanceFromCOF);
 

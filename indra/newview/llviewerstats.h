@@ -289,13 +289,15 @@ public:
 	public:
 		PhaseMap();
 		LLTimer&	 	getPhaseTimer(const std::string& phase_name);
+		bool 			getPhaseValues(const std::string& phase_name, F32& elapsed, bool& completed);
 		void			startPhase(const std::string& phase_name);
 		void			stopPhase(const std::string& phase_name);
-		void			stopAllPhases();
 		void			clearPhases();
 		LLSD			dumpPhases();
 		static StatsAccumulator& getPhaseStats(const std::string& phase_name);
 		static void recordPhaseStat(const std::string& phase_name, F32 value);
+		phase_map_t::iterator begin() { return mPhaseMap.begin(); }
+		phase_map_t::iterator end() { return mPhaseMap.end(); }
 	};
 
 private:

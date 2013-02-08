@@ -5887,27 +5887,120 @@ void LLVOAvatar::updateRezzedStatusTimers()
 		if (is_cloud && !was_cloud)
 		{
 			// start cloud timer.
-			getPhases().startPhase("cloud");
+			startPhase("cloud");
 		}
 		else if (was_cloud && !is_cloud)
 		{
 			// stop cloud timer, which will capture stats.
-			getPhases().stopPhase("cloud");
+			stopPhase("cloud");
 		}
 
 		// Non-cloud-or-gray to cloud-or-gray
 		if (is_cloud_or_gray && !was_cloud_or_gray)
 		{
 			// start cloud-or-gray timer.
-			getPhases().startPhase("cloud-or-gray");
+			startPhase("cloud-or-gray");
 		}
 		else if (was_cloud_or_gray && !is_cloud_or_gray)
 		{
 			// stop cloud-or-gray timer, which will capture stats.
-			getPhases().stopPhase("cloud-or-gray");
+			stopPhase("cloud-or-gray");
 		}
 		
 		mLastRezzedStatus = rez_status;
+	}
+}
+
+void LLVOAvatar::clearPhases()
+{
+	getPhases().clearPhases();
+}
+
+void LLVOAvatar::startPhase(const std::string& phase_name)
+{
+	getPhases().startPhase(phase_name);
+}
+
+void LLVOAvatar::logPendingPhases()
+{
+	for (LLViewerStats::phase_map_t::iterator it = getPhases().begin();
+		 it != getPhases().end();
+		 ++it)
+	{
+		const std::string& phase_name = it->first;
+		F32 elapsed;
+		bool completed;
+		if (getPhases().getPhaseValues(phase_name, elapsed, completed))
+		{
+			if (!completed)
+			{
+				logMetricsTimerRecord(phase_name, elapsed, completed);
+			}
+			else
+			{
+				llwarns << "ignoring " << phase_name << llendl;
+			}
+		}
+	}
+}
+
+//static
+void LLVOAvatar::logPendingPhasesAllAvatars()
+{
+	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
+		 iter != LLCharacter::sInstances.end(); ++iter)
+	{
+		LLVOAvatar* inst = (LLVOAvatar*) *iter;
+		if( inst->isDead() )
+		{
+			continue;
+		}
+		inst->logPendingPhases();
+	}
+}
+
+void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapsed, bool completed)
+{
+	LLSD record;
+	record["timer_name"] = phase_name;
+	record["agent_id"] = gAgent.getID();
+	record["elapsed"] = elapsed;
+	record["completed"] = completed;
+	U32 grid_x(0), grid_y(0);
+	if (getRegion())
+	{
+		record["cbv"] = getRegion()->getCentralBakeVersion();
+		grid_from_region_handle(getRegion()->getHandle(), &grid_x, &grid_y);
+	}
+	record["grid_x"] = LLSD::Integer(grid_x);
+	record["grid_y"] = LLSD::Integer(grid_y);
+	record["is_using_server_bake"] = isUsingServerBakes();
+	record["is_self"] = isSelf();
+	
+	LL_DEBUGS("Avatar") << "record\n" << ll_pretty_print_sd(record) << llendl;
+}
+
+void LLVOAvatar::stopPhase(const std::string& phase_name)
+{
+	F32 elapsed;
+	bool completed;
+	if (getPhases().getPhaseValues(phase_name, elapsed, completed))
+	{
+		if (!completed)
+		{
+			getPhases().stopPhase(phase_name);
+			completed = true;
+
+		}
+		else
+		{
+			llwarns << "stop when stopped already for " << phase_name << llendl;
+		}
+		logMetricsTimerRecord(phase_name, elapsed, completed);
+	}
+	else
+	{
+		llwarns << "stop when not started for " << phase_name << llendl;
 	}
 }
 
