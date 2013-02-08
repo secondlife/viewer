@@ -40,7 +40,7 @@ LLDockControl::LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
 
 	if (dockWidget != NULL)
 	{
-		mDockWidget = dockWidget->getHandle();
+		mDockWidgetHandle = dockWidget->getHandle();
 	}
 
 	if (dockableFloater->isDocked())
@@ -84,13 +84,13 @@ void LLDockControl::setDock(LLView* dockWidget)
 {
 	if (dockWidget != NULL)
 	{
-		mDockWidget = dockWidget->getHandle();
+		mDockWidgetHandle = dockWidget->getHandle();
 		repositionDockable();
 		mDockWidgetVisible = isDockVisible();
 	}
 	else
 	{
-		mDockWidget = LLHandle<LLView>();
+		mDockWidgetHandle = LLHandle<LLView>();
 		mDockWidgetVisible = false;
 	}
 }
