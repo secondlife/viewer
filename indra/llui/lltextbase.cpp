@@ -605,7 +605,8 @@ void LLTextBase::drawText()
 
 				// Find the start of the first word
 				U32 word_start = seg_start, word_end = -1;
-				while ( (word_start < wstrText.length()) && (!LLStringOps::isAlpha(wstrText[word_start])) )
+				U32 text_length = wstrText.length();
+				while ( (word_start < text_length) && (!LLStringOps::isAlpha(wstrText[word_start])) )
 				{
 					word_start++;
 				}
@@ -627,11 +628,15 @@ void LLTextBase::drawText()
 						break;
 					}
 
-					// Don't process words shorter than 3 characters
-					std::string word = wstring_to_utf8str(wstrText.substr(word_start, word_end - word_start));
-					if ( (word.length() >= 3) && (!LLSpellChecker::instance().checkSpelling(word)) )
+					if (word_start < text_length && word_end <= text_length && word_end > word_start)
 					{
-						mMisspellRanges.push_back(std::pair<U32, U32>(word_start, word_end));
+						std::string word = wstring_to_utf8str(wstrText.substr(word_start, word_end - word_start));
+
+						// Don't process words shorter than 3 characters
+						if ( (word.length() >= 3) && (!LLSpellChecker::instance().checkSpelling(word)) )
+						{
+							mMisspellRanges.push_back(std::pair<U32, U32>(word_start, word_end));
+						}
 					}
 
 					// Find the start of the next word
