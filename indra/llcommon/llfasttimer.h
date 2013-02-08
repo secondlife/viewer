@@ -71,9 +71,12 @@ public:
 	BlockTimer(TimeBlock& timer);
 	~BlockTimer();
 
+	void logCurrentTime();
+
 private:
 
 	U64						mStartTime;
+	U64						mStartSelfTimeCount;
 	BlockTimerStackRecord	mParentTimerData;
 };
 
@@ -279,6 +282,7 @@ LL_FORCE_INLINE BlockTimer::BlockTimer(TimeBlock& timer)
 	BlockTimerStackRecord* cur_timer_data = ThreadTimerStack::getIfExists();
 	TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
 	accumulator->mActiveCount++;
+	mStartSelfTimeCount = accumulator->mSelfTimeCounter;
 	// keep current parent as long as it is active when we are
 	accumulator->mMoveUpTree |= (accumulator->mParent->getPrimaryAccumulator()->mActiveCount == 0);
 
@@ -298,9 +302,10 @@ LL_FORCE_INLINE BlockTimer::~BlockTimer()
 	BlockTimerStackRecord* cur_timer_data = ThreadTimerStack::getIfExists();
 	TimeBlockAccumulator* accumulator = cur_timer_data->mTimeBlock->getPrimaryAccumulator();
 
+	U64 child_time = cur_timer_data->mChildTime - (accumulator->mSelfTimeCounter - mStartSelfTimeCount);
 	accumulator->mCalls++;
-	accumulator->mChildTimeCounter += cur_timer_data->mChildTime;
-	accumulator->mTotalTimeCounter += total_time;
+	accumulator->mChildTimeCounter += child_time;
+	accumulator->mSelfTimeCounter += total_time - child_time;
 	accumulator->mActiveCount--;
 
 	// store last caller to bootstrap tree creation
@@ -315,6 +320,11 @@ LL_FORCE_INLINE BlockTimer::~BlockTimer()
 #endif
 }
 
+inline void BlockTimer::logCurrentTime()
+{
+	U64 total_time = TimeBlock::getCPUClockCount64() - mStartTime;
+	llinfos << "Time elapsed: " << (1000.0 * (F64)total_time / (F64)TimeBlock::countsPerSecond()) << llendl;
+}
 }
 
 typedef LLTrace::BlockTimer LLFastTimer; 

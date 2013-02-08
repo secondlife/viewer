@@ -1403,7 +1403,7 @@ void LLFastTimerView::updateTotalTime()
 		break;
 	}
 
-	mTotalTimeDisplay = LLUnit<LLUnits::Milliseconds, F64>(llceil(mTotalTimeDisplay.as<LLUnits::Milliseconds, F64>().value() / (20.f)) * 20.f);
+	mTotalTimeDisplay = LLUnit<LLUnits::Milliseconds, F32>(llceil(mTotalTimeDisplay.as<LLUnits::Milliseconds, F32>().value() / (20.f)) * 20.f);
 }
 
 void LLFastTimerView::drawBars()

@@ -257,8 +257,8 @@ void TimeBlock::processTimes()
 	{
 		U64 cumulative_time_delta = cur_time - cur_timer->mStartTime;
 	
-		accumulator->mTotalTimeCounter += cumulative_time_delta;
-		accumulator->mChildTimeCounter += stack_record->mChildTime;
+		accumulator->mChildTimeCounter += stack_record->mChildTime - (accumulator->mSelfTimeCounter - cur_timer->mStartSelfTimeCount);
+		accumulator->mSelfTimeCounter += cumulative_time_delta - stack_record->mChildTime;
 		stack_record->mChildTime = 0;
 
 		cur_timer->mStartTime = cur_time;
@@ -401,7 +401,7 @@ void TimeBlock::writeLog(std::ostream& os)
 
 TimeBlockAccumulator::TimeBlockAccumulator() 
 :	mChildTimeCounter(0),
-	mTotalTimeCounter(0),
+	mSelfTimeCounter(0),
 	mCalls(0),
 	mLastCaller(NULL),
 	mActiveCount(0),
@@ -412,7 +412,7 @@ TimeBlockAccumulator::TimeBlockAccumulator()
 void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other )
 {
 	mChildTimeCounter += other.mChildTimeCounter;
-	mTotalTimeCounter += other.mTotalTimeCounter;
+	mSelfTimeCounter += other.mSelfTimeCounter;
 	mCalls += other.mCalls;
 	mLastCaller = other.mLastCaller;
 	mActiveCount = other.mActiveCount;
@@ -422,7 +422,7 @@ void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other )
 
 void TimeBlockAccumulator::reset( const TimeBlockAccumulator* other )
 {
-	mTotalTimeCounter = 0;
+	mSelfTimeCounter = 0;
 	mChildTimeCounter = 0;
 	mCalls = 0;
 	if (other)
