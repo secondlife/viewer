@@ -71,6 +71,8 @@ public:
 	BlockTimer(TimeBlock& timer);
 	~BlockTimer();
 
+	LLUnit<LLUnits::Seconds, F64> getElapsedTime();
+
 private:
 
 	U64						mStartTime;
