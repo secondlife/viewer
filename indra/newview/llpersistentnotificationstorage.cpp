@@ -75,7 +75,7 @@ void LLPersistentNotificationStorage::saveNotifications()
 			continue;
 		}
 
-		data.append(notification->asLLSD());
+		data.append(notification->asLLSD(true));
 	}
 
 	writeNotifications(output);
