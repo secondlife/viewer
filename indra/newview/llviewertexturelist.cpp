@@ -599,9 +599,11 @@ static LLFastTimer::DeclareTimer FTM_IMAGE_FETCH("Fetch");
 static LLFastTimer::DeclareTimer FTM_FAST_CACHE_IMAGE_FETCH("Fast Cache Fetch");
 static LLFastTimer::DeclareTimer FTM_IMAGE_CREATE("Create");
 static LLFastTimer::DeclareTimer FTM_IMAGE_STATS("Stats");
+static LLFastTimer::DeclareTimer FTM_UPDATE_IMAGES("Update Images");
 
 void LLViewerTextureList::updateImages(F32 max_time)
 {
+	LLFastTimer _(FTM_UPDATE_IMAGES);
 	static BOOL cleared = FALSE;
 	if(gTeleportDisplay)
 	{
