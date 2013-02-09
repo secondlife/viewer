@@ -444,7 +444,9 @@ namespace LLTrace
 		//
 		// members
 		//
-		U64							mChildTimeCounter,
+		U64							mStartChildTimeCounter,
+									mStartSelfTimeCounter,
+									mChildTimeCounter,
 									mSelfTimeCounter;
 		U32							mCalls;
 		class TimeBlock*			mParent;		// last acknowledged parent of this time block

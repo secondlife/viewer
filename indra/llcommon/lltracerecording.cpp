@@ -120,8 +120,6 @@ void Recording::syncTo(Recording& other)
 	other.mMeasurements.write()->reset(mMeasurements);
 	other.mStackTimers.write()->reset(mStackTimers);
 	other.mMemStats.write()->reset(mMemStats);
-
-	//TODO: figure out how to get seamless handoff of timing stats
 }
 
 void Recording::makePrimary()
@@ -184,12 +182,15 @@ void Recording::mergeRecording( const Recording& other)
 
 LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumulator>& stat) const
 {
-	return ((F64)(*mStackTimers)[stat.getIndex()].mSelfTimeCounter + (F64)(*mStackTimers)[stat.getIndex()].mChildTimeCounter) / (F64)LLTrace::TimeBlock::countsPerSecond();
+	const TimeBlockAccumulator& accumulator = (*mStackTimers)[stat.getIndex()];
+	return (F64)(accumulator.mSelfTimeCounter - accumulator.mStartSelfTimeCounter + accumulator.mChildTimeCounter - accumulator.mStartChildTimeCounter) 
+				/ (F64)LLTrace::TimeBlock::countsPerSecond();
 }
 
 LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat) const
 {
-	return (F64)(*mStackTimers)[stat.getIndex()].mSelfTimeCounter / (F64)LLTrace::TimeBlock::countsPerSecond();
+	const TimeBlockAccumulator& accumulator = (*mStackTimers)[stat.getIndex()];
+	return (F64)(accumulator.mSelfTimeCounter - accumulator.mStartSelfTimeCounter) / (F64)LLTrace::TimeBlock::countsPerSecond();
 }
 
 
@@ -200,12 +201,18 @@ U32 Recording::getSum(const TraceType<TimeBlockAccumulator::CallCountAspect>& st
 
 LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccumulator>& stat) const
 {
-	return ((F64)(*mStackTimers)[stat.getIndex()].mSelfTimeCounter + (F64)(*mStackTimers)[stat.getIndex()].mChildTimeCounter) / ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds);
+	const TimeBlockAccumulator& accumulator = (*mStackTimers)[stat.getIndex()];
+
+	return (F64)(accumulator.mSelfTimeCounter - accumulator.mStartSelfTimeCounter + accumulator.mChildTimeCounter - accumulator.mStartChildTimeCounter) 
+				/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds);
 }
 
 LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat) const
 {
-	return (F64)(*mStackTimers)[stat.getIndex()].mSelfTimeCounter / ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds);
+	const TimeBlockAccumulator& accumulator = (*mStackTimers)[stat.getIndex()];
+
+	return (F64)(accumulator.mSelfTimeCounter - accumulator.mStartSelfTimeCounter) 
+			/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds);
 }
 
 F32 Recording::getPerSec(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat) const
