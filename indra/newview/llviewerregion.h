@@ -169,6 +169,9 @@ public:
 	const LLVector3d &getOriginGlobal() const;
 	LLVector3 getOriginAgent() const;
 
+	//estimate weight of cache missed object
+	F32 calcObjectWeight(U32 flags);
+
 	// Center is at the height of the water table.
 	const LLVector3d &getCenterGlobal() const;
 	LLVector3 getCenterAgent() const;
@@ -316,7 +319,7 @@ public:
 	// handle a full update message
 	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp);	
 	LLVOCacheEntry* getCacheEntryForOctree(U32 local_id);
-	bool probeCache(U32 local_id, U32 crc, U8 &cache_miss_type);
+	bool probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss_type);
 	void requestCacheMisses();
 	void addCacheMissFull(const U32 local_id);
 
@@ -356,6 +359,7 @@ private:
 	F32 createVisibleObjects(F32 max_time);
 	F32 updateVisibleEntries(F32 max_time); //update visible entries
 
+	void addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type, F32 weight);
 public:
 	struct CompareDistance
 	{
@@ -441,8 +445,33 @@ private:
 	BOOL    mReleaseNotesRequested;
 	BOOL    mDead;  //if true, this region is in the process of deleting.
 
-	LLDynamicArray<U32>						mCacheMissFull;
-	LLDynamicArray<U32>						mCacheMissCRC;
+	class CacheMissItem
+	{
+	public:
+		CacheMissItem(U32 id, LLViewerRegion::eCacheMissType miss_type, F32 weight) : mID(id), mType(miss_type), mWeight(weight){}
+
+		U32                            mID;     //local object id
+		LLViewerRegion::eCacheMissType mType;   //cache miss type
+		F32                            mWeight; //importance of this object to the current camera.
+	
+		struct Compare
+		{
+			bool operator()(const CacheMissItem& lhs, const CacheMissItem& rhs)
+			{
+				if(lhs.mWeight == rhs.mWeight) //larger weight first
+				{
+					return &lhs < &rhs;
+				}
+				else 
+				{
+					return lhs.mWeight > rhs.mWeight; //larger weight first
+				}
+			}
+		};
+
+		typedef std::set<CacheMissItem, Compare> cache_miss_list_t;
+	};
+	CacheMissItem::cache_miss_list_t        mCacheMissList;
 	
 	caps_received_signal_t mCapabilitiesReceivedSignal;		
 	LLSD mSimulatorFeatures;
