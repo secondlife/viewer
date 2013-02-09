@@ -1112,27 +1112,7 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 	const std::string command_name = userdata.asString();
 	if (command_name == "delete")
 	{
-		BOOL can_delete = FALSE;
-		LLFolderView* root = getActivePanel()->getRootFolder();
-		if (root)
-		{
-			can_delete = TRUE;
-			std::set<LLFolderViewItem*> selection_set = root->getSelectionList();
-			if (selection_set.empty()) return FALSE;
-			for (std::set<LLFolderViewItem*>::iterator iter =    selection_set.begin();
-				 iter != selection_set.end();
-				 ++iter)
-			{
-				LLFolderViewItem *item = *iter;
-				const LLFolderViewModelItemInventory *listener = static_cast<const LLFolderViewModelItemInventory*>(item->getViewModelItem());
-				llassert(listener);
-				if (!listener) return FALSE;
-				can_delete &= listener->isItemRemovable();
-				can_delete &= !listener->isItemInTrash();
-			}
-			return can_delete;
-		}
-		return FALSE;
+		return getActivePanel()->isSelectionRemovable();
 	}
 	if (command_name == "save_texture")
 	{
