@@ -3,6 +3,7 @@
 <floater
  can_resize="true"
  positioning="cascading"
+ help_topic="conversation_log"
  height="200"
  min_height="100"
  min_width="230"

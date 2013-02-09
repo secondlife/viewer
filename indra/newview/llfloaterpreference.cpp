@@ -1584,7 +1584,7 @@ void LLFloaterPreference::onDeleteTranscriptsResponse(const LLSD& notification, 
 {
 	if (0 == LLNotificationsUtil::getSelectedOption(notification, response))
 	{
-		LLConversationLog::instance().deleteTranscripts();
+		LLLogChat::deleteTranscripts();
 		updateDeleteTranscriptsButton();
 	}
 }

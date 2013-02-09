@@ -872,8 +872,15 @@ void LLToolBar::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 void LLToolBar::createButtons()
 {
+	std::set<LLUUID> set_flashing;
+
 	BOOST_FOREACH(LLToolBarButton* button, mButtons)
 	{
+        if (button->getFlashTimer() && button->getFlashTimer()->isFlashingInProgress())
+        {
+        	set_flashing.insert(button->getCommandId().uuid());
+        }
+
 		if (mButtonRemoveSignal)
 		{
 			(*mButtonRemoveSignal)(button);
@@ -895,6 +902,11 @@ void LLToolBar::createButtons()
 		if (mButtonAddSignal)
 		{
 			(*mButtonAddSignal)(button);
+		}
+
+		if (set_flashing.find(button->getCommandId().uuid()) != set_flashing.end())
+		{
+			button->setFlashing(true);
 		}
 	}
 	mNeedsLayout = true;

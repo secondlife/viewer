@@ -180,9 +180,6 @@ public:
 	virtual BOOL	canPaste() const;
 	virtual void	paste();
 
-	virtual BOOL	canDoDelete() const;
-	virtual void	doDelete();
-
 	LLFolderViewItem* getNextUnselectedItem();
 
 	// Public rename functionality - can only start the process

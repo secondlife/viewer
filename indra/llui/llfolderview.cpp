@@ -1275,20 +1275,6 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 		break;
 	}
 
-	if (!handled && mParentPanel->hasFocus())
-	{
-		if (key == KEY_BACKSPACE)
-		{
-			mSearchTimer.reset();
-			if (mSearchString.size())
-			{
-				mSearchString.erase(mSearchString.size() - 1, 1);
-			}
-			search(getCurSelectedItem(), mSearchString, FALSE);
-			handled = TRUE;
-		}
-	}
-
 	return handled;
 }
 
@@ -1333,29 +1319,6 @@ BOOL LLFolderView::handleUnicodeCharHere(llwchar uni_char)
 	}
 
 	return handled;
-}
-
-
-BOOL LLFolderView::canDoDelete() const
-{
-	if (mSelectedItems.size() == 0) return FALSE;
-
-	for (selected_items_t::const_iterator item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
-	{
-		if (!(*item_it)->getViewModelItem()->isItemRemovable())
-		{
-			return FALSE;
-		}
-	}
-	return TRUE;
-}
-
-void LLFolderView::doDelete()
-{
-	if(mSelectedItems.size() > 0)
-	{				
-		removeSelectedItems();
-	}
 }
 
 

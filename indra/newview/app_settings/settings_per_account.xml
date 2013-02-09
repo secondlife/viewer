@@ -281,6 +281,17 @@
         <key>Value</key>
             <integer>0</integer>
         </map>
+    <key>KeepConversationLogTranscripts</key>
+    	<map>
+      	<key>Comment</key>
+      		<string>Keep a conversation log and transcripts</string>
+      	<key>Persist</key>
+      		<integer>1</integer>
+      	<key>Type</key>
+      		<string>S32</string>
+      	<key>Value</key>
+      		<integer>2</integer>
+    	</map>    
     <key>ShowFavoritesOnLogin</key>
         <map>
         <key>Comment</key>
