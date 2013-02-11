@@ -4812,7 +4812,7 @@ void LLAppViewer::idleExperienceCache()
 	if (!region) return;
 	
 	std::string lookup_url=region->getCapability("GetExperienceInfo"); 
-	if(!lookup_url.empty() && lookup_url.back() != '/')
+	if(!lookup_url.empty() && *lookup_url.rbegin() != '/')
 	{
 		lookup_url += '/';
 	}
