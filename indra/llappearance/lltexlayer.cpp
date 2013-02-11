@@ -932,7 +932,45 @@ LLWearableType::EType LLTexLayerInterface::getWearableType() const
 	ETextureIndex te = getLocalTextureIndex();
 	if (TEX_INVALID == te)
 	{
-		return LLWearableType::WT_INVALID;
+		LLWearableType::EType type = LLWearableType::WT_INVALID;
+		param_color_list_t::const_iterator color_iter = mParamColorList.begin();
+		param_alpha_list_t::const_iterator alpha_iter = mParamAlphaList.begin();
+
+		for (; color_iter != mParamColorList.end(); color_iter++)
+		{
+			LLTexLayerParamColor* param = *color_iter;
+			if (param) 
+			{
+				LLWearableType::EType new_type = (LLWearableType::EType)param->getWearableType();
+				if (new_type != LLWearableType::WT_INVALID && new_type != type) 
+				{
+					if (type != LLWearableType::WT_INVALID) 
+					{
+						return LLWearableType::WT_INVALID;
+					}
+					type = new_type;
+				}
+			}
+		}
+
+		for (; alpha_iter != mParamAlphaList.end(); alpha_iter++)
+		{
+			LLTexLayerParamAlpha* param = *alpha_iter;
+			if (param) 
+			{
+				LLWearableType::EType new_type = (LLWearableType::EType)param->getWearableType();
+				if (new_type != LLWearableType::WT_INVALID && new_type != type) 
+				{
+					if (type != LLWearableType::WT_INVALID) 
+					{
+						return LLWearableType::WT_INVALID;
+					}
+					type = new_type;
+				}
+			}
+		}
+
+		return type;
 	}
 	return LLAvatarAppearanceDictionary::getTEWearableType(te);
 }
