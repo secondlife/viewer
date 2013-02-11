@@ -276,7 +276,7 @@ void LLConversationLog::updateConversationName(const LLIMModel::LLIMSession* ses
 	LLConversation* conversation = findConversation(session);
 	if (conversation)
 	{
-		conversation->setConverstionName(name);
+		conversation->setConversationName(name);
 		notifyParticularConversationObservers(conversation->getSessionID(), LLConversationLogObserver::CHANGED_NAME);
 	}
 }
@@ -378,7 +378,7 @@ void LLConversationLog::cache()
 std::string LLConversationLog::getFileName()
 {
 	std::string filename = "conversation";
-	return gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, filename) + ".log";
+	return gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS, filename) + ".log";
 }
 
 bool LLConversationLog::saveToFile(const std::string& filename)
