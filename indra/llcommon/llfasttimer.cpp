@@ -256,16 +256,12 @@ void TimeBlock::processTimes()
 	while(cur_timer && cur_timer->mParentTimerData.mActiveTimer != cur_timer)
 	{
 		U64 cumulative_time_delta = cur_time - cur_timer->mStartTime;
-		U64 child_time = stack_record->mChildTime 
-			- (accumulator->mSelfTimeCounter - cur_timer->mStartSelfTimeCounter)
-			- (accumulator->mChildTimeCounter - cur_timer->mStartChildTimeCounter);
-		accumulator->mChildTimeCounter += child_time;
-		accumulator->mSelfTimeCounter += cumulative_time_delta - child_time;
+		accumulator->mTotalTimeCounter += cumulative_time_delta - (accumulator->mTotalTimeCounter - accumulator->mStartTotalTimeCounter);
+		accumulator->mSelfTimeCounter += cumulative_time_delta - stack_record->mChildTime;
 		stack_record->mChildTime = 0;
 
 		cur_timer->mStartTime = cur_time;
-		cur_timer->mStartSelfTimeCounter = accumulator->mSelfTimeCounter;
-		cur_timer->mStartChildTimeCounter = accumulator->mChildTimeCounter;
+		cur_timer->mStartTotalTimeCounter = accumulator->mTotalTimeCounter;
 
 		stack_record = &cur_timer->mParentTimerData;
 		accumulator = stack_record->mTimeBlock->getPrimaryAccumulator();
@@ -404,10 +400,9 @@ void TimeBlock::writeLog(std::ostream& os)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TimeBlockAccumulator::TimeBlockAccumulator() 
-:	mChildTimeCounter(0),
+:	mTotalTimeCounter(0),
 	mSelfTimeCounter(0),
-	mStartChildTimeCounter(0),
-	mStartSelfTimeCounter(0),
+	mStartTotalTimeCounter(0),
 	mCalls(0),
 	mLastCaller(NULL),
 	mActiveCount(0),
@@ -417,8 +412,8 @@ TimeBlockAccumulator::TimeBlockAccumulator()
 
 void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other )
 {
-	mChildTimeCounter += other.mChildTimeCounter - other.mStartChildTimeCounter;
-	mSelfTimeCounter += other.mSelfTimeCounter - other.mStartSelfTimeCounter;
+	mTotalTimeCounter += other.mTotalTimeCounter - other.mStartTotalTimeCounter;
+	mSelfTimeCounter += other.mSelfTimeCounter;
 	mCalls += other.mCalls;
 	mLastCaller = other.mLastCaller;
 	mActiveCount = other.mActiveCount;
@@ -429,12 +424,12 @@ void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other )
 void TimeBlockAccumulator::reset( const TimeBlockAccumulator* other )
 {
 	mCalls = 0;
+	mSelfTimeCounter = 0;
+
 	if (other)
 	{
-		mStartSelfTimeCounter = other->mSelfTimeCounter;
-		mSelfTimeCounter = mStartSelfTimeCounter;
-		mStartChildTimeCounter = other->mChildTimeCounter;
-		mChildTimeCounter = mStartChildTimeCounter;
+		mStartTotalTimeCounter = other->mTotalTimeCounter;
+		mTotalTimeCounter = mStartTotalTimeCounter;
 
 		mLastCaller = other->mLastCaller;
 		mActiveCount = other->mActiveCount;
@@ -443,8 +438,7 @@ void TimeBlockAccumulator::reset( const TimeBlockAccumulator* other )
 	}
 	else
 	{
-		mStartSelfTimeCounter = mSelfTimeCounter;
-		mStartChildTimeCounter = mChildTimeCounter;
+		mStartTotalTimeCounter = mTotalTimeCounter;
 	}
 }
 
