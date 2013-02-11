@@ -61,8 +61,8 @@ public:
 		TT_DOUBLE_QUOTATION_MARKS,
 		// Following constants are more specific versions of the preceding ones
 		TT_CONSTANT,						// WORD
+		TT_CONTROL,							// WORD
 		TT_EVENT,							// WORD
-		TT_FLOW,							// WORD
 		TT_FUNCTION,						// WORD
 		TT_LABEL,							// LINE
 		TT_SECTION,							// WORD

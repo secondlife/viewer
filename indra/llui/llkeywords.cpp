@@ -111,8 +111,8 @@ void LLKeywords::addToken(LLKeywordToken::TOKEN_TYPE type,
 	switch(type)
 	{
 	case LLKeywordToken::TT_CONSTANT:
+	case LLKeywordToken::TT_CONTROL:
 	case LLKeywordToken::TT_EVENT:
-	case LLKeywordToken::TT_FLOW:
 	case LLKeywordToken::TT_FUNCTION:
 	case LLKeywordToken::TT_LABEL:
 	case LLKeywordToken::TT_SECTION:
@@ -139,23 +139,23 @@ void LLKeywords::addToken(LLKeywordToken::TOKEN_TYPE type,
 std::string LLKeywords::getArguments(LLSD& arguments)
 {
 	std::string args = "";
-	if (arguments.isArray())
+	if (arguments.isMap())
 	{
-		int count = 0;
-		do
+		int count = arguments.size();
+		LLSD::map_iterator argsIt = arguments.beginMap();
+		for ( ; argsIt != arguments.endMap(); ++argsIt)
 		{
-			LLSD arg = arguments[count];
-			args += arg.get("type").asString() + " " + arg.get("name").asString();
-			++count;
-			if (arguments.size() - count > 0)
-			{
-				args += ", ";
-			}
-		} while (count < arguments.size());
+				LLSD arg = argsIt->second;
+				args += arg.get("type").asString() + " " + argsIt->first;
+				if (count-- > 1)
+				{
+					args += ", ";
+				}
+		}
 	}
-	else
+	else if (!arguments.isUndefined())
 	{
-		LL_WARNS("Arguments") << "Not an array! Invalid LLSD passed to function.\n" << arguments << LL_ENDL;
+		LL_WARNS("Arguments") << "Not a map! Invalid LLSD passed to function.\n" << arguments << LL_ENDL;
 	}
 	return args == "" ? " void " : args;
 }
@@ -305,7 +305,7 @@ void LLKeywords::processTokens()
 {
 	// Add 'standard' stuff: Quotes, Comments, Strings, Labels, etc. before processing the LLSD
 	std::string delimiter;
-	addToken(LLKeywordToken::TT_LINE, "@", getColorGroup("misc-flow-label"), "Label\nTarget for jump statement", delimiter );
+	addToken(LLKeywordToken::TT_LABEL, "@", getColorGroup("label"), "Label\nTarget for jump statement", delimiter );
 	addToken(LLKeywordToken::TT_ONE_SIDED_DELIMITER, "//", getColorGroup("misc-comments_1_sided"), "Comment\nNon-functional commentary or disabled code", delimiter );
 	addToken(LLKeywordToken::TT_TWO_SIDED_DELIMITER, "/*", getColorGroup("misc-comments_2_sided"), "Comment\nNon-functional commentary or disabled code (multi-line)", "*/" );
 	addToken(LLKeywordToken::TT_DOUBLE_QUOTATION_MARKS, "\"", getColorGroup("misc-double_quotation_marks"), "String literal", "\"" );
@@ -323,6 +323,17 @@ void LLKeywords::processTokens()
 			else
 			{
 				LL_ERRS("Tokens-Constants") << "No constants map to process!" << LL_ENDL;
+			}
+		}
+		else if (outerIt->first == "controls")
+		{
+			if (outerIt->second.isMap())
+			{
+				processTokensGroup(outerIt->second, "controls");
+			}
+			else
+			{
+				LL_ERRS("Tokens-Controls") << "No controls map to process!" << LL_ENDL;
 			}
 		}
 		else if(outerIt->first == "misc")
@@ -364,7 +375,7 @@ void LLKeywords::processTokens()
 		}
 		else if(outerIt->first == "types")
 		{
-			if (outerIt->second.isArray())
+			if (outerIt->second.isMap())
 			{
 				processTokensGroup(outerIt->second, "types");
 			}
@@ -392,50 +403,51 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 	{
 		token_type = LLKeywordToken::TT_CONSTANT;
 	}
+	else if (Group == "controls")
+	{
+		token_type = LLKeywordToken::TT_CONTROL;
+	}
 	else if (Group == "events")
 	{
 		token_type = LLKeywordToken::TT_EVENT;
-	}
-	else if (Group == "misc-flow-control")
-	{
-		token_type = LLKeywordToken::TT_FLOW;
 	}
 	else if (Group == "functions")
 	{
 		token_type = LLKeywordToken::TT_FUNCTION;
 	}
-	else if (Group == "misc-flow-label")
+	else if (Group == "label")
 	{
 		token_type = LLKeywordToken::TT_LABEL;
-	}
-	else if (Group == "misc-sections")
-	{
-		token_type = LLKeywordToken::TT_SECTION;
 	}
 	else if (Group == "types")
 	{
 		token_type = LLKeywordToken::TT_TYPE;
 	}
 
-	if (Tokens.isMap())		// constants, events, functions, and misc
+	if (Tokens.isMap())
 	{
 		LLSD::map_iterator outerIt = Tokens.beginMap();
 		for ( ; outerIt != Tokens.endMap(); ++outerIt)
 		{
+			Color = getColorGroup(Group);
 			if (outerIt->second.isMap())
 			{
 				mAttributes.clear();
+				bool deprecated = false;
 				LLSD arguments = LLSD ();
 				LLSD::map_iterator innerIt = outerIt->second.beginMap();
 				for ( ; innerIt != outerIt->second.endMap(); ++innerIt)
 				{
-					if (innerIt->first != "arguments")
+					if (innerIt->first == "arguments")
+					{ 
+						if (innerIt->second.isMap())
+						{
+							arguments = innerIt->second;
+						}
+					}
+					else
 					{
 						mAttributes[innerIt->first] = innerIt->second.asString();
-					}
-					else if (innerIt->second.isArray())
-					{
-						arguments = innerIt->second;
 					}
 				}
 
@@ -449,10 +461,6 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 				{
 					tooltip = outerIt->first + "(" + getArguments(arguments) + ")";
 				}
-				else if (token_type == LLKeywordToken::TT_FLOW)
-				{
-					tooltip = "flow baby";
-				}
 				else if (token_type == LLKeywordToken::TT_FUNCTION)
 				{
 					tooltip = getAttribute("return") + " " + outerIt->first + "(" + getArguments(arguments) + ");";
@@ -463,25 +471,26 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 						tooltip += ", Sleep: " + getAttribute("sleep");
 					}
 				}
-				else if (token_type == LLKeywordToken::TT_SECTION)
+
+				if (getAttribute("tooltip") != "")
 				{
-					tooltip = "section";
+					if (tooltip != "")
+					{
+						tooltip += "\n";
+					}
+					tooltip += getAttribute("tooltip");
 				}
 
-				if (getAttribute("summry") != "")
+				deprecated = getAttribute("deprecated") == "true" ? true : false;
+				if (deprecated)
 				{
-					tooltip += "\n" + getAttribute("summary");
+					Color = getColorGroup("deprecated");
 				}
-				else if (getAttribute("description") != "")
-				{
-					tooltip += "\n" + getAttribute("description");
-				}
-
 				addToken(token_type, outerIt->first, Color, tooltip);
 			}
 		}
 	}
-	else if (Tokens.isArray())	// types
+	else if (Tokens.isArray())	// Currently nothing should need this, but it's here for completeness
 	{
 		for (int count = 0; count < Tokens.size(); ++count)
 		{
