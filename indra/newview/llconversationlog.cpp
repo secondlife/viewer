@@ -276,7 +276,7 @@ void LLConversationLog::updateConversationName(const LLIMModel::LLIMSession* ses
 	LLConversation* conversation = findConversation(session);
 	if (conversation)
 	{
-		conversation->setConverstionName(name);
+		conversation->setConversationName(name);
 		notifyParticularConversationObservers(conversation->getSessionID(), LLConversationLogObserver::CHANGED_NAME);
 	}
 }
