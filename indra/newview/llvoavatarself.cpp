@@ -2275,7 +2275,7 @@ bool operator<(const LLSD& a, const LLSD& b)
 // Given a vector of LLSD records, return an LLSD array of bucketed stats for val_field.
 LLSD summarize_by_buckets(std::vector<LLSD> in_records,
 						  std::vector<std::string> by_fields,
-						  std::string& val_field)
+						  std::string val_field)
 {
 	LLSD result = LLSD::emptyArray();
 	std::map<LLSD,LLViewerStats::StatsAccumulator> accum;
