@@ -92,17 +92,21 @@ static const U64 region2_handle(0x0000030000004200ULL);
 static const std::string region1_handle_str("0000040000003f00");
 static const std::string region2_handle_str("0000030000004200");
 
+#if 0
 static bool
 is_empty_map(const LLSD & sd)
 {
 	return sd.isMap() && 0 == sd.size();
 }
+#endif
 
+#if 0
 static bool
 is_single_key_map(const LLSD & sd, const std::string & key)
 {
 	return sd.isMap() && 1 == sd.size() && sd.has(key);
 }
+#endif
 
 static bool
 is_double_key_map(const LLSD & sd, const std::string & key1, const std::string & key2)
@@ -110,11 +114,13 @@ is_double_key_map(const LLSD & sd, const std::string & key1, const std::string &
 	return sd.isMap() && 2 == sd.size() && sd.has(key1) && sd.has(key2);
 }
 
+#if 0
 static bool
 is_triple_key_map(const LLSD & sd, const std::string & key1, const std::string & key2, const std::string& key3)
 {
 	return sd.isMap() && 3 == sd.size() && sd.has(key1) && sd.has(key2) && sd.has(key3);
 }
+#endif
 
 
 static bool
