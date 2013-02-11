@@ -72,7 +72,8 @@
 
 static const U32 EASY_HANDLE_POOL_SIZE		= 5;
 static const S32 MULTI_PERFORM_CALL_REPEAT	= 5;
-static const S32 CURL_REQUEST_TIMEOUT = 30; // seconds per operation
+static const S32 CURL_REQUEST_TIMEOUT = 120; // seconds per operation
+static const S32 CURL_CONNECT_TIMEOUT = 30; //seconds to wait for a connection
 static const S32 MAX_ACTIVE_REQUEST_COUNT = 100;
 
 // DEBUG //
@@ -515,6 +516,7 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 	//don't verify host name so urls with scrubbed host names will work (improves DNS performance)
 	setopt(CURLOPT_SSL_VERIFYHOST, 0);
 	setopt(CURLOPT_TIMEOUT, llmax(time_out, CURL_REQUEST_TIMEOUT));
+	setopt(CURLOPT_CONNECTTIMEOUT, CURL_CONNECT_TIMEOUT);
 
 	setoptString(CURLOPT_URL, url);
 
