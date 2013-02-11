@@ -152,19 +152,6 @@
      width="80">
         Mid
     </text>
-  <text
-     type="string"
-     length="1"
-     follows="left|top"
-     halign="center"
-     height="12"
-     layout="topleft"
-     left_delta="87"
-     name="ShadersPrefText3"
-     top_delta="0"
-     width="80">
-      High
-  </text>
     <text
      type="string"
      length="1"
