@@ -598,7 +598,8 @@ protected:
 	// selection
 	S32							mSelectionStart;
 	S32							mSelectionEnd;
-	
+	LLTimer		                mTripleClickTimer;
+
 	BOOL						mIsSelecting;		// Are we in the middle of a drag-select? 
 
 	// spell checking

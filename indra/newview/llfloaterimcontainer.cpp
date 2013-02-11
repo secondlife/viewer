@@ -62,7 +62,8 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
 	mExpandCollapseBtn(NULL),
 	mConversationsRoot(NULL),
 	mConversationsEventStream("ConversationsEvents"),
-	mInitialized(false)
+	mInitialized(false),
+	mIsFirstLaunch(false)
 {
     mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLFloaterIMContainer::isActionChecked, this, _2));
 	mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLFloaterIMContainer::onCustomAction,  this, _2));
@@ -243,6 +244,7 @@ BOOL LLFloaterIMContainer::postBuild()
 	mGeneralTitle = getTitle();
 	
 	mInitialized = true;
+	mIsFirstLaunch = true;
 
 	// Add callbacks:
 	// We'll take care of view updates on idle
@@ -273,14 +275,19 @@ void LLFloaterIMContainer::addFloater(LLFloater* floaterp,
 		openFloater(floaterp->getKey());
 		return;
 	}
+
+	LLUUID session_id = floaterp->getKey();
 	
 	// Make sure the message panel is open when adding a floater or it stays mysteriously hidden
-	collapseMessagesPane(false);
+	if (!mIsFirstLaunch)
+	{
+		collapseMessagesPane(false);
+	}
 
 	// Add the floater
 	LLMultiFloater::addFloater(floaterp, select_added_floater, insertion_point);
 
-	LLUUID session_id = floaterp->getKey();
+
 	
 	LLIconCtrl* icon = 0;
 
@@ -627,6 +634,12 @@ void LLFloaterIMContainer::collapseMessagesPane(bool collapse)
 {
 	if (mMessagesPane->isCollapsed() == collapse)
 	{
+		return;
+	}
+
+	if (mIsFirstLaunch)
+	{
+		mIsFirstLaunch = false;
 		return;
 	}
 
@@ -1756,7 +1769,7 @@ void LLFloaterIMContainer::openNearbyChat()
 {
 	// If there's only one conversation in the container and that conversation is the nearby chat
 	//(which it should be...), open it so to make the list of participants visible. This happens to be the most common case when opening the Chat floater.
-	if(mConversationsItems.size() == 1)
+	if((mConversationsItems.size() == 1)&&(!mConversationsPane->isCollapsed()))
 	{
 		LLConversationViewSession* nearby_chat = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,LLUUID()));
 		if (nearby_chat)

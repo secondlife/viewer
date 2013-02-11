@@ -1370,7 +1370,7 @@ BOOL LLInventoryPanel::handleKeyHere( KEY key, MASK mask )
 	case KEY_BACKSPACE:
 		// Delete selected items if delete or backspace key hit on the inventory panel
 		// Note: on Mac laptop keyboards, backspace and delete are one and the same
-		if (mask == MASK_NONE)
+		if (isSelectionRemovable() && (mask == MASK_NONE))
 		{
 			LLInventoryAction::doToSelected(mInventory, mFolderRoot, "delete");
 			handled = TRUE;
@@ -1378,6 +1378,35 @@ BOOL LLInventoryPanel::handleKeyHere( KEY key, MASK mask )
 		break;
 	}
 	return handled;
+}
+
+bool LLInventoryPanel::isSelectionRemovable()
+{
+	bool can_delete = false;
+	if (mFolderRoot)
+	{
+		std::set<LLFolderViewItem*> selection_set = mFolderRoot->getSelectionList();
+		if (!selection_set.empty()) 
+		{
+			can_delete = true;
+			for (std::set<LLFolderViewItem*>::iterator iter = selection_set.begin();
+				 iter != selection_set.end();
+				 ++iter)
+			{
+				LLFolderViewItem *item = *iter;
+				const LLFolderViewModelItemInventory *listener = static_cast<const LLFolderViewModelItemInventory*>(item->getViewModelItem());
+				if (!listener)
+				{
+					can_delete = false;
+				}
+				else
+				{
+					can_delete &= listener->isItemRemovable() && !listener->isItemInTrash();
+				}
+			}
+		}
+	}
+	return can_delete;
 }
 
 /************************************************************************/
