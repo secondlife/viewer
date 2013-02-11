@@ -46,6 +46,7 @@
 
 const F32	CURSOR_FLASH_DELAY = 1.0f;  // in seconds
 const S32	CURSOR_THICKNESS = 2;
+const F32	TRIPLE_CLICK_INTERVAL = 0.3f;	// delay between double and triple click.
 
 LLTextBase::line_info::line_info(S32 index_start, S32 index_end, LLRect rect, S32 line_num) 
 :	mDocIndexStart(index_start), 
@@ -1004,6 +1005,13 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
 
 BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
 {
+	// handle triple click
+	if (!mTripleClickTimer.hasExpired())
+	{
+		selectAll();
+		return TRUE;
+	}
+
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleMouseDown(x, y, mask))
 	{
@@ -1078,6 +1086,7 @@ BOOL LLTextBase::handleRightMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL LLTextBase::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
+	mTripleClickTimer.setTimerExpirySec(TRIPLE_CLICK_INTERVAL);
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleDoubleClick(x, y, mask))
 	{
