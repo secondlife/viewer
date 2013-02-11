@@ -285,7 +285,6 @@ public:
 	{
 	private:
 		phase_map_t mPhaseMap;
-		static phase_stats_t sStats;
 	public:
 		PhaseMap();
 		LLTimer&	 	getPhaseTimer(const std::string& phase_name);
@@ -294,8 +293,6 @@ public:
 		void			stopPhase(const std::string& phase_name);
 		void			clearPhases();
 		LLSD			dumpPhases();
-		static StatsAccumulator& getPhaseStats(const std::string& phase_name);
-		static void recordPhaseStat(const std::string& phase_name, F32 value);
 		phase_map_t::iterator begin() { return mPhaseMap.begin(); }
 		phase_map_t::iterator end() { return mPhaseMap.end(); }
 	};

@@ -764,7 +764,6 @@ void LLViewerStats::PhaseMap::stopPhase(const std::string& phase_name)
 		if (iter->second.getStarted())
 		{
 			// Going from started to paused state - record stats.
-			recordPhaseStat(phase_name,iter->second.getElapsedTimeF32());
 			iter->second.stop();
 		}
 	}
@@ -803,27 +802,3 @@ LLSD LLViewerStats::PhaseMap::dumpPhases()
 	}
 	return result;
 }
-
-// static initializer
-//static
-LLViewerStats::phase_stats_t LLViewerStats::PhaseMap::sStats;
-
-// static
-LLViewerStats::StatsAccumulator& LLViewerStats::PhaseMap::getPhaseStats(const std::string& phase_name)
-{
-	phase_stats_t::iterator it = sStats.find(phase_name);
-	if (it == sStats.end())
-	{
-		LLViewerStats::StatsAccumulator new_stats;
-		sStats[phase_name] = new_stats;
-	}
-	return sStats[phase_name];
-}
-
-// static
-void LLViewerStats::PhaseMap::recordPhaseStat(const std::string& phase_name, F32 value)
-{
-	LLViewerStats::StatsAccumulator& stats = getPhaseStats(phase_name);
-	stats.push(value);
-}
-

@@ -4410,7 +4410,6 @@ void LLAppViewer::idle()
 			// The 5-second interval is nice for this purpose.  If the object debug
 			// bit moves or is disabled, please give this a suitable home.
 			LLViewerAssetStatsFF::record_fps_main(gFPSClamped);
-			LLViewerAssetStatsFF::record_avatar_stats();
 		}
 	}
 

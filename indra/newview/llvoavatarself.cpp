@@ -2236,7 +2236,12 @@ private:
 
 bool LLVOAvatarSelf::updateAvatarRezMetrics(bool force_send)
 {
-	F32 send_period = 30.0;
+	const F32 AV_METRICS_INTERVAL_QA = 30.0;
+	F32 send_period = 300.0;
+	if (gSavedSettings.getBOOL("QAModeMetrics"))
+	{
+		send_period = AV_METRICS_INTERVAL_QA;
+	}
 
 	if (force_send || mTimeSinceLastRezMessage.getElapsedTimeF32() > send_period)
 	{
@@ -2260,7 +2265,10 @@ bool operator<(const LLSD& a, const LLSD& b)
 	std::ostringstream aout, bout;
 	aout << LLSDNotationStreamer(a);
 	bout << LLSDNotationStreamer(b);
-	return aout.str() < bout.str();
+	std::string astring = aout.str();
+	std::string bstring = bout.str();
+
+	return astring < bstring;
 
 }
 
@@ -2281,10 +2289,10 @@ LLSD summarize_by_buckets(std::vector<LLSD> in_records,
 		{
 			const std::string& field = *field_iter;
 			key[field] = record[field];
-			LLViewerStats::StatsAccumulator& stats = accum[key];
-			F32 value = record[val_field].asReal();
-			stats.push(value);
 		}
+		LLViewerStats::StatsAccumulator& stats = accum[key];
+		F32 value = record[val_field].asReal();
+		stats.push(value);
 	}
 	for (std::map<LLSD,LLViewerStats::StatsAccumulator>::iterator accum_it = accum.begin();
 		 accum_it != accum.end(); ++accum_it)
@@ -2331,9 +2339,9 @@ void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
 	by_fields.push_back("completed");
 	by_fields.push_back("grid_x");
 	by_fields.push_back("grid_y");
-	by_fields.push_back("is_using_server_bake");
+	by_fields.push_back("is_using_server_bakes");
 	by_fields.push_back("is_self");
-	by_fields.push_back("cbv");
+	by_fields.push_back("central_bake_version");
 	LLSD summary = summarize_by_buckets(mPendingTimerRecords, by_fields, std::string("elapsed"));
 	msg["timers"] = summary;
 
