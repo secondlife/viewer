@@ -1769,7 +1769,7 @@ void LLFloaterIMContainer::openNearbyChat()
 {
 	// If there's only one conversation in the container and that conversation is the nearby chat
 	//(which it should be...), open it so to make the list of participants visible. This happens to be the most common case when opening the Chat floater.
-	if(mConversationsItems.size() == 1)
+	if((mConversationsItems.size() == 1)&&(!mConversationsPane->isCollapsed()))
 	{
 		LLConversationViewSession* nearby_chat = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,LLUUID()));
 		if (nearby_chat)
