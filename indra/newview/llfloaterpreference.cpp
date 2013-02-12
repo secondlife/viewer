@@ -646,6 +646,9 @@ void LLFloaterPreference::cancel()
 		LLFloaterPathfindingConsole* pPathfindingConsole = pathfindingConsoleHandle.get();
 		pPathfindingConsole->onRegionBoundaryCross();
 	}
+
+	std::string dir_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
+	updateLogLocation(dir_name);
 }
 
 void LLFloaterPreference::onOpen(const LLSD& key)
@@ -1443,16 +1446,20 @@ void LLFloaterPreference::onClickLogPath()
 
 	std::string dir_name = picker.getDirName();
 	gSavedPerAccountSettings.setString("InstantMessageLogPath", dir_name);
+	updateLogLocation(dir_name);
 	
+	// enable/disable 'Delete transcripts button
+	updateDeleteTranscriptsButton();
+}
+
+void LLFloaterPreference::updateLogLocation(const std::string& dir_name)
+{
 	gDirUtilp->setChatLogsDir(dir_name);
 	gDirUtilp->updatePerAccountChatLogsDir();
 	LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 
 	// refresh IM floaters with new logs from files from new selected directory
 	LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
-
-	// enable/disable 'Delete transcripts button
-	updateDeleteTranscriptsButton();
 }
 
 void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im_via_email)
