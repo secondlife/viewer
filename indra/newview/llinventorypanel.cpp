@@ -1401,8 +1401,7 @@ bool LLInventoryPanel::isSelectionRemovable()
 				}
 				else
 				{
-					can_delete &= listener->isItemRemovable();
-					can_delete &= !listener->isItemInTrash();
+					can_delete &= listener->isItemRemovable() && !listener->isItemInTrash();
 				}
 			}
 		}

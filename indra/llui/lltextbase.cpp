@@ -46,6 +46,7 @@
 
 const F32	CURSOR_FLASH_DELAY = 1.0f;  // in seconds
 const S32	CURSOR_THICKNESS = 2;
+const F32	TRIPLE_CLICK_INTERVAL = 0.3f;	// delay between double and triple click.
 
 LLTextBase::line_info::line_info(S32 index_start, S32 index_end, LLRect rect, S32 line_num) 
 :	mDocIndexStart(index_start), 
@@ -605,7 +606,8 @@ void LLTextBase::drawText()
 
 				// Find the start of the first word
 				U32 word_start = seg_start, word_end = -1;
-				while ( (word_start < wstrText.length()) && (!LLStringOps::isAlpha(wstrText[word_start])) )
+				U32 text_length = wstrText.length();
+				while ( (word_start < text_length) && (!LLStringOps::isAlpha(wstrText[word_start])) )
 				{
 					word_start++;
 				}
@@ -627,11 +629,15 @@ void LLTextBase::drawText()
 						break;
 					}
 
-					// Don't process words shorter than 3 characters
-					std::string word = wstring_to_utf8str(wstrText.substr(word_start, word_end - word_start));
-					if ( (word.length() >= 3) && (!LLSpellChecker::instance().checkSpelling(word)) )
+					if (word_start < text_length && word_end <= text_length && word_end > word_start)
 					{
-						mMisspellRanges.push_back(std::pair<U32, U32>(word_start, word_end));
+						std::string word = wstring_to_utf8str(wstrText.substr(word_start, word_end - word_start));
+
+						// Don't process words shorter than 3 characters
+						if ( (word.length() >= 3) && (!LLSpellChecker::instance().checkSpelling(word)) )
+						{
+							mMisspellRanges.push_back(std::pair<U32, U32>(word_start, word_end));
+						}
 					}
 
 					// Find the start of the next word
@@ -999,6 +1005,13 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
 
 BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
 {
+	// handle triple click
+	if (!mTripleClickTimer.hasExpired())
+	{
+		selectAll();
+		return TRUE;
+	}
+
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleMouseDown(x, y, mask))
 	{
@@ -1073,6 +1086,7 @@ BOOL LLTextBase::handleRightMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL LLTextBase::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
+	mTripleClickTimer.setTimerExpirySec(TRIPLE_CLICK_INTERVAL);
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleDoubleClick(x, y, mask))
 	{

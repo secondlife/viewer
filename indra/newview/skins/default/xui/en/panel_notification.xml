@@ -22,7 +22,7 @@
     background_visible="true"
   bg_alpha_color="ToastBackground"
   bg_opaque_color="ToastBackground"
-    follows="all"
+    follows="left|right|top"
     height="100"
     label="info_panel"
     layout="topleft"

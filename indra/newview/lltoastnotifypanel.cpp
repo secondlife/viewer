@@ -403,6 +403,9 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
         }
     }
 
+	//.xml file intially makes info panel only follow left/right/top. This is so that when control buttons are added the info panel 
+	//can shift upward making room for the buttons inside mControlPanel. After the buttons are added, the info panel can then be set to follow 'all'.
+	mInfoPanel->setFollowsAll();
     snapToMessageHeight(mTextBox, MAX_LENGTH);
 }
 

@@ -66,6 +66,7 @@
 #include "lltoolbarview.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
+#include "llconversationlog.h"
 #include "message.h"
 
 
@@ -950,6 +951,7 @@ bool LLIMModel::logToFile(const std::string& file_name, const std::string& from,
 		}
 
 		LLLogChat::saveHistory(file_name, from_name, from_id, utf8_text);
+		LLConversationLog::instance().cache(); // update the conversation log too
 		return true;
 	}
 	else
