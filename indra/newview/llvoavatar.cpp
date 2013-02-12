@@ -2908,7 +2908,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		bool all_baked_downloaded = allBakedTexturesCompletelyDownloaded();
 		bool all_local_downloaded = allLocalTexturesCompletelyDownloaded();
 		std::string debug_line = llformat("%s%s - mLocal: %d, mEdit: %d, mUSB: %d, CBV: %d",
-										  all_local_downloaded ? "L" : "l",
+										  isSelf() ? (all_local_downloaded ? "L" : "l") : "-",
 										  all_baked_downloaded ? "B" : "b",
 										  mUseLocalAppearance, mIsEditingAppearance,
 										  mUseServerBakes, central_bake_version);

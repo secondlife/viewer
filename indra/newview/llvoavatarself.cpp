@@ -99,7 +99,6 @@ void selfClearPhases()
 	if (isAgentAvatarValid())
 	{
 		gAgentAvatarp->clearPhases();
-		//gAgentAvatarp->mLastRezzedStatus = -1;
 	}
 }
 
