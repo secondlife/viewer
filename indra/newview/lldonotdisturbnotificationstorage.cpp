@@ -164,22 +164,32 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
         {
             offerExists = true;
         }
-
-        //New notification needs to be added
-        notification = (LLNotificationPtr) new LLNotification(notification_params.with("is_dnd", true));
-		LLNotificationResponderInterface* responder = createResponder(notification_params["responder_sd"]["responder_type"], notification_params["responder_sd"]);
-		if (responder == NULL)
+		
+		//Notification already exists due to persistent storage adding it first into the notification system
+		if(notification)
 		{
-			LL_WARNS("LLDoNotDisturbNotificationStorage") << "cannot create responder for notification of type '"
-				<< notification->getType() << "'" << LL_ENDL;
+			notification->setDND(true);
+			instance.update(instance.find(notificationID));
 		}
+		//New notification needs to be added
 		else
 		{
-			LLNotificationResponderPtr responderPtr(responder);
-			notification->setResponseFunctor(responderPtr);
+			notification = (LLNotificationPtr) new LLNotification(notification_params.with("is_dnd", true));
+			LLNotificationResponderInterface* responder = createResponder(notification_params["responder_sd"]["responder_type"], notification_params["responder_sd"]);
+			if (responder == NULL)
+			{
+				LL_WARNS("LLDoNotDisturbNotificationStorage") << "cannot create responder for notification of type '"
+					<< notification->getType() << "'" << LL_ENDL;
+			}
+			else
+			{
+				LLNotificationResponderPtr responderPtr(responder);
+				notification->setResponseFunctor(responderPtr);
+			}
+
+			instance.add(notification);
 		}
-			
-		instance.add(notification);
+
 	}
 
     if(imToastExists)
