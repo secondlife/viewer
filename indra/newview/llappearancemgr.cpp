@@ -3085,6 +3085,12 @@ public:
 
 void LLAppearanceMgr::requestServerAppearanceUpdate(LLCurl::ResponderPtr responder_ptr)
 {
+	if (gAgentAvatarp->isEditingAppearance()) 
+	{
+		// don't send out appearance updates if in appearance editing mode
+		return;
+	}
+
 	if (!gAgent.getRegion())
 	{
 		llwarns << "Region not set, cannot request server appearance update" << llendl;
