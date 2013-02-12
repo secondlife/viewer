@@ -163,11 +163,18 @@
 		</menu_item_check>
 		<menu_item_separator layout="topleft" name="moderate_voice_separator" />
 		<menu_item_call
-		 label="Toggle mute this participant"
+		 label="Mute this participant"
 		 layout="topleft"
-		 name="ModerateVoiceToggleMuteSelected">
+		 name="ModerateVoiceMuteSelected">
 			<on_click function="Avatar.DoToSelected" parameter="selected" />
-			<on_enable function="Avatar.EnableItem" parameter="can_mute_unmute" />
+      <on_enable function="Avatar.EnableItem" parameter="can_mute" />
+    </menu_item_call>
+    <menu_item_call
+		 label="Unmute this participant"
+		 layout="topleft"
+		 name="ModerateVoiceUnMuteSelected">
+      <on_click function="Avatar.DoToSelected" parameter="selected" />
+      <on_enable function="Avatar.EnableItem" parameter="can_unmute" />
 		</menu_item_call>
 		<menu_item_call
 		 label="Mute everyone"

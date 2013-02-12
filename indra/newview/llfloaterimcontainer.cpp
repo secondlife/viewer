@@ -1245,7 +1245,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
     {
 		return LLAvatarActions::canOfferTeleport(uuids);
     }
-	else if (("can_moderate_voice" == item) || ("can_allow_text_chat" == item) || ("can_mute_unmute" == item))
+	else if (("can_moderate_voice" == item) || ("can_allow_text_chat" == item) || ("can_mute" == item) || ("can_unmute" == item))
 	{
 		// *TODO : get that out of here...
 		return enableModerateContextMenuItem(item);
@@ -1589,9 +1589,17 @@ bool LLFloaterIMContainer::enableModerateContextMenuItem(const std::string& user
 
 	bool voice_channel = speakerp->isInVoiceChannel();
 
-	if ("can_moderate_voice" == userdata || "can_mute_unmute" == userdata)
+	if ("can_moderate_voice" == userdata)
 	{
 		return voice_channel;
+	}
+	else if ("can_mute" == userdata)
+	{
+		return voice_channel && !isMuted(getCurSelectedViewModelItem()->getUUID());
+	}
+	else if ("can_unmute" == userdata)
+	{
+		return voice_channel && isMuted(getCurSelectedViewModelItem()->getUUID());
 	}
 
 	// The last invoke is used to check whether the "can_allow_text_chat" will enabled
