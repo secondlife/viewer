@@ -38,6 +38,7 @@ set(updater_service_HEADER_FILES
 set_source_files_properties(${updater_service_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
+add_custom_target(always_generate_version) # force recompilation with version values
 set_source_files_properties(
    llupdaterservice.cpp 
    PROPERTIES

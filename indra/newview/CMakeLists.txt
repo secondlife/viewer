@@ -1227,13 +1227,6 @@ set(viewer_HEADER_FILES
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
 
-set_source_files_properties(
-   llversioninfo.cpp tests/llversioninfo_test.cpp 
-   PROPERTIES
-   OBJECT_DEPENDS always_generate_version
-   COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}" # see BuildVersion.cmake
-   )
-
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/VIEWER_VERSION.txt
                    COMMAND echo "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}" > ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
@@ -1241,6 +1234,13 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
                    )
 add_custom_target(generate_viewer_version DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt")
 add_dependencies(generate_viewer_version "${CMAKE_CURRENT_SOURCE_DIR}/VIEWER_VERSION.txt")
+
+set_source_files_properties(
+   llversioninfo.cpp tests/llversioninfo_test.cpp 
+   PROPERTIES
+   OBJECT_DEPENDS generate_viewer_version
+   COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}" # see BuildVersion.cmake
+   )
 
 if (DARWIN)
   LIST(APPEND viewer_SOURCE_FILES llappviewermacosx.cpp)
