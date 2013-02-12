@@ -312,8 +312,6 @@ void update_texture_fetch()
 // true when all initialization done.
 bool idle_startup()
 {
-	LLMemType mt1(LLMemType::MTYPE_STARTUP);
-	
 	const F32 PRECACHING_DELAY = gSavedSettings.getF32("PrecachingDelay");
 	static LLTimer timeout;
 	static S32 timeout_count = 0;
@@ -1420,7 +1418,7 @@ bool idle_startup()
 		display_startup();
 
 		//reset statistics
-		LLViewerStats::getInstance()->resetStats();
+		LLViewerStats::instance().resetStats();
 
 		display_startup();
 		//
@@ -1949,7 +1947,7 @@ bool idle_startup()
 			llinfos << "gAgentStartLocation : " << gAgentStartLocation << llendl;
 			LLSLURL start_slurl = LLStartUp::getStartSLURL();
 			LL_DEBUGS("AppInit") << "start slurl "<<start_slurl.asString()<<LL_ENDL;
-
+			
 			if (((start_slurl.getType() == LLSLURL::LOCATION) && (gAgentStartLocation == "url")) ||
 				((start_slurl.getType() == LLSLURL::LAST_LOCATION) && (gAgentStartLocation == "last")) ||
 				((start_slurl.getType() == LLSLURL::HOME_LOCATION) && (gAgentStartLocation == "home")))
@@ -2296,7 +2294,7 @@ bool login_alert_status(const LLSD& notification, const LLSD& response)
       //      break;
         case 2:     // Teleport
             // Restart the login process, starting at our home locaton
-			LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
+	  LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
             LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
             break;
         default:

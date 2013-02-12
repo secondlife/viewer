@@ -29,7 +29,6 @@
 #include "llprimtexturelist.h"
 #include "llmaterialid.h"
 #include "lltextureentry.h"
-#include "llmemtype.h"
 
 // static 
 //int (TMyClass::*pt2Member)(float, char, char) = NULL;                // C++
@@ -386,7 +385,6 @@ S32 LLPrimTextureList::size() const
 // sets the size of the mEntryList container
 void LLPrimTextureList::setSize(S32 new_size)
 {
-	LLMemType m1(LLMemType::MTYPE_PRIMITIVE);
 	if (new_size < 0)
 	{
 		new_size = 0;

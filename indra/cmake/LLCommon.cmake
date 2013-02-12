@@ -22,7 +22,7 @@ else (LINUX)
     set(LLCOMMON_LIBRARIES llcommon)
 endif (LINUX)
 
-add_definitions(${TCMALLOC_FLAG})
+# add_definitions(${TCMALLOC_FLAG})
 
 set(LLCOMMON_LINK_SHARED OFF CACHE BOOL "Build the llcommon target as a static library.")
 if(LLCOMMON_LINK_SHARED)
