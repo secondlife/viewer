@@ -1230,15 +1230,14 @@ source_group("CMake Rules" FILES ViewerInstall.cmake)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/VIEWER_VERSION.txt
                    COMMAND echo "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}" > ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
-                   COMMENT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Generating viewer_version.txt
+                   COMMENT Generating viewer_version.txt for manifest processing
                    )
-add_custom_target(generate_viewer_version DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt")
-add_dependencies(generate_viewer_version "${CMAKE_CURRENT_SOURCE_DIR}/VIEWER_VERSION.txt")
+add_custom_target(generate_viewer_version ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt)
 
 set_source_files_properties(
    llversioninfo.cpp tests/llversioninfo_test.cpp 
    PROPERTIES
-   OBJECT_DEPENDS generate_viewer_version
+   DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt  # dummy dependency to force recompile every time
    COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}" # see BuildVersion.cmake
    )
 
