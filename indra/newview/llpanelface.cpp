@@ -1352,7 +1352,7 @@ void LLPanelFace::updateMaterial()
 		mMaterial->setDiffuseAlphaMode(getChild<LLComboBox>("combobox alphamode")->getCurrentIndex());
 		mMaterial->setAlphaMaskCutoff((U8)(getChild<LLUICtrl>("maskcutoff")->getValue().asInteger()));
 		llinfos << "Updating material: " << mMaterial->asLLSD() << llendl;
-		LLSelectMgr::getInstance()->selectionSetMaterial( *mMaterial );
+		LLSelectMgr::getInstance()->selectionSetMaterial( mMaterial );
 
 		// We've sent an update. Need to hold off on any more until
 		// the sim acknowledges this one.

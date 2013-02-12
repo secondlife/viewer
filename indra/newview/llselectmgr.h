@@ -48,6 +48,7 @@
 #include <deque>
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/signals2.hpp>
+#include <boost/make_shared.hpp>	// boost::make_shared
 
 class LLMessageSystem;
 class LLViewerTexture;
@@ -538,7 +539,7 @@ public:
 	void selectionSetClickAction(U8 action);
 	void selectionSetIncludeInSearch(bool include_in_search);
 	void selectionSetGlow(const F32 glow);
-	void selectionSetMaterial(LLMaterial& material);
+	void selectionSetMaterial(LLMaterialPtr material);
 
 	void selectionSetObjectPermissions(U8 perm_field, BOOL set, U32 perm_mask, BOOL override = FALSE);
 	void selectionSetObjectName(const std::string& name);
