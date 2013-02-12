@@ -5879,6 +5879,7 @@ void LLVOAvatar::updateRezzedStatusTimers()
 	if (rez_status != mLastRezzedStatus)
 	{
 		LL_DEBUGS("Avatar") << avString() << "rez state change: " << mLastRezzedStatus << " -> " << rez_status << LL_ENDL;
+#if 0
 		bool is_cloud_or_gray = (rez_status==0 || rez_status==1);
 		bool was_cloud_or_gray = (mLastRezzedStatus==0 || mLastRezzedStatus==1);
 		bool is_cloud = (rez_status==0);
@@ -5907,6 +5908,7 @@ void LLVOAvatar::updateRezzedStatusTimers()
 			// stop cloud-or-gray timer, which will capture stats.
 			stopPhase("cloud-or-gray");
 		}
+#endif
 
 		if (mLastRezzedStatus == -1 && rez_status != -1)
 		{
@@ -6020,7 +6022,6 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 {
 	LLSD record;
 	record["timer_name"] = phase_name;
-	record["agent_id"] = gAgent.getID();
 	record["avatar_id"] = getID();
 	record["elapsed"] = elapsed;
 	record["completed"] = completed;
