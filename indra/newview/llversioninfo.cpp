@@ -29,16 +29,14 @@
 #include <sstream>
 #include "llversioninfo.h"
 
-#if ! defined(LL_VIEWER_VERSION_MAJOR) \
+#if ! defined(LL_VIEWER_CHANNEL)       \
+ || ! defined(LL_VIEWER_VERSION_MAJOR) \
  || ! defined(LL_VIEWER_VERSION_MINOR) \
  || ! defined(LL_VIEWER_VERSION_PATCH) \
  || ! defined(LL_VIEWER_VERSION_BUILD)
- #error "Version information is undefined"
+ #error "Channel or Version information is undefined"
 #endif
 
-#ifndef LL_VIEWER_CHANNEL
-#define LL_VIEWER_CHANNEL "Second Life Test"
-#endif
 const char * const LL_CHANNEL = LL_VIEWER_CHANNEL;
 
 //
