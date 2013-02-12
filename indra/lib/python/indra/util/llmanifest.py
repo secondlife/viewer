@@ -85,7 +85,7 @@ def get_default_platform(dummy):
             }[sys.platform]
 
 DEFAULT_SRCTREE = os.path.dirname(sys.argv[0])
-DEFAULT_CHANNEL = 'Second Life Release'
+DEFAULT_CHANNEL = 'Second Life Test'
 
 ARGUMENTS=[
     dict(name='actions',
@@ -119,9 +119,6 @@ ARGUMENTS=[
     dict(name='channel',
          description="""The channel to use for updates, packaging, settings name, etc.""",
          default='CHANNEL UNSET'),
-    dict(name='login_channel',
-         description="""The channel to use for login handshake/updates only.""",
-         default=None),
     dict(name='installer_name',
          description=""" The name of the file that the installer should be
         packaged up into. Only used on Linux at the moment.""",

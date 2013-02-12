@@ -142,7 +142,6 @@ set(GRID agni CACHE STRING "Target Grid")
 
 set(VIEWER ON CACHE BOOL "Build Second Life viewer.")
 set(VIEWER_CHANNEL "Second Life Test" CACHE STRING "Viewer Channel Name")
-set(VIEWER_LOGIN_CHANNEL ${VIEWER_CHANNEL} CACHE STRING "Fake login channel for A/B Testing")
 
 if (XCODE_VERSION GREATER 4.2)
   set(ENABLE_SIGNING OFF CACHE BOOL "Enable signing the viewer")

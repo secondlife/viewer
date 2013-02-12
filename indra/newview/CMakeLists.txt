@@ -1319,17 +1319,15 @@ if (WINDOWS)
     # Replace the icons with the appropriate ones for the channel
     # ('test' is the default)
     set(ICON_PATH "test")
+    set(VIEWER_MACOSX_PHASE "d")
     string(TOLOWER ${VIEWER_CHANNEL} channel_lower)
     if(channel_lower MATCHES "^second life release")
         set(ICON_PATH "release")
         set(VIEWER_MACOSX_PHASE "f")
-    elseif(channel_lower MATCHES "^second life beta viewer")
+    elseif(channel_lower MATCHES "^second life beta")
         set(ICON_PATH "beta")
         set(VIEWER_MACOSX_PHASE "b")
-    elseif(channel_lower MATCHES "^second life development")
-        set(ICON_PATH "development")
-        set(VIEWER_MACOSX_PHASE "d")
-    elseif(channel_lower MATCHES "project")
+    elseif(channel_lower MATCHES "^second life project")
         set(ICON_PATH "project")
         set(VIEWER_MACOSX_PHASE "a")
     endif()
@@ -1785,7 +1783,6 @@ if (WINDOWS)
           --configuration=${CMAKE_CFG_INTDIR}
           --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
           --grid=${GRID}
-          --login_channel=${VIEWER_LOGIN_CHANNEL}
           --source=${CMAKE_CURRENT_SOURCE_DIR}
           --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/touched.bat
         DEPENDS
@@ -1912,7 +1909,6 @@ if (LINUX)
         --dest=${CMAKE_CURRENT_BINARY_DIR}/packaged
         --grid=${GRID}
         --installer_name=${product}
-        --login_channel=${VIEWER_LOGIN_CHANNEL}
         --source=${CMAKE_CURRENT_SOURCE_DIR}
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
       DEPENDS
@@ -2029,7 +2025,6 @@ if (DARWIN)
           --grid=${GRID}
           --channel=${VIEWER_CHANNEL}
           --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
-          --login_channel=${VIEWER_LOGIN_CHANNEL}
           --source=${CMAKE_CURRENT_SOURCE_DIR}
           --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
           ${SIGNING_SETTING}

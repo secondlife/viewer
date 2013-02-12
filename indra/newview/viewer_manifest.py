@@ -160,14 +160,6 @@ class ViewerManifest(LLManifest):
             if not self.path2basename(os.path.join(os.pardir, os.pardir), "summary.json"):
                 print "No summary.json file"
 
-    def login_channel(self):
-        """Channel reported for login and upgrade purposes ONLY;
-        used for A/B testing"""
-        # NOTE: Do not return the normal channel if login_channel
-        # is not specified, as some code may branch depending on
-        # whether or not this is present
-        return self.args.get('login_channel')
-
     def grid(self):
         return self.args['grid']
     def channel(self):
@@ -179,16 +171,23 @@ class ViewerManifest(LLManifest):
     def channel_lowerword(self):
         return self.channel_oneword().lower()
 
+    def app_name(self):
+        app_suffix='Test'
+        channel_type=self.channel_lowerword()
+        if channel_type == 'release' :
+            app_suffix='Viewer'
+        elif re.match('(beta|project) .*',channel_type) :
+            app_suffix=self.channel_unique()
+        return "Second Life "+app_suffix
+        
     def icon_path(self):
         icon_path="icons/"
         channel_type=self.channel_lowerword()
-        if channel_type == 'release' \
-        or channel_type == 'development' \
-        :
+        if channel_type == 'release' :
             icon_path += channel_type
-        elif channel_type == 'betaviewer' :
+        elif re.match('beta .*',channel_type) :
             icon_path += 'beta'
-        elif re.match('project.*',channel_type) :
+        elif re.match('project .*',channel_type) :
             icon_path += 'project'
         else :
             icon_path += 'test'
@@ -205,14 +204,6 @@ class ViewerManifest(LLManifest):
                          "--helperuri http://preview-%(grid)s.secondlife.com/helpers/" %\
                            {'grid':self.grid()}
 
-        # set command line flags for channel
-        channel_flags = ''
-        if self.login_channel() and self.login_channel() != self.channel():
-            # Report a special channel during login, but use default
-            channel_flags = '--channel "%s"' % (self.login_channel())
-        elif not self.default_channel():
-            channel_flags = '--channel "%s"' % self.channel()
-
         # Deal with settings 
         setting_flags = ''
         if not self.default_channel() or not self.default_grid():
@@ -223,7 +214,7 @@ class ViewerManifest(LLManifest):
                 setting_flags = '--settings settings_%s_%s.xml'\
                                 % (self.grid(), self.channel_lowerword())
                                                 
-        return " ".join((channel_flags, grid_flags, setting_flags)).strip()
+        return " ".join((grid_flags, setting_flags)).strip()
 
     def extract_names(self,src):
         try:
@@ -883,10 +874,7 @@ class DarwinManifest(ViewerManifest):
 
             # Copy everything in to the mounted .dmg
 
-            if self.default_channel() and not self.default_grid():
-                app_name = "Second Life " + self.args['grid']
-            else:
-                app_name = channel_standin.strip()
+            app_name = self.app_name()
 
             # Hack:
             # Because there is no easy way to coerce the Finder into positioning
