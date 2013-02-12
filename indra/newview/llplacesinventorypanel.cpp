@@ -82,6 +82,7 @@ LLFolderView * LLPlacesInventoryPanel::createFolderRoot(LLUUID root_id )
     p.show_item_link_overlays = mShowItemLinkOverlays;
     p.root = NULL;
     p.use_ellipses = mParams.folder_view.use_ellipses;
+    p.options_menu = "menu_inventory.xml";
 
     return LLUICtrlFactory::create<LLPlacesFolderView>(p);
 }
