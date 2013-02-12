@@ -818,6 +818,7 @@ BOOL LLVOAvatar::hasGray() const
 S32 LLVOAvatar::getRezzedStatus() const
 {
 	if (getIsCloud()) return 0;
+	if (isFullyTextured() && allBakedTexturesCompletelyDownloaded()) return 3;
 	if (isFullyTextured()) return 2;
 	llassert(hasGray());
 	return 1; // gray
@@ -873,7 +874,7 @@ BOOL LLVOAvatar::areAllNearbyInstancesBaked(S32& grey_avatars)
 void LLVOAvatar::getNearbyRezzedStats(std::vector<S32>& counts)
 {
 	counts.clear();
-	counts.resize(3);
+	counts.resize(4);
 	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
 		 iter != LLCharacter::sInstances.end(); ++iter)
 	{
@@ -891,6 +892,7 @@ std::string LLVOAvatar::rezStatusToString(S32 rez_status)
 	if (rez_status==0) return "cloud";
 	if (rez_status==1) return "gray";
 	if (rez_status==2) return "textured";
+	if (rez_status==3) return "textured_and_downloaded";
 	return "unknown";
 }
 
@@ -1814,10 +1816,7 @@ S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
 {
 	if (!isIndexBakedTexture((ETextureIndex)te))
 	{
-		if (!uuid.isNull())
-		{
-			llinfos << "ignoring texture " << uuid << " in non-baked slot " << (S32)te << " - will use null " << llendl;
-		}
+		// Sim still sends some uuids for non-baked slots sometimes - ignore.
 		return LLViewerObject::setTETexture(te, LLUUID::null);
 	}
 
@@ -4034,7 +4033,7 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
 	return 6;
 }
 
-bool LLVOAvatar::allTexturesCompletelyDownloaded(std::set<LLUUID>& ids)
+bool LLVOAvatar::allTexturesCompletelyDownloaded(std::set<LLUUID>& ids) const
 {
 	for (std::set<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
@@ -4047,14 +4046,14 @@ bool LLVOAvatar::allTexturesCompletelyDownloaded(std::set<LLUUID>& ids)
 	return true;
 }
 
-bool LLVOAvatar::allLocalTexturesCompletelyDownloaded()
+bool LLVOAvatar::allLocalTexturesCompletelyDownloaded() const
 {
 	std::set<LLUUID> local_ids;
 	collectLocalTextureUUIDs(local_ids);
 	return allTexturesCompletelyDownloaded(local_ids);
 }
 
-bool LLVOAvatar::allBakedTexturesCompletelyDownloaded()
+bool LLVOAvatar::allBakedTexturesCompletelyDownloaded() const
 {
 	std::set<LLUUID> baked_ids;
 	collectBakedTextureUUIDs(baked_ids);
@@ -4129,7 +4128,7 @@ S32 LLVOAvatar::totalTextureMemForUUIDS(std::set<LLUUID>& ids)
 	return result;
 }
 	
-void LLVOAvatar::collectLocalTextureUUIDs(std::set<LLUUID>& ids)
+void LLVOAvatar::collectLocalTextureUUIDs(std::set<LLUUID>& ids) const
 {
 	for (U32 texture_index = 0; texture_index < getNumTEs(); texture_index++)
 	{
@@ -4155,7 +4154,7 @@ void LLVOAvatar::collectLocalTextureUUIDs(std::set<LLUUID>& ids)
 	ids.erase(IMG_INVISIBLE);
 }
 
-void LLVOAvatar::collectBakedTextureUUIDs(std::set<LLUUID>& ids)
+void LLVOAvatar::collectBakedTextureUUIDs(std::set<LLUUID>& ids) const
 {
 	for (U32 texture_index = 0; texture_index < getNumTEs(); texture_index++)
 	{
@@ -5873,8 +5872,9 @@ BOOL LLVOAvatar::getIsCloud() const
 
 void LLVOAvatar::updateRezzedStatusTimers()
 {
-	// State machine for rezzed status. Statuses are 0 = cloud, 1 = gray, 2 = textured.
+	// State machine for rezzed status. Statuses are -1 on startup, 0 = cloud, 1 = gray, 2 = textured, 3 = textured_and_downloaded.
 	// Purpose is to collect time data for each period of cloud or cloud+gray.
+
 	S32 rez_status = getRezzedStatus();
 	if (rez_status != mLastRezzedStatus)
 	{
@@ -5907,7 +5907,32 @@ void LLVOAvatar::updateRezzedStatusTimers()
 			// stop cloud-or-gray timer, which will capture stats.
 			stopPhase("cloud-or-gray");
 		}
-		
+
+		if (mLastRezzedStatus == -1 && rez_status != -1)
+		{
+			// First time initialization, start all timers.
+			for (S32 i = 1; i < 4; i++)
+			{
+				startPhase("load_" + LLVOAvatar::rezStatusToString(i));
+			}
+		}
+		if (rez_status < mLastRezzedStatus)
+		{
+			// load level has decreased. start phase timers for higher load levels.
+			for (S32 i = rez_status+1; i <= mLastRezzedStatus; i++)
+			{
+				startPhase("load_" + LLVOAvatar::rezStatusToString(i));
+			}
+		}
+		else if (rez_status > mLastRezzedStatus)
+		{
+			// load level has increased. stop phase timers for lower and equal load levels.
+			for (S32 i = llmax(mLastRezzedStatus+1,1); i <= rez_status; i++)
+			{
+				stopPhase("load_" + LLVOAvatar::rezStatusToString(i));
+			}
+		}
+
 		mLastRezzedStatus = rez_status;
 	}
 }
@@ -5919,7 +5944,42 @@ void LLVOAvatar::clearPhases()
 
 void LLVOAvatar::startPhase(const std::string& phase_name)
 {
+	F32 elapsed;
+	bool completed;
+	if (getPhases().getPhaseValues(phase_name, elapsed, completed))
+	{
+		if (!completed)
+		{
+			LL_DEBUGS("Avatar") << "start when started already for " << phase_name << llendl;
+			return;
+		}
+	}
+	LL_DEBUGS("Avatar") << "started phase " << phase_name << llendl;
 	getPhases().startPhase(phase_name);
+}
+
+void LLVOAvatar::stopPhase(const std::string& phase_name)
+{
+	F32 elapsed;
+	bool completed;
+	if (getPhases().getPhaseValues(phase_name, elapsed, completed))
+	{
+		if (!completed)
+		{
+			LL_DEBUGS("Avatar") << "stopped phase " << phase_name << llendl;
+			getPhases().stopPhase(phase_name);
+			completed = true;
+			logMetricsTimerRecord(phase_name, elapsed, completed);
+		}
+		else
+		{
+			LL_DEBUGS("Avatar") << "stop when stopped already for " << phase_name << llendl;
+		}
+	}
+	else
+	{
+		LL_DEBUGS("Avatar") << "stop when not started for " << phase_name << llendl;
+	}
 }
 
 void LLVOAvatar::logPendingPhases()
@@ -5936,10 +5996,6 @@ void LLVOAvatar::logPendingPhases()
 			if (!completed)
 			{
 				logMetricsTimerRecord(phase_name, elapsed, completed);
-			}
-			else
-			{
-				llwarns << "ignoring " << phase_name << llendl;
 			}
 		}
 	}
@@ -5987,30 +6043,6 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 	if (isAgentAvatarValid())
 	{
 		gAgentAvatarp->addMetricsTimerRecord(record);
-	}
-}
-
-void LLVOAvatar::stopPhase(const std::string& phase_name)
-{
-	F32 elapsed;
-	bool completed;
-	if (getPhases().getPhaseValues(phase_name, elapsed, completed))
-	{
-		if (!completed)
-		{
-			getPhases().stopPhase(phase_name);
-			completed = true;
-
-		}
-		else
-		{
-			llwarns << "stop when stopped already for " << phase_name << llendl;
-		}
-		logMetricsTimerRecord(phase_name, elapsed, completed);
-	}
-	else
-	{
-		llwarns << "stop when not started for " << phase_name << llendl;
 	}
 }
 

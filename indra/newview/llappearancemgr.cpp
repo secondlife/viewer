@@ -2006,7 +2006,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 		llwarns << "Called updateAppearanceFromCOF inside updateAppearanceFromCOF, skipping" << llendl;
 		return;
 	}
-	
+
 	BoolSetter setIsInUpdateAppearanceFromCOF(mIsInUpdateAppearanceFromCOF);
 
 	LL_INFOS("Avatar") << self_av_string() << "starting" << LL_ENDL;

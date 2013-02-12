@@ -99,7 +99,7 @@ void selfClearPhases()
 	if (isAgentAvatarValid())
 	{
 		gAgentAvatarp->clearPhases();
-		gAgentAvatarp->mLastRezzedStatus = -1;
+		//gAgentAvatarp->mLastRezzedStatus = -1;
 	}
 }
 
@@ -1426,7 +1426,9 @@ BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLViewerTexLayerSet* layerset
 				const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 				for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 				{
-					if (getLocalDiscardLevel(*local_tex_iter, wearable_index) > (S32)(desired_tex_discard_level))
+					S32 local_discard_level = getLocalDiscardLevel(*local_tex_iter, wearable_index);
+					if ((local_discard_level > (S32)(desired_tex_discard_level)) ||
+						(local_discard_level < 0 ))
 					{
 						return FALSE;
 					}
@@ -1438,6 +1440,7 @@ BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLViewerTexLayerSet* layerset
 	llassert(0);
 	return FALSE;
 }
+
 
 BOOL LLVOAvatarSelf::isAllLocalTextureDataFinal() const
 {

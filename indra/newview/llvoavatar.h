@@ -136,14 +136,14 @@ public:
 	void						updateLODRiggedAttachments( void );
 	/*virtual*/ BOOL   	 	 	isActive() const; // Whether this object needs to do an idleUpdate.
 	S32 						totalTextureMemForUUIDS(std::set<LLUUID>& ids);
-	bool 						allTexturesCompletelyDownloaded(std::set<LLUUID>& ids);
-	bool 						allLocalTexturesCompletelyDownloaded();
-	bool 						allBakedTexturesCompletelyDownloaded();
+	bool 						allTexturesCompletelyDownloaded(std::set<LLUUID>& ids) const;
+	bool 						allLocalTexturesCompletelyDownloaded() const;
+	bool 						allBakedTexturesCompletelyDownloaded() const;
 	void 						bakedTextureOriginCounts(S32 &sb_count, S32 &host_count,
 														 S32 &both_count, S32 &neither_count);
 	std::string 				bakedTextureOriginInfo();
-	void 						collectLocalTextureUUIDs(std::set<LLUUID>& ids);
-	void 						collectBakedTextureUUIDs(std::set<LLUUID>& ids);
+	void 						collectLocalTextureUUIDs(std::set<LLUUID>& ids) const;
+	void 						collectBakedTextureUUIDs(std::set<LLUUID>& ids) const;
 	void 						collectTextureUUIDs(std::set<LLUUID>& ids);
 	void						releaseOldTextures();
 	/*virtual*/ void   	 	 	updateTextures();
@@ -287,7 +287,7 @@ public:
 	virtual BOOL	getIsCloud() const;
 	BOOL			isFullyTextured() const;
 	BOOL			hasGray() const; 
-	S32				getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = fully textured.
+	S32				getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = textured, 3 = textured and fully downloaded.
 	void			updateRezzedStatusTimers();
 
 	S32				mLastRezzedStatus;
