@@ -2334,10 +2334,9 @@ void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
 		msg["nearby"][rez_status_name] = rez_counts[rez_stat];
 	}
 
-	//	std::vector<std::string> bucket_fields("timer_name","agent_id","is_self","grid_x","grid_y","is_using_server_bake");
+	//	std::vector<std::string> bucket_fields("timer_name","is_self","grid_x","grid_y","is_using_server_bake");
 	std::vector<std::string> by_fields;
 	by_fields.push_back("timer_name");
-	by_fields.push_back("agent_id");
 	by_fields.push_back("completed");
 	by_fields.push_back("grid_x");
 	by_fields.push_back("grid_y");
