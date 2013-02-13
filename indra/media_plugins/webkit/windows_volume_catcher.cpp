@@ -71,7 +71,7 @@ VolumeCatcherImpl::VolumeCatcherImpl()
 {
 	mSystemIsVistaOrHigher = isWindowsVistaOrHigher();
 
-	if ( mSystemIsVistaOrHigher )
+	if ( ! mSystemIsVistaOrHigher )
 	{
 		HMODULE handle = ::LoadLibrary(L"winmm.dll");
 		if(handle)
