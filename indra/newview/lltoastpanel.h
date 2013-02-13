@@ -59,6 +59,7 @@ public:
 protected:
 	LLNotificationPtr mNotification;
 	void snapToMessageHeight(LLTextBase* message, S32 maxLineCount);
+	S32 computeSnappedToMessageHeight(LLTextBase* message, S32 maxLineCount);
 };
 
 #endif /* LL_TOASTPANEL_H */

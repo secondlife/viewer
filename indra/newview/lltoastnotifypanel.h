@@ -157,6 +157,9 @@ public:
 protected:
 	LLTextBase* mParentText;
 	LLUUID	mSessionID;
+
+private:
+	void snapToMessageHeight();
 };
 
 #endif /* LLTOASTNOTIFYPANEL_H_ */

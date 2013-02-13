@@ -58,6 +58,25 @@ const LLUUID& LLToastPanel::getID()
 	return mNotification->id();
 }
 
+S32 LLToastPanel::computeSnappedToMessageHeight(LLTextBase* message, S32 maxLineCount)
+{
+	S32 heightDelta = 0;
+	S32 maxTextHeight = message->getFont()->getLineHeight() * maxLineCount;
+
+	LLRect messageRect = message->getRect();
+	S32 oldTextHeight = messageRect.getHeight();
+
+	//Knowing the height is set to max allowed, getTextPixelHeight returns needed text height
+	//Perhaps we need to pass maxLineCount as parameter to getTextPixelHeight to avoid previous reshape.
+	S32 requiredTextHeight = message->getTextBoundingRect().getHeight();
+	S32 newTextHeight = llmin(requiredTextHeight, maxTextHeight);
+
+	heightDelta = newTextHeight - oldTextHeight;
+	S32 new_panel_height = llmax(getRect().getHeight() + heightDelta, MIN_PANEL_HEIGHT);
+
+	return new_panel_height;
+}
+
 //snap to the message height if it is visible
 void LLToastPanel::snapToMessageHeight(LLTextBase* message, S32 maxLineCount)
 {
@@ -69,19 +88,7 @@ void LLToastPanel::snapToMessageHeight(LLTextBase* message, S32 maxLineCount)
 	//Add message height if it is visible
 	if (message->getVisible())
 	{
-		S32 heightDelta = 0;
-		S32 maxTextHeight = message->getFont()->getLineHeight() * maxLineCount;
-
-		LLRect messageRect = message->getRect();
-		S32 oldTextHeight = messageRect.getHeight();
-
-		//Knowing the height is set to max allowed, getTextPixelHeight returns needed text height
-		//Perhaps we need to pass maxLineCount as parameter to getTextPixelHeight to avoid previous reshape.
-		S32 requiredTextHeight = message->getTextBoundingRect().getHeight();
-		S32 newTextHeight = llmin(requiredTextHeight, maxTextHeight);
-
-		heightDelta = newTextHeight - oldTextHeight;
-		S32 new_panel_height = llmax(getRect().getHeight() + heightDelta, MIN_PANEL_HEIGHT);
+		S32 new_panel_height = computeSnappedToMessageHeight(message, maxLineCount);
 
 		//reshape the panel with new height
 		if (new_panel_height != getRect().getHeight())

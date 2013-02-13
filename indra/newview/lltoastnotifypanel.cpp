@@ -426,7 +426,27 @@ LLIMToastNotifyPanel::~LLIMToastNotifyPanel()
 void LLIMToastNotifyPanel::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)
 {
 	LLToastPanel::reshape(width, height, called_from_parent);
-	snapToMessageHeight(mTextBox, MAX_LENGTH);
+	snapToMessageHeight();
+}
+
+void LLIMToastNotifyPanel::snapToMessageHeight()
+{
+	if(!mTextBox)
+	{
+		return;
+	}
+
+	//Add message height if it is visible
+	if (mTextBox->getVisible())
+	{
+		S32 new_panel_height = computeSnappedToMessageHeight(mTextBox, MAX_LENGTH);
+
+		//reshape the panel with new height
+		if (new_panel_height != getRect().getHeight())
+		{
+			LLToastNotifyPanel::reshape( getRect().getWidth(), new_panel_height);
+		}
+	}
 }
 
 void LLIMToastNotifyPanel::compactButtons()
