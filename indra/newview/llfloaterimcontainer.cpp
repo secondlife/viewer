@@ -68,8 +68,9 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
     mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLFloaterIMContainer::isActionChecked, this, _2));
 	mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLFloaterIMContainer::onCustomAction,  this, _2));
 	
-    mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLFloaterIMContainer::checkContextMenuItem,	this, _2));
-    mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLFloaterIMContainer::enableContextMenuItem,	this, _2));
+	mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLFloaterIMContainer::checkContextMenuItem,	this, _2));
+	mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLFloaterIMContainer::enableContextMenuItem,	this, _2));
+	mEnableCallbackRegistrar.add("Avatar.VisibleItem", boost::bind(&LLFloaterIMContainer::visibleContextMenuItem,	this, _2));
     mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLFloaterIMContainer::doToSelected, this, _2));
     
     mCommitCallbackRegistrar.add("Group.DoToSelected", boost::bind(&LLFloaterIMContainer::doToSelectedGroup, this, _2));
@@ -1246,7 +1247,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
     {
 		return LLAvatarActions::canOfferTeleport(uuids);
     }
-	else if (("can_moderate_voice" == item) || ("can_allow_text_chat" == item) || ("can_mute_unmute" == item))
+	else if (("can_moderate_voice" == item) || ("can_allow_text_chat" == item) || ("can_mute" == item) || ("can_unmute" == item))
 	{
 		// *TODO : get that out of here...
 		return enableModerateContextMenuItem(item);
@@ -1289,6 +1290,22 @@ bool LLFloaterIMContainer::checkContextMenuItem(const std::string& item, uuid_ve
     }
 
     return false;
+}
+
+bool LLFloaterIMContainer::visibleContextMenuItem(const LLSD& userdata)
+{
+	const std::string& item = userdata.asString();
+
+	if ("show_mute" == item)
+	{
+		return !isMuted(getCurSelectedViewModelItem()->getUUID());
+	}
+	else if ("show_unmute" == item)
+	{
+		return isMuted(getCurSelectedViewModelItem()->getUUID());
+	}
+
+	return true;
 }
 
 void LLFloaterIMContainer::showConversation(const LLUUID& session_id)
@@ -1590,9 +1607,17 @@ bool LLFloaterIMContainer::enableModerateContextMenuItem(const std::string& user
 
 	bool voice_channel = speakerp->isInVoiceChannel();
 
-	if ("can_moderate_voice" == userdata || "can_mute_unmute" == userdata)
+	if ("can_moderate_voice" == userdata)
 	{
 		return voice_channel;
+	}
+	else if ("can_mute" == userdata)
+	{
+		return voice_channel && !isMuted(getCurSelectedViewModelItem()->getUUID());
+	}
+	else if ("can_unmute" == userdata)
+	{
+		return voice_channel && isMuted(getCurSelectedViewModelItem()->getUUID());
 	}
 
 	// The last invoke is used to check whether the "can_allow_text_chat" will enabled
