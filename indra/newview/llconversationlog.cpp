@@ -532,7 +532,6 @@ void LLConversationLog::onClearLogResponse(const LLSD& notification, const LLSD&
 {
 	if (0 == LLNotificationsUtil::getSelectedOption(notification, response))
 	{
-		LLLogChat::deleteTranscripts();
 		mConversations.clear();
 		notifyObservers();
 	}
