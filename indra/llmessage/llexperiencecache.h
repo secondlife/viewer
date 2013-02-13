@@ -39,20 +39,28 @@ class LLUUID;
 
 namespace LLExperienceCache
 {
-	const std::string PUBLIC_KEY	= "public-id";
-	const std::string PRIVATE_KEY	= "private-id";
-	const std::string CREATOR_KEY	= "creator-id";
+	const std::string PRIVATE_KEY	= "private_id";
+
+	const std::string EXPERIENCE_ID	= "public_id";
+	const std::string OWNER_ID		= "owner_id";
 	const std::string NAME			= "name";
 	const std::string PROPERTIES	= "properties";
 	const std::string EXPIRES		= "expires";  
+	const std::string DESCRIPTION	= "description";
 
-	const int EXPERIENCE_INVALID    = (1 << 0);
-	const int EXPERIENCE_NORMAL     = (1 << 1);
-	const int EXPERIENCE_REGION     = (1 << 2);
+	// should be in sync with experience-api/experiences/models.py
+	const int PROPERTY_INVALID		= 1 << 0;
+	const int PROPERTY_NORMAL		= 1 << 1;
+	const int PROPERTY_REGION		= 1 << 2;
+	const int PROPERTY_PRIVILEGED	= 1 << 3;
+	const int PROPERTY_GRID			= 1 << 4;
+	const int PROPERTY_PRIVATE		= 1 << 5;
+	const int PROPERTY_DISABLED		= 1 << 6;  
+	const int PROPERTY_SUSPENDED	= 1 << 7;
+
+
 	const static F64 DEFAULT_EXPIRATION = 600.0;
 
-	// dummy name used when we have nothing else
-	const std::string DUMMY_NAME = "\?\?\?";
 	// Callback types for get() below
 	typedef boost::signals2::signal<void (const LLSD& experience)>
 		callback_signal_t;
@@ -69,16 +77,20 @@ namespace LLExperienceCache
 	void exportFile(std::ostream& ostr);
 	void importFile(std::istream& istr);
 	void initClass();
+	void bootstrap(const LLSD& legacyKeys, int initialExpiration);
 	
-	void erase(const LLUUID& key, const std::string& key_type);
-	bool fetch(const LLUUID& key, const std::string& key_type, bool refresh = false);
+	void erase(const LLUUID& key);
+	bool fetch(const LLUUID& key, bool refresh=false);
 	void insert(LLSD& experience_data);
-	bool get(const LLUUID& key, const std::string& key_type, LLSD& experience_data);
+	bool get(const LLUUID& key, LLSD& experience_data);
 
 	// If name information is in cache, callback will be called immediately.
-	void get(const LLUUID& key, const std::string& key_type, callback_slot_t slot);
+	void get(const LLUUID& key, callback_slot_t slot);
 
 	const cache_t& getCached();
+
+	LLUUID getExperienceId(const LLUUID& private_key, bool null_if_not_found=false);
+
 };
 
 #endif // LL_LLEXPERIENCECACHE_H

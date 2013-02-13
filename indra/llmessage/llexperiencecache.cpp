@@ -34,12 +34,15 @@
 #include "boost/tokenizer.hpp"
 
 
-
-
-
 namespace LLExperienceCache
 {
-	const std::string& MAP_KEY = PUBLIC_KEY;
+
+	typedef std::map<LLUUID, LLUUID> PrivateKeyMap;
+	PrivateKeyMap experinceKeyMap;
+	
+	void mapPrivateKeys(const LLSD& legacyKeys);
+
+
 	std::string sLookupURL;
 
 	typedef std::map<LLUUID, std::string> ask_queue_t;
@@ -76,19 +79,14 @@ namespace LLExperienceCache
 			row["expires"] = row["expires"].asReal() + LLFrameTimer::getTotalSeconds();
 		}
 
-		if(row.has(PUBLIC_KEY))
+		if(row.has(EXPERIENCE_ID))
 		{
-			sPendingQueue.erase(row[PUBLIC_KEY].asUUID());
+			sPendingQueue.erase(row[EXPERIENCE_ID].asUUID());
 		}
 
-		if(row.has(PRIVATE_KEY))
+		if(row.has(OWNER_ID))
 		{
-			sPendingQueue.erase(row[PRIVATE_KEY].asUUID());
-		}
-
-		if(row.has(CREATOR_KEY))
-		{
-			sPendingQueue.erase(row[CREATOR_KEY].asUUID());
+			sPendingQueue.erase(row[OWNER_ID].asUUID());
 		}
 
 			
@@ -118,6 +116,31 @@ namespace LLExperienceCache
 	{
 		sMaximumLookups = maximumLookups;
 	}
+
+	void bootstrap(const LLSD& legacyKeys, int initialExpiration)
+	{
+		mapPrivateKeys(legacyKeys);
+		LLSD::array_const_iterator it = legacyKeys.beginArray();
+		for(/**/; it != legacyKeys.endArray(); ++it)
+		{
+			LLSD experience = *it;
+			if(experience.has(EXPERIENCE_ID))
+			{
+				if(!experience.has("expires"))
+				{
+					experience["expires"] = initialExpiration;
+				}
+				processExperience(experience[EXPERIENCE_ID].asUUID(), experience);
+			}
+			else
+			{
+				LL_WARNS("ExperienceCache") 
+					<< "Skipping bootstrap entry which is missing " << EXPERIENCE_ID 
+					<< LL_ENDL;
+			}
+		}		
+	}
+
 
 
 	bool expirationFromCacheControl(LLSD headers, F64 *expires)
@@ -227,7 +250,7 @@ namespace LLExperienceCache
 		cache_t::const_iterator it =sCache.begin();
 		for( ; it != sCache.end() ; ++it)
 		{
-			if(!it->second.has(PUBLIC_KEY) || it->second[PUBLIC_KEY].asUUID().isNull() ||
+			if(!it->second.has(EXPERIENCE_ID) || it->second[EXPERIENCE_ID].asUUID().isNull() ||
 				it->second.has("error"))
 				continue;
 
@@ -261,7 +284,7 @@ namespace LLExperienceCache
 			for( /**/ ; it != experiences.endArray(); ++it)
 			{
 				const LLSD& row = *it;
-				LLUUID public_key = row[PUBLIC_KEY].asUUID();
+				LLUUID public_key = row[EXPERIENCE_ID].asUUID();
 
 
 				LL_INFOS("ExperienceCache") << "Received result for " << public_key 
@@ -280,7 +303,7 @@ namespace LLExperienceCache
 					LL_INFOS("ExperienceCache") << "Clearing error result for " << id 
 						<< " of type '" << it->asString() << "'" << LL_ENDL ;
 
-					erase(id, it->asString());
+					erase(id);
 				}
 			}
 
@@ -301,8 +324,8 @@ namespace LLExperienceCache
  			for ( ; it != mKeys.end(); ++it)
 			{
 				LLSD exp;
-				exp["expires"]=retry_timestamp;
-				exp[it->second] = it->first;
+				exp[EXPIRES]=retry_timestamp;
+				exp[EXPERIENCE_ID] = it->first;
 				exp["key_type"] = it->second;
 				exp["uuid"] = it->first;
 				exp["error"] = (LLSD::Integer)status;
@@ -470,34 +493,9 @@ namespace LLExperienceCache
 		}
 	}
 
-	struct FindByKey
+	void erase( const LLUUID& key )
 	{
-		FindByKey(const LLUUID& key, const std::string& key_type):mKey(key), mKeyType(key_type){}
-		const LLUUID& mKey;
-		const std::string& mKeyType;
-
-		bool operator()(cache_t::value_type& experience)
-		{
-			return experience.second.has(mKeyType) && experience.second[mKeyType].asUUID() == mKey;
-		}
-	};
-
-
-	cache_t::iterator Find(const LLUUID& key, const std::string& key_type)
-	{
-		LL_INFOS("ExperienceCache") << " searching for " << key << " of type " << key_type << LL_ENDL;
-		if(key_type == MAP_KEY)
-		{
-			return sCache.find(key);
-		}
-
-		return std::find_if(sCache.begin(), sCache.end(), FindByKey(key, key_type));
-	}
-
-
-	void erase( const LLUUID& key, const std::string& key_type )
-	{
-		cache_t::iterator it = Find(key, key_type);
+		cache_t::iterator it = sCache.find(key);
 				
 		if(it != sCache.end())
 		{
@@ -518,15 +516,15 @@ namespace LLExperienceCache
 			{
 				if(exp.has("key_type") && exp.has("uuid"))
 				{
-					fetch(exp["uuid"].asUUID(), exp["key_type"].asString(), true);
+					fetch(exp[EXPERIENCE_ID].asUUID(), true);
 					sCache.erase(cur);
 				}
-				else if(exp.has(MAP_KEY))
+				else if(exp.has(EXPERIENCE_ID))
 				{
-					LLUUID id = exp[MAP_KEY];
-					if(!id.isNull())
+					LLUUID id = exp[EXPERIENCE_ID].asUUID();
+					if(id.notNull())
 					{
-						fetch(id, MAP_KEY, true);
+						fetch(id, true);
 					}
 				}
 			}
@@ -534,12 +532,12 @@ namespace LLExperienceCache
 	}
 
 	
-	bool fetch( const LLUUID& key, const std::string& key_type, bool refresh/* = true*/ ) 
+	bool fetch( const LLUUID& key, bool refresh/* = true*/ ) 
 	{
-		if(!key.isNull() && !isRequestPending(key) && (refresh || Find(key, key_type)==sCache.end()))
+		if(!key.isNull() && !isRequestPending(key) && (refresh || sCache.find(key)==sCache.end()))
 		{
-			LL_INFOS("ExperienceCache") << " queue request for " << key_type << " " << key << LL_ENDL ;
-			sAskQueue[key]=key_type;
+			LL_INFOS("ExperienceCache") << " queue request for " << EXPERIENCE_ID << " " << key << LL_ENDL ;
+			sAskQueue[key]=EXPERIENCE_ID;
 
 			return true;
 		}
@@ -548,20 +546,20 @@ namespace LLExperienceCache
 
 	void insert(const LLSD& experience_data )
 	{
-		if(experience_data.has(MAP_KEY))
+		if(experience_data.has(EXPERIENCE_ID))
 		{
-			sCache[experience_data[MAP_KEY].asUUID()]=experience_data;
+			sCache[experience_data[EXPERIENCE_ID].asUUID()]=experience_data;
 		}
 		else
 		{
-			LL_WARNS("ExperienceCache") << ": Ignoring cache insert of experience which is missing " << MAP_KEY << LL_ENDL;
+			LL_WARNS("ExperienceCache") << ": Ignoring cache insert of experience which is missing " << EXPERIENCE_ID << LL_ENDL;
 		}
 	}
 
-	bool get( const LLUUID& key, const std::string& key_type, LLSD& experience_data )
+	bool get( const LLUUID& key, LLSD& experience_data )
 	{
 		if(key.isNull()) return false;
-		cache_t::const_iterator it = Find(key, key_type);
+		cache_t::const_iterator it = sCache.find(key);
 	
 		if (it != sCache.end())
 		{
@@ -569,17 +567,17 @@ namespace LLExperienceCache
 			return true;
 		}
 		
-		fetch(key, key_type);
+		fetch(key);
 
 		return false;
 	}
 
 
-	void get( const LLUUID& key, const std::string& key_type, callback_slot_t slot )
+	void get( const LLUUID& key, callback_slot_t slot )
 	{
 		if(key.isNull()) return;
 
-		cache_t::const_iterator it = Find(key, key_type);
+		cache_t::const_iterator it = sCache.find(key);
 		if (it != sCache.end())
 		{
 			// ...name already exists in cache, fire callback now
@@ -590,7 +588,7 @@ namespace LLExperienceCache
 			return;
 		}
 
-		fetch(key, key_type);
+		fetch(key);
 
 		// always store additional callback, even if request is pending
 		signal_map_t::iterator sig_it = sSignalMap.find(key);
@@ -609,4 +607,38 @@ namespace LLExperienceCache
 		}
 	}
 
+}
+
+
+
+void LLExperienceCache::mapPrivateKeys( const LLSD& legacyKeys )
+{
+	LLSD::array_const_iterator exp = legacyKeys.beginArray();
+	for(/**/ ; exp != legacyKeys.endArray() ; ++exp)
+	{
+		if(exp->has(LLExperienceCache::EXPERIENCE_ID) && exp->has(LLExperienceCache::PRIVATE_KEY))
+		{
+			experinceKeyMap[(*exp)[LLExperienceCache::PRIVATE_KEY].asUUID()]=(*exp)[LLExperienceCache::EXPERIENCE_ID].asUUID();
+		}
+	}
+}
+
+
+LLUUID LLExperienceCache::getExperienceId(const LLUUID& private_key, bool null_if_not_found)
+{
+	if (private_key.isNull())
+		return LLUUID::null;
+
+
+	PrivateKeyMap::const_iterator it=experinceKeyMap.find(private_key);
+	if(it == experinceKeyMap.end())
+	{
+		if(null_if_not_found)
+		{
+			return LLUUID::null;
+		}
+		return private_key;
+	}
+	LL_WARNS("LLExperience") << "converted private key " << private_key << " to experience_id " << it->second << LL_ENDL;
+	return it->second;
 }

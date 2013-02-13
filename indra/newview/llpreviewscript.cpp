@@ -1229,13 +1229,13 @@ public:
 
 		scriptCore->clearExperiences();
 
-		LLSD experiences = content["experiences"];
+		LLSD experiences = content["experience_ids"];
 		LLSD::array_const_iterator it = experiences.beginArray();
 		for( /**/ ; it != experiences.endArray(); ++it)
 		{
 			LLUUID public_key = it->asUUID();
 
-			LLExperienceCache::get(public_key, LLExperienceCache::PUBLIC_KEY, boost::bind(AddExperienceResult, mParent, _1));
+			LLExperienceCache::get(public_key, boost::bind(AddExperienceResult, mParent, _1));
 		}
 	}
 };
@@ -1247,7 +1247,7 @@ void LLScriptEdCore::requestExperiences()
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)
 	{
-		std::string lookup_url=region->getCapability("GetExperiences"); 
+		std::string lookup_url=region->getCapability("GetCreatorExperiences"); 
 		if(!lookup_url.empty())
 		{
 			LLHTTPClient::get(lookup_url, new ExperienceResponder(getDerivedHandle<LLScriptEdCore>()));
@@ -1270,9 +1270,9 @@ void LLScriptEdCore::clearExperiences()
 LLUUID LLScriptEdCore::getSelectedExperience()const
 {
 	LLSD value = mExperiences->getSelectedValue();
-	if(value.has(LLExperienceCache::PUBLIC_KEY))
+	if(value.has(LLExperienceCache::EXPERIENCE_ID))
 	{
-		return value[LLExperienceCache::PUBLIC_KEY].asUUID();
+		return value[LLExperienceCache::EXPERIENCE_ID].asUUID();
 	}
 	return LLUUID::null;
 }

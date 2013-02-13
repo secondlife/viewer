@@ -56,7 +56,7 @@ public:
 		{
 			LLUUID public_key = it->asUUID();
 
-			LLExperienceCache::get(public_key, LLExperienceCache::PUBLIC_KEY, boost::bind(ExperienceResult, mParent, _1));
+			LLExperienceCache::get(public_key, boost::bind(ExperienceResult, mParent, _1));
 		}
 	}
 };
@@ -73,9 +73,9 @@ void LLPanelExperiences::addExperienceInfo(const LLSD& experience)
 		item->setExperienceName(experience["error"].asString());
 	}
 
-	if(experience.has(LLExperienceCache::PUBLIC_KEY))
+	if(experience.has(LLExperienceCache::DESCRIPTION))
 	{
-		item->setExperienceDescription(experience[LLExperienceCache::PUBLIC_KEY].asString());
+		item->setExperienceDescription(experience[LLExperienceCache::DESCRIPTION].asString());
 	}
 
 	mExperiencesList->addItem(item);
@@ -228,7 +228,7 @@ void LLExperienceItem::init( LLSD* experience_data )
 {
 	if(experience_data)
 	{
-		setExperienceDescription(experience_data->has(LLExperienceCache::PUBLIC_KEY)?(*experience_data)[LLExperienceCache::PUBLIC_KEY].asString() : std::string());
+		setExperienceDescription(experience_data->has(LLExperienceCache::DESCRIPTION)?(*experience_data)[LLExperienceCache::DESCRIPTION].asString() : std::string());
 		setExperienceName(experience_data->has(LLExperienceCache::NAME)?(*experience_data)[LLExperienceCache::NAME].asString() : std::string());
 	}
 }
