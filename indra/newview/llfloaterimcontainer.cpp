@@ -68,8 +68,9 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
     mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLFloaterIMContainer::isActionChecked, this, _2));
 	mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLFloaterIMContainer::onCustomAction,  this, _2));
 	
-    mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLFloaterIMContainer::checkContextMenuItem,	this, _2));
-    mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLFloaterIMContainer::enableContextMenuItem,	this, _2));
+	mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLFloaterIMContainer::checkContextMenuItem,	this, _2));
+	mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLFloaterIMContainer::enableContextMenuItem,	this, _2));
+	mEnableCallbackRegistrar.add("Avatar.VisibleItem", boost::bind(&LLFloaterIMContainer::visibleContextMenuItem,	this, _2));
     mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLFloaterIMContainer::doToSelected, this, _2));
     
     mCommitCallbackRegistrar.add("Group.DoToSelected", boost::bind(&LLFloaterIMContainer::doToSelectedGroup, this, _2));
@@ -1288,6 +1289,22 @@ bool LLFloaterIMContainer::checkContextMenuItem(const std::string& item, uuid_ve
     }
 
     return false;
+}
+
+bool LLFloaterIMContainer::visibleContextMenuItem(const LLSD& userdata)
+{
+	const std::string& item = userdata.asString();
+
+	if ("show_mute" == item)
+	{
+		return !isMuted(getCurSelectedViewModelItem()->getUUID());
+	}
+	else if ("show_unmute" == item)
+	{
+		return isMuted(getCurSelectedViewModelItem()->getUUID());
+	}
+
+	return true;
 }
 
 void LLFloaterIMContainer::showConversation(const LLUUID& session_id)
