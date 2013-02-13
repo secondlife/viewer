@@ -4339,7 +4339,6 @@ void LLAgent::sendAgentSetAppearance()
 	{
 		// Change is fully resolved, can close some open phases.
 		gAgentAvatarp->stopPhase("process_initial_wearables_update");
-		gAgentAvatarp->stopPhase("wear_inventory_category");
 	}
 
 	if (!isAgentAvatarValid() || (getRegion() && getRegion()->getCentralBakeVersion())) return;

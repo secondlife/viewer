@@ -5933,6 +5933,12 @@ void LLVOAvatar::updateRezzedStatusTimers()
 			{
 				stopPhase("load_" + LLVOAvatar::rezStatusToString(i));
 			}
+			if (rez_status == 3)
+			{
+				// "fully loaded", mark any pending appearance change complete.
+				selfStopPhase("update_appearance_from_cof");
+				selfStopPhase("wear_inventory_category");
+			}
 		}
 
 		mLastRezzedStatus = rez_status;

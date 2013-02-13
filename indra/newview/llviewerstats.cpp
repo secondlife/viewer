@@ -763,7 +763,7 @@ void LLViewerStats::PhaseMap::stopPhase(const std::string& phase_name)
 	{
 		if (iter->second.getStarted())
 		{
-			// Going from started to paused state - record stats.
+			// Going from started to stopped state - record stats.
 			iter->second.stop();
 		}
 	}
