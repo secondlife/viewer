@@ -4456,6 +4456,7 @@ void LLVOAvatar::setTexEntry(const U8 index, const LLTextureEntry &te)
 
 const std::string LLVOAvatar::getImageURL(const U8 te, const LLUUID &uuid)
 {
+	llassert(isIndexBakedTexture(ETextureIndex(te)));
 	std::string url = "";
 	if (isUsingServerBakes())
 	{
@@ -5872,43 +5873,15 @@ BOOL LLVOAvatar::getIsCloud() const
 
 void LLVOAvatar::updateRezzedStatusTimers()
 {
-	// State machine for rezzed status. Statuses are -1 on startup, 0 = cloud, 1 = gray, 2 = textured, 3 = textured_and_downloaded.
-	// Purpose is to collect time data for each period of cloud or cloud+gray.
+	// State machine for rezzed status. Statuses are -1 on startup, 0
+	// = cloud, 1 = gray, 2 = textured, 3 = textured_and_downloaded.
+	// Purpose is to collect time data for each it takes avatar to reach
+	// various loading landmarks: gray, textured (partial), textured fully.
 
 	S32 rez_status = getRezzedStatus();
 	if (rez_status != mLastRezzedStatus)
 	{
 		LL_DEBUGS("Avatar") << avString() << "rez state change: " << mLastRezzedStatus << " -> " << rez_status << LL_ENDL;
-#if 0
-		bool is_cloud_or_gray = (rez_status==0 || rez_status==1);
-		bool was_cloud_or_gray = (mLastRezzedStatus==0 || mLastRezzedStatus==1);
-		bool is_cloud = (rez_status==0);
-		bool was_cloud = (mLastRezzedStatus==0);
-
-		// Non-cloud to cloud
-		if (is_cloud && !was_cloud)
-		{
-			// start cloud timer.
-			startPhase("cloud");
-		}
-		else if (was_cloud && !is_cloud)
-		{
-			// stop cloud timer, which will capture stats.
-			stopPhase("cloud");
-		}
-
-		// Non-cloud-or-gray to cloud-or-gray
-		if (is_cloud_or_gray && !was_cloud_or_gray)
-		{
-			// start cloud-or-gray timer.
-			startPhase("cloud-or-gray");
-		}
-		else if (was_cloud_or_gray && !is_cloud_or_gray)
-		{
-			// stop cloud-or-gray timer, which will capture stats.
-			stopPhase("cloud-or-gray");
-		}
-#endif
 
 		if (mLastRezzedStatus == -1 && rez_status != -1)
 		{
@@ -5937,7 +5910,8 @@ void LLVOAvatar::updateRezzedStatusTimers()
 			{
 				// "fully loaded", mark any pending appearance change complete.
 				selfStopPhase("update_appearance_from_cof");
-				selfStopPhase("wear_inventory_category");
+				selfStopPhase("wear_inventory_category", false);
+				selfStopPhase("process_initial_wearables_update", false);
 			}
 		}
 
@@ -5958,7 +5932,7 @@ void LLVOAvatar::startPhase(const std::string& phase_name)
 	{
 		if (!completed)
 		{
-			LL_DEBUGS("Avatar") << "start when started already for " << phase_name << llendl;
+			LL_DEBUGS("Avatar") << "no-op, start when started already for " << phase_name << llendl;
 			return;
 		}
 	}
@@ -5966,7 +5940,7 @@ void LLVOAvatar::startPhase(const std::string& phase_name)
 	getPhases().startPhase(phase_name);
 }
 
-void LLVOAvatar::stopPhase(const std::string& phase_name)
+void LLVOAvatar::stopPhase(const std::string& phase_name, bool err_check)
 {
 	F32 elapsed;
 	bool completed;
@@ -5974,19 +5948,25 @@ void LLVOAvatar::stopPhase(const std::string& phase_name)
 	{
 		if (!completed)
 		{
-			LL_DEBUGS("Avatar") << "stopped phase " << phase_name << llendl;
 			getPhases().stopPhase(phase_name);
 			completed = true;
 			logMetricsTimerRecord(phase_name, elapsed, completed);
+			LL_DEBUGS("Avatar") << "stopped phase " << phase_name << " elapsed " << elapsed << llendl;
 		}
 		else
 		{
-			LL_DEBUGS("Avatar") << "stop when stopped already for " << phase_name << llendl;
+			if (err_check)
+			{
+				LL_DEBUGS("Avatar") << "no-op, stop when stopped already for " << phase_name << llendl;
+			}
 		}
 	}
 	else
 	{
-		LL_DEBUGS("Avatar") << "stop when not started for " << phase_name << llendl;
+		if (err_check)
+		{
+			LL_DEBUGS("Avatar") << "no-op, stop when not started for " << phase_name << llendl;
+		}
 	}
 }
 
@@ -6043,9 +6023,11 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 	record["is_self"] = isSelf();
 	
 
+#if 0 // verbose logging
 	std::ostringstream ostr;
 	ostr << LLSDNotationStreamer(record);
 	LL_DEBUGS("Avatar") << "record\n" << ostr.str() << llendl;
+#endif
 
 	if (isAgentAvatarValid())
 	{
@@ -6264,7 +6246,8 @@ void LLVOAvatar::updateMeshTextures()
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 			LLViewerFetchedTexture* existing_baked_img = LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[i].mLastTextureID);
 #endif
-			const std::string url = getImageURL(i, mBakedTextureDatas[i].mLastTextureID);
+			ETextureIndex te = ETextureIndex(mBakedTextureDatas[i].mTextureIndex);
+			const std::string url = getImageURL(te, mBakedTextureDatas[i].mLastTextureID);
 			if (!url.empty())
 			{
 				baked_img = LLViewerTextureManager::getFetchedTextureFromUrl(url, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, mBakedTextureDatas[i].mLastTextureID);
