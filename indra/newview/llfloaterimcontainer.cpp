@@ -259,6 +259,7 @@ void LLFloaterIMContainer::onOpen(const LLSD& key)
 {
 	LLMultiFloater::onOpen(key);
 	openNearbyChat();
+	reSelectConversation();
 	assignResizeLimits();
 }
 
