@@ -729,6 +729,8 @@ LLVOAvatar::~LLVOAvatar()
 		debugAvatarRezTime("AvatarRezLeftNotification","left sometime after declouding");
 	}
 
+	logPendingPhases();
+	
 	lldebugs << "LLVOAvatar Destructor (0x" << this << ") id:" << mID << llendl;
 
 	std::for_each(mAttachmentPoints.begin(), mAttachmentPoints.end(), DeletePairedPointer());
@@ -1796,13 +1798,13 @@ LLViewerFetchedTexture *LLVOAvatar::getBakedTextureImage(const U8 te, const LLUU
 		const std::string url = getImageURL(te,uuid);
 		if (!url.empty())
 		{
-			llinfos << "texture URL " << url << llendl;
+			LL_DEBUGS("Avatar") << avString() << "from URL " << url << llendl;
 			result = LLViewerTextureManager::getFetchedTextureFromUrl(
 				url, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, uuid);
 		}
 		else
 		{
-			llinfos << "get texture from host " << uuid << llendl;
+			LL_DEBUGS("Avatar") << avString() << "from host " << uuid << llendl;
 			LLHost host = getObjectHost();
 			result = LLViewerTextureManager::getFetchedTexture(
 				uuid, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host);
@@ -4190,15 +4192,15 @@ void LLVOAvatar::releaseOldTextures()
 
 	std::set<LLUUID> local_texture_ids;
 	collectLocalTextureUUIDs(local_texture_ids);
-	S32 new_local_mem = totalTextureMemForUUIDS(local_texture_ids);
+	//S32 new_local_mem = totalTextureMemForUUIDS(local_texture_ids);
 
 	std::set<LLUUID> new_texture_ids;
 	new_texture_ids.insert(baked_texture_ids.begin(),baked_texture_ids.end());
 	new_texture_ids.insert(local_texture_ids.begin(),local_texture_ids.end());
 	S32 new_total_mem = totalTextureMemForUUIDS(new_texture_ids);
 
-	S32 old_total_mem = totalTextureMemForUUIDS(mTextureIDs);
-	LL_DEBUGS("Avatar") << getFullname() << " old_total_mem: " << old_total_mem << " new_total_mem (L/B): " << new_total_mem << " (" << new_local_mem <<", " << new_baked_mem << ")" << llendl;  
+	//S32 old_total_mem = totalTextureMemForUUIDS(mTextureIDs);
+	//LL_DEBUGS("Avatar") << getFullname() << " old_total_mem: " << old_total_mem << " new_total_mem (L/B): " << new_total_mem << " (" << new_local_mem <<", " << new_baked_mem << ")" << llendl;  
 	if (!isSelf() && new_total_mem > new_baked_mem)
 	{
 			llwarns << "extra local textures stored for non-self av" << llendl;
@@ -5932,7 +5934,7 @@ void LLVOAvatar::startPhase(const std::string& phase_name)
 	{
 		if (!completed)
 		{
-			LL_DEBUGS("Avatar") << "no-op, start when started already for " << phase_name << llendl;
+			LL_DEBUGS("Avatar") << avString() << "no-op, start when started already for " << phase_name << llendl;
 			return;
 		}
 	}
@@ -5951,7 +5953,7 @@ void LLVOAvatar::stopPhase(const std::string& phase_name, bool err_check)
 			getPhases().stopPhase(phase_name);
 			completed = true;
 			logMetricsTimerRecord(phase_name, elapsed, completed);
-			LL_DEBUGS("Avatar") << "stopped phase " << phase_name << " elapsed " << elapsed << llendl;
+			LL_DEBUGS("Avatar") << avString() << "stopped phase " << phase_name << " elapsed " << elapsed << llendl;
 		}
 		else
 		{

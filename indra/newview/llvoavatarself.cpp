@@ -2269,7 +2269,11 @@ bool LLVOAvatarSelf::updateAvatarRezMetrics(bool force_send)
 		// Stats for completed phases have been getting logged as they
 		// complete.  This will give us stats for any timers that
 		// haven't finished as of the metric's being sent.
-		LLVOAvatar::logPendingPhasesAllAvatars();
+		
+		if (force_send)
+		{
+			LLVOAvatar::logPendingPhasesAllAvatars();
+		}
 		sendViewerAppearanceChangeMetrics();
 	}
 
