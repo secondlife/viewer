@@ -256,12 +256,12 @@ void TimeBlock::processTimes()
 	while(cur_timer && cur_timer->mParentTimerData.mActiveTimer != cur_timer)
 	{
 		U64 cumulative_time_delta = cur_time - cur_timer->mStartTime;
-		accumulator->mTotalTimeCounter += cumulative_time_delta - (accumulator->mTotalTimeCounter - accumulator->mStartTotalTimeCounter);
+		accumulator->mTotalTimeCounter += cumulative_time_delta - (accumulator->mTotalTimeCounter - cur_timer->mBlockStartTotalTimeCounter);
 		accumulator->mSelfTimeCounter += cumulative_time_delta - stack_record->mChildTime;
 		stack_record->mChildTime = 0;
 
 		cur_timer->mStartTime = cur_time;
-		cur_timer->mStartTotalTimeCounter = accumulator->mTotalTimeCounter;
+		cur_timer->mBlockStartTotalTimeCounter = accumulator->mTotalTimeCounter;
 
 		stack_record = &cur_timer->mParentTimerData;
 		accumulator = stack_record->mTimeBlock->getPrimaryAccumulator();
@@ -376,7 +376,7 @@ void TimeBlock::dumpCurTimes()
 		}
 
 		out_str << timerp->getName() << " " 
-			<< std::setprecision(3) << total_time_ms.as<LLUnits::Milliseconds, F32>().value() << " ms, "
+			<< std::setprecision(3) << total_time_ms.as<LLUnits::Milliseconds>().value() << " ms, "
 			<< num_calls << " calls";
 
 		llinfos << out_str.str() << llendl;

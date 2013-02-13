@@ -106,10 +106,11 @@ struct LLUnit
 		return mValue;
 	}
 
-	template<typename NEW_UNIT_TYPE, typename NEW_STORAGE_TYPE> LLUnit<NEW_UNIT_TYPE, NEW_STORAGE_TYPE> as()
+	template<typename NEW_UNIT_TYPE> LLUnit<NEW_UNIT_TYPE, STORAGE_TYPE> as()
 	{
-		return LLUnit<NEW_UNIT_TYPE, NEW_STORAGE_TYPE>(*this);
+		return LLUnit<NEW_UNIT_TYPE, STORAGE_TYPE>(*this);
 	}
+
 
 	void operator += (storage_t value)
 	{

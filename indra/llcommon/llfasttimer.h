@@ -76,7 +76,7 @@ public:
 private:
 
 	U64						mStartTime;
-	U64						mStartTotalTimeCounter;
+	U64						mBlockStartTotalTimeCounter;
 	BlockTimerStackRecord	mParentTimerData;
 };
 
@@ -282,7 +282,7 @@ LL_FORCE_INLINE BlockTimer::BlockTimer(TimeBlock& timer)
 	BlockTimerStackRecord* cur_timer_data = ThreadTimerStack::getIfExists();
 	TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
 	accumulator->mActiveCount++;
-	mStartTotalTimeCounter = accumulator->mTotalTimeCounter;
+	mBlockStartTotalTimeCounter = accumulator->mTotalTimeCounter;
 	// keep current parent as long as it is active when we are
 	accumulator->mMoveUpTree |= (accumulator->mParent->getPrimaryAccumulator()->mActiveCount == 0);
 
@@ -303,7 +303,7 @@ LL_FORCE_INLINE BlockTimer::~BlockTimer()
 	TimeBlockAccumulator* accumulator = cur_timer_data->mTimeBlock->getPrimaryAccumulator();
 
 	accumulator->mCalls++;
-	accumulator->mTotalTimeCounter += total_time - (accumulator->mTotalTimeCounter - mStartTotalTimeCounter);
+	accumulator->mTotalTimeCounter += total_time - (accumulator->mTotalTimeCounter - mBlockStartTotalTimeCounter);
 	accumulator->mSelfTimeCounter += total_time - cur_timer_data->mChildTime;
 	accumulator->mActiveCount--;
 
