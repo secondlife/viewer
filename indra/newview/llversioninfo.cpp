@@ -25,6 +25,7 @@
  * $/LicenseInfo$
  */
 
+#include "llviewerprecompiledheaders.h"
 #include <iostream>
 #include <sstream>
 #include "llversioninfo.h"
