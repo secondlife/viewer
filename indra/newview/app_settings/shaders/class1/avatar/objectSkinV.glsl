@@ -26,7 +26,7 @@
 
 ATTRIBUTE vec4 weight4;  
 
-uniform mat4 matrixPalette[32];
+uniform mat4 matrixPalette[64];
 
 mat4 getObjectSkinnedTransform()
 {
