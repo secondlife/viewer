@@ -439,7 +439,7 @@ namespace LLInitParam
 		{}
 
 		void operator ()(const std::string& name)
-	{
+	    {
 			*this = name;
 		}
 
@@ -516,14 +516,30 @@ namespace LLInitParam
 		{
 			static bool read(T& param, Parser* parser)
 			{
-				// read all enums as ints
+				std::string value_string;
+				//TypeValues<T>::value_t v;
+
+				// trying to get the declare value
+				parser_read_func_map_t::iterator string_func = parser->mParserReadFuncs->find(&typeid(std::string));
+				if (string_func != parser->mParserReadFuncs->end())
+				{
+					if (string_func->second(*parser, (void*)&value_string))
+					{
+						if (TypeValues<T>::getValueFromName(value_string, param))
+						{
+							return true;
+						}
+					}
+				}
+
+				// read enums as ints if it not declared as string
 				parser_read_func_map_t::iterator found_it = parser->mParserReadFuncs->find(&typeid(S32));
 				if (found_it != parser->mParserReadFuncs->end())
 				{
-					S32 value;
-					if (found_it->second(*parser, (void*)&value))
+					S32 value_S32;
+					if (found_it->second(*parser, (void*)&value_S32))
 					{
-						param = (T)value;
+						param = (T)value_S32;
 						return true;
 					}
 				}

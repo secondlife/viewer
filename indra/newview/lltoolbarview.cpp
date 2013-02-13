@@ -241,8 +241,9 @@ bool LLToolBarView::loadToolbars(bool force_default)
 	LLXUIParser parser;
 	if (!err)
 	{
-	parser.readXUI(root, toolbar_set, toolbar_file);
+	    parser.readXUI(root, toolbar_set, toolbar_file);
 	}
+
 	if (!err && !toolbar_set.validateBlock())
 	{
 		llwarns << "Unable to validate toolbars from file: " << toolbar_file << llendl;
@@ -254,8 +255,9 @@ bool LLToolBarView::loadToolbars(bool force_default)
 		if (force_default)
 		{
 			llerrs << "Unable to load toolbars from default file : " << toolbar_file << llendl;
-		return false;
-	}
+		    return false;
+	    }
+
 		// Try to load the default toolbars
 		return loadToolbars(true);
 	}
