@@ -517,7 +517,6 @@ namespace LLInitParam
 			static bool read(T& param, Parser* parser)
 			{
 				std::string value_string;
-				//TypeValues<T>::value_t v;
 
 				// trying to get the declare value
 				parser_read_func_map_t::iterator string_func = parser->mParserReadFuncs->find(&typeid(std::string));
