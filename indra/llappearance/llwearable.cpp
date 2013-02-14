@@ -191,7 +191,7 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 	// We are using a local max buffer size here to avoid issues
 	// if MAX_STRING size changes.
 	const U32 PARSE_BUFFER_SIZE = 2048;
-	char buffer[2048];		/* Flawfinder: ignore */
+	char buffer[PARSE_BUFFER_SIZE];		/* Flawfinder: ignore */
 	char uuid_buffer[37];	/* Flawfinder: ignore */
 
 	// This data is being generated on the viewer.
@@ -205,12 +205,11 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 	}
 
 	// read header and version 
-	if (!input_stream.good())
+	if (!getNextPopulatedLine(input_stream, buffer, PARSE_BUFFER_SIZE))
 	{
 		llwarns << "Failed to read wearable asset input stream." << llendl;
 		return LLWearable::FAILURE;
 	}
-	input_stream.getline(buffer, PARSE_BUFFER_SIZE);
 	if ( 1 != sscanf( /* Flawfinder: ignore */
 				buffer,
 				"LLWearable version %d\n",
@@ -230,8 +229,8 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 		return LLWearable::FAILURE;
 	}
 
-	// name
-	if (!input_stream.good())
+	// name may be empty
+    if (!input_stream.good())
 	{
 		llwarns << "Bad Wearable asset: early end of input stream " 
 				<< "while reading name" << llendl;
@@ -240,7 +239,7 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 	input_stream.getline(buffer, PARSE_BUFFER_SIZE);
 	mName = buffer;
 
-	// description
+	// description may be empty
 	if (!input_stream.good())
 	{
 		llwarns << "Bad Wearable asset: early end of input stream " 
@@ -250,14 +249,13 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 	input_stream.getline(buffer, PARSE_BUFFER_SIZE);
 	mDescription = buffer;
 
-	// permissions
-	if (!input_stream.good())
+	// permissions may have extra empty lines before the correct line
+	if (!getNextPopulatedLine(input_stream, buffer, PARSE_BUFFER_SIZE))
 	{
 		llwarns << "Bad Wearable asset: early end of input stream " 
 				<< "while reading permissions" << llendl;
 		return LLWearable::FAILURE;
 	}
-	input_stream.getline(buffer, PARSE_BUFFER_SIZE);
 	S32 perm_version = -1;
 	if ( 1 != sscanf( buffer, " permissions %d\n", &perm_version ) ||
 		 perm_version != 0 )
@@ -271,13 +269,12 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 	}
 
 	// sale info
-	if (!input_stream.good())
+	if (!getNextPopulatedLine(input_stream, buffer, PARSE_BUFFER_SIZE))
 	{
 		llwarns << "Bad Wearable asset: early end of input stream " 
 				<< "while reading sale info" << llendl;
 		return LLWearable::FAILURE;
 	}
-	input_stream.getline(buffer, PARSE_BUFFER_SIZE);
 	S32 sale_info_version = -1;
 	if ( 1 != sscanf( buffer, " sale_info %d\n", &sale_info_version ) ||
 		sale_info_version != 0 )
@@ -306,13 +303,12 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 	}
 
 	// wearable type
-	if (!input_stream.good())
+	if (!getNextPopulatedLine(input_stream, buffer, PARSE_BUFFER_SIZE))
 	{
 		llwarns << "Bad Wearable asset: early end of input stream " 
 				<< "while reading type" << llendl;
 		return LLWearable::FAILURE;
 	}
-	input_stream.getline(buffer, PARSE_BUFFER_SIZE);
 	S32 type = -1;
 	if ( 1 != sscanf( buffer, "type %d\n", &type ) )
 	{
@@ -331,13 +327,12 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 	}
 
 	// parameters header
-	if (!input_stream.good())
+	if (!getNextPopulatedLine(input_stream, buffer, PARSE_BUFFER_SIZE))
 	{
 		llwarns << "Bad Wearable asset: early end of input stream " 
 				<< "while reading parameters header" << llendl;
 		return LLWearable::FAILURE;
 	}
-	input_stream.getline(buffer, PARSE_BUFFER_SIZE);
 	S32 num_parameters = -1;
 	if ( 1 != sscanf( buffer, "parameters %d\n", &num_parameters ) )
 	{
@@ -363,13 +358,12 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 	S32 i;
 	for( i = 0; i < num_parameters; i++ )
 	{
-		if (!input_stream.good())
+		if (!getNextPopulatedLine(input_stream, buffer, PARSE_BUFFER_SIZE))
 		{
 			llwarns << "Bad Wearable asset: early end of input stream " 
 					<< "while reading parameter #" << i << llendl;
 			return LLWearable::FAILURE;
 		}
-		input_stream.getline(buffer, PARSE_BUFFER_SIZE);
 		S32 param_id = 0;
 		F32 param_weight = 0.f;
 		if ( 2 != sscanf( buffer, "%d %f\n", &param_id, &param_weight ) )
@@ -381,13 +375,12 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 	}
 
 	// textures header
-	if (!input_stream.good())
+	if (!getNextPopulatedLine(input_stream, buffer, PARSE_BUFFER_SIZE))
 	{
 		llwarns << "Bad Wearable asset: early end of input stream " 
 				<< "while reading textures header" << i << llendl;
 		return LLWearable::FAILURE;
 	}
-	input_stream.getline(buffer, PARSE_BUFFER_SIZE);
 	S32 num_textures = -1;
 	if ( 1 != sscanf( buffer, "textures %d\n", &num_textures) )
 	{
@@ -404,13 +397,12 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 	// textures
 	for( i = 0; i < num_textures; i++ )
 	{
-		if (!input_stream.good())
+		if (!getNextPopulatedLine(input_stream, buffer, PARSE_BUFFER_SIZE))
 		{
 			llwarns << "Bad Wearable asset: early end of input stream " 
 					<< "while reading textures #" << i << llendl;
 			return LLWearable::FAILURE;
 		}
-		input_stream.getline(buffer, PARSE_BUFFER_SIZE);
 		S32 te = 0;
 		if ( 2 != sscanf(   /* Flawfinder: ignore */
 				buffer,
@@ -448,6 +440,22 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 	revertValues();
 
 	return LLWearable::SUCCESS;
+}
+
+BOOL LLWearable::getNextPopulatedLine(std::istream& input_stream, char* buffer, U32 buffer_size)
+{
+	if (!input_stream.good())
+	{
+		return FALSE;
+	}
+
+	do 
+	{
+		input_stream.getline(buffer, buffer_size);
+	}
+	while (input_stream.good() && buffer[0]=='\0');
+
+	return input_stream.good(); 
 }
 
 
