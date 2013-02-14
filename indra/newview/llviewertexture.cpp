@@ -1050,6 +1050,7 @@ void LLViewerFetchedTexture::loadFromFastCache()
 		{ 
 			//discard all oversized textures.
 			destroyRawImage();
+			llwarns << "oversized, setting as missing" << llendl;
 			setIsMissingAsset();
 			mRawDiscardLevel = INVALID_DISCARD_LEVEL ;
 		}
@@ -1316,6 +1317,7 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 		// An inappropriately-sized image was uploaded (through a non standard client)
 		// We treat these images as missing assets which causes them to
 		// be renderd as 'missing image' and to stop requesting data
+		llwarns << "!size_ok, setting as missing" << llendl;
 		setIsMissingAsset();
 		destroyRawImage();
 		return FALSE;
@@ -1774,6 +1776,7 @@ bool LLViewerFetchedTexture::updateFetch()
 				{ 
 					//discard all oversized textures.
 					destroyRawImage();
+					llwarns << "oversize, setting as missing" << llendl;
 					setIsMissingAsset();
 					mRawDiscardLevel = INVALID_DISCARD_LEVEL ;
 					mIsFetching = FALSE ;
@@ -1803,6 +1806,7 @@ bool LLViewerFetchedTexture::updateFetch()
 				// We finished but received no data
 				if (current_discard < 0)
 				{
+					llwarns << "!mIsFetching, setting as missing" << llendl;
 					setIsMissingAsset();
 					desired_discard = -1;
 				}

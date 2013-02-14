@@ -1491,6 +1491,7 @@ void LLViewerTextureList::processImageNotInDatabase(LLMessageSystem *msg,void **
 	LLViewerFetchedTexture* image = gTextureList.findImage( image_id );
 	if( image )
 	{
+		llwarns << "not in db" << llendl;
 		image->setIsMissingAsset();
 	}
 }

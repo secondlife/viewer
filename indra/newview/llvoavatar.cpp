@@ -7188,7 +7188,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture
 			}
 			if (!found_texture_id)
 			{
-				llinfos << "onBakedTextureMasksLoaded(): unexpected image id: " << id << llendl;
+				llinfos << "unexpected image id: " << id << llendl;
 			}
 			self->dirtyMesh();
 		}
@@ -7196,7 +7196,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture
 		{
             // this can happen when someone uses an old baked texture possibly provided by 
             // viewer-side baked texture caching
-			llwarns << "Masks loaded callback but NO aux source!" << llendl;
+			llwarns << "Masks loaded callback but NO aux source, id " << id << llendl;
 		}
 	}
 
