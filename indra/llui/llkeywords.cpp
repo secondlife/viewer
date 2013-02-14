@@ -145,8 +145,7 @@ std::string LLKeywords::getArguments(LLSD& arguments)
 		LLSD::map_iterator argsIt = arguments.beginMap();
 		for ( ; argsIt != arguments.endMap(); ++argsIt)
 		{
-				LLSD arg = argsIt->second;
-				args += arg.get("type").asString() + " " + argsIt->first;
+				args += argsIt->second.get("type").asString() + " " + argsIt->first;
 				if (count-- > 1)
 				{
 					args += ", ";
