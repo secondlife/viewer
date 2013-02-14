@@ -306,37 +306,14 @@ void LLKeywords::processTokens()
 	// Add 'standard' stuff: Quotes, Comments, Strings, Labels, etc. before processing the LLSD
 	std::string delimiter;
 	addToken(LLKeywordToken::TT_LABEL, "@", getColorGroup("label"), "Label\nTarget for jump statement", delimiter );
-	addToken(LLKeywordToken::TT_ONE_SIDED_DELIMITER, "//", getColorGroup("misc-comments_1_sided"), "Comment\nNon-functional commentary or disabled code", delimiter );
-	addToken(LLKeywordToken::TT_TWO_SIDED_DELIMITER, "/*", getColorGroup("misc-comments_2_sided"), "Comment\nNon-functional commentary or disabled code (multi-line)", "*/" );
+	addToken(LLKeywordToken::TT_ONE_SIDED_DELIMITER, "//", getColorGroup("misc-comments_1_sided"), "Comment (single-line)\nNon-functional commentary or disabled code", delimiter );
+	addToken(LLKeywordToken::TT_TWO_SIDED_DELIMITER, "/*", getColorGroup("misc-comments_2_sided"), "Comment (multi-line)\nNon-functional commentary or disabled code", "*/" );
 	addToken(LLKeywordToken::TT_DOUBLE_QUOTATION_MARKS, "\"", getColorGroup("misc-double_quotation_marks"), "String literal", "\"" );
 
 	LLSD::map_iterator outerIt = mSyntax.beginMap();
 	for ( ; outerIt != mSyntax.endMap(); ++outerIt)
 	{
-		// TODO Collapse the 'if's into two, those that call 'processTokens' directly and an else if (for 'misc') that doesn't
-		if (outerIt->first == "constants")
-		{
-			if (outerIt->second.isMap())
-			{
-				processTokensGroup(outerIt->second, "constants");
-			}
-			else
-			{
-				LL_ERRS("Tokens-Constants") << "No constants map to process!" << LL_ENDL;
-			}
-		}
-		else if (outerIt->first == "controls")
-		{
-			if (outerIt->second.isMap())
-			{
-				processTokensGroup(outerIt->second, "controls");
-			}
-			else
-			{
-				LL_ERRS("Tokens-Controls") << "No controls map to process!" << LL_ENDL;
-			}
-		}
-		else if(outerIt->first == "misc")
+		if (outerIt->first == "misc")
 		{
 			if (outerIt->second.isMap())
 			{
@@ -348,45 +325,19 @@ void LLKeywords::processTokens()
 			}
 			else
 			{
-				LL_ERRS("Tokens-Misc") << "No misc map to process!" << LL_ENDL;
-			}
-		}
-		else if(outerIt->first == "events")
-		{
-			if (outerIt->second.isMap())
-			{
-				processTokensGroup(outerIt->second, "events");
-			}
-			else
-			{
-				LL_ERRS("Tokens-Events") << "No event map to process!" << LL_ENDL;
-			}
-		}
-		else if(outerIt->first == "functions")
-		{
-			if (outerIt->second.isMap())
-			{
-				processTokensGroup(outerIt->second, "functions");
-			}
-			else
-			{
-				LL_ERRS("Tokens-Functions") << "No function map to process!" << LL_ENDL;
-			}
-		}
-		else if(outerIt->first == "types")
-		{
-			if (outerIt->second.isMap())
-			{
-				processTokensGroup(outerIt->second, "types");
-			}
-			else
-			{
-				LL_ERRS("Tokens-Types") << "No types array to process!" << LL_ENDL;
+				LL_ERRS("LSL-Tokens-Processing") << "Map for misc entries is missing! Ignoring." << LL_ENDL;
 			}
 		}
 		else
 		{
-			LL_ERRS("Tokens") << "Unknown token group '" << outerIt->first << "'" << LL_ENDL;
+			if (outerIt->second.isMap())
+			{
+				processTokensGroup(outerIt->second, outerIt->first);
+			}
+			else
+			{
+				LL_ERRS("LSL-Tokens-Processing") << "Map for " + outerIt->first + " entries is missing! Ignoring." << LL_ENDL;
+			}
 		}
 	}
 	LL_INFOS("") << LL_ENDL;
