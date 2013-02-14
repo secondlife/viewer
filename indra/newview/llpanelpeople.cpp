@@ -1032,6 +1032,10 @@ void LLPanelPeople::onAvatarListDoubleClicked(LLUICtrl* ctrl)
 	}
 
 	LLUUID clicked_id = item->getAvatarId();
+	if(gAgent.getID() == clicked_id)
+	{
+		return;
+	}
 	
 #if 0 // SJB: Useful for testing, but not currently functional or to spec
 	LLAvatarActions::showProfile(clicked_id);

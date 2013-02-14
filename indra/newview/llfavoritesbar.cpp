@@ -1520,8 +1520,10 @@ void LLFavoritesOrderStorage::saveFavoritesSLURLs()
 
 	LLAvatarName av_name;
 	LLAvatarNameCache::get( gAgentID, &av_name );
-	lldebugs << "Saved favorites for " << av_name.getAccountName() << llendl;
-	fav_llsd[av_name.getAccountName()] = user_llsd;
+	// Note : use the "John Doe" and not the "john.doe" version of the name 
+	// as we'll compare it with the stored credentials in the login panel.
+	lldebugs << "Saved favorites for " << av_name.getUserName() << llendl;
+	fav_llsd[av_name.getUserName()] = user_llsd;
 
 	llofstream file;
 	file.open(filename);
@@ -1539,10 +1541,12 @@ void LLFavoritesOrderStorage::removeFavoritesRecordOfUser()
 
 	LLAvatarName av_name;
 	LLAvatarNameCache::get( gAgentID, &av_name );
-	lldebugs << "Removed favorites for " << av_name.getAccountName() << llendl;
-	if (fav_llsd.has(av_name.getAccountName()))
+	// Note : use the "John Doe" and not the "john.doe" version of the name.
+	// See saveFavoritesSLURLs() here above for the reason why.
+	lldebugs << "Removed favorites for " << av_name.getUserName() << llendl;
+	if (fav_llsd.has(av_name.getUserName()))
 	{
-		fav_llsd.erase(av_name.getAccountName());
+		fav_llsd.erase(av_name.getUserName());
 	}
 
 	llofstream out_file;

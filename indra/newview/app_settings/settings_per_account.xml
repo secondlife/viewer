@@ -176,17 +176,6 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
-    <key>LogInstantMessages</key>
-        <map>
-        <key>Comment</key>
-            <string>Log Instant Messages</string>
-        <key>Persist</key>
-            <integer>1</integer>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <integer>1</integer>
-        </map>
     <key>LogShowHistory</key>
         <map>
         <key>Comment</key>
