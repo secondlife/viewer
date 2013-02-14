@@ -73,9 +73,11 @@ LLPolyMorphData::LLPolyMorphData(const LLPolyMorphData &rhs) :
 {
 	const S32 numVertices = mNumIndices;
 
-	mCoords = static_cast<LLVector4a*>(ll_aligned_malloc_16(numVertices * sizeof(LLVector4a)));
-	mNormals = static_cast<LLVector4a*>(ll_aligned_malloc_16(numVertices * sizeof(LLVector4a)));
-	mBinormals = static_cast<LLVector4a*>(ll_aligned_malloc_16(numVertices * sizeof(LLVector4a)));
+	U32 size = sizeof(LLVector4a)*numVertices;
+
+	mCoords = static_cast<LLVector4a*>( ll_aligned_malloc_16(size) );
+	mNormals = static_cast<LLVector4a*>( ll_aligned_malloc_16(size) );
+	mBinormals = static_cast<LLVector4a*>( ll_aligned_malloc_16(size) );
 	mTexCoords = new LLVector2[numVertices];
 	mVertexIndices = new U32[numVertices];
 	
@@ -121,9 +123,13 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 	//-------------------------------------------------------------------------
 	// allocate vertices
 	//-------------------------------------------------------------------------
-	mCoords = static_cast<LLVector4a*>(ll_aligned_malloc_16(numVertices * sizeof(LLVector4a)));
-	mNormals = static_cast<LLVector4a*>(ll_aligned_malloc_16(numVertices * sizeof(LLVector4a)));
-	mBinormals = static_cast<LLVector4a*>(ll_aligned_malloc_16(numVertices * sizeof(LLVector4a)));
+	
+	U32 size = sizeof(LLVector4a)*numVertices;
+	
+	mCoords = static_cast<LLVector4a*>(ll_aligned_malloc_16(size));
+	mNormals = static_cast<LLVector4a*>(ll_aligned_malloc_16(size));
+	mBinormals = static_cast<LLVector4a*>(ll_aligned_malloc_16(size));
+	
 	mTexCoords = new LLVector2[numVertices];
 	// Actually, we are allocating more space than we need for the skiplist
 	mVertexIndices = new U32[numVertices];

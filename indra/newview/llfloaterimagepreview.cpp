@@ -901,11 +901,13 @@ BOOL LLImagePreviewSculpted::render()
 	{
 		gObjectPreviewProgram.bind();
 	}
+	gPipeline.enableLightsPreview();
+
 	gGL.pushMatrix();
 	const F32 SCALE = 1.25f;
 	gGL.scalef(SCALE, SCALE, SCALE);
 	const F32 BRIGHTNESS = 0.9f;
-	gGL.color3f(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS);
+	gGL.diffuseColor3f(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS);
 
 	mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0);
 	mVertexBuffer->draw(LLRender::TRIANGLES, num_indices, 0);
