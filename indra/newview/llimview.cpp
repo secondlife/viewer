@@ -213,16 +213,14 @@ void on_new_message(const LLSD& msg)
     //conversation floater not focused (visible or not)
     bool conversation_floater_not_focused =
     		conversation_floater_is_closed || !im_box->hasFocus();
+    // sess. floater is open
+    bool session_floater_is_open =
+            session_floater
+            && session_floater->isInVisibleChain()
+            && !session_floater->isMinimized()
+            && !(session_floater->getHost() && session_floater->getHost()->isMinimized());
 
-    // Skip toasting and flashing if we have open window of IM with this session id
-    if (session_floater
-    && session_floater->isInVisibleChain()
-    && !session_floater->isMinimized()
-    && !(session_floater->getHost() && session_floater->getHost()->isMinimized()))
-    {
-       return;
-    }
-    if ("toast" == action)
+    if ("toast" == action && !session_floater_is_open)
     {
         //User is not focused on conversation containing the message
         if(session_floater_not_focused)
@@ -254,7 +252,7 @@ void on_new_message(const LLSD& msg)
     {
     	if (conversation_floater_not_focused)
     	{
-            if(session_floater_not_focused && !gAgent.isDoNotDisturb())
+            if(!session_floater_is_open && !gAgent.isDoNotDisturb())
             {
             	//User is not focused on conversation containing the message
                 gToolBarView->flashCommand(LLCommandId("chat"), true);
@@ -273,7 +271,7 @@ void on_new_message(const LLSD& msg)
         }
     }
 
-    else if("openconversations" == action)
+    else if("openconversations" == action && !session_floater_is_open)
     {
         //User is not focused on conversation containing the message
         if(session_floater_not_focused)
