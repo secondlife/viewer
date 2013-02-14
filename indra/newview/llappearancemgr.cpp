@@ -2008,6 +2008,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 	}
 
 	BoolSetter setIsInUpdateAppearanceFromCOF(mIsInUpdateAppearanceFromCOF);
+	selfStartPhase("update_appearance_from_cof");
 
 	LL_INFOS("Avatar") << self_av_string() << "starting" << LL_ENDL;
 

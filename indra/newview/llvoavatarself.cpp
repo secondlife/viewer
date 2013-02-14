@@ -86,11 +86,11 @@ void selfStartPhase(const std::string& phase_name)
 	}
 }
 
-void selfStopPhase(const std::string& phase_name)
+void selfStopPhase(const std::string& phase_name, bool err_check)
 {
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatarp->stopPhase(phase_name);
+		gAgentAvatarp->stopPhase(phase_name, err_check);
 	}
 }
 
@@ -179,6 +179,24 @@ bool output_self_av_texture_diagnostics()
 	return false;
 }
 
+bool update_avatar_rez_metrics()
+{
+	if (!isAgentAvatarValid())
+		return true;
+	
+	gAgentAvatarp->updateAvatarRezMetrics(false);
+	return false;
+}
+
+bool check_for_unsupported_baked_appearance()
+{
+	if (!isAgentAvatarValid())
+		return true;
+
+	gAgentAvatarp->checkForUnsupportedServerBakeAppearance();
+	return false;
+}
+
 void LLVOAvatarSelf::initInstance()
 {
 	BOOL status = TRUE;
@@ -214,7 +232,8 @@ void LLVOAvatarSelf::initInstance()
 	}
 
 	//doPeriodically(output_self_av_texture_diagnostics, 30.0);
-	doPeriodically(boost::bind(&LLVOAvatarSelf::updateAvatarRezMetrics, this, false), 5.0);
+	doPeriodically(update_avatar_rez_metrics, 5.0);
+	doPeriodically(check_for_unsupported_baked_appearance, 120.0);
 }
 
 // virtual
@@ -2250,7 +2269,11 @@ bool LLVOAvatarSelf::updateAvatarRezMetrics(bool force_send)
 		// Stats for completed phases have been getting logged as they
 		// complete.  This will give us stats for any timers that
 		// haven't finished as of the metric's being sent.
-		LLVOAvatar::logPendingPhasesAllAvatars();
+		
+		if (force_send)
+		{
+			LLVOAvatar::logPendingPhasesAllAvatars();
+		}
 		sendViewerAppearanceChangeMetrics();
 	}
 
@@ -2369,6 +2392,62 @@ void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
 																	  reporting_started));
 		mTimeSinceLastRezMessage.reset();
 	}
+}
+
+class CheckAgentAppearanceServiceResponder: public LLHTTPClient::Responder
+{
+public:
+	CheckAgentAppearanceServiceResponder()
+	{
+	}
+	
+	virtual ~CheckAgentAppearanceServiceResponder()
+	{
+	}
+
+	/* virtual */ void result(const LLSD& content)
+	{
+		LL_DEBUGS("Avatar") << "status OK" << llendl;
+	}
+
+	// Error
+	/*virtual*/ void error(U32 status, const std::string& reason)
+	{
+		if (isAgentAvatarValid())
+		{
+			LL_DEBUGS("Avatar") << "failed, will rebake" << llendl;
+			forceAppearanceUpdate();
+		}
+	}	
+
+	static void forceAppearanceUpdate()
+	{
+		// Trying to rebake immediately after crossing region boundary
+		// seems to be failure prone; adding a delay factor. Yes, this
+		// fix is ad-hoc and not guaranteed to work in all cases.
+		doAfterInterval(boost::bind(&LLVOAvatarSelf::forceBakeAllTextures,
+									gAgentAvatarp.get(), true), 5.0);
+	}
+};
+
+void LLVOAvatarSelf::checkForUnsupportedServerBakeAppearance()
+{
+	// Need to check only if we have a server baked appearance and are
+	// in a non-baking region.
+	if (!gAgentAvatarp->isUsingServerBakes())
+		return;
+	if (!gAgent.getRegion() || gAgent.getRegion()->getCentralBakeVersion()!=0)
+		return;
+
+	// if baked image service is unknown, need to refresh.
+	if (gSavedSettings.getString("AgentAppearanceServiceURL").empty())
+	{
+		CheckAgentAppearanceServiceResponder::forceAppearanceUpdate();
+	}
+	// query baked image service to check status.
+	std::string image_url = gAgentAvatarp->getImageURL(TEX_HEAD_BAKED,
+													   getTE(TEX_HEAD_BAKED)->getID());
+	LLHTTPClient::head(image_url, new CheckAgentAppearanceServiceResponder);
 }
 
 const LLUUID& LLVOAvatarSelf::grabBakedTexture(EBakedTextureIndex baked_index) const

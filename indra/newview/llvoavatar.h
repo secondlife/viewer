@@ -294,7 +294,7 @@ public:
 
 	
 	void 			startPhase(const std::string& phase_name);
-	void 			stopPhase(const std::string& phase_name);
+	void 			stopPhase(const std::string& phase_name, bool err_check = true);
 	void			clearPhases();
 	void 			logPendingPhases();
 	static void 	logPendingPhasesAllAvatars();
@@ -315,24 +315,6 @@ private:
 	S32				mVisualComplexity;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
-
-public:
-	class ScopedPhaseSetter
-	{
-	public:
-		ScopedPhaseSetter(LLVOAvatar *avatarp, std::string phase_name):
-			mAvatar(avatarp), mPhaseName(phase_name)
-		{
-			if (mAvatar) { mAvatar->getPhases().startPhase(mPhaseName); }
-		}
-		~ScopedPhaseSetter()
-		{
-			if (mAvatar) { mAvatar->getPhases().stopPhase(mPhaseName); }
-		}
-	private:
-		std::string mPhaseName;
-		LLVOAvatar* mAvatar;
-	};
 
 private:
 	LLViewerStats::PhaseMap mPhases;
