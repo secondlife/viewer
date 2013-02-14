@@ -449,9 +449,6 @@ void LLDrawPoolBump::unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& 
 	LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
 	if( cube_map )
 	{
-		cube_map->disable();
-		cube_map->restoreMatrix();
-
 		if (!invisible && shader_level > 1)
 		{
 			shader->disableTexture(LLViewerShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
@@ -464,6 +461,10 @@ void LLDrawPoolBump::unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& 
 				}
 			}
 		}
+        // Placed after shader->disableTex(ENV,TT_CUBE_MAP) above to avoid sequencing false alarm when using RenderDebugGL
+        // MAINT-1291
+		cube_map->disable();
+		cube_map->restoreMatrix();
 	}
 
 	if (!LLGLSLShader::sNoFixedFunction)
