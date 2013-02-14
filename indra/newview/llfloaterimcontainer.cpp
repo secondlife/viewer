@@ -1345,6 +1345,7 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
     	if (widget && widget->getParentFolder())
     	{
     		widget->getParentFolder()->setSelection(widget, FALSE, FALSE);
+    		mConversationsRoot->scrollToShowSelection();
     	}
 
         //When in DND mode, remove stored IM notifications
