@@ -259,12 +259,6 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 	setXMLFilename("");
 	buildFromFile("panel_notification.xml");
 
-	// reshape the panel to its previous size
-	if (current_rect.notEmpty())
-	{
-		reshape(current_rect.getWidth(), current_rect.getHeight());
-	}
-
     if(rect != LLRect::null)
     {
         this->setShape(rect);
@@ -407,6 +401,12 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 	//can shift upward making room for the buttons inside mControlPanel. After the buttons are added, the info panel can then be set to follow 'all'.
 	mInfoPanel->setFollowsAll();
     snapToMessageHeight(mTextBox, MAX_LENGTH);
+
+	// reshape the panel to its previous size
+	if (current_rect.notEmpty())
+	{
+		reshape(current_rect.getWidth(), current_rect.getHeight());
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
