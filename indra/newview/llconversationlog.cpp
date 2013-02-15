@@ -333,6 +333,7 @@ void LLConversationLog::removeConversation(const LLConversation& conversation)
 		{
 			mConversations.erase(conv_it);
 			notifyObservers();
+			cache();
 			return;
 		}
 	}
@@ -534,5 +535,6 @@ void LLConversationLog::onClearLogResponse(const LLSD& notification, const LLSD&
 	{
 		mConversations.clear();
 		notifyObservers();
+		cache();
 	}
 }
