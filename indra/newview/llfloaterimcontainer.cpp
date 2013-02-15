@@ -639,11 +639,7 @@ void LLFloaterIMContainer::collapseMessagesPane(bool collapse)
 		return;
 	}
 
-	if (mIsFirstLaunch)
-	{
-		mIsFirstLaunch = false;
-		return;
-	}
+	mIsFirstLaunch = false;
 
 	// Save current width of panels before collapsing/expanding right pane.
 	S32 conv_pane_width = mConversationsPane->getRect().getWidth();
