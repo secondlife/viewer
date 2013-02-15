@@ -1598,7 +1598,20 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 	{
 		alpha = alpha || (imagep->getComponents() == 4 && imagep->getType() != LLViewerTexture::MEDIA_TEXTURE) || (imagep->getComponents() == 2);
 	}
-
+	
+	if (alpha && te->getMaterialParams())
+	{
+		switch (te->getMaterialParams()->getDiffuseAlphaMode())
+		{
+			case 1:
+				alpha = true; // Material's alpha mode is set to blend.  Toss it into the alpha draw pool.
+				break;
+			default:
+				alpha = false; // Material's alpha mode is set to none, mask, or emissive.  Toss it into the opaque material draw pool.
+				break;
+		}
+	}
+	
 	if (alpha)
 	{
 		return LLDrawPool::POOL_ALPHA;
