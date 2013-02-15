@@ -99,6 +99,10 @@ LLContextMenu* NearbyMenu::createMenu()
 
 bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 {
+	if(gAgent.getID() == mUUIDs.front())
+	{
+		return false;
+	}
 	std::string item = userdata.asString();
 
 	// Note: can_block and can_delete is used only for one person selected menu
@@ -175,6 +179,11 @@ bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 	else if(item == std::string("can_offer_teleport"))
 	{
 		return LLAvatarActions::canOfferTeleport(mUUIDs);
+	}
+	else if (item == std::string("can_im") || item == std::string("can_callog") || item == std::string("can_invite") ||
+	         item == std::string("can_share") || item == std::string("can_pay"))
+	{
+		return true;
 	}
 	return false;
 }
