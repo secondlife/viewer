@@ -350,24 +350,35 @@ void LLFloaterOutbox::updateView()
 		std::string outbox_tooltip;
 		
 		const LLSD& subs = getMarketplaceStringSubstitutions();
+		U32 mkt_status = LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus();
 		
 		if (mOutboxId.notNull())
 		{
+			// "Outbox is empty!" message strings
 			outbox_text = LLTrans::getString("InventoryOutboxNoItems", subs);
 			outbox_title = LLTrans::getString("InventoryOutboxNoItemsTitle");
 			outbox_tooltip = LLTrans::getString("InventoryOutboxNoItemsTooltip");
 		}
-		else if (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() <= MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING)
+		else if (mkt_status <= MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING)
 		{
+			// "Initializing!" message strings
 			outbox_text = LLTrans::getString("InventoryOutboxInitializing", subs);
 			outbox_title = LLTrans::getString("InventoryOutboxInitializingTitle");
 			outbox_tooltip = LLTrans::getString("InventoryOutboxInitializingTooltip");
 		}
-		else
+		else if (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT)
 		{
+			// "Not a merchant!" message strings
 			outbox_text = LLTrans::getString("InventoryOutboxNotMerchant", subs);
 			outbox_title = LLTrans::getString("InventoryOutboxNotMerchantTitle");
 			outbox_tooltip = LLTrans::getString("InventoryOutboxNotMerchantTooltip");
+		}
+		else
+		{
+			// "Errors!" message strings
+			outbox_text = LLTrans::getString("InventoryOutboxError", subs);
+			outbox_title = LLTrans::getString("InventoryOutboxErrorTitle");
+			outbox_tooltip = LLTrans::getString("InventoryOutboxErrorTooltip");
 		}
 		
 		mInventoryText->setValue(outbox_text);
