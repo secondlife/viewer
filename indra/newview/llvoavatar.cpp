@@ -1870,7 +1870,8 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		return;
 	}	
 
- 	if (!(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_AVATAR)))
+	if (!(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_AVATAR))
+		&& !(gSavedSettings.getBOOL("DisableAllRenderTypes")))
 	{
 		return;
 	}
