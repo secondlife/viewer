@@ -479,8 +479,7 @@ void LLMarketplaceInventoryImporter::updateImport()
 				{
 					U32 status = LLMarketplaceImport::getResultStatus();
 					if ((status == MarketplaceErrorCodes::IMPORT_FORBIDDEN) ||
-						(status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR) ||
-						(status == MarketplaceErrorCodes::IMPORT_NOT_FOUND))
+						(status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR))
 					{
 						mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT;
 					}
