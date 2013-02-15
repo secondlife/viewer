@@ -4108,10 +4108,16 @@ std::string LLVOAvatar::bakedTextureOriginInfo()
 		{
 			has_host = true;
 		}
-		if (has_url && !has_host) result += "u"; // server-bake texture with url 
-		else if (has_host && !has_url) result += "h"; // old-style texture on sim
-		else if (has_host && has_url) result += "?"; // both origins?
-		else if (!has_host && !has_url) result += "n"; // no origin?
+		S32 discard = imagep->getDiscardLevel();
+		if (has_url && !has_host) result += discard ? "u" : "U"; // server-bake texture with url 
+		else if (has_host && !has_url) result += discard ? "h" : "H"; // old-style texture on sim
+		else if (has_host && has_url) result += discard ? "ERRx" : "ERRX"; // both origins?
+		else if (!has_host && !has_url) result += discard ? "ERRn" : "ERRN"; // no origin?
+		if (discard != 0)
+		{
+			result += llformat("(%d/%d)",discard,imagep->getDesiredDiscardLevel());
+		}
+
 	}
 	return result;
 }
@@ -6130,6 +6136,8 @@ LLMotion* LLVOAvatar::findMotion(const LLUUID& id) const
 	return mMotionController.findMotion(id);
 }
 
+// This is a semi-deprecated debugging tool - meshes will not show as
+// colorized if using deferred rendering.
 void LLVOAvatar::debugColorizeSubMeshes(U32 i, const LLColor4& color)
 {
 	if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
@@ -6244,29 +6252,7 @@ void LLVOAvatar::updateMeshTextures()
 		LLViewerTexLayerSet* layerset = getTexLayerSet(i);
 		if (use_lkg_baked_layer[i] && !isUsingLocalAppearance() )
 		{
-			LLViewerFetchedTexture* baked_img;
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-			LLViewerFetchedTexture* existing_baked_img = LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[i].mLastTextureID);
-#endif
-			ETextureIndex te = ETextureIndex(mBakedTextureDatas[i].mTextureIndex);
-			const std::string url = getImageURL(te, mBakedTextureDatas[i].mLastTextureID);
-			if (!url.empty())
-			{
-				baked_img = LLViewerTextureManager::getFetchedTextureFromUrl(url, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, mBakedTextureDatas[i].mLastTextureID);
-			}
-			else
-			{
-				// Baked textures should be requested from the sim this avatar is on. JC
-				const LLHost target_host = getObjectHost();
-				if (!target_host.isOk())
-				{
-					llwarns << "updateMeshTextures: invalid host for object: " << getID() << llendl;
-				}
-
-				baked_img = LLViewerTextureManager::getFetchedTextureFromHost( mBakedTextureDatas[i].mLastTextureID, target_host );
-			}
-			llassert(baked_img == existing_baked_img);
-
+			LLViewerFetchedTexture* baked_img = LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[i].mLastTextureID);
 			mBakedTextureDatas[i].mIsUsed = TRUE;
 
 			debugColorizeSubMeshes(i,LLColor4::red);
@@ -7131,6 +7117,7 @@ void LLVOAvatar::getAnimNames( LLDynamicArray<std::string>* names )
 	names->put( "enter_away_from_keyboard_state" );
 }
 
+// static
 void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata )
 {
 	if (!userdata) return;
@@ -7149,7 +7136,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture
 		{
 			if (!aux_src->getData())
 			{
-				llerrs << "No auxiliary source data for onBakedTextureMasksLoaded" << llendl;
+				llerrs << "No auxiliary source (morph mask) data for image id " << id << llendl;
 				return;
 			}
 
@@ -7201,7 +7188,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture
 			}
 			if (!found_texture_id)
 			{
-				llinfos << "onBakedTextureMasksLoaded(): unexpected image id: " << id << llendl;
+				llinfos << "unexpected image id: " << id << llendl;
 			}
 			self->dirtyMesh();
 		}
@@ -7209,7 +7196,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture
 		{
             // this can happen when someone uses an old baked texture possibly provided by 
             // viewer-side baked texture caching
-			llwarns << "Masks loaded callback but NO aux source!" << llendl;
+			llwarns << "Masks loaded callback but NO aux source, id " << id << llendl;
 		}
 	}
 
