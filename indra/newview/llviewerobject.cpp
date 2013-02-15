@@ -3947,8 +3947,8 @@ void LLViewerObject::setNumTEs(const U8 num_tes)
 				else if (getNumTEs())
 				{
 					new_images[i] = mTEImages[getNumTEs()-1];
-					new_normmaps[i] = mTENormalMaps[i];
-					new_specmaps[i] = mTESpecularMaps[i];
+					new_normmaps[i] = mTENormalMaps[getNumTEs()-1];
+					new_specmaps[i] = mTESpecularMaps[getNumTEs()-1];
 				}
 				else
 				{

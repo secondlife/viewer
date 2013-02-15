@@ -1290,6 +1290,7 @@ void LLPanelFace::onMaterialLoaded(const LLMaterialID& material_id, const LLMate
 
 void LLPanelFace::updateMaterial()
 {
+	LL_WARNS("Materials") << LL_ENDL;
 	if (mUpdateInFlight)
 	{
 		LL_WARNS("Materials") << "Attempt to update material while a previous update is pending ignored." << LL_ENDL;
@@ -1351,7 +1352,7 @@ void LLPanelFace::updateMaterial()
 		mMaterial->setEnvironmentIntensity((U8)(255*getChild<LLUICtrl>("environment")->getValue().asReal()));
 		mMaterial->setDiffuseAlphaMode(getChild<LLComboBox>("combobox alphamode")->getCurrentIndex());
 		mMaterial->setAlphaMaskCutoff((U8)(getChild<LLUICtrl>("maskcutoff")->getValue().asInteger()));
-		llinfos << "Updating material: " << mMaterial->asLLSD() << llendl;
+		LL_DEBUGS("Materials") << "Updating material: " << mMaterial->asLLSD() << LL_ENDL;
 		LLSelectMgr::getInstance()->selectionSetMaterial( mMaterial );
 
 		// We've sent an update. Need to hold off on any more until
@@ -1363,7 +1364,7 @@ void LLPanelFace::updateMaterial()
 		// The user has specified settings that don't need a material.
 		if (mMaterial || !mMaterialID.isNull())
 		{
-			llinfos << "Resetting material entry" << llendl;
+			LL_DEBUGS("Materials") << "Resetting material entry" << LL_ENDL;
 			mMaterial.reset();
 			mMaterialID = LLMaterialID::null;
 			// Delete existing material entry...
@@ -1657,6 +1658,7 @@ void LLPanelFace::onSelectTexture(const LLSD& data)
 
 void LLPanelFace::onCommitMaterialTexture( const LLSD& data )
 {
+	LL_DEBUGS("Materials") << data << "\n" << (mUpdateInFlight ? "In Flight" : "Now Pending" ) << LL_ENDL;
 	if (!mUpdateInFlight)
 	{
 		updateMaterial();
@@ -1682,6 +1684,7 @@ void LLPanelFace::onCancelMaterialTexture(const LLSD& data)
 
 void LLPanelFace::onSelectMaterialTexture(const LLSD& data)
 {
+	LL_DEBUGS("Materials") << data << LL_ENDL;
 	if (!mUpdateInFlight)
 	{
 		updateMaterial();

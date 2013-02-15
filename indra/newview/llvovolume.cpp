@@ -2016,10 +2016,10 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 {
 	if (!pMaterialID.isNull())
 	{
-		LL_INFOS("Materials") << " " << pMaterialID.asString() << LL_ENDL;
 		S32 res = LLViewerObject::setTEMaterialID(te, pMaterialID);
 		if (res)
 		{
+			LL_DEBUGS("MaterialTEs") << " " << pMaterialID.asString() << LL_ENDL;
 			LLMaterialMgr::instance().get(getRegion()->getRegionID(), pMaterialID, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2));
 			gPipeline.markTextured(mDrawable);
 			mFaceMappingChanged = TRUE;

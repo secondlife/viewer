@@ -68,7 +68,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 		switch (params.mDiffuseAlphaMode)
 		{
 			case 0:
-				LL_INFOS("Asdf") << "Renderererererrerererrrr!!!~!!!~!~" << LL_ENDL;
+				LL_DEBUGS("Asdf") << "Renderererererrerererrrr!!!~!!!~!~" << LL_ENDL;
 				mShader = &gDeferredMaterialShinyNormal;
 				break;
 			case 1: // Alpha blending not supported in the opaque draw pool.
