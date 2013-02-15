@@ -539,6 +539,7 @@ class WindowsManifest(ViewerManifest):
         !define VERSION_LONG "%(version)s"
         !define VERSION_DASHES "%(version_dashes)s"
         """ % substitution_strings
+        subchannel_underscores = '_'.join(self.channel_unique().split())
         if self.default_channel():
             if self.default_grid():
                 # release viewer
@@ -552,7 +553,7 @@ class WindowsManifest(ViewerManifest):
                 Caption "Second Life"
                 """
             else:
-                # beta grid viewer
+                # alternate grid viewer
                 installer_file = "Second_Life_%(version_dashes)s_(%(grid_caps)s)_Setup.exe"
                 grid_vars_template = """
                 OutFile "%(installer_file)s"
@@ -564,8 +565,8 @@ class WindowsManifest(ViewerManifest):
                 Caption "Second Life %(grid)s ${VERSION}"
                 """
         else:
-            # some other channel on some grid
-            installer_file = "Second_Life_%(version_dashes)s_%(channel_oneword)s_Setup.exe"
+            # some other channel (grid name not used)
+            installer_file = "Second_Life_%(version_dashes)s_%(subchannel_underscores)s_Setup.exe"
             grid_vars_template = """
             OutFile "%(installer_file)s"
             !define INSTFLAGS "%(flags)s"

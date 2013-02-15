@@ -85,7 +85,7 @@ def get_default_platform(dummy):
             }[sys.platform]
 
 DEFAULT_SRCTREE = os.path.dirname(sys.argv[0])
-DEFAULT_CHANNEL = 'Second Life Test'
+RELEASE_CHANNEL = 'Second Life Release'
 
 ARGUMENTS=[
     dict(name='actions',
@@ -269,7 +269,7 @@ class LLManifest(object):
     def default_grid(self):
         return self.args.get('grid', None) == ''
     def default_channel(self):
-        return self.args.get('channel', None) == DEFAULT_CHANNEL
+        return self.args.get('channel', None) == RELEASE_CHANNEL
 
     def construct(self):
         """ Meant to be overriden by LLManifest implementors with code that
