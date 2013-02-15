@@ -2357,7 +2357,6 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 {
 	if (mFrontChild == child)
 	{
-
 		if (give_focus && !gFocusMgr.childHasKeyboardFocus(child))
 		{
 			child->setFocus(TRUE);
@@ -2374,15 +2373,14 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 		// this floater is hosted elsewhere and hence not one of our children, abort
 		return;
 	}
-	std::vector<LLView*> floaters_to_move;
+	std::vector<LLFloater*> floaters_to_move;
 	// Look at all floaters...tab
-	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
+	for (child_list_const_iter_t child_it = beginChild(); child_it != endChild(); ++child_it)
 	{
-		LLView* viewp = *child_it;
-		LLFloater *floater = (LLFloater *)viewp;
+		LLFloater* floater = dynamic_cast<LLFloater*>(*child_it);
 
 		// ...but if I'm a dependent floater...
-		if (child->isDependent())
+		if (floater && child->isDependent())
 		{
 			// ...look for floaters that have me as a dependent...
 			LLFloater::handle_set_iter_t found_dependent = floater->mDependents.find(child->getHandle());
@@ -2390,15 +2388,14 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 			if (found_dependent != floater->mDependents.end())
 			{
 				// ...and make sure all children of that floater (including me) are brought to front...
-				for(LLFloater::handle_set_iter_t dependent_it = floater->mDependents.begin();
-					dependent_it != floater->mDependents.end(); )
+				for (LLFloater::handle_set_iter_t dependent_it = floater->mDependents.begin();
+					dependent_it != floater->mDependents.end(); ++dependent_it)
 				{
 					LLFloater* sibling = dependent_it->get();
 					if (sibling)
 					{
 						floaters_to_move.push_back(sibling);
 					}
-					++dependent_it;
 				}
 				//...before bringing my parent to the front...
 				floaters_to_move.push_back(floater);
@@ -2406,10 +2403,10 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 		}
 	}
 
-	std::vector<LLView*>::iterator view_it;
-	for(view_it = floaters_to_move.begin(); view_it != floaters_to_move.end(); ++view_it)
+	std::vector<LLFloater*>::iterator floater_it;
+	for(floater_it = floaters_to_move.begin(); floater_it != floaters_to_move.end(); ++floater_it)
 	{
-		LLFloater* floaterp = (LLFloater*)(*view_it);
+		LLFloater* floaterp = *floater_it;
 		sendChildToFront(floaterp);
 
 		// always unminimize dependee, but allow dependents to stay minimized
@@ -2421,23 +2418,19 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 	floaters_to_move.clear();
 
 	// ...then bringing my own dependents to the front...
-	for(LLFloater::handle_set_iter_t dependent_it = child->mDependents.begin();
-		dependent_it != child->mDependents.end(); )
+	for (LLFloater::handle_set_iter_t dependent_it = child->mDependents.begin();
+		dependent_it != child->mDependents.end(); ++dependent_it)
 	{
 		LLFloater* dependent = dependent_it->get();
 		if (dependent)
 		{
 			sendChildToFront(dependent);
-			//don't un-minimize dependent windows automatically
-			// respect user's wishes
-			//dependent->setMinimized(FALSE);
 		}
-		++dependent_it;
 	}
 
 	// ...and finally bringing myself to front 
 	// (do this last, so that I'm left in front at end of this call)
-	if( *getChildList()->begin() != child ) 
+	if (*beginChild() != child)
 	{
 		sendChildToFront(child);
 	}
