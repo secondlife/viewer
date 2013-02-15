@@ -120,11 +120,11 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification)
 				channel->addToast(p);
 
             //Will not play a notification sound for inventory and teleport offer based upon chat preference
-            bool playSound = !((notification->isDND())
-                               && (notification->getName() == "UserGiveItem"
-                                    && gSavedSettings.getBOOL("PlaySoundInventoryOffer") == FALSE)
-                                ||  notification->getName() == "TeleportOffered"
-                                    && gSavedSettings.getBOOL("PlaySoundTeleportOffer") == FALSE);
+            bool playSound = (!notification->isDND()
+                               && ((notification->getName() == "UserGiveItem"
+                                    && gSavedSettings.getBOOL("PlaySoundInventoryOffer"))
+                               || (notification->getName() == "TeleportOffered"
+                                    && gSavedSettings.getBOOL("PlaySoundTeleportOffer"))));
 
             if(playSound)
             {
