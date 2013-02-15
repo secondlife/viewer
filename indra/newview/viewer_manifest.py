@@ -531,6 +531,7 @@ class WindowsManifest(ViewerManifest):
             'channel':self.channel(),
             'channel_oneword':self.channel_oneword(),
             'channel_unique':self.channel_unique(),
+            'subchannel_underscores':'_'.join(self.channel_unique().split())
             }
 
         version_vars = """
@@ -539,7 +540,6 @@ class WindowsManifest(ViewerManifest):
         !define VERSION_LONG "%(version)s"
         !define VERSION_DASHES "%(version_dashes)s"
         """ % substitution_strings
-        subchannel_underscores = '_'.join(self.channel_unique().split())
         if self.default_channel():
             if self.default_grid():
                 # release viewer
