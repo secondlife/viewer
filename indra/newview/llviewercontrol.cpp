@@ -72,6 +72,8 @@
 #include "llpanellogin.h"
 #include "llpaneltopinfobar.h"
 #include "llspellcheck.h"
+#include "llslurl.h"
+#include "llstartup.h"
 #include "llupdaterservice.h"
 
 // Third party library includes
@@ -496,6 +498,20 @@ bool handleForceShowGrid(const LLSD& newvalue)
 	return true;
 }
 
+bool handleLoginLocationChanged()
+{
+	/*
+	 * This connects the default preference setting to the state of the login
+	 * panel if it is displayed; if you open the preferences panel before
+	 * logging in, and change the default login location there, the login
+	 * panel immediately changes to match your new preference.
+	 */
+	std::string new_login_location = gSavedSettings.getString("LoginLocation");
+	LL_DEBUGS("AppInit")<<new_login_location<<LL_ENDL;
+	LLStartUp::setStartSLURL(LLSLURL(new_login_location));
+	return true;
+}
+
 bool handleSpellCheckChanged()
 {
 	if (gSavedSettings.getBOOL("SpellCheck"))
@@ -721,6 +737,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderTransparentWater")->getSignal()->connect(boost::bind(&handleRenderTransparentWaterChanged, _2));
 	gSavedSettings.getControl("SpellCheck")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
 	gSavedSettings.getControl("SpellCheckDictionary")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
+	gSavedSettings.getControl("LoginLocation")->getSignal()->connect(boost::bind(&handleLoginLocationChanged));
 }
 
 #if TEST_CACHED_CONTROL

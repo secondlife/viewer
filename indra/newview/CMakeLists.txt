@@ -35,6 +35,7 @@ include(LLXML)
 include(LScript)
 include(Linking)
 include(NDOF)
+include(NVAPI)
 include(GooglePerfTools)
 include(TemplateCheck)
 include(UI)
@@ -338,7 +339,6 @@ set(viewer_SOURCE_FILES
     llmaterialmgr.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
-    llmemoryview.cpp
     llmenuoptionpathfindingrebakenavmesh.cpp
     llmeshrepository.cpp
     llmimetypes.cpp
@@ -917,7 +917,6 @@ set(viewer_HEADER_FILES
     llmaterialmgr.h
     llmediactrl.h
     llmediadataclient.h
-    llmemoryview.h
     llmenuoptionpathfindingrebakenavmesh.h
     llmeshrepository.h
     llmimetypes.h
@@ -1823,6 +1822,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLCOREHTTP_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     ${NDOF_LIBRARY}
+    ${NVAPI_LIBRARY}
     ${HUNSPELL_LIBRARY}
     ${viewer_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
@@ -1871,7 +1871,6 @@ if (LINUX)
   set(COPY_INPUT_DEPENDENCIES
     ${VIEWER_BINARY_NAME}
     linux-crash-logger
-    linux-updater
     SLPlugin
     media_plugin_webkit
     media_plugin_gstreamer010

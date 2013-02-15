@@ -116,7 +116,20 @@ private:
 
 	LLMaterialID mMaterialID;
 	LLMaterialPtr mMaterial;
-	BOOL mIsAlpha;
+	bool mIsAlpha;
+	
+	/* These variables interlock processing of materials updates sent to
+	 * the sim.  mUpdateInFlight is set to flag that an update has been
+	 * sent to the sim and not acknowledged yet, and cleared when an
+	 * update is received from the sim.  mUpdatePending is set when
+	 * there's an update in flight and another UI change has been made
+	 * that needs to be sent as a materials update, and cleared when the
+	 * update is sent.  This prevents the sim from getting spammed with
+	 * update messages when, for example, the user holds down the
+	 * up-arrow on a spinner, and avoids running afoul of its throttle.
+	 */
+	bool mUpdateInFlight;
+	bool mUpdatePending;
 };
 
 #endif

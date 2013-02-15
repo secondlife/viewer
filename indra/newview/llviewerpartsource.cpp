@@ -90,7 +90,6 @@ void LLViewerPartSource::setStart()
 LLViewerPartSourceScript::LLViewerPartSourceScript(LLViewerObject *source_objp) :
 	LLViewerPartSource(LL_PART_SOURCE_SCRIPT)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	llassert(source_objp);
 	mSourceObjectp = source_objp;
 	mPosAgent = mSourceObjectp->getPositionAgent();
@@ -102,7 +101,6 @@ LLViewerPartSourceScript::LLViewerPartSourceScript(LLViewerObject *source_objp) 
 
 void LLViewerPartSourceScript::setDead()
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mIsDead = TRUE;
 	mSourceObjectp = NULL;
 	mTargetObjectp = NULL;
@@ -113,7 +111,6 @@ void LLViewerPartSourceScript::update(const F32 dt)
 	if( mIsSuspended )
 		return;
 
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	F32 old_update_time = mLastUpdateTime;
 	mLastUpdateTime += dt;
 
@@ -394,7 +391,6 @@ void LLViewerPartSourceScript::update(const F32 dt)
 // static
 LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewerObject *source_objp, LLPointer<LLViewerPartSourceScript> pssp, const S32 block_num)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	if (!pssp)
 	{
 		if (LLPartSysData::isNullPS(block_num))
@@ -436,7 +432,6 @@ LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewer
 
 LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewerObject *source_objp, LLPointer<LLViewerPartSourceScript> pssp, LLDataPacker &dp)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	if (!pssp)
 	{
 		LLPointer<LLViewerPartSourceScript> new_pssp = new LLViewerPartSourceScript(source_objp);
@@ -470,8 +465,6 @@ LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewer
 /* static */
 LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::createPSS(LLViewerObject *source_objp, const LLPartSysData& particle_parameters)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
-
 	LLPointer<LLViewerPartSourceScript> new_pssp = new LLViewerPartSourceScript(source_objp);
 
 	new_pssp->mPartSysData = particle_parameters;
@@ -487,13 +480,11 @@ LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::createPSS(LLViewer
 
 void LLViewerPartSourceScript::setImage(LLViewerTexture *imagep)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mImagep = imagep;
 }
 
 void LLViewerPartSourceScript::setTargetObject(LLViewerObject *objp)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mTargetObjectp = objp;
 }
 
@@ -509,7 +500,6 @@ LLViewerPartSourceSpiral::LLViewerPartSourceSpiral(const LLVector3 &pos) :
 
 void LLViewerPartSourceSpiral::setDead()
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mIsDead = TRUE;
 	mSourceObjectp = NULL;
 }
@@ -517,7 +507,6 @@ void LLViewerPartSourceSpiral::setDead()
 
 void LLViewerPartSourceSpiral::updatePart(LLViewerPart &part, const F32 dt)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	F32 frac = part.mLastUpdateTime/part.mMaxAge;
 
 	LLVector3 center_pos;
@@ -542,7 +531,6 @@ void LLViewerPartSourceSpiral::updatePart(LLViewerPart &part, const F32 dt)
 
 void LLViewerPartSourceSpiral::update(const F32 dt)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	if (!mImagep)
 	{
 		mImagep = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
@@ -588,7 +576,6 @@ void LLViewerPartSourceSpiral::update(const F32 dt)
 
 void LLViewerPartSourceSpiral::setSourceObject(LLViewerObject *objp)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mSourceObjectp = objp;
 }
 
@@ -612,7 +599,6 @@ LLViewerPartSourceBeam::~LLViewerPartSourceBeam()
 
 void LLViewerPartSourceBeam::setDead()
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mIsDead = TRUE;
 	mSourceObjectp = NULL;
 	mTargetObjectp = NULL;
@@ -626,7 +612,6 @@ void LLViewerPartSourceBeam::setColor(const LLColor4 &color)
 
 void LLViewerPartSourceBeam::updatePart(LLViewerPart &part, const F32 dt)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	F32 frac = part.mLastUpdateTime/part.mMaxAge;
 
 	LLViewerPartSource *ps = (LLViewerPartSource*)part.mPartSourcep;
@@ -671,7 +656,6 @@ void LLViewerPartSourceBeam::updatePart(LLViewerPart &part, const F32 dt)
 
 void LLViewerPartSourceBeam::update(const F32 dt)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	const F32 RATE = 0.025f;
 
 	mLastUpdateTime += dt;
@@ -743,13 +727,11 @@ void LLViewerPartSourceBeam::update(const F32 dt)
 
 void LLViewerPartSourceBeam::setSourceObject(LLViewerObject* objp)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mSourceObjectp = objp;
 }
 
 void LLViewerPartSourceBeam::setTargetObject(LLViewerObject* objp)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mTargetObjectp = objp;
 }
 
@@ -764,7 +746,6 @@ LLViewerPartSourceChat::LLViewerPartSourceChat(const LLVector3 &pos) :
 
 void LLViewerPartSourceChat::setDead()
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mIsDead = TRUE;
 	mSourceObjectp = NULL;
 }
@@ -772,7 +753,6 @@ void LLViewerPartSourceChat::setDead()
 
 void LLViewerPartSourceChat::updatePart(LLViewerPart &part, const F32 dt)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	F32 frac = part.mLastUpdateTime/part.mMaxAge;
 
 	LLVector3 center_pos;
@@ -797,7 +777,6 @@ void LLViewerPartSourceChat::updatePart(LLViewerPart &part, const F32 dt)
 
 void LLViewerPartSourceChat::update(const F32 dt)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	if (!mImagep)
 	{
 		mImagep = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
@@ -853,7 +832,6 @@ void LLViewerPartSourceChat::update(const F32 dt)
 
 void LLViewerPartSourceChat::setSourceObject(LLViewerObject *objp)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mSourceObjectp = objp;
 }
 

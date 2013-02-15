@@ -48,6 +48,7 @@
 #include <deque>
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/signals2.hpp>
+#include <boost/make_shared.hpp>	// boost::make_shared
 
 class LLMessageSystem;
 class LLViewerTexture;
@@ -344,6 +345,9 @@ typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
 extern template class LLSelectMgr* LLSingleton<class LLSelectMgr>::getInstance();
 #endif
 
+// For use with getFirstTest()
+struct LLSelectGetFirstTest;
+
 class LLSelectMgr : public LLEditMenuHandler, public LLSingleton<LLSelectMgr>
 {
 public:
@@ -538,7 +542,7 @@ public:
 	void selectionSetClickAction(U8 action);
 	void selectionSetIncludeInSearch(bool include_in_search);
 	void selectionSetGlow(const F32 glow);
-	void selectionSetMaterial(LLMaterial& material);
+	void selectionSetMaterial(LLMaterialPtr material);
 
 	void selectionSetObjectPermissions(U8 perm_field, BOOL set, U32 perm_mask, BOOL override = FALSE);
 	void selectionSetObjectName(const std::string& name);
@@ -747,6 +751,9 @@ private:
 	static void packGodlikeHead(void* user_data);
 	static bool confirmDelete(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle handle);
 
+	// Get the first ID that matches test and whether or not all ids are identical in selected objects.
+	void getFirst(LLSelectGetFirstTest* test);
+
 public:
 	// Observer/callback support for when object selection changes or
 	// properties are received/updated
@@ -765,8 +772,6 @@ private:
 	LLVector3				mGridOrigin;
 	LLVector3				mGridScale;
 	EGridMode				mGridMode;
-	BOOL					mGridValid;
-
 
 	BOOL					mTEMode;			// render te
 	LLVector3d				mSelectionCenterGlobal;

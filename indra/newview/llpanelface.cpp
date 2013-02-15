@@ -257,7 +257,9 @@ LLPanelFace::LLPanelFace()
 :	LLPanel(),
 	mMaterialID(LLMaterialID::null),
 	mMaterial(LLMaterialPtr()),
-	mIsAlpha(FALSE)
+	mIsAlpha(false),
+	mUpdateInFlight(false),
+	mUpdatePending(false)
 {
 }
 
@@ -1140,6 +1142,13 @@ void LLPanelFace::getState()
 				llinfos << "Requesting material ID " << mMaterialID.asString() << llendl;
 				LLMaterialMgr::getInstance()->get(objectp->getRegion()->getRegionID(),mMaterialID,boost::bind(&LLPanelFace::onMaterialLoaded, this, _1, _2));
 			}
+			if (mUpdatePending && !mUpdateInFlight)
+			{
+				// One or more updates are pending, and the
+				// previous one has been acknowledged. Send
+				// the pending updates.
+				updateMaterial();
+			}
 		}
 
 		// Set variable values for numeric expressions
@@ -1206,6 +1215,9 @@ void LLPanelFace::refresh()
 void LLPanelFace::onMaterialLoaded(const LLMaterialID& material_id, const LLMaterialPtr material)
 {
 	mMaterial = material;
+	// We've gotten a materials update, so the sim's ready for another.
+	mUpdateInFlight = false;
+
 	// Alpha
 	LLCtrlSelectionInterface* combobox_alphamode =
 	      childGetSelectionInterface("combobox alphamode");
@@ -1278,6 +1290,11 @@ void LLPanelFace::onMaterialLoaded(const LLMaterialID& material_id, const LLMate
 
 void LLPanelFace::updateMaterial()
 {
+	if (mUpdateInFlight)
+	{
+		LL_WARNS("Materials") << "Attempt to update material while a previous update is pending ignored." << LL_ENDL;
+		return;
+	}
 	LLComboBox* comboAlphaMode = getChild<LLComboBox>("combobox alphamode");
 	LLComboBox* comboBumpiness = getChild<LLComboBox>("combobox bumpiness");
 	LLComboBox* comboShininess = getChild<LLComboBox>("combobox shininess");
@@ -1335,7 +1352,11 @@ void LLPanelFace::updateMaterial()
 		mMaterial->setDiffuseAlphaMode(getChild<LLComboBox>("combobox alphamode")->getCurrentIndex());
 		mMaterial->setAlphaMaskCutoff((U8)(getChild<LLUICtrl>("maskcutoff")->getValue().asInteger()));
 		llinfos << "Updating material: " << mMaterial->asLLSD() << llendl;
-		LLSelectMgr::getInstance()->selectionSetMaterial( *mMaterial );
+		LLSelectMgr::getInstance()->selectionSetMaterial( mMaterial );
+
+		// We've sent an update. Need to hold off on any more until
+		// the sim acknowledges this one.
+		mUpdateInFlight = true;
 	}
 	else
 	{
@@ -1346,8 +1367,15 @@ void LLPanelFace::updateMaterial()
 			mMaterial.reset();
 			mMaterialID = LLMaterialID::null;
 			// Delete existing material entry...
+
+			// Hold off any further updates till this one's
+			// acknowledged.
+			//mUpdateInFlight = true;
 		}
 	}
+
+	// We've taken care of the update, so clear the update pending flag.
+	mUpdatePending = false;
 }
 
 //
@@ -1368,7 +1396,14 @@ void LLPanelFace::onCommitColor(const LLSD& data)
 
 void LLPanelFace::onCommitShinyColor(const LLSD& data)
 {
-	updateMaterial();
+	if (!mUpdateInFlight)
+	{
+		updateMaterial();
+	}
+	else
+	{
+		mUpdatePending = true;
+	}
 }
 
 void LLPanelFace::onCommitAlpha(const LLSD& data)
@@ -1531,7 +1566,14 @@ void LLPanelFace::onCommitShiny(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	self->sendShiny();
-	self->updateMaterial();
+	if (!self->mUpdateInFlight)
+	{
+		self->updateMaterial();
+	}
+	else
+	{
+		self->mUpdatePending = true;
+	}
 }
 
 // static
@@ -1554,7 +1596,14 @@ void LLPanelFace::onCommitAlphaMode(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	updateAlphaControls(ctrl,userdata);
-	self->updateMaterial();
+	if (!self->mUpdateInFlight)
+	{
+		self->updateMaterial();
+	}
+	else
+	{
+		self->mUpdatePending = true;
+	}
 }
 
 // static
@@ -1608,25 +1657,53 @@ void LLPanelFace::onSelectTexture(const LLSD& data)
 
 void LLPanelFace::onCommitMaterialTexture( const LLSD& data )
 {
-	updateMaterial();
+	if (!mUpdateInFlight)
+	{
+		updateMaterial();
+	}
+	else
+	{
+		mUpdatePending = true;
+	}
 }
 
 void LLPanelFace::onCancelMaterialTexture(const LLSD& data)
 {
 	// not sure what to do here other than
-	updateMaterial();
+	if (!mUpdateInFlight)
+	{
+		updateMaterial();
+	}
+	else
+	{
+		mUpdatePending = true;
+	}
 }
 
 void LLPanelFace::onSelectMaterialTexture(const LLSD& data)
 {
-	updateMaterial();
+	if (!mUpdateInFlight)
+	{
+		updateMaterial();
+	}
+	else
+	{
+		mUpdatePending = true;
+	}
 }
 
 //static
 void LLPanelFace::onCommitMaterial(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
-	self->updateMaterial();
+	if (!self->mUpdateInFlight)
+	{
+		self->updateMaterial();
+	}
+	else
+	{
+		self->mUpdatePending = true;
+	}
 }
 
 // static

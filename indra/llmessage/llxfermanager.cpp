@@ -886,8 +886,17 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 				return;
 		}
 
-
-		std::string expanded_filename = gDirUtilp->getExpandedFilename( local_path, local_filename );
+		// If we want to use a special path (e.g. LL_PATH_CACHE), we want to make sure we create the
+		// proper expanded filename.
+		std::string expanded_filename;
+		if (local_path != LL_PATH_NONE)
+		{
+			expanded_filename = gDirUtilp->getExpandedFilename( local_path, local_filename );
+		}
+		else
+		{
+			expanded_filename = local_filename;
+		}
 		llinfos << "starting file transfer: " <<  expanded_filename << " to " << mesgsys->getSender() << llendl;
 
 		BOOL delete_local_on_completion = FALSE;
