@@ -68,20 +68,23 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 		switch (params.mDiffuseAlphaMode)
 		{
 			case 0:
-				LL_DEBUGS("Asdf") << "Renderererererrerererrrr!!!~!!!~!~" << LL_ENDL;
 				mShader = &gDeferredMaterialShinyNormal;
+				mShader->bind();
 				break;
 			case 1: // Alpha blending not supported in the opaque draw pool.
 				return;
 			case 2:
 				mShader = &gDeferredMaterialShinyNormalAlphaTest;
+				mShader->bind();
+				mShader->setMinimumAlpha(params.mAlphaMaskCutoff);
 				break;
 			case 3:
 				mShader = &gDeferredMaterialShinyNormalEmissive;
+				mShader->bind();
 				break;
 		};
 		
-		mShader->bind();
+		
 		
 		mShader->uniform4f(LLShaderMgr::SPECULAR_COLOR, params.mSpecColor.mV[0], params.mSpecColor.mV[1], params.mSpecColor.mV[2], params.mSpecColor.mV[3]);
 		mShader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, params.mEnvIntensity);
