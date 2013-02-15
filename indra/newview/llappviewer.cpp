@@ -291,6 +291,8 @@ LLTimer gLogoutTimer;
 static const F32 LOGOUT_REQUEST_TIME = 6.f;  // this will be cut short by the LogoutReply msg.
 F32 gLogoutMaxTime = LOGOUT_REQUEST_TIME;
 
+S32 gPendingMetricsUploads = 0;
+
 BOOL				gDisconnected = FALSE;
 
 // used to restore texture state after a mode switch
@@ -4722,6 +4724,13 @@ void LLAppViewer::idleShutdown()
 		F32 percent = 100.f * finished_uploads / total_uploads;
 		gViewerWindow->setProgressPercent(percent);
 		gViewerWindow->setProgressString(LLTrans::getString("SavingSettings"));
+		return;
+	}
+
+	if (gPendingMetricsUploads > 0
+		&& gLogoutTimer.getElapsedTimeF32() < SHUTDOWN_UPLOAD_SAVE_TIME
+		&& !logoutRequestSent())
+	{
 		return;
 	}
 

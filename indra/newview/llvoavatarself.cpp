@@ -2223,6 +2223,7 @@ public:
 						   const std::string& reason,
 						   const LLSD& content)
 	{
+		gPendingMetricsUploads--; // if we add retry, this should be moved to the isGoodStatus case.
 		if (isGoodStatus(status))
 		{
 			LL_DEBUGS("Avatar") << "OK" << LL_ENDL;
@@ -2233,11 +2234,6 @@ public:
 			LL_WARNS("Avatar") << "Failed " << status << " reason " << reason << LL_ENDL;
 			error(status,reason);
 		}
-	}
-
-	// virtual
-	void error(U32 status_num, const std::string & reason)
-	{
 	}
 
 	// virtual
@@ -2384,6 +2380,7 @@ void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
 	}
 	if (!caps_url.empty())
 	{
+		gPendingMetricsUploads++;
 		LLCurlRequest::headers_t headers;
 		LLHTTPClient::post(caps_url,
 						   msg,

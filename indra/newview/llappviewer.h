@@ -341,6 +341,8 @@ extern LLFrameTimer gLoggedInTime;
 extern F32 gLogoutMaxTime;
 extern LLTimer gLogoutTimer;
 
+extern S32 gPendingMetricsUploads;
+
 extern F32 gSimLastTime; 
 extern F32 gSimFrames;
 
