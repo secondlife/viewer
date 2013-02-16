@@ -1734,9 +1734,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8a0bc982367d6fdc20a28b391cd40566</string>
+              <string>957773fff7148ffaca42b1ea4a18d192</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/231678/arch/Linux/installer/slvoice-3.2.0002.10426-linux-20110601.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/270512/arch/Linux/installer/slvoice-4.5.0009.17865-linux-20130216.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
