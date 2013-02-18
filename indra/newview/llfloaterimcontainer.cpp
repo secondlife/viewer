@@ -535,6 +535,13 @@ void LLFloaterIMContainer::draw()
 		setTitle(conversation_floaterp && conversation_floaterp->needsTitleOverwrite() ? conversation_floaterp->getTitle() : mGeneralTitle);
 	}
 
+    // "Manually" resize of mConversationsPane: same as temporarity cancellation of the flag "auto_resize=false" for it
+	if (!mConversationsPane->isCollapsed() && mMessagesPane->isCollapsed())
+	{
+		LLRect stack_rect = mConversationsStack->getRect();
+		mConversationsPane->reshape(stack_rect.getWidth(), stack_rect.getHeight(), true);
+	}
+
 	LLFloater::draw();
 }
 
@@ -653,6 +660,8 @@ void LLFloaterIMContainer::collapseMessagesPane(bool collapse)
 		// Save the order in which the panels are closed to reverse user's last action.
 		gSavedPerAccountSettings.setBOOL("ConversationsExpandMessagePaneFirst", mConversationsPane->isCollapsed());
 	}
+
+	mConversationsPane->setIgnoreReshape(collapse);
 
 	// Show/hide the messages pane.
 	mConversationsStack->collapsePanel(mMessagesPane, collapse);
