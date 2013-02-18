@@ -192,11 +192,11 @@ LLConversationLog::LLConversationLog() :
 {
 	LLControlVariable * keep_log_ctrlp = gSavedPerAccountSettings.getControl("KeepConversationLogTranscripts").get();
 	S32 log_mode = keep_log_ctrlp->getValue();
-
+	keep_log_ctrlp->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
 	if (log_mode > 0)
 	{
 		loadFromFile(getFileName());
-		keep_log_ctrlp->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
+
 		enableLogging(log_mode);
 	}
 }
