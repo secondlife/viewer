@@ -1446,7 +1446,6 @@ void LLFloaterPreference::onClickLogPath()
 
 	std::string dir_name = picker.getDirName();
 	gSavedPerAccountSettings.setString("InstantMessageLogPath", dir_name);
-	updateLogLocation(dir_name);
 	
 	// enable/disable 'Delete transcripts button
 	updateDeleteTranscriptsButton();
