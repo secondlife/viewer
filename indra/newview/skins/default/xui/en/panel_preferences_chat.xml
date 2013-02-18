@@ -373,6 +373,7 @@
     </text>
 
     <combo_box
+        enabled="false"
         control_name="KeepConversationLogTranscripts"
         height="23"
         layout="topleft"
@@ -428,6 +429,7 @@
     </text>
   
     <line_editor
+    	enabled="false"
         control_name="InstantMessageLogPath"
         border_style="line"
         border_thickness="1"
