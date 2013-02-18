@@ -109,6 +109,8 @@ public:
 
 	void assignResizeLimits();
 
+	/*virtual*/ void closeFloater(bool app_quitting = false);
+
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
 	avatarID_panel_map_t mSessions;

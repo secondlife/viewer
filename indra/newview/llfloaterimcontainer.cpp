@@ -1851,4 +1851,18 @@ void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id,
 	}
 }
 
+void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
+{
+	// Always unminimize before trying to close.
+	// Most of the time the user will never see this state.
+	setMinimized(FALSE);
+
+	S32 conv_pane_width = mConversationsPane->getRect().getWidth();
+
+	// Save the conversations pane width before collapsing it.
+	gSavedPerAccountSettings.setS32("ConversationsListPaneWidth", conv_pane_width);
+
+	LLFloater::closeFloater(app_quitting);
+}
+
 // EOF

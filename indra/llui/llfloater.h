@@ -224,7 +224,7 @@ public:
 	void			openFloater(const LLSD& key = LLSD());
 
 	// If allowed, close the floater cleanly, releasing focus.
-	void			closeFloater(bool app_quitting = false);
+	virtual void	closeFloater(bool app_quitting = false);
 
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	
