@@ -1075,6 +1075,7 @@ S32 LLPrimitive::unpackTEField(U8 *cur_ptr, U8 *buffer_end, U8 *data_ptr, U8 dat
 		}
 		cur_ptr += data_size;		
 	}
+	llassert(cur_ptr <= buffer_end);
 	return (S32)(cur_ptr - start_loc);
 }
 
@@ -1328,8 +1329,15 @@ S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_nam
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)media_flags, 1, face_count, MVT_U8);
 	cur_ptr++;
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)glow, 1, face_count, MVT_U8);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)material_data, 16, face_count, MVT_LLUUID);
+	if (cur_ptr < packed_buffer + size)
+	{
+		cur_ptr++;
+		cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)material_data, 16, face_count, MVT_LLUUID);
+	}
+	else
+	{
+		memset(material_data, 0, sizeof(material_data));
+	}
 	
 	for (U32 i = 0; i < face_count; i++)
 	{
@@ -1429,8 +1437,15 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)media_flags, 1, face_count, MVT_U8);
 	cur_ptr++;
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)glow, 1, face_count, MVT_U8);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)material_data, 16, face_count, MVT_LLUUID);
+	if (cur_ptr < packed_buffer + size)
+	{
+		cur_ptr++;
+		cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)material_data, 16, face_count, MVT_LLUUID);
+	}
+	else
+	{
+		memset(material_data, 0, sizeof(material_data));
+	}
 
 	for (i = 0; i < face_count; i++)
 	{
