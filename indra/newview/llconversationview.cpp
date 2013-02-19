@@ -340,6 +340,7 @@ LLConversationViewParticipant* LLConversationViewSession::findParticipant(const 
 void LLConversationViewSession::showVoiceIndicator(bool visible)
 {
 	mCallIconLayoutPanel->setVisible(visible && LLVoiceChannel::getCurrentVoiceChannel()->getSessionID().isNull());
+	requestArrange();
 }
 
 void LLConversationViewSession::refresh()
