@@ -1384,7 +1384,9 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 		// Set the focus on the selected floater
 		if (!session_floater->hasFocus())
 		{
+			BOOL is_minimized = session_floater->isMinimized();
 			session_floater->setFocus(TRUE);
+			session_floater->setMinimized(is_minimized);
 		}
 	}
 
