@@ -485,62 +485,6 @@ namespace LLInitParam
 		typedef std::map<const std::type_info*, parser_write_func_t>	parser_write_func_map_t;
 		typedef std::map<const std::type_info*, parser_inspect_func_t>	parser_inspect_func_map_t;
 
-	private:
-		template<typename T, bool is_enum = boost::is_enum<T>::value>
-		struct ReaderWriter
-		{
-			static bool read(T& param, Parser* parser)
-			{
-				parser_read_func_map_t::iterator found_it = parser->mParserReadFuncs->find(&typeid(T));
-				if (found_it != parser->mParserReadFuncs->end())
-				{
-					return found_it->second(*parser, (void*)&param);
-				}
-				return false;
-			}
-			
-			static bool write(const T& param, Parser* parser, name_stack_t& name_stack)
-			{
-				parser_write_func_map_t::iterator found_it = parser->mParserWriteFuncs->find(&typeid(T));
-				if (found_it != parser->mParserWriteFuncs->end())
-				{
-					return found_it->second(*parser, (const void*)&param, name_stack);
-				}
-				return false;
-			}
-		};
-
-		// read enums as ints
-		template<typename T>
-		struct ReaderWriter<T, true>
-		{
-			static bool read(T& param, Parser* parser)
-			{
-				// read all enums as ints
-				parser_read_func_map_t::iterator found_it = parser->mParserReadFuncs->find(&typeid(S32));
-				if (found_it != parser->mParserReadFuncs->end())
-				{
-					S32 value;
-					if (found_it->second(*parser, (void*)&value))
-					{
-						param = (T)value;
-						return true;
-					}
-				}
-				return false;
-			}
-
-			static bool write(const T& param, Parser* parser, name_stack_t& name_stack)
-			{
-				parser_write_func_map_t::iterator found_it = parser->mParserWriteFuncs->find(&typeid(S32));
-				if (found_it != parser->mParserWriteFuncs->end())
-				{
-					return found_it->second(*parser, (const void*)&param, name_stack);
-				}
-				return false;
-			}
-		};
-
 	public:
 
 		Parser(parser_read_func_map_t& read_map, parser_write_func_map_t& write_map, parser_inspect_func_map_t& inspect_map)
@@ -552,14 +496,46 @@ namespace LLInitParam
 
 		virtual ~Parser();
 
-		template <typename T> bool readValue(T& param)
+		template <typename T> bool readValue(T& param, typename boost::disable_if<boost::is_enum<T> >::type* dummy = 0)
 	    {
-			return ReaderWriter<T>::read(param, this);
+			parser_read_func_map_t::iterator found_it = mParserReadFuncs->find(&typeid(T));
+			if (found_it != mParserReadFuncs->end())
+			{
+				return found_it->second(*this, (void*)&param);
+			}
+			
+			return false;
 	    }
+
+		template <typename T> bool readValue(T& param, typename boost::enable_if<boost::is_enum<T> >::type* dummy = 0)
+		{
+			parser_read_func_map_t::iterator found_it = mParserReadFuncs->find(&typeid(T));
+			if (found_it != mParserReadFuncs->end())
+			{
+				return found_it->second(*this, (void*)&param);
+			}
+			else
+			{
+				found_it = mParserReadFuncs->find(&typeid(S32));
+				if (found_it != mParserReadFuncs->end())
+				{
+					S32 int_value;
+					bool parsed = found_it->second(*this, (void*)&int_value);
+					param = (T)int_value;
+					return parsed;
+				}
+			}
+			return false;
+		}
 
 		template <typename T> bool writeValue(const T& param, name_stack_t& name_stack)
 		{
-			return ReaderWriter<T>::write(param, this, name_stack);
+			parser_write_func_map_t::iterator found_it = mParserWriteFuncs->find(&typeid(T));
+			if (found_it != mParserWriteFuncs->end())
+			{
+				return found_it->second(*this, (const void*)&param, name_stack);
+			}
+			return false;
 		}
 
 		// dispatch inspection to registered inspection functions, for each parameter in a param block
