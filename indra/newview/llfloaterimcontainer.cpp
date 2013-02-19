@@ -230,12 +230,10 @@ BOOL LLFloaterIMContainer::postBuild()
 	mMicroChangedSignal = LLVoiceClient::getInstance()->MicroChangedCallback(boost::bind(&LLFloaterIMContainer::updateSpeakBtnState, this));
 	if (! mMessagesPane->isCollapsed())
 	{
-		S32 list_width = gSavedPerAccountSettings.getS32("ConversationsListPaneWidth");
-		LLRect list_size = mConversationsPane->getRect();
-        S32 left_pad = mConversationsListPanel->getRect().mLeft;
-		list_size.mRight = list_size.mLeft + list_width - left_pad;
-
-        mConversationsPane->handleReshape(list_size, TRUE);
+		S32 conversations_panel_width = gSavedPerAccountSettings.getS32("ConversationsListPaneWidth");
+		LLRect conversations_panel_rect = mConversationsPane->getRect();
+		conversations_panel_rect.mRight = conversations_panel_rect.mLeft + conversations_panel_width;
+        mConversationsPane->handleReshape(conversations_panel_rect, TRUE);
 	}
 
 	// Init the sort order now that the root had been created
