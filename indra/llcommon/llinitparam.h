@@ -439,7 +439,7 @@ namespace LLInitParam
 		{}
 
 		void operator ()(const std::string& name)
-	    {
+	{
 			*this = name;
 		}
 
@@ -485,77 +485,6 @@ namespace LLInitParam
 		typedef std::map<const std::type_info*, parser_write_func_t>	parser_write_func_map_t;
 		typedef std::map<const std::type_info*, parser_inspect_func_t>	parser_inspect_func_map_t;
 
-	private:
-		template<typename T, bool is_enum = boost::is_enum<T>::value>
-		struct ReaderWriter
-		{
-			static bool read(T& param, Parser* parser)
-			{
-				parser_read_func_map_t::iterator found_it = parser->mParserReadFuncs->find(&typeid(T));
-				if (found_it != parser->mParserReadFuncs->end())
-				{
-					return found_it->second(*parser, (void*)&param);
-				}
-				return false;
-			}
-			
-			static bool write(const T& param, Parser* parser, name_stack_t& name_stack)
-			{
-				parser_write_func_map_t::iterator found_it = parser->mParserWriteFuncs->find(&typeid(T));
-				if (found_it != parser->mParserWriteFuncs->end())
-				{
-					return found_it->second(*parser, (const void*)&param, name_stack);
-				}
-				return false;
-			}
-		};
-
-		// read enums as ints
-		template<typename T>
-		struct ReaderWriter<T, true>
-		{
-			static bool read(T& param, Parser* parser)
-			{
-				std::string value_string;
-
-				// trying to get the declare value
-				parser_read_func_map_t::iterator string_func = parser->mParserReadFuncs->find(&typeid(std::string));
-				if (string_func != parser->mParserReadFuncs->end())
-				{
-					if (string_func->second(*parser, (void*)&value_string))
-					{
-						if (TypeValues<T>::getValueFromName(value_string, param))
-						{
-							return true;
-						}
-					}
-				}
-
-				// read enums as ints if it not declared as string
-				parser_read_func_map_t::iterator found_it = parser->mParserReadFuncs->find(&typeid(S32));
-				if (found_it != parser->mParserReadFuncs->end())
-				{
-					S32 value_S32;
-					if (found_it->second(*parser, (void*)&value_S32))
-					{
-						param = (T)value_S32;
-						return true;
-					}
-				}
-				return false;
-			}
-
-			static bool write(const T& param, Parser* parser, name_stack_t& name_stack)
-			{
-				parser_write_func_map_t::iterator found_it = parser->mParserWriteFuncs->find(&typeid(S32));
-				if (found_it != parser->mParserWriteFuncs->end())
-				{
-					return found_it->second(*parser, (const void*)&param, name_stack);
-				}
-				return false;
-			}
-		};
-
 	public:
 
 		Parser(parser_read_func_map_t& read_map, parser_write_func_map_t& write_map, parser_inspect_func_map_t& inspect_map)
@@ -567,15 +496,47 @@ namespace LLInitParam
 
 		virtual ~Parser();
 
-		template <typename T> bool readValue(T& param)
-	    {
-			return ReaderWriter<T>::read(param, this);
-	    }
+		template <typename T> bool readValue(T& param, typename boost::disable_if<boost::is_enum<T> >::type* dummy = 0)
+			{
+			parser_read_func_map_t::iterator found_it = mParserReadFuncs->find(&typeid(T));
+			if (found_it != mParserReadFuncs->end())
+				{
+				return found_it->second(*this, (void*)&param);
+				}
+			
+				return false;
+			}
+			
+		template <typename T> bool readValue(T& param, typename boost::enable_if<boost::is_enum<T> >::type* dummy = 0)
+			{
+			parser_read_func_map_t::iterator found_it = mParserReadFuncs->find(&typeid(T));
+			if (found_it != mParserReadFuncs->end())
+				{
+				return found_it->second(*this, (void*)&param);
+				}
+			else
+		{
+				found_it = mParserReadFuncs->find(&typeid(S32));
+				if (found_it != mParserReadFuncs->end())
+				{
+					S32 int_value;
+					bool parsed = found_it->second(*this, (void*)&int_value);
+					param = (T)int_value;
+					return parsed;
+					}
+				}
+				return false;
+			}
 
 		template <typename T> bool writeValue(const T& param, name_stack_t& name_stack)
-		{
-			return ReaderWriter<T>::write(param, this, name_stack);
-		}
+			{
+			parser_write_func_map_t::iterator found_it = mParserWriteFuncs->find(&typeid(T));
+			if (found_it != mParserWriteFuncs->end())
+				{
+				return found_it->second(*this, (const void*)&param, name_stack);
+				}
+				return false;
+			}
 
 		// dispatch inspection to registered inspection functions, for each parameter in a param block
 		template <typename T> bool inspectValue(name_stack_t& name_stack, S32 min_count, S32 max_count, const possible_values_t* possible_values)
