@@ -33,7 +33,7 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
               message("Revision not set, 'hg' not found (${MERCURIAL}), using ${VIEWER_VERSION_REVISION}")
            endif (DEFINED MERCURIAL)
         endif (DEFINED ENV{revision})
-        message("Building Version ${VIEWER_SHORT_VERSION} ${VIEWER_VERSION_REVISION}")
+        message("Building '${VIEWER_CHANNEL}' Version ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}")
     else ( EXISTS ${VIEWER_VERSION_BASE_FILE} )
         message(SEND_ERROR "Cannot get viewer version from '${VIEWER_VERSION_BASE_FILE}'") 
     endif ( EXISTS ${VIEWER_VERSION_BASE_FILE} )
