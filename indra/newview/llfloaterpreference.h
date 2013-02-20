@@ -186,6 +186,7 @@ private:
 	bool mGotPersonalInfo;
 	bool mOriginalIMViaEmail;
 	bool mLanguageChanged;
+	bool mInstantMessageLogPathChanged;
 	bool mAvatarDataInitialized;
 	
 	bool mOriginalHideOnlineStatus;

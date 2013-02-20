@@ -647,8 +647,12 @@ void LLFloaterPreference::cancel()
 		pPathfindingConsole->onRegionBoundaryCross();
 	}
 
-	std::string dir_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
-	updateLogLocation(dir_name);
+	if(mInstantMessageLogPathChanged)
+	{
+		std::string dir_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
+		updateLogLocation(dir_name);
+		mInstantMessageLogPathChanged = false;
+	}
 }
 
 void LLFloaterPreference::onOpen(const LLSD& key)
@@ -1436,19 +1440,27 @@ void LLFloaterPreference::setAllIgnored()
 
 void LLFloaterPreference::onClickLogPath()
 {
-	std::string proposed_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));	 
+	std::string original_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
+	std::string proposed_name(original_name);	 
+	mInstantMessageLogPathChanged = false;
 	
 	LLDirPicker& picker = LLDirPicker::instance();
+	//Launches a directory picker and waits for feedback
 	if (!picker.getDir(&proposed_name ) )
 	{
 		return; //Canceled!
 	}
 
-	std::string dir_name = picker.getDirName();
-	gSavedPerAccountSettings.setString("InstantMessageLogPath", dir_name);
-	
-	// enable/disable 'Delete transcripts button
-	updateDeleteTranscriptsButton();
+	//Path changed
+	if(original_name != proposed_name)
+	{
+		std::string dir_name = picker.getDirName();
+		gSavedPerAccountSettings.setString("InstantMessageLogPath", dir_name);
+		mInstantMessageLogPathChanged = true;
+
+		// enable/disable 'Delete transcripts button
+		updateDeleteTranscriptsButton();
+	}
 }
 
 void LLFloaterPreference::updateLogLocation(const std::string& dir_name)
