@@ -28,13 +28,17 @@
 #include "llinspectavatar.h"
 
 // viewer files
+#include "llagent.h"
+#include "llavataractions.h"
 #include "llavatariconctrl.h"
 #include "llavatarnamecache.h"
 #include "llavatarpropertiesprocessor.h"
 #include "lldateutil.h"
 #include "llinspect.h"
+#include "llmutelist.h"
 #include "llslurl.h"
 #include "llstartup.h"
+#include "llvoiceclient.h"
 #include "lltransientfloatermgr.h"
 
 // Linden libraries
@@ -63,6 +67,8 @@ public:
 	// Inspector will be positioned relative to current mouse position
 	LLInspectAvatar(const LLSD& avatar_id);
 	virtual ~LLInspectAvatar();
+
+	/*virtual*/ BOOL postBuild(void);
 	
 	// Because floater is single instance, need to re-parse data on each spawn
 	// (for example, inspector about same avatar but in different position)
@@ -77,6 +83,14 @@ private:
 	// Make network requests for all the data to display in this view.
 	// Used on construction and if avatar id changes.
 	void requestUpdate();
+
+	// Set the volume slider to this user's current client-side volume setting,
+	// hiding/disabling if the user is not nearby.
+	void updateVolumeSlider();
+
+	// Button callbacks
+	void onClickMuteVolume();
+	void onVolumeChange(const LLSD& data);
 	
 	void onAvatarNameCache(const LLUUID& agent_id,
 						   const LLAvatarName& av_name);
@@ -165,6 +179,18 @@ LLInspectAvatar::~LLInspectAvatar()
 	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
 
+/*virtual*/
+BOOL LLInspectAvatar::postBuild(void)
+{
+	getChild<LLUICtrl>("mute_btn")->setCommitCallback(
+		boost::bind(&LLInspectAvatar::onClickMuteVolume, this) );
+
+	getChild<LLUICtrl>("volume_slider")->setCommitCallback(
+		boost::bind(&LLInspectAvatar::onVolumeChange, this, _2));
+
+	return TRUE;
+}
+
 // Multiple calls to showInstance("inspect_avatar", foo) will provide different
 // LLSD for foo, which we will catch here.
 //virtual
@@ -193,6 +219,8 @@ void LLInspectAvatar::onOpen(const LLSD& data)
 
 	// can't call from constructor as widgets are not built yet
 	requestUpdate();
+
+	updateVolumeSlider();
 }
 
 void LLInspectAvatar::requestUpdate()
@@ -263,6 +291,78 @@ void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 	// Delete the request object as it has been satisfied
 	delete mPropertiesRequest;
 	mPropertiesRequest = NULL;
+}
+
+void LLInspectAvatar::updateVolumeSlider()
+{
+	bool voice_enabled = LLVoiceClient::getInstance()->getVoiceEnabled(mAvatarID);
+
+	// Do not display volume slider and mute button if it 
+	// is ourself or we are not in a voice channel together
+	if (!voice_enabled || (mAvatarID == gAgent.getID()))
+	{
+		getChild<LLUICtrl>("mute_btn")->setVisible(false);
+		getChild<LLUICtrl>("volume_slider")->setVisible(false);
+	}
+
+	else 
+	{
+		getChild<LLUICtrl>("mute_btn")->setVisible(true);
+		getChild<LLUICtrl>("volume_slider")->setVisible(true);
+
+		// By convention, we only display and toggle voice mutes, not all mutes
+		bool is_muted = LLAvatarActions::isVoiceMuted(mAvatarID);
+
+		LLUICtrl* mute_btn = getChild<LLUICtrl>("mute_btn");
+
+		bool is_linden = LLStringUtil::endsWith(mAvatarName.getDisplayName(), " Linden");
+
+		mute_btn->setEnabled( !is_linden);
+		mute_btn->setValue( is_muted );
+
+		LLUICtrl* volume_slider = getChild<LLUICtrl>("volume_slider");
+		volume_slider->setEnabled( !is_muted );
+
+		F32 volume;
+		
+		if (is_muted)
+		{
+			// it's clearer to display their volume as zero
+			volume = 0.f;
+		}
+		else
+		{
+			// actual volume
+			volume = LLVoiceClient::getInstance()->getUserVolume(mAvatarID);
+		}
+		volume_slider->setValue( (F64)volume );
+	}
+
+}
+
+void LLInspectAvatar::onClickMuteVolume()
+{
+	// By convention, we only display and toggle voice mutes, not all mutes
+	LLMuteList* mute_list = LLMuteList::getInstance();
+	bool is_muted = mute_list->isMuted(mAvatarID, LLMute::flagVoiceChat);
+
+	LLMute mute(mAvatarID, mAvatarName.getDisplayName(), LLMute::AGENT);
+	if (!is_muted)
+	{
+		mute_list->add(mute, LLMute::flagVoiceChat);
+	}
+	else
+	{
+		mute_list->remove(mute, LLMute::flagVoiceChat);
+	}
+
+	updateVolumeSlider();
+}
+
+void LLInspectAvatar::onVolumeChange(const LLSD& data)
+{
+	F32 volume = (F32)data.asReal();
+	LLVoiceClient::getInstance()->setUserVolume(mAvatarID, volume);
 }
 
 void LLInspectAvatar::onAvatarNameCache(
