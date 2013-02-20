@@ -1526,10 +1526,10 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	if (widget)
 	{
 		is_widget_selected = widget->isSelected();
-		new_selection = mConversationsRoot->getNextFromChild(widget);
+		new_selection = mConversationsRoot->getNextFromChild(widget, FALSE);
 		if (!new_selection)
 		{
-			new_selection = mConversationsRoot->getPreviousFromChild(widget);
+			new_selection = mConversationsRoot->getPreviousFromChild(widget, FALSE);
 		}
 		widget->destroyView();
 	}
