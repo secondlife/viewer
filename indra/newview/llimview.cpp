@@ -199,8 +199,14 @@ void on_new_message(const LLSD& msg)
     // execution of the action
 
     LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-    LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
 
+	if (im_box->isFrontmost() && im_box->getSelectedSession() == session_id)
+	{
+		return;
+	}
+
+	LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
+	
     //session floater not focused (visible or not)
     bool session_floater_not_focused = session_floater && !session_floater->hasFocus();
 
@@ -250,25 +256,21 @@ void on_new_message(const LLSD& msg)
 
     else if ("flash" == action)
     {
-    	if (conversation_floater_not_focused)
+    	if (!gAgent.isDoNotDisturb())
     	{
-            if(!session_floater_is_open && !gAgent.isDoNotDisturb())
-            {
-            	//User is not focused on conversation containing the message
-                gToolBarView->flashCommand(LLCommandId("chat"), true);
-            }
-
-            im_box->flashConversationItemWidget(session_id, true);
-
-            //If a DND message, allow notification to be stored so upon DND exit 
-            //useMostItrusiveIMNotification will be called to notify user a message exists
-            if(session_id.notNull() 
-                && participant_id.notNull() 
-                && gAgent.isDoNotDisturb())
-            {
-                LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
-            }
-        }
+			im_box->flashConversationItemWidget(session_id, true);
+			if(conversation_floater_not_focused)
+			{
+				//User is not focused on conversation containing the message
+				gToolBarView->flashCommand(LLCommandId("chat"), true);
+			}
+		}
+		else if(session_id.notNull() && participant_id.notNull())
+		{
+			//If a DND message, allow notification to be stored so upon DND exit 
+			//useMostItrusiveIMNotification will be called to notify user a message exists
+			LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+		}
     }
 
     else if("openconversations" == action && !session_floater_is_open)
