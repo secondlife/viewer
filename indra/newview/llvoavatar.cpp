@@ -4097,26 +4097,38 @@ std::string LLVOAvatar::bakedTextureOriginInfo()
 	
 	std::set<LLUUID> baked_ids;
 	collectBakedTextureUUIDs(baked_ids);
-	for (std::set<LLUUID>::const_iterator it = baked_ids.begin(); it != baked_ids.end(); ++it)
+	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
-		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it);
-		bool has_url = false, has_host = false;
-		if (!imagep->getUrl().empty())
+		ETextureIndex texture_index = mBakedTextureDatas[i].mTextureIndex;
+		LLViewerFetchedTexture *imagep =
+			LLViewerTextureManager::staticCastToFetchedTexture(getImage(texture_index,0), TRUE);
+		if (!imagep ||
+			imagep->getID() == IMG_DEFAULT ||
+			imagep->getID() == IMG_DEFAULT_AVATAR)
+			
 		{
-			has_url = true;
+			result += "-";
 		}
-		if (imagep->getTargetHost().isOk())
+		else
 		{
-			has_host = true;
-		}
-		S32 discard = imagep->getDiscardLevel();
-		if (has_url && !has_host) result += discard ? "u" : "U"; // server-bake texture with url 
-		else if (has_host && !has_url) result += discard ? "h" : "H"; // old-style texture on sim
-		else if (has_host && has_url) result += discard ? "ERRx" : "ERRX"; // both origins?
-		else if (!has_host && !has_url) result += discard ? "ERRn" : "ERRN"; // no origin?
-		if (discard != 0)
-		{
-			result += llformat("(%d/%d)",discard,imagep->getDesiredDiscardLevel());
+			bool has_url = false, has_host = false;
+			if (!imagep->getUrl().empty())
+			{
+				has_url = true;
+			}
+			if (imagep->getTargetHost().isOk())
+			{
+				has_host = true;
+			}
+			S32 discard = imagep->getDiscardLevel();
+			if (has_url && !has_host) result += discard ? "u" : "U"; // server-bake texture with url 
+			else if (has_host && !has_url) result += discard ? "h" : "H"; // old-style texture on sim
+			else if (has_host && has_url) result += discard ? "x" : "X"; // both origins?
+			else if (!has_host && !has_url) result += discard ? "n" : "N"; // no origin?
+			if (discard != 0)
+			{
+				result += llformat("(%d/%d)",discard,imagep->getDesiredDiscardLevel());
+			}
 		}
 
 	}
