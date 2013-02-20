@@ -5910,6 +5910,7 @@ void LLVOAvatar::updateRezzedStatusTimers()
 			for (S32 i = 1; i < 4; i++)
 			{
 				startPhase("load_" + LLVOAvatar::rezStatusToString(i));
+				startPhase("first_load_" + LLVOAvatar::rezStatusToString(i));
 			}
 		}
 		if (rez_status < mLastRezzedStatus)
@@ -5926,6 +5927,7 @@ void LLVOAvatar::updateRezzedStatusTimers()
 			for (S32 i = llmax(mLastRezzedStatus+1,1); i <= rez_status; i++)
 			{
 				stopPhase("load_" + LLVOAvatar::rezStatusToString(i));
+				stopPhase("first_load_" + LLVOAvatar::rezStatusToString(i), false);
 			}
 			if (rez_status == 3)
 			{
