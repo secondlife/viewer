@@ -21,6 +21,25 @@ email_status_this_is_os = true
 # Limit extent of codeticket updates to revisions after...
 codeticket_since = 3.3.0-release
 
+################################################################
+####      Examples of how to set the viewer_channel         ####
+#
+# To build a Release or Release candidate in build bingo:
+#    bingo.viewer_channel = "Second Life Release"
+#
+# To build a Beta for the 'Bingo' project in build bingo:
+#    bingo.viewer_channel = "Second Life Beta Bingo"
+#
+# To build a Project viewer for the 'Bingo' project in build bingo:
+#    bingo.viewer_channel = "Second Life Project Bingo"
+#
+# If left unset, viewer_channel defaults to 'Second Life Test',
+# which is appropriate for individual developer builds.
+#
+# All Linden Lab builds (and only Linden Lab builds)
+# should use a viewer_channel that begins with "Second Life"
+################################################################
+
 # Report changes since...
 viewer-development.show_changes_since = last_sprint
 
@@ -29,11 +48,6 @@ viewer-development.build_debug_release_separately = true
 
 # Notifications - to configure email notices, add a setting like this:
 # <username>_<reponame>.email = <email-address>
-
-# Example of how to build a Project Beta for the Bingo Project
-#bingo-beta.viewer_channel = "Second Life Beta Bingo"
-# Example of how to build a Project Integration build for the Bingo Project
-#bingo-beta.viewer_channel = "Second Life Project Bingo"
 
 viewer-release.viewer_channel = "Second Life Release"
 viewer-release.build_debug_release_separately = true
