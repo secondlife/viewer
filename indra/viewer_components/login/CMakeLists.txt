@@ -46,6 +46,11 @@ if(LL_TESTS)
   SET(lllogin_TEST_SOURCE_FILES
       lllogin.cpp
       )
+  set_source_files_properties(
+    lllogin.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_CONTEXT_LIBRARY}"
+    )
 
   LL_ADD_PROJECT_UNIT_TESTS(lllogin "${lllogin_TEST_SOURCE_FILES}")
 endif(LL_TESTS)

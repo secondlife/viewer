@@ -64,10 +64,10 @@
 // Boost.Coroutine #include is the *first* #include of the platform header.
 // That means that client code must generally #include Boost.Coroutine headers
 // before anything else.
-#include <boost/coroutine/coroutine.hpp>
+#include <boost/dcoroutine/coroutine.hpp>
 // Normally, lleventcoro.h obviates future.hpp. We only include this because
 // we implement a "by hand" test of future functionality.
-#include <boost/coroutine/future.hpp>
+#include <boost/dcoroutine/future.hpp>
 #include <boost/bind.hpp>
 #include <boost/range.hpp>
 
@@ -87,7 +87,7 @@
 /*****************************************************************************
 *   from the banana.cpp example program borrowed for test<1>()
 *****************************************************************************/
-namespace coroutines = boost::coroutines;
+namespace coroutines = boost::dcoroutines;
 using coroutines::coroutine;
 
 template<typename Iter>
@@ -122,7 +122,7 @@ typedef coroutine<std::string::iterator(void)> match_coroutine_type;
 *   Test helpers
 *****************************************************************************/
 // I suspect this will be typical of coroutines used in Linden software
-typedef boost::coroutines::coroutine<void()> coroutine_type;
+typedef boost::dcoroutines::coroutine<void()> coroutine_type;
 
 /// Simulate an event API whose response is immediate: sent on receipt of the
 /// initial request, rather than after some delay. This is the case that
@@ -173,10 +173,10 @@ namespace tut
                 // ... do whatever preliminary stuff must happen ...
 
                 // declare the future
-                boost::coroutines::future<LLSD> future(self);
+                boost::dcoroutines::future<LLSD> future(self);
                 // tell the future what to wait for
                 LLTempBoundListener connection(
-                    LLEventPumps::instance().obtain("source").listen("coro", voidlistener(boost::coroutines::make_callback(future))));
+                    LLEventPumps::instance().obtain("source").listen("coro", voidlistener(boost::dcoroutines::make_callback(future))));
                 ensure("Not yet", ! future);
                 // attempting to dereference ("resolve") the future causes the calling
                 // coroutine to wait for it
