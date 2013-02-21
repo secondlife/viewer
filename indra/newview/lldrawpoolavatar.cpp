@@ -1533,7 +1533,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				LLDrawPoolBump::bindBumpMap(face, normal_channel);
 			}
 
-			if (face->mTextureMatrix)
+			if (face->mTextureMatrix && vobj->mTexAnimMode)
 			{
 				gGL.matrixMode(LLRender::MM_TEXTURE);
 				gGL.loadMatrix((F32*) face->mTextureMatrix->mMatrix);
