@@ -78,6 +78,7 @@ if (VIEWER)
   # llplugin testbed code (is this the right way to include it?)
   if (LL_TESTS AND NOT LINUX)
     add_subdirectory(${VIEWER_PREFIX}test_apps/llplugintest)
+    add_subdirectory(${VIEWER_PREFIX}test_apps/llfbconnecttest)
   endif (LL_TESTS AND NOT LINUX)
 
   if (LINUX)
