@@ -208,11 +208,14 @@ std::string const & LLUpdaterService::pumpName(void)
 	return wakka;
 }
 bool LLUpdaterService::updateReadyToInstall(void) { return false; }
-void LLUpdaterService::initialize(const std::string& protocol_version,
-				const std::string& url, 
-				const std::string& path,
-				const std::string& channel,
-								  const std::string& version) {}
+void LLUpdaterService::initialize(const std::string& url, 
+								  const std::string& path,
+								  const std::string& channel,
+								  const std::string& version,
+								  const std::string& platform_version,
+								  const unsigned char uniqueid[MD5HEX_STR_SIZE],
+								  const bool&         willing_to_test
+								  ) {}
 
 void LLUpdaterService::setCheckPeriod(unsigned int seconds) {}
 void LLUpdaterService::startChecking(bool install_if_ready) {}
@@ -220,6 +223,12 @@ void LLUpdaterService::stopChecking() {}
 bool LLUpdaterService::isChecking() { return false; }
 LLUpdaterService::eUpdaterState LLUpdaterService::getState() { return INITIAL; }
 std::string LLUpdaterService::updatedVersion() { return ""; }
+
+bool llHashedUniqueID(unsigned char* id) 
+{
+	memcpy( id, "66666666666666666666666666666666", MD5HEX_STR_SIZE );
+	return true;
+}
 
 //-----------------------------------------------------------------------------
 #include "llnotifications.h"

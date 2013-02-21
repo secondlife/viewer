@@ -301,7 +301,7 @@ void LLUpdateDownloader::Implementation::setBandwidthLimit(U64 bytesPerSecond)
 		llassert(mCurl != 0);
 		mBandwidthLimit = bytesPerSecond;
 		CURLcode code = curl_easy_setopt(mCurl, CURLOPT_MAX_RECV_SPEED_LARGE, &mBandwidthLimit);
-		if(code != CURLE_OK) LL_WARNS("UpdateDownload") <<
+		if(code != CURLE_OK) LL_WARNS("UpdaterService") <<
 			"unable to change dowload bandwidth" << LL_ENDL;
 	} else {
 		mBandwidthLimit = bytesPerSecond;
@@ -322,13 +322,13 @@ size_t LLUpdateDownloader::Implementation::onHeader(void * buffer, size_t size)
 			size_t lastDigitPos = header.find_last_of("0123456789");
 			std::string contentLength = header.substr(firstDigitPos, lastDigitPos - firstDigitPos + 1);
 			size_t size = boost::lexical_cast<size_t>(contentLength);
-			LL_INFOS("UpdateDownload") << "download size is " << size << LL_ENDL;
+			LL_INFOS("UpdaterService") << "download size is " << size << LL_ENDL;
 
 			mDownloadData["size"] = LLSD(LLSD::Integer(size));
 			llofstream odataStream(mDownloadRecordPath);
 			LLSDSerialize::toPrettyXML(mDownloadData, odataStream);
 		} catch (std::exception const & e) {
-			LL_WARNS("UpdateDownload") << "unable to read content length ("
+			LL_WARNS("UpdaterService") << "unable to read content length ("
 				<< e.what() << ")" << LL_ENDL;
 		}
 	} else {
@@ -368,7 +368,7 @@ int LLUpdateDownloader::Implementation::onProgress(double downloadSize, double b
 		event["payload"] = payload;
 		LLEventPumps::instance().obtain("mainlooprepeater").post(event);
 
-		LL_INFOS("UpdateDownload") << "progress event " << payload << LL_ENDL;
+		LL_INFOS("UpdaterService") << "progress event " << payload << LL_ENDL;
 	} else {
 		; // Keep events to a reasonalbe number.
 	}
@@ -384,19 +384,19 @@ void LLUpdateDownloader::Implementation::run(void)
 	if(code == CURLE_OK) {
 		LLFile::remove(mDownloadRecordPath);
 		if(validateDownload()) {
-			LL_INFOS("UpdateDownload") << "download successful" << LL_ENDL;
+			LL_INFOS("UpdaterService") << "download successful" << LL_ENDL;
 			mClient.downloadComplete(mDownloadData);
 		} else {
-			LL_INFOS("UpdateDownload") << "download failed hash check" << LL_ENDL;
+			LL_INFOS("UpdaterService") << "download failed hash check" << LL_ENDL;
 			std::string filePath = mDownloadData["path"].asString();
 			if(filePath.size() != 0) LLFile::remove(filePath);
 			mClient.downloadError("failed hash check");
 		}
 	} else if(mCancelled && (code == CURLE_WRITE_ERROR)) {
-		LL_INFOS("UpdateDownload") << "download canceled by user" << LL_ENDL;
+		LL_INFOS("UpdaterService") << "download canceled by user" << LL_ENDL;
 		// Do not call back client.
 	} else {
-		LL_WARNS("UpdateDownload") << "download failed with error '" <<
+		LL_WARNS("UpdaterService") << "download failed with error '" <<
 			curl_easy_strerror(code) << "'" << LL_ENDL;
 		LLFile::remove(mDownloadRecordPath);
 		if(mDownloadData.has("path")) LLFile::remove(mDownloadData["path"].asString());
@@ -446,7 +446,7 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 
 void LLUpdateDownloader::Implementation::resumeDownloading(size_t startByte)
 {
-	LL_INFOS("UpdateDownload") << "resuming download from " << mDownloadData["url"].asString()
+	LL_INFOS("UpdaterService") << "resuming download from " << mDownloadData["url"].asString()
 		<< " at byte " << startByte << LL_ENDL;
 
 	initializeCurlGet(mDownloadData["url"].asString(), false);
@@ -476,9 +476,9 @@ void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std
 	std::string filePath = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, fileName);
 	mDownloadData["path"] = filePath;
 
-	LL_INFOS("UpdateDownload") << "downloading " << filePath
+	LL_INFOS("UpdaterService") << "downloading " << filePath
 		<< " from " << uri.asString() << LL_ENDL;
-	LL_INFOS("UpdateDownload") << "hash of file is " << hash << LL_ENDL;
+	LL_INFOS("UpdaterService") << "hash of file is " << hash << LL_ENDL;
 
 	llofstream dataStream(mDownloadRecordPath);
 	LLSDSerialize::toPrettyXML(mDownloadData, dataStream);
@@ -512,11 +512,11 @@ bool LLUpdateDownloader::Implementation::validateDownload(void)
 
 	std::string hash = mDownloadData["hash"].asString();
 	if(hash.size() != 0) {
-		LL_INFOS("UpdateDownload") << "checking hash..." << LL_ENDL;
+		LL_INFOS("UpdaterService") << "checking hash..." << LL_ENDL;
 		char digest[33];
 		LLMD5(fileStream).hex_digest(digest);
 		if(hash != digest) {
-			LL_WARNS("UpdateDownload") << "download hash mismatch; expeted " << hash <<
+			LL_WARNS("UpdaterService") << "download hash mismatch; expeted " << hash <<
 				" but download is " << digest << LL_ENDL;
 		}
 		return hash == digest;

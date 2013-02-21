@@ -2936,16 +2936,28 @@ void LLAppViewer::initUpdater()
 	std::string url = gSavedSettings.getString("UpdaterServiceURL");
 	std::string channel = LLVersionInfo::getChannel();
 	std::string version = LLVersionInfo::getVersion();
-	std::string protocol_version = gSavedSettings.getString("UpdaterServiceProtocolVersion");
 	std::string service_path = gSavedSettings.getString("UpdaterServicePath");
 	U32 check_period = gSavedSettings.getU32("UpdaterServiceCheckPeriod");
+	bool willing_to_test = gSavedSettings.getBOOL("UpdaterWillingToTest");
+    unsigned char unique_id[MD5HEX_STR_SIZE];
+	if ( ! llHashedUniqueID(unique_id) )
+	{
+		if ( willing_to_test )
+		{
+			LL_WARNS("UpdaterService") << "Unable to provide a unique id; overriding willing_to_test by sending testno" << LL_ENDL;
+		}
+		willing_to_test = false;
+	}
 
 	mUpdater->setAppExitCallback(boost::bind(&LLAppViewer::forceQuit, this));
-	mUpdater->initialize(protocol_version, 
-						 url, 
+	mUpdater->initialize(url, 
 						 service_path, 
 						 channel, 
-						 version);
+						 version,
+						 getOSInfo().getOSVersionString(),
+						 unique_id,
+						 willing_to_test
+						 );
  	mUpdater->setCheckPeriod(check_period);
 	mUpdater->setBandwidthLimit((int)gSavedSettings.getF32("UpdaterMaximumBandwidth") * (1024/8));
 	gSavedSettings.getControl("UpdaterMaximumBandwidth")->getSignal()->

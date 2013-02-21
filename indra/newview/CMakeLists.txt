@@ -82,6 +82,7 @@ include_directories(
     ${LIBS_PREBUILD_DIR}/include/hunspell
     ${OPENAL_LIB_INCLUDE_DIRS}
     ${LIBS_PREBUILT_DIR}/include/collada/1.4
+    ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
 set(viewer_SOURCE_FILES
@@ -278,6 +279,7 @@ set(viewer_SOURCE_FILES
     llgroupiconctrl.cpp
     llgrouplist.cpp
     llgroupmgr.cpp
+    llhasheduniqueid.cpp
     llhints.cpp
     llhomelocationresponder.cpp
     llhudeffect.cpp
@@ -854,6 +856,7 @@ set(viewer_HEADER_FILES
     llgroupiconctrl.h
     llgrouplist.h
     llgroupmgr.h
+    llhasheduniqueid.h
     llhints.h
     llhomelocationresponder.h
     llhudeffect.h

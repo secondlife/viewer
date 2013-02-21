@@ -62,10 +62,15 @@ LLUpdateChecker::LLUpdateChecker(LLUpdateChecker::Client & client):
 }
 
 
-void LLUpdateChecker::checkVersion(std::string const & protocolVersion, std::string const & hostUrl, 
-							std::string const & servicePath, std::string channel, std::string version)
+void LLUpdateChecker::checkVersion(std::string const & hostUrl, 
+								   std::string const & servicePath,
+								   std::string const & channel,
+								   std::string const & version,
+								   std::string const & platform_version,
+								   unsigned char       uniqueid[MD5HEX_STR_SIZE],
+								   bool                willing_to_test)
 {
-	mImplementation->checkVersion(protocolVersion, hostUrl, servicePath, channel, version);
+	mImplementation->checkVersion(hostUrl, servicePath, channel, version, platform_version, uniqueid, willing_to_test);
 }
 
 
@@ -74,12 +79,14 @@ void LLUpdateChecker::checkVersion(std::string const & protocolVersion, std::str
 //-----------------------------------------------------------------------------
 
 
-const char * LLUpdateChecker::Implementation::sProtocolVersion = "v1.0";
+const char * LLUpdateChecker::Implementation::sLegacyProtocolVersion = "v1.0";
+const char * LLUpdateChecker::Implementation::sProtocolVersion = "v1.1";
 
 
 LLUpdateChecker::Implementation::Implementation(LLUpdateChecker::Client & client):
 	mClient(client),
-	mInProgress(false)
+	mInProgress(false),
+	mProtocol(sProtocolVersion)
 {
 	; // No op.
 }
@@ -91,39 +98,86 @@ LLUpdateChecker::Implementation::~Implementation()
 }
 
 
-void LLUpdateChecker::Implementation::checkVersion(std::string const & protocolVersion, std::string const & hostUrl, 
-											std::string const & servicePath, std::string channel, std::string version)
+void LLUpdateChecker::Implementation::checkVersion(std::string const & hostUrl, 
+												   std::string const & servicePath,
+												   std::string const & channel,
+												   std::string const & version,
+												   std::string const & platform_version,
+												   unsigned char       uniqueid[MD5HEX_STR_SIZE],
+												   bool                willing_to_test)
 {
 	llassert(!mInProgress);
 	
-	if(protocolVersion != sProtocolVersion) throw CheckError("unsupported protocol");
-		
 	mInProgress = true;
-	mVersion = version;
-	std::string checkUrl = buildUrl(protocolVersion, hostUrl, servicePath, channel, version);
-	LL_INFOS("UpdateCheck") << "checking for updates at " << checkUrl << llendl;
+
+	mHostUrl     	 = hostUrl;
+	mServicePath 	 = servicePath;
+	mChannel     	 = channel;
+	mVersion     	 = version;
+	mPlatformVersion = platform_version;
+	memcpy(mUniqueId, uniqueid, MD5HEX_STR_SIZE);
+	mWillingToTest   = willing_to_test;
+	
+	mProtocol = sProtocolVersion;
+
+	std::string checkUrl = buildUrl(hostUrl, servicePath, channel, version, platform_version, uniqueid, willing_to_test);
+	LL_INFOS("UpdaterService") << "checking for updates at " << checkUrl << LL_ENDL;
 	
 	mHttpClient.get(checkUrl, this);
 }
 
 void LLUpdateChecker::Implementation::completed(U32 status,
-							  const std::string & reason,
-							  const LLSD & content)
+												const std::string & reason,
+												const LLSD & content)
 {
 	mInProgress = false;	
 	
-	if(status != 200) {
-		LL_WARNS("UpdateCheck") << "html error " << status << " (" << reason << ")" << llendl;
-		mClient.error(reason);
-	} else if(!content.asBoolean()) {
-		LL_INFOS("UpdateCheck") << "up to date" << llendl;
+	if(status != 200)
+	{
+		if (status == 404)
+		{
+			if (mProtocol == sProtocolVersion)
+			{
+				mProtocol = sLegacyProtocolVersion;
+				std::string retryUrl = buildUrl(mHostUrl, mServicePath, mChannel, mVersion, mPlatformVersion, mUniqueId, mWillingToTest);
+
+				LL_WARNS("UpdaterService")
+					<< "update response using " << sProtocolVersion
+					<< " was 404... retry at " << retryUrl
+					<< " with legacy protocol"
+					<< LL_ENDL;
+	
+				mHttpClient.get(retryUrl, this);
+			}
+			else
+			{
+				LL_WARNS("UpdaterService")
+					<< "update response using " << sLegacyProtocolVersion
+					<< " was 404; request failed"
+					<< LL_ENDL;
+				mClient.error(reason);
+			}
+		}
+		else
+		{
+			LL_WARNS("UpdaterService") << "response error " << status << " (" << reason << ")" << LL_ENDL;
+			mClient.error(reason);
+		}
+	}
+	else if(!content.asBoolean())
+	{
+		LL_INFOS("UpdaterService") << "up to date" << LL_ENDL;
 		mClient.upToDate();
-	} else if(content["required"].asBoolean()) {
-		LL_INFOS("UpdateCheck") << "version invalid" << llendl;
+	}
+	else if(content["required"].asBoolean())
+	{
+		LL_INFOS("UpdaterService") << "version invalid" << LL_ENDL;
 		LLURI uri(content["url"].asString());
 		mClient.requiredUpdate(content["version"].asString(), uri, content["hash"].asString());
-	} else {
-		LL_INFOS("UpdateCheck") << "newer version " << content["version"].asString() << " available" << llendl;
+	}
+	else
+	{
+		LL_INFOS("UpdaterService") << "newer version " << content["version"].asString() << " available" << LL_ENDL;
 		LLURI uri(content["url"].asString());
 		mClient.optionalUpdate(content["version"].asString(), uri, content["hash"].asString());
 	}
@@ -133,13 +187,18 @@ void LLUpdateChecker::Implementation::completed(U32 status,
 void LLUpdateChecker::Implementation::error(U32 status, const std::string & reason)
 {
 	mInProgress = false;
-	LL_WARNS("UpdateCheck") << "update check failed; " << reason << llendl;
+	LL_WARNS("UpdaterService") << "update check failed; " << reason << LL_ENDL;
 	mClient.error(reason);
 }
 
 
-std::string LLUpdateChecker::Implementation::buildUrl(std::string const & protocolVersion, std::string const & hostUrl, 
-													  std::string const & servicePath, std::string channel, std::string version)
+std::string LLUpdateChecker::Implementation::buildUrl(std::string const & hostUrl, 
+													  std::string const & servicePath,
+													  std::string const & channel,
+													  std::string const & version,
+													  std::string const & platform_version,
+													  unsigned char       uniqueid[MD5HEX_STR_SIZE],
+													  bool                willing_to_test)
 {	
 #ifdef LL_WINDOWS
 	static const char * platform = "win";
@@ -162,9 +221,15 @@ std::string LLUpdateChecker::Implementation::buildUrl(std::string const & protoc
 	
 	LLSD path;
 	path.append(servicePath);
-	path.append(protocolVersion);
+	path.append(mProtocol);
 	path.append(channel);
 	path.append(version);
 	path.append(platform);
+	if (mProtocol != sLegacyProtocolVersion)
+	{
+		path.append(platform_version);
+		path.append(willing_to_test ? "testok" : "testno");
+		path.append((char*)uniqueid);
+	}
 	return LLURI::buildHTTP(hostUrl, path).asString();
 }

@@ -19,6 +19,7 @@ include_directories(
     ${LLPLUGIN_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
     ${CURL_INCLUDE_DIRS}
+    ${CMAKE_SOURCE_DIR}/newview
     )
 
 set(updater_service_SOURCE_FILES
