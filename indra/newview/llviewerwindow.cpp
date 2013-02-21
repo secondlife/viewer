@@ -2235,29 +2235,42 @@ void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
 
 	// no l10n problem because channel is always an english string
 	std::string channel = LLVersionInfo::getChannel();
-	bool isProject = (channel.find("Project") != std::string::npos);
+	bool isProject = (channel.find("Project") != std::string::npos); // TBD - should be a regex
+	bool isBeta = (channel.find("Beta") != std::string::npos); // TBD - should be a regex
+	bool isTest = (channel.find("Test") != std::string::npos); // TBD - should be a regex
 	
 	// god more important than project, proj more important than grid
-    if(god_mode && LLGridManager::getInstance()->isInProductionGrid())
+    if ( god_mode ) 
     {
-        new_bg_color = LLUIColorTable::instance().getColor( "MenuBarGodBgColor" );
+		if ( LLGridManager::getInstance()->isInProductionGrid() )
+		{
+			new_bg_color = LLUIColorTable::instance().getColor( "MenuBarGodBgColor" );
+		}
+		else
+		{
+			new_bg_color = LLUIColorTable::instance().getColor( "MenuNonProductionGodBgColor" );
+		}
     }
-    else if(god_mode && !LLGridManager::getInstance()->isInProductionGrid())
-    {
-        new_bg_color = LLUIColorTable::instance().getColor( "MenuNonProductionGodBgColor" );
-    }
-	else if (!god_mode && isProject)
+	else if (isBeta)
+	{
+		new_bg_color = LLUIColorTable::instance().getColor( "MenuBarBetaBgColor" );
+	}
+	else if (isProject)
 	{
 		new_bg_color = LLUIColorTable::instance().getColor( "MenuBarProjectBgColor" );
-    }
-    else if(!god_mode && !LLGridManager::getInstance()->isInProductionGrid())
-    {
-        new_bg_color = LLUIColorTable::instance().getColor( "MenuNonProductionBgColor" );
-    }
-    else 
-    {
-        new_bg_color = LLUIColorTable::instance().getColor( "MenuBarBgColor" );
-    }
+	}
+	else if (isTest)
+	{
+		new_bg_color = LLUIColorTable::instance().getColor( "MenuBarTestBgColor" );
+	}
+	else if(!LLGridManager::getInstance()->isInProductionGrid())
+	{
+		new_bg_color = LLUIColorTable::instance().getColor( "MenuNonProductionBgColor" );
+	}
+	else 
+	{
+		new_bg_color = LLUIColorTable::instance().getColor( "MenuBarBgColor" );
+	}
 
     if(gMenuBarView)
     {
