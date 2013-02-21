@@ -241,13 +241,13 @@ class ViewerManifest(LLManifest):
 
 class WindowsManifest(ViewerManifest):
     def final_exe(self):
-        if self.default_channel():
-            if self.default_grid():
-                return "SecondLife.exe"
-            else:
-                return "SecondLifePreview.exe"
-        else:
-            return ''.join(self.channel().split()) + '.exe'
+        app_suffix="Test"
+        channel_type=self.channel_lowerword()
+        if channel_type == 'release' :
+            app_suffix=''
+        elif re.match('(beta|project) .*',channel_type) :
+            app_suffix=''.join(self.channel_unique().split())
+        return "SecondLife"+app_suffix+".exe"
 
     def test_msvcrt_and_copy_action(self, src, dst):
         # This is used to test a dll manifest.
@@ -295,25 +295,8 @@ class WindowsManifest(ViewerManifest):
         else:
             print "Doesn't exist:", src
         
-    ### DISABLED MANIFEST CHECKING for vs2010.  we may need to reenable this
-    # shortly.  If this hasn't been reenabled by the 2.9 viewer release then it
-    # should be deleted -brad
-    #def enable_crt_manifest_check(self):
-    #    if self.is_packaging_viewer():
-    #       WindowsManifest.copy_action = WindowsManifest.test_msvcrt_and_copy_action
-
-    #def enable_no_crt_manifest_check(self):
-    #    if self.is_packaging_viewer():
-    #        WindowsManifest.copy_action = WindowsManifest.test_for_no_msvcrt_manifest_and_copy_action
-
-    #def disable_manifest_check(self):
-    #    if self.is_packaging_viewer():
-    #        del WindowsManifest.copy_action
-
     def construct(self):
         super(WindowsManifest, self).construct()
-
-        #self.enable_crt_manifest_check()
 
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
@@ -324,15 +307,11 @@ class WindowsManifest(ViewerManifest):
                                         'llplugin', 'slplugin', self.args['configuration']),
                            "slplugin.exe")
         
-        #self.disable_manifest_check()
-
         self.path2basename("../viewer_components/updater/scripts/windows", "update_install.bat")
         # Get shared libs from the shared libs staging directory
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
 
-            #self.enable_crt_manifest_check()
-            
             # Get llcommon and deps. If missing assume static linkage and continue.
             try:
                 self.path('llcommon.dll')
@@ -343,8 +322,6 @@ class WindowsManifest(ViewerManifest):
             except RuntimeError, err:
                 print err.message
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
-
-            #self.disable_manifest_check()
 
             # Mesh 3rd party libs needed for auto LOD and collada reading
             try:
@@ -408,8 +385,6 @@ class WindowsManifest(ViewerManifest):
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
         self.path("featuretable_xp.txt")
-
-        #self.enable_no_crt_manifest_check()
 
         # Media plugins - QuickTime
         if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
@@ -490,15 +465,10 @@ class WindowsManifest(ViewerManifest):
 
                 self.end_prefix()
 
-        #self.disable_manifest_check()
-
         # pull in the crash logger and updater from other projects
         # tag:"crash-logger" here as a cue to the exporter
         self.path(src='../win_crash_logger/%s/windows-crash-logger.exe' % self.args['configuration'],
                   dst="win_crash_logger.exe")
-# For CHOP-397, windows updater no longer used.
-#        self.path(src='../win_updater/%s/windows-updater.exe' % self.args['configuration'],
-#                  dst="updater.exe")
 
         if not self.is_packaging_viewer():
             self.package_file = "copied_deps"    
@@ -561,6 +531,7 @@ class WindowsManifest(ViewerManifest):
             'channel':self.channel(),
             'channel_oneword':self.channel_oneword(),
             'channel_unique':self.channel_unique(),
+            'subchannel_underscores':'_'.join(self.channel_unique().split())
             }
 
         version_vars = """
@@ -582,7 +553,7 @@ class WindowsManifest(ViewerManifest):
                 Caption "Second Life"
                 """
             else:
-                # beta grid viewer
+                # alternate grid viewer
                 installer_file = "Second_Life_%(version_dashes)s_(%(grid_caps)s)_Setup.exe"
                 grid_vars_template = """
                 OutFile "%(installer_file)s"
@@ -594,8 +565,8 @@ class WindowsManifest(ViewerManifest):
                 Caption "Second Life %(grid)s ${VERSION}"
                 """
         else:
-            # some other channel on some grid
-            installer_file = "Second_Life_%(version_dashes)s_%(channel_oneword)s_Setup.exe"
+            # some other channel (grid name not used)
+            installer_file = "Second_Life_%(version_dashes)s_%(subchannel_underscores)s_Setup.exe"
             grid_vars_template = """
             OutFile "%(installer_file)s"
             !define INSTFLAGS "%(flags)s"
