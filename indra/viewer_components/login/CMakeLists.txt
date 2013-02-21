@@ -9,6 +9,7 @@ endif(LL_TESTS)
 include(LLCommon)
 include(LLMath)
 include(LLXML)
+include(Boost)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
@@ -40,6 +41,7 @@ target_link_libraries(lllogin
     ${LLCOMMON_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLXML_LIBRARIES}
+    ${BOOST_CONTEXT_LIBRARY}
     )
 
 if(LL_TESTS)
