@@ -1116,6 +1116,12 @@ void LLVOVolume::notifyMeshLoaded()
 { 
 	mSculptChanged = TRUE;
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY, TRUE);
+
+	LLVOAvatar* avatar = getAvatar();
+	if (avatar)
+	{
+		avatar->updateVisualComplexity();
+	}
 }
 
 // sculpt replaces generate() for sculpted surfaces

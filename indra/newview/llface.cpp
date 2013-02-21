@@ -51,6 +51,7 @@
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llviewershadermgr.h"
+#include "llvoavatar.h"
 
 
 #define LL_MAX_INDICES_COUNT 1000000
@@ -325,6 +326,12 @@ void LLFace::dirtyTexture()
 		if (vobj)
 		{
 			vobj->mLODChanged = TRUE;
+
+			LLVOAvatar* avatar = vobj->getAvatar();
+			if (avatar)
+			{ //avatar render cost may have changed
+				avatar->updateVisualComplexity();
+			}
 		}
 		gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
 	}		

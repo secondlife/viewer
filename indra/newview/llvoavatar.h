@@ -252,6 +252,7 @@ public:
 	static void		invalidateNameTags();
 	void			addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font);
 	void 			idleUpdateRenderCost();
+	void			updateVisualComplexity() { mVisualComplexityStale = TRUE; }
 	void 			idleUpdateBelowWater();
 
 	//--------------------------------------------------------------------
@@ -314,6 +315,7 @@ private:
 	BOOL			mFullyLoadedInitialized;
 	S32				mFullyLoadedFrameCounter;
 	S32				mVisualComplexity;
+	BOOL			mVisualComplexityStale;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
 
@@ -437,7 +439,6 @@ public:
 	U32 		renderRigid();
 	U32 		renderSkinned(EAvatarRenderPass pass);
 	F32			getLastSkinTime() { return mLastSkinTime; }
-	U32			renderSkinnedAttachments();
 	U32 		renderTransparent(BOOL first_pass);
 	void 		renderCollisionVolumes();
 	static void	deleteCachedImages(bool clearAll=true);

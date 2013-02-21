@@ -59,6 +59,7 @@ LLGLSLShader* LLDrawPoolAvatar::sVertexProgram = NULL;
 BOOL	LLDrawPoolAvatar::sSkipOpaque = FALSE;
 BOOL	LLDrawPoolAvatar::sSkipTransparent = FALSE;
 S32 LLDrawPoolAvatar::sDiffuseChannel = 0;
+F32 LLDrawPoolAvatar::sMinimumAlpha = 0.2f;
 
 
 static bool is_deferred_render = false;
@@ -272,7 +273,7 @@ void LLDrawPoolAvatar::beginPostDeferredAlpha()
 
 	gPipeline.bindDeferredShader(*sVertexProgram);
 
-	sVertexProgram->setMinimumAlpha(0.2f);
+	sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 }
@@ -620,7 +621,7 @@ void LLDrawPoolAvatar::beginRigid()
 		if (sVertexProgram != NULL)
 		{	//eyeballs render with the specular shader
 			sVertexProgram->bind();
-			sVertexProgram->setMinimumAlpha(0.2f);
+			sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 		}
 	}
 	else
@@ -671,7 +672,7 @@ void LLDrawPoolAvatar::beginDeferredRigid()
 	sVertexProgram = &gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram;
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	sVertexProgram->bind();
-	sVertexProgram->setMinimumAlpha(0.2f);
+	sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 }
 
 void LLDrawPoolAvatar::endDeferredRigid()
@@ -729,7 +730,7 @@ void LLDrawPoolAvatar::beginSkinned()
 
 	if (LLGLSLShader::sNoFixedFunction)
 	{
-		sVertexProgram->setMinimumAlpha(0.2f);
+		sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 	}
 }
 
@@ -1027,7 +1028,7 @@ void LLDrawPoolAvatar::beginDeferredSkinned()
 	sRenderingSkinned = TRUE;
 
 	sVertexProgram->bind();
-	sVertexProgram->setMinimumAlpha(0.2f);
+	sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 	
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	gGL.getTexUnit(0)->activate();
@@ -1138,7 +1139,10 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 		if (impostor)
 		{
-			if (LLPipeline::sRenderDeferred && !LLPipeline::sReflectionRender && avatarp->mImpostor.isComplete()) 
+			if (LLPipeline::sRenderDeferred && //rendering a deferred impostor
+				!LLPipeline::sReflectionRender && 
+				avatarp->mImpostor.isComplete() && //impostor has required data channels
+				avatarp->mImpostor.getNumTextures() >= 3) 
 			{
 				if (normal_channel > -1)
 				{
@@ -1151,112 +1155,94 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 			}
 			avatarp->renderImpostor(LLColor4U(255,255,255,255), sDiffuseChannel);
 		}
-		return;
 	}
-
-	llassert(LLPipeline::sImpostorRender || !avatarp->isVisuallyMuted());
-
-	/*if (single_avatar && avatarp->mSpecialRenderMode >= 1) // 1=anim preview, 2=image preview,  3=morph view
-	{
-		gPipeline.enableLightsAvatarEdit(LLColor4(.5f, .5f, .5f, 1.f));
-	}*/
-	
-	if (pass == 1)
+	else if (pass == 1)
 	{
 		// render rigid meshes (eyeballs) first
 		avatarp->renderRigid();
-		return;
 	}
-
-	if (pass == 3)
-	{
-		if (is_deferred_render)
+	else if (pass >= 3 && pass <= 9)
+	{ //render rigged attachments
+		if (!avatarp->isVisuallyMuted())
 		{
-			renderDeferredRiggedSimple(avatarp);
-		}
-		else
-		{
-			renderRiggedSimple(avatarp);
-		}
-		return;
-	}
-
-	if (pass == 4)
-	{
-		if (is_deferred_render)
-		{
-			renderDeferredRiggedBump(avatarp);
-		}
-		else
-		{
-			renderRiggedFullbright(avatarp);
-		}
-
-		return;
-	}
-
-	if (pass == 5)
-	{
-		renderRiggedShinySimple(avatarp);
-		return;
-	}
-
-	if (pass == 6)
-	{
-		renderRiggedFullbrightShiny(avatarp);
-		return;
-	}
-
-	if (pass >= 7 && pass < 9)
-	{
-		if (pass == 7)
-		{
-			renderRiggedAlpha(avatarp);
-			return;
-		}
-
-		if (pass == 8)
-		{
-			renderRiggedFullbrightAlpha(avatarp);
-			return;
+			if (pass == 3)
+			{
+				if (is_deferred_render)
+				{
+					renderDeferredRiggedSimple(avatarp);
+				}
+				else
+				{
+					renderRiggedSimple(avatarp);
+				}
+			}
+			else if (pass == 4)
+			{
+				if (is_deferred_render)
+				{
+					renderDeferredRiggedBump(avatarp);
+				}
+				else
+				{
+					renderRiggedFullbright(avatarp);
+				}
+			}
+			else if (pass == 5)
+			{
+				renderRiggedShinySimple(avatarp);
+			}
+			else if (pass == 6)
+			{
+				renderRiggedFullbrightShiny(avatarp);
+			}
+			else if (pass >= 7 && pass < 9)
+			{
+				if (pass == 7)
+				{
+					renderRiggedAlpha(avatarp);
+				}
+				else if (pass == 8)
+				{
+					renderRiggedFullbrightAlpha(avatarp);
+				}
+			}
+			else if (pass == 9)
+			{
+				renderRiggedGlow(avatarp);
+			}
 		}
 	}
-
-	if (pass == 9)
+	else
 	{
-		renderRiggedGlow(avatarp);
+		if ((sShaderLevel >= SHADER_LEVEL_CLOTH))
+		{
+			LLMatrix4 rot_mat;
+			LLViewerCamera::getInstance()->getMatrixToLocal(rot_mat);
+			LLMatrix4 cfr(OGL_TO_CFR_ROTATION);
+			rot_mat *= cfr;
 		
-		return;
-	}
-	
-	if ((sShaderLevel >= SHADER_LEVEL_CLOTH))
-	{
-		LLMatrix4 rot_mat;
-		LLViewerCamera::getInstance()->getMatrixToLocal(rot_mat);
-		LLMatrix4 cfr(OGL_TO_CFR_ROTATION);
-		rot_mat *= cfr;
-		
-		LLVector4 wind;
-		wind.setVec(avatarp->mWindVec);
-		wind.mV[VW] = 0;
-		wind = wind * rot_mat;
-		wind.mV[VW] = avatarp->mWindVec.mV[VW];
+			LLVector4 wind;
+			wind.setVec(avatarp->mWindVec);
+			wind.mV[VW] = 0;
+			wind = wind * rot_mat;
+			wind.mV[VW] = avatarp->mWindVec.mV[VW];
 
-		sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_WIND, 1, wind.mV);
-		F32 phase = -1.f * (avatarp->mRipplePhase);
+			sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_WIND, 1, wind.mV);
+			F32 phase = -1.f * (avatarp->mRipplePhase);
 
-		F32 freq = 7.f + (noise1(avatarp->mRipplePhase) * 2.f);
-		LLVector4 sin_params(freq, freq, freq, phase);
-		sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_SINWAVE, 1, sin_params.mV);
+			F32 freq = 7.f + (noise1(avatarp->mRipplePhase) * 2.f);
+			LLVector4 sin_params(freq, freq, freq, phase);
+			sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_SINWAVE, 1, sin_params.mV);
 
-		LLVector4 gravity(0.f, 0.f, -CLOTHING_GRAVITY_EFFECT, 0.f);
-		gravity = gravity * rot_mat;
-		sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_GRAVITY, 1, gravity.mV);
-	}
+			LLVector4 gravity(0.f, 0.f, -CLOTHING_GRAVITY_EFFECT, 0.f);
+			gravity = gravity * rot_mat;
+			sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_GRAVITY, 1, gravity.mV);
+		}
 
-	if( !single_avatar || (avatarp == single_avatar) )
-	{
-		avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
+		if( !single_avatar || (avatarp == single_avatar) )
+		{
+			avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
+		}
 	}
 }
 
