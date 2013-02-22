@@ -813,6 +813,22 @@ void LLFloater::closeFloater(bool app_quitting)
 }
 
 /*virtual*/
+void LLFloater::closeHostedFloater()
+{
+	// When toggling *visibility*, close the host instead of the floater when hosted
+	if (getHost())
+	{
+		llinfos << "Merov debug : closeHostedFloater : host " << llendl;
+		getHost()->closeFloater();
+	}
+	else
+	{
+		llinfos << "Merov debug : closeHostedFloater : floater " << llendl;
+		closeFloater();
+	}
+}
+
+/*virtual*/
 void LLFloater::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLPanel::reshape(width, height, called_from_parent);
@@ -1609,8 +1625,19 @@ void LLFloater::bringToFront( S32 x, S32 y )
 // virtual
 void LLFloater::setVisibleAndFrontmost(BOOL take_focus)
 {
-	setVisible(TRUE);
-	setFrontmost(take_focus);
+	LLMultiFloater* hostp = getHost();
+	if (hostp)
+	{
+		llinfos << "Merov debug : setVisibleAndFrontmost : hostp->setFrontmost " << llendl;
+		hostp->setVisible(TRUE);
+		hostp->setFrontmost(take_focus);
+	}
+	else
+	{
+		llinfos << "Merov debug : setVisibleAndFrontmost : setFrontmost " << llendl;
+		setVisible(TRUE);
+		setFrontmost(take_focus);
+	}
 }
 
 void LLFloater::setFrontmost(BOOL take_focus)
@@ -1618,12 +1645,14 @@ void LLFloater::setFrontmost(BOOL take_focus)
 	LLMultiFloater* hostp = getHost();
 	if (hostp)
 	{
+		llinfos << "Merov debug : setFrontmost : hostp->showFloater " << llendl;
 		// this will bring the host floater to the front and select
 		// the appropriate panel
 		hostp->showFloater(this);
 	}
 	else
 	{
+		llinfos << "Merov debug : setFrontmost : bringToFront " << llendl;
 		// there are more than one floater view
 		// so we need to query our parent directly
 		((LLFloaterView*)getParent())->bringToFront(this, take_focus);

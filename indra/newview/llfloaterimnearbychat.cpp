@@ -136,6 +136,27 @@ BOOL LLFloaterIMNearbyChat::postBuild()
 }
 
 // virtual
+void LLFloaterIMNearbyChat::closeFloater(bool app_quitting)
+{
+	llinfos << "Merov debug : LLFloaterIMNearbyChat::closeFloater! " << llendl;
+	LLFloater::closeFloater(app_quitting);
+}
+
+// virtual
+void LLFloaterIMNearbyChat::closeHostedFloater()
+{
+	if (getHost())
+	{
+		llinfos << "Merov debug : LLFloaterIMNearbyChat::closeHostedFloater : hosted -> do nothing" << llendl;
+	}
+	else
+	{
+		llinfos << "Merov debug : LLFloaterIMNearbyChat::closeHostedFloater : close floater " << llendl;
+		LLFloater::closeFloater();
+	}
+}
+
+// virtual
 void LLFloaterIMNearbyChat::refresh()
 {
 	displaySpeakingIndicator();

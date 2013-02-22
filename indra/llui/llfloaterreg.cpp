@@ -264,11 +264,7 @@ bool LLFloaterReg::hideInstance(const std::string& name, const LLSD& key)
 	LLFloater* instance = findInstance(name, key); 
 	if (instance)
 	{
-		// When toggling *visibility*, close the host instead of the floater when hosted
-		if (instance->getHost())
-			instance->getHost()->closeFloater();
-		else
-			instance->closeFloater();
+		instance->closeHostedFloater();
 		return true;
 	}
 	else
@@ -281,18 +277,17 @@ bool LLFloaterReg::hideInstance(const std::string& name, const LLSD& key)
 // returns true if the instance is visible when completed
 bool LLFloaterReg::toggleInstance(const std::string& name, const LLSD& key)
 {
+	llinfos << "Merov debug : toggleInstance, name = " << name << ", key = " << key.asString() << llendl;
 	LLFloater* instance = findInstance(name, key); 
 	if (LLFloater::isShown(instance))
 	{
-		// When toggling *visibility*, close the host instead of the floater when hosted
-		if (instance->getHost())
-			instance->getHost()->closeFloater();
-		else
-			instance->closeFloater();
+		llinfos << "Merov debug : call closeHostedFloater " << llendl;
+		instance->closeHostedFloater();
 		return false;
 	}
 	else
 	{
+		llinfos << "Merov debug : call show instance " << llendl;
 		return showInstance(name, key, TRUE) ? true : false;
 	}
 }
@@ -481,31 +476,42 @@ void LLFloaterReg::toggleInstanceOrBringToFront(const LLSD& sdname, const LLSD& 
 	//       * Also, if it is not on top, bring it forward when focus is given.
 	// * Else the target floater is open, close it.
 	// 
+	llinfos << "Merov debug : toggleInstanceOrBringToFront, name = " << sdname.asString() << ", key = " << key.asString() << llendl;
 
 	std::string name = sdname.asString();
 	LLFloater* instance = getInstance(name, key); 
+	
 
 	if (!instance)
 	{
 		lldebugs << "Unable to get instance of floater '" << name << "'" << llendl;
+		return;
 	}
-	else if (instance->isMinimized())
+	
+	// If hosted, we need to take that into account
+	//LLFloater* host = instance->getHost();
+	
+	if (instance->isMinimized())
 	{
+		llinfos << "Merov debug : unminimize, make visible and set to front " << llendl;
 		instance->setMinimized(FALSE);
 		instance->setVisibleAndFrontmost();
 	}
 	else if (!instance->isShown())
 	{
+		llinfos << "Merov debug : open, make visible and set to front " << llendl;
 		instance->openFloater(key);
 		instance->setVisibleAndFrontmost();
 	}
 	else if (!instance->isFrontmost())
 	{
+		llinfos << "Merov debug : make visible and set to front " << llendl;
 		instance->setVisibleAndFrontmost();
 	}
 	else
 	{
-		instance->closeFloater();
+		llinfos << "Merov debug : closeHostedFloater " << llendl;
+		instance->closeHostedFloater();
 	}
 }
 
