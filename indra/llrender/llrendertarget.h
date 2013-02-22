@@ -113,6 +113,7 @@ public:
 	LLTexUnit::eTextureType getUsage(void) const { return mUsage; }
 
 	U32 getTexture(U32 attachment = 0) const;
+	U32 getNumTextures() const;
 
 	U32 getDepth(void) const { return mDepth; }
 	bool hasStencil() const { return mStencil; }

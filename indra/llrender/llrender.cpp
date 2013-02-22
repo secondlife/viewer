@@ -2282,6 +2282,22 @@ void LLRender::diffuseColor4ubv(const U8* c)
 	}
 }
 
+void LLRender::diffuseColor4ub(U8 r, U8 g, U8 b, U8 a)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
+	if (shader)
+	{
+		shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, r/255.f, g/255.f, b/255.f, a/255.f);
+	}
+	else
+	{
+		glColor4ub(r,g,b,a);
+	}
+}
+
+
 void LLRender::debugTexUnits(void)
 {
 	LL_INFOS("TextureUnit") << "Active TexUnit: " << mCurrTextureUnitIndex << LL_ENDL;

@@ -388,6 +388,7 @@ public:
 	void diffuseColor4f(F32 r, F32 g, F32 b, F32 a);
 	void diffuseColor4fv(const F32* c);
 	void diffuseColor4ubv(const U8* c);
+	void diffuseColor4ub(U8 r, U8 g, U8 b, U8 a);
 
 	void vertexBatchPreTransformed(LLVector3* verts, S32 vert_count);
 	void vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 vert_count);
