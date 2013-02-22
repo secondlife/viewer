@@ -254,12 +254,13 @@ elseif(LINUX)
         libapr-1.so.0
         libaprutil-1.so.0
         libatk-1.0.so
+        libboost_context-mt.so.${BOOST_VERSION}.0
+        libboost_filesystem-mt.so.${BOOST_VERSION}.0
         libboost_program_options-mt.so.${BOOST_VERSION}.0
         libboost_regex-mt.so.${BOOST_VERSION}.0
-        libboost_thread-mt.so.${BOOST_VERSION}.0
-        libboost_filesystem-mt.so.${BOOST_VERSION}.0
         libboost_signals-mt.so.${BOOST_VERSION}.0
         libboost_system-mt.so.${BOOST_VERSION}.0
+        libboost_thread-mt.so.${BOOST_VERSION}.0
         libbreakpad_client.so.0
         libcollada14dom.so
         libcrypto.so.1.0.0

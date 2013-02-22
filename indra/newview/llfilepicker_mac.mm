@@ -66,19 +66,21 @@ std::vector<std::string>* doLoadDialog(const std::vector<std::string>* allowed_t
     
     if (fileTypes)
     {
-
         [panel setAllowedFileTypes:fileTypes];
-    
-        result = [panel runModalForTypes:fileTypes];
+        result = [panel runModal];
     }
     else 
     {
-        result = [panel runModalForDirectory:NSHomeDirectory() file:nil];
+        // I suggest it's better to open the last path and let this default to home dir as necessary
+        // for consistency with other OS X apps
+        //
+        //[panel setDirectoryURL: fileURLWithPath(NSHomeDirectory()) ];
+        result = [panel runModal];
     }
     
     if (result == NSOKButton) 
     {
-        NSArray *filesToOpen = [panel filenames];
+        NSArray *filesToOpen = [panel URLs];
         int i, count = [filesToOpen count];
         
         if (count > 0)
@@ -114,11 +116,14 @@ std::string* doSaveDialog(const std::string* file,
     NSString *fileName = [NSString stringWithCString:file->c_str() encoding:[NSString defaultCStringEncoding]];
     
     std::string *outfile = NULL;
-    
-    if([panel runModalForDirectory:nil file:fileName] == 
+    NSURL* url = [NSURL fileURLWithPath:fileName];
+    [panel setDirectoryURL: url];
+    if([panel runModal] == 
        NSFileHandlingPanelOKButton) 
-    { 
-        outfile= new std::string( [ [panel filename] UTF8String ] );
+    {
+        NSURL* url = [panel URL];
+        NSString* p = [url path];
+        outfile = new std::string( [p UTF8String] );
         // write the file 
     } 
     return outfile;

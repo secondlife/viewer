@@ -73,6 +73,12 @@ using namespace llsd;
 #	include <mach/mach_host.h>
 #	include <mach/task.h>
 #	include <mach/task_info.h>
+
+// disable warnings about Gestalt calls being deprecated
+// until Apple get's on the ball and provides an alternative
+//
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #elif LL_LINUX
 #	include <errno.h>
 #	include <sys/utsname.h>
@@ -1394,3 +1400,10 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	if (dst != NULL) gzclose(dst);
 	return retval;
 }
+
+#if LL_DARWIN
+// disable warnings about Gestalt calls being deprecated
+// until Apple get's on the ball and provides an alternative
+//
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
