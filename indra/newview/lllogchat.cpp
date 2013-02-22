@@ -28,6 +28,7 @@
 
 #include "llagent.h"
 #include "llagentui.h"
+#include "llavatarnamecache.h"
 #include "lllogchat.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
@@ -538,6 +539,31 @@ void LLLogChat::deleteTranscripts()
 	}
 
 	LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
+}
+
+// static
+bool LLLogChat::isTranscriptExist(const LLUUID& avatar_id)
+{
+	std::vector<std::string> list_of_transcriptions;
+	LLLogChat::getListOfTranscriptFiles(list_of_transcriptions);
+
+	if (list_of_transcriptions.size() > 0)
+	{
+		LLAvatarName avatar_name;
+		LLAvatarNameCache::get(avatar_id, &avatar_name);
+		std::string avatar_user_name = avatar_name.getAccountName();
+		std::replace(avatar_user_name.begin(), avatar_user_name.end(), '.', '_');
+
+		BOOST_FOREACH(std::string& transcript_file_name, list_of_transcriptions)
+		{
+			if (std::string::npos != transcript_file_name.find(avatar_user_name))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 //*TODO mark object's names in a special way so that they will be distinguishable form avatar name 
