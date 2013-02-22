@@ -144,18 +144,7 @@ std::string LLUpdateChecker::Implementation::buildUrl(std::string const & protoc
 #ifdef LL_WINDOWS
 	static const char * platform = "win";
 #elif LL_DARWIN
-    long versMin;
-    Gestalt(gestaltSystemVersionMinor, &versMin);
-    
-    static const char *platform;
-    if (versMin == 5) //OS 10.5
-    {
-        platform = "mac_legacy";
-    }
-    else 
-    {
-        platform = "mac";
-    }
+    static const char * platform = "mac";
 #else
 	static const char * platform = "lnx";
 #endif
