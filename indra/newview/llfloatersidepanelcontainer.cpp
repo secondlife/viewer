@@ -59,30 +59,22 @@ void LLFloaterSidePanelContainer::onOpen(const LLSD& key)
 
 void LLFloaterSidePanelContainer::onClickCloseBtn()
 {
-	llinfos << "close clicked" << llendl;
-
 	LLPanelOutfitEdit* panel_outfit_edit =
 		dynamic_cast<LLPanelOutfitEdit*>(LLFloaterSidePanelContainer::getPanel("appearance", "panel_outfit_edit"));
-	if (panel_outfit_edit && panel_outfit_edit->getVisible())
+	if (panel_outfit_edit)
 	{
 		LLFloater *parent = gFloaterView->getParentFloater(panel_outfit_edit);
-		if (parent == this)
+		if (parent == this )
 		{
-			LLSidepanelAppearance* panel_appearance =
-				dynamic_cast<LLSidepanelAppearance*>(getPanel("appearance"));
-			panel_appearance->showOutfitsInventoryPanel();
+			LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance*>(getPanel("appearance"));
+			if ( panel_appearance )
+			{
+				panel_appearance->getWearable()->onClose();
+				panel_appearance->showOutfitsInventoryPanel();
+			}
 		}
 	}
 	
-	if ( panel_outfit_edit )
-	{
-		LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance*>(getPanel("appearance"));
-		if ( panel_appearance )
-		{
-			panel_appearance->getWearable()->onClose();
-			panel_appearance->showOutfitsInventoryPanel();
-		}
-	}
 	LLFloater::onClickCloseBtn();
 }
 
