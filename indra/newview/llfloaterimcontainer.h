@@ -185,7 +185,7 @@ public:
 	void updateSpeakBtnState();
 	static bool isConversationLoggingAllowed();
 	void flashConversationItemWidget(const LLUUID& session_id, bool is_flashes);
-	bool isConversationItemWidgetVisible(const LLUUID& session_id);
+	bool isScrolledOutOfSight(LLConversationViewSession* conversation_item_widget);
 	boost::signals2::connection mMicroChangedSignal;
 
 private:

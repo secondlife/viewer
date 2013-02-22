@@ -116,15 +116,10 @@ void LLConversationViewSession::startFlashing()
 		mFlashStarted = true;
 		mFlashTimer->startFlashing();
 		
-		// get session id
-		LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(getViewModelItem());
-		if (vmi)
+		// flash chat toolbar button if scrolled out of sight (because flashing will not be visible)
+		if (mContainer->isScrolledOutOfSight(this))
 		{
-			// flash chat toolbar button if scrolled out of view (because flashing will not be visible)
-			if (!mContainer->isConversationItemWidgetVisible(vmi->getUUID()))
-			{
-				gToolBarView->flashCommand(LLCommandId("chat"), true);
-			}
+			gToolBarView->flashCommand(LLCommandId("chat"), true);
 		}
 	}
 }

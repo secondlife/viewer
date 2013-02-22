@@ -1853,20 +1853,14 @@ void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id,
 	}
 }
 
-bool LLFloaterIMContainer::isConversationItemWidgetVisible(const LLUUID& session_id)
+bool LLFloaterIMContainer::isScrolledOutOfSight(LLConversationViewSession* conversation_item_widget)
 {
-    // find the conversation line item using the session_id
-	LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets, session_id));
+	llassert(conversation_item_widget != NULL);
 
-	if (widget)
-	{
-		// check whether the widget is in the visible portion of the scroll container
-		LLRect widget_rect;
-		widget->localRectToOtherView(widget->getLocalRect(), &widget_rect, mConversationsRoot);
-		return (mConversationsRoot->getVisibleRect().overlaps(widget_rect));
-	}
-
-	return false;
+	// check whether the widget is in the visible portion of the scroll container
+	LLRect widget_rect;
+	conversation_item_widget->localRectToOtherView(conversation_item_widget->getLocalRect(), &widget_rect, mConversationsRoot);
+	return !mConversationsRoot->getVisibleRect().overlaps(widget_rect);
 }
 
 void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
