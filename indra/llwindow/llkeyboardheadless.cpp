@@ -45,6 +45,13 @@ BOOL LLKeyboardHeadless::handleKeyUp(const U16 key, const U32 mask)
 MASK LLKeyboardHeadless::currentMask(BOOL for_mouse_event)
 { return MASK_NONE; }
 
+#ifdef LL_DARWIN
+void LLKeyboardHeadless::handleModifier(MASK mask)
+{
+	
+}
+#endif
+
 void LLKeyboardHeadless::scanKeyboard()
 {
 	for (S32 key = 0; key < KEY_COUNT; key++)

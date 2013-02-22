@@ -345,6 +345,7 @@
 
 - (void)flagsChanged:(NSEvent *)theEvent {
 	mModifiers = [theEvent modifierFlags];
+	callModifier([theEvent modifierFlags]);
 }
 
 - (void) mouseDown:(NSEvent *)theEvent
@@ -432,8 +433,6 @@
 {
 	callMouseExit();
 }
-
-
 
 - (NSPoint)convertToScreenFromLocalPoint:(NSPoint)point relativeToView:(NSView *)view
 {

@@ -82,6 +82,11 @@ public:
 
 	virtual BOOL	handleKeyUp(const U16 key, MASK mask) = 0;
 	virtual BOOL	handleKeyDown(const U16 key, MASK mask) = 0;
+	
+#ifdef LL_DARWIN
+	// We only actually use this for OS X.
+	virtual void	handleModifier(MASK mask) = 0;
+#endif // LL_DARWIN
 
 	// Asynchronously poll the control, alt, and shift keys and set the
 	// appropriate internal key masks.

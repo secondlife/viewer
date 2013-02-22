@@ -198,6 +198,11 @@ static BOOL translateKeyMac(const U16 key, const U32 mask, KEY &outKey, U32 &out
 }
 */
 
+void LLKeyboardMacOSX::handleModifier(MASK mask)
+{
+	updateModifiers(mask);
+}
+
 MASK LLKeyboardMacOSX::updateModifiers(const U32 mask)
 {
 	// translate the mask

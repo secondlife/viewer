@@ -95,6 +95,7 @@ void callMiddleMouseDown(float *pos, unsigned int mask);
 void callMiddleMouseUp(float *pos, unsigned int mask);
 void callFocus();
 void callFocusLost();
+void callModifier(unsigned int mask);
 
 #include <string>
 void callHandleDragEntered(std::string url);

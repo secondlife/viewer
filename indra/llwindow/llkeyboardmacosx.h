@@ -49,6 +49,7 @@ public:
 	/*virtual*/ void	resetMaskKeys();
 	/*virtual*/ MASK	currentMask(BOOL for_mouse_event);
 	/*virtual*/ void	scanKeyboard();
+	/*virtual*/ void	handleModifier(MASK mask);
 	
 protected:
 	MASK	updateModifiers(const U32 mask);

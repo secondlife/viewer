@@ -337,6 +337,11 @@ void callMiddleMouseUp(float *pos, MASK mask)
 	gWindowImplementation->getCallbacks()->handleMiddleMouseUp(gWindowImplementation, outCoords, mask);
 }
 
+void callModifier(MASK mask)
+{
+	gKeyboard->handleModifier(mask);
+}
+
 void callHandleDragEntered(std::string url)
 {
 	gWindowImplementation->handleDragNDrop(url, LLWindowCallbacks::DNDA_START_TRACKING);
