@@ -241,20 +241,23 @@ void LLConversationViewSession::draw()
 
 BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
 {
-	LLConversationItem* item = dynamic_cast<LLConversationItem *>(getViewModelItem());
-    LLUUID session_id = item? item->getUUID() : LLUUID();
-    //Will try to select a child node and then itself (if a child was not selected)
+	//Will try to select a child node and then itself (if a child was not selected)
     BOOL result = LLFolderViewFolder::handleMouseDown(x, y, mask);
 
     //This node (conversation) was selected and a child (participant) was not
-    if(result && getRoot()->getCurSelectedItem() == this)
-	{
-		LLFloaterIMContainer *im_container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-		im_container->flashConversationItemWidget(session_id,false);
-		im_container->selectConversationPair(session_id, false);
-		im_container->collapseMessagesPane(false);
-	}
+    if(result && getRoot())
+    {
+    	if(getRoot()->getCurSelectedItem() == this)
+    	{
+    		LLConversationItem* item = dynamic_cast<LLConversationItem *>(getViewModelItem());
+    		LLUUID session_id = item? item->getUUID() : LLUUID();
 
+    		LLFloaterIMContainer *im_container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+    		im_container->flashConversationItemWidget(session_id,false);
+    		im_container->selectConversationPair(session_id, false);
+    		im_container->collapseMessagesPane(false);
+    	}
+    }
 	return result;
 }
 
@@ -536,7 +539,7 @@ void LLConversationViewParticipant::addToFolder(LLFolderViewFolder* folder)
     LLFolderViewItem::addToFolder(folder);
 	
     // Retrieve the folder (conversation) UUID, which is also the speaker session UUID
-    LLConversationItem* vmi = this->getParentFolder() ? dynamic_cast<LLConversationItem*>(this->getParentFolder()->getViewModelItem()) : NULL;
+    LLConversationItem* vmi = getParentFolder() ? dynamic_cast<LLConversationItem*>(getParentFolder()->getViewModelItem()) : NULL;
     if (vmi)
     {
 		addToSession(vmi->getUUID());
@@ -555,6 +558,27 @@ void LLConversationViewParticipant::addToSession(const LLUUID& session_id)
 void LLConversationViewParticipant::onInfoBtnClick()
 {
 	LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", mUUID));
+}
+
+BOOL LLConversationViewParticipant::handleMouseDown( S32 x, S32 y, MASK mask )
+{
+	BOOL result = LLFolderViewItem::handleMouseDown(x, y, mask);
+
+    if(result && getRoot())
+    {
+    	if(getRoot()->getCurSelectedItem() == this)
+		{
+    		LLConversationItem* vmi = getParentFolder() ? dynamic_cast<LLConversationItem*>(getParentFolder()->getViewModelItem()) : NULL;
+    		LLUUID session_id = vmi? vmi->getUUID() : LLUUID();
+
+    		LLFloaterIMContainer *im_container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+    		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
+			im_container->flashConversationItemWidget(session_id,false);
+			im_container->selectFloater(session_floater);
+			im_container->collapseMessagesPane(false);
+		}
+    }
+    return result;
 }
 
 void LLConversationViewParticipant::onMouseEnter(S32 x, S32 y, MASK mask)
