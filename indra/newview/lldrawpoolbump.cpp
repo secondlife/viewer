@@ -461,8 +461,6 @@ void LLDrawPoolBump::unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& 
 				}
 			}
 		}
-        // Placed after shader->disableTex(ENV,TT_CUBE_MAP) to avoid sequencing false alarm when using RenderDebugGL
-        // MAINT-755
 		cube_map->disable();
 		cube_map->restoreMatrix();
 	}
