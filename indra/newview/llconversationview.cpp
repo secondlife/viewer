@@ -375,7 +375,7 @@ void LLConversationViewSession::refresh()
 			}
 		}
 	}
-	
+	requestArrange();
 	// Do the regular upstream refresh
 	LLFolderViewFolder::refresh();
 }
