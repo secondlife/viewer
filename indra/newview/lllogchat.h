@@ -56,6 +56,10 @@ public:
 	typedef boost::signals2::signal<void ()> save_history_signal_t;
 	static boost::signals2::connection setSaveHistorySignal(const save_history_signal_t::slot_type& cb);
 
+	static bool moveTranscripts(const std::string currentDirectory, 
+									const std::string newDirectory, 
+									std::vector<std::string>& listOfFilesToMove,
+									std::vector<std::string>& listOfFilesMoved = std::vector<std::string>());
 	static void deleteTranscripts();
 
 private:

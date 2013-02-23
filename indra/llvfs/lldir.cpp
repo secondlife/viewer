@@ -347,6 +347,11 @@ const std::string &LLDir::getLLPluginDir() const
 	return mLLPluginDir;
 }
 
+const std::string &LLDir::getUserName() const
+{
+	return mUserName;
+}
+
 static std::string ELLPathToString(ELLPath location)
 {
 	typedef std::map<ELLPath, const char*> ELLPathMap;

@@ -143,7 +143,7 @@ public:
 	void resetAllIgnored();
 	void setAllIgnored();
 	void onClickLogPath();
-	void updateLogLocation(const std::string& dir_name);
+	bool moveTranscriptsAndLog();
 	void enableHistory();
 	void setPersonalInfo(const std::string& visibility, bool im_via_email);
 	void refreshEnabledState();
@@ -186,8 +186,8 @@ private:
 	bool mGotPersonalInfo;
 	bool mOriginalIMViaEmail;
 	bool mLanguageChanged;
-	bool mInstantMessageLogPathChanged;
 	bool mAvatarDataInitialized;
+	std::string mPriorInstantMessageLogPath;
 	
 	bool mOriginalHideOnlineStatus;
 	std::string mDirectoryVisibility;

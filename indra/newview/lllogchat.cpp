@@ -501,6 +501,66 @@ boost::signals2::connection LLLogChat::setSaveHistorySignal(const save_history_s
 }
 
 //static
+bool LLLogChat::moveTranscripts(const std::string originDirectory, 
+								const std::string targetDirectory, 
+								std::vector<std::string>& listOfFilesToMove,
+								std::vector<std::string>& listOfFilesMoved)
+{
+	std::string newFullPath;
+	bool movedAllTranscripts = true;
+
+	BOOST_FOREACH(const std::string& fullpath, listOfFilesToMove)
+	{
+		newFullPath = targetDirectory + fullpath.substr(originDirectory.length(), std::string::npos);
+
+		S32 retry_count = 0;
+		while (retry_count < 5)
+		{
+			//success is zero
+			if (LLFile::rename(fullpath, newFullPath) != 0)
+			{
+				retry_count++;
+				S32 result = errno;
+				LL_WARNS("LLLogChat::moveTranscripts") << "Problem renaming " << fullpath << " - errorcode: "
+					<< result << " attempt " << retry_count << LL_ENDL;
+
+				if(retry_count >= 5)
+				{
+					LL_WARNS("LLLogChat::moveTranscripts") << "Failed to rename " << fullpath << LL_ENDL;
+					return false;
+				}
+
+				//If the file already exists in the new location, remove it then try again
+				if(LLFile::isfile(newFullPath))
+				{
+					LLFile::remove(newFullPath);
+					LL_WARNS("LLLogChat::moveTranscripts") << "File already exists " << fullpath << LL_ENDL;
+				}
+
+				ms_sleep(100);
+			}
+			else
+			{
+				listOfFilesMoved.push_back(newFullPath);
+
+				if (retry_count)
+				{
+					LL_WARNS("LLLogChat::moveTranscripts") << "Successfully renamed " << fullpath << LL_ENDL;
+				}
+				break;
+			}			
+		}
+	}
+
+	if(listOfFilesMoved.size() != listOfFilesToMove.size())
+	{
+		movedAllTranscripts = false;
+	}		
+
+	return movedAllTranscripts;
+}
+
+//static
 void LLLogChat::deleteTranscripts()
 {
 	std::vector<std::string> list_of_transcriptions;

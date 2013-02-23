@@ -376,6 +376,27 @@ void LLConversationLog::cache()
 	}
 }
 
+bool LLConversationLog::moveLog(const std::string &originDirectory, const std::string &targetDirectory)
+{
+	//Does the file exist in the current path
+	if(LLFile::isfile(originDirectory))
+	{
+		//Does same file exist in the destination path, if so try to remove it
+		if(LLFile::isfile(targetDirectory))
+		{
+			LLFile::remove(targetDirectory);
+		}
+
+		//Move the file from the current path to destination path
+		if(LLFile::rename(originDirectory, targetDirectory) != 0)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 std::string LLConversationLog::getFileName()
 {
 	std::string filename = "conversation";
