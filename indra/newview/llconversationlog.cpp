@@ -206,6 +206,8 @@ void LLConversationLog::enableLogging(S32 log_mode)
 	mLoggingEnabled = log_mode > 0;
 	if (log_mode > 0)
 	{
+		mConversations.clear();
+		loadFromFile(getFileName());
 		LLIMMgr::instance().addSessionObserver(this);
 		mNewMessageSignalConnection = LLIMModel::instance().addNewMsgCallback(boost::bind(&LLConversationLog::onNewMessageReceived, this, _1));
 

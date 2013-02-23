@@ -557,7 +557,8 @@ void LLSpeakerMgr::updateSpeakerList()
 						// Add only the members who are online
 						if (member->getOnlineStatus() == "Online")
 						{
-							setSpeaker(member_it->first, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
+							LLPointer<LLSpeaker> speakerp = setSpeaker(member_it->first, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
+							speakerp->mIsModerator = ((member->getAgentPowers() & GP_SESSION_MODERATOR) == GP_SESSION_MODERATOR);
 						}
 						++member_it;
 					}

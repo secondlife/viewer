@@ -758,7 +758,9 @@ void LLFloaterIMContainer::assignResizeLimits()
 	// between the panels are merged into one
     S32 number_of_visible_borders = llmin((is_conv_pane_expanded? 2 : 0) + (is_msg_pane_expanded? 2 : 0), 3);
     S32 summary_width_of_visible_borders = number_of_visible_borders * LLPANEL_BORDER_WIDTH;
-	S32 conv_pane_current_width = is_conv_pane_expanded? mConversationsPane->getRect().getWidth() : mConversationsPane->getMinDim();
+	S32 conv_pane_current_width = is_msg_pane_expanded
+			? mConversationsPane->getRect().getWidth()
+			: (is_conv_pane_expanded? mConversationsPane->getExpandedMinDim() : mConversationsPane->getMinDim());
 	S32 msg_pane_min_width  = is_msg_pane_expanded ? mMessagesPane->getExpandedMinDim() : 0;
 	S32 new_min_width = conv_pane_current_width + msg_pane_min_width + summary_width_of_visible_borders;
 
@@ -1382,7 +1384,9 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 		// Set the focus on the selected floater
 		if (!session_floater->hasFocus())
 		{
+			BOOL is_minimized = session_floater->isMinimized();
 			session_floater->setFocus(TRUE);
+			session_floater->setMinimized(is_minimized);
 		}
 	}
 
@@ -1522,10 +1526,10 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	if (widget)
 	{
 		is_widget_selected = widget->isSelected();
-		new_selection = mConversationsRoot->getNextFromChild(widget);
+		new_selection = mConversationsRoot->getNextFromChild(widget, FALSE);
 		if (!new_selection)
 		{
-			new_selection = mConversationsRoot->getPreviousFromChild(widget);
+			new_selection = mConversationsRoot->getPreviousFromChild(widget, FALSE);
 		}
 		widget->destroyView();
 	}

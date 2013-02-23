@@ -138,7 +138,7 @@ public:
     void onMouseLeave(S32 x, S32 y, MASK mask);
 
     /*virtual*/ S32 getLabelXPos();
-
+    /*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	void hideSpeakingIndicator();
 
 protected:
