@@ -133,7 +133,7 @@ LLFBConnectTest::LLFBConnectTest( int app_window, int window_width, int window_h
 	mGluiMediaBrowserControlWindowFlag( true ),
 	mMediaBrowserControlBackButtonFlag( true ),
 	mMediaBrowserControlForwardButtonFlag( true ),
-	mHomeWebUrl( "http://www.facebook.com/" )
+	mHomeWebUrl( "https://cryptic-ridge-1632.herokuapp.com/" )
 {
 	// debugging spam
 	std::cout << std::endl << "             GLUT version: " << "3.7.6" << std::endl;	// no way to get real version from GLUT
@@ -1612,6 +1612,9 @@ mediaPanel* LLFBConnectTest::addMediaPanel( std::string url )
 
 	// make a new plugin
 	LLPluginClassMedia* media_source = new LLPluginClassMedia(this);
+
+	// enable cookies so the FB login works
+	media_source->enable_cookies(true);
 
 	// tell the plugin what size we asked for
 	media_source->setSize( media_width, media_height );
