@@ -287,21 +287,6 @@ def main(dmgfile, markerfile, markertext, appdir=None):
                 # let our previously-set sys.excepthook handle this
                 raise type, value, traceback
 
-            status("Clearing cache...")
-
-            # We don't know whether the previous viewer was old-style or
-            # new-style (Cocoa). Clear both kinds of caches.
-            for cachesubdir in "SecondLife", BUNDLE_IDENTIFIER:
-                wildcard = "~/Library/Caches/%s/*" % cachesubdir
-                log("rm " + wildcard)
-                for f in glob.glob(os.path.expanduser(wildcard)):
-                    # Don't try to remove subdirs this way
-                    if os.path.isfile(f):
-                        try:
-                            os.remove(f)
-                        except Exception, err:
-                            log("%s removing %s: %s" % (err.__class__.__name__, f, err))
-
             status("Cleaning up...")
 
             log("touch " + appdir)
