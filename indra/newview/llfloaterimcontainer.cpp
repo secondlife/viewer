@@ -1337,6 +1337,30 @@ void LLFloaterIMContainer::selectConversation(const LLUUID& session_id)
     selectConversationPair(session_id, true);
 }
 
+// Select the conversation *after* (or before if none after) the passed uuid conversation
+// Used to change the selection on key hits
+void LLFloaterIMContainer::selectNextConversation(const LLUUID& uuid)
+{
+	LLFolderViewItem* new_selection = NULL;
+	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,uuid);
+	if (widget)
+	{
+		new_selection = mConversationsRoot->getNextFromChild(widget, FALSE);
+		if (!new_selection)
+		{
+			new_selection = mConversationsRoot->getPreviousFromChild(widget, FALSE);
+		}
+	}
+	if (new_selection)
+	{
+		LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(new_selection->getViewModelItem());
+		if (vmi)
+		{
+			selectConversationPair(vmi->getUUID(), true);
+		}
+	}
+}
+
 // Synchronous select the conversation item and the conversation floater
 BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget)
 {

@@ -136,23 +136,21 @@ BOOL LLFloaterIMNearbyChat::postBuild()
 }
 
 // virtual
-void LLFloaterIMNearbyChat::closeFloater(bool app_quitting)
-{
-	llinfos << "Merov debug : LLFloaterIMNearbyChat::closeFloater! " << llendl;
-	LLFloater::closeFloater(app_quitting);
-}
-
-// virtual
 void LLFloaterIMNearbyChat::closeHostedFloater()
 {
-	if (getHost())
+	// Should check how many conversations are ongoing. Close all if 1 only (the Nearby Chat), select next one otherwise
+	LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
+	if (floater_container->getConversationListItemSize() == 1)
 	{
-		llinfos << "Merov debug : LLFloaterIMNearbyChat::closeHostedFloater : hosted -> do nothing" << llendl;
+		floater_container->closeFloater();
 	}
 	else
 	{
-		llinfos << "Merov debug : LLFloaterIMNearbyChat::closeHostedFloater : close floater " << llendl;
-		LLFloater::closeFloater();
+		if (!getHost())
+		{
+			setVisible(FALSE);
+		}
+		floater_container->selectNextConversation(LLUUID());
 	}
 }
 
