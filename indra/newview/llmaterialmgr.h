@@ -52,6 +52,7 @@ public:
 	void put(const LLUUID& object_id, const U8 te, const LLMaterial& material);
 
 protected:
+	void clearGetQueues(const LLUUID& region_id);
 	bool isGetPending(const LLUUID& region_id, const LLMaterialID& material_id);
 	bool isGetAllPending(const LLUUID& region_id);
 	const LLMaterialPtr setMaterial(const LLUUID& region_id, const LLMaterialID& material_id, const LLSD& material_data);

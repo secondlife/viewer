@@ -548,7 +548,7 @@ void LLMaterialMgr::processGetAllQueue()
 		if (regionp == NULL)
 		{
 			LL_WARNS("Materials") << "Unknown region with id " << region_id.asString() << LL_ENDL;
-			mGetAllQueue.erase(itRegion);
+			clearGetQueues(region_id);		// Invalidates region_id
 			continue;
 		}
 		else if (!regionp->capabilitiesReceived())
@@ -561,7 +561,7 @@ void LLMaterialMgr::processGetAllQueue()
 		{
 			LL_WARNS("Materials") << "Capability '" << MATERIALS_CAPABILITY_NAME
 				<< "' is not defined on the current region '" << regionp->getName() << "'" << LL_ENDL;
-			mGetAllQueue.erase(itRegion);
+			clearGetQueues(region_id);		// Invalidates region_id
 			continue;
 		}
 
@@ -647,11 +647,8 @@ void LLMaterialMgr::processPutQueue()
 	}
 }
 
-void LLMaterialMgr::onRegionRemoved(LLViewerRegion* regionp)
+void LLMaterialMgr::clearGetQueues(const LLUUID& region_id)
 {
-	const LLUUID& region_id = regionp->getRegionID();
-
-	// Get
 	mGetQueue.erase(region_id);
 	for (get_pending_map_t::iterator itPending = mGetPending.begin(); itPending != mGetPending.end();)
 	{
@@ -665,12 +662,14 @@ void LLMaterialMgr::onRegionRemoved(LLViewerRegion* regionp)
 		}
 	}
 
-	LL_DEBUGS("Materials") << regionp->getName() << " id " << region_id << LL_ENDL;
-	// Get all
 	mGetAllQueue.erase(region_id);
 	mGetAllRequested.erase(region_id);
 	mGetAllPending.erase(region_id);
 	mGetAllCallbacks.erase(region_id);
+}
 
+void LLMaterialMgr::onRegionRemoved(LLViewerRegion* regionp)
+{
+	clearGetQueues(regionp->getRegionID());
 	// Put doesn't need clearing: objects that can't be found will clean up in processPutQueue()
 }
