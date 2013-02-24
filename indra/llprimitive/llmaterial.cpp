@@ -55,11 +55,6 @@
  * Materials constants
  */
 
-const LLColor4U MATERIALS_DEFAULT_SPECULAR_COLOR = LLColor4U(255, 255, 255, 255);
-const U8 MATERIALS_DEFAULT_SPECULAR_EXP          = 128;
-const U8 MATERIALS_DEFAULT_ENV_INTENSITY         = 128;
-const U8 MATERIALS_DEFAULT_DIFFUSE_ALPHA_MODE    = 0;
-const U8 MATERIALS_DEFAULT_ALPHA_MASK_CUTOFF     = 128;
 const F32 MATERIALS_MULTIPLIER                   = 10000.f;
 
 /**
@@ -94,11 +89,20 @@ template<> LLUUID getMaterialField(const LLSD& data, const std::string& field, c
 const LLMaterial LLMaterial::null;
 
 LLMaterial::LLMaterial()
-	: mSpecularLightColor(MATERIALS_DEFAULT_SPECULAR_COLOR)
-	, mSpecularLightExponent(MATERIALS_DEFAULT_SPECULAR_EXP)
-	, mEnvironmentIntensity(MATERIALS_DEFAULT_ENV_INTENSITY)
-	, mDiffuseAlphaMode(MATERIALS_DEFAULT_DIFFUSE_ALPHA_MODE)
-	, mAlphaMaskCutoff(MATERIALS_DEFAULT_ALPHA_MASK_CUTOFF)
+	: mNormalOffsetX(.0f)
+	, mNormalOffsetY(.0f)
+	, mNormalRepeatX(.0f)
+	, mNormalRepeatY(.0f)
+	, mNormalRotation(.0f)
+	, mSpecularOffsetX(.0f)
+	, mSpecularOffsetY(.0f)
+	, mSpecularRepeatX(.0f)
+	, mSpecularRepeatY(.0f)
+	, mSpecularRotation(.0f)
+	, mSpecularLightExponent(0)
+	, mEnvironmentIntensity(0)
+	, mDiffuseAlphaMode(0)
+	, mAlphaMaskCutoff(0)
 {
 }
 
@@ -159,8 +163,21 @@ void LLMaterial::fromLLSD(const LLSD& material_data)
 
 bool LLMaterial::isNull() const
 {
-	// *TODO: find a better way of defining a 'null' material?
+	return (*this == null);
+}
+
+bool LLMaterial::operator == (const LLMaterial& rhs) const
+{
 	return 
-		(mNormalID.isNull()) && (.0f == mNormalOffsetX) && (.0f == mNormalOffsetY) && (.0f == mNormalRepeatX) && (.0f == mNormalRepeatY) && 
-		(mSpecularID.isNull()) && (.0f == mSpecularOffsetX) && (.0f == mSpecularOffsetY) && (.0f == mSpecularRepeatX) && (.0f == mSpecularRepeatY);
+		(mNormalID == rhs.mNormalID) && (mNormalOffsetX == rhs.mNormalOffsetX) && (mNormalOffsetY == rhs.mNormalOffsetY) &&
+		(mNormalRepeatX == rhs.mNormalRepeatX) && (mNormalRepeatY == rhs.mNormalRepeatY) && (mNormalRotation == rhs.mNormalRotation) &&
+		(mSpecularID == rhs.mSpecularID) && (mSpecularOffsetX == rhs.mSpecularOffsetX) && (mSpecularOffsetY == rhs.mSpecularOffsetY) &&
+		(mSpecularRepeatX == rhs.mSpecularRepeatX) && (mSpecularRepeatY == rhs.mSpecularRepeatY) && (mSpecularRotation == rhs.mSpecularRotation) &&
+		(mSpecularLightColor == rhs.mSpecularLightColor) && (mSpecularLightExponent == rhs.mSpecularLightExponent) &&
+		(mEnvironmentIntensity == rhs.mEnvironmentIntensity) && (mDiffuseAlphaMode == rhs.mDiffuseAlphaMode) && (mAlphaMaskCutoff == rhs.mAlphaMaskCutoff);
+}
+
+bool LLMaterial::operator != (const LLMaterial& rhs) const
+{
+	return !(*this == rhs);
 }

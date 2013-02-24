@@ -246,6 +246,11 @@ void LLMaterialMgr::put(const LLUUID& object_id, const U8 te, const LLMaterial& 
 	}
 }
 
+void LLMaterialMgr::remove(const LLUUID& object_id, const U8 te)
+{
+	put(object_id, te, LLMaterial::null);
+}
+
 const LLMaterialPtr LLMaterialMgr::setMaterial(const LLUUID& region_id, const LLMaterialID& material_id, const LLSD& material_data)
 {
 	LL_DEBUGS("Materials") << "region " << region_id << " material id " << material_id << LL_ENDL;

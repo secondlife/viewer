@@ -50,6 +50,7 @@ public:
 	void                        getAll(const LLUUID& region_id);
 	boost::signals2::connection getAll(const LLUUID& region_id, getall_callback_t::slot_type cb);
 	void put(const LLUUID& object_id, const U8 te, const LLMaterial& material);
+	void remove(const LLUUID& object_id, const U8 te);
 
 protected:
 	void clearGetQueues(const LLUUID& region_id);

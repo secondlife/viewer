@@ -74,6 +74,9 @@ public:
 	bool		isNull() const;
 	static const LLMaterial null;
 
+	bool		operator == (const LLMaterial& rhs) const;
+	bool		operator != (const LLMaterial& rhs) const;
+
 protected:
 	LLUUID		mNormalID;
 	F32			mNormalOffsetX;
