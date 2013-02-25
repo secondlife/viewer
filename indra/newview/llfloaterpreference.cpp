@@ -646,9 +646,6 @@ void LLFloaterPreference::cancel()
 		LLFloaterPathfindingConsole* pPathfindingConsole = pathfindingConsoleHandle.get();
 		pPathfindingConsole->onRegionBoundaryCross();
 	}
-
-	std::string dir_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
-	updateLogLocation(dir_name);
 }
 
 void LLFloaterPreference::onOpen(const LLSD& key)
@@ -797,6 +794,14 @@ void LLFloaterPreference::onBtnOK()
 		saveSettings();
 		apply();
 		closeFloater(false);
+
+		//Conversation transcript and log path changed so reload conversations based on new location
+		if(mPriorInstantMessageLogPath.length())
+		{
+			std::string dir_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
+			updateLogLocation(dir_name);
+			mPriorInstantMessageLogPath.clear();
+		}
 
 		LLUIColorTable::instance().saveUserSettings();
 		gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);
@@ -1436,19 +1441,28 @@ void LLFloaterPreference::setAllIgnored()
 
 void LLFloaterPreference::onClickLogPath()
 {
-	std::string proposed_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));	 
-	
+	std::string proposed_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
+	mPriorInstantMessageLogPath.clear();
+
 	LLDirPicker& picker = LLDirPicker::instance();
+	//Launches a directory picker and waits for feedback
 	if (!picker.getDir(&proposed_name ) )
 	{
 		return; //Canceled!
 	}
 
+	//Gets the path from the directory picker
 	std::string dir_name = picker.getDirName();
-	gSavedPerAccountSettings.setString("InstantMessageLogPath", dir_name);
-	
-	// enable/disable 'Delete transcripts button
-	updateDeleteTranscriptsButton();
+
+	//Path changed
+	if(proposed_name != dir_name)
+	{
+		gSavedPerAccountSettings.setString("InstantMessageLogPath", dir_name);
+		mPriorInstantMessageLogPath = proposed_name;
+
+		// enable/disable 'Delete transcripts button
+		updateDeleteTranscriptsButton();
+	}
 }
 
 void LLFloaterPreference::updateLogLocation(const std::string& dir_name)

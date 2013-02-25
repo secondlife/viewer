@@ -187,6 +187,7 @@ private:
 	bool mOriginalIMViaEmail;
 	bool mLanguageChanged;
 	bool mAvatarDataInitialized;
+	std::string mPriorInstantMessageLogPath;
 	
 	bool mOriginalHideOnlineStatus;
 	std::string mDirectoryVisibility;
