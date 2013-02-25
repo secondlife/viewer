@@ -814,7 +814,7 @@ void LLFloaterPreference::onBtnOK()
 		if(mGotPersonalInfo)
 		{
 			gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
-		}
+	}
 	}
 	else
 	{
@@ -1451,7 +1451,7 @@ void LLFloaterPreference::setAllIgnored()
 
 void LLFloaterPreference::onClickLogPath()
 {
-	std::string proposed_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
+	std::string proposed_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));	 
 	mPriorInstantMessageLogPath.clear();
 	
 	LLDirPicker& picker = LLDirPicker::instance();
@@ -1467,12 +1467,12 @@ void LLFloaterPreference::onClickLogPath()
 	//Path changed
 	if(proposed_name != dir_name)
 	{
-		gSavedPerAccountSettings.setString("InstantMessageLogPath", dir_name);
+	gSavedPerAccountSettings.setString("InstantMessageLogPath", dir_name);
 		mPriorInstantMessageLogPath = proposed_name;
-
-		// enable/disable 'Delete transcripts button
-		updateDeleteTranscriptsButton();
-	}
+	
+	// enable/disable 'Delete transcripts button
+	updateDeleteTranscriptsButton();
+}
 }
 
 bool LLFloaterPreference::moveTranscriptsAndLog()

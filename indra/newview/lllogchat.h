@@ -65,6 +65,7 @@ public:
 		std::vector<std::string>& listOfFilesToMove);
 
 	static void deleteTranscripts();
+	static bool isTranscriptExist(const LLUUID& avatar_id);
 
 private:
 	static std::string cleanFileName(std::string filename);
