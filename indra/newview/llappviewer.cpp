@@ -2938,7 +2938,17 @@ void LLAppViewer::initUpdater()
 	std::string version = LLVersionInfo::getVersion();
 	std::string service_path = gSavedSettings.getString("UpdaterServicePath");
 	U32 check_period = gSavedSettings.getU32("UpdaterServiceCheckPeriod");
-	bool willing_to_test = gSavedSettings.getBOOL("UpdaterWillingToTest");
+	bool willing_to_test;
+	LL_DEBUGS("UpdaterService") << "channel " << channel << LL_ENDL;
+	if (channel.find("Test") != std::string::npos) // TBD - should be a regex
+	{
+		LL_INFOS("UpdaterService") << "Test build: overriding willing_to_test by sending testno" << LL_ENDL;
+		willing_to_test = false;
+	}
+	else
+	{
+		willing_to_test = gSavedSettings.getBOOL("UpdaterWillingToTest");
+	}
     unsigned char unique_id[MD5HEX_STR_SIZE];
 	if ( ! llHashedUniqueID(unique_id) )
 	{
