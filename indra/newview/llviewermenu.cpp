@@ -292,6 +292,7 @@ void request_friendship(const LLUUID& agent_id);
 
 // Tools menu
 void handle_selected_texture_info(void*);
+void handle_selected_material_info();
 
 void handle_dump_followcam(void*);
 void handle_viewer_enable_message_log(void*);
@@ -6937,6 +6938,47 @@ void handle_selected_texture_info(void*)
 	}
 }
 
+void handle_selected_material_info()
+{
+	for (LLObjectSelection::valid_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_begin();
+		iter != LLSelectMgr::getInstance()->getSelection()->valid_end(); iter++)
+	{
+		LLSelectNode* node = *iter;
+		
+		std::string msg;
+		msg.assign("Material info for: \n");
+		msg.append(node->mName);
+		
+		U8 te_count = node->getObject()->getNumTEs();
+		// map from material ID to list of faces using it
+		typedef std::map<LLMaterialID, std::vector<U8> > map_t;
+		map_t faces_per_material;
+		for (U8 i = 0; i < te_count; i++)
+		{
+			if (!node->isTESelected(i)) continue;
+	
+			const LLMaterialID& material_id = node->getObject()->getTE(i)->getMaterialID();
+			faces_per_material[material_id].push_back(i);
+		}
+		// Per-material, dump which faces are using it.
+		map_t::iterator it;
+		for (it = faces_per_material.begin(); it != faces_per_material.end(); ++it)
+		{
+			const LLMaterialID& material_id = it->first;
+			msg = llformat("%s on face ", material_id.asString());
+			for (U8 i = 0; i < it->second.size(); ++i)
+			{
+				msg.append( llformat("%d ", (S32)(it->second[i])));
+			}
+			msg.append("\n");
+		}
+
+		LLSD args;
+		args["MESSAGE"] = msg;
+		LLNotificationsUtil::add("SystemMessage", args);
+	}
+}
+
 void handle_test_male(void*)
 {
 	LLAppearanceMgr::instance().wearOutfitByName("Male Shape & Outfit");
@@ -8418,6 +8460,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleInfoDisplay(), "Advanced.ToggleInfoDisplay");
 	view_listener_t::addMenu(new LLAdvancedCheckInfoDisplay(), "Advanced.CheckInfoDisplay");
 	view_listener_t::addMenu(new LLAdvancedSelectedTextureInfo(), "Advanced.SelectedTextureInfo");
+	commit.add("Advanced.SelectedMaterialInfo", boost::bind(&handle_selected_material_info));
 	view_listener_t::addMenu(new LLAdvancedToggleWireframe(), "Advanced.ToggleWireframe");
 	view_listener_t::addMenu(new LLAdvancedCheckWireframe(), "Advanced.CheckWireframe");
 	// Develop > Render

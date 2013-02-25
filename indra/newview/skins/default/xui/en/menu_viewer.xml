@@ -2559,6 +2559,12 @@
                 <menu_item_call.on_click
                  function="Advanced.SelectedTextureInfo" />
             </menu_item_call>
+            <menu_item_call
+             label="Selected Material Info"
+             name="Selected Material Info">
+                <menu_item_call.on_click
+                 function="Advanced.SelectedMaterialInfo" />
+            </menu_item_call>
             <menu_item_check
              label="Wireframe"
              name="Wireframe"
