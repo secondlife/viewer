@@ -308,7 +308,7 @@
             <key>value</key>
             <integer>40</integer>
             <key>tooltip</key>
-            <string/>
+            <string>Attach to the avatar's geometric centre.</string>
          </map>
          <key>ATTACH_BACK</key>
          <map>
@@ -4726,10 +4726,7 @@
             <key>value</key>
             <integer>64</integer>
             <key>tooltip</key>
-            <string>Controls whether the object can be grabbed.
-			A grab is the default action when in third person, and is available as the hand tool in build mode.
-			This is useful for physical objects that you don't want other people to be able to trivially disturb.
-			The default is FALSE</string>
+            <string>Controls whether the object can be grabbed.\nA grab is the default action when in third person, and is available as the hand tool in build mode. This is useful for physical objects that you don't want other people to be able to trivially disturb. The default is FALSE</string>
          </map>
          <key>STATUS_BLOCK_GRAB_OBJECT</key>
          <map>
@@ -4765,7 +4762,7 @@
             <key>value</key>
             <integer>0x80</integer>
             <key>tooltip</key>
-            <string>Controls whether the object is returned to the owners inventory if it wanders off the edge of the world. It is useful to set this status TRUE for things like bullets or rockets. The default is TRUE</string>
+            <string>Controls whether the object is returned to the owners inventory if it wanders off the edge of the world.\nIt is useful to set this status TRUE for things like bullets or rockets. The default is TRUE</string>
          </map>
          <key>STATUS_INTERNAL_ERROR</key>
          <map>
@@ -4810,7 +4807,7 @@
             <key>value</key>
             <integer>0</integer>
             <key>tooltip</key>
-            <string>Result of function call was a success</string>
+            <string>Result of function call was a success.</string>
          </map>
          <key>STATUS_PHANTOM</key>
          <map>
@@ -4819,11 +4816,7 @@
             <key>value</key>
             <integer>0x10</integer>
             <key>tooltip</key>
-            <string>Controls/indicates whether the object collides or not.
-			Setting the value to TRUE makes the object non-colliding with
-			all objects. It is a good idea to use this for most objects
-			that move or rotate, but are non-physical. It is also
-			useful for simulating volumetric lighting. The default is FALSE.</string>
+            <string>Controls/indicates whether the object collides or not.\nSetting the value to TRUE makes the object non-colliding with all objects. It is a good idea to use this for most objects that move or rotate, but are non-physical. It is also useful for simulating volumetric lighting. The default is FALSE.</string>
          </map>
          <key>STATUS_PHYSICS</key>
          <map>
@@ -4832,8 +4825,7 @@
             <key>value</key>
             <integer>0x1</integer>
             <key>tooltip</key>
-            <string>Controls/indicates whether the object moves physically.
-			This controls the same flag that the UI check-box for Physical controls. The default is FALSE.</string>
+            <string>Controls/indicates whether the object moves physically.\nThis controls the same flag that the UI check-box for Physical controls. The default is FALSE.</string>
          </map>
          <key>STATUS_RETURN_AT_EDGE</key>
          <map>
@@ -6511,7 +6503,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the absolute (positive) version of Value.\nReturns the absolute value of Value.</string>
+            <string>Returns the absolute (positive) version of Value.</string>
          </map>
          <key>llAcos</key>
          <map>
@@ -6532,7 +6524,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the arc-cosine of Value, in radians.\nReturns the arc-cosine of Value, in radians.</string>
+            <string>Returns the arc-cosine of Value, in radians.</string>
          </map>
          <key>llAddToLandBanList</key>
          <map>
@@ -6560,10 +6552,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Add avatar ID to the land ban list, for a duration of Hours.\nAdds agent ID to the parcel ban list for the specified number of hours. A value of 0 for hours will add the agent indefinitely.\n
-			The smallest value that Hours will accept is 0.01; anything smaller will be seen as 0.\n
-			When values that small are used, it seems the function bans in 30 second increments (Probably 36 second increments, as 0.01 of an hour is 36 seconds).\n
-			Residents teleporting to a parcel where they are banned will be redirected to a neighbouring parcel.</string>
+            <string>Add avatar ID to the parcel ban list for the specified number of Hours.\nA value of 0 for Hours will add the agent indefinitely.\nThe smallest value that Hours will accept is 0.01; anything smaller will be seen as 0.\nWhen values that small are used, it seems the function bans in approximately 30 second increments (Probably 36 second increments, as 0.01 of an hour is 36 seconds).\nResidents teleporting to a parcel where they are banned will be redirected to a neighbouring parcel.</string>
          </map>
          <key>llAddToLandPassList</key>
          <map>
@@ -6591,7 +6580,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Add avatar ID to the land pass list, for a duration of Hours.\nAdd avatar ID to the land pass list, for a duration of Hours.</string>
+            <string>Add avatar ID to the land pass list, for a duration of Hours.</string>
          </map>
          <key>llAdjustSoundVolume</key>
          <map>
@@ -6612,8 +6601,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Adjusts the volume (0.0 - 1.0) of the currently playing attached sound started with llPlaySound or llLoopSound.\nAdjusts the volume of the currently playing attached sound started with llPlaySound or llLoopSound.\n
-			This function has no effect on sounds started with llTriggerSound.</string>
+            <string>Adjusts the volume (0.0 - 1.0) of the currently playing attached sound started with llPlaySound or llLoopSound.\nAdjusts the volume of the currently playing attached sound started with llPlaySound or llLoopSound.\nThis function has no effect on sounds started with llTriggerSound.</string>
          </map>
          <key>llAllowInventoryDrop</key>
          <map>
@@ -6634,7 +6622,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>If Flag == TRUE, users without object modify permissions can still drop inventory items into the object.\nIf Flag == TRUE, users that do not have object modify permissions can still drop inventory items into the object.</string>
+            <string>If Flag == TRUE, users without object modify permissions can still drop inventory items into the object.</string>
          </map>
          <key>llAngleBetween</key>
          <map>
@@ -6662,7 +6650,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the angle, in radians, between rotations Rot1 and Rot2.\nReturns the angle, in radians, between rotations Rot1 and Rot2.</string>
+            <string>Returns the angle, in radians, between rotations Rot1 and Rot2.</string>
          </map>
          <key>llApplyImpulse</key>
          <map>
@@ -6690,8 +6678,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Applies impulse to object, in local coordinates if local == TRUE (if the script is physical).\n 	Applies the Force in local coordinates if Local == TRUE. Otherwise the Force is applied in global coordinates.\n
-			This function only works on physical objects.</string>
+            <string>Applies impulse to the object.\nApplies the Force in local coordinates if Local == TRUE. Otherwise the Force is applied in global coordinates.\nThis function only works on physical objects.</string>
          </map>
          <key>llApplyRotationalImpulse</key>
          <map>
@@ -6719,8 +6706,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Applies rotational impulse to object, in local coordinates if local == TRUE (if the script is physical).\nApplies a rotational impulse force in local coordinates if Local == TRUE. Otherwise the impulse is applied in global coordinates.\n
-			This function only works on physical objects.</string>
+            <string>Applies rotational impulse to the object,\nThe force is in local coordinates, if Local == TRUE, otherwise the impulse is applied in global coordinates.\nThis function only works on physical objects.</string>
          </map>
          <key>llAsin</key>
          <map>
@@ -6741,7 +6727,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the arc-sine, in radians, of Value.\nReturns the arc-sine, in radians, of Value.</string>
+            <string>Returns the arc-sine, in radians, of Value.</string>
          </map>
          <key>llAtan2</key>
          <map>
@@ -6769,7 +6755,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the arc-tangent2 of y, x.\nReturns the arc-tangent2 of y, x.</string>
+            <string>Returns the arc-tangent2 of y, x.</string>
          </map>
          <key>llAttachToAvatar</key>
          <map>
@@ -6790,8 +6776,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Attach to avatar at point AttachmentPoint, if task has permissions to do so.\nAttach to avatar at point iAttachmentPoint.\n
-			Requires the PERMISSION_ATTACH runtime permission.</string>
+            <string>Attach to avatar at point AttachmentPoint, if task has permissions to do so.\nAttach to avatar at point iAttachmentPoint.\nRequires the PERMISSION_ATTACH runtime permission.</string>
          </map>
          <key>llAttachToAvatarTemp</key>
          <map>
@@ -6846,7 +6831,7 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>If an avatar is seated on the sit target, returns the avatar's key, otherwise NULL_KEY.\nIf an avatar is sitting on the sit target, return the avatars key, NULL_KEY otherwise. This only will detect avatars sitting on sit targets defined with llSitTarget.</string>
+            <string>If an avatar is seated on the sit target, returns the avatar's key, otherwise NULL_KEY.\nThis only will detect avatars sitting on sit targets defined with llSitTarget.</string>
          </map>
          <key>llAxes2Rot</key>
          <map>
@@ -6881,7 +6866,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the rotation defined by the coordinate axes.\nReturns the rotation represented by coordinate axes Forward, Left, and Up.</string>
+            <string>Returns the rotation represented by coordinate axes Forward, Left, and Up.</string>
          </map>
          <key>llAxisAngle2Rot</key>
          <map>
@@ -6909,7 +6894,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the rotation that is a generated Angle about Axis.\nReturns the rotation generated Angle about Axis.</string>
+            <string>Returns the rotation that is a generated Angle about Axis.</string>
          </map>
          <key>llBase64ToInteger</key>
          <map>
@@ -6930,8 +6915,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns an integer that is the Text, Base64 decoded as a big endian integer.\nReturns an integer that is the Text, Base64 decoded as a big endian integer.\n
-				Returns zero if Text is longer then 8 characters. If Text contains fewer then 6 characters, the return value is unpredictable.</string>
+            <string>Returns an integer that is the Text, Base64 decoded as a big endian integer.\nReturns zero if Text is longer then 8 characters. If Text contains fewer then 6 characters, the return value is unpredictable.</string>
          </map>
          <key>llBase64ToString</key>
          <map>
@@ -6952,9 +6936,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Converts a Base64 string to a conventional string.\n
-				If the conversion creates any unprintable characters, they are converted to spaces.\nConverts a Base 64 string to a conventional string.\n
-			If the conversion creates any unprintable characters, they are converted to question marks (this behaviour is different than llUnescapeURL's).</string>
+            <string>Converts a Base64 string to a conventional string.\nIf the conversion creates any unprintable characters, they are converted to question marks.</string>
          </map>
          <key>llBreakAllLinks</key>
          <map>
@@ -6967,7 +6949,7 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>De-links all tasks in the link set (requires permission PERMISSION_CHANGE_LINKS be set).\nDe-links all objects in the link set. Requires the permission PERMISSION_CHANGE_LINKS be set.</string>
+            <string>De-links all prims in the link set (requires permission PERMISSION_CHANGE_LINKS be set).</string>
          </map>
          <key>llBreakLink</key>
          <map>
@@ -6988,7 +6970,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>De-links the task with the given link number (requires permission PERMISSION_CHANGE_LINKS be set).\nDe-links the object with the given link number. Requires permission PERMISSION_CHANGE_LINKS be set.</string>
+            <string>De-links the prim with the given link number (requires permission PERMISSION_CHANGE_LINKS be set).</string>
          </map>
          <key>llCastRay</key>
          <map>
@@ -7023,8 +7005,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Casts a ray into the physics world from 'start' to 'end' and returns data according to details in Options.\nCast a ray from Start to End and report collision data for intersections with objects.\n
-			Return value: [UUID_1, {link_number_1}, hit_position_1, {hit_normal_1}, UUID_2, {link_number_2}, hit_position_2, {hit_normal_2}, ... , status_code] where {} indicates optional data.</string>
+            <string>Casts a ray into the physics world from 'start' to 'end' and returns data according to details in Options.\nReports collision data for intersections with objects.\nReturn value: [UUID_1, {link_number_1}, hit_position_1, {hit_normal_1}, UUID_2, {link_number_2}, hit_position_2, {hit_normal_2}, ... , status_code] where {} indicates optional data.</string>
          </map>
          <key>llCeil</key>
          <map>
@@ -7045,7 +7026,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns smallest integer value &gt;= Value.\nReturns smallest integer value &gt;= Value.</string>
+            <string>Returns smallest integer value &gt;= Value.</string>
          </map>
          <key>llClearCameraParams</key>
          <map>
@@ -7058,7 +7039,7 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>Resets all camera parameters to default values and turns off scripted camera control.\nResets all camera parameters to default values and turns off scripted camera control.</string>
+            <string>Resets all camera parameters to default values and turns off scripted camera control.</string>
          </map>
          <key>llClearLinkMedia</key>
          <map>
@@ -7086,8 +7067,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Clears (deletes) the media and all parameters from the given Face on the linked prim.\nClears (deletes) the media and all parameters from the given from the given Face on the Linked prim(s).\n
-			Returns an integer that is a STATUS_* flag which details the success/failure of the operation.</string>
+            <string>Clears (deletes) the media and all parameters from the given Face on the linked prim.\nReturns an integer that is a STATUS_* flag, which details the success/failure of the operation.</string>
          </map>
          <key>llClearPrimMedia</key>
          <map>
@@ -7108,8 +7088,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Clears (deletes) the media and all parameters from the given face.\nClears (deletes) the media and all parameters from the given Face.\n
-			Returns an integer that is a STATUS_* flag which details the success/failure of the operation.</string>
+            <string>Clears (deletes) the media and all parameters from the given Face.\nReturns an integer that is a STATUS_* flag which details the success/failure of the operation.</string>
          </map>
          <key>llCloseRemoteDataChannel</key>
          <map>
@@ -7130,7 +7109,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Closes XML-RPC channel.\nCloses the specified XML-RPC channel.</string>
+            <string>Closes the specified XML-RPC channel.</string>
          </map>
          <key>llCloud</key>
          <map>
@@ -7151,7 +7130,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the cloud density at the object's position + Offset.\nReturns the cloud density at the object's position + Offset.</string>
+            <string>Returns the cloud density at the object's position + Offset.</string>
          </map>
          <key>llCollisionFilter</key>
          <map>
@@ -7186,8 +7165,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>if Accept == TRUE, only accept collisions with specified name and id (either is optional), otherwise with objects not name or id.\nIf Accept == TRUE, only accept collisions with objects Name and ID, otherwise with objects not Name or ID.\n
-			Specify an empty string or NULL_KEY to not filter on the corresponding parameter.</string>
+            <string>If Accept == TRUE, only accept collisions with objects Name and ID, otherwise with objects not Name or ID.\nSpecify an empty string or NULL_KEY to not filter on the corresponding parameter.</string>
          </map>
          <key>llCollisionSound</key>
          <map>
@@ -7215,8 +7193,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Suppress default collision sounds, replace default impact sounds with ImpactSound (empty string to suppress).\nSuppress default collision sounds, replace default impact sounds with ImpactSound, found in the object inventory.\n
-			Supply an empty string to suppress collision sounds.</string>
+            <string>Suppress default collision sounds, replace default impact sounds with ImpactSound.\nThe ImpactSound must be in the object inventory.\nSupply an empty string to suppress collision sounds.</string>
          </map>
          <key>llCollisionSprite</key>
          <map>
@@ -7237,8 +7214,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Suppress default collision sprites, replace default impact sprite with impact_sprite (empty string to just suppress).\nSuppress default collision sprites, replace default impact sprite with ImpactSprite, found in the object inventory.\n
-			Supply an empty string to just suppress.</string>
+            <string>Suppress default collision sprites, replace default impact sprite with ImpactSprite; found in the object inventory (empty string to just suppress).</string>
          </map>
          <key>llCos</key>
          <map>
@@ -7259,7 +7235,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the cosine of Theta (Theta in radians).\nReturns the cosine of Theta radians.</string>
+            <string>Returns the cosine of Theta (Theta in radians).</string>
          </map>
          <key>llCreateCharacter</key>
          <map>
@@ -7280,8 +7256,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Convert link-set to AI/Physics character.\nCreates a path-finding entity, known as a "character", from the object containing the script. Required to activate use of path-finding functions.\n
-			Options is a list of key/value pairs.</string>
+            <string>Convert link-set to AI/Physics character.\nCreates a path-finding entity, known as a "character", from the object containing the script. Required to activate use of path-finding functions.\nOptions is a list of key/value pairs.</string>
          </map>
          <key>llCreateLink</key>
          <map>
@@ -7309,8 +7284,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Attempt to link task script is attached to and target (requires permission PERMISSION_CHANGE_LINKS be set). If parent == TRUE, task script is attached to is the root.\nAttempt to link the object that the script is attached to and the target object.\n
-			Requires permission PERMISSION_CHANGE_LINKS be set.</string>
+            <string>Attempt to link the object the script is in, to target (requires permission PERMISSION_CHANGE_LINKS be set).\nIf parent == TRUE, the object the script is attached to is the root.\nRequires permission PERMISSION_CHANGE_LINKS be set.</string>
          </map>
          <key>llCSV2List</key>
          <map>
@@ -7331,7 +7305,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Creates a list, from a string of comma separated values.\nCreate a list from a string of comma separated values specified in Text.</string>
+            <string>Create a list from a string of comma separated values specified in Text.</string>
          </map>
          <key>llDeleteCharacter</key>
          <map>
@@ -7379,9 +7353,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Removes the slice from start to end and returns the remainder of the list.\nRemove a slice from the list and return the remainder, start and end are inclusive.\n
-				Using negative numbers for start and/or end causes the index to count backwards from the length of the list, so 0, -1 would delete the entire list.\n
-				If Start is larger than End the list deleted is the exclusion of the entries; so 6, 4 would delete the entire list except for the 5th. list entry.</string>
+            <string>Removes the slice from start to end and returns the remainder of the list.\nRemove a slice from the list and return the remainder, start and end are inclusive.\nUsing negative numbers for start and/or end causes the index to count backwards from the length of the list, so 0, -1 would delete the entire list.\nIf Start is larger than End the list deleted is the exclusion of the entries; so 6, 4 would delete the entire list except for the 5th. list entry.</string>
          </map>
          <key>llDeleteSubString</key>
          <map>
@@ -7416,9 +7388,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Removes the indicated sub-string and returns the result.\nRemoves the indicated sub-string and returns the result, start and end are inclusive.\n
-			Using negative numbers for start and/or end causes the index to count backwards from the length of the string, so 0, -1 would delete the entire string.\n
-			If start is larger than end, the sub string is the exclusion of the entries; so 6, 4 would delete the entire string except for the 5th. character.</string>
+            <string>Removes the indicated sub-string and returns the result.\nStart and End are inclusive.\nUsing negative numbers for Start and/or End causes the index to count backwards from the length of the string, so 0, -1 would delete the entire string.\nIf Start is larger than End, the sub-string is the exclusion of the entries; so 6, 4 would delete the entire string except for the 5th. character.</string>
          </map>
          <key>llDetachFromAvatar</key>
          <map>
@@ -7431,7 +7401,7 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>Remove the object containing the script from the avatar.\nRemove the object containing the script from the avatar.</string>
+            <string>Remove the object containing the script from the avatar.</string>
          </map>
          <key>llDetectedGrab</key>
          <map>
@@ -7452,8 +7422,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the grab offset of the user touching object (returns &lt;0,0,0&gt; if number is not a valid sensed object).\nReturns the grab offset of detected object number.\n
-			Returns &lt;0.0, 0.0, 0.0&gt; if Number is not a valid object.</string>
+            <string>Returns the grab offset of a user touching the object.\nReturns &lt;0.0, 0.0, 0.0&gt; if Number is not a valid object.</string>
          </map>
          <key>llDetectedGroup</key>
          <map>
@@ -7474,8 +7443,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns TRUE if detected object is part of same group as owner.\nReturns TRUE if detected object or agent Number has the same user group active as this object.\n
-			It will return FALSE if the object or agent is in the group, but the group is not active.</string>
+            <string>Returns TRUE if detected object or agent Number has the same user group active as this object.\nIt will return FALSE if the object or agent is in the group, but the group is not active.</string>
          </map>
          <key>llDetectedKey</key>
          <map>
@@ -7496,8 +7464,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the key of detected object or avatar number (returns empty key if number is not a valid index).\nReturns the key of detected object or avatar number.\n
-			Returns NULL_KEY if Number is not a valid index.</string>
+            <string>Returns the key of detected object or avatar number.\nReturns NULL_KEY if Number is not a valid index.</string>
          </map>
          <key>llDetectedLinkNumber</key>
          <map>
@@ -7518,8 +7485,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the link position of the triggered event for touches and collisions only.\nReturns the link position of the triggered event for touches.\n
-			0 for a non-linked object, 1 for the root of a linked object, 2 for the first child, etc.</string>
+            <string>Returns the link position of the triggered event for touches and collisions only.\n0 for a non-linked object, 1 for the root of a linked object, 2 for the first child, etc.</string>
          </map>
          <key>llDetectedName</key>
          <map>
@@ -7540,8 +7506,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the name of detected object or avatar number (returns empty string if number is not a valid index).\nReturns the name of detected object number.\n
-			Returns empty string if number is not a valid index.</string>
+            <string>Returns the name of detected object or avatar number.\nReturns the name of detected object number.\nReturns empty string if Number is not a valid index.</string>
          </map>
          <key>llDetectedOwner</key>
          <map>
@@ -7562,8 +7527,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the key of detected object's owner (returns empty key if number is not a valid index).\nReturns the key of detected number objects owner.\n
-			Returns invalid key if number is not a valid index.</string>
+            <string>Returns the key of detected object's owner.\nReturns invalid key if Number is not a valid index.</string>
          </map>
          <key>llDetectedPos</key>
          <map>
@@ -7584,8 +7548,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the position of detected object or avatar number (returns &lt;0,0,0&gt; if number is not a valid index).\nReturns the position of detected object Number.\n
-			Returns &lt;0.0, 0.0, 0.0&gt; if number is not a valid index.</string>
+            <string>Returns the position of detected object or avatar number.\nReturns &lt;0.0, 0.0, 0.0&gt; if Number is not a valid index.</string>
          </map>
          <key>llDetectedRot</key>
          <map>
@@ -7606,8 +7569,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the rotation of detected object or avatar number (returns &lt;0,0,0,1&gt; if number is not a valid index).\nReturns the rotation of detected object or avatar number.\n
-			Returns &lt;0.0, 0.0, 0.0, 1.0&gt; if number is not a valid offset.</string>
+            <string>Returns the rotation of detected object or avatar number.\nReturns &lt;0.0, 0.0, 0.0, 1.0&gt; if Number is not a valid offset.</string>
          </map>
          <key>llDetectedTouchBinormal</key>
          <map>
@@ -7649,7 +7611,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the index of the face where the avatar clicked in a triggered touch event.\nReturns an integer that is the index of the face the avatar clicked on.</string>
+            <string>Returns the index of the face where the avatar clicked in a triggered touch event.</string>
          </map>
          <key>llDetectedTouchNormal</key>
          <map>
@@ -7691,7 +7653,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the position where the object was touched in a triggered touch event.\nReturns a vector that is the position of the touched object, in region coordinates; unless it is a HUD, in which case it returns the position relative to the attach point.</string>
+            <string>Returns the position, in region coordinates, where the object was touched in a triggered touch event.\nUnless it is a HUD, in which case it returns the position relative to the attach point.</string>
          </map>
          <key>llDetectedTouchST</key>
          <map>
@@ -7712,10 +7674,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the s and t coordinates, in the first two components of a vector, for the surface coordinates where the prim was touched in a triggered touch event.\nReturns a vector that is the surface coordinates where the prim was touched.\n
-			The x and y vector positions contain the horizontal (s) and vertical (t) face coordinates respectively.\n
-			Each component is in the interval [0.0, 1.0].\n
-			TOUCH_INVALID_TEXCOORD is returned if the surface coordinates cannot be determined (e.g. when the viewer does not support this function).</string>
+            <string>Returns a vector that is the surface coordinates where the prim was touched.\nThe X and Y vector positions contain the horizontal (S) and vertical (T) face coordinates respectively.\nEach component is in the interval [0.0, 1.0].\nTOUCH_INVALID_TEXCOORD is returned if the surface coordinates cannot be determined (e.g. when the viewer does not support this function).</string>
          </map>
          <key>llDetectedTouchUV</key>
          <map>
@@ -7736,8 +7695,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the u and v coordinates in the first two components of a vector, for the texture coordinates where the prim was touched in a triggered touch event.\nReturns a vector that is the texture coordinates for where the prim was touched. The x and y vector positions contain the u and v face coordinates respectively.\n
-			TOUCH_INVALID_TEXCOORD is returned if the touch UV coordinates cannot be determined (e.g. when the viewer does not support this function).</string>
+            <string>Returns a vector that is the texture coordinates for where the prim was touched.\nThe X and Y vector positions contain the U and V face coordinates respectively.\nTOUCH_INVALID_TEXCOORD is returned if the touch UV coordinates cannot be determined (e.g. when the viewer does not support this function).</string>
          </map>
          <key>llDetectedType</key>
          <map>
@@ -7758,13 +7716,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the type (AGENT, ACTIVE, PASSIVE, SCRIPTED) of detected object (returns 0 if number is not a valid index).\nReturns the type (AGENT, ACTIVE, PASSIVE, SCRIPTED) of detected object number. Returns 0 if number is not a valid index.\n
-			Note that number is a bit-field, so comparisons need to be a bitwise checked. e.g.:\n
-			integer iType = llDetectedType(0);\n
-			if (iType &amp; AGENT)\n
-			{\n
-				// ...do stuff with the agent\n
-			}</string>
+            <string>Returns the type (AGENT, ACTIVE, PASSIVE, SCRIPTED) of detected object.\nReturns 0 if number is not a valid index.\nNote that number is a bit-field, so comparisons need to be a bitwise checked. e.g.:\ninteger iType = llDetectedType(0);\n{\n	// ...do stuff with the agent\n}</string>
          </map>
          <key>llDetectedVel</key>
          <map>
@@ -7785,8 +7737,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the velocity of detected object number (returns &lt;0,0,0&gt; if number is not a valid sensed object).\nReturns the velocity of the detected object number.\n
-			Returns&lt;0.0, 0.0, 0.0&gt; if number is not a valid offset.</string>
+            <string>Returns the velocity of the detected object Number.\nReturns&lt;0.0, 0.0, 0.0&gt; if Number is not a valid offset.</string>
          </map>
          <key>llDialog</key>
          <map>
@@ -7837,7 +7788,7 @@
 			Examples:\n
 			llDialog(who, "Are you a boy or a girl?", [ "Boy", "Girl" ], -4913);\n
 			llDialog(who, "This shows only an OK button.", [], -192);\n
-			llDialog(who, "This chats so you can hear it.", ["Hooray"], 0);</string>
+			llDialog(who, "This chats so you can 'hear' it.", ["Hooray"], 0);</string>
          </map>
          <key>llDie</key>
          <map>
@@ -8139,7 +8090,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns largest integer value &lt;= Value.\nReturns largest integer value &lt;= Value.</string>
+            <string>Returns largest integer value &lt;= Value.</string>
          </map>
          <key>llForceMouselook</key>
          <map>
@@ -8183,6 +8134,19 @@
             </map>
             <key>tooltip</key>
             <string>Returns a pseudo random number in the range [0, Magnitude] or [Magnitude, 0].\nReturns a pseudo-random number between [0, Magnitude].</string>
+         </map>
+         <key>llGenerateKey</key>
+         <map>
+            <key>energy</key>
+            <real>0</real>
+            <key>sleep</key>
+            <real>0</real>
+            <key>return</key>
+            <string>key</string>
+            <key>arguments</key>
+            <undef/>
+            <key>tooltip</key>
+            <string>Generates a key (SHA-1 hash) using UUID generation to create a unique key.\nAs the UUID produced is versioned, it should never return a value of NULL_KEY.\nThe specific UUID version is an implementation detail that has changed in the past and may change again in the future. Do not depend upon the UUID that is returned to be version 5 SHA-1 hash.</string>
          </map>
          <key>llGetAccel</key>
          <map>
@@ -8438,7 +8402,7 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>Returns the prim's centre of mass (unless called from the root prim, where it returns the object's centre of mass).\nReturns the prim's centre of mass (unless called from the root prim, where it returns the object's centre of mass).</string>
+            <string>Returns the prim's centre of mass (unless called from the root prim, where it returns the object's centre of mass).</string>
          </map>
          <key>llGetClosestNavPoint</key>
          <map>
@@ -8549,7 +8513,7 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>Returns how much energy is in the object as a percentage of maximum.\nReturns how much energy is in the object as a percentage of maximum.</string>
+            <string>Returns how much energy is in the object as a percentage of maximum.</string>
          </map>
          <key>llGetEnv</key>
          <map>
@@ -8570,7 +8534,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns a string with the requested data about the region.\nReturns a string with the requested data about the region.</string>
+            <string>Returns a string with the requested data about the region.</string>
          </map>
          <key>llGetForce</key>
          <map>
@@ -9087,7 +9051,7 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>Acts as llGetMass(), except that the units of the value returned are Kg.\nActs as llGetMass(), except that the units of the value returned are Kg.</string>
+            <string>Acts as llGetMass(), except that the units of the value returned are Kg.</string>
          </map>
          <key>llGetMemoryLimit</key>
          <map>
@@ -9305,7 +9269,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the requested permission mask for the root object the task is attached to.\nReturns the requested permission mask for the root object the task is attached to.</string>
+            <string>Returns the requested permission mask for the root object the task is attached to.</string>
          </map>
          <key>llGetObjectPrimCount</key>
          <map>
@@ -9574,7 +9538,7 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>Returns a list of the form [float gravity_multiplier, float restitution, float friction, float density].\nReturns a list of the form [float gravity_multiplier, float restitution, float friction, float density].</string>
+            <string>Returns a list of the form [float gravity_multiplier, float restitution, float friction, float density].</string>
          </map>
          <key>llGetPos</key>
          <map>
@@ -9690,7 +9654,7 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>Returns the mean region frames per second.\nReturns the mean region frames per second.</string>
+            <string>Returns the mean region frames per second.</string>
          </map>
          <key>llGetRegionName</key>
          <map>
@@ -9703,7 +9667,7 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>Returns the current region name.\nReturns the current region name.</string>
+            <string>Returns the current region name.</string>
          </map>
          <key>llGetRegionTimeDilation</key>
          <map>
@@ -9978,7 +9942,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the texture offset of face in the x and y components of a vector.\nReturns the texture offset of Face in the x and y components of a vector.</string>
+            <string>Returns the texture offset of face in the x and y components of a vector.</string>
          </map>
          <key>llGetTextureRot</key>
          <map>
@@ -9999,7 +9963,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the texture rotation of side.\nReturns the texture rotation of side.</string>
+            <string>Returns the texture rotation of side.</string>
          </map>
          <key>llGetTextureScale</key>
          <map>
@@ -10033,7 +9997,7 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>Returns the time in seconds since the last region reset, script reset, or call to either llResetTime or llGetAndResetTime.\nReturns the time in seconds since the last region reset, script reset, or call to either llResetTime or llGetAndResetTime.</string>
+            <string>Returns the time in seconds since the last region reset, script reset, or call to either llResetTime or llGetAndResetTime.</string>
          </map>
          <key>llGetTimeOfDay</key>
          <map>
@@ -11816,7 +11780,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Set the minimum time between events being handled.\nSet the minimum time between events being handled.</string>
+            <string>Set the minimum time between events being handled.</string>
          </map>
          <key>llModifyLand</key>
          <map>
@@ -12434,7 +12398,7 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>Reloads the web page shown on the sides of the object.\nReloads the web page shown on the sides of the object.</string>
+            <string>Reloads the web page shown on the sides of the object.</string>
          </map>
          <key>llRegionSay</key>
          <map>
@@ -12554,7 +12518,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Releases the specified URL, it will no longer be usable.\nReleases the specified URL, it will no longer be usable.</string>
+            <string>Releases the specified URL, it will no longer be usable.</string>
          </map>
          <key>llRemoteDataReply</key>
          <map>
@@ -12979,9 +12943,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Requests single-word user-name of an avatar. When data is available the dataserver event will be raised.\nRequests the user-name of the identified agent. When the user-name is available the dataserver event will be raised.\n
-				The agent identified does not need to be in the same region or online at the time of the request.\n
-				Returns a key that is used to identify the dataserver event when it is raised.</string>
+            <string>Requests single-word user-name of an avatar. When data is available the dataserver event will be raised.\nRequests the user-name of the identified agent. When the user-name is available the dataserver event is raised.\nThe agent identified does not need to be in the same region or online at the time of the request.\nReturns a key that is used to identify the dataserver event when it is raised.</string>
          </map>
          <key>llResetLandBanList</key>
          <map>
@@ -12994,7 +12956,7 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>Removes all residents from the land ban list.\nRemoves all entries from the land ban list.</string>
+            <string>Removes all residents from the land ban list.</string>
          </map>
          <key>llResetLandPassList</key>
          <map>
@@ -13007,7 +12969,7 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>Removes all residents from the land access/pass list.\nRemoves all entries from the land access/pass list.</string>
+            <string>Removes all residents from the land access/pass list.</string>
          </map>
          <key>llResetOtherScript</key>
          <map>
@@ -13028,7 +12990,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Resets script name.\nResets the named script.</string>
+            <string>Resets the named script.</string>
          </map>
          <key>llResetScript</key>
          <map>
@@ -13041,7 +13003,7 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>Resets the script.\nResets this script.</string>
+            <string>Resets the script.</string>
          </map>
          <key>llResetTime</key>
          <map>
@@ -13152,8 +13114,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Instantiate owners InventoryItem at Position with Velocity, Rotation and with start StartParameter.\nCreates object's inventory item at Position with Velocity and Rotation supplied. The StartParameter value will be available to the newly created object in the on_rez event or through the llGetStartParameter function.\n
-				The Velocity parameter is ignored if the rezzed object is not physical.</string>
+            <string>Instantiate owners InventoryItem at Position with Velocity, Rotation and with start StartParameter.\nCreates object's inventory item at Position with Velocity and Rotation supplied. The StartParameter value will be available to the newly created object in the on_rez event or through the llGetStartParameter function.\nThe Velocity parameter is ignored if the rezzed object is not physical.</string>
          </map>
          <key>llRot2Angle</key>
          <map>
@@ -13860,7 +13821,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Sets the camera eye offset used in this object if an avatar sits on it.\nSets the camera eye offset used in this object if an avatar sits on it.</string>
+            <string>Sets the camera eye offset used in this object if an avatar sits on it.</string>
          </map>
          <key>llSetCameraParams</key>
          <map>
@@ -13903,7 +13864,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Sets the action performed when a prim is clicked upon.\nSets the Action performed when a prim is clicked upon.</string>
+            <string>Sets the action performed when a prim is clicked upon.</string>
          </map>
          <key>llSetColor</key>
          <map>
@@ -13959,7 +13920,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Set the media type of an LSL HTTP server response.\nSet the media type of an LSL HTTP server response.</string>
+            <string>Set the media type of an LSL HTTP server response.</string>
          </map>
          <key>llSetDamage</key>
          <map>
@@ -14115,7 +14076,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Sets the given permission mask to the new value on the inventory item.\nSets the given permission mask to the new value on the inventory item.</string>
+            <string>Sets the given permission mask to the new value on the inventory item.</string>
          </map>
          <key>llSetKeyframedMotion</key>
          <map>
@@ -14213,7 +14174,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Sets the camera eye offset, and the offset that camera is looking at, for avatars that sit on the linked prim.\nSets the camera eye offset, and the offset that camera is looking at, for avatars that sit on the linked prim.</string>
+            <string>Sets the camera eye offset, and the offset that camera is looking at, for avatars that sit on the linked prim.</string>
          </map>
          <key>llSetLinkColor</key>
          <map>
@@ -14467,7 +14428,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Sets the rotation of a child prim relative to the root prim.\nSets the rotation of a child prim relative to the root prim.</string>
+            <string>Sets the rotation of a child prim relative to the root prim.</string>
          </map>
          <key>llSetMemoryLimit</key>
          <map>
@@ -14532,7 +14493,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Sets the object's name.\nSets the object's name.</string>
+            <string>Sets the object's name.</string>
          </map>
          <key>llSetObjectPermMask</key>
          <map>
@@ -14560,7 +14521,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Sets the given permission mask to the new value on the root object the task is attached to.\nSets the given permission mask to the new value on the root object the task is attached to.</string>
+            <string>Sets the given permission mask to the new value on the root object the task is attached to.</string>
          </map>
          <key>llSetParcelMusicURL</key>
          <map>
@@ -14659,7 +14620,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Sets the requested attributes of the root object's physics material.\nSets the requested attributes of the root object's physics material.</string>
+            <string>Sets the requested attributes of the root object's physics material.</string>
          </map>
          <key>llSetPos</key>
          <map>
@@ -14933,7 +14894,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Establishes a hard cut-off radius for audibility of scripted sounds (both attached and triggered).\nEstablishes a hard cut-off radius for audibility of scripted sounds (both attached and triggered).</string>
+            <string>Establishes a hard cut-off radius for audibility of scripted sounds (both attached and triggered).</string>
          </map>
          <key>llSetStatus</key>
          <map>
@@ -15604,7 +15565,7 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>Stops critically damped motion.\nStops critically damped motion.</string>
+            <string>Stops critically damped motion.</string>
          </map>
          <key>llStopSound</key>
          <map>
