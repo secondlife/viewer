@@ -812,19 +812,20 @@ void LLPanelPeople::updateButtons()
 	else
 	{
 		bool is_friend = true;
-
+		bool is_self = false;
 		// Check whether selected avatar is our friend.
 		if (item_selected)
 		{
 			selected_id = selected_uuids.front();
 			is_friend = LLAvatarTracker::instance().getBuddyInfo(selected_id) != NULL;
+			is_self = gAgent.getID() == selected_id;
 		}
 
 		LLPanel* cur_panel = mTabContainer->getCurrentPanel();
 		if (cur_panel)
 		{
 			if (cur_panel->hasChild("add_friend_btn", TRUE))
-				cur_panel->getChildView("add_friend_btn")->setEnabled(item_selected && !is_friend);
+				cur_panel->getChildView("add_friend_btn")->setEnabled(item_selected && !is_friend && !is_self);
 
 			if (friends_tab_active)
 			{
