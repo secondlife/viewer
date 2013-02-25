@@ -37,6 +37,7 @@
 #include "llagentdata.h"			// for gAgentID
 #include "llavataractions.h"
 #include "llcallingcard.h"			// for LLAvatarTracker
+#include "lllogchat.h"
 #include "llviewermenu.h"			// for gMenuHolder
 
 namespace LLPanelPeopleMenus
@@ -180,7 +181,11 @@ bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 	{
 		return LLAvatarActions::canOfferTeleport(mUUIDs);
 	}
-	else if (item == std::string("can_im") || item == std::string("can_callog") || item == std::string("can_invite") ||
+	else if (item == std::string("can_callog"))
+	{
+		return LLLogChat::isTranscriptExist(mUUIDs.front());
+	}
+	else if (item == std::string("can_im") || item == std::string("can_invite") ||
 	         item == std::string("can_share") || item == std::string("can_pay"))
 	{
 		return true;

@@ -69,6 +69,7 @@ public:
 	void returnFloaterToHost();
     void showConversation(const LLUUID& session_id);
     void selectConversation(const LLUUID& session_id);
+	void selectNextConversation(const LLUUID& session_id);
     BOOL selectConversationPair(const LLUUID& session_id, bool select_widget);
     void clearAllFlashStates();
 
@@ -187,6 +188,7 @@ public:
 	void flashConversationItemWidget(const LLUUID& session_id, bool is_flashes);
 	bool isScrolledOutOfSight(LLConversationViewSession* conversation_item_widget);
 	boost::signals2::connection mMicroChangedSignal;
+	S32 getConversationListItemSize() { return mConversationsWidgets.size(); }
 
 private:
 	LLConversationViewSession* createConversationItemWidget(LLConversationItem* item);

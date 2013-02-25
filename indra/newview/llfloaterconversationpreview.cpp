@@ -33,13 +33,19 @@
 #include "llspinctrl.h"
 #include "lltrans.h"
 
+const std::string LL_FCP_COMPLETE_NAME("complete_name");
+const std::string LL_FCP_ACCOUNT_NAME("user_name");
+
 LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_id)
 :	LLFloater(session_id),
 	mChatHistory(NULL),
 	mSessionID(session_id.asUUID()),
 	mCurrentPage(0),
-	mPageSize(gSavedSettings.getS32("ConversationHistoryPageSize"))
-{}
+	mPageSize(gSavedSettings.getS32("ConversationHistoryPageSize")),
+	mAccountName(session_id[LL_FCP_ACCOUNT_NAME]),
+	mCompleteName(session_id[LL_FCP_COMPLETE_NAME])
+{
+}
 
 BOOL LLFloaterConversationPreview::postBuild()
 {
@@ -49,7 +55,12 @@ BOOL LLFloaterConversationPreview::postBuild()
 	std::string name;
 	std::string file;
 
-	if (mSessionID != LLUUID::null && conv)
+	if (mAccountName != "")
+	{
+		name = mCompleteName;
+		file = mAccountName;
+	}
+	else if (mSessionID != LLUUID::null && conv)
 	{
 		name = conv->getConversationName();
 		file = conv->getHistoryFileName();

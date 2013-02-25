@@ -29,6 +29,9 @@
 #include "llchathistory.h"
 #include "llfloater.h"
 
+extern const std::string LL_FCP_COMPLETE_NAME;	//"complete_name"
+extern const std::string LL_FCP_ACCOUNT_NAME;		//"user_name"
+
 class LLSpinCtrl;
 
 class LLFloaterConversationPreview : public LLFloater
@@ -54,6 +57,8 @@ private:
 	int				mPageSize;
 
 	std::list<LLSD> mMessages;
+	std::string		mAccountName;
+	std::string		mCompleteName;
 };
 
 #endif /* LLFLOATERCONVERSATIONPREVIEW_H_ */

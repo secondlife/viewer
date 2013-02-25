@@ -57,6 +57,7 @@ public:
 	static boost::signals2::connection setSaveHistorySignal(const save_history_signal_t::slot_type& cb);
 
 	static void deleteTranscripts();
+	static bool isTranscriptExist(const LLUUID& avatar_id);
 
 private:
 	static std::string cleanFileName(std::string filename);

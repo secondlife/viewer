@@ -44,6 +44,7 @@
 #include "llcallingcard.h"		// for LLAvatarTracker
 #include "llconversationlog.h"
 #include "llfloateravatarpicker.h"	// for LLFloaterAvatarPicker
+#include "llfloaterconversationpreview.h"
 #include "llfloatergroupinvite.h"
 #include "llfloatergroups.h"
 #include "llfloaterreg.h"
@@ -926,8 +927,19 @@ void LLAvatarActions::viewChatHistory(const LLUUID& id)
 		if (iter->getParticipantID() == id)
 		{
 			LLFloaterReg::showInstance("preview_conversation", iter->getSessionID(), true);
-			break;
+			return;
 		}
+	}
+
+	if (LLLogChat::isTranscriptExist(id))
+	{
+		LLAvatarName avatar_name;
+		LLSD extended_id(id);
+
+		LLAvatarNameCache::get(id, &avatar_name);
+		extended_id[LL_FCP_COMPLETE_NAME] = avatar_name.getCompleteName();
+		extended_id[LL_FCP_ACCOUNT_NAME] = avatar_name.getAccountName();
+		LLFloaterReg::showInstance("preview_conversation", extended_id, true);
 	}
 }
 
