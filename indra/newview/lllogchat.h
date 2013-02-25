@@ -59,7 +59,11 @@ public:
 	static bool moveTranscripts(const std::string currentDirectory, 
 									const std::string newDirectory, 
 									std::vector<std::string>& listOfFilesToMove,
-									std::vector<std::string>& listOfFilesMoved = std::vector<std::string>());
+									std::vector<std::string>& listOfFilesMoved);
+	static bool moveTranscripts(const std::string currentDirectory, 
+		const std::string newDirectory, 
+		std::vector<std::string>& listOfFilesToMove);
+
 	static void deleteTranscripts();
 
 private:

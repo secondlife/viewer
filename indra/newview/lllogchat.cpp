@@ -561,6 +561,15 @@ bool LLLogChat::moveTranscripts(const std::string originDirectory,
 }
 
 //static
+bool LLLogChat::moveTranscripts(const std::string currentDirectory, 
+	const std::string newDirectory, 
+	std::vector<std::string>& listOfFilesToMove)
+{
+	std::vector<std::string> listOfFilesMoved;
+	return moveTranscripts(currentDirectory, newDirectory, listOfFilesToMove, listOfFilesMoved);
+}
+
+//static
 void LLLogChat::deleteTranscripts()
 {
 	std::vector<std::string> list_of_transcriptions;
