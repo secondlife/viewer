@@ -1814,17 +1814,13 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	all_items += gest_items;
 
 	// Will link all the above items.
-	bool update_base_outfit_ordering = !append;
-	LLCallAfterInventoryLinkMgr *link_waiter =
-		new LLCallAfterInventoryLinkMgr(all_items,cof,"update_appearance_on_destroy",
-										boost::bind(&LLAppearanceMgr::updateAppearanceFromCOF,
-													LLAppearanceMgr::getInstance(),
-													update_base_outfit_ordering));
+	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
+	linkAll(cof,all_items,link_waiter);
 
 	// Add link to outfit if category is an outfit. 
 	if (!append)
 	{
-		link_waiter->addItem(category);
+		createBaseOutfitLink(category, NULL);
 	}
 
 	// Remove current COF contents.  Have to do this after creating
