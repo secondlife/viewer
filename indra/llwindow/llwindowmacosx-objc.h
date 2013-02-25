@@ -59,7 +59,7 @@ void hideNSCursorTillMove(bool hide);
 NSWindowRef createNSWindow(int x, int y, int width, int height);
 
 #include <OpenGL/OpenGL.h>
-GLViewRef createOpenGLView(NSWindowRef window);
+GLViewRef createOpenGLView(NSWindowRef window, unsigned int samples, bool vsync);
 void glSwapBuffers(void* context);
 CGLContextObj getCGLContextObj(GLViewRef view);
 void getContentViewBounds(NSWindowRef window, float* bounds);

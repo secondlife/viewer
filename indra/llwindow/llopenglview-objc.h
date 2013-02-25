@@ -16,7 +16,8 @@
 {
 	std::string mLastDraggedUrl;
 }
-
+- (id) initWithSamples:(NSUInteger)samples;
+- (id) initWithSamples:(NSUInteger)samples andVsync:(BOOL)vsync;
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync;
 
 // rebuildContext

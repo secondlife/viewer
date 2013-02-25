@@ -61,8 +61,17 @@
 
 - (id) init
 {
-	//[self registerForDraggedTypes:[NSArray arrayWithObjects:NSURLPboardType, NSFilenamesPboardType, nil]];
 	return [self initWithFrame:[self bounds] withSamples:2 andVsync:TRUE];
+}
+
+- (id) initWithSamples:(NSUInteger)samples
+{
+	return [self initWithFrame:[self bounds] withSamples:samples andVsync:TRUE];
+}
+
+- (id) initWithSamples:(NSUInteger)samples andVsync:(BOOL)vsync
+{
+	return [self initWithFrame:[self bounds] withSamples:samples andVsync:vsync];
 }
 
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync

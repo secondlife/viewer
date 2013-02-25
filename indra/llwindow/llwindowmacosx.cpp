@@ -404,7 +404,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		LL_INFOS("Window") << "Creating GL view..." << LL_ENDL;
 		// Our OpenGL view is already defined within SecondLife.xib.
 		// Get the view instead.
-		mGLView = createOpenGLView(mWindow);
+		mGLView = createOpenGLView(mWindow, mFSAASamples, !disable_vsync);
 		mContext = getCGLContextObj(mGLView);
 		// Since we just created the context, it needs to be set up.
 		glNeedsInit = TRUE;
