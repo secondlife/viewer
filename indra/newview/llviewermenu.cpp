@@ -6965,7 +6965,7 @@ void handle_selected_material_info()
 		for (it = faces_per_material.begin(); it != faces_per_material.end(); ++it)
 		{
 			const LLMaterialID& material_id = it->first;
-			msg = llformat("%s on face ", material_id.asString());
+			msg += llformat("%s on face ", material_id.asString().c_str());
 			for (U8 i = 0; i < it->second.size(); ++i)
 			{
 				msg.append( llformat("%d ", (S32)(it->second[i])));
