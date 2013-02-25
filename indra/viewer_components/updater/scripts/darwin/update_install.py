@@ -139,7 +139,7 @@ def write_marker(markerfile, markertext):
 # ****************************************************************************
 #   Main script logic
 # ****************************************************************************
-def main(dmgfile, markerfile, markertext, appdir=None):
+def main(dmgfile, markerfile, markertext):
     # Should we fail, we're supposed to write 'markertext' to 'markerfile'.
     # Wrap the fail() function so we do that.
     global fail
@@ -179,18 +179,19 @@ def main(dmgfile, markerfile, markertext, appdir=None):
         # prepare for other cleanup
         with Janitor(LOGF) as janitor:
 
-            # Hopefully caller explicitly stated the viewer bundle to update.
-            # But if not, try to derive it from our own pathname. (The only
-            # trouble with that is that the old viewer might copy this script
-            # to a temp dir before running.)
-            if not appdir:
-                # Somewhat peculiarly, this script is currently packaged in
-                # Appname.app/Contents/MacOS with the viewer executable. But even if we
-                # decide to move it to Appname.app/Contents/Resources, we'll still find
-                # Appname.app two levels up from dirname(__file__).
-                appdir = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                      os.pardir, os.pardir))
+            # Try to derive the name of the running viewer app bundle from our
+            # own pathname. (Hopefully the old viewer won't copy this script
+            # to a temp dir before running!)
+            # Somewhat peculiarly, this script is currently packaged in
+            # Appname.app/Contents/MacOS with the viewer executable. But even
+            # if we decide to move it to Appname.app/Contents/Resources, we'll
+            # still find Appname.app two levels up from dirname(__file__).
+            appdir = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                  os.pardir, os.pardir))
             if not appdir.endswith(".app"):
+                # This can happen if either this script has been copied before
+                # being executed, or if it's in an unexpected place in the app
+                # bundle.
                 fail(appdir + " is not an application directory")
 
             # We need to install into appdir's parent directory -- can we?
@@ -260,15 +261,66 @@ def main(dmgfile, markerfile, markertext, appdir=None):
 
             # Here 'candidate' is the new viewer to install
             log("Found " + candidate)
+
+            # This logic was changed to make Mac updates behave more like
+            # Windows. Most of the time, the user doesn't change the name of
+            # the app bundle on our .dmg installer (e.g. "Second Life Beta
+            # Viewer.app"). Most of the time, the version manager directs a
+            # given viewer to update to another .dmg containing an app bundle
+            # with THE SAME name. In that case, everything behaves as usual.
+
+            # The case that was changed is when the version manager offers (or
+            # mandates) an update to a .dmg containing a different app bundle
+            # name. This can happen, for instance, to a user who's downloaded
+            # a "project beta" viewer, and the project subsequently publishes
+            # a Release Candidate viewer. Say the project beta's app bundle
+            # name is something like "Second Life Beta Neato.app". Anyone
+            # launching that viewer will be offered an update to the
+            # corresponding Release Candidate viewer -- which will be built as
+            # a release viewer, with app bundle name "Second Life Viewer.app".
+
+            # On Windows, we run the NSIS installer, which will update/replace
+            # the embedded install directory name, e.g. Second Life Viewer.
+            # But the Mac installer used to locate the app bundle name in the
+            # mounted .dmg file, then ignore that name, copying its contents
+            # into the app bundle directory of the running viewer. That is,
+            # we'd install the Release Candidate from the .dmg's "Second
+            # Life.app" into "/Applications/Second Life Beta Neato.app". This
+            # is undesired behavior.
+
+            # Instead, having found the app bundle name on the mounted .dmg,
+            # we try to install that app bundle name into the parent directory
+            # of the running app bundle.
+
+            # Are we installing a different app bundle name? If so, call it
+            # out, both in the log and for the user -- this is an odd case.
+            # (Presumably they've already agreed to a similar notification in
+            # the viewer before the viewer launched this script, but still.)
+            bundlename = os.path.basename(candidate)
+            if os.path.basename(appdir) == bundlename:
+                # updating the running app bundle, which we KNOW exists
+                appexists = True
+            else:
+                # installing some other app bundle
+                newapp = os.path.join(installdir, bundlename)
+                appexists = os.path.exists(newapp)
+                message = "Note: %s %s %s" % \
+                          (appdir, "updating" if appexists else "installing new", newapp)
+                status(message)
+                # okay, we have no further need of the name of the running app
+                # bundle.
+                appdir = newapp
+
             status("Preparing to copy files...")
 
-            # move old viewer to temp location in case copy from .dmg fails
-            aside = os.path.join(tempdir, os.path.basename(appdir))
-            log("mv %r %r" % (appdir, aside))
-            # Use shutil.move() instead of os.rename(). move() first tries
-            # os.rename(), but falls back to shutil.copytree() if the dest is
-            # on a different filesystem.
-            shutil.move(appdir, aside)
+            if appexists:
+                # move old viewer to temp location in case copy from .dmg fails
+                aside = os.path.join(tempdir, os.path.basename(appdir))
+                log("mv %r %r" % (appdir, aside))
+                # Use shutil.move() instead of os.rename(). move() first tries
+                # os.rename(), but falls back to shutil.copytree() if the dest is
+                # on a different filesystem.
+                shutil.move(appdir, aside)
 
             status("Copying files...")
 
@@ -282,8 +334,9 @@ def main(dmgfile, markerfile, markertext, appdir=None):
             except Exception, err:
                 # copy failed -- try to restore previous viewer before crumping
                 type, value, traceback = sys.exc_info()
-                log("exception response: mv %r %r" % (aside, appdir))
-                shutil.move(aside, appdir)
+                if appexists:
+                    log("exception response: mv %r %r" % (aside, appdir))
+                    shutil.move(aside, appdir)
                 # let our previously-set sys.excepthook handle this
                 raise type, value, traceback
 
@@ -316,6 +369,5 @@ if __name__ == "__main__":
     # We expect this script to be invoked with:
     # - the pathname to the .dmg we intend to install;
     # - the pathname to an update-error marker file to create on failure;
-    # - the content to write into the marker file;
-    # - optionally, the pathname of the Second Life viewer to update.
+    # - the content to write into the marker file.
     main(*sys.argv[1:])
