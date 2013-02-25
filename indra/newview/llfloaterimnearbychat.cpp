@@ -136,6 +136,25 @@ BOOL LLFloaterIMNearbyChat::postBuild()
 }
 
 // virtual
+void LLFloaterIMNearbyChat::closeHostedFloater()
+{
+	// Should check how many conversations are ongoing. Close all if 1 only (the Nearby Chat), select next one otherwise
+	LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
+	if (floater_container->getConversationListItemSize() == 1)
+	{
+		floater_container->closeFloater();
+	}
+	else
+	{
+		if (!getHost())
+		{
+			setVisible(FALSE);
+		}
+		floater_container->selectNextConversation(LLUUID());
+	}
+}
+
+// virtual
 void LLFloaterIMNearbyChat::refresh()
 {
 	displaySpeakingIndicator();

@@ -183,8 +183,7 @@
         </menu_item_call>
          <menu_item_call
          label="Toolbar buttons..."
-         name="Toolbars"
-         shortcut="control|T">
+         name="Toolbars">
             <menu_item_call.on_click
              function="Floater.Toggle"
              parameter="toybox" />
@@ -223,7 +222,8 @@
      tear_off="true">
        <menu_item_check
          label="Conversations..."
-         name="Conversations">
+         name="Conversations"
+         shortcut="control|T">
             <menu_item_check.on_check
              function="Floater.IsOpen"
              parameter="im_container" />
@@ -240,7 +240,7 @@
              function="Floater.Visible"
              parameter="nearby_chat" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
+             function="Floater.ToggleOrBringToFront"
              parameter="nearby_chat" />
         </menu_item_check>
         <menu_item_check

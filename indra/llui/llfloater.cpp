@@ -813,6 +813,20 @@ void LLFloater::closeFloater(bool app_quitting)
 }
 
 /*virtual*/
+void LLFloater::closeHostedFloater()
+{
+	// When toggling *visibility*, close the host instead of the floater when hosted
+	if (getHost())
+	{
+		getHost()->closeFloater();
+	}
+	else
+	{
+		closeFloater();
+	}
+}
+
+/*virtual*/
 void LLFloater::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLPanel::reshape(width, height, called_from_parent);
@@ -1609,8 +1623,17 @@ void LLFloater::bringToFront( S32 x, S32 y )
 // virtual
 void LLFloater::setVisibleAndFrontmost(BOOL take_focus)
 {
-	setVisible(TRUE);
-	setFrontmost(take_focus);
+	LLMultiFloater* hostp = getHost();
+	if (hostp)
+	{
+		hostp->setVisible(TRUE);
+		hostp->setFrontmost(take_focus);
+	}
+	else
+	{
+		setVisible(TRUE);
+		setFrontmost(take_focus);
+	}
 }
 
 void LLFloater::setFrontmost(BOOL take_focus)

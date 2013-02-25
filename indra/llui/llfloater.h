@@ -226,6 +226,9 @@ public:
 	// If allowed, close the floater cleanly, releasing focus.
 	virtual void	closeFloater(bool app_quitting = false);
 
+	// Close the floater or its host. Use when hidding or toggling a floater instance.
+	virtual void	closeHostedFloater();
+
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	
 	// Release keyboard and mouse focus

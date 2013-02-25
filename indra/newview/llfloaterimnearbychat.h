@@ -54,6 +54,7 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void setVisible(BOOL visible);
+	/*virtual*/ void closeHostedFloater();
 
 	void loadHistory();
     void reloadMessages(bool clean_messages = false);
