@@ -380,13 +380,32 @@ void LLConversationLog::cache()
 
 bool LLConversationLog::moveLog(const std::string &originDirectory, const std::string &targetDirectory)
 {
+
+	std::string backupFileName;
+	UINT backupFileCount = 0;
+
 	//Does the file exist in the current path
 	if(LLFile::isfile(originDirectory))
 	{
-		//Does same file exist in the destination path, if so try to remove it
+		
+		//File already exists so make a backup file
 		if(LLFile::isfile(targetDirectory))
 		{
-			LLFile::remove(targetDirectory);
+			backupFileName = targetDirectory + ".backup";
+
+			//If needed store backup file as .backup1 etc.
+			while(LLFile::isfile(backupFileName))
+			{
+				backupFileName = targetDirectory + ".backup";
+
+				if(backupFileCount)
+				{
+					backupFileName += backupFileCount;
+				}
+			}
+
+			//Rename the file to its backup name so it is not overwritten
+			LLFile::rename(targetDirectory, backupFileName);
 		}
 
 		//Move the file from the current path to destination path
