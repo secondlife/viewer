@@ -39,6 +39,7 @@
 #include "llfloaterreg.h"
 #include "llgroupiconctrl.h"
 #include "lluictrlfactory.h"
+#include "lltoolbarview.h"
 
 //
 // Implementation of conversations list session widgets
@@ -114,6 +115,12 @@ void LLConversationViewSession::startFlashing()
 	{
 		mFlashStarted = true;
 		mFlashTimer->startFlashing();
+		
+		// flash chat toolbar button if scrolled out of sight (because flashing will not be visible)
+		if (mContainer->isScrolledOutOfSight(this))
+		{
+			gToolBarView->flashCommand(LLCommandId("chat"), true);
+		}
 	}
 }
 

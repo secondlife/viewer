@@ -1877,6 +1877,16 @@ void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id,
 	}
 }
 
+bool LLFloaterIMContainer::isScrolledOutOfSight(LLConversationViewSession* conversation_item_widget)
+{
+	llassert(conversation_item_widget != NULL);
+
+	// check whether the widget is in the visible portion of the scroll container
+	LLRect widget_rect;
+	conversation_item_widget->localRectToOtherView(conversation_item_widget->getLocalRect(), &widget_rect, mConversationsRoot);
+	return !mConversationsRoot->getVisibleRect().overlaps(widget_rect);
+}
+
 void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 {
 	// Always unminimize before trying to close.
