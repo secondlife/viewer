@@ -12153,17 +12153,6 @@
       <key>Value</key>
       <string>update</string>
     </map>
-    <key>UpdaterServiceProtocolVersion</key>
-    <map>
-      <key>Comment</key>
-      <string>The update protocol version to use.</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>v1.0</string>
-    </map>
     <key>UploadBakedTexOld</key>
     <map>
       <key>Comment</key>
