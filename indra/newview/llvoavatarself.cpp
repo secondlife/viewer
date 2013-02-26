@@ -3049,8 +3049,6 @@ void LLVOAvatarSelf::dumpScratchTextureByteCount()
 	llinfos << "Scratch Texture GL: " << (sScratchTexBytes/1024) << "KB" << llendl;
 }
 
-void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value);
-
 void LLVOAvatarSelf::dumpWearableInfo(LLAPRFile& outfile)
 {
 	apr_file_t* file = outfile.getFileHandle();

@@ -205,8 +205,8 @@ public:
 
 	// Version handling
 	enum { VERSION_UNKNOWN = -1, VERSION_INITIAL = 1 };
-	S32 getVersion() const { return mVersion; }
-	void setVersion(S32 version) { mVersion = version; }
+	S32 getVersion() const;
+	void setVersion(S32 version);
 
 	// Returns true if a fetch was issued.
 	bool fetch();

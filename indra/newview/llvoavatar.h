@@ -980,5 +980,9 @@ protected: // Shared with LLVOAvatarSelf
 extern const F32 SELF_ADDITIONAL_PRI;
 extern const S32 MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL;
 
+std::string get_sequential_numbered_file_name(const std::string& prefix,
+											  const std::string& suffix);
+void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value);
+
 #endif // LL_VOAVATAR_H
 

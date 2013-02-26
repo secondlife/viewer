@@ -190,11 +190,6 @@ enum ERenderName
 	RENDER_NAME_FADE
 };
 
-
-// Utility func - FIXME move out of avatar.
-std::string get_sequential_numbered_file_name(const std::string& prefix,
-											  const std::string& suffix);
-
 //-----------------------------------------------------------------------------
 // Callback data
 //-----------------------------------------------------------------------------
