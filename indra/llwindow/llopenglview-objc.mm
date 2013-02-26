@@ -466,16 +466,19 @@
 
 - (BOOL) becomeFirstResponder
 {
-	NSLog(@"Window gained focus!");
 	callFocus();
 	return true;
 }
 
 - (BOOL) resignFirstResponder
 {
-	NSLog(@"Window lost focus!");
 	callFocus();
 	return true;
+}
+
+- (void) close
+{
+	callQuitHandler();
 }
 
 @end

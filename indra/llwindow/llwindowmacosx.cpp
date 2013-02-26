@@ -362,6 +362,14 @@ void callHandleDragDropped(std::string url)
 	gWindowImplementation->handleDragNDrop(url, LLWindowCallbacks::DNDA_DROPPED);
 }
 
+void callQuitHandler()
+{
+	if(gWindowImplementation->getCallbacks()->handleCloseRequest(gWindowImplementation))
+	{
+		gWindowImplementation->getCallbacks()->handleQuit(gWindowImplementation);
+	}
+}
+
 void LLWindowMacOSX::updateMouseDeltas(float* deltas)
 {
 	if (mCursorDecoupled)
