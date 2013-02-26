@@ -59,6 +59,7 @@ BOOL gDebugGL = FALSE;
 BOOL gClothRipple = FALSE;
 BOOL gHeadlessClient = FALSE;
 BOOL gGLActive = FALSE;
+BOOL gGLDebugLoggingEnabled = TRUE;
 
 static const std::string HEADLESS_VENDOR_STRING("Linden Lab");
 static const std::string HEADLESS_RENDERER_STRING("Headless");
@@ -72,6 +73,7 @@ std::ofstream gFailLog;
 #define APIENTRY
 #endif
 
+
 void APIENTRY gl_debug_callback(GLenum source,
                                 GLenum type,
                                 GLuint id,
@@ -80,22 +82,25 @@ void APIENTRY gl_debug_callback(GLenum source,
                                 const GLchar* message,
                                 GLvoid* userParam)
 {
-	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+	if (gGLDebugLoggingEnabled)
 	{
-		llwarns << "----- GL ERROR --------" << llendl;
-	}
-	else
-	{
-		llwarns << "----- GL WARNING -------" << llendl;
-	}
-	llwarns << "Type: " << std::hex << type << llendl;
-	llwarns << "ID: " << std::hex << id << llendl;
-	llwarns << "Severity: " << std::hex << severity << llendl;
-	llwarns << "Message: " << message << llendl;
-	llwarns << "-----------------------" << llendl;
-	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
-	{
-		llerrs << "Halting on GL Error" << llendl;
+		if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+		{
+			llwarns << "----- GL ERROR --------" << llendl;
+		}
+		else
+		{
+			llwarns << "----- GL WARNING -------" << llendl;
+		}
+		llwarns << "Type: " << std::hex << type << llendl;
+		llwarns << "ID: " << std::hex << id << llendl;
+		llwarns << "Severity: " << std::hex << severity << llendl;
+		llwarns << "Message: " << message << llendl;
+		llwarns << "-----------------------" << llendl;
+		if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+		{
+			llerrs << "Halting on GL Error" << llendl;
+		}
 	}
 }
 #endif
@@ -253,6 +258,7 @@ PFNGLBEGINTRANSFORMFEEDBACKPROC glBeginTransformFeedback = NULL;
 PFNGLENDTRANSFORMFEEDBACKPROC glEndTransformFeedback = NULL;
 PFNGLTRANSFORMFEEDBACKVARYINGSPROC glTransformFeedbackVaryings = NULL;
 PFNGLBINDBUFFERRANGEPROC glBindBufferRange = NULL;
+PFNGLBINDBUFFERBASEPROC glBindBufferBase = NULL;
 
 //GL_ARB_debug_output
 PFNGLDEBUGMESSAGECONTROLARBPROC glDebugMessageControlARB = NULL;
@@ -1224,6 +1230,7 @@ void LLGLManager::initExtensions()
 		glEndTransformFeedback = (PFNGLENDTRANSFORMFEEDBACKPROC) GLH_EXT_GET_PROC_ADDRESS("glEndTransformFeedback");
 		glTransformFeedbackVaryings = (PFNGLTRANSFORMFEEDBACKVARYINGSPROC) GLH_EXT_GET_PROC_ADDRESS("glTransformFeedbackVaryings");
 		glBindBufferRange = (PFNGLBINDBUFFERRANGEPROC) GLH_EXT_GET_PROC_ADDRESS("glBindBufferRange");
+		glBindBufferBase = (PFNGLBINDBUFFERBASEPROC) GLH_EXT_GET_PROC_ADDRESS("glBindBufferBase");
 	}
 	if (mHasDebugOutput)
 	{
