@@ -85,6 +85,7 @@ const U32 LL_VBO_POOL_SEED_COUNT = vbo_block_index(LL_VBO_POOL_MAX_SEED_SIZE);
 //static
 LLVBOPool LLVertexBuffer::sStreamVBOPool(GL_STREAM_DRAW_ARB, GL_ARRAY_BUFFER_ARB);
 LLVBOPool LLVertexBuffer::sDynamicVBOPool(GL_DYNAMIC_DRAW_ARB, GL_ARRAY_BUFFER_ARB);
+LLVBOPool LLVertexBuffer::sDynamicCopyVBOPool(GL_DYNAMIC_COPY_ARB, GL_ARRAY_BUFFER_ARB);
 LLVBOPool LLVertexBuffer::sStreamIBOPool(GL_STREAM_DRAW_ARB, GL_ELEMENT_ARRAY_BUFFER_ARB);
 LLVBOPool LLVertexBuffer::sDynamicIBOPool(GL_DYNAMIC_DRAW_ARB, GL_ELEMENT_ARRAY_BUFFER_ARB);
 
@@ -199,7 +200,10 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 		if (LLVertexBuffer::sDisableVBOMapping || mUsage != GL_DYNAMIC_DRAW_ARB)
 		{
 			glBufferDataARB(mType, size, 0, mUsage);
-			ret = (U8*) ll_aligned_malloc_16(size);
+			if (mUsage != GL_DYNAMIC_COPY_ARB)
+			{ //data will be provided by application
+				ret = (U8*) ll_aligned_malloc_16(size);
+			}
 		}
 		else
 		{ //always use a true hint of static draw when allocating non-client-backed buffers
@@ -393,6 +397,7 @@ void LLVertexBuffer::seedPools()
 {
 	sStreamVBOPool.seedPool();
 	sDynamicVBOPool.seedPool();
+	sDynamicCopyVBOPool.seedPool();
 	sStreamIBOPool.seedPool();
 	sDynamicIBOPool.seedPool();
 }
@@ -875,6 +880,7 @@ void LLVertexBuffer::cleanupClass()
 	sDynamicIBOPool.cleanup();
 	sStreamVBOPool.cleanup();
 	sDynamicVBOPool.cleanup();
+	sDynamicCopyVBOPool.cleanup();
 
 	if(sPrivatePoolp)
 	{
@@ -911,13 +917,16 @@ S32 LLVertexBuffer::determineUsage(S32 usage)
 	
 	if (ret_usage && ret_usage != GL_STREAM_DRAW_ARB)
 	{ //only stream_draw and dynamic_draw are supported when using VBOs, dynamic draw is the default
-		if (sDisableVBOMapping)
-		{ //always use stream draw if VBO mapping is disabled
-			ret_usage = GL_STREAM_DRAW_ARB;
-		}
-		else
+		if (ret_usage != GL_DYNAMIC_COPY_ARB)
 		{
-			ret_usage = GL_DYNAMIC_DRAW_ARB;
+			if (sDisableVBOMapping)
+			{ //always use stream draw if VBO mapping is disabled
+				ret_usage = GL_STREAM_DRAW_ARB;
+			}
+			else
+			{
+				ret_usage = GL_DYNAMIC_DRAW_ARB;
+			}
 		}
 	}
 	
@@ -1067,10 +1076,15 @@ void LLVertexBuffer::genBuffer(U32 size)
 	{
 		mMappedData = sStreamVBOPool.allocate(mGLBuffer, mSize);
 	}
-	else
+	else if (mUsage == GL_DYNAMIC_DRAW_ARB)
 	{
 		mMappedData = sDynamicVBOPool.allocate(mGLBuffer, mSize);
 	}
+	else
+	{
+		mMappedData = sDynamicCopyVBOPool.allocate(mGLBuffer, mSize);
+	}
+
 	
 	sGLCount++;
 }
@@ -1820,6 +1834,8 @@ void LLVertexBuffer::unmapBuffer()
 
 	if (mMappedData && mVertexLocked)
 	{
+		llassert(mUsage != GL_DYNAMIC_COPY_ARB);
+		
 		LLFastTimer t(FTM_VBO_UNMAP);
 		bindGLBuffer(true);
 		updated_all = mIndexLocked; //both vertex and index buffers done updating
@@ -2094,22 +2110,15 @@ bool LLVertexBuffer::bindGLBuffer(bool force_bind)
 
 	if (useVBOs() && (force_bind || (mGLBuffer && (mGLBuffer != sGLRenderBuffer || !sVBOActive))))
 	{
-		LLFastTimer t(FTM_BIND_GL_BUFFER);
-		/*if (sMapped)
-		{
-			llerrs << "VBO bound while another VBO mapped!" << llendl;
-		}*/
+		//LLFastTimer t(FTM_BIND_GL_BUFFER); <-- this timer is showing up as a hotspot (irony)
+		
 		glBindBufferARB(GL_ARRAY_BUFFER_ARB, mGLBuffer);
 		sGLRenderBuffer = mGLBuffer;
 		sBindCount++;
 		sVBOActive = true;
 
-		if (mGLArray)
-		{
-			llassert(sGLRenderArray == mGLArray);
-			//mCachedRenderBuffer = mGLBuffer;
-		}
-
+		llassert(!mGLArray || sGLRenderArray == mGLArray);
+		
 		ret = true;
 	}
 

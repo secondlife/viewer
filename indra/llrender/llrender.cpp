@@ -225,46 +225,56 @@ void LLTexUnit::disable(void)
 bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 {
 	stop_glerror();
-	if (mIndex < 0) return false;
-
-	gGL.flush();
-
-	LLImageGL* gl_tex = NULL ;
-	if (texture == NULL || !(gl_tex = texture->getGLTexture()))
+	if (mIndex >= 0)
 	{
-		llwarns << "NULL LLTexUnit::bind texture" << llendl;
+		gGL.flush();
+
+		LLImageGL* gl_tex = NULL ;
+		if (texture != NULL && (gl_tex = texture->getGLTexture()))
+		{
+			if (gl_tex->getTexName()) //if texture exists
+			{
+				//in audit, replace the selected texture by the default one.
+				if ((mCurrTexture != gl_tex->getTexName()) || forceBind)
+				{
+					activate();
+					enable(gl_tex->getTarget());
+					mCurrTexture = gl_tex->getTexName();
+					glBindTexture(sGLTextureType[gl_tex->getTarget()], mCurrTexture);
+					if(gl_tex->updateBindStats(gl_tex->mTextureMemory))
+					{
+						texture->setActive() ;
+						texture->updateBindStatsForTester() ;
+					}
+					mHasMipMaps = gl_tex->mHasMipMaps;
+					if (gl_tex->mTexOptionsDirty)
+					{
+						gl_tex->mTexOptionsDirty = false;
+						setTextureAddressMode(gl_tex->mAddressMode);
+						setTextureFilteringOption(gl_tex->mFilterOption);
+					}
+				}
+			}
+			else
+			{
+				//if deleted, will re-generate it immediately
+				texture->forceImmediateUpdate() ;
+
+				gl_tex->forceUpdateBindStats() ;
+				return texture->bindDefaultImage(mIndex);
+			}
+		}
+		else
+		{
+			llwarns << "NULL LLTexUnit::bind texture" << llendl;
+			return false;
+		}
+	}
+	else
+	{ // mIndex < 0
 		return false;
 	}
 
-	if (!gl_tex->getTexName()) //if texture does not exist
-	{
-		//if deleted, will re-generate it immediately
-		texture->forceImmediateUpdate() ;
-
-		gl_tex->forceUpdateBindStats() ;
-		return texture->bindDefaultImage(mIndex);
-	}
-
-	//in audit, replace the selected texture by the default one.
-	if ((mCurrTexture != gl_tex->getTexName()) || forceBind)
-	{
-		activate();
-		enable(gl_tex->getTarget());
-		mCurrTexture = gl_tex->getTexName();
-		glBindTexture(sGLTextureType[gl_tex->getTarget()], mCurrTexture);
-		if(gl_tex->updateBindStats(gl_tex->mTextureMemory))
-		{
-			texture->setActive() ;
-			texture->updateBindStatsForTester() ;
-		}
-		mHasMipMaps = gl_tex->mHasMipMaps;
-		if (gl_tex->mTexOptionsDirty)
-		{
-			gl_tex->mTexOptionsDirty = false;
-			setTextureAddressMode(gl_tex->mAddressMode);
-			setTextureFilteringOption(gl_tex->mFilterOption);
-		}
-	}
 	return true;
 }
 

@@ -588,7 +588,7 @@ void LLMeshRepoThread::run()
 					if (!fetchMeshLOD(req.mMeshParams, req.mLOD, count))//failed, resubmit
 					{
 						mMutex->lock();
-						mLODReqQ.push(req) ; 
+						mLODReqQ.push(req); 
 						mMutex->unlock();
 					}
 				}

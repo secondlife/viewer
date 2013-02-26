@@ -99,6 +99,8 @@ static LLFastTimer::DeclareTimer FTM_GEN_TRIANGLES("Generate Triangles");
 static LLFastTimer::DeclareTimer FTM_GEN_VOLUME("Generate Volumes");
 static LLFastTimer::DeclareTimer FTM_VOLUME_TEXTURES("Volume Textures");
 
+extern BOOL gGLDebugLoggingEnabled;
+
 // Implementation class of LLMediaDataClientObject.  See llmediadataclient.h
 class LLMediaDataClientObjectImpl : public LLMediaDataClientObject
 {
@@ -1067,7 +1069,9 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 					break;
 				}
 				volume->genBinormals(i);
+				//gGLDebugLoggingEnabled = TRUE;
 				LLFace::cacheFaceInVRAM(face);
+				//gGLDebugLoggingEnabled = FALSE;
 			}
 		}
 		
@@ -4836,6 +4840,16 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 	U32 buffer_usage = group->mBufferUsage;
 	
+	static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback");
+
+	if (use_transform_feedback &&
+		gTransformPositionProgram.mProgramObject && //transform shaders are loaded
+		buffer_usage == GL_DYNAMIC_DRAW_ARB && //target buffer is in VRAM
+		!(mask & LLVertexBuffer::MAP_WEIGHT4)) //TODO: add support for weights
+	{
+		buffer_usage = GL_DYNAMIC_COPY_ARB;
+	}
+
 #if LL_DARWIN
 	// HACK from Leslie:
 	// Disable VBO usage for alpha on Mac OS X because it kills the framerate
@@ -4895,6 +4909,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 	//NEVER use more than 16 texture index channels (workaround for prevalent driver bug)
 	texture_index_channels = llmin(texture_index_channels, 16);
 
+	bool flexi = false;
+
 	while (face_iter != faces.end())
 	{
 		//pull off next face
@@ -4920,6 +4936,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 		U32 index_count = facep->getIndicesCount();
 		U32 geom_count = facep->getGeomCount();
+
+		flexi = flexi || facep->getViewerObject()->getVolume()->isUnique();
 
 		//sum up vertices needed for this render batch
 		std::vector<LLFace*>::iterator i = face_iter;
@@ -4989,6 +5007,9 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 						}
 
 						++i;
+
+						flexi = flexi || facep->getViewerObject()->getVolume()->isUnique();
+
 						index_count += facep->getIndicesCount();
 						geom_count += facep->getGeomCount();
 
@@ -5018,8 +5039,16 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					++i;
 					index_count += facep->getIndicesCount();
 					geom_count += facep->getGeomCount();
+
+					flexi = flexi || facep->getViewerObject()->getVolume()->isUnique();
 				}
 			}
+		}
+
+
+		if (flexi && buffer_usage && buffer_usage != GL_STREAM_DRAW_ARB)
+		{
+			buffer_usage = GL_STREAM_DRAW_ARB;
 		}
 
 		//create vertex buffer
