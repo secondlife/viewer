@@ -1806,8 +1806,6 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	removeDuplicateItems(gest_items);
 	
 	// Create links to new COF contents.
-	LL_DEBUGS("Avatar") << self_av_string() << "creating LLCallAfterInventoryLinkMgr" << LL_ENDL;
-
 	LLInventoryModel::item_array_t all_items;
 	all_items += body_items;
 	all_items += wear_items;
