@@ -509,9 +509,12 @@ bool LLLogChat::moveTranscripts(const std::string originDirectory,
 {
 	std::string newFullPath;
 	bool movedAllTranscripts = true;
+	std::string backupFileName;
+	unsigned backupFileCount;
 
 	BOOST_FOREACH(const std::string& fullpath, listOfFilesToMove)
 	{
+		backupFileCount = 0;
 		newFullPath = targetDirectory + fullpath.substr(originDirectory.length(), std::string::npos);
 
 		S32 retry_count = 0;
@@ -525,17 +528,20 @@ bool LLLogChat::moveTranscripts(const std::string originDirectory,
 				LL_WARNS("LLLogChat::moveTranscripts") << "Problem renaming " << fullpath << " - errorcode: "
 					<< result << " attempt " << retry_count << LL_ENDL;
 
-				if(retry_count >= 5)
-				{
-					LL_WARNS("LLLogChat::moveTranscripts") << "Failed to rename " << fullpath << LL_ENDL;
-					return false;
-				}
-
-				//If the file already exists in the new location, remove it then try again
+				//The target directory contains that file already, so lets store it
 				if(LLFile::isfile(newFullPath))
 				{
-					LLFile::remove(newFullPath);
-					LL_WARNS("LLLogChat::moveTranscripts") << "File already exists " << fullpath << LL_ENDL;
+					backupFileName = newFullPath + ".backup";
+
+					//If needed store backup file as .backup1 etc.
+					while(LLFile::isfile(backupFileName))
+					{
+						++backupFileCount;
+						backupFileName = newFullPath + ".backup" + boost::lexical_cast<std::string>(backupFileCount);
+					}
+
+					//Rename the file to its backup name so it is not overwritten
+					LLFile::rename(newFullPath, backupFileName);
 				}
 
 				ms_sleep(100);
