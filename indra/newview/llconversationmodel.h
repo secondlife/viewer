@@ -189,9 +189,9 @@ public:
 	
 	virtual const std::string& getDisplayName() const { return mDisplayName; }
 
-	bool isMuted() { return mIsMuted; }
-	bool isModerator() {return mIsModerator; }
-	void setIsMuted(bool is_muted) { mIsMuted = is_muted; mNeedsRefresh = true; }
+	bool isVoiceMuted();
+	bool isModerator() const { return mIsModerator; }
+	void muteVoice(bool mute_voice);
 	void setIsModerator(bool is_moderator) { mIsModerator = is_moderator; mNeedsRefresh = true; }
 	void setTimeNow() { mLastActiveTime = LLFrameTimer::getElapsedSeconds(); mNeedsRefresh = true; }
 	void setDistance(F64 dist) { mDistToAgent = dist; mNeedsRefresh = true; }
