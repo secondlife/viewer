@@ -211,7 +211,7 @@ public:
 	void addItem(const LLUUID& item_id)
 	{
 		LL_DEBUGS("Avatar") << "item_id " << item_id << llendl;
-
+		
 		if (!requestOperation(item_id))
 		{
 			LL_DEBUGS("Avatar") << "item_id " << item_id << " requestOperation false, skipping" << llendl;
@@ -1692,7 +1692,7 @@ void LLAppearanceMgr::purgeCategory(const LLUUID& category, bool keep_outfit_lin
 				gInventory.purgeObject(item->getUUID());
 			}
 #else
-		gInventory.purgeObject(item->getUUID());
+			gInventory.purgeObject(item->getUUID());
 		}
 #endif
 	}
@@ -3083,7 +3083,7 @@ public:
 		{
 			llwarns << "giving up after too many retries" << llendl;
 		}
-	}
+	}	
 
 	void dumpContents(const std::string outprefix, const LLSD& content)
 	{
@@ -3146,6 +3146,81 @@ void LLAppearanceMgr::requestServerAppearanceUpdate(LLCurl::ResponderPtr respond
 	LLHTTPClient::post(url, body, responder_ptr);
 	llassert(cof_version >= mLastUpdateRequestCOFVersion);
 	mLastUpdateRequestCOFVersion = cof_version;
+}
+
+class LLIncrementCofVersionResponder : public LLHTTPClient::Responder
+{
+public:
+	LLIncrementCofVersionResponder() : LLHTTPClient::Responder()
+	{
+		mRetryPolicy = new LLAdaptiveRetryPolicy(1.0, 16.0, 2.0, 5);
+	}
+
+	virtual ~LLIncrementCofVersionResponder()
+	{
+	}
+
+	virtual void result(const LLSD &pContent)
+	{
+		llinfos << "Successfully incremented agent's COF." << llendl;
+		S32 new_version = pContent["category"]["version"].asInteger();
+
+		LLAppearanceMgr* app_mgr = LLAppearanceMgr::getInstance();
+
+		// cof_version should have increased
+		llassert(new_version > app_mgr->mLastUpdateRequestCOFVersion);
+
+		app_mgr->mLastUpdateRequestCOFVersion = new_version;
+	}
+	virtual void error(U32 pStatus, const std::string& pReason)
+	{
+		llwarns << "While attempting to increment the agent's cof we got an error because '"
+			<< pReason << "' [status:" << pStatus << "]" << llendl;
+		F32 seconds_to_wait;
+		if (mRetryPolicy->shouldRetry(pStatus,seconds_to_wait))
+		{
+			llinfos << "retrying" << llendl;
+			doAfterInterval(boost::bind(&LLAppearanceMgr::incrementCofVersion,
+										LLAppearanceMgr::getInstance(),
+										LLHTTPClient::ResponderPtr(this)),
+										seconds_to_wait);
+		}
+		else
+		{
+			llwarns << "giving up after too many retries" << llendl;
+		}
+	}
+
+	LLPointer<LLHTTPRetryPolicy> mRetryPolicy;
+};
+
+void LLAppearanceMgr::incrementCofVersion(LLHTTPClient::ResponderPtr responder_ptr)
+{
+	// If we don't have a region, report it as an error
+	if (gAgent.getRegion() == NULL)
+	{
+		llwarns << "Region not set, cannot request cof_version increment" << llendl;
+		return;
+	}
+
+	std::string url = gAgent.getRegion()->getCapability("IncrementCofVersion");
+	if (url.empty())
+	{
+		llwarns << "No cap for IncrementCofVersion." << llendl;
+		return;
+	}
+
+	llinfos << "Requesting cof_version be incremented via capability to: "
+			<< url << llendl;
+	LLSD headers;
+	LLSD body = LLSD::emptyMap();
+
+	if (!responder_ptr.get())
+	{
+		responder_ptr = LLHTTPClient::ResponderPtr(new LLIncrementCofVersionResponder());
+	}
+
+	LLHTTPClient::get(url, body, responder_ptr, headers, 30.0f);
 }
 
 void show_created_outfit(LLUUID& folder_id, bool show_panel = true)

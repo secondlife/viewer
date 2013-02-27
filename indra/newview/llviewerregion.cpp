@@ -1534,6 +1534,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 		capabilityNames.append("FetchLibDescendents2");
 		capabilityNames.append("FetchInventory2");
 		capabilityNames.append("FetchInventoryDescendents2");
+		capabilityNames.append("IncrementCOFVersion");
 	}
 
 	capabilityNames.append("GetDisplayNames");
@@ -1547,7 +1548,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("LandResources");
 	capabilityNames.append("MapLayer");
 	capabilityNames.append("MapLayerGod");
-	capabilityNames.append("MeshUploadFlag");
+	capabilityNames.append("MeshUploadFlag");	
 	capabilityNames.append("NavMeshGenerationStatus");
 	capabilityNames.append("NewFileAgentInventory");
 	capabilityNames.append("ObjectMedia");
@@ -1587,7 +1588,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("ViewerMetrics");
 	capabilityNames.append("ViewerStartAuction");
 	capabilityNames.append("ViewerStats");
-	
+
 	// Please add new capabilities alphabetically to reduce
 	// merge conflicts.
 }
