@@ -176,6 +176,39 @@ bool get_shell32_dll_version(DWORD& major, DWORD& minor, DWORD& build_number)
 }
 #endif // LL_WINDOWS
 
+// Wrap boost::regex_match() with a function that doesn't throw.
+template <typename S, typename M, typename R>
+static bool regex_match_no_exc(const S& string, M& match, const R& regex)
+{
+    try
+    {
+        return boost::regex_match(string, match, regex);
+    }
+    catch (const std::runtime_error& e)
+    {
+        LL_WARNS("LLMemoryInfo") << "error matching with '" << regex.str() << "': "
+                                 << e.what() << ":\n'" << string << "'" << LL_ENDL;
+        return false;
+    }
+}
+
+// Wrap boost::regex_search() with a function that doesn't throw.
+template <typename S, typename M, typename R>
+static bool regex_search_no_exc(const S& string, M& match, const R& regex)
+{
+    try
+    {
+        return boost::regex_search(string, match, regex);
+    }
+    catch (const std::runtime_error& e)
+    {
+        LL_WARNS("LLMemoryInfo") << "error searching with '" << regex.str() << "': "
+                                 << e.what() << ":\n'" << string << "'" << LL_ENDL;
+        return false;
+    }
+}
+
+
 LLOSInfo::LLOSInfo() :
 	mMajorVer(0), mMinorVer(0), mBuild(0), mOSVersionString("")	 
 {
@@ -446,7 +479,7 @@ LLOSInfo::LLOSInfo() :
 		mOSString = mOSStringSimple;
 	}
 
-	const char* OS_VERSION_MATCH_EXPRESSION[] = "([0-9]+)\.([0-9]+)(\.([0-9]+))?";
+	const char OS_VERSION_MATCH_EXPRESSION[] = "([0-9]+)\\.([0-9]+)(\\.([0-9]+))?";
 	boost::regex os_version_parse(OS_VERSION_MATCH_EXPRESSION);
 	boost::smatch matched;
 
@@ -460,9 +493,9 @@ LLOSInfo::LLOSInfo() :
 		if ( matched[1].matched ) // Major version
 		{
 			version_value.assign(matched[1].first, matched[1].second);
-			if (sscanf("%d", &mMajorVer) != 1)
+			if (sscanf(version_value.c_str(), "%d", &mMajorVer) != 1)
 			{
-				LL_WARNS("AppInit") << "failed to parse major version '" << version_value "' as a number" << LL_ENDL;
+			  LL_WARNS("AppInit") << "failed to parse major version '" << version_value << "' as a number" << LL_ENDL;
 			}
 		}
 		else
@@ -476,9 +509,9 @@ LLOSInfo::LLOSInfo() :
 		if ( matched[2].matched ) // Minor version
 		{
 			version_value.assign(matched[2].first, matched[2].second);
-			if (sscanf("%d", &mMinorVer) != 1)
+			if (sscanf(version_value.c_str(), "%d", &mMinorVer) != 1)
 			{
-				LL_ERRS("AppInit") << "failed to parse minor version '" << version_value "' as a number" << LL_ENDL;
+			  LL_ERRS("AppInit") << "failed to parse minor version '" << version_value << "' as a number" << LL_ENDL;
 			}
 		}
 		else
@@ -492,9 +525,9 @@ LLOSInfo::LLOSInfo() :
 		if ( matched[4].matched ) // Build version (optional) - note that [3] includes the '.'
 		{
 			version_value.assign(matched[4].first, matched[4].second);
-			if (sscanf("%d", &mBuild) != 1)
+			if (sscanf(version_value.c_str(), "%d", &mBuild) != 1)
 			{
-				LL_ERRS("AppInit") << "failed to parse build version '" << version_value "' as a number" << LL_ENDL;
+			  LL_ERRS("AppInit") << "failed to parse build version '" << version_value << "' as a number" << LL_ENDL;
 			}
 		}
 		else
@@ -793,38 +826,6 @@ public:
 private:
 	LLSD mStats;
 };
-
-// Wrap boost::regex_match() with a function that doesn't throw.
-template <typename S, typename M, typename R>
-static bool regex_match_no_exc(const S& string, M& match, const R& regex)
-{
-    try
-    {
-        return boost::regex_match(string, match, regex);
-    }
-    catch (const std::runtime_error& e)
-    {
-        LL_WARNS("LLMemoryInfo") << "error matching with '" << regex.str() << "': "
-                                 << e.what() << ":\n'" << string << "'" << LL_ENDL;
-        return false;
-    }
-}
-
-// Wrap boost::regex_search() with a function that doesn't throw.
-template <typename S, typename M, typename R>
-static bool regex_search_no_exc(const S& string, M& match, const R& regex)
-{
-    try
-    {
-        return boost::regex_search(string, match, regex);
-    }
-    catch (const std::runtime_error& e)
-    {
-        LL_WARNS("LLMemoryInfo") << "error searching with '" << regex.str() << "': "
-                                 << e.what() << ":\n'" << string << "'" << LL_ENDL;
-        return false;
-    }
-}
 
 LLMemoryInfo::LLMemoryInfo()
 {
