@@ -53,7 +53,7 @@ void LLUpdateChecker::checkVersion(std::string const & hostUrl,
 								   bool                willing_to_test)
 {}
 LLUpdateDownloader::LLUpdateDownloader(Client & ) {}
-void LLUpdateDownloader::download(LLURI const & , std::string const &, std::string const &, bool){}
+void LLUpdateDownloader::download(LLURI const & , std::string const &, std::string const &, std::string const &, std::string const &, bool){}
 
 class LLDir_Mock : public LLDir
 {

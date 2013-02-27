@@ -140,13 +140,9 @@ public:
 
 	// LLUpdateChecker::Client:
 	virtual void error(std::string const & message);
-	virtual void optionalUpdate(std::string const & newVersion,
-								LLURI const & uri,
-								std::string const & hash);
-	virtual void requiredUpdate(std::string const & newVersion,
-								LLURI const & uri,
-								std::string const & hash);
-	virtual void upToDate(void);
+	
+	// A successful response was received from the viewer version manager
+	virtual void response(LLSD const & content);
 	
 	// LLUpdateDownloader::Client
 	void downloadComplete(LLSD const & data);
@@ -155,6 +151,7 @@ public:
 	bool onMainLoop(LLSD const & event);
 
 private:
+	std::string mNewChannel;
 	std::string mNewVersion;
 	
 	void restartTimer(unsigned int seconds);
@@ -334,9 +331,13 @@ bool LLUpdaterServiceImpl::checkForInstall(bool launchInstaller)
 				if((result == 0) && mAppExitCallback)
 				{
 					mAppExitCallback();
-				} else if(result != 0) {
+				}
+				else if(result != 0)
+				{
 					LL_WARNS("UpdaterService") << "failed to run update install script" << LL_ENDL;
-				} else {
+				}
+				else
+				{
 					; // No op.
 				}
 			}
@@ -364,6 +365,7 @@ bool LLUpdaterServiceImpl::checkForResume()
 			{
 				mIsDownloading = true;
 				mNewVersion = download_info["update_version"].asString();
+				mNewChannel = download_info["update_channel"].asString();
 				mUpdateDownloader.resume();
 				result = true;
 			}
@@ -372,7 +374,10 @@ bool LLUpdaterServiceImpl::checkForResume()
 				// The viewer that started this download is not the same as this viewer; ignore.
 				LL_INFOS("UpdaterService") << "ignoring partial download from different viewer version" << LL_ENDL;;
 				std::string path = download_info["path"].asString();
-				if(!path.empty()) LLFile::remove(path);
+				if(!path.empty())
+				{
+					LLFile::remove(path);
+				}
 				LLFile::remove(download_marker_path);
 			}
 		} 
@@ -389,36 +394,43 @@ void LLUpdaterServiceImpl::error(std::string const & message)
 	}
 }
 
-void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion,
-										  LLURI const & uri,
-										  std::string const & hash)
+// A successful response was received from the viewer version manager
+void LLUpdaterServiceImpl::response(LLSD const & content)
 {
-	stopTimer();
-	mNewVersion = newVersion;
-	mIsDownloading = true;
-	setState(LLUpdaterService::DOWNLOADING);
-	mUpdateDownloader.download(uri, hash, newVersion, false);
-}
-
-void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion,
-										  LLURI const & uri,
-										  std::string const & hash)
-{
-	stopTimer();
-	mNewVersion = newVersion;
-	mIsDownloading = true;
-	setState(LLUpdaterService::DOWNLOADING);
-	mUpdateDownloader.download(uri, hash, newVersion, true);
-}
-
-void LLUpdaterServiceImpl::upToDate(void)
-{
-	if(mIsChecking)
+	if(!content.asBoolean()) // an empty response means "no update"
 	{
-		restartTimer(mCheckPeriod);
-	}
+		LL_INFOS("UpdaterService") << "up to date" << LL_ENDL;
+		if(mIsChecking)
+		{
+			restartTimer(mCheckPeriod);
+		}
 	
-	setState(LLUpdaterService::UP_TO_DATE);
+		setState(LLUpdaterService::UP_TO_DATE);
+	}
+	else
+	{
+		// there is an update available...
+		stopTimer();
+		mNewChannel = content["channel"].asString();
+		if (mNewChannel.empty())
+		{
+			LL_INFOS("UpdaterService") << "no channel supplied, assuming current channel" << LL_ENDL;
+			mNewChannel = mChannel;
+		}
+		mNewVersion = content["version"].asString();
+		mIsDownloading = true;
+		setState(LLUpdaterService::DOWNLOADING);
+		BOOL required = content["required"].asBoolean();
+		LLURI url(content["url"].asString());
+		std::string more_info = content["more_info"].asString();
+		LL_DEBUGS("UpdaterService")
+			<< "Starting download of "
+			<< ( required ? "required" : "optional" ) << " update "
+			<< "to channel '" << mNewChannel << "' version " << mNewVersion
+			<< "more info '" << more_info << "'"
+			<< LL_ENDL;
+		mUpdateDownloader.download(url, content["hash"].asString(), mNewChannel, mNewVersion, more_info, required);
+	}
 }
 
 void LLUpdaterServiceImpl::downloadComplete(LLSD const & data) 
@@ -436,9 +448,19 @@ void LLUpdaterServiceImpl::downloadComplete(LLSD const & data)
 	payload["type"] = LLSD(LLUpdaterService::DOWNLOAD_COMPLETE);
 	payload["required"] = data["required"];
 	payload["version"] = mNewVersion;
+	payload["channel"] = mNewChannel;
+	payload["info_url"] = data["info_url"];
 	event["payload"] = payload;
+	LL_DEBUGS("UpdaterService")
+		<< "Download complete "
+		<< ( data["required"].asBoolean() ? "required" : "optional" )
+		<< "channel " << mNewChannel
+		<< "version " << mNewVersion
+		<< "info " << data["info_url"].asString()
+		<< LL_ENDL;
+
 	LLEventPumps::instance().obtain("mainlooprepeater").post(event);
-	
+
 	setState(LLUpdaterService::TERMINAL);
 }
 
@@ -512,15 +534,18 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 		// Check for failed install.
 		if(LLFile::isfile(ll_install_failed_marker_path()))
 		{
+			LL_DEBUGS("UpdaterService") << "found marker " << ll_install_failed_marker_path() << LL_ENDL;;
 			int requiredValue = 0; 
 			{
 				llifstream stream(ll_install_failed_marker_path());
 				stream >> requiredValue;
-				if(stream.fail()) requiredValue = 0;
+				if(stream.fail())
+				{
+					requiredValue = 0;
+				}
 			}
 			// TODO: notify the user.
-			LL_INFOS("UpdaterService") << "found marker " << ll_install_failed_marker_path() << LL_ENDL;;
-			LL_INFOS("UpdaterService") << "last install attempt failed" << LL_ENDL;;
+			LL_WARNS("UpdaterService") << "last install attempt failed" << LL_ENDL;;
 			LLFile::remove(ll_install_failed_marker_path());
 			
 			LLSD event;

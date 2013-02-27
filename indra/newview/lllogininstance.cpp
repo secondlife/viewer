@@ -777,20 +777,20 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 	LLSD payload;
 	payload["mandatory"] = mandatory;
 
-/*
- We're constructing one of the following 9 strings here:
-	 "DownloadWindowsMandatory"
-	 "DownloadWindowsReleaseForDownload"
-	 "DownloadWindows"
-	 "DownloadMacMandatory"
-	 "DownloadMacReleaseForDownload"
-	 "DownloadMac"
-	 "DownloadLinuxMandatory"
-	 "DownloadLinuxReleaseForDownload"
-	 "DownloadLinux"
- 
- I've called them out explicitly in this comment so that they can be grepped for.
- */
+	/*
+	 * We're constructing one of the following 9 strings here:
+	 *   "DownloadWindowsMandatory"
+	 *	 "DownloadWindowsReleaseForDownload"
+	 *	 "DownloadWindows"
+	 *	 "DownloadMacMandatory"
+	 *	 "DownloadMacReleaseForDownload"
+	 *	 "DownloadMac"
+	 *	 "DownloadLinuxMandatory"
+	 *	 "DownloadLinuxReleaseForDownload"
+	 *	 "DownloadLinux"
+ 	 *
+	 * I've called them out explicitly in this comment so that they can be grepped for.
+	 */
 	std::string notification_name = "Download";
 	
 #if LL_WINDOWS

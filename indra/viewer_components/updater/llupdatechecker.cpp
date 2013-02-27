@@ -143,8 +143,8 @@ void LLUpdateChecker::Implementation::completed(U32 status,
 
 				LL_WARNS("UpdaterService")
 					<< "update response using " << sProtocolVersion
-					<< " was 404... retry at " << retryUrl
-					<< " with legacy protocol"
+					<< " was 404... retry with legacy protocol" << mProtocol
+					<< "\n at " << retryUrl
 					<< LL_ENDL;
 	
 				mHttpClient.get(retryUrl, this);
@@ -164,22 +164,9 @@ void LLUpdateChecker::Implementation::completed(U32 status,
 			mClient.error(reason);
 		}
 	}
-	else if(!content.asBoolean())
-	{
-		LL_INFOS("UpdaterService") << "up to date" << LL_ENDL;
-		mClient.upToDate();
-	}
-	else if(content["required"].asBoolean())
-	{
-		LL_INFOS("UpdaterService") << "version invalid" << LL_ENDL;
-		LLURI uri(content["url"].asString());
-		mClient.requiredUpdate(content["version"].asString(), uri, content["hash"].asString());
-	}
 	else
 	{
-		LL_INFOS("UpdaterService") << "newer version " << content["version"].asString() << " available" << LL_ENDL;
-		LLURI uri(content["url"].asString());
-		mClient.optionalUpdate(content["version"].asString(), uri, content["hash"].asString());
+		mClient.response(content);
 	}
 }
 
@@ -215,8 +202,10 @@ std::string LLUpdateChecker::Implementation::buildUrl(std::string const & hostUr
     {
         platform = "mac";
     }
-#else
+#elif LL_LINUX
 	static const char * platform = "lnx";
+#else
+#   error "unsupported platform"
 #endif
 	
 	LLSD path;

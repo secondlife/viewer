@@ -121,6 +121,7 @@
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/regex.hpp>
 
 
 #if LL_WINDOWS
@@ -2831,25 +2832,46 @@ namespace {
 		std::string notification_name;
 		void (*apply_callback)(LLSD const &, LLSD const &) = NULL;
 
+		/* Build up the notification name...
+		 * it can be any of these, which are included here for the sake of grep:
+		 *   RequiredUpdateDownloadedDialog
+		 *   RequiredUpdateDownloadedVerboseDialog
+		 *   OtherChannelRequiredUpdateDownloadedDialog
+		 *   OtherChannelRequiredUpdateDownloadedVerbose
+		 *   DownloadBackgroundTip
+		 *   DownloadBackgroundDialog
+		 *   OtherChannelDownloadBackgroundTip
+		 *   OtherChannelDownloadBackgroundDialog
+		 */
+		{
+			LL_DEBUGS("UpdaterService") << "data = ";
+			std::ostringstream data_dump;
+			LLSDSerialize::toNotation(data, data_dump);
+			LL_CONT << data_dump.str() << LL_ENDL;
+		}
+		if(data["channel"].asString() != LLVersionInfo::getChannel())
+		{
+			notification_name.append("OtherChannel");
+		}
 		if(data["required"].asBoolean())
 		{
 			if(LLStartUp::getStartupState() <= STATE_LOGIN_WAIT)
 			{
 				// The user never saw the progress bar.
 				apply_callback = &apply_update_ok_callback;
-				notification_name = "RequiredUpdateDownloadedVerboseDialog";
+				notification_name += "RequiredUpdateDownloadedVerboseDialog";
 			}
 			else if(LLStartUp::getStartupState() < STATE_WORLD_INIT)
 			{
 				// The user is logging in but blocked.
 				apply_callback = &apply_update_ok_callback;
-				notification_name = "RequiredUpdateDownloadedDialog";
+				notification_name += "RequiredUpdateDownloadedDialog";
 			}
 			else
 			{
 				// The user is already logged in; treat like an optional update.
 				apply_callback = &apply_update_callback;
-				notification_name = "DownloadBackgroundTip";
+				notification_name += "DownloadBackgroundTip";
 			}
 		}
 		else
@@ -2859,36 +2881,47 @@ namespace {
 			{
 				// CHOP-262 we need to use a different notification
 				// method prior to login.
-				notification_name = "DownloadBackgroundDialog";
+				notification_name += "DownloadBackgroundDialog";
 			}
 			else
 			{
-				notification_name = "DownloadBackgroundTip";
+				notification_name += "DownloadBackgroundTip";
 			}
 		}
 
 		LLSD substitutions;
 		substitutions["VERSION"] = data["version"];
-
-		// truncate version at the rightmost '.' 
-		std::string version_short(data["version"]);
-		size_t short_length = version_short.rfind('.');
-		if (short_length != std::string::npos)
+		std::string new_channel = data["channel"].asString();
+		substitutions["NEW_CHANNEL"] = new_channel;
+		std::string info_url    = data["info_url"].asString();
+		if ( !info_url.empty() )
 		{
-			version_short.resize(short_length);
+			substitutions["INFO_URL"] = info_url;
 		}
+		else
+		{
+			LL_WARNS("UpdaterService") << "no info url supplied - defaulting to hard coded release notes pattern" << LL_ENDL;
 
-		LLUIString relnotes_url("[RELEASE_NOTES_BASE_URL][CHANNEL_URL]/[VERSION_SHORT]");
-		relnotes_url.setArg("[VERSION_SHORT]", version_short);
+			// truncate version at the rightmost '.' 
+			std::string version_short(data["version"]);
+			size_t short_length = version_short.rfind('.');
+			if (short_length != std::string::npos)
+			{
+				version_short.resize(short_length);
+			}
 
-		// *TODO thread the update service's response through to this point
-		std::string const & channel = LLVersionInfo::getChannel();
-		boost::shared_ptr<char> channel_escaped(curl_escape(channel.c_str(), channel.size()), &curl_free);
+			LLUIString relnotes_url("[RELEASE_NOTES_BASE_URL][CHANNEL_URL]/[VERSION_SHORT]");
+			relnotes_url.setArg("[VERSION_SHORT]", version_short);
 
-		relnotes_url.setArg("[CHANNEL_URL]", channel_escaped.get());
-		relnotes_url.setArg("[RELEASE_NOTES_BASE_URL]", LLTrans::getString("RELEASE_NOTES_BASE_URL"));
-		substitutions["RELEASE_NOTES_FULL_URL"] = relnotes_url.getString();
+			// *TODO thread the update service's response through to this point
+			std::string const & channel = LLVersionInfo::getChannel();
+			boost::shared_ptr<char> channel_escaped(curl_escape(channel.c_str(), channel.size()), &curl_free);
 
+			relnotes_url.setArg("[CHANNEL_URL]", channel_escaped.get());
+			relnotes_url.setArg("[RELEASE_NOTES_BASE_URL]", LLTrans::getString("RELEASE_NOTES_BASE_URL"));
+			substitutions["INFO_URL"] = relnotes_url.getString();
+		}
+		
 		LLNotificationsUtil::add(notification_name, substitutions, LLSD(), apply_callback);
 	}
 
@@ -2940,7 +2973,8 @@ void LLAppViewer::initUpdater()
 	U32 check_period = gSavedSettings.getU32("UpdaterServiceCheckPeriod");
 	bool willing_to_test;
 	LL_DEBUGS("UpdaterService") << "channel " << channel << LL_ENDL;
-	if (channel.find("Test") != std::string::npos) // TBD - should be a regex
+	static const boost::regex is_test_channel("\\bTest$");
+	if (boost::regex_search(channel, is_test_channel)) 
 	{
 		LL_INFOS("UpdaterService") << "Test build: overriding willing_to_test by sending testno" << LL_ENDL;
 		willing_to_test = false;
