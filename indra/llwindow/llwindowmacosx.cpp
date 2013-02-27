@@ -511,8 +511,9 @@ void LLWindowMacOSX::destroyContext()
 	// Close the window
 	if(mWindow != NULL)
 	{
-		closeWindow(mWindow);
-		mWindow = NULL;
+        NSWindowRef dead_window = mWindow;
+        mWindow = NULL;
+		closeWindow(dead_window);
 	}
 
 }

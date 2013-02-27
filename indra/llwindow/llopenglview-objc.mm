@@ -41,24 +41,20 @@
 
 - (unsigned long)getVramSize
 {
-	unsigned long vram_bytes = 0;
-
-	io_service_t display_port = CGDisplayIOServicePort(kCGDirectMainDisplay);
-	
-	const void* type_code = IORegistryEntryCreateCFProperty(display_port, CFSTR(kIOFBMemorySizeKey), kCFAllocatorDefault, kNilOptions);
-
-	// Ensure we have valid data from IOKit
-	if(type_code && CFGetTypeID(type_code) == CFNumberGetTypeID())
-	{
-		long val;
-        // Retrieve actual number...is Apple ever embarrassed by this nonsense?
-        //
-		CFNumberGetValue((const __CFNumber*)type_code, kCFNumberSInt32Type, &val);
-		vram_bytes = (unsigned long)val;
-		CFRelease(type_code);
-	}
-	
-	return vram_bytes;
+    CGLRendererInfoObj info = 0;
+	GLint vram_bytes = 0;
+    int num_renderers = 0;
+    CGLError the_err = CGLQueryRendererInfo (CGDisplayIDToOpenGLDisplayMask(kCGDirectMainDisplay), &info, &num_renderers);
+    if(0 == the_err)
+    {
+        CGLDescribeRenderer (info, 0, kCGLRPTextureMemory, &vram_bytes);
+        CGLDestroyRendererInfo (info);
+    }
+    else
+    {
+        vram_bytes = (256 << 20);
+    }
+	return (unsigned long)vram_bytes;
 }
 
 - (void)viewDidMoveToWindow
