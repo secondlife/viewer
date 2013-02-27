@@ -928,8 +928,7 @@ private:
 public:
 	void				dumpArchetypeXML(const std::string& prefix, bool group_by_wearables = false);
 	void 				dumpAppearanceMsgParams( const std::string& dump_prefix,
-												 const std::vector<F32>& paramsForDump,
-												 const LLTEContents& tec);
+												 const LLAppearanceMessageContents& contents);
 	static void			dumpBakedStatus();
 	const std::string 	getBakedStatusForPrintout() const;
 	void				dumpAvatarTEs(const std::string& context) const;

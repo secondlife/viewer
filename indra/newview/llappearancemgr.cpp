@@ -3063,6 +3063,13 @@ public:
 		ofs << LLSDOStreamer<LLSDXMLFormatter>(content, LLSDFormatter::OPTIONS_PRETTY);
 		LL_DEBUGS("Avatar") << "results saved to: " << fullpath << LL_ENDL;
 	}
+
+	void debugCOF(const LLSD& content)
+	{
+		//S32 cof_version = content["cof_version"];
+		//S32 cof_expected = content["expected"];
+		//S32 cof_observed = content["observed"];
+	}
 	
 	// Error
 	/*virtual*/ void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
@@ -3071,6 +3078,8 @@ public:
 		if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
 		{
 			dumpContents("appearance_request_error", content);
+			debugCOF(content);
+		
 		}
 		onFailure(status);
 	}	
