@@ -3046,7 +3046,7 @@ public:
 			LL_DEBUGS("Avatar") << "OK" << LL_ENDL;
 			if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
 			{
-				dumpContents("appearance_request_ok", content);
+				dumpContents(gAgentAvatarp->getFullname() + "_appearance_request_ok", content);
 			}
 		}
 		else
@@ -3055,29 +3055,13 @@ public:
 		}
 	}
 
-	void dumpContents(const std::string outprefix, const LLSD& content)
-	{
-		std::string outfilename = get_sequential_numbered_file_name(outprefix,".xml");
-		std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
-		std::ofstream ofs(fullpath);
-		ofs << LLSDOStreamer<LLSDXMLFormatter>(content, LLSDFormatter::OPTIONS_PRETTY);
-		LL_DEBUGS("Avatar") << "results saved to: " << fullpath << LL_ENDL;
-	}
-
-	void debugCOF(const LLSD& content)
-	{
-		//S32 cof_version = content["cof_version"];
-		//S32 cof_expected = content["expected"];
-		//S32 cof_observed = content["observed"];
-	}
-	
 	// Error
 	/*virtual*/ void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
 		llwarns << "appearance update request failed, status: " << status << " reason: " << reason << " code: " << content["code"].asInteger() << " error: \"" << content["error"].asString() << "\"" << llendl;
 		if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
 		{
-			dumpContents("appearance_request_error", content);
+			dumpContents(gAgentAvatarp->getFullname() + "_appearance_request_error", content);
 			debugCOF(content);
 		
 		}
@@ -3100,6 +3084,23 @@ public:
 			llwarns << "giving up after too many retries" << llendl;
 		}
 	}
+
+	void dumpContents(const std::string outprefix, const LLSD& content)
+	{
+		std::string outfilename = get_sequential_numbered_file_name(outprefix,".xml");
+		std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
+		std::ofstream ofs(fullpath);
+		ofs << LLSDOStreamer<LLSDXMLFormatter>(content, LLSDFormatter::OPTIONS_PRETTY);
+		LL_DEBUGS("Avatar") << "results saved to: " << fullpath << LL_ENDL;
+	}
+
+	void debugCOF(const LLSD& content)
+	{
+		//S32 cof_version = content["cof_version"];
+		//S32 cof_expected = content["expected"];
+		//S32 cof_observed = content["observed"];
+	}
+	
 
 	LLPointer<LLHTTPRetryPolicy> mRetryPolicy;
 };
@@ -3131,6 +3132,10 @@ void LLAppearanceMgr::requestServerAppearanceUpdate(LLCurl::ResponderPtr respond
 	LLSD body;
 	S32 cof_version = getCOFVersion();
 	body["cof_version"] = cof_version;
+	if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
+	{
+		body["cof_version"] = cof_version+1;
+	}
 	LL_DEBUGS("Avatar") << "request url " << url << " my_cof_version " << cof_version << llendl;
 	
 	//LLCurl::ResponderPtr responder_ptr;
