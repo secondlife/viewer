@@ -1922,9 +1922,9 @@ bool LLInventoryModel::loadSkeleton(
 			for(cat_set_t::iterator it = temp_cats.begin(); it != temp_cats.end(); ++it)
 			{
 				LLViewerInventoryCategory *llvic = (*it);
-#if 1
+#if 0
 				llvic->setVersion(NO_VERSION);
-#else
+#else // SH-3860 WIP
 				if (llvic->getPreferredType()==LLFolderType::FT_CURRENT_OUTFIT && llvic->getVersion()==1)
 				{
 					llinfos << "preserving empty COF for first-time login" << llendl;

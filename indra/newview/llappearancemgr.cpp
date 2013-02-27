@@ -1819,7 +1819,7 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	// Add link to outfit if category is an outfit. 
 	if (!append)
 	{
-		createBaseOutfitLink(category, NULL);
+		createBaseOutfitLink(category, link_waiter);
 	}
 
 	// Remove current COF contents.  Have to do this after creating

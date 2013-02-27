@@ -2572,12 +2572,21 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	}
 	else
 	{
+		// FIXME SH-3860 - this creates a race condition, where COF
+		// changes (base outfit link added) after appearance update
+		// request has been submitted.
 		sWearablesLoadedCon = gAgentWearables.addLoadedCallback(LLStartUp::saveInitialOutfit);
 
 		bool do_copy = true;
 		bool do_append = false;
 		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
+#if 0 // SH-3860 WIP
+		// Need to fetch cof contents before we can wear.
+		callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(),
+							   boost::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
+#else
 		LLAppearanceMgr::instance().wearInventoryCategory(cat, do_copy, do_append);
+#endif
 		lldebugs << "initial outfit category id: " << cat_id << llendl;
 	}
 
