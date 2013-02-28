@@ -160,6 +160,7 @@ protected:
 	//--------------------------------------------------------------------
 public:
 	LLVector3			mBodySize;
+	LLVector3			mAvatarOffset;
 protected:
 	F32					mPelvisToFoot;
 

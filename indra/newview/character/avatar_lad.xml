@@ -1084,6 +1084,23 @@
          scale="0 0 .5" />
       </param_skeleton>
     </param>
+
+    <param
+     id="11001"
+     group="0"
+     name="Hover"
+     wearable="shape"
+     edit_group="shape_body"
+     edit_group_order="4"
+     label_min="Lower"
+     label_max="Higher"
+     value_min="-2"
+     value_max="2"
+     value_default="0"
+     camera_distance="2.5">
+      <param_skeleton />
+    </param>
+
   </skeleton>
 
   <mesh
