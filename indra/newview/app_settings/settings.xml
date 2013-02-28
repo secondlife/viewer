@@ -1982,6 +1982,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>DebugForceAppearanceRequestFailure</key>
+    <map>
+      <key>Comment</key>
+      <string>Request wrong cof version to test the failure path for server appearance update requests.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>DebugHideEmptySystemFolders</key>
     <map>
       <key>Comment</key>

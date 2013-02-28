@@ -928,8 +928,7 @@ private:
 public:
 	void				dumpArchetypeXML(const std::string& prefix, bool group_by_wearables = false);
 	void 				dumpAppearanceMsgParams( const std::string& dump_prefix,
-												 const std::vector<F32>& paramsForDump,
-												 const LLTEContents& tec);
+												 const LLAppearanceMessageContents& contents);
 	static void			dumpBakedStatus();
 	const std::string 	getBakedStatusForPrintout() const;
 	void				dumpAvatarTEs(const std::string& context) const;
@@ -979,6 +978,10 @@ protected: // Shared with LLVOAvatarSelf
 }; // LLVOAvatar
 extern const F32 SELF_ADDITIONAL_PRI;
 extern const S32 MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL;
+
+std::string get_sequential_numbered_file_name(const std::string& prefix,
+											  const std::string& suffix);
+void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value);
 
 #endif // LL_VOAVATAR_H
 

@@ -190,11 +190,6 @@ enum ERenderName
 	RENDER_NAME_FADE
 };
 
-
-// Utility func - FIXME move out of avatar.
-std::string get_sequential_numbered_file_name(const std::string& prefix,
-											  const std::string& suffix);
-
 //-----------------------------------------------------------------------------
 // Callback data
 //-----------------------------------------------------------------------------
@@ -214,6 +209,24 @@ struct LLTextureMaskData
  ** Begin private LLVOAvatar Support classes
  **
  **/
+
+struct LLAppearanceMessageContents
+{
+	LLAppearanceMessageContents():
+		mAppearanceVersion(-1),
+		mParamAppearanceVersion(-1),
+		mCOFVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
+	{
+	}
+	LLTEContents mTEContents;
+	S32 mAppearanceVersion;
+	S32 mParamAppearanceVersion;
+	S32 mCOFVersion;
+	// For future use:
+	//U32 appearance_flags = 0;
+	std::vector<F32> mParamWeights;
+	std::vector<LLVisualParam*> mParams;
+};
 
 //-----------------------------------------------------------------------------
 // class LLBodyNoiseMotion
@@ -2061,7 +2074,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 		{
 			LLVector3 tagPos = mRoot->getWorldPosition();
 			tagPos[VZ] -= mPelvisToFoot;
-			tagPos[VZ] += ( mBodySize[VZ] + 0.125f );
+			tagPos[VZ] += ( mBodySize[VZ] + mAvatarOffset[VZ] + 0.125f );
 			mVoiceVisualizer->setVoiceSourceWorldPosition( tagPos );
 		}
 	}//if ( voiceEnabled )
@@ -2805,12 +2818,12 @@ LLVector3 LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
 	local_camera_up.normalize();
 	local_camera_up = local_camera_up * ~root_rot;
 
-	local_camera_up.scaleVec(mBodySize * 0.5f);
-	local_camera_at.scaleVec(mBodySize * 0.5f);
+	local_camera_up.scaleVec((mBodySize + mAvatarOffset) * 0.5f);
+	local_camera_at.scaleVec((mBodySize + mAvatarOffset) * 0.5f);
 
 	LLVector3 name_position = mRoot->getWorldPosition();
 	name_position[VZ] -= mPelvisToFoot;
-	name_position[VZ] += (mBodySize[VZ]* 0.55f);
+	name_position[VZ] += ((mBodySize[VZ] + mAvatarOffset[VZ])* 0.55f);
 	name_position += (local_camera_up * root_rot) - (projected_vec(local_camera_at * root_rot, camera_to_av));	
 	name_position += pixel_up_vec * 15.f;
 
@@ -3110,6 +3123,8 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		}
 
 		root_pos = gAgent.getPosGlobalFromAgent(getRenderPosition());
+		root_pos.mdV[VZ] += getVisualParamWeight(11001);
+
 
 		resolveHeightGlobal(root_pos, ground_under_pelvis, normal);
 		F32 foot_to_ground = (F32) (root_pos.mdV[VZ] - mPelvisToFoot - ground_under_pelvis.mdV[VZ]);				
@@ -6730,10 +6745,11 @@ void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value)
 
 
 void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
-										  const std::vector<F32>& params_for_dump,
-										  const LLTEContents& tec)
+										  const LLAppearanceMessageContents& contents)
 {
 	std::string outfilename = get_sequential_numbered_file_name(dump_prefix,".xml");
+	const std::vector<F32>& params_for_dump = contents.mParamWeights;
+	const LLTEContents& tec = contents.mTEContents;
 
 	LLAPRFile outfile;
 	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
@@ -6748,7 +6764,12 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 		LL_DEBUGS("Avatar") << "dumping appearance message to " << fullpath << llendl;
 	}
 
+	apr_file_printf(file, "<header>\n");
+	apr_file_printf(file, "\t\t<cof_version %i />\n", contents.mCOFVersion);
+	apr_file_printf(file, "\t\t<appearance_version %i />\n", contents.mAppearanceVersion);
+	apr_file_printf(file, "</header>\n");
 
+	apr_file_printf(file, "\n<params>\n");
 	LLVisualParam* param = getFirstVisualParam();
 	for (S32 i = 0; i < params_for_dump.size(); i++)
 	{
@@ -6761,31 +6782,17 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 		dump_visual_param(file, viewer_param, value);
 		param = getNextVisualParam();
 	}
+	apr_file_printf(file, "</params>\n");
+
+	apr_file_printf(file, "\n<textures>\n");
 	for (U32 i = 0; i < tec.face_count; i++)
 	{
 		std::string uuid_str;
 		((LLUUID*)tec.image_data)[i].toString(uuid_str);
 		apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", i, uuid_str.c_str());
 	}
+	apr_file_printf(file, "</textures>\n");
 }
-
-struct LLAppearanceMessageContents
-{
-	LLAppearanceMessageContents():
-		mAppearanceVersion(-1),
-		mParamAppearanceVersion(-1),
-		mCOFVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
-	{
-	}
-	LLTEContents mTEContents;
-	S32 mAppearanceVersion;
-	S32 mParamAppearanceVersion;
-	S32 mCOFVersion;
-	// For future use:
-	//U32 appearance_flags = 0;
-	std::vector<F32> mParamWeights;
-	std::vector<LLVisualParam*> mParams;
-};
 
 void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMessageContents& contents)
 {
@@ -6925,7 +6932,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	parseAppearanceMessage(mesgsys, contents);
 	if (enable_verbose_dumps)
 	{
-		dumpAppearanceMsgParams(dump_prefix + "appearance_msg", contents.mParamWeights, contents.mTEContents);
+		dumpAppearanceMsgParams(dump_prefix + "appearance_msg", contents);
 	}
 
 	S32 appearance_version;

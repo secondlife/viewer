@@ -2332,7 +2332,7 @@ void LLAgent::setStartPosition( U32 location_id )
     if (isAgentAvatarValid())
     {
         // the z height is at the agent's feet
-        agent_pos.mV[VZ] -= 0.5f * gAgentAvatarp->mBodySize.mV[VZ];
+        agent_pos.mV[VZ] -= 0.5f * (gAgentAvatarp->mBodySize.mV[VZ] + gAgentAvatarp->mAvatarOffset.mV[VZ]);
     }
 
     agent_pos.mV[VX] = llclamp( agent_pos.mV[VX], INSET, REGION_WIDTH - INSET );
@@ -4292,10 +4292,6 @@ void LLAgent::requestLeaveGodMode()
 	sendReliableMessage();
 }
 
-extern void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value);
-extern std::string get_sequential_numbered_file_name(const std::string& prefix,
-													 const std::string& suffix);
-
 // For debugging, trace agent state at times appearance message are sent out.
 void LLAgent::dumpSentAppearance(const std::string& dump_prefix)
 {
@@ -4385,7 +4381,7 @@ void LLAgent::sendAgentSetAppearance()
 	// NOTE -- when we start correcting all of the other Havok geometry 
 	// to compensate for the COLLISION_TOLERANCE ugliness we will have 
 	// to tweak this number again
-	const LLVector3 body_size = gAgentAvatarp->mBodySize;
+	const LLVector3 body_size = gAgentAvatarp->mBodySize + gAgentAvatarp->mAvatarOffset;
 	msg->addVector3Fast(_PREHASH_Size, body_size);	
 
 	// To guard against out of order packets
