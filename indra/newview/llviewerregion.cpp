@@ -267,15 +267,15 @@ private:
 	S32 mID;
 };
 
-class BaseCapabilitiesCompleteDebug :  public LLHTTPClient::Responder
+class BaseCapabilitiesCompleteTracker :  public LLHTTPClient::Responder
 {
-	LOG_CLASS(BaseCapabilitiesCompleteDebug);
+	LOG_CLASS(BaseCapabilitiesCompleteTracker);
 public:
-	BaseCapabilitiesCompleteDebug( U64 region_handle, S32 id )
+	BaseCapabilitiesCompleteTracker( U64 region_handle, S32 id )
 	: mRegionHandle(region_handle), mID(id)
 	{ }
 	
-	virtual ~BaseCapabilitiesCompleteDebug()
+	virtual ~BaseCapabilitiesCompleteTracker()
 	{ }
 
 	void error(U32 statusNum, const std::string& reason)
@@ -296,16 +296,16 @@ public:
 		
 		if ( regionp->getRegionImpl()->mCapabilities.size() != regionp->getRegionImpl()->mSecondCapabilitiesTracker.size() )
 		{
-			llwarns<<"Sim sent duplicate seed caps that differ in size - most likely content."<<llendl;			
+			llwarns<<"Sim sent duplicate seed caps that differs in size - most likely content."<<llendl;			
 			//todo#add cap debug versus original check?
 			regionp->getRegionImplNC()->mSecondCapabilitiesTracker.clear();
 		}
 
 	}
 
-	static BaseCapabilitiesCompleteDebug* build( U64 region_handle, S32 id )
+	static BaseCapabilitiesCompleteTracker* build( U64 region_handle, S32 id )
 	{
-		return new BaseCapabilitiesCompleteDebug( region_handle, id );
+		return new BaseCapabilitiesCompleteTracker( region_handle, id );
 	}
 
 private:
@@ -1651,7 +1651,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 		//to the "original" seed cap received and determine why there is problem!
 		LLSD capabilityNames = LLSD::emptyArray();
 		mImpl->buildCapabilityNames( capabilityNames );
-		LLHTTPClient::post( url, capabilityNames, BaseCapabilitiesCompleteDebug::build(getHandle(), ++mImpl->mHttpResponderID ),
+		LLHTTPClient::post( url, capabilityNames, BaseCapabilitiesCompleteTracker::build(getHandle(), ++mImpl->mHttpResponderID ),
 							LLSD(), CAP_REQUEST_TIMEOUT );
 		return;
     }
