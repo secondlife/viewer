@@ -2050,7 +2050,7 @@ void LLSelectMgr::selectionRemoveMaterial()
 			{
 			        LL_INFOS("Materials") << "Removing material from object " << object->getID() << " face " << face << LL_ENDL;
 				LLMaterialMgr::getInstance()->remove(object->getID(),face);
-				//object->setTEMaterialParams(face,LLMaterial::null);
+				object->setTEMaterialID(face,LLMaterialID::null);
 			}
 			return true;
 		}
