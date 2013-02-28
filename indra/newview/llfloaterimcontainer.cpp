@@ -605,7 +605,7 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
             setSelectedSession(LLUUID(NULL));
 		}
 		openNearbyChat();
-        selectConversationPair(getSelectedSession(), false);
+        selectConversationPair(getSelectedSession(), false, false);
 	}
 
 	nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
@@ -1362,7 +1362,7 @@ void LLFloaterIMContainer::selectNextConversation(const LLUUID& uuid)
 }
 
 // Synchronous select the conversation item and the conversation floater
-BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget)
+BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater/*=true*/)
 {
     BOOL handled = TRUE;
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
@@ -1409,7 +1409,7 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 		if (!session_floater->hasFocus())
 		{
 			BOOL is_minimized = session_floater->isMinimized();
-			session_floater->setFocus(TRUE);
+			session_floater->setFocus(focus_floater);
 			session_floater->setMinimized(is_minimized);
 		}
 	}

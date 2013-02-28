@@ -70,7 +70,7 @@ public:
     void showConversation(const LLUUID& session_id);
     void selectConversation(const LLUUID& session_id);
 	void selectNextConversation(const LLUUID& session_id);
-    BOOL selectConversationPair(const LLUUID& session_id, bool select_widget);
+    BOOL selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater = true);
     void clearAllFlashStates();
 
 	/*virtual*/ void tabClose();
