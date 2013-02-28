@@ -4292,10 +4292,6 @@ void LLAgent::requestLeaveGodMode()
 	sendReliableMessage();
 }
 
-extern void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value);
-extern std::string get_sequential_numbered_file_name(const std::string& prefix,
-													 const std::string& suffix);
-
 // For debugging, trace agent state at times appearance message are sent out.
 void LLAgent::dumpSentAppearance(const std::string& dump_prefix)
 {

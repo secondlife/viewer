@@ -205,13 +205,13 @@ public:
 
 	// Version handling
 	enum { VERSION_UNKNOWN = -1, VERSION_INITIAL = 1 };
-	S32 getVersion() const { return mVersion; }
-	void setVersion(S32 version) { mVersion = version; }
+	S32 getVersion() const;
+	void setVersion(S32 version);
 
 	// Returns true if a fetch was issued.
 	bool fetch();
 
-	// used to help make cacheing more robust - for example, if
+	// used to help make caching more robust - for example, if
 	// someone is getting 4 packets but logs out after 3. the viewer
 	// may never know the cache is wrong.
 	enum { DESCENDENT_COUNT_UNKNOWN = -1 };
@@ -219,7 +219,7 @@ public:
 	void setDescendentCount(S32 descendents) { mDescendentCount = descendents; }
 
 	// file handling on the viewer. These are not meant for anything
-	// other than cacheing.
+	// other than caching.
 	bool exportFileLocal(LLFILE* fp) const;
 	bool importFileLocal(LLFILE* fp);
 	void determineFolderType();

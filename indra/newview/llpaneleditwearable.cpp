@@ -52,6 +52,7 @@
 #include "lltexturectrl.h"
 #include "lltextureentry.h"
 #include "llviewercontrol.h"    // gSavedSettings
+#include "llviewerregion.h"
 #include "llviewertexturelist.h"
 #include "llagentcamera.h"
 #include "llmorphview.h"
@@ -882,8 +883,8 @@ void LLPanelEditWearable::setWearable(LLViewerWearable *wearable, BOOL disable_c
 
 //static 
 void LLPanelEditWearable::onBackButtonClicked(void* userdata)
-{	
-	LLPanelEditWearable *panel = (LLPanelEditWearable*) userdata;    
+{
+    LLPanelEditWearable *panel = (LLPanelEditWearable*) userdata;
 	if ( panel->isDirty() )
 	{
 		LLAppearanceMgr::instance().setOutfitDirty( true );		
@@ -1045,6 +1046,11 @@ void LLPanelEditWearable::updatePanelPickerControls(LLWearableType::EType type)
         }
 }
 
+void LLPanelEditWearable::incrementCofVersionLegacy()
+{
+
+}
+
 void LLPanelEditWearable::saveChanges(bool force_save_as)
 {
         if (!mWearablePtr || !isDirty())
@@ -1073,10 +1079,10 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
 
         if (force_save_as)
         {
-			// the name of the wearable has changed, re-save wearable with new name
-			LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID());
+                // the name of the wearable has changed, re-save wearable with new name
+                LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID());
 			gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, new_name, description, FALSE);
-			mNameEditor->setText(mWearableItem->getName());
+                mNameEditor->setText(mWearableItem->getName());
         }
         else
         {
@@ -1096,8 +1102,18 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
 				// Remove old link
 				gInventory.purgeObject(link_item->getUUID());
 			}
-			gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
+                gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
         }
+
+	if (gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion() > 0)
+	{
+		LLAppearanceMgr::getInstance()->incrementCofVersion();
+	}
+	else
+	{
+		// *HACK This should be removed when all regions support the IncrementCOFVersion capability.
+		incrementCofVersionLegacy();
+	}
 }
 
 void LLPanelEditWearable::revertChanges()
