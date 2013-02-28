@@ -55,6 +55,8 @@
 #define MATERIALS_GET_TIMEOUT                     (60.f * 20)
 #define MATERIALS_POST_MAX_ENTRIES                50
 #define MATERIALS_POST_TIMEOUT                    (60.f * 5)
+#define MATERIALS_PUT_THROTTLE_SECS               1.f
+#define MATERIALS_PUT_MAX_ENTRIES                 50
 
 /**
  * LLMaterialsResponder helper class
@@ -471,9 +473,11 @@ void LLMaterialMgr::onIdle(void*)
 		instancep->processGetAllQueue();
 	}
 
-	if (!instancep->mPutQueue.empty())
+	static LLFrameTimer mPutTimer;
+	if ( (!instancep->mPutQueue.empty()) && (mPutTimer.hasExpired()) )
 	{
 		instancep->processPutQueue();
+		mPutTimer.resetWithExpiry(MATERIALS_PUT_THROTTLE_SECS);
 	}
 }
 
@@ -521,17 +525,16 @@ void LLMaterialMgr::processGetQueue()
 
 		material_queue_t& materials = itRegionQueue->second;
 		material_queue_t::iterator loopMaterial = materials.begin();
-		if (materials.end() == loopMaterial)
-		{
-			LL_DEBUGS("Material") << "Get queue for region empty, trying next region." << LL_ENDL;
-			continue;
-		}
 		while ( (materials.end() != loopMaterial) && (materialsData.size() <= MATERIALS_GET_MAX_ENTRIES) )
 		{
 			material_queue_t::iterator itMaterial = loopMaterial++;
 			materialsData.append((*itMaterial).asLLSD());
 			materials.erase(itMaterial);
 			markGetPending(region_id, *itMaterial);
+		}
+		if (materials.empty())
+		{
+			mGetQueue.erase(itRegionQueue);
 		}
 		
 		std::string materialString = zip_llsd(materialsData);
@@ -595,6 +598,9 @@ void LLMaterialMgr::processGetAllQueue()
 
 void LLMaterialMgr::processPutQueue()
 {
+	typedef std::map<const LLViewerRegion*, LLSD> regionput_request_map;
+	regionput_request_map requests;
+
 	put_queue_t::iterator loopQueue = mPutQueue.begin();
 	while (mPutQueue.end() != loopQueue)
 	{
@@ -616,18 +622,11 @@ void LLMaterialMgr::processPutQueue()
 			continue;
 		}
 
-		std::string capURL = regionp->getCapability(MATERIALS_CAPABILITY_NAME);
-		if (capURL.empty())
-		{
-			LL_WARNS("Materials") << "Capability '" << MATERIALS_CAPABILITY_NAME
-				<< "' is not defined on region '" << regionp->getName() << "'" << LL_ENDL;
+		LLSD& facesData = requests[regionp];
 
-			mPutQueue.erase(itQueue);
-			continue;
-		}
-
-		LLSD facesData = LLSD::emptyArray();
-		for (facematerial_map_t::const_iterator itFace = itQueue->second.begin(); itFace != itQueue->second.end(); ++itFace)
+		facematerial_map_t& face_map = itQueue->second;
+		facematerial_map_t::iterator itFace = face_map.begin();
+		while ( (face_map.end() != itFace) && (facesData.size() < MATERIALS_GET_MAX_ENTRIES) )
 		{
 			LLSD faceData = LLSD::emptyMap();
 			faceData[MATERIALS_CAP_FACE_FIELD] = static_cast<LLSD::Integer>(itFace->first);
@@ -637,10 +636,26 @@ void LLMaterialMgr::processPutQueue()
 				faceData[MATERIALS_CAP_MATERIAL_FIELD] = itFace->second.asLLSD();
 			}
 			facesData.append(faceData);
+			face_map.erase(itFace++);
+		}
+		if (face_map.empty())
+		{
+			mPutQueue.erase(itQueue);
+		}
+	}
+
+	for (regionput_request_map::const_iterator itRequest = requests.begin(); itRequest != requests.end(); ++itRequest)
+	{
+		std::string capURL = itRequest->first->getCapability(MATERIALS_CAPABILITY_NAME);
+		if (capURL.empty())
+		{
+			LL_WARNS("Materials") << "Capability '" << MATERIALS_CAPABILITY_NAME
+				<< "' is not defined on region '" << itRequest->first->getName() << "'" << LL_ENDL;
+			continue;
 		}
 
 		LLSD materialsData = LLSD::emptyMap();
-		materialsData[MATERIALS_CAP_FULL_PER_FACE_FIELD] = facesData;
+		materialsData[MATERIALS_CAP_FULL_PER_FACE_FIELD] = itRequest->second;
 
 		std::string materialString = zip_llsd(materialsData);
 
@@ -655,7 +670,7 @@ void LLMaterialMgr::processPutQueue()
 			LLSD putData = LLSD::emptyMap();
 			putData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
 
-			LL_DEBUGS("Materials") << "put for " << facesData.size() << " faces; object " << object_id << LL_ENDL;
+			LL_DEBUGS("Materials") << "put for " << itRequest->second.size() << " faces" << LL_ENDL;
 			LLHTTPClient::ResponderPtr materialsResponder = new LLMaterialsResponder("PUT", capURL, boost::bind(&LLMaterialMgr::onPutResponse, this, _1, _2));
 			LLHTTPClient::put(capURL, putData, materialsResponder);
 		}
@@ -663,7 +678,6 @@ void LLMaterialMgr::processPutQueue()
 		{
 			LL_ERRS("debugMaterials") << "cannot zip LLSD binary content" << LL_ENDL;
 		}
-		mPutQueue.erase(itQueue);
 	}
 }
 
