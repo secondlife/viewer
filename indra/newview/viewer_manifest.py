@@ -176,18 +176,19 @@ class ViewerManifest(LLManifest):
         channel_type=self.channel_lowerword()
         if channel_type == 'release' :
             app_suffix='Viewer'
-        elif re.match('(beta|project) .*',channel_type) :
+        elif re.match('^(beta|project).*',channel_type) :
             app_suffix=self.channel_unique()
         return "Second Life "+app_suffix
         
     def icon_path(self):
         icon_path="icons/"
         channel_type=self.channel_lowerword()
+        print "Icon channel type '%s'" % channel_type
         if channel_type == 'release' :
             icon_path += channel_type
-        elif re.match('beta .*',channel_type) :
+        elif re.match('^beta.*',channel_type) :
             icon_path += 'beta'
-        elif re.match('project .*',channel_type) :
+        elif re.match('^project.*',channel_type) :
             icon_path += 'project'
         else :
             icon_path += 'test'
@@ -245,7 +246,7 @@ class WindowsManifest(ViewerManifest):
         channel_type=self.channel_lowerword()
         if channel_type == 'release' :
             app_suffix=''
-        elif re.match('(beta|project) .*',channel_type) :
+        elif re.match('^(beta|project).*',channel_type) :
             app_suffix=''.join(self.channel_unique().split())
         return "SecondLife"+app_suffix+".exe"
 
