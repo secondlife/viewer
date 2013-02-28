@@ -1813,10 +1813,10 @@ CURL*  LLCurl::newEasyHandle()
 	}
 	sTotalHandles++;
 
-	CURL* ret = curl_easy_init() ;
+	CURL* ret = LLCurlHandleHandler::getInstance()->CreateCurlHandle();
 	if(!ret)
 	{
-		llwarns << "curl_easy_init failed." << llendl ;
+		llwarns << "failed to create curl handle." << llendl ;
 	}
 
 	return ret ;
@@ -1845,4 +1845,25 @@ void LLCurlFF::check_easy_code(CURLcode code)
 void LLCurlFF::check_multi_code(CURLMcode code)
 {
 	check_curl_multi_code(code);
+}
+
+CURL* LLCurlHandleHandler::the_one_true_curl_handle;
+
+LLCurlHandleHandler::LLCurlHandleHandler()
+{
+	the_one_true_curl_handle = curl_easy_init();
+	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_NOSIGNAL, 1);
+	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_NOPROGRESS, 1);
+	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_ENCODING, "");	
+	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_AUTOREFERER, 1);
+	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_FOLLOWLOCATION, 1);	
+	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_SSL_VERIFYPEER, 1);
+	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_SSL_VERIFYHOST, 0);
+	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
+}
+
+CURL* LLCurlHandleHandler::CreateCurlHandle()
+{
+	return curl_easy_duphandle(the_one_true_curl_handle);
 }

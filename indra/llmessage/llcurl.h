@@ -45,13 +45,21 @@
 #include "llqueuedthread.h"
 #include "llframetimer.h"
 #include "llpointer.h"
-
+#include "llsingleton.h"
 
 class LLMutex;
 class LLCurlThread;
 
 // For whatever reason, this is not typedef'd in curl.h
 typedef size_t (*curl_header_callback)(void *ptr, size_t size, size_t nmemb, void *stream);
+
+class LLCurlHandleHandler : public LLSingleton<LLCurlHandleHandler>
+{
+public:
+	static CURL* the_one_true_curl_handle;
+	LLCurlHandleHandler();
+	static CURL* CreateCurlHandle();
+};
 
 class LLCurl
 {

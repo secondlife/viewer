@@ -339,7 +339,6 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 	}
 }
 
-
 // Sets all libcurl options and data for a request.
 //
 // Used both for initial requests and to 'reload' for
@@ -381,13 +380,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	// Get policy options
 	HttpPolicyGlobal & policy(service->getPolicy().getGlobalOptions());
 	
-	mCurlHandle = curl_easy_init();
-	curl_easy_setopt(mCurlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-	curl_easy_setopt(mCurlHandle, CURLOPT_NOSIGNAL, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_NOPROGRESS, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_URL, mReqURL.c_str());
-	curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, this);
-	curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
+	mCurlHandle = LLCurlHandleHandler::getInstance()->CreateCurlHandle();
 
 	if (HTTP_ENABLE_LINKSYS_WRT54G_V5_DNS_FIX)
 	{
@@ -399,23 +392,14 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		// seconds and no RSTs.
 		curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
 	}
-	else
-	{
-		// *TODO:  Revisit this old DNS timeout setting - may no longer be valid
-		// I don't think this is valid anymore, the Multi shared DNS
-		// cache is working well.  For the case of naked easy handles,
-		// consider using a shared DNS object.
-		curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
-	}
-	curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, HTTP_REDIRECTS_DEFAULT);
+
 	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
-	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, this);
-	curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION, readCallback);
+	curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION,  readCallback);	
 	curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, this);
-	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYPEER, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, 0);
+	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, this);
+	curl_easy_setopt(mCurlHandle, CURLOPT_URL, mReqURL.c_str());
+	curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, this);
+	curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, HTTP_REDIRECTS_DEFAULT);	
 
 	const std::string * opt_value(NULL);
 	long opt_long(0L);

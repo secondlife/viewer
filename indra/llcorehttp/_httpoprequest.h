@@ -29,6 +29,7 @@
 
 
 #include "linden_common.h"		// Modifies curl/curl.h interfaces
+#include "llsingleton.h"
 
 #include <string>
 #include <curl/curl.h>
@@ -60,11 +61,12 @@ class HttpOptions;
 /// the information needed to make a working request which can
 /// then be enqueued to a request queue.
 ///
-
 class HttpOpRequest : public HttpOperation
 {
 public:
 	HttpOpRequest();
+
+	friend class CurlHandleHandler;
 
 protected:
 	virtual ~HttpOpRequest();							// Use release()
