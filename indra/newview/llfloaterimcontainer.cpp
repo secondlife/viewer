@@ -1096,12 +1096,9 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         }
         else if("chat_history" == command)
         {
-			const LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(conversationItem->getUUID());
-
-			if (NULL != session)
+			if (selectedIDS.size() > 0)
 			{
-				const LLUUID session_id = session->isOutgoingAdHoc() ? session->generateOutgouigAdHocHash() : session->mSessionID;
-				LLFloaterReg::showInstance("preview_conversation", session_id, true);
+				LLAvatarActions::viewChatHistory(selectedIDS.front());
 			}
         }
         else
@@ -1165,15 +1162,9 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 	}
 
 	//Enable Chat history item for ad-hoc and group conversations
-	if ("can_chat_history" == item)
+	if ("can_chat_history" == item && uuids.size() > 0)
 	{
-		if(getCurSelectedViewModelItem())
-		{
-			if (getCurSelectedViewModelItem()->getType() != LLConversationItem::CONV_PARTICIPANT)
-			{
-				return isConversationLoggingAllowed();
-			}
-		}
+		return LLLogChat::isTranscriptExist(uuids.front());
 	}
 
 	// If nothing is selected(and selected item is not group chat), everything needs to be disabled
