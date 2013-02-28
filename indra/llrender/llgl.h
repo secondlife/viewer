@@ -350,10 +350,10 @@ public:
 	Generic pooling scheme for things which use GL names (used for occlusion queries and vertex buffer objects).
 	Prevents thrashing of GL name caches by avoiding calls to glGenFoo and glDeleteFoo.
 */
-class LLGLNamePool : public LLInstanceTracker<LLGLNamePool>
+class LLGLNamePool : public INSTANCE_TRACKER(LLGLNamePool)
 {
 public:
-	typedef LLInstanceTracker<LLGLNamePool> tracker_t;
+	typedef INSTANCE_TRACKER(LLGLNamePool) tracker_t;
 
 	struct NameEntry
 	{

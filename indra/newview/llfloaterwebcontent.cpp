@@ -54,7 +54,7 @@ LLFloaterWebContent::_Params::_Params()
 
 LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 :	LLFloater( params ),
-	LLInstanceTracker<LLFloaterWebContent, std::string>(params.id()),
+	INSTANCE_TRACKER_KEYED(LLFloaterWebContent, std::string)(params.id()),
 	mWebBrowser(NULL),
 	mAddressCombo(NULL),
 	mSecureLockIcon(NULL),

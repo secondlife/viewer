@@ -316,7 +316,7 @@ LLPointer<LLControlVariable> LLControlGroup::getControl(const std::string& name)
 ////////////////////////////////////////////////////////////////////////////
 
 LLControlGroup::LLControlGroup(const std::string& name)
-:	LLInstanceTracker<LLControlGroup, std::string>(name)
+:	INSTANCE_TRACKER_KEYED(LLControlGroup, std::string)(name)
 {
 	mTypeString[TYPE_U32] = "U32";
 	mTypeString[TYPE_S32] = "S32";

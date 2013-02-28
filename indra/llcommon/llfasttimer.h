@@ -63,7 +63,7 @@ public:
 
 	// stores a "named" timer instance to be reused via multiple LLFastTimer stack instances
 	class LL_COMMON_API NamedTimer
-	:	public LLInstanceTracker<NamedTimer>
+	:	public LLInstanceTracker<NamedTimer, InstanceTrackType_NamedTimer >
 	{
 		friend class DeclareTimer;
 	public:
@@ -137,10 +137,11 @@ public:
 
 	// used to statically declare a new named timer
 	class LL_COMMON_API DeclareTimer
-	:	public LLInstanceTracker<DeclareTimer>
+	:	public LLInstanceTracker< DeclareTimer, InstanceTrackType_DeclareTimer >
 	{
 		friend class LLFastTimer;
 	public:
+
 		DeclareTimer(const std::string& name, bool open);
 		DeclareTimer(const std::string& name);
 

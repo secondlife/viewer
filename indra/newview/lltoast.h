@@ -69,10 +69,11 @@ private :
  * Represents toast pop-up.
  * This is a parent view for all toast panels.
  */
-class LLToast : public LLModalDialog, public LLInstanceTracker<LLToast>
+class LLToast : public LLModalDialog, public INSTANCE_TRACKER(LLToast)
 {
 	friend class LLToastLifeTimer;
 public:
+
 	typedef boost::function<void (LLToast* toast)> toast_callback_t;
 	typedef boost::signals2::signal<void (LLToast* toast)> toast_signal_t;
 	typedef boost::signals2::signal<void (LLToast* toast, bool mouse_enter)> toast_hover_check_signal_t;

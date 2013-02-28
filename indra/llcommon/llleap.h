@@ -29,9 +29,10 @@
  * LLLeap* pointer should be validated before use by
  * LLLeap::getInstance(LLLeap*) (see LLInstanceTracker).
  */
-class LL_COMMON_API LLLeap: public LLInstanceTracker<LLLeap>
+class LL_COMMON_API LLLeap: public INSTANCE_TRACKER(LLLeap)
 {
 public:
+
     /**
      * Pass a brief string description, mostly for logging purposes. The desc
      * need not be unique, but obviously the clearer we can make it, the

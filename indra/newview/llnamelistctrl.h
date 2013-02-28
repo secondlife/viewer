@@ -64,9 +64,10 @@ private:
 
 
 class LLNameListCtrl
-:	public LLScrollListCtrl, public LLInstanceTracker<LLNameListCtrl>
+:	public LLScrollListCtrl, public INSTANCE_TRACKER(LLNameListCtrl)
 {
 public:
+
 	typedef enum e_name_type
 	{
 		INDIVIDUAL,

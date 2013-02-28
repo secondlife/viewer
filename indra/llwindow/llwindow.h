@@ -39,9 +39,10 @@ class LLWindowCallbacks;
 
 // Refer to llwindow_test in test/common/llwindow for usage example
 
-class LLWindow : public LLInstanceTracker<LLWindow>
+class LLWindow : public INSTANCE_TRACKER(LLWindow)
 {
 public:
+
 	struct LLWindowResolution
 	{
 		S32 mWidth;

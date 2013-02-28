@@ -42,10 +42,11 @@ class LLMediaCtrl :
 	public LLPanel,
 	public LLViewerMediaObserver,
 	public LLViewerMediaEventEmitter,
-	public LLInstanceTracker<LLMediaCtrl, LLUUID>
+	public INSTANCE_TRACKER_KEYED(LLMediaCtrl, LLUUID)
 {
 	LOG_CLASS(LLMediaCtrl);
 public:
+
 	struct Params : public LLInitParam::Block<Params, LLPanel::Params> 
 	{
 		Optional<std::string>	start_url;

@@ -136,10 +136,11 @@ typedef LLFunctorRegistration<LLNotificationResponder> LLNotificationFunctorRegi
 
 // context data that can be looked up via a notification's payload by the display logic
 // derive from this class to implement specific contexts
-class LLNotificationContext : public LLInstanceTracker<LLNotificationContext, LLUUID>
+class LLNotificationContext : public INSTANCE_TRACKER_KEYED(LLNotificationContext, LLUUID)
 {
 public:
-	LLNotificationContext() : LLInstanceTracker<LLNotificationContext, LLUUID>(LLUUID::generateNewID())
+
+	LLNotificationContext() : INSTANCE_TRACKER_KEYED(LLNotificationContext, LLUUID)(LLUUID::generateNewID())
 	{
 	}
 

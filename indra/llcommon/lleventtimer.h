@@ -33,9 +33,10 @@
 #include "lltimer.h"
 
 // class for scheduling a function to be called at a given frequency (approximate, inprecise)
-class LL_COMMON_API LLEventTimer : public LLInstanceTracker<LLEventTimer>
+class LL_COMMON_API LLEventTimer : public INSTANCE_TRACKER(LLEventTimer)
 {
 public:
+
 	LLEventTimer(F32 period);	// period is the amount of time between each call to tick() in seconds
 	LLEventTimer(const LLDate& time);
 	virtual ~LLEventTimer();
