@@ -3131,7 +3131,7 @@ public:
 			}
 		}
 		LL_DEBUGS("Avatar") << llendl;
-		LL_DEBUGS("Avatar") << "Local COF, version req: " << content["observed"] << llendl;
+		LL_DEBUGS("Avatar") << "Local COF, version requested: " << content["observed"].asInteger() << llendl;
 		LLInventoryModel::cat_array_t cat_array;
 		LLInventoryModel::item_array_t item_array;
 		gInventory.collectDescendents(LLAppearanceMgr::instance().getCOF(),
