@@ -94,6 +94,9 @@ public:
 	const LLUUID getCOF() const;
 	S32 getCOFVersion() const;
 
+	// Debugging - get truncated LLSD summary of COF contents.
+	LLSD dumpCOF() const;
+
 	// COF version of last viewer-initiated appearance update request.
 	S32 mLastUpdateRequestCOFVersion;
 	S32 getLastUpdateRequestCOFVersion() const;
