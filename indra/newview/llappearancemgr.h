@@ -141,7 +141,7 @@ public:
 
 	// Find COF entries referencing the given item.
 	LLInventoryModel::item_array_t findCOFItemLinks(const LLUUID& item_id);
-	
+
 	// Remove COF entries
 	void removeCOFItemLinks(const LLUUID& item_id);
 	void removeCOFLinksOfType(LLWearableType::EType type);
@@ -196,6 +196,11 @@ public:
 	bool isInUpdateAppearanceFromCOF() { return mIsInUpdateAppearanceFromCOF; }
 
 	void requestServerAppearanceUpdate(LLCurl::ResponderPtr responder_ptr = NULL);
+
+	void incrementCofVersion(LLHTTPClient::ResponderPtr responder_ptr = NULL);
+
+	// *HACK Remove this after server side texture baking is deployed on all sims.
+	void incrementCofVersionLegacy();
 
 protected:
 	LLAppearanceMgr();

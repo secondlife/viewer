@@ -1259,7 +1259,7 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
 		mesgsys->getBinaryDataFast(block_name, _PREHASH_TextureEntry, tec.packed_buffer, 0, block_num, LLTEContents::MAX_TE_BUFFER);
 	}
 
-	tec.face_count = llmin((U32)getNumTEs(),LLTEContents::MAX_TES);
+	tec.face_count = llmin((U32)getNumTEs(),(U32)LLTEContents::MAX_TES);
 
 	U8 *cur_ptr = tec.packed_buffer;
 	cur_ptr += unpackTEField(cur_ptr, tec.packed_buffer+tec.size, (U8 *)tec.image_data, 16, tec.face_count, MVT_LLUUID);

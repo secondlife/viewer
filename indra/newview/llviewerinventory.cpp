@@ -592,7 +592,7 @@ void LLViewerInventoryCategory::copyViewerCategory(const LLViewerInventoryCatego
 {
 	copyCategory(other);
 	mOwnerID = other->mOwnerID;
-	mVersion = other->mVersion;
+	setVersion(other->getVersion());
 	mDescendentCount = other->mDescendentCount;
 	mDescendentsRequested = other->mDescendentsRequested;
 }
@@ -660,9 +660,19 @@ void LLViewerInventoryCategory::removeFromServer( void )
 	gAgent.sendReliableMessage();
 }
 
+S32 LLViewerInventoryCategory::getVersion() const
+{
+	return mVersion;
+}
+
+void LLViewerInventoryCategory::setVersion(S32 version)
+{
+	mVersion = version;
+}
+
 bool LLViewerInventoryCategory::fetch()
 {
-	if((VERSION_UNKNOWN == mVersion)
+	if((VERSION_UNKNOWN == getVersion())
 	   && mDescendentsRequested.hasExpired())	//Expired check prevents multiple downloads.
 	{
 		LL_DEBUGS("InventoryFetch") << "Fetching category children: " << mName << ", UUID: " << mUUID << LL_ENDL;
@@ -1127,6 +1137,11 @@ void link_inventory_item(
 		}
 	}
 
+#if 1 // debugging stuff
+	LLViewerInventoryCategory* cat = gInventory.getCategory(parent_id);
+	lldebugs << "cat: " << cat << llendl;
+	
+#endif
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_LinkInventoryItem);
 	msg->nextBlock(_PREHASH_AgentData);
