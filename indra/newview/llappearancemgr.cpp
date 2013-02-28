@@ -1819,7 +1819,7 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	// Add link to outfit if category is an outfit. 
 	if (!append)
 	{
-		createBaseOutfitLink(category, NULL);
+		createBaseOutfitLink(category, link_waiter);
 	}
 
 	// Remove current COF contents.  Have to do this after creating
@@ -3030,7 +3030,7 @@ class RequestAgentUpdateAppearanceResponder: public LLHTTPClient::Responder
 public:
 	RequestAgentUpdateAppearanceResponder()
 	{
-		mRetryPolicy = new LLAdaptiveRetryPolicy(1.0, 16.0, 2.0, 5);
+		mRetryPolicy = new LLAdaptiveRetryPolicy(1.0, 32.0, 2.0, 10);
 	}
 
 	virtual ~RequestAgentUpdateAppearanceResponder()
