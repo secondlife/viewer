@@ -55,6 +55,9 @@
 
 #define LL_MAX_INDICES_COUNT 1000000
 
+static LLStaticHashedString sTextureIndexIn("texture_index_in");
+static LLStaticHashedString sColorIn("color_in");
+
 BOOL LLFace::sSafeRenderSelect = TRUE; // FALSE
 
 #define DOTVEC(a,b) (a.mV[0]*b.mV[0] + a.mV[1]*b.mV[1] + a.mV[2]*b.mV[2])
@@ -1417,8 +1420,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			vp[1] = 0;
 			vp[2] = 0;
 			vp[3] = 0;
-			
-			gTransformPositionProgram.uniform1i("texture_index_in", val);
+						
+			gTransformPositionProgram.uniform1i(sTextureIndexIn, val);
 			glBeginTransformFeedback(GL_POINTS);
 			buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 
@@ -1436,7 +1439,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			S32 val = *((S32*) color.mV);
 
-			gTransformColorProgram.uniform1i("color_in", val);
+			gTransformColorProgram.uniform1i(sColorIn, val);
 			glBeginTransformFeedback(GL_POINTS);
 			buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 			push_for_transform(buff, vf.mNumVertices, mGeomCount);
@@ -1457,7 +1460,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 						 (glow << 16) |
 						 (glow << 24);
 
-			gTransformColorProgram.uniform1i("color_in", glow32);
+			gTransformColorProgram.uniform1i(sColorIn, glow32);
 			glBeginTransformFeedback(GL_POINTS);
 			buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 			push_for_transform(buff, vf.mNumVertices, mGeomCount);

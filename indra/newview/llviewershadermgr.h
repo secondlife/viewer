@@ -177,22 +177,24 @@ public:
 
 private:
 	
-	std::vector<std::string> mShinyUniforms;
+	typedef std::vector< LLStaticHashedString > UniformVec;
+
+	UniformVec mShinyUniforms;
 
 	//water parameters
-	std::vector<std::string> mWaterUniforms;
+	UniformVec mWaterUniforms;
 
-	std::vector<std::string> mWLUniforms;
+	UniformVec mWLUniforms;
 
 	//terrain parameters
-	std::vector<std::string> mTerrainUniforms;
+	UniformVec mTerrainUniforms;
 
 	//glow parameters
-	std::vector<std::string> mGlowUniforms;
+	UniformVec mGlowUniforms;
 
-	std::vector<std::string> mGlowExtractUniforms;
+	UniformVec mGlowExtractUniforms;
 
-	std::vector<std::string> mAvatarUniforms;
+	UniformVec mAvatarUniforms;
 
 	// the list of shaders we need to propagate parameters to.
 	std::vector<LLGLSLShader *> mShaderList;

@@ -33,6 +33,7 @@
 #include "llstl.h"
 #include <list>
 #include <set>
+#include <hash_map>
 
 #if LL_WINDOWS
 # if (_MSC_VER >= 1300 && _MSC_VER < 1400)
@@ -49,6 +50,51 @@
 #  include <ext/hash_map>
 # endif
 #endif
+
+class LLStaticHashedString
+{
+public:
+
+	LLStaticHashedString(const std::string& s)
+	{
+		string_hash = makehash(s);
+		string		= s;
+	}
+
+	const std::string&	String() const { return string;		}
+	size_t				Hash()	 const { return string_hash;  }
+
+protected:
+
+	size_t makehash(const std::string& s)
+	{
+		size_t len = s.size();
+		const char* c = s.c_str();
+		size_t hashval = 0;
+		for (size_t i=0; i<len; i++)
+		{
+			hashval = ((hashval<<5) + hashval) + *c++;
+		}
+		return hashval;
+	}
+
+	std::string string;
+	size_t		string_hash;
+};
+
+template<class T>
+struct LLStaticStringHasher
+{
+	enum { bucket_size = 8 };
+	size_t operator()(const T& key_value)		   const { return key_value.Hash();			  }
+	bool operator()(const T& left, const T& right) const { return left.Hash() < right.Hash(); }
+};
+
+template< typename MappedObject >
+class LL_COMMON_API LLStaticStringTable
+	: public std::hash_map< LLStaticHashedString , MappedObject, LLStaticStringHasher< LLStaticHashedString > >
+{
+};
 
 const U32 MAX_STRINGS_LENGTH = 256;
 

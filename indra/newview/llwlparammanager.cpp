@@ -61,6 +61,9 @@
 #include "curl/curl.h"
 #include "llstreamtools.h"
 
+static LLStaticHashedString sCamPosLocal("camPosLocal");
+static LLStaticHashedString sSceneLightStrength("scene_light_strength");
+
 LLWLParamManager::LLWLParamManager() :
 
 	//set the defaults for the controls
@@ -352,7 +355,7 @@ void LLWLParamManager::updateShaderUniforms(LLGLSLShader * shader)
 	if (shader->mShaderGroup == LLGLSLShader::SG_DEFAULT)
 	{
 		shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, mRotatedLightDir.mV);
-		shader->uniform3fv("camPosLocal", 1, LLViewerCamera::getInstance()->getOrigin().mV);
+		shader->uniform3fv(sCamPosLocal, 1, LLViewerCamera::getInstance()->getOrigin().mV);
 	} 
 
 	else if (shader->mShaderGroup == LLGLSLShader::SG_SKY)
@@ -360,7 +363,7 @@ void LLWLParamManager::updateShaderUniforms(LLGLSLShader * shader)
 		shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, mClampedLightDir.mV);
 	}
 
-	shader->uniform1f("scene_light_strength", mSceneLightStrength);
+	shader->uniform1f(sSceneLightStrength, mSceneLightStrength);
 	
 }
 

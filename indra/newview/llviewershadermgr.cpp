@@ -52,6 +52,13 @@
 #define UNIFORM_ERRS LL_ERRS("Shader")
 #endif
 
+static LLStaticHashedString sTexture0("texture0");
+static LLStaticHashedString sTexture1("texture1");
+static LLStaticHashedString sTex0("tex0");
+static LLStaticHashedString sTex1("tex1");
+static LLStaticHashedString sGlowMap("glowMap");
+static LLStaticHashedString sScreenMap("screenMap");
+
 // Lots of STL stuff in here, using namespace std to keep things more readable
 using std::vector;
 using std::pair;
@@ -305,46 +312,46 @@ void LLViewerShaderMgr::initAttribsAndUniforms(void)
 	{
 		LLShaderMgr::initAttribsAndUniforms();
 
-		mAvatarUniforms.push_back("matrixPalette");
-		mAvatarUniforms.push_back("gWindDir");
-		mAvatarUniforms.push_back("gSinWaveParams");
-		mAvatarUniforms.push_back("gGravity");
+		mAvatarUniforms.push_back(LLStaticHashedString("matrixPalette"));
+		mAvatarUniforms.push_back(LLStaticHashedString("gWindDir"));
+		mAvatarUniforms.push_back(LLStaticHashedString("gSinWaveParams"));
+		mAvatarUniforms.push_back(LLStaticHashedString("gGravity"));
 
-		mWLUniforms.push_back("camPosLocal");
+		mWLUniforms.push_back(LLStaticHashedString("camPosLocal"));
 
 		mTerrainUniforms.reserve(5);
-		mTerrainUniforms.push_back("detail_0");
-		mTerrainUniforms.push_back("detail_1");
-		mTerrainUniforms.push_back("detail_2");
-		mTerrainUniforms.push_back("detail_3");
-		mTerrainUniforms.push_back("alpha_ramp");
+		mTerrainUniforms.push_back(LLStaticHashedString("detail_0"));
+		mTerrainUniforms.push_back(LLStaticHashedString("detail_1"));
+		mTerrainUniforms.push_back(LLStaticHashedString("detail_2"));
+		mTerrainUniforms.push_back(LLStaticHashedString("detail_3"));
+		mTerrainUniforms.push_back(LLStaticHashedString("alpha_ramp"));
 
-		mGlowUniforms.push_back("glowDelta");
-		mGlowUniforms.push_back("glowStrength");
+		mGlowUniforms.push_back(LLStaticHashedString("glowDelta"));
+		mGlowUniforms.push_back(LLStaticHashedString("glowStrength"));
 
-		mGlowExtractUniforms.push_back("minLuminance");
-		mGlowExtractUniforms.push_back("maxExtractAlpha");
-		mGlowExtractUniforms.push_back("lumWeights");
-		mGlowExtractUniforms.push_back("warmthWeights");
-		mGlowExtractUniforms.push_back("warmthAmount");
+		mGlowExtractUniforms.push_back(LLStaticHashedString("minLuminance"));
+		mGlowExtractUniforms.push_back(LLStaticHashedString("maxExtractAlpha"));
+		mGlowExtractUniforms.push_back(LLStaticHashedString("lumWeights"));
+		mGlowExtractUniforms.push_back(LLStaticHashedString("warmthWeights"));
+		mGlowExtractUniforms.push_back(LLStaticHashedString("warmthAmount"));
 
-		mShinyUniforms.push_back("origin");
+		mShinyUniforms.push_back(LLStaticHashedString("origin"));
 
 		mWaterUniforms.reserve(12);
-		mWaterUniforms.push_back("screenTex");
-		mWaterUniforms.push_back("screenDepth");
-		mWaterUniforms.push_back("refTex");
-		mWaterUniforms.push_back("eyeVec");
-		mWaterUniforms.push_back("time");
-		mWaterUniforms.push_back("d1");
-		mWaterUniforms.push_back("d2");
-		mWaterUniforms.push_back("lightDir");
-		mWaterUniforms.push_back("specular");
-		mWaterUniforms.push_back("lightExp");
-		mWaterUniforms.push_back("fogCol");
-		mWaterUniforms.push_back("kd");
-		mWaterUniforms.push_back("refScale");
-		mWaterUniforms.push_back("waterHeight");
+		mWaterUniforms.push_back(LLStaticHashedString("screenTex"));
+		mWaterUniforms.push_back(LLStaticHashedString("screenDepth"));
+		mWaterUniforms.push_back(LLStaticHashedString("refTex"));
+		mWaterUniforms.push_back(LLStaticHashedString("eyeVec"));
+		mWaterUniforms.push_back(LLStaticHashedString("time"));
+		mWaterUniforms.push_back(LLStaticHashedString("d1"));
+		mWaterUniforms.push_back(LLStaticHashedString("d2"));
+		mWaterUniforms.push_back(LLStaticHashedString("lightDir"));
+		mWaterUniforms.push_back(LLStaticHashedString("specular"));
+		mWaterUniforms.push_back(LLStaticHashedString("lightExp"));
+		mWaterUniforms.push_back(LLStaticHashedString("fogCol"));
+		mWaterUniforms.push_back(LLStaticHashedString("kd"));
+		mWaterUniforms.push_back(LLStaticHashedString("refScale"));
+		mWaterUniforms.push_back(LLStaticHashedString("waterHeight"));
 	}	
 }
 	
@@ -2091,8 +2098,8 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		if (success)
 		{ //lldrawpoolbump assumes "texture0" has channel 0 and "texture1" has channel 1
 			gObjectBumpProgram.bind();
-			gObjectBumpProgram.uniform1i("texture0", 0);
-			gObjectBumpProgram.uniform1i("texture1", 1);
+			gObjectBumpProgram.uniform1i(sTexture0, 0);
+			gObjectBumpProgram.uniform1i(sTexture1, 1);
 			gObjectBumpProgram.unbind();
 		}
 	}
@@ -2651,7 +2658,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		if (success)
 		{
 			gSplatTextureRectProgram.bind();
-			gSplatTextureRectProgram.uniform1i("screenMap", 0);
+			gSplatTextureRectProgram.uniform1i(sScreenMap, 0);
 			gSplatTextureRectProgram.unbind();
 		}
 	}
@@ -2667,8 +2674,8 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		if (success)
 		{
 			gGlowCombineProgram.bind();
-			gGlowCombineProgram.uniform1i("glowMap", 0);
-			gGlowCombineProgram.uniform1i("screenMap", 1);
+			gGlowCombineProgram.uniform1i(sGlowMap, 0);
+			gGlowCombineProgram.uniform1i(sScreenMap, 1);
 			gGlowCombineProgram.unbind();
 		}
 	}
@@ -2684,8 +2691,8 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		if (success)
 		{
 			gGlowCombineFXAAProgram.bind();
-			gGlowCombineFXAAProgram.uniform1i("glowMap", 0);
-			gGlowCombineFXAAProgram.uniform1i("screenMap", 1);
+			gGlowCombineFXAAProgram.uniform1i(sGlowMap, 0);
+			gGlowCombineFXAAProgram.uniform1i(sScreenMap, 1);
 			gGlowCombineFXAAProgram.unbind();
 		}
 	}
@@ -2702,8 +2709,8 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		if (success)
 		{
 			gTwoTextureAddProgram.bind();
-			gTwoTextureAddProgram.uniform1i("tex0", 0);
-			gTwoTextureAddProgram.uniform1i("tex1", 1);
+			gTwoTextureAddProgram.uniform1i(sTex0, 0);
+			gTwoTextureAddProgram.uniform1i(sTex1, 1);
 		}
 	}
 
@@ -2718,7 +2725,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		if (success)
 		{
 			gOneTextureNoColorProgram.bind();
-			gOneTextureNoColorProgram.uniform1i("tex0", 0);
+			gOneTextureNoColorProgram.uniform1i(sTex0, 0);
 		}
 	}
 
@@ -2733,7 +2740,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		if (success)
 		{
 			gSolidColorProgram.bind();
-			gSolidColorProgram.uniform1i("tex0", 0);
+			gSolidColorProgram.uniform1i(sTex0, 0);
 			gSolidColorProgram.unbind();
 		}
 	}

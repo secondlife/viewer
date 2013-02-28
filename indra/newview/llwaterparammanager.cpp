@@ -57,6 +57,14 @@
 
 #include "curl/curl.h"
 
+static LLStaticHashedString sCamPosLocal("camPosLocal");
+static LLStaticHashedString sWaterFogColor("waterFogColor");
+static LLStaticHashedString sWaterFogEnd("waterFogEnd");
+static LLStaticHashedString sWaterPlane("waterPlane");
+static LLStaticHashedString sWaterFogDensity("waterFogDensity");
+static LLStaticHashedString sWaterFogKS("waterFogKS");
+static LLStaticHashedString sDistanceMultiplier("distance_multiplier");
+
 LLWaterParamManager::LLWaterParamManager() :
 	mFogColor(22.f/255.f, 43.f/255.f, 54.f/255.f, 0.0f, 0.0f, "waterFogColor", "WaterFogColor"),
 	mFogDensity(4, "waterFogDensity", 2),
@@ -188,13 +196,13 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 	if (shader->mShaderGroup == LLGLSLShader::SG_WATER)
 	{
 		shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, LLWLParamManager::getInstance()->getRotatedLightDir().mV);
-		shader->uniform3fv("camPosLocal", 1, LLViewerCamera::getInstance()->getOrigin().mV);
-		shader->uniform4fv("waterFogColor", 1, LLDrawPoolWater::sWaterFogColor.mV);
-		shader->uniform1f("waterFogEnd", LLDrawPoolWater::sWaterFogEnd);
-		shader->uniform4fv("waterPlane", 1, mWaterPlane.mV);
-		shader->uniform1f("waterFogDensity", getFogDensity());
-		shader->uniform1f("waterFogKS", mWaterFogKS);
-		shader->uniform1f("distance_multiplier", 0);
+		shader->uniform3fv(sCamPosLocal, 1, LLViewerCamera::getInstance()->getOrigin().mV);
+		shader->uniform4fv(sWaterFogColor, 1, LLDrawPoolWater::sWaterFogColor.mV);
+		shader->uniform1f(sWaterFogEnd, LLDrawPoolWater::sWaterFogEnd);
+		shader->uniform4fv(sWaterPlane, 1, mWaterPlane.mV);
+		shader->uniform1f(sWaterFogDensity, getFogDensity());
+		shader->uniform1f(sWaterFogKS, mWaterFogKS);
+		shader->uniform1f(sDistanceMultiplier, 0);
 	}
 }
 

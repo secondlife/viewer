@@ -51,6 +51,17 @@
 const LLUUID TRANSPARENT_WATER_TEXTURE("2bfd3884-7e27-69b9-ba3a-3e673f680004");
 const LLUUID OPAQUE_WATER_TEXTURE("43c32285-d658-1793-c123-bf86315de055");
 
+static LLStaticHashedString sObjectPlaneS("object_plane_s");
+static LLStaticHashedString sObjectPlaneT("object_plane_t");
+static LLStaticHashedString sScreenRes("screenRes");
+static LLStaticHashedString sNormScale("normScale");
+static LLStaticHashedString sFresnelScale("fresnelScale");
+static LLStaticHashedString sFresnelOffset("fresnelOffset");
+static LLStaticHashedString sBlurMultiplier("blurMultiplier");
+static LLStaticHashedString sSunAngle("sunAngle");
+static LLStaticHashedString sScaledAngle("scaledAngle");
+static LLStaticHashedString sSunAngle2("sunAngle2");
+
 static float sTime;
 
 BOOL deferred_render = FALSE;
@@ -407,8 +418,8 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 	}
 	else
 	{
-		shader->uniform4fv("object_plane_s", 1, tp0);
-		shader->uniform4fv("object_plane_t", 1, tp1);
+		shader->uniform4fv(sObjectPlaneS, 1, tp0);
+		shader->uniform4fv(sObjectPlaneT, 1, tp1);
 	}
 
 	gGL.diffuseColor3f(1.f, 1.f, 1.f);
@@ -602,7 +613,7 @@ void LLDrawPoolWater::shade()
 		1.f/gGLViewport[2],
 		1.f/gGLViewport[3]
 	};
-	shader->uniform2fv("screenRes", 1, screenRes);
+	shader->uniform2fv(sScreenRes, 1, screenRes);
 	stop_glerror();
 	
 	S32 diffTex = shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
@@ -623,17 +634,17 @@ void LLDrawPoolWater::shade()
 	shader->uniform2fv(LLViewerShaderMgr::WATER_WAVE_DIR2, 1, param_mgr->getWave2Dir().mV);
 	shader->uniform3fv(LLViewerShaderMgr::WATER_LIGHT_DIR, 1, light_dir.mV);
 
-	shader->uniform3fv("normScale", 1, param_mgr->getNormalScale().mV);
-	shader->uniform1f("fresnelScale", param_mgr->getFresnelScale());
-	shader->uniform1f("fresnelOffset", param_mgr->getFresnelOffset());
-	shader->uniform1f("blurMultiplier", param_mgr->getBlurMultiplier());
+	shader->uniform3fv(sNormScale, 1, param_mgr->getNormalScale().mV);
+	shader->uniform1f(sFresnelScale, param_mgr->getFresnelScale());
+	shader->uniform1f(sFresnelOffset, param_mgr->getFresnelOffset());
+	shader->uniform1f(sBlurMultiplier, param_mgr->getBlurMultiplier());
 
 	F32 sunAngle = llmax(0.f, light_dir.mV[2]);
 	F32 scaledAngle = 1.f - sunAngle;
 
-	shader->uniform1f("sunAngle", sunAngle);
-	shader->uniform1f("scaledAngle", scaledAngle);
-	shader->uniform1f("sunAngle2", 0.1f + 0.2f*sunAngle);
+	shader->uniform1f(sSunAngle, sunAngle);
+	shader->uniform1f(sScaledAngle, scaledAngle);
+	shader->uniform1f(sSunAngle2, 0.1f + 0.2f*sunAngle);
 
 	LLColor4 water_color;
 	LLVector3 camera_up = LLViewerCamera::getInstance()->getUpAxis();
