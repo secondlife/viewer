@@ -564,7 +564,6 @@ BOOL LLInventoryModelFetchDescendentsResponder::getIsRecursive(const LLUUID& cat
 {
 	return (std::find(mRecursiveCatUUIDs.begin(),mRecursiveCatUUIDs.end(), cat_id) != mRecursiveCatUUIDs.end());
 }
-
 // Bundle up a bunch of requests to send all at once.
 // static   
 void LLInventoryModelBackgroundFetch::bulkFetch()
@@ -687,20 +686,23 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 	{
 		if (folder_count)
 		{
-			std::string url = region->getCapability("FetchInventoryDescendents2");   
-			mFetchCount++;
-			if (folder_request_body["folders"].size())
+			std::string url = region->getCapability("FetchInventoryDescendents2");   			
+			if ( !url.empty() )
 			{
-				LLInventoryModelFetchDescendentsResponder *fetcher = new LLInventoryModelFetchDescendentsResponder(folder_request_body, recursive_cats);
-				LLHTTPClient::post(url, folder_request_body, fetcher, 300.0);
-			}
-			if (folder_request_body_lib["folders"].size())
-			{
-				std::string url_lib = gAgent.getRegion()->getCapability("FetchLibDescendents2");
+				mFetchCount++;
+				if (folder_request_body["folders"].size())
+				{
+					LLInventoryModelFetchDescendentsResponder *fetcher = new LLInventoryModelFetchDescendentsResponder(folder_request_body, recursive_cats);
+					LLHTTPClient::post(url, folder_request_body, fetcher, 300.0);
+				}
+				if (folder_request_body_lib["folders"].size())
+				{
+					std::string url_lib = gAgent.getRegion()->getCapability("FetchLibDescendents2");
 
-				LLInventoryModelFetchDescendentsResponder *fetcher = new LLInventoryModelFetchDescendentsResponder(folder_request_body_lib, recursive_cats);
-				LLHTTPClient::post(url_lib, folder_request_body_lib, fetcher, 300.0);
-			}
+					LLInventoryModelFetchDescendentsResponder *fetcher = new LLInventoryModelFetchDescendentsResponder(folder_request_body_lib, recursive_cats);
+					LLHTTPClient::post(url_lib, folder_request_body_lib, fetcher, 300.0);
+				}
+			}					
 		}
 		if (item_count)
 		{

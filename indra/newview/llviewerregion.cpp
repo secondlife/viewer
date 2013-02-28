@@ -142,7 +142,8 @@ public:
 	LLUUID mCacheID;
 
 	CapabilityMap mCapabilities;
-	
+	CapabilityMap mSecondCapabilitiesTracker; 
+
 	LLEventPoll* mEventPoll;
 
 	S32 mSeedCapMaxAttempts;
@@ -219,7 +220,7 @@ public:
 		}
     }
 
-    void result(const LLSD& content)
+   void result(const LLSD& content)
     {
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
 		if(!regionp) //region was removed
@@ -237,6 +238,7 @@ public:
 		for(iter = content.beginMap(); iter != content.endMap(); ++iter)
 		{
 			regionp->setCapability(iter->first, iter->second);
+			
 			LL_DEBUGS2("AppInit", "Capabilities") << "got capability for " 
 				<< iter->first << LL_ENDL;
 
@@ -263,6 +265,53 @@ public:
 private:
 	U64 mRegionHandle;
 	S32 mID;
+};
+
+class BaseCapabilitiesCompleteTracker :  public LLHTTPClient::Responder
+{
+	LOG_CLASS(BaseCapabilitiesCompleteTracker);
+public:
+	BaseCapabilitiesCompleteTracker( U64 region_handle, S32 id )
+	: mRegionHandle(region_handle), mID(id)
+	{ }
+	
+	virtual ~BaseCapabilitiesCompleteTracker()
+	{ }
+
+	void error(U32 statusNum, const std::string& reason)
+	{ }
+
+	void result(const LLSD& content)
+	{
+		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
+		if(!regionp || mID != regionp->getHttpResponderID())
+		{			
+			return ;
+		}		
+		LLSD::map_const_iterator iter;
+		for(iter = content.beginMap(); iter != content.endMap(); ++iter)
+		{
+			regionp->setCapabilityDebug(iter->first, iter->second);		
+		}
+		
+		if ( regionp->getRegionImpl()->mCapabilities.size() != regionp->getRegionImpl()->mSecondCapabilitiesTracker.size() )
+		{
+			llwarns<<"Sim sent duplicate seed caps that differs in size - most likely content."<<llendl;			
+			//todo#add cap debug versus original check?
+			regionp->getRegionImplNC()->mSecondCapabilitiesTracker.clear();
+		}
+
+	}
+
+	static BaseCapabilitiesCompleteTracker* build( U64 region_handle, S32 id )
+	{
+		return new BaseCapabilitiesCompleteTracker( region_handle, id );
+	}
+
+private:
+	U64 mRegionHandle;
+	S32 mID;
+
 };
 
 
@@ -1529,7 +1578,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("EventQueueGet");
 
 	if (gSavedSettings.getBOOL("UseHTTPInventory"))
-	{
+	{	
 		capabilityNames.append("FetchLib2");
 		capabilityNames.append("FetchLibDescendents2");
 		capabilityNames.append("FetchInventory2");
@@ -1596,8 +1645,16 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 void LLViewerRegion::setSeedCapability(const std::string& url)
 {
 	if (getCapability("Seed") == url)
-    {
-		// llwarns << "Ignoring duplicate seed capability" << llendl;
+    {	
+		//llwarns << "Ignoring duplicate seed capability" << llendl;
+		//Instead of just returning we build up a second set of seed caps and compare them 
+		//to the "original" seed cap received and determine why there is problem!
+		LLSD capabilityNames = LLSD::emptyArray();
+		mImpl->buildCapabilityNames( capabilityNames );
+		S32 responderID = mImpl->mHttpResponderID+1;
+
+		LLHTTPClient::post( url, capabilityNames, BaseCapabilitiesCompleteTracker::build(getHandle(), responderID ),
+							LLSD(), CAP_REQUEST_TIMEOUT );
 		return;
     }
 	
@@ -1731,6 +1788,11 @@ void LLViewerRegion::setCapability(const std::string& name, const std::string& u
 			mHttpUrl = url ;
 		}
 	}
+}
+
+void LLViewerRegion::setCapabilityDebug(const std::string& name, const std::string& url)
+{
+	mImpl->mSecondCapabilitiesTracker[name] = url;
 }
 
 bool LLViewerRegion::isSpecialCapabilityName(const std::string &name)
