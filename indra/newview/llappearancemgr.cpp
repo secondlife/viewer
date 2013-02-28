@@ -3096,11 +3096,71 @@ public:
 
 	void debugCOF(const LLSD& content)
 	{
-		//S32 cof_version = content["cof_version"];
-		//S32 cof_expected = content["expected"];
-		//S32 cof_observed = content["observed"];
+		LL_DEBUGS("Avatar") << "AIS COF, version found: " << content["expected"].asInteger() << llendl;
+		std::set<LLUUID> ais_items, local_items;
+		const LLSD& cof_raw = content["cof_raw"];
+		for (LLSD::array_const_iterator it = cof_raw.beginArray();
+			 it != cof_raw.endArray(); ++it)
+		{
+			const LLSD& item = *it;
+			if (item["parent_id"].asUUID() == LLAppearanceMgr::instance().getCOF())
+			{
+				ais_items.insert(item["item_id"].asUUID());
+				if (item["type"].asInteger() == 24) // link
+				{
+					LL_DEBUGS("Avatar") << "Link: item_id: " << item["item_id"].asUUID()
+										<< " linked_item_id: " << item["asset_id"].asUUID()
+										<< " name: " << item["name"].asString()
+										<< llendl; 
+				}
+				else if (item["type"].asInteger() == 25) // folder link
+				{
+					LL_DEBUGS("Avatar") << "Folder link: item_id: " << item["item_id"].asUUID()
+										<< " linked_item_id: " << item["asset_id"].asUUID()
+										<< " name: " << item["name"].asString()
+										<< llendl; 
+					
+				}
+				else
+				{
+					LL_DEBUGS("Avatar") << "Other: item_id: " << item["item_id"].asUUID()
+										<< " linked_item_id: " << item["asset_id"].asUUID()
+										<< " name: " << item["name"].asString()
+										<< llendl; 
+				}
+			}
+		}
+		LL_DEBUGS("Avatar") << llendl;
+		LL_DEBUGS("Avatar") << "Local COF, version req: " << content["observed"] << llendl;
+		LLInventoryModel::cat_array_t cat_array;
+		LLInventoryModel::item_array_t item_array;
+		gInventory.collectDescendents(LLAppearanceMgr::instance().getCOF(),
+									  cat_array,item_array,LLInventoryModel::EXCLUDE_TRASH);
+		for (S32 i=0; i<item_array.count(); i++)
+		{
+			const LLViewerInventoryItem* inv_item = item_array.get(i).get();
+			local_items.insert(inv_item->getUUID());
+			LL_DEBUGS("Avatar") << "item_id: " << inv_item->getUUID()
+								<< " linked_item_id: " << inv_item->getLinkedUUID()
+								<< " name: " << inv_item->getName()
+								<< llendl;
+		}
+		LL_DEBUGS("Avatar") << llendl;
+		for (std::set<LLUUID>::iterator it = local_items.begin(); it != local_items.end(); ++it)
+		{
+			if (ais_items.find(*it) == ais_items.end())
+			{
+				LL_DEBUGS("Avatar") << "LOCAL ONLY: " << *it << llendl;
+			}
+		}
+		for (std::set<LLUUID>::iterator it = ais_items.begin(); it != ais_items.end(); ++it)
+		{
+			if (local_items.find(*it) == local_items.end())
+			{
+				LL_DEBUGS("Avatar") << "AIS ONLY: " << *it << llendl;
+			}
+		}
 	}
-	
 
 	LLPointer<LLHTTPRetryPolicy> mRetryPolicy;
 };
@@ -3134,7 +3194,7 @@ void LLAppearanceMgr::requestServerAppearanceUpdate(LLCurl::ResponderPtr respond
 	body["cof_version"] = cof_version;
 	if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
 	{
-		body["cof_version"] = cof_version+1;
+		body["cof_version"] = cof_version+999;
 	}
 	LL_DEBUGS("Avatar") << "request url " << url << " my_cof_version " << cof_version << llendl;
 	
