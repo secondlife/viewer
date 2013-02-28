@@ -1651,7 +1651,9 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 		//to the "original" seed cap received and determine why there is problem!
 		LLSD capabilityNames = LLSD::emptyArray();
 		mImpl->buildCapabilityNames( capabilityNames );
-		LLHTTPClient::post( url, capabilityNames, BaseCapabilitiesCompleteTracker::build(getHandle(), ++mImpl->mHttpResponderID ),
+		S32 responderID = mImpl->mHttpResponderID+1;
+
+		LLHTTPClient::post( url, capabilityNames, BaseCapabilitiesCompleteTracker::build(getHandle(), responderID ),
 							LLSD(), CAP_REQUEST_TIMEOUT );
 		return;
     }
