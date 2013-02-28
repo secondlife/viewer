@@ -3165,6 +3165,27 @@ public:
 	LLPointer<LLHTTPRetryPolicy> mRetryPolicy;
 };
 
+LLSD LLAppearanceMgr::dumpCOF() const
+{
+	LLSD result = LLSD::emptyArray();
+	
+	LLInventoryModel::cat_array_t cat_array;
+	LLInventoryModel::item_array_t item_array;
+	gInventory.collectDescendents(getCOF(),cat_array,item_array,LLInventoryModel::EXCLUDE_TRASH);
+	for (S32 i=0; i<item_array.count(); i++)
+	{
+		const LLViewerInventoryItem* inv_item = item_array.get(i).get();
+		LLSD item;
+		item["item_id"] = inv_item->getUUID();
+		item["linked_item_id"] = inv_item->getLinkedUUID();
+		item["name"] = inv_item->getName();
+		item["description"] = inv_item->getActualDescription();
+		item["type"] = inv_item->getActualType();
+		result.append(item);
+	}
+	return result;
+}
+
 void LLAppearanceMgr::requestServerAppearanceUpdate(LLCurl::ResponderPtr responder_ptr)
 {
 	if (gAgentAvatarp->isEditingAppearance()) 
@@ -3195,6 +3216,10 @@ void LLAppearanceMgr::requestServerAppearanceUpdate(LLCurl::ResponderPtr respond
 	if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
 	{
 		body["cof_version"] = cof_version+999;
+	}
+	if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+	{
+		body["debug_cof"] = dumpCOF(); 	
 	}
 	LL_DEBUGS("Avatar") << "request url " << url << " my_cof_version " << cof_version << llendl;
 	
