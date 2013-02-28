@@ -1368,10 +1368,10 @@ void LLPanelFace::updateMaterial()
 			mMaterial.reset();
 			mMaterialID = LLMaterialID::null;
 			// Delete existing material entry...
-
+			LLSelectMgr::getInstance()->selectionRemoveMaterial();
 			// Hold off any further updates till this one's
 			// acknowledged.
-			//mUpdateInFlight = true;
+			mUpdateInFlight = true;
 		}
 	}
 

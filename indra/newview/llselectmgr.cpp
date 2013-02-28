@@ -2017,13 +2017,44 @@ void LLSelectMgr::selectionSetMaterial(LLMaterialPtr material)
 		{
 			if (object->permModify())
 			{
-			        llinfos << "Putting material on object " << object->getID() << " face " << face << ", material: " << mMaterial->asLLSD() << llendl;
+			        LL_INFOS("Materials") << "Putting material on object " << object->getID() << " face " << face << ", material: " << mMaterial->asLLSD() << LL_ENDL;
 				LLMaterialMgr::getInstance()->put(object->getID(),face,*mMaterial);
 				object->setTEMaterialParams(face,mMaterial);
 			}
 			return true;
 		}
 	} func1(material);
+	mSelectedObjects->applyToTEs( &func1 );
+
+	struct f2 : public LLSelectedObjectFunctor
+	{
+		virtual bool apply(LLViewerObject* object)
+		{
+			if (object->permModify())
+			{
+				object->sendTEUpdate();
+			}
+			return true;
+		}
+	} func2;
+	mSelectedObjects->applyToObjects( &func2 );
+}
+
+void LLSelectMgr::selectionRemoveMaterial()
+{
+	struct f1 : public LLSelectedTEFunctor
+	{
+		bool apply(LLViewerObject* object, S32 face)
+		{
+			if (object->permModify())
+			{
+			        LL_INFOS("Materials") << "Removing material from object " << object->getID() << " face " << face << LL_ENDL;
+				LLMaterialMgr::getInstance()->remove(object->getID(),face);
+				//object->setTEMaterialParams(face,LLMaterial::null);
+			}
+			return true;
+		}
+	} func1;
 	mSelectedObjects->applyToTEs( &func1 );
 
 	struct f2 : public LLSelectedObjectFunctor
