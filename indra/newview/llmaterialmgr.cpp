@@ -122,10 +122,23 @@ LLMaterialMgr::~LLMaterialMgr()
 	gIdleCallbacks.deleteFunction(&LLMaterialMgr::onIdle, NULL);
 }
 
-bool LLMaterialMgr::isGetPending(const LLUUID& region_id, const LLMaterialID& material_id)
+bool LLMaterialMgr::isGetPending(const LLUUID& region_id, const LLMaterialID& material_id) const
 {
 	get_pending_map_t::const_iterator itPending = mGetPending.find(pending_material_t(region_id, material_id));
 	return (mGetPending.end() != itPending) && (LLFrameTimer::getTotalSeconds() < itPending->second + MATERIALS_POST_TIMEOUT);
+}
+
+void LLMaterialMgr::markGetPending(const LLUUID& region_id, const LLMaterialID& material_id)
+{
+	get_pending_map_t::iterator itPending = mGetPending.find(pending_material_t(region_id, material_id));
+	if (mGetPending.end() == itPending)
+	{
+		mGetPending.insert(std::pair<pending_material_t, F64>(pending_material_t(region_id, material_id), LLFrameTimer::getTotalSeconds()));
+	}
+	else
+	{
+		itPending->second = LLFrameTimer::getTotalSeconds();
+	}
 }
 
 const LLMaterialPtr LLMaterialMgr::get(const LLUUID& region_id, const LLMaterialID& material_id)
@@ -151,6 +164,7 @@ const LLMaterialPtr LLMaterialMgr::get(const LLUUID& region_id, const LLMaterial
 				itQueue = ret.first;
 			}
 			itQueue->second.insert(material_id);
+			markGetPending(region_id, material_id);
 		}
 		LL_DEBUGS("Materials") << " returning empty material " << LL_ENDL;
 		material = LLMaterialPtr();
@@ -179,6 +193,7 @@ boost::signals2::connection LLMaterialMgr::get(const LLUUID& region_id, const LL
 			itQueue = ret.first;
 		}
 		itQueue->second.insert(material_id);
+		markGetPending(region_id, material_id);
 	}
 
 	get_callback_map_t::iterator itCallback = mGetCallbacks.find(material_id);
@@ -190,7 +205,7 @@ boost::signals2::connection LLMaterialMgr::get(const LLUUID& region_id, const LL
 	return itCallback->second->connect(cb);;
 }
 
-bool LLMaterialMgr::isGetAllPending(const LLUUID& region_id)
+bool LLMaterialMgr::isGetAllPending(const LLUUID& region_id) const
 {
 	getall_pending_map_t::const_iterator itPending = mGetAllPending.find(region_id);
 	return (mGetAllPending.end() != itPending) && (LLFrameTimer::getTotalSeconds() < itPending->second + MATERIALS_GET_TIMEOUT);
@@ -516,7 +531,7 @@ void LLMaterialMgr::processGetQueue()
 			material_queue_t::iterator itMaterial = loopMaterial++;
 			materialsData.append((*itMaterial).asLLSD());
 			materials.erase(itMaterial);
-			mGetPending.insert(std::pair<pending_material_t, F64>(pending_material_t(region_id, *itMaterial), LLFrameTimer::getTotalSeconds()));
+			markGetPending(region_id, *itMaterial);
 		}
 		
 		std::string materialString = zip_llsd(materialsData);

@@ -54,8 +54,9 @@ public:
 
 protected:
 	void clearGetQueues(const LLUUID& region_id);
-	bool isGetPending(const LLUUID& region_id, const LLMaterialID& material_id);
-	bool isGetAllPending(const LLUUID& region_id);
+	bool isGetPending(const LLUUID& region_id, const LLMaterialID& material_id) const;
+	bool isGetAllPending(const LLUUID& region_id) const;
+	void markGetPending(const LLUUID& region_id, const LLMaterialID& material_id);
 	const LLMaterialPtr setMaterial(const LLUUID& region_id, const LLMaterialID& material_id, const LLSD& material_data);
 
 	static void onIdle(void*);
