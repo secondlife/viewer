@@ -241,47 +241,43 @@ public:
 	LLThreadSafeRefCount(const LLThreadSafeRefCount&);
 	LLThreadSafeRefCount& operator=(const LLThreadSafeRefCount& ref) 
 	{
-		if (sMutex)
-		{
-			sMutex->lock();
-		}
 		mRef = 0;
-		if (sMutex)
-		{
-			sMutex->unlock();
-		}
 		return *this;
 	}
 
-
-	
 	void ref()
 	{
-		if (sMutex) sMutex->lock();
 		mRef++; 
-		if (sMutex) sMutex->unlock();
 	} 
 
 	S32 unref()
 	{
-		llassert(mRef >= 1);
-		if (sMutex) sMutex->lock();
-		S32 res = --mRef;
-		if (sMutex) sMutex->unlock();
-		if (0 == res) 
+		llassert(mRef >= 1);		
+		bool time_to_die = (mRef == 1);		
+		if (time_to_die)
 		{
-			delete this; 
+			if (sMutex) sMutex->lock();
+			// Looks redundant, but is very much not
+			// We need to check again once we've acquired the lock
+			// so that two threads who get into the if in parallel
+			// don't both attempt to the delete.
+			//
+			if (mRef == 1)
+				delete this; 
+			mRef--;
+			if (sMutex) sMutex->unlock();
 			return 0;
 		}
-		return res;
-	}	
+		return --mRef;		
+	}
 	S32 getNumRefs() const
 	{
-		return mRef;
+		const S32 currentVal = mRef.CurrentValue();
+		return currentVal;
 	}
 
 private: 
-	S32	mRef; 
+	LLAtomic32< S32	> mRef; 
 };
 
 //============================================================================

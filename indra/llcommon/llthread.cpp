@@ -495,15 +495,7 @@ LLThreadSafeRefCount::LLThreadSafeRefCount() :
 
 LLThreadSafeRefCount::LLThreadSafeRefCount(const LLThreadSafeRefCount& src)
 {
-	if (sMutex)
-	{
-		sMutex->lock();
-	}
 	mRef = 0;
-	if (sMutex)
-	{
-		sMutex->unlock();
-	}
 }
 
 LLThreadSafeRefCount::~LLThreadSafeRefCount()
