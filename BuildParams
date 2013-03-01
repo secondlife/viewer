@@ -130,9 +130,8 @@ viewer-pathfinding.build_viewer_update_version_manager = false
 # viewer-materials
 # ========================================
 
-viewer-materials.viewer_channel = "Project Viewer - Materials"
-viewer-materials.login_channel = "Project Viewer - Materials"
-viewer-materials.viewer_grid = aditi
+viewer-materials.viewer_channel = "Second Life Project Materials"
+viewer-materials.login_channel = "Second Life Project Materials"
 viewer-materials.build_debug_release_separately = true
 viewer-materials.build_CYGWIN_Debug = false
 viewer-materials.build_viewer_update_version_manager = false
