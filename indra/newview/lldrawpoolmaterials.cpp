@@ -89,11 +89,17 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 		mShader->uniform4f(LLShaderMgr::SPECULAR_COLOR, params.mSpecColor.mV[0], params.mSpecColor.mV[1], params.mSpecColor.mV[2], params.mSpecColor.mV[3]);
 		mShader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, params.mEnvIntensity);
 		
-		params.mNormalMap->addTextureStats(params.mVSize);
-		bindNormalMap(params.mNormalMap);
+		if (params.mNormalMap)
+		{
+			params.mNormalMap->addTextureStats(params.mVSize);
+			bindNormalMap(params.mNormalMap);
+		}
 		
-		params.mSpecularMap->addTextureStats(params.mVSize);
-		bindSpecularMap(params.mSpecularMap);
+		if (params.mSpecularMap)
+		{
+			params.mSpecularMap->addTextureStats(params.mVSize);
+			bindSpecularMap(params.mSpecularMap);
+		}
 		
 		diffuse_channel = mShader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
 		pushBatch(params, VERTEX_DATA_MASK, TRUE);
