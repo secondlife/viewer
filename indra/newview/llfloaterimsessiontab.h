@@ -95,8 +95,8 @@ public:
 	void initBtns();
 	virtual void updateMessages() {}
 	LLConversationItem* getCurSelectedViewModelItem();
-
 	void forceReshape();
+	virtual BOOL handleKeyHere( KEY key, MASK mask );
 
 protected:
 

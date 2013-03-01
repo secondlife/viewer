@@ -2515,7 +2515,9 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 			{
 				// let Control-Up and Control-Down through for chat line history,
 				if (!(key == KEY_UP && mask == MASK_CONTROL)
-					&& !(key == KEY_DOWN && mask == MASK_CONTROL))
+					&& !(key == KEY_DOWN && mask == MASK_CONTROL)
+					&& !(key == KEY_UP && mask == MASK_ALT)
+					&& !(key == KEY_DOWN && mask == MASK_ALT))
 				{
 					switch(key)
 					{
@@ -2607,7 +2609,10 @@ BOOL LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
 	if ((uni_char == 13 && mask != MASK_CONTROL)
 		|| (uni_char == 3 && mask == MASK_NONE))
 	{
-		return gViewerKeyboard.handleKey(KEY_RETURN, mask, gKeyboard->getKeyRepeated(KEY_RETURN));
+		if (mask != MASK_ALT)
+		{
+			return gViewerKeyboard.handleKey(KEY_RETURN, mask, gKeyboard->getKeyRepeated(KEY_RETURN));
+		}
 	}
 
 	// let menus handle navigation (jump) keys

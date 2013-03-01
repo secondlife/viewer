@@ -1339,25 +1339,14 @@ void LLFloaterIMContainer::selectConversation(const LLUUID& session_id)
 
 // Select the conversation *after* (or before if none after) the passed uuid conversation
 // Used to change the selection on key hits
-void LLFloaterIMContainer::selectNextConversation(const LLUUID& uuid)
+void LLFloaterIMContainer::selectNextConversationByID(const LLUUID& uuid)
 {
-	LLFolderViewItem* new_selection = NULL;
-	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,uuid);
-	if (widget)
+	bool new_selection = false;
+	selectConversation(uuid);
+	new_selection = selectNextorPreviousConversation(true);
+	if (!new_selection)
 	{
-		new_selection = mConversationsRoot->getNextFromChild(widget, FALSE);
-		if (!new_selection)
-		{
-			new_selection = mConversationsRoot->getPreviousFromChild(widget, FALSE);
-		}
-	}
-	if (new_selection)
-	{
-		LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(new_selection->getViewModelItem());
-		if (vmi)
-		{
-			selectConversationPair(vmi->getUUID(), true);
-		}
+		selectNextorPreviousConversation(false);
 	}
 }
 
@@ -1885,6 +1874,71 @@ bool LLFloaterIMContainer::isScrolledOutOfSight(LLConversationViewSession* conve
 	LLRect widget_rect;
 	conversation_item_widget->localRectToOtherView(conversation_item_widget->getLocalRect(), &widget_rect, mConversationsRoot);
 	return !mConversationsRoot->getVisibleRect().overlaps(widget_rect);
+}
+
+BOOL LLFloaterIMContainer::handleKeyHere(KEY key, MASK mask )
+{
+	if(mask == MASK_ALT)
+	{
+		if (KEY_RETURN == key )
+		{
+			expandConversation();
+		}
+
+		if ((KEY_DOWN == key ) || (KEY_RIGHT == key))
+		{
+			selectNextorPreviousConversation(true);
+		}
+		if ((KEY_UP == key) || (KEY_LEFT == key))
+		{
+			selectNextorPreviousConversation(false);
+		}
+	}
+	return TRUE;
+}
+
+bool LLFloaterIMContainer::selectNextorPreviousConversation(bool select_next)
+{
+	if (mConversationsWidgets.size() > 1)
+	{
+		LLFolderViewItem* new_selection = NULL;
+		LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,getSelectedSession());
+		if (widget)
+		{
+			if(select_next)
+			{
+				new_selection = mConversationsRoot->getNextFromChild(widget, FALSE);
+			}
+			else
+			{
+				new_selection = mConversationsRoot->getPreviousFromChild(widget, FALSE);
+			}
+			if (new_selection)
+			{
+				LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(new_selection->getViewModelItem());
+				if (vmi)
+				{
+					selectConversationPair(vmi->getUUID(), true);
+					LLFloater* floaterp = get_ptr_in_map(mSessions, getSelectedSession());
+					if(floaterp && !floaterp->isTornOff())
+					{
+						setFocus(TRUE);
+					}
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+void LLFloaterIMContainer::expandConversation()
+{
+	LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,getSelectedSession()));
+	if (widget)
+	{
+		widget->setOpen(!widget->isOpen());
+	}
 }
 
 void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)

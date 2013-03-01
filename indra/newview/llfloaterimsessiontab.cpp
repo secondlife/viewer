@@ -918,3 +918,24 @@ LLConversationItem* LLFloaterIMSessionTab::getCurSelectedViewModelItem()
 
 	return conversationItem;
 }
+
+BOOL LLFloaterIMSessionTab::handleKeyHere(KEY key, MASK mask )
+{
+	if(mask == MASK_ALT)
+	{
+		LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
+		if (KEY_RETURN == key && !isTornOff())
+		{
+			floater_container->expandConversation();
+		}
+		if ((KEY_UP == key) || (KEY_LEFT == key))
+		{
+			floater_container->selectNextorPreviousConversation(false);
+		}
+		if ((KEY_DOWN == key ) || (KEY_RIGHT == key))
+		{
+			floater_container->selectNextorPreviousConversation(true);
+		}
+	}
+	return TRUE;
+}
