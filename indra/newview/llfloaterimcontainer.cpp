@@ -1213,6 +1213,15 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
 		return false;
 	}
 
+	// If the user agent is selected with others, everything is disabled
+	for (uuid_vec_t::const_iterator id = uuids.begin(); id != uuids.end(); ++id)
+	{
+		if (gAgent.getID() == *id)
+		{
+			return false;
+		}
+	}
+
 	// Handle all other options
 	if (("can_invite" == item) || ("can_chat_history" == item) || ("can_share" == item) || ("can_pay" == item))
 	{
