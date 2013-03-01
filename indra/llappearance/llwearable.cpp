@@ -455,7 +455,7 @@ BOOL LLWearable::getNextPopulatedLine(std::istream& input_stream, char* buffer, 
 	}
 	while (input_stream.good() && buffer[0]=='\0');
 
-	return input_stream.good(); 
+	return (buffer[0] != '\0'); 
 }
 
 

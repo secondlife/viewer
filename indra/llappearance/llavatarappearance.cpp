@@ -462,6 +462,10 @@ void LLAvatarAppearance::computeBodySize()
 
 	LLVector3 foot  = mFootLeftp->getPosition();
 
+	F32 old_offset = mAvatarOffset.mV[VZ];
+
+	mAvatarOffset.mV[VZ] = getVisualParamWeight(11001);
+
 	mPelvisToFoot = hip.mV[VZ] * pelvis_scale.mV[VZ] -
 				 	knee.mV[VZ] * hip_scale.mV[VZ] -
 				 	ankle.mV[VZ] * knee_scale.mV[VZ] -
@@ -481,7 +485,10 @@ void LLAvatarAppearance::computeBodySize()
 	new_body_size.mV[VX] = DEFAULT_AGENT_DEPTH;
 	new_body_size.mV[VY] = DEFAULT_AGENT_WIDTH;
 
-	if (new_body_size != mBodySize)
+	mAvatarOffset.mV[VX] = 0.0f;
+	mAvatarOffset.mV[VY] = 0.0f;
+
+	if (new_body_size != mBodySize || old_offset != mAvatarOffset.mV[VZ])
 	{
 		mBodySize = new_body_size;
 		bodySizeChanged();

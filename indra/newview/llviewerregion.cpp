@@ -271,8 +271,8 @@ class BaseCapabilitiesCompleteTracker :  public LLHTTPClient::Responder
 {
 	LOG_CLASS(BaseCapabilitiesCompleteTracker);
 public:
-	BaseCapabilitiesCompleteTracker( U64 region_handle, S32 id )
-	: mRegionHandle(region_handle), mID(id)
+	BaseCapabilitiesCompleteTracker( U64 region_handle)
+	: mRegionHandle(region_handle)
 	{ }
 	
 	virtual ~BaseCapabilitiesCompleteTracker()
@@ -284,34 +284,40 @@ public:
 	void result(const LLSD& content)
 	{
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
-		if(!regionp || mID != regionp->getHttpResponderID())
-		{			
+		if( !regionp ) 
+		{
 			return ;
 		}		
 		LLSD::map_const_iterator iter;
 		for(iter = content.beginMap(); iter != content.endMap(); ++iter)
 		{
-			regionp->setCapabilityDebug(iter->first, iter->second);		
+			regionp->setCapabilityDebug(iter->first, iter->second);	
+			//llinfos<<"BaseCapabilitiesCompleteTracker New Caps "<<iter->first<<" "<< iter->second<<llendl;
 		}
 		
 		if ( regionp->getRegionImpl()->mCapabilities.size() != regionp->getRegionImpl()->mSecondCapabilitiesTracker.size() )
 		{
-			llwarns<<"Sim sent duplicate seed caps that differs in size - most likely content."<<llendl;			
+			llinfos<<"BaseCapabilitiesCompleteTracker "<<"Sim sent duplicate seed caps that differs in size - most likely content."<<llendl;			
 			//todo#add cap debug versus original check?
+			/*CapabilityMap::const_iterator iter = regionp->getRegionImpl()->mCapabilities.begin();
+			while (iter!=regionp->getRegionImpl()->mCapabilities.end() )
+			{
+				llinfos<<"BaseCapabilitiesCompleteTracker Original "<<iter->first<<" "<< iter->second<<llendl;
+				++iter;
+			}
+			*/
 			regionp->getRegionImplNC()->mSecondCapabilitiesTracker.clear();
 		}
 
 	}
 
-	static BaseCapabilitiesCompleteTracker* build( U64 region_handle, S32 id )
+	static BaseCapabilitiesCompleteTracker* build( U64 region_handle )
 	{
-		return new BaseCapabilitiesCompleteTracker( region_handle, id );
+		return new BaseCapabilitiesCompleteTracker( region_handle );
 	}
 
 private:
-	U64 mRegionHandle;
-	S32 mID;
-
+	U64 mRegionHandle;	
 };
 
 
@@ -1651,9 +1657,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 		//to the "original" seed cap received and determine why there is problem!
 		LLSD capabilityNames = LLSD::emptyArray();
 		mImpl->buildCapabilityNames( capabilityNames );
-		S32 responderID = mImpl->mHttpResponderID+1;
-
-		LLHTTPClient::post( url, capabilityNames, BaseCapabilitiesCompleteTracker::build(getHandle(), responderID ),
+		LLHTTPClient::post( url, capabilityNames, BaseCapabilitiesCompleteTracker::build(getHandle() ),
 							LLSD(), CAP_REQUEST_TIMEOUT );
 		return;
     }
