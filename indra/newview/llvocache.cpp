@@ -198,10 +198,8 @@ void LLVOCacheEntry::setOctreeEntry(LLViewerOctreeEntry* entry)
 	if(!entry && mDP.getBufferSize() > 0)
 	{
 		LLUUID fullid;
-		mDP.reset();
-		mDP.unpackUUID(fullid, "ID");
-		mDP.reset();
-
+		LLViewerObject::unpackUUID(&mDP, fullid, "ID");
+		
 		LLViewerObject* obj = gObjectList.findObject(fullid);
 		if(obj && obj->mDrawable)
 		{
@@ -400,6 +398,28 @@ void LLVOCacheEntry::calcSceneContribution(const LLVector3& camera_origin, bool 
 	mSceneContrib = rad * rad / squared_dist;
 
 	setVisible();
+}
+
+void LLVOCacheEntry::setBoundingInfo(const LLVector3& pos, const LLVector3& scale)
+{
+	LLVector4a center, newMin, newMax;
+	center.load3(pos.mV);
+	LLVector4a size;
+	size.load3(scale.mV);
+	newMin.setSub(center, size);
+	newMax.setAdd(center, size);
+	
+	setPositionGroup(center);
+	setSpatialExtents(newMin, newMax);
+	setBinRadius(llmin(size.getLength3().getF32() * 4.f, 256.f));
+}
+
+void LLVOCacheEntry::updateBoundingInfo(LLVOCacheEntry* parent)
+{
+	//LLVector4a old_pos = getPositionGroup();
+	//parent->getPositionRegion() + (getPosition() * parent->getRotation());
+	
+	shift(parent->getPositionGroup());
 }
 
 //-------------------------------------------------------------------

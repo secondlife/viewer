@@ -116,6 +116,10 @@ public:
 	S32  getNumOfChildren()         {return mChildrenList.size();}
 	void clearChildrenList()        {mChildrenList.clear();}
 
+	//called from processing object update message
+	void setBoundingInfo(const LLVector3& pos, const LLVector3& scale);
+	void updateBoundingInfo(LLVOCacheEntry* parent);
+	
 public:
 	typedef std::map<U32, LLPointer<LLVOCacheEntry> >	   vocache_entry_map_t;
 	typedef std::set<LLVOCacheEntry*>                      vocache_entry_set_t;

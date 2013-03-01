@@ -123,6 +123,7 @@ BOOL		LLViewerObject::sUseSharedDrawables(FALSE); // TRUE
 F64			LLViewerObject::sMaxUpdateInterpolationTime = 3.0;		// For motion interpolation: after X seconds with no updates, don't predict object motion
 F64			LLViewerObject::sPhaseOutUpdateInterpolationTime = 2.0;	// For motion interpolation: after Y seconds with no updates, taper off motion prediction
 
+std::map<std::string, U32> LLViewerObject::sObjectDataMap;
 
 static LLFastTimer::DeclareTimer FTM_CREATE_OBJECT("Create Object");
 
@@ -501,6 +502,8 @@ void LLViewerObject::initVOClasses()
 	LLVOGrass::initClass();
 	LLVOWater::initClass();
 	LLVOVolume::initClass();
+
+	initObjectDataMap();
 }
 
 void LLViewerObject::cleanupVOClasses()
@@ -510,6 +513,118 @@ void LLViewerObject::cleanupVOClasses()
 	LLVOTree::cleanupClass();
 	LLVOAvatar::cleanupClass();
 	LLVOVolume::cleanupClass();
+
+	sObjectDataMap.clear();
+}
+
+//object data map for compressed && !OUT_TERSE_IMPROVED
+//static
+void LLViewerObject::initObjectDataMap()
+{
+	U32 count = 0;
+
+	sObjectDataMap["ID"] = count; //full id //LLUUID
+	count += sizeof(LLUUID);
+
+	sObjectDataMap["LocalID"] = count; //U32
+	count += sizeof(U32);
+
+	sObjectDataMap["PCode"] = count;   //U8
+	count += sizeof(U8);
+
+	sObjectDataMap["State"] = count;   //U8
+	count += sizeof(U8);
+
+	sObjectDataMap["CRC"] = count;     //U32
+	count += sizeof(U32);
+
+	sObjectDataMap["Material"] = count; //U8
+	count += sizeof(U8);
+
+	sObjectDataMap["ClickAction"] = count; //U8
+	count += sizeof(U8);
+
+	sObjectDataMap["Scale"] = count; //LLVector3
+	count += sizeof(LLVector3);
+
+	sObjectDataMap["Pos"] = count;   //LLVector3
+	count += sizeof(LLVector3);
+
+	sObjectDataMap["Rot"] = count;    //LLVector3
+	count += sizeof(LLVector3);
+
+	sObjectDataMap["SpecialCode"] = count; //U32
+	count += sizeof(U32);
+
+	sObjectDataMap["Owner"] = count; //LLUUID
+	count += sizeof(LLUUID);
+
+	sObjectDataMap["Omega"] = count; //LLVector3, when SpecialCode & 0x80 is set
+	count += sizeof(LLVector3);
+
+	//ParentID is after Omega if there is Omega, otherwise is after Owner
+	sObjectDataMap["ParentID"] = count;//U32, when SpecialCode & 0x20 is set
+	count += sizeof(U32);
+
+	//-------
+	//The rest items are not included here
+	//-------
+}
+
+//static 
+void LLViewerObject::unpackVector3(LLDataPackerBinaryBuffer* dp, LLVector3& value, std::string name)
+{
+	dp->shift(sObjectDataMap[name]);
+	dp->unpackVector3(value, name.c_str());
+	dp->reset();
+}
+
+//static 
+void LLViewerObject::unpackUUID(LLDataPackerBinaryBuffer* dp, LLUUID& value, std::string name)
+{
+	dp->shift(sObjectDataMap[name]);
+	dp->unpackUUID(value, name.c_str());
+	dp->reset();
+}
+	
+//static 
+void LLViewerObject::unpackU32(LLDataPackerBinaryBuffer* dp, U32& value, std::string name)
+{
+	dp->shift(sObjectDataMap[name]);
+	dp->unpackU32(value, name.c_str());
+	dp->reset();
+}
+	
+//static 
+void LLViewerObject::unpackU8(LLDataPackerBinaryBuffer* dp, U8& value, std::string name)
+{
+	dp->shift(sObjectDataMap[name]);
+	dp->unpackU8(value, name.c_str());
+	dp->reset();
+}
+
+//static 
+U32 LLViewerObject::unpackParentID(LLDataPackerBinaryBuffer* dp, U32& parent_id)
+{
+	dp->shift(sObjectDataMap["SpecialCode"]);
+	U32 value;
+	dp->unpackU32(value, "SpecialCode");
+
+	parent_id = 0;
+	if(value & 0x20)
+	{
+		S32 offset = sObjectDataMap["ParentID"];
+		if(!(value & 0x80))
+		{
+			offset -= sizeof(LLVector3);
+		}
+
+		dp->shift(offset);
+		dp->unpackU32(parent_id, "ParentID");
+	}
+	dp->reset();
+
+	return parent_id;
 }
 
 // Replaces all name value pairs with data from \n delimited list
@@ -888,6 +1003,25 @@ U32 LLViewerObject::checkMediaURL(const std::string &media_url)
         }
     }
     return retval;
+}
+
+//extract spatial information from object update message
+//return parent_id
+//static
+U32 LLViewerObject::extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector3& pos, LLVector3& scale, LLQuaternion& rot)
+{
+	U32	parent_id = 0;
+	
+	LLViewerObject::unpackVector3(dp, scale, "Scale");
+	LLViewerObject::unpackVector3(dp, pos, "Pos");
+	
+	LLVector3 vec;
+	LLViewerObject::unpackVector3(dp, vec, "Rot");
+	rot.unpackFromVector3(vec);
+	
+	LLViewerObject::unpackParentID(dp, parent_id);
+	
+	return parent_id;
 }
 
 U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,

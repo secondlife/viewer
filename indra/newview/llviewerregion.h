@@ -317,6 +317,7 @@ public:
 	} eCacheUpdateResult;
 
 	// handle a full update message
+	eCacheUpdateResult cacheFullUpdate(LLDataPackerBinaryBuffer &dp);
 	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp);	
 	LLVOCacheEntry* getCacheEntryForOctree(U32 local_id);
 	bool probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss_type);
@@ -347,7 +348,7 @@ public:
 	void getNeighboringRegionsStatus( std::vector<S32>& regions );
 	
 private:
-	void addToVOCacheTree(LLVOCacheEntry* entry);
+	void addToVOCacheTree(LLVOCacheEntry* entry, bool forced = false);
 	LLViewerObject* addNewObject(LLVOCacheEntry* entry);
 	void killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list);
 	LLVOCacheEntry* getCacheEntry(U32 local_id);
@@ -360,6 +361,7 @@ private:
 	F32 updateVisibleEntries(F32 max_time); //update visible entries
 
 	void addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type, F32 weight);
+	void postProcesNewEntry(LLVOCacheEntry* entry);
 public:
 	struct CompareDistance
 	{
@@ -445,6 +447,21 @@ private:
 	BOOL    mReleaseNotesRequested;
 	BOOL    mDead;  //if true, this region is in the process of deleting.
 
+	class OrphanList
+	{
+	public:
+		OrphanList(){}
+		OrphanList(U32 child_id){addChild(child_id);}
+		
+		void addChild(U32 child_id) {mChildList.insert(child_id);}
+		std::set<U32>* getChildList() {return &mChildList;}
+		
+	private:
+		std::set<U32> mChildList;
+	};
+	
+	std::map<U32, OrphanList> mOrphanMap;
+	
 	class CacheMissItem
 	{
 	public:

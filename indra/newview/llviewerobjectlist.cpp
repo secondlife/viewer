@@ -455,12 +455,54 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			uncompressed_length = mesgsys->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_Data);
 			mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compressed_dpbuffer, 0, i);
 			compressed_dp.assignBuffer(compressed_dpbuffer, uncompressed_length);
+#if 0
+			if (compressed)
+			{
+				if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
+				{
+					U32 flags = 0;
+					mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
+					
+					if(!(flags & FLAGS_TEMPORARY_ON_REZ))
+					{
+						//bCached = true;
+						
+						compressed_dp.unpackU32(local_id, "LocalID");
 
+						//-------------
+						compressed_dp.unpackUUID(fullid, "ID");
+						//if(fullid == LLUUID("1e5183db-8f28-47f1-abe0-23de9f9042b7"))
+						{
+							llinfos << fullid << llendl;
+						}
+						//-------------
+
+						U32 crc;
+						compressed_dp.unpackU32(crc, "CRC");
+						/*LLViewerRegion::eCacheUpdateResult result = */regionp->cacheFullUpdate(local_id, crc, compressed_dp);
+						//recorder.cacheFullUpdate(local_id, update_type, result, objectp, msg_size);
+						
+						continue; //do not creat LLViewerObject for cacheable object, object cache will do the job.
+					}
+				}
+			}
+#endif
 			if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
 			{
-				compressed_dp.unpackUUID(fullid, "ID");
-				compressed_dp.unpackU32(local_id, "LocalID");
-				compressed_dp.unpackU8(pcode, "PCode");
+				U32 flags = 0;
+				mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
+			
+				if(flags & FLAGS_TEMPORARY_ON_REZ)
+				{
+					compressed_dp.unpackUUID(fullid, "ID");
+					compressed_dp.unpackU32(local_id, "LocalID");
+					compressed_dp.unpackU8(pcode, "PCode");
+				}
+				else //send to object cache
+				{
+					regionp->cacheFullUpdate(compressed_dp);
+					continue;
+				}
 			}
 			else
 			{
@@ -594,6 +636,8 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				objectp->mLocalID = local_id;
 			}
 			processUpdateCore(objectp, user_data, i, update_type, &compressed_dp, justCreated);
+
+#if 0
 			if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
 			{
 				U32 flags = 0;
@@ -606,6 +650,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 					recorder.cacheFullUpdate(local_id, update_type, result, objectp, msg_size);
 				}
 			}
+#endif
 		}
 		else
 		{
