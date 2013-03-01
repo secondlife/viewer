@@ -1946,19 +1946,41 @@ void LLVOAvatarSelf::dumpTotalLocalTextureByteCount()
 
 BOOL LLVOAvatarSelf::getIsCloud() const
 {
-	// do we have our body parts?
-	if (gAgentWearables.getWearableCount(LLWearableType::WT_SHAPE) == 0 ||
-		gAgentWearables.getWearableCount(LLWearableType::WT_HAIR) == 0 ||
-		gAgentWearables.getWearableCount(LLWearableType::WT_EYES) == 0 ||
-		gAgentWearables.getWearableCount(LLWearableType::WT_SKIN) == 0)	
+	// Let people know why they're clouded without spamming them into oblivion.
+	bool do_warn = false;
+	static LLTimer time_since_notice;
+	F32 update_freq = 30.0;
+	if (time_since_notice.getElapsedTimeF32() > update_freq)
 	{
-		lldebugs << "No body parts" << llendl;
+		time_since_notice.reset();
+		do_warn = true;
+	}
+	
+	// do we have our body parts?
+	S32 shape_count = gAgentWearables.getWearableCount(LLWearableType::WT_SHAPE);
+	S32 hair_count = gAgentWearables.getWearableCount(LLWearableType::WT_HAIR);
+	S32 eye_count = gAgentWearables.getWearableCount(LLWearableType::WT_EYES);
+	S32 skin_count = gAgentWearables.getWearableCount(LLWearableType::WT_SKIN);
+	if (!shape_count || !hair_count || !eye_count || !skin_count)
+	{
+		if (do_warn)
+		{
+			llinfos << "Self is clouded due to missing one or more required body parts: "
+					<< (shape_count ? "" : "SHAPE ")
+					<< (hair_count ? "" : "HAIR ")
+					<< (eye_count ? "" : "EYES ")
+					<< (skin_count ? "" : "SKIN ")
+					<< llendl;
+		}
 		return TRUE;
 	}
 
 	if (!isTextureDefined(TEX_HAIR, 0))
 	{
-		lldebugs << "No hair texture" << llendl;
+		if (do_warn)
+		{
+			llinfos << "Self is clouded because of no hair texture" << llendl;
+		}
 		return TRUE;
 	}
 
@@ -1967,14 +1989,20 @@ BOOL LLVOAvatarSelf::getIsCloud() const
 		if (!isLocalTextureDataAvailable(getLayerSet(BAKED_LOWER)) &&
 			(!isTextureDefined(TEX_LOWER_BAKED, 0)))
 		{
-			lldebugs << "Lower textures not baked" << llendl;
+			if (do_warn)
+			{
+				llinfos << "Self is clouded because lower textures not baked" << llendl;
+			}
 			return TRUE;
 		}
 
 		if (!isLocalTextureDataAvailable(getLayerSet(BAKED_UPPER)) &&
 			(!isTextureDefined(TEX_UPPER_BAKED, 0)))
 		{
-			lldebugs << "Upper textures not baked" << llendl;
+			if (do_warn)
+			{
+				llinfos << "Self is clouded because upper textures not baked" << llendl;
+			}
 			return TRUE;
 		}
 
@@ -1991,7 +2019,11 @@ BOOL LLVOAvatarSelf::getIsCloud() const
 			const LLViewerTexture* baked_img = getImage( texture_data.mTextureIndex, 0 );
 			if (!baked_img || !baked_img->hasGLTexture())
 			{
-				lldebugs << "Texture at index " << i << " (texture index is " << texture_data.mTextureIndex << ") is not loaded" << llendl;
+				if (do_warn)
+				{
+					llinfos << "Self is clouded because texture at index " << i
+							<< " (texture index is " << texture_data.mTextureIndex << ") is not loaded" << llendl;
+				}
 				return TRUE;
 			}
 		}
