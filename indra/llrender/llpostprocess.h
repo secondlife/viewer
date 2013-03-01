@@ -31,6 +31,7 @@
 #include <fstream>
 #include "llgl.h"
 #include "llglheaders.h"
+#include "llstaticstringtable.h"
 
 class LLPostProcess 
 {

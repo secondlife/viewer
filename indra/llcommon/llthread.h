@@ -262,9 +262,9 @@ public:
 			// so that two threads who get into the if in parallel
 			// don't both attempt to the delete.
 			//
-			if (mRef == 1)
-				delete this; 
 			mRef--;
+			if (mRef == 0)
+				delete this; 			
 			if (sMutex) sMutex->unlock();
 			return 0;
 		}

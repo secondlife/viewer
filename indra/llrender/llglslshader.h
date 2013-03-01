@@ -29,6 +29,7 @@
 
 #include "llgl.h"
 #include "llrender.h"
+#include "llstaticstringtable.h"
 
 class LLShaderFeatures
 {
