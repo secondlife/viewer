@@ -284,12 +284,12 @@ void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& s
 	{
 		if (speaker_id == gAgentID)
 		{
-			setIsMuted(false);
+			mIsMuted = false;
 		}
 		else
 		{
 			// check only blocking on voice. EXT-3542
-			setIsMuted(LLMuteList::getInstance()->isMuted(mSpeakerId, LLMute::flagVoiceChat));
+			mIsMuted = LLMuteList::getInstance()->isMuted(mSpeakerId, LLMute::flagVoiceChat);
 			LLMuteList::getInstance()->addObserver(this);
 		}
 	}
@@ -298,7 +298,7 @@ void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& s
 void LLOutputMonitorCtrl::onChange()
 {
 	// check only blocking on voice. EXT-3542
-	setIsMuted(LLMuteList::getInstance()->isMuted(mSpeakerId, LLMute::flagVoiceChat));
+	mIsMuted = LLMuteList::getInstance()->isMuted(mSpeakerId, LLMute::flagVoiceChat);
 }
 
 // virtual
