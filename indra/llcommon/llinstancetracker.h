@@ -57,6 +57,8 @@ enum InstanceTrackType
 	InstanceTrackType_LLMediaCtrl,
 	InstanceTrackType_LLNameListCtrl,
 	InstanceTrackType_LLToast,
+	InstanceTrackType_Keyed,	// for integ tests
+	InstanceTrackType_Unkeyed,	// for integ tests
 	kInstanceTrackTypeCount
 };
 
