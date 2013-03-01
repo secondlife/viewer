@@ -48,16 +48,16 @@ struct Badness: public std::runtime_error
     Badness(const std::string& what): std::runtime_error(what) {}
 };
 
-struct Keyed: public LLInstanceTracker<Keyed, std::string>
+struct Keyed: public INSTANCE_TRACKER_KEYED(Keyed, std::string)
 {
     Keyed(const std::string& name):
-        LLInstanceTracker<Keyed, std::string>(name),
+        INSTANCE_TRACKER_KEYED(Keyed, std::string)(name),
         mName(name)
     {}
     std::string mName;
 };
 
-struct Unkeyed: public LLInstanceTracker<Unkeyed>
+struct Unkeyed: public INSTANCE_TRACKER(Unkeyed)
 {
     Unkeyed(const std::string& thrw="")
     {

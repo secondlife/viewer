@@ -167,7 +167,7 @@ std::string LLGridManager::getAppSLURLBase(const std::string& grid_name)
 LLControlGroup gSavedSettings("Global");
 
 LLControlGroup::LLControlGroup(const std::string& name) :
-	LLInstanceTracker<LLControlGroup, std::string>(name){}
+	INSTANCE_TRACKER_KEYED(LLControlGroup, std::string)(name){}
 LLControlGroup::~LLControlGroup() {}
 void LLControlGroup::setBOOL(const std::string& name, BOOL val) {}
 BOOL LLControlGroup::getBOOL(const std::string& name) { return FALSE; }

@@ -69,7 +69,7 @@ void LLAgent::sendReliableMessage(void) { }
 LLUUID gAgentSessionID;
 LLUUID gAgentID;
 LLUIColor::LLUIColor(void) { }
-LLControlGroup::LLControlGroup(std::string const & name) : LLInstanceTracker<LLControlGroup, std::string>(name) { }
+LLControlGroup::LLControlGroup(std::string const & name) : INSTANCE_TRACKER_KEYED(LLControlGroup, std::string)(name) { }
 LLControlGroup::~LLControlGroup(void) { }
 void LLUrlEntryParcel::processParcelInfo(const LLUrlEntryParcel::LLParcelData& parcel_data) { }
 
