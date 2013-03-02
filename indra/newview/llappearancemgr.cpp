@@ -3658,9 +3658,9 @@ public:
 	}
 	virtual void done()
 	{
-		// What we do here is get the complete information on the items in
-		// the library, and set up an observer that will wait for that to
-		// happen.
+		// What we do here is get the complete information on the
+		// items in the requested category, and set up an observer
+		// that will wait for that to happen.
 		LLInventoryModel::cat_array_t cat_array;
 		LLInventoryModel::item_array_t item_array;
 		gInventory.collectDescendents(mComplete.front(),
@@ -3674,9 +3674,8 @@ public:
 					<< llendl;
 			//dec_busy_count();
 			gInventory.removeObserver(this);
+			doOnIdleOneTime(mCallable);
 
-			// lets notify observers that loading is finished.
-			gAgentWearables.notifyLoadingFinished();
 			delete this;
 			return;
 		}
