@@ -249,6 +249,8 @@ LLViewerWearable* LLWearableList::createNewWearable( LLWearableType::EType type,
 	perm.initMasks(PERM_ALL, PERM_ALL, PERM_NONE, PERM_NONE, PERM_MOVE | PERM_TRANSFER);
 	wearable->setPermissions(perm);
 
+	wearable->setDefinitionVersion(LLWearable::getCurrentDefinitionVersion());
+
 	// Description and sale info have default values.
 	wearable->setParamsToDefaults();
 	wearable->setTexturesToDefaults();
