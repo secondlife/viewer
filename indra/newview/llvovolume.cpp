@@ -1268,7 +1268,7 @@ BOOL LLVOVolume::calcLOD()
 	else
 	{
 		distance = mDrawable->mDistanceWRTCamera;
-		radius = getVolume()->mLODScaleBias.scaledVec(getScale()).length();
+		radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(getScale()).length() : getScale().length();
 	}
 	
 	//hold onto unmodified distance for debugging
