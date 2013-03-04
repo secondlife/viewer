@@ -3184,13 +3184,10 @@ LLSD LLAppearanceMgr::dumpCOF() const
 		const LLViewerInventoryItem* inv_item = item_array.get(i).get();
 		LLSD item;
 		LLUUID item_id(inv_item->getUUID());
-		item["item_id"] = item_id;
 		md5.update((unsigned char*)item_id.mData, 16);
-		item["name"] = inv_item->getName();
 		item["description"] = inv_item->getActualDescription();
 		md5.update(inv_item->getActualDescription());
 		item["asset_type"] = inv_item->getActualType();
-		item["inv_type"] = inv_item->getInventoryType();
 		LLUUID linked_id(inv_item->getLinkedUUID());
 		item["linked_id"] = linked_id;
 		md5.update((unsigned char*)linked_id.mData, 16);
@@ -3205,19 +3202,17 @@ LLSD LLAppearanceMgr::dumpCOF() const
 						<< ") during requestServerAppearanceUpdate" << llendl;
 				continue;
 			}
-			if (linked_item->getAssetUUID().isNull())
-			{
-				llwarns << "Broken link (null asset) for item '" << inv_item->getName()
-						<< "' (" << inv_item->getUUID()
-						<< ") during requestServerAppearanceUpdate" << llendl;
-				continue;
-			}
+			// Some assets may be 'hidden' and show up as null in the viewer.
+			//if (linked_item->getAssetUUID().isNull())
+			//{
+			//	llwarns << "Broken link (null asset) for item '" << inv_item->getName()
+			//			<< "' (" << inv_item->getUUID()
+			//			<< ") during requestServerAppearanceUpdate" << llendl;
+			//	continue;
+			//}
 			LLUUID linked_asset_id(linked_item->getAssetUUID());
-			item["linked_asset_id"] = linked_asset_id;
 			md5.update((unsigned char*)linked_asset_id.mData, 16);
-			item["linked_asset_type"] = linked_item->getType();
 			U32 flags = linked_item->getFlags();
-			item["linked_flags"] = LLSD::Integer(flags);
 			md5.update(boost::lexical_cast<std::string>(flags));
 		}
 		else if (LLAssetType::AT_LINK_FOLDER != inv_item->getActualType())
