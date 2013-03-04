@@ -1105,15 +1105,7 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
                 gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
         }
 
-	if (gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion() > 0)
-	{
-		LLAppearanceMgr::getInstance()->incrementCofVersion();
-	}
-	else
-	{
-		// *HACK This should be removed when all regions support the IncrementCOFVersion capability.
-		incrementCofVersionLegacy();
-	}
+	
 }
 
 void LLPanelEditWearable::revertChanges()
