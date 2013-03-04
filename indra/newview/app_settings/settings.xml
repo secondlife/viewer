@@ -1938,6 +1938,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>DebugAvatarExperimentalServerAppearanceUpdate</key>
+  <map>
+    <key>Comment</key>
+    <string>Experiment with sending full cof_contents instead of cof_version</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
 	<key>DebugAvatarRezTime</key>
 	<map>
 		<key>Comment</key>

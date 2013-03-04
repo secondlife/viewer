@@ -3177,10 +3177,41 @@ LLSD LLAppearanceMgr::dumpCOF() const
 		const LLViewerInventoryItem* inv_item = item_array.get(i).get();
 		LLSD item;
 		item["item_id"] = inv_item->getUUID();
-		item["linked_item_id"] = inv_item->getLinkedUUID();
 		item["name"] = inv_item->getName();
 		item["description"] = inv_item->getActualDescription();
-		item["type"] = inv_item->getActualType();
+		item["asset_type"] = inv_item->getActualType();
+		item["inv_type"] = inv_item->getInventoryType();
+		item["linked_id"] = inv_item->getLinkedUUID();
+
+		if (LLAssetType::AT_LINK == inv_item->getActualType())
+		{
+			const LLViewerInventoryItem* linked_item = inv_item->getLinkedItem();
+			if (NULL == linked_item)
+			{
+				llwarns << "Broken link for item '" << inv_item->getName()
+						<< "' (" << inv_item->getUUID()
+						<< ") during requestServerAppearanceUpdate" << llendl;
+				continue;
+			}
+			if (linked_item->getAssetUUID().isNull())
+			{
+				llwarns << "Broken link (null asset) for item '" << inv_item->getName()
+						<< "' (" << inv_item->getUUID()
+						<< ") during requestServerAppearanceUpdate" << llendl;
+				continue;
+			}
+			item["linked_asset_id"] = linked_item->getAssetUUID();
+			item["linked_asset_type"] = linked_item->getType();
+			item["linked_flags"] = LLSD::Integer(linked_item->getFlags());
+		}
+		else if (LLAssetType::AT_LINK_FOLDER != inv_item->getActualType())
+		{
+			llwarns << "Non-link item '" << inv_item->getName()
+					<< "' (" << inv_item->getUUID()
+					<< ") type " << (S32) inv_item->getActualType()
+					<< " during requestServerAppearanceUpdate" << llendl;
+			continue;
+		}
 		result.append(item);
 	}
 	return result;
@@ -3212,14 +3243,17 @@ void LLAppearanceMgr::requestServerAppearanceUpdate(LLCurl::ResponderPtr respond
 	
 	LLSD body;
 	S32 cof_version = getCOFVersion();
-	body["cof_version"] = cof_version;
-	if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
+	if (gSavedSettings.getBOOL("DebugAvatarExperimentalServerAppearanceUpdate"))
 	{
-		body["cof_version"] = cof_version+999;
+		body["cof_contents"] = dumpCOF();
 	}
-	if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+	else
 	{
-		body["debug_cof"] = dumpCOF(); 	
+		body["cof_version"] = cof_version;
+		if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
+		{
+			body["cof_version"] = cof_version+999;
+		}
 	}
 	LL_DEBUGS("Avatar") << "request url " << url << " my_cof_version " << cof_version << llendl;
 	
