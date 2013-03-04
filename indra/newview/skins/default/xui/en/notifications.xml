@@ -9708,14 +9708,6 @@ No room to sit here, try another spot.
 
   <notification
    icon="alertmodal.tga"
-   name="AutopilotCanceled"
-   type="notify">
-   <tag>fail</tag>
-Autopilot canceled
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="ClaimObjectFailedNoPermission"
    type="notify">
    <tag>fail</tag>
