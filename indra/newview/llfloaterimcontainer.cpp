@@ -764,6 +764,14 @@ void LLFloaterIMContainer::assignResizeLimits()
 	S32 msg_pane_min_width  = is_msg_pane_expanded ? mMessagesPane->getExpandedMinDim() : 0;
 	S32 new_min_width = conv_pane_current_width + msg_pane_min_width + summary_width_of_visible_borders;
 
+    if (is_conv_pane_expanded)
+    {
+    	// Save the conversations pane width.
+	    gSavedPerAccountSettings.setS32(
+	            "ConversationsListPaneWidth",
+                mConversationsPane->getRect().getWidth());
+    }
+
 	setResizeLimits(new_min_width, getMinHeight());
 }
 
@@ -1947,10 +1955,10 @@ void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 	// Most of the time the user will never see this state.
 	setMinimized(FALSE);
 
-	S32 conv_pane_width = mConversationsPane->getRect().getWidth();
-
-	// Save the conversations pane width before collapsing it.
-	gSavedPerAccountSettings.setS32("ConversationsListPaneWidth", conv_pane_width);
+	// Save the conversations pane width.
+	gSavedPerAccountSettings.setS32(
+			"ConversationsListPaneWidth",
+			mConversationsPane->getRect().getWidth());
 
 	LLFloater::closeFloater(app_quitting);
 }
