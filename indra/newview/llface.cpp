@@ -51,7 +51,9 @@
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llviewershadermgr.h"
+#include "llvoavatar.h"
 
+extern BOOL gGLDebugLoggingEnabled;
 
 #define LL_MAX_INDICES_COUNT 1000000
 
@@ -328,6 +330,12 @@ void LLFace::dirtyTexture()
 		if (vobj)
 		{
 			vobj->mLODChanged = TRUE;
+
+			LLVOAvatar* avatar = vobj->getAvatar();
+			if (avatar)
+			{ //avatar render cost may have changed
+				avatar->updateVisualComplexity();
+			}
 		}
 		gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
 	}		
@@ -1162,6 +1170,15 @@ static LLFastTimer::DeclareTimer FTM_FACE_GEOM_COLOR("Color");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_EMISSIVE("Emissive");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_WEIGHTS("Weights");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_BINORMAL("Binormal");
+
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK("Face Feedback");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_POSITION("Feedback Position");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_NORMAL("Feedback  Normal");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_TEXTURE("Feedback  Texture");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_COLOR("Feedback  Color");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_EMISSIVE("Feedback  Emissive");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_BINORMAL("Feedback Binormal");
+
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_INDEX("Index");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_INDEX_TAIL("Tail");
 static LLFastTimer::DeclareTimer FTM_FACE_POSITION_STORE("Pos");
@@ -1385,12 +1402,14 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 #ifdef GL_TRANSFORM_FEEDBACK_BUFFER
 	if (use_transform_feedback &&
+		mVertexBuffer->getUsage() == GL_DYNAMIC_COPY_ARB &&
 		gTransformPositionProgram.mProgramObject && //transform shaders are loaded
 		mVertexBuffer->useVBOs() && //target buffer is in VRAM
 		!rebuild_weights && //TODO: add support for weights
 		!volume.isUnique()) //source volume is NOT flexi
 	{ //use transform feedback to pack vertex buffer
-
+		//gGLDebugLoggingEnabled = TRUE;
+		LLFastTimer t(FTM_FACE_GEOM_FEEDBACK);
 		LLVertexBuffer* buff = (LLVertexBuffer*) vf.mVertexBuffer.get();
 
 		if (vf.mVertexBuffer.isNull() || buff->getNumVerts() != vf.mNumVertices)
@@ -1407,7 +1426,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_pos)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_POSITION);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_POSITION);
 			gTransformPositionProgram.bind();
 
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_VERTEX, mGeomIndex, mGeomCount);
@@ -1420,7 +1439,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			vp[1] = 0;
 			vp[2] = 0;
 			vp[3] = 0;
-						
+			
 			gTransformPositionProgram.uniform1i(sTextureIndexIn, val);
 			glBeginTransformFeedback(GL_POINTS);
 			buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
@@ -1432,7 +1451,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_color)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_COLOR);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_COLOR);
 			gTransformColorProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_COLOR, mGeomIndex, mGeomCount);
@@ -1448,7 +1467,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_emissive)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_EMISSIVE);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_EMISSIVE);
 			gTransformColorProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_EMISSIVE, mGeomIndex, mGeomCount);
@@ -1469,7 +1488,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_normal)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_NORMAL);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_NORMAL);
 			gTransformNormalProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_NORMAL, mGeomIndex, mGeomCount);
@@ -1482,7 +1501,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_binormal)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_BINORMAL);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_BINORMAL);
 			gTransformBinormalProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_BINORMAL, mGeomIndex, mGeomCount);
@@ -1495,7 +1514,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_tcoord)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_TEXTURE);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_TEXTURE);
 			gTransformTexCoordProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_TEXCOORD0, mGeomIndex, mGeomCount);
@@ -1518,13 +1537,13 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		}
 
 		glBindBufferARB(GL_TRANSFORM_FEEDBACK_BUFFER, 0);
-
 		gGL.popMatrix();
 
 		if (cur_shader)
 		{
 			cur_shader->bind();
 		}
+		//gGLDebugLoggingEnabled = FALSE;
 	}
 	else
 #endif

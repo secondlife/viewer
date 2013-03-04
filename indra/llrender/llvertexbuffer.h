@@ -125,9 +125,10 @@ public:
 
 	static LLVBOPool sStreamVBOPool;
 	static LLVBOPool sDynamicVBOPool;
+	static LLVBOPool sDynamicCopyVBOPool;
 	static LLVBOPool sStreamIBOPool;
 	static LLVBOPool sDynamicIBOPool;
-
+	
 	static std::list<U32> sAvailableVAOName;
 	static U32 sCurVAOName;
 

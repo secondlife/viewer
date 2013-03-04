@@ -10258,6 +10258,13 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		avatar->mImpostor.bindTarget();
 	}
 
+	F32 old_alpha = LLDrawPoolAvatar::sMinimumAlpha;
+
+	if (muted)
+	{ //disable alpha masking for muted avatars (get whole skin silhouette)
+		LLDrawPoolAvatar::sMinimumAlpha = 0.f;
+	}
+
 	if (LLPipeline::sRenderDeferred)
 	{
 		avatar->mImpostor.clear();
@@ -10272,6 +10279,8 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		renderGeom(camera);
 	}
 	
+	LLDrawPoolAvatar::sMinimumAlpha = old_alpha;
+		
 	{ //create alpha mask based on depth buffer (grey out if muted)
 		LLFastTimer t(FTM_IMPOSTOR_BACKGROUND);
 		if (LLPipeline::sRenderDeferred)
@@ -10285,6 +10294,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		if (muted)
 		{
 			gGL.setColorMask(true, true);
+
 		}
 		else
 		{
@@ -10303,14 +10313,24 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		gGL.pushMatrix();
 		gGL.loadIdentity();
 
-		static const F32 clip_plane = 0.99999f;
+		static const F32 clip_plane = 0.999f;
 
 		if (LLGLSLShader::sNoFixedFunction)
 		{
-			gUIProgram.bind();
+			gDebugProgram.bind();
 		}
 
-		gGL.color4ub(64,64,64,255);
+
+		if (LLMuteList::getInstance()->isMuted(avatar->getID()))
+		{ //grey muted avatar
+			gGL.diffuseColor4ub(64,64,64,255);
+		}
+		else
+		{ //blue visually muted avatar
+			gGL.diffuseColor4ub(72,61,139,255);
+		}
+
+		{
 		gGL.begin(LLRender::QUADS);
 		gGL.vertex3f(-1, -1, clip_plane);
 		gGL.vertex3f(1, -1, clip_plane);
@@ -10318,10 +10338,11 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		gGL.vertex3f(-1, 1, clip_plane);
 		gGL.end();
 		gGL.flush();
+		}
 
 		if (LLGLSLShader::sNoFixedFunction)
 		{
-			gUIProgram.unbind();
+			gDebugProgram.unbind();
 		}
 
 		gGL.popMatrix();

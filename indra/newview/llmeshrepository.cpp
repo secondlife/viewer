@@ -588,7 +588,7 @@ void LLMeshRepoThread::run()
 					if (!fetchMeshLOD(req.mMeshParams, req.mLOD, count))//failed, resubmit
 					{
 						mMutex->lock();
-						mLODReqQ.push(req) ; 
+						mLODReqQ.push(req); 
 						mMutex->unlock();
 					}
 				}
@@ -1200,8 +1200,7 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 			LLMutexLock lock(mHeaderMutex);
 			mMeshHeaderSize[mesh_id] = header_size;
 			mMeshHeader[mesh_id] = header;
-			}
-
+		}
 
 		LLMutexLock lock(mMutex); // make sure only one thread access mPendingLOD at the same time.
 

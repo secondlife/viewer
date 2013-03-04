@@ -5187,7 +5187,8 @@ LLVolumeFace::LLVolumeFace() :
 	mTexCoords(NULL),
 	mIndices(NULL),
 	mWeights(NULL),
-	mOctree(NULL)
+	mOctree(NULL),
+	mOptimized(FALSE)
 {
 	mExtents = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*3);
 	mExtents[0].splat(-0.5f);
@@ -5294,6 +5295,8 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 		LLVector4a::memcpyNonAliased16((F32*) mIndices, (F32*) src.mIndices, idx_size);
 	}
 	
+	mOptimized = src.mOptimized;
+
 	//delete 
 	return *this;
 }
@@ -5517,14 +5520,14 @@ class LLVCacheVertexData
 public:
 	S32 mIdx;
 	S32 mCacheTag;
-	F32 mScore;
+	F64 mScore;
 	U32 mActiveTriangles;
 	std::vector<LLVCacheTriangleData*> mTriangles;
 
 	LLVCacheVertexData()
 	{
 		mCacheTag = -1;
-		mScore = 0.f;
+		mScore = 0.0;
 		mActiveTriangles = 0;
 		mIdx = -1;
 	}
@@ -5534,13 +5537,13 @@ class LLVCacheTriangleData
 {
 public:
 	bool mActive;
-	F32 mScore;
+	F64 mScore;
 	LLVCacheVertexData* mVertex[3];
 
 	LLVCacheTriangleData()
 	{
 		mActive = true;
-		mScore = 0.f;
+		mScore = 0.0;
 		mVertex[0] = mVertex[1] = mVertex[2] = NULL;
 	}
 
@@ -5551,7 +5554,7 @@ public:
 		{
 			if (mVertex[i])
 			{
-				llassert_always(mVertex[i]->mActiveTriangles > 0);
+				llassert(mVertex[i]->mActiveTriangles > 0);
 				mVertex[i]->mActiveTriangles--;
 			}
 		}
@@ -5563,44 +5566,44 @@ public:
 	}
 };
 
-const F32 FindVertexScore_CacheDecayPower = 1.5f;
-const F32 FindVertexScore_LastTriScore = 0.75f;
-const F32 FindVertexScore_ValenceBoostScale = 2.0f;
-const F32 FindVertexScore_ValenceBoostPower = 0.5f;
+const F64 FindVertexScore_CacheDecayPower = 1.5;
+const F64 FindVertexScore_LastTriScore = 0.75;
+const F64 FindVertexScore_ValenceBoostScale = 2.0;
+const F64 FindVertexScore_ValenceBoostPower = 0.5;
 const U32 MaxSizeVertexCache = 32;
+const F64 FindVertexScore_Scaler = 1.0/(MaxSizeVertexCache-3);
 
-F32 find_vertex_score(LLVCacheVertexData& data)
+F64 find_vertex_score(LLVCacheVertexData& data)
 {
-	if (data.mActiveTriangles == 0)
-	{ //no triangle references this vertex
-		return -1.f;
-	}
+	F64 score = -1.0;
 
-	F32 score = 0.f;
+	if (data.mActiveTriangles >= 0)
+	{ 
+		score = 0.0;
+		
+		S32 cache_idx = data.mCacheTag;
 
-	S32 cache_idx = data.mCacheTag;
-
-	if (cache_idx < 0)
-	{
-		//not in cache
-	}
-	else
-	{
-		if (cache_idx < 3)
-		{ //vertex was in the last triangle
-			score = FindVertexScore_LastTriScore;
+		if (cache_idx < 0)
+		{
+			//not in cache
 		}
 		else
-		{ //more points for being higher in the cache
-			F32 scaler = 1.f/(MaxSizeVertexCache-3);
-			score = 1.f-((cache_idx-3)*scaler);
-			score = powf(score, FindVertexScore_CacheDecayPower);
+		{
+			if (cache_idx < 3)
+			{ //vertex was in the last triangle
+				score = FindVertexScore_LastTriScore;
+			}
+			else
+			{ //more points for being higher in the cache
+				score = 1.0-((cache_idx-3)*FindVertexScore_Scaler);
+				score = pow(score, FindVertexScore_CacheDecayPower);
+			}
 		}
-	}
 
-	//bonus points for having low valence
-	F32 valence_boost = powf((F32)data.mActiveTriangles, -FindVertexScore_ValenceBoostPower);
-	score += FindVertexScore_ValenceBoostScale * valence_boost;
+		//bonus points for having low valence
+		F64 valence_boost = pow((F64)data.mActiveTriangles, -FindVertexScore_ValenceBoostPower);
+		score += FindVertexScore_ValenceBoostScale * valence_boost;
+	}
 
 	return score;
 }
@@ -5720,7 +5723,7 @@ public:
 			if (mCache[i])
 			{
 				mCache[i]->mScore = find_vertex_score(*(mCache[i]));
-				llassert_always(mCache[i]->mCacheTag == i);
+				llassert(mCache[i]->mCacheTag == i);
 			}
 		}
 
@@ -5728,11 +5731,14 @@ public:
 		//update triangle scores
 		for (U32 i = 0; i < MaxSizeVertexCache+3; ++i)
 		{
-			if (mCache[i])
+			LLVCacheVertexData* data = mCache[i];
+			if (data)
 			{
-				for (U32 j = 0; j < mCache[i]->mTriangles.size(); ++j)
+				U32 count = data->mTriangles.size();
+
+				for (U32 j = 0; j < count; ++j)
 				{
-					LLVCacheTriangleData* tri = mCache[i]->mTriangles[j];
+					LLVCacheTriangleData* tri = data->mTriangles[j];
 					if (tri->mActive)
 					{
 						tri->mScore = tri->mVertex[0]->mScore;
@@ -5753,7 +5759,7 @@ public:
 		{
 			if (mCache[i])
 			{
-				llassert_always(mCache[i]->mCacheTag == -1);
+				llassert(mCache[i]->mCacheTag == -1);
 				mCache[i] = NULL;
 			}
 		}
@@ -5765,6 +5771,9 @@ void LLVolumeFace::cacheOptimize()
 { //optimize for vertex cache according to Forsyth method: 
   // http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html
 	
+	llassert(!mOptimized);
+	mOptimized = TRUE;
+
 	LLVCacheLRU cache;
 	
 	if (mNumVertices < 3)
@@ -5810,12 +5819,14 @@ void LLVolumeFace::cacheOptimize()
 
 	for (U32 i = 0; i < mNumVertices; i++)
 	{ //initialize score values (no cache -- might try a fifo cache here)
-		vertex_data[i].mScore = find_vertex_score(vertex_data[i]);
-		vertex_data[i].mActiveTriangles = vertex_data[i].mTriangles.size();
+		LLVCacheVertexData& data = vertex_data[i];
 
-		for (U32 j = 0; j < vertex_data[i].mTriangles.size(); ++j)
+		data.mScore = find_vertex_score(data);
+		data.mActiveTriangles = data.mTriangles.size();
+
+		for (U32 j = 0; j < data.mActiveTriangles; ++j)
 		{
-			vertex_data[i].mTriangles[j]->mScore += vertex_data[i].mScore;
+			data.mTriangles[j]->mScore += data.mScore;
 		}
 	}
 

@@ -933,6 +933,9 @@ public:
 
 	LLOctreeNode<LLVolumeTriangle>* mOctree;
 
+	//whether or not face has been cache optimized
+	BOOL mOptimized;
+
 private:
 	BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);
 	BOOL createCap(LLVolume* volume, BOOL partial_build = FALSE);
