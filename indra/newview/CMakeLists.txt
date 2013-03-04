@@ -1230,17 +1230,15 @@ set(viewer_HEADER_FILES
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
 
-add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
-                   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/VIEWER_VERSION.txt
-                   COMMAND echo "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}" > ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
-                   COMMENT Generating viewer_version.txt for manifest processing
-                   )
-add_custom_target(generate_viewer_version ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt)
+add_custom_target(generate_viewer_version ALL
+                  COMMAND echo "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}" > ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+                  COMMENT Generating viewer_version.txt for manifest processing
+                  )
 
 set_source_files_properties(
    llversioninfo.cpp tests/llversioninfo_test.cpp 
    PROPERTIES
-   DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt  # dummy dependency to force recompile every time
+   DEPENDS generate_viewer_version  # dummy dependency to force recompile every time
    COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}" # see BuildVersion.cmake
    )
 
@@ -1726,7 +1724,7 @@ if (WINDOWS)
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/copy_touched.bat
       DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-        ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+        generate_viewer_version
         stage_third_party_libs
         ${COPY_INPUT_DEPENDENCIES}
       COMMENT "Performing viewer_manifest copy"
@@ -1919,7 +1917,7 @@ if (LINUX)
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
       DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-        ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+        generate_viewer_version
         ${COPY_INPUT_DEPENDENCIES}
       )
 
@@ -1944,7 +1942,7 @@ if (LINUX)
       --source=${CMAKE_CURRENT_SOURCE_DIR}
     DEPENDS
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-      ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+      generate_viewer_version
       ${COPY_INPUT_DEPENDENCIES}
     COMMENT "Performing viewer_manifest copy"
     )
@@ -2002,7 +2000,7 @@ if (DARWIN)
     DEPENDS
       ${VIEWER_BINARY_NAME}
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-      ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+      generate_viewer_version
     )
 
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_webkit mac-updater mac-crash-logger)
@@ -2036,7 +2034,7 @@ if (DARWIN)
           ${SIGNING_SETTING}
         DEPENDS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-          ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+          generate_viewer_version
       )
   endif (PACKAGE)
 endif (DARWIN)
