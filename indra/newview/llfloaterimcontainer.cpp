@@ -605,7 +605,7 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
             setSelectedSession(LLUUID(NULL));
 		}
 		openNearbyChat();
-        selectConversationPair(getSelectedSession(), false);
+        selectConversationPair(getSelectedSession(), false, false);
 	}
 
 	nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
@@ -1096,12 +1096,9 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         }
         else if("chat_history" == command)
         {
-			const LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(conversationItem->getUUID());
-
-			if (NULL != session)
+			if (selectedIDS.size() > 0)
 			{
-				const LLUUID session_id = session->isOutgoingAdHoc() ? session->generateOutgouigAdHocHash() : session->mSessionID;
-				LLFloaterReg::showInstance("preview_conversation", session_id, true);
+				LLAvatarActions::viewChatHistory(selectedIDS.front());
 			}
         }
         else
@@ -1165,15 +1162,9 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 	}
 
 	//Enable Chat history item for ad-hoc and group conversations
-	if ("can_chat_history" == item)
+	if ("can_chat_history" == item && uuids.size() > 0)
 	{
-		if(getCurSelectedViewModelItem())
-		{
-			if (getCurSelectedViewModelItem()->getType() != LLConversationItem::CONV_PARTICIPANT)
-			{
-				return isConversationLoggingAllowed();
-			}
-		}
+		return LLLogChat::isTranscriptExist(uuids.front());
 	}
 
 	// If nothing is selected(and selected item is not group chat), everything needs to be disabled
@@ -1211,6 +1202,15 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
 	if (is_single_select && (single_id == gAgentID))
 	{
 		return false;
+	}
+
+	// If the user agent is selected with others, everything is disabled
+	for (uuid_vec_t::const_iterator id = uuids.begin(); id != uuids.end(); ++id)
+	{
+		if (gAgent.getID() == *id)
+		{
+			return false;
+		}
 	}
 
 	// Handle all other options
@@ -1339,30 +1339,19 @@ void LLFloaterIMContainer::selectConversation(const LLUUID& session_id)
 
 // Select the conversation *after* (or before if none after) the passed uuid conversation
 // Used to change the selection on key hits
-void LLFloaterIMContainer::selectNextConversation(const LLUUID& uuid)
+void LLFloaterIMContainer::selectNextConversationByID(const LLUUID& uuid)
 {
-	LLFolderViewItem* new_selection = NULL;
-	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,uuid);
-	if (widget)
+	bool new_selection = false;
+	selectConversation(uuid);
+	new_selection = selectNextorPreviousConversation(true);
+	if (!new_selection)
 	{
-		new_selection = mConversationsRoot->getNextFromChild(widget, FALSE);
-		if (!new_selection)
-		{
-			new_selection = mConversationsRoot->getPreviousFromChild(widget, FALSE);
-		}
-	}
-	if (new_selection)
-	{
-		LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(new_selection->getViewModelItem());
-		if (vmi)
-		{
-			selectConversationPair(vmi->getUUID(), true);
-		}
+		selectNextorPreviousConversation(false);
 	}
 }
 
 // Synchronous select the conversation item and the conversation floater
-BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget)
+BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater/*=true*/)
 {
     BOOL handled = TRUE;
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
@@ -1409,7 +1398,7 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 		if (!session_floater->hasFocus())
 		{
 			BOOL is_minimized = session_floater->isMinimized();
-			session_floater->setFocus(TRUE);
+			session_floater->setFocus(focus_floater);
 			session_floater->setMinimized(is_minimized);
 		}
 	}
@@ -1885,6 +1874,71 @@ bool LLFloaterIMContainer::isScrolledOutOfSight(LLConversationViewSession* conve
 	LLRect widget_rect;
 	conversation_item_widget->localRectToOtherView(conversation_item_widget->getLocalRect(), &widget_rect, mConversationsRoot);
 	return !mConversationsRoot->getVisibleRect().overlaps(widget_rect);
+}
+
+BOOL LLFloaterIMContainer::handleKeyHere(KEY key, MASK mask )
+{
+	if(mask == MASK_ALT)
+	{
+		if (KEY_RETURN == key )
+		{
+			expandConversation();
+		}
+
+		if ((KEY_DOWN == key ) || (KEY_RIGHT == key))
+		{
+			selectNextorPreviousConversation(true);
+		}
+		if ((KEY_UP == key) || (KEY_LEFT == key))
+		{
+			selectNextorPreviousConversation(false);
+		}
+	}
+	return TRUE;
+}
+
+bool LLFloaterIMContainer::selectNextorPreviousConversation(bool select_next)
+{
+	if (mConversationsWidgets.size() > 1)
+	{
+		LLFolderViewItem* new_selection = NULL;
+		LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,getSelectedSession());
+		if (widget)
+		{
+			if(select_next)
+			{
+				new_selection = mConversationsRoot->getNextFromChild(widget, FALSE);
+			}
+			else
+			{
+				new_selection = mConversationsRoot->getPreviousFromChild(widget, FALSE);
+			}
+			if (new_selection)
+			{
+				LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(new_selection->getViewModelItem());
+				if (vmi)
+				{
+					selectConversationPair(vmi->getUUID(), true);
+					LLFloater* floaterp = get_ptr_in_map(mSessions, getSelectedSession());
+					if(floaterp && !floaterp->isTornOff())
+					{
+						setFocus(TRUE);
+					}
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+void LLFloaterIMContainer::expandConversation()
+{
+	LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,getSelectedSession()));
+	if (widget)
+	{
+		widget->setOpen(!widget->isOpen());
+	}
 }
 
 void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
