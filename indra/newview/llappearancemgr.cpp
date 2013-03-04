@@ -26,6 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include <boost/lexical_cast.hpp>
 #include "llaccordionctrltab.h"
 #include "llagent.h"
 #include "llagentcamera.h"
@@ -51,6 +52,11 @@
 #include "llwearablelist.h"
 #include "llsdutil.h"
 #include "llsdserialize.h"
+
+#if LL_MSVC
+// disable boost::lexical_cast warning
+#pragma warning (disable:4702)
+#endif
 
 std::string self_av_string()
 {
@@ -3167,7 +3173,8 @@ public:
 
 LLSD LLAppearanceMgr::dumpCOF() const
 {
-	LLSD result = LLSD::emptyArray();
+	LLSD links = LLSD::emptyArray();
+	LLMD5 md5;
 	
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
@@ -3176,12 +3183,17 @@ LLSD LLAppearanceMgr::dumpCOF() const
 	{
 		const LLViewerInventoryItem* inv_item = item_array.get(i).get();
 		LLSD item;
-		item["item_id"] = inv_item->getUUID();
+		LLUUID item_id(inv_item->getUUID());
+		item["item_id"] = item_id;
+		md5.update((unsigned char*)item_id.mData, 16);
 		item["name"] = inv_item->getName();
 		item["description"] = inv_item->getActualDescription();
+		md5.update(inv_item->getActualDescription());
 		item["asset_type"] = inv_item->getActualType();
 		item["inv_type"] = inv_item->getInventoryType();
-		item["linked_id"] = inv_item->getLinkedUUID();
+		LLUUID linked_id(inv_item->getLinkedUUID());
+		item["linked_id"] = linked_id;
+		md5.update((unsigned char*)linked_id.mData, 16);
 
 		if (LLAssetType::AT_LINK == inv_item->getActualType())
 		{
@@ -3200,9 +3212,13 @@ LLSD LLAppearanceMgr::dumpCOF() const
 						<< ") during requestServerAppearanceUpdate" << llendl;
 				continue;
 			}
-			item["linked_asset_id"] = linked_item->getAssetUUID();
+			LLUUID linked_asset_id(linked_item->getAssetUUID());
+			item["linked_asset_id"] = linked_asset_id;
+			md5.update((unsigned char*)linked_asset_id.mData, 16);
 			item["linked_asset_type"] = linked_item->getType();
-			item["linked_flags"] = LLSD::Integer(linked_item->getFlags());
+			U32 flags = linked_item->getFlags();
+			item["linked_flags"] = LLSD::Integer(flags);
+			md5.update(boost::lexical_cast<std::string>(flags));
 		}
 		else if (LLAssetType::AT_LINK_FOLDER != inv_item->getActualType())
 		{
@@ -3212,8 +3228,14 @@ LLSD LLAppearanceMgr::dumpCOF() const
 					<< " during requestServerAppearanceUpdate" << llendl;
 			continue;
 		}
-		result.append(item);
+		links.append(item);
 	}
+	LLSD result = LLSD::emptyMap();
+	result["cof_contents"] = links;
+	char cof_md5sum[MD5HEX_STR_SIZE];
+	md5.finalize();
+	md5.hex_digest(cof_md5sum);
+	result["cof_md5sum"] = std::string(cof_md5sum);
 	return result;
 }
 
@@ -3245,7 +3267,7 @@ void LLAppearanceMgr::requestServerAppearanceUpdate(LLCurl::ResponderPtr respond
 	S32 cof_version = getCOFVersion();
 	if (gSavedSettings.getBOOL("DebugAvatarExperimentalServerAppearanceUpdate"))
 	{
-		body["cof_contents"] = dumpCOF();
+		body = dumpCOF();
 	}
 	else
 	{
