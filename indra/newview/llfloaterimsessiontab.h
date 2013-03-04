@@ -54,6 +54,7 @@ public:
 
 	// reload all message with new settings of visual modes
 	static void processChatHistoryStyleUpdate(bool clean_messages = false);
+	static void reloadEmptyFloaters();
 
 	/**
 	 * Returns true if chat is displayed in multi tabbed floater

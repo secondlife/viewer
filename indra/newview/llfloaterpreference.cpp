@@ -798,8 +798,13 @@ void LLFloaterPreference::onBtnOK()
 		//Conversation transcript and log path changed so reload conversations based on new location
 		if(mPriorInstantMessageLogPath.length())
 		{
+			if(moveTranscriptsAndLog())
+			{
+				//When floaters are empty but have a chat history files, reload chat history into them
+				LLFloaterIMSessionTab::reloadEmptyFloaters();
+			}
 			//Couldn't move files so restore the old path and show a notification
-			if(!moveTranscriptsAndLog())
+			else
 			{
 				gSavedPerAccountSettings.setString("InstantMessageLogPath", mPriorInstantMessageLogPath);
 				LLNotificationsUtil::add("PreferenceChatPathChanged");
