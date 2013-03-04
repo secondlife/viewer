@@ -502,6 +502,81 @@ boost::signals2::connection LLLogChat::setSaveHistorySignal(const save_history_s
 }
 
 //static
+bool LLLogChat::moveTranscripts(const std::string originDirectory, 
+								const std::string targetDirectory, 
+								std::vector<std::string>& listOfFilesToMove,
+								std::vector<std::string>& listOfFilesMoved)
+{
+	std::string newFullPath;
+	bool movedAllTranscripts = true;
+	std::string backupFileName;
+	unsigned backupFileCount;
+
+	BOOST_FOREACH(const std::string& fullpath, listOfFilesToMove)
+	{
+		backupFileCount = 0;
+		newFullPath = targetDirectory + fullpath.substr(originDirectory.length(), std::string::npos);
+
+		//The target directory contains that file already, so lets store it
+		if(LLFile::isfile(newFullPath))
+		{
+			backupFileName = newFullPath + ".backup";
+
+			//If needed store backup file as .backup1 etc.
+			while(LLFile::isfile(backupFileName))
+			{
+				++backupFileCount;
+				backupFileName = newFullPath + ".backup" + boost::lexical_cast<std::string>(backupFileCount);
+			}
+
+			//Rename the file to its backup name so it is not overwritten
+			LLFile::rename(newFullPath, backupFileName);
+		}
+
+		S32 retry_count = 0;
+		while (retry_count < 5)
+		{
+			//success is zero
+			if (LLFile::rename(fullpath, newFullPath) != 0)
+			{
+				retry_count++;
+				S32 result = errno;
+				LL_WARNS("LLLogChat::moveTranscripts") << "Problem renaming " << fullpath << " - errorcode: "
+					<< result << " attempt " << retry_count << LL_ENDL;
+
+				ms_sleep(100);
+			}
+			else
+			{
+				listOfFilesMoved.push_back(newFullPath);
+
+				if (retry_count)
+				{
+					LL_WARNS("LLLogChat::moveTranscripts") << "Successfully renamed " << fullpath << LL_ENDL;
+				}
+				break;
+			}			
+		}
+	}
+
+	if(listOfFilesMoved.size() != listOfFilesToMove.size())
+	{
+		movedAllTranscripts = false;
+	}		
+
+	return movedAllTranscripts;
+}
+
+//static
+bool LLLogChat::moveTranscripts(const std::string currentDirectory, 
+	const std::string newDirectory, 
+	std::vector<std::string>& listOfFilesToMove)
+{
+	std::vector<std::string> listOfFilesMoved;
+	return moveTranscripts(currentDirectory, newDirectory, listOfFilesToMove, listOfFilesMoved);
+}
+
+//static
 void LLLogChat::deleteTranscripts()
 {
 	std::vector<std::string> list_of_transcriptions;

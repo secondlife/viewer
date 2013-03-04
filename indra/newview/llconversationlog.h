@@ -137,12 +137,19 @@ public:
 	 * public method which is called on viewer exit to save conversation log
 	 */
 	void cache();
+	bool moveLog(const std::string &originDirectory, const std::string &targetDirectory);
 
 	void onClearLog();
 	void onClearLogResponse(const LLSD& notification, const LLSD& response);
 
 	bool getIsLoggingEnabled() { return mLoggingEnabled; }
 	bool isLogEmpty() { return mConversations.empty(); }
+
+	/**
+	 * constructs file name in which conversations log will be saved
+	 * file name is conversation.log
+	 */
+	std::string getFileName();
 
 private:
 
@@ -163,12 +170,6 @@ private:
 	void logConversation(const LLUUID& session_id, BOOL has_offline_msg);
 
 	void notifyParticularConversationObservers(const LLUUID& session_id, U32 mask);
-
-	/**
-	 * constructs file name in which conversations log will be saved
-	 * file name is conversation.log
-	 */
-	std::string getFileName();
 
 	bool saveToFile(const std::string& filename);
 	bool loadFromFile(const std::string& filename);

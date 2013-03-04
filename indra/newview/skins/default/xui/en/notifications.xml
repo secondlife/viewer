@@ -9708,14 +9708,6 @@ No room to sit here, try another spot.
 
   <notification
    icon="alertmodal.tga"
-   name="AutopilotCanceled"
-   type="notify">
-   <tag>fail</tag>
-Autopilot canceled
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="ClaimObjectFailedNoPermission"
    type="notify">
    <tag>fail</tag>
@@ -10028,4 +10020,15 @@ Cannot create large prims that intersect other players.  Please re-try when othe
      yestext="OK"/>
   </notification>
 
+  <notification
+   icon="alert.tga"
+   name="PreferenceChatPathChanged"
+   type="alert">
+   Unable to move files. Restored previous path.
+    <usetemplate
+     ignoretext="Unable to move files. Restored previous path."
+     name="okignore"
+     yestext="OK"/>
+  </notification>
+  
 </notifications>

@@ -31,6 +31,8 @@
 #include "llnotificationsutil.h"
 #include "lltrans.h"
 
+#include "boost/lexical_cast.hpp"
+
 const int CONVERSATION_LIFETIME = 30; // lifetime of LLConversation is 30 days by spec
 
 struct ConversationParams
@@ -376,6 +378,41 @@ void LLConversationLog::cache()
 	{
 		saveToFile(getFileName());
 	}
+}
+
+bool LLConversationLog::moveLog(const std::string &originDirectory, const std::string &targetDirectory)
+{
+
+	std::string backupFileName;
+	unsigned backupFileCount = 0;
+
+	//Does the file exist in the current path, if it does lets move it
+	if(LLFile::isfile(originDirectory)) 
+	{
+		//The target directory contains that file already, so lets store it
+		if(LLFile::isfile(targetDirectory))
+		{
+			backupFileName = targetDirectory + ".backup";
+
+			//If needed store backup file as .backup1 etc.
+			while(LLFile::isfile(backupFileName))
+			{
+				++backupFileCount;
+				backupFileName = targetDirectory + ".backup" + boost::lexical_cast<std::string>(backupFileCount);
+			}
+
+			//Rename the file to its backup name so it is not overwritten
+			LLFile::rename(targetDirectory, backupFileName);
+		}
+
+		//Move the file from the current path to target path
+		if(LLFile::rename(originDirectory, targetDirectory) != 0)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 std::string LLConversationLog::getFileName()
