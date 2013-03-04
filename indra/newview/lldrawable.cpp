@@ -643,18 +643,9 @@ BOOL LLDrawable::updateMove()
 		return FALSE;
 	}
 	
-	BOOL done;
+	makeActive();
 
-	if (isState(MOVE_UNDAMPED))
-	{
-		done = updateMoveUndamped();
-	}
-	else
-	{
-		makeActive();
-		done = updateMoveDamped();
-	}
-	return done;
+	return isState(MOVE_UNDAMPED) ? updateMoveUndamped() : updateMoveDamped();
 }
 
 BOOL LLDrawable::updateMoveUndamped()
