@@ -3849,7 +3849,8 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 	LLMatrix4a mp[64];
 	LLMatrix4* mat = (LLMatrix4*) mp;
 	
-	for (U32 j = 0; j < skin->mJointNames.size(); ++j)
+	U32 maxJoints = llmin(skin->mJointNames.size(), 64);
+	for (U32 j = 0; j < maxJoints; ++j)
 	{
 		LLJoint* joint = avatar->getJoint(skin->mJointNames[j]);
 		if (joint)
@@ -3904,8 +3905,11 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 						F32 w = wght[k];
 
 						LLMatrix4a src;
+						// Insure ref'd bone is in our clamped array of mats
+						llassert(idx[k] < 64);
+						// don't read garbage off the stack in release
+						if (idx[k] < 64)
 						src.setMul(mp[idx[k]], w);
-
 						final_mat.add(src);
 					}
 
@@ -5042,8 +5046,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 					flexi = flexi || facep->getViewerObject()->getVolume()->isUnique();
 				}
+				}
 			}
-		}
 
 
 		if (flexi && buffer_usage && buffer_usage != GL_STREAM_DRAW_ARB)
