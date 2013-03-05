@@ -5180,6 +5180,7 @@ LLVolumeFace::LLVolumeFace() :
 	mNumS(0),
 	mNumT(0),
 	mNumVertices(0),
+	mNumAllocatedVertices(0),
 	mNumIndices(0),
 	mPositions(NULL),
 	mNormals(NULL),
@@ -5204,6 +5205,7 @@ LLVolumeFace::LLVolumeFace(const LLVolumeFace& src)
 	mNumS(0),
 	mNumT(0),
 	mNumVertices(0),
+	mNumAllocatedVertices(0),
 	mNumIndices(0),
 	mPositions(NULL),
 	mNormals(NULL),
@@ -5258,12 +5260,6 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 		{
 			LLVector4a::memcpyNonAliased16((F32*) mTexCoords, (F32*) src.mTexCoords, tc_size);
 		}
-		else
-		{
-			ll_aligned_free_16(mTexCoords) ;
-			mTexCoords = NULL ;
-		}
-
 
 		if (src.mBinormals)
 		{
@@ -5313,10 +5309,11 @@ void LLVolumeFace::freeData()
 {
 	ll_aligned_free_16(mPositions);
 	mPositions = NULL;
-	ll_aligned_free_16( mNormals);
+
+	//normals and texture coordinates are part of the same buffer as mPositions, do not free them separately
 	mNormals = NULL;
-	ll_aligned_free_16(mTexCoords);
 	mTexCoords = NULL;
+
 	ll_aligned_free_16(mIndices);
 	mIndices = NULL;
 	ll_aligned_free_16(mBinormals);
@@ -5497,18 +5494,6 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 
 	llassert(new_face.mNumIndices == mNumIndices);
 	llassert(new_face.mNumVertices <= mNumVertices);
-
-	if (angle_cutoff > 1.f && !mNormals)
-	{
-		ll_aligned_free_16(new_face.mNormals);
-		new_face.mNormals = NULL;
-	}
-
-	if (!mTexCoords)
-	{
-		ll_aligned_free_16(new_face.mTexCoords);
-		new_face.mTexCoords = NULL;
-	}
 
 	swapData(new_face);
 }
@@ -5710,35 +5695,44 @@ public:
 
 	void updateScores()
 	{
-		for (U32 i = MaxSizeVertexCache; i < MaxSizeVertexCache+3; ++i)
-		{ //trailing 3 vertices aren't actually in the cache for scoring purposes
-			if (mCache[i])
+		LLVCacheVertexData** data_iter = mCache+MaxSizeVertexCache;
+		LLVCacheVertexData** end_data = mCache+MaxSizeVertexCache+3;
+
+		while(data_iter != end_data)
+		{
+			LLVCacheVertexData* data = *data_iter++;
+			//trailing 3 vertices aren't actually in the cache for scoring purposes
+			if (data)
 			{
-				mCache[i]->mCacheTag = -1;
+				data->mCacheTag = -1;
 			}
 		}
 
-		for (U32 i = 0; i < MaxSizeVertexCache; ++i)
+		data_iter = mCache;
+		end_data = mCache+MaxSizeVertexCache;
+
+		while (data_iter != end_data)
 		{ //update scores of vertices in cache
-			if (mCache[i])
+			LLVCacheVertexData* data = *data_iter++;
+			if (data)
 			{
-				mCache[i]->mScore = find_vertex_score(*(mCache[i]));
-				llassert(mCache[i]->mCacheTag == i);
+				data->mScore = find_vertex_score(*data);
 			}
 		}
 
 		mBestTriangle = NULL;
 		//update triangle scores
-		for (U32 i = 0; i < MaxSizeVertexCache+3; ++i)
+		data_iter = mCache;
+		end_data = mCache+MaxSizeVertexCache+3;
+
+		while (data_iter != end_data)
 		{
-			LLVCacheVertexData* data = mCache[i];
+			LLVCacheVertexData* data = *data_iter++;
 			if (data)
 			{
-				U32 count = data->mTriangles.size();
-
-				for (U32 j = 0; j < count; ++j)
+				for (std::vector<LLVCacheTriangleData*>::iterator iter = data->mTriangles.begin(), end_iter = data->mTriangles.end(); iter != end_iter; ++iter)
 				{
-					LLVCacheTriangleData* tri = data->mTriangles[j];
+					LLVCacheTriangleData* tri = *iter;
 					if (tri->mActive)
 					{
 						tri->mScore = tri->mVertex[0]->mScore;
@@ -5755,13 +5749,17 @@ public:
 		}
 
 		//knock trailing 3 vertices off the cache
-		for (U32 i = MaxSizeVertexCache; i < MaxSizeVertexCache+3; ++i)
+		data_iter = mCache+MaxSizeVertexCache;
+		end_data = mCache+MaxSizeVertexCache+3;
+		while (data_iter != end_data)
 		{
-			if (mCache[i])
+			LLVCacheVertexData* data = *data_iter;
+			if (data)
 			{
-				llassert(mCache[i]->mCacheTag == -1);
-				mCache[i] = NULL;
+				llassert(data->mCacheTag == -1);
+				*data_iter = NULL;
 			}
+			++data_iter;
 		}
 	}
 };
@@ -5896,10 +5894,10 @@ void LLVolumeFace::cacheOptimize()
 	
 	//allocate space for new buffer
 	S32 num_verts = mNumVertices;
-	LLVector4a* pos = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
-	LLVector4a* norm = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 	S32 size = ((num_verts*sizeof(LLVector2)) + 0xF) & ~0xF;
-	LLVector2* tc = (LLVector2*) ll_aligned_malloc_16(size);
+	LLVector4a* pos = (LLVector4a*) ll_aligned_malloc(sizeof(LLVector4a)*2*num_verts+size, 64);
+	LLVector4a* norm = pos + num_verts;
+	LLVector2* tc = (LLVector2*) (norm + num_verts);
 
 	LLVector4a* wght = NULL;
 	if (mWeights)
@@ -5947,9 +5945,8 @@ void LLVolumeFace::cacheOptimize()
 		mIndices[i] = new_idx[mIndices[i]];
 	}
 	
-	ll_aligned_free_16(mPositions);
-	ll_aligned_free_16(mNormals);
-	ll_aligned_free_16(mTexCoords);
+	ll_aligned_free(mPositions);
+	// DO NOT free mNormals and mTexCoords as they are part of mPositions buffer
 	ll_aligned_free_16(mWeights);
 	ll_aligned_free_16(mBinormals);
 
@@ -6666,24 +6663,22 @@ void LLVolumeFace::createBinormals()
 
 void LLVolumeFace::resizeVertices(S32 num_verts)
 {
-	ll_aligned_free_16(mPositions);
-	ll_aligned_free_16(mNormals);
+	ll_aligned_free(mPositions);
+	//DO NOT free mNormals and mTexCoords as they are part of mPositions buffer
 	ll_aligned_free_16(mBinormals);
-	ll_aligned_free_16(mTexCoords);
-
+	
 	mBinormals = NULL;
 
 	if (num_verts)
 	{
-		mPositions = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
-		ll_assert_aligned(mPositions, 16);
-		mNormals = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
-		ll_assert_aligned(mNormals, 16);
-
 		//pad texture coordinate block end to allow for QWORD reads
 		S32 size = ((num_verts*sizeof(LLVector2)) + 0xF) & ~0xF;
-		mTexCoords = (LLVector2*) ll_aligned_malloc_16(size);
-		ll_assert_aligned(mTexCoords, 16);
+
+		mPositions = (LLVector4a*) ll_aligned_malloc(sizeof(LLVector4a)*2*num_verts+size, 64);
+		mNormals = mPositions+num_verts;
+		mTexCoords = (LLVector2*) (mNormals+num_verts);
+
+		ll_assert_aligned(mPositions, 64);
 	}
 	else
 	{
@@ -6693,6 +6688,7 @@ void LLVolumeFace::resizeVertices(S32 num_verts)
 	}
 
 	mNumVertices = num_verts;
+	mNumAllocatedVertices = num_verts;
 }
 
 void LLVolumeFace::pushVertex(const LLVolumeFace::VertexData& cv)
@@ -6703,27 +6699,43 @@ void LLVolumeFace::pushVertex(const LLVolumeFace::VertexData& cv)
 void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, const LLVector2& tc)
 {
 	S32 new_verts = mNumVertices+1;
-	S32 new_size = new_verts*16;
-	S32 old_size = mNumVertices*16;
 
-	//positions
-	mPositions = (LLVector4a*) ll_aligned_realloc_16(mPositions, new_size, old_size);
-	ll_assert_aligned(mPositions,16);
+	if (new_verts > mNumAllocatedVertices)
+	{ 
+		//double buffer size on expansion
+		new_verts *= 2;
+
+		S32 new_tc_size = ((new_verts*8)+0xF) & ~0xF;
+		S32 old_tc_size = ((mNumVertices*8)+0xF) & ~0xF;
+
+		S32 old_vsize = mNumVertices*16;
+		
+		S32 new_size = new_verts*16*2+new_tc_size;
+
+		LLVector4a* old_buf = mPositions;
+
+		mPositions = (LLVector4a*) ll_aligned_malloc(new_size, 64);
+		mNormals = mPositions+new_verts;
+		mTexCoords = (LLVector2*) (mNormals+new_verts);
+
+		//positions
+		LLVector4a::memcpyNonAliased16((F32*) mPositions, (F32*) old_buf, old_vsize);
+		
+		//normals
+		LLVector4a::memcpyNonAliased16((F32*) mNormals, (F32*) (old_buf+mNumVertices), old_vsize);
 	
-	//normals
-	mNormals = (LLVector4a*) ll_aligned_realloc_16(mNormals, new_size, old_size);
-	ll_assert_aligned(mNormals,16);
-
-	//tex coords
-	new_size = ((new_verts*8)+0xF) & ~0xF;
-	old_size = ((mNumVertices*8)+0xF) & ~0xF;
-	mTexCoords = (LLVector2*) ll_aligned_realloc_16(mTexCoords, new_size, old_size);
-	ll_assert_aligned(mTexCoords,16);
+		//tex coords
+		LLVector4a::memcpyNonAliased16((F32*) mTexCoords, (F32*) (old_buf+mNumVertices*2), old_tc_size);
 	
+		//just clear binormals
+		ll_aligned_free_16(mBinormals);
 
-	//just clear binormals
-	ll_aligned_free_16(mBinormals);
-	mBinormals = NULL;
+		ll_aligned_free(old_buf);
+
+		mNumAllocatedVertices = new_verts;
+
+		mBinormals = NULL;
+	}
 
 	mPositions[mNumVertices] = pos;
 	mNormals[mNumVertices] = norm;
@@ -6812,13 +6824,23 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 		llerrs << "Cannot append empty face." << llendl;
 	}
 
+	U32 old_vsize = mNumVertices*16;
+	U32 new_vsize = new_count * 16;
+	U32 old_tcsize = (mNumVertices*sizeof(LLVector2)+0xF) & ~0xF;
+	U32 new_tcsize = (new_count*sizeof(LLVector2)+0xF) & ~0xF;
+	U32 new_size = new_vsize * 2 + new_tcsize;
+
 	//allocate new buffer space
-	mPositions = (LLVector4a*) ll_aligned_realloc_16(mPositions, new_count*sizeof(LLVector4a), mNumVertices*sizeof(LLVector4a));
-	ll_assert_aligned(mPositions, 16);
-	mNormals = (LLVector4a*) ll_aligned_realloc_16(mNormals, new_count*sizeof(LLVector4a), mNumVertices*sizeof(LLVector4a));
-	ll_assert_aligned(mNormals, 16);
-	mTexCoords = (LLVector2*) ll_aligned_realloc_16(mTexCoords, (new_count*sizeof(LLVector2)+0xF) & ~0xF, (mNumVertices*sizeof(LLVector2)+0xF) & ~0xF);
-	ll_assert_aligned(mTexCoords, 16);
+	LLVector4a* old_buf = mPositions;
+	mPositions = (LLVector4a*) ll_aligned_malloc(new_size, 64);
+	mNormals = mPositions + new_count;
+	mTexCoords = (LLVector2*) (mNormals+new_count);
+
+	mNumAllocatedVertices = new_count;
+
+	LLVector4a::memcpyNonAliased16((F32*) mPositions, (F32*) old_buf, old_vsize);
+	LLVector4a::memcpyNonAliased16((F32*) mNormals, (F32*) (old_buf+mNumVertices), old_vsize);
+	LLVector4a::memcpyNonAliased16((F32*) mTexCoords, (F32*) (old_buf+mNumVertices*2), old_tcsize);
 	
 	mNumVertices = new_count;
 
@@ -6914,12 +6936,15 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	LLVector4a* pos = (LLVector4a*) mPositions;
 	LLVector4a* norm = (LLVector4a*) mNormals;
 	LLVector2* tc = (LLVector2*) mTexCoords;
-	S32 begin_stex = llfloor( profile[mBeginS].mV[2] );
+	F32 begin_stex = floorf(profile[mBeginS].mV[2]);
 	S32 num_s = ((mTypeMask & INNER_MASK) && (mTypeMask & FLAT_MASK) && mNumS > 2) ? mNumS/2 : mNumS;
 
 	S32 cur_vertex = 0;
+	S32 end_t = mBeginT+mNumT;
+	bool test = (mTypeMask & INNER_MASK) && (mTypeMask & FLAT_MASK) && mNumS > 2;
+
 	// Copy the vertices into the array
-	for (t = mBeginT; t < mBeginT + mNumT; t++)
+	for (t = mBeginT; t < end_t; t++)
 	{
 		tt = path_data[t].mTexT;
 		for (s = 0; s < num_s; s++)
@@ -6970,9 +6995,8 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 			norm[cur_vertex].clear();
 			cur_vertex++;
 
-			if ((mTypeMask & INNER_MASK) && (mTypeMask & FLAT_MASK) && mNumS > 2 && s > 0)
+			if (test && s > 0)
 			{
-
 				pos[cur_vertex].load3(mesh[i].mPos.mV);
 				tc[cur_vertex] = LLVector2(ss,tt);
 			
@@ -7087,30 +7111,38 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	}
 
 	//generate normals 
-	for (U32 i = 0; i < mNumIndices/3; i++) //for each triangle
+	U32 count = mNumIndices/3;
+
+	for (U32 i = 0; i < count; i++) //for each triangle
 	{
 		const U16* idx = &(mIndices[i*3]);
 		
-
-		LLVector4a* v[] = 
-		{	pos+idx[0], pos+idx[1], pos+idx[2] };
+		LLVector4a& v0 = *(pos+idx[0]);
+		LLVector4a& v1 = *(pos+idx[1]);
+		LLVector4a& v2 = *(pos+idx[2]);
 		
-		LLVector4a* n[] = 
-		{	norm+idx[0], norm+idx[1], norm+idx[2] };
+		LLVector4a& n0 = *(norm+idx[0]);
+		LLVector4a& n1 = *(norm+idx[1]);
+		LLVector4a& n2 = *(norm+idx[2]);
 		
 		//calculate triangle normal
 		LLVector4a a, b, c;
 		
-		a.setSub(*v[0], *v[1]);
-		b.setSub(*v[0], *v[2]);
+		a.setSub(v0, v1);
+		b.setSub(v0, v2);
 		c.setCross3(a,b);
 
-		n[0]->add(c);
-		n[1]->add(c);
-		n[2]->add(c);
+		n0.add(c);
+		n1.add(c);
+		n2.add(c);
 		
 		//even out quad contributions
-		n[i%2+1]->add(c);
+		switch (i%2+1)
+		{
+			case 0: n0.add(c); break;
+			case 1: n1.add(c); break;
+			case 2: n2.add(c); break;
+		};
 	}
 	
 	// adjust normals based on wrapping and stitching

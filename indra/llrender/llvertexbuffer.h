@@ -104,11 +104,11 @@ public:
 	class MappedRegion
 	{
 	public:
-		S32 mType;
 		S32 mIndex;
 		S32 mCount;
+		S32 mEnd;
 		
-		MappedRegion(S32 type, S32 index, S32 count);
+		MappedRegion(S32 index, S32 count);
 	};
 
 	LLVertexBuffer(const LLVertexBuffer& rhs)
