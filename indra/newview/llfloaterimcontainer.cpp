@@ -1392,6 +1392,10 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 				// Switch to the conversation floater that is being selected
 				selectFloater(session_floater);
 			}
+			else
+			{
+				showStub(true);
+			}
 		}
 
 		// Set the focus on the selected floater

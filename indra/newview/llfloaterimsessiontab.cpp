@@ -324,13 +324,6 @@ void LLFloaterIMSessionTab::onFocusReceived()
 	}
 
 	LLTransientDockableFloater::onFocusReceived();
-
-	LLFloaterIMContainer* container = LLFloaterReg::findTypedInstance<LLFloaterIMContainer>("im_container");
-	if (container)
-	{
-		container->selectConversationPair(mSessionID, true);
-		container->showStub(! getHost());
-	}
 }
 
 void LLFloaterIMSessionTab::onFocusLost()
