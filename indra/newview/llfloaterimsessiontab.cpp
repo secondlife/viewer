@@ -725,6 +725,27 @@ void LLFloaterIMSessionTab::processChatHistoryStyleUpdate(bool clean_messages/* 
 	}
 }
 
+// static
+void LLFloaterIMSessionTab::reloadEmptyFloaters()
+{
+	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
+	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
+		iter != inst_list.end(); ++iter)
+	{
+		LLFloaterIMSession* floater = dynamic_cast<LLFloaterIMSession*>(*iter);
+		if (floater && floater->getLastChatMessageIndex() == -1)
+		{
+			floater->reloadMessages(true);
+		}
+	}
+
+	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
+	if (nearby_chat && nearby_chat->getMessageArchiveLength() == 0)
+	{
+		nearby_chat->reloadMessages(true);
+	}
+}
+
 void LLFloaterIMSessionTab::updateCallBtnState(bool callIsActive)
 {
 	LLButton* voiceButton = getChild<LLButton>("voice_call_btn");
@@ -917,4 +938,25 @@ LLConversationItem* LLFloaterIMSessionTab::getCurSelectedViewModelItem()
 	}
 
 	return conversationItem;
+}
+
+BOOL LLFloaterIMSessionTab::handleKeyHere(KEY key, MASK mask )
+{
+	if(mask == MASK_ALT)
+	{
+		LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
+		if (KEY_RETURN == key && !isTornOff())
+		{
+			floater_container->expandConversation();
+		}
+		if ((KEY_UP == key) || (KEY_LEFT == key))
+		{
+			floater_container->selectNextorPreviousConversation(false);
+		}
+		if ((KEY_DOWN == key ) || (KEY_RIGHT == key))
+		{
+			floater_container->selectNextorPreviousConversation(true);
+		}
+	}
+	return TRUE;
 }

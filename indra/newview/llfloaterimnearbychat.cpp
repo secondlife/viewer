@@ -150,7 +150,7 @@ void LLFloaterIMNearbyChat::closeHostedFloater()
 		{
 			setVisible(FALSE);
 		}
-		floater_container->selectNextConversation(LLUUID());
+		floater_container->selectNextConversationByID(LLUUID());
 	}
 }
 
@@ -352,6 +352,28 @@ BOOL LLFloaterIMNearbyChat::handleKeyHere( KEY key, MASK mask )
 		// shout
 		sendChat(CHAT_TYPE_SHOUT);
 		handled = TRUE;
+	}
+	else if (KEY_RETURN == key && mask == MASK_SHIFT)
+	{
+		// whisper
+		sendChat(CHAT_TYPE_WHISPER);
+		handled = TRUE;
+	}
+
+
+	if((mask == MASK_ALT) && isTornOff())
+	{
+		LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
+		if ((KEY_UP == key) || (KEY_LEFT == key))
+		{
+			floater_container->selectNextorPreviousConversation(false);
+			handled = TRUE;
+		}
+		if ((KEY_DOWN == key ) || (KEY_RIGHT == key))
+		{
+			floater_container->selectNextorPreviousConversation(true);
+			handled = TRUE;
+		}
 	}
 
 	return handled;

@@ -2072,7 +2072,7 @@ LLFolderViewItem* LLFolderViewFolder::getPreviousFromChild( LLFolderViewItem* it
 		if (fit != fend)
 		{
 			// try selecting child element of this folder
-			if ((*fit)->isOpen())
+			if ((*fit)->isOpen() && include_children)
 			{
 				result = (*fit)->getPreviousFromChild(NULL);
 			}

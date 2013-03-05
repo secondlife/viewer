@@ -1483,6 +1483,8 @@ BOOL LLTabContainer::setTab(S32 which)
 		for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
 		{
 			LLTabTuple* tuple = *iter;
+			if (!tuple)
+				continue;
 			BOOL is_selected = ( tuple == selected_tuple );
 			tuple->mButton->setUseEllipses(mUseTabEllipses);
 			tuple->mButton->setHAlign(mFontHalign);

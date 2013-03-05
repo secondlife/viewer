@@ -69,9 +69,11 @@ public:
 	void returnFloaterToHost();
     void showConversation(const LLUUID& session_id);
     void selectConversation(const LLUUID& session_id);
-	void selectNextConversation(const LLUUID& session_id);
-    BOOL selectConversationPair(const LLUUID& session_id, bool select_widget);
+	void selectNextConversationByID(const LLUUID& session_id);
+    BOOL selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater = true);
     void clearAllFlashStates();
+    bool selectNextorPreviousConversation(bool select_next);
+    void expandConversation();
 
 	/*virtual*/ void tabClose();
 	void showStub(bool visible);
@@ -109,7 +111,7 @@ public:
     void doToParticipants(const std::string& item, uuid_vec_t& selectedIDS);
 
 	void assignResizeLimits();
-
+	virtual BOOL handleKeyHere(KEY key, MASK mask );
 	/*virtual*/ void closeFloater(bool app_quitting = false);
 
 private:
