@@ -128,7 +128,6 @@ public:
 
 private:
 
-	UniformVec mShinyUniforms;
 	// the list of shaders we need to propagate parameters to.
 	std::vector<LLGLSLShader *> mShaderList;
 
