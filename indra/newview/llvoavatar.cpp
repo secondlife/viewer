@@ -4496,7 +4496,8 @@ const std::string LLVOAvatar::getImageURL(const U8 te, const LLUUID &uuid)
 	std::string url = "";
 	if (isUsingServerBakes())
 	{
-		if (gSavedSettings.getString("AgentAppearanceServiceURL").empty())
+		const std::string& appearance_service_url = LLAppearanceMgr::instance().getAppearanceServiceURL();
+		if (appearance_service_url.empty())
 		{
 			// Probably a server-side issue if we get here:
 			llwarns << "AgentAppearanceServiceURL not set - Baked texture requests will fail" << llendl;
@@ -4506,7 +4507,7 @@ const std::string LLVOAvatar::getImageURL(const U8 te, const LLUUID &uuid)
 		const LLAvatarAppearanceDictionary::TextureEntry* texture_entry = LLAvatarAppearanceDictionary::getInstance()->getTexture((ETextureIndex)te);
 		if (texture_entry != NULL)
 		{
-			url = gSavedSettings.getString("AgentAppearanceServiceURL") + "texture/" + getID().asString() + "/" + texture_entry->mDefaultImageName + "/" + uuid.asString();
+			url = appearance_service_url + "texture/" + getID().asString() + "/" + texture_entry->mDefaultImageName + "/" + uuid.asString();
 			//llinfos << "baked texture url: " << url << llendl;
 		}
 	}
@@ -7256,7 +7257,7 @@ void LLVOAvatar::onBakedTextureLoaded(BOOL success,
 									  LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src,
 									  S32 discard_level, BOOL final, void* userdata)
 {
-	// llinfos << "onBakedTextureLoaded: " << src_vi->getID() << llendl;
+	LL_DEBUGS("Avatar") << "onBakedTextureLoaded: " << src_vi->getID() << LL_ENDL;
 
 	LLUUID id = src_vi->getID();
 	LLUUID *avatar_idp = (LLUUID *)userdata;

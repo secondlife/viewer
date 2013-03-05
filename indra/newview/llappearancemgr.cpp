@@ -3359,6 +3359,15 @@ void LLAppearanceMgr::incrementCofVersion(LLHTTPClient::ResponderPtr responder_p
 	LLHTTPClient::get(url, body, responder_ptr, headers, 30.0f);
 }
 
+std::string LLAppearanceMgr::getAppearanceServiceURL() const
+{
+	if (gSavedSettings.getString("DebugAvatarAppearanceServiceURLOverride").empty())
+	{
+		return mAppearanceServiceURL;
+	}
+	return gSavedSettings.getString("DebugAvatarAppearanceServiceURLOverride");
+}
+
 void show_created_outfit(LLUUID& folder_id, bool show_panel = true)
 {
 	if (!LLApp::isRunning())

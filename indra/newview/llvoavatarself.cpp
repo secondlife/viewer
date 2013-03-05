@@ -2469,7 +2469,7 @@ void LLVOAvatarSelf::checkForUnsupportedServerBakeAppearance()
 		return;
 
 	// if baked image service is unknown, need to refresh.
-	if (gSavedSettings.getString("AgentAppearanceServiceURL").empty())
+	if (LLAppearanceMgr::instance().getAppearanceServiceURL().empty())
 	{
 		CheckAgentAppearanceServiceResponder::forceAppearanceUpdate();
 	}
