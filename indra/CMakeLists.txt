@@ -3,14 +3,8 @@
 # cmake_minimum_required should appear before any
 # other commands to guarantee full compatibility
 # with the version specified
-
-# The "cmake -E touch" command was released with 2.4.8.
-cmake_minimum_required(VERSION 2.4.8 FATAL_ERROR)
-
-# This makes cmake 2.6 not complain about version 2.4 compatibility.
-if (COMMAND cmake_policy)
-  cmake_policy(SET CMP0003 OLD)
-endif (COMMAND cmake_policy)
+## prior to 2.8, the add_custom_target commands used in setting the version did not work correctly
+cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 
 set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
     "The root project/makefile/solution name. Defaults to SecondLife.")
@@ -20,13 +14,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 include(Variables)
 include(BuildVersion)
-
-if (DARWIN)
-  # 2.6.4 fixes a Mac bug in get_target_property(... "SLPlugin" LOCATION):
-  # before that version it returns "pathname/SLPlugin", whereas the correct
-  # answer is "pathname/SLPlugin.app/Contents/MacOS/SLPlugin".
-  cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
-endif (DARWIN)
 
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
