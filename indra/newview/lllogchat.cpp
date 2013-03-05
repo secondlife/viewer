@@ -453,7 +453,7 @@ void LLLogChat::getListOfTranscriptFiles(std::vector<std::string>& list_of_trans
 	dirname += gDirUtilp->getDirDelimiter();
 
 	// create search pattern
-	std::string pattern = "*." + LL_TRANSCRIPT_FILE_EXTENSION;
+	std::string pattern = "*." + LL_TRANSCRIPT_FILE_EXTENSION + "*";
 
 	LLDirIterator iter(dirname, pattern);
 	std::string filename;
