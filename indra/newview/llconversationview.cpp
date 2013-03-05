@@ -567,6 +567,7 @@ BOOL LLConversationViewParticipant::handleMouseDown( S32 x, S32 y, MASK mask )
 
     		LLFloaterIMContainer *im_container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
     		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
+			im_container->setSelectedSession(session_id);
 			im_container->flashConversationItemWidget(session_id,false);
 			im_container->selectFloater(session_floater);
 			im_container->collapseMessagesPane(false);
