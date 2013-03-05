@@ -709,9 +709,12 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 
 					mMipLevels = wpo2(llmax(w, h));
 
-					//use legacy mipmap generation mode
-					glTexParameteri(mTarget, GL_GENERATE_MIPMAP, GL_TRUE);
-					
+					if (!gGLManager.mHasFramebufferObject)
+					{
+						//use legacy mipmap generation mode
+						glTexParameteri(mTarget, GL_GENERATE_MIPMAP, GL_TRUE);
+					}
+										
 					LLImageGL::setManualImage(mTarget, 0, mFormatInternal,
 								 w, h, 
 								 mFormatPrimary, mFormatType,
@@ -725,6 +728,11 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 					{
 						glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
 						stop_glerror();
+					}
+
+					if (gGLManager.mHasFramebufferObject)
+					{
+						glGenerateMipmap(mTarget);
 					}
 				}
 			}
@@ -1057,6 +1065,16 @@ void LLImageGL::generateTextures(LLTexUnit::eTextureType type, U32 format, S32 n
 {
 	bool empty = true;
 
+	if (LLRender::sGLCoreProfile)
+	{
+		switch (format)
+		{
+			case GL_LUMINANCE8: format = GL_RGB8; break;
+			case GL_LUMINANCE8_ALPHA8:
+			case GL_ALPHA8: format = GL_RGBA8; break;
+		}
+	}
+
 	dead_texturelist_t::iterator iter = sDeadTextureList[type].find(format);
 	
 	if (iter != sDeadTextureList[type].end())
@@ -1084,6 +1102,16 @@ void LLImageGL::deleteTextures(LLTexUnit::eTextureType type, U32 format, S32 mip
 {
 	if (gGLManager.mInited)
 	{
+		if (LLRender::sGLCoreProfile)
+		{
+			switch (format)
+			{
+				case GL_LUMINANCE8: format = GL_RGB8; break;
+				case GL_LUMINANCE8_ALPHA8:
+				case GL_ALPHA8: format = GL_RGBA8; break;
+			}
+		}
+
 		if (format == 0 ||  type == LLTexUnit::TT_CUBE_MAP || mip_levels == -1)
 		{ //unknown internal format or unknown number of mip levels, not safe to reuse
 			glDeleteTextures(numTextures, textures);

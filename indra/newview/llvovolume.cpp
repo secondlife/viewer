@@ -99,6 +99,8 @@ static LLFastTimer::DeclareTimer FTM_GEN_TRIANGLES("Generate Triangles");
 static LLFastTimer::DeclareTimer FTM_GEN_VOLUME("Generate Volumes");
 static LLFastTimer::DeclareTimer FTM_VOLUME_TEXTURES("Volume Textures");
 
+extern BOOL gGLDebugLoggingEnabled;
+
 // Implementation class of LLMediaDataClientObject.  See llmediadataclient.h
 class LLMediaDataClientObjectImpl : public LLMediaDataClientObject
 {
@@ -1067,7 +1069,9 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 					break;
 				}
 				volume->genBinormals(i);
+				//gGLDebugLoggingEnabled = TRUE;
 				LLFace::cacheFaceInVRAM(face);
+				//gGLDebugLoggingEnabled = FALSE;
 			}
 		}
 		
@@ -1116,6 +1120,12 @@ void LLVOVolume::notifyMeshLoaded()
 { 
 	mSculptChanged = TRUE;
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY, TRUE);
+
+	LLVOAvatar* avatar = getAvatar();
+	if (avatar)
+	{
+		avatar->updateVisualComplexity();
+	}
 }
 
 // sculpt replaces generate() for sculpted surfaces
@@ -3836,10 +3846,13 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 	}
 
 	//build matrix palette
-	LLMatrix4a mp[64];
+	static const size_t kMaxJoints = 64;
+
+	LLMatrix4a mp[kMaxJoints];
 	LLMatrix4* mat = (LLMatrix4*) mp;
 	
-	for (U32 j = 0; j < skin->mJointNames.size(); ++j)
+	U32 maxJoints = llmin(skin->mJointNames.size(), kMaxJoints);
+	for (U32 j = 0; j < maxJoints; ++j)
 	{
 		LLJoint* joint = avatar->getJoint(skin->mJointNames[j]);
 		if (joint)
@@ -3894,8 +3907,10 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 						F32 w = wght[k];
 
 						LLMatrix4a src;
-						src.setMul(mp[idx[k]], w);
-
+						// Insure ref'd bone is in our clamped array of mats
+						llassert(idx[k] < kMaxJoints);
+						// clamp k to kMaxJoints to avoid reading garbage off stack in release
+						src.setMul(mp[idx[(k < kMaxJoints) ? k : 0]], w);
 						final_mat.add(src);
 					}
 
@@ -4644,7 +4659,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		bump_mask |= LLVertexBuffer::MAP_BINORMAL;
 		genDrawInfo(group, simple_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, simple_faces, FALSE, TRUE);
 		genDrawInfo(group, fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, fullbright_faces, FALSE, TRUE);
-		genDrawInfo(group, bump_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, bump_faces, FALSE, TRUE);
+		genDrawInfo(group, bump_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, bump_faces, FALSE, FALSE);
 		genDrawInfo(group, alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, alpha_faces, TRUE, TRUE);
 	}
 	else
@@ -4830,6 +4845,16 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 	U32 buffer_usage = group->mBufferUsage;
 	
+	static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback");
+
+	if (use_transform_feedback &&
+		gTransformPositionProgram.mProgramObject && //transform shaders are loaded
+		buffer_usage == GL_DYNAMIC_DRAW_ARB && //target buffer is in VRAM
+		!(mask & LLVertexBuffer::MAP_WEIGHT4)) //TODO: add support for weights
+	{
+		buffer_usage = GL_DYNAMIC_COPY_ARB;
+	}
+
 #if LL_DARWIN
 	// HACK from Leslie:
 	// Disable VBO usage for alpha on Mac OS X because it kills the framerate
@@ -4889,6 +4914,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 	//NEVER use more than 16 texture index channels (workaround for prevalent driver bug)
 	texture_index_channels = llmin(texture_index_channels, 16);
 
+	bool flexi = false;
+
 	while (face_iter != faces.end())
 	{
 		//pull off next face
@@ -4914,6 +4941,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 		U32 index_count = facep->getIndicesCount();
 		U32 geom_count = facep->getGeomCount();
+
+		flexi = flexi || facep->getViewerObject()->getVolume()->isUnique();
 
 		//sum up vertices needed for this render batch
 		std::vector<LLFace*>::iterator i = face_iter;
@@ -4983,6 +5012,9 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 						}
 
 						++i;
+
+						flexi = flexi || facep->getViewerObject()->getVolume()->isUnique();
+
 						index_count += facep->getIndicesCount();
 						geom_count += facep->getGeomCount();
 
@@ -5012,8 +5044,16 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					++i;
 					index_count += facep->getIndicesCount();
 					geom_count += facep->getGeomCount();
+
+					flexi = flexi || facep->getViewerObject()->getVolume()->isUnique();
+				}
 				}
 			}
+
+
+		if (flexi && buffer_usage && buffer_usage != GL_STREAM_DRAW_ARB)
+		{
+			buffer_usage = GL_STREAM_DRAW_ARB;
 		}
 
 		//create vertex buffer

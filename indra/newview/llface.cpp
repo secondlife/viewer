@@ -51,7 +51,9 @@
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llviewershadermgr.h"
+#include "llvoavatar.h"
 
+extern BOOL gGLDebugLoggingEnabled;
 
 #define LL_MAX_INDICES_COUNT 1000000
 
@@ -328,6 +330,12 @@ void LLFace::dirtyTexture()
 		if (vobj)
 		{
 			vobj->mLODChanged = TRUE;
+
+			LLVOAvatar* avatar = vobj->getAvatar();
+			if (avatar)
+			{ //avatar render cost may have changed
+				avatar->updateVisualComplexity();
+			}
 		}
 		gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
 	}		
@@ -1162,6 +1170,15 @@ static LLFastTimer::DeclareTimer FTM_FACE_GEOM_COLOR("Color");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_EMISSIVE("Emissive");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_WEIGHTS("Weights");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_BINORMAL("Binormal");
+
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK("Face Feedback");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_POSITION("Feedback Position");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_NORMAL("Feedback  Normal");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_TEXTURE("Feedback  Texture");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_COLOR("Feedback  Color");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_EMISSIVE("Feedback  Emissive");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_BINORMAL("Feedback Binormal");
+
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_INDEX("Index");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_INDEX_TAIL("Tail");
 static LLFastTimer::DeclareTimer FTM_FACE_POSITION_STORE("Pos");
@@ -1385,12 +1402,15 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 #ifdef GL_TRANSFORM_FEEDBACK_BUFFER
 	if (use_transform_feedback &&
+		mVertexBuffer->getUsage() == GL_DYNAMIC_COPY_ARB &&
 		gTransformPositionProgram.mProgramObject && //transform shaders are loaded
 		mVertexBuffer->useVBOs() && //target buffer is in VRAM
 		!rebuild_weights && //TODO: add support for weights
 		!volume.isUnique()) //source volume is NOT flexi
 	{ //use transform feedback to pack vertex buffer
-
+		//gGLDebugLoggingEnabled = TRUE;
+		LLFastTimer t(FTM_FACE_GEOM_FEEDBACK);
+		LLGLEnable discard(GL_RASTERIZER_DISCARD);
 		LLVertexBuffer* buff = (LLVertexBuffer*) vf.mVertexBuffer.get();
 
 		if (vf.mVertexBuffer.isNull() || buff->getNumVerts() != vf.mNumVertices)
@@ -1407,7 +1427,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_pos)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_POSITION);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_POSITION);
 			gTransformPositionProgram.bind();
 
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_VERTEX, mGeomIndex, mGeomCount);
@@ -1420,7 +1440,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			vp[1] = 0;
 			vp[2] = 0;
 			vp[3] = 0;
-						
+			
 			gTransformPositionProgram.uniform1i(sTextureIndexIn, val);
 			glBeginTransformFeedback(GL_POINTS);
 			buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
@@ -1432,7 +1452,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_color)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_COLOR);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_COLOR);
 			gTransformColorProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_COLOR, mGeomIndex, mGeomCount);
@@ -1448,7 +1468,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_emissive)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_EMISSIVE);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_EMISSIVE);
 			gTransformColorProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_EMISSIVE, mGeomIndex, mGeomCount);
@@ -1469,7 +1489,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_normal)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_NORMAL);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_NORMAL);
 			gTransformNormalProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_NORMAL, mGeomIndex, mGeomCount);
@@ -1482,7 +1502,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_binormal)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_BINORMAL);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_BINORMAL);
 			gTransformBinormalProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_BINORMAL, mGeomIndex, mGeomCount);
@@ -1495,7 +1515,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_tcoord)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_TEXTURE);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_TEXTURE);
 			gTransformTexCoordProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_TEXCOORD0, mGeomIndex, mGeomCount);
@@ -1518,13 +1538,13 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		}
 
 		glBindBufferARB(GL_TRANSFORM_FEEDBACK_BUFFER, 0);
-
 		gGL.popMatrix();
 
 		if (cur_shader)
 		{
 			cur_shader->bind();
 		}
+		//gGLDebugLoggingEnabled = FALSE;
 	}
 	else
 #endif
@@ -1939,21 +1959,31 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_pos)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_POSITION);
+			LLVector4a* src = vf.mPositions;
+			
+			//_mm_prefetch((char*)src, _MM_HINT_T0);
+
+			LLVector4a* end = src+num_vertices;
+			//LLVector4a* end_64 = end-4;
+
+			//LLFastTimer t(FTM_FACE_GEOM_POSITION);
 			llassert(num_vertices > 0);
 		
 			mVertexBuffer->getVertexStrider(vert, mGeomIndex, mGeomCount, map_range);
 			
-
 			LLMatrix4a mat_vert;
 			mat_vert.loadu(mat_vert_in);
+								
+			F32* dst = (F32*) vert.get();
+			F32* end_f32 = dst+mGeomCount*4;
 
-			LLVector4a* src = vf.mPositions;
-			volatile F32* dst = (volatile F32*) vert.get();
+			//_mm_prefetch((char*)dst, _MM_HINT_NTA);
+			//_mm_prefetch((char*)src, _MM_HINT_NTA);
+				
+			//_mm_prefetch((char*)dst, _MM_HINT_NTA);
 
-			volatile F32* end = dst+num_vertices*4;
-			LLVector4a res;
-
+			LLVector4a res0; //,res1,res2,res3;
+			
 			LLVector4a texIdx;
 
 			S32 index = mTextureIndex < 255 ? mTextureIndex : 0;
@@ -1970,29 +2000,53 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		
 			texIdx.set(0,0,0,val);
 
-			{
-				LLFastTimer t(FTM_FACE_POSITION_STORE);
-				LLVector4a tmp;
+			LLVector4a tmp;
 
-				do
-				{	
-					mat_vert.affineTransform(*src++, res);
-					tmp.setSelectWithMask(mask, texIdx, res);
+			{
+				//LLFastTimer t2(FTM_FACE_POSITION_STORE);
+
+				/*if (num_vertices > 4)
+				{ //more than 64 bytes
+					while (src < end_64)
+					{	
+						_mm_prefetch((char*)src + 64, _MM_HINT_T0);
+						_mm_prefetch((char*)dst + 64, _MM_HINT_T0);
+
+						mat_vert.affineTransform(*src, res0);
+						tmp.setSelectWithMask(mask, texIdx, res0);
+						tmp.store4a((F32*) dst);
+
+						mat_vert.affineTransform(*(src+1), res1);
+						tmp.setSelectWithMask(mask, texIdx, res1);
+						tmp.store4a((F32*) dst+4);
+
+						mat_vert.affineTransform(*(src+2), res2);
+						tmp.setSelectWithMask(mask, texIdx, res2);
+						tmp.store4a((F32*) dst+8);
+
+						mat_vert.affineTransform(*(src+3), res3);
+						tmp.setSelectWithMask(mask, texIdx, res3);
+						tmp.store4a((F32*) dst+12);
+
+						dst += 16;
+						src += 4;
+					}
+				}*/
+
+				while (src < end)
+				{
+					mat_vert.affineTransform(*src++, res0);
+					tmp.setSelectWithMask(mask, texIdx, res0);
 					tmp.store4a((F32*) dst);
 					dst += 4;
 				}
-				while(dst < end);
 			}
-
+			
 			{
-				LLFastTimer t(FTM_FACE_POSITION_PAD);
-				S32 aligned_pad_vertices = mGeomCount - num_vertices;
-				res.set(res[0], res[1], res[2], 0.f);
-
-				while (aligned_pad_vertices > 0)
+				//LLFastTimer t(FTM_FACE_POSITION_PAD);
+				while (dst < end_f32)
 				{
-					--aligned_pad_vertices;
-					res.store4a((F32*) dst);
+					res0.store4a((F32*) dst);
 					dst += 4;
 				}
 			}
@@ -2006,15 +2060,17 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		
 		if (rebuild_normal)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_NORMAL);
+			//LLFastTimer t(FTM_FACE_GEOM_NORMAL);
 			mVertexBuffer->getNormalStrider(norm, mGeomIndex, mGeomCount, map_range);
 			F32* normals = (F32*) norm.get();
 	
-			for (S32 i = 0; i < num_vertices; i++)
-			{	
+			LLVector4a* src = vf.mNormals;
+			LLVector4a* end = src+num_vertices;
+			
+			while (src < end)
+			{
 				LLVector4a normal;
-				mat_normal.rotate(vf.mNormals[i], normal);
-				normal.normalize3fast();
+				mat_normal.rotate(*src++, normal);
 				normal.store4a(normals);
 				normals += 4;
 			}
@@ -2031,11 +2087,13 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			mVertexBuffer->getBinormalStrider(binorm, mGeomIndex, mGeomCount, map_range);
 			F32* binormals = (F32*) binorm.get();
 		
-			for (S32 i = 0; i < num_vertices; i++)
+			LLVector4a* src = vf.mBinormals;
+			LLVector4a* end = vf.mBinormals+num_vertices;
+
+			while (src < end)
 			{	
 				LLVector4a binormal;
-				mat_normal.rotate(vf.mBinormals[i], binormal);
-				binormal.normalize3fast();
+				mat_normal.rotate(*src++, binormal);
 				binormal.store4a(binormals);
 				binormals += 4;
 			}

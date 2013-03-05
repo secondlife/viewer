@@ -49,9 +49,6 @@
 #include "llviewershadermgr.h"
 #include "llrender.h"
 
-static LLStaticHashedString sObjectPlaneS("object_plane_s");
-static LLStaticHashedString sObjectPlaneT("object_plane_t");
-
 const F32 DETAIL_SCALE = 1.f/16.f;
 int DebugDetailMap = 0;
 
@@ -355,8 +352,8 @@ void LLDrawPoolTerrain::renderFullShader()
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 	llassert(shader);
 		
-	shader->uniform4fv(sObjectPlaneS, 1, tp0.mV);
-	shader->uniform4fv(sObjectPlaneT, 1, tp1.mV);
+	shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, 1, tp0.mV);
+	shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, 1, tp1.mV);
 
 	gGL.matrixMode(LLRender::MM_TEXTURE);
 	gGL.loadIdentity();
@@ -865,8 +862,8 @@ void LLDrawPoolTerrain::renderSimple()
 	
 	if (LLGLSLShader::sNoFixedFunction)
 	{
-		sShader->uniform4fv(sObjectPlaneS, 1, tp0.mV);
-		sShader->uniform4fv(sObjectPlaneT, 1, tp1.mV);
+		sShader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, 1, tp0.mV);
+		sShader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, 1, tp1.mV);
 	}
 	else
 	{

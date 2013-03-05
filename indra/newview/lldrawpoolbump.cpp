@@ -461,6 +461,8 @@ void LLDrawPoolBump::unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& 
 				}
 			}
 		}
+        // Moved below shader->disableTexture call to avoid false alarms from auto-re-enable of textures on stage 0
+        // MAINT-755
 		cube_map->disable();
 		cube_map->restoreMatrix();
 	}

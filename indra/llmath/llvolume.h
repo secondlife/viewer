@@ -912,6 +912,7 @@ public:
 	LLVector2   mTexCoordExtents[2]; //minimum and maximum of texture coordinates of the face.
 
 	S32 mNumVertices;
+	S32 mNumAllocatedVertices;
 	S32 mNumIndices;
 
 	LLVector4a* mPositions;
@@ -932,6 +933,9 @@ public:
 	LLVector4a* mWeights;
 
 	LLOctreeNode<LLVolumeTriangle>* mOctree;
+
+	//whether or not face has been cache optimized
+	BOOL mOptimized;
 
 private:
 	BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);

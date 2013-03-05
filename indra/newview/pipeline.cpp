@@ -7868,13 +7868,6 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	shader.uniform2f(LLShaderMgr::DEFERRED_PROJ_SHADOW_RES, mShadow[4].getWidth(), mShadow[4].getHeight());
 	shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
 	shader.uniform1f(LLShaderMgr::DEFERRED_NORM_CUTOFF, RenderEdgeNormCutoff);
-	
-	static LLStaticHashedString sNormMat("norm_mat");
-	if (shader.getUniformLocation(sNormMat) >= 0)
-	{
-		glh::matrix4f norm_mat = glh_get_current_modelview().inverse().transpose();
-		shader.uniformMatrix4fv(sNormMat, 1, FALSE, norm_mat.m);
-	}
 }
 
 static LLFastTimer::DeclareTimer FTM_GI_TRACE("Trace");
@@ -7984,8 +7977,7 @@ void LLPipeline::renderDeferredLighting()
 				}
 
 				gDeferredSunProgram.uniform3fv(sOffset, slice, offset);
-				gDeferredSunProgram.uniform2f(sScreenRes, mDeferredLight.getWidth(), mDeferredLight.getHeight());
-				
+								
 				{
 					LLGLDisable blend(GL_BLEND);
 					LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
@@ -10258,6 +10250,13 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		avatar->mImpostor.bindTarget();
 	}
 
+	F32 old_alpha = LLDrawPoolAvatar::sMinimumAlpha;
+
+	if (muted)
+	{ //disable alpha masking for muted avatars (get whole skin silhouette)
+		LLDrawPoolAvatar::sMinimumAlpha = 0.f;
+	}
+
 	if (LLPipeline::sRenderDeferred)
 	{
 		avatar->mImpostor.clear();
@@ -10272,6 +10271,8 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		renderGeom(camera);
 	}
 	
+	LLDrawPoolAvatar::sMinimumAlpha = old_alpha;
+		
 	{ //create alpha mask based on depth buffer (grey out if muted)
 		LLFastTimer t(FTM_IMPOSTOR_BACKGROUND);
 		if (LLPipeline::sRenderDeferred)
@@ -10285,6 +10286,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		if (muted)
 		{
 			gGL.setColorMask(true, true);
+
 		}
 		else
 		{
@@ -10303,14 +10305,24 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		gGL.pushMatrix();
 		gGL.loadIdentity();
 
-		static const F32 clip_plane = 0.99999f;
+		static const F32 clip_plane = 0.999f;
 
 		if (LLGLSLShader::sNoFixedFunction)
 		{
-			gUIProgram.bind();
+			gDebugProgram.bind();
 		}
 
-		gGL.color4ub(64,64,64,255);
+
+		if (LLMuteList::getInstance()->isMuted(avatar->getID()))
+		{ //grey muted avatar
+			gGL.diffuseColor4ub(64,64,64,255);
+		}
+		else
+		{ //blue visually muted avatar
+			gGL.diffuseColor4ub(72,61,139,255);
+		}
+
+		{
 		gGL.begin(LLRender::QUADS);
 		gGL.vertex3f(-1, -1, clip_plane);
 		gGL.vertex3f(1, -1, clip_plane);
@@ -10318,10 +10330,11 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		gGL.vertex3f(-1, 1, clip_plane);
 		gGL.end();
 		gGL.flush();
+		}
 
 		if (LLGLSLShader::sNoFixedFunction)
 		{
-			gUIProgram.unbind();
+			gDebugProgram.unbind();
 		}
 
 		gGL.popMatrix();

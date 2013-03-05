@@ -1505,8 +1505,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				
 				stop_glerror();
 
-				static LLStaticHashedString sMatPalette("matrixPalette");
-				LLDrawPoolAvatar::sVertexProgram->uniformMatrix4fv(sMatPalette, 
+				LLDrawPoolAvatar::sVertexProgram->uniformMatrix4fv(LLViewerShaderMgr::AVATAR_MATRIX, 
 					skin->mJointNames.size(),
 					FALSE,
 					(GLfloat*) mat[0].mMatrix);
@@ -1548,6 +1547,8 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				buff->setBuffer(data_mask);
 				buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);		
 			}
+
+			gPipeline.addTrianglesDrawn(count, LLRender::TRIANGLES);
 		}
 	}
 }
