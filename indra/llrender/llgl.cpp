@@ -741,7 +741,7 @@ bool LLGLManager::initGL()
 #if LL_WINDOWS
 	if (mHasDebugOutput && gDebugGL)
 	{ //setup debug output callback
-		//glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
+		glDebugMessageControlARB(GL_DONT_CARE, GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
 		glDebugMessageCallbackARB((GLDEBUGPROCARB) gl_debug_callback, NULL);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 	}
@@ -1478,7 +1478,7 @@ void do_assert_glerror()
 
 void assert_glerror()
 {
-	if (!gGLActive)
+/*	if (!gGLActive)
 	{
 		//llwarns << "GL used while not active!" << llendl;
 
@@ -1487,8 +1487,13 @@ void assert_glerror()
 			//ll_fail("GL used while not active");
 		}
 	}
+*/
 
-	if (gDebugGL) 
+	if (!gDebugGL) 
+	{
+		//funny looking if for branch prediction -- gDebugGL is almost always false and assert_glerror is called often
+	}
+	else
 	{
 		do_assert_glerror();
 	}

@@ -38,17 +38,28 @@ class LLMutex ;
 
 inline void* ll_aligned_malloc( size_t size, int align )
 {
+#if defined(LL_WINDOWS)
+	return _aligned_malloc(size, align);
+#else
 	void* mem = malloc( size + (align - 1) + sizeof(void*) );
 	char* aligned = ((char*)mem) + sizeof(void*);
 	aligned += align - ((uintptr_t)aligned & (align - 1));
 
 	((void**)aligned)[-1] = mem;
 	return aligned;
+#endif
 }
 
 inline void ll_aligned_free( void* ptr )
 {
-	free( ((void**)ptr)[-1] );
+#if defined(LL_WINDOWS)
+	_aligned_free(ptr);
+#else
+	if (ptr)
+	{
+		free( ((void**)ptr)[-1] );
+	}
+#endif
 }
 
 #if !LL_USE_TCMALLOC

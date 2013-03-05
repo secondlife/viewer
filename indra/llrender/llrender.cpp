@@ -1070,6 +1070,16 @@ LLRender::~LLRender()
 
 void LLRender::init()
 {
+	if (sGLCoreProfile && !LLVertexBuffer::sUseVAO)
+	{ //bind a dummy vertex array object so we're core profile compliant
+#ifdef GL_ARB_vertex_array_object
+		U32 ret;
+		glGenVertexArrays(1, &ret);
+		glBindVertexArray(ret);
+#endif
+	}
+
+
 	llassert_always(mBuffer.isNull()) ;
 	stop_glerror();
 	mBuffer = new LLVertexBuffer(immediate_mask, 0);
