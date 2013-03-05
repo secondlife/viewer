@@ -1966,7 +1966,7 @@ if (DARWIN)
     OUTPUT_NAME "${product}"
     MACOSX_BUNDLE_INFO_STRING "Second Life Viewer"
     MACOSX_BUNDLE_ICON_FILE "secondlife.icns"
-    MACOSX_BUNDLE_GUI_IDENTIFIER "Second Life"
+    MACOSX_BUNDLE_GUI_IDENTIFIER "com.secondlife.indra.viewer"
     MACOSX_BUNDLE_LONG_VERSION_STRING "${VIEWER_CHANNEL} ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}"
     MACOSX_BUNDLE_BUNDLE_NAME "Second Life"
     MACOSX_BUNDLE_SHORT_VERSION_STRING "${VIEWER_SHORT_VERSION}"
@@ -1978,10 +1978,7 @@ if (DARWIN)
      "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
      "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app/Contents/Info.plist"
                )
-  #configure_file(
-  #   "${CMAKE_CURRENT_SOURCE_DIR}/English.lproj/InfoPlist.strings"
-  #   "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app/Contents/Resources/English.lproj/InfoPlist.strings"
-  #             )
+
   add_custom_command(
     TARGET ${VIEWER_BINARY_NAME} POST_BUILD
     COMMAND ${PYTHON_EXECUTABLE}
