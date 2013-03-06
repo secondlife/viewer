@@ -2937,6 +2937,10 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			S32 last_received_cof_version = LLAppearanceMgr::instance().getLastAppearanceUpdateCOFVersion();
 			debug_line += llformat(" - cof: %d req: %d rcv:%d",
 								   curr_cof_version, last_request_cof_version, last_received_cof_version);
+			if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
+			{
+				debug_line += " FORCING ERRS";
+			}
 		}
 		addDebugText(debug_line);
 	}
