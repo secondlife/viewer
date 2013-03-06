@@ -577,6 +577,12 @@ F32 LLDrawable::updateXform(BOOL undamped)
 			mVObjp->dirtySpatialGroup();
 		}
 	}
+	else if (!isRoot() &&
+			((dist_vec_squared(old_pos, target_pos) > 0.f)
+			|| (1.f - dot(old_rot, target_rot)) > 0.f))
+	{ //fix for BUG-840, MAINT-2275, MAINT-1742, MAINT-2247
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+	}
 	else if (!getVOVolume() && !isAvatar())
 	{
 		movePartition();
