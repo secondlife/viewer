@@ -65,6 +65,8 @@ namespace
 	{
 #ifdef LL_WINDOWS
 		std::string scriptFile = "update_install.bat";
+#elif LL_DARWIN
+		std::string scriptFile = "update_install.py";
 #else
 		std::string scriptFile = "update_install";
 #endif
@@ -76,6 +78,8 @@ namespace
 #ifdef LL_WINDOWS
 		return LL_COPY_INSTALL_SCRIPT_TO_TEMP;
 #else
+		// This is important on Mac because update_install.py looks at its own
+		// script pathname to discover the viewer app bundle to update.
 		return LL_RUN_INSTALL_SCRIPT_IN_PLACE;
 #endif
 	};
