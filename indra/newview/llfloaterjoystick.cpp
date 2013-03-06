@@ -42,13 +42,13 @@
 #include "llviewerjoystick.h"
 #include "llcheckboxctrl.h"
 
-static LLTrace::Measurement<> sJoystickAxis1("Joystick axis 1"),
-								sJoystickAxis2("Joystick axis 2"),
-								sJoystickAxis3("Joystick axis 3"),
-								sJoystickAxis4("Joystick axis 4"),
-								sJoystickAxis5("Joystick axis 5"),
-								sJoystickAxis6("Joystick axis 6");
-static LLTrace::Measurement<>* sJoystickAxes[6] = 
+static LLTrace::MeasurementStatHandle<> sJoystickAxis1("Joystick axis 1"),
+										sJoystickAxis2("Joystick axis 2"),
+										sJoystickAxis3("Joystick axis 3"),
+										sJoystickAxis4("Joystick axis 4"),
+										sJoystickAxis5("Joystick axis 5"),
+										sJoystickAxis6("Joystick axis 6");
+static LLTrace::MeasurementStatHandle<>* sJoystickAxes[6] = 
 {
 	&sJoystickAxis1,
 	&sJoystickAxis2,

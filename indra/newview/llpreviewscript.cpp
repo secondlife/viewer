@@ -942,7 +942,7 @@ void LLScriptEdCore::onBtnInsertFunction(LLUICtrl *ui, void* userdata)
 
 void LLScriptEdCore::doSave( BOOL close_after_save )
 {
-	LLStatViewer::LSL_SAVES.add(1);
+	add(LLStatViewer::LSL_SAVES, 1);
 
 	if( mSaveCallback )
 	{
@@ -1146,7 +1146,7 @@ void LLScriptEdCore::onBtnLoadFromFile( void* data )
 
 void LLScriptEdCore::onBtnSaveToFile( void* userdata )
 {
-	LLStatViewer::LSL_SAVES.add(1);
+	add(LLStatViewer::LSL_SAVES, 1);
 
 	LLScriptEdCore* self = (LLScriptEdCore*) userdata;
 

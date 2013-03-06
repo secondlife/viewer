@@ -113,7 +113,7 @@ BOOL		LLViewerObject::sMapDebug = TRUE;
 LLColor4	LLViewerObject::sEditSelectColor(	1.0f, 1.f, 0.f, 0.3f);	// Edit OK
 LLColor4	LLViewerObject::sNoEditSelectColor(	1.0f, 0.f, 0.f, 0.3f);	// Can't edit
 S32			LLViewerObject::sAxisArrowLength(50);
-LLTrace::MemStat	LLViewerObject::sMemStat("LLViewerObject");
+LLTrace::MemStatHandle	LLViewerObject::sMemStat("LLViewerObject");
 
 
 BOOL		LLViewerObject::sPulseEnabled(FALSE);
@@ -2103,7 +2103,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		// If we're snapping the position by more than 0.5m, update LLViewerStats::mAgentPositionSnaps
 		if ( asAvatar() && asAvatar()->isSelf() && (mag_sqr > 0.25f) )
 		{
-			LLStatViewer::AGENT_POSITION_SNAP.sample<LLTrace::Meters>(diff.length());
+			sample(LLStatViewer::AGENT_POSITION_SNAP, LLTrace::Meters(diff.length()));
 		}
 	}
 

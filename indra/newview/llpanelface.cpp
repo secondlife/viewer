@@ -1049,7 +1049,7 @@ BOOL LLPanelFace::onDragTexture(LLUICtrl*, LLInventoryItem* item)
 
 void LLPanelFace::onCommitTexture( const LLSD& data )
 {
-	LLStatViewer::EDIT_TEXTURE.add(1);
+	add(LLStatViewer::EDIT_TEXTURE, 1);
 	sendTexture();
 }
 

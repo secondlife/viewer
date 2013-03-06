@@ -45,10 +45,10 @@ LLStatBar::LLStatBar(const Params& p)
 	  mUnitLabel(p.unit_label),
 	  mMinBar(p.bar_min),
 	  mMaxBar(p.bar_max),
-	  mCountFloatp(LLTrace::Count<>::getInstance(p.stat)),
-	  mCountIntp(LLTrace::Count<S64>::getInstance(p.stat)),
-	  mMeasurementFloatp(LLTrace::Measurement<>::getInstance(p.stat)),
-	  mMeasurementIntp(LLTrace::Measurement<S64>::getInstance(p.stat)),
+	  mCountFloatp(LLTrace::CountStatHandle<>::getInstance(p.stat)),
+	  mCountIntp(LLTrace::CountStatHandle<S64>::getInstance(p.stat)),
+	  mMeasurementFloatp(LLTrace::MeasurementStatHandle<>::getInstance(p.stat)),
+	  mMeasurementIntp(LLTrace::MeasurementStatHandle<S64>::getInstance(p.stat)),
 	  mTickSpacing(p.tick_spacing),
 	  mLabelSpacing(p.label_spacing),
 	  mPrecision(p.precision),
@@ -336,10 +336,10 @@ void LLStatBar::draw()
 
 void LLStatBar::setStat(const std::string& stat_name)
 {
-	mCountFloatp = LLTrace::Count<>::getInstance(stat_name);
-	mCountIntp = LLTrace::Count<S64>::getInstance(stat_name);
-	mMeasurementFloatp = LLTrace::Measurement<>::getInstance(stat_name);
-	mMeasurementIntp = LLTrace::Measurement<S64>::getInstance(stat_name);
+	mCountFloatp = LLTrace::CountStatHandle<>::getInstance(stat_name);
+	mCountIntp = LLTrace::CountStatHandle<S64>::getInstance(stat_name);
+	mMeasurementFloatp = LLTrace::MeasurementStatHandle<>::getInstance(stat_name);
+	mMeasurementIntp = LLTrace::MeasurementStatHandle<S64>::getInstance(stat_name);
 }
 
 

@@ -308,8 +308,8 @@ private:
 	LLMutex mQueueMutex;        //to protect mRequestMap and mCommands only
 	LLMutex mNetworkQueueMutex; //to protect mNetworkQueue, mHTTPTextureQueue and mCancelQueue.
 
-	static LLTrace::Measurement<> sCacheHitRate;
-	static LLTrace::Measurement<> sCacheReadLatency;
+	static LLTrace::MeasurementStatHandle<> sCacheHitRate;
+	static LLTrace::MeasurementStatHandle<> sCacheReadLatency;
 
 	LLTextureCache* mTextureCache;
 	LLImageDecodeThread* mImageDecodeThread;

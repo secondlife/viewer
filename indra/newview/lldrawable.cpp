@@ -59,7 +59,7 @@ const F32 MIN_SHADOW_CASTER_RADIUS = 2.0f;
 static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
 
 extern bool gShiftFrame;
-LLTrace::MemStat	LLDrawable::sMemStat("LLDrawable");
+LLTrace::MemStatHandle	LLDrawable::sMemStat("LLDrawable");
 
 
 ////////////////////////

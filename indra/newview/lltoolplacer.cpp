@@ -433,7 +433,7 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 	effectp->setDuration(LL_HUD_DUR_SHORT);
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 
-	LLStatViewer::OBJECT_CREATE.add(1);
+	add(LLStatViewer::OBJECT_CREATE, 1);
 
 	return TRUE;
 }

@@ -4865,7 +4865,7 @@ void LLAppViewer::idleNetwork()
 			gPrintMessagesThisFrame = FALSE;
 		}
 	}
-	LLStatViewer::NUM_NEW_OBJECTS.sample(gObjectList.mNumNewObjects);
+	sample(LLStatViewer::NUM_NEW_OBJECTS, gObjectList.mNumNewObjects);
 
 	// Retransmit unacknowledged packets.
 	gXferManager->retransmitUnackedPackets();
