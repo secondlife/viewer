@@ -143,7 +143,7 @@ void LLUpdateChecker::Implementation::completed(U32 status,
 
 				LL_WARNS("UpdaterService")
 					<< "update response using " << sProtocolVersion
-					<< " was 404... retry with legacy protocol" << mProtocol
+					<< " was 404... retry with legacy protocol " << mProtocol
 					<< "\n at " << retryUrl
 					<< LL_ENDL;
 	
