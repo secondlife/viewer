@@ -429,9 +429,9 @@ void LLUpdaterServiceImpl::response(LLSD const & content)
 		std::string more_info = content["more_info"].asString();
 		LL_DEBUGS("UpdaterService")
 			<< "Starting download of "
-			<< ( required ? "required" : "optional" ) << " update "
-			<< "to channel '" << mNewChannel << "' version " << mNewVersion
-			<< "more info '" << more_info << "'"
+			<< ( required ? "required" : "optional" ) << " update"
+			<< " to channel '" << mNewChannel << "' version " << mNewVersion
+			<< " more info '" << more_info << "'"
 			<< LL_ENDL;
 		mUpdateDownloader.download(url, content["hash"].asString(), mNewChannel, mNewVersion, more_info, required);
 	}
@@ -458,9 +458,9 @@ void LLUpdaterServiceImpl::downloadComplete(LLSD const & data)
 	LL_DEBUGS("UpdaterService")
 		<< "Download complete "
 		<< ( data["required"].asBoolean() ? "required" : "optional" )
-		<< "channel " << mNewChannel
-		<< "version " << mNewVersion
-		<< "info " << data["info_url"].asString()
+		<< " channel " << mNewChannel
+		<< " version " << mNewVersion
+		<< " info " << data["info_url"].asString()
 		<< LL_ENDL;
 
 	LLEventPumps::instance().obtain("mainlooprepeater").post(event);
