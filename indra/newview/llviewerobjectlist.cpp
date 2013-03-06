@@ -657,13 +657,15 @@ void LLViewerObjectList::processCachedObjectUpdate(LLMessageSystem *mesgsys,
 		S32	msg_size = 0;
 		U32 id;
 		U32 crc;
+		U32 flags;
 		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, id, i);
 		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_CRC, crc, i);
+		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
 		msg_size += sizeof(U32) * 2;
 		
 		// Lookup data packer and add this id to cache miss lists if necessary.
 		U8 cache_miss_type = LLViewerRegion::CACHE_MISS_TYPE_NONE;
-		if(!regionp->probeCache(id, crc, cache_miss_type))
+		if(!regionp->probeCache(id, crc, flags, cache_miss_type))
 		{
 			// Cache Miss.
 			recorder.cacheMissEvent(id, update_type, cache_miss_type, msg_size);

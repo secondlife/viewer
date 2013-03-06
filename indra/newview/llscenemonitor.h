@@ -31,9 +31,11 @@
 #include "llmath.h"
 #include "llfloater.h"
 #include "llcharacter.h"
+#include "lltracerecording.h"
 
 class LLCharacter;
 class LLRenderTarget;
+class LLViewerTexture;
 
 class LLSceneMonitor :  public LLSingleton<LLSceneMonitor>
 {
@@ -61,11 +63,14 @@ public:
 	bool isEnabled()const {return mEnabled;}
 	bool needsUpdate() const;
 	
+	LLTrace::ExtendableRecording* getRecording() const {return mRecording;}
+
 private:
 	void freezeScene();
 	void unfreezeScene();
 	void reset();
 	bool preCapture();
+	void generateDitheringTexture(S32 width, S32 height);
 
 private:
 	BOOL mEnabled;
@@ -85,7 +90,15 @@ private:
 	F32     mSamplingTime; //time interval to capture frames, in seconds
 	F32     mDiffPixelRatio; //ratio of pixels used for comparison against the original mDiff size along one dimension
 
+	LLPointer<LLViewerTexture> mDitheringTexture;
+	S32                        mDitherMatrixWidth;
+	F32                        mDitherScale;
+	F32                        mDitherScaleS;
+	F32                        mDitherScaleT;
+
 	std::vector<LLAnimPauseRequest> mAvatarPauseHandles;
+
+	LLTrace::ExtendableRecording* mRecording;
 };
 
 class LLSceneMonitorView : public LLFloater
