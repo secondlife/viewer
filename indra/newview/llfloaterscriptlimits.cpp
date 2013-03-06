@@ -221,9 +221,9 @@ void fetchScriptLimitsRegionInfoResponder::result(const LLSD& content)
 	}
 }
 
-void fetchScriptLimitsRegionInfoResponder::error(U32 status, const std::string& reason)
+void fetchScriptLimitsRegionInfoResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	llwarns << "Error from responder " << reason << llendl;
+	llwarns << "fetchScriptLimitsRegionInfoResponder error [status:" << status << "]: " << content << llendl;
 }
 
 void fetchScriptLimitsRegionSummaryResponder::result(const LLSD& content_ref)
@@ -308,9 +308,9 @@ void fetchScriptLimitsRegionSummaryResponder::result(const LLSD& content_ref)
 	}
 }
 
-void fetchScriptLimitsRegionSummaryResponder::error(U32 status, const std::string& reason)
+void fetchScriptLimitsRegionSummaryResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	llwarns << "Error from responder " << reason << llendl;
+	llwarns << "fetchScriptLimitsRegionSummaryResponder error [status:" << status << "]: " << content << llendl;
 }
 
 void fetchScriptLimitsRegionDetailsResponder::result(const LLSD& content_ref)
@@ -417,9 +417,9 @@ result (map)
 	}
 }
 
-void fetchScriptLimitsRegionDetailsResponder::error(U32 status, const std::string& reason)
+void fetchScriptLimitsRegionDetailsResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	llwarns << "Error from responder " << reason << llendl;
+	llwarns << "fetchScriptLimitsRegionDetailsResponder error [status:" << status << "]: " << content << llendl;
 }
 
 void fetchScriptLimitsAttachmentInfoResponder::result(const LLSD& content_ref)
@@ -513,9 +513,9 @@ void fetchScriptLimitsAttachmentInfoResponder::result(const LLSD& content_ref)
 	}
 }
 
-void fetchScriptLimitsAttachmentInfoResponder::error(U32 status, const std::string& reason)
+void fetchScriptLimitsAttachmentInfoResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	llwarns << "Error from responder " << reason << llendl;
+	llwarns << "fetchScriptLimitsAttachmentInfoResponder error [status:" << status << "]: " << content << llendl;
 }
 
 ///----------------------------------------------------------------------------

@@ -366,7 +366,7 @@ class LLInventoryModelFetchItemResponder : public LLInventoryModel::fetchInvento
 public:
 	LLInventoryModelFetchItemResponder(const LLSD& request_sd) : LLInventoryModel::fetchInventoryResponder(request_sd) {};
 	void result(const LLSD& content);			
-	void error(U32 status, const std::string& reason);
+	void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 };
 
 void LLInventoryModelFetchItemResponder::result( const LLSD& content )
@@ -375,9 +375,9 @@ void LLInventoryModelFetchItemResponder::result( const LLSD& content )
 	LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
 }
 
-void LLInventoryModelFetchItemResponder::error( U32 status, const std::string& reason )
+void LLInventoryModelFetchItemResponder::errorWithContent( U32 status, const std::string& reason, const LLSD& content )
 {
-	LLInventoryModel::fetchInventoryResponder::error(status, reason);
+	LLInventoryModel::fetchInventoryResponder::errorWithContent(status, reason, content);
 	LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
 }
 
@@ -391,7 +391,7 @@ public:
 	{};
 	//LLInventoryModelFetchDescendentsResponder() {};
 	void result(const LLSD& content);
-	void error(U32 status, const std::string& reason);
+	void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 protected:
 	BOOL getIsRecursive(const LLUUID& cat_id) const;
 private:
@@ -529,12 +529,12 @@ void LLInventoryModelFetchDescendentsResponder::result(const LLSD& content)
 }
 
 // If we get back an error (not found, etc...), handle it here.
-void LLInventoryModelFetchDescendentsResponder::error(U32 status, const std::string& reason)
+void LLInventoryModelFetchDescendentsResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
 	LLInventoryModelBackgroundFetch *fetcher = LLInventoryModelBackgroundFetch::getInstance();
 
-	llinfos << "LLInventoryModelFetchDescendentsResponder::error "
-		<< status << ": " << reason << llendl;
+	llinfos << "LLInventoryModelFetchDescendentsResponder::error [status:"
+			<< status << "]: " << content << llendl;
 						
 	fetcher->incrFetchCount(-1);
 

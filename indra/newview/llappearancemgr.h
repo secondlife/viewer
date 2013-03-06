@@ -205,6 +205,13 @@ public:
 	// *HACK Remove this after server side texture baking is deployed on all sims.
 	void incrementCofVersionLegacy();
 
+	void setAppearanceServiceURL(const std::string& url) { mAppearanceServiceURL = url; }
+	std::string getAppearanceServiceURL() const;
+
+private:
+	std::string		mAppearanceServiceURL;
+	
+
 protected:
 	LLAppearanceMgr();
 	~LLAppearanceMgr();

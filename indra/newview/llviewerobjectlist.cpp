@@ -691,12 +691,12 @@ public:
 		}
 	}
 
-	void error(U32 statusNum, const std::string& reason)
+	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
 	{
 		llwarns
 			<< "Transport error requesting object cost "
-			<< "HTTP status: " << statusNum << ", reason: "
-			<< reason << "." << llendl;
+			<< "[status: " << statusNum << "]: "
+			<< content << llendl;
 
 		// TODO*: Error message to user
 		// For now just clear the request from the pending list
@@ -780,12 +780,12 @@ public:
 		}
 	}
 
-	void error(U32 statusNum, const std::string& reason)
+	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
 	{
 		llwarns
 			<< "Transport error requesting object physics flags "
-			<< "HTTP status: " << statusNum << ", reason: "
-			<< reason << "." << llendl;
+			<< "[status: " << statusNum << "]: "
+			<< content << llendl;
 
 		// TODO*: Error message to user
 		// For now just clear the request from the pending list

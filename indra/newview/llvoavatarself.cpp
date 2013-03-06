@@ -2264,7 +2264,7 @@ public:
 		else
 		{
 			LL_WARNS("Avatar") << "Failed " << status << " reason " << reason << LL_ENDL;
-			error(status,reason);
+			errorWithContent(status,reason,content);
 		}
 	}
 
@@ -2440,11 +2440,12 @@ public:
 	}
 
 	// Error
-	/*virtual*/ void error(U32 status, const std::string& reason)
+	/*virtual*/ void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
 		if (isAgentAvatarValid())
 		{
-			LL_DEBUGS("Avatar") << "failed, will rebake" << llendl;
+			LL_DEBUGS("Avatar") << "failed, will rebake [status:"
+					<< status << "]: " << content << llendl;
 			forceAppearanceUpdate();
 		}
 	}	
@@ -2469,7 +2470,7 @@ void LLVOAvatarSelf::checkForUnsupportedServerBakeAppearance()
 		return;
 
 	// if baked image service is unknown, need to refresh.
-	if (gSavedSettings.getString("AgentAppearanceServiceURL").empty())
+	if (LLAppearanceMgr::instance().getAppearanceServiceURL().empty())
 	{
 		CheckAgentAppearanceServiceResponder::forceAppearanceUpdate();
 	}

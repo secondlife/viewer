@@ -530,10 +530,10 @@ class ViewerStatsResponder : public LLHTTPClient::Responder
 public:
     ViewerStatsResponder() { }
 
-    void error(U32 statusNum, const std::string& reason)
+    void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
     {
-		llinfos << "ViewerStatsResponder::error " << statusNum << " "
-				<< reason << llendl;
+		llwarns << "ViewerStatsResponder error [status:" << statusNum << "]: "
+				<< content << llendl;
     }
 
     void result(const LLSD& content)
