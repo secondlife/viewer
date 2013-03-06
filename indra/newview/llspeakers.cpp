@@ -726,9 +726,9 @@ public:
 		mSessionID = session_id;
 	}
 
-	virtual void error(U32 status, const std::string& reason)
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
-		llwarns << status << ": " << reason << llendl;
+		llwarns << "ModerationResponder error [status:" << status << "]: " << content << llendl;
 
 		if ( gIMMgr )
 		{

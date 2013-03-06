@@ -210,9 +210,9 @@ public:
 	virtual ~BaseCapabilitiesComplete()
 	{ }
 
-    void error(U32 statusNum, const std::string& reason)
+    void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
     {
-		LL_WARNS2("AppInit", "Capabilities") << statusNum << ": " << reason << LL_ENDL;
+		LL_WARNS2("AppInit", "Capabilities") << "[status:" << statusNum << ":] " << content << LL_ENDL;
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
 		if (regionp)
 		{
@@ -278,8 +278,11 @@ public:
 	virtual ~BaseCapabilitiesCompleteTracker()
 	{ }
 
-	void error(U32 statusNum, const std::string& reason)
-	{ }
+	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+	{
+		llwarns << "BaseCapabilitiesCompleteTracker error [status:"
+				<< statusNum << "]: " << content << llendl;
+	}
 
 	void result(const LLSD& content)
 	{
@@ -1731,9 +1734,9 @@ public:
     { }
 	
 	
-    void error(U32 statusNum, const std::string& reason)
+    void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
     {
-		LL_WARNS2("AppInit", "SimulatorFeatures") << statusNum << ": " << reason << LL_ENDL;
+		LL_WARNS2("AppInit", "SimulatorFeatures") << "[status:" << statusNum << "]: " << content << LL_ENDL;
 		retry();
     }
 

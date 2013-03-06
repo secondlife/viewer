@@ -424,9 +424,10 @@ public:
 	{
 	}
 	
-	virtual void error(U32 status, const std::string& reason)
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
-		LL_WARNS("InvAPI") << "CreateInventoryCategory failed.   status = " << status << ", reasion = \"" << reason << "\"" << LL_ENDL;
+		LL_WARNS("InvAPI") << "CreateInventoryCategory failed [status:"
+				<< status << "]: " << content << LL_ENDL;
 	}
 	
 	virtual void result(const LLSD& content)
@@ -1399,10 +1400,9 @@ void  LLInventoryModel::fetchInventoryResponder::result(const LLSD& content)
 }
 
 //If we get back an error (not found, etc...), handle it here
-void LLInventoryModel::fetchInventoryResponder::error(U32 status, const std::string& reason)
+void LLInventoryModel::fetchInventoryResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	llinfos << "fetchInventory::error "
-		<< status << ": " << reason << llendl;
+	llwarns << "fetchInventory error [status:" << status << "]: " << content << llendl;
 	gInventory.notifyObservers();
 }
 

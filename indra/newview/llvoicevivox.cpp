@@ -126,17 +126,18 @@ public:
 		mRetries = retries;
 	}
 
-	virtual void error(U32 status, const std::string& reason)
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
+		LL_WARNS("Voice") << "ProvisionVoiceAccountRequest returned an error, "
+			<<  ( (mRetries > 0) ? "retrying" : "too many retries (giving up)" )
+			<< status << "]: " << content << LL_ENDL;
+
 		if ( mRetries > 0 )
 		{
-			LL_WARNS("Voice") << "ProvisionVoiceAccountRequest returned an error, retrying.  status = " << status << ", reason = \"" << reason << "\"" << LL_ENDL;
-			LLVivoxVoiceClient::getInstance()->requestVoiceAccountProvision(
-				mRetries - 1);
+			LLVivoxVoiceClient::getInstance()->requestVoiceAccountProvision(mRetries - 1);
 		}
 		else
 		{
-			LL_WARNS("Voice") << "ProvisionVoiceAccountRequest returned an error, too many retries (giving up).  status = " << status << ", reason = \"" << reason << "\"" << LL_ENDL;
 			LLVivoxVoiceClient::getInstance()->giveUp();
 		}
 	}
@@ -195,18 +196,18 @@ class LLVivoxVoiceClientCapResponder : public LLHTTPClient::Responder
 public:
 	LLVivoxVoiceClientCapResponder(LLVivoxVoiceClient::state requesting_state) : mRequestingState(requesting_state) {};
 
-	virtual void error(U32 status, const std::string& reason);	// called with bad status codes
+	// called with bad status codes
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 	virtual void result(const LLSD& content);
 
 private:
 	LLVivoxVoiceClient::state mRequestingState;  // state 
 };
 
-void LLVivoxVoiceClientCapResponder::error(U32 status, const std::string& reason)
+void LLVivoxVoiceClientCapResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	LL_WARNS("Voice") << "LLVivoxVoiceClientCapResponder::error("
-		<< status << ": " << reason << ")"
-		<< LL_ENDL;
+	LL_WARNS("Voice") << "LLVivoxVoiceClientCapResponder error [status:"
+		<< status << "]: " << content << LL_ENDL;
 	LLVivoxVoiceClient::getInstance()->sessionTerminate();
 }
 
