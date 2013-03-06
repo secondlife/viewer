@@ -273,7 +273,7 @@ void on_new_message(const LLSD& msg)
 		}
     }
 
-    else if("openconversations" == action && !session_floater_is_open)
+    else if("openconversations" == action)
     {
         //User is not focused on conversation containing the message
         if(session_floater_not_focused)
@@ -291,7 +291,8 @@ void on_new_message(const LLSD& msg)
             //useMostItrusiveIMNotification will be called to notify user a message exists
             if(session_id.notNull() 
                 && participant_id.notNull()
-                && gAgent.isDoNotDisturb())
+                && gAgent.isDoNotDisturb()
+				&& !session_floater_is_open)
             {
                 LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
 			}
