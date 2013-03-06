@@ -2963,8 +2963,9 @@ void LLVOAvatarSelf::onCustomizeStart(bool disable_camera_switch)
 		gAgentAvatarp->idleUpdateAppearanceAnimation();
 #endif
 		
-		gAgentAvatarp->invalidateAll();
-		gAgentAvatarp->updateMeshTextures();
+		gAgentAvatarp->updateTextures(); // call updateTextureStats
+		gAgentAvatarp->invalidateAll(); // mark all bakes as dirty, request updates
+		gAgentAvatarp->updateMeshTextures(); // make sure correct textures are applied to the avatar mesh.
 	}
 }
 
