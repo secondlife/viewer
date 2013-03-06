@@ -194,6 +194,9 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 			cv.setPosition(LLVector4a(v[idx[i+pos_offset]*3+0],
 								v[idx[i+pos_offset]*3+1],
 								v[idx[i+pos_offset]*3+2]));
+
+			if (!cv.getPosition().isFinite3())
+				return LLModel::BAD_ELEMENT;
 		}
 
 		if (tc_source)
@@ -207,6 +210,8 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 			cv.setNormal(LLVector4a(n[idx[i+norm_offset]*3+0],
 								n[idx[i+norm_offset]*3+1],
 								n[idx[i+norm_offset]*3+2]));
+			if (!cv.getNormal().isFinite3())
+				return LLModel::BAD_ELEMENT;
 		}
 		
 		BOOL found = FALSE;
@@ -261,13 +266,13 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 			LLVolumeFace& new_face = *face_list.rbegin();
 			if (!norm_source)
 			{
-				ll_aligned_free_16(new_face.mNormals);
+				//ll_aligned_free_16(new_face.mNormals);
 				new_face.mNormals = NULL;
 			}
 
 			if (!tc_source)
 			{
-				ll_aligned_free_16(new_face.mTexCoords);
+				//ll_aligned_free_16(new_face.mTexCoords);
 				new_face.mTexCoords = NULL;
 			}
 
@@ -292,13 +297,13 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 		LLVolumeFace& new_face = *face_list.rbegin();
 		if (!norm_source)
 		{
-			ll_aligned_free_16(new_face.mNormals);
+			//ll_aligned_free_16(new_face.mNormals);
 			new_face.mNormals = NULL;
 		}
 
 		if (!tc_source)
 		{
-			ll_aligned_free_16(new_face.mTexCoords);
+			//ll_aligned_free_16(new_face.mTexCoords);
 			new_face.mTexCoords = NULL;
 		}
 	}
@@ -480,13 +485,13 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 				LLVolumeFace& new_face = *face_list.rbegin();
 				if (!norm_source)
 				{
-					ll_aligned_free_16(new_face.mNormals);
+					//ll_aligned_free_16(new_face.mNormals);
 					new_face.mNormals = NULL;
 				}
 
 				if (!tc_source)
 				{
-					ll_aligned_free_16(new_face.mTexCoords);
+					//ll_aligned_free_16(new_face.mTexCoords);
 					new_face.mTexCoords = NULL;
 				}
 
@@ -514,13 +519,13 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 		LLVolumeFace& new_face = *face_list.rbegin();
 		if (!norm_source)
 		{
-			ll_aligned_free_16(new_face.mNormals);
+			//ll_aligned_free_16(new_face.mNormals);
 			new_face.mNormals = NULL;
 		}
 
 		if (!tc_source)
 		{
-			ll_aligned_free_16(new_face.mTexCoords);
+			//ll_aligned_free_16(new_face.mTexCoords);
 			new_face.mTexCoords = NULL;
 		}
 	}
@@ -730,13 +735,13 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 		LLVolumeFace& new_face = *face_list.rbegin();
 		if (!n)
 		{
-			ll_aligned_free_16(new_face.mNormals);
+			//ll_aligned_free_16(new_face.mNormals);
 			new_face.mNormals = NULL;
 		}
 
 		if (!t)
 		{
-			ll_aligned_free_16(new_face.mTexCoords);
+			//ll_aligned_free_16(new_face.mTexCoords);
 			new_face.mTexCoords = NULL;
 		}
 	}
@@ -1036,7 +1041,7 @@ void LLModel::setVolumeFaceData(
 	}
 	else
 	{
-		ll_aligned_free_16(face.mNormals);
+		//ll_aligned_free_16(face.mNormals);
 		face.mNormals = NULL;
 	}
 
@@ -1047,7 +1052,7 @@ void LLModel::setVolumeFaceData(
 	}
 	else
 	{
-		ll_aligned_free_16(face.mTexCoords);
+		//ll_aligned_free_16(face.mTexCoords);
 		face.mTexCoords = NULL;
 	}
 
@@ -1246,7 +1251,7 @@ void LLModel::generateNormals(F32 angle_cutoff)
 		}
 		else
 		{
-			ll_aligned_free_16(new_face.mTexCoords);
+			//ll_aligned_free_16(new_face.mTexCoords);
 			new_face.mTexCoords = NULL;
 		}
 

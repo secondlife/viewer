@@ -5307,7 +5307,7 @@ LLVolumeFace::~LLVolumeFace()
 
 void LLVolumeFace::freeData()
 {
-	ll_aligned_free_16(mPositions);
+	ll_aligned_free(mPositions);
 	mPositions = NULL;
 
 	//normals and texture coordinates are part of the same buffer as mPositions, do not free them separately
@@ -5492,10 +5492,11 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 		}
 	}
 
-	llassert(new_face.mNumIndices == mNumIndices);
-	llassert(new_face.mNumVertices <= mNumVertices);
-
-	swapData(new_face);
+	if (new_face.mNumVertices)
+	{
+		llassert(new_face.mNumIndices == mNumIndices);
+		swapData(new_face);
+	}
 }
 
 class LLVCacheTriangleData;
