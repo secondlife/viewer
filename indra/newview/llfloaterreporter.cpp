@@ -695,7 +695,7 @@ class LLUserReportResponder : public LLHTTPClient::Responder
 public:
 	LLUserReportResponder(): LLHTTPClient::Responder()  {}
 
-	void error(U32 status, const std::string& reason)
+	void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
 		// *TODO do some user messaging here
 		LLUploadDialog::modalUploadFinished();

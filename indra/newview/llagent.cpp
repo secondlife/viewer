@@ -2551,7 +2551,7 @@ public:
 	virtual ~LLMaturityPreferencesResponder();
 
 	virtual void result(const LLSD &pContent);
-	virtual void error(U32 pStatus, const std::string& pReason);
+	virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent);
 
 protected:
 
@@ -2589,11 +2589,11 @@ void LLMaturityPreferencesResponder::result(const LLSD &pContent)
 	mAgent->handlePreferredMaturityResult(actualMaturity);
 }
 
-void LLMaturityPreferencesResponder::error(U32 pStatus, const std::string& pReason)
+void LLMaturityPreferencesResponder::errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent)
 {
 	llwarns << "while attempting to change maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
-		<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', we got an error because '"
-		<< pReason << "' [status:" << pStatus << "]" << llendl;
+		<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', we got an error with [status:"
+		<< pStatus << "]: " << (pContent.isDefined() ? pContent : LLSD(pReason)) << llendl;
 	mAgent->handlePreferredMaturityError();
 }
 
@@ -2783,7 +2783,7 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 		// If we don't have a region, report it as an error
 		if (getRegion() == NULL)
 		{
-			responderPtr->error(0U, "region is not defined");
+			responderPtr->errorWithContent(0U, "region is not defined", LLSD());
 		}
 		else
 		{
@@ -2793,7 +2793,8 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 			// If the capability is not defined, report it as an error
 			if (url.empty())
 			{
-				responderPtr->error(0U, "capability 'UpdateAgentInformation' is not defined for region");
+				responderPtr->errorWithContent(0U, 
+							"capability 'UpdateAgentInformation' is not defined for region", LLSD());
 			}
 			else
 			{

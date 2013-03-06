@@ -59,8 +59,10 @@ class LLSetDisplayNameResponder : public LLHTTPClient::Responder
 {
 public:
 	// only care about errors
-	/*virtual*/ void error(U32 status, const std::string& reason)
+	/*virtual*/ void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
+		llwarns << "LLSetDisplayNameResponder error [status:"
+				<< status << "]: " << content << llendl;
 		LLViewerDisplayName::sSetDisplayNameSignal(false, "", LLSD());
 		LLViewerDisplayName::sSetDisplayNameSignal.disconnect_all_slots();
 	}

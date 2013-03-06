@@ -404,8 +404,7 @@ public:
 		}
 		else
 		{
-			llinfos << "avatar picker failed " << status
-					<< " reason " << reason << llendl;
+			llwarns << "avatar picker failed [status:" << status << "]: " << content << llendl;
 			
 		}
 	}

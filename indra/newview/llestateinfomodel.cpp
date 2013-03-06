@@ -122,9 +122,9 @@ public:
 	}
 
 	// if we get an error response
-	virtual void error(U32 status, const std::string& reason)
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
-		llwarns << "Failed to commit estate info (" << status << "): " << reason << llendl;
+		llwarns << "Failed to commit estate info [status:" << status << "]: " << content << llendl;
 	}
 };
 

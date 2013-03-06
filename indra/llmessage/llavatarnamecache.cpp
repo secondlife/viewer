@@ -443,8 +443,10 @@ void LLAvatarNameCache::cleanupClass()
 void LLAvatarNameCache::importFile(std::istream& istr)
 {
 	LLSD data;
-	S32 parse_count = LLSDSerialize::fromXMLDocument(data, istr);
-	if (parse_count < 1) return;
+	if (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXMLDocument(data, istr))
+	{
+		return;
+	}
 
 	// by convention LLSD storage is a map
 	// we only store one entry in the map

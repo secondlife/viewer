@@ -68,9 +68,9 @@ public:
 		}
 	}
 
-	virtual void error(U32 status, const std::string& reason)
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
-		LL_WARNS("WebSharing") << "Error [" << status << "]: " << reason << LL_ENDL;
+		LL_WARNS("WebSharing") << "Error [status:" << status << "]: " << content << LL_ENDL;
 	}
 
 	virtual void result(const LLSD& content)
@@ -99,7 +99,7 @@ public:
 		/// Left empty to override the default LLSD parsing behaviour.
 	}
 
-	virtual void error(U32 status, const std::string& reason)
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
 		if (HTTP_UNAUTHORIZED == status)
 		{
@@ -108,7 +108,7 @@ public:
 		}
 		else
 		{
-			LL_WARNS("WebSharing") << "Error [" << status << "]: " << reason << LL_ENDL;
+			LL_WARNS("WebSharing") << "Error [status:" << status << "]: " << content << LL_ENDL;
 			LLWebSharing::instance().retryOpenIDAuth();
 		}
 
@@ -152,9 +152,9 @@ public:
 		}
 	}
 
-	virtual void error(U32 status, const std::string& reason)
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
-		LL_WARNS("WebSharing") << "Error [" << status << "]: " << reason << LL_ENDL;
+		LL_WARNS("WebSharing") << "Error [status:" << status << "]: " << content << LL_ENDL;
 		LLWebSharing::instance().retryOpenIDAuth();
 	}
 
@@ -221,9 +221,9 @@ public:
 		}
 	}
 
-	virtual void error(U32 status, const std::string& reason)
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
-		LL_WARNS("WebSharing") << "Error [" << status << "]: " << reason << LL_ENDL;
+		LL_WARNS("WebSharing") << "Error [status:" << status << "]: " << content << LL_ENDL;
 	}
 
 	virtual void result(const LLSD& content)

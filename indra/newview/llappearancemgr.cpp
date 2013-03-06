@@ -3308,10 +3308,10 @@ public:
 
 		app_mgr->mLastUpdateRequestCOFVersion = new_version;
 	}
-	virtual void error(U32 pStatus, const std::string& pReason)
+	virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& content)
 	{
-		llwarns << "While attempting to increment the agent's cof we got an error because '"
-			<< pReason << "' [status:" << pStatus << "]" << llendl;
+		llwarns << "While attempting to increment the agent's cof we got an error with [status:"
+				<< pStatus << "]: " << content << llendl;
 		F32 seconds_to_wait;
 		if (mRetryPolicy->shouldRetry(pStatus,seconds_to_wait))
 		{
