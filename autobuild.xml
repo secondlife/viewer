@@ -1562,7 +1562,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>774c7f0a0312bee3054757a623e227bc</string>
+	      <string>7dc5191a3d95074a6ed3bd53f57420e5</string>
               <key>url</key>
 		   <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/249044/arch/Linux/installer/openssl-1.0.0g-linux-20120207.tar.bz2</string>
             </map>
