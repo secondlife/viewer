@@ -460,7 +460,7 @@ BOOL LLTexLayerSetBuffer::requestUpdateImmediate()
 void LLTexLayerSetBuffer::doUpload()
 {
 	llinfos << "Uploading baked " << mTexLayerSet->getBodyRegionName() << llendl;
-	LLStatViewer::TEX_BAKES.add(1);
+	add(LLStatViewer::TEX_BAKES, 1);
 
 	// Don't need caches since we're baked now.  (note: we won't *really* be baked 
 	// until this image is sent to the server and the Avatar Appearance message is received.)

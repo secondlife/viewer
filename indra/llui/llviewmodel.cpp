@@ -35,7 +35,7 @@
 // external library headers
 // other Linden headers
 
-LLTrace::MemStat	LLViewModel::sMemStat("LLViewModel");
+LLTrace::MemStatHandle	LLViewModel::sMemStat("LLViewModel");
 
 ///
 LLViewModel::LLViewModel()

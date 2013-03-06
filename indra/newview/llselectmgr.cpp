@@ -1550,7 +1550,7 @@ void LLObjectSelection::applyNoCopyTextureToTEs(LLViewerInventoryItem* item)
 				}
 
 				// apply texture for the selected faces
-				LLStatViewer::EDIT_TEXTURE.add(1);
+				add(LLStatViewer::EDIT_TEXTURE, 1);
 				object->setTEImage(te, image);
 				dialog_refresh_all();
 
@@ -3424,7 +3424,7 @@ bool LLSelectMgr::confirmDelete(const LLSD& notification, const LLSD& response, 
 			gAgentCamera.setLookAt(LOOKAT_TARGET_CLEAR);
 
 			// Keep track of how many objects have been deleted.
-			LLStatViewer::DELETE_OBJECT.add(LLSelectMgr::getInstance()->mSelectedObjects->getObjectCount());
+			add(LLStatViewer::DELETE_OBJECT, LLSelectMgr::getInstance()->mSelectedObjects->getObjectCount());
 		}
 		break;
 	case 1:

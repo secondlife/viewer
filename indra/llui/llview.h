@@ -673,7 +673,7 @@ public:
 	static S32 sLastLeftXML;
 	static S32 sLastBottomXML;
 	static BOOL sForceReshape;
-	static LLTrace::MemStat sMemStat;
+	static LLTrace::MemStatHandle sMemStat;
 };
 
 class LLCompareByTabOrder

@@ -54,8 +54,8 @@
 // System includes
 #include <iomanip> // for setprecision
 
-LLTrace::Count<> LLViewerCamera::sVelocityStat("camera_velocity");
-LLTrace::Count<> LLViewerCamera::sAngularVelocityStat("camera_angular_velocity");
+LLTrace::CountStatHandle<> LLViewerCamera::sVelocityStat("camera_velocity");
+LLTrace::CountStatHandle<> LLViewerCamera::sAngularVelocityStat("camera_angular_velocity");
 
 U32 LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 

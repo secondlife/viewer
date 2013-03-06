@@ -248,7 +248,7 @@ std::string	LLViewerWindow::sSnapshotDir;
 
 std::string	LLViewerWindow::sMovieBaseName;
 
-LLTrace::Measurement<> LLViewerWindow::sMouseVelocityStat("Mouse Velocity");
+LLTrace::MeasurementStatHandle<> LLViewerWindow::sMouseVelocityStat("Mouse Velocity");
 
 
 class RecordToChatConsole : public LLError::Recorder, public LLSingleton<RecordToChatConsole>
@@ -2186,8 +2186,8 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 			}
 		}
 
-		LLStatViewer::WINDOW_WIDTH.sample((F64)width);
-		LLStatViewer::WINDOW_HEIGHT.sample((F64)height);
+		sample(LLStatViewer::WINDOW_WIDTH, width);
+		sample(LLStatViewer::WINDOW_HEIGHT, height);
 
 		LLLayoutStack::updateClass();
 	}
@@ -3250,7 +3250,7 @@ void LLViewerWindow::updateMouseDelta()
 		mouse_vel.setVec((F32) dx, (F32) dy);
 	}
     
-	sMouseVelocityStat.sample(mouse_vel.magVec());
+	sample(sMouseVelocityStat, mouse_vel.magVec());
 }
 
 void LLViewerWindow::updateKeyboardFocus()

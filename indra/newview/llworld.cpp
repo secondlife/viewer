@@ -720,15 +720,15 @@ void LLWorld::updateNetStats()
 	S32 actual_in_bits = gMessageSystem->mPacketRing.getAndResetActualInBits();
 	S32 actual_out_bits = gMessageSystem->mPacketRing.getAndResetActualOutBits();
 
-	LLStatViewer::ACTUAL_IN_KBIT.add<LLTrace::Bits>(actual_in_bits);
-	LLStatViewer::ACTUAL_OUT_KBIT.add<LLTrace::Bits>(actual_out_bits);
-	LLStatViewer::KBIT.add<LLTrace::Bits>(bits);
-	LLStatViewer::PACKETS_IN.add(packets_in);
-	LLStatViewer::PACKETS_OUT.add(packets_out);
-	LLStatViewer::PACKETS_LOST.add(packets_lost);
+	add(LLStatViewer::ACTUAL_IN_KBIT, LLTrace::Bits(actual_in_bits));
+	add(LLStatViewer::ACTUAL_OUT_KBIT, LLTrace::Bits(actual_out_bits));
+	add(LLStatViewer::KBIT, LLTrace::Bits(bits));
+	add(LLStatViewer::PACKETS_IN, packets_in);
+	add(LLStatViewer::PACKETS_OUT, packets_out);
+	add(LLStatViewer::PACKETS_LOST, packets_lost);
 	if (packets_in)
 	{
-		LLStatViewer::PACKETS_LOST_PERCENT.sample(100.f*((F32)packets_lost/(F32)packets_in));
+		sample(LLStatViewer::PACKETS_LOST_PERCENT, 100.f * ((F32)packets_lost/(F32)packets_in));
 	}
 
 	mLastPacketsIn = gMessageSystem->mPacketsIn;

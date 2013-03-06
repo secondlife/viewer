@@ -1800,7 +1800,7 @@ void LLPipeline::resetFrameStats()
 {
 	assertInitialized();
 
-	LLStatViewer::TRIANGLES_DRAWN.add(mTrianglesDrawn);
+	add(LLStatViewer::TRIANGLES_DRAWN, mTrianglesDrawn);
 
 	if (mBatchCount > 0)
 	{
@@ -9805,7 +9805,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 	if (gen_shadow)
 	{
-		LLTrace::Count<>* velocity_stat = LLViewerCamera::getVelocityStat();
+		LLTrace::CountStatHandle<>* velocity_stat = LLViewerCamera::getVelocityStat();
 		F32 fade_amt = gFrameIntervalSeconds.value() 
 			* llmax(LLTrace::get_frame_recording().getLastRecordingPeriod().getSum(*velocity_stat) / LLTrace::get_frame_recording().getLastRecordingPeriod().getDuration().value(), 1.0);
 

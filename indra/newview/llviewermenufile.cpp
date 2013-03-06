@@ -1096,17 +1096,17 @@ void upload_new_resource(
 	
 	if( LLAssetType::AT_SOUND == asset_type )
 	{
-		LLStatViewer::UPLOAD_SOUND.add(1);
+		add(LLStatViewer::UPLOAD_SOUND, 1);
 	}
 	else
 	if( LLAssetType::AT_TEXTURE == asset_type )
 	{
-		LLStatViewer::UPLOAD_TEXTURE.add(1);
+		add(LLStatViewer::UPLOAD_TEXTURE, 1);
 	}
 	else
 	if( LLAssetType::AT_ANIMATION == asset_type)
 	{
-		LLStatViewer::ANIMATION_UPLOADS.add(1);
+		add(LLStatViewer::ANIMATION_UPLOADS, 1);
 	}
 
 	if(LLInventoryType::IT_NONE == inv_type)
@@ -1231,15 +1231,15 @@ void increase_new_upload_stats(LLAssetType::EType asset_type)
 {
 	if ( LLAssetType::AT_SOUND == asset_type )
 	{
-		LLStatViewer::UPLOAD_SOUND.add(1);
+		add(LLStatViewer::UPLOAD_SOUND, 1);
 	}
 	else if ( LLAssetType::AT_TEXTURE == asset_type )
 	{
-		LLStatViewer::UPLOAD_TEXTURE.add(1);
+		add(LLStatViewer::UPLOAD_TEXTURE, 1);
 	}
 	else if ( LLAssetType::AT_ANIMATION == asset_type )
 	{
-		LLStatViewer::ANIMATION_UPLOADS.add(1);
+		add(LLStatViewer::ANIMATION_UPLOADS, 1);
 	}
 }
 
