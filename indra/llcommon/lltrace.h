@@ -42,517 +42,519 @@
 
 namespace LLTrace
 {
-	class Recording;
+class Recording;
 
-	typedef LLUnit<LLUnits::Bytes, F64>			Bytes;
-	typedef LLUnit<LLUnits::Kilobytes, F64>		Kilobytes;
-	typedef LLUnit<LLUnits::Megabytes, F64>		Megabytes;
-	typedef LLUnit<LLUnits::Gigabytes, F64>		Gigabytes;
-	typedef LLUnit<LLUnits::Bits, F64>			Bits;
-	typedef LLUnit<LLUnits::Kilobits, F64>		Kilobits;
-	typedef LLUnit<LLUnits::Megabits, F64>		Megabits;
-	typedef LLUnit<LLUnits::Gigabits, F64>		Gigabits;
+typedef LLUnit<LLUnits::Bytes, F64>			Bytes;
+typedef LLUnit<LLUnits::Kilobytes, F64>		Kilobytes;
+typedef LLUnit<LLUnits::Megabytes, F64>		Megabytes;
+typedef LLUnit<LLUnits::Gigabytes, F64>		Gigabytes;
+typedef LLUnit<LLUnits::Bits, F64>			Bits;
+typedef LLUnit<LLUnits::Kilobits, F64>		Kilobits;
+typedef LLUnit<LLUnits::Megabits, F64>		Megabits;
+typedef LLUnit<LLUnits::Gigabits, F64>		Gigabits;
 
-	typedef LLUnit<LLUnits::Seconds, F64>		Seconds;
-	typedef LLUnit<LLUnits::Milliseconds, F64>	Milliseconds;
-	typedef LLUnit<LLUnits::Minutes, F64>		Minutes;
-	typedef LLUnit<LLUnits::Hours, F64>			Hours;
-	typedef LLUnit<LLUnits::Milliseconds, F64>	Milliseconds;
-	typedef LLUnit<LLUnits::Microseconds, F64>	Microseconds;
-	typedef LLUnit<LLUnits::Nanoseconds, F64>	Nanoseconds;
+typedef LLUnit<LLUnits::Seconds, F64>		Seconds;
+typedef LLUnit<LLUnits::Milliseconds, F64>	Milliseconds;
+typedef LLUnit<LLUnits::Minutes, F64>		Minutes;
+typedef LLUnit<LLUnits::Hours, F64>			Hours;
+typedef LLUnit<LLUnits::Milliseconds, F64>	Milliseconds;
+typedef LLUnit<LLUnits::Microseconds, F64>	Microseconds;
+typedef LLUnit<LLUnits::Nanoseconds, F64>	Nanoseconds;
 
-	typedef LLUnit<LLUnits::Meters, F64>		Meters;
-	typedef LLUnit<LLUnits::Kilometers, F64>	Kilometers;
-	typedef LLUnit<LLUnits::Centimeters, F64>	Centimeters;
-	typedef LLUnit<LLUnits::Millimeters, F64>	Millimeters;
+typedef LLUnit<LLUnits::Meters, F64>		Meters;
+typedef LLUnit<LLUnits::Kilometers, F64>	Kilometers;
+typedef LLUnit<LLUnits::Centimeters, F64>	Centimeters;
+typedef LLUnit<LLUnits::Millimeters, F64>	Millimeters;
 
-	void init();
-	void cleanup();
-	bool isInitialized();
+void init();
+void cleanup();
+bool isInitialized();
 
-	const LLThreadLocalPointer<class ThreadRecorder>& get_thread_recorder();
-	void set_thread_recorder(class ThreadRecorder*);
+const LLThreadLocalPointer<class ThreadRecorder>& get_thread_recorder();
+void set_thread_recorder(class ThreadRecorder*);
 
-	class MasterThreadRecorder& getMasterThreadRecorder();
+class MasterThreadRecorder& getMasterThreadRecorder();
 
-	// one per thread per type
-	template<typename ACCUMULATOR>
-	class AccumulatorBuffer : public LLRefCount
+// one per thread per type
+template<typename ACCUMULATOR>
+class AccumulatorBuffer : public LLRefCount
+{
+	typedef AccumulatorBuffer<ACCUMULATOR> self_t;
+	static const U32 DEFAULT_ACCUMULATOR_BUFFER_SIZE = 64;
+private:
+	struct StaticAllocationMarker { };
+
+	AccumulatorBuffer(StaticAllocationMarker m)
+	:	mStorageSize(0),
+		mStorage(NULL),
+		mNextStorageSlot(0)
 	{
-		typedef AccumulatorBuffer<ACCUMULATOR> self_t;
-		static const U32 DEFAULT_ACCUMULATOR_BUFFER_SIZE = 64;
-	private:
-		struct StaticAllocationMarker { };
+	}
 
-		AccumulatorBuffer(StaticAllocationMarker m)
-		:	mStorageSize(0),
-			mStorage(NULL),
-			mNextStorageSlot(0)
-		{
-		}
+public:
 
-	public:
-
-		AccumulatorBuffer(const AccumulatorBuffer& other = *getDefaultBuffer())
-		:	mStorageSize(0),
-			mStorage(NULL),
-			mNextStorageSlot(other.mNextStorageSlot)
-		{
-			resize(other.mStorageSize);
-			for (S32 i = 0; i < mNextStorageSlot; i++)
-			{
-				mStorage[i] = other.mStorage[i];
-			}
-		}
-
-		~AccumulatorBuffer()
-		{
-			if (LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance() == mStorage)
-			{
-				LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(getDefaultBuffer()->mStorage);
-			}
-			delete[] mStorage;
-		}
-
-		LL_FORCE_INLINE ACCUMULATOR& operator[](size_t index) 
-		{ 
-			return mStorage[index]; 
-		}
-
-		LL_FORCE_INLINE const ACCUMULATOR& operator[](size_t index) const
-		{ 
-			return mStorage[index]; 
-		}
-
-		void addSamples(const AccumulatorBuffer<ACCUMULATOR>& other)
-		{
-			llassert(mNextStorageSlot == other.mNextStorageSlot);
-
-			for (size_t i = 0; i < mNextStorageSlot; i++)
-			{
-				mStorage[i].addSamples(other.mStorage[i]);
-			}
-		}
-
-		void copyFrom(const AccumulatorBuffer<ACCUMULATOR>& other)
-		{
-			for (size_t i = 0; i < mNextStorageSlot; i++)
-			{
-				mStorage[i] = other.mStorage[i];
-			}
-		}
-
-		void reset(const AccumulatorBuffer<ACCUMULATOR>* other = NULL)
-		{
-			for (size_t i = 0; i < mNextStorageSlot; i++)
-			{
-				mStorage[i].reset(other ? &other->mStorage[i] : NULL);
-			}
-		}
-
-		void makePrimary()
-		{
-			LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(mStorage);
-		}
-
-		bool isPrimary() const
-		{
-			return LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance() == mStorage;
-		}
-
-		LL_FORCE_INLINE static ACCUMULATOR* getPrimaryStorage() 
-		{ 
-			return LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance(); 
-		}
-
-		// NOTE: this is not thread-safe.  We assume that slots are reserved in the main thread before any child threads are spawned
-		size_t reserveSlot()
-		{
-			if (LLTrace::isInitialized())
-			{
-				llerrs << "Attempting to declare trace object after program initialization.  Trace objects should be statically initialized." << llendl;
-			}
-			size_t next_slot = mNextStorageSlot++;
-			if (next_slot >= mStorageSize)
-			{
-				resize(mStorageSize + (mStorageSize >> 2));
-			}
-			llassert(mStorage && next_slot < mStorageSize);
-			return next_slot;
-		}
-
-		void resize(size_t new_size)
-		{
-			if (new_size <= mStorageSize) return;
-
-			ACCUMULATOR* old_storage = mStorage;
-			mStorage = new ACCUMULATOR[new_size];
-			if (old_storage)
-			{
-				for (S32 i = 0; i < mStorageSize; i++)
-				{
-					mStorage[i] = old_storage[i];
-				}
-			}
-			mStorageSize = new_size;
-			delete[] old_storage;
-
-			self_t* default_buffer = getDefaultBuffer();
-			if (this != default_buffer
-				&& new_size > default_buffer->size())
-			{
-				//NB: this is not thread safe, but we assume that all resizing occurs during static initialization
-				default_buffer->resize(new_size);
-			}
-		}
-
-		size_t size() const
-		{
-			return mNextStorageSlot;
-		}
-
-		static self_t* getDefaultBuffer()
-		{
-			// this buffer is allowed to leak so that trace calls from global destructors have somewhere to put their data
-			// so as not to trigger an access violation
-			static self_t* sBuffer = new AccumulatorBuffer(StaticAllocationMarker());
-			static bool sInitialized = false;
-			if (!sInitialized)
-			{
-				sBuffer->resize(DEFAULT_ACCUMULATOR_BUFFER_SIZE);
-				sInitialized = true;
-			}
-			return sBuffer;
-		}
-
-	private:
-		ACCUMULATOR*								mStorage;
-		size_t										mStorageSize;
-		size_t										mNextStorageSlot;
-	};
-
-	//TODO: replace with decltype when C++11 is enabled
-	template<typename T>
-	struct MeanValueType
+	AccumulatorBuffer(const AccumulatorBuffer& other = *getDefaultBuffer())
+	:	mStorageSize(0),
+		mStorage(NULL),
+		mNextStorageSlot(other.mNextStorageSlot)
 	{
-		typedef F64 type;
-	};
-
-	template<typename ACCUMULATOR>
-	class TraceType 
-	:	 public LLInstanceTracker<TraceType<ACCUMULATOR>, std::string>
-	{
-	public:
-		TraceType(const char* name, const char* description = NULL)
-		:	LLInstanceTracker<TraceType<ACCUMULATOR>, std::string>(name),
-			mName(name),
-			mDescription(description ? description : ""),
-			mAccumulatorIndex(AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer()->reserveSlot())
-		{}
-
-		LL_FORCE_INLINE ACCUMULATOR* getPrimaryAccumulator() const
+		resize(other.mStorageSize);
+		for (S32 i = 0; i < mNextStorageSlot; i++)
 		{
-			ACCUMULATOR* accumulator_storage = AccumulatorBuffer<ACCUMULATOR>::getPrimaryStorage();
-			return &accumulator_storage[mAccumulatorIndex];
+			mStorage[i] = other.mStorage[i];
 		}
+	}
 
-		size_t getIndex() const { return mAccumulatorIndex; }
-
-		const std::string& getName() const { return mName; }
-
-	protected:
-		const std::string	mName;
-		const std::string	mDescription;
-		const size_t		mAccumulatorIndex;
-	};
-
-	template<typename T>
-	class MeasurementAccumulator
+	~AccumulatorBuffer()
 	{
-	public:
-		typedef T value_t;
-		typedef MeasurementAccumulator<T> self_t;
-
-		MeasurementAccumulator()
-		:	mSum(0),
-			mMin((std::numeric_limits<T>::max)()),
-			mMax((std::numeric_limits<T>::min)()),
-			mMean(0),
-			mVarianceSum(0),
-			mNumSamples(0),
-			mLastValue(0)
-		{}
-
-		LL_FORCE_INLINE void sample(T value)
+		if (LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance() == mStorage)
 		{
-			T storage_value(value);
-			mNumSamples++;
-			mSum += storage_value;
-			if (storage_value < mMin)
-			{
-				mMin = storage_value;
-			}
-			if (storage_value > mMax)
-			{
-				mMax = storage_value;
-			}
-			F64 old_mean = mMean;
-			mMean += ((F64)storage_value - old_mean) / (F64)mNumSamples;
-			mVarianceSum += ((F64)storage_value - old_mean) * ((F64)storage_value - mMean);
-			mLastValue = storage_value;
+			LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(getDefaultBuffer()->mStorage);
 		}
+		delete[] mStorage;
+	}
 
-		void addSamples(const self_t& other)
+	LL_FORCE_INLINE ACCUMULATOR& operator[](size_t index) 
+	{ 
+		return mStorage[index]; 
+	}
+
+	LL_FORCE_INLINE const ACCUMULATOR& operator[](size_t index) const
+	{ 
+		return mStorage[index]; 
+	}
+
+	void addSamples(const AccumulatorBuffer<ACCUMULATOR>& other)
+	{
+		llassert(mNextStorageSlot == other.mNextStorageSlot);
+
+		for (size_t i = 0; i < mNextStorageSlot; i++)
 		{
-			if (other.mNumSamples)
-			{
-				mSum += other.mSum;
-				if (other.mMin < mMin)
-				{
-					mMin = other.mMin;
-				}
-				if (other.mMax > mMax)
-				{
-					mMax = other.mMax;
-				}
-				F64 weight = (F64)mNumSamples / (F64)(mNumSamples + other.mNumSamples);
-				mNumSamples += other.mNumSamples;
-				mMean = mMean * weight + other.mMean * (1.f - weight);
+			mStorage[i].addSamples(other.mStorage[i]);
+		}
+	}
 
-				// combine variance (and hence standard deviation) of 2 different sized sample groups using
-				// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
-				F64 n_1 = (F64)mNumSamples,
-					n_2 = (F64)other.mNumSamples;
-				F64 m_1 = mMean,
-					m_2 = other.mMean;
-				F64 sd_1 = getStandardDeviation(),
-					sd_2 = other.getStandardDeviation();
-				if (n_1 == 0)
-				{
-					mVarianceSum = other.mVarianceSum;
-				}
-				else if (n_2 == 0)
-				{
-					// don't touch variance
-					// mVarianceSum = mVarianceSum;
-				}
-				else
-				{
-					mVarianceSum =  (F64)mNumSamples
-								* ((((n_1 - 1.f) * sd_1 * sd_1)
-									+ ((n_2 - 1.f) * sd_2 * sd_2)
-									+ (((n_1 * n_2) / (n_1 + n_2))
-										* ((m_1 * m_1) + (m_2 * m_2) - (2.f * m_1 * m_2))))
-								/ (n_1 + n_2 - 1.f));
-				}
-				mLastValue = other.mLastValue;
+	void copyFrom(const AccumulatorBuffer<ACCUMULATOR>& other)
+	{
+		for (size_t i = 0; i < mNextStorageSlot; i++)
+		{
+			mStorage[i] = other.mStorage[i];
+		}
+	}
+
+	void reset(const AccumulatorBuffer<ACCUMULATOR>* other = NULL)
+	{
+		for (size_t i = 0; i < mNextStorageSlot; i++)
+		{
+			mStorage[i].reset(other ? &other->mStorage[i] : NULL);
+		}
+	}
+
+	void makePrimary()
+	{
+		LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(mStorage);
+	}
+
+	bool isPrimary() const
+	{
+		return LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance() == mStorage;
+	}
+
+	LL_FORCE_INLINE static ACCUMULATOR* getPrimaryStorage() 
+	{ 
+		return LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance(); 
+	}
+
+	// NOTE: this is not thread-safe.  We assume that slots are reserved in the main thread before any child threads are spawned
+	size_t reserveSlot()
+	{
+		if (LLTrace::isInitialized())
+		{
+			llerrs << "Attempting to declare trace object after program initialization.  Trace objects should be statically initialized." << llendl;
+		}
+		size_t next_slot = mNextStorageSlot++;
+		if (next_slot >= mStorageSize)
+		{
+			resize(mStorageSize + (mStorageSize >> 2));
+		}
+		llassert(mStorage && next_slot < mStorageSize);
+		return next_slot;
+	}
+
+	void resize(size_t new_size)
+	{
+		if (new_size <= mStorageSize) return;
+
+		ACCUMULATOR* old_storage = mStorage;
+		mStorage = new ACCUMULATOR[new_size];
+		if (old_storage)
+		{
+			for (S32 i = 0; i < mStorageSize; i++)
+			{
+				mStorage[i] = old_storage[i];
 			}
 		}
+		mStorageSize = new_size;
+		delete[] old_storage;
 
-		void reset(const self_t* other)
+		self_t* default_buffer = getDefaultBuffer();
+		if (this != default_buffer
+			&& new_size > default_buffer->size())
 		{
-			mNumSamples = 0;
-			mSum = 0;
-			mMin = 0;
-			mMax = 0;
-			mMean = 0;
-			mVarianceSum = 0;
-			mLastValue = other ? other->mLastValue : 0;
+			//NB: this is not thread safe, but we assume that all resizing occurs during static initialization
+			default_buffer->resize(new_size);
 		}
+	}
 
-		T	getSum() const { return (T)mSum; }
-		T	getMin() const { return (T)mMin; }
-		T	getMax() const { return (T)mMax; }
-		T	getLastValue() const { return (T)mLastValue; }
-		F64	getMean() const { return mMean; }
-		F64 getStandardDeviation() const { return sqrtf(mVarianceSum / mNumSamples); }
-		U32 getSampleCount() const { return mNumSamples; }
-
-	private:
-		T	mSum,
-			mMin,
-			mMax,
-			mLastValue;
-
-		F64	mMean,
-			mVarianceSum;
-
-		U32	mNumSamples;
-	};
-
-	template<typename T>
-	class CountAccumulator
+	size_t size() const
 	{
-	public:
-		typedef CountAccumulator<T> self_t;
-		typedef T value_t;
+		return mNextStorageSlot;
+	}
 
-		CountAccumulator()
-		:	mSum(0),
-			mNumSamples(0)
-		{}
-
-		LL_FORCE_INLINE void add(T value)
+	static self_t* getDefaultBuffer()
+	{
+		// this buffer is allowed to leak so that trace calls from global destructors have somewhere to put their data
+		// so as not to trigger an access violation
+		static self_t* sBuffer = new AccumulatorBuffer(StaticAllocationMarker());
+		static bool sInitialized = false;
+		if (!sInitialized)
 		{
-			mNumSamples++;
-			mSum += value;
+			sBuffer->resize(DEFAULT_ACCUMULATOR_BUFFER_SIZE);
+			sInitialized = true;
 		}
+		return sBuffer;
+	}
 
-		void addSamples(const CountAccumulator<T>& other)
+private:
+	ACCUMULATOR*								mStorage;
+	size_t										mStorageSize;
+	size_t										mNextStorageSlot;
+};
+
+//TODO: replace with decltype when C++11 is enabled
+template<typename T>
+struct MeanValueType
+{
+	typedef F64 type;
+};
+
+template<typename ACCUMULATOR>
+class TraceType 
+:	 public LLInstanceTracker<TraceType<ACCUMULATOR>, std::string>
+{
+public:
+	TraceType(const char* name, const char* description = NULL)
+	:	LLInstanceTracker<TraceType<ACCUMULATOR>, std::string>(name),
+		mName(name),
+		mDescription(description ? description : ""),
+		mAccumulatorIndex(AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer()->reserveSlot())
+	{}
+
+	LL_FORCE_INLINE ACCUMULATOR* getPrimaryAccumulator() const
+	{
+		ACCUMULATOR* accumulator_storage = AccumulatorBuffer<ACCUMULATOR>::getPrimaryStorage();
+		return &accumulator_storage[mAccumulatorIndex];
+	}
+
+	size_t getIndex() const { return mAccumulatorIndex; }
+
+	const std::string& getName() const { return mName; }
+
+protected:
+	const std::string	mName;
+	const std::string	mDescription;
+	const size_t		mAccumulatorIndex;
+};
+
+template<typename T>
+class MeasurementAccumulator
+{
+public:
+	typedef T value_t;
+	typedef MeasurementAccumulator<T> self_t;
+
+	MeasurementAccumulator()
+	:	mSum(0),
+		mMin((std::numeric_limits<T>::max)()),
+		mMax((std::numeric_limits<T>::min)()),
+		mMean(0),
+		mVarianceSum(0),
+		mNumSamples(0),
+		mLastValue(0)
+	{}
+
+	void sample(T value)
+	{
+		mNumSamples++;
+		mSum += value;
+		if (value < mMin)
+		{
+			mMin = value;
+		}
+		if (value > mMax)
+		{
+			mMax = value;
+		}
+		F64 old_mean = mMean;
+		mMean += ((F64)value - old_mean) / (F64)mNumSamples;
+		mVarianceSum += ((F64)value - old_mean) * ((F64)value - mMean);
+		mLastValue = value;
+	}
+
+	void addSamples(const self_t& other)
+	{
+		if (other.mNumSamples)
 		{
 			mSum += other.mSum;
+			if (other.mMin < mMin)
+			{
+				mMin = other.mMin;
+			}
+			if (other.mMax > mMax)
+			{
+				mMax = other.mMax;
+			}
+			F64 weight = (F64)mNumSamples / (F64)(mNumSamples + other.mNumSamples);
 			mNumSamples += other.mNumSamples;
+			mMean = mMean * weight + other.mMean * (1.f - weight);
+
+			// combine variance (and hence standard deviation) of 2 different sized sample groups using
+			// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
+			F64 n_1 = (F64)mNumSamples,
+				n_2 = (F64)other.mNumSamples;
+			F64 m_1 = mMean,
+				m_2 = other.mMean;
+			F64 v_1 = mVarianceSum / mNumSamples,
+				v_2 = other.mVarianceSum / other.mNumSamples;
+			if (n_1 == 0)
+			{
+				mVarianceSum = other.mVarianceSum;
+			}
+			else if (n_2 == 0)
+			{
+				// don't touch variance
+				// mVarianceSum = mVarianceSum;
+			}
+			else
+			{
+				mVarianceSum = (F64)mNumSamples
+					* ((((n_1 - 1.f) * v_1)
+					+ ((n_2 - 1.f) * v_2)
+					+ (((n_1 * n_2) / (n_1 + n_2))
+					* ((m_1 * m_1) + (m_2 * m_2) - (2.f * m_1 * m_2))))
+					/ (n_1 + n_2 - 1.f));
+			}
+			mLastValue = other.mLastValue;
 		}
+	}
 
-		void reset(const self_t* other)
-		{
-			mNumSamples = 0;
-			mSum = 0;
-		}
+	void reset(const self_t* other)
+	{
+		mNumSamples = 0;
+		mSum = 0;
+		mMin = 0;
+		mMax = 0;
+		mMean = 0;
+		mVarianceSum = 0;
+		mLastValue = other ? other->mLastValue : 0;
+	}
 
-		T	getSum() const { return (T)mSum; }
+	T	getSum() const { return (T)mSum; }
+	T	getMin() const { return (T)mMin; }
+	T	getMax() const { return (T)mMax; }
+	T	getLastValue() const { return (T)mLastValue; }
+	F64	getMean() const { return mMean; }
+	F64 getStandardDeviation() const { return sqrtf(mVarianceSum / mNumSamples); }
+	U32 getSampleCount() const { return mNumSamples; }
 
-		U32 getSampleCount() const { return mNumSamples; }
+private:
+	T	mSum,
+		mMin,
+		mMax,
+		mLastValue;
 
-	private:
-		T	mSum;
+	F64	mMean,
+		mVarianceSum;
 
-		U32	mNumSamples;
+	U32	mNumSamples;
+};
+
+template<typename T>
+class CountAccumulator
+{
+public:
+	typedef CountAccumulator<T> self_t;
+	typedef T value_t;
+
+	CountAccumulator()
+	:	mSum(0),
+		mNumSamples(0)
+	{}
+
+	void add(T value)
+	{
+		mNumSamples++;
+		mSum += value;
+	}
+
+	void addSamples(const CountAccumulator<T>& other)
+	{
+		mSum += other.mSum;
+		mNumSamples += other.mNumSamples;
+	}
+
+	void reset(const self_t* other)
+	{
+		mNumSamples = 0;
+		mSum = 0;
+	}
+
+	T	getSum() const { return (T)mSum; }
+
+	U32 getSampleCount() const { return mNumSamples; }
+
+private:
+	T	mSum;
+
+	U32	mNumSamples;
+};
+
+class TimeBlockAccumulator
+{
+public:
+	typedef LLUnit<LLUnits::Seconds, F64> value_t;
+	typedef TimeBlockAccumulator self_t;
+
+	// fake class that allows us to view call count aspect of timeblock accumulator
+	struct CallCountAspect 
+	{
+		typedef U32 value_t;
 	};
 
-	class TimeBlockAccumulator
+	struct SelfTimeAspect
 	{
-	public:
 		typedef LLUnit<LLUnits::Seconds, F64> value_t;
-		typedef TimeBlockAccumulator self_t;
-
-		// fake class that allows us to view call count aspect of timeblock accumulator
-		struct CallCountAspect 
-		{
-			typedef U32 value_t;
-		};
-
-		struct SelfTimeAspect
-		{
-			typedef LLUnit<LLUnits::Seconds, F64> value_t;
-		};
-
-		TimeBlockAccumulator();
-		void addSamples(const self_t& other);
-		void reset(const self_t* other);
-
-		//
-		// members
-		//
-		U64							mStartTotalTimeCounter,
-									mTotalTimeCounter,
-									mSelfTimeCounter;
-		U32							mCalls;
-		class TimeBlock*			mParent;		// last acknowledged parent of this time block
-		class TimeBlock*			mLastCaller;	// used to bootstrap tree construction
-		U16							mActiveCount;	// number of timers with this ID active on stack
-		bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
-
 	};
 
+	TimeBlockAccumulator();
+	void addSamples(const self_t& other);
+	void reset(const self_t* other);
 
-	template<>
-	struct MeanValueType<TraceType<TimeBlockAccumulator> >
-	{
-		typedef LLUnit<LLUnits::Seconds, F64> type;
-	};
+	//
+	// members
+	//
+	U64							mStartTotalTimeCounter,
+								mTotalTimeCounter,
+								mSelfTimeCounter;
+	U32							mCalls;
+	class TimeBlock*			mParent;		// last acknowledged parent of this time block
+	class TimeBlock*			mLastCaller;	// used to bootstrap tree construction
+	U16							mActiveCount;	// number of timers with this ID active on stack
+	bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
 
-	template<>
-	class TraceType<TimeBlockAccumulator::CallCountAspect>
+};
+
+
+template<>
+struct MeanValueType<TraceType<TimeBlockAccumulator> >
+{
+	typedef LLUnit<LLUnits::Seconds, F64> type;
+};
+
+template<>
+class TraceType<TimeBlockAccumulator::CallCountAspect>
+:	public TraceType<TimeBlockAccumulator>
+{
+public:
+
+	TraceType(const char* name, const char* description = "")
+	:	TraceType<TimeBlockAccumulator>(name, description)
+	{}
+};
+
+template<>
+struct MeanValueType<TraceType<TimeBlockAccumulator::CallCountAspect> >
+{
+	typedef F64 type;
+};
+
+
+template<>
+class TraceType<TimeBlockAccumulator::SelfTimeAspect>
 	:	public TraceType<TimeBlockAccumulator>
-	{
-	public:
+{
+public:
 
-		TraceType(const char* name, const char* description = "")
+	TraceType(const char* name, const char* description = "")
 		:	TraceType<TimeBlockAccumulator>(name, description)
-		{}
-	};
+	{}
+};
 
-	template<>
-	struct MeanValueType<TraceType<TimeBlockAccumulator::CallCountAspect> >
-	{
-		typedef F64 type;
-	};
-
-
-	template<>
-	class TraceType<TimeBlockAccumulator::SelfTimeAspect>
-		:	public TraceType<TimeBlockAccumulator>
-	{
-	public:
-
-		TraceType(const char* name, const char* description = "")
-			:	TraceType<TimeBlockAccumulator>(name, description)
-		{}
-	};
-
-	template<>
-	struct MeanValueType<TraceType<TimeBlockAccumulator::SelfTimeAspect> >
-	{
-		typedef LLUnit<LLUnits::Seconds, F64> type;
-	};
+template<>
+struct MeanValueType<TraceType<TimeBlockAccumulator::SelfTimeAspect> >
+{
+	typedef LLUnit<LLUnits::Seconds, F64> type;
+};
 
 
-	class TimeBlock;
-	class TimeBlockTreeNode
-	{
-	public:
-		TimeBlockTreeNode();
+class TimeBlock;
+class TimeBlockTreeNode
+{
+public:
+	TimeBlockTreeNode();
 
-		void setParent(TimeBlock* parent);
-		TimeBlock* getParent() { return mParent; }
+	void setParent(TimeBlock* parent);
+	TimeBlock* getParent() { return mParent; }
 
-		TimeBlock*					mBlock;
-		TimeBlock*					mParent;	
-		std::vector<TimeBlock*>		mChildren;
-		bool						mNeedsSorting;
-	};
+	TimeBlock*					mBlock;
+	TimeBlock*					mParent;	
+	std::vector<TimeBlock*>		mChildren;
+	bool						mNeedsSorting;
+};
 
 
-	template <typename T = F64>
-	class Measurement
-	:	public TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >
-	{
-	public:
-		typedef typename LLUnits::HighestPrecisionType<T>::type_t storage_t;
-		typedef TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> > trace_t;
+template <typename T = F64>
+class MeasurementStatHandle
+:	public TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >
+{
+public:
+	typedef typename LLUnits::HighestPrecisionType<T>::type_t storage_t;
+	typedef TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> > trace_t;
 
-		Measurement(const char* name, const char* description = NULL) 
-		:	trace_t(name, description)
-		{}
+	MeasurementStatHandle(const char* name, const char* description = NULL) 
+	:	trace_t(name, description)
+	{}
+};
 
-		template<typename UNIT_T>
-		void sample(UNIT_T value)
-		{
-			T converted_value(value);
-			trace_t::getPrimaryAccumulator()->sample(LLUnits::rawValue(converted_value));
-		}
-	};
+template<typename T, typename VALUE_T>
+void sample(MeasurementStatHandle<T>& measurement, VALUE_T value)
+{
+	T converted_value(value);
+	measurement.getPrimaryAccumulator()->sample(LLUnits::rawValue(converted_value));
+}
 
-	template <typename T = F64>
-	class Count 
-	:	public TraceType<CountAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >
-	{
-	public:
-		typedef typename LLUnits::HighestPrecisionType<T>::type_t storage_t;
-		typedef TraceType<CountAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> > trace_t;
 
-		Count(const char* name, const char* description = NULL) 
-		:	trace_t(name)
-		{}
+template <typename T = F64>
+class CountStatHandle
+:	public TraceType<CountAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >
+{
+public:
+	typedef typename LLUnits::HighestPrecisionType<T>::type_t storage_t;
+	typedef TraceType<CountAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> > trace_t;
 
-		template<typename UNIT_T>
-		void add(UNIT_T value)
-		{
-			T converted_value(value);
-			trace_t::getPrimaryAccumulator()->add(LLUnits::rawValue(converted_value));
-		}
-	};
+	CountStatHandle(const char* name, const char* description = NULL) 
+	:	trace_t(name)
+	{}
+
+};
+
+template<typename T, typename VALUE_T>
+void add(CountStatHandle<T>& count, VALUE_T value)
+{
+	T converted_value(value);
+	count.getPrimaryAccumulator()->add(LLUnits::rawValue(converted_value));
+}
+
 
 struct MemStatAccumulator
 {
@@ -585,11 +587,11 @@ struct MemStatAccumulator
 				mDeallocatedCount;
 };
 
-class MemStat : public TraceType<MemStatAccumulator>
+class MemStatHandle : public TraceType<MemStatAccumulator>
 {
 public:
 	typedef TraceType<MemStatAccumulator> trace_t;
-	MemStat(const char* name)
+	MemStatHandle(const char* name)
 	:	trace_t(name)
 	{}
 };

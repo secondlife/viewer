@@ -623,12 +623,12 @@ void LLViewerTextureList::updateImages(F32 max_time)
 
 	{
 		using namespace LLStatViewer;
-		NUM_IMAGES.sample(sNumImages);
-		NUM_RAW_IMAGES.sample(LLImageRaw::sRawImageCount);
-		GL_TEX_MEM.sample(LLImageGL::sGlobalTextureMemory);
-		GL_BOUND_MEM.sample(LLImageGL::sBoundTextureMemory);
-		RAW_MEM.sample<LLTrace::Bytes>(LLImageRaw::sGlobalRawMemory);
-		FORMATTED_MEM.sample<LLTrace::Bytes>(LLImageFormatted::sGlobalFormattedMemory);
+		sample(NUM_IMAGES, sNumImages);
+		sample(NUM_RAW_IMAGES, LLImageRaw::sRawImageCount);
+		sample(GL_TEX_MEM, LLImageGL::sGlobalTextureMemory);
+		sample(GL_BOUND_MEM, LLImageGL::sBoundTextureMemory);
+		sample(RAW_MEM, LLTrace::Bytes(LLImageRaw::sGlobalRawMemory));
+		sample(FORMATTED_MEM, LLTrace::Bytes(LLImageFormatted::sGlobalFormattedMemory));
 	}
 
 	{
@@ -1324,8 +1324,8 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 	{
 		received_size = msg->getReceiveSize() ;		
 	}
-	LLStatViewer::TEXTURE_KBIT.add<LLTrace::Bytes>(received_size);
-	LLStatViewer::TEXTURE_PACKETS.add(1);
+	add(LLStatViewer::TEXTURE_KBIT, LLTrace::Bytes(received_size));
+	add(LLStatViewer::TEXTURE_PACKETS, 1);
 	
 	U8 codec;
 	U16 packets;
@@ -1398,8 +1398,8 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 		received_size = msg->getReceiveSize() ;		
 	}
 
-	LLStatViewer::TEXTURE_KBIT.add<LLTrace::Bytes>(received_size);
-	LLStatViewer::TEXTURE_PACKETS.add(1);
+	add(LLStatViewer::TEXTURE_KBIT, LLTrace::Bytes(received_size));
+	add(LLStatViewer::TEXTURE_PACKETS, 1);
 	
 	//llprintline("Start decode, image header...");
 	msg->getUUIDFast(_PREHASH_ImageID, _PREHASH_ID, id);

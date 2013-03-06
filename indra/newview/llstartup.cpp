@@ -2071,7 +2071,7 @@ bool idle_startup()
 		if (wearables_time > MAX_WEARABLES_TIME)
 		{
 			LLNotificationsUtil::add("ClothingLoading");
-			LLStatViewer::LOADING_WEARABLES_LONG_DELAY.add(1);
+			add(LLStatViewer::LOADING_WEARABLES_LONG_DELAY, 1);
 			LLStartUp::setStartupState( STATE_CLEANUP );
 			return TRUE;
 		}

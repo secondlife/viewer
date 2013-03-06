@@ -5824,7 +5824,7 @@ void process_alert_core(const std::string& message, BOOL modal)
 	// HACK -- handle callbacks for specific alerts. It also is localized in notifications.xml
 	if ( message == "You died and have been teleported to your home location")
 	{
-		LLStatViewer::KILLED.add(1);
+		add(LLStatViewer::KILLED, 1);
 	}
 	else if( message == "Home position set." )
 	{

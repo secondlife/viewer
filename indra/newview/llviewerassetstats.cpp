@@ -177,7 +177,7 @@ namespace LLViewerAssetStatsFF
 		return ret;
 	}
 
-	static LLTrace::Count<> sEnqueueAssetRequestsTempTextureHTTP   ("enqueuedassetrequeststemptexturehttp", 
+	static LLTrace::CountStatHandle<> sEnqueueAssetRequestsTempTextureHTTP   ("enqueuedassetrequeststemptexturehttp", 
 																	"Number of temporary texture asset http requests enqueued"),
 							sEnqueueAssetRequestsTempTextureUDP    ("enqueuedassetrequeststemptextureudp", 
 																	"Number of temporary texture asset udp requests enqueued"),
@@ -194,7 +194,7 @@ namespace LLViewerAssetStatsFF
 							sEnqueuedAssetRequestsOther            ("enqueuedassetrequestsother", 
 																	"Number of other asset requests enqueued");
 
-	static LLTrace::Count<>* sEnqueued[EVACCount] = {		
+	static LLTrace::CountStatHandle<>* sEnqueued[EVACCount] = {		
 		&sEnqueueAssetRequestsTempTextureHTTP,   
 		&sEnqueueAssetRequestsTempTextureUDP,  
 		&sEnqueueAssetRequestsNonTempTextureHTTP,
@@ -205,7 +205,7 @@ namespace LLViewerAssetStatsFF
 		&sEnqueuedAssetRequestsOther            
 	};
 
-	static LLTrace::Count<> sDequeueAssetRequestsTempTextureHTTP   ("dequeuedassetrequeststemptexturehttp", 
+	static LLTrace::CountStatHandle<> sDequeueAssetRequestsTempTextureHTTP   ("dequeuedassetrequeststemptexturehttp", 
 																	"Number of temporary texture asset http requests dequeued"),
 							sDequeueAssetRequestsTempTextureUDP    ("dequeuedassetrequeststemptextureudp", 
 																	"Number of temporary texture asset udp requests dequeued"),
@@ -222,7 +222,7 @@ namespace LLViewerAssetStatsFF
 							sDequeuedAssetRequestsOther            ("dequeuedassetrequestsother", 
 																	"Number of other asset requests dequeued");
 
-	static LLTrace::Count<>* sDequeued[EVACCount] = {
+	static LLTrace::CountStatHandle<>* sDequeued[EVACCount] = {
 		&sDequeueAssetRequestsTempTextureHTTP,   
 		&sDequeueAssetRequestsTempTextureUDP,  
 		&sDequeueAssetRequestsNonTempTextureHTTP,
@@ -233,7 +233,7 @@ namespace LLViewerAssetStatsFF
 		&sDequeuedAssetRequestsOther            
 	};
 
-	static LLTrace::Measurement<LLTrace::Seconds>	sResponseAssetRequestsTempTextureHTTP   ("assetresponsetimestemptexturehttp", 
+	static LLTrace::MeasurementStatHandle<LLTrace::Seconds>	sResponseAssetRequestsTempTextureHTTP   ("assetresponsetimestemptexturehttp", 
 																							"Time spent responding to temporary texture asset http requests"),
 													sResponseAssetRequestsTempTextureUDP    ("assetresponsetimestemptextureudp", 
 																							"Time spent responding to temporary texture asset udp requests"),
@@ -250,7 +250,7 @@ namespace LLViewerAssetStatsFF
 													sResponsedAssetRequestsOther            ("assetresponsetimesother", 
 																							"Time spent responding to other asset requests");
 
-	static LLTrace::Measurement<LLTrace::Seconds>* sResponse[EVACCount] = {
+	static LLTrace::MeasurementStatHandle<LLTrace::Seconds>* sResponse[EVACCount] = {
 		&sResponseAssetRequestsTempTextureHTTP,   
 		&sResponseAssetRequestsTempTextureUDP,  
 		&sResponseAssetRequestsNonTempTextureHTTP,

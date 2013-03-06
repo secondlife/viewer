@@ -198,7 +198,7 @@ protected:
 	std::vector<OrphanInfo> mOrphanChildren;	// UUID's of orphaned objects
 	S32 mNumOrphans;
 
-	static LLTrace::Measurement<> sCacheHitRate;
+	static LLTrace::MeasurementStatHandle<> sCacheHitRate;
 
 	typedef std::vector<LLPointer<LLViewerObject> > vobj_list_t;
 

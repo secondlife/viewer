@@ -94,7 +94,7 @@ extern LLPipeline	gPipeline;
 U32						LLViewerObjectList::sSimulatorMachineIndex = 1; // Not zero deliberately, to speed up index check.
 std::map<U64, U32>		LLViewerObjectList::sIPAndPortToIndex;
 std::map<U64, LLUUID>	LLViewerObjectList::sIndexAndLocalIDToUUID;
-LLTrace::Measurement<>	LLViewerObjectList::sCacheHitRate("object_cache_hits");
+LLTrace::MeasurementStatHandle<>	LLViewerObjectList::sCacheHitRate("object_cache_hits");
 
 LLViewerObjectList::LLViewerObjectList()
 {
@@ -356,7 +356,7 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 		}
 		justCreated = true;
 		mNumNewObjects++;
-		sCacheHitRate.sample(100.f);
+		sample(sCacheHitRate, 100.f);
 	}
 
 	if (objectp->isDead())
@@ -670,7 +670,7 @@ void LLViewerObjectList::processCachedObjectUpdate(LLMessageSystem *mesgsys,
 
 			continue; // no data packer, skip this object
 		}
-		sCacheHitRate.sample(100.f);
+		sample(sCacheHitRate, 100.f);
 	}
 
 	return;
@@ -1123,10 +1123,10 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	}
 	*/
 
-	LLStatViewer::NUM_OBJECTS.sample(mObjects.size());
-	LLStatViewer::NUM_ACTIVE_OBJECTS.sample(idle_count);
-	LLStatViewer::NUM_SIZE_CULLED.sample(mNumSizeCulled);
-	LLStatViewer::NUM_VIS_CULLED.sample(mNumVisCulled);
+	sample(LLStatViewer::NUM_OBJECTS, mObjects.size());
+	sample(LLStatViewer::NUM_ACTIVE_OBJECTS, idle_count);
+	sample(LLStatViewer::NUM_SIZE_CULLED, mNumSizeCulled);
+	sample(LLStatViewer::NUM_VIS_CULLED, mNumVisCulled);
 }
 
 void LLViewerObjectList::fetchObjectCosts()

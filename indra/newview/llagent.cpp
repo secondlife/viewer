@@ -752,7 +752,7 @@ void LLAgent::setFlying(BOOL fly)
 		}
 		if( !was_flying )
 		{
-			LLStatViewer::FLY.add(1);
+			add(LLStatViewer::FLY, 1);
 		}
 		setControlFlags(AGENT_CONTROL_FLY);
 	}
@@ -3806,7 +3806,7 @@ bool LLAgent::teleportCore(bool is_local)
 	gAgentCamera.resetView(FALSE);
 
 	// local logic
-	LLStatViewer::TELEPORT.add(1);
+	add(LLStatViewer::TELEPORT, 1);
 	if (is_local)
 	{
 		gAgent.setTeleportState( LLAgent::TELEPORT_LOCAL );

@@ -913,7 +913,7 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 		{
 			++mRegionCrossingCount;
 			LLTrace::Seconds delta = mRegionCrossingTimer.getElapsedTimeF32();
-			LLStatViewer::REGION_CROSSING_TIME.sample(delta);
+			sample(LLStatViewer::REGION_CROSSING_TIME, delta);
 
 			// Diagnostics
 			llinfos << "Region crossing took " << (F32)(delta * 1000.0).value() << " ms " << llendl;
@@ -2583,7 +2583,7 @@ void LLVOAvatarSelf::processRebakeAvatarTextures(LLMessageSystem* msg, void**)
 					llinfos << "TAT: rebake - matched entry " << (S32)index << llendl;
 					gAgentAvatarp->invalidateComposite(layer_set, TRUE);
 					found = TRUE;
-					LLStatViewer::TEX_REBAKES.add(1);
+					add(LLStatViewer::TEX_REBAKES, 1);
 				}
 			}
 		}
@@ -2628,7 +2628,7 @@ void LLVOAvatarSelf::forceBakeAllTextures(bool slam_for_debug)
 			}
 
 			invalidateComposite(layer_set, TRUE);
-			LLStatViewer::TEX_REBAKES.add(1);
+			add(LLStatViewer::TEX_REBAKES, 1);
 		}
 		else
 		{

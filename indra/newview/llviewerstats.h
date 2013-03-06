@@ -41,26 +41,21 @@ struct SimMeasurementSampler : public LLInstanceTracker<SimMeasurementSampler, E
 	:	LLInstanceTracker<SimMeasurementSampler, ESimStatID>(id)
 	{}
 	virtual ~SimMeasurementSampler() {}
-	virtual void sample(F64 value) = 0;
 };
 
 template<typename T = F64>
-struct SimMeasurement : public LLTrace::Measurement<T>, public SimMeasurementSampler
+struct SimMeasurement : public LLTrace::MeasurementStatHandle<T>, public SimMeasurementSampler
 {
 	SimMeasurement(const char* name, const char* description, ESimStatID stat_id)
-	:	LLTrace::Measurement<T>(name, description),
+	:	LLTrace::MeasurementStatHandle<T>(name, description),
 		SimMeasurementSampler(stat_id)	
 	{}
 
 	using SimMeasurementSampler::getInstance;
-
-	/*virtual*/ void sample(F64 value)
-	{
-		LLTrace::Measurement<T>::sample(T(value));
-	}
 };
 
-extern LLTrace::Count<>						FPS,
+
+extern LLTrace::CountStatHandle<>						FPS,
 											PACKETS_IN,
 											PACKETS_LOST,
 											PACKETS_OUT,
@@ -87,7 +82,7 @@ extern LLTrace::Count<>						FPS,
 											TEX_REBAKES;
 
 
-extern LLTrace::Count<LLTrace::Kilobits>	KBIT,
+extern LLTrace::CountStatHandle<LLTrace::Kilobits>	KBIT,
 											LAYERS_KBIT,
 											OBJECT_KBIT,
 											ASSET_KBIT,
@@ -95,7 +90,7 @@ extern LLTrace::Count<LLTrace::Kilobits>	KBIT,
 											ACTUAL_IN_KBIT,
 											ACTUAL_OUT_KBIT;
 
-extern LLTrace::Count<LLTrace::Seconds>		AVATAR_EDIT_TIME,
+extern LLTrace::CountStatHandle<LLTrace::Seconds>		AVATAR_EDIT_TIME,
 											TOOLBOX_TIME,
 											MOUSELOOK_TIME,
 											FPS_10_TIME,
@@ -126,7 +121,7 @@ extern SimMeasurement<>						SIM_TIME_DILATION,
 											SIM_PHYSICS_PINNED_TASKS,
 											SIM_PHYSICS_LOD_TASKS;
 
-extern LLTrace::Measurement<>				FPS_SAMPLE,
+extern LLTrace::MeasurementStatHandle<>		FPS_SAMPLE,
 											NUM_IMAGES,
 											NUM_RAW_IMAGES,
 											NUM_OBJECTS,
@@ -145,14 +140,14 @@ extern LLTrace::Measurement<>				FPS_SAMPLE,
 											WINDOW_WIDTH,
 											WINDOW_HEIGHT;
 
-extern LLTrace::Measurement<LLTrace::Meters> AGENT_POSITION_SNAP;
+extern LLTrace::MeasurementStatHandle<LLTrace::Meters> AGENT_POSITION_SNAP;
 
-extern LLTrace::Measurement<LLTrace::Bytes>	DELTA_BANDWIDTH,
-											MAX_BANDWIDTH,
-											GL_TEX_MEM,
-											GL_BOUND_MEM,
-											RAW_MEM,
-											FORMATTED_MEM;
+extern LLTrace::MeasurementStatHandle<LLTrace::Bytes>	DELTA_BANDWIDTH,
+														MAX_BANDWIDTH,
+														GL_TEX_MEM,
+														GL_BOUND_MEM,
+														RAW_MEM,
+														FORMATTED_MEM;
 
 extern SimMeasurement<LLTrace::Milliseconds>	SIM_FRAME_TIME,
 												SIM_NET_TIME,
@@ -173,7 +168,7 @@ extern SimMeasurement<LLTrace::Bytes>			SIM_UNACKED_BYTES,
 												SIM_PHYSICS_MEM;
 
 
-extern LLTrace::Measurement<LLTrace::Milliseconds>	FRAMETIME_JITTER,
+extern LLTrace::MeasurementStatHandle<LLTrace::Milliseconds>	FRAMETIME_JITTER,
 													FRAMETIME_SLEW,
 													LOGIN_SECONDS,
 													REGION_CROSSING_TIME,

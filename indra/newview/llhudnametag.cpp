@@ -900,7 +900,7 @@ void LLHUDNameTag::updateAll()
 //		}
 	}
 
-	LLTrace::Count<>* camera_vel_stat = LLViewerCamera::getVelocityStat();
+	LLTrace::CountStatHandle<>* camera_vel_stat = LLViewerCamera::getVelocityStat();
 	F32 camera_vel = LLTrace::get_frame_recording().getLastRecordingPeriod().getPerSec(*camera_vel_stat);
 	if (camera_vel > MAX_STABLE_CAMERA_VELOCITY)
 	{

@@ -250,7 +250,7 @@ public:
 	S32				getCurrentMouseDX()		const	{ return mCurrentMouseDelta.mX; }
 	S32				getCurrentMouseDY()		const	{ return mCurrentMouseDelta.mY; }
 	LLCoordGL		getCurrentMouseDelta()	const	{ return mCurrentMouseDelta; }
-	static LLTrace::Measurement<>*	getMouseVelocityStat()		{ return &sMouseVelocityStat; }
+	static LLTrace::MeasurementStatHandle<>*	getMouseVelocityStat()		{ return &sMouseVelocityStat; }
 	BOOL			getLeftMouseDown()	const	{ return mLeftMouseDown; }
 	BOOL			getMiddleMouseDown()	const	{ return mMiddleMouseDown; }
 	BOOL			getRightMouseDown()	const	{ return mRightMouseDown; }
@@ -482,7 +482,7 @@ private:
 	// Object temporarily hovered over while dragging
 	LLPointer<LLViewerObject>	mDragHoveredObject;
 
-	static LLTrace::Measurement<>	sMouseVelocityStat;
+	static LLTrace::MeasurementStatHandle<>	sMouseVelocityStat;
 };
 
 //
