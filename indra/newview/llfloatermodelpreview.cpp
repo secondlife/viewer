@@ -290,6 +290,22 @@ bool ll_is_degenerate(const LLVector4a& a, const LLVector4a& b, const LLVector4a
 
 bool validate_face(const LLVolumeFace& face)
 {
+
+	for (U32 v = 0; v < face.mNumVertices; v++)
+	{
+		if(face.mPositions && !face.mPositions[v].isFinite3())
+		{
+			llwarns << "NaN position data in face found!" << llendl;
+			return false;
+		}
+
+		if(face.mNormals && !face.mNormals[v].isFinite3())
+		{
+			llwarns << "NaN normal data in face found!" << llendl;
+			return false;
+		}
+	}
+
 	for (U32 i = 0; i < face.mNumIndices; ++i)
 	{
 		if (face.mIndices[i] >= face.mNumVertices)
@@ -305,30 +321,6 @@ bool validate_face(const LLVolumeFace& face)
 		return false;
 	}
 
-	for (U32 i = 0; i < face.mNumIndices; i+=3)
-	{
-		U16 idx1 = face.mIndices[i];
-		U16 idx2 = face.mIndices[i+1];
-		U16 idx3 = face.mIndices[i+2];
-
-		if (face.mPositions
-		&& (!face.mPositions[idx1].isFinite3()
-		 || !face.mPositions[idx2].isFinite3()
-		 || !face.mPositions[idx3].isFinite3()))
-		{
-			llwarns << "NaN position data in face found!" << llendl;
-			return false;
-		}
-
-		if (face.mNormals
-		&& (!face.mNormals[idx1].isFinite3()
-		 || !face.mNormals[idx2].isFinite3()
-		 || !face.mNormals[idx3].isFinite3()))
-		{
-			llwarns << "NaN normal data in face found!" << llendl;
-			return false;
-		}
-	}
 
 	/*const LLVector4a scale(0.5f);
 
@@ -5959,3 +5951,5 @@ void LLFloaterModelPreview::setPermissonsErrorStatus(U32 status, const std::stri
 
 	LLNotificationsUtil::add("MeshUploadPermError");
 }
+
+
