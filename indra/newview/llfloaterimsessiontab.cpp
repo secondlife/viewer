@@ -798,6 +798,12 @@ void LLFloaterIMSessionTab::onTearOffClicked()
 	{
 		forceReshape();
 	}
+	//Upon re-docking the torn off floater, select the corresponding conversation line item
+	else
+	{
+		LLFloaterIMContainer* container = LLFloaterReg::findTypedInstance<LLFloaterIMContainer>("im_container");
+		container->selectConversation(mSessionID);
+	}
 	refreshConversation();
 	updateGearBtn();
 }
