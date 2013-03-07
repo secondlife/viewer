@@ -1086,7 +1086,14 @@ BOOL LLTextBase::handleRightMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL LLTextBase::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	mTripleClickTimer.setTimerExpirySec(TRIPLE_CLICK_INTERVAL);
+	//Don't start triple click timer if user have clicked on scrollbar
+	mVisibleTextRect = mScroller ? mScroller->getContentWindowRect() : getLocalRect();
+	if (x >= mVisibleTextRect.mLeft && x <= mVisibleTextRect.mRight
+	    && y >= mVisibleTextRect.mBottom && y <= mVisibleTextRect.mTop)
+	{
+		mTripleClickTimer.setTimerExpirySec(TRIPLE_CLICK_INTERVAL);
+	}
+
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleDoubleClick(x, y, mask))
 	{
