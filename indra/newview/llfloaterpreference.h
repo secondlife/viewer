@@ -143,7 +143,7 @@ public:
 	void resetAllIgnored();
 	void setAllIgnored();
 	void onClickLogPath();
-	void updateLogLocation(const std::string& dir_name);
+	bool moveTranscriptsAndLog();
 	void enableHistory();
 	void setPersonalInfo(const std::string& visibility, bool im_via_email);
 	void refreshEnabledState();

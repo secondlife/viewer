@@ -798,13 +798,28 @@ void LLFloaterPreference::onBtnOK()
 		//Conversation transcript and log path changed so reload conversations based on new location
 		if(mPriorInstantMessageLogPath.length())
 		{
-			std::string dir_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
-			updateLogLocation(dir_name);
+			if(moveTranscriptsAndLog())
+			{
+				//When floaters are empty but have a chat history files, reload chat history into them
+				LLFloaterIMSessionTab::reloadEmptyFloaters();
+			}
+			//Couldn't move files so restore the old path and show a notification
+			else
+			{
+				gSavedPerAccountSettings.setString("InstantMessageLogPath", mPriorInstantMessageLogPath);
+				LLNotificationsUtil::add("PreferenceChatPathChanged");
+			}
 			mPriorInstantMessageLogPath.clear();
 		}
 
 		LLUIColorTable::instance().saveUserSettings();
 		gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);
+		
+		//Only save once logged in and loaded per account settings
+		if(mGotPersonalInfo)
+		{
+			gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
+	}
 	}
 	else
 	{
@@ -1441,9 +1456,9 @@ void LLFloaterPreference::setAllIgnored()
 
 void LLFloaterPreference::onClickLogPath()
 {
-	std::string proposed_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
+	std::string proposed_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));	 
 	mPriorInstantMessageLogPath.clear();
-
+	
 	LLDirPicker& picker = LLDirPicker::instance();
 	//Launches a directory picker and waits for feedback
 	if (!picker.getDir(&proposed_name ) )
@@ -1457,22 +1472,76 @@ void LLFloaterPreference::onClickLogPath()
 	//Path changed
 	if(proposed_name != dir_name)
 	{
-		gSavedPerAccountSettings.setString("InstantMessageLogPath", dir_name);
+	gSavedPerAccountSettings.setString("InstantMessageLogPath", dir_name);
 		mPriorInstantMessageLogPath = proposed_name;
-
-		// enable/disable 'Delete transcripts button
-		updateDeleteTranscriptsButton();
-	}
+	
+	// enable/disable 'Delete transcripts button
+	updateDeleteTranscriptsButton();
+}
 }
 
-void LLFloaterPreference::updateLogLocation(const std::string& dir_name)
+bool LLFloaterPreference::moveTranscriptsAndLog()
 {
-	gDirUtilp->setChatLogsDir(dir_name);
-	gDirUtilp->updatePerAccountChatLogsDir();
-	LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
+	std::string instantMessageLogPath(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
+	std::string chatLogPath = gDirUtilp->add(instantMessageLogPath, gDirUtilp->getUserName());
 
-	// refresh IM floaters with new logs from files from new selected directory
-	LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
+	bool madeDirectory = false;
+
+	//Does the directory really exist, if not then make it
+	if(!LLFile::isdir(chatLogPath))
+	{
+		//mkdir success is defined as zero
+		if(LLFile::mkdir(chatLogPath) != 0)
+		{
+			return false;
+		}
+		madeDirectory = true;
+	}
+	
+	std::string originalConversationLogDir = LLConversationLog::instance().getFileName();
+	std::string targetConversationLogDir = gDirUtilp->add(chatLogPath, "conversation.log");
+	//Try to move the conversation log
+	if(!LLConversationLog::instance().moveLog(originalConversationLogDir, targetConversationLogDir))
+	{
+		//Couldn't move the log and created a new directory so remove the new directory
+		if(madeDirectory)
+		{
+			LLFile::rmdir(chatLogPath);
+		}
+		return false;
+	}
+
+	//Attempt to move transcripts
+	std::vector<std::string> listOfTranscripts;
+	std::vector<std::string> listOfFilesMoved;
+
+	LLLogChat::getListOfTranscriptFiles(listOfTranscripts);
+
+	if(!LLLogChat::moveTranscripts(gDirUtilp->getChatLogsDir(), 
+									instantMessageLogPath, 
+									listOfTranscripts,
+									listOfFilesMoved))
+	{
+		//Couldn't move all the transcripts so restore those that moved back to their old location
+		LLLogChat::moveTranscripts(instantMessageLogPath, 
+			gDirUtilp->getChatLogsDir(), 
+			listOfFilesMoved);
+
+		//Move the conversation log back
+		LLConversationLog::instance().moveLog(targetConversationLogDir, originalConversationLogDir);
+
+		if(madeDirectory)
+		{
+			LLFile::rmdir(chatLogPath);
+		}
+
+		return false;
+	}
+
+	gDirUtilp->setChatLogsDir(instantMessageLogPath);
+	gDirUtilp->updatePerAccountChatLogsDir();
+
+	return true;
 }
 
 void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im_via_email)

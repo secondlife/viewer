@@ -69,6 +69,7 @@ public:
 	LLChatEntry* getChatBox() { return mInputEditor; }
 
 	std::string getCurrentChat();
+	S32 getMessageArchiveLength() {return mMessageArchive.size();}
 
 	virtual BOOL handleKeyHere( KEY key, MASK mask );
 
