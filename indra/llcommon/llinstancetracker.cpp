@@ -43,3 +43,4 @@ void * & LLInstanceTrackerBase::getInstances(InstanceTrackType t)
 	// handles both cases.
 	return sInstanceTrackerData[t];
 }
+
