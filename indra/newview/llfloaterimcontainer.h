@@ -129,9 +129,9 @@ private:
 	void processParticipantsStyleUpdate();
 	void onSpeakButtonClicked();
 
-	void collapseConversationsPane(bool collapse);
+	void collapseConversationsPane(bool collapse, bool save_is_allowed=true);
 
-	void updateState(bool collapse, S32 delta_width);
+	void reshapeFloaterAndSetResizeLimits(bool collapse, S32 delta_width);
 
 	void onAddButtonClicked();
 	void onAvatarPicked(const uuid_vec_t& ids);
