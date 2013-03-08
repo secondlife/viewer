@@ -1051,8 +1051,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 				}
 			}
 		}
-
-
+		
 		static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback");
 
 		bool cache_in_vram = use_transform_feedback && gTransformPositionProgram.mProgramObject &&
@@ -4242,11 +4241,20 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	mFaceList.clear();
 
-	std::vector<LLFace*> fullbright_faces;
-	std::vector<LLFace*> bump_faces;
-	std::vector<LLFace*> simple_faces;
+	const U32 MAX_FACE_COUNT = 4096;
+	
+	static LLFace** fullbright_faces = (LLFace**) ll_aligned_malloc(MAX_FACE_COUNT*sizeof(LLFace*),64);
+	static LLFace** bump_faces = (LLFace**) ll_aligned_malloc(MAX_FACE_COUNT*sizeof(LLFace*),64);
+	static LLFace** simple_faces = (LLFace**) ll_aligned_malloc(MAX_FACE_COUNT*sizeof(LLFace*),64);
+	static LLFace** alpha_faces = (LLFace**) ll_aligned_malloc(MAX_FACE_COUNT*sizeof(LLFace*),64);
+	
+	U32 fullbright_count = 0;
+	U32 bump_count = 0;
+	U32 simple_count = 0;
+	U32 alpha_count = 0;
 
-	std::vector<LLFace*> alpha_faces;
+
+	
 	U32 useage = group->mSpatialPartition->mBufferUsage;
 
 	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcVertexSize(group->mSpatialPartition->mVertexDataMask);
@@ -4256,6 +4264,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 cur_total = 0;
 
 	bool emissive = false;
+
+	
 
 	{
 		LLFastTimer t(FTM_REBUILD_VOLUME_FACE_LIST);
@@ -4558,7 +4568,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					{
 						if (facep->canRenderAsMask())
 						{ //can be treated as alpha mask
-							simple_faces.push_back(facep);
+							if (simple_count < MAX_FACE_COUNT)
+							{
+								simple_faces[simple_count++] = facep;
+							}
 						}
 						else
 						{
@@ -4566,7 +4579,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							{ //only treat as alpha in the pipeline if < 100% transparent
 								drawablep->setState(LLDrawable::HAS_ALPHA);
 							}
-							alpha_faces.push_back(facep);
+							if (alpha_count < MAX_FACE_COUNT)
+							{
+								alpha_faces[alpha_count++] = facep;
+							}
 						}
 					}
 					else
@@ -4581,33 +4597,51 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						{
 							if (te->getBumpmap())
 							{ //needs normal + binormal
-								bump_faces.push_back(facep);
+								if (bump_count < MAX_FACE_COUNT)
+								{
+									bump_faces[bump_count++] = facep;
+								}
 							}
 							else if (te->getShiny() || !te->getFullbright())
 							{ //needs normal
-								simple_faces.push_back(facep);
+								if (simple_count < MAX_FACE_COUNT)
+								{
+									simple_faces[simple_count++] = facep;
+								}
 							}
 							else 
 							{ //doesn't need normal
 								facep->setState(LLFace::FULLBRIGHT);
-								fullbright_faces.push_back(facep);
+								if (fullbright_count < MAX_FACE_COUNT)
+								{
+									fullbright_faces[fullbright_count++] = facep;
+								}
 							}
 						}
 						else
 						{
 							if (te->getBumpmap() && LLPipeline::sRenderBump)
 							{ //needs normal + binormal
-								bump_faces.push_back(facep);
+								if (bump_count < MAX_FACE_COUNT)
+								{
+									bump_faces[bump_count++] = facep;
+								}
 							}
 							else if ((te->getShiny() && LLPipeline::sRenderBump) ||
 								!(te->getFullbright() || bake_sunlight))
 							{ //needs normal
-								simple_faces.push_back(facep);
+								if (simple_count < MAX_FACE_COUNT)
+								{
+									simple_faces[simple_count++] = facep;
+								}
 							}
 							else 
 							{ //doesn't need normal
 								facep->setState(LLFace::FULLBRIGHT);
-								fullbright_faces.push_back(facep);
+								if (fullbright_count < MAX_FACE_COUNT)
+								{
+									fullbright_faces[fullbright_count++] = facep;
+								}
 							}
 						}
 					}
@@ -4657,17 +4691,17 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	if (batch_textures)
 	{
 		bump_mask |= LLVertexBuffer::MAP_BINORMAL;
-		genDrawInfo(group, simple_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, simple_faces, FALSE, TRUE);
-		genDrawInfo(group, fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, fullbright_faces, FALSE, TRUE);
-		genDrawInfo(group, bump_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, bump_faces, FALSE, FALSE);
-		genDrawInfo(group, alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, alpha_faces, TRUE, TRUE);
+		genDrawInfo(group, simple_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, simple_faces, simple_count, FALSE, TRUE);
+		genDrawInfo(group, fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, fullbright_faces, fullbright_count, FALSE, TRUE);
+		genDrawInfo(group, bump_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, bump_faces, bump_count, FALSE, FALSE);
+		genDrawInfo(group, alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, alpha_faces, alpha_count, TRUE, TRUE);
 	}
 	else
 	{
-		genDrawInfo(group, simple_mask, simple_faces);
-		genDrawInfo(group, fullbright_mask, fullbright_faces);
-		genDrawInfo(group, bump_mask, bump_faces, FALSE, TRUE);
-		genDrawInfo(group, alpha_mask, alpha_faces, TRUE);
+		genDrawInfo(group, simple_mask, simple_faces, simple_count);
+		genDrawInfo(group, fullbright_mask, fullbright_faces, fullbright_count);
+		genDrawInfo(group, bump_mask, bump_faces, bump_count,  FALSE, FALSE);
+		genDrawInfo(group, alpha_mask, alpha_faces, alpha_count, TRUE);
 	}
 	
 
@@ -4699,6 +4733,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_REBUILD_MESH_FLUSH("Flush Mesh");
 
 void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 {
@@ -4708,11 +4743,14 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 		LLFastTimer ftm(FTM_REBUILD_VOLUME_VB);
 		LLFastTimer t(FTM_REBUILD_VOLUME_GEN_DRAW_INFO); //make sure getgeometryvolume shows up in the right place in timers
 
-		S32 num_mapped_veretx_buffer = LLVertexBuffer::sMappedCount ;
-
 		group->mBuilt = 1.f;
 		
-		std::set<LLVertexBuffer*> mapped_buffers;
+		S32 num_mapped_vertex_buffer = LLVertexBuffer::sMappedCount ;
+
+		const U32 MAX_BUFFER_COUNT = 4096;
+		LLVertexBuffer* locked_buffer[MAX_BUFFER_COUNT];
+
+		U32 buffer_count = 0;
 
 		for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 		{
@@ -4722,7 +4760,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 			{
 				LLVOVolume* vobj = drawablep->getVOVolume();
 				vobj->preRebuild();
-
+				
 				if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
 				{
 					vobj->updateRelativeXform(true);
@@ -4747,9 +4785,9 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 							}
 
 
-							if (buff->isLocked())
+							if (buff->isLocked() && buffer_count < MAX_BUFFER_COUNT)
 							{
-								mapped_buffers.insert(buff);
+								locked_buffer[buffer_count++] = buff;
 							}
 						}
 					}
@@ -4765,21 +4803,24 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 			}
 		}
 		
-		for (std::set<LLVertexBuffer*>::iterator iter = mapped_buffers.begin(); iter != mapped_buffers.end(); ++iter)
 		{
-			(*iter)->flush();
-		}
-
-		// don't forget alpha
-		if(group != NULL && 
-		   !group->mVertexBuffer.isNull() && 
-		   group->mVertexBuffer->isLocked())
-		{
-			group->mVertexBuffer->flush();
+			LLFastTimer t(FTM_REBUILD_MESH_FLUSH);
+			for (LLVertexBuffer** iter = locked_buffer, ** end_iter = locked_buffer+buffer_count; iter != end_iter; ++iter)
+			{
+				(*iter)->flush();
+			}
+		
+			// don't forget alpha
+			if(group != NULL && 
+			   !group->mVertexBuffer.isNull() && 
+			   group->mVertexBuffer->isLocked())
+			{
+				group->mVertexBuffer->flush();
+			}
 		}
 
 		//if not all buffers are unmapped
-		if(num_mapped_veretx_buffer != LLVertexBuffer::sMappedCount) 
+		if(num_mapped_vertex_buffer != LLVertexBuffer::sMappedCount) 
 		{
 			llwarns << "Not all mapped vertex buffers are unmapped!" << llendl ; 
 			for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
@@ -4839,7 +4880,7 @@ static LLFastTimer::DeclareTimer FTM_GEN_DRAW_INFO_RESIZE_VB("Resize VB");
 
 
 
-void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::vector<LLFace*>& faces, BOOL distance_sort, BOOL batch_textures)
+void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, BOOL distance_sort, BOOL batch_textures)
 {
 	LLFastTimer t(FTM_REBUILD_VOLUME_GEN_DRAW_INFO);
 
@@ -4875,17 +4916,18 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		if (!distance_sort)
 		{
 			//sort faces by things that break batches
-			std::sort(faces.begin(), faces.end(), CompareBatchBreakerModified());
+			std::sort(faces, faces+face_count, CompareBatchBreakerModified());
 		}
 		else
 		{
 			//sort faces by distance
-			std::sort(faces.begin(), faces.end(), LLFace::CompareDistanceGreater());
+			std::sort(faces, faces+face_count, LLFace::CompareDistanceGreater());
 		}
 	}
 				
 	bool hud_group = group->isHUDGroup() ;
-	std::vector<LLFace*>::iterator face_iter = faces.begin();
+	LLFace** face_iter = faces;
+	LLFace** end_faces = faces+face_count;
 	
 	LLSpatialGroup::buffer_map_t buffer_map;
 
@@ -4916,7 +4958,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 	bool flexi = false;
 
-	while (face_iter != faces.end())
+	while (face_iter != end_faces)
 	{
 		//pull off next face
 		LLFace* facep = *face_iter;
@@ -4945,10 +4987,13 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		flexi = flexi || facep->getViewerObject()->getVolume()->isUnique();
 
 		//sum up vertices needed for this render batch
-		std::vector<LLFace*>::iterator i = face_iter;
+		LLFace** i = face_iter;
 		++i;
 		
-		std::vector<LLViewerTexture*> texture_list;
+		const U32 MAX_TEXTURE_COUNT = 32;
+		LLViewerTexture* texture_list[MAX_TEXTURE_COUNT];
+		
+		U32 texture_count = 0;
 
 		{
 			LLFastTimer t(FTM_GEN_DRAW_INFO_FACE_SIZE);
@@ -4956,12 +5001,15 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			{
 				U8 cur_tex = 0;
 				facep->setTextureIndex(cur_tex);
-				texture_list.push_back(tex);
-
+				if (texture_count < MAX_TEXTURE_COUNT)
+				{
+					texture_list[texture_count++] = tex;
+				}
+				
 				if (can_batch_texture(facep))
 				{ //populate texture_list with any textures that can be batched
 				  //move i to the next unbatchable face
-					while (i != faces.end())
+					while (i != end_faces)
 					{
 						facep = *i;
 						
@@ -4976,7 +5024,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 							if (distance_sort)
 							{ //textures might be out of order, see if texture exists in current batch
 								bool found = false;
-								for (U32 tex_idx = 0; tex_idx < texture_list.size(); ++tex_idx)
+								for (U32 tex_idx = 0; tex_idx < texture_count; ++tex_idx)
 								{
 									if (facep->getTexture() == texture_list[tex_idx])
 									{
@@ -4988,7 +5036,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 								if (!found)
 								{
-									cur_tex = texture_list.size();
+									cur_tex = texture_count;
 								}
 							}
 							else
@@ -5003,7 +5051,10 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 							tex = facep->getTexture();
 
-							texture_list.push_back(tex);
+							if (texture_count < MAX_TEXTURE_COUNT)
+							{
+								texture_list[texture_count++] = tex;
+							}
 						}
 
 						if (geom_count + facep->getGeomCount() > max_vertices)
@@ -5026,7 +5077,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			}
 			else
 			{
-				while (i != faces.end() && 
+				while (i != end_faces && 
 					(LLPipeline::sTextureBindTest || (distance_sort || (*i)->getTexture() == tex)))
 				{
 					facep = *i;

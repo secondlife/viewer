@@ -107,15 +107,14 @@ public:
 
 	inline void rotate(const LLVector4a& v, LLVector4a& res)
 	{
-		res = _mm_shuffle_ps(v, v, _MM_SHUFFLE(0, 0, 0, 0));
-		res.mul(mMatrix[0]);
-		
-		LLVector4a y;
-		y = _mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1));
-		y.mul(mMatrix[1]);
+		LLVector4a y,z;
 
-		LLVector4a z;
+		res = _mm_shuffle_ps(v, v, _MM_SHUFFLE(0, 0, 0, 0));
+		y = _mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1));
 		z = _mm_shuffle_ps(v, v, _MM_SHUFFLE(2, 2, 2, 2));
+		
+		res.mul(mMatrix[0]);
+		y.mul(mMatrix[1]);
 		z.mul(mMatrix[2]);
 
 		res.add(y);
