@@ -59,7 +59,9 @@ LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &
 	mState(INACTIVE),
 	mRepeatedVisCounter(0),
 	mVisFrameRange(64),
-	mSceneContrib(0.f)
+	mSceneContrib(0.f),
+	mTouched(TRUE),
+	mParentID(0)
 {
 	mBuffer = new U8[dp.getBufferSize()];
 	mDP.assignBuffer(mBuffer, dp.getBufferSize());
@@ -77,7 +79,9 @@ LLVOCacheEntry::LLVOCacheEntry()
 	mState(INACTIVE),
 	mRepeatedVisCounter(0),
 	mVisFrameRange(64),
-	mSceneContrib(0.f)
+	mSceneContrib(0.f),
+	mTouched(TRUE),
+	mParentID(0)
 {
 	mDP.assignBuffer(mBuffer, 0);
 }
@@ -88,7 +92,9 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	mState(INACTIVE),
 	mRepeatedVisCounter(0),
 	mVisFrameRange(64),
-	mSceneContrib(0.f)
+	mSceneContrib(0.f),
+	mTouched(FALSE),
+	mParentID(0)
 {
 	S32 size = -1;
 	BOOL success;
@@ -112,36 +118,6 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	if(success)
 	{
 		success = check_read(apr_file, &mCRCChangeCount, sizeof(S32));
-	}
-	if(success)
-	{
-		success = check_read(apr_file, &mState, sizeof(U32));
-	}
-	if(success)
-	{
-		F32 ext[8];
-		success = check_read(apr_file, (void*)ext, sizeof(F32) * 8);
-
-		LLVector4a exts[2];
-		exts[0].load4a(ext);
-		exts[1].load4a(&ext[4]);
-	
-		setSpatialExtents(exts[0], exts[1]);
-	}
-	if(success)
-	{
-		LLVector4 pos;
-		success = check_read(apr_file, (void*)pos.mV, sizeof(LLVector4));
-
-		LLVector4a pos_;
-		pos_.load4a(pos.mV);
-		setPositionGroup(pos_);
-	}
-	if(success)
-	{
-		F32 rad;
-		success = check_read(apr_file, &rad, sizeof(F32));
-		setBinRadius(rad);
 	}
 	if(success)
 	{
@@ -229,9 +205,7 @@ void LLVOCacheEntry::copyTo(LLVOCacheEntry* new_entry)
 
 void LLVOCacheEntry::setState(U32 state)
 {
-	mState &= 0xffff0000; //clear the low 16 bits
-	state &= 0x0000ffff;  //clear the high 16 bits;
-	mState |= state;
+	mState = state;
 
 	if(getState() == ACTIVE)
 	{
@@ -298,6 +272,7 @@ LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP()
 
 void LLVOCacheEntry::recordHit()
 {
+	setTouched();
 	mHitCount++;
 }
 
@@ -336,33 +311,6 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 	if(success)
 	{
 		success = check_write(apr_file, (void*)&mCRCChangeCount, sizeof(S32));
-	}
-	if(success)
-	{
-		U32 state = mState & 0xffff0000; //only store the high 16 bits.
-		success = check_write(apr_file, (void*)&state, sizeof(U32));
-	}
-	if(success)
-	{
-		const LLVector4a* exts = getSpatialExtents() ;
-		LLVector4 ext(exts[0][0], exts[0][1], exts[0][2], exts[0][3]);
-		success = check_write(apr_file, ext.mV, sizeof(LLVector4));		
-		if(success)
-		{
-			ext.set(exts[1][0], exts[1][1], exts[1][2], exts[1][3]);
-			success = check_write(apr_file, ext.mV, sizeof(LLVector4));		
-		}
-	}
-	if(success)
-	{
-		const LLVector4a pos_ = getPositionGroup() ;
-		LLVector4 pos(pos_[0], pos_[1], pos_[2], pos_[3]);
-		success = check_write(apr_file, pos.mV, sizeof(LLVector4));		
-	}
-	if(success)
-	{
-		F32 rad = getBinRadius();
-		success = check_write(apr_file, (void*)&rad, sizeof(F32));
 	}
 	if(success)
 	{
@@ -958,7 +906,7 @@ void LLVOCache::purgeEntries(U32 size)
 	mNumEntries = mHandleEntryMap.size() ;
 }
 
-void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache) 
+void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache, BOOL full_region_cache_probe) 
 {
 	if(!mEnabled)
 	{
@@ -1031,7 +979,10 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	
 			for (LLVOCacheEntry::vocache_entry_map_t::const_iterator iter = cache_entry_map.begin(); success && iter != cache_entry_map.end(); ++iter)
 			{
-				success = iter->second->writeToFile(&apr_file) ;
+				if(!full_region_cache_probe || iter->second->isTouched())
+				{
+					success = iter->second->writeToFile(&apr_file) ;
+				}
 			}
 		}
 	}

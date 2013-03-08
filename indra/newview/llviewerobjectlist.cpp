@@ -446,6 +446,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		LLTimer update_timer;
 		BOOL justCreated = FALSE;
 		S32	msg_size = 0;
+		bool remove_from_cache = false; //remove from object cache if it is a full-update or terse update
 
 		if (compressed)
 		{
@@ -455,38 +456,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			uncompressed_length = mesgsys->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_Data);
 			mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compressed_dpbuffer, 0, i);
 			compressed_dp.assignBuffer(compressed_dpbuffer, uncompressed_length);
-#if 0
-			if (compressed)
-			{
-				if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
-				{
-					U32 flags = 0;
-					mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
-					
-					if(!(flags & FLAGS_TEMPORARY_ON_REZ))
-					{
-						//bCached = true;
-						
-						compressed_dp.unpackU32(local_id, "LocalID");
 
-						//-------------
-						compressed_dp.unpackUUID(fullid, "ID");
-						//if(fullid == LLUUID("1e5183db-8f28-47f1-abe0-23de9f9042b7"))
-						{
-							llinfos << fullid << llendl;
-						}
-						//-------------
-
-						U32 crc;
-						compressed_dp.unpackU32(crc, "CRC");
-						/*LLViewerRegion::eCacheUpdateResult result = */regionp->cacheFullUpdate(local_id, crc, compressed_dp);
-						//recorder.cacheFullUpdate(local_id, update_type, result, objectp, msg_size);
-						
-						continue; //do not creat LLViewerObject for cacheable object, object cache will do the job.
-					}
-				}
-			}
-#endif
 			if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
 			{
 				U32 flags = 0;
@@ -506,6 +476,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			}
 			else
 			{
+				remove_from_cache = true;
 				compressed_dp.unpackU32(local_id, "LocalID");
 				getUUIDFromLocal(fullid,
 								 local_id,
@@ -535,6 +506,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		}
 		else // OUT_FULL only?
 		{
+			remove_from_cache = true;
 			mesgsys->getUUIDFast(_PREHASH_ObjectData, _PREHASH_FullID, fullid, i);
 			mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
 			msg_size += sizeof(LLUUID);
@@ -542,6 +514,11 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			// llinfos << "Full Update, obj " << local_id << ", global ID" << fullid << "from " << mesgsys->getSender() << llendl;
 		}
 		objectp = findObject(fullid);
+		
+		if(remove_from_cache)
+		{
+			objectp = regionp->forceToRemoveFromCache(local_id, objectp);
+		}
 
 		// This looks like it will break if the local_id of the object doesn't change
 		// upon boundary crossing, but we check for region id matching later...
@@ -618,10 +595,10 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				recorder.objectUpdateFailure(local_id, update_type, msg_size);
 				continue;
 			}
+
 			justCreated = TRUE;
 			mNumNewObjects++;
 		}
-
 
 		if (objectp->isDead())
 		{
@@ -1371,7 +1348,7 @@ void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 	}
 }
 
-BOOL LLViewerObjectList::killObject(LLViewerObject *objectp, bool cache_enabled)
+BOOL LLViewerObjectList::killObject(LLViewerObject *objectp)
 {
 	// Don't ever kill gAgentAvatarp, just force it to the agent's region
 	// unless region is NULL which is assumed to mean you are logging out.
@@ -1386,7 +1363,6 @@ BOOL LLViewerObjectList::killObject(LLViewerObject *objectp, bool cache_enabled)
 
 	if (objectp)
 	{
-		objectp->EnableToCacheTree(cache_enabled); //enable to add to VO cache tree if set.
 		objectp->markDead(); // does the right thing if object already dead
 		return TRUE;
 	}
@@ -2113,6 +2089,15 @@ S32 LLViewerObjectList::findReferences(LLDrawable *drawablep) const
 
 void LLViewerObjectList::orphanize(LLViewerObject *childp, U32 parent_id, U32 ip, U32 port)
 {
+	if(childp->getRegion())
+	{
+		LLVOCacheEntry* entry = childp->getRegion()->getCacheEntry(childp->getLocalID());
+		if(entry != NULL && !entry->isTouched())
+		{
+			return; //object cache will take care of this.
+		}
+	}
+
 #ifdef ORPHAN_SPAM
 	llinfos << "Orphaning object " << childp->getID() << " with parent " << parent_id << llendl;
 #endif
@@ -2166,6 +2151,12 @@ void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
 		llwarns << "Trying to find orphans for dead obj " << objectp->mID 
 			<< ":" << objectp->getPCodeString() << llendl;
 		return;
+	}
+
+	//search object cache to get orphans
+	if(objectp->getRegion())
+	{
+		objectp->getRegion()->findOrphans(objectp->getLocalID());
 	}
 
 	// See if we are a parent of an orphan.

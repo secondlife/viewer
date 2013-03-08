@@ -320,9 +320,13 @@ public:
 	eCacheUpdateResult cacheFullUpdate(LLDataPackerBinaryBuffer &dp);
 	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp);	
 	LLVOCacheEntry* getCacheEntryForOctree(U32 local_id);
+	LLVOCacheEntry* getCacheEntry(U32 local_id);
 	bool probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss_type);
 	void requestCacheMisses();
 	void addCacheMissFull(const U32 local_id);
+	//remove from object cache if the object receives a full-update or terse update
+	LLViewerObject* forceToRemoveFromCache(U32 local_id, LLViewerObject* objectp);
+	void findOrphans(U32 parent_id);
 
 	void dumpCache();
 
@@ -348,10 +352,9 @@ public:
 	void getNeighboringRegionsStatus( std::vector<S32>& regions );
 	
 private:
-	void addToVOCacheTree(LLVOCacheEntry* entry, bool forced = false);
+	void addToVOCacheTree(LLVOCacheEntry* entry);
 	LLViewerObject* addNewObject(LLVOCacheEntry* entry);
-	void killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list);
-	LLVOCacheEntry* getCacheEntry(U32 local_id);
+	void killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list);	
 	void removeFromVOCacheTree(LLVOCacheEntry* entry);
 	void replaceCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry* new_entry);
 	void killCacheEntry(LLVOCacheEntry* entry); //physically delete the cache entry	
@@ -361,7 +364,7 @@ private:
 	F32 updateVisibleEntries(F32 max_time); //update visible entries
 
 	void addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type, F32 weight);
-	void postProcesNewEntry(LLVOCacheEntry* entry);
+	void decodeBoundingInfo(LLVOCacheEntry* entry);
 public:
 	struct CompareDistance
 	{
