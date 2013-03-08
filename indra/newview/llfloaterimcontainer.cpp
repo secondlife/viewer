@@ -1912,7 +1912,19 @@ BOOL LLFloaterIMContainer::handleKeyHere(KEY key, MASK mask )
 	return TRUE;
 }
 
-bool LLFloaterIMContainer::selectNextorPreviousConversation(bool select_next)
+bool LLFloaterIMContainer::selectAdjacentConversation(bool focus_selected)
+{
+	bool selectedAdjacentConversation = selectNextorPreviousConversation(true, focus_selected);
+
+	if(!selectedAdjacentConversation)
+	{
+		selectedAdjacentConversation = selectNextorPreviousConversation(false, focus_selected);
+	}
+
+	return selectedAdjacentConversation;
+}
+
+bool LLFloaterIMContainer::selectNextorPreviousConversation(bool select_next, bool focus_selected)
 {
 	if (mConversationsWidgets.size() > 1)
 	{
@@ -1933,12 +1945,7 @@ bool LLFloaterIMContainer::selectNextorPreviousConversation(bool select_next)
 				LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(new_selection->getViewModelItem());
 				if (vmi)
 				{
-					selectConversationPair(vmi->getUUID(), true);
-					LLFloater* floaterp = get_ptr_in_map(mSessions, getSelectedSession());
-					if(floaterp && !floaterp->isTornOff())
-					{
-						setFocus(TRUE);
-					}
+					selectConversationPair(vmi->getUUID(), true, focus_selected);
 					return true;
 				}
 			}
