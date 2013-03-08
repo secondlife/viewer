@@ -191,7 +191,9 @@ namespace LLMarketplaceImport
 				llinfos << " SLM GET timer: " << slmGetTimer.getElapsedTimeF32() << llendl;
 			}
 			
-			if (status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST)
+            // MAINT-2452 : Do not clear the cookie on IMPORT_DONE_WITH_ERRORS
+			if ((status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST) &&
+                (status != MarketplaceErrorCodes::IMPORT_DONE_WITH_ERRORS))
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 				{
