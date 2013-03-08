@@ -1268,7 +1268,7 @@ BOOL LLVOVolume::calcLOD()
 	else
 	{
 		distance = mDrawable->mDistanceWRTCamera;
-		radius = getVolume()->mLODScaleBias.scaledVec(getScale()).length();
+		radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(getScale()).length() : getScale().length();
 	}
 	
 	//hold onto unmodified distance for debugging
@@ -2990,7 +2990,8 @@ void LLVOVolume::generateSilhouette(LLSelectNode* nodep, const LLVector3& view_p
 
 		//transform view vector into volume space
 		view_vector -= getRenderPosition();
-		mDrawable->mDistanceWRTCamera = view_vector.length();
+		// WTF...why is silhouette generation touching a variable used all over the place?!
+		//mDrawable->mDistanceWRTCamera = view_vector.length();
 		LLQuaternion worldRot = getRenderRotation();
 		view_vector = view_vector * ~worldRot;
 		if (!isVolumeGlobal())

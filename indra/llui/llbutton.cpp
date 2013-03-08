@@ -758,11 +758,11 @@ void LLButton::draw()
 		mCurGlowStrength = lerp(mCurGlowStrength,
 					mFlashing ? (flash? 1.0 : 0.0)
 					: mHoverGlowStrength,
-					LLCriticalDamp::getInterpolant(0.05f));
+					LLCriticalDamp::getInterpolant(InterpDeltaTeeny));
 	}
 	else
 	{
-		mCurGlowStrength = lerp(mCurGlowStrength, 0.f, LLCriticalDamp::getInterpolant(0.05f));
+		mCurGlowStrength = lerp(mCurGlowStrength, 0.f, LLCriticalDamp::getInterpolant(InterpDeltaTeeny));
 	}
 
 	// Draw button image, if available.
@@ -1247,3 +1247,4 @@ BOOL LLButton::handleDoubleClick(S32 x, S32 y, MASK mask)
 	// just treat a double click as a second click
 	return handleMouseDown(x, y, mask);
 }
+

@@ -179,7 +179,7 @@ LLAgentCamera::LLAgentCamera() :
 
 	clearGeneralKeys();
 	clearOrbitKeys();
-	clearPanKeys();
+	clearPanKeys();	
 }
 
 // Requires gSavedSettings to be initialized.
@@ -191,6 +191,9 @@ void LLAgentCamera::init()
 	// *Note: this is where LLViewerCamera::getInstance() used to be constructed.
 
 	mDrawDistance = gSavedSettings.getF32("RenderFarClip");
+
+	const F32 SMOOTHING_HALF_LIFE = 0.02f;
+	LLCriticalDamp::setInterpolantConstant(InterpDeltaCameraSmoothingHalfLife, gSavedSettings.getF32("CameraPositionSmoothing") * SMOOTHING_HALF_LIFE);
 
 	LLViewerCamera::getInstance()->setView(DEFAULT_FIELD_OF_VIEW);
 	// Leave at 0.1 meters until we have real near clip management
@@ -337,7 +340,7 @@ void LLAgentCamera::resetView(BOOL reset_camera, BOOL change_camera)
 			LLVector3 agent_at_axis = gAgent.getAtAxis();
 			agent_at_axis -= projected_vec(agent_at_axis, gAgent.getReferenceUpVector());
 			agent_at_axis.normalize();
-			gAgent.resetAxes(lerp(gAgent.getAtAxis(), agent_at_axis, LLCriticalDamp::getInterpolant(0.3f)));
+			gAgent.resetAxes(lerp(gAgent.getAtAxis(), agent_at_axis, LLCriticalDamp::getInterpolant(InterpDeltaSmall)));
 		}
 
 		setFocusOnAvatar(TRUE, ANIMATE);
@@ -1246,7 +1249,7 @@ void LLAgentCamera::updateCamera()
 	gAgentCamera.clearPanKeys();
 
 	// lerp camera focus offset
-	mCameraFocusOffset = lerp(mCameraFocusOffset, mCameraFocusOffsetTarget, LLCriticalDamp::getInterpolant(CAMERA_FOCUS_HALF_LIFE));
+	mCameraFocusOffset = lerp(mCameraFocusOffset, mCameraFocusOffsetTarget, LLCriticalDamp::getInterpolant(InterpDeltaCameraFocusHalfLife));
 
 	if ( mCameraMode == CAMERA_MODE_FOLLOW )
 	{
@@ -1361,10 +1364,8 @@ void LLAgentCamera::updateCamera()
 		mCameraSmoothingStop = mCameraSmoothingStop || in_build_mode;
 		
 		if (cameraThirdPerson() && !mCameraSmoothingStop)
-		{
-			const F32 SMOOTHING_HALF_LIFE = 0.02f;
-			
-			F32 smoothing = LLCriticalDamp::getInterpolant(gSavedSettings.getF32("CameraPositionSmoothing") * SMOOTHING_HALF_LIFE, FALSE);
+		{			
+			F32 smoothing = LLCriticalDamp::getInterpolant(InterpDeltaCameraSmoothingHalfLife);
 					
 			if (!mFocusObject)  // we differentiate on avatar mode 
 			{
@@ -1394,7 +1395,7 @@ void LLAgentCamera::updateCamera()
 	}
 
 	
-	mCameraCurrentFOVZoomFactor = lerp(mCameraCurrentFOVZoomFactor, mCameraFOVZoomFactor, LLCriticalDamp::getInterpolant(FOV_ZOOM_HALF_LIFE));
+	mCameraCurrentFOVZoomFactor = lerp(mCameraCurrentFOVZoomFactor, mCameraFOVZoomFactor, LLCriticalDamp::getInterpolant(InterpDeltaFovZoomHalfLife));
 
 //	llinfos << "Current FOV Zoom: " << mCameraCurrentFOVZoomFactor << " Target FOV Zoom: " << mCameraFOVZoomFactor << " Object penetration: " << mFocusObjectDist << llendl;
 
@@ -1809,7 +1810,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 
 			if (mTargetCameraDistance != mCurrentCameraDistance)
 			{
-				F32 camera_lerp_amt = LLCriticalDamp::getInterpolant(CAMERA_ZOOM_HALF_LIFE);
+				F32 camera_lerp_amt = LLCriticalDamp::getInterpolant(InterpDeltaCameraZoomHalfLife);
 
 				mCurrentCameraDistance = lerp(mCurrentCameraDistance, mTargetCameraDistance, camera_lerp_amt);
 			}
@@ -1827,7 +1828,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 			if (isAgentAvatarValid())
 			{
 				LLVector3d camera_lag_d;
-				F32 lag_interp = LLCriticalDamp::getInterpolant(CAMERA_LAG_HALF_LIFE);
+				F32 lag_interp = LLCriticalDamp::getInterpolant(InterpDeltaCameraLagHalfLife);
 				LLVector3 target_lag;
 				LLVector3 vel = gAgent.getVelocity();
 
@@ -1872,7 +1873,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 				}
 				else
 				{
-					mCameraLag = lerp(mCameraLag, LLVector3::zero, LLCriticalDamp::getInterpolant(0.15f));
+					mCameraLag = lerp(mCameraLag, LLVector3::zero, LLCriticalDamp::getInterpolant(InterpDeltaCameraLagHalfLife));
 				}
 
 				camera_lag_d.setVec(mCameraLag);

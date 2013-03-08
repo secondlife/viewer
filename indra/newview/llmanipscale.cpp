@@ -535,11 +535,11 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
 	{
 		if (mHighlightedPart == MANIPULATOR_IDS[i])
 		{
-			mManipulatorScales[i] = lerp(mManipulatorScales[i], SELECTED_MANIPULATOR_SCALE, LLCriticalDamp::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+			mManipulatorScales[i] = lerp(mManipulatorScales[i], SELECTED_MANIPULATOR_SCALE, LLCriticalDamp::getInterpolant(InterpDeltaManipulatorScaleHalfLife));
 		}
 		else
 		{
-			mManipulatorScales[i] = lerp(mManipulatorScales[i], 1.f, LLCriticalDamp::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+			mManipulatorScales[i] = lerp(mManipulatorScales[i], 1.f, LLCriticalDamp::getInterpolant(InterpDeltaManipulatorScaleHalfLife));
 		}
 	}
 
@@ -2082,3 +2082,4 @@ BOOL LLManipScale::canAffectSelection()
 	}
 	return can_scale;
 }
+
