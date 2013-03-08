@@ -130,6 +130,7 @@ private:
 	void removeImageFromList(LLViewerFetchedTexture *image);
 
 	LLViewerFetchedTexture * getImage(const LLUUID &image_id,									 
+									 FTType f_type = FTT_DEFAULT,
 									 BOOL usemipmap = TRUE,
 									 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
@@ -139,6 +140,7 @@ private:
 									 );
 	
 	LLViewerFetchedTexture * getImageFromFile(const std::string& filename,									 
+									 FTType f_type = FTT_LOCAL_FILE,
 									 BOOL usemipmap = TRUE,
 									 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
@@ -148,6 +150,7 @@ private:
 									 );
 	
 	LLViewerFetchedTexture* getImageFromUrl(const std::string& url,
+									 FTType f_type,
 									 BOOL usemipmap = TRUE,
 									 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
@@ -157,6 +160,7 @@ private:
 									 );
 
 	LLViewerFetchedTexture* createImage(const LLUUID &image_id,
+									 FTType f_type,
 									 BOOL usemipmap = TRUE,
 									 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
@@ -167,8 +171,8 @@ private:
 	
 	// Request image from a specific host, used for baked avatar textures.
 	// Implemented in header in case someone changes default params above. JC
-	LLViewerFetchedTexture* getImageFromHost(const LLUUID& image_id, LLHost host)
-	{ return getImage(image_id, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host); }	
+	LLViewerFetchedTexture* getImageFromHost(const LLUUID& image_id, FTType f_type, LLHost host)
+	{ return getImage(image_id, f_type, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host); }	
 
 public:
 	typedef std::set<LLPointer<LLViewerFetchedTexture> > image_list_t;	

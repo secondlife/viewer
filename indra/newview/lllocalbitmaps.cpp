@@ -195,7 +195,7 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 					mLastModified = new_last_modified;
 
 					LLPointer<LLViewerFetchedTexture> texture = new LLViewerFetchedTexture
-						("file://"+mFilename, mWorldID, LL_LOCAL_USE_MIPMAPS);
+						("file://"+mFilename, FTT_LOCAL_FILE, mWorldID, LL_LOCAL_USE_MIPMAPS);
 
 					texture->createGLTexture(LL_LOCAL_DISCARD_LEVEL, raw_image);
 					texture->setCachedRawImage(LL_LOCAL_DISCARD_LEVEL, raw_image);
@@ -437,8 +437,8 @@ void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id)
 					LLFace* face = object->mDrawable->getFace(face_iter);
 					if (face && face->getTexture() && face->getTexture()->getID() == old_id)
 					{
-						object->setTEImage(face_iter, LLViewerTextureManager::getFetchedTexture
-							(new_id, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+						object->setTEImage(face_iter, LLViewerTextureManager::getFetchedTexture(
+							new_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 
 						update_obj = true;
 					}

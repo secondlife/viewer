@@ -389,7 +389,8 @@ public:
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 	
 protected:
-	LLTextureFetchWorker(LLTextureFetch* fetcher, const std::string& url, const LLUUID& id, const LLHost& host,
+	LLTextureFetchWorker(LLTextureFetch* fetcher, FTType f_type,
+						 const std::string& url, const LLUUID& id, const LLHost& host,
 						 F32 priority, S32 discard, S32 size);
 
 private:
@@ -506,6 +507,7 @@ private:
 	LLPointer<LLImageFormatted> mFormattedImage;
 	LLPointer<LLImageRaw> mRawImage;
 	LLPointer<LLImageRaw> mAuxImage;
+	FTType mFTType;
 	LLUUID mID;
 	LLHost mHost;
 	std::string mUrl;
@@ -827,6 +829,7 @@ volatile bool LLTextureFetch::svMetricsDataBreak(true);	// Start with a data bre
 // called from MAIN THREAD
 
 LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
+										   FTType f_type, // Fetched image type
 										   const std::string& url, // Optional URL
 										   const LLUUID& id,	// Image UUID
 										   const LLHost& host,	// Simulator host
@@ -838,6 +841,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mState(INIT),
 	  mWriteToCacheState(NOT_WRITE),
 	  mFetcher(fetcher),
+	  mFTType(f_type),
 	  mID(id),
 	  mHost(host),
 	  mUrl(url),
@@ -1171,7 +1175,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 																		  offset, size, responder);
 				mCacheReadTimer.reset();
 			}
-			else if (mUrl.empty() && mFetcher->canLoadFromCache())
+			else if ((mUrl.empty()||mFTType==FTT_SERVER_BAKE) && mFetcher->canLoadFromCache())
 			{
 				setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 
@@ -1284,6 +1288,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				//llwarns << "Region not found for host: " << mHost << llendl;
 				mCanUseHTTP = false;
 			}
+		}
+		if (mFTType == FTT_SERVER_BAKE)
+		{
+			mWriteToCacheState = CAN_WRITE;
 		}
 		if (mCanUseHTTP && !mUrl.empty())
 		{
@@ -2396,7 +2404,7 @@ LLTextureFetch::~LLTextureFetch()
 	// ~LLQueuedThread() called here
 }
 
-bool LLTextureFetch::createRequest(const std::string& url, const LLUUID& id, const LLHost& host, F32 priority,
+bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const LLUUID& id, const LLHost& host, F32 priority,
 								   S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux, bool can_use_http)
 {
 	if(mFetcherLocked)
@@ -2479,7 +2487,7 @@ bool LLTextureFetch::createRequest(const std::string& url, const LLUUID& id, con
 	}
 	else
 	{
-		worker = new LLTextureFetchWorker(this, url, id, host, priority, desired_discard, desired_size);
+		worker = new LLTextureFetchWorker(this, f_type, url, id, host, priority, desired_discard, desired_size);
 		lockQueue();													// +Mfq
 		mRequestMap[id] = worker;
 		unlockQueue();													// -Mfq

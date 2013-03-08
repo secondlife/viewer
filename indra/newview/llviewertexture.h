@@ -232,6 +232,16 @@ public:
 };
 
 
+enum FTType
+{
+	FTT_UNKNOWN = -1,
+	FTT_DEFAULT = 0, // standard texture fetched by id.
+	FTT_SERVER_BAKE, // texture produced by appearance service and fetched from there.
+	FTT_HOST_BAKE, // old-style baked texture uploaded by viewer and fetched from avatar's host.
+	FTT_MAP_TILE, // tiles are fetched from map server directly.
+	FTT_LOCAL_FILE // fetch directly from a local file.
+};
+
 //
 //textures are managed in gTextureList.
 //raw image data is fetched from remote or local cache
@@ -245,9 +255,9 @@ class LLViewerFetchedTexture : public LLViewerTexture
 protected:
 	/*virtual*/ ~LLViewerFetchedTexture();
 public:
-	LLViewerFetchedTexture(const LLUUID& id, const LLHost& host = LLHost::invalid, BOOL usemipmaps = TRUE);
-	LLViewerFetchedTexture(const LLImageRaw* raw, BOOL usemipmaps);
-	LLViewerFetchedTexture(const std::string& url, const LLUUID& id, BOOL usemipmaps = TRUE);
+	LLViewerFetchedTexture(const LLUUID& id, FTType f_type, const LLHost& host = LLHost::invalid, BOOL usemipmaps = TRUE);
+	LLViewerFetchedTexture(const LLImageRaw* raw, FTType f_type, BOOL usemipmaps);
+	LLViewerFetchedTexture(const std::string& url, FTType f_type, const LLUUID& id, BOOL usemipmaps = TRUE);
 
 public:
 	static F32 maxDecodePriority();
@@ -272,6 +282,7 @@ public:
 
 public:
 	/*virtual*/ S8 getType() const ;
+	FTType getFTType() const;
 	/*virtual*/ void forceImmediateUpdate() ;
 	/*virtual*/ void dump() ;
 
@@ -436,7 +447,8 @@ protected:
 	S8  mHasFetcher;				// We've made a fecth request
 	S8  mIsFetching;				// Fetch request is active
 	bool mCanUseHTTP ;              //This texture can be fetched through http if true.
-	
+
+	FTType mFTType; // What category of image is this - map tile, server bake, etc?
 	mutable S8 mIsMissingAsset;		// True if we know that there is no image asset with this image id in the database.		
 
 	typedef std::list<LLLoadedCallbackEntry*> callback_list_t;
@@ -496,8 +508,8 @@ protected:
 	/*virtual*/ ~LLViewerLODTexture(){}
 
 public:
-	LLViewerLODTexture(const LLUUID& id, const LLHost& host = LLHost::invalid, BOOL usemipmaps = TRUE);
-	LLViewerLODTexture(const std::string& url, const LLUUID& id, BOOL usemipmaps = TRUE);
+	LLViewerLODTexture(const LLUUID& id, FTType f_type, const LLHost& host = LLHost::invalid, BOOL usemipmaps = TRUE);
+	LLViewerLODTexture(const std::string& url, FTType f_type, const LLUUID& id, BOOL usemipmaps = TRUE);
 
 	/*virtual*/ S8 getType() const;
 	// Process image stats to determine priority/quality requirements.
@@ -611,6 +623,7 @@ public:
 	static LLPointer<LLViewerTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps, BOOL generate_gl_tex = TRUE) ;
 
 	static LLViewerFetchedTexture* getFetchedTexture(const LLUUID &image_id,									 
+									 FTType f_type = FTT_DEFAULT,
 									 BOOL usemipmap = TRUE,
 									 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
@@ -620,6 +633,7 @@ public:
 									 );
 	
 	static LLViewerFetchedTexture* getFetchedTextureFromFile(const std::string& filename,									 
+									 FTType f_type = FTT_LOCAL_FILE,
 									 BOOL usemipmap = TRUE,
 									 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_NONE,
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
@@ -629,6 +643,7 @@ public:
 									 );
 
 	static LLViewerFetchedTexture* getFetchedTextureFromUrl(const std::string& url,									 
+									 FTType f_type,
 									 BOOL usemipmap = TRUE,
 									 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_NONE,
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
@@ -637,7 +652,7 @@ public:
 									 const LLUUID& force_id = LLUUID::null
 									 );
 
-	static LLViewerFetchedTexture* getFetchedTextureFromHost(const LLUUID& image_id, LLHost host) ;
+	static LLViewerFetchedTexture* getFetchedTextureFromHost(const LLUUID& image_id, FTType f_type, LLHost host) ;
 
 	static void init() ;
 	static void cleanup() ;

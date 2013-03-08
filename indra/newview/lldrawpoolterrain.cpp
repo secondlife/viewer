@@ -69,6 +69,7 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
 	sDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainScale");
 	sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
 	mAlphaRampImagep = LLViewerTextureManager::getFetchedTextureFromFile("alpha_gradient.tga", 
+													FTT_LOCAL_FILE,
 													TRUE, LLGLTexture::BOOST_UI, 
 													LLViewerTexture::FETCHED_TEXTURE,
 													format, int_format,
@@ -78,6 +79,7 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
 	mAlphaRampImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 	m2DAlphaRampImagep = LLViewerTextureManager::getFetchedTextureFromFile("alpha_gradient_2d.j2c", 
+													FTT_LOCAL_FILE,
 													TRUE, LLGLTexture::BOOST_UI, 
 													LLViewerTexture::FETCHED_TEXTURE,
 													format, int_format,
