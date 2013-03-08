@@ -1881,6 +1881,9 @@ bool LLFloaterIMContainer::isScrolledOutOfSight(LLConversationViewSession* conve
 {
 	llassert(conversation_item_widget != NULL);
 
+	// make sure the widget is actually in the right spot first
+	mConversationsRoot->arrange(NULL, NULL);
+
 	// check whether the widget is in the visible portion of the scroll container
 	LLRect widget_rect;
 	conversation_item_widget->localRectToOtherView(conversation_item_widget->getLocalRect(), &widget_rect, mConversationsRoot);
