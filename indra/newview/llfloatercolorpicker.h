@@ -189,6 +189,10 @@ class LLFloaterColorPicker
 		LLButton* mPipetteBtn;
 
 		F32		  mContextConeOpacity;
+        F32       mContextConeInAlpha;
+        F32       mContextConeOutAlpha;
+        F32       mContextConeFadeTime;
+
 };
 
 #endif // LL_LLFLOATERCOLORPICKER_H

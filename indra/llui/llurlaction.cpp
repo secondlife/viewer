@@ -157,3 +157,17 @@ void LLUrlAction::showProfile(std::string url)
 		}
 	}
 }
+
+void LLUrlAction::sendIM(std::string url)
+{
+	LLURI uri(url);
+	LLSD path_array = uri.pathArray();
+	if (path_array.size() == 4)
+	{
+		std::string id_str = path_array.get(2).asString();
+		if (LLUUID::validate(id_str))
+		{
+			executeSLURL("secondlife:///app/agent/" + id_str + "/im");
+		}
+	}
+}

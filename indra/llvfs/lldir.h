@@ -104,6 +104,7 @@ class LLDir
 	const std::string &getUserSkinDir() const;		// User-specified skin folder with user modifications. e.g. c:\documents and settings\username\application data\second life\skins\curskin
 	const std::string getSkinBaseDir() const;		// folder that contains all installed skins (not user modifications). e.g. c:\program files\second life\skins
 	const std::string &getLLPluginDir() const;		// Directory containing plugins and plugin shell
+	const std::string &getUserName() const;
 
 	// Expanded filename
 	std::string getExpandedFilename(ELLPath location, const std::string &filename) const;
@@ -186,6 +187,7 @@ class LLDir
 	virtual std::string getSkinFolder() const;
 	virtual std::string getLanguage() const;
 	virtual bool setCacheDir(const std::string &path);
+	virtual void updatePerAccountChatLogsDir();
 
 	virtual void dumpCurrentDirectories();
 
@@ -243,6 +245,7 @@ protected:
 	std::vector<std::string> mSearchSkinDirs;
 	std::string mLanguage;              // Current viewer language
 	std::string mLLPluginDir;			// Location for plugins and plugin shell
+	std::string mUserName;				// Current user name
 };
 
 void dir_exists_or_crash(const std::string &dir_name);

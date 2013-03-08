@@ -115,6 +115,18 @@ viewer-pathfinding.build_debug_release_separately = true
 viewer-pathfinding.build_CYGWIN_Debug = false
 viewer-pathfinding.build_viewer_update_version_manager = false
 
+# ========================================
+# viewer-chui
+#
+# ========================================
+
+viewer-chui.viewer_channel = "Project Viewer - CHUI"
+viewer-chui.login_channel = "Project Viewer - CHUI"
+viewer-chui.viewer_grid = agni
+viewer-chui.build_debug_release_separately = true
+viewer-chui.build_CYGWIN_Debug = false
+viewer-chui.build_viewer_update_version_manager = false
+
 # =================================================================
 # asset delivery 2010 projects
 # =================================================================

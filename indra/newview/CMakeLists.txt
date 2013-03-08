@@ -114,12 +114,13 @@ set(viewer_SOURCE_FILES
     llavatarlist.cpp
     llavatarlistitem.cpp
     llavatarpropertiesprocessor.cpp
+    llblockedlistitem.cpp
+    llblocklist.cpp
     llbox.cpp
     llbreadcrumbview.cpp
     llbrowsernotification.cpp
     llbuycurrencyhtml.cpp
     llcallbacklist.cpp
-    llcallfloater.cpp
     llcallingcard.cpp
     llcapabilitylistener.cpp
     llcaphttpsender.cpp
@@ -137,16 +138,24 @@ set(viewer_SOURCE_FILES
     llcommanddispatcherlistener.cpp
     llcommandhandler.cpp
     llcommandlineparser.cpp
+    llcommunicationchannel.cpp
     llcompilequeue.cpp
     llconfirmationmanager.cpp
+    llconversationlog.cpp
+    llconversationloglist.cpp
+    llconversationloglistitem.cpp
+    llconversationmodel.cpp
+    llconversationview.cpp
     llcurrencyuimanager.cpp
     llcylinder.cpp
     lldateutil.cpp
     lldaycyclemanager.cpp
     lldebugmessagebox.cpp
     lldebugview.cpp
+    lldeferredsounds.cpp
     lldelayedgestureerror.cpp
     lldirpicker.cpp
+    lldonotdisturbnotificationstorage.cpp
     lldndbutton.cpp
     lldrawable.cpp
     lldrawpool.cpp
@@ -194,7 +203,10 @@ set(viewer_SOURCE_FILES
     llfloaterbuycurrencyhtml.cpp
     llfloaterbuyland.cpp
     llfloatercamera.cpp
+    llfloaterchatvoicevolume.cpp
     llfloatercolorpicker.cpp
+    llfloaterconversationlog.cpp
+    llfloaterconversationpreview.cpp
     llfloaterdeleteenvpreset.cpp
     llfloaterdestinations.cpp
     llfloaterdisplayname.cpp
@@ -262,13 +274,13 @@ set(viewer_SOURCE_FILES
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
     llfloatervoiceeffect.cpp
+    llfloatervoicevolume.cpp
     llfloaterwebcontent.cpp
     llfloaterwebprofile.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindowsize.cpp
     llfloaterworldmap.cpp
-    llfolderview.cpp
-    llfolderviewitem.cpp
+    llfolderviewmodelinventory.cpp
     llfollowcam.cpp
     llfriendcard.cpp
     llgesturelistener.cpp
@@ -295,8 +307,9 @@ set(viewer_SOURCE_FILES
     llhudrender.cpp
     llhudtext.cpp
     llhudview.cpp
-    llimfloater.cpp
-    llimfloatercontainer.cpp
+    llfloaterimsessiontab.cpp
+    llfloaterimsession.cpp
+    llfloaterimcontainer.cpp
     llimhandler.cpp
     llimview.cpp
     llinspect.cpp
@@ -348,10 +361,9 @@ set(viewer_SOURCE_FILES
     llnameeditor.cpp
     llnamelistctrl.cpp
     llnavigationbar.cpp
-    llnearbychat.cpp
-    llnearbychatbar.cpp
-    llnearbychathandler.cpp
-    llnearbychatbarlistener.cpp
+    llfloaterimnearbychat.cpp
+    llfloaterimnearbychathandler.cpp
+    llfloaterimnearbychatlistener.cpp
     llnetmap.cpp
     llnotificationalerthandler.cpp
     llnotificationgrouphandler.cpp
@@ -381,7 +393,6 @@ set(viewer_SOURCE_FILES
     llpanelgroupnotices.cpp
     llpanelgrouproles.cpp
     llpanelhome.cpp
-    llpanelimcontrolpanel.cpp
     llpanelland.cpp
     llpanellandaudio.cpp
     llpanellandmarkinfo.cpp
@@ -392,7 +403,6 @@ set(viewer_SOURCE_FILES
     llpanelmaininventory.cpp
     llpanelmarketplaceinbox.cpp
     llpanelmarketplaceinboxinventory.cpp
-    llpanelmarketplaceoutboxinventory.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
     llpanelmediasettingssecurity.cpp
@@ -442,10 +452,12 @@ set(viewer_SOURCE_FILES
     llpathfindingobject.cpp
     llpathfindingobjectlist.cpp
     llpathfindingpathtool.cpp
+    llpersistentnotificationstorage.cpp
     llphysicsmotion.cpp
     llphysicsshapebuilderutil.cpp
     llplacesinventorybridge.cpp
     llplacesinventorypanel.cpp
+    llplacesfolderview.cpp
     llpopupview.cpp
     llpolymesh.cpp
     llpolymorph.cpp
@@ -691,11 +703,12 @@ set(viewer_HEADER_FILES
     llavatarlist.h
     llavatarlistitem.h
     llavatarpropertiesprocessor.h
+    llblockedlistitem.h
+    llblocklist.h
     llbox.h
     llbreadcrumbview.h
     llbuycurrencyhtml.h
     llcallbacklist.h
-    llcallfloater.h
     llcallingcard.h
     llcapabilitylistener.h
     llcapabilityprovider.h
@@ -714,16 +727,24 @@ set(viewer_HEADER_FILES
     llcommanddispatcherlistener.h
     llcommandhandler.h
     llcommandlineparser.h
+    llcommunicationchannel.h
     llcompilequeue.h
     llconfirmationmanager.h
+    llconversationlog.h
+    llconversationloglist.h
+    llconversationloglistitem.h
+    llconversationmodel.h
+    llconversationview.h
     llcurrencyuimanager.h
     llcylinder.h
     lldateutil.h
     lldaycyclemanager.h
     lldebugmessagebox.h
     lldebugview.h
+    lldeferredsounds.h
     lldelayedgestureerror.h
     lldirpicker.h
+    lldonotdisturbnotificationstorage.h
     lldndbutton.h
     lldrawable.h
     lldrawpool.h
@@ -771,7 +792,10 @@ set(viewer_HEADER_FILES
     llfloaterbuycurrencyhtml.h
     llfloaterbuyland.h
     llfloatercamera.h
+    llfloaterchatvoicevolume.h
     llfloatercolorpicker.h
+    llfloaterconversationlog.h
+    llfloaterconversationpreview.h
     llfloaterdeleteenvpreset.h
     llfloaterdestinations.h
     llfloaterdisplayname.h
@@ -839,14 +863,13 @@ set(viewer_HEADER_FILES
     llfloateruipreview.h
     llfloaterurlentry.h
     llfloatervoiceeffect.h
+    llfloatervoicevolume.h
     llfloaterwebcontent.h
     llfloaterwebprofile.h
     llfloaterwhitelistentry.h
     llfloaterwindowsize.h
     llfloaterworldmap.h
-    llfolderview.h
-    llfoldervieweventlistener.h
-    llfolderviewitem.h
+    llfolderviewmodelinventory.h
     llfollowcam.h
     llfriendcard.h
     llgesturelistener.h
@@ -872,8 +895,9 @@ set(viewer_HEADER_FILES
     llhudrender.h
     llhudtext.h
     llhudview.h
-    llimfloater.h
-    llimfloatercontainer.h
+    llfloaterimsessiontab.h
+    llfloaterimsession.h
+    llfloaterimcontainer.h
     llimview.h
     llinspect.h
     llinspectavatar.h
@@ -925,10 +949,9 @@ set(viewer_HEADER_FILES
     llnameeditor.h
     llnamelistctrl.h
     llnavigationbar.h
-    llnearbychat.h
-    llnearbychatbar.h
-    llnearbychathandler.h
-    llnearbychatbarlistener.h
+    llfloaterimnearbychat.h
+    llfloaterimnearbychathandler.h
+    llfloaterimnearbychatlistener.h
     llnetmap.h
     llnotificationhandler.h
     llnotificationmanager.h
@@ -952,7 +975,6 @@ set(viewer_HEADER_FILES
     llpanelgroupnotices.h
     llpanelgrouproles.h
     llpanelhome.h
-    llpanelimcontrolpanel.h
     llpanelland.h
     llpanellandaudio.h
     llpanellandmarkinfo.h
@@ -963,7 +985,6 @@ set(viewer_HEADER_FILES
     llpanelmaininventory.h
     llpanelmarketplaceinbox.h
     llpanelmarketplaceinboxinventory.h
-    llpanelmarketplaceoutboxinventory.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
     llpanelmediasettingssecurity.h
@@ -1008,10 +1029,12 @@ set(viewer_HEADER_FILES
     llpathfindingobject.h
     llpathfindingobjectlist.h
     llpathfindingpathtool.h
+    llpersistentnotificationstorage.h
     llphysicsmotion.h
     llphysicsshapebuilderutil.h
     llplacesinventorybridge.h
     llplacesinventorypanel.h
+    llplacesfolderview.h
     llpolymesh.h
     llpolymorph.h
     llpopupview.h
