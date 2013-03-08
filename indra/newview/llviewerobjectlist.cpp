@@ -2089,15 +2089,6 @@ S32 LLViewerObjectList::findReferences(LLDrawable *drawablep) const
 
 void LLViewerObjectList::orphanize(LLViewerObject *childp, U32 parent_id, U32 ip, U32 port)
 {
-	if(childp->getRegion())
-	{
-		LLVOCacheEntry* entry = childp->getRegion()->getCacheEntry(childp->getLocalID());
-		if(entry != NULL && !entry->isTouched())
-		{
-			return; //object cache will take care of this.
-		}
-	}
-
 #ifdef ORPHAN_SPAM
 	llinfos << "Orphaning object " << childp->getID() << " with parent " << parent_id << llendl;
 #endif
