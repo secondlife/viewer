@@ -37,11 +37,17 @@
 
 
 
+const S32 PS_PART_DATA_GLOW_BLEND_SIZE = 4;
 const S32 PS_PART_DATA_BLOCK_SIZE = 4 + 2 + 4 + 4 + 2 + 2; // 18
-const S32 PS_DATA_BLOCK_SIZE = 68 + PS_PART_DATA_BLOCK_SIZE; // 68 + 18 = 86
+const S32 PS_DATA_BLOCK_SIZE = 68 + PS_PART_DATA_BLOCK_SIZE + PS_PART_DATA_GLOW_BLEND_SIZE; // 68 + 18 + 4 = 90
 
 
 const F32 MAX_PART_SCALE = 4.f;
+
+bool LLPartData::hasGlow() const
+{
+	return mStartGlow > 0.f || mEndGlow > 0.f;
+}
 
 BOOL LLPartData::pack(LLDataPacker &dp)
 {
@@ -56,6 +62,14 @@ BOOL LLPartData::pack(LLDataPacker &dp)
 	dp.packFixed(mStartScale.mV[1], "pdstartscaley", FALSE, 3, 5);
 	dp.packFixed(mEndScale.mV[0], "pdendscalex", FALSE, 3, 5);
 	dp.packFixed(mEndScale.mV[1], "pdendscaley", FALSE, 3, 5);
+
+	if (hasGlow() || hasBlendFunc())
+	{
+		dp.packU8(mStartGlow * 255,"pdstartglow");
+		dp.packU8(mEndGlow * 255,"pdendglow");
+		dp.packU8(mBlendFuncSource,"pdblendsource");
+		dp.packU8(mBlendFuncDest,"pdblenddest");
+	}
 	return TRUE;
 }
 
@@ -68,6 +82,11 @@ LLSD LLPartData::asLLSD() const
 	sd["pdendcolor"] = ll_sd_from_color4(mEndColor);
 	sd["pdstartscale"] = ll_sd_from_vector2(mStartScale);
 	sd["pdendscale"] = ll_sd_from_vector2(mEndScale);
+	sd["pdstartglow"] =	mStartGlow;
+	sd["pdendglow"] = mEndGlow;
+	sd["pdblendsource"] = (S32)mBlendFuncSource;
+	sd["pdblenddest"] = (S32)mBlendFuncDest;
+
 	return sd;
 }
 
@@ -79,6 +98,12 @@ bool LLPartData::fromLLSD(LLSD& sd)
 	mEndColor = ll_color4_from_sd(sd["pdendcolor"]);
 	mStartScale = ll_vector2_from_sd(sd["pdstartscale"]);
 	mEndScale = ll_vector2_from_sd(sd["pdendscale"]);
+
+	mStartGlow = sd.has("pdstartglow") ? sd["pdstartglow"].asReal() : 0.f;
+	mEndGlow = sd.has("pdendglow") ? sd["pdendglow"].asReal() : 0.f;
+	mBlendFuncSource = sd.has("pdblendsource") ? (U8)sd["pdblendsource"].asInteger() : LL_PART_BF_SOURCE_ALPHA;
+	mBlendFuncDest = sd.has("pdblenddest") ? (U8)sd["pdblenddest"].asInteger() : LL_PART_BF_ONE_MINUS_SOURCE_ALPHA;
+
 	return true;
 }
 
@@ -98,6 +123,18 @@ BOOL LLPartData::unpack(LLDataPacker &dp)
 	dp.unpackFixed(mStartScale.mV[1], "pdstartscaley", FALSE, 3, 5);
 	dp.unpackFixed(mEndScale.mV[0], "pdendscalex", FALSE, 3, 5);
 	dp.unpackFixed(mEndScale.mV[1], "pdendscaley", FALSE, 3, 5);
+
+	if (dp.hasNext())
+	{
+		U8 tmp_glow = 0;
+		dp.unpackU8(tmp_glow,"pdstartglow");
+		mStartGlow = tmp_glow / 255.f;
+		dp.unpackU8(tmp_glow,"pdendglow");
+		mEndGlow = tmp_glow / 255.f;
+		dp.unpackU8(mBlendFuncSource,"pdblendsource");
+		dp.unpackU8(mBlendFuncDest,"pdblenddest");
+	}
+
 	return TRUE;
 }
 
@@ -148,6 +185,18 @@ void LLPartData::setEndAlpha(const F32 alpha)
 	mEndColor.mV[3] = alpha;
 }
 
+// static
+bool LLPartData::validBlendFunc(S32 func)
+{
+	if (func >= 0
+		&& func < LL_PART_BF_COUNT
+		&& func != UNSUPPORTED_DEST_ALPHA
+		&& func != UNSUPPORTED_ONE_MINUS_DEST_ALPHA)
+	{
+		return true;
+	}
+	return false;
+}
 
 LLPartSysData::LLPartSysData()
 {
@@ -160,6 +209,10 @@ LLPartSysData::LLPartSysData()
 	mPartData.mStartScale = LLVector2(1.f, 1.f);
 	mPartData.mEndScale = LLVector2(1.f, 1.f);
 	mPartData.mMaxAge = 10.0;
+	mPartData.mBlendFuncSource = LLPartData::LL_PART_BF_SOURCE_ALPHA;
+	mPartData.mBlendFuncDest = LLPartData::LL_PART_BF_ONE_MINUS_SOURCE_ALPHA;
+	mPartData.mStartGlow = 0.f;
+	mPartData.mEndGlow = 0.f;
 
 	mMaxAge = 0.0;
 	mStartAge = 0.0;
@@ -264,14 +317,16 @@ BOOL LLPartSysData::isNullPS(const S32 block_num)
 	{
 		return TRUE;
 	}
-	else if (size != PS_DATA_BLOCK_SIZE)
-	{
-		llwarns << "PSBlock is wrong size for particle system data - got " << size << ", expecting " << PS_DATA_BLOCK_SIZE << llendl;
-		return TRUE;
-	}
+	
 	gMessageSystem->getBinaryData("ObjectData", "PSBlock", ps_data_block, PS_DATA_BLOCK_SIZE, block_num, PS_DATA_BLOCK_SIZE);
 
-	LLDataPackerBinaryBuffer dp(ps_data_block, PS_DATA_BLOCK_SIZE);
+	if (size > PS_DATA_BLOCK_SIZE)
+	{
+		//size is too big, newer particle version unsupported
+		return TRUE;
+	}
+
+	LLDataPackerBinaryBuffer dp(ps_data_block, size);
 	dp.unpackU32(crc, "crc");
 
 	if (crc == 0)
@@ -296,10 +351,13 @@ BOOL LLPartSysData::packBlock()
 	U8 ps_data_block[PS_DATA_BLOCK_SIZE];
 
 	LLDataPackerBinaryBuffer dp(ps_data_block, PS_DATA_BLOCK_SIZE);
+
 	pack(dp);
 
+	S32 size = dp.getCurrentSize();
+
 	// Add to message
-	gMessageSystem->addBinaryData("PSBlock", ps_data_block, PS_DATA_BLOCK_SIZE);
+	gMessageSystem->addBinaryData("PSBlock", ps_data_block, size);
 
 	return TRUE;
 }                                         
@@ -312,16 +370,16 @@ BOOL LLPartSysData::unpackBlock(const S32 block_num)
 	// Check size of block
 	S32 size = gMessageSystem->getSize("ObjectData", block_num, "PSBlock");
 
-	if (size != PS_DATA_BLOCK_SIZE)
+	if (size > PS_DATA_BLOCK_SIZE)
 	{
-		llwarns << "PSBlock is wrong size for particle system data - got " << size << ", expecting " << PS_DATA_BLOCK_SIZE << llendl;
+		// Larger packets are newer and unsupported
 		return FALSE;
 	}
 
 	// Get from message
-	gMessageSystem->getBinaryData("ObjectData", "PSBlock", ps_data_block, PS_DATA_BLOCK_SIZE, block_num, PS_DATA_BLOCK_SIZE);
+	gMessageSystem->getBinaryData("ObjectData", "PSBlock", ps_data_block, size, block_num, PS_DATA_BLOCK_SIZE);
 
-	LLDataPackerBinaryBuffer dp(ps_data_block, PS_DATA_BLOCK_SIZE);
+	LLDataPackerBinaryBuffer dp(ps_data_block, size);
 	unpack(dp);
 
 	return TRUE;

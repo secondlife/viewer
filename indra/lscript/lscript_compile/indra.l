@@ -355,6 +355,10 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "PSYS_PART_END_SCALE"	{ count(); yylval.ival = LLPS_PART_END_SCALE; return (INTEGER_CONSTANT); }
 "PSYS_PART_MAX_AGE"		{ count(); yylval.ival = LLPS_PART_MAX_AGE; return (INTEGER_CONSTANT); }
 
+"PSYS_PART_BLEND_FUNC_SOURCE"	{ count(); yylval.ival = LLPS_PART_BLEND_FUNC_SOURCE; return (INTEGER_CONSTANT); }
+"PSYS_PART_BLEND_FUNC_DEST"		{ count(); yylval.ival = LLPS_PART_BLEND_FUNC_DEST; return (INTEGER_CONSTANT); }
+"PSYS_PART_START_GLOW"	{ count(); yylval.ival = LLPS_PART_START_GLOW; return (INTEGER_CONSTANT); }
+"PSYS_PART_END_GLOW"	{ count(); yylval.ival = LLPS_PART_END_GLOW; return (INTEGER_CONSTANT); }
 
 "PSYS_PART_WIND_MASK"				{ count(); yylval.ival = LLPartData::LL_PART_WIND_MASK; return(INTEGER_CONSTANT); }
 "PSYS_PART_INTERP_COLOR_MASK"		{ count(); yylval.ival = LLPartData::LL_PART_INTERP_COLOR_MASK; return(INTEGER_CONSTANT); }
@@ -365,6 +369,16 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "PSYS_PART_TARGET_POS_MASK"			{ count(); yylval.ival = LLPartData::LL_PART_TARGET_POS_MASK; return(INTEGER_CONSTANT); }
 "PSYS_PART_EMISSIVE_MASK"			{ count(); yylval.ival = LLPartData::LL_PART_EMISSIVE_MASK; return(INTEGER_CONSTANT); }
 "PSYS_PART_TARGET_LINEAR_MASK"		{ count(); yylval.ival = LLPartData::LL_PART_TARGET_LINEAR_MASK; return(INTEGER_CONSTANT); }
+"PSYS_PART_RIBBON_MASK"				{ count(); yylval.ival = LLPartData::LL_PART_RIBBON_MASK; return(INTEGER_CONSTANT); }
+
+"PSYS_PART_BF_ONE"						{ count(); yylval.ival = LLPartData::LL_PART_BF_ONE; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_ZERO"						{ count(); yylval.ival = LLPartData::LL_PART_BF_ZERO; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_DEST_COLOR"				{ count(); yylval.ival = LLPartData::LL_PART_BF_DEST_COLOR; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_SOURCE_COLOR"				{ count(); yylval.ival = LLPartData::LL_PART_BF_SOURCE_COLOR; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_ONE_MINUS_DEST_COLOR"		{ count(); yylval.ival = LLPartData::LL_PART_BF_ONE_MINUS_DEST_COLOR; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_ONE_MINUS_SOURCE_COLOR"	{ count(); yylval.ival = LLPartData::LL_PART_BF_ONE_MINUS_SOURCE_COLOR; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_SOURCE_ALPHA"				{ count(); yylval.ival = LLPartData::LL_PART_BF_SOURCE_ALPHA; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_ONE_MINUS_SOURCE_ALPHA"	{ count(); yylval.ival = LLPartData::LL_PART_BF_ONE_MINUS_SOURCE_ALPHA; return(INTEGER_CONSTANT); }
 
 
 "PSYS_SRC_MAX_AGE"					{ count(); yylval.ival = LLPS_SRC_MAX_AGE; return(INTEGER_CONSTANT); }
