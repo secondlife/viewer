@@ -112,6 +112,8 @@ private:
 	void					onNearbyViewSortMenuItemClicked(const LLSD& userdata);
 	void					onGroupsViewSortMenuItemClicked(const LLSD& userdata);
 	void					onRecentViewSortMenuItemClicked(const LLSD& userdata);
+	
+	void					onLoginFbcButtonClicked();
 
 	//returns false only if group is "none"
 	bool					isRealGroup();

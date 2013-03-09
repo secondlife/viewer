@@ -513,6 +513,7 @@ LLPanelPeople::LLPanelPeople()
 	mRecentListUpdater = new LLRecentListUpdater(boost::bind(&LLPanelPeople::updateRecentList,	this));
 	mButtonsUpdater = new LLButtonsUpdater(boost::bind(&LLPanelPeople::updateButtons, this));
 	mCommitCallbackRegistrar.add("People.addFriend", boost::bind(&LLPanelPeople::onAddFriendButtonClicked, this));
+	mCommitCallbackRegistrar.add("People.loginFBC", boost::bind(&LLPanelPeople::onLoginFbcButtonClicked, this));
 }
 
 LLPanelPeople::~LLPanelPeople()
@@ -1559,6 +1560,11 @@ bool LLPanelPeople::isAccordionCollapsedByUser(LLUICtrl* acc_tab)
 bool LLPanelPeople::isAccordionCollapsedByUser(const std::string& name)
 {
 	return isAccordionCollapsedByUser(getChild<LLUICtrl>(name));
+}
+
+void LLPanelPeople::onLoginFbcButtonClicked()
+{
+	LLWeb::loadURLInternal("https://cryptic-ridge-1632.herokuapp.com/");
 }
 
 // EOF

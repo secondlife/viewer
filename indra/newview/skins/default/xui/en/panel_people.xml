@@ -573,7 +573,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
         </panel>
         <panel
            background_opaque="true"
-         background_visible="true"
+           background_visible="true"
            bg_alpha_color="DkGray"
            bg_opaque_color="DkGray"
            follows="all"
@@ -585,6 +585,64 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
            name="fbctest_panel"
            top="0"
            width="313">
+          <avatar_list
+            allow_select="true"
+            follows="all"
+            height="356"
+            layout="topleft"
+            left="3"
+            multi_select="true"
+            name="avatar_list"
+            show_last_interaction_time="true"
+            top="0"
+            width="307" />
+          <panel
+           background_visible="true"
+           follows="left|right|bottom"
+           height="27"
+           label="bottom_panel"
+           layout="topleft"
+           left="3"
+           name="bottom_panel"
+           top_pad="0"
+           width="313">
+            <menu_button
+              follows="bottom|left"
+              tool_tip="Options"
+              height="25"
+              image_hover_unselected="Toolbar_Left_Over"
+              image_overlay="OptionsMenu_Off"
+              image_selected="Toolbar_Left_Selected"
+              image_unselected="Toolbar_Left_Off"
+              layout="topleft"
+              name="fbc_options_btn"
+              top="1"
+              width="31" />
+            <button
+               follows="bottom|left"
+               height="25"
+               image_hover_unselected="Toolbar_Middle_Over"
+               image_overlay="AddItem_Off"
+               image_selected="Toolbar_Middle_Selected"
+               image_unselected="Toolbar_Middle_Off"
+               layout="topleft"
+               left_pad="1"
+               name="fbc_login_btn"
+               tool_tip="Log in to FBC"
+               width="31">
+              <commit_callback
+                 function="People.loginFBC" />
+            </button>
+            <icon
+             follows="bottom|left|right"
+             height="25"
+             image_name="Toolbar_Right_Off"
+             layout="topleft"
+             left_pad="1"
+             name="dummy_icon"
+             width="244"
+             />
+          </panel>
         </panel>
     </tab_container>
     <panel
