@@ -2017,7 +2017,7 @@ void LLSelectMgr::selectionSetMaterial(LLMaterialPtr material)
 		{
 			if (object->permModify())
 			{
-			        LL_INFOS("Materials") << "Putting material on object " << object->getID() << " face " << face << ", material: " << mMaterial->asLLSD() << LL_ENDL;
+			        LL_DEBUGS("Materials") << "Putting material on object " << object->getID() << " face " << face << ", material: " << mMaterial->asLLSD() << LL_ENDL;
 				LLMaterialMgr::getInstance()->put(object->getID(),face,*mMaterial);
 				object->setTEMaterialParams(face,mMaterial);
 			}
@@ -2048,7 +2048,7 @@ void LLSelectMgr::selectionRemoveMaterial()
 		{
 			if (object->permModify())
 			{
-			        LL_INFOS("Materials") << "Removing material from object " << object->getID() << " face " << face << LL_ENDL;
+			        LL_DEBUGS("Materials") << "Removing material from object " << object->getID() << " face " << face << LL_ENDL;
 				LLMaterialMgr::getInstance()->remove(object->getID(),face);
 				object->setTEMaterialID(face,LLMaterialID::null);
 			}
