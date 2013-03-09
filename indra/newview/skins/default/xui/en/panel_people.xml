@@ -571,6 +571,21 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              />
             </panel>
         </panel>
+        <panel
+           background_opaque="true"
+         background_visible="true"
+           bg_alpha_color="DkGray"
+           bg_opaque_color="DkGray"
+           follows="all"
+           height="383"
+           label="FBC TEST"
+           layout="topleft"
+           left="0"
+           help_topic="people_fbctest_tab"
+           name="fbctest_panel"
+           top="0"
+           width="313">
+        </panel>
     </tab_container>
     <panel
      follows="bottom|left|right"
