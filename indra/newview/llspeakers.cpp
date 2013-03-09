@@ -409,12 +409,10 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 
 	// update status of all current speakers
 	BOOL voice_channel_active = (!mVoiceChannel && LLVoiceClient::getInstance()->inProximalChannel()) || (mVoiceChannel && mVoiceChannel->isActive());
-	for (speaker_map_t::iterator speaker_it = mSpeakers.begin(); speaker_it != mSpeakers.end();)
+	for (speaker_map_t::iterator speaker_it = mSpeakers.begin(); speaker_it != mSpeakers.end(); speaker_it++)
 	{
 		LLUUID speaker_id = speaker_it->first;
 		LLSpeaker* speakerp = speaker_it->second;
-		
-		speaker_map_t::iterator  cur_speaker_it = speaker_it++;
 
 		if (voice_channel_active && LLVoiceClient::getInstance()->getVoiceEnabled(speaker_id))
 		{
@@ -551,18 +549,25 @@ void LLSpeakerMgr::updateSpeakerList()
 				{
 					// Add group members when we get the complete list (note: can take a while before we get that list)
 					LLGroupMgrGroupData::member_list_t::iterator member_it = gdatap->mMembers.begin();
+                    S32 updated = 0;
 					while (member_it != gdatap->mMembers.end())
 					{
 						LLGroupMemberData* member = member_it->second;
-						// Add only the members who are online
-						if (member->getOnlineStatus() == "Online")
+                        LLUUID id = member_it->first;
+						// Add only members who are online and not already in the list
+						if ((member->getOnlineStatus() == "Online") && (mSpeakers.find(id) == mSpeakers.end()))
 						{
-							LLPointer<LLSpeaker> speakerp = setSpeaker(member_it->first, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
+							LLPointer<LLSpeaker> speakerp = setSpeaker(id, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
 							speakerp->mIsModerator = ((member->getAgentPowers() & GP_SESSION_MODERATOR) == GP_SESSION_MODERATOR);
+                            updated++;
 						}
 						++member_it;
+                        // Limit the number of "manually updated" participants to a reasonable number to avoid severe fps drop
+                        // *TODO : solve the perf issue of having several hundreds of widgets in the conversation list
+                        if (updated >= 100)
+                            break;
 					}
-					mSpeakerListUpdated = true;
+                    mSpeakerListUpdated = true;
 				}
 			}
 			else if (mSpeakers.size() == 0)
