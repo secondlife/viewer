@@ -41,6 +41,8 @@ struct SimMeasurementSampler : public LLInstanceTracker<SimMeasurementSampler, E
 	:	LLInstanceTracker<SimMeasurementSampler, ESimStatID>(id)
 	{}
 	virtual ~SimMeasurementSampler() {}
+
+	virtual void sample(F64 value) = 0;
 };
 
 template<typename T = F64>
@@ -52,9 +54,18 @@ struct SimMeasurement : public LLTrace::MeasurementStatHandle<T>, public SimMeas
 	{}
 
 	using SimMeasurementSampler::getInstance;
+
+	/*virtual*/ void sample(F64 value)
+	{
+		LLTrace::sample(*this, value);
+	}
 };
 
-
+template<typename T, typename VALUE_T>
+void sample(SimMeasurement<T>& measurement, VALUE_T value)
+{
+	LLTrace::sample(measurement, value);
+}
 extern LLTrace::CountStatHandle<>						FPS,
 											PACKETS_IN,
 											PACKETS_LOST,

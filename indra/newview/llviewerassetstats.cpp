@@ -547,21 +547,21 @@ void record_enqueue(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	sEnqueued[int(eac)]->add(1);
+	add(*sEnqueued[int(eac)], 1);
 }
 
 void record_dequeue(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	sDequeued[int(eac)]->add(1);
+	add(*sDequeued[int(eac)], 1);
 }
 
 void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, LLViewerAssetStats::duration_t duration)
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	sResponse[int(eac)]->sample<LLTrace::Microseconds>(duration);
+	sample(*sResponse[int(eac)], LLTrace::Microseconds(duration));
 }
 
 void record_avatar_stats()

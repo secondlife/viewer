@@ -167,8 +167,8 @@ void LLViewerCamera::updateCameraLocation(const LLVector3 &center,
 	F32 drot;
 	rotation.getAngleAxis(&drot, &x, &y, &z);
 
-	sVelocityStat.add(dpos);
-	sAngularVelocityStat.add(drot);
+	add(sVelocityStat, dpos);
+	add(sAngularVelocityStat, drot);
 	
 	mAverageSpeed = LLTrace::get_frame_recording().getPeriodMeanPerSec(sVelocityStat);
 	mAverageAngularSpeed = LLTrace::get_frame_recording().getPeriodMeanPerSec(sAngularVelocityStat);

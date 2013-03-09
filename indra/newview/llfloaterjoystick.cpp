@@ -77,7 +77,7 @@ void LLFloaterJoystick::draw()
 	for (U32 i = 0; i < 6; i++)
 	{
 		F32 value = joystick->getJoystickAxis(i);
-		sJoystickAxes[i]->sample(value * gFrameIntervalSeconds.value());
+		sample(*sJoystickAxes[i], value * gFrameIntervalSeconds.value());
 		if (mAxisStatsBar[i])
 		{
 			F32 minbar, maxbar;
