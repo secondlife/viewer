@@ -151,9 +151,6 @@ public:
 	void addEntry(LLViewerOctreeEntry* entry);
 	void removeEntry(LLViewerOctreeEntry* entry);
 	/*virtual*/ S32 cull(LLCamera &camera);
-
-private:
-	U32 mVisitedTime;
 };
 
 //

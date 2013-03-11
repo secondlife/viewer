@@ -377,8 +377,7 @@ LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
 {
 	mRegionp = regionp;
 	mPartitionType = LLViewerRegion::PARTITION_VO_CACHE;
-	mVisitedTime = 0;
-
+	
 	new LLviewerOctreeGroup(mOctree);
 }
 
@@ -444,12 +443,6 @@ S32 LLVOCachePartition::cull(LLCamera &camera)
 	{
 		return 0;
 	}
-
-	if(mVisitedTime == LLViewerOctreeEntryData::getCurrentFrame())
-	{
-		return 0; //already visited.
-	}
-	mVisitedTime = LLViewerOctreeEntryData::getCurrentFrame();
 
 	((LLviewerOctreeGroup*)mOctree->getListener(0))->rebound();
 
