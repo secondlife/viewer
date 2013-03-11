@@ -118,7 +118,7 @@ ThreadRecorder::active_recording_list_t::iterator ThreadRecorder::update( Record
 		if (next_it != mActiveRecordings.end())
 		{
 			// ...push our gathered data down to it
-			(*next_it)->mPartialRecording.appendRecording((*it)->mPartialRecording);
+			(*next_it)->mPartialRecording.appendBuffers((*it)->mPartialRecording);
 		}
 
 		// copy accumulated measurements into result buffer and clear accumulator (mPartialRecording)
@@ -171,16 +171,8 @@ ThreadRecorder::ActiveRecording::ActiveRecording( Recording* target )
 
 void ThreadRecorder::ActiveRecording::moveBaselineToTarget()
 {
-	mTargetRecording->mMeasurementsFloat.write()->addSamples(*mPartialRecording.mMeasurementsFloat);
-	mTargetRecording->mCountsFloat.write()->addSamples(*mPartialRecording.mCountsFloat);
-	mTargetRecording->mMeasurements.write()->addSamples(*mPartialRecording.mMeasurements);
-	mTargetRecording->mCounts.write()->addSamples(*mPartialRecording.mCounts);
-	mTargetRecording->mStackTimers.write()->addSamples(*mPartialRecording.mStackTimers);
-	mPartialRecording.mMeasurementsFloat.write()->reset();
-	mPartialRecording.mCountsFloat.write()->reset();
-	mPartialRecording.mMeasurements.write()->reset();
-	mPartialRecording.mCounts.write()->reset();
-	mPartialRecording.mStackTimers.write()->reset();
+	mTargetRecording->appendBuffers(mPartialRecording);
+	mPartialRecording.resetBuffers();
 }
 
 
@@ -220,16 +212,16 @@ void SlaveThreadRecorder::SharedData::appendTo( Recording& sink )
 	sink.appendRecording(mRecording);
 }
 
-void SlaveThreadRecorder::SharedData::mergeFrom( const Recording& source )
+void SlaveThreadRecorder::SharedData::mergeFrom( const RecordingBuffers& source )
 {
 	LLMutexLock lock(&mRecordingMutex);
-	mRecording.mergeRecording(source);
+	mRecording.mergeBuffers(source);
 }
 
-void SlaveThreadRecorder::SharedData::mergeTo( Recording& sink )
+void SlaveThreadRecorder::SharedData::mergeTo( RecordingBuffers& sink )
 {
 	LLMutexLock lock(&mRecordingMutex);
-	sink.mergeRecording(mRecording);
+	sink.mergeBuffers(mRecording);
 }
 
 void SlaveThreadRecorder::SharedData::reset()
@@ -251,13 +243,13 @@ void MasterThreadRecorder::pullFromSlaveThreads()
 
 	LLMutexLock lock(&mSlaveListMutex);
 
-	Recording& target_recording = mActiveRecordings.front()->mPartialRecording;
+	RecordingBuffers& target_recording_buffers = mActiveRecordings.front()->mPartialRecording;
 	for (slave_thread_recorder_list_t::iterator it = mSlaveThreadRecorders.begin(), end_it = mSlaveThreadRecorders.end();
 		it != end_it;
 		++it)
 	{
 		// ignore block timing info for now
-		(*it)->mSharedData.mergeTo(target_recording);
+		(*it)->mSharedData.mergeTo(target_recording_buffers);
 		(*it)->mSharedData.reset();
 	}
 }

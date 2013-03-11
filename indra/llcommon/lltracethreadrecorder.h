@@ -59,7 +59,7 @@ namespace LLTrace
 			ActiveRecording(Recording* target);
 
 			Recording*	mTargetRecording;
-			Recording	mPartialRecording;
+			RecordingBuffers	mPartialRecording;
 
 			void moveBaselineToTarget();
 		};
@@ -111,8 +111,8 @@ namespace LLTrace
 		public:
 			void appendFrom(const Recording& source);
 			void appendTo(Recording& sink);
-			void mergeFrom(const Recording& source);
-			void mergeTo(Recording& sink);
+			void mergeFrom(const RecordingBuffers& source);
+			void mergeTo(RecordingBuffers& sink);
 			void reset();
 		private:
 			LLMutex		mRecordingMutex;
