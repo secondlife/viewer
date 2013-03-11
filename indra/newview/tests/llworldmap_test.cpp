@@ -49,7 +49,6 @@
 // Stub image calls
 void LLGLTexture::setBoostLevel(S32 ) { }
 void LLGLTexture::setAddressMode(LLTexUnit::eTextureAddressMode ) { }
-enum FTType;
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(const LLUUID&, FTType, BOOL, LLGLTexture::EBoostLevel, S8,
 																  LLGLint, LLGLenum, LLHost ) { return NULL; }
 
