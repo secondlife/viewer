@@ -215,17 +215,19 @@ public:
 
 	~LLMeshHeaderResponder()
 	{
-		if (!mProcessed && !LLApp::isQuitting())
-		{ //something went wrong, retry
-			llwarns << "Timeout or service unavailable, retrying." << llendl;
-			LLMeshRepository::sHTTPRetryCount++;
-			LLMeshRepoThread::HeaderRequest req(mMeshParams);
-			LLMutexLock lock(gMeshRepo.mThread->mMutex);
-			gMeshRepo.mThread->mHeaderReqQ.push(req);
+		if (!LLApp::isQuitting())
+		{
+			if (!mProcessed)
+			{ //something went wrong, retry
+				llwarns << "Timeout or service unavailable, retrying." << llendl;
+				LLMeshRepository::sHTTPRetryCount++;
+				LLMeshRepoThread::HeaderRequest req(mMeshParams);
+				LLMutexLock lock(gMeshRepo.mThread->mMutex);
+				gMeshRepo.mThread->mHeaderReqQ.push(req);
+			}
 
+			LLMeshRepoThread::decActiveHeaderRequests();
 		}
-
-		LLMeshRepoThread::decActiveHeaderRequests();
 	}
 
 	virtual void completedRaw(U32 status, const std::string& reason,
@@ -252,13 +254,16 @@ public:
 
 	~LLMeshLODResponder()
 	{
-		if (!mProcessed && !LLApp::isQuitting())
+		if (!LLApp::isQuitting())
 		{
-			llwarns << "Killed without being processed, retrying." << llendl;
-			LLMeshRepository::sHTTPRetryCount++;
-			gMeshRepo.mThread->lockAndLoadMeshLOD(mMeshParams, mLOD);
+			if (!mProcessed)
+			{
+				llwarns << "Killed without being processed, retrying." << llendl;
+				LLMeshRepository::sHTTPRetryCount++;
+				gMeshRepo.mThread->lockAndLoadMeshLOD(mMeshParams, mLOD);
+			}
+			LLMeshRepoThread::decActiveLODRequests();
 		}
-		LLMeshRepoThread::decActiveLODRequests();
 	}
 
 	virtual void completedRaw(U32 status, const std::string& reason,
