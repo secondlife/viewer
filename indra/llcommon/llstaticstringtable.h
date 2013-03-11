@@ -79,3 +79,4 @@ class LL_COMMON_API LLStaticStringTable
 };
 
 #endif
+
