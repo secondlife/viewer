@@ -130,17 +130,18 @@ public:
 		mRetries = retries;
 	}
 
-	virtual void error(U32 status, const std::string& reason)
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
+		LL_WARNS("Voice") << "ProvisionVoiceAccountRequest returned an error, "
+			<<  ( (mRetries > 0) ? "retrying" : "too many retries (giving up)" )
+			<< status << "]: " << content << LL_ENDL;
+
 		if ( mRetries > 0 )
 		{
-			LL_WARNS("Voice") << "ProvisionVoiceAccountRequest returned an error, retrying.  status = " << status << ", reason = \"" << reason << "\"" << LL_ENDL;
-			LLVivoxVoiceClient::getInstance()->requestVoiceAccountProvision(
-				mRetries - 1);
+			LLVivoxVoiceClient::getInstance()->requestVoiceAccountProvision(mRetries - 1);
 		}
 		else
 		{
-			LL_WARNS("Voice") << "ProvisionVoiceAccountRequest returned an error, too many retries (giving up).  status = " << status << ", reason = \"" << reason << "\"" << LL_ENDL;
 			LLVivoxVoiceClient::getInstance()->giveUp();
 		}
 	}
@@ -199,18 +200,18 @@ class LLVivoxVoiceClientCapResponder : public LLHTTPClient::Responder
 public:
 	LLVivoxVoiceClientCapResponder(LLVivoxVoiceClient::state requesting_state) : mRequestingState(requesting_state) {};
 
-	virtual void error(U32 status, const std::string& reason);	// called with bad status codes
+	// called with bad status codes
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 	virtual void result(const LLSD& content);
 
 private:
 	LLVivoxVoiceClient::state mRequestingState;  // state 
 };
 
-void LLVivoxVoiceClientCapResponder::error(U32 status, const std::string& reason)
+void LLVivoxVoiceClientCapResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	LL_WARNS("Voice") << "LLVivoxVoiceClientCapResponder::error("
-		<< status << ": " << reason << ")"
-		<< LL_ENDL;
+	LL_WARNS("Voice") << "LLVivoxVoiceClientCapResponder error [status:"
+		<< status << "]: " << content << LL_ENDL;
 	LLVivoxVoiceClient::getInstance()->sessionTerminate();
 }
 
@@ -2249,7 +2250,8 @@ void LLVivoxVoiceClient::giveUp()
 
 static void oldSDKTransform (LLVector3 &left, LLVector3 &up, LLVector3 &at, LLVector3d &pos, LLVector3 &vel)
 {
-	F32 nat[3], nup[3], nl[3], nvel[3]; // the new at, up, left vectors and the  new position and velocity
+	F32 nat[3], nup[3], nl[3]; // the new at, up, left vectors and the  new position and velocity
+//	F32 nvel[3]; 
 	F64 npos[3];
 	
 	// The original XML command was sent like this:
@@ -2299,9 +2301,9 @@ static void oldSDKTransform (LLVector3 &left, LLVector3 &up, LLVector3 &at, LLVe
 	npos[1] = pos.mdV[VZ];
 	npos[2] = pos.mdV[VY];
 
-	nvel[0] = vel.mV[VX];
-	nvel[1] = vel.mV[VZ];
-	nvel[2] = vel.mV[VY];
+//	nvel[0] = vel.mV[VX];
+//	nvel[1] = vel.mV[VZ];
+//	nvel[2] = vel.mV[VY];
 
 	for(int i=0;i<3;++i) {
 		at.mV[i] = nat[i];
@@ -3954,7 +3956,6 @@ void LLVivoxVoiceClient::messageEvent(
 			bool is_do_not_disturb = gAgent.isDoNotDisturb();
 			bool is_muted = LLMuteList::getInstance()->isMuted(session->mCallerID, session->mName, LLMute::flagTextChat);
 			bool is_linden = LLMuteList::getInstance()->isLinden(session->mName);
-			bool quiet_chat = false;
 			LLChat chat;
 
 			chat.mMuted = is_muted && !is_linden;
@@ -3967,7 +3968,6 @@ void LLVivoxVoiceClient::messageEvent(
 
 				if(is_do_not_disturb && !is_linden)
 				{
-					quiet_chat = true;
 					// TODO: Question: Return do not disturb mode response here?  Or maybe when session is started instead?
 				}
 				

@@ -210,7 +210,7 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 							   const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
 							   S32 height, U32 flags,
 							   BOOL fullscreen, BOOL clearBg,
-							   BOOL disable_vsync, BOOL use_gl,
+							   BOOL disable_vsync,
 							   BOOL ignore_pixel_depth,
 							   U32 fsaa_samples)
 	: LLWindow(NULL, fullscreen, flags)
@@ -228,7 +228,6 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 	gKeyboard = new LLKeyboardMacOSX();
 	gKeyboard->setCallbacks(callbacks);
 
-	// Ignore use_gl for now, only used for drones on PC
 	mWindow = NULL;
 	mContext = NULL;
 	mPixelFormat = NULL;

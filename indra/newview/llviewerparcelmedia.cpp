@@ -85,7 +85,6 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			}
 
 			// we're in a parcel
-			bool new_parcel = false;
 			S32 parcelid = parcel->getLocalID();						
 
 			LLUUID regionid = gAgent.getRegion()->getRegionID();
@@ -94,7 +93,6 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 				LL_DEBUGS("Media") << "New parcel, parcel id = " << parcelid << ", region id = " << regionid << LL_ENDL;
 				sMediaParcelLocalID = parcelid;
 				sMediaRegionID = regionid;
-				new_parcel = true;
 			}
 
 			std::string mediaUrl = std::string ( parcel->getMediaURL () );

@@ -35,7 +35,6 @@
 #include "llinventoryobserver.h"
 #include "llviewerinventory.h"
 
-class LLWearable;
 class LLWearableHoldingPattern;
 class LLInventoryCallback;
 class LLOutfitUnLockTimer;
@@ -93,6 +92,19 @@ public:
 
 	// Find the Current Outfit folder.
 	const LLUUID getCOF() const;
+	S32 getCOFVersion() const;
+
+	// Debugging - get truncated LLSD summary of COF contents.
+	LLSD dumpCOF() const;
+
+	// COF version of last viewer-initiated appearance update request.
+	S32 mLastUpdateRequestCOFVersion;
+	S32 getLastUpdateRequestCOFVersion() const;
+
+	// COF version of last appearance message received for self av.
+	S32 mLastAppearanceUpdateCOFVersion;
+	S32 getLastAppearanceUpdateCOFVersion() const;
+	void setLastAppearanceUpdateCOFVersion(S32 new_val);
 
 	// Finds the folder link to the currently worn outfit
 	const LLViewerInventoryItem *getBaseOutfitLink();
@@ -107,6 +119,7 @@ public:
 	// Update the displayed outfit name in UI.
 	void updatePanelOutfitName(const std::string& name);
 
+	void purgeBaseOutfitLink(const LLUUID& category);
 	void createBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> link_waiter);
 
 	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
@@ -126,15 +139,17 @@ public:
 				 LLPointer<LLInventoryCallback> cb);
 
 	// Add COF link to individual item.
-	void addCOFItemLink(const LLUUID& item_id, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL);
-	void addCOFItemLink(const LLInventoryItem *item, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL);
+	void addCOFItemLink(const LLUUID& item_id, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL, const std::string description = "");
+	void addCOFItemLink(const LLInventoryItem *item, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL, const std::string description = "");
+
+	// Find COF entries referencing the given item.
+	LLInventoryModel::item_array_t findCOFItemLinks(const LLUUID& item_id);
 
 	// Remove COF entries
-	void removeCOFItemLinks(const LLUUID& item_id, bool do_update = true);
-	void removeCOFLinksOfType(LLWearableType::EType type, bool do_update = true);
-
-	// Add COF link to ensemble folder.
-	void addEnsembleLink(LLInventoryCategory* item, bool do_update = true);
+	void removeCOFItemLinks(const LLUUID& item_id);
+	void removeCOFLinksOfType(LLWearableType::EType type);
+	void removeAllClothesFromAvatar();
+	void removeAllAttachmentsFromAvatar();
 
 	//has the current outfit changed since it was loaded?
 	bool isOutfitDirty() { return mOutfitIsDirty; }
@@ -162,6 +177,7 @@ public:
 	bool updateBaseOutfit();
 
 	//Remove clothing or detach an object from the agent (a bodypart cannot be removed)
+	void removeItemsFromAvatar(const uuid_vec_t& item_ids);
 	void removeItemFromAvatar(const LLUUID& item_id);
 
 
@@ -182,6 +198,20 @@ public:
 
 	bool isInUpdateAppearanceFromCOF() { return mIsInUpdateAppearanceFromCOF; }
 
+	void requestServerAppearanceUpdate(LLCurl::ResponderPtr responder_ptr = NULL);
+
+	void incrementCofVersion(LLHTTPClient::ResponderPtr responder_ptr = NULL);
+
+	// *HACK Remove this after server side texture baking is deployed on all sims.
+	void incrementCofVersionLegacy();
+
+	void setAppearanceServiceURL(const std::string& url) { mAppearanceServiceURL = url; }
+	std::string getAppearanceServiceURL() const;
+
+private:
+	std::string		mAppearanceServiceURL;
+	
+
 protected:
 	LLAppearanceMgr();
 	~LLAppearanceMgr();
@@ -201,9 +231,7 @@ private:
 								   LLInventoryModel::item_array_t& gest_items,
 								   bool follow_folder_links);
 
-	void purgeCategory(const LLUUID& category, bool keep_outfit_links);
-	void purgeBaseOutfitLink(const LLUUID& category);
-
+	void purgeCategory(const LLUUID& category, bool keep_outfit_links, LLInventoryModel::item_array_t* keep_items = NULL);
 	static void onOutfitRename(const LLSD& notification, const LLSD& response);
 
 	void setOutfitLocked(bool locked);

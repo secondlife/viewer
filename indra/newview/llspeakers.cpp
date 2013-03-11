@@ -414,7 +414,7 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 		LLUUID speaker_id = speaker_it->first;
 		LLSpeaker* speakerp = speaker_it->second;
 		
-		speaker_map_t::iterator  cur_speaker_it = speaker_it++;
+		speaker_it++;
 
 		if (voice_channel_active && LLVoiceClient::getInstance()->getVoiceEnabled(speaker_id))
 		{
@@ -843,7 +843,10 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 		}
 	}
 }
-
+/*prep#
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+		llwarns << "ModerationResponder error [status:" << status << "]: " << content << llendl;
+		*/
 void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
 {
 	LLPointer<LLSpeaker> speakerp = findSpeaker(speaker_id);
