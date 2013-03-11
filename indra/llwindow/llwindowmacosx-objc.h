@@ -78,6 +78,7 @@ void removeGLView(GLViewRef view);
 // This is largely for easier interop between Obj-C and C++ (at least in the viewer's case due to the BOOL vs. BOOL conflict)
 void callKeyUp(unsigned short key, unsigned int mask);
 void callKeyDown(unsigned short key, unsigned int mask);
+void callResetKeys();
 void callUnicodeCallback(wchar_t character, unsigned int mask);
 void callRightMouseDown(float *pos, unsigned int mask);
 void callRightMouseUp(float *pos, unsigned int mask);
@@ -103,6 +104,13 @@ void callHandleDragEntered(std::string url);
 void callHandleDragExited(std::string url);
 void callHandleDragUpdated(std::string url);
 void callHandleDragDropped(std::string url);
+
+// LLPreeditor C bindings.
+std::basic_string<wchar_t> getPreeditString();
+void getPreeditSelectionRange(int *position, int *length);
+void getPreeditMarkedRange(int *position, int *length);
+void handleUnicodeCharacter(wchar_t c);
+void updatePreeditor(unsigned short *str);
 
 NSWindowRef getMainAppWindow();
 GLViewRef getGLView();

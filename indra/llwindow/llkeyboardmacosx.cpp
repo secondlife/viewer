@@ -213,7 +213,7 @@ MASK LLKeyboardMacOSX::updateModifiers(const U32 mask)
 		out_mask |= MASK_SHIFT;
 	}
 
-	if(mask & MAC_CTRL_KEY || mask & MAC_CMD_KEY)
+	if(mask & (MAC_CTRL_KEY | MAC_CMD_KEY))
 	{
 		out_mask |= MASK_CONTROL;
 	}
@@ -267,7 +267,7 @@ MASK LLKeyboardMacOSX::currentMask(BOOL for_mouse_event)
 
 	if (mask & MAC_SHIFT_KEY)			result |= MASK_SHIFT;
 	if (mask & MAC_CTRL_KEY)			result |= MASK_CONTROL;
-	if (mask & MAC_ALT_KEY)			result |= MASK_ALT;
+	if (mask & MAC_ALT_KEY)				result |= MASK_ALT;
 
 	// For keyboard events, consider Command equivalent to Control
 	if (!for_mouse_event)

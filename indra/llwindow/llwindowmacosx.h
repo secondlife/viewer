@@ -120,6 +120,7 @@ public:
 	
 	void* getWindow() { return mWindow; }
 	LLWindowCallbacks* getCallbacks() { return mCallbacks; }
+	LLPreeditor* getPreeditor() { return mPreeditor; }
 	
 	void updateMouseDeltas(float* deltas);
 	void getMouseDeltas(float* delta);

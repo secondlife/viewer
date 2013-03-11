@@ -211,6 +211,11 @@ void callKeyDown(unsigned short key, unsigned int mask)
 	gKeyboard->handleKeyDown(key, mask);
 }
 
+void callResetKeys()
+{
+	gKeyboard->resetKeys();
+}
+
 void callUnicodeCallback(wchar_t character, unsigned int mask)
 {
 	gWindowImplementation->getCallbacks()->handleUnicodeChar(character, mask);
@@ -368,6 +373,26 @@ void callQuitHandler()
 	{
 		gWindowImplementation->getCallbacks()->handleQuit(gWindowImplementation);
 	}
+}
+
+std::basic_string<wchar_t> getPreeditString()
+{
+	return gWindowImplementation->getPreeditor()->getPreeditString();
+}
+
+void getPreeditSelectionRange(int *position, int *length)
+{
+	gWindowImplementation->getPreeditor()->getSelectionRange(position, length);
+}
+
+void getPreeditMarkedRange(int *position, int *length)
+{
+	gWindowImplementation->getPreeditor()->getPreeditRange(position, length);
+}
+
+void handleUnicodeCharacter(wchar_t c)
+{
+	gWindowImplementation->getPreeditor()->handleUnicodeCharHere(c);
 }
 
 void LLWindowMacOSX::updateMouseDeltas(float* deltas)

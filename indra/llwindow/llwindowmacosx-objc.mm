@@ -332,7 +332,14 @@ NSWindowRef getMainAppWindow()
 	return winRef;
 }
 
-unsigned int getModifiers()
+/*
+GLViewRef getGLView()
 {
+	return [(LLAppDelegate*)[[NSApplication sharedApplication] delegate] glview];
+}
+*/
+
+unsigned int getModifiers()
+{	
 	return [NSEvent modifierFlags];
 }
