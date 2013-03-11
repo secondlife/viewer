@@ -97,11 +97,11 @@ void ThreadRecorder::activate( Recording* recording )
 	ActiveRecording* active_recording = new ActiveRecording(recording);
 	if (!mActiveRecordings.empty())
 	{
-		mActiveRecordings.front()->mBaseline.syncTo(active_recording->mBaseline);
+		mActiveRecordings.front()->mPartialRecording.handOffTo(active_recording->mPartialRecording);
 	}
 	mActiveRecordings.push_front(active_recording);
 
-	mActiveRecordings.front()->mBaseline.makePrimary();
+	mActiveRecordings.front()->mPartialRecording.makePrimary();
 }
 
 ThreadRecorder::active_recording_list_t::iterator ThreadRecorder::update( Recording* recording )
@@ -118,10 +118,10 @@ ThreadRecorder::active_recording_list_t::iterator ThreadRecorder::update( Record
 		if (next_it != mActiveRecordings.end())
 		{
 			// ...push our gathered data down to it
-			(*next_it)->mBaseline.appendRecording((*it)->mBaseline);
+			(*next_it)->mPartialRecording.appendRecording((*it)->mPartialRecording);
 		}
 
-		// copy accumulated measurements into result buffer and clear accumulator (mBaseline)
+		// copy accumulated measurements into result buffer and clear accumulator (mPartialRecording)
 		(*it)->moveBaselineToTarget();
 
 		if ((*it)->mTargetRecording == recording)
@@ -171,16 +171,16 @@ ThreadRecorder::ActiveRecording::ActiveRecording( Recording* target )
 
 void ThreadRecorder::ActiveRecording::moveBaselineToTarget()
 {
-	mTargetRecording->mMeasurementsFloat.write()->addSamples(*mBaseline.mMeasurementsFloat);
-	mTargetRecording->mCountsFloat.write()->addSamples(*mBaseline.mCountsFloat);
-	mTargetRecording->mMeasurements.write()->addSamples(*mBaseline.mMeasurements);
-	mTargetRecording->mCounts.write()->addSamples(*mBaseline.mCounts);
-	mTargetRecording->mStackTimers.write()->addSamples(*mBaseline.mStackTimers);
-	mBaseline.mMeasurementsFloat.write()->reset();
-	mBaseline.mCountsFloat.write()->reset();
-	mBaseline.mMeasurements.write()->reset();
-	mBaseline.mCounts.write()->reset();
-	mBaseline.mStackTimers.write()->reset();
+	mTargetRecording->mMeasurementsFloat.write()->addSamples(*mPartialRecording.mMeasurementsFloat);
+	mTargetRecording->mCountsFloat.write()->addSamples(*mPartialRecording.mCountsFloat);
+	mTargetRecording->mMeasurements.write()->addSamples(*mPartialRecording.mMeasurements);
+	mTargetRecording->mCounts.write()->addSamples(*mPartialRecording.mCounts);
+	mTargetRecording->mStackTimers.write()->addSamples(*mPartialRecording.mStackTimers);
+	mPartialRecording.mMeasurementsFloat.write()->reset();
+	mPartialRecording.mCountsFloat.write()->reset();
+	mPartialRecording.mMeasurements.write()->reset();
+	mPartialRecording.mCounts.write()->reset();
+	mPartialRecording.mStackTimers.write()->reset();
 }
 
 
@@ -251,7 +251,7 @@ void MasterThreadRecorder::pullFromSlaveThreads()
 
 	LLMutexLock lock(&mSlaveListMutex);
 
-	Recording& target_recording = mActiveRecordings.front()->mBaseline;
+	Recording& target_recording = mActiveRecordings.front()->mPartialRecording;
 	for (slave_thread_recorder_list_t::iterator it = mSlaveThreadRecorders.begin(), end_it = mSlaveThreadRecorders.end();
 		it != end_it;
 		++it)

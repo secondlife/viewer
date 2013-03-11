@@ -59,7 +59,7 @@ namespace LLTrace
 			ActiveRecording(Recording* target);
 
 			Recording*	mTargetRecording;
-			Recording	mBaseline;
+			Recording	mPartialRecording;
 
 			void moveBaselineToTarget();
 		};

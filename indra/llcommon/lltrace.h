@@ -287,6 +287,7 @@ public:
 	{
 		mNumSamples++;
 		mSum += value;
+		// NOTE: both conditions will hold on first pass through
 		if (value < mMin)
 		{
 			mMin = value;

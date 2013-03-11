@@ -109,10 +109,10 @@ void Recording::handleSplitTo(Recording& other)
 {
 	stop();
 	other.restart();
-	syncTo(other);
+	handOffTo(other);
 }
 
-void Recording::syncTo(Recording& other)
+void Recording::handOffTo(Recording& other)
 {
 	other.mCountsFloat.write()->reset(mCountsFloat);
 	other.mMeasurementsFloat.write()->reset(mMeasurementsFloat);

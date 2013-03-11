@@ -218,7 +218,7 @@ namespace LLTrace
 
 		LLUnit<LLUnits::Seconds, F64> getDuration() const { return LLUnit<LLUnits::Seconds, F64>(mElapsedSeconds); }
 
-		void syncTo(Recording& other);
+		void handOffTo(Recording& other);
 
 	private:
 		friend class ThreadRecorder;
