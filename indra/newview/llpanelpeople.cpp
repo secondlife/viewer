@@ -64,9 +64,11 @@
 #include "llvoiceclient.h"
 #include "llworld.h"
 #include "llspeakers.h"
+#include "llfloaterwebcontent.h"
 
 #define FRIEND_LIST_UPDATE_TIMEOUT	0.5
 #define NEARBY_LIST_UPDATE_INTERVAL 1
+#define FBCTEST_LIST_UPDATE_INTERVAL 0.25
 
 static const std::string NEARBY_TAB_NAME	= "nearby_panel";
 static const std::string FRIENDS_TAB_NAME	= "friends_panel";
@@ -489,6 +491,45 @@ public:
 	}
 };
 
+/**
+ * Periodically updates the FBC test list after a login is initiated.
+ * 
+ * The period is defined by FBCTEST_LIST_UPDATE_INTERVAL constant.
+ */
+class LLFbcTestListUpdater : public LLAvatarListUpdater
+{
+	LOG_CLASS(LLFbcTestListUpdater);
+
+public:
+	LLFbcTestListUpdater(callback_t cb)
+	:	LLAvatarListUpdater(cb, FBCTEST_LIST_UPDATE_INTERVAL)
+	{
+		setActive(false);
+	}
+
+	/*virtual*/ void setActive(bool val)
+	{
+		if (val)
+		{
+			// update immediately and start regular updates
+			update();
+			mEventTimer.start(); 
+		}
+		else
+		{
+			// stop regular updates
+			mEventTimer.stop();
+		}
+	}
+
+	/*virtual*/ BOOL tick()
+	{
+		update();
+		return FALSE;
+	}
+private:
+};
+
 //=============================================================================
 
 LLPanelPeople::LLPanelPeople()
@@ -502,6 +543,7 @@ LLPanelPeople::LLPanelPeople()
 		mNearbyList(NULL),
 		mRecentList(NULL),
 		mGroupList(NULL),
+		mFbcTestText(NULL),
 		mNearbyGearButton(NULL),
 		mFriendsGearButton(NULL),
 		mGroupsGearButton(NULL),
@@ -511,6 +553,7 @@ LLPanelPeople::LLPanelPeople()
 	mFriendListUpdater = new LLFriendListUpdater(boost::bind(&LLPanelPeople::updateFriendList,	this));
 	mNearbyListUpdater = new LLNearbyListUpdater(boost::bind(&LLPanelPeople::updateNearbyList,	this));
 	mRecentListUpdater = new LLRecentListUpdater(boost::bind(&LLPanelPeople::updateRecentList,	this));
+	mFbcTestListUpdater = new LLFbcTestListUpdater(boost::bind(&LLPanelPeople::updateFbcTestList,	this));
 	mButtonsUpdater = new LLButtonsUpdater(boost::bind(&LLPanelPeople::updateButtons, this));
 	mCommitCallbackRegistrar.add("People.addFriend", boost::bind(&LLPanelPeople::onAddFriendButtonClicked, this));
 	mCommitCallbackRegistrar.add("People.loginFBC", boost::bind(&LLPanelPeople::onLoginFbcButtonClicked, this));
@@ -522,6 +565,7 @@ LLPanelPeople::~LLPanelPeople()
 	delete mNearbyListUpdater;
 	delete mFriendListUpdater;
 	delete mRecentListUpdater;
+	delete mFbcTestListUpdater;
 
 	if(LLVoiceClient::instanceExists())
 	{
@@ -533,7 +577,7 @@ LLPanelPeople::~LLPanelPeople()
 	if (mNearbyViewSortMenuHandle.get()) mNearbyViewSortMenuHandle.get()->die();
 	if (mGroupsViewSortMenuHandle.get()) mGroupsViewSortMenuHandle.get()->die();
 	if (mRecentViewSortMenuHandle.get()) mRecentViewSortMenuHandle.get()->die();
-
+	if (mFbcTestBrowserHandle.get()) mFbcTestBrowserHandle.get()->die();
 }
 
 void LLPanelPeople::onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LLSD& param, LLAvatarList* avatar_list)
@@ -598,6 +642,8 @@ BOOL LLPanelPeople::postBuild()
 	mRecentList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 	mAllFriendList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 	mOnlineFriendList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
+	
+	mFbcTestText = getChild<LLPanel>(FBCTEST_TAB_NAME)->getChild<LLTextBox>("fbctest_label");
 
 	setSortOrder(mRecentList,		(ESortOrder)gSavedSettings.getU32("RecentPeopleSortOrder"),	false);
 	setSortOrder(mAllFriendList,	(ESortOrder)gSavedSettings.getU32("FriendsSortOrder"),		false);
@@ -821,6 +867,40 @@ void LLPanelPeople::updateRecentList()
 
 	LLRecentPeople::instance().get(mRecentList->getIDs());
 	mRecentList->setDirty();
+}
+
+void LLPanelPeople::updateFbcTestList()
+{
+	if (!mFbcTestText)
+		return;
+
+	if (mFbcTestBrowserHandle.get())
+	{
+		// get the browser data (from the title bar, of course!)
+		std::string title = mFbcTestBrowserHandle.get()->getTitle();
+
+		// if the data is ready (if it says the magic word)
+		if (title.length() > 8 && title.substr(0, 8) == "FBCTEST ")
+		{
+			// get the list of friends' names from the title bar
+			std::vector<std::string> names = LLStringUtil::getTokens(title.substr(8), ",");
+			
+			// display the names in the list
+			std::string label;
+			for (std::vector<std::string>::const_iterator i = names.begin() + 1; i != names.end(); ++i)
+			{
+				label += *i;
+				label += "\n";
+			}
+			mFbcTestText->setText(label);
+
+			// close the browser window
+			mFbcTestBrowserHandle.get()->die();
+			
+			// stop updating
+			mFbcTestListUpdater->setActive(false);
+		}
+	}
 }
 
 void LLPanelPeople::buttonSetVisible(std::string btn_name, BOOL visible)
@@ -1564,7 +1644,16 @@ bool LLPanelPeople::isAccordionCollapsedByUser(const std::string& name)
 
 void LLPanelPeople::onLoginFbcButtonClicked()
 {
-	LLWeb::loadURLInternal("https://cryptic-ridge-1632.herokuapp.com/");
+	LLFloaterWebContent::Params p;
+	p.url("https://cryptic-ridge-1632.herokuapp.com/");
+	LLFloater* browser = LLFloaterReg::showInstance("web_content", p);
+
+	if (browser)
+	{
+		// start checking the browser to see if the data is available yet
+		mFbcTestBrowserHandle = browser->getHandle();
+		mFbcTestListUpdater->setActive(true);
+	}
 }
 
 // EOF

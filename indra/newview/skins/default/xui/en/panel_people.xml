@@ -585,17 +585,14 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
            name="fbctest_panel"
            top="0"
            width="313">
-          <avatar_list
-            allow_select="true"
-            follows="all"
-            height="356"
-            layout="topleft"
-            left="3"
-            multi_select="true"
-            name="avatar_list"
-            show_last_interaction_time="true"
-            top="0"
-            width="307" />
+          <text
+             follows="all"
+             height="356"
+             layout="topleft"
+             left="3"
+             name="fbctest_label"
+             top="0"
+             width="307"/>
           <panel
            background_visible="true"
            follows="left|right|bottom"

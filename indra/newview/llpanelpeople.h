@@ -73,6 +73,7 @@ private:
 	void					updateFriendList();
 	void					updateNearbyList();
 	void					updateRecentList();
+	void					updateFbcTestList();
 
 	bool					isItemsFreeOfFriends(const uuid_vec_t& uuids);
 
@@ -145,16 +146,20 @@ private:
 	LLAvatarList*			mRecentList;
 	LLGroupList*			mGroupList;
 	LLNetMap*				mMiniMap;
+	
+	LLTextBox*				mFbcTestText;
 
 	LLHandle<LLView>		mGroupPlusMenuHandle;
 	LLHandle<LLView>		mNearbyViewSortMenuHandle;
 	LLHandle<LLView>		mFriendsViewSortMenuHandle;
 	LLHandle<LLView>		mGroupsViewSortMenuHandle;
 	LLHandle<LLView>		mRecentViewSortMenuHandle;
+	LLHandle<LLFloater>		mFbcTestBrowserHandle;
 
 	Updater*				mFriendListUpdater;
 	Updater*				mNearbyListUpdater;
 	Updater*				mRecentListUpdater;
+	Updater*				mFbcTestListUpdater;
 	Updater*				mButtonsUpdater;
 
 	LLMenuButton*			mNearbyGearButton;
