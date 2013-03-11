@@ -44,15 +44,14 @@
 #include "httpoptions.h"
 #include "httpheaders.h"
 #include "httphandler.h"
+#include "llviewertexture.h"
 
-class LLViewerTexture;
 class LLTextureFetchWorker;
 class LLImageDecodeThread;
 class LLHost;
 class LLViewerAssetStats;
 class LLTextureFetchDebugger;
 class LLTextureCache;
-enum FTType;
 
 // Interface class
 
