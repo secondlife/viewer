@@ -64,6 +64,8 @@ BOOL LLFace::sSafeRenderSelect = TRUE; // FALSE
 
 #define DOTVEC(a,b) (a.mV[0]*b.mV[0] + a.mV[1]*b.mV[1] + a.mV[2]*b.mV[2])
 
+//#pragma GCC diagnostic ignored "-Wuninitialized"
+
 /*
 For each vertex, given:
 	B - binormal
@@ -1981,6 +1983,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			//_mm_prefetch((char*)src, _MM_HINT_NTA);
 				
 			//_mm_prefetch((char*)dst, _MM_HINT_NTA);
+
 
 			LLVector4a res0; //,res1,res2,res3;
 			

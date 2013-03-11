@@ -983,12 +983,26 @@ LLVector4a *LLPolyMesh::getScaledBinormals()
 //-----------------------------------------------------------------------------
 void LLPolyMesh::initializeForMorph()
 {
-    LLVector4a::memcpyNonAliased16((F32*) mCoords, (F32*) mSharedData->mBaseCoords, sizeof(LLVector4a) * mSharedData->mNumVertices);
-	LLVector4a::memcpyNonAliased16((F32*) mNormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
-	LLVector4a::memcpyNonAliased16((F32*) mScaledNormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
-	LLVector4a::memcpyNonAliased16((F32*) mBinormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
-	LLVector4a::memcpyNonAliased16((F32*) mScaledBinormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
-	LLVector4a::memcpyNonAliased16((F32*) mTexCoords, (F32*) mSharedData->mTexCoords, sizeof(LLVector2) * (mSharedData->mNumVertices + mSharedData->mNumVertices%2));
+	// Must insure that src and dst of copies below
+	// are actually 16b aligned...the 16b mod 0 size
+	// is assumed from the data being LLVector4a
+	//
+	ll_assert_aligned(mCoords,16);
+	ll_assert_aligned(mNormals,16);
+	ll_assert_aligned(mScaledNormals,16);
+	ll_assert_aligned(mBinormals,16);
+	ll_assert_aligned(mScaledBinormals,16);
+	ll_assert_aligned(mTexCoords,16);
+	ll_assert_aligned(mSharedData->mBaseCoords,16);
+	ll_assert_aligned(mSharedData->mBaseNormals,16);
+	ll_assert_aligned(mSharedData->mTexCoords,16);
+
+        ll_memcpy_nonaliased_aligned_16((char*)mCoords, (char*)mSharedData->mBaseCoords, sizeof(LLVector4a) * mSharedData->mNumVertices);
+	ll_memcpy_nonaliased_aligned_16((char*)mNormals, (char*)mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
+	ll_memcpy_nonaliased_aligned_16((char*)mScaledNormals, (char*)mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
+	ll_memcpy_nonaliased_aligned_16((char*)mBinormals, (char*)mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
+	ll_memcpy_nonaliased_aligned_16((char*)mScaledBinormals, (char*)mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
+	ll_memcpy_nonaliased_aligned_16((char*)mTexCoords, (char*)mSharedData->mTexCoords, sizeof(LLVector2) * (mSharedData->mNumVertices + mSharedData->mNumVertices%2));
 
 	for (U32 i = 0; i < mSharedData->mNumVertices; ++i)
 	{

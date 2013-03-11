@@ -201,24 +201,36 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
 
 	if (bytes > 64)
 	{
+
+		// Find start of 64b aligned area within block
+		//
 		void* begin_64 = LL_NEXT_ALIGNED_ADDRESS_64(dst);
 		
 		//at least 64 bytes before the end of the destination, switch to 16 byte copies
 		void* end_64 = end-64;
-		
+	
+		// Prefetch the head of the 64b area now
+		//
 		_mm_prefetch((char*)begin_64, _MM_HINT_NTA);
 		_mm_prefetch((char*)begin_64 + 64, _MM_HINT_NTA);
 		_mm_prefetch((char*)begin_64 + 128, _MM_HINT_NTA);
 		_mm_prefetch((char*)begin_64 + 192, _MM_HINT_NTA);
-		
+	
+		// Copy 16b chunks until we're 64b aligned
+		//
 		while (dst < begin_64)
 		{
 
 			_mm_store_ps((F32*)dst, _mm_load_ps((F32*)src));
-			dst += 4;
-			src += 4;
+			dst += 16;
+			src += 16;
 		}
-		
+	
+		// Copy 64b chunks up to your tail
+		//
+		// might be good to shmoo the 512b prefetch offset
+		// (characterize performance for various values)
+		//
 		while (dst < end_64)
 		{
 			_mm_prefetch((char*)src + 512, _MM_HINT_NTA);
@@ -232,6 +244,8 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
 		}
 	}
 
+	// Copy remainder 16b tail chunks (or ALL 16b chunks for sub-64b copies)
+	//
 	while (dst < end)
 	{
 		_mm_store_ps((F32*)dst, _mm_load_ps((F32*)src));
