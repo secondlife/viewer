@@ -744,6 +744,7 @@ Marc Claridge
 Marc2 Sands
 Marianne McCann
 Marine Kelley
+    CHUIBUG-134
     STORM-281
 MartinRJ Fayray
     STORM-1844
