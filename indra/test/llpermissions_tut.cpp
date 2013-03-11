@@ -457,9 +457,9 @@ namespace tut
 		perm.initMasks(base, ownerp, everyone, groupp, next);
 
 		std::ostringstream ostream;
-		perm.exportStream(ostream);
+		perm.exportLegacyStream(ostream);
 		std::istringstream istream(ostream.str());
-		perm1.importStream(istream);
+		perm1.importLegacyStream(istream);
 
 		ensure_equals("exportStream()/importStream():failed to export and import the data ", perm1, perm);
 	}
