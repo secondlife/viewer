@@ -121,6 +121,7 @@ set(llcommon_HEADER_FILES
     linden_common.h
     linked_lists.h
     llaccountingcost.h
+    llalignedarray.h
     llallocator.h
     llallocator_heap_profile.h
     llagentconstants.h

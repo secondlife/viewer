@@ -683,30 +683,36 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 								LLVector4(z_axis, 0.f),
 								LLVector4(delta_pos, 1.f));
 			
+	LL_CHECK_MEMORY
 	for (i=0; i<=num_render_sections; ++i)
 	{
 		new_point = &path->mPath[i];
 		LLVector3 pos = newSection[i].mPosition * rel_xform;
 		LLQuaternion rot = mSection[i].mAxisRotation * newSection[i].mRotation * delta_rot;
-		
-		if (!mUpdated || (new_point->mPos-pos).magVec()/mVO->mDrawable->mDistanceWRTCamera > 0.001f)
+	
+		LLVector3 np(new_point->mPos.getF32ptr());
+
+		if (!mUpdated || (np-pos).magVec()/mVO->mDrawable->mDistanceWRTCamera > 0.001f)
 		{
-			new_point->mPos = newSection[i].mPosition * rel_xform;
+			new_point->mPos.load3((newSection[i].mPosition * rel_xform).mV);
 			mUpdated = FALSE;
 		}
 
-		new_point->mRot = rot;
-		new_point->mScale = newSection[i].mScale;
+		new_point->mRot.loadu(LLMatrix3(rot));
+		new_point->mScale.set(newSection[i].mScale.mV[0], newSection[i].mScale.mV[1], 0,1);
 		new_point->mTexT = ((F32)i)/(num_render_sections);
 	}
-
+	LL_CHECK_MEMORY
 	mLastSegmentRotation = parentSegmentRotation;
 }
+
+static LLFastTimer::DeclareTimer FTM_FLEXI_PREBUILD("Flexi Prebuild");
 
 void LLVolumeImplFlexible::preRebuild()
 {
 	if (!mUpdated)
 	{
+		LLFastTimer t(FTM_FLEXI_PREBUILD);
 		doFlexibleRebuild();
 	}
 }
