@@ -7,6 +7,9 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <IOKit/IOKitLib.h>
+#import <CoreFoundation/CFBase.h>
+#import <CoreFoundation/CFNumber.h>
 #include "llwindowmacosx-objc.h"
 
 // Some nasty shovelling of LLOpenGLView from LLNativeBindings to prevent any C++ <-> Obj-C interop oddities.
@@ -32,6 +35,8 @@
 // These are mostly just for C++ <-> Obj-C interop.  We can manipulate the CGLContext from C++ without reprecussions.
 - (CGLContextObj) getCGLContextObj;
 - (CGLPixelFormatObj*)getCGLPixelFormatObj;
+
+- (unsigned long) getVramSize;
 
 @end
 

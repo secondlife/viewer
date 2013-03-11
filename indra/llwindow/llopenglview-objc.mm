@@ -39,6 +39,24 @@
 
 @implementation LLOpenGLView
 
+- (unsigned long)getVramSize
+{
+    CGLRendererInfoObj info = 0;
+	GLint vram_bytes = 0;
+    int num_renderers = 0;
+    CGLError the_err = CGLQueryRendererInfo (CGDisplayIDToOpenGLDisplayMask(kCGDirectMainDisplay), &info, &num_renderers);
+    if(0 == the_err)
+    {
+        CGLDescribeRenderer (info, 0, kCGLRPTextureMemory, &vram_bytes);
+        CGLDestroyRendererInfo (info);
+    }
+    else
+    {
+        vram_bytes = (256 << 20);
+    }
+	return (unsigned long)vram_bytes;
+}
+
 - (void)viewDidMoveToWindow
 {
 	[[NSNotificationCenter defaultCenter] addObserver:self

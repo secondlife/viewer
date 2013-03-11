@@ -237,6 +237,11 @@ CGLPixelFormatObj* getCGLPixelFormatObj(NSWindowRef window)
 	return [glview getCGLPixelFormatObj];
 }
 
+unsigned long getVramSize(GLViewRef view)
+{
+	return [(LLOpenGLView *)view getVramSize];
+}
+
 void getContentViewBounds(NSWindowRef window, float* bounds)
 {
 	bounds[0] = [[(LLNSWindow*)window contentView] bounds].origin.x;

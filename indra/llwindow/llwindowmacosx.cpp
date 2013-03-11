@@ -441,6 +441,8 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		mContext = getCGLContextObj(mGLView);
 		// Since we just created the context, it needs to be set up.
 		glNeedsInit = TRUE;
+		
+		gGLManager.mVRAM = getVramSize(mGLView);
 	}
 
 	// Hook up the context to a drawable
@@ -542,8 +544,9 @@ void LLWindowMacOSX::destroyContext()
 	// Close the window
 	if(mWindow != NULL)
 	{
-		closeWindow(mWindow);
-		mWindow = NULL;
+        NSWindowRef dead_window = mWindow;
+        mWindow = NULL;
+		closeWindow(dead_window);
 	}
 
 }
