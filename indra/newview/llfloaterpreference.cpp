@@ -1667,7 +1667,10 @@ void LLFloaterPreference::onClickActionChange()
 
 void LLFloaterPreference::onDeleteTranscripts()
 {
-	LLNotificationsUtil::add("PreferenceChatDeleteTranscripts", LLSD(), LLSD(), boost::bind(&LLFloaterPreference::onDeleteTranscriptsResponse, this, _1, _2));
+	LLSD args;
+	args["FOLDER"] = gDirUtilp->getUserName();
+
+	LLNotificationsUtil::add("PreferenceChatDeleteTranscripts", args, LLSD(), boost::bind(&LLFloaterPreference::onDeleteTranscriptsResponse, this, _1, _2));
 }
 
 void LLFloaterPreference::onDeleteTranscriptsResponse(const LLSD& notification, const LLSD& response)
