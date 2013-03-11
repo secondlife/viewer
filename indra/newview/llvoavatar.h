@@ -69,8 +69,11 @@ class LLVoiceVisualizer;
 class LLHUDNameTag;
 class LLHUDEffectSpiral;
 class LLTexGlobalColor;
-class LLViewerJoint;
+struct LLVOAvatarBoneInfo;
+struct LLVOAvatarChildJoint;
+//class LLViewerJoint;
 struct LLAppearanceMessageContents;
+struct LLVOAvatarSkeletonInfo;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
@@ -238,7 +241,7 @@ public:
 	void 			idleUpdateWindEffect();
 	void 			idleUpdateNameTag(const LLVector3& root_pos_last);
 	void			idleUpdateNameTagText(BOOL new_name);
-	LLVector3		idleUpdateNameTagPosition(const LLVector3& root_pos_last);
+	void			idleUpdateNameTagPosition(const LLVector3& root_pos_last);
 	void			idleUpdateNameTagAlpha(BOOL new_name, F32 alpha);
 	LLColor4		getNameTagColor(bool is_friend);
 	void			clearNameTag();
@@ -349,6 +352,8 @@ public:
 	F32					mLastPelvisToFoot;
 	F32					mPelvisFixup;
 	F32					mLastPelvisFixup;
+	LLVector3			mCurRootToHeadOffset;
+	LLVector3			mTargetRootToHeadOffset;
 
 	S32					mLastSkeletonSerialNum;
 
@@ -369,7 +374,6 @@ public:
 	U32 		renderRigid();
 	U32 		renderSkinned(EAvatarRenderPass pass);
 	F32			getLastSkinTime() { return mLastSkinTime; }
-	U32			renderSkinnedAttachments();
 	U32 		renderTransparent(BOOL first_pass);
 	void 		renderCollisionVolumes();
 	static void	deleteCachedImages(bool clearAll=true);
@@ -710,7 +714,6 @@ public:
 public:
 	BOOL 				hasHUDAttachment() const;
 	LLBBox 				getHUDBBox() const;
-	void 				rebuildHUD();
 	void 				resetHUDAttachments();
 	BOOL				canAttachMoreObjects() const;
 	BOOL				canAttachMoreObjects(U32 n) const;
@@ -855,7 +858,7 @@ private:
 	std::string		mNameString;		// UTF-8 title + name + status
 	std::string  	mTitle;
 	bool	  		mNameAway;
-	bool	  		mNameBusy;
+	bool	  		mNameDoNotDisturb;
 	bool	  		mNameMute;
 	bool      		mNameAppearance;
 	bool			mNameFriend;

@@ -43,13 +43,11 @@ set(llrender_SOURCE_FILES
     llimagegl.cpp
     llpostprocess.cpp
     llrender.cpp
-    llrender2dutils.cpp
     llrendernavprim.cpp
     llrendersphere.cpp
     llrendertarget.cpp
     llshadermgr.cpp
     lltexture.cpp
-    lluiimage.cpp
     llvertexbuffer.cpp
     )
     
@@ -71,12 +69,10 @@ set(llrender_HEADER_FILES
     llimagegl.h
     llpostprocess.h
     llrender.h
-    llrender2dutils.h
     llrendernavprim.h
     llrendersphere.h
     llshadermgr.h
     lltexture.h
-    lluiimage.h
     llvertexbuffer.h
     )
 

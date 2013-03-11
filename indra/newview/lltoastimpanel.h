@@ -41,18 +41,18 @@ public:
 	struct Params
 	{
 		LLNotificationPtr	notification;
-		LLUUID				avatar_id;
-		LLUUID				session_id;
-		std::string			from;
-		std::string			time;
-		std::string			message;
+		LLUUID				avatar_id,
+							session_id;
+		std::string			from,
+							time,
+							message;
 
 		Params() {}
 	};
 
 	LLToastIMPanel(LLToastIMPanel::Params &p);
 	virtual ~LLToastIMPanel();
-	/*virtual*/ BOOL 	handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL 	handleMouseUp(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask);
 private:
 	void showInspector();

@@ -1,5 +1,5 @@
 /** 
- * @file llinventoryfunctions.h
+ * @file llinventoryicon.h
  * @brief Miscellaneous inventory-related functions and classes
  * class definition
  *

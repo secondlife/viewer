@@ -33,7 +33,7 @@
 
 
 LLScreenClipRect::LLScreenClipRect(const LLRect& rect, BOOL enabled)
-:	mScissorState(GL_SCISSOR_TEST),
+	:	mScissorState(GL_SCISSOR_TEST),
 	mEnabled(enabled)
 {
 	if (mEnabled)
@@ -88,10 +88,10 @@ void LLScreenClipRect::updateScissorRegion()
 	LLRect rect = sClipRectStack.top();
 	stop_glerror();
 	S32 x,y,w,h;
-	x = llfloor(rect.mLeft * LLUI::getScaleFactor().mV[VX]);
-	y = llfloor(rect.mBottom * LLUI::getScaleFactor().mV[VY]);
-	w = llmax(0, llceil(rect.getWidth() * LLUI::getScaleFactor().mV[VX])) + 1;
-	h = llmax(0, llceil(rect.getHeight() * LLUI::getScaleFactor().mV[VY])) + 1;
+	x = llfloor(rect.mLeft * LLUI::sGLScaleFactor.mV[VX]);
+	y = llfloor(rect.mBottom * LLUI::sGLScaleFactor.mV[VY]);
+	w = llmax(0, llceil(rect.getWidth() * LLUI::sGLScaleFactor.mV[VX])) + 1;
+	h = llmax(0, llceil(rect.getHeight() * LLUI::sGLScaleFactor.mV[VY])) + 1;
 	glScissor( x,y,w,h );
 	stop_glerror();
 }
@@ -100,10 +100,10 @@ void LLScreenClipRect::updateScissorRegion()
 // LLLocalClipRect
 //---------------------------------------------------------------------------
 LLLocalClipRect::LLLocalClipRect(const LLRect& rect, BOOL enabled /* = TRUE */)
-:	LLScreenClipRect(LLRect(rect.mLeft + LLFontGL::sCurOrigin.mX, 
-					rect.mTop + LLFontGL::sCurOrigin.mY, 
-					rect.mRight + LLFontGL::sCurOrigin.mX, 
-					rect.mBottom + LLFontGL::sCurOrigin.mY), enabled)
+	:	LLScreenClipRect(LLRect(rect.mLeft + LLFontGL::sCurOrigin.mX, 
+	rect.mTop + LLFontGL::sCurOrigin.mY, 
+	rect.mRight + LLFontGL::sCurOrigin.mX, 
+	rect.mBottom + LLFontGL::sCurOrigin.mY), enabled)
 {}
 
 LLLocalClipRect::~LLLocalClipRect()

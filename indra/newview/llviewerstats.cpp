@@ -41,6 +41,7 @@
 #include "lltexturefetch.h" 
 #include "llviewerobjectlist.h" 
 #include "llviewertexturelist.h" 
+#include "lltexlayer.h"
 #include "lltexlayerparams.h"
 #include "llsurface.h"
 #include "llvlmanager.h"
@@ -54,7 +55,6 @@
 #include "llviewerregion.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
-#include "llviewertexlayer.h"
 #include "llviewerwindow.h"		// *TODO: remove, only used for width/height
 #include "llworld.h"
 #include "llfeaturemanager.h"
@@ -417,7 +417,7 @@ F32		gWorstLandCompression = 0.f, gWorstWaterCompression = 0.f;
 U32		gTotalWorldBytes = 0, gTotalObjectBytes = 0, gTotalTextureBytes = 0, gSimPingCount = 0;
 U32		gObjectBits = 0;
 F32		gAvgSimPing = 0.f;
-U32     gTotalTextureBytesPerBoostLevel[LLGLTexture::MAX_GL_IMAGE_CATEGORY] = {0};
+U32     gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY] = {0};
 
 extern U32  gVisCompared;
 extern U32  gVisTested;
@@ -530,10 +530,10 @@ class ViewerStatsResponder : public LLHTTPClient::Responder
 public:
     ViewerStatsResponder() { }
 
-    void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+    void error(U32 statusNum, const std::string& reason)
     {
-		llwarns << "ViewerStatsResponder error [status:" << statusNum << "]: "
-				<< content << llendl;
+		llinfos << "ViewerStatsResponder::error " << statusNum << " "
+				<< reason << llendl;
     }
 
     void result(const LLSD& content)
@@ -733,57 +733,41 @@ void send_stats()
 	LLHTTPClient::post(url, body, new ViewerStatsResponder());
 }
 
-LLViewerStats::PhaseMap::PhaseMap()
-{
-}
-
-LLTimer& LLViewerStats::PhaseMap::getPhaseTimer(const std::string& phase_name)
+LLFrameTimer& LLViewerStats::PhaseMap::getPhaseTimer(const std::string& phase_name)
 {
 	phase_map_t::iterator iter = mPhaseMap.find(phase_name);
 	if (iter == mPhaseMap.end())
 	{
-		LLTimer timer;
+		LLFrameTimer timer;
 		mPhaseMap[phase_name] = timer;
 	}
-	LLTimer& timer = mPhaseMap[phase_name];
+	LLFrameTimer& timer = mPhaseMap[phase_name];
 	return timer;
 }
 
 void LLViewerStats::PhaseMap::startPhase(const std::string& phase_name)
 {
-	LLTimer& timer = getPhaseTimer(phase_name);
+	LLFrameTimer& timer = getPhaseTimer(phase_name);
 	lldebugs << "startPhase " << phase_name << llendl;
-	timer.start();
+	timer.unpause();
 }
 
-void LLViewerStats::PhaseMap::stopPhase(const std::string& phase_name)
+void LLViewerStats::PhaseMap::stopAllPhases()
 {
-	phase_map_t::iterator iter = mPhaseMap.find(phase_name);
-	if (iter != mPhaseMap.end())
+	for (phase_map_t::iterator iter = mPhaseMap.begin();
+		 iter != mPhaseMap.end(); ++iter)
 	{
+		const std::string& phase_name = iter->first;
 		if (iter->second.getStarted())
 		{
-			// Going from started to stopped state - record stats.
-			iter->second.stop();
+			// Going from started to paused state - record stats.
+			recordPhaseStat(phase_name,iter->second.getElapsedTimeF32());
 		}
+		lldebugs << "stopPhase (all) " << phase_name << llendl;
+		iter->second.pause();
 	}
 }
 
-bool LLViewerStats::PhaseMap::getPhaseValues(const std::string& phase_name, F32& elapsed, bool& completed)
-{
-	phase_map_t::iterator iter = mPhaseMap.find(phase_name);
-	if (iter != mPhaseMap.end())
-	{
-		elapsed =  iter->second.getElapsedTimeF32();
-		completed = !iter->second.getStarted();
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-	
 void LLViewerStats::PhaseMap::clearPhases()
 {
 	lldebugs << "clearPhases" << llendl;
@@ -801,4 +785,60 @@ LLSD LLViewerStats::PhaseMap::dumpPhases()
 		result[phase_name]["elapsed"] = iter->second.getElapsedTimeF32();
 	}
 	return result;
+}
+
+// static initializer
+//static
+LLViewerStats::phase_stats_t LLViewerStats::PhaseMap::sStats;
+
+LLViewerStats::PhaseMap::PhaseMap()
+{
+}
+
+
+void LLViewerStats::PhaseMap::stopPhase(const std::string& phase_name)
+{
+	phase_map_t::iterator iter = mPhaseMap.find(phase_name);
+	if (iter != mPhaseMap.end())
+	{
+		if (iter->second.getStarted())
+		{
+			// Going from started to stopped state - record stats.
+			iter->second.stop();
+		}
+	}
+}
+// static
+LLViewerStats::StatsAccumulator& LLViewerStats::PhaseMap::getPhaseStats(const std::string& phase_name)
+{
+	phase_stats_t::iterator it = sStats.find(phase_name);
+	if (it == sStats.end())
+	{
+		LLViewerStats::StatsAccumulator new_stats;
+		sStats[phase_name] = new_stats;
+	}
+	return sStats[phase_name];
+}
+
+// static
+void LLViewerStats::PhaseMap::recordPhaseStat(const std::string& phase_name, F32 value)
+{
+	LLViewerStats::StatsAccumulator& stats = getPhaseStats(phase_name);
+	stats.push(value);
+}
+
+
+bool LLViewerStats::PhaseMap::getPhaseValues(const std::string& phase_name, F32& elapsed, bool& completed)
+{
+	phase_map_t::iterator iter = mPhaseMap.find(phase_name);
+	if (iter != mPhaseMap.end())
+	{
+		elapsed =  iter->second.getElapsedTimeF32();
+		completed = !iter->second.getStarted();
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }

@@ -441,7 +441,7 @@ void LLDrawable::makeActive()
 	}
 
 	llassert(isAvatar() || isRoot() || mParent->isActive());
-}
+	}
 
 
 void LLDrawable::makeStatic(BOOL warning_enabled)
@@ -455,7 +455,7 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 
 		//drawable became static with active parent, not acceptable
 		llassert(mParent.isNull() || !mParent->isActive() || !warning_enabled);
-		
+
 		LLViewerObject::const_child_list_t& child_list = mVObjp->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
 			 iter != child_list.end(); iter++)
@@ -641,20 +641,10 @@ BOOL LLDrawable::updateMove()
 	{
 		return FALSE;
 	}
-
+	
 	makeActive();
 
-	BOOL done;
-
-	if (isState(MOVE_UNDAMPED))
-	{
-		done = updateMoveUndamped();
-	}
-	else
-	{
-		done = updateMoveDamped();
-	}
-	return done;
+	return isState(MOVE_UNDAMPED) ? updateMoveUndamped() : updateMoveDamped();
 }
 
 BOOL LLDrawable::updateMoveUndamped()

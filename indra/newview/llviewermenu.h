@@ -27,7 +27,7 @@
 #ifndef LL_LLVIEWERMENU_H
 #define LL_LLVIEWERMENU_H
 
-#include "llmenugl.h"
+#include "../llui/llmenugl.h"
 #include "llsafehandle.h"
 
 class LLMessageSystem;
@@ -189,8 +189,6 @@ extern LLContextMenu* gDetachPieMenu;
 extern LLContextMenu* gAttachBodyPartPieMenus[8];
 extern LLContextMenu* gDetachBodyPartPieMenus[8];
 
-extern LLMenuItemCallGL* gAFKMenu;
-extern LLMenuItemCallGL* gBusyMenu;
 extern LLMenuItemCallGL* gMutePieMenu;
 extern LLMenuItemCallGL* gMuteObjectPieMenu;
 extern LLMenuItemCallGL* gBuyPassPieMenu;

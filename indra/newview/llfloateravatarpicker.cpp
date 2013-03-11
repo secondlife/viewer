@@ -49,6 +49,8 @@
 #include "llscrolllistcell.h"
 #include "lltabcontainer.h"
 #include "lluictrlfactory.h"
+#include "llfocusmgr.h"
+#include "lldraghandle.h"
 #include "message.h"
 
 //#include "llsdserialize.h"
@@ -58,11 +60,14 @@ static std::map<LLUUID, LLAvatarName> sAvatarNameMap;
 
 LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(select_callback_t callback,
 												   BOOL allow_multiple,
-												   BOOL closeOnSelect)
+												   BOOL closeOnSelect,
+												   BOOL skip_agent,
+                                                   const std::string& name,
+                                                   LLView * frustumOrigin)
 {
 	// *TODO: Use a key to allow this not to be an effective singleton
 	LLFloaterAvatarPicker* floater = 
-		LLFloaterReg::showTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
+		LLFloaterReg::showTypedInstance<LLFloaterAvatarPicker>("avatar_picker", LLSD(name));
 	if (!floater)
 	{
 		llwarns << "Cannot instantiate avatar picker" << llendl;
@@ -73,6 +78,7 @@ LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(select_callback_t callback,
 	floater->setAllowMultiple(allow_multiple);
 	floater->mNearMeListComplete = FALSE;
 	floater->mCloseOnSelect = closeOnSelect;
+	floater->mExcludeAgentFromSearchResults = skip_agent;
 	
 	if (!closeOnSelect)
 	{
@@ -83,6 +89,11 @@ LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(select_callback_t callback,
 		floater->getChild<LLButton>("cancel_btn")->setLabel(close_string);
 	}
 
+    if(frustumOrigin)
+    {
+        floater->mFrustumOrigin = frustumOrigin->getHandle();
+    }
+
 	return floater;
 }
 
@@ -91,9 +102,17 @@ LLFloaterAvatarPicker::LLFloaterAvatarPicker(const LLSD& key)
   : LLFloater(key),
 	mNumResultsReturned(0),
 	mNearMeListComplete(FALSE),
-	mCloseOnSelect(FALSE)
+	mCloseOnSelect(FALSE),
+    mContextConeOpacity	(0.f),
+    mContextConeInAlpha(0.f),
+    mContextConeOutAlpha(0.f),
+    mContextConeFadeTime(0.f)
 {
 	mCommitCallbackRegistrar.add("Refresh.FriendList", boost::bind(&LLFloaterAvatarPicker::populateFriend, this));
+
+    mContextConeInAlpha = gSavedSettings.getF32("ContextConeInAlpha");
+    mContextConeOutAlpha = gSavedSettings.getF32("ContextConeOutAlpha");
+    mContextConeFadeTime = gSavedSettings.getF32("ContextConeFadeTime");
 }
 
 BOOL LLFloaterAvatarPicker::postBuild()
@@ -288,9 +307,9 @@ void LLFloaterAvatarPicker::populateNearMe()
 		else
 		{
 			element["columns"][0]["column"] = "name";
-			element["columns"][0]["value"] = av_name.mDisplayName;
+			element["columns"][0]["value"] = av_name.getDisplayName();
 			element["columns"][1]["column"] = "username";
-			element["columns"][1]["value"] = av_name.mUsername;
+			element["columns"][1]["value"] = av_name.getUserName();
 
 			sAvatarNameMap[av] = av_name;
 		}
@@ -338,8 +357,67 @@ void LLFloaterAvatarPicker::populateFriend()
 	friends_scroller->sortByColumnIndex(0, TRUE);
 }
 
+void LLFloaterAvatarPicker::drawFrustum()
+{
+    if(mFrustumOrigin.get())
+    {
+        LLView * frustumOrigin = mFrustumOrigin.get();
+        LLRect origin_rect;
+        frustumOrigin->localRectToOtherView(frustumOrigin->getLocalRect(), &origin_rect, this);
+        // draw context cone connecting color picker with color swatch in parent floater
+        LLRect local_rect = getLocalRect();
+        if (hasFocus() && frustumOrigin->isInVisibleChain() && mContextConeOpacity > 0.001f)
+        {
+            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            LLGLEnable(GL_CULL_FACE);
+            gGL.begin(LLRender::QUADS);
+            {
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+                gGL.vertex2i(origin_rect.mLeft, origin_rect.mTop);
+                gGL.vertex2i(origin_rect.mRight, origin_rect.mTop);
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+                gGL.vertex2i(local_rect.mRight, local_rect.mTop);
+                gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+                gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+                gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+                gGL.vertex2i(origin_rect.mLeft, origin_rect.mBottom);
+                gGL.vertex2i(origin_rect.mLeft, origin_rect.mTop);
+
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+                gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
+                gGL.vertex2i(local_rect.mRight, local_rect.mTop);
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+                gGL.vertex2i(origin_rect.mRight, origin_rect.mTop);
+                gGL.vertex2i(origin_rect.mRight, origin_rect.mBottom);
+
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+                gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+                gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
+                gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+                gGL.vertex2i(origin_rect.mRight, origin_rect.mBottom);
+                gGL.vertex2i(origin_rect.mLeft, origin_rect.mBottom);
+            }
+            gGL.end();
+        }
+
+        if (gFocusMgr.childHasMouseCapture(getDragHandle()))
+        {
+            mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLCriticalDamp::getInterpolant(mContextConeFadeTime));
+        }
+        else
+        {
+            mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLCriticalDamp::getInterpolant(mContextConeFadeTime));
+        }
+    }
+}
+
 void LLFloaterAvatarPicker::draw()
 {
+    drawFrustum();
+
 	// sometimes it is hard to determine when Select/Ok button should be disabled (see LLAvatarActions::shareWithAvatars).
 	// lets check this via mOkButtonValidateSignal callback periodically.
 	static LLFrameTimer timer;
@@ -382,8 +460,9 @@ class LLAvatarPickerResponder : public LLHTTPClient::Responder
 {
 public:
 	LLUUID mQueryID;
+    std::string mName;
 
-	LLAvatarPickerResponder(const LLUUID& id) : mQueryID(id) { }
+	LLAvatarPickerResponder(const LLUUID& id, const std::string& name) : mQueryID(id), mName(name) { }
 
 	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
@@ -396,7 +475,7 @@ public:
 		if (isGoodStatus(status) || status == 400)
 		{
 			LLFloaterAvatarPicker* floater =
-				LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
+				LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker", mName);
 			if (floater)
 			{
 				floater->processResponse(mQueryID, content);
@@ -425,9 +504,7 @@ void LLFloaterAvatarPicker::find()
 	LLViewerRegion* region = gAgent.getRegion();
 	url = region->getCapability("AvatarPickerSearch");
 	// Prefer use of capabilities to search on both SLID and display name
-	// but allow display name search to be manually turned off for test
-	if (!url.empty()
-		&& LLAvatarNameCache::useDisplayNames())
+	if (!url.empty())
 	{
 		// capability urls don't end in '/', but we need one to parse
 		// query parameters correctly
@@ -438,7 +515,7 @@ void LLFloaterAvatarPicker::find()
 		url += "?page_size=100&names=";
 		url += LLURI::escape(text);
 		llinfos << "avatar picker " << url << llendl;
-		LLHTTPClient::get(url, new LLAvatarPickerResponder(mQueryID));
+		LLHTTPClient::get(url, new LLAvatarPickerResponder(mQueryID, getKey().asString()));
 	}
 	else
 	{
@@ -580,35 +657,36 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 		msg->getUUIDFast(  _PREHASH_Data,_PREHASH_AvatarID,	avatar_id, i);
 		msg->getStringFast(_PREHASH_Data,_PREHASH_FirstName, first_name, i);
 		msg->getStringFast(_PREHASH_Data,_PREHASH_LastName,	last_name, i);
-	
-		std::string avatar_name;
-		if (avatar_id.isNull())
-		{
-			LLStringUtil::format_map_t map;
-			map["[TEXT]"] = floater->getChild<LLUICtrl>("Edit")->getValue().asString();
-			avatar_name = floater->getString("not_found", map);
-			search_results->setEnabled(FALSE);
-			floater->getChildView("ok_btn")->setEnabled(FALSE);
-		}
-		else
-		{
-			avatar_name = LLCacheName::buildFullName(first_name, last_name);
-			search_results->setEnabled(TRUE);
-			found_one = TRUE;
 
-			LLAvatarName av_name;
-			av_name.mLegacyFirstName = first_name;
-			av_name.mLegacyLastName = last_name;
-			av_name.mDisplayName = avatar_name;
-			const LLUUID& agent_id = avatar_id;
-			sAvatarNameMap[agent_id] = av_name;
+		if (avatar_id != agent_id || !floater->isExcludeAgentFromSearchResults()) // exclude agent from search results?
+		{
+			std::string avatar_name;
+			if (avatar_id.isNull())
+			{
+				LLStringUtil::format_map_t map;
+				map["[TEXT]"] = floater->getChild<LLUICtrl>("Edit")->getValue().asString();
+				avatar_name = floater->getString("not_found", map);
+				search_results->setEnabled(FALSE);
+				floater->getChildView("ok_btn")->setEnabled(FALSE);
+			}
+			else
+			{
+				avatar_name = LLCacheName::buildFullName(first_name, last_name);
+				search_results->setEnabled(TRUE);
+				found_one = TRUE;
 
+				LLAvatarName av_name;
+				av_name.fromString(avatar_name);
+				const LLUUID& agent_id = avatar_id;
+				sAvatarNameMap[agent_id] = av_name;
+
+			}
+			LLSD element;
+			element["id"] = avatar_id; // value
+			element["columns"][0]["column"] = "name";
+			element["columns"][0]["value"] = avatar_name;
+			search_results->addElement(element);
 		}
-		LLSD element;
-		element["id"] = avatar_id; // value
-		element["columns"][0]["column"] = "name";
-		element["columns"][0]["value"] = avatar_name;
-		search_results->addElement(element);
 	}
 
 	if (found_one)
@@ -623,52 +701,58 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& content)
 {
 	// Check for out-of-date query
-	if (query_id != mQueryID) return;
-
-	LLScrollListCtrl* search_results = getChild<LLScrollListCtrl>("SearchResults");
-
-	LLSD agents = content["agents"];
-	if (agents.size() == 0)
+	if (query_id == mQueryID)
 	{
-		LLStringUtil::format_map_t map;
-		map["[TEXT]"] = childGetText("Edit");
+		LLScrollListCtrl* search_results = getChild<LLScrollListCtrl>("SearchResults");
+
+		LLSD agents = content["agents"];
+
+		// clear "Searching" label on first results
+		search_results->deleteAllItems();
+
 		LLSD item;
-		item["id"] = LLUUID::null;
-		item["columns"][0]["column"] = "name";
-		item["columns"][0]["value"] = getString("not_found", map);
-		search_results->addElement(item);
-		search_results->setEnabled(false);
-		getChildView("ok_btn")->setEnabled(false);
-		return;
+		LLSD::array_const_iterator it = agents.beginArray();
+		for ( ; it != agents.endArray(); ++it)
+		{
+			const LLSD& row = *it;
+			if (row["id"].asUUID() != gAgent.getID() || !mExcludeAgentFromSearchResults)
+			{
+				item["id"] = row["id"];
+				LLSD& columns = item["columns"];
+				columns[0]["column"] = "name";
+				columns[0]["value"] = row["display_name"];
+				columns[1]["column"] = "username";
+				columns[1]["value"] = row["username"];
+				search_results->addElement(item);
+
+				// add the avatar name to our list
+				LLAvatarName avatar_name;
+				avatar_name.fromLLSD(row);
+				sAvatarNameMap[row["id"].asUUID()] = avatar_name;
+			}
+		}
+
+		if (search_results->isEmpty())
+		{
+			LLStringUtil::format_map_t map;
+			map["[TEXT]"] = childGetText("Edit");
+			LLSD item;
+			item["id"] = LLUUID::null;
+			item["columns"][0]["column"] = "name";
+			item["columns"][0]["value"] = getString("not_found", map);
+			search_results->addElement(item);
+			search_results->setEnabled(false);
+			getChildView("ok_btn")->setEnabled(false);
+		}
+		else
+		{
+			getChildView("ok_btn")->setEnabled(true);
+			search_results->setEnabled(true);
+			search_results->selectFirstItem();
+			onList();
+			search_results->setFocus(TRUE);
+		}
 	}
-
-	// clear "Searching" label on first results
-	search_results->deleteAllItems();
-
-	LLSD item;
-	LLSD::array_const_iterator it = agents.beginArray();
-	for ( ; it != agents.endArray(); ++it)
-	{
-		const LLSD& row = *it;
-		item["id"] = row["id"];
-		LLSD& columns = item["columns"];
-		columns[0]["column"] = "name";
-		columns[0]["value"] = row["display_name"];
-		columns[1]["column"] = "username";
-		columns[1]["value"] = row["username"];
-		search_results->addElement(item);
-
-		// add the avatar name to our list
-		LLAvatarName avatar_name;
-		avatar_name.fromLLSD(row);
-		sAvatarNameMap[row["id"].asUUID()] = avatar_name;
-	}
-
-	getChildView("ok_btn")->setEnabled(true);
-	search_results->setEnabled(true);
-	search_results->selectFirstItem();
-	onList();
-	search_results->setFocus(TRUE);
 }
 
 //static

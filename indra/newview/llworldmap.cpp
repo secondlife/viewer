@@ -34,6 +34,7 @@
 #include "lluistring.h"
 #include "llviewertexturelist.h"
 #include "lltrans.h"
+#include "llgltexture.h"
 
 // Timers to temporise database requests
 const F32 AGENTS_UPDATE_TIMER = 60.0;			// Seconds between 2 agent requests for a region
@@ -389,7 +390,7 @@ void LLWorldMap::reloadItems(bool force)
 // static public
 // Insert a region in the region map
 // returns true if region inserted, false otherwise
-bool LLWorldMap::insertRegion(U32 x_world, U32 y_world, std::string& name, LLUUID& image_id, U32 accesscode, U64 region_flags)
+bool LLWorldMap::insertRegion(U32 x_world, U32 y_world, std::string& name, LLUUID& image_id, U32 accesscode, U32 region_flags)
 {
 	// This region doesn't exist
 	if (accesscode == 255)

@@ -65,27 +65,40 @@ private:
 	LLFloaterGesture* mFloater;
 };
 //-----------------------------
-// gesture callback funcs
+// GestureCallback
 //-----------------------------
 
-void gesture_show_cb(const LLUUID &inv_item)
+class GestureShowCallback : public LLInventoryCallback
 {
-	LLPreviewGesture::show(inv_item, LLUUID::null);
-}
-
-void gesture_copied_cb(const LLUUID &inv_item, LLFloaterGesture* floater)
-{
-	if(floater)
+public:
+	void fire(const LLUUID &inv_item)
 	{
-		floater->addGesture(inv_item,NULL,floater->getChild<LLScrollListCtrl>("gesture_list"));
-		
-		// EXP-1909 (Pasted gesture displayed twice)
-		// The problem is that addGesture is called here for the second time for the same item (which is copied)
-		// First time addGesture is called from LLFloaterGestureObserver::changed(), which is a callback for inventory
-		// change. So we need to refresh the gesture list to avoid duplicates.
-		floater->refreshAll();
+		LLPreviewGesture::show(inv_item, LLUUID::null);
 	}
-}
+};
+
+class GestureCopiedCallback : public LLInventoryCallback
+{
+private:
+	LLFloaterGesture* mFloater;
+	
+public:
+	GestureCopiedCallback(LLFloaterGesture* floater): mFloater(floater)
+	{}
+	void fire(const LLUUID &inv_item)
+	{
+		if(mFloater)
+		{
+			mFloater->addGesture(inv_item,NULL,mFloater->getChild<LLScrollListCtrl>("gesture_list"));
+
+			// EXP-1909 (Pasted gesture displayed twice)
+			// The problem is that addGesture is called here for the second time for the same item (which is copied)
+			// First time addGesture is called from LLFloaterGestureObserver::changed(), which is a callback for inventory
+			// change. So we need to refresh the gesture list to avoid duplicates.
+			mFloater->refreshAll();
+		}
+	}
+};
 
 //---------------------------------------------------------------------------
 // LLFloaterGesture
@@ -435,7 +448,7 @@ void LLFloaterGesture::onClickPlay()
 
 void LLFloaterGesture::onClickNew()
 {
-	LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(gesture_show_cb);
+	LLPointer<LLInventoryCallback> cb = new GestureShowCallback();
 	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
 		LLUUID::null, LLTransactionID::tnull, "New Gesture", "", LLAssetType::AT_GESTURE,
 		LLInventoryType::IT_GESTURE, NOT_WEARABLE, PERM_MOVE | PERM_TRANSFER, cb);
@@ -507,7 +520,7 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 			return;
 		LLInventoryCategory* gesture_dir = gInventory.getCategory(mGestureFolderID);
 		llassert(gesture_dir);
-		LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(gesture_copied_cb, _1, this));
+		LLPointer<GestureCopiedCallback> cb = new GestureCopiedCallback(this);
 
 		for(LLDynamicArray<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
 		{

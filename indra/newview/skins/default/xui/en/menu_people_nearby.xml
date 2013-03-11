@@ -10,12 +10,53 @@
          function="Avatar.Profile" />
     </menu_item_call>
     <menu_item_call
+     label="IM"
+     layout="topleft"
+     name="IM">
+        <menu_item_call.on_click
+         function="Avatar.IM" />
+        <menu_item_call.on_enable
+      	 function="Avatar.EnableItem"
+         parameter="can_im"/> 
+    </menu_item_call>
+    <menu_item_call
+    label="Offer Teleport"
+    name="teleport">
+      <menu_item_call.on_click
+       function="Avatar.OfferTeleport"/>
+      <menu_item_call.on_enable
+      function="Avatar.EnableItem"
+      parameter="can_offer_teleport"/>
+    </menu_item_call>
+    <menu_item_call
+     label="Voice call"
+     layout="topleft"
+     name="Call">
+        <menu_item_call.on_click
+         function="Avatar.Call" />
+        <menu_item_call.on_enable
+         function="Avatar.EnableItem"
+         parameter="can_call" />
+    </menu_item_call>
+    <menu_item_separator />
+    <menu_item_call
+     label="View chat history..."
+     layout="topleft"
+     name="Chat history">
+        <menu_item_call.on_click
+         function="Avatar.Calllog" />
+        <menu_item_call.on_enable
+      	 function="Avatar.EnableItem"
+         parameter="can_callog"/>
+    </menu_item_call>
+    <menu_item_separator />
+    <menu_item_call
      label="Add Friend"
      layout="topleft"
      name="Add Friend">
         <menu_item_call.on_click
          function="Avatar.AddFriend" />
-        <menu_item_call.on_enable
+        <menu_item_call.on_visible
          function="Avatar.EnableItem"
          parameter="can_add" />
     </menu_item_call>
@@ -30,22 +71,16 @@
          parameter="can_delete" />
     </menu_item_call>
     <menu_item_call
-     label="IM"
+     label="Invite to group..."
      layout="topleft"
-     name="IM">
+     name="Invite">
         <menu_item_call.on_click
-         function="Avatar.IM" />
-    </menu_item_call>
-    <menu_item_call
-     label="Call"
-     layout="topleft"
-     name="Call">
-        <menu_item_call.on_click
-         function="Avatar.Call" />
+         function="Avatar.InviteToGroup" />
         <menu_item_call.on_enable
-         function="Avatar.EnableItem"
-         parameter="can_call" />
+      	 function="Avatar.EnableItem"
+         parameter="can_invite"/>
     </menu_item_call>
+    <menu_item_separator />
     <menu_item_call
      label="Map"
      layout="topleft"
@@ -62,6 +97,9 @@
      name="Share">
         <menu_item_call.on_click
          function="Avatar.Share" />
+        <menu_item_call.on_enable
+      	 function="Avatar.EnableItem"
+         parameter="can_share"/>
     </menu_item_call>
     <menu_item_call
      label="Pay"
@@ -69,6 +107,9 @@
      name="Pay">
         <menu_item_call.on_click
          function="Avatar.Pay" />
+        <menu_item_call.on_enable
+      	 function="Avatar.EnableItem"
+         parameter="can_pay"/> 
     </menu_item_call>
     <menu_item_check
      label="Block/Unblock"
@@ -83,13 +124,5 @@
          function="Avatar.EnableItem"
          parameter="can_block" />
     </menu_item_check>
-    <menu_item_call
-    label="Offer Teleport"
-    name="teleport">
-      <menu_item_call.on_click
-       function="Avatar.OfferTeleport"/>
-      <menu_item_call.on_enable
-      function="Avatar.EnableItem"
-      parameter="can_offer_teleport"/>
-    </menu_item_call>
+    <menu_item_separator />
 </context_menu>

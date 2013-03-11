@@ -373,13 +373,12 @@ void LLInventoryModel::unlockDirectDescendentArrays(const LLUUID& cat_id)
 // specifies 'type' as what it defaults to containing. The category is
 // not necessarily only for that type. *NOTE: This will create a new
 // inventory category on the fly if one does not exist.
-const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType preferred_type, 
-													   bool create_folder, 
-													   bool find_in_library)
+const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder/*, 
+					  bool find_in_library*/)
 {
 	LLUUID rv = LLUUID::null;
 	
-	const LLUUID &root_id = (find_in_library) ? gInventory.getLibraryRootFolderID() : gInventory.getRootFolderID();
+	const LLUUID &root_id = /*(find_in_library) ? gInventory.getLibraryRootFolderID() :*/ gInventory.getRootFolderID();
 	if(LLFolderType::FT_ROOT_INVENTORY == preferred_type)
 	{
 		rv = root_id;
@@ -402,7 +401,44 @@ const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType prefe
 		}
 	}
 	
-	if(rv.isNull() && isInventoryUsable() && (create_folder && !find_in_library))
+	if(rv.isNull() && isInventoryUsable() && (create_folder && true/*!find_in_library*/))
+	{
+		if(root_id.notNull())
+		{
+			return createNewCategory(root_id, preferred_type, LLStringUtil::null);
+		}
+	}
+	return rv;
+}
+
+const LLUUID LLInventoryModel::findLibraryCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder)
+{
+	LLUUID rv = LLUUID::null;
+
+	const LLUUID &root_id = gInventory.getLibraryRootFolderID();
+	if(LLFolderType::FT_ROOT_INVENTORY == preferred_type)
+	{
+		rv = root_id;
+	}
+	else if (root_id.notNull())
+	{
+		cat_array_t* cats = NULL;
+		cats = get_ptr_in_map(mParentChildCategoryTree, root_id);
+		if(cats)
+		{
+			S32 count = cats->count();
+			for(S32 i = 0; i < count; ++i)
+			{
+				if(cats->get(i)->getPreferredType() == preferred_type)
+				{
+					rv = cats->get(i)->getUUID();
+					break;
+				}
+			}
+		}
+	}
+
+	if(rv.isNull() && isInventoryUsable() && (create_folder && true/*!find_in_library*/))
 	{
 		if(root_id.notNull())
 		{
@@ -951,6 +987,7 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
 				cat_array->put(old_cat);
 			}
 			mask |= LLInventoryObserver::STRUCTURE;
+            mask |= LLInventoryObserver::INTERNAL;
 		}
 		if(old_cat->getName() != cat->getName())
 		{
@@ -1246,14 +1283,33 @@ void LLInventoryModel::purgeDescendentsOf(const LLUUID& id)
 							   items,
 							   INCLUDE_TRASH);
 			S32 count = items.count();
+
+			item_map_t::iterator item_map_end = mItemMap.end();
+			cat_map_t::iterator cat_map_end = mCategoryMap.end();
+			LLUUID uu_id;
+
 			for(S32 i = 0; i < count; ++i)
 			{
-				deleteObject(items.get(i)->getUUID());
+				uu_id = items.get(i)->getUUID();
+
+				// This check prevents the deletion of a previously deleted item.
+				// This is necessary because deletion is not done in a hierarchical
+				// order. The current item may have been already deleted as a child
+				// of its deleted parent.
+				if (mItemMap.find(uu_id) != item_map_end)
+				{
+					deleteObject(uu_id);
+				}
 			}
+
 			count = categories.count();
 			for(S32 i = 0; i < count; ++i)
 			{
-				deleteObject(categories.get(i)->getUUID());
+				uu_id = categories.get(i)->getUUID();
+				if (mCategoryMap.find(uu_id) != cat_map_end)
+				{
+					deleteObject(uu_id);
+				}
 			}
 		}
 	}
@@ -3230,6 +3286,7 @@ void LLInventoryModel::updateItemsOrder(LLInventoryModel::item_array_t& items, c
 }
 
 //* @param[in] items vector of items in order to be saved.
+/*
 void LLInventoryModel::saveItemsOrder(const LLInventoryModel::item_array_t& items)
 {
 	int sortField = 0;
@@ -3251,7 +3308,7 @@ void LLInventoryModel::saveItemsOrder(const LLInventoryModel::item_array_t& item
 
 	notifyObservers();
 }
-
+*/
 // See also LLInventorySort where landmarks in the Favorites folder are sorted.
 class LLViewerInventoryItemSort
 {
@@ -3275,6 +3332,7 @@ static void rearrange_item_order_by_sort_field(LLInventoryModel::item_array_t& i
 
 // * @param source_item_id - LLUUID of the source item to be moved into new position
 // * @param target_item_id - LLUUID of the target item before which source item should be placed.
+/*
 void LLInventoryModel::rearrangeFavoriteLandmarks(const LLUUID& source_item_id, const LLUUID& target_item_id)
 {
 	LLInventoryModel::cat_array_t cats;
@@ -3291,7 +3349,7 @@ void LLInventoryModel::rearrangeFavoriteLandmarks(const LLUUID& source_item_id, 
 
 	saveItemsOrder(items);
 }
-
+*/
 //----------------------------------------------------------------------------
 
 // *NOTE: DEBUG functionality

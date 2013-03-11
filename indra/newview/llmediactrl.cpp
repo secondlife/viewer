@@ -119,8 +119,8 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 
 	if(!getDecoupleTextureSize())
 	{
-		S32 screen_width = llround((F32)getRect().getWidth() * LLUI::getScaleFactor().mV[VX]);
-		S32 screen_height = llround((F32)getRect().getHeight() * LLUI::getScaleFactor().mV[VY]);
+		S32 screen_width = llround((F32)getRect().getWidth() * LLUI::sGLScaleFactor.mV[VX]);
+		S32 screen_height = llround((F32)getRect().getHeight() * LLUI::sGLScaleFactor.mV[VY]);
 			
 		setTextureSize(screen_width, screen_height);
 	}
@@ -469,8 +469,8 @@ void LLMediaCtrl::reshape( S32 width, S32 height, BOOL called_from_parent )
 {
 	if(!getDecoupleTextureSize())
 	{
-		S32 screen_width = llround((F32)width * LLUI::getScaleFactor().mV[VX]);
-		S32 screen_height = llround((F32)height * LLUI::getScaleFactor().mV[VY]);
+		S32 screen_width = llround((F32)width * LLUI::sGLScaleFactor.mV[VX]);
+		S32 screen_height = llround((F32)height * LLUI::sGLScaleFactor.mV[VY]);
 
 		// when floater is minimized, these sizes are negative
 		if ( screen_height > 0 && screen_width > 0 )
@@ -667,7 +667,7 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 			mMediaSource->addObserver( this );
 			mMediaSource->setBackgroundColor( getBackgroundColor() );
 			mMediaSource->setTrustedBrowser(mTrusted);
-			mMediaSource->setPageZoomFactor( LLUI::getScaleFactor().mV[ VX ] );
+			mMediaSource->setPageZoomFactor( LLUI::sGLScaleFactor.mV[ VX ] );
 
 			if(mClearCache)
 			{
@@ -750,7 +750,7 @@ void LLMediaCtrl::draw()
 	{
 		gGL.pushUIMatrix();
 		{
-			mMediaSource->setPageZoomFactor( LLUI::getScaleFactor().mV[ VX ] );
+			mMediaSource->setPageZoomFactor( LLUI::sGLScaleFactor.mV[ VX ] );
 
 			// scale texture to fit the space using texture coords
 			gGL.getTexUnit(0)->bind(media_texture);
@@ -864,14 +864,14 @@ void LLMediaCtrl::convertInputCoords(S32& x, S32& y)
 		coords_opengl = mMediaSource->getMediaPlugin()->getTextureCoordsOpenGL();
 	}
 	
-	x = llround((F32)x * LLUI::getScaleFactor().mV[VX]);
+	x = llround((F32)x * LLUI::sGLScaleFactor.mV[VX]);
 	if ( ! coords_opengl )
 	{
-		y = llround((F32)(y) * LLUI::getScaleFactor().mV[VY]);
+		y = llround((F32)(y) * LLUI::sGLScaleFactor.mV[VY]);
 	}
 	else
 	{
-		y = llround((F32)(getRect().getHeight() - y) * LLUI::getScaleFactor().mV[VY]);
+		y = llround((F32)(getRect().getHeight() - y) * LLUI::sGLScaleFactor.mV[VY]);
 	};
 }
 

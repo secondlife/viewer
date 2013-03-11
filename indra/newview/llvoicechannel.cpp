@@ -414,7 +414,7 @@ void LLVoiceChannel::doSetState(const EState& new_state)
 	mState = new_state;
 
 	if (!mStateChangedCallback.empty())
-		mStateChangedCallback(old_state, mState, mCallDirection, mCallEndedByAgent);
+		mStateChangedCallback(old_state, mState, mCallDirection, mCallEndedByAgent, mSessionID);
 }
 
 //static

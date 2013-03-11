@@ -157,8 +157,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mHighlightColor(p.highlight_color()),
 	mPreeditBgColor(p.preedit_bg_color()),
 	mGLFont(p.font),
-	mContextMenuHandle(),
-	mAutoreplaceCallback()
+	mContextMenuHandle()
 {
 	llassert( mMaxLengthBytes > 0 );
 
@@ -969,12 +968,6 @@ void LLLineEditor::addChar(const llwchar uni_char)
 	else
 	{
 		LLUI::reportBadKeystroke();
-	}
-
-	if (!mReadOnly && mAutoreplaceCallback != NULL)
-	{
-		// call callback
-		mAutoreplaceCallback(mText, mCursorPos);
 	}
 
 	getWindow()->hideCursorUntilMouseMove();
@@ -2022,8 +2015,8 @@ void LLLineEditor::draw()
 				LLRect screen_pos = calcScreenRect();
 				LLCoordGL ime_pos( screen_pos.mLeft + pixels_after_scroll, screen_pos.mTop - lineeditor_v_pad );
 
-				ime_pos.mX = (S32) (ime_pos.mX * LLUI::getScaleFactor().mV[VX]);
-				ime_pos.mY = (S32) (ime_pos.mY * LLUI::getScaleFactor().mV[VY]);
+				ime_pos.mX = (S32) (ime_pos.mX * LLUI::sGLScaleFactor.mV[VX]);
+				ime_pos.mY = (S32) (ime_pos.mY * LLUI::sGLScaleFactor.mV[VY]);
 				getWindow()->setLanguageTextInput( ime_pos );
 			}
 		}
@@ -2570,7 +2563,7 @@ void LLLineEditor::markAsPreedit(S32 position, S32 length)
 
 S32 LLLineEditor::getPreeditFontSize() const
 {
-	return llround(mGLFont->getLineHeight() * LLUI::getScaleFactor().mV[VY]);
+	return llround(mGLFont->getLineHeight() * LLUI::sGLScaleFactor.mV[VY]);
 }
 
 void LLLineEditor::setReplaceNewlinesWithSpaces(BOOL replace)

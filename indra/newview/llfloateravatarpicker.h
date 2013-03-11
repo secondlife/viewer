@@ -34,7 +34,7 @@
 class LLAvatarName;
 class LLScrollListCtrl;
 
-class LLFloaterAvatarPicker : public LLFloater
+class LLFloaterAvatarPicker :public LLFloater
 {
 public:
 	typedef boost::signals2::signal<bool(const uuid_vec_t&), boost_boolean_combiner> validate_signal_t;
@@ -45,7 +45,10 @@ public:
 	// Call this to select an avatar.	
 	static LLFloaterAvatarPicker* show(select_callback_t callback, 
 									   BOOL allow_multiple = FALSE,
-									   BOOL closeOnSelect = FALSE);
+									   BOOL closeOnSelect = FALSE,
+									   BOOL skip_agent = FALSE,
+                                       const std::string& name = "",
+                                       LLView * frustumOrigin = NULL);
 
 	LLFloaterAvatarPicker(const LLSD& key);
 	virtual ~LLFloaterAvatarPicker();
@@ -63,6 +66,7 @@ public:
 						   std::string& tooltip_msg);
 
 	void openFriendsTab();
+	BOOL isExcludeAgentFromSearchResults() {return mExcludeAgentFromSearchResults;}
 
 private:
 	void editKeystroke(class LLLineEditor* caller, void* user_data);
@@ -84,13 +88,20 @@ private:
 	void setAllowMultiple(BOOL allow_multiple);
 	LLScrollListCtrl* getActiveList();
 
+    void drawFrustum();
 	virtual void draw();
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
 	LLUUID				mQueryID;
-	int				mNumResultsReturned;
+	int				    mNumResultsReturned;
 	BOOL				mNearMeListComplete;
 	BOOL				mCloseOnSelect;
+	BOOL                mExcludeAgentFromSearchResults;
+    LLHandle <LLView>   mFrustumOrigin;
+    F32		            mContextConeOpacity;
+    F32                 mContextConeInAlpha;
+    F32                 mContextConeOutAlpha;
+    F32                 mContextConeFadeTime;
 
 	validate_signal_t mOkButtonValidateSignal;
 	select_callback_t mSelectionCallback;

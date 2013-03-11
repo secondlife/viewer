@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu name="IM Well Button Context Menu">
-	<menu_item_call label="Cerrar todo" name="Close All"/>
-</context_menu>
