@@ -633,7 +633,6 @@ void send_sound_trigger(const LLUUID& sound_id, F32 gain)
 bool join_group_response(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	BOOL delete_context_data = TRUE;
 	bool accept_invite = false;
 
 	LLUUID group_id = notification["payload"]["group_id"].asUUID();
@@ -662,7 +661,6 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 		}
 		else
 		{
-			delete_context_data = FALSE;
 			LLSD args;
 			args["NAME"] = name;
 			LLNotificationsUtil::add("JoinedTooManyGroupsMember", args, notification["payload"]);
@@ -675,7 +673,6 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 		// sure the user is sure they want to join.
 		if (fee > 0)
 		{
-			delete_context_data = FALSE;
 			LLSD args;
 			args["COST"] = llformat("%d", fee);
 			// Set the fee for next time to 0, so that we don't keep
@@ -2804,11 +2801,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			saved = llformat("(Saved %s) ", formatted_time(timestamp).c_str());
 		}
 		buffer = saved + message;
-		BOOL is_this_agent = FALSE;
-		if(from_id == gAgentID)
-		{
-			is_this_agent = TRUE;
-		}
 		gIMMgr->addMessage(
 			session_id,
 			from_id,
@@ -3415,7 +3407,6 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	LLColor4	color(1.0f, 1.0f, 1.0f, 1.0f);
 	LLUUID		from_id;
 	LLUUID		owner_id;
-	BOOL		is_owned_by_me = FALSE;
 	LLViewerObject*	chatter;
 
 	msg->getString("ChatData", "FromName", from_name);
@@ -3500,13 +3491,11 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 				gAgent.heardChat(chat.mFromID);
 			}
 		}
-
-		is_owned_by_me = chatter->permYouOwner();
 	}
 
 	if (is_audible)
 	{
-		BOOL visible_in_chat_bubble = FALSE;
+		//BOOL visible_in_chat_bubble = FALSE;
 
 		color.setVec(1.f,1.f,1.f,1.f);
 		msg->getStringFast(_PREHASH_ChatData, _PREHASH_Message, mesg);
@@ -3589,7 +3578,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			
 			if (!is_muted && !is_do_not_disturb)
 			{
-				visible_in_chat_bubble = gSavedSettings.getBOOL("UseChatBubbles");
+				//visible_in_chat_bubble = gSavedSettings.getBOOL("UseChatBubbles");
 				std::string formated_msg = "";
 				LLViewerChat::formatChatMsg(chat, formated_msg);
 				LLChat chat_bubble = chat;
@@ -4929,9 +4918,19 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 	// Various hacks that aren't statistics, but are being handled here.
 	//
 	U32 max_tasks_per_region;
-	U32 region_flags;
+	U64 region_flags;
 	msg->getU32("Region", "ObjectCapacity", max_tasks_per_region);
-	msg->getU32("Region", "RegionFlags", region_flags);
+
+	if (msg->has(_PREHASH_RegionInfo))
+	{
+		msg->getU64("RegionInfo", "RegionFlagsExtended", region_flags);
+	}
+	else
+	{
+		U32 flags = 0;
+		msg->getU32("Region", "RegionFlags", flags);
+		region_flags = flags;
+	}
 
 	LLViewerRegion* regionp = gAgent.getRegion();
 	if (regionp)

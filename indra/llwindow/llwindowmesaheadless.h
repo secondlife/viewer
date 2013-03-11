@@ -51,6 +51,7 @@ public:
 	/*virtual*/ BOOL getSize(LLCoordWindow *size) {return FALSE;};
 	/*virtual*/ BOOL setPosition(LLCoordScreen position) {return FALSE;};
 	/*virtual*/ BOOL setSizeImpl(LLCoordScreen size) {return FALSE;};
+	/*virtual*/ BOOL setSizeImpl(LLCoordWindow size) {return FALSE;};	
 	/*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp = NULL) {return FALSE;};
 	/*virtual*/ BOOL setCursorPosition(LLCoordWindow position) {return FALSE;};
 	/*virtual*/ BOOL getCursorPosition(LLCoordWindow *position) {return FALSE;};
@@ -97,7 +98,7 @@ public:
 	LLWindowMesaHeadless(LLWindowCallbacks* callbacks,
                          const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height,
 				  U32 flags,  BOOL fullscreen, BOOL clearBg,
-				  BOOL disable_vsync, BOOL use_gl, BOOL ignore_pixel_depth);
+				  BOOL disable_vsync, BOOL ignore_pixel_depth);
 	~LLWindowMesaHeadless();
 
 private:

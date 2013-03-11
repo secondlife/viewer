@@ -28,5 +28,8 @@ include_directories(
     ${LLMATH_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}
     )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    )
 
 add_library (lscript_library ${lscript_library_SOURCE_FILES})

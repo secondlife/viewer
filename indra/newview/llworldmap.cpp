@@ -34,6 +34,7 @@
 #include "lluistring.h"
 #include "llviewertexturelist.h"
 #include "lltrans.h"
+#include "llgltexture.h"
 
 // Timers to temporise database requests
 const F32 AGENTS_UPDATE_TIMER = 60.0;			// Seconds between 2 agent requests for a region
@@ -78,7 +79,7 @@ void LLSimInfo::setLandForSaleImage (LLUUID image_id)
 	// Fetch the image
 	if (mMapImageID.notNull())
 	{
-		mOverlayImage = LLViewerTextureManager::getFetchedTexture(mMapImageID, MIPMAP_TRUE, LLViewerTexture::BOOST_MAP, LLViewerTexture::LOD_TEXTURE);
+		mOverlayImage = LLViewerTextureManager::getFetchedTexture(mMapImageID, MIPMAP_TRUE, LLGLTexture::BOOST_MAP, LLViewerTexture::LOD_TEXTURE);
 		mOverlayImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 	else
@@ -92,13 +93,13 @@ LLPointer<LLViewerFetchedTexture> LLSimInfo::getLandForSaleImage ()
 	if (mOverlayImage.isNull() && mMapImageID.notNull())
 	{
 		// Fetch the image if it hasn't been done yet (unlikely but...)
-		mOverlayImage = LLViewerTextureManager::getFetchedTexture(mMapImageID, MIPMAP_TRUE, LLViewerTexture::BOOST_MAP, LLViewerTexture::LOD_TEXTURE);
+		mOverlayImage = LLViewerTextureManager::getFetchedTexture(mMapImageID, MIPMAP_TRUE, LLGLTexture::BOOST_MAP, LLViewerTexture::LOD_TEXTURE);
 		mOverlayImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 	if (!mOverlayImage.isNull())
 	{
 		// Boost the fetch level when we try to access that image
-		mOverlayImage->setBoostLevel(LLViewerTexture::BOOST_MAP);
+		mOverlayImage->setBoostLevel(LLGLTexture::BOOST_MAP);
 	}
 	return mOverlayImage;
 }

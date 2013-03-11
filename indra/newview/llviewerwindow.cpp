@@ -383,7 +383,7 @@ public:
 
 			if (isAgentAvatarValid())
 			{
-				tvector = gAgent.getPosGlobalFromAgent(gAgentAvatarp->mRoot.getWorldPosition());
+				tvector = gAgent.getPosGlobalFromAgent(gAgentAvatarp->mRoot->getWorldPosition());
 				agent_root_center_text = llformat("AgentRootCenter %f %f %f",
 												  (F32)(tvector.mdV[VX]), (F32)(tvector.mdV[VY]), (F32)(tvector.mdV[VZ]));
 			}
@@ -1573,6 +1573,16 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	LLViewerWindow::sMovieBaseName = "SLmovie";
 	resetSnapshotLoc();
 
+
+	/*
+	LLWindowCallbacks* callbacks,
+	const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height, U32 flags,
+	BOOL fullscreen, 
+	BOOL clearBg,
+	BOOL disable_vsync,
+	BOOL ignore_pixel_depth,
+	U32 fsaa_samples)
+	*/
 	// create window
 	mWindow = LLWindowManager::createWindow(this,
 		p.title, p.name, p.x, p.y, p.width, p.height, 0,
@@ -4786,7 +4796,7 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		gResizeScreenTexture = TRUE;
 		gWindowResized = TRUE;
 
-		if (isAgentAvatarValid() && !gAgentAvatarp->isUsingBakedTextures())
+		if (isAgentAvatarValid() && gAgentAvatarp->isEditingAppearance())
 		{
 			LLVisualParamHint::requestHintUpdates();
 		}

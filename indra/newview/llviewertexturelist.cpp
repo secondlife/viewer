@@ -198,7 +198,7 @@ void LLViewerTextureList::doPrefetchImages()
 
 		if(LLViewerTexture::FETCHED_TEXTURE == texture_type || LLViewerTexture::LOD_TEXTURE == texture_type)
 		{
-			LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture(uuid, MIPMAP_TRUE, LLViewerTexture::BOOST_NONE, texture_type);
+			LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture(uuid, MIPMAP_TRUE, LLGLTexture::BOOST_NONE, texture_type);
 			if (image)
 			{
 				image->addTextureStats((F32)pixel_area);
@@ -228,7 +228,9 @@ void LLViewerTextureList::shutdown()
 		if (!image->hasGLTexture() ||
 			!image->getUseDiscard() ||
 			image->needsAux() ||
-			image->getTargetHost() != LLHost::invalid)
+			image->getTargetHost() != LLHost::invalid ||
+			!image->getUrl().empty()
+			)
 		{
 			continue; // avoid UI, baked, and other special images
 		}
@@ -339,7 +341,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string&
 	if (full_path.empty())
 	{
 		llwarns << "Failed to find local image file: " << filename << llendl;
-		return LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, TRUE, LLViewerTexture::BOOST_UI);
+		return LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 	}
 
 	std::string url = "file://" + full_path;
@@ -372,7 +374,24 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 	}
 
 	LLPointer<LLViewerFetchedTexture> imagep = findImage(new_id);
-	
+
+	if (!imagep.isNull())
+	{
+		LLViewerFetchedTexture *texture = imagep.get();
+		if (texture->getUrl().empty())
+		{
+			llwarns << "Requested texture " << new_id << " already exists but does not have a URL" << llendl;
+		}
+		else if (texture->getUrl() != url)
+		{
+			// This is not an error as long as the images really match -
+			// e.g. could be two avatars wearing the same outfit.
+			LL_DEBUGS("Avatar") << "Requested texture " << new_id
+								<< " already exists with a different url, requested: " << url
+								<< " current: " << texture->getUrl() << llendl;
+		}
+		
+	}
 	if (imagep.isNull())
 	{
 		switch(texture_type)
@@ -430,11 +449,27 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 	
 	if ((&image_id == NULL) || image_id.isNull())
 	{
-		return (LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, TRUE, LLViewerTexture::BOOST_UI));
+		return (LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, TRUE, LLGLTexture::BOOST_UI));
 	}
 	
 	LLPointer<LLViewerFetchedTexture> imagep = findImage(image_id);
-	
+	if (!imagep.isNull())
+	{
+		LLViewerFetchedTexture *texture = imagep.get();
+		if (request_from_host.isOk() &&
+			!texture->getTargetHost().isOk())
+		{
+			llwarns << "Requested texture " << image_id << " already exists but does not have a host" << llendl;
+		}
+		else if (request_from_host.isOk() &&
+				 texture->getTargetHost().isOk() &&
+				 request_from_host != texture->getTargetHost())
+		{
+			llwarns << "Requested texture " << image_id << " already exists with a different target host, requested: " 
+					<< request_from_host << " current: " << texture->getTargetHost() << llendl;
+		}
+		
+	}
 	if (imagep.isNull())
 	{
 		imagep = createImage(image_id, usemipmaps, boost_priority, texture_type, internal_format, primary_format, request_from_host) ;
@@ -1353,7 +1388,7 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 	U8 *data = new U8[data_size];
 	msg->getBinaryDataFast(_PREHASH_ImageData, _PREHASH_Data, data, data_size);
 	
-	LLViewerFetchedTexture *image = LLViewerTextureManager::getFetchedTexture(id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+	LLViewerFetchedTexture *image = LLViewerTextureManager::getFetchedTexture(id, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 	if (!image)
 	{
 		delete [] data;
@@ -1425,7 +1460,7 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 	U8 *data = new U8[data_size];
 	msg->getBinaryDataFast(_PREHASH_ImageData, _PREHASH_Data, data, data_size);
 	
-	LLViewerFetchedTexture *image = LLViewerTextureManager::getFetchedTexture(id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+	LLViewerFetchedTexture *image = LLViewerTextureManager::getFetchedTexture(id, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 	if (!image)
 	{
 		delete [] data;
@@ -1456,6 +1491,7 @@ void LLViewerTextureList::processImageNotInDatabase(LLMessageSystem *msg,void **
 	LLViewerFetchedTexture* image = gTextureList.findImage( image_id );
 	if( image )
 	{
+		llwarns << "not in db" << llendl;
 		image->setIsMissingAsset();
 	}
 }
@@ -1525,9 +1561,9 @@ LLUIImagePtr LLUIImageList::getUIImage(const std::string& image_name, S32 priori
 LLUIImagePtr LLUIImageList::loadUIImageByName(const std::string& name, const std::string& filename,
 											  BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect, LLViewerTexture::EBoostLevel boost_priority )
 {
-	if (boost_priority == LLViewerTexture::BOOST_NONE)
+	if (boost_priority == LLGLTexture::BOOST_NONE)
 	{
-		boost_priority = LLViewerTexture::BOOST_UI;
+		boost_priority = LLGLTexture::BOOST_UI;
 	}
 	LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTextureFromFile(filename, MIPMAP_NO, boost_priority);
 	return loadUIImage(imagep, name, use_mips, scale_rect, clip_rect);
@@ -1536,9 +1572,9 @@ LLUIImagePtr LLUIImageList::loadUIImageByName(const std::string& name, const std
 LLUIImagePtr LLUIImageList::loadUIImageByID(const LLUUID& id,
 											BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect, LLViewerTexture::EBoostLevel boost_priority)
 {
-	if (boost_priority == LLViewerTexture::BOOST_NONE)
+	if (boost_priority == LLGLTexture::BOOST_NONE)
 	{
-		boost_priority = LLViewerTexture::BOOST_UI;
+		boost_priority = LLGLTexture::BOOST_UI;
 	}
 	LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTexture(id, MIPMAP_NO, boost_priority);
 	return loadUIImage(imagep, id.asString(), use_mips, scale_rect, clip_rect);
@@ -1563,7 +1599,7 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
 	//Note:
 	//Some other textures such as ICON also through this flow to be fetched.
 	//But only UI textures need to set this callback.
-	if(imagep->getBoostLevel() == LLViewerTexture::BOOST_UI)
+	if(imagep->getBoostLevel() == LLGLTexture::BOOST_UI)
 	{
 		LLUIImageLoadData* datap = new LLUIImageLoadData;
 		datap->mImageName = name;
