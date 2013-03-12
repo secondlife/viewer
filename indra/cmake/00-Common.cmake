@@ -132,7 +132,7 @@ if (LINUX)
   # This is pure rubbish; I wish there was another way.
   #
   if(${CXX_VERSION_NUMBER} LESS 420)
-    set(CMAKE_CXX_FLAGS "-Wno-deprecated -Wno-unitialized -Wno-unused-variable -Wno-unused-function ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "-Wno-deprecated -Wno-uninitialized -Wno-unused-variable -Wno-unused-function ${CMAKE_CXX_FLAGS}")
   endif (${CXX_VERSION_NUMBER} LESS 420)
 
   # gcc 4.3 and above don't like the LL boost and also
