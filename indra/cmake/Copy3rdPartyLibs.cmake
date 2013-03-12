@@ -266,6 +266,7 @@ elseif(LINUX)
         libdb-5.1.so
         libexpat.so
         libexpat.so.1
+        libfreetype.so.6
         libglod.so
         libgmock_main.so
         libgmock.so.0
