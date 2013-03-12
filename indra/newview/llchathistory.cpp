@@ -58,7 +58,7 @@
 #include "llworld.h"
 #include "lluiconstants.h"
 #include "llstring.h"
-
+#include "llurlaction.h"
 #include "llviewercontrol.h"
 
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
@@ -156,6 +156,17 @@ public:
 			LLFloaterSidePanelContainer::showPanel("people", "panel_people",
 				LLSD().with("people_panel_tab_name", "blocked_panel").with("blocked_to_select", getAvatarId()));
 		}
+		else if (level == "map")
+		{
+			std::string url = "secondlife://" + mObjectData["slurl"].asString();
+			LLUrlAction::showLocationOnMap(url);
+		}
+		else if (level == "teleport")
+		{
+			std::string url = "secondlife://" + mObjectData["slurl"].asString();
+			LLUrlAction::teleportToLocation(url);
+		}
+
 	}
 
 	void onAvatarIconContextMenuItemClicked(const LLSD& userdata)
