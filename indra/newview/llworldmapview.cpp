@@ -421,7 +421,7 @@ void LLWorldMapView::draw()
 			{
 				// Inform the fetch mechanism of the size we need
 				S32 draw_size = llround(sMapScale);
-				overlayimage->setKnownDrawSize(llround(draw_size * LLUI::sGLScaleFactor.mV[VX]), llround(draw_size * LLUI::sGLScaleFactor.mV[VY]));
+				overlayimage->setKnownDrawSize(llround(draw_size * LLUI::getScaleFactor().mV[VX]), llround(draw_size * LLUI::getScaleFactor().mV[VY]));
 				// Draw something whenever we have enough info
 				if (overlayimage->hasGLTexture())
 				{
@@ -1320,7 +1320,7 @@ void LLWorldMapView::drawTrackingCircle( const LLRect& rect, S32 x, S32 y, const
 
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
-	gGL.translatef((F32)x * LLUI::sGLScaleFactor.mV[VX], (F32)y * LLUI::sGLScaleFactor.mV[VY], 0.f);
+	gGL.translatef((F32)x * LLUI::getScaleFactor().mV[VX], (F32)y * LLUI::getScaleFactor().mV[VY], 0.f);
 	gl_washer_segment_2d(inner_radius, outer_radius, start_theta, end_theta, 40, color, color);
 	gGL.popMatrix();
 
