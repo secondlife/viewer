@@ -41,7 +41,6 @@ class LLVolumeFace;
 class LLVolume;
 class LLVolumeTriangle;
 
-#include "llalignedarray.h"
 #include "lldarray.h"
 #include "lluuid.h"
 #include "v4color.h"
@@ -58,6 +57,7 @@ class LLVolumeTriangle;
 #include "llrefcount.h"
 #include "llpointer.h"
 #include "llfile.h"
+#include "llalignedarray.h"
 
 //============================================================================
 

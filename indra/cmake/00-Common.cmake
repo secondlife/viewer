@@ -128,6 +128,13 @@ if (LINUX)
   # Let's actually get a numerical version of gxx's version
   STRING(REGEX REPLACE ".* ([0-9])\\.([0-9])\\.([0-9]).*" "\\1\\2\\3" CXX_VERSION_NUMBER ${CXX_VERSION})
 
+  # Hacks to work around gcc 4.1 TC build pool machines which can't process pragma warning disables
+  # This is pure rubbish; I wish there was another way.
+  #
+  if(${CXX_VERSION_NUMBER} LESS 420)
+    set(CMAKE_CXX_FLAGS "-Wno-deprecated -Wno-uninitialized -Wno-unused-variable -Wno-unused-function ${CMAKE_CXX_FLAGS}")
+  endif (${CXX_VERSION_NUMBER} LESS 420)
+
   # gcc 4.3 and above don't like the LL boost and also
   # cause warnings due to our use of deprecated headers
   if(${CXX_VERSION_NUMBER} GREATER 429)

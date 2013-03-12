@@ -407,3 +407,4 @@ void LLWLParamSet::updateHashedNames()
 		mParamHashedNames.push_back(LLStaticHashedString(iter->first));
 	}
 }
+
