@@ -1838,11 +1838,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				{
 					U32 flags;
 					mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, block_num);
-					// keep local flags and overwrite remote-controlled flags
-					mFlags = (mFlags & FLAGS_LOCAL) | flags;
-
-					// ...new objects that should come in selected need to be added to the selected list
-					mCreateSelected = ((flags & FLAGS_CREATE_SELECTED) != 0);
+					loadFlags(flags);					
 				}
 			}
 			break;
@@ -2343,7 +2339,21 @@ BOOL LLViewerObject::isActive() const
 	return TRUE;
 }
 
+//load flags from cache or from message
+void LLViewerObject::loadFlags(U32 flags)
+{
+	if(flags == (U32)(-1))
+	{
+		return; //invalid
+	}
 
+	// keep local flags and overwrite remote-controlled flags
+	mFlags = (mFlags & FLAGS_LOCAL) | flags;
+
+	// ...new objects that should come in selected need to be added to the selected list
+	mCreateSelected = ((flags & FLAGS_CREATE_SELECTED) != 0);
+	return;
+}
 
 void LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {

@@ -365,7 +365,8 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 	}
 		
 	processUpdateCore(objectp, NULL, 0, OUT_FULL_CACHED, cached_dpp, justCreated, true);
-		
+	objectp->loadFlags(entry->getUpdateFlags()); //just in case, reload update flags from cache.
+
 	recorder.log(0.2f);
 	LLVOAvatar::cullAvatarsByPixelArea();
 
@@ -470,7 +471,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				}
 				else //send to object cache
 				{
-					regionp->cacheFullUpdate(compressed_dp);
+					regionp->cacheFullUpdate(compressed_dp, flags);
 					continue;
 				}
 			}
@@ -623,7 +624,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				if(!(flags & FLAGS_TEMPORARY_ON_REZ))
 				{
 					bCached = true;
-					LLViewerRegion::eCacheUpdateResult result = objectp->mRegionp->cacheFullUpdate(objectp, compressed_dp);
+					LLViewerRegion::eCacheUpdateResult result = objectp->mRegionp->cacheFullUpdate(objectp, compressed_dp, flags);
 					recorder.cacheFullUpdate(local_id, update_type, result, objectp, msg_size);
 				}
 			}

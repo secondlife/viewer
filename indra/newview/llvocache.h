@@ -119,6 +119,9 @@ public:
 	void setTouched(BOOL touched = TRUE) {mTouched = touched;}
 	BOOL isTouched() const {return mTouched;}
 	
+	void setUpdateFlags(U32 flags) {mUpdateFlags = flags;}
+	U32  getUpdateFlags() const    {return mUpdateFlags;}
+
 public:
 	typedef std::map<U32, LLPointer<LLVOCacheEntry> >	   vocache_entry_map_t;
 	typedef std::set<LLVOCacheEntry*>                      vocache_entry_set_t;
@@ -128,6 +131,7 @@ protected:
 	U32							mLocalID;
 	U32                         mParentID;
 	U32							mCRC;
+	U32                         mUpdateFlags; //receive from sim
 	S32							mHitCount;
 	S32							mDupeCount;
 	S32							mCRCChangeCount;

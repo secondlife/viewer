@@ -317,8 +317,8 @@ public:
 	} eCacheUpdateResult;
 
 	// handle a full update message
-	eCacheUpdateResult cacheFullUpdate(LLDataPackerBinaryBuffer &dp);
-	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp);	
+	eCacheUpdateResult cacheFullUpdate(LLDataPackerBinaryBuffer &dp, U32 flags);
+	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp, U32 flags);	
 	LLVOCacheEntry* getCacheEntryForOctree(U32 local_id);
 	LLVOCacheEntry* getCacheEntry(U32 local_id);
 	bool probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss_type);

@@ -53,6 +53,7 @@ LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &
 	: LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY),
 	mLocalID(local_id),
 	mCRC(crc),
+	mUpdateFlags(-1),
 	mHitCount(0),
 	mDupeCount(0),
 	mCRCChangeCount(0),
@@ -72,6 +73,7 @@ LLVOCacheEntry::LLVOCacheEntry()
 	: LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY),
 	mLocalID(0),
 	mCRC(0),
+	mUpdateFlags(-1),
 	mHitCount(0),
 	mDupeCount(0),
 	mCRCChangeCount(0),
@@ -89,6 +91,7 @@ LLVOCacheEntry::LLVOCacheEntry()
 LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	: LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY), 
 	mBuffer(NULL),
+	mUpdateFlags(-1),
 	mState(INACTIVE),
 	mRepeatedVisCounter(0),
 	mVisFrameRange(64),

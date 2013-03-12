@@ -511,6 +511,7 @@ public:
 	virtual void	updateRegion(LLViewerRegion *regionp);
 
 	void updateFlags(BOOL physics_changed = FALSE);
+	void loadFlags(U32 flags); //load flags from cache or from message
 	BOOL setFlags(U32 flag, BOOL state);
 	BOOL setFlagsWithoutUpdate(U32 flag, BOOL state);
 	void setPhysicsShapeType(U8 type);

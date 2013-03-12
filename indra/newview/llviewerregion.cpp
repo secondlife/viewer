@@ -1795,7 +1795,7 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 	return ;
 }
 
-LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerBinaryBuffer &dp)
+LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerBinaryBuffer &dp, U32 flags)
 {
 	eCacheUpdateResult result;
 	U32 crc;
@@ -1849,14 +1849,16 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
 		
 		decodeBoundingInfo(entry);
 	}
-	
+	entry->setUpdateFlags(flags);
+
 	return result;
 }
 
-LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp)
+LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp, U32 flags)
 {
-	eCacheUpdateResult result = cacheFullUpdate(dp);
+	eCacheUpdateResult result = cacheFullUpdate(dp, flags);
 
+#if 0
 	LLVOCacheEntry* entry = mImpl->mCacheMap[objectp->getLocalID()];
 	if(!entry)
 	{
@@ -1871,6 +1873,7 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 	{
 		addActiveCacheEntry(entry);
 	}
+#endif
 
 	return result;
 }
@@ -1926,7 +1929,14 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 			// Record a hit
 			entry->recordHit();
 			cache_miss_type = CACHE_MISS_TYPE_NONE;
+			entry->setUpdateFlags(flags);
 			
+			if(entry->isState(LLVOCacheEntry::ACTIVE))
+			{
+				((LLDrawable*)entry->getEntry()->getDrawable())->getVObj()->loadFlags(flags);
+				return true;
+			}
+
 			if(entry->getGroup() || !entry->isState(LLVOCacheEntry::INACTIVE))
 			{
 				return true;
