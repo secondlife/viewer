@@ -444,16 +444,13 @@ std::string LLLogChat::oldLogFileName(std::string filename)
 }
 
 // static
-void LLLogChat::getListOfTranscriptFiles(std::vector<std::string>& list_of_transcriptions)
+void LLLogChat::findTranscriptFiles(std::string pattern, std::vector<std::string>& list_of_transcriptions)
 {
 	// get Users log directory
 	std::string dirname = gDirUtilp->getPerAccountChatLogsDir();
 
 	// add final OS dependent delimiter
 	dirname += gDirUtilp->getDirDelimiter();
-
-	// create search pattern
-	std::string pattern = "*." + LL_TRANSCRIPT_FILE_EXTENSION;
 
 	LLDirIterator iter(dirname, pattern);
 	std::string filename;
@@ -488,6 +485,22 @@ void LLLogChat::getListOfTranscriptFiles(std::vector<std::string>& list_of_trans
 			LLFile::close(filep);
 		}
 	}
+}
+
+// static
+void LLLogChat::getListOfTranscriptFiles(std::vector<std::string>& list_of_transcriptions)
+{
+	// create search pattern
+	std::string pattern = "*." + LL_TRANSCRIPT_FILE_EXTENSION;
+	findTranscriptFiles(pattern, list_of_transcriptions);
+}
+
+// static
+void LLLogChat::getListOfTranscriptBackupFiles(std::vector<std::string>& list_of_transcriptions)
+{
+	// create search pattern
+	std::string pattern = "*." + LL_TRANSCRIPT_FILE_EXTENSION + ".backup*";
+	findTranscriptFiles(pattern, list_of_transcriptions);
 }
 
 //static
@@ -581,6 +594,7 @@ void LLLogChat::deleteTranscripts()
 {
 	std::vector<std::string> list_of_transcriptions;
 	getListOfTranscriptFiles(list_of_transcriptions);
+	getListOfTranscriptBackupFiles(list_of_transcriptions);
 
 	BOOST_FOREACH(const std::string& fullpath, list_of_transcriptions)
 	{

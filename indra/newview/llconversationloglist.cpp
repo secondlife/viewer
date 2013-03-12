@@ -198,6 +198,8 @@ void LLConversationLogList::refresh()
 
 void LLConversationLogList::rebuildList()
 {
+	const LLConversation * selected_conversationp = getSelectedConversation();
+
 	clear();
 
 	bool have_filter = !mNameFilter.empty();
@@ -214,7 +216,12 @@ void LLConversationLogList::rebuildList()
 
 		addNewItem(&*iter);
 	}
-	
+
+	// try to restore selection of item
+	if (NULL != selected_conversationp)
+	{
+		selectItemByUUID(selected_conversationp->getSessionID());
+	}
 
 	bool logging_enabled = log_instance.getIsLoggingEnabled();
 	bool log_empty = log_instance.isLogEmpty();
@@ -238,8 +245,16 @@ void LLConversationLogList::rebuildList()
 
 void LLConversationLogList::onCustomAction(const LLSD& userdata)
 {
+	const LLConversation * selected_conversationp = getSelectedConversation();
+
+	if (NULL == selected_conversationp)
+	{
+		return;
+	}
+
 	const std::string command_name = userdata.asString();
-	const LLUUID& selected_id = getSelectedConversation()->getParticipantID();
+	const LLUUID& selected_conversation_participant_id = selected_conversationp->getParticipantID();
+	const LLUUID& selected_conversation_session_id = selected_conversationp->getSessionID();
 	LLIMModel::LLIMSession::SType stype = getSelectedSessionType();
 
 	if ("im" == command_name)
@@ -247,11 +262,11 @@ void LLConversationLogList::onCustomAction(const LLSD& userdata)
 		switch (stype)
 		{
 		case LLIMModel::LLIMSession::P2P_SESSION:
-			LLAvatarActions::startIM(selected_id);
+			LLAvatarActions::startIM(selected_conversation_participant_id);
 			break;
 
 		case LLIMModel::LLIMSession::GROUP_SESSION:
-			LLGroupActions::startIM(getSelectedConversation()->getSessionID());
+			LLGroupActions::startIM(selected_conversation_session_id);
 			break;
 
 		default:
@@ -263,11 +278,11 @@ void LLConversationLogList::onCustomAction(const LLSD& userdata)
 		switch (stype)
 		{
 		case LLIMModel::LLIMSession::P2P_SESSION:
-			LLAvatarActions::startCall(selected_id);
+			LLAvatarActions::startCall(selected_conversation_participant_id);
 			break;
 
 		case LLIMModel::LLIMSession::GROUP_SESSION:
-			LLGroupActions::startCall(getSelectedConversation()->getSessionID());
+			LLGroupActions::startCall(selected_conversation_session_id);
 			break;
 
 		default:
@@ -279,11 +294,11 @@ void LLConversationLogList::onCustomAction(const LLSD& userdata)
 		switch (stype)
 		{
 		case LLIMModel::LLIMSession::P2P_SESSION:
-			LLAvatarActions::showProfile(selected_id);
+			LLAvatarActions::showProfile(selected_conversation_participant_id);
 			break;
 
 		case LLIMModel::LLIMSession::GROUP_SESSION:
-			LLGroupActions::show(getSelectedConversation()->getSessionID());
+			LLGroupActions::show(selected_conversation_session_id);
 			break;
 
 		default:
@@ -292,52 +307,53 @@ void LLConversationLogList::onCustomAction(const LLSD& userdata)
 	}
 	else if ("chat_history" == command_name)
 	{
-		const LLUUID& session_id = getSelectedConversation()->getSessionID();
-		LLFloaterReg::showInstance("preview_conversation", session_id, true);
+		LLFloaterReg::showInstance("preview_conversation", selected_conversation_session_id, true);
 	}
 	else if ("offer_teleport" == command_name)
 	{
-		LLAvatarActions::offerTeleport(selected_id);
+		LLAvatarActions::offerTeleport(selected_conversation_participant_id);
 	}
 	else if("add_friend" == command_name)
 	{
-		if (!LLAvatarActions::isFriend(selected_id))
+		if (!LLAvatarActions::isFriend(selected_conversation_participant_id))
 		{
-			LLAvatarActions::requestFriendshipDialog(selected_id);
+			LLAvatarActions::requestFriendshipDialog(selected_conversation_participant_id);
 		}
 	}
 	else if("remove_friend" == command_name)
 	{
-		if (LLAvatarActions::isFriend(selected_id))
+		if (LLAvatarActions::isFriend(selected_conversation_participant_id))
 		{
-			LLAvatarActions::removeFriendDialog(selected_id);
+			LLAvatarActions::removeFriendDialog(selected_conversation_participant_id);
 		}
 	}
 	else if ("invite_to_group" == command_name)
 	{
-		LLAvatarActions::inviteToGroup(selected_id);
+		LLAvatarActions::inviteToGroup(selected_conversation_participant_id);
 	}
 	else if ("show_on_map" == command_name)
 	{
-		LLAvatarActions::showOnMap(selected_id);
+		LLAvatarActions::showOnMap(selected_conversation_participant_id);
 	}
 	else if ("share" == command_name)
 	{
-		LLAvatarActions::share(selected_id);
+		LLAvatarActions::share(selected_conversation_participant_id);
 	}
 	else if ("pay" == command_name)
 	{
-		LLAvatarActions::pay(selected_id);
+		LLAvatarActions::pay(selected_conversation_participant_id);
 	}
 	else if ("block" == command_name)
 	{
-		LLAvatarActions::toggleBlock(selected_id);
+		LLAvatarActions::toggleBlock(selected_conversation_participant_id);
 	}
 }
 
 bool LLConversationLogList::isActionEnabled(const LLSD& userdata)
 {
-	if (numSelected() != 1)
+	const LLConversation * selected_conversationp = getSelectedConversation();
+
+	if (NULL == selected_conversationp || numSelected() > 1)
 	{
 		return false;
 	}
@@ -345,7 +361,7 @@ bool LLConversationLogList::isActionEnabled(const LLSD& userdata)
 	const std::string command_name = userdata.asString();
 
 	LLIMModel::LLIMSession::SType stype = getSelectedSessionType();
-	const LLUUID& selected_id = getSelectedConversation()->getParticipantID();
+	const LLUUID& selected_id = selected_conversationp->getParticipantID();
 
 	bool is_p2p   = LLIMModel::LLIMSession::P2P_SESSION == stype;
 	bool is_group = LLIMModel::LLIMSession::GROUP_SESSION == stype;
@@ -384,9 +400,16 @@ bool LLConversationLogList::isActionEnabled(const LLSD& userdata)
 
 bool LLConversationLogList::isActionChecked(const LLSD& userdata)
 {
+	const LLConversation * selected_conversationp = getSelectedConversation();
+
+	if (NULL == selected_conversationp)
+	{
+		return false;
+	}
+
 	const std::string command_name = userdata.asString();
 
-	const LLUUID& selected_id = getSelectedConversation()->getParticipantID();
+	const LLUUID& selected_id = selected_conversationp->getParticipantID();
 	bool is_p2p = LLIMModel::LLIMSession::P2P_SESSION == getSelectedSessionType();
 
 	if ("is_blocked" == command_name)

@@ -104,6 +104,15 @@ LLConversationViewSession::~LLConversationViewSession()
 
 void LLConversationViewSession::setFlashState(bool flash_state)
 {
+	if (flash_state && !mFlashStateOn)
+	{
+		// flash chat toolbar button if scrolled out of sight (because flashing will not be visible)
+		if (mContainer->isScrolledOutOfSight(this))
+		{
+			gToolBarView->flashCommand(LLCommandId("chat"), true);
+		}
+	}
+
 	mFlashStateOn = flash_state;
 	mFlashStarted = false;
 	mFlashTimer->stopFlashing();
@@ -115,12 +124,6 @@ void LLConversationViewSession::startFlashing()
 	{
 		mFlashStarted = true;
 		mFlashTimer->startFlashing();
-		
-		// flash chat toolbar button if scrolled out of sight (because flashing will not be visible)
-		if (mContainer->isScrolledOutOfSight(this))
-		{
-			gToolBarView->flashCommand(LLCommandId("chat"), true);
-		}
 	}
 }
 
