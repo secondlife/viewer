@@ -57,6 +57,8 @@
 // Work-around spurious used before init warning on Vector4a
 //
 #pragma GCC diagnostic ignored "-Wuninitialized"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 extern BOOL gGLDebugLoggingEnabled;
