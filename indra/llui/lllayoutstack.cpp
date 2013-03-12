@@ -481,7 +481,7 @@ void LLLayoutStack::createResizeBar(LLLayoutPanel* panelp)
 		{
 			LLResizeBar::Side side = (mOrientation == HORIZONTAL) ? LLResizeBar::RIGHT : LLResizeBar::BOTTOM;
 			LLRect resize_bar_rect = getRect();
-
+			(void)resize_bar_rect;
 			LLResizeBar::Params resize_params;
 			resize_params.name("resize");
 			resize_params.resizing_view(lp);

@@ -145,7 +145,7 @@ void LLScriptLSOParse::printGlobals(LLFILE *fp)
 		// get offset to skip past name
 		varoffset = global_v_offset;
 		offset = bytestream2integer(mRawData, global_v_offset);
-		
+		(void)offset; //hush little compiler
 		// get typeexport
 		type = *(mRawData + global_v_offset++);
 
@@ -262,8 +262,6 @@ void LLScriptLSOParse::printGlobalFunctions(LLFILE *fp)
 		fprintf(fp, "[Function #%d] [0x%X] %s\n", function_number, orig_function_offset, name);
 		fprintf(fp, "\tReturn Type: %s\n", LSCRIPTTypeNames[type]);
 		type = *(mRawData + function_offset++);
-		S32 params;
-		params = 0;
 		S32 pcount = 0;
 		while (type)
 		{
@@ -350,6 +348,7 @@ void LLScriptLSOParse::printStates(LLFILE *fp)
 				S32 dummy;
 
 				opcode_end = worst_case_opcode_end;
+				(void)opcode_end;
 
 				for (k = LSTT_STATE_BEGIN; k < LSTT_STATE_END; k++)
 				{
@@ -357,6 +356,7 @@ void LLScriptLSOParse::printStates(LLFILE *fp)
 					{
 						temp_end = bytestream2integer(mRawData, read_ahead);
 						dummy = bytestream2integer(mRawData, read_ahead);
+						(void)dummy;
 						if (  (temp_end < opcode_end)
 							&&(temp_end > event_offset))
 						{

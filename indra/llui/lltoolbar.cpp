@@ -653,7 +653,6 @@ void LLToolBar::updateLayoutAsNeeded()
 	S32 max_row_length = 0;
 
 	S32 max_length;
-	S32 max_total_girth;
 	S32 cur_start;
 	S32 cur_row ;
 	S32 row_pad_start;
@@ -664,7 +663,6 @@ void LLToolBar::updateLayoutAsNeeded()
 	if (orientation == LLLayoutStack::HORIZONTAL)
 	{
 		max_length = getRect().getWidth() - mPadLeft - mPadRight;
-		max_total_girth = getRect().getHeight() - mPadTop - mPadBottom;
 		row_pad_start = mPadLeft;
 		row_pad_end = mPadRight;
 		cur_row = mPadTop;
@@ -673,7 +671,6 @@ void LLToolBar::updateLayoutAsNeeded()
 	else // VERTICAL
 	{
 		max_length = getRect().getHeight() - mPadTop - mPadBottom;
-		max_total_girth = getRect().getWidth() - mPadLeft - mPadRight;
 		row_pad_start = mPadTop;
 		row_pad_end = mPadBottom;
 		cur_row = mPadLeft;
@@ -842,6 +839,7 @@ void LLToolBar::draw()
 	{
 		LLRect caret_rect = caret->getRect();
 		LLRect toolbar_rect = getRect();
+		(void)toolbar_rect;
 		if (getOrientation(mSideType) == LLLayoutStack::HORIZONTAL)
 		{
 			caret->setRect(LLRect(mDragx-caret_rect.getWidth()/2+1,

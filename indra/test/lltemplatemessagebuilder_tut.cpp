@@ -958,11 +958,13 @@ namespace tut
 		reader->validateMessage(buffer, builtSize, LLHost());
 		reader->readMessage(buffer, LLHost());
 		reader->getU32(_PREHASH_Test0, _PREHASH_Test0, outValue);
+		(void)outValue;
 		char outBuffer[bufferSize];
 		memset(buffer, 0xcc, bufferSize);
 		reader->getString(_PREHASH_Test1, _PREHASH_Test0, bufferSize, 
 						  outBuffer);
 		outValue2 = reader->getNumberOfBlocks(_PREHASH_Test1);
+		(void)outValue2;
 		ensure_equals("Ensure present value ", outValue, inValue);
 		ensure_equals("Ensure unchanged buffer ", strlen(outBuffer), 0);
 		delete reader;
