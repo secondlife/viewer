@@ -218,7 +218,7 @@ if (LINUX OR DARWIN)
   set(GCC_WARNINGS "-Wall -Wno-sign-compare -Wno-trigraphs")
 
   if (NOT GCC_DISABLE_FATAL_WARNINGS)
-    set(GCC_WARNINGS "${GCC_WARNINGS} -Werror")
+#    set(GCC_WARNINGS "${GCC_WARNINGS} -Werror")
   endif (NOT GCC_DISABLE_FATAL_WARNINGS)
 
   set(GCC_CXX_WARNINGS "${GCC_WARNINGS} -Wno-reorder -Wno-non-virtual-dtor")

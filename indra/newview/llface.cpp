@@ -53,6 +53,12 @@
 #include "llviewershadermgr.h"
 #include "llvoavatar.h"
 
+#if LL_LINUX
+// Work-around spurious used before init warning on Vector4a
+//
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#endif
+
 extern BOOL gGLDebugLoggingEnabled;
 
 #define LL_MAX_INDICES_COUNT 1000000
@@ -63,8 +69,6 @@ static LLStaticHashedString sColorIn("color_in");
 BOOL LLFace::sSafeRenderSelect = TRUE; // FALSE
 
 #define DOTVEC(a,b) (a.mV[0]*b.mV[0] + a.mV[1]*b.mV[1] + a.mV[2]*b.mV[2])
-
-//#pragma GCC diagnostic ignored "-Wuninitialized"
 
 /*
 For each vertex, given:
