@@ -3324,11 +3324,11 @@ public:
  *
  * @param[in, out] items - array of items, not sorted.
  */
-static void rearrange_item_order_by_sort_field(LLInventoryModel::item_array_t& items)
-{
-	static LLViewerInventoryItemSort sort_functor;
-	std::sort(items.begin(), items.end(), sort_functor);
-}
+//static void rearrange_item_order_by_sort_field(LLInventoryModel::item_array_t& items)
+//{
+//	static LLViewerInventoryItemSort sort_functor;
+//	std::sort(items.begin(), items.end(), sort_functor);
+//}
 
 // * @param source_item_id - LLUUID of the source item to be moved into new position
 // * @param target_item_id - LLUUID of the target item before which source item should be placed.
