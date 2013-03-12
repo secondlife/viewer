@@ -61,6 +61,7 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
   , mRefreshTimer(new LLTimer())
   , mIsHostAttached(false)
   , mHasVisibleBeenInitialized(false)
+  , mIsParticipantListExpanded(true)
 {
     setAutoFocus(FALSE);
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
@@ -180,6 +181,7 @@ void LLFloaterIMSessionTab::addToHost(const LLUUID& session_id)
 				// LLFloater::mLastHostHandle = floater_container (a "future" host)
 				conversp->setHost(floater_container);
 				conversp->setHost(NULL);
+
 				conversp->forceReshape();
 			}
 			// Added floaters share some state (like sort order) with their host
@@ -269,6 +271,12 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mRefreshTimer->setTimerExpirySec(0);
 	mRefreshTimer->start();
 	initBtns();
+
+	if (mIsParticipantListExpanded != gSavedSettings.getBOOL("IMShowControlPanel"))
+	{
+		LLFloaterIMSessionTab::onSlide(this);
+	}
+
 	return result;
 }
 
@@ -638,7 +646,7 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 	// Participant list should be visible only in torn off floaters.
 	bool is_participant_list_visible =
 			!is_not_torn_off
-			&& gSavedSettings.getBOOL("IMShowControlPanel")
+			&& mIsParticipantListExpanded
 			&& !mIsP2PChat;
 
 	mParticipantListPanel->setVisible(is_participant_list_visible);
@@ -769,9 +777,8 @@ void LLFloaterIMSessionTab::onSlide(LLFloaterIMSessionTab* self)
 
 			// Expand/collapse the IM control panel
 			self->mParticipantListPanel->setVisible(expand);
-
-			gSavedSettings.setBOOL("IMShowControlPanel", expand);
-
+            gSavedSettings.setBOOL("IMShowControlPanel", expand);
+            self->mIsParticipantListExpanded = expand;
 			self->mExpandCollapseBtn->setImageOverlay(self->getString(expand ? "collapse_icon" : "expand_icon"));
 		}
 	}
