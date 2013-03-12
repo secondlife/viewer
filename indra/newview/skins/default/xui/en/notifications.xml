@@ -9998,7 +9998,7 @@ Cannot create large prims that intersect other players.  Please re-try when othe
    icon="alertmodal.tga"
    name="PreferenceChatClearLog"
    type="alertmodal">
-    This will delete the log of previous conversations. Proceed?
+    This will delete the logs of previous conversations, and any backups of that file.
     <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm before I delete the log of previous conversations."
@@ -10011,7 +10011,7 @@ Cannot create large prims that intersect other players.  Please re-try when othe
    icon="alertmodal.tga"
    name="PreferenceChatDeleteTranscripts"
    type="alertmodal">
-    This will delete transcripts for all previous conversations. The list of conversations will not be affected. If you run scripts on your chat transcript files, you may want to proceed with caution. Proceed?
+    This will delete the transcripts for all previous conversations. The list of past conversations will not be affected. All files with the suffixes .txt and txt.backup in the folder [FOLDER] will be deleted.
     <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm before I delete transcripts."

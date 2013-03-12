@@ -226,10 +226,11 @@ BOOL LLFloaterIMContainer::postBuild()
 	childSetAction("add_btn", boost::bind(&LLFloaterIMContainer::onAddButtonClicked, this));
 
 	collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
-	collapseConversationsPane(gSavedPerAccountSettings.getBOOL("ConversationsListPaneCollapsed"));
+	collapseConversationsPane(gSavedPerAccountSettings.getBOOL("ConversationsListPaneCollapsed"), false);
 	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate, false));
 	mMicroChangedSignal = LLVoiceClient::getInstance()->MicroChangedCallback(boost::bind(&LLFloaterIMContainer::updateSpeakBtnState, this));
-	if (! mMessagesPane->isCollapsed())
+
+	if (! mMessagesPane->isCollapsed() && ! mConversationsPane->isCollapsed())
 	{
 		S32 conversations_panel_width = gSavedPerAccountSettings.getS32("ConversationsListPaneWidth");
 		LLRect conversations_panel_rect = mConversationsPane->getRect();
@@ -668,7 +669,7 @@ void LLFloaterIMContainer::collapseMessagesPane(bool collapse)
 	// Make sure layout is updated before resizing conversation pane.
 	mConversationsStack->updateLayout();
 
-	updateState(collapse, gSavedPerAccountSettings.getS32("ConversationsMessagePaneWidth"));
+	reshapeFloaterAndSetResizeLimits(collapse, gSavedPerAccountSettings.getS32("ConversationsMessagePaneWidth"));
 
 	if (!collapse)
 	{
@@ -677,7 +678,7 @@ void LLFloaterIMContainer::collapseMessagesPane(bool collapse)
 	}
 }
 
-void LLFloaterIMContainer::collapseConversationsPane(bool collapse)
+void LLFloaterIMContainer::collapseConversationsPane(bool collapse, bool save_is_allowed /*=true*/)
 {
 	if (mConversationsPane->isCollapsed() == collapse)
 	{
@@ -691,7 +692,7 @@ void LLFloaterIMContainer::collapseConversationsPane(bool collapse)
 	// Save current width of Conversation panel before collapsing/expanding right pane.
 	S32 conv_pane_width = mConversationsPane->getRect().getWidth();
 
-	if (collapse)
+	if (collapse && save_is_allowed)
 	{
 		// Save the conversations pane width before collapsing it.
 		gSavedPerAccountSettings.setS32("ConversationsListPaneWidth", conv_pane_width);
@@ -701,10 +702,18 @@ void LLFloaterIMContainer::collapseConversationsPane(bool collapse)
 	}
 
 	mConversationsStack->collapsePanel(mConversationsPane, collapse);
+	if (!collapse)
+	{
+		// Make sure layout is updated before resizing conversation pane.
+		mConversationsStack->updateLayout();
+		// Restore conversation's pane previous width.
+		mConversationsPane->setTargetDim(gSavedPerAccountSettings.getS32("ConversationsListPaneWidth"));
+	}
 
-	S32 delta_width = gSavedPerAccountSettings.getS32("ConversationsListPaneWidth") - mConversationsPane->getMinDim();
+	S32 delta_width =
+			gSavedPerAccountSettings.getS32("ConversationsListPaneWidth") - mConversationsPane->getMinDim();
 
-	updateState(collapse, delta_width);
+	reshapeFloaterAndSetResizeLimits(collapse, delta_width);
 
 	for (conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
 			widget_it != mConversationsWidgets.end(); ++widget_it)
@@ -724,21 +733,20 @@ void LLFloaterIMContainer::collapseConversationsPane(bool collapse)
 	}
 }
 
-void LLFloaterIMContainer::updateState(bool collapse, S32 delta_width)
+void LLFloaterIMContainer::reshapeFloaterAndSetResizeLimits(bool collapse, S32 delta_width)
 {
 	LLRect floater_rect = getRect();
 	floater_rect.mRight += ((collapse ? -1 : 1) * delta_width);
 
 	// Set by_user = true so that reshaped rect is saved in user_settings.
 	setShape(floater_rect, true);
-
 	updateResizeLimits();
 
-	bool is_left_pane_expanded = !mConversationsPane->isCollapsed();
-	bool is_right_pane_expanded = !mMessagesPane->isCollapsed();
+	bool at_least_one_panel_is_expanded =
+			! (mConversationsPane->isCollapsed() && mMessagesPane->isCollapsed());
 
-	setCanResize(is_left_pane_expanded || is_right_pane_expanded);
-	setCanMinimize(is_left_pane_expanded || is_right_pane_expanded);
+	setCanResize(at_least_one_panel_is_expanded);
+	setCanMinimize(at_least_one_panel_is_expanded);
 
     assignResizeLimits();
 
@@ -767,15 +775,9 @@ void LLFloaterIMContainer::assignResizeLimits()
 	S32 msg_pane_min_width  = is_msg_pane_expanded ? mMessagesPane->getExpandedMinDim() : 0;
 	S32 new_min_width = conv_pane_target_width + msg_pane_min_width + summary_width_of_visible_borders;
 
-    if (is_conv_pane_expanded)
-    {
-    	// Save the conversations pane width.
-	    gSavedPerAccountSettings.setS32(
-	            "ConversationsListPaneWidth",
-                mConversationsPane->getRect().getWidth());
-    }
-
 	setResizeLimits(new_min_width, getMinHeight());
+
+	mConversationsStack->updateLayout();
 }
 
 void LLFloaterIMContainer::onAddButtonClicked()
@@ -1403,6 +1405,10 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 				// Switch to the conversation floater that is being selected
 				selectFloater(session_floater);
 			}
+			else
+			{
+				showStub(true);
+			}
 		}
 
 		// Set the focus on the selected floater
@@ -1881,6 +1887,9 @@ bool LLFloaterIMContainer::isScrolledOutOfSight(LLConversationViewSession* conve
 {
 	llassert(conversation_item_widget != NULL);
 
+	// make sure the widget is actually in the right spot first
+	mConversationsRoot->arrange(NULL, NULL);
+
 	// check whether the widget is in the visible portion of the scroll container
 	LLRect widget_rect;
 	conversation_item_widget->localRectToOtherView(conversation_item_widget->getLocalRect(), &widget_rect, mConversationsRoot);
@@ -1908,7 +1917,19 @@ BOOL LLFloaterIMContainer::handleKeyHere(KEY key, MASK mask )
 	return TRUE;
 }
 
-bool LLFloaterIMContainer::selectNextorPreviousConversation(bool select_next)
+bool LLFloaterIMContainer::selectAdjacentConversation(bool focus_selected)
+{
+	bool selectedAdjacentConversation = selectNextorPreviousConversation(true, focus_selected);
+
+	if(!selectedAdjacentConversation)
+	{
+		selectedAdjacentConversation = selectNextorPreviousConversation(false, focus_selected);
+	}
+
+	return selectedAdjacentConversation;
+}
+
+bool LLFloaterIMContainer::selectNextorPreviousConversation(bool select_next, bool focus_selected)
 {
 	if (mConversationsWidgets.size() > 1)
 	{
@@ -1929,12 +1950,7 @@ bool LLFloaterIMContainer::selectNextorPreviousConversation(bool select_next)
 				LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(new_selection->getViewModelItem());
 				if (vmi)
 				{
-					selectConversationPair(vmi->getUUID(), true);
-					LLFloater* floaterp = get_ptr_in_map(mSessions, getSelectedSession());
-					if(floaterp && !floaterp->isTornOff())
-					{
-						setFocus(TRUE);
-					}
+					selectConversationPair(vmi->getUUID(), true, focus_selected);
 					return true;
 				}
 			}
@@ -1957,11 +1973,6 @@ void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 	// Always unminimize before trying to close.
 	// Most of the time the user will never see this state.
 	setMinimized(FALSE);
-
-	// Save the conversations pane width.
-	gSavedPerAccountSettings.setS32(
-			"ConversationsListPaneWidth",
-			mConversationsPane->getRect().getWidth());
 
 	LLFloater::closeFloater(app_quitting);
 }

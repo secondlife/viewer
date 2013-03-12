@@ -820,6 +820,15 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		body_message_params.font.style = "ITALIC";
 	}
 
+	if(chat.mChatType == CHAT_TYPE_WHISPER)
+	{
+		body_message_params.font.style = "ITALIC";
+	}
+	else if(chat.mChatType == CHAT_TYPE_SHOUT)
+	{
+		body_message_params.font.style = "BOLD";
+	}
+
 	bool message_from_log = chat.mChatStyle == CHAT_STYLE_HISTORY;
 	// We graying out chat history by graying out messages that contains full date in a time string
 	if (message_from_log)

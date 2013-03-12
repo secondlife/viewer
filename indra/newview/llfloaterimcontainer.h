@@ -72,7 +72,8 @@ public:
 	void selectNextConversationByID(const LLUUID& session_id);
     BOOL selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater = true);
     void clearAllFlashStates();
-    bool selectNextorPreviousConversation(bool select_next);
+	bool selectAdjacentConversation(bool focus_selected);
+    bool selectNextorPreviousConversation(bool select_next, bool focus_selected = true);
     void expandConversation();
 
 	/*virtual*/ void tabClose();
@@ -128,9 +129,9 @@ private:
 	void processParticipantsStyleUpdate();
 	void onSpeakButtonClicked();
 
-	void collapseConversationsPane(bool collapse);
+	void collapseConversationsPane(bool collapse, bool save_is_allowed=true);
 
-	void updateState(bool collapse, S32 delta_width);
+	void reshapeFloaterAndSetResizeLimits(bool collapse, S32 delta_width);
 
 	void onAddButtonClicked();
 	void onAvatarPicked(const uuid_vec_t& ids);

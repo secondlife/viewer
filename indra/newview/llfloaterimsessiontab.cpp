@@ -324,13 +324,6 @@ void LLFloaterIMSessionTab::onFocusReceived()
 	}
 
 	LLTransientDockableFloater::onFocusReceived();
-
-	LLFloaterIMContainer* container = LLFloaterReg::findTypedInstance<LLFloaterIMContainer>("im_container");
-	if (container)
-	{
-		container->selectConversationPair(mSessionID, true);
-		container->showStub(! getHost());
-	}
 }
 
 void LLFloaterIMSessionTab::onFocusLost()
@@ -801,9 +794,17 @@ void LLFloaterIMSessionTab::onTearOffClicked()
     mSaveRect = isTornOff();
     initRectControl();
 	LLFloater::onClickTearOff(this);
+	LLFloaterIMContainer* container = LLFloaterReg::findTypedInstance<LLFloaterIMContainer>("im_container");
+
 	if (isTornOff())
 	{
+		container->selectAdjacentConversation(false);
 		forceReshape();
+	}
+	//Upon re-docking the torn off floater, select the corresponding conversation line item
+	else
+	{
+		container->selectConversation(mSessionID);
 	}
 	refreshConversation();
 	updateGearBtn();
