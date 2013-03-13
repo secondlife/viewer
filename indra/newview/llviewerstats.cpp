@@ -527,18 +527,19 @@ void update_statistics()
 
 class ViewerStatsResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(ViewerStatsResponder);
 public:
-    ViewerStatsResponder() { }
+	ViewerStatsResponder() { }
 
-    void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
-    {
-		llwarns << "ViewerStatsResponder error [status:" << statusNum << "]: "
-				<< content << llendl;
-    }
+private:
+	/* virtual */ void httpFailure()
+	{
+		llwarns << dumpResponse() << llendl;
+	}
 
-    void result(const LLSD& content)
-    {
-		llinfos << "ViewerStatsResponder::result" << llendl;
+	/* virtual */ void httpSuccess()
+	{
+		llinfos << "OK" << llendl;
 	}
 };
 

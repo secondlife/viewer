@@ -35,7 +35,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "llhttpstatuscodes.h"
+#include "llhttpconstants.h"
 #include "llsdutil.h"
 #include "llmediaentry.h"
 #include "lltextureentry.h"
@@ -564,7 +564,7 @@ LLMediaDataClient::Responder::Responder(const request_ptr_t &request)
 }
 
 /*virtual*/
-void LLMediaDataClient::Responder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+void LLMediaDataClient::Responder::httpFailure()
 {
 	mRequest->stopTracking();
 
@@ -574,9 +574,17 @@ void LLMediaDataClient::Responder::errorWithContent(U32 status, const std::strin
 		return;
 	}
 	
-	if (status == HTTP_SERVICE_UNAVAILABLE)
+	if (getStatus() == HTTP_SERVICE_UNAVAILABLE)
 	{
-		F32 retry_timeout = mRequest->getRetryTimerDelay();
+		F32 retry_timeout;
+#if 0
+		// *TODO: Honor server Retry-After header.
+		if (!hasResponseHeader(HTTP_HEADER_RETRY_AFTER)
+			|| !getSecondsUntilRetryAfter(getResponseHeader(HTTP_HEADER_RETRY_AFTER), retry_timeout))
+#endif
+		{
+			retry_timeout = mRequest->getRetryTimerDelay();
+		}
 		
 		mRequest->incRetryCount();
 		
@@ -594,15 +602,16 @@ void LLMediaDataClient::Responder::errorWithContent(U32 status, const std::strin
 				<< mRequest->getRetryCount() << " exceeds " << mRequest->getMaxNumRetries() << ", not retrying" << LL_ENDL;
 		}
 	}
+	// *TODO: Redirect on 3xx status codes.
 	else 
 	{
-		LL_WARNS("LLMediaDataClient") << *mRequest << " http error [status:" 
-				<< status << "]:" << content << ")" << LL_ENDL;
+		LL_WARNS("LLMediaDataClient") << *mRequest << " http failure "
+				<< dumpResponse() << LL_ENDL;
 	}
 }
 
 /*virtual*/
-void LLMediaDataClient::Responder::result(const LLSD& content)
+void LLMediaDataClient::Responder::httpSuccess()
 {
 	mRequest->stopTracking();
 
@@ -612,7 +621,7 @@ void LLMediaDataClient::Responder::result(const LLSD& content)
 		return;
 	}
 
-	LL_DEBUGS("LLMediaDataClientResponse") << *mRequest << " result : " << ll_print_sd(content) << LL_ENDL;
+	LL_DEBUGS("LLMediaDataClientResponse") << *mRequest << " " << dumpResponse() << LL_ENDL;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -876,7 +885,7 @@ LLMediaDataClient::Responder *LLObjectMediaDataClient::RequestUpdate::createResp
 
 
 /*virtual*/
-void LLObjectMediaDataClient::Responder::result(const LLSD& content)
+void LLObjectMediaDataClient::Responder::httpSuccess()
 {
 	getRequest()->stopTracking();
 
@@ -886,10 +895,16 @@ void LLObjectMediaDataClient::Responder::result(const LLSD& content)
 		return;
 	}
 
-	// This responder is only used for GET requests, not UPDATE.
+	const LLSD& content = getContent();
+	if (!content.isMap())
+	{
+		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+		return;
+	}
 
-	LL_DEBUGS("LLMediaDataClientResponse") << *(getRequest()) << " GET returned: " << ll_print_sd(content) << LL_ENDL;
-	
+	// This responder is only used for GET requests, not UPDATE.
+	LL_DEBUGS("LLMediaDataClientResponse") << *(getRequest()) << " " << dumpResponse() << LL_ENDL;
+
 	// Look for an error
 	if (content.has("error"))
 	{
@@ -1003,7 +1018,7 @@ LLMediaDataClient::Responder *LLObjectMediaNavigateClient::RequestNavigate::crea
 }
 
 /*virtual*/
-void LLObjectMediaNavigateClient::Responder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+void LLObjectMediaNavigateClient::Responder::httpFailure()
 {
 	getRequest()->stopTracking();
 
@@ -1015,14 +1030,14 @@ void LLObjectMediaNavigateClient::Responder::errorWithContent(U32 status, const 
 
 	// Bounce back (unless HTTP_SERVICE_UNAVAILABLE, in which case call base
 	// class
-	if (status == HTTP_SERVICE_UNAVAILABLE)
+	if (getStatus() == HTTP_SERVICE_UNAVAILABLE)
 	{
-		LLMediaDataClient::Responder::errorWithContent(status, reason, content);
+		LLMediaDataClient::Responder::httpFailure();
 	}
 	else
 	{
 		// bounce the face back
-		LL_WARNS("LLMediaDataClient") << *(getRequest()) << " Error navigating: http code=" << status << LL_ENDL;
+		LL_WARNS("LLMediaDataClient") << *(getRequest()) << " Error navigating: " << dumpResponse() << LL_ENDL;
 		const LLSD &payload = getRequest()->getPayload();
 		// bounce the face back
 		getRequest()->getObject()->mediaNavigateBounceBack((LLSD::Integer)payload[LLTextureEntry::TEXTURE_INDEX_KEY]);
@@ -1030,7 +1045,7 @@ void LLObjectMediaNavigateClient::Responder::errorWithContent(U32 status, const 
 }
 
 /*virtual*/
-void LLObjectMediaNavigateClient::Responder::result(const LLSD& content)
+void LLObjectMediaNavigateClient::Responder::httpSuccess()
 {
 	getRequest()->stopTracking();
 
@@ -1040,8 +1055,9 @@ void LLObjectMediaNavigateClient::Responder::result(const LLSD& content)
 		return;
 	}
 
-	LL_INFOS("LLMediaDataClient") << *(getRequest()) << " NAVIGATE returned " << ll_print_sd(content) << LL_ENDL;
+	LL_INFOS("LLMediaDataClient") << *(getRequest()) << " NAVIGATE returned " << dumpResponse() << LL_ENDL;
 	
+	const LLSD& content = getContent();
 	if (content.has("error"))
 	{
 		const LLSD &error = content["error"];
@@ -1065,6 +1081,6 @@ void LLObjectMediaNavigateClient::Responder::result(const LLSD& content)
 	else 
 	{
 		// No action required.
-		LL_DEBUGS("LLMediaDataClientResponse") << *(getRequest()) << " result : " << ll_print_sd(content) << LL_ENDL;
+		LL_DEBUGS("LLMediaDataClientResponse") << *(getRequest()) << " " << dumpResponse() << LL_ENDL;
 	}
 }

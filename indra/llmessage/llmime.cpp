@@ -27,6 +27,7 @@
  */
 
 #include "linden_common.h"
+#include "llhttpconstants.h"
 #include "llmime.h"
 
 #include <vector>
@@ -36,20 +37,6 @@
 /**
  * Useful constants.
  */
-// Headers specified in rfc-2045 will be canonicalized below.
-static const std::string CONTENT_LENGTH("Content-Length");
-static const std::string CONTENT_TYPE("Content-Type");
-static const S32 KNOWN_HEADER_COUNT = 6;
-static const std::string KNOWN_HEADER[KNOWN_HEADER_COUNT] =
-{
-	CONTENT_LENGTH,
-	CONTENT_TYPE,
-	std::string("MIME-Version"),
-	std::string("Content-Transfer-Encoding"),
-	std::string("Content-ID"),
-	std::string("Content-Description"),
-};
-
 // parser helpers
 static const std::string MULTIPART("multipart");
 static const std::string BOUNDARY("boundary");
@@ -115,7 +102,7 @@ S32 LLMimeIndex::contentLength() const
 {
 	// Find the content length in the headers.
 	S32 length = -1;
-	LLSD content_length = mImpl->mHeaders[CONTENT_LENGTH];
+	LLSD content_length = mImpl->mHeaders[HTTP_HEADER_CONTENT_LENGTH];
 	if(content_length.isDefined())
 	{
 		length = content_length.asInteger();
@@ -126,7 +113,7 @@ S32 LLMimeIndex::contentLength() const
 std::string LLMimeIndex::contentType() const
 {
 	std::string type;
-	LLSD content_type = mImpl->mHeaders[CONTENT_TYPE];
+	LLSD content_type = mImpl->mHeaders[HTTP_HEADER_CONTENT_TYPE];
 	if(content_type.isDefined())
 	{
 		type = content_type.asString();
@@ -137,7 +124,7 @@ std::string LLMimeIndex::contentType() const
 bool LLMimeIndex::isMultipart() const
 {
 	bool multipart = false;
-	LLSD content_type = mImpl->mHeaders[CONTENT_TYPE];
+	LLSD content_type = mImpl->mHeaders[HTTP_HEADER_CONTENT_TYPE];
 	if(content_type.isDefined())
 	{
 		std::string type = content_type.asString();
@@ -354,7 +341,7 @@ bool LLMimeParser::Impl::parseIndex(
 		if(index.isMultipart())
 		{
 			// Figure out the separator, scan past it, and recurse.
-			std::string ct = headers[CONTENT_TYPE].asString();
+			std::string ct = headers[HTTP_HEADER_CONTENT_TYPE].asString();
 			std::string sep = findSeparator(ct);
 			scanPastSeparator(istr, limit, sep);
 			while(continueParse() && parseIndex(istr, limit, sep, true, mime))
@@ -381,6 +368,18 @@ bool LLMimeParser::Impl::parseHeaders(
 	S32 limit,
 	LLSD& headers)
 {
+	// Headers specified in rfc-2045 will be canonicalized below.
+	static const S32 KNOWN_HEADER_COUNT = 6;
+	static const std::string KNOWN_HEADER[KNOWN_HEADER_COUNT] =
+	{
+		HTTP_HEADER_CONTENT_LENGTH,
+		HTTP_HEADER_CONTENT_TYPE,
+		HTTP_HEADER_MIME_VERSION,
+		HTTP_HEADER_CONTENT_TRANSFER_ENCODING,
+		HTTP_HEADER_CONTENT_ID,
+		HTTP_HEADER_CONTENT_DESCRIPTION,
+	};
+
 	while(continueParse())
 	{
 		// Get the next line.
@@ -531,9 +530,9 @@ void LLMimeParser::Impl::scanPastContent(
 	LLSD headers,
 	const std::string separator)
 {
-	if(headers.has(CONTENT_LENGTH))
+	if(headers.has(HTTP_HEADER_CONTENT_LENGTH))
 	{
-		S32 content_length = headers[CONTENT_LENGTH].asInteger();
+		S32 content_length = headers[HTTP_HEADER_CONTENT_LENGTH].asInteger();
 		// Subtract 2 here for the \r\n after the content.
 		S32 max_skip = llmin(content_length, limit - mScanCount - 2);
 		istr.ignore(max_skip);

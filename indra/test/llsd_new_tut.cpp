@@ -93,6 +93,18 @@ namespace tut
 			ensure(			s + " type",	traits.checkType(actual));
 			ensure_equals(	s + " value",	traits.get(actual), expectedValue);
 		}
+
+		template<class T>
+		static void ensureTypeAndRefValue(const char* msg, const LLSD& actual,
+			const T& expectedValue)
+		{
+			LLSDTraits<const T&> traits;
+			
+			std::string s(msg);
+			
+			ensure(			s + " type",	traits.checkType(actual));
+			ensure_equals(	s + " value",	traits.get(actual), expectedValue);
+		}
 	};
 	
 	typedef test_group<SDTestData>	SDTestGroup;
@@ -162,7 +174,7 @@ namespace tut
 		std::vector<U8> data;
 		copy(&source[0], &source[sizeof(source)], back_inserter(data));
 		
-		v = data;		ensureTypeAndValue("set to data", v, data);
+		v = data;		ensureTypeAndRefValue("set to data", v, data);
 		
 		v.clear();
 		ensure("reset to undefined", v.type() == LLSD::TypeUndefined);
@@ -213,8 +225,8 @@ namespace tut
 		const char source[] = "once in a blue moon";
 		std::vector<U8> data;
 		copy(&source[0], &source[sizeof(source)], back_inserter(data));
-		LLSD x1(data);	ensureTypeAndValue("construct vector<U8>", x1, data);
-		LLSD x2 = data;	ensureTypeAndValue("initialize vector<U8>", x2, data);
+		LLSD x1(data);	ensureTypeAndRefValue("construct vector<U8>", x1, data);
+		LLSD x2 = data;	ensureTypeAndRefValue("initialize vector<U8>", x2, data);
 	}
 	
 	void checkConversions(const char* msg, const LLSD& v,
@@ -757,42 +769,6 @@ namespace tut
 		{
 			SDAllocationCheck check("shared values test for threaded work", 9);
 
-			//U32 start_llsd_count = llsd::outstandingCount();
-
-			LLSD m = LLSD::emptyMap();
-
-			m["one"] = 1;
-			m["two"] = 2;
-			m["one_copy"] = m["one"];			// 3 (m, "one" and "two")
-
-			m["undef_one"] = LLSD();
-			m["undef_two"] = LLSD();
-			m["undef_one_copy"] = m["undef_one"];
-
-			{	// Ensure first_array gets freed to avoid counting it
-				LLSD first_array = LLSD::emptyArray();
-				first_array.append(1.0f);
-				first_array.append(2.0f);			
-				first_array.append(3.0f);			// 7
-
-				m["array"] = first_array;
-				m["array_clone"] = first_array;
-				m["array_copy"] = m["array"];		// 7
-			}
-
-			m["string_one"] = "string one value";
-			m["string_two"] = "string two value";
-			m["string_one_copy"] = m["string_one"];		// 9
-
-			//U32 llsd_object_count = llsd::outstandingCount();
-			//std::cout << "Using " << (llsd_object_count - start_llsd_count) << " LLSD objects" << std::endl;
-
-			//m.dumpStats();
-		}
-
-		{
-			SDAllocationCheck check("shared values test for threaded work", 9);
-
 			//U32 start_llsd_count = LLSD::outstandingCount();
 
 			LLSD m = LLSD::emptyMap();
@@ -852,3 +828,4 @@ namespace tut
 		test serializations
 	*/
 }
+

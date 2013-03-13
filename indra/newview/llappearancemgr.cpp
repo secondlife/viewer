@@ -2984,20 +2984,23 @@ class LLHTTPRetryPolicy: public LLThreadSafeRefCount
 public:
 	LLHTTPRetryPolicy() {}
 	virtual ~LLHTTPRetryPolicy() {}
-	virtual bool shouldRetry(U32 status, F32& seconds_to_wait) = 0;
+	virtual bool shouldRetry(S32 status, const LLSD& headers, F32& seconds_to_wait) = 0;
 };
 
 // Example of simplest possible policy, not necessarily recommended.
+// This would be a potentially dangerous policy to enable.  Removing for now:
+#if 0
 class LLAlwaysRetryImmediatelyPolicy: public LLHTTPRetryPolicy
 {
 public:
 	LLAlwaysRetryImmediatelyPolicy() {}
-	bool shouldRetry(U32 status, F32& seconds_to_wait)
+	bool shouldRetry(S32 status, const LLSD& headers, F32& seconds_to_wait)
 	{
 		seconds_to_wait = 0.0;
 		return true;
 	}
 };
+#endif
 
 // Very general policy with geometric back-off after failures,
 // up to a maximum delay, and maximum number of retries.
@@ -3014,10 +3017,25 @@ public:
 	{
 	}
 
-	bool shouldRetry(U32 status, F32& seconds_to_wait)
+	bool shouldRetry(S32 status, const LLSD& headers, F32& seconds_to_wait)
 	{
-		seconds_to_wait = mDelay;
-		mDelay = llclamp(mDelay*mBackoffFactor,mMinDelay,mMaxDelay);
+#if 0
+		// *TODO: Test using status codes to only retry server errors.
+		// Only server errors would potentially return a different result on retry.
+		if (!isHttpServerErrorStatus(status)) return false;
+#endif
+
+#if 0
+		// *TODO: Honor server Retry-After header.
+		// Status 503 may ask us to wait for a certain amount of time before retrying.
+		if (!headers.has(HTTP_HEADER_RETRY_AFTER)
+			|| !getSecondsUntilRetryAfter(headers[HTTP_HEADER_RETRY_AFTER].asStringRef(), seconds_to_wait))
+#endif
+		{
+			seconds_to_wait = mDelay;
+			mDelay = llclamp(mDelay*mBackoffFactor,mMinDelay,mMaxDelay);
+		}
+
 		mRetryCount++;
 		return (mRetryCount<=mMaxRetries);
 	}
@@ -3033,6 +3051,7 @@ private:
 
 class RequestAgentUpdateAppearanceResponder: public LLHTTPClient::Responder
 {
+	LOG_CLASS(RequestAgentUpdateAppearanceResponder);
 public:
 	RequestAgentUpdateAppearanceResponder()
 	{
@@ -3043,13 +3062,19 @@ public:
 	{
 	}
 
+protected:
 	// Successful completion.
-	/* virtual */ void result(const LLSD& content)
+	/* virtual */ void httpSuccess()
 	{
-		LL_DEBUGS("Avatar") << "content: " << ll_pretty_print_sd(content) << LL_ENDL;
+		const LLSD& content = getContent();
+		if (!content.isMap())
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
 		if (content["success"].asBoolean())
 		{
-			LL_DEBUGS("Avatar") << "OK" << LL_ENDL;
+			LL_DEBUGS("Avatar") << dumpResponse() << LL_ENDL;
 			if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
 			{
 				dumpContents(gAgentAvatarp->getFullname() + "_appearance_request_ok", content);
@@ -3057,33 +3082,35 @@ public:
 		}
 		else
 		{
-			onFailure(200);
+			failureResult(HTTP_INTERNAL_ERROR, "Non-success response", content);
 		}
 	}
 
 	// Error
-	/*virtual*/ void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	/*virtual*/ void httpFailure()
 	{
-		llwarns << "appearance update request failed, status: " << status << " reason: " << reason << " code: " << content["code"].asInteger() << " error: \"" << content["error"].asString() << "\"" << llendl;
+		const LLSD& content = getContent();
+		LL_WARNS("Avatar") << "appearance update request failed "
+				<< dumpResponse() << LL_ENDL;
 		if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
 		{
 			dumpContents(gAgentAvatarp->getFullname() + "_appearance_request_error", content);
 			debugCOF(content);
 		
 		}
-		onFailure(status);
-	}	
+		onFailure();
+	}
 
-	void onFailure(U32 status)
+	void onFailure()
 	{
 		F32 seconds_to_wait;
-		if (mRetryPolicy->shouldRetry(status,seconds_to_wait))
+		if (mRetryPolicy->shouldRetry(getStatus(), getResponseHeaders(), seconds_to_wait))
 		{
 			llinfos << "retrying" << llendl;
 			doAfterInterval(boost::bind(&LLAppearanceMgr::requestServerAppearanceUpdate,
 										LLAppearanceMgr::getInstance(),
-										LLCurl::ResponderPtr(this)),
-							seconds_to_wait);
+										LLHTTPClient::ResponderPtr(this)),
+										seconds_to_wait);
 		}
 		else
 		{
@@ -3286,6 +3313,7 @@ void LLAppearanceMgr::requestServerAppearanceUpdate(LLCurl::ResponderPtr respond
 
 class LLIncrementCofVersionResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLIncrementCofVersionResponder);
 public:
 	LLIncrementCofVersionResponder() : LLHTTPClient::Responder()
 	{
@@ -3296,10 +3324,17 @@ public:
 	{
 	}
 
-	virtual void result(const LLSD &pContent)
+protected:
+	virtual void httpSuccess()
 	{
 		llinfos << "Successfully incremented agent's COF." << llendl;
-		S32 new_version = pContent["category"]["version"].asInteger();
+		const LLSD& content = getContent();
+		if (!content.isMap())
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
+		S32 new_version = content["category"]["version"].asInteger();
 
 		LLAppearanceMgr* app_mgr = LLAppearanceMgr::getInstance();
 
@@ -3308,12 +3343,13 @@ public:
 
 		app_mgr->mLastUpdateRequestCOFVersion = new_version;
 	}
-	virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& content)
+
+	virtual void httpFailure()
 	{
-		llwarns << "While attempting to increment the agent's cof we got an error with [status:"
-				<< pStatus << "]: " << content << llendl;
+		LL_WARNS("Avatar") << "While attempting to increment the agent's cof we got an error "
+				<< dumpResponse() << LL_ENDL;
 		F32 seconds_to_wait;
-		if (mRetryPolicy->shouldRetry(pStatus,seconds_to_wait))
+		if (mRetryPolicy->shouldRetry(getStatus(), getResponseHeaders(), seconds_to_wait))
 		{
 			llinfos << "retrying" << llendl;
 			doAfterInterval(boost::bind(&LLAppearanceMgr::incrementCofVersion,
@@ -3327,6 +3363,7 @@ public:
 		}
 	}
 
+private:
 	LLPointer<LLHTTPRetryPolicy> mRetryPolicy;
 };
 

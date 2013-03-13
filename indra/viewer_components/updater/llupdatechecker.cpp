@@ -106,15 +106,14 @@ void LLUpdateChecker::Implementation::checkVersion(std::string const & protocolV
 	mHttpClient.get(checkUrl, this);
 }
 
-void LLUpdateChecker::Implementation::completed(U32 status,
-							  const std::string & reason,
-							  const LLSD & content)
+void LLUpdateChecker::Implementation::httpCompleted()
 {
-	mInProgress = false;	
-	
-	if(status != 200) {
-		LL_WARNS("UpdateCheck") << "html error " << status << " (" << reason << ")" << llendl;
-		mClient.error(reason);
+	mInProgress = false;
+
+	const LLSD& content = getContent();
+	if(getStatus() != HTTP_OK) {
+		LL_WARNS("UpdateCheck") << "html error " << dumpResponse() << LL_ENDL;
+		mClient.error(getReason());
 	} else if(!content.asBoolean()) {
 		LL_INFOS("UpdateCheck") << "up to date" << llendl;
 		mClient.upToDate();
@@ -130,8 +129,9 @@ void LLUpdateChecker::Implementation::completed(U32 status,
 }
 
 
-void LLUpdateChecker::Implementation::error(U32 status, const std::string & reason)
+void LLUpdateChecker::Implementation::httpFailure()
 {
+	const std::string& reason = getReason();
 	mInProgress = false;
 	LL_WARNS("UpdateCheck") << "update check failed; " << reason << llendl;
 	mClient.error(reason);

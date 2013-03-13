@@ -2241,6 +2241,7 @@ LLSD LLVOAvatarSelf::metricsData()
 
 class ViewerAppearanceChangeMetricsResponder: public LLCurl::Responder
 {
+	LOG_CLASS(ViewerAppearanceChangeMetricsResponder);
 public:
 	ViewerAppearanceChangeMetricsResponder( S32 expected_sequence,
 											volatile const S32 & live_sequence,
@@ -2251,30 +2252,23 @@ public:
 	{
 	}
 
-	virtual void completed(U32 status,
-						   const std::string& reason,
-						   const LLSD& content)
+private:
+	/* virtual */ void httpSuccess()
 	{
-		gPendingMetricsUploads--; // if we add retry, this should be moved to the isGoodStatus case.
-		if (isGoodStatus(status))
-		{
-			LL_DEBUGS("Avatar") << "OK" << LL_ENDL;
-			result(content);
-		}
-		else
-		{
-			LL_WARNS("Avatar") << "Failed " << status << " reason " << reason << LL_ENDL;
-			errorWithContent(status,reason,content);
-		}
-	}
+		LL_DEBUGS("Avatar") << "OK" << LL_ENDL;
 
-	// virtual
-	void result(const LLSD & content)
-	{
+		gPendingMetricsUploads--;
 		if (mLiveSequence == mExpectedSequence)
 		{
 			mReportingStarted = true;
 		}
+	}
+
+	/* virtual */ void httpFailure()
+	{
+		// if we add retry, this should be removed from the httpFailure case
+		LL_WARNS("Avatar") << dumpResponse() << LL_ENDL;
+		gPendingMetricsUploads--;
 	}
 
 private:
@@ -2425,6 +2419,7 @@ void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
 
 class CheckAgentAppearanceServiceResponder: public LLHTTPClient::Responder
 {
+	LOG_CLASS(CheckAgentAppearanceServiceResponder);
 public:
 	CheckAgentAppearanceServiceResponder()
 	{
@@ -2434,22 +2429,24 @@ public:
 	{
 	}
 
-	/* virtual */ void result(const LLSD& content)
+private:
+	/* virtual */ void httpSuccess()
 	{
-		LL_DEBUGS("Avatar") << "status OK" << llendl;
+		LL_DEBUGS("Avatar") << "OK" << llendl;
 	}
 
 	// Error
-	/*virtual*/ void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	/*virtual*/ void httpFailure()
 	{
 		if (isAgentAvatarValid())
 		{
-			LL_DEBUGS("Avatar") << "failed, will rebake [status:"
-					<< status << "]: " << content << llendl;
+			LL_DEBUGS("Avatar") << "failed, will rebake "
+					<< dumpResponse() << LL_ENDL;
 			forceAppearanceUpdate();
 		}
-	}	
+	}
 
+public:
 	static void forceAppearanceUpdate()
 	{
 		// Trying to rebake immediately after crossing region boundary

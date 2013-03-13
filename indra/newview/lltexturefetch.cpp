@@ -36,7 +36,7 @@
 
 #include "lldir.h"
 #include "llhttpclient.h"
-#include "llhttpstatuscodes.h"
+#include "llhttpconstants.h"
 #include "llimage.h"
 #include "llimagej2c.h"
 #include "llimageworker.h"
@@ -2350,9 +2350,10 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	mHttpRequest = new LLCore::HttpRequest;
 	mHttpOptions = new LLCore::HttpOptions;
 	mHttpHeaders = new LLCore::HttpHeaders;
-	mHttpHeaders->mHeaders.push_back("Accept: image/x-j2c");
+	// *TODO: Should this be 'image/j2c' instead of 'image/x-j2c' ?
+	mHttpHeaders->mHeaders.push_back(HTTP_HEADER_ACCEPT + ": " + HTTP_CONTENT_IMAGE_X_J2C);
 	mHttpMetricsHeaders = new LLCore::HttpHeaders;
-	mHttpMetricsHeaders->mHeaders.push_back("Content-Type: application/llsd+xml");
+	mHttpMetricsHeaders->mHeaders.push_back(HTTP_HEADER_CONTENT_TYPE + ": " + HTTP_CONTENT_LLSD_XML);
 	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicyDefault();
 }
 
@@ -3950,7 +3951,8 @@ void LLTextureFetchDebugger::init()
 	if (! mHttpHeaders)
 	{
 		mHttpHeaders = new LLCore::HttpHeaders;
-		mHttpHeaders->mHeaders.push_back("Accept: image/x-j2c");
+		// *TODO: Should this be 'image/j2c' instead of 'image/x-j2c' ?
+		mHttpHeaders->mHeaders.push_back(HTTP_HEADER_ACCEPT + ": " + HTTP_CONTENT_IMAGE_X_J2C);
 	}
 }
 

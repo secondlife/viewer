@@ -2068,10 +2068,21 @@ if (LL_TESTS)
     #llviewertexturelist.cpp
   )
 
+  set(test_libs
+    ${JSONCPP_LIBRARIES}
+    ${CURL_LIBRARIES}
+    )
+
   set_source_files_properties(
     lltranslate.cpp
     PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES "${JSONCPP_LIBRARIES}"
+    LL_TEST_ADDITIONAL_LIBRARIES "${test_libs}"
+  )
+
+  set_source_files_properties(
+    llmediadataclient.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${CURL_LIBRARIES}"
   )
 
   set_source_files_properties(

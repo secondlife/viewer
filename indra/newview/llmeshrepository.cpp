@@ -28,7 +28,7 @@
 
 #include "apr_pools.h"
 #include "apr_dso.h"
-#include "llhttpstatuscodes.h"
+#include "llhttpconstants.h"
 #include "llmeshrepository.h"
 
 #include "llagent.h"
@@ -202,6 +202,7 @@ U32	LLMeshRepoThread::sMaxConcurrentRequests = 1;
 
 class LLMeshHeaderResponder : public LLCurl::Responder
 {
+	LOG_CLASS(LLMeshHeaderResponder);
 public:
 	LLVolumeParams mMeshParams;
 	bool mProcessed;
@@ -230,14 +231,14 @@ public:
 		}
 	}
 
-	virtual void completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
+	virtual void completedRaw(const LLChannelDescriptors& channels,
 							  const LLIOPipe::buffer_ptr_t& buffer);
 
 };
 
 class LLMeshLODResponder : public LLCurl::Responder
 {
+	LOG_CLASS(LLMeshLODResponder);
 public:
 	LLVolumeParams mMeshParams;
 	S32 mLOD;
@@ -266,14 +267,14 @@ public:
 		}
 	}
 
-	virtual void completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
+	virtual void completedRaw(const LLChannelDescriptors& channels,
 							  const LLIOPipe::buffer_ptr_t& buffer);
 
 };
 
 class LLMeshSkinInfoResponder : public LLCurl::Responder
 {
+	LOG_CLASS(LLMeshSkinInfoResponder);
 public:
 	LLUUID mMeshID;
 	U32 mRequestedBytes;
@@ -291,14 +292,14 @@ public:
 		llassert(mProcessed);
 	}
 
-	virtual void completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
+	virtual void completedRaw(const LLChannelDescriptors& channels,
 							  const LLIOPipe::buffer_ptr_t& buffer);
 
 };
 
 class LLMeshDecompositionResponder : public LLCurl::Responder
 {
+	LOG_CLASS(LLMeshDecompositionResponder);
 public:
 	LLUUID mMeshID;
 	U32 mRequestedBytes;
@@ -316,14 +317,14 @@ public:
 		llassert(mProcessed);
 	}
 
-	virtual void completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
+	virtual void completedRaw(const LLChannelDescriptors& channels,
 							  const LLIOPipe::buffer_ptr_t& buffer);
 
 };
 
 class LLMeshPhysicsShapeResponder : public LLCurl::Responder
 {
+	LOG_CLASS(LLMeshPhysicsShapeResponder);
 public:
 	LLUUID mMeshID;
 	U32 mRequestedBytes;
@@ -341,8 +342,7 @@ public:
 		llassert(mProcessed);
 	}
 
-	virtual void completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
+	virtual void completedRaw(const LLChannelDescriptors& channels,
 							  const LLIOPipe::buffer_ptr_t& buffer);
 
 };
@@ -398,6 +398,7 @@ void log_upload_error(S32 status, const LLSD& content, std::string stage, std::s
 
 class LLWholeModelFeeResponder: public LLCurl::Responder
 {
+	LOG_CLASS(LLWholeModelFeeResponder);
 	LLMeshUploadThread* mThread;
 	LLSD mModelData;
 	LLHandle<LLWholeModelFeeObserver> mObserverHandle;
@@ -421,21 +422,20 @@ public:
 		}
 	}
 
-	virtual void completed(U32 status,
-						   const std::string& reason,
-						   const LLSD& content)
+protected:
+	virtual void httpCompleted()
 	{
-		LLSD cc = content;
+		LLSD cc = getContent();
 		if (gSavedSettings.getS32("MeshUploadFakeErrors")&1)
 		{
 			cc = llsd_from_file("fake_upload_error.xml");
 		}
-			
+
 		dump_llsd_to_file(cc,make_dump_name("whole_model_fee_response_",dump_num));
 
 		LLWholeModelFeeObserver* observer = mObserverHandle.get();
 
-		if (isGoodStatus(status) &&
+		if (isGoodStatus() &&
 			cc["state"].asString() == "upload")
 		{
 			mThread->mWholeModelUploadURL = cc["uploader"].asString();
@@ -448,13 +448,14 @@ public:
 		}
 		else
 		{
-			llwarns << "fee request failed" << llendl;
+			llwarns << "fee request failed " << dumpResponse() << llendl;
+			S32 status = getStatus();
 			log_upload_error(status,cc,"fee",mModelData["name"]);
 			mThread->mWholeModelUploadURL = "";
 
 			if (observer)
 			{
-				observer->setModelPhysicsFeeErrorStatus(status, reason);
+				observer->setModelPhysicsFeeErrorStatus(status, getReason());
 			}
 		}
 	}
@@ -463,6 +464,7 @@ public:
 
 class LLWholeModelUploadResponder: public LLCurl::Responder
 {
+	LOG_CLASS(LLWholeModelUploadResponder);
 	LLMeshUploadThread* mThread;
 	LLSD mModelData;
 	LLHandle<LLWholeModelUploadObserver> mObserverHandle;
@@ -487,11 +489,10 @@ public:
 		}
 	}
 
-	virtual void completed(U32 status,
-						   const std::string& reason,
-						   const LLSD& content)
+protected:
+	virtual void httpCompleted()
 	{
-		LLSD cc = content;
+		LLSD cc = getContent();
 		if (gSavedSettings.getS32("MeshUploadFakeErrors")&2)
 		{
 			cc = llsd_from_file("fake_upload_error.xml");
@@ -503,7 +504,7 @@ public:
 
 		// requested "mesh" asset type isn't actually the type
 		// of the resultant object, fix it up here.
-		if (isGoodStatus(status) &&
+		if (isGoodStatus() &&
 			cc["state"].asString() == "complete")
 		{
 			mModelData["asset_type"] = "object";
@@ -516,9 +517,9 @@ public:
 		}
 		else
 		{
-			llwarns << "upload failed" << llendl;
+			llwarns << "upload failed " << dumpResponse() << llendl;
 			std::string model_name = mModelData["name"].asString();
-			log_upload_error(status,cc,"upload",model_name);
+			log_upload_error(getStatus(),cc,"upload",model_name);
 
 			if (observer)
 			{
@@ -807,7 +808,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 
 			//reading from VFS failed for whatever reason, fetch from sim
 			std::vector<std::string> headers;
-			headers.push_back("Accept: application/octet-stream");
+			headers.push_back(HTTP_HEADER_ACCEPT + ": " + HTTP_CONTENT_OCTET_STREAM);
 
 			std::string http_url = constructUrl(mesh_id);
 			if (!http_url.empty())
@@ -889,7 +890,7 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 
 			//reading from VFS failed for whatever reason, fetch from sim
 			std::vector<std::string> headers;
-			headers.push_back("Accept: application/octet-stream");
+			headers.push_back(HTTP_HEADER_ACCEPT + ": " + HTTP_CONTENT_OCTET_STREAM);
 
 			std::string http_url = constructUrl(mesh_id);
 			if (!http_url.empty())
@@ -970,7 +971,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 
 			//reading from VFS failed for whatever reason, fetch from sim
 			std::vector<std::string> headers;
-			headers.push_back("Accept: application/octet-stream");
+			headers.push_back(HTTP_HEADER_ACCEPT + ": " + HTTP_CONTENT_OCTET_STREAM);
 
 			std::string http_url = constructUrl(mesh_id);
 			if (!http_url.empty())
@@ -1051,7 +1052,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, U32& c
 	//either cache entry doesn't exist or is corrupt, request header from simulator	
 	bool retval = true ;
 	std::vector<std::string> headers;
-	headers.push_back("Accept: application/octet-stream");
+	headers.push_back(HTTP_HEADER_ACCEPT + ": " + HTTP_CONTENT_OCTET_STREAM);
 
 	std::string http_url = constructUrl(mesh_params.getSculptID());
 	if (!http_url.empty())
@@ -1126,7 +1127,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 
 			//reading from VFS failed for whatever reason, fetch from sim
 			std::vector<std::string> headers;
-			headers.push_back("Accept: application/octet-stream");
+			headers.push_back(HTTP_HEADER_ACCEPT + ": " + HTTP_CONTENT_OCTET_STREAM);
 
 			std::string http_url = constructUrl(mesh_id);
 			if (!http_url.empty())
@@ -1898,10 +1899,10 @@ void LLMeshRepository::cacheOutgoingMesh(LLMeshUploadData& data, LLSD& header)
 
 }
 
-void LLMeshLODResponder::completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
-							  const LLIOPipe::buffer_ptr_t& buffer)
+void LLMeshLODResponder::completedRaw(const LLChannelDescriptors& channels,
+									  const LLIOPipe::buffer_ptr_t& buffer)
 {
+	S32 status = getStatus();
 	mProcessed = true;
 	
 	// thread could have already be destroyed during logout
@@ -1912,14 +1913,15 @@ void LLMeshLODResponder::completedRaw(U32 status, const std::string& reason,
 	
 	S32 data_size = buffer->countAfter(channels.in(), NULL);
 
+	// *TODO: What about 3xx redirect codes? What about status 400 (Bad Request)?
 	if (status < 200 || status > 400)
 	{
-		llwarns << status << ": " << reason << llendl;
+		llwarns << dumpResponse() << llendl;
 	}
 
 	if (data_size < mRequestedBytes)
 	{
-		if (status == 499 || status == 503)
+		if (status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE)
 		{ //timeout or service unavailable, try again
 			llwarns << "Timeout or service unavailable, retrying." << llendl;
 			LLMeshRepository::sHTTPRetryCount++;
@@ -1927,8 +1929,8 @@ void LLMeshLODResponder::completedRaw(U32 status, const std::string& reason,
 		}
 		else
 		{
-			llassert(status == 499 || status == 503); //intentionally trigger a breakpoint
-			llwarns << "Unhandled status " << status << llendl;
+			llassert(status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE); //intentionally trigger a breakpoint
+			llwarns << "Unhandled status " << dumpResponse() << llendl;
 		}
 		return;
 	}
@@ -1962,10 +1964,10 @@ void LLMeshLODResponder::completedRaw(U32 status, const std::string& reason,
 	delete [] data;
 }
 
-void LLMeshSkinInfoResponder::completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
-							  const LLIOPipe::buffer_ptr_t& buffer)
+void LLMeshSkinInfoResponder::completedRaw(const LLChannelDescriptors& channels,
+										   const LLIOPipe::buffer_ptr_t& buffer)
 {
+	S32 status = getStatus();
 	mProcessed = true;
 
 	// thread could have already be destroyed during logout
@@ -1976,14 +1978,15 @@ void LLMeshSkinInfoResponder::completedRaw(U32 status, const std::string& reason
 
 	S32 data_size = buffer->countAfter(channels.in(), NULL);
 
+	// *TODO: What about 3xx redirect codes? What about status 400 (Bad Request)?
 	if (status < 200 || status > 400)
 	{
-		llwarns << status << ": " << reason << llendl;
+		llwarns << dumpResponse() << llendl;
 	}
 
 	if (data_size < mRequestedBytes)
 	{
-		if (status == 499 || status == 503)
+		if (status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE)
 		{ //timeout or service unavailable, try again
 			llwarns << "Timeout or service unavailable, retrying." << llendl;
 			LLMeshRepository::sHTTPRetryCount++;
@@ -1991,8 +1994,8 @@ void LLMeshSkinInfoResponder::completedRaw(U32 status, const std::string& reason
 		}
 		else
 		{
-			llassert(status == 499 || status == 503); //intentionally trigger a breakpoint
-			llwarns << "Unhandled status " << status << llendl;
+			llassert(status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE); //intentionally trigger a breakpoint
+			llwarns << "Unhandled status " << dumpResponse() << llendl;
 		}
 		return;
 	}
@@ -2026,10 +2029,10 @@ void LLMeshSkinInfoResponder::completedRaw(U32 status, const std::string& reason
 	delete [] data;
 }
 
-void LLMeshDecompositionResponder::completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
-							  const LLIOPipe::buffer_ptr_t& buffer)
+void LLMeshDecompositionResponder::completedRaw(const LLChannelDescriptors& channels,
+												const LLIOPipe::buffer_ptr_t& buffer)
 {
+	S32 status = getStatus();
 	mProcessed = true;
 	
 	if( !gMeshRepo.mThread )
@@ -2039,14 +2042,15 @@ void LLMeshDecompositionResponder::completedRaw(U32 status, const std::string& r
 
 	S32 data_size = buffer->countAfter(channels.in(), NULL);
 
+	// *TODO: What about 3xx redirect codes? What about status 400 (Bad Request)?
 	if (status < 200 || status > 400)
 	{
-		llwarns << status << ": " << reason << llendl;
+		llwarns << dumpResponse() << llendl;
 	}
 
 	if (data_size < mRequestedBytes)
 	{
-		if (status == 499 || status == 503)
+		if (status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE)
 		{ //timeout or service unavailable, try again
 			llwarns << "Timeout or service unavailable, retrying." << llendl;
 			LLMeshRepository::sHTTPRetryCount++;
@@ -2054,8 +2058,8 @@ void LLMeshDecompositionResponder::completedRaw(U32 status, const std::string& r
 		}
 		else
 		{
-			llassert(status == 499 || status == 503); //intentionally trigger a breakpoint
-			llwarns << "Unhandled status " << status << llendl;
+			llassert(status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE); //intentionally trigger a breakpoint
+			llwarns << "Unhandled status " << dumpResponse() << llendl;
 		}
 		return;
 	}
@@ -2089,10 +2093,10 @@ void LLMeshDecompositionResponder::completedRaw(U32 status, const std::string& r
 	delete [] data;
 }
 
-void LLMeshPhysicsShapeResponder::completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
-							  const LLIOPipe::buffer_ptr_t& buffer)
+void LLMeshPhysicsShapeResponder::completedRaw(const LLChannelDescriptors& channels,
+											   const LLIOPipe::buffer_ptr_t& buffer)
 {
+	S32 status = getStatus();
 	mProcessed = true;
 
 	// thread could have already be destroyed during logout
@@ -2103,14 +2107,15 @@ void LLMeshPhysicsShapeResponder::completedRaw(U32 status, const std::string& re
 
 	S32 data_size = buffer->countAfter(channels.in(), NULL);
 
+	// *TODO: What about 3xx redirect codes? What about status 400 (Bad Request)?
 	if (status < 200 || status > 400)
 	{
-		llwarns << status << ": " << reason << llendl;
+		llwarns << dumpResponse() << llendl;
 	}
 
 	if (data_size < mRequestedBytes)
 	{
-		if (status == 499 || status == 503)
+		if (status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE)
 		{ //timeout or service unavailable, try again
 			llwarns << "Timeout or service unavailable, retrying." << llendl;
 			LLMeshRepository::sHTTPRetryCount++;
@@ -2118,8 +2123,8 @@ void LLMeshPhysicsShapeResponder::completedRaw(U32 status, const std::string& re
 		}
 		else
 		{
-			llassert(status == 499 || status == 503); //intentionally trigger a breakpoint
-			llwarns << "Unhandled status " << status << llendl;
+			llassert(status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE); //intentionally trigger a breakpoint
+			llwarns << "Unhandled status " << dumpResponse() << llendl;
 		}
 		return;
 	}
@@ -2153,10 +2158,10 @@ void LLMeshPhysicsShapeResponder::completedRaw(U32 status, const std::string& re
 	delete [] data;
 }
 
-void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
-							  const LLIOPipe::buffer_ptr_t& buffer)
+void LLMeshHeaderResponder::completedRaw(const LLChannelDescriptors& channels,
+										 const LLIOPipe::buffer_ptr_t& buffer)
 {
+	S32 status = getStatus();
 	mProcessed = true;
 
 	// thread could have already be destroyed during logout
@@ -2165,6 +2170,7 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 		return;
 	}
 
+	// *TODO: What about 3xx redirect codes? What about status 400 (Bad Request)?
 	if (status < 200 || status > 400)
 	{
 		//llwarns
@@ -2178,9 +2184,9 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 		// and (somewhat more optional than the others) retries
 		// again after some set period of time
 
-		llassert(status == 503 || status == 499);
+		llassert(status == HTTP_SERVICE_UNAVAILABLE || status == HTTP_INTERNAL_ERROR);
 
-		if (status == 503 || status == 499)
+		if (status == HTTP_SERVICE_UNAVAILABLE || status == HTTP_INTERNAL_ERROR)
 		{ //retry
 			llwarns << "Timeout or service unavailable, retrying." << llendl;
 			LLMeshRepository::sHTTPRetryCount++;
@@ -2192,7 +2198,7 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 		}
 		else
 		{
-			llwarns << "Unhandled status." << llendl;
+			llwarns << "Unhandled status " << dumpResponse() << llendl;
 		}
 	}
 
@@ -2214,9 +2220,7 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 
 	if (!success)
 	{
-		llwarns
-			<< "Unable to parse mesh header: "
-			<< status << ": " << reason << llendl;
+		llwarns << "Unable to parse mesh header: " << dumpResponse() << llendl;
 	}
 	else if (data && data_size > 0)
 	{

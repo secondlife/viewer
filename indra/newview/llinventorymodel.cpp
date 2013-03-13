@@ -414,6 +414,7 @@ const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType prefe
 
 class LLCreateInventoryCategoryResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLCreateInventoryCategoryResponder);
 public:
 	LLCreateInventoryCategoryResponder(LLInventoryModel* model, 
 									   void (*callback)(const LLSD&, void*),
@@ -424,16 +425,21 @@ public:
 	{
 	}
 	
-	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+protected:
+	virtual void httpFailure()
 	{
-		LL_WARNS("InvAPI") << "CreateInventoryCategory failed [status:"
-				<< status << "]: " << content << LL_ENDL;
+		LL_WARNS("InvAPI") << dumpResponse() << LL_ENDL;
 	}
 	
-	virtual void result(const LLSD& content)
+	virtual void httpSuccess()
 	{
 		//Server has created folder.
-		
+		const LLSD& content = getContent();
+		if (!content.isMap() || !content.has("folder_id"))
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
 		LLUUID category_id = content["folder_id"].asUUID();
 		
 		
@@ -1340,8 +1346,14 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 }
 
 // If we get back a normal response, handle it here
-void  LLInventoryModel::fetchInventoryResponder::result(const LLSD& content)
-{	
+void LLInventoryModel::fetchInventoryResponder::httpSuccess()
+{
+	const LLSD& content = getContent();
+	if (!content.isMap())
+	{
+		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+		return;
+	}
 	start_new_inventory_observer();
 
 	/*LLUUID agent_id;
@@ -1400,9 +1412,9 @@ void  LLInventoryModel::fetchInventoryResponder::result(const LLSD& content)
 }
 
 //If we get back an error (not found, etc...), handle it here
-void LLInventoryModel::fetchInventoryResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+void LLInventoryModel::fetchInventoryResponder::httpFailure()
 {
-	llwarns << "fetchInventory error [status:" << status << "]: " << content << llendl;
+	llwarns << dumpResponse() << llendl;
 	gInventory.notifyObservers();
 }
 

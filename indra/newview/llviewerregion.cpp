@@ -204,24 +204,30 @@ class BaseCapabilitiesComplete : public LLHTTPClient::Responder
 {
 	LOG_CLASS(BaseCapabilitiesComplete);
 public:
-    BaseCapabilitiesComplete(U64 region_handle, S32 id)
+	BaseCapabilitiesComplete(U64 region_handle, S32 id)
 		: mRegionHandle(region_handle), mID(id)
-    { }
+	{ }
 	virtual ~BaseCapabilitiesComplete()
 	{ }
 
-    void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
-    {
-		LL_WARNS2("AppInit", "Capabilities") << "[status:" << statusNum << ":] " << content << LL_ENDL;
+	static BaseCapabilitiesComplete* build( U64 region_handle, S32 id )
+	{
+		return new BaseCapabilitiesComplete(region_handle, id);
+	}
+
+private:
+	/* virtual */void httpFailure()
+	{
+		LL_WARNS2("AppInit", "Capabilities") << dumpResponse() << LL_ENDL;
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
 		if (regionp)
 		{
 			regionp->failedSeedCapability();
 		}
-    }
+	}
 
-   void result(const LLSD& content)
-    {
+	/* virtual */ void httpSuccess()
+	{
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
 		if(!regionp) //region was removed
 		{
@@ -234,11 +240,17 @@ public:
 			return ;
 		}
 
+		const LLSD& content = getContent();
+		if (!content.isMap())
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
 		LLSD::map_const_iterator iter;
 		for(iter = content.beginMap(); iter != content.endMap(); ++iter)
 		{
 			regionp->setCapability(iter->first, iter->second);
-			
+
 			LL_DEBUGS2("AppInit", "Capabilities") << "got capability for " 
 				<< iter->first << LL_ENDL;
 
@@ -257,11 +269,6 @@ public:
 		}
 	}
 
-    static BaseCapabilitiesComplete* build( U64 region_handle, S32 id )
-    {
-		return new BaseCapabilitiesComplete(region_handle, id);
-    }
-
 private:
 	U64 mRegionHandle;
 	S32 mID;
@@ -278,19 +285,32 @@ public:
 	virtual ~BaseCapabilitiesCompleteTracker()
 	{ }
 
-	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+	static BaseCapabilitiesCompleteTracker* build( U64 region_handle )
 	{
-		llwarns << "BaseCapabilitiesCompleteTracker error [status:"
-				<< statusNum << "]: " << content << llendl;
+		return new BaseCapabilitiesCompleteTracker( region_handle );
 	}
 
-	void result(const LLSD& content)
+private:
+	/* virtual */ void httpFailure()
+	{
+		llwarns << dumpResponse() << llendl;
+	}
+
+	/* virtual */ void httpSuccess()
 	{
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
 		if( !regionp ) 
 		{
+			LL_WARNS2("AppInit", "Capabilities") << "Received results for region that no longer exists!" << LL_ENDL;
 			return ;
-		}		
+		}
+
+		const LLSD& content = getContent();
+		if (!content.isMap())
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
 		LLSD::map_const_iterator iter;
 		for(iter = content.beginMap(); iter != content.endMap(); ++iter)
 		{
@@ -300,7 +320,8 @@ public:
 		
 		if ( regionp->getRegionImpl()->mCapabilities.size() != regionp->getRegionImpl()->mSecondCapabilitiesTracker.size() )
 		{
-			llinfos<<"BaseCapabilitiesCompleteTracker "<<"Sim sent duplicate seed caps that differs in size - most likely content."<<llendl;			
+			LL_WARNS2("AppInit", "Capabilities") 
+				<< "Sim sent duplicate seed caps that differs in size - most likely content." << LL_ENDL;
 			//todo#add cap debug versus original check?
 			/*CapabilityMap::const_iterator iter = regionp->getRegionImpl()->mCapabilities.begin();
 			while (iter!=regionp->getRegionImpl()->mCapabilities.end() )
@@ -311,16 +332,11 @@ public:
 			*/
 			regionp->getRegionImplNC()->mSecondCapabilitiesTracker.clear();
 		}
-
 	}
 
-	static BaseCapabilitiesCompleteTracker* build( U64 region_handle )
-	{
-		return new BaseCapabilitiesCompleteTracker( region_handle );
-	}
 
 private:
-	U64 mRegionHandle;	
+	U64 mRegionHandle;
 };
 
 
@@ -1728,31 +1744,37 @@ class SimulatorFeaturesReceived : public LLHTTPClient::Responder
 {
 	LOG_CLASS(SimulatorFeaturesReceived);
 public:
-    SimulatorFeaturesReceived(const std::string& retry_url, U64 region_handle, 
+	SimulatorFeaturesReceived(const std::string& retry_url, U64 region_handle, 
 			S32 attempt = 0, S32 max_attempts = MAX_CAP_REQUEST_ATTEMPTS)
-	: mRetryURL(retry_url), mRegionHandle(region_handle), mAttempt(attempt), mMaxAttempts(max_attempts)
-    { }
-	
-	
-    void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
-    {
-		LL_WARNS2("AppInit", "SimulatorFeatures") << "[status:" << statusNum << "]: " << content << LL_ENDL;
-		retry();
-    }
+		: mRetryURL(retry_url), mRegionHandle(region_handle), mAttempt(attempt), mMaxAttempts(max_attempts)
+	{ }
 
-    void result(const LLSD& content)
-    {
+private:
+	/* virtual */ void httpFailure()
+	{
+		LL_WARNS2("AppInit", "SimulatorFeatures") << dumpResponse() << LL_ENDL;
+		retry();
+	}
+
+	/* virtual */ void httpSuccess()
+	{
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
 		if(!regionp) //region is removed or responder is not created.
 		{
-			LL_WARNS2("AppInit", "SimulatorFeatures") << "Received results for region that no longer exists!" << LL_ENDL;
+			LL_WARNS2("AppInit", "SimulatorFeatures") 
+				<< "Received results for region that no longer exists!" << LL_ENDL;
 			return ;
 		}
-		
+
+		const LLSD& content = getContent();
+		if (!content.isMap())
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
 		regionp->setSimulatorFeatures(content);
 	}
 
-private:
 	void retry()
 	{
 		if (mAttempt < mMaxAttempts)
@@ -1762,7 +1784,7 @@ private:
 			LLHTTPClient::get(mRetryURL, new SimulatorFeaturesReceived(*this), LLSD(), CAP_REQUEST_TIMEOUT);
 		}
 	}
-	
+
 	std::string mRetryURL;
 	U64 mRegionHandle;
 	S32 mAttempt;

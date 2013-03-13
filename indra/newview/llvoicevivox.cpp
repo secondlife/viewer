@@ -120,17 +120,19 @@ static int scale_speaker_volume(float volume)
 class LLVivoxVoiceAccountProvisionResponder :
 	public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLVivoxVoiceAccountProvisionResponder);
 public:
 	LLVivoxVoiceAccountProvisionResponder(int retries)
 	{
 		mRetries = retries;
 	}
 
-	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+private:
+	/* virtual */ void httpFailure()
 	{
 		LL_WARNS("Voice") << "ProvisionVoiceAccountRequest returned an error, "
 			<<  ( (mRetries > 0) ? "retrying" : "too many retries (giving up)" )
-			<< status << "]: " << content << LL_ENDL;
+			<< " " << dumpResponse() << LL_ENDL;
 
 		if ( mRetries > 0 )
 		{
@@ -142,14 +144,19 @@ public:
 		}
 	}
 
-	virtual void result(const LLSD& content)
+	/* virtual */ void httpSuccess()
 	{
-
 		std::string voice_sip_uri_hostname;
 		std::string voice_account_server_uri;
 		
-		LL_DEBUGS("Voice") << "ProvisionVoiceAccountRequest response:" << ll_pretty_print_sd(content) << LL_ENDL;
+		LL_DEBUGS("Voice") << "ProvisionVoiceAccountRequest response:" << dumpResponse() << LL_ENDL;
 		
+		const LLSD& content = getContent();
+		if (!content.isMap())
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
 		if(content.has("voice_sip_uri_hostname"))
 			voice_sip_uri_hostname = content["voice_sip_uri_hostname"].asString();
 		
@@ -162,7 +169,6 @@ public:
 			content["password"].asString(),
 			voice_sip_uri_hostname,
 			voice_account_server_uri);
-
 	}
 
 private:
@@ -193,33 +199,34 @@ static LLVivoxVoiceClientFriendsObserver *friendslist_listener = NULL;
 
 class LLVivoxVoiceClientCapResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLVivoxVoiceClientCapResponder);
 public:
 	LLVivoxVoiceClientCapResponder(LLVivoxVoiceClient::state requesting_state) : mRequestingState(requesting_state) {};
 
-	// called with bad status codes
-	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
-	virtual void result(const LLSD& content);
-
 private:
+	// called with bad status codes
+	/* virtual */ void httpFailure();
+	/* virtual */ void httpSuccess();
+
 	LLVivoxVoiceClient::state mRequestingState;  // state 
 };
 
-void LLVivoxVoiceClientCapResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+void LLVivoxVoiceClientCapResponder::httpFailure()
 {
-	LL_WARNS("Voice") << "LLVivoxVoiceClientCapResponder error [status:"
-		<< status << "]: " << content << LL_ENDL;
+	LL_WARNS("Voice") << dumpResponse() << LL_ENDL;
 	LLVivoxVoiceClient::getInstance()->sessionTerminate();
 }
 
-void LLVivoxVoiceClientCapResponder::result(const LLSD& content)
+void LLVivoxVoiceClientCapResponder::httpSuccess()
 {
 	LLSD::map_const_iterator iter;
 	
-	LL_DEBUGS("Voice") << "ParcelVoiceInfoRequest response:" << ll_pretty_print_sd(content) << LL_ENDL;
+	LL_DEBUGS("Voice") << "ParcelVoiceInfoRequest response:" << dumpResponse() << LL_ENDL;
 
 	std::string uri;
 	std::string credentials;
 	
+	const LLSD& content = getContent();
 	if ( content.has("voice_credentials") )
 	{
 		LLSD voice_credentials = content["voice_credentials"];
@@ -2982,7 +2989,7 @@ void LLVivoxVoiceClient::loginResponse(int statusCode, std::string &statusString
 	
 	// Status code of 20200 means "bad password".  We may want to special-case that at some point.
 	
-	if ( statusCode == 401 )
+	if ( statusCode == HTTP_UNAUTHORIZED )
 	{
 		// Login failure which is probably caused by the delay after a user's password being updated.
 		LL_INFOS("Voice") << "Account.Login response failure (" << statusCode << "): " << statusString << LL_ENDL;
@@ -3484,7 +3491,7 @@ void LLVivoxVoiceClient::mediaStreamUpdatedEvent(
 		switch(statusCode)
 		{
 			case 0:
-			case 200:
+			case HTTP_OK:
 				// generic success
 				// Don't change the saved error code (it may have been set elsewhere)
 			break;
@@ -3835,7 +3842,7 @@ void LLVivoxVoiceClient::messageEvent(
 	LL_DEBUGS("Voice") << "Message event, session " << sessionHandle << " from " << uriString << LL_ENDL;
 //	LL_DEBUGS("Voice") << "    header " << messageHeader << ", body: \n" << messageBody << LL_ENDL;
 	
-	if(messageHeader.find("text/html") != std::string::npos)
+	if(messageHeader.find(HTTP_CONTENT_TEXT_HTML) != std::string::npos)
 	{
 		std::string message;
 
@@ -6119,9 +6126,10 @@ void LLVivoxVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESta
 		{
 			switch(mAudioSession->mErrorStatusCode)
 			{
-				case 404:	// NOT_FOUND
+				case HTTP_NOT_FOUND:	// NOT_FOUND
+				// *TODO: Should this be 503?
 				case 480:	// TEMPORARILY_UNAVAILABLE
-				case 408:	// REQUEST_TIMEOUT
+				case HTTP_REQUEST_TIME_OUT:	// REQUEST_TIMEOUT
 					// call failed because other user was not available
 					// treat this as an error case
 					status = LLVoiceClientStatusObserver::ERROR_NOT_AVAILABLE;

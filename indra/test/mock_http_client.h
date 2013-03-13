@@ -98,7 +98,7 @@ namespace tut
 			if (mSawError)
 			{
 				std::string msg =
-					llformat("error() called when not expected, status %d",
+					llformat("httpFailure() called when not expected, status %d",
 						mStatus); 
 				fail(msg);
 			}
@@ -108,7 +108,7 @@ namespace tut
 		{
 			if (!mSawError)
 			{
-				fail("error() wasn't called");
+				fail("httpFailure() wasn't called");
 			}
 		}
 		
@@ -119,7 +119,7 @@ namespace tut
 	
 	protected:
 		bool mSawError;
-		U32 mStatus;
+		S32 mStatus;
 		std::string mReason;
 		bool mSawCompleted;
 		LLSD mResult;
@@ -144,23 +144,22 @@ namespace tut
 				mClient.mResultDeleted = true;
 			}
 			
-			virtual void error(U32 status, const std::string& reason)
+		protected:
+			virtual void httpFailure()
 			{
 				mClient.mSawError = true;
-				mClient.mStatus = status;
-				mClient.mReason = reason;
+				mClient.mStatus = getStatus();
+				mClient.mReason = getReason();
 			}
 
-			virtual void result(const LLSD& content)
+			virtual void httpSuccess()
 			{
-				mClient.mResult = content;
+				mClient.mResult = getContent();
 			}
 
-			virtual void completed(
-							U32 status, const std::string& reason,
-							const LLSD& content)
+			virtual void httpCompleted()
 			{
-				LLHTTPClient::Responder::completed(status, reason, content);
+				LLHTTPClient::Responder::httpCompleted();
 				
 				mClient.mSawCompleted = true;
 			}

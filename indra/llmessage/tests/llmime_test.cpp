@@ -29,6 +29,7 @@
 #include "linden_common.h"
 
 #include "llsdserialize.h"
+#include "llhttpconstants.cpp"
 
 #include "../llmime.h"
 

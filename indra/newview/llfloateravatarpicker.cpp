@@ -380,12 +380,14 @@ BOOL LLFloaterAvatarPicker::visibleItemsSelected() const
 
 class LLAvatarPickerResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLAvatarPickerResponder);
 public:
 	LLUUID mQueryID;
 
 	LLAvatarPickerResponder(const LLUUID& id) : mQueryID(id) { }
 
-	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
+protected:
+	/*virtual*/ void httpCompleted()
 	{
 		//std::ostringstream ss;
 		//LLSDSerialize::toPrettyXML(content, ss);
@@ -393,19 +395,18 @@ public:
 
 		// in case of invalid characters, the avatar picker returns a 400
 		// just set it to process so it displays 'not found'
-		if (isGoodStatus(status) || status == 400)
+		if (isGoodStatus() || getStatus() == HTTP_BAD_REQUEST)
 		{
 			LLFloaterAvatarPicker* floater =
 				LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
 			if (floater)
 			{
-				floater->processResponse(mQueryID, content);
+				floater->processResponse(mQueryID, getContent());
 			}
 		}
 		else
 		{
-			llwarns << "avatar picker failed [status:" << status << "]: " << content << llendl;
-			
+			llwarns << "avatar picker failed " << dumpResponse() << llendl;
 		}
 	}
 };

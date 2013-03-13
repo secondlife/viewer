@@ -363,35 +363,39 @@ void LLInventoryModelBackgroundFetch::incrFetchCount(S16 fetching)
 
 class LLInventoryModelFetchItemResponder : public LLInventoryModel::fetchInventoryResponder
 {
+	LOG_CLASS(LLInventoryModelFetchItemResponder);
 public:
 	LLInventoryModelFetchItemResponder(const LLSD& request_sd) : LLInventoryModel::fetchInventoryResponder(request_sd) {};
-	void result(const LLSD& content);			
-	void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
+private:
+	/* virtual */ void httpSuccess();
+	/* virtual */ void httpFailure();
 };
 
-void LLInventoryModelFetchItemResponder::result( const LLSD& content )
+void LLInventoryModelFetchItemResponder::httpSuccess()
 {
-	LLInventoryModel::fetchInventoryResponder::result(content);
+	LLInventoryModel::fetchInventoryResponder::httpSuccess();
 	LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
 }
 
-void LLInventoryModelFetchItemResponder::errorWithContent( U32 status, const std::string& reason, const LLSD& content )
+void LLInventoryModelFetchItemResponder::httpFailure()
 {
-	LLInventoryModel::fetchInventoryResponder::errorWithContent(status, reason, content);
+	LLInventoryModel::fetchInventoryResponder::httpFailure();
 	LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
 }
 
 
 class LLInventoryModelFetchDescendentsResponder: public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLInventoryModelFetchDescendentsResponder);
 public:
 	LLInventoryModelFetchDescendentsResponder(const LLSD& request_sd, uuid_vec_t recursive_cats) : 
 		mRequestSD(request_sd),
 		mRecursiveCatUUIDs(recursive_cats)
 	{};
 	//LLInventoryModelFetchDescendentsResponder() {};
-	void result(const LLSD& content);
-	void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
+private:
+	/* virtual */ void httpSuccess();
+	/* virtual */ void httpFailure();
 protected:
 	BOOL getIsRecursive(const LLUUID& cat_id) const;
 private:
@@ -400,8 +404,14 @@ private:
 };
 
 // If we get back a normal response, handle it here.
-void LLInventoryModelFetchDescendentsResponder::result(const LLSD& content)
+void LLInventoryModelFetchDescendentsResponder::httpSuccess()
 {
+	const LLSD& content = getContent();
+	if (!content.isMap())
+	{
+		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+		return;
+	}
 	LLInventoryModelBackgroundFetch *fetcher = LLInventoryModelBackgroundFetch::getInstance();
 	if (content.has("folders"))	
 	{
@@ -508,11 +518,12 @@ void LLInventoryModelFetchDescendentsResponder::result(const LLSD& content)
 		for(LLSD::array_const_iterator folder_it = content["bad_folders"].beginArray();
 			folder_it != content["bad_folders"].endArray();
 			++folder_it)
-		{	
+		{
+			// *TODO: Stop copying data
 			LLSD folder_sd = *folder_it;
 			
 			// These folders failed on the dataserver.  We probably don't want to retry them.
-			llinfos << "Folder " << folder_sd["folder_id"].asString() 
+			llwarns << "Folder " << folder_sd["folder_id"].asString() 
 					<< "Error: " << folder_sd["error"].asString() << llendl;
 		}
 	}
@@ -529,21 +540,19 @@ void LLInventoryModelFetchDescendentsResponder::result(const LLSD& content)
 }
 
 // If we get back an error (not found, etc...), handle it here.
-void LLInventoryModelFetchDescendentsResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+void LLInventoryModelFetchDescendentsResponder::httpFailure()
 {
+	llwarns << dumpResponse() << llendl;
 	LLInventoryModelBackgroundFetch *fetcher = LLInventoryModelBackgroundFetch::getInstance();
 
-	llinfos << "LLInventoryModelFetchDescendentsResponder::error [status:"
-			<< status << "]: " << content << llendl;
-						
 	fetcher->incrFetchCount(-1);
 
-	if (status==499) // timed out
+	if (getStatus()==HTTP_INTERNAL_ERROR) // timed out or curl failure
 	{
 		for(LLSD::array_const_iterator folder_it = mRequestSD["folders"].beginArray();
 			folder_it != mRequestSD["folders"].endArray();
 			++folder_it)
-		{	
+		{
 			LLSD folder_sd = *folder_it;
 			LLUUID folder_id = folder_sd["folder_id"];
 			const BOOL recursive = getIsRecursive(folder_id);

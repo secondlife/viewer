@@ -49,6 +49,7 @@
 #include "llproxy.h"
 #include "llsdserialize.h"
 #include "llstl.h"
+#include "llstring.h"
 #include "llthread.h"
 #include "lltimer.h"
 
@@ -98,7 +99,7 @@ void check_curl_code(CURLcode code)
 	{
 		// linux appears to throw a curl error once per session for a bad initialization
 		// at a pretty random time (when enabling cookies).
-		llinfos << "curl error detected: " << curl_easy_strerror(code) << llendl;
+		LL_WARNS("curl") << "curl error detected: " << curl_easy_strerror(code) << LL_ENDL;
 	}
 }
 
@@ -108,7 +109,7 @@ void check_curl_multi_code(CURLMcode code)
 	{
 		// linux appears to throw a curl error once per session for a bad initialization
 		// at a pretty random time (when enabling cookies).
-		llinfos << "curl multi error detected: " << curl_multi_strerror(code) << llendl;
+		LL_WARNS("curl") << "curl multi error detected: " << curl_multi_strerror(code) << LL_ENDL;
 	}
 }
 
@@ -133,6 +134,7 @@ std::string LLCurl::getVersionString()
 //////////////////////////////////////////////////////////////////////////////
 
 LLCurl::Responder::Responder()
+	: mHTTPMethod(HTTP_INVALID), mStatus(HTTP_INTERNAL_ERROR)
 {
 }
 
@@ -142,22 +144,30 @@ LLCurl::Responder::~Responder()
 }
 
 // virtual
-void LLCurl::Responder::errorWithContent(
-	U32 status,
-	const std::string& reason,
-	const LLSD&)
+void LLCurl::Responder::httpFailure()
 {
-	error(status, reason);
+	LL_WARNS("curl") << dumpResponse() << LL_ENDL;
+}
+
+std::string LLCurl::Responder::dumpResponse() const 
+{
+	std::ostringstream s;
+	s << "[" << httpMethodAsVerb(mHTTPMethod) << ":" << mURL << "] "
+	  << "[status:" << mStatus << "] "
+	  << "[reason:" << mReason << "] ";
+
+	if (mResponseHeaders.has(HTTP_HEADER_CONTENT_TYPE))
+	{
+		s << "[content-type:" << mResponseHeaders[HTTP_HEADER_CONTENT_TYPE] << "] ";
+	}
+
+	s << "[content:" << mContent << "]";
+
+	return s.str();
 }
 
 // virtual
-void LLCurl::Responder::error(U32 status, const std::string& reason)
-{
-	llinfos << mURL << " [" << status << "]: " << reason << llendl;
-}
-
-// virtual
-void LLCurl::Responder::result(const LLSD& content)
+void LLCurl::Responder::httpSuccess()
 {
 }
 
@@ -166,42 +176,122 @@ void LLCurl::Responder::setURL(const std::string& url)
 	mURL = url;
 }
 
+void LLCurl::Responder::successResult(const LLSD& content)
+{
+	setResult(HTTP_OK, "", content);
+	httpSuccess();
+}
+
+void LLCurl::Responder::failureResult(S32 status, const std::string& reason, const LLSD& content /* = LLSD() */)
+{
+	setResult(status, reason, content);
+	httpFailure();
+}
+
+void LLCurl::Responder::completeResult(S32 status, const std::string& reason, const LLSD& content /* = LLSD() */)
+{
+	setResult(status, reason, content);
+	httpCompleted();
+}
+
+void LLCurl::Responder::setResult(S32 status, const std::string& reason, const LLSD& content /* = LLSD() */)
+{
+	mStatus = status;
+	mReason = reason;
+	mContent = content;
+}
+
+void LLCurl::Responder::setHTTPMethod(EHTTPMethod method)
+{
+	mHTTPMethod = method;
+}
+
+void LLCurl::Responder::setResponseHeader(const std::string& header, const std::string& value)
+{
+	mResponseHeaders[header] = value;
+}
+
+const std::string& LLCurl::Responder::getResponseHeader(const std::string& header, bool check_lower) const
+{
+	if (mResponseHeaders.has(header))
+	{
+		return mResponseHeaders[header].asStringRef();
+	}
+	if (check_lower)
+	{
+		std::string header_lower(header);
+		LLStringUtil::toLower(header_lower);
+		if (mResponseHeaders.has(header_lower))
+		{
+			return mResponseHeaders[header_lower].asStringRef();
+		}
+	}
+	static const std::string empty;
+	return empty;
+}
+
+bool LLCurl::Responder::hasResponseHeader(const std::string& header, bool check_lower) const
+{
+	if (mResponseHeaders.has(header)) return true;
+	if (check_lower)
+	{
+		std::string header_lower(header);
+		LLStringUtil::toLower(header_lower);
+		return mResponseHeaders.has(header_lower);
+	}
+	return false;
+}
+
 // virtual
 void LLCurl::Responder::completedRaw(
-	U32 status,
-	const std::string& reason,
 	const LLChannelDescriptors& channels,
 	const LLIOPipe::buffer_ptr_t& buffer)
 {
-	LLSD content;
 	LLBufferStream istr(channels, buffer.get());
-	const bool emit_errors = false;
-	if (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXML(content, istr, emit_errors))
+	const bool emit_parse_errors = false;
+
+	std::string debug_body("(empty)");
+	bool parsed=true;
+	if (EOF == istr.peek())
 	{
-		llinfos << "Failed to deserialize LLSD. " << mURL << " [" << status << "]: " << reason << llendl;
-		content["reason"] = reason;
+		parsed=false;
+	}
+	// Try to parse body as llsd, no matter what 'Content-Type' says.
+	else if (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXML(mContent, istr, emit_parse_errors))
+	{
+		parsed=false;
+		char body[1025]; 
+		body[1024] = '\0';
+		istr.seekg(0, std::ios::beg);
+		istr.get(body,1024);
+		if (strlen(body) > 0)
+		{
+			mContent = body;
+			debug_body = body;
+		}
 	}
 
-	completed(status, reason, content);
+	// Only emit an warning if we failed to parse when 'Content-Type' == 'application/llsd+xml'
+	if (!parsed && (HTTP_CONTENT_LLSD_XML == getResponseHeader(HTTP_HEADER_CONTENT_TYPE)))
+	{
+		llwarns << "Failed to deserialize . " << mURL << " [status:" << mStatus << "] " 
+			<< "(" << mReason << ") body: " << debug_body << llendl;
+	}
+
+	httpCompleted();
 }
 
 // virtual
-void LLCurl::Responder::completed(U32 status, const std::string& reason, const LLSD& content)
+void LLCurl::Responder::httpCompleted()
 {
-	if (isGoodStatus(status))
+	if (isGoodStatus())
 	{
-		result(content);
+		httpSuccess();
 	}
 	else
 	{
-		errorWithContent(status, reason, content);
+		httpFailure();
 	}
-}
-
-//virtual
-void LLCurl::Responder::completedHeader(U32 status, const std::string& reason, const LLSD& content)
-{
-
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -287,7 +377,8 @@ LLCurl::Easy* LLCurl::Easy::getEasy()
 	if (!easy->mCurlEasyHandle)
 	{
 		// this can happen if we have too many open files (fails in c-ares/ares_init.c)
-		llwarns << "allocEasyHandle() returned NULL! Easy handles: " << gCurlEasyCount << " Multi handles: " << gCurlMultiCount << llendl;
+		LL_WARNS("curl") << "allocEasyHandle() returned NULL! Easy handles: " 
+			<< gCurlEasyCount << " Multi handles: " << gCurlMultiCount << LL_ENDL;
 		delete easy;
 		return NULL;
 	}
@@ -312,10 +403,14 @@ LLCurl::Easy::~Easy()
 	for_each(mStrings.begin(), mStrings.end(), DeletePointerArray());
 	LL_CHECK_MEMORY
 	if (mResponder && LLCurl::sNotQuitting) //aborted
-	{	
-		std::string reason("Request timeout, aborted.") ;
-		mResponder->completedRaw(408, //HTTP_REQUEST_TIME_OUT, timeout, abort
-			reason, mChannels, mOutput);		
+	{
+		// HTTP_REQUEST_TIME_OUT, timeout, abort
+		// *TODO: This looks like improper use of the 408 status code.
+		// See: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.9
+		// This status code should be returned by the *server* when:
+		// "The client did not produce a request within the time that the server was prepared to wait."
+		mResponder->setResult(HTTP_REQUEST_TIME_OUT, "Request timeout, aborted.");
+		mResponder->completedRaw(mChannels, mOutput);
 		LL_CHECK_MEMORY
 	}
 	mResponder = NULL;
@@ -379,9 +474,9 @@ void LLCurl::Easy::getTransferInfo(LLCurl::TransferInfo* info)
 	check_curl_code(curl_easy_getinfo(mCurlEasyHandle, CURLINFO_SPEED_DOWNLOAD, &info->mSpeedDownload));
 }
 
-U32 LLCurl::Easy::report(CURLcode code)
+S32 LLCurl::Easy::report(CURLcode code)
 {
-	U32 responseCode = 0;	
+	S32 responseCode = 0;
 	std::string responseReason;
 	
 	if (code == CURLE_OK)
@@ -391,14 +486,15 @@ U32 LLCurl::Easy::report(CURLcode code)
 	}
 	else
 	{
-		responseCode = 499;
+		responseCode = HTTP_INTERNAL_ERROR;
 		responseReason = strerror(code) + " : " + mErrorBuffer;
 		setopt(CURLOPT_FRESH_CONNECT, TRUE);
 	}
 
 	if (mResponder)
 	{	
-		mResponder->completedRaw(responseCode, responseReason, mChannels, mOutput);
+		mResponder->setResult(responseCode, responseReason);
+		mResponder->completedRaw(mChannels, mOutput);
 		mResponder = NULL;
 	}
 	
@@ -435,9 +531,31 @@ void LLCurl::Easy::setoptString(CURLoption option, const std::string& value)
 	check_curl_code(result);
 }
 
+void LLCurl::Easy::slist_append(const std::string& header, const std::string& value)
+{
+	std::string pair(header);
+	if (value.empty())
+	{
+		pair += ":";
+	}
+	else
+	{
+		pair += ": ";
+		pair += value;
+	}
+	slist_append(pair.c_str());
+}
+
 void LLCurl::Easy::slist_append(const char* str)
 {
-	mHeaders = curl_slist_append(mHeaders, str);
+	if (str)
+	{
+		mHeaders = curl_slist_append(mHeaders, str);
+		if (!mHeaders)
+		{
+			llwarns << "curl_slist_append() call returned NULL appending " << str << llendl;
+		}
+	}
 }
 
 size_t curlReadCallback(char* data, size_t size, size_t nmemb, void* user_data)
@@ -524,8 +642,9 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 
 	if (!post)
 	{
-		slist_append("Connection: keep-alive");
-		slist_append("Keep-alive: 300");
+		// *TODO: Should this be set to 'Keep-Alive' ?
+		slist_append(HTTP_HEADER_CONNECTION, "keep-alive");
+		slist_append(HTTP_HEADER_KEEP_ALIVE, "300");
 		// Accept and other headers
 		for (std::vector<std::string>::const_iterator iter = headers.begin();
 			 iter != headers.end(); ++iter)
@@ -804,7 +923,7 @@ S32 LLCurl::Multi::process()
 		++processed;
 		if (msg->msg == CURLMSG_DONE)
 		{
-			U32 response = 0;
+			S32 response = 0;
 			Easy* easy = NULL ;
 
 			{
@@ -823,7 +942,7 @@ S32 LLCurl::Multi::process()
 			}
 			else
 			{
-				response = 499;
+				response = HTTP_INTERNAL_ERROR;
 				//*TODO: change to llwarns
 				llerrs << "cleaned up curl request completed!" << llendl;
 			}
@@ -1122,13 +1241,13 @@ bool LLCurlRequest::getByteRange(const std::string& url,
 	easy->setopt(CURLOPT_HTTPGET, 1);
 	if (length > 0)
 	{
-		std::string range = llformat("Range: bytes=%d-%d", offset,offset+length-1);
-		easy->slist_append(range.c_str());
+		std::string range = llformat("bytes=%d-%d", offset,offset+length-1);
+		easy->slist_append(HTTP_HEADER_RANGE, range);
 	}
 	else if (offset > 0)
 	{
-		std::string range = llformat("Range: bytes=%d-", offset);
-		easy->slist_append(range.c_str());
+		std::string range = llformat("bytes=%d-", offset);
+		easy->slist_append(HTTP_HEADER_RANGE, range);
 	}
 	easy->setHeaders();
 	bool res = addEasy(easy);
@@ -1155,7 +1274,7 @@ bool LLCurlRequest::post(const std::string& url,
 	easy->setopt(CURLOPT_POSTFIELDS, (void*)NULL);
 	easy->setopt(CURLOPT_POSTFIELDSIZE, bytes);
 
-	easy->slist_append("Content-Type: application/llsd+xml");
+	easy->slist_append(HTTP_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
 	easy->setHeaders();
 
 	lldebugs << "POSTING: " << bytes << " bytes." << llendl;
@@ -1183,7 +1302,7 @@ bool LLCurlRequest::post(const std::string& url,
 	easy->setopt(CURLOPT_POSTFIELDS, (void*)NULL);
 	easy->setopt(CURLOPT_POSTFIELDSIZE, bytes);
 
-	easy->slist_append("Content-Type: application/octet-stream");
+	easy->slist_append(HTTP_HEADER_CONTENT_TYPE, HTTP_CONTENT_OCTET_STREAM);
 	easy->setHeaders();
 
 	lldebugs << "POSTING: " << bytes << " bytes." << llendl;
@@ -1552,6 +1671,14 @@ void LLCurlEasyRequest::setSSLCtxCallback(curl_ssl_ctx_callback callback, void* 
 	{
 		mEasy->setopt(CURLOPT_SSL_CTX_FUNCTION, (void*)callback);
 		mEasy->setopt(CURLOPT_SSL_CTX_DATA, userdata);
+	}
+}
+
+void LLCurlEasyRequest::slist_append(const std::string& header, const std::string& value)
+{
+	if (isValid() && mEasy)
+	{
+		mEasy->slist_append(header, value);
 	}
 }
 

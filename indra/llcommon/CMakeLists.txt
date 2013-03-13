@@ -176,7 +176,6 @@ set(llcommon_HEADER_FILES
     llhandle.h
     llhash.h
     llheartbeat.h
-    llhttpstatuscodes.h
     llindexedqueue.h
     llinitparam.h
     llinstancetracker.h

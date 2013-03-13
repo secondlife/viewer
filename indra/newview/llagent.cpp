@@ -2546,17 +2546,19 @@ int LLAgent::convertTextToMaturity(char text)
 
 class LLMaturityPreferencesResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLMaturityPreferencesResponder);
 public:
 	LLMaturityPreferencesResponder(LLAgent *pAgent, U8 pPreferredMaturity, U8 pPreviousMaturity);
 	virtual ~LLMaturityPreferencesResponder();
 
-	virtual void result(const LLSD &pContent);
-	virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent);
+protected:
+	virtual void httpSuccess();
+	virtual void httpFailure();
 
 protected:
 
 private:
-	U8 parseMaturityFromServerResponse(const LLSD &pContent);
+	U8 parseMaturityFromServerResponse(const LLSD &pContent) const;
 
 	LLAgent                                  *mAgent;
 	U8                                       mPreferredMaturity;
@@ -2575,29 +2577,33 @@ LLMaturityPreferencesResponder::~LLMaturityPreferencesResponder()
 {
 }
 
-void LLMaturityPreferencesResponder::result(const LLSD &pContent)
+void LLMaturityPreferencesResponder::httpSuccess()
 {
-	U8 actualMaturity = parseMaturityFromServerResponse(pContent);
+	U8 actualMaturity = parseMaturityFromServerResponse(getContent());
 
 	if (actualMaturity != mPreferredMaturity)
 	{
-		llwarns << "while attempting to change maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
-			<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', the server responded with '"
-			<< LLViewerRegion::accessToString(actualMaturity) << "' [value:" << static_cast<U32>(actualMaturity) << ", llsd:"
-			<< pContent << "]" << llendl;
+		llwarns << "while attempting to change maturity preference from '"
+				<< LLViewerRegion::accessToString(mPreviousMaturity)
+				<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) 
+				<< "', the server responded with '"
+				<< LLViewerRegion::accessToString(actualMaturity) 
+				<< "' [value:" << static_cast<U32>(actualMaturity) 
+				<< "], " << dumpResponse() << llendl;
 	}
 	mAgent->handlePreferredMaturityResult(actualMaturity);
 }
 
-void LLMaturityPreferencesResponder::errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent)
+void LLMaturityPreferencesResponder::httpFailure()
 {
-	llwarns << "while attempting to change maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
-		<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', we got an error with [status:"
-		<< pStatus << "]: " << (pContent.isDefined() ? pContent : LLSD(pReason)) << llendl;
+	llwarns << "while attempting to change maturity preference from '" 
+			<< LLViewerRegion::accessToString(mPreviousMaturity)
+			<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) 
+			<< "', " << dumpResponse() << llendl;
 	mAgent->handlePreferredMaturityError();
 }
 
-U8 LLMaturityPreferencesResponder::parseMaturityFromServerResponse(const LLSD &pContent)
+U8 LLMaturityPreferencesResponder::parseMaturityFromServerResponse(const LLSD &pContent) const
 {
 	// stinson 05/24/2012 Pathfinding regions have re-defined the response behavior.  In the old server code,
 	// if you attempted to change the preferred maturity to the same value, the response content would be an
@@ -2605,7 +2611,7 @@ U8 LLMaturityPreferencesResponder::parseMaturityFromServerResponse(const LLSD &p
 	// defined.  Thus, the check for isUndefined() can be replaced with an assert after pathfinding is merged
 	// into server trunk and fully deployed.
 	U8 maturity = SIM_ACCESS_MIN;
-	if (pContent.isUndefined())
+	if (pContent.isUndefined() || !pContent.isMap())
 	{
 		maturity = mPreferredMaturity;
 	}
@@ -2783,7 +2789,7 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 		// If we don't have a region, report it as an error
 		if (getRegion() == NULL)
 		{
-			responderPtr->errorWithContent(0U, "region is not defined", LLSD());
+			responderPtr->failureResult(0U, "region is not defined", LLSD());
 		}
 		else
 		{
@@ -2793,7 +2799,7 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 			// If the capability is not defined, report it as an error
 			if (url.empty())
 			{
-				responderPtr->errorWithContent(0U, 
+				responderPtr->failureResult(0U, 
 							"capability 'UpdateAgentInformation' is not defined for region", LLSD());
 			}
 			else
@@ -3292,8 +3298,7 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 			!input.has("body") )
 		{
 			//what to do with badly formed message?
-			response->statusUnknownError(400);
-			response->result(LLSD("Invalid message parameters"));
+			response->extendedResult(HTTP_BAD_REQUEST, LLSD("Invalid message parameters"));
 		}
 
 		LLSD body = input["body"];
@@ -3362,8 +3367,7 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 		else
 		{
 			//what to do with badly formed message?
-			response->statusUnknownError(400);
-			response->result(LLSD("Invalid message parameters"));
+			response->extendedResult(HTTP_BAD_REQUEST, LLSD("Invalid message parameters"));
 		}
 	}
 };

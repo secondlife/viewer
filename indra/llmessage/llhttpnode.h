@@ -60,6 +60,8 @@ class LLChainIOFactory;
  */
 class LLHTTPNode
 {
+protected:
+    LOG_CLASS(LLHTTPNode);
 public:
 	LLHTTPNode();
 	virtual ~LLHTTPNode();
@@ -100,7 +102,12 @@ public:
 		/**
 		 * @brief return status code and message with headers.
 		 */
-		virtual void extendedResult(S32 code, const std::string& message, const LLSD& headers) = 0;
+		virtual void extendedResult(S32 code, const std::string& message, const LLSD& headers = LLSD()) = 0;
+
+		/**
+		 * @brief return status code and LLSD result with headers.
+		 */
+		virtual void extendedResult(S32 code, const LLSD& result, const LLSD& headers = LLSD()) = 0;
 
 		/**
 		 * @brief return status code and reason string on http header,
@@ -287,7 +294,7 @@ public:
 	
 	void result(const LLSD& result);
 	void extendedResult(S32 code, const std::string& body, const LLSD& headers);
-	
+	void extendedResult(S32 code, const LLSD& result, const LLSD& headers);
 	void status(S32 code, const std::string& message);
 
 	void print(std::ostream& out) const;

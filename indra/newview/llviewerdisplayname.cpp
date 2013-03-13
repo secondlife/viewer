@@ -57,12 +57,12 @@ namespace LLViewerDisplayName
 
 class LLSetDisplayNameResponder : public LLHTTPClient::Responder
 {
-public:
+	LOG_CLASS(LLSetDisplayNameResponder);
+private:
 	// only care about errors
-	/*virtual*/ void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	/*virtual*/ void httpFailure()
 	{
-		llwarns << "LLSetDisplayNameResponder error [status:"
-				<< status << "]: " << content << llendl;
+		llwarns << dumpResponse() << llendl;
 		LLViewerDisplayName::sSetDisplayNameSignal(false, "", LLSD());
 		LLViewerDisplayName::sSetDisplayNameSignal.disconnect_all_slots();
 	}
@@ -85,7 +85,7 @@ void LLViewerDisplayName::set(const std::string& display_name, const set_name_sl
 	// People API can return localized error messages.  Indicate our
 	// language preference via header.
 	LLSD headers;
-	headers["Accept-Language"] = LLUI::getLanguage();
+	headers[HTTP_HEADER_ACCEPT_LANGUAGE] = LLUI::getLanguage();
 
 	// People API requires both the old and new value to change a variable.
 	// Our display name will be in cache before the viewer's UI is available
@@ -127,7 +127,7 @@ public:
 		LLSD body = input["body"];
 
 		S32 status = body["status"].asInteger();
-		bool success = (status == 200);
+		bool success = (status == HTTP_OK);
 		std::string reason = body["reason"].asString();
 		LLSD content = body["content"];
 
@@ -136,7 +136,7 @@ public:
 		// If viewer's concept of display name is out-of-date, the set request
 		// will fail with 409 Conflict.  If that happens, fetch up-to-date
 		// name information.
-		if (status == 409)
+		if (status == HTTP_CONFLICT)
 		{
 			LLUUID agent_id = gAgent.getID();
 			// Flush stale data

@@ -33,6 +33,8 @@
 // via capabilities
 class LLAssetUploadResponder : public LLHTTPClient::Responder
 {
+protected:
+	LOG_CLASS(LLAssetUploadResponder);
 public:
 	LLAssetUploadResponder(const LLSD& post_data,
 							const LLUUID& vfile_id,
@@ -42,8 +44,11 @@ public:
 							LLAssetType::EType asset_type);
 	~LLAssetUploadResponder();
 
-    virtual void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content);
-	virtual void result(const LLSD& content);
+protected:
+	virtual void httpFailure();
+	virtual void httpSuccess();
+
+public:
 	virtual void uploadUpload(const LLSD& content);
 	virtual void uploadComplete(const LLSD& content);
 	virtual void uploadFailure(const LLSD& content);
@@ -58,6 +63,7 @@ protected:
 // TODO*: Remove this once deprecated
 class LLNewAgentInventoryResponder : public LLAssetUploadResponder
 {
+	LOG_CLASS(LLNewAgentInventoryResponder);
 public:
 	LLNewAgentInventoryResponder(
 		const LLSD& post_data,
@@ -67,9 +73,10 @@ public:
 		const LLSD& post_data,
 		const std::string& file_name,
 		LLAssetType::EType asset_type);
-    virtual void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content);
 	virtual void uploadComplete(const LLSD& content);
 	virtual void uploadFailure(const LLSD& content);
+protected:
+	virtual void httpFailure();
 };
 
 // A base class which goes through and performs some default
@@ -79,6 +86,7 @@ public:
 class LLNewAgentInventoryVariablePriceResponder :
 	public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLNewAgentInventoryVariablePriceResponder);
 public:
 	LLNewAgentInventoryVariablePriceResponder(
 		const LLUUID& vfile_id,
@@ -91,12 +99,11 @@ public:
 		const LLSD& inventory_info);
 	virtual ~LLNewAgentInventoryVariablePriceResponder();
 
-	void errorWithContent(
-		U32 statusNum,
-		const std::string& reason,
-		const LLSD& content);
-	void result(const LLSD& content);
+private:
+	/* virtual */ void httpFailure();
+	/* virtual */ void httpSuccess();
 
+public:
 	virtual void onApplicationLevelError(
 		const LLSD& error);
 	virtual void showConfirmationDialog(
@@ -122,8 +129,11 @@ public:
 	~LLSendTexLayerResponder();
 
 	virtual void uploadComplete(const LLSD& content);
-	virtual void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content);
 
+protected:
+	virtual void httpFailure();
+
+private:
 	LLBakedUploadData * mBakedUploadData;
 };
 

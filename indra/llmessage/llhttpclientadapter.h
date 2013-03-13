@@ -37,6 +37,14 @@ public:
 	virtual void get(const std::string& url, LLCurl::ResponderPtr responder);
 	virtual void get(const std::string& url, LLCurl::ResponderPtr responder, const LLSD& headers);
 	virtual void put(const std::string& url, const LLSD& body, LLCurl::ResponderPtr responder);
+	virtual void put(
+		const std::string& url,
+		const LLSD& body,
+		LLCurl::ResponderPtr responder,
+		const LLSD& headers);
+	virtual void del(
+		const std::string& url,
+		LLCurl::ResponderPtr responder);
 };
 
 #endif

@@ -388,16 +388,17 @@ void LLFloaterIMPanel::draw()
 
 class LLSessionInviteResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLSessionInviteResponder);
 public:
 	LLSessionInviteResponder(const LLUUID& session_id)
 	{
 		mSessionID = session_id;
 	}
 
-	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+protected:
+	void httpFailure()
 	{
-		llwarns << "Error inviting all agents to session [status:" 
-				<< statusNum << "]: " << content << llendl;
+		llwarns << "Error inviting all agents to session " << dumpResponse() << llendl;
 		//throw something back to the viewer here?
 	}
 

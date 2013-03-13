@@ -200,11 +200,11 @@ public:
 	/*virtual*/ void onPermissionsReceived(const LLSD& result);
 
 	// called when error occurs during permissions request
-	/*virtual*/ void setPermissonsErrorStatus(U32 status, const std::string& reason);
+	/*virtual*/ void setPermissonsErrorStatus(S32 status, const std::string& reason);
 
 	/*virtual*/ void onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url);
 				void handleModelPhysicsFeeReceived();
-	/*virtual*/ void setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason);
+	/*virtual*/ void setModelPhysicsFeeErrorStatus(S32 status, const std::string& reason);
 
 	/*virtual*/ void onModelUploadSuccess();
 

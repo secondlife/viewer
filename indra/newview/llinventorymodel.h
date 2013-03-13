@@ -81,11 +81,12 @@ public:
 
 	class fetchInventoryResponder : public LLHTTPClient::Responder
 	{
+		LOG_CLASS(fetchInventoryResponder);
 	public:
 		fetchInventoryResponder(const LLSD& request_sd) : mRequestSD(request_sd) {};
-		void result(const LLSD& content);			
-		void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 	protected:
+		virtual void httpSuccess();
+		virtual void httpFailure();
 		LLSD mRequestSD;
 	};
 

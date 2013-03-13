@@ -86,7 +86,7 @@ public:
 	//This stuff we got from LLRemoteParcelObserver, in the last one we intentionally do nothing
 	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
 	/*virtual*/ void setParcelID(const LLUUID& parcel_id) { mParcelId = parcel_id; }
-	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason) {};
+	/*virtual*/ void setErrorStatus(S32 status, const std::string& reason) {};
 
 protected:
 

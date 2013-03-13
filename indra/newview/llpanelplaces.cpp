@@ -217,7 +217,7 @@ public:
 			LLRemoteParcelInfoProcessor::getInstance()->sendParcelInfoRequest(parcel_id);
 		}
 	}
-	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason)
+	/*virtual*/ void setErrorStatus(S32 status, const std::string& reason)
 	{
 		llerrs << "Can't complete remote parcel request. Http Status: "
 			   << status << ". Reason : " << reason << llendl;

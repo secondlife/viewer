@@ -416,7 +416,8 @@ public:
 	typedef enum e_formatter_options_type
 	{
 		OPTIONS_NONE = 0,
-		OPTIONS_PRETTY = 1
+		OPTIONS_PRETTY = 1,
+		OPTIONS_PRETTY_BINARY = 2
 	} EFormatterOptions;
 
 	/** 
@@ -507,6 +508,17 @@ public:
 	 * @return Returns The number of LLSD objects fomatted out
 	 */
 	virtual S32 format(const LLSD& data, std::ostream& ostr, U32 options = LLSDFormatter::OPTIONS_NONE) const;
+
+protected:
+
+	/** 
+	 * @brief Implementation to format the data. This is called recursively.
+	 *
+	 * @param data The data to write.
+	 * @param ostr The destination stream for the data.
+	 * @return Returns The number of LLSD objects fomatted out
+	 */
+	S32 format_impl(const LLSD& data, std::ostream& ostr, U32 options, U32 level) const;
 };
 
 
@@ -634,7 +646,7 @@ protected:
  *  </code>
  *
  * *NOTE - formerly this class inherited from its template parameter Formatter,
- * but all insnatiations passed in LLRefCount subclasses.  This conflicted with
+ * but all instantiations passed in LLRefCount subclasses.  This conflicted with
  * the auto allocation intended for this class template (demonstrated in the
  * example above).  -brad
  */
@@ -719,6 +731,18 @@ public:
 	{
 		LLPointer<LLSDNotationFormatter> f = new LLSDNotationFormatter;
 		return f->format(sd, str, LLSDFormatter::OPTIONS_NONE);
+	}
+	static S32 toPrettyNotation(const LLSD& sd, std::ostream& str)
+	{
+		LLPointer<LLSDNotationFormatter> f = new LLSDNotationFormatter;
+		return f->format(sd, str, LLSDFormatter::OPTIONS_PRETTY);
+	}
+	static S32 toPrettyBinaryNotation(const LLSD& sd, std::ostream& str)
+	{
+		LLPointer<LLSDNotationFormatter> f = new LLSDNotationFormatter;
+		return f->format(sd, str, 
+				LLSDFormatter::OPTIONS_PRETTY | 
+				LLSDFormatter::OPTIONS_PRETTY_BINARY);
 	}
 	static S32 fromNotation(LLSD& sd, std::istream& str, S32 max_bytes)
 	{

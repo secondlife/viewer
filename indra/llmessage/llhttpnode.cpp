@@ -30,6 +30,7 @@
 #include <boost/tokenizer.hpp>
 
 #include "llstl.h"
+#include "llhttpconstants.h"
 #include "lliohttpserver.h" // for string constants
 
 static const std::string CONTEXT_WILDCARD("wildcard");
@@ -173,13 +174,15 @@ LLSD LLHTTPNode::simpleDel(const LLSD&) const
 void  LLHTTPNode::options(ResponsePtr response, const LLSD& context) const
 {
 	//llinfos << "options context: " << context << llendl;
+	LL_DEBUGS("LLHTTPNode") << "context: " << context << LL_ENDL;
 
 	// default implementation constructs an url to the documentation.
+	// *TODO: Check for 'Host' header instead of 'host' header?
 	std::string host(
-		context[CONTEXT_REQUEST][CONTEXT_HEADERS]["host"].asString());
+		context[CONTEXT_REQUEST][CONTEXT_HEADERS][HTTP_HEADER_LOWER_HOST].asString());
 	if(host.empty())
 	{
-		response->status(400, "Bad Request -- need Host header");
+		response->status(HTTP_BAD_REQUEST, "Bad Request -- need Host header");
 		return;
 	}
 	std::ostringstream ostr;
@@ -187,7 +190,7 @@ void  LLHTTPNode::options(ResponsePtr response, const LLSD& context) const
 	ostr << context[CONTEXT_REQUEST]["path"].asString();
 	static const std::string DOC_HEADER("X-Documentation-URL");
 	response->addHeader(DOC_HEADER, ostr.str());
-	response->status(200, "OK");
+	response->status(HTTP_OK, "OK");
 }
 
 
@@ -389,17 +392,17 @@ void LLHTTPNode::Response::statusUnknownError(S32 code)
 
 void LLHTTPNode::Response::notFound(const std::string& message)
 {
-	status(404, message);
+	status(HTTP_NOT_FOUND, message);
 }
 
 void LLHTTPNode::Response::notFound()
 {
-	status(404, "Not Found");
+	status(HTTP_NOT_FOUND, "Not Found");
 }
 
 void LLHTTPNode::Response::methodNotAllowed()
 {
-	status(405, "Method Not Allowed");
+	status(HTTP_METHOD_NOT_ALLOWED, "Method Not Allowed");
 }
 
 void LLHTTPNode::Response::addHeader(
@@ -467,12 +470,17 @@ LLSimpleResponse::~LLSimpleResponse()
 
 void LLSimpleResponse::result(const LLSD& result)
 {
-	status(200, "OK");
+	status(HTTP_OK, "OK");
 }
 
 void LLSimpleResponse::extendedResult(S32 code, const std::string& body, const LLSD& headers)
 {
 	status(code,body);
+}
+
+void LLSimpleResponse::extendedResult(S32 code, const LLSD& r, const LLSD& headers)
+{
+	status(code,"(LLSD)");
 }
 
 void LLSimpleResponse::status(S32 code, const std::string& message)

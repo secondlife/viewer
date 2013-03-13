@@ -40,12 +40,14 @@ namespace {
 
 LLCurl::Responder::Responder() { }
 LLCurl::Responder::~Responder() { }
-void LLCurl::Responder::error(U32,std::string const &) { }
-void LLCurl::Responder::result(LLSD const &) { }
-void LLCurl::Responder::errorWithContent(U32 status,std::string const &,LLSD const &) { }
-void LLCurl::Responder::completedRaw(U32 status, std::string const &, LLChannelDescriptors const &,boost::shared_ptr<LLBufferArray> const &) { }
-void LLCurl::Responder::completed(U32 status, std::string const &, LLSD const &) { }
-void LLCurl::Responder::completedHeader(U32 status, std::string const &, LLSD const &) { }
+void LLCurl::Responder::httpFailure() { }
+void LLCurl::Responder::httpSuccess() { }
+void LLCurl::Responder::httpCompleted() { }
+void LLCurl::Responder::failureResult(S32 status, const std::string& reason, const LLSD& content) { }
+void LLCurl::Responder::successResult(const LLSD& content) { }
+void LLCurl::Responder::completeResult(S32 status, const std::string& reason, const LLSD& content) { }
+std::string LLCurl::Responder::dumpResponse() const { return "(failure)"; }
+void LLCurl::Responder::completedRaw(LLChannelDescriptors const &,boost::shared_ptr<LLBufferArray> const &) { }
 void LLMessageSystem::getF32(char const *,char const *,F32 &,S32) { }
 void LLMessageSystem::getU8(char const *,char const *,U8 &,S32) { }
 void LLMessageSystem::getS32(char const *,char const *,S32 &,S32) { }
@@ -85,7 +87,7 @@ namespace tut
 
 		virtual void setParcelID(const LLUUID& parcel_id) { }
 
-		virtual void setErrorStatus(U32 status, const std::string& reason) { }
+		virtual void setErrorStatus(S32 status, const std::string& reason) { }
 
 		bool mProcessed;
 	};

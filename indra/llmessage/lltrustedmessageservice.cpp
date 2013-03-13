@@ -64,7 +64,7 @@ void LLTrustedMessageService::post(LLHTTPNode::ResponsePtr response,
 		LL_WARNS("Messaging") << "trusted message POST to /trusted-message/" 
 				<< name << " from unknown or untrusted sender "
 				<< sender << llendl;
-		response->status(403, "Unknown or untrusted sender");
+		response->status(HTTP_FORBIDDEN, "Unknown or untrusted sender");
 	}
 	else
 	{

@@ -67,9 +67,8 @@ public:
 	{
 	}
 
+	// *TODO: Check for 'application/json' content type, and parse json at the base class.
 	/*virtual*/ void completedRaw(
-		U32 status,
-		const std::string& reason,
 		const LLChannelDescriptors& channels,
 		const LLIOPipe::buffer_ptr_t& buffer)
 	{
@@ -78,9 +77,9 @@ public:
 		strstrm << istr.rdbuf();
 		const std::string body = strstrm.str();
 
-		if (status != 200)
+		if (getStatus() != HTTP_OK)
 		{
-			llwarns << "Failed to get upload config (" << status << ")" << llendl;
+			llwarns << "Failed to get upload config " << dumpResponse() << llendl;
 			LLWebProfile::reportImageUploadStatus(false);
 			return;
 		}
@@ -128,14 +127,12 @@ class LLWebProfileResponders::PostImageRedirectResponder : public LLHTTPClient::
 
 public:
 	/*virtual*/ void completedRaw(
-		U32 status,
-		const std::string& reason,
 		const LLChannelDescriptors& channels,
 		const LLIOPipe::buffer_ptr_t& buffer)
 	{
-		if (status != 200)
+		if (getStatus() != HTTP_OK)
 		{
-			llwarns << "Failed to upload image: " << status << " " << reason << llendl;
+			llwarns << "Failed to upload image " << dumpResponse() << llendl;
 			LLWebProfile::reportImageUploadStatus(false);
 			return;
 		}
@@ -161,32 +158,36 @@ class LLWebProfileResponders::PostImageResponder : public LLHTTPClient::Responde
 	LOG_CLASS(LLWebProfileResponders::PostImageResponder);
 
 public:
-	/*virtual*/ void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+	/*virtual*/ void completedRaw(const LLChannelDescriptors& channels,
+								  const LLIOPipe::buffer_ptr_t& buffer)
 	{
 		// Viewer seems to fail to follow a 303 redirect on POST request
 		// (URLRequest Error: 65, Send failed since rewinding of the data stream failed).
 		// Handle it manually.
-		if (status == 303)
+		if (getStatus() == HTTP_SEE_OTHER)
 		{
 			LLSD headers = LLViewerMedia::getHeaders();
-			headers["Cookie"] = LLWebProfile::getAuthCookie();
-			const std::string& redir_url = content["location"];
-			LL_DEBUGS("Snapshots") << "Got redirection URL: " << redir_url << llendl;
-			LLHTTPClient::get(redir_url, new LLWebProfileResponders::PostImageRedirectResponder, headers);
+			headers[HTTP_HEADER_COOKIE] = LLWebProfile::getAuthCookie();
+			const bool check_lower=true;
+			const std::string& redir_url = getResponseHeader(HTTP_HEADER_LOCATION, check_lower);
+			if (redir_url.empty())
+			{
+				llwarns << "Received empty redirection URL " << dumpResponse() << llendl;
+				LL_DEBUGS("Snapshots") << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
+				LLWebProfile::reportImageUploadStatus(false);
+			}
+			else
+			{
+				LL_DEBUGS("Snapshots") << "Got redirection URL: " << redir_url << llendl;
+				LLHTTPClient::get(redir_url, new LLWebProfileResponders::PostImageRedirectResponder, headers);
+			}
 		}
 		else
 		{
-			llwarns << "Unexpected POST status: " << status << " " << reason << llendl;
-			LL_DEBUGS("Snapshots") << "headers: [" << content << "]" << llendl;
+			llwarns << "Unexpected POST response " << dumpResponse() << llendl;
+			LL_DEBUGS("Snapshots") << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
 			LLWebProfile::reportImageUploadStatus(false);
 		}
-	}
-
-	// Override just to suppress warnings.
-	/*virtual*/ void completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
-							  const LLIOPipe::buffer_ptr_t& buffer)
-	{
 	}
 };
 
@@ -206,7 +207,7 @@ void LLWebProfile::uploadImage(LLPointer<LLImageFormatted> image, const std::str
 
 	LL_DEBUGS("Snapshots") << "Requesting " << config_url << llendl;
 	LLSD headers = LLViewerMedia::getHeaders();
-	headers["Cookie"] = getAuthCookie();
+	headers[HTTP_HEADER_COOKIE] = getAuthCookie();
 	LLHTTPClient::get(config_url, new LLWebProfileResponders::ConfigResponder(image), headers);
 }
 
@@ -230,8 +231,8 @@ void LLWebProfile::post(LLPointer<LLImageFormatted> image, const LLSD& config, c
 	const std::string boundary = "----------------------------0123abcdefab";
 
 	LLSD headers = LLViewerMedia::getHeaders();
-	headers["Cookie"] = getAuthCookie();
-	headers["Content-Type"] = "multipart/form-data; boundary=" + boundary;
+	headers[HTTP_HEADER_COOKIE] = getAuthCookie();
+	headers[HTTP_HEADER_CONTENT_TYPE] = "multipart/form-data; boundary=" + boundary;
 
 	std::ostringstream body;
 
