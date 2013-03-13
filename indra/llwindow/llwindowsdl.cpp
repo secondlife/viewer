@@ -1647,7 +1647,7 @@ void check_vm_bloat()
 		long long this_vm_size = 0;
 		long long this_rss_size = 0;
 
-		size_t res;
+		ssize_t res;
 		size_t dummy;
 		char *ptr = NULL;
 		for (int i=0; i<22; ++i) // parse past the values we don't want
