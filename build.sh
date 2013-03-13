@@ -65,7 +65,7 @@ pre_build()
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
 
-    check_for "Before 'autobuild configure'" ${build_dir}/packages/dictionaries
+    check_for "Confirm dictionaries are installed before 'autobuild configure'" ${build_dir}/packages/dictionaries
 
     "$AUTOBUILD" configure -c $variant -- \
      -DPACKAGE:BOOL=ON \
@@ -74,8 +74,6 @@ pre_build()
      -DGRID:STRING="\"$viewer_grid\"" \
      -DLL_TESTS:BOOL="$run_tests" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url
-
-    check_for "After 'autobuild configure'" ${build_dir}/packages/dictionaries
 
  end_section "Pre$variant"
 }
@@ -109,7 +107,6 @@ build()
   if $build_viewer
   then
     begin_section "Viewer$variant"
-    check_for "Before 'autobuild build'" ${build_dir}/packages/dictionaries
 
     "$AUTOBUILD" build --no-configure -c $variant
     viewer_build_ok=$?
@@ -122,8 +119,6 @@ build()
     else
       echo false >"$build_dir"/build_ok
     fi
-    check_for "After 'autobuild configure'" ${build_dir}/packages/dictionaries
-
   fi
 }
 
@@ -181,27 +176,11 @@ then
 fi
 
 # load autbuild provided shell functions and variables
-# Merov: going back to the previous code that passes even if it fails catching a failure
-# TODO: use the correct code here under and fix the llbase import in python code
-#if "$AUTOBUILD" source_environment > source_environment
-#then
-#  . source_environment
-#else
-  # dump environment variables for debugging
-#  env|sort
-#  record_failure "autobuild source_environment failed"
-#  cat source_environment >&3
-#  exit 1
-#fi
 eval "$("$AUTOBUILD" source_environment)"
 
 # dump environment variables for debugging
 env|sort
 
-check_for "Before 'autobuild install'" ${build_dir}/packages/dictionaries
-
-
-check_for "After 'autobuild install'" ${build_dir}/packages/dictionaries
 # Now run the build
 succeeded=true
 build_processes=
