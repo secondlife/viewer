@@ -2360,7 +2360,8 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
 		if (data_mask & MAP_COLOR)
 		{
 			S32 loc = TYPE_COLOR;
-			void* ptr = (void*)(base + mOffsets[TYPE_COLOR]);
+			//bind emissive instead of color pointer if emissive is present
+			void* ptr = (data_mask & MAP_EMISSIVE) ? (void*)(base + mOffsets[TYPE_EMISSIVE]) : (void*)(base + mOffsets[TYPE_COLOR]);
 			glVertexAttribPointerARB(loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_COLOR], ptr);
 		}
 		if (data_mask & MAP_EMISSIVE)
@@ -2368,6 +2369,12 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
 			S32 loc = TYPE_EMISSIVE;
 			void* ptr = (void*)(base + mOffsets[TYPE_EMISSIVE]);
 			glVertexAttribPointerARB(loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_EMISSIVE], ptr);
+
+			if (!(data_mask & MAP_COLOR))
+			{ //map emissive to color channel when color is not also being bound to avoid unnecessary shader swaps
+				loc = TYPE_COLOR;
+				glVertexAttribPointerARB(loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_EMISSIVE], ptr);
+			}
 		}
 		if (data_mask & MAP_WEIGHT)
 		{

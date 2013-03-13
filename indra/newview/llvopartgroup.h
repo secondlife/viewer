@@ -42,8 +42,7 @@ public:
 
 	//vertex buffer for holding all particles
 	static LLPointer<LLVertexBuffer> sVB;
-	static S32 sVBSlotFree[LL_MAX_PARTICLE_COUNT];
-	static S32* sVBSlotCursor;
+	static S32 sVBSlotCursor;
 
 	static void initClass();
 	static void restoreGL();
@@ -57,6 +56,7 @@ public:
 							LLVertexBuffer::MAP_NORMAL |
 							LLVertexBuffer::MAP_TEXCOORD0 |
 							LLVertexBuffer::MAP_COLOR |
+							LLVertexBuffer::MAP_EMISSIVE |
 							LLVertexBuffer::MAP_TEXTURE_INDEX
 	};
 
@@ -91,10 +91,12 @@ public:
 								LLStrider<LLVector3>& normalsp, 
 								LLStrider<LLVector2>& texcoordsp,
 								LLStrider<LLColor4U>& colorsp, 
+								LLStrider<LLColor4U>& emissivep,
 								LLStrider<U16>& indicesp);
 
 	void updateFaceSize(S32 idx) { }
 	F32 getPartSize(S32 idx);
+	void getBlendFunc(S32 idx, U32& src, U32& dst);
 	LLUUID getPartOwner(S32 idx);
 	LLUUID getPartSource(S32 idx);
 

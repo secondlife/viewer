@@ -384,7 +384,6 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 	}
 	else
 	{
-		// CORY TO DO: Figure out how to get the value here
 		if (update_type != OUT_TERSE_IMPROVED)
 		{
 			LLVolumeParams volume_params;
@@ -452,6 +451,11 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 				gPipeline.markTextured(mDrawable);
 				mFaceMappingChanged = TRUE;
 				mTexAnimMode = 0;
+			}
+
+			if (value & 0x400)
+			{ //particle system (new)
+				unpackParticleSource(*dp, mOwnerID, false);
 			}
 		}
 		else

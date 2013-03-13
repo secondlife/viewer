@@ -49,17 +49,11 @@ const F32 MAX_PART_LIFETIME = 120.f;
 extern U64 gFrameTime;
 
 LLPointer<LLVertexBuffer> LLVOPartGroup::sVB = NULL;
-S32 LLVOPartGroup::sVBSlotFree[];
-S32* LLVOPartGroup::sVBSlotCursor = NULL;
+S32 LLVOPartGroup::sVBSlotCursor = 0;
 
 void LLVOPartGroup::initClass()
 {
-	for (S32 i = 0; i < LL_MAX_PARTICLE_COUNT; ++i)
-	{
-		sVBSlotFree[i] = i;
-	}
-
-	sVBSlotCursor = sVBSlotFree;
+	
 }
 
 //static
@@ -122,36 +116,33 @@ void LLVOPartGroup::destroyGL()
 //static
 S32 LLVOPartGroup::findAvailableVBSlot()
 {
-	if (sVBSlotCursor >= sVBSlotFree+LL_MAX_PARTICLE_COUNT)
+	if (sVBSlotCursor >= LL_MAX_PARTICLE_COUNT)
 	{ //no more available slots
 		return -1;
 	}
 
-	S32 ret = *sVBSlotCursor;
-	sVBSlotCursor++;
-
-	return ret;
+	return sVBSlotCursor++;
 }
 
 bool ll_is_part_idx_allocated(S32 idx, S32* start, S32* end)
 {
-	while (start < end)
+	/*while (start < end)
 	{
 		if (*start == idx)
 		{ //not allocated (in free list)
 			return false;
 		}
 		++start;
-	}
+	}*/
 
 	//allocated (not in free list)
-	return true;
+	return false;
 }
 
 //static
 void LLVOPartGroup::freeVBSlot(S32 idx)
 {
-	llassert(idx < LL_MAX_PARTICLE_COUNT && idx >= 0);
+	/*llassert(idx < LL_MAX_PARTICLE_COUNT && idx >= 0);
 	llassert(sVBSlotCursor > sVBSlotFree);
 	llassert(ll_is_part_idx_allocated(idx, sVBSlotCursor, sVBSlotFree+LL_MAX_PARTICLE_COUNT));
 
@@ -159,7 +150,7 @@ void LLVOPartGroup::freeVBSlot(S32 idx)
 	{
 		sVBSlotCursor--;
 		*sVBSlotCursor = idx;
-	}
+	}*/
 }
 
 LLVOPartGroup::LLVOPartGroup(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
@@ -189,6 +180,7 @@ F32 LLVOPartGroup::getBinRadius()
 void LLVOPartGroup::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 {		
 	const LLVector3& pos_agent = getPositionAgent();
+
 	newMin.load3( (pos_agent - mScale).mV);
 	newMax.load3( (pos_agent + mScale).mV);
 	LLVector4a pos;
@@ -273,6 +265,16 @@ F32 LLVOPartGroup::getPartSize(S32 idx)
 	return 0.f;
 }
 
+void LLVOPartGroup::getBlendFunc(S32 idx, U32& src, U32& dst)
+{
+	if (idx < (S32) mViewerPartGroupp->mParticles.size())
+	{
+		LLViewerPart* part = mViewerPartGroupp->mParticles[idx];
+		src = part->mBlendFuncSource;
+		dst = part->mBlendFuncDest;
+	}
+}
+
 LLVector3 LLVOPartGroup::getCameraPosition() const
 {
 	return gAgentCamera.getCameraPositionAgent();
@@ -332,13 +334,42 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 	mDepth = 0.f;
 	S32 i = 0 ;
 	LLVector3 camera_agent = getCameraPosition();
+	
+	F32 max_scale = 0.f;
+
+
 	for (i = 0 ; i < (S32)mViewerPartGroupp->mParticles.size(); i++)
 	{
 		const LLViewerPart *part = mViewerPartGroupp->mParticles[i];
 
+
+		//remember the largest particle
+		max_scale = llmax(max_scale, part->mScale.mV[0], part->mScale.mV[1]);
+
+		if (part->mFlags & LLPartData::LL_PART_RIBBON_MASK)
+		{ //include ribbon segment length in scale
+			const LLVector3* pos_agent = NULL;
+			if (part->mParent)
+			{
+				pos_agent = &(part->mParent->mPosAgent);
+			}
+			else if (part->mPartSourcep.notNull())
+			{
+				pos_agent = &(part->mPartSourcep->mPosAgent);
+			}
+
+			if (pos_agent)
+			{
+				F32 dist = (*pos_agent-part->mPosAgent).length();
+
+				max_scale = llmax(max_scale, dist);
+			}
+		}
+
 		LLVector3 part_pos_agent(part->mPosAgent);
 		LLVector3 at(part_pos_agent - camera_agent);
 
+		
 		F32 camera_dist_squared = at.lengthSquared();
 		F32 inv_camera_dist_squared;
 		if (camera_dist_squared > 1.f)
@@ -411,6 +442,9 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 		facep->setSize(0, 0);
 	}
 
+	//record max scale (used to stretch bounding box for visibility culling)
+	mScale.set(max_scale, max_scale, max_scale);
+
 	mDrawable->movePartition();
 	LLPipeline::sCompiles++;
 	return TRUE;
@@ -478,74 +512,129 @@ BOOL LLVOPartGroup::lineSegmentIntersect(const LLVector3& start, const LLVector3
 void LLVOPartGroup::getGeometry(const LLViewerPart& part,
 								LLStrider<LLVector4a>& verticesp)
 {
-	LLVector4a part_pos_agent;
-	part_pos_agent.load3(part.mPosAgent.mV);
-	LLVector4a camera_agent;
-	camera_agent.load3(getCameraPosition().mV); 
-	LLVector4a at;
-	at.setSub(part_pos_agent, camera_agent);
-	LLVector4a up(0, 0, 1);
-	LLVector4a right;
-
-	right.setCross3(at, up);
-	right.normalize3fast();
-	up.setCross3(right, at);
-	up.normalize3fast();
-
-	if (part.mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK)
+	if (part.mFlags & LLPartData::LL_PART_RIBBON_MASK)
 	{
-		LLVector4a normvel;
-		normvel.load3(part.mVelocity.mV);
-		normvel.normalize3fast();
-		LLVector2 up_fracs;
-		up_fracs.mV[0] = normvel.dot3(right).getF32();
-		up_fracs.mV[1] = normvel.dot3(up).getF32();
-		up_fracs.normalize();
-		LLVector4a new_up;
-		LLVector4a new_right;
+		LLVector4a axis, pos, paxis, ppos;
+		F32 scale, pscale;
 
-		//new_up = up_fracs.mV[0] * right + up_fracs.mV[1]*up;
-		LLVector4a t = right;
-		t.mul(up_fracs.mV[0]);
-		new_up = up;
-		new_up.mul(up_fracs.mV[1]);
-		new_up.add(t);
+		pos.load3(part.mPosAgent.mV);
+		axis.load3(part.mAxis.mV);
+		scale = part.mScale.mV[0];
+		
+		if (part.mParent)
+		{
+			ppos.load3(part.mParent->mPosAgent.mV);
+			paxis.load3(part.mParent->mAxis.mV);
+			pscale = part.mParent->mScale.mV[0];
+		}
+		else
+		{ //use source object as position
+			
+			if (part.mPartSourcep->mSourceObjectp.notNull())
+			{
+				LLVector3 v = LLVector3(0,0,1);
+				v *= part.mPartSourcep->mSourceObjectp->getRenderRotation();
+				paxis.load3(v.mV);
+				ppos.load3(part.mPartSourcep->mPosAgent.mV);
+				pscale = part.mStartScale.mV[0];
+			}
+			else
+			{ //no source object, no parent, nothing to draw
+				ppos = pos;
+				pscale = scale;
+				paxis = axis;
+			}
+		}
 
-		//new_right = up_fracs.mV[1] * right - up_fracs.mV[0]*up;
-		t = right;
-		t.mul(up_fracs.mV[1]);
-		new_right = up;
-		new_right.mul(up_fracs.mV[0]);
-		t.sub(new_right);
+		LLVector4a p0, p1, p2, p3;
 
-		up = new_up;
-		right = t;
-		up.normalize3fast();
-		right.normalize3fast();
+		scale *= 0.5f;
+		pscale *= 0.5f;
+
+		axis.mul(scale);
+		paxis.mul(pscale);
+
+		p0.setAdd(pos, axis);
+		p1.setSub(pos,axis);
+		p2.setAdd(ppos, paxis);
+		p3.setSub(ppos, paxis);
+
+		(*verticesp++) = p2;
+		(*verticesp++) = p3;
+		(*verticesp++) = p0;
+		(*verticesp++) = p1;
 	}
+	else
+	{
+		LLVector4a part_pos_agent;
+		part_pos_agent.load3(part.mPosAgent.mV);
+		LLVector4a camera_agent;
+		camera_agent.load3(getCameraPosition().mV); 
+		LLVector4a at;
+		at.setSub(part_pos_agent, camera_agent);
+		LLVector4a up(0, 0, 1);
+		LLVector4a right;
 
-	right.mul(0.5f*part.mScale.mV[0]);
-	up.mul(0.5f*part.mScale.mV[1]);
+		right.setCross3(at, up);
+		right.normalize3fast();
+		up.setCross3(right, at);
+		up.normalize3fast();
+
+		if (part.mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK)
+		{
+			LLVector4a normvel;
+			normvel.load3(part.mVelocity.mV);
+			normvel.normalize3fast();
+			LLVector2 up_fracs;
+			up_fracs.mV[0] = normvel.dot3(right).getF32();
+			up_fracs.mV[1] = normvel.dot3(up).getF32();
+			up_fracs.normalize();
+			LLVector4a new_up;
+			LLVector4a new_right;
+
+			//new_up = up_fracs.mV[0] * right + up_fracs.mV[1]*up;
+			LLVector4a t = right;
+			t.mul(up_fracs.mV[0]);
+			new_up = up;
+			new_up.mul(up_fracs.mV[1]);
+			new_up.add(t);
+
+			//new_right = up_fracs.mV[1] * right - up_fracs.mV[0]*up;
+			t = right;
+			t.mul(up_fracs.mV[1]);
+			new_right = up;
+			new_right.mul(up_fracs.mV[0]);
+			t.sub(new_right);
+
+			up = new_up;
+			right = t;
+			up.normalize3fast();
+			right.normalize3fast();
+		}
+
+		right.mul(0.5f*part.mScale.mV[0]);
+		up.mul(0.5f*part.mScale.mV[1]);
 
 
-	//HACK -- the verticesp->mV[3] = 0.f here are to set the texture index to 0 (particles don't use texture batching, maybe they should)
-	// this works because there is actually a 4th float stored after the vertex position which is used as a texture index
-	// also, somebody please VECTORIZE THIS
+		//HACK -- the verticesp->mV[3] = 0.f here are to set the texture index to 0 (particles don't use texture batching, maybe they should)
+		// this works because there is actually a 4th float stored after the vertex position which is used as a texture index
+		// also, somebody please VECTORIZE THIS
 
-	LLVector4a ppapu;
-	LLVector4a ppamu;
+		LLVector4a ppapu;
+		LLVector4a ppamu;
 
-	ppapu.setAdd(part_pos_agent, up);
-	ppamu.setSub(part_pos_agent, up);
+		ppapu.setAdd(part_pos_agent, up);
+		ppamu.setSub(part_pos_agent, up);
 
-	verticesp->setSub(ppapu, right);
-	(*verticesp++).getF32ptr()[3] = 0.f;
-	verticesp->setSub(ppamu, right);
-	(*verticesp++).getF32ptr()[3] = 0.f;
-	verticesp->setAdd(ppapu, right);
-	(*verticesp++).getF32ptr()[3] = 0.f;
-	verticesp->setAdd(ppamu, right);
-	(*verticesp++).getF32ptr()[3] = 0.f;
+		verticesp->setSub(ppapu, right);
+		(*verticesp++).getF32ptr()[3] = 0.f;
+		verticesp->setSub(ppamu, right);
+		(*verticesp++).getF32ptr()[3] = 0.f;
+		verticesp->setAdd(ppapu, right);
+		(*verticesp++).getF32ptr()[3] = 0.f;
+		verticesp->setAdd(ppamu, right);
+		(*verticesp++).getF32ptr()[3] = 0.f;
+	}
 }
 
 
@@ -555,6 +644,7 @@ void LLVOPartGroup::getGeometry(S32 idx,
 								LLStrider<LLVector3>& normalsp, 
 								LLStrider<LLVector2>& texcoordsp,
 								LLStrider<LLColor4U>& colorsp, 
+								LLStrider<LLColor4U>& emissivep,
 								LLStrider<U16>& indicesp)
 {
 	if (idx >= (S32) mViewerPartGroupp->mParticles.size())
@@ -566,10 +656,40 @@ void LLVOPartGroup::getGeometry(S32 idx,
 
 	getGeometry(part, verticesp);
 
-	*colorsp++ = part.mColor;
-	*colorsp++ = part.mColor;
-	*colorsp++ = part.mColor;
-	*colorsp++ = part.mColor;
+	LLColor4U pcolor;
+	LLColor4U color = part.mColor;
+
+	LLColor4U pglow;
+
+	if (part.mFlags & LLPartData::LL_PART_RIBBON_MASK)
+	{ //make sure color blends properly
+		if (part.mParent)
+		{
+			pglow = part.mParent->mGlow;
+			pcolor = part.mParent->mColor;
+		}
+		else 
+		{
+			pglow = LLColor4U(0, 0, 0, (U8) (255.f*part.mStartGlow));
+			pcolor = part.mStartColor;
+		}
+	}
+	else
+	{
+		pglow = part.mGlow;
+		pcolor = color;
+	}
+
+	*colorsp++ = pcolor;
+	*colorsp++ = pcolor;
+	*colorsp++ = color;
+	*colorsp++ = color;
+
+	*emissivep++ = pglow;
+	*emissivep++ = pglow;
+	*emissivep++ = part.mGlow;
+	*emissivep++ = part.mGlow;
+
 
 	if (!(part.mFlags & LLPartData::LL_PART_EMISSIVE_MASK))
 	{ //not fullbright, needs normal
@@ -712,10 +832,13 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 	LLStrider<LLVector3> normalsp;
 	LLStrider<LLVector2> texcoordsp;
 	LLStrider<LLColor4U> colorsp;
+	LLStrider<LLColor4U> emissivep;
 
 	buffer->getVertexStrider(verticesp);
 	buffer->getNormalStrider(normalsp);
 	buffer->getColorStrider(colorsp);
+	buffer->getEmissiveStrider(emissivep);
+
 	
 	LLSpatialGroup::drawmap_elem_t& draw_vec = group->mDrawMap[mRenderPass];	
 
@@ -724,7 +847,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 		LLFace* facep = *i;
 		LLAlphaObject* object = (LLAlphaObject*) facep->getViewerObject();
 
-		if (!facep->isState(LLFace::PARTICLE))
+		//if (!facep->isState(LLFace::PARTICLE))
 		{ //set the indices of this face
 			S32 idx = LLVOPartGroup::findAvailableVBSlot();
 			if (idx >= 0)
@@ -733,7 +856,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 				facep->setIndicesIndex(idx*6);
 				facep->setVertexBuffer(LLVOPartGroup::sVB);
 				facep->setPoolType(LLDrawPool::POOL_ALPHA);
-				facep->setState(LLFace::PARTICLE);
+				//facep->setState(LLFace::PARTICLE);
 			}
 			else
 			{
@@ -748,8 +871,9 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 		LLStrider<LLVector3> cur_norm = normalsp + geom_idx;
 		LLStrider<LLVector2> cur_tc = texcoordsp + geom_idx;
 		LLStrider<LLColor4U> cur_col = colorsp + geom_idx;
+		LLStrider<LLColor4U> cur_glow = emissivep + geom_idx;
 
-		object->getGeometry(facep->getTEOffset(), cur_vert, cur_norm, cur_tc, cur_col, cur_idx);
+		object->getGeometry(facep->getTEOffset(), cur_vert, cur_norm, cur_tc, cur_col, cur_glow, cur_idx);
 		
 		llassert(facep->getGeomCount() == 4);
 		llassert(facep->getIndicesCount() == 6);
@@ -765,9 +889,16 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 
 		bool batched = false;
 	
+		U32 bf_src = LLRender::BF_SOURCE_ALPHA;
+		U32 bf_dst = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;
+
+		object->getBlendFunc(facep->getTEOffset(), bf_src, bf_dst);
+
 		if (idx >= 0 &&
 			draw_vec[idx]->mTexture == facep->getTexture() &&
-			draw_vec[idx]->mFullbright == fullbright)
+			draw_vec[idx]->mFullbright == fullbright &&
+			draw_vec[idx]->mBlendFuncDst == bf_dst &&
+			draw_vec[idx]->mBlendFuncSrc == bf_src)
 		{
 			if (draw_vec[idx]->mEnd == facep->getGeomIndex()-1)
 			{
@@ -799,6 +930,8 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 			info->mExtents[0] = group->mObjectExtents[0];
 			info->mExtents[1] = group->mObjectExtents[1];
 			info->mVSize = vsize;
+			info->mBlendFuncDst = bf_dst;
+			info->mBlendFuncSrc = bf_src;
 			draw_vec.push_back(info);
 			//for alpha sorting
 			facep->setDrawInfo(info);

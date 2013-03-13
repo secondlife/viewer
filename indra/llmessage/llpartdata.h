@@ -88,7 +88,9 @@ public:
 		mParameter(0.f)
 	{
 	}
+	BOOL unpackLegacy(LLDataPacker &dp);
 	BOOL unpack(LLDataPacker &dp);
+
 	BOOL pack(LLDataPacker &dp);
 	LLSD asLLSD() const;
 	operator LLSD() const {return asLLSD(); }
@@ -116,6 +118,10 @@ public:
 		//LL_PART_RANDOM_ACCEL_MASK =		0x100,		// Particles have random acceleration
 		//LL_PART_RANDOM_VEL_MASK =		0x200,		// Particles have random velocity shifts"
 		//LL_PART_TRAIL_MASK =			0x400,		// Particles have historical "trails"
+
+		//sYSTEM SET FLAGS
+		LL_PART_DATA_GLOW =				0x10000,
+		LL_PART_DATA_BLEND =			0x20000,
 
 		// Viewer side use only!
 		LL_PART_HUD =					0x40000000,
@@ -152,6 +158,9 @@ public:
 	friend class LLPartSysData;
 	friend class LLViewerPartSourceScript;
 
+private:
+	S32 getSize() const;
+
 	// These are public because I'm really lazy...
 public:
 	U32					mFlags;						// Particle state/interpolators in effect
@@ -178,14 +187,12 @@ public:
 	LLPartSysData();
 
 	BOOL unpack(LLDataPacker &dp);
-	BOOL pack(LLDataPacker &dp);
-
-	
+	BOOL unpackLegacy(LLDataPacker &dp);
 	BOOL unpackBlock(const S32 block_num);
-	BOOL packBlock();
-
-	static BOOL packNull();
+		
 	static BOOL isNullPS(const S32 block_num); // Returns FALSE if this is a "NULL" particle system (i.e. no system)
+
+	bool isLegacyCompatible() const;
 
 	// Different masks for effects on the source
 	enum
@@ -222,6 +229,9 @@ public:
 
 	S32 getdataBlockSize() const;
 	
+private:
+	BOOL unpackSystem(LLDataPacker &dp);
+
 public:
 	// Public because I'm lazy....
 

@@ -119,6 +119,8 @@ public:
 	LL_ALIGN_16(LLFace* mFace); //associated face
 	F32 mDistance;
 	U32 mDrawMode;
+	U32 mBlendFuncSrc;
+	U32 mBlendFuncDst;
 
 	struct CompareTexture
 	{
