@@ -199,13 +199,13 @@ void on_new_message(const LLSD& msg)
     // execution of the action
 
     LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-
-	if (im_box->isFrontmost() && im_box->getSelectedSession() == session_id)
+	LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
+	
+	if (im_box->isFrontmost() && im_box->getSelectedSession() == session_id
+		&& !(session_floater->getHost() ? im_box->isMinimized() : session_floater->isMinimized()))
 	{
 		return;
 	}
-
-	LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
 	
     //session floater not focused (visible or not)
     bool session_floater_not_focused = session_floater && !session_floater->hasFocus();
