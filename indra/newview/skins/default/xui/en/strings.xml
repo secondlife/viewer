@@ -3907,4 +3907,7 @@ Try enclosing path to the editor with double quotes.
   <!-- Spell check settings floater -->
   <string name="UserDictionary">[User]</string>
   
+  <!-- Experience Tools strings -->
+  <string name="experience_tools_experience">Experience</string>
+  
   </strings>
