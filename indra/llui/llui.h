@@ -343,10 +343,11 @@ public:
 
 	// this avoids a MSVC bug where non-referenced static members are "optimized" away
 	// even if their constructors have side effects
-	void reference()
+	S32 reference()
 	{
 		S32 dummy;
 		dummy = 0;
+		return dummy;
 	}
 };
 
