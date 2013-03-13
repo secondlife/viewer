@@ -253,6 +253,7 @@ BOOL LLFloaterIMSessionTab::postBuild()
     p.root = NULL;
     p.use_ellipses = true;
     p.options_menu = "menu_conversation.xml";
+    p.name = "root";
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
     mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
 	// Attach that root to the scroller
