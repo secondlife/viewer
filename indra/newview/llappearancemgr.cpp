@@ -2034,7 +2034,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 	
 	//dumpCat(getCOF(),"COF, start");
 
-	bool follow_folder_links = true;
+	bool follow_folder_links = false;
 	LLUUID current_outfit_id = getCOF();
 
 	// Find all the wearables that are in the COF's subtree.
