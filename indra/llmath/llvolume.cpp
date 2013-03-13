@@ -4729,13 +4729,13 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 		}
 	}
 
-	// disallow data amplification
+	// Only swap data if we've actually optimized the mesh
 	//
 	if (new_face.mNumVertices <= mNumVertices)
 	{
-	    llassert(new_face.mNumIndices == mNumIndices);
-	    swapData(new_face);
-    }
+		llassert(new_face.mNumIndices == mNumIndices);
+		swapData(new_face);
+	}
 }
 
 class LLVCacheTriangleData;
