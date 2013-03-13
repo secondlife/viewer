@@ -182,6 +182,78 @@ inline void ll_aligned_free_32(void *p)
 #endif
 }
 
+
+// Copy words 16-byte blocks from src to dst. Source and destination MUST NOT OVERLAP. 
+// Source and dest must be 16-byte aligned and size must be multiple of 16.
+//
+inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __restrict src, size_t bytes)
+{
+	assert(src != NULL);
+	assert(dst != NULL);
+	assert(bytes > 0);
+	assert((bytes % sizeof(F32))== 0); 
+	ll_assert_aligned(src,16);
+	ll_assert_aligned(dst,16);
+	assert((src < dst) ? ((src + bytes) < dst) : ((dst + bytes) < src));
+	assert(bytes%16==0);
+
+	char* end = dst + bytes;
+
+	if (bytes > 64)
+	{
+
+		// Find start of 64b aligned area within block
+		//
+		void* begin_64 = LL_NEXT_ALIGNED_ADDRESS_64(dst);
+		
+		//at least 64 bytes before the end of the destination, switch to 16 byte copies
+		void* end_64 = end-64;
+	
+		// Prefetch the head of the 64b area now
+		//
+		_mm_prefetch((char*)begin_64, _MM_HINT_NTA);
+		_mm_prefetch((char*)begin_64 + 64, _MM_HINT_NTA);
+		_mm_prefetch((char*)begin_64 + 128, _MM_HINT_NTA);
+		_mm_prefetch((char*)begin_64 + 192, _MM_HINT_NTA);
+	
+		// Copy 16b chunks until we're 64b aligned
+		//
+		while (dst < begin_64)
+		{
+
+			_mm_store_ps((F32*)dst, _mm_load_ps((F32*)src));
+			dst += 16;
+			src += 16;
+		}
+	
+		// Copy 64b chunks up to your tail
+		//
+		// might be good to shmoo the 512b prefetch offset
+		// (characterize performance for various values)
+		//
+		while (dst < end_64)
+		{
+			_mm_prefetch((char*)src + 512, _MM_HINT_NTA);
+			_mm_prefetch((char*)dst + 512, _MM_HINT_NTA);
+			_mm_store_ps((F32*)dst, _mm_load_ps((F32*)src));
+			_mm_store_ps((F32*)(dst + 16), _mm_load_ps((F32*)(src + 16)));
+			_mm_store_ps((F32*)(dst + 32), _mm_load_ps((F32*)(src + 32)));
+			_mm_store_ps((F32*)(dst + 48), _mm_load_ps((F32*)(src + 48)));
+			dst += 64;
+			src += 64;
+		}
+	}
+
+	// Copy remainder 16b tail chunks (or ALL 16b chunks for sub-64b copies)
+	//
+	while (dst < end)
+	{
+		_mm_store_ps((F32*)dst, _mm_load_ps((F32*)src));
+		dst += 16;
+		src += 16;
+	}
+}
+
 #ifndef __DEBUG_PRIVATE_MEM__
 #define __DEBUG_PRIVATE_MEM__  0
 #endif
@@ -590,13 +662,7 @@ void  LLPrivateMemoryPoolTester::operator delete[](void* addr)
 
 // LLSingleton moved to llsingleton.h
 
-LL_COMMON_API void ll_assert_aligned_func(uintptr_t ptr,U32 alignment);
 
-#ifdef SHOW_ASSERT
-#define ll_assert_aligned(ptr,alignment) ll_assert_aligned_func(reinterpret_cast<uintptr_t>(ptr),((U32)alignment))
-#else
-#define ll_assert_aligned(ptr,alignment)
-#endif
 
 
 #endif
