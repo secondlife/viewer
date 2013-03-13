@@ -4729,11 +4729,13 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 		}
 	}
 
-	if (new_face.mNumVertices)
+	// disallow data amplification
+	//
+	if (new_face.mNumVertices <= mNumVertices)
 	{
-		llassert(new_face.mNumIndices == mNumIndices);
-		swapData(new_face);
-	}
+	    llassert(new_face.mNumIndices == mNumIndices);
+	    swapData(new_face);
+    }
 }
 
 class LLVCacheTriangleData;
@@ -6731,3 +6733,4 @@ void calc_binormal_from_triangle(LLVector4a& binormal,
 		binormal.set( 0, 1 , 0 );
 	}
 }
+

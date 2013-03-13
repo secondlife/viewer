@@ -188,14 +188,14 @@ inline void ll_aligned_free_32(void *p)
 //
 inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __restrict src, size_t bytes)
 {
-	assert(src != NULL);
-	assert(dst != NULL);
-	assert(bytes > 0);
-	assert((bytes % sizeof(F32))== 0); 
+	llassert(src != NULL);
+	llassert(dst != NULL);
+	llassert(bytes >= 16);
+	llassert((bytes % sizeof(F32))== 0); 
+	llassert((src < dst) ? ((src + bytes) < dst) : ((dst + bytes) < src));
+	llassert(bytes%16==0);
 	ll_assert_aligned(src,16);
 	ll_assert_aligned(dst,16);
-	assert((src < dst) ? ((src + bytes) < dst) : ((dst + bytes) < src));
-	assert(bytes%16==0);
 
 	char* end = dst + bytes;
 
