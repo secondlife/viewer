@@ -53,6 +53,12 @@
 #include "llviewershadermgr.h"
 #include "llvoavatar.h"
 
+#if LL_LINUX
+// Work-around spurious used before init warning on Vector4a
+//
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#endif
+
 extern BOOL gGLDebugLoggingEnabled;
 
 #define LL_MAX_INDICES_COUNT 1000000
@@ -1981,6 +1987,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			//_mm_prefetch((char*)src, _MM_HINT_NTA);
 				
 			//_mm_prefetch((char*)dst, _MM_HINT_NTA);
+
 
 			LLVector4a res0; //,res1,res2,res3;
 			

@@ -32,8 +32,9 @@
 // static members
 //-----------------------------------------------------------------------------
 LLFrameTimer LLCriticalDamp::sInternalTimer;
-std::map<F32, F32> LLCriticalDamp::sInterpolants;
 F32 LLCriticalDamp::sTimeDelta;
+F32	LLCriticalDamp::sInterpolants[kNumCachedInterpolants];
+F32 LLCriticalDamp::sInterpolatedValues[kNumCachedInterpolants];
 
 //-----------------------------------------------------------------------------
 // LLCriticalDamp()
@@ -41,6 +42,17 @@ F32 LLCriticalDamp::sTimeDelta;
 LLCriticalDamp::LLCriticalDamp()
 {
 	sTimeDelta = 0.f;
+
+	// Init the core interpolant values (to which many, many enums map)
+	//
+	setInterpolantConstant(InterpDelta_0_025, 0.025f);
+	setInterpolantConstant(InterpDelta_0_05,  0.05f );
+	setInterpolantConstant(InterpDelta_0_06,  0.06f);
+	setInterpolantConstant(InterpDelta_0_10,  0.10f);
+	setInterpolantConstant(InterpDelta_0_15,  0.15f);
+	setInterpolantConstant(InterpDelta_0_20,  0.20f);
+	setInterpolantConstant(InterpDelta_0_25,  0.25f);
+	setInterpolantConstant(InterpDelta_0_30,  0.30f);
 }
 
 // static
@@ -51,39 +63,10 @@ void LLCriticalDamp::updateInterpolants()
 {
 	sTimeDelta = sInternalTimer.getElapsedTimeAndResetF32();
 
-	F32 time_constant;
-
-	for (std::map<F32, F32>::iterator iter = sInterpolants.begin();
-		 iter != sInterpolants.end(); iter++)
+	U32 i;
+	for (i = 0; i < kNumCachedInterpolants; i++)
 	{
-		time_constant = iter->first;
-		F32 new_interpolant = 1.f - pow(2.f, -sTimeDelta / time_constant);
-		new_interpolant = llclamp(new_interpolant, 0.f, 1.f);
-		sInterpolants[time_constant] = new_interpolant;
+		sInterpolatedValues[i] = llclamp(sTimeDelta / sInterpolants[ i], 0.0f, 1.0f);
 	}
-} 
-
-//-----------------------------------------------------------------------------
-// getInterpolant()
-//-----------------------------------------------------------------------------
-F32 LLCriticalDamp::getInterpolant(const F32 time_constant, BOOL use_cache)
-{
-	if (time_constant == 0.f)
-	{
-		return 1.f;
-	}
-
-	if (use_cache && sInterpolants.count(time_constant))
-	{
-		return sInterpolants[time_constant];
-	}
-	
-	F32 interpolant = 1.f - pow(2.f, -sTimeDelta / time_constant);
-	interpolant = llclamp(interpolant, 0.f, 1.f);
-	if (use_cache)
-	{
-		sInterpolants[time_constant] = interpolant;
-	}
-
-	return interpolant;
 }
+

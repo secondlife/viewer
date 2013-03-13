@@ -57,6 +57,7 @@ class LLVolumeTriangle;
 #include "llrefcount.h"
 #include "llpointer.h"
 #include "llfile.h"
+#include "llalignedarray.h"
 
 //============================================================================
 
@@ -194,26 +195,6 @@ const U8 LL_SCULPT_FLAG_INVERT    = 64;
 const U8 LL_SCULPT_FLAG_MIRROR    = 128;
 
 const S32 LL_SCULPT_MESH_MAX_FACES = 8;
-
-template <class T, U32 alignment>
-class LLAlignedArray
-{
-public:
-	T* mArray;
-	U32 mElementCount;
-	U32 mCapacity;
-
-	LLAlignedArray();
-	~LLAlignedArray();
-
-	void push_back(const T& elem);
-	U32 size() const { return mElementCount; }
-	void resize(U32 size);
-	T* append(S32 N);
-	T& operator[](int idx);
-	const T& operator[](int idx) const;
-};
-
 
 class LLProfileParams
 {

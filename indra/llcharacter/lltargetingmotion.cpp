@@ -106,7 +106,7 @@ BOOL LLTargetingMotion::onActivate()
 //-----------------------------------------------------------------------------
 BOOL LLTargetingMotion::onUpdate(F32 time, U8* joint_mask)
 {
-	F32 slerp_amt = LLCriticalDamp::getInterpolant(TORSO_TARGET_HALF_LIFE);
+	F32 slerp_amt = LLCriticalDamp::getInterpolant(InterpDeltaTorsoTargetLagHalfLife);
 
 	LLVector3 target;
 	LLVector3* lookAtPoint = (LLVector3*)mCharacter->getAnimationData("LookAtPoint");
@@ -169,3 +169,4 @@ void LLTargetingMotion::onDeactivate()
 
 
 // End
+

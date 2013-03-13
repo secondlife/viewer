@@ -310,7 +310,7 @@ void LLVBOPool::cleanup()
 			
 			if (r.mClientData)
 			{
-				ll_aligned_free_16((void*) r.mClientData);
+				ll_aligned_free((void*) r.mClientData);
 			}
 
 			l.pop_front();

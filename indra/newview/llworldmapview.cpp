@@ -302,8 +302,8 @@ void LLWorldMapView::draw()
 	mVisibleRegions.clear();
 
 	// animate pan if necessary
-	sPanX = lerp(sPanX, sTargetPanX, LLCriticalDamp::getInterpolant(0.1f));
-	sPanY = lerp(sPanY, sTargetPanY, LLCriticalDamp::getInterpolant(0.1f));
+	sPanX = lerp(sPanX, sTargetPanX, LLCriticalDamp::getInterpolant(InterpDeltaSmaller));
+	sPanY = lerp(sPanY, sTargetPanY, LLCriticalDamp::getInterpolant(InterpDeltaSmaller));
 
 	const S32 width = getRect().getWidth();
 	const S32 height = getRect().getHeight();
@@ -1795,3 +1795,5 @@ BOOL LLWorldMapView::handleDoubleClick( S32 x, S32 y, MASK mask )
 	}
 	return FALSE;
 }
+
+

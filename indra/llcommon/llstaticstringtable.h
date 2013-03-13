@@ -69,7 +69,7 @@ struct LLStaticStringHasher
 {
 	enum { bucket_size = 8 };
 	size_t operator()(const LLStaticHashedString& key_value) const { return key_value.Hash(); }
-	bool operator()(const LLStaticHashedString& left, const LLStaticHashedString& right) const { return left.Hash() < right.Hash(); }
+	bool   operator()(const LLStaticHashedString& left, const LLStaticHashedString& right) const { return left.Hash() < right.Hash(); }
 };
 
 template< typename MappedObject >
@@ -79,3 +79,4 @@ class LL_COMMON_API LLStaticStringTable
 };
 
 #endif
+

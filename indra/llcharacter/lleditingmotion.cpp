@@ -38,8 +38,6 @@
 // Constants
 //-----------------------------------------------------------------------------
 const LLQuaternion EDIT_MOTION_WRIST_ROTATION(F_PI_BY_TWO * 0.7f, LLVector3(1.0f, 0.0f, 0.0f));
-const F32 TARGET_LAG_HALF_LIFE	= 0.1f;		// half-life of IK targeting
-const F32 TORSO_LAG_HALF_LIFE = 0.2f;
 const F32 MAX_TIME_DELTA = 2.f; //max two seconds a frame for calculating interpolation
 
 S32 LLEditingMotion::sHandPose = LLHandMotion::HAND_POSE_RELAXED_R;
@@ -232,7 +230,7 @@ BOOL LLEditingMotion::onUpdate(F32 time, U8* joint_mask)
 		mIKSolver.solve();
 
 		// use blending...
-		F32 slerp_amt = LLCriticalDamp::getInterpolant(TARGET_LAG_HALF_LIFE);
+		F32 slerp_amt = LLCriticalDamp::getInterpolant(InterpDeltaTargetLagHalfLife);
 		shoulderRot = slerp(slerp_amt, mShoulderJoint.getRotation(), shoulderRot);
 		elbowRot = slerp(slerp_amt, mElbowJoint.getRotation(), elbowRot);
 
@@ -258,3 +256,4 @@ void LLEditingMotion::onDeactivate()
 
 
 // End
+

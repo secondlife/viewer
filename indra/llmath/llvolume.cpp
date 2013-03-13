@@ -96,93 +96,6 @@ extern BOOL gDebugGL;
 
 bool less_than_max_mag(const LLVector4a& vec);
 
-template <class T, U32 alignment>
-LLAlignedArray<T, alignment>::LLAlignedArray()
-{
-	mArray = NULL;
-	mElementCount = 0;
-	mCapacity = 0;
-}
-
-template <class T, U32 alignment>
-LLAlignedArray<T, alignment>::~LLAlignedArray()
-{
-	ll_aligned_free(mArray);
-	mArray = NULL;
-	mElementCount = 0;
-	mCapacity = 0;
-}
-
-template <class T, U32 alignment>
-void LLAlignedArray<T, alignment>::push_back(const T& elem)
-{
-	T* old_buf = NULL;
-	if (mCapacity <= mElementCount)
-	{
-		mCapacity++;
-		mCapacity *= 2;
-		T* new_buf = (T*) ll_aligned_malloc(mCapacity*sizeof(T), alignment);
-		if (mArray)
-		{
-			LLVector4a::memcpyNonAliased16((F32*) new_buf, (F32*) mArray, sizeof(T)*mElementCount);
-		}
-		old_buf = mArray;
-		mArray = new_buf;
-	}
-
-	mArray[mElementCount++] = elem;
-
-	//delete old array here to prevent error on a.push_back(a[0])
-	ll_aligned_free(old_buf);
-}
-
-template <class T, U32 alignment>
-void LLAlignedArray<T, alignment>::resize(U32 size)
-{
-	if (mCapacity < size)
-	{
-		mCapacity = size+mCapacity*2;
-		T* new_buf = mCapacity > 0 ? (T*) ll_aligned_malloc(mCapacity*sizeof(T), alignment) : NULL;
-		if (mArray)
-		{
-			LLVector4a::memcpyNonAliased16((F32*) new_buf, (F32*) mArray, sizeof(T)*mElementCount);
-			ll_aligned_free(mArray);
-		}
-
-		/*for (U32 i = mElementCount; i < mCapacity; ++i)
-		{
-			new(new_buf+i) T();
-		}*/
-		mArray = new_buf;
-	}
-
-	mElementCount = size;
-}
-
-
-template <class T, U32 alignment>
-T& LLAlignedArray<T, alignment>::operator[](int idx)
-{
-	llassert(idx < mElementCount);
-	return mArray[idx];
-}
-
-template <class T, U32 alignment>
-const T& LLAlignedArray<T, alignment>::operator[](int idx) const
-{
-	llassert(idx < mElementCount);
-	return mArray[idx];
-}
-
-template <class T, U32 alignment>
-T* LLAlignedArray<T, alignment>::append(S32 N)
-{
-	U32 sz = size();
-	resize(sz+N);
-	return &((*this)[sz]);
-}
-
-
 BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
 {    
 	LLVector3 test = (pt2-pt1)%(pt3-pt2);
@@ -4816,10 +4729,13 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 		}
 	}
 
-	llassert(new_face.mNumIndices == mNumIndices);
-	llassert(new_face.mNumVertices <= mNumVertices);
-
-	swapData(new_face);
+	// disallow data amplification
+	//
+	if (new_face.mNumVertices <= mNumVertices)
+	{
+	    llassert(new_face.mNumIndices == mNumIndices);
+	    swapData(new_face);
+    }
 }
 
 class LLVCacheTriangleData;
@@ -5400,12 +5316,7 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 	S32 max_t = volume->getPath().mPath.size();
 
 	// S32 i;
-	S32 num_vertices = 0, num_indices = 0;
 	S32	grid_size = (profile.size()-1)/4;
-	S32	quad_count = (grid_size * grid_size);
-
-	num_vertices = (grid_size+1)*(grid_size+1);
-	num_indices = quad_count * 4;
 
 	LLVector4a& min = mExtents[0];
 	LLVector4a& max = mExtents[1];
@@ -6822,3 +6733,4 @@ void calc_binormal_from_triangle(LLVector4a& binormal,
 		binormal.set( 0, 1 , 0 );
 	}
 }
+

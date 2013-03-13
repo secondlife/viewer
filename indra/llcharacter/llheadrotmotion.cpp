@@ -182,8 +182,8 @@ BOOL LLHeadRotMotion::onUpdate(F32 time, U8* joint_mask)
 	LLQuaternion	currentRootRotWorld = mRootJoint->getWorldRotation();
 	LLQuaternion	currentInvRootRotWorld = ~currentRootRotWorld;
 
-	F32 head_slerp_amt = LLCriticalDamp::getInterpolant(HEAD_LOOKAT_LAG_HALF_LIFE);
-	F32 torso_slerp_amt = LLCriticalDamp::getInterpolant(TORSO_LOOKAT_LAG_HALF_LIFE);
+	F32 head_slerp_amt = LLCriticalDamp::getInterpolant(InterpDeltaHeadLookAtLagHalfLife);
+	F32 torso_slerp_amt = LLCriticalDamp::getInterpolant(InterpDeltaTorsoLookAtLagHalfLife);
 
 	LLVector3* targetPos = (LLVector3*)mCharacter->getAnimationData("LookAtPoint");
 
@@ -530,3 +530,4 @@ void LLEyeMotion::onDeactivate()
 }
 
 // End
+

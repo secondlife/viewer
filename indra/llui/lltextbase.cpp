@@ -351,7 +351,6 @@ void LLTextBase::drawSelectionBackground()
 
 		S32 selection_left		= llmin( mSelectionStart, mSelectionEnd );
 		S32 selection_right		= llmax( mSelectionStart, mSelectionEnd );
-		LLRect selection_rect = mVisibleTextRect;
 
 		// Skip through the lines we aren't drawing.
 		LLRect content_display_rect = getVisibleDocumentRect();
@@ -2241,6 +2240,8 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 	// Figure out which line we're nearest to.
 	LLRect visible_region = getVisibleDocumentRect();
 	LLRect doc_rect = mDocumentView->getRect();
+	(void)visible_region;
+	(void)doc_rect;
 
 	S32 doc_y = local_y - doc_rect.mBottom;
 	

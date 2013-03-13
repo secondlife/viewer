@@ -492,97 +492,83 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	BOOL damped = !undamped;
 
 	// Position
-	LLVector3 old_pos(mXform.getPosition());
-	LLVector3 target_pos;
-	if (mXform.isRoot())
-	{
-		// get root position in your agent's region
-		target_pos = mVObjp->getPositionAgent();
-	}
-	else
-	{
-		// parent-relative position
-		target_pos = mVObjp->getPosition();
-	}
-	
+	LLVector3 old_pos	 = mXform.getPosition();
+
+	// get agent position or parent-relative position as appropriate
+	//
+	LLVector3 target_pos = mXform.isRoot() ? mVObjp->getPositionAgent() : mVObjp->getPosition();
+
 	// Rotation
 	LLQuaternion old_rot(mXform.getRotation());
 	LLQuaternion target_rot = mVObjp->getRotation();
+
 	//scaling
 	LLVector3 target_scale = mVObjp->getScale();
 	LLVector3 old_scale = mCurrentScale;
 	LLVector3 dest_scale = target_scale;
-	
-	// Damping
-	F32 dist_squared = 0.f;
-	F32 camdist2 = (mDistanceWRTCamera * mDistanceWRTCamera);
+	LLVector3 scale_vec = old_scale-target_scale;
 
+	static const F32 dot_threshold = 1.0f - FLT_EPSILON;
+
+	F32 dist_squared = dist_vec_squared(old_pos, target_pos);
+
+	bool translated  = dist_squared > 0.0f;
+	bool rotated     = !mVObjp->getAngularVelocity().isExactlyZero() || (dot(old_rot, target_rot) < dot_threshold);
+	bool scaled		 = (scale_vec * scale_vec) > MIN_INTERPOLATE_DISTANCE_SQUARED;
+	
+	// Damping	
 	if (damped && isVisible())
 	{
-		F32 lerp_amt = llclamp(LLCriticalDamp::getInterpolant(OBJECT_DAMPING_TIME_CONSTANT), 0.f, 1.f);
+		F32 lerp_amt = LLCriticalDamp::getInterpolant(InterpDeltaObjectDampingConstant);
 		LLVector3 new_pos = lerp(old_pos, target_pos, lerp_amt);
-		dist_squared = dist_vec_squared(new_pos, target_pos);
+		dist_squared = dist_vec_squared(new_pos, old_pos);
 
 		LLQuaternion new_rot = nlerp(lerp_amt, old_rot, target_rot);
-		// FIXME: This can be negative! It is be possible for some rots to 'cancel out' pos or size changes.
-		dist_squared += (1.f - dot(new_rot, target_rot)) * 10.f;
+		dist_squared += fabs(1.f - dot(new_rot, old_rot)) * 10.f;
 
 		LLVector3 new_scale = lerp(old_scale, target_scale, lerp_amt);
-		dist_squared += dist_vec_squared(new_scale, target_scale);
+		dist_squared += dist_vec_squared(new_scale, old_scale);
 
-		if ((dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED * camdist2) &&
-			(dist_squared <= MAX_INTERPOLATE_DISTANCE_SQUARED))
+		// If our lerp isn't moving too far, substitue the lerp'd pos for our target for this frame
+		//
+		if (dist_squared <= MAX_INTERPOLATE_DISTANCE_SQUARED)
 		{
 			// interpolate
 			target_pos = new_pos;
 			target_rot = new_rot;
 			target_scale = new_scale;
 		}
-		else if (mVObjp->getAngularVelocity().isExactlyZero())
+		else
 		{
-			// snap to final position (only if no target omega is applied)
-			dist_squared = 0.0f;
-			if (getVOVolume() && !isRoot())
-			{ //child prim snapping to some position, needs a rebuild
-				gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
-			}
+			llinfos << "skipping update due to overly large lerp" << llendl;
 		}
 	}
-	else
-	{
-		// The following fixes MAINT-1742 but breaks vehicles similar to MAINT-2275
-		// dist_squared = dist_vec_squared(old_pos, target_pos);
 
-		// The following fixes MAINT-2247 but causes MAINT-2275
-		//dist_squared += (1.f - dot(old_rot, target_rot)) * 10.f;
-		//dist_squared += dist_vec_squared(old_scale, target_scale);
-	}
+	if (translated || rotated || scaled)
+	{ 
+		if (scaled)
+		{
+			mCurrentScale = target_scale;
+		}
 
-	LLVector3 vec = mCurrentScale-target_scale;
-	
-	if (vec*vec > MIN_INTERPOLATE_DISTANCE_SQUARED)
-	{ //scale change requires immediate rebuild
-		mCurrentScale = target_scale;
-		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
-	}
-	else if (!isRoot() && 
-		 (!mVObjp->getAngularVelocity().isExactlyZero() ||
-			dist_squared > 0.f))
-	{ //child prim moving relative to parent, tag as needing to be rendered atomically and rebuild
 		dist_squared = 1.f; //keep this object on the move list
-		if (!isState(LLDrawable::ANIMATED_CHILD))
+
+		//child prim moving relative to parent, tag as needing to be rendered atomically
+		//
+		if (!isRoot() && !isState(LLDrawable::ANIMATED_CHILD))
 		{			
 			setState(LLDrawable::ANIMATED_CHILD);
-			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
-			mVObjp->dirtySpatialGroup();
 		}
+
+		// Mark any components that need to be rebuilt based on what change transpired
+		//
+		if (!rotated && !scaled)
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+		else
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
+
+		mVObjp->dirtySpatialGroup();
 	}
-	else if (!isRoot()
-		&& (   dist_vec_squared(old_pos, target_pos) > 0.f
-			|| (1.f - dot(old_rot, target_rot)) > 0.f))
-        { // update child prims moved from LSL
-                gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
-        }
 	else if (!getVOVolume() && !isAvatar())
 	{
 		movePartition();
@@ -781,7 +767,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 		}
 
 		pos -= camera.getOrigin();	
-		mDistanceWRTCamera = llround(pos.magVec(), 0.01f);
+		mDistanceWRTCamera = 20.0f;//llround(pos.magVec(), 0.01f);
 		mVObjp->updateLOD();
 	}
 }
