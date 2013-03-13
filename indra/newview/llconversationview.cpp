@@ -257,18 +257,36 @@ BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
     //This node (conversation) was selected and a child (participant) was not
     if(result && getRoot())
     {
-    	if(getRoot()->getCurSelectedItem() == this)
-    	{
-    		LLConversationItem* item = dynamic_cast<LLConversationItem *>(getViewModelItem());
-    		LLUUID session_id = item? item->getUUID() : LLUUID();
-
-    		LLFloaterIMContainer *im_container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-    		im_container->flashConversationItemWidget(session_id,false);
-    		im_container->selectConversationPair(session_id, false);
-    		im_container->collapseMessagesPane(false);
-    	}
+		selectConversationItem();
     }
+
 	return result;
+}
+
+BOOL LLConversationViewSession::handleRightMouseDown( S32 x, S32 y, MASK mask )
+{
+    BOOL result = LLFolderViewFolder::handleRightMouseDown(x, y, mask);
+
+    if(result)
+    {
+		selectConversationItem();
+    }
+
+	return result;
+}
+
+void LLConversationViewSession::selectConversationItem()
+{
+	if(getRoot()->getCurSelectedItem() == this)
+	{
+		LLConversationItem* item = dynamic_cast<LLConversationItem *>(getViewModelItem());
+		LLUUID session_id = item? item->getUUID() : LLUUID();
+
+		LLFloaterIMContainer *im_container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+		im_container->flashConversationItemWidget(session_id,false);
+		im_container->selectConversationPair(session_id, false);
+		im_container->collapseMessagesPane(false);
+	}
 }
 
 // virtual

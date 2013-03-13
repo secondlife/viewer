@@ -68,6 +68,7 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
+	/*virtual*/ BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
 
 	/*virtual*/ S32 arrange(S32* width, S32* height);
 
@@ -90,6 +91,7 @@ private:
 
 	void onCurrentVoiceSessionChanged(const LLUUID& session_id);
 	void startFlashing();
+	void selectConversationItem();
 
 	LLPanel*				mItemPanel;
 	LLPanel*				mCallIconLayoutPanel;
