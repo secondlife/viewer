@@ -29,10 +29,6 @@
 
 #include "llmemory.h"
 
-#if LL_WINDOWS
-#include "llvector4a.h" // for 16b fast copy
-#endif
-
 template <class T, U32 alignment>
 class LLAlignedArray
 {
@@ -81,11 +77,7 @@ void LLAlignedArray<T, alignment>::push_back(const T& elem)
 		T* new_buf = (T*) ll_aligned_malloc(mCapacity*sizeof(T), alignment);
 		if (mArray)
 		{
-#if LL_WINDOWS
-			LLVector4a::memcpyNonAliased16((F32*) new_buf, (F32*) mArray, sizeof(T)*mElementCount);
-#else
-			memcpy((F32*)new_buf, (F32*)mArray, sizeof(T)*mElementCount);
-#endif
+			ll_memcpy_nonaliased_aligned_16((char*)new_buf, (char*)mArray, sizeof(T)*mElementCount);
 		}
 		old_buf = mArray;
 		mArray = new_buf;
@@ -106,11 +98,7 @@ void LLAlignedArray<T, alignment>::resize(U32 size)
 		T* new_buf = mCapacity > 0 ? (T*) ll_aligned_malloc(mCapacity*sizeof(T), alignment) : NULL;
 		if (mArray)
 		{
-#if LL_WINDOWS
-			LLVector4a::memcpyNonAliased16((F32*) new_buf, (F32*) mArray, sizeof(T)*mElementCount);
-#else
-			memcpy((F32*) new_buf, (F32*) mArray, sizeof(T)*mElementCount);
-#endif
+			ll_memcpy_nonaliased_aligned_16((char*) new_buf, (char*) mArray, sizeof(T)*mElementCount);
 			ll_aligned_free(mArray);
 		}
 

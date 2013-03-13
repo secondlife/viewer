@@ -4729,10 +4729,13 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 		}
 	}
 
-	llassert(new_face.mNumIndices == mNumIndices);
-	llassert(new_face.mNumVertices <= mNumVertices);
-
-	swapData(new_face);
+	// Only swap data if we've actually optimized the mesh
+	//
+	if (new_face.mNumVertices < mNumVertices)
+	{
+		llassert(new_face.mNumIndices == mNumIndices);
+		swapData(new_face);
+	}
 }
 
 class LLVCacheTriangleData;

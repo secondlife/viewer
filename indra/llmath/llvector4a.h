@@ -93,11 +93,7 @@ public:
 	
 	LLVector4a()
 	{ //DO NOT INITIALIZE -- The overhead is completely unnecessary
-// This assert is causing spurious referenced before set warnings on GCC 4.3.4
-//
-#if !LL_LINUX
 		ll_assert_aligned(this,16);
-#endif
 	}
 	
 	LLVector4a(F32 x, F32 y, F32 z, F32 w = 0.f)
