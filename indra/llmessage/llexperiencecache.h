@@ -45,7 +45,7 @@ namespace LLExperienceCache
 	const std::string OWNER_ID		= "owner_id";
 	const std::string NAME			= "name";
 	const std::string PROPERTIES	= "properties";
-	const std::string EXPIRES		= "expires";  
+	const std::string EXPIRES		= "expiration";  
 	const std::string DESCRIPTION	= "description";
 
 	// should be in sync with experience-api/experiences/models.py

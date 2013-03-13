@@ -74,9 +74,9 @@ namespace LLExperienceCache
 		sCache[public_key]=experience;
 		LLSD & row = sCache[public_key];
 
-		if(row.has("expires"))
+		if(row.has(EXPIRES))
 		{
-			row["expires"] = row["expires"].asReal() + LLFrameTimer::getTotalSeconds();
+			row[EXPIRES] = row[EXPIRES].asReal() + LLFrameTimer::getTotalSeconds();
 		}
 
 		if(row.has(EXPERIENCE_ID))
@@ -126,9 +126,9 @@ namespace LLExperienceCache
 			LLSD experience = *it;
 			if(experience.has(EXPERIENCE_ID))
 			{
-				if(!experience.has("expires"))
+				if(!experience.has(EXPIRES))
 				{
-					experience["expires"] = initialExpiration;
+					experience[EXPIRES] = initialExpiration;
 				}
 				processExperience(experience[EXPERIENCE_ID].asUUID(), experience);
 			}
@@ -154,7 +154,7 @@ namespace LLExperienceCache
 			if (max_age_from_cache_control(cache_control, &max_age))
 			{
 				LL_WARNS("ExperienceCache") 
-					<< "got expiration from headers, max_age " << max_age 
+					<< "got EXPIRES from headers, max_age " << max_age 
 					<< LL_ENDL;
 				F64 now = LLFrameTimer::getTotalSeconds();
 				*expires = now + (F64)max_age;
@@ -251,7 +251,7 @@ namespace LLExperienceCache
 		for( ; it != sCache.end() ; ++it)
 		{
 			if(!it->second.has(EXPERIENCE_ID) || it->second[EXPERIENCE_ID].asUUID().isNull() ||
-				it->second.has("error"))
+				it->second.has("DoesNotExist") || (it->second.has(PROPERTIES) && it->second[PROPERTIES].asInteger() & PROPERTY_INVALID))
 				continue;
 
 			experiences[it->first.asString()] = it->second;
@@ -294,17 +294,18 @@ namespace LLExperienceCache
 			}
 
 			LLSD error_ids = content["error_ids"];
-			LLSD::map_const_iterator errIt = error_ids.beginMap();
-			for( /**/ ; errIt != error_ids.endMap() ; ++errIt )
+			LLSD::array_const_iterator errIt = error_ids.beginArray();
+			for( /**/ ; errIt != error_ids.endArray() ; ++errIt )
 			{
-				LLUUID id = LLUUID(errIt->first);			
-				for( it = errIt->second.beginArray(); it != errIt->second.endArray() ; ++it)
-				{
-					LL_INFOS("ExperienceCache") << "Clearing error result for " << id 
-						<< " of type '" << it->asString() << "'" << LL_ENDL ;
+				LLUUID id = errIt->asUUID();		
+				LLSD exp;
+				exp[EXPIRES]=DEFAULT_EXPIRATION;
+				exp[EXPERIENCE_ID] = id;
+				exp[PROPERTIES]=PROPERTY_INVALID;
+				exp["DoesNotExist"]=true;
 
-					erase(id);
-				}
+				processExperience(id, exp);
+				LL_INFOS("ExperienceCache") << "Error result for " << id << LL_ENDL ;
 			}
 
 			LL_INFOS("ExperienceCache") << sCache.size() << " cached experiences" << LL_ENDL;
@@ -329,6 +330,7 @@ namespace LLExperienceCache
 				exp["key_type"] = it->second;
 				exp["uuid"] = it->first;
 				exp["error"] = (LLSD::Integer)status;
+				exp[PROPERTIES]=PROPERTY_INVALID;
  				LLExperienceCache::processExperience(it->first, exp);
  			}
 
@@ -512,19 +514,23 @@ namespace LLExperienceCache
 			cache_t::iterator cur = it;
 			LLSD& exp = cur->second;
 			++it;
-			if(exp.has("expires") && exp["expires"].asReal() < now)
+			if(exp.has(EXPIRES) && exp[EXPIRES].asReal() < now)
 			{
-				if(exp.has("key_type") && exp.has("uuid"))
-				{
-					fetch(exp[EXPERIENCE_ID].asUUID(), true);
-					sCache.erase(cur);
-				}
-				else if(exp.has(EXPERIENCE_ID))
+				if(exp.has(EXPERIENCE_ID))
 				{
 					LLUUID id = exp[EXPERIENCE_ID].asUUID();
-					if(id.notNull())
+					S32 properties = PROPERTY_INVALID;
+					if(exp.has(PROPERTIES))
+					{
+						properties = exp[PROPERTIES].asInteger();
+					}
+					if(id.notNull() && ((properties & PROPERTY_INVALID) == 0))
 					{
 						fetch(id, true);
+					}
+					else
+					{
+						sCache.erase(cur);
 					}
 				}
 			}
