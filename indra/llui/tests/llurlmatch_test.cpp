@@ -28,7 +28,7 @@
 #include "linden_common.h"
 
 #include "../llurlmatch.h"
-#include "../llui/lluiimage.h"
+#include "../llrender/lluiimage.h"
 #include "lltut.h"
 
 // link seams
