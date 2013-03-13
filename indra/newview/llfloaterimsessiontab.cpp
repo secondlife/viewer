@@ -272,7 +272,7 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mRefreshTimer->start();
 	initBtns();
 
-	if (mIsParticipantListExpanded != gSavedSettings.getBOOL("IMShowControlPanel"))
+	if (mIsParticipantListExpanded != (bool)gSavedSettings.getBOOL("IMShowControlPanel"))
 	{
 		LLFloaterIMSessionTab::onSlide(this);
 	}
