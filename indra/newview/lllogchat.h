@@ -49,15 +49,27 @@ public:
 				const std::string& from,
 				const LLUUID& from_id,
 				const std::string& line);
+	static void getListOfTranscriptFiles(std::vector<std::string>& list);
 
-	/** @deprecated @see loadAllHistory() */
-	static void loadHistory(const std::string& filename, 
-		                    void (*callback)(ELogLineType, const LLSD&, void*), 
-							void* userdata);
+	static void loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params = LLSD());
 
-	static void loadAllHistory(const std::string& file_name, std::list<LLSD>& messages);
+	typedef boost::signals2::signal<void ()> save_history_signal_t;
+	static boost::signals2::connection setSaveHistorySignal(const save_history_signal_t::slot_type& cb);
+
+	static bool moveTranscripts(const std::string currentDirectory, 
+									const std::string newDirectory, 
+									std::vector<std::string>& listOfFilesToMove,
+									std::vector<std::string>& listOfFilesMoved);
+	static bool moveTranscripts(const std::string currentDirectory, 
+		const std::string newDirectory, 
+		std::vector<std::string>& listOfFilesToMove);
+
+	static void deleteTranscripts();
+	static bool isTranscriptExist(const LLUUID& avatar_id);
+
 private:
 	static std::string cleanFileName(std::string filename);
+	static save_history_signal_t * sSaveHistorySignal;
 };
 
 /**
@@ -105,7 +117,7 @@ public:
 	 *
 	 * @return false if failed to parse mandatory data - message text
 	 */
-	static bool parse(std::string& raw, LLSD& im);
+	static bool parse(std::string& raw, LLSD& im, const LLSD& parse_params = LLSD());
 
 protected:
 	LLChatLogParser();
@@ -113,9 +125,10 @@ protected:
 };
 
 // LLSD map lookup constants
-extern const std::string IM_TIME; //("time");
-extern const std::string IM_TEXT; //("message");
-extern const std::string IM_FROM; //("from");
-extern const std::string IM_FROM_ID; //("from_id");
+extern const std::string LL_IM_TIME; //("time");
+extern const std::string LL_IM_TEXT; //("message");
+extern const std::string LL_IM_FROM; //("from");
+extern const std::string LL_IM_FROM_ID; //("from_id");
+extern const std::string LL_TRANSCRIPT_FILE_EXTENSION; //("txt");
 
 #endif

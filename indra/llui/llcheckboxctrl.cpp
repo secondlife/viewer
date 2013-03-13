@@ -107,7 +107,7 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const LLCheckBoxCtrl::Params& p)
 	LLButton::Params params = p.check_button;
 	params.rect(btn_rect);
 	//params.control_name(p.control_name);
-	params.click_callback.function(boost::bind(&LLCheckBoxCtrl::onButtonPress, this, _2));
+	params.click_callback.function(boost::bind(&LLCheckBoxCtrl::onCommit, this));
 	params.commit_on_return(false);
 	// Checkboxes only allow boolean initial values, but buttons can
 	// take any LLSD.
@@ -121,18 +121,6 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const LLCheckBoxCtrl::Params& p)
 LLCheckBoxCtrl::~LLCheckBoxCtrl()
 {
 	// Children all cleaned up by default view destructor.
-}
-
-
-// static
-void LLCheckBoxCtrl::onButtonPress( const LLSD& data )
-{
-	//if (mRadioStyle)
-	//{
-	//	setValue(TRUE);
-	//}
-
-	onCommit();
 }
 
 void LLCheckBoxCtrl::onCommit()

@@ -3,6 +3,13 @@
  layout="topleft"
  name="Url Popup">
     <menu_item_call
+     label="Send IM"
+     layout="topleft"
+     name="show_agent">
+        <menu_item_call.on_click
+         function="Url.SendIM" />        
+    </menu_item_call>
+    <menu_item_call
      label="Show Resident Profile"
      layout="topleft"
      name="show_agent">

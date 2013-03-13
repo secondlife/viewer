@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+     name="menu_conversation_view"
+     left="0" bottom="0" visible="false"
+     mouse_opaque="false">
+  <menu_item_check
+   label="Sort by name"
+   name="sort_by_name">
+      <on_click
+       function="CallLog.Action"
+       parameter="sort_by_name"/>
+      <on_check
+       function="CallLog.Check"
+       parameter="sort_by_name"/>
+  </menu_item_check>
+  <menu_item_check
+   label="Sort by date"
+   name="sort_by_date">
+      <on_click
+       function="CallLog.Action"
+       parameter="sort_by_date" />
+      <on_check
+       function="CallLog.Check"
+       parameter="sort_by_date" />
+  </menu_item_check>
+  <menu_item_separator />
+  <menu_item_check
+   label="Sort friends on top"
+   name="sort_by_friends">
+      <on_click
+       function="CallLog.Action"
+       parameter="sort_friends_on_top" />
+      <on_check
+       function="CallLog.Check"
+       parameter="sort_friends_on_top" />
+  </menu_item_check>
+  <menu_item_separator />
+  <menu_item_call
+   label="View Nearby chat history..."
+   name="view_nearby_chat_history">
+      <on_click
+       function="CallLog.Action"
+       parameter="view_nearby_chat_history" />
+  </menu_item_call>
+</toggleable_menu>

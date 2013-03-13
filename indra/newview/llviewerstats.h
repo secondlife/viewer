@@ -33,92 +33,90 @@
 class LLViewerStats : public LLSingleton<LLViewerStats>
 {
 public:
-	LLStat mKBitStat;
-	LLStat mLayersKBitStat;
-	LLStat mObjectKBitStat;
-	LLStat mAssetKBitStat;
-	LLStat mTextureKBitStat;
-	LLStat mVFSPendingOperations;
-	LLStat mObjectsDrawnStat;
-	LLStat mObjectsCulledStat;
-	LLStat mObjectsTestedStat;
-	LLStat mObjectsComparedStat;
-	LLStat mObjectsOccludedStat;
-	LLStat mFPSStat;
-	LLStat mPacketsInStat;
-	LLStat mPacketsLostStat;
-	LLStat mPacketsOutStat;
-	LLStat mPacketsLostPercentStat;
-	LLStat mTexturePacketsStat;
-	LLStat mActualInKBitStat;	// From the packet ring (when faking a bad connection)
-	LLStat mActualOutKBitStat;	// From the packet ring (when faking a bad connection)
-	LLStat mTrianglesDrawnStat;
+	LLStat	mKBitStat,
+			mLayersKBitStat,
+			mObjectKBitStat,
+			mAssetKBitStat,
+			mTextureKBitStat,
+			mVFSPendingOperations,
+			mObjectsDrawnStat,
+			mObjectsCulledStat,
+			mObjectsTestedStat,
+			mObjectsComparedStat,
+			mObjectsOccludedStat,
+			mFPSStat,
+			mPacketsInStat,
+			mPacketsLostStat,
+			mPacketsOutStat,
+			mPacketsLostPercentStat,
+			mTexturePacketsStat,
+			mActualInKBitStat,	// From the packet ring (when faking a bad connection)
+			mActualOutKBitStat,	// From the packet ring (when faking a bad connection)
+			mTrianglesDrawnStat;
 
 	// Simulator stats
-	LLStat mSimTimeDilation;
+	LLStat	mSimTimeDilation,
 
-	LLStat mSimFPS;
-	LLStat mSimPhysicsFPS;
-	LLStat mSimAgentUPS;
-	LLStat mSimScriptEPS;
+			mSimFPS,
+			mSimPhysicsFPS,
+			mSimAgentUPS,
+			mSimScriptEPS,
 
-	LLStat mSimFrameMsec;
-	LLStat mSimNetMsec;
-	LLStat mSimSimOtherMsec;
-	LLStat mSimSimPhysicsMsec;
+			mSimFrameMsec,
+			mSimNetMsec,
+			mSimSimOtherMsec,
+			mSimSimPhysicsMsec,
 
-	LLStat mSimSimPhysicsStepMsec;
-	LLStat mSimSimPhysicsShapeUpdateMsec;
-	LLStat mSimSimPhysicsOtherMsec;
+			mSimSimPhysicsStepMsec,
+			mSimSimPhysicsShapeUpdateMsec,
+			mSimSimPhysicsOtherMsec,
+			mSimSimAIStepMsec,
+			mSimSimSkippedSilhouetteSteps,
+			mSimSimPctSteppedCharacters,
 
-	LLStat mSimSimAIStepMsec;
-	LLStat mSimSimSkippedSilhouetteSteps;
-	LLStat mSimSimPctSteppedCharacters;
+			mSimAgentMsec,
+			mSimImagesMsec,
+			mSimScriptMsec,
+			mSimSpareMsec,
+			mSimSleepMsec,
+			mSimPumpIOMsec,
 
-	LLStat mSimAgentMsec;
-	LLStat mSimImagesMsec;
-	LLStat mSimScriptMsec;
-	LLStat mSimSpareMsec;
-	LLStat mSimSleepMsec;
-	LLStat mSimPumpIOMsec;
+			mSimMainAgents,
+			mSimChildAgents,
+			mSimObjects,
+			mSimActiveObjects,
+			mSimActiveScripts,
+			mSimPctScriptsRun,
 
-	LLStat mSimMainAgents;
-	LLStat mSimChildAgents;
-	LLStat mSimObjects;
-	LLStat mSimActiveObjects;
-	LLStat mSimActiveScripts;
-	LLStat mSimPctScriptsRun;
+			mSimInPPS,
+			mSimOutPPS,
+			mSimPendingDownloads,
+			mSimPendingUploads,
+			mSimPendingLocalUploads,
+			mSimTotalUnackedBytes,
 
-	LLStat mSimInPPS;
-	LLStat mSimOutPPS;
-	LLStat mSimPendingDownloads;
-	LLStat mSimPendingUploads;
-	LLStat mSimPendingLocalUploads;
-	LLStat mSimTotalUnackedBytes;
+			mPhysicsPinnedTasks,
+			mPhysicsLODTasks,
+			mPhysicsMemoryAllocated,
 
-	LLStat mPhysicsPinnedTasks;
-	LLStat mPhysicsLODTasks;
-	LLStat mPhysicsMemoryAllocated;
+			mSimPingStat,
 
-	LLStat mSimPingStat;
+			mNumImagesStat,
+			mNumRawImagesStat,
+			mGLTexMemStat,
+			mGLBoundMemStat,
+			mRawMemStat,
+			mFormattedMemStat,
 
-	LLStat mNumImagesStat;
-	LLStat mNumRawImagesStat;
-	LLStat mGLTexMemStat;
-	LLStat mGLBoundMemStat;
-	LLStat mRawMemStat;
-	LLStat mFormattedMemStat;
-
-	LLStat mNumObjectsStat;
-	LLStat mNumActiveObjectsStat;
-	LLStat mNumNewObjectsStat;
-	LLStat mNumSizeCulledStat;
-	LLStat mNumVisCulledStat;
+			mNumObjectsStat,
+			mNumActiveObjectsStat,
+			mNumNewObjectsStat,
+			mNumSizeCulledStat,
+			mNumVisCulledStat;
 
 	void resetStats();
 public:
-	// If you change this, please also add a corresponding text label
-	// in statTypeToText in llviewerstats.cpp
+	// If you change this, please also add a corresponding text label in llviewerstats.cpp
 	enum EStatType
 	{
 		ST_VERSION = 0,
@@ -182,7 +180,6 @@ public:
 		
 		ST_COUNT = 58
 	};
-
 
 	LLViewerStats();
 	~LLViewerStats();
@@ -310,14 +307,10 @@ private:
 static const F32 SEND_STATS_PERIOD = 300.0f;
 
 // The following are from (older?) statistics code found in appviewer.
-void init_statistics();
-void reset_statistics();
-void output_statistics(void*);
-void update_statistics(U32 frame_count);
+void update_statistics();
 void send_stats();
 
-extern std::map<S32,LLFrameTimer> gDebugTimers;
-extern std::map<S32,std::string> gDebugTimerLabel;
+extern LLFrameTimer gTextureTimer;
 extern U32	gTotalTextureBytes;
 extern U32  gTotalObjectBytes;
 extern U32  gTotalTextureBytesPerBoostLevel[] ;

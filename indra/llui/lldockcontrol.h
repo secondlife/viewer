@@ -63,7 +63,7 @@ public:
 	void setDock(LLView* dockWidget);
 	LLView* getDock()
 	{
-		return mDockWidget;
+		return mDockWidgetHandle.get();
 	}
 	void repositionDockable();
 	void drawToungue();
@@ -83,7 +83,7 @@ private:
 	bool mRecalculateDockablePosition;
 	bool mDockWidgetVisible;
 	DocAt mDockAt;
-	LLView* mDockWidget;
+	LLHandle<LLView> mDockWidgetHandle;
 	LLRect mPrevDockRect;
 	LLRect mRootRect;
 	LLRect mFloaterRect;

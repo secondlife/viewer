@@ -83,6 +83,7 @@ std::string LLDir::getSkinFolder() const { return "default"; }
 std::string LLDir::getLanguage() const { return "en"; }
 bool LLDir::setCacheDir(const std::string &path){ return true; }
 void LLDir::dumpCurrentDirectories() {}
+void LLDir::updatePerAccountChatLogsDir() {}
 
 std::string LLDir::getExpandedFilename(ELLPath location, 
 									   const std::string &filename) const 

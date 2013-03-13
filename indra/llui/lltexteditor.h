@@ -64,7 +64,9 @@ public:
 								ignore_tab,
 								show_line_numbers,
 								commit_on_focus_lost,
-								show_context_menu;
+								show_context_menu,
+								enable_tooltip_paste,
+								auto_indent;
 
 		//colors
 		Optional<LLUIColor>		default_color;
@@ -156,6 +158,11 @@ public:
 	BOOL			isPristine() const;
 	BOOL			allowsEmbeddedItems() const { return mAllowEmbeddedItems; }
 
+	// Autoreplace (formerly part of LLLineEditor)
+	typedef boost::function<void(S32&, S32&, LLWString&, S32&, const LLWString&)> autoreplace_callback_t;
+	autoreplace_callback_t mAutoreplaceCallback;
+	void			setAutoreplaceCallback(autoreplace_callback_t cb) { mAutoreplaceCallback = cb; }
+
 	//
 	// Text manipulation
 	//
@@ -202,6 +209,8 @@ public:
 	void			setShowContextMenu(bool show) { mShowContextMenu = show; }
 	bool			getShowContextMenu() const { return mShowContextMenu; }
 
+	void			setPassDelete(BOOL b) { mPassDelete = b; }
+
 protected:
 	void			showContextMenu(S32 x, S32 y);
 	void			drawPreeditMarker();
@@ -214,8 +223,8 @@ protected:
 	S32				indentLine( S32 pos, S32 spaces );
 	void			unindentLineBeforeCloseBrace();
 
+	virtual	BOOL	handleSpecialKey(const KEY key, const MASK mask);
 	BOOL			handleNavigationKey(const KEY key, const MASK mask);
-	BOOL			handleSpecialKey(const KEY key, const MASK mask);
 	BOOL			handleSelectionKey(const KEY key, const MASK mask);
 	BOOL			handleControlKey(const KEY key, const MASK mask);
 
@@ -279,6 +288,7 @@ protected:
 	LLUIColor			mDefaultColor;
 
 	BOOL				mShowLineNumbers;
+	bool				mAutoIndent;
 
 	/*virtual*/ void	updateSegments();
 	void				updateLinkSegments();
@@ -288,6 +298,8 @@ private:
 	// Methods
 	//
 	void	        pasteHelper(bool is_primary);
+	void			cleanStringForPaste(LLWString & clean_string);
+	void			pasteTextWithLinebreaks(LLWString & clean_string);
 
 	void			drawLineNumbers();
 
@@ -321,6 +333,8 @@ private:
 	BOOL			mAllowEmbeddedItems;
 	bool			mShowContextMenu;
 	bool			mParseOnTheFly;
+	bool			mEnableTooltipPaste;
+	bool			mPassDelete;
 
 	LLUUID			mSourceID;
 

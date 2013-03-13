@@ -138,7 +138,6 @@ void LLWorld::destroyClass()
 
 LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 {
-	LLMemType mt(LLMemType::MTYPE_REGIONS);
 	llinfos << "Add region with handle: " << region_handle << " on host " << host << llendl;
 	LLViewerRegion *regionp = getRegionFromHandle(region_handle);
 	if (regionp)
@@ -644,7 +643,6 @@ void LLWorld::updateVisibilities()
 
 void LLWorld::updateRegions(F32 max_update_time)
 {
-	LLMemType mt_ur(LLMemType::MTYPE_IDLE_UPDATE_REGIONS);
 	LLTimer update_timer;
 	BOOL did_one = FALSE;
 	
@@ -1194,7 +1192,7 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 	{
 		LLVOAvatar* pVOAvatar = (LLVOAvatar*) *iter;
 
-		if (!pVOAvatar->isDead() && !pVOAvatar->isSelf())
+		if (!pVOAvatar->isDead() && !pVOAvatar->mIsDummy)
 		{
 			LLVector3d pos_global = pVOAvatar->getPositionGlobal();
 			LLUUID uuid = pVOAvatar->getID();
