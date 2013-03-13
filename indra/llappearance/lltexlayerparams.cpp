@@ -33,7 +33,7 @@
 #include "llquantize.h"
 #include "lltexlayer.h"
 #include "lltexturemanagerbridge.h"
-#include "llrender2dutils.h"
+#include "../llui/llui.h"
 #include "llwearable.h"
 
 //-----------------------------------------------------------------------------

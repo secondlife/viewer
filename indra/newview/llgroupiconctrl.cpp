@@ -39,7 +39,7 @@
 
 #include "llcachename.h"
 #include "llagentdata.h"
-#include "llimfloater.h"
+#include "llfloaterimsession.h"
 */
 
 static LLDefaultChildRegistry::Register<LLGroupIconCtrl> g_i("group_icon");

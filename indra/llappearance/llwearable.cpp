@@ -81,13 +81,13 @@ BOOL LLWearable::exportStream( std::ostream& output_stream ) const
 	output_stream << mDescription << "\n";
 
 	// permissions
-	if( !mPermissions.exportStream( output_stream ) )
+	if( !mPermissions.exportLegacyStream( output_stream ) )
 	{
 		return FALSE;
 	}
 
 	// sale info
-	if( !mSaleInfo.exportStream( output_stream ) )
+	if( !mSaleInfo.exportLegacyStream( output_stream ) )
 	{
 		return FALSE;
 	}
@@ -263,7 +263,7 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 		llwarns << "Bad Wearable asset: missing valid permissions" << llendl;
 		return LLWearable::FAILURE;
 	}
-	if( !mPermissions.importStream( input_stream ) )
+	if( !mPermissions.importLegacyStream( input_stream ) )
 	{
 		return LLWearable::FAILURE;
 	}
@@ -288,7 +288,7 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 	// up the vast majority of the tasks.
 	BOOL has_perm_mask = FALSE;
 	U32 perm_mask = 0;
-	if( !mSaleInfo.importStream(input_stream, has_perm_mask, perm_mask) )
+	if( !mSaleInfo.importLegacyStream(input_stream, has_perm_mask, perm_mask) )
 	{
 		return LLWearable::FAILURE;
 	}

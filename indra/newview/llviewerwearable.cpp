@@ -350,7 +350,7 @@ void LLViewerWearable::writeToAvatar(LLAvatarAppearance *avatarp)
 			{	
 				image_id = getDefaultTextureImageID((ETextureIndex) te);
 			}
-			LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( image_id, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE );
+			LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( image_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE );
 			// MULTI-WEARABLE: assume index 0 will be used when writing to avatar. TODO: eliminate the need for this.
 			viewer_avatar->setLocalTextureTE(te, image, 0);
 		}

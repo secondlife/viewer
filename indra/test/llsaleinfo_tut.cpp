@@ -146,13 +146,13 @@ namespace tut
 		LLSaleInfo llsaleinfo(LLSaleInfo::FS_ORIGINAL, sale_price);
 		
 		std::ostringstream ostream;
-		llsaleinfo.exportStream(ostream);
+		llsaleinfo.exportLegacyStream(ostream);
 		
 		std::istringstream istream(ostream.str());
 		LLSaleInfo llsaleinfo1;
 		U32 perm_mask = 0;
 		BOOL has_perm_mask = FALSE;
-		llsaleinfo1.importStream(istream, has_perm_mask, perm_mask);
+		llsaleinfo1.importLegacyStream(istream, has_perm_mask, perm_mask);
 					
 		ensure("importStream() fn failed ",
 			llsaleinfo.getSalePrice() == llsaleinfo1.getSalePrice() &&

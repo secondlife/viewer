@@ -265,6 +265,7 @@ LLPointer<LLViewerTexture> LLViewerTextureManager::getLocalTexture(const U32 wid
 
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(
 	                                               const LLUUID &image_id,											       
+												   FTType f_type,
 												   BOOL usemipmaps,
 												   LLViewerTexture::EBoostLevel boost_priority,
 												   S8 texture_type,
@@ -272,11 +273,12 @@ LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(
 												   LLGLenum primary_format,
 												   LLHost request_from_host)
 {
-	return gTextureList.getImage(image_id, usemipmaps, boost_priority, texture_type, internal_format, primary_format, request_from_host) ;
+	return gTextureList.getImage(image_id, f_type, usemipmaps, boost_priority, texture_type, internal_format, primary_format, request_from_host) ;
 }
 	
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromFile(
-	                                               const std::string& filename,												   
+	                                               const std::string& filename,
+												   FTType f_type,
 												   BOOL usemipmaps,
 												   LLViewerTexture::EBoostLevel boost_priority,
 												   S8 texture_type,
@@ -284,11 +286,12 @@ LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromFile(
 												   LLGLenum primary_format, 
 												   const LLUUID& force_id)
 {
-	return gTextureList.getImageFromFile(filename, usemipmaps, boost_priority, texture_type, internal_format, primary_format, force_id) ;
+	return gTextureList.getImageFromFile(filename, f_type, usemipmaps, boost_priority, texture_type, internal_format, primary_format, force_id) ;
 }
 
 //static 
-LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromUrl(const std::string& url,									 
+LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromUrl(const std::string& url,
+									 FTType f_type,
 									 BOOL usemipmaps,
 									 LLViewerTexture::EBoostLevel boost_priority,
 									 S8 texture_type,
@@ -297,12 +300,12 @@ LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromUrl(const s
 									 const LLUUID& force_id
 									 )
 {
-	return gTextureList.getImageFromUrl(url, usemipmaps, boost_priority, texture_type, internal_format, primary_format, force_id) ;
+	return gTextureList.getImageFromUrl(url, f_type, usemipmaps, boost_priority, texture_type, internal_format, primary_format, force_id) ;
 }
 
-LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromHost(const LLUUID& image_id, LLHost host) 
+LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromHost(const LLUUID& image_id, FTType f_type, LLHost host) 
 {
-	return gTextureList.getImageFromHost(image_id, host) ;
+	return gTextureList.getImageFromHost(image_id, f_type, host) ;
 }
 
 // Create a bridge to the viewer texture manager.
@@ -375,7 +378,7 @@ void LLViewerTextureManager::init()
 	LLViewerFetchedTexture::sDefaultImagep->dontDiscard();
 	LLViewerFetchedTexture::sDefaultImagep->setCategory(LLGLTexture::OTHER) ;
 
- 	LLViewerFetchedTexture::sSmokeImagep = LLViewerTextureManager::getFetchedTexture(IMG_SMOKE, TRUE, LLGLTexture::BOOST_UI);
+ 	LLViewerFetchedTexture::sSmokeImagep = LLViewerTextureManager::getFetchedTexture(IMG_SMOKE, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 	LLViewerFetchedTexture::sSmokeImagep->setNoDelete() ;
 
 	image_raw = new LLImageRaw(32,32,3);
@@ -396,7 +399,7 @@ void LLViewerTextureManager::init()
 	LLViewerTexture::initClass() ;
 	
 	// Create a texture manager bridge.
-	gTextureManagerBridgep = new LLViewerTextureManagerBridge();
+	gTextureManagerBridgep = new LLViewerTextureManagerBridge;
 
 	if (LLMetricPerformanceTesterBasic::isMetricLogRequested(sTesterName) && !LLMetricPerformanceTesterBasic::getTester(sTesterName))
 	{
@@ -902,25 +905,28 @@ void LLViewerTexture::updateBindStatsForTester()
 //start of LLViewerFetchedTexture
 //----------------------------------------------------------------------------------------------
 
-LLViewerFetchedTexture::LLViewerFetchedTexture(const LLUUID& id, const LLHost& host, BOOL usemipmaps)
+LLViewerFetchedTexture::LLViewerFetchedTexture(const LLUUID& id, FTType f_type, const LLHost& host, BOOL usemipmaps)
 	: LLViewerTexture(id, usemipmaps),
 	mTargetHost(host)
 {
 	init(TRUE) ;
+	mFTType = f_type;
 	generateGLTexture() ;
 }
 	
-LLViewerFetchedTexture::LLViewerFetchedTexture(const LLImageRaw* raw, BOOL usemipmaps)
+LLViewerFetchedTexture::LLViewerFetchedTexture(const LLImageRaw* raw, FTType f_type, BOOL usemipmaps)
 	: LLViewerTexture(raw, usemipmaps)
 {
 	init(TRUE) ;
+	mFTType = f_type;
 }
 	
-LLViewerFetchedTexture::LLViewerFetchedTexture(const std::string& url, const LLUUID& id, BOOL usemipmaps)
+LLViewerFetchedTexture::LLViewerFetchedTexture(const std::string& url, FTType f_type, const LLUUID& id, BOOL usemipmaps)
 	: LLViewerTexture(id, usemipmaps),
 	mUrl(url)
 {
 	init(TRUE) ;
+	mFTType = f_type;
 	generateGLTexture() ;
 }
 
@@ -986,6 +992,8 @@ void LLViewerFetchedTexture::init(bool firstinit)
 	mLastCallBackActiveTime = 0.f;
 
 	mInDebug = FALSE;
+
+	mFTType = FTT_UNKNOWN;
 }
 
 LLViewerFetchedTexture::~LLViewerFetchedTexture()
@@ -1004,6 +1012,11 @@ LLViewerFetchedTexture::~LLViewerFetchedTexture()
 S8 LLViewerFetchedTexture::getType() const
 {
 	return LLViewerTexture::FETCHED_TEXTURE ;
+}
+
+FTType LLViewerFetchedTexture::getFTType() const
+{
+	return mFTType;
 }
 
 void LLViewerFetchedTexture::cleanup()
@@ -1922,7 +1935,7 @@ bool LLViewerFetchedTexture::updateFetch()
 		
 		// bypass texturefetch directly by pulling from LLTextureCache
 		bool fetch_request_created = false;
-		fetch_request_created = LLAppViewer::getTextureFetch()->createRequest(mUrl, getID(),getTargetHost(), decode_priority,
+		fetch_request_created = LLAppViewer::getTextureFetch()->createRequest(mFTType, mUrl, getID(), getTargetHost(), decode_priority,
 																			  w, h, c, desired_discard, needsAux(), mCanUseHTTP);
 		
 		if (fetch_request_created)
@@ -2909,14 +2922,14 @@ BOOL LLViewerFetchedTexture::insertToAtlas()
 //----------------------------------------------------------------------------------------------
 //start of LLViewerLODTexture
 //----------------------------------------------------------------------------------------------
-LLViewerLODTexture::LLViewerLODTexture(const LLUUID& id, const LLHost& host, BOOL usemipmaps)
-	: LLViewerFetchedTexture(id, host, usemipmaps)
+LLViewerLODTexture::LLViewerLODTexture(const LLUUID& id, FTType f_type, const LLHost& host, BOOL usemipmaps)
+	: LLViewerFetchedTexture(id, f_type, host, usemipmaps)
 {
 	init(TRUE) ;
 }
 
-LLViewerLODTexture::LLViewerLODTexture(const std::string& url, const LLUUID& id, BOOL usemipmaps)
-	: LLViewerFetchedTexture(url, id, usemipmaps)
+LLViewerLODTexture::LLViewerLODTexture(const std::string& url, FTType f_type, const LLUUID& id, BOOL usemipmaps)
+	: LLViewerFetchedTexture(url, f_type, id, usemipmaps)
 {
 	init(TRUE) ;
 }

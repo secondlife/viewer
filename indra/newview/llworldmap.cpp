@@ -34,6 +34,7 @@
 #include "lluistring.h"
 #include "llviewertexturelist.h"
 #include "lltrans.h"
+#include "llgltexture.h"
 
 // Timers to temporise database requests
 const F32 AGENTS_UPDATE_TIMER = 60.0;			// Seconds between 2 agent requests for a region
@@ -78,7 +79,7 @@ void LLSimInfo::setLandForSaleImage (LLUUID image_id)
 	// Fetch the image
 	if (mMapImageID.notNull())
 	{
-		mOverlayImage = LLViewerTextureManager::getFetchedTexture(mMapImageID, MIPMAP_TRUE, LLGLTexture::BOOST_MAP, LLViewerTexture::LOD_TEXTURE);
+		mOverlayImage = LLViewerTextureManager::getFetchedTexture(mMapImageID, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_MAP, LLViewerTexture::LOD_TEXTURE);
 		mOverlayImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 	else
@@ -92,7 +93,7 @@ LLPointer<LLViewerFetchedTexture> LLSimInfo::getLandForSaleImage ()
 	if (mOverlayImage.isNull() && mMapImageID.notNull())
 	{
 		// Fetch the image if it hasn't been done yet (unlikely but...)
-		mOverlayImage = LLViewerTextureManager::getFetchedTexture(mMapImageID, MIPMAP_TRUE, LLGLTexture::BOOST_MAP, LLViewerTexture::LOD_TEXTURE);
+		mOverlayImage = LLViewerTextureManager::getFetchedTexture(mMapImageID, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_MAP, LLViewerTexture::LOD_TEXTURE);
 		mOverlayImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 	if (!mOverlayImage.isNull())
@@ -389,7 +390,7 @@ void LLWorldMap::reloadItems(bool force)
 // static public
 // Insert a region in the region map
 // returns true if region inserted, false otherwise
-bool LLWorldMap::insertRegion(U32 x_world, U32 y_world, std::string& name, LLUUID& image_id, U32 accesscode, U64 region_flags)
+bool LLWorldMap::insertRegion(U32 x_world, U32 y_world, std::string& name, LLUUID& image_id, U32 accesscode, U32 region_flags)
 {
 	// This region doesn't exist
 	if (accesscode == 255)

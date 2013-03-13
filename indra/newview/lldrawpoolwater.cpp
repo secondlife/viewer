@@ -66,11 +66,11 @@ LLVector3 LLDrawPoolWater::sLightDir;
 LLDrawPoolWater::LLDrawPoolWater() :
 	LLFacePool(POOL_WATER)
 {
-	mHBTex[0] = LLViewerTextureManager::getFetchedTexture(gSunTextureID, TRUE, LLGLTexture::BOOST_UI);
+	mHBTex[0] = LLViewerTextureManager::getFetchedTexture(gSunTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 	gGL.getTexUnit(0)->bind(mHBTex[0]) ;
 	mHBTex[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
 
-	mHBTex[1] = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, TRUE, LLGLTexture::BOOST_UI);
+	mHBTex[1] = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 	gGL.getTexUnit(0)->bind(mHBTex[1]);
 	mHBTex[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
 

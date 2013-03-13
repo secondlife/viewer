@@ -581,8 +581,13 @@ size_t HttpOpRequest::readCallback(void * data, size_t size, size_t nmemb, void 
 	const size_t body_size(op->mReqBody->size());
 	if (body_size <= op->mCurlBodyPos)
 	{
-		LL_WARNS("HttpCore") << "Request body position beyond body size.  Aborting request."
-							 << LL_ENDL;
+		if (body_size < op->mCurlBodyPos)
+		{
+			// Warn but continue if the read position moves beyond end-of-body
+			// for some reason.
+			LL_WARNS("HttpCore") << "Request body position beyond body size.  Truncating request body."
+								 << LL_ENDL;
+		}
 		return 0;
 	}
 

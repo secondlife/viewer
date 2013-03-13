@@ -1006,7 +1006,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 	
 	if (is404)
 	{
-		setIcon(LLViewerTextureManager::getFetchedTextureFromFile("icons/Inv_Mesh.png", TRUE, LLGLTexture::BOOST_UI));
+		setIcon(LLViewerTextureManager::getFetchedTextureFromFile("icons/Inv_Mesh.png", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
 		//render prim proxy when mesh loading attempts give up
 		volume_params.setSculptID(LLUUID::null, LL_SCULPT_TYPE_NONE);
 
@@ -1090,7 +1090,7 @@ void LLVOVolume::updateSculptTexture()
 		LLUUID id =  sculpt_params->getSculptTexture();
 		if (id.notNull())
 		{
-			mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+			mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 		}
 	}
 	else

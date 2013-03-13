@@ -214,6 +214,7 @@ protected:
 	U32 mNumOwnerAdditions;
 
 	LLGroupMgrGroupData::member_list_t::iterator mMemberProgress;
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 class LLPanelGroupRolesSubTab : public LLPanelGroupSubTab

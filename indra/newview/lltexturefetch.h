@@ -44,8 +44,8 @@
 #include "httpoptions.h"
 #include "httpheaders.h"
 #include "httphandler.h"
+#include "llviewertexture.h"
 
-class LLViewerTexture;
 class LLTextureFetchWorker;
 class LLImageDecodeThread;
 class LLHost;
@@ -77,7 +77,7 @@ public:
 	void shutDownImageDecodeThread();
 
 	// Threads:  T* (but Tmain mostly)
-	bool createRequest(const std::string& url, const LLUUID& id, const LLHost& host, F32 priority,
+	bool createRequest(FTType f_type, const std::string& url, const LLUUID& id, const LLHost& host, F32 priority,
 					   S32 w, S32 h, S32 c, S32 discard, bool needs_aux, bool can_use_http);
 
 	// Requests that a fetch operation be deleted from the queue.
@@ -451,7 +451,6 @@ private:
 		LLPointer<LLImageRaw> mRawImage;
 		e_curl_state mCurlState;
 		S32 mCurlReceivedSize;
-		S32 mHTTPFailCount;
 		LLCore::HttpHandle mHttpHandle;
 
 		FetchEntry() :
@@ -467,7 +466,6 @@ private:
 			mFetchedSize(f_size),
 			mDecodedSize(d_size),
 			mNeedsAux(false),
-			mHTTPFailCount(0),
 			mHttpHandle(LLCORE_HTTP_HANDLE_INVALID)
 			{}
 	};

@@ -333,7 +333,7 @@ void LLLibraryOutfitsFetch::folderDone()
 	}
 
 	mClothingID = gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
-	mLibraryClothingID = gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING, false, true);
+	mLibraryClothingID = gInventory.findLibraryCategoryUUIDForType(LLFolderType::FT_CLOTHING, false);
 
 	// If Library->Clothing->Initial Outfits exists, use that.
 	LLNameCategoryCollector matchFolderFunctor("Initial Outfits");

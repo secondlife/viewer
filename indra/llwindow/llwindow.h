@@ -265,6 +265,7 @@ public:
 		BOOL fullscreen = FALSE,
 		BOOL clearBg = FALSE,
 		BOOL disable_vsync = TRUE,
+		BOOL use_gl = TRUE,
 		BOOL ignore_pixel_depth = FALSE,
 		U32 fsaa_samples = 0);
 	static BOOL destroyWindow(LLWindow* window);

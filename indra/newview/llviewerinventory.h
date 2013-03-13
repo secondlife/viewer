@@ -34,6 +34,7 @@
 
 #include <boost/signals2.hpp>	// boost::signals2::trackable
 
+class LLInventoryPanel;
 class LLFolderView;
 class LLFolderBridge;
 class LLViewerInventoryCategory;
@@ -61,7 +62,7 @@ public:
 	virtual const LLUUID& getProtectedAssetUUID() const; // returns LLUUID::null if current agent does not have permission to expose this asset's UUID to the user
 	virtual const std::string& getName() const;
 	virtual S32 getSortField() const;
-	virtual void setSortField(S32 sortField);
+	//virtual void setSortField(S32 sortField);
 	virtual void getSLURL(); //Caches SLURL for landmark. //*TODO: Find a better way to do it and remove this method from here.
 	virtual const LLPermissions& getPermissions() const;
 	virtual const bool getIsFullPerm() const; // 'fullperm' in the popular sense: modify-ok & copy-ok & transfer-ok, no special god rules applied
@@ -373,7 +374,7 @@ void copy_inventory_from_notecard(const LLUUID& destination_id,
 								  U32 callback_id = 0);
 
 
-void menu_create_inventory_item(LLFolderView* root,
+void menu_create_inventory_item(LLInventoryPanel* root,
 								LLFolderBridge* bridge,
 								const LLSD& userdata,
 								const LLUUID& default_parent_uuid = LLUUID::null);

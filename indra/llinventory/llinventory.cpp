@@ -75,13 +75,15 @@ LLInventoryObject::LLInventoryObject(const LLUUID& uuid,
 	mUUID(uuid),
 	mParentUUID(parent_uuid),
 	mType(type),
-	mName(name)
+	mName(name),
+	mCreationDate(0)
 {
 	correctInventoryName(mName);
 }
 
 LLInventoryObject::LLInventoryObject() :
-	mType(LLAssetType::AT_NONE)
+	mType(LLAssetType::AT_NONE),
+	mCreationDate(0)
 {
 }
 
@@ -275,6 +277,26 @@ void LLInventoryObject::correctInventoryName(std::string& name)
 	LLStringUtil::truncate(name, DB_INV_ITEM_NAME_STR_LEN);
 }
 
+time_t LLInventoryObject::getCreationDate() const
+{
+	return mCreationDate;
+}
+
+void LLInventoryObject::setCreationDate(time_t creation_date_utc)
+{
+	mCreationDate = creation_date_utc;
+}
+
+
+const std::string& LLInventoryItem::getDescription() const
+{
+	return mDescription;
+}
+
+const std::string& LLInventoryItem::getActualDescription() const
+{
+	return mDescription;
+}
 
 ///----------------------------------------------------------------------------
 /// Class LLInventoryItem
@@ -297,9 +319,10 @@ LLInventoryItem::LLInventoryItem(const LLUUID& uuid,
 	mDescription(desc),
 	mSaleInfo(sale_info),
 	mInventoryType(inv_type),
-	mFlags(flags),
-	mCreationDate(creation_date_utc)
+	mFlags(flags)
 {
+	mCreationDate = creation_date_utc;
+
 	LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
 	LLStringUtil::replaceChar(mDescription, '|', ' ');
 	mPermissions.initMasks(inv_type);
@@ -312,9 +335,9 @@ LLInventoryItem::LLInventoryItem() :
 	mDescription(),
 	mSaleInfo(),
 	mInventoryType(LLInventoryType::IT_NONE),
-	mFlags(0),
-	mCreationDate(0)
+	mFlags(0)
 {
+	mCreationDate = 0;
 }
 
 LLInventoryItem::LLInventoryItem(const LLInventoryItem* other) :
@@ -374,21 +397,6 @@ void LLInventoryItem::setAssetUUID(const LLUUID& asset_id)
 }
 
 
-const std::string& LLInventoryItem::getDescription() const
-{
-	return mDescription;
-}
-
-const std::string& LLInventoryItem::getActualDescription() const
-{
-	return mDescription;
-}
-
-time_t LLInventoryItem::getCreationDate() const
-{
-	return mCreationDate;
-}
-
 U32 LLInventoryItem::getCRC32() const
 {
 	// *FIX: Not a real crc - more of a checksum.
@@ -443,11 +451,6 @@ void LLInventoryItem::setInventoryType(LLInventoryType::EType inv_type)
 void LLInventoryItem::setFlags(U32 flags)
 {
 	mFlags = flags;
-}
-
-void LLInventoryItem::setCreationDate(time_t creation_date_utc)
-{
-	mCreationDate = creation_date_utc;
 }
 
 // Currently only used in the Viewer to handle calling cards
@@ -510,6 +513,12 @@ U32 LLInventoryItem::getFlags() const
 {
 	return mFlags;
 }
+
+time_t LLInventoryItem::getCreationDate() const
+{
+	return mCreationDate;
+}
+
 
 // virtual
 void LLInventoryItem::packMessage(LLMessageSystem* msg) const
@@ -829,7 +838,7 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 		}
 		else if(0 == strcmp("permissions", keyword))
 		{
-			success = mPermissions.importStream(input_stream);
+			success = mPermissions.importLegacyStream(input_stream);
 		}
 		else if(0 == strcmp("sale_info", keyword))
 		{
@@ -839,7 +848,7 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 			// should pick up the vast majority of the tasks.
 			BOOL has_perm_mask = FALSE;
 			U32 perm_mask = 0;
-			success = mSaleInfo.importStream(input_stream, has_perm_mask, perm_mask);
+			success = mSaleInfo.importLegacyStream(input_stream, has_perm_mask, perm_mask);
 			if(has_perm_mask)
 			{
 				if(perm_mask == PERM_NONE)
@@ -955,7 +964,7 @@ BOOL LLInventoryItem::exportLegacyStream(std::ostream& output_stream, BOOL inclu
 	output_stream << "\t\titem_id\t" << uuid_str << "\n";
 	mParentUUID.toString(uuid_str);
 	output_stream << "\t\tparent_id\t" << uuid_str << "\n";
-	mPermissions.exportStream(output_stream);
+	mPermissions.exportLegacyStream(output_stream);
 
 	// Check for permissions to see the asset id, and if so write it
 	// out as an asset id. Otherwise, apply our cheesy encryption.
@@ -989,7 +998,7 @@ BOOL LLInventoryItem::exportLegacyStream(std::ostream& output_stream, BOOL inclu
 	std::string buffer;
 	buffer = llformat( "\t\tflags\t%08x\n", mFlags);
 	output_stream << buffer;
-	mSaleInfo.exportStream(output_stream);
+	mSaleInfo.exportLegacyStream(output_stream);
 	output_stream << "\t\tname\t" << mName.c_str() << "|\n";
 	output_stream << "\t\tdesc\t" << mDescription.c_str() << "|\n";
 	output_stream << "\t\tcreation_date\t" << mCreationDate << "\n";

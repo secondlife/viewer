@@ -629,15 +629,7 @@ void LLPanelScriptLimitsRegionMemory::onNameCache(
 		return;
 	}
 	
-	std::string name;
-	if (LLAvatarNameCache::useDisplayNames())
-	{
-		name = LLCacheName::buildUsername(full_name);
-	}
-	else
-	{
-		name = full_name;
-	}
+	std::string name = LLCacheName::buildUsername(full_name);
 
 	std::vector<LLSD>::iterator id_itor;
 	for (id_itor = mObjectListItems.begin(); id_itor != mObjectListItems.end(); ++id_itor)
@@ -740,10 +732,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 				else
 				{
 					name_is_cached = gCacheName->getFullName(owner_id, owner_buf);  // username
-					if (LLAvatarNameCache::useDisplayNames())
-					{
-						owner_buf = LLCacheName::buildUsername(owner_buf);
-					}
+					owner_buf = LLCacheName::buildUsername(owner_buf);
 				}
 				if(!name_is_cached)
 				{

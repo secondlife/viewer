@@ -3273,7 +3273,7 @@ void LLViewerObject::boostTexturePriority(BOOL boost_children /* = TRUE */)
 	{
 		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 		LLUUID sculpt_id = sculpt_params->getSculptTexture();
-		LLViewerTextureManager::getFetchedTexture(sculpt_id, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE)->setBoostLevel(LLGLTexture::BOOST_SELECTED);
+		LLViewerTextureManager::getFetchedTexture(sculpt_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE)->setBoostLevel(LLGLTexture::BOOST_SELECTED);
 	}
 	
 	if (boost_children)
@@ -4016,7 +4016,7 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry &texture_entry)
 //	if (mDrawable.notNull() && mDrawable->isVisible())
 //	{
 		const LLUUID& image_id = getTE(te)->getID();
-		mTEImages[te] = LLViewerTextureManager::getFetchedTexture(image_id, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+		mTEImages[te] = LLViewerTextureManager::getFetchedTexture(image_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 //	}
 }
 
@@ -4066,7 +4066,7 @@ S32 LLViewerObject::setTETexture(const U8 te, const LLUUID& uuid)
 {
 	// Invalid host == get from the agent's sim
 	LLViewerFetchedTexture *image = LLViewerTextureManager::getFetchedTexture(
-		uuid, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, LLHost::invalid);
+		uuid, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, LLHost::invalid);
 	return setTETextureCore(te,image);
 }
 

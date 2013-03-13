@@ -76,6 +76,7 @@ std::map<std::string, std::string> gTranslation;
 std::list<std::string> gUntranslated;
 /*static*/ LLUI::settings_map_t LLUI::sSettingGroups;
 /*static*/ LLUIAudioCallback LLUI::sAudioCallback = NULL;
+/*static*/ LLUIAudioCallback LLUI::sDeferredAudioCallback = NULL;
 /*static*/ LLWindow*		LLUI::sWindow = NULL;
 /*static*/ LLView*			LLUI::sRootView = NULL;
 /*static*/ BOOL                         LLUI::sDirty = FALSE;
@@ -99,16 +100,18 @@ static LLDefaultChildRegistry::Register<LLToolBar> register_toolbar("toolbar");
 //
 // Functions
 //
-void make_ui_sound(const char* namep)
+
+LLUUID find_ui_sound(const char * namep)
 {
 	std::string name = ll_safe_string(namep);
+	LLUUID uuid = LLUUID(NULL);
 	if (!LLUI::sSettingGroups["config"]->controlExists(name))
 	{
 		llwarns << "tried to make UI sound for unknown sound name: " << name << llendl;	
 	}
 	else
 	{
-		LLUUID uuid(LLUI::sSettingGroups["config"]->getString(name));
+		uuid = LLUUID(LLUI::sSettingGroups["config"]->getString(name));
 		if (uuid.isNull())
 		{
 			if (LLUI::sSettingGroups["config"]->getString(name) == LLUUID::null.asString())
@@ -122,7 +125,6 @@ void make_ui_sound(const char* namep)
 			{
 				llwarns << "UI sound named: " << name << " does not translate to a valid uuid" << llendl;	
 			}
-
 		}
 		else if (LLUI::sAudioCallback != NULL)
 		{
@@ -130,18 +132,38 @@ void make_ui_sound(const char* namep)
 			{
 				llinfos << "UI sound name: " << name << llendl;	
 			}
-			LLUI::sAudioCallback(uuid);
 		}
+	}
+
+	return uuid;
+}
+
+void make_ui_sound(const char* namep)
+{
+	LLUUID soundUUID = find_ui_sound(namep);
+	if(soundUUID.notNull())
+	{
+		LLUI::sAudioCallback(soundUUID);
+	}
+}
+
+void make_ui_sound_deferred(const char* namep)
+{
+	LLUUID soundUUID = find_ui_sound(namep);
+	if(soundUUID.notNull())
+	{
+		LLUI::sDeferredAudioCallback(soundUUID);
 	}
 }
 
 void LLUI::initClass(const settings_map_t& settings,
 					 LLImageProviderInterface* image_provider,
 					 LLUIAudioCallback audio_callback,
+					 LLUIAudioCallback deferred_audio_callback,
 					 const LLVector2* scale_factor,
 					 const std::string& language)
 {
-	LLRender2D::initClass(image_provider, scale_factor);
+	LLRender2D::initClass(image_provider,scale_factor);
 	sSettingGroups = settings;
 
 	if ((get_ptr_in_map(sSettingGroups, std::string("config")) == NULL) ||
@@ -152,6 +174,7 @@ void LLUI::initClass(const settings_map_t& settings,
 	}
 
 	sAudioCallback = audio_callback;
+	sDeferredAudioCallback = deferred_audio_callback;
 	sWindow = NULL; // set later in startup
 	LLFontGL::sShadowColor = LLUIColorTable::instance().getColor("ColorDropShadow");
 
@@ -512,7 +535,7 @@ const LLView* LLUI::resolvePath(const LLView* context, const std::string& path)
 
 namespace LLInitParam
 {
-	ParamValue<LLUIColor, TypeValues<LLUIColor> >::ParamValue(const LLUIColor& color)
+	ParamValue<LLUIColor>::ParamValue(const LLUIColor& color)
 	:	super_t(color),
 		red("red"),
 		green("green"),
@@ -523,7 +546,7 @@ namespace LLInitParam
 		updateBlockFromValue(false);
 	}
 
-	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateValueFromBlock()
+	void ParamValue<LLUIColor>::updateValueFromBlock()
 	{
 		if (control.isProvided() && !control().empty())
 		{
@@ -535,7 +558,7 @@ namespace LLInitParam
 		}
 	}
 	
-	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateBlockFromValue(bool make_block_authoritative)
+	void ParamValue<LLUIColor>::updateBlockFromValue(bool make_block_authoritative)
 	{
 		LLColor4 color = getValue();
 		red.set(color.mV[VRED], make_block_authoritative);
@@ -551,7 +574,7 @@ namespace LLInitParam
 			&& !(b->getFontDesc() < a->getFontDesc());
 	}
 
-	ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::ParamValue(const LLFontGL* fontp)
+	ParamValue<const LLFontGL*>::ParamValue(const LLFontGL* fontp)
 	:	super_t(fontp),
 		name("name"),
 		size("size"),
@@ -565,7 +588,7 @@ namespace LLInitParam
 		updateBlockFromValue(false);
 	}
 
-	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateValueFromBlock()
+	void ParamValue<const LLFontGL*>::updateValueFromBlock()
 	{
 		const LLFontGL* res_fontp = LLFontGL::getFontByName(name);
 		if (res_fontp)
@@ -588,7 +611,7 @@ namespace LLInitParam
 		}
 	}
 	
-	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateBlockFromValue(bool make_block_authoritative)
+	void ParamValue<const LLFontGL*>::updateBlockFromValue(bool make_block_authoritative)
 	{
 		if (getValue())
 		{
@@ -598,7 +621,7 @@ namespace LLInitParam
 		}
 	}
 
-	ParamValue<LLRect, TypeValues<LLRect> >::ParamValue(const LLRect& rect)
+	ParamValue<LLRect>::ParamValue(const LLRect& rect)
 	:	super_t(rect),
 		left("left"),
 		top("top"),
@@ -610,7 +633,7 @@ namespace LLInitParam
 		updateBlockFromValue(false);
 	}
 
-	void ParamValue<LLRect, TypeValues<LLRect> >::updateValueFromBlock()
+	void ParamValue<LLRect>::updateValueFromBlock()
 	{
 		LLRect rect;
 
@@ -674,7 +697,7 @@ namespace LLInitParam
 		updateValue(rect);
 	}
 	
-	void ParamValue<LLRect, TypeValues<LLRect> >::updateBlockFromValue(bool make_block_authoritative)
+	void ParamValue<LLRect>::updateBlockFromValue(bool make_block_authoritative)
 	{
 		// because of the ambiguity in specifying a rect by position and/or dimensions
 		// we use the lowest priority pairing so that any valid pairing in xui 
@@ -691,7 +714,7 @@ namespace LLInitParam
 		height.set(value.getHeight(), make_block_authoritative);
 	}
 
-	ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::ParamValue(const LLCoordGL& coord)
+	ParamValue<LLCoordGL>::ParamValue(const LLCoordGL& coord)
 	:	super_t(coord),
 		x("x"),
 		y("y")
@@ -699,12 +722,12 @@ namespace LLInitParam
 		updateBlockFromValue(false);
 	}
 
-	void ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::updateValueFromBlock()
+	void ParamValue<LLCoordGL>::updateValueFromBlock()
 	{
 		updateValue(LLCoordGL(x, y));
 	}
 	
-	void ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::updateBlockFromValue(bool make_block_authoritative)
+	void ParamValue<LLCoordGL>::updateBlockFromValue(bool make_block_authoritative)
 	{
 		x.set(getValue().mX, make_block_authoritative);
 		y.set(getValue().mY, make_block_authoritative);

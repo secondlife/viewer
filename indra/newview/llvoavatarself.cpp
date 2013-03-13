@@ -2645,7 +2645,7 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 {
 	// Baked textures live on other sims.
 	LLHost target_host = getObjectHost();	
-	setTEImage( te, LLViewerTextureManager::getFetchedTextureFromHost( uuid, target_host ) );
+	setTEImage( te, LLViewerTextureManager::getFetchedTextureFromHost( uuid, FTT_HOST_BAKE, target_host ) );
 	updateMeshTextures();
 	dirtyMesh();
 
@@ -2961,8 +2961,9 @@ void LLVOAvatarSelf::onCustomizeStart(bool disable_camera_switch)
 		gAgentAvatarp->idleUpdateAppearanceAnimation();
 #endif
 		
-		gAgentAvatarp->invalidateAll();
-		gAgentAvatarp->updateMeshTextures();
+		gAgentAvatarp->invalidateAll(); // mark all bakes as dirty, request updates
+		gAgentAvatarp->updateMeshTextures(); // make sure correct textures are applied to the avatar mesh.
+		gAgentAvatarp->updateTextures(); // call updateTextureStats
 	}
 }
 
