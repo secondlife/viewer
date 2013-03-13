@@ -24,13 +24,13 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-
 #include "linden_common.h"
 
 #include "llurlaction.h"
 #include "llview.h"
 #include "llwindow.h"
 #include "llurlregistry.h"
+
 
 // global state for the callback functions
 LLUrlAction::url_callback_t 		LLUrlAction::sOpenURLCallback;
@@ -158,16 +158,33 @@ void LLUrlAction::showProfile(std::string url)
 	}
 }
 
-void LLUrlAction::sendIM(std::string url)
+std::string LLUrlAction::getUserID(std::string url)
 {
 	LLURI uri(url);
 	LLSD path_array = uri.pathArray();
+	std::string id_str;
 	if (path_array.size() == 4)
 	{
-		std::string id_str = path_array.get(2).asString();
-		if (LLUUID::validate(id_str))
-		{
-			executeSLURL("secondlife:///app/agent/" + id_str + "/im");
-		}
+		id_str = path_array.get(2).asString();
+	}
+	return id_str;
+}
+
+void LLUrlAction::sendIM(std::string url)
+{
+	std::string id_str = getUserID(url);
+	if (LLUUID::validate(id_str))
+	{
+		executeSLURL("secondlife:///app/agent/" + id_str + "/im");
 	}
 }
+
+void LLUrlAction::addFriend(std::string url)
+{
+	std::string id_str = getUserID(url);
+	if (LLUUID::validate(id_str))
+	{
+		executeSLURL("secondlife:///app/agent/" + id_str + "/requestfriend");
+	}
+}
+
