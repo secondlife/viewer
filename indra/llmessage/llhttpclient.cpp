@@ -236,7 +236,7 @@ static void request(
 	{
 		if (responder)
 		{
-			responder->completed(498, "Internal Error - curl failure");
+			responder->completed(498, "Internal Error - curl failure", LLSD());
 		}
 		delete req;
 		delete body_injector;
