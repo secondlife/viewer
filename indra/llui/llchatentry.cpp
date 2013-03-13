@@ -169,6 +169,15 @@ BOOL LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
 {
 	BOOL handled = FALSE;
 
+    // In the case of a chat entry, pressing RETURN when something is selected
+    // should NOT erase the selection (unlike a notecard, for example)
+    if (key == KEY_RETURN)
+    {
+        endOfDoc();
+        startSelection();
+        endSelection();
+    }
+
 	LLTextEditor::handleSpecialKey(key, mask);
 
 	switch(key)

@@ -257,6 +257,17 @@ void LLFloaterIMNearbyChat::setVisible(BOOL visible)
 	}
 }
 
+
+void LLFloaterIMNearbyChat::setVisibleAndFrontmost(BOOL take_focus, const LLSD& key)
+{
+	LLFloaterIMSessionTab::setVisibleAndFrontmost(take_focus, key);
+
+	if(!isTornOff() && matchesKey(key))
+	{
+		LLFloaterIMContainer::getInstance()->selectConversationPair(mSessionID, true, false);
+	}
+}
+
 // virtual
 void LLFloaterIMNearbyChat::onTearOffClicked()
 {

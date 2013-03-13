@@ -285,6 +285,11 @@ void on_new_message(const LLSD& msg)
             {
 				//Surface conversations floater
 				LLFloaterReg::showInstance("im_container");
+
+				if (session_floater && session_floater->isMinimized())
+				{
+					LLFloater::onClickMinimize(session_floater);
+				}
 			}
 
             //If in DND mode, allow notification to be stored so upon DND exit 

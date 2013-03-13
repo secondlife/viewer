@@ -138,6 +138,7 @@ protected:
 
 	bool mIsNearbyChat;
 	bool mIsP2PChat;
+	bool mIsParticipantListExpanded;
 
 	LLIMModel::LLIMSession* mSession;
 
