@@ -1636,38 +1636,53 @@ void check_vm_bloat()
 {
 #if LL_LINUX
 	// watch our own VM and RSS sizes, warn if we bloated rapidly
-	FILE *fp = fopen("/proc/self/stat", "r");
+	static const std::string STATS_FILE = "/proc/self/stat";
+	FILE *fp = fopen(STATS_FILE.c_str(), "r");
 	if (fp)
 	{
 		static long long last_vm_size = 0;
 		static long long last_rss_size = 0;
 		const long long significant_vm_difference = 250 * 1024*1024;
 		const long long significant_rss_difference = 50 * 1024*1024;
+		long long this_vm_size = 0;
+		long long this_rss_size = 0;
 
-		//size_t res;
+		size_t res;
 		size_t dummy;
-		char *ptr;
+		char *ptr = NULL;
 		for (int i=0; i<22; ++i) // parse past the values we don't want
 		{
-			ptr = NULL;
-			//res = getdelim(&ptr, &dummy, ' ', fp);
-			getdelim(&ptr, &dummy, ' ', fp);
+			res = getdelim(&ptr, &dummy, ' ', fp);
+			if (-1 == res)
+			{
+				llwarns << "Unable to parse " << STATS_FILE << llendl;
+				goto finally;
+			}
 			free(ptr);
+			ptr = NULL;
 		}
 		// 23rd space-delimited entry is vsize
-		ptr = NULL;
-		//res = getdelim(&ptr, &dummy, ' ', fp);
-		getdelim(&ptr, &dummy, ' ', fp);
+		res = getdelim(&ptr, &dummy, ' ', fp);
 		llassert(ptr);
-		long long this_vm_size = atoll(ptr);
+		if (-1 == res)
+		{
+			llwarns << "Unable to parse " << STATS_FILE << llendl;
+			goto finally;
+		}
+		this_vm_size = atoll(ptr);
 		free(ptr);
+		ptr = NULL;
 		// 24th space-delimited entry is RSS
-		ptr = NULL;
-		//res = getdelim(&ptr, &dummy, ' ', fp);
-		getdelim(&ptr, &dummy, ' ', fp);
+		res = getdelim(&ptr, &dummy, ' ', fp);
 		llassert(ptr);
-		long long this_rss_size = getpagesize() * atoll(ptr);
+		if (-1 == res)
+		{
+			llwarns << "Unable to parse " << STATS_FILE << llendl;
+			goto finally;
+		}
+		this_rss_size = getpagesize() * atoll(ptr);
 		free(ptr);
+		ptr = NULL;
 
 		llinfos << "VM SIZE IS NOW " << (this_vm_size/(1024*1024)) << " MB, RSS SIZE IS NOW " << (this_rss_size/(1024*1024)) << " MB" << llendl;
 
@@ -1700,6 +1715,12 @@ void check_vm_bloat()
 		last_rss_size = this_rss_size;
 		last_vm_size = this_vm_size;
 
+finally:
+		if (NULL != ptr)
+		{
+			free(ptr);
+			ptr = NULL;
+		}
 		fclose(fp);
 	}
 #endif // LL_LINUX
