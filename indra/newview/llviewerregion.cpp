@@ -2164,7 +2164,13 @@ void LLViewerRegion::unpackRegionHandshake()
 	msg->addUUID("AgentID", gAgent.getID());
 	msg->addUUID("SessionID", gAgent.getSessionID());
 	msg->nextBlock("RegionInfo");
-	msg->addU32("Flags", 0x0 );
+
+	U32 flags = 0x00000001; //set the bit 0 to be 1 to ask sim to send all cacheable objects.
+	if(mImpl->mCacheMap.empty())
+	{
+		flags |= 0x00000002; //set the bit 1 to be 1 to tell sim the cache file is empty, no need to send cache probes.
+	}
+	msg->addU32("Flags", flags );
 	msg->sendReliable(host);
 }
 
