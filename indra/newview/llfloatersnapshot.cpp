@@ -478,7 +478,7 @@ void LLSnapshotLivePreview::draw()
 		{
 			if (mFlashAlpha < 1.f)
 			{
-				mFlashAlpha = lerp(mFlashAlpha, 1.f, LLCriticalDamp::getInterpolant(InterpDeltaTeenier));
+				mFlashAlpha = lerp(mFlashAlpha, 1.f, LLCriticalDamp::getInterpolant(0.02f));
 			}
 			else
 			{
@@ -487,7 +487,7 @@ void LLSnapshotLivePreview::draw()
 		}
 		else
 		{
-			mFlashAlpha = lerp(mFlashAlpha, 0.f, LLCriticalDamp::getInterpolant(InterpDeltaSmallish) * 0.5f);
+			mFlashAlpha = lerp(mFlashAlpha, 0.f, LLCriticalDamp::getInterpolant(0.15f));
 		}
 
 		// Draw shining animation if appropriate.
@@ -2500,4 +2500,3 @@ BOOL LLSnapshotFloaterView::handleHover(S32 x, S32 y, MASK mask)
 	}
 	return TRUE;
 }
-

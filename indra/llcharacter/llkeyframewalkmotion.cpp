@@ -287,7 +287,7 @@ BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 		F32 desired_speed_multiplier = llclamp(speed / foot_speed, min_speed_multiplier, ANIM_SPEED_MAX);
 
 		// blend towards new speed adjustment value
-		F32 new_speed_adjust = lerp(mAdjustedSpeed, desired_speed_multiplier, LLCriticalDamp::getInterpolant(InterpDeltaSpeedAdjustTime));
+		F32 new_speed_adjust = lerp(mAdjustedSpeed, desired_speed_multiplier, LLCriticalDamp::getInterpolant(SPEED_ADJUST_TIME_CONSTANT));
 
 		// limit that rate at which the speed adjustment changes
 		F32 speedDelta = llclamp(new_speed_adjust - mAdjustedSpeed, -SPEED_ADJUST_MAX_SEC * delta_time, SPEED_ADJUST_MAX_SEC * delta_time);
@@ -305,8 +305,8 @@ BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 	{	// standing/turning
 
 		// damp out speed adjustment to 0
-		mAnimSpeed = lerp(mAnimSpeed, 1.f, LLCriticalDamp::getInterpolant(InterpDeltaSmall));
-		//mPelvisOffset = lerp(mPelvisOffset, LLVector3::zero, LLCriticalDamp::getInterpolant(InterpDeltaSmall));
+		mAnimSpeed = lerp(mAnimSpeed, 1.f, LLCriticalDamp::getInterpolant(0.2f));
+		//mPelvisOffset = lerp(mPelvisOffset, LLVector3::zero, LLCriticalDamp::getInterpolant(0.2f));
 	}
 
 	// broadcast walk speed change

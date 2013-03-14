@@ -1031,11 +1031,11 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 	if (constraint->mSharedData->mChainLength != 0 &&
 		dist_vec_squared(root_pos, target_pos) * 0.95f > constraint->mTotalLength * constraint->mTotalLength)
 	{
-		constraint->mWeight = lerp(constraint->mWeight, 0.f, LLCriticalDamp::getInterpolant(InterpDeltaSmaller));
+		constraint->mWeight = lerp(constraint->mWeight, 0.f, LLCriticalDamp::getInterpolant(0.1f));
 	}
 	else
 	{
-		constraint->mWeight = lerp(constraint->mWeight, 1.f, LLCriticalDamp::getInterpolant(InterpDeltaSmallish));
+		constraint->mWeight = lerp(constraint->mWeight, 1.f, LLCriticalDamp::getInterpolant(0.3f));
 	}
 
 	F32 weight = constraint->mWeight * ((shared_data->mEaseOutStopTime == 0.f) ? 1.f : 
@@ -1084,7 +1084,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 			F32 time_constant = 1.f / clamp_rescale(constraint->mFixupDistanceRMS, 0.f, 0.5f, 0.2f, 8.f);
 //			llinfos << "Interpolant " << LLCriticalDamp::getInterpolant(time_constant, FALSE) << " and fixup distance " << constraint->mFixupDistanceRMS << " on " << mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume)->getName() << llendl;
 			positions[joint_num] = lerp(positions[joint_num], kinematic_position, 
-				LLCriticalDamp::getInterpolant(time_constant));
+				LLCriticalDamp::getInterpolant(time_constant, FALSE));
 		}
 
 		S32 iteration_count;
