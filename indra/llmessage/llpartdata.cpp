@@ -66,40 +66,6 @@ bool LLPartData::hasBlendFunc() const
 	return mBlendFuncSource != LLPartData::LL_PART_BF_SOURCE_ALPHA || mBlendFuncDest != LLPartData::LL_PART_BF_ONE_MINUS_SOURCE_ALPHA;
 }
 
-LLSD LLPartData::asLLSD() const
-{
-	LLSD sd = LLSD();
-	sd["pdflags"] = ll_sd_from_U32(mFlags);
-	sd["pdmaxage"] = mMaxAge;
-	sd["pdstartcolor"] = ll_sd_from_color4(mStartColor);
-	sd["pdendcolor"] = ll_sd_from_color4(mEndColor);
-	sd["pdstartscale"] = ll_sd_from_vector2(mStartScale);
-	sd["pdendscale"] = ll_sd_from_vector2(mEndScale);
-	sd["pdstartglow"] =	mStartGlow;
-	sd["pdendglow"] = mEndGlow;
-	sd["pdblendsource"] = (S32)mBlendFuncSource;
-	sd["pdblenddest"] = (S32)mBlendFuncDest;
-
-	return sd;
-}
-
-bool LLPartData::fromLLSD(LLSD& sd)
-{
-	mFlags = ll_U32_from_sd(sd["pdflags"]);
-	mMaxAge = (F32)sd["pdmaxage"].asReal();
-	mStartColor = ll_color4_from_sd(sd["pdstartcolor"]);
-	mEndColor = ll_color4_from_sd(sd["pdendcolor"]);
-	mStartScale = ll_vector2_from_sd(sd["pdstartscale"]);
-	mEndScale = ll_vector2_from_sd(sd["pdendscale"]);
-
-	mStartGlow = sd.has("pdstartglow") ? sd["pdstartglow"].asReal() : 0.f;
-	mEndGlow = sd.has("pdendglow") ? sd["pdendglow"].asReal() : 0.f;
-	mBlendFuncSource = sd.has("pdblendsource") ? (U8)sd["pdblendsource"].asInteger() : LL_PART_BF_SOURCE_ALPHA;
-	mBlendFuncDest = sd.has("pdblenddest") ? (U8)sd["pdblenddest"].asInteger() : LL_PART_BF_ONE_MINUS_SOURCE_ALPHA;
-
-	return true;
-}
-
 S32 LLPartData::getSize() const
 {
 	S32 size = PS_LEGACY_PART_DATA_BLOCK_SIZE;
@@ -126,17 +92,6 @@ BOOL LLPartData::unpackLegacy(LLDataPacker &dp)
 	dp.unpackFixed(mEndScale.mV[0], "pdendscalex", FALSE, 3, 5);
 	dp.unpackFixed(mEndScale.mV[1], "pdendscaley", FALSE, 3, 5);
 
-	/*if (dp.hasNext())
-	{
-		U8 tmp_glow = 0;
-		dp.unpackU8(tmp_glow,"pdstartglow");
-		mStartGlow = tmp_glow / 255.f;
-		dp.unpackU8(tmp_glow,"pdendglow");
-		mEndGlow = tmp_glow / 255.f;
-		dp.unpackU8(mBlendFuncSource,"pdblendsource");
-		dp.unpackU8(mBlendFuncDest,"pdblenddest");
-	}*/
-	
 	mStartGlow = 0.f;
 	mEndGlow = 0.f;
 	mBlendFuncSource = LLPartData::LL_PART_BF_SOURCE_ALPHA;

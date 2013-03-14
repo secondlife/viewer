@@ -92,10 +92,7 @@ public:
 	BOOL unpack(LLDataPacker &dp);
 
 	BOOL pack(LLDataPacker &dp);
-	LLSD asLLSD() const;
-	operator LLSD() const {return asLLSD(); }
-	bool fromLLSD(LLSD& sd);
-
+	
 	bool hasGlow() const;
 	bool hasBlendFunc() const;
 
