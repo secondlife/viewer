@@ -115,6 +115,8 @@ private:
 	void					onRecentViewSortMenuItemClicked(const LLSD& userdata);
 	
 	void					onLoginFbcButtonClicked();
+	void					onFacebookAppRequestClicked();
+	void					onFacebookAppSendClicked();
 
 	//returns false only if group is "none"
 	bool					isRealGroup();
@@ -154,6 +156,7 @@ private:
 	LLHandle<LLView>		mFriendsViewSortMenuHandle;
 	LLHandle<LLView>		mGroupsViewSortMenuHandle;
 	LLHandle<LLView>		mRecentViewSortMenuHandle;
+	LLHandle<LLView>		mFBCMenuHandle;
 	LLHandle<LLFloater>		mFbcTestBrowserHandle;
 
 	Updater*				mFriendListUpdater;
@@ -166,6 +169,7 @@ private:
 	LLMenuButton*			mFriendsGearButton;
 	LLMenuButton*			mGroupsGearButton;
 	LLMenuButton*			mRecentGearButton;
+	LLMenuButton*			mFBCGearButton;
 
 	std::string				mFilterSubString;
 	std::string				mFilterSubStringOrig;

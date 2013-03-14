@@ -557,6 +557,8 @@ LLPanelPeople::LLPanelPeople()
 	mButtonsUpdater = new LLButtonsUpdater(boost::bind(&LLPanelPeople::updateButtons, this));
 	mCommitCallbackRegistrar.add("People.addFriend", boost::bind(&LLPanelPeople::onAddFriendButtonClicked, this));
 	mCommitCallbackRegistrar.add("People.loginFBC", boost::bind(&LLPanelPeople::onLoginFbcButtonClicked, this));
+	mCommitCallbackRegistrar.add("People.requestFBC", boost::bind(&LLPanelPeople::onFacebookAppRequestClicked, this));
+	mCommitCallbackRegistrar.add("People.sendFBC", boost::bind(&LLPanelPeople::onFacebookAppSendClicked, this));
 }
 
 LLPanelPeople::~LLPanelPeople()
@@ -717,6 +719,7 @@ BOOL LLPanelPeople::postBuild()
 	mFriendsGearButton = getChild<LLMenuButton>("friends_viewsort_btn");
 	mGroupsGearButton = getChild<LLMenuButton>("groups_viewsort_btn");
 	mRecentGearButton = getChild<LLMenuButton>("recent_viewsort_btn");
+	mFBCGearButton = getChild<LLMenuButton>("fbc_options_btn");
 
 	LLMenuGL* plus_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_group_plus.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGroupPlusMenuHandle  = plus_menu->getHandle();
@@ -747,6 +750,13 @@ BOOL LLPanelPeople::postBuild()
 	{
 		mRecentViewSortMenuHandle  = recent_view_sort->getHandle();
 		mRecentGearButton->setMenu(recent_view_sort);
+	}
+
+	LLToggleableMenu* fbc_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_gear_fbc.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	if(fbc_menu)
+	{
+		mFBCMenuHandle = fbc_menu->getHandle();
+		mFBCGearButton->setMenu(fbc_menu);
 	}
 
 	LLVoiceClient::getInstance()->addObserver(this);
@@ -1656,4 +1666,31 @@ void LLPanelPeople::onLoginFbcButtonClicked()
 	}
 }
 
+void LLPanelPeople::onFacebookAppRequestClicked()
+{
+	LLFloaterWebContent::Params p;
+	p.url("http://www.facebook.com/dialog/apprequests?app_id=565771023434202&message=Test&redirect_uri=https://cryptic-ridge-1632.herokuapp.com/");
+	LLFloater* browser = LLFloaterReg::showInstance("web_content", p);
+
+	if (browser)
+	{
+		// start checking the browser to see if the data is available yet
+		mFbcTestBrowserHandle = browser->getHandle();
+		mFbcTestListUpdater->setActive(true);
+	}
+}
+
+void LLPanelPeople::onFacebookAppSendClicked()
+{
+	LLFloaterWebContent::Params p;
+	p.url("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Test&link=http://www.cnet.com&redirect_uri=https://cryptic-ridge-1632.herokuapp.com/");
+	LLFloater* browser = LLFloaterReg::showInstance("web_content", p);
+
+	if (browser)
+	{
+		// start checking the browser to see if the data is available yet
+		mFbcTestBrowserHandle = browser->getHandle();
+		mFbcTestListUpdater->setActive(true);
+	}
+}
 // EOF
