@@ -169,9 +169,6 @@ public:
 	const LLVector3d &getOriginGlobal() const;
 	LLVector3 getOriginAgent() const;
 
-	//estimate weight of cache missed object
-	F32 calcObjectWeight(U32 flags);
-
 	// Center is at the height of the water table.
 	const LLVector3d &getCenterGlobal() const;
 	LLVector3 getCenterAgent() const;
@@ -363,7 +360,7 @@ private:
 	F32 createVisibleObjects(F32 max_time);
 	F32 updateVisibleEntries(F32 max_time); //update visible entries
 
-	void addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type, F32 weight);
+	void addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type);
 	void decodeBoundingInfo(LLVOCacheEntry* entry);
 public:
 	struct CompareDistance
@@ -468,24 +465,16 @@ private:
 	class CacheMissItem
 	{
 	public:
-		CacheMissItem(U32 id, LLViewerRegion::eCacheMissType miss_type, F32 weight) : mID(id), mType(miss_type), mWeight(weight){}
+		CacheMissItem(U32 id, LLViewerRegion::eCacheMissType miss_type) : mID(id), mType(miss_type){}
 
 		U32                            mID;     //local object id
 		LLViewerRegion::eCacheMissType mType;   //cache miss type
-		F32                            mWeight; //importance of this object to the current camera.
 	
 		struct Compare
 		{
 			bool operator()(const CacheMissItem& lhs, const CacheMissItem& rhs)
 			{
-				if(lhs.mWeight == rhs.mWeight) //larger weight first
-				{
-					return &lhs < &rhs;
-				}
-				else 
-				{
-					return lhs.mWeight > rhs.mWeight; //larger weight first
-				}
+				return lhs.mID < rhs.mID; //smaller ID first.
 			}
 		};
 

@@ -1896,21 +1896,9 @@ LLVOCacheEntry* LLViewerRegion::getCacheEntry(U32 local_id)
 	return NULL;
 }
 
-//estimate weight of cache missed object
-F32 LLViewerRegion::calcObjectWeight(U32 flags)
+void LLViewerRegion::addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type)
 {
-	LLVector3 pos((F32)(flags & 0xff) + 0.5f, (F32)((flags >> 8) & 0xff) + 0.5f, (F32)((flags >> 16) & 0xff) * 16.f + 8.0f);
-	F32 rad = (F32)((flags >> 24) & 0xff);
-
-	pos += getOriginAgent();
-	pos -= LLViewerCamera::getInstance()->getOrigin();
-
-	return 100.f * rad * rad / pos.lengthSquared();
-}
-
-void LLViewerRegion::addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type, F32 weight)
-{
-	mCacheMissList.insert(CacheMissItem(id, miss_type, weight));
+	mCacheMissList.insert(CacheMissItem(id, miss_type));
 }
 
 // Get data packer for this object, if we have cached data
@@ -1949,13 +1937,13 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 		{
 			// llinfos << "CRC miss for " << local_id << llendl;
 
-			addCacheMiss(local_id, CACHE_MISS_TYPE_CRC, calcObjectWeight(flags));
+			addCacheMiss(local_id, CACHE_MISS_TYPE_CRC);
 		}
 	}
 	else
 	{
 		// llinfos << "Cache miss for " << local_id << llendl;
-		addCacheMiss(local_id, CACHE_MISS_TYPE_FULL, calcObjectWeight(flags));
+		addCacheMiss(local_id, CACHE_MISS_TYPE_FULL);
 	}
 
 	return false;
@@ -1963,7 +1951,7 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 
 void LLViewerRegion::addCacheMissFull(const U32 local_id)
 {
-	addCacheMiss(local_id, CACHE_MISS_TYPE_FULL, 100.f);
+	addCacheMiss(local_id, CACHE_MISS_TYPE_FULL);
 }
 
 void LLViewerRegion::requestCacheMisses()
