@@ -2989,9 +2989,7 @@ void LLVOAvatarSelf::onCustomizeEnd(bool disable_camera_switch)
 		{
 			gAgentCamera.changeCameraToDefault();
 			gAgentCamera.resetView();
-		}
-
-		LLAppearanceMgr::instance().updateAppearanceFromCOF();
+		}		
 	}
 }
 
