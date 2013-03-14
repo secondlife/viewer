@@ -1299,7 +1299,7 @@ BOOL LLVOVolume::calcLOD()
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_LOD_INFO) &&
 		mDrawable->getFace(0))
 	{
-		setDebugText(llformat("%.2f:%.2f, %d", mDrawable->mDistanceWRTCamera, radius, cur_detail));
+		//setDebugText(llformat("%.2f:%.2f, %d", debug_distance, radius, cur_detail));
 
 		//setDebugText(llformat("%d", mDrawable->getFace(0)->getTextureIndex()));
 	}
