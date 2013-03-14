@@ -940,7 +940,7 @@ void LLFastTimerView::draw()
 			}
 			
 			//interpolate towards new maximum
-			last_max = (U64) lerp((F32)last_max, (F32) cur_max, LLCriticalDamp::getInterpolant(InterpDeltaSmaller));
+			last_max = (U64) lerp((F32)last_max, (F32) cur_max, LLCriticalDamp::getInterpolant(0.1f));
 			if (last_max - cur_max <= 1 ||  cur_max - last_max  <= 1)
 			{
 				last_max = cur_max;
@@ -948,7 +948,7 @@ void LLFastTimerView::draw()
 			F32 alpha_target = last_max > cur_max ?
 								llmin((F32) last_max/ (F32) cur_max - 1.f,1.f) :
 								llmin((F32) cur_max/ (F32) last_max - 1.f,1.f);
-			alpha_interp = lerp(alpha_interp, alpha_target, LLCriticalDamp::getInterpolant(InterpDeltaSmaller));
+			alpha_interp = lerp(alpha_interp, alpha_target, LLCriticalDamp::getInterpolant(0.1f));
 
 			if (mHoverID != NULL)
 			{

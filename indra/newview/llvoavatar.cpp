@@ -2913,7 +2913,7 @@ void LLVOAvatar::idleUpdateWindEffect()
 		LLVector3 velocity = getVelocity();
 		F32 speed = velocity.length();
 		//RN: velocity varies too much frame to frame for this to work
-		mRippleAccel.clearVec();//lerp(mRippleAccel, (velocity - mLastVel) * time_delta, LLCriticalDamp::getInterpolant(InterpDeltaTeenier));
+		mRippleAccel.clearVec();//lerp(mRippleAccel, (velocity - mLastVel) * time_delta, LLCriticalDamp::getInterpolant(0.02f));
 		mLastVel = velocity;
 		LLVector4 wind;
 		wind.setVec(getRegion()->mWind.getVelocityNoisy(getPositionAgent(), 4.f) - velocity);
@@ -2934,10 +2934,13 @@ void LLVOAvatar::idleUpdateWindEffect()
 
 		wind.mV[VW] = llmin(0.025f + (speed * 0.015f) + hover_strength, 0.5f);
 		F32 interp;
-		interp = LLCriticalDamp::getInterpolant(InterpDeltaSmall);
-		if (wind.mV[VW] <= mWindVec.mV[VW])
+		if (wind.mV[VW] > mWindVec.mV[VW])
 		{
-			interp *= 2.0f;
+			interp = LLCriticalDamp::getInterpolant(0.2f);
+		}
+		else
+		{
+			interp = LLCriticalDamp::getInterpolant(0.4f);
 		}
 		mWindVec = lerp(mWindVec, wind, interp);
 	
@@ -3798,6 +3801,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 			// Set the root rotation, but do so incrementally so that it
 			// lags in time by some fixed amount.
+			//F32 u = LLCriticalDamp::getInterpolant(PELVIS_LAG);
 			F32 pelvis_lag_time = 0.f;
 			if (self_in_mouselook)
 			{

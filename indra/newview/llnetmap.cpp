@@ -162,7 +162,7 @@ void LLNetMap::draw()
 	static LLUICachedControl<bool> auto_center("MiniMapAutoCenter", true);
 	if (auto_center)
 	{
-		mCurPan = lerp(mCurPan, mTargetPan, LLCriticalDamp::getInterpolant(InterpDeltaSmaller));
+		mCurPan = lerp(mCurPan, mTargetPan, LLCriticalDamp::getInterpolant(0.1f));
 	}
 
 	// Prepare a scissor region
@@ -987,4 +987,3 @@ void LLNetMap::handleStopTracking (const LLSD& userdata)
 		LLTracker::stopTracking ((void*)LLTracker::isTracking(NULL));
 	}
 }
-

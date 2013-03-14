@@ -229,10 +229,7 @@ LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p)
 	mOpenTimeConstant(p.open_time_constant),
 	mCloseTimeConstant(p.close_time_constant),
 	mResizeBarOverlap(p.resize_bar_overlap)
-{
-	LLCriticalDamp::setInterpolantConstant(InterpDeltaCloseTime, mCloseTimeConstant);
-	LLCriticalDamp::setInterpolantConstant(InterpDeltaOpenTime,  mOpenTimeConstant);
-}
+{}
 
 LLLayoutStack::~LLLayoutStack()
 {
@@ -595,7 +592,7 @@ bool LLLayoutStack::animatePanels()
 			{
 				if (!mAnimatedThisFrame)
 				{
-					panelp->mVisibleAmt = lerp(panelp->mVisibleAmt, 1.f, LLCriticalDamp::getInterpolant(InterpDeltaOpenTime));
+					panelp->mVisibleAmt = lerp(panelp->mVisibleAmt, 1.f, LLCriticalDamp::getInterpolant(mOpenTimeConstant));
 					if (panelp->mVisibleAmt > 0.99f)
 					{
 						panelp->mVisibleAmt = 1.f;
@@ -620,7 +617,7 @@ bool LLLayoutStack::animatePanels()
 			{
 				if (!mAnimatedThisFrame)
 				{
-					panelp->mVisibleAmt = lerp(panelp->mVisibleAmt, 0.f, LLCriticalDamp::getInterpolant(InterpDeltaCloseTime));
+					panelp->mVisibleAmt = lerp(panelp->mVisibleAmt, 0.f, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
 					if (panelp->mVisibleAmt < 0.001f)
 					{
 						panelp->mVisibleAmt = 0.f;
@@ -647,7 +644,7 @@ bool LLLayoutStack::animatePanels()
 			{
 				if (!mAnimatedThisFrame)
 				{
-					panelp->mCollapseAmt = lerp(panelp->mCollapseAmt, collapse_state, LLCriticalDamp::getInterpolant(InterpDeltaCloseTime));
+					panelp->mCollapseAmt = lerp(panelp->mCollapseAmt, collapse_state, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
 				}
 			
 				if (llabs(panelp->mCollapseAmt - collapse_state) < 0.001f)
@@ -858,4 +855,3 @@ void LLLayoutStack::updateResizeBarLimits()
 		previous_visible_panelp = visible_panelp;
 	}
 }
-

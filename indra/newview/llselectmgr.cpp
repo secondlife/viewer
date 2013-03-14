@@ -6108,14 +6108,6 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 			gGL.begin(LLRender::LINES);
 			{
-				// Lines require an even number of verts so repeat the first
-				// vert if we don't meet that requirement
-				//
-				if (mSilhouetteVertices.size() & 0x1)
-				{
-					mSilhouetteVertices.push_back(mSilhouetteVertices[0]);
-				}
-
 				for(S32 i = 0; i < mSilhouetteVertices.size(); i += 2)
 				{
 					u_coord += u_divisor * LLSelectMgr::sHighlightUScale;
@@ -7555,4 +7547,3 @@ void LLSelectMgr::sendSelectionMove()
 
 	//saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
 }
-
