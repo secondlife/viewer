@@ -139,6 +139,8 @@ void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t& items, U32
 		items.push_back(std::string("remove_friend"));
 		items.push_back(std::string("invite_to_group"));
 		items.push_back(std::string("separator_invite_to_group"));
+		if (static_cast<LLConversationItem*>(mParent)->getType() == CONV_SESSION_NEARBY)
+			items.push_back(std::string("zoom_in"));
 		items.push_back(std::string("map"));
 		items.push_back(std::string("share"));
 		items.push_back(std::string("pay"));

@@ -1919,6 +1919,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	registrar.add("Url.Teleport", boost::bind(&LLUrlAction::teleportToLocation, url));
 	registrar.add("Url.ShowProfile", boost::bind(&LLUrlAction::showProfile, url));
 	registrar.add("Url.SendIM", boost::bind(&LLUrlAction::sendIM, url));
+	registrar.add("Url.AddFriend", boost::bind(&LLUrlAction::addFriend, url));
 	registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
 	registrar.add("Url.CopyLabel", boost::bind(&LLUrlAction::copyLabelToClipboard, url));
 	registrar.add("Url.CopyUrl", boost::bind(&LLUrlAction::copyURLToClipboard, url));
@@ -2337,7 +2338,6 @@ const LLWString& LLTextBase::getWText() const
 S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round, bool hit_past_end_of_line) const
 {
 	// Figure out which line we're nearest to.
-	LLRect visible_region = getVisibleDocumentRect();
 	LLRect doc_rect = mDocumentView->getRect();
 
 	S32 doc_y = local_y - doc_rect.mBottom;

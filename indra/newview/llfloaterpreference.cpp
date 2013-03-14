@@ -443,6 +443,8 @@ BOOL LLFloaterPreference::postBuild()
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
 	setCacheLocation(cache_location);
 
+	getChild<LLUICtrl>("log_path_string")->setEnabled(FALSE); // make it read-only but selectable
+
 	getChild<LLComboBox>("language_combobox")->setCommitCallback(boost::bind(&LLFloaterPreference::onLanguageChange, this));
 
 	getChild<LLComboBox>("FriendIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"FriendIMOptions"));
@@ -1572,7 +1574,6 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	getChildView("send_im_to_email")->setEnabled(TRUE);
 	getChild<LLUICtrl>("send_im_to_email")->setValue(im_via_email);
 	getChildView("favorites_on_login_check")->setEnabled(TRUE);
-	getChildView("log_path_string")->setEnabled(FALSE);// LineEditor becomes readonly in this case.
 	getChildView("log_path_button")->setEnabled(TRUE);
 	getChildView("chat_font_size")->setEnabled(TRUE);
 }

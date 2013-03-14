@@ -1026,6 +1026,10 @@ void LLFloaterIMContainer::doToParticipants(const std::string& command, uuid_vec
 		{
 			LLAvatarActions::inviteToGroup(userID);
 		}
+		else if ("zoom_in" == command)
+		{
+			handle_zoom_to_object(userID);
+		}
 		else if ("map" == command)
 		{
 			LLAvatarActions::showOnMap(userID);
@@ -1217,7 +1221,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
 	}
 
 	// Handle all other options
-	if (("can_invite" == item) || ("can_chat_history" == item) || ("can_share" == item) || ("can_pay" == item))
+	if (("can_invite" == item) || ("can_chat_history" == item) || ("can_share" == item) || ("can_pay" == item) || ("can_zoom_in" == item))
 	{
 		// Those menu items are enable only if a single avatar is selected
 		return is_single_select;
