@@ -732,10 +732,13 @@ void LLPanelFace::getState()
 					texture_ctrl->setImageAssetID( id );
 					shinytexture_ctrl->setTentative( FALSE );
 					shinytexture_ctrl->setEnabled( editable );
-					shinytexture_ctrl->setImageAssetID( LLUUID::null );
+					if (!editable)
+					{
+						shinytexture_ctrl->setImageAssetID( LLUUID::null );
+						bumpytexture_ctrl->setImageAssetID( LLUUID::null );
+					}
 					bumpytexture_ctrl->setTentative( FALSE );
 					bumpytexture_ctrl->setEnabled( editable );
-					bumpytexture_ctrl->setImageAssetID( LLUUID::null );
 					getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha);
 					getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
 					getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
@@ -771,10 +774,13 @@ void LLPanelFace::getState()
 						texture_ctrl->setImageAssetID( id );
 						shinytexture_ctrl->setTentative( TRUE );
 						shinytexture_ctrl->setEnabled( editable );
-						shinytexture_ctrl->setImageAssetID( LLUUID::null );
+						if (!editable)
+						{
+							shinytexture_ctrl->setImageAssetID( LLUUID::null );
+							bumpytexture_ctrl->setImageAssetID( LLUUID::null );
+						}
 						bumpytexture_ctrl->setTentative( TRUE );
 						bumpytexture_ctrl->setEnabled( editable );
-						bumpytexture_ctrl->setImageAssetID( LLUUID::null );
 						getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha);
 						getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
 						getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
@@ -1225,6 +1231,7 @@ void LLPanelFace::refresh()
 
 void LLPanelFace::onMaterialLoaded(const LLMaterialID& material_id, const LLMaterialPtr material)
 {
+	LL_DEBUGS("Materials") << "Loaded material " << material_id.asString() << material->asLLSD() << LL_ENDL;
 	mMaterial = material;
 
 	// Alpha
@@ -1283,7 +1290,7 @@ void LLPanelFace::onMaterialLoaded(const LLMaterialID& material_id, const LLMate
 
 void LLPanelFace::updateMaterial()
 {
-	LL_WARNS("Materials") << "Entered." << LL_ENDL;
+	LL_DEBUGS("Materials") << "Entered." << LL_ENDL;
 	LLComboBox* comboAlphaMode = getChild<LLComboBox>("combobox alphamode");
 	LLComboBox* comboBumpiness = getChild<LLComboBox>("combobox bumpiness");
 	LLComboBox* comboShininess = getChild<LLComboBox>("combobox shininess");
