@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu 
+     name="menu_group_plus"
+     left="0" bottom="0" visible="false"
+     mouse_opaque="false">
+  <menu_item_check
+   label="Facebook App Settings"
+   layout="topleft"
+   name="Facebook App Settings">
+      <menu_item_check.on_click
+       function="Advanced.WebContentTest"
+       parameter="http://www.facebook.com/settings?tab=applications" />
+  </menu_item_check>
+  <menu_item_check
+   label="Facebook App Request"
+   layout="topleft"
+   name="Facebook App Request">
+    <menu_item_check.on_click
+     function="People.requestFBC"
+     parameter="http://www.facebook.com/settings?tab=applications" />
+  </menu_item_check>
+  <menu_item_check
+   label="Facebook App Send"
+   layout="topleft"
+   name="Facebook App Send">
+    <menu_item_check.on_click
+     function="People.sendFBC"
+     parameter="http://www.facebook.com/settings?tab=applications" />
+  </menu_item_check>  
+</toggleable_menu>

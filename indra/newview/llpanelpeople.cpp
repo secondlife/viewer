@@ -1652,10 +1652,8 @@ bool LLPanelPeople::isAccordionCollapsedByUser(const std::string& name)
 	return isAccordionCollapsedByUser(getChild<LLUICtrl>(name));
 }
 
-void LLPanelPeople::onLoginFbcButtonClicked()
+void LLPanelPeople::openFacebookWeb(LLFloaterWebContent::Params& p)
 {
-	LLFloaterWebContent::Params p;
-	p.url("https://cryptic-ridge-1632.herokuapp.com/");
 	LLFloater* browser = LLFloaterReg::showInstance("web_content", p);
 
 	if (browser)
@@ -1664,33 +1662,26 @@ void LLPanelPeople::onLoginFbcButtonClicked()
 		mFbcTestBrowserHandle = browser->getHandle();
 		mFbcTestListUpdater->setActive(true);
 	}
+}
+
+void LLPanelPeople::onLoginFbcButtonClicked()
+{
+	LLFloaterWebContent::Params p;
+	p.url("https://cryptic-ridge-1632.herokuapp.com/");
+	openFacebookWeb(p);
 }
 
 void LLPanelPeople::onFacebookAppRequestClicked()
 {
 	LLFloaterWebContent::Params p;
 	p.url("http://www.facebook.com/dialog/apprequests?app_id=565771023434202&message=Test&redirect_uri=https://cryptic-ridge-1632.herokuapp.com/");
-	LLFloater* browser = LLFloaterReg::showInstance("web_content", p);
-
-	if (browser)
-	{
-		// start checking the browser to see if the data is available yet
-		mFbcTestBrowserHandle = browser->getHandle();
-		mFbcTestListUpdater->setActive(true);
-	}
+	openFacebookWeb(p);
 }
 
 void LLPanelPeople::onFacebookAppSendClicked()
 {
 	LLFloaterWebContent::Params p;
 	p.url("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Test&link=http://www.cnet.com&redirect_uri=https://cryptic-ridge-1632.herokuapp.com/");
-	LLFloater* browser = LLFloaterReg::showInstance("web_content", p);
-
-	if (browser)
-	{
-		// start checking the browser to see if the data is available yet
-		mFbcTestBrowserHandle = browser->getHandle();
-		mFbcTestListUpdater->setActive(true);
-	}
+	openFacebookWeb(p);
 }
 // EOF

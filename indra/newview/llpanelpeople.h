@@ -30,6 +30,7 @@
 #include <llpanel.h>
 
 #include "llcallingcard.h" // for avatar tracker
+#include "llfloaterwebcontent.h"
 #include "llvoiceclient.h"
 
 class LLAvatarList;
@@ -117,6 +118,7 @@ private:
 	void					onLoginFbcButtonClicked();
 	void					onFacebookAppRequestClicked();
 	void					onFacebookAppSendClicked();
+	void					openFacebookWeb(LLFloaterWebContent::Params& p);
 
 	//returns false only if group is "none"
 	bool					isRealGroup();
