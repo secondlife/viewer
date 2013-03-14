@@ -4733,7 +4733,7 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 	//
 	if (new_face.mNumVertices <= mNumVertices)
 	{
-	    llassert(new_face.mNumIndices == mNumIndices);
+		llassert(new_face.mNumIndices == mNumIndices);
 	    swapData(new_face);
     }
 }
