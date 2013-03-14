@@ -285,6 +285,7 @@ void on_new_message(const LLSD& msg)
             {
 				//Surface conversations floater
 				LLFloaterReg::showInstance("im_container");
+				im_box->collapseMessagesPane(false);
 			}
 
             //If in DND mode, allow notification to be stored so upon DND exit 
