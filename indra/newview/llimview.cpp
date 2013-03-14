@@ -2638,7 +2638,7 @@ void LLIMMgr::addMessage(
 	if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly"))
 	{
 		// Evaluate if we need to skip this message when that setting is true (default is false)
-		LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
+		LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(new_session_id);
 		skip_message = (LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL);	// Skip non friends...
 		skip_message &= !session->isGroupSessionType();			// Do not skip group chats...
 		skip_message &= !(other_participant_id == gAgentID);	// You are your best friend... Don't skip yourself
@@ -2654,7 +2654,7 @@ void LLIMMgr::addMessage(
     {
         LLFloaterReg::showInstance("im_container");
 	    LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container")->
-	    		flashConversationItemWidget(session_id, true);
+	    		flashConversationItemWidget(new_session_id, true);
     }
 }
 
