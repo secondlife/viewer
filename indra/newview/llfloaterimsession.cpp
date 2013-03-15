@@ -618,7 +618,7 @@ void LLFloaterIMSession::onClose(bool app_quitting)
 	// Last change:
 	// EXT-3516 X Button should end IM session, _ button should hide
 	gIMMgr->leaveSession(mSessionID);
-
+	LLFloaterIMSessionTab::restoreFloater();
 	// Clean up the conversation *after* the session has been ended
 	LLFloaterIMSessionTab::onClose(app_quitting);
 }

@@ -226,17 +226,18 @@ void on_new_message(const LLSD& msg)
             && !session_floater->isMinimized()
             && !(session_floater->getHost() && session_floater->getHost()->isMinimized());
 
-    if ("toast" == action && !session_floater_is_open)
+    bool conversation_floater_collapsed = !session_floater->isMessagePaneExpanded();
+    if (("toast" == action && !session_floater_is_open) || conversation_floater_collapsed)
     {
         //User is not focused on conversation containing the message
-        if(session_floater_not_focused)
+        if(session_floater_not_focused || conversation_floater_collapsed)
         {
         	if(!LLMuteList::getInstance()->isMuted(participant_id))
         	{
         		im_box->flashConversationItemWidget(session_id, true);
         	}
             //The conversation floater isn't focused/open
-            if(conversation_floater_not_focused)
+            if(conversation_floater_not_focused || conversation_floater_collapsed)
             {
             	if(!LLMuteList::getInstance()->isMuted(participant_id) 
                     && !gAgent.isDoNotDisturb())
