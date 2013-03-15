@@ -124,7 +124,7 @@ namespace LLToolBarEnums
 		SIDE_TOP,
 	};
 
-	LLLayoutStack::ELayoutOrientation getOrientation(SideType sideType);
+	LLView::EOrientation getOrientation(SideType sideType);
 }
 
 // NOTE: This needs to occur before Param block declaration for proper compilation.

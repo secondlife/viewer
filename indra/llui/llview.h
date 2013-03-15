@@ -105,6 +105,9 @@ class LLView
 	public LLTrace::MemTrackable<LLView> // track memory usage
 {
 public:
+
+	enum EOrientation { HORIZONTAL, VERTICAL, ORIENTATION_COUNT };
+
 	struct Follows : public LLInitParam::ChoiceBlock<Follows>
 	{
 		Alternative<std::string>	string;
@@ -675,6 +678,16 @@ public:
 	static BOOL sForceReshape;
 	static LLTrace::MemStatHandle sMemStat;
 };
+
+namespace LLInitParam
+{
+template<>
+struct TypeValues<LLView::EOrientation> : public LLInitParam::TypeValuesHelper<LLView::EOrientation>
+{
+	static void declareValues();
+};
+}
+
 
 class LLCompareByTabOrder
 {

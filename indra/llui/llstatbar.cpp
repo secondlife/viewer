@@ -57,7 +57,8 @@ LLStatBar::LLStatBar(const Params& p)
 	  mPerSec(p.show_per_sec),
 	  mDisplayBar(p.show_bar),
 	  mDisplayHistory(p.show_history),
-	  mDisplayMean(p.show_mean)
+	  mDisplayMean(p.show_mean),
+	  mOrientation(p.orientation)
 {}
 
 BOOL LLStatBar::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -167,15 +168,27 @@ void LLStatBar::draw()
 		mUpdateTimer.reset();
 	}
 
-	S32 width = getRect().getWidth() - 40;
-	S32 max_width = width;
-	S32 bar_top = getRect().getHeight() - 15; // 16 pixels from top.
-	S32 bar_height = bar_top - 20;
-	S32 tick_height = 4;
-	S32 tick_width = 1;
-	S32 left, top, right, bottom;
+	S32 bar_top, bar_left, bar_right, bar_bottom;
+	if (mOrientation == HORIZONTAL)
+	{
+		bar_top = getRect().getHeight() - 15;
+		bar_left = 0;
+		bar_right = getRect().getWidth() - 80;
+		bar_bottom = 0;
+	}
+	else // VERTICAL
+	{
+		bar_top = getRect().getHeight() - 15; // 16 pixels from top.
+		bar_left = 0;
+		bar_right = getRect().getWidth();
+		bar_bottom = 20;
+	}
+	const S32 tick_length = 4;
+	const S32 tick_width = 1;
 
-	F32 value_scale = max_width/(mMaxBar - mMinBar);
+	F32 value_scale = (mOrientation == HORIZONTAL) 
+					? (bar_top - bar_bottom)/(mMaxBar - mMinBar)
+					: (bar_right - bar_left)/(mMaxBar - mMinBar);
 
 	LLFontGL::getFontMonospace()->renderUTF8(mLabel, 0, 0, getRect().getHeight(), LLColor4(1.f, 1.f, 1.f, 1.f),
 											 LLFontGL::LEFT, LLFontGL::TOP);
@@ -194,9 +207,16 @@ void LLStatBar::draw()
 	}
 
 	// Draw the value.
-	LLFontGL::getFontMonospace()->renderUTF8(value_str, 0, width, getRect().getHeight(), 
-											 LLColor4(1.f, 1.f, 1.f, 0.5f),
-											 LLFontGL::RIGHT, LLFontGL::TOP);
+	if (mOrientation == HORIZONTAL)
+	{
+
+	}
+	else
+	{
+		LLFontGL::getFontMonospace()->renderUTF8(value_str, 0, bar_right, getRect().getHeight(), 
+			LLColor4(1.f, 1.f, 1.f, 0.5f),
+			LLFontGL::RIGHT, LLFontGL::TOP);
+	}
 
 	value_format = llformat( "%%.%df", mPrecision);
 	if (mDisplayBar && (mCountFloatp || mCountIntp || mMeasurementFloatp || mMeasurementIntp))
@@ -204,64 +224,75 @@ void LLStatBar::draw()
 		std::string tick_label;
 
 		// Draw the tick marks.
-		F32 tick_value;
-		top = bar_top;
-		bottom = bar_top - bar_height - tick_height/2;
-
 		LLGLSUIDefault gls_ui;
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-		for (tick_value = mMinBar; tick_value <= mMaxBar; tick_value += mTickSpacing)
+		for (F32 tick_value = mMinBar; tick_value <= mMaxBar; tick_value += mTickSpacing)
 		{
-			left = llfloor((tick_value - mMinBar)*value_scale);
-			right = left + tick_width;
-			gl_rect_2d(left, top, right, bottom, LLColor4(1.f, 1.f, 1.f, 0.1f));
+			const S32 begin = llfloor((tick_value - mMinBar)*value_scale);
+			const S32 end = begin + tick_width;
+			if (mOrientation == HORIZONTAL)
+			{
+			}
+			else
+			{
+				gl_rect_2d(begin, bar_top, end, bar_bottom - tick_length/2, LLColor4(1.f, 1.f, 1.f, 0.1f));
+			}
 		}
 
 		// Draw the tick labels (and big ticks).
-		bottom = bar_top - bar_height - tick_height;
-		for (tick_value = mMinBar; tick_value <= mMaxBar; tick_value += mLabelSpacing)
+		for (F32 tick_value = mMinBar; tick_value <= mMaxBar; tick_value += mLabelSpacing)
 		{
-			left = llfloor((tick_value - mMinBar)*value_scale);
-			right = left + tick_width;
-			gl_rect_2d(left, top, right, bottom, LLColor4(1.f, 1.f, 1.f, 0.25f));
-
+			const S32 begin = llfloor((tick_value - mMinBar)*value_scale);
+			const S32 end = begin + tick_width;
 			tick_label = llformat( value_format.c_str(), tick_value);
+
 			// draw labels for the tick marks
-			LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, left - 1, bar_top - bar_height - tick_height,
-													 LLColor4(1.f, 1.f, 1.f, 0.5f),
-													 LLFontGL::LEFT, LLFontGL::TOP);
+			if (mOrientation == HORIZONTAL)
+			{
+			}
+			else
+			{
+				gl_rect_2d(begin, bar_top, end, bar_bottom - tick_length, LLColor4(1.f, 1.f, 1.f, 0.25f));
+				LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, begin - 1, bar_bottom - tick_length,
+					LLColor4(1.f, 1.f, 1.f, 0.5f),
+					LLFontGL::LEFT, LLFontGL::TOP);
+			}
 		}
 
-		// Now, draw the bars
-		top = bar_top;
-		bottom = bar_top - bar_height;
-
 		// draw background bar.
-		left = 0;
-		right = width;
-		gl_rect_2d(left, top, right, bottom, LLColor4(0.f, 0.f, 0.f, 0.25f));
+		gl_rect_2d(bar_left, bar_top, bar_right, bar_bottom, LLColor4(0.f, 0.f, 0.f, 0.25f));
 
 		if (frame_recording.getNumPeriods() == 0)
 		{
 			// No data, don't draw anything...
 			return;
 		}
-		// draw min and max
-		left = (S32) ((min - mMinBar) * value_scale);
 
-		if (left < 0)
+		// draw min and max
+		S32 begin = (S32) ((min - mMinBar) * value_scale);
+
+		if (begin < 0)
 		{
-			left = 0;
+			begin = 0;
 			llwarns << "Min:" << min << llendl;
 		}
 
-		right = (S32) ((max - mMinBar) * value_scale);
-		gl_rect_2d(left, top, right, bottom, LLColor4(1.f, 0.f, 0.f, 0.25f));
+		S32 end = (S32) ((max - mMinBar) * value_scale);
+		if (mOrientation == HORIZONTAL)
+		{
+			gl_rect_2d(bar_left, end, bar_right, begin, LLColor4(1.f, 0.f, 0.f, 0.25f));
+		}
+		else // VERTICAL
+		{
+			gl_rect_2d(begin, bar_top, end, bar_bottom, LLColor4(1.f, 0.f, 0.f, 0.25f));
+		}
 
 		if (mDisplayHistory && (mCountFloatp || mCountIntp || mMeasurementFloatp || mMeasurementIntp))
 		{
-			S32 num_values = frame_recording.getNumPeriods() - 1;
+			const S32 num_values = frame_recording.getNumPeriods() - 1;
+			S32 begin = 0;
+			S32 end = 0;
 			S32 i;
 			for (i = 1; i <= num_values; i++)
 			{
@@ -269,66 +300,86 @@ void LLStatBar::draw()
 				{
 					if (mCountFloatp)
 					{
-						left = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mCountFloatp)  - mMinBar) * value_scale);
-						right = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mCountFloatp)  - mMinBar) * value_scale) + 1;
+						begin = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mCountFloatp)  - mMinBar) * value_scale);
+						end = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mCountFloatp)  - mMinBar) * value_scale) + 1;
 					}
 					else if (mCountIntp)
 					{
-						left = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mCountIntp)  - mMinBar) * value_scale);
-						right = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mCountIntp)  - mMinBar) * value_scale) + 1;
+						begin = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mCountIntp)  - mMinBar) * value_scale);
+						end = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mCountIntp)  - mMinBar) * value_scale) + 1;
 					}
 					else if (mMeasurementFloatp)
 					{
-						left = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mMeasurementFloatp)  - mMinBar) * value_scale);
-						right = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mMeasurementFloatp)  - mMinBar) * value_scale) + 1;
+						begin = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mMeasurementFloatp)  - mMinBar) * value_scale);
+						end = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mMeasurementFloatp)  - mMinBar) * value_scale) + 1;
 					}
 					else if (mMeasurementIntp)
 					{
-						left = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mMeasurementIntp)  - mMinBar) * value_scale);
-						right = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mMeasurementIntp)  - mMinBar) * value_scale) + 1;
+						begin = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mMeasurementIntp)  - mMinBar) * value_scale);
+						end = (S32)((frame_recording.getPrevRecordingPeriod(i).getPerSec(*mMeasurementIntp)  - mMinBar) * value_scale) + 1;
 					}
-					gl_rect_2d(left, bottom+i+1, right, bottom+i, LLColor4(1.f, 0.f, 0.f, 1.f));
 				}
 				else
 				{
 					if (mCountFloatp)
 					{
-						left = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mCountFloatp)  - mMinBar) * value_scale);
-						right = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mCountFloatp)  - mMinBar) * value_scale) + 1;
+						begin = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mCountFloatp)  - mMinBar) * value_scale);
+						end = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mCountFloatp)  - mMinBar) * value_scale) + 1;
 					}
 					else if (mCountIntp)
 					{
-						left = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mCountIntp)  - mMinBar) * value_scale);
-						right = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mCountIntp)  - mMinBar) * value_scale) + 1;
+						begin = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mCountIntp)  - mMinBar) * value_scale);
+						end = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mCountIntp)  - mMinBar) * value_scale) + 1;
 					}
 					else if (mMeasurementFloatp)
 					{
-						left = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mMeasurementFloatp)  - mMinBar) * value_scale);
-						right = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mMeasurementFloatp)  - mMinBar) * value_scale) + 1;
+						begin = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mMeasurementFloatp)  - mMinBar) * value_scale);
+						end = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mMeasurementFloatp)  - mMinBar) * value_scale) + 1;
 					}
 					else if (mMeasurementIntp)
 					{
-						left = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mMeasurementIntp)  - mMinBar) * value_scale);
-						right = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mMeasurementIntp)  - mMinBar) * value_scale) + 1;
+						begin = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mMeasurementIntp)  - mMinBar) * value_scale);
+						end = (S32)((frame_recording.getPrevRecordingPeriod(i).getSum(*mMeasurementIntp)  - mMinBar) * value_scale) + 1;
 					}
-					gl_rect_2d(left, bottom+i+1, right, bottom+i, LLColor4(1.f, 0.f, 0.f, 1.f));
+				}
+				if (mOrientation == HORIZONTAL)
+				{
+					gl_rect_2d(bar_right - i, end, bar_right - i - 1, begin, LLColor4(1.f, 0.f, 0.f, 1.f));
+				}
+				else
+				{
+					gl_rect_2d(begin, bar_bottom+i+1, end, bar_bottom+i, LLColor4(1.f, 0.f, 0.f, 1.f));
 				}
 			}
 		}
 		else
 		{
+			S32 begin = (S32) ((current - mMinBar) * value_scale) - 1;
+			S32 end = (S32) ((current - mMinBar) * value_scale) + 1;
 			// draw current
-			left = (S32) ((current - mMinBar) * value_scale) - 1;
-			right = (S32) ((current - mMinBar) * value_scale) + 1;
-			gl_rect_2d(left, top, right, bottom, LLColor4(1.f, 0.f, 0.f, 1.f));
+			if (mOrientation == HORIZONTAL)
+			{
+				gl_rect_2d(bar_left, end, bar_right, begin, LLColor4(1.f, 0.f, 0.f, 1.f));
+			}
+			else
+			{
+				gl_rect_2d(begin, bar_top, end, bar_bottom, LLColor4(1.f, 0.f, 0.f, 1.f));
+			}
 		}
 
 		// draw mean bar
-		top = bar_top + 2;
-		bottom = bar_top - bar_height - 2;
-		left = (S32) ((mean - mMinBar) * value_scale) - 1;
-		right = (S32) ((mean - mMinBar) * value_scale) + 1;
-		gl_rect_2d(left, top, right, bottom, LLColor4(0.f, 1.f, 0.f, 1.f));
+		{
+			const S32 begin = (S32) ((mean - mMinBar) * value_scale) - 1;
+			const S32 end = (S32) ((mean - mMinBar) * value_scale) + 1;
+			if (mOrientation == HORIZONTAL)
+			{
+				gl_rect_2d(bar_left - 2, begin, bar_right + 2, end, LLColor4(0.f, 1.f, 0.f, 1.f));
+			}
+			else
+			{
+				gl_rect_2d(begin, bar_top + 2, end, bar_bottom - 2, LLColor4(0.f, 1.f, 0.f, 1.f));
+			}
+		}
 	}
 	
 	LLView::draw();

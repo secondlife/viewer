@@ -42,9 +42,9 @@
 
 namespace LLToolBarEnums
 {
-	LLLayoutStack::ELayoutOrientation getOrientation(SideType sideType)
+	LLView::EOrientation getOrientation(SideType sideType)
 	{
-		LLLayoutStack::ELayoutOrientation orientation = LLLayoutStack::HORIZONTAL;
+		LLView::EOrientation orientation = LLLayoutStack::HORIZONTAL;
 
 		if ((sideType == SIDE_LEFT) || (sideType == SIDE_RIGHT))
 		{
@@ -172,7 +172,7 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	// Initialize the base object
 	LLUICtrl::initFromParams(p);
 	
-	LLLayoutStack::ELayoutOrientation orientation = getOrientation(p.side);
+	LLView::EOrientation orientation = getOrientation(p.side);
 
 	LLLayoutStack::Params centering_stack_p;
 	centering_stack_p.name = "centering_stack";
@@ -524,7 +524,7 @@ int LLToolBar::getRankFromPosition(S32 x, S32 y)
 	int rank = 0;
 
 	// Convert the toolbar coord into button panel coords
-	LLLayoutStack::ELayoutOrientation orientation = getOrientation(mSideType);
+	LLView::EOrientation orientation = getOrientation(mSideType);
 	S32 button_panel_x = 0;
 	S32 button_panel_y = 0;
 	localPointToOtherView(x, y, &button_panel_x, &button_panel_y, mButtonPanel);
@@ -643,7 +643,7 @@ void LLToolBar::updateLayoutAsNeeded()
 {
 	if (!mNeedsLayout) return;
 
-	LLLayoutStack::ELayoutOrientation orientation = getOrientation(mSideType);
+	LLView::EOrientation orientation = getOrientation(mSideType);
 	
 	// our terminology for orientation-agnostic layout is such that
 	// length refers to a distance in the direction we stack the buttons 

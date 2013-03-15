@@ -55,6 +55,7 @@ public:
 								show_mean;
 
 		Optional<std::string>	stat;
+		Optional<EOrientation>	orientation;
 
 		Params()
 			: label("label"),
@@ -70,7 +71,8 @@ public:
 			  show_bar("show_bar", TRUE),
 			  show_history("show_history", false),
 			  show_mean("show_mean", true),
-			  stat("stat")
+			  stat("stat"),
+			  orientation("orientation", VERTICAL)
 		{
 			changeDefault(follows.flags, FOLLOWS_TOP | FOLLOWS_LEFT);
 		}
@@ -88,27 +90,28 @@ public:
 	/*virtual*/ LLRect getRequiredRect();	// Return the height of this object, given the set options.
 
 private:
-	F32 mMinBar;
-	F32 mMaxBar;
-	F32 mTickSpacing;
-	F32 mLabelSpacing;
-	U32 mPrecision;
-	F32 mUpdatesPerSec;
-	F32 mUnitScale;
-	BOOL mPerSec;				// Use the per sec stats.
-	BOOL mDisplayBar;			// Display the bar graph.
-	BOOL mDisplayHistory;
-	BOOL mDisplayMean;			// If true, display mean, if false, display current value
+	F32          mMinBar;
+	F32          mMaxBar;
+	F32          mTickSpacing;
+	F32          mLabelSpacing;
+	U32          mPrecision;
+	F32          mUpdatesPerSec;
+	F32          mUnitScale;
+	bool         mPerSec;				// Use the per sec stats.
+	bool         mDisplayBar;			// Display the bar graph.
+	bool         mDisplayHistory;
+	bool         mDisplayMean;			// If true, display mean, if false, display current value
+	EOrientation mOrientation;
 
-	LLTrace::TraceType<LLTrace::CountAccumulator<F64> >* mCountFloatp;
-	LLTrace::TraceType<LLTrace::CountAccumulator<S64> >* mCountIntp;
+	LLTrace::TraceType<LLTrace::CountAccumulator<F64> >*       mCountFloatp;
+	LLTrace::TraceType<LLTrace::CountAccumulator<S64> >*       mCountIntp;
 	LLTrace::TraceType<LLTrace::MeasurementAccumulator<F64> >* mMeasurementFloatp;
 	LLTrace::TraceType<LLTrace::MeasurementAccumulator<S64> >* mMeasurementIntp;
 
 	LLFrameTimer mUpdateTimer;
-	LLUIString mLabel;
-	std::string mUnitLabel;
-	F32 mValue;
+	LLUIString   mLabel;
+	std::string  mUnitLabel;
+	F32          mValue;
 };
 
 #endif

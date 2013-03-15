@@ -100,15 +100,10 @@ private:
 
 namespace LLTrace
 {
-	struct RecordingBuffers
+	class RecordingBuffers
 	{
+	public:
 		RecordingBuffers();
-		LLCopyOnWritePointer<AccumulatorBuffer<CountAccumulator<F64> > >		mCountsFloat;
-		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<F64> > >	mMeasurementsFloat;
-		LLCopyOnWritePointer<AccumulatorBuffer<CountAccumulator<S64> > >		mCounts;
-		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<S64> > >	mMeasurements;
-		LLCopyOnWritePointer<AccumulatorBuffer<TimeBlockAccumulator> >			mStackTimers;
-		LLCopyOnWritePointer<AccumulatorBuffer<MemStatAccumulator> >			mMemStats;
 
 		void handOffTo(RecordingBuffers& other);
 		void makePrimary();
@@ -120,6 +115,13 @@ namespace LLTrace
 		void mergeBuffers(const RecordingBuffers& other);
 		void resetBuffers(RecordingBuffers* other = NULL);
 
+	protected:
+		LLCopyOnWritePointer<AccumulatorBuffer<CountAccumulator<F64> > >		mCountsFloat;
+		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<F64> > >	mMeasurementsFloat;
+		LLCopyOnWritePointer<AccumulatorBuffer<CountAccumulator<S64> > >		mCounts;
+		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<S64> > >	mMeasurements;
+		LLCopyOnWritePointer<AccumulatorBuffer<TimeBlockAccumulator> >			mStackTimers;
+		LLCopyOnWritePointer<AccumulatorBuffer<MemStatAccumulator> >			mMemStats;
 	};
 
 	class Recording : public LLStopWatchControlsMixin<Recording>, public RecordingBuffers

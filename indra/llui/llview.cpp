@@ -83,6 +83,16 @@ template class LLView* LLView::getChild<class LLView>(
 
 static LLDefaultChildRegistry::Register<LLView> r("view");
 
+namespace LLInitParam
+{
+	void TypeValues<LLView::EOrientation>::declareValues()
+	{
+		declare("horizontal", LLView::HORIZONTAL);
+		declare("vertical", LLView::VERTICAL);	
+	}
+}
+
+
 LLView::Follows::Follows()
 :   string(""),
 	flags("flags", FOLLOWS_LEFT | FOLLOWS_TOP)

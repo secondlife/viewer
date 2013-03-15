@@ -4065,7 +4065,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		{
 			LLTracker::stopTracking(NULL);
 		}
-		else if ( is_teleport && !gAgent.getTeleportKeepsLookAt() )
+		else if ( is_teleport && !gAgent.getTeleportKeepsLookAt() && look_at.isExactlyZero())
 		{
 			//look at the beacon
 			LLVector3 global_agent_pos = agent_pos;

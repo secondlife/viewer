@@ -58,14 +58,6 @@ LLStatGraph::LLStatGraph(const Params& p)
 	{
 		mThresholds.push_back(Threshold(it->value(), it->color));
 	}
-
-	//mThresholdColors[0] = LLColor4(0.f, 1.f, 0.f, 1.f);
-	//mThresholdColors[1] = LLColor4(1.f, 1.f, 0.f, 1.f);
-	//mThresholdColors[2] = LLColor4(1.f, 0.f, 0.f, 1.f);
-	//mThresholdColors[3] = LLColor4(1.f, 0.f, 0.f, 1.f);
-	//mThresholds[0] = 50.f;
-	//mThresholds[1] = 75.f;
-	//mThresholds[2] = 100.f;
 }
 
 void LLStatGraph::draw()
@@ -115,15 +107,6 @@ void LLStatGraph::draw()
 	}
 
 	LLColor4 color;
-
-	//S32 i;
-	//for (i = 0; i < mNumThresholds - 1; i++)
-	//{
-	//	if (mThresholds[i] > mValue)
-	//	{
-	//		break;
-	//	}
-	//}
 
 	threshold_vec_t::iterator it = std::lower_bound(mThresholds.begin(), mThresholds.end(), Threshold(mValue / mMax, LLUIColor()));
 

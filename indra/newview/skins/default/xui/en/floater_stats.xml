@@ -35,6 +35,7 @@
 			 setting="OpenDebugStatBasic">
 			<stat_bar
 			   name="fps"
+         orientation="horizontal"
 			   label="FPS"
 			   unit_label="fps"
 			   stat="fpsstat"

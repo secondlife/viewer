@@ -42,12 +42,6 @@ static const F32 MAX_FRACTIONAL_SIZE = 1.f;
 static LLDefaultChildRegistry::Register<LLLayoutStack> register_layout_stack("layout_stack");
 static LLLayoutStack::LayoutStackRegistry::Register<LLLayoutPanel> register_layout_panel("layout_panel");
 
-void LLLayoutStack::OrientationNames::declareValues()
-{
-	declare("horizontal", HORIZONTAL);
-	declare("vertical", VERTICAL);
-}
-
 //
 // LLLayoutPanel
 //
@@ -141,7 +135,7 @@ S32 LLLayoutPanel::getVisibleDim() const
 						+ (((F32)mTargetDim - min_dim) * (1.f - mCollapseAmt))));
 }
  
-void LLLayoutPanel::setOrientation( LLLayoutStack::ELayoutOrientation orientation )
+void LLLayoutPanel::setOrientation( LLView::EOrientation orientation )
 {
 	mOrientation = orientation;
 	S32 layout_dim = llround((F32)((mOrientation == LLLayoutStack::HORIZONTAL)

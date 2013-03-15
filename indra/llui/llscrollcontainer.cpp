@@ -140,7 +140,7 @@ LLScrollContainer::~LLScrollContainer( void )
 {
 	// mScrolledView and mScrollbar are child views, so the LLView
 	// destructor takes care of memory deallocation.
-	for( S32 i = 0; i < SCROLLBAR_COUNT; i++ )
+	for( S32 i = 0; i < ORIENTATION_COUNT; i++ )
 	{
 		mScrollbar[i] = NULL;
 	}
@@ -211,7 +211,7 @@ BOOL LLScrollContainer::handleKeyHere(KEY key, MASK mask)
 	{
 		return TRUE;
 	}
-	for( S32 i = 0; i < SCROLLBAR_COUNT; i++ )
+	for( S32 i = 0; i < ORIENTATION_COUNT; i++ )
 	{
 		if( mScrollbar[i]->handleKeyHere(key, mask) )
 		{
