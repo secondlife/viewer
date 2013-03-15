@@ -1,4 +1,4 @@
-/** 
+]/** 
  * @file llfavoritesbar.cpp
  * @brief LLFavoritesBarCtrl class implementation
  *
@@ -546,6 +546,10 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 	bool insert_before = true;
 	if (!mItems.empty())
 	{
+		// [MAINT-2386] When multiple landmarks are selected and dragged onto an empty favorites bar,
+		//		the viewer would crash when casting mLastTab below, as mLastTab is still null when the
+		//		second landmark is being added.
+		//		To ensure mLastTab is valid, we need to call updateButtons() at the end of this function
 		dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLandingTab);
 		if (!dest)
 		{
@@ -616,6 +620,11 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 				cb);
 	}
 
+	// [MAINT-2386] Ensure the favorite button has been created and is valid.
+	//		This also ensures that mLastTab will be valid when dropping multiple
+	//		landmarks to an empty favorites bar.
+	updateButtons();
+	
 	llinfos << "Copied inventory item #" << item->getUUID() << " to favorites." << llendl;
 }
 
