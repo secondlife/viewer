@@ -170,7 +170,7 @@ void LLFloaterIMSessionTab::addToHost(const LLUUID& session_id)
 			conversp->setHostAttached(true);
 
 			if (!conversp->isNearbyChat()
-					|| gSavedSettings.getBOOL("NearbyChatIsNotTornOff"))
+					|| gSavedPerAccountSettings.getBOOL("NearbyChatIsNotTornOff"))
 			{
 				floater_container->addFloater(conversp, false, LLTabContainer::RIGHT_OF_CURRENT);
 			}
@@ -242,7 +242,7 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
 
 	mSaveRect = isNearbyChat()
-					&&  !gSavedSettings.getBOOL("NearbyChatIsNotTornOff");
+					&&  !gSavedPerAccountSettings.getBOOL("NearbyChatIsNotTornOff");
 	initRectControl();
 
 	if (isChatMultiTab())
