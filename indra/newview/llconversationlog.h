@@ -138,6 +138,8 @@ public:
 	 */
 	void cache();
 	bool moveLog(const std::string &originDirectory, const std::string &targetDirectory);
+	void getListOfBackupLogs(std::vector<std::string>& list_of_backup_logs);
+	void deleteBackupLogs();
 
 	void onClearLog();
 	void onClearLogResponse(const LLSD& notification, const LLSD& response);
