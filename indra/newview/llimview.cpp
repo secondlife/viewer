@@ -287,9 +287,22 @@ void on_new_message(const LLSD& msg)
 				//Surface conversations floater
 				LLFloaterReg::showInstance("im_container");
 				im_box->collapseMessagesPane(false);
-				if (session_floater && session_floater->isMinimized())
+				if (session_floater)
 				{
-					LLFloater::onClickMinimize(session_floater);
+					if (session_floater->getHost())
+					{
+						if (NULL != im_box && im_box->isMinimized())
+						{
+							LLFloater::onClickMinimize(im_box);
+						}
+					}
+					else
+					{
+						if (session_floater->isMinimized())
+						{
+							LLFloater::onClickMinimize(session_floater);
+						}
+					}
 				}
 			}
 
