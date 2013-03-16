@@ -53,6 +53,7 @@
 #include "llcallbacklist.h"
 #include "llworld.h"
 #include "llsdserialize.h"
+#include "llviewerobjectlist.h"
 
 //
 // LLFloaterIMContainer
@@ -1221,7 +1222,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
 	}
 
 	// Handle all other options
-	if (("can_invite" == item) || ("can_chat_history" == item) || ("can_share" == item) || ("can_pay" == item) || ("can_zoom_in" == item))
+	if (("can_invite" == item) || ("can_chat_history" == item) || ("can_share" == item) || ("can_pay" == item))
 	{
 		// Those menu items are enable only if a single avatar is selected
 		return is_single_select;
@@ -1251,6 +1252,10 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
     {
         return LLAvatarActions::canCall();
     }
+	else if ("can_zoom_in" == item)
+	{
+		return is_single_select && gObjectList.findObject(single_id);
+	}
     else if ("can_show_on_map" == item)
     {
         return (is_single_select ? (LLAvatarTracker::instance().isBuddyOnline(single_id) && is_agent_mappable(single_id)) || gAgent.isGodlike() : false);

@@ -40,6 +40,7 @@
 #include "lllogchat.h"
 #include "llviewermenu.h"			// for gMenuHolder
 #include "llconversationmodel.h"
+#include "llviewerobjectlist.h"
 
 namespace LLPanelPeopleMenus
 {
@@ -212,6 +213,12 @@ bool PeopleContextMenu::enableContextMenuItem(const LLSD& userdata)
 	{
 		return LLAvatarActions::canCall();
 	}
+	else if (item == std::string("can_zoom_in"))
+	{
+		const LLUUID& id = mUUIDs.front();
+
+		return gObjectList.findObject(id);
+	}
 	else if (item == std::string("can_show_on_map"))
 	{
 		const LLUUID& id = mUUIDs.front();
@@ -228,8 +235,7 @@ bool PeopleContextMenu::enableContextMenuItem(const LLSD& userdata)
 		return LLLogChat::isTranscriptExist(mUUIDs.front());
 	}
 	else if (item == std::string("can_im") || item == std::string("can_invite") ||
-	         item == std::string("can_share") || item == std::string("can_pay") ||
-			 item == std::string("can_zoom_in"))
+	         item == std::string("can_share") || item == std::string("can_pay"))
 	{
 		return true;
 	}
