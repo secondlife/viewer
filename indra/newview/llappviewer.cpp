@@ -4210,7 +4210,7 @@ void LLAppViewer::idle()
 	LLFrameTimer::updateFrameCount();
 	LLEventTimer::updateClass();
 	LLNotificationsUI::LLToast::updateClass();
-	LLCriticalDamp::updateInterpolants();
+	LLSmoothInterpolation::updateInterpolants();
 	LLMortician::updateClass();
 	LLFilePickerThread::clearDead();  //calls LLFilePickerThread::notify()
 
@@ -4865,7 +4865,7 @@ void LLAppViewer::idleNetwork()
 			gPrintMessagesThisFrame = FALSE;
 		}
 	}
-	sample(LLStatViewer::NUM_NEW_OBJECTS, gObjectList.mNumNewObjects);
+	add(LLStatViewer::NUM_NEW_OBJECTS, gObjectList.mNumNewObjects);
 
 	// Retransmit unacknowledged packets.
 	gXferManager->retransmitUnackedPackets();

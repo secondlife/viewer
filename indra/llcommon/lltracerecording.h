@@ -184,14 +184,6 @@ namespace LLTrace
 			return (T)getSum(static_cast<const TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
 		}
 
-		F64 getPerSec(const TraceType<MeasurementAccumulator<F64> >& stat) const;
-		F64 getPerSec(const TraceType<MeasurementAccumulator<S64> >& stat) const;
-		template <typename T>
-		T getPerSec(const MeasurementStatHandle<T>& stat) const
-		{
-			return (T)getPerSec(static_cast<const TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
-		}
-
 		F64 getMin(const TraceType<MeasurementAccumulator<F64> >& stat) const;
 		S64 getMin(const TraceType<MeasurementAccumulator<S64> >& stat) const;
 		template <typename T>

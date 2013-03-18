@@ -232,7 +232,7 @@ BOOL LLEditingMotion::onUpdate(F32 time, U8* joint_mask)
 		mIKSolver.solve();
 
 		// use blending...
-		F32 slerp_amt = LLCriticalDamp::getInterpolant(TARGET_LAG_HALF_LIFE);
+		F32 slerp_amt = LLSmoothInterpolation::getInterpolant(TARGET_LAG_HALF_LIFE);
 		shoulderRot = slerp(slerp_amt, mShoulderJoint.getRotation(), shoulderRot);
 		elbowRot = slerp(slerp_amt, mElbowJoint.getRotation(), elbowRot);
 

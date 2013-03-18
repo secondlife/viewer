@@ -90,7 +90,8 @@ extern LLTrace::CountStatHandle<>						FPS,
 											KILLED,
 											FRAMETIME_DOUBLED,
 											TEX_BAKES,
-											TEX_REBAKES;
+											TEX_REBAKES,
+											NUM_NEW_OBJECTS;
 
 
 extern LLTrace::CountStatHandle<LLTrace::Kilobits>	KBIT,
@@ -137,7 +138,6 @@ extern LLTrace::MeasurementStatHandle<>		FPS_SAMPLE,
 											NUM_RAW_IMAGES,
 											NUM_OBJECTS,
 											NUM_ACTIVE_OBJECTS,
-											NUM_NEW_OBJECTS,
 											NUM_SIZE_CULLED,
 											NUM_VIS_CULLED,
 											ENABLE_VBO,

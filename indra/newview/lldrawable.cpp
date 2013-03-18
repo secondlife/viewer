@@ -557,7 +557,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 
 	if (damped && isVisible())
 	{
-		F32 lerp_amt = llclamp(LLCriticalDamp::getInterpolant(OBJECT_DAMPING_TIME_CONSTANT), 0.f, 1.f);
+		F32 lerp_amt = llclamp(LLSmoothInterpolation::getInterpolant(OBJECT_DAMPING_TIME_CONSTANT), 0.f, 1.f);
 		LLVector3 new_pos = lerp(old_pos, target_pos, lerp_amt);
 		dist_squared = dist_vec_squared(new_pos, target_pos);
 

@@ -52,8 +52,11 @@ public:
 		Optional<bool>			show_per_sec,
 								show_bar,
 								show_history,
-								show_mean;
+								show_mean,
+								scale_range;
 
+		Optional<S32>			num_frames,
+								max_height;
 		Optional<std::string>	stat;
 		Optional<EOrientation>	orientation;
 
@@ -71,6 +74,9 @@ public:
 			  show_bar("show_bar", TRUE),
 			  show_history("show_history", false),
 			  show_mean("show_mean", true),
+			  scale_range("scale_range", true),
+			  num_frames("num_frames", 300),
+			  max_height("max_height", 200),
 			  stat("stat"),
 			  orientation("orientation", VERTICAL)
 		{
@@ -92,15 +98,19 @@ public:
 private:
 	F32          mMinBar;
 	F32          mMaxBar;
+	F32			 mCurMaxBar;
 	F32          mTickSpacing;
 	F32          mLabelSpacing;
 	U32          mPrecision;
 	F32          mUpdatesPerSec;
 	F32          mUnitScale;
+	S32			 mNumFrames;
+	S32			 mMaxHeight;
 	bool         mPerSec;				// Use the per sec stats.
 	bool         mDisplayBar;			// Display the bar graph.
 	bool         mDisplayHistory;
 	bool         mDisplayMean;			// If true, display mean, if false, display current value
+	bool		 mScaleRange;
 	EOrientation mOrientation;
 
 	LLTrace::TraceType<LLTrace::CountAccumulator<F64> >*       mCountFloatp;

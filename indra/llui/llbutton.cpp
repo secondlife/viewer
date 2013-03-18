@@ -758,11 +758,11 @@ void LLButton::draw()
 		mCurGlowStrength = lerp(mCurGlowStrength,
 					mFlashing ? (flash? 1.0 : 0.0)
 					: mHoverGlowStrength,
-					LLCriticalDamp::getInterpolant(0.05f));
+					LLSmoothInterpolation::getInterpolant(0.05f));
 	}
 	else
 	{
-		mCurGlowStrength = lerp(mCurGlowStrength, 0.f, LLCriticalDamp::getInterpolant(0.05f));
+		mCurGlowStrength = lerp(mCurGlowStrength, 0.f, LLSmoothInterpolation::getInterpolant(0.05f));
 	}
 
 	// Draw button image, if available.

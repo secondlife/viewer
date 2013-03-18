@@ -291,23 +291,6 @@ U32 Recording::getSampleCount( const TraceType<CountAccumulator<S64> >& stat ) c
 	return (*mMeasurementsFloat)[stat.getIndex()].getSampleCount();
 }
 
-
-F64 Recording::getPerSec( const TraceType<MeasurementAccumulator<F64> >& stat ) const
-{
-	F64 sum = (*mMeasurementsFloat)[stat.getIndex()].getSum();
-	return  (sum != 0.0) 
-		? (sum / mElapsedSeconds)
-		: 0.0;
-}
-
-F64 Recording::getPerSec( const TraceType<MeasurementAccumulator<S64> >& stat ) const
-{
-	S64 sum = (*mMeasurements)[stat.getIndex()].getSum();
-	return (sum != 0) 
-		? ((F64)sum / mElapsedSeconds)
-		: 0.0;
-}
-
 F64 Recording::getMin( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
 	return (*mMeasurementsFloat)[stat.getIndex()].getMin();
