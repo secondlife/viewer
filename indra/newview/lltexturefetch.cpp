@@ -3191,7 +3191,7 @@ bool LLTextureFetchWorker::insertPacket(S32 index, U8* data, S32 size)
 
 void LLTextureFetchWorker::setState(e_state new_state)
 {
-	static char* e_state_name[] =
+	static const char* e_state_name[] =
 	{
 		"INVALID",
 		"INIT",
