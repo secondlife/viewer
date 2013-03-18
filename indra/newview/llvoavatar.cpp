@@ -3097,6 +3097,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 	// Rebuild name tag if state change detected
 	if (mNameString.empty()
+		|| (mNameString.size() == 2 && mNameString[0] == 10 && mNameString[1] == 10) // *TODO : find out why mNameString is sometimes ""
 		|| new_name
 		|| (!title && !mTitle.empty())
 		|| (title && mTitle != title->getString())
