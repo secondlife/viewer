@@ -427,14 +427,14 @@ LLChicletPanel::~LLChicletPanel()
 
 void LLChicletPanel::onMessageCountChanged(const LLSD& data)
 {
-	LLUUID session_id = data["session_id"].asUUID();
-	S32 unread = data["participant_unread"].asInteger();
+	//LLUUID session_id = data["session_id"].asUUID();
+	//S32 unread = data["participant_unread"].asInteger();
 
-	LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(session_id);
-	if (im_floater && im_floater->getVisible() && im_floater->hasFocus())
-	{
-		unread = 0;
-	}
+	//LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(session_id);
+	//if (im_floater && im_floater->getVisible() && im_floater->hasFocus())
+	//{
+	//	unread = 0;
+	//}
 }
 
 void LLChicletPanel::objectChicletCallback(const LLSD& data)

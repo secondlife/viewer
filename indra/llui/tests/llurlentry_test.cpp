@@ -31,7 +31,7 @@
 #include "llurlentry_stub.cpp"
 #include "lltut.h"
 #include "../lluicolortable.h"
-#include "../llui/lluiimage.h"
+#include "../llrender/lluiimage.h"
 
 #include <boost/regex.hpp>
 
