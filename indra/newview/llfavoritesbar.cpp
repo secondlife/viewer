@@ -1,4 +1,4 @@
-]/** 
+/** 
  * @file llfavoritesbar.cpp
  * @brief LLFavoritesBarCtrl class implementation
  *
