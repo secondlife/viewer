@@ -73,7 +73,7 @@
         height="355"
         width="394">
    <layout_stack
-   animate="true" 
+   animate="false" 
    default_tab_group="2"
    follows="all"
   height="355"
