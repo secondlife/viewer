@@ -1956,7 +1956,6 @@ bool LLViewerFetchedTexture::updateFetch()
 		const F32 FETCH_IDLE_TIME = 5.f;
 		if (mLastPacketTimer.getElapsedTimeF32() > FETCH_IDLE_TIME)
 		{
-			llinfos << "idle timeout, deleting request: " << getID() << " - is discard: " << current_discard << " <= min:" << mMinDiscardLevel << " or priority == 0: " << decode_priority << "?" << llendl;
  			LL_DEBUGS("Texture") << "exceeded idle time " << FETCH_IDLE_TIME << ", deleting request: " << getID() << llendl;
 			LLAppViewer::getTextureFetch()->deleteRequest(getID(), true);
 			mHasFetcher = FALSE;
