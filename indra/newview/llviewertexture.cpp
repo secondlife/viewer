@@ -1952,11 +1952,12 @@ bool LLViewerFetchedTexture::updateFetch()
 	}
 	else if (mHasFetcher && !mIsFetching)
 	{
-		// Only delete requests that haven't receeived any network data for a while
+		// Only delete requests that haven't received any network data for a while
 		const F32 FETCH_IDLE_TIME = 5.f;
 		if (mLastPacketTimer.getElapsedTimeF32() > FETCH_IDLE_TIME)
 		{
-// 			llinfos << "Deleting request: " << getID() << " Discard: " << current_discard << " <= min:" << mMinDiscardLevel << " or priority == 0: " << decode_priority << llendl;
+			llinfos << "idle timeout, deleting request: " << getID() << " - is discard: " << current_discard << " <= min:" << mMinDiscardLevel << " or priority == 0: " << decode_priority << "?" << llendl;
+ 			LL_DEBUGS("Texture") << "exceeded idle time " << FETCH_IDLE_TIME << ", deleting request: " << getID() << llendl;
 			LLAppViewer::getTextureFetch()->deleteRequest(getID(), true);
 			mHasFetcher = FALSE;
 		}

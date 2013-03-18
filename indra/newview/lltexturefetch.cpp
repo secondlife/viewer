@@ -1093,12 +1093,14 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	{
 		if (mState == INIT || mState == LOAD_FROM_NETWORK || mState == LOAD_FROM_SIMULATOR)
 		{
+			LL_DEBUGS("Texture") << mID << " abort: mImagePriority < F_ALMOST_ZERO" << llendl;
 			return true; // abort
 		}
 	}
 	if(mState > CACHE_POST && !mCanUseNET && !mCanUseHTTP)
 	{
 		//nowhere to get data, abort.
+		LL_DEBUGS("Texture") << mID << " abort, nowhere to get data" << llendl;
 		return true ;
 	}
 
@@ -1212,6 +1214,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				//
 				//This should never happen
 				//
+				LL_DEBUGS("Texture") << mID << " this should never happen" << llendl;
 				return false;
 			}
 		}
@@ -1326,6 +1329,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			//mFetcher->addToNetworkQueue(this);
 			//recordTextureStart(false);
 			//setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
+
+			LL_DEBUGS("Texture") << mID << " does this happen?" << llendl;
 			return false;
 		}
 	}
@@ -1344,6 +1349,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			{
 				// processSimulatorPackets() failed
 // 				llwarns << "processSimulatorPackets() failed to load buffer" << llendl;
+				LL_DEBUGS("Texture") << mID << " processSimulatorPackets() failed to load buffer" << llendl;
 				return true; // failed
 			}
 			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
@@ -1395,6 +1401,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		if (! mCanUseHTTP)
 		{
 			releaseHttpSemaphore();
+			LL_DEBUGS("Texture") << mID << " abort: SEND_HTTP_REQ but !mCanUseHTTP" << llendl;
 			return true; // abort
 		}
 
@@ -1418,6 +1425,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				else
 				{
 					releaseHttpSemaphore();
+					LL_DEBUGS("Texture") << mID << " SEND_HTTP_REQ abort: cur_size " << cur_size << " <=0" << llendl;
 					return true; // abort.
 				}
 			}
@@ -1495,6 +1503,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					{
 						setState(DONE);
 						releaseHttpSemaphore();
+						LL_DEBUGS("Texture") << mID << " abort: WAIT_HTTP_REQ not found" << llendl;
 						return true; // failed, means no map tile on the empty region.
 					}
 
@@ -1543,6 +1552,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				resetFormattedData();
 				setState(DONE);
 				releaseHttpSemaphore();
+				LL_DEBUGS("Texture") << mID << " abort: fail harder" << llendl;
 				return true; // failed
 			}
 			
@@ -1551,6 +1561,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			// next time the texture is requested, even if the data have already been fetched.
 			if(mWriteToCacheState != NOT_WRITE)
 			{
+				// Why do we want to keep url if NOT_WRITE - is this a proxy for map tiles?
 				mUrl.clear();
 			}
 			
@@ -1565,6 +1576,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 				// abort.
 				setState(DONE);
+				LL_DEBUGS("Texture") << mID << " abort: no data received" << llendl;
 				releaseHttpSemaphore();
 				return true;
 			}
@@ -1669,6 +1681,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		{
 			// We aborted, don't decode
 			setState(DONE);
+			LL_DEBUGS("Texture") << mID << " DECODE_IMAGE abort: desired discard " << mDesiredDiscard << "<0" << llendl;
 			return true;
 		}
 		
@@ -1678,6 +1691,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			
 			//abort, don't decode
 			setState(DONE);
+			LL_DEBUGS("Texture") << mID << " DECODE_IMAGE abort: (mFormattedImage->getDataSize() <= 0)" << llendl;
 			return true;
 		}
 		if (mLoadedDiscard < 0)
@@ -1686,6 +1700,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 			//abort, don't decode
 			setState(DONE);
+			LL_DEBUGS("Texture") << mID << " DECODE_IMAGE abort: mLoadedDiscard < 0" << llendl;
 			return true;
 		}
 
@@ -1808,6 +1823,9 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		{
 			// More data was requested, return to INIT
 			setState(INIT);
+			LL_DEBUGS("Texture") << mID << " more data requested, returning to INIT: " 
+								 << " mDecodedDiscard " << mDecodedDiscard << ">= 0 && mDesiredDiscard " << mDesiredDiscard
+								 << "<" << " mDecodedDiscard " << mDecodedDiscard << llendl;
 			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 			return false;
 		}
@@ -1847,10 +1865,10 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 	bool partial = false;
 	LLCore::HttpStatus status(response->getStatus());
 	
-	lldebugs << "HTTP COMPLETE: " << mID
-			 << " status: " << status.toHex()
-			 << " '" << status.toString() << "'"
-			 << llendl;
+	LL_DEBUGS("Texture") << "HTTP COMPLETE: " << mID
+						 << " status: " << status.toHex()
+						 << " '" << status.toString() << "'"
+						 << llendl;
 //	unsigned int offset(0), length(0), full_length(0);
 //	response->getRange(&offset, &length, &full_length);
 // 	llwarns << "HTTP COMPLETE: " << mID << " handle: " << handle
@@ -2434,6 +2452,7 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 	std::string exten = gDirUtilp->getExtension(url);
 	if (!url.empty() && (!exten.empty() && LLImageBase::getCodecFromExtension(exten) != IMG_CODEC_J2C))
 	{
+		LL_DEBUGS("Texture") << "full request for " << id << " exten is not J2C: " << exten << llendl;
 		// Only do partial requests for J2C at the moment
 		desired_size = MAX_IMAGE_DATA_SIZE;
 		desired_discard = 0;
@@ -2500,7 +2519,7 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 		worker->unlockWorkMutex();										// -Mw
 	}
 	
-// 	llinfos << "REQUESTED: " << id << " Discard: " << desired_discard << llendl;
+ 	LL_DEBUGS("Texture") << "REQUESTED: " << id << " Discard: " << desired_discard << " size " << desired_size << llendl;
 	return true;
 }
 
