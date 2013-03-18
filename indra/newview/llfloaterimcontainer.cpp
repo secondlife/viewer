@@ -1418,7 +1418,7 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 			session_floater->setMinimized(is_minimized);
 		}
 	}
-
+	flashConversationItemWidget(session_id,false);
     return handled;
 }
 
