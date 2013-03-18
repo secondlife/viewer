@@ -223,10 +223,14 @@ LLSD& LLParamSDParserUtilities::getSDWriteNode(LLSD& input, LLInitParam::Parser:
 	{
 		bool new_traversal = it->second;
 
-		LLSD* child_sd = it->first.empty() ? sd_to_write : &(*sd_to_write)[it->first];
-
-		if (child_sd->isArray())
+		LLSD* child_sd;
+		if (it->first.empty())
 		{
+			child_sd = sd_to_write;
+			if (child_sd->isUndefined())
+			{
+				*child_sd = LLSD::emptyArray();
+			}
 			if (new_traversal)
 			{
 				// write to new element at end
@@ -240,22 +244,7 @@ LLSD& LLParamSDParserUtilities::getSDWriteNode(LLSD& input, LLInitParam::Parser:
 		}
 		else
 		{
-			if (new_traversal 
-				&& child_sd->isDefined() 
-				&& !child_sd->isArray())
-			{
-				// copy child contents into first element of an array
-				LLSD new_array = LLSD::emptyArray();
-				new_array.append(*child_sd);
-				// assign array to slot that previously held the single value
-				*child_sd = new_array;
-				// return next element in that array
-				sd_to_write = &((*child_sd)[1]);
-			}
-			else
-			{
-				sd_to_write = child_sd;
-			}
+			sd_to_write = &(*sd_to_write)[it->first];
 		}
 		it->second = false;
 	}
@@ -283,8 +272,9 @@ void LLParamSDParserUtilities::readSDValues(read_sd_cb_t cb, const LLSD& sd, LLI
 			it != sd.endArray();
 			++it)
 		{
-			stack.back().second = true;
+			stack.push_back(make_pair(std::string(), true));
 			readSDValues(cb, *it, stack);
+			stack.pop_back();
 		}
 	}
 	else if (sd.isUndefined())
@@ -313,8 +303,14 @@ namespace LLInitParam
 {
 	// LLSD specialization
 	// block param interface
-	bool ParamValue<LLSD, TypeValues<LLSD>, false>::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack, bool new_name)
+	bool ParamValue<LLSD, NOT_BLOCK>::deserializeBlock(Parser& p, Parser::name_stack_range_t& name_stack, bool new_name)
 	{
+		if (name_stack.first == name_stack.second
+			&& p.readValue<LLSD>(mValue))
+		{
+			return true;
+		}
+
 		LLSD& sd = LLParamSDParserUtilities::getSDWriteNode(mValue, name_stack);
 
 		LLSD::String string;
@@ -328,15 +324,18 @@ namespace LLInitParam
 	}
 
 	//static
-	void ParamValue<LLSD, TypeValues<LLSD>, false>::serializeElement(Parser& p, const LLSD& sd, Parser::name_stack_t& name_stack)
+	void ParamValue<LLSD, NOT_BLOCK>::serializeElement(Parser& p, const LLSD& sd, Parser::name_stack_t& name_stack)
 	{
 		p.writeValue<LLSD::String>(sd.asString(), name_stack);
 	}
 
-	void ParamValue<LLSD, TypeValues<LLSD>, false>::serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block) const
+	void ParamValue<LLSD, NOT_BLOCK>::serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block) const
 	{
-		// read from LLSD value and serialize out to parser (which could be LLSD, XUI, etc)
-		Parser::name_stack_t stack;
-		LLParamSDParserUtilities::readSDValues(boost::bind(&serializeElement, boost::ref(p), _1, _2), mValue, stack);
+		// attempt to write LLSD out directly
+		if (!p.writeValue<LLSD>(mValue, name_stack))
+		{
+			// otherwise read from LLSD value and serialize out to parser (which could be LLSD, XUI, etc)
+			LLParamSDParserUtilities::readSDValues(boost::bind(&serializeElement, boost::ref(p), _1, _2), mValue, name_stack);
+		}
 	}
 }

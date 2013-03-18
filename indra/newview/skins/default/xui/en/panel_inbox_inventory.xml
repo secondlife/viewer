@@ -2,7 +2,7 @@
 <inbox_inventory_panel
     accepts_drag_and_drop="false"
     name="inventory_inbox"
-    start_folder="Received Items"
+    start_folder.type="inbox"
     follows="all" layout="topleft"
     top="0" left="0" height="165" width="308"
     top_pad="0"

@@ -506,8 +506,8 @@ void LLTabContainer::draw()
 		}
 	}
 
-	mPrevArrowBtn->setFlashing(FALSE);
-	mNextArrowBtn->setFlashing(FALSE);
+	mPrevArrowBtn->setFlashing(false);
+	mNextArrowBtn->setFlashing(false);
 }
 
 
@@ -1209,7 +1209,11 @@ void LLTabContainer::removeTabPanel(LLPanel* child)
 				update_images(mTabList[mTabList.size()-2], mLastTabParams, getTabPosition());
 			}
 
-			removeChild( tuple->mButton );
+			if (!getTabsHidden())
+			{
+				// We need to remove tab buttons only if the tabs are not hidden.
+				removeChild( tuple->mButton );
+			}
  			delete tuple->mButton;
 
  			removeChild( tuple->mTabPanel );
@@ -1479,6 +1483,8 @@ BOOL LLTabContainer::setTab(S32 which)
 		for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
 		{
 			LLTabTuple* tuple = *iter;
+			if (!tuple)
+				continue;
 			BOOL is_selected = ( tuple == selected_tuple );
 			tuple->mButton->setUseEllipses(mUseTabEllipses);
 			tuple->mButton->setHAlign(mFontHalign);

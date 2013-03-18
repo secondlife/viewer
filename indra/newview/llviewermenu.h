@@ -27,7 +27,7 @@
 #ifndef LL_LLVIEWERMENU_H
 #define LL_LLVIEWERMENU_H
 
-#include "llmenugl.h"
+#include "../llui/llmenugl.h"
 #include "llsafehandle.h"
 
 class LLMessageSystem;
@@ -49,7 +49,6 @@ void show_context_menu( S32 x, S32 y, MASK mask );
 void show_build_mode_context_menu(S32 x, S32 y, MASK mask);
 void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y);
 void show_topinfobar_context_menu(LLView* ctrl, S32 x, S32 y);
-BOOL enable_save_into_inventory(void*);
 void handle_reset_view();
 void handle_cut(void*);
 void handle_copy(void*);
@@ -159,8 +158,6 @@ protected:
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
 };
 
-extern const std::string SAVE_INTO_INVENTORY;
-
 extern LLMenuBarGL*		gMenuBarView;
 //extern LLView*			gMenuBarHolder;
 extern LLMenuGL*		gEditMenu;
@@ -187,8 +184,6 @@ extern LLContextMenu* gDetachPieMenu;
 extern LLContextMenu* gAttachBodyPartPieMenus[8];
 extern LLContextMenu* gDetachBodyPartPieMenus[8];
 
-extern LLMenuItemCallGL* gAFKMenu;
-extern LLMenuItemCallGL* gBusyMenu;
 extern LLMenuItemCallGL* gMutePieMenu;
 extern LLMenuItemCallGL* gMuteObjectPieMenu;
 extern LLMenuItemCallGL* gBuyPassPieMenu;

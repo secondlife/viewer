@@ -288,7 +288,7 @@ void LLToolTip::initFromParams(const LLToolTip::Params& p)
 		mTextBox->setText(p.message());
 	}
 
-	S32 text_width = llmin(p.max_width(), mTextBox->getTextPixelWidth());
+	S32 text_width = llmin(p.max_width(), mTextBox->getTextPixelWidth() + 1);
 	S32 text_height = mTextBox->getTextPixelHeight();
 	mTextBox->reshape(text_width, text_height);
 	if (mInfoButton)
@@ -389,6 +389,15 @@ bool LLToolTip::hasClickCallback()
 {
 	return mHasClickCallback; 
 }
+
+void LLToolTip::getToolTipMessage(std::string & message)
+{
+	if (mTextBox)
+	{
+		message = mTextBox->getText();
+	}
+}
+
 
 
 //
@@ -593,6 +602,15 @@ void LLToolTipMgr::updateToolTipVisibility()
 	}
 }
 
+
+// Return the current tooltip text
+void LLToolTipMgr::getToolTipMessage(std::string & message)
+{
+	if (toolTipVisible())
+	{
+		mToolTip->getToolTipMessage(message);
+	}
+}
 
 
 // EOF

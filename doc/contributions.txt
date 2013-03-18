@@ -744,10 +744,12 @@ Marc Claridge
 Marc2 Sands
 Marianne McCann
 Marine Kelley
+    CHUIBUG-134
     STORM-281
 MartinRJ Fayray
     STORM-1844
     STORM-1845
+    STORM-1934
 Matthew Anthony
 Matthew Dowd
 	VWR-1344
@@ -895,6 +897,7 @@ NickyD
 	MAINT-873
 Nicky Dasmijn
 	VWR-29228
+	MAINT-873
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1250,6 +1253,7 @@ Whimsy Winx
 Whirly Fizzle
 	STORM-1895
 	MAINT-873
+	STORM-1930
 Whoops Babii
 	VWR-631
 	VWR-1640

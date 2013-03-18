@@ -64,9 +64,6 @@ private:
 
 LLPanelTopInfoBar::LLPanelTopInfoBar(): mParcelChangedObserver(0)
 {
-	LLUICtrl::CommitCallbackRegistry::currentRegistrar()
-			.add("TopInfoBar.Action", boost::bind(&LLPanelTopInfoBar::onContextMenuItemClicked, this, _2));
-
 	buildFromFile( "panel_topinfo_bar.xml");
 }
 
@@ -132,6 +129,11 @@ void LLPanelTopInfoBar::handleLoginComplete()
 
 BOOL LLPanelTopInfoBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
+	if(!LLUICtrl::CommitCallbackRegistry::getValue("TopInfoBar.Action"))
+	{
+		LLUICtrl::CommitCallbackRegistry::currentRegistrar()
+				.add("TopInfoBar.Action", boost::bind(&LLPanelTopInfoBar::onContextMenuItemClicked, this, _2));
+	}
 	show_topinfobar_context_menu(this, x, y);
 	return TRUE;
 }
@@ -230,7 +232,7 @@ void LLPanelTopInfoBar::buildLocationString(std::string& loc_str, bool show_coor
 void LLPanelTopInfoBar::setParcelInfoText(const std::string& new_text)
 {
 	LLRect old_rect = getRect();
-	const LLFontGL* font = mParcelInfoText->getDefaultFont();
+	const LLFontGL* font = mParcelInfoText->getFont();
 	S32 new_text_width = font->getWidth(new_text);
 
 	mParcelInfoText->setText(new_text);

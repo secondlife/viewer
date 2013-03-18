@@ -44,6 +44,7 @@ public:
 		Optional<S32> label_width;
 		Optional<U32> decimal_digits;
 		Optional<bool> allow_text_entry;
+		Optional<bool> allow_digits_only;
 		Optional<bool> label_wrap;
 
 		Optional<LLUIColor> text_enabled_color;

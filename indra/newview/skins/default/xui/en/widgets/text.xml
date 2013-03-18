@@ -9,6 +9,7 @@
       h_pad="0" 
       allow_scroll="false"
       text_readonly_color="LabelTextColor"
+      text_tentative_color="TextFgTentativeColor"
       bg_writeable_color="FloaterDefaultBackgroundColor" 
       use_ellipses="false"
       bg_visible="false" 

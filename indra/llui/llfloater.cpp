@@ -64,6 +64,8 @@
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
 
+extern LLControlGroup gSavedSettings;
+
 namespace LLInitParam
 {
 	void TypeValues<LLFloaterEnums::EOpenPositioning>::declareValues()
@@ -627,6 +629,17 @@ void LLFloater::setVisible( BOOL visible )
 	storeVisibilityControl();
 }
 
+
+void LLFloater::setIsSingleInstance(BOOL is_single_instance)
+{
+	mSingleInstance = is_single_instance;
+	if (!mIsReuseInitialized)
+	{
+		mReuseInstance = is_single_instance; // reuse single-instance floaters by default
+	}
+}
+
+
 // virtual
 void LLFloater::handleVisibilityChange ( BOOL new_visibility )
 {
@@ -642,14 +655,20 @@ void LLFloater::openFloater(const LLSD& key)
 {
 	llinfos << "Opening floater " << getName() << llendl;
 	mKey = key; // in case we need to open ourselves again
-	
+
 	if (getSoundFlags() != SILENT 
 	// don't play open sound for hosted (tabbed) windows
 		&& !getHost() 
 		&& !getFloaterHost()
 		&& (!getVisible() || isMinimized()))
 	{
-		make_ui_sound("UISndWindowOpen");
+        //Don't play a sound for incoming voice call based upon chat preference setting
+        bool playSound = !(getName() == "incoming call" && gSavedSettings.getBOOL("PlaySoundIncomingVoiceCall") == FALSE);
+
+        if(playSound)
+        {
+            make_ui_sound("UISndWindowOpen");
+        }
 	}
 
 	//RN: for now, we don't allow rehosting from one multifloater to another
@@ -713,6 +732,33 @@ void LLFloater::closeFloater(bool app_quitting)
 			make_ui_sound("UISndWindowClose");
 		}
 
+		gFocusMgr.clearLastFocusForGroup(this);
+
+			if (hasFocus())
+			{
+				// Do this early, so UI controls will commit before the
+				// window is taken down.
+				releaseFocus();
+
+				// give focus to dependee floater if it exists, and we had focus first
+				if (isDependent())
+				{
+					LLFloater* dependee = mDependeeHandle.get();
+					if (dependee && !dependee->isDead())
+					{
+						dependee->setFocus(TRUE);
+					}
+				}
+			}
+
+
+		//If floater is a dependent, remove it from parent (dependee)
+        LLFloater* dependee = mDependeeHandle.get();
+        if (dependee)
+        {
+            dependee->removeDependentFloater(this);
+        }
+
 		// now close dependent floater
 		for(handle_set_iter_t dependent_it = mDependents.begin();
 			dependent_it != mDependents.end(); )
@@ -731,28 +777,6 @@ void LLFloater::closeFloater(bool app_quitting)
 		}
 		
 		cleanupHandles();
-		gFocusMgr.clearLastFocusForGroup(this);
-
-		if (hasFocus())
-		{
-			// Do this early, so UI controls will commit before the
-			// window is taken down.
-			releaseFocus();
-
-			// give focus to dependee floater if it exists, and we had focus first
-			if (isDependent())
-			{
-				LLFloater* dependee = mDependeeHandle.get();
-				if (dependee && !dependee->isDead())
-				{
-					dependee->setFocus(TRUE);
-				}
-			}
-
-			// STORM-1879: since this floater has focus, treat the closeFloater- call
-			// like a click on the close-button, and close gear- and contextmenus
-			LLMenuGL::sMenuContainer->hideMenus();
-		}
 
 		dirtyRect();
 
@@ -785,6 +809,20 @@ void LLFloater::closeFloater(bool app_quitting)
 				destroy();
 			}
 		}
+	}
+}
+
+/*virtual*/
+void LLFloater::closeHostedFloater()
+{
+	// When toggling *visibility*, close the host instead of the floater when hosted
+	if (getHost())
+	{
+		getHost()->closeFloater();
+	}
+	else
+	{
+		closeFloater();
 	}
 }
 
@@ -1105,17 +1143,26 @@ void LLFloater::handleReshape(const LLRect& new_rect, bool by_user)
 	const LLRect old_rect = getRect();
 	LLView::handleReshape(new_rect, by_user);
 
-	if (by_user && !isMinimized())
+	if (by_user && !getHost())
 	{
-		storeRectControl();
-		mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
-		LLRect screen_rect = calcScreenRect();
-		mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
+		static_cast<LLFloaterView*>(getParent())->adjustToFitScreen(this, !isMinimized());
 	}
 
 	// if not minimized, adjust all snapped dependents to new shape
 	if (!isMinimized())
 	{
+		if (by_user)
+		{
+			if (isDocked())
+			{
+				setDocked( false, false);
+			}
+			storeRectControl();
+			mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
+			LLRect screen_rect = calcScreenRect();
+			mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
+		}
+
 		// gather all snapped dependents
 		for(handle_set_iter_t dependent_it = mDependents.begin();
 			dependent_it != mDependents.end(); ++dependent_it)
@@ -1179,7 +1226,6 @@ void LLFloater::setMinimized(BOOL minimize)
 	{
 		// minimized flag should be turned on before release focus
 		mMinimized = TRUE;
-
 		mExpandedRect = getRect();
 
 		// If the floater has been dragged while minimized in the
@@ -1252,7 +1298,6 @@ void LLFloater::setMinimized(BOOL minimize)
 		}
 
 		setOrigin( mExpandedRect.mLeft, mExpandedRect.mBottom );
-
 		if (mButtonsEnabled[BUTTON_RESTORE])
 		{
 			mButtonsEnabled[BUTTON_MINIMIZE] = TRUE;
@@ -1288,7 +1333,6 @@ void LLFloater::setMinimized(BOOL minimize)
 
 		// Reshape *after* setting mMinimized
 		reshape( mExpandedRect.getWidth(), mExpandedRect.getHeight(), TRUE );
-		applyPositioning(NULL, false);
 	}
 
 	make_ui_sound("UISndWindowClose");
@@ -1410,7 +1454,6 @@ void LLFloater::setHost(LLMultiFloater* host)
 		mButtonScale = 1.f;
 		//mButtonsEnabled[BUTTON_TEAR_OFF] = FALSE;
 	}
-	updateTitleButtons();
 	if (host)
 	{
 		mHostHandle = host->getHandle();
@@ -1420,6 +1463,8 @@ void LLFloater::setHost(LLMultiFloater* host)
 	{
 		mHostHandle.markDead();
 	}
+    
+	updateTitleButtons();
 }
 
 void LLFloater::moveResizeHandlesToFront()
@@ -1576,10 +1621,19 @@ void LLFloater::bringToFront( S32 x, S32 y )
 
 
 // virtual
-void LLFloater::setVisibleAndFrontmost(BOOL take_focus)
+void LLFloater::setVisibleAndFrontmost(BOOL take_focus, const LLSD& key)
 {
-	setVisible(TRUE);
-	setFrontmost(take_focus);
+	LLMultiFloater* hostp = getHost();
+	if (hostp)
+	{
+		hostp->setVisible(TRUE);
+		hostp->setFrontmost(take_focus);
+	}
+	else
+	{
+		setVisible(TRUE);
+		setFrontmost(take_focus);
+	}
 }
 
 void LLFloater::setFrontmost(BOOL take_focus)
@@ -1661,10 +1715,12 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		gFloaterView->addChild(self);
 
 		self->openFloater(self->getKey());
-		
-		// only force position for floaters that don't have that data saved
-		if (self->mRectControl.empty())
+		if (self->mSaveRect && !self->mRectControl.empty())
 		{
+			self->applyRectControl();
+		}
+		else
+		{   // only force position for floaters that don't have that data saved
 			new_rect.setLeftTopAndSize(host_floater->getRect().mLeft + 5, host_floater->getRect().mTop - floater_header_size - 5, self->getRect().getWidth(), self->getRect().getHeight());
 			self->setRect(new_rect);
 		}
@@ -1678,6 +1734,10 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		LLMultiFloater* new_host = (LLMultiFloater*)self->mLastHostHandle.get();
 		if (new_host)
 		{
+			if (self->mSaveRect)
+			{
+				self->storeRectControl();
+			}
 			self->setMinimized(FALSE); // to reenable minimize button if it was minimized
 			new_host->showFloater(self);
 			// make sure host is visible
@@ -1686,6 +1746,7 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		self->setTornOff(false);
 	}
 	self->updateTitleButtons();
+    self->setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
 }
 
 // static
@@ -1711,56 +1772,22 @@ void LLFloater::onClickHelp( LLFloater* self )
 	}
 }
 
-// static 
-LLFloater* LLFloater::getClosableFloaterFromFocus()
+void LLFloater::initRectControl()
 {
-	LLFloater* focused_floater = NULL;
-	LLInstanceTracker<LLFloater>::instance_iter it = beginInstances();
-	LLInstanceTracker<LLFloater>::instance_iter end_it = endInstances();
-	for (; it != end_it; ++it)
+	// save_rect and save_visibility only apply to registered floaters
+	if (mSaveRect)
 	{
-		if (it->hasFocus())
-		{
-			LLFloater& floater = *it;
-			focused_floater = &floater;
-			break;
-		}
+		std::string ctrl_name = getControlName(mInstanceName, mKey);
+		mRectControl = LLFloaterReg::declareRectControl(ctrl_name);
+		mPosXControl = LLFloaterReg::declarePosXControl(ctrl_name);
+		mPosYControl = LLFloaterReg::declarePosYControl(ctrl_name);
 	}
-
-	if (it == endInstances())
-	{
-		// nothing found, return
-		return NULL;
-	}
-
-	// The focused floater may not be closable,
-	// Find and close a parental floater that is closeable, if any.
-	LLFloater* prev_floater = NULL;
-	for(LLFloater* floater_to_close = focused_floater;
-		NULL != floater_to_close; 
-		floater_to_close = gFloaterView->getParentFloater(floater_to_close))
-	{
-		if(floater_to_close->isCloseable())
-		{
-			return floater_to_close;
-		}
-
-		// If floater has as parent root view
-		// gFloaterView->getParentFloater(floater_to_close) returns
-		// the same floater_to_close, so we need to check this.
-		if (prev_floater == floater_to_close) {
-			break;
-		}
-		prev_floater = floater_to_close;
-	}
-
-	return NULL;
 }
 
 // static
-void LLFloater::closeFocusedFloater()
+void LLFloater::closeFrontmostFloater()
 {
-	LLFloater* floater_to_close = LLFloater::getClosableFloaterFromFocus();
+	LLFloater* floater_to_close = gFloaterView->getFrontmostClosableFloater();
 	if(floater_to_close)
 	{
 		floater_to_close->closeFloater();
@@ -2201,7 +2228,8 @@ LLFloaterView::LLFloaterView (const Params& p)
 	mFocusCycleMode(FALSE),
 	mMinimizePositionVOffset(0),
 	mSnapOffsetBottom(0),
-	mSnapOffsetRight(0)
+	mSnapOffsetRight(0),
+	mFrontChild(NULL)
 {
 	mSnapView = getHandle();
 }
@@ -2350,6 +2378,17 @@ LLRect LLFloaterView::findNeighboringPosition( LLFloater* reference_floater, LLF
 
 void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 {
+	if (mFrontChild == child)
+	{
+		if (give_focus && !gFocusMgr.childHasKeyboardFocus(child))
+		{
+			child->setFocus(TRUE);
+		}
+		return;
+	}
+
+	mFrontChild = child;
+
 	// *TODO: make this respect floater's mAutoFocus value, instead of
 	// using parameter
 	if (child->getHost())
@@ -2357,15 +2396,14 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 		// this floater is hosted elsewhere and hence not one of our children, abort
 		return;
 	}
-	std::vector<LLView*> floaters_to_move;
+	std::vector<LLFloater*> floaters_to_move;
 	// Look at all floaters...tab
-	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
+	for (child_list_const_iter_t child_it = beginChild(); child_it != endChild(); ++child_it)
 	{
-		LLView* viewp = *child_it;
-		LLFloater *floater = (LLFloater *)viewp;
+		LLFloater* floater = dynamic_cast<LLFloater*>(*child_it);
 
 		// ...but if I'm a dependent floater...
-		if (child->isDependent())
+		if (floater && child->isDependent())
 		{
 			// ...look for floaters that have me as a dependent...
 			LLFloater::handle_set_iter_t found_dependent = floater->mDependents.find(child->getHandle());
@@ -2373,15 +2411,14 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 			if (found_dependent != floater->mDependents.end())
 			{
 				// ...and make sure all children of that floater (including me) are brought to front...
-				for(LLFloater::handle_set_iter_t dependent_it = floater->mDependents.begin();
-					dependent_it != floater->mDependents.end(); )
+				for (LLFloater::handle_set_iter_t dependent_it = floater->mDependents.begin();
+					dependent_it != floater->mDependents.end(); ++dependent_it)
 				{
 					LLFloater* sibling = dependent_it->get();
 					if (sibling)
 					{
 						floaters_to_move.push_back(sibling);
 					}
-					++dependent_it;
 				}
 				//...before bringing my parent to the front...
 				floaters_to_move.push_back(floater);
@@ -2389,10 +2426,10 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 		}
 	}
 
-	std::vector<LLView*>::iterator view_it;
-	for(view_it = floaters_to_move.begin(); view_it != floaters_to_move.end(); ++view_it)
+	std::vector<LLFloater*>::iterator floater_it;
+	for(floater_it = floaters_to_move.begin(); floater_it != floaters_to_move.end(); ++floater_it)
 	{
-		LLFloater* floaterp = (LLFloater*)(*view_it);
+		LLFloater* floaterp = *floater_it;
 		sendChildToFront(floaterp);
 
 		// always unminimize dependee, but allow dependents to stay minimized
@@ -2404,23 +2441,19 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 	floaters_to_move.clear();
 
 	// ...then bringing my own dependents to the front...
-	for(LLFloater::handle_set_iter_t dependent_it = child->mDependents.begin();
-		dependent_it != child->mDependents.end(); )
+	for (LLFloater::handle_set_iter_t dependent_it = child->mDependents.begin();
+		dependent_it != child->mDependents.end(); ++dependent_it)
 	{
 		LLFloater* dependent = dependent_it->get();
 		if (dependent)
 		{
 			sendChildToFront(dependent);
-			//don't un-minimize dependent windows automatically
-			// respect user's wishes
-			//dependent->setMinimized(FALSE);
 		}
-		++dependent_it;
 	}
 
 	// ...and finally bringing myself to front 
 	// (do this last, so that I'm left in front at end of this call)
-	if( *getChildList()->begin() != child ) 
+	if (*beginChild() != child)
 	{
 		sendChildToFront(child);
 	}
@@ -2476,6 +2509,24 @@ void LLFloaterView::highlightFocusedFloater()
 			
 		floater->cleanupHandles();
 	}
+}
+
+LLFloater* LLFloaterView::getFrontmostClosableFloater()
+{
+	child_list_const_iter_t child_it;
+	LLFloater* frontmost_floater = NULL;
+
+	for ( child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
+	{
+		frontmost_floater = (LLFloater *)(*child_it);
+
+		if (frontmost_floater->isInVisibleChain() && frontmost_floater->isCloseable())
+		{
+			return frontmost_floater;
+		}
+	}
+
+	return NULL;
 }
 
 void LLFloaterView::unhighlightFocusedFloater()
@@ -2942,21 +2993,14 @@ void LLFloaterView::popVisibleAll(const skip_list_t& skip_list)
 
 void LLFloater::setInstanceName(const std::string& name)
 {
-	if (name == mInstanceName)
-		return;
+	if (name != mInstanceName)
+	{
 	llassert_always(mInstanceName.empty());
 	mInstanceName = name;
 	if (!mInstanceName.empty())
 	{
 		std::string ctrl_name = getControlName(mInstanceName, mKey);
-
-		// save_rect and save_visibility only apply to registered floaters
-		if (mSaveRect)
-		{
-			mRectControl = LLFloaterReg::declareRectControl(ctrl_name);
-			mPosXControl = LLFloaterReg::declarePosXControl(ctrl_name);
-			mPosYControl = LLFloaterReg::declarePosYControl(ctrl_name);
-		}
+			initRectControl();
 		if (!mVisibilityControl.empty())
 		{
 			mVisibilityControl = LLFloaterReg::declareVisibilityControl(ctrl_name);
@@ -2966,6 +3010,7 @@ void LLFloater::setInstanceName(const std::string& name)
 			mDocStateControl = LLFloaterReg::declareDockStateControl(ctrl_name);
 		}
 	}
+}
 }
 
 void LLFloater::setKey(const LLSD& newkey)

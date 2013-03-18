@@ -41,6 +41,7 @@ class LLWearable;
 //-----------------------------------------------------------------------------
 // LLPolyMorphData()
 //-----------------------------------------------------------------------------
+LL_ALIGN_PREFIX(16)
 class LLPolyMorphData
 {
 public:
@@ -75,12 +76,13 @@ public:
 
 	F32					mTotalDistortion;	// vertex distortion summed over entire morph
 	F32					mMaxDistortion;		// maximum single vertex distortion in a given morph
-	LLVector4a			mAvgDistortion;		// average vertex distortion, to infer directionality of the morph
+	LL_ALIGN_16(LLVector4a			mAvgDistortion);		// average vertex distortion, to infer directionality of the morph
 	LLPolyMeshSharedData*	mMesh;
 
 private:
 	void freeData();
-};
+} LL_ALIGN_POSTFIX(16);
+
 
 //-----------------------------------------------------------------------------
 // LLPolyVertexMask()
