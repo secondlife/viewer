@@ -1819,7 +1819,10 @@ bool LLViewerFetchedTexture::updateFetch()
 				// We finished but received no data
 				if (current_discard < 0)
 				{
-					llwarns << "!mIsFetching, setting as missing" << llendl;
+					llwarns << "!mIsFetching, setting as missing, decode_priority " << decode_priority
+							<< " mRawDiscardLevel " << mRawDiscardLevel
+							<< " current_discard " << current_discard
+							<< llendl;
 					setIsMissingAsset();
 					desired_discard = -1;
 				}
@@ -1952,7 +1955,9 @@ bool LLViewerFetchedTexture::updateFetch()
 	}
 	else if (mHasFetcher && !mIsFetching)
 	{
-		// Only delete requests that haven't received any network data for a while
+		// Only delete requests that haven't received any network data
+		// for a while.  Note - this is the normal mechanism for
+		// deleting requests, not just a place to handle timeouts.
 		const F32 FETCH_IDLE_TIME = 5.f;
 		if (mLastPacketTimer.getElapsedTimeF32() > FETCH_IDLE_TIME)
 		{

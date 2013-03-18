@@ -1100,7 +1100,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	if(mState > CACHE_POST && !mCanUseNET && !mCanUseHTTP)
 	{
 		//nowhere to get data, abort.
-		LL_DEBUGS("Texture") << mID << " abort, nowhere to get data" << llendl;
+		LL_WARNS("Texture") << mID << " abort, nowhere to get data" << llendl;
 		return true ;
 	}
 
@@ -1246,6 +1246,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			if (mUrl.compare(0, 7, "file://") == 0)
 			{
 				// failed to load local file, we're done.
+				LL_WARNS("Texture") << mID << ": abort, failed to load local file " << mUrl << LL_ENDL;
 				return true;
 			}
 			// need more data
@@ -1349,7 +1350,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			{
 				// processSimulatorPackets() failed
 // 				llwarns << "processSimulatorPackets() failed to load buffer" << llendl;
-				LL_DEBUGS("Texture") << mID << " processSimulatorPackets() failed to load buffer" << llendl;
+				LL_WARNS("Texture") << mID << " processSimulatorPackets() failed to load buffer" << llendl;
 				return true; // failed
 			}
 			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
@@ -1401,7 +1402,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		if (! mCanUseHTTP)
 		{
 			releaseHttpSemaphore();
-			LL_DEBUGS("Texture") << mID << " abort: SEND_HTTP_REQ but !mCanUseHTTP" << llendl;
+			LL_WARNS("Texture") << mID << " abort: SEND_HTTP_REQ but !mCanUseHTTP" << llendl;
 			return true; // abort
 		}
 
@@ -1425,7 +1426,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				else
 				{
 					releaseHttpSemaphore();
-					LL_DEBUGS("Texture") << mID << " SEND_HTTP_REQ abort: cur_size " << cur_size << " <=0" << llendl;
+					LL_WARNS("Texture") << mID << " SEND_HTTP_REQ abort: cur_size " << cur_size << " <=0" << llendl;
 					return true; // abort.
 				}
 			}
@@ -1552,7 +1553,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				resetFormattedData();
 				setState(DONE);
 				releaseHttpSemaphore();
-				LL_DEBUGS("Texture") << mID << " abort: fail harder" << llendl;
+				LL_WARNS("Texture") << mID << " abort: fail harder" << llendl;
 				return true; // failed
 			}
 			
@@ -1576,7 +1577,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 				// abort.
 				setState(DONE);
-				LL_DEBUGS("Texture") << mID << " abort: no data received" << llendl;
+				LL_WARNS("Texture") << mID << " abort: no data received" << llendl;
 				releaseHttpSemaphore();
 				return true;
 			}
