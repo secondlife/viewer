@@ -2827,7 +2827,6 @@ void LLViewerWindow::updateUI()
 
 	BOOL handled = FALSE;
 
-	BOOL handled_by_top_ctrl = FALSE;
 	LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
 	LLMouseHandler* mouse_captor = gFocusMgr.getMouseCapture();
 	LLView* captor_view = dynamic_cast<LLView*>(mouse_captor);
@@ -3012,7 +3011,6 @@ void LLViewerWindow::updateUI()
 				S32 local_x, local_y;
 				top_ctrl->screenPointToLocal( x, y, &local_x, &local_y );
 				handled = top_ctrl->pointInView(local_x, local_y) && top_ctrl->handleHover(local_x, local_y, mask);
-				handled_by_top_ctrl = TRUE;
 			}
 
 			if ( !handled )

@@ -420,6 +420,12 @@ BOOL LLFloaterIMNearbyChat::matchChatTypeTrigger(const std::string& in_str, std:
 
 void LLFloaterIMNearbyChat::onChatBoxKeystroke()
 {
+	LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
+	if (im_box)
+	{
+		im_box->flashConversationItemWidget(mSessionID,false);
+	}
+
 	LLFirstUse::otherAvatarChatFirst(false);
 
 	LLWString raw_text = mInputEditor->getWText();

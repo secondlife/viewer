@@ -655,8 +655,7 @@ void LLIMModel::LLIMSession::loadHistory()
 
 LLIMModel::LLIMSession* LLIMModel::findIMSession(const LLUUID& session_id) const
 {
-	return get_if_there(mId2SessionMap, session_id,
-		(LLIMModel::LLIMSession*) NULL);
+	return get_if_there(mId2SessionMap, session_id, (LLIMModel::LLIMSession*) NULL);
 }
 
 //*TODO consider switching to using std::set instead of std::list for holding LLUUIDs across the whole code
@@ -2823,7 +2822,7 @@ LLUUID LLIMMgr::addSession(
 		}
 	}
 
-	bool new_session = !LLIMModel::getInstance()->findIMSession(session_id);
+	bool new_session = (LLIMModel::getInstance()->findIMSession(session_id) == NULL);
 
 	//works only for outgoing ad-hoc sessions
 	if (new_session && IM_SESSION_CONFERENCE_START == dialog && ids.size())

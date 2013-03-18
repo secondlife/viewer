@@ -892,6 +892,11 @@ void LLFloaterIMSession::onInputEditorFocusLost(LLFocusableElement* caller, void
 void LLFloaterIMSession::onInputEditorKeystroke(LLTextEditor* caller, void* userdata)
 {
 	LLFloaterIMSession* self = (LLFloaterIMSession*)userdata;
+	LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
+	if (im_box)
+	{
+		im_box->flashConversationItemWidget(self->mSessionID,false);
+	}
 	std::string text = self->mInputEditor->getText();
 
 		// Deleting all text counts as stopping typing.
