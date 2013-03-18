@@ -169,9 +169,6 @@ public:
 	const LLVector3d &getOriginGlobal() const;
 	LLVector3 getOriginAgent() const;
 
-	//estimate weight of cache missed object
-	F32 calcObjectWeight(U32 flags);
-
 	// Center is at the height of the water table.
 	const LLVector3d &getCenterGlobal() const;
 	LLVector3 getCenterAgent() const;
@@ -317,11 +314,16 @@ public:
 	} eCacheUpdateResult;
 
 	// handle a full update message
-	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp);	
+	eCacheUpdateResult cacheFullUpdate(LLDataPackerBinaryBuffer &dp, U32 flags);
+	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp, U32 flags);	
 	LLVOCacheEntry* getCacheEntryForOctree(U32 local_id);
+	LLVOCacheEntry* getCacheEntry(U32 local_id);
 	bool probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss_type);
 	void requestCacheMisses();
 	void addCacheMissFull(const U32 local_id);
+	//remove from object cache if the object receives a full-update or terse update
+	LLViewerObject* forceToRemoveFromCache(U32 local_id, LLViewerObject* objectp);
+	void findOrphans(U32 parent_id);
 
 	void dumpCache();
 
@@ -349,8 +351,7 @@ public:
 private:
 	void addToVOCacheTree(LLVOCacheEntry* entry);
 	LLViewerObject* addNewObject(LLVOCacheEntry* entry);
-	void killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list);
-	LLVOCacheEntry* getCacheEntry(U32 local_id);
+	void killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list);	
 	void removeFromVOCacheTree(LLVOCacheEntry* entry);
 	void replaceCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry* new_entry);
 	void killCacheEntry(LLVOCacheEntry* entry); //physically delete the cache entry	
@@ -359,7 +360,8 @@ private:
 	F32 createVisibleObjects(F32 max_time);
 	F32 updateVisibleEntries(F32 max_time); //update visible entries
 
-	void addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type, F32 weight);
+	void addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type);
+	void decodeBoundingInfo(LLVOCacheEntry* entry);
 public:
 	struct CompareDistance
 	{
@@ -445,27 +447,34 @@ private:
 	BOOL    mReleaseNotesRequested;
 	BOOL    mDead;  //if true, this region is in the process of deleting.
 
+	class OrphanList
+	{
+	public:
+		OrphanList(){}
+		OrphanList(U32 child_id){addChild(child_id);}
+		
+		void addChild(U32 child_id) {mChildList.insert(child_id);}
+		std::set<U32>* getChildList() {return &mChildList;}
+		
+	private:
+		std::set<U32> mChildList;
+	};
+	
+	std::map<U32, OrphanList> mOrphanMap;
+	
 	class CacheMissItem
 	{
 	public:
-		CacheMissItem(U32 id, LLViewerRegion::eCacheMissType miss_type, F32 weight) : mID(id), mType(miss_type), mWeight(weight){}
+		CacheMissItem(U32 id, LLViewerRegion::eCacheMissType miss_type) : mID(id), mType(miss_type){}
 
 		U32                            mID;     //local object id
 		LLViewerRegion::eCacheMissType mType;   //cache miss type
-		F32                            mWeight; //importance of this object to the current camera.
 	
 		struct Compare
 		{
 			bool operator()(const CacheMissItem& lhs, const CacheMissItem& rhs)
 			{
-				if(lhs.mWeight == rhs.mWeight) //larger weight first
-				{
-					return &lhs < &rhs;
-				}
-				else 
-				{
-					return lhs.mWeight > rhs.mWeight; //larger weight first
-				}
+				return lhs.mID < rhs.mID; //smaller ID first.
 			}
 		};
 

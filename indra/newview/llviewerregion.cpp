@@ -460,7 +460,11 @@ void LLViewerRegion::saveObjectCache()
 
 	if(LLVOCache::hasInstance())
 	{
-		LLVOCache::getInstance()->writeToCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap, mCacheDirty) ;
+		//NOTE: !!!!!!!!!!
+		//set this to be true when support full region cache probe!!!!
+		BOOL full_region_cache_probe = FALSE;
+
+		LLVOCache::getInstance()->writeToCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap, mCacheDirty, full_region_cache_probe) ;
 		mCacheDirty = FALSE;
 	}
 
@@ -744,11 +748,13 @@ void LLViewerRegion::dirtyHeights()
 void LLViewerRegion::replaceCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry* new_entry)
 {
 	U32 state = LLVOCacheEntry::INACTIVE;
+	bool in_vo_tree = false;
 
 	if(old_entry)
 	{
 		old_entry->copyTo(new_entry);
-		state = old_entry->getState();		
+		state = old_entry->getState();
+		in_vo_tree = (state == LLVOCacheEntry::INACTIVE && old_entry->getGroup() != NULL);
 		killCacheEntry(old_entry);
 	}
 
@@ -763,7 +769,7 @@ void LLViewerRegion::replaceCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry
 	{
 		mImpl->mWaitingSet.insert(new_entry);
 	}
-	else if(old_entry && new_entry->getEntry())
+	else if(!old_entry || in_vo_tree)
 	{
 		addToVOCacheTree(new_entry);
 	}
@@ -894,10 +900,6 @@ void LLViewerRegion::addToVOCacheTree(LLVOCacheEntry* entry)
 	if(entry->getGroup()) //already in octree.
 	{
 		return;
-	}
-	if(!entry->hasState(LLVOCacheEntry::ADD_TO_CACHE_TREE))
-	{
-		return; //can not add to vo cache tree.
 	}
 
 	mImpl->mVOCachePartition->addEntry(entry->getEntry());
@@ -1039,6 +1041,17 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 			{
 				LLVOCacheEntry* vo_entry = (LLVOCacheEntry*)(*i)->getVOCacheEntry();
 
+				if(vo_entry->getParentID() > 0) //is a child
+				{
+					LLVOCacheEntry* parent = getCacheEntry(vo_entry->getParentID());
+					
+					//make sure the parent is active
+					if(!parent || !parent->isState(LLVOCacheEntry::ACTIVE))
+					{
+						continue;
+					}
+				}
+
 				vo_entry->calcSceneContribution(camera_origin, needs_update, mImpl->mLastCameraUpdate);				
 				mImpl->mWaitingList.insert(vo_entry);
 			}
@@ -1140,7 +1153,7 @@ F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 	}
 	for(S32 i = 0; i < delete_list.size(); i++)
 	{
-		gObjectList.killObject(delete_list[i]->getVObj(), true);
+		gObjectList.killObject(delete_list[i]->getVObj());
 	}
 	delete_list.clear();
 
@@ -1192,6 +1205,28 @@ LLViewerObject* LLViewerRegion::addNewObject(LLVOCacheEntry* entry)
 		llerrs << "Object is already created." << llendl;
 	}
 	return obj;
+}
+
+//remove from object cache if the object receives a full-update or terse update
+LLViewerObject* LLViewerRegion::forceToRemoveFromCache(U32 local_id, LLViewerObject* objectp)
+{
+	LLVOCacheEntry* entry = getCacheEntry(local_id);
+	if (!entry)
+	{
+		return objectp; //not in the cache, do nothing.
+	}
+	if(!objectp) //object not created
+	{
+		entry->setTouched(FALSE); //mark this entry invalid
+
+		//create a new object before delete it from cache.
+		objectp = gObjectList.processObjectUpdateFromCache(entry, this);
+	}
+
+	//remove from cache.
+	killCacheEntry(entry);
+
+	return objectp;
 }
 
 // As above, but forcibly do the update.
@@ -1647,14 +1682,130 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
 	mSimulatorFeatures = sim_features;
 }
 
-LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp)
+//this is called when the parent is not cacheable.
+//move all orphan children out of cache and insert to rendering octree.
+void LLViewerRegion::findOrphans(U32 parent_id)
 {
-	U32 local_id = objectp->getLocalID();
-	U32 crc = objectp->getCRC();
+	std::map<U32, OrphanList>::iterator iter = mOrphanMap.find(parent_id);
+	if(iter != mOrphanMap.end())
+	{
+		std::set<U32>* children = mOrphanMap[parent_id].getChildList();
+		for(std::set<U32>::iterator child_iter = children->begin(); child_iter != children->end(); ++child_iter)
+		{
+			forceToRemoveFromCache(*child_iter, NULL);
+		}
+			
+		mOrphanMap.erase(parent_id);
+	}
+}
+
+void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
+{
+	if(entry != NULL && !entry->getEntry())
+	{
+		entry->setOctreeEntry(NULL);
+	}
+	else if(entry->getGroup() != NULL)
+	{
+		return; //already in octree, no post processing.
+	}
+
+	LLVector3 pos;
+	LLVector3 scale;
+	LLQuaternion rot;
+	U32 parent_id = LLViewerObject::extractSpatialExtents(entry->getDP(), pos, scale, rot);
+	
+	entry->setBoundingInfo(pos, scale);
+	
+	if(parent_id > 0) //has parent
+	{
+		entry->setParentID(parent_id);
+	
+		//1, find parent, update position
+		LLVOCacheEntry* parent = getCacheEntry(parent_id);
+		
+		//2, if can not, put into the orphan list.
+		if(!parent || !parent->getGroup())
+		{
+			std::map<U32, OrphanList>::iterator iter = mOrphanMap.find(parent_id);
+			if(iter != mOrphanMap.end())
+			{
+				iter->second.addChild(entry->getLocalID());
+			}
+			else 
+			{
+				//check if the parent is an uncacheable object
+				if(!parent)
+				{
+					LLUUID parent_uuid;
+					LLViewerObjectList::getUUIDFromLocal(parent_uuid,
+															parent_id,
+															getHost().getAddress(),
+															getHost().getPort());
+					LLViewerObject *parent_objp = gObjectList.findObject(parent_uuid);
+					if(parent_objp)
+					{
+						//parent is not cacheable, remove child from the cache.
+						forceToRemoveFromCache(entry->getLocalID(), NULL);
+						return;
+					}
+				}
+
+				//otherwise insert to the orphan list
+				OrphanList o_list(entry->getLocalID());
+				mOrphanMap[parent_id] = o_list;
+			}
+			
+			return;
+		}
+		else
+		{
+			//update the child position to the region space.
+			entry->updateBoundingInfo(parent);
+		}
+	}
+	
+	if(!entry->getGroup() && entry->isState(LLVOCacheEntry::INACTIVE))
+	{
+		addToVOCacheTree(entry);
+	}
+
+	if(!parent_id) //a potential parent
+	{
+		//find all children and update their bounding info
+		std::map<U32, OrphanList>::iterator iter = mOrphanMap.find(entry->getLocalID());
+		if(iter != mOrphanMap.end())
+		{
+			std::set<U32>* children = mOrphanMap[parent_id].getChildList();
+			for(std::set<U32>::iterator child_iter = children->begin(); child_iter != children->end(); ++child_iter)
+			{
+				LLVOCacheEntry* child = getCacheEntry(*child_iter);
+				if(child)
+				{
+					//update the child position to the region space.
+					child->updateBoundingInfo(entry);
+					addToVOCacheTree(child);
+				}
+			}
+			
+			mOrphanMap.erase(entry->getLocalID());
+		}
+	}
+	
+	return ;
+}
+
+LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerBinaryBuffer &dp, U32 flags)
+{
 	eCacheUpdateResult result;
+	U32 crc;
+	U32 local_id;
+
+	LLViewerObject::unpackU32(&dp, local_id, "LocalID");
+	LLViewerObject::unpackU32(&dp, crc, "CRC");
 
 	LLVOCacheEntry* entry = getCacheEntry(local_id);
-
+	
 	if (entry)
 	{
 		// we've seen this object before
@@ -1668,9 +1819,22 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 		{
 			// Update the cache entry
 			LLPointer<LLVOCacheEntry> new_entry = new LLVOCacheEntry(local_id, crc, dp);
-			replaceCacheEntry(entry, new_entry);
-			entry = new_entry;
-
+			
+			//if visible, update it
+			if(!entry->isState(LLVOCacheEntry::INACTIVE))
+			{
+				replaceCacheEntry(entry, new_entry);
+			}
+			else //invisible
+			{
+				//remove old entry
+				killCacheEntry(entry);
+				entry = new_entry;
+				
+				mImpl->mCacheMap[local_id] = entry;
+				decodeBoundingInfo(entry);
+			}
+			
 			result = CACHE_UPDATE_CHANGED;
 		}
 	}
@@ -1679,16 +1843,26 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 		// we haven't seen this object before
 		// Create new entry and add to map
 		result = CACHE_UPDATE_ADDED;
-		//if (mImpl->mCacheMap.size() > MAX_OBJECT_CACHE_ENTRIES)
-		//{
-		//	delete mImpl->mCacheMap.begin()->second ;
-		//	mImpl->mCacheMap.erase(mImpl->mCacheMap.begin());
-		//	result = CACHE_UPDATE_REPLACED;
-		//
-		//}
 		entry = new LLVOCacheEntry(local_id, crc, dp);
-
+		
 		mImpl->mCacheMap[local_id] = entry;
+		
+		decodeBoundingInfo(entry);
+	}
+	entry->setUpdateFlags(flags);
+
+	return result;
+}
+
+LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp, U32 flags)
+{
+	eCacheUpdateResult result = cacheFullUpdate(dp, flags);
+
+#if 0
+	LLVOCacheEntry* entry = mImpl->mCacheMap[objectp->getLocalID()];
+	if(!entry)
+	{
+		return result;
 	}
 
 	if(objectp->mDrawable.notNull() && !entry->getEntry())
@@ -1699,6 +1873,7 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 	{
 		addActiveCacheEntry(entry);
 	}
+#endif
 
 	return result;
 }
@@ -1721,21 +1896,9 @@ LLVOCacheEntry* LLViewerRegion::getCacheEntry(U32 local_id)
 	return NULL;
 }
 
-//estimate weight of cache missed object
-F32 LLViewerRegion::calcObjectWeight(U32 flags)
+void LLViewerRegion::addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type)
 {
-	LLVector3 pos((F32)(flags & 0xff) + 0.5f, (F32)((flags >> 8) & 0xff) + 0.5f, (F32)((flags >> 16) & 0xff) * 16.f + 8.0f);
-	F32 rad = (F32)((flags >> 24) & 0xff);
-
-	pos += getOriginAgent();
-	pos -= LLViewerCamera::getInstance()->getOrigin();
-
-	return 100.f * rad * rad / pos.lengthSquared();
-}
-
-void LLViewerRegion::addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type, F32 weight)
-{
-	mCacheMissList.insert(CacheMissItem(id, miss_type, weight));
+	mCacheMissList.insert(CacheMissItem(id, miss_type));
 }
 
 // Get data packer for this object, if we have cached data
@@ -1754,26 +1917,33 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 			// Record a hit
 			entry->recordHit();
 			cache_miss_type = CACHE_MISS_TYPE_NONE;
+			entry->setUpdateFlags(flags);
+			
+			if(entry->isState(LLVOCacheEntry::ACTIVE))
+			{
+				((LLDrawable*)entry->getEntry()->getDrawable())->getVObj()->loadFlags(flags);
+				return true;
+			}
 
 			if(entry->getGroup() || !entry->isState(LLVOCacheEntry::INACTIVE))
 			{
 				return true;
 			}
 
-			addVisibleCacheEntry(entry);
+			decodeBoundingInfo(entry);
 			return true;
 		}
 		else
 		{
 			// llinfos << "CRC miss for " << local_id << llendl;
 
-			addCacheMiss(local_id, CACHE_MISS_TYPE_CRC, calcObjectWeight(flags));
+			addCacheMiss(local_id, CACHE_MISS_TYPE_CRC);
 		}
 	}
 	else
 	{
 		// llinfos << "Cache miss for " << local_id << llendl;
-		addCacheMiss(local_id, CACHE_MISS_TYPE_FULL, calcObjectWeight(flags));
+		addCacheMiss(local_id, CACHE_MISS_TYPE_FULL);
 	}
 
 	return false;
@@ -1781,7 +1951,7 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 
 void LLViewerRegion::addCacheMissFull(const U32 local_id)
 {
-	addCacheMiss(local_id, CACHE_MISS_TYPE_FULL, 100.f);
+	addCacheMiss(local_id, CACHE_MISS_TYPE_FULL);
 }
 
 void LLViewerRegion::requestCacheMisses()
@@ -1994,7 +2164,13 @@ void LLViewerRegion::unpackRegionHandshake()
 	msg->addUUID("AgentID", gAgent.getID());
 	msg->addUUID("SessionID", gAgent.getSessionID());
 	msg->nextBlock("RegionInfo");
-	msg->addU32("Flags", 0x0 );
+
+	U32 flags = 0x00000001; //set the bit 0 to be 1 to ask sim to send all cacheable objects.
+	if(mImpl->mCacheMap.empty())
+	{
+		flags |= 0x00000002; //set the bit 1 to be 1 to tell sim the cache file is empty, no need to send cache probes.
+	}
+	msg->addU32("Flags", flags );
 	msg->sendReliable(host);
 }
 
