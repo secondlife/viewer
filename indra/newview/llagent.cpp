@@ -1046,6 +1046,14 @@ const LLVector3d &LLAgent::getPositionGlobal() const
 	return mPositionGlobal;
 }
 
+bool LLAgent::isPositionChanged() const
+{
+	LLVector3d diff;
+	diff = mPositionGlobal - mLastPositionGlobal;
+	
+	return diff.lengthSquared() > 1.0;
+}
+
 //-----------------------------------------------------------------------------
 // getPositionAgent()
 //-----------------------------------------------------------------------------
