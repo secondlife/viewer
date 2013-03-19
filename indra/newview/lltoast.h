@@ -170,6 +170,7 @@ public:
 	// get/set Toast's flags or states
 	// get information whether the notification corresponding to the toast is valid or not
 	bool isNotificationValid();
+
 	// get toast's Notification ID
 	const LLUUID getNotificationID() const { return mNotificationID;}
 	// get toast's Session ID
@@ -213,7 +214,7 @@ private:
 
 	//LLRootHandle<LLToast>	mHandle;
 		
-	LLPanel* mWrapperPanel;
+	LLPanel*	 mWrapperPanel;
 
 	// timer counts a lifetime of a toast
 	std::auto_ptr<LLToastLifeTimer> mTimer;
@@ -221,8 +222,8 @@ private:
 	F32			mToastLifetime; // in seconds
 	F32			mToastFadingTime; // in seconds
 	
-	LLPanel*		mPanel;
-	LLButton*		mHideBtn;
+	LLPanel*	mPanel;
+	LLButton*	mHideBtn;
 
 	LLColor4	mBgColor;
 	bool		mCanFade;

@@ -523,6 +523,7 @@ std::string LLCacheName::cleanFullName(const std::string& full_name)
 }
 
 //static 
+// Transform hard-coded name provided by server to a more legible username
 std::string LLCacheName::buildUsername(const std::string& full_name)
 {
 	// rare, but handle hard-coded error names returned from server
@@ -548,8 +549,9 @@ std::string LLCacheName::buildUsername(const std::string& full_name)
 		return username;
 	}
 
-	// if the input wasn't a correctly formatted legacy name just return it unchanged
-	return full_name;
+	// if the input wasn't a correctly formatted legacy name, just return it  
+	// cleaned up from a potential terminal "Resident"
+	return cleanFullName(full_name);
 }
 
 //static 

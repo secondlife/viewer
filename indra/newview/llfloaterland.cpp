@@ -1046,6 +1046,8 @@ void LLPanelLandGeneral::onCommitAny(LLUICtrl *ctrl, void *userdata)
 void LLPanelLandGeneral::onClickSellLand(void* data)
 {
 	LLViewerParcelMgr::getInstance()->startSellLand();
+	LLPanelLandGeneral *panelp = (LLPanelLandGeneral *)data;
+	panelp->refresh();
 }
 
 // static
@@ -2739,11 +2741,13 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 
 void LLPanelLandAccess::onClickAddAccess()
 {
+    LLView * button = findChild<LLButton>("add_allowed");
+    LLFloater * root_floater = gFloaterView->getParentFloater(this);
 	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
-		boost::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1));
+		boost::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1), FALSE, FALSE, FALSE, root_floater->getName(), button);
 	if (picker)
 	{
-		gFloaterView->getParentFloater(this)->addDependentFloater(picker);
+		root_floater->addDependentFloater(picker);
 	}
 }
 
@@ -2788,11 +2792,13 @@ void LLPanelLandAccess::onClickRemoveAccess(void* data)
 // static
 void LLPanelLandAccess::onClickAddBanned()
 {
+    LLView * button = findChild<LLButton>("add_banned");
+    LLFloater * root_floater = gFloaterView->getParentFloater(this);
 	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
-		boost::bind(&LLPanelLandAccess::callbackAvatarCBBanned, this, _1));
+		boost::bind(&LLPanelLandAccess::callbackAvatarCBBanned, this, _1), FALSE, FALSE, FALSE, root_floater->getName(), button);
 	if (picker)
 	{
-		gFloaterView->getParentFloater(this)->addDependentFloater(picker);
+		root_floater->addDependentFloater(picker);
 	}
 }
 

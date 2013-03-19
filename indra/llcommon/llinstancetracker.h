@@ -70,7 +70,7 @@ enum InstanceTrackType
  * semantics: one instance per process, rather than one instance per module as
  * sometimes happens with data simply declared static.
  */
-class LL_COMMON_API LLInstanceTrackerBase : public boost::noncopyable
+class LL_COMMON_API LLInstanceTrackerBase
 {
 protected:
 	/// Get a process-unique void* pointer slot for the specified type_info
@@ -238,6 +238,9 @@ protected:
 	virtual const KEY& getKey() const { return mInstanceKey; }
 
 private:
+	LLInstanceTracker( const LLInstanceTracker& );
+	const LLInstanceTracker& operator=( const LLInstanceTracker& );
+
 	void add_(KEY key) 
 	{ 
 		mInstanceKey = key; 

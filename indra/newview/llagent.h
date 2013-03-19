@@ -378,14 +378,13 @@ public:
 	void			sitDown();
 
 	//--------------------------------------------------------------------
-	// Busy
+	// Do Not Disturb
 	//--------------------------------------------------------------------
 public:
-	void			setBusy();
-	void			clearBusy();
-	BOOL			getBusy() const;
+	void			setDoNotDisturb(bool pIsDoNotDisturb);
+	bool			isDoNotDisturb() const;
 private:
-	BOOL			mIsBusy;
+	bool			mIsDoNotDisturb;
 
 	//--------------------------------------------------------------------
 	// Grab

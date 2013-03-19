@@ -27,6 +27,8 @@
 #ifndef LL_LLAVATARLISTITEM_H
 #define LL_LLAVATARLISTITEM_H
 
+#include <boost/signals2.hpp>
+
 #include "llpanel.h"
 #include "lloutputmonitorctrl.h"
 #include "llbutton.h"
@@ -82,6 +84,7 @@ public:
 	/**
 	 * Processes notification from speaker indicator to update children when indicator's visibility is changed.
 	 */
+    virtual void handleVisibilityChange ( BOOL new_visibility );
 	virtual S32	notifyParent(const LLSD& info);
 	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
@@ -214,6 +217,9 @@ private:
 
 	/// true when the mouse pointer is hovering over this item
 	bool mHovered;
+	
+	void fetchAvatarName();
+	boost::signals2::connection mAvatarNameCacheConnection;
 
 	static bool	sStaticInitialized; // this variable is introduced to improve code readability
 	static S32  sLeftPadding; // padding to first left visible child (icon or name)

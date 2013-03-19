@@ -112,6 +112,13 @@ public:
 
 protected:
 	LLNameListCtrl(const Params&);
+	virtual ~LLNameListCtrl()
+	{
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+	}
 	friend class LLUICtrlFactory;
 public:
 	// Add a user to the list by name.  It will be added, the name
@@ -155,6 +162,7 @@ private:
 	std::string		mNameColumn;
 	BOOL			mAllowCallingCardDrop;
 	bool			mShortNames;  // display name only, no SLID
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 

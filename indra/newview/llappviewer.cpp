@@ -42,6 +42,7 @@
 #include "llagentcamera.h"
 #include "llagentlanguage.h"
 #include "llagentwearables.h"
+#include "llfloaterimcontainer.h"
 #include "llwindow.h"
 #include "llviewerstats.h"
 #include "llviewerstatsrecorder.h"
@@ -59,6 +60,7 @@
 #include "llares.h" 
 #include "llcurl.h"
 #include "llcalc.h"
+#include "llconversationlog.h"
 #include "lltexturestats.h"
 #include "lltexturestats.h"
 #include "llviewerwindow.h"
@@ -93,7 +95,6 @@
 #include "llweb.h"
 #include "llsecondlifeurls.h"
 #include "llupdaterservice.h"
-#include "llcallfloater.h"
 #include "llfloatertexturefetchdebugger.h"
 #include "llspellcheck.h"
 
@@ -200,6 +201,7 @@
 #include "llviewercontrol.h"
 #include "lleventnotifier.h"
 #include "llcallbacklist.h"
+#include "lldeferredsounds.h"
 #include "pipeline.h"
 #include "llgesturemgr.h"
 #include "llsky.h"
@@ -218,7 +220,6 @@
 #include "llsecapi.h"
 #include "llmachineid.h"
 #include "llmainlooprepeater.h"
-
 
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
@@ -459,7 +460,18 @@ static void ui_audio_callback(const LLUUID& uuid)
 {
 	if (gAudiop)
 	{
-		gAudiop->triggerSound(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI);
+		SoundData soundData(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI);
+		gAudiop->triggerSound(soundData);
+	}
+}
+
+// A callback set in LLAppViewer::init()
+static void deferred_ui_audio_callback(const LLUUID& uuid)
+{
+	if (gAudiop)
+	{
+		SoundData soundData(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI);
+		LLDeferredSounds::instance().deferSound(soundData);
 	}
 }
 
@@ -773,6 +785,7 @@ bool LLAppViewer::init()
 	LLUI::initClass(settings_map,
 		LLUIImageList::getInstance(),
 		ui_audio_callback,
+		deferred_ui_audio_callback,
 		&LLUI::sGLScaleFactor);
 	LL_INFOS("InitInfo") << "UI initialized." << LL_ENDL ;
 
@@ -1217,7 +1230,7 @@ bool LLAppViewer::mainLoop()
 
 	LLVoiceChannel::initClass();
 	LLVoiceClient::getInstance()->init(gServicePump);
-	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLCallFloater::sOnCurrentChannelChanged, _1), true);
+	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLFloaterIMContainer::onCurrentChannelChanged, _1), true);
 	LLTimer frameTimer,idleTimer;
 	LLTimer debugTime;
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
@@ -1843,6 +1856,9 @@ bool LLAppViewer::cleanup()
 
 	// save mute list. gMuteList used to also be deleted here too.
 	LLMuteList::getInstance()->cache(gAgent.getID());
+
+	//save call log list
+	LLConversationLog::instance().cache();
 
 	if (mPurgeOnExit)
 	{

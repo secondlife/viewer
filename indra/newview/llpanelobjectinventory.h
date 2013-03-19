@@ -29,6 +29,7 @@
 
 #include "llvoinventorylistener.h"
 #include "llpanel.h"
+#include "llinventorypanel.h" // for LLFolderViewModelInventory
 
 #include "llinventory.h"
 
@@ -54,6 +55,8 @@ public:
 	virtual ~LLPanelObjectInventory();
 	
 	virtual BOOL postBuild();
+
+	LLFolderViewModelInventory& getRootViewModel() { return mInventoryViewModel; }
 
 	void doToSelected(const LLSD& userdata);
 	
@@ -85,8 +88,15 @@ protected:
 								LLInventoryObject* parent,
 								LLFolderViewFolder* folder);
 	void clearContents();
+	LLFolderViewItem* getItemByID(const LLUUID& id);
+
+	void addItemID( const LLUUID& id, LLFolderViewItem*   itemp );
+	void removeItemID(const LLUUID& id);
+	void clearItemIDs();
 
 private:
+	std::map<LLUUID, LLFolderViewItem*> mItemMap;
+
 	LLScrollContainer* mScroller;
 	LLFolderView* mFolders;
 	
@@ -94,6 +104,7 @@ private:
 	BOOL mHaveInventory;
 	BOOL mIsInventoryEmpty;
 	BOOL mInventoryNeedsUpdate;
+	LLFolderViewModelInventory	mInventoryViewModel;	
 };
 
 #endif // LL_LLPANELOBJECTINVENTORY_H
