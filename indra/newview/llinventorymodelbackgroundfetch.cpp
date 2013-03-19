@@ -1,6 +1,6 @@
 /** 
- * @file llinventorymodel.cpp
- * @brief Implementation of the inventory model used to track agent inventory.
+ * @file llinventorymodelbackgroundfetch.cpp
+ * @brief Implementation of background fetching of inventory.
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -365,24 +365,18 @@ class LLInventoryModelFetchItemResponder : public LLInventoryModel::fetchInvento
 {
 	LOG_CLASS(LLInventoryModelFetchItemResponder);
 public:
-	LLInventoryModelFetchItemResponder(const LLSD& request_sd) : LLInventoryModel::fetchInventoryResponder(request_sd) {};
+	LLInventoryModelFetchItemResponder(const LLSD& request_sd) :
+		LLInventoryModel::fetchInventoryResponder(request_sd)
+	{
+		LLInventoryModelBackgroundFetch::instance().incrFetchCount(1);
+	}
 private:
-	/* virtual */ void httpSuccess();
-	/* virtual */ void httpFailure();
+	/* virtual */ void httpCompleted()
+	{
+		LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
+		LLInventoryModel::fetchInventoryResponder::httpCompleted();
+	}
 };
-
-void LLInventoryModelFetchItemResponder::httpSuccess()
-{
-	LLInventoryModel::fetchInventoryResponder::httpSuccess();
-	LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
-}
-
-void LLInventoryModelFetchItemResponder::httpFailure()
-{
-	LLInventoryModel::fetchInventoryResponder::httpFailure();
-	LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
-}
-
 
 class LLInventoryModelFetchDescendentsResponder: public LLHTTPClient::Responder
 {
@@ -391,9 +385,16 @@ public:
 	LLInventoryModelFetchDescendentsResponder(const LLSD& request_sd, uuid_vec_t recursive_cats) : 
 		mRequestSD(request_sd),
 		mRecursiveCatUUIDs(recursive_cats)
-	{};
+	{
+		LLInventoryModelBackgroundFetch::instance().incrFetchCount(1);
+	}
 	//LLInventoryModelFetchDescendentsResponder() {};
 private:
+	/* virtual */ void httpCompleted()
+	{
+		LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
+		LLHTTPClient::Responder::httpCompleted();
+	}
 	/* virtual */ void httpSuccess();
 	/* virtual */ void httpFailure();
 protected:
@@ -527,8 +528,6 @@ void LLInventoryModelFetchDescendentsResponder::httpSuccess()
 					<< "Error: " << folder_sd["error"].asString() << llendl;
 		}
 	}
-
-	fetcher->incrFetchCount(-1);
 	
 	if (fetcher->isBulkFetchProcessingComplete())
 	{
@@ -544,8 +543,6 @@ void LLInventoryModelFetchDescendentsResponder::httpFailure()
 {
 	llwarns << dumpResponse() << llendl;
 	LLInventoryModelBackgroundFetch *fetcher = LLInventoryModelBackgroundFetch::getInstance();
-
-	fetcher->incrFetchCount(-1);
 
 	if (getStatus()==HTTP_INTERNAL_ERROR) // timed out or curl failure
 	{
@@ -595,7 +592,7 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 		(mFetchTimer.getElapsedTimeF32() < mMinTimeBetweenFetches))
 	{
 		return; // just bail if we are disconnected
-	}	
+	}
 
 	U32 item_count=0;
 	U32 folder_count=0;
@@ -698,7 +695,6 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 			std::string url = region->getCapability("FetchInventoryDescendents2");   			
 			if ( !url.empty() )
 			{
-				mFetchCount++;
 				if (folder_request_body["folders"].size())
 				{
 					LLInventoryModelFetchDescendentsResponder *fetcher = new LLInventoryModelFetchDescendentsResponder(folder_request_body, recursive_cats);
@@ -711,7 +707,7 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 					LLInventoryModelFetchDescendentsResponder *fetcher = new LLInventoryModelFetchDescendentsResponder(folder_request_body_lib, recursive_cats);
 					LLHTTPClient::post(url_lib, folder_request_body_lib, fetcher, 300.0);
 				}
-			}					
+			}
 		}
 		if (item_count)
 		{
@@ -719,39 +715,23 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 
 			if (item_request_body.size())
 			{
-				mFetchCount++;
 				url = region->getCapability("FetchInventory2");
 				if (!url.empty())
 				{
 					LLSD body;
-					body["agent_id"]	= gAgent.getID();
 					body["items"] = item_request_body;
 
 					LLHTTPClient::post(url, body, new LLInventoryModelFetchItemResponder(body));
 				}
-				//else
-				//{
-				//	LLMessageSystem* msg = gMessageSystem;
-				//	msg->newMessage("FetchInventory");
-				//	msg->nextBlock("AgentData");
-				//	msg->addUUID("AgentID", gAgent.getID());
-				//	msg->addUUID("SessionID", gAgent.getSessionID());
-				//	msg->nextBlock("InventoryData");
-				//	msg->addUUID("OwnerID", mPermissions.getOwner());
-				//	msg->addUUID("ItemID", mUUID);
-				//	gAgent.sendReliableMessage();
-				//}
 			}
 
 			if (item_request_body_lib.size())
 			{
-				mFetchCount++;
 
 				url = region->getCapability("FetchLib2");
 				if (!url.empty())
 				{
 					LLSD body;
-					body["agent_id"]	= gAgent.getID();
 					body["items"] = item_request_body_lib;
 
 					LLHTTPClient::post(url, body, new LLInventoryModelFetchItemResponder(body));
