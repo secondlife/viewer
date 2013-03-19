@@ -404,8 +404,11 @@ Please try logging in again in a minute.</string>
 	<string name="AddAndRemoveJoints">Add and remove joints with other objects</string>
 	<string name="ChangePermissions">Change its permissions</string>
 	<string name="TrackYourCamera">Track your camera</string>
-  <string name="ControlYourCamera">Control your camera</string>
-  <string name="TeleportYourAgent">Teleport you</string>
+	<string name="ControlYourCamera">Control your camera</string>
+	<string name="TeleportYourAgent">Teleport you</string>
+	<string name="ManageEstateSilently">Manage your estates silently</string>
+	<string name="ChangeYourDefaultAnimations">Change your default animations</string>
+	
   <string name="NotConnected">Not Connected</string>
 
 	<!-- Sim Access labels -->

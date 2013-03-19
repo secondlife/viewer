@@ -214,6 +214,8 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "PERMISSION_TRACK_CAMERA"		{ count(); yylval.ival = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_TRACK_CAMERA]; return(INTEGER_CONSTANT); }
 "PERMISSION_CONTROL_CAMERA"		{ count(); yylval.ival = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_CONTROL_CAMERA]; return(INTEGER_CONSTANT); }
 "PERMISSION_TELEPORT"			{ count(); yylval.ival = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_TELEPORT]; return(INTEGER_CONSTANT); }
+"PERMISSION_SILENT_ESTATE_MANAGEMENT"   { count(); yylval.ival = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_SILENT_ESTATE_MANAGEMENT]; return(INTEGER_CONSTANT); }
+"PERMISSION_OVERRIDE_ANIMATIONS"    { count(); yylval.ival = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS]; return(INTEGER_CONSTANT); }
 
 "INVENTORY_TEXTURE"					{ count(); yylval.ival = LLAssetType::AT_TEXTURE; return(INTEGER_CONSTANT); }
 "INVENTORY_SOUND"					{ count(); yylval.ival = LLAssetType::AT_SOUND; return(INTEGER_CONSTANT); }
