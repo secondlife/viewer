@@ -487,7 +487,7 @@ void LLSceneMonitor::fetchQueryResult()
 	if(mDiffResult > 0.01f)
 	{
 		mRecording->extend();
-		sFramePixelDiff.sample(mDiffResult);
+		sample(sFramePixelDiff, mDiffResult);
 	}
 	//llinfos << count << " : " << mDiffResult << llendl;
 }
