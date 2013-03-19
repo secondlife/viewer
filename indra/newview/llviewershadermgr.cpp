@@ -2723,6 +2723,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 			gTwoTextureCompareProgram.bind();
 			gTwoTextureCompareProgram.uniform1i("tex0", 0);
 			gTwoTextureCompareProgram.uniform1i("tex1", 1);
+			gTwoTextureCompareProgram.uniform1i("dither_tex", 2);
 		}
 	}
 
