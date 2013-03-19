@@ -154,6 +154,7 @@ static void on_avatar_name_cache_toast(const LLUUID& agent_id,
 	args["FROM"] = av_name.getCompleteName();
 	args["FROM_ID"] = msg["from_id"];
 	args["SESSION_ID"] = msg["session_id"];
+	args["SESSION_TYPE"] = msg["session_type"];
 	LLNotificationsUtil::add("IMToast", args, args, boost::bind(&LLFloaterIMContainer::showConversation, LLFloaterIMContainer::getInstance(), msg["session_id"].asUUID()));
 }
 
@@ -1008,6 +1009,7 @@ bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
 	arg["from"] = from;
 	arg["from_id"] = from_id;
 	arg["time"] = LLLogChat::timestamp(false);
+	arg["session_type"] = session->mSessionType;
 	mNewMsgSignal(arg);
 
 	return true;
