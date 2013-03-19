@@ -743,12 +743,17 @@ LLPanelGroupMembersSubTab::LLPanelGroupMembersSubTab()
 	mChanged(FALSE),
 	mPendingMemberUpdate(FALSE),
 	mHasMatch(FALSE),
-	mNumOwnerAdditions(0)
+	mNumOwnerAdditions(0),
+	mAvatarNameCacheConnection()
 {
 }
 
 LLPanelGroupMembersSubTab::~LLPanelGroupMembersSubTab()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 	if (mMembersList)
 	{
 		gSavedSettings.setString("GroupMembersSortOrder", mMembersList->getSortColumnName());
@@ -1604,6 +1609,8 @@ void LLPanelGroupMembersSubTab::addMemberToList(LLGroupMemberData* data)
 
 void LLPanelGroupMembersSubTab::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap
 		|| gdatap->getMemberVersion() != update_id
@@ -1613,7 +1620,7 @@ void LLPanelGroupMembersSubTab::onNameCache(const LLUUID& update_id, LLGroupMemb
 	}
 	
 	// trying to avoid unnecessary hash lookups
-	if (matchesSearchFilter(av_name.getLegacyName()))
+	if (matchesSearchFilter(av_name.getAccountName()))
 	{
 		addMemberToList(member);
 		if(!mMembersList->getEnabled())
@@ -1667,7 +1674,7 @@ void LLPanelGroupMembersSubTab::updateMembers()
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(mMemberProgress->first, &av_name))
 		{
-			if (matchesSearchFilter(av_name.getLegacyName()))
+			if (matchesSearchFilter(av_name.getAccountName()))
 			{
 				addMemberToList(mMemberProgress->second);
 			}
@@ -1675,8 +1682,12 @@ void LLPanelGroupMembersSubTab::updateMembers()
 		else
 		{
 			// If name is not cached, onNameCache() should be called when it is cached and add this member to list.
-			LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupMembersSubTab::onNameCache,
-									this, gdatap->getMemberVersion(), mMemberProgress->second, _2));
+			// *TODO : Add one callback per fetched avatar name
+			if (mAvatarNameCacheConnection.connected())
+			{
+				mAvatarNameCacheConnection.disconnect();
+			}
+			mAvatarNameCacheConnection = LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupMembersSubTab::onNameCache, this, gdatap->getMemberVersion(), mMemberProgress->second, _2));
 		}
 	}
 
