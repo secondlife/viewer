@@ -19,6 +19,7 @@
 {
 	std::string mLastDraggedUrl;
 	unsigned int mModifiers;
+	float mMousePos[2];
 }
 - (id) initWithSamples:(NSUInteger)samples;
 - (id) initWithSamples:(NSUInteger)samples andVsync:(BOOL)vsync;
@@ -41,10 +42,7 @@
 
 @end
 
-@interface LLNSWindow : NSWindow {
-	float mMousePos[2];
-	unsigned int mModifiers;
-}
+@interface LLNSWindow : NSWindow
 
 - (NSPoint)convertToScreenFromLocalPoint:(NSPoint)point relativeToView:(NSView *)view;
 - (NSPoint)flipPoint:(NSPoint)aPoint;

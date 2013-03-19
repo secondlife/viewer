@@ -94,7 +94,6 @@
 
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync
 {
-	[[self window] makeFirstResponder:self];
 	[self registerForDraggedTypes:[NSArray arrayWithObject:NSURLPboardType]];
 	[self initWithFrame:frame];
 	
@@ -188,112 +187,107 @@
 // Various events can be intercepted by our view, thus not reaching our window.
 // Intercept these events, and pass them to the window as needed. - Geenz
 
-- (void) mouseDragged:(NSEvent *)theEvent
-{
-	[_window mouseDragged:theEvent];
-}
-
-- (void) scrollWheel:(NSEvent *)theEvent
-{
-	[_window scrollWheel:theEvent];
-}
-
 - (void) mouseDown:(NSEvent *)theEvent
 {
-	[self becomeFirstResponder];
-	[_window mouseDown:theEvent];
+	if ([theEvent clickCount] >= 2)
+	{
+		callDoubleClick(mMousePos, mModifiers);
+	} else if ([theEvent clickCount] == 1) {
+		callLeftMouseDown(mMousePos, mModifiers);
+	}
 }
 
 - (void) mouseUp:(NSEvent *)theEvent
 {
-	[_window mouseUp:theEvent];
+	callLeftMouseUp(mMousePos, mModifiers);
 }
 
 - (void) rightMouseDown:(NSEvent *)theEvent
 {
-	[_window rightMouseDown:theEvent];
+	callRightMouseDown(mMousePos, mModifiers);
 }
 
 - (void) rightMouseUp:(NSEvent *)theEvent
 {
-	[_window rightMouseUp:theEvent];
+	callRightMouseUp(mMousePos, mModifiers);
+}
+
+- (void)mouseMoved:(NSEvent *)theEvent
+{
+	float mouseDeltas[2] = {
+		[theEvent deltaX],
+		[theEvent deltaY]
+	};
+	
+	callDeltaUpdate(mouseDeltas, 0);
+	
+	NSPoint mPoint = [theEvent locationInWindow];
+	mMousePos[0] = mPoint.x;
+	mMousePos[1] = mPoint.y;
+	callMouseMoved(mMousePos, 0);
+}
+
+// NSWindow doesn't trigger mouseMoved when the mouse is being clicked and dragged.
+// Use mouseDragged for situations like this to trigger our movement callback instead.
+
+- (void) mouseDragged:(NSEvent *)theEvent
+{
+	// Trust the deltas supplied by NSEvent.
+	// The old CoreGraphics APIs we previously relied on are now flagged as obsolete.
+	// NSEvent isn't obsolete, and provides us with the correct deltas.
+	float mouseDeltas[2] = {
+		[theEvent deltaX],
+		[theEvent deltaY]
+	};
+	
+	callDeltaUpdate(mouseDeltas, 0);
+	
+	NSPoint mPoint = [theEvent locationInWindow];
+	mMousePos[0] = mPoint.x;
+	mMousePos[1] = mPoint.y;
+	callMouseMoved(mMousePos, 0);
 }
 
 - (void) otherMouseDown:(NSEvent *)theEvent
 {
-	[_window otherMouseDown:theEvent];
+	callMiddleMouseDown(mMousePos, mModifiers);
 }
 
 - (void) otherMouseUp:(NSEvent *)theEvent
 {
-	[_window otherMouseUp:theEvent];
+	callMiddleMouseUp(mMousePos, mModifiers);
+}
+
+- (void) otherMouseDragged:(NSEvent *)theEvent
+{
+	
+}
+
+- (void) scrollWheel:(NSEvent *)theEvent
+{
+	callScrollMoved(-[theEvent deltaY]);
+}
+
+- (void) mouseExited:(NSEvent *)theEvent
+{
+	callMouseExit();
 }
 
 - (void) keyUp:(NSEvent *)theEvent
 {
-	[_window keyUp:theEvent];
+	callKeyUp([theEvent keyCode], mModifiers);
 }
 
 - (void) keyDown:(NSEvent *)theEvent
 {
 	[[self inputContext] handleEvent:theEvent];
 	uint keycode = [theEvent keyCode];
-	
-	switch (keycode) {
-		case 0x7b:
-		case 0x7c:
-		case 0x7d:
-		case 0x7e:
-			callKeyDown(keycode, mModifiers);
-			break;
-			
-		default:
-			callKeyDown(keycode, mModifiers);
-			NSString *chars = [theEvent characters];
-			for (uint i = 0; i < [chars length]; i++) {
-				// Enter and Return are special cases.
-				unichar returntest = [chars characterAtIndex:i];
-				if ((returntest == NSCarriageReturnCharacter || returntest == NSEnterCharacter) &&
-					!([theEvent modifierFlags] & NSCommandKeyMask) &&
-					!([theEvent modifierFlags] & NSAlternateKeyMask) &&
-					!([theEvent modifierFlags] & NSControlKeyMask))
-				{
-					callUnicodeCallback(13, 0);
-				} else {
-					// The command key being pressed is also a special case.
-					// Control + <character> produces an ASCII control character code.
-					// Command + <character> produces just the character's code.
-					// Check to see if the command key is pressed, then filter through the different character ranges that are relevant to control characters, and subtract the appropriate range.
-					if ([theEvent modifierFlags] & NSCommandKeyMask)
-					{
-						if (returntest >= 64 && returntest <= 95)
-						{
-							callUnicodeCallback(returntest - 63, mModifiers);
-						} else if (returntest >= 97 && returntest <= 122)
-						{
-							callUnicodeCallback(returntest - 96, mModifiers);
-						}
-					}
-				}
-			}
-			break;
-	}
-	
-}
-
-- (void) mouseMoved:(NSEvent *)theEvent
-{
-	[_window mouseMoved:theEvent];
+	callKeyDown(keycode, mModifiers);
 }
 
 - (void)flagsChanged:(NSEvent *)theEvent {
 	mModifiers = [theEvent modifierFlags];
 	callModifier([theEvent modifierFlags]);
-}
-
-- (void) mouseExited:(NSEvent *)theEvent
-{
-	[_window mouseExited:theEvent];
 }
 
 - (BOOL) acceptsFirstResponder
@@ -386,6 +380,18 @@
 	}
 }
 
+- (void) insertNewline:(id)sender
+{
+	if (!(mModifiers & NSCommandKeyMask) &&
+		!(mModifiers & NSShiftKeyMask) &&
+		!(mModifiers & NSAlternateKeyMask))
+	{
+		callUnicodeCallback(13, 0);
+	} else {
+		callUnicodeCallback(13, mModifiers);
+	}
+}
+
 - (NSUInteger)characterIndexForPoint:(NSPoint)aPoint
 {
 	return NSNotFound;
@@ -398,6 +404,10 @@
 
 - (void)doCommandBySelector:(SEL)aSelector
 {
+	if (aSelector == @selector(insertNewline:))
+	{
+		[self insertNewline:self];
+	}
 }
 
 - (BOOL)drawsVerticallyForCharacterAtIndex:(NSUInteger)charIndex
@@ -417,150 +427,6 @@
 {
 	[self makeFirstResponder:[self contentView]];
 	return self;
-}
-
-- (void) keyDown:(NSEvent *)theEvent
-{
-	
-	uint keycode = [theEvent keyCode];
-	
-	switch (keycode) {
-		case 0x7b:
-		case 0x7c:
-		case 0x7d:
-		case 0x7e:
-			callKeyDown(keycode, mModifiers);
-			break;
-			
-		default:
-			callKeyDown(keycode, mModifiers);
-			NSString *chars = [theEvent characters];
-			for (uint i = 0; i < [chars length]; i++) {
-				// Enter and Return are special cases.
-				unichar returntest = [chars characterAtIndex:i];
-				if ((returntest == NSCarriageReturnCharacter || returntest == NSEnterCharacter) &&
-					!([theEvent modifierFlags] & NSCommandKeyMask) &&
-					!([theEvent modifierFlags] & NSAlternateKeyMask) &&
-					!([theEvent modifierFlags] & NSControlKeyMask))
-				{
-					callUnicodeCallback(13, 0);
-				} else {
-					// The command key being pressed is also a special case.
-					// Control + <character> produces an ASCII control character code.
-					// Command + <character> produces just the character's code.
-					// Check to see if the command key is pressed, then filter through the different character ranges that are relevant to control characters, and subtract the appropriate range.
-					if ([theEvent modifierFlags] & NSCommandKeyMask)
-					{
-						if (returntest >= 64 && returntest <= 95)
-						{
-							callUnicodeCallback(returntest - 63, mModifiers);
-						} else if (returntest >= 97 && returntest <= 122)
-						{
-							callUnicodeCallback(returntest - 96, mModifiers);
-						}
-					} else {
-						callUnicodeCallback(returntest, mModifiers);
-					}
-				}
-			}
-			break;
-	}
-	 
-}
-
-- (void) keyUp:(NSEvent *)theEvent {
-	callKeyUp([theEvent keyCode], mModifiers);
-}
-
-- (void)flagsChanged:(NSEvent *)theEvent {
-	mModifiers = [theEvent modifierFlags];
-	callModifier([theEvent modifierFlags]);
-}
-
-- (void) mouseDown:(NSEvent *)theEvent
-{
-	if ([theEvent clickCount] >= 2)
-	{
-		callDoubleClick(mMousePos, mModifiers);
-	} else if ([theEvent clickCount] == 1) {
-		callLeftMouseDown(mMousePos, mModifiers);
-	}
-}
-
-- (void) mouseUp:(NSEvent *)theEvent
-{
-	callLeftMouseUp(mMousePos, mModifiers);
-}
-
-- (void) rightMouseDown:(NSEvent *)theEvent
-{
-	callRightMouseDown(mMousePos, mModifiers);
-}
-
-- (void) rightMouseUp:(NSEvent *)theEvent
-{
-	callRightMouseUp(mMousePos, mModifiers);
-}
-
-- (void)mouseMoved:(NSEvent *)theEvent
-{
-	float mouseDeltas[2] = {
-		[theEvent deltaX],
-		[theEvent deltaY]
-	};
-	
-	callDeltaUpdate(mouseDeltas, 0);
-	
-	NSPoint mPoint = [theEvent locationInWindow];
-	mMousePos[0] = mPoint.x;
-	mMousePos[1] = mPoint.y;
-	callMouseMoved(mMousePos, 0);
-}
-
-// NSWindow doesn't trigger mouseMoved when the mouse is being clicked and dragged.
-// Use mouseDragged for situations like this to trigger our movement callback instead.
-
-- (void) mouseDragged:(NSEvent *)theEvent
-{
-	// Trust the deltas supplied by NSEvent.
-	// The old CoreGraphics APIs we previously relied on are now flagged as obsolete.
-	// NSEvent isn't obsolete, and provides us with the correct deltas.
-	float mouseDeltas[2] = {
-		[theEvent deltaX],
-		[theEvent deltaY]
-	};
-	
-	callDeltaUpdate(mouseDeltas, 0);
-	
-	NSPoint mPoint = [theEvent locationInWindow];
-	mMousePos[0] = mPoint.x;
-	mMousePos[1] = mPoint.y;
-	callMouseMoved(mMousePos, 0);
-}
-
-- (void) otherMouseDown:(NSEvent *)theEvent
-{
-	callMiddleMouseDown(mMousePos, mModifiers);
-}
-
-- (void) otherMouseUp:(NSEvent *)theEvent
-{
-	callMiddleMouseUp(mMousePos, mModifiers);
-}
-
-- (void) otherMouseDragged:(NSEvent *)theEvent
-{
-	
-}
-
-- (void) scrollWheel:(NSEvent *)theEvent
-{
-	callScrollMoved(-[theEvent deltaY]);
-}
-
-- (void) mouseExited:(NSEvent *)theEvent
-{
-	callMouseExit();
 }
 
 - (NSPoint)convertToScreenFromLocalPoint:(NSPoint)point relativeToView:(NSView *)view
