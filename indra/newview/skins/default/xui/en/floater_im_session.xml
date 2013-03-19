@@ -227,7 +227,7 @@
       width="150" 
       height="275" 
       user_resize="true"
-      auto_resize="true">
+      auto_resize="false">
       </layout_panel>
     <layout_panel
        default_tab_group="3"
