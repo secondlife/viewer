@@ -15,9 +15,10 @@
 // Some nasty shovelling of LLOpenGLView from LLNativeBindings to prevent any C++ <-> Obj-C interop oddities.
 // Redraw callback handling removed (for now) due to being unneeded in the patch that preceeds this addition.
 
-@interface LLOpenGLView : NSOpenGLView
+@interface LLOpenGLView : NSOpenGLView <NSTextInputClient>
 {
 	std::string mLastDraggedUrl;
+	unsigned int mModifiers;
 }
 - (id) initWithSamples:(NSUInteger)samples;
 - (id) initWithSamples:(NSUInteger)samples andVsync:(BOOL)vsync;

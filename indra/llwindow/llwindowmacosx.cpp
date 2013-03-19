@@ -223,7 +223,10 @@ void callUnicodeCallback(wchar_t character, unsigned int mask)
 
 void callFocus()
 {
-	gWindowImplementation->getCallbacks()->handleFocus(gWindowImplementation);
+	if (gWindowImplementation)
+	{
+		gWindowImplementation->getCallbacks()->handleFocus(gWindowImplementation);
+	}
 }
 
 void callFocusLost()
@@ -369,9 +372,12 @@ void callHandleDragDropped(std::string url)
 
 void callQuitHandler()
 {
-	if(gWindowImplementation->getCallbacks()->handleCloseRequest(gWindowImplementation))
+	if (gWindowImplementation)
 	{
-		gWindowImplementation->getCallbacks()->handleQuit(gWindowImplementation);
+		if(gWindowImplementation->getCallbacks()->handleCloseRequest(gWindowImplementation))
+		{
+			gWindowImplementation->getCallbacks()->handleQuit(gWindowImplementation);
+		}
 	}
 }
 

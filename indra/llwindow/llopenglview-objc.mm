@@ -94,6 +94,7 @@
 
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync
 {
+	[[self window] makeFirstResponder:self];
 	[self registerForDraggedTypes:[NSArray arrayWithObject:NSURLPboardType]];
 	[self initWithFrame:frame];
 	
@@ -199,6 +200,7 @@
 
 - (void) mouseDown:(NSEvent *)theEvent
 {
+	[self becomeFirstResponder];
 	[_window mouseDown:theEvent];
 }
 
@@ -234,7 +236,49 @@
 
 - (void) keyDown:(NSEvent *)theEvent
 {
-	[_window keyDown:theEvent];
+	[[self inputContext] handleEvent:theEvent];
+	uint keycode = [theEvent keyCode];
+	
+	switch (keycode) {
+		case 0x7b:
+		case 0x7c:
+		case 0x7d:
+		case 0x7e:
+			callKeyDown(keycode, mModifiers);
+			break;
+			
+		default:
+			callKeyDown(keycode, mModifiers);
+			NSString *chars = [theEvent characters];
+			for (uint i = 0; i < [chars length]; i++) {
+				// Enter and Return are special cases.
+				unichar returntest = [chars characterAtIndex:i];
+				if ((returntest == NSCarriageReturnCharacter || returntest == NSEnterCharacter) &&
+					!([theEvent modifierFlags] & NSCommandKeyMask) &&
+					!([theEvent modifierFlags] & NSAlternateKeyMask) &&
+					!([theEvent modifierFlags] & NSControlKeyMask))
+				{
+					callUnicodeCallback(13, 0);
+				} else {
+					// The command key being pressed is also a special case.
+					// Control + <character> produces an ASCII control character code.
+					// Command + <character> produces just the character's code.
+					// Check to see if the command key is pressed, then filter through the different character ranges that are relevant to control characters, and subtract the appropriate range.
+					if ([theEvent modifierFlags] & NSCommandKeyMask)
+					{
+						if (returntest >= 64 && returntest <= 95)
+						{
+							callUnicodeCallback(returntest - 63, mModifiers);
+						} else if (returntest >= 97 && returntest <= 122)
+						{
+							callUnicodeCallback(returntest - 96, mModifiers);
+						}
+					}
+				}
+			}
+			break;
+	}
+	
 }
 
 - (void) mouseMoved:(NSEvent *)theEvent
@@ -242,9 +286,9 @@
 	[_window mouseMoved:theEvent];
 }
 
-- (void) flagsChanged:(NSEvent *)theEvent
-{
-	[_window flagsChanged:theEvent];
+- (void)flagsChanged:(NSEvent *)theEvent {
+	mModifiers = [theEvent modifierFlags];
+	callModifier([theEvent modifierFlags]);
 }
 
 - (void) mouseExited:(NSEvent *)theEvent
@@ -252,14 +296,9 @@
 	[_window mouseExited:theEvent];
 }
 
-- (BOOL) becomeFirstResponder
+- (BOOL) acceptsFirstResponder
 {
-	return [_window becomeFirstResponder];
-}
-
-- (BOOL) resignFirstResponder
-{
-	return [_window resignFirstResponder];
+	return YES;
 }
 
 - (NSDragOperation) draggingEntered:(id<NSDraggingInfo>)sender
@@ -305,6 +344,67 @@
 	return true;
 }
 
+- (BOOL)hasMarkedText
+{
+	return NO;
+}
+
+- (NSRange)markedRange
+{
+	return NSMakeRange(NSNotFound, 0);
+}
+
+- (NSRange)selectedRange
+{
+	return NSMakeRange(NSNotFound, 0);
+}
+
+- (void)setMarkedText:(id)aString selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange
+{
+}
+
+- (void)unmarkText
+{
+	
+}
+
+- (NSArray *)validAttributesForMarkedText
+{
+	return [NSArray array];
+}
+
+- (NSAttributedString *)attributedSubstringForProposedRange:(NSRange)aRange actualRange:(NSRangePointer)actualRange
+{
+	return nil;
+}
+
+- (void)insertText:(id)aString replacementRange:(NSRange)replacementRange
+{
+	for (NSInteger i = 0; i < [aString length]; i++)
+	{
+		callUnicodeCallback([aString characterAtIndex:i], mModifiers);
+	}
+}
+
+- (NSUInteger)characterIndexForPoint:(NSPoint)aPoint
+{
+	return NSNotFound;
+}
+
+- (NSRect)firstRectForCharacterRange:(NSRange)aRange actualRange:(NSRangePointer)actualRange
+{
+	return NSZeroRect;
+}
+
+- (void)doCommandBySelector:(SEL)aSelector
+{
+}
+
+- (BOOL)drawsVerticallyForCharacterAtIndex:(NSUInteger)charIndex
+{
+	return NO;
+}
+
 @end
 
 // We use a custom NSWindow for our event handling.
@@ -315,12 +415,13 @@
 
 - (id) init
 {
-	
+	[self makeFirstResponder:[self contentView]];
 	return self;
 }
 
 - (void) keyDown:(NSEvent *)theEvent
 {
+	
 	uint keycode = [theEvent keyCode];
 	
 	switch (keycode) {
@@ -364,6 +465,7 @@
 			}
 			break;
 	}
+	 
 }
 
 - (void) keyUp:(NSEvent *)theEvent {
