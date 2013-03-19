@@ -3213,7 +3213,7 @@ void LLTextureFetchWorker::setState(e_state new_state)
 		"WAIT_ON_WRITE",
 		"DONE"
 	};
-	//llinfos << "id: " << mID << " FTType: " << mFTType << " disc: " << mDesiredDiscard << " sz: " << mDesiredSize << " state: " << e_state_name[mState] << " => " << e_state_name[new_state] << llendl;
+	LL_DEBUGS("Texture") << "id: " << mID << " FTType: " << mFTType << " disc: " << mDesiredDiscard << " sz: " << mDesiredSize << " state: " << e_state_name[mState] << " => " << e_state_name[new_state] << llendl;
 	mState = new_state;
 }
 
