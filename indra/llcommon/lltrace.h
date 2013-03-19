@@ -674,57 +674,6 @@ struct MemFootprint<std::list<T> >
 	}
 };
 
-template <size_t ALIGNMENT, size_t RESERVE>
-void* allocAligned(size_t size)
-{
-	llstatic_assert((ALIGNMENT > 0) && (ALIGNMENT & (ALIGNMENT - 1)) == 0, "Alignment must be a power of 2");
-
-	void* padded_allocation;
-	const size_t aligned_reserve = (RESERVE / ALIGNMENT) 
-		+ ((RESERVE % ALIGNMENT) ? ALIGNMENT : 0);
-	const size_t size_with_reserve = size + aligned_reserve;
-	if (ALIGNMENT <= LL_DEFAULT_HEAP_ALIGN)
-	{
-		padded_allocation = malloc(size_with_reserve);
-	}
-	else
-	{
-#if LL_WINDOWS
-		padded_allocation = _aligned_malloc(size_with_reserve, ALIGNMENT);
-#elif LL_DARWIN
-		padded_allocation = ll_aligned_malloc(size_with_reserve, ALIGNMENT);
-#else
-		if (LL_UNLIKELY(0 != posix_memalign(&padded_allocation, 16, size)))
-			padded_allocation = NULL;
-#endif
-	}
-	return (char*)padded_allocation + aligned_reserve;
-}
-
-template<size_t ALIGNMENT, size_t RESERVE>
-void deallocAligned(void* ptr)
-{
-	const size_t aligned_reserve = (RESERVE / ALIGNMENT) 
-		+ ((RESERVE % ALIGNMENT) ? ALIGNMENT : 0);
-
-	void* original_allocation = (char*)ptr - aligned_reserve;
-
-	if (ALIGNMENT <= LL_DEFAULT_HEAP_ALIGN)
-	{
-		free(original_allocation);
-	}
-	else
-	{
-#if LL_WINDOWS
-		_aligned_free(original_allocation);
-#elif LL_DARWIN
-		ll_aligned_free(original_allocation);
-#else
-		free(original_allocation);		
-#endif
-	}	
-}
-
 template<typename DERIVED, size_t ALIGNMENT = LL_DEFAULT_HEAP_ALIGN>
 class MemTrackable
 {
@@ -736,7 +685,7 @@ class MemTrackable
 public:
 	typedef void mem_trackable_tag_t;
 
-	~MemTrackable()
+	virtual ~MemTrackable()
 	{
 		memDisclaim(mMemFootprint);
 	}
@@ -750,24 +699,19 @@ public:
 			accumulator->mAllocatedCount++;
 		}
 
-		// reserve 4 bytes for allocation size (and preserving requested alignment)
-		void* allocation = allocAligned<ALIGNMENT, sizeof(size_t)>(size);
-		((size_t*)allocation)[-1] = size;
-
-		return allocation;
+		return ::operator new(size);
 	}
 
-	void operator delete(void* ptr)
+	void operator delete(void* ptr, size_t size)
 	{
-		size_t allocation_size = ((size_t*)ptr)[-1];
 		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 		if (accumulator)
 		{
-			accumulator->mSize -= allocation_size;
+			accumulator->mSize -= size;
 			accumulator->mAllocatedCount--;
 			accumulator->mDeallocatedCount++;
 		}
-		deallocAligned<ALIGNMENT, sizeof(size_t)>(ptr);
+		::operator delete(ptr);
 	}
 
 	void *operator new [](size_t size)
@@ -779,24 +723,19 @@ public:
 			accumulator->mAllocatedCount++;
 		}
 
-		// reserve 4 bytes for allocation size (and preserving requested alignment)
-		void* allocation = allocAligned<ALIGNMENT, sizeof(size_t)>(size);
-		((size_t*)allocation)[-1] = size;
-
-		return allocation;
+		return ::operator new[](size);
 	}
 
-	void operator delete[](void* ptr)
+	void operator delete[](void* ptr, size_t size)
 	{
-		size_t* allocation_size = (size_t*)((char*)ptr - 8);
 		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 		if (accumulator)
 		{
-			accumulator->mSize -= *allocation_size;
+			accumulator->mSize -= size;
 			accumulator->mAllocatedCount--;
 			accumulator->mDeallocatedCount++;
 		}
-		deallocAligned<ALIGNMENT, sizeof(size_t)>(ptr);
+		::operator delete[](ptr);
 	}
 
 	// claim memory associated with other objects/data as our own, adding to our calculated footprint
@@ -852,8 +791,6 @@ public:
 
 private:
 	size_t mMemFootprint;
-
-
 
 	template<typename TRACKED, typename TRACKED_IS_TRACKER = void>
 	struct TrackMemImpl
