@@ -463,7 +463,7 @@ void LLSceneMonitor::calcDiffAggregate()
 	}	
 }
 
-static LLTrace::Measurement<> sFramePixelDiff("FramePixelDifference");
+static LLTrace::MeasurementStatHandle<> sFramePixelDiff("FramePixelDifference");
 void LLSceneMonitor::fetchQueryResult()
 {
 	if(!mHasNewQueryResult)
