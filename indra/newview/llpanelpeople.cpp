@@ -75,6 +75,8 @@ static const std::string RECENT_TAB_NAME	= "recent_panel";
 
 static const std::string COLLAPSED_BY_USER  = "collapsed_by_user";
 
+extern S32 gMaxAgentGroups;
+
 /** Comparator for comparing avatar items by last interaction date */
 class LLAvatarItemRecentComparator : public LLAvatarItemComparator
 {
@@ -878,6 +880,8 @@ void LLPanelPeople::updateButtons()
 		LLPanel* groups_panel = mTabContainer->getCurrentPanel();
 		groups_panel->getChildView("activate_btn")->setEnabled(item_selected && !cur_group_active); // "none" or a non-active group selected
 		groups_panel->getChildView("minus_btn")->setEnabled(item_selected && selected_id.notNull());
+		groups_panel->getChild<LLUICtrl>("groupcount")->setTextArg("[COUNT]", llformat("%d",gAgent.mGroups.count()));
+		groups_panel->getChild<LLUICtrl>("groupcount")->setTextArg("[REMAINING]", llformat("%d",(gMaxAgentGroups-gAgent.mGroups.count())));
 	}
 	else
 	{
