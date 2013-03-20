@@ -118,7 +118,7 @@
 				 image_unselected="Toolbar_Middle_Off"
 				 layout="topleft"
 			 	 top="5"
-			 	 left_pad="4"
+			 	 left_pad="2"
 				 name="gear_btn"
 				 visible="false"
 				 tool_tip="Actions on selected person"
@@ -133,7 +133,7 @@
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  top="5"
-                 left_pad="4"
+                 left_pad="2"
                  name="add_btn"
                  tool_tip="Add someone to this conversation"
                  width="31"/>
@@ -146,7 +146,7 @@
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  top="5"
-                 left_pad="4"
+                 left_pad="2"
                  name="voice_call_btn"
                  tool_tip="Open voice connection"
                  width="31"/>
@@ -171,7 +171,7 @@
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  top="5"
-                 left="283"
+                 left="292"
                  name="close_btn"
                  tool_tip="End this conversation"
                  width="31" />
@@ -184,7 +184,7 @@
              	 image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  top="5"
-                 left_pad="5"
+                 left_pad="2"
                  name="expand_collapse_btn"
                  tool_tip="Collapse/Expand this pane"
                  width="31" />
@@ -197,7 +197,7 @@
              	 image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  top="5"
-                 left_pad="5"
+                 left_pad="2"
                  name="tear_off_btn"
                  width="31" />
      </layout_panel>
