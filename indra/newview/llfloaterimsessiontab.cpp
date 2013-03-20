@@ -838,6 +838,10 @@ void LLFloaterIMSessionTab::restoreFloater()
 {
 	if(!isMessagePaneExpanded())
 	{
+		if(isMinimized())
+		{
+			setMinimized(false);
+		}
 		mContentPanel->setVisible(true);
 		mToolbarPanel->setVisible(true);
 		LLRect floater_rect = getRect();

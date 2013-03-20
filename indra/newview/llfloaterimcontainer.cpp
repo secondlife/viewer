@@ -1329,6 +1329,9 @@ void LLFloaterIMContainer::showConversation(const LLUUID& session_id)
 {
     setVisibleAndFrontmost(false);
     selectConversationPair(session_id, true);
+
+    LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
+    session_floater->restoreFloater();
 }
 
 void LLFloaterIMContainer::clearAllFlashStates()

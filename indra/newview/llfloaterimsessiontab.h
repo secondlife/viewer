@@ -100,6 +100,7 @@ public:
 	virtual BOOL handleKeyHere( KEY key, MASK mask );
 	bool isMessagePaneExpanded(){return mMessagePaneExpanded;}
 	void setMessagePaneExpanded(bool expanded){mMessagePaneExpanded = expanded;}
+	void restoreFloater();
 
 protected:
 
@@ -115,7 +116,6 @@ protected:
 	static void onSlide(LLFloaterIMSessionTab *self);
 	static void onCollapseToLine(LLFloaterIMSessionTab *self);
 	void reshapeFloater(bool collapse);
-	void restoreFloater();
 
 	// refresh a visual state of the Call button
 	void updateCallBtnState(bool callIsActive);
