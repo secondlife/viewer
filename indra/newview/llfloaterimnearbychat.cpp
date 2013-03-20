@@ -348,6 +348,11 @@ bool LLFloaterIMNearbyChat::isChatVisible() const
 void LLFloaterIMNearbyChat::showHistory()
 {
 	openFloater();
+	if(!isMessagePaneExpanded())
+	{
+		restoreFloater();
+		setFocus(true);
+	}
 	setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
 }
 
