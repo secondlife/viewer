@@ -337,6 +337,11 @@ NSWindowRef getMainAppWindow()
 	return winRef;
 }
 
+void makeFirstResponder(NSWindowRef window, GLViewRef view)
+{
+	[(LLNSWindow*)window makeFirstResponder:(LLOpenGLView*)view];
+}
+
 /*
 GLViewRef getGLView()
 {

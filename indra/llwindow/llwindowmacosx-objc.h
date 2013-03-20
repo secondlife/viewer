@@ -74,6 +74,7 @@ void convertScreenToView(NSWindowRef window, float *coord);
 void setWindowPos(NSWindowRef window, float* pos);
 void closeWindow(NSWindowRef window);
 void removeGLView(GLViewRef view);
+void makeFirstResponder(NSWindowRef window, GLViewRef view);
 
 // These are all implemented in llwindowmacosx.cpp.
 // This is largely for easier interop between Obj-C and C++ (at least in the viewer's case due to the BOOL vs. BOOL conflict)

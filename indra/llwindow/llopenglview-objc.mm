@@ -345,16 +345,21 @@
 
 - (NSRange)markedRange
 {
-	return NSMakeRange(NSNotFound, 0);
+	int range[2];
+	getPreeditMarkedRange(&range[0], &range[1]);
+	return NSMakeRange(range[0], range[1]);
 }
 
 - (NSRange)selectedRange
 {
-	return NSMakeRange(NSNotFound, 0);
+	int range[2];
+	getPreeditSelectionRange(&range[0], &range[1]);
+	return NSMakeRange(range[0], range[1]);
 }
 
 - (void)setMarkedText:(id)aString selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange
 {
+	
 }
 
 - (void)unmarkText
@@ -425,7 +430,6 @@
 
 - (id) init
 {
-	[self makeFirstResponder:[self contentView]];
 	return self;
 }
 

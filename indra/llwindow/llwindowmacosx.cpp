@@ -383,22 +383,37 @@ void callQuitHandler()
 
 std::basic_string<wchar_t> getPreeditString()
 {
-	return gWindowImplementation->getPreeditor()->getPreeditString();
+	std::basic_string<wchar_t> str;
+	if (gWindowImplementation->getPreeditor())
+	{
+		str = gWindowImplementation->getPreeditor()->getPreeditString();
+	}
+	
+	return str;
 }
 
 void getPreeditSelectionRange(int *position, int *length)
 {
-	gWindowImplementation->getPreeditor()->getSelectionRange(position, length);
+	if (gWindowImplementation->getPreeditor())
+	{
+		gWindowImplementation->getPreeditor()->getSelectionRange(position, length);
+	}
 }
 
 void getPreeditMarkedRange(int *position, int *length)
 {
-	gWindowImplementation->getPreeditor()->getPreeditRange(position, length);
+	if (gWindowImplementation->getPreeditor())
+	{
+		gWindowImplementation->getPreeditor()->getPreeditRange(position, length);
+	}
 }
 
 void handleUnicodeCharacter(wchar_t c)
 {
-	gWindowImplementation->getPreeditor()->handleUnicodeCharHere(c);
+	if (gWindowImplementation->getPreeditor())
+	{
+		gWindowImplementation->getPreeditor()->handleUnicodeCharHere(c);
+	}
 }
 
 void LLWindowMacOSX::updateMouseDeltas(float* deltas)
@@ -498,6 +513,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		}
 	}
 	LL_INFOS("Window") << "Completed context creation." << LL_ENDL;
+	makeFirstResponder(mWindow, mGLView);
 	// Don't need to get the current gamma, since there's a call that restores it to the system defaults.
 	return TRUE;
 }
