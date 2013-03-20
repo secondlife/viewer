@@ -563,13 +563,19 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 	}	
 }
 	
-void LLVOCache::removeCache(ELLPath location) 
+void LLVOCache::removeCache(ELLPath location, bool started) 
 {
+	if(started)
+	{
+		removeCache();
+		return;
+	}
+
 	if(mReadOnly)
 	{
 		llwarns << "Not removing cache at " << location << ": Cache is currently in read-only mode." << llendl;
 		return ;
-	}
+	}	
 
 	llinfos << "about to remove the object cache due to settings." << llendl ;
 
@@ -592,10 +598,8 @@ void LLVOCache::removeCache()
 		return ;
 	}
 
-	llinfos << "about to remove the object cache due to some error." << llendl ;
-
 	std::string mask = "*";
-	llinfos << "Removing cache at " << mObjectCacheDirName << llendl;
+	llinfos << "Removing object cache at " << mObjectCacheDirName << llendl;
 	gDirUtilp->deleteFilesInDir(mObjectCacheDirName, mask); 
 
 	clearCacheInMemory() ;

@@ -199,7 +199,7 @@ public:
 	~LLVOCache() ;
 
 	void initCache(ELLPath location, U32 size, U32 cache_version) ;
-	void removeCache(ELLPath location) ;
+	void removeCache(ELLPath location, bool started = false) ;
 
 	void readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) ;
 	void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache, BOOL full_region_cache_probe);
