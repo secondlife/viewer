@@ -62,6 +62,7 @@
 #include "llhudmanager.h"
 #include "llhudnametag.h"
 #include "llhudtext.h"				// for mText/mDebugText
+#include "llimview.h"
 #include "llinitparam.h"
 #include "llkeyframefallmotion.h"
 #include "llkeyframestandmotion.h"
@@ -784,6 +785,13 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mLastPelvisToFoot = 0.0f;
 	mPelvisFixup = 0.0f;
 	mLastPelvisFixup = 0.0f;
+
+	mCachedVisualMute = !isSelf();
+	mCachedVisualMuteUpdateTime = LLFrameTimer::getTotalSeconds() + 5.0;
+	mVisuallyMuteSetting = VISUAL_MUTE_NOT_SET;
+
+	F32 color_value = (F32) (getID().mData[0]);
+	mMutedAVColor = calcMutedAVColor(color_value, 0, 256);
 }
 
 std::string LLVOAvatar::avString() const
@@ -3435,24 +3443,82 @@ void LLVOAvatar::slamPosition()
 	mRoot.updateWorldMatrixChildren();
 }
 
-bool LLVOAvatar::isVisuallyMuted() const
+bool LLVOAvatar::isVisuallyMuted()
 {
-	bool ret = false;
+	bool muted = false;
+
+	// Priority order (highest priority first)
+	// * own avatar is never visually muted
+	// * if on the "always draw normally" list, draw them normally
+	// * if on the "always visually mute" list, mute them
+	// * draw them normally if they meet the following criteria:
+	//       - within the closest N avatars OR on friends list OR in an IM chat
+	//       - AND aren't over the thresholds
+	// * otherwise visually mute all other avatars
 
 	if (!isSelf())
 	{
+		static LLCachedControl<bool> render_mute_enabled(gSavedSettings, "RenderAutoMuteEnabled");
 		static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit");
 		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit");
 		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderCostLimit");
-	
-		U32 max_cost = (U32) (max_render_cost*(LLVOAvatar::sLODFactor+0.5));
+		static LLCachedControl<U32> visibility_rank(gSavedSettings, "RenderAutoMuteVisibilityRank");
 
-		ret = LLMuteList::getInstance()->isMuted(getID()) ||
-			(mAttachmentSurfaceArea > max_attachment_area && max_attachment_area > 0.f) ||
-			(mVisualComplexity > max_cost && max_render_cost > 0);
+		if (mVisuallyMuteSetting == ALWAYS_VISUAL_MUTE)
+		{	// Always want to see this AV as an imposter
+			muted = true;
+		}
+		else if (mVisuallyMuteSetting == NEVER_VISUAL_MUTE)
+		{	// Never show as imposter
+			muted = false;
+		}
+		else if (render_mute_enabled)
+		{
+			F64 now = LLFrameTimer::getTotalSeconds();
+
+			if (now < mCachedVisualMuteUpdateTime)
+			{	// Use cached mute value
+				muted = mCachedVisualMute;
+			}
+			else
+			{	// Determine if visually muted or not
+
+				U32 max_cost = (U32) (max_render_cost*(LLVOAvatar::sLODFactor+0.5));
+
+				muted = LLMuteList::getInstance()->isMuted(getID()) ||
+					(mAttachmentGeometryBytes > max_attachment_bytes && max_attachment_bytes > 0) ||
+					(mAttachmentSurfaceArea > max_attachment_area && max_attachment_area > 0.f) ||
+					(mVisualComplexity > max_cost && max_render_cost > 0);
+
+				// Could be part of the grand || collection above, but yanked out to make the logic visible
+				if (!muted)
+				{
+					if (visibility_rank > 0)
+					{	// They are above the visibilty rank - mute them
+						muted = (mVisibilityRank > visibility_rank);
+					}
+			
+					if (muted ||					// Don't mute friends or IMs
+						visibility_rank == 0)
+					{
+						muted = !(LLAvatarTracker::instance().isBuddy(getID()));
+						if (muted)
+						{	// Not a friend, so they are muted ... are they in an IM?
+							LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL,getID());
+							muted = !gIMMgr->hasSession(session_id);
+						}
+					}
+				}
+
+				// Save visual mute state and set interval for updating
+				const F64 SECONDS_BETWEEN_RENDER_AUTO_MUTE_UPDATES = 1.5;
+				mCachedVisualMuteUpdateTime = now + SECONDS_BETWEEN_RENDER_AUTO_MUTE_UPDATES;		
+				mCachedVisualMute = muted;
+			} 
+		}
 	}
 
-	return ret;
+	return muted;
 }
 
 //------------------------------------------------------------------------
@@ -3509,7 +3575,8 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	// the rest should only be done occasionally for far away avatars
 	//--------------------------------------------------------------------
 
-	if (visible && (!isSelf() || isVisuallyMuted()) && !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
+	bool visually_muted = isVisuallyMuted();
+	if (visible && (!isSelf() || visually_muted) && !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
 	{
 		const LLVector4a* ext = mDrawable->getSpatialExtents();
 		LLVector4a size;
@@ -3518,8 +3585,8 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 		
 		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
-		if (isVisuallyMuted())
-		{ // muted avatars update at 16 hz
+		if (visually_muted)
+		{ // visually muted avatars update at 16 hz
 			mUpdatePeriod = 16;
 		}
 		else if (mVisibilityRank <= LLVOAvatar::sMaxVisible ||
@@ -4295,23 +4362,23 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 		BOOL first_pass = TRUE;
 		if (!LLDrawPoolAvatar::sSkipOpaque)
 		{
-			bool muted = isVisuallyMuted();
+			bool visually_muted = isVisuallyMuted();
 
 			if (!isSelf() || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
 			{
-				if (isTextureVisible(TEX_HEAD_BAKED) || mIsDummy || muted)
+				if (isTextureVisible(TEX_HEAD_BAKED) || mIsDummy || visually_muted)
 				{
 					num_indices += mMeshLOD[MESH_ID_HEAD]->render(mAdjustedPixelArea, TRUE, mIsDummy);
 					first_pass = FALSE;
 				}
 			}
-			if (isTextureVisible(TEX_UPPER_BAKED) || mIsDummy || muted)
+			if (isTextureVisible(TEX_UPPER_BAKED) || mIsDummy || visually_muted)
 			{
 				num_indices += mMeshLOD[MESH_ID_UPPER_BODY]->render(mAdjustedPixelArea, first_pass, mIsDummy);
 				first_pass = FALSE;
 			}
 			
-			if (isTextureVisible(TEX_LOWER_BAKED) || mIsDummy || muted)
+			if (isTextureVisible(TEX_LOWER_BAKED) || mIsDummy || visually_muted)
 			{
 				num_indices += mMeshLOD[MESH_ID_LOWER_BODY]->render(mAdjustedPixelArea, first_pass, mIsDummy);
 				first_pass = FALSE;
@@ -8396,7 +8463,7 @@ void LLVOAvatar::updateImpostors()
 	LLCharacter::sAllowInstancesChange = TRUE ;
 }
 
-BOOL LLVOAvatar::isImpostor() const
+BOOL LLVOAvatar::isImpostor()
 {
 	return sUseImpostors && (isVisuallyMuted() || (mUpdatePeriod >= IMPOSTOR_PERIOD)) ? TRUE : FALSE;
 }
@@ -8441,14 +8508,12 @@ void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& d
 	angle.mV[2] = da;
 }
 
+
 void LLVOAvatar::idleUpdateRenderCost()
 {
 	static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderCostLimit");
 
-	static const U32 ARC_BODY_PART_COST = 200;
 	static const U32 ARC_LIMIT = 20000;
-
-	static std::set<LLUUID> all_textures;
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_ATTACHMENT_BYTES))
 	{ //set debug text to attachment geometry bytes here so render cost will override
@@ -8459,6 +8524,69 @@ void LLVOAvatar::idleUpdateRenderCost()
 	{
 		return;
 	}
+
+	calculateUpdateRenderCost();				// Update mVisualComplexity if needed
+	
+	doRenderCostNagging(max_render_cost);		// Remind the user their AV is too complex
+
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHAME))
+	{
+		std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
+		setDebugText(llformat("%s %d", viz_string.c_str(), mVisualComplexity));
+		F32 green = 1.f-llclamp(((F32) mVisualComplexity-(F32)ARC_LIMIT)/(F32)ARC_LIMIT, 0.f, 1.f);
+		F32 red = llmin((F32) mVisualComplexity/(F32)ARC_LIMIT, 1.f);
+		mText->setColor(LLColor4(red,green,0,1));
+	}
+}
+
+
+// Remind the user about their expensive avatar
+void LLVOAvatar::doRenderCostNagging(U32 max_render_cost)
+{
+	if (isSelf())
+	{
+		static S32 sOldComplexity = 0;
+		static F64 sLastRenderCostNagTime = 0.0;
+
+		const F64 RENDER_NAG_INTERVAL = 60.0;
+
+		F64 now = LLFrameTimer::getTotalSeconds();
+		if (sLastRenderCostNagTime > 0.0 &&
+			(now - sLastRenderCostNagTime) > RENDER_NAG_INTERVAL &&
+			sOldComplexity != mVisualComplexity)
+		{
+			sOldComplexity = mVisualComplexity;
+
+			if (max_render_cost > 0)
+			{ //pop up notification that you have exceeded a render cost limit
+				if (mVisualComplexity > max_render_cost+max_render_cost/2)
+				{
+					LLNotificationsUtil::add("ExceededHighDetailRenderCost");
+					sLastRenderCostNagTime = now;
+				}
+				else if (mVisualComplexity > max_render_cost)
+				{
+					LLNotificationsUtil::add("ExceededMidDetailRenderCost");
+					sLastRenderCostNagTime = now;
+				}
+				else if (mVisualComplexity > max_render_cost/2)
+				{
+					LLNotificationsUtil::add("ExceededLowDetailRenderCost");
+					sLastRenderCostNagTime = now;
+				}
+			}
+		}
+	}
+}
+
+
+// Calculations for mVisualComplexity value
+void LLVOAvatar::calculateUpdateRenderCost()
+{
+	static const U32 ARC_BODY_PART_COST = 200;
+
+	// Diagnostic list of all textures on our avatar
+	static std::set<LLUUID> all_textures;
 
 	if (mVisualComplexityStale)
 	{
@@ -8526,8 +8654,6 @@ void LLVOAvatar::idleUpdateRenderCost()
 
 		}
 
-
-
 		// Diagnostic output to identify all avatar-related textures.
 		// Does not affect rendering cost calculation.
 		// Could be wrapped in a debug option if output becomes problematic.
@@ -8568,34 +8694,37 @@ void LLVOAvatar::idleUpdateRenderCost()
 			}
 		}
 
-		if (isSelf() && max_render_cost > 0 && mVisualComplexity != cost)
-		{ //pop up notification that you have exceeded a render cost limit
-			if (cost > max_render_cost+max_render_cost/2)
-			{
-				LLNotificationsUtil::add("ExceededHighDetailRenderCost");
-			}
-			else if (cost > max_render_cost)
-			{
-				LLNotificationsUtil::add("ExceededMidDetailRenderCost");
-			}
-			else if (cost > max_render_cost/2)
-			{
-				LLNotificationsUtil::add("ExceededLowDetailRenderCost");
-			}
-		}
-
 		mVisualComplexity = cost;
 	}
+}
 
-	
-	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHAME))
-	{
-		std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
-		setDebugText(llformat("%s %d", viz_string.c_str(), mVisualComplexity));
-		F32 green = 1.f-llclamp(((F32) mVisualComplexity-(F32)ARC_LIMIT)/(F32)ARC_LIMIT, 0.f, 1.f);
-		F32 red = llmin((F32) mVisualComplexity/(F32)ARC_LIMIT, 1.f);
-		mText->setColor(LLColor4(red,green,0,1));
-	}
+
+// static
+LLColor4 LLVOAvatar::calcMutedAVColor(F32 value, S32 range_low, S32 range_high)
+{
+	F32 clamped_value = llmin(value, (F32) range_high);
+	clamped_value = llmax(value, (F32) range_low);
+	F32 spectrum = (clamped_value / range_high);		// spectrum is between 0 and 1.f
+
+	// Array of colors.  These are arranged so only one RGB color changes between each step, 
+	// and it loops back to red so there is an even distribution.  It is not a heat map
+	const S32 NUM_SPECTRUM_COLORS = 7;              
+	static LLColor4 * spectrum_color[NUM_SPECTRUM_COLORS] = { &LLColor4::red, &LLColor4::magenta, &LLColor4::blue, &LLColor4::cyan, &LLColor4::green, &LLColor4::yellow, &LLColor4::red };
+ 
+	spectrum = spectrum * (NUM_SPECTRUM_COLORS - 1);		// Scale to range of number of colors
+	S32 spectrum_index_1  = floor(spectrum);				// Desired color will be after this index
+	S32 spectrum_index_2  = spectrum_index_1 + 1;			//    and before this index (inclusive)
+	F32 fractBetween = spectrum - (F32)(spectrum_index_1);  // distance between the two indexes (0-1)
+ 
+	LLColor4 new_color = lerp(*spectrum_color[spectrum_index_1], *spectrum_color[spectrum_index_2], fractBetween);
+	//new_color.normalize();
+
+	//llinfos << "From value " << std::setprecision(3) << value << " returning color " << new_color 
+	//	<< " using indexes " << spectrum_index_1 << ", " << spectrum_index_2
+	//	<< " and fractBetween " << fractBetween
+	//	<< llendl;
+
+	return new_color;
 }
 
 // static

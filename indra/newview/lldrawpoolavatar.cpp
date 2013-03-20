@@ -1163,87 +1163,84 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	}
 	else if (pass >= 3 && pass <= 9)
 	{ //render rigged attachments
-		if (!avatarp->isVisuallyMuted())
+		if (!avatarp->isVisuallyMuted())		// These details are skipped for visually muted (plain imposter) avatars
 		{
-	if (pass == 3)
-	{
-		if (is_deferred_render)
-		{
-			renderDeferredRiggedSimple(avatarp);
-		}
-		else
-		{
-			renderRiggedSimple(avatarp);
-		}
-	}
+			if (pass == 3)				// To do - use switch statement
+			{
+				if (is_deferred_render)
+				{
+					renderDeferredRiggedSimple(avatarp);
+				}
+				else
+				{
+					renderRiggedSimple(avatarp);
+				}
+			}
 			else if (pass == 4)
-	{
-		if (is_deferred_render)
-		{
-			renderDeferredRiggedBump(avatarp);
-		}
-		else
-		{
-			renderRiggedFullbright(avatarp);
-		}
-	}
+			{
+				if (is_deferred_render)
+				{
+					renderDeferredRiggedBump(avatarp);
+				}
+				else
+				{
+					renderRiggedFullbright(avatarp);
+				}
+			}
 			else if (pass == 5)
-	{
-		renderRiggedShinySimple(avatarp);
-	}
+			{
+				renderRiggedShinySimple(avatarp);
+			}
 			else if (pass == 6)
-	{
-		renderRiggedFullbrightShiny(avatarp);
-	}
-			else if (pass >= 7 && pass < 9)
-	{
-		if (pass == 7)
-		{
-			renderRiggedAlpha(avatarp);
-		}
-				else if (pass == 8)
-		{
-			renderRiggedFullbrightAlpha(avatarp);
-		}
-	}
+			{
+				renderRiggedFullbrightShiny(avatarp);
+			}
+			else if (pass == 7)
+			{
+				renderRiggedAlpha(avatarp);
+			}
+			else if (pass == 8)
+			{
+				renderRiggedFullbrightAlpha(avatarp);
+			}
 			else if (pass == 9)
-	{
-		renderRiggedGlow(avatarp);
-	}
+			{
+				renderRiggedGlow(avatarp);
+			}
 		}
 	}
 	else
 	{
-	if ((sShaderLevel >= SHADER_LEVEL_CLOTH))
-	{
-		LLMatrix4 rot_mat;
-		LLViewerCamera::getInstance()->getMatrixToLocal(rot_mat);
-		LLMatrix4 cfr(OGL_TO_CFR_ROTATION);
-		rot_mat *= cfr;
+		if ((sShaderLevel >= SHADER_LEVEL_CLOTH))
+		{
+			LLMatrix4 rot_mat;
+			LLViewerCamera::getInstance()->getMatrixToLocal(rot_mat);
+			LLMatrix4 cfr(OGL_TO_CFR_ROTATION);
+			rot_mat *= cfr;
 		
-		LLVector4 wind;
-		wind.setVec(avatarp->mWindVec);
-		wind.mV[VW] = 0;
-		wind = wind * rot_mat;
-		wind.mV[VW] = avatarp->mWindVec.mV[VW];
+			LLVector4 wind;
+			wind.setVec(avatarp->mWindVec);
+			wind.mV[VW] = 0;
+			wind = wind * rot_mat;
+			wind.mV[VW] = avatarp->mWindVec.mV[VW];
 
-		sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_WIND, 1, wind.mV);
-		F32 phase = -1.f * (avatarp->mRipplePhase);
+			sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_WIND, 1, wind.mV);
+			F32 phase = -1.f * (avatarp->mRipplePhase);
 
-		F32 freq = 7.f + (noise1(avatarp->mRipplePhase) * 2.f);
-		LLVector4 sin_params(freq, freq, freq, phase);
-		sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_SINWAVE, 1, sin_params.mV);
+			F32 freq = 7.f + (noise1(avatarp->mRipplePhase) * 2.f);
+			LLVector4 sin_params(freq, freq, freq, phase);
+			sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_SINWAVE, 1, sin_params.mV);
 
-		LLVector4 gravity(0.f, 0.f, -CLOTHING_GRAVITY_EFFECT, 0.f);
-		gravity = gravity * rot_mat;
-		sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_GRAVITY, 1, gravity.mV);
+			LLVector4 gravity(0.f, 0.f, -CLOTHING_GRAVITY_EFFECT, 0.f);
+			gravity = gravity * rot_mat;
+			sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_GRAVITY, 1, gravity.mV);
+		}
+
+		if( !single_avatar || (avatarp == single_avatar) )
+		{
+			avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
+		}
 	}
-
-	if( !single_avatar || (avatarp == single_avatar) )
-	{
-		avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
-	}
-}
 }
 
 void LLDrawPoolAvatar::getRiggedGeometry(LLFace* face, LLPointer<LLVertexBuffer>& buffer, U32 data_mask, const LLMeshSkinInfo* skin, LLVolume* volume, const LLVolumeFace& vol_face)

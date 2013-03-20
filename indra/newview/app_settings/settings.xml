@@ -9370,7 +9370,7 @@
   <key>RenderAutoMuteRenderCostLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum render cost before an avatar is automatically visually muted (0 for no limit).</string>
+    <string>Maximum render weight before an avatar is automatically visually muted (0 to not use this limit).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9381,11 +9381,33 @@
   <key>RenderAutoMuteSurfaceAreaLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum surface area of attachments before an avatar is automatically visually muted (0 for no limit).</string>
+    <string>Maximum surface area of attachments before an avatar is automatically visually muted (0 to not use this limit).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>RenderAutoMuteEnabled</key>
+  <map>
+    <key>Comment</key>
+    <string>Apply visual muting to high cost, non-friends, not in IM, or somewhat distant avatars</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>RenderAutoMuteVisibilityRank</key>
+  <map>
+    <key>Comment</key>
+    <string>Number of avatars to show normally for visual muting mode.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
     <key>Value</key>
     <integer>0</integer>
   </map>

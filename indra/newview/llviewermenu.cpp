@@ -2934,6 +2934,63 @@ bool enable_object_unmute()
 	}
 }
 
+
+// 0 = normal, 1 = always, 2 = never
+class LLAvatarCheckImposterMode : public view_listener_t
+{	
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		if (!object) return false;
+
+		LLVOAvatar* avatar = find_avatar_from_object(object); 
+		if (!avatar) return false;
+		
+		U32 mode = userdata.asInteger();
+		switch (mode) 
+		{
+			case 0:
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::VISUAL_MUTE_NOT_SET);
+			case 1:
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::ALWAYS_VISUAL_MUTE);
+			case 2:
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::NEVER_VISUAL_MUTE);
+			default:
+				return false;
+		}
+	}	// handleEvent()
+};
+
+// 0 = normal, 1 = always, 2 = never
+class LLAvatarSetImposterMode : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		if (!object) return false;
+
+		LLVOAvatar* avatar = find_avatar_from_object(object); 
+		if (!avatar) return false;
+		
+		U32 mode = userdata.asInteger();
+		switch (mode) 
+		{
+			case 0:
+				avatar->setVisualMuteSettings(LLVOAvatar::VISUAL_MUTE_NOT_SET);
+				return true;
+			case 1:
+				avatar->setVisualMuteSettings(LLVOAvatar::VISUAL_MUTE_NOT_SET);
+				return true;
+			case 2:
+				avatar->setVisualMuteSettings(LLVOAvatar::NEVER_VISUAL_MUTE);
+				return true;
+			default:
+				return false;
+		}
+	}	// handleEvent()
+};
+
+
 class LLObjectMute : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -8644,6 +8701,8 @@ void initialize_menus()
 	view_listener_t::addMenu( new LLCheckPanelPeopleTab(), "SideTray.CheckPanelPeopleTab");
 
 	 // Avatar pie menu
+	view_listener_t::addMenu(new LLAvatarCheckImposterMode(), "Avatar.CheckImposterMode");
+	view_listener_t::addMenu(new LLAvatarSetImposterMode(), "Avatar.SetImposterMode");
 	view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");
 	view_listener_t::addMenu(new LLAvatarAddFriend(), "Avatar.AddFriend");
 	view_listener_t::addMenu(new LLAvatarAddContact(), "Avatar.AddContact");

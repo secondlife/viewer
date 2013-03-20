@@ -2862,7 +2862,7 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 					llassert(vobj); // trying to catch a bad assumption
 					if (vobj) // this test may not be needed, see above
 					{
-						const LLVOAvatar* av = vobj->asAvatar();
+						LLVOAvatar* av = vobj->asAvatar();
 						if (av && av->isImpostor())
 						{
 							return;
@@ -10103,11 +10103,11 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	assertInitialized();
 
-	bool muted = avatar->isVisuallyMuted();		
+	bool visually_muted = avatar->isVisuallyMuted();		
 
 	pushRenderTypeMask();
 	
-	if (muted)
+	if (visually_muted)
 	{
 		andRenderTypeMask(LLPipeline::RENDER_TYPE_AVATAR, END_RENDER_TYPES);
 	}
@@ -10251,7 +10251,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	F32 old_alpha = LLDrawPoolAvatar::sMinimumAlpha;
 
-	if (muted)
+	if (visually_muted)
 	{ //disable alpha masking for muted avatars (get whole skin silhouette)
 		LLDrawPoolAvatar::sMinimumAlpha = 0.f;
 	}
@@ -10282,7 +10282,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 		LLGLDisable blend(GL_BLEND);
 
-		if (muted)
+		if (visually_muted)
 		{
 			gGL.setColorMask(true, true);
 
@@ -10317,8 +10317,8 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 			gGL.diffuseColor4ub(64,64,64,255);
 		}
 		else
-		{ //blue visually muted avatar
-			gGL.diffuseColor4ub(72,61,139,255);
+		{	// Visually muted avatar
+			gGL.diffuseColor4fv( avatar->getMutedAVColor().mV );
 		}
 
 		{

@@ -543,6 +543,15 @@
             <menu_item_check.on_check
                control="NavBarShowParcelProperties" />
           </menu_item_check>
+          <menu_item_check
+             label="Simple Imposters"
+             name="RenderAutoMuteEnabled">
+            <menu_item_check.on_check
+               control="RenderAutoMuteEnabled" />
+            <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="RenderAutoMuteEnabled" />
+          </menu_item_check>
           <menu_item_separator />
           <menu_item_check
              label="Advanced Menu"
