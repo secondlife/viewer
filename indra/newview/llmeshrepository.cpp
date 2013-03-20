@@ -2177,7 +2177,7 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 		// and (somewhat more optional than the others) retries
 		// again after some set period of time
 
-		llassert(status == HTTP_SERVICE_UNAVAILABLE || status == HTTP_REQUEST_TIME_OUT || status == HTTP_INTERNAL_ERROR);
+		llassert(status == HTTP_NOT_FOUND || status == HTTP_SERVICE_UNAVAILABLE || status == HTTP_REQUEST_TIME_OUT || status == HTTP_INTERNAL_ERROR);
 
 		if (status == HTTP_SERVICE_UNAVAILABLE || status == HTTP_REQUEST_TIME_OUT || status == HTTP_INTERNAL_ERROR)
 		{ //retry
