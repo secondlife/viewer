@@ -2533,43 +2533,43 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		return;
 	}
 
-		BOOL new_name = FALSE;
-		if (visible_chat != mVisibleChat)
-		{
-			mVisibleChat = visible_chat;
-			new_name = TRUE;
-		}
-		
-		if (sRenderGroupTitles != mRenderGroupTitles)
-		{
-			mRenderGroupTitles = sRenderGroupTitles;
-			new_name = TRUE;
-		}
+	BOOL new_name = FALSE;
+	if (visible_chat != mVisibleChat)
+	{
+		mVisibleChat = visible_chat;
+		new_name = TRUE;
+	}
 
-		// First Calculate Alpha
-		// If alpha > 0, create mNameText if necessary, otherwise delete it
-			F32 alpha = 0.f;
-			if (mAppAngle > 5.f)
-			{
-				const F32 START_FADE_TIME = NAME_SHOW_TIME - FADE_DURATION;
-				if (!visible_chat && sRenderName == RENDER_NAME_FADE && time_visible > START_FADE_TIME)
-				{
-					alpha = 1.f - (time_visible - START_FADE_TIME) / FADE_DURATION;
-				}
-				else
-				{
-					// ...not fading, full alpha
-					alpha = 1.f;
-				}
-			}
-			else if (mAppAngle > 2.f)
-			{
-				// far away is faded out also
-				alpha = (mAppAngle-2.f)/3.f;
-			}
+	if (sRenderGroupTitles != mRenderGroupTitles)
+	{
+		mRenderGroupTitles = sRenderGroupTitles;
+		new_name = TRUE;
+	}
+
+	// First Calculate Alpha
+	// If alpha > 0, create mNameText if necessary, otherwise delete it
+	F32 alpha = 0.f;
+	if (mAppAngle > 5.f)
+	{
+		const F32 START_FADE_TIME = NAME_SHOW_TIME - FADE_DURATION;
+		if (!visible_chat && sRenderName == RENDER_NAME_FADE && time_visible > START_FADE_TIME)
+		{
+			alpha = 1.f - (time_visible - START_FADE_TIME) / FADE_DURATION;
+		}
+		else
+		{
+			// ...not fading, full alpha
+			alpha = 1.f;
+		}
+	}
+	else if (mAppAngle > 2.f)
+	{
+		// far away is faded out also
+		alpha = (mAppAngle-2.f)/3.f;
+	}
 
 	if (alpha <= 0.f)
-			{
+	{
 		if (mNameText)
 		{
 			mNameText->markDead();
@@ -2579,19 +2579,19 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		return;
 	}
 
-				if (!mNameText)
-				{
+	if (!mNameText)
+	{
 		mNameText = static_cast<LLHUDNameTag*>( LLHUDObject::addHUDObject(
 			LLHUDObject::LL_HUD_NAME_TAG) );
 		//mNameText->setMass(10.f);
-					mNameText->setSourceObject(this);
+		mNameText->setSourceObject(this);
 		mNameText->setVertAlignment(LLHUDNameTag::ALIGN_VERT_TOP);
-					mNameText->setVisibleOffScreen(TRUE);
-					mNameText->setMaxLines(11);
-					mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
-					sNumVisibleChatBubbles++;
-					new_name = TRUE;
-				}
+		mNameText->setVisibleOffScreen(TRUE);
+		mNameText->setMaxLines(11);
+		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
+		sNumVisibleChatBubbles++;
+		new_name = TRUE;
+    }
 				
 	idleUpdateNameTagPosition(root_pos_last);
 	idleUpdateNameTagText(new_name);			
@@ -2636,6 +2636,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 	// Rebuild name tag if state change detected
 	if (mNameString.empty()
+		|| (mNameString.size() == 2 && mNameString[0] == 10 && mNameString[1] == 10) // *TODO : find out why mNameString is sometimes ""
 		|| new_name
 		|| (!title && !mTitle.empty())
 		|| (title && mTitle != title->getString())
@@ -2840,6 +2841,7 @@ void LLVOAvatar::clearNameTag()
 		mNameText->setLabel("");
 		mNameText->setString( "" );
 	}
+	mTimeVisible.reset();
 }
 
 //static

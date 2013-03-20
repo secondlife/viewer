@@ -598,6 +598,11 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 		if(!fgi)
 		{
 			fgi = mFontFreetype->getGlyphInfo(wch);
+
+			if (NULL == fgi)
+			{
+				return 0;
+			}
 		}
 
 		// account for glyphs that run beyond the starting point for the next glyphs

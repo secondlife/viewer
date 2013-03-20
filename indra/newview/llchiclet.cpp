@@ -427,14 +427,15 @@ LLChicletPanel::~LLChicletPanel()
 
 void LLChicletPanel::onMessageCountChanged(const LLSD& data)
 {
-	//LLUUID session_id = data["session_id"].asUUID();
-	//S32 unread = data["participant_unread"].asInteger();
+    // *TODO : we either suppress this method or return a value. Right now, it servers no purpose.
+    /*
 
 	//LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(session_id);
 	//if (im_floater && im_floater->getVisible() && im_floater->hasFocus())
 	//{
 	//	unread = 0;
 	//}
+    */
 }
 
 void LLChicletPanel::objectChicletCallback(const LLSD& data)

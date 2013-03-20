@@ -49,7 +49,9 @@ public:
 				const std::string& from,
 				const LLUUID& from_id,
 				const std::string& line);
+	static void findTranscriptFiles(std::string pattern, std::vector<std::string>& list_of_transcriptions);
 	static void getListOfTranscriptFiles(std::vector<std::string>& list);
+	static void getListOfTranscriptBackupFiles(std::vector<std::string>& list_of_transcriptions);
 
 	static void loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params = LLSD());
 
