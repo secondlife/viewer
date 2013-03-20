@@ -802,18 +802,12 @@ void LLFloaterIMSessionTab::onCollapseToLine(LLFloaterIMSessionTab* self)
 	LLFloaterIMContainer* host_floater = dynamic_cast<LLFloaterIMContainer*>(self->getHost());
 	if (!host_floater)
 	{
-		if(self->mParticipantListPanel->getVisible())
-		{
-			onSlide(self);
-		}
-
 		bool expand = self->isMessagePaneExpanded();
 		self->mExpandCollapseLineBtn->setImageOverlay(self->getString(expand ? "collapseline_icon" : "expandline_icon"));
 		self->mContentPanel->setVisible(!expand);
 		self->mToolbarPanel->setVisible(!expand);
 		self->reshapeFloater(expand);
 		self->setMessagePaneExpanded(!expand);
-
 	}
 }
 
