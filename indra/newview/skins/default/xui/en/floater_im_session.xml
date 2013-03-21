@@ -266,6 +266,7 @@
           left="0">
             <layout_panel
              auto_resize="false"
+             user_resize="false"
              height="26"
              layout="topleft"
              left_delta="0"
@@ -285,7 +286,6 @@
                  width="230" />
             </layout_panel>
             <layout_panel
-             height="233"
              width="210"
              layout="topleft"
              follows="all"
@@ -293,19 +293,21 @@
              top_delta="0"
              bottom="0"
              visible="true"
-             user_resize="true"
+             user_resize="false"
              auto_resize="true"
              name="chat_holder">      
                <chat_history
                 font="SansSerifSmall"
                 follows="all"
                 visible="true"
-                height="225"
                 name="chat_history"
                 parse_highlights="true"
                 parse_urls="true"
+                layout="topleft"
                 right="-5"
-                left="5">
+                left="5"
+                top="0"
+                bottom="1">
                </chat_history>
             </layout_panel>
            </layout_stack>
@@ -348,7 +350,6 @@
              auto_resize="true"
              name="input_editor_layout_panel">
               <chat_editor
-             top="6"
              expand_lines_count="5"
              follows="left|right|bottom"
                font="SansSerifSmall"
@@ -363,6 +364,7 @@
              spellcheck="true"
              tab_group="3"
              width="160"
+             top="6"
              left="5"
              right="-5"
              wrap="true">
