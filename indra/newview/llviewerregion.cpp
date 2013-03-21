@@ -1898,7 +1898,11 @@ LLVOCacheEntry* LLViewerRegion::getCacheEntry(U32 local_id)
 
 void LLViewerRegion::addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type)
 {
+#if 0
 	mCacheMissList.insert(CacheMissItem(id, miss_type));
+#else
+	mCacheMissList.push_back(CacheMissItem(id, miss_type));
+#endif
 }
 
 // Get data packer for this object, if we have cached data

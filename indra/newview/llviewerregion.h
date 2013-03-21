@@ -470,6 +470,7 @@ private:
 		U32                            mID;     //local object id
 		LLViewerRegion::eCacheMissType mType;   //cache miss type
 	
+#if 0
 		struct Compare
 		{
 			bool operator()(const CacheMissItem& lhs, const CacheMissItem& rhs)
@@ -479,6 +480,9 @@ private:
 		};
 
 		typedef std::set<CacheMissItem, Compare> cache_miss_list_t;
+#else
+		typedef std::list<CacheMissItem> cache_miss_list_t;
+#endif
 	};
 	CacheMissItem::cache_miss_list_t        mCacheMissList;
 	
