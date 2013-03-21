@@ -30,6 +30,7 @@
 #include "llfloaterimsessiontab.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llavataractions.h"
 #include "llchatentry.h"
 #include "llchathistory.h"
@@ -125,8 +126,12 @@ void LLFloaterIMSessionTab::setVisible(BOOL visible)
 	if(visible && !mHasVisibleBeenInitialized)
 	{
 		mHasVisibleBeenInitialized = true;
-		LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container")->setVisible(true);
+		if(!gAgentCamera.cameraMouselook())
+		{
+			LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container")->setVisible(true);
+		}
 		LLFloaterIMSessionTab::addToHost(mSessionID);
+		mInputButtonPanel->setVisible(isTornOff());
 	}
 
 	LLTransientDockableFloater::setVisible(visible);
