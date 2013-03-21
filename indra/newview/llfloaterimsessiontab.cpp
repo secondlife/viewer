@@ -58,11 +58,12 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
   , mSpeakingIndicator(NULL)
   , mChatHistory(NULL)
   , mInputEditor(NULL)
-  , mInputEditorTopPad(0)
+  , mInputEditorPad(0)
   , mRefreshTimer(new LLTimer())
   , mIsHostAttached(false)
   , mHasVisibleBeenInitialized(false)
   , mIsParticipantListExpanded(true)
+  , mChatLayoutPanel(NULL)
 {
     setAutoFocus(FALSE);
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
@@ -237,12 +238,15 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mChatHistory = getChild<LLChatHistory>("chat_history");
 
 	mInputEditor = getChild<LLChatEntry>("chat_editor");
-	mInputEditor->setTextExpandedCallback(boost::bind(&LLFloaterIMSessionTab::reshapeChatHistory, this));
+
+	mChatLayoutPanel = getChild<LLLayoutPanel>("chat_layout_panel");
+	
+	mInputEditor->setTextExpandedCallback(boost::bind(&LLFloaterIMSessionTab::reshapeChatLayoutPanel, this));
 	mInputEditor->setCommitOnFocusLost( FALSE );
 	mInputEditor->setPassDelete(TRUE);
 	mInputEditor->setFont(LLViewerChat::getChatFont());
 
-	mInputEditorTopPad = mChatHistory->getRect().mBottom - mInputEditor->getRect().mTop;
+	mInputEditorPad = mChatLayoutPanel->getRect().getHeight() - mInputEditor->getRect().getHeight();
 
 	setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
 
@@ -708,15 +712,11 @@ void LLFloaterIMSessionTab::forceReshape()
 }
 
 
-void LLFloaterIMSessionTab::reshapeChatHistory()
+void LLFloaterIMSessionTab::reshapeChatLayoutPanel()
 {
-	LLRect chat_rect  = mChatHistory->getRect();
+	LLRect chat_layout_panel_rect = mChatLayoutPanel->getRect();
 	LLRect input_rect = mInputEditor->getRect();
-
-	int delta_height = chat_rect.mBottom - (input_rect.mTop + mInputEditorTopPad);
-
-	chat_rect.setLeftTopAndSize(chat_rect.mLeft, chat_rect.mTop, chat_rect.getWidth(), chat_rect.getHeight() + delta_height);
-	mChatHistory->setShape(chat_rect);
+	mChatLayoutPanel->reshape(chat_layout_panel_rect.getWidth(), input_rect.getHeight() + mInputEditorPad, FALSE);
 }
 
 void LLFloaterIMSessionTab::showTranslationCheckbox(BOOL show)

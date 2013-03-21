@@ -168,7 +168,8 @@ protected:
     LLOutputMonitorCtrl* mSpeakingIndicator;
 	LLChatHistory* mChatHistory;
 	LLChatEntry* mInputEditor;
-	int mInputEditorTopPad; // padding between input field and chat history
+	LLLayoutPanel * mChatLayoutPanel;
+	int mInputEditorPad; // padding between input field and chat history
 
 	LLButton* mExpandCollapseLineBtn;
 	LLButton* mExpandCollapseBtn;
@@ -195,7 +196,7 @@ private:
 	 * and avoid overlapping, since input chat field can be vertically expanded.
 	 * Implementation: chat history bottom "follows" top+top_pad of input chat field
 	 */
-	void reshapeChatHistory();
+	void reshapeChatLayoutPanel();
 
 	bool checkIfTornOff();
     bool mIsHostAttached;
