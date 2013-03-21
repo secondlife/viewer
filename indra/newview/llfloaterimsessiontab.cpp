@@ -170,7 +170,7 @@ void LLFloaterIMSessionTab::addToHost(const LLUUID& session_id)
 			conversp->setHostAttached(true);
 
 			if (!conversp->isNearbyChat()
-					|| gSavedSettings.getBOOL("NearbyChatIsNotTornOff"))
+					|| gSavedPerAccountSettings.getBOOL("NearbyChatIsNotTornOff"))
 			{
 				floater_container->addFloater(conversp, false, LLTabContainer::RIGHT_OF_CURRENT);
 			}
@@ -194,11 +194,17 @@ BOOL LLFloaterIMSessionTab::postBuild()
 {
 	BOOL result;
 
+	mBodyStack = getChild<LLLayoutStack>("main_stack");
+
+
 	mCloseBtn = getChild<LLButton>("close_btn");
 	mCloseBtn->setCommitCallback(boost::bind(&LLFloater::onClickClose, this));
 
 	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMSessionTab::onSlide, this));
+
+	mExpandCollapseLineBtn = getChild<LLButton>("minz_btn");
+	mExpandCollapseLineBtn->setClickedCallback(boost::bind(&LLFloaterIMSessionTab::onCollapseToLine, this));
 
 	mTearOffBtn = getChild<LLButton>("tear_off_btn");
 	mTearOffBtn->setCommitCallback(boost::bind(&LLFloaterIMSessionTab::onTearOffClicked, this));
@@ -206,7 +212,10 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mGearBtn = getChild<LLButton>("gear_btn");
 
 	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
-	
+	mToolbarPanel = getChild<LLLayoutPanel>("toolbar_panel");
+	mContentPanel = getChild<LLLayoutPanel>("body_panel");
+	mInputButtonPanel = getChild<LLLayoutPanel>("input_button_layout_panel");
+	mInputButtonPanel->setVisible(false);
 	// Add a scroller for the folder (participant) view
 	LLRect scroller_view_rect = mParticipantListPanel->getRect();
 	scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
@@ -233,7 +242,7 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
 
 	mSaveRect = isNearbyChat()
-					&&  !gSavedSettings.getBOOL("NearbyChatIsNotTornOff");
+					&&  !gSavedPerAccountSettings.getBOOL("NearbyChatIsNotTornOff");
 	initRectControl();
 
 	if (isChatMultiTab())
@@ -263,6 +272,8 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mConversationsRoot->setScrollContainer(mScroller);
 	mConversationsRoot->setFollowsAll();
 	mConversationsRoot->addChild(mConversationsRoot->mStatusTextBox);
+
+	setMessagePaneExpanded(true);
 
 	buildConversationViewParticipant();
 	refreshConversation();
@@ -651,6 +662,7 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 
 	mParticipantListPanel->setVisible(is_participant_list_visible);
 
+
 	// Display collapse image (<<) if the floater is hosted
 	// or if it is torn off but has an open control panel.
 	bool is_expanded = is_not_torn_off || is_participant_list_visible;
@@ -673,6 +685,7 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 
 	mTearOffBtn->setImageOverlay(getString(is_not_torn_off? "tear_off_icon" : "return_icon"));
 	mTearOffBtn->setToolTip(getString(is_not_torn_off? "tooltip_to_separate_window" : "tooltip_to_main_window"));
+
 
 	mCloseBtn->setVisible(is_not_torn_off && !mIsNearbyChat);
 
@@ -784,6 +797,63 @@ void LLFloaterIMSessionTab::onSlide(LLFloaterIMSessionTab* self)
 	}
 }
 
+void LLFloaterIMSessionTab::onCollapseToLine(LLFloaterIMSessionTab* self)
+{
+	LLFloaterIMContainer* host_floater = dynamic_cast<LLFloaterIMContainer*>(self->getHost());
+	if (!host_floater)
+	{
+		bool expand = self->isMessagePaneExpanded();
+		self->mExpandCollapseLineBtn->setImageOverlay(self->getString(expand ? "collapseline_icon" : "expandline_icon"));
+		self->mContentPanel->setVisible(!expand);
+		self->mToolbarPanel->setVisible(!expand);
+		self->reshapeFloater(expand);
+		self->setMessagePaneExpanded(!expand);
+	}
+}
+
+void LLFloaterIMSessionTab::reshapeFloater(bool collapse)
+{
+	LLRect floater_rect = getRect();
+
+	if(collapse)
+	{
+		mFloaterHeight = floater_rect.getHeight();
+		S32 height = mContentPanel->getRect().getHeight() + mToolbarPanel->getRect().getHeight();
+		floater_rect.mTop -= height;
+		enableResizeCtrls(true, true, false);
+	}
+	else
+	{
+		floater_rect.mTop = floater_rect.mBottom + mFloaterHeight;
+		enableResizeCtrls(true, true, true);
+
+	}
+
+	setShape(floater_rect, true);
+	mBodyStack->updateLayout();
+
+}
+
+void LLFloaterIMSessionTab::restoreFloater()
+{
+	if(!isMessagePaneExpanded())
+	{
+		if(isMinimized())
+		{
+			setMinimized(false);
+		}
+		mContentPanel->setVisible(true);
+		mToolbarPanel->setVisible(true);
+		LLRect floater_rect = getRect();
+		floater_rect.mTop = floater_rect.mBottom + mFloaterHeight;
+		setShape(floater_rect, true);
+		mBodyStack->updateLayout();
+		mExpandCollapseLineBtn->setImageOverlay(getString("expandline_icon"));
+		setMessagePaneExpanded(true);
+		enableResizeCtrls(true, true, true);
+	}
+}
+
 /*virtual*/
 void LLFloaterIMSessionTab::onOpen(const LLSD& key)
 {
@@ -793,12 +863,15 @@ void LLFloaterIMSessionTab::onOpen(const LLSD& key)
 		// Show the messages pane when opening a floater hosted in the Conversations
 		host_floater->collapseMessagesPane(false);
 	}
+
+	mInputButtonPanel->setVisible(isTornOff());
 }
 
 
 void LLFloaterIMSessionTab::onTearOffClicked()
 {
-    setFollows(isTornOff()? FOLLOWS_ALL : FOLLOWS_NONE);
+	restoreFloater();
+	setFollows(isTornOff()? FOLLOWS_ALL : FOLLOWS_NONE);
     mSaveRect = isTornOff();
     initRectControl();
 	LLFloater::onClickTearOff(this);
@@ -813,7 +886,10 @@ void LLFloaterIMSessionTab::onTearOffClicked()
 	else
 	{
 		container->selectConversation(mSessionID);
+
 	}
+	mInputButtonPanel->setVisible(isTornOff());
+
 	refreshConversation();
 	updateGearBtn();
 }

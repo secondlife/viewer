@@ -98,6 +98,9 @@ public:
 	LLConversationItem* getCurSelectedViewModelItem();
 	void forceReshape();
 	virtual BOOL handleKeyHere( KEY key, MASK mask );
+	bool isMessagePaneExpanded(){return mMessagePaneExpanded;}
+	void setMessagePaneExpanded(bool expanded){mMessagePaneExpanded = expanded;}
+	void restoreFloater();
 
 protected:
 
@@ -111,6 +114,8 @@ protected:
 	bool onIMShowModesMenuItemCheck(const LLSD& userdata);
 	bool onIMShowModesMenuItemEnable(const LLSD& userdata);
 	static void onSlide(LLFloaterIMSessionTab *self);
+	static void onCollapseToLine(LLFloaterIMSessionTab *self);
+	void reshapeFloater(bool collapse);
 
 	// refresh a visual state of the Call button
 	void updateCallBtnState(bool callIsActive);
@@ -138,7 +143,10 @@ protected:
 
 	bool mIsNearbyChat;
 	bool mIsP2PChat;
+
+	bool mMessagePaneExpanded;
 	bool mIsParticipantListExpanded;
+
 
 	LLIMModel::LLIMSession* mSession;
 
@@ -146,7 +154,11 @@ protected:
 	LLConversationViewParticipant* createConversationViewParticipant(LLConversationItem* item);
 	
 	LLUUID mSessionID; 
+	LLLayoutStack* mBodyStack;
 	LLLayoutPanel* mParticipantListPanel;	// add the widgets to that see mConversationsListPanel
+	LLLayoutPanel* mContentPanel;
+	LLLayoutPanel* mToolbarPanel;
+	LLLayoutPanel* mInputButtonPanel;
 	LLParticipantList* getParticipantList();
 	conversations_widgets_map mConversationsWidgets;
 	LLConversationViewModel mConversationViewModel;
@@ -158,10 +170,13 @@ protected:
 	LLChatEntry* mInputEditor;
 	int mInputEditorTopPad; // padding between input field and chat history
 
+	LLButton* mExpandCollapseLineBtn;
 	LLButton* mExpandCollapseBtn;
 	LLButton* mTearOffBtn;
 	LLButton* mCloseBtn;
 	LLButton* mGearBtn;
+
+	S32 mFloaterHeight;
 
 
 private:
