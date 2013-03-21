@@ -44,7 +44,7 @@
 // End Stubbing
 // -------------------------------------------------------------------------------------------
 // Stub the LL Image Classes
-LLTrace::MemStat	LLImageBase::sMemStat("LLImage");
+LLTrace::MemStatHandle	LLImageBase::sMemStat("LLImage");
 
 LLImageRaw::LLImageRaw() { }
 LLImageRaw::~LLImageRaw() { }

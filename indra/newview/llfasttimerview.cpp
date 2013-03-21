@@ -263,7 +263,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 	{
 		F32 lerp = llclamp(1.f - (F32) (x - mGraphRect.mLeft) / (F32) mGraphRect.getWidth(), 0.f, 1.f);
 		mScrollIndex = llround( lerp * (F32)(mRecording->getNumPeriods() - MAX_VISIBLE_HISTORY));
-		mScrollIndex = llclamp(	mScrollIndex, 0, mRecording->getNumPeriods());
+		mScrollIndex = llclamp(	mScrollIndex, 0, (S32)mRecording->getNumPeriods());
 		return TRUE;
 	}
 	mHoverTimer = NULL;
@@ -272,7 +272,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 	if(mPauseHistory && mBarRect.pointInRect(x, y))
 	{
 		mHoverBarIndex = llmin((mBarRect.mTop - y) / (mBarRect.getHeight() / (MAX_VISIBLE_HISTORY + 2)) - 1,
-								mRecording->getNumPeriods() - 1,
+								(S32)mRecording->getNumPeriods() - 1,
 								MAX_VISIBLE_HISTORY);
 		if (mHoverBarIndex == 0)
 		{
@@ -381,7 +381,7 @@ BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	setPauseState(true);
 	mScrollIndex = llclamp(	mScrollIndex + clicks,
 							0,
-							llmin(mRecording->getNumPeriods(), (S32)mRecording->getNumPeriods() - MAX_VISIBLE_HISTORY));
+							llmin((S32)mRecording->getNumPeriods(), (S32)mRecording->getNumPeriods() - MAX_VISIBLE_HISTORY));
 	return TRUE;
 }
 
@@ -1425,7 +1425,7 @@ void LLFastTimerView::drawBars()
 	// Special: -1 = show running average
 	LLPointer<LLUIImage> bar_image = LLUI::getUIImage("Rounded_Square");
 	gGL.getTexUnit(0)->bind(bar_image->getImage());
-	const S32 histmax = llmin(mRecording->getNumPeriods(), MAX_VISIBLE_HISTORY) + 1;
+	const S32 histmax = llmin((S32)mRecording->getNumPeriods(), MAX_VISIBLE_HISTORY) + 1;
 
 	for (S32 bar_index = 0; bar_index < histmax && y > LINE_GRAPH_HEIGHT; bar_index++)
 	{

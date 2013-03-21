@@ -355,41 +355,30 @@ U32 Recording::getSampleCount( const TraceType<MeasurementAccumulator<S64> >& st
 // PeriodicRecording
 ///////////////////////////////////////////////////////////////////////
 
-PeriodicRecording::PeriodicRecording( S32 num_periods, EPlayState state) 
-:	mNumPeriods(num_periods),
+PeriodicRecording::PeriodicRecording( U32 num_periods, EPlayState state) 
+:	mAutoResize(num_periods == 0),
 	mCurPeriod(0),
-	mTotalValid(false),
-	mRecordingPeriods( new Recording[num_periods])
+	mTotalValid(false)
 {
-	llassert(mNumPeriods > 0);
+	if (num_periods)
+	{
+		mRecordingPeriods.resize(num_periods);
+	}
 	setPlayState(state);
 }
-
-PeriodicRecording::PeriodicRecording(PeriodicRecording& other)
-:	mNumPeriods(other.mNumPeriods),
-	mCurPeriod(other.mCurPeriod),
-	mTotalValid(other.mTotalValid),
-	mTotalRecording(other.mTotalRecording)
-{
-	mRecordingPeriods = new Recording[mNumPeriods];
-	for (S32 i = 0; i < mNumPeriods; i++)
-	{
-		mRecordingPeriods[i] = other.mRecordingPeriods[i];
-	}
-}
-
-
-PeriodicRecording::~PeriodicRecording()
-{
-	delete[] mRecordingPeriods;
-}
-
 
 void PeriodicRecording::nextPeriod()
 {
 	EPlayState play_state = getPlayState();
 	Recording& old_recording = getCurRecordingPeriod();
-	mCurPeriod = (mCurPeriod + 1) % mNumPeriods;
+	if (mAutoResize)
+	{
+		mRecordingPeriods.push_back(Recording());
+	}
+	U32 num_periods = mRecordingPeriods.size();
+	mCurPeriod = (num_periods > 0) 
+				? (mCurPeriod + 1) % num_periods 
+				: mCurPeriod + 1;
 	old_recording.splitTo(getCurRecordingPeriod());
 
 	switch(play_state)
@@ -412,9 +401,21 @@ Recording& PeriodicRecording::getTotalRecording()
 	if (!mTotalValid)
 	{
 		mTotalRecording.reset();
-		for (S32 i = mCurPeriod + 1; i < mCurPeriod + mNumPeriods; i++)
+		U32 num_periods = mRecordingPeriods.size();
+
+		if (num_periods)
 		{
-			mTotalRecording.appendRecording(mRecordingPeriods[i % mNumPeriods]);
+			for (S32 i = mCurPeriod + 1; i < mCurPeriod + num_periods; i++)
+			{
+				mTotalRecording.appendRecording(mRecordingPeriods[i % num_periods]);
+			}
+		}
+		else
+		{
+			for (S32 i = 0; i < mCurPeriod; i++)
+			{
+				mTotalRecording.appendRecording(mRecordingPeriods[i]);
+			}
 		}
 	}
 	mTotalValid = true;

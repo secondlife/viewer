@@ -88,7 +88,7 @@ BOOL LLStatBar::handleMouseDown(S32 x, S32 y, MASK mask)
 	LLView* parent = getParent();
 	parent->reshape(parent->getRect().getWidth(), parent->getRect().getHeight(), FALSE);
 
-	return FALSE;
+	return TRUE;
 }
 
 void LLStatBar::draw()
@@ -98,6 +98,7 @@ void LLStatBar::draw()
 		max = 0.f,
 		mean = 0.f;
 
+	S32 num_samples = 0;
 	LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
 
 	if (mCountFloatp)
@@ -110,6 +111,7 @@ void LLStatBar::draw()
 			min = frame_recording.getPeriodMinPerSec(*mCountFloatp);
 			max = frame_recording.getPeriodMaxPerSec(*mCountFloatp);
 			mean = frame_recording.getPeriodMeanPerSec(*mCountFloatp);
+			num_samples = frame_recording.getTotalRecording().getSampleCount(*mCountFloatp);
 		}
 		else
 		{
@@ -117,6 +119,7 @@ void LLStatBar::draw()
 			min = frame_recording.getPeriodMin(*mCountFloatp);
 			max = frame_recording.getPeriodMax(*mCountFloatp);
 			mean = frame_recording.getPeriodMean(*mCountFloatp);
+			num_samples = frame_recording.getTotalRecording().getSampleCount(*mCountFloatp);
 		}
 	}
 	else if (mCountIntp)
@@ -129,6 +132,7 @@ void LLStatBar::draw()
 			min = frame_recording.getPeriodMinPerSec(*mCountIntp);
 			max = frame_recording.getPeriodMaxPerSec(*mCountIntp);
 			mean = frame_recording.getPeriodMeanPerSec(*mCountIntp);
+			num_samples = frame_recording.getTotalRecording().getSampleCount(*mCountIntp);
 		}
 		else
 		{
@@ -136,6 +140,7 @@ void LLStatBar::draw()
 			min = frame_recording.getPeriodMin(*mCountIntp);
 			max = frame_recording.getPeriodMax(*mCountIntp);
 			mean = frame_recording.getPeriodMean(*mCountIntp);
+			num_samples = frame_recording.getTotalRecording().getSampleCount(*mCountIntp);
 		}
 	}
 	else if (mMeasurementFloatp)
@@ -145,6 +150,7 @@ void LLStatBar::draw()
 		min = recording.getMin(*mMeasurementFloatp);
 		max = recording.getMax(*mMeasurementFloatp);
 		mean = recording.getMean(*mMeasurementFloatp);
+		num_samples = frame_recording.getTotalRecording().getSampleCount(*mMeasurementFloatp);
 	}
 	else if (mMeasurementIntp)
 	{
@@ -153,6 +159,7 @@ void LLStatBar::draw()
 		min = recording.getMin(*mMeasurementIntp);
 		max = recording.getMax(*mMeasurementIntp);
 		mean = recording.getMean(*mMeasurementIntp);
+		num_samples = frame_recording.getTotalRecording().getSampleCount(*mMeasurementIntp);
 	}
 
 	current *= mUnitScale;
@@ -191,7 +198,7 @@ void LLStatBar::draw()
 	const S32 tick_length = 4;
 	const S32 tick_width = 1;
 
-	if (mScaleRange)
+	if (mScaleRange && num_samples)
 	{
 		F32 cur_max = mLabelSpacing;
 		while(max > cur_max)
@@ -472,7 +479,7 @@ LLRect LLStatBar::getRequiredRect()
 			}
 			else
 			{
-				rect.mTop = 35 + llmin(mMaxHeight, llmin(mNumFrames, LLTrace::get_frame_recording().getNumPeriods()));
+				rect.mTop = 35 + llmin(mMaxHeight, llmin(mNumFrames, (S32)LLTrace::get_frame_recording().getNumPeriods()));
 			}
 		}
 		else

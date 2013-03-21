@@ -71,7 +71,7 @@ public:
 			  update_rate("update_rate", 5.0f),
 			  unit_scale("unit_scale", 1.f),
 			  show_per_sec("show_per_sec", true),
-			  show_bar("show_bar", TRUE),
+			  show_bar("show_bar", true),
 			  show_history("show_history", false),
 			  show_mean("show_mean", true),
 			  scale_range("scale_range", true),

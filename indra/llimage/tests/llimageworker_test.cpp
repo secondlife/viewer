@@ -44,7 +44,7 @@
 // * Do not make any assumption as to how those classes or methods work (i.e. don't copy/paste code)
 // * A simulator for a class can be implemented here. Please comment and document thoroughly.
 
-LLTrace::MemStat	LLImageBase::sMemStat("LLImage");
+LLTrace::MemStatHandle	LLImageBase::sMemStat("LLImage");
 
 
 LLImageBase::LLImageBase() 

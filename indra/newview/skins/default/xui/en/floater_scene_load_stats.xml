@@ -15,7 +15,7 @@
             label="Pause"
             name="playpause"/>
     <scroll_container follows="top|left|bottom|right"
-                      height="380"
+                      bottom="400"
                       layout="topleft"
                       left="0"
                       name="statistics_scroll"
@@ -34,19 +34,28 @@
                  label="Basic"
                  show_label="true"
                  setting="OpenDebugStatBasic">
-			  <stat_bar name="bandwidth"
-                  label="Bandwidth"
-                  unit_label="kbps"
+        <stat_bar name="frame difference"
+                  label="Frame Pixel Difference"
                   orientation="horizontal"
+                  unit_label="%"
+                  stat="FramePixelDifference"
+                  bar_max="100"
+                  tick_spacing="10"
+                  label_spacing="20"
+                  unit_scale="100"
+                  precision="0"/>
+        <stat_bar name="bandwidth"
+                  label="Bandwidth"
+                  orientation="horizontal"
+                  unit_label="kbps"
                   stat="kbitstat"
                   bar_max="5000"
                   tick_spacing="500"
                   label_spacing="1000"
-                  precision="0"
-                  show_bar="true"
-                  show_history="false"/>
+                  precision="0"/>
 			  <stat_bar name="packet_loss"
                   label="Packet Loss"
+                  orientation="horizontal"
                   unit_label=" %"
                   stat="packetslostpercentstat"
                   bar_max="5"
@@ -67,6 +76,7 @@
                    setting="OpenDebugStatRender">
           <stat_bar name="objs"
                     label="Total Objects"
+                    orientation="horizontal"
                     unit_label=""
                     stat="numobjectsstat"
                     bar_max="50000"
@@ -74,23 +84,25 @@
                     label_spacing="10000"
                     precision="0"
                     show_bar="false"/>
-			    <stat_bar name="newobjs"
+          <stat_bar name="newobjs"
                     label="New Objects"
+                    orientation="horizontal"
                     unit_label="/sec"
                     stat="numnewobjectsstat"
                     bar_max="2000"
                     tick_spacing="200"
                     label_spacing="400"
                     show_bar="false"/>
-         <stat_bar name="object_cache_hits"
-                   label="Object Cache Hit Rate"
-                   stat="object_cache_hits"
-                   bar_max="100"
-                   unit_label="%"
-                   tick_spacing="20"
-                   label_spacing="20"
-                   show_history="true"
-                   show_bar="false"/>
+          <stat_bar name="object_cache_hits"
+                    label="Object Cache Hit Rate"
+                    orientation="horizontal"
+                    stat="object_cache_hits"
+                    bar_max="100"
+                    unit_label="%"
+                    tick_spacing="20"
+                    label_spacing="20"
+                    show_history="true"
+                    show_bar="false"/>
 			  </stat_view>
 <!--Texture Stats-->
 			  <stat_view name="texture"
@@ -98,6 +110,7 @@
                    show_label="true">
 			    <stat_bar name="texture_cache_hits"
                     label="Cache Hit Rate"
+                    orientation="horizontal"
                     stat="texture_cache_hits"
                     bar_max="100.f"
                     unit_label="%"
@@ -107,6 +120,7 @@
                     show_bar="false"/>
           <stat_bar name="texture_cache_read_latency"
                     label="Cache Read Latency"
+                    orientation="horizontal"
                     unit_label="msec"
                     stat="texture_cache_read_latency"
                     bar_max="1000.f"
@@ -116,6 +130,7 @@
                     show_bar="false"/>
           <stat_bar name="numimagesstat"
                     label="Count"
+                    orientation="horizontal"
                     stat="numimagesstat" 
                     bar_max="8000.f" 
                     tick_spacing="2000.f"
@@ -123,6 +138,7 @@
                     show_bar="false"/>
 			    <stat_bar name="numrawimagesstat"
                     label="Raw Count"
+                    orientation="horizontal"
                     stat="numrawimagesstat"
                     bar_max="8000.f" 
                     tick_spacing="2000.f"
@@ -136,6 +152,7 @@
                    setting="OpenDebugStatNet">
 			    <stat_bar name="packetsinstat"
                     label="Packets In"
+                    orientation="horizontal"
                     stat="packetsinstat"
                     unit_label="/sec" 
                     bar_max="1024.f" 
@@ -145,6 +162,7 @@
                     show_bar="false"/>
 			    <stat_bar name="packetsoutstat"
                     label="Packets Out"
+                    orientation="horizontal"
                     stat="packetsoutstat"
                     unit_label="/sec"  
                     bar_max="1024.f" 
@@ -154,6 +172,7 @@
                     show_bar="false"/>
 			    <stat_bar name="objectkbitstat"
                     label="Objects"
+                    orientation="horizontal"
                     stat="objectkbitstat"
                     unit_label="kbps"
                     bar_max="1024.f"
@@ -163,6 +182,7 @@
                     show_bar="false"/>
 			    <stat_bar name="texturekbitstat"
                     label="Texture"
+                    orientation="horizontal"
                     stat="texturekbitstat"
                     unit_label="kbps"
                     bar_max="1024.f"
@@ -172,6 +192,7 @@
                     show_bar="false"/>
 			    <stat_bar name="assetkbitstat"
                     label="Asset"
+                    orientation="horizontal"
                     stat="assetkbitstat"
                     unit_label="kbps"
                     bar_max="1024.f"
@@ -181,6 +202,7 @@
                     show_bar="false"/>
 			    <stat_bar name="layerskbitstat"
                     label="Layers"
+                    orientation="horizontal"
                     stat="layerskbitstat"
                     unit_label="kbps"
                     bar_max="1024.f"
@@ -190,26 +212,27 @@
                     show_bar="false"/>
 			    <stat_bar name="actualinkbitstat"
                     label="Actual In"
+                    orientation="horizontal"
                     stat="actualinkbitstat"
                     unit_label="kbps"
                     bar_max="1024.f"
                     tick_spacing="128.f"
                     label_spacing="256.f"
                     precision="1"
-                    show_bar="false"
-                    show_history="false"/>
+                    show_bar="false"/>
 			    <stat_bar name="actualoutkbitstat"
                     label="Actual Out"
+                    orientation="horizontal"
                     stat="actualoutkbitstat"
                     unit_label="kbps"
                     bar_max="1024.f"
                     tick_spacing="128.f"
                     label_spacing="256.f"
                     precision="1"
-                    show_bar="false"
-                    show_history="false"/>
+                    show_bar="false"/>
 			    <stat_bar name="vfspendingoperations"
                     label="VFS Pending Operations"
+                    orientation="horizontal"
                     stat="vfspendingoperations"
                     unit_label=" Ops."
                     show_bar="false"/>
@@ -222,6 +245,7 @@
                  setting="OpenDebugStatSim">
 			  <stat_bar name="simobjects"
                   label="Objects"
+                  orientation="horizontal"
                   stat="simobjects"
                   precision="0"
                   bar_max="30000.f" 
@@ -231,6 +255,7 @@
                   show_mean="false"/>
 			  <stat_bar name="simactiveobjects"
                   label="Active Objects"
+                  orientation="horizontal"
                   stat="simactiveobjects"
                   precision="0"
                   bar_max="5000.f" 
@@ -240,6 +265,7 @@
                   show_mean="false"/>
 			  <stat_bar name="simactivescripts"
                   label="Active Scripts"
+                  orientation="horizontal"
                   stat="simactivescripts"
                   precision="0"
                   bar_max="15000.f" 
@@ -249,6 +275,7 @@
                   show_mean="false"/>
 			  <stat_bar name="siminpps"
                   label="Packets In"
+                  orientation="horizontal"
                   stat="siminpps"
                   unit_label="pps"
                   precision="0"
@@ -259,6 +286,7 @@
                   show_mean="false"/>
 			  <stat_bar name="simoutpps"
                   label="Packets Out"
+                  orientation="horizontal"
                   stat="simoutpps"
                   unit_label="pps" 
                   precision="0"
@@ -269,6 +297,7 @@
                   show_mean="false"/>
 			  <stat_bar name="simpendingdownloads"
                   label="Pending Downloads"
+                  orientation="horizontal"
                   stat="simpendingdownloads"
                   precision="0"
                   bar_max="800.f" 
@@ -278,6 +307,7 @@
                   show_mean="false"/>
 			  <stat_bar name="simpendinguploads"
                   label="Pending Uploads"
+                  orientation="horizontal"
                   stat="simpendinguploads"
                   precision="0"
                   bar_max="100.f" 
@@ -287,6 +317,7 @@
                   show_mean="false"/>
 			  <stat_bar name="simtotalunackedbytes"
                   label="Total Unacked Bytes"
+                  orientation="horizontal"
                   stat="simtotalunackedbytes"
                   unit_label="kb"
                   precision="1"
@@ -300,6 +331,7 @@
                    show_label="true">
 			    <stat_bar name="simframemsec"
                     label="Total Frame Time"
+                    orientation="horizontal"
                     stat="simframemsec"
                     unit_label="ms"
                     precision="3"
@@ -310,6 +342,7 @@
                     show_mean="false"/>
 			    <stat_bar name="simnetmsec"
                     label="Net Time"
+                    orientation="horizontal"
                     stat="simnetmsec"
                     unit_label="ms"
                     precision="3"
@@ -320,6 +353,7 @@
                     show_mean="false"/>
 			    <stat_bar name="simsimphysicsmsec"
                     label="Physics Time"
+                    orientation="horizontal"
                     stat="simsimphysicsmsec"
                     unit_label="ms"
                     precision="3"
@@ -330,6 +364,7 @@
                     show_mean="false"/>
 			    <stat_bar name="simsimothermsec"
                     label="Simulation Time"
+                    orientation="horizontal"
                     stat="simsimothermsec"
                     unit_label="ms"
                     precision="3"
@@ -340,6 +375,7 @@
                     show_mean="false"/>
 			    <stat_bar name="simagentmsec"
                     label="Agent Time"
+                    orientation="horizontal"
                     stat="simagentmsec"
                     unit_label="ms"
                     precision="3"
@@ -350,6 +386,7 @@
                     show_mean="false"/>
 			    <stat_bar name="simimagesmsec"
                     label="Images Time"
+                    orientation="horizontal"
                     stat="simimagesmsec"
                     unit_label="ms"
                     precision="3"
@@ -360,6 +397,7 @@
                     show_mean="false"/>
 			    <stat_bar name="simscriptmsec"
                     label="Script Time"
+                    orientation="horizontal"
                     stat="simscriptmsec"
                     unit_label="ms"
                     precision="3"
@@ -370,6 +408,7 @@
                     show_mean="false"/>
           <stat_bar name="simsparemsec"
                     label="Spare Time"
+                    orientation="horizontal"
                     stat="simsparemsec"
                     unit_label="ms"
                     precision="3"
@@ -384,6 +423,7 @@
                      show_label="true">
             <stat_bar name="simsimphysicsstepmsec"
                       label="  Physics Step"
+                      orientation="horizontal"
                       stat="simsimphysicsstepmsec"
                       unit_label="ms"
                       precision="3"
@@ -394,6 +434,7 @@
                       show_mean="false"/>
             <stat_bar name="simsimphysicsshapeupdatemsec"
                       label="  Update Phys Shapes"
+                      orientation="horizontal"
                       stat="simsimphysicsshapeupdatemsec"
                       unit_label="ms"
                       precision="3"
@@ -404,6 +445,7 @@
                       show_mean="false"/>
             <stat_bar name="simsimphysicsothermsec"
                       label="  Physics Other"
+                      orientation="horizontal"
                       stat="simsimphysicsothermsec"
                       unit_label="ms"
                       precision="3"
@@ -414,6 +456,7 @@
                       show_mean="false"/>
             <stat_bar name="simsleepmsec"
                       label="  Sleep Time"
+                      orientation="horizontal"
                       stat="simsleepmsec"
                       unit_label="ms"
                       precision="3"
@@ -424,6 +467,7 @@
                       show_mean="false"/>
             <stat_bar name="simpumpiomsec"
                       label="  Pump IO"
+                      orientation="horizontal"
                       stat="simpumpiomsec"
                       unit_label="ms"
                       precision="3"

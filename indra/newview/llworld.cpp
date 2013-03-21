@@ -1172,7 +1172,7 @@ void send_agent_resume()
 	}
 
 	// Resume data collection to ignore invalid rates
-	LLViewerStats::instance().getRecording().resume();//getInstance()->mFPSStat.reset();
+	LLViewerStats::instance().getRecording().resume();
 
 	LLAppViewer::instance()->resumeMainloopTimeout();
 }

@@ -249,16 +249,15 @@ namespace LLTrace
 	:	public LLStopWatchControlsMixin<PeriodicRecording>
 	{
 	public:
-		PeriodicRecording(S32 num_periods, EPlayState state = STOPPED);
-		PeriodicRecording(PeriodicRecording& recording);
-		~PeriodicRecording();
+		PeriodicRecording(U32 num_periods, EPlayState state = STOPPED);
 
 		void nextPeriod();
-		S32 getNumPeriods() { return mNumPeriods; }
+		U32 getNumPeriods() { return mRecordingPeriods.size(); }
 
 		Recording& getLastRecordingPeriod()
 		{
-			return mRecordingPeriods[(mCurPeriod + mNumPeriods - 1) % mNumPeriods];
+			U32 num_periods = mRecordingPeriods.size();
+			return mRecordingPeriods[(mCurPeriod + num_periods - 1) % num_periods];
 		}
 
 		const Recording& getLastRecordingPeriod() const
@@ -276,16 +275,18 @@ namespace LLTrace
 			return mRecordingPeriods[mCurPeriod];
 		}
 
-		Recording& getPrevRecordingPeriod(S32 offset)
+		Recording& getPrevRecordingPeriod(U32 offset)
 		{
-			offset = llclamp(offset, 0, mNumPeriods - 1);
-			return mRecordingPeriods[(mCurPeriod + mNumPeriods - offset) % mNumPeriods];
+			U32 num_periods = mRecordingPeriods.size();
+			offset = llclamp(offset, 0u, num_periods - 1);
+			return mRecordingPeriods[(mCurPeriod + num_periods - offset) % num_periods];
 		}
 
-		const Recording& getPrevRecordingPeriod(S32 offset) const
+		const Recording& getPrevRecordingPeriod(U32 offset) const
 		{
-			offset = llclamp(offset, 0, mNumPeriods - 1);
-			return mRecordingPeriods[(mCurPeriod + mNumPeriods - offset) % mNumPeriods];
+			U32 num_periods = mRecordingPeriods.size();
+			offset = llclamp(offset, 0u, num_periods - 1);
+			return mRecordingPeriods[(mCurPeriod + num_periods - offset) % num_periods];
 		}
 
 		Recording snapshotCurRecordingPeriod() const
@@ -301,7 +302,8 @@ namespace LLTrace
 		typename T::value_t getPeriodMin(const TraceType<T>& stat) const
 		{
 			typename T::value_t min_val = (std::numeric_limits<typename T::value_t>::max)();
-			for (S32 i = 0; i < mNumPeriods; i++)
+			U32 num_periods = mRecordingPeriods.size();
+			for (S32 i = 0; i < num_periods; i++)
 			{
 				min_val = llmin(min_val, mRecordingPeriods[i].getSum(stat));
 			}
@@ -312,7 +314,8 @@ namespace LLTrace
 		F64 getPeriodMinPerSec(const TraceType<T>& stat) const
 		{
 			F64 min_val = (std::numeric_limits<F64>::max)();
-			for (S32 i = 0; i < mNumPeriods; i++)
+			U32 num_periods = mRecordingPeriods.size();
+			for (S32 i = 0; i < num_periods; i++)
 			{
 				min_val = llmin(min_val, mRecordingPeriods[i].getPerSec(stat));
 			}
@@ -323,7 +326,8 @@ namespace LLTrace
 		typename T::value_t getPeriodMax(const TraceType<T>& stat) const
 		{
 			typename T::value_t max_val = (std::numeric_limits<typename T::value_t>::min)();
-			for (S32 i = 0; i < mNumPeriods; i++)
+			U32 num_periods = mRecordingPeriods.size();
+			for (S32 i = 0; i < num_periods; i++)
 			{
 				max_val = llmax(max_val, mRecordingPeriods[i].getSum(stat));
 			}
@@ -334,7 +338,8 @@ namespace LLTrace
 		F64 getPeriodMaxPerSec(const TraceType<T>& stat) const
 		{
 			F64 max_val = (std::numeric_limits<F64>::min)();
-			for (S32 i = 0; i < mNumPeriods; i++)
+			U32 num_periods = mRecordingPeriods.size();
+			for (S32 i = 0; i < num_periods; i++)
 			{
 				max_val = llmax(max_val, mRecordingPeriods[i].getPerSec(stat));
 			}
@@ -345,14 +350,15 @@ namespace LLTrace
 		typename MeanValueType<TraceType<T> >::type getPeriodMean(const TraceType<T>& stat) const
 		{
 			typename MeanValueType<TraceType<T> >::type mean = 0.0;
-			for (S32 i = 0; i < mNumPeriods; i++)
+			U32 num_periods = mRecordingPeriods.size();
+			for (S32 i = 0; i < num_periods; i++)
 			{
 				if (mRecordingPeriods[i].getDuration() > 0.f)
 				{
 					mean += mRecordingPeriods[i].getSum(stat);
 				}
 			}
-			mean /= mNumPeriods;
+			mean /= num_periods;
 			return mean;
 		}
 
@@ -360,14 +366,15 @@ namespace LLTrace
 		typename MeanValueType<TraceType<T> >::type getPeriodMeanPerSec(const TraceType<T>& stat) const
 		{
 			typename MeanValueType<TraceType<T> >::type mean = 0.0;
-			for (S32 i = 0; i < mNumPeriods; i++)
+			U32 num_periods = mRecordingPeriods.size();
+			for (S32 i = 0; i < num_periods; i++)
 			{
 				if (mRecordingPeriods[i].getDuration() > 0.f)
 				{
 					mean += mRecordingPeriods[i].getPerSec(stat);
 				}
 			}
-			mean /= mNumPeriods;
+			mean /= num_periods;
 			return mean;
 		}
 
@@ -382,11 +389,11 @@ namespace LLTrace
 		/*virtual*/ void splitFrom(PeriodicRecording& other);
 
 	private:
-		Recording*	mRecordingPeriods;
+		std::vector<Recording>	mRecordingPeriods;
 		Recording	mTotalRecording;
 		bool		mTotalValid;
-		S32			mNumPeriods,
-					mCurPeriod;
+		const bool	mAutoResize;
+		S32			mCurPeriod;
 	};
 
 	PeriodicRecording& get_frame_recording();
