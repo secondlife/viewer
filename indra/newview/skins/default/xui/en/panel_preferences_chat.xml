@@ -30,23 +30,12 @@
     </check_box>
 
     <check_box
-        control_name="PlayChatAnim"
-        height="16"
-        initial_value="true"
-        label="Play chat animations when chatting in nearby chat"
-        layout="topleft"
-        top_pad="2"
-        name="play_chat_animation"
-        width="330">
-    </check_box>
-
-    <check_box
         enabled="false"
         height="16"
         label="Email me IMs when I'm offline"
         layout="topleft"
         name="send_im_to_email"
-        top_pad="2"
+        top_pad="6"
         width="330">
     </check_box>
 
@@ -56,7 +45,7 @@
         label="Only friends and groups can call or IM me"
         layout="topleft"
         name="voice_call_friends_only_check"
-        top_pad="2"
+        top_pad="6"
         width="350">     
     </check_box>
 
@@ -109,7 +98,6 @@
       height="165"
       layout="topleft"
       left="13"
-      top_pad="12"
       width="517">
 
     <text
@@ -296,7 +284,7 @@
         height="13"
         name="notifications_alert"
         width="500"
-        top_pad="7"
+        top_pad="9"
         visible="true"
         text_color="DrYellow">
       To temporarily stop all notifications, use Communicate &gt; Do Not Disturb.
@@ -309,7 +297,7 @@
       height="50"
       layout="topleft"
       left="13"
-      top_pad="7"
+      top_pad="10"
       width="517">
 
     <text
