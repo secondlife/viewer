@@ -33,6 +33,7 @@
 #include "lldir.h"
 #include "llerror.h"
 #include "llfloaterreg.h"
+#include "llimview.h"
 #include "llnotifications.h"
 #include "llnotificationhandler.h"
 #include "llnotificationstorage.h"
@@ -145,6 +146,8 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 	
 	LLNotifications& instance = LLNotifications::instance();
     bool imToastExists = false;
+	bool group_ad_hoc_toast_exists = false;
+	S32 toastSessionType;
     bool offerExists = false;
 	
 	for (LLSD::array_const_iterator notification_it = data.beginArray();
@@ -158,7 +161,20 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 
         if(notificationName == toastName)
         {
-            imToastExists = true;
+			toastSessionType = notification_params["payload"]["SESSION_TYPE"];
+			if(toastSessionType == LLIMModel::LLIMSession::P2P_SESSION)
+			{
+				imToastExists = true;
+			}
+			//Don't add group/ad-hoc messages to the notification system because
+			//this means the group/ad-hoc session has to be re-created
+			else if(toastSessionType == LLIMModel::LLIMSession::GROUP_SESSION 
+					|| toastSessionType == LLIMModel::LLIMSession::ADHOC_SESSION)
+			{
+				//Just allows opening the conversation log for group/ad-hoc messages upon startup
+				group_ad_hoc_toast_exists = true;
+				continue;
+			}
         }
         else if(notificationName == offerName)
         {
@@ -197,7 +213,12 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
         LLFloaterReg::showInstance("im_container");
     }
 
-    if(imToastExists || offerExists)
+	if(group_ad_hoc_toast_exists)
+	{
+		LLFloaterReg::showInstance("conversation");
+	}
+
+    if(imToastExists || group_ad_hoc_toast_exists || offerExists)
     {
 		make_ui_sound_deferred("UISndNewIncomingIMSession");
     }

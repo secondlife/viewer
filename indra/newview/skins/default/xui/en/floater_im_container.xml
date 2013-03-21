@@ -61,7 +61,7 @@
                      image_unselected="Toolbar_Middle_Off"
                      menu_filename="menu_participant_view.xml"
                      layout="topleft"
-                     left="10"
+                     left="5"
                      name="sort_btn"
                      tool_tip="View/sort options"
                      top="5"
@@ -75,7 +75,7 @@
                      image_unselected="Toolbar_Middle_Off"
                      layout="topleft"
                      top="5"
-                     left_pad="4"
+                     left_pad="2"
                      name="add_btn"
                      tool_tip="Start a new conversation"
                      width="31"/>
@@ -88,7 +88,7 @@
                      image_unselected="Toolbar_Middle_Off"
                      layout="topleft"
                      top="5"
-                     left_pad="4"
+                     left_pad="2"
                      name="speak_btn"
                      tool_tip="Speak with people using your microphone"
                      width="31"/>	
@@ -114,7 +114,7 @@
                 </layout_panel>
             </layout_stack>
             <panel
-             bottom="-5"
+             bottom="-1"
              follows="all"
              layout="topleft"
              name="conversations_list_panel"
@@ -129,7 +129,7 @@
          name="messages_layout_panel"
          expanded_min_dim="222">
             <panel_container
-             bottom="-5"
+             bottom="-1"
              follows="all"
              layout="topleft"
              left="0"

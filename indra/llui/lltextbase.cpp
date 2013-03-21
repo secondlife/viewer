@@ -359,7 +359,6 @@ void LLTextBase::drawSelectionBackground()
 
 		S32 selection_left		= llmin( mSelectionStart, mSelectionEnd );
 		S32 selection_right		= llmax( mSelectionStart, mSelectionEnd );
-		LLRect selection_rect = mVisibleTextRect;
 
 		// Skip through the lines we aren't drawing.
 		LLRect content_display_rect = getVisibleDocumentRect();
@@ -380,7 +379,7 @@ void LLTextBase::drawSelectionBackground()
 				S32 segment_offset;
 				getSegmentAndOffset(line_iter->mDocIndexStart, &segment_iter, &segment_offset);
 				
-				//LLRect selection_rect;
+				LLRect selection_rect;
 				selection_rect.mLeft = line_iter->mRect.mLeft;
 				selection_rect.mRight = line_iter->mRect.mLeft;
 				selection_rect.mBottom = line_iter->mRect.mBottom;
@@ -443,7 +442,7 @@ void LLTextBase::drawSelectionBackground()
 			rect_it != selection_rects.end();
 			++rect_it)
 		{
-			//LLRect selection_rect = *rect_it;
+			LLRect selection_rect = *rect_it;
 			selection_rect = *rect_it;
 			selection_rect.translate(mVisibleTextRect.mLeft - content_display_rect.mLeft, mVisibleTextRect.mBottom - content_display_rect.mBottom);
 			gl_rect_2d(selection_rect, selection_color);
@@ -1087,7 +1086,14 @@ BOOL LLTextBase::handleRightMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL LLTextBase::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	mTripleClickTimer.setTimerExpirySec(TRIPLE_CLICK_INTERVAL);
+	//Don't start triple click timer if user have clicked on scrollbar
+	mVisibleTextRect = mScroller ? mScroller->getContentWindowRect() : getLocalRect();
+	if (x >= mVisibleTextRect.mLeft && x <= mVisibleTextRect.mRight
+	    && y >= mVisibleTextRect.mBottom && y <= mVisibleTextRect.mTop)
+	{
+		mTripleClickTimer.setTimerExpirySec(TRIPLE_CLICK_INTERVAL);
+	}
+
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleDoubleClick(x, y, mask))
 	{
@@ -1912,6 +1918,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	registrar.add("Url.Execute", boost::bind(&LLUrlAction::executeSLURL, url));
 	registrar.add("Url.Teleport", boost::bind(&LLUrlAction::teleportToLocation, url));
 	registrar.add("Url.ShowProfile", boost::bind(&LLUrlAction::showProfile, url));
+	registrar.add("Url.AddFriend", boost::bind(&LLUrlAction::addFriend, url));
 	registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
 	registrar.add("Url.CopyLabel", boost::bind(&LLUrlAction::copyLabelToClipboard, url));
 	registrar.add("Url.CopyUrl", boost::bind(&LLUrlAction::copyURLToClipboard, url));
@@ -2330,7 +2337,6 @@ const LLWString& LLTextBase::getWText() const
 S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round, bool hit_past_end_of_line) const
 {
 	// Figure out which line we're nearest to.
-	//LLRect visible_region = getVisibleDocumentRect();
 	LLRect doc_rect = mDocumentView->getRect();
 
 	S32 doc_y = local_y - doc_rect.mBottom;

@@ -38,6 +38,8 @@
 #include "llvoavatar.h"
 #include "llworld.h"
 
+extern LLControlGroup gSavedSettings;
+
 const LLColor4 INACTIVE_COLOR(0.3f, 0.3f, 0.3f, 0.5f);
 const LLColor4 ACTIVE_COLOR(0.5f, 0.5f, 0.5f, 1.f);
 
@@ -313,6 +315,7 @@ LLSpeakerMgr::LLSpeakerMgr(LLVoiceChannel* channelp) :
 	mModerateModeHandledFirstTime(false),
 	mSpeakerListUpdated(false)
 {
+    mGetListTime.reset();
 	static LLUICachedControl<F32> remove_delay ("SpeakerParticipantRemoveDelay", 10.0);
 
 	mSpeakerDelayRemover = new LLSpeakersDelayActionsStorage(boost::bind(&LLSpeakerMgr::removeSpeaker, this, _1), remove_delay);
@@ -411,12 +414,10 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 
 	// update status of all current speakers
 	BOOL voice_channel_active = (!mVoiceChannel && LLVoiceClient::getInstance()->inProximalChannel()) || (mVoiceChannel && mVoiceChannel->isActive());
-	for (speaker_map_t::iterator speaker_it = mSpeakers.begin(); speaker_it != mSpeakers.end();)
+	for (speaker_map_t::iterator speaker_it = mSpeakers.begin(); speaker_it != mSpeakers.end(); speaker_it++)
 	{
 		LLUUID speaker_id = speaker_it->first;
 		LLSpeaker* speakerp = speaker_it->second;
-		
-		speaker_it++;
 
 		if (voice_channel_active && LLVoiceClient::getInstance()->getVoiceEnabled(speaker_id))
 		{
@@ -541,30 +542,39 @@ void LLSpeakerMgr::updateSpeakerList()
 			LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
 			if (session->isGroupSessionType() && (mSpeakers.size() <= 1))
 			{
+                const F32 load_group_timeout = gSavedSettings.getF32("ChatLoadGroupTimeout");
 				// For groups, we need to hit the group manager.
 				// Note: The session uuid and the group uuid are actually one and the same. If that was to change, this will fail.
 				LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(session_id);
-				if (!gdatap)
+				if (!gdatap && (mGetListTime.getElapsedTimeF32() >= load_group_timeout))
 				{
 					// Request the data the first time around
 					LLGroupMgr::getInstance()->sendCapGroupMembersRequest(session_id);
 				}
-				else if (gdatap->isMemberDataComplete() && !gdatap->mMembers.empty())
+				else if (gdatap && gdatap->isMemberDataComplete() && !gdatap->mMembers.empty())
 				{
 					// Add group members when we get the complete list (note: can take a while before we get that list)
 					LLGroupMgrGroupData::member_list_t::iterator member_it = gdatap->mMembers.begin();
+                    const S32 load_group_max_members = gSavedSettings.getS32("ChatLoadGroupMaxMembers");
+                    S32 updated = 0;
 					while (member_it != gdatap->mMembers.end())
 					{
 						LLGroupMemberData* member = member_it->second;
-						// Add only the members who are online
-						if (member->getOnlineStatus() == "Online")
+                        LLUUID id = member_it->first;
+						// Add only members who are online and not already in the list
+						if ((member->getOnlineStatus() == "Online") && (mSpeakers.find(id) == mSpeakers.end()))
 						{
-							LLPointer<LLSpeaker> speakerp = setSpeaker(member_it->first, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
+							LLPointer<LLSpeaker> speakerp = setSpeaker(id, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
 							speakerp->mIsModerator = ((member->getAgentPowers() & GP_SESSION_MODERATOR) == GP_SESSION_MODERATOR);
+                            updated++;
 						}
 						++member_it;
+                        // Limit the number of "manually updated" participants to a reasonable number to avoid severe fps drop
+                        // *TODO : solve the perf issue of having several hundreds of widgets in the conversation list
+                        if (updated >= load_group_max_members)
+                            break;
 					}
-					mSpeakerListUpdated = true;
+                    mSpeakerListUpdated = true;
 				}
 			}
 			else if (mSpeakers.size() == 0)

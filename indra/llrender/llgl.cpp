@@ -598,11 +598,6 @@ bool LLGLManager::initGL()
 	{
 		mGLVendorShort = "ATI";
 		// *TODO: Fix this?
-		//BOOL mobile = FALSE;
-		//if (mGLRenderer.find("MOBILITY") != std::string::npos)
-		//{
-		//	mobile = TRUE;
-		//}
 		mIsATI = TRUE;
 
 #if LL_WINDOWS && !LL_MESA_HEADLESS
@@ -1490,9 +1485,7 @@ void assert_glerror()
 
 void clear_glerror()
 {
-	//  Create or update texture to be used with this data 
-	//GLenum error;
-	//error = glGetError();
+	glGetError();
 	glGetError();
 }
 

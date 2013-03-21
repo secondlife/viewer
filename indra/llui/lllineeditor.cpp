@@ -202,6 +202,14 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 LLLineEditor::~LLLineEditor()
 {
 	mCommitOnFocusLost = FALSE;
+    
+    // Make sure no context menu linger around once the widget is deleted
+	LLContextMenu* menu = static_cast<LLContextMenu*>(mContextMenuHandle.get());
+	if (menu)
+	{
+        menu->hide();
+    }
+	setContextMenu(NULL);
 
 	// calls onCommit() while LLLineEditor still valid
 	gFocusMgr.releaseFocusIfNeeded( this );

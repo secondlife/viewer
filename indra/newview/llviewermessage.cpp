@@ -2379,7 +2379,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	    LLPostponedNotification::add<LLPostponedIMSystemTipNotification>(params, from_id, false);
 		break;
 
-	case IM_NOTHING_SPECIAL: 
+	case IM_NOTHING_SPECIAL:	// p2p IM
 		// Don't show dialog, just do IM
 		if (!gAgent.isGodlike()
 				&& gAgent.getRegion()->isPrelude() 
@@ -2780,42 +2780,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	}
 	break;
 	
-	case IM_SESSION_SEND:
-	{
-		if (is_do_not_disturb)
-		{
-			return;
-		}
-
-		// Only show messages if we have a session open (which
-		// should happen after you get an "invitation"
-		if ( !gIMMgr->hasSession(session_id) )
-		{
-			return;
-		}
-
-		// standard message, not from system
-		std::string saved;
-		if(offline == IM_OFFLINE)
-		{
-			saved = llformat("(Saved %s) ", formatted_time(timestamp).c_str());
-		}
-		buffer = saved + message;
-		gIMMgr->addMessage(
-			session_id,
-			from_id,
-			name,
-			buffer,
-			IM_OFFLINE == offline,
-			ll_safe_string((char*)binary_bucket),
-			IM_SESSION_INVITE,
-			parent_estate_id,
-			region_id,
-			position,
-			true);
-	}
-	break;
-
 	case IM_FROM_TASK:
 		{
 			if (is_do_not_disturb && !is_owned_by_me)
@@ -2914,6 +2878,76 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LLPostponedNotification::add<LLPostponedServerObjectNotification>(params, from_id, from_group);
 		}
 		break;
+
+	case IM_SESSION_SEND:		// ad-hoc or group IMs
+
+		// Only show messages if we have a session open (which
+		// should happen after you get an "invitation"
+		if ( !gIMMgr->hasSession(session_id) )
+		{
+			return;
+		}
+
+		else if (offline == IM_ONLINE && is_do_not_disturb)
+		{
+
+			// return a standard "do not disturb" message, but only do it to online IM 
+			// (i.e. not other auto responses and not store-and-forward IM)
+			if (!gIMMgr->hasSession(session_id))
+			{
+				// if there is not a panel for this conversation (i.e. it is a new IM conversation
+				// initiated by the other party) then...
+				send_do_not_disturb_message(msg, from_id, session_id);
+			}
+
+			// now store incoming IM in chat history
+
+			buffer = message;
+	
+			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
+
+			// add to IM panel, but do not bother the user
+			gIMMgr->addMessage(
+				session_id,
+				from_id,
+				name,
+				buffer,
+				IM_OFFLINE == offline,
+				ll_safe_string((char*)binary_bucket),
+				IM_SESSION_INVITE,
+				parent_estate_id,
+				region_id,
+				position,
+				true);
+		}
+		else
+		{
+			// standard message, not from system
+			std::string saved;
+			if(offline == IM_OFFLINE)
+			{
+				saved = llformat("(Saved %s) ", formatted_time(timestamp).c_str());
+			}
+
+			buffer = saved + message;
+
+			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
+
+			gIMMgr->addMessage(
+				session_id,
+				from_id,
+				name,
+				buffer,
+				IM_OFFLINE == offline,
+				ll_safe_string((char*)binary_bucket),
+				IM_SESSION_INVITE,
+				parent_estate_id,
+				region_id,
+				position,
+				true);
+		}
+		break;
+
 	case IM_FROM_TASK_AS_ALERT:
 		if (is_do_not_disturb && !is_owned_by_me)
 		{
