@@ -140,6 +140,9 @@ protected:
 	void appendMessage(const LLChat& chat, const LLSD &args = 0);
 
 	std::string appendTime();
+	void assignResizeLimits();
+
+	S32  mFloaterExtraWidth;
 
 	bool mIsNearbyChat;
 	bool mIsP2PChat;
@@ -155,7 +158,9 @@ protected:
 	
 	LLUUID mSessionID; 
 	LLLayoutStack* mBodyStack;
+	LLLayoutStack* mParticipantListAndHistoryStack;
 	LLLayoutPanel* mParticipantListPanel;	// add the widgets to that see mConversationsListPanel
+	LLLayoutPanel* mRightPartPanel;
 	LLLayoutPanel* mContentPanel;
 	LLLayoutPanel* mToolbarPanel;
 	LLLayoutPanel* mInputButtonPanel;
