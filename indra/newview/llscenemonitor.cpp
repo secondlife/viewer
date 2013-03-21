@@ -511,6 +511,7 @@ void LLSceneMonitorView::onClickCloseBtn()
 
 void LLSceneMonitorView::setVisible(BOOL visible)
 {
+	visible = visible && LLGLSLShader::sNoFixedFunction;
 	LLSceneMonitor::getInstance()->setDebugViewerVisible(visible);
 
 	LLView::setVisible(visible);
