@@ -112,7 +112,7 @@ F32 LLSmoothInterpolation::getInterpolant(LLUnit<LLUnits::Seconds, F32> time_con
 }
 
 //-----------------------------------------------------------------------------
-// getInterpolant()
+// calcInterpolant()
 //-----------------------------------------------------------------------------
 F32 LLSmoothInterpolation::calcInterpolant(F32 time_constant)
 {

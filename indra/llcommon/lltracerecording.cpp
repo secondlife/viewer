@@ -133,6 +133,9 @@ Recording::Recording()
 {}
 
 Recording::Recording( const Recording& other )
+:	RecordingBuffers(other),
+	mElapsedSeconds(other.mElapsedSeconds),
+	mSamplingTimer(other.mSamplingTimer)
 {
 	LLStopWatchControlsMixin<Recording>::setPlayState(other.getPlayState());
 }
