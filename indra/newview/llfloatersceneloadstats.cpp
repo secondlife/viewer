@@ -32,6 +32,9 @@
 
 LLFloaterSceneLoadStats::LLFloaterSceneLoadStats( const LLSD& key ) 
 :	LLFloater(key)
-{
+{}
 
+BOOL LLFloaterSceneLoadStats::postBuild()
+{
+	return TRUE;
 }

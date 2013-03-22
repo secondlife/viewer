@@ -116,5 +116,5 @@ F32 LLSmoothInterpolation::getInterpolant(LLUnit<LLUnits::Seconds, F32> time_con
 //-----------------------------------------------------------------------------
 F32 LLSmoothInterpolation::calcInterpolant(F32 time_constant)
 {
-	return llclamp(1.f - pow(2.f, -sTimeDelta / time_constant), 0.f, 1.f);
+	return llclamp(1.f - powf(2.f, -sTimeDelta / time_constant), 0.f, 1.f);
 }

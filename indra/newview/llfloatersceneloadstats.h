@@ -34,6 +34,10 @@ class LLFloaterSceneLoadStats : public LLFloater
 	friend class LLFloaterReg;
 private:
 	LLFloaterSceneLoadStats(const LLSD& key);
+
+public:
+	BOOL postBuild();
+
 };
 
 #endif // LL_FLOATERSCENELOADSTATS_H
