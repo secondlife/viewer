@@ -70,6 +70,7 @@ class LLViewerRegion;
 class LLViewerObjectMedia;
 class LLVOInventoryListener;
 class LLVOAvatar;
+class LLDataPackerBinaryBuffer;
 
 typedef enum e_object_update_type
 {
@@ -136,8 +137,7 @@ public:
 	BOOL isDead() const									{return mDead;}
 	BOOL isOrphaned() const								{ return mOrphaned; }
 	BOOL isParticleSource() const;
-	void EnableToCacheTree(bool enabled);
-
+	
 	virtual LLVOAvatar* asAvatar();
 
 	static void initVOClasses();
@@ -162,6 +162,7 @@ public:
         INVALID_UPDATE = 0x80000000
     };
 
+	static  U32     extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector3& pos, LLVector3& scale, LLQuaternion& rot);
 	virtual U32		processUpdateMessage(LLMessageSystem *mesgsys,
 										void **user_data,
 										U32 block_num,
@@ -510,6 +511,7 @@ public:
 	virtual void	updateRegion(LLViewerRegion *regionp);
 
 	void updateFlags(BOOL physics_changed = FALSE);
+	void loadFlags(U32 flags); //load flags from cache or from message
 	BOOL setFlags(U32 flag, BOOL state);
 	BOOL setFlagsWithoutUpdate(U32 flag, BOOL state);
 	void setPhysicsShapeType(U8 type);
@@ -540,6 +542,13 @@ public:
 	friend class LLViewerMediaList;
 
 public:
+	static void unpackVector3(LLDataPackerBinaryBuffer* dp, LLVector3& value, std::string name);
+	static void unpackUUID(LLDataPackerBinaryBuffer* dp, LLUUID& value, std::string name);
+	static void unpackU32(LLDataPackerBinaryBuffer* dp, U32& value, std::string name);
+	static void unpackU8(LLDataPackerBinaryBuffer* dp, U8& value, std::string name);
+	static U32 unpackParentID(LLDataPackerBinaryBuffer* dp, U32& parent_id);
+
+public:
 	//counter-translation
 	void resetChildrenPosition(const LLVector3& offset, BOOL simplified = FALSE) ;
 	//counter-rotation
@@ -561,6 +570,8 @@ private:
 	
 	// Motion prediction between updates
 	void interpolateLinearMotion(const F64 & time, const F32 & dt);
+
+	static void initObjectDataMap();
 
 public:
 	//
@@ -610,6 +621,7 @@ private:
 	// Grabbed from UPDATE_FLAGS
 	U32				mFlags;
 
+	static std::map<std::string, U32> sObjectDataMap;
 public:
 	// Sent to sim in UPDATE_FLAGS, received in ObjectPhysicsProperties
 	U8              mPhysicsShapeType;

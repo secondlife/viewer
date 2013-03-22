@@ -4006,6 +4006,14 @@ void LLAppViewer::purgeCache()
 	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""), "*.*");
 }
 
+//purge cache immediately, do not wait until the next login.
+void LLAppViewer::purgeCacheImmediate()
+{
+	LL_INFOS("AppCache") << "Purging Object Cache and Texture Cache immediately..." << LL_ENDL;
+	LLAppViewer::getTextureCache()->purgeCache(LL_PATH_CACHE);
+	LLVOCache::getInstance()->removeCache(LL_PATH_CACHE, true);
+}
+
 std::string LLAppViewer::getSecondLifeTitle() const
 {
 	return LLTrans::getString("APP_NAME");

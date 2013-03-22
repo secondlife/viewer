@@ -2758,6 +2758,16 @@
                  function="ToggleControl"
                  parameter="RenderHoverGlowEnable" />
             </menu_item_check>
+          <menu_item_separator />
+          
+          <menu_item_call
+            enabled="true"
+            label="Clear Cache Immediately"
+            name="Cache Clear">
+            <menu_item_call.on_click
+             function="Develop.ClearCache" />
+          </menu_item_call>
+          
         </menu>
 
         <menu
