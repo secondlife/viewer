@@ -53,7 +53,7 @@ set(llcommon_SOURCE_FILES
     lleventfilter.cpp
     llevents.cpp
     lleventtimer.cpp
-    llfasttimer_class.cpp
+    llfasttimer.cpp
     llfile.cpp
     llfindlocale.cpp
     llfixedbuffer.cpp
@@ -71,7 +71,6 @@ set(llcommon_SOURCE_FILES
     llmd5.cpp
     llmemory.cpp
     llmemorystream.cpp
-    llmemtype.cpp
     llmetrics.cpp
     llmetricperformancetester.cpp
     llmortician.cpp
@@ -116,6 +115,7 @@ set(llcommon_HEADER_FILES
     bitpack.h
     ctype_workaround.h
     doublelinkedlist.h
+    fix_macros.h
     imageids.h
     indra_constants.h
     linden_common.h
@@ -167,7 +167,6 @@ set(llcommon_HEADER_FILES
     lleventemitter.h
     llextendedstatus.h
     llfasttimer.h
-    llfasttimer_class.h
     llfile.h
     llfindlocale.h
     llfixedbuffer.h
@@ -196,7 +195,6 @@ set(llcommon_HEADER_FILES
     llmd5.h
     llmemory.h
     llmemorystream.h
-    llmemtype.h
     llmetrics.h
     llmetricperformancetester.h
     llmortician.h

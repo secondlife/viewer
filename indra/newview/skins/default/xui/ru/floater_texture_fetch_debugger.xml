@@ -45,10 +45,23 @@
 	<text name="total_time_refetch_vis_cache_label">
 		15, Повторное извлечение из кэша, время: [TIME] с, извлечено: [SIZE] КБ, [PIXEL] Мпикселов
 	</text>
-	<text name="total_time_refetch_vis_http_label">
-		16, Повторное извлечение из HTTP, время: [TIME] с, извлечено: [SIZE] КБ, [PIXEL] Мпикселов
+	<text name="total_time_refetch_all_cache_label">
+		16, Повторное извлечение всех текстур из кэша, время: [TIME] с, извлечено: [SIZE] КБ, [PIXEL] Мпикселов
 	</text>
-	<spinner label="17, Отношение текселы/пикселы" name="texel_pixel_ratio"/>
+	<text name="total_time_refetch_vis_http_label">
+		17, Повторное извлечение из HTTP, время: [TIME] с, извлечено: [SIZE] КБ, [PIXEL] Мпикселов
+	</text>
+	<text name="total_time_refetch_all_http_label">
+		18, Повторное извлечение всех текстур из HTTP, время: [TIME] с, извлечено: [SIZE] КБ, [PIXEL] Мпикселов
+	</text>
+	<spinner label="19, Отношение текселы/пикселы:" name="texel_pixel_ratio"/>
+	<text name="texture_source_label">
+		20, Истояник текстур:
+	</text>
+	<radio_group name="texture_source">
+		<radio_item label="Кэш + HTTP" name="0"/>
+		<radio_item label="Только HTTP" name="1"/>
+	</radio_group>
 	<button label="Пуск" name="start_btn"/>
 	<button label="Сброс" name="clear_btn"/>
 	<button label="Закрыть" name="close_btn"/>
@@ -58,5 +71,7 @@
 	<button label="Декодировать" name="decode_btn"/>
 	<button label="Текстура GL" name="gl_btn"/>
 	<button label="Повторно извлечь из кэша" name="refetchviscache_btn"/>
+	<button label="Повторно извлечь все из кэша" name="refetchallcache_btn"/>
 	<button label="Повторно извлечь из HTTP" name="refetchvishttp_btn"/>
+	<button label="Повторно извлечь все из HTTP" name="refetchallhttp_btn"/>
 </floater>

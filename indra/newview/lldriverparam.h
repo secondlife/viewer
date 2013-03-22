@@ -75,6 +75,7 @@ protected:
 
 //-----------------------------------------------------------------------------
 
+LL_ALIGN_PREFIX(16)
 class LLDriverParam : public LLViewerVisualParam
 {
 	friend class LLPhysicsMotion; // physics motion needs to access driven params directly.
@@ -82,6 +83,16 @@ public:
 	LLDriverParam(LLVOAvatar *avatarp);
 	LLDriverParam(LLWearable *wearablep);
 	~LLDriverParam();
+
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
 
 	// Special: These functions are overridden by child classes
 	LLDriverParamInfo*		getInfo() const { return (LLDriverParamInfo*)mInfo; }
@@ -116,13 +127,13 @@ protected:
 	void setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bool upload_bake);
 
 
-	LLVector4a	mDefaultVec; // temp holder
+	LL_ALIGN_16(LLVector4a	mDefaultVec); // temp holder
 	typedef std::vector<LLDrivenEntry> entry_list_t;
 	entry_list_t mDriven;
 	LLViewerVisualParam* mCurrentDistortionParam;
 	// Backlink only; don't make this an LLPointer.
 	LLVOAvatar* mAvatarp;
 	LLWearable* mWearablep;
-};
+} LL_ALIGN_POSTFIX(16);
 
 #endif  // LL_LLDRIVERPARAM_H

@@ -305,7 +305,11 @@ BOOL LLFloaterScriptSearch::handleKeyHere(KEY key, MASK mask)
 {
 	if (mEditorCore)
 	{
-		return mEditorCore->handleKeyHere(key, mask);
+		BOOL handled = mEditorCore->handleKeyHere(key, mask);
+		if (!handled)
+		{
+			LLFloater::handleKeyHere(key, mask);
+		}
 	}
 
 	return FALSE;
@@ -815,7 +819,7 @@ void LLScriptEdCore::onBtnDynamicHelp()
 	if (!live_help_floater)
 	{
 		live_help_floater = new LLFloater(LLSD());
-		live_help_floater->buildFromFile("floater_lsl_guide.xml", NULL);
+		live_help_floater->buildFromFile("floater_lsl_guide.xml");
 		LLFloater* parent = dynamic_cast<LLFloater*>(getParent());
 		llassert(parent);
 		if (parent)

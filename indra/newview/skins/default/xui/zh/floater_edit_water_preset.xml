@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Edit Water Preset" title="編輯水的自訂配置">
+	<string name="title_new">
+		新建水的自訂配置
+	</string>
+	<string name="title_edit">
+		編輯水的自訂配置
+	</string>
+	<string name="hint_new">
+		為自訂配置定名，調整各項控制確定配置細節，完成後點按「儲存」。
+	</string>
+	<string name="hint_edit">
+		若要編輯水的自訂配置，請調整各項控制，再點按「儲存」。
+	</string>
+	<string name="combo_label">
+		-選擇一個自訂配置-
+	</string>
+	<text name="hint">
+		若要編輯你的自訂配置，請調整各項控制，再點按「儲存」。
+	</text>
+	<text name="label">
+		自訂配置名稱：
+	</text>
+	<text name="note">
+		注意：更改自訂配置的名稱將會新建一個自訂配置，不會改變原有的自訂配置。
+	</text>
+	<panel name="panel_water_preset">
+		<text name="water_color_label">
+			水霧顏色
+		</text>
+		<text name="water_fog_density_label">
+			霧密度指數
+		</text>
+		<text name="underwater_fog_modifier_label">
+			水底霧修飾元
+		</text>
+		<text name="BHText">
+			大波浪方向
+		</text>
+		<slider label="X" name="WaterWave1DirX"/>
+		<slider label="Y" name="WaterWave1DirY"/>
+		<text name="BDensText">
+			反射子波比例
+		</text>
+		<text name="HDText">
+			菲涅耳比例
+		</text>
+		<text name="FresnelOffsetText">
+			菲涅耳偏距
+		</text>
+		<text name="BHText2">
+			小波浪方向
+		</text>
+		<slider label="X" name="WaterWave2DirX"/>
+		<slider label="Y" name="WaterWave2DirY"/>
+		<text name="DensMultText">
+			上折射比例
+		</text>
+		<text name="WaterScaleBelowText">
+			下折射比例
+		</text>
+		<text name="MaxAltText">
+			模糊倍數
+		</text>
+		<text name="BHText3">
+			正常地圖
+		</text>
+	</panel>
+	<check_box label="根據這自訂配置變更我水的設定" name="make_default_cb"/>
+	<button label="儲存" name="save"/>
+	<button label="取消" name="cancel"/>
+</floater>

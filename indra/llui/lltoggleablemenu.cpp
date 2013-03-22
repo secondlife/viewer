@@ -101,3 +101,8 @@ bool LLToggleableMenu::toggleVisibility()
 
 	return true;
 }
+
+bool LLToggleableMenu::addChild(LLView* view, S32 tab_group)
+{
+	return addContextChild(view, tab_group);
+}

@@ -3,6 +3,8 @@
 	<menu_item_call label="觸碰" name="Object Touch"/>
 	<menu_item_call label="編輯" name="Edit..."/>
 	<menu_item_call label="建造" name="Build"/>
+	<menu_item_call label="在聯結集裡顯示" name="show_in_linksets"/>
+	<menu_item_call label="在角色中顯示" name="show_in_characters"/>
 	<menu_item_call label="打開" name="Open"/>
 	<menu_item_call label="坐在這裡" name="Object Sit"/>
 	<menu_item_call label="起立" name="Object Stand Up"/>

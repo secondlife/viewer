@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Text editor context menu">
+	<menu_item_call label="（未知）" name="Suggestion 1"/>
+	<menu_item_call label="（未知）" name="Suggestion 2"/>
+	<menu_item_call label="（未知）" name="Suggestion 3"/>
+	<menu_item_call label="（未知）" name="Suggestion 4"/>
+	<menu_item_call label="（未知）" name="Suggestion 5"/>
+	<menu_item_call label="新增到字典" name="Add to Dictionary"/>
+	<menu_item_call label="新增到忽略清單" name="Add to Ignore"/>
 	<menu_item_call label="剪下" name="Cut"/>
 	<menu_item_call label="恚庨" name="Copy"/>
 	<menu_item_call label="貼上" name="Paste"/>

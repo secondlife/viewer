@@ -37,33 +37,33 @@ class LLUUID;
 
 namespace LLAvatarNameCache
 {
-		
 	typedef boost::signals2::signal<void (void)> use_display_name_signal_t;
 
 	// Until the cache is set running, immediate lookups will fail and
 	// async lookups will be queued.  This allows us to block requests
 	// until we know if the first region supports display names.
-	void initClass(bool running);
+	void initClass(bool running, bool usePeopleAPI);
 	void cleanupClass();
 
+	// Import/export the name cache to file.
 	void importFile(std::istream& istr);
 	void exportFile(std::ostream& ostr);
 
-	// On the viewer, usually a simulator capabilitity
-	// If empty, name cache will fall back to using legacy name
-	// lookup system
+	// On the viewer, usually a simulator capabilitity.
+	// If empty, name cache will fall back to using legacy name lookup system.
 	void setNameLookupURL(const std::string& name_lookup_url);
 
-	// Do we have a valid lookup URL, hence are we trying to use the
-	// new display name lookup system?
+	// Do we have a valid lookup URL, i.e. are we trying to use the
+	// more recent display name lookup system?
 	bool hasNameLookupURL();
+	bool usePeopleAPI();
 	
 	// Periodically makes a batch request for display names not already in
-	// cache.  Call once per frame.
+	// cache. Called once per frame.
 	void idle();
 
 	// If name is in cache, returns true and fills in provided LLAvatarName
-	// otherwise returns false
+	// otherwise returns false.
 	bool get(const LLUUID& agent_id, LLAvatarName *av_name);
 
 	// Callback types for get() below
@@ -73,24 +73,18 @@ namespace LLAvatarNameCache
 	typedef callback_signal_t::slot_type callback_slot_t;
 	typedef boost::signals2::connection callback_connection_t;
 
-	// Fetches name information and calls callback.
-	// If name information is in cache, callback will be called immediately.
+	// Fetches name information and calls callbacks.
+	// If name information is in cache, callbacks will be called immediately.
 	callback_connection_t get(const LLUUID& agent_id, callback_slot_t slot);
 
-	// Allow display names to be explicitly disabled for testing.
+	// Set display name: flips the switch and triggers the callbacks.
 	void setUseDisplayNames(bool use);
-	bool useDisplayNames();
-
+	
+	void insert(const LLUUID& agent_id, const LLAvatarName& av_name);
 	void erase(const LLUUID& agent_id);
 
-    /// Provide some fallback for agents that return errors
+    /// Provide some fallback for agents that return errors.
 	void handleAgentError(const LLUUID& agent_id);
-
-	// Force a re-fetch of the most recent data, but keep the current
-	// data in cache
-	void fetch(const LLUUID& agent_id);
-
-	void insert(const LLUUID& agent_id, const LLAvatarName& av_name);
 
 	// Compute name expiration time from HTTP Cache-Control header,
 	// or return default value, in seconds from epoch.

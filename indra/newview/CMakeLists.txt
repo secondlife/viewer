@@ -18,6 +18,7 @@ include(JsonCpp)
 include(LLAudio)
 include(LLCharacter)
 include(LLCommon)
+include(LLCoreHttp)
 include(LLImage)
 include(LLImageJ2COJ)
 include(LLInventory)
@@ -34,6 +35,7 @@ include(LLXML)
 include(LScript)
 include(Linking)
 include(NDOF)
+include(NVAPI)
 include(GooglePerfTools)
 include(TemplateCheck)
 include(UI)
@@ -57,6 +59,7 @@ include_directories(
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
+    ${LLCOREHTTP_INCLUDE_DIRS}
     ${LLPHYSICS_INCLUDE_DIRS}
     ${FMOD_INCLUDE_DIR}
     ${LLIMAGE_INCLUDE_DIRS}
@@ -97,6 +100,7 @@ set(viewer_SOURCE_FILES
     llagentwearables.cpp
     llagentwearablesfetch.cpp
     llanimstatelabels.cpp
+    llappcorehttp.cpp
     llappearancemgr.cpp
     llappviewer.cpp
     llappviewerlistener.cpp
@@ -110,12 +114,13 @@ set(viewer_SOURCE_FILES
     llavatarlist.cpp
     llavatarlistitem.cpp
     llavatarpropertiesprocessor.cpp
+    llblockedlistitem.cpp
+    llblocklist.cpp
     llbox.cpp
     llbreadcrumbview.cpp
     llbrowsernotification.cpp
     llbuycurrencyhtml.cpp
     llcallbacklist.cpp
-    llcallfloater.cpp
     llcallingcard.cpp
     llcapabilitylistener.cpp
     llcaphttpsender.cpp
@@ -133,16 +138,24 @@ set(viewer_SOURCE_FILES
     llcommanddispatcherlistener.cpp
     llcommandhandler.cpp
     llcommandlineparser.cpp
+    llcommunicationchannel.cpp
     llcompilequeue.cpp
     llconfirmationmanager.cpp
+    llconversationlog.cpp
+    llconversationloglist.cpp
+    llconversationloglistitem.cpp
+    llconversationmodel.cpp
+    llconversationview.cpp
     llcurrencyuimanager.cpp
     llcylinder.cpp
     lldateutil.cpp
     lldaycyclemanager.cpp
     lldebugmessagebox.cpp
     lldebugview.cpp
+    lldeferredsounds.cpp
     lldelayedgestureerror.cpp
     lldirpicker.cpp
+    lldonotdisturbnotificationstorage.cpp
     lldndbutton.cpp
     lldrawable.cpp
     lldrawpool.cpp
@@ -190,7 +203,10 @@ set(viewer_SOURCE_FILES
     llfloaterbuycurrencyhtml.cpp
     llfloaterbuyland.cpp
     llfloatercamera.cpp
+    llfloaterchatvoicevolume.cpp
     llfloatercolorpicker.cpp
+    llfloaterconversationlog.cpp
+    llfloaterconversationpreview.cpp
     llfloaterdeleteenvpreset.cpp
     llfloaterdestinations.cpp
     llfloaterdisplayname.cpp
@@ -258,13 +274,13 @@ set(viewer_SOURCE_FILES
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
     llfloatervoiceeffect.cpp
+    llfloatervoicevolume.cpp
     llfloaterwebcontent.cpp
     llfloaterwebprofile.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindowsize.cpp
     llfloaterworldmap.cpp
-    llfolderview.cpp
-    llfolderviewitem.cpp
+    llfolderviewmodelinventory.cpp
     llfollowcam.cpp
     llfriendcard.cpp
     llgesturelistener.cpp
@@ -290,8 +306,9 @@ set(viewer_SOURCE_FILES
     llhudrender.cpp
     llhudtext.cpp
     llhudview.cpp
-    llimfloater.cpp
-    llimfloatercontainer.cpp
+    llfloaterimsessiontab.cpp
+    llfloaterimsession.cpp
+    llfloaterimcontainer.cpp
     llimhandler.cpp
     llimview.cpp
     llinspect.cpp
@@ -333,7 +350,7 @@ set(viewer_SOURCE_FILES
     llmarketplacenotifications.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
-    llmemoryview.cpp
+    llmenuoptionpathfindingrebakenavmesh.cpp
     llmeshrepository.cpp
     llmimetypes.cpp
     llmorphview.cpp
@@ -343,10 +360,9 @@ set(viewer_SOURCE_FILES
     llnameeditor.cpp
     llnamelistctrl.cpp
     llnavigationbar.cpp
-    llnearbychat.cpp
-    llnearbychatbar.cpp
-    llnearbychathandler.cpp
-    llnearbychatbarlistener.cpp
+    llfloaterimnearbychat.cpp
+    llfloaterimnearbychathandler.cpp
+    llfloaterimnearbychatlistener.cpp
     llnetmap.cpp
     llnotificationalerthandler.cpp
     llnotificationgrouphandler.cpp
@@ -376,7 +392,6 @@ set(viewer_SOURCE_FILES
     llpanelgroupnotices.cpp
     llpanelgrouproles.cpp
     llpanelhome.cpp
-    llpanelimcontrolpanel.cpp
     llpanelland.cpp
     llpanellandaudio.cpp
     llpanellandmarkinfo.cpp
@@ -387,7 +402,6 @@ set(viewer_SOURCE_FILES
     llpanelmaininventory.cpp
     llpanelmarketplaceinbox.cpp
     llpanelmarketplaceinboxinventory.cpp
-    llpanelmarketplaceoutboxinventory.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
     llpanelmediasettingssecurity.cpp
@@ -398,7 +412,6 @@ set(viewer_SOURCE_FILES
     llpanelonlinestatus.cpp
     llpaneloutfitedit.cpp
     llpaneloutfitsinventory.cpp
-    llpanelpathfindingrebakenavmesh.cpp
     llpanelpeople.cpp
     llpanelpeoplemenus.cpp
     llpanelpermissions.cpp
@@ -438,10 +451,12 @@ set(viewer_SOURCE_FILES
     llpathfindingobject.cpp
     llpathfindingobjectlist.cpp
     llpathfindingpathtool.cpp
+    llpersistentnotificationstorage.cpp
     llphysicsmotion.cpp
     llphysicsshapebuilderutil.cpp
     llplacesinventorybridge.cpp
     llplacesinventorypanel.cpp
+    llplacesfolderview.cpp
     llpopupview.cpp
     llpolymesh.cpp
     llpolymorph.cpp
@@ -672,6 +687,7 @@ set(viewer_HEADER_FILES
     llagentwearables.h
     llagentwearablesfetch.h
     llanimstatelabels.h
+    llappcorehttp.h
     llappearance.h
     llappearancemgr.h
     llappviewer.h
@@ -686,11 +702,12 @@ set(viewer_HEADER_FILES
     llavatarlist.h
     llavatarlistitem.h
     llavatarpropertiesprocessor.h
+    llblockedlistitem.h
+    llblocklist.h
     llbox.h
     llbreadcrumbview.h
     llbuycurrencyhtml.h
     llcallbacklist.h
-    llcallfloater.h
     llcallingcard.h
     llcapabilitylistener.h
     llcapabilityprovider.h
@@ -709,16 +726,24 @@ set(viewer_HEADER_FILES
     llcommanddispatcherlistener.h
     llcommandhandler.h
     llcommandlineparser.h
+    llcommunicationchannel.h
     llcompilequeue.h
     llconfirmationmanager.h
+    llconversationlog.h
+    llconversationloglist.h
+    llconversationloglistitem.h
+    llconversationmodel.h
+    llconversationview.h
     llcurrencyuimanager.h
     llcylinder.h
     lldateutil.h
     lldaycyclemanager.h
     lldebugmessagebox.h
     lldebugview.h
+    lldeferredsounds.h
     lldelayedgestureerror.h
     lldirpicker.h
+    lldonotdisturbnotificationstorage.h
     lldndbutton.h
     lldrawable.h
     lldrawpool.h
@@ -766,7 +791,10 @@ set(viewer_HEADER_FILES
     llfloaterbuycurrencyhtml.h
     llfloaterbuyland.h
     llfloatercamera.h
+    llfloaterchatvoicevolume.h
     llfloatercolorpicker.h
+    llfloaterconversationlog.h
+    llfloaterconversationpreview.h
     llfloaterdeleteenvpreset.h
     llfloaterdestinations.h
     llfloaterdisplayname.h
@@ -834,14 +862,13 @@ set(viewer_HEADER_FILES
     llfloateruipreview.h
     llfloaterurlentry.h
     llfloatervoiceeffect.h
+    llfloatervoicevolume.h
     llfloaterwebcontent.h
     llfloaterwebprofile.h
     llfloaterwhitelistentry.h
     llfloaterwindowsize.h
     llfloaterworldmap.h
-    llfolderview.h
-    llfoldervieweventlistener.h
-    llfolderviewitem.h
+    llfolderviewmodelinventory.h
     llfollowcam.h
     llfriendcard.h
     llgesturelistener.h
@@ -866,8 +893,9 @@ set(viewer_HEADER_FILES
     llhudrender.h
     llhudtext.h
     llhudview.h
-    llimfloater.h
-    llimfloatercontainer.h
+    llfloaterimsessiontab.h
+    llfloaterimsession.h
+    llfloaterimcontainer.h
     llimview.h
     llinspect.h
     llinspectavatar.h
@@ -909,7 +937,7 @@ set(viewer_HEADER_FILES
     llmarketplacenotifications.h
     llmediactrl.h
     llmediadataclient.h
-    llmemoryview.h
+    llmenuoptionpathfindingrebakenavmesh.h
     llmeshrepository.h
     llmimetypes.h
     llmorphview.h
@@ -919,10 +947,9 @@ set(viewer_HEADER_FILES
     llnameeditor.h
     llnamelistctrl.h
     llnavigationbar.h
-    llnearbychat.h
-    llnearbychatbar.h
-    llnearbychathandler.h
-    llnearbychatbarlistener.h
+    llfloaterimnearbychat.h
+    llfloaterimnearbychathandler.h
+    llfloaterimnearbychatlistener.h
     llnetmap.h
     llnotificationhandler.h
     llnotificationmanager.h
@@ -946,7 +973,6 @@ set(viewer_HEADER_FILES
     llpanelgroupnotices.h
     llpanelgrouproles.h
     llpanelhome.h
-    llpanelimcontrolpanel.h
     llpanelland.h
     llpanellandaudio.h
     llpanellandmarkinfo.h
@@ -957,7 +983,6 @@ set(viewer_HEADER_FILES
     llpanelmaininventory.h
     llpanelmarketplaceinbox.h
     llpanelmarketplaceinboxinventory.h
-    llpanelmarketplaceoutboxinventory.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
     llpanelmediasettingssecurity.h
@@ -968,7 +993,6 @@ set(viewer_HEADER_FILES
     llpanelonlinestatus.h
     llpaneloutfitedit.h
     llpaneloutfitsinventory.h
-    llpanelpathfindingrebakenavmesh.h
     llpanelpeople.h
     llpanelpeoplemenus.h
     llpanelpermissions.h
@@ -1003,10 +1027,12 @@ set(viewer_HEADER_FILES
     llpathfindingobject.h
     llpathfindingobjectlist.h
     llpathfindingpathtool.h
+    llpersistentnotificationstorage.h
     llphysicsmotion.h
     llphysicsshapebuilderutil.h
     llplacesinventorybridge.h
     llplacesinventorypanel.h
+    llplacesfolderview.h
     llpolymesh.h
     llpolymorph.h
     llpopupview.h
@@ -1564,9 +1590,10 @@ set(PACKAGE ON CACHE BOOL
 if (WINDOWS)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
-        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS ${TCMALLOC_LINK_FLAGS}"
-        LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
-        LINK_FLAGS_RELEASE "/FORCE:MULTIPLE /MAP\"secondlife-bin.MAP\" /OPT:REF"
+        # *TODO -reenable this once we get server usage sorted out
+        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS ${TCMALLOC_LINK_FLAGS} /LARGEADDRESSAWARE"
+        LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO /LARGEADDRESSAWARE"
+        LINK_FLAGS_RELEASE "/FORCE:MULTIPLE /MAP\"secondlife-bin.MAP\" /OPT:REF /LARGEADDRESSAWARE"
         )
     if(USE_PRECOMPILED_HEADERS)
         set_target_properties(
@@ -1811,8 +1838,10 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLXML_LIBRARIES}
     ${LSCRIPT_LIBRARIES}
     ${LLMATH_LIBRARIES}
+    ${LLCOREHTTP_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     ${NDOF_LIBRARY}
+    ${NVAPI_LIBRARY}
     ${HUNSPELL_LIBRARY}
     ${viewer_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
@@ -1861,7 +1890,6 @@ if (LINUX)
   set(COPY_INPUT_DEPENDENCIES
     ${VIEWER_BINARY_NAME}
     linux-crash-logger
-    linux-updater
     SLPlugin
     media_plugin_webkit
     media_plugin_gstreamer010
@@ -1992,8 +2020,9 @@ if (INSTALL)
 endif (INSTALL)
 
 if (PACKAGE)
+  set(SYMBOL_SEARCH_DIRS "")
   if (WINDOWS)
-    set(VIEWER_DIST_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
+    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
     set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-symbols-windows.tar.bz2")
     # slplugin.exe failing symbols dump - need to debug, might have to do with updated version of google breakpad
     # set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX} slplugin.exe")
@@ -2002,13 +2031,20 @@ if (PACKAGE)
     set(VIEWER_COPY_MANIFEST copy_w_viewer_manifest)
   endif (WINDOWS)
   if (DARWIN)
-    set(VIEWER_DIST_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app")
+    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
+    # *TODO: Generate these search dirs in the cmake files related to each binary.
+    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/llplugin/slplugin/${CMAKE_CFG_INTDIR}")
+    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/mac_crash_logger/${CMAKE_CFG_INTDIR}")
+    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/mac_updater/${CMAKE_CFG_INTDIR}")
+    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/gstreamer010/${CMAKE_CFG_INTDIR}")
+    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/quicktime/${CMAKE_CFG_INTDIR}")
+    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/webkit/${CMAKE_CFG_INTDIR}")
     set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-symbols-darwin.tar.bz2")
-    set(VIEWER_EXE_GLOBS "'Second Life' SLPlugin")
+    set(VIEWER_EXE_GLOBS "'Second Life' SLPlugin mac-updater mac-crash-logger")
     set(VIEWER_LIB_GLOB "*.dylib")
   endif (DARWIN)
   if (LINUX)
-    set(VIEWER_DIST_DIR "${CMAKE_CURRENT_BINARY_DIR}/packaged")
+    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/packaged")
     set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-symbols-linux.tar.bz2")
     set(VIEWER_EXE_GLOBS "do-not-directly-run-secondlife-bin SLPlugin")
     set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}*")
@@ -2028,7 +2064,7 @@ if (PACKAGE)
     ARGS
       "${CMAKE_CURRENT_SOURCE_DIR}/generate_breakpad_symbols.py"
       "${LLBUILD_CONFIG}"
-      "${VIEWER_DIST_DIR}"
+      "${SYMBOL_SEARCH_DIRS}"
       "${VIEWER_EXE_GLOBS}"
       "${VIEWER_LIB_GLOB}"
       "${AUTOBUILD_INSTALL_DIR}/bin/dump_syms"
@@ -2063,6 +2099,12 @@ if (LL_TESTS)
     lltranslate.cpp
     PROPERTIES
     LL_TEST_ADDITIONAL_LIBRARIES "${JSONCPP_LIBRARIES}"
+  )
+
+  set_source_files_properties(
+    lllogininstance.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
   )
 
   ##################################################

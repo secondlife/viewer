@@ -311,6 +311,7 @@ Cron Stardust
 	VWR-10579
 	VWR-25120
 	STORM-1075
+	STORM-1919
 Cypren Christenson
 	STORM-417
 Dante Tucker
@@ -321,6 +322,7 @@ Dale Glass
 	VWR-1358
 	VWR-2041
 Darien Caldwell
+	SH-3055
 Dartagan Shepherd
 Debs Regent
 Decro Schmooz
@@ -641,12 +643,15 @@ Jonathan Yap
 	STORM-1793
 	STORM-1810
 	STORM-1877
+	STORM-1892
+	STORM-1894
 	STORM-1860
 	STORM-1852
 	STORM-1870
 	STORM-1872
 	STORM-1858
 	STORM-1862
+	STORM-1918
 Kadah Coba
 	STORM-1060
     STORM-1843
@@ -693,6 +698,7 @@ Kunnis Basiat
 	VWR-82
 	VWR-102
 Lance Corrimal
+	STORM-1910
 	VWR-25269
 Latif Khalifa
 	VWR-5370
@@ -745,10 +751,13 @@ Marc Claridge
 Marc2 Sands
 Marianne McCann
 Marine Kelley
+    CHUIBUG-134
     STORM-281
+    STORM-1910
 MartinRJ Fayray
     STORM-1844
     STORM-1845
+    STORM-1934
 Matthew Anthony
 Matthew Dowd
 	VWR-1344
@@ -892,6 +901,11 @@ Nicholaz Beresford
 	VWR-2682
 	VWR-2684
 Nick Rhodes
+NickyD
+	MAINT-873
+Nicky Dasmijn
+	VWR-29228
+	MAINT-873
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1060,9 +1074,12 @@ Shawn Kaufmat
 	SNOW-240
 Sheet Spotter
 Shnurui Troughton
+Shyotl Kuhr
+	MAINT-1138
 Siana Gearz
 	STORM-960
 	STORM-1088
+	MAINT-1138
 sicarius Thorne
 Sicarius Toxx
 SignpostMarv Martin
@@ -1125,6 +1142,7 @@ TankMaster Finesmith
 	STORM-1602
 	STORM-1868
     VWR-26622
+	VWR-29224
 Talamasca
 Tali Rosca
 Tayra Dagostino
@@ -1243,6 +1261,8 @@ Westley Streeter
 Whimsy Winx
 Whirly Fizzle
 	STORM-1895
+	MAINT-873
+	STORM-1930
 Whoops Babii
 	VWR-631
 	VWR-1640
@@ -1271,6 +1291,8 @@ Whoops Babii
 Winter Ventura
 Wilton Lundquist
 	VWR-7682
+Wolf Loonie
+	STORM-1868
 WolfPup Lowenhar
 	OPEN-1
 	OPEN-37

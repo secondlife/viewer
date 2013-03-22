@@ -41,12 +41,23 @@ class LLWearable;
 //-----------------------------------------------------------------------------
 // LLPolyMorphData()
 //-----------------------------------------------------------------------------
+LL_ALIGN_PREFIX(16)
 class LLPolyMorphData
 {
 public:
 	LLPolyMorphData(const std::string& morph_name);
 	~LLPolyMorphData();
 	LLPolyMorphData(const LLPolyMorphData &rhs);
+
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
 
 	BOOL			loadBinary(LLFILE* fp, LLPolyMeshSharedData *mesh);
 	const std::string& getName() { return mName; }
@@ -65,9 +76,13 @@ public:
 
 	F32					mTotalDistortion;	// vertex distortion summed over entire morph
 	F32					mMaxDistortion;		// maximum single vertex distortion in a given morph
-	LLVector4a			mAvgDistortion;		// average vertex distortion, to infer directionality of the morph
+	LL_ALIGN_16(LLVector4a			mAvgDistortion);		// average vertex distortion, to infer directionality of the morph
 	LLPolyMeshSharedData*	mMesh;
-};
+
+private:
+	void freeData();
+} LL_ALIGN_POSTFIX(16);
+
 
 //-----------------------------------------------------------------------------
 // LLPolyVertexMask()

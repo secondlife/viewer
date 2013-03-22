@@ -3,6 +3,9 @@
 	<panel.string name="unknown">
 		（未知）
 	</panel.string>
+	<panel.string name="unknown_multiple">
+		（未知 / 多項）
+	</panel.string>
 	<panel.string name="public">
 		（公開）
 	</panel.string>

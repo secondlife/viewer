@@ -32,7 +32,7 @@ BOOL LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask
 void LLDir::setChatLogsDir(const std::string &path) {}
 void LLDir::setPerAccountChatLogsDir(const std::string &first, const std::string &last) {}
 void LLDir::setLindenUserDir(const std::string &first, const std::string &last) {}
-void LLDir::setSkinFolder(const std::string &skin_folder) {}
+void LLDir::setSkinFolder(const std::string &skin_folder, const std::string& language) {}
 bool LLDir::setCacheDir(const std::string &path) { return true; }
 void LLDir::dumpCurrentDirectories() {}
 
@@ -48,7 +48,7 @@ public:
 	/*virtual*/ U32 countFilesInDir(const std::string &dirname, const std::string &mask) { return 42; }
 	/*virtual*/ BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap) { fname = fname + "_NEXT"; return false; }
 	/*virtual*/ void getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname) { fname = "RANDOM_FILE"; }
-	/*virtual*/ BOOL fileExists(const std::string &filename) const { return false; }
+	/*virtual*/ bool fileExists(const std::string &filename) const { return false; }
 };
 
 LLDir_stub gDirUtil;

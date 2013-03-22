@@ -39,7 +39,7 @@
 
 #include "lldockablefloater.h"
 #include "llsyswellwindow.h"
-#include "llimfloater.h"
+#include "llfloaterimsession.h"
 #include "llscriptfloater.h"
 #include "llrootview.h"
 
@@ -253,12 +253,26 @@ void LLScreenChannel::addToast(const LLToast::Params& p)
 {
 	bool store_toast = false, show_toast = false;
 
-	mDisplayToastsAlways ? show_toast = true : show_toast = mWasStartUpToastShown && (mShowToasts || p.force_show);
+	if (mDisplayToastsAlways)
+	{
+		show_toast = true;
+	}
+	else
+	{
+		show_toast = mWasStartUpToastShown && (mShowToasts || p.force_show);
+	}
 	store_toast = !show_toast && p.can_be_stored && mCanStoreToasts;
 
 	if(!show_toast && !store_toast)
 	{
-		mRejectToastSignal(p.notif_id);
+		LLNotificationPtr notification = LLNotifications::instance().find(p.notif_id);
+
+		if (notification &&
+			(!notification->canLogToIM() || !notification->hasFormElements()))
+		{
+			// only cancel notification if it isn't being used in IM session
+			LLNotifications::instance().cancel(notification);
+		}
 		return;
 	}
 
@@ -371,7 +385,7 @@ void LLScreenChannel::storeToast(ToastElem& toast_elem)
 	const LLToast* toast = toast_elem.getToast();
 	if (toast)
 	{
-		mStoredToastList.push_back(toast_elem);
+	mStoredToastList.push_back(toast_elem);
 		mOnStoreToast(toast->getPanel(), toast->getNotificationID());
 	}
 }
@@ -410,14 +424,14 @@ void LLScreenChannel::loadStoredToastByNotificationIDToChannel(LLUUID id)
 	LLToast* toast = it->getToast();
 	if (toast)
 	{
-		if(toast->getVisible())
-		{
-			// toast is already in channel
-			return;
-		}
+	if(toast->getVisible())
+	{
+		// toast is already in channel
+		return;
+	}
 
-		toast->setIsHidden(false);
-		toast->startTimer();
+	toast->setIsHidden(false);
+	toast->startTimer();
 		mToastList.push_back(*it);
 	}
 
@@ -425,34 +439,12 @@ void LLScreenChannel::loadStoredToastByNotificationIDToChannel(LLUUID id)
 }
 
 //--------------------------------------------------------------------------
-void LLScreenChannel::removeStoredToastByNotificationID(LLUUID id)
-{
-	// *TODO: may be remove this function
-	std::vector<ToastElem>::iterator it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
-
-	if( it == mStoredToastList.end() )
-		return;
-
-	const LLToast* toast = it->getToast();
-	if (toast)
-	{
-		mRejectToastSignal(toast->getNotificationID());
-	}
-
-	// Call find() once more, because the mStoredToastList could have been changed
-	// in mRejectToastSignal callback and the iterator could have become invalid.
-	it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
-	if (it != mStoredToastList.end())
-	{
-		mStoredToastList.erase(it);
-	}
-}
-
-//--------------------------------------------------------------------------
 void LLScreenChannel::killToastByNotificationID(LLUUID id)
 {
 	// searching among toasts on a screen
 	std::vector<ToastElem>::iterator it = find(mToastList.begin(), mToastList.end(), id);
+	LLNotificationPtr notification = LLNotifications::instance().find(id);
+	if (!notification) return;
 	
 	if( it != mToastList.end())
 	{
@@ -465,41 +457,66 @@ void LLScreenChannel::killToastByNotificationID(LLUUID id)
 		//			the toast will be destroyed.
 		if(toast && toast->isNotificationValid())
 		{
-			mRejectToastSignal(toast->getNotificationID());
+			if (!notification->canLogToIM() || !notification->hasFormElements())
+			{
+				// only cancel notification if it isn't being used in IM session
+				LLNotifications::instance().cancel(notification);
+			}
 		}
 		else
 		{
-
-			deleteToast(toast);
-			mToastList.erase(it);
-			redrawToasts();
+			removeToastByNotificationID(id);
 		}
-		return;
 	}
-
-	// searching among stored toasts
-	it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
-
-	if (it != mStoredToastList.end())
+	else
 	{
-		LLToast* toast = it->getToast();
-		if (toast)
+		// searching among stored toasts
+		it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
+
+		if( it != mStoredToastList.end() )
 		{
-			// send signal to a listener to let him perform some action on toast rejecting
-			mRejectToastSignal(toast->getNotificationID());
-			deleteToast(toast);
+			LLToast* toast = it->getToast();
+			if (toast)
+			{
+				if (!notification->canLogToIM() || !notification->hasFormElements())
+				{
+					// only cancel notification if it isn't being used in IM session
+					LLNotifications::instance().cancel(notification);
+				}
+				deleteToast(toast);
+			}
+		}
+	
+		// Call find() once more, because the mStoredToastList could have been changed
+		// via notification cancellation and the iterator could have become invalid.
+		it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
+		if (it != mStoredToastList.end())
+		{
+			mStoredToastList.erase(it);
 		}
 	}
+}
 
-	// Call find() once more, because the mStoredToastList could have been changed
-	// in mRejectToastSignal callback and the iterator could have become invalid.
+void LLScreenChannel::removeToastByNotificationID(LLUUID id)
+{
+	std::vector<ToastElem>::iterator it = find(mToastList.begin(), mToastList.end(), id);
+	while( it != mToastList.end())
+	{
+		deleteToast(it->getToast());
+		mToastList.erase(it);
+		redrawToasts();
+		// find next toast with matching id
+		it = find(mToastList.begin(), mToastList.end(), id);
+	}
+
 	it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
 	if (it != mStoredToastList.end())
 	{
+		deleteToast(it->getToast());
 		mStoredToastList.erase(it);
 	}
-
 }
+
 
 void LLScreenChannel::killMatchedToasts(const Matcher& matcher)
 {
@@ -521,11 +538,11 @@ void LLScreenChannel::modifyToastByNotificationID(LLUUID id, LLPanel* panel)
 		LLToast* toast = it->getToast();
 		if (toast)
 		{
-			LLPanel* old_panel = toast->getPanel();
-			toast->removeChild(old_panel);
-			delete old_panel;
-			toast->insertPanel(panel);
-			toast->startTimer();
+		LLPanel* old_panel = toast->getPanel();
+		toast->removeChild(old_panel);
+		delete old_panel;
+		toast->insertPanel(panel);
+		toast->startTimer();
 		}
 		redrawToasts();
 	}
@@ -571,9 +588,13 @@ void LLScreenChannel::showToastsBottom()
 
 	LLDockableFloater* floater = dynamic_cast<LLDockableFloater*>(LLDockableFloater::getInstanceHandle().get());
 
-	for(it = mToastList.rbegin(); it != mToastList.rend(); ++it)
+	// Use a local variable instead of mToastList.
+	// mToastList can be modified during recursive calls and then all iteratos will be invalidated.
+	std::vector<ToastElem> vToastList( mToastList );
+
+	for(it = vToastList.rbegin(); it != vToastList.rend(); ++it)
 	{
-		if(it != mToastList.rbegin())
+		if(it != vToastList.rbegin())
 		{
 			LLToast* toast = (it-1)->getToast();
 			if (!toast)
@@ -601,7 +622,7 @@ void LLScreenChannel::showToastsBottom()
 
 		if(floater && floater->overlapsScreenChannel())
 		{
-			if(it == mToastList.rbegin())
+			if(it == vToastList.rbegin())
 			{
 				// move first toast above docked floater
 				S32 shift = floater->getRect().getHeight();
@@ -624,7 +645,7 @@ void LLScreenChannel::showToastsBottom()
 
 		if(!stop_showing_toasts)
 		{
-			if( it != mToastList.rend()-1)
+			if( it != vToastList.rend()-1)
 			{
 				S32 toast_top = toast->getRect().mTop + gSavedSettings.getS32("ToastGap");
 				stop_showing_toasts = toast_top > getRect().mTop;
@@ -632,7 +653,8 @@ void LLScreenChannel::showToastsBottom()
 		} 
 
 		// at least one toast should be visible
-		if(it == mToastList.rbegin())
+
+		if(it == vToastList.rbegin())
 		{
 			stop_showing_toasts = false;
 		}
@@ -655,10 +677,11 @@ void LLScreenChannel::showToastsBottom()
 	}
 
 	// Dismiss toasts we don't have space for (STORM-391).
-	if(it != mToastList.rend())
+	if(it != vToastList.rend())
 	{
 		mHiddenToastsNum = 0;
-		for(; it != mToastList.rend(); it++)
+
+		for(; it != vToastList.rend(); it++)
 		{
 			LLToast* toast = it->getToast();
 			if (toast)
@@ -679,7 +702,7 @@ void LLScreenChannel::showToastsCentre()
 		return;
 	}
 
-	LLRect	toast_rect;
+	LLRect	toast_rect;	
 	S32		bottom = (getRect().mTop - getRect().mBottom)/2 + toast->getRect().getHeight()/2;
 	std::vector<ToastElem>::reverse_iterator it;
 
@@ -714,9 +737,13 @@ void LLScreenChannel::showToastsTop()
 
 	LLDockableFloater* floater = dynamic_cast<LLDockableFloater*>(LLDockableFloater::getInstanceHandle().get());
 
-	for(it = mToastList.rbegin(); it != mToastList.rend(); ++it)
+	// Use a local variable instead of mToastList.
+	// mToastList can be modified during recursive calls and then all iteratos will be invalidated.
+	std::vector<ToastElem> vToastList( mToastList );
+
+	for(it = vToastList.rbegin(); it != vToastList.rend(); ++it)
 	{
-		if(it != mToastList.rbegin())
+		if(it != vToastList.rbegin())
 		{
 			LLToast* toast = (it-1)->getToast();
 			if (!toast)
@@ -744,7 +771,7 @@ void LLScreenChannel::showToastsTop()
 
 		if(floater && floater->overlapsScreenChannel())
 		{
-			if(it == mToastList.rbegin())
+			if(it == vToastList.rbegin())
 			{
 				// move first toast above docked floater
 				S32 shift = -floater->getRect().getHeight();
@@ -767,7 +794,7 @@ void LLScreenChannel::showToastsTop()
 
 		if(!stop_showing_toasts)
 		{
-			if( it != mToastList.rend()-1)
+			if( it != vToastList.rend()-1)
 			{
 				S32 toast_bottom = toast->getRect().mBottom - gSavedSettings.getS32("ToastGap");
 				stop_showing_toasts = toast_bottom < channel_rect.mBottom;
@@ -775,7 +802,7 @@ void LLScreenChannel::showToastsTop()
 		} 
 
 		// at least one toast should be visible
-		if(it == mToastList.rbegin())
+		if(it == vToastList.rbegin())
 		{
 			stop_showing_toasts = false;
 		}
@@ -799,10 +826,12 @@ void LLScreenChannel::showToastsTop()
 
 	// Dismiss toasts we don't have space for (STORM-391).
 	std::vector<LLToast*> toasts_to_hide;
-	if(it != mToastList.rend())
+
+	if(it != vToastList.rend())
 	{
 		mHiddenToastsNum = 0;
-		for(; it != mToastList.rend(); it++)
+
+		for(; it != vToastList.rend(); it++)
 		{
 			LLToast* toast = it->getToast();
 			if (toast)

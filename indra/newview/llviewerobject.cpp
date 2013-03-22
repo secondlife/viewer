@@ -237,6 +237,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mTimeDilation(1.f),
 	mRotTime(0.f),
 	mAngularVelocityRot(),
+	mPreviousRotation(),
 	mState(0),
 	mMedia(NULL),
 	mClickAction(0),
@@ -784,7 +785,7 @@ BOOL LLViewerObject::setDrawableParent(LLDrawable* parentp)
 	}
 	LLDrawable* old_parent = mDrawable->mParent;
 	mDrawable->mParent = parentp; 
-	
+		
 	if (parentp && mDrawable->isActive())
 	{
 		parentp->makeActive();
@@ -875,7 +876,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					 const EObjectUpdateType update_type,
 					 LLDataPacker *dp)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
 	U32 retval = 0x0;
 	
 	// If region is removed from the list it is also deleted.
@@ -1231,12 +1231,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					coloru.mV[3] = 255 - coloru.mV[3];
 					mText->setColor(LLColor4(coloru));
 					mText->setString(temp_string);
-					
-					if (mDrawable.notNull())
-					{
-						setChanged(MOVED | SILHOUETTE);
-						gPipeline.markMoved(mDrawable, FALSE); // undamped
-					}
+
+					setChanged(MOVED | SILHOUETTE);
 				}
 				else if (mText.notNull())
 				{
@@ -1410,9 +1406,10 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 #else
 					val = (U16 *) &data[count];
 #endif
-					setAngularVelocity(	U16_to_F32(val[VX], -size, size),
+					new_angv.set(U16_to_F32(val[VX], -size, size),
 										U16_to_F32(val[VY], -size, size),
 										U16_to_F32(val[VZ], -size, size));
+					setAngularVelocity(new_angv);
 					break;
 
 				case 16:
@@ -1436,9 +1433,10 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					new_rot.mQ[VZ] = U8_to_F32(data[11], -1.f, 1.f);
 					new_rot.mQ[VW] = U8_to_F32(data[12], -1.f, 1.f);
 
-					setAngularVelocity(	U8_to_F32(data[13], -size, size),
+					new_angv.set(U8_to_F32(data[13], -size, size),
 										U8_to_F32(data[14], -size, size),
 										U8_to_F32(data[15], -size, size) );
+					setAngularVelocity(new_angv);
 					break;
 				}
 
@@ -1510,9 +1508,10 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				dp->unpackU16(val[VX], "AccX");
 				dp->unpackU16(val[VY], "AccY");
 				dp->unpackU16(val[VZ], "AccZ");
-				setAngularVelocity(	U16_to_F32(val[VX], -64.f, 64.f),
+				new_angv.set(U16_to_F32(val[VX], -64.f, 64.f),
 									U16_to_F32(val[VY], -64.f, 64.f),
 									U16_to_F32(val[VZ], -64.f, 64.f));
+				setAngularVelocity(new_angv);
 			}
 			break;
 			case OUT_FULL_COMPRESSED:
@@ -1556,8 +1555,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 				if (value & 0x80)
 				{
-					dp->unpackVector3(vec, "Omega");
-					setAngularVelocity(vec);
+					dp->unpackVector3(new_angv, "Omega");
+					setAngularVelocity(new_angv);
 				}
 
 				if (value & 0x20)
@@ -2038,10 +2037,14 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		}
 	}
 
-	if (new_rot != getRotation()
-		|| new_angv != old_angv)
+	if ((new_rot != getRotation())
+		|| (new_angv != old_angv))
 	{
-		if (new_angv != old_angv)
+		if (new_rot != mPreviousRotation)
+		{
+			resetRot();
+		}
+		else if (new_angv != old_angv)
 		{
 			if (flagUsePhysics())
 			{
@@ -2053,11 +2056,13 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 			}
 		}
 
+		// Remember the last rotation value
+		mPreviousRotation = new_rot;
+
 		// Set the rotation of the object followed by adjusting for the accumulated angular velocity (llSetTargetOmega)
 		setRotation(new_rot * mAngularVelocityRot);
 		setChanged(ROTATED | SILHOUETTE);
 	}
-
 
 	if ( gShowObjectUpdates )
 	{
@@ -2159,28 +2164,28 @@ void LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 
 	if (!mDead)
 	{
-		// CRO - don't velocity interp linked objects!
-		// Leviathan - but DO velocity interp joints
-		if (!mStatic && sVelocityInterpolate && !isSelected())
-		{
-			// calculate dt from last update
-			F32 dt_raw = (F32)(time - mLastInterpUpdateSecs);
-			F32 dt = mTimeDilation * dt_raw;
+	// CRO - don't velocity interp linked objects!
+	// Leviathan - but DO velocity interp joints
+	if (!mStatic && sVelocityInterpolate && !isSelected())
+	{
+		// calculate dt from last update
+		F32 dt_raw = (F32)(time - mLastInterpUpdateSecs);
+		F32 dt = mTimeDilation * dt_raw;
 
 			applyAngularVelocity(dt);
-			
-			if (isAttachment())
-			{
-				mLastInterpUpdateSecs = time;
-				return;
-			}
-			else
-			{	// Move object based on it's velocity and rotation
-				interpolateLinearMotion(time, dt);
-			}
-		}
 
-		updateDrawable(FALSE);
+			if (isAttachment())
+				{
+					mLastInterpUpdateSecs = time;
+				return;
+		}
+		else
+		{	// Move object based on it's velocity and rotation
+			interpolateLinearMotion(time, dt);
+		}
+	}
+
+	updateDrawable(FALSE);
 	}
 }
 
@@ -2341,8 +2346,6 @@ void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
 
 BOOL LLViewerObject::setData(const U8 *datap, const U32 data_size)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	
 	delete [] mData;
 
 	if (datap)
@@ -2384,8 +2387,6 @@ void LLViewerObject::doUpdateInventory(
 	U8 key,
 	bool is_new)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-
 	LLViewerInventoryItem* old_item = NULL;
 	if(TASK_INVENTORY_ITEM_KEY == key)
 	{
@@ -2469,8 +2470,6 @@ void LLViewerObject::saveScript(
 	BOOL active,
 	bool is_new)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-
 	/*
 	 * XXXPAM Investigate not making this copy.  Seems unecessary, but I'm unsure about the
 	 * interaction with doUpdateInventory() called below.
@@ -2546,8 +2545,6 @@ void LLViewerObject::dirtyInventory()
 
 void LLViewerObject::registerInventoryListener(LLVOInventoryListener* listener, void* user_data)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	
 	LLInventoryCallbackInfo* info = new LLInventoryCallbackInfo;
 	info->mListener = listener;
 	info->mInventoryData = user_data;
@@ -2645,8 +2642,6 @@ S32 LLFilenameAndTask::sCount = 0;
 // static
 void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	
 	LLUUID task_id;
 	msg->getUUIDFast(_PREHASH_InventoryData, _PREHASH_TaskID, task_id);
 	LLViewerObject* object = gObjectList.findObject(task_id);
@@ -2733,8 +2728,6 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 
 void LLViewerObject::loadTaskInvFile(const std::string& filename)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	
 	std::string filename_and_local_path = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, filename);
 	llifstream ifs(filename_and_local_path);
 	if(ifs.good())
@@ -2858,23 +2851,6 @@ void LLViewerObject::updateInventory(
 	U8 key,
 	bool is_new)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-
-	std::list<LLUUID>::iterator begin = mPendingInventoryItemsIDs.begin();
-	std::list<LLUUID>::iterator end = mPendingInventoryItemsIDs.end();
-
-	bool is_fetching = std::find(begin, end, item->getAssetUUID()) != end;
-	bool is_fetched = getInventoryItemByAsset(item->getAssetUUID()) != NULL;
-
-	if (is_fetched || is_fetching)
-	{
-		return;
-	}
-	else
-	{
-		mPendingInventoryItemsIDs.push_back(item->getAssetUUID());
-	}
-
 	// This slices the object into what we're concerned about on the
 	// viewer. The simulator will take the permissions and transfer
 	// ownership.
@@ -3883,8 +3859,6 @@ std::string LLViewerObject::getMediaURL() const
 
 void LLViewerObject::setMediaURL(const std::string& media_url)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	
 	if (!mMedia)
 	{
 		mMedia = new LLViewerObjectMedia;
@@ -3934,8 +3908,6 @@ BOOL LLViewerObject::setMaterial(const U8 material)
 
 void LLViewerObject::setNumTEs(const U8 num_tes)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	
 	U32 i;
 	if (num_tes != getNumTEs())
 	{
@@ -5384,9 +5356,9 @@ void LLViewerObject::setPhysicsShapeType(U8 type)
 	mPhysicsShapeUnknown = false;
 	if (type != mPhysicsShapeType)
 	{
-		mPhysicsShapeType = type;
-		mCostStale = true;
-	}
+	mPhysicsShapeType = type;
+	mCostStale = true;
+}
 }
 
 void LLViewerObject::setPhysicsGravity(F32 gravity)

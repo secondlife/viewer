@@ -30,7 +30,6 @@
 #include "lluuid.h"
 #include "llstring.h"
 #include "llthread.h"
-#include "llmemtype.h"
 
 const S32 MIN_IMAGE_MIP =  2; // 4x4, only used for expand/contract power of 2
 const S32 MAX_IMAGE_MIP = 11; // 2048x2048
@@ -148,7 +147,7 @@ public:
 
 protected:
 	// special accessor to allow direct setting of mData and mDataSize by LLImageFormatted
-	void setDataAndSize(U8 *data, S32 size) { mData = data; mDataSize = size; }	
+	void setDataAndSize(U8 *data, S32 size);
 	
 public:
 	static void generateMip(const U8 *indata, U8* mipdata, int width, int height, S32 nchannels);
@@ -176,8 +175,6 @@ private:
 	bool mAllowOverSize ;
 
 	static LLPrivateMemoryPool* sPrivatePoolp ;
-public:
-	LLMemType::DeclareMemType& mMemType; // debug
 };
 
 // Raw representation of an image (used for textures, and other uncompressed formats
@@ -211,8 +208,7 @@ public:
 	void contractToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE, BOOL scale_image = TRUE);
 	void biasedScaleToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE);
 	BOOL scale( S32 new_width, S32 new_height, BOOL scale_image = TRUE );
-	//BOOL scaleDownWithoutBlending( S32 new_width, S32 new_height) ;
-
+	
 	// Fill the buffer with a constant color
 	void fill( const LLColor4U& color );
 

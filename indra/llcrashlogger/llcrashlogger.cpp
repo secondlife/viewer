@@ -366,7 +366,7 @@ bool LLCrashLogger::sendCrashLogs()
 	{
 		sent = runCrashLogPost(mAltCrashHost, post_data, std::string("Sending to alternate server"), 3, 5);
 	}
-	
+	    
 	mSentCrashLogs = sent;
 
 	return true;

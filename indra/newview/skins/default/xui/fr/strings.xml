@@ -137,7 +137,7 @@
 		Quitter
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=fr-FR
+		http://join.secondlife.com/index.php?lang=fr-FR&amp;sourceid=[sourceid]
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Le client que vous utilisez ne permet plus d&apos;accéder à Second Life. Téléchargez un nouveau client à la page suivante :
@@ -1414,6 +1414,12 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="InvFolder favorite">
 		Mes Favoris
 	</string>
+	<string name="InvFolder Favorites">
+		Mes favoris
+	</string>
+	<string name="InvFolder favorites">
+		Mes favoris
+	</string>
 	<string name="InvFolder Current Outfit">
 		Tenue actuelle
 	</string>
@@ -1428,6 +1434,12 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="InvFolder Meshes">
 		Maillages
+	</string>
+	<string name="InvFolder Received Items">
+		Articles reçus
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		Boîte d&apos;envoi vendeur
 	</string>
 	<string name="InvFolder Friends">
 		Amis
@@ -4902,7 +4914,7 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 		Parler
 	</string>
 	<string name="Command_View_Label">
-		Paramètres de la caméra
+		Caméra
 	</string>
 	<string name="Command_Voice_Label">
 		Paramètres vocaux

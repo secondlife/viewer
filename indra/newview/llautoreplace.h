@@ -67,6 +67,9 @@ class LLAutoReplaceSettings
 	/// Inserts a new list at the end of the priority order
 	AddListResult addList(const LLSD& newList);
 
+	/// Inserts a list in place of an existing list of the same name
+	AddListResult replaceList(const LLSD& newList);
+
 	/// Removes the named list, @returns false if not found
 	bool removeReplacementList(std::string listName);
 
@@ -129,7 +132,7 @@ class LLAutoReplaceSettings
 	LLSD getExampleLLSD();
 
 	/// Get the actual settings as LLSD
-	const LLSD& getAsLLSD();
+	const LLSD& asLLSD();
 	///< @note for use only in AutoReplace::saveToUserSettings
 	
   private:
@@ -180,49 +183,45 @@ class LLAutoReplaceSettings
  * When the end of a word is detected (defined as any punctuation character,
  * or any whitespace except newline or return), the preceding word is used
  * as a lookup key in an ordered list of maps.  If a match is found in any
- * map, the keyword is replaced by the associated value from the map.
+ * map, the replacement start index and length are returned along with the
+ * new replacement string.
  *
  * See the autoreplaceCallback method for how to add autoreplace functionality
  * to a text entry tool.
  */
 class LLAutoReplace : public LLSingleton<LLAutoReplace>
 {
-  public:
-	LLAutoReplace();
-	~LLAutoReplace();
+public:
+    /// Callback that provides the hook for use in text entry methods
+    void autoreplaceCallback(S32& replacement_start, S32& replacement_length, LLWString& replacement_string, S32& cursor_pos, const LLWString& input_text);
 
-	/// @return a pointer to the active instance
-	static LLAutoReplace* getInstance();
+    /// Get a copy of the current settings
+    LLAutoReplaceSettings getSettings();
 
-	/// Callback that provides the hook for use in text entry methods
-	void autoreplaceCallback(LLUIString& inputText, S32& cursorPos);
+    /// Commit new settings after making changes
+    void setSettings(const LLAutoReplaceSettings& settings);
 
-	/// Get a copy of the current settings
-	LLAutoReplaceSettings getSettings();
+private:
+    friend class LLSingleton<LLAutoReplace>;
+    LLAutoReplace();
+    /*virtual*/ void initSingleton();
 
-	/// Commit new settings after making changes
-	void setSettings(const LLAutoReplaceSettings& settings);
-
-  private:
-	friend class LLSingleton<LLAutoReplace>;
-	static LLAutoReplace* sInstance; ///< the active settings instance
-
-	LLAutoReplaceSettings mSettings; ///< configuration information
+    LLAutoReplaceSettings mSettings; ///< configuration information
 	
-	/// Read settings from persistent storage
-	void loadFromSettings();
+    /// Read settings from persistent storage
+    void loadFromSettings();
 
-	/// Make the newSettings active and write them to user storage
-	void saveToUserSettings();
+    /// Make the newSettings active and write them to user storage
+    void saveToUserSettings();
 
-	/// Compute the user settings file name
-	std::string getUserSettingsFileName();
+    /// Compute the user settings file name
+    std::string getUserSettingsFileName();
 
-	/// Compute the (read-ony) application settings file name
-	std::string getAppSettingsFileName();
+    /// Compute the (read-ony) application settings file name
+    std::string getAppSettingsFileName();
 
-	/// basename for the settings files
-	static const char* SETTINGS_FILE_NAME;
+    /// basename for the settings files
+    static const char* SETTINGS_FILE_NAME;
 };
 
 #endif /* LLAUTOREPLACE_H */

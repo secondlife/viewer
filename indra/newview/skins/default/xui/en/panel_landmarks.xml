@@ -35,7 +35,9 @@
              left="0"
              mouse_opaque="true"
              name="favorites_list"
-             start_folder="Favorites"
+             scroll.hide_scrollbar="true"
+             folder_view.use_ellipses="true"
+             start_folder.name="Favorites"
              width="307"/>
         </accordion_tab>
         <accordion_tab
@@ -51,7 +53,9 @@
              left="0"
              mouse_opaque="true"
              name="landmarks_list"
-             start_folder="Landmarks"
+             scroll.hide_scrollbar="true"
+             folder_view.use_ellipses="true"
+             start_folder.name="Landmarks"
              width="307"/>
         </accordion_tab>
         <accordion_tab
@@ -67,7 +71,9 @@
              left="0"
              mouse_opaque="true"
              name="my_inventory_list"
-             start_folder="My Inventory"
+             scroll.hide_scrollbar="true"
+             folder_view.use_ellipses="true"
+             start_folder.name="My Inventory"
              width="307"/>
           </accordion_tab>
           <accordion_tab
@@ -83,7 +89,9 @@
              left="0"
              mouse_opaque="true"
              name="library_list"
-             start_folder="LIBRARY"
+             scroll.hide_scrollbar="true"
+             folder_view.use_ellipses="true"
+             start_folder.name="LIBRARY"
              width="313"/>
         </accordion_tab>
     </accordion>

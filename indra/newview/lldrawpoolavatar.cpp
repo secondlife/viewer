@@ -1272,6 +1272,9 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 		face->setGeomIndex(0);
 		face->setIndicesIndex(0);
 		
+		//rigged faces do not batch textures
+		face->setTextureIndex(255);
+
 		if (buffer.isNull() || buffer->getTypeMask() != data_mask || !buffer->isWriteable())
 		{ //make a new buffer
 			if (sShaderLevel > 0)
@@ -1630,6 +1633,7 @@ void LLDrawPoolAvatar::renderRiggedAlpha(LLVOAvatar* avatar)
 						LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
 
 		renderRigged(avatar, RIGGED_ALPHA);
+		gGL.setColorMask(true, false);
 	}
 }
 
@@ -1646,6 +1650,7 @@ void LLDrawPoolAvatar::renderRiggedFullbrightAlpha(LLVOAvatar* avatar)
 						LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
 
 		renderRigged(avatar, RIGGED_FULLBRIGHT_ALPHA);
+		gGL.setColorMask(true, false);
 	}
 }
 

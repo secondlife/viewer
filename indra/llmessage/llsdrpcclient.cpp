@@ -31,7 +31,6 @@
 
 #include "llbufferstream.h"
 #include "llfiltersd2xmlrpc.h"
-#include "llmemtype.h"
 #include "llpumpio.h"
 #include "llsd.h"
 #include "llsdserialize.h"
@@ -50,18 +49,15 @@ LLSDRPCResponse::LLSDRPCResponse() :
 	mIsError(false),
 	mIsFault(false)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_SD_CLIENT);
 }
 
 // virtual
 LLSDRPCResponse::~LLSDRPCResponse()
 {
-	LLMemType m1(LLMemType::MTYPE_IO_SD_CLIENT);
 }
 
 bool LLSDRPCResponse::extractResponse(const LLSD& sd)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_SD_CLIENT);
 	bool rv = true;
 	if(sd.has(LLSDRPC_RESPONSE_NAME))
 	{
@@ -94,7 +90,6 @@ LLIOPipe::EStatus LLSDRPCResponse::process_impl(
 {
 	LLFastTimer t(FTM_SDRPC_RESPONSE);
 	PUMP_DEBUG;
-	LLMemType m1(LLMemType::MTYPE_IO_SD_CLIENT);
 	if(mIsError)
 	{
 		error(pump);
@@ -119,13 +114,11 @@ LLSDRPCClient::LLSDRPCClient() :
 	mState(STATE_NONE),
 	mQueue(EPBQ_PROCESS)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_SD_CLIENT);
 }
 
 // virtual
 LLSDRPCClient::~LLSDRPCClient()
 {
-	LLMemType m1(LLMemType::MTYPE_IO_SD_CLIENT);
 }
 
 bool LLSDRPCClient::call(
@@ -135,7 +128,6 @@ bool LLSDRPCClient::call(
 	LLSDRPCResponse* response,
 	EPassBackQueue queue)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_SD_CLIENT);
 	//llinfos << "RPC: " << uri << "." << method << "(" << *parameter << ")"
 	//		<< llendl;
 	if(method.empty() || !response)
@@ -162,7 +154,6 @@ bool LLSDRPCClient::call(
 	LLSDRPCResponse* response,
 	EPassBackQueue queue)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_SD_CLIENT);
 	//llinfos << "RPC: " << uri << "." << method << "(" << parameter << ")"
 	//		<< llendl;
 	if(method.empty() || parameter.empty() || !response)
@@ -193,7 +184,6 @@ LLIOPipe::EStatus LLSDRPCClient::process_impl(
 {
 	LLFastTimer t(FTM_PROCESS_SDRPC_CLIENT);
 	PUMP_DEBUG;
-	LLMemType m1(LLMemType::MTYPE_IO_SD_CLIENT);
 	if((STATE_NONE == mState) || (!pump))
 	{
 		// You should have called the call() method already.

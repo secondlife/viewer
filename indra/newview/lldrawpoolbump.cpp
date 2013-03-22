@@ -1192,7 +1192,7 @@ static LLFastTimer::DeclareTimer FTM_BUMP_SOURCE_MIN_MAX("Min/Max");
 static LLFastTimer::DeclareTimer FTM_BUMP_SOURCE_RGB2LUM("RGB to Luminance");
 static LLFastTimer::DeclareTimer FTM_BUMP_SOURCE_RESCALE("Rescale");
 static LLFastTimer::DeclareTimer FTM_BUMP_SOURCE_GEN_NORMAL("Generate Normal");
-static LLFastTimer::DeclareTimer FTM_BUMP_SOURCE_CREATE("Create");
+static LLFastTimer::DeclareTimer FTM_BUMP_SOURCE_CREATE("Bump Source Create");
 
 // static
 void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLImageRaw* src, LLUUID& source_asset_id, EBumpEffect bump_code )

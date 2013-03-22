@@ -33,6 +33,7 @@
 
 #include "llinventoryobserver.h"
 #include "llinventorymodel.h"
+#include "llviewerinventory.h"
 
 class LLMenuItemCallGL;
 class LLToggleableMenu;
@@ -161,5 +162,115 @@ private:
 	boost::signals2::connection mEndDragConnection;
 };
 
+class AddFavoriteLandmarkCallback : public LLInventoryCallback
+{
+public:
+	AddFavoriteLandmarkCallback() : mTargetLandmarkId(LLUUID::null) {}
+	void setTargetLandmarkId(const LLUUID& target_uuid) { mTargetLandmarkId = target_uuid; }
+
+private:
+	void fire(const LLUUID& inv_item);
+
+	LLUUID mTargetLandmarkId;
+};
+
+/**
+ * Class to store sorting order of favorites landmarks in a local file. EXT-3985.
+ * It replaced previously implemented solution to store sort index in landmark's name as a "<N>@" prefix.
+ * Data are stored in user home directory.
+ */
+class LLFavoritesOrderStorage : public LLSingleton<LLFavoritesOrderStorage>
+	, public LLDestroyClass<LLFavoritesOrderStorage>
+{
+	LOG_CLASS(LLFavoritesOrderStorage);
+public:
+	/**
+	 * Sets sort index for specified with LLUUID favorite landmark
+	 */
+	void setSortIndex(const LLViewerInventoryItem* inv_item, S32 sort_index);
+
+	/**
+	 * Gets sort index for specified with LLUUID favorite landmark
+	 */
+	S32 getSortIndex(const LLUUID& inv_item_id);
+	void removeSortIndex(const LLUUID& inv_item_id);
+
+	void getSLURL(const LLUUID& asset_id);
+
+	// Saves current order of the passed items using inventory item sort field.
+	// Resets 'items' sort fields and saves them on server.
+	// Is used to save order for Favorites folder.
+	void saveItemsOrder(const LLInventoryModel::item_array_t& items);
+
+	void rearrangeFavoriteLandmarks(const LLUUID& source_item_id, const LLUUID& target_item_id);
+
+	/**
+	 * Implementation of LLDestroyClass. Calls cleanup() instance method.
+	 *
+	 * It is important this callback is called before gInventory is cleaned.
+	 * For now it is called from LLAppViewer::cleanup() -> LLAppViewer::disconnectViewer(),
+	 * Inventory is cleaned later from LLAppViewer::cleanup() after LLAppViewer::disconnectViewer() is called.
+	 * @see cleanup()
+	 */
+	static void destroyClass();
+
+	const static S32 NO_INDEX;
+private:
+	friend class LLSingleton<LLFavoritesOrderStorage>;
+	LLFavoritesOrderStorage() : mIsDirty(false) { load(); }
+	~LLFavoritesOrderStorage() { save(); }
+
+	/**
+	 * Removes sort indexes for items which are not in Favorites bar for now.
+	 */
+	void cleanup();
+
+	const static std::string SORTING_DATA_FILE_NAME;
+
+	void load();
+	void save();
+
+	void saveFavoritesSLURLs();
+
+	// Remove record of current user's favorites from file on disk.
+	void removeFavoritesRecordOfUser();
+
+	void onLandmarkLoaded(const LLUUID& asset_id, class LLLandmark* landmark);
+	void storeFavoriteSLURL(const LLUUID& asset_id, std::string& slurl);
+
+	typedef std::map<LLUUID, S32> sort_index_map_t;
+	sort_index_map_t mSortIndexes;
+
+	typedef std::map<LLUUID, std::string> slurls_map_t;
+	slurls_map_t mSLURLs;
+
+	bool mIsDirty;
+
+	struct IsNotInFavorites
+	{
+		IsNotInFavorites(const LLInventoryModel::item_array_t& items)
+			: mFavoriteItems(items)
+		{
+
+		}
+
+		/**
+		 * Returns true if specified item is not found among inventory items
+		 */
+		bool operator()(const sort_index_map_t::value_type& id_index_pair) const
+		{
+			LLPointer<LLViewerInventoryItem> item = gInventory.getItem(id_index_pair.first);
+			if (item.isNull()) return true;
+
+			LLInventoryModel::item_array_t::const_iterator found_it =
+				std::find(mFavoriteItems.begin(), mFavoriteItems.end(), item);
+
+			return found_it == mFavoriteItems.end();
+		}
+	private:
+		LLInventoryModel::item_array_t mFavoriteItems;
+	};
+
+};
 
 #endif // LL_LLFAVORITESBARCTRL_H

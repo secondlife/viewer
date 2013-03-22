@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="object_weights" title="進階">
+	<floater.string name="nothing_selected" value="--"/>
+	<text name="selected_text" value="已選"/>
+	<text name="objects" value="--"/>
+	<text name="objects_label" value="物件"/>
+	<text name="prims" value="--"/>
+	<text name="prims_label" value="幾何元件"/>
+	<text name="weights_of_selected_text" value="所選物重量"/>
+	<text name="download" value="--"/>
+	<text name="download_label" value="下載"/>
+	<text name="physics" value="--"/>
+	<text name="physics_label" value="物理"/>
+	<text name="server" value="--"/>
+	<text name="server_label" value="伺服器"/>
+	<text name="display" value="--"/>
+	<text name="display_label" value="顯示"/>
+	<text name="land_impacts_text" value="土地衝擊量"/>
+	<text name="selected" value="--"/>
+	<text name="selected_label" value="選擇"/>
+	<text name="rezzed_on_land" value="--"/>
+	<text name="rezzed_on_land_label" value="已產生到土地上"/>
+	<text name="remaining_capacity" value="--"/>
+	<text name="remaining_capacity_label" value="剩餘容納量"/>
+	<text name="total_capacity" value="--"/>
+	<text name="total_capacity_label" value="總容納量"/>
+	<text name="help_SLURL" value="[secondlife:///app/help/object_weights 這是什麼？]"/>
+</floater>

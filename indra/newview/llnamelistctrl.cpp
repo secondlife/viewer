@@ -64,11 +64,12 @@ LLNameListCtrl::LLNameListCtrl(const LLNameListCtrl::Params& p)
 	mNameColumnIndex(p.name_column.column_index),
 	mNameColumn(p.name_column.column_name),
 	mAllowCallingCardDrop(p.allow_calling_card_drop),
-	mShortNames(p.short_names)
+	mShortNames(p.short_names),
+	mAvatarNameCacheConnection()
 {}
 
 // public
-void LLNameListCtrl::addNameItem(const LLUUID& agent_id, EAddPosition pos,
+LLScrollListItem* LLNameListCtrl::addNameItem(const LLUUID& agent_id, EAddPosition pos,
 								 BOOL enabled, const std::string& suffix)
 {
 	//llinfos << "LLNameListCtrl::addNameItem " << agent_id << llendl;
@@ -78,7 +79,7 @@ void LLNameListCtrl::addNameItem(const LLUUID& agent_id, EAddPosition pos,
 	item.enabled = enabled;
 	item.target = INDIVIDUAL;
 
-	addNameItemRow(item, pos, suffix);
+	return addNameItemRow(item, pos, suffix);
 }
 
 // virtual, public
@@ -204,7 +205,7 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;
 	S32 column_index = getColumnIndexFromOffset(x);
-	LLScrollListItem* hit_item = hitItem(x, y);
+	LLNameListItem* hit_item = dynamic_cast<LLNameListItem*>(hitItem(x, y));
 	if (hit_item
 		&& column_index == mNameColumnIndex)
 	{
@@ -228,7 +229,7 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 				LLCoordGL pos( sticky_rect.mRight - info_icon_size, sticky_rect.mTop - (sticky_rect.getHeight() - icon->getHeight())/2 );
 
 				// Should we show a group or an avatar inspector?
-				bool is_group = hit_item->getValue()["is_group"].asBoolean();
+				bool is_group = hit_item->isGroup();
 
 				LLToolTip::Params params;
 				params.background_visible( false );
@@ -271,10 +272,10 @@ void LLNameListCtrl::addGroupNameItem(LLNameListCtrl::NameItem& item, EAddPositi
 	addNameItemRow(item, pos);
 }
 
-void LLNameListCtrl::addNameItem(LLNameListCtrl::NameItem& item, EAddPosition pos)
+LLScrollListItem* LLNameListCtrl::addNameItem(LLNameListCtrl::NameItem& item, EAddPosition pos)
 {
 	item.target = INDIVIDUAL;
-	addNameItemRow(item, pos);
+	return addNameItemRow(item, pos);
 }
 
 LLScrollListItem* LLNameListCtrl::addElement(const LLSD& element, EAddPosition pos, void* userdata)
@@ -293,18 +294,11 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 	const std::string& suffix)
 {
 	LLUUID id = name_item.value().asUUID();
-	LLNameListItem* item = NULL;
-
-	// Store item type so that we can invoke the proper inspector.
-	// *TODO Vadim: Is there a more proper way of storing additional item data?
-	{
-		LLNameListCtrl::NameItem item_p(name_item);
-		item_p.value = LLSD().with("uuid", id).with("is_group", name_item.target() == GROUP);
-		item = new LLNameListItem(item_p);
-		LLScrollListCtrl::addRow(item, item_p, pos);
-	}
+	LLNameListItem* item = new LLNameListItem(name_item,name_item.target() == GROUP);
 
 	if (!item) return NULL;
+
+	LLScrollListCtrl::addRow(item, name_item, pos);
 
 	// use supplied name by default
 	std::string fullname = name_item.name;
@@ -327,16 +321,20 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 			else if (LLAvatarNameCache::get(id, &av_name))
 			{
 				if (mShortNames)
-					fullname = av_name.mDisplayName;
+					fullname = av_name.getDisplayName();
 				else
 					fullname = av_name.getCompleteName();
 			}
 			else
 			{
 				// ...schedule a callback
-				LLAvatarNameCache::get(id,
-					boost::bind(&LLNameListCtrl::onAvatarNameCache,
-						this, _1, _2, item->getHandle()));
+				// This is not correct and will likely lead to partially populated lists in cases where avatar names are not cached.
+				// *TODO : Change this to have 2 callbacks : one callback per list item and one for the whole list.
+				if (mAvatarNameCacheConnection.connected())
+				{
+					mAvatarNameCacheConnection.disconnect();
+				}
+				mAvatarNameCacheConnection = LLAvatarNameCache::get(id,boost::bind(&LLNameListCtrl::onAvatarNameCache,this, _1, _2, item->getHandle()));
 			}
 			break;
 		}
@@ -395,9 +393,11 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 									   const LLAvatarName& av_name,
 									   LLHandle<LLNameListItem> item)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	std::string name;
 	if (mShortNames)
-		name = av_name.mDisplayName;
+		name = av_name.getDisplayName();
 	else
 		name = av_name.getCompleteName();
 
@@ -411,7 +411,7 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 			setNeedsSort();
 		}
 	}
-
+	
 	dirtyColumns();
 }
 

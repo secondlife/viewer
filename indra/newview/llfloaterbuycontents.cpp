@@ -80,6 +80,7 @@ BOOL LLFloaterBuyContents::postBuild()
 
 LLFloaterBuyContents::~LLFloaterBuyContents()
 {
+	removeVOInventoryListener();
 }
 
 
@@ -147,23 +148,26 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 		return;
 	}
 
-	if (!inv)
-	{
-		llwarns << "No inventory in LLFloaterBuyContents::inventoryChanged"
-			<< llendl;
-		removeVOInventoryListener();
-		return;
-	}
-
-	LLCtrlListInterface *item_list = childGetListInterface("item_list");
+	LLScrollListCtrl* item_list = getChild<LLScrollListCtrl>("item_list");
 	if (!item_list)
 	{
 		removeVOInventoryListener();
 		return;
 	}
 
+	item_list->deleteAllItems();
+	
+	if (!inv)
+	{
+		llwarns << "No inventory in LLFloaterBuyContents::inventoryChanged"
+			<< llendl;
+
+		return;
+	}
+
 	// default to turning off the buy button.
-	getChildView("buy_btn")->setEnabled(FALSE);
+	LLView* buy_btn = getChildView("buy_btn");
+	buy_btn->setEnabled(FALSE);
 
 	LLUUID owner_id;
 	BOOL is_group_owned;
@@ -204,15 +208,15 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 
 		// There will be at least one item shown in the display, so go
 		// ahead and enable the buy button.
-		getChildView("buy_btn")->setEnabled(TRUE);
+		buy_btn->setEnabled(TRUE);
 
 		// Create the line in the list
 		LLSD row;
 
 		BOOL item_is_multi = FALSE;
 		if ((inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_LANDMARK_VISITED
-		     || inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS)
-		     && !(inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK))
+			|| inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS)
+			&& !(inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK))
 		{
 			item_is_multi = TRUE;
 		}
@@ -255,8 +259,6 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 		getChildView("wear_check")->setEnabled(TRUE);
 		getChild<LLUICtrl>("wear_check")->setValue(LLSD(false) );
 	}
-	
-	removeVOInventoryListener();
 }
 
 

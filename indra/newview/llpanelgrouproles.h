@@ -187,8 +187,8 @@ public:
 
 	virtual void setGroupID(const LLUUID& id);
 
-	void addMemberToList(LLUUID id, LLGroupMemberData* data);
-	void onNameCache(const LLUUID& update_id, const LLUUID& id);
+	void addMemberToList(LLGroupMemberData* data);
+	void onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name);
 
 protected:
 	typedef std::map<LLUUID, LLRoleMemberChangeType> role_change_data_map_t;
@@ -210,13 +210,11 @@ protected:
 	BOOL mPendingMemberUpdate;
 	BOOL mHasMatch;
 
-	// This id is generated after each user initiated member list update(opening Roles or changing filter)
-	LLUUID mUdpateSessionID;
-
 	member_role_changes_map_t mMemberRoleChangeData;
 	U32 mNumOwnerAdditions;
 
 	LLGroupMgrGroupData::member_list_t::iterator mMemberProgress;
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 class LLPanelGroupRolesSubTab : public LLPanelGroupSubTab

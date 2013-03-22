@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_people" title="人群">
+	<panel_container name="main_panel">
+		<panel label="群組檔案" name="panel_group_info_sidetray"/>
+		<panel label="被封鎖的居民與物件" name="panel_block_list_sidetray"/>
+	</panel_container>
+</floater>

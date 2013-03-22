@@ -30,83 +30,65 @@
 #include "llviewercontrol.h"
 #include "llnotificationsutil.h"
 
-LLAutoReplace* LLAutoReplace::sInstance;
-
 const char* LLAutoReplace::SETTINGS_FILE_NAME = "autoreplace.xml";
 
-LLAutoReplace::LLAutoReplace()
+void LLAutoReplace::autoreplaceCallback(S32& replacement_start, S32& replacement_length, LLWString& replacement_string, S32& cursor_pos, const LLWString& input_text)
 {
-}
+	// make sure these returned values are cleared in case there is no replacement
+	replacement_start = 0;
+	replacement_length = 0;
+	replacement_string.clear();
 
-LLAutoReplace::~LLAutoReplace()
-{
-	sInstance = NULL;
-}
-
-void LLAutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
-{
 	static LLCachedControl<bool> perform_autoreplace(gSavedSettings, "AutoReplace");
-	if(perform_autoreplace)
+	if (perform_autoreplace)
 	{
-		S32 wordEnd = cursorPos-1;
-		LLWString text = inputText.getWString();
+		S32 word_end = cursor_pos - 1;
 
-		bool atSpace  = (text[wordEnd] == ' ');
-		bool haveWord = (LLWStringUtil::isPartOfWord(text[wordEnd]));
+		bool at_space  = (input_text[word_end] == ' ');
+		bool have_word = (LLWStringUtil::isPartOfWord(input_text[word_end]));
 
-		if (atSpace || haveWord)
+		if (at_space || have_word)
 		{
-			if (atSpace && wordEnd > 0)
+			if (at_space && word_end > 0)
 			{
 				// find out if this space immediately follows a word
-				wordEnd--;
-				haveWord  = (LLWStringUtil::isPartOfWord(text[wordEnd]));
+				word_end--;
+				have_word  = (LLWStringUtil::isPartOfWord(input_text[word_end]));
 			}
-			if (haveWord)
+			if (have_word)
 			{
-				// wordEnd points to the end of a word, now find the start of the word
+				// word_end points to the end of a word, now find the start of the word
 				std::string word;
-				S32 wordStart = wordEnd;
-				for ( S32 backOne = wordStart - 1;
-					  backOne >= 0 && LLWStringUtil::isPartOfWord(text[backOne]);
-					  backOne--
-					 )
+				S32 word_start = word_end;
+				for (S32 back_one = word_start - 1;
+					 back_one >= 0 && LLWStringUtil::isPartOfWord(input_text[back_one]);
+					 back_one--
+					)
 				{
-					wordStart--; // walk wordStart back to the beginning of the word
+					word_start--; // walk word_start back to the beginning of the word
 				}
-				LL_DEBUGS("AutoReplace")<<"wordStart: "<<wordStart<<" wordEnd: "<<wordEnd<<LL_ENDL;
-				std::string strText  = std::string(text.begin(), text.end());
-				std::string lastWord = strText.substr(wordStart, wordEnd-wordStart+1);
-				std::string replacementWord( mSettings.replaceWord( lastWord ) );
+				LL_DEBUGS("AutoReplace") << "word_start: " << word_start << " word_end: " << word_end << LL_ENDL;
+				std::string str_text  = std::string(input_text.begin(), input_text.end());
+				std::string last_word = str_text.substr(word_start, word_end - word_start + 1);
+				std::string replacement_word(mSettings.replaceWord(last_word));
 
-				if ( replacementWord != lastWord )
+				if (replacement_word != last_word)
 				{
 					// The last word is one for which we have a replacement
-					if (atSpace)
+					if (at_space)
 					{
-						// replace the last word in the input
-						LLWString strNew = utf8str_to_wstring(replacementWord);
-						LLWString strOld = utf8str_to_wstring(lastWord);
-						int size_change = strNew.size() - strOld.size();
-
-						text.replace(wordStart,lastWord.length(),strNew);
-						inputText = wstring_to_utf8str(text);
-						cursorPos+=size_change;
+						// return the replacement string
+						replacement_start = word_start;
+						replacement_length = last_word.length();
+						replacement_string = utf8str_to_wstring(replacement_word);
+						LLWString old_string = utf8str_to_wstring(last_word);
+						S32 size_change = replacement_string.size() - old_string.size();
+						cursor_pos += size_change;
 					}
 				}
 			}
 		}
 	}
-}
-
-LLAutoReplace* LLAutoReplace::getInstance()
-{
-	if(!sInstance)
-	{
-		sInstance = new LLAutoReplace();
-		sInstance->loadFromSettings();
-	}
-	return sInstance;
 }
 
 std::string LLAutoReplace::getUserSettingsFileName()
@@ -145,6 +127,15 @@ void LLAutoReplace::setSettings(const LLAutoReplaceSettings& newSettings)
 	mSettings.set(newSettings);
 	/// Make the newSettings active and write them to user storage
 	saveToUserSettings();
+}
+
+LLAutoReplace::LLAutoReplace()
+{
+}
+
+void LLAutoReplace::initSingleton()
+{
+    loadFromSettings();
 }
 
 void LLAutoReplace::loadFromSettings()
@@ -220,7 +211,7 @@ void LLAutoReplace::saveToUserSettings()
 	std::string filename=getUserSettingsFileName();
 	llofstream file;
 	file.open(filename.c_str());
-	LLSDSerialize::toPrettyXML(mSettings.getAsLLSD(), file);
+	LLSDSerialize::toPrettyXML(mSettings.asLLSD(), file);
 	file.close();
 	LL_INFOS("AutoReplace") << "settings saved to '" << filename << "'" << LL_ENDL;
 }
@@ -536,6 +527,46 @@ LLAutoReplaceSettings::AddListResult LLAutoReplaceSettings::addList(const LLSD& 
 	return result;
 }
 
+LLAutoReplaceSettings::AddListResult LLAutoReplaceSettings::replaceList(const LLSD& newList)
+{
+	AddListResult result = AddListInvalidList;
+	if ( listIsValid( newList ) )
+	{
+		std::string listName = newList[AUTOREPLACE_LIST_NAME].asString();
+		bool listFound = false;
+		S32 search_index;
+		LLSD targetList;
+		// The following is working around the fact that LLSD arrays containing maps also seem to have undefined entries... see LLSD-30
+		for ( search_index = 0, targetList = mLists[0];
+			  !listFound && search_index < mLists.size();
+			  search_index += 1, targetList = mLists[search_index]
+			 )
+		{
+			if ( targetList.isMap() )
+			{
+				if ( listNameMatches( targetList, listName) )
+				{
+					LL_DEBUGS("AutoReplace")<<"list to replace found at "<<search_index<<LL_ENDL;
+					mLists.erase(search_index);
+					mLists.insert(search_index, newList);
+					listFound = true;
+					result = AddListOk;
+				}
+			}
+		}
+		
+		if ( ! listFound )
+		{
+			LL_WARNS("AutoReplace") << "attempt to replace unconfigured list" << LL_ENDL;
+		}
+	}
+	else
+	{
+		LL_WARNS("AutoReplace") << "attempt to add invalid list" << LL_ENDL;
+	}
+	return result;
+}
+
 bool LLAutoReplaceSettings::removeReplacementList(std::string listName)
 {
 	bool found = false;
@@ -761,7 +792,7 @@ LLSD LLAutoReplaceSettings::getExampleLLSD()
 	return example;
 }
 
-const LLSD& LLAutoReplaceSettings::getAsLLSD()
+const LLSD& LLAutoReplaceSettings::asLLSD()
 {
 	return mLists;
 }

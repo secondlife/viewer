@@ -255,10 +255,9 @@ public:
 		}
 	}
 
-    static boost::intrusive_ptr<BaseCapabilitiesComplete> build( U64 region_handle, S32 id )
+    static BaseCapabilitiesComplete* build( U64 region_handle, S32 id )
     {
-		return boost::intrusive_ptr<BaseCapabilitiesComplete>( 
-				new BaseCapabilitiesComplete(region_handle, id) );
+		return new BaseCapabilitiesComplete(region_handle, id);
     }
 
 private:
@@ -720,7 +719,6 @@ void LLViewerRegion::dirtyHeights()
 
 BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 {
-	LLMemType mt_ivr(LLMemType::MTYPE_IDLE_UPDATE_VIEWER_REGION);
 	// did_update returns TRUE if we did at least one significant update
 	BOOL did_update = mImpl->mLandp->idleUpdate(max_update_time);
 	
@@ -1343,11 +1341,8 @@ void LLViewerRegion::requestCacheMisses()
 
 	mCacheDirty = TRUE ;
 	// llinfos << "KILLDEBUG Sent cache miss full " << full_count << " crc " << crc_count << llendl;
-	#if LL_RECORD_VIEWER_STATS
-	LLViewerStatsRecorder::instance()->beginObjectUpdateEvents(this);
-	LLViewerStatsRecorder::instance()->recordRequestCacheMissesEvent(full_count + crc_count);
-	LLViewerStatsRecorder::instance()->endObjectUpdateEvents();
-	#endif
+	LLViewerStatsRecorder::instance().requestCacheMissesEvent(full_count + crc_count);
+	LLViewerStatsRecorder::instance().log(0.2f);
 }
 
 void LLViewerRegion::dumpCache()
@@ -1524,11 +1519,9 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("CopyInventoryFromNotecard");
 	capabilityNames.append("CreateInventoryCategory");
 	capabilityNames.append("DispatchRegionInfo");
+	capabilityNames.append("EnvironmentSettings");
 	capabilityNames.append("EstateChangeInfo");
 	capabilityNames.append("EventQueueGet");
-	capabilityNames.append("EnvironmentSettings");
-	capabilityNames.append("ObjectMedia");
-	capabilityNames.append("ObjectMediaNavigate");
 
 	if (gSavedSettings.getBOOL("UseHTTPInventory"))
 	{
@@ -1539,21 +1532,23 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	}
 
 	capabilityNames.append("GetDisplayNames");
-	capabilityNames.append("GetTexture");
 	capabilityNames.append("GetMesh");
 	capabilityNames.append("GetObjectCost");
 	capabilityNames.append("GetObjectPhysicsData");
+	capabilityNames.append("GetTexture");
+	capabilityNames.append("GroupMemberData");
 	capabilityNames.append("GroupProposalBallot");
 	capabilityNames.append("HomeLocation");
 	capabilityNames.append("LandResources");
 	capabilityNames.append("MapLayer");
 	capabilityNames.append("MapLayerGod");
-	capabilityNames.append("MeshUploadFlag");	
+	capabilityNames.append("MeshUploadFlag");
 	capabilityNames.append("NavMeshGenerationStatus");
 	capabilityNames.append("NewFileAgentInventory");
+	capabilityNames.append("ObjectMedia");
+	capabilityNames.append("ObjectMediaNavigate");
 	capabilityNames.append("ObjectNavMeshProperties");
 	capabilityNames.append("ParcelPropertiesUpdate");
-	capabilityNames.append("ParcelNavigateMedia");
 	capabilityNames.append("ParcelVoiceInfoRequest");
 	capabilityNames.append("ProductInfoRequest");
 	capabilityNames.append("ProvisionVoiceAccountRequest");
@@ -1567,10 +1562,9 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("SendUserReport");
 	capabilityNames.append("SendUserReportWithScreenshot");
 	capabilityNames.append("ServerReleaseNotes");
-	capabilityNames.append("SimConsole");
-	capabilityNames.append("SimulatorFeatures");
 	capabilityNames.append("SetDisplayName");
 	capabilityNames.append("SimConsoleAsync");
+	capabilityNames.append("SimulatorFeatures");
 	capabilityNames.append("StartGroupProposal");
 	capabilityNames.append("TerrainNavMeshProperties");
 	capabilityNames.append("TextureStats");
@@ -1578,16 +1572,16 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("UpdateAgentInformation");
 	capabilityNames.append("UpdateAgentLanguage");
 	capabilityNames.append("UpdateGestureAgentInventory");
-	capabilityNames.append("UpdateNotecardAgentInventory");
-	capabilityNames.append("UpdateScriptAgent");
 	capabilityNames.append("UpdateGestureTaskInventory");
+	capabilityNames.append("UpdateNotecardAgentInventory");
 	capabilityNames.append("UpdateNotecardTaskInventory");
+	capabilityNames.append("UpdateScriptAgent");
 	capabilityNames.append("UpdateScriptTask");
 	capabilityNames.append("UploadBakedTexture");
 	capabilityNames.append("ViewerMetrics");
 	capabilityNames.append("ViewerStartAuction");
 	capabilityNames.append("ViewerStats");
-
+	
 	// Please add new capabilities alphabetically to reduce
 	// merge conflicts.
 }

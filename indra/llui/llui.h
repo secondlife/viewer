@@ -62,6 +62,7 @@ class LLHelp;
 // UI colors
 extern const LLColor4 UI_VERTEX_COLOR;
 void make_ui_sound(const char* name);
+void make_ui_sound_deferred(const char * name);
 
 BOOL ui_point_in_rect(S32 x, S32 y, S32 left, S32 top, S32 right, S32 bottom);
 void gl_state_for_2d(S32 width, S32 height);
@@ -127,8 +128,7 @@ typedef enum e_rounded_edge
 
 void gl_segmented_rect_2d_tex(const S32 left, const S32 top, const S32 right, const S32 bottom, const S32 texture_width, const S32 texture_height, const S32 border_size, const U32 edges = ROUNDED_RECT_ALL);
 void gl_segmented_rect_2d_fragment_tex(const S32 left, const S32 top, const S32 right, const S32 bottom, const S32 texture_width, const S32 texture_height, const S32 border_size, const F32 start_fragment, const F32 end_fragment, const U32 edges = ROUNDED_RECT_ALL);
-void gl_segmented_rect_3d_tex(const LLVector2& border_scale, const LLVector3& border_width, const LLVector3& border_height, const LLVector3& width_vec, const LLVector3& height_vec, U32 edges = ROUNDED_RECT_ALL);
-void gl_segmented_rect_3d_tex_top(const LLVector2& border_scale, const LLVector3& border_width, const LLVector3& border_height, const LLVector3& width_vec, const LLVector3& height_vec);
+void gl_segmented_rect_3d_tex(const LLRectf& clip_rect, const LLRectf& center_uv_rect, const LLRectf& center_draw_rect, const LLVector3& width_vec, const LLVector3& height_vec);
 
 inline void gl_rect_2d( const LLRect& rect, BOOL filled )
 {
@@ -275,6 +275,7 @@ public:
 	static void initClass(const settings_map_t& settings,
 						  LLImageProviderInterface* image_provider,
 						  LLUIAudioCallback audio_callback = NULL,
+						  LLUIAudioCallback deferred_audio_callback = NULL,
 						  const LLVector2 *scale_factor = NULL,
 						  const std::string& language = LLStringUtil::null);
 	static void cleanupClass();
@@ -292,11 +293,6 @@ public:
 	// Return the ISO639 language name ("en", "ko", etc.) for the viewer UI.
 	// http://www.loc.gov/standards/iso639-2/php/code_list.php
 	static std::string getLanguage();
-	
-	static void setupPaths();
-	static const std::vector<std::string>& getXUIPaths() { return sXUIPaths; }
-	static std::string getSkinPath() { return sXUIPaths.front(); }
-	static std::string getLocalizedSkinPath() { return sXUIPaths.back(); }  //all files may not exist at the localized path
 
 	//helper functions (should probably move free standing rendering helper functions here)
 	static LLView* getRootView() { return sRootView; }
@@ -365,6 +361,7 @@ public:
 	//
 	static settings_map_t sSettingGroups;
 	static LLUIAudioCallback sAudioCallback;
+	static LLUIAudioCallback sDeferredAudioCallback;
 	static LLVector2		sGLScaleFactor;
 	static LLWindow*		sWindow;
 	static LLView*			sRootView;
@@ -512,7 +509,7 @@ public:
 namespace LLInitParam
 {
 	template<>
-	class ParamValue<LLRect, TypeValues<LLRect> > 
+	class ParamValue<LLRect> 
 	:	public CustomParamValue<LLRect>
 	{
         typedef CustomParamValue<LLRect> super_t;
@@ -531,7 +528,7 @@ namespace LLInitParam
 	};
 
 	template<>
-	class ParamValue<LLUIColor, TypeValues<LLUIColor> > 
+	class ParamValue<LLUIColor> 
 	:	public CustomParamValue<LLUIColor>
 	{
         typedef CustomParamValue<LLUIColor> super_t;
@@ -549,7 +546,7 @@ namespace LLInitParam
 	};
 
 	template<>
-	class ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> > 
+	class ParamValue<const LLFontGL*> 
 	:	public CustomParamValue<const LLFontGL* >
 	{
         typedef CustomParamValue<const LLFontGL*> super_t;
@@ -589,7 +586,7 @@ namespace LLInitParam
 
 
 	template<>
-	class ParamValue<LLCoordGL, TypeValues<LLCoordGL> >
+	class ParamValue<LLCoordGL>
 	:	public CustomParamValue<LLCoordGL>
 	{
 		typedef CustomParamValue<LLCoordGL> super_t;

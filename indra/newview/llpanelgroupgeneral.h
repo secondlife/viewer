@@ -38,6 +38,7 @@ class LLNameListCtrl;
 class LLCheckBoxCtrl;
 class LLComboBox;
 class LLSpinCtrl;
+class LLAvatarName;
 
 class LLPanelGroupGeneral : public LLPanelGroupTab
 {
@@ -62,6 +63,7 @@ public:
 
 	virtual void setupCtrls	(LLPanel* parent);
 
+	void onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name);
 private:
 	void	reset();
 
@@ -75,7 +77,8 @@ private:
 	static void onReceiveNotices(LLUICtrl* ctrl, void* data);
 	static void openProfile(void* data);
 
-	S32		sortMembersList(S32,const LLScrollListItem*,const LLScrollListItem*);
+	S32	 sortMembersList(S32,const LLScrollListItem*,const LLScrollListItem*);
+	void addMember(LLGroupMemberData* member);
 
     static bool joinDlgCB(const LLSD& notification, const LLSD& response);
 
@@ -108,6 +111,7 @@ private:
 	LLComboBox		*mComboMature;
 
 	LLGroupMgrGroupData::member_list_t::iterator mMemberProgress;
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 #endif

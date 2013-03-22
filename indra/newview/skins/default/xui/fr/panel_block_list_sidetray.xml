@@ -5,6 +5,6 @@
 	</text>
 	<scroll_list name="blocked" tool_tip="Liste des résidents actuellement ignorés"/>
 	<button label="Ignorer une personne" label_selected="Ignorer le résident..." name="Block resident..." tool_tip="Choisir un résident à ignorer"/>
-	<button label="Ignorer l&apos;objet par nom" label_selected="Ignorer l&apos;objet par nom..." name="Block object by name..." tool_tip="Choisir un objet à ignorer par nom"/>
+	<button label="Ignorer un objet par son nom" label_selected="Ignorer un objet par son nom..." name="Block object by name..." tool_tip="Choisir un objet à ignorer par nom"/>
 	<button label="Ne plus ignorer" label_selected="Ne plus ignorer" name="Unblock" tool_tip="Enlever le résident ou l&apos;objet de la liste des ignorés"/>
 </panel>

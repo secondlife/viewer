@@ -59,6 +59,7 @@
 #include "llbuycurrencyhtml.h"
 #include "llfloatergodtools.h"
 #include "llfloaterinventory.h"
+#include "llfloaterimcontainer.h"
 #include "llfloaterland.h"
 #include "llfloaterpathfindingcharacters.h"
 #include "llfloaterpathfindinglinksets.h"
@@ -83,6 +84,7 @@
 #include "llinventoryfunctions.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
+#include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llmoveview.h"
 #include "llparcel.h"
 #include "llrootview.h"
@@ -106,6 +108,7 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerstats.h"
 #include "llvoavatarself.h"
+#include "llvoicevivox.h"
 #include "llworldmap.h"
 #include "pipeline.h"
 #include "llviewerjoystick.h"
@@ -165,7 +168,6 @@ LLContextMenu	*gMenuAttachmentSelf = NULL;
 LLContextMenu	*gMenuAttachmentOther = NULL;
 LLContextMenu	*gMenuLand	= NULL;
 
-const std::string SAVE_INTO_INVENTORY("Save Object Back to My Inventory");
 const std::string SAVE_INTO_TASK_INVENTORY("Save Object Back to Object Contents");
 
 LLMenuGL* gAttachSubMenu = NULL;
@@ -177,9 +179,6 @@ LLContextMenu* gAttachBodyPartPieMenus[8];
 LLContextMenu* gDetachPieMenu = NULL;
 LLContextMenu* gDetachScreenPieMenu = NULL;
 LLContextMenu* gDetachBodyPartPieMenus[8];
-
-LLMenuItemCallGL* gAFKMenu = NULL;
-LLMenuItemCallGL* gBusyMenu = NULL;
 
 //
 // Local prototypes
@@ -310,7 +309,6 @@ void handle_grab_baked_texture(void*);
 BOOL enable_grab_baked_texture(void*);
 void handle_dump_region_object_cache(void*);
 
-BOOL enable_save_into_inventory(void*);
 BOOL enable_save_into_task_inventory(void*);
 
 BOOL enable_detach(const LLSD& = LLSD());
@@ -341,7 +339,8 @@ LLMenuParcelObserver::~LLMenuParcelObserver()
 
 void LLMenuParcelObserver::changed()
 {
-	gMenuHolder->childSetEnabled("Land Buy Pass", LLPanelLandGeneral::enableBuyPass(NULL));
+	LLParcel *parcel = LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
+	gMenuHolder->childSetEnabled("Land Buy Pass", LLPanelLandGeneral::enableBuyPass(NULL) && !(parcel->getOwnerID()== gAgent.getID()));
 	
 	BOOL buyable = enable_buy_land(NULL);
 	gMenuHolder->childSetEnabled("Land Buy", buyable);
@@ -470,8 +469,6 @@ void init_menus()
 	gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", upload_cost);
 	gMenuHolder->childSetLabelArg("Bulk Upload", "[COST]", upload_cost);
 	
-	gAFKMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Away", TRUE);
-	gBusyMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Busy", TRUE);
 	gAttachSubMenu = gMenuBarView->findChildMenuByName("Attach Object", TRUE);
 	gDetachSubMenu = gMenuBarView->findChildMenuByName("Detach Object", TRUE);
 
@@ -1316,22 +1313,6 @@ class LLAdvancedPrintAgentInfo : public view_listener_t
 	}
 };
 
-
-
-////////////////////////////////
-// PRINT TEXTURE MEMORY STATS //
-////////////////////////////////
-
-
-class LLAdvancedPrintTextureMemoryStats : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		output_statistics(NULL);
-		return true;
-	}
-};
-
 //////////////////
 // DEBUG CLICKS //
 //////////////////
@@ -1654,6 +1635,54 @@ class LLAdvancedForceParamsToDefault : public view_listener_t
 	}
 };
 
+
+//////////////////////////
+//   ANIMATION SPEED    //
+//////////////////////////
+
+// Utility function to set all AV time factors to the same global value
+static void set_all_animation_time_factors(F32	time_factor)
+{
+	LLMotionController::setCurrentTimeFactor(time_factor);
+	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
+		iter != LLCharacter::sInstances.end(); ++iter)
+	{
+		(*iter)->setAnimTimeFactor(time_factor);
+	}
+}
+
+class LLAdvancedAnimTenFaster : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		//llinfos << "LLAdvancedAnimTenFaster" << llendl;
+		F32 time_factor = LLMotionController::getCurrentTimeFactor();
+		time_factor = llmin(time_factor + 0.1f, 2.f);	// Upper limit is 200% speed
+		set_all_animation_time_factors(time_factor);
+		return true;
+	}
+};
+
+class LLAdvancedAnimTenSlower : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		//llinfos << "LLAdvancedAnimTenSlower" << llendl;
+		F32 time_factor = LLMotionController::getCurrentTimeFactor();
+		time_factor = llmax(time_factor - 0.1f, 0.1f);	// Lower limit is at 10% of normal speed
+		set_all_animation_time_factors(time_factor);
+		return true;
+	}
+};
+
+class LLAdvancedAnimResetAll : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		set_all_animation_time_factors(1.f);
+		return true;
+	}
+};
 
 
 //////////////////////////
@@ -3263,15 +3292,6 @@ bool enable_freeze_eject(const LLSD& avatar_id)
 	return new_value;
 }
 
-
-void login_done(S32 which, void *user)
-{
-	llinfos << "Login done " << which << llendl;
-
-	LLPanelLogin::closePanel();
-}
-
-
 bool callback_leave_group(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -3463,6 +3483,20 @@ bool enable_sitdown_self()
     return isAgentAvatarValid() && !gAgentAvatarp->isSitting() && !gAgent.getFlying();
 }
 
+class LLCheckPanelPeopleTab : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+		{
+			std::string panel_name = userdata.asString();
+
+			LLPanel *panel = LLFloaterSidePanelContainer::getPanel("people", panel_name);
+			if(panel && panel->isInVisibleChain())
+			{
+				return true;
+			}
+			return false;
+		}
+};
 // Toggle one of "People" panel tabs in side tray.
 class LLTogglePanelPeopleTab : public view_listener_t
 {
@@ -3475,7 +3509,8 @@ class LLTogglePanelPeopleTab : public view_listener_t
 
 		if (   panel_name == "friends_panel"
 			|| panel_name == "groups_panel"
-			|| panel_name == "nearby_panel")
+			|| panel_name == "nearby_panel"
+			|| panel_name == "blocked_panel")
 		{
 			return togglePeoplePanel(panel_name, param);
 		}
@@ -3911,25 +3946,27 @@ class LLViewToggleUI : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLNotification::Params params("ConfirmHideUI");
-		params.functor.function(boost::bind(&LLViewToggleUI::confirm, this, _1, _2));
-		LLSD substitutions;
+		if(gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
+		{
+			LLNotification::Params params("ConfirmHideUI");
+			params.functor.function(boost::bind(&LLViewToggleUI::confirm, this, _1, _2));
+			LLSD substitutions;
 #if LL_DARWIN
-		substitutions["SHORTCUT"] = "Cmd+Shift+U";
+			substitutions["SHORTCUT"] = "Cmd+Shift+U";
 #else
-		substitutions["SHORTCUT"] = "Ctrl+Shift+U";
+			substitutions["SHORTCUT"] = "Ctrl+Shift+U";
 #endif
-		params.substitutions = substitutions;
-		if (gViewerWindow->getUIVisibility())
-		{
-			// hiding, so show notification
-			LLNotifications::instance().add(params);
+			params.substitutions = substitutions;
+			if (!gSavedSettings.getBOOL("HideUIControls"))
+			{
+				// hiding, so show notification
+				LLNotifications::instance().add(params);
+			}
+			else
+			{
+				LLNotifications::instance().forceResponse(params, 0);
+			}
 		}
-		else
-		{
-			LLNotifications::instance().forceResponse(params, 0);
-		}
-
 		return true;
 	}
 
@@ -3939,7 +3976,9 @@ class LLViewToggleUI : public view_listener_t
 
 		if (option == 0) // OK
 		{
-			gViewerWindow->setUIVisibility(!gViewerWindow->getUIVisibility());
+			gViewerWindow->setUIVisibility(gSavedSettings.getBOOL("HideUIControls"));
+			LLPanelStandStopFlying::getInstance()->setVisible(gSavedSettings.getBOOL("HideUIControls"));
+			gSavedSettings.setBOOL("HideUIControls",!gSavedSettings.getBOOL("HideUIControls"));
 		}
 	}
 };
@@ -4834,18 +4873,6 @@ BOOL sitting_on_selection()
 	return (gAgentAvatarp->isSitting() && gAgentAvatarp->getRoot() == root_object);
 }
 
-class LLToolsSaveToInventory : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		if(enable_save_into_inventory(NULL))
-		{
-			derez_objects(DRD_SAVE_INTO_AGENT_INVENTORY, LLUUID::null);
-		}
-		return true;
-	}
-};
-
 class LLToolsSaveToObjectInventory : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -4873,6 +4900,37 @@ class LLToolsEnablePathfindingView : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		return (LLPathfindingManager::getInstance() != NULL) && LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() && LLPathfindingManager::getInstance()->isPathfindingViewEnabled();
+	}
+};
+
+class LLToolsDoPathfindingRebakeRegion : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		bool hasPathfinding = (LLPathfindingManager::getInstance() != NULL);
+
+		if (hasPathfinding)
+		{
+			LLMenuOptionPathfindingRebakeNavmesh::getInstance()->sendRequestRebakeNavmesh();
+		}
+
+		return hasPathfinding;
+	}
+};
+
+class LLToolsEnablePathfindingRebakeRegion : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		bool returnValue = false;
+
+		if (LLPathfindingManager::getInstance() != NULL)
+		{
+			LLMenuOptionPathfindingRebakeNavmesh *rebakeInstance = LLMenuOptionPathfindingRebakeNavmesh::getInstance();
+			returnValue = (rebakeInstance->canRebakeRegion() &&
+				(rebakeInstance->getMode() == LLMenuOptionPathfindingRebakeNavmesh::kRebakeNavMesh_Available));
+		}
+		return returnValue;
 	}
 };
 
@@ -5134,12 +5192,6 @@ class LLEditDelete : public view_listener_t
 	}
 };
 
-bool enable_object_return()
-{
-	return (!LLSelectMgr::getInstance()->getSelection()->isEmpty() &&
-		(gAgent.isGodlike() || can_derez(DRD_RETURN_TO_OWNER)));
-}
-
 void handle_spellcheck_replace_with_suggestion(const LLUICtrl* ctrl, const LLSD& param)
 {
 	const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
@@ -5210,6 +5262,12 @@ bool enable_spellcheck_add_to_ignore(const LLUICtrl* ctrl)
 	const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
 	const LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<const LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
 	return (spellcheck_handler) && (spellcheck_handler->canAddToIgnore());
+}
+
+bool enable_object_return()
+{
+	return (!LLSelectMgr::getInstance()->getSelection()->isEmpty() &&
+		(gAgent.isGodlike() || can_derez(DRD_RETURN_TO_OWNER)));
 }
 
 bool enable_object_delete()
@@ -5499,16 +5557,6 @@ void toggle_debug_menus(void*)
 // 	gExportDialog = LLUploadDialog::modalUploadDialog("Exporting selected objects...");
 // }
 //
-
-class LLCommunicateBlockList : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterSidePanelContainer::showPanel("people", "panel_block_list_sidetray", LLSD());
-		return true;
-	}
-};
-
 class LLWorldSetHomeLocation : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -5582,18 +5630,18 @@ class LLWorldSetAway : public view_listener_t
 	}
 };
 
-class LLWorldSetBusy : public view_listener_t
+class LLWorldSetDoNotDisturb : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		if (gAgent.getBusy())
+		if (gAgent.isDoNotDisturb())
 		{
-			gAgent.clearBusy();
+			gAgent.setDoNotDisturb(false);
 		}
 		else
 		{
-			gAgent.setBusy();
-			LLNotificationsUtil::add("BusyModeSet");
+			gAgent.setDoNotDisturb(true);
+			LLNotificationsUtil::add("DoNotDisturbModeSet");
 		}
 		return true;
 	}
@@ -5755,7 +5803,7 @@ bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjec
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0)
 	{
-		gAgent.clearBusy();
+		gAgent.setDoNotDisturb(false);
 	}
 
 	LLViewerObject* objectp = selection->getPrimaryObject();
@@ -5788,12 +5836,12 @@ bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjec
 
 void handle_give_money_dialog()
 {
-	LLNotification::Params params("BusyModePay");
+	LLNotification::Params params("DoNotDisturbModePay");
 	params.functor.function(boost::bind(complete_give_money, _1, _2, LLSelectMgr::getInstance()->getSelection()));
 
-	if (gAgent.getBusy())
+	if (gAgent.isDoNotDisturb())
 	{
-		// warn users of being in busy mode during a transaction
+		// warn users of being in do not disturb mode during a transaction
 		LLNotifications::instance().add(params);
 	}
 	else
@@ -7107,50 +7155,6 @@ bool LLHasAsset::operator()(LLInventoryCategory* cat,
 	return FALSE;
 }
 
-BOOL enable_save_into_inventory(void*)
-{
-	// *TODO: clean this up
-	// find the last root
-	LLSelectNode* last_node = NULL;
-	for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
-		 iter != LLSelectMgr::getInstance()->getSelection()->root_end(); iter++)
-	{
-		last_node = *iter;
-	}
-
-#ifdef HACKED_GODLIKE_VIEWER
-	return TRUE;
-#else
-# ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-	if (!LLGridManager::getInstance()->isInProductionGrid()
-        && gAgent.isGodlike())
-	{
-		return TRUE;
-	}
-# endif
-	// check all pre-req's for save into inventory.
-	if(last_node && last_node->mValid && !last_node->mItemID.isNull()
-	   && (last_node->mPermissions->getOwner() == gAgent.getID())
-	   && (gInventory.getItem(last_node->mItemID) != NULL))
-	{
-		LLViewerObject* obj = last_node->getObject();
-		if( obj && !obj->isAttachment() )
-		{
-			return TRUE;
-		}
-	}
-	return FALSE;
-#endif
-}
-
-class LLToolsEnableSaveToInventory : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = enable_save_into_inventory(NULL);
-		return new_value;
-	}
-};
 
 BOOL enable_save_into_task_inventory(void*)
 {
@@ -7532,6 +7536,7 @@ class LLToolsUseSelectionForGrid : public view_listener_t
 		} func;
 		LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func);
 		LLSelectMgr::getInstance()->setGridMode(GRID_MODE_REF_OBJECT);
+		LLFloaterTools::setGridMode((S32)GRID_MODE_REF_OBJECT);
 		return true;
 	}
 };
@@ -7606,6 +7611,20 @@ void handle_web_content_test(const LLSD& param)
 {
 	std::string url = param.asString();
 	LLWeb::loadURLInternal(url);
+}
+
+void handle_show_url(const LLSD& param)
+{
+	std::string url = param.asString();
+	if(gSavedSettings.getBOOL("UseExternalBrowser"))
+	{
+		LLWeb::loadURLExternal(url);
+	}
+	else
+	{
+		LLWeb::loadURLInternal(url);
+	}
+
 }
 
 void handle_buy_currency_test(void*)
@@ -7861,6 +7880,22 @@ class LLViewCheckRenderType : public view_listener_t
 	}
 };
 
+class LLViewStatusAway : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return (gAgent.isInitialized() && gAgent.getAFK());
+	}
+};
+
+class LLViewStatusDoNotDisturb : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return (gAgent.isInitialized() && gAgent.isDoNotDisturb());
+	}
+};
+
 class LLViewShowHUDAttachments : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -8087,11 +8122,7 @@ class LLWorldPostProcess : public view_listener_t
 
 void handle_flush_name_caches()
 {
-	// Toggle display names on and off to flush
-	bool use_display_names = LLAvatarNameCache::useDisplayNames();
-	LLAvatarNameCache::setUseDisplayNames(!use_display_names);
-	LLAvatarNameCache::setUseDisplayNames(use_display_names);
-
+	LLAvatarNameCache::cleanupClass();
 	if (gCacheName) gCacheName->clear();
 }
 
@@ -8115,6 +8146,11 @@ public:
 		calculateCost();
 	}
 };
+
+void handle_voice_morphing_subscribe()
+{
+	LLWeb::loadURLExternal(LLTrans::getString("voice_morphing_url"));
+}
 
 class LLToggleUIHints : public view_listener_t
 {
@@ -8249,6 +8285,7 @@ void initialize_menus()
 
 
 	commit.add("Inventory.NewWindow", boost::bind(&LLFloaterInventory::showAgentInventory));
+	enable.add("Conversation.IsConversationLoggingAllowed", boost::bind(&LLFloaterIMContainer::isConversationLoggingAllowed));
 
 	// Agent
 	commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
@@ -8294,14 +8331,21 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLViewCheckShowHoverTips(), "View.CheckShowHoverTips");
 	view_listener_t::addMenu(new LLViewCheckHighlightTransparent(), "View.CheckHighlightTransparent");
 	view_listener_t::addMenu(new LLViewCheckRenderType(), "View.CheckRenderType");
+	view_listener_t::addMenu(new LLViewStatusAway(), "View.Status.CheckAway");
+	view_listener_t::addMenu(new LLViewStatusDoNotDisturb(), "View.Status.CheckDoNotDisturb");
 	view_listener_t::addMenu(new LLViewCheckHUDAttachments(), "View.CheckHUDAttachments");
-
+	
 	// Me > Movement
 	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
-	
-	// Communicate
-	view_listener_t::addMenu(new LLCommunicateBlockList(), "Communicate.BlockList");
-	
+
+	// Communicate > Voice morphing > Subscribe...
+	commit.add("Communicate.VoiceMorphing.Subscribe", boost::bind(&handle_voice_morphing_subscribe));
+	LLVivoxVoiceClient * voice_clientp = LLVivoxVoiceClient::getInstance();
+	enable.add("Communicate.VoiceMorphing.NoVoiceMorphing.Check"
+		, boost::bind(&LLVivoxVoiceClient::onCheckVoiceEffect, voice_clientp, "NoVoiceMorphing"));
+	commit.add("Communicate.VoiceMorphing.NoVoiceMorphing.Click"
+		, boost::bind(&LLVivoxVoiceClient::onClickVoiceEffect, voice_clientp, "NoVoiceMorphing"));
+
 	// World menu
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
 	view_listener_t::addMenu(new LLWorldCreateLandmark(), "World.CreateLandmark");
@@ -8309,7 +8353,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldSetHomeLocation(), "World.SetHomeLocation");
 	view_listener_t::addMenu(new LLWorldTeleportHome(), "World.TeleportHome");
 	view_listener_t::addMenu(new LLWorldSetAway(), "World.SetAway");
-	view_listener_t::addMenu(new LLWorldSetBusy(), "World.SetBusy");
+	view_listener_t::addMenu(new LLWorldSetDoNotDisturb(), "World.SetDoNotDisturb");
 
 	view_listener_t::addMenu(new LLWorldEnableCreateLandmark(), "World.EnableCreateLandmark");
 	view_listener_t::addMenu(new LLWorldEnableSetHomeLocation(), "World.EnableSetHomeLocation");
@@ -8342,7 +8386,6 @@ void initialize_menus()
 	commit.add("Tools.LookAtSelection", boost::bind(&handle_look_at_selection, _2));
 	commit.add("Tools.BuyOrTake", boost::bind(&handle_buy_or_take));
 	commit.add("Tools.TakeCopy", boost::bind(&handle_take_copy));
-	view_listener_t::addMenu(new LLToolsSaveToInventory(), "Tools.SaveToInventory");
 	view_listener_t::addMenu(new LLToolsSaveToObjectInventory(), "Tools.SaveToObjectInventory");
 	view_listener_t::addMenu(new LLToolsSelectedScriptAction(), "Tools.SelectedScriptAction");
 
@@ -8354,11 +8397,12 @@ void initialize_menus()
 	enable.add("Tools.EnableTakeCopy", boost::bind(&enable_object_take_copy));
 	enable.add("Tools.VisibleBuyObject", boost::bind(&tools_visible_buy_object));
 	enable.add("Tools.VisibleTakeObject", boost::bind(&tools_visible_take_object));
-	view_listener_t::addMenu(new LLToolsEnableSaveToInventory(), "Tools.EnableSaveToInventory");
 	view_listener_t::addMenu(new LLToolsEnableSaveToObjectInventory(), "Tools.EnableSaveToObjectInventory");
 
 	view_listener_t::addMenu(new LLToolsEnablePathfinding(), "Tools.EnablePathfinding");
 	view_listener_t::addMenu(new LLToolsEnablePathfindingView(), "Tools.EnablePathfindingView");
+	view_listener_t::addMenu(new LLToolsDoPathfindingRebakeRegion(), "Tools.DoPathfindingRebakeRegion");
+	view_listener_t::addMenu(new LLToolsEnablePathfindingRebakeRegion(), "Tools.EnablePathfindingRebakeRegion");
 
 	// Help menu
 	// most items use the ShowFloater method
@@ -8425,6 +8469,7 @@ void initialize_menus()
 	// Advanced > UI
 	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test,	_2));	// sigh! this one opens the MEDIA browser
 	commit.add("Advanced.WebContentTest", boost::bind(&handle_web_content_test, _2));	// this one opens the Web Content floater
+	commit.add("Advanced.ShowURL", boost::bind(&handle_show_url, _2));
 	view_listener_t::addMenu(new LLAdvancedBuyCurrencyTest(), "Advanced.BuyCurrencyTest");
 	view_listener_t::addMenu(new LLAdvancedDumpSelectMgr(), "Advanced.DumpSelectMgr");
 	view_listener_t::addMenu(new LLAdvancedDumpInventory(), "Advanced.DumpInventory");
@@ -8432,7 +8477,6 @@ void initialize_menus()
 	commit.add("Advanced.DumpFocusHolder", boost::bind(&handle_dump_focus) );
 	view_listener_t::addMenu(new LLAdvancedPrintSelectedObjectInfo(), "Advanced.PrintSelectedObjectInfo");
 	view_listener_t::addMenu(new LLAdvancedPrintAgentInfo(), "Advanced.PrintAgentInfo");
-	view_listener_t::addMenu(new LLAdvancedPrintTextureMemoryStats(), "Advanced.PrintTextureMemoryStats");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugClicks(), "Advanced.ToggleDebugClicks");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugClicks(), "Advanced.CheckDebugClicks");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugViews(), "Advanced.CheckDebugViews");
@@ -8464,6 +8508,11 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedTestMale(), "Advanced.TestMale");
 	view_listener_t::addMenu(new LLAdvancedTestFemale(), "Advanced.TestFemale");
 	
+	// Advanced > Character > Animation Speed
+	view_listener_t::addMenu(new LLAdvancedAnimTenFaster(), "Advanced.AnimTenFaster");
+	view_listener_t::addMenu(new LLAdvancedAnimTenSlower(), "Advanced.AnimTenSlower");
+	view_listener_t::addMenu(new LLAdvancedAnimResetAll(), "Advanced.AnimResetAll");
+
 	// Advanced > Character (toplevel)
 	view_listener_t::addMenu(new LLAdvancedForceParamsToDefault(), "Advanced.ForceParamsToDefault");
 	view_listener_t::addMenu(new LLAdvancedReloadVertexShader(), "Advanced.ReloadVertexShader");
@@ -8551,6 +8600,7 @@ void initialize_menus()
 
 	// we don't use boost::bind directly to delay side tray construction
 	view_listener_t::addMenu( new LLTogglePanelPeopleTab(), "SideTray.PanelPeopleTab");
+	view_listener_t::addMenu( new LLCheckPanelPeopleTab(), "SideTray.CheckPanelPeopleTab");
 
 	 // Avatar pie menu
 	view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");

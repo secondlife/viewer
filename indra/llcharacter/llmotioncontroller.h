@@ -168,6 +168,9 @@ public:
 
 	const LLFrameTimer& getFrameTimer() { return mTimer; }
 
+	static F32	getCurrentTimeFactor()				{ return sCurrentTimeFactor;	};
+	static void setCurrentTimeFactor(F32 factor)	{ sCurrentTimeFactor = factor;	};
+
 protected:
 	// internal operations act on motion instances directly
 	// as there can be duplicate motions per id during blending overlap
@@ -187,7 +190,8 @@ protected:
 	void deactivateStoppedMotions();
 
 protected:
-	F32					mTimeFactor;
+	F32					mTimeFactor;			// 1.f for normal speed
+	static F32			sCurrentTimeFactor;		// Value to use for initialization
 	static LLMotionRegistry	sRegistry;
 	LLPoseBlender		mPoseBlender;
 

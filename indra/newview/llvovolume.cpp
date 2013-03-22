@@ -1138,17 +1138,29 @@ void LLVOVolume::sculpt()
 		S32 current_discard = getVolume()->getSculptLevel() ;
 		if(current_discard < -2)
 		{
-			llwarns << "WARNING!!: Current discard of sculpty at " << current_discard 
-				<< " is less than -2." << llendl;
+			static S32 low_sculpty_discard_warning_count = 100;
+			if (++low_sculpty_discard_warning_count >= 100)
+			{	// Log first time, then every 100 afterwards otherwise this can flood the logs
+				llwarns << "WARNING!!: Current discard for sculpty " << mSculptTexture->getID() 
+					<< " at " << current_discard 
+					<< " is less than -2." << llendl;
+				low_sculpty_discard_warning_count = 0;
+			}
 			
 			// corrupted volume... don't update the sculpty
 			return;
 		}
 		else if (current_discard > MAX_DISCARD_LEVEL)
 		{
-			llwarns << "WARNING!!: Current discard of sculpty at " << current_discard 
-				<< " is more than than allowed max of " << MAX_DISCARD_LEVEL << llendl;
-			
+			static S32 high_sculpty_discard_warning_count = 100;
+			if (++high_sculpty_discard_warning_count >= 100)
+			{	// Log first time, then every 100 afterwards otherwise this can flood the logs
+				llwarns << "WARNING!!: Current discard for sculpty " << mSculptTexture->getID() 
+					<< " at " << current_discard 
+					<< " is more than than allowed max of " << MAX_DISCARD_LEVEL << llendl;
+				high_sculpty_discard_warning_count = 0;
+			}
+
 			// corrupted volume... don't update the sculpty			
 			return;
 		}
@@ -1227,6 +1239,13 @@ BOOL LLVOVolume::calcLOD()
 	if (mDrawable->isState(LLDrawable::RIGGED))
 	{
 		LLVOAvatar* avatar = getAvatar(); 
+		
+		// Not sure how this can really happen, but alas it does. Better exit here than crashing.
+		if( !avatar || !avatar->mDrawable )
+		{
+			return FALSE;
+		}
+
 		distance = avatar->mDrawable->mDistanceWRTCamera;
 		radius = avatar->getBinRadius();
 	}
@@ -1335,7 +1354,8 @@ BOOL LLVOVolume::setDrawableParent(LLDrawable* parentp)
 
 void LLVOVolume::updateFaceFlags()
 {
-	for (S32 i = 0; i < getVolume()->getNumFaces(); i++)
+	// There's no guarantee that getVolume()->getNumFaces() == mDrawable->getNumFaces()
+	for (S32 i = 0; i < getVolume()->getNumFaces() && i < mDrawable->getNumFaces(); i++)
 	{
 		LLFace *face = mDrawable->getFace(i);
 		if (face)
@@ -1436,7 +1456,10 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 		volume = getVolume();
 	}
 
-	for (S32 i = 0; i < getVolume()->getNumVolumeFaces(); i++)
+	// There's no guarantee that getVolume()->getNumFaces() == mDrawable->getNumFaces()
+	for (S32 i = 0;
+		 i < getVolume()->getNumVolumeFaces() && i < mDrawable->getNumFaces() && i < getNumTEs();
+		 i++)
 	{
 		LLFace *face = mDrawable->getFace(i);
 		if (!face)
@@ -1472,7 +1495,7 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 
 	updateRadius();
 	mDrawable->movePartition();
-			
+				
 	return res;
 }
 
@@ -1737,6 +1760,11 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 
 void LLVOVolume::updateFaceSize(S32 idx)
 {
+	if( mDrawable->getNumFaces() <= idx )
+	{
+		return;
+	}
+
 	LLFace* facep = mDrawable->getFace(idx);
 	if (facep)
 	{
@@ -2427,7 +2455,12 @@ void LLVOVolume::addMediaImpl(LLViewerMediaImpl* media_impl, S32 texture_index)
 	//add the face to show the media if it is in playing
 	if(mDrawable)
 	{
-		LLFace* facep = mDrawable->getFace(texture_index) ;
+		LLFace* facep(NULL);
+		if( texture_index < mDrawable->getNumFaces() )
+		{
+			facep = mDrawable->getFace(texture_index) ;
+		}
+
 		if(facep)
 		{
 			LLViewerMediaTexture* media_tex = LLViewerTextureManager::findMediaTexture(mMediaImplList[texture_index]->getMediaTextureID()) ;
@@ -3562,7 +3595,6 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 		if (LLFloater::isVisible(gFloaterTools) && getAvatar()->isSelf())
 		{
 			updateRiggedVolume();
-			genBBoxes(FALSE);
 			volume = mRiggedVolume;
 			transform = false;
 		}
@@ -3826,6 +3858,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
 			LLVector4a* pos = dst_face.mPositions;
 
+			if( pos && weight && dst_face.mExtents )
 			{
 				LLFastTimer t(FTM_SKIN_RIGGED);
 
@@ -3961,7 +3994,6 @@ static LLFastTimer::DeclareTimer FTM_REGISTER_FACE("Register Face");
 void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep, U32 type)
 {
 	LLFastTimer t(FTM_REGISTER_FACE);
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 
 	if (facep->getViewerObject()->isSelected() && LLSelectMgr::getInstance()->mHideSelectedObjects)
 	{
@@ -4004,10 +4036,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	else
 	{
 		model_mat = &(drawable->getRegion()->mRenderMatrix);
-		if (model_mat->isIdentity())
-		{
-			model_mat = NULL;
-		}
 	}
 
 	//drawable->getVObj()->setDebugText(llformat("%d", drawable->isState(LLDrawable::ANIMATED_CHILD)));
@@ -4888,11 +4916,19 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				facep->setTextureIndex(cur_tex);
 				texture_list.push_back(tex);
 
-				//if (can_batch_texture(facep))
-				{
+				if (can_batch_texture(facep))
+				{ //populate texture_list with any textures that can be batched
+				  //move i to the next unbatchable face
 					while (i != faces.end())
 					{
 						facep = *i;
+						
+						if (!can_batch_texture(facep))
+						{ //face is bump mapped or has an animated texture matrix -- can't 
+							//batch more than 1 texture at a time
+							break;
+						}
+
 						if (facep->getTexture() != tex)
 						{
 							if (distance_sort)
@@ -4916,12 +4952,6 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 							else
 							{
 								cur_tex++;
-							}
-
-							if (!can_batch_texture(facep))
-							{ //face is bump mapped or has an animated texture matrix -- can't 
-								//batch more than 1 texture at a time
-								break;
 							}
 
 							if (cur_tex >= texture_index_channels)

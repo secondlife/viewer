@@ -74,7 +74,7 @@ private:
 
 	void onApplyAllFilters();
 	void onClearFiltersClicked();
-	void onWalkabilityCoefficientEntered(LLUICtrl *pUICtrl);
+	void onWalkabilityCoefficientEntered(LLUICtrl *pUICtrl, LLSD &pPreviousValue);
 	void onApplyChangesClicked();
 
 	void clearFilters();
@@ -132,6 +132,11 @@ private:
 	LLButton         *mApplyEditsButton;
 
 	LLColor4         mBeaconColor;
+
+	LLSD             mPreviousValueA;
+	LLSD             mPreviousValueB;
+	LLSD             mPreviousValueC;
+	LLSD             mPreviousValueD;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGLINKSETS_H

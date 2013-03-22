@@ -37,7 +37,7 @@ class LLContextMenu;
 /**
  * Context menu for single or multiple list items.
  * 
- * Derived classes must implement contextMenu().
+ * Derived classes must implement createMenu().
  * 
  * Typical usage:
  * <code>

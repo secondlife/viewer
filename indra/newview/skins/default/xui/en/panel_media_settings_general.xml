@@ -30,7 +30,7 @@
     (This page does not pass the specified whitelist)
   </text>
   <line_editor 
-   max_length="1024"
+   max_length_bytes="1024"
    bottom_delta="-24" 
    enabled="true" 
    follows="left|top" 

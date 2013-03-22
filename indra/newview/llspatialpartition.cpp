@@ -55,7 +55,7 @@
 #include "llviewershadermgr.h"
 
 static LLFastTimer::DeclareTimer FTM_FRUSTUM_CULL("Frustum Culling");
-static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
+static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound Partition");
 
 const F32 SG_OCCLUSION_FUDGE = 0.25f;
 #define SG_DISCARD_TOLERANCE 0.01f
@@ -376,7 +376,6 @@ LLSpatialGroup::~LLSpatialGroup()
 		}
 	}
 
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	clearDrawMap();
 	clearAtlasList() ;
 }
@@ -615,8 +614,6 @@ void LLSpatialGroup::validateDrawMap()
 
 BOOL LLSpatialGroup::updateInGroup(LLDrawable *drawablep, BOOL immediate)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-		
 	drawablep->updateSpatialExtents();
 
 	OctreeNode* parent = mOctreeNode->getOctParent();
@@ -638,7 +635,6 @@ BOOL LLSpatialGroup::updateInGroup(LLDrawable *drawablep, BOOL immediate)
 
 BOOL LLSpatialGroup::addObject(LLDrawable *drawablep, BOOL add_all, BOOL from_octree)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	if (!from_octree)
 	{
 		mOctreeNode->insert(drawablep);
@@ -664,7 +660,6 @@ BOOL LLSpatialGroup::addObject(LLDrawable *drawablep, BOOL add_all, BOOL from_oc
 
 void LLSpatialGroup::rebuildGeom()
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	if (!isDead())
 	{
 		mSpatialPartition->rebuildGeom(this);
@@ -876,7 +871,6 @@ LLSpatialGroup* LLSpatialGroup::getParent()
 
 BOOL LLSpatialGroup::removeObject(LLDrawable *drawablep, BOOL from_octree)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	unbound();
 	if (mOctreeNode && !from_octree)
 	{
@@ -913,7 +907,6 @@ BOOL LLSpatialGroup::removeObject(LLDrawable *drawablep, BOOL from_octree)
 
 void LLSpatialGroup::shift(const LLVector4a &offset)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	LLVector4a t = mOctreeNode->getCenter();
 	t.add(offset);	
 	mOctreeNode->setCenter(t);
@@ -968,8 +961,6 @@ void LLSpatialGroup::setState(U32 state)
 
 void LLSpatialGroup::setState(U32 state, S32 mode) 
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-
 	llassert(state <= LLSpatialGroup::STATE_MASK);
 	
 	if (mode > STATE_MODE_SINGLE)
@@ -1026,8 +1017,6 @@ void LLSpatialGroup::clearState(U32 state, S32 mode)
 {
 	llassert(state <= LLSpatialGroup::STATE_MASK);
 
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-	
 	if (mode > STATE_MODE_SINGLE)
 	{
 		if (mode == STATE_MODE_DIFF)
@@ -1084,8 +1073,6 @@ public:
 
 void LLSpatialGroup::setOcclusionState(U32 state, S32 mode) 
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-	
 	if (mode > STATE_MODE_SINGLE)
 	{
 		if (mode == STATE_MODE_DIFF)
@@ -1150,8 +1137,6 @@ public:
 
 void LLSpatialGroup::clearOcclusionState(U32 state, S32 mode)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-	
 	if (mode > STATE_MODE_SINGLE)
 	{
 		if (mode == STATE_MODE_DIFF)
@@ -1203,7 +1188,6 @@ LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part) :
 	ll_assert_aligned(this,16);
 	
 	sNodeCount++;
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 
 	mViewAngle.splat(0.f);
 	mLastUpdateViewAngle.splat(-1.f);
@@ -1389,7 +1373,6 @@ BOOL LLSpatialGroup::changeLOD()
 
 void LLSpatialGroup::handleInsertion(const TreeNode* node, LLDrawable* drawablep)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	addObject(drawablep, FALSE, TRUE);
 	unbound();
 	setState(OBJECT_DIRTY);
@@ -1397,14 +1380,12 @@ void LLSpatialGroup::handleInsertion(const TreeNode* node, LLDrawable* drawablep
 
 void LLSpatialGroup::handleRemoval(const TreeNode* node, LLDrawable* drawable)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	removeObject(drawable, TRUE);
 	setState(OBJECT_DIRTY);
 }
 
 void LLSpatialGroup::handleDestruction(const TreeNode* node)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	setState(DEAD);
 	
 	for (element_iter i = getDataBegin(); i != getDataEnd(); ++i)
@@ -1446,7 +1427,6 @@ void LLSpatialGroup::handleStateChange(const TreeNode* node)
 
 void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* child) 
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	if (child->getListenerCount() == 0)
 	{
 		new LLSpatialGroup(child, mSpatialPartition);
@@ -1792,7 +1772,6 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 LLSpatialPartition::LLSpatialPartition(U32 data_mask, BOOL render_by_group, U32 buffer_usage)
 : mRenderByGroup(render_by_group), mBridge(NULL)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	mOcclusionEnabled = TRUE;
 	mDrawableType = 0;
 	mPartitionType = LLViewerRegion::PARTITION_NONE;
@@ -1816,8 +1795,6 @@ LLSpatialPartition::LLSpatialPartition(U32 data_mask, BOOL render_by_group, U32 
 
 LLSpatialPartition::~LLSpatialPartition()
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-	
 	delete mOctree;
 	mOctree = NULL;
 }
@@ -1825,8 +1802,6 @@ LLSpatialPartition::~LLSpatialPartition()
 
 LLSpatialGroup *LLSpatialPartition::put(LLDrawable *drawablep, BOOL was_visible)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-		
 	drawablep->updateSpatialExtents();
 
 	//keep drawable from being garbage collected
@@ -1848,8 +1823,6 @@ LLSpatialGroup *LLSpatialPartition::put(LLDrawable *drawablep, BOOL was_visible)
 
 BOOL LLSpatialPartition::remove(LLDrawable *drawablep, LLSpatialGroup *curp)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-	
 	if (!curp->removeObject(drawablep))
 	{
 		OCT_ERRS << "Failed to remove drawable from octree!" << llendl;
@@ -1859,6 +1832,8 @@ BOOL LLSpatialPartition::remove(LLDrawable *drawablep, LLSpatialGroup *curp)
 		drawablep->setSpatialGroup(NULL);
 	}
 
+	drawablep->setSpatialGroup(NULL);
+
 	assert_octree_valid(mOctree);
 	
 	return TRUE;
@@ -1866,8 +1841,6 @@ BOOL LLSpatialPartition::remove(LLDrawable *drawablep, LLSpatialGroup *curp)
 
 void LLSpatialPartition::move(LLDrawable *drawablep, LLSpatialGroup *curp, BOOL immediate)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-		
 	// sanity check submitted by open source user bushing Spatula
 	// who was seeing crashing here. (See VWR-424 reported by Bunny Mayne)
 	if (!drawablep)
@@ -1924,7 +1897,6 @@ public:
 
 void LLSpatialPartition::shift(const LLVector4a &offset)
 { //shift octree node bounding boxes by offset
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	LLSpatialShift shifter(offset);
 	shifter.traverse(mOctree);
 }
@@ -2338,7 +2310,6 @@ public:
 
 void LLSpatialPartition::restoreGL()
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 }
 
 void LLSpatialPartition::resetVertexBuffers()
@@ -2381,7 +2352,6 @@ BOOL LLSpatialPartition::visibleObjectsInFrustum(LLCamera& camera)
 
 S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* results, BOOL for_select)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 #if LL_OCTREE_PARANOIA_CHECK
 	((LLSpatialGroup*)mOctree->getListener(0))->checkStates();
 #endif
@@ -2776,7 +2746,7 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 
 void renderCrossHairs(LLVector3 position, F32 size, LLColor4 color)
 {
-	gGL.diffuseColor4fv(color.mV);
+	gGL.color4fv(color.mV);
 	gGL.begin(LLRender::LINES);
 	{
 		gGL.vertex3fv((position - LLVector3(size, 0.f, 0.f)).mV);
@@ -4027,7 +3997,7 @@ void renderAgentTarget(LLVOAvatar* avatar)
 	if (avatar->isSelf())
 	{
 		renderCrossHairs(avatar->getPositionAgent(), 0.2f, LLColor4(1, 0, 0, 0.8f));
-		renderCrossHairs(avatar->mDrawable->getPositionAgent(), 0.2f, LLColor4(1, 0, 0, 0.8f));
+		renderCrossHairs(avatar->mDrawable->getPositionAgent(), 0.2f, LLColor4(0, 1, 0, 0.8f));
 		renderCrossHairs(avatar->mRoot.getWorldPosition(), 0.2f, LLColor4(1, 1, 1, 0.8f));
 		renderCrossHairs(avatar->mPelvisp->getWorldPosition(), 0.2f, LLColor4(0, 0, 1, 0.8f));
 	}
@@ -4194,7 +4164,7 @@ public:
 						{
 							if (index < 255)
 							{
-								if (facep->mDrawInfo->mTextureList.size()<= index)
+								if (facep->mDrawInfo->mTextureList.size() <= index)
 								{
 									llerrs << "Face texture index out of bounds." << llendl;
 								}
@@ -4439,8 +4409,6 @@ void LLSpatialPartition::renderDebug()
 		sCurMaxTexPriority = 0.f;
 	}
 
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-	
 	LLGLDisable cullface(GL_CULL_FACE);
 	LLGLEnable blend(GL_BLEND);
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
@@ -4714,55 +4682,63 @@ LLCullResult::LLCullResult()
 	mVisibleListAllocated = 0;
 	mVisibleBridgeAllocated = 0;
 
-	mVisibleGroups = NULL;
-	mVisibleGroupsEnd = NULL;
-	mAlphaGroups = NULL;
-	mAlphaGroupsEnd = NULL;
-	mOcclusionGroups = NULL;
-	mOcclusionGroupsEnd = NULL;
-	mDrawableGroups = NULL;
-	mDrawableGroupsEnd = NULL;
-	mVisibleList = NULL;
-	mVisibleListEnd = NULL;
-	mVisibleBridge = NULL;
-	mVisibleBridgeEnd = NULL;
+	mVisibleGroups.clear();
+	mVisibleGroups.push_back(NULL);
+	mVisibleGroupsEnd = &mVisibleGroups[0];
+	mAlphaGroups.clear();
+	mAlphaGroups.push_back(NULL);
+	mAlphaGroupsEnd = &mAlphaGroups[0];
+	mOcclusionGroups.clear();
+	mOcclusionGroups.push_back(NULL);
+	mOcclusionGroupsEnd = &mOcclusionGroups[0];
+	mDrawableGroups.clear();
+	mDrawableGroups.push_back(NULL);
+	mDrawableGroupsEnd = &mDrawableGroups[0];
+	mVisibleList.clear();
+	mVisibleList.push_back(NULL);
+	mVisibleListEnd = &mVisibleList[0];
+	mVisibleBridge.clear();
+	mVisibleBridge.push_back(NULL);
+	mVisibleBridgeEnd = &mVisibleBridge[0];
 
 	for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
 	{
-		mRenderMap[i] = NULL;
-		mRenderMapEnd[i] = NULL;
+		mRenderMap[i].clear();
+		mRenderMap[i].push_back(NULL);
+		mRenderMapEnd[i] = &mRenderMap[i][0];
 		mRenderMapAllocated[i] = 0;
 	}
 
 	clear();
 }
 
-void LLCullResult::pushBack(void**& head, U32& count, void* val)
+template <class T, class V> 
+void LLCullResult::pushBack(T& head, U32& count, V* val)
 {
+	head[count] = val;
+	head.push_back(NULL);
 	count++;
-	head = (void**) realloc((void*) head, sizeof(void*) * count);
-	head[count-1] = val;
 }
 
 void LLCullResult::clear()
 {
 	mVisibleGroupsSize = 0;
-	mVisibleGroupsEnd = mVisibleGroups;
+	mVisibleGroupsEnd = &mVisibleGroups[0];
 
 	mAlphaGroupsSize = 0;
-	mAlphaGroupsEnd = mAlphaGroups;
+	mAlphaGroupsEnd = &mAlphaGroups[0];
 
 	mOcclusionGroupsSize = 0;
-	mOcclusionGroupsEnd = mOcclusionGroups;
+	mOcclusionGroupsEnd = &mOcclusionGroups[0];
 
 	mDrawableGroupsSize = 0;
-	mDrawableGroupsEnd = mDrawableGroups;
+	mDrawableGroupsEnd = &mDrawableGroups[0];
 
 	mVisibleListSize = 0;
-	mVisibleListEnd = mVisibleList;
+	mVisibleListEnd = &mVisibleList[0];
 
 	mVisibleBridgeSize = 0;
-	mVisibleBridgeEnd = mVisibleBridge;
+	mVisibleBridgeEnd = &mVisibleBridge[0];
 
 
 	for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
@@ -4772,13 +4748,13 @@ void LLCullResult::clear()
 			mRenderMap[i][j] = 0;
 		}
 		mRenderMapSize[i] = 0;
-		mRenderMapEnd[i] = mRenderMap[i];
+		mRenderMapEnd[i] = &(mRenderMap[i][0]);
 	}
 }
 
 LLCullResult::sg_iterator LLCullResult::beginVisibleGroups()
 {
-	return mVisibleGroups;
+	return &mVisibleGroups[0];
 }
 
 LLCullResult::sg_iterator LLCullResult::endVisibleGroups()
@@ -4788,7 +4764,7 @@ LLCullResult::sg_iterator LLCullResult::endVisibleGroups()
 
 LLCullResult::sg_iterator LLCullResult::beginAlphaGroups()
 {
-	return mAlphaGroups;
+	return &mAlphaGroups[0];
 }
 
 LLCullResult::sg_iterator LLCullResult::endAlphaGroups()
@@ -4798,7 +4774,7 @@ LLCullResult::sg_iterator LLCullResult::endAlphaGroups()
 
 LLCullResult::sg_iterator LLCullResult::beginOcclusionGroups()
 {
-	return mOcclusionGroups;
+	return &mOcclusionGroups[0];
 }
 
 LLCullResult::sg_iterator LLCullResult::endOcclusionGroups()
@@ -4808,7 +4784,7 @@ LLCullResult::sg_iterator LLCullResult::endOcclusionGroups()
 
 LLCullResult::sg_iterator LLCullResult::beginDrawableGroups()
 {
-	return mDrawableGroups;
+	return &mDrawableGroups[0];
 }
 
 LLCullResult::sg_iterator LLCullResult::endDrawableGroups()
@@ -4818,7 +4794,7 @@ LLCullResult::sg_iterator LLCullResult::endDrawableGroups()
 
 LLCullResult::drawable_iterator LLCullResult::beginVisibleList()
 {
-	return mVisibleList;
+	return &mVisibleList[0];
 }
 
 LLCullResult::drawable_iterator LLCullResult::endVisibleList()
@@ -4828,7 +4804,7 @@ LLCullResult::drawable_iterator LLCullResult::endVisibleList()
 
 LLCullResult::bridge_iterator LLCullResult::beginVisibleBridge()
 {
-	return mVisibleBridge;
+	return &mVisibleBridge[0];
 }
 
 LLCullResult::bridge_iterator LLCullResult::endVisibleBridge()
@@ -4838,7 +4814,7 @@ LLCullResult::bridge_iterator LLCullResult::endVisibleBridge()
 
 LLCullResult::drawinfo_iterator LLCullResult::beginRenderMap(U32 type)
 {
-	return mRenderMap[type];
+	return &mRenderMap[type][0];
 }
 
 LLCullResult::drawinfo_iterator LLCullResult::endRenderMap(U32 type)
@@ -4854,10 +4830,10 @@ void LLCullResult::pushVisibleGroup(LLSpatialGroup* group)
 	}
 	else
 	{
-		pushBack((void**&) mVisibleGroups, mVisibleGroupsAllocated, (void*) group);
+		pushBack(mVisibleGroups, mVisibleGroupsAllocated, group);
 	}
 	++mVisibleGroupsSize;
-	mVisibleGroupsEnd = mVisibleGroups+mVisibleGroupsSize;
+	mVisibleGroupsEnd = &mVisibleGroups[mVisibleGroupsSize];
 }
 
 void LLCullResult::pushAlphaGroup(LLSpatialGroup* group)
@@ -4868,10 +4844,10 @@ void LLCullResult::pushAlphaGroup(LLSpatialGroup* group)
 	}
 	else
 	{
-		pushBack((void**&) mAlphaGroups, mAlphaGroupsAllocated, (void*) group);
+		pushBack(mAlphaGroups, mAlphaGroupsAllocated, group);
 	}
 	++mAlphaGroupsSize;
-	mAlphaGroupsEnd = mAlphaGroups+mAlphaGroupsSize;
+	mAlphaGroupsEnd = &mAlphaGroups[mAlphaGroupsSize];
 }
 
 void LLCullResult::pushOcclusionGroup(LLSpatialGroup* group)
@@ -4882,10 +4858,10 @@ void LLCullResult::pushOcclusionGroup(LLSpatialGroup* group)
 	}
 	else
 	{
-		pushBack((void**&) mOcclusionGroups, mOcclusionGroupsAllocated, (void*) group);
+		pushBack(mOcclusionGroups, mOcclusionGroupsAllocated, group);
 	}
 	++mOcclusionGroupsSize;
-	mOcclusionGroupsEnd = mOcclusionGroups+mOcclusionGroupsSize;
+	mOcclusionGroupsEnd = &mOcclusionGroups[mOcclusionGroupsSize];
 }
 
 void LLCullResult::pushDrawableGroup(LLSpatialGroup* group)
@@ -4896,10 +4872,10 @@ void LLCullResult::pushDrawableGroup(LLSpatialGroup* group)
 	}
 	else
 	{
-		pushBack((void**&) mDrawableGroups, mDrawableGroupsAllocated, (void*) group);
+		pushBack(mDrawableGroups, mDrawableGroupsAllocated, group);
 	}
 	++mDrawableGroupsSize;
-	mDrawableGroupsEnd = mDrawableGroups+mDrawableGroupsSize;
+	mDrawableGroupsEnd = &mDrawableGroups[mDrawableGroupsSize];
 }
 
 void LLCullResult::pushDrawable(LLDrawable* drawable)
@@ -4910,10 +4886,10 @@ void LLCullResult::pushDrawable(LLDrawable* drawable)
 	}
 	else
 	{
-		pushBack((void**&) mVisibleList, mVisibleListAllocated, (void*) drawable);
+		pushBack(mVisibleList, mVisibleListAllocated, drawable);
 	}
 	++mVisibleListSize;
-	mVisibleListEnd = mVisibleList+mVisibleListSize;
+	mVisibleListEnd = &mVisibleList[mVisibleListSize];
 }
 
 void LLCullResult::pushBridge(LLSpatialBridge* bridge)
@@ -4924,10 +4900,10 @@ void LLCullResult::pushBridge(LLSpatialBridge* bridge)
 	}
 	else
 	{
-		pushBack((void**&) mVisibleBridge, mVisibleBridgeAllocated, (void*) bridge);
+		pushBack(mVisibleBridge, mVisibleBridgeAllocated, bridge);
 	}
 	++mVisibleBridgeSize;
-	mVisibleBridgeEnd = mVisibleBridge+mVisibleBridgeSize;
+	mVisibleBridgeEnd = &mVisibleBridge[mVisibleBridgeSize];
 }
 
 void LLCullResult::pushDrawInfo(U32 type, LLDrawInfo* draw_info)
@@ -4938,10 +4914,10 @@ void LLCullResult::pushDrawInfo(U32 type, LLDrawInfo* draw_info)
 	}
 	else
 	{
-		pushBack((void**&) mRenderMap[type], mRenderMapAllocated[type], (void*) draw_info);
+		pushBack(mRenderMap[type], mRenderMapAllocated[type], draw_info);
 	}
 	++mRenderMapSize[type];
-	mRenderMapEnd[type] = mRenderMap[type] + mRenderMapSize[type];
+	mRenderMapEnd[type] = &(mRenderMap[type][mRenderMapSize[type]]);
 }
 
 

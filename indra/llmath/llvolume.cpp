@@ -35,7 +35,6 @@
 #include <cmath>
 
 #include "llerror.h"
-#include "llmemtype.h"
 
 #include "llvolumemgr.h"
 #include "v2math.h"
@@ -378,8 +377,6 @@ public:
 
 LLProfile::Face* LLProfile::addCap(S16 faceID)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	Face *face   = vector_append(mFaces, 1);
 	
 	face->mIndex = 0;
@@ -392,8 +389,6 @@ LLProfile::Face* LLProfile::addCap(S16 faceID)
 
 LLProfile::Face* LLProfile::addFace(S32 i, S32 count, F32 scaleU, S16 faceID, BOOL flat)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	Face *face   = vector_append(mFaces, 1);
 	
 	face->mIndex = i;
@@ -409,7 +404,6 @@ LLProfile::Face* LLProfile::addFace(S32 i, S32 count, F32 scaleU, S16 faceID, BO
 //static
 S32 LLProfile::getNumNGonPoints(const LLProfileParams& params, S32 sides, F32 offset, F32 bevel, F32 ang_scale, S32 split)
 { // this is basically LLProfile::genNGon stripped down to only the operations that influence the number of points
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	S32 np = 0;
 
 	// Generate an n-sided "circular" path.
@@ -475,8 +469,6 @@ S32 LLProfile::getNumNGonPoints(const LLProfileParams& params, S32 sides, F32 of
 // filleted and chamfered corners
 void LLProfile::genNGon(const LLProfileParams& params, S32 sides, F32 offset, F32 bevel, F32 ang_scale, S32 split)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	// Generate an n-sided "circular" path.
 	// 0 is (1,0), and we go counter-clockwise along a circular path from there.
 	const F32 tableScale[] = { 1, 1, 1, 0.5f, 0.707107f, 0.53f, 0.525f, 0.5f };
@@ -730,8 +722,6 @@ LLProfile::Face* LLProfile::addHole(const LLProfileParams& params, BOOL flat, F3
 S32 LLProfile::getNumPoints(const LLProfileParams& params, BOOL path_open,F32 detail, S32 split,
 						 BOOL is_sculpted, S32 sculpt_size)
 { // this is basically LLProfile::generate stripped down to only operations that influence the number of points
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	if (detail < MIN_LOD)
 	{
 		detail = MIN_LOD;
@@ -842,8 +832,6 @@ S32 LLProfile::getNumPoints(const LLProfileParams& params, BOOL path_open,F32 de
 BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detail, S32 split,
 						 BOOL is_sculpted, S32 sculpt_size)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	if ((!mDirty) && (!is_sculpted))
 	{
 		return FALSE;
@@ -1116,8 +1104,6 @@ BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detai
 
 BOOL LLProfileParams::importFile(LLFILE *fp)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	const S32 BUFSIZE = 16384;
 	char buffer[BUFSIZE];	/* Flawfinder: ignore */
 	// *NOTE: changing the size or type of these buffers will require
@@ -1193,8 +1179,6 @@ BOOL LLProfileParams::exportFile(LLFILE *fp) const
 
 BOOL LLProfileParams::importLegacyStream(std::istream& input_stream)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	const S32 BUFSIZE = 16384;
 	char buffer[BUFSIZE];	/* Flawfinder: ignore */
 	// *NOTE: changing the size or type of these buffers will require
@@ -1286,7 +1270,6 @@ bool LLProfileParams::fromLLSD(LLSD& sd)
 
 void LLProfileParams::copyParams(const LLProfileParams &params)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	setCurveType(params.getCurveType());
 	setBegin(params.getBegin());
 	setEnd(params.getEnd());
@@ -1503,8 +1486,6 @@ const LLVector2 LLPathParams::getEndScale() const
 
 S32 LLPath::getNumPoints(const LLPathParams& params, F32 detail)
 { // this is basically LLPath::generate stripped down to only the operations that influence the number of points
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	if (detail < MIN_LOD)
 	{
 		detail = MIN_LOD;
@@ -1554,8 +1535,6 @@ S32 LLPath::getNumPoints(const LLPathParams& params, F32 detail)
 BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 					  BOOL is_sculpted, S32 sculpt_size)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	if ((!mDirty) && (!is_sculpted))
 	{
 		return FALSE;
@@ -1683,8 +1662,6 @@ BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 BOOL LLDynamicPath::generate(const LLPathParams& params, F32 detail, S32 split,
 							 BOOL is_sculpted, S32 sculpt_size)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	mOpen = TRUE; // Draw end caps
 	if (getPathLength() == 0)
 	{
@@ -1706,8 +1683,6 @@ BOOL LLDynamicPath::generate(const LLPathParams& params, F32 detail, S32 split,
 
 BOOL LLPathParams::importFile(LLFILE *fp)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	const S32 BUFSIZE = 16384;
 	char buffer[BUFSIZE];	/* Flawfinder: ignore */
 	// *NOTE: changing the size or type of these buffers will require
@@ -1852,8 +1827,6 @@ BOOL LLPathParams::exportFile(LLFILE *fp) const
 
 BOOL LLPathParams::importLegacyStream(std::istream& input_stream)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	const S32 BUFSIZE = 16384;
 	char buffer[BUFSIZE];	/* Flawfinder: ignore */
 	// *NOTE: changing the size or type of these buffers will require
@@ -2061,8 +2034,6 @@ S32 LLVolume::sNumMeshPoints = 0;
 LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL generate_single_face, const BOOL is_unique)
 	: mParams(params)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	mUnique = is_unique;
 	mFaceMask = 0x0;
 	mDetail = detail;
@@ -2134,7 +2105,6 @@ LLVolume::~LLVolume()
 
 BOOL LLVolume::generate()
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	llassert_always(mProfilep);
 	
 	//Added 10.03.05 Dave Parks
@@ -2730,8 +2700,6 @@ S32	LLVolume::getNumFaces() const
 
 void LLVolume::createVolumeFaces()
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-
 	if (mGenerateSingleFace)
 	{
 		// do nothing
@@ -2903,8 +2871,6 @@ F32 LLVolume::sculptGetSurfaceArea()
 // create placeholder shape
 void LLVolume::sculptGeneratePlaceholder()
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	S32 sizeS = mPathp->mPath.size();
 	S32 sizeT = mProfilep->mProfile.size();
 	
@@ -2940,9 +2906,6 @@ void LLVolume::sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8
 	BOOL sculpt_invert = sculpt_type & LL_SCULPT_FLAG_INVERT;
 	BOOL sculpt_mirror = sculpt_type & LL_SCULPT_FLAG_MIRROR;
 	BOOL reverse_horizontal = (sculpt_invert ? !sculpt_mirror : sculpt_mirror);  // XOR
-	
-	
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	
 	S32 sizeS = mPathp->mPath.size();
 	S32 sizeT = mProfilep->mProfile.size();
@@ -3092,7 +3055,6 @@ void sculpt_calc_mesh_resolution(U16 width, U16 height, U8 type, F32 detail, S32
 // sculpt replaces generate() for sculpted surfaces
 void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
     U8 sculpt_type = mParams.getSculptType();
 
 	BOOL data_is_empty = FALSE;
@@ -3229,7 +3191,6 @@ bool LLVolumeParams::operator<(const LLVolumeParams &params) const
 
 void LLVolumeParams::copyParams(const LLVolumeParams &params)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	mProfileParams.copyParams(params.mProfileParams);
 	mPathParams.copyParams(params.mPathParams);
 	mSculptID = params.getSculptID();
@@ -3601,8 +3562,6 @@ bool LLVolumeParams::validate(U8 prof_curve, F32 prof_begin, F32 prof_end, F32 h
 
 S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	S32 expected_num_triangle_indices = getNumTriangleIndices();
 	if (expected_num_triangle_indices > MAX_VOLUME_TRIANGLE_INDICES)
 	{
@@ -4330,8 +4289,6 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 										  const LLMatrix3& norm_mat_in,
 										  S32 face_mask)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-
 	LLMatrix4a mat;
 	mat.loadu(mat_in);
 
@@ -4793,241 +4750,8 @@ BOOL equalTriangle(const S32 *a, const S32 *b)
 	return FALSE;
 }
 
-BOOL LLVolume::cleanupTriangleData( const S32 num_input_vertices,
-									const std::vector<Point>& input_vertices,
-									const S32 num_input_triangles,
-									S32 *input_triangles,
-									S32 &num_output_vertices,
-									LLVector3 **output_vertices,
-									S32 &num_output_triangles,
-									S32 **output_triangles)
-{
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
-	/* Testing: avoid any cleanup
-	static BOOL skip_cleanup = TRUE;
-	if ( skip_cleanup )
-	{
-		num_output_vertices = num_input_vertices;
-		num_output_triangles = num_input_triangles;
-
-		*output_vertices = new LLVector3[num_input_vertices];
-		for (S32 index = 0; index < num_input_vertices; index++)
-		{
-			(*output_vertices)[index] = input_vertices[index].mPos;
-		}
-
-		*output_triangles = new S32[num_input_triangles*3];
-		memcpy(*output_triangles, input_triangles, 3*num_input_triangles*sizeof(S32));		// Flawfinder: ignore
-		return TRUE;
-	}
-	*/
-
-	// Here's how we do this:
-	// Create a structure which contains the original vertex index and the
-	// LLVector3 data.
-	// "Sort" the data by the vectors
-	// Create an array the size of the old vertex list, with a mapping of
-	// old indices to new indices.
-	// Go through triangles, shift so the lowest index is first
-	// Sort triangles by first index
-	// Remove duplicate triangles
-	// Allocate and pack new triangle data.
-
-	//LLTimer cleanupTimer;
-	//llinfos << "In vertices: " << num_input_vertices << llendl;
-	//llinfos << "In triangles: " << num_input_triangles << llendl;
-
-	S32 i;
-	typedef std::multiset<LLVertexIndexPair*, lessVertex> vertex_set_t;
-	vertex_set_t vertex_list;
-
-	LLVertexIndexPair *pairp = NULL;
-	for (i = 0; i < num_input_vertices; i++)
-	{
-		LLVertexIndexPair *new_pairp = new LLVertexIndexPair(input_vertices[i].mPos, i);
-		vertex_list.insert(new_pairp);
-	}
-
-	// Generate the vertex mapping and the list of vertices without
-	// duplicates.  This will crash if there are no vertices.
-	llassert(num_input_vertices > 0); // check for no vertices!
-	S32 *vertex_mapping = new S32[num_input_vertices];
-	LLVector3 *new_vertices = new LLVector3[num_input_vertices];
-	LLVertexIndexPair *prev_pairp = NULL;
-
-	S32 new_num_vertices;
-
-	new_num_vertices = 0;
-	for (vertex_set_t::iterator iter = vertex_list.begin(),
-			 end = vertex_list.end();
-		 iter != end; iter++)
-	{
-		pairp = *iter;
-		if (!prev_pairp || ((pairp->mVertex - prev_pairp->mVertex).magVecSquared() >= VERTEX_SLOP_SQRD))	
-		{
-			new_vertices[new_num_vertices] = pairp->mVertex;
-			//llinfos << "Added vertex " << new_num_vertices << " : " << pairp->mVertex << llendl;
-			new_num_vertices++;
-			// Update the previous
-			prev_pairp = pairp;
-		}
-		else
-		{
-			//llinfos << "Removed duplicate vertex " << pairp->mVertex << ", distance magVecSquared() is " << (pairp->mVertex - prev_pairp->mVertex).magVecSquared() << llendl;
-		}
-		vertex_mapping[pairp->mIndex] = new_num_vertices - 1;
-	}
-
-	// Iterate through triangles and remove degenerates, re-ordering vertices
-	// along the way.
-	S32 *new_triangles = new S32[num_input_triangles * 3];
-	S32 new_num_triangles = 0;
-
-	for (i = 0; i < num_input_triangles; i++)
-	{
-		S32 v1 = i*3;
-		S32 v2 = v1 + 1;
-		S32 v3 = v1 + 2;
-
-		//llinfos << "Checking triangle " << input_triangles[v1] << ":" << input_triangles[v2] << ":" << input_triangles[v3] << llendl;
-		input_triangles[v1] = vertex_mapping[input_triangles[v1]];
-		input_triangles[v2] = vertex_mapping[input_triangles[v2]];
-		input_triangles[v3] = vertex_mapping[input_triangles[v3]];
-
-		if ((input_triangles[v1] == input_triangles[v2])
-			|| (input_triangles[v1] == input_triangles[v3])
-			|| (input_triangles[v2] == input_triangles[v3]))
-		{
-			//llinfos << "Removing degenerate triangle " << input_triangles[v1] << ":" << input_triangles[v2] << ":" << input_triangles[v3] << llendl;
-			// Degenerate triangle, skip
-			continue;
-		}
-
-		if (input_triangles[v1] < input_triangles[v2])
-		{
-			if (input_triangles[v1] < input_triangles[v3])
-			{
-				// (0 < 1) && (0 < 2)
-				new_triangles[new_num_triangles*3] = input_triangles[v1];
-				new_triangles[new_num_triangles*3+1] = input_triangles[v2];
-				new_triangles[new_num_triangles*3+2] = input_triangles[v3];
-			}
-			else
-			{
-				// (0 < 1) && (2 < 0)
-				new_triangles[new_num_triangles*3] = input_triangles[v3];
-				new_triangles[new_num_triangles*3+1] = input_triangles[v1];
-				new_triangles[new_num_triangles*3+2] = input_triangles[v2];
-			}
-		}
-		else if (input_triangles[v2] < input_triangles[v3])
-		{
-			// (1 < 0) && (1 < 2)
-			new_triangles[new_num_triangles*3] = input_triangles[v2];
-			new_triangles[new_num_triangles*3+1] = input_triangles[v3];
-			new_triangles[new_num_triangles*3+2] = input_triangles[v1];
-		}
-		else
-		{
-			// (1 < 0) && (2 < 1)
-			new_triangles[new_num_triangles*3] = input_triangles[v3];
-			new_triangles[new_num_triangles*3+1] = input_triangles[v1];
-			new_triangles[new_num_triangles*3+2] = input_triangles[v2];
-		}
-		new_num_triangles++;
-	}
-
-	if (new_num_triangles == 0)
-	{
-		llwarns << "Created volume object with 0 faces." << llendl;
-		delete[] new_triangles;
-		delete[] vertex_mapping;
-		delete[] new_vertices;
-		return FALSE;
-	}
-
-	typedef std::set<S32*, lessTriangle> triangle_set_t;
-	triangle_set_t triangle_list;
-
-	for (i = 0; i < new_num_triangles; i++)
-	{
-		triangle_list.insert(&new_triangles[i*3]);
-	}
-
-	// Sort through the triangle list, and delete duplicates
-
-	S32 *prevp = NULL;
-	S32 *curp = NULL;
-
-	S32 *sorted_tris = new S32[new_num_triangles*3];
-	S32 cur_tri = 0;
-	for (triangle_set_t::iterator iter = triangle_list.begin(),
-			 end = triangle_list.end();
-		 iter != end; iter++)
-	{
-		curp = *iter;
-		if (!prevp || !equalTriangle(prevp, curp))
-		{
-			//llinfos << "Added triangle " << *curp << ":" << *(curp+1) << ":" << *(curp+2) << llendl;
-			sorted_tris[cur_tri*3] = *curp;
-			sorted_tris[cur_tri*3+1] = *(curp+1);
-			sorted_tris[cur_tri*3+2] = *(curp+2);
-			cur_tri++;
-			prevp = curp;
-		}
-		else
-		{
-			//llinfos << "Skipped triangle " << *curp << ":" << *(curp+1) << ":" << *(curp+2) << llendl;
-		}
-	}
-
-	*output_vertices = new LLVector3[new_num_vertices];
-	num_output_vertices = new_num_vertices;
-	for (i = 0; i < new_num_vertices; i++)
-	{
-		(*output_vertices)[i] = new_vertices[i];
-	}
-
-	*output_triangles = new S32[cur_tri*3];
-	num_output_triangles = cur_tri;
-	memcpy(*output_triangles, sorted_tris, 3*cur_tri*sizeof(S32));		/* Flawfinder: ignore */
-
-	/*
-	llinfos << "Out vertices: " << num_output_vertices << llendl;
-	llinfos << "Out triangles: " << num_output_triangles << llendl;
-	for (i = 0; i < num_output_vertices; i++)
-	{
-		llinfos << i << ":" << (*output_vertices)[i] << llendl;
-	}
-	for (i = 0; i < num_output_triangles; i++)
-	{
-		llinfos << i << ":" << (*output_triangles)[i*3] << ":" << (*output_triangles)[i*3+1] << ":" << (*output_triangles)[i*3+2] << llendl;
-	}
-	*/
-
-	//llinfos << "Out vertices: " << num_output_vertices << llendl;
-	//llinfos << "Out triangles: " << num_output_triangles << llendl;
-	delete[] vertex_mapping;
-	vertex_mapping = NULL;
-	delete[] new_vertices;
-	new_vertices = NULL;
-	delete[] new_triangles;
-	new_triangles = NULL;
-	delete[] sorted_tris;
-	sorted_tris = NULL;
-	triangle_list.clear();
-	std::for_each(vertex_list.begin(), vertex_list.end(), DeletePointer());
-	vertex_list.clear();
-	
-	return TRUE;
-}
-
-
 BOOL LLVolumeParams::importFile(LLFILE *fp)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	//llinfos << "importing volume" << llendl;
 	const S32 BUFSIZE = 16384;
 	char buffer[BUFSIZE];	/* Flawfinder: ignore */
@@ -5082,8 +4806,6 @@ BOOL LLVolumeParams::exportFile(LLFILE *fp) const
 
 BOOL LLVolumeParams::importLegacyStream(std::istream& input_stream)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	//llinfos << "importing volume" << llendl;
 	const S32 BUFSIZE = 16384;
 	// *NOTE: changing the size or type of this buffer will require
@@ -5123,8 +4845,6 @@ BOOL LLVolumeParams::importLegacyStream(std::istream& input_stream)
 
 BOOL LLVolumeParams::exportLegacyStream(std::ostream& output_stream) const
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	output_stream <<"\tshape 0\n";
 	output_stream <<"\t{\n";
 	mPathParams.exportLegacyStream(output_stream);
@@ -6340,8 +6060,6 @@ void	LerpPlanarVertex(LLVolumeFace::VertexData& v0,
 
 BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	const std::vector<LLVolume::Point>& mesh = volume->getMesh();
 	const std::vector<LLVector3>& profile = volume->getProfile().mProfile;
 	S32 max_s = volume->getProfile().getTotal();
@@ -6492,8 +6210,6 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 
 BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	if (!(mTypeMask & HOLLOW_MASK) && 
 		!(mTypeMask & OPEN_MASK) && 
 		((volume->getParams().getPathParams().getBegin()==0.0f)&&
@@ -6880,8 +6596,6 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 
 void LLVolumeFace::createBinormals()
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	if (!mBinormals)
 	{
 		allocateBinormals(mNumVertices);
@@ -6979,19 +6693,20 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 {
 	S32 new_verts = mNumVertices+1;
 	S32 new_size = new_verts*16;
-//	S32 old_size = mNumVertices*16;
+	S32 old_size = mNumVertices*16;
 
 	//positions
-	mPositions = (LLVector4a*) ll_aligned_realloc_16(mPositions, new_size);
+	mPositions = (LLVector4a*) ll_aligned_realloc_16(mPositions, new_size, old_size);
 	ll_assert_aligned(mPositions,16);
 	
 	//normals
-	mNormals = (LLVector4a*) ll_aligned_realloc_16(mNormals, new_size);
+	mNormals = (LLVector4a*) ll_aligned_realloc_16(mNormals, new_size, old_size);
 	ll_assert_aligned(mNormals,16);
 
 	//tex coords
 	new_size = ((new_verts*8)+0xF) & ~0xF;
-	mTexCoords = (LLVector2*) ll_aligned_realloc_16(mTexCoords, new_size);
+	old_size = ((mNumVertices*8)+0xF) & ~0xF;
+	mTexCoords = (LLVector2*) ll_aligned_realloc_16(mTexCoords, new_size, old_size);
 	ll_assert_aligned(mTexCoords,16);
 	
 
@@ -7045,7 +6760,7 @@ void LLVolumeFace::pushIndex(const U16& idx)
 	S32 old_size = ((mNumIndices*2)+0xF) & ~0xF;
 	if (new_size != old_size)
 	{
-		mIndices = (U16*) ll_aligned_realloc_16(mIndices, new_size);
+		mIndices = (U16*) ll_aligned_realloc_16(mIndices, new_size, old_size);
 		ll_assert_aligned(mIndices,16);
 	}
 	
@@ -7087,11 +6802,11 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 	}
 
 	//allocate new buffer space
-	mPositions = (LLVector4a*) ll_aligned_realloc_16(mPositions, new_count*sizeof(LLVector4a));
+	mPositions = (LLVector4a*) ll_aligned_realloc_16(mPositions, new_count*sizeof(LLVector4a), mNumVertices*sizeof(LLVector4a));
 	ll_assert_aligned(mPositions, 16);
-	mNormals = (LLVector4a*) ll_aligned_realloc_16(mNormals, new_count*sizeof(LLVector4a));
+	mNormals = (LLVector4a*) ll_aligned_realloc_16(mNormals, new_count*sizeof(LLVector4a), mNumVertices*sizeof(LLVector4a));
 	ll_assert_aligned(mNormals, 16);
-	mTexCoords = (LLVector2*) ll_aligned_realloc_16(mTexCoords, (new_count*sizeof(LLVector2)+0xF) & ~0xF);
+	mTexCoords = (LLVector2*) ll_aligned_realloc_16(mTexCoords, (new_count*sizeof(LLVector2)+0xF) & ~0xF, (mNumVertices*sizeof(LLVector2)+0xF) & ~0xF);
 	ll_assert_aligned(mTexCoords, 16);
 	
 	mNumVertices = new_count;
@@ -7138,7 +6853,7 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 	new_count = mNumIndices + face.mNumIndices;
 
 	//allocate new index buffer
-	mIndices = (U16*) ll_aligned_realloc_16(mIndices, (new_count*sizeof(U16)+0xF) & ~0xF);
+	mIndices = (U16*) ll_aligned_realloc_16(mIndices, (new_count*sizeof(U16)+0xF) & ~0xF, (mNumIndices*sizeof(U16)+0xF) & ~0xF);
 	
 	//get destination address into new index buffer
 	U16* dst_idx = mIndices+mNumIndices;
@@ -7152,8 +6867,6 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 
 BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
 	BOOL flat = mTypeMask & FLAT_MASK;
 
 	U8 sculpt_type = volume->getParams().getSculptType();
