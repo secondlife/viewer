@@ -39,15 +39,18 @@
 #include "llcallingcard.h"			// for LLAvatarTracker
 #include "lllogchat.h"
 #include "llviewermenu.h"			// for gMenuHolder
+#include "llconversationmodel.h"
+#include "llviewerobjectlist.h"
 
 namespace LLPanelPeopleMenus
 {
 
-NearbyMenu gNearbyMenu;
+PeopleContextMenu gPeopleContextMenu;
+NearbyPeopleContextMenu gNearbyPeopleContextMenu;
 
-//== NearbyMenu ===============================================================
+//== PeopleContextMenu ===============================================================
 
-LLContextMenu* NearbyMenu::createMenu()
+LLContextMenu* PeopleContextMenu::createMenu()
 {
 	// set up the callbacks for all of the avatar menu items
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
@@ -64,7 +67,8 @@ LLContextMenu* NearbyMenu::createMenu()
 		registrar.add("Avatar.RemoveFriend",	boost::bind(&LLAvatarActions::removeFriendDialog, 		id));
 		registrar.add("Avatar.IM",				boost::bind(&LLAvatarActions::startIM,					id));
 		registrar.add("Avatar.Call",			boost::bind(&LLAvatarActions::startCall,				id));
-		registrar.add("Avatar.OfferTeleport",	boost::bind(&NearbyMenu::offerTeleport,					this));
+		registrar.add("Avatar.OfferTeleport",	boost::bind(&PeopleContextMenu::offerTeleport,			this));
+		registrar.add("Avatar.ZoomIn",			boost::bind(&handle_zoom_to_object,						id));
 		registrar.add("Avatar.ShowOnMap",		boost::bind(&LLAvatarActions::showOnMap,				id));
 		registrar.add("Avatar.Share",			boost::bind(&LLAvatarActions::share,					id));
 		registrar.add("Avatar.Pay",				boost::bind(&LLAvatarActions::pay,						id));
@@ -73,33 +77,72 @@ LLContextMenu* NearbyMenu::createMenu()
 		registrar.add("Avatar.TeleportRequest",	boost::bind(&LLAvatarActions::teleportRequest,			id));
 		registrar.add("Avatar.Calllog",			boost::bind(&LLAvatarActions::viewChatHistory,			id));
 
-		enable_registrar.add("Avatar.EnableItem", boost::bind(&NearbyMenu::enableContextMenuItem,	this, _2));
-		enable_registrar.add("Avatar.CheckItem",  boost::bind(&NearbyMenu::checkContextMenuItem,	this, _2));
+		enable_registrar.add("Avatar.EnableItem", boost::bind(&PeopleContextMenu::enableContextMenuItem, this, _2));
+		enable_registrar.add("Avatar.CheckItem",  boost::bind(&PeopleContextMenu::checkContextMenuItem,	this, _2));
 
 		// create the context menu from the XUI
 		menu = createFromFile("menu_people_nearby.xml");
+		buildContextMenu(*menu, 0x0);
 	}
 	else
 	{
 		// Set up for multi-selected People
 
 		// registrar.add("Avatar.AddFriend",	boost::bind(&LLAvatarActions::requestFriendshipDialog,	mUUIDs)); // *TODO: unimplemented
-		registrar.add("Avatar.IM",			boost::bind(&LLAvatarActions::startConference,			mUUIDs, LLUUID::null));
-		registrar.add("Avatar.Call",		boost::bind(&LLAvatarActions::startAdhocCall,			mUUIDs, LLUUID::null));
-		registrar.add("Avatar.OfferTeleport",	boost::bind(&NearbyMenu::offerTeleport,					this));
-		registrar.add("Avatar.RemoveFriend",boost::bind(&LLAvatarActions::removeFriendsDialog,		mUUIDs));
+		registrar.add("Avatar.IM",				boost::bind(&LLAvatarActions::startConference,			mUUIDs, LLUUID::null));
+		registrar.add("Avatar.Call",			boost::bind(&LLAvatarActions::startAdhocCall,			mUUIDs, LLUUID::null));
+		registrar.add("Avatar.OfferTeleport",	boost::bind(&PeopleContextMenu::offerTeleport,			this));
+		registrar.add("Avatar.RemoveFriend",	boost::bind(&LLAvatarActions::removeFriendsDialog,		mUUIDs));
 		// registrar.add("Avatar.Share",		boost::bind(&LLAvatarActions::startIM,					mUUIDs)); // *TODO: unimplemented
-		// registrar.add("Avatar.Pay",		boost::bind(&LLAvatarActions::pay,						mUUIDs)); // *TODO: unimplemented
-		enable_registrar.add("Avatar.EnableItem",	boost::bind(&NearbyMenu::enableContextMenuItem,	this, _2));
+		// registrar.add("Avatar.Pay",			boost::bind(&LLAvatarActions::pay,						mUUIDs)); // *TODO: unimplemented
+		
+		enable_registrar.add("Avatar.EnableItem",	boost::bind(&PeopleContextMenu::enableContextMenuItem, this, _2));
 
 		// create the context menu from the XUI
 		menu = createFromFile("menu_people_nearby_multiselect.xml");
+		buildContextMenu(*menu, ITEM_IN_MULTI_SELECTION);
 	}
 
     return menu;
 }
 
-bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
+void PeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
+{
+    menuentry_vec_t items;
+    menuentry_vec_t disabled_items;
+	
+	if (flags & ITEM_IN_MULTI_SELECTION)
+	{
+		items.push_back(std::string("add_friends"));
+		items.push_back(std::string("remove_friends"));
+		items.push_back(std::string("im"));
+		items.push_back(std::string("call"));
+		items.push_back(std::string("share"));
+		items.push_back(std::string("pay"));
+		items.push_back(std::string("offer_teleport"));
+	}
+	else 
+	{
+		items.push_back(std::string("view_profile"));
+		items.push_back(std::string("im"));
+		items.push_back(std::string("offer_teleport"));
+		items.push_back(std::string("voice_call"));
+		items.push_back(std::string("chat_history"));
+		items.push_back(std::string("separator_chat_history"));
+		items.push_back(std::string("add_friend"));
+		items.push_back(std::string("remove_friend"));
+		items.push_back(std::string("invite_to_group"));
+		items.push_back(std::string("separator_invite_to_group"));
+		items.push_back(std::string("map"));
+		items.push_back(std::string("share"));
+		items.push_back(std::string("pay"));
+		items.push_back(std::string("block_unblock"));
+	}
+
+    hide_context_entries(menu, items, disabled_items);
+}
+
+bool PeopleContextMenu::enableContextMenuItem(const LLSD& userdata)
 {
 	if(gAgent.getID() == mUUIDs.front())
 	{
@@ -171,6 +214,12 @@ bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 	{
 		return LLAvatarActions::canCall();
 	}
+	else if (item == std::string("can_zoom_in"))
+	{
+		const LLUUID& id = mUUIDs.front();
+
+		return gObjectList.findObject(id);
+	}
 	else if (item == std::string("can_show_on_map"))
 	{
 		const LLUUID& id = mUUIDs.front();
@@ -194,7 +243,7 @@ bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 	return false;
 }
 
-bool NearbyMenu::checkContextMenuItem(const LLSD& userdata)
+bool PeopleContextMenu::checkContextMenuItem(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
 	const LLUUID& id = mUUIDs.front();
@@ -207,11 +256,50 @@ bool NearbyMenu::checkContextMenuItem(const LLSD& userdata)
 	return false;
 }
 
-void NearbyMenu::offerTeleport()
+void PeopleContextMenu::offerTeleport()
 {
 	// boost::bind cannot recognize overloaded method LLAvatarActions::offerTeleport(),
 	// so we have to use a wrapper.
 	LLAvatarActions::offerTeleport(mUUIDs);
+}
+
+//== NearbyPeopleContextMenu ===============================================================
+
+void NearbyPeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
+{
+    menuentry_vec_t items;
+    menuentry_vec_t disabled_items;
+	
+	if (flags & ITEM_IN_MULTI_SELECTION)
+	{
+		items.push_back(std::string("add_friends"));
+		items.push_back(std::string("remove_friends"));
+		items.push_back(std::string("im"));
+		items.push_back(std::string("call"));
+		items.push_back(std::string("share"));
+		items.push_back(std::string("pay"));
+		items.push_back(std::string("offer_teleport"));
+	}
+	else 
+	{
+		items.push_back(std::string("view_profile"));
+		items.push_back(std::string("im"));
+		items.push_back(std::string("offer_teleport"));
+		items.push_back(std::string("voice_call"));
+		items.push_back(std::string("chat_history"));
+		items.push_back(std::string("separator_chat_history"));
+		items.push_back(std::string("add_friend"));
+		items.push_back(std::string("remove_friend"));
+		items.push_back(std::string("invite_to_group"));
+		items.push_back(std::string("separator_invite_to_group"));
+		items.push_back(std::string("zoom_in"));
+		items.push_back(std::string("map"));
+		items.push_back(std::string("share"));
+		items.push_back(std::string("pay"));
+		items.push_back(std::string("block_unblock"));
+	}
+
+    hide_context_entries(menu, items, disabled_items);
 }
 
 } // namespace LLPanelPeopleMenus

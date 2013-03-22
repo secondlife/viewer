@@ -171,6 +171,8 @@ with the same filename but different name
   <texture name="Conv_toolbar_call_log" file_name="icons/Conv_toolbar_call_log.png" preload="false" />
   <texture name="Conv_toolbar_close" file_name="icons/Conv_toolbar_close.png" preload="false" />
   <texture name="Conv_toolbar_collapse" file_name="icons/Conv_toolbar_collapse.png" preload="false" />
+  <texture name="Conv_collapse_to_one_line" file_name="icons/collapse_to_one_line.png" preload="false" />
+  <texture name="Conv_expand_one_line" file_name="icons/expand_one_liner.png" preload="false" />
   <texture name="Conv_toolbar_expand" file_name="icons/Conv_toolbar_expand.png" preload="false" />
   <texture name="Conv_toolbar_hang_up" file_name="icons/Conv_toolbar_hang_up.png" preload="false" />
   <texture name="Conv_toolbar_open_call" file_name="icons/Conv_toolbar_open_call.png" preload="false" />
