@@ -50,9 +50,13 @@
 #include "lltransfertargetvfile.h" // For debugging
 
 #include "llmetrics.h"
+#include "lltrace.h"
 
 LLAssetStorage *gAssetStorage = NULL;
 LLMetrics *LLAssetStorage::metric_recipient = NULL;
+
+static LLTrace::CountStatHandle<> sFailedDownloadCount("faileddownloads", "Number of times LLAssetStorage::getAssetData() has failed");
+
 
 const LLUUID CATEGORIZE_LOST_AND_FOUND_ID(std::string("00000000-0000-0000-0000-000000000010"));
 
@@ -450,6 +454,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LL
 
 		if (callback)
 		{
+			add(sFailedDownloadCount, 1);
 			callback(mVFS, uuid, type, user_data, LL_ERR_ASSET_REQUEST_FAILED, LL_EXSTAT_NONE);
 		}
 		return;
@@ -460,6 +465,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LL
 		// Special case early out for NULL uuid and for shutting down
 		if (callback)
 		{
+			add(sFailedDownloadCount, 1);
 			callback(mVFS, uuid, type, user_data, LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE, LL_EXSTAT_NULL_UUID);
 		}
 		return;
@@ -572,6 +578,7 @@ void LLAssetStorage::_queueDataRequest(const LLUUID& uuid, LLAssetType::EType at
 		llwarns << "Attempt to move asset data request upstream w/o valid upstream provider" << llendl;
 		if (callback)
 		{
+			add(sFailedDownloadCount, 1);
 			callback(mVFS, uuid, atype, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
 		}
 	}
@@ -649,6 +656,10 @@ void LLAssetStorage::downloadCompleteCallback(
 		LLAssetRequest* tmp = *curiter;
 		if (tmp->mDownCallback)
 		{
+			if (result != LL_ERR_NOERR)
+			{
+				add(sFailedDownloadCount, 1);
+			}
 			tmp->mDownCallback(gAssetStorage->mVFS, req->getUUID(), req->getType(), tmp->mUserData, result, ext_status);
 		}
 		delete tmp;
@@ -669,6 +680,7 @@ void LLAssetStorage::getEstateAsset(const LLHost &object_sim, const LLUUID &agen
 		// Special case early out for NULL uuid
 		if (callback)
 		{
+			add(sFailedDownloadCount, 1);
 			callback(mVFS, asset_id, atype, user_data, LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE, LL_EXSTAT_NULL_UUID);
 		}
 		return;
@@ -741,6 +753,7 @@ void LLAssetStorage::getEstateAsset(const LLHost &object_sim, const LLUUID &agen
 			llwarns << "Attempt to move asset data request upstream w/o valid upstream provider" << llendl;
 			if (callback)
 			{
+				add(sFailedDownloadCount, 1);
 				callback(mVFS, asset_id, atype, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
 			}
 		}
@@ -783,6 +796,10 @@ void LLAssetStorage::downloadEstateAssetCompleteCallback(
 		}
 	}
 
+	if (result != LL_ERR_NOERR)
+	{
+		add(sFailedDownloadCount, 1);
+	}
 	req->mDownCallback(gAssetStorage->mVFS, req->getUUID(), req->getAType(), req->mUserData, result, ext_status);
 }
 
@@ -883,6 +900,7 @@ void LLAssetStorage::getInvItemAsset(const LLHost &object_sim, const LLUUID &age
 			llwarns << "Attempt to move asset data request upstream w/o valid upstream provider" << llendl;
 			if (callback)
 			{
+				add(sFailedDownloadCount, 1);
 				callback(mVFS, asset_id, atype, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
 			}
 		}
@@ -925,6 +943,10 @@ void LLAssetStorage::downloadInvItemCompleteCallback(
 		}
 	}
 
+	if (result != LL_ERR_NOERR)
+	{
+		add(sFailedDownloadCount, 1);
+	}
 	req->mDownCallback(gAssetStorage->mVFS, req->getUUID(), req->getType(), req->mUserData, result, ext_status);
 }
 
@@ -1237,6 +1259,7 @@ bool LLAssetStorage::deletePendingRequestImpl(LLAssetStorage::request_list_t* re
 		}
 		if (req->mDownCallback)
 		{
+			add(sFailedDownloadCount, 1);
 			req->mDownCallback(mVFS, req->getUUID(), req->getType(), req->mUserData, error, LL_EXSTAT_REQUEST_DROPPED);
 		}
 		if (req->mInfoCallback)
@@ -1363,6 +1386,10 @@ void LLAssetStorage::legacyGetDataCallback(LLVFS *vfs, const LLUUID &uuid, LLAss
 		}
 	}
 
+	if (status != LL_ERR_NOERR)
+	{
+		add(sFailedDownloadCount, 1);
+	}
 	legacy->mDownCallback(filename.c_str(), uuid, legacy->mUserData, status, ext_status);
 	delete legacy;
 }

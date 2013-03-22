@@ -44,6 +44,7 @@
 #include "llsdrpcclient.h"
 #include "llsdrpcserver.h"
 #include "llsdserialize.h"
+#include "llcommon.h"
 #include "lluuid.h"
 #include "llinstantmessage.h"
 
@@ -1187,7 +1188,9 @@ namespace tut
 				mResponsePtr(response)
 			{
 			}
-			~LLSimpleRPCResponse() {}
+			~LLSimpleRPCResponse() 
+			{
+			}
 			virtual bool response(LLPumpIO* pump)
 			{
 				*mResponsePtr = mReturnValue;

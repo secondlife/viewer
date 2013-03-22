@@ -30,7 +30,6 @@
 #define LLVIEW_CPP
 #include "llview.h"
 
-#include <cassert>
 #include <sstream>
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
@@ -68,6 +67,7 @@ LLView* LLView::sPreviewClickedElement = NULL;
 BOOL	LLView::sDrawPreviewHighlights = FALSE;
 S32		LLView::sLastLeftXML = S32_MIN;
 S32		LLView::sLastBottomXML = S32_MIN;
+LLTrace::MemStatHandle	LLView::sMemStat("LLView");
 std::vector<LLViewDrawContext*> LLViewDrawContext::sDrawContextStack;
 
 LLView::DrilldownFunc LLView::sDrilldown =
@@ -82,6 +82,16 @@ template class LLView* LLView::getChild<class LLView>(
 	const std::string& name, BOOL recurse) const;
 
 static LLDefaultChildRegistry::Register<LLView> r("view");
+
+namespace LLInitParam
+{
+	void TypeValues<LLView::EOrientation>::declareValues()
+	{
+		declare("horizontal", LLView::HORIZONTAL);
+		declare("vertical", LLView::VERTICAL);	
+	}
+}
+
 
 LLView::Follows::Follows()
 :   string(""),

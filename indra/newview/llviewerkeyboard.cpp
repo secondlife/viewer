@@ -160,6 +160,11 @@ void agent_push_backward( EKeystate s )
 		camera_move_backward(s);
 		return;
 	}
+	else if (gAgentAvatarp->isSitting())
+	{
+		gAgentCamera.changeCameraToThirdPerson();
+		return;
+	}
 	agent_push_forwardbackward(s, -1, LLAgent::DOUBLETAP_BACKWARD);
 }
 

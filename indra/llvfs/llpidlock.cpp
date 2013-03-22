@@ -36,7 +36,7 @@
 
 #if LL_WINDOWS   //For windows platform.
 
-#include <windows.h>
+#include "llwin32headerslean.h"
 
 namespace {
 	inline DWORD getpid() {

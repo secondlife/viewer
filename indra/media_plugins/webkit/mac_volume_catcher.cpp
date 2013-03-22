@@ -38,6 +38,7 @@
 #include <Carbon/Carbon.h>
 #include <QuickTime/QuickTime.h>
 #include <AudioUnit/AudioUnit.h>
+#include <list>
 
 struct VolumeCatcherStorage;
 

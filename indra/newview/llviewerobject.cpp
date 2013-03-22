@@ -100,6 +100,7 @@
 #include "lltrans.h"
 #include "llsdutil.h"
 #include "llmediaentry.h"
+#include "llvocache.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -112,6 +113,9 @@ BOOL		LLViewerObject::sMapDebug = TRUE;
 LLColor4	LLViewerObject::sEditSelectColor(	1.0f, 1.f, 0.f, 0.3f);	// Edit OK
 LLColor4	LLViewerObject::sNoEditSelectColor(	1.0f, 0.f, 0.f, 0.3f);	// Can't edit
 S32			LLViewerObject::sAxisArrowLength(50);
+LLTrace::MemStatHandle	LLViewerObject::sMemStat("LLViewerObject");
+
+
 BOOL		LLViewerObject::sPulseEnabled(FALSE);
 BOOL		LLViewerObject::sUseSharedDrawables(FALSE); // TRUE
 
@@ -321,6 +325,22 @@ void LLViewerObject::deleteTEImages()
 {
 	delete[] mTEImages;
 	mTEImages = NULL;
+}
+
+//if enabled, add this object to vo cache tree when removed from rendering.
+void LLViewerObject::EnableToCacheTree(bool enabled)
+{
+	if(mDrawable.notNull() && mDrawable->getEntry() && mDrawable->getEntry()->hasVOCacheEntry())
+	{
+		if(enabled)
+		{
+			((LLVOCacheEntry*)mDrawable->getEntry()->getVOCacheEntry())->addState(LLVOCacheEntry::ADD_TO_CACHE_TREE);
+		}
+		else
+		{
+			((LLVOCacheEntry*)mDrawable->getEntry()->getVOCacheEntry())->clearState(LLVOCacheEntry::ADD_TO_CACHE_TREE);
+		}
+	}
 }
 
 void LLViewerObject::markDead()
@@ -886,10 +906,11 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	}
 
 	// Coordinates of objects on simulators are region-local.
-	U64 region_handle;
-	mesgsys->getU64Fast(_PREHASH_RegionData, _PREHASH_RegionHandle, region_handle);
+	U64 region_handle = 0;	
 	
+	if(mesgsys != NULL)
 	{
+		mesgsys->getU64Fast(_PREHASH_RegionData, _PREHASH_RegionHandle, region_handle);
 		LLViewerRegion* regionp = LLWorld::getInstance()->getRegionFromHandle(region_handle);
 		if(regionp != mRegionp && regionp && mRegionp)//region cross
 		{
@@ -915,11 +936,14 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		return retval;
 	}
 
+	if(mesgsys != NULL)
+	{
 	U16 time_dilation16;
 	mesgsys->getU16Fast(_PREHASH_RegionData, _PREHASH_TimeDilation, time_dilation16);
 	F32 time_dilation = ((F32) time_dilation16) / 65535.f;
 	mTimeDilation = time_dilation;
 	mRegionp->setTimeDilation(time_dilation);
+	}
 
 	// this will be used to determine if we've really changed position
 	// Use getPosition, not getPositionRegion, since this is what we're comparing directly against.
@@ -1692,6 +1716,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				// Preload these five flags for every object.
 				// Finer shades require the object to be selected, and the selection manager
 				// stores the extended permission info.
+				if(mesgsys != NULL)
+				{
 				U32 flags;
 				mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, block_num);
 				// keep local flags and overwrite remote-controlled flags
@@ -1699,6 +1725,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 					// ...new objects that should come in selected need to be added to the selected list
 				mCreateSelected = ((flags & FLAGS_CREATE_SELECTED) != 0);
+			}
 			}
 			break;
 
@@ -1726,10 +1753,21 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 			{
 				// No parent now, new parent in message -> attach to that parent if possible
 				LLUUID parent_uuid;
+
+				if(mesgsys != NULL)
+				{
 				LLViewerObjectList::getUUIDFromLocal(parent_uuid,
 														parent_id,
 														mesgsys->getSenderIP(),
 														mesgsys->getSenderPort());
+				}
+				else
+				{
+					LLViewerObjectList::getUUIDFromLocal(parent_uuid,
+														parent_id,
+														mRegionp->getHost().getAddress(),
+														mRegionp->getHost().getPort());
+				}
 
 				LLViewerObject *sent_parentp = gObjectList.findObject(parent_uuid);
 
@@ -1805,9 +1843,18 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					//
 					
 					//parent_id
-					U32 ip = mesgsys->getSenderIP();
-					U32 port = mesgsys->getSenderPort();
+					U32 ip, port; 
 					
+					if(mesgsys != NULL)
+					{
+						ip = mesgsys->getSenderIP();
+						port = mesgsys->getSenderPort();
+					}
+					else
+					{
+						ip = mRegionp->getHost().getAddress();
+						port = mRegionp->getHost().getPort();
+					}
 					gObjectList.orphanize(this, parent_id, ip, port);
 
 					// Hide particles, icon and HUD
@@ -1845,10 +1892,21 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				else
 				{
 					LLUUID parent_uuid;
+
+					if(mesgsys != NULL)
+					{
 					LLViewerObjectList::getUUIDFromLocal(parent_uuid,
 														parent_id,
 														gMessageSystem->getSenderIP(),
 														gMessageSystem->getSenderPort());
+					}
+					else
+					{
+						LLViewerObjectList::getUUIDFromLocal(parent_uuid,
+														parent_id,
+														mRegionp->getHost().getAddress(),
+														mRegionp->getHost().getPort());
+					}
 					sent_parentp = gObjectList.findObject(parent_uuid);
 					
 					if (isAvatar())
@@ -1869,8 +1927,18 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 						//
 						// Switching parents, but we don't know the new parent.
 						//
-						U32 ip = mesgsys->getSenderIP();
-						U32 port = mesgsys->getSenderPort();
+						U32 ip, port; 
+					
+						if(mesgsys != NULL)
+						{
+							ip = mesgsys->getSenderIP();
+							port = mesgsys->getSenderPort();
+						}
+						else
+						{
+							ip = mRegionp->getHost().getAddress();
+							port = mRegionp->getHost().getPort();
+						}
 
 						// We're an orphan, flag things appropriately.
 						gObjectList.orphanize(this, parent_id, ip, port);
@@ -1954,7 +2022,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 	new_rot.normQuat();
 
-	if (sPingInterpolate)
+	if (sPingInterpolate && mesgsys != NULL)
 	{ 
 		LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(mesgsys->getSender());
 		if (cdp)
@@ -1977,6 +2045,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 	// If we're going to skip this message, why are we 
 	// doing all the parenting, etc above?
+	if(mesgsys != NULL)
+	{
 	U32 packet_id = mesgsys->getCurrentRecvPacketID(); 
 	if (packet_id < mLatestRecvPacketID && 
 		mLatestRecvPacketID - packet_id < 65536)
@@ -1984,8 +2054,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		//skip application of this message, it's old
 		return retval;
 	}
-
 	mLatestRecvPacketID = packet_id;
+	}
 
 	// Set the change flags for scale
 	if (new_scale != getScale())
@@ -2033,7 +2103,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		// If we're snapping the position by more than 0.5m, update LLViewerStats::mAgentPositionSnaps
 		if ( asAvatar() && asAvatar()->isSelf() && (mag_sqr > 0.25f) )
 		{
-			LLViewerStats::getInstance()->mAgentPositionSnaps.push( diff.length() );
+			sample(LLStatViewer::AGENT_POSITION_SNAP, LLTrace::Meters(diff.length()));
 		}
 	}
 

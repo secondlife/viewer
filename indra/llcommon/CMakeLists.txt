@@ -74,8 +74,10 @@ set(llcommon_SOURCE_FILES
     llmetrics.cpp
     llmetricperformancetester.cpp
     llmortician.cpp
+    llmutex.cpp
     lloptioninterface.cpp
     llptrto.cpp 
+    llpredicate.cpp
     llprocess.cpp
     llprocessor.cpp
     llqueuedthread.cpp
@@ -89,7 +91,6 @@ set(llcommon_SOURCE_FILES
     llsdutil.cpp
     llsecondlifeurls.cpp
     llsingleton.cpp
-    llstat.cpp
     llstacktrace.cpp
     llstreamqueue.cpp
     llstreamtools.cpp
@@ -97,8 +98,12 @@ set(llcommon_SOURCE_FILES
     llstringtable.cpp
     llsys.cpp
     llthread.cpp
+	llthreadlocalstorage.cpp
     llthreadsafequeue.cpp
     lltimer.cpp
+    lltrace.cpp
+    lltracerecording.cpp
+    lltracethreadrecorder.cpp
     lluri.cpp
     lluuid.cpp
     llworkerthread.cpp
@@ -198,9 +203,11 @@ set(llcommon_HEADER_FILES
     llmetrics.h
     llmetricperformancetester.h
     llmortician.h
+    llmutex.h
     llnametable.h
     lloptioninterface.h
     llpointer.h
+    llpredicate.h
     llpreprocessor.h
     llpriqueuemap.h
     llprocess.h
@@ -228,7 +235,6 @@ set(llcommon_HEADER_FILES
     llsortedvector.h
     llstack.h
     llstacktrace.h
-    llstat.h
     llstatenums.h
     llstl.h
     llstreamqueue.h
@@ -238,15 +244,22 @@ set(llcommon_HEADER_FILES
     llstringtable.h
     llsys.h
     llthread.h
+    llthreadlocalstorage.h
     llthreadsafequeue.h
     lltimer.h
+    lltrace.h
+    lltracerecording.h
+    lltracethreadrecorder.h
     lltreeiterators.h
     lltypeinfolookup.h
+    llunit.h
     lluri.h
     lluuid.h
     lluuidhashmap.h
     llversionserver.h
     llversionviewer.h
+    llwin32headers.h
+    llwin32headerslean.h
     llworkerthread.h
     ll_template_cast.h
     metaclass.h
@@ -334,6 +347,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llstring "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lltreeiterators "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lluri "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llunits "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(reflection "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lleventdispatcher "" "${test_libs}")

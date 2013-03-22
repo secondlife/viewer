@@ -34,12 +34,13 @@
 #include "llgltypes.h"
 #include "llrender.h"
 #include "llmetricperformancetester.h"
+#include "llunit.h"
 
 #include <map>
 #include <list>
 
-#define MIN_VIDEO_RAM_IN_MEGA_BYTES    32
-#define MAX_VIDEO_RAM_IN_MEGA_BYTES    512 // 512MB max for performance reasons.
+extern const LLUnit<LLUnits::Megabytes, S32> gMinVideoRam;
+extern const LLUnit<LLUnits::Megabytes, S32> gMaxVideoRam;
 
 class LLFace;
 class LLImageGL ;
@@ -211,6 +212,7 @@ public:
 	BOOL       createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE, S32 category = LLViewerTexture::OTHER);
 	virtual void setCachedRawImage(S32 discard_level, LLImageRaw* imageraw) ;
 
+	BOOL       setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_pos, S32 width, S32 height);
 	void       setFilteringOption(LLTexUnit::eTextureFilterOptions option);
 	void       setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, BOOL swap_bytes = FALSE);
 	void       setAddressMode(LLTexUnit::eTextureAddressMode mode);
@@ -323,11 +325,11 @@ public:
 	static LLFrameTimer sEvaluationTimer;
 	static F32 sDesiredDiscardBias;
 	static F32 sDesiredDiscardScale;
-	static S32 sBoundTextureMemoryInBytes;
-	static S32 sTotalTextureMemoryInBytes;
-	static S32 sMaxBoundTextureMemInMegaBytes;
-	static S32 sMaxTotalTextureMemInMegaBytes;
-	static S32 sMaxDesiredTextureMemInBytes ;
+	static LLUnit<LLUnits::Bytes, S32> sBoundTextureMemory;
+	static LLUnit<LLUnits::Bytes, S32> sTotalTextureMemory;
+	static LLUnit<LLUnits::Megabytes, S32> sMaxBoundTextureMem;
+	static LLUnit<LLUnits::Megabytes, S32> sMaxTotalTextureMem;
+	static LLUnit<LLUnits::Bytes, S32> sMaxDesiredTextureMem ;
 	static S8  sCameraMovingDiscardBias;
 	static F32 sCameraMovingBias;
 	static S32 sMaxSculptRez ;

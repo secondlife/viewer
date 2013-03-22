@@ -60,7 +60,8 @@
 #include "llcurl.h"
 #include "llcalc.h"
 #include "lltexturestats.h"
-#include "lltexturestats.h"
+#include "lltrace.h"
+#include "lltracethreadrecorder.h"
 #include "llviewerwindow.h"
 #include "llviewerdisplay.h"
 #include "llviewermedia.h"
@@ -277,7 +278,7 @@ LLPumpIO* gServicePump = NULL;
 
 U64 gFrameTime = 0;
 F32 gFrameTimeSeconds = 0.f;
-F32 gFrameIntervalSeconds = 0.f;
+LLUnit<LLUnits::Seconds, F32> gFrameIntervalSeconds = 0.f;
 F32 gFPSClamped = 10.f;						// Pretend we start at target rate.
 F32 gFrameDTClamped = 0.f;					// Time between adjacent checks to network for packets
 U64	gStartTime = 0; // gStartTime is "private", used only to calculate gFrameTimeSeconds
@@ -591,7 +592,7 @@ public:
 		
 		while (!LLAppViewer::instance()->isQuitting())
 		{
-			LLFastTimer::writeLog(os);
+			LLTrace::TimeBlock::writeLog(os);
 			os.flush();
 			ms_sleep(32);
 		}
@@ -679,7 +680,6 @@ bool LLAppViewer::init()
 	// into the log files during normal startup until AFTER
 	// we run the "program crashed last time" error handler below.
 	//
-	LLFastTimer::reset();
 
 	// initialize SSE options
 	LLVector4a::initClass();
@@ -1033,9 +1033,9 @@ bool LLAppViewer::init()
 	if (gGLManager.mGLVersion < LLFeatureManager::getInstance()->getExpectedGLVersion())
 	{
 		if (gGLManager.mIsIntel)
-		{
-			LLNotificationsUtil::add("IntelOldDriver");
-		}
+	{
+		LLNotificationsUtil::add("IntelOldDriver");
+	}
 		else if (gGLManager.mIsNVIDIA)
 		{
 			LLNotificationsUtil::add("NVIDIAOldDriver");
@@ -1238,7 +1238,10 @@ bool LLAppViewer::mainLoop()
 	while (!LLApp::isExiting())
 	{
 		LLFastTimer _(FTM_FRAME);
-		LLFastTimer::nextFrame(); 
+		LLTrace::get_frame_recording().nextPeriod();
+		LLTrace::TimeBlock::logStats();
+
+		LLTrace::getMasterThreadRecorder().pullFromSlaveThreads();
 
 		//clear call stack records
 		llclearcallstacks;
@@ -1355,7 +1358,6 @@ bool LLAppViewer::mainLoop()
 					LLFloaterSnapshot::update(); // take snapshots
 					gGLActive = FALSE;
 				}
-
 			}
 
 			pingMainloopTimeout("Main:Sleep");
@@ -1410,7 +1412,7 @@ bool LLAppViewer::mainLoop()
 				{
 					S32 work_pending = 0;
 					S32 io_pending = 0;
-					F32 max_time = llmin(gFrameIntervalSeconds*10.f, 1.f);
+					F32 max_time = llmin(gFrameIntervalSeconds.value() *10.f, 1.f);
 
 					{
 						LLFastTimer ftm(FTM_TEXTURE_CACHE);
@@ -1567,9 +1569,9 @@ bool LLAppViewer::cleanup()
 	if (LLFastTimerView::sAnalyzePerformance)
 	{
 		llinfos << "Analyzing performance" << llendl;
-		std::string baseline_name = LLFastTimer::sLogName + "_baseline.slp";
-		std::string current_name  = LLFastTimer::sLogName + ".slp"; 
-		std::string report_name   = LLFastTimer::sLogName + "_report.csv";
+		std::string baseline_name = LLTrace::TimeBlock::sLogName + "_baseline.slp";
+		std::string current_name  = LLTrace::TimeBlock::sLogName + ".slp"; 
+		std::string report_name   = LLTrace::TimeBlock::sLogName + "_report.csv";
 
 		LLFastTimerView::doAnalysis(
 			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, baseline_name),
@@ -1928,9 +1930,9 @@ bool LLAppViewer::cleanup()
 	{
 		llinfos << "Analyzing performance" << llendl;
 		
-		std::string baseline_name = LLFastTimer::sLogName + "_baseline.slp";
-		std::string current_name  = LLFastTimer::sLogName + ".slp"; 
-		std::string report_name   = LLFastTimer::sLogName + "_report.csv";
+		std::string baseline_name = LLTrace::TimeBlock::sLogName + "_baseline.slp";
+		std::string current_name  = LLTrace::TimeBlock::sLogName + ".slp"; 
+		std::string report_name   = LLTrace::TimeBlock::sLogName + "_report.csv";
 
 		LLFastTimerView::doAnalysis(
 			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, baseline_name),
@@ -2053,10 +2055,10 @@ bool LLAppViewer::initThreads()
 													enable_threads && true,
 													app_metrics_qa_mode);	
 
-	if (LLFastTimer::sLog || LLFastTimer::sMetricLog)
+	if (LLTrace::TimeBlock::sLog || LLTrace::TimeBlock::sMetricLog)
 	{
-		LLFastTimer::sLogLock = new LLMutex(NULL);
-		mFastTimerLogThread = new LLFastTimerLogThread(LLFastTimer::sLogName);
+		LLTrace::TimeBlock::setLogLock(new LLMutex(NULL));
+		mFastTimerLogThread = new LLFastTimerLogThread(LLTrace::TimeBlock::sLogName);
 		mFastTimerLogThread->start();
 	}
 
@@ -2465,13 +2467,13 @@ bool LLAppViewer::initConfiguration()
 
 	if (clp.hasOption("logperformance"))
 	{
-		LLFastTimer::sLog = TRUE;
-		LLFastTimer::sLogName = std::string("performance");		
+		LLTrace::TimeBlock::sLog = true;
+		LLTrace::TimeBlock::sLogName = std::string("performance");		
 	}
 	
 	if (clp.hasOption("logmetrics"))
  	{
- 		LLFastTimer::sMetricLog = TRUE ;
+ 		LLTrace::TimeBlock::sMetricLog = true ;
 		// '--logmetrics' can be specified with a named test metric argument so the data gathering is done only on that test
 		// In the absence of argument, every metric is gathered (makes for a rather slow run and hard to decipher report...)
 		std::string test_name = clp.getOption("logmetrics")[0];
@@ -2479,11 +2481,11 @@ bool LLAppViewer::initConfiguration()
 		if (test_name == "")
 		{
 			llwarns << "No '--logmetrics' argument given, will output all metrics to " << DEFAULT_METRIC_NAME << llendl;
-			LLFastTimer::sLogName = DEFAULT_METRIC_NAME;
+			LLTrace::TimeBlock::sLogName = DEFAULT_METRIC_NAME;
 		}
 		else
 		{
-			LLFastTimer::sLogName = test_name;
+			LLTrace::TimeBlock::sLogName = test_name;
 		}
  	}
 
@@ -3752,7 +3754,7 @@ U32 LLAppViewer::getObjectCacheVersion()
 {
 	// Viewer object cache version, change if object update
 	// format changes. JC
-	const U32 INDRA_OBJECT_CACHE_VERSION = 14;
+	const U32 INDRA_OBJECT_CACHE_VERSION = 15;
 
 	return INDRA_OBJECT_CACHE_VERSION;
 }
@@ -4193,6 +4195,8 @@ static LLFastTimer::DeclareTimer FTM_WORLD_UPDATE("Update World");
 static LLFastTimer::DeclareTimer FTM_NETWORK("Network");
 static LLFastTimer::DeclareTimer FTM_AGENT_NETWORK("Agent Network");
 static LLFastTimer::DeclareTimer FTM_VLMANAGER("VL Manager");
+static LLFastTimer::DeclareTimer FTM_AGENT_POSITION("Agent Position");
+static LLFastTimer::DeclareTimer FTM_HUD_EFFECTS("HUD Effects");
 
 ///////////////////////////////////////////////////////
 // idle()
@@ -4211,7 +4215,7 @@ void LLAppViewer::idle()
 	LLFrameTimer::updateFrameCount();
 	LLEventTimer::updateClass();
 	LLNotificationsUI::LLToast::updateClass();
-	LLCriticalDamp::updateInterpolants();
+	LLSmoothInterpolation::updateInterpolants();
 	LLMortician::updateClass();
 	LLFilePickerThread::clearDead();  //calls LLFilePickerThread::notify()
 
@@ -4334,21 +4338,12 @@ void LLAppViewer::idle()
 				llinfos << "Dead object updates: " << gObjectList.mNumDeadObjectUpdates << llendl;
 				gObjectList.mNumDeadObjectUpdates = 0;
 			}
-			if (gObjectList.mNumUnknownKills)
-			{
-				llinfos << "Kills on unknown objects: " << gObjectList.mNumUnknownKills << llendl;
-				gObjectList.mNumUnknownKills = 0;
-			}
 			if (gObjectList.mNumUnknownUpdates)
 			{
 				llinfos << "Unknown object updates: " << gObjectList.mNumUnknownUpdates << llendl;
 				gObjectList.mNumUnknownUpdates = 0;
 			}
 
-			// ViewerMetrics FPS piggy-backing on the debug timer.
-			// The 5-second interval is nice for this purpose.  If the object debug
-			// bit moves or is disabled, please give this a suitable home.
-			LLViewerAssetStatsFF::record_fps_main(gFPSClamped);
 			LLViewerAssetStatsFF::record_avatar_stats();
 		}
 	}
@@ -4430,8 +4425,7 @@ void LLAppViewer::idle()
 
 	{
 		// Handle pending gesture processing
-		static LLFastTimer::DeclareTimer ftm("Agent Position");
-		LLFastTimer t(ftm);
+		LLFastTimer t(FTM_AGENT_POSITION);
 		LLGestureMgr::instance().update();
 
 		gAgent.updateAgentPosition(gFrameDTClamped, yaw, current_mouse.mX, current_mouse.mY);
@@ -4478,8 +4472,7 @@ void LLAppViewer::idle()
 	//
 
 	{
-		static LLFastTimer::DeclareTimer ftm("HUD Effects");
-		LLFastTimer t(ftm);
+		LLFastTimer t(FTM_HUD_EFFECTS);
 		LLSelectMgr::getInstance()->updateEffects();
 		LLHUDManager::getInstance()->cleanupEffects();
 		LLHUDManager::getInstance()->sendEffects();
@@ -4877,7 +4870,7 @@ void LLAppViewer::idleNetwork()
 			gPrintMessagesThisFrame = FALSE;
 		}
 	}
-	LLViewerStats::getInstance()->mNumNewObjectsStat.addValue(gObjectList.mNumNewObjects);
+	add(LLStatViewer::NUM_NEW_OBJECTS, gObjectList.mNumNewObjects);
 
 	// Retransmit unacknowledged packets.
 	gXferManager->retransmitUnackedPackets();
@@ -5287,17 +5280,7 @@ void LLAppViewer::metricsUpdateRegion(U64 region_handle)
 {
 	if (0 != region_handle)
 	{
-		LLViewerAssetStatsFF::set_region_main(region_handle);
-		if (LLAppViewer::sTextureFetch)
-		{
-			// Send a region update message into 'thread1' to get the new region.
-			LLAppViewer::sTextureFetch->commandSetRegion(region_handle);
-		}
-		else
-		{
-			// No 'thread1', a.k.a. TextureFetch, so update directly
-			LLViewerAssetStatsFF::set_region_thread1(region_handle);
-		}
+		LLViewerAssetStatsFF::set_region(region_handle);
 	}
 }
 
@@ -5308,7 +5291,7 @@ void LLAppViewer::metricsUpdateRegion(U64 region_handle)
  */
 void LLAppViewer::metricsSend(bool enable_reporting)
 {
-	if (! gViewerAssetStatsMain)
+	if (! gViewerAssetStats)
 		return;
 
 	if (LLAppViewer::sTextureFetch)
@@ -5321,7 +5304,10 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 
 			// Make a copy of the main stats to send into another thread.
 			// Receiving thread takes ownership.
-			LLViewerAssetStats * main_stats(new LLViewerAssetStats(*gViewerAssetStatsMain));
+			LLViewerAssetStats * main_stats(new LLViewerAssetStats(*gViewerAssetStats));
+			main_stats->stop();
+
+			main_stats->updateStats();
 			
 			// Send a report request into 'thread1' to get the rest of the data
 			// and provide some additional parameters while here.
@@ -5340,6 +5326,6 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 	// Reset even if we can't report.  Rather than gather up a huge chunk of
 	// data, we'll keep to our sampling interval and retain the data
 	// resolution in time.
-	gViewerAssetStatsMain->reset();
+	gViewerAssetStats->reset();
 }
 

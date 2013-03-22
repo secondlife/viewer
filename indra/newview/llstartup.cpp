@@ -1947,7 +1947,7 @@ bool idle_startup()
 			llinfos << "gAgentStartLocation : " << gAgentStartLocation << llendl;
 			LLSLURL start_slurl = LLStartUp::getStartSLURL();
 			LL_DEBUGS("AppInit") << "start slurl "<<start_slurl.asString()<<LL_ENDL;
-			
+
 			if (((start_slurl.getType() == LLSLURL::LOCATION) && (gAgentStartLocation == "url")) ||
 				((start_slurl.getType() == LLSLURL::LAST_LOCATION) && (gAgentStartLocation == "last")) ||
 				((start_slurl.getType() == LLSLURL::HOME_LOCATION) && (gAgentStartLocation == "home")))
@@ -2071,7 +2071,7 @@ bool idle_startup()
 		if (wearables_time > MAX_WEARABLES_TIME)
 		{
 			LLNotificationsUtil::add("ClothingLoading");
-			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_WEARABLES_TOO_LONG);
+			add(LLStatViewer::LOADING_WEARABLES_LONG_DELAY, 1);
 			LLStartUp::setStartupState( STATE_CLEANUP );
 			return TRUE;
 		}
@@ -2183,9 +2183,6 @@ bool idle_startup()
 
 		LLAppViewer::instance()->handleLoginComplete();
 
-		// reset timers now that we are running "logged in" logic
-		LLFastTimer::reset();
-
 		LLAgentPicksInfo::getInstance()->requestNumberOfPicks();
 
 		LLIMFloater::initIMFloater();
@@ -2294,7 +2291,7 @@ bool login_alert_status(const LLSD& notification, const LLSD& response)
       //      break;
         case 2:     // Teleport
             // Restart the login process, starting at our home locaton
-	  LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
+			LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
             LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
             break;
         default:

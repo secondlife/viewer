@@ -101,9 +101,13 @@ class LLView
 :	public LLMouseHandler,			// handles mouse events
 	public LLFocusableElement,		// handles keyboard events
 	public LLMortician,				// lazy deletion
-	public LLHandleProvider<LLView>	// passes out weak references to self
+	public LLHandleProvider<LLView>,     // passes out weak references to self
+	public LLTrace::MemTrackable<LLView> // track memory usage
 {
 public:
+
+	enum EOrientation { HORIZONTAL, VERTICAL, ORIENTATION_COUNT };
+
 	struct Follows : public LLInitParam::ChoiceBlock<Follows>
 	{
 		Alternative<std::string>	string;
@@ -672,7 +676,18 @@ public:
 	static S32 sLastLeftXML;
 	static S32 sLastBottomXML;
 	static BOOL sForceReshape;
+	static LLTrace::MemStatHandle sMemStat;
 };
+
+namespace LLInitParam
+{
+template<>
+struct TypeValues<LLView::EOrientation> : public LLInitParam::TypeValuesHelper<LLView::EOrientation>
+{
+	static void declareValues();
+};
+}
+
 
 class LLCompareByTabOrder
 {

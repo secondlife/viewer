@@ -50,7 +50,10 @@ class LLUrlMatch;
 /// includes a start/end offset from the start of the string, a
 /// style to render with, an optional tooltip, etc.
 ///
-class LLTextSegment : public LLRefCount, public LLMouseHandler
+class LLTextSegment 
+:	public LLRefCount, 
+	public LLMouseHandler,
+	public LLTrace::MemTrackable<LLTextSegment>
 {
 public:
 	LLTextSegment(S32 start, S32 end) : mStart(start), mEnd(end){};
@@ -91,10 +94,12 @@ public:
 	/*virtual*/ void			localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const;
 	/*virtual*/ BOOL			hasMouseCapture();
 
-	S32							getStart() const 					{ return mStart; }
-	void						setStart(S32 start)					{ mStart = start; }
-	S32							getEnd() const						{ return mEnd; }
-	void						setEnd( S32 end )					{ mEnd = end; }
+	S32						getStart() const 					{ return mStart; }
+	void					setStart(S32 start)					{ mStart = start; }
+	S32						getEnd() const						{ return mEnd; }
+	void					setEnd( S32 end )					{ mEnd = end; }
+
+	static LLTrace::MemStatHandle sMemStat;
 
 protected:
 	S32				mStart;

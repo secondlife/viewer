@@ -39,6 +39,7 @@
 #include "llrefcount.h"
 #include "stdenums.h"
 #include "llstring.h"
+#include "lltrace.h"
 #include <string>
 
 class LLScrollListItem;
@@ -60,7 +61,9 @@ typedef LLPointer<LLListViewModel> LLListViewModelPtr;
  * LLViewModel data. This way, the LLViewModel is quietly deleted when the
  * last referencing widget is destroyed.
  */
-class LLViewModel: public LLRefCount
+class LLViewModel 
+:	public LLRefCount,
+	public LLTrace::MemTrackable<LLViewModel>
 {
 public:
     LLViewModel();
@@ -79,6 +82,8 @@ public:
     void resetDirty() { mDirty = false; }
 	// 
     void setDirty() { mDirty = true; }
+
+	static LLTrace::MemStatHandle sMemStat;
 
 protected:
     LLSD mValue;

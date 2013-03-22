@@ -122,6 +122,7 @@
 #include "llwindow.h"
 #include "llpathfindingmanager.h"
 #include "boost/unordered_map.hpp"
+#include "llscenemonitor.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -527,7 +528,10 @@ class LLAdvancedToggleConsole : public view_listener_t
 		{
 			toggle_visibility( (void*)gSceneView);
 		}
-
+		else if ("scene monitor" == console_type)
+		{
+			toggle_visibility( (void*)gSceneMonitorView);
+		}
 #if MEM_TRACK_MEM
 		else if ("memory view" == console_type)
 		{
@@ -555,9 +559,9 @@ class LLAdvancedCheckConsole : public view_listener_t
 		{
 			new_value = LLFloaterReg::instanceVisible("fast_timers");
 		}
-		else if ("scene view" == console_type)
+		else if ("scene monitor" == console_type)
 		{
-			new_value = get_visibility( (void*) gSceneView);
+			new_value = get_visibility( (void*) gSceneMonitorView);
 		}
 #if MEM_TRACK_MEM
 		else if ("memory view" == console_type)
@@ -3959,24 +3963,24 @@ class LLViewToggleUI : public view_listener_t
 	{
 		if(gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
 		{
-			LLNotification::Params params("ConfirmHideUI");
-			params.functor.function(boost::bind(&LLViewToggleUI::confirm, this, _1, _2));
-			LLSD substitutions;
+		LLNotification::Params params("ConfirmHideUI");
+		params.functor.function(boost::bind(&LLViewToggleUI::confirm, this, _1, _2));
+		LLSD substitutions;
 #if LL_DARWIN
-			substitutions["SHORTCUT"] = "Cmd+Shift+U";
+		substitutions["SHORTCUT"] = "Cmd+Shift+U";
 #else
-			substitutions["SHORTCUT"] = "Ctrl+Shift+U";
+		substitutions["SHORTCUT"] = "Ctrl+Shift+U";
 #endif
-			params.substitutions = substitutions;
+		params.substitutions = substitutions;
 			if (!gSavedSettings.getBOOL("HideUIControls"))
-			{
-				// hiding, so show notification
-				LLNotifications::instance().add(params);
-			}
-			else
-			{
-				LLNotifications::instance().forceResponse(params, 0);
-			}
+		{
+			// hiding, so show notification
+			LLNotifications::instance().add(params);
+		}
+		else
+		{
+			LLNotifications::instance().forceResponse(params, 0);
+		}
 		}
 		return true;
 	}
@@ -4022,72 +4026,6 @@ void handle_duplicate_in_place(void*)
 	LLVector3 offset(0.f, 0.f, 0.f);
 	LLSelectMgr::getInstance()->selectDuplicate(offset, TRUE);
 }
-
-/* dead code 30-apr-2008
-void handle_deed_object_to_group(void*)
-{
-	LLUUID group_id;
-	
-	LLSelectMgr::getInstance()->selectGetGroup(group_id);
-	LLSelectMgr::getInstance()->sendOwner(LLUUID::null, group_id, FALSE);
-	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_RELEASE_COUNT);
-}
-
-BOOL enable_deed_object_to_group(void*)
-{
-	if(LLSelectMgr::getInstance()->getSelection()->isEmpty()) return FALSE;
-	LLPermissions perm;
-	LLUUID group_id;
-
-	if (LLSelectMgr::getInstance()->selectGetGroup(group_id) &&
-		gAgent.hasPowerInGroup(group_id, GP_OBJECT_DEED) &&
-		LLSelectMgr::getInstance()->selectGetPermissions(perm) &&
-		perm.deedToGroup(gAgent.getID(), group_id))
-	{
-		return TRUE;
-	}
-	return FALSE;
-}
-
-*/
-
-
-/*
- * No longer able to support viewer side manipulations in this way
- *
-void god_force_inv_owner_permissive(LLViewerObject* object,
-									LLInventoryObject::object_list_t* inventory,
-									S32 serial_num,
-									void*)
-{
-	typedef std::vector<LLPointer<LLViewerInventoryItem> > item_array_t;
-	item_array_t items;
-
-	LLInventoryObject::object_list_t::const_iterator inv_it = inventory->begin();
-	LLInventoryObject::object_list_t::const_iterator inv_end = inventory->end();
-	for ( ; inv_it != inv_end; ++inv_it)
-	{
-		if(((*inv_it)->getType() != LLAssetType::AT_CATEGORY))
-		{
-			LLInventoryObject* obj = *inv_it;
-			LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem((LLViewerInventoryItem*)obj);
-			LLPermissions perm(new_item->getPermissions());
-			perm.setMaskBase(PERM_ALL);
-			perm.setMaskOwner(PERM_ALL);
-			new_item->setPermissions(perm);
-			items.push_back(new_item);
-		}
-	}
-	item_array_t::iterator end = items.end();
-	item_array_t::iterator it;
-	for(it = items.begin(); it != end; ++it)
-	{
-		// since we have the inventory item in the callback, it should not
-		// invalidate iteration through the selection manager.
-		object->updateInventory((*it), TASK_INVENTORY_ITEM_KEY, false);
-	}
-}
-*/
 
 void handle_object_owner_permissive(void*)
 {
@@ -7387,7 +7325,7 @@ void handle_dump_avatar_local_textures(void*)
 
 void handle_dump_timers()
 {
-	LLFastTimer::dumpCurTimes();
+	LLTrace::TimeBlock::dumpCurTimes();
 }
 
 void handle_debug_avatar_textures(void*)

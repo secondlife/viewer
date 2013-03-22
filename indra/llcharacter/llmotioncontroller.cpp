@@ -30,6 +30,7 @@
 #include "linden_common.h"
 
 #include "llmotioncontroller.h"
+#include "llfasttimer.h"
 #include "llkeyframemotion.h"
 #include "llmath.h"
 #include "lltimer.h"

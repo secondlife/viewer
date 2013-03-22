@@ -165,17 +165,17 @@ public:
 	static T* createFromFile(const std::string &filename, LLView *parent, const widget_registry_t& registry)
 	{
 		T* widget = NULL;
-
+		
 		instance().pushFileName(filename);
 		{
 			LLXMLNodePtr root_node;
 
 			if (!LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
-			{
+				{							
 				llwarns << "Couldn't parse XUI file: " << instance().getCurFileName() << llendl;
 				goto fail;
 			}
-
+			
 			LLView* view = getInstance()->createFromXML(root_node, parent, filename, registry, NULL);
 			if (view)
 			{
@@ -260,10 +260,8 @@ private:
 			// We always want to output top-left coordinates
 			typename T::Params output_params(params);
 			T::setupParamsForExport(output_params, parent);
-			// Export only the differences between this any default params
-			typename T::Params default_params(getDefaultParams<T>());
 			copyName(node, output_node);
-			parser.writeXUI(output_node, output_params, &default_params);
+			parser.writeXUI(output_node, output_params, LLInitParam::default_parse_rules(), &getDefaultParams<T>());
 		}
 
 		// Apply layout transformations, usually munging rect

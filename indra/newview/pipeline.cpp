@@ -86,6 +86,7 @@
 #include "llviewerregion.h" // for audio debugging.
 #include "llviewerwindow.h" // For getSpinAxis
 #include "llvoavatarself.h"
+#include "llvocache.h"
 #include "llvoground.h"
 #include "llvosky.h"
 #include "llvotree.h"
@@ -111,6 +112,7 @@
 #include "llfloaterpathfindingconsole.h"
 #include "llfloaterpathfindingcharacters.h"
 #include "llpathfindingpathtool.h"
+#include "llscenemonitor.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -488,7 +490,6 @@ void LLPipeline::init()
 	getPool(LLDrawPool::POOL_BUMP);
 	getPool(LLDrawPool::POOL_GLOW);
 
-	LLViewerStats::getInstance()->mTrianglesDrawnStat.reset();
 	resetFrameStats();
 
 	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
@@ -1420,18 +1421,18 @@ S32 LLPipeline::setLightingDetail(S32 level)
 	return mLightingDetail;
 }
 
-class LLOctreeDirtyTexture : public LLOctreeTraveler<LLDrawable>
+class LLOctreeDirtyTexture : public OctreeTraveler
 {
 public:
 	const std::set<LLViewerFetchedTexture*>& mTextures;
 
 	LLOctreeDirtyTexture(const std::set<LLViewerFetchedTexture*>& textures) : mTextures(textures) { }
 
-	virtual void visit(const LLOctreeNode<LLDrawable>* node)
+	virtual void visit(const OctreeNode* node)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
 
-		if (!group->isState(LLSpatialGroup::GEOM_DIRTY) && !group->isEmpty())
+		if (!group->hasState(LLSpatialGroup::GEOM_DIRTY) && !group->isEmpty())
 		{
 			for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
 			{
@@ -1620,10 +1621,8 @@ void LLPipeline::addPool(LLDrawPool *new_poolp)
 
 void LLPipeline::allocDrawable(LLViewerObject *vobj)
 {
-	LLDrawable *drawable = new LLDrawable();
+	LLDrawable *drawable = new LLDrawable(vobj);
 	vobj->mDrawable = drawable;
-	
-	drawable->mVObjp     = vobj;
 	
 	//encompass completely sheared objects by taking 
 	//the most extreme point possible (<1,1,0.5>)
@@ -1810,7 +1809,7 @@ void LLPipeline::resetFrameStats()
 {
 	assertInitialized();
 
-	LLViewerStats::getInstance()->mTrianglesDrawnStat.addValue(mTrianglesDrawn/1000.f);
+	add(LLStatViewer::TRIANGLES_DRAWN, mTrianglesDrawn);
 
 	if (mBatchCount > 0)
 	{
@@ -1929,6 +1928,8 @@ void LLPipeline::updateMovedList(LLDrawable::drawable_vector_t& moved_list)
 
 static LLFastTimer::DeclareTimer FTM_OCTREE_BALANCE("Balance Octree");
 static LLFastTimer::DeclareTimer FTM_UPDATE_MOVE("Update Move");
+static LLFastTimer::DeclareTimer FTM_RETEXTURE("Retexture");
+static LLFastTimer::DeclareTimer FTM_MOVED_LIST("Moved List");
 
 void LLPipeline::updateMove()
 {
@@ -1942,8 +1943,7 @@ void LLPipeline::updateMove()
 	assertInitialized();
 
 	{
-		static LLFastTimer::DeclareTimer ftm("Retexture");
-		LLFastTimer t(ftm);
+		LLFastTimer t(FTM_RETEXTURE);
 
 		for (LLDrawable::drawable_set_t::iterator iter = mRetexturedList.begin();
 			 iter != mRetexturedList.end(); ++iter)
@@ -1958,8 +1958,7 @@ void LLPipeline::updateMove()
 	}
 
 	{
-		static LLFastTimer::DeclareTimer ftm("Moved List");
-		LLFastTimer t(ftm);
+		LLFastTimer t(FTM_MOVED_LIST);
 		updateMovedList(mMovedList);
 	}
 
@@ -2048,7 +2047,7 @@ void check_references(LLSpatialGroup* group, LLDrawable* drawable)
 {
 	for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 	{
-		if (drawable == *i)
+		if (drawable == (LLDrawable*)(*i)->getDrawable())
 		{
 			llerrs << "LLDrawable deleted while actively reference by LLPipeline." << llendl;
 		}
@@ -2070,9 +2069,12 @@ void check_references(LLSpatialGroup* group, LLFace* face)
 {
 	for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 	{
-		LLDrawable* drawable = *i;
+		LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
+		if(drawable)
+		{
 		check_references(drawable, face);
 	}			
+}
 }
 
 void LLPipeline::checkReferences(LLFace* face)
@@ -2395,6 +2397,13 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 				}
 			}
 		}
+
+		//scan the VO Cache tree
+		LLVOCachePartition* vo_part = region->getVOCachePartition();
+		if(vo_part)
+		{
+			vo_part->cull(camera);
+		}
 	}
 
 	if (bound_shader)
@@ -2462,8 +2471,9 @@ void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera)
 		return;
 	}
 
+	const LLVector4a* bounds = group->getBounds();
 	if (sMinRenderSize > 0.f && 
-			llmax(llmax(group->mBounds[1][0], group->mBounds[1][1]), group->mBounds[1][2]) < sMinRenderSize)
+			llmax(llmax(bounds[1][0], bounds[1][1]), bounds[1][2]) < sMinRenderSize)
 	{
 		return;
 	}
@@ -2788,7 +2798,7 @@ void LLPipeline::updateGeom(F32 max_dtime)
 		
 	S32 count = 0;
 	
-	max_dtime = llmax(update_timer.getElapsedTimeF32()+0.001f, max_dtime);
+	max_dtime = llmax(update_timer.getElapsedTimeF32()+0.001f, LLUnitImplicit<LLUnits::Seconds, F32>(max_dtime));
 	LLSpatialGroup* last_group = NULL;
 	LLSpatialBridge* last_bridge = NULL;
 
@@ -3051,14 +3061,14 @@ void LLPipeline::markRebuild(LLSpatialGroup* group, BOOL priority)
 
 		if (priority)
 		{
-			if (!group->isState(LLSpatialGroup::IN_BUILD_Q1))
+			if (!group->hasState(LLSpatialGroup::IN_BUILD_Q1))
 			{
 				llassert_always(!mGroupQ1Locked);
 
 				mGroupQ1.push_back(group);
 				group->setState(LLSpatialGroup::IN_BUILD_Q1);
 
-				if (group->isState(LLSpatialGroup::IN_BUILD_Q2))
+				if (group->hasState(LLSpatialGroup::IN_BUILD_Q2))
 				{
 					LLSpatialGroup::sg_vector_t::iterator iter = std::find(mGroupQ2.begin(), mGroupQ2.end(), group);
 					if (iter != mGroupQ2.end())
@@ -3069,7 +3079,7 @@ void LLPipeline::markRebuild(LLSpatialGroup* group, BOOL priority)
 				}
 			}
 		}
-		else if (!group->isState(LLSpatialGroup::IN_BUILD_Q2 | LLSpatialGroup::IN_BUILD_Q1))
+		else if (!group->hasState(LLSpatialGroup::IN_BUILD_Q2 | LLSpatialGroup::IN_BUILD_Q1))
 		{
 			llassert_always(!mGroupQ2Locked);
 			mGroupQ2.push_back(group);
@@ -3144,7 +3154,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 			group->setVisible();
 			for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 			{
-				markVisible(*i, camera);
+				markVisible((LLDrawable*)(*i)->getDrawable(), camera);
 			}
 
 			if (!sDelayVBUpdate)
@@ -3223,6 +3233,8 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 	}
 		
 	postSort(camera);	
+
+	LLSceneMonitor::getInstance()->fetchQueryResult();
 }
 
 void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
@@ -3231,8 +3243,7 @@ void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
 	{
 		for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 		{
-			LLDrawable* drawablep = *i;
-			stateSort(drawablep, camera);
+			stateSort((LLDrawable*)(*i)->getDrawable(), camera);
 		}
 
 		if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
@@ -3351,7 +3362,10 @@ void forAllDrawables(LLCullResult::sg_iterator begin,
 	{
 		for (LLSpatialGroup::element_iter j = (*i)->getDataBegin(); j != (*i)->getDataEnd(); ++j)
 		{
-			func(*j);	
+			if((*j)->hasDrawable())
+			{
+				func((LLDrawable*)(*j)->getDrawable());	
+			}
 		}
 	}
 }
@@ -3579,7 +3593,7 @@ void LLPipeline::postSort(LLCamera& camera)
 			continue;
 		}
 
-		if (group->isState(LLSpatialGroup::NEW_DRAWINFO) && group->isState(LLSpatialGroup::GEOM_DIRTY))
+		if (group->hasState(LLSpatialGroup::NEW_DRAWINFO) && group->hasState(LLSpatialGroup::GEOM_DIRTY))
 		{ //no way this group is going to be drawable without a rebuild
 			group->rebuildGeom();
 		}
@@ -3761,33 +3775,6 @@ void LLPipeline::postSort(LLCamera& camera)
 		}
 	}
 
-	/*static LLFastTimer::DeclareTimer FTM_TRANSFORM_WAIT("Transform Fence");
-	static LLFastTimer::DeclareTimer FTM_TRANSFORM_DO_WORK("Transform Work");
-	if (use_transform_feedback)
-	{ //using transform feedback, wait for transform feedback to complete
-		LLFastTimer t(FTM_TRANSFORM_WAIT);
-
-		S32 done = 0;
-		//glGetQueryivARB(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_CURRENT_QUERY, &count);
-		
-		glGetQueryObjectivARB(mMeshDirtyQueryObject, GL_QUERY_RESULT_AVAILABLE, &done);
-		
-		while (!done)
-		{ 
-			{
-				LLFastTimer t(FTM_TRANSFORM_DO_WORK);
-				F32 max_time = llmin(gFrameIntervalSeconds*10.f, 1.f);
-				//do some useful work while we wait
-				LLAppViewer::getTextureCache()->update(max_time); // unpauses the texture cache thread
-				LLAppViewer::getImageDecodeThread()->update(max_time); // unpauses the image thread
-				LLAppViewer::getTextureFetch()->update(max_time); // unpauses the texture fetch thread
-			}
-			glGetQueryObjectivARB(mMeshDirtyQueryObject, GL_QUERY_RESULT_AVAILABLE, &done);
-		}
-
-		mTransformFeedbackPrimitives = 0;
-	}*/
-						
 	//LLSpatialGroup::sNoDelete = FALSE;
 	llpushcallstacks ;
 }
@@ -4963,7 +4950,7 @@ void LLPipeline::renderDebug()
 		{
 			DebugBlip& blip = *iter;
 
-			blip.mAge += gFrameIntervalSeconds;
+			blip.mAge += gFrameIntervalSeconds.value();
 			if (blip.mAge > 2.f)
 			{
 				mDebugBlips.erase(iter++);
@@ -4973,7 +4960,7 @@ void LLPipeline::renderDebug()
 				iter++;
 			}
 
-			blip.mPosition.mV[2] += gFrameIntervalSeconds*2.f;
+			blip.mPosition.mV[2] += gFrameIntervalSeconds.value()*2.f;
 
 			gGL.color4fv(blip.mColor.mV);
 			gGL.vertex3fv(blip.mPosition.mV);
@@ -5784,7 +5771,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 				{
 					if (farthest_light->fade >= 0.f)
 					{
-						farthest_light->fade = -gFrameIntervalSeconds;
+						farthest_light->fade = -(gFrameIntervalSeconds.value());
 					}
 				}
 				else
@@ -5880,12 +5867,12 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 				if (fade >= 0.f)
 				{
 					fade = fade / LIGHT_FADE_TIME;
-					((Light*) (&(*iter)))->fade += gFrameIntervalSeconds;
+					((Light*) (&(*iter)))->fade += gFrameIntervalSeconds.value();
 				}
 				else
 				{
 					fade = 1.f + fade / LIGHT_FADE_TIME;
-					((Light*) (&(*iter)))->fade -= gFrameIntervalSeconds;
+					((Light*) (&(*iter)))->fade -= gFrameIntervalSeconds.value();
 				}
 				fade = llclamp(fade,0.f,1.f);
 				light_color *= fade;
@@ -7200,7 +7187,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			}
 			else if (transition_time < 1.f)
 			{ //currently in a transition, continue interpolating
-				transition_time += 1.f/CameraFocusTransitionTime*gFrameIntervalSeconds;
+				transition_time += 1.f/CameraFocusTransitionTime*gFrameIntervalSeconds.value();
 				transition_time = llmin(transition_time, 1.f);
 
 				F32 t = cosf(transition_time*F_PI+F_PI)*0.5f+0.5f;
@@ -9192,7 +9179,7 @@ void LLPipeline::generateHighlight(LLCamera& camera)
 	
 	if (!mHighlightSet.empty())
 	{
-		F32 transition = gFrameIntervalSeconds/RenderHighlightFadeTime;
+		F32 transition = gFrameIntervalSeconds.value()/RenderHighlightFadeTime;
 
 		LLGLDisable test(GL_ALPHA_TEST);
 		LLGLDepthTest depth(GL_FALSE);
@@ -9827,7 +9814,9 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 	if (gen_shadow)
 	{
-		F32 fade_amt = gFrameIntervalSeconds * llmax(LLViewerCamera::getInstance()->getVelocityStat()->getCurrentPerSec(), 1.f);
+		LLTrace::CountStatHandle<>* velocity_stat = LLViewerCamera::getVelocityStat();
+		F32 fade_amt = gFrameIntervalSeconds.value() 
+			* llmax(LLTrace::get_frame_recording().getLastRecordingPeriod().getSum(*velocity_stat) / LLTrace::get_frame_recording().getLastRecordingPeriod().getDuration().value(), 1.0);
 
 		//update shadow targets
 		for (U32 i = 0; i < 2; i++)

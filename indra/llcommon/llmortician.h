@@ -28,6 +28,7 @@
 #define LLMORTICIAN_H
 
 #include "stdtypes.h"
+#include <list>
 
 class LL_COMMON_API LLMortician 
 {

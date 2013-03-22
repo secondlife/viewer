@@ -55,7 +55,7 @@
 #include "message.h"
 #include "pipeline.h"
 #include "llappviewer.h"		// for do_disconnect()
-
+#include "llscenemonitor.h"
 #include <deque>
 #include <queue>
 #include <map>
@@ -110,6 +110,7 @@ LLWorld::LLWorld() :
 	gGL.getTexUnit(0)->bind(mDefaultWaterTexturep);
 	mDefaultWaterTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
+	LLViewerRegion::sVOCacheCullingEnabled = (BOOL)gSavedSettings.getBOOL("ObjectCacheViewCullingEnabled");
 }
 
 
@@ -133,6 +134,11 @@ void LLWorld::destroyClass()
 	{
 		mEdgeWaterObjects[i] = NULL;
 	}
+
+	//make all visible drawbles invisible.
+	LLDrawable::incrementVisible();
+
+	LLSceneMonitor::getInstance()->destroyClass();
 }
 
 
@@ -599,7 +605,8 @@ void LLWorld::updateVisibilities()
 		if (part)
 		{
 			LLSpatialGroup* group = (LLSpatialGroup*) part->mOctree->getListener(0);
-			if (LLViewerCamera::getInstance()->AABBInFrustum(group->mBounds[0], group->mBounds[1]))
+			const LLVector4a* bounds = group->getBounds();
+			if (LLViewerCamera::getInstance()->AABBInFrustum(bounds[0], bounds[1]))
 			{
 				mCulledRegionList.erase(curiter);
 				mVisibleRegionList.push_back(regionp);
@@ -622,7 +629,8 @@ void LLWorld::updateVisibilities()
 		if (part)
 		{
 			LLSpatialGroup* group = (LLSpatialGroup*) part->mOctree->getListener(0);
-			if (LLViewerCamera::getInstance()->AABBInFrustum(group->mBounds[0], group->mBounds[1]))
+			const LLVector4a* bounds = group->getBounds();
+			if (LLViewerCamera::getInstance()->AABBInFrustum(bounds[0], bounds[1]))
 			{
 				regionp->calculateCameraDistance();
 				regionp->getLand().updatePatchVisibilities(gAgent);
@@ -660,6 +668,13 @@ void LLWorld::updateRegions(F32 max_update_time)
 			did_one = TRUE;
 		}
 	}
+
+	mNumOfActiveCachedObjects = 0;
+	for (region_list_t::iterator iter = mRegionList.begin();
+		 iter != mRegionList.end(); ++iter)
+	{
+		mNumOfActiveCachedObjects += (*iter)->getNumOfActiveCachedObjects();
+	}
 }
 
 void LLWorld::updateParticles()
@@ -692,8 +707,10 @@ void LLWorld::updateNetStats()
 	{
 		LLViewerRegion* regionp = *iter;
 		regionp->updateNetStats();
-		bits += regionp->mBitStat.getCurrent();
-		packets += llfloor( regionp->mPacketsStat.getCurrent() );
+		bits += regionp->mBitsReceived;
+		packets += llfloor( regionp->mPacketsReceived );
+		regionp->mBitsReceived = 0.f;
+		regionp->mPacketsReceived = 0.f;
 	}
 
 	S32 packets_in = gMessageSystem->mPacketsIn - mLastPacketsIn;
@@ -702,19 +719,16 @@ void LLWorld::updateNetStats()
 
 	S32 actual_in_bits = gMessageSystem->mPacketRing.getAndResetActualInBits();
 	S32 actual_out_bits = gMessageSystem->mPacketRing.getAndResetActualOutBits();
-	LLViewerStats::getInstance()->mActualInKBitStat.addValue(actual_in_bits/1024.f);
-	LLViewerStats::getInstance()->mActualOutKBitStat.addValue(actual_out_bits/1024.f);
-	LLViewerStats::getInstance()->mKBitStat.addValue(bits/1024.f);
-	LLViewerStats::getInstance()->mPacketsInStat.addValue(packets_in);
-	LLViewerStats::getInstance()->mPacketsOutStat.addValue(packets_out);
-	LLViewerStats::getInstance()->mPacketsLostStat.addValue(gMessageSystem->mDroppedPackets);
+
+	add(LLStatViewer::ACTUAL_IN_KBIT, LLTrace::Bits(actual_in_bits));
+	add(LLStatViewer::ACTUAL_OUT_KBIT, LLTrace::Bits(actual_out_bits));
+	add(LLStatViewer::KBIT, LLTrace::Bits(bits));
+	add(LLStatViewer::PACKETS_IN, packets_in);
+	add(LLStatViewer::PACKETS_OUT, packets_out);
+	add(LLStatViewer::PACKETS_LOST, packets_lost);
 	if (packets_in)
 	{
-		LLViewerStats::getInstance()->mPacketsLostPercentStat.addValue(100.f*((F32)packets_lost/(F32)packets_in));
-	}
-	else
-	{
-		LLViewerStats::getInstance()->mPacketsLostPercentStat.addValue(0.f);
+		sample(LLStatViewer::PACKETS_LOST_PERCENT, 100.f * ((F32)packets_lost/(F32)packets_in));
 	}
 
 	mLastPacketsIn = gMessageSystem->mPacketsIn;
@@ -1127,6 +1141,7 @@ void send_agent_pause()
 	}
 
 	gObjectList.mWasPaused = TRUE;
+	LLViewerStats::instance().getRecording().stop();
 }
 
 
@@ -1156,8 +1171,8 @@ void send_agent_resume()
 		gMessageSystem->sendReliable(regionp->getHost());
 	}
 
-	// Reset the FPS counter to avoid an invalid fps
-	LLViewerStats::getInstance()->mFPSStat.start();
+	// Resume data collection to ignore invalid rates
+	LLViewerStats::instance().getRecording().resume();
 
 	LLAppViewer::instance()->resumeMainloopTimeout();
 }

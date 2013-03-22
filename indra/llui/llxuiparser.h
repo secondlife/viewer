@@ -109,9 +109,25 @@ public:
 	/*virtual*/ void parserError(const std::string& message);
 
 	void readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, const std::string& filename = LLStringUtil::null, bool silent=false);
-	void writeXUI(LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const LLInitParam::BaseBlock* diff_block = NULL);
+	template<typename BLOCK>
+	void writeXUI(LLXMLNodePtr node, 
+				const BLOCK& block, 
+				const LLInitParam::predicate_rule_t rules = LLInitParam::default_parse_rules(),
+				const LLInitParam::BaseBlock* diff_block = NULL)
+	{
+		if (!diff_block 
+			&& !rules.isAmbivalent(LLInitParam::HAS_DEFAULT_VALUE))
+		{
+			diff_block = &LLInitParam::defaultValue<BLOCK>();
+		}
+		writeXUIImpl(node, block, rules, diff_block);
+	}
 
 private:
+	void writeXUIImpl(LLXMLNodePtr node, 
+		const LLInitParam::BaseBlock& block, 
+		const LLInitParam::predicate_rule_t rules, 
+		const LLInitParam::BaseBlock* diff_block);
 	bool readXUIImpl(LLXMLNodePtr node, LLInitParam::BaseBlock& block);
 	bool readAttributes(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block);
 

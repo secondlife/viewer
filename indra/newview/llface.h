@@ -262,11 +262,11 @@ public:
 	
 	LLVector2		mTexExtents[2];
 	F32				mDistance;
-	F32			mLastUpdateTime;
-	F32			mLastSkinTime;
-	F32			mLastMoveTime;
-	LLMatrix4*	mTextureMatrix;
-	LLDrawInfo* mDrawInfo;
+	F32				mLastUpdateTime;
+	F32				mLastSkinTime;
+	F32				mLastMoveTime;
+	LLMatrix4*		mTextureMatrix;
+	LLDrawInfo*		mDrawInfo;
 
 private:
 	LLPointer<LLVertexBuffer> mVertexBuffer;

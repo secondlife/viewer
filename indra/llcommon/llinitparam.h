@@ -29,14 +29,15 @@
 #define LL_LLPARAM_H
 
 #include <vector>
+#include <list>
 #include <boost/function.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/type_traits/is_enum.hpp>
 #include <boost/unordered_map.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include "llerror.h"
 #include "llstl.h"
+#include "llpredicate.h"
 
 namespace LLInitParam
 {
@@ -341,6 +342,19 @@ namespace LLInitParam
 
 	class Param;
 
+	enum ESerializePredicates
+	{
+		PROVIDED,
+		REQUIRED,
+		VALID,
+		HAS_DEFAULT_VALUE,
+		EMPTY
+	};
+
+	typedef LLPredicate::Rule<ESerializePredicates> predicate_rule_t;
+
+	predicate_rule_t default_parse_rules();
+
 	// various callbacks and constraints associated with an individual param
 	struct LL_COMMON_API ParamDescriptor
 	{
@@ -351,8 +365,8 @@ namespace LLInitParam
 
 		typedef bool(*merge_func_t)(Param&, const Param&, bool);
 		typedef bool(*deserialize_func_t)(Param&, Parser&, const Parser::name_stack_range_t&, bool);
-		typedef void(*serialize_func_t)(const Param&, Parser&, Parser::name_stack_t&, const Param* diff_param);
-		typedef void(*inspect_func_t)(const Param&, Parser&, Parser::name_stack_t&, S32 min_count, S32 max_count);
+		typedef bool(*serialize_func_t)(const Param&, Parser&, Parser::name_stack_t&, const predicate_rule_t, const Param*);
+		typedef void(*inspect_func_t)(const Param&, Parser&, Parser::name_stack_t&, S32, S32);
 		typedef bool(*validation_func_t)(const Param*);
 
 		ParamDescriptor(param_handle_t p, 
@@ -379,7 +393,7 @@ namespace LLInitParam
 		UserData*			mUserData;
 	};
 
-	typedef boost::shared_ptr<ParamDescriptor> ParamDescriptorPtr;
+	typedef ParamDescriptor* ParamDescriptorPtr;
 
 	// each derived Block class keeps a static data structure maintaining offsets to various params
 	class LL_COMMON_API BlockDescriptor
@@ -532,11 +546,27 @@ namespace LLInitParam
 		LOG_CLASS(BaseBlock);
 		friend class Param;
 
+		BaseBlock()
+		:	mValidated(false),
+			mParamProvided(false)
+		{}
+
 		virtual ~BaseBlock() {}
 		bool submitValue(Parser::name_stack_t& name_stack, Parser& p, bool silent=false);
 
 		param_handle_t getHandleFromParam(const Param* param) const;
 		bool validateBlock(bool emit_errors = true) const;
+
+		bool isProvided() const
+		{
+			return mParamProvided;
+		}
+
+		bool isValid() const
+		{
+			return validateBlock(false);
+		}
+
 
 		Param* getParamFromHandle(const param_handle_t param_handle)
 		{
@@ -555,10 +585,19 @@ namespace LLInitParam
 		void addSynonym(Param& param, const std::string& synonym);
 
 		// Blocks can override this to do custom tracking of changes
-		virtual void paramChanged(const Param& changed_param, bool user_provided) {}
+		virtual void paramChanged(const Param& changed_param, bool user_provided) 
+		{
+			if (user_provided)
+			{
+				// a child param has been explicitly changed
+				// so *some* aspect of this block is now provided
+				mValidated = false;
+				mParamProvided = true;
+			}
+		}
 
 		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name);
-		void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block = NULL) const;
+		bool serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t rule, const BaseBlock* diff_block = NULL) const;
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const;
 
 		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return selfBlockDescriptor(); }
@@ -596,6 +635,9 @@ namespace LLInitParam
 			static BlockDescriptor sBlockDescriptor;
 			return sBlockDescriptor;
 		}
+
+		mutable bool 	mValidated; // lazy validation flag
+		bool			mParamProvided;
 
 	private:
 		const std::string& getParamName(const BlockDescriptor& block_data, const Param* paramp) const;
@@ -736,13 +778,11 @@ namespace LLInitParam
 		typedef ParamValue<T, NAME_VALUE_LOOKUP, true>	self_t;
 
 		ParamValue() 
-		:	T(),
-			mValidated(false)
+		:	T()
 		{}
 
 		ParamValue(value_assignment_t other)
-		:	T(other),
-			mValidated(false)
+		:	T(other)
 		{}
 
 		void setValue(value_assignment_t val)
@@ -784,9 +824,6 @@ namespace LLInitParam
 
 			return *this;
 		}
-
-	protected:
-		mutable bool 	mValidated; // lazy validation flag
 	};
 
 	template<typename NAME_VALUE_LOOKUP>
@@ -884,12 +921,14 @@ namespace LLInitParam
 
 		bool isProvided() const { return Param::anyProvided(); }
 
+		bool isValid() const { return true; }
+
 		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack_range, bool new_name)
 		{ 
 			self_t& typed_param = static_cast<self_t&>(param);
 			// no further names in stack, attempt to parse value now
 			if (name_stack_range.first == name_stack_range.second)
-			{	
+			{
 				std::string name;
 
 				// try to parse a known named value
@@ -905,17 +944,30 @@ namespace LLInitParam
 				else if (parser.readValue(typed_param.getValue()))
 				{
 					typed_param.clearValueName();
-					typed_param.setProvided();
-					return true;
-				}
+							typed_param.setProvided();
+							return true;
+						}
 			}
 			return false;
 		}
 
-		static void serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const Param* diff_param)
+		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
 		{
+			bool serialized = false;
 			const self_t& typed_param = static_cast<const self_t&>(param);
-			if (!typed_param.isProvided()) return;
+			const self_t* diff_typed_param = static_cast<const self_t*>(diff_param);
+
+			LLPredicate::Value<ESerializePredicates> predicate;
+			if (diff_typed_param && ParamCompare<T>::equals(typed_param.getValue(), diff_typed_param->getValue()))
+			{
+				predicate.set(HAS_DEFAULT_VALUE);
+			}
+
+			predicate.set(VALID, typed_param.isValid());
+			predicate.set(PROVIDED, typed_param.anyProvided());
+			predicate.set(EMPTY, false);
+
+			if (!predicate_rule.check(predicate)) return false;
 
 			if (!name_stack.empty())
 			{
@@ -928,23 +980,25 @@ namespace LLInitParam
 
 			if (!key.empty())
 			{
-				if (!diff_param || !ParamCompare<std::string>::equals(static_cast<const self_t*>(diff_param)->getValueName(), key))
+				if (!diff_typed_param || !ParamCompare<std::string>::equals(diff_typed_param->getValueName(), key))
 				{
-					parser.writeValue(key, name_stack);
+					serialized = parser.writeValue(key, name_stack);
 				}
 			}
 			// then try to serialize value directly
-			else if (!diff_param || !ParamCompare<T>::equals(typed_param.getValue(), static_cast<const self_t*>(diff_param)->getValue()))
+			else if (!diff_typed_param || ParamCompare<T>::equals(typed_param.getValue(), diff_typed_param->getValue()))
 			{
-				if (!parser.writeValue(typed_param.getValue(), name_stack)) 
+				serialized = parser.writeValue(typed_param.getValue(), name_stack);
+				if (!serialized) 
 				{
 					std::string calculated_key = typed_param.calcValueName(typed_param.getValue());
-					if (!diff_param || !ParamCompare<std::string>::equals(static_cast<const self_t*>(diff_param)->getValueName(), calculated_key))
+					if (!diff_typed_param || !ParamCompare<std::string>::equals(diff_typed_param->getValueName(), calculated_key))
 					{
-						parser.writeValue(calculated_key, name_stack);
+						serialized = parser.writeValue(calculated_key, name_stack);
 					}
 				}
 			}
+			return serialized;
 		}
 
 		static void inspectParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, S32 min_count, S32 max_count)
@@ -995,15 +1049,15 @@ namespace LLInitParam
 	};
 
 	// parameter that is a block
-	template <typename T, typename NAME_VALUE_LOOKUP>
-	class TypedParam<T, NAME_VALUE_LOOKUP, false, true> 
+	template <typename BLOCK_T, typename NAME_VALUE_LOOKUP>
+	class TypedParam<BLOCK_T, NAME_VALUE_LOOKUP, false, true> 
 	:	public Param,
-		public ParamValue<T, NAME_VALUE_LOOKUP>
+		public ParamValue<BLOCK_T, NAME_VALUE_LOOKUP>
 	{
 	public:
-		typedef ParamValue<T, NAME_VALUE_LOOKUP>				param_value_t;
+		typedef ParamValue<BLOCK_T, NAME_VALUE_LOOKUP>				param_value_t;
 		typedef typename param_value_t::value_assignment_t		value_assignment_t;
-		typedef TypedParam<T, NAME_VALUE_LOOKUP, false, true>	self_t;
+		typedef TypedParam<BLOCK_T, NAME_VALUE_LOOKUP, false, true>	self_t;
 		typedef NAME_VALUE_LOOKUP								name_value_lookup_t;
 
 		using param_value_t::operator();
@@ -1037,28 +1091,34 @@ namespace LLInitParam
 				if(name_value_lookup_t::valueNamesExist()
 					&& parser.readValue(name)				
 					&& name_value_lookup_t::getValueFromName(name, typed_param.getValue()))
-				{
+			{
 					typed_param.setValueName(name);
-					typed_param.setProvided();
-					return true;
-				}
-			}
-			
-			if(typed_param.deserializeBlock(parser, name_stack_range, new_name))
-			{	// attempt to parse block...
-				typed_param.clearValueName();
 				typed_param.setProvided();
 				return true;
 			}
+			}
+
+			if(typed_param.deserializeBlock(parser, name_stack_range, new_name))
+			{	// attempt to parse block...
+				typed_param.clearValueName();
+						typed_param.setProvided();
+						return true;
+					}
 
 
 			return false;
 		}
 
-		static void serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const Param* diff_param)
+		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
 		{
 			const self_t& typed_param = static_cast<const self_t&>(param);
-			if (!typed_param.isProvided()) return;
+
+			LLPredicate::Value<ESerializePredicates> predicate;
+
+			predicate.set(VALID, typed_param.isValid());
+			predicate.set(PROVIDED, typed_param.anyProvided());
+
+			if (!predicate_rule.check(predicate)) return false;
 
 			if (!name_stack.empty())
 			{
@@ -1068,15 +1128,17 @@ namespace LLInitParam
 			std::string key = typed_param.getValueName();
 			if (!key.empty())
 			{
-				if (!parser.writeValue(key, name_stack))
+				if (parser.writeValue(key, name_stack))
 				{
-					return;
+					return true;
 				}
 			}
 			else
 			{
-				typed_param.serializeBlock(parser, name_stack, static_cast<const self_t*>(diff_param));
+				return typed_param.serializeBlock(parser, name_stack, predicate_rule, static_cast<const self_t*>(diff_param));
 			}
+			
+			return false;
 		}
 
 		static void inspectParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, S32 min_count, S32 max_count)
@@ -1090,23 +1152,16 @@ namespace LLInitParam
 		// *and* the block as a whole validates
 		bool isProvided() const 
 		{ 
-			// only validate block when it hasn't already passed validation with current data
-			if (Param::anyProvided() && !param_value_t::mValidated)
-			{
-				// a sub-block is "provided" when it has been filled in enough to be valid
-				param_value_t::mValidated = param_value_t::validateBlock(false);
-			}
-			return Param::anyProvided() && param_value_t::mValidated;
+			return Param::anyProvided() && isValid();
 		}
+
+		using param_value_t::isValid;
 
 		// assign block contents to this param-that-is-a-block
 		void set(value_assignment_t val, bool flag_as_provided = true)
 		{
 			setValue(val);
 			param_value_t::clearValueName();
-			// force revalidation of block
-			// next call to isProvided() will update provision status based on validity
-			param_value_t::mValidated = false;
 			setProvided(flag_as_provided);
 		}
 
@@ -1121,9 +1176,6 @@ namespace LLInitParam
 			param_value_t::paramChanged(changed_param, user_provided);
 			if (user_provided)
 			{
-				// a child param has been explicitly changed
-				// so *some* aspect of this block is now provided
-				param_value_t::mValidated = false;
 				setProvided();
 				param_value_t::clearValueName();
 			}
@@ -1161,13 +1213,13 @@ namespace LLInitParam
 	};
 
 	// container of non-block parameters
-	template <typename VALUE_TYPE, typename NAME_VALUE_LOOKUP>
-	class TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, false> 
+	template <typename MULTI_VALUE_T, typename NAME_VALUE_LOOKUP>
+	class TypedParam<MULTI_VALUE_T, NAME_VALUE_LOOKUP, true, false> 
 	:	public Param
 	{
 	public:
-		typedef TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, false>		self_t;
-		typedef ParamValue<VALUE_TYPE, NAME_VALUE_LOOKUP>					param_value_t;
+		typedef TypedParam<MULTI_VALUE_T, NAME_VALUE_LOOKUP, true, false>		self_t;
+		typedef ParamValue<MULTI_VALUE_T, NAME_VALUE_LOOKUP>					param_value_t;
 		typedef typename std::vector<param_value_t>							container_t;
 		typedef const container_t&											value_assignment_t;
 
@@ -1175,7 +1227,9 @@ namespace LLInitParam
 		typedef NAME_VALUE_LOOKUP											name_value_lookup_t;
 		
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
-		:	Param(block_descriptor.mCurrentBlockPtr)
+		:	Param(block_descriptor.mCurrentBlockPtr),
+			mMinCount(min_count),
+			mMaxCount(max_count)
 		{
 			std::copy(value.begin(), value.end(), std::back_inserter(mValues));
 
@@ -1193,15 +1247,29 @@ namespace LLInitParam
 			}
 		} 
 
-		bool isProvided() const { return Param::anyProvided(); }
+		bool isProvided() const { return Param::anyProvided() && isValid(); }
+
+		bool isValid() const 
+		{ 
+			size_t num_elements = numValidElements();
+			return mMinCount < num_elements && num_elements < mMaxCount;
+		}
 
 		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack_range, bool new_name)
 		{ 
+			Parser::name_stack_range_t new_name_stack_range(name_stack_range);
 			self_t& typed_param = static_cast<self_t&>(param);
 			value_t value;
+
+			// pop first element if empty string
+			if (new_name_stack_range.first != new_name_stack_range.second && new_name_stack_range.first->first.empty())
+			{
+				++new_name_stack_range.first;
+			}
+
 			// no further names in stack, attempt to parse value now
-			if (name_stack_range.first == name_stack_range.second)
-			{	
+			if (new_name_stack_range.first == new_name_stack_range.second)
+			{
 				std::string name;
 				
 				// try to parse a known named value
@@ -1214,25 +1282,34 @@ namespace LLInitParam
 					return true;
 				}
 				else if (parser.readValue(value)) 	// attempt to read value directly
-				{
-					typed_param.add(value);
-					return true;
-				}
+						{
+							typed_param.add(value);
+							return true;
+						}
 			}
 			return false;
 		}
 
-		static void serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const Param* diff_param)
+		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
 		{
+			bool serialized = false;
 			const self_t& typed_param = static_cast<const self_t&>(param);
-			if (!typed_param.isProvided() || name_stack.empty()) return;
+			
+			LLPredicate::Value<ESerializePredicates> predicate;
+
+			predicate.set(REQUIRED, typed_param.mMinCount > 0);
+			predicate.set(VALID, typed_param.isValid());
+			predicate.set(PROVIDED, typed_param.anyProvided());
+			predicate.set(EMPTY, typed_param.mValues.empty());
+
+			if (!predicate_rule.check(predicate)) return false;
 
 			for (const_iterator it = typed_param.mValues.begin(), end_it = typed_param.mValues.end();
 				it != end_it;
 				++it)
 			{
 				std::string key = it->getValueName();
-				name_stack.back().second = true;
+				name_stack.push_back(std::make_pair(std::string(), true));
 
 				if(key.empty())
 				// not parsed via name values, write out value directly
@@ -1241,7 +1318,11 @@ namespace LLInitParam
 					if (!value_written)
 					{
 						std::string calculated_key = it->calcValueName(it->getValue());
-						if (!parser.writeValue(calculated_key, name_stack))
+						if (parser.writeValue(calculated_key, name_stack))
+						{
+							serialized = true;
+						}
+						else
 						{
 							break;
 						}
@@ -1249,17 +1330,30 @@ namespace LLInitParam
 				}
 				else 
 				{
-					if(!parser.writeValue(key, name_stack))
+					if(parser.writeValue(key, name_stack))
+					{
+						serialized = true;
+					}
+					else
 					{
 						break;
 					}
 				}
+
+				name_stack.pop_back();
 			}
+
+			if (!serialized && predicate_rule.check(ll_make_predicate(EMPTY)))
+			{
+				serialized |= parser.writeValue(Flag(), name_stack);
+			}
+
+			return serialized;
 		}
 
 		static void inspectParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, S32 min_count, S32 max_count)
 		{
-			parser.inspectValue<VALUE_TYPE>(name_stack, min_count, max_count, NULL);
+			parser.inspectValue<MULTI_VALUE_T>(name_stack, min_count, max_count, NULL);
 			if (name_value_lookup_t::getPossibleValues())
 			{
 				parser.inspectValue<std::string>(name_stack, min_count, max_count, name_value_lookup_t::getPossibleValues());
@@ -1316,7 +1410,7 @@ namespace LLInitParam
 		bool empty() const { return mValues.empty(); }
 		size_t size() const { return mValues.size(); }
 
-		U32 numValidElements() const
+		size_t numValidElements() const
 		{
 			return mValues.size();
 		}
@@ -1346,23 +1440,27 @@ namespace LLInitParam
 		}
 
 		container_t		mValues;
+		size_t			mMinCount,
+						mMaxCount;
 	};
 
 	// container of block parameters
-	template <typename VALUE_TYPE, typename NAME_VALUE_LOOKUP>
-	class TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, true> 
+	template <typename MULTI_BLOCK_T, typename NAME_VALUE_LOOKUP>
+	class TypedParam<MULTI_BLOCK_T, NAME_VALUE_LOOKUP, true, true> 
 	:	public Param
 	{
 	public:
-		typedef TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, true>	self_t;
-		typedef ParamValue<VALUE_TYPE, NAME_VALUE_LOOKUP>				param_value_t;
+		typedef TypedParam<MULTI_BLOCK_T, NAME_VALUE_LOOKUP, true, true>	self_t;
+		typedef ParamValue<MULTI_BLOCK_T, NAME_VALUE_LOOKUP>				param_value_t;
 		typedef typename std::vector<param_value_t>						container_t;
 		typedef const container_t&										value_assignment_t;
 		typedef typename param_value_t::value_t							value_t;
 		typedef NAME_VALUE_LOOKUP										name_value_lookup_t;
 
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
-		:	Param(block_descriptor.mCurrentBlockPtr)
+		:	Param(block_descriptor.mCurrentBlockPtr),
+			mMinCount(min_count),
+			mMaxCount(max_count)
 		{
 			std::copy(value.begin(), value.end(), back_inserter(mValues));
 
@@ -1380,14 +1478,30 @@ namespace LLInitParam
 			}
 		} 
 
-		bool isProvided() const { return Param::anyProvided(); }
+		bool isProvided() const { return Param::anyProvided() && isValid(); }
+
+		bool isValid() const 
+		{ 
+			size_t num_elements = numValidElements();
+			return mMinCount < num_elements && num_elements < mMaxCount;
+		}
+
 
 		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack_range, bool new_name) 
 		{ 
+			Parser::name_stack_range_t new_name_stack_range(name_stack_range);
 			self_t& typed_param = static_cast<self_t&>(param);
 			bool new_value = false;
+			bool new_array_value = false;
 
-			if (new_name || typed_param.mValues.empty())
+			// pop first element if empty string
+			if (new_name_stack_range.first != new_name_stack_range.second && new_name_stack_range.first->first.empty())
+			{
+				new_array_value = new_name_stack_range.first->second;
+				++new_name_stack_range.first;
+			}
+
+			if (new_name || new_array_value || typed_param.mValues.empty())
 			{
 				new_value = true;
 				typed_param.mValues.push_back(value_t());
@@ -1395,26 +1509,34 @@ namespace LLInitParam
 
 			param_value_t& value = typed_param.mValues.back();
 
-			if (name_stack_range.first == name_stack_range.second)
+			if (new_name_stack_range.first == new_name_stack_range.second)
 			{	// try to parse a known named value
 				std::string name;
 
 				if(name_value_lookup_t::valueNamesExist()
 					&& parser.readValue(name)
 					&& name_value_lookup_t::getValueFromName(name, value.getValue()))
-				{
+			{
 					typed_param.mValues.back().setValueName(name);
-					typed_param.setProvided();
-					return true;
+				typed_param.setProvided();
+				if (new_array_value)
+				{
+					name_stack_range.first->second = false;
 				}
+				return true;
+			}
 			}
 
 			// attempt to parse block...
 			if(value.deserializeBlock(parser, name_stack_range, new_name))
-			{
-				typed_param.setProvided();
-				return true;
-			}
+					{
+						typed_param.setProvided();
+						if (new_array_value)
+						{
+							name_stack_range.first->second = false;
+						}
+						return true;
+					}
 
 
 			if (new_value)
@@ -1425,29 +1547,47 @@ namespace LLInitParam
 			return false;
 		}
 
-		static void serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const Param* diff_param)
+		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
 		{
+			bool serialized = false;
 			const self_t& typed_param = static_cast<const self_t&>(param);
-			if (!typed_param.isProvided() || name_stack.empty()) return;
+
+			LLPredicate::Value<ESerializePredicates> predicate;
+
+			predicate.set(REQUIRED, typed_param.mMinCount > 0);
+			predicate.set(VALID, typed_param.isValid());
+			predicate.set(PROVIDED, typed_param.anyProvided());
+			predicate.set(EMPTY, typed_param.mValues.empty());
+
+			if (!predicate_rule.check(predicate)) return false;
 
 			for (const_iterator it = typed_param.mValues.begin(), end_it = typed_param.mValues.end();
 				it != end_it;
 				++it)
 			{
-				name_stack.back().second = true;
+				name_stack.push_back(std::make_pair(std::string(), true));
 
 				std::string key = it->getValueName();
 				if (!key.empty())
 				{
-					parser.writeValue(key, name_stack);
+					serialized |= parser.writeValue(key, name_stack);
 				}
 				// Not parsed via named values, write out value directly
-				// NOTE: currently we don't worry about removing default values in Multiple
+				// NOTE: currently we don't do diffing of Multiples
 				else 
 				{
-					it->serializeBlock(parser, name_stack, NULL);
+					serialized = it->serializeBlock(parser, name_stack, predicate_rule, NULL);
 				}
+
+				name_stack.pop_back();
+				}
+
+			if (!serialized && predicate_rule.check(ll_make_predicate(EMPTY)))
+			{
+				serialized |= parser.writeValue(Flag(), name_stack);
 			}
+
+			return serialized;
 		}
 
 		static void inspectParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, S32 min_count, S32 max_count)
@@ -1503,14 +1643,14 @@ namespace LLInitParam
 		bool empty() const { return mValues.empty(); }
 		size_t size() const { return mValues.size(); }
 
-		U32 numValidElements() const
+		size_t numValidElements() const
 		{
-			U32 count = 0;
+			size_t count = 0;
 			for (const_iterator it = mValues.begin(), end_it = mValues.end();
 				it != end_it;
 				++it)
 			{
-				if(it->validateBlock(false)) count++;
+				if(it->isValid()) count++;
 			}
 			return count;
 		}
@@ -1542,6 +1682,8 @@ namespace LLInitParam
 		}
 
 		container_t			mValues;
+		size_t				mMinCount,
+							mMaxCount;
 	};
 
 	template <typename DERIVED_BLOCK, typename BASE_BLOCK = BaseBlock>
@@ -1829,7 +1971,7 @@ namespace LLInitParam
 
 			static bool validate(const Param* paramp) 
 			{
-				U32 num_valid = ((super_t*)paramp)->numValidElements();
+				size_t num_valid = ((super_t*)paramp)->numValidElements();
 				return RANGE::minCount <= num_valid && num_valid <= RANGE::maxCount;
 			}
 		};
@@ -1946,13 +2088,11 @@ namespace LLInitParam
 		typedef block_t value_t;
 
 		ParamValue()
-		:	block_t(),
-			mValidated(false)
+		:	block_t()
 		{}
 
 		ParamValue(value_assignment_t other)
-		:	block_t(other),
-			mValidated(false)
+		:	block_t(other)
 		{
 		}
 
@@ -1980,9 +2120,6 @@ namespace LLInitParam
 		{
 			return *this;
 		}
-
-	protected:
-		mutable bool 	mValidated; // lazy validation flag
 	};
 
 	template<typename T, bool IS_BLOCK>
@@ -1997,13 +2134,11 @@ namespace LLInitParam
 		typedef T value_t;
 	
 		ParamValue()
-		:	mValue(),
-			mValidated(false)
+		:	mValue()
 		{}
 
 		ParamValue(value_assignment_t other)
-		:	mValue(other),
-			mValidated(false)
+		:	mValue(other)
 		{}
 
 		void setValue(value_assignment_t val)
@@ -2036,11 +2171,11 @@ namespace LLInitParam
 			return mValue.get().deserializeBlock(p, name_stack_range, new_name);
 		}
 
-		void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block = NULL) const
+		bool serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const BaseBlock* diff_block = NULL) const
 		{
-			if (mValue.empty()) return;
+			if (mValue.empty()) return false;
 			
-			mValue.get().serializeBlock(p, name_stack, diff_block);
+			return mValue.get().serializeBlock(p, name_stack, predicate_rule, diff_block);
 		}
 
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const
@@ -2049,9 +2184,6 @@ namespace LLInitParam
 
 			return mValue.get().inspectBlock(p, name_stack, min_count, max_count);
 		}
-
-	protected:
-		mutable bool 	mValidated; // lazy validation flag
 
 	private:
 		BaseBlock::Lazy<T>	mValue;
@@ -2069,12 +2201,10 @@ namespace LLInitParam
 		typedef const LLSD&	value_assignment_t;
 
 		ParamValue()
-		:	mValidated(false)
 		{}
 
 		ParamValue(value_assignment_t other)
-		:	mValue(other),
-			mValidated(false)
+		:	mValue(other)
 		{}
 
 		void setValue(value_assignment_t val) { mValue = val; }
@@ -2088,15 +2218,12 @@ namespace LLInitParam
 
 		// block param interface
 		LL_COMMON_API bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name);
-		LL_COMMON_API void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block = NULL) const;
+		LL_COMMON_API bool serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const BaseBlock* diff_block = NULL) const;
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const
 		{
 			//TODO: implement LLSD params as schema type Any
 			return true;
 		}
-
-	protected:
-		mutable bool 	mValidated; // lazy validation flag
 
 	private:
 		static void serializeElement(Parser& p, const LLSD& sd, Parser::name_stack_t& name_stack);
@@ -2126,8 +2253,7 @@ namespace LLInitParam
 
 		CustomParamValue(const T& value = T())
 		:	mValue(value),
-			mValueAge(VALUE_AUTHORITATIVE),
-			mValidated(false)
+			mValueAge(VALUE_AUTHORITATIVE)
 		{}
 
 		bool deserializeBlock(Parser& parser, Parser::name_stack_range_t name_stack_range, bool new_name)
@@ -2151,7 +2277,7 @@ namespace LLInitParam
 			return typed_param.BaseBlock::deserializeBlock(parser, name_stack_range, new_name);
 		}
 
-		void serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const BaseBlock* diff_block = NULL) const
+		bool serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const BaseBlock* diff_block = NULL) const
 		{
 			const derived_t& typed_param = static_cast<const derived_t&>(*this);
 			const derived_t* diff_param = static_cast<const derived_t*>(diff_block);
@@ -2163,14 +2289,18 @@ namespace LLInitParam
 			{
 				if (!diff_param || !ParamCompare<std::string>::equals(diff_param->getValueName(), key))
 				{
-					parser.writeValue(key, name_stack);
+					return parser.writeValue(key, name_stack);
 				}
 			}
 			// then try to serialize value directly
 			else if (!diff_param || !ParamCompare<T>::equals(typed_param.getValue(), diff_param->getValue()))
             {
 				
-				if (!parser.writeValue(typed_param.getValue(), name_stack)) 
+				if (parser.writeValue(typed_param.getValue(), name_stack)) 
+				{
+					return true;
+				}
+				else
 				{
 					//RN: *always* serialize provided components of BlockValue (don't pass diff_param on),
 					// since these tend to be viewed as the constructor arguments for the value T.  It seems
@@ -2187,14 +2317,15 @@ namespace LLInitParam
 						// and serialize those params
 						derived_t copy(typed_param);
 						copy.updateBlockFromValue(true);
-						copy.block_t::serializeBlock(parser, name_stack, NULL);
+						return copy.block_t::serializeBlock(parser, name_stack, predicate_rule, NULL);
 					}
 					else
 					{
-						block_t::serializeBlock(parser, name_stack, NULL);
+						return block_t::serializeBlock(parser, name_stack, predicate_rule, NULL);
 					}
 				}
 			}
+			return false;
 		}
 
 		bool inspectBlock(Parser& parser, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const
@@ -2311,8 +2442,6 @@ namespace LLInitParam
 		{
 			return block_t::mergeBlock(block_data, source, overwrite);
 		}
-
-		mutable bool 		mValidated; // lazy validation flag
 
 	private:
 		mutable T			mValue;

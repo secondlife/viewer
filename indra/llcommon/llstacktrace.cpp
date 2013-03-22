@@ -32,7 +32,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "windows.h"
+#include "llwin32headerslean.h"
 #include "Dbghelp.h"
 
 typedef USHORT NTAPI RtlCaptureStackBackTrace_Function(

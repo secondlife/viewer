@@ -30,6 +30,7 @@
 #include "lluuid.h"
 #include "llstring.h"
 #include "llthread.h"
+#include "lltrace.h"
 
 const S32 MIN_IMAGE_MIP =  2; // 4x4, only used for expand/contract power of 2
 const S32 MAX_IMAGE_MIP = 11; // 2048x2048
@@ -110,7 +111,9 @@ protected:
 //============================================================================
 // Image base class
 
-class LLImageBase : public LLThreadSafeRefCount
+class LLImageBase 
+:	public LLThreadSafeRefCount,
+	public LLTrace::MemTrackable<LLImageBase>
 {
 protected:
 	virtual ~LLImageBase();
@@ -162,6 +165,8 @@ public:
 	static void destroyPrivatePool() ;
 	static LLPrivateMemoryPool* getPrivatePool() {return sPrivatePoolp;}
 
+	static LLTrace::MemStatHandle sMemStat;
+
 private:
 	U8 *mData;
 	S32 mDataSize;
@@ -208,7 +213,7 @@ public:
 	void contractToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE, BOOL scale_image = TRUE);
 	void biasedScaleToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE);
 	BOOL scale( S32 new_width, S32 new_height, BOOL scale_image = TRUE );
-	
+
 	// Fill the buffer with a constant color
 	void fill( const LLColor4U& color );
 

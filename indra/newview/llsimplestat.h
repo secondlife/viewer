@@ -99,43 +99,43 @@ public:
 	 * values back to zero.
 	 */
 	void reset()
-		{
-			mCount = 0;
-			mMin = Value(0);
-			mMax = Value(0);
-			mTotal = Value(0);
-		}
+	{
+		mCount = 0;
+		mMin = Value(0);
+		mMax = Value(0);
+		mTotal = Value(0);
+	}
 
 	void record(Value v)
+	{
+		if (mCount)
 		{
-			if (mCount)
-			{
-				mMin = llmin(mMin, v);
-				mMax = llmax(mMax, v);
-			}
-			else
-			{
-				mMin = v;
-				mMax = v;
-			}
-			mTotal += v;
-			++mCount;
+			mMin = llmin(mMin, v);
+			mMax = llmax(mMax, v);
 		}
+		else
+		{
+			mMin = v;
+			mMax = v;
+		}
+		mTotal += v;
+		++mCount;
+	}
 
 	void merge(const LLSimpleStatMMM<VALUE_T> & src)
+	{
+		if (! mCount)
 		{
-			if (! mCount)
-			{
-				*this = src;
-			}
-			else if (src.mCount)
-			{
-				mMin = llmin(mMin, src.mMin);
-				mMax = llmax(mMax, src.mMax);
-				mCount += src.mCount;
-				mTotal += src.mTotal;
-			}
+			*this = src;
 		}
+		else if (src.mCount)
+		{
+			mMin = llmin(mMin, src.mMin);
+			mMax = llmax(mMax, src.mMax);
+			mCount += src.mCount;
+			mTotal += src.mTotal;
+		}
+	}
 	
 	inline U32 getCount() const		{ return mCount; }
 	inline Value getMin() const		{ return mMin; }

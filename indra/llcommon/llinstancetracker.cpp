@@ -27,6 +27,8 @@
 #include "linden_common.h"
 // associated header
 #include "llinstancetracker.h"
+#include "llapr.h"
+
 // STL headers
 // std headers
 // external library headers
@@ -46,4 +48,20 @@ void * & LLInstanceTrackerBase::getInstances(std::type_info const & info)
 	return instances.insert(InstancesMap::value_type(info.name(),
 													 InstancesMap::mapped_type()))
 		.first->second;
+}
+
+void LLInstanceTrackerBase::StaticBase::incrementDepth()
+{
+	apr_atomic_inc32(&sIterationNestDepth);
+}
+
+void LLInstanceTrackerBase::StaticBase::decrementDepth()
+{
+	apr_atomic_dec32(&sIterationNestDepth);
+}
+
+U32 LLInstanceTrackerBase::StaticBase::getDepth()
+{
+	apr_uint32_t data = apr_atomic_read32(&sIterationNestDepth);
+	return data;
 }

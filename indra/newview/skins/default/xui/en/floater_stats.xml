@@ -35,6 +35,7 @@
 			 setting="OpenDebugStatBasic">
 			<stat_bar
 			   name="fps"
+         orientation="horizontal"
 			   label="FPS"
 			   unit_label="fps"
 			   stat="fpsstat"
@@ -69,7 +70,6 @@
 			   tick_spacing="0.5"
 			   label_spacing="1"
 			   precision="3"
-			   show_per_sec="false"
 			   show_bar="false"
 			   show_mean="true">
 			</stat_bar>
@@ -84,7 +84,6 @@
 			   label_spacing="1000"
 				 precision="0"
 			   show_bar="false"
-			   show_per_sec="false"
 			   show_mean="false">
 			</stat_bar>
 		  </stat_view>
@@ -104,6 +103,7 @@
 				 label="KTris Drawn per Frame"
 				 unit_label="/fr"
 				 stat="trianglesdrawnstat"
+         unit_scale="0.001"
 				 bar_min="0"
 				 bar_max="10000"
 				 tick_spacing="1000"
@@ -116,6 +116,7 @@
 				 name="ktrissec"
 				 label="KTris Drawn per Sec"
 				 unit_label="/sec"
+         unit_scale="0.001"
 				 stat="trianglesdrawnstat"
 				 bar_min="0"
 				 bar_max="200000"
@@ -134,7 +135,6 @@
 				 tick_spacing="5000"
 				 label_spacing="10000"
 				 precision="0"
-				 show_per_sec="false"
 				 show_bar="false">
 			  </stat_bar>
 			  <stat_bar
@@ -146,7 +146,6 @@
 				 bar_max="2000"
 				 tick_spacing="200"
 				 label_spacing="400"
-				 show_per_sec="true"
 				 show_bar="false">
 			  </stat_bar>
        <stat_bar
@@ -159,7 +158,6 @@
 				 tick_spacing="20"
 				 label_spacing="20"
 				 show_history="true"
-         show_per_sec="false"
 				 show_bar="false">
         </stat_bar>
 			</stat_view>
@@ -178,7 +176,6 @@
 				 tick_spacing="20"
 				 label_spacing="20"
 				 show_history="true"
-         show_per_sec="false"
 				 show_bar="false">
         </stat_bar>
         <stat_bar
@@ -191,7 +188,6 @@
 				 tick_spacing="100"
 				 label_spacing="200"
 				 show_history="true"
-         show_per_sec="false"
 				 show_bar="false">
         </stat_bar>
         <stat_bar
@@ -202,7 +198,6 @@
 				 bar_max="8000.f" 
 				 tick_spacing="2000.f"
 				 label_spacing="4000.f" 
-				 show_per_sec="false"
 				 show_bar="false">
 			  </stat_bar>
 
@@ -214,7 +209,6 @@
 				 bar_max="8000.f" 
 				 tick_spacing="2000.f"
 				 label_spacing="4000.f" 
-				 show_per_sec="false"
 				 show_bar="false">
 			  </stat_bar>
 
@@ -222,12 +216,13 @@
 				 name="gltexmemstat"
 				 label="GL Mem"
 				 stat="gltexmemstat"
+         unit_label="MB"
+         unit_scale="0.000001"
 				 bar_min="0.f"
 				 bar_max="400.f" 
 				 tick_spacing="100.f"
 				 label_spacing="200.f" 
 				 precision="1"
-				 show_per_sec="false" 
          show_bar="false">
         </stat_bar>
 
@@ -235,25 +230,27 @@
 				 name="formattedmemstat"
 				 label="Formatted Mem"
 				 stat="formattedmemstat"
+         unit_label="MB"
+         unit_scale="0.000001"
 				 bar_min="0.f"
 				 bar_max="400.f" 
 				 tick_spacing="100.f"
 				 label_spacing="200.f" 
-				 precision="1"
-				 show_per_sec="false" 
+				 precision="3"
          show_bar="false">
         </stat_bar>
 
 			  <stat_bar
 				 name="rawmemstat"
 				 label="Raw Mem"
+         unit_label="MB"
+         unit_scale="0.000001"
 				 stat="rawmemstat"
 				 bar_min="0.f"
 				 bar_max="400.f" 
 				 tick_spacing="100.f"
 				 label_spacing="200.f" 
-				 precision="1"
-				 show_per_sec="false" 
+				 precision="3"
          show_bar="false">
         </stat_bar>
 
@@ -261,12 +258,13 @@
 				 name="glboundmemstat"
 				 label="Bound Mem"
 				 stat="glboundmemstat"
+         unit_label="MB"
+         unit_scale="0.000001"
 				 bar_min="0.f"
 				 bar_max="400.f" 
 				 tick_spacing="100.f"
 				 label_spacing="200.f" 
-				 precision="1"
-				 show_per_sec="false" 
+				 precision="3"
          show_bar="false">
         </stat_bar>
 			</stat_view>
@@ -387,7 +385,6 @@
 				 label="VFS Pending Operations"
 				 stat="vfspendingoperations"
 				 unit_label=" Ops."
-				 show_per_sec="false"
 				 show_bar="false" >
 			  </stat_bar>
 			</stat_view>
@@ -407,7 +404,6 @@
 			   bar_max="1.f" 
 			   tick_spacing="0.16666f"
 			   label_spacing="0.33333f" 
-			   show_per_sec="false"
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -421,7 +417,6 @@
 			   bar_max="45.f" 
 			   tick_spacing="7.5f"
 			   label_spacing="15.f" 
-			   show_per_sec="false"
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -435,7 +430,6 @@
 			   bar_max="45.f" 
 			   tick_spacing="7.5.f"
 			   label_spacing="15.f" 
-			   show_per_sec="false"
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -453,7 +447,6 @@
 				 bar_max="500.f" 
 				 tick_spacing="50.f"
 				 label_spacing="100.f" 
-				 show_per_sec="false"
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -467,7 +460,6 @@
 				 bar_max="500.f" 
 				 tick_spacing="50.f"
 				 label_spacing="100.f" 
-				 show_per_sec="false"
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -482,7 +474,6 @@
 				 bar_max="1024.f" 
 				 tick_spacing="128.f"
 				 label_spacing="256.f" 
-				 show_per_sec="false"
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -497,7 +488,6 @@
 			   bar_max="100.f" 
 			   tick_spacing="25.f"
 			   label_spacing="50.f" 
-			   show_per_sec="false"
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -511,7 +501,6 @@
 			   bar_max="80.f" 
 			   tick_spacing="10.f"
 			   label_spacing="40.f" 
-			   show_per_sec="false"
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -525,7 +514,6 @@
 			   bar_max="40.f" 
 			   tick_spacing="5.f"
 			   label_spacing="10.f" 
-			   show_per_sec="false"
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -539,7 +527,6 @@
 			   bar_max="30000.f" 
 			   tick_spacing="5000.f"
 			   label_spacing="10000.f" 
-			   show_per_sec="false"
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -553,7 +540,6 @@
 			   bar_max="5000.f" 
 			   tick_spacing="750.f"
 			   label_spacing="1250.f" 
-			   show_per_sec="false"
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -567,7 +553,6 @@
 			   bar_max="15000.f" 
 			   tick_spacing="1875.f"
 			   label_spacing="3750.f"  
-			   show_per_sec="false"
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -581,7 +566,6 @@
             tick_spacing="10"
             label_spacing="20"
             precision="3"
-            show_per_sec="false"
             show_bar="false"
             show_mean="true">
         </stat_bar>
@@ -596,7 +580,6 @@
 			   bar_max="5000.f" 
 			   tick_spacing="750.f"
 			   label_spacing="1250.f"  
-			   show_per_sec="false"
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -615,7 +598,6 @@
               bar_max="40.f"
               tick_spacing="10.f"
               label_spacing="20.f"
-              show_per_sec="false"
               show_bar="false"
               show_mean="false" >
           </stat_bar>
@@ -629,7 +611,6 @@
               bar_max="45"
               tick_spacing="4"
               label_spacing="8"
-              show_per_sec="false"
               show_bar="false">
           </stat_bar>
           <stat_bar
@@ -642,7 +623,6 @@
               tick_spacing="10"
               label_spacing="20"
               precision="1"
-              show_per_sec="false"
               show_bar="false"
               show_mean="true">
           </stat_bar>
@@ -658,7 +638,6 @@
 			   bar_max="2000.f" 
 			   tick_spacing="250.f"
 			   label_spacing="1000.f" 
-			   show_per_sec="false"
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -673,7 +652,6 @@
 			   bar_max="2000.f" 
 			   tick_spacing="250.f"
 			   label_spacing="1000.f" 
-			   show_per_sec="false"
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -687,7 +665,6 @@
 			   bar_max="800.f" 
 			   tick_spacing="100.f"
 			   label_spacing="200.f" 
-			   show_per_sec="false"
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -701,7 +678,6 @@
 			   bar_max="100.f" 
 			   tick_spacing="25.f"
 			   label_spacing="50.f" 
-			   show_per_sec="false"
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -716,7 +692,6 @@
 			   bar_max="100000.f" 
 			   tick_spacing="25000.f"
 			   label_spacing="50000.f" 
-			   show_per_sec="false"
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -735,7 +710,6 @@
 				 bar_max="40.f" 
 				 tick_spacing="10.f"
 				 label_spacing="20.f" 
-				 show_per_sec="false"
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -750,7 +724,6 @@
 				 bar_max="40.f" 
 				 tick_spacing="10.f"
 				 label_spacing="20.f" 
-				 show_per_sec="false"
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -765,7 +738,6 @@
 				 bar_max="40.f" 
 				 tick_spacing="10.f"
 				 label_spacing="20.f" 
-				 show_per_sec="false"
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -780,7 +752,6 @@
 				 bar_max="40.f" 
 				 tick_spacing="10.f"
 				 label_spacing="20.f" 
-				 show_per_sec="false"
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -795,7 +766,6 @@
 				 bar_max="40.f" 
 				 tick_spacing="10.f"
 				 label_spacing="20.f" 
-				 show_per_sec="false"
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -810,7 +780,6 @@
 				 bar_max="40.f" 
 				 tick_spacing="10.f"
 				 label_spacing="20.f" 
-				 show_per_sec="false"
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -825,7 +794,6 @@
 				 bar_max="40.f" 
 				 tick_spacing="10.f"
 				 label_spacing="20.f" 
-				 show_per_sec="false"
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -840,7 +808,6 @@
          bar_max="40.f"
          tick_spacing="10.f"
          label_spacing="20.f"
-         show_per_sec="false"
          show_bar="false"
          show_mean="false" >
         </stat_bar>
@@ -859,7 +826,6 @@
              bar_max="40.f"
              tick_spacing="10.f"
              label_spacing="20.f"
-             show_per_sec="false"
              show_bar="false"
              show_mean="false" >
             </stat_bar>
@@ -873,7 +839,6 @@
              bar_max="40.f"
              tick_spacing="10.f"
              label_spacing="20.f"
-             show_per_sec="false"
              show_bar="false"
              show_mean="false" >
             </stat_bar>
@@ -887,7 +852,6 @@
              bar_max="40.f"
              tick_spacing="10.f"
              label_spacing="20.f"
-             show_per_sec="false"
              show_bar="false"
              show_mean="false" >
             </stat_bar>
@@ -901,7 +865,6 @@
              bar_max="40.f"
              tick_spacing="10.f"
              label_spacing="20.f"
-             show_per_sec="false"
              show_bar="false"
              show_mean="false" >
             </stat_bar>
@@ -915,7 +878,6 @@
              bar_max="40.f"
              tick_spacing="10.f"
              label_spacing="20.f"
-             show_per_sec="false"
              show_bar="false"
              show_mean="false" >
             </stat_bar>

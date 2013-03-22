@@ -37,6 +37,7 @@
 #include <string>
 #include <list>
 // units conversions
+#include "llunit.h"
 #ifndef USEC_PER_SEC
     const U32	USEC_PER_SEC	= 1000000;
 #endif
@@ -55,7 +56,7 @@ public:
 protected:	
 	U64 mLastClockCount;
 	U64 mExpirationTicks;
-	BOOL mStarted;
+	bool mStarted;
 
 public:
 	LLTimer();
@@ -66,16 +67,16 @@ public:
 
 	// Return a high precision number of seconds since the start of
 	// this application instance.
-	static F64 getElapsedSeconds()
+	static LLUnitImplicit<LLUnits::Seconds, F64> getElapsedSeconds()
 	{
 		return sTimer->getElapsedTimeF64();
 	}
 
 	// Return a high precision usec since epoch
-	static U64 getTotalTime();
+	static LLUnitImplicit<LLUnits::Microseconds, U64> getTotalTime();
 
 	// Return a high precision seconds since epoch
-	static F64 getTotalSeconds();
+	static LLUnitImplicit<LLUnits::Seconds, F64> getTotalSeconds();
 
 
 	// MANIPULATORS
@@ -86,18 +87,18 @@ public:
 	void setTimerExpirySec(F32 expiration);
 	BOOL checkExpirationAndReset(F32 expiration);
 	BOOL hasExpired() const;
-	F32 getElapsedTimeAndResetF32();	// Returns elapsed time in seconds with reset
-	F64 getElapsedTimeAndResetF64();
+	LLUnitImplicit<LLUnits::Seconds, F32> getElapsedTimeAndResetF32();	// Returns elapsed time in seconds with reset
+	LLUnitImplicit<LLUnits::Seconds, F64> getElapsedTimeAndResetF64();
 
-	F32 getRemainingTimeF32() const;
+	LLUnitImplicit<LLUnits::Seconds, F32> getRemainingTimeF32() const;
 
 	static BOOL knownBadTimer();
 
 	// ACCESSORS
-	F32 getElapsedTimeF32() const;			// Returns elapsed time in seconds
-	F64 getElapsedTimeF64() const;			// Returns elapsed time in seconds
+	LLUnitImplicit<LLUnits::Seconds, F32> getElapsedTimeF32() const;			// Returns elapsed time in seconds
+	LLUnitImplicit<LLUnits::Seconds, F64> getElapsedTimeF64() const;			// Returns elapsed time in seconds
 
-	BOOL getStarted() const { return mStarted; }
+	bool getStarted() const { return mStarted; }
 
 
 	static U64 getCurrentClockCount();		// Returns the raw clockticks

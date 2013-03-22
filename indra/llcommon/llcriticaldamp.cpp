@@ -27,18 +27,38 @@
 #include "linden_common.h"
 
 #include "llcriticaldamp.h"
+#include <algorithm>
 
 //-----------------------------------------------------------------------------
 // static members
 //-----------------------------------------------------------------------------
-LLFrameTimer LLCriticalDamp::sInternalTimer;
-std::map<F32, F32> LLCriticalDamp::sInterpolants;
-F32 LLCriticalDamp::sTimeDelta;
+LLFrameTimer LLSmoothInterpolation::sInternalTimer;
+std::vector<LLSmoothInterpolation::Interpolant> LLSmoothInterpolation::sInterpolants;
+F32 LLSmoothInterpolation::sTimeDelta;
+
+// helper functors
+struct LLSmoothInterpolation::CompareTimeConstants
+{
+	bool operator()(const F32& a, const LLSmoothInterpolation::Interpolant& b) const
+	{
+		return a < b.mTimeScale;
+	}
+
+	bool operator()(const LLSmoothInterpolation::Interpolant& a, const F32& b) const
+	{
+		return a.mTimeScale < b; // bottom of a is higher than bottom of b
+	}
+
+	bool operator()(const LLSmoothInterpolation::Interpolant& a, const LLSmoothInterpolation::Interpolant& b) const
+	{
+		return a.mTimeScale < b.mTimeScale; // bottom of a is higher than bottom of b
+	}
+};
 
 //-----------------------------------------------------------------------------
-// LLCriticalDamp()
+// LLSmoothInterpolation()
 //-----------------------------------------------------------------------------
-LLCriticalDamp::LLCriticalDamp()
+LLSmoothInterpolation::LLSmoothInterpolation()
 {
 	sTimeDelta = 0.f;
 }
@@ -47,43 +67,54 @@ LLCriticalDamp::LLCriticalDamp()
 //-----------------------------------------------------------------------------
 // updateInterpolants()
 //-----------------------------------------------------------------------------
-void LLCriticalDamp::updateInterpolants()
+void LLSmoothInterpolation::updateInterpolants()
 {
 	sTimeDelta = sInternalTimer.getElapsedTimeAndResetF32();
 
-	F32 time_constant;
-
-	for (std::map<F32, F32>::iterator iter = sInterpolants.begin();
-		 iter != sInterpolants.end(); iter++)
+	for (S32 i = 0; i < sInterpolants.size(); i++)
 	{
-		time_constant = iter->first;
-		F32 new_interpolant = 1.f - pow(2.f, -sTimeDelta / time_constant);
-		new_interpolant = llclamp(new_interpolant, 0.f, 1.f);
-		sInterpolants[time_constant] = new_interpolant;
+		Interpolant& interp = sInterpolants[i];
+		interp.mInterpolant = calcInterpolant(interp.mTimeScale);
 	}
 } 
 
 //-----------------------------------------------------------------------------
 // getInterpolant()
 //-----------------------------------------------------------------------------
-F32 LLCriticalDamp::getInterpolant(const F32 time_constant, BOOL use_cache)
+F32 LLSmoothInterpolation::getInterpolant(LLUnit<LLUnits::Seconds, F32> time_constant, bool use_cache)
 {
 	if (time_constant == 0.f)
 	{
 		return 1.f;
 	}
 
-	if (use_cache && sInterpolants.count(time_constant))
-	{
-		return sInterpolants[time_constant];
-	}
-	
-	F32 interpolant = 1.f - pow(2.f, -sTimeDelta / time_constant);
-	interpolant = llclamp(interpolant, 0.f, 1.f);
 	if (use_cache)
 	{
-		sInterpolants[time_constant] = interpolant;
+		interpolant_vec_t::iterator find_it = std::lower_bound(sInterpolants.begin(), sInterpolants.end(), time_constant.value(), CompareTimeConstants());
+		if (find_it != sInterpolants.end() && find_it->mTimeScale == time_constant) 
+		{
+			return find_it->mInterpolant;
+		}
+		else
+		{
+			Interpolant interp;
+			interp.mTimeScale = time_constant.value();
+			interp.mInterpolant = calcInterpolant(time_constant.value());
+			sInterpolants.insert(find_it, interp);
+			return interp.mInterpolant;
+		}
 	}
+	else
+	{
+		return calcInterpolant(time_constant.value());
 
-	return interpolant;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// calcInterpolant()
+//-----------------------------------------------------------------------------
+F32 LLSmoothInterpolation::calcInterpolant(F32 time_constant)
+{
+	return llclamp(1.f - powf(2.f, -sTimeDelta / time_constant), 0.f, 1.f);
 }

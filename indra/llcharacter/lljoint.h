@@ -31,6 +31,7 @@
 // Header Files
 //-----------------------------------------------------------------------------
 #include <string>
+#include <list>
 
 #include "linked_lists.h"
 #include "v3math.h"

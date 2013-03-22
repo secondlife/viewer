@@ -1119,11 +1119,11 @@ void LLFloater::handleReshape(const LLRect& new_rect, bool by_user)
 			{
 				setDocked( false, false);
 			}
-			storeRectControl();
-			mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
-			LLRect screen_rect = calcScreenRect();
-			mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
-		}
+		storeRectControl();
+		mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
+		LLRect screen_rect = calcScreenRect();
+		mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
+	}
 
 		// gather all snapped dependents
 		for(handle_set_iter_t dependent_it = mDependents.begin();
@@ -1720,7 +1720,7 @@ void LLFloater::onClickHelp( LLFloater* self )
 	}
 }
 
-// static
+// static 
 void LLFloater::closeFrontmostFloater()
 {
 	LLFloater* floater_to_close = gFloaterView->getFrontmostClosableFloater();
@@ -3085,7 +3085,7 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 			parser.readXUI(node, output_params, LLUICtrlFactory::getInstance()->getCurFileName());
 			setupParamsForExport(output_params, parent);
 			output_node->setName(node->getName()->mString);
-			parser.writeXUI(output_node, output_params, &default_params);
+			parser.writeXUI(output_node, output_params, LLInitParam::default_parse_rules(), &default_params);
 			return TRUE;
 		}
 
@@ -3115,9 +3115,8 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 	{
 		Params output_params(params);
 		setupParamsForExport(output_params, parent);
-        Params default_params(LLUICtrlFactory::getDefaultParams<LLFloater>());
 		output_node->setName(node->getName()->mString);
-		parser.writeXUI(output_node, output_params, &default_params);
+		parser.writeXUI(output_node, output_params, LLInitParam::default_parse_rules(), &default_params);
 	}
 
 	// Default floater position to top-left corner of screen

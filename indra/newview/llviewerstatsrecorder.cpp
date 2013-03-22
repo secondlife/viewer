@@ -216,18 +216,21 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 				<< "Texture Fetch bps\t"
 				<< "\n";
 
-			fwrite(data_msg.str().c_str(), 1, data_msg.str().size(), mObjectCacheFile );
+			if (fwrite(data_msg.str().c_str(), 1, data_msg.str().size(), mObjectCacheFile ) != data_msg.str().size())
+			{
+				llwarns << "Failed to write log file." << llendl;
+			}
 		}
 		else
-		{
-			llwarns << "Couldn't open " << STATS_FILE_NAME << " for logging." << llendl;
+	{
+			//llwarns << "Couldn't open " << STATS_FILE_NAME << " for logging." << llendl;
 			return;
 		}
 	}
 
-	std::ostringstream data_msg;
+		std::ostringstream data_msg;
 
-	data_msg << getTimeSinceStart()
+		data_msg << getTimeSinceStart()
 		<< "\t " << mObjectCacheHitCount
 		<< "\t" << mObjectCacheMissFullCount
 		<< "\t" << mObjectCacheMissCrcCount
@@ -247,9 +250,12 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 		<< "\t" << (mObjectTerseUpdatesSize * 8 / delta_time)
 		<< "\t" << (mObjectCacheMissResponsesSize * 8 / delta_time)
 		<< "\t" << (mTextureFetchSize * 8 / delta_time)
-		<< "\n";
+			<< "\n";
 
-	fwrite(data_msg.str().c_str(), 1, data_msg.str().size(), mObjectCacheFile );
+	if (fwrite(data_msg.str().c_str(), 1, data_msg.str().size(), mObjectCacheFile ) != data_msg.str().size())
+	{
+		llwarns << "Failed to write log file." << llendl;
+	}
 	clearStats();
 }
 

@@ -26,7 +26,7 @@
 
 #include "linden_common.h"
 
-#include <boost/static_assert.hpp>
+#include "llfasttimer.h"
 #include "llsys.h"
 #include "llvertexbuffer.h"
 // #include "llrender.h"

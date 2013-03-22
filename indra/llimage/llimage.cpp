@@ -50,6 +50,7 @@ LLMutex* LLImage::sMutex = NULL;
 bool LLImage::sUseNewByteRange = false;
 S32  LLImage::sMinimalReverseByteRangePercent = 75;
 LLPrivateMemoryPool* LLImageBase::sPrivatePoolp = NULL ;
+LLTrace::MemStatHandle	LLImageBase::sMemStat("LLImage");
 
 //static
 void LLImage::initClass(bool use_new_byte_range, S32 minimal_reverse_byte_range_percent)
@@ -158,6 +159,7 @@ void LLImageBase::sanityCheck()
 void LLImageBase::deleteData()
 {
 	FREE_MEM(sPrivatePoolp, mData) ;
+	memDisclaim(mDataSize);
 	mData = NULL;
 	mDataSize = 0;
 }
@@ -201,6 +203,7 @@ U8* LLImageBase::allocateData(S32 size)
 			mBadBufferAllocation = true ;
 		}
 		mDataSize = size;
+		memClaim(mDataSize);
 	}
 
 	return mData;
@@ -222,7 +225,9 @@ U8* LLImageBase::reallocateData(S32 size)
 		FREE_MEM(sPrivatePoolp, mData) ;
 	}
 	mData = new_datap;
+	memDisclaim(mDataSize);
 	mDataSize = size;
+	memClaim(mDataSize);
 	return mData;
 }
 
@@ -288,7 +293,6 @@ LLImageRaw::LLImageRaw(U16 width, U16 height, S8 components)
 LLImageRaw::LLImageRaw(U8 *data, U16 width, U16 height, S8 components, bool no_copy)
 	: LLImageBase()
 {
-
 	if(no_copy)
 	{
 		setDataAndSize(data, width, height, components);
@@ -1585,7 +1589,9 @@ static void avg4_colors2(const U8* a, const U8* b, const U8* c, const U8* d, U8*
 void LLImageBase::setDataAndSize(U8 *data, S32 size)
 { 
 	ll_assert_aligned(data, 16);
+	memDisclaim(mDataSize);
 	mData = data; mDataSize = size; 
+	memClaim(mDataSize);
 }	
 
 //static
