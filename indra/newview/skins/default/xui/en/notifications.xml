@@ -6631,7 +6631,7 @@ However, this region contains content accessible to adults only.
    icon="notify.tga"
    name="TeleportRequest"
    type="offer">
-[NAME_SLURL] is requesting to be teleported your to your location.
+[NAME_SLURL] is requesting to be teleported to your location.
 [MESSAGE]
 
 Offer a teleport?
