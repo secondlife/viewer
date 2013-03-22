@@ -8717,7 +8717,8 @@ LLColor4 LLVOAvatar::calcMutedAVColor(F32 value, S32 range_low, S32 range_high)
 	F32 fractBetween = spectrum - (F32)(spectrum_index_1);  // distance between the two indexes (0-1)
  
 	LLColor4 new_color = lerp(*spectrum_color[spectrum_index_1], *spectrum_color[spectrum_index_2], fractBetween);
-	//new_color.normalize();
+	new_color.normalize();
+	new_color *= 0.9f;
 
 	//llinfos << "From value " << std::setprecision(3) << value << " returning color " << new_color 
 	//	<< " using indexes " << spectrum_index_1 << ", " << spectrum_index_2
