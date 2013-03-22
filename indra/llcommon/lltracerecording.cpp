@@ -116,12 +116,12 @@ void RecordingBuffers::mergeBuffers( const RecordingBuffers& other)
 
 void RecordingBuffers::resetBuffers(RecordingBuffers* other)
 {
-	mCountsFloat.write()->reset(other ? other->mCountsFloat : NULL);
-	mMeasurementsFloat.write()->reset(other ? other->mMeasurementsFloat : NULL);
-	mCounts.write()->reset(other ? other->mCounts : NULL);
-	mMeasurements.write()->reset(other ? other->mMeasurements : NULL);
-	mStackTimers.write()->reset(other ? other->mStackTimers : NULL);
-	mMemStats.write()->reset(other ? other->mMemStats : NULL);
+	mCountsFloat.write()->reset(other ? other->mCountsFloat : LLCopyOnWritePointer<AccumulatorBuffer<CountAccumulator<F64> > >());
+	mMeasurementsFloat.write()->reset(other ? other->mMeasurementsFloat : LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<F64> > >());
+	mCounts.write()->reset(other ? other->mCounts : LLCopyOnWritePointer<AccumulatorBuffer<CountAccumulator<S64> > >());
+	mMeasurements.write()->reset(other ? other->mMeasurements : LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<S64> > >());
+	mStackTimers.write()->reset(other ? other->mStackTimers : LLCopyOnWritePointer<AccumulatorBuffer<TimeBlockAccumulator> >());
+	mMemStats.write()->reset(other ? other->mMemStats : LLCopyOnWritePointer<AccumulatorBuffer<MemStatAccumulator> >());
 }
 
 ///////////////////////////////////////////////////////////////////////
