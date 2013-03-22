@@ -2979,7 +2979,7 @@ class LLAvatarSetImposterMode : public view_listener_t
 				avatar->setVisualMuteSettings(LLVOAvatar::VISUAL_MUTE_NOT_SET);
 				return true;
 			case 1:
-				avatar->setVisualMuteSettings(LLVOAvatar::VISUAL_MUTE_NOT_SET);
+				avatar->setVisualMuteSettings(LLVOAvatar::ALWAYS_VISUAL_MUTE);
 				return true;
 			case 2:
 				avatar->setVisualMuteSettings(LLVOAvatar::NEVER_VISUAL_MUTE);
