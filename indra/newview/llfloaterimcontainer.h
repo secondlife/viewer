@@ -174,7 +174,6 @@ private:
 	LLLayoutStack* mConversationsStack;
 	
 	bool mInitialized;
-	bool mIsFirstLaunch;
 
 	LLUUID mSelectedSession;
 	std::string mGeneralTitle;

@@ -611,10 +611,10 @@ BOOL LLPanelPeople::postBuild()
 	mGroupList->setNoItemsMsg(getString("no_groups_msg"));
 	mGroupList->setNoFilteredItemsMsg(getString("no_filtered_groups_msg"));
 
-	mNearbyList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
-	mRecentList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
-	mAllFriendList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
-	mOnlineFriendList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
+	mNearbyList->setContextMenu(&LLPanelPeopleMenus::gNearbyPeopleContextMenu);
+	mRecentList->setContextMenu(&LLPanelPeopleMenus::gPeopleContextMenu);
+	mAllFriendList->setContextMenu(&LLPanelPeopleMenus::gPeopleContextMenu);
+	mOnlineFriendList->setContextMenu(&LLPanelPeopleMenus::gPeopleContextMenu);
 
 	setSortOrder(mRecentList,		(ESortOrder)gSavedSettings.getU32("RecentPeopleSortOrder"),	false);
 	setSortOrder(mAllFriendList,	(ESortOrder)gSavedSettings.getU32("FriendsSortOrder"),		false);
@@ -1143,7 +1143,10 @@ void LLPanelPeople::onGearButtonClicked(LLUICtrl* btn)
 	uuid_vec_t selected_uuids;
 	getCurrentItemIDs(selected_uuids);
 	// Spawn at bottom left corner of the button.
-	LLPanelPeopleMenus::gNearbyMenu.show(btn, selected_uuids, 0, 0);
+	if (getActiveTabName() == NEARBY_TAB_NAME)
+		LLPanelPeopleMenus::gNearbyPeopleContextMenu.show(btn, selected_uuids, 0, 0);
+	else
+		LLPanelPeopleMenus::gPeopleContextMenu.show(btn, selected_uuids, 0, 0);
 }
 
 void LLPanelPeople::onImButtonClicked()

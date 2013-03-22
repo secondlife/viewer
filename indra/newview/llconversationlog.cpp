@@ -194,14 +194,17 @@ LLConversationLog::LLConversationLog() :
 	mAvatarNameCacheConnection(),
 	mLoggingEnabled(false)
 {
-	LLControlVariable * keep_log_ctrlp = gSavedPerAccountSettings.getControl("KeepConversationLogTranscripts").get();
-	S32 log_mode = keep_log_ctrlp->getValue();
-	keep_log_ctrlp->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
-	if (log_mode > 0)
+	if(gSavedPerAccountSettings.controlExists("KeepConversationLogTranscripts"))
 	{
-		loadFromFile(getFileName());
+		LLControlVariable * keep_log_ctrlp = gSavedPerAccountSettings.getControl("KeepConversationLogTranscripts").get();
+		S32 log_mode = keep_log_ctrlp->getValue();
+		keep_log_ctrlp->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
+		if (log_mode > 0)
+		{
+			loadFromFile(getFileName());
 
-		enableLogging(log_mode);
+			enableLogging(log_mode);
+		}
 	}
 }
 

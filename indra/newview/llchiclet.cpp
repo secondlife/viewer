@@ -427,6 +427,8 @@ LLChicletPanel::~LLChicletPanel()
 
 void LLChicletPanel::onMessageCountChanged(const LLSD& data)
 {
+    // *TODO : we either suppress this method or return a value. Right now, it servers no purpose.
+    /*
 	LLUUID session_id = data["session_id"].asUUID();
 	S32 unread = data["participant_unread"].asInteger();
 
@@ -435,6 +437,7 @@ void LLChicletPanel::onMessageCountChanged(const LLSD& data)
 	{
 		unread = 0;
 	}
+    */
 }
 
 void LLChicletPanel::objectChicletCallback(const LLSD& data)

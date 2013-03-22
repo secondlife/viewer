@@ -53,6 +53,7 @@
 #include "llcallbacklist.h"
 #include "llworld.h"
 #include "llsdserialize.h"
+#include "llviewerobjectlist.h"
 
 //
 // LLFloaterIMContainer
@@ -62,8 +63,7 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
 	mExpandCollapseBtn(NULL),
 	mConversationsRoot(NULL),
 	mConversationsEventStream("ConversationsEvents"),
-	mInitialized(false),
-	mIsFirstLaunch(false)
+	mInitialized(false)
 {
     mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLFloaterIMContainer::isActionChecked, this, _2));
 	mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLFloaterIMContainer::onCustomAction,  this, _2));
@@ -245,7 +245,6 @@ BOOL LLFloaterIMContainer::postBuild()
 	mGeneralTitle = getTitle();
 	
 	mInitialized = true;
-	mIsFirstLaunch = true;
 
 	// Add callbacks:
 	// We'll take care of view updates on idle
@@ -280,12 +279,6 @@ void LLFloaterIMContainer::addFloater(LLFloater* floaterp,
 
 	LLUUID session_id = floaterp->getKey();
 	
-	// Make sure the message panel is open when adding a floater or it stays mysteriously hidden
-	if (!mIsFirstLaunch)
-	{
-		collapseMessagesPane(false);
-	}
-
 	// Add the floater
 	LLMultiFloater::addFloater(floaterp, select_added_floater, insertion_point);
 
@@ -645,8 +638,6 @@ void LLFloaterIMContainer::collapseMessagesPane(bool collapse)
 	{
 		return;
 	}
-
-	mIsFirstLaunch = false;
 
 	// Save current width of panels before collapsing/expanding right pane.
 	S32 conv_pane_width = mConversationsPane->getRect().getWidth();
@@ -1036,6 +1027,10 @@ void LLFloaterIMContainer::doToParticipants(const std::string& command, uuid_vec
 		{
 			LLAvatarActions::inviteToGroup(userID);
 		}
+		else if ("zoom_in" == command)
+		{
+			handle_zoom_to_object(userID);
+		}
 		else if ("map" == command)
 		{
 			LLAvatarActions::showOnMap(userID);
@@ -1257,6 +1252,10 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
     {
         return LLAvatarActions::canCall();
     }
+	else if ("can_zoom_in" == item)
+	{
+		return is_single_select && gObjectList.findObject(single_id);
+	}
     else if ("can_show_on_map" == item)
     {
         return (is_single_select ? (LLAvatarTracker::instance().isBuddyOnline(single_id) && is_agent_mappable(single_id)) || gAgent.isGodlike() : false);
@@ -1330,6 +1329,9 @@ void LLFloaterIMContainer::showConversation(const LLUUID& session_id)
 {
     setVisibleAndFrontmost(false);
     selectConversationPair(session_id, true);
+
+    LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
+    session_floater->restoreFloater();
 }
 
 void LLFloaterIMContainer::clearAllFlashStates()
@@ -1419,7 +1421,7 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 			session_floater->setMinimized(is_minimized);
 		}
 	}
-
+	flashConversationItemWidget(session_id,false);
     return handled;
 }
 

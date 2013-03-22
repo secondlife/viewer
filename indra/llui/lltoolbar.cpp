@@ -1057,10 +1057,9 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	// Convert drag position into insert position and rank 
 	if (!isReadOnly() && handled && !drop)
 	{
-		LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
-		LLAssetType::EType type = inv_item->getType();
-		if (type == LLAssetType::AT_WIDGET)
+		if (cargo_type == DAD_WIDGET)
 		{
+			LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
 			LLCommandId dragged_command(inv_item->getUUID());
 			int orig_rank = getRankFromPosition(dragged_command);
 			mDragRank = getRankFromPosition(x, y);
