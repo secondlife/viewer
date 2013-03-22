@@ -1157,28 +1157,38 @@ void LLVOVolume::sculpt()
 		S32 current_discard = getVolume()->getSculptLevel() ;
 		if(current_discard < -2)
 		{
-			static S32 low_sculpty_discard_warning_count = 100;
-			if (++low_sculpty_discard_warning_count >= 100)
-			{	// Log first time, then every 100 afterwards otherwise this can flood the logs
+			static S32 low_sculpty_discard_warning_count = 1;
+			S32 exponent = llmax(1, llfloor( log10((F64) low_sculpty_discard_warning_count) ));
+			S32 interval = pow(10.0, exponent);
+			if ( low_sculpty_discard_warning_count < 10 ||
+				(low_sculpty_discard_warning_count % interval) == 0)
+			{	// Log first 10 time, then decreasing intervals afterwards otherwise this can flood the logs
 				llwarns << "WARNING!!: Current discard for sculpty " << mSculptTexture->getID() 
 					<< " at " << current_discard 
-					<< " is less than -2." << llendl;
-				low_sculpty_discard_warning_count = 0;
+					<< " is less than -2." 
+					<< " Hit this " << low_sculpty_discard_warning_count << " times"
+					<< llendl;
 			}
+			low_sculpty_discard_warning_count++;
 			
 			// corrupted volume... don't update the sculpty
 			return;
 		}
 		else if (current_discard > MAX_DISCARD_LEVEL)
 		{
-			static S32 high_sculpty_discard_warning_count = 100;
-			if (++high_sculpty_discard_warning_count >= 100)
-			{	// Log first time, then every 100 afterwards otherwise this can flood the logs
+			static S32 high_sculpty_discard_warning_count = 1;
+			S32 exponent = llmax(1, llfloor( log10((F64) high_sculpty_discard_warning_count) ));
+			S32 interval = pow(10.0, exponent);
+			if ( high_sculpty_discard_warning_count < 10 ||
+				(high_sculpty_discard_warning_count % interval) == 0)
+			{	// Log first 10 time, then decreasing intervals afterwards otherwise this can flood the logs
 				llwarns << "WARNING!!: Current discard for sculpty " << mSculptTexture->getID() 
 					<< " at " << current_discard 
-					<< " is more than than allowed max of " << MAX_DISCARD_LEVEL << llendl;
-				high_sculpty_discard_warning_count = 0;
+					<< " is more than than allowed max of " << MAX_DISCARD_LEVEL
+					<< ".  Hit this " << high_sculpty_discard_warning_count << " times"
+					<< llendl;
 			}
+			high_sculpty_discard_warning_count++;
 
 			// corrupted volume... don't update the sculpty			
 			return;
