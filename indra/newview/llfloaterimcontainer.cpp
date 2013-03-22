@@ -1963,10 +1963,13 @@ bool LLFloaterIMContainer::selectNextorPreviousConversation(bool select_next, bo
 
 void LLFloaterIMContainer::expandConversation()
 {
-	LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,getSelectedSession()));
-	if (widget)
+	if(!mConversationsPane->isCollapsed())
 	{
-		widget->setOpen(!widget->isOpen());
+		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,getSelectedSession()));
+		if (widget)
+		{
+			widget->setOpen(!widget->isOpen());
+		}
 	}
 }
 
