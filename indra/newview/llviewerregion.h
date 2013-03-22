@@ -314,11 +314,16 @@ public:
 	} eCacheUpdateResult;
 
 	// handle a full update message
-	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp);	
+	eCacheUpdateResult cacheFullUpdate(LLDataPackerBinaryBuffer &dp, U32 flags);
+	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp, U32 flags);	
 	LLVOCacheEntry* getCacheEntryForOctree(U32 local_id);
-	bool probeCache(U32 local_id, U32 crc, U8 &cache_miss_type);
+	LLVOCacheEntry* getCacheEntry(U32 local_id);
+	bool probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss_type);
 	void requestCacheMisses();
 	void addCacheMissFull(const U32 local_id);
+	//remove from object cache if the object receives a full-update or terse update
+	LLViewerObject* forceToRemoveFromCache(U32 local_id, LLViewerObject* objectp);
+	void findOrphans(U32 parent_id);
 
 	void dumpCache();
 
@@ -346,8 +351,7 @@ public:
 private:
 	void addToVOCacheTree(LLVOCacheEntry* entry);
 	LLViewerObject* addNewObject(LLVOCacheEntry* entry);
-	void killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list);
-	LLVOCacheEntry* getCacheEntry(U32 local_id);
+	void killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list);	
 	void removeFromVOCacheTree(LLVOCacheEntry* entry);
 	void replaceCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry* new_entry);
 	void killCacheEntry(LLVOCacheEntry* entry); //physically delete the cache entry	
@@ -356,6 +360,8 @@ private:
 	F32 createVisibleObjects(F32 max_time);
 	F32 updateVisibleEntries(F32 max_time); //update visible entries
 
+	void addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type);
+	void decodeBoundingInfo(LLVOCacheEntry* entry);
 public:
 	struct CompareDistance
 	{
@@ -441,8 +447,44 @@ private:
 	BOOL    mReleaseNotesRequested;
 	BOOL    mDead;  //if true, this region is in the process of deleting.
 
-	LLDynamicArray<U32>						mCacheMissFull;
-	LLDynamicArray<U32>						mCacheMissCRC;
+	class OrphanList
+	{
+	public:
+		OrphanList(){}
+		OrphanList(U32 child_id){addChild(child_id);}
+		
+		void addChild(U32 child_id) {mChildList.insert(child_id);}
+		std::set<U32>* getChildList() {return &mChildList;}
+		
+	private:
+		std::set<U32> mChildList;
+	};
+	
+	std::map<U32, OrphanList> mOrphanMap;
+	
+	class CacheMissItem
+	{
+	public:
+		CacheMissItem(U32 id, LLViewerRegion::eCacheMissType miss_type) : mID(id), mType(miss_type){}
+
+		U32                            mID;     //local object id
+		LLViewerRegion::eCacheMissType mType;   //cache miss type
+	
+#if 0
+		struct Compare
+		{
+			bool operator()(const CacheMissItem& lhs, const CacheMissItem& rhs)
+			{
+				return lhs.mID < rhs.mID; //smaller ID first.
+			}
+		};
+
+		typedef std::set<CacheMissItem, Compare> cache_miss_list_t;
+#else
+		typedef std::list<CacheMissItem> cache_miss_list_t;
+#endif
+	};
+	CacheMissItem::cache_miss_list_t        mCacheMissList;
 	
 	caps_received_signal_t mCapabilitiesReceivedSignal;		
 	LLSD mSimulatorFeatures;
