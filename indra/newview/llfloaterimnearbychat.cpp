@@ -283,6 +283,11 @@ void LLFloaterIMNearbyChat::onTearOffClicked()
 void LLFloaterIMNearbyChat::onOpen(const LLSD& key)
 {
 	LLFloaterIMSessionTab::onOpen(key);
+	if(!isMessagePaneExpanded())
+	{
+		restoreFloater();
+		onCollapseToLine(this);
+	}
 	showTranslationCheckbox(LLTranslate::isTranslationConfigured());
 }
 
