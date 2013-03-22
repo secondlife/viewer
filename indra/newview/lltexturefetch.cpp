@@ -1235,7 +1235,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			// we have enough data, decode it
 			llassert_always(mFormattedImage->getDataSize() > 0);
 			mLoadedDiscard = mDesiredDiscard;
-			if (mLoadedDiscard <= 0)
+			if (mLoadedDiscard < 0)
 			{
 				LL_WARNS("Texture") << mID << " mLoadedDiscard is " << mLoadedDiscard
 									<< ", should be >=0" << llendl;
@@ -1363,7 +1363,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				return true; // failed
 			}
 			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
-			if (mLoadedDiscard <= 0)
+			if (mLoadedDiscard < 0)
 			{
 				LL_WARNS("Texture") << mID << " mLoadedDiscard is " << mLoadedDiscard
 									<< ", should be >=0" << llendl;
@@ -1433,7 +1433,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					// We already have all the data, just decode it
 					mLoadedDiscard = mFormattedImage->getDiscardLevel();
 					setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
-					if (mLoadedDiscard <= 0)
+					if (mLoadedDiscard < 0)
 					{
 						LL_WARNS("Texture") << mID << " mLoadedDiscard is " << mLoadedDiscard
 											<< ", should be >=0" << llendl;
@@ -1563,7 +1563,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					// Use available data
 					mLoadedDiscard = mFormattedImage->getDiscardLevel();
 					setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
-					if (mLoadedDiscard <= 0)
+					if (mLoadedDiscard < 0)
 					{
 						LL_WARNS("Texture") << mID << " mLoadedDiscard is " << mLoadedDiscard
 											<< ", should be >=0" << llendl;
@@ -1667,7 +1667,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mHttpReplyOffset = 0;
 			
 			mLoadedDiscard = mRequestedDiscard;
-			if (mLoadedDiscard <= 0)
+			if (mLoadedDiscard < 0)
 			{
 				LL_WARNS("Texture") << mID << " mLoadedDiscard is " << mLoadedDiscard
 									<< ", should be >=0" << llendl;
