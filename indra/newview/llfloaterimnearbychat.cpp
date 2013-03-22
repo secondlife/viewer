@@ -274,8 +274,8 @@ void LLFloaterIMNearbyChat::onTearOffClicked()
 	LLFloaterIMSessionTab::onTearOffClicked();
 
 	// see CHUI-170: Save torn-off state of the nearby chat between sessions
-	BOOL in_the_multifloater = !isTornOff();
-	gSavedSettings.setBOOL("NearbyChatIsNotTornOff", in_the_multifloater);
+	BOOL in_the_multifloater = (BOOL)getHost();
+	gSavedPerAccountSettings.setBOOL("NearbyChatIsNotTornOff", in_the_multifloater);
 }
 
 
@@ -290,6 +290,7 @@ void LLFloaterIMNearbyChat::onOpen(const LLSD& key)
 void LLFloaterIMNearbyChat::onClose(bool app_quitting)
 {
 	// Override LLFloaterIMSessionTab::onClose() so that Nearby Chat is not removed from the conversation floater
+	LLFloaterIMSessionTab::restoreFloater();
 	onClickCloseBtn();
 }
 
@@ -297,8 +298,10 @@ void LLFloaterIMNearbyChat::onClose(bool app_quitting)
 void LLFloaterIMNearbyChat::onClickCloseBtn()
 {
 	if (!isTornOff())
+	{
 		return;
-	onTearOffClicked();
+	}
+	LLFloaterIMSessionTab::onTearOffClicked();
 	
 	LLFloaterIMContainer *im_box = LLFloaterIMContainer::findInstance();
 	if (im_box)
@@ -334,7 +337,7 @@ bool LLFloaterIMNearbyChat::isChatVisible() const
 	if (im_box != NULL)
 	{
 		isVisible =
-				isChatMultiTab() && gSavedSettings.getBOOL("NearbyChatIsNotTornOff")?
+				isChatMultiTab() && gSavedPerAccountSettings.getBOOL("NearbyChatIsNotTornOff")?
 						im_box->getVisible() && !im_box->isMinimized() :
 						getVisible() && !isMinimized();
 	}
@@ -345,6 +348,11 @@ bool LLFloaterIMNearbyChat::isChatVisible() const
 void LLFloaterIMNearbyChat::showHistory()
 {
 	openFloater();
+	if(!isMessagePaneExpanded())
+	{
+		restoreFloater();
+		setFocus(true);
+	}
 	setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
 }
 
@@ -417,6 +425,12 @@ BOOL LLFloaterIMNearbyChat::matchChatTypeTrigger(const std::string& in_str, std:
 
 void LLFloaterIMNearbyChat::onChatBoxKeystroke()
 {
+	LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
+	if (im_box)
+	{
+		im_box->flashConversationItemWidget(mSessionID,false);
+	}
+
 	LLFirstUse::otherAvatarChatFirst(false);
 
 	LLWString raw_text = mInputEditor->getWText();
@@ -725,7 +739,14 @@ void LLFloaterIMNearbyChat::startChat(const char* line)
 	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 	if (nearby_chat)
 	{
-		nearby_chat->show();
+		if(!nearby_chat->isTornOff())
+		{
+			nearby_chat->show();
+		}
+		if(nearby_chat->isMinimized())
+		{
+			nearby_chat->setMinimized(false);
+		}
 		nearby_chat->setVisible(TRUE);
 		nearby_chat->setFocus(TRUE);
 		nearby_chat->mInputEditor->setFocus(TRUE);

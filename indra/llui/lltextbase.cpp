@@ -359,7 +359,6 @@ void LLTextBase::drawSelectionBackground()
 
 		S32 selection_left		= llmin( mSelectionStart, mSelectionEnd );
 		S32 selection_right		= llmax( mSelectionStart, mSelectionEnd );
-		LLRect selection_rect = mVisibleTextRect;
 
 		// Skip through the lines we aren't drawing.
 		LLRect content_display_rect = getVisibleDocumentRect();
