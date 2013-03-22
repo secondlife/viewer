@@ -12723,6 +12723,7 @@
       <key>Type</key>
       <string>LLSD</string>
       <key>Value</key>
+      <array/>
     </map>
     <key>VFSOldSize</key>
     <map>
