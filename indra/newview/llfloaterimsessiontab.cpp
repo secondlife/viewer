@@ -196,12 +196,29 @@ void LLFloaterIMSessionTab::addToHost(const LLUUID& session_id)
 	}
 }
 
+void LLFloaterIMSessionTab::assignResizeLimits()
+{
+	bool is_participants_pane_collapsed = mParticipantListPanel->isCollapsed();
+
+    // disable a layoutstack's functionality when participant list panel is collapsed
+	mRightPartPanel->setIgnoreReshape(is_participants_pane_collapsed);
+
+    S32 participants_pane_target_width = is_participants_pane_collapsed?
+    		0 : (mParticipantListPanel->getRect().getWidth() + LLPANEL_BORDER_WIDTH);
+
+    S32 new_min_width = participants_pane_target_width + mRightPartPanel->getExpandedMinDim() + mFloaterExtraWidth;
+
+	setResizeLimits(new_min_width, getMinHeight());
+
+	this->mParticipantListAndHistoryStack->updateLayout();
+}
+
 BOOL LLFloaterIMSessionTab::postBuild()
 {
 	BOOL result;
 
 	mBodyStack = getChild<LLLayoutStack>("main_stack");
-
+    mParticipantListAndHistoryStack = getChild<LLLayoutStack>("im_panels");
 
 	mCloseBtn = getChild<LLButton>("close_btn");
 	mCloseBtn->setCommitCallback(boost::bind(&LLFloater::onClickClose, this));
@@ -218,6 +235,8 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mGearBtn = getChild<LLButton>("gear_btn");
 
 	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
+	mRightPartPanel = getChild<LLLayoutPanel>("right_part_holder");
+
 	mToolbarPanel = getChild<LLLayoutPanel>("toolbar_panel");
 	mContentPanel = getChild<LLLayoutPanel>("body_panel");
 	mInputButtonPanel = getChild<LLLayoutPanel>("input_button_layout_panel");
@@ -296,6 +315,15 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	{
 		LLFloaterIMSessionTab::onSlide(this);
 	}
+
+	// The resize limits for LLFloaterIMSessionTab should be updated, based on current values of width of conversation and message panels
+	mParticipantListPanel->getResizeBar()->setResizeListener(boost::bind(&LLFloaterIMSessionTab::assignResizeLimits, this));
+	mFloaterExtraWidth =
+			getRect().getWidth()
+			- mParticipantListAndHistoryStack->getRect().getWidth()
+			- (mParticipantListPanel->isCollapsed()? 0 : LLPANEL_BORDER_WIDTH);
+
+	assignResizeLimits();
 
 	return result;
 }
@@ -669,8 +697,7 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 			&& mIsParticipantListExpanded
 			&& !mIsP2PChat;
 
-	mParticipantListPanel->setVisible(is_participant_list_visible);
-
+	mParticipantListAndHistoryStack->collapsePanel(mParticipantListPanel, !is_participant_list_visible);
 
 	// Display collapse image (<<) if the floater is hosted
 	// or if it is torn off but has an open control panel.
@@ -791,15 +818,18 @@ void LLFloaterIMSessionTab::onSlide(LLFloaterIMSessionTab* self)
 	{
 		if (!self->mIsP2PChat)
 		{
-			bool expand = !self->mParticipantListPanel->getVisible();
+            bool should_be_expanded = self->mParticipantListPanel->isCollapsed();
 
-			// Expand/collapse the IM control panel
-			self->mParticipantListPanel->setVisible(expand);
-            gSavedSettings.setBOOL("IMShowControlPanel", expand);
-            self->mIsParticipantListExpanded = expand;
-			self->mExpandCollapseBtn->setImageOverlay(self->getString(expand ? "collapse_icon" : "expand_icon"));
+			// Expand/collapse the participant list panel
+            self->mParticipantListAndHistoryStack->collapsePanel(self->mParticipantListPanel, !should_be_expanded);
+            self->mParticipantListPanel->setVisible(should_be_expanded);
+            gSavedSettings.setBOOL("IMShowControlPanel", should_be_expanded);
+            self->mIsParticipantListExpanded = should_be_expanded;
+			self->mExpandCollapseBtn->setImageOverlay(self->getString(should_be_expanded ? "collapse_icon" : "expand_icon"));
 		}
 	}
+
+	self->assignResizeLimits();
 }
 
 void LLFloaterIMSessionTab::onCollapseToLine(LLFloaterIMSessionTab* self)

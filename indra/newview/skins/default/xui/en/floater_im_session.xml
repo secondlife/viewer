@@ -14,7 +14,6 @@
  width="394"
  can_resize="true"
  can_tear_off="false"
- min_width="340"
  min_height="190"
  positioning="relative">
     <floater.string name="call_btn_start">Conv_toolbar_open_call</floater.string>
@@ -223,9 +222,10 @@
     <layout_panel
       name="speakers_list_panel"
       follows="all"
-      min_width="115"
+      expanded_min_dim="115"
+      min_dim="0"
       width="150" 
-      height="275" 
+      height="275"
       user_resize="true"
       auto_resize="false">
       </layout_panel>
@@ -241,7 +241,7 @@
        user_resize="true"
        auto_resize="true"
        visible="true"
-       name="left_part_holder"
+       name="right_part_holder"
        min_width="221">
         <panel
          name="trnsAndChat_panel"
