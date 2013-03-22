@@ -652,8 +652,8 @@ void LLWorld::updateVisibilities()
 void LLWorld::updateRegions(F32 max_update_time)
 {
 	LLTimer update_timer;
-	BOOL did_one = FALSE;	
-
+	BOOL did_one = FALSE;
+	
 	// Perform idle time updates for the regions (and associated surfaces)
 	for (region_list_t::iterator iter = mRegionList.begin();
 		 iter != mRegionList.end(); ++iter)

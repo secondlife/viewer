@@ -647,7 +647,7 @@ public:
 	LLPointer<LLHUDText> mText;
 	LLPointer<LLHUDIcon> mIcon;
 
-	static	BOOL				sUseSharedDrawables;
+	static			BOOL		sUseSharedDrawables;
 	static	LLTrace::MemStatHandle	sMemStat;
 
 protected:

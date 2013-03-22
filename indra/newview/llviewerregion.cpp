@@ -393,8 +393,8 @@ LLViewerRegion::~LLViewerRegion()
 	delete mParcelOverlay;
 	delete mImpl->mLandp;
 	delete mImpl->mEventPoll;
-	LLHTTPSender::clearSender(mImpl->mHost);	
-
+	LLHTTPSender::clearSender(mImpl->mHost);
+	
 	std::for_each(mImpl->mObjectPartition.begin(), mImpl->mObjectPartition.end(), DeletePointer());
 
 	saveObjectCache();
@@ -1117,8 +1117,8 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 	max_update_time -= update_timer.getElapsedTimeF32();
 	if(max_update_time < 0.f || mImpl->mCacheMap.empty())
 	{
-		return did_update;
-	}
+	return did_update;
+}
 
 	sCurRegionp = this;
 
@@ -1879,12 +1879,12 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 }
 
 LLVOCacheEntry* LLViewerRegion::getCacheEntryForOctree(U32 local_id)
-{
+	{
 	LLVOCacheEntry* entry = getCacheEntry(local_id);
 	removeFromVOCacheTree(entry);
-
+		
 	return entry;
-}
+	}
 
 LLVOCacheEntry* LLViewerRegion::getCacheEntry(U32 local_id)
 {

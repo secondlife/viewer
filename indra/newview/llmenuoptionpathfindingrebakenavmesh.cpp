@@ -242,3 +242,4 @@ void LLMenuOptionPathfindingRebakeNavmesh::createNavMeshStatusListenerForCurrent
 		LLPathfindingManager::getInstance()->requestGetNavMeshForRegion(currentRegion, true);
 	}
 }
+

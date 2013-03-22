@@ -103,11 +103,11 @@ void LLDrawable::init(bool new_entry)
 	mParent = NULL;
 	mRenderType = 0;
 	mCurrentScale = LLVector3(1,1,1);
-	mDistanceWRTCamera = 0.0f;	
+	mDistanceWRTCamera = 0.0f;
 	mState     = 0;
-	
-	// mFaces	
-	mRadius = 0.f;	
+
+	// mFaces
+	mRadius = 0.f;
 	mGeneration = -1;	
 	mSpatialBridge = NULL;
 
@@ -132,7 +132,7 @@ void LLDrawable::init(bool new_entry)
 		{
 			getRegion()->addVisibleCacheEntry(vo_entry); //to load all children.
 		}
-
+	
 		getRegion()->addActiveCacheEntry(vo_entry);		
 	}
 
@@ -192,7 +192,7 @@ void LLDrawable::markDead()
 
 	sNumZombieDrawables++;
 
-	// We're dead.  Free up all of our references to other objects	
+	// We're dead.  Free up all of our references to other objects
 	cleanupReferences();
 //	sDeadList.put(this);
 }
@@ -298,9 +298,17 @@ S32 LLDrawable::findReferences(LLDrawable *drawablep)
 	return count;
 }
 
+static LLFastTimer::DeclareTimer FTM_ALLOCATE_FACE("Allocate Face", true);
+
 LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 {
-	LLFace *face = new LLFace(this, mVObjp);
+	
+	LLFace *face;
+	{
+		LLFastTimer t(FTM_ALLOCATE_FACE);
+		face = new LLFace(this, mVObjp);
+	}
+
 	if (!face) llerrs << "Allocating new Face: " << mFaces.size() << llendl;
 	
 	if (face)
@@ -323,7 +331,11 @@ LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep)
 {
 	LLFace *face;
+	
+	{
+		LLFastTimer t(FTM_ALLOCATE_FACE);
 	face = new LLFace(this, mVObjp);
+	}
 
 	face->setTEOffset(mFaces.size());
 	face->setTexture(texturep);
@@ -477,7 +489,7 @@ void LLDrawable::makeActive()
 		//NOTE: linked set will now NEVER become static
 		mParent->setState(LLDrawable::ACTIVE_CHILD);
 	}
-	
+
 	llassert(isAvatar() || isRoot() || mParent->isActive());
 }
 
@@ -562,6 +574,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		dist_squared = dist_vec_squared(new_pos, target_pos);
 
 		LLQuaternion new_rot = nlerp(lerp_amt, old_rot, target_rot);
+		// FIXME: This can be negative! It is be possible for some rots to 'cancel out' pos or size changes.
 		dist_squared += (1.f - dot(new_rot, target_rot)) * 10.f;
 
 		LLVector3 new_scale = lerp(old_scale, target_scale, lerp_amt);
@@ -584,6 +597,15 @@ F32 LLDrawable::updateXform(BOOL undamped)
 				gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 			}
 		}
+	}
+	else
+	{
+		// The following fixes MAINT-1742 but breaks vehicles similar to MAINT-2275
+		// dist_squared = dist_vec_squared(old_pos, target_pos);
+
+		// The following fixes MAINT-2247 but causes MAINT-2275
+		//dist_squared += (1.f - dot(old_rot, target_rot)) * 10.f;
+		//dist_squared += dist_vec_squared(old_scale, target_scale);
 	}
 
 	LLVector3 vec = mCurrentScale-target_scale;
@@ -670,7 +692,7 @@ BOOL LLDrawable::updateMove()
 	{
 		return FALSE;
 	}
-	
+
 	makeActive();
 
 	BOOL done;
@@ -972,11 +994,11 @@ void LLDrawable::updateUVMinMax()
 bool LLDrawable::isVisible() const
 {
 	if (LLViewerOctreeEntryData::isVisible())
-	{
+{ 
 		return true;
-	}
-	
-	{
+}
+
+{
 		LLviewerOctreeGroup* group = mEntry->getGroup();
 		if (group && group->isVisible())
 		{
@@ -1008,7 +1030,7 @@ bool LLDrawable::isRecentlyVisible() const
 }
 
 void LLDrawable::setGroup(LLviewerOctreeGroup *groupp)
-{
+	{
 	LLSpatialGroup* cur_groupp = (LLSpatialGroup*)getGroup();
     
 	//precondition: mGroupp MUST be null or DEAD or mGroupp MUST NOT contain this
@@ -1081,7 +1103,7 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 //virtual
 S32 LLDrawable::getMinVisFrameRange() const
 {
-	const S32 MIN_VIS_FRAME_RANGE = 2 ; //two frames:the current one and the last one.
+const S32 MIN_VIS_FRAME_RANGE = 2 ; //two frames:the current one and the last one.
 
 	return MIN_VIS_FRAME_RANGE ;
 }
@@ -1120,11 +1142,11 @@ LLSpatialBridge::~LLSpatialBridge()
 {	
 	if(mEntry)
 	{
-		LLSpatialGroup* group = getSpatialGroup();
-		if (group)
-		{
-			group->mSpatialPartition->remove(this, group);
-		}
+	LLSpatialGroup* group = getSpatialGroup();
+	if (group)
+	{
+		group->mSpatialPartition->remove(this, group);
+	}
 	}
 
 	//delete octree here so listeners will still be able to access bridge specific state
@@ -1184,7 +1206,7 @@ void LLSpatialBridge::updateSpatialExtents()
 
 	LLVector4a newMin;
 	LLVector4a newMax;	
-	newMin = newMax = center;	
+	newMin = newMax = center;
 	for (U32 i = 0; i < 4; i++)
 	{
 		LLVector4a delta;
@@ -1198,7 +1220,7 @@ void LLSpatialBridge::updateSpatialExtents()
 		newMax.setMax(newMax, max);
 	}
 	setSpatialExtents(newMin, newMax);
-
+	
 	LLVector4a diagonal;
 	diagonal.setSub(newMax, newMin);
 	mRadius = diagonal.getLength3().getF32() * 0.5f;
@@ -1405,7 +1427,7 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 		markDead();
 		return;
 	}
-	
+
 	if (gShiftFrame)
 	{
 		return;
@@ -1487,7 +1509,7 @@ void LLSpatialBridge::cleanupReferences()
 	if (mDrawable)
 	{
 		mDrawable->setGroup(NULL);
-		
+
 		if (mDrawable->getVObj())
 		{
 			LLViewerObject::const_child_list_t& child_list = mDrawable->getVObj()->getChildren();
@@ -1500,8 +1522,8 @@ void LLSpatialBridge::cleanupReferences()
 				{
 					drawable->setGroup(NULL);				
 				}
+				}
 			}
-		}
 
 		LLDrawable* drawablep = mDrawable;
 		mDrawable = NULL;

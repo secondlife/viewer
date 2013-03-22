@@ -1174,6 +1174,8 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 
 	if (command_name == "share")
 	{
+		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+		if (!current_item) return FALSE;
 		LLSidepanelInventory* parent = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 		return parent ? parent->canShare() : FALSE;
 	}

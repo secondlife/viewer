@@ -2588,12 +2588,12 @@ void LLRightClickInventoryFetchDescendentsObserver::execute(bool clear_observer)
 		{			
 			cat_count = cat_array->count();
 		}
-	
+
 		// Move to next if current folder empty
 		if ((item_count == 0) && (cat_count == 0))
-	{
+		{
 			continue;
-	}
+		}
 
 		uuid_vec_t ids;
 		LLRightClickInventoryFetchObserver* outfit = NULL;

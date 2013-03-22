@@ -3,7 +3,7 @@
  layout="topleft"
  left="0"
  mouse_opaque="false"
- can_tear_off="true"
+ can_tear_off="false"
  name="menu_inventory_add"
  visible="false">
             <menu

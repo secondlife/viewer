@@ -262,7 +262,7 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	// so that the drawable parent is set properly
 	if(msg != NULL)
 	{
-		findOrphans(objectp, msg->getSenderIP(), msg->getSenderPort());
+	findOrphans(objectp, msg->getSenderIP(), msg->getSenderPort());
 	}
 	else
 	{
@@ -451,9 +451,9 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 
 		if (compressed)
 		{
-			S32	uncompressed_length = 2048;
-			compressed_dp.reset();			
-			
+			S32							uncompressed_length = 2048;
+			compressed_dp.reset();
+
 			uncompressed_length = mesgsys->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_Data);
 			mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compressed_dpbuffer, 0, i);
 			compressed_dp.assignBuffer(compressed_dpbuffer, uncompressed_length);
@@ -626,9 +626,9 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 					bCached = true;
 					LLViewerRegion::eCacheUpdateResult result = objectp->mRegionp->cacheFullUpdate(objectp, compressed_dp, flags);
 					recorder.cacheFullUpdate(local_id, update_type, result, objectp, msg_size);
-				}
 			}
 #endif
+		}
 		}
 		else
 		{
@@ -2023,7 +2023,7 @@ LLViewerObject *LLViewerObjectList::createObjectFromCache(const LLPCode pcode, L
 
 	return objectp;
 }
- 
+
 LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRegion *regionp,
 												 const LLUUID &uuid, const U32 local_id, const LLHost &sender)
 {

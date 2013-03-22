@@ -394,13 +394,13 @@ static std::map<TimeBlock*, LLColor4> sTimerColors;
 void LLFastTimerView::draw()
 {
 	LLFastTimer t(FTM_RENDER_TIMER);
-
+	
 	generateUniqueColors();
 
 	// Draw the window background
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gl_rect_2d(getLocalRect(), LLColor4(0.f, 0.f, 0.f, 0.25f));
-
+	
 	S32 y = drawHelp(getRect().getHeight() - MARGIN);
 	drawLegend(y - ((S32)LLFontGL::getFontMonospace()->getLineHeight() + 2));
 

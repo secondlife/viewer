@@ -895,6 +895,7 @@ NickyD
 	MAINT-873
 Nicky Dasmijn
 	VWR-29228
+	MAINT-873
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1250,6 +1251,7 @@ Whimsy Winx
 Whirly Fizzle
 	STORM-1895
 	MAINT-873
+	STORM-1930
 Whoops Babii
 	VWR-631
 	VWR-1640

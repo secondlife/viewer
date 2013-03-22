@@ -158,7 +158,7 @@ void LLImageBase::sanityCheck()
 // virtual
 void LLImageBase::deleteData()
 {
-	FREE_MEM(sPrivatePoolp, mData);
+	FREE_MEM(sPrivatePoolp, mData) ;
 	memDisclaim(mDataSize);
 	mData = NULL;
 	mDataSize = 0;

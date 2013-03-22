@@ -216,7 +216,7 @@ public:
 		U32 mCountOfNextUpdatesToIgnore;
 
 		inline StatsAccumulator()
-		{	
+		{
 			reset();
 		}
 
@@ -315,7 +315,7 @@ public:
 private:
 	LLTrace::Recording				mRecording;
 
-	F64								mLastTimeDiff;  // used for time stat updates
+	F64 mLastTimeDiff;  // used for time stat updates
 };
 
 static const F32 SEND_STATS_PERIOD = 300.0f;

@@ -65,8 +65,8 @@ public:
 	class TFRequest;
 	
     // Threads:  Tmain
-	/*virtual*/ S32 update(F32 max_time_ms);	
-
+	/*virtual*/ S32 update(F32 max_time_ms);
+	
 	// called in the main thread after the TextureCacheThread shuts down.
     // Threads:  Tmain
 	void shutDownTextureCacheThread();
@@ -126,8 +126,8 @@ public:
 	void dump();
 
 	// Threads:  T*
-	S32 getNumRequests() ;
-	
+	S32 getNumRequests();
+
 	// Threads:  T*
 	S32 getNumHTTPRequests();
 
@@ -220,7 +220,7 @@ public:
 	void getStateStats(U32 * cache_read, U32 * cache_write, U32 * res_wait);
 
 	// ----------------------------------
-
+	
 protected:
 	// Threads:  T* (but Ttf in practice)
 	void addToNetworkQueue(LLTextureFetchWorker* worker);
@@ -240,7 +240,7 @@ protected:
 	//
 	// Threads:  T*
 	void removeRequest(LLTextureFetchWorker* worker, bool cancel);
-
+	
 	// Overrides from the LLThread tree
 	// Locks:  Ct
 	bool runCondition();
@@ -313,7 +313,7 @@ private:
 
 	LLTextureCache* mTextureCache;
 	LLImageDecodeThread* mImageDecodeThread;
-
+	
 	// Map of all requests by UUID
 	typedef std::map<LLUUID,LLTextureFetchWorker*> map_t;
 	map_t mRequestMap;													// Mfq

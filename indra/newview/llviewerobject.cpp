@@ -350,7 +350,7 @@ void LLViewerObject::markDead()
 			childp = mChildList.back();
 			if (childp->getPCode() != LL_PCODE_LEGACY_AVATAR)
 			{
-				//llinfos << "Marking child " << childp->getLocalID() << " as dead." << llendl;				
+				//llinfos << "Marking child " << childp->getLocalID() << " as dead." << llendl;
 				childp->setParent(NULL); // LLViewerObject::markDead 1
 				childp->markDead();
 			}
@@ -1056,11 +1056,11 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 	if(mesgsys != NULL)
 	{
-		U16 time_dilation16;
-		mesgsys->getU16Fast(_PREHASH_RegionData, _PREHASH_TimeDilation, time_dilation16);
-		F32 time_dilation = ((F32) time_dilation16) / 65535.f;
-		mTimeDilation = time_dilation;
-		mRegionp->setTimeDilation(time_dilation);
+	U16 time_dilation16;
+	mesgsys->getU16Fast(_PREHASH_RegionData, _PREHASH_TimeDilation, time_dilation16);
+	F32 time_dilation = ((F32) time_dilation16) / 65535.f;
+	mTimeDilation = time_dilation;
+	mRegionp->setTimeDilation(time_dilation);
 	}
 
 	// this will be used to determine if we've really changed position
@@ -1373,7 +1373,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					coloru.mV[3] = 255 - coloru.mV[3];
 					mText->setColor(LLColor4(coloru));
 					mText->setString(temp_string);
-					
+
 					setChanged(MOVED | SILHOUETTE);
 				}
 				else if (mText.notNull())
@@ -1870,7 +1870,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 				if(mesgsys != NULL)
 				{
-					LLViewerObjectList::getUUIDFromLocal(parent_uuid,
+				LLViewerObjectList::getUUIDFromLocal(parent_uuid,
 														parent_id,
 														mesgsys->getSenderIP(),
 														mesgsys->getSenderPort());
@@ -2009,7 +2009,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 					if(mesgsys != NULL)
 					{
-						LLViewerObjectList::getUUIDFromLocal(parent_uuid,
+					LLViewerObjectList::getUUIDFromLocal(parent_uuid,
 														parent_id,
 														gMessageSystem->getSenderIP(),
 														gMessageSystem->getSenderPort());
@@ -2161,14 +2161,14 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	// doing all the parenting, etc above?
 	if(mesgsys != NULL)
 	{
-		U32 packet_id = mesgsys->getCurrentRecvPacketID(); 
-		if (packet_id < mLatestRecvPacketID && 
-			mLatestRecvPacketID - packet_id < 65536)
-		{
-			//skip application of this message, it's old
-			return retval;
-		}
-		mLatestRecvPacketID = packet_id;
+	U32 packet_id = mesgsys->getCurrentRecvPacketID(); 
+	if (packet_id < mLatestRecvPacketID && 
+		mLatestRecvPacketID - packet_id < 65536)
+	{
+		//skip application of this message, it's old
+		return retval;
+	}
+	mLatestRecvPacketID = packet_id;
 	}
 
 	// Set the change flags for scale
@@ -2225,7 +2225,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		|| (new_angv != old_angv))
 	{
 		if (new_rot != mPreviousRotation)
-	{
+		{
 			resetRot();
 		}
 		else if (new_angv != old_angv)

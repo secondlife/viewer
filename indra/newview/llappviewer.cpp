@@ -735,10 +735,6 @@ bool LLAppViewer::init()
 	// before consumers (LLTextureFetch).
 	mAppCoreHttp.init();
 	
-#if LL_RECORD_VIEWER_STATS
-	LLViewerStatsRecorder::initClass();
-#endif
-
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
     // Called before threads are created.
     LLCurl::initClass(gSavedSettings.getF32("CurlRequestTimeOut"), 
@@ -1034,11 +1030,20 @@ bool LLAppViewer::init()
 	}
 
 #if LL_WINDOWS
-	if (gGLManager.mIsIntel && 
-		LLFeatureManager::getInstance()->getGPUClass() > 0 &&
-		gGLManager.mGLVersion <= 3.f)
+	if (gGLManager.mGLVersion < LLFeatureManager::getInstance()->getExpectedGLVersion())
+	{
+		if (gGLManager.mIsIntel)
 	{
 		LLNotificationsUtil::add("IntelOldDriver");
+	}
+		else if (gGLManager.mIsNVIDIA)
+		{
+			LLNotificationsUtil::add("NVIDIAOldDriver");
+		}
+		else if (gGLManager.mIsATI)
+		{
+			LLNotificationsUtil::add("AMDOldDriver");
+		}
 	}
 #endif
 

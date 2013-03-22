@@ -810,7 +810,7 @@ U32  LLVOAvatarSelf::processUpdateMessage(LLMessageSystem *mesgsys,
 		// unpack the texture UUIDs to the texture slots
 		if(mesgsys != NULL)
 		{
-			retval = unpackTEMessage(mesgsys, _PREHASH_ObjectData, block_num);
+		retval = unpackTEMessage(mesgsys, _PREHASH_ObjectData, block_num);
 		}
 		// need to trigger a few operations to get the avatar to use the new bakes
 		for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
@@ -2216,7 +2216,7 @@ void LLVOAvatarSelf::sendAppearanceChangeMetrics()
 	{
 		LLCurlRequest::headers_t headers;
 		LLHTTPClient::post(caps_url,
-							msg,
+						   msg,
 						   new ViewerAppearanceChangeMetricsResponder(report_sequence,
 																	  report_sequence,
 																	  reporting_started));

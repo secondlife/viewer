@@ -4490,7 +4490,7 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 {
 	LLFastTimer t(FTM_PROCESS_OBJECTS);
 
-	LLUUID id;
+	LLUUID		id;
 
 	U32 ip = mesgsys->getSenderIP();
 	U32 port = mesgsys->getSenderPort();
@@ -4532,22 +4532,22 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 			continue;
 		}
 
-		LLViewerObject *objectp = gObjectList.findObject(id);
-		if (objectp)
-		{
-			// Display green bubble on kill
-			if ( gShowObjectUpdates )
+			LLViewerObject *objectp = gObjectList.findObject(id);
+			if (objectp)
 			{
-				LLColor4 color(0.f,1.f,0.f,1.f);
-				gPipeline.addDebugBlip(objectp->getPositionAgent(), color);
+				// Display green bubble on kill
+				if ( gShowObjectUpdates )
+				{
+					LLColor4 color(0.f,1.f,0.f,1.f);
+					gPipeline.addDebugBlip(objectp->getPositionAgent(), color);
+				}
+
+				// Do the kill
+				gObjectList.killObject(objectp);
 			}
 
-			// Do the kill
-			gObjectList.killObject(objectp);
-		}
-
 		if(delete_object)
-		{
+			{
 			regionp->killCacheEntry(local_id);
 		}
 

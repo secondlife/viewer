@@ -274,7 +274,7 @@ LLSpatialGroup::~LLSpatialGroup()
 	{
 		llerrs << "Illegal deletion of LLSpatialGroup!" << llendl;
 	}*/
-	
+
 	if (gDebugGL)
 	{
 		gPipeline.checkReferences(this);
@@ -985,7 +985,7 @@ LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part) : LLv
 
 	mViewAngle.splat(0.f);
 	mLastUpdateViewAngle.splat(-1.f);
-	
+
 	sg_assert(mOctreeNode->getListenerCount() == 0);
 	setState(SG_INITIAL_STATE_MASK);
 	gPipeline.markRebuild(this, TRUE);
@@ -1175,7 +1175,7 @@ void LLSpatialGroup::handleRemoval(const TreeNode* node, LLViewerOctreeEntry* en
 void LLSpatialGroup::handleDestruction(const TreeNode* node)
 {
 	setState(DEAD);
-
+	
 	for (element_iter i = getDataBegin(); i != getDataEnd(); ++i)
 	{
 		LLViewerOctreeEntry* entry = *i;
@@ -1186,7 +1186,7 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
 				((LLDrawable*)entry->getDrawable())->setGroup(NULL);
 			}
 			else
-			{
+		{
 				llerrs << "No Drawable found in the entry." << llendl;
 			}
 		}
@@ -1503,14 +1503,14 @@ LLSpatialPartition::LLSpatialPartition(U32 data_mask, BOOL render_by_group, U32 
 	mBufferUsage = buffer_usage;
 	mDepthMask = FALSE;
 	mSlopRatio = 0.25f;
-	mInfiniteFarClip = FALSE;	
+	mInfiniteFarClip = FALSE;
 
 	new LLSpatialGroup(mOctree, this);
 }
 
 
 LLSpatialPartition::~LLSpatialPartition()
-{	
+{
 }
 
 LLSpatialGroup *LLSpatialPartition::put(LLDrawable *drawablep, BOOL was_visible)
@@ -1519,12 +1519,12 @@ LLSpatialGroup *LLSpatialPartition::put(LLDrawable *drawablep, BOOL was_visible)
 
 	//keep drawable from being garbage collected
 	LLPointer<LLDrawable> ptr = drawablep;
-			
+		
 	if(!drawablep->getGroup())
 	{
-		assert_octree_valid(mOctree);
+	assert_octree_valid(mOctree);
 		mOctree->insert(drawablep->getEntry());
-		assert_octree_valid(mOctree);
+	assert_octree_valid(mOctree);
 	}	
 	
 	LLSpatialGroup* group = drawablep->getSpatialGroup();
@@ -1636,7 +1636,7 @@ public:
 		
 		return false;
 	}
-		
+	
 	virtual S32 frustumCheck(const LLviewerOctreeGroup* group)
 	{
 		S32 res = AABBInFrustumNoFarClipGroupBounds(group);
@@ -1831,7 +1831,7 @@ public:
 		{
 			LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
 			if(!drawable)
-			{
+		{
 				continue;
 			}
 			if (!drawable->isDead())
@@ -2019,8 +2019,6 @@ BOOL LLSpatialPartition::visibleObjectsInFrustum(LLCamera& camera)
 
 S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* results, BOOL for_select)
 {
-	llassert(results != NULL && for_select);
-
 #if LL_OCTREE_PARANOIA_CHECK
 	((LLSpatialGroup*)mOctree->getListener(0))->checkStates();
 #endif
@@ -3143,7 +3141,7 @@ void renderPhysicsShapes(LLSpatialGroup* group)
 	{
 		LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
 		if(!drawable)
-		{
+	{
 			continue;
 		}
 		LLVOVolume* volume = drawable->getVOVolume();
@@ -3783,10 +3781,10 @@ public:
 		{
 			LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
 			if(!drawable)
-			{
+		{
 				continue;
 			}
-
+					
 			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BBOXES))
 			{
 				renderBoundingBox(drawable);			
@@ -3869,7 +3867,7 @@ public:
 						{
 							if (index < 255)
 							{
-								if (facep->mDrawInfo->mTextureList.size()<= index)
+								if (facep->mDrawInfo->mTextureList.size() <= index)
 								{
 									llerrs << "Face texture index out of bounds." << llendl;
 								}
@@ -3979,7 +3977,7 @@ public:
 		{
 			LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
 			if(!drawable)
-			{
+		{
 				continue;
 			}
 			renderBoundingBox(drawable, FALSE);			

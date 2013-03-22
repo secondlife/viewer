@@ -167,7 +167,6 @@ LLContextMenu	*gMenuAttachmentSelf = NULL;
 LLContextMenu	*gMenuAttachmentOther = NULL;
 LLContextMenu	*gMenuLand	= NULL;
 
-const std::string SAVE_INTO_INVENTORY("Save Object Back to My Inventory");
 const std::string SAVE_INTO_TASK_INVENTORY("Save Object Back to Object Contents");
 
 LLMenuGL* gAttachSubMenu = NULL;
@@ -312,7 +311,6 @@ void handle_grab_baked_texture(void*);
 BOOL enable_grab_baked_texture(void*);
 void handle_dump_region_object_cache(void*);
 
-BOOL enable_save_into_inventory(void*);
 BOOL enable_save_into_task_inventory(void*);
 
 BOOL enable_detach(const LLSD& = LLSD());
@@ -1644,6 +1642,54 @@ class LLAdvancedForceParamsToDefault : public view_listener_t
 	}
 };
 
+
+//////////////////////////
+//   ANIMATION SPEED    //
+//////////////////////////
+
+// Utility function to set all AV time factors to the same global value
+static void set_all_animation_time_factors(F32	time_factor)
+{
+	LLMotionController::setCurrentTimeFactor(time_factor);
+	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
+		iter != LLCharacter::sInstances.end(); ++iter)
+	{
+		(*iter)->setAnimTimeFactor(time_factor);
+	}
+}
+
+class LLAdvancedAnimTenFaster : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		//llinfos << "LLAdvancedAnimTenFaster" << llendl;
+		F32 time_factor = LLMotionController::getCurrentTimeFactor();
+		time_factor = llmin(time_factor + 0.1f, 2.f);	// Upper limit is 200% speed
+		set_all_animation_time_factors(time_factor);
+		return true;
+	}
+};
+
+class LLAdvancedAnimTenSlower : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		//llinfos << "LLAdvancedAnimTenSlower" << llendl;
+		F32 time_factor = LLMotionController::getCurrentTimeFactor();
+		time_factor = llmax(time_factor - 0.1f, 0.1f);	// Lower limit is at 10% of normal speed
+		set_all_animation_time_factors(time_factor);
+		return true;
+	}
+};
+
+class LLAdvancedAnimResetAll : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		set_all_animation_time_factors(1.f);
+		return true;
+	}
+};
 
 
 //////////////////////////
@@ -3915,6 +3961,8 @@ class LLViewToggleUI : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+		if(gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
+		{
 		LLNotification::Params params("ConfirmHideUI");
 		params.functor.function(boost::bind(&LLViewToggleUI::confirm, this, _1, _2));
 		LLSD substitutions;
@@ -3924,7 +3972,7 @@ class LLViewToggleUI : public view_listener_t
 		substitutions["SHORTCUT"] = "Ctrl+Shift+U";
 #endif
 		params.substitutions = substitutions;
-		if (gViewerWindow->getUIVisibility())
+			if (!gSavedSettings.getBOOL("HideUIControls"))
 		{
 			// hiding, so show notification
 			LLNotifications::instance().add(params);
@@ -3933,7 +3981,7 @@ class LLViewToggleUI : public view_listener_t
 		{
 			LLNotifications::instance().forceResponse(params, 0);
 		}
-
+		}
 		return true;
 	}
 
@@ -3943,8 +3991,9 @@ class LLViewToggleUI : public view_listener_t
 
 		if (option == 0) // OK
 		{
-			gViewerWindow->setUIVisibility(!gViewerWindow->getUIVisibility());
-			LLPanelStandStopFlying::getInstance()->setVisible(gViewerWindow->getUIVisibility());
+			gViewerWindow->setUIVisibility(gSavedSettings.getBOOL("HideUIControls"));
+			LLPanelStandStopFlying::getInstance()->setVisible(gSavedSettings.getBOOL("HideUIControls"));
+			gSavedSettings.setBOOL("HideUIControls",!gSavedSettings.getBOOL("HideUIControls"));
 		}
 	}
 };
@@ -4772,18 +4821,6 @@ BOOL sitting_on_selection()
 
 	return (gAgentAvatarp->isSitting() && gAgentAvatarp->getRoot() == root_object);
 }
-
-class LLToolsSaveToInventory : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		if(enable_save_into_inventory(NULL))
-		{
-			derez_objects(DRD_SAVE_INTO_AGENT_INVENTORY, LLUUID::null);
-		}
-		return true;
-	}
-};
 
 class LLToolsSaveToObjectInventory : public view_listener_t
 {
@@ -7077,50 +7114,6 @@ bool LLHasAsset::operator()(LLInventoryCategory* cat,
 	return FALSE;
 }
 
-BOOL enable_save_into_inventory(void*)
-{
-	// *TODO: clean this up
-	// find the last root
-	LLSelectNode* last_node = NULL;
-	for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
-		 iter != LLSelectMgr::getInstance()->getSelection()->root_end(); iter++)
-	{
-		last_node = *iter;
-	}
-
-#ifdef HACKED_GODLIKE_VIEWER
-	return TRUE;
-#else
-# ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-	if (!LLGridManager::getInstance()->isInProductionGrid()
-        && gAgent.isGodlike())
-	{
-		return TRUE;
-	}
-# endif
-	// check all pre-req's for save into inventory.
-	if(last_node && last_node->mValid && !last_node->mItemID.isNull()
-	   && (last_node->mPermissions->getOwner() == gAgent.getID())
-	   && (gInventory.getItem(last_node->mItemID) != NULL))
-	{
-		LLViewerObject* obj = last_node->getObject();
-		if( obj && !obj->isAttachment() )
-		{
-			return TRUE;
-		}
-	}
-	return FALSE;
-#endif
-}
-
-class LLToolsEnableSaveToInventory : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = enable_save_into_inventory(NULL);
-		return new_value;
-	}
-};
 
 BOOL enable_save_into_task_inventory(void*)
 {
@@ -7502,6 +7495,7 @@ class LLToolsUseSelectionForGrid : public view_listener_t
 		} func;
 		LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func);
 		LLSelectMgr::getInstance()->setGridMode(GRID_MODE_REF_OBJECT);
+		LLFloaterTools::setGridMode((S32)GRID_MODE_REF_OBJECT);
 		return true;
 	}
 };
@@ -8329,7 +8323,6 @@ void initialize_menus()
 	commit.add("Tools.LookAtSelection", boost::bind(&handle_look_at_selection, _2));
 	commit.add("Tools.BuyOrTake", boost::bind(&handle_buy_or_take));
 	commit.add("Tools.TakeCopy", boost::bind(&handle_take_copy));
-	view_listener_t::addMenu(new LLToolsSaveToInventory(), "Tools.SaveToInventory");
 	view_listener_t::addMenu(new LLToolsSaveToObjectInventory(), "Tools.SaveToObjectInventory");
 	view_listener_t::addMenu(new LLToolsSelectedScriptAction(), "Tools.SelectedScriptAction");
 
@@ -8341,7 +8334,6 @@ void initialize_menus()
 	enable.add("Tools.EnableTakeCopy", boost::bind(&enable_object_take_copy));
 	enable.add("Tools.VisibleBuyObject", boost::bind(&tools_visible_buy_object));
 	enable.add("Tools.VisibleTakeObject", boost::bind(&tools_visible_take_object));
-	view_listener_t::addMenu(new LLToolsEnableSaveToInventory(), "Tools.EnableSaveToInventory");
 	view_listener_t::addMenu(new LLToolsEnableSaveToObjectInventory(), "Tools.EnableSaveToObjectInventory");
 
 	view_listener_t::addMenu(new LLToolsEnablePathfinding(), "Tools.EnablePathfinding");
@@ -8452,6 +8444,11 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedTestMale(), "Advanced.TestMale");
 	view_listener_t::addMenu(new LLAdvancedTestFemale(), "Advanced.TestFemale");
 	
+	// Advanced > Character > Animation Speed
+	view_listener_t::addMenu(new LLAdvancedAnimTenFaster(), "Advanced.AnimTenFaster");
+	view_listener_t::addMenu(new LLAdvancedAnimTenSlower(), "Advanced.AnimTenSlower");
+	view_listener_t::addMenu(new LLAdvancedAnimResetAll(), "Advanced.AnimResetAll");
+
 	// Advanced > Character (toplevel)
 	view_listener_t::addMenu(new LLAdvancedForceParamsToDefault(), "Advanced.ForceParamsToDefault");
 	view_listener_t::addMenu(new LLAdvancedReloadVertexShader(), "Advanced.ReloadVertexShader");

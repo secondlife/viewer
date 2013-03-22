@@ -1710,11 +1710,11 @@ bool LLUIImageList::initFromFile()
 	// add components defined in the rest of the skin paths
 	while (++pi != pend)
 	{
-	LLXMLNodePtr update_root;
+		LLXMLNodePtr update_root;
 		if (LLXMLNode::parseFile(*pi, update_root, NULL))
-	{
+		{
 			parser.readXUI(update_root, images, *pi);
-	}
+		}
 	}
 
 	if (!images.validateBlock()) return false;

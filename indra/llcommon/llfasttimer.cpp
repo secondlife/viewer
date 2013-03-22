@@ -117,17 +117,17 @@ struct SortTimerByName
 };
 
 TimeBlock& TimeBlock::getRootTimeBlock()
-{
+	{
 	static TimeBlock root_timer("root", true, NULL);
 	return root_timer;
-}
+	}
 
 void TimeBlock::pushLog(LLSD log)
-{
+	{
 	LLMutexLock lock(sLogLock);
 
 	sLogQueue.push(log);
-}
+	}
 
 void TimeBlock::setLogLock(LLMutex* lock)
 {
@@ -149,7 +149,7 @@ U64 TimeBlock::countsPerSecond()
 	static LLUnit<LLUnits::Hertz, U64> sCPUClockFrequency = LLProcessorInfo().getCPUFrequency();
 
 #else
-	// If we're not using RDTSC, each fast timer tick is just a performance counter tick.
+	// If we're not using RDTSC, each fasttimer tick is just a performance counter tick.
 	// Not redefining the clock frequency itself (in llprocessor.cpp/calculate_cpu_frequency())
 	// since that would change displayed MHz stats for CPUs
 	static bool firstcall = true;
@@ -176,9 +176,9 @@ TimeBlockTreeNode& TimeBlock::getTreeNode() const
 	TimeBlockTreeNode* nodep = LLTrace::get_thread_recorder()->getTimeBlockTreeNode(getIndex());
 	llassert(nodep);
 	return *nodep;
-}
+	}
 
-// static
+//static
 void TimeBlock::processTimes()
 {
 	get_clock_count(); // good place to calculate clock frequency
@@ -191,9 +191,9 @@ void TimeBlock::processTimes()
 	{
 		TimeBlock& timer = *it;
 		if (&timer == &TimeBlock::getRootTimeBlock()) continue;
-
-		// bootstrap tree construction by attaching to last timer to be on stack
-		// when this timer was called
+			
+			// bootstrap tree construction by attaching to last timer to be on stack
+			// when this timer was called
 		if (timer.getParent() == &TimeBlock::getRootTimeBlock())
 		{
 			TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
@@ -203,7 +203,7 @@ void TimeBlock::processTimes()
 				timer.setParent(accumulator->mLastCaller);
 				accumulator->mParent = accumulator->mLastCaller;
 			}
-			// no need to push up tree on first use, flag can be set spuriously
+				// no need to push up tree on first use, flag can be set spuriously
 			accumulator->mMoveUpTree = false;
 		}
 	}
@@ -230,28 +230,28 @@ void TimeBlock::processTimes()
 			TimeBlockAccumulator* accumulator = timerp->getPrimaryAccumulator();
 
 			if (accumulator->mMoveUpTree)
-			{
+		{
 				// since ancestors have already been visited, re-parenting won't affect tree traversal
-				//step up tree, bringing our descendants with us
-				LL_DEBUGS("FastTimers") << "Moving " << timerp->getName() << " from child of " << timerp->getParent()->getName() <<
-					" to child of " << timerp->getParent()->getParent()->getName() << LL_ENDL;
-				timerp->setParent(timerp->getParent()->getParent());
+			//step up tree, bringing our descendants with us
+			LL_DEBUGS("FastTimers") << "Moving " << timerp->getName() << " from child of " << timerp->getParent()->getName() <<
+				" to child of " << timerp->getParent()->getParent()->getName() << LL_ENDL;
+			timerp->setParent(timerp->getParent()->getParent());
 				accumulator->mParent = timerp->getParent();
 				accumulator->mMoveUpTree = false;
 
-				// don't bubble up any ancestors until descendants are done bubbling up
+			// don't bubble up any ancestors until descendants are done bubbling up
 				// as ancestors may call this timer only on certain paths, so we want to resolve
 				// child-most block locations before their parents
-				it.skipAncestors();
-			}
+			it.skipAncestors();
 		}
 	}
+}
 
 	// walk up stack of active timers and accumulate current time while leaving timing structures active
 	BlockTimerStackRecord* stack_record			= ThreadTimerStack::getInstance();
 	BlockTimer* cur_timer						= stack_record->mActiveTimer;
 	TimeBlockAccumulator* accumulator = stack_record->mTimeBlock->getPrimaryAccumulator();
-	
+
 	// root defined by parent pointing to self
 	while(cur_timer && cur_timer->mParentTimerData.mActiveTimer != cur_timer)
 	{
@@ -286,12 +286,12 @@ void TimeBlock::processTimes()
 
 
 std::vector<TimeBlock*>::iterator TimeBlock::beginChildren()
-{ 
+		{
 	return getTreeNode().mChildren.begin(); 
-}
+		}
 
 std::vector<TimeBlock*>::iterator TimeBlock::endChildren()
-{
+		{
 	return getTreeNode().mChildren.end();
 }
 
@@ -300,7 +300,7 @@ std::vector<TimeBlock*>& TimeBlock::getChildren()
 	return getTreeNode().mChildren;
 }
 
-//static
+// static
 void TimeBlock::logStats()
 {
 	// get ready for next frame
@@ -331,7 +331,7 @@ void TimeBlock::logStats()
 				LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
 				sd[timer.getName()]["Time"] = (LLSD::Real) (frame_recording.getLastRecordingPeriod().getSum(timer).value());	
 				sd[timer.getName()]["Calls"] = (LLSD::Integer) (frame_recording.getLastRecordingPeriod().getSum(timer.callCount()));
-
+				
 				// computing total time here because getting the root timer's getCountHistory
 				// doesn't work correctly on the first frame
 				total_time += frame_recording.getLastRecordingPeriod().getSum(timer);
@@ -383,7 +383,7 @@ void TimeBlock::dumpCurTimes()
 	}
 }
 
-//static
+//static 
 void TimeBlock::writeLog(std::ostream& os)
 {
 	while (!sLogQueue.empty())
@@ -437,7 +437,7 @@ void TimeBlockAccumulator::reset( const TimeBlockAccumulator* other )
 		mParent = other->mParent;
 	}
 	else
-	{
+{
 		mStartTotalTimeCounter = mTotalTimeCounter;
 	}
 }

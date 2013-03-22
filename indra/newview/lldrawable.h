@@ -297,18 +297,18 @@ public:
 private:
 	typedef std::vector<LLFace*> face_list_t;
 	
-	U32							mState;
-	S32							mRenderType;
-	LLPointer<LLViewerObject>	mVObjp;
-	face_list_t					mFaces;
-	LLPointer<LLDrawable>		mSpatialBridge;
+	U32				mState;
+	S32				mRenderType;
+	LLPointer<LLViewerObject> mVObjp;
+	face_list_t     mFaces;
+	LLPointer<LLDrawable> mSpatialBridge;
 	
-	F32							mRadius;
-	S32							mGeneration;
-
-	LLVector3					mCurrentScale;
+	F32				mRadius;
+	S32				mGeneration;
 	
-	static U32					sNumZombieDrawables;
+	LLVector3		mCurrentScale;
+	
+	static U32 sNumZombieDrawables;
 	static LLDynamicArrayPtr<LLPointer<LLDrawable> > sDeadList;
 } LL_ALIGN_POSTFIX(16);
 

@@ -1935,9 +1935,9 @@ void LLViewerWindow::initWorldUI()
 	panel_ssf_container->addChild(panel_stand_stop_flying);
 
 	panel_ssf_container->setVisible(TRUE);
-
-	LLMenuOptionPathfindingRebakeNavmesh::getInstance()->initialize();
 	
+	LLMenuOptionPathfindingRebakeNavmesh::getInstance()->initialize();
+
 	// Load and make the toolbars visible
 	// Note: we need to load the toolbars only *after* the user is logged in and IW
 	if (gToolBarView)
@@ -4275,12 +4275,12 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
 		if (!reset_deferred)
 		{
-		// if image cropping or need to enlarge the scene, compute a scale_factor
-		F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
-		snapshot_width  = (S32)(ratio * image_width) ;
-		snapshot_height = (S32)(ratio * image_height) ;
-		scale_factor = llmax(1.0f, 1.0f / ratio) ;
-	}
+			// if image cropping or need to enlarge the scene, compute a scale_factor
+			F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
+			snapshot_width  = (S32)(ratio * image_width) ;
+			snapshot_height = (S32)(ratio * image_height) ;
+			scale_factor = llmax(1.0f, 1.0f / ratio) ;
+		}
 	}
 	
 	if (show_ui && scale_factor > 1.f)
@@ -4482,7 +4482,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	{
 		send_agent_resume();
 	}
-
+	
 	return ret;
 }
 
@@ -5001,7 +5001,7 @@ S32 LLViewerWindow::getChatConsoleBottomPad()
 	S32 offset = 0;
 
 	if(gToolBarView)
-		offset += gToolBarView->getChild<LLView>("bottom_toolbar_panel")->getRect().getHeight();
+		offset += gToolBarView->getBottomToolbar()->getRect().getHeight();
 
 	return offset;
 }

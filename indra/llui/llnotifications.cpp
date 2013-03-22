@@ -1116,6 +1116,11 @@ bool LLNotificationChannel::isEmpty() const
 	return mItems.empty();
 }
 
+S32 LLNotificationChannel::size() const
+{
+	return mItems.size();
+}
+
 LLNotificationChannel::Iterator LLNotificationChannel::begin()
 {
 	return mItems.begin();
@@ -1433,7 +1438,7 @@ bool LLNotifications::loadTemplates()
 	std::string base_filename = search_paths.front();
 	LLXMLNodePtr root;
 	BOOL success  = LLXMLNode::getLayeredXMLNode(root, search_paths);
-	
+
 	if (!success || root.isNull() || !root->hasName( "notifications" ))
 	{
 		llerrs << "Problem reading XML from UI Notifications file: " << base_filename << llendl;

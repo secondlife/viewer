@@ -76,7 +76,8 @@ LLToolBarView::LLToolBarView(const LLToolBarView::Params& p)
 	mShowToolbars(true),
 	mDragToolbarButton(NULL),
 	mDragItem(NULL),
-	mToolbarsLoaded(false)
+	mToolbarsLoaded(false),
+	mBottomToolbarPanel(NULL)
 {
 	for (S32 i = 0; i < TOOLBAR_COUNT; i++)
 	{
@@ -100,6 +101,7 @@ BOOL LLToolBarView::postBuild()
 	mToolbars[TOOLBAR_LEFT]   = getChild<LLToolBar>("toolbar_left");
 	mToolbars[TOOLBAR_RIGHT]  = getChild<LLToolBar>("toolbar_right");
 	mToolbars[TOOLBAR_BOTTOM] = getChild<LLToolBar>("toolbar_bottom");
+	mBottomToolbarPanel = getChild<LLView>("bottom_toolbar_panel");
 
 	for (int i = TOOLBAR_FIRST; i <= TOOLBAR_LAST; i++)
 	{
@@ -535,8 +537,8 @@ void LLToolBarView::draw()
 	for (S32 i = TOOLBAR_FIRST; i <= TOOLBAR_LAST; i++)
 	{
 		mToolbars[i]->getParent()->setVisible(mShowToolbars 
-												&& (mToolbars[i]->hasButtons() 
-													|| isToolDragged()));
+											&& (mToolbars[i]->hasButtons() 
+											|| isToolDragged()));
 	}
 
 	// Draw drop zones if drop of a tool is active

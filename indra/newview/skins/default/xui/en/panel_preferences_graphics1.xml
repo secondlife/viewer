@@ -147,12 +147,12 @@
      height="12"
      layout="topleft"
      left_delta="87"
-     name="ShadersPrefText3"
+     name="ShadersPrefText2"
      top_delta="0"
      width="80">
         Mid
     </text>
-  <text
+    <text
      type="string"
      length="1"
      follows="left|top"
@@ -163,8 +163,8 @@
      name="ShadersPrefText3"
      top_delta="0"
      width="80">
-      High
-  </text>
+        High
+    </text>
     <text
      type="string"
      length="1"

@@ -179,7 +179,7 @@ public:
 	// Metrics policy helper statics.
 	static void metricsUpdateRegion(U64 region_handle);
 	static void metricsSend(bool enable_reporting);
-	
+
 	// llcorehttp init/shutdown/config information.
 	LLAppCoreHttp & getAppCoreHttp()			{ return mAppCoreHttp; }
 	

@@ -3303,7 +3303,7 @@ bool process_login_success_response()
 		// replace the default help URL format
 		gSavedSettings.setString("HelpURLFormat",text);
 	}
-			
+
 	std::string home_location = response["home"];
 	if(!home_location.empty())
 	{

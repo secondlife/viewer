@@ -101,6 +101,8 @@ BOOL LLSidepanelTaskInfo::postBuild()
 	mDetailsBtn = getChild<LLButton>("details_btn");
 	mDetailsBtn->setClickedCallback(boost::bind(&LLSidepanelTaskInfo::onDetailsButtonClicked, this));
 
+	mDeedBtn = getChild<LLButton>("button deed");
+
 	mLabelGroupName = getChild<LLNameBox>("Group Name Proxy");
 
 	childSetCommitCallback("Object Name",						LLSidepanelTaskInfo::onCommitName,this);
@@ -263,7 +265,7 @@ void LLSidepanelTaskInfo::disableAll()
 
 void LLSidepanelTaskInfo::refresh()
 {
-	LLButton* btn_deed_to_group = getChild<LLButton>("button deed");
+	LLButton* btn_deed_to_group = mDeedBtn; 
 	if (btn_deed_to_group)
 	{	
 		std::string deedText;

@@ -113,20 +113,20 @@ private:
 		ALIGN_COUNT
 	} ChildAlignment;
 
-	ChildAlignment                mDisplayCenter;
+	ChildAlignment mDisplayCenter;
 	bool                          mDisplayCalls,
 								  mDisplayHz;
 	LLUnit<LLUnits::Seconds, F64> mAllTimeMax,
 								  mTotalTimeDisplay;
-	LLRect                        mBarRect;
-	S32						      mScrollIndex;
+	LLRect mBarRect;
+	S32	mScrollIndex;
 	LLTrace::TimeBlock*           mHoverID;
 	LLTrace::TimeBlock*           mHoverTimer;
-	LLRect						  mToolTipRect;
-	S32                           mHoverBarIndex;
-	LLFrameTimer                  mHighlightTimer;
-	S32                           mPrintStats;
-	LLRect                        mGraphRect;
+	LLRect					mToolTipRect;
+	S32 mHoverBarIndex;
+	LLFrameTimer mHighlightTimer;
+	S32 mPrintStats;
+	LLRect mGraphRect;
 	LLTrace::PeriodicRecording*	  mRecording;
 	bool						  mPauseHistory;
 };

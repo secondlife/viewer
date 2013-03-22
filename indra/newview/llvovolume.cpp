@@ -1138,16 +1138,28 @@ void LLVOVolume::sculpt()
 		S32 current_discard = getVolume()->getSculptLevel() ;
 		if(current_discard < -2)
 		{
-			llwarns << "WARNING!!: Current discard of sculpty at " << current_discard 
+			static S32 low_sculpty_discard_warning_count = 100;
+			if (++low_sculpty_discard_warning_count >= 100)
+			{	// Log first time, then every 100 afterwards otherwise this can flood the logs
+				llwarns << "WARNING!!: Current discard for sculpty " << mSculptTexture->getID() 
+					<< " at " << current_discard 
 				<< " is less than -2." << llendl;
+				low_sculpty_discard_warning_count = 0;
+			}
 			
 			// corrupted volume... don't update the sculpty
 			return;
 		}
 		else if (current_discard > MAX_DISCARD_LEVEL)
 		{
-			llwarns << "WARNING!!: Current discard of sculpty at " << current_discard 
+			static S32 high_sculpty_discard_warning_count = 100;
+			if (++high_sculpty_discard_warning_count >= 100)
+			{	// Log first time, then every 100 afterwards otherwise this can flood the logs
+				llwarns << "WARNING!!: Current discard for sculpty " << mSculptTexture->getID() 
+					<< " at " << current_discard 
 				<< " is more than than allowed max of " << MAX_DISCARD_LEVEL << llendl;
+				high_sculpty_discard_warning_count = 0;
+			}
 			
 			// corrupted volume... don't update the sculpty			
 			return;
@@ -1483,7 +1495,7 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 
 	updateRadius();
 	mDrawable->movePartition();
-			
+				
 	return res;
 }
 
@@ -4024,10 +4036,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	else
 	{
 		model_mat = &(drawable->getRegion()->mRenderMatrix);
-		if (model_mat->isIdentity())
-		{
-			model_mat = NULL;
-		}
 	}
 
 	//drawable->getVObj()->setDebugText(llformat("%d", drawable->isState(LLDrawable::ANIMATED_CHILD)));
@@ -4644,9 +4652,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
 			if(drawablep)
 			{
-				drawablep->clearState(LLDrawable::REBUILD_ALL);
-			}
+			drawablep->clearState(LLDrawable::REBUILD_ALL);
 		}
+	}
 	}
 
 	group->mLastUpdateTime = gFrameTimeSeconds;

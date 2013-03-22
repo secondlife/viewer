@@ -425,7 +425,7 @@ void LLPanelPermissions::refresh()
 		}
 	}
 	
-	getChildView("button set group")->setEnabled(owners_identical && (mOwnerID == gAgent.getID()) && is_nonpermanent_enforced);
+	getChildView("button set group")->setEnabled(root_selected && owners_identical && (mOwnerID == gAgent.getID()) && is_nonpermanent_enforced);
 
 	getChildView("Name:")->setEnabled(TRUE);
 	LLLineEditor* LineEditorObjectName = getChild<LLLineEditor>("Object Name");

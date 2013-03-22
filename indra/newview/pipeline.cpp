@@ -762,7 +762,16 @@ void LLPipeline::resizeScreenTexture()
 		GLuint resX = gViewerWindow->getWorldViewWidthRaw();
 		GLuint resY = gViewerWindow->getWorldViewHeightRaw();
 	
-		allocateScreenBuffer(resX,resY);
+		if (!allocateScreenBuffer(resX,resY))
+		{ //FAILSAFE: screen buffer allocation failed, disable deferred rendering if it's enabled
+			//NOTE: if the session closes successfully after this call, deferred rendering will be 
+			// disabled on future sessions
+			if (LLPipeline::sRenderDeferred)
+			{
+				gSavedSettings.setBOOL("RenderDeferred", FALSE);
+				LLPipeline::refreshCachedSettings();
+			}
+		}
 	}
 }
 
@@ -780,7 +789,7 @@ void LLPipeline::allocatePhysicsBuffer()
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
 	refreshCachedSettings();
-
+	
 	bool save_settings = sRenderDeferred;
 	if (save_settings)
 	{
@@ -815,7 +824,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 {
-	//try to allocate screen buffers at requested resolution and samples
+	// try to allocate screen buffers at requested resolution and samples
 	// - on failure, shrink number of samples and try again
 	// - if not multisampled, shrink resolution and try again (favor X resolution over Y)
 	// Make sure to call "releaseScreenBuffers" after each failure to cleanup the partially loaded state
@@ -2063,9 +2072,9 @@ void check_references(LLSpatialGroup* group, LLFace* face)
 		LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
 		if(drawable)
 		{
-			check_references(drawable, face);
-		}
+		check_references(drawable, face);
 	}			
+}
 }
 
 void LLPipeline::checkReferences(LLFace* face)
@@ -2470,7 +2479,7 @@ void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera)
 	}
 
 	assertInitialized();
-		
+	
 	if (!group->mSpatialPartition->mRenderByGroup)
 	{ //render by drawable
 		sCull->pushDrawableGroup(group);
@@ -3223,7 +3232,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 		}
 	}
 		
-	postSort(camera);
+	postSort(camera);	
 
 	LLSceneMonitor::getInstance()->fetchQueryResult();
 }
@@ -6100,7 +6109,7 @@ void LLPipeline::enableLightsPreview()
 	
 	LLVector4 light_pos(dir0, 0.0f);
 
-	LLLightState* light = gGL.getLight(0);
+	LLLightState* light = gGL.getLight(1);
 
 	light->enable();
 	light->setPosition(light_pos);
@@ -6112,7 +6121,7 @@ void LLPipeline::enableLightsPreview()
 
 	light_pos = LLVector4(dir1, 0.f);
 
-	light = gGL.getLight(1);
+	light = gGL.getLight(2);
 	light->enable();
 	light->setPosition(light_pos);
 	light->setDiffuse(diffuse1);
@@ -6122,7 +6131,7 @@ void LLPipeline::enableLightsPreview()
 	light->setSpotCutoff(180.f);
 
 	light_pos = LLVector4(dir2, 0.f);
-	light = gGL.getLight(2);
+	light = gGL.getLight(3);
 	light->enable();
 	light->setPosition(light_pos);
 	light->setDiffuse(diffuse2);

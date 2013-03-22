@@ -99,7 +99,7 @@ void LLDebugView::init()
 	gSceneView->setVisible(FALSE);
 	addChild(gSceneView);
 	gSceneView->setRect(rect);
-
+	
 	gSceneMonitorView = new LLSceneMonitorView(r);
 	gSceneMonitorView->setFollowsTop();
 	gSceneMonitorView->setFollowsLeft();

@@ -1931,13 +1931,13 @@ void LLViewerFetchedTexture::updateVirtualSize()
 				{
 					if (getBoostLevel() == LLViewerTexture::BOOST_NONE && 
 						drawable->getVObj() && drawable->getVObj()->isSelected())
-		{
+					{
 						setBoostLevel(LLViewerTexture::BOOST_SELECTED);
 					}
-			addTextureStats(facep->getVirtualSize()) ;
-			setAdditionalDecodePriority(facep->getImportanceToCamera()) ;
-		}
-	}
+					addTextureStats(facep->getVirtualSize()) ;
+					setAdditionalDecodePriority(facep->getImportanceToCamera()) ;
+				}
+			}
 		}
 	}
 

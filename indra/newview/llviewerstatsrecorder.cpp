@@ -222,15 +222,15 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 			}
 		}
 		else
-		{
+	{
 			//llwarns << "Couldn't open " << STATS_FILE_NAME << " for logging." << llendl;
 			return;
 		}
 	}
 
-	std::ostringstream data_msg;
+		std::ostringstream data_msg;
 
-	data_msg << getTimeSinceStart()
+		data_msg << getTimeSinceStart()
 		<< "\t " << mObjectCacheHitCount
 		<< "\t" << mObjectCacheMissFullCount
 		<< "\t" << mObjectCacheMissCrcCount
@@ -250,7 +250,7 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 		<< "\t" << (mObjectTerseUpdatesSize * 8 / delta_time)
 		<< "\t" << (mObjectCacheMissResponsesSize * 8 / delta_time)
 		<< "\t" << (mTextureFetchSize * 8 / delta_time)
-		<< "\n";
+			<< "\n";
 
 	if (fwrite(data_msg.str().c_str(), 1, data_msg.str().size(), mObjectCacheFile ) != data_msg.str().size())
 	{

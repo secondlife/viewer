@@ -1,10 +1,9 @@
 /** 
- * @file llbvhconsts.h
- * @brief Consts and types useful to BVH files and LindenLabAnimation format.
+ * @file previewF.glsl
  *
- * $LicenseInfo:firstyear=2004&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,23 +23,19 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLBVHCONSTS_H
-#define LL_LLBVHCONSTS_H
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
+#endif
 
-const F32 MAX_ANIM_DURATION = 60.f;
+uniform sampler2D diffuseMap;
 
-typedef enum e_constraint_type
-	{
-		CONSTRAINT_TYPE_POINT,
-		CONSTRAINT_TYPE_PLANE,
-		NUM_CONSTRAINT_TYPES
-	} EConstraintType;
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
 
-typedef enum e_constraint_target_type
-	{
-		CONSTRAINT_TARGET_TYPE_BODY,
-		CONSTRAINT_TARGET_TYPE_GROUND,
-		NUM_CONSTRAINT_TARGET_TYPES
-	} EConstraintTargetType;
-
-#endif // LL_LLBVHCONSTS_H
+void main()
+{
+	vec4 color = texture2D(diffuseMap,vary_texcoord0.xy) * vertex_color;
+	frag_color = color;
+}

@@ -228,7 +228,7 @@ public:
 	typedef std::map<U32, drawmap_elem_t > draw_map_t;	
 	typedef std::vector<LLPointer<LLVertexBuffer> > buffer_list_t;
 	typedef std::map<LLFace*, buffer_list_t> buffer_texture_map_t;
-	typedef std::map<U32, buffer_texture_map_t> buffer_map_t;	
+	typedef std::map<U32, buffer_texture_map_t> buffer_map_t;
 
 	struct CompareDistanceGreater
 	{
@@ -304,7 +304,7 @@ public:
 	void clearOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
 
 	LLSpatialGroup* getParent();
-	
+
 	BOOL addObject(LLDrawable *drawablep);
 	BOOL removeObject(LLDrawable *drawablep, BOOL from_octree = FALSE);
 	BOOL updateInGroup(LLDrawable *drawablep, BOOL immediate = FALSE); // Update position if it's in the group
@@ -323,7 +323,7 @@ public:
 
 	void setState(U32 state)       {mState |= state;}
 	void dirtyGeom() { setState(GEOM_DIRTY); }
-	void dirtyMesh() { setState(MESH_DIRTY); }		
+	void dirtyMesh() { setState(MESH_DIRTY); }
 
 	void drawObjectBox(LLColor4 col);
 
@@ -332,7 +332,7 @@ public:
 	virtual void handleRemoval(const TreeNode* node, LLViewerOctreeEntry* face);
 	virtual void handleDestruction(const TreeNode* node);
 	virtual void handleChildAddition(const OctreeNode* parent, OctreeNode* child);
-	
+
 //-------------------
 //for atlas use
 //-------------------
@@ -395,7 +395,7 @@ public:
 
 	U32 mBufferUsage;
 	draw_map_t mDrawMap;
-		
+	
 	F32 mDistance;
 	F32 mDepth;
 	F32 mLastUpdateDistance;
@@ -464,7 +464,7 @@ public:
 	void resetVertexBuffers();
 	BOOL isOcclusionEnabled();
 	BOOL getVisibleExtents(LLCamera& camera, LLVector3& visMin, LLVector3& visMax);
-	
+
 public:
 	LLSpatialBridge* mBridge; // NULL for non-LLSpatialBridge instances, otherwise, mBridge == this
 							// use a pointer instead of making "isBridge" and "asBridge" virtual so it's safe
@@ -478,7 +478,7 @@ public:
 	U32 mLODPeriod;	//number of frames between LOD updates for a given spatial group (staggered by mLODSeed)
 	U32 mVertexDataMask;
 	F32 mSlopRatio; //percentage distance must change before drawables receive LOD update (default is 0.25);
-	BOOL mDepthMask; //if TRUE, objects in this partition will be written to depth during alpha rendering	
+	BOOL mDepthMask; //if TRUE, objects in this partition will be written to depth during alpha rendering
 };
 
 // class for creating bridges between spatial partitions
@@ -513,7 +513,7 @@ public:
 
 };
 
-class LLCullResult
+class LLCullResult 
 {
 public:
 	LLCullResult();
