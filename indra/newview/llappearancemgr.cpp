@@ -1191,21 +1191,6 @@ S32 LLAppearanceMgr::getCOFVersion() const
 	}
 }
 
-S32 LLAppearanceMgr::getLastUpdateRequestCOFVersion() const
-{
-	return mLastUpdateRequestCOFVersion;
-}
-
-S32 LLAppearanceMgr::getLastAppearanceUpdateCOFVersion() const
-{
-	return mLastAppearanceUpdateCOFVersion;
-}
-
-void LLAppearanceMgr::setLastAppearanceUpdateCOFVersion(S32 new_val)
-{
-	mLastAppearanceUpdateCOFVersion = new_val;
-}
-
 const LLViewerInventoryItem* LLAppearanceMgr::getBaseOutfitLink()
 {
 	const LLUUID& current_outfit_cat = getCOF();
@@ -3275,8 +3260,8 @@ void LLAppearanceMgr::requestServerAppearanceUpdate(LLCurl::ResponderPtr respond
 		responder_ptr = new RequestAgentUpdateAppearanceResponder;
 	}
 	LLHTTPClient::post(url, body, responder_ptr);
-	llassert(cof_version >= mLastUpdateRequestCOFVersion);
-	mLastUpdateRequestCOFVersion = cof_version;
+	llassert(cof_version >= gAgentAvatarp->mLastUpdateRequestCOFVersion);
+	gAgentAvatarp->mLastUpdateRequestCOFVersion = cof_version;
 }
 
 class LLIncrementCofVersionResponder : public LLHTTPClient::Responder
@@ -3296,12 +3281,10 @@ public:
 		llinfos << "Successfully incremented agent's COF." << llendl;
 		S32 new_version = pContent["category"]["version"].asInteger();
 
-		LLAppearanceMgr* app_mgr = LLAppearanceMgr::getInstance();
-
 		// cof_version should have increased
-		llassert(new_version > app_mgr->mLastUpdateRequestCOFVersion);
+		llassert(new_version > gAgentAvatarp->mLastUpdateRequestCOFVersion);
 
-		app_mgr->mLastUpdateRequestCOFVersion = new_version;
+		gAgentAvatarp->mLastUpdateRequestCOFVersion = new_version;
 	}
 	virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& content)
 	{
@@ -3553,9 +3536,7 @@ LLAppearanceMgr::LLAppearanceMgr():
 	mAttachmentInvLinkEnabled(false),
 	mOutfitIsDirty(false),
 	mOutfitLocked(false),
-	mIsInUpdateAppearanceFromCOF(false),
-	mLastUpdateRequestCOFVersion(LLViewerInventoryCategory::VERSION_UNKNOWN),
-	mLastAppearanceUpdateCOFVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
+	mIsInUpdateAppearanceFromCOF(false)
 {
 	LLOutfitObserver& outfit_observer = LLOutfitObserver::instance();
 
