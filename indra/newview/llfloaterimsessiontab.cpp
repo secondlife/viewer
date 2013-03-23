@@ -698,10 +698,12 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 			&& !mIsP2PChat;
 
 	mParticipantListAndHistoryStack->collapsePanel(mParticipantListPanel, !is_participant_list_visible);
+    mParticipantListPanel->setVisible(is_participant_list_visible);
 
 	// Display collapse image (<<) if the floater is hosted
 	// or if it is torn off but has an open control panel.
 	bool is_expanded = is_not_torn_off || is_participant_list_visible;
+    
 	mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
 	mExpandCollapseBtn->setToolTip(
 			is_not_torn_off?
@@ -818,14 +820,15 @@ void LLFloaterIMSessionTab::onSlide(LLFloaterIMSessionTab* self)
 	{
 		if (!self->mIsP2PChat)
 		{
+            // The state must toggle the collapsed state of the panel
             bool should_be_expanded = self->mParticipantListPanel->isCollapsed();
 
-			// Expand/collapse the participant list panel
-            self->mParticipantListAndHistoryStack->collapsePanel(self->mParticipantListPanel, !should_be_expanded);
-            self->mParticipantListPanel->setVisible(should_be_expanded);
+			// Update the expand/collapse flag of the participant list panel and save it
             gSavedSettings.setBOOL("IMShowControlPanel", should_be_expanded);
             self->mIsParticipantListExpanded = should_be_expanded;
-			self->mExpandCollapseBtn->setImageOverlay(self->getString(should_be_expanded ? "collapse_icon" : "expand_icon"));
+            
+            // Refresh for immediate feedback
+            self->refreshConversation();
 		}
 	}
 
