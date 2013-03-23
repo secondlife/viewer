@@ -626,6 +626,12 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 	LLMultiFloater::setVisible(visible);
 }
 
+void LLFloaterIMContainer::setVisibleAndFrontmost(BOOL take_focus, const LLSD& key)
+{
+	LLMultiFloater::setVisibleAndFrontmost(take_focus, key);
+    selectConversationPair(getSelectedSession(), false, take_focus);
+}
+
 void LLFloaterIMContainer::updateResizeLimits()
 {
 	LLMultiFloater::updateResizeLimits();
