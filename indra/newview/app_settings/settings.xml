@@ -6867,6 +6867,17 @@
       <key>Value</key>
       <real>90.0</real>
     </map>
+    <key>PlayChatAnim</key>
+    <map>
+      <key>Comment</key>
+      <string>Your avatar plays the chat animation whenever you say, shout or whisper something in nearby chat</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PlayTypingAnim</key>
     <map>
       <key>Comment</key>
