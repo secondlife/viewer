@@ -67,7 +67,8 @@ public:
 		SOURCE_WORLD,
 		SOURCE_NOTECARD,
 		SOURCE_LIBRARY,
-		SOURCE_VIEWER
+		SOURCE_VIEWER,
+		SOURCE_PEOPLE
 	};
 
 	void beginDrag(EDragAndDropType type,
