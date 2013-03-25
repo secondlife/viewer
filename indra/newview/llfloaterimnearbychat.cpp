@@ -283,6 +283,11 @@ void LLFloaterIMNearbyChat::onTearOffClicked()
 void LLFloaterIMNearbyChat::onOpen(const LLSD& key)
 {
 	LLFloaterIMSessionTab::onOpen(key);
+	if(!isMessagePaneExpanded())
+	{
+		restoreFloater();
+		onCollapseToLine(this);
+	}
 	showTranslationCheckbox(LLTranslate::isTranslationConfigured());
 }
 
@@ -348,6 +353,11 @@ bool LLFloaterIMNearbyChat::isChatVisible() const
 void LLFloaterIMNearbyChat::showHistory()
 {
 	openFloater();
+	if(!isMessagePaneExpanded())
+	{
+		restoreFloater();
+		setFocus(true);
+	}
 	setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
 }
 
@@ -734,7 +744,14 @@ void LLFloaterIMNearbyChat::startChat(const char* line)
 	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 	if (nearby_chat)
 	{
-		nearby_chat->show();
+		if(!nearby_chat->isTornOff())
+		{
+			nearby_chat->show();
+		}
+		if(nearby_chat->isMinimized())
+		{
+			nearby_chat->setMinimized(false);
+		}
 		nearby_chat->setVisible(TRUE);
 		nearby_chat->setFocus(TRUE);
 		nearby_chat->mInputEditor->setFocus(TRUE);

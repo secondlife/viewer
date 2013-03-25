@@ -626,6 +626,12 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 	LLMultiFloater::setVisible(visible);
 }
 
+void LLFloaterIMContainer::setVisibleAndFrontmost(BOOL take_focus, const LLSD& key)
+{
+	LLMultiFloater::setVisibleAndFrontmost(take_focus, key);
+    selectConversationPair(getSelectedSession(), false, take_focus);
+}
+
 void LLFloaterIMContainer::updateResizeLimits()
 {
 	LLMultiFloater::updateResizeLimits();
@@ -1329,6 +1335,9 @@ void LLFloaterIMContainer::showConversation(const LLUUID& session_id)
 {
     setVisibleAndFrontmost(false);
     selectConversationPair(session_id, true);
+
+    LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
+    session_floater->restoreFloater();
 }
 
 void LLFloaterIMContainer::clearAllFlashStates()
@@ -1960,10 +1969,13 @@ bool LLFloaterIMContainer::selectNextorPreviousConversation(bool select_next, bo
 
 void LLFloaterIMContainer::expandConversation()
 {
-	LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,getSelectedSession()));
-	if (widget)
+	if(!mConversationsPane->isCollapsed())
 	{
-		widget->setOpen(!widget->isOpen());
+		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,getSelectedSession()));
+		if (widget)
+		{
+			widget->setOpen(!widget->isOpen());
+		}
 	}
 }
 

@@ -100,6 +100,7 @@ public:
 	virtual BOOL handleKeyHere( KEY key, MASK mask );
 	bool isMessagePaneExpanded(){return mMessagePaneExpanded;}
 	void setMessagePaneExpanded(bool expanded){mMessagePaneExpanded = expanded;}
+	void restoreFloater();
 
 protected:
 
@@ -115,7 +116,6 @@ protected:
 	static void onSlide(LLFloaterIMSessionTab *self);
 	static void onCollapseToLine(LLFloaterIMSessionTab *self);
 	void reshapeFloater(bool collapse);
-	void restoreFloater();
 
 	// refresh a visual state of the Call button
 	void updateCallBtnState(bool callIsActive);
@@ -140,6 +140,9 @@ protected:
 	void appendMessage(const LLChat& chat, const LLSD &args = 0);
 
 	std::string appendTime();
+	void assignResizeLimits();
+
+	S32  mFloaterExtraWidth;
 
 	bool mIsNearbyChat;
 	bool mIsP2PChat;
@@ -155,7 +158,9 @@ protected:
 	
 	LLUUID mSessionID; 
 	LLLayoutStack* mBodyStack;
+	LLLayoutStack* mParticipantListAndHistoryStack;
 	LLLayoutPanel* mParticipantListPanel;	// add the widgets to that see mConversationsListPanel
+	LLLayoutPanel* mRightPartPanel;
 	LLLayoutPanel* mContentPanel;
 	LLLayoutPanel* mToolbarPanel;
 	LLLayoutPanel* mInputButtonPanel;
@@ -168,7 +173,8 @@ protected:
     LLOutputMonitorCtrl* mSpeakingIndicator;
 	LLChatHistory* mChatHistory;
 	LLChatEntry* mInputEditor;
-	int mInputEditorTopPad; // padding between input field and chat history
+	LLLayoutPanel * mChatLayoutPanel;
+	int mInputEditorPad; // padding between input field and chat history
 
 	LLButton* mExpandCollapseLineBtn;
 	LLButton* mExpandCollapseBtn;
@@ -195,7 +201,7 @@ private:
 	 * and avoid overlapping, since input chat field can be vertically expanded.
 	 * Implementation: chat history bottom "follows" top+top_pad of input chat field
 	 */
-	void reshapeChatHistory();
+	void reshapeChatLayoutPanel();
 
 	bool checkIfTornOff();
     bool mIsHostAttached;
