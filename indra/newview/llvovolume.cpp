@@ -556,37 +556,9 @@ void LLVOVolume::animateTextures()
 				tex_mat.setIdentity();
 				LLVector3 trans ;
 
-				if(facep->isAtlasInUse())
-				{
-					//
-					//if use atlas for animated texture
-					//apply the following transform to the animation matrix.
-					//
-
-					F32 tcoord_xoffset = 0.f ;
-					F32 tcoord_yoffset = 0.f ;
-					F32 tcoord_xscale = 1.f ;
-					F32 tcoord_yscale = 1.f ;			
-					if(facep->isAtlasInUse())
-					{
-						const LLVector2* tmp = facep->getTexCoordOffset() ;
-						tcoord_xoffset = tmp->mV[0] ; 
-						tcoord_yoffset = tmp->mV[1] ;
-
-						tmp = facep->getTexCoordScale() ;
-						tcoord_xscale = tmp->mV[0] ; 
-						tcoord_yscale = tmp->mV[1] ;	
-					}
-					trans.set(LLVector3(tcoord_xoffset + tcoord_xscale * (off_s+0.5f), tcoord_yoffset + tcoord_yscale * (off_t+0.5f), 0.f));
-
-					tex_mat.translate(LLVector3(-(tcoord_xoffset + tcoord_xscale * 0.5f), -(tcoord_yoffset + tcoord_yscale * 0.5f), 0.f));
-				}
-				else	//non atlas
-				{
-					trans.set(LLVector3(off_s+0.5f, off_t+0.5f, 0.f));			
-					tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
-				}
-
+				trans.set(LLVector3(off_s+0.5f, off_t+0.5f, 0.f));			
+				tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
+				
 				LLVector3 scale(scale_s, scale_t, 1.f);			
 				LLQuaternion quat;
 				quat.setQuat(rot, 0, 0, -1.f);

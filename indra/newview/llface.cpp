@@ -51,7 +51,7 @@
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llviewershadermgr.h"
-
+#include "llviewertexture.h"
 
 #define LL_MAX_INDICES_COUNT 1000000
 
@@ -167,8 +167,12 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	//special value to indicate uninitialized position
 	mIndicesIndex	= 0xFFFFFFFF;
 	
-	mIndexInTex = 0;
-	mTexture		= NULL;
+	for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
+	{
+		mIndexInTex[i] = 0;
+		mTexture[i] = NULL;
+	}
+
 	mTEOffset		= -1;
 	mTextureIndex = 255;
 
@@ -185,8 +189,6 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mImportanceToCamera = 0.f ;
 	mBoundingSphereRadius = 0.0f ;
 
-	mAtlasInfop = NULL ;
-	mUsingAtlas  = FALSE ;
 	mHasMedia = FALSE ;
 }
 
@@ -197,9 +199,12 @@ void LLFace::destroy()
 		gPipeline.checkReferences(this);
 	}
 
-	if(mTexture.notNull())
+	for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
 	{
-		mTexture->removeFace(this) ;
+		if(mTexture[i].notNull())
+		{
+			mTexture[i]->removeFace(i, this) ;
+		}
 	}
 	
 	if (isState(LLFace::PARTICLE))
@@ -239,8 +244,7 @@ void LLFace::destroy()
 	}
 	
 	setDrawInfo(NULL);
-	removeAtlas();
-		
+			
 	mDrawablep = NULL;
 	mVObjp = NULL;
 }
@@ -293,90 +297,76 @@ void LLFace::setPool(LLFacePool* new_pool, LLViewerTexture *texturep)
 	setTexture(texturep) ;
 }
 
-void LLFace::setTexture(LLViewerTexture* tex) 
+void LLFace::setTexture(U32 ch, LLViewerTexture* tex) 
 {
-	if(mTexture == tex)
+	llassert(ch < LLRender::NUM_TEXTURE_CHANNELS);
+
+	if(mTexture[ch] == tex)
 	{
 		return ;
 	}
 
-	if(mTexture.notNull())
+	if(mTexture[ch].notNull())
 	{
-		mTexture->removeFace(this) ;
-		removeAtlas() ;
+		mTexture[ch]->removeFace(ch, this) ;
 	}	
 	
 	if(tex)
 	{
-		tex->addFace(this) ;
+		tex->addFace(ch, this) ;
 	}
 
-	mTexture = tex ;
+	mTexture[ch] = tex ;
+}
+
+void LLFace::setTexture(LLViewerTexture* tex) 
+{
+	setDiffuseMap(tex);
+}
+
+void LLFace::setDiffuseMap(LLViewerTexture* tex)
+{
+	setTexture(LLRender::DIFFUSE_MAP, tex);
 }
 
 void LLFace::setNormalMap(LLViewerTexture* tex)
 {
-	if(mNormalMap == tex)
-	{
-		return ;
-	}
-	
-	if(mNormalMap.notNull())
-	{
-		mNormalMap->removeFace(this) ;
-		removeAtlas() ;
-	}
-	
-	if(tex)
-	{
-		tex->addFace(this) ;
-	}
-	
-	mNormalMap = tex ;
+	setTexture(LLRender::NORMAL_MAP, tex);
 }
 
 void LLFace::setSpecularMap(LLViewerTexture* tex)
 {
-	if(mSpecMap == tex)
-	{
-		return ;
-	}
-	
-	if(mSpecMap.notNull())
-	{
-		mSpecMap->removeFace(this) ;
-		removeAtlas() ;
-	}
-	
-	if(tex)
-	{
-		tex->addFace(this) ;
-	}
-	
-	mSpecMap = tex ;
+	setTexture(LLRender::SPECULAR_MAP, tex);
 }
 
 void LLFace::dirtyTexture()
 {
 	LLDrawable* drawablep = getDrawable();
 
-	if (mVObjp.notNull() && mVObjp->getVolume() && 
-		mTexture.notNull() && mTexture->getComponents() == 4)
-	{ //dirty texture on an alpha object should be treated as an LoD update
-		LLVOVolume* vobj = drawablep->getVOVolume();
-		if (vobj)
+	if (mVObjp.notNull() && mVObjp->getVolume())
+	{
+		for (U32 ch = 0; ch < LLRender::NUM_TEXTURE_CHANNELS; ++ch)
 		{
-			vobj->mLODChanged = TRUE;
+			if (mTexture[ch].notNull() && mTexture[ch]->getComponents() == 4)
+			{ //dirty texture on an alpha object should be treated as an LoD update
+				LLVOVolume* vobj = drawablep->getVOVolume();
+				if (vobj)
+				{
+					vobj->mLODChanged = TRUE;
+				}
+				gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
+			}
 		}
-		gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
-	}		
+	}
 			
 	gPipeline.markTextured(drawablep);
 }
 
-void LLFace::switchTexture(LLViewerTexture* new_texture)
+void LLFace::switchTexture(U32 ch, LLViewerTexture* new_texture)
 {
-	if(mTexture == new_texture)
+	llassert(ch < LLRender::NUM_TEXTURE_CHANNELS);
+	
+	if(mTexture[ch] == new_texture)
 	{
 		return ;
 	}
@@ -386,10 +376,17 @@ void LLFace::switchTexture(LLViewerTexture* new_texture)
 		llerrs << "Can not switch to a null texture." << llendl;
 		return;
 	}
-	new_texture->addTextureStats(mTexture->getMaxVirtualSize()) ;
 
-	getViewerObject()->changeTEImage(mTEOffset, new_texture) ;
-	setTexture(new_texture) ;	
+	llassert(mTexture[ch].notNull());
+
+	new_texture->addTextureStats(mTexture[ch]->getMaxVirtualSize()) ;
+
+	if (ch == LLRender::DIFFUSE_MAP)
+	{
+		getViewerObject()->changeTEImage(mTEOffset, new_texture) ;
+	}
+
+	setTexture(ch, new_texture) ;	
 	dirtyTexture();
 }
 
@@ -1293,27 +1290,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	const LLTextureEntry *tep = mVObjp->getTE(f);
 	const U8 bump_code = tep ? tep->getBumpmap() : 0;
 
-	F32 tcoord_xoffset = 0.f ;
-	F32 tcoord_yoffset = 0.f ;
-	F32 tcoord_xscale = 1.f ;
-	F32 tcoord_yscale = 1.f ;
-	BOOL in_atlas = FALSE ;
-
-	if (rebuild_tcoord)
-	{
-		in_atlas = isAtlasInUse() ;
-		if(in_atlas)
-		{
-			const LLVector2* tmp = getTexCoordOffset() ;
-			tcoord_xoffset = tmp->mV[0] ; 
-			tcoord_yoffset = tmp->mV[1] ;
-
-			tmp = getTexCoordScale() ;
-			tcoord_xscale = tmp->mV[0] ; 
-			tcoord_yscale = tmp->mV[1] ;	
-		}
-	}
-	
 	BOOL is_static = mDrawablep->isStatic();
 	BOOL is_global = is_static;
 
@@ -1598,11 +1574,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					break;
 					case BE_BRIGHTNESS:
 					case BE_DARKNESS:
-					if( mTexture.notNull() && mTexture->hasGLTexture())
+					if( mTexture[LLRender::DIFFUSE_MAP].notNull() && mTexture[LLRender::DIFFUSE_MAP]->hasGLTexture())
 					{
 						// Offset by approximately one texel
-						S32 cur_discard = mTexture->getDiscardLevel();
-						S32 max_size = llmax( mTexture->getWidth(), mTexture->getHeight() );
+						S32 cur_discard = mTexture[LLRender::DIFFUSE_MAP]->getDiscardLevel();
+						S32 max_size = llmax( mTexture[LLRender::DIFFUSE_MAP]->getWidth(), mTexture[LLRender::DIFFUSE_MAP]->getHeight() );
 						max_size <<= cur_discard;
 						const F32 ARTIFICIAL_OFFSET = 2.f;
 						offset_multiple = ARTIFICIAL_OFFSET / (F32)max_size;
@@ -1675,8 +1651,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			bool do_bump = bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1);
 			bool do_tex_mat = tex_mode && mTextureMatrix;
 
-			if (!in_atlas && !do_bump)
-			{ //not in atlas or not bump mapped, might be able to do a cheap update
+			if (!do_bump)
+			{ //not bump mapped, might be able to do a cheap update
 				mVertexBuffer->getTexCoord0Strider(tex_coords, mGeomIndex, mGeomCount);
 
 				if (texgen != LLTextureEntry::TEX_GEN_PLANAR)
@@ -1728,7 +1704,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 						}
 					}
 					else
-					{ //do tex mat, no texgen, no atlas, no bump
+					{ //do tex mat, no texgen, no bump
 						for (S32 i = 0; i < num_vertices; i++)
 						{	
 							LLVector2 tc(vf.mTexCoords[i]);
@@ -1744,7 +1720,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					}
 				}
 				else
-				{ //no bump, no atlas, tex gen planar
+				{ //no bump, tex gen planar
 					LLFastTimer t(FTM_FACE_TEX_QUICK_PLANAR);
 					if (do_tex_mat)
 					{
@@ -1789,7 +1765,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				}
 			}
 			else
-			{ //either bump mapped or in atlas, just do the whole expensive loop
+			{ //bump mapped, just do the whole expensive loop
 				LLFastTimer t(FTM_FACE_TEX_DEFAULT);
 				mVertexBuffer->getTexCoord0Strider(tex_coords, mGeomIndex, mGeomCount, map_range);
 
@@ -1836,93 +1812,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					{
 						xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
 					}
-
-					if(in_atlas)
-					{
-						//
-						//manually calculate tex-coord per vertex for varying address modes.
-						//should be removed if shader can handle this.
-						//
-
-						S32 int_part = 0 ;
-						switch(mTexture->getAddressMode())
-						{
-						case LLTexUnit::TAM_CLAMP:
-							if(tc.mV[0] < 0.f)
-							{
-								tc.mV[0] = 0.f ;
-							}
-							else if(tc.mV[0] > 1.f)
-							{
-								tc.mV[0] = 1.f;
-							}
-
-							if(tc.mV[1] < 0.f)
-							{
-								tc.mV[1] = 0.f ;
-							}
-							else if(tc.mV[1] > 1.f)
-							{
-								tc.mV[1] = 1.f;
-							}
-							break;
-						case LLTexUnit::TAM_MIRROR:
-							if(tc.mV[0] < 0.f)
-							{
-								tc.mV[0] = -tc.mV[0] ;
-							}
-							int_part = (S32)tc.mV[0] ;
-							if(int_part & 1) //odd number
-							{
-								tc.mV[0] = int_part + 1 - tc.mV[0] ;
-							}
-							else //even number
-							{
-								tc.mV[0] -= int_part ;
-							}
-
-							if(tc.mV[1] < 0.f)
-							{
-								tc.mV[1] = -tc.mV[1] ;
-							}
-							int_part = (S32)tc.mV[1] ;
-							if(int_part & 1) //odd number
-							{
-								tc.mV[1] = int_part + 1 - tc.mV[1] ;
-							}
-							else //even number
-							{
-								tc.mV[1] -= int_part ;
-							}
-							break;
-						case LLTexUnit::TAM_WRAP:
-							if(tc.mV[0] > 1.f)
-								tc.mV[0] -= (S32)(tc.mV[0] - 0.00001f) ;
-							else if(tc.mV[0] < -1.f)
-								tc.mV[0] -= (S32)(tc.mV[0] + 0.00001f) ;
-
-							if(tc.mV[1] > 1.f)
-								tc.mV[1] -= (S32)(tc.mV[1] - 0.00001f) ;
-							else if(tc.mV[1] < -1.f)
-								tc.mV[1] -= (S32)(tc.mV[1] + 0.00001f) ;
-
-							if(tc.mV[0] < 0.f)
-							{
-								tc.mV[0] = 1.0f + tc.mV[0] ;
-							}
-							if(tc.mV[1] < 0.f)
-							{
-								tc.mV[1] = 1.0f + tc.mV[1] ;
-							}
-							break;
-						default:
-							break;
-						}
-				
-						tc.mV[0] = tcoord_xoffset + tcoord_xscale * tc.mV[0] ;
-						tc.mV[1] = tcoord_yoffset + tcoord_yscale * tc.mV[1] ;
-					}
-				
 
 					*tex_coords++ = tc;
 					if (do_bump)
@@ -2197,9 +2086,9 @@ BOOL LLFace::hasMedia() const
 	{
 		return TRUE ;
 	}
-	if(mTexture.notNull()) 
+	if(mTexture[LLRender::DIFFUSE_MAP].notNull()) 
 	{
-		return mTexture->hasParcelMedia() ;  //if has a parcel media
+		return mTexture[LLRender::DIFFUSE_MAP]->hasParcelMedia() ;  //if has a parcel media
 	}
 
 	return FALSE ; //no media.
@@ -2251,7 +2140,7 @@ F32 LLFace::getTextureVirtualSize()
 	face_area = LLFace::adjustPixelArea(mImportanceToCamera, face_area) ;
 	if(face_area > LLViewerTexture::sMinLargeImageSize) //if is large image, shrink face_area by considering the partial overlapping.
 	{
-		if(mImportanceToCamera > LEAST_IMPORTANCE_FOR_LARGE_IMAGE && mTexture.notNull() && mTexture->isLargeImage())
+		if(mImportanceToCamera > LEAST_IMPORTANCE_FOR_LARGE_IMAGE && mTexture[LLRender::DIFFUSE_MAP].notNull() && mTexture[LLRender::DIFFUSE_MAP]->isLargeImage())
 		{		
 			face_area *= adjustPartialOverlapPixelArea(cos_angle_to_view_dir, radius );
 		}	
@@ -2618,158 +2507,12 @@ LLVector3 LLFace::getPositionAgent() const
 	}
 }
 
-//
-//atlas
-//
-void LLFace::removeAtlas()
+LLViewerTexture* LLFace::getTexture(U32 ch) const
 {
-	setAtlasInUse(FALSE) ;
-	mAtlasInfop = NULL ;	
+	llassert(ch < LLRender::NUM_TEXTURE_CHANNELS);
+
+	return mTexture[ch] ;
 }
-
-const LLTextureAtlas* LLFace::getAtlas()const 
-{
-	if(mAtlasInfop)
-	{
-		return mAtlasInfop->getAtlas() ;
-	}
-	return NULL ;
-}
-
-const LLVector2* LLFace::getTexCoordOffset()const 
-{
-	if(isAtlasInUse())
-	{
-		return mAtlasInfop->getTexCoordOffset() ;
-	}
-	return NULL ;
-}
-const LLVector2* LLFace::getTexCoordScale() const 
-{
-	if(isAtlasInUse())
-	{
-		return mAtlasInfop->getTexCoordScale() ;
-	}
-	return NULL ;
-}
-
-BOOL LLFace::isAtlasInUse()const
-{
-	return mUsingAtlas ;
-}
-
-BOOL LLFace::canUseAtlas()const
-{
-	//no drawable or no spatial group, do not use atlas
-	if(!mDrawablep || !mDrawablep->getSpatialGroup())
-	{
-		return FALSE ;
-	}
-
-	//if bump face, do not use atlas
-	if(getTextureEntry() && getTextureEntry()->getBumpmap())
-	{
-		return FALSE ;
-	}
-
-	//if animated texture, do not use atlas
-	if(isState(TEXTURE_ANIM))
-	{
-		return FALSE ;
-	}
-
-	return TRUE ;
-}
-
-void LLFace::setAtlasInUse(BOOL flag)
-{
-	//no valid atlas to use.
-	if(flag && (!mAtlasInfop || !mAtlasInfop->isValid()))
-	{
-		flag = FALSE ;
-	}
-
-	if(!flag && !mUsingAtlas)
-	{
-		return ;
-	}
-
-	//
-	//at this stage (flag || mUsingAtlas) is always true.
-	//
-
-	//rebuild the tex coords
-	if(mDrawablep)
-	{
-		gPipeline.markRebuild(mDrawablep, LLDrawable::REBUILD_TCOORD);
-		mUsingAtlas = flag ;
-	}
-	else
-	{
-		mUsingAtlas = FALSE ;
-	}
-}
-
-LLTextureAtlasSlot* LLFace::getAtlasInfo()
-{
-	return mAtlasInfop ;
-}
-
-void LLFace::setAtlasInfo(LLTextureAtlasSlot* atlasp)
-{	
-	if(mAtlasInfop != atlasp)
-	{
-		if(mAtlasInfop)
-		{
-			//llerrs << "Atlas slot changed!" << llendl ;
-		}
-		mAtlasInfop = atlasp ;
-	}
-}
-
-LLViewerTexture* LLFace::getTexture() const
-{
-	if(isAtlasInUse())
-	{
-		return (LLViewerTexture*)mAtlasInfop->getAtlas() ;
-	}
-
-	return mTexture ;
-}
-
-//switch to atlas or switch back to gl texture 
-//return TRUE if using atlas.
-BOOL LLFace::switchTexture()
-{
-	//no valid atlas or texture
-	if(!mAtlasInfop || !mAtlasInfop->isValid() || !mTexture)
-	{
-		return FALSE ;
-	}
-	
-	if(mTexture->getTexelsInAtlas() >= (U32)mVSize || 
-		mTexture->getTexelsInAtlas() >= mTexture->getTexelsInGLTexture())
-	{
-		//switch to use atlas
-		//atlas resolution is qualified, use it.		
-		if(!mUsingAtlas)
-		{
-			setAtlasInUse(TRUE) ;
-		}
-	}
-	else //if atlas not qualified.
-	{
-		//switch back to GL texture
-		if(mUsingAtlas && mTexture->isGLTextureCreated() && 
-			mTexture->getDiscardLevel() < mTexture->getDiscardLevelInAtlas())
-		{
-			setAtlasInUse(FALSE) ;
-		}
-	}
-
-	return mUsingAtlas ;
-}
-
 
 void LLFace::setVertexBuffer(LLVertexBuffer* buffer)
 {

@@ -41,7 +41,6 @@
 #include "llvertexbuffer.h"
 #include "llviewertexture.h"
 #include "lldrawable.h"
-#include "lltextureatlasmanager.h"
 
 class LLFacePool;
 class LLVolume;
@@ -50,7 +49,6 @@ class LLTextureEntry;
 class LLVertexProgram;
 class LLViewerTexture;
 class LLGeometryManager;
-class LLTextureAtlasSlot;
 
 const F32 MIN_ALPHA_SIZE = 1024.f;
 const F32 MIN_TEX_ANIM_SIZE = 512.f;
@@ -110,10 +108,12 @@ public:
 	U16				getGeomStart()		const	{ return mGeomIndex; }		// index into draw pool
 	void			setTextureIndex(U8 index);
 	U8				getTextureIndex() const		{ return mTextureIndex; }
+	void			setTexture(U32 ch, LLViewerTexture* tex);
 	void			setTexture(LLViewerTexture* tex) ;
+	void			setDiffuseMap(LLViewerTexture* tex);
 	void			setNormalMap(LLViewerTexture* tex);
 	void			setSpecularMap(LLViewerTexture* tex);
-	void            switchTexture(LLViewerTexture* new_texture);
+	void            switchTexture(U32 ch, LLViewerTexture* new_texture);
 	void            dirtyTexture();
 	LLXformMatrix*	getXform()			const	{ return mXform; }
 	BOOL			hasGeometry()		const	{ return mGeomCount > 0; }
@@ -132,8 +132,8 @@ public:
 	F32				getVirtualSize() const { return mVSize; }
 	F32				getPixelArea() const { return mPixelArea; }
 
-	S32             getIndexInTex() const {return mIndexInTex ;}
-	void            setIndexInTex(S32 index) { mIndexInTex = index ;}
+	S32             getIndexInTex(U32 ch) const {llassert(ch < LLRender::NUM_TEXTURE_CHANNELS); return mIndexInTex[ch];}
+	void            setIndexInTex(U32 ch, S32 index) { llassert(ch < LLRender::NUM_TEXTURE_CHANNELS);  mIndexInTex[ch] = index ;}
 
 	void			renderSetColor() const;
 	S32				renderElements(const U16 *index_array) const;
@@ -151,7 +151,7 @@ public:
 	S32				getLOD()			const	{ return mVObjp.notNull() ? mVObjp->getLOD() : 0; }
 	void			setPoolType(U32 type)		{ mPoolType = type; }
 	S32				getTEOffset()				{ return mTEOffset; }
-	LLViewerTexture*	getTexture() const;
+	LLViewerTexture*	getTexture(U32 ch = LLRender::DIFFUSE_MAP) const;
 
 	void			setViewerObject(LLViewerObject* object);
 	void			setPool(LLFacePool *pool, LLViewerTexture *texturep);
@@ -225,16 +225,6 @@ public:
 	void        setHasMedia(bool has_media)  { mHasMedia = has_media ;}
 	BOOL        hasMedia() const ;
 
-	//for atlas
-	LLTextureAtlasSlot*   getAtlasInfo() ;
-	void                  setAtlasInUse(BOOL flag);
-	void                  setAtlasInfo(LLTextureAtlasSlot* atlasp);
-	BOOL                  isAtlasInUse()const;
-	BOOL                  canUseAtlas() const;
-	const LLVector2*      getTexCoordScale() const ;
-	const LLVector2*      getTexCoordOffset()const;
-	const LLTextureAtlas* getAtlas()const ;
-	void                  removeAtlas() ;
 	BOOL                  switchTexture() ;
 
 	//vertex buffer tracking
@@ -285,12 +275,12 @@ private:
 	U8			mTextureIndex;		// index of texture channel to use for pseudo-atlasing
 	U32			mIndicesCount;
 	U32			mIndicesIndex;		// index into draw pool for indices (yeah, I know!)
-	S32         mIndexInTex ;
+	S32         mIndexInTex[LLRender::NUM_TEXTURE_CHANNELS];
 
 	LLXformMatrix* mXform;
-	LLPointer<LLViewerTexture> mTexture;
-	LLPointer<LLViewerTexture> mSpecMap;
-	LLPointer<LLViewerTexture> mNormalMap;
+
+	LLPointer<LLViewerTexture> mTexture[LLRender::NUM_TEXTURE_CHANNELS];
+	
 	LLPointer<LLDrawable> mDrawablep;
 	LLPointer<LLViewerObject> mVObjp;
 	S32			mTEOffset;
@@ -308,9 +298,6 @@ private:
 	F32         mBoundingSphereRadius ;
 	bool        mHasMedia ;
 
-	//atlas
-	LLPointer<LLTextureAtlasSlot> mAtlasInfop ;
-	BOOL                          mUsingAtlas ;
 	
 protected:
 	static BOOL	sSafeRenderSelect;

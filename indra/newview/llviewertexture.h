@@ -34,6 +34,7 @@
 #include "llgltypes.h"
 #include "llrender.h"
 #include "llmetricperformancetester.h"
+#include "llface.h"
 
 #include <map>
 #include <list>
@@ -41,7 +42,6 @@
 #define MIN_VIDEO_RAM_IN_MEGA_BYTES    32
 #define MAX_VIDEO_RAM_IN_MEGA_BYTES    512 // 512MB max for performance reasons.
 
-class LLFace;
 class LLImageGL ;
 class LLImageRaw;
 class LLViewerObject;
@@ -103,7 +103,6 @@ public:
 		DYNAMIC_TEXTURE,
 		FETCHED_TEXTURE,
 		LOD_TEXTURE,
-		ATLAS_TEXTURE,
 		INVALID_TEXTURE_TYPE
 	};
 
@@ -135,7 +134,6 @@ public:
 		AVATAR_SCRATCH_TEX,
 		DYNAMIC_TEX,
 		MEDIA,
-		ATLAS,
 		OTHER,
 		MAX_GL_IMAGE_CATEGORY
 	};
@@ -186,10 +184,11 @@ public:
 	S32 getFullHeight() const { return mFullHeight; }	
 	/*virtual*/ void setKnownDrawSize(S32 width, S32 height);
 
-	virtual void addFace(LLFace* facep) ;
-	virtual void removeFace(LLFace* facep) ; 
-	S32 getNumFaces() const;
-	const ll_face_list_t* getFaceList() const {return &mFaceList;}
+	virtual void addFace(U32 channel, LLFace* facep) ;
+	virtual void removeFace(U32 channel, LLFace* facep) ; 
+	S32 getTotalNumFaces() const;
+	S32 getNumFaces(U32 ch) const;
+	const ll_face_list_t* getFaceList(U32 channel) const {llassert(channel < LLRender::NUM_TEXTURE_CHANNELS); return &mFaceList[channel];}
 
 	virtual void addVolume(LLVOVolume* volumep);
 	virtual void removeVolume(LLVOVolume* volumep);
@@ -234,10 +233,9 @@ public:
 	BOOL       isJustBound()const ;
 	void       forceUpdateBindStats(void) const;
 
-	U32        getTexelsInAtlas() const ;
 	U32        getTexelsInGLTexture() const ;
 	BOOL       isGLTextureCreated() const ;
-	S32        getDiscardLevelInAtlas() const ;
+	
 	//---------------------------------------------------------------------------------------------
 	//end of functions to access LLImageGL
 	//---------------------------------------------------------------------------------------------
@@ -292,8 +290,8 @@ protected:
 	LLPointer<LLImageGL> mGLTexturep ;
 	S8 mDontDiscard;			// Keep full res version of this image (for UI, etc)
 
-	ll_face_list_t    mFaceList ; //reverse pointer pointing to the faces using this image as texture
-	U32               mNumFaces ;
+	ll_face_list_t    mFaceList[LLRender::NUM_TEXTURE_CHANNELS]; //reverse pointer pointing to the faces using this image as texture
+	U32               mNumFaces[LLRender::NUM_TEXTURE_CHANNELS];
 	LLFrameTimer      mLastFaceListUpdateTimer ;
 
 	ll_volume_list_t  mVolumeList;
@@ -335,8 +333,7 @@ public:
 	static S32 sMaxSmallImageSize ;
 	static BOOL sFreezeImageScalingDown ;//do not scale down image res if set.
 	static F32  sCurrentTime ;
-	static BOOL sUseTextureAtlas ;
-
+	
 	enum EDebugTexels
 	{
 		DEBUG_TEXELS_OFF,
@@ -515,11 +512,6 @@ private:
 	void saveRawImage() ;
 	void setCachedRawImage() ;
 
-	//for atlas
-	void resetFaceAtlas() ;
-	void invalidateAtlas(BOOL rebuild_geom) ;
-	BOOL insertToAtlas() ;
-
 private:
 	BOOL  mFullyLoaded;
 	BOOL  mInDebug;
@@ -661,12 +653,12 @@ public:
 	void addMediaToFace(LLFace* facep) ;
 	void removeMediaFromFace(LLFace* facep) ;
 
-	/*virtual*/ void addFace(LLFace* facep) ;
-	/*virtual*/ void removeFace(LLFace* facep) ; 
+	/*virtual*/ void addFace(U32 ch, LLFace* facep) ;
+	/*virtual*/ void removeFace(U32 ch, LLFace* facep) ; 
 
 	/*virtual*/ F32  getMaxVirtualSize() ;
 private:
-	void switchTexture(LLFace* facep) ;
+	void switchTexture(U32 ch, LLFace* facep) ;
 	BOOL findFaces() ;
 	void stopPlaying() ;
 

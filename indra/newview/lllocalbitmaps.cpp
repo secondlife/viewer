@@ -372,10 +372,12 @@ std::vector<LLViewerObject*> LLLocalBitmap::prepUpdateObjects(LLUUID old_id)
 	std::vector<LLViewerObject*> obj_list;
 	LLViewerFetchedTexture* old_texture = gTextureList.findImage(old_id);
 
-	for(U32 face_iterator = 0; face_iterator < old_texture->getNumFaces(); face_iterator++)
+	U32 ch = LLRender::DIFFUSE_MAP;
+
+	for(U32 face_iterator = 0; face_iterator < old_texture->getNumFaces(ch); face_iterator++)
 	{
 		// getting an object from a face
-		LLFace* face_to_object = (*old_texture->getFaceList())[face_iterator];
+		LLFace* face_to_object = (*old_texture->getFaceList(ch))[face_iterator];
 
 		if(face_to_object)
 		{

@@ -2700,16 +2700,6 @@
                  parameter="TextureLoadFullRes" />
             </menu_item_check>
             <menu_item_check
-             label="Texture Atlas (experimental)"
-             name="Texture Atlas">
-              <menu_item_check.on_check
-               function="CheckControl"
-               parameter="EnableTextureAtlas" />
-              <menu_item_check.on_click
-               function="ToggleControl"
-               parameter="EnableTextureAtlas" />
-            </menu_item_check>
-              <menu_item_check
              label="Render Attached Lights"
              name="Render Attached Lights">
                 <menu_item_check.on_check
