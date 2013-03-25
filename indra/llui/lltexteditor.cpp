@@ -1501,11 +1501,6 @@ void LLTextEditor::pasteTextWithLinebreaks(LLWString & clean_string)
 	{
 		addLineBreakChar(FALSE);		// Add a line break and end the grouping.
 	}
-	}
-	else
-	{
-		addLineBreakChar(FALSE);		// Add a line break and end the grouping.
-	}
 }
 
 // copy selection to primary
