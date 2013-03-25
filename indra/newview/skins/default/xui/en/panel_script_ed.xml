@@ -125,6 +125,10 @@
              label="Search / Replace..."
              layout="topleft"
              name="Search / Replace..." />
+            <menu_item_call
+             label="Go to line..."
+             layout="topleft"
+             name="Go to line..." />
         </menu>
         <menu
          top="0"
