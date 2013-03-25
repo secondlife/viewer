@@ -872,8 +872,15 @@ void LLToolBar::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 void LLToolBar::createButtons()
 {
+	std::set<LLUUID> set_flashing;
+
 	BOOST_FOREACH(LLToolBarButton* button, mButtons)
 	{
+        if (button->getFlashTimer() && button->getFlashTimer()->isFlashingInProgress())
+        {
+        	set_flashing.insert(button->getCommandId().uuid());
+        }
+
 		if (mButtonRemoveSignal)
 		{
 			(*mButtonRemoveSignal)(button);
@@ -895,6 +902,11 @@ void LLToolBar::createButtons()
 		if (mButtonAddSignal)
 		{
 			(*mButtonAddSignal)(button);
+		}
+
+		if (set_flashing.find(button->getCommandId().uuid()) != set_flashing.end())
+		{
+			button->setFlashing(true);
 		}
 	}
 	mNeedsLayout = true;
@@ -920,6 +932,7 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 	button_p.label = LLTrans::getString(commandp->labelRef());
 	button_p.tool_tip = LLTrans::getString(commandp->tooltipRef());
 	button_p.image_overlay = LLUI::getUIImage(commandp->icon());
+	button_p.button_flash_enable = commandp->isFlashingAllowed();
 	button_p.overwriteFrom(mButtonParams[mButtonType]);
 	LLToolBarButton* button = LLUICtrlFactory::create<LLToolBarButton>(button_p);
 
@@ -1046,10 +1059,9 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	// Convert drag position into insert position and rank 
 	if (!isReadOnly() && handled && !drop)
 	{
-		LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
-		LLAssetType::EType type = inv_item->getType();
-		if (type == LLAssetType::AT_WIDGET)
+		if (cargo_type == DAD_WIDGET)
 		{
+			LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
 			LLCommandId dragged_command(inv_item->getUUID());
 			int orig_rank = getRankFromPosition(dragged_command);
 			mDragRank = getRankFromPosition(x, y);

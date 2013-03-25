@@ -189,9 +189,6 @@ public:
 	virtual BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
 	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 
-	typedef boost::function<void(LLUIString&, S32&)> autoreplace_callback_t;
-	autoreplace_callback_t mAutoreplaceCallback;
-	void			setAutoreplaceCallback(autoreplace_callback_t cb) { mAutoreplaceCallback = cb; }
 	void			setLabel(const LLStringExplicit &new_label) { mLabel = new_label; }
 	const std::string& 	getLabel()	{ return mLabel.getString(); }
 

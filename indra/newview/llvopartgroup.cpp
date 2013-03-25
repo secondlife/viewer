@@ -152,8 +152,8 @@ bool ll_is_part_idx_allocated(S32 idx, S32* start, S32* end)
 void LLVOPartGroup::freeVBSlot(S32 idx)
 {
 	llassert(idx < LL_MAX_PARTICLE_COUNT && idx >= 0);
-	llassert(sVBSlotCursor > sVBSlotFree);
-	llassert(ll_is_part_idx_allocated(idx, sVBSlotCursor, sVBSlotFree+LL_MAX_PARTICLE_COUNT));
+	//llassert(sVBSlotCursor > sVBSlotFree);
+	//llassert(ll_is_part_idx_allocated(idx, sVBSlotCursor, sVBSlotFree+LL_MAX_PARTICLE_COUNT));
 
 	if (sVBSlotCursor > sVBSlotFree)
 	{

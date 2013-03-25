@@ -42,6 +42,7 @@
 #include "llwindowcallbacks.h"
 #include "lltimer.h"
 #include "llmousehandler.h"
+#include "llnotifications.h"
 #include "llhandle.h"
 #include "llinitparam.h"
 
@@ -405,7 +406,6 @@ public:
 
 private:
 	bool                    shouldShowToolTipFor(LLMouseHandler *mh);
-	static bool onAlert(const LLSD& notify);
 
 	void			switchToolByMask(MASK mask);
 	void			destroyWindow();
@@ -421,6 +421,11 @@ private:
 	LLWindow*		mWindow;						// graphical window object
 	bool			mActive;
 	bool			mUIVisible;
+
+	LLNotificationChannelPtr mSystemChannel;
+	LLNotificationChannelPtr mCommunicationChannel;
+	LLNotificationChannelPtr mAlertsChannel;
+	LLNotificationChannelPtr mModalAlertsChannel;
 
 	LLRect			mWindowRectRaw;				// whole window, including UI
 	LLRect			mWindowRectScaled;			// whole window, scaled by UI size

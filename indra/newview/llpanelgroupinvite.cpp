@@ -90,6 +90,8 @@ public:
 	void (*mCloseCallback)(void* data);
 
 	void* mCloseCallbackUserData;
+
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 
@@ -103,12 +105,17 @@ LLPanelGroupInvite::impl::impl(const LLUUID& group_id):
 	mGroupName( NULL ),
 	mConfirmedOwnerInvite( false ),
 	mCloseCallback( NULL ),
-	mCloseCallbackUserData( NULL )
+	mCloseCallbackUserData( NULL ),
+	mAvatarNameCacheConnection()
 {
 }
 
 LLPanelGroupInvite::impl::~impl()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 }
 
 const S32 MAX_GROUP_INVITES = 100; // Max invites per request. 100 to match server cap.
@@ -301,11 +308,13 @@ void LLPanelGroupInvite::impl::callbackClickAdd(void* userdata)
 		//Soon the avatar picker will be embedded into this panel
 		//instead of being it's own separate floater.  But that is next week.
 		//This will do for now. -jwolk May 10, 2006
+        LLView * button = panelp->findChild<LLButton>("add_button");
+        LLFloater * root_floater = gFloaterView->getParentFloater(panelp);
 		LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
-			boost::bind(impl::callbackAddUsers, _1, panelp->mImplementation), TRUE);
+			boost::bind(impl::callbackAddUsers, _1, panelp->mImplementation), TRUE, FALSE, FALSE, root_floater->getName(), button);
 		if (picker)
 		{
-			gFloaterView->getParentFloater(panelp)->addDependentFloater(picker);
+			root_floater->addDependentFloater(picker);
 		}
 	}
 }
@@ -384,8 +393,24 @@ void LLPanelGroupInvite::impl::callbackAddUsers(const uuid_vec_t& agent_ids, voi
 	std::vector<std::string> names;
 	for (S32 i = 0; i < (S32)agent_ids.size(); i++)
 	{
-		LLAvatarNameCache::get(agent_ids[i],
-			boost::bind(&LLPanelGroupInvite::impl::onAvatarNameCache, _1, _2, user_data));
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(agent_ids[i], &av_name))
+		{
+			LLPanelGroupInvite::impl::onAvatarNameCache(agent_ids[i], av_name, user_data);
+		}
+		else 
+		{
+			impl* selfp = (impl*) user_data;
+			if (selfp)
+			{
+				if (selfp->mAvatarNameCacheConnection.connected())
+				{
+					selfp->mAvatarNameCacheConnection.disconnect();
+				}
+				// *TODO : Add a callback per avatar name being fetched.
+				selfp->mAvatarNameCacheConnection = LLAvatarNameCache::get(agent_ids[i],boost::bind(&LLPanelGroupInvite::impl::onAvatarNameCache, _1, _2, user_data));
+			}
+		}
 	}	
 	
 }
@@ -398,6 +423,10 @@ void LLPanelGroupInvite::impl::onAvatarNameCache(const LLUUID& agent_id,
 
 	if (selfp)
 	{
+		if (selfp->mAvatarNameCacheConnection.connected())
+		{
+			selfp->mAvatarNameCacheConnection.disconnect();
+		}
 		std::vector<std::string> names;
 		uuid_vec_t agent_ids;
 		agent_ids.push_back(agent_id);
@@ -478,8 +507,7 @@ void LLPanelGroupInvite::addUsers(uuid_vec_t& agent_ids)
 				if (!LLAvatarNameCache::get(agent_id, &av_name))
 				{
 					// actually it should happen, just in case
-					LLAvatarNameCache::get(LLUUID(agent_id), boost::bind(
-							&LLPanelGroupInvite::addUserCallback, this, _1, _2));
+					//LLAvatarNameCache::get(LLUUID(agent_id), boost::bind(&LLPanelGroupInvite::addUserCallback, this, _1, _2));
 					// for this special case!
 					//when there is no cached name we should remove resident from agent_ids list to avoid breaking of sequence
 					// removed id will be added in callback
@@ -487,7 +515,7 @@ void LLPanelGroupInvite::addUsers(uuid_vec_t& agent_ids)
 				}
 				else
 				{
-					names.push_back(av_name.getLegacyName());
+					names.push_back(av_name.getAccountName());
 				}
 			}
 		}
@@ -500,7 +528,7 @@ void LLPanelGroupInvite::addUserCallback(const LLUUID& id, const LLAvatarName& a
 	std::vector<std::string> names;
 	uuid_vec_t agent_ids;
 	agent_ids.push_back(id);
-	names.push_back(av_name.getLegacyName());
+	names.push_back(av_name.getAccountName());
 
 	mImplementation->addUsers(names, agent_ids);
 }

@@ -105,6 +105,7 @@ LLButton::Params::Params()
 	badge("badge"),
 	handle_right_mouse("handle_right_mouse"),
 	held_down_delay("held_down_delay"),
+	button_flash_enable("button_flash_enable", false),
 	button_flash_count("button_flash_count"),
 	button_flash_rate("button_flash_rate")
 {
@@ -171,9 +172,24 @@ LLButton::LLButton(const LLButton::Params& p)
 	mHeldDownSignal(NULL),
 	mUseDrawContextAlpha(p.use_draw_context_alpha),
 	mHandleRightMouse(p.handle_right_mouse),
-	mButtonFlashCount(p.button_flash_count),
-	mButtonFlashRate(p.button_flash_rate)
+	mFlashingTimer(NULL)
 {
+	if (p.button_flash_enable)
+	{
+		// If optional parameter "p.button_flash_count" is not provided, LLFlashTimer will be
+		// used instead it a "default" value from gSavedSettings.getS32("FlashCount")).
+		// Likewise, missing "p.button_flash_rate" is replaced by gSavedSettings.getF32("FlashPeriod").
+		// Note: flashing should be allowed in settings.xml (boolean key "EnableButtonFlashing").
+		S32 flash_count = p.button_flash_count.isProvided()? p.button_flash_count : 0;
+		F32 flash_rate = p.button_flash_rate.isProvided()? p.button_flash_rate : 0.0;
+		mFlashingTimer = new LLFlashTimer ((LLFlashTimer::callback_t)NULL, flash_count, flash_rate);
+	}
+	else
+	{
+		mButtonFlashCount = p.button_flash_count;
+		mButtonFlashRate = p.button_flash_rate;
+	}
+
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
 	static Params default_params(LLUICtrlFactory::getDefaultParams<LLButton>());
 
@@ -267,6 +283,11 @@ LLButton::~LLButton()
 	delete mMouseDownSignal;
 	delete mMouseUpSignal;
 	delete mHeldDownSignal;
+
+	if (mFlashingTimer)
+	{
+		mFlashingTimer->unset();
+	}
 }
 
 // HACK: Committing a button is the same as instantly clicking it.
@@ -591,22 +612,6 @@ void LLButton::draw()
 {
 	static LLCachedControl<bool> sEnableButtonFlashing(*LLUI::sSettingGroups["config"], "EnableButtonFlashing", true);
 	F32 alpha = mUseDrawContextAlpha ? getDrawContext().mAlpha : getCurrentTransparency();
-	bool flash = FALSE;
-
-	if( mFlashing)
-	{
-		if ( sEnableButtonFlashing)
-		{
-			F32 elapsed = mFlashingTimer.getElapsedTimeF32();
-			S32 flash_count = S32(elapsed * mButtonFlashRate * 2.f);
-			// flash on or off?
-			flash = (flash_count % 2 == 0) || flash_count > S32((F32)mButtonFlashCount * 2.f);
-		}
-		else
-		{ // otherwise just highlight button in flash color
-			flash = true;
-		}
-	}
 
 	bool pressed_by_keyboard = FALSE;
 	if (hasFocus())
@@ -631,9 +636,21 @@ void LLButton::draw()
 	bool selected = getToggleState();
 	
 	bool use_glow_effect = FALSE;
-	LLColor4 glow_color = LLColor4::white;
+	LLColor4 highlighting_color = LLColor4::white;
+	LLColor4 glow_color;
 	LLRender::eBlendType glow_type = LLRender::BT_ADD_WITH_ALPHA;
 	LLUIImage* imagep = NULL;
+
+    //  Cancel sticking of color, if the button is pressed,
+	//  or when a flashing of the previously selected button is ended
+	if (mFlashingTimer
+		&& ((selected && !mFlashingTimer->isFlashingInProgress()) || pressed))
+	{
+		mFlashing = false;
+	}
+
+	bool flash = mFlashing && sEnableButtonFlashing;
+
 	if (pressed && mDisplayPressedState)
 	{
 		imagep = selected ? mImagePressedSelected : mImagePressed;
@@ -699,15 +716,20 @@ void LLButton::draw()
 			imagep = mImageFlash;
 		}
 		// else use usual flashing via flash_color
-		else
+		else if (mFlashingTimer)
 		{
 			LLColor4 flash_color = mFlashBgColor.get();
 			use_glow_effect = TRUE;
 			glow_type = LLRender::BT_ALPHA; // blend the glow
-			if (mNeedsHighlight) // highlighted AND flashing
-				glow_color = (glow_color*0.5f + flash_color*0.5f) % 2.0f; // average between flash and highlight colour, with sum of the opacity
-			else
+
+			if (mFlashingTimer->isCurrentlyHighlighted() || !mFlashingTimer->isFlashingInProgress())
+			{
 				glow_color = flash_color;
+			}
+			else if (mNeedsHighlight)
+			{
+                glow_color = highlighting_color;
+			}
 		}
 	}
 
@@ -756,8 +778,7 @@ void LLButton::draw()
 	if (use_glow_effect)
 	{
 		mCurGlowStrength = lerp(mCurGlowStrength,
-					mFlashing ? (flash? 1.0 : 0.0)
-					: mHoverGlowStrength,
+					mFlashing ? (mFlashingTimer->isCurrentlyHighlighted() || !mFlashingTimer->isFlashingInProgress() || mNeedsHighlight? 1.0 : 0.0) : mHoverGlowStrength,
 					LLCriticalDamp::getInterpolant(0.05f));
 	}
 	else
@@ -944,20 +965,25 @@ void LLButton::setToggleState(BOOL b)
 	{
 		setControlValue(b); // will fire LLControlVariable callbacks (if any)
 		setValue(b);        // may or may not be redundant
+		setFlashing(false);	// stop flash state whenever the selected/unselected state if reset
 		// Unselected label assignments
 		autoResize();
 	}
 }
 
-void LLButton::setFlashing( BOOL b )	
+void LLButton::setFlashing(bool b)	
 { 
-	if ((bool)b != mFlashing)
+	if (mFlashingTimer)
 	{
 		mFlashing = b; 
-		mFlashingTimer.reset();
+		(b ? mFlashingTimer->startFlashing() : mFlashingTimer->stopFlashing());
+	}
+	else if (b != mFlashing)
+	{
+		mFlashing = b; 
+		mFrameTimer.reset();
 	}
 }
-
 
 BOOL LLButton::toggleState()			
 {

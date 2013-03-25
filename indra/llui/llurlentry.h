@@ -171,6 +171,13 @@ class LLUrlEntryAgent : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryAgent();
+	~LLUrlEntryAgent()
+	{
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+	}
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ std::string getIcon(const std::string &url);
 	/*virtual*/ std::string getTooltip(const std::string &string) const;
@@ -181,6 +188,7 @@ protected:
 	/*virtual*/ void callObservers(const std::string &id, const std::string &label, const std::string& icon);
 private:
 	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 ///
@@ -192,6 +200,13 @@ class LLUrlEntryAgentName : public LLUrlEntryBase, public boost::signals2::track
 {
 public:
 	LLUrlEntryAgentName();
+	~LLUrlEntryAgentName()
+	{
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+	}
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ LLStyle::Params getStyle() const;
 protected:
@@ -199,6 +214,7 @@ protected:
 	virtual std::string getName(const LLAvatarName& avatar_name) = 0;
 private:
 	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 
