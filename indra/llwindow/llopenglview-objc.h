@@ -20,6 +20,8 @@
 	std::string mLastDraggedUrl;
 	unsigned int mModifiers;
 	float mMousePos[2];
+	bool mHasMarkedText;
+	unsigned int mMarkedTextLength;
 }
 - (id) initWithSamples:(NSUInteger)samples;
 - (id) initWithSamples:(NSUInteger)samples andVsync:(BOOL)vsync;
@@ -39,6 +41,8 @@
 - (CGLPixelFormatObj*)getCGLPixelFormatObj;
 
 - (unsigned long) getVramSize;
+
+- (segment_t) getSegments:(NSAttributedString*)str;
 
 @end
 

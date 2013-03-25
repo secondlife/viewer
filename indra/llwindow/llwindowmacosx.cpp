@@ -381,17 +381,6 @@ void callQuitHandler()
 	}
 }
 
-std::basic_string<wchar_t> getPreeditString()
-{
-	std::basic_string<wchar_t> str;
-	if (gWindowImplementation->getPreeditor())
-	{
-		str = gWindowImplementation->getPreeditor()->getPreeditString();
-	}
-	
-	return str;
-}
-
 void getPreeditSelectionRange(int *position, int *length)
 {
 	if (gWindowImplementation->getPreeditor())
@@ -408,11 +397,82 @@ void getPreeditMarkedRange(int *position, int *length)
 	}
 }
 
+void setPreeditMarkedRange(int position, int length)
+{
+	if (gWindowImplementation->getPreeditor())
+	{
+		gWindowImplementation->getPreeditor()->markAsPreedit(position, length);
+	}
+}
+
 void handleUnicodeCharacter(wchar_t c)
 {
 	if (gWindowImplementation->getPreeditor())
 	{
 		gWindowImplementation->getPreeditor()->handleUnicodeCharHere(c);
+	}
+}
+
+void resetPreedit()
+{
+	if (gWindowImplementation->getPreeditor())
+	{
+		gWindowImplementation->getPreeditor()->resetPreedit();
+	}
+}
+
+// For reasons of convenience, handle IME updates here.
+// This largely mirrors the old implementation, only sans the carbon parameters.
+void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigned int *replacementRange, long text_len, segment_t segments)
+{
+	if (gWindowImplementation->getPreeditor())
+	{
+		LLPreeditor *preeditor = gWindowImplementation->getPreeditor();
+		
+		// This should be a viable replacement for the kEventParamTextInputSendReplaceRange parameter.
+		if (replacementRange[0] < replacementRange[1])
+		{
+			const LLWString& text = preeditor->getPreeditString();
+			const S32 location = wstring_wstring_length_from_utf16_length(text, 0, replacementRange[0]);
+			const S32 length = wstring_wstring_length_from_utf16_length(text, location, replacementRange[1]);
+			preeditor->markAsPreedit(location, length);
+		}
+		
+		preeditor->resetPreedit();
+		
+		LLWString fix_str = utf16str_to_wstring(llutf16string(unitext, text_len));
+		
+		LLPreeditor::segment_lengths_t preedit_segment_lengths;
+		LLPreeditor::standouts_t preedit_standouts;
+		S32 caret_position = fix_str.length();
+		
+		for (segment_t::iterator i = segments.begin(); i != segments.end(); i++)
+		{
+			preedit_segment_lengths.push_back(i->first);
+			preedit_standouts.push_back(i->second);
+		}
+		
+		preeditor->updatePreedit(fix_str, preedit_segment_lengths, preedit_standouts, caret_position);
+	}
+}
+
+void getPreeditLocation(float *location, unsigned int length)
+{
+	if (gWindowImplementation->getPreeditor())
+	{
+		LLPreeditor *preeditor = gWindowImplementation->getPreeditor();
+		LLCoordGL coord;
+		LLCoordScreen screen;
+		LLRect rect;
+		
+		preeditor->getPreeditLocation(length, &coord, &rect, NULL);
+		
+		float c[4] = {coord.mX, coord.mY, 0, 0};
+		
+		convertRectToScreen(gWindowImplementation->getWindow(), c);
+		
+		location[0] = c[0];
+		location[1] = c[1];
 	}
 }
 
@@ -1295,8 +1355,22 @@ BOOL LLWindowMacOSX::convertCoords(LLCoordScreen from, LLCoordGL *to)
 BOOL LLWindowMacOSX::convertCoords(LLCoordGL from, LLCoordScreen *to)
 {
 	LLCoordWindow window_coord;
+	if (mFullscreen)
+	{
+		to->mX = from.mX;
+		to->mY = from.mY;
+		return TRUE;
+	} else if (mWindow)
+	{
+		convertCoords(from, &window_coord);
+		convertCoords(window_coord, to);
+		
+		LL_INFOS("Coords") << to->mX << ", " << to->mY << LL_ENDL;
+		
+		return TRUE;
+	}
 
-	return(convertCoords(from, &window_coord) && convertCoords(window_coord, to));
+	return FALSE;
 }
 
 
@@ -1425,7 +1499,7 @@ void LLWindowMacOSX::updateCursor()
 		//    Find out what they look like and replicate them.
 
 		// These are essentially correct
-	case UI_CURSOR_WAIT:		/* Apple purposely doesn't allow us to set the beachball cursor manually. */	break;
+	case UI_CURSOR_WAIT:		/* Apple purposely doesn't allow us to set the beachball cursor manually.  Let NSApp figure out when to do this. */	break;
 	case UI_CURSOR_IBEAM:		setIBeamCursor();	break;
 	case UI_CURSOR_CROSS:		setCrossCursor();	break;
 	case UI_CURSOR_HAND:		setPointingHandCursor();	break;
@@ -1810,7 +1884,35 @@ static long getDictLong (CFDictionaryRef refDict, CFStringRef key)
 
 void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
 {
-	// TODO: IME support
+	if (preeditor != mPreeditor && !b)
+	{
+		// This condition may occur by a call to
+		// setEnabled(BOOL) against LLTextEditor or LLLineEditor
+		// when the control is not focused.
+		// We need to silently ignore the case so that
+		// the language input status of the focused control
+		// is not disturbed.
+		return;
+	}
+	
+	// Take care of old and new preeditors.
+	if (preeditor != mPreeditor || !b)
+	{
+		// We need to interrupt before updating mPreeditor,
+		// so that the fix string from input method goes to
+		// the old preeditor.
+		if (mLanguageTextInputAllowed)
+		{
+			interruptLanguageTextInput();
+		}
+		mPreeditor = (b ? preeditor : NULL);
+	}
+	
+	if (b == mLanguageTextInputAllowed)
+	{
+		return;
+	}
+	mLanguageTextInputAllowed = b;
 }
 
 void LLWindowMacOSX::interruptLanguageTextInput()

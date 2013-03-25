@@ -25,6 +25,10 @@
  * $/LicenseInfo$
  */
 
+#include <map>
+
+typedef std::map<int, bool> segment_t;
+
 // This will actually hold an NSCursor*, but that type is only available in objective C.
 typedef void *CursorRef;
 typedef void *NSWindowRef;
@@ -71,6 +75,8 @@ void makeWindowOrderFront(NSWindowRef window);
 void convertScreenToWindow(NSWindowRef window, float *coord);
 void convertWindowToScreen(NSWindowRef window, float *coord);
 void convertScreenToView(NSWindowRef window, float *coord);
+void convertRectToScreen(NSWindowRef window, float *coord);
+void convertRectFromScreen(NSWindowRef window, float *coord);
 void setWindowPos(NSWindowRef window, float* pos);
 void closeWindow(NSWindowRef window);
 void removeGLView(GLViewRef view);
@@ -113,6 +119,11 @@ void getPreeditSelectionRange(int *position, int *length);
 void getPreeditMarkedRange(int *position, int *length);
 void handleUnicodeCharacter(wchar_t c);
 void updatePreeditor(unsigned short *str);
+void setPreeditMarkedRange(int position, int length);
+void resetPreedit();
+int wstring_length(const std::basic_string<wchar_t> & wstr, const int woffset, const int utf16_length, int *unaligned);
+void setMarkedText(unsigned short *text, unsigned int *selectedRange, unsigned int *replacementRange, long text_len, segment_t segments);
+void getPreeditLocation(float *location, unsigned int length);
 
 NSWindowRef getMainAppWindow();
 GLViewRef getGLView();

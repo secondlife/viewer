@@ -253,7 +253,6 @@ BOOL LLKeyboardMacOSX::handleKeyUp(const U16 key, const U32 mask)
 
 	if(translateNumpadKey(key, &translated_key))
 	{
-		LL_INFOS("Keyboard") << "Handled key!" << LL_ENDL;
 		handled = handleTranslatedKeyUp(translated_key, translated_mask);
 	}
 

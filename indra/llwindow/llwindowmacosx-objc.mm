@@ -119,6 +119,7 @@ CursorRef createImageCursor(const char *fullpath, int hotspotX, int hotspotY)
 void setArrowCursor()
 {
 	NSCursor *cursor = [NSCursor arrowCursor];
+	[NSCursor unhide];
 	[cursor set];
 }
 
@@ -290,12 +291,44 @@ void makeWindowOrderFront(NSWindowRef window)
 
 void convertScreenToWindow(NSWindowRef window, float *coord)
 {
-	NSPoint point;
-	point.x = coord[0];
-	point.y = coord[1];
-	point = [(LLNSWindow*)window convertScreenToBase:point];
-	coord[0] = point.x;
-	coord[1] = point.y;
+	NSRect point;
+	point.origin.x = coord[0];
+	point.origin.y = coord[1];
+	point = [(LLNSWindow*)window convertRectFromScreen:point];
+	coord[0] = point.origin.x;
+	coord[1] = point.origin.y;
+}
+
+void convertRectToScreen(NSWindowRef window, float *coord)
+{
+	NSRect point;
+	point.origin.x = coord[0];
+	point.origin.y = coord[1];
+	point.size.width = coord[2];
+	point.size.height = coord[3];
+	
+	point = [(LLNSWindow*)window convertRectToScreen:point];
+	
+	coord[0] = point.origin.x;
+	coord[1] = point.origin.y;
+	coord[2] = point.size.width;
+	coord[3] = point.size.height;
+}
+
+void convertRectFromScreen(NSWindowRef window, float *coord)
+{
+	NSRect point;
+	point.origin.x = coord[0];
+	point.origin.y = coord[1];
+	point.size.width = coord[2];
+	point.size.height = coord[3];
+	
+	point = [(LLNSWindow*)window convertRectFromScreen:point];
+	
+	coord[0] = point.origin.x;
+	coord[1] = point.origin.y;
+	coord[2] = point.size.width;
+	coord[3] = point.size.height;
 }
 
 void convertScreenToView(NSWindowRef window, float *coord)

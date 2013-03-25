@@ -281,15 +281,18 @@
 - (void) keyDown:(NSEvent *)theEvent
 {
 	[[self inputContext] handleEvent:theEvent];
-	uint keycode = [theEvent keyCode];
-	callKeyDown(keycode, mModifiers);
-	
-	// OS X intentionally does not send us key-up information on cmd-key combinations.
-	// This behaviour is not a bug, and only applies to cmd-combinations (no others).
-	// Since SL assumes we receive those, we fake it here.
-	if (mModifiers & NSCommandKeyMask)
+	if (!mHasMarkedText)
 	{
-		callKeyUp([theEvent keyCode], mModifiers);
+		uint keycode = [theEvent keyCode];
+		callKeyDown(keycode, mModifiers);
+		
+		// OS X intentionally does not send us key-up information on cmd-key combinations.
+		// This behaviour is not a bug, and only applies to cmd-combinations (no others).
+		// Since SL assumes we receive those, we fake it here.
+		if (mModifiers & NSCommandKeyMask)
+		{
+			callKeyUp([theEvent keyCode], mModifiers);
+		}
 	}
 }
 
@@ -348,7 +351,7 @@
 
 - (BOOL)hasMarkedText
 {
-	return NO;
+	return mHasMarkedText;
 }
 
 - (NSRange)markedRange
@@ -365,21 +368,73 @@
 	return NSMakeRange(range[0], range[1]);
 }
 
+- (segment_t) getSegments:(NSAttributedString*)str
+{
+	segment_t segments;
+	
+	int segment = 0;
+	
+	NSRange l;
+	NSRange r = NSMakeRange(0, [str length]);
+	
+	while (r.length > 0)
+	{
+		NSNumber *segmentAttrib = [str attribute:NSUnderlineStyleAttributeName atIndex:r.location longestEffectiveRange:&l inRange:r];
+		
+		r = NSMakeRange(NSMaxRange(l), NSMaxRange(r) - NSMaxRange(l));
+		bool standout;
+		if ([segmentAttrib integerValue] == 1)
+		{
+			standout = false;
+		} else {
+			standout = true;
+		}
+		segments.insert(std::pair<int, bool>(l.length, standout));
+		
+		segment++;
+	}
+	
+	return segments;
+}
+
 - (void)setMarkedText:(id)aString selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange
 {
-	
+	if ([aString class] == NSClassFromString(@"NSConcreteMutableAttributedString"))
+	{
+		unsigned int selected[2] = {
+			selectedRange.location,
+			selectedRange.length
+		};
+		
+		unsigned int replacement[2] = {
+			replacementRange.location,
+			replacementRange.length
+		};
+		
+		NSLog(@"Attributed string: %@", aString);
+		
+		unichar text[[aString length]];
+		[[aString mutableString] getCharacters:text range:NSMakeRange(0, [aString length])];
+		segment_t segments = [self getSegments:(NSAttributedString *)aString];
+		setMarkedText(text, selected, replacement, [aString length], segments);
+		mHasMarkedText = TRUE;
+		mMarkedTextLength = [aString length];
+	}
 }
 
 - (void)unmarkText
 {
-	
+	resetPreedit();
+	mHasMarkedText = FALSE;
 }
 
+// We don't support attributed strings.
 - (NSArray *)validAttributesForMarkedText
 {
 	return [NSArray array];
 }
 
+// See above.
 - (NSAttributedString *)attributedSubstringForProposedRange:(NSRange)aRange actualRange:(NSRangePointer)actualRange
 {
 	return nil;
@@ -387,9 +442,21 @@
 
 - (void)insertText:(id)aString replacementRange:(NSRange)replacementRange
 {
-	for (NSInteger i = 0; i < [aString length]; i++)
+	if (!mHasMarkedText)
 	{
-		callUnicodeCallback([aString characterAtIndex:i], mModifiers);
+		for (NSInteger i = 0; i < [aString length]; i++)
+		{
+			callUnicodeCallback([aString characterAtIndex:i], mModifiers);
+		}
+	} else {
+		// We may never get this point since unmarkText may be called before insertText ever gets called once we submit our text.
+		// But just in case...
+		resetPreedit();
+		for (NSInteger i = 0; i < [aString length]; i++)
+		{
+			handleUnicodeCharacter([aString characterAtIndex:i]);
+		}
+		mHasMarkedText = FALSE;
 	}
 }
 
@@ -412,7 +479,9 @@
 
 - (NSRect)firstRectForCharacterRange:(NSRange)aRange actualRange:(NSRangePointer)actualRange
 {
-	return NSZeroRect;
+	float pos[4] = {0, 0, 0, 0};
+	getPreeditLocation(pos, mMarkedTextLength);
+	return NSMakeRect(pos[0], pos[1], pos[2], pos[3]);
 }
 
 - (void)doCommandBySelector:(SEL)aSelector
