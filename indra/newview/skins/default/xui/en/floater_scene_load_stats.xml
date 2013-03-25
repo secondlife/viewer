@@ -8,7 +8,8 @@
          save_visibility="true"
          title="SCENE LOAD STATISTICS"
          width="260">
-    <button top="20"
+    <button follows="top|left"
+            top="20"
             bottom="60"
             left="10"
             width="100"
@@ -41,7 +42,6 @@
                   stat="FramePixelDifference"
                   bar_max="100"
                   tick_spacing="10"
-                  label_spacing="20"
                   unit_scale="100"
                   precision="0"/>
         <stat_bar name="bandwidth"
@@ -51,7 +51,6 @@
                   stat="kbitstat"
                   bar_max="5000"
                   tick_spacing="500"
-                  label_spacing="1000"
                   precision="0"/>
 			  <stat_bar name="packet_loss"
                   label="Packet Loss"
@@ -60,7 +59,6 @@
                   stat="packetslostpercentstat"
                   bar_max="5"
                   tick_spacing="0.5"
-                  label_spacing="1"
                   precision="3"
                   show_bar="false"
                   show_mean="true"/>
@@ -81,7 +79,6 @@
                     stat="numobjectsstat"
                     bar_max="50000"
                     tick_spacing="5000"
-                    label_spacing="10000"
                     precision="0"
                     show_bar="false"/>
           <stat_bar name="newobjs"
@@ -91,7 +88,6 @@
                     stat="numnewobjectsstat"
                     bar_max="2000"
                     tick_spacing="200"
-                    label_spacing="400"
                     show_bar="false"/>
           <stat_bar name="object_cache_hits"
                     label="Object Cache Hit Rate"
@@ -100,7 +96,6 @@
                     bar_max="100"
                     unit_label="%"
                     tick_spacing="20"
-                    label_spacing="20"
                     show_history="true"
                     show_bar="false"/>
 			  </stat_view>
@@ -115,7 +110,6 @@
                     bar_max="100.f"
                     unit_label="%"
                     tick_spacing="20"
-                    label_spacing="20"
                     show_history="true"
                     show_bar="false"/>
           <stat_bar name="texture_cache_read_latency"
@@ -125,7 +119,6 @@
                     stat="texture_cache_read_latency"
                     bar_max="1000.f"
                     tick_spacing="100"
-                    label_spacing="200"
                     show_history="true"
                     show_bar="false"/>
           <stat_bar name="numimagesstat"
@@ -134,7 +127,6 @@
                     stat="numimagesstat" 
                     bar_max="8000.f" 
                     tick_spacing="2000.f"
-                    label_spacing="4000.f" 
                     show_bar="false"/>
 			    <stat_bar name="numrawimagesstat"
                     label="Raw Count"
@@ -142,7 +134,6 @@
                     stat="numrawimagesstat"
                     bar_max="8000.f" 
                     tick_spacing="2000.f"
-                    label_spacing="4000.f" 
                     show_bar="false"/>
 			  </stat_view>
 <!--Network Stats-->
@@ -157,7 +148,6 @@
                     unit_label="/sec" 
                     bar_max="1024.f" 
                     tick_spacing="128.f"
-                    label_spacing="256.f" 
                     precision="1"
                     show_bar="false"/>
 			    <stat_bar name="packetsoutstat"
@@ -167,7 +157,6 @@
                     unit_label="/sec"  
                     bar_max="1024.f" 
                     tick_spacing="128.f"
-                    label_spacing="256.f" 
                     precision="1"
                     show_bar="false"/>
 			    <stat_bar name="objectkbitstat"
@@ -177,7 +166,6 @@
                     unit_label="kbps"
                     bar_max="1024.f"
                     tick_spacing="128.f"
-                    label_spacing="256.f"
                     precision="1"
                     show_bar="false"/>
 			    <stat_bar name="texturekbitstat"
@@ -187,7 +175,6 @@
                     unit_label="kbps"
                     bar_max="1024.f"
                     tick_spacing="128.f"
-                    label_spacing="256.f"
                     precision="1"
                     show_bar="false"/>
 			    <stat_bar name="assetkbitstat"
@@ -197,7 +184,6 @@
                     unit_label="kbps"
                     bar_max="1024.f"
                     tick_spacing="128.f"
-                    label_spacing="256.f"
                     precision="1"
                     show_bar="false"/>
 			    <stat_bar name="layerskbitstat"
@@ -207,7 +193,6 @@
                     unit_label="kbps"
                     bar_max="1024.f"
                     tick_spacing="128.f"
-                    label_spacing="256.f"
                     precision="1"
                     show_bar="false"/>
 			    <stat_bar name="actualinkbitstat"
@@ -217,7 +202,6 @@
                     unit_label="kbps"
                     bar_max="1024.f"
                     tick_spacing="128.f"
-                    label_spacing="256.f"
                     precision="1"
                     show_bar="false"/>
 			    <stat_bar name="actualoutkbitstat"
@@ -227,7 +211,6 @@
                     unit_label="kbps"
                     bar_max="1024.f"
                     tick_spacing="128.f"
-                    label_spacing="256.f"
                     precision="1"
                     show_bar="false"/>
 			    <stat_bar name="vfspendingoperations"
@@ -250,7 +233,6 @@
                   precision="0"
                   bar_max="30000.f" 
                   tick_spacing="5000.f"
-                  label_spacing="10000.f" 
                   show_bar="false"
                   show_mean="false"/>
 			  <stat_bar name="simactiveobjects"
@@ -260,7 +242,6 @@
                   precision="0"
                   bar_max="5000.f" 
                   tick_spacing="750.f"
-                  label_spacing="1250.f" 
                   show_bar="false"
                   show_mean="false"/>
 			  <stat_bar name="simactivescripts"
@@ -270,7 +251,6 @@
                   precision="0"
                   bar_max="15000.f" 
                   tick_spacing="1875.f"
-                  label_spacing="3750.f"  
                   show_bar="false"
                   show_mean="false"/>
 			  <stat_bar name="siminpps"
@@ -281,7 +261,6 @@
                   precision="0"
                   bar_max="2000.f" 
                   tick_spacing="250.f"
-                  label_spacing="1000.f" 
                   show_bar="false"
                   show_mean="false"/>
 			  <stat_bar name="simoutpps"
@@ -292,7 +271,6 @@
                   precision="0"
                   bar_max="2000.f" 
                   tick_spacing="250.f"
-                  label_spacing="1000.f" 
                   show_bar="false"
                   show_mean="false"/>
 			  <stat_bar name="simpendingdownloads"
@@ -302,7 +280,6 @@
                   precision="0"
                   bar_max="800.f" 
                   tick_spacing="100.f"
-                  label_spacing="200.f" 
                   show_bar="false"
                   show_mean="false"/>
 			  <stat_bar name="simpendinguploads"
@@ -312,7 +289,6 @@
                   precision="0"
                   bar_max="100.f" 
                   tick_spacing="25.f"
-                  label_spacing="50.f" 
                   show_bar="false"
                   show_mean="false"/>
 			  <stat_bar name="simtotalunackedbytes"
@@ -323,7 +299,6 @@
                   precision="1"
                   bar_max="100000.f" 
                   tick_spacing="25000.f"
-                  label_spacing="50000.f" 
                   show_bar="false"
                   show_mean="false"/>
 			  <stat_view name="simperf"
@@ -337,7 +312,6 @@
                     precision="3"
                     bar_max="40.f" 
                     tick_spacing="10.f"
-                    label_spacing="20.f" 
                     show_bar="false"
                     show_mean="false"/>
 			    <stat_bar name="simnetmsec"
@@ -348,7 +322,6 @@
                     precision="3"
                     bar_max="40.f" 
                     tick_spacing="10.f"
-                    label_spacing="20.f" 
                     show_bar="false"
                     show_mean="false"/>
 			    <stat_bar name="simsimphysicsmsec"
@@ -359,7 +332,6 @@
                     precision="3"
                     bar_max="40.f" 
                     tick_spacing="10.f"
-                    label_spacing="20.f" 
                     show_bar="false"
                     show_mean="false"/>
 			    <stat_bar name="simsimothermsec"
@@ -370,7 +342,6 @@
                     precision="3"
                     bar_max="40.f" 
                     tick_spacing="10.f"
-                    label_spacing="20.f" 
                     show_bar="false"
                     show_mean="false"/>
 			    <stat_bar name="simagentmsec"
@@ -381,7 +352,6 @@
                     precision="3"
                     bar_max="40.f" 
                     tick_spacing="10.f"
-                    label_spacing="20.f" 
                     show_bar="false"
                     show_mean="false"/>
 			    <stat_bar name="simimagesmsec"
@@ -392,7 +362,6 @@
                     precision="3"
                     bar_max="40.f" 
                     tick_spacing="10.f"
-                    label_spacing="20.f" 
                     show_bar="false"
                     show_mean="false"/>
 			    <stat_bar name="simscriptmsec"
@@ -403,7 +372,6 @@
                     precision="3"
                     bar_max="40.f" 
                     tick_spacing="10.f"
-                    label_spacing="20.f" 
                     show_bar="false"
                     show_mean="false"/>
           <stat_bar name="simsparemsec"
@@ -414,7 +382,6 @@
                     precision="3"
                     bar_max="40.f"
                     tick_spacing="10.f"
-                    label_spacing="20.f"
                     show_bar="false"
                     show_mean="false"/>
 <!--2nd level time blocks under 'Details' second-->
@@ -429,7 +396,6 @@
                       precision="3"
                       bar_max="40.f"
                       tick_spacing="10.f"
-                      label_spacing="20.f"
                       show_bar="false"
                       show_mean="false"/>
             <stat_bar name="simsimphysicsshapeupdatemsec"
@@ -440,7 +406,6 @@
                       precision="3"
                       bar_max="40.f"
                       tick_spacing="10.f"
-                      label_spacing="20.f"
                       show_bar="false"
                       show_mean="false"/>
             <stat_bar name="simsimphysicsothermsec"
@@ -451,7 +416,6 @@
                       precision="3"
                       bar_max="40.f"
                       tick_spacing="10.f"
-                      label_spacing="20.f"
                       show_bar="false"
                       show_mean="false"/>
             <stat_bar name="simsleepmsec"
@@ -462,7 +426,6 @@
                       precision="3"
                       bar_max="40.f"
                       tick_spacing="10.f"
-                      label_spacing="20.f"
                       show_bar="false"
                       show_mean="false"/>
             <stat_bar name="simpumpiomsec"
@@ -473,7 +436,6 @@
                       precision="3"
                       bar_max="40.f"
                       tick_spacing="10.f"
-                      label_spacing="20.f"
                       show_bar="false"
                       show_mean="false"/>
           </stat_view>

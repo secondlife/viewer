@@ -305,7 +305,7 @@ namespace LLTrace
 			U32 num_periods = mRecordingPeriods.size();
 			for (S32 i = 0; i < num_periods; i++)
 			{
-				min_val = llmin(min_val, mRecordingPeriods[i].getSum(stat));
+				min_val = llmin(min_val, mRecordingPeriods[(mCurPeriod + i) % num_periods].getSum(stat));
 			}
 			return min_val;
 		}
@@ -317,7 +317,7 @@ namespace LLTrace
 			U32 num_periods = mRecordingPeriods.size();
 			for (S32 i = 0; i < num_periods; i++)
 			{
-				min_val = llmin(min_val, mRecordingPeriods[i].getPerSec(stat));
+				min_val = llmin(min_val, mRecordingPeriods[(mCurPeriod + i) % num_periods].getPerSec(stat));
 			}
 			return min_val;
 		}
@@ -329,7 +329,7 @@ namespace LLTrace
 			U32 num_periods = mRecordingPeriods.size();
 			for (S32 i = 0; i < num_periods; i++)
 			{
-				max_val = llmax(max_val, mRecordingPeriods[i].getSum(stat));
+				max_val = llmax(max_val, mRecordingPeriods[(mCurPeriod + i) % num_periods].getSum(stat));
 			}
 			return max_val;
 		}
@@ -339,9 +339,9 @@ namespace LLTrace
 		{
 			F64 max_val = (std::numeric_limits<F64>::min)();
 			U32 num_periods = mRecordingPeriods.size();
-			for (S32 i = 0; i < num_periods; i++)
+			for (S32 i = 1; i < num_periods; i++)
 			{
-				max_val = llmax(max_val, mRecordingPeriods[i].getPerSec(stat));
+				max_val = llmax(max_val, mRecordingPeriods[(mCurPeriod + i) % num_periods].getPerSec(stat));
 			}
 			return max_val;
 		}
@@ -353,9 +353,9 @@ namespace LLTrace
 			U32 num_periods = mRecordingPeriods.size();
 			for (S32 i = 0; i < num_periods; i++)
 			{
-				if (mRecordingPeriods[i].getDuration() > 0.f)
+				if (mRecordingPeriods[(mCurPeriod + i) % num_periods].getDuration() > 0.f)
 				{
-					mean += mRecordingPeriods[i].getSum(stat);
+					mean += mRecordingPeriods[(mCurPeriod + i) % num_periods].getSum(stat);
 				}
 			}
 			mean /= num_periods;
@@ -371,7 +371,7 @@ namespace LLTrace
 			{
 				if (mRecordingPeriods[i].getDuration() > 0.f)
 				{
-					mean += mRecordingPeriods[i].getPerSec(stat);
+					mean += mRecordingPeriods[(mCurPeriod + i) % num_periods].getPerSec(stat);
 				}
 			}
 			mean /= num_periods;

@@ -52,7 +52,6 @@ LLStatBar::LLStatBar(const Params& p)
 	  mMeasurementFloatp(LLTrace::MeasurementStatHandle<>::getInstance(p.stat)),
 	  mMeasurementIntp(LLTrace::MeasurementStatHandle<S64>::getInstance(p.stat)),
 	  mTickSpacing(p.tick_spacing),
-	  mLabelSpacing(p.label_spacing),
 	  mPrecision(p.precision),
 	  mUpdatesPerSec(p.update_rate),
 	  mUnitScale(p.unit_scale),
@@ -68,26 +67,32 @@ LLStatBar::LLStatBar(const Params& p)
 
 BOOL LLStatBar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (mDisplayBar)
+	BOOL handled = LLView::handleMouseDown(x, y, mask);
+	if (!handled)
 	{
-		if (mDisplayHistory)
+		if (mDisplayBar)
 		{
-			mDisplayBar = FALSE;
-			mDisplayHistory = FALSE;
+			if (mDisplayHistory || mOrientation == HORIZONTAL)
+			{
+				mDisplayBar = FALSE;
+				mDisplayHistory = FALSE;
+			}
+			else
+			{
+				mDisplayHistory = TRUE;
+			}
 		}
 		else
 		{
-			mDisplayHistory = TRUE;
+			mDisplayBar = TRUE;
+			if (mOrientation == HORIZONTAL)
+			{
+				mDisplayHistory = TRUE;
+			}
 		}
+		LLView* parent = getParent();
+		parent->reshape(parent->getRect().getWidth(), parent->getRect().getHeight(), FALSE);
 	}
-	else
-	{
-		mDisplayBar = TRUE;
-	}
-
-	LLView* parent = getParent();
-	parent->reshape(parent->getRect().getWidth(), parent->getRect().getHeight(), FALSE);
-
 	return TRUE;
 }
 
@@ -200,10 +205,10 @@ void LLStatBar::draw()
 
 	if (mScaleRange && num_samples)
 	{
-		F32 cur_max = mLabelSpacing;
-		while(max > cur_max)
+		F32 cur_max = mTickSpacing;
+		while(max > cur_max && mMaxBar > cur_max)
 		{
-			cur_max += mLabelSpacing;
+			cur_max += mTickSpacing;
 		}
 		mCurMaxBar = LLSmoothInterpolation::lerp(mCurMaxBar, cur_max, 0.05f);
 	}
@@ -254,42 +259,51 @@ void LLStatBar::draw()
 		// Draw the tick marks.
 		LLGLSUIDefault gls_ui;
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-		for (F32 tick_value = mMinBar + mLabelSpacing; tick_value <= mCurMaxBar; tick_value += mTickSpacing)
+		S32 last_tick = 0;
+		S32 last_label = 0;
+		const S32 MIN_TICK_SPACING = mOrientation == HORIZONTAL ? 20 : 30;
+		const S32 MIN_LABEL_SPACING = mOrientation == HORIZONTAL ? 40 : 60;
+		for (F32 tick_value = mMinBar + mTickSpacing; tick_value <= mCurMaxBar; tick_value += mTickSpacing)
 		{
 			const S32 begin = llfloor((tick_value - mMinBar)*value_scale);
 			const S32 end = begin + tick_width;
-			if (mOrientation == HORIZONTAL)
+			if (begin - last_tick < MIN_TICK_SPACING)
 			{
-				gl_rect_2d(bar_left, end, bar_right - tick_length/2, begin, LLColor4(1.f, 1.f, 1.f, 0.1f));
+				continue;
 			}
-			else
-			{
-				gl_rect_2d(begin, bar_top, end, bar_bottom - tick_length/2, LLColor4(1.f, 1.f, 1.f, 0.1f));
-			}
-		}
+			last_tick = begin;
 
-		// Draw the tick labels (and big ticks).
-		for (F32 tick_value = mMinBar + mLabelSpacing; tick_value <= mCurMaxBar; tick_value += mLabelSpacing)
-		{
-			const S32 begin = llfloor((tick_value - mMinBar)*value_scale);
-			const S32 end = begin + tick_width;
 			tick_label = llformat( value_format.c_str(), tick_value);
 
-			// draw labels for the tick marks
 			if (mOrientation == HORIZONTAL)
 			{
-				gl_rect_2d(bar_left, end, bar_right - tick_length, begin, LLColor4(1.f, 1.f, 1.f, 0.25f));
-				LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, bar_right, begin,
-					LLColor4(1.f, 1.f, 1.f, 0.5f),
-					LLFontGL::LEFT, LLFontGL::VCENTER);
+				if (begin - last_label > MIN_LABEL_SPACING)
+				{
+					gl_rect_2d(bar_left, end, bar_right - tick_length, begin, LLColor4(1.f, 1.f, 1.f, 0.25f));
+					LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, bar_right, begin,
+						LLColor4(1.f, 1.f, 1.f, 0.5f),
+						LLFontGL::LEFT, LLFontGL::VCENTER);
+					last_label = begin;
+				}
+				else
+				{
+					gl_rect_2d(bar_left, end, bar_right - tick_length/2, begin, LLColor4(1.f, 1.f, 1.f, 0.1f));
+				}
 			}
 			else
 			{
-				gl_rect_2d(begin, bar_top, end, bar_bottom - tick_length, LLColor4(1.f, 1.f, 1.f, 0.25f));
-				LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, begin - 1, bar_bottom - tick_length,
-					LLColor4(1.f, 1.f, 1.f, 0.5f),
-					LLFontGL::RIGHT, LLFontGL::TOP);
+				if (begin - last_label > MIN_LABEL_SPACING)
+				{
+					gl_rect_2d(begin, bar_top, end, bar_bottom - tick_length, LLColor4(1.f, 1.f, 1.f, 0.25f));
+					LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, begin - 1, bar_bottom - tick_length,
+						LLColor4(1.f, 1.f, 1.f, 0.5f),
+						LLFontGL::RIGHT, LLFontGL::TOP);
+					last_label = begin;
+				}
+				else
+				{
+					gl_rect_2d(begin, bar_top, end, bar_bottom - tick_length/2, LLColor4(1.f, 1.f, 1.f, 0.1f));
+				}
 			}
 		}
 
@@ -457,12 +471,11 @@ void LLStatBar::setStat(const std::string& stat_name)
 }
 
 
-void LLStatBar::setRange(F32 bar_min, F32 bar_max, F32 tick_spacing, F32 label_spacing)
+void LLStatBar::setRange(F32 bar_min, F32 bar_max, F32 tick_spacing)
 {
 	mMinBar = bar_min;
 	mMaxBar = bar_max;
 	mTickSpacing = tick_spacing;
-	mLabelSpacing = label_spacing;
 }
 
 LLRect LLStatBar::getRequiredRect()
@@ -473,14 +486,7 @@ LLRect LLStatBar::getRequiredRect()
 	{
 		if (mDisplayHistory)
 		{
-			if (mOrientation == HORIZONTAL)
-			{
-				rect.mTop = mMaxHeight;
-			}
-			else
-			{
-				rect.mTop = 35 + llmin(mMaxHeight, llmin(mNumFrames, (S32)LLTrace::get_frame_recording().getNumPeriods()));
-			}
+			rect.mTop = mMaxHeight;
 		}
 		else
 		{
@@ -493,3 +499,4 @@ LLRect LLStatBar::getRequiredRect()
 	}
 	return rect;
 }
+

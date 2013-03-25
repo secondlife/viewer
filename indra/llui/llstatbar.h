@@ -43,7 +43,6 @@ public:
 		Optional<F32>			bar_min,
 								bar_max,
 								tick_spacing,
-								label_spacing,
 								update_rate,
 								unit_scale;
 
@@ -66,7 +65,6 @@ public:
 			  bar_min("bar_min", 0.0f),
 			  bar_max("bar_max", 50.0f),
 			  tick_spacing("tick_spacing", 10.0f),
-			  label_spacing("label_spacing", 10.0f),
 			  precision("precision", 0),
 			  update_rate("update_rate", 5.0f),
 			  unit_scale("unit_scale", 1.f),
@@ -90,7 +88,7 @@ public:
 
 	void setStat(const std::string& stat_name);
 
-	void setRange(F32 bar_min, F32 bar_max, F32 tick_spacing, F32 label_spacing);
+	void setRange(F32 bar_min, F32 bar_max, F32 tick_spacing);
 	void getRange(F32& bar_min, F32& bar_max) { bar_min = mMinBar; bar_max = mMaxBar; }
 	
 	/*virtual*/ LLRect getRequiredRect();	// Return the height of this object, given the set options.

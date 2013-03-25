@@ -31,18 +31,17 @@
 		  <stat_view
 			 name="basic"
 			 label="Basic"
+       follows="left|top|right"
 			 show_label="true"
 			 setting="OpenDebugStatBasic">
 			<stat_bar
 			   name="fps"
-         orientation="horizontal"
 			   label="FPS"
 			   unit_label="fps"
 			   stat="fpsstat"
 			   bar_min="0"
 			   bar_max="60"
 			   tick_spacing="6"
-			   label_spacing="12"
 			   precision="1"
 			   show_bar="true"
 			   show_history="true">
@@ -55,7 +54,6 @@
 			   bar_min="0"
 			   bar_max="5000"
 			   tick_spacing="500"
-			   label_spacing="1000"
 				 precision="0"
 			   show_bar="true"
 			   show_history="false">
@@ -68,7 +66,6 @@
 			   bar_min="0"
 			   bar_max="5"
 			   tick_spacing="0.5"
-			   label_spacing="1"
 			   precision="3"
 			   show_bar="false"
 			   show_mean="true">
@@ -81,7 +78,6 @@
 			   bar_min="0"
 			   bar_max="5000"
 			   tick_spacing="500"
-			   label_spacing="1000"
 				 precision="0"
 			   show_bar="false"
 			   show_mean="false">
@@ -91,11 +87,13 @@
       <stat_view
 			 name="advanced"
 			 label="Advanced"
+       follows="left|top|right"       
 			 show_label="true"
 			 setting="OpenDebugStatAdvanced">
 			<stat_view
 			   name="render"
 			   label="Render"
+         follows="left|top|right"
 			   show_label="true"
 			   setting="OpenDebugStatRender">
 			  <stat_bar
@@ -107,7 +105,6 @@
 				 bar_min="0"
 				 bar_max="10000"
 				 tick_spacing="1000"
-				 label_spacing="2000"
 				 precision="0"
 				 show_per_sec="false"
          show_bar="false">
@@ -121,7 +118,6 @@
 				 bar_min="0"
 				 bar_max="200000"
 				 tick_spacing="25000"
-				 label_spacing="50000"
 				 precision="0"
          show_bar="false">
         </stat_bar>
@@ -133,7 +129,6 @@
 				 bar_min="0"
 				 bar_max="50000"
 				 tick_spacing="5000"
-				 label_spacing="10000"
 				 precision="0"
 				 show_bar="false">
 			  </stat_bar>
@@ -145,7 +140,6 @@
 				 bar_min="0"
 				 bar_max="2000"
 				 tick_spacing="200"
-				 label_spacing="400"
 				 show_bar="false">
 			  </stat_bar>
        <stat_bar
@@ -156,7 +150,6 @@
 				 bar_max="100"
          unit_label="%"
 				 tick_spacing="20"
-				 label_spacing="20"
 				 show_history="true"
 				 show_bar="false">
         </stat_bar>
@@ -165,6 +158,7 @@
 			<stat_view
 			   name="texture"
 			   label="Texture"
+         follows="left|top|right"
 			   show_label="true">
 			  <stat_bar
 				 name="texture_cache_hits"
@@ -174,7 +168,6 @@
 				 bar_max="100.f"
          unit_label="%"
 				 tick_spacing="20"
-				 label_spacing="20"
 				 show_history="true"
 				 show_bar="false">
         </stat_bar>
@@ -186,7 +179,6 @@
 				 bar_min="0.f"
 				 bar_max="1000.f"
 				 tick_spacing="100"
-				 label_spacing="200"
 				 show_history="true"
 				 show_bar="false">
         </stat_bar>
@@ -197,7 +189,6 @@
 				 bar_min="0.f"
 				 bar_max="8000.f" 
 				 tick_spacing="2000.f"
-				 label_spacing="4000.f" 
 				 show_bar="false">
 			  </stat_bar>
 
@@ -208,7 +199,6 @@
 				 bar_min="0.f"
 				 bar_max="8000.f" 
 				 tick_spacing="2000.f"
-				 label_spacing="4000.f" 
 				 show_bar="false">
 			  </stat_bar>
 
@@ -221,7 +211,6 @@
 				 bar_min="0.f"
 				 bar_max="400.f" 
 				 tick_spacing="100.f"
-				 label_spacing="200.f" 
 				 precision="1"
          show_bar="false">
         </stat_bar>
@@ -235,7 +224,6 @@
 				 bar_min="0.f"
 				 bar_max="400.f" 
 				 tick_spacing="100.f"
-				 label_spacing="200.f" 
 				 precision="3"
          show_bar="false">
         </stat_bar>
@@ -249,7 +237,6 @@
 				 bar_min="0.f"
 				 bar_max="400.f" 
 				 tick_spacing="100.f"
-				 label_spacing="200.f" 
 				 precision="3"
          show_bar="false">
         </stat_bar>
@@ -263,7 +250,6 @@
 				 bar_min="0.f"
 				 bar_max="400.f" 
 				 tick_spacing="100.f"
-				 label_spacing="200.f" 
 				 precision="3"
          show_bar="false">
         </stat_bar>
@@ -272,6 +258,7 @@
 			<stat_view
 			   name="network"
 			   label="Network"
+         follows="left|top|right"
 			   show_label="true"
 			   setting="OpenDebugStatNet">
 			  <stat_bar
@@ -282,7 +269,6 @@
          bar_min="0.f"
 				 bar_max="1024.f" 
 				 tick_spacing="128.f"
-				 label_spacing="256.f" 
 				 precision="1"
 				 show_bar="false">
 			  </stat_bar>
@@ -295,7 +281,6 @@
          bar_min="0.f"
 				 bar_max="1024.f" 
 				 tick_spacing="128.f"
-				 label_spacing="256.f" 
 				 precision="1"
 				 show_bar="false" >
 			  </stat_bar>
@@ -308,7 +293,6 @@
          bar_min="0.f"
          bar_max="1024.f"
          tick_spacing="128.f"
-         label_spacing="256.f"
          precision="1"
 				 show_bar="false" >
 			  </stat_bar>
@@ -321,7 +305,6 @@
          bar_min="0.f"
          bar_max="1024.f"
          tick_spacing="128.f"
-         label_spacing="256.f"
          precision="1"
 				 show_bar="false" >
 			  </stat_bar>
@@ -334,7 +317,6 @@
          bar_min="0.f"
          bar_max="1024.f"
          tick_spacing="128.f"
-         label_spacing="256.f"
          precision="1"
 				 show_bar="false" >
 			  </stat_bar>
@@ -347,7 +329,6 @@
          bar_min="0.f"
          bar_max="1024.f"
          tick_spacing="128.f"
-         label_spacing="256.f"
          precision="1"
 				 show_bar="false" >
 			  </stat_bar>
@@ -360,7 +341,6 @@
          bar_min="0.f"
          bar_max="1024.f"
          tick_spacing="128.f"
-         label_spacing="256.f"
          precision="1"
 				 show_bar="false"
 				 show_history="false" >
@@ -374,7 +354,6 @@
          bar_min="0.f"
          bar_max="1024.f"
          tick_spacing="128.f"
-         label_spacing="256.f"
          precision="1"
 				 show_bar="false"
 				 show_history="false">
@@ -393,6 +372,7 @@
 		  <stat_view
 			 name="sim"
 			 label="Simulator"
+       follows="left|top|right"
 			 show_label="true"
 			 setting="OpenDebugStatSim">
 			<stat_bar
@@ -403,7 +383,6 @@
 			   bar_min="0.f"
 			   bar_max="1.f" 
 			   tick_spacing="0.16666f"
-			   label_spacing="0.33333f" 
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -416,7 +395,6 @@
 			   bar_min="0.f"
 			   bar_max="45.f" 
 			   tick_spacing="7.5f"
-			   label_spacing="15.f" 
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -429,7 +407,6 @@
 			   bar_min="0.f"
 			   bar_max="45.f" 
 			   tick_spacing="7.5.f"
-			   label_spacing="15.f" 
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -437,6 +414,7 @@
 			<stat_view
 			   name="physicsdetail"
 			   label="Physics Details"
+         follows="left|top|right"
 			   show_label="true">
 			  <stat_bar
 				 name="physicspinnedtasks"
@@ -446,7 +424,6 @@
 				 bar_min="0.f"
 				 bar_max="500.f" 
 				 tick_spacing="50.f"
-				 label_spacing="100.f" 
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -459,7 +436,6 @@
 				 bar_min="0.f"
 				 bar_max="500.f" 
 				 tick_spacing="50.f"
-				 label_spacing="100.f" 
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -473,7 +449,6 @@
 				 bar_min="0.f"
 				 bar_max="1024.f" 
 				 tick_spacing="128.f"
-				 label_spacing="256.f" 
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -487,7 +462,6 @@
 			   bar_min="0.f"
 			   bar_max="100.f" 
 			   tick_spacing="25.f"
-			   label_spacing="50.f" 
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -500,7 +474,6 @@
 			   bar_min="0.f"
 			   bar_max="80.f" 
 			   tick_spacing="10.f"
-			   label_spacing="40.f" 
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -513,7 +486,6 @@
 			   bar_min="0.f"
 			   bar_max="40.f" 
 			   tick_spacing="5.f"
-			   label_spacing="10.f" 
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -526,7 +498,6 @@
 			   bar_min="0.f"
 			   bar_max="30000.f" 
 			   tick_spacing="5000.f"
-			   label_spacing="10000.f" 
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -539,7 +510,6 @@
 			   bar_min="0.f"
 			   bar_max="5000.f" 
 			   tick_spacing="750.f"
-			   label_spacing="1250.f" 
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -552,7 +522,6 @@
 			   bar_min="0.f"
 			   bar_max="15000.f" 
 			   tick_spacing="1875.f"
-			   label_spacing="3750.f"  
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -564,7 +533,6 @@
             bar_min="0"
             bar_max="100"
             tick_spacing="10"
-            label_spacing="20"
             precision="3"
             show_bar="false"
             show_mean="true">
@@ -579,7 +547,6 @@
 			   bar_min="0.f"
 			   bar_max="5000.f" 
 			   tick_spacing="750.f"
-			   label_spacing="1250.f"  
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -587,6 +554,7 @@
         <stat_view
             name="simpathfinding"
             label="Pathfinding"
+            follows="left|top|right"
             show_label="true">
           <stat_bar
               name="simsimaistepmsec"
@@ -597,7 +565,6 @@
               bar_min="0.f"
               bar_max="40.f"
               tick_spacing="10.f"
-              label_spacing="20.f"
               show_bar="false"
               show_mean="false" >
           </stat_bar>
@@ -610,7 +577,6 @@
               bar_min="0"
               bar_max="45"
               tick_spacing="4"
-              label_spacing="8"
               show_bar="false">
           </stat_bar>
           <stat_bar
@@ -621,7 +587,6 @@
               bar_min="0"
               bar_max="100"
               tick_spacing="10"
-              label_spacing="20"
               precision="1"
               show_bar="false"
               show_mean="true">
@@ -637,7 +602,6 @@
 			   bar_min="0.f"
 			   bar_max="2000.f" 
 			   tick_spacing="250.f"
-			   label_spacing="1000.f" 
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -651,7 +615,6 @@
 			   bar_min="0.f"
 			   bar_max="2000.f" 
 			   tick_spacing="250.f"
-			   label_spacing="1000.f" 
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -664,7 +627,6 @@
 			   bar_min="0.f"
 			   bar_max="800.f" 
 			   tick_spacing="100.f"
-			   label_spacing="200.f" 
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -677,7 +639,6 @@
 			   bar_min="0.f"
 			   bar_max="100.f" 
 			   tick_spacing="25.f"
-			   label_spacing="50.f" 
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -691,7 +652,6 @@
 			   bar_min="0.f"
 			   bar_max="100000.f" 
 			   tick_spacing="25000.f"
-			   label_spacing="50000.f" 
 			   show_bar="false"
 			   show_mean="false" >
 			</stat_bar>
@@ -699,6 +659,7 @@
 			<stat_view
 			   name="simperf"
 			   label="Time (ms)"
+         follows="left|top|right"
 			   show_label="true">
 			  <stat_bar
 				 name="simframemsec"
@@ -709,7 +670,6 @@
 				 bar_min="0.f"
 				 bar_max="40.f" 
 				 tick_spacing="10.f"
-				 label_spacing="20.f" 
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -723,7 +683,6 @@
 				 bar_min="0.f"
 				 bar_max="40.f" 
 				 tick_spacing="10.f"
-				 label_spacing="20.f" 
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -737,7 +696,6 @@
 				 bar_min="0.f"
 				 bar_max="40.f" 
 				 tick_spacing="10.f"
-				 label_spacing="20.f" 
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -751,7 +709,6 @@
 				 bar_min="0.f"
 				 bar_max="40.f" 
 				 tick_spacing="10.f"
-				 label_spacing="20.f" 
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -765,7 +722,6 @@
 				 bar_min="0.f"
 				 bar_max="40.f" 
 				 tick_spacing="10.f"
-				 label_spacing="20.f" 
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -779,7 +735,6 @@
 				 bar_min="0.f"
 				 bar_max="40.f" 
 				 tick_spacing="10.f"
-				 label_spacing="20.f" 
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -793,7 +748,6 @@
 				 bar_min="0.f"
 				 bar_max="40.f" 
 				 tick_spacing="10.f"
-				 label_spacing="20.f" 
 				 show_bar="false"
 				 show_mean="false" >
 			  </stat_bar>
@@ -807,7 +761,6 @@
          bar_min="0.f"
          bar_max="40.f"
          tick_spacing="10.f"
-         label_spacing="20.f"
          show_bar="false"
          show_mean="false" >
         </stat_bar>
@@ -815,6 +768,7 @@
           <stat_view
  			     name="timedetails"
 			     label="Time Details (ms)"
+           follows="left|top|right"
 			     show_label="true">
             <stat_bar
              name="simsimphysicsstepmsec"
@@ -825,7 +779,6 @@
              bar_min="0.f"
              bar_max="40.f"
              tick_spacing="10.f"
-             label_spacing="20.f"
              show_bar="false"
              show_mean="false" >
             </stat_bar>
@@ -838,7 +791,6 @@
              bar_min="0.f"
              bar_max="40.f"
              tick_spacing="10.f"
-             label_spacing="20.f"
              show_bar="false"
              show_mean="false" >
             </stat_bar>
@@ -851,7 +803,6 @@
              bar_min="0.f"
              bar_max="40.f"
              tick_spacing="10.f"
-             label_spacing="20.f"
              show_bar="false"
              show_mean="false" >
             </stat_bar>
@@ -864,7 +815,6 @@
              bar_min="0.f"
              bar_max="40.f"
              tick_spacing="10.f"
-             label_spacing="20.f"
              show_bar="false"
              show_mean="false" >
             </stat_bar>
@@ -877,7 +827,6 @@
              bar_min="0.f"
              bar_max="40.f"
              tick_spacing="10.f"
-             label_spacing="20.f"
              show_bar="false"
              show_mean="false" >
             </stat_bar>

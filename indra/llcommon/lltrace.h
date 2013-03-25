@@ -86,20 +86,17 @@ private:
 
 	AccumulatorBuffer(StaticAllocationMarker m)
 	:	mStorageSize(0),
-		mStorage(NULL),
-		mNextStorageSlot(0)
-	{
-	}
+		mStorage(NULL)
+	{}
 
 public:
 
 	AccumulatorBuffer(const AccumulatorBuffer& other = *getDefaultBuffer())
 	:	mStorageSize(0),
-		mStorage(NULL),
-		mNextStorageSlot(other.mNextStorageSlot)
+		mStorage(NULL)
 	{
 		resize(other.mStorageSize);
-		for (S32 i = 0; i < mNextStorageSlot; i++)
+		for (S32 i = 0; i < sNextStorageSlot; i++)
 		{
 			mStorage[i] = other.mStorage[i];
 		}
@@ -126,9 +123,8 @@ public:
 
 	void addSamples(const AccumulatorBuffer<ACCUMULATOR>& other)
 	{
-		llassert(mNextStorageSlot == other.mNextStorageSlot);
-
-		for (size_t i = 0; i < mNextStorageSlot; i++)
+		llassert(mStorageSize >= sNextStorageSlot && other.mStorageSize > sNextStorageSlot);
+		for (size_t i = 0; i < sNextStorageSlot; i++)
 		{
 			mStorage[i].addSamples(other.mStorage[i]);
 		}
@@ -136,7 +132,8 @@ public:
 
 	void copyFrom(const AccumulatorBuffer<ACCUMULATOR>& other)
 	{
-		for (size_t i = 0; i < mNextStorageSlot; i++)
+		llassert(mStorageSize >= sNextStorageSlot && other.mStorageSize > sNextStorageSlot);
+		for (size_t i = 0; i < sNextStorageSlot; i++)
 		{
 			mStorage[i] = other.mStorage[i];
 		}
@@ -144,7 +141,8 @@ public:
 
 	void reset(const AccumulatorBuffer<ACCUMULATOR>* other = NULL)
 	{
-		for (size_t i = 0; i < mNextStorageSlot; i++)
+		llassert(mStorageSize >= sNextStorageSlot);
+		for (size_t i = 0; i < sNextStorageSlot; i++)
 		{
 			mStorage[i].reset(other ? &other->mStorage[i] : NULL);
 		}
@@ -172,7 +170,7 @@ public:
 		{
 			llerrs << "Attempting to declare trace object after program initialization.  Trace objects should be statically initialized." << llendl;
 		}
-		size_t next_slot = mNextStorageSlot++;
+		size_t next_slot = sNextStorageSlot++;
 		if (next_slot >= mStorageSize)
 		{
 			resize(mStorageSize + (mStorageSize >> 2));
@@ -208,7 +206,7 @@ public:
 
 	size_t size() const
 	{
-		return mNextStorageSlot;
+		return sNextStorageSlot;
 	}
 
 	static self_t* getDefaultBuffer()
@@ -226,10 +224,14 @@ public:
 	}
 
 private:
-	ACCUMULATOR*								mStorage;
-	size_t										mStorageSize;
-	size_t										mNextStorageSlot;
+	ACCUMULATOR*	mStorage;
+	size_t			mStorageSize;
+	static size_t	sNextStorageSlot;
 };
+
+template<typename ACCUMULATOR> size_t AccumulatorBuffer<ACCUMULATOR>::sNextStorageSlot = 0;
+
+
 
 //TODO: replace with decltype when C++11 is enabled
 template<typename T>

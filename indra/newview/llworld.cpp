@@ -728,7 +728,8 @@ void LLWorld::updateNetStats()
 	add(LLStatViewer::PACKETS_LOST, packets_lost);
 	if (packets_in)
 	{
-		sample(LLStatViewer::PACKETS_LOST_PERCENT, 100.f * ((F32)packets_lost/(F32)packets_in));
+		F32 packet_loss = 100.f * ((F32)packets_lost/(F32)packets_in);
+		sample(LLStatViewer::PACKETS_LOST_PERCENT, packet_loss);
 	}
 
 	mLastPacketsIn = gMessageSystem->mPacketsIn;
