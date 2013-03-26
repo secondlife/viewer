@@ -486,11 +486,46 @@ void LLSceneMonitor::fetchQueryResult()
 
 	if(mDiffResult > 0.01f)
 	{
-		mRecording->extend();
-		sample(sFramePixelDiff, mDiffResult);
+		addMonitorResult();
 	}
-	//llinfos << count << " : " << mDiffResult << llendl;
 }
+
+void LLSceneMonitor::addMonitorResult()
+{
+	mRecording->extend();
+	sample(sFramePixelDiff, mDiffResult);
+
+	ll_monitor_result_t result;
+	result.mTimeStamp = LLImageGL::sLastFrameTime;
+	result.mDiff = mDiffResult;
+	mMonitorResults.push_back(result);
+}
+
+//dump results to a file _scene_monitor_results.csv
+void LLSceneMonitor::dumpToFile(std::string file_name)
+{
+	if(mMonitorResults.empty())
+	{
+		return; //nothing to dump
+	}
+
+	std::ofstream os(file_name.c_str());
+
+	//total scene loading time
+	os << llformat("Scene Loading time: %.4f seconds\n", (F32)getRecording()->getAcceptedRecording().getDuration().value());
+
+	S32 num_results = mMonitorResults.size();
+	for(S32 i = 0; i < num_results; i++)
+	{
+		os << llformat("%.4f %.4f\n", mMonitorResults[i].mTimeStamp, mMonitorResults[i].mDiff);
+	}
+
+	os.flush();
+	os.close();
+
+	mMonitorResults.clear();
+}
+
 //-------------------------------------------------------------------------------------------------------------
 //definition of class LLSceneMonitorView
 //-------------------------------------------------------------------------------------------------------------

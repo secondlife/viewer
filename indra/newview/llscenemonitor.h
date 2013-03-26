@@ -64,6 +64,8 @@ public:
 	bool needsUpdate() const;
 	
 	LLTrace::ExtendableRecording* getRecording() const {return mRecording;}
+	void dumpToFile(std::string file_name);
+	bool hasResults() const { return !mMonitorResults.empty();}
 
 private:
 	void freezeScene();
@@ -72,6 +74,7 @@ private:
 	bool preCapture();
 	void generateDitheringTexture(S32 width, S32 height);
 
+	void addMonitorResult();
 private:
 	BOOL mEnabled;
 	BOOL mNeedsUpdateDiff;
@@ -99,6 +102,14 @@ private:
 	std::vector<LLAnimPauseRequest> mAvatarPauseHandles;
 
 	LLTrace::ExtendableRecording* mRecording;
+
+	//---------------------------------------
+	typedef struct _monitor_result
+	{
+		F32 mTimeStamp;
+		F32 mDiff;
+	} ll_monitor_result_t;
+	std::vector<ll_monitor_result_t> mMonitorResults;
 };
 
 class LLSceneMonitorView : public LLFloater
