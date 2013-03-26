@@ -398,7 +398,7 @@ void validate_framebuffer_object();
 
 bool addDeferredAttachments(LLRenderTarget& target)
 {
-	return target.addColorAttachment(GL_SRGB_ALPHA) && //specular
+	return target.addColorAttachment(GL_RGBA) && //specular
 			target.addColorAttachment(GL_RGB10_A2); //normal+z
 }
 
@@ -908,7 +908,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		BOOL ssao = RenderDeferredSSAO;
 		
 		//allocate deferred rendering color buffers
-		if (!mDeferredScreen.allocate(resX, resY, GL_SRGB8_ALPHA8, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		if (!mDeferredScreen.allocate(resX, resY, GL_RGBA8, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!addDeferredAttachments(mDeferredScreen)) return false;
 		
@@ -8297,7 +8297,7 @@ void LLPipeline::renderDeferredLighting()
 					light_colors.pop_front();
 
 					far_z = llmin(light[count].mV[2]-sqrtf(light[count].mV[3]), far_z);
-					col[count] = pow4fsrgb(col[count], 2.2f);
+					//col[count] = pow4fsrgb(col[count], 2.2f);
 					count++;
 					if (count == max_count || fullscreen_lights.empty())
 					{

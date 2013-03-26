@@ -48,7 +48,7 @@ void main()
 			  dot(norm,vary_mat1),
 			  dot(norm,vary_mat2));
 						
-	frag_data[0] = vec4(col * (1 - vertex_color.a), 0.0);
+	frag_data[0] = vec4(col, 0.0);
 	frag_data[1] = vertex_color.aaaa; // spec
 	//frag_data[1] = vec4(vec3(vertex_color.a), vertex_color.a+(1.0-vertex_color.a)*vertex_color.a); // spec - from former class3 - maybe better, but not so well tested
 	vec3 nvn = normalize(tnorm);
