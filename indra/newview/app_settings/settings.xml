@@ -1584,6 +1584,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ChatLoadGroupMaxMembers</key>
+    <map>
+        <key>Comment</key>
+        <string>Max number of active members we'll show up for an unresponsive group</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <real>100</real>
+    </map>
+    <key>ChatLoadGroupTimeout</key>
+    <map>
+        <key>Comment</key>
+        <string>Time we give the server to send group participants before we hit the server for group info (seconds)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>10.0</real>
+    </map>
     <key>ChatOnlineNotification</key>
     <map>
       <key>Comment</key>
@@ -1693,17 +1715,6 @@
       <string>U32</string>
       <key>Value</key>
       <integer>131073</integer>
-    </map>
-    <key>NearbyChatIsNotTornOff</key>
-    <map>
-      <key>Comment</key>
-      <string>saving torn-off state of the nearby chat between sessions</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>CloseChatOnReturn</key>
     <map>
@@ -4253,6 +4264,17 @@
     <map>
       <key>Comment</key>
       <string>Show IM Control Panel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+     <key>IMShowContentPanel</key>
+    <map>
+      <key>Comment</key>
+      <string>Show Toolbar and Body Panels</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

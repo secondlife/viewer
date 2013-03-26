@@ -14,11 +14,16 @@
  width="394"
  can_resize="true"
  can_tear_off="false"
- min_width="340"
  min_height="190"
  positioning="relative">
     <floater.string name="call_btn_start">Conv_toolbar_open_call</floater.string>
     <floater.string name="call_btn_stop">Conv_toolbar_hang_up</floater.string>
+    <floater.string
+     name="collapseline_icon"
+     value="Conv_collapse_to_one_line"/>
+    <floater.string
+     name="expandline_icon"
+     value="Conv_expand_one_line"/>
     <floater.string
      name="collapse_icon"
      value="Conv_toolbar_collapse"/>
@@ -65,14 +70,28 @@
         top="0"
         left="0"
         height="355"
-        width="394"> 
-     <panel
+        width="394">
+   <layout_stack
+   animate="false" 
+   default_tab_group="2"
+   follows="all"
+  height="355"
+  width="394"
+  layout="topleft"
+  orientation="vertical"
+   name="main_stack"
+  tab_group="1"
+  top="0"
+  left="0">
+  
+     <layout_panel
          follows="left|top|right"
          layout="topleft"
          name="toolbar_panel"
          top="0"
          left="0"
          height="35"
+         min_height="35"
          width="394">         
              <menu_button
                  menu_filename="menu_im_session_showmodes.xml"
@@ -98,7 +117,7 @@
 				 image_unselected="Toolbar_Middle_Off"
 				 layout="topleft"
 			 	 top="5"
-			 	 left_pad="4"
+			 	 left_pad="2"
 				 name="gear_btn"
 				 visible="false"
 				 tool_tip="Actions on selected person"
@@ -113,7 +132,7 @@
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  top="5"
-                 left_pad="4"
+                 left_pad="2"
                  name="add_btn"
                  tool_tip="Add someone to this conversation"
                  width="31"/>
@@ -126,7 +145,7 @@
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  top="5"
-                 left_pad="4"
+                 left_pad="2"
                  name="voice_call_btn"
                  tool_tip="Open voice connection"
                  width="31"/>
@@ -151,7 +170,7 @@
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  top="5"
-                 left="283"
+                 left="292"
                  name="close_btn"
                  tool_tip="End this conversation"
                  width="31" />
@@ -164,7 +183,7 @@
              	 image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  top="5"
-                 left_pad="5"
+                 left_pad="2"
                  name="expand_collapse_btn"
                  tool_tip="Collapse/Expand this pane"
                  width="31" />
@@ -177,15 +196,22 @@
              	 image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  top="5"
-                 left_pad="5"
+                 left_pad="2"
                  name="tear_off_btn"
                  width="31" />
-     </panel>
+     </layout_panel>
+     <layout_panel
+      name="body_panel"
+      follows="all"
+      width="394" 
+      height="235" 
+      user_resize="false"
+      auto_resize="true">
   <layout_stack
    animate="true" 
    default_tab_group="2"
   follows="all"
-  height="310"
+  height="275"
   width="394"
   layout="topleft"
   orientation="horizontal"
@@ -196,11 +222,12 @@
     <layout_panel
       name="speakers_list_panel"
       follows="all"
-      min_width="115"
+      expanded_min_dim="115"
+      min_dim="0"
       width="150" 
-      height="310" 
+      height="275"
       user_resize="true"
-      auto_resize="true">
+      auto_resize="false">
       </layout_panel>
     <layout_panel
        default_tab_group="3"
@@ -208,26 +235,26 @@
        tab_group="2"
        follows="all"
        top="0"
-       height="310"
+       height="275"
 	   width="244"
        layout="topleft"
        user_resize="true"
        auto_resize="true"
        visible="true"
-       name="left_part_holder"
+       name="right_part_holder"
        min_width="221">
         <panel
          name="trnsAndChat_panel"
          follows="all"
          layout="topleft"
          visible="true"
-         height="275"
+         height="240"
          width="244">
          <layout_stack
           animate="true" 
           default_tab_group="2"
           follows="all"
-          height="275"
+          height="240"
           width="244"
           layout="topleft"
           visible="true"
@@ -239,6 +266,7 @@
           left="0">
             <layout_panel
              auto_resize="false"
+             user_resize="false"
              height="26"
              layout="topleft"
              left_delta="0"
@@ -258,7 +286,6 @@
                  width="230" />
             </layout_panel>
             <layout_panel
-             height="248"
              width="210"
              layout="topleft"
              follows="all"
@@ -266,43 +293,109 @@
              top_delta="0"
              bottom="0"
              visible="true"
-             user_resize="true"
+             user_resize="false"
              auto_resize="true"
              name="chat_holder">      
                <chat_history
                 font="SansSerifSmall"
                 follows="all"
                 visible="true"
-                height="240"
                 name="chat_history"
                 parse_highlights="true"
                 parse_urls="true"
+                layout="topleft"
                 right="-5"
-                left="5">
+                left="5"
+                top="0"
+                bottom="1">
                </chat_history>
             </layout_panel>
            </layout_stack>
            </panel>
-            <chat_editor
+    </layout_panel>
+  </layout_stack>
+  </layout_panel>
+  <layout_panel
+             height="35"
+             layout="topleft"
+             follows="left|right|bottom"
+             left_delta="0"
+             right="0"
+             top_delta="0"
              bottom="0"
+             visible="true"
+             user_resize="false"
+             auto_resize="false"
+             name="chat_layout_panel">
+   <layout_stack
+   animate="true" 
+   default_tab_group="2"
+   follows="all"
+   height="35"
+   right="0"
+   layout="topleft"
+   orientation="horizontal"
+   name="input_panels"
+   top_pad="0"
+   left="0">
+     <layout_panel
+             height="35"
+             layout="topleft"
+             follows="left|right|bottom"
+             left_delta="0"
+             top_delta="0"
+             bottom="0"
+             visible="true"
+             user_resize="false"
+             auto_resize="true"
+             name="input_editor_layout_panel">
+              <chat_editor
              expand_lines_count="5"
              follows="left|right|bottom"
-	           font="SansSerifSmall"
+               font="SansSerifSmall"
              visible="true"
              height="20"
              is_expandable="true"
              label="To"
              text_tentative_color="TextFgTentativeColor"
-             layout="bottomleft"
+             layout="topleft"
              name="chat_editor"
              max_length="1023"
              spellcheck="true"
              tab_group="3"
-             width="220"
-             left="10"
+             width="160"
+             top="6"
+             left="5"
+             right="-5"
              wrap="true">
             </chat_editor>
-    </layout_panel>
+            </layout_panel>
+            <layout_panel             
+             height="35"
+             layout="topleft"
+             follows="left|right|bottom"
+             left_delta="0"
+             top_delta="0"
+             bottom="0"
+             width="35"
+             visible="true"
+             user_resize="false"
+             auto_resize="false"
+             name="input_button_layout_panel">
+            <button
+                 follows="left|right|bottom"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="Conv_expand_one_line"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 name="minz_btn"
+                 tool_tip="Shows/hides message panel"
+                 width="28"/>
+           </layout_panel>
+  </layout_stack>
+  </layout_panel>
   </layout_stack>
     </view>
 </floater>

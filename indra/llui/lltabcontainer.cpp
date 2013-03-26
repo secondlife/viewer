@@ -1483,16 +1483,22 @@ BOOL LLTabContainer::setTab(S32 which)
 		for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
 		{
 			LLTabTuple* tuple = *iter;
-			if (!tuple)
-				continue;
 			BOOL is_selected = ( tuple == selected_tuple );
-			tuple->mButton->setUseEllipses(mUseTabEllipses);
-			tuple->mButton->setHAlign(mFontHalign);
-			tuple->mTabPanel->setVisible( is_selected );
-// 			tuple->mTabPanel->setFocus(is_selected); // not clear that we want to do this here.
-			tuple->mButton->setToggleState( is_selected );
-			// RN: this limits tab-stops to active button only, which would require arrow keys to switch tabs
-			tuple->mButton->setTabStop( is_selected );
+            
+            // Although the selected tab must be complete, we may have hollow LLTabTuple tucked in the list
+            if (tuple->mButton)
+            {
+                tuple->mButton->setUseEllipses(mUseTabEllipses);
+                tuple->mButton->setHAlign(mFontHalign);
+                tuple->mButton->setToggleState( is_selected );
+                // RN: this limits tab-stops to active button only, which would require arrow keys to switch tabs
+                tuple->mButton->setTabStop( is_selected );
+            }
+            if (tuple->mTabPanel)
+            {
+                tuple->mTabPanel->setVisible( is_selected );
+                //tuple->mTabPanel->setFocus(is_selected); // not clear that we want to do this here.
+            }
 			
 			if (is_selected)
 			{
@@ -1563,8 +1569,7 @@ BOOL LLTabContainer::selectTabByName(const std::string& name)
 	LLPanel* panel = getPanelByName(name);
 	if (!panel)
 	{
-		llwarns << "LLTabContainer::selectTabByName("
-			<< name << ") failed" << llendl;
+		llwarns << "LLTabContainer::selectTabByName(" << name << ") failed" << llendl;
 		return FALSE;
 	}
 

@@ -28,9 +28,11 @@
 #include "llagent.h"
 #include "llavatarnamecache.h"
 #include "llconversationlog.h"
+#include "lldiriterator.h"
 #include "llnotificationsutil.h"
 #include "lltrans.h"
 
+#include <boost/foreach.hpp>
 #include "boost/lexical_cast.hpp"
 
 const int CONVERSATION_LIFETIME = 30; // lifetime of LLConversation is 30 days by spec
@@ -192,14 +194,17 @@ LLConversationLog::LLConversationLog() :
 	mAvatarNameCacheConnection(),
 	mLoggingEnabled(false)
 {
-	LLControlVariable * keep_log_ctrlp = gSavedPerAccountSettings.getControl("KeepConversationLogTranscripts").get();
-	S32 log_mode = keep_log_ctrlp->getValue();
-	keep_log_ctrlp->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
-	if (log_mode > 0)
+	if(gSavedPerAccountSettings.controlExists("KeepConversationLogTranscripts"))
 	{
-		loadFromFile(getFileName());
+		LLControlVariable * keep_log_ctrlp = gSavedPerAccountSettings.getControl("KeepConversationLogTranscripts").get();
+		S32 log_mode = keep_log_ctrlp->getValue();
+		keep_log_ctrlp->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
+		if (log_mode > 0)
+		{
+			loadFromFile(getFileName());
 
-		enableLogging(log_mode);
+			enableLogging(log_mode);
+		}
 	}
 }
 
@@ -377,6 +382,36 @@ void LLConversationLog::cache()
 	if (gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 0)
 	{
 		saveToFile(getFileName());
+	}
+}
+
+void LLConversationLog::getListOfBackupLogs(std::vector<std::string>& list_of_backup_logs)
+{
+	// get Users log directory
+	std::string dirname = gDirUtilp->getPerAccountChatLogsDir();
+
+	// add final OS dependent delimiter
+	dirname += gDirUtilp->getDirDelimiter();
+
+	// create search pattern
+	std::string pattern = "conversation.log.backup*";
+
+	LLDirIterator iter(dirname, pattern);
+	std::string filename;
+	while (iter.next(filename))
+	{
+		list_of_backup_logs.push_back(gDirUtilp->add(dirname, filename));
+	}
+}
+
+void LLConversationLog::deleteBackupLogs()
+{
+	std::vector<std::string> backup_logs;
+	getListOfBackupLogs(backup_logs);
+
+	BOOST_FOREACH(const std::string& fullpath, backup_logs)
+	{
+		LLFile::remove(fullpath);
 	}
 }
 
@@ -575,5 +610,6 @@ void LLConversationLog::onClearLogResponse(const LLSD& notification, const LLSD&
 		mConversations.clear();
 		notifyObservers();
 		cache();
+		deleteBackupLogs();
 	}
 }
