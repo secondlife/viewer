@@ -30,6 +30,7 @@
 
 #include "llagent.h"
 #include "llhttpclient.h"
+#include "llsdserialize.h"
 #include "lltimer.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
@@ -201,6 +202,10 @@ namespace LLMarketplaceImport
 				}
 				sMarketplaceCookie.clear();
 			}
+            else if (gSavedSettings.getBOOL("InventoryOutboxLogging") && (status == MarketplaceErrorCodes::IMPORT_DONE_WITH_ERRORS))
+            {
+                llinfos << " SLM GET : Got IMPORT_DONE_WITH_ERRORS, marketplace cookie not cleared." << llendl;
+            }
 
 			sImportInProgress = (status == MarketplaceErrorCodes::IMPORT_PROCESSING);
 			sImportGetPending = false;
@@ -261,7 +266,12 @@ namespace LLMarketplaceImport
 		
 		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{
-			llinfos << " SLM GET: " << url << llendl;
+            llinfos << " SLM GET: establishMarketplaceSessionCookie, LLHTTPClient::get, url = " << url << llendl;
+            LLSD headers = LLViewerMedia::getHeaders();
+            std::stringstream str;
+            LLSDSerialize::toPrettyXML(headers, str);
+            llinfos << " SLM GET: headers " << llendl;
+            llinfos << str.str() << llendl;
 		}
 
 		slmGetTimer.start();
@@ -292,7 +302,11 @@ namespace LLMarketplaceImport
 		
 		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{
-			llinfos << " SLM GET: " << url << llendl;
+            llinfos << " SLM GET: pollStatus, LLHTTPClient::get, url = " << url << llendl;
+            std::stringstream str;
+            LLSDSerialize::toPrettyXML(headers, str);
+            llinfos << " SLM GET: headers " << llendl;
+            llinfos << str.str() << llendl;
 		}
 
 		slmGetTimer.start();
@@ -326,11 +340,15 @@ namespace LLMarketplaceImport
 		
 		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{
-			llinfos << " SLM POST: " << url << llendl;
+            llinfos << " SLM POST: triggerImport, LLHTTPClient::post, url = " << url << llendl;
+            std::stringstream str;
+            LLSDSerialize::toPrettyXML(headers, str);
+            llinfos << " SLM POST: headers " << llendl;
+            llinfos << str.str() << llendl;
 		}
 
 		slmPostTimer.start();
-		LLHTTPClient::post(url, LLSD(), new LLImportPostResponder(), headers);
+        LLHTTPClient::post(url, LLSD(), new LLImportPostResponder(), headers);
 		
 		return true;
 	}
