@@ -97,6 +97,7 @@
 #include "llcallfloater.h"
 #include "llfloatertexturefetchdebugger.h"
 #include "llspellcheck.h"
+#include "llscenemonitor.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -1565,6 +1566,14 @@ bool LLAppViewer::cleanup()
 
 	// workaround for DEV-35406 crash on shutdown
 	LLEventPumps::instance().reset();
+
+	//dump scene loading monitor results
+	if(LLSceneMonitor::getInstance()->hasResults())
+	{
+		std::string file_name = "scene_monitor_results.csv";
+		LLSceneMonitor::getInstance()->dumpToFile(
+			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, file_name));
+	}
 
 	if (LLFastTimerView::sAnalyzePerformance)
 	{
