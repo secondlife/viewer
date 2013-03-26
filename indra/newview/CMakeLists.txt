@@ -2082,32 +2082,11 @@ if (LL_TESTS)
     LL_TEST_ADDITIONAL_LIBRARIES "${JSONCPP_LIBRARIES}"
   )
 
-  set_source_files_properties(
-    lllogininstance.cpp
-    PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
-  )
-
-  ##################################################
-  # DISABLING PRECOMPILED HEADERS USAGE FOR TESTS
-  ##################################################
-  # if(USE_PRECOMPILED_HEADERS)
-  #     set_source_files_properties(
-  #       ${viewer_TEST_SOURCE_FILES}
-  #       PROPERTIES
-  #         LL_TEST_ADDITIONAL_SOURCE_FILES llviewerprecompiledheaders.cpp
-  #       )
-  # endif(USE_PRECOMPILED_HEADERS)
   LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
 
   #set(TEST_DEBUG on)
   set(test_sources llcapabilitylistener.cpp)
-  ##################################################
-  # DISABLING PRECOMPILED HEADERS USAGE FOR TESTS
-  ##################################################
-  # if(USE_PRECOMPILED_HEADERS)
-  #     set(test_sources "${test_sources}" llviewerprecompiledheaders.cpp)
-  # endif(USE_PRECOMPILED_HEADERS)
+
   set(test_libs
     ${LLMESSAGE_LIBRARIES}
     ${WINDOWS_LIBRARIES}
