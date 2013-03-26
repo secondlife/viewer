@@ -776,7 +776,7 @@
               <key>hash</key>
 	      <string>f38026d0e0b19d20cf11572d06c5332f</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-google-breakpad-graham/rev/272414/arch/Linux/installer/google_breakpad-0.0.0-rev1099-windows-20130320.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-google-breakpad-graham/rev/272414/arch/Linux/installer/google_breakpad-0.0.0-rev1099-linux-20130321.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
