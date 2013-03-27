@@ -554,7 +554,8 @@ void LLMaterialMgr::processGetQueue()
 		postData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
 
 		LLHTTPClient::ResponderPtr materialsResponder = new LLMaterialsResponder("POST", capURL, boost::bind(&LLMaterialMgr::onGetResponse, this, _1, _2, region_id));
-		LL_DEBUGS("Materials") << "POSTing to region '" << regionp->getName() << "' at '"<< capURL << "'\ndata: " << ll_pretty_print_sd(materialsData) << LL_ENDL;
+		LL_DEBUGS("Materials") << "POSTing to region '" << regionp->getName() << "' at '"<< capURL << " for " << materialSize << " materials." 
+			<< "'\ndata: " << ll_pretty_print_sd(materialsData) << LL_ENDL;
 		LLHTTPClient::post(capURL, postData, materialsResponder);
 	}
 }
@@ -670,7 +671,7 @@ void LLMaterialMgr::processPutQueue()
 			LLSD putData = LLSD::emptyMap();
 			putData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
 
-			LL_DEBUGS("Materials") << "put for " << itRequest->second.size() << " faces" << LL_ENDL;
+			LL_DEBUGS("Materials") << "put for " << itRequest->second.size() << " faces to region " << itRequest->first->getName() << LL_ENDL;
 			LLHTTPClient::ResponderPtr materialsResponder = new LLMaterialsResponder("PUT", capURL, boost::bind(&LLMaterialMgr::onPutResponse, this, _1, _2));
 			LLHTTPClient::put(capURL, putData, materialsResponder);
 		}
