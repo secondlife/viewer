@@ -299,7 +299,7 @@ void LLApp::setupErrorHandling()
 	{
 		llwarns << "adding breakpad exception handler" << llendl;
 		mExceptionHandler = new google_breakpad::ExceptionHandler(
-			L"C:\\Temp\\", 0, windows_post_minidump_callback, 0, google_breakpad::ExceptionHandler::HANDLER_ALL);
+			L"C:\\Temp\\", 0, windows_post_minidump_callback, 0, true, google_breakpad::ExceptionHandler::HANDLER_ALL);
 	}
 #endif
 #else
@@ -350,7 +350,7 @@ void LLApp::setupErrorHandling()
 	if(installHandler && (mExceptionHandler == 0))
 	{
 		std::string dumpPath = "/tmp/";
-		mExceptionHandler = new google_breakpad::ExceptionHandler(dumpPath, 0, &unix_post_minidump_callback, 0, true, 0);
+		mExceptionHandler = new google_breakpad::ExceptionHandler(dumpPath, 0, &unix_post_minidump_callback, 0, true, google_breakpad::ExceptionHandler::HANDLER_ALL);
 	}
 #endif
 
