@@ -880,9 +880,8 @@ void LLFloaterIMSessionTab::reshapeFloater(bool collapse)
 
 void LLFloaterIMSessionTab::restoreFloater()
 {
-	if(checkIfTornOff() && !isMessagePaneExpanded())
+	if(!isMessagePaneExpanded())
 	{
-
 		if(isMinimized())
 		{
 			setMinimized(false);
