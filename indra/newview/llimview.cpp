@@ -181,9 +181,9 @@ void on_new_message(const LLSD& msg)
 	{
 		conversations_floater_status = CLOSED;
 	}
-	else if (!im_box->isFrontmost() &&
+	else if ( !im_box->hasFocus() &&
 			(!session_floater || !LLFloater::isVisible(session_floater)
-	            || session_floater->isMinimized() || !session_floater->isFrontmost()))
+	            || session_floater->isMinimized() || !session_floater->hasFocus()))
 	{
 		conversations_floater_status = NOT_ON_TOP;
 	}
@@ -274,7 +274,7 @@ void on_new_message(const LLSD& msg)
 
     // 2. Flash line item
     if ("openconversations" == user_preferences
-    		|| NOT_ON_TOP == conversations_floater_status)
+    		|| ON_TOP == conversations_floater_status)
     {
     	if(!LLMuteList::getInstance()->isMuted(participant_id))
     	{
@@ -283,7 +283,7 @@ void on_new_message(const LLSD& msg)
     }
 
     // 3. Flash FUI button
-    if ("flash" == user_preferences &&
+    if (("toast" == user_preferences || "flash" == user_preferences) &&
     		(CLOSED == conversations_floater_status
     		    || NOT_ON_TOP == conversations_floater_status))
     {
@@ -295,9 +295,7 @@ void on_new_message(const LLSD& msg)
     }
 
     // 4. Toast
-    if (("toast" == user_preferences &&
-    		(CLOSED == conversations_floater_status
-    		    || NOT_ON_TOP == conversations_floater_status))
+    if ("toast" == user_preferences
     		    || !session_floater->isMessagePaneExpanded())
     {
         //Show IM toasts (upper right toasts)
