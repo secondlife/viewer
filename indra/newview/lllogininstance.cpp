@@ -597,7 +597,7 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	request_params["read_critical"] = false; // handleTOSResponse
 	request_params["last_exec_event"] = mLastExecEvent;
 	request_params["mac"] = (char*)hashed_unique_id_string;
-	request_params["version"] = LLVersionInfo::getChannelAndVersion(); // Includes channel name
+	request_params["version"] = LLVersionInfo::getVersion();
 	request_params["channel"] = LLVersionInfo::getChannel();
 	request_params["platform"] = mPlatform;
 	request_params["platform_version"] = mPlatformVersion;

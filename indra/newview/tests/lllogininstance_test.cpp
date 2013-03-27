@@ -50,7 +50,7 @@ const std::string VIEWERLOGIN_GRIDLABEL("viewerlogin_grid");
 const std::string APPVIEWER_SERIALNUMBER("appviewer_serialno");
 
 const std::string VIEWERLOGIN_CHANNEL("invalid_channel");
-const std::string VIEWERLOGIN_VERSION_CHANNEL("invalid_version");
+const std::string VIEWERLOGIN_VERSION("invalid_version");
 
 // Link seams.
 
@@ -183,7 +183,7 @@ void LLUIColorTable::saveUserSettings(void)const {}
 
 //-----------------------------------------------------------------------------
 #include "../llversioninfo.h"
-const std::string &LLVersionInfo::getChannelAndVersion() { return VIEWERLOGIN_VERSION_CHANNEL; }
+const std::string &LLVersionInfo::getVersion() { return VIEWERLOGIN_VERSION; }
 const std::string &LLVersionInfo::getChannel() { return VIEWERLOGIN_CHANNEL; }
 
 //-----------------------------------------------------------------------------
