@@ -761,10 +761,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>hash</key>
-	      <string>b81e688268c7fa46093904a69161ec16</string>
-              <key>url</key>
-	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-google-breakpad-graham/rev/272896/arch/Darwin/installer/google_breakpad-0.0.0-rev1099-darwin-20130327.tar.bz2</string>
+           <key>hash</key>
+	      <string>8dd5cbc276495f263917b69e6d2a49b9</string>
+          <key>url</key>
+	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-google-breakpad-graham/rev/272925/arch/Darwin/installer/google_breakpad-0.0.0-rev1099-darwin-20130327.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -774,9 +774,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-	      <string>4ecb4156bf9b5628fad547fd340ae19d</string>
+	      <string>d6ffc840ec2fb1fc02f350995e5b9885</string>
               <key>url</key>
-	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-google-breakpad-graham/rev/272896/arch/Linux/installer/google_breakpad-0.0.0-rev1099-linux-20130327.tar.bz2</string>
+	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-google-breakpad-graham/rev/272925/arch/Linux/installer/google_breakpad-0.0.0-rev1099-linux-20130327.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -786,9 +786,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-	      <string>e1a94817611108a37df2b566eb676ae2</string>
+	      <string>9f30e2891f6b564897ef83165bc4d45c</string>
               <key>url</key>
-	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-google-breakpad-graham/rev/272896/arch/CYGWIN/installer/google_breakpad-0.0.0-rev1099-windows-20130327.tar.bz2</string>
+	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-google-breakpad-graham/rev/272925/arch/CYGWIN/installer/google_breakpad-0.0.0-rev1099-windows-20130327.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
