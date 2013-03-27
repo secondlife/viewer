@@ -26,8 +26,17 @@
  */
 
 #include <map>
+#include <vector>
 
-typedef std::map<int, bool> segment_t;
+typedef std::vector<std::pair<int, bool> > segment_t;
+
+typedef std::vector<int> segment_lengths;
+typedef std::vector<int> segment_standouts;
+
+struct attributedStringInfo {
+	segment_lengths seg_lengths;
+	segment_standouts seg_standouts;
+};
 
 // This will actually hold an NSCursor*, but that type is only available in objective C.
 typedef void *CursorRef;
@@ -122,7 +131,7 @@ void updatePreeditor(unsigned short *str);
 void setPreeditMarkedRange(int position, int length);
 void resetPreedit();
 int wstring_length(const std::basic_string<wchar_t> & wstr, const int woffset, const int utf16_length, int *unaligned);
-void setMarkedText(unsigned short *text, unsigned int *selectedRange, unsigned int *replacementRange, long text_len, segment_t segments);
+void setMarkedText(unsigned short *text, unsigned int *selectedRange, unsigned int *replacementRange, long text_len, attributedStringInfo segments);
 void getPreeditLocation(float *location, unsigned int length);
 
 NSWindowRef getMainAppWindow();

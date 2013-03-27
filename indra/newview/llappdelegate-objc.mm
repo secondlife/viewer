@@ -7,6 +7,7 @@
 //
 
 #import "llappdelegate-objc.h"
+#include "llwindowmacosx-objc.h"
 
 @implementation LLAppDelegate
 

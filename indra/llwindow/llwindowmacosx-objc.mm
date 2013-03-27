@@ -27,8 +27,8 @@
 
 #include <AppKit/AppKit.h>
 #include <Cocoa/Cocoa.h>
-#include "llwindowmacosx-objc.h"
 #include "llopenglview-objc.h"
+#include "llwindowmacosx-objc.h"
 #include "llappdelegate-objc.h"
 
 /*

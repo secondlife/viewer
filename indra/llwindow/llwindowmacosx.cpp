@@ -39,6 +39,7 @@
 #include "indra_constants.h"
 
 #include <OpenGL/OpenGL.h>
+#include <CoreServices/CoreServices.h>
 
 extern BOOL gDebugWindowProc;
 
@@ -423,7 +424,7 @@ void resetPreedit()
 
 // For reasons of convenience, handle IME updates here.
 // This largely mirrors the old implementation, only sans the carbon parameters.
-void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigned int *replacementRange, long text_len, segment_t segments)
+void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigned int *replacementRange, long text_len, attributedStringInfo segments)
 {
 	if (gWindowImplementation->getPreeditor())
 	{
@@ -442,17 +443,9 @@ void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigne
 		
 		LLWString fix_str = utf16str_to_wstring(llutf16string(unitext, text_len));
 		
-		LLPreeditor::segment_lengths_t preedit_segment_lengths;
-		LLPreeditor::standouts_t preedit_standouts;
 		S32 caret_position = fix_str.length();
 		
-		for (segment_t::iterator i = segments.begin(); i != segments.end(); i++)
-		{
-			preedit_segment_lengths.push_back(i->first);
-			preedit_standouts.push_back(i->second);
-		}
-		
-		preeditor->updatePreedit(fix_str, preedit_segment_lengths, preedit_standouts, caret_position);
+		preeditor->updatePreedit(fix_str, segments.seg_lengths, segments.seg_standouts, caret_position);
 	}
 }
 

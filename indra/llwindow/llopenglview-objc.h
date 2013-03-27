@@ -10,7 +10,7 @@
 #import <IOKit/IOKitLib.h>
 #import <CoreFoundation/CFBase.h>
 #import <CoreFoundation/CFNumber.h>
-#include "llwindowmacosx-objc.h"
+#include <string>
 
 // Some nasty shovelling of LLOpenGLView from LLNativeBindings to prevent any C++ <-> Obj-C interop oddities.
 // Redraw callback handling removed (for now) due to being unneeded in the patch that preceeds this addition.
@@ -41,8 +41,6 @@
 - (CGLPixelFormatObj*)getCGLPixelFormatObj;
 
 - (unsigned long) getVramSize;
-
-- (segment_t) getSegments:(NSAttributedString*)str;
 
 @end
 

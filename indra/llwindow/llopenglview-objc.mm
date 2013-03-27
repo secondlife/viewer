@@ -7,6 +7,7 @@
 //
 
 #import "llopenglview-objc.h"
+#include "llwindowmacosx-objc.h"
 
 @implementation NSScreen (PointConversion)
 
@@ -36,6 +37,37 @@
 }
 
 @end
+
+attributedStringInfo getSegments(NSAttributedString *str)
+{
+	attributedStringInfo segments;
+	segment_lengths seg_lengths;
+	segment_standouts seg_standouts;
+	NSRange effectiveRange;
+	NSRange limitRange = NSMakeRange(0, [str length]);
+	while (limitRange.length > 0) {
+		NSNumber *attr = [str attribute:NSUnderlineStyleAttributeName atIndex:limitRange.location longestEffectiveRange:&effectiveRange inRange:limitRange];
+		limitRange = NSMakeRange(NSMaxRange(effectiveRange), NSMaxRange(limitRange) - NSMaxRange(effectiveRange));
+		
+		if (effectiveRange.length <= 0)
+		{
+			effectiveRange.length = 1;
+		}
+		
+		if ([attr integerValue] == 2)
+		{
+			seg_lengths.push_back(effectiveRange.length);
+			seg_standouts.push_back(true);
+		} else
+		{
+			seg_lengths.push_back(effectiveRange.length);
+			seg_standouts.push_back(false);
+		}
+	}
+	segments.seg_lengths = seg_lengths;
+	segments.seg_standouts = seg_standouts;
+	return segments;
+}
 
 @implementation LLOpenGLView
 
@@ -368,35 +400,6 @@
 	return NSMakeRange(range[0], range[1]);
 }
 
-- (segment_t) getSegments:(NSAttributedString*)str
-{
-	segment_t segments;
-	
-	int segment = 0;
-	
-	NSRange l;
-	NSRange r = NSMakeRange(0, [str length]);
-	
-	while (r.length > 0)
-	{
-		NSNumber *segmentAttrib = [str attribute:NSUnderlineStyleAttributeName atIndex:r.location longestEffectiveRange:&l inRange:r];
-		
-		r = NSMakeRange(NSMaxRange(l), NSMaxRange(r) - NSMaxRange(l));
-		bool standout;
-		if ([segmentAttrib integerValue] == 1)
-		{
-			standout = false;
-		} else {
-			standout = true;
-		}
-		segments.insert(std::pair<int, bool>(l.length, standout));
-		
-		segment++;
-	}
-	
-	return segments;
-}
-
 - (void)setMarkedText:(id)aString selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange
 {
 	if ([aString class] == NSClassFromString(@"NSConcreteMutableAttributedString"))
@@ -411,11 +414,9 @@
 			replacementRange.length
 		};
 		
-		NSLog(@"Attributed string: %@", aString);
-		
 		unichar text[[aString length]];
 		[[aString mutableString] getCharacters:text range:NSMakeRange(0, [aString length])];
-		segment_t segments = [self getSegments:(NSAttributedString *)aString];
+		attributedStringInfo segments = getSegments((NSAttributedString *)aString);
 		setMarkedText(text, selected, replacement, [aString length], segments);
 		mHasMarkedText = TRUE;
 		mMarkedTextLength = [aString length];
@@ -452,6 +453,7 @@
 		// We may never get this point since unmarkText may be called before insertText ever gets called once we submit our text.
 		// But just in case...
 		resetPreedit();
+		
 		for (NSInteger i = 0; i < [aString length]; i++)
 		{
 			handleUnicodeCharacter([aString characterAtIndex:i]);
