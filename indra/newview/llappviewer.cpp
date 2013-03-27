@@ -271,6 +271,19 @@ BOOL gUseQuickTime = TRUE;
 
 eLastExecEvent gLastExecEvent = LAST_EXEC_NORMAL;
 
+#if LL_WINDOWS  
+#   define LL_PLATFORM_KEY "win"
+#elif LL_DARWIN
+#   define LL_PLATFORM_KEY "mac"
+#elif LL_LINUX
+#   define LL_PLATFORM_KEY "lnx"
+#elif LL_SOLARIS
+#   define LL_PLATFORM_KEY "sol"
+#else
+#   error "Unknown Platform"
+#endif
+const char* gPlatform = LL_PLATFORM_KEY;
+
 LLSD gDebugInfo;
 
 U32	gFrameCount = 0;
@@ -669,6 +682,7 @@ LLAppViewer::LLAppViewer() :
 	gLoggedInTime.stop();
 	
 	LLLoginInstance::instance().setUpdaterService(mUpdater.get());
+	LLLoginInstance::instance().setPlatformInfo(gPlatform, getOSInfo().getOSVersionString());
 }
 
 LLAppViewer::~LLAppViewer()
@@ -3014,6 +3028,7 @@ void LLAppViewer::initUpdater()
 						 service_path, 
 						 channel, 
 						 version,
+						 gPlatform,
 						 getOSInfo().getOSVersionString(),
 						 unique_id,
 						 willing_to_test
@@ -5189,17 +5204,9 @@ void LLAppViewer::handleLoginComplete()
 
 void LLAppViewer::launchUpdater()
 {
-		LLSD query_map = LLSD::emptyMap();
-	// *TODO place os string in a global constant
-#if LL_WINDOWS  
-	query_map["os"] = "win";
-#elif LL_DARWIN
-	query_map["os"] = "mac";
-#elif LL_LINUX
-	query_map["os"] = "lnx";
-#elif LL_SOLARIS
-	query_map["os"] = "sol";
-#endif
+	LLSD query_map = LLSD::emptyMap();
+	query_map["os"] = gPlatform;
+
 	// *TODO change userserver to be grid on both viewer and sim, since
 	// userserver no longer exists.
 	query_map["userserver"] = LLGridManager::getInstance()->getGridId();

@@ -47,6 +47,7 @@ public:
 						  std::string const & servicePath,
 						  std::string const & channel,
 						  std::string const & version,
+						  std::string const & platform,
 						  std::string const & platform_version,
 						  unsigned char       uniqueid[MD5HEX_STR_SIZE],
 						  bool                willing_to_test
@@ -70,6 +71,7 @@ public:
 		std::string   mHostUrl;
 		std::string   mServicePath;
 		std::string   mChannel;
+		std::string   mPlatform;
 		std::string   mPlatformVersion;
 		unsigned char mUniqueId[MD5HEX_STR_SIZE];
 		bool          mWillingToTest;
@@ -78,6 +80,7 @@ public:
 							 std::string const & servicePath,
 							 std::string const & channel,
 							 std::string const & version,
+							 std::string const & platform,
 							 std::string const & platform_version,
 							 unsigned char       uniqueid[MD5HEX_STR_SIZE],
 							 bool                willing_to_test);
@@ -96,6 +99,7 @@ public:
 					  std::string const & servicePath,
 					  std::string const & channel,
 					  std::string const & version,
+					  std::string const & platform,
 					  std::string const & platform_version,
 					  unsigned char       uniqueid[MD5HEX_STR_SIZE],
 					  bool                willing_to_test);

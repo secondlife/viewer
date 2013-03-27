@@ -322,6 +322,8 @@ typedef enum
 
 extern eLastExecEvent gLastExecEvent; // llstartup
 
+extern const char* gPlatform;
+
 extern U32 gFrameCount;
 extern U32 gForegroundFrameCount;
 

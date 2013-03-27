@@ -488,6 +488,13 @@ LLLoginInstance::LLLoginInstance() :
 	mDispatcher.add("indeterminate", "", boost::bind(&LLLoginInstance::handleIndeterminate, this, _1));
 }
 
+void LLLoginInstance::setPlatformInfo(const std::string platform,
+									  const std::string platform_version)
+{
+	mPlatform = platform;
+	mPlatformVersion = platform_version;
+}
+
 LLLoginInstance::~LLLoginInstance()
 {
 }
@@ -592,6 +599,8 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	request_params["mac"] = (char*)hashed_unique_id_string;
 	request_params["version"] = LLVersionInfo::getChannelAndVersion(); // Includes channel name
 	request_params["channel"] = LLVersionInfo::getChannel();
+	request_params["platform"] = mPlatform;
+	request_params["platform_version"] = mPlatformVersion;
 	request_params["id0"] = mSerialNumber;
 	request_params["host_id"] = gSavedSettings.getString("HostID");
 	request_params["extended_errors"] = true; // request message_id and message_args

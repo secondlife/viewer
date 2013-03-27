@@ -97,6 +97,7 @@ class LLUpdaterServiceImpl :
 	std::string   mPath;
 	std::string   mChannel;
 	std::string   mVersion;
+	std::string   mPlatform;
 	std::string   mPlatformVersion;
 	unsigned char mUniqueId[MD5HEX_STR_SIZE];
 	bool          mWillingToTest;
@@ -123,6 +124,7 @@ public:
 					const std::string& 	path,
 					const std::string& 	channel,
 					const std::string& 	version,
+					const std::string&  platform,
 					const std::string&  platform_version,
 					const unsigned char uniqueid[MD5HEX_STR_SIZE],
 					const bool&         willing_to_test					
@@ -185,7 +187,8 @@ void LLUpdaterServiceImpl::initialize(const std::string&  url,
 									  const std::string&  path,
 									  const std::string&  channel,
 									  const std::string&  version,
-									  const std::string & platform_version,
+									  const std::string&  platform,
+									  const std::string&  platform_version,
 									  const unsigned char uniqueid[MD5HEX_STR_SIZE],
 									  const bool&         willing_to_test)
 {
@@ -199,6 +202,7 @@ void LLUpdaterServiceImpl::initialize(const std::string&  url,
 	mPath = path;
 	mChannel = channel;
 	mVersion = version;
+	mPlatform = platform;
 	mPlatformVersion = platform_version;
 	memcpy(mUniqueId, uniqueid, MD5HEX_STR_SIZE);
 	mWillingToTest = willing_to_test;
@@ -561,7 +565,7 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 		}
 		else
 		{
-			mUpdateChecker.checkVersion(mUrl, mPath, mChannel, mVersion, mPlatformVersion, mUniqueId, mWillingToTest);
+			mUpdateChecker.checkVersion(mUrl, mPath, mChannel, mVersion, mPlatform, mPlatformVersion, mUniqueId, mWillingToTest);
 			setState(LLUpdaterService::CHECKING_FOR_UPDATE);
 		}
 	} 
@@ -610,12 +614,13 @@ void LLUpdaterService::initialize(const std::string& url,
 								  const std::string& path,
 								  const std::string& channel,
 								  const std::string& version,
+								  const std::string& platform,
 								  const std::string& platform_version,
 								  const unsigned char uniqueid[MD5HEX_STR_SIZE],
 								  const bool&         willing_to_test
 )
 {
-	mImpl->initialize(url, path, channel, version, platform_version, uniqueid, willing_to_test);
+	mImpl->initialize(url, path, channel, version, platform, platform_version, uniqueid, willing_to_test);
 }
 
 void LLUpdaterService::setCheckPeriod(unsigned int seconds)

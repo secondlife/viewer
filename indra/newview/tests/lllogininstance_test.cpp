@@ -73,7 +73,7 @@ void LLViewerWindow::setShowProgress(BOOL show) {}
 LLProgressView * LLViewerWindow::getProgressView(void) const { return 0; }
 
 LLViewerWindow* gViewerWindow;
-
+	
 class LLLogin::Impl
 {
 };
@@ -212,6 +212,7 @@ void LLUpdaterService::initialize(const std::string& url,
 								  const std::string& path,
 								  const std::string& channel,
 								  const std::string& version,
+								  const std::string& platform,
 								  const std::string& platform_version,
 								  const unsigned char uniqueid[MD5HEX_STR_SIZE],
 								  const bool&         willing_to_test
@@ -369,6 +370,7 @@ namespace tut
 			accountCredential->setCredentialData(identifier, authenticator);			
 
 			logininstance->setNotificationsInterface(&notifications);
+			logininstance->setPlatformInfo("win", "1.3.5");
 		}
 
 		LLLoginInstance* logininstance;

@@ -75,6 +75,7 @@ public:
 				    const std::string& 	path,
 				    const std::string& 	channel,
 				    const std::string& 	version,
+					const std::string&  platform,
 					const std::string&  platform_version,
 					const unsigned char uniqueid[MD5HEX_STR_SIZE],
 					const bool&         willing_to_test
