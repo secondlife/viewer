@@ -97,15 +97,6 @@ public:
 	// Debugging - get truncated LLSD summary of COF contents.
 	LLSD dumpCOF() const;
 
-	// COF version of last viewer-initiated appearance update request.
-	S32 mLastUpdateRequestCOFVersion;
-	S32 getLastUpdateRequestCOFVersion() const;
-
-	// COF version of last appearance message received for self av.
-	S32 mLastAppearanceUpdateCOFVersion;
-	S32 getLastAppearanceUpdateCOFVersion() const;
-	void setLastAppearanceUpdateCOFVersion(S32 new_val);
-
 	// Finds the folder link to the currently worn outfit
 	const LLViewerInventoryItem *getBaseOutfitLink();
 	bool getBaseOutfitName(std::string &name);

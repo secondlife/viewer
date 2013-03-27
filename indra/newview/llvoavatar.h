@@ -962,6 +962,17 @@ protected:
 	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez
 	LLFrameTimer	mDebugExistenceTimer; // Debugging for how long the avatar has been in memory.
 
+	//--------------------------------------------------------------------
+	// COF monitoring
+	//--------------------------------------------------------------------
+
+public:
+	// COF version of last viewer-initiated appearance update request. For non-self avs, this will remain at default.
+	S32 mLastUpdateRequestCOFVersion;
+
+	// COF version of last appearance message received for this av.
+	S32 mLastUpdateReceivedCOFVersion;
+
 /**                    Diagnostics
  **                                                                            **
  *******************************************************************************/

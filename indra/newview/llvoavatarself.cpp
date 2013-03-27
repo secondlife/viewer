@@ -2570,7 +2570,11 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 {
 	if (!isIndexLocalTexture(type)) return;
 
-	if (!covered_by_baked)
+	// Sunshine - ignoring covered_by_baked will force local textures
+	// to always load.  Fix for SH-4001 and many related issues.  Do
+	// not restore this without some more targetted fix for the local
+	// textures failing to load issue.
+	//if (!covered_by_baked)
 	{
 		if (getLocalTextureID(type, index) != IMG_DEFAULT_AVATAR)
 		{
