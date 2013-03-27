@@ -101,6 +101,7 @@ public:
 	bool isMessagePaneExpanded(){return mMessagePaneExpanded;}
 	void setMessagePaneExpanded(bool expanded){mMessagePaneExpanded = expanded;}
 	void restoreFloater();
+	void saveCollapsedState();
 
 protected:
 

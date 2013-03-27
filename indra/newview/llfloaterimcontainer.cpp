@@ -1337,7 +1337,10 @@ void LLFloaterIMContainer::showConversation(const LLUUID& session_id)
     selectConversationPair(session_id, true);
 
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
-    session_floater->restoreFloater();
+    if (session_floater)
+    {
+        session_floater->restoreFloater();
+    }
 }
 
 void LLFloaterIMContainer::clearAllFlashStates()

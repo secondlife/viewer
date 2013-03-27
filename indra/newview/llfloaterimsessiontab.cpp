@@ -132,6 +132,12 @@ void LLFloaterIMSessionTab::setVisible(BOOL visible)
 			LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container")->setVisible(true);
 		}
 		LLFloaterIMSessionTab::addToHost(mSessionID);
+		LLFloaterIMSessionTab* conversp = LLFloaterIMSessionTab::getConversation(mSessionID);
+
+		if (conversp && conversp->isNearbyChat() && gSavedPerAccountSettings.getBOOL("NearbyChatIsNotCollapsed"))
+		{
+			onCollapseToLine(this);
+		}
 		mInputButtonPanel->setVisible(isTornOff());
 	}
 
@@ -356,7 +362,7 @@ void LLFloaterIMSessionTab::draw()
 		// Restart the refresh timer
 		mRefreshTimer->setTimerExpirySec(REFRESH_INTERVAL);
 	}
-	
+
 	LLTransientDockableFloater::draw();
 }
 
@@ -866,7 +872,7 @@ void LLFloaterIMSessionTab::reshapeFloater(bool collapse)
 		enableResizeCtrls(true, true, true);
 
 	}
-
+	saveCollapsedState();
 	setShape(floater_rect, true);
 	mBodyStack->updateLayout();
 
@@ -874,8 +880,9 @@ void LLFloaterIMSessionTab::reshapeFloater(bool collapse)
 
 void LLFloaterIMSessionTab::restoreFloater()
 {
-	if(!isMessagePaneExpanded())
+	if(checkIfTornOff() && !isMessagePaneExpanded())
 	{
+
 		if(isMinimized())
 		{
 			setMinimized(false);
@@ -888,6 +895,7 @@ void LLFloaterIMSessionTab::restoreFloater()
 		mBodyStack->updateLayout();
 		mExpandCollapseLineBtn->setImageOverlay(getString("expandline_icon"));
 		setMessagePaneExpanded(true);
+		saveCollapsedState();
 		enableResizeCtrls(true, true, true);
 	}
 }
@@ -1063,6 +1071,14 @@ LLConversationItem* LLFloaterIMSessionTab::getCurSelectedViewModelItem()
 	return conversationItem;
 }
 
+void LLFloaterIMSessionTab::saveCollapsedState()
+{
+	LLFloaterIMSessionTab* conversp = LLFloaterIMSessionTab::getConversation(mSessionID);
+	if(conversp->isNearbyChat())
+	{
+		gSavedPerAccountSettings.setBOOL("NearbyChatIsNotCollapsed", isMessagePaneExpanded());
+	}
+}
 BOOL LLFloaterIMSessionTab::handleKeyHere(KEY key, MASK mask )
 {
 	if(mask == MASK_ALT)
