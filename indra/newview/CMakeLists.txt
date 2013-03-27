@@ -2082,6 +2082,12 @@ if (LL_TESTS)
     LL_TEST_ADDITIONAL_LIBRARIES "${JSONCPP_LIBRARIES}"
   )
 
+  set_source_files_properties(
+    lllogininstance.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
+  )
+
   LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
 
   #set(TEST_DEBUG on)
