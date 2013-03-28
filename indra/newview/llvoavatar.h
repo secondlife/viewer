@@ -939,7 +939,7 @@ protected:
 	static void		getAnimLabels(LLDynamicArray<std::string>* labels);
 	static void		getAnimNames(LLDynamicArray<std::string>* names);	
 private:
-	std::string		mNameString;		// UTF-8 title + name + status
+    bool            mNameIsSet;
 	std::string  	mTitle;
 	bool	  		mNameAway;
 	bool	  		mNameDoNotDisturb;

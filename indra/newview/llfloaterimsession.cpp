@@ -618,6 +618,8 @@ void LLFloaterIMSession::onClose(bool app_quitting)
 	// Last change:
 	// EXT-3516 X Button should end IM session, _ button should hide
 	gIMMgr->leaveSession(mSessionID);
+    // *TODO: Study why we need to restore the floater before we close it.
+    // Might be because we want to save some state data in some clean open state.
 	LLFloaterIMSessionTab::restoreFloater();
 	// Clean up the conversation *after* the session has been ended
 	LLFloaterIMSessionTab::onClose(app_quitting);
