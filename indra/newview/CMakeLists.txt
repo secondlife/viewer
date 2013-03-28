@@ -2083,6 +2083,42 @@ if (LL_TESTS)
   )
 
   set_source_files_properties(
+    llviewerhelputil.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
+  )
+
+  set_source_files_properties(
+    llremoteparcelrequest.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
+  )
+
+  set_source_files_properties(
+    llworldmap.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
+  )
+
+  set_source_files_properties(
+    llworldmipmap.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
+  )
+
+  set_source_files_properties(
+    llmediadataclient.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
+  )
+
+  set_source_files_properties(
+    llagentaccess.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
+  )
+
+  set_source_files_properties(
     lllogininstance.cpp
     PROPERTIES
     LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
