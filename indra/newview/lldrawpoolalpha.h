@@ -70,6 +70,8 @@ public:
 	void renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
 	void renderAlpha(U32 mask);
 	void renderAlphaHighlight(U32 mask);
+	void pushMaskBatches(U32 type, U32 mask, BOOL texture, BOOL batch_textures);
+
 	
 	static BOOL sShowDebugAlpha;
 

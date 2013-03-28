@@ -95,19 +95,19 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 		LLRenderPass::PASS_MATERIAL,
 		//LLRenderPass::PASS_MATERIAL_ALPHA,
 		LLRenderPass::PASS_MATERIAL_ALPHA_MASK,
-		LLRenderPass::PASS_MATERIAL_ALPHA_GLOW,
+		LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE,
 		LLRenderPass::PASS_SPECMAP,
 		//LLRenderPass::PASS_SPECMAP_BLEND,
 		LLRenderPass::PASS_SPECMAP_MASK,
-		LLRenderPass::PASS_SPECMAP_GLOW,
+		LLRenderPass::PASS_SPECMAP_EMISSIVE,
 		LLRenderPass::PASS_NORMMAP,
 		//LLRenderPass::PASS_NORMMAP_BLEND,
 		LLRenderPass::PASS_NORMMAP_MASK,
-		LLRenderPass::PASS_NORMMAP_GLOW,
+		LLRenderPass::PASS_NORMMAP_EMISSIVE,
 		LLRenderPass::PASS_NORMSPEC,
 		//LLRenderPass::PASS_NORMSPEC_BLEND,
 		LLRenderPass::PASS_NORMSPEC_MASK,
-		LLRenderPass::PASS_NORMSPEC_GLOW,
+		LLRenderPass::PASS_NORMSPEC_EMISSIVE,
 	};
 
 	llassert(pass < sizeof(type_list)/sizeof(U32));

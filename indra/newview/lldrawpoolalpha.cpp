@@ -91,10 +91,29 @@ void LLDrawPoolAlpha::renderDeferred(S32 pass)
 	LLFastTimer t(FTM_RENDER_GRASS);
 	gDeferredDiffuseAlphaMaskProgram.bind();
 	gDeferredDiffuseAlphaMaskProgram.setMinimumAlpha(0.33f);
-
-	//render alpha masked objects
-	LLRenderPass::pushBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+	pushMaskBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 	gDeferredDiffuseAlphaMaskProgram.unbind();			
+}
+
+void LLDrawPoolAlpha::pushMaskBatches(U32 type, U32 mask, BOOL texture, BOOL batch_textures)
+{
+	for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
+	{
+		LLDrawInfo* pparams = *i;
+		if (pparams) 
+		{
+			if (LLGLSLShader::sCurBoundShaderPtr)
+			{
+				LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(pparams->mAlphaMaskCutoff);
+			}
+			else
+			{
+				gGL.setAlphaRejectSettings(LLRender::CF_GREATER, pparams->mAlphaMaskCutoff);
+			}
+			
+			pushBatch(*pparams, mask, texture, batch_textures);
+		}
+	}
 }
 
 
@@ -150,7 +169,6 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 
 void LLDrawPoolAlpha::endPostDeferredPass(S32 pass) 
 { 
-
 	if (pass == 1)
 	{
 		gPipeline.mDeferredDepth.flush();
@@ -234,7 +252,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 				simple_shader->bind();
 				simple_shader->setMinimumAlpha(0.33f);
 
-				pushBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+				pushMaskBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 			}
 			if (fullbright_shader)
 			{
@@ -247,16 +265,16 @@ void LLDrawPoolAlpha::render(S32 pass)
 					fullbright_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
 				}
 			}
-			pushBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+			pushMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 			//LLGLSLShader::bindNoShader();
 		}
 		else
 		{
 			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.33f); //OK
 			gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
-			pushBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, getVertexDataMask());
+			pushMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, getVertexDataMask(), TRUE, FALSE);
 			gPipeline.enableLightsDynamic();
-			pushBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask());
+			pushMaskBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask(), TRUE, FALSE);
 			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT); //OK
 		}
 	}
