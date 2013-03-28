@@ -134,6 +134,8 @@ public:
 	typedef std::vector<LLViewerPartGroup *> group_list_t;
 	typedef std::vector<LLPointer<LLViewerPartSource> > source_list_t;
 
+	void enable(bool enabled);
+
 	void shift(const LLVector3 &offset);
 
 	void updateSimulation();

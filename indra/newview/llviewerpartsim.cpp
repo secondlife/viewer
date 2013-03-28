@@ -467,6 +467,20 @@ LLViewerPartSim::LLViewerPartSim()
 	mID = ++id_seed;
 }
 
+//enable/disable particle system
+void LLViewerPartSim::enable(bool enabled)
+{
+	if(!enabled && sMaxParticleCount > 0)
+	{
+		sMaxParticleCount = 0; //disable
+	}
+	else if(enabled && sMaxParticleCount < 1)
+	{
+		sMaxParticleCount = llmin(gSavedSettings.getS32("RenderMaxPartCount"), LL_MAX_PARTICLE_COUNT);
+	}
+
+	return;
+}
 
 void LLViewerPartSim::destroyClass()
 {

@@ -39,6 +39,7 @@
 #include "llspatialpartition.h"
 #include "llagent.h"
 #include "pipeline.h"
+#include "llviewerpartsim.h"
 
 LLSceneMonitorView* gSceneMonitorView = NULL;
 
@@ -273,8 +274,12 @@ void LLSceneMonitor::freezeScene()
 	// freeze everything else
 	gSavedSettings.setBOOL("FreezeTime", TRUE);
 
+	//disable sky, water and clouds
 	gPipeline.clearRenderTypeMask(LLPipeline::RENDER_TYPE_SKY, LLPipeline::RENDER_TYPE_WL_SKY, 
 		LLPipeline::RENDER_TYPE_WATER, LLPipeline::RENDER_TYPE_CLOUDS, LLPipeline::END_RENDER_TYPES);
+
+	//disable particle system
+	LLViewerPartSim::getInstance()->enable(false);
 }
 
 void LLSceneMonitor::unfreezeScene()
@@ -285,8 +290,12 @@ void LLSceneMonitor::unfreezeScene()
 	// thaw everything else
 	gSavedSettings.setBOOL("FreezeTime", FALSE);
 
+	//enable sky, water and clouds
 	gPipeline.setRenderTypeMask(LLPipeline::RENDER_TYPE_SKY, LLPipeline::RENDER_TYPE_WL_SKY, 
 		LLPipeline::RENDER_TYPE_WATER, LLPipeline::RENDER_TYPE_CLOUDS, LLPipeline::END_RENDER_TYPES);
+
+	//enable particle system
+	LLViewerPartSim::getInstance()->enable(true);
 }
 
 void LLSceneMonitor::capture()
