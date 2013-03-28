@@ -4167,6 +4167,15 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 			LLVector4 specColor(spec, spec, spec, spec);
 			draw_info->mSpecColor = specColor;
 			draw_info->mEnvIntensity = spec;
+
+			if (type == LLRenderPass::PASS_GRASS)
+			{
+				draw_info->mAlphaMaskCutoff = 0.5f;
+			}
+			else
+			{
+				draw_info->mAlphaMaskCutoff = 0.33f;
+			}
 		}
 		
 		if (type == LLRenderPass::PASS_ALPHA)
@@ -5155,33 +5164,51 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 			if (mat && LLPipeline::sRenderDeferred && !hud_group)
 			{
-				U32 pass[] = 
+				if (fullbright)
 				{
-					LLRenderPass::PASS_MATERIAL,
-					LLRenderPass::PASS_ALPHA, //LLRenderPass::PASS_MATERIAL_ALPHA,
-					LLRenderPass::PASS_MATERIAL_ALPHA_MASK,
-					LLRenderPass::PASS_MATERIAL_ALPHA_GLOW,
-					LLRenderPass::PASS_SPECMAP,
-					LLRenderPass::PASS_ALPHA, //LLRenderPass::PASS_SPECMAP_BLEND,
-					LLRenderPass::PASS_SPECMAP_MASK,
-					LLRenderPass::PASS_SPECMAP_GLOW,
-					LLRenderPass::PASS_NORMMAP,
-					LLRenderPass::PASS_ALPHA, //LLRenderPass::PASS_NORMMAP_BLEND,
-					LLRenderPass::PASS_NORMMAP_MASK,
-					LLRenderPass::PASS_NORMMAP_GLOW,
-					LLRenderPass::PASS_NORMSPEC,
-					LLRenderPass::PASS_ALPHA, //LLRenderPass::PASS_NORMSPEC_BLEND,
-					LLRenderPass::PASS_NORMSPEC_MASK,
-					LLRenderPass::PASS_NORMSPEC_GLOW,
-				};
+					if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
+					{
+						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK);
+					}
+					else if (is_alpha)
+					{
+						registerFace(group, facep, LLRenderPass::PASS_ALPHA);
+					}
+					else
+					{
+						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
+					}
+				}
+				else
+				{
+					U32 pass[] = 
+					{
+						LLRenderPass::PASS_MATERIAL,
+						LLRenderPass::PASS_ALPHA, //LLRenderPass::PASS_MATERIAL_ALPHA,
+						LLRenderPass::PASS_MATERIAL_ALPHA_MASK,
+						LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE,
+						LLRenderPass::PASS_SPECMAP,
+						LLRenderPass::PASS_ALPHA, //LLRenderPass::PASS_SPECMAP_BLEND,
+						LLRenderPass::PASS_SPECMAP_MASK,
+						LLRenderPass::PASS_SPECMAP_EMISSIVE,
+						LLRenderPass::PASS_NORMMAP,
+						LLRenderPass::PASS_ALPHA, //LLRenderPass::PASS_NORMMAP_BLEND,
+						LLRenderPass::PASS_NORMMAP_MASK,
+						LLRenderPass::PASS_NORMMAP_EMISSIVE,
+						LLRenderPass::PASS_NORMSPEC,
+						LLRenderPass::PASS_ALPHA, //LLRenderPass::PASS_NORMSPEC_BLEND,
+						LLRenderPass::PASS_NORMSPEC_MASK,
+						LLRenderPass::PASS_NORMSPEC_EMISSIVE,
+					};
 
-				U32 mask = mat->getShaderMask();
+					U32 mask = mat->getShaderMask();
 
-				llassert(mask < sizeof(pass)/sizeof(U32));
+					llassert(mask < sizeof(pass)/sizeof(U32));
 
-				mask = llmin(mask, sizeof(pass)/sizeof(U32)-1);
+					mask = llmin(mask, sizeof(pass)/sizeof(U32)-1);
 
-				registerFace(group, facep, pass[mask]);
+					registerFace(group, facep, pass[mask]);
+				}
 			}
 			else if (is_alpha)
 			{

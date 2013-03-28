@@ -1643,8 +1643,19 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 			case 1:
 				alpha = true; // Material's alpha mode is set to blend.  Toss it into the alpha draw pool.
 				break;
-			default:
-				alpha = false; // Material's alpha mode is set to none, mask, or emissive.  Toss it into the opaque material draw pool.
+			case 0: //alpha mode set to none, never go to alpha pool
+			case 3: //alpha mode set to emissive, never go to alpha pool
+				alpha = false;
+				break;
+			default: //alpha mode set to "mask", go to alpha pool if fullbright
+				if (te->getFullbright())
+				{ 
+					alpha = true;
+				}
+				else
+				{
+					alpha = false; // Material's alpha mode is set to none, mask, or emissive.  Toss it into the opaque material draw pool.
+				}
 				break;
 		}
 	}
