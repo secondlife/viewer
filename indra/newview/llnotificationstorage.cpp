@@ -105,6 +105,8 @@ bool LLNotificationStorage::writeNotifications(const LLSD& pNotificationData) co
 
 bool LLNotificationStorage::readNotifications(LLSD& pNotificationData) const
 {
+	LL_INFOS("LLNotificationStorage") << "starting read '" << mFileName << "'" << LL_ENDL;
+
 	bool didFileRead;
 
 	pNotificationData.clear();
@@ -125,6 +127,8 @@ bool LLNotificationStorage::readNotifications(LLSD& pNotificationData) const
 				<< "'" << LL_ENDL;
 		}
 	}
+
+	LL_INFOS("LLNotificationStorage") << "ending read '" << mFileName << "'" << LL_ENDL;
 
 	return didFileRead;
 }
