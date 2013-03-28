@@ -28,6 +28,7 @@
 #define LL_VIEWER_SHADER_MGR_H
 
 #include "llshadermgr.h"
+#include "llmaterial.h"
 
 class LLViewerShaderMgr: public LLShaderMgr
 {
@@ -363,14 +364,6 @@ extern LLGLSLShader			gDeferredStarProgram;
 extern LLGLSLShader			gNormalMapGenProgram;
 
 // Deferred materials shaders
-extern LLGLSLShader			gDeferredMaterialShiny;
-extern LLGLSLShader			gDeferredMaterialNormal;
-extern LLGLSLShader			gDeferredMaterialShinyNormal;
-extern LLGLSLShader			gDeferredMaterialShinyAlphaTest;
-extern LLGLSLShader			gDeferredMaterialNormalAlphaTest;
-extern LLGLSLShader			gDeferredMaterialShinyNormalAlphaTest;
-extern LLGLSLShader			gDeferredMaterialShinyEmissive;
-extern LLGLSLShader			gDeferredMaterialNormalEmissive;
-extern LLGLSLShader			gDeferredMaterialShinyNormalEmissive;
+extern LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT];
 
 #endif

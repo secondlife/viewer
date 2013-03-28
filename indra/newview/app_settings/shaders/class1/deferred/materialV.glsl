@@ -31,11 +31,17 @@ ATTRIBUTE vec3 position;
 ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec3 normal;
 ATTRIBUTE vec2 texcoord0;
+
+#if HAS_NORMAL_MAP
 ATTRIBUTE vec3 binormal;
 
 VARYING vec3 vary_mat0;
 VARYING vec3 vary_mat1;
 VARYING vec3 vary_mat2;
+#else
+VARYING vec3 vary_normal;
+#endif
+
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
@@ -45,13 +51,18 @@ void main()
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	
+
 	vec3 n = normalize(normal_matrix * normal);
+#if HAS_NORMAL_MAP
 	vec3 b = normalize(normal_matrix * binormal);
 	vec3 t = cross(b, n);
 	
 	vary_mat0 = vec3(t.x, b.x, n.x);
 	vary_mat1 = vec3(t.y, b.y, n.y);
 	vary_mat2 = vec3(t.z, b.z, n.z);
+#else
+	vary_normal = n;
+#endif
 	
 	vertex_color = diffuse_color;
 }
