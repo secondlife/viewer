@@ -773,10 +773,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>hash</key>
-	      <string>c1b938b796bc53c527bb888f3b782f8e</string>
-              <key>url</key>
-	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-google-breakpad-graham/rev/272967/arch/Linux/installer/google_breakpad-0.0.0-rev1099-linux-20130328.tar.bz2</string>
+             <key>hash</key>
+	         <string>1df1bb19a43a2d1a684ce9d4da9dc7bc</string>
+             <key>url</key>
+	         <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273021/arch/Linux/installer/google_breakpad-0.0.0-rev1099-linux-20130328.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
