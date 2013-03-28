@@ -257,9 +257,20 @@ public:
 	void			calculateUpdateRenderCost();
 	void			updateVisualComplexity() { mVisualComplexityStale = TRUE; }
 	
-	S32				getVisualComplexity()		{ return mVisualComplexity;		};
-	S32				getUpdatePeriod()			{ return mUpdatePeriod;			};
-	const LLColor4 &  getMutedAVColor()			{ return mMutedAVColor;			};
+	S32				getVisualComplexity()			{ return mVisualComplexity;				};		// Numbers calculated here by rendering AV
+	S32				getAttachmentGeometryBytes()	{ return mAttachmentGeometryBytes;		};		// number of bytes in attached geometry
+	F32				getAttachmentSurfaceArea()		{ return mAttachmentSurfaceArea;		};		// estimated surface area of attachments
+
+	S32				getReportedVisualComplexity()					{ return mReportedVisualComplexity;				};	// Numbers as reported by the SL server
+	void			setReportedVisualComplexity(S32 value)			{ mReportedVisualComplexity = value;			};
+	S32				getReportedAttachmentGeometryBytes()			{ return mReportedAttachmentGeometryBytes;		};	//number of bytes in attached geometry
+	void			setReportedAttachmentGeometryBytes(S32 value)	{ mReportedAttachmentGeometryBytes = value;		};
+	F32				getReportedAttachmentSurfaceArea()		{ return mReportedAttachmentSurfaceArea;				};		//estimated surface area of attachments
+	void			setReportedAttachmentSurfaceArea(F32 value)		{ mReportedAttachmentSurfaceArea = value;		};
+	
+	S32				getUpdatePeriod()				{ return mUpdatePeriod;			};
+	const LLColor4 &  getMutedAVColor()				{ return mMutedAVColor;			};
+
 
 	void 			idleUpdateBelowWater();
 
@@ -469,8 +480,12 @@ public:
 	static void	restoreGL();
 	BOOL 		mIsDummy; // for special views
 	S32			mSpecialRenderMode; // special lighting
-	U32			mAttachmentGeometryBytes; //number of bytes in attached geometry
+	S32			mAttachmentGeometryBytes; //number of bytes in attached geometry
 	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
+
+	S32			mReportedVisualComplexity;			// Numbers as reported by the SL server
+	S32			mReportedAttachmentGeometryBytes;	//number of bytes in attached geometry
+	F32			mReportedAttachmentSurfaceArea;		//estimated surface area of attachments
 
 private:
 	bool		shouldAlphaMask();

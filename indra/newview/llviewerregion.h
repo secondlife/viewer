@@ -365,6 +365,8 @@ public:
 	LLDynamicArray<U32> mMapAvatars;
 	LLDynamicArray<LLUUID> mMapAvatarIDs;
 
+	LLFrameTimer &	getRenderInfoRequestTimer()			{ return mRenderInfoRequestTimer;		};
+
 private:
 	LLViewerRegionImpl * mImpl;
 
@@ -421,6 +423,8 @@ private:
 	BOOL mReleaseNotesRequested;
 	
 	LLSD mSimulatorFeatures;
+
+	LLFrameTimer	mRenderInfoRequestTimer;
 };
 
 inline BOOL LLViewerRegion::getAllowDamage() const

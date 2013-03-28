@@ -4242,7 +4242,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	if (pAvatarVO)
 	{
 		pAvatarVO->mAttachmentGeometryBytes -= group->mGeometryBytes;
+		pAvatarVO->mAttachmentGeometryBytes = llmax(pAvatarVO->mAttachmentGeometryBytes, 0);
 		pAvatarVO->mAttachmentSurfaceArea -= group->mSurfaceArea;
+		pAvatarVO->mAttachmentSurfaceArea = llmax(pAvatarVO->mAttachmentSurfaceArea, 0.f);
 	}
 
 	group->mGeometryBytes = 0;

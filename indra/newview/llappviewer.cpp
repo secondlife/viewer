@@ -97,6 +97,7 @@
 #include "llupdaterservice.h"
 #include "llfloatertexturefetchdebugger.h"
 #include "llspellcheck.h"
+#include "llavatarrenderinfoaccountant.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -4586,6 +4587,9 @@ void LLAppViewer::idle()
 		LLFastTimer t(FTM_LOD_UPDATE);
 		gObjectList.updateApparentAngles(gAgent);
 	}
+
+	// Update AV render info
+	LLAvatarRenderInfoAccountant::idle();
 
 	{
 		LLFastTimer t(FTM_AUDIO_UPDATE);
