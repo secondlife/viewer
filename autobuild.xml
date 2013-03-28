@@ -606,9 +606,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9f8a9dc39fd7c3da0fb3533782d1fddf</string>
+              <string>bd6f84f9fb3c2e68850676d06935373f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freetype/rev/226814/arch/Linux/installer/freetype-2.3.9-linux-20110418.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freetype/rev/271684/arch/Linux/installer/freetype-2.4.4-linux-20130312.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -774,9 +774,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-	      <string>d6ffc840ec2fb1fc02f350995e5b9885</string>
+	      <string>c1b938b796bc53c527bb888f3b782f8e</string>
               <key>url</key>
-	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-google-breakpad-graham/rev/272925/arch/Linux/installer/google_breakpad-0.0.0-rev1099-linux-20130327.tar.bz2</string>
+	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-google-breakpad-graham/rev/272967/arch/Linux/installer/google_breakpad-0.0.0-rev1099-linux-20130328.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -786,9 +786,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-	      <string>1098c2a9450cf303c37a3aedbe45d04a</string>
+	      <string>abe4e6e67a729884c1c2618231454e1a</string>
               <key>url</key>
-	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-google-breakpad-graham/rev/272939/arch/CYGWIN/installer/google_breakpad-0.0.0-rev1099-windows-20130327.tar.bz2</string>
+	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-google-breakpad-graham/rev/272974/arch/CYGWIN/installer/google_breakpad-0.0.0-rev1099-windows-20130328.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
