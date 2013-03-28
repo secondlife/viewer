@@ -87,6 +87,8 @@ const S32 MAX_CAP_REQUEST_ATTEMPTS = 30;
 
 typedef std::map<std::string, std::string> CapabilityMap;
 
+static void logCapabilities(const CapabilityMap &capmap);
+
 class LLViewerRegionImpl {
 public:
 	LLViewerRegionImpl(LLViewerRegion * region, LLHost const & host)
@@ -321,16 +323,35 @@ private:
 		if ( regionp->getRegionImpl()->mCapabilities.size() != regionp->getRegionImpl()->mSecondCapabilitiesTracker.size() )
 		{
 			LL_WARNS2("AppInit", "Capabilities") 
-				<< "Sim sent duplicate seed caps that differs in size - most likely content." << LL_ENDL;
-			//todo#add cap debug versus original check?
-			/*CapabilityMap::const_iterator iter = regionp->getRegionImpl()->mCapabilities.begin();
-			while (iter!=regionp->getRegionImpl()->mCapabilities.end() )
-			{
-				llinfos<<"BaseCapabilitiesCompleteTracker Original "<<iter->first<<" "<< iter->second<<llendl;
-				++iter;
-			}
-			*/
+				<< "Sim sent duplicate base caps that differ in size from what we initially received - most likely content. "
+				<< "mCapabilities == " << regionp->getRegionImpl()->mCapabilities.size()
+				<< " mSecondCapabilitiesTracker == " << regionp->getRegionImpl()->mSecondCapabilitiesTracker.size()
+				<< LL_ENDL;
+
+			//LL_WARNS2("AppInit", "Capabilities")
+			//	<< "Initial Base capabilities: " << LL_ENDL;
+
+			//logCapabilities(regionp->getRegionImpl()->mCapabilities);
+
+			//LL_WARNS2("AppInit", "Capabilities")
+			//				<< "Latest base capabilities: " << LL_ENDL;
+
+			//logCapabilities(regionp->getRegionImpl()->mSecondCapabilitiesTracker);
+
+			// *TODO 
+			//add cap debug versus original check?
+			//CapabilityMap::const_iterator iter = regionp->getRegionImpl()->mCapabilities.begin();
+			//while (iter!=regionp->getRegionImpl()->mCapabilities.end() )
+			//{
+			//	llinfos<<"BaseCapabilitiesCompleteTracker Original "<<iter->first<<" "<< iter->second<<llendl;
+			//	++iter;
+			//}
+
 			regionp->getRegionImplNC()->mSecondCapabilitiesTracker.clear();
+		}
+		else
+		{
+			LL_DEBUGS("CrossingCaps") << "Sim sent multiple base cap grants with matching sizes." << LL_ENDL;
 		}
 	}
 
@@ -1671,7 +1692,9 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 {
 	if (getCapability("Seed") == url)
     {	
-		//llwarns << "Ignoring duplicate seed capability" << llendl;
+		setCapabilityDebug("Seed", url);
+		LL_DEBUGS("CrossingCaps") <<  "Received duplicate seed capability, posting to seed " <<
+				url	<< llendl;
 		//Instead of just returning we build up a second set of seed caps and compare them 
 		//to the "original" seed cap received and determine why there is problem!
 		LLSD capabilityNames = LLSD::emptyArray();
@@ -1821,7 +1844,16 @@ void LLViewerRegion::setCapability(const std::string& name, const std::string& u
 
 void LLViewerRegion::setCapabilityDebug(const std::string& name, const std::string& url)
 {
-	mImpl->mSecondCapabilitiesTracker[name] = url;
+	// Continue to not add certain caps, as we do in setCapability. This is so they match up when we check them later.
+	if ( ! ( name == "EventQueueGet" || name == "UntrustedSimulatorMessage" || name == "SimulatorFeatures" ) )
+	{
+		mImpl->mSecondCapabilitiesTracker[name] = url;
+		if(name == "GetTexture")
+		{
+			mHttpUrl = url ;
+		}
+	}
+
 }
 
 bool LLViewerRegion::isSpecialCapabilityName(const std::string &name)
@@ -1872,16 +1904,7 @@ boost::signals2::connection LLViewerRegion::setCapabilitiesReceivedCallback(cons
 
 void LLViewerRegion::logActiveCapabilities() const
 {
-	int count = 0;
-	CapabilityMap::const_iterator iter;
-	for (iter = mImpl->mCapabilities.begin(); iter != mImpl->mCapabilities.end(); ++iter, ++count)
-	{
-		if (!iter->second.empty())
-		{
-			llinfos << iter->first << " URL is " << iter->second << llendl;
-		}
-	}
-	llinfos << "Dumped " << count << " entries." << llendl;
+	logCapabilities(mImpl->mCapabilities);
 }
 
 LLSpatialPartition* LLViewerRegion::getSpatialPartition(U32 type)
@@ -1963,5 +1986,21 @@ bool LLViewerRegion::dynamicPathfindingEnabled() const
 {
 	return ( mSimulatorFeatures.has("DynamicPathfindingEnabled") &&
 			 mSimulatorFeatures["DynamicPathfindingEnabled"].asBoolean());
+}
+
+/* Static Functions */
+
+void logCapabilities(const CapabilityMap &capmap)
+{
+	S32 count = 0;
+	CapabilityMap::const_iterator iter;
+	for (iter = capmap.begin(); iter != capmap.end(); ++iter, ++count)
+	{
+		if (!iter->second.empty())
+		{
+			llinfos << "logCapabilities: " << iter->first << " URL is " << iter->second << llendl;
+		}
+	}
+	llinfos << "logCapabilities: Dumped " << count << " entries." << llendl;
 }
 
