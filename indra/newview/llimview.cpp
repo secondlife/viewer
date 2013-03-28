@@ -274,7 +274,9 @@ void on_new_message(const LLSD& msg)
 
     // 2. Flash line item
     if ("openconversations" == user_preferences
-    		|| ON_TOP == conversations_floater_status)
+    		|| ON_TOP == conversations_floater_status
+    		|| ("toast" == user_preferences && ON_TOP != conversations_floater_status)
+    		|| ("flash" == user_preferences && CLOSED == conversations_floater_status))
     {
     	if(!LLMuteList::getInstance()->isMuted(participant_id))
     	{

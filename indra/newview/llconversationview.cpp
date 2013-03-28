@@ -120,7 +120,7 @@ void LLConversationViewSession::setFlashState(bool flash_state)
 
 void LLConversationViewSession::startFlashing()
 {
-	if (mFlashStateOn && !mFlashStarted)
+	if (isInVisibleChain() && mFlashStateOn && !mFlashStarted)
 	{
 		mFlashStarted = true;
 		mFlashTimer->startFlashing();
