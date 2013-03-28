@@ -65,6 +65,7 @@ public:
     /*virtual*/ void	onFocusReceived();
     /*virtual*/ void	onFocusLost();
 
+	void enableSingleLineMode(bool single_line_mode);
 	boost::signals2::connection setTextExpandedCallback(const commit_signal_t::slot_type& cb);
 
 private:
@@ -95,9 +96,11 @@ private:
 	line_history_t						mLineHistory;			// line history storage
 	bool								mHasHistory;			// flag for enabled/disabled line history
 	bool								mIsExpandable;
+	bool								mSingleLineMode;
 
-	int									mExpandLinesCount;
-	int									mPrevLinesCount;
+	S32									mExpandLinesCount;
+	S32									mPrevLinesCount;
+	S32									mPrevExpandedLineCount;
 };
 
 #endif /* LLCHATENTRY_H_ */
