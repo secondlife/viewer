@@ -55,13 +55,11 @@ public:
 	
 	/*virtual*/ U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 	
-	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void beginRenderPass( S32 pass );
-	/*virtual*/ void endRenderPass( S32 pass );
-	/*virtual*/ S32	 getNumPasses() {return 1;}
+	/*virtual*/ void render(S32 pass = 0) { }
+	/*virtual*/ S32	 getNumPasses() {return 0;}
 	/*virtual*/ void prerender();
 	
-	/*virtual*/ S32 getNumDeferredPasses() {return 1;}
+	/*virtual*/ S32 getNumDeferredPasses();
 	/*virtual*/ void beginDeferredPass(S32 pass);
 	/*virtual*/ void endDeferredPass(S32 pass);
 	/*virtual*/ void renderDeferred(S32 pass);

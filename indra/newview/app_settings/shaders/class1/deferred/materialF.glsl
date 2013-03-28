@@ -23,6 +23,12 @@
  * $/LicenseInfo$
  */
  
+#define DIFFUSE_ALPHA_MODE_IGNORE 0
+#define DIFFUSE_ALPHA_MODE_BLEND 1
+#define DIFFUSE_ALPHA_MODE_MASK 2
+#define DIFFUSE_ALPHA_MODE_GLOW 3
+
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[3];
 #else
@@ -31,36 +37,52 @@ out vec4 frag_data[3];
 
 uniform sampler2D diffuseMap;
 
+#if HAS_NORMAL_MAP
 uniform sampler2D bumpMap;
+#endif
 
+#if HAS_SPECULAR_MAP
 uniform sampler2D specularMap;
 uniform float env_intensity;
+#endif
+
 uniform vec4 specular_color;
 
-#ifdef ALPHA_TEST
+#if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK
 uniform float minimum_alpha;
 #endif
 
+#if HAS_NORMAL_MAP
 VARYING vec3 vary_mat0;
 VARYING vec3 vary_mat1;
 VARYING vec3 vary_mat2;
+#else
+VARYING vec3 vary_normal;
+#endif
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
+
 void main() 
 {
-	vec4 col = texture2D(diffuseMap, vary_texcoord0.xy) * vertex_color;
+	vec4 col = texture2D(diffuseMap, vary_texcoord0.xy);
+	col.rgb *= vertex_color.rgb;
 
-	#ifdef ALPHA_TEST
+#if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK
 	if (col.a < minimum_alpha)
 	{
 		discard;
 	}
-	#endif
-	
-	vec4 spec = texture2D(specularMap, vary_texcoord0.xy);
+#endif
 
+#if HAS_SPECULAR_MAP
+	vec4 spec = texture2D(specularMap, vary_texcoord0.xy);
+#else
+	vec4 spec = specular_color;
+#endif
+
+#if HAS_NORMAL_MAP
 	vec4 norm = texture2D(bumpMap, vary_texcoord0.xy);
 
 	norm.xyz = norm.xyz * 2 - 1;
@@ -68,19 +90,29 @@ void main()
 	vec3 tnorm = vec3(dot(norm.xyz,vary_mat0),
 			  dot(norm.xyz,vary_mat1),
 			  dot(norm.xyz,vary_mat2));
+#else
+	vec4 norm = vec4(0,0,0,1.0);
+	vec3 tnorm = vary_normal;
+#endif
 
 	vec4 final_color = col;
-	final_color.rgb *= 1 - spec.a * env_intensity;
-
-	#ifndef EMISSIVE_MASK
+	
+#if DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_GLOW
 	final_color.a = 0;
-	#endif
+#endif
 
 	vec4 final_specular = spec;
+#if HAS_SPECULAR_MAP
+	//final_color.rgb *= 1 - spec.a * env_intensity;
 	final_specular.rgb *= specular_color.rgb;
-	final_specular.a = specular_color.a * norm.a;
-
+	
 	vec4 final_normal = vec4(normalize(tnorm), spec.a * env_intensity);
+	final_specular.a = specular_color.a * spec.a;
+#else
+	vec4 final_normal = vec4(normalize(tnorm), 0.0);
+	final_specular.a = spec.a;
+#endif
+
 	final_normal.xyz = final_normal.xyz * 0.5 + 0.5;
 	
 	frag_data[0] = final_color;

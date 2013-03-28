@@ -44,47 +44,81 @@ void LLDrawPoolMaterials::prerender()
 	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT); 
 }
 
+S32 LLDrawPoolMaterials::getNumDeferredPasses()
+{
+	return 12;
+}
+
 void LLDrawPoolMaterials::beginDeferredPass(S32 pass)
 {
+	U32 shader_idx[] = 
+	{
+		0, //LLRenderPass::PASS_MATERIAL,
+		//1, //LLRenderPass::PASS_MATERIAL_ALPHA,
+		2, //LLRenderPass::PASS_MATERIAL_ALPHA_MASK,
+		3, //LLRenderPass::PASS_MATERIAL_ALPHA_GLOW,
+		4, //LLRenderPass::PASS_SPECMAP,
+		//5, //LLRenderPass::PASS_SPECMAP_BLEND,
+		6, //LLRenderPass::PASS_SPECMAP_MASK,
+		7, //LLRenderPass::PASS_SPECMAP_GLOW,
+		8, //LLRenderPass::PASS_NORMMAP,
+		//9, //LLRenderPass::PASS_NORMMAP_BLEND,
+		10, //LLRenderPass::PASS_NORMMAP_MASK,
+		11, //LLRenderPass::PASS_NORMMAP_GLOW,
+		12, //LLRenderPass::PASS_NORMSPEC,
+		//13, //LLRenderPass::PASS_NORMSPEC_BLEND,
+		14, //LLRenderPass::PASS_NORMSPEC_MASK,
+		15, //LLRenderPass::PASS_NORMSPEC_GLOW,
+	};
+	
+	mShader = &(gDeferredMaterialProgram[shader_idx[pass]]);
+	mShader->bind();
+
+	diffuse_channel = mShader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
+		
 	LLFastTimer t(FTM_RENDER_MATERIALS);
 }
 
 void LLDrawPoolMaterials::endDeferredPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_MATERIALS);
+
+	mShader->unbind();
+
 	LLRenderPass::endRenderPass(pass);
 }
 
 void LLDrawPoolMaterials::renderDeferred(S32 pass)
 {
-	U32 type = LLRenderPass::PASS_MATERIALS;
+	U32 type_list[] = 
+	{
+		LLRenderPass::PASS_MATERIAL,
+		//LLRenderPass::PASS_MATERIAL_ALPHA,
+		LLRenderPass::PASS_MATERIAL_ALPHA_MASK,
+		LLRenderPass::PASS_MATERIAL_ALPHA_GLOW,
+		LLRenderPass::PASS_SPECMAP,
+		//LLRenderPass::PASS_SPECMAP_BLEND,
+		LLRenderPass::PASS_SPECMAP_MASK,
+		LLRenderPass::PASS_SPECMAP_GLOW,
+		LLRenderPass::PASS_NORMMAP,
+		//LLRenderPass::PASS_NORMMAP_BLEND,
+		LLRenderPass::PASS_NORMMAP_MASK,
+		LLRenderPass::PASS_NORMMAP_GLOW,
+		LLRenderPass::PASS_NORMSPEC,
+		//LLRenderPass::PASS_NORMSPEC_BLEND,
+		LLRenderPass::PASS_NORMSPEC_MASK,
+		LLRenderPass::PASS_NORMSPEC_GLOW,
+	};
+
+	llassert(pass < sizeof(type_list)/sizeof(U32));
+
+	U32 type = type_list[pass];
 	LLCullResult::drawinfo_iterator begin = gPipeline.beginRenderMap(type);
 	LLCullResult::drawinfo_iterator end = gPipeline.endRenderMap(type);
 	
 	for (LLCullResult::drawinfo_iterator i = begin; i != end; ++i)
 	{
 		LLDrawInfo& params = **i;
-		
-		switch (params.mDiffuseAlphaMode)
-		{
-			case 0:
-				mShader = &gDeferredMaterialShinyNormal;
-				mShader->bind();
-				break;
-			case 1: // Alpha blending not supported in the opaque draw pool.
-				return;
-			case 2:
-				mShader = &gDeferredMaterialShinyNormalAlphaTest;
-				mShader->bind();
-				mShader->setMinimumAlpha(params.mAlphaMaskCutoff);
-				break;
-			case 3:
-				mShader = &gDeferredMaterialShinyNormalEmissive;
-				mShader->bind();
-				break;
-		};
-		
-		
 		
 		mShader->uniform4f(LLShaderMgr::SPECULAR_COLOR, params.mSpecColor.mV[0], params.mSpecColor.mV[1], params.mSpecColor.mV[2], params.mSpecColor.mV[3]);
 		mShader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, params.mEnvIntensity);
@@ -101,10 +135,9 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 			bindSpecularMap(params.mSpecularMap);
 		}
 		
-		diffuse_channel = mShader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
+		mShader->setMinimumAlpha(params.mAlphaMaskCutoff);
+
 		pushBatch(params, VERTEX_DATA_MASK, TRUE);
-		mShader->disableTexture(LLShaderMgr::DIFFUSE_MAP);
-		mShader->unbind();
 	}
 }
 
@@ -117,72 +150,6 @@ void LLDrawPoolMaterials::bindNormalMap(LLViewerTexture* tex)
 {
 	mShader->bindTexture(LLShaderMgr::BUMP_MAP, tex);
 }
-
-void LLDrawPoolMaterials::beginRenderPass(S32 pass)
-{
-	LLFastTimer t(FTM_RENDER_MATERIALS);
-	
-	// Materials isn't supported under forward rendering.
-	// Use the simple shaders to handle it instead.
-	// This is basically replicated from LLDrawPoolSimple.
-	
-	if (LLPipeline::sUnderWaterRender)
-	{
-		mShader = &gObjectSimpleWaterProgram;
-	}
-	else
-	{
-		mShader = &gObjectSimpleProgram;
-	}
-	
-	if (mVertexShaderLevel > 0)
-	{
-		mShader->bind();
-	}
-	else
-	{
-		// don't use shaders!
-		if (gGLManager.mHasShaderObjects)
-		{
-			LLGLSLShader::bindNoShader();
-		}
-	}
-}
-
-void LLDrawPoolMaterials::endRenderPass(S32 pass)
-{
-	LLFastTimer t(FTM_RENDER_MATERIALS);
-	stop_glerror();
-	LLRenderPass::endRenderPass(pass);
-	stop_glerror();
-	if (mVertexShaderLevel > 0)
-	{
-		mShader->unbind();
-	}
-}
-
-void LLDrawPoolMaterials::render(S32 pass)
-{
-	LLGLDisable blend(GL_BLEND);
-	
-	{ //render simple
-		LLFastTimer t(FTM_RENDER_MATERIALS);
-		gPipeline.enableLightsDynamic();
-		
-		if (mVertexShaderLevel > 0)
-		{
-			U32 mask = getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX;
-			
-			pushBatches(LLRenderPass::PASS_MATERIALS, mask, TRUE, TRUE);
-		}
-		else
-		{
-			LLGLDisable alpha_test(GL_ALPHA_TEST);
-			renderTexture(LLRenderPass::PASS_MATERIALS, getVertexDataMask());
-		}
-	}
-}
-
 
 void LLDrawPoolMaterials::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures)
 {

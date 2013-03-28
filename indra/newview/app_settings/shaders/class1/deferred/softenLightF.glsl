@@ -310,7 +310,7 @@ void main()
 			//add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
 			col = mix(col.rgb, textureCube(environmentMap, env_vec).rgb, 
-				max(spec.a-diffuse.a*2.0, 0.0)); 
+				max(norm.a-diffuse.a*2.0, 0.0)); 
 		}
 	
 		col = atmosLighting(col);

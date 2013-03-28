@@ -181,3 +181,36 @@ bool LLMaterial::operator != (const LLMaterial& rhs) const
 {
 	return !(*this == rhs);
 }
+
+
+U32 LLMaterial::getShaderMask()
+{ //NEVER incorporate this value into the message system -- this function will vary depending on viewer implementation
+	U32 ret = 0;
+
+	//two least significant bits are "diffuse alpha mode"
+	ret = getDiffuseAlphaMode();
+
+	llassert(ret < SHADER_COUNT);
+
+	//next bit is whether or not specular map is present
+	const U32 SPEC_BIT = 0x4;
+
+	if (getSpecularID().notNull())
+	{
+		ret |= SPEC_BIT;
+	}
+
+	llassert(ret < SHADER_COUNT);
+	
+	//next bit is whether or not normal map is present
+	const U32 NORM_BIT = 0x8;
+	if (getNormalID().notNull())
+	{
+		ret |= NORM_BIT;
+	}
+
+	llassert(ret < SHADER_COUNT);
+
+	return ret;
+}
+

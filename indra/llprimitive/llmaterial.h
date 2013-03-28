@@ -36,6 +36,20 @@
 class LLMaterial
 {
 public:
+
+	typedef enum
+	{
+		DIFFUSE_ALPHA_MODE_NONE = 0,
+		DIFFUSE_ALPHA_MODE_BLEND = 1,
+		DIFFUSE_ALPHA_MODE_MASK = 2,
+		DIFFUSE_ALPHA_MODE_EMISSIVE = 3
+	} eDiffuseAlphaMode;
+
+	typedef enum
+	{
+		SHADER_COUNT = 16
+	} eShaderCount;
+	
 	LLMaterial();
 	LLMaterial(const LLSD& material_data);
 
@@ -76,6 +90,8 @@ public:
 
 	bool		operator == (const LLMaterial& rhs) const;
 	bool		operator != (const LLMaterial& rhs) const;
+
+	U32			getShaderMask();
 
 protected:
 	LLUUID		mNormalID;

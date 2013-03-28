@@ -4143,16 +4143,16 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 				// We have a material.  Update our draw info accordingly.
 				draw_info->mMaterialID = &facep->getTextureEntry()->getMaterialID();
 				LLVector4 specColor;
-				specColor.mV[0] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[0] * (1.0 / 255);
-				specColor.mV[1] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[1] * (1.0 / 255);
-				specColor.mV[2] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[2] * (1.0 / 255);
-				specColor.mV[3] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightExponent() * (1.0 / 255);
+				specColor.mV[0] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[0] * (1.f / 255.f);
+				specColor.mV[1] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[1] * (1.f / 255.f);
+				specColor.mV[2] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[2] * (1.f / 255.f);
+				specColor.mV[3] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightExponent() * (1.f / 255.f);
 				draw_info->mSpecColor = specColor;
-				draw_info->mEnvIntensity = facep->getTextureEntry()->getMaterialParams()->getEnvironmentIntensity() * (1.0 / 255);
-				draw_info->mAlphaMaskCutoff = facep->getTextureEntry()->getMaterialParams()->getAlphaMaskCutoff() * (1.0 / 255);
+				draw_info->mEnvIntensity = facep->getTextureEntry()->getMaterialParams()->getEnvironmentIntensity() * (1.f / 255.f);
+				draw_info->mAlphaMaskCutoff = facep->getTextureEntry()->getMaterialParams()->getAlphaMaskCutoff() * (1.f / 255.f);
 				draw_info->mDiffuseAlphaMode = facep->getTextureEntry()->getMaterialParams()->getDiffuseAlphaMode();
-				draw_info->mNormalMap = facep->getViewerObject()->getTENormalMap(facep->getTextureIndex());
-				draw_info->mSpecularMap = facep->getViewerObject()->getTESpecularMap(facep->getTextureIndex());
+				draw_info->mNormalMap = facep->getViewerObject()->getTENormalMap(facep->getTEOffset());
+				draw_info->mSpecularMap = facep->getViewerObject()->getTESpecularMap(facep->getTEOffset());
 			}
 		} else {
 			U8 shiny = facep->getTextureEntry()->getShiny();
@@ -5151,7 +5151,39 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 			BOOL is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) ? TRUE : FALSE;
 		
-			if (is_alpha)
+			LLMaterial* mat = te->getMaterialParams().get();
+
+			if (mat && LLPipeline::sRenderDeferred && !hud_group)
+			{
+				U32 pass[] = 
+				{
+					LLRenderPass::PASS_MATERIAL,
+					LLRenderPass::PASS_ALPHA, //LLRenderPass::PASS_MATERIAL_ALPHA,
+					LLRenderPass::PASS_MATERIAL_ALPHA_MASK,
+					LLRenderPass::PASS_MATERIAL_ALPHA_GLOW,
+					LLRenderPass::PASS_SPECMAP,
+					LLRenderPass::PASS_ALPHA, //LLRenderPass::PASS_SPECMAP_BLEND,
+					LLRenderPass::PASS_SPECMAP_MASK,
+					LLRenderPass::PASS_SPECMAP_GLOW,
+					LLRenderPass::PASS_NORMMAP,
+					LLRenderPass::PASS_ALPHA, //LLRenderPass::PASS_NORMMAP_BLEND,
+					LLRenderPass::PASS_NORMMAP_MASK,
+					LLRenderPass::PASS_NORMMAP_GLOW,
+					LLRenderPass::PASS_NORMSPEC,
+					LLRenderPass::PASS_ALPHA, //LLRenderPass::PASS_NORMSPEC_BLEND,
+					LLRenderPass::PASS_NORMSPEC_MASK,
+					LLRenderPass::PASS_NORMSPEC_GLOW,
+				};
+
+				U32 mask = mat->getShaderMask();
+
+				llassert(mask < sizeof(pass)/sizeof(U32));
+
+				mask = llmin(mask, sizeof(pass)/sizeof(U32)-1);
+
+				registerFace(group, facep, pass[mask]);
+			}
+			else if (is_alpha)
 			{
 				// can we safely treat this as an alpha mask?
 				if (facep->getFaceColor().mV[3] <= 0.f)
@@ -5197,10 +5229,6 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					{ //register in deferred bump pass
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
 					}
-					else if (te->getMaterialParams())
-					{
-						registerFace(group, facep, LLRenderPass::PASS_MATERIALS);
-					}
 					else
 					{ //register in deferred simple pass (deferred simple includes shiny)
 						llassert(mask & LLVertexBuffer::MAP_NORMAL);
@@ -5235,10 +5263,6 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					if (LLPipeline::sRenderDeferred && LLPipeline::sRenderBump && (te->getBumpmap() && !te->getMaterialParams()))
 					{ //non-shiny or fullbright deferred bump
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
-					}
-					else if (te->getMaterialParams())
-					{
-						registerFace(group, facep, LLRenderPass::PASS_MATERIALS);
 					}
 					else
 					{ //all around simple
