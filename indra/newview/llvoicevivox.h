@@ -584,7 +584,6 @@ protected:
 		bool mNameResolved;
 		bool mInSLFriends;
 		bool mInVivoxBuddies;
-		bool mNeedsNameUpdate;
 	};
 
 	typedef std::map<std::string, buddyListEntry*> buddyListMap;

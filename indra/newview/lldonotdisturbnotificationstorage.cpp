@@ -132,6 +132,8 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 {
 	LLFastTimer _(FTM_LOAD_DND_NOTIFICATIONS);
 	
+	LL_INFOS("LLDoNotDisturbNotificationStorage") << "start loading notifications" << LL_ENDL;
+
 	LLSD input;
 	if (!readNotifications(input) ||input.isUndefined())
 	{
@@ -225,6 +227,8 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 
     //writes out empty .xml file (since LLCommunicationChannel::mHistory is empty)
 	saveNotifications();
+
+	LL_INFOS("LLDoNotDisturbNotificationStorage") << "finished loading notifications" << LL_ENDL;
 }
 
 void LLDoNotDisturbNotificationStorage::updateNotifications()
