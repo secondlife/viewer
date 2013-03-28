@@ -77,11 +77,6 @@ vec3 vary_AtmosAttenuation;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
-vec3 samplesRGB(vec3 color)
-{
-	return pow(color, vec3(2.2));
-}
-
 vec4 getPosition_d(vec2 pos_screen, float depth)
 {
 	vec2 sc = pos_screen.xy*2.0;
@@ -106,15 +101,15 @@ vec3 getPositionEye()
 }
 vec3 getSunlitColor()
 {
-	return samplesRGB(vary_SunlitColor) * 4.4;
+	return vary_SunlitColor;
 }
 vec3 getAmblitColor()
 {
-	return samplesRGB((vary_AmblitColor)) * 2.2;
+	return vary_AmblitColor;
 }
 vec3 getAdditiveColor()
 {
-	return samplesRGB(vary_AdditiveColor) * 2.2;
+	return vary_AdditiveColor;
 }
 vec3 getAtmosAttenuation()
 {
@@ -305,7 +300,7 @@ void main()
 			//
 			vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 			float sa = dot(refnormpersp, sun_dir.xyz);
-			vec3 dumbshiny = vary_SunlitColor*(texture2D(lightFunc, vec2(sa, spec.a)).r);
+			vec3 dumbshiny = vary_SunlitColor*(6 * texture2D(lightFunc, vec2(sa, spec.a)).r);
 			
 			// add the two types of shiny together
 			vec3 spec_contrib = dumbshiny * spec.rgb;
@@ -314,7 +309,7 @@ void main()
 
 			//add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
-			col = mix(col.rgb, samplesRGB(textureCube(environmentMap, env_vec).rgb) * 2.2, 
+			col = mix(col.rgb, textureCube(environmentMap, env_vec).rgb, 
 				max(norm.a-diffuse.a*2.0, 0.0)); 
 		}
 	

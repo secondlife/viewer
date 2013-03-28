@@ -149,7 +149,6 @@ void main()
 	}
 	
 	vec4 diff = diffuseLookup(vary_texcoord0.xy);
-	diff.rgb = pow(diff.rgb, vec3(2.2));
 
 	vec4 col = vec4(vary_ambient + vary_directional.rgb*shadow, vertex_color.a);
 	vec4 color = diff * col;

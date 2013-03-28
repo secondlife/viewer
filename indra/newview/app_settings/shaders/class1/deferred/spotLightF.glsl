@@ -72,8 +72,6 @@ vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
 	
-	ret.rgb = pow(ret.rgb, vec3(2.2));
-
 	vec2 dist = tc-vec2(0.5);
 	
 	float det = max(1.0-lod/(proj_lod*0.5), 0.0);
@@ -89,8 +87,6 @@ vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
 	
-	ret.rgb = pow(ret.rgb, vec3(2.2));
-
 	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
 	float det = min(lod/(proj_lod*0.5), 1.0);
@@ -108,8 +104,6 @@ vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
 	
-	ret.rgb = pow(ret.rgb, vec3(2.2));
-
 	vec2 dist = tc-vec2(0.5);
 	
 	float d = dot(dist,dist);

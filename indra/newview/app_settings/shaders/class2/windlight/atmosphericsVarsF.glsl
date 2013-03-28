@@ -27,7 +27,7 @@
 VARYING vec3 vary_SunlitColor;
 VARYING vec3 vary_AdditiveColor;
 VARYING vec3 vary_AtmosAttenuation;
-uniform float global_gamma;
+
 vec3 getSunlitColor()
 {
 	return vec3(0,0,0);
@@ -38,7 +38,7 @@ vec3 getAmblitColor()
 }
 vec3 getAdditiveColor()
 {
-	return pow(vary_AdditiveColor, vec3(global_gamma)) * global_gamma;
+	return vary_AdditiveColor;
 }
 vec3 getAtmosAttenuation()
 {
