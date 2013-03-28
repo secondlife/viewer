@@ -483,15 +483,18 @@ void LLSceneMonitor::fetchQueryResult()
 	glGetQueryObjectuivARB(mQueryObject, GL_QUERY_RESULT_ARB, &count);
 	
 	mDiffResult = count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * mDiffPixelRatio * mDiffPixelRatio); //0.5 -> (front face + back face)
-
-	if(mDiffResult > 0.01f)
-	{
-		addMonitorResult();
-	}
+	
+	addMonitorResult();
 }
 
 void LLSceneMonitor::addMonitorResult()
 {
+	const F32 diff_threshold = 0.001f;
+	if(mDiffResult < diff_threshold)
+	{
+		return;
+	}
+
 	mRecording->extend();
 	sample(sFramePixelDiff, mDiffResult);
 
