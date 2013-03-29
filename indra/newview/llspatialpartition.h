@@ -120,7 +120,7 @@ public:
 	F32 mDistance;
 	U32 mDrawMode;
 		
-	const LLMaterialID *mMaterialID; // If this is false, the following parameters are unused.
+	LLMaterialID mMaterialID; // If this is null, the following parameters are unused.
 	LLPointer<LLViewerTexture> mSpecularMap;
 	const LLMatrix4* mSpecularMapMatrix;
 	LLPointer<LLViewerTexture> mNormalMap;
