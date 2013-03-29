@@ -956,12 +956,18 @@ S32 LLTextEditor::insert(S32 pos, const LLWString &wstr, bool group_with_next_op
 S32 LLTextEditor::remove(S32 pos, S32 length, bool group_with_next_op)
 {
 	S32 end_pos = getEditableIndex(pos + length, true);
+	BOOL removedChar = FALSE;
 
 	segment_vec_t segments_to_remove;
 	// store text segments
 	getSegmentsInRange(segments_to_remove, pos, pos + length, false);
+	
+	if(pos <= end_pos)
+	{
+		removedChar = execute( new TextCmdRemove( pos, group_with_next_op, end_pos - pos, segments_to_remove ) );
+	}
 
-	return execute( new TextCmdRemove( pos, group_with_next_op, end_pos - pos, segments_to_remove ) );
+	return removedChar;
 }
 
 S32 LLTextEditor::overwriteChar(S32 pos, llwchar wc)
