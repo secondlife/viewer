@@ -4294,6 +4294,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	std::vector<LLFace*> fullbright_faces;
 	std::vector<LLFace*> bump_faces;
+	std::vector<LLFace*> norm_faces;
+	std::vector<LLFace*> spec_faces;
+	std::vector<LLFace*> normspec_faces;
 	std::vector<LLFace*> simple_faces;
 
 	std::vector<LLFace*> alpha_faces;
@@ -4629,7 +4632,30 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						if (gPipeline.canUseWindLightShadersOnObjects()
 							&& LLPipeline::sRenderBump)
 						{
-							if (te->getBumpmap() || te->getMaterialParams()	!= NULL)
+							if (LLPipeline::sRenderDeferred && te->getMaterialParams() != NULL)
+							{
+								LLMaterial* mat = te->getMaterialParams().get();
+								if (mat->getNormalID().notNull())
+								{
+									if (mat->getSpecularID().notNull())
+									{ //has normal and specular maps (needs texcoord1, texcoord2, and binormal)
+										normspec_faces.push_back(facep);
+									}
+									else
+									{ //has normal map (needs texcoord1 and binormal)
+										norm_faces.push_back(facep);
+									}
+								}
+								else if (mat->getSpecularID().notNull())
+								{ //has specular map but no normal map, needs texcoord2
+									spec_faces.push_back(facep);
+								}
+								else
+								{ //has neither specular map nor normal map, only needs texcoord0
+									simple_faces.push_back(facep);
+								}									
+							}
+							else if (te->getBumpmap())
 							{ //needs normal + binormal
 								bump_faces.push_back(facep);
 							}
@@ -4687,32 +4713,38 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 bump_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR;
 	U32 fullbright_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR;
 
+	U32 norm_mask = simple_mask | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_BINORMAL;
+	U32 normspec_mask = norm_mask | LLVertexBuffer::MAP_TEXCOORD2;
+	U32 spec_mask = simple_mask | LLVertexBuffer::MAP_TEXCOORD2;
+
 	if (emissive)
 	{ //emissive faces are present, include emissive byte to preserve batching
 		simple_mask = simple_mask | LLVertexBuffer::MAP_EMISSIVE;
 		alpha_mask = alpha_mask | LLVertexBuffer::MAP_EMISSIVE;
 		bump_mask = bump_mask | LLVertexBuffer::MAP_EMISSIVE;
 		fullbright_mask = fullbright_mask | LLVertexBuffer::MAP_EMISSIVE;
+		norm_mask = norm_mask | LLVertexBuffer::MAP_EMISSIVE;
+		normspec_mask = normspec_mask | LLVertexBuffer::MAP_EMISSIVE;
+		spec_mask = spec_mask | LLVertexBuffer::MAP_EMISSIVE;
 	}
 
-	bool batch_textures = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1;
+	BOOL batch_textures = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1;
 
 	if (batch_textures)
 	{
-		bump_mask |= LLVertexBuffer::MAP_BINORMAL;
-		genDrawInfo(group, simple_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, simple_faces, FALSE, TRUE);
-		genDrawInfo(group, fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, fullbright_faces, FALSE, TRUE);
-		genDrawInfo(group, bump_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, bump_faces, FALSE, FALSE);
-		genDrawInfo(group, alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, alpha_faces, TRUE, TRUE);
+		bump_mask = bump_mask | LLVertexBuffer::MAP_BINORMAL;
+		simple_mask = simple_mask | LLVertexBuffer::MAP_TEXTURE_INDEX;
+		alpha_mask = alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX;
+		fullbright_mask = fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX;
 	}
-	else
-	{
-		genDrawInfo(group, simple_mask, simple_faces);
-		genDrawInfo(group, fullbright_mask, fullbright_faces);
-		genDrawInfo(group, bump_mask, bump_faces, FALSE, FALSE);
-		genDrawInfo(group, alpha_mask, alpha_faces, TRUE);
-	}
-	
+
+	genDrawInfo(group, simple_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, simple_faces, FALSE, batch_textures);
+	genDrawInfo(group, fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, fullbright_faces, FALSE, batch_textures);
+	genDrawInfo(group, alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, alpha_faces, TRUE, batch_textures);
+	genDrawInfo(group, bump_mask, bump_faces, FALSE, FALSE);
+	genDrawInfo(group, norm_mask, norm_faces, FALSE, FALSE);
+	genDrawInfo(group, spec_mask, spec_faces, FALSE, FALSE);
+	genDrawInfo(group, normspec_mask, normspec_faces, FALSE, FALSE);
 
 	if (!LLPipeline::sDelayVBUpdate)
 	{

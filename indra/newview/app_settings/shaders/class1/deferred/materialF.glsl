@@ -44,6 +44,8 @@ uniform sampler2D bumpMap;
 #if HAS_SPECULAR_MAP
 uniform sampler2D specularMap;
 uniform float env_intensity;
+
+VARYING vec2 vary_texcoord2;
 #endif
 
 uniform vec4 specular_color;
@@ -56,6 +58,7 @@ uniform float minimum_alpha;
 VARYING vec3 vary_mat0;
 VARYING vec3 vary_mat1;
 VARYING vec3 vary_mat2;
+VARYING vec2 vary_texcoord1;
 #else
 VARYING vec3 vary_normal;
 #endif
@@ -77,13 +80,13 @@ void main()
 #endif
 
 #if HAS_SPECULAR_MAP
-	vec4 spec = texture2D(specularMap, vary_texcoord0.xy);
+	vec4 spec = texture2D(specularMap, vary_texcoord2.xy);
 #else
 	vec4 spec = specular_color;
 #endif
 
 #if HAS_NORMAL_MAP
-	vec4 norm = texture2D(bumpMap, vary_texcoord0.xy);
+	vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);
 
 	norm.xyz = norm.xyz * 2 - 1;
 

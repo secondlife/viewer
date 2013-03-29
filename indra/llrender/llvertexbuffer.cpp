@@ -2027,7 +2027,10 @@ bool LLVertexBuffer::getTexCoord1Strider(LLStrider<LLVector2>& strider, S32 inde
 {
 	return VertexBufferStrider<LLVector2,TYPE_TEXCOORD1>::get(*this, strider, index, count, map_range);
 }
-
+bool LLVertexBuffer::getTexCoord2Strider(LLStrider<LLVector2>& strider, S32 index, S32 count, bool map_range)
+{
+	return VertexBufferStrider<LLVector2,TYPE_TEXCOORD2>::get(*this, strider, index, count, map_range);
+}
 bool LLVertexBuffer::getNormalStrider(LLStrider<LLVector3>& strider, S32 index, S32 count, bool map_range)
 {
 	return VertexBufferStrider<LLVector3,TYPE_NORMAL>::get(*this, strider, index, count, map_range);

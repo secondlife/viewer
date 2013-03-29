@@ -34,14 +34,22 @@ ATTRIBUTE vec2 texcoord0;
 
 #if HAS_NORMAL_MAP
 ATTRIBUTE vec3 binormal;
+ATTRIBUTE vec2 texcoord1;
 
 VARYING vec3 vary_mat0;
 VARYING vec3 vary_mat1;
 VARYING vec3 vary_mat2;
+
+VARYING vec2 vary_texcoord1;
 #else
 VARYING vec3 vary_normal;
 #endif
 
+#if HAS_SPECULAR_MAP
+ATTRIBUTE vec2 texcoord2;
+VARYING vec2 vary_texcoord2;
+#endif
+ 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
@@ -51,6 +59,13 @@ void main()
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	
+#if HAS_NORMAL_MAP
+	vary_texcoord1 = (texture_matrix0 * vec4(texcoord1,0,1)).xy;
+#endif
+
+#if HAS_SPECULAR_MAP
+	vary_texcoord2 = (texture_matrix0 * vec4(texcoord2,0,1)).xy;
+#endif
 
 	vec3 n = normalize(normal_matrix * normal);
 #if HAS_NORMAL_MAP
