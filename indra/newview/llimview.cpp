@@ -174,7 +174,7 @@ void on_new_message(const LLSD& msg)
     // determine state of conversations floater
     enum {CLOSED, NOT_ON_TOP, ON_TOP, ON_TOP_AND_ITEM_IS_SELECTED} conversations_floater_status;
 
-	conversations_floater_status = ON_TOP;
+
 
     LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
 	LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
@@ -188,13 +188,13 @@ void on_new_message(const LLSD& msg)
 	{
 		conversations_floater_status = NOT_ON_TOP;
 	}
-	else if (session_floater->hasFocus())
-	{
-		conversations_floater_status = ON_TOP;
-    }
-	else if((session_floater->hasFocus()) && (im_box->getSelectedSession() == session_id))
+	else if ((session_floater->hasFocus()) && (im_box->getSelectedSession() == session_id))
 	{
 		conversations_floater_status = ON_TOP_AND_ITEM_IS_SELECTED;
+    }
+	else
+	{
+		conversations_floater_status = ON_TOP;
 	}
 
     //  determine user prefs for this session
