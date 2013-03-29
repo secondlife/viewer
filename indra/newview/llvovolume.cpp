@@ -4071,7 +4071,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	U8 index = facep->getTextureIndex();
 	
-	const LLMaterialID* matid = &facep->getTextureEntry()->getMaterialID();
+	const LLMaterialID& matid = facep->getTextureEntry()->getMaterialID();
 
 	bool batchable = false;
 
@@ -4141,7 +4141,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 			if (facep->getTextureEntry()->getMaterialParams() != NULL)
 			{
 				// We have a material.  Update our draw info accordingly.
-				draw_info->mMaterialID = &facep->getTextureEntry()->getMaterialID();
+				draw_info->mMaterialID = matid;
 				LLVector4 specColor;
 				specColor.mV[0] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[0] * (1.f / 255.f);
 				specColor.mV[1] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[1] * (1.f / 255.f);
@@ -4702,14 +4702,14 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		bump_mask |= LLVertexBuffer::MAP_BINORMAL;
 		genDrawInfo(group, simple_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, simple_faces, FALSE, TRUE);
 		genDrawInfo(group, fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, fullbright_faces, FALSE, TRUE);
-		genDrawInfo(group, bump_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, bump_faces, FALSE, TRUE);
+		genDrawInfo(group, bump_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, bump_faces, FALSE, FALSE);
 		genDrawInfo(group, alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, alpha_faces, TRUE, TRUE);
 	}
 	else
 	{
 		genDrawInfo(group, simple_mask, simple_faces);
 		genDrawInfo(group, fullbright_mask, fullbright_faces);
-		genDrawInfo(group, bump_mask, bump_faces, FALSE, TRUE);
+		genDrawInfo(group, bump_mask, bump_faces, FALSE, FALSE);
 		genDrawInfo(group, alpha_mask, alpha_faces, TRUE);
 	}
 	
@@ -4864,11 +4864,14 @@ struct CompareBatchBreakerModified
 		{
 			return lte->getFullbright() < rte->getFullbright();
 		}
-		else
+		else if (lhs->getTexture() != rhs->getTexture())
 		{
 			return lhs->getTexture() < rhs->getTexture();
 		}
-		
+		else
+		{
+			return lte->getMaterialParams() < rte->getMaterialParams();
+		}
 	}
 };
 
@@ -4952,6 +4955,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		//pull off next face
 		LLFace* facep = *face_iter;
 		LLViewerTexture* tex = facep->getTexture();
+		LLMaterialPtr mat = facep->getTextureEntry()->getMaterialParams();
 
 		if (distance_sort)
 		{
@@ -5053,7 +5057,10 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			else
 			{
 				while (i != faces.end() && 
-					(LLPipeline::sTextureBindTest || (distance_sort || (*i)->getTexture() == tex)))
+					(LLPipeline::sTextureBindTest || 
+						(distance_sort || 
+							((*i)->getTexture() == tex &&
+							((*i)->getTextureEntry()->getMaterialParams() == mat)))))
 				{
 					facep = *i;
 			
