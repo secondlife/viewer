@@ -78,6 +78,8 @@ static const std::string FBCTEST_TAB_NAME	= "fbctest_panel";
 
 static const std::string COLLAPSED_BY_USER  = "collapsed_by_user";
 
+static const std::string FBC_SERVICES_URL = "https://pdp15.lindenlab.com";
+
 /** Comparator for comparing avatar items by last interaction date */
 class LLAvatarItemRecentComparator : public LLAvatarItemComparator
 {
@@ -890,19 +892,18 @@ void LLPanelPeople::updateFbcTestList()
 		std::string title = mFbcTestBrowserHandle.get()->getTitle();
 
 		// if the data is ready (if it says the magic word)
-		if (title.length() > 8 && title.substr(0, 8) == "FBCTEST ")
+		if (title.length() >= 2 && title[0] == ':')
 		{
-			// get the list of friends' names from the title bar
-			std::vector<std::string> names = LLStringUtil::getTokens(title.substr(8), ",");
-			
-			// display the names in the list
-			std::string label;
-			for (std::vector<std::string>::const_iterator i = names.begin() + 1; i != names.end(); ++i)
+			// success! :)
+			if (title[1] == ')')
 			{
-				label += *i;
-				label += "\n";
+				mFbcTestText->setText(std::string("okay, now we can get the list of friends!"));
 			}
-			mFbcTestText->setText(label);
+			// failure :(
+			else if (title[1] == '(')
+			{
+				mFbcTestText->setText(std::string("hmm, the authentication failed somehow"));
+			}
 
 			// close the browser window
 			mFbcTestBrowserHandle.get()->die();
@@ -1667,21 +1668,21 @@ void LLPanelPeople::openFacebookWeb(LLFloaterWebContent::Params& p)
 void LLPanelPeople::onLoginFbcButtonClicked()
 {
 	LLFloaterWebContent::Params p;
-	p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=https://pdp15.lindenlab.com/authenticate/" + gAgentID.asString());
+	p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + FBC_SERVICES_URL + "/authenticate/" + gAgentID.asString());
 	openFacebookWeb(p);
 }
 
 void LLPanelPeople::onFacebookAppRequestClicked()
 {
 	LLFloaterWebContent::Params p;
-	p.url("http://www.facebook.com/dialog/apprequests?app_id=565771023434202&message=Test&redirect_uri=https://pdp15.lindenlab.com/");
+	p.url("http://www.facebook.com/dialog/apprequests?app_id=565771023434202&message=Test&redirect_uri=" + FBC_SERVICES_URL);
 	openFacebookWeb(p);
 }
 
 void LLPanelPeople::onFacebookAppSendClicked()
 {
 	LLFloaterWebContent::Params p;
-	p.url("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Test&link=http://www.cnet.com&redirect_uri=https://pdp15.lindenlab.com/");
+	p.url("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Test&link=http://www.cnet.com&redirect_uri=" + FBC_SERVICES_URL);
 	openFacebookWeb(p);
 }
 // EOF
