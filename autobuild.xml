@@ -762,9 +762,9 @@
             <key>archive</key>
             <map>
            <key>hash</key>
-	      <string>8dd5cbc276495f263917b69e6d2a49b9</string>
+	      <string>79976b2f93ec5716709b752483ffa04a</string>
           <key>url</key>
-	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-google-breakpad-graham/rev/272925/arch/Darwin/installer/google_breakpad-0.0.0-rev1099-darwin-20130327.tar.bz2</string>
+          <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273021/arch/Darwin/installer/google_breakpad-0.0.0-rev1099-darwin-20130328.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -786,9 +786,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-	      <string>015af2af525d869420516170e1aae54e</string>
+	      <string>cfd02d75dbd55327de71db81dc8a3f41</string>
               <key>url</key>
-	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-google-breakpad-graham/rev/272974/arch/CYGWIN/installer/google_breakpad-0.0.0-rev1099-windows-20130328.tar.bz2</string>
+             <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273021/arch/CYGWIN/installer/google_breakpad-0.0.0-rev1099-windows-20130328.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
