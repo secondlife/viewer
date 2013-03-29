@@ -1667,21 +1667,21 @@ void LLPanelPeople::openFacebookWeb(LLFloaterWebContent::Params& p)
 void LLPanelPeople::onLoginFbcButtonClicked()
 {
 	LLFloaterWebContent::Params p;
-	p.url("https://cryptic-ridge-1632.herokuapp.com/");
+	p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=https://pdp15.lindenlab.com/authenticate/" + gAgentID.asString());
 	openFacebookWeb(p);
 }
 
 void LLPanelPeople::onFacebookAppRequestClicked()
 {
 	LLFloaterWebContent::Params p;
-	p.url("http://www.facebook.com/dialog/apprequests?app_id=565771023434202&message=Test&redirect_uri=https://cryptic-ridge-1632.herokuapp.com/");
+	p.url("http://www.facebook.com/dialog/apprequests?app_id=565771023434202&message=Test&redirect_uri=https://pdp15.lindenlab.com/");
 	openFacebookWeb(p);
 }
 
 void LLPanelPeople::onFacebookAppSendClicked()
 {
 	LLFloaterWebContent::Params p;
-	p.url("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Test&link=http://www.cnet.com&redirect_uri=https://cryptic-ridge-1632.herokuapp.com/");
+	p.url("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Test&link=http://www.cnet.com&redirect_uri=https://pdp15.lindenlab.com/");
 	openFacebookWeb(p);
 }
 // EOF
