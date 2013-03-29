@@ -2569,7 +2569,7 @@ BOOL LLVOAvatarSelf::canGrabBakedTexture(EBakedTextureIndex baked_index) const
 }
 
 void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTexture* imagep,
-										   F32 texel_area_ratio, BOOL render_avatar, BOOL covered_by_baked, U32 index )
+										   F32 texel_area_ratio, BOOL render_avatar, BOOL covered_by_baked)
 {
 	if (!isIndexLocalTexture(type)) return;
 
@@ -2579,7 +2579,7 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 	// textures failing to load issue.
 	//if (!covered_by_baked)
 	{
-		if (getLocalTextureID(type, index) != IMG_DEFAULT_AVATAR)
+		if (imagep->getID() != IMG_DEFAULT_AVATAR)
 		{
 			imagep->setNoDelete();
 			if (imagep->getDiscardLevel() != 0)

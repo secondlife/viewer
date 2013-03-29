@@ -4403,7 +4403,7 @@ void LLVOAvatar::updateTextures()
 
 
 void LLVOAvatar::addLocalTextureStats( ETextureIndex idx, LLViewerFetchedTexture* imagep,
-									   F32 texel_area_ratio, BOOL render_avatar, BOOL covered_by_baked, U32 index )
+									   F32 texel_area_ratio, BOOL render_avatar, BOOL covered_by_baked)
 {
 	// No local texture stats for non-self avatars
 	return;
