@@ -442,6 +442,10 @@ void LLViewerRegion::loadObjectCache()
 	if(LLVOCache::hasInstance())
 	{
 		LLVOCache::getInstance()->readFromCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap) ;
+		if (mImpl->mCacheMap.empty())
+		{
+			mCacheDirty = TRUE;
+		}
 	}
 }
 
