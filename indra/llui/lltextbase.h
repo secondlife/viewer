@@ -41,6 +41,7 @@
 
 #include <boost/signals2.hpp>
 
+class LLScrollContainer;
 class LLContextMenu;
 class LLUrlMatch;
 
@@ -434,6 +435,9 @@ public:
 	virtual void			appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo);
 	boost::signals2::connection setURLClickedCallback(const commit_signal_t::slot_type& cb);
 
+	void					setWordWrap(bool wrap);
+	LLScrollContainer*		getScrollContainer() const { return mScroller; }
+
 protected:
 	// helper structs
 	struct compare_bottom;
@@ -634,7 +638,7 @@ protected:
 	// support widgets
 	LLContextMenu*				mPopupMenu;
 	LLView*						mDocumentView;
-	class LLScrollContainer*	mScroller;
+	LLScrollContainer*			mScroller;
 
 	// transient state
 	S32							mReflowIndex;		// index at which to start reflow.  S32_MAX indicates no reflow needed.
