@@ -1664,11 +1664,47 @@ void LLPanelPeople::openFacebookWeb(LLFloaterWebContent::Params& p)
 	}
 }
 
+class LLFacebookLogin : public LLHTTPClient::Responder
+{
+public:
+
+	LLPanelPeople * mPanelPeople;
+
+	LLFacebookLogin(LLPanelPeople * panel_people) : mPanelPeople(panel_people) {}
+
+	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
+	{
+		// in case of invalid characters, the avatar picker returns a 400
+		// just set it to process so it displays 'not found'
+		if (isGoodStatus(status) || status == 400)
+		{
+			llinfos << content << llendl;
+
+			bool has_token = content["has_access_token"].asBoolean();
+			
+			//use the token to pull down graph data
+			if(has_token)
+			{
+				
+			}
+			//request user to login
+			else
+			{
+				LLFloaterWebContent::Params p;
+				p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=https://pdp15.lindenlab.com/authenticate/" + gAgentID.asString());
+				mPanelPeople->openFacebookWeb(p);
+			}
+		}
+		else
+		{
+			llinfos << "failed to get response. reason: " << reason << " status: " << status << llendl;
+		}
+	}
+};
+
 void LLPanelPeople::onLoginFbcButtonClicked()
 {
-	LLFloaterWebContent::Params p;
-	p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=https://pdp15.lindenlab.com/authenticate/" + gAgentID.asString());
-	openFacebookWeb(p);
+	LLHTTPClient::get("https://pdp15.lindenlab.com/has-access-token/" + gAgentID.asString(), new LLFacebookLogin(this));
 }
 
 void LLPanelPeople::onFacebookAppRequestClicked()
