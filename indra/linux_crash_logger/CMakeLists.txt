@@ -12,6 +12,7 @@ include(LLVFS)
 include(LLXML)
 include(Linking)
 include(UI)
+include(FreeType)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
@@ -19,6 +20,7 @@ include_directories(
     ${LLMATH_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
+    ${FREETYPE_INCLUDE_DIRS}
     )
 
 set(linux_crash_logger_SOURCE_FILES
@@ -53,6 +55,7 @@ target_link_libraries(linux-crash-logger
     ${LLCOMMON_LIBRARIES}
     ${UI_LIBRARIES}
     ${DB_LIBRARIES}
+    ${FREETYPE_LIBRARIES}
     )
 
 add_custom_target(linux-crash-logger-target ALL

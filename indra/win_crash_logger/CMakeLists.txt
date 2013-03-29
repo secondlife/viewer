@@ -78,6 +78,7 @@ target_link_libraries(windows-crash-logger
     gdi32
     ole32
     oleaut32
+    wininet
     Wldap32
     )
     

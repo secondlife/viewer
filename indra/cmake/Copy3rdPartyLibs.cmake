@@ -260,7 +260,6 @@ elseif(LINUX)
         libboost_filesystem-mt.so.${BOOST_VERSION}.0
         libboost_signals-mt.so.${BOOST_VERSION}.0
         libboost_system-mt.so.${BOOST_VERSION}.0
-        libbreakpad_client.so.0
         libcollada14dom.so
         libcrypto.so.1.0.0
         libdb-5.1.so
