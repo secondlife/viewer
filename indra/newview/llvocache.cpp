@@ -906,7 +906,7 @@ void LLVOCache::purgeEntries(U32 size)
 	mNumEntries = mHandleEntryMap.size() ;
 }
 
-void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache, BOOL full_region_cache_probe) 
+void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache, bool removal_enabled) 
 {
 	if(!mEnabled)
 	{
@@ -979,7 +979,7 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	
 			for (LLVOCacheEntry::vocache_entry_map_t::const_iterator iter = cache_entry_map.begin(); success && iter != cache_entry_map.end(); ++iter)
 			{
-				if(!full_region_cache_probe || iter->second->isTouched())
+				if(!removal_enabled || iter->second->isTouched())
 				{
 					success = iter->second->writeToFile(&apr_file) ;
 				}

@@ -202,7 +202,7 @@ public:
 	void removeCache(ELLPath location, bool started = false) ;
 
 	void readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) ;
-	void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache, BOOL full_region_cache_probe);
+	void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache, bool removal_enabled);
 	void removeEntry(U64 handle) ;
 
 	void setReadOnly(BOOL read_only) {mReadOnly = read_only;} 
