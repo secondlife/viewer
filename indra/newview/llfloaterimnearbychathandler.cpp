@@ -559,12 +559,12 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 
     LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
 
-	if( nearby_chat->hasFocus() 
-        || im_box->hasFocus()
-		|| ( chat_msg.mSourceType == CHAT_SOURCE_AGENT
+	if((  ( chat_msg.mSourceType == CHAT_SOURCE_AGENT
 			&& gSavedSettings.getBOOL("UseChatBubbles") )
 		|| mChannel.isDead()
-		|| !mChannel.get()->getShowToasts() ) // to prevent toasts in Do Not Disturb mode
+		|| !mChannel.get()->getShowToasts() )
+		&& nearby_chat->isMessagePaneExpanded())
+		// to prevent toasts in Do Not Disturb mode
 		return;//no need in toast if chat is visible or if bubble chat is enabled
 
 	// arrange a channel on a screen
@@ -604,17 +604,16 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 			toast_msg = chat_msg.mText;
 		}
 
-		//Don't show nearby toast, if conversation is visible but not focused
-		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(LLUUID());
-		if (session_floater
-		    && session_floater->isInVisibleChain() && !session_floater->isMinimized()
-		    && !(session_floater->getHost() && session_floater->getHost()->isMinimized()))
+		//Don't show nearby toast, if conversation is visible and selected
+		if (im_box->getSelectedSession().isNull() &&
+				((LLFloater::isVisible(im_box) && !im_box->isMinimized() && im_box->isFrontmost())
+						|| (LLFloater::isVisible(nearby_chat) && !nearby_chat->isMinimized() && nearby_chat->isFrontmost())))
 		{
 			return;
 		}
 
         //Will show toast when chat preference is set        
-        if(gSavedSettings.getString("NotificationNearbyChatOptions") == "toast")
+        if((gSavedSettings.getString("NotificationNearbyChatOptions") == "toast") || !nearby_chat->isMessagePaneExpanded())
         {
             // Add a nearby chat toast.
             LLUUID id;

@@ -104,6 +104,15 @@ LLConversationViewSession::~LLConversationViewSession()
 
 void LLConversationViewSession::setFlashState(bool flash_state)
 {
+	if (flash_state && !mFlashStateOn)
+	{
+		// flash chat toolbar button if scrolled out of sight (because flashing will not be visible)
+		if (mContainer->isScrolledOutOfSight(this))
+		{
+			gToolBarView->flashCommand(LLCommandId("chat"), true);
+		}
+	}
+
 	mFlashStateOn = flash_state;
 	mFlashStarted = false;
 	mFlashTimer->stopFlashing();
@@ -115,12 +124,6 @@ void LLConversationViewSession::startFlashing()
 	{
 		mFlashStarted = true;
 		mFlashTimer->startFlashing();
-		
-		// flash chat toolbar button if scrolled out of sight (because flashing will not be visible)
-		if (mContainer->isScrolledOutOfSight(this))
-		{
-			gToolBarView->flashCommand(LLCommandId("chat"), true);
-		}
 	}
 }
 
@@ -254,18 +257,36 @@ BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
     //This node (conversation) was selected and a child (participant) was not
     if(result && getRoot())
     {
-    	if(getRoot()->getCurSelectedItem() == this)
-    	{
-    		LLConversationItem* item = dynamic_cast<LLConversationItem *>(getViewModelItem());
-    		LLUUID session_id = item? item->getUUID() : LLUUID();
-
-    		LLFloaterIMContainer *im_container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-    		im_container->flashConversationItemWidget(session_id,false);
-    		im_container->selectConversationPair(session_id, false);
-    		im_container->collapseMessagesPane(false);
-    	}
+		selectConversationItem();
     }
+
 	return result;
+}
+
+BOOL LLConversationViewSession::handleRightMouseDown( S32 x, S32 y, MASK mask )
+{
+    BOOL result = LLFolderViewFolder::handleRightMouseDown(x, y, mask);
+
+    if(result)
+    {
+		selectConversationItem();
+    }
+
+	return result;
+}
+
+void LLConversationViewSession::selectConversationItem()
+{
+	if(getRoot()->getCurSelectedItem() == this)
+	{
+		LLConversationItem* item = dynamic_cast<LLConversationItem *>(getViewModelItem());
+		LLUUID session_id = item? item->getUUID() : LLUUID();
+
+		LLFloaterIMContainer *im_container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+		im_container->flashConversationItemWidget(session_id,false);
+		im_container->selectConversationPair(session_id, false);
+		im_container->collapseMessagesPane(false);
+	}
 }
 
 // virtual

@@ -257,14 +257,25 @@ void LLFloaterIMNearbyChat::setVisible(BOOL visible)
 	}
 }
 
+
+void LLFloaterIMNearbyChat::setVisibleAndFrontmost(BOOL take_focus, const LLSD& key)
+{
+	LLFloaterIMSessionTab::setVisibleAndFrontmost(take_focus, key);
+
+	if(!isTornOff() && matchesKey(key))
+	{
+		LLFloaterIMContainer::getInstance()->selectConversationPair(mSessionID, true, false);
+	}
+}
+
 // virtual
 void LLFloaterIMNearbyChat::onTearOffClicked()
 {
 	LLFloaterIMSessionTab::onTearOffClicked();
 
 	// see CHUI-170: Save torn-off state of the nearby chat between sessions
-	BOOL in_the_multifloater = !isTornOff();
-	gSavedSettings.setBOOL("NearbyChatIsNotTornOff", in_the_multifloater);
+	BOOL in_the_multifloater = (BOOL)getHost();
+	gSavedPerAccountSettings.setBOOL("NearbyChatIsNotTornOff", in_the_multifloater);
 }
 
 
@@ -272,6 +283,11 @@ void LLFloaterIMNearbyChat::onTearOffClicked()
 void LLFloaterIMNearbyChat::onOpen(const LLSD& key)
 {
 	LLFloaterIMSessionTab::onOpen(key);
+	if(!isMessagePaneExpanded())
+	{
+		restoreFloater();
+		onCollapseToLine(this);
+	}
 	showTranslationCheckbox(LLTranslate::isTranslationConfigured());
 }
 
@@ -279,6 +295,7 @@ void LLFloaterIMNearbyChat::onOpen(const LLSD& key)
 void LLFloaterIMNearbyChat::onClose(bool app_quitting)
 {
 	// Override LLFloaterIMSessionTab::onClose() so that Nearby Chat is not removed from the conversation floater
+	LLFloaterIMSessionTab::restoreFloater();
 	onClickCloseBtn();
 }
 
@@ -286,8 +303,10 @@ void LLFloaterIMNearbyChat::onClose(bool app_quitting)
 void LLFloaterIMNearbyChat::onClickCloseBtn()
 {
 	if (!isTornOff())
+	{
 		return;
-	onTearOffClicked();
+	}
+	LLFloaterIMSessionTab::onTearOffClicked();
 	
 	LLFloaterIMContainer *im_box = LLFloaterIMContainer::findInstance();
 	if (im_box)
@@ -308,11 +327,8 @@ void LLFloaterIMNearbyChat::onChatFontChange(LLFontGL* fontp)
 
 void LLFloaterIMNearbyChat::show()
 {
-	if (isChatMultiTab())
-	{
 		openFloater(getKey());
 	}
-}
 
 bool LLFloaterIMNearbyChat::isChatVisible() const
 {
@@ -323,7 +339,7 @@ bool LLFloaterIMNearbyChat::isChatVisible() const
 	if (im_box != NULL)
 	{
 		isVisible =
-				isChatMultiTab() && gSavedSettings.getBOOL("NearbyChatIsNotTornOff")?
+				isChatMultiTab() && gSavedPerAccountSettings.getBOOL("NearbyChatIsNotTornOff")?
 						im_box->getVisible() && !im_box->isMinimized() :
 						getVisible() && !isMinimized();
 	}
@@ -334,6 +350,11 @@ bool LLFloaterIMNearbyChat::isChatVisible() const
 void LLFloaterIMNearbyChat::showHistory()
 {
 	openFloater();
+	if(!isMessagePaneExpanded())
+	{
+		restoreFloater();
+		setFocus(true);
+	}
 	setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
 }
 
@@ -406,6 +427,12 @@ BOOL LLFloaterIMNearbyChat::matchChatTypeTrigger(const std::string& in_str, std:
 
 void LLFloaterIMNearbyChat::onChatBoxKeystroke()
 {
+	LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
+	if (im_box)
+	{
+		im_box->flashConversationItemWidget(mSessionID,false);
+	}
+
 	LLFirstUse::otherAvatarChatFirst(false);
 
 	LLWString raw_text = mInputEditor->getWText();
@@ -455,11 +482,14 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
 		if (LLGestureMgr::instance().matchPrefix(utf8_trigger, &utf8_out_str))
 		{
 			std::string rest_of_match = utf8_out_str.substr(utf8_trigger.size());
-			mInputEditor->setText(utf8_trigger + rest_of_match); // keep original capitalization for user-entered part
+			if (!rest_of_match.empty())
+			{
+				mInputEditor->setText(utf8_trigger + rest_of_match); // keep original capitalization for user-entered part
 
-			// Select to end of line, starting from the character
-			// after the last one the user typed.
-			mInputEditor->selectNext(rest_of_match, false);
+				// Select to end of line, starting from the character
+				// after the last one the user typed.
+				mInputEditor->selectNext(rest_of_match, false);
+			}
 		}
 		else if (matchChatTypeTrigger(utf8_trigger, &utf8_out_str))
 		{
@@ -714,10 +744,16 @@ void LLFloaterIMNearbyChat::startChat(const char* line)
 	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 	if (nearby_chat)
 	{
+		if(!nearby_chat->isTornOff())
+		{
+			LLFloaterIMContainer::getInstance()->selectConversation(LLUUID(NULL));
+		}
+		if(nearby_chat->isMinimized())
+		{
+			nearby_chat->setMinimized(false);
+		}
 		nearby_chat->show();
-		nearby_chat->setVisible(TRUE);
 		nearby_chat->setFocus(TRUE);
-		nearby_chat->mInputEditor->setFocus(TRUE);
 
 		if (line)
 		{

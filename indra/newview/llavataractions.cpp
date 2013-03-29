@@ -193,7 +193,7 @@ static void on_avatar_name_cache_start_im(const LLUUID& agent_id,
 // static
 void LLAvatarActions::startIM(const LLUUID& id)
 {
-	if (id.isNull())
+	if (id.isNull() || gAgent.getID() == id)
 		return;
 
 	LLAvatarNameCache::get(id, boost::bind(&on_avatar_name_cache_start_im, _1, _2));

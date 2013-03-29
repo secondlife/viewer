@@ -618,7 +618,9 @@ void LLFloaterIMSession::onClose(bool app_quitting)
 	// Last change:
 	// EXT-3516 X Button should end IM session, _ button should hide
 	gIMMgr->leaveSession(mSessionID);
-
+    // *TODO: Study why we need to restore the floater before we close it.
+    // Might be because we want to save some state data in some clean open state.
+	LLFloaterIMSessionTab::restoreFloater();
 	// Clean up the conversation *after* the session has been ended
 	LLFloaterIMSessionTab::onClose(app_quitting);
 }
@@ -892,6 +894,11 @@ void LLFloaterIMSession::onInputEditorFocusLost(LLFocusableElement* caller, void
 void LLFloaterIMSession::onInputEditorKeystroke(LLTextEditor* caller, void* userdata)
 {
 	LLFloaterIMSession* self = (LLFloaterIMSession*)userdata;
+	LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
+	if (im_box)
+	{
+		im_box->flashConversationItemWidget(self->mSessionID,false);
+	}
 	std::string text = self->mInputEditor->getText();
 
 		// Deleting all text counts as stopping typing.
