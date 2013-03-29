@@ -181,17 +181,16 @@ void on_new_message(const LLSD& msg)
 	{
 		conversations_floater_status = CLOSED;
 	}
-	else if ( !im_box->hasFocus() &&
-			(!session_floater || !LLFloater::isVisible(session_floater)
-	            || session_floater->isMinimized() || !session_floater->hasFocus()))
+	else if (!session_floater || !LLFloater::isVisible(session_floater)
+	            || session_floater->isMinimized() || !session_floater->hasFocus())
 	{
 		conversations_floater_status = NOT_ON_TOP;
 	}
-	else if (im_box->getSelectedSession() != session_id)
+	else if (session_floater->hasFocus())
 	{
 		conversations_floater_status = ON_TOP;
     }
-	else
+	else if((session_floater->hasFocus()) && (im_box->getSelectedSession() == session_id))
 	{
 		conversations_floater_status = ON_TOP_AND_ITEM_IS_SELECTED;
 	}
@@ -297,8 +296,11 @@ void on_new_message(const LLSD& msg)
     }
 
     // 4. Toast
-    if ("toast" == user_preferences
+    if ((("toast" == user_preferences) &&
+    		(CLOSED == conversations_floater_status
+    		    || NOT_ON_TOP == conversations_floater_status))
     		    || !session_floater->isMessagePaneExpanded())
+
     {
         //Show IM toasts (upper right toasts)
         // Skip toasting for system messages and for nearby chat
