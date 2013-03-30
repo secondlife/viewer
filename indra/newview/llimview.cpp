@@ -2800,6 +2800,8 @@ LLUUID LLIMMgr::addSession(
 		return LLUUID::null;
 	}
 
+    llinfos << "LLIMMgr::addSession, name = " << name << llendl;
+    
 	LLUUID session_id = computeSessionID(dialog,other_participant_id);
 
 	if (floater_id.notNull())
