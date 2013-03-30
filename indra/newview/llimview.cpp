@@ -2800,8 +2800,6 @@ LLUUID LLIMMgr::addSession(
 		return LLUUID::null;
 	}
 
-    llinfos << "LLIMMgr::addSession, name = " << name << llendl;
-    
 	LLUUID session_id = computeSessionID(dialog,other_participant_id);
 
 	if (floater_id.notNull())
@@ -2846,6 +2844,8 @@ LLUUID LLIMMgr::addSession(
 	//we don't need to show notes about online/offline, mute/unmute users' statuses for existing sessions
 	if (!new_session) return session_id;
 	
+    llinfos << "LLIMMgr::addSession, new session added, name = " << name << ", session id = " << session_id << llendl;
+    
 	//Per Plan's suggestion commented "explicit offline status warning" out to make Dessie happier (see EXT-3609)
 	//*TODO After February 2010 remove this commented out line if no one will be missing that warning
 	//noteOfflineUsers(session_id, floater, ids);
@@ -2880,6 +2880,8 @@ void LLIMMgr::removeSession(const LLUUID& session_id)
 	clearPendingAgentListUpdates(session_id);
 
 	LLIMModel::getInstance()->clearSession(session_id);
+
+    llinfos << "LLIMMgr::removeSession, session removed, session id = " << session_id << llendl;
 
 	notifyObserverSessionRemoved(session_id);
 }
