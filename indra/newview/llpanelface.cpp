@@ -1260,7 +1260,7 @@ void LLPanelFace::onMaterialLoaded(const LLMaterialID& material_id, const LLMate
 		rot = material->getSpecularRotation();
 		getChild<LLUICtrl>("shinyScaleU")->setValue(repeat_x);
 		getChild<LLUICtrl>("shinyScaleV")->setValue(repeat_y);
-		getChild<LLUICtrl>("shinyRot")->setValue(rot);
+		getChild<LLUICtrl>("shinyRot")->setValue(rot*RAD_TO_DEG);
 		getChild<LLUICtrl>("shinyOffsetU")->setValue(offset_x);
 		getChild<LLUICtrl>("shinyOffsetV")->setValue(offset_y);
 		getChild<LLColorSwatchCtrl>("shinycolorswatch")->setOriginal(material->getSpecularLightColor());
@@ -1281,7 +1281,7 @@ void LLPanelFace::onMaterialLoaded(const LLMaterialID& material_id, const LLMate
 		rot = material->getNormalRotation();
 		getChild<LLUICtrl>("bumpyScaleU")->setValue(repeat_x);
 		getChild<LLUICtrl>("bumpyScaleV")->setValue(repeat_y);
-		getChild<LLUICtrl>("bumpyRot")->setValue(rot);
+		getChild<LLUICtrl>("bumpyRot")->setValue(rot*RAD_TO_DEG);
 		getChild<LLUICtrl>("bumpyOffsetU")->setValue(offset_x);
 		getChild<LLUICtrl>("bumpyOffsetV")->setValue(offset_y);
 	}
@@ -1333,7 +1333,7 @@ void LLPanelFace::updateMaterial()
 							getChild<LLUICtrl>("bumpyOffsetV")->getValue().asReal());
 			mMaterial->setNormalRepeat(getChild<LLUICtrl>("bumpyScaleU")->getValue().asReal(),
 							getChild<LLUICtrl>("bumpyScaleV")->getValue().asReal());
-			mMaterial->setNormalRotation(getChild<LLUICtrl>("bumpyRot")->getValue().asReal());
+			mMaterial->setNormalRotation(getChild<LLUICtrl>("bumpyRot")->getValue().asReal()*DEG_TO_RAD);
 		}
 		else
 		{
@@ -1351,7 +1351,7 @@ void LLPanelFace::updateMaterial()
 							getChild<LLUICtrl>("shinyOffsetV")->getValue().asReal());
 			mMaterial->setSpecularRepeat(getChild<LLUICtrl>("shinyScaleU")->getValue().asReal(),
 							getChild<LLUICtrl>("shinyScaleV")->getValue().asReal());
-			mMaterial->setSpecularRotation(getChild<LLUICtrl>("shinyRot")->getValue().asReal());
+			mMaterial->setSpecularRotation(getChild<LLUICtrl>("shinyRot")->getValue().asReal()*DEG_TO_RAD);
 		}
 		else
 		{
