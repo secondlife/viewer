@@ -442,6 +442,10 @@ void LLViewerRegion::loadObjectCache()
 	if(LLVOCache::hasInstance())
 	{
 		LLVOCache::getInstance()->readFromCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap) ;
+		if (mImpl->mCacheMap.empty())
+		{
+			mCacheDirty = TRUE;
+		}
 	}
 }
 
@@ -460,11 +464,10 @@ void LLViewerRegion::saveObjectCache()
 
 	if(LLVOCache::hasInstance())
 	{
-		//NOTE: !!!!!!!!!!
-		//set this to be true when support full region cache probe!!!!
-		BOOL full_region_cache_probe = FALSE;
+		const F32 start_time_threshold = 600.0f; //seconds
+		bool removal_enabled = mRegionTimer.getElapsedTimeF32() > start_time_threshold; //allow to remove invalid objects from object cache file.
 
-		LLVOCache::getInstance()->writeToCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap, mCacheDirty, full_region_cache_probe) ;
+		LLVOCache::getInstance()->writeToCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap, mCacheDirty, removal_enabled) ;
 		mCacheDirty = FALSE;
 	}
 
@@ -2176,6 +2179,8 @@ void LLViewerRegion::unpackRegionHandshake()
 	}
 	msg->addU32("Flags", flags );
 	msg->sendReliable(host);
+
+	mRegionTimer.reset(); //reset region timer.
 }
 
 void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)

@@ -399,6 +399,7 @@ public:
 	static BOOL sVOCacheCullingEnabled; //vo cache culling enabled or not.
 private:
 	LLViewerRegionImpl * mImpl;
+	LLFrameTimer         mRegionTimer;
 
 	F32			mWidth;			// Width of region on a side (meters)
 	U64			mHandle;
