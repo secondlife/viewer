@@ -43,7 +43,6 @@ void main()
 	float shadow = 1.0;
 
 	vec4 color = diffuseLookup(vary_texcoord0.xy)*vertex_color;
-	color.rgb = pow(color.rgb, vec3(2.2));
 	
 	color.rgb = fullbrightAtmosTransport(color.rgb);
 
