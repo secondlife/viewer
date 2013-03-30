@@ -182,6 +182,8 @@ void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 		break;
 	case 4:
 		beginDeferredRiggedBump();
+	default:
+		beginDeferredRiggedMaterial(pass-5);
 		break;
 	}
 }
@@ -214,6 +216,9 @@ void LLDrawPoolAvatar::endDeferredPass(S32 pass)
 		break;
 	case 4:
 		endDeferredRiggedBump();
+		break;
+	default:
+		endDeferredRiggedMaterial(pass-5);
 		break;
 	}
 }
@@ -425,12 +430,10 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	}
 	else
 	{
-		renderRigged(avatarp, RIGGED_SIMPLE);
-		renderRigged(avatarp, RIGGED_ALPHA);
-		renderRigged(avatarp, RIGGED_FULLBRIGHT);
-		renderRigged(avatarp, RIGGED_FULLBRIGHT_SHINY);
-		renderRigged(avatarp, RIGGED_SHINY);
-		renderRigged(avatarp, RIGGED_FULLBRIGHT_ALPHA);
+		for (U32 i = 0; i < NUM_RIGGED_PASSES; ++i)
+		{
+			renderRigged(avatarp, i);
+		}
 	}
 }
 
@@ -451,11 +454,11 @@ S32 LLDrawPoolAvatar::getNumDeferredPasses()
 {
 	if (LLPipeline::sImpostorRender)
 	{
-		return 3;
+		return 19;
 	}
 	else
 	{
-		return 5;
+		return 21;
 	}
 }
 
@@ -1010,6 +1013,27 @@ void LLDrawPoolAvatar::endDeferredRiggedBump()
 	sVertexProgram = NULL;
 }
 
+void LLDrawPoolAvatar::beginDeferredRiggedMaterial(S32 pass)
+{
+	sVertexProgram = &gDeferredMaterialProgram[pass+LLMaterial::SHADER_COUNT];
+	sVertexProgram->bind();
+	normal_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::BUMP_MAP);
+	specular_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::SPECULAR_MAP);
+	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+}
+
+void LLDrawPoolAvatar::endDeferredRiggedMaterial(S32 pass)
+{
+	LLVertexBuffer::unbind();
+	sVertexProgram->disableTexture(LLViewerShaderMgr::BUMP_MAP);
+	sVertexProgram->disableTexture(LLViewerShaderMgr::SPECULAR_MAP);
+	sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+	sVertexProgram->unbind();
+	normal_channel = -1;
+	sDiffuseChannel = 0;
+	sVertexProgram = NULL;
+}
+
 void LLDrawPoolAvatar::beginDeferredSkinned()
 {
 	sShaderLevel = mVertexShaderLevel;
@@ -1184,6 +1208,13 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 		return;
 	}
+
+	if (is_deferred_render && pass >= 5 && pass <= 21)
+	{
+		renderDeferredRiggedMaterial(avatarp, pass-5);
+		return;
+	}
+
 
 	if (pass == 5)
 	{
@@ -1510,10 +1541,41 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				gGL.diffuseColor4f(0,0,0,face->getTextureEntry()->getGlow());
 			}*/
 
-			gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture());
-			if (normal_channel > -1)
+			LLMaterial* mat = face->getTextureEntry()->getMaterialParams().get();
+
+			if (is_deferred_render && mat)
 			{
-				LLDrawPoolBump::bindBumpMap(face, normal_channel);
+				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture(LLRender::DIFFUSE_MAP));
+				gGL.getTexUnit(normal_channel)->bind(face->getTexture(LLRender::NORMAL_MAP));
+				gGL.getTexUnit(specular_channel)->bind(face->getTexture(LLRender::SPECULAR_MAP));
+
+				LLColor4U col = mat->getSpecularLightColor();
+				U8 spec = mat->getSpecularLightExponent();
+
+				U8 env = mat->getEnvironmentIntensity();
+
+				sVertexProgram->uniform4f(LLShaderMgr::SPECULAR_COLOR, col.mV[0]/255.f, col.mV[1]/255.f, col.mV[2]/255.f, spec/255.f);
+
+				sVertexProgram->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, env/255.f);
+		
+				sVertexProgram->setMinimumAlpha(mat->getAlphaMaskCutoff()/255.f);
+
+				for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
+				{
+					LLViewerTexture* tex = face->getTexture(i);
+					if (tex)
+					{
+						tex->addTextureStats(avatar->getPixelArea());
+					}
+				}
+			}
+			else
+			{
+				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture());
+				if (normal_channel > -1)
+				{
+					LLDrawPoolBump::bindBumpMap(face, normal_channel);
+				}
 			}
 
 			if (face->mTextureMatrix)
@@ -1543,6 +1605,11 @@ void LLDrawPoolAvatar::renderDeferredRiggedSimple(LLVOAvatar* avatar)
 void LLDrawPoolAvatar::renderDeferredRiggedBump(LLVOAvatar* avatar)
 {
 	renderRigged(avatar, RIGGED_DEFERRED_BUMP);
+}
+
+void LLDrawPoolAvatar::renderDeferredRiggedMaterial(LLVOAvatar* avatar, S32 pass)
+{
+	renderRigged(avatar, pass);
 }
 
 static LLFastTimer::DeclareTimer FTM_RIGGED_VBO("Rigged VBO");

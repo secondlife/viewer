@@ -23,14 +23,23 @@
  * $/LicenseInfo$
  */
 
+#if HAS_SKIN
+uniform mat4 modelview_matrix;
+uniform mat4 projection_matrix;
+mat4 getObjectSkinnedTransform();
+#else
 uniform mat3 normal_matrix;
-uniform mat4 texture_matrix0;
 uniform mat4 modelview_projection_matrix;
+#endif
+
+uniform mat4 texture_matrix0;
+
 
 ATTRIBUTE vec3 position;
 ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec3 normal;
 ATTRIBUTE vec2 texcoord0;
+
 
 #if HAS_NORMAL_MAP
 ATTRIBUTE vec3 binormal;
@@ -55,8 +64,21 @@ VARYING vec2 vary_texcoord0;
 
 void main()
 {
+#if HAS_SKIN
+	mat4 mat = getObjectSkinnedTransform();
+
+	mat = modelview_matrix * mat;
+
+	vec3 pos = (mat*vec4(position.xyz,1.0)).xyz;
+
+	gl_Position = projection_matrix*vec4(pos,1.0);
+
+#else
 	//transform vertex
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
+
+#endif
+	
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	
 #if HAS_NORMAL_MAP
@@ -67,6 +89,19 @@ void main()
 	vary_texcoord2 = (texture_matrix0 * vec4(texcoord2,0,1)).xy;
 #endif
 
+#if HAS_SKIN
+	vec3 n = normalize((mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz);
+#if HAS_NORMAL_MAP
+	vec3 b = normalize((mat*vec4(binormal.xyz+position.xyz,1.0)).xyz-pos.xyz);
+	vec3 t = cross(b, n);
+	
+	vary_mat0 = vec3(t.x, b.x, n.x);
+	vary_mat1 = vec3(t.y, b.y, n.y);
+	vary_mat2 = vec3(t.z, b.z, n.z);
+#else //HAS_NORMAL_MAP
+vary_normal  = n;
+#endif //HAS_NORMAL_MAP
+#else //HAS_SKIN
 	vec3 n = normalize(normal_matrix * normal);
 #if HAS_NORMAL_MAP
 	vec3 b = normalize(normal_matrix * binormal);
@@ -75,9 +110,10 @@ void main()
 	vary_mat0 = vec3(t.x, b.x, n.x);
 	vary_mat1 = vec3(t.y, b.y, n.y);
 	vary_mat2 = vec3(t.z, b.z, n.z);
-#else
+#else //HAS_NORMAL_MAP
 	vary_normal = n;
-#endif
+#endif //HAS_NORMAL_MAP
+#endif //HAS_SKIN
 	
 	vertex_color = diffuse_color;
 }

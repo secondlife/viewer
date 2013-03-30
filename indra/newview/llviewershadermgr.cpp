@@ -208,7 +208,7 @@ LLGLSLShader			gDeferredStarProgram;
 LLGLSLShader			gNormalMapGenProgram;
 
 // Deferred materials shaders
-LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT];
+LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
 
 LLViewerShaderMgr::LLViewerShaderMgr() :
 	mVertexShaderLevel(SHADER_COUNT, 0),
@@ -1108,7 +1108,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredWLCloudProgram.unload();
 		gDeferredStarProgram.unload();
 		gNormalMapGenProgram.unload();
-		for (U32 i = 0; i < LLMaterial::SHADER_COUNT; ++i)
+		for (U32 i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
 		{
 			gDeferredMaterialProgram[i].unload();
 		}
@@ -1227,7 +1227,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	}
 	
 
-	for (U32 i = 0; i < LLMaterial::SHADER_COUNT; ++i)
+	for (U32 i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
 	{
 		if (success)
 		{
@@ -1242,6 +1242,13 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			gDeferredMaterialProgram[i].addPermutation("HAS_NORMAL_MAP", i & 0x8? "1" : "0");
 			gDeferredMaterialProgram[i].addPermutation("HAS_SPECULAR_MAP", i & 0x4 ? "1" : "0");
 			gDeferredMaterialProgram[i].addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
+
+			bool has_skin = i & 0x10;
+			gDeferredMaterialProgram[i].addPermutation("HAS_SKIN",has_skin ? "1" : "0");
+			if (has_skin)
+			{
+				gDeferredMaterialProgram[i].mFeatures.hasObjectSkinning = true;
+			}
 
 			success = gDeferredMaterialProgram[i].createShader(NULL, NULL);
 		}

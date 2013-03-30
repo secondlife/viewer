@@ -364,6 +364,6 @@ extern LLGLSLShader			gDeferredStarProgram;
 extern LLGLSLShader			gNormalMapGenProgram;
 
 // Deferred materials shaders
-extern LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT];
+extern LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
 
 #endif

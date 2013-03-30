@@ -447,16 +447,19 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 						if (use_shaders) 
 						{
 							target_shader = fullbright_shader;
-							if (LLPipeline::sRenderDeferred)
+							if (target_shader)
 							{
-								if (params.mFace->getViewerObject()->isHUDAttachment())
+								if (LLPipeline::sRenderDeferred)
 								{
-									target_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.0);
+									if (params.mFace->getViewerObject()->isHUDAttachment())
+									{
+										target_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.0);
+									} else {
+										target_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2);
+									}
 								} else {
-									target_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2);
+									target_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.0);
 								}
-							} else {
-								target_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.0);
 							}
 						}
 						else
