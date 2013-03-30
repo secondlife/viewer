@@ -18,5 +18,8 @@ else (STANDALONE)
   # yes, this does look dumb, no, it's not incorrect
   #
   set(BREAKPAD_INCLUDE_DIRECTORIES "${LIBS_PREBUILT_DIR}/include/google_breakpad" "${LIBS_PREBUILT_DIR}/include/google_breakpad/google_breakpad")
+  # yes, this does look dumb, no, it's not incorrect
+  #
+  set(BREAKPAD_INCLUDE_DIRECTORIES "${LIBS_PREBUILT_DIR}/include/google_breakpad" "${LIBS_PREBUILT_DIR}/include/google_breakpad/google_breakpad")
 endif (STANDALONE)
 

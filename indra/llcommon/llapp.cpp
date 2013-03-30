@@ -910,6 +910,43 @@ bool unix_minidump_callback(const google_breakpad::MinidumpDescriptor& minidump_
 #endif
 
 
+#if LL_LINUX
+bool unix_minidump_callback(const google_breakpad::MinidumpDescriptor& minidump_desc, void* context, bool succeeded)
+{
+	// Copy minidump file path into fixed buffer in the app instance to avoid
+	// heap allocations in a crash handler.
+	
+	// path format: <dump_dir>/<minidump_id>.dmp
+	int dirPathLength = strlen(minidump_desc.path());
+	
+	// The path must not be truncated.
+	llassert((dirPathLength + 5) <= LLApp::MAX_MINDUMP_PATH_LENGTH);
+	
+	char * path = LLApp::instance()->getMiniDumpFilename();
+	S32 remaining = LLApp::MAX_MINDUMP_PATH_LENGTH;
+	strncpy(path, minidump_desc.path(), remaining);
+	remaining -= dirPathLength;
+	path += dirPathLength;
+	if (remaining > 0 && dirPathLength > 0 && path[-1] != '/')
+	{
+		*path++ = '/';
+		--remaining;
+	}
+	
+	llinfos << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << llendl;
+	LLApp::runErrorHandler();
+	
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	clear_signals();
+	return false;
+#else
+	return true;
+#endif
+
+}
+#endif
+
+
 bool unix_post_minidump_callback(const char *dump_dir,
 					  const char *minidump_id,
 					  void *context, bool succeeded)
