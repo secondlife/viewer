@@ -394,7 +394,7 @@
              max_value="1"
              follows="left|top"
              height="19"
-             initial_value="0"
+             initial_value="0.2"
              layout="topleft"
              top_delta="-4"
              left_pad="10"

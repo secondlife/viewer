@@ -1309,7 +1309,22 @@ void LLPanelFace::updateMaterial()
 		if (!mMaterial)
 		{
 			mMaterial = LLMaterialPtr(new LLMaterial());
+			//set defaults according to UI spec
+			mMaterial->setSpecularLightColor(LLColor4U::white);
+			mMaterial->setSpecularLightExponent((U8) (255*0.2f));
+			mMaterial->setEnvironmentIntensity(0);
+			mMaterial->setDiffuseAlphaMode(LLMaterial::DIFFUSE_ALPHA_MODE_NONE);
+			mMaterial->setAlphaMaskCutoff(0);
 		}
+		else
+		{
+			mMaterial->setSpecularLightColor(getChild<LLColorSwatchCtrl>("shinycolorswatch")->get());
+			mMaterial->setSpecularLightExponent((U8)(255*getChild<LLUICtrl>("glossiness")->getValue().asReal()));
+			mMaterial->setEnvironmentIntensity((U8)(255*getChild<LLUICtrl>("environment")->getValue().asReal()));
+			mMaterial->setDiffuseAlphaMode(getChild<LLComboBox>("combobox alphamode")->getCurrentIndex());
+			mMaterial->setAlphaMaskCutoff((U8)(getChild<LLUICtrl>("maskcutoff")->getValue().asInteger()));
+		}
+
 		if (bumpiness == BUMPY_TEXTURE)
 		{
 			LL_DEBUGS("Materials") << "Setting bumpy texture, bumpiness = " << bumpiness  << LL_ENDL;
@@ -1346,11 +1361,7 @@ void LLPanelFace::updateMaterial()
 			mMaterial->setSpecularRepeat(1.0f,1.0f);
 			mMaterial->setSpecularRotation(0.0f);
 		}
-		mMaterial->setSpecularLightColor(getChild<LLColorSwatchCtrl>("shinycolorswatch")->get());
-		mMaterial->setSpecularLightExponent((U8)(255*getChild<LLUICtrl>("glossiness")->getValue().asReal()));
-		mMaterial->setEnvironmentIntensity((U8)(255*getChild<LLUICtrl>("environment")->getValue().asReal()));
-		mMaterial->setDiffuseAlphaMode(getChild<LLComboBox>("combobox alphamode")->getCurrentIndex());
-		mMaterial->setAlphaMaskCutoff((U8)(getChild<LLUICtrl>("maskcutoff")->getValue().asInteger()));
+		
 		LL_DEBUGS("Materials") << "Updating material: " << mMaterial->asLLSD() << LL_ENDL;
 		LLSelectMgr::getInstance()->selectionSetMaterial( mMaterial );
 	}
