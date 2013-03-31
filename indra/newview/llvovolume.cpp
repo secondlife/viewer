@@ -5274,7 +5274,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 					llassert(mask < sizeof(pass)/sizeof(U32));
 
-					mask = llmin(mask, sizeof(pass)/sizeof(U32)-1);
+					mask = llmin(mask, (U32)(sizeof(pass)/sizeof(U32)-1));
 
 					registerFace(group, facep, pass[mask]);
 				}

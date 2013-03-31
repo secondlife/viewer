@@ -454,7 +454,7 @@ S32 LLDrawPoolAvatar::getNumDeferredPasses()
 {
 	if (LLPipeline::sImpostorRender)
 	{
-		return 19;
+		return 3;
 	}
 	else
 	{
