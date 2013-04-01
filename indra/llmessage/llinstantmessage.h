@@ -115,8 +115,8 @@ enum EInstantMessage
 	// viewer, since you can't IM an object yet.
 	IM_FROM_TASK = 19,
 
-	// sent an IM to a busy user, this is the auto response
-	IM_BUSY_AUTO_RESPONSE = 20,
+	// sent an IM to a do not disturb user, this is the auto response
+	IM_DO_NOT_DISTURB_AUTO_RESPONSE = 20,
 
 	// Shows the message in the console and chat history
 	IM_CONSOLE_AND_CHAT_HISTORY = 21,
@@ -164,56 +164,8 @@ enum EInstantMessage
 };
 
 
-// Hooks for quickly hacking in experimental admin debug messages 
-// without needing to recompile the viewer
-// *NOTE: This functionality has been moved to be a string based
-// operation so that we don't even have to do a full recompile. This
-// enumeration will be phased out soon.
-enum EGodlikeRequest
-{
-	GOD_WANTS_NOTHING,
-
-	// for requesting physics information about an object
-	GOD_WANTS_PHYSICS_INFO,
-	
-	// two unused requests that can be appropriated for debug 
-	// purposes (no viewer recompile necessary)
-	GOD_WANTS_FOO,
-	GOD_WANTS_BAR,
-
-	// to dump simulator terrain data to terrain.raw file
-	GOD_WANTS_TERRAIN_SAVE,
-	// to load simulator terrain data from terrain.raw file
-	GOD_WANTS_TERRAIN_LOAD,
-
-	GOD_WANTS_TOGGLE_AVATAR_GEOMETRY,	// HACK for testing new avatar geom
-
-	// real-time telehub operations
-	GOD_WANTS_TELEHUB_INFO,
-	GOD_WANTS_CONNECT_TELEHUB,
-	GOD_WANTS_DELETE_TELEHUB,
-	GOD_WANTS_ADD_TELEHUB_SPAWNPOINT,
-	GOD_WANTS_REMOVE_TELEHUB_SPAWNPOINT,
-
-};
-
-enum EIMSource
-{
-	IM_FROM_VIEWER,
-	IM_FROM_DATASERVER,
-	IM_FROM_SIM
-};
-
 extern const U8 IM_ONLINE;
 extern const U8 IM_OFFLINE;
-
-extern const S32 VOTE_YES;
-extern const S32 VOTE_NO;
-extern const S32 VOTE_ABSTAIN;
-
-extern const S32 VOTE_MAJORITY;
-extern const S32 VOTE_SUPER_MAJORITY;
-extern const S32 VOTE_UNANIMOUS;
 
 extern const char EMPTY_BINARY_BUCKET[];
 extern const S32 EMPTY_BINARY_BUCKET_SIZE;
@@ -234,7 +186,6 @@ protected:
 
 public:
 	LLIMInfo(LLMessageSystem* msg, 
-			EIMSource source = IM_FROM_SIM, 
 			S32 ttl = IM_TTL);
 
 	LLIMInfo(
@@ -251,7 +202,6 @@ public:
 		LLSD data,
 		U8 offline,
 		U32 timestamp,
-		EIMSource source,
 		S32 ttl = IM_TTL);
 
 	void packInstantMessage(LLMessageSystem* msg) const;
@@ -274,7 +224,6 @@ public:
 	std::string mMessage;
 	LLSD mData;
 
-	EIMSource mSource;
 	S32 mTTL;
 };
 

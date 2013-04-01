@@ -38,7 +38,7 @@ class LLPanelPlaceProfile : public LLPanelPlaceInfo
 public:
 	LLPanelPlaceProfile();
 	/*virtual*/ ~LLPanelPlaceProfile();
-
+	
 	/*virtual*/ BOOL postBuild();
 
 	/*virtual*/ void resetLocation();

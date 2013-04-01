@@ -295,7 +295,7 @@ Please try logging in again in a minute.</string>
 	<!-- llvoavatar. Displayed in the avatar chat bubble -->
 	<string name="AvatarEditingAppearance">(Editing Appearance)</string>
 	<string name="AvatarAway">Away</string>
-	<string name="AvatarBusy">Busy</string>
+	<string name="AvatarDoNotDisturb">Do Not Disturb</string>
 	<string name="AvatarMuted">Blocked</string>
 
 	<!-- animations -->
@@ -385,6 +385,8 @@ Please try logging in again in a minute.</string>
 	<string name="ST_NO_JOINT">Can't find ROOT or JOINT.</string>
 
 	<!-- Chat -->
+	<string name="NearbyChatTitle">Nearby chat</string>
+  <string name="NearbyChatLabel">(Nearby chat)</string>
 	<string name="whisper">whispers:</string>
 	<string name="shout">shouts:</string>
 	<string name="ringing">Connecting to in-world Voice Chat...</string>
@@ -406,8 +408,9 @@ Please try logging in again in a minute.</string>
 	<string name="ChangePermissions">Change its permissions</string>
 	<string name="TrackYourCamera">Track your camera</string>
   <string name="ControlYourCamera">Control your camera</string>
+	<string name="NotConnected">Not Connected</string>
+	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
   <string name="TeleportYourAgent">Teleport you</string>
-  <string name="NotConnected">Not Connected</string>
 
 	<!-- Sim Access labels -->
 	<string name="SIM_ACCESS_PG">General</string>
@@ -2072,12 +2075,6 @@ For AI Character: Get the closest navigable point to the point provided.
 	</string>
 
 
-  <!-- Avatar busy/away mode -->
-	<string name="AvatarSetNotAway">Not Away</string>
-	<string name="AvatarSetAway">Away</string>
-	<string name="AvatarSetNotBusy">Not Busy</string>
-	<string name="AvatarSetBusy">Busy</string>
-
 	<!-- Wearable Types -->
 	<string name="shape">Shape</string>
 	<string name="skin">Skin</string>
@@ -2271,7 +2268,8 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 	<string name="InvFolder Gestures">Gestures</string>
 	<string name="InvFolder Favorite">My Favorites</string>
   <!-- historically default name of the Favorites folder can start from either "f" or "F" letter.
-  We should localize both of them with the same value -->
+      Also, it can be written as "Favorite" or "Favorites".
+  We should localize all variants of them with the same value -->
 	<string name="InvFolder favorite">My Favorites</string>
 	<string name="InvFolder Favorites">My Favorites</string>
 	<string name="InvFolder favorites">My Favorites</string>
@@ -2285,6 +2283,7 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 
   <!-- are used for Friends and Friends/All folders in Inventory "Calling cards" folder. See EXT-694-->
 	<string name="InvFolder Friends">Friends</string>
+	<string name="InvFolder Received Items">Received Items</string>
 	<string name="InvFolder All">All</string>
 
 	<string name="no_attachments">No attachments worn</string>
@@ -2525,7 +2524,7 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 	<string name="PanelContentsNewScript">New Script</string>
 
   <!-- panel preferences general -->
-  <string name="BusyModeResponseDefault">The Resident you messaged is in &apos;busy mode&apos; which means they have requested not to be disturbed.  Your message will still be shown in their IM panel for later viewing.</string>
+  <string name="DoNotDisturbModeResponseDefault">This resident has turned on &apos;Do Not Disturb&apos; and will see your message later.</string>
 
 	<!-- Mute -->
 	<string name="MuteByName">(By name)</string>
@@ -2583,9 +2582,6 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 	<string name="GroupMoneyCredits">Credits</string>
 	<string name="GroupMoneyDebits">Debits</string>
 	<string name="GroupMoneyDate">[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]</string>
-
-	<!-- viewer object -->
-	<string name="ViewerObjectContents">Contents</string>
 
 	<!-- Viewer menu -->
 	<string name="AcquiredItems">Acquired Items</string>
@@ -3382,12 +3378,15 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="IM_moderator_label">(Moderator)</string>
 	<string name="Saved_message">(Saved [LONG_TIMESTAMP])</string>
 	<string name="IM_unblock_only_groups_friends">To see this message, you must uncheck &apos;Only friends and groups can call or IM me&apos; in Preferences/Privacy.</string>
+  <string name="OnlineStatus">Online</string>
+  <string name="OfflineStatus">Offline</string>
 
 	<!-- voice calls -->
 	<string name="answered_call">Your call has been answered</string>
 	<string name="you_started_call">You started a voice call</string>
 	<string name="you_joined_call">You joined the voice call</string>
-	<string name="name_started_call">[NAME] started a voice call</string>
+  <string name="you_auto_rejected_call-im">You automatically rejected the voice call while &apos;Do Not Disturb&apos; was on.</string>
+  <string name="name_started_call">[NAME] started a voice call</string>
 
   <string name="ringing-im">
     Joining voice call...
@@ -3402,7 +3401,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     Connecting...
   </string>
   <string name="conference-title">
-    Ad-hoc Conference
+    Multi-person chat
   </string>
   <string name="conference-title-incoming">
     Conference with [AGENT_NAME]
@@ -3828,6 +3827,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Avatar_Label">Avatar</string>
   <string name="Command_Build_Label">Build</string>
   <string name="Command_Chat_Label">Chat</string>
+  <string name="Command_Conversations_Label">Conversations</string>
   <string name="Command_Compass_Label">Compass</string>
   <string name="Command_Destinations_Label">Destinations</string>
   <string name="Command_Gestures_Label">Gestures</string>
@@ -3854,6 +3854,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Avatar_Tooltip">Choose a complete avatar</string>
   <string name="Command_Build_Tooltip">Building objects and reshaping terrain</string>
   <string name="Command_Chat_Tooltip">Chat with people nearby using text</string>
+  <string name="Command_Conversations_Tooltip">Converse with everyone</string>
   <string name="Command_Compass_Tooltip">Compass</string>
   <string name="Command_Destinations_Tooltip">Destinations of interest</string>
   <string name="Command_Gestures_Tooltip">Gestures for your avatar</string>
@@ -3907,5 +3908,16 @@ Try enclosing path to the editor with double quotes.
 
   <!-- Spell check settings floater -->
   <string name="UserDictionary">[User]</string>
+  
+  <!-- Conversation log messages -->
+  <string name="logging_calls_disabled_log_empty">
+    Conversations are not being logged. To begin keeping a log, choose "Save: Log only" or "Save: Log and transcripts" under Preferences > Chat.
+  </string>
+  <string name="logging_calls_disabled_log_not_empty">
+    No more conversations will be logged. To resume keeping a log, choose "Save: Log only" or "Save: Log and transcripts" under Preferences > Chat.
+  </string>
+  <string name="logging_calls_enabled_log_empty">
+    There are no logged conversations. After you contact someone, or someone contacts you, a log entry will be shown here.
+  </string>
   
   </strings>

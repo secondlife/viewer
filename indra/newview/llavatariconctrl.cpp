@@ -28,6 +28,8 @@
 
 #include "llavatariconctrl.h"
 
+#include <boost/signals2.hpp>
+
 // viewer includes
 #include "llagent.h"
 #include "llavatarconstants.h"
@@ -36,7 +38,7 @@
 #include "llmenugl.h"
 #include "lluictrlfactory.h"
 #include "llagentdata.h"
-#include "llimfloater.h"
+#include "llfloaterimsession.h"
 
 // library includes
 #include "llavatarnamecache.h"
@@ -148,9 +150,13 @@ LLAvatarIconCtrl::Params::Params()
 
 
 LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
-:	LLIconCtrl(p),
+	: LLIconCtrl(p),
+	LLAvatarPropertiesObserver(),
+	mAvatarId(),
+	mFullName(),
 	mDrawTooltip(p.draw_tooltip),
-	mDefaultIconName(p.default_icon_name)
+	mDefaultIconName(p.default_icon_name),
+	mAvatarNameCacheConnection()
 {
 	mPriority = LLViewerFetchedTexture::BOOST_ICON;
 	
@@ -203,6 +209,11 @@ LLAvatarIconCtrl::~LLAvatarIconCtrl()
 		LLAvatarPropertiesProcessor::getInstance()->removeObserver(mAvatarId, this);
 		// Name callbacks will be automatically disconnected since LLUICtrl is trackable
 	}
+
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 }
 
 //virtual
@@ -245,9 +256,19 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 		LLIconCtrl::setValue(value);
 	}
 
-	LLAvatarNameCache::get(mAvatarId,
-		boost::bind(&LLAvatarIconCtrl::onAvatarNameCache, 
-			this, _1, _2));
+	fetchAvatarName();
+}
+
+void LLAvatarIconCtrl::fetchAvatarName()
+{
+	if (mAvatarId.notNull())
+	{
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarId, boost::bind(&LLAvatarIconCtrl::onAvatarNameCache, this, _1, _2));
+	}
 }
 
 bool LLAvatarIconCtrl::updateFromCache()
@@ -292,11 +313,13 @@ void LLAvatarIconCtrl::processProperties(void* data, EAvatarProcessorType type)
 
 void LLAvatarIconCtrl::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	if (agent_id == mAvatarId)
 	{
 		// Most avatar icon controls are next to a UI element that shows
 		// a display name, so only show username.
-		mFullName = av_name.mUsername;
+		mFullName = av_name.getUserName();
 
 		if (mDrawTooltip)
 		{

@@ -81,6 +81,7 @@ private:
 	LLUUID					mAuthorizedBuyer;
 	bool					mParcelSoldWithObjects;
 	SelectionObserver 		mParcelSelectionObserver;
+	boost::signals2::connection mAvatarNameCacheConnection;
 	
 	void updateParcelInfo();
 	void refreshUI();
@@ -129,13 +130,18 @@ LLFloater* LLFloaterSellLand::buildFloater(const LLSD& key)
 LLFloaterSellLandUI::LLFloaterSellLandUI(const LLSD& key)
 :	LLFloater(key),
 	mParcelSelectionObserver(this),
-	mRegion(0)
+	mRegion(0),
+	mAvatarNameCacheConnection()
 {
 	LLViewerParcelMgr::getInstance()->addObserver(&mParcelSelectionObserver);
 }
 
 LLFloaterSellLandUI::~LLFloaterSellLandUI()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 	LLViewerParcelMgr::getInstance()->removeObserver(&mParcelSelectionObserver);
 }
 
@@ -230,15 +236,20 @@ void LLFloaterSellLandUI::updateParcelInfo()
 
 	if(mSellToBuyer)
 	{
-		LLAvatarNameCache::get(mAuthorizedBuyer, 
-			boost::bind(&LLFloaterSellLandUI::onBuyerNameCache, this, _2));
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(mAuthorizedBuyer, boost::bind(&LLFloaterSellLandUI::onBuyerNameCache, this, _2));
 	}
 }
 
 void LLFloaterSellLandUI::onBuyerNameCache(const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	getChild<LLUICtrl>("sell_to_agent")->setValue(av_name.getCompleteName());
-	getChild<LLUICtrl>("sell_to_agent")->setToolTip(av_name.mUsername);
+	getChild<LLUICtrl>("sell_to_agent")->setToolTip(av_name.getUserName());
 }
 
 void LLFloaterSellLandUI::setBadge(const char* id, Badge badge)
@@ -392,7 +403,8 @@ void LLFloaterSellLandUI::onChangeValue(LLUICtrl *ctrl, void *userdata)
 
 void LLFloaterSellLandUI::doSelectAgent()
 {
-	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterSellLandUI::callbackAvatarPick, this, _1, _2), FALSE, TRUE);
+    LLView * button = findChild<LLView>("sell_to_select_agent");
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterSellLandUI::callbackAvatarPick, this, _1, _2), FALSE, TRUE, FALSE, this->getName(), button);
 	// grandparent is a floater, in order to set up dependency
 	if (picker)
 	{

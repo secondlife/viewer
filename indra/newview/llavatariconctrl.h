@@ -27,7 +27,9 @@
 #ifndef LL_LLAVATARICONCTRL_H
 #define LL_LLAVATARICONCTRL_H
 
-#include "lliconctrl.h"
+#include <boost/signals2.hpp>
+
+#include "../llui/lliconctrl.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llviewermenu.h"
 
@@ -86,20 +88,24 @@ public:
 	// LLAvatarPropertiesProcessor observer trigger
 	virtual void processProperties(void* data, EAvatarProcessorType type);
 
-	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
-
 	const LLUUID&		getAvatarId() const	{ return mAvatarId; }
 	const std::string&	getFullName() const { return mFullName; }
 
 	void setDrawTooltip(bool value) { mDrawTooltip = value;}
 
 protected:
-	LLUUID				mAvatarId;
-	std::string			mFullName;
-	bool				mDrawTooltip;
-	std::string			mDefaultIconName;
+	LLUUID                      mAvatarId;
+	std::string                 mFullName;
+	bool                        mDrawTooltip;
+	std::string                 mDefaultIconName;
 
 	bool updateFromCache();
+
+private:
+	void fetchAvatarName();
+	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
+
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 #endif  // LL_LLAVATARICONCTRL_H
