@@ -694,7 +694,24 @@ void LLPanelFace::getState()
 				}
 			} func2;
 			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func2, image_format );
-			mIsAlpha = image_format != GL_RGB;
+            
+            mIsAlpha = FALSE;
+            switch (image_format)
+            {
+                case GL_RGBA:
+                case GL_ALPHA:
+                {
+                    mIsAlpha = TRUE;
+                }
+                break;
+
+                case GL_RGB: break;
+                default:
+                {
+                    llwarns << "Unexpected tex format in LLPanelFace...resorting to no alpha" << llendl;
+                }
+                break;
+            }
 
 			if(LLViewerMedia::textureHasMedia(id))
 			{
