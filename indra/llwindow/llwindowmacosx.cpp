@@ -191,6 +191,8 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 		//start with arrow cursor
 		initCursors();
 		setCursor( UI_CURSOR_ARROW );
+		
+		allowLanguageTextInput(NULL, FALSE);
 	}
 
 	mCallbacks = callbacks;
@@ -513,18 +515,22 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		// Get the view instead.
 		mGLView = createOpenGLView(mWindow, mFSAASamples, !disable_vsync);
 		mContext = getCGLContextObj(mGLView);
+		
 		// Since we just created the context, it needs to be set up.
 		glNeedsInit = TRUE;
 		
 		gGLManager.mVRAM = getVramSize(mGLView);
 	}
-
+	
+	// This sets up our view to recieve text from our non-inline text input window.
+	setupInputWindow(mWindow, mGLView);
+	
 	// Hook up the context to a drawable
 
 	if(mContext != NULL)
 	{
-		LL_INFOS("Window") << "Setting CGL Context..." << LL_ENDL;
-		LL_DEBUGS("Window") << "createContext: setting current context" << LL_ENDL;
+		
+		
 		U32 err = CGLSetCurrentContext(mContext);
 		if (err != kCGLNoError)
 		{
@@ -1887,6 +1893,8 @@ void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
 		// is not disturbed.
 		return;
 	}
+	
+	showInputWindow(!b);
 	
 	// Take care of old and new preeditors.
 	if (preeditor != mPreeditor || !b)

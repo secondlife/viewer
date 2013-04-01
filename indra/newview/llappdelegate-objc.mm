@@ -12,6 +12,8 @@
 @implementation LLAppDelegate
 
 @synthesize window;
+@synthesize inputWindow;
+@synthesize inputView;
 
 - (void)dealloc
 {
@@ -60,6 +62,19 @@
 	{
 		[frameTimer release];
 		[[NSApplication sharedApplication] terminate:self];
+	}
+}
+
+- (void) showInputWindow:(bool)show
+{
+	if (show)
+	{
+		NSLog(@"Showing input window.");
+		[inputWindow makeKeyAndOrderFront:inputWindow];
+	} else {
+		NSLog(@"Hiding input window.");
+		[inputWindow orderOut:inputWindow];
+		[window makeKeyAndOrderFront:window];
 	}
 }
 

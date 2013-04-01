@@ -12,9 +12,6 @@
 #import <CoreFoundation/CFNumber.h>
 #include <string>
 
-// Some nasty shovelling of LLOpenGLView from LLNativeBindings to prevent any C++ <-> Obj-C interop oddities.
-// Redraw callback handling removed (for now) due to being unneeded in the patch that preceeds this addition.
-
 @interface LLOpenGLView : NSOpenGLView <NSTextInputClient>
 {
 	std::string mLastDraggedUrl;
@@ -41,6 +38,15 @@
 - (CGLPixelFormatObj*)getCGLPixelFormatObj;
 
 - (unsigned long) getVramSize;
+
+@end
+
+@interface LLNonInlineTextView : NSTextView
+{
+	LLOpenGLView *glview;
+}
+
+- (void) setGLView:(LLOpenGLView*)view;
 
 @end
 

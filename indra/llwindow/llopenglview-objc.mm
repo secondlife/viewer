@@ -501,9 +501,25 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 @end
 
-// We use a custom NSWindow for our event handling.
-// Why not an NSWindowController you may ask?
-// Answer: this is easier.
+@implementation LLNonInlineTextView
+
+- (void) setGLView:(LLOpenGLView *)view
+{
+	glview = view;
+}
+
+- (void) insertText:(id)insertString
+{
+	[self insertText:insertString replacementRange:NSMakeRange(0, 0)];
+}
+
+- (void) insertText:(id)aString replacementRange:(NSRange)replacementRange
+{
+	[glview insertText:aString replacementRange:replacementRange];
+	[_window orderOut:_window];
+}
+
+@end
 
 @implementation LLNSWindow
 

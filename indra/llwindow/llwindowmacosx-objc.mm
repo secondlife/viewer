@@ -362,6 +362,16 @@ void removeGLView(GLViewRef view)
 	[(LLOpenGLView*)view release];
 }
 
+void setupInputWindow(NSWindowRef window, GLViewRef glview)
+{
+	[[(LLAppDelegate*)[NSApp delegate] inputView] setGLView:(LLOpenGLView*)glview];
+}
+
+void showInputWindow(bool show)
+{
+	[(LLAppDelegate*)[NSApp delegate] showInputWindow:show];
+}
+
 NSWindowRef getMainAppWindow()
 {
 	LLNSWindow *winRef = [(LLAppDelegate*)[[NSApplication sharedApplication] delegate] window];
