@@ -693,7 +693,7 @@ void LLPanelFace::getState()
 					return image_format;
 				}
 			} func2;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func2, image_format );
+			identical &= LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func2, image_format );
             
             mIsAlpha = FALSE;
             switch (image_format)
