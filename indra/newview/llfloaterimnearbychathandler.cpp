@@ -605,11 +605,15 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 		}
 
 		//Don't show nearby toast, if conversation is visible and selected
-		if (im_box->getSelectedSession().isNull() &&
+		if ((nearby_chat->hasFocus()) ||
+		    ((im_box->getSelectedSession().isNull() &&
 				((LLFloater::isVisible(im_box) && !im_box->isMinimized() && im_box->isFrontmost())
-						|| (LLFloater::isVisible(nearby_chat) && !nearby_chat->isMinimized() && nearby_chat->isFrontmost())))
+						|| (LLFloater::isVisible(nearby_chat) && !nearby_chat->isMinimized() && nearby_chat->isFrontmost())))))
 		{
-			return;
+			if(nearby_chat->isMessagePaneExpanded())
+			{
+				return;
+			}
 		}
 
         //Will show toast when chat preference is set        
