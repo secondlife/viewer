@@ -43,7 +43,9 @@
 					<key>tags</key>
 						<array>
 						     <string>Avatar</string>
-						     <string>CrossingCaps</string>		
+						<!-- sample entry for debugging specific items	
+						     <string>Voice</string>		
+						-->
 						</array>
 				</map>
       </array>
