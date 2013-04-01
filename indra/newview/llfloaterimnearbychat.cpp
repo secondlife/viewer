@@ -264,7 +264,7 @@ void LLFloaterIMNearbyChat::setVisibleAndFrontmost(BOOL take_focus, const LLSD& 
 
 	if(!isTornOff() && matchesKey(key))
 	{
-		LLFloaterIMContainer::getInstance()->selectConversationPair(mSessionID, true, false);
+		LLFloaterIMContainer::getInstance()->selectConversationPair(mSessionID, true, take_focus);
 	}
 }
 
