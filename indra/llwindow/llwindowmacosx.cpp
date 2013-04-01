@@ -1255,52 +1255,21 @@ LLWindow::LLWindowResolution* LLWindowMacOSX::getSupportedResolutions(S32 &num_r
 
 BOOL LLWindowMacOSX::convertCoords(LLCoordGL from, LLCoordWindow *to)
 {
-	S32		client_height;
-	float	client_rect[4];
-	getContentViewBounds(mWindow, client_rect);
-	if (!mWindow ||
-		NULL == to)
-	{
-		return FALSE;
-	}
-
 	to->mX = from.mX;
-	client_height = client_rect[3];
-	to->mY = from.mY - 1;
-
+	to->mY = from.mY;
 	return TRUE;
 }
 
 BOOL LLWindowMacOSX::convertCoords(LLCoordWindow from, LLCoordGL* to)
 {
-	S32		client_height;
-	float	client_rect[4];
-	
-	getContentViewBounds(mWindow, client_rect);
-	
-	if (!mWindow ||
-		NULL == to)
-	{
-		return FALSE;
-	}
-
 	to->mX = from.mX;
-	client_height = client_rect[3];
-	to->mY = from.mY - 1;
-
+	to->mY = from.mY;
 	return TRUE;
 }
 
 BOOL LLWindowMacOSX::convertCoords(LLCoordScreen from, LLCoordWindow* to)
 {
-	if(mFullscreen)
-	{
-		// In the fullscreen case, window and screen coordinates are the same.
-		to->mX = from.mX;
-		to->mY = from.mY;
-		return TRUE;
-	}
-	else if(mWindow)
+	if(mWindow)
 	{
 		float mouse_point[2];
 
@@ -1314,20 +1283,12 @@ BOOL LLWindowMacOSX::convertCoords(LLCoordScreen from, LLCoordWindow* to)
 
 		return TRUE;
 	}
-
 	return FALSE;
 }
 
 BOOL LLWindowMacOSX::convertCoords(LLCoordWindow from, LLCoordScreen *to)
 {
-	if(mFullscreen)
-	{
-		// In the fullscreen case, window and screen coordinates are the same.
-		to->mX = from.mX;
-		to->mY = from.mY;
-		return TRUE;
-	}
-	else if(mWindow)
+	if(mWindow)
 	{
 		float mouse_point[2];
 
@@ -1340,7 +1301,6 @@ BOOL LLWindowMacOSX::convertCoords(LLCoordWindow from, LLCoordScreen *to)
 
 		return TRUE;
 	}
-
 	return FALSE;
 }
 
@@ -1354,22 +1314,8 @@ BOOL LLWindowMacOSX::convertCoords(LLCoordScreen from, LLCoordGL *to)
 BOOL LLWindowMacOSX::convertCoords(LLCoordGL from, LLCoordScreen *to)
 {
 	LLCoordWindow window_coord;
-	if (mFullscreen)
-	{
-		to->mX = from.mX;
-		to->mY = from.mY;
-		return TRUE;
-	} else if (mWindow)
-	{
-		convertCoords(from, &window_coord);
-		convertCoords(window_coord, to);
-		
-		LL_INFOS("Coords") << to->mX << ", " << to->mY << LL_ENDL;
-		
-		return TRUE;
-	}
 
-	return FALSE;
+	return(convertCoords(from, &window_coord) && convertCoords(window_coord, to));
 }
 
 
@@ -1981,11 +1927,11 @@ void LLWindowMacOSX::handleDragNDrop(std::string url, LLWindowCallbacks::DragNDr
 	MASK mask = LLWindowMacOSX::modifiersToMask(getModifiers());
 
 	float mouse_point[2];
-	// This will return the mouse point in global screen coords
+	// This will return the mouse point in window coords
 	getCursorPos(mWindow, mouse_point);
-	LLCoordScreen screen_coords(mouse_point[0], mouse_point[1]);
+	LLCoordWindow window_coords(mouse_point[0], mouse_point[1]);
 	LLCoordGL gl_pos;
-	convertCoords(screen_coords, &gl_pos);
+	convertCoords(window_coords, &gl_pos);
 	
 	if(!url.empty())
 	{
