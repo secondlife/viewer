@@ -64,6 +64,8 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
   , mHasVisibleBeenInitialized(false)
   , mIsParticipantListExpanded(true)
   , mChatLayoutPanel(NULL)
+  , mInputPanels(NULL)
+  , mChatLayoutPanelHeight(0)
 {
     setAutoFocus(FALSE);
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
@@ -265,13 +267,15 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mInputEditor = getChild<LLChatEntry>("chat_editor");
 
 	mChatLayoutPanel = getChild<LLLayoutPanel>("chat_layout_panel");
+	mInputPanels = getChild<LLLayoutStack>("input_panels");
 	
 	mInputEditor->setTextExpandedCallback(boost::bind(&LLFloaterIMSessionTab::reshapeChatLayoutPanel, this));
 	mInputEditor->setCommitOnFocusLost( FALSE );
 	mInputEditor->setPassDelete(TRUE);
 	mInputEditor->setFont(LLViewerChat::getChatFont());
 
-	mInputEditorPad = mChatLayoutPanel->getRect().getHeight() - mInputEditor->getRect().getHeight();
+	mChatLayoutPanelHeight = mChatLayoutPanel->getRect().getHeight();
+	mInputEditorPad = mChatLayoutPanelHeight - mInputEditor->getRect().getHeight();
 
 	setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
 
@@ -749,9 +753,7 @@ void LLFloaterIMSessionTab::forceReshape()
 
 void LLFloaterIMSessionTab::reshapeChatLayoutPanel()
 {
-	LLRect chat_layout_panel_rect = mChatLayoutPanel->getRect();
-	LLRect input_rect = mInputEditor->getRect();
-	mChatLayoutPanel->reshape(chat_layout_panel_rect.getWidth(), input_rect.getHeight() + mInputEditorPad, FALSE);
+	mChatLayoutPanel->reshape(mChatLayoutPanel->getRect().getWidth(), mInputEditor->getRect().getHeight() + mInputEditorPad, FALSE);
 }
 
 void LLFloaterIMSessionTab::showTranslationCheckbox(BOOL show)
@@ -850,6 +852,7 @@ void LLFloaterIMSessionTab::onCollapseToLine(LLFloaterIMSessionTab* self)
 		self->mExpandCollapseLineBtn->setImageOverlay(self->getString(expand ? "collapseline_icon" : "expandline_icon"));
 		self->mContentPanel->setVisible(!expand);
 		self->mToolbarPanel->setVisible(!expand);
+		self->mInputEditor->enableSingleLineMode(expand);
 		self->reshapeFloater(expand);
 		self->setMessagePaneExpanded(!expand);
 	}
@@ -862,27 +865,26 @@ void LLFloaterIMSessionTab::reshapeFloater(bool collapse)
 	if(collapse)
 	{
 		mFloaterHeight = floater_rect.getHeight();
-		S32 height = mContentPanel->getRect().getHeight() + mToolbarPanel->getRect().getHeight();
+		S32 height = mContentPanel->getRect().getHeight() + mToolbarPanel->getRect().getHeight()
+			+ mChatLayoutPanel->getRect().getHeight() - mChatLayoutPanelHeight + 2;
 		floater_rect.mTop -= height;
-		enableResizeCtrls(true, true, false);
 	}
 	else
 	{
 		floater_rect.mTop = floater_rect.mBottom + mFloaterHeight;
-		enableResizeCtrls(true, true, true);
-
 	}
+
+	enableResizeCtrls(true, true, !collapse);
+
 	saveCollapsedState();
 	setShape(floater_rect, true);
 	mBodyStack->updateLayout();
-
 }
 
 void LLFloaterIMSessionTab::restoreFloater()
 {
-	if(checkIfTornOff() && !isMessagePaneExpanded())
+	if(!isMessagePaneExpanded())
 	{
-
 		if(isMinimized())
 		{
 			setMinimized(false);

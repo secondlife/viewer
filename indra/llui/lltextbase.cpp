@@ -3490,3 +3490,7 @@ F32	LLImageTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 select
 	return 0.0;
 }
 
+void LLTextBase::setWordWrap(bool wrap)
+{
+	mWordWrap = wrap;
+}
