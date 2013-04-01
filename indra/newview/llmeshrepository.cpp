@@ -288,7 +288,14 @@ public:
 
 	~LLMeshSkinInfoResponder()
 	{
-		//llassert(mProcessed);		this will assert due to a timeout (not handled?)  MAINT-2511
+		if (!LLApp::isQuitting() &&
+			!mProcessed &&
+			mMeshID.notNull())
+		{	// Something went wrong, retry
+			llwarns << "Timeout or service unavailable, retrying loadMeshSkinInfo() for " << mMeshID << llendl;
+			LLMeshRepository::sHTTPRetryCount++;
+			gMeshRepo.mThread->loadMeshSkinInfo(mMeshID);
+		}
 	}
 
 	virtual void completedRaw(U32 status, const std::string& reason,
@@ -313,7 +320,14 @@ public:
 
 	~LLMeshDecompositionResponder()
 	{
-		//llassert(mProcessed);		 this will assert due to a timeout (not handled?)  MAINT-2511
+		if (!LLApp::isQuitting() &&
+			!mProcessed &&
+			mMeshID.notNull())
+		{	// Something went wrong, retry
+			llwarns << "Timeout or service unavailable, retrying loadMeshDecomposition() for " << mMeshID << llendl;
+			LLMeshRepository::sHTTPRetryCount++;
+			gMeshRepo.mThread->loadMeshDecomposition(mMeshID);
+		}
 	}
 
 	virtual void completedRaw(U32 status, const std::string& reason,
@@ -338,7 +352,14 @@ public:
 
 	~LLMeshPhysicsShapeResponder()
 	{
-		//llassert(mProcessed);			this will assert due to a timeout (not handled?)  MAINT-2511
+		if (!LLApp::isQuitting() &&
+			!mProcessed &&
+			mMeshID.notNull())
+		{	// Something went wrong, retry
+			llwarns << "Timeout or service unavailable, retrying loadMeshPhysicsShape() for " << mMeshID << llendl;
+			LLMeshRepository::sHTTPRetryCount++;
+			gMeshRepo.mThread->loadMeshPhysicsShape(mMeshID);
+		}
 	}
 
 	virtual void completedRaw(U32 status, const std::string& reason,
@@ -1984,7 +2005,7 @@ void LLMeshSkinInfoResponder::completedRaw(U32 status, const std::string& reason
 	{
 		if (status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE)
 		{ //timeout or service unavailable, try again
-			llwarns << "Timeout or service unavailable, retrying." << llendl;
+			llwarns << "Timeout or service unavailable, retrying loadMeshSkinInfo() for " << mMeshID << llendl;
 			LLMeshRepository::sHTTPRetryCount++;
 			gMeshRepo.mThread->loadMeshSkinInfo(mMeshID);
 		}
@@ -2047,7 +2068,7 @@ void LLMeshDecompositionResponder::completedRaw(U32 status, const std::string& r
 	{
 		if (status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE)
 		{ //timeout or service unavailable, try again
-			llwarns << "Timeout or service unavailable, retrying." << llendl;
+			llwarns << "Timeout or service unavailable, retrying loadMeshDecomposition() for " << mMeshID << llendl;
 			LLMeshRepository::sHTTPRetryCount++;
 			gMeshRepo.mThread->loadMeshDecomposition(mMeshID);
 		}
@@ -2111,7 +2132,7 @@ void LLMeshPhysicsShapeResponder::completedRaw(U32 status, const std::string& re
 	{
 		if (status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE)
 		{ //timeout or service unavailable, try again
-			llwarns << "Timeout or service unavailable, retrying." << llendl;
+			llwarns << "Timeout or service unavailable, retrying loadMeshPhysicsShape() for " << mMeshID << llendl;
 			LLMeshRepository::sHTTPRetryCount++;
 			gMeshRepo.mThread->loadMeshPhysicsShape(mMeshID);
 		}
