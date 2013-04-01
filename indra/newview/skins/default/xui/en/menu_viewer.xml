@@ -3055,13 +3055,6 @@
                 <menu_item_call.on_click
                  function="Advanced.PrintAgentInfo" />
             </menu_item_call>
-            <menu_item_call
-             label="Memory Stats"
-             name="Memory Stats"
-             shortcut="control|alt|shift|M">
-                <menu_item_call.on_click
-                 function="Advanced.PrintTextureMemoryStats" />
-            </menu_item_call>
             <menu_item_check
              label="Region Debug Console"
              name="Region Debug Console"
