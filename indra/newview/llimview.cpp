@@ -174,6 +174,7 @@ void on_new_message(const LLSD& msg)
     // determine state of conversations floater
     enum {CLOSED, NOT_ON_TOP, ON_TOP, ON_TOP_AND_ITEM_IS_SELECTED} conversations_floater_status;
 
+
     LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
 	LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
 
@@ -181,19 +182,18 @@ void on_new_message(const LLSD& msg)
 	{
 		conversations_floater_status = CLOSED;
 	}
-	else if ( !im_box->hasFocus() &&
-			(!session_floater || !LLFloater::isVisible(session_floater)
-	            || session_floater->isMinimized() || !session_floater->hasFocus()))
+	else if (!session_floater || !LLFloater::isVisible(session_floater)
+	            || session_floater->isMinimized() || !session_floater->hasFocus())
 	{
 		conversations_floater_status = NOT_ON_TOP;
 	}
-	else if (im_box->getSelectedSession() != session_id)
+	else if ((session_floater->hasFocus()) && (im_box->getSelectedSession() == session_id))
 	{
-		conversations_floater_status = ON_TOP;
+		conversations_floater_status = ON_TOP_AND_ITEM_IS_SELECTED;
     }
 	else
 	{
-		conversations_floater_status = ON_TOP_AND_ITEM_IS_SELECTED;
+		conversations_floater_status = ON_TOP;
 	}
 
     //  determine user prefs for this session
@@ -274,7 +274,9 @@ void on_new_message(const LLSD& msg)
 
     // 2. Flash line item
     if ("openconversations" == user_preferences
-    		|| ON_TOP == conversations_floater_status)
+    		|| ON_TOP == conversations_floater_status
+    		|| ("toast" == user_preferences && ON_TOP != conversations_floater_status)
+    		|| ("flash" == user_preferences && CLOSED == conversations_floater_status))
     {
     	if(!LLMuteList::getInstance()->isMuted(participant_id))
     	{
@@ -295,8 +297,11 @@ void on_new_message(const LLSD& msg)
     }
 
     // 4. Toast
-    if ("toast" == user_preferences
+    if ((("toast" == user_preferences) &&
+    		(CLOSED == conversations_floater_status
+    		    || NOT_ON_TOP == conversations_floater_status))
     		    || !session_floater->isMessagePaneExpanded())
+
     {
         //Show IM toasts (upper right toasts)
         // Skip toasting for system messages and for nearby chat
