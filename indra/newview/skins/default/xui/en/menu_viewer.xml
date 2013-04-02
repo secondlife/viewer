@@ -131,6 +131,7 @@
        name="Status"
        tear_off="true">
         <menu_item_check
+         name="Away"
          label="Away">
           <menu_item_check.on_check
            function="View.Status.CheckAway" />
@@ -138,6 +139,7 @@
            function="World.SetAway" />
         </menu_item_check>
         <menu_item_check
+         name="Do Not Disturb"
          label="Do Not Disturb">
           <menu_item_check.on_check
            function="View.Status.CheckDoNotDisturb" />
@@ -257,6 +259,7 @@
              parameter="speak" />
         </menu_item_check>
         <menu_item_check
+         name="Conversation Log..."
          label="Conversation Log...">
             <menu_item_check.on_check
              function="Floater.Visible"
@@ -352,6 +355,7 @@
         </menu_item_call>
       <menu_item_separator/>
       <menu_item_check
+       name="Do Not Disturb"
        label="Do Not Disturb">
         <menu_item_check.on_check
          function="View.Status.CheckDoNotDisturb" />
@@ -3050,13 +3054,6 @@
              shortcut="shift|P">
                 <menu_item_call.on_click
                  function="Advanced.PrintAgentInfo" />
-            </menu_item_call>
-            <menu_item_call
-             label="Memory Stats"
-             name="Memory Stats"
-             shortcut="control|alt|shift|M">
-                <menu_item_call.on_click
-                 function="Advanced.PrintTextureMemoryStats" />
             </menu_item_call>
             <menu_item_check
              label="Region Debug Console"

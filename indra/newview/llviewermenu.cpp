@@ -8283,8 +8283,6 @@ void initialize_menus()
 
 	view_listener_t::addEnable(new LLUploadCostCalculator(), "Upload.CalculateCosts");
 
-
-	commit.add("Inventory.NewWindow", boost::bind(&LLFloaterInventory::showAgentInventory));
 	enable.add("Conversation.IsConversationLoggingAllowed", boost::bind(&LLFloaterIMContainer::isConversationLoggingAllowed));
 
 	// Agent
