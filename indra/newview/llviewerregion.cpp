@@ -347,12 +347,23 @@ private:
 			//	++iter;
 			//}
 
-			regionp->getRegionImplNC()->mSecondCapabilitiesTracker.clear();
+			if (regionp->getRegionImpl()->mSecondCapabilitiesTracker.size() > regionp->getRegionImpl()->mCapabilities.size() )
+			{
+				// *HACK Since we were granted more base capabilities in this grant request than the initial, replace
+				// the old with the new. This shouldn't happen i.e. we should always get the same capabilities from a
+				// sim. The simulator fix from SH-3895 should prevent it from happening, at least in the case of the
+				// inventory api capability grants.
+
+				// Need to clear a std::map before copying into it because old keys take precedence.
+				regionp->getRegionImplNC()->mCapabilities.clear();
+				regionp->getRegionImplNC()->mCapabilities = regionp->getRegionImpl()->mSecondCapabilitiesTracker;
+			}
 		}
 		else
 		{
 			LL_DEBUGS("CrossingCaps") << "Sim sent multiple base cap grants with matching sizes." << LL_ENDL;
 		}
+		regionp->getRegionImplNC()->mSecondCapabilitiesTracker.clear();
 	}
 
 
