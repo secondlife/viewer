@@ -1665,14 +1665,16 @@ void LLPanelPeople::openFacebookWeb(LLFloaterWebContent::Params& p)
 
 void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 {
-	std::string text = "Facebook Friends";
+	mFacebookFriends->clear();
+
 	for (LLSD::array_const_iterator i = friends.beginArray(); i != friends.endArray(); ++i)
 	{
-		std::string name = (*i)["name"].asString();
-		std::string id = (*i)["id"].asString();
+		const LLSD& fb_friend = *i;
 
-		text = name + " (" + id + ")";
-		mFacebookFriends->addSocialItem(LLUUID(NULL), text, false);
+		std::string name = fb_friend["name"].asString();
+		LLUUID agent_id = fb_friend.has("agent_id") ? fb_friend["agent_id"].asUUID() : LLUUID(NULL);
+		
+		mFacebookFriends->addSocialItem(agent_id, name, false);
 	}
 }
 
@@ -1692,20 +1694,19 @@ public:
 		{
 			llinfos << content << llendl;
 
+			// use the token to pull down graph data
 			bool has_token = content["has_access_token"].asBoolean();
-			
-			//use the token to pull down graph data
-			if(has_token)
+			if (has_token)
 			{
 				mPanelPeople->getFacebookFriends();
 			}
-			//request user to login
+			// request user to login
 			else
 			{
-	LLFloaterWebContent::Params p;
-	p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + FBC_SERVICES_URL + "/authenticate/" + gAgentID.asString());
+				LLFloaterWebContent::Params p;
+				p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + FBC_SERVICES_URL + "/authenticate/" + gAgentID.asString());
 				mPanelPeople->openFacebookWeb(p);
-}
+			}
 		}
 		else
 		{
@@ -1731,7 +1732,14 @@ public:
 			llinfos << content << llendl;
 
 			// display the friend data
-			mPanelPeople->showFacebookFriends(content["friends"]);
+			if (content.has("friends"))
+			{
+				mPanelPeople->showFacebookFriends(content["friends"]);
+			}
+			else if (content.has("error"))
+			{
+				llinfos << "failed to get facebook friends. reason: " << content["error"] << llendl;
+			}
 		}
 		else
 		{

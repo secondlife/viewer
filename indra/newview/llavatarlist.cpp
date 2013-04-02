@@ -626,7 +626,7 @@ void LLAvalineListItem::setName(const std::string& name)
 }
 
 /************************************************************************/
-/*             class LLAvatarListSocial                                  */
+/*             class LLAvatarListSocial                                 */
 /************************************************************************/
 
 static LLDefaultChildRegistry::Register<LLAvatarListSocial> s("avatar_list_social");
@@ -638,10 +638,12 @@ LLAvatarListSocial::LLAvatarListSocial(const Params& p) : LLAvatarList(p)
 
 void LLAvatarListSocial::addSocialItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
 {
+	LLAvatarName avatar_name;
+	bool has_avatar_name = id.notNull() && LLAvatarNameCache::get(id, &avatar_name);
+
 	LLAvatarListItem* item = new LLAvatarListItem();
-	// This sets the name as a side effect
-	item->setAvatarId(id, mSessionID, mIgnoreOnlineStatus, false);
-	item->setAvatarName(name);
+	item->setAvatarId(id, mSessionID, mIgnoreOnlineStatus, false); // this sets the name as a side effect
+	item->setAvatarName(has_avatar_name ? avatar_name.mDisplayName : name);
 	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
 	item->showLastInteractionTime(mShowLastInteractionTime);
 
