@@ -270,6 +270,7 @@ BOOL gShowObjectUpdates = FALSE;
 BOOL gUseQuickTime = TRUE;
 
 eLastExecEvent gLastExecEvent = LAST_EXEC_NORMAL;
+S32 gLastExecDuration = -1; // (<0 indicates unknown) 
 
 #if LL_WINDOWS  
 #   define LL_PLATFORM_KEY "win"
@@ -340,6 +341,7 @@ BOOL gLogoutInProgress = FALSE;
 static std::string gArgs;
 const int MAX_MARKER_LENGTH = 1024;
 const std::string MARKER_FILE_NAME("SecondLife.exec_marker");
+const std::string START_MARKER_FILE_NAME("SecondLife.start_marker");
 const std::string ERROR_MARKER_FILE_NAME("SecondLife.error_marker");
 const std::string LLERROR_MARKER_FILE_NAME("SecondLife.llerror_marker");
 const std::string LOGOUT_MARKER_FILE_NAME("SecondLife.logout_marker");
@@ -2112,7 +2114,7 @@ void errorCallback(const std::string &error_string)
 	LLError::crashAndLoop(error_string);
 }
 
-bool LLAppViewer::initLogging()
+void LLAppViewer::initLogging()
 {
 	//
 	// Set up logging defaults for the viewer
@@ -2126,17 +2128,46 @@ bool LLAppViewer::initLogging()
 							     "SecondLife.old");
 	LLFile::remove(old_log_file);
 
-	// Rename current log file to ".old"
+	// Get name of the log file
 	std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
 							     "SecondLife.log");
+	/*
+	 * Before touching any log files, compute the duration of the last run
+	 * by comparing the ctime of the previous start marker file with the ctime
+	 * of the last log file.
+	 */
+	std::string start_marker_file_name = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, START_MARKER_FILE_NAME);
+	llstat start_marker_stat;
+	llstat log_file_stat;
+	if (   0 == LLFile::stat(start_marker_file_name, &start_marker_stat)
+		&& 0 == LLFile::stat(log_file, &log_file_stat)
+		)
+	{
+		int elapsed_seconds = log_file_stat.st_ctime - start_marker_stat.st_ctime;
+		// only report a last run time if the last viewer was the same version
+		// because this stat will be counted against this version
+		gLastExecDuration = markerIsSameVersion(start_marker_file_name) ? elapsed_seconds : -1;
+	}
+	else
+	{
+		// at least one of the LLFile::stat calls failed, so we can't compute the run time
+		gLastExecDuration = -1; // unknown
+	}
+	
+	// Create a new start marker file for comparison with log file time for the next run
+	LLAPRFile start_marker_file ;
+	start_marker_file.open(start_marker_file_name, LL_APR_W);
+	if (start_marker_file.getFileHandle())
+	{
+		recordMarkerVersion(start_marker_file);
+		start_marker_file.close();
+	}
+
+	// Rename current log file to ".old"
 	LLFile::rename(log_file, old_log_file);
 
 	// Set the log file to SecondLife.log
-
 	LLError::logToFile(log_file);
-
-	// *FIX:Mani no error handling here!
-	return true;
 }
 
 bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
@@ -2711,51 +2742,37 @@ bool LLAppViewer::initConfiguration()
 		}
 	}
 
-	if (!gSavedSettings.getBOOL("AllowMultipleViewers"))
+	//
+	// Check for another instance of the app running
+	//
+	mSecondInstance = anotherInstanceRunning();
+	if (mSecondInstance && !gSavedSettings.getBOOL("AllowMultipleViewers"))
 	{
-	    //
-	    // Check for another instance of the app running
-	    //
+		std::ostringstream msg;
+		msg << LLTrans::getString("MBAlreadyRunning");
+		OSMessageBox(
+			msg.str(),
+			LLStringUtil::null,
+			OSMB_OK);
+		return false;
+	}
 
-		mSecondInstance = anotherInstanceRunning();
-		
-		if (mSecondInstance)
-		{
-			std::ostringstream msg;
-			msg << LLTrans::getString("MBAlreadyRunning");
-			OSMessageBox(
-				msg.str(),
-				LLStringUtil::null,
-				OSMB_OK);
-			return false;
-		}
-
-		initMarkerFile();
+	initMarkerFile();
         
-        checkForCrash();
-    }
+	if (mSecondInstance)
+	{
+		// This is the second instance of SL. Turn off voice support,
+		// but make sure the setting is *not* persisted.
+		LLControlVariable* disable_voice = gSavedSettings.getControl("CmdLineDisableVoice");
+		if(disable_voice)
+		{
+			const BOOL DO_NOT_PERSIST = FALSE;
+			disable_voice->setValue(LLSD(TRUE), DO_NOT_PERSIST);
+		}
+	}
 	else
 	{
-		mSecondInstance = anotherInstanceRunning();
-		
-		if (mSecondInstance)
-		{
-			// This is the second instance of SL. Turn off voice support,
-			// but make sure the setting is *not* persisted.
-			LLControlVariable* disable_voice = gSavedSettings.getControl("CmdLineDisableVoice");
-			if(disable_voice)
-			{
-				const BOOL DO_NOT_PERSIST = FALSE;
-				disable_voice->setValue(LLSD(TRUE), DO_NOT_PERSIST);
-			}
-		}
-
-		initMarkerFile();
-        
-        if(!mSecondInstance)
-        {
-            checkForCrash();
-        }
+		checkForCrash();
 	}
 
    	// NextLoginLocation is set from the command line option

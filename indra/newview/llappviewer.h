@@ -183,7 +183,7 @@ public:
 	
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
-	virtual bool initLogging(); // Initialize log files, logging system, return false on failure.
+	virtual void initLogging(); // Initialize log files, logging system
 	virtual void initConsole() {}; // Initialize OS level debugging console.
 	virtual bool initHardwareTest() { return true; } // A false result indicates the app should quit.
 	virtual bool initSLURLHandler();
@@ -323,6 +323,7 @@ typedef enum
 } eLastExecEvent;
 
 extern eLastExecEvent gLastExecEvent; // llstartup
+extern S32 gLastExecDuration; ///< the duration of the previous run in seconds (<0 indicates unknown)
 
 extern const char* gPlatform;
 
