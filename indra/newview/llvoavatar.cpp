@@ -680,7 +680,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mBelowWater(FALSE),
 	mLastAppearanceBlendTime(0.f),
 	mAppearanceAnimating(FALSE),
-	mNameString(),
+    mNameIsSet(false),
 	mTitle(),
 	mNameAway(false),
 	mNameDoNotDisturb(false),
@@ -2144,7 +2144,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 		{
 			LLVector3 tagPos = mRoot->getWorldPosition();
 			tagPos[VZ] -= mPelvisToFoot;
-			tagPos[VZ] += ( mBodySize[VZ] + mAvatarOffset[VZ] + 0.125f );
+			tagPos[VZ] += ( mBodySize[VZ] + 0.125f );
 			mVoiceVisualizer->setVoiceSourceWorldPosition( tagPos );
 		}
 	}//if ( voiceEnabled )
@@ -2637,8 +2637,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	}
 
 	// Rebuild name tag if state change detected
-	if (mNameString.empty()
-		|| (mNameString.size() == 2 && mNameString[0] == 10 && mNameString[1] == 10) // *TODO : find out why mNameString is sometimes ""
+	if (!mNameIsSet
 		|| new_name
 		|| (!title && !mTitle.empty())
 		|| (title && mTitle != title->getString())
@@ -2831,17 +2830,16 @@ void LLVOAvatar::addNameTagLine(const std::string& line, const LLColor4& color, 
 	{
 		mNameText->addLine(line, color, (LLFontGL::StyleFlags)style, font);
 	}
-	mNameString += line;
-	mNameString += '\n';
+    mNameIsSet |= !line.empty();
 }
 
 void LLVOAvatar::clearNameTag()
 {
-	mNameString.clear();
+    mNameIsSet = false;
 	if (mNameText)
 	{
 		mNameText->setLabel("");
-		mNameText->setString( "" );
+		mNameText->setString("");
 	}
 	mTimeVisible.reset();
 }
@@ -4403,7 +4401,7 @@ void LLVOAvatar::updateTextures()
 
 
 void LLVOAvatar::addLocalTextureStats( ETextureIndex idx, LLViewerFetchedTexture* imagep,
-									   F32 texel_area_ratio, BOOL render_avatar, BOOL covered_by_baked, U32 index )
+									   F32 texel_area_ratio, BOOL render_avatar, BOOL covered_by_baked)
 {
 	// No local texture stats for non-self avatars
 	return;
