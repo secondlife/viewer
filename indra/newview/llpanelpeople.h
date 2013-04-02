@@ -55,7 +55,10 @@ public:
 	// Implements LLVoiceClientStatusObserver::onChange() to enable call buttons
 	// when voice is available
 	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
+
 	void openFacebookWeb(LLFloaterWebContent::Params& p);
+	void showFacebookFriends(const LLSD& friends);
+	void getFacebookFriends();
 
 	// internals
 	class Updater;

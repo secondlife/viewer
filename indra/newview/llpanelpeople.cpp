@@ -896,8 +896,11 @@ void LLPanelPeople::updateFbcTestList()
 		{
 			// success! :)
 			if (title[1] == ')')
-		{
+			{
 				mFbcTestText->setText(std::string("okay, now we can get the list of friends!"));
+
+				// get the friends
+				getFacebookFriends();
 			}
 			// failure :(
 			else if (title[1] == '(')
@@ -1665,13 +1668,28 @@ void LLPanelPeople::openFacebookWeb(LLFloaterWebContent::Params& p)
 	}
 }
 
-class LLFacebookLogin : public LLHTTPClient::Responder
+void LLPanelPeople::showFacebookFriends(const LLSD& friends)
+{
+	std::string text = "Facebook Friends";
+	for (LLSD::array_const_iterator i = friends.beginArray(); i != friends.endArray(); ++i)
+	{
+		std::string name = (*i)["name"].asString();
+		std::string id = (*i)["id"].asString();
+
+		text += "\n" + name + " (" + id + ")";
+	}
+
+	// display the facebook friend data on the test text box
+	mFbcTestText->setText(text);
+}
+
+class FacebookLoginResponder : public LLHTTPClient::Responder
 {
 public:
 
 	LLPanelPeople * mPanelPeople;
 
-	LLFacebookLogin(LLPanelPeople * panel_people) : mPanelPeople(panel_people) {}
+	FacebookLoginResponder(LLPanelPeople * panel_people) : mPanelPeople(panel_people) {}
 
 	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
@@ -1686,15 +1704,15 @@ public:
 			//use the token to pull down graph data
 			if(has_token)
 			{
-				
+				mPanelPeople->getFacebookFriends();
 			}
 			//request user to login
 			else
 			{
-	LLFloaterWebContent::Params p;
-	p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + FBC_SERVICES_URL + "/authenticate/" + gAgentID.asString());
+				LLFloaterWebContent::Params p;
+				p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + FBC_SERVICES_URL + "/authenticate/" + gAgentID.asString());
 				mPanelPeople->openFacebookWeb(p);
-}
+			}
 		}
 		else
 		{
@@ -1703,9 +1721,40 @@ public:
 	}
 };
 
+class FacebookFriendsResponder : public LLHTTPClient::Responder
+{
+public:
+
+	LLPanelPeople * mPanelPeople;
+
+	FacebookFriendsResponder(LLPanelPeople * panel_people) : mPanelPeople(panel_people) {}
+
+	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
+	{
+		// in case of invalid characters, the avatar picker returns a 400
+		// just set it to process so it displays 'not found'
+		if (isGoodStatus(status) || status == 400)
+		{
+			llinfos << content << llendl;
+
+			// display the friend data
+			mPanelPeople->showFacebookFriends(content["friends"]);
+		}
+		else
+		{
+			llinfos << "failed to get response. reason: " << reason << " status: " << status << llendl;
+		}
+	}
+};
+
+void LLPanelPeople::getFacebookFriends()
+{
+	LLHTTPClient::get(FBC_SERVICES_URL + "/get-friends/" + gAgentID.asString(), new FacebookFriendsResponder(this));
+}
+
 void LLPanelPeople::onLoginFbcButtonClicked()
 {
-	LLHTTPClient::get("https://pdp15.lindenlab.com/has-access-token/" + gAgentID.asString(), new LLFacebookLogin(this));
+	LLHTTPClient::get(FBC_SERVICES_URL + "/has-access-token/" + gAgentID.asString(), new FacebookLoginResponder(this));
 }
 
 void LLPanelPeople::onFacebookAppRequestClicked()
@@ -1718,7 +1767,7 @@ void LLPanelPeople::onFacebookAppRequestClicked()
 void LLPanelPeople::onFacebookAppSendClicked()
 {
 	LLFloaterWebContent::Params p;
-	p.url("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Test&link=http://www.cnet.com&redirect_uri=" + FBC_SERVICES_URL);
+	p.url("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Join Second Life!&link=https://join.secondlife.com&redirect_uri=" + FBC_SERVICES_URL);
 	openFacebookWeb(p);
 }
 // EOF
