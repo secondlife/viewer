@@ -138,6 +138,7 @@ void main()
 	
 	float shadow = 0.0;
 	float dp_directional_light = max(0.0, dot(norm, sun_dir.xyz));
+	dp_directional_light = pow(dp_directional_light, 0.7);
 
 	vec3 shadow_pos = pos.xyz + displace*norm;
 	vec3 offset = sun_dir.xyz * (1.0-dp_directional_light);

@@ -1266,7 +1266,7 @@ void LLPipeline::createLUTBuffers()
 	{
 		if (!mLightFunc)
 		{
-			U32 lightResX = gSavedSettings.getU32("RenderSpecularResX");
+			/*U32 lightResX = gSavedSettings.getU32("RenderSpecularResX");
 			U32 lightResY = gSavedSettings.getU32("RenderSpecularResY");
 			U8* ls = new U8[lightResX*lightResY];
 			F32 specExp = gSavedSettings.getF32("RenderSpecularExponent");
@@ -1302,10 +1302,10 @@ void LLPipeline::createLUTBuffers()
 					// Combined with a bit of noise and trilinear filtering, the banding is hardly noticable.
 					ls[y*lightResX+x] = (U8)(llclamp(spec * (1.f / 6), 0.f, 1.f) * 255);
 				}
-			}
+			}*/
 		
 
-			/*U32 lightResX = gSavedSettings.getU32("RenderSpecularResX");
+			U32 lightResX = gSavedSettings.getU32("RenderSpecularResX");
 			U32 lightResY = gSavedSettings.getU32("RenderSpecularResY");
 			F32* ls = new F32[lightResX*lightResY];
 			//F32 specExp = gSavedSettings.getF32("RenderSpecularExponent"); // Note: only use this when creating new specular lighting functions.
@@ -1327,15 +1327,36 @@ void LLPipeline::createLUTBuffers()
 					// This is fine, given we only need to create our LUT once per buffer initialization.
 					spec *= (((n + 2) * (n + 4)) / (8 * F_PI * (powf(2, -n/2) + n)));
 					
+					spec = llclamp(spec, 0.f, 1.f);
+					spec = powf(spec, 0.6f);
+
 					// Since we use R16F, we no longer have a dynamic range issue we need to work around here.
 					// Though some older drivers may not like this, newer drivers shouldn't have this problem.
 					ls[y*lightResX+x] = spec;
+
+					
+					//beckmann distribution
+					/*F32 alpha = acosf((F32) x/(lightResX-1));
+					F32 m = 1.f - (F32) y/(lightResY-1);
+
+					F32 cos4_alpha = cosf(alpha);
+					cos4_alpha *= cos4_alpha;
+					cos4_alpha *= cos4_alpha;
+
+					F32 tan_alpha = tanf(alpha);
+					F32 tan2_alpha = tan_alpha*tan_alpha;
+
+					F32 k = expf(-(tan2_alpha)/(m*m)) /
+						(3.14159f*m*m*cos4_alpha);
+
+					ls[y*lightResX+x] = k;*/
 				}
-			}*/
+			}
 			
 			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, GL_R8, 1, &mLightFunc);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
-			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_R16F, lightResX, lightResY, GL_RED, GL_UNSIGNED_BYTE, ls, false);
+			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_R16F, lightResX, lightResY, GL_RED, GL_FLOAT, ls, false);
+			//LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_UNSIGNED_BYTE, lightResX, lightResY, GL_RED, GL_UNSIGNED_BYTE, ls, false);
 			gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_TRILINEAR);
 			
@@ -8255,7 +8276,7 @@ void LLPipeline::renderDeferredLighting()
 							LLFastTimer ftm(FTM_LOCAL_LIGHTS);
 							gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);
-							gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, pow3f(col, 2.2f).mV);
+							gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
 							gGL.syncMatrices();
 							
@@ -8311,7 +8332,7 @@ void LLPipeline::renderDeferredLighting()
 					
 					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
 					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);
-					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, pow3f(col, 2.2f).mV);
+					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
 					gGL.syncMatrices();
 										
@@ -8402,7 +8423,7 @@ void LLPipeline::renderDeferredLighting()
 					
 					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, tc.v);
 					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);
-					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, pow3f(col, 2.2f).mV);
+					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
 					mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 				}
