@@ -113,6 +113,9 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 	llassert(pass < sizeof(type_list)/sizeof(U32));
 
 	U32 type = type_list[pass];
+
+	U32 mask = mShader->mAttributeMask;
+
 	LLCullResult::drawinfo_iterator begin = gPipeline.beginRenderMap(type);
 	LLCullResult::drawinfo_iterator end = gPipeline.endRenderMap(type);
 	
@@ -137,7 +140,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 		
 		mShader->setMinimumAlpha(params.mAlphaMaskCutoff);
 
-		pushBatch(params, VERTEX_DATA_MASK, TRUE);
+		pushBatch(params, mask, TRUE);
 	}
 }
 

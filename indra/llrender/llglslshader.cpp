@@ -88,7 +88,12 @@ LLShaderFeatures::LLShaderFeatures()
 // LLGLSL Shader implementation
 //===============================
 LLGLSLShader::LLGLSLShader()
-	: mProgramObject(0), mActiveTextureChannels(0), mShaderLevel(0), mShaderGroup(SG_DEFAULT), mUniformsDirty(FALSE)
+	: mProgramObject(0), 
+	  mAttributeMask(0),
+	  mActiveTextureChannels(0), 
+	  mShaderLevel(0), 
+	  mShaderGroup(SG_DEFAULT), 
+	  mUniformsDirty(FALSE)
 {
 
 }
@@ -285,6 +290,8 @@ BOOL LLGLSLShader::mapAttributes(const vector<string> * attributes)
 	if (res)
 	{ //read back channel locations
 
+		mAttributeMask = 0;
+
 		//read back reserved channels first
 		for (U32 i = 0; i < LLShaderMgr::instance()->mReservedAttribs.size(); i++)
 		{
@@ -293,6 +300,7 @@ BOOL LLGLSLShader::mapAttributes(const vector<string> * attributes)
 			if (index != -1)
 			{
 				mAttribute[i] = index;
+				mAttributeMask |= 1 << i;
 				LL_DEBUGS("ShaderLoading") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
 			}
 		}
