@@ -40,6 +40,7 @@ uniform sampler2DRect normalMap;
 uniform samplerCube environmentMap;
 uniform sampler2D noiseMap;
 uniform sampler2D projectionMap;
+uniform sampler2D lightFunc;
 
 uniform mat4 proj_mat; //screen space to light space
 uniform float proj_near; //near clip for projection
@@ -142,7 +143,7 @@ void main()
 	}
 		
 	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
-	norm = vec3((norm.xy-0.5)*2.0, norm.z);
+	norm = norm = (norm.xyz-0.5)*2.0;
 	
 	norm = normalize(norm);
 	float l_dist = -dot(lv, proj_n);
@@ -190,6 +191,8 @@ void main()
 			vec3 lcol = color.rgb * plcol.rgb * plcol.a;
 			
 			lit = da * dist_atten * noise;
+
+			lit = pow(lit, 0.7);
 			
 			col = lcol*lit*diff_tex;
 			amb_da += (da*0.5)*proj_ambiance;
@@ -236,8 +239,28 @@ void main()
 					stc.x > 0.0 &&
 					stc.y > 0.0)
 				{
-					vec4 scol = texture2DLodSpecular(projectionMap, stc.xy, proj_lod-spec.a*proj_lod);
-					col += dist_atten*scol.rgb*color.rgb*scol.a*spec.rgb;
+
+					vec3 npos = -normalize(pos);
+					lv = pfinal-pos.xyz;
+					lv = normalize(lv);
+
+					vec3 h = normalize(lv+npos);
+					float nh = dot(norm, h);
+					float nv = dot(norm, npos);
+					float vh = dot(npos, h);
+					float sa = nh;
+					float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
+					float gtdenom = 2 * nh;
+					float gt = max(0,(min(gtdenom * nv / vh, gtdenom * da / vh)));
+
+					if (sa > 0.0)
+					{
+						float scol = fres * texture2D(lightFunc, vec2(nh, spec.a)).r * gt / (nh * da);
+						col += scol*color.rgb*texture2DLodSpecular(projectionMap, stc.xy, proj_lod-spec.a*proj_lod).rgb*spec.rgb;
+					}
+					
+					//vec4 scol = texture2DLodSpecular(projectionMap, stc.xy, proj_lod-spec.a*proj_lod);
+					//col += dist_atten*scol.rgb*color.rgb*scol.a*spec.rgb;
 				}
 			}
 		}
