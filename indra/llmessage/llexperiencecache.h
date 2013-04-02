@@ -50,8 +50,6 @@ namespace LLExperienceCache
 
 	// should be in sync with experience-api/experiences/models.py
 	const int PROPERTY_INVALID		= 1 << 0;
-	const int PROPERTY_NORMAL		= 1 << 1;
-	const int PROPERTY_REGION		= 1 << 2;
 	const int PROPERTY_PRIVILEGED	= 1 << 3;
 	const int PROPERTY_GRID			= 1 << 4;
 	const int PROPERTY_PRIVATE		= 1 << 5;
