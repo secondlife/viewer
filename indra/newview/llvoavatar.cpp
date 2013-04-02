@@ -4478,7 +4478,7 @@ void LLVOAvatar::addBakedTextureStats( LLViewerFetchedTexture* imagep, F32 pixel
 	// TODO: currently default to HTTP texture and fall back to UDP if cannot be found there.
 	// Once server messaging is in place, we should call setCanUseHTTP(false) for old style
 	// appearance requests
-	imagep->setCanUseHTTP(true);
+	//imagep->setCanUseHTTP(true);
 	imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
 	imagep->resetMaxVirtualSizeResetCounter() ;
 
