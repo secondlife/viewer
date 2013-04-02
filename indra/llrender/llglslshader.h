@@ -152,6 +152,7 @@ public:
 
 	GLhandleARB mProgramObject;
 	std::vector<GLint> mAttribute; //lookup table of attribute enum to attribute channel
+	U32 mAttributeMask;  //mask of which reserved attributes are set (lines up with LLVertexBuffer::getTypeMask())
 	std::vector<GLint> mUniform;   //lookup table of uniform enum to uniform location
 	std::map<std::string, GLint> mUniformMap;  //lookup map of uniform name to uniform location
 	std::map<GLint, LLVector4> mValue; //lookup map of uniform location to last known value

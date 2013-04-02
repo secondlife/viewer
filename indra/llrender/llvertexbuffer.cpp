@@ -349,6 +349,25 @@ S32 LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_MAX] =
 	sizeof(LLVector4), // TYPE_TEXTURE_INDEX (actually exists as position.w), no extra data, but stride is 16 bytes
 };
 
+static std::string vb_type_name[] =
+{
+	"TYPE_VERTEX",
+	"TYPE_NORMAL",
+	"TYPE_TEXCOORD0",
+	"TYPE_TEXCOORD1",
+	"TYPE_TEXCOORD2",
+	"TYPE_TEXCOORD3",
+	"TYPE_COLOR",
+	"TYPE_EMISSIVE",
+	"TYPE_BINORMAL",
+	"TYPE_WEIGHT",
+	"TYPE_WEIGHT4",
+	"TYPE_CLOTHWEIGHT",
+	"TYPE_TEXTURE_INDEX",
+	"TYPE_MAX",
+	"TYPE_INDEX",	
+};
+
 U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] = 
 {
 	GL_TRIANGLES,
@@ -2313,6 +2332,14 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
 
 	if (gDebugGL && ((data_mask & mTypeMask) != data_mask))
 	{
+		for (U32 i = 0; i < LLVertexBuffer::TYPE_MAX; ++i)
+		{
+			U32 mask = 1 << i;
+			if (mask & data_mask && !(mask & mTypeMask))
+			{ //bit set in data_mask, but not set in mTypeMask
+				llwarns << "Missing required component " << vb_type_name[i] << llendl;
+			}
+		}
 		llerrs << "LLVertexBuffer::setupVertexBuffer missing required components for supplied data mask." << llendl;
 	}
 

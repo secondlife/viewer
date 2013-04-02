@@ -4771,10 +4771,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	genDrawInfo(group, simple_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, simple_faces, FALSE, batch_textures);
 	genDrawInfo(group, fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, fullbright_faces, FALSE, batch_textures);
 	genDrawInfo(group, alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, alpha_faces, TRUE, batch_textures);
-	genDrawInfo(group, bump_mask, bump_faces, FALSE, FALSE);
-	genDrawInfo(group, norm_mask, norm_faces, FALSE, FALSE);
-	genDrawInfo(group, spec_mask, spec_faces, FALSE, FALSE);
-	genDrawInfo(group, normspec_mask, normspec_faces, FALSE, FALSE);
+	genDrawInfo(group, bump_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, bump_faces, FALSE, FALSE);
+	genDrawInfo(group, norm_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, norm_faces, FALSE, FALSE);
+	genDrawInfo(group, spec_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, spec_faces, FALSE, FALSE);
+	genDrawInfo(group, normspec_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, normspec_faces, FALSE, FALSE);
 
 	if (!LLPipeline::sDelayVBUpdate)
 	{
