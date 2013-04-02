@@ -5290,11 +5290,6 @@ void LLPipeline::rebuildPools()
 		}
 		max_count--;
 	}
-
-	if (isAgentAvatarValid())
-	{
-		gAgentAvatarp->rebuildHUD();
-	}
 }
 
 void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
@@ -5779,7 +5774,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 				// crazy cast so that we can overwrite the fade value
 				// even though gcc enforces sets as const
 				// (fade value doesn't affect sort so this is safe)
-				Light* farthest_light = ((Light*) (&(*(mNearbyLights.rbegin()))));
+				Light* farthest_light = (const_cast<Light*>(&(*(mNearbyLights.rbegin()))));
 				if (light->dist < farthest_light->dist)
 				{
 					if (farthest_light->fade >= 0.f)
@@ -6810,7 +6805,7 @@ void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 }
 
 void LLPipeline::resetVertexBuffers()
-{
+{	
 	mResetVertexBuffers = true;
 }
 

@@ -34,6 +34,7 @@
 #include "llvoavatarself.h"
 #include "llbufferstream.h"
 #include "llfile.h"
+#include "llmenugl.h"
 #ifdef LL_STANDALONE
 # include "expat.h"
 #else
@@ -69,6 +70,9 @@
 #include "apr_base64.h"
 
 #define USE_SESSION_GROUPS 0
+
+extern LLMenuBarGL* gMenuBarView;
+extern void handle_voice_morphing_subscribe();
 
 const F32 VOLUME_SCALE_VIVOX = 0.01f;
 
@@ -291,6 +295,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mCaptureDeviceDirty(false),
 	mRenderDeviceDirty(false),
 	mSpatialCoordsDirty(false),
+	mIsInitialized(false),
 
 	mMuteMic(false),
 	mMuteMicDirty(false),
@@ -315,7 +320,9 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mCaptureBufferRecording(false),
 	mCaptureBufferRecorded(false),
 	mCaptureBufferPlaying(false),
-	mPlayRequestCount(0)
+	mPlayRequestCount(0),
+
+	mAvatarNameCacheConnection()
 {	
 	mSpeakerVolume = scale_speaker_volume(0);
 
@@ -348,6 +355,10 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 
 LLVivoxVoiceClient::~LLVivoxVoiceClient()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 }
 
 //---------------------------------------------------
@@ -520,7 +531,7 @@ void LLVivoxVoiceClient::requestVoiceAccountProvision(S32 retries)
 {
 	LLViewerRegion *region = gAgent.getRegion();
 	
-	if ( region && mVoiceEnabled )
+	if ( region && (mVoiceEnabled || !mIsInitialized))
 	{
 		std::string url = 
 		region->getCapability("ProvisionVoiceAccountRequest");
@@ -691,7 +702,7 @@ void LLVivoxVoiceClient::stateMachine()
 		setVoiceEnabled(false);
 	}
 	
-	if(mVoiceEnabled)
+	if(mVoiceEnabled || !mIsInitialized)
 	{
 		updatePosition();
 	}
@@ -736,7 +747,7 @@ void LLVivoxVoiceClient::stateMachine()
 		
 		//MARK: stateDisabled
 		case stateDisabled:
-			if(mTuningMode || (mVoiceEnabled && !mAccountName.empty()))
+			if(mTuningMode || ((mVoiceEnabled || !mIsInitialized) && !mAccountName.empty()))
 			{
 				setState(stateStart);
 			}
@@ -891,7 +902,7 @@ void LLVivoxVoiceClient::stateMachine()
 				mTuningExitState = stateIdle;
 				setState(stateMicTuningStart);
 			}
-			else if(!mVoiceEnabled)
+			else if(!mVoiceEnabled && mIsInitialized)
 			{
 				// We never started up the connector.  This will shut down the daemon.
 				setState(stateConnectorStopped);
@@ -1085,7 +1096,7 @@ void LLVivoxVoiceClient::stateMachine()
 
 			//MARK: stateConnectorStart
 		case stateConnectorStart:
-			if(!mVoiceEnabled)
+			if(!mVoiceEnabled && mIsInitialized)
 			{
 				// We were never logged in.  This will shut down the connector.
 				setState(stateLoggedOut);
@@ -1103,7 +1114,7 @@ void LLVivoxVoiceClient::stateMachine()
 		
 		//MARK: stateConnectorStarted
 		case stateConnectorStarted:		// connector handle received
-			if(!mVoiceEnabled)
+			if(!mVoiceEnabled && mIsInitialized)
 			{
 				// We were never logged in.  This will shut down the connector.
 				setState(stateLoggedOut);
@@ -1247,7 +1258,7 @@ void LLVivoxVoiceClient::stateMachine()
 		
 		//MARK: stateCreatingSessionGroup
 		case stateCreatingSessionGroup:
-			if(mSessionTerminateRequested || !mVoiceEnabled)
+			if(mSessionTerminateRequested || (!mVoiceEnabled && mIsInitialized))
 			{
 				// *TODO: Question: is this the right way out of this state
 				setState(stateSessionTerminated);
@@ -1263,7 +1274,7 @@ void LLVivoxVoiceClient::stateMachine()
 		//MARK: stateRetrievingParcelVoiceInfo
 		case stateRetrievingParcelVoiceInfo: 
 			// wait until parcel voice info is received.
-			if(mSessionTerminateRequested || !mVoiceEnabled)
+			if(mSessionTerminateRequested || (!mVoiceEnabled && mIsInitialized))
 			{
 				// if a terminate request has been received,
 				// bail and go to the stateSessionTerminated
@@ -1283,7 +1294,7 @@ void LLVivoxVoiceClient::stateMachine()
 			// Otherwise, if you log in but don't join a proximal channel (such as when your login location has voice disabled), your friends list won't sync.
 			sendFriendsListUpdates();
 			
-			if(mSessionTerminateRequested || !mVoiceEnabled)
+			if(mSessionTerminateRequested || (!mVoiceEnabled && mIsInitialized))
 			{
 				// TODO: Question: Is this the right way out of this state?
 				setState(stateSessionTerminated);
@@ -1364,7 +1375,7 @@ void LLVivoxVoiceClient::stateMachine()
 		    }
 			
 			// joinedAudioSession() will transition from here to stateSessionJoined.
-			if(!mVoiceEnabled)
+			if(!mVoiceEnabled && mIsInitialized)
 			{
 				// User bailed out during connect -- jump straight to teardown.
 				setState(stateSessionTerminated);
@@ -1411,7 +1422,7 @@ void LLVivoxVoiceClient::stateMachine()
 				notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_JOINED);
 
 			}
-			else if(!mVoiceEnabled)
+			else if(!mVoiceEnabled && mIsInitialized)
 			{
 				// User bailed out during connect -- jump straight to teardown.
 				setState(stateSessionTerminated);
@@ -1431,7 +1442,7 @@ void LLVivoxVoiceClient::stateMachine()
 		//MARK: stateRunning
 		case stateRunning:				// steady state
 			// Disabling voice or disconnect requested.
-			if(!mVoiceEnabled || mSessionTerminateRequested)
+			if((!mVoiceEnabled && mIsInitialized) || mSessionTerminateRequested)
 			{
 				leaveAudioSession();
 			}
@@ -1478,6 +1489,8 @@ void LLVivoxVoiceClient::stateMachine()
 					mUpdateTimer.setTimerExpirySec(UPDATE_THROTTLE_SECONDS);
 					sendPositionalUpdate();
 				}
+
+				mIsInitialized = true;
 			}
 		break;
 		
@@ -1511,7 +1524,7 @@ void LLVivoxVoiceClient::stateMachine()
 			// Always reset the terminate request flag when we get here.
 			mSessionTerminateRequested = false;
 
-			if(mVoiceEnabled && !mRelogRequested)
+			if((mVoiceEnabled || !mIsInitialized) && !mRelogRequested)
 			{				
 				// Just leaving a channel, go back to stateNoChannel (the "logged in but have no channel" state).
 				setState(stateNoChannel);
@@ -1539,7 +1552,7 @@ void LLVivoxVoiceClient::stateMachine()
 			mAccountHandle.clear();
 			cleanUp();
 
-			if(mVoiceEnabled && !mRelogRequested)
+			if((mVoiceEnabled || !mIsInitialized) && !mRelogRequested)
 			{
 				// User was logged out, but wants to be logged in.  Send a new login request.
 				setState(stateNeedsLogin);
@@ -2658,33 +2671,19 @@ void LLVivoxVoiceClient::checkFriend(const LLUUID& id)
 {
 	buddyListEntry *buddy = findBuddy(id);
 
-	// Make sure we don't add a name before it's been looked up.
+	// Make sure we don't add a name before it's been looked up in the avatar name cache
 	LLAvatarName av_name;
-	if(LLAvatarNameCache::get(id, &av_name))
+	if (LLAvatarNameCache::get(id, &av_name))
 	{
-		// *NOTE: For now, we feed legacy names to Vivox because I don't know
-		// if their service can support a mix of new and old clients with
-		// different sorts of names.
-		std::string name = av_name.getLegacyName();
-
-		const LLRelationship* relationInfo = LLAvatarTracker::instance().getBuddyInfo(id);
-		bool canSeeMeOnline = false;
-		if(relationInfo && relationInfo->isRightGrantedTo(LLRelationship::GRANT_ONLINE_STATUS))
-			canSeeMeOnline = true;
+		// *NOTE: We feed legacy names to Vivox because we don't know if their service
+		// can support a mix of new and old clients with different sorts of names.
+		std::string name = av_name.getAccountName();
 		
-		// When we get here, mNeedsSend is true and mInSLFriends is false.  Change them as necessary.
-		
-		if(buddy)
+		if (buddy)
 		{
-			// This buddy is already in both lists.
-
-			if(name != buddy->mDisplayName)
-			{
-				// The buddy is in the list with the wrong name.  Update it with the correct name.
-				LL_WARNS("Voice") << "Buddy " << id << " has wrong name (\"" << buddy->mDisplayName << "\" should be \"" << name << "\"), updating."<< LL_ENDL;
-				buddy->mDisplayName = name;
-				buddy->mNeedsNameUpdate = true;		// This will cause the buddy to be resent.
-			}
+			// This buddy is already in both lists (vivox buddies and avatar cache).
+            // Trust the avatar cache more for the display name (vivox display name are notoriously wrong)
+            buddy->mDisplayName = name;
 		}
 		else
 		{
@@ -2693,20 +2692,19 @@ void LLVivoxVoiceClient::checkFriend(const LLUUID& id)
 			buddy->mUUID = id;
 		}
 		
-		// In all the above cases, the buddy is in the SL friends list (which is how we got here).
-		buddy->mInSLFriends = true;
-		buddy->mCanSeeMeOnline = canSeeMeOnline;
+		const LLRelationship* relationInfo = LLAvatarTracker::instance().getBuddyInfo(id);
+		buddy->mCanSeeMeOnline = (relationInfo && relationInfo->isRightGrantedTo(LLRelationship::GRANT_ONLINE_STATUS));
+		// In all the above cases, the buddy is in the SL friends list and tha name has been resolved (which is how we got here).
 		buddy->mNameResolved = true;
-		
+		buddy->mInSLFriends = true;
 	}
 	else
 	{
-		// This name hasn't been looked up yet.  Don't do anything with this buddy list entry until it has.
-		if(buddy)
+		// This name hasn't been looked up yet in the avatar cache. Don't do anything with this buddy list entry until it has.
+		if (buddy)
 		{
 			buddy->mNameResolved = false;
 		}
-		
 		// Initiate a lookup.
 		// The "lookup completed" callback will ensure that the friends list is rechecked after it completes.
 		lookupName(id);
@@ -2814,13 +2812,12 @@ void LLVivoxVoiceClient::sendFriendsListUpdates()
 			{
 				std::ostringstream stream;
 
-				if(buddy->mInSLFriends && (!buddy->mInVivoxBuddies || buddy->mNeedsNameUpdate))
+				if(buddy->mInSLFriends && !buddy->mInVivoxBuddies)
 				{					
 					if(mNumberOfAliases > 0)
 					{
 						// Add (or update) this entry in the vivox buddy list
 						buddy->mInVivoxBuddies = true;
-						buddy->mNeedsNameUpdate = false;
 						LL_DEBUGS("Voice") << "add/update " << buddy->mURI << " (" << buddy->mDisplayName << ")" << LL_ENDL;
 						stream 
 							<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.BuddySet.1\">"
@@ -3712,8 +3709,7 @@ void LLVivoxVoiceClient::participantUpdatedEvent(
 			 voice participant mIsModeratorMuted is changed after speakers are updated in Speaker Manager                                          
 			 and event is not fired.                                                                                                               
 			 
-			 So, we have to call LLSpeakerMgr::update() here. In any case it is better than call it                                                
-			 in LLCallFloater::draw()                                                                                                              
+			 So, we have to call LLSpeakerMgr::update() here.                                                                                                              
 			 */
 			LLVoiceChannel* voice_cnl = LLVoiceChannel::getCurrentVoiceChannel();
 			
@@ -3939,7 +3935,7 @@ void LLVivoxVoiceClient::messageEvent(
 		sessionState *session = findSession(sessionHandle);
 		if(session)
 		{
-			bool is_busy = gAgent.getBusy();
+			bool is_do_not_disturb = gAgent.isDoNotDisturb();
 			bool is_muted = LLMuteList::getInstance()->isMuted(session->mCallerID, session->mName, LLMute::flagTextChat);
 			bool is_linden = LLMuteList::getInstance()->isLinden(session->mName);
 			bool quiet_chat = false;
@@ -3953,10 +3949,10 @@ void LLVivoxVoiceClient::messageEvent(
 				chat.mFromName = session->mName;
 				chat.mSourceType = CHAT_SOURCE_AGENT;
 
-				if(is_busy && !is_linden)
+				if(is_do_not_disturb && !is_linden)
 				{
 					quiet_chat = true;
-					// TODO: Question: Return busy mode response here?  Or maybe when session is started instead?
+					// TODO: Question: Return do not disturb mode response here?  Or maybe when session is started instead?
 				}
 				
 				LL_DEBUGS("Voice") << "adding message, name " << session->mName << " session " << session->mIMSessionID << ", target " << session->mCallerID << LL_ENDL;
@@ -3964,6 +3960,7 @@ void LLVivoxVoiceClient::messageEvent(
 						session->mCallerID,
 						session->mName.c_str(),
 						message.c_str(),
+						false,
 						LLStringUtil::null,		// default arg
 						IM_NOTHING_SPECIAL,		// default arg
 						0,						// default arg
@@ -5846,7 +5843,6 @@ LLVivoxVoiceClient::buddyListEntry::buddyListEntry(const std::string &uri) :
 	mNameResolved = false;
 	mInVivoxBuddies = false;
 	mInSLFriends = false;
-	mNeedsNameUpdate = false;
 }
 
 void LLVivoxVoiceClient::processBuddyListEntry(const std::string &uri, const std::string &displayName)
@@ -5871,25 +5867,21 @@ LLVivoxVoiceClient::buddyListEntry *LLVivoxVoiceClient::addBuddy(const std::stri
 	buddyListEntry *result = NULL;
 	buddyListMap::iterator iter = mBuddyListMap.find(uri);
 	
-	if(iter != mBuddyListMap.end())
+	if (iter != mBuddyListMap.end())
 	{
 		// Found a matching buddy already in the map.
 		LL_DEBUGS("Voice") << "adding existing buddy " << uri << LL_ENDL;
 		result = iter->second;
 	}
 
-	if(!result)
+	if (!result)
 	{
 		// participant isn't already in one list or the other.
 		LL_DEBUGS("Voice") << "adding new buddy " << uri << LL_ENDL;
 		result = new buddyListEntry(uri);
 		result->mDisplayName = displayName;
 
-		if(IDFromName(uri, result->mUUID)) 
-		{
-			// Extracted UUID from name successfully.
-		}
-		else
+		if (!IDFromName(uri, result->mUUID))
 		{
 			LL_DEBUGS("Voice") << "Couldn't find ID for buddy " << uri << " (\"" << displayName << "\")" << LL_ENDL;
 		}
@@ -6189,18 +6181,19 @@ void LLVivoxVoiceClient::notifyFriendObservers()
 
 void LLVivoxVoiceClient::lookupName(const LLUUID &id)
 {
-	LLAvatarNameCache::get(id,
-		boost::bind(&LLVivoxVoiceClient::onAvatarNameCache,
-			this, _1, _2));
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+	mAvatarNameCacheConnection = LLAvatarNameCache::get(id, boost::bind(&LLVivoxVoiceClient::onAvatarNameCache, this, _1, _2));
 }
 
 void LLVivoxVoiceClient::onAvatarNameCache(const LLUUID& agent_id,
 										   const LLAvatarName& av_name)
 {
-	// For Vivox, we use the legacy name because I'm uncertain whether or
-	// not their service can tolerate switching to Username or Display Name
-	std::string legacy_name = av_name.getLegacyName();
-	avatarNameResolved(agent_id, legacy_name);	
+	mAvatarNameCacheConnection.disconnect();
+	std::string display_name = av_name.getDisplayName();
+	avatarNameResolved(agent_id, display_name);
 }
 
 void LLVivoxVoiceClient::avatarNameResolved(const LLUUID &id, const std::string &name)
@@ -6729,9 +6722,105 @@ void LLVivoxVoiceClient::removeObserver(LLVoiceEffectObserver* observer)
 	mVoiceFontObservers.erase(observer);
 }
 
+// method checks the item in VoiceMorphing menu for appropriate current voice font
+bool LLVivoxVoiceClient::onCheckVoiceEffect(const std::string& voice_effect_name)
+{
+	LLVoiceEffectInterface * effect_interfacep = LLVoiceClient::instance().getVoiceEffectInterface();
+	if (NULL != effect_interfacep)
+	{
+		const LLUUID& currect_voice_effect_id = effect_interfacep->getVoiceEffect();
+
+		if (currect_voice_effect_id.isNull())
+		{
+			if (voice_effect_name == "NoVoiceMorphing")
+			{
+				return true;
+			}
+		}
+		else
+		{
+			const LLSD& voice_effect_props = effect_interfacep->getVoiceEffectProperties(currect_voice_effect_id);
+			if (voice_effect_props["name"].asString() == voice_effect_name)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+// method changes voice font for selected VoiceMorphing menu item
+void LLVivoxVoiceClient::onClickVoiceEffect(const std::string& voice_effect_name)
+{
+	LLVoiceEffectInterface * effect_interfacep = LLVoiceClient::instance().getVoiceEffectInterface();
+	if (NULL != effect_interfacep)
+	{
+		if (voice_effect_name == "NoVoiceMorphing")
+		{
+			effect_interfacep->setVoiceEffect(LLUUID());
+			return;
+		}
+		const voice_effect_list_t& effect_list = effect_interfacep->getVoiceEffectList();
+		if (!effect_list.empty())
+		{
+			for (voice_effect_list_t::const_iterator it = effect_list.begin(); it != effect_list.end(); ++it)
+			{
+				if (voice_effect_name == it->first)
+				{
+					effect_interfacep->setVoiceEffect(it->second);
+					return;
+				}
+			}
+		}
+	}
+}
+
+// it updates VoiceMorphing menu items in accordance with purchased properties 
+void LLVivoxVoiceClient::updateVoiceMorphingMenu()
+{
+	if (mVoiceFontListDirty)
+	{
+		LLVoiceEffectInterface * effect_interfacep = LLVoiceClient::instance().getVoiceEffectInterface();
+		if (effect_interfacep)
+		{
+			const voice_effect_list_t& effect_list = effect_interfacep->getVoiceEffectList();
+			if (!effect_list.empty())
+			{
+				LLMenuGL * voice_morphing_menup = gMenuBarView->findChildMenuByName("VoiceMorphing", TRUE);
+
+				if (NULL != voice_morphing_menup)
+				{
+					S32 items = voice_morphing_menup->getItemCount();
+					if (items > 0)
+					{
+						voice_morphing_menup->erase(1, items - 3, false);
+
+						S32 pos = 1;
+						for (voice_effect_list_t::const_iterator it = effect_list.begin(); it != effect_list.end(); ++it)
+						{
+							LLMenuItemCheckGL::Params p;
+							p.name = it->first;
+							p.label = it->first;
+							p.on_check.function(boost::bind(&LLVivoxVoiceClient::onCheckVoiceEffect, this, it->first));
+							p.on_click.function(boost::bind(&LLVivoxVoiceClient::onClickVoiceEffect, this, it->first));
+							LLMenuItemCheckGL * voice_effect_itemp = LLUICtrlFactory::create<LLMenuItemCheckGL>(p);
+							voice_morphing_menup->insert(pos++, voice_effect_itemp, false);
+						}
+
+						voice_morphing_menup->needsArrange();
+					}
+				}
+			}
+		}
+	}
+}
+
 void LLVivoxVoiceClient::notifyVoiceFontObservers()
 {
 	LL_DEBUGS("Voice") << "Notifying voice effect observers. Lists changed: " << mVoiceFontListDirty << LL_ENDL;
+
+	updateVoiceMorphingMenu();
 
 	for (voice_font_observer_set_t::iterator it = mVoiceFontObservers.begin();
 		 it != mVoiceFontObservers.end();
@@ -7162,7 +7251,7 @@ void LLVivoxProtocolParser::StartTag(const char *tag, const char **attr)
 void LLVivoxProtocolParser::EndTag(const char *tag)
 {
 	const std::string& string = textBuffer;
-	
+
 	responseDepth--;
 	
 	if (ignoringTags)
@@ -7261,6 +7350,8 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 		}
 		else if (!stricmp("Buddy", tag))
 		{
+            // NOTE : Vivox does *not* give reliable display name for Buddy tags
+            // We don't take those very seriously as a result...
 			LLVivoxVoiceClient::getInstance()->processBuddyListEntry(uriString, displayNameString);
 		}
 		else if (!stricmp("BlockRule", tag))
