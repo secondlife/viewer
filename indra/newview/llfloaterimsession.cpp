@@ -39,6 +39,7 @@
 #include "llchannelmanager.h"
 #include "llchiclet.h"
 #include "llchicletbar.h"
+#include "lldonotdisturbnotificationstorage.h"
 #include "llfloaterreg.h"
 #include "llfloateravatarpicker.h"
 #include "llfloaterimcontainer.h" // to replace separate IM Floaters with multifloater container
@@ -645,6 +646,23 @@ void LLFloaterIMSession::setDocked(bool docked, bool pop_on_undock)
 	}
 }
 
+void LLFloaterIMSession::setMinimized(BOOL b)
+{
+	bool wasMinimized = isMinimized();
+	LLFloaterIMSessionTab::setMinimized(b);
+
+	//Switching from minimized state to un-minimized state
+	if(wasMinimized && !b)
+	{
+		//When in DND mode, remove stored IM notifications
+		//Nearby chat (Null) IMs are not stored while in DND mode, so can ignore removal
+		if(gAgent.isDoNotDisturb())
+		{
+			LLDoNotDisturbNotificationStorage::getInstance()->removeNotification(LLDoNotDisturbNotificationStorage::toastName, mSessionID);
+		}
+	}
+}
+
 void LLFloaterIMSession::setVisible(BOOL visible)
 {
 	LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
@@ -711,6 +729,18 @@ BOOL LLFloaterIMSession::getVisible()
 	}
 
 	return visible;
+}
+
+void LLFloaterIMSession::setFocus(BOOL focus)
+{
+	LLFloaterIMSessionTab::setFocus(focus);
+
+	//When in DND mode, remove stored IM notifications
+	//Nearby chat (Null) IMs are not stored while in DND mode, so can ignore removal
+	if(focus && gAgent.isDoNotDisturb())
+	{
+		LLDoNotDisturbNotificationStorage::getInstance()->removeNotification(LLDoNotDisturbNotificationStorage::toastName, mSessionID);
+	}
 }
 
 //static
