@@ -102,6 +102,8 @@ void main()
 	float dist_atten = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
 	float lit = da * dist_atten * noise;
 	
+	lit = pow(lit, 0.7);
+
 	col = color.rgb*lit*col;
 
 	vec4 spec = texture2DRect(specularRect, frag.xy);
@@ -113,14 +115,14 @@ void main()
 		float nv = dot(norm, npos);
 		float vh = dot(npos, h);
 		float sa = nh;
-		vec3 fres = spec.rgb + pow(1 - dot(h, npos), 5) * (1 - spec.rgb);
+		float fres = pow(1 - dot(h, npos), 5) * 0.4+0.5;
 		float gtdenom = 2 * nh;
 		float gt = max(0,(min(gtdenom * nv / vh, gtdenom * da / vh)));
 
-		if (sa > 0.0)
+		if (nh > 0.0)
 		{
-			vec3 scol = (fres * texture2D(lightFunc, vec2(nh, spec.a)).r * gt) / (nh * da);
-			col += lit*scol*color.rgb;
+			float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
+			col += lit*scol*color.rgb*spec.rgb;
 		}
 	}
 	
