@@ -155,8 +155,6 @@ private:
 	LLGroupList*			mGroupList;
 	LLAvatarListSocial*		mFacebookFriends;
 	LLNetMap*				mMiniMap;
-	
-	LLTextBox*				mFbcTestText;
 
 	LLHandle<LLView>		mGroupPlusMenuHandle;
 	LLHandle<LLView>		mNearbyViewSortMenuHandle;

@@ -545,7 +545,6 @@ LLPanelPeople::LLPanelPeople()
 		mNearbyList(NULL),
 		mRecentList(NULL),
 		mGroupList(NULL),
-		mFbcTestText(NULL),
 		mNearbyGearButton(NULL),
 		mFriendsGearButton(NULL),
 		mGroupsGearButton(NULL),
@@ -648,7 +647,6 @@ BOOL LLPanelPeople::postBuild()
 	mOnlineFriendList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 	
 	LLPanel * social_tab = getChild<LLPanel>(FBCTEST_TAB_NAME);
-	social_tab->setVisibleCallback(boost::bind(&Updater::setActive, mFbcTestListUpdater, _2));
 	mFacebookFriends = social_tab->getChild<LLAvatarListSocial>("facebook_friends");
 
 	setSortOrder(mRecentList,		(ESortOrder)gSavedSettings.getU32("RecentPeopleSortOrder"),	false);
@@ -885,9 +883,6 @@ void LLPanelPeople::updateRecentList()
 
 void LLPanelPeople::updateFbcTestList()
 {
-	if (!mFbcTestText)
-		return;
-
 	if (mFbcTestBrowserHandle.get())
 	{
 		// get the browser data (from the title bar, of course!)
@@ -899,15 +894,13 @@ void LLPanelPeople::updateFbcTestList()
 			// success! :)
 			if (title[1] == ')')
 			{
-				mFbcTestText->setText(std::string("okay, now we can get the list of friends!"));
-
 				// get the friends
 				getFacebookFriends();
 			}
 			// failure :(
 			else if (title[1] == '(')
 			{
-				mFbcTestText->setText(std::string("hmm, the authentication failed somehow"));
+				llinfos << "authentication failed" << llendl;
 			}
 
 			// close the browser window
@@ -1678,11 +1671,9 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 		std::string name = (*i)["name"].asString();
 		std::string id = (*i)["id"].asString();
 
-		text += "\n" + name + " (" + id + ")";
+		text = name + " (" + id + ")";
+		mFacebookFriends->addSocialItem(LLUUID(NULL), text, false);
 	}
-
-	// display the facebook friend data on the test text box
-	mFbcTestText->setText(text);
 }
 
 class FacebookLoginResponder : public LLHTTPClient::Responder
