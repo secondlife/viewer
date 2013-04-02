@@ -624,3 +624,39 @@ void LLAvalineListItem::setName(const std::string& name)
 		LLAvatarListItem::setAvatarToolTip(formatted_phone);
 	}
 }
+
+/************************************************************************/
+/*             class LLAvatarListSocial                                  */
+/************************************************************************/
+
+static LLDefaultChildRegistry::Register<LLAvatarListSocial> s("avatar_list_social");
+
+LLAvatarListSocial::LLAvatarListSocial(const Params& p) : LLAvatarList(p)
+{
+
+}
+
+void LLAvatarListSocial::addSocialItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
+{
+	LLAvatarListItem* item = new LLAvatarListItem();
+	// This sets the name as a side effect
+	item->setAvatarId(id, mSessionID, mIgnoreOnlineStatus, false);
+	item->setAvatarName(name);
+	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
+	item->showLastInteractionTime(mShowLastInteractionTime);
+
+	item->setAvatarIconVisible(mShowIcons);
+	item->setShowInfoBtn(mShowInfoBtn);
+	item->setShowProfileBtn(mShowProfileBtn);
+	item->showSpeakingIndicator(mShowSpeakingIndicator);
+	item->setShowPermissions(mShowPermissions);
+
+	item->setDoubleClickCallback(boost::bind(&LLAvatarListSocial::onItemDoubleClicked, this, _1, _2, _3, _4));
+
+	addItem(item, id, pos);
+}
+
+void LLAvatarListSocial::refresh()
+{
+	
+}

@@ -647,7 +647,9 @@ BOOL LLPanelPeople::postBuild()
 	mAllFriendList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 	mOnlineFriendList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 	
-	mFbcTestText = getChild<LLPanel>(FBCTEST_TAB_NAME)->getChild<LLTextBox>("fbctest_label");
+	LLPanel * social_tab = getChild<LLPanel>(FBCTEST_TAB_NAME);
+	social_tab->setVisibleCallback(boost::bind(&Updater::setActive, mFbcTestListUpdater, _2));
+	mFacebookFriends = social_tab->getChild<LLAvatarListSocial>("facebook_friends");
 
 	setSortOrder(mRecentList,		(ESortOrder)gSavedSettings.getU32("RecentPeopleSortOrder"),	false);
 	setSortOrder(mAllFriendList,	(ESortOrder)gSavedSettings.getU32("FriendsSortOrder"),		false);
@@ -883,35 +885,10 @@ void LLPanelPeople::updateRecentList()
 
 void LLPanelPeople::updateFbcTestList()
 {
-	if (!mFbcTestText)
-		return;
-
-	if (mFbcTestBrowserHandle.get())
-	{
-		// get the browser data (from the title bar, of course!)
-		std::string title = mFbcTestBrowserHandle.get()->getTitle();
-
-		// if the data is ready (if it says the magic word)
-		if (title.length() >= 2 && title[0] == ':')
-		{
-			// success! :)
-			if (title[1] == ')')
-		{
-				mFbcTestText->setText(std::string("okay, now we can get the list of friends!"));
-			}
-			// failure :(
-			else if (title[1] == '(')
-			{
-				mFbcTestText->setText(std::string("hmm, the authentication failed somehow"));
-			}
-
-			// close the browser window
-			mFbcTestBrowserHandle.get()->die();
-			
-			// stop updating
-			mFbcTestListUpdater->setActive(false);
-		}
-	}
+	mFacebookFriends->addSocialItem(LLUUID(), "TEST", false);
+	
+	// stop updating
+	mFbcTestListUpdater->setActive(false);
 }
 
 void LLPanelPeople::buttonSetVisible(std::string btn_name, BOOL visible)

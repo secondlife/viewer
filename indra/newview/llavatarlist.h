@@ -97,10 +97,12 @@ public:
 	void addAvalineItem(const LLUUID& item_id, const LLUUID& session_id, const std::string& item_name);
 	void handleDisplayNamesOptionChanged();
 
-protected:
-	void refresh();
+	
 
-	void addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos = ADD_BOTTOM);
+protected:
+	virtual void refresh();
+	virtual void addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos = ADD_BOTTOM);
+	
 	void computeDifference(
 		const uuid_vec_t& vnew,
 		uuid_vec_t& vadded,
@@ -109,8 +111,6 @@ protected:
 	void rebuildNames();
 	void onItemDoubleClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask);
 	void updateAvatarNames();
-
-private:
 
 	bool isAvalineItemSelected();
 
@@ -204,5 +204,22 @@ public:
 private:
 	bool mIsHideNumber;
 };
+
+class LLAvatarListSocial : public LLAvatarList
+{
+	public:
+	struct Params : public LLInitParam::Block<Params, LLAvatarList::Params>
+	{
+
+	};
+
+	LLAvatarListSocial(const Params&);
+
+	void addSocialItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos = ADD_BOTTOM);
+
+	protected:
+	/*virtual*/ void refresh();
+};
+
 
 #endif // LL_LLAVATARLIST_H

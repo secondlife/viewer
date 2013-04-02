@@ -34,6 +34,7 @@
 #include "llvoiceclient.h"
 
 class LLAvatarList;
+class LLAvatarListSocial;
 class LLAvatarName;
 class LLFilterEditor;
 class LLGroupList;
@@ -149,6 +150,7 @@ private:
 	LLAvatarList*			mNearbyList;
 	LLAvatarList*			mRecentList;
 	LLGroupList*			mGroupList;
+	LLAvatarListSocial*		mFacebookFriends;
 	LLNetMap*				mMiniMap;
 	
 	LLTextBox*				mFbcTestText;
