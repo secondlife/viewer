@@ -973,33 +973,16 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			|| !existing_inspector->getVisible()
 			|| existing_inspector->getKey()["avatar_id"].asUUID() != hover_object->getID())
 		{
-			// IDEVO: try to get display name + username
+			// Try to get display name + username
 			std::string final_name;
-			std::string full_name;
-			if (!gCacheName->getFullName(hover_object->getID(), full_name))
-			{
-			LLNameValue* firstname = hover_object->getNVPair("FirstName");
-			LLNameValue* lastname =  hover_object->getNVPair("LastName");
-			if (firstname && lastname)
-			{
-					full_name = LLCacheName::buildFullName(
-						firstname->getString(), lastname->getString());
-				}
-				else
-				{
-					full_name = LLTrans::getString("TooltipPerson");
-				}
-			}
-
 			LLAvatarName av_name;
-			if (LLAvatarNameCache::useDisplayNames() && 
-				LLAvatarNameCache::get(hover_object->getID(), &av_name))
+			if (LLAvatarNameCache::get(hover_object->getID(), &av_name))
 			{
 				final_name = av_name.getCompleteName();
 			}
 			else
 			{
-				final_name = full_name;
+				final_name = LLTrans::getString("TooltipPerson");;
 			}
 
 			// *HACK: We may select this object, so pretend it was clicked

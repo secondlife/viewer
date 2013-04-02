@@ -27,11 +27,12 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llappviewer.h"
+#include "llfloaterreg.h"
 #include "llviewerkeyboard.h"
 #include "llmath.h"
 #include "llagent.h"
 #include "llagentcamera.h"
-#include "llnearbychatbar.h"
+#include "llfloaterimnearbychat.h"
 #include "llviewercontrol.h"
 #include "llfocusmgr.h"
 #include "llmorphview.h"
@@ -534,7 +535,7 @@ void stop_moving( EKeystate s )
 void start_chat( EKeystate s )
 {
 	// start chat
-	LLNearbyChatBar::startChat(NULL);
+	LLFloaterIMNearbyChat::startChat(NULL);
 }
 
 void start_gesture( EKeystate s )
@@ -543,15 +544,15 @@ void start_gesture( EKeystate s )
 	if (KEYSTATE_UP == s &&
 		! (focus_ctrlp && focus_ctrlp->acceptsTextInput()))
 	{
- 		if (LLNearbyChatBar::getInstance()->getCurrentChat().empty())
+ 		if ((LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->getCurrentChat().empty())
  		{
  			// No existing chat in chat editor, insert '/'
- 			LLNearbyChatBar::startChat("/");
+ 			LLFloaterIMNearbyChat::startChat("/");
  		}
  		else
  		{
  			// Don't overwrite existing text in chat editor
- 			LLNearbyChatBar::startChat(NULL);
+ 			LLFloaterIMNearbyChat::startChat(NULL);
  		}
 	}
 }

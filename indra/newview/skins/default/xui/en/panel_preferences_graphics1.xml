@@ -262,7 +262,7 @@
 		 control_name="RenderDeferred"
 		 height="16"
 		 initial_value="true"
-		 label="Advance Lighting Model"
+		 label="Advanced Lighting Model"
 		 layout="topleft"
 		 left_delta="0"
 		 name="UseLightShaders"
