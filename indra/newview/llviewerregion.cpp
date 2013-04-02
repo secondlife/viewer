@@ -87,7 +87,7 @@ const S32 MAX_CAP_REQUEST_ATTEMPTS = 30;
 
 typedef std::map<std::string, std::string> CapabilityMap;
 
-static void logCapabilities(const CapabilityMap &capmap);
+static void log_capabilities(const CapabilityMap &capmap);
 
 class LLViewerRegionImpl {
 public:
@@ -331,12 +331,12 @@ private:
 			//LL_WARNS2("AppInit", "Capabilities")
 			//	<< "Initial Base capabilities: " << LL_ENDL;
 
-			//logCapabilities(regionp->getRegionImpl()->mCapabilities);
+			//log_capabilities(regionp->getRegionImpl()->mCapabilities);
 
 			//LL_WARNS2("AppInit", "Capabilities")
 			//				<< "Latest base capabilities: " << LL_ENDL;
 
-			//logCapabilities(regionp->getRegionImpl()->mSecondCapabilitiesTracker);
+			//log_capabilities(regionp->getRegionImpl()->mSecondCapabilitiesTracker);
 
 			// *TODO 
 			//add cap debug versus original check?
@@ -1915,7 +1915,7 @@ boost::signals2::connection LLViewerRegion::setCapabilitiesReceivedCallback(cons
 
 void LLViewerRegion::logActiveCapabilities() const
 {
-	logCapabilities(mImpl->mCapabilities);
+	log_capabilities(mImpl->mCapabilities);
 }
 
 LLSpatialPartition* LLViewerRegion::getSpatialPartition(U32 type)
@@ -2001,7 +2001,7 @@ bool LLViewerRegion::dynamicPathfindingEnabled() const
 
 /* Static Functions */
 
-void logCapabilities(const CapabilityMap &capmap)
+void log_capabilities(const CapabilityMap &capmap)
 {
 	S32 count = 0;
 	CapabilityMap::const_iterator iter;
@@ -2009,9 +2009,9 @@ void logCapabilities(const CapabilityMap &capmap)
 	{
 		if (!iter->second.empty())
 		{
-			llinfos << "logCapabilities: " << iter->first << " URL is " << iter->second << llendl;
+			llinfos << "log_capabilities: " << iter->first << " URL is " << iter->second << llendl;
 		}
 	}
-	llinfos << "logCapabilities: Dumped " << count << " entries." << llendl;
+	llinfos << "log_capabilities: Dumped " << count << " entries." << llendl;
 }
 
