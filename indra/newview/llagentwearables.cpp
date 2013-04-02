@@ -1124,14 +1124,19 @@ void LLAgentWearables::addWearableToAgentInventory(LLPointer<LLInventoryCallback
 						  cb);
 }
 
-void LLAgentWearables::removeWearable(const LLWearableType::EType type, bool do_remove_all, U32 index)
+void LLAgentWearables::removeWearable(const LLWearableType::EType type, bool do_remove_all, U32 index, BOOL will_replace)
 {
-	if (gAgent.isTeen() &&
+	if (gAgent.isTeen() && 
 		(type == LLWearableType::WT_UNDERSHIRT || type == LLWearableType::WT_UNDERPANTS))
 	{
 		// Can't take off underclothing in simple UI mode or on PG accounts
-		// TODO: enable the removing of a single undershirt/underpants if multiple are worn. - Nyx
-		return;
+		
+		if (getWearableCount(type) < 2 && !will_replace) 
+		{
+			// if there is 0 or 1 undergarment worn, and we're not going to be immediately adding another,
+			// we cannot allow the removal for teen accounts
+			return;
+		}
 	}
 	if (getWearableCount(type) == 0)
 	{
@@ -1239,6 +1244,31 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 {
 	llinfos << "setWearableOutfit() start" << llendl;
 
+	S32 count = wearables.count();
+	llassert(items.count() == count);
+	S32 i;
+
+	bool has_undershirt = false;
+	bool has_underpants = false;
+
+	for (i = 0; i < count; i++)
+	{
+		LLViewerWearable* new_wearable = wearables[i];
+		if (new_wearable)
+		{
+			const LLWearableType::EType type = new_wearable->getType();
+			if (type == LLWearableType::WT_UNDERSHIRT) 
+			{
+				has_undershirt = true;
+			}
+			if (type == LLWearableType::WT_UNDERPANTS) 
+			{
+				has_underpants = true;
+			}
+		}
+	}
+
+
 	// TODO: Removed check for ensuring that teens don't remove undershirt and underwear. Handle later
 	if (remove)
 	{
@@ -1248,15 +1278,17 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 		{
 			if (LLWearableType::getAssetType((LLWearableType::EType)type) == LLAssetType::AT_CLOTHING)
 			{
-				removeWearable((LLWearableType::EType)type, true, 0);
+				bool will_replace = false;
+				if ((type == LLWearableType::WT_UNDERSHIRT && has_undershirt) || 
+					(type == LLWearableType::WT_UNDERPANTS && has_underpants))
+				{
+					will_replace = true;
+				}
+				removeWearable((LLWearableType::EType)type, true, 0, will_replace);
 			}
 		}
 	}
 
-	S32 count = wearables.count();
-	llassert(items.count() == count);
-
-	S32 i;
 	for (i = 0; i < count; i++)
 	{
 		LLViewerWearable* new_wearable = wearables[i];
