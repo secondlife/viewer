@@ -258,7 +258,6 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 	{
 		llwarns << "Unable to write complete stats record to " << STATS_FILE_NAME << llendl;
 	}
-	fwrite(data_msg.str().c_str(), 1, data_size, mObjectCacheFile );
 	clearStats();
 }
 
