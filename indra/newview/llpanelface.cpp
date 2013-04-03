@@ -750,7 +750,7 @@ void LLPanelFace::getState()
                 case GL_RGB: break;
                 default:
                 {
-                    llinfos << "Unexpected tex format in LLPanelFace...resorting to no alpha" << llendl;
+                    llwarns << "Unexpected tex format in LLPanelFace...resorting to no alpha" << llendl;
                 }
                 break;
             }
