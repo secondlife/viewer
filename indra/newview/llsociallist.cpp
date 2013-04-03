@@ -72,7 +72,7 @@ void LLSocialList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 		item->mIcon->setValue(id);
 	}
 
-	item->setName(has_avatar_name ? avatar_name.mDisplayName + " (" + name + ")" : name, mNameFilter);
+	item->setName(has_avatar_name ? name + " (" + avatar_name.mDisplayName + ")" : name, mNameFilter);
 	addItem(item, id, pos);
 }
 

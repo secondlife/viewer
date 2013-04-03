@@ -643,7 +643,7 @@ void LLAvatarListSocial::addSocialItem(const LLUUID& id, const std::string& name
 
 	LLAvatarListItem* item = new LLAvatarListItem();
 	item->setAvatarId(id, mSessionID, mIgnoreOnlineStatus, false); // this sets the name as a side effect
-	item->setAvatarName(has_avatar_name ? avatar_name.mDisplayName + " (" + name + ")" : name);
+	item->setAvatarName(has_avatar_name ? name + " (" + avatar_name.mDisplayName + ")" : name);
 	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
 	item->showLastInteractionTime(mShowLastInteractionTime);
 
