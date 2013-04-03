@@ -631,7 +631,7 @@ void LLLogChat::deleteTranscripts()
 }
 
 // static
-bool LLLogChat::isTranscriptExist(const LLUUID& avatar_id)
+bool LLLogChat::isTranscriptExist(const LLUUID& avatar_id, bool is_group)
 {
 	std::vector<std::string> list_of_transcriptions;
 	LLLogChat::getListOfTranscriptFiles(list_of_transcriptions);
@@ -641,15 +641,31 @@ bool LLLogChat::isTranscriptExist(const LLUUID& avatar_id)
 		LLAvatarName avatar_name;
 		LLAvatarNameCache::get(avatar_id, &avatar_name);
 		std::string avatar_user_name = avatar_name.getAccountName();
-		std::replace(avatar_user_name.begin(), avatar_user_name.end(), '.', '_');
-
-		BOOST_FOREACH(std::string& transcript_file_name, list_of_transcriptions)
+		if(!is_group)
 		{
-			if (std::string::npos != transcript_file_name.find(avatar_user_name))
+			std::replace(avatar_user_name.begin(), avatar_user_name.end(), '.', '_');
+			BOOST_FOREACH(std::string& transcript_file_name, list_of_transcriptions)
 			{
-				return true;
+				if (std::string::npos != transcript_file_name.find(avatar_user_name))
+				{
+					return true;
+				}
 			}
 		}
+		else
+		{
+			std::string file_name;
+			gCacheName->getGroupName(avatar_id, file_name);
+			file_name = makeLogFileName(file_name);
+			BOOST_FOREACH(std::string& transcript_file_name, list_of_transcriptions)
+			{
+				if (transcript_file_name == file_name)
+				{
+					return true;
+				}
+			}
+		}
+
 	}
 
 	return false;
