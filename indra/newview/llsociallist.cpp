@@ -31,7 +31,10 @@ sDestroyImmediate
 
 #include "llsociallist.h"
 
+#include "llavataractions.h"
+#include "llfloaterreg.h"
 #include "llavatariconctrl.h"
+#include "llavatarnamecache.h"
 #include "lloutputmonitorctrl.h"
 #include "lltextutil.h"
     
@@ -60,7 +63,16 @@ void LLSocialList::refresh()
 void LLSocialList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
 {
 	LLSocialListItem * item = new LLSocialListItem();
-	item->setName(name, mNameFilter);
+	LLAvatarName avatar_name;
+	bool has_avatar_name = id.notNull() && LLAvatarNameCache::get(id, &avatar_name);
+
+	item->mAvatarId = id;
+	if(id.notNull())
+	{
+		item->mIcon->setValue(id);
+	}
+
+	item->setName(has_avatar_name ? avatar_name.mDisplayName + " (" + name + ")" : name, mNameFilter);
 	addItem(item, id, pos);
 }
 
@@ -97,6 +109,9 @@ BOOL LLSocialListItem::postBuild()
 	mInfoBtn->setVisible(false);
 	mProfileBtn->setVisible(false);
 
+	mInfoBtn->setClickedCallback(boost::bind(&LLSocialListItem::onInfoBtnClick, this));
+	mProfileBtn->setClickedCallback(boost::bind(&LLSocialListItem::onProfileBtnClick, this));
+
 	return TRUE;
 }
 
@@ -127,4 +142,14 @@ void LLSocialListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 	mProfileBtn->setVisible(false);
 
 	LLPanel::onMouseLeave(x, y, mask);
+}
+
+void LLSocialListItem::onInfoBtnClick()
+{
+	LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", mAvatarId));
+}
+
+void LLSocialListItem::onProfileBtnClick()
+{
+	LLAvatarActions::showProfile(mAvatarId);
 }

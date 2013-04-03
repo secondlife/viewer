@@ -77,6 +77,10 @@ class LLSocialListItem : public LLPanel
 	void setValue(const LLSD& value);
 	void onMouseEnter(S32 x, S32 y, MASK mask);
 	void onMouseLeave(S32 x, S32 y, MASK mask);
+	void onInfoBtnClick();
+	void onProfileBtnClick();
+
+	LLUUID mAvatarId;
 
 	LLTextBox * mLabelTextBox;
 	std::string mLabel;
