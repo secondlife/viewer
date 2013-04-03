@@ -37,14 +37,12 @@
 #include "llcharacter.h"
 #include "llhttpclient.h"
 #include "lltimer.h"
+#include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llvoavatar.h"
 #include "llworld.h"
 
-
-// Use this for debugging
-//#define LL_AVATAR_RENDER_INFO_LOG_SPAM
 
 static	const std::string KEY_AGENTS = "agents";			// map
 static 	const std::string KEY_WEIGHT = "weight";			// integer
@@ -94,9 +92,10 @@ public:
 		LLViewerRegion * regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
 		if (regionp)
 		{
-			#ifdef LL_AVATAR_RENDER_INFO_LOG_SPAM
-			llinfos << "Result for avatar weights request for region " << regionp->getName() << ":" << llendl;
-			#endif // LL_AVATAR_RENDER_INFO_LOG_SPAM
+			if (LLAvatarRenderInfoAccountant::logRenderInfo())
+			{
+				llinfos << "Result for avatar weights request for region " << regionp->getName() << ":" << llendl;
+			}
 
 			if (content.isMap())
 			{
@@ -116,10 +115,11 @@ public:
 								agent_info_map.isMap())
 							{	// Extract the data for this avatar
 
-								#ifdef LL_AVATAR_RENDER_INFO_LOG_SPAM
-								llinfos << " Agent " << target_agent_id 
-									<< ": " << agent_info_map << llendl;
-								#endif	// LL_AVATAR_RENDER_INFO_LOG_SPAM
+								if (LLAvatarRenderInfoAccountant::logRenderInfo())
+								{
+									llinfos << " Agent " << target_agent_id 
+										<< ": " << agent_info_map << llendl;
+								}
 
 								if (agent_info_map.has(KEY_WEIGHT))
 								{
@@ -194,10 +194,11 @@ public:
 		LLViewerRegion * regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
 		if (regionp)
 		{
-			#ifdef LL_AVATAR_RENDER_INFO_LOG_SPAM
-			llinfos << "Result for avatar weights POST for region " << regionp->getName()
-				<< ": " << content << llendl;
-			#endif	// LL_AVATAR_RENDER_INFO_LOG_SPAM
+			if (LLAvatarRenderInfoAccountant::logRenderInfo())
+			{
+				llinfos << "Result for avatar weights POST for region " << regionp->getName()
+					<< ": " << content << llendl;
+			}
 
 			if (content.isMap())
 			{
@@ -231,12 +232,13 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
 	std::string url = regionp->getCapability("AvatarRenderInfo");
 	if (!url.empty())
 	{
-		#ifdef LL_AVATAR_RENDER_INFO_LOG_SPAM
-		llinfos << "Sending avatar render info to region "
-			<< regionp->getName() 
-			<< " from " << url
-			<< llendl;
-		#endif	// LL_AVATAR_RENDER_INFO_LOG_SPAM
+		if (logRenderInfo())
+		{
+			llinfos << "Sending avatar render info to region "
+				<< regionp->getName() 
+				<< " from " << url
+				<< llendl;
+		}
 
 		// Build the render info to POST to the region
 		LLSD report = LLSD::emptyMap();
@@ -271,10 +273,11 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
 					agents[avatar->getID().asString()] = info;
 				}
 
-				#ifdef LL_AVATAR_RENDER_INFO_LOG_SPAM
-				llinfos << "Sending avatar render info for " << avatar->getID()
-					<< ": " << info << llendl;
-				#endif		// LL_AVATAR_RENDER_INFO_LOG_SPAM
+				if (logRenderInfo())
+				{
+					llinfos << "Sending avatar render info for " << avatar->getID()
+						<< ": " << info << llendl;
+				}
 			}
 			iter++;
 		}
@@ -297,12 +300,13 @@ void LLAvatarRenderInfoAccountant::getRenderInfoFromRegion(LLViewerRegion * regi
 	std::string url = regionp->getCapability("AvatarRenderInfo");
 	if (!url.empty())
 	{
-		#ifdef LL_AVATAR_RENDER_INFO_LOG_SPAM
-		llinfos << "Requesting avatar render info for region "
-			<< regionp->getName() 
-			<< " from " << url
-			<< llendl;
-		#endif	// LL_AVATAR_RENDER_INFO_LOG_SPAM
+		if (logRenderInfo())
+		{
+			llinfos << "Requesting avatar render info for region "
+				<< regionp->getName() 
+				<< " from " << url
+				<< llendl;
+		}
 
 		// First send a request to get the latest data
 		LLHTTPClient::get(url, new LLAvatarRenderInfoGetResponder(regionp->getHandle()));
@@ -351,10 +355,17 @@ void LLAvatarRenderInfoAccountant::idle()
 // are returned for a new LLViewerRegion, and is the earliest time to get render info
 void LLAvatarRenderInfoAccountant::expireRenderInfoReportTimer()
 {
-	#ifdef LL_AVATAR_RENDER_INFO_LOG_SPAM
-	llinfos << "Viewer has new region capabilities" << llendl;
-	#endif		// LL_AVATAR_RENDER_INFO_LOG_SPAM
+	if (logRenderInfo())
+	{
+		llinfos << "Viewer has new region capabilities" << llendl;
+	}
 
 	sRenderInfoReportTimer.resetWithExpiry(0.f);
 }
 
+// static 
+bool LLAvatarRenderInfoAccountant::logRenderInfo()
+{
+	static LLCachedControl<bool> render_mute_logging_enabled(gSavedSettings, "RenderAutoMuteLogging");
+	return render_mute_logging_enabled;
+}
