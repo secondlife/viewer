@@ -32,8 +32,10 @@
 #include "llmaterialid.h"
 #include "llsd.h"
 #include "v4coloru.h"
+#include "llpointer.h"
+#include "llrefcount.h"
 
-class LLMaterial
+class LLMaterial : public LLRefCount
 {
 public:
 
@@ -115,6 +117,6 @@ protected:
 	U8			mAlphaMaskCutoff;
 };
 
-typedef boost::shared_ptr<LLMaterial> LLMaterialPtr;
+typedef LLPointer<LLMaterial> LLMaterialPtr;
 
 #endif // LL_LLMATERIAL_H
