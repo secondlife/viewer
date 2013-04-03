@@ -892,12 +892,24 @@ void LLPanelPeople::updateFbcTestList()
 		std::string url = mFbcTestBrowserHandle.get()->getTitle();
 
 		// if the browser has redirected from facebook
-		if (url.substr(0, FBC_SERVICES_URL.length()) == FBC_SERVICES_URL)
+		if (url.find(FBC_SERVICES_REDIRECT_URI) == 0)
 		{
-			// get the auth code
-			std::string auth_code = url.substr(FBC_SERVICES_URL.length() + 7);
-			auth_code = auth_code.substr(0, auth_code.length() - 4);
+			// find the auth code in the url
+			std::string begin_string = "code=";
+			std::string end_string = "#";
+			size_t begin_index = begin_string.length() + url.find(begin_string, FBC_SERVICES_REDIRECT_URI.length());
+			size_t end_index = url.find(end_string, begin_index);
 
+			// extract the auth code from the url
+			std::string auth_code;
+			if (end_index != std::string::npos)
+			{
+				auth_code = url.substr(begin_index, end_index - begin_index);
+			}
+			else
+			{
+				auth_code = url.substr(begin_index);
+			}
 			llinfos << "extracted code " << auth_code << " from url " << url << llendl;
 			
 			// finish authenticating on the server
