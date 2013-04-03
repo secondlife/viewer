@@ -536,6 +536,7 @@ private:
 
 LLPanelPeople::LLPanelPeople()
 	:	LLPanel(),
+		mConnectedToFbc(false),
 		mFilterSubString(LLStringUtil::null),
 		mFilterSubStringOrig(LLStringUtil::null),
 		mFilterEditor(NULL),
@@ -885,23 +886,17 @@ void LLPanelPeople::updateFbcTestList()
 {
 	if (mFbcTestBrowserHandle.get())
 	{
-		// get the browser data (from the title bar, of course!)
-		std::string title = mFbcTestBrowserHandle.get()->getTitle();
+		// get the current browser url (from the title bar, of course!)
+		std::string url = mFbcTestBrowserHandle.get()->getTitle();
 
-		// if the data is ready (if it says the magic word)
-		if (title.length() >= 2 && title[0] == ':')
+		// if the browser has redirected from facebook
+		if (url.substr(0, FBC_SERVICES_URL.length()) == FBC_SERVICES_URL)
 		{
-			// success! :)
-			if (title[1] == ')')
-			{
-				// get the friends
-				getFacebookFriends();
-			}
-			// failure :(
-			else if (title[1] == '(')
-			{
-				llinfos << "authentication failed" << llendl;
-			}
+			// get the auth code
+			std::string auth_code = url.substr(FBC_SERVICES_URL.length() + 6);
+			
+			// finish authenticating on the server
+			connectToFacebook(auth_code);
 
 			// close the browser window
 			mFbcTestBrowserHandle.get()->die();
@@ -1669,14 +1664,81 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 
 	for (LLSD::array_const_iterator i = friends.beginArray(); i != friends.endArray(); ++i)
 	{
-		const LLSD& fb_friend = *i;
-
-		std::string name = fb_friend["name"].asString();
-		LLUUID agent_id = fb_friend.has("agent_id") ? fb_friend["agent_id"].asUUID() : LLUUID(NULL);
+		std::string name = (*i)["name"].asString();
+		LLUUID agent_id = (*i).has("agent_id") ? (*i)["agent_id"].asUUID() : LLUUID(NULL);
 		
 		mFacebookFriends->addSocialItem(agent_id, name, false);
 	}
 }
+
+void LLPanelPeople::hideFacebookFriends()
+{
+	mFacebookFriends->clear();
+}
+
+class FacebookConnectResponder : public LLHTTPClient::Responder
+{
+public:
+
+	LLPanelPeople * mPanelPeople;
+
+	FacebookConnectResponder(LLPanelPeople * panel_people) : mPanelPeople(panel_people) {}
+
+	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
+	{
+		if (isGoodStatus(status))
+		{
+			llinfos << content << llendl;
+			
+			// grab some graph data now that we are connected
+			if (content["success"])
+			{
+				mPanelPeople->mConnectedToFbc = true;
+				mPanelPeople->loadFacebookFriends();
+			}
+			else if (content.has("error"))
+			{
+				llinfos << "failed to connect. reason: " << content["error"]["message"] << llendl;
+			}
+		}
+		else
+		{
+			llinfos << "failed to get response. reason: " << reason << " status: " << status << llendl;
+		}
+	}
+};
+
+class FacebookDisconnectResponder : public LLHTTPClient::Responder
+{
+public:
+
+	LLPanelPeople * mPanelPeople;
+
+	FacebookDisconnectResponder(LLPanelPeople * panel_people) : mPanelPeople(panel_people) {}
+
+	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
+	{
+		if (isGoodStatus(status))
+		{
+			llinfos << content << llendl;
+			
+			// hide all the facebook stuff
+			if (content["success"])
+			{
+				mPanelPeople->mConnectedToFbc = false;
+				mPanelPeople->hideFacebookFriends();
+			}
+			else if (content.has("error"))
+			{
+				llinfos << "failed to disconnect. reason: " << content["error"]["message"] << llendl;
+			}
+		}
+		else
+		{
+			llinfos << "failed to get response. reason: " << reason << " status: " << status << llendl;
+		}
+	}
+};
 
 class FacebookConnectedResponder : public LLHTTPClient::Responder
 {
@@ -1693,16 +1755,17 @@ public:
 		{
 			llinfos << content << llendl;
 
-			// pull down graph data if already contected
+			// grab some graph data if already connected
 			if (content["connected"])
 			{
-				mPanelPeople->getFacebookFriends();
+				mPanelPeople->mConnectedToFbc = true;
+				mPanelPeople->loadFacebookFriends();
 			}
-			// show the facebook login page
+			// show the facebook login page if not connected yet
 			else if (mShowLoginIfNotConnected)
 			{
 				LLFloaterWebContent::Params p;
-				p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/connect");
+				p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + FBC_SERVICES_URL);
 				mPanelPeople->openFacebookWeb(p);
 			}
 		}
@@ -1727,7 +1790,7 @@ public:
 		{
 			llinfos << content << llendl;
 
-			// display the friend data
+			// display the list of friends
 			if (content.has("friends"))
 			{
 				mPanelPeople->showFacebookFriends(content["friends"]);
@@ -1744,14 +1807,31 @@ public:
 	}
 };
 
-void LLPanelPeople::getFacebookFriends()
+void LLPanelPeople::loadFacebookFriends()
 {
 	LLHTTPClient::get(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/friends", new FacebookFriendsResponder(this));
 }
 
+void LLPanelPeople::connectToFacebook(const std::string& auth_code)
+{
+	LLHTTPClient::post(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/connect/" + auth_code, LLSD(), new FacebookConnectResponder(this));
+}
+
+void LLPanelPeople::disconnectFromFacebook()
+{
+	LLHTTPClient::post(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/disconnect", LLSD(), new FacebookDisconnectResponder(this));
+}
+
 void LLPanelPeople::onLoginFbcButtonClicked()
 {
-	LLHTTPClient::get(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/connected", new FacebookConnectedResponder(this, true));
+	if (mConnectedToFbc)
+	{
+		disconnectFromFacebook();
+	}
+	else
+	{
+		LLHTTPClient::get(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/connected", new FacebookConnectedResponder(this, true));
+	}
 }
 
 void LLPanelPeople::onFacebookAppRequestClicked()

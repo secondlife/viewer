@@ -59,7 +59,12 @@ public:
 
 	void openFacebookWeb(LLFloaterWebContent::Params& p);
 	void showFacebookFriends(const LLSD& friends);
-	void getFacebookFriends();
+	void hideFacebookFriends();
+	void loadFacebookFriends();
+	void connectToFacebook(const std::string& auth_code);
+	void disconnectFromFacebook();
+	
+	bool mConnectedToFbc;
 
 	// internals
 	class Updater;
