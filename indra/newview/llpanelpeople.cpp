@@ -1678,33 +1678,31 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 	}
 }
 
-class FacebookLoginResponder : public LLHTTPClient::Responder
+class FacebookConnectedResponder : public LLHTTPClient::Responder
 {
 public:
 
 	LLPanelPeople * mPanelPeople;
+	bool mShowLoginIfNotConnected;
 
-	FacebookLoginResponder(LLPanelPeople * panel_people) : mPanelPeople(panel_people) {}
+	FacebookConnectedResponder(LLPanelPeople * panel_people, bool show_login_if_not_connected) : mPanelPeople(panel_people), mShowLoginIfNotConnected(show_login_if_not_connected) {}
 
 	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
-		// in case of invalid characters, the avatar picker returns a 400
-		// just set it to process so it displays 'not found'
-		if (isGoodStatus(status) || status == 400)
+		if (isGoodStatus(status))
 		{
 			llinfos << content << llendl;
 
-			// use the token to pull down graph data
-			bool has_token = content["has_access_token"].asBoolean();
-			if (has_token)
+			// pull down graph data if already contected
+			if (content["connected"])
 			{
 				mPanelPeople->getFacebookFriends();
 			}
-			// request user to login
-			else
+			// show the facebook login page
+			else if (mShowLoginIfNotConnected)
 			{
 				LLFloaterWebContent::Params p;
-				p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + FBC_SERVICES_URL + "/authenticate/" + gAgentID.asString());
+				p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/connect");
 				mPanelPeople->openFacebookWeb(p);
 			}
 		}
@@ -1725,9 +1723,7 @@ public:
 
 	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
-		// in case of invalid characters, the avatar picker returns a 400
-		// just set it to process so it displays 'not found'
-		if (isGoodStatus(status) || status == 400)
+		if (isGoodStatus(status))
 		{
 			llinfos << content << llendl;
 
@@ -1738,7 +1734,7 @@ public:
 			}
 			else if (content.has("error"))
 			{
-				llinfos << "failed to get facebook friends. reason: " << content["error"] << llendl;
+				llinfos << "failed to get facebook friends. reason: " << content["error"]["message"] << llendl;
 			}
 		}
 		else
@@ -1750,25 +1746,25 @@ public:
 
 void LLPanelPeople::getFacebookFriends()
 {
-	LLHTTPClient::get(FBC_SERVICES_URL + "/get-friends/" + gAgentID.asString(), new FacebookFriendsResponder(this));
+	LLHTTPClient::get(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/friends", new FacebookFriendsResponder(this));
 }
 
 void LLPanelPeople::onLoginFbcButtonClicked()
 {
-	LLHTTPClient::get(FBC_SERVICES_URL + "/has-access-token/" + gAgentID.asString(), new FacebookLoginResponder(this));
+	LLHTTPClient::get(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/connected", new FacebookConnectedResponder(this, true));
 }
 
 void LLPanelPeople::onFacebookAppRequestClicked()
 {
 	LLFloaterWebContent::Params p;
-	p.url("http://www.facebook.com/dialog/apprequests?app_id=565771023434202&message=Test&redirect_uri=" + FBC_SERVICES_URL);
+	p.url("http://www.facebook.com/dialog/apprequests?app_id=565771023434202&message=Test&redirect_uri=https://secondlife.com/");
 	openFacebookWeb(p);
 }
 
 void LLPanelPeople::onFacebookAppSendClicked()
 {
 	LLFloaterWebContent::Params p;
-	p.url("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Join Second Life!&link=https://join.secondlife.com&redirect_uri=" + FBC_SERVICES_URL);
+	p.url("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Join Second Life!&link=https://join.secondlife.com&redirect_uri=https://secondlife.com/");
 	openFacebookWeb(p);
 }
 // EOF
