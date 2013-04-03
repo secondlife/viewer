@@ -241,7 +241,10 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mTearOffBtn->setCommitCallback(boost::bind(&LLFloaterIMSessionTab::onTearOffClicked, this));
 
 	mGearBtn = getChild<LLButton>("gear_btn");
-
+    mAddBtn = getChild<LLButton>("add_btn");
+	mVoiceButton = getChild<LLButton>("voice_call_btn");
+    mTranslationCheckBox = getChild<LLUICtrl>("translate_chat_checkbox_lp");
+    
 	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
 	mRightPartPanel = getChild<LLLayoutPanel>("right_part_holder");
 
@@ -372,7 +375,7 @@ void LLFloaterIMSessionTab::draw()
 
 void LLFloaterIMSessionTab::enableDisableCallBtn()
 {
-    getChildView("voice_call_btn")->setEnabled(
+    mVoiceButton->setEnabled(
     		mSessionID.notNull()
     		&& mSession
     		&& mSession->mSessionInitialized
@@ -758,7 +761,7 @@ void LLFloaterIMSessionTab::reshapeChatLayoutPanel()
 
 void LLFloaterIMSessionTab::showTranslationCheckbox(BOOL show)
 {
-	getChild<LLUICtrl>("translate_chat_checkbox_lp")->setVisible(mIsNearbyChat? show : FALSE);
+	mTranslationCheckBox->setVisible(mIsNearbyChat && show);
 }
 
 // static
@@ -805,15 +808,10 @@ void LLFloaterIMSessionTab::reloadEmptyFloaters()
 
 void LLFloaterIMSessionTab::updateCallBtnState(bool callIsActive)
 {
-	LLButton* voiceButton = getChild<LLButton>("voice_call_btn");
-	voiceButton->setImageOverlay(
-			callIsActive? getString("call_btn_stop") : getString("call_btn_start"));
-
-	voiceButton->setToolTip(
-			callIsActive? getString("end_call_button_tooltip") : getString("start_call_button_tooltip"));
+	mVoiceButton->setImageOverlay(callIsActive? getString("call_btn_stop") : getString("call_btn_start"));
+	mVoiceButton->setToolTip(callIsActive? getString("end_call_button_tooltip") : getString("start_call_button_tooltip"));
 
 	enableDisableCallBtn();
-
 }
 
 void LLFloaterIMSessionTab::onSlide(LLFloaterIMSessionTab* self)
@@ -953,8 +951,8 @@ void LLFloaterIMSessionTab::updateGearBtn()
 	if(prevVisibility != mGearBtn->getVisible())
 	{
 		LLRect gear_btn_rect =  mGearBtn->getRect();
-		LLRect add_btn_rect = getChild<LLButton>("add_btn")->getRect();
-		LLRect call_btn_rect = getChild<LLButton>("voice_call_btn")->getRect();
+		LLRect add_btn_rect = mAddBtn->getRect();
+		LLRect call_btn_rect = mVoiceButton->getRect();
 		S32 gap_width = call_btn_rect.mLeft - add_btn_rect.mRight;
 		S32 right_shift = gear_btn_rect.getWidth() + gap_width;
 		if(mGearBtn->getVisible())
@@ -968,24 +966,24 @@ void LLFloaterIMSessionTab::updateGearBtn()
 			add_btn_rect.translate(-right_shift,0);
 			call_btn_rect.translate(-right_shift,0);
 		}
-		getChild<LLButton>("add_btn")->setRect(add_btn_rect);
-		getChild<LLButton>("voice_call_btn")->setRect(call_btn_rect);
+		mAddBtn->setRect(add_btn_rect);
+		mVoiceButton->setRect(call_btn_rect);
 	}
 }
 
 void LLFloaterIMSessionTab::initBtns()
 {
 	LLRect gear_btn_rect =  mGearBtn->getRect();
-	LLRect add_btn_rect = getChild<LLButton>("add_btn")->getRect();
-	LLRect call_btn_rect = getChild<LLButton>("voice_call_btn")->getRect();
+	LLRect add_btn_rect = mAddBtn->getRect();
+	LLRect call_btn_rect = mVoiceButton->getRect();
 	S32 gap_width = call_btn_rect.mLeft - add_btn_rect.mRight;
 	S32 right_shift = gear_btn_rect.getWidth() + gap_width;
 
 	add_btn_rect.translate(-right_shift,0);
 	call_btn_rect.translate(-right_shift,0);
 
-	getChild<LLButton>("add_btn")->setRect(add_btn_rect);
-	getChild<LLButton>("voice_call_btn")->setRect(call_btn_rect);
+	mAddBtn->setRect(add_btn_rect);
+	mVoiceButton->setRect(call_btn_rect);
 }
 
 // static

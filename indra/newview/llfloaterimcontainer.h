@@ -168,6 +168,7 @@ private:
 
 	LLButton* mExpandCollapseBtn;
 	LLButton* mStubCollapseBtn;
+    LLButton* mSpeakBtn;
 	LLPanel* mStubPanel;
 	LLTextBox* mStubTextBox;
 	LLLayoutPanel* mMessagesPane;
