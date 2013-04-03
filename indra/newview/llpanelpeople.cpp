@@ -893,7 +893,10 @@ void LLPanelPeople::updateFbcTestList()
 		if (url.substr(0, FBC_SERVICES_URL.length()) == FBC_SERVICES_URL)
 		{
 			// get the auth code
-			std::string auth_code = url.substr(FBC_SERVICES_URL.length() + 6);
+			std::string auth_code = url.substr(FBC_SERVICES_URL.length() + 7);
+			auth_code = auth_code.substr(0, auth_code.length() - 4);
+
+			llinfos << "extracted code " << auth_code << " from url " << url << llendl;
 			
 			// finish authenticating on the server
 			connectToFacebook(auth_code);
@@ -1765,7 +1768,7 @@ public:
 			else if (mShowLoginIfNotConnected)
 			{
 				LLFloaterWebContent::Params p;
-				p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + FBC_SERVICES_URL);
+				p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + FBC_SERVICES_URL + "/");
 				mPanelPeople->openFacebookWeb(p);
 			}
 		}
@@ -1814,6 +1817,7 @@ void LLPanelPeople::loadFacebookFriends()
 
 void LLPanelPeople::connectToFacebook(const std::string& auth_code)
 {
+	llinfos << "attempting to connect to facebook with code " << auth_code << llendl;
 	LLHTTPClient::post(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/connect/" + auth_code, LLSD(), new FacebookConnectResponder(this));
 }
 
@@ -1837,14 +1841,14 @@ void LLPanelPeople::onLoginFbcButtonClicked()
 void LLPanelPeople::onFacebookAppRequestClicked()
 {
 	LLFloaterWebContent::Params p;
-	p.url("http://www.facebook.com/dialog/apprequests?app_id=565771023434202&message=Test&redirect_uri=https://secondlife.com/");
+	p.url("http://www.facebook.com/dialog/apprequests?app_id=565771023434202&message=Test&redirect_uri=" + FBC_SERVICES_URL);
 	openFacebookWeb(p);
 }
 
 void LLPanelPeople::onFacebookAppSendClicked()
 {
 	LLFloaterWebContent::Params p;
-	p.url("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Join Second Life!&link=https://join.secondlife.com&redirect_uri=https://secondlife.com/");
+	p.url("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Join Second Life!&link=https://join.secondlife.com&redirect_uri=" + FBC_SERVICES_URL);
 	openFacebookWeb(p);
 }
 // EOF
