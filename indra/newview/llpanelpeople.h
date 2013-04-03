@@ -62,10 +62,12 @@ public:
 	void showFacebookFriends(const LLSD& friends);
 	void hideFacebookFriends();
 	void loadFacebookFriends();
+	void tryToReconnectToFacebook();
 	void connectToFacebook(const std::string& auth_code);
 	void disconnectFromFacebook();
 	
 	bool mConnectedToFbc;
+	bool mTryToConnectToFbc;
 
 	// internals
 	class Updater;

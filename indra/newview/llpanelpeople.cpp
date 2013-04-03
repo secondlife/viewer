@@ -539,6 +539,7 @@ private:
 LLPanelPeople::LLPanelPeople()
 	:	LLPanel(),
 		mConnectedToFbc(false),
+		mTryToConnectToFbc(true),
 		mFilterSubString(LLStringUtil::null),
 		mFilterSubStringOrig(LLStringUtil::null),
 		mFilterEditor(NULL),
@@ -633,7 +634,7 @@ BOOL LLPanelPeople::postBuild()
 	mMiniMap = (LLNetMap*)getChildView("Net Map",true);
 	mMiniMap->setToolTipMsg(gSavedSettings.getBOOL("DoubleClickTeleport") ? 
 		getString("AltMiniMapToolTipMsg") :	getString("MiniMapToolTipMsg"));
-
+	
 	mRecentList = getChild<LLPanel>(RECENT_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
 	mRecentList->setNoItemsCommentText(getString("no_recent_people"));
 	mRecentList->setNoItemsMsg(getString("no_recent_people"));
@@ -651,6 +652,7 @@ BOOL LLPanelPeople::postBuild()
 	
 	LLPanel * social_tab = getChild<LLPanel>(FBCTEST_TAB_NAME);
 	mFacebookFriends = social_tab->getChild<LLSocialList>("facebook_friends");
+	social_tab->setVisibleCallback(boost::bind(&Updater::setActive, mFbcTestListUpdater, _2));
 
 	setSortOrder(mRecentList,		(ESortOrder)gSavedSettings.getU32("RecentPeopleSortOrder"),	false);
 	setSortOrder(mAllFriendList,	(ESortOrder)gSavedSettings.getU32("FriendsSortOrder"),		false);
@@ -921,6 +923,17 @@ void LLPanelPeople::updateFbcTestList()
 			// stop updating
 			mFbcTestListUpdater->setActive(false);
 		}
+	}
+	else if (mTryToConnectToFbc)
+	{	
+		// try to reconnect to facebook!
+		tryToReconnectToFacebook();
+
+		// don't try again
+		mTryToConnectToFbc = false;
+		
+		// stop updating
+		mFbcTestListUpdater->setActive(false);
 	}
 }
 
@@ -1827,6 +1840,14 @@ public:
 void LLPanelPeople::loadFacebookFriends()
 {
 	LLHTTPClient::get(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/friends", new FacebookFriendsResponder(this));
+}
+
+void LLPanelPeople::tryToReconnectToFacebook()
+{
+	if (!mConnectedToFbc)
+	{
+		LLHTTPClient::get(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/connected", new FacebookConnectedResponder(this, false));
+	}
 }
 
 void LLPanelPeople::connectToFacebook(const std::string& auth_code)
