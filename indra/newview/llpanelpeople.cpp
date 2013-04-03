@@ -80,6 +80,7 @@ static const std::string FBCTEST_TAB_NAME	= "fbctest_panel";
 static const std::string COLLAPSED_BY_USER  = "collapsed_by_user";
 
 static const std::string FBC_SERVICES_URL = "https://pdp15.lindenlab.com";
+static const std::string FBC_SERVICES_REDIRECT_URI = "https://pdp15.lindenlab.com/";
 
 /** Comparator for comparing avatar items by last interaction date */
 class LLAvatarItemRecentComparator : public LLAvatarItemComparator
@@ -1769,7 +1770,7 @@ public:
 			else if (mShowLoginIfNotConnected)
 			{
 				LLFloaterWebContent::Params p;
-				p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + FBC_SERVICES_URL + "/");
+				p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + FBC_SERVICES_REDIRECT_URI);
 				mPanelPeople->openFacebookWeb(p);
 			}
 		}
@@ -1818,8 +1819,10 @@ void LLPanelPeople::loadFacebookFriends()
 
 void LLPanelPeople::connectToFacebook(const std::string& auth_code)
 {
-	llinfos << "attempting to connect to facebook with code " << auth_code << llendl;
-	LLHTTPClient::post(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/connect/" + auth_code, LLSD(), new FacebookConnectResponder(this));
+	LLSD body;
+	body["code"] = auth_code;
+	body["redirect_uri"] = FBC_SERVICES_REDIRECT_URI;
+	LLHTTPClient::post(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/connect", body, new FacebookConnectResponder(this));
 }
 
 void LLPanelPeople::disconnectFromFacebook()
