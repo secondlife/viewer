@@ -892,7 +892,7 @@ LLFace* LLVOVolume::addFace(S32 f)
 {
 	const LLTextureEntry* te = getTE(f);
 	LLViewerTexture* imagep = getTEImage(f);
-	if (te->getMaterialParams() != NULL)
+	if (te->getMaterialParams().notNull())
 	{
 		LLViewerTexture* normalp = getTENormalMap(f);
 		LLViewerTexture* specularp = getTESpecularMap(f);
@@ -1395,7 +1395,7 @@ void LLVOVolume::regenFaces()
 
 		facep->setTEOffset(i);
 		facep->setTexture(getTEImage(i));
-		if (facep->getTextureEntry()->getMaterialParams() != NULL)
+		if (facep->getTextureEntry()->getMaterialParams().notNull())
 		{
 			facep->setNormalMap(getTENormalMap(i));
 			facep->setSpecularMap(getTESpecularMap(i));
@@ -1986,19 +1986,15 @@ void LLVOVolume::setTEMaterialParamsCallback(const LLMaterialID &pMaterialID, co
 
 S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 {
-	if (!pMaterialID.isNull())
+	S32 res = LLViewerObject::setTEMaterialID(te, pMaterialID);
+	if (res)
 	{
-		S32 res = LLViewerObject::setTEMaterialID(te, pMaterialID);
-		if (res)
-		{
-			LL_DEBUGS("MaterialTEs") << " " << pMaterialID.asString() << LL_ENDL;
-			LLMaterialMgr::instance().get(getRegion()->getRegionID(), pMaterialID, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2));
-			gPipeline.markTextured(mDrawable);
-			mFaceMappingChanged = TRUE;
-		}
-		return  res;
+		LL_DEBUGS("MaterialTEs") << " " << pMaterialID.asString() << LL_ENDL;
+		LLMaterialMgr::instance().get(getRegion()->getRegionID(), pMaterialID, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2));
+		gPipeline.markTextured(mDrawable);
+		mFaceMappingChanged = TRUE;
 	}
-	return 0;
+	return  res;
 }
 
 S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams)
@@ -4135,26 +4131,24 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec.push_back(draw_info);
 		draw_info->mTextureMatrix = tex_mat;
 		draw_info->mModelMatrix = model_mat;
-		if (!facep->getTextureEntry()->getMaterialID().isNull())
+		if (facep->getTextureEntry()->getMaterialParams().notNull())
 		{
-			
-			if (facep->getTextureEntry()->getMaterialParams() != NULL)
-			{
-				// We have a material.  Update our draw info accordingly.
-				draw_info->mMaterialID = matid;
-				LLVector4 specColor;
-				specColor.mV[0] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[0] * (1.f / 255.f);
-				specColor.mV[1] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[1] * (1.f / 255.f);
-				specColor.mV[2] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[2] * (1.f / 255.f);
-				specColor.mV[3] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightExponent() * (1.f / 255.f);
-				draw_info->mSpecColor = specColor;
-				draw_info->mEnvIntensity = facep->getTextureEntry()->getMaterialParams()->getEnvironmentIntensity() * (1.f / 255.f);
-				draw_info->mAlphaMaskCutoff = facep->getTextureEntry()->getMaterialParams()->getAlphaMaskCutoff() * (1.f / 255.f);
-				draw_info->mDiffuseAlphaMode = facep->getTextureEntry()->getMaterialParams()->getDiffuseAlphaMode();
-				draw_info->mNormalMap = facep->getViewerObject()->getTENormalMap(facep->getTEOffset());
-				draw_info->mSpecularMap = facep->getViewerObject()->getTESpecularMap(facep->getTEOffset());
-			}
-		} else {
+			// We have a material.  Update our draw info accordingly.
+			draw_info->mMaterialID = matid;
+			LLVector4 specColor;
+			specColor.mV[0] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[0] * (1.f / 255.f);
+			specColor.mV[1] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[1] * (1.f / 255.f);
+			specColor.mV[2] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[2] * (1.f / 255.f);
+			specColor.mV[3] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightExponent() * (1.f / 255.f);
+			draw_info->mSpecColor = specColor;
+			draw_info->mEnvIntensity = facep->getTextureEntry()->getMaterialParams()->getEnvironmentIntensity() * (1.f / 255.f);
+			draw_info->mAlphaMaskCutoff = facep->getTextureEntry()->getMaterialParams()->getAlphaMaskCutoff() * (1.f / 255.f);
+			draw_info->mDiffuseAlphaMode = facep->getTextureEntry()->getMaterialParams()->getDiffuseAlphaMode();
+			draw_info->mNormalMap = facep->getViewerObject()->getTENormalMap(facep->getTEOffset());
+			draw_info->mSpecularMap = facep->getViewerObject()->getTESpecularMap(facep->getTEOffset());
+		} 
+		else 
+		{
 			U8 shiny = facep->getTextureEntry()->getShiny();
 			float alpha[4] =
 			{
@@ -4662,7 +4656,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						if (gPipeline.canUseWindLightShadersOnObjects()
 							&& LLPipeline::sRenderBump)
 						{
-							if (LLPipeline::sRenderDeferred && te->getMaterialParams() != NULL)
+							if (LLPipeline::sRenderDeferred && te->getMaterialParams().notNull())
 							{
 								LLMaterial* mat = te->getMaterialParams().get();
 								if (mat->getNormalID().notNull())

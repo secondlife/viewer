@@ -301,10 +301,17 @@ void LLPanelFace::sendBump()
 	if (bumpiness < BUMPY_TEXTURE)
 	{
 		LLTextureCtrl* texture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
-		texture_ctrl->setImageAssetID(LLUUID());
+		//texture_ctrl->setImageAssetID(LLUUID());
+		texture_ctrl->clear();
+		LLSD dummy_data;
+		onSelectMaterialTexture(dummy_data);
 	}
 	U8 bump = (U8) bumpiness & TEM_BUMP_MASK;
 	LLSelectMgr::getInstance()->selectionSetBumpmap( bump );
+
+	//refresh material state (in case this change impacts material params)
+	LLSD dummy_data;
+	onCommitMaterialTexture(dummy_data);
 }
 
 void LLPanelFace::sendTexGen()
@@ -592,7 +599,7 @@ void LLPanelFace::sendTextureInfo()
 }
 
 void LLPanelFace::getState()
-{
+{ //set state of UI to match state of texture entry(ies)  (calls setEnabled, setValue, etc, but NOT setVisible)
 	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 
 	if( objectp
@@ -760,24 +767,45 @@ void LLPanelFace::getState()
 				getChildView("button align")->setEnabled(editable);
 			}
 			
+			// Specular map
+			struct alpha_get : public LLSelectedTEGetFunctor<U8>
 			{
-				// Default alpha mode to None if texture has no alpha, or Alpha Blending if present
-				// Will be overridden later if a material is present for this face
-				S32 default_alpha = ALPHAMODE_NONE;
-				if (mIsAlpha)
+				U8 get(LLViewerObject* object, S32 te_index)
 				{
-					default_alpha = ALPHAMODE_BLEND;
+					U8 ret = 1;
+					
+					LLMaterial* mat = object->getTE(te_index)->getMaterialParams().get();
+
+					if (mat)
+					{
+						ret = mat->getDiffuseAlphaMode();
+					}
+									
+					return ret;
 				}
+			} alpha_get_func;
+			
+			U8 alpha_mode = 1;
+			LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &alpha_get_func, alpha_mode);
+			
+			{
 				LLCtrlSelectionInterface* combobox_alphamode =
-				      childGetSelectionInterface("combobox alphamode");
+				childGetSelectionInterface("combobox alphamode");
+
 				if (combobox_alphamode)
 				{
-					combobox_alphamode->selectNthItem(default_alpha);
+					if (!mIsAlpha)
+					{
+						alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
+					}
+					
+					combobox_alphamode->selectNthItem(alpha_mode);
 				}
 				else
 				{
 					llwarns << "failed childGetSelectionInterface for 'combobox alphamode'" << llendl;
 				}
+
 				updateAlphaControls(getChild<LLComboBox>("combobox alphamode"),this);
 			}
 			
@@ -1432,7 +1460,8 @@ void LLPanelFace::getState()
 		// Materials
 		{
 			mMaterialID = LLMaterialID::null;
-			mMaterial.reset();
+			mMaterial = NULL;
+
 			struct f1 : public LLSelectedTEGetFunctor<LLMaterialID>
 			{
 				LLMaterialID get(LLViewerObject* object, S32 te_index)
@@ -1515,10 +1544,13 @@ void LLPanelFace::refresh()
 }
 
 void LLPanelFace::onMaterialLoaded(const LLMaterialID& material_id, const LLMaterialPtr material)
-{
+{ //laying out UI based on material parameters (calls setVisible on various components)
 	LL_DEBUGS("Materials") << "Loaded material " << material_id.asString() << material->asLLSD() << LL_ENDL;
-	mMaterial = material;
-
+	
+	//make a local copy of the material for editing 
+	// (prevents local edits from overwriting client state on shared materials)
+	mMaterial = new LLMaterial(*material);
+	
 	// Alpha
 	LLCtrlSelectionInterface* combobox_alphamode =
 	      childGetSelectionInterface("combobox alphamode");
@@ -1586,30 +1618,21 @@ void LLPanelFace::updateMaterial()
 	U32 alpha_mode = comboAlphaMode->getCurrentIndex();
 	U32 bumpiness = comboBumpiness->getCurrentIndex();
 	U32 shininess = comboShininess->getCurrentIndex();
-	if ((mIsAlpha && (alpha_mode != ALPHAMODE_BLEND))
+	if ((mIsAlpha && (alpha_mode != LLMaterial::DIFFUSE_ALPHA_MODE_BLEND))
 		|| (bumpiness == BUMPY_TEXTURE)
 		|| (shininess == SHINY_TEXTURE))
 	{
 		// The user's specified something that needs a material.
+		bool new_material = false;
 		if (!mMaterial)
 		{
+			new_material = true;
 			mMaterial = LLMaterialPtr(new LLMaterial());
-			//set defaults according to UI spec
-			mMaterial->setSpecularLightColor(LLColor4U::white);
-			mMaterial->setSpecularLightExponent((U8) (255*0.2f));
-			mMaterial->setEnvironmentIntensity(0);
-			mMaterial->setDiffuseAlphaMode(LLMaterial::DIFFUSE_ALPHA_MODE_NONE);
-			mMaterial->setAlphaMaskCutoff(0);
-		}
-		else
-		{
-			mMaterial->setSpecularLightColor(getChild<LLColorSwatchCtrl>("shinycolorswatch")->get());
-			mMaterial->setSpecularLightExponent((U8)(255*getChild<LLUICtrl>("glossiness")->getValue().asReal()));
-			mMaterial->setEnvironmentIntensity((U8)(255*getChild<LLUICtrl>("environment")->getValue().asReal()));
-			mMaterial->setDiffuseAlphaMode(getChild<LLComboBox>("combobox alphamode")->getCurrentIndex());
-			mMaterial->setAlphaMaskCutoff((U8)(getChild<LLUICtrl>("maskcutoff")->getValue().asInteger()));
 		}
 
+		mMaterial->setDiffuseAlphaMode(getChild<LLComboBox>("combobox alphamode")->getCurrentIndex());
+		mMaterial->setAlphaMaskCutoff((U8)(getChild<LLUICtrl>("maskcutoff")->getValue().asInteger()));
+				
 		if (bumpiness == BUMPY_TEXTURE)
 		{
 			LL_DEBUGS("Materials") << "Setting bumpy texture, bumpiness = " << bumpiness  << LL_ENDL;
@@ -1637,6 +1660,20 @@ void LLPanelFace::updateMaterial()
 			mMaterial->setSpecularRepeat(getChild<LLUICtrl>("shinyScaleU")->getValue().asReal(),
 							getChild<LLUICtrl>("shinyScaleV")->getValue().asReal());
 			mMaterial->setSpecularRotation(getChild<LLUICtrl>("shinyRot")->getValue().asReal()*DEG_TO_RAD);
+
+			//override shininess to 0.2f if this is a new material
+			if (new_material)
+			{
+				mMaterial->setSpecularLightColor(LLColor4U::white);
+				mMaterial->setSpecularLightExponent((U8) (0.2f*255.f));
+				mMaterial->setEnvironmentIntensity(0);
+			}
+			else
+			{
+				mMaterial->setSpecularLightColor(getChild<LLColorSwatchCtrl>("shinycolorswatch")->get());
+				mMaterial->setSpecularLightExponent((U8)(255*getChild<LLUICtrl>("glossiness")->getValue().asReal()));
+				mMaterial->setEnvironmentIntensity((U8)(255*getChild<LLUICtrl>("environment")->getValue().asReal()));
+			}
 		}
 		else
 		{
@@ -1645,6 +1682,8 @@ void LLPanelFace::updateMaterial()
 			mMaterial->setSpecularOffset(0.0f,0.0f);
 			mMaterial->setSpecularRepeat(1.0f,1.0f);
 			mMaterial->setSpecularRotation(0.0f);
+			mMaterial->setSpecularLightExponent(0);
+			mMaterial->setEnvironmentIntensity(0);
 		}
 		
 		LL_DEBUGS("Materials") << "Updating material: " << mMaterial->asLLSD() << LL_ENDL;
@@ -1656,7 +1695,7 @@ void LLPanelFace::updateMaterial()
 		if (mMaterial || !mMaterialID.isNull())
 		{
 			LL_DEBUGS("Materials") << "Resetting material entry" << LL_ENDL;
-			mMaterial.reset();
+			mMaterial = NULL;
 			mMaterialID = LLMaterialID::null;
 			// Delete existing material entry...
 			LLSelectMgr::getInstance()->selectionRemoveMaterial();
