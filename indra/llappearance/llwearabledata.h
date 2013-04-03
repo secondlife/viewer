@@ -2,7 +2,7 @@
  * @file llwearabledata.h
  * @brief LLWearableData class header file
  *
- * $LicenseInfo:firstyear=20012license=viewerlgpl$
+ * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 

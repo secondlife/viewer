@@ -911,6 +911,10 @@ LLViewerFetchedTexture::LLViewerFetchedTexture(const LLUUID& id, FTType f_type, 
 {
 	init(TRUE) ;
 	mFTType = f_type;
+	if (mFTType == FTT_HOST_BAKE)
+	{
+		mCanUseHTTP = false;
+	}
 	generateGLTexture() ;
 }
 	
