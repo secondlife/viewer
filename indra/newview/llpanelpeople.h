@@ -38,6 +38,7 @@ class LLAvatarListSocial;
 class LLAvatarName;
 class LLFilterEditor;
 class LLGroupList;
+class LLSocialList;
 class LLMenuButton;
 class LLTabContainer;
 
@@ -158,7 +159,7 @@ private:
 	LLAvatarList*			mNearbyList;
 	LLAvatarList*			mRecentList;
 	LLGroupList*			mGroupList;
-	LLAvatarListSocial*		mFacebookFriends;
+	LLSocialList*			mFacebookFriends;
 	LLNetMap*				mMiniMap;
 
 	LLHandle<LLView>		mGroupPlusMenuHandle;

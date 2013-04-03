@@ -63,6 +63,7 @@
 #include "llviewermenu.h"			// for gMenuHolder
 #include "llvoiceclient.h"
 #include "llworld.h"
+#include "llsociallist.h"
 #include "llspeakers.h"
 #include "llfloaterwebcontent.h"
 
@@ -648,7 +649,7 @@ BOOL LLPanelPeople::postBuild()
 	mOnlineFriendList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 	
 	LLPanel * social_tab = getChild<LLPanel>(FBCTEST_TAB_NAME);
-	mFacebookFriends = social_tab->getChild<LLAvatarListSocial>("facebook_friends");
+	mFacebookFriends = social_tab->getChild<LLSocialList>("facebook_friends");
 
 	setSortOrder(mRecentList,		(ESortOrder)gSavedSettings.getU32("RecentPeopleSortOrder"),	false);
 	setSortOrder(mAllFriendList,	(ESortOrder)gSavedSettings.getU32("FriendsSortOrder"),		false);
@@ -1670,7 +1671,7 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 		std::string name = (*i)["name"].asString();
 		LLUUID agent_id = (*i).has("agent_id") ? (*i)["agent_id"].asUUID() : LLUUID(NULL);
 		
-		mFacebookFriends->addSocialItem(agent_id, name, false);
+		mFacebookFriends->addNewItem(agent_id, name, false);
 	}
 }
 

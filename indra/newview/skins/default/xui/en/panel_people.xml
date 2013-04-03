@@ -602,7 +602,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              min_height="150"
              name="tab_facebook"
              title="Facebook Friends">
-              <avatar_list_social
+              <social_list
                allow_select="true"
                follows="all"
                height="172"
