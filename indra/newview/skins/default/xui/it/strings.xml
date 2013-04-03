@@ -134,7 +134,7 @@
 		Esci
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=it-IT&amp;sourceid=[sourceid]
+		http://join.secondlife.com/?sourceid=[sourceid]
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Il viewer utilizzato non è più in grado di accedere a Second Life. Visita la parina seguente per scaricare un nuovo viewer:
@@ -616,8 +616,8 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="AvatarAway">
 		Assente
 	</string>
-	<string name="AvatarBusy">
-		Occupato
+	<string name="AvatarDoNotDisturb">
+		Non disturbare
 	</string>
 	<string name="AvatarMuted">
 		Mutato
@@ -853,6 +853,12 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="ST_NO_JOINT">
 		Impossibile trovare ROOT o JOINT.
 	</string>
+	<string name="NearbyChatTitle">
+		Chat nei dintorni
+	</string>
+	<string name="NearbyChatLabel">
+		(Chat nei dintorni)
+	</string>
 	<string name="whisper">
 		sussurra:
 	</string>
@@ -915,6 +921,9 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="ControlYourCamera">
 		Controllare la tua fotocamera
+	</string>
+	<string name="AgentNameSubst">
+		(Tu)
 	</string>
 	<string name="TeleportYourAgent">
 		Teleportarti
@@ -999,18 +1008,6 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="dictionary_files">
 		Dizionari
-	</string>
-	<string name="AvatarSetNotAway">
-		Imposta come non assente
-	</string>
-	<string name="AvatarSetAway">
-		Imposta come assente
-	</string>
-	<string name="AvatarSetNotBusy">
-		Imposta come non occupato
-	</string>
-	<string name="AvatarSetBusy">
-		Imposta come occupato
 	</string>
 	<string name="shape">
 		Figura corporea
@@ -1968,8 +1965,8 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="PanelContentsNewScript">
 		Nuovo script
 	</string>
-	<string name="BusyModeResponseDefault">
-		Il residente al quale hai inviato un messaggio è in modalità &apos;occupato&apos;, ovvero ha chiesto di non essere disturbato.  Il tuo messaggio comparirà nel suo pannello IM, dove potrà essere letto in un secondo momento.
+	<string name="DoNotDisturbModeResponseDefault">
+		Questo residente ha attivato la modalità &apos;Non disturbare&apos; e vedrà il tuo messaggio più tardi.
 	</string>
 	<string name="MuteByName">
 		(In base al nome)
@@ -2081,9 +2078,6 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="GroupMoneyDate">
 		[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]
-	</string>
-	<string name="ViewerObjectContents">
-		Contenuto
 	</string>
 	<string name="AcquiredItems">
 		Oggetti acquisiti
@@ -3799,7 +3793,7 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 		Regione generale
 	</string>
 	<string name="LocationCtrlSeeAVsTooltip">
-		Avatar visibili e chat consentita fuori di questo lotto
+		Gli avatar in questo lotto non possono essere visti o sentiti da avatar all&apos;esterno del lotto
 	</string>
 	<string name="LocationCtrlPathfindingDirtyTooltip">
 		Gli oggetti che si muovono potrebbero non comportarsi correttamente in questa regione fino a quando non viene eseguito il rebake della regione.
@@ -3876,6 +3870,12 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="IM_unblock_only_groups_friends">
 		Per vedere questo messaggio, devi deselezionare &apos;Solo amici e gruppi possono chiamarmi o mandarmi IM&apos; in Preferenze/Privacy.
 	</string>
+	<string name="OnlineStatus">
+		Online
+	</string>
+	<string name="OfflineStatus">
+		Offline
+	</string>
 	<string name="answered_call">
 		Risposto alla chiamata
 	</string>
@@ -3884,6 +3884,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="you_joined_call">
 		Ti sei collegato alla chiamata in voce
+	</string>
+	<string name="you_auto_rejected_call-im">
+		Hai rifiutato automaticamente la chiamata voce mentre era attivata la modalità &apos;Non disturbare&apos;.
 	</string>
 	<string name="name_started_call">
 		[NAME] ha iniziato una chiamata vocale
@@ -3896,6 +3899,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="hang_up-im">
 		Chiusa la chiamata
+	</string>
+	<string name="conference-title">
+		Chat con più persone
 	</string>
 	<string name="conference-title-incoming">
 		Chiamata in conferenza con [AGENT_NAME]
@@ -4769,6 +4775,9 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	<string name="Command_Chat_Label">
 		Chat
 	</string>
+	<string name="Command_Conversations_Label">
+		Conversazioni
+	</string>
 	<string name="Command_Compass_Label">
 		Bussola
 	</string>
@@ -4843,6 +4852,9 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="Command_Chat_Tooltip">
 		Chatta con persone vicine usando il testo
+	</string>
+	<string name="Command_Conversations_Tooltip">
+		Conversa con chiunque
 	</string>
 	<string name="Command_Compass_Tooltip">
 		Bussola
@@ -4972,5 +4984,14 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="UserDictionary">
 		[User]
+	</string>
+	<string name="logging_calls_disabled_log_empty">
+		Le conversazioni non vengono registrate. Per iniziare a registrare, seleziona &quot;Salva: Solo registro&quot; oppure &quot;Salva: Registri e trascrizioni&quot; in Preferenze &gt; Chat.
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Non verranno registrate più le conversazioni. Per riprendere a registrare, seleziona &quot;Salva: Solo registro&quot; oppure &quot;Salva: Registri e trascrizioni&quot; in Preferenze &gt; Chat.
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Nessuna conversazione in registro. Dopo che hai contattato qualcuno o se qualcuno ti contatta, una voce del registro verrà mostrata qui.
 	</string>
 </strings>
