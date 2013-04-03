@@ -78,7 +78,7 @@
          right="-5"
          bottom="-1"
          top="0"
-         left="5"
+         left="3"
          border_size="0"
          layout="topleft"
          orientation="vertical"
@@ -86,6 +86,7 @@
          tab_group="1">
             <layout_panel
              auto_resize="false"
+             user_resize="false"
              name="toolbar_panel"
              height="35"
              right="-1"
@@ -200,7 +201,9 @@
             <layout_panel
              name="body_panel"
              top="1"
-             bottom="-1">
+             bottom="-1"
+             auto_resize="true"
+             user_resize="false">
                 <layout_stack
                  default_tab_group="2"
                  follows="all"
@@ -273,6 +276,7 @@
              height="26"
              bottom="-1"
              auto_resize="false"
+             user_resize="false"
              name="chat_layout_panel">
                 <layout_stack
                  animate="false"
