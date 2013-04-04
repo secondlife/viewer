@@ -209,9 +209,11 @@
              layout="topleft"
              top_pad="4"
              left_delta="0"
+             increment="1"
              name="maskcutoff"
              width="80" />
             <texture_picker
+             allow_no_texture="true"
              can_apply_immediately="true"
              default_image_name="Default"
              fallback_image="locked_image.j2c"
@@ -322,6 +324,7 @@
                  value="Use texture" />
             </combo_box>
             <texture_picker
+             allow_no_texture="true"
              can_apply_immediately="true"
              default_image_name="Default"
              fallback_image="locked_image.j2c"

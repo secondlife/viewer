@@ -535,6 +535,10 @@ S32 LLTextureEntry::setMaterialID(const LLMaterialID& pMaterialID)
 	if (mMaterialID != pMaterialID)
 	{
 		mMaterialID = pMaterialID;
+		if (mMaterialID.isNull())
+		{
+			setMaterialParams(NULL);
+		}
 		return TEM_CHANGE_TEXTURE;
 	}
 	return TEM_CHANGE_NONE;
