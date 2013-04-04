@@ -474,8 +474,7 @@ void LLServerReleaseNotesURLFetcher::httpCompleted()
 	LLFloaterAbout* floater_about = LLFloaterReg::getTypedInstance<LLFloaterAbout>("sl_about");
 	if (floater_about)
 	{
-		const bool check_lower = true;
-		const std::string& location = getResponseHeader(HTTP_HEADER_LOCATION, check_lower);
+		const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
 		if (location.empty())
 		{
 			LL_WARNS("ServerReleaseNotes") << "Missing Location header "

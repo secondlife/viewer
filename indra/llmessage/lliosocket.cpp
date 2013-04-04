@@ -39,6 +39,9 @@
 // constants
 //
 
+const std::string CONTEXT_REMOTE_HOST("remote-host");
+const std::string CONTEXT_REMOTE_PORT("remote-port");
+
 static const S32 LL_DEFAULT_LISTEN_BACKLOG = 10;
 static const S32 LL_SEND_BUFFER_SIZE = 40000;
 static const S32 LL_RECV_BUFFER_SIZE = 40000;
@@ -619,8 +622,8 @@ LLIOPipe::EStatus LLIOServerSocket::process_impl(
 		apr_sockaddr_ip_get(&remote_host_string, remote_addr);
 
 		LLSD context;
-		context["remote-host"] = remote_host_string;
-		context["remote-port"] = remote_addr->port;
+		context[CONTEXT_REMOTE_HOST] = remote_host_string;
+		context[CONTEXT_REMOTE_PORT] = remote_addr->port;
 
 		LLPumpIO::chain_t chain;
 		chain.push_back(LLIOPipe::ptr_t(new LLIOSocketReader(llsocket)));

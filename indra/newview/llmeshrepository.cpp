@@ -808,7 +808,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 
 			//reading from VFS failed for whatever reason, fetch from sim
 			std::vector<std::string> headers;
-			headers.push_back(HTTP_HEADER_ACCEPT + ": " + HTTP_CONTENT_OCTET_STREAM);
+			headers.push_back(HTTP_OUT_HEADER_ACCEPT + ": " + HTTP_CONTENT_OCTET_STREAM);
 
 			std::string http_url = constructUrl(mesh_id);
 			if (!http_url.empty())
@@ -890,7 +890,7 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 
 			//reading from VFS failed for whatever reason, fetch from sim
 			std::vector<std::string> headers;
-			headers.push_back(HTTP_HEADER_ACCEPT + ": " + HTTP_CONTENT_OCTET_STREAM);
+			headers.push_back(HTTP_OUT_HEADER_ACCEPT + ": " + HTTP_CONTENT_OCTET_STREAM);
 
 			std::string http_url = constructUrl(mesh_id);
 			if (!http_url.empty())
@@ -971,7 +971,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 
 			//reading from VFS failed for whatever reason, fetch from sim
 			std::vector<std::string> headers;
-			headers.push_back(HTTP_HEADER_ACCEPT + ": " + HTTP_CONTENT_OCTET_STREAM);
+			headers.push_back(HTTP_OUT_HEADER_ACCEPT + ": " + HTTP_CONTENT_OCTET_STREAM);
 
 			std::string http_url = constructUrl(mesh_id);
 			if (!http_url.empty())
@@ -1052,7 +1052,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, U32& c
 	//either cache entry doesn't exist or is corrupt, request header from simulator	
 	bool retval = true ;
 	std::vector<std::string> headers;
-	headers.push_back(HTTP_HEADER_ACCEPT + ": " + HTTP_CONTENT_OCTET_STREAM);
+	headers.push_back(HTTP_OUT_HEADER_ACCEPT + ": " + HTTP_CONTENT_OCTET_STREAM);
 
 	std::string http_url = constructUrl(mesh_params.getSculptID());
 	if (!http_url.empty())
@@ -1127,7 +1127,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 
 			//reading from VFS failed for whatever reason, fetch from sim
 			std::vector<std::string> headers;
-			headers.push_back(HTTP_HEADER_ACCEPT + ": " + HTTP_CONTENT_OCTET_STREAM);
+			headers.push_back(HTTP_OUT_HEADER_ACCEPT + ": " + HTTP_CONTENT_OCTET_STREAM);
 
 			std::string http_url = constructUrl(mesh_id);
 			if (!http_url.empty())

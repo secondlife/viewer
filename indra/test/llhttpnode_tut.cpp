@@ -44,7 +44,7 @@ namespace tut
 			std::ostringstream pathOutput;
 			bool addSlash = false;
 			
-			LLSD& remainder = mContext["request"]["remainder"];
+			LLSD& remainder = mContext[CONTEXT_REQUEST]["remainder"];
 			for (LLSD::array_const_iterator i = remainder.beginArray();
 				i != remainder.endArray();
 				++i)

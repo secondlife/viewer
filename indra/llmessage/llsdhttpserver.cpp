@@ -109,7 +109,7 @@ public:
 
     virtual void get(ResponsePtr response, const LLSD& context) const
 	{
-		const LLSD& remainder = context["request"]["remainder"];
+		const LLSD& remainder = context[CONTEXT_REQUEST]["remainder"];
 		
 		if (remainder.size() > 0)
 		{

@@ -185,8 +185,7 @@ private:
 			llwarns << dumpResponse()
 					<< " [headers:" << getResponseHeaders() << "]" << llendl;
 		}
-		const bool check_lower = true;
-		const std::string& media_type = getResponseHeader(HTTP_HEADER_CONTENT_TYPE, check_lower);
+		const std::string& media_type = getResponseHeader(HTTP_IN_HEADER_CONTENT_TYPE);
 		std::string::size_type idx1 = media_type.find_first_of(";");
 		std::string mime_type = media_type.substr(0, idx1);
 
@@ -289,8 +288,7 @@ public:
 		// We don't care about the content of the response, only the Set-Cookie header.
 		LL_DEBUGS("MediaAuth") << dumpResponse() 
 				<< " [headers:" << getResponseHeaders() << "]" << LL_ENDL;
-		const bool check_lower = true;
-		const std::string& cookie = getResponseHeader(HTTP_HEADER_SET_COOKIE, check_lower);
+		const std::string& cookie = getResponseHeader(HTTP_IN_HEADER_SET_COOKIE);
 		
 		// *TODO: What about bad status codes?  Does this destroy previous cookies?
 		LLViewerMedia::openIDCookieResponse(cookie);
@@ -321,12 +319,10 @@ public:
 
 		LLSD stripped_content = getResponseHeaders();
 		// *TODO: Check that this works.
-		stripped_content.erase(HTTP_HEADER_SET_COOKIE);
-		stripped_content.erase("set-cookie");
+		stripped_content.erase(HTTP_IN_HEADER_SET_COOKIE);
 		LL_WARNS("MediaAuth") << stripped_content << LL_ENDL;
 
-		const bool check_lower = true;
-		const std::string& cookie = getResponseHeader(HTTP_HEADER_SET_COOKIE, check_lower);
+		const std::string& cookie = getResponseHeader(HTTP_IN_HEADER_SET_COOKIE);
 		LL_DEBUGS("MediaAuth") << "cookie = " << cookie << LL_ENDL;
 
 		// *TODO: What about bad status codes?  Does this destroy previous cookies?
@@ -1383,12 +1379,12 @@ void LLViewerMedia::removeCookie(const std::string &name, const std::string &dom
 LLSD LLViewerMedia::getHeaders()
 {
 	LLSD headers = LLSD::emptyMap();
-	headers[HTTP_HEADER_ACCEPT] = "*/*";
+	headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
 	// *TODO: Should this be 'application/llsd+xml' ?
 	// *TODO: Should this even be set at all?   This header is only not overridden in 'GET' methods.
-	headers[HTTP_HEADER_CONTENT_TYPE] = HTTP_CONTENT_XML;
-	headers[HTTP_HEADER_COOKIE] = sOpenIDCookie;
-	headers[HTTP_HEADER_USER_AGENT] = getCurrentUserAgent();
+	headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_XML;
+	headers[HTTP_OUT_HEADER_COOKIE] = sOpenIDCookie;
+	headers[HTTP_OUT_HEADER_USER_AGENT] = getCurrentUserAgent();
 
 	return headers;
 }
@@ -1429,9 +1425,9 @@ void LLViewerMedia::setOpenIDCookie()
 
 		// Do a web profile get so we can store the cookie 
 		LLSD headers = LLSD::emptyMap();
-		headers[HTTP_HEADER_ACCEPT] = "*/*";
-		headers[HTTP_HEADER_COOKIE] = sOpenIDCookie;
-		headers[HTTP_HEADER_USER_AGENT] = getCurrentUserAgent();
+		headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
+		headers[HTTP_OUT_HEADER_COOKIE] = sOpenIDCookie;
+		headers[HTTP_OUT_HEADER_USER_AGENT] = getCurrentUserAgent();
 
 		std::string profile_url = getProfileURL("");
 		LLURL raw_profile_url( profile_url.c_str() );
@@ -1461,9 +1457,9 @@ void LLViewerMedia::openIDSetup(const std::string &openid_url, const std::string
 
 	LLSD headers = LLSD::emptyMap();
 	// Keep LLHTTPClient from adding an "Accept: application/llsd+xml" header
-	headers[HTTP_HEADER_ACCEPT] = "*/*";
+	headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
 	// and use the expected content-type for a post, instead of the LLHTTPClient::postRaw() default of "application/octet-stream"
-	headers[HTTP_HEADER_CONTENT_TYPE] = "application/x-www-form-urlencoded";
+	headers[HTTP_OUT_HEADER_CONTENT_TYPE] = "application/x-www-form-urlencoded";
 
 	// postRaw() takes ownership of the buffer and releases it later, so we need to allocate a new buffer here.
 	size_t size = openid_token.size();
@@ -2631,9 +2627,9 @@ void LLViewerMediaImpl::navigateInternal()
 			//    Accept: application/llsd+xml
 			// which is really not what we want.
 			LLSD headers = LLSD::emptyMap();
-			headers[HTTP_HEADER_ACCEPT] = "*/*";
+			headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
 			// Allow cookies in the response, to prevent a redirect loop when accessing join.secondlife.com
-			headers[HTTP_HEADER_COOKIE] = "";
+			headers[HTTP_OUT_HEADER_COOKIE] = "";
 			LLHTTPClient::getHeaderOnly( mMediaURL, new LLMimeDiscoveryResponder(this), headers, 10.0f);
 		}
 		else if("data" == scheme || "file" == scheme || "about" == scheme)

@@ -33,13 +33,6 @@
 
 class LLPumpIO;
 
-// common strings use for populating the context. bascally 'request',
-// 'wildcard', and 'headers'.
-extern const std::string CONTEXT_REQUEST;
-extern const std::string CONTEXT_RESPONSE;
-extern const std::string CONTEXT_VERB;
-extern const std::string CONTEXT_HEADERS;
-
 class LLIOHTTPServer
 {
 public:

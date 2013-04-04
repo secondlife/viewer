@@ -152,7 +152,7 @@ class LLMessageHandlerBridge : public LLHTTPNode
 void LLMessageHandlerBridge::post(LLHTTPNode::ResponsePtr response, 
 							const LLSD& context, const LLSD& input) const
 {
-	std::string name = context["request"]["wildcard"]["message-name"];
+	std::string name = context[CONTEXT_REQUEST][CONTEXT_WILDCARD]["message-name"];
 	char* namePtr = LLMessageStringTable::getInstance()->getString(name.c_str());
 	
 	lldebugs << "Setting mLastSender " << input["sender"].asString() << llendl;

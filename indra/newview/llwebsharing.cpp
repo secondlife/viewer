@@ -55,23 +55,45 @@ public:
 							  const LLIOPipe::buffer_ptr_t& buffer)
 	{
 		LLBufferStream istr(channels, buffer.get());
+		// *TODO: LLSD notation is not actually JSON.
 		LLPointer<LLSDParser> parser = new LLSDNotationParser();
 
-		if (parser->parse(istr, mContent, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
+		std::string debug_body("(empty)");
+		bool parsed=true;
+		if (EOF == istr.peek())
 		{
-			if (HTTP_CONTENT_JSON == getResponseHeader(HTTP_HEADER_CONTENT_TYPE))
+			parsed=false;
+		}
+		// Try to parse body as llsd, no matter what 'content-type' says.
+		else if (parser->parse(istr, mContent, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
+		{
+			parsed=false;
+			char body[1025]; 
+			body[1024] = '\0';
+			istr.seekg(0, std::ios::beg);
+			istr.get(body,1024);
+			if (strlen(body) > 0)
 			{
-				mStatus = HTTP_INTERNAL_ERROR;
-				mReason = "Failed to deserialize LLSD from JSON response.";
-				char body[1025]; 
-				body[1024] = '\0';
-				istr.seekg(0, std::ios::beg);
-				istr.get(body,1024);
-				if (strlen(body) > 0)
-				{
-					mContent["body"] = body;
-				}
+				mContent = body;
+				debug_body = body;
 			}
+		}
+
+		// Only emit a warning if we failed to parse when 'content-type' == 'application/json'
+		if (!parsed && (HTTP_CONTENT_JSON == getResponseHeader(HTTP_IN_HEADER_CONTENT_TYPE)))
+		{
+			llwarns << "Failed to deserialize LLSD from JSON response. " << getURL()
+				<< " [status:" << mStatus << "] " 
+				<< "(" << mReason << ") body: " << debug_body << llendl;
+		}
+
+		if (!parsed)
+		{
+			// *TODO: This isn't necessarily the server's fault.  Using a 5xx code
+			// isn't really appropriate here.
+			// Also, this hides the actual status returned by the server....
+			mStatus = HTTP_INTERNAL_ERROR;
+			mReason = "Failed to deserialize LLSD from JSON response.";
 		}
 
 		httpCompleted();
@@ -132,11 +154,10 @@ private:
 
 	virtual void httpSuccess()
 	{
-		const bool check_lower=true;
-		if (hasResponseHeader(HTTP_HEADER_SET_COOKIE, check_lower))
+		if (hasResponseHeader(HTTP_IN_HEADER_SET_COOKIE))
 		{
 			// OpenID request succeeded and returned a session cookie.
-			LLWebSharing::instance().receiveSessionCookie(getResponseHeader(HTTP_HEADER_SET_COOKIE, check_lower));
+			LLWebSharing::instance().receiveSessionCookie(getResponseHeader(HTTP_IN_HEADER_SET_COOKIE));
 		}
 	}
 };
@@ -299,7 +320,7 @@ void LLWebSharing::sendConfigRequest()
 	LL_DEBUGS("WebSharing") << "Requesting Snapshot Sharing config data from: " << config_url << LL_ENDL;
 
 	LLSD headers = LLSD::emptyMap();
-	headers[HTTP_HEADER_ACCEPT] = HTTP_CONTENT_JSON;
+	headers[HTTP_OUT_HEADER_ACCEPT] = HTTP_CONTENT_JSON;
 
 	LLHTTPClient::get(config_url, new LLWebSharingConfigResponder(), headers);
 }
@@ -310,8 +331,8 @@ void LLWebSharing::sendOpenIDAuthRequest()
 	LL_DEBUGS("WebSharing") << "Starting OpenID Auth: " << auth_url << LL_ENDL;
 
 	LLSD headers = LLSD::emptyMap();
-	headers[HTTP_HEADER_COOKIE] = mOpenIDCookie;
-	headers[HTTP_HEADER_ACCEPT] = "*/*";
+	headers[HTTP_OUT_HEADER_COOKIE] = mOpenIDCookie;
+	headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
 
 	// Send request, successful login will trigger fetching a security token.
 	LLHTTPClient::get(auth_url, new LLWebSharingOpenIDAuthResponder(), headers);
@@ -337,10 +358,10 @@ void LLWebSharing::sendSecurityTokenRequest()
 	LL_DEBUGS("WebSharing") << "Fetching security token from: " << token_url << LL_ENDL;
 
 	LLSD headers = LLSD::emptyMap();
-	headers[HTTP_HEADER_COOKIE] = mSessionCookie;
+	headers[HTTP_OUT_HEADER_COOKIE] = mSessionCookie;
 
-	headers[HTTP_HEADER_ACCEPT] = HTTP_CONTENT_JSON;
-	headers[HTTP_HEADER_CONTENT_TYPE] = HTTP_CONTENT_JSON;
+	headers[HTTP_OUT_HEADER_ACCEPT] = HTTP_CONTENT_JSON;
+	headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_JSON;
 
 	std::ostringstream body;
 	body << "{ \"gadgets\": [{ \"url\":\""
@@ -366,10 +387,10 @@ void LLWebSharing::sendUploadRequest()
 	static const std::string BOUNDARY("------------abcdef012345xyZ");
 
 	LLSD headers = LLSD::emptyMap();
-	headers[HTTP_HEADER_COOKIE] = mSessionCookie;
+	headers[HTTP_OUT_HEADER_COOKIE] = mSessionCookie;
 
-	headers[HTTP_HEADER_ACCEPT] = HTTP_CONTENT_JSON;
-	headers[HTTP_HEADER_CONTENT_TYPE] = "multipart/form-data; boundary=" + BOUNDARY;
+	headers[HTTP_OUT_HEADER_ACCEPT] = HTTP_CONTENT_JSON;
+	headers[HTTP_OUT_HEADER_CONTENT_TYPE] = "multipart/form-data; boundary=" + BOUNDARY;
 
 	std::ostringstream body;
 	body << "--" << BOUNDARY << "\r\n"

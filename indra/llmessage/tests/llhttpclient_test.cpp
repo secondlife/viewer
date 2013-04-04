@@ -40,8 +40,6 @@
 #include "llproxy.h"
 #include "llpumpio.h"
 
-#include "llsdhttpserver.h"
-#include "lliohttpserver.h"
 #include "lliosocket.h"
 #include "stringize.h"
 

@@ -59,8 +59,7 @@ public:
 private:
 	/* virtual */ void httpCompleted()
 	{
-		const bool check_lower = true;
-		const std::string& media_type = getResponseHeader(HTTP_HEADER_CONTENT_TYPE, check_lower);
+		const std::string& media_type = getResponseHeader(HTTP_IN_HEADER_CONTENT_TYPE);
 		std::string::size_type idx1 = media_type.find_first_of(";");
 		std::string mime_type = media_type.substr(0, idx1);
 

@@ -91,8 +91,8 @@ public:
 		S32 getStatus() const { return mStatus; }
 		const std::string& getReason() const { return mReason; }
 		const LLSD& getContent() const { return mContent; }
-		bool hasResponseHeader(const std::string& header, bool check_lower=false) const;
-		const std::string& getResponseHeader(const std::string& header, bool check_lower=true) const;
+		bool hasResponseHeader(const std::string& header) const;
+		const std::string& getResponseHeader(const std::string& header) const;
 		const LLSD& getResponseHeaders() const { return mResponseHeaders; }
 		const std::string& getURL() const { return mURL; }
 		EHTTPMethod getHTTPMethod() const { return mHTTPMethod; }

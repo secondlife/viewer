@@ -50,10 +50,6 @@
 #include <boost/tokenizer.hpp>
 
 static const char HTTP_VERSION_STR[] = "HTTP/1.0";
-const std::string CONTEXT_REQUEST("request");
-const std::string CONTEXT_RESPONSE("response");
-const std::string CONTEXT_VERB("verb");
-const std::string CONTEXT_HEADERS("headers");
 
 static LLIOHTTPServer::timing_callback_t sTimingCallback = NULL;
 static void* sTimingCallbackData = NULL;
@@ -241,7 +237,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		// Log all HTTP transactions.
 		// TODO: Add a way to log these to their own file instead of indra.log
 		// It is just too spammy to be in indra.log.
-		lldebugs << verb << " " << context[CONTEXT_REQUEST]["path"].asString()
+		lldebugs << verb << " " << context[CONTEXT_REQUEST][CONTEXT_PATH].asString()
 			<< " " << mStatusCode << " " <<  mStatusMessage << " " << delta
 			<< "s" << llendl;
 
@@ -268,7 +264,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		case STATE_GOOD_RESULT:
 		{
 			LLSD headers = mHeaders;
-			headers[HTTP_HEADER_CONTENT_TYPE] = HTTP_CONTENT_LLSD_XML;
+			headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_LLSD_XML;
 			context[CONTEXT_RESPONSE][CONTEXT_HEADERS] = headers;
 			LLBufferStream ostr(channels, buffer.get());
 			LLSDSerialize::toXML(mResult, ostr);
@@ -279,7 +275,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		case STATE_STATUS_RESULT:
 		{
 			LLSD headers = mHeaders;
-			headers[HTTP_HEADER_CONTENT_TYPE] = HTTP_CONTENT_TEXT_PLAIN;
+			headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_TEXT_PLAIN;
 			context[CONTEXT_RESPONSE][CONTEXT_HEADERS] = headers;
 			context[CONTEXT_RESPONSE]["statusCode"] = mStatusCode;
 			context[CONTEXT_RESPONSE]["statusMessage"] = mStatusMessage;
@@ -300,7 +296,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		case STATE_EXTENDED_LLSD_RESULT:
 		{
 			LLSD headers = mHeaders;
-			headers[HTTP_HEADER_CONTENT_TYPE] = HTTP_CONTENT_LLSD_XML;
+			headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_LLSD_XML;
 			context[CONTEXT_RESPONSE][CONTEXT_HEADERS] = headers;
 			context[CONTEXT_RESPONSE]["statusCode"] = mStatusCode;
 			LLBufferStream ostr(channels, buffer.get());
@@ -489,7 +485,7 @@ LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
 		S32 content_length = buffer->countAfter(channels.in(), NULL);
 		if(0 < content_length)
 		{
-			ostr << HTTP_HEADER_CONTENT_LENGTH << ": " << content_length << "\r\n";
+			ostr << HTTP_OUT_HEADER_CONTENT_LENGTH << ": " << content_length << "\r\n";
 		}
 		// *NOTE: This guard can go away once the LLSD static map
 		// iterator is available. Phoenix. 2008-05-09
@@ -795,7 +791,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 					std::string name(buf, pos_colon - buf);
 					std::string value(pos_colon + 2);
 					LLStringUtil::toLower(name);
-					if(HTTP_HEADER_LOWER_CONTENT_LENGTH == name)
+					if(HTTP_IN_HEADER_CONTENT_LENGTH == name)
 					{
 						lldebugs << "Content-Length: " << value << llendl;
 						mContentLength = atoi(value.c_str());
@@ -870,12 +866,12 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 			// HTTP headers.
 			LLPumpIO::chain_t chain;
 			chain.push_back(LLIOPipe::ptr_t(new LLIOFlush));
-			context[CONTEXT_REQUEST]["path"] = mPath;
-			context[CONTEXT_REQUEST]["query-string"] = mQuery;
-			context[CONTEXT_REQUEST]["remote-host"]
-				= mBuildContext["remote-host"];
-			context[CONTEXT_REQUEST]["remote-port"]
-				= mBuildContext["remote-port"];
+			context[CONTEXT_REQUEST][CONTEXT_PATH] = mPath;
+			context[CONTEXT_REQUEST][CONTEXT_QUERY_STRING] = mQuery;
+			context[CONTEXT_REQUEST][CONTEXT_REMOTE_HOST]
+				= mBuildContext[CONTEXT_REMOTE_HOST];
+			context[CONTEXT_REQUEST][CONTEXT_REMOTE_PORT]
+				= mBuildContext[CONTEXT_REMOTE_PORT];
 			context[CONTEXT_REQUEST][CONTEXT_HEADERS] = mHeaders;
 
 			const LLChainIOFactory* protocolHandler

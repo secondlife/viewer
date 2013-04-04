@@ -86,7 +86,7 @@ void LLViewerDisplayName::set(const std::string& display_name, const set_name_sl
 	// People API can return localized error messages.  Indicate our
 	// language preference via header.
 	LLSD headers;
-	headers[HTTP_HEADER_ACCEPT_LANGUAGE] = LLUI::getLanguage();
+	headers[HTTP_OUT_HEADER_ACCEPT_LANGUAGE] = LLUI::getLanguage();
 
 	// People API requires both the old and new value to change a variable.
 	// Our display name will be in cache before the viewer's UI is available

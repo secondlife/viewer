@@ -25,8 +25,7 @@
  */
 
 #include "linden_common.h"
-#include "llsdhttpserver.h"
-#include "lliohttpserver.h"
+#include "llhttpnode.h"
 
 namespace tut
 {
