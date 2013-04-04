@@ -1977,7 +1977,7 @@ void LLVOVolume::setTEMaterialParamsCallback(const LLMaterialID &pMaterialID, co
 {
 	for (U8 i = 0; i < getNumTEs(); i++)
 	{
-		if (getTE(i)->getMaterialID() == pMaterialID)
+		if (getTE(i) && (getTE(i)->getMaterialID().isNull() || (getTE(i)->getMaterialID() == pMaterialID)))
 		{
 			setTEMaterialParams(i, pMaterialParams);
 		}

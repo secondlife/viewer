@@ -650,6 +650,10 @@ void LLPanelFace::getState()
 		//	}
 
 		bool identical;
+        bool identical_diffuse;
+        bool identical_norm;
+        bool identical_spec;
+        
 		LLTextureCtrl*	texture_ctrl = getChild<LLTextureCtrl>("texture control");
 		LLTextureCtrl*	shinytexture_ctrl = getChild<LLTextureCtrl>("shinytexture control");
 		LLTextureCtrl*	bumpytexture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
@@ -688,7 +692,7 @@ void LLPanelFace::getState()
 					return id;
 				}
 			} func;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, id );
+			identical_diffuse = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, id );
 
 			// Normal map
 			struct norm_get : public LLSelectedTEGetFunctor<LLUUID>
@@ -707,7 +711,7 @@ void LLPanelFace::getState()
 					return id;
 				}
 			} norm_get_func;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &norm_get_func, normmap_id ) && identical;
+			identical_norm = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &norm_get_func, normmap_id );
 
 			// Specular map
 			struct spec_get : public LLSelectedTEGetFunctor<LLUUID>
@@ -726,8 +730,7 @@ void LLPanelFace::getState()
 					return id;
 				}
 			} spec_get_func;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &spec_get_func, specmap_id ) && identical;
-			
+			identical_spec = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &spec_get_func, specmap_id );
 
 			mIsAlpha = FALSE;
 			LLGLenum image_format;
@@ -742,7 +745,7 @@ void LLPanelFace::getState()
 					return image_format;
 				}
 			} func2;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func2, image_format ) && identical;
+			LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func2, image_format );
             
             mIsAlpha = FALSE;
             switch (image_format)
@@ -808,97 +811,86 @@ void LLPanelFace::getState()
 
 				updateAlphaControls(getChild<LLComboBox>("combobox alphamode"),this);
 			}
-			
-			if (identical)
-			{
-				// All selected have the same texture
-				if(texture_ctrl)
-				{
+            
+			if(texture_ctrl)
+            {
+                if (identical_diffuse)
+                {
 					texture_ctrl->setTentative( FALSE );
 					texture_ctrl->setEnabled( editable );
 					texture_ctrl->setImageAssetID( id );
+                    getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha);
+                    getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
+                    getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
+                    getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
 				}
+                else if (id.isNull())
+                {
+                    // None selected
+                    texture_ctrl->setTentative( FALSE );
+                    texture_ctrl->setEnabled( FALSE );
+                    texture_ctrl->setImageAssetID( LLUUID::null );
+                    getChildView("combobox alphamode")->setEnabled( FALSE );
+                    getChildView("label alphamode")->setEnabled( FALSE );
+                    getChildView("maskcutoff")->setEnabled( FALSE);
+                    getChildView("label maskcutoff")->setEnabled( FALSE );
+                }
+                else
+                {
+                    // Tentative: multiple selected with different textures
+                    texture_ctrl->setTentative( TRUE );
+                    texture_ctrl->setEnabled( editable );
+                    texture_ctrl->setImageAssetID( id );
+                    getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha);
+                    getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
+                    getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
+                    getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
+                }
+            }
+            
+            if (shinytexture_ctrl)
+            {
+                if (identical_spec)
+                {
+                    shinytexture_ctrl->setTentative( FALSE );
+                    shinytexture_ctrl->setEnabled( editable );
+                    shinytexture_ctrl->setImageAssetID( specmap_id );
+                }
+                else if (specmap_id.isNull())
+                {
+                    shinytexture_ctrl->setTentative( FALSE );
+                    shinytexture_ctrl->setEnabled( FALSE );
+                    shinytexture_ctrl->setImageAssetID( LLUUID::null );
+                }
+                else
+                {
+                    shinytexture_ctrl->setTentative( TRUE );
+                    shinytexture_ctrl->setEnabled( editable );
+                    shinytexture_ctrl->setImageAssetID( specmap_id );
+                }
+            }
 
-				if (shinytexture_ctrl)
-				{
-					shinytexture_ctrl->setTentative( FALSE );
-					shinytexture_ctrl->setEnabled( editable );
-					shinytexture_ctrl->setImageAssetID(specmap_id);
-				}
-
-				if (bumpytexture_ctrl)
-				{
-					bumpytexture_ctrl->setTentative( FALSE );
-					bumpytexture_ctrl->setEnabled( editable );
-					bumpytexture_ctrl->setImageAssetID(normmap_id);
-				}
-
-				getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha);
-				getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
-				getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
-				getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
-				
-			}
-			else
-			{
-				if(texture_ctrl)
-				{
-					if( id.isNull() )
-					{
-						// None selected
-						texture_ctrl->setTentative( FALSE );
-						texture_ctrl->setEnabled( FALSE );
-						texture_ctrl->setImageAssetID( LLUUID::null );
-						getChildView("combobox alphamode")->setEnabled( FALSE );
-						getChildView("label alphamode")->setEnabled( FALSE );
-						getChildView("maskcutoff")->setEnabled( FALSE);
-						getChildView("label maskcutoff")->setEnabled( FALSE );
-					}
-					else
-					{
-						// Tentative: multiple selected with different textures
-						texture_ctrl->setTentative( TRUE );
-						texture_ctrl->setEnabled( editable );
-						texture_ctrl->setImageAssetID( id );
-						getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha);
-						getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
-						getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
-						getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
-					}
-				}
-
-				if (shinytexture_ctrl)
-				{
-					if (specmap_id.isNull())
-					{
-						shinytexture_ctrl->setTentative( FALSE );
-						shinytexture_ctrl->setEnabled( FALSE );
-						shinytexture_ctrl->setImageAssetID( LLUUID::null );
-					}
-					else
-					{
-						shinytexture_ctrl->setTentative( FALSE );
-						shinytexture_ctrl->setEnabled( FALSE );
-						shinytexture_ctrl->setImageAssetID( specmap_id );
-					}
-				}
-
-				if (bumpytexture_ctrl)
-				{
-					if (normmap_id.isNull())
-					{
-						bumpytexture_ctrl->setTentative( FALSE );
-						bumpytexture_ctrl->setEnabled( FALSE );
-						bumpytexture_ctrl->setImageAssetID( LLUUID::null );
-					}
-					else
-					{
-						shinytexture_ctrl->setTentative( TRUE );
-						shinytexture_ctrl->setEnabled( FALSE );
-						shinytexture_ctrl->setImageAssetID( normmap_id);
-					}
-				}
-			}
+            if (bumpytexture_ctrl)
+            {
+                if (identical_norm)
+                {
+                    bumpytexture_ctrl->setTentative( FALSE );
+                    bumpytexture_ctrl->setEnabled( editable );
+                    bumpytexture_ctrl->setImageAssetID( normmap_id );
+                }
+                else if (normmap_id.isNull())
+                {
+                    bumpytexture_ctrl->setTentative( FALSE );
+                    bumpytexture_ctrl->setEnabled( FALSE );
+                    bumpytexture_ctrl->setImageAssetID( LLUUID::null );
+                }
+                else
+                {
+                    bumpytexture_ctrl->setTentative( TRUE );
+                    bumpytexture_ctrl->setEnabled( editable );
+                    bumpytexture_ctrl->setImageAssetID( normmap_id );
+                }
+            }
 		}
 				
 		// planar align
@@ -1651,6 +1643,7 @@ void LLPanelFace::updateMaterial()
 			mMaterial->setNormalRepeat(1.0f,1.0f);
 			mMaterial->setNormalRotation(0.0f);
 		}
+        
 		if (shininess == SHINY_TEXTURE)
 		{
 			LL_DEBUGS("Materials") << "Setting shiny texture, shininess = " << shininess  << LL_ENDL;
@@ -1847,6 +1840,12 @@ void LLPanelFace::onCommitMaterialsMedia(LLUICtrl* ctrl, void* userdata)
 // static
 void LLPanelFace::onCommitMaterialType(LLUICtrl* ctrl, void* userdata)
 {
+    LLPanelFace* self = (LLPanelFace*) userdata;
+    // This is here to insure that we properly update shared UI elements
+    // like the texture ctrls for diffuse/norm/spec so that they are correct
+    // when switching modes
+    // 
+    self->getState();
 	onCommitMaterialsMedia(ctrl, userdata);
 }
 
@@ -1959,6 +1958,24 @@ void LLPanelFace::updateAlphaControls(LLUICtrl* ctrl, void* userdata)
 	}
 	U32 alpha_value = comboAlphaMode->getCurrentIndex();
 	bool show_alphactrls = (alpha_value == ALPHAMODE_MASK); // Alpha masking
+    
+    LLComboBox* combobox_matmedia = self->getChild<LLComboBox>("combobox matmedia");
+    U32 mat_media = MATMEDIA_MATERIAL;
+    if (combobox_matmedia)
+    {
+        mat_media = combobox_matmedia->getCurrentIndex();
+    }
+    
+    LLComboBox* combobox_mattype = self->getChild<LLComboBox>("combobox mattype");
+    U32 mat_type = MATTYPE_DIFFUSE;
+    if (combobox_mattype)
+    {
+        mat_type = combobox_mattype->getCurrentIndex();
+    }
+
+    show_alphactrls = show_alphactrls && (mat_media == MATMEDIA_MATERIAL);
+    show_alphactrls = show_alphactrls && (mat_type == MATTYPE_DIFFUSE);
+    
 	self->getChildView("label maskcutoff")->setVisible(show_alphactrls);
 	self->getChildView("maskcutoff")->setVisible(show_alphactrls);
 }
