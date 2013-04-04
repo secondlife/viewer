@@ -81,6 +81,7 @@ private:
 	BOOL mHasNewDiff;
 	BOOL mHasNewQueryResult;
 	BOOL mDebugViewerVisible;
+	BOOL mQuitting;
 
 	LLRenderTarget* mFrames[2];
 	LLRenderTarget* mDiff;

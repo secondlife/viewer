@@ -65,6 +65,7 @@ LLSceneMonitor::LLSceneMonitor() :
 	mHasNewDiff(FALSE),
 	mHasNewQueryResult(FALSE),
 	mDebugViewerVisible(FALSE),
+	mQuitting(FALSE),
 	mQueryObject(0),
 	mSamplingTime(1.0f),
 	mDiffPixelRatio(0.5f)
@@ -78,6 +79,7 @@ LLSceneMonitor::LLSceneMonitor() :
 
 LLSceneMonitor::~LLSceneMonitor()
 {
+	mQuitting = TRUE;
 	destroyClass();
 }
 
@@ -286,6 +288,11 @@ void LLSceneMonitor::unfreezeScene()
 {
 	//thaw all avatars
 	mAvatarPauseHandles.clear();
+
+	if(mQuitting)
+	{
+		return; //we are quitting viewer.
+	}
 
 	// thaw everything else
 	gSavedSettings.setBOOL("FreezeTime", FALSE);
