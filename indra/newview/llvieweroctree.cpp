@@ -528,7 +528,7 @@ void LLviewerOctreeGroup::handleChildAddition(const OctreeNode* parent, OctreeNo
 
 	unbound();
 	
-	//((LLviewerOctreeGroup*)child->getListener(0))->unbound();
+	((LLviewerOctreeGroup*)child->getListener(0))->unbound();
 }
 	
 //virtual 
