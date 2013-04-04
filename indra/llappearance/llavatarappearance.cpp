@@ -497,7 +497,7 @@ void LLAvatarAppearance::computeBodySize()
 
 		llassert(new_body_size.mV[VZ] + mAvatarOffset.mV[VZ] >= 0.1f);
 
-		if (mWearableData) 
+		if (mWearableData && isSelf()) 
 		{
 			LLWearable* shape = mWearableData->getWearable(LLWearableType::WT_SHAPE, 0);
 			if (shape) 
