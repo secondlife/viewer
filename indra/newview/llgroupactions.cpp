@@ -176,7 +176,6 @@ private:
 	bool mRequestProcessed;
 };
 
-LLFetchLeaveGroupData* gFetchLeaveGroupData = NULL;
 class LLFetchLeaveGroupData: public LLFetchGroupMemberData
 {
 public:
@@ -188,6 +187,8 @@ public:
 		 LLGroupActions::processLeaveGroupDataResponse(mGroupId);
 	 }
 };
+
+LLFetchLeaveGroupData* gFetchLeaveGroupData = NULL;
 
 // static
 void LLGroupActions::search()
