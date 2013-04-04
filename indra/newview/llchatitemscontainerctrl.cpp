@@ -35,7 +35,7 @@
 #include "llfloaterreg.h"
 #include "lllocalcliprect.h"
 #include "lltrans.h"
-#include "llnearbychatbar.h"
+#include "llfloaterimnearbychat.h"
 
 #include "llviewercontrol.h"
 #include "llagentdata.h"
@@ -81,23 +81,30 @@ public:
 LLObjectHandler gObjectHandler;
 
 //*******************************************************************************************************************
-//LLNearbyChatToastPanel
+//LLFloaterIMNearbyChatToastPanel
 //*******************************************************************************************************************
 
-LLNearbyChatToastPanel* LLNearbyChatToastPanel::createInstance()
+LLFloaterIMNearbyChatToastPanel* LLFloaterIMNearbyChatToastPanel::createInstance()
 {
-	LLNearbyChatToastPanel* item = new LLNearbyChatToastPanel();
+	LLFloaterIMNearbyChatToastPanel* item = new LLFloaterIMNearbyChatToastPanel();
 	item->buildFromFile("panel_chat_item.xml");
 	item->setFollows(FOLLOWS_NONE);
 	return item;
 }
 
-void	LLNearbyChatToastPanel::reshape		(S32 width, S32 height, BOOL called_from_parent )
+void	LLFloaterIMNearbyChatToastPanel::reshape		(S32 width, S32 height, BOOL called_from_parent )
 {
 	LLPanel::reshape(width, height,called_from_parent);
 
-	LLUICtrl* msg_text = getChild<LLUICtrl>("msg_text", false);
-	LLUICtrl* icon = getChild<LLUICtrl>("avatar_icon", false);
+	// reshape() may be called from LLView::initFromParams() before the children are created.
+	// We call findChild() instead of getChild() here to avoid creating dummy controls.
+	LLUICtrl* msg_text = findChild<LLUICtrl>("msg_text", false);
+	LLUICtrl* icon = findChild<LLUICtrl>("avatar_icon", false);
+
+	if (!msg_text || !icon)
+	{
+		return;
+	}
 
 	LLRect msg_text_rect = msg_text->getRect();
 	LLRect avatar_rect = icon->getRect();
@@ -114,12 +121,12 @@ void	LLNearbyChatToastPanel::reshape		(S32 width, S32 height, BOOL called_from_p
 	msg_text->setRect(msg_text_rect);
 }
 
-BOOL LLNearbyChatToastPanel::postBuild()
+BOOL LLFloaterIMNearbyChatToastPanel::postBuild()
 {
 	return LLPanel::postBuild();
 }
 
-void LLNearbyChatToastPanel::addMessage(LLSD& notification)
+void LLFloaterIMNearbyChatToastPanel::addMessage(LLSD& notification)
 {
 	std::string		messageText = notification["message"].asString();		// UTF-8 line of text
 
@@ -171,7 +178,7 @@ void LLNearbyChatToastPanel::addMessage(LLSD& notification)
 
 }
 
-void LLNearbyChatToastPanel::init(LLSD& notification)
+void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 {
 	std::string		messageText = notification["message"].asString();		// UTF-8 line of text
 	std::string		fromName = notification["from"].asString();	// agent or object name
@@ -266,7 +273,7 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 	mIsDirty = true;//will set Avatar Icon in draw
 }
 
-void	LLNearbyChatToastPanel::snapToMessageHeight	()
+void	LLFloaterIMNearbyChatToastPanel::snapToMessageHeight	()
 {
 	LLChatMsgBox* text_box = getChild<LLChatMsgBox>("msg_text", false);
 	S32 new_height = llmax (text_box->getTextPixelHeight() + 2*text_box->getVPad() + 2*msg_height_pad, 25);
@@ -281,22 +288,22 @@ void	LLNearbyChatToastPanel::snapToMessageHeight	()
 
 }
 
-void LLNearbyChatToastPanel::onMouseLeave			(S32 x, S32 y, MASK mask)
+void LLFloaterIMNearbyChatToastPanel::onMouseLeave			(S32 x, S32 y, MASK mask)
 {
 	
 }
-void LLNearbyChatToastPanel::onMouseEnter				(S32 x, S32 y, MASK mask)
+void LLFloaterIMNearbyChatToastPanel::onMouseEnter				(S32 x, S32 y, MASK mask)
 {
 	if(mSourceType != CHAT_SOURCE_AGENT)
 		return;
 }
 
-BOOL	LLNearbyChatToastPanel::handleMouseDown	(S32 x, S32 y, MASK mask)
+BOOL	LLFloaterIMNearbyChatToastPanel::handleMouseDown	(S32 x, S32 y, MASK mask)
 {
 	return LLPanel::handleMouseDown(x,y,mask);
 }
 
-BOOL	LLNearbyChatToastPanel::handleMouseUp	(S32 x, S32 y, MASK mask)
+BOOL	LLFloaterIMNearbyChatToastPanel::handleMouseUp	(S32 x, S32 y, MASK mask)
 {
 	/*
 	fix for request  EXT-4780
@@ -316,16 +323,16 @@ BOOL	LLNearbyChatToastPanel::handleMouseUp	(S32 x, S32 y, MASK mask)
 			return TRUE;
 		else
 		{
-			LLNearbyChatBar::getInstance()->showHistory();
+			(LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->showHistory();
 			return FALSE;
 		}
 	}
 
-	LLNearbyChatBar::getInstance()->showHistory();
+	(LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->showHistory();
 	return LLPanel::handleMouseUp(x,y,mask);
 }
 
-void	LLNearbyChatToastPanel::setHeaderVisibility(EShowItemHeader e)
+void	LLFloaterIMNearbyChatToastPanel::setHeaderVisibility(EShowItemHeader e)
 {
 	LLUICtrl* icon = getChild<LLUICtrl>("avatar_icon", false);
 	if(icon)
@@ -333,7 +340,7 @@ void	LLNearbyChatToastPanel::setHeaderVisibility(EShowItemHeader e)
 
 }
 
-bool	LLNearbyChatToastPanel::canAddText	()
+bool	LLFloaterIMNearbyChatToastPanel::canAddText	()
 {
 	LLChatMsgBox* msg_text = findChild<LLChatMsgBox>("msg_text");
 	if(!msg_text)
@@ -341,7 +348,7 @@ bool	LLNearbyChatToastPanel::canAddText	()
 	return msg_text->getLineCount()<10;
 }
 
-BOOL	LLNearbyChatToastPanel::handleRightMouseDown(S32 x, S32 y, MASK mask)
+BOOL	LLFloaterIMNearbyChatToastPanel::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLUICtrl* avatar_icon = getChild<LLUICtrl>("avatar_icon", false);
 
@@ -353,8 +360,10 @@ BOOL	LLNearbyChatToastPanel::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		return TRUE;
 	return LLPanel::handleRightMouseDown(x,y,mask);
 }
-void LLNearbyChatToastPanel::draw()
+void LLFloaterIMNearbyChatToastPanel::draw()
 {
+	LLPanel::draw();
+
 	if(mIsDirty)
 	{
 		LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon", false);
@@ -372,7 +381,6 @@ void LLNearbyChatToastPanel::draw()
 		}
 		mIsDirty = false;
 	}
-	LLToastPanelBase::draw();
 }
 
 

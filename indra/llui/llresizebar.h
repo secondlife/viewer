@@ -71,6 +71,7 @@ public:
 	void			setEnableSnapping(BOOL enable) { mSnappingEnabled = enable; }
 	void			setAllowDoubleClickSnapping(BOOL allow) { mAllowDoubleClickSnapping = allow; }
 	bool			canResize() { return getEnabled() && mMaxSize > mMinSize; }
+	void            setResizeListener(boost::function<void(void*)> listener) {mResizeListener = listener;}
 
 private:
 	S32				mDragLastScreenX;
@@ -84,6 +85,7 @@ private:
 	BOOL			mSnappingEnabled;
 	BOOL			mAllowDoubleClickSnapping;
 	LLView*			mResizingView;
+	boost::function<void(void*)>  mResizeListener;
 };
 
 #endif  // LL_RESIZEBAR_H

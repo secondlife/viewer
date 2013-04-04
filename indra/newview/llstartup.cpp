@@ -54,7 +54,7 @@
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llhttpsender.h"
-#include "llimfloater.h"
+#include "llfloaterimsession.h"
 #include "lllocationhistory.h"
 #include "llimageworker.h"
 
@@ -63,7 +63,8 @@
 #include "llmemorystream.h"
 #include "llmessageconfig.h"
 #include "llmoveview.h"
-#include "llnearbychat.h"
+#include "llfloaterimcontainer.h"
+#include "llfloaterimnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llteleporthistory.h"
@@ -94,6 +95,7 @@
 #include "llcallingcard.h"
 #include "llconsole.h"
 #include "llcontainerview.h"
+#include "llconversationlog.h"
 #include "lldebugview.h"
 #include "lldrawable.h"
 #include "lleventnotifier.h"
@@ -312,8 +314,6 @@ void update_texture_fetch()
 // true when all initialization done.
 bool idle_startup()
 {
-	LLMemType mt1(LLMemType::MTYPE_STARTUP);
-	
 	const F32 PRECACHING_DELAY = gSavedSettings.getF32("PrecachingDelay");
 	static LLTimer timeout;
 	static S32 timeout_count = 0;
@@ -917,6 +917,13 @@ bool idle_startup()
 		// Overwrite default user settings with user settings								 
 		LLAppViewer::instance()->loadSettingsFromDirectory("Account");
 
+		// Convert 'LogInstantMessages' into 'KeepConversationLogTranscripts' for backward compatibility (CHUI-743).
+		LLControlVariablePtr logInstantMessagesControl = gSavedPerAccountSettings.getControl("LogInstantMessages");
+		if (logInstantMessagesControl.notNull())
+		{
+			gSavedPerAccountSettings.setS32("KeepConversationLogTranscripts", logInstantMessagesControl->getValue() ? 2 : 1);
+		}
+
 		// Need to set the LastLogoff time here if we don't have one.  LastLogoff is used for "Recent Items" calculation
 		// and startup time is close enough if we don't have a real value.
 		if (gSavedPerAccountSettings.getU32("LastLogoff") == 0)
@@ -1293,6 +1300,8 @@ bool idle_startup()
 		display_startup();
 		LLStartUp::setStartupState( STATE_MULTIMEDIA_INIT );
 		
+		LLConversationLog::getInstance();
+
 		return FALSE;
 	}
 
@@ -1403,14 +1412,9 @@ bool idle_startup()
 		LLVoiceClient::getInstance()->updateSettings();
 		display_startup();
 
-		//gCacheName is required for nearby chat history loading
-		//so I just moved nearby history loading a few states further
-		if (gSavedPerAccountSettings.getBOOL("LogShowHistory"))
-		{
-			LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
-			if (nearby_chat) nearby_chat->loadHistory();
-		}
-		display_startup();
+		// create a container's instance for start a controlling conversation windows
+		// by the voice's events
+		LLFloaterIMContainer::getInstance();
 
 		// *Note: this is where gWorldMap used to be initialized.
 
@@ -1420,7 +1424,7 @@ bool idle_startup()
 		display_startup();
 
 		//reset statistics
-		LLViewerStats::getInstance()->resetStats();
+		LLViewerStats::instance().resetStats();
 
 		display_startup();
 		//
@@ -1521,7 +1525,7 @@ bool idle_startup()
 	}
 
 	//---------------------------------------------------------------------
-	// Agent Send
+	// World Wait
 	//---------------------------------------------------------------------
 	if(STATE_WORLD_WAIT == LLStartUp::getStartupState())
 	{
@@ -1847,6 +1851,10 @@ bool idle_startup()
 			// Set the show start location to true, now that the user has logged
 			// on with this install.
 			gSavedSettings.setBOOL("ShowStartLocation", TRUE);
+
+			// Open Conversation floater on first login.
+			LLFloaterReg::toggleInstanceOrBringToFront("im_container");
+
 		}
 
 		display_startup();
@@ -1949,7 +1957,7 @@ bool idle_startup()
 			llinfos << "gAgentStartLocation : " << gAgentStartLocation << llendl;
 			LLSLURL start_slurl = LLStartUp::getStartSLURL();
 			LL_DEBUGS("AppInit") << "start slurl "<<start_slurl.asString()<<LL_ENDL;
-
+			
 			if (((start_slurl.getType() == LLSLURL::LOCATION) && (gAgentStartLocation == "url")) ||
 				((start_slurl.getType() == LLSLURL::LAST_LOCATION) && (gAgentStartLocation == "last")) ||
 				((start_slurl.getType() == LLSLURL::HOME_LOCATION) && (gAgentStartLocation == "home")))
@@ -2169,7 +2177,6 @@ bool idle_startup()
 		display_startup();
 
 		// Unmute audio if desired and setup volumes.
-		// Unmute audio if desired and setup volumes.
 		// This is a not-uncommon crash site, so surround it with
 		// llinfos output to aid diagnosis.
 		LL_INFOS("AppInit") << "Doing first audio_update_volume..." << LL_ENDL;
@@ -2190,7 +2197,6 @@ bool idle_startup()
 
 		LLAgentPicksInfo::getInstance()->requestNumberOfPicks();
 
-		LLIMFloater::initIMFloater();
 		display_startup();
 
 		llassert(LLPathfindingManager::getInstance() != NULL);
@@ -2296,7 +2302,7 @@ bool login_alert_status(const LLSD& notification, const LLSD& response)
       //      break;
         case 2:     // Teleport
             // Restart the login process, starting at our home locaton
-			LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
+	  LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
             LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
             break;
         default:
@@ -2805,7 +2811,7 @@ void LLStartUp::initNameCache()
 
 	// Start cache in not-running state until we figure out if we have
 	// capabilities for display name lookup
-	LLAvatarNameCache::initClass(false);
+	LLAvatarNameCache::initClass(false,gSavedSettings.getBOOL("UsePeopleAPI"));
 	LLAvatarNameCache::setUseDisplayNames(gSavedSettings.getBOOL("UseDisplayNames"));
 }
 

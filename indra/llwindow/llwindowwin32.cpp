@@ -58,7 +58,6 @@
 #include <dinput.h>
 #include <Dbt.h.>
 
-#include "llmemtype.h"
 // culled from winuser.h
 #ifndef WM_MOUSEWHEEL /* Added to be compatible with later SDK's */
 const S32	WM_MOUSEWHEEL = 0x020A;
@@ -1772,8 +1771,6 @@ void LLWindowWin32::gatherInput()
 {
 	MSG		msg;
 	int		msg_count = 0;
-
-	LLMemType m1(LLMemType::MTYPE_GATHER_INPUT);
 
 	while ((msg_count < MAX_MESSAGE_PER_UPDATE) && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{

@@ -46,6 +46,7 @@
 #include "lluuid.h"
 #include "llvoiceclient.h"
 #include "llviewercontrol.h"	// for gSavedSettings
+#include "lltooldraganddrop.h"
 
 static LLDefaultChildRegistry::Register<LLAvatarList> r("avatar_list");
 
@@ -278,7 +279,7 @@ void LLAvatarList::refresh()
 		LLAvatarName av_name;
 		have_names &= LLAvatarNameCache::get(buddy_id, &av_name);
 
-		if (!have_filter || findInsensitive(av_name.mDisplayName, mNameFilter))
+		if (!have_filter || findInsensitive(av_name.getDisplayName(), mNameFilter))
 		{
 			if (nadded >= ADD_LIMIT)
 			{
@@ -296,8 +297,9 @@ void LLAvatarList::refresh()
 				}
 				else
 				{
+					std::string display_name = av_name.getDisplayName();
 					addNewItem(buddy_id, 
-						av_name.mDisplayName.empty() ? waiting_str : av_name.mDisplayName, 
+						display_name.empty() ? waiting_str : display_name, 
 						LLAvatarTracker::instance().isBuddyOnline(buddy_id));
 				}
 				
@@ -325,7 +327,7 @@ void LLAvatarList::refresh()
 			const LLUUID& buddy_id = it->asUUID();
 			LLAvatarName av_name;
 			have_names &= LLAvatarNameCache::get(buddy_id, &av_name);
-			if (!findInsensitive(av_name.mDisplayName, mNameFilter))
+			if (!findInsensitive(av_name.getDisplayName(), mNameFilter))
 			{
 				removeItemByUUID(buddy_id);
 				modified = true;
@@ -398,7 +400,7 @@ bool LLAvatarList::filterHasMatches()
 		// If name has not been loaded yet we consider it as a match.
 		// When the name will be loaded the filter will be applied again(in refresh()).
 
-		if (have_name && !findInsensitive(av_name.mDisplayName, mNameFilter))
+		if (have_name && !findInsensitive(av_name.getDisplayName(), mNameFilter))
 		{
 			continue;
 		}
@@ -458,6 +460,57 @@ BOOL LLAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		getSelectedUUIDs(selected_uuids);
 		mContextMenu->show(this, selected_uuids, x, y);
 	}
+	return handled;
+}
+
+BOOL LLAvatarList::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	gFocusMgr.setMouseCapture(this);
+
+	S32 screen_x;
+	S32 screen_y;
+	localPointToScreen(x, y, &screen_x, &screen_y);
+	LLToolDragAndDrop::getInstance()->setDragStart(screen_x, screen_y);
+
+	return LLFlatListViewEx::handleMouseDown(x, y, mask);
+}
+
+BOOL LLAvatarList::handleMouseUp( S32 x, S32 y, MASK mask )
+{
+	if(hasMouseCapture())
+	{
+		gFocusMgr.setMouseCapture(NULL);
+	}
+
+	return LLFlatListViewEx::handleMouseUp(x, y, mask);
+}
+
+BOOL LLAvatarList::handleHover(S32 x, S32 y, MASK mask)
+{
+	bool handled = hasMouseCapture();
+	if(handled)
+	{
+		S32 screen_x;
+		S32 screen_y;
+		localPointToScreen(x, y, &screen_x, &screen_y);
+
+		if(LLToolDragAndDrop::getInstance()->isOverThreshold(screen_x, screen_y))
+		{
+			// First, create the global drag and drop object
+			std::vector<EDragAndDropType> types;
+			uuid_vec_t cargo_ids;
+			getSelectedUUIDs(cargo_ids);
+			types.resize(cargo_ids.size(), DAD_PERSON);
+			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_PEOPLE;
+			LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, src);
+		}
+	}
+
+	if(!handled)
+	{
+		handled = LLFlatListViewEx::handleHover(x, y, mask);
+	}
+
 	return handled;
 }
 
@@ -623,42 +676,4 @@ void LLAvalineListItem::setName(const std::string& name)
 		LLAvatarListItem::setAvatarName(formatted_phone);
 		LLAvatarListItem::setAvatarToolTip(formatted_phone);
 	}
-}
-
-/************************************************************************/
-/*             class LLAvatarListSocial                                 */
-/************************************************************************/
-
-static LLDefaultChildRegistry::Register<LLAvatarListSocial> s("avatar_list_social");
-
-LLAvatarListSocial::LLAvatarListSocial(const Params& p) : LLAvatarList(p)
-{
-
-}
-
-void LLAvatarListSocial::addSocialItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
-{
-	LLAvatarName avatar_name;
-	bool has_avatar_name = id.notNull() && LLAvatarNameCache::get(id, &avatar_name);
-
-	LLAvatarListItem* item = new LLAvatarListItem();
-	item->setAvatarId(id, mSessionID, mIgnoreOnlineStatus, false); // this sets the name as a side effect
-	item->setAvatarName(has_avatar_name ? name + " (" + avatar_name.mDisplayName + ")" : name);
-	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
-	item->showLastInteractionTime(mShowLastInteractionTime);
-
-	item->setAvatarIconVisible(mShowIcons);
-	item->setShowInfoBtn(mShowInfoBtn);
-	item->setShowProfileBtn(mShowProfileBtn);
-	item->showSpeakingIndicator(mShowSpeakingIndicator);
-	item->setShowPermissions(mShowPermissions);
-
-	item->setDoubleClickCallback(boost::bind(&LLAvatarListSocial::onItemDoubleClicked, this, _1, _2, _3, _4));
-
-	addItem(item, id, pos);
-}
-
-void LLAvatarListSocial::refresh()
-{
-	
 }

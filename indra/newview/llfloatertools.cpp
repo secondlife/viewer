@@ -657,8 +657,8 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 
 	mBtnEdit	->setToggleState( edit_visible );
 	mRadioGroupEdit->setVisible( edit_visible );
-	bool linked_parts = gSavedSettings.getBOOL("EditLinkedParts");
-	getChildView("RenderingCost")->setVisible( !linked_parts && (edit_visible || focus_visible || move_visible) && sShowObjectCost);
+	//bool linked_parts = gSavedSettings.getBOOL("EditLinkedParts");
+	//getChildView("RenderingCost")->setVisible( !linked_parts && (edit_visible || focus_visible || move_visible) && sShowObjectCost);
 
 	mBtnLink->setVisible(edit_visible);
 	mBtnUnlink->setVisible(edit_visible);
@@ -1055,6 +1055,17 @@ void commit_grid_mode(LLUICtrl *ctrl)
 	LLSelectMgr::getInstance()->setGridMode((EGridMode)combo->getCurrentIndex());
 }
 
+// static
+void LLFloaterTools::setGridMode(S32 mode)
+{
+	LLFloaterTools* tools_floater = LLFloaterReg::getTypedInstance<LLFloaterTools>("build");
+	if (!tools_floater || !tools_floater->mComboGridMode)
+	{
+		return;
+	}
+
+	tools_floater->mComboGridMode->setCurrentByIndex(mode);
+}
 
 void LLFloaterTools::onClickGridOptions()
 {
