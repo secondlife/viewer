@@ -774,15 +774,15 @@ void LLPanelFace::getState()
 			struct alpha_get : public LLSelectedTEGetFunctor<U8>
 			{
 				U8 get(LLViewerObject* object, S32 te_index)
-				{
+			{
 					U8 ret = 1;
 					
 					LLMaterial* mat = object->getTE(te_index)->getMaterialParams().get();
 
 					if (mat)
-					{
+				{
 						ret = mat->getDiffuseAlphaMode();
-					}
+				}
 									
 					return ret;
 				}
@@ -793,7 +793,7 @@ void LLPanelFace::getState()
 			
 			{
 				LLCtrlSelectionInterface* combobox_alphamode =
-				childGetSelectionInterface("combobox alphamode");
+				      childGetSelectionInterface("combobox alphamode");
 
 				if (combobox_alphamode)
 				{
@@ -811,36 +811,51 @@ void LLPanelFace::getState()
 
 				updateAlphaControls(getChild<LLComboBox>("combobox alphamode"),this);
 			}
-            
+			
 			if(texture_ctrl)
-            {
+			{
                 if (identical_diffuse)
-                {
+				{
 					texture_ctrl->setTentative( FALSE );
 					texture_ctrl->setEnabled( editable );
 					texture_ctrl->setImageAssetID( id );
-                    getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha);
-                    getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
-                    getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
-                    getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
+					shinytexture_ctrl->setTentative( FALSE );
+					shinytexture_ctrl->setEnabled( editable );
+					if (!editable)
+					{
+						shinytexture_ctrl->setImageAssetID( LLUUID::null );
+						bumpytexture_ctrl->setImageAssetID( LLUUID::null );
+					}
+					bumpytexture_ctrl->setTentative( FALSE );
+					bumpytexture_ctrl->setEnabled( editable );
+					getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha);
+					getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
+					getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
+					getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
 				}
                 else if (id.isNull())
-                {
-                    // None selected
-                    texture_ctrl->setTentative( FALSE );
-                    texture_ctrl->setEnabled( FALSE );
-                    texture_ctrl->setImageAssetID( LLUUID::null );
-                    getChildView("combobox alphamode")->setEnabled( FALSE );
-                    getChildView("label alphamode")->setEnabled( FALSE );
-                    getChildView("maskcutoff")->setEnabled( FALSE);
-                    getChildView("label maskcutoff")->setEnabled( FALSE );
-                }
-                else
-                {
-                    // Tentative: multiple selected with different textures
-                    texture_ctrl->setTentative( TRUE );
-                    texture_ctrl->setEnabled( editable );
-                    texture_ctrl->setImageAssetID( id );
+					{
+						// None selected
+						texture_ctrl->setTentative( FALSE );
+						texture_ctrl->setEnabled( FALSE );
+						texture_ctrl->setImageAssetID( LLUUID::null );
+						shinytexture_ctrl->setTentative( FALSE );
+						shinytexture_ctrl->setEnabled( FALSE );
+						shinytexture_ctrl->setImageAssetID( LLUUID::null );
+						bumpytexture_ctrl->setTentative( FALSE );
+						bumpytexture_ctrl->setEnabled( FALSE );
+						bumpytexture_ctrl->setImageAssetID( LLUUID::null );
+						getChildView("combobox alphamode")->setEnabled( FALSE );
+						getChildView("label alphamode")->setEnabled( FALSE );
+						getChildView("maskcutoff")->setEnabled( FALSE);
+						getChildView("label maskcutoff")->setEnabled( FALSE );
+					}
+					else
+					{
+						// Tentative: multiple selected with different textures
+						texture_ctrl->setTentative( TRUE );
+						texture_ctrl->setEnabled( editable );
+						texture_ctrl->setImageAssetID( id );
                     getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha);
                     getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
                     getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
@@ -864,8 +879,8 @@ void LLPanelFace::getState()
                 }
                 else
                 {
-                    shinytexture_ctrl->setTentative( TRUE );
-                    shinytexture_ctrl->setEnabled( editable );
+						shinytexture_ctrl->setTentative( TRUE );
+						shinytexture_ctrl->setEnabled( editable );
                     shinytexture_ctrl->setImageAssetID( specmap_id );
                 }
             }
@@ -873,7 +888,7 @@ void LLPanelFace::getState()
             if (bumpytexture_ctrl)
             {
                 if (identical_norm)
-                {
+						{
                     bumpytexture_ctrl->setTentative( FALSE );
                     bumpytexture_ctrl->setEnabled( editable );
                     bumpytexture_ctrl->setImageAssetID( normmap_id );
@@ -882,17 +897,17 @@ void LLPanelFace::getState()
                 {
                     bumpytexture_ctrl->setTentative( FALSE );
                     bumpytexture_ctrl->setEnabled( FALSE );
-                    bumpytexture_ctrl->setImageAssetID( LLUUID::null );
-                }
+							bumpytexture_ctrl->setImageAssetID( LLUUID::null );
+						}
                 else
                 {
-                    bumpytexture_ctrl->setTentative( TRUE );
-                    bumpytexture_ctrl->setEnabled( editable );
+						bumpytexture_ctrl->setTentative( TRUE );
+						bumpytexture_ctrl->setEnabled( editable );
                     bumpytexture_ctrl->setImageAssetID( normmap_id );
-                }
-            }
-		}
-				
+					}
+				}
+			}
+		
 		// planar align
 		bool align_planar = false;
 		bool identical_planar_aligned = false;
@@ -1542,7 +1557,7 @@ void LLPanelFace::onMaterialLoaded(const LLMaterialID& material_id, const LLMate
 	//make a local copy of the material for editing 
 	// (prevents local edits from overwriting client state on shared materials)
 	mMaterial = new LLMaterial(*material);
-	
+
 	// Alpha
 	LLCtrlSelectionInterface* combobox_alphamode =
 	      childGetSelectionInterface("combobox alphamode");
@@ -1622,9 +1637,9 @@ void LLPanelFace::updateMaterial()
 			mMaterial = LLMaterialPtr(new LLMaterial());
 		}
 
-		mMaterial->setDiffuseAlphaMode(getChild<LLComboBox>("combobox alphamode")->getCurrentIndex());
-		mMaterial->setAlphaMaskCutoff((U8)(getChild<LLUICtrl>("maskcutoff")->getValue().asInteger()));
-				
+			mMaterial->setDiffuseAlphaMode(getChild<LLComboBox>("combobox alphamode")->getCurrentIndex());
+			mMaterial->setAlphaMaskCutoff((U8)(getChild<LLUICtrl>("maskcutoff")->getValue().asInteger()));
+
 		if (bumpiness == BUMPY_TEXTURE)
 		{
 			LL_DEBUGS("Materials") << "Setting bumpy texture, bumpiness = " << bumpiness  << LL_ENDL;

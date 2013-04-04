@@ -110,14 +110,18 @@ void main()
 		{
 			lv = normalize(lv);
 			da = dot(norm, lv);
-					
+			
 			float fa = light_col[i].a+1.0;
 			float dist_atten = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
+			
 			dist_atten *= noise;
 
 			float lit = da * dist_atten;
-			
+
+			lit = pow(lit,0.7);
+						
 			vec3 col = light_col[i].rgb*lit*diff;
+			
 			//vec3 col = vec3(dist2, light_col[i].a, lit);
 			
 			if (spec.a > 0.0)
@@ -128,15 +132,16 @@ void main()
 				float nv = dot(norm, npos);
 				float vh = dot(npos, h);
 				float sa = nh;
-				vec3 fres = spec.rgb + pow(1 - dot(h, npos), 5) * (1 - spec.rgb);
+				float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
+
 				float gtdenom = 2 * nh;
 				float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
-				
-				
-				if (sa > 0.0)
+								
+				if (nh > 0.0)
 				{
-					vec3 scol = (fres * texture2D(lightFunc, vec2(nh, spec.a)).r * gt) / (nh * da);
-					col += lit*scol*light_col[i].rgb;
+					float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
+					col += lit*scol*light_col[i].rgb*spec.rgb;
+					//col += spec.rgb;
 				}
 			}
 			

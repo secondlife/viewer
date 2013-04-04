@@ -282,7 +282,8 @@ void main()
 	norm.xyz = (norm.xyz-0.5)*2.0; // unpack norm
 		
 	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
-	
+	da = pow(da, 0.7);
+
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
 
 	vec3 col;
@@ -309,7 +310,7 @@ void main()
 			//
 			vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 			float sa = dot(refnormpersp, sun_dir.xyz);
-			vec3 dumbshiny = vary_SunlitColor*scol_ambocc.r*(6 * texture2D(lightFunc, vec2(sa, spec.a)).r);
+			vec3 dumbshiny = vary_SunlitColor*scol_ambocc.r*(texture2D(lightFunc, vec2(sa, spec.a)).r);
 
 			// add the two types of shiny together
 			vec3 spec_contrib = dumbshiny * spec.rgb;
