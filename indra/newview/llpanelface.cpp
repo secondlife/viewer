@@ -1957,8 +1957,16 @@ void LLPanelFace::updateAlphaControls(LLUICtrl* ctrl, void* userdata)
 	{
 		return;
 	}
+	LLComboBox* comboMaterials = self->getChild<LLComboBox>("combobox mattype");
+	if (!comboMaterials)
+	{
+		return;
+	}
+
 	U32 alpha_value = comboAlphaMode->getCurrentIndex();
-	bool show_alphactrls = (alpha_value == ALPHAMODE_MASK); // Alpha masking
+	U32 mattype = comboMaterials->getCurrentIndex();
+
+	bool show_alphactrls = (alpha_value == ALPHAMODE_MASK) && (mattype == 0); // Alpha masking
 	self->getChildView("label maskcutoff")->setVisible(show_alphactrls);
 	self->getChildView("maskcutoff")->setVisible(show_alphactrls);
 }
