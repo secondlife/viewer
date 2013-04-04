@@ -3649,6 +3649,17 @@ Leave Group?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="OwnerCannotLeaveGroup"
+   type="alertmodal">
+    Unable to leave group. You cannot leave the group because you are the last owner of the group. Please assign another member to the owner role first.
+    <tag>group</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
    icon="alert.tga"
    name="ConfirmKick"
    type="alert">
