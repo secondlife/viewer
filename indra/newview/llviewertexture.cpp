@@ -2005,29 +2005,39 @@ void LLViewerFetchedTexture::forceToDeleteRequest()
 	mDesiredDiscardLevel = getMaxDiscardLevel() + 1;
 }
 
-void LLViewerFetchedTexture::setIsMissingAsset()
+void LLViewerFetchedTexture::setIsMissingAsset(bool is_missing)
 {
-	if (mUrl.empty())
+	if (is_missing)
 	{
-		llwarns << mID << ": Marking image as missing" << llendl;
+		if (mUrl.empty())
+		{
+			llwarns << mID << ": Marking image as missing" << llendl;
+		}
+		else
+		{
+			// This may or may not be an error - it is normal to have no
+			// map tile on an empty region, but bad if we're failing on a
+			// server bake texture.
+			if (getFTType() != FTT_MAP_TILE)
+			{
+				llwarns << mUrl << ": Marking image as missing" << llendl;
+			}
+		}
+		if (mHasFetcher)
+		{
+			LLAppViewer::getTextureFetch()->deleteRequest(getID(), true);
+			mHasFetcher = FALSE;
+			mIsFetching = FALSE;
+			mLastPacketTimer.reset();
+			mFetchState = 0;
+			mFetchPriority = 0;
+		}
 	}
 	else
 	{
-		// This may or may not be an error - it is normal to have no
-		// map tile on an empty region, but bad if we're failing on a
-		// server bake texture.
-		llwarns << mUrl << ": Marking image as missing" << llendl;
+		llinfos << mID << ": un-flagging missing asset" << llendl;
 	}
-	if (mHasFetcher)
-	{
-		LLAppViewer::getTextureFetch()->deleteRequest(getID(), true);
-		mHasFetcher = FALSE;
-		mIsFetching = FALSE;
-		mLastPacketTimer.reset();
-		mFetchState = 0;
-		mFetchPriority = 0;
-	}
-	mIsMissingAsset = TRUE;
+	mIsMissingAsset = is_missing;
 }
 
 void LLViewerFetchedTexture::setLoadedCallback( loaded_callback_func loaded_callback,

@@ -338,7 +338,7 @@ public:
 	// more data.
 	/*virtual*/ void setKnownDrawSize(S32 width, S32 height);
 
-	void setIsMissingAsset();
+	void setIsMissingAsset(bool is_missing = true);
 	/*virtual*/ BOOL isMissingAsset()	const		{ return mIsMissingAsset; }
 
 	// returns dimensions of original image for local files (before power of two scaling)
