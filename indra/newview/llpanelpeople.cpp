@@ -1750,7 +1750,7 @@ void LLPanelPeople::connectToFacebook(const std::string& auth_code)
 	LLSD body;
 	body["code"] = auth_code;
 	body["redirect_uri"] = FBC_SERVICES_REDIRECT_URI;
-	LLHTTPClient::put(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc", body, new FacebookConnectResponder(this));
+	LLHTTPClient::post(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc", body, new FacebookConnectResponder(this));
 }
 
 void LLPanelPeople::disconnectFromFacebook()
