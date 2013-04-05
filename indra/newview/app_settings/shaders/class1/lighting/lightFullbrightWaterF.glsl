@@ -32,7 +32,7 @@ out vec4 frag_color;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
-vec4 diffuseLookup(vec2 texcoord);
+/* vec4 diffuseLookup(vec2 texcoord); */
 
 vec3 fullbrightAtmosTransport(vec3 light);
 vec4 applyWaterFog(vec4 color);

@@ -16,6 +16,9 @@ include_directories(
     ${LLVFS_INCLUDE_DIRS}
     ${LLIMAGE_INCLUDE_DIRS}
     )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    )
 
 set(llimage_libtest_SOURCE_FILES
     llimage_libtest.cpp

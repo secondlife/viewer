@@ -175,9 +175,11 @@ void LLCurl::Responder::completedRaw(
 {
 	LLSD content;
 	LLBufferStream istr(channels, buffer.get());
-	if (!LLSDSerialize::fromXML(content, istr))
+	const bool emit_errors = false;
+	if (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXML(content, istr, emit_errors))
 	{
 		llinfos << "Failed to deserialize LLSD. " << mURL << " [" << status << "]: " << reason << llendl;
+		content["reason"] = reason;
 	}
 
 	completed(status, reason, content);

@@ -317,7 +317,6 @@ bool idle_startup()
 {
 	const F32 PRECACHING_DELAY = gSavedSettings.getF32("PrecachingDelay");
 	static LLTimer timeout;
-	static S32 timeout_count = 0;
 
 	static LLTimer login_time;
 
@@ -333,7 +332,6 @@ bool idle_startup()
 
 	// last location by default
 	static S32  agent_location_id = START_LOCATION_ID_LAST;
-	static S32  location_which = START_LOCATION_ID_LAST;
 
 	static bool show_connect_box = true;
 
@@ -745,8 +743,6 @@ bool idle_startup()
 
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
 
-		timeout_count = 0;
-
 		// Login screen needs menus for preferences, but we can enter
 		// this startup phase more than once.
 		if (gLoginMenuBarView == NULL)
@@ -773,10 +769,6 @@ bool idle_startup()
 				gUserCredential = gLoginHandler.initializeLoginInfo();                 
 				display_startup();
 			}     
-			if (gHeadlessClient)
-			{
-				LL_WARNS("AppInit") << "Waiting at connection box in headless client.  Did you mean to add autologin params?" << LL_ENDL;
-			}
 			// Make sure the process dialog doesn't hide things
 			display_startup();
 			gViewerWindow->setShowProgress(FALSE);
@@ -994,15 +986,12 @@ bool idle_startup()
 		  {
 		  case LLSLURL::LOCATION:
 		    agent_location_id = START_LOCATION_ID_URL;
-		    location_which = START_LOCATION_ID_LAST;
 		    break;
 		  case LLSLURL::LAST_LOCATION:
 		    agent_location_id = START_LOCATION_ID_LAST;
-		    location_which = START_LOCATION_ID_LAST;
 		    break;
 		  default:
 		    agent_location_id = START_LOCATION_ID_HOME;
-		    location_which = START_LOCATION_ID_HOME;
 		    break;
 		  }
 
@@ -1253,6 +1242,9 @@ bool idle_startup()
 
 		// init the shader managers
 		LLPostProcess::initClass();
+		display_startup();
+
+		LLAvatarAppearance::initClass();
 		display_startup();
 
 		LLViewerObject::initVOClasses();
@@ -2592,12 +2584,17 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	}
 	else
 	{
+		// FIXME SH-3860 - this creates a race condition, where COF
+		// changes (base outfit link added) after appearance update
+		// request has been submitted.
 		sWearablesLoadedCon = gAgentWearables.addLoadedCallback(LLStartUp::saveInitialOutfit);
 
 		bool do_copy = true;
 		bool do_append = false;
 		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
-		LLAppearanceMgr::instance().wearInventoryCategory(cat, do_copy, do_append);
+		// Need to fetch cof contents before we can wear.
+		callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(),
+							   boost::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
 		lldebugs << "initial outfit category id: " << cat_id << llendl;
 	}
 
@@ -3466,6 +3463,14 @@ bool process_login_success_response()
 
 	}
 
+	// set the location of the Agent Appearance service, from which we can request
+	// avatar baked textures if they are supported by the current region
+	std::string agent_appearance_url = response["agent_appearance_service"];
+	if (!agent_appearance_url.empty())
+	{
+		LLAppearanceMgr::instance().setAppearanceServiceURL(agent_appearance_url);
+	}
+
 	// Set the location of the snapshot sharing config endpoint
 	std::string snapshot_config_url = response["snapshot_config_url"];
 	if(!snapshot_config_url.empty())
@@ -3510,13 +3515,6 @@ bool process_login_success_response()
 
 void transition_back_to_login_panel(const std::string& emsg)
 {
-	if (gHeadlessClient && gSavedSettings.getBOOL("AutoLogin"))
-	{
-		LL_WARNS("AppInit") << "Failed to login!" << LL_ENDL;
-		LL_WARNS("AppInit") << emsg << LL_ENDL;
-		exit(0);
-	}
-
 	// Bounce back to the login screen.
 	reset_login(); // calls LLStartUp::setStartupState( STATE_LOGIN_SHOW );
 	gSavedSettings.setBOOL("AutoLogin", FALSE);

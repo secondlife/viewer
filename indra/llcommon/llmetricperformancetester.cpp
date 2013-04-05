@@ -100,7 +100,7 @@ LLSD LLMetricPerformanceTesterBasic::analyzeMetricPerformanceLog(std::istream& i
 	LLSD ret;
 	LLSD cur;
 	
-	while (!is.eof() && LLSDSerialize::fromXML(cur, is))
+	while (!is.eof() && LLSDParser::PARSE_FAILURE != LLSDSerialize::fromXML(cur, is))
 	{
 		for (LLSD::map_iterator iter = cur.beginMap(); iter != cur.endMap(); ++iter)
 		{

@@ -241,8 +241,8 @@ void LLColorSwatchCtrl::draw()
 	{
 		if (!mFallbackImageName.empty())
 		{
-			LLPointer<LLViewerFetchedTexture> fallback_image = LLViewerTextureManager::getFetchedTextureFromFile(mFallbackImageName, TRUE, 
-				LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+			LLPointer<LLViewerFetchedTexture> fallback_image = LLViewerTextureManager::getFetchedTextureFromFile(mFallbackImageName, FTT_LOCAL_FILE, TRUE, 
+				LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 			if( fallback_image->getComponents() == 4 )
 			{	
 				gl_rect_2d_checkerboard( interior );
