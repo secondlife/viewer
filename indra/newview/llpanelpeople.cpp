@@ -1741,7 +1741,7 @@ void LLPanelPeople::tryToReconnectToFacebook()
 {
 	if (!mConnectedToFbc)
 	{
-		LLHTTPClient::get(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/connected", new FacebookConnectedResponder(this, false));
+		LLHTTPClient::get(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc", new FacebookConnectedResponder(this, false));
 	}
 }
 
@@ -1750,12 +1750,12 @@ void LLPanelPeople::connectToFacebook(const std::string& auth_code)
 	LLSD body;
 	body["code"] = auth_code;
 	body["redirect_uri"] = FBC_SERVICES_REDIRECT_URI;
-	LLHTTPClient::post(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/connect", body, new FacebookConnectResponder(this));
+	LLHTTPClient::put(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc", body, new FacebookConnectResponder(this));
 }
 
 void LLPanelPeople::disconnectFromFacebook()
 {
-	LLHTTPClient::post(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/disconnect", LLSD(), new FacebookDisconnectResponder(this));
+	LLHTTPClient::del(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc", new FacebookDisconnectResponder(this));
 }
 
 void LLPanelPeople::onLoginFbcButtonClicked()
@@ -1766,7 +1766,7 @@ void LLPanelPeople::onLoginFbcButtonClicked()
 	}
 	else
 	{
-		LLHTTPClient::get(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/connected", new FacebookConnectedResponder(this, true));
+		LLHTTPClient::get(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc", new FacebookConnectedResponder(this, true));
 	}
 }
 
