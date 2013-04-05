@@ -464,7 +464,7 @@ void LLAvatarAppearance::computeBodySize()
 
 	F32 old_offset = mAvatarOffset.mV[VZ];
 
-	mAvatarOffset.mV[VZ] = getVisualParamWeight(11001);
+	mAvatarOffset.mV[VZ] = getVisualParamWeight(AVATAR_HOVER);
 
 	mPelvisToFoot = hip.mV[VZ] * pelvis_scale.mV[VZ] -
 				 	knee.mV[VZ] * hip_scale.mV[VZ] -
@@ -487,6 +487,25 @@ void LLAvatarAppearance::computeBodySize()
 
 	mAvatarOffset.mV[VX] = 0.0f;
 	mAvatarOffset.mV[VY] = 0.0f;
+
+	// Certain configurations of avatars can force the overall height (with offset) to go negative.
+	// Enforce a constraint to make sure we don't go below 0.1 meters.
+	// Camera positioning and other things start to break down when your avatar is "walking" while being fully underground
+	if (new_body_size.mV[VZ] + mAvatarOffset.mV[VZ] < 0.1f) 
+	{
+		mAvatarOffset.mV[VZ] = -(new_body_size.mV[VZ] - 0.11f); // avoid floating point rounding making the above check continue to fail.
+
+		llassert(new_body_size.mV[VZ] + mAvatarOffset.mV[VZ] >= 0.1f);
+
+		if (mWearableData && isSelf()) 
+		{
+			LLWearable* shape = mWearableData->getWearable(LLWearableType::WT_SHAPE, 0);
+			if (shape) 
+			{
+				shape->setVisualParamWeight(AVATAR_HOVER, mAvatarOffset.mV[VZ], false);
+			}
+		}
+	}
 
 	if (new_body_size != mBodySize || old_offset != mAvatarOffset.mV[VZ])
 	{
