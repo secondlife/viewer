@@ -420,11 +420,20 @@ attributedStringInfo getSegments(NSAttributedString *str)
 		setMarkedText(text, selected, replacement, [aString length], segments);
 		mHasMarkedText = TRUE;
 		mMarkedTextLength = [aString length];
+		mMarkedText = (NSAttributedString*)[aString mutableString];
 	}
+}
+
+- (void)commitCurrentPreedit
+{
+	[self insertText:mMarkedText replacementRange:NSMakeRange(0, [mMarkedText length])];
+	[[self inputContext] discardMarkedText];
 }
 
 - (void)unmarkText
 {
+	[[self inputContext] discardMarkedText];
+	[mMarkedText setValue:@""];
 	resetPreedit();
 	mHasMarkedText = FALSE;
 }
@@ -517,6 +526,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
 {
 	[glview insertText:aString replacementRange:replacementRange];
 	[_window orderOut:_window];
+	[[self textStorage] setValue:@""];
+	[[self inputContext] discardMarkedText];
 }
 
 @end

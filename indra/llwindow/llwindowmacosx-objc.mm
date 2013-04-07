@@ -372,6 +372,11 @@ void showInputWindow(bool show)
 	[(LLAppDelegate*)[NSApp delegate] showInputWindow:show];
 }
 
+void commitCurrentPreedit(GLViewRef glView)
+{
+	[(LLOpenGLView*)glView commitCurrentPreedit];
+}
+
 NSWindowRef getMainAppWindow()
 {
 	LLNSWindow *winRef = [(LLAppDelegate*)[[NSApplication sharedApplication] delegate] window];

@@ -117,6 +117,7 @@ void callFocus();
 void callFocusLost();
 void callModifier(unsigned int mask);
 void callQuitHandler();
+void commitCurrentPreedit(GLViewRef glView);
 
 #include <string>
 void callHandleDragEntered(std::string url);

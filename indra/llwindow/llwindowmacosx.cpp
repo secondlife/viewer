@@ -1864,7 +1864,7 @@ void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
 
 void LLWindowMacOSX::interruptLanguageTextInput()
 {
-	// TODO: IME support
+	commitCurrentPreedit(mGLView);
 }
 
 //static

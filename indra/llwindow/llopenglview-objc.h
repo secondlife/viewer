@@ -19,10 +19,13 @@
 	float mMousePos[2];
 	bool mHasMarkedText;
 	unsigned int mMarkedTextLength;
+	NSAttributedString *mMarkedText;
 }
 - (id) initWithSamples:(NSUInteger)samples;
 - (id) initWithSamples:(NSUInteger)samples andVsync:(BOOL)vsync;
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync;
+
+- (void)commitCurrentPreedit;
 
 // rebuildContext
 // Destroys and recreates a context with the view's internal format set via setPixelFormat;
