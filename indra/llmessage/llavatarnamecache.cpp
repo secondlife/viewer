@@ -711,13 +711,9 @@ bool LLAvatarNameCache::expirationFromCacheControl(const LLSD& headers, F64 *exp
 
 	// Allow the header to override the default
 	std::string cache_control;
-	if (headers.has(HTTP_HEADER_CACHE_CONTROL))
+	if (headers.has(HTTP_IN_HEADER_CACHE_CONTROL))
 	{
-		cache_control = headers[HTTP_HEADER_CACHE_CONTROL].asString();
-	}
-	else if (headers.has(HTTP_HEADER_LOWER_CACHE_CONTROL))
-	{
-		cache_control = headers[HTTP_HEADER_LOWER_CACHE_CONTROL].asString();
+		cache_control = headers[HTTP_IN_HEADER_CACHE_CONTROL].asString();
 	}
 
 	if (!cache_control.empty())

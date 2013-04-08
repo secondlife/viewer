@@ -31,6 +31,17 @@
 #include "llrefcount.h"
 #include "llsd.h"
 
+// common strings use for populating the context. basically 'request',
+// 'wildcard', and 'headers'.
+extern const std::string CONTEXT_HEADERS;
+extern const std::string CONTEXT_PATH;
+extern const std::string CONTEXT_QUERY_STRING;
+extern const std::string CONTEXT_REQUEST;
+extern const std::string CONTEXT_RESPONSE;
+extern const std::string CONTEXT_VERB;
+extern const std::string CONTEXT_WILDCARD;
+
+
 class LLChainIOFactory;
 
 /**
@@ -125,7 +136,7 @@ public:
 		virtual void methodNotAllowed();
 
 		/**
-		* @breif Add a name: value http header.
+		* @brief Add a name: value http header.
 		*
 		* No effort is made to ensure the response is a valid http
 		* header.
@@ -194,15 +205,15 @@ public:
 			 name, and return true if the name will construct to a valid url.
 			 For convenience, the <code>getChild()</code> method above will
 			 automatically insert the name in
-			 context["request"]["wildcard"][key] if this method returns true.
+			 context[CONTEXT_REQUEST][CONTEXT_WILDCARD][key] if this method returns true.
 			 For example, the node "agent/<agent_id>/detail" will set
-			 context["request"]["wildcard"]["agent_id"] eqaul to the value 
+			 context[CONTEXT_REQUEST][CONTEXT_WILDCARD]["agent_id"] eqaul to the value 
 			 found during traversal.
 		*/
 		
 	const LLHTTPNode* traverse(const std::string& path, LLSD& context) const;
 		/**< find a node, if any, that can service this path
-			 set up context["request"] information 
+			 set up context[CONTEXT_REQUEST] information 
  		*/
  	//@}
  

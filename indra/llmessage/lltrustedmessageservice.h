@@ -30,6 +30,10 @@
 #include "linden_common.h"
 #include "llhttpnode.h"
 
+// These are defined in lliosocket.h/lliosocket.cpp  
+extern const std::string CONTEXT_REMOTE_HOST;
+extern const std::string CONTEXT_REMOTE_PORT;
+
 class LLSD;
 
 class LLTrustedMessageService

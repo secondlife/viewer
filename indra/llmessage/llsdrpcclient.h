@@ -251,7 +251,7 @@ public:
 		LLIOPipe::ptr_t service(new Client);
 		chain.push_back(service);		
 		LLIOPipe::ptr_t http_pipe(http);
-		http->addHeader(HTTP_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_LLSD);
+		http->addHeader(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_LLSD);
 		if(mURL.empty())
 		{
 			chain.push_back(LLIOPipe::ptr_t(new LLContextURLExtractor(http)));
@@ -301,7 +301,7 @@ public:
 		LLIOPipe::ptr_t service(new Client);
 		chain.push_back(service);		
 		LLIOPipe::ptr_t http_pipe(http);
-		http->addHeader(HTTP_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_XML);
+		http->addHeader(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_XML);
 		if(mURL.empty())
 		{
 			chain.push_back(LLIOPipe::ptr_t(new LLContextURLExtractor(http)));

@@ -248,45 +248,45 @@ static void request(
 
 	req->setSSLVerifyCallback(LLHTTPClient::getCertVerifyCallback(), (void *)req);
 
-	
+
 	LL_DEBUGS("LLHTTPClient") << httpMethodAsVerb(method) << " " << url << " " << headers << LL_ENDL;
 
 	// Insert custom headers if the caller sent any
 	if (headers.isMap())
 	{
-		if (headers.has(HTTP_HEADER_COOKIE))
+		if (headers.has(HTTP_OUT_HEADER_COOKIE))
 		{
 			req->allowCookies();
 		}
 
-        LLSD::map_const_iterator iter = headers.beginMap();
-        LLSD::map_const_iterator end  = headers.endMap();
+		LLSD::map_const_iterator iter = headers.beginMap();
+		LLSD::map_const_iterator end  = headers.endMap();
 
-        for (; iter != end; ++iter)
-        {
-            //if the header is "Pragma" with no value
-            //the caller intends to force libcurl to drop
-            //the Pragma header it so gratuitously inserts
-            //Before inserting the header, force libcurl
-            //to not use the proxy (read: llurlrequest.cpp)
-			if ((iter->first == HTTP_HEADER_PRAGMA) && (iter->second.asString().empty()))
-            {
-                req->useProxy(false);
-            }
-            LL_DEBUGS("LLHTTPClient") << "header = " << iter->first 
-                << ": " << iter->second.asString() << LL_ENDL;
-            req->addHeader(iter->first, iter->second.asString());
-        }
-    }
+		for (; iter != end; ++iter)
+		{
+			//if the header is "Pragma" with no value
+			//the caller intends to force libcurl to drop
+			//the Pragma header it so gratuitously inserts
+			//Before inserting the header, force libcurl
+			//to not use the proxy (read: llurlrequest.cpp)
+			if ((iter->first == HTTP_OUT_HEADER_PRAGMA) && (iter->second.asString().empty()))
+			{
+				req->useProxy(false);
+			}
+			LL_DEBUGS("LLHTTPClient") << "header = " << iter->first 
+				<< ": " << iter->second.asString() << LL_ENDL;
+			req->addHeader(iter->first, iter->second.asString());
+		}
+	}
 
 	// Check to see if we have already set Accept or not. If no one
 	// set it, set it to application/llsd+xml since that's what we
 	// almost always want.
 	if( method != HTTP_PUT && method != HTTP_POST )
 	{
-		if(!headers.has(HTTP_HEADER_ACCEPT))
+		if(!headers.has(HTTP_OUT_HEADER_ACCEPT))
 		{
-			req->addHeader(HTTP_HEADER_ACCEPT, HTTP_CONTENT_LLSD_XML);
+			req->addHeader(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_LLSD_XML);
 		}
 	}
 
@@ -301,21 +301,21 @@ static void request(
 	if (method == HTTP_POST  &&  gMessageSystem)
 	{
 		req->addHeader("X-SecondLife-UDP-Listen-Port", llformat("%d",
-								gMessageSystem->mPort));
-   	}
+					gMessageSystem->mPort));
+	}
 
 	if (method == HTTP_PUT || method == HTTP_POST)
 	{
-		if(!headers.has(HTTP_HEADER_CONTENT_TYPE))
+		if(!headers.has(HTTP_OUT_HEADER_CONTENT_TYPE))
 		{
 			// If the Content-Type header was passed in, it has
 			// already been added as a header through req->addHeader
 			// in the loop above. We defer to the caller's wisdom, but
 			// if they did not specify a Content-Type, then ask the
 			// injector.
-			req->addHeader(HTTP_HEADER_CONTENT_TYPE, body_injector->contentType());
+			req->addHeader(HTTP_OUT_HEADER_CONTENT_TYPE, body_injector->contentType());
 		}
-   		chain.push_back(LLIOPipe::ptr_t(body_injector));
+		chain.push_back(LLIOPipe::ptr_t(body_injector));
 	}
 
 	chain.push_back(LLIOPipe::ptr_t(req));
@@ -336,7 +336,7 @@ void LLHTTPClient::getByteRange(
 	if(offset > 0 || bytes > 0)
 	{
 		std::string range = llformat("bytes=%d-%d", offset, offset+bytes-1);
-		headers[HTTP_HEADER_RANGE] = range;
+		headers[HTTP_OUT_HEADER_RANGE] = range;
 	}
     request(url,HTTP_GET, NULL, responder, timeout, headers);
 }
@@ -483,19 +483,19 @@ static LLSD blocking_request(
 		curl_easy_setopt(curlp, CURLOPT_POSTFIELDS, body_str.c_str());
 		//copied from PHP libs, correct?
 		headers_list = curl_slist_append(headers_list, 
-				llformat("%s: %s", HTTP_HEADER_CONTENT_TYPE.c_str(), HTTP_CONTENT_LLSD_XML.c_str()).c_str());
+				llformat("%s: %s", HTTP_OUT_HEADER_CONTENT_TYPE.c_str(), HTTP_CONTENT_LLSD_XML.c_str()).c_str());
 
 		// copied from llurlrequest.cpp
 		// it appears that apache2.2.3 or django in etch is busted. If
 		// we do not clear the expect header, we get a 500. May be
 		// limited to django/mod_wsgi.
-		headers_list = curl_slist_append(headers_list, llformat("%s:", HTTP_HEADER_EXPECT.c_str()).c_str());
+		headers_list = curl_slist_append(headers_list, llformat("%s:", HTTP_OUT_HEADER_EXPECT.c_str()).c_str());
 	}
 	
 	// * Do the action using curl, handle results
 	lldebugs << "HTTP body: " << body_str << llendl;
 	headers_list = curl_slist_append(headers_list,
-				llformat("%s: %s", HTTP_HEADER_ACCEPT.c_str(), HTTP_CONTENT_LLSD_XML.c_str()).c_str());
+				llformat("%s: %s", HTTP_OUT_HEADER_ACCEPT.c_str(), HTTP_CONTENT_LLSD_XML.c_str()).c_str());
 	CURLcode curl_result = curl_easy_setopt(curlp, CURLOPT_HTTPHEADER, headers_list);
 	if ( curl_result != CURLE_OK )
 	{
@@ -617,7 +617,7 @@ void LLHTTPClient::move(
 	const F32 timeout)
 {
 	LLSD headers = hdrs;
-	headers[HTTP_HEADER_DESTINATION] = destination;
+	headers[HTTP_OUT_HEADER_DESTINATION] = destination;
 	request(url, HTTP_MOVE, NULL, responder, timeout, headers);
 }
 

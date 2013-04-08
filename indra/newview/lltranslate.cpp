@@ -394,8 +394,8 @@ void LLTranslate::sendRequest(const std::string& url, LLHTTPClient::ResponderPtr
 			LLVersionInfo::getPatch(),
 			LLVersionInfo::getBuild());
 
-		sHeader.insert(HTTP_HEADER_ACCEPT, HTTP_CONTENT_TEXT_PLAIN);
-		sHeader.insert(HTTP_HEADER_USER_AGENT, user_agent);
+		sHeader.insert(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_TEXT_PLAIN);
+		sHeader.insert(HTTP_OUT_HEADER_USER_AGENT, user_agent);
 	}
 
 	LLHTTPClient::get(url, responder, sHeader, REQUEST_TIMEOUT);

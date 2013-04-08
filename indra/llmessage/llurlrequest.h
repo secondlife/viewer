@@ -42,9 +42,10 @@
 #include "llcurl.h"
 
 
-extern const std::string CONTEXT_REQUEST;
+/**
+ * External constants
+ */
 extern const std::string CONTEXT_DEST_URI_SD_LABEL;
-extern const std::string CONTEXT_RESPONSE;
 extern const std::string CONTEXT_TRANSFERED_BYTES;
 
 class LLURLRequestDetail;
@@ -351,12 +352,5 @@ protected:
 	// depends on correct usage from the LLURLRequest instance.
 	EStatus mRequestStatus;
 };
-
-
-
-/**
- * External constants
- */
-extern const std::string CONTEXT_DEST_URI_SD_LABEL;
 
 #endif // LL_LLURLREQUEST_H

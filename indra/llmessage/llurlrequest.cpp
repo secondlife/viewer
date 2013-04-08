@@ -47,10 +47,11 @@
 const std::string CONTEXT_DEST_URI_SD_LABEL("dest_uri");
 const std::string CONTEXT_TRANSFERED_BYTES("transfered_bytes");
 
+// These are defined in llhttpnode.h/llhttpnode.cpp
+extern const std::string CONTEXT_REQUEST;
+extern const std::string CONTEXT_RESPONSE;
 
 static size_t headerCallback(void* data, size_t size, size_t nmemb, void* user);
-
-
 
 /**
  * class LLURLRequestDetail
@@ -479,7 +480,7 @@ bool LLURLRequest::configure()
 	case HTTP_PUT:
 		// Disable the expect http 1.1 extension. POST and PUT default
 		// to turning this on, and I am not too sure what it means.
-		addHeader(HTTP_HEADER_EXPECT);
+		addHeader(HTTP_OUT_HEADER_EXPECT);
 
 		mDetail->mCurlRequest->setopt(CURLOPT_UPLOAD, 1);
 		mDetail->mCurlRequest->setopt(CURLOPT_INFILESIZE, bytes);
@@ -489,11 +490,11 @@ bool LLURLRequest::configure()
 	case HTTP_POST:
 		// Disable the expect http 1.1 extension. POST and PUT default
 		// to turning this on, and I am not too sure what it means.
-		addHeader(HTTP_HEADER_EXPECT);
+		addHeader(HTTP_OUT_HEADER_EXPECT);
 
 		// Disable the content type http header.
 		// *FIX: what should it be?
-		addHeader(HTTP_HEADER_CONTENT_TYPE);
+		addHeader(HTTP_OUT_HEADER_CONTENT_TYPE);
 
 		// Set the handle for an http post
 		mDetail->mCurlRequest->setPost(NULL, bytes);

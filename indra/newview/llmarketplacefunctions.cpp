@@ -167,8 +167,7 @@ namespace LLMarketplaceImport
 	protected:
 		/* virtual */ void httpCompleted()
 		{
-			const bool check_lower = true;
-			const std::string& set_cookie_string = getResponseHeader(HTTP_HEADER_SET_COOKIE, check_lower);
+			const std::string& set_cookie_string = getResponseHeader(HTTP_IN_HEADER_SET_COOKIE);
 			
 			if (!set_cookie_string.empty())
 			{
@@ -278,10 +277,11 @@ namespace LLMarketplaceImport
 
 		// Make the headers for the post
 		LLSD headers = LLSD::emptyMap();
-		headers[HTTP_HEADER_ACCEPT] = "*/*";
-		headers[HTTP_HEADER_COOKIE] = sMarketplaceCookie;
-		headers[HTTP_HEADER_CONTENT_TYPE] = HTTP_CONTENT_LLSD_XML;
-		headers[HTTP_HEADER_USER_AGENT] = LLViewerMedia::getCurrentUserAgent();
+		headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
+		headers[HTTP_OUT_HEADER_COOKIE] = sMarketplaceCookie;
+		// *TODO: Why are we setting Content-Type for a GET request?
+		headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_LLSD_XML;
+		headers[HTTP_OUT_HEADER_USER_AGENT] = LLViewerMedia::getCurrentUserAgent();
 		
 		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{
@@ -311,12 +311,11 @@ namespace LLMarketplaceImport
 		
 		// Make the headers for the post
 		LLSD headers = LLSD::emptyMap();
-		headers[HTTP_HEADER_ACCEPT] = "*/*";
-		headers[HTTP_HEADER_CONNECTION] = "Keep-Alive";
-		headers[HTTP_HEADER_COOKIE] = sMarketplaceCookie;
-		// *TODO: Should this be 'application/llsd+xml'?
-		headers[HTTP_HEADER_CONTENT_TYPE] = HTTP_CONTENT_XML;
-		headers[HTTP_HEADER_USER_AGENT] = LLViewerMedia::getCurrentUserAgent();
+		headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
+		headers[HTTP_OUT_HEADER_CONNECTION] = "Keep-Alive";
+		headers[HTTP_OUT_HEADER_COOKIE] = sMarketplaceCookie;
+		headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_XML;
+		headers[HTTP_OUT_HEADER_USER_AGENT] = LLViewerMedia::getCurrentUserAgent();
 		
 		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{

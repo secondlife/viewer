@@ -59,7 +59,6 @@ set(llmessage_SOURCE_FILES
     llmessagetemplate.cpp
     llmessagetemplateparser.cpp
     llmessagethrottle.cpp
-    llmime.cpp
     llnamevalue.cpp
     llnullcipher.cpp
     llpacketack.cpp
@@ -154,7 +153,6 @@ set(llmessage_HEADER_FILES
     llmessagetemplate.h
     llmessagetemplateparser.h
     llmessagethrottle.h
-    llmime.h
     llmsgvariabletype.h
     llnamevalue.h
     llnullcipher.h
@@ -266,7 +264,6 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llhttpclientadapter "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llmime "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llxfer_file "" "${test_libs}")
 endif (LL_TESTS)

@@ -167,9 +167,8 @@ public:
 		if (getStatus() == HTTP_SEE_OTHER)
 		{
 			LLSD headers = LLViewerMedia::getHeaders();
-			headers[HTTP_HEADER_COOKIE] = LLWebProfile::getAuthCookie();
-			const bool check_lower=true;
-			const std::string& redir_url = getResponseHeader(HTTP_HEADER_LOCATION, check_lower);
+			headers[HTTP_OUT_HEADER_COOKIE] = LLWebProfile::getAuthCookie();
+			const std::string& redir_url = getResponseHeader(HTTP_IN_HEADER_LOCATION);
 			if (redir_url.empty())
 			{
 				llwarns << "Received empty redirection URL " << dumpResponse() << llendl;
@@ -207,7 +206,7 @@ void LLWebProfile::uploadImage(LLPointer<LLImageFormatted> image, const std::str
 
 	LL_DEBUGS("Snapshots") << "Requesting " << config_url << llendl;
 	LLSD headers = LLViewerMedia::getHeaders();
-	headers[HTTP_HEADER_COOKIE] = getAuthCookie();
+	headers[HTTP_OUT_HEADER_COOKIE] = getAuthCookie();
 	LLHTTPClient::get(config_url, new LLWebProfileResponders::ConfigResponder(image), headers);
 }
 
@@ -231,8 +230,8 @@ void LLWebProfile::post(LLPointer<LLImageFormatted> image, const LLSD& config, c
 	const std::string boundary = "----------------------------0123abcdefab";
 
 	LLSD headers = LLViewerMedia::getHeaders();
-	headers[HTTP_HEADER_COOKIE] = getAuthCookie();
-	headers[HTTP_HEADER_CONTENT_TYPE] = "multipart/form-data; boundary=" + boundary;
+	headers[HTTP_OUT_HEADER_COOKIE] = getAuthCookie();
+	headers[HTTP_OUT_HEADER_CONTENT_TYPE] = "multipart/form-data; boundary=" + boundary;
 
 	std::ostringstream body;
 

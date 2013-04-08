@@ -3008,8 +3008,8 @@ public:
 #if 0
 		// *TODO: Honor server Retry-After header.
 		// Status 503 may ask us to wait for a certain amount of time before retrying.
-		if (!headers.has(HTTP_HEADER_RETRY_AFTER)
-			|| !getSecondsUntilRetryAfter(headers[HTTP_HEADER_RETRY_AFTER].asStringRef(), seconds_to_wait))
+		if (!headers.has(HTTP_IN_HEADER_RETRY_AFTER)
+			|| !getSecondsUntilRetryAfter(headers[HTTP_IN_HEADER_RETRY_AFTER].asStringRef(), seconds_to_wait))
 #endif
 		{
 			seconds_to_wait = mDelay;

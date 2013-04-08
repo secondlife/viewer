@@ -579,8 +579,8 @@ void LLMediaDataClient::Responder::httpFailure()
 		F32 retry_timeout;
 #if 0
 		// *TODO: Honor server Retry-After header.
-		if (!hasResponseHeader(HTTP_HEADER_RETRY_AFTER)
-			|| !getSecondsUntilRetryAfter(getResponseHeader(HTTP_HEADER_RETRY_AFTER), retry_timeout))
+		if (!hasResponseHeader(HTTP_IN_HEADER_RETRY_AFTER)
+			|| !getSecondsUntilRetryAfter(getResponseHeader(HTTP_IN_HEADER_RETRY_AFTER), retry_timeout))
 #endif
 		{
 			retry_timeout = mRequest->getRetryTimerDelay();

@@ -156,9 +156,9 @@ std::string LLCurl::Responder::dumpResponse() const
 	  << "[status:" << mStatus << "] "
 	  << "[reason:" << mReason << "] ";
 
-	if (mResponseHeaders.has(HTTP_HEADER_CONTENT_TYPE))
+	if (mResponseHeaders.has(HTTP_IN_HEADER_CONTENT_TYPE))
 	{
-		s << "[content-type:" << mResponseHeaders[HTTP_HEADER_CONTENT_TYPE] << "] ";
+		s << "[content-type:" << mResponseHeaders[HTTP_IN_HEADER_CONTENT_TYPE] << "] ";
 	}
 
 	s << "[content:" << mContent << "]";
@@ -211,34 +211,19 @@ void LLCurl::Responder::setResponseHeader(const std::string& header, const std::
 	mResponseHeaders[header] = value;
 }
 
-const std::string& LLCurl::Responder::getResponseHeader(const std::string& header, bool check_lower) const
+const std::string& LLCurl::Responder::getResponseHeader(const std::string& header) const
 {
 	if (mResponseHeaders.has(header))
 	{
 		return mResponseHeaders[header].asStringRef();
 	}
-	if (check_lower)
-	{
-		std::string header_lower(header);
-		LLStringUtil::toLower(header_lower);
-		if (mResponseHeaders.has(header_lower))
-		{
-			return mResponseHeaders[header_lower].asStringRef();
-		}
-	}
 	static const std::string empty;
 	return empty;
 }
 
-bool LLCurl::Responder::hasResponseHeader(const std::string& header, bool check_lower) const
+bool LLCurl::Responder::hasResponseHeader(const std::string& header) const
 {
 	if (mResponseHeaders.has(header)) return true;
-	if (check_lower)
-	{
-		std::string header_lower(header);
-		LLStringUtil::toLower(header_lower);
-		return mResponseHeaders.has(header_lower);
-	}
 	return false;
 }
 
@@ -256,7 +241,7 @@ void LLCurl::Responder::completedRaw(
 	{
 		parsed=false;
 	}
-	// Try to parse body as llsd, no matter what 'Content-Type' says.
+	// Try to parse body as llsd, no matter what 'content-type' says.
 	else if (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXML(mContent, istr, emit_parse_errors))
 	{
 		parsed=false;
@@ -271,8 +256,8 @@ void LLCurl::Responder::completedRaw(
 		}
 	}
 
-	// Only emit an warning if we failed to parse when 'Content-Type' == 'application/llsd+xml'
-	if (!parsed && (HTTP_CONTENT_LLSD_XML == getResponseHeader(HTTP_HEADER_CONTENT_TYPE)))
+	// Only emit a warning if we failed to parse when 'content-type' == 'application/llsd+xml'
+	if (!parsed && (HTTP_CONTENT_LLSD_XML == getResponseHeader(HTTP_IN_HEADER_CONTENT_TYPE)))
 	{
 		llwarns << "Failed to deserialize . " << mURL << " [status:" << mStatus << "] " 
 			<< "(" << mReason << ") body: " << debug_body << llendl;
@@ -643,8 +628,8 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 	if (!post)
 	{
 		// *TODO: Should this be set to 'Keep-Alive' ?
-		slist_append(HTTP_HEADER_CONNECTION, "keep-alive");
-		slist_append(HTTP_HEADER_KEEP_ALIVE, "300");
+		slist_append(HTTP_OUT_HEADER_CONNECTION, "keep-alive");
+		slist_append(HTTP_OUT_HEADER_KEEP_ALIVE, "300");
 		// Accept and other headers
 		for (std::vector<std::string>::const_iterator iter = headers.begin();
 			 iter != headers.end(); ++iter)
@@ -1242,12 +1227,12 @@ bool LLCurlRequest::getByteRange(const std::string& url,
 	if (length > 0)
 	{
 		std::string range = llformat("bytes=%d-%d", offset,offset+length-1);
-		easy->slist_append(HTTP_HEADER_RANGE, range);
+		easy->slist_append(HTTP_OUT_HEADER_RANGE, range);
 	}
 	else if (offset > 0)
 	{
 		std::string range = llformat("bytes=%d-", offset);
-		easy->slist_append(HTTP_HEADER_RANGE, range);
+		easy->slist_append(HTTP_OUT_HEADER_RANGE, range);
 	}
 	easy->setHeaders();
 	bool res = addEasy(easy);
@@ -1274,7 +1259,7 @@ bool LLCurlRequest::post(const std::string& url,
 	easy->setopt(CURLOPT_POSTFIELDS, (void*)NULL);
 	easy->setopt(CURLOPT_POSTFIELDSIZE, bytes);
 
-	easy->slist_append(HTTP_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
+	easy->slist_append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
 	easy->setHeaders();
 
 	lldebugs << "POSTING: " << bytes << " bytes." << llendl;
@@ -1302,7 +1287,7 @@ bool LLCurlRequest::post(const std::string& url,
 	easy->setopt(CURLOPT_POSTFIELDS, (void*)NULL);
 	easy->setopt(CURLOPT_POSTFIELDSIZE, bytes);
 
-	easy->slist_append(HTTP_HEADER_CONTENT_TYPE, HTTP_CONTENT_OCTET_STREAM);
+	easy->slist_append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_OCTET_STREAM);
 	easy->setHeaders();
 
 	lldebugs << "POSTING: " << bytes << " bytes." << llendl;

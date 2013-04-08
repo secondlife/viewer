@@ -132,71 +132,76 @@ bool getSecondsUntilRetryAfter(const std::string& retry_after, F32& seconds_to_w
 
 //// HTTP Headers /////
 
-extern const std::string HTTP_HEADER_ACCEPT;
-extern const std::string HTTP_HEADER_ACCEPT_CHARSET;
-extern const std::string HTTP_HEADER_ACCEPT_ENCODING;
-extern const std::string HTTP_HEADER_ACCEPT_LANGUAGE;
-extern const std::string HTTP_HEADER_ACCEPT_RANGES;
-extern const std::string HTTP_HEADER_AGE;
-extern const std::string HTTP_HEADER_ALLOW;
-extern const std::string HTTP_HEADER_AUTHORIZATION;
-extern const std::string HTTP_HEADER_CACHE_CONTROL;
-extern const std::string HTTP_HEADER_CONNECTION;
-extern const std::string HTTP_HEADER_CONTENT_DESCRIPTION;
-extern const std::string HTTP_HEADER_CONTENT_ENCODING;
-extern const std::string HTTP_HEADER_CONTENT_ID;
-extern const std::string HTTP_HEADER_CONTENT_LANGUAGE;
-extern const std::string HTTP_HEADER_CONTENT_LENGTH;
-extern const std::string HTTP_HEADER_CONTENT_LOCATION;
-extern const std::string HTTP_HEADER_CONTENT_MD5;
-extern const std::string HTTP_HEADER_CONTENT_RANGE;
-extern const std::string HTTP_HEADER_CONTENT_TRANSFER_ENCODING;
-extern const std::string HTTP_HEADER_CONTENT_TYPE;
-extern const std::string HTTP_HEADER_COOKIE;
-extern const std::string HTTP_HEADER_DATE;
-extern const std::string HTTP_HEADER_DESTINATION;
-extern const std::string HTTP_HEADER_ETAG;
-extern const std::string HTTP_HEADER_EXPECT;
-extern const std::string HTTP_HEADER_EXPIRES;
-extern const std::string HTTP_HEADER_FROM;
-extern const std::string HTTP_HEADER_HOST;
-extern const std::string HTTP_HEADER_IF_MATCH;
-extern const std::string HTTP_HEADER_IF_MODIFIED_SINCE;
-extern const std::string HTTP_HEADER_IF_NONE_MATCH;
-extern const std::string HTTP_HEADER_IF_RANGE;
-extern const std::string HTTP_HEADER_IF_UNMODIFIED_SINCE;
-extern const std::string HTTP_HEADER_KEEP_ALIVE;
-extern const std::string HTTP_HEADER_LAST_MODIFIED;
-extern const std::string HTTP_HEADER_LOCATION;
-extern const std::string HTTP_HEADER_MAX_FORWARDS;
-extern const std::string HTTP_HEADER_MIME_VERSION;
-extern const std::string HTTP_HEADER_PRAGMA;
-extern const std::string HTTP_HEADER_PROXY_AUTHENTICATE;
-extern const std::string HTTP_HEADER_PROXY_AUTHORIZATION;
-extern const std::string HTTP_HEADER_RANGE;
-extern const std::string HTTP_HEADER_REFERER;
-extern const std::string HTTP_HEADER_RETRY_AFTER;
-extern const std::string HTTP_HEADER_SERVER;
-extern const std::string HTTP_HEADER_SET_COOKIE;
-extern const std::string HTTP_HEADER_TE;
-extern const std::string HTTP_HEADER_TRAILER;
-extern const std::string HTTP_HEADER_TRANSFER_ENCODING;
-extern const std::string HTTP_HEADER_UPGRADE;
-extern const std::string HTTP_HEADER_USER_AGENT;
-extern const std::string HTTP_HEADER_VARY;
-extern const std::string HTTP_HEADER_VIA;
-extern const std::string HTTP_HEADER_WARNING;
-extern const std::string HTTP_HEADER_WWW_AUTHENTICATE;
+// Outgoing headers. Do *not* use these to check incoming headers.
+// For incoming headers, use the lower-case headers, below.
+extern const std::string HTTP_OUT_HEADER_ACCEPT;
+extern const std::string HTTP_OUT_HEADER_ACCEPT_CHARSET;
+extern const std::string HTTP_OUT_HEADER_ACCEPT_ENCODING;
+extern const std::string HTTP_OUT_HEADER_ACCEPT_LANGUAGE;
+extern const std::string HTTP_OUT_HEADER_ACCEPT_RANGES;
+extern const std::string HTTP_OUT_HEADER_AGE;
+extern const std::string HTTP_OUT_HEADER_ALLOW;
+extern const std::string HTTP_OUT_HEADER_AUTHORIZATION;
+extern const std::string HTTP_OUT_HEADER_CACHE_CONTROL;
+extern const std::string HTTP_OUT_HEADER_CONNECTION;
+extern const std::string HTTP_OUT_HEADER_CONTENT_DESCRIPTION;
+extern const std::string HTTP_OUT_HEADER_CONTENT_ENCODING;
+extern const std::string HTTP_OUT_HEADER_CONTENT_ID;
+extern const std::string HTTP_OUT_HEADER_CONTENT_LANGUAGE;
+extern const std::string HTTP_OUT_HEADER_CONTENT_LENGTH;
+extern const std::string HTTP_OUT_HEADER_CONTENT_LOCATION;
+extern const std::string HTTP_OUT_HEADER_CONTENT_MD5;
+extern const std::string HTTP_OUT_HEADER_CONTENT_RANGE;
+extern const std::string HTTP_OUT_HEADER_CONTENT_TRANSFER_ENCODING;
+extern const std::string HTTP_OUT_HEADER_CONTENT_TYPE;
+extern const std::string HTTP_OUT_HEADER_COOKIE;
+extern const std::string HTTP_OUT_HEADER_DATE;
+extern const std::string HTTP_OUT_HEADER_DESTINATION;
+extern const std::string HTTP_OUT_HEADER_ETAG;
+extern const std::string HTTP_OUT_HEADER_EXPECT;
+extern const std::string HTTP_OUT_HEADER_EXPIRES;
+extern const std::string HTTP_OUT_HEADER_FROM;
+extern const std::string HTTP_OUT_HEADER_HOST;
+extern const std::string HTTP_OUT_HEADER_IF_MATCH;
+extern const std::string HTTP_OUT_HEADER_IF_MODIFIED_SINCE;
+extern const std::string HTTP_OUT_HEADER_IF_NONE_MATCH;
+extern const std::string HTTP_OUT_HEADER_IF_RANGE;
+extern const std::string HTTP_OUT_HEADER_IF_UNMODIFIED_SINCE;
+extern const std::string HTTP_OUT_HEADER_KEEP_ALIVE;
+extern const std::string HTTP_OUT_HEADER_LAST_MODIFIED;
+extern const std::string HTTP_OUT_HEADER_LOCATION;
+extern const std::string HTTP_OUT_HEADER_MAX_FORWARDS;
+extern const std::string HTTP_OUT_HEADER_MIME_VERSION;
+extern const std::string HTTP_OUT_HEADER_PRAGMA;
+extern const std::string HTTP_OUT_HEADER_PROXY_AUTHENTICATE;
+extern const std::string HTTP_OUT_HEADER_PROXY_AUTHORIZATION;
+extern const std::string HTTP_OUT_HEADER_RANGE;
+extern const std::string HTTP_OUT_HEADER_REFERER;
+extern const std::string HTTP_OUT_HEADER_RETRY_AFTER;
+extern const std::string HTTP_OUT_HEADER_SERVER;
+extern const std::string HTTP_OUT_HEADER_SET_COOKIE;
+extern const std::string HTTP_OUT_HEADER_TE;
+extern const std::string HTTP_OUT_HEADER_TRAILER;
+extern const std::string HTTP_OUT_HEADER_TRANSFER_ENCODING;
+extern const std::string HTTP_OUT_HEADER_UPGRADE;
+extern const std::string HTTP_OUT_HEADER_USER_AGENT;
+extern const std::string HTTP_OUT_HEADER_VARY;
+extern const std::string HTTP_OUT_HEADER_VIA;
+extern const std::string HTTP_OUT_HEADER_WARNING;
+extern const std::string HTTP_OUT_HEADER_WWW_AUTHENTICATE;
 
-// Sadly, our proxied headers do not follow http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
-// We need to deal with lowercase headers
-extern const std::string HTTP_HEADER_LOWER_ACCEPT_LANGUAGE;
-extern const std::string HTTP_HEADER_LOWER_CACHE_CONTROL;
-extern const std::string HTTP_HEADER_LOWER_CONTENT_LENGTH;
-extern const std::string HTTP_HEADER_LOWER_CONTENT_TYPE;
-extern const std::string HTTP_HEADER_LOWER_HOST;
-extern const std::string HTTP_HEADER_LOWER_USER_AGENT;
-extern const std::string HTTP_HEADER_LOWER_X_FORWARDED_FOR;
+// Incoming headers are normalized to lower-case.
+extern const std::string HTTP_IN_HEADER_ACCEPT_LANGUAGE;
+extern const std::string HTTP_IN_HEADER_CACHE_CONTROL;
+extern const std::string HTTP_IN_HEADER_CONTENT_LENGTH;
+extern const std::string HTTP_IN_HEADER_CONTENT_LOCATION;
+extern const std::string HTTP_IN_HEADER_CONTENT_TYPE;
+extern const std::string HTTP_IN_HEADER_HOST;
+extern const std::string HTTP_IN_HEADER_LOCATION;
+extern const std::string HTTP_IN_HEADER_RETRY_AFTER;
+extern const std::string HTTP_IN_HEADER_SET_COOKIE;
+extern const std::string HTTP_IN_HEADER_USER_AGENT;
+extern const std::string HTTP_IN_HEADER_X_FORWARDED_FOR;
 
 //// HTTP Content Types ////
 
@@ -216,5 +221,9 @@ extern const std::string HTTP_CONTENT_IMAGE_J2C;
 extern const std::string HTTP_CONTENT_IMAGE_JPEG;
 extern const std::string HTTP_CONTENT_IMAGE_PNG;
 extern const std::string HTTP_CONTENT_IMAGE_BMP;
+
+//// HTTP Cache Settings ////
+extern const std::string HTTP_NO_CACHE;
+extern const std::string HTTP_NO_CACHE_CONTROL;
 
 #endif
