@@ -582,6 +582,7 @@ void LLFloaterIMNearbyChat::sendChat( EChatType type )
 			if (!utf8_revised_text.empty())
 			{
 				// Chat with animation
+				utf8_revised_text = utf8text;
 				sendChatFromViewer(utf8_revised_text, type, TRUE);
 			}
 		}
