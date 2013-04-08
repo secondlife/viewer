@@ -182,6 +182,7 @@ void  LLHTTPNode::options(ResponsePtr response, const LLSD& context) const
 	LL_DEBUGS("LLHTTPNode") << "context: " << context << LL_ENDL;
 
 	// default implementation constructs an url to the documentation.
+	// *TODO: Check for 'Host' header instead of 'host' header?
 	std::string host(
 		context[CONTEXT_REQUEST][CONTEXT_HEADERS][HTTP_IN_HEADER_HOST].asString());
 	if(host.empty())
