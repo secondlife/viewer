@@ -41,17 +41,12 @@ class LLCamera;
 class LLVOCacheEntry : public LLViewerOctreeEntryData
 {
 public:
-	enum
+	enum //low 16-bit state
 	{
 		INACTIVE = 0x00000000,     //not visible
 		IN_QUEUE = 0x00000001,     //in visible queue, object to be created
 		WAITING  = 0x00000002,     //object creation request sent
 		ACTIVE   = 0x00000004      //object created, and in rendering pipeline.
-	};
-
-	enum
-	{
-		ADD_TO_CACHE_TREE = 0x00010000, //has parent
 	};
 
 	struct CompareVOCacheEntry
@@ -84,12 +79,10 @@ public:
 	LLVOCacheEntry();	
 
 	void setState(U32 state);
-	void clearState(U32 state) {mState &= ~state;}
-	void addState(U32 state)   {mState |= state;}
-	bool isState(U32 state)    {return (mState & 0xffff) == state;}
+	//void clearState(U32 state) {mState &= ~state;}
+	bool isState(U32 state)    {return mState == state;}
 	bool hasState(U32 state)   {return mState & state;}
-	U32  getState() const      {return (mState & 0xffff);}
-	U32  getFullState() const  {return mState;}
+	U32  getState() const      {return mState;}
 	
 	U32 getLocalID() const			{ return mLocalID; }
 	U32 getCRC() const				{ return mCRC; }
@@ -111,10 +104,23 @@ public:
 	void copyTo(LLVOCacheEntry* new_entry); //copy variables 
 	/*virtual*/ void setOctreeEntry(LLViewerOctreeEntry* entry);
 
+	void setParentID(U32 id) {mParentID = id;}
+	U32  getParentID() const {return mParentID;}
+
 	void addChild(LLVOCacheEntry* entry);
 	LLVOCacheEntry* getChild(S32 i) {return mChildrenList[i];}
 	S32  getNumOfChildren()         {return mChildrenList.size();}
 	void clearChildrenList()        {mChildrenList.clear();}
+
+	//called from processing object update message
+	void setBoundingInfo(const LLVector3& pos, const LLVector3& scale);
+	void updateBoundingInfo(LLVOCacheEntry* parent);
+
+	void setTouched(BOOL touched = TRUE) {mTouched = touched;}
+	BOOL isTouched() const {return mTouched;}
+	
+	void setUpdateFlags(U32 flags) {mUpdateFlags = flags;}
+	U32  getUpdateFlags() const    {return mUpdateFlags;}
 
 public:
 	typedef std::map<U32, LLPointer<LLVOCacheEntry> >	   vocache_entry_map_t;
@@ -123,7 +129,9 @@ public:
 
 protected:
 	U32							mLocalID;
+	U32                         mParentID;
 	U32							mCRC;
+	U32                         mUpdateFlags; //receive from sim
 	S32							mHitCount;
 	S32							mDupeCount;
 	S32							mCRCChangeCount;
@@ -135,6 +143,8 @@ protected:
 	S32                         mRepeatedVisCounter; //number of repeatedly visible within a short time.
 	U32                         mState; //high 16 bits reserved for special use.
 	std::vector<LLVOCacheEntry*> mChildrenList; //children entries in a linked set.
+
+	BOOL                        mTouched; //if set, this entry is valid, otherwise it is invalid.
 };
 
 class LLVOCachePartition : public LLViewerOctreePartition
@@ -145,9 +155,6 @@ public:
 	void addEntry(LLViewerOctreeEntry* entry);
 	void removeEntry(LLViewerOctreeEntry* entry);
 	/*virtual*/ S32 cull(LLCamera &camera);
-
-private:
-	U32 mVisitedTime;
 };
 
 //
@@ -192,10 +199,10 @@ public:
 	~LLVOCache() ;
 
 	void initCache(ELLPath location, U32 size, U32 cache_version) ;
-	void removeCache(ELLPath location) ;
+	void removeCache(ELLPath location, bool started = false) ;
 
 	void readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) ;
-	void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache) ;
+	void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache, bool removal_enabled);
 	void removeEntry(U64 handle) ;
 
 	void setReadOnly(BOOL read_only) {mReadOnly = read_only;} 
