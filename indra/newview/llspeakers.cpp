@@ -855,10 +855,7 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 		}
 	}
 }
-/*prep#
-	virtual void httpFailure()
-		llwarns << dumpResponse() << llendl;
-		*/
+
 void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
 {
 	LLPointer<LLSpeaker> speakerp = findSpeaker(speaker_id);

@@ -38,9 +38,11 @@ class LLCurrentlyWornFetchObserver;
 class LLPanelEditWearable;
 class LLViewerWearable;
 class LLPanelOutfitsInventory;
+class LLFloaterSidePanelContainer;
 
 class LLSidepanelAppearance : public LLPanel
-{
+{	
+
 	LOG_CLASS(LLSidepanelAppearance);
 public:
 	LLSidepanelAppearance();
@@ -48,6 +50,8 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);	
+				void onClose(LLFloaterSidePanelContainer* obj);
+	void onClickCloseBtn();
 
 	void refreshCurrentOutfitName(const std::string& name = "");
 
@@ -65,6 +69,11 @@ public:
 	void updateScrollingPanelList();
 	void updateToVisibility( const LLSD& new_visibility );
 	LLPanelEditWearable* getWearable(){ return mEditWearable; }
+	bool callBackExitWithoutSaveViaBack(const LLSD& notification, const LLSD& response);
+	void onClickConfirmExitWithoutSaveViaBack();
+	bool callBackExitWithoutSaveViaClose(const LLSD& notification, const LLSD& response);
+	void onClickConfirmExitWithoutSaveViaClose();
+
 
 private:
 	void onFilterEdit(const std::string& search_string);
@@ -85,6 +94,7 @@ private:
 	LLButton*					mOpenOutfitBtn;
 	LLButton*					mEditAppearanceBtn;
 	LLButton*					mNewOutfitBtn;
+	
 	LLPanel*					mCurrOutfitPanel;
 
 	LLTextBox*					mCurrentLookName;
@@ -99,6 +109,10 @@ private:
 
 	// Gets set to true when we're opened for the first time.
 	bool mOpened;
+	// Set to true if sidepanel has just been opened
+	bool mSidePanelJustOpened;
+	LLFloaterSidePanelContainer* mLLFloaterSidePanelContainer;
+
 };
 
 #endif //LL_LLSIDEPANELAPPEARANCE_H
