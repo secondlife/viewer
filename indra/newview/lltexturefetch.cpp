@@ -388,10 +388,12 @@ public:
 	// Threads:  Ttf
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 	
+	void setFakeFailure(bool fake_failure) { mFakeFailure = fake_failure; }
+
 protected:
 	LLTextureFetchWorker(LLTextureFetch* fetcher, FTType f_type,
 						 const std::string& url, const LLUUID& id, const LLHost& host,
-						 F32 priority, S32 discard, S32 size);
+						 F32 priority, S32 discard, S32 size, bool fake_failure);
 
 private:
 
@@ -547,6 +549,7 @@ private:
 	S32 mActiveCount;
 	LLCore::HttpStatus mGetStatus;
 	std::string mGetReason;
+	bool mFakeFailure;
 	
 	// Work Data
 	LLMutex mWorkMutex;
@@ -836,7 +839,8 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 										   const LLHost& host,	// Simulator host
 										   F32 priority,		// Priority
 										   S32 discard,			// Desired discard
-										   S32 size)			// Desired size
+										   S32 size,			// Desired size
+										   bool fake_failure)   // For testing, simulate http failure if true.
 	: LLWorkerClass(fetcher, "TextureFetch"),
 	  LLCore::HttpHandler(),
 	  mState(INIT),
@@ -889,7 +893,8 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mHttpHasResource(false),
 	  mCacheReadCount(0U),
 	  mCacheWriteCount(0U),
-	  mResourceWaitCount(0U)
+	  mResourceWaitCount(0U),
+	  mFakeFailure(fake_failure)
 {
 	mCanUseNET = mUrl.empty() ;
 	
@@ -1519,15 +1524,16 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			{
 				if (http_not_found == mGetStatus)
 				{
+					llwarns << "Texture missing from server (404): " << mUrl << llendl;
+
 					if(mWriteToCacheState == NOT_WRITE) //map tiles
 					{
 						setState(DONE);
 						releaseHttpSemaphore();
-						LL_DEBUGS("Texture") << mID << " abort: WAIT_HTTP_REQ not found" << llendl;
+						LL_WARNS("Texture") << mID << " abort: WAIT_HTTP_REQ not found" << llendl;
 						return true; // failed, means no map tile on the empty region.
 					}
 
-					llwarns << "Texture missing from server (404): " << mUrl << llendl;
 
 					// roll back to try UDP
 					if (mCanUseNET)
@@ -1891,6 +1897,11 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		mFetcher->mTextureInfo.setRequestCompleteTimeAndLog(mID, timeNow);
 	}
 
+	if (mFakeFailure)
+	{
+		llwarns << "For debugging, setting fake failure status for texture " << mID << llendl;
+		response->setStatus(LLCore::HttpStatus(404));
+	}
 	bool success = true;
 	bool partial = false;
 	LLCore::HttpStatus status(response->getStatus());
@@ -2455,7 +2466,7 @@ LLTextureFetch::~LLTextureFetch()
 }
 
 bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const LLUUID& id, const LLHost& host, F32 priority,
-								   S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux, bool can_use_http)
+								   S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux, bool can_use_http, bool fake_failure)
 {
 	if(mFetcherLocked)
 	{
@@ -2523,7 +2534,8 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 		worker->mNeedsAux = needs_aux;
 		worker->setImagePriority(priority);
 		worker->setDesiredDiscard(desired_discard, desired_size);
-		worker->setCanUseHTTP(can_use_http) ;
+		worker->setCanUseHTTP(can_use_http);
+		worker->setFakeFailure(fake_failure);
 		if (!worker->haveWork())
 		{
 			worker->setState(LLTextureFetchWorker::INIT);
@@ -2538,7 +2550,7 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 	}
 	else
 	{
-		worker = new LLTextureFetchWorker(this, f_type, url, id, host, priority, desired_discard, desired_size);
+		worker = new LLTextureFetchWorker(this, f_type, url, id, host, priority, desired_discard, desired_size, fake_failure);
 		lockQueue();													// +Mfq
 		mRequestMap[id] = worker;
 		unlockQueue();													// -Mfq

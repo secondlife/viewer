@@ -962,6 +962,8 @@ void LLViewerFetchedTexture::init(bool firstinit)
 	// does not contain this image.
 	mIsMissingAsset = FALSE;
 
+	mFetchFailureCount = 0;
+
 	mLoadedCallbackDesiredDiscardLevel = S8_MAX;
 	mPauseLoadedCallBacks = FALSE ;
 
@@ -1823,12 +1825,18 @@ bool LLViewerFetchedTexture::updateFetch()
 				// We finished but received no data
 				if (current_discard < 0)
 				{
-					llwarns << "!mIsFetching, setting as missing, decode_priority " << decode_priority
-							<< " mRawDiscardLevel " << mRawDiscardLevel
-							<< " current_discard " << current_discard
-							<< llendl;
-					setIsMissingAsset();
-					desired_discard = -1;
+					const S32 MAX_FETCH_FAILURE = 1;
+					mFetchFailureCount++;
+					llwarns << "Fetch failure for " << mID << " failure count " << mFetchFailureCount << llendl;
+					if (getFTType() != FTT_SERVER_BAKE || mFetchFailureCount >= MAX_FETCH_FAILURE)
+					{
+						llwarns << "!mIsFetching, setting as missing, decode_priority " << decode_priority
+								<< " mRawDiscardLevel " << mRawDiscardLevel
+								<< " current_discard " << current_discard
+								<< llendl;
+						setIsMissingAsset();
+						desired_discard = -1;
+					}
 				}
 				else
 				{
@@ -1942,8 +1950,14 @@ bool LLViewerFetchedTexture::updateFetch()
 		
 		// bypass texturefetch directly by pulling from LLTextureCache
 		bool fetch_request_created = false;
+		bool fake_failure = false;
+		const bool debug_setting_fake_failures = gSavedSettings.getBOOL("TextureFetchFakeFailures");
+		if (getFTType() == FTT_SERVER_BAKE && mFetchFailureCount == 0 && debug_setting_fake_failures)
+		{
+			fake_failure = true;
+		}
 		fetch_request_created = LLAppViewer::getTextureFetch()->createRequest(mFTType, mUrl, getID(), getTargetHost(), decode_priority,
-																			  w, h, c, desired_discard, needsAux(), mCanUseHTTP);
+																			  w, h, c, desired_discard, needsAux(), mCanUseHTTP, fake_failure);
 		
 		if (fetch_request_created)
 		{
@@ -2040,6 +2054,7 @@ void LLViewerFetchedTexture::setIsMissingAsset(BOOL is_missing)
 	else
 	{
 		llinfos << mID << ": un-flagging missing asset" << llendl;
+		mFetchFailureCount = 0;
 	}
 	mIsMissingAsset = is_missing;
 }

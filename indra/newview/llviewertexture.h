@@ -450,6 +450,7 @@ protected:
 
 	FTType mFTType; // What category of image is this - map tile, server bake, etc?
 	mutable BOOL mIsMissingAsset;		// True if we know that there is no image asset with this image id in the database.		
+	S32 mFetchFailureCount; // How many times has a fetch failed in a way that suggests the asset is missing?
 
 	typedef std::list<LLLoadedCallbackEntry*> callback_list_t;
 	S8              mLoadedCallbackDesiredDiscardLevel;
