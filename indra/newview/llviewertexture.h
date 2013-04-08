@@ -120,7 +120,7 @@ public:
 	LLViewerTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps) ;
 
 	virtual S8 getType() const;
-	virtual BOOL isMissingAsset()const ;
+	virtual BOOL isMissingAsset() const ;
 	virtual void dump();	// debug info to llinfos
 	
 	/*virtual*/ bool bindDefaultImage(const S32 stage = 0) ;
@@ -338,8 +338,8 @@ public:
 	// more data.
 	/*virtual*/ void setKnownDrawSize(S32 width, S32 height);
 
-	void setIsMissingAsset(bool is_missing = true);
-	/*virtual*/ BOOL isMissingAsset()	const		{ return mIsMissingAsset; }
+	void setIsMissingAsset(BOOL is_missing = true);
+	/*virtual*/ BOOL isMissingAsset() const { return mIsMissingAsset; }
 
 	// returns dimensions of original image for local files (before power of two scaling)
 	// and returns 0 for all asset system images
@@ -449,7 +449,7 @@ protected:
 	bool mCanUseHTTP ;              //This texture can be fetched through http if true.
 
 	FTType mFTType; // What category of image is this - map tile, server bake, etc?
-	mutable S8 mIsMissingAsset;		// True if we know that there is no image asset with this image id in the database.		
+	mutable BOOL mIsMissingAsset;		// True if we know that there is no image asset with this image id in the database.		
 
 	typedef std::list<LLLoadedCallbackEntry*> callback_list_t;
 	S8              mLoadedCallbackDesiredDiscardLevel;

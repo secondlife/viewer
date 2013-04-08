@@ -1884,6 +1884,10 @@ LLViewerFetchedTexture *LLVOAvatar::getBakedTextureImage(const U8 te, const LLUU
 			LL_DEBUGS("Avatar") << avString() << "from URL " << url << llendl;
 			result = LLViewerTextureManager::getFetchedTextureFromUrl(
 				url, FTT_SERVER_BAKE, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, uuid);
+			if (result->isMissingAsset())
+			{
+				result->setIsMissingAsset(false);
+			}
 		}
 		else
 		{

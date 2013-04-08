@@ -2005,8 +2005,12 @@ void LLViewerFetchedTexture::forceToDeleteRequest()
 	mDesiredDiscardLevel = getMaxDiscardLevel() + 1;
 }
 
-void LLViewerFetchedTexture::setIsMissingAsset(bool is_missing)
+void LLViewerFetchedTexture::setIsMissingAsset(BOOL is_missing)
 {
+	if (is_missing == mIsMissingAsset)
+	{
+		return;
+	}
 	if (is_missing)
 	{
 		if (mUrl.empty())
