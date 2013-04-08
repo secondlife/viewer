@@ -93,8 +93,8 @@ protected:
 	static void		onCommitMaterialType(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitBump(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitTexGen(			LLUICtrl* ctrl, void* userdata);
-	static void		updateShinyControls(		LLUICtrl* ctrl, void* userdata);
-	static void		updateBumpyControls(		LLUICtrl* ctrl, void* userdata);
+	static void		updateShinyControls(		LLUICtrl* ctrl, void* userdata, bool mess_with_combobox = false);
+	static void		updateBumpyControls(		LLUICtrl* ctrl, void* userdata, bool mess_with_combobox = false);
 	static void		onCommitShiny(			LLUICtrl* ctrl, void* userdata);
 	static void		updateAlphaControls(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitAlphaMode(		LLUICtrl* ctrl, void* userdata);
@@ -134,3 +134,4 @@ private:
 };
 
 #endif
+
