@@ -292,10 +292,7 @@ void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 	delete mPropertiesRequest;
 	mPropertiesRequest = NULL;
 }
-/*
-prep#
-	virtual void httpFailure()
-	*/
+
 
 void LLInspectAvatar::updateVolumeSlider()
 {
