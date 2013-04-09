@@ -148,6 +148,8 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mViewsInitialized(false),
 	mInvFVBridgeBuilder(NULL)
 {
+    llinfos << "Merov : LLInventoryPanel::LLInventoryPanel, name = " << getName() << ", label = " << getLabel() << llendl;
+
 	mInvFVBridgeBuilder = &INVENTORY_BRIDGE_BUILDER;
 
 	if (!sColorSetInitialized)
@@ -476,6 +478,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		{
 			if (view_item)
 			{
+                // Merov??
 				view_item->refresh();
 			}
 		}

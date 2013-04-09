@@ -323,6 +323,7 @@ static LLFastTimer::DeclareTimer FTM_FILTER("Filter Folder View");
 
 void LLFolderView::filter( LLFolderViewFilter& filter )
 {
+    //llinfos << "Merov : LLFolderView::filter (fast timed)" << llendl;
 	LLFastTimer t2(FTM_FILTER);
 	filter.setFilterCount(llclamp(LLUI::sSettingGroups["config"]->getS32("FilterItemsPerFrame"), 1, 5000));
 
@@ -1615,6 +1616,7 @@ void LLFolderView::update()
 	{
 		getFolderViewModel()->getFilter().clearModified();
 	}
+    llinfos << "Merov : LLFolderView::update: modified = " << getFolderViewModel()->getFilter().isModified() << ", default = " << getFolderViewModel()->getFilter().isNotDefault() << ", count = " << getFolderViewModel()->getFilter().getFilterCount() << llendl;
 
 	// automatically show matching items, and select first one if we had a selection
 	if (mNeedsAutoSelect)

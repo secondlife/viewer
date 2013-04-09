@@ -35,6 +35,13 @@
 // class LLFolderViewModelInventory
 //
 static LLFastTimer::DeclareTimer FTM_INVENTORY_SORT("Sort");
+static S32 sModelInstance = 0;
+
+LLFolderViewModelInventory::LLFolderViewModelInventory()
+{
+    mModelInstance = sModelInstance++;
+    llinfos << "Merov : LLFolderViewModelInventory::LLFolderViewModelInventory, instance = " << mModelInstance << llendl;
+}
 
 bool LLFolderViewModelInventory::startDrag(std::vector<LLFolderViewModelItem*>& items)
 {
@@ -64,6 +71,7 @@ bool LLFolderViewModelInventory::startDrag(std::vector<LLFolderViewModelItem*>& 
 void LLFolderViewModelInventory::sort( LLFolderViewFolder* folder )
 {
 	LLFastTimer _(FTM_INVENTORY_SORT);
+    llinfos << "Merov : LLFolderViewModelInventory::sort of instance = " << mModelInstance << llendl;
 
 	if (!needsSort(folder->getViewModelItem())) return;
 
@@ -174,7 +182,16 @@ bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 	const S32 filter_generation = filter.getCurrentGeneration();
 	const S32 must_pass_generation = filter.getFirstRequiredGeneration();
 
-	if (getLastFilterGeneration() >= must_pass_generation 
+    if (getSearchableName() == "A NOUNOURS")
+    {
+        llinfos << "Merov : LLFolderViewModelItemInventory::filter : special NOUNOURS case, filter count = " << filter.getFilterCount() << ", must pass = " << must_pass_generation << ", current = " << filter_generation << ", item last = " << getLastFilterGeneration() << ", folder last = " << getLastFolderFilterGeneration() << llendl;
+    }
+    else
+    {
+        llinfos << "Merov : LLFolderViewModelItemInventory::filter : filter count = " << filter.getFilterCount() << llendl;
+    }
+   
+    if (getLastFilterGeneration() >= must_pass_generation
 		&& getLastFolderFilterGeneration() >= must_pass_generation
 		&& !passedFilter(must_pass_generation))
 	{
@@ -185,14 +202,12 @@ bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 		return true;
 	}
 
-	const bool passed_filter_folder = (getInventoryType() == LLInventoryType::IT_CATEGORY) 
-		? filter.checkFolder(this)
-		: true;
+	const bool passed_filter_folder = (getInventoryType() == LLInventoryType::IT_CATEGORY) ? filter.checkFolder(this) : true;
 	setPassedFolderFilter(passed_filter_folder, filter_generation);
 
-	if(!mChildren.empty()
+	if (!mChildren.empty()
 		&& (getLastFilterGeneration() < must_pass_generation // haven't checked descendants against minimum required generation to pass
-			|| descendantsPassedFilter(must_pass_generation))) // or at least one descendant has passed the minimum requirement
+            || descendantsPassedFilter(must_pass_generation))) // or at least one descendant has passed the minimum requirement
 	{
 		// now query children
 		for (child_list_t::iterator iter = mChildren.begin(), end_iter = mChildren.end();

@@ -274,6 +274,11 @@ void LLFolderViewItem::refresh()
 	}
 
 	mLabelWidthDirty = true;
+    // Merov ??
+    if (vmi.getSearchableName() == "A NOUNOURS")
+    {
+        llinfos << "Merov : LLFolderViewItem::refresh : Dirty filter for NOUNOURS" << llendl;
+    }
 	vmi.dirtyFilter();
 }
 
@@ -951,6 +956,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 	getRoot()->getFolderViewModel()->sort(this);
 
 	LLFastTimer t2(FTM_ARRANGE);
+    llinfos << "Merov : LLFolderViewFolder::arrange" << llendl;
 
 	// evaluate mHasVisibleChildren
 	mHasVisibleChildren = false;

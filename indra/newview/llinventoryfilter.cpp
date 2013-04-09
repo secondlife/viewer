@@ -100,6 +100,15 @@ bool LLInventoryFilter::check(const LLFolderViewModelItem* item)
 	passed = passed && checkAgainstFilterLinks(listener);
 	passed = passed && passed_clipboard;
 
+    if (listener->getSearchableName() == "A NOUNOURS")
+    {
+        llinfos << "Merov : LLInventoryFilter::check : Here we go with our special NOUNOURS case, checked for string '" << mFilterSubString << "', passed = " << passed << ", name = " << listener->getSearchableName() << llendl;
+    }
+    else
+    {
+        llinfos << "Merov : LLInventoryFilter::check : checked for string '" << mFilterSubString << "', passed = " << passed << ", name = " << listener->getSearchableName() << llendl;
+    }
+
 	return passed;
 }
 
