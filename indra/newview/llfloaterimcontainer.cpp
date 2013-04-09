@@ -342,8 +342,11 @@ void LLFloaterIMContainer::onStubCollapseButtonClicked()
 
 void LLFloaterIMContainer::onSpeakButtonClicked()
 {
-	LLAgent::toggleMicrophone("speak");
-	updateSpeakBtnState();
+	//LLAgent::toggleMicrophone("speak");
+	//updateSpeakBtnState();
+
+	LLParticipantList* session_model = dynamic_cast<LLParticipantList*>(mConversationsItems[LLUUID(NULL)]);
+	session_model->addTestAvatarAgents();
 }
 void LLFloaterIMContainer::onExpandCollapseButtonClicked()
 {

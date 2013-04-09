@@ -26,5 +26,12 @@
     <menu_item_check.on_click
      function="People.sendFBC"
      parameter="http://www.facebook.com/settings?tab=applications" />
-  </menu_item_check>  
+  </menu_item_check>
+  <menu_item_check
+   label="Facebook Add 300 test users"
+   layout="topleft"
+   name="Facebook App Add">
+    <menu_item_check.on_click
+     function="People.testaddFBC"/>
+  </menu_item_check>
 </toggleable_menu>
