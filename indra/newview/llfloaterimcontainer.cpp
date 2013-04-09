@@ -63,7 +63,8 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
 	mExpandCollapseBtn(NULL),
 	mConversationsRoot(NULL),
 	mConversationsEventStream("ConversationsEvents"),
-	mInitialized(false)
+	mInitialized(false),
+	mIsFirstLaunch(true)
 {
     mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLFloaterIMContainer::isActionChecked, this, _2));
 	mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLFloaterIMContainer::onCustomAction,  this, _2));
@@ -663,6 +664,11 @@ void LLFloaterIMContainer::setVisibleAndFrontmost(BOOL take_focus, const LLSD& k
 {
 	LLMultiFloater::setVisibleAndFrontmost(take_focus, key);
     selectConversationPair(getSelectedSession(), false, take_focus);
+	if (mInitialized && mIsFirstLaunch)
+	{
+		collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
+		mIsFirstLaunch = false;
+	}
 }
 
 void LLFloaterIMContainer::updateResizeLimits()
