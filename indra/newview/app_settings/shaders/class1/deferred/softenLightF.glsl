@@ -77,6 +77,17 @@ vec3 vary_AtmosAttenuation;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
+vec3 decode_normal (vec2 enc)
+{
+    vec2 fenc = enc*4-2;
+    float f = dot(fenc,fenc);
+    float g = sqrt(1-f/4);
+    vec3 n;
+    n.xy = fenc*g;
+    n.z = 1-f/2;
+    return n;
+}
+
 vec4 getPosition_d(vec2 pos_screen, float depth)
 {
 	vec2 sc = pos_screen.xy*2.0;
@@ -276,7 +287,8 @@ void main()
 	float depth = texture2DRect(depthMap, tc.xy).r;
 	vec3 pos = getPosition_d(tc, depth).xyz;
 	vec4 norm = texture2DRect(normalMap, tc);
-	norm.xyz = (norm.xyz-0.5)*2.0; // unpack norm
+	float envIntensity = norm.z;
+	norm.xyz = decode_normal(norm.xy); // unpack norm
 		
 	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
 	
@@ -312,7 +324,7 @@ void main()
 			//add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
 			col = mix(col.rgb, textureCube(environmentMap, env_vec).rgb, 
-				max(norm.a-diffuse.a*2.0, 0.0)); 
+				max(envIntensity-diffuse.a*2.0, 0.0)); 
 		}
 	
 		col = atmosLighting(col);
