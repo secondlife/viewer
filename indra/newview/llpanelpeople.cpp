@@ -888,6 +888,9 @@ void LLPanelPeople::updateFbcTestList()
 
 			// close the browser window
 			mFbcTestBrowserHandle.get()->die();
+
+			// get rid of the handle
+			mFbcTestBrowserHandle = LLHandle<LLFloater>();
 			
 			// stop updating
 			mFbcTestListUpdater->setActive(false);
@@ -1716,7 +1719,7 @@ public:
 			llinfos << content << llendl;
 
 			// display the list of friends
-			if (content.has("friends"))
+			if (content.has("friends") && !content.has("error"))
 			{
 				mPanelPeople->showFacebookFriends(content["friends"]);
 			}
@@ -1748,14 +1751,17 @@ void LLPanelPeople::tryToReconnectToFacebook()
 void LLPanelPeople::connectToFacebook(const std::string& auth_code)
 {
 	LLSD body;
+	body["agent_id"] = gAgentID.asString();
 	body["code"] = auth_code;
 	body["redirect_uri"] = FBC_SERVICES_REDIRECT_URI;
-	LLHTTPClient::post(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc", body, new FacebookConnectResponder(this));
+	LLHTTPClient::post(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/connect", body, new FacebookConnectResponder(this));
 }
 
 void LLPanelPeople::disconnectFromFacebook()
 {
-	LLHTTPClient::del(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc", new FacebookDisconnectResponder(this));
+	LLSD body;
+	body["agent_id"] = gAgentID.asString();
+	LLHTTPClient::post(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/fbc/disconnect", body, new FacebookDisconnectResponder(this));
 }
 
 void LLPanelPeople::onLoginFbcButtonClicked()
