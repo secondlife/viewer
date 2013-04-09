@@ -70,23 +70,27 @@
      top="0"
      left="0"
      right="-1"
-     bottom="-1">
+     bottom="-3">
         <layout_stack
          animate="false" 
          default_tab_group="2"
          follows="all"
          right="-5"
          bottom="-1"
+         top="0"
+         left="3"
+         border_size="0"
          layout="topleft"
          orientation="vertical"
          name="main_stack"
-         tab_group="1"
-         top="0"
-         left="5">
+         tab_group="1">
             <layout_panel
              auto_resize="false"
+             user_resize="false"
              name="toolbar_panel"
-             height="35">
+             height="35"
+             right="-1"
+             left="1">
                 <menu_button
                  menu_filename="menu_im_session_showmodes.xml"
                  follows="top|left"
@@ -164,7 +168,7 @@
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  top="5"
-                 right="-70"
+                 right="-67"
                  name="close_btn"
                  tool_tip="End this conversation"
                  width="31" />
@@ -196,7 +200,10 @@
             </layout_panel>
             <layout_panel
              name="body_panel"
-             height="235">
+             top="1"
+             bottom="-1"
+             auto_resize="true"
+             user_resize="false">
                 <layout_stack
                  default_tab_group="2"
                  follows="all"
@@ -213,12 +220,14 @@
                      min_dim="0"
                      width="150" 
                      user_resize="true"
-                     auto_resize="false" />
+                     auto_resize="false" 
+                     bottom="-1" />
                     <layout_panel
                      default_tab_group="3"
                      tab_group="2"
                      name="right_part_holder"
-                     min_width="221">
+                     min_width="221"
+                     bottom="-1">
                         <layout_stack
                          animate="true" 
                          default_tab_group="2"
@@ -262,21 +271,29 @@
                 </layout_stack>
             </layout_panel>
             <layout_panel
-             height="35"
+             top_delta="0"
+             top="0"
+             height="26"
+             bottom="-1"
              auto_resize="false"
+             user_resize="false"
              name="chat_layout_panel">
                 <layout_stack
                  animate="false"
                  default_tab_group="2"
                  follows="all"
-                 right="-1"
                  orientation="horizontal"
                  name="input_panels"
                  top="0"
-                 bottom="-1"
-                 left="0">
+                 bottom="-2"
+                 left="0"
+                 right="-1">
                     <layout_panel
-                     name="input_editor_layout_panel">
+                     name="input_editor_layout_panel"
+                     auto_resize="true"
+                     user_resize="false"
+                     top="0"
+                     bottom="-1">
                         <chat_editor
                          layout="topleft"
                          expand_lines_count="5"
@@ -289,27 +306,32 @@
                          max_length="1023"
                          spellcheck="true"
                          tab_group="3"
-                         bottom="-8"
-                         left="5"
-                         right="-5"
+                         top="1"
+                         bottom="-2"
+                         left="4"
+                         right="-4"
                          wrap="true" />
                     </layout_panel>
                     <layout_panel
                      auto_resize="false"
+                     user_resize="false"
                      name="input_button_layout_panel"
-                     width="32">
+                     width="30"
+                     top="0"
+                     bottom="-1">
                         <button
+                         layout="topleft"
                          left="1"
-                         top="4"
+                         right="-1"
+                         top="1"
+                         height="22"
                          follows="left|right|top"
-                         height="25"
                          image_hover_unselected="Toolbar_Middle_Over"
                          image_overlay="Conv_expand_one_line"
                          image_selected="Toolbar_Middle_Selected"
                          image_unselected="Toolbar_Middle_Off"
                          name="minz_btn"
-                         tool_tip="Shows/hides message panel"
-                         width="28" />
+                         tool_tip="Shows/hides message panel" />
                     </layout_panel>
                 </layout_stack>
             </layout_panel>
