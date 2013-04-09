@@ -43,11 +43,11 @@ uniform sampler2D bumpMap;
 
 #if HAS_SPECULAR_MAP
 uniform sampler2D specularMap;
-uniform float env_intensity;
 
 VARYING vec2 vary_texcoord2;
 #endif
 
+uniform float env_intensity;
 uniform vec4 specular_color;
 
 #if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK
@@ -66,6 +66,11 @@ VARYING vec3 vary_normal;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
+vec2 encode_normal(vec3 n)
+{
+	float f = sqrt(8 * n.z + 8);
+	return n.xy / f + 0.5;
+}
 
 void main() 
 {
@@ -109,16 +114,14 @@ void main()
 	//final_color.rgb *= 1 - spec.a * env_intensity;
 	final_specular.rgb *= specular_color.rgb;
 	
-	vec4 final_normal = vec4(normalize(tnorm), spec.a * env_intensity);
+	vec4 final_normal = vec4(encode_normal(normalize(tnorm)), spec.a * env_intensity, 0.0);
 	final_specular.a = specular_color.a * norm.a;
 #else
-	vec4 final_normal = vec4(normalize(tnorm), 0.0);
+	vec4 final_normal = vec4(encode_normal(normalize(tnorm)), env_intensity, 0.0);
 	final_specular.a = specular_color.a;
 #endif
-
-	final_normal.xyz = final_normal.xyz * 0.5 + 0.5;
 	
 	frag_data[0] = final_color;
 	frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.
-	frag_data[2] = final_normal; // XYZ = Normal.  W = Env. intensity.
+	frag_data[2] = final_normal; // XY = Normal.  Z = Env. intensity.
 }

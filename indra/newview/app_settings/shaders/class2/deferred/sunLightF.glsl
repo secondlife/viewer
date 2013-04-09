@@ -65,6 +65,17 @@ uniform float shadow_offset;
 uniform float spot_shadow_bias;
 uniform float spot_shadow_offset;
 
+vec3 decode_normal (vec2 enc)
+{
+    vec2 fenc = enc*4-2;
+    float f = dot(fenc,fenc);
+    float g = sqrt(1-f/4);
+    vec3 n;
+    n.xy = fenc*g;
+    n.z = 1-f/2;
+    return n;
+}
+
 vec4 getPosition(vec2 pos_screen)
 {
 	float depth = texture2DRect(depthMap, pos_screen.xy).r;
@@ -126,7 +137,7 @@ void main()
 	vec4 pos = getPosition(pos_screen);
 	
 	vec4 nmap4 = texture2DRect(normalMap, pos_screen);
-	nmap4 = vec4((nmap4.xyz-0.5)*2.0,nmap4.w); // unpack norm
+	nmap4 = vec4(decode_normal(nmap4.xy),nmap4.w); // unpack norm
 	float displace = nmap4.w;
 	vec3 norm = nmap4.xyz;
 	

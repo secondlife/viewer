@@ -62,7 +62,7 @@ uniform float shadow_offset;
 
 float calcDirectionalLight(vec3 n, vec3 l)
 {
-        float a = pow(max(dot(n,l),0.0), 0.6);
+        float a = pow(max(dot(n,l),0.0), 0.7);
         return a;
 }
 
@@ -90,7 +90,7 @@ float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, floa
 		da *= spot*spot; // GL_SPOT_EXPONENT=2
 
 		//angular attenuation
-		da *= max(pow(dot(n, lv), 0.6), 0.0);		
+		da *= max(pow(dot(n, lv), 0.7), 0.0);		
 	}
 
 	return da;	
@@ -120,7 +120,7 @@ void main()
 		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, vary_norm, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
 	}
 	
-	color.rgb += vary_pointlight_col * light_col;
+	color.rgb += diff.rgb * vary_pointlight_col * light_col;
 
 	frag_color = color;
 }

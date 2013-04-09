@@ -70,6 +70,17 @@ uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
 
+vec3 decode_normal (vec2 enc)
+{
+    vec2 fenc = enc*4-2;
+    float f = dot(fenc,fenc);
+    float g = sqrt(1-f/4);
+    vec3 n;
+    n.xy = fenc*g;
+    n.z = 1-f/2;
+    return n;
+}
+
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
@@ -146,7 +157,7 @@ void main()
 	}
 		
 	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
-	norm = vec3((norm.xy-0.5)*2.0, norm.z);
+	norm = decode_normal(norm.xy);
 	
 	norm = normalize(norm);
 	float l_dist = -dot(lv, proj_n);
