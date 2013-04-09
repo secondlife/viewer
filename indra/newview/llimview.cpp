@@ -299,9 +299,8 @@ void on_new_message(const LLSD& msg)
 
     // 4. Toast
     if ((("toast" == user_preferences) &&
-    		(CLOSED == conversations_floater_status
-    		    || NOT_ON_TOP == conversations_floater_status))
-    		    || !session_floater->isMessagePaneExpanded())
+    	(ON_TOP_AND_ITEM_IS_SELECTED != conversations_floater_status))
+    	|| !session_floater->isMessagePaneExpanded())
 
     {
         //Show IM toasts (upper right toasts)
