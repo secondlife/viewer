@@ -42,6 +42,7 @@ set(llcommon_SOURCE_FILES
     llcriticaldamp.cpp
     llcursortypes.cpp
     lldate.cpp
+    lldeadmantimer.cpp
     lldependencies.cpp
     lldictionary.cpp
     llerror.cpp
@@ -144,6 +145,7 @@ set(llcommon_HEADER_FILES
     lldarray.h
     lldarrayptr.h
     lldate.h
+    lldeadmantimer.h
     lldefs.h
     lldependencies.h
     lldeleteutils.h
@@ -322,6 +324,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llbase64 "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldate "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lldeadmantimer "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldependencies "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llerror "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llframetimer "" "${test_libs}")

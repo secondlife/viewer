@@ -146,6 +146,13 @@ static inline time_t time_max()
 	}
 }
 
+// These are really statics but they've been global for awhile
+// and they're material to other timing classes.  If you are
+// not implementing a timer class, do not use these directly.
+extern LL_COMMON_API F64 gClockFrequency;
+extern LL_COMMON_API F64 gClockFrequencyInv;
+extern LL_COMMON_API F64 gClocksToMicroseconds;
+
 // Correction factor used by time_corrected() above.
 extern LL_COMMON_API S32 gUTCOffset;
 
