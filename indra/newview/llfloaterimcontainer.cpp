@@ -54,6 +54,7 @@
 #include "llworld.h"
 #include "llsdserialize.h"
 #include "llviewerobjectlist.h"
+#include "boost/foreach.hpp"
 
 //
 // LLFloaterIMContainer
@@ -658,6 +659,23 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 	
 	// Now, do the normal multifloater show/hide
 	LLMultiFloater::setVisible(visible);
+}
+
+void LLFloaterIMContainer::getDetachedConversationFloaters(floater_list_t& floaters)
+{
+	typedef conversations_widgets_map::value_type conv_pair;
+	BOOST_FOREACH(conv_pair item, mConversationsWidgets)
+	{
+		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(item.second);
+		if (widget)
+		{
+			LLFloater* session_floater = widget->getSessionFloater();
+			if (session_floater && session_floater->isDetachedAndNotMinimized())
+			{
+				floaters.push_back(session_floater);
+			}
+		}
+	}
 }
 
 void LLFloaterIMContainer::setVisibleAndFrontmost(BOOL take_focus, const LLSD& key)

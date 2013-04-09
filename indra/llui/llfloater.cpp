@@ -3258,6 +3258,11 @@ bool LLFloater::isShown() const
     return ! isMinimized() && isInVisibleChain();
 }
 
+bool LLFloater::isDetachedAndNotMinimized()
+{
+	return !getHost() && !isMinimized();
+}
+
 /* static */
 bool LLFloater::isShown(const LLFloater* floater)
 {
