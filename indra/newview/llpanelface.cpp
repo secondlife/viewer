@@ -1455,7 +1455,10 @@ void LLPanelFace::getState()
 		
 		// Repeats per meter
 		{
-			F32 repeats = 1.f;
+			F32 repeats_diff = 1.f;
+			F32 repeats_norm = 1.f;
+			F32 repeats_spec = 1.f;
+
 			struct f13 : public LLSelectedTEGetFunctor<F32>
 			{
 				F32 get(LLViewerObject* object, S32 face)
@@ -1470,26 +1473,92 @@ void LLPanelFace::getState()
 					return llmax(repeats_s, repeats_t);
 				}
 
-			} func;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, repeats );
+			} func_diff;
+			bool identical_diff_repeats = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func_diff, repeats_diff );
 			
-			getChild<LLUICtrl>("rptctrl")->setValue(editable ? repeats : 0);
-			getChild<LLUICtrl>("rptctrl")->setTentative(!identical);
+			struct f14 : public LLSelectedTEGetFunctor<F32>
+			{
+				F32 get(LLViewerObject* object, S32 face)
+				{
+					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
+					U32 s_axis = VX;
+					U32 t_axis = VY;
+					F32 repeats_s = 1.0f;
+					F32 repeats_t = 1.0f;
+					if (mat)
+					{
+						mat->getNormalRepeat(repeats_s, repeats_t);
+						repeats_s /= object->getScale().mV[s_axis];
+						repeats_t /= object->getScale().mV[t_axis];
+					}					
+					return llmax(repeats_s, repeats_t);
+				}
+
+			} func_norm;
+			BOOL identical_norm_repeats = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func_norm, repeats_norm );
+
+			struct f15 : public LLSelectedTEGetFunctor<F32>
+			{
+				F32 get(LLViewerObject* object, S32 face)
+				{
+					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
+					U32 s_axis = VX;
+					U32 t_axis = VY;
+					F32 repeats_s = 1.0f;
+					F32 repeats_t = 1.0f;
+					if (mat)
+					{
+						mat->getSpecularRepeat(repeats_s, repeats_t);
+						repeats_s /= object->getScale().mV[s_axis];
+						repeats_t /= object->getScale().mV[t_axis];
+					}					
+					return llmax(repeats_s, repeats_t);
+				}
+
+			} func_spec;
+			BOOL identical_spec_repeats = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func_spec, repeats_spec );
+			
 
 			LLComboBox*	mComboTexGen = getChild<LLComboBox>("combobox texgen");
 			if (mComboTexGen)
 			{
 				S32 index = mComboTexGen ? mComboTexGen->getCurrentIndex() : 0;
 				BOOL enabled = editable && (index != 1);
+				BOOL identical = true;
+				F32  repeats = 1.0f;
+
 				U32 material_type = combobox_mattype->getCurrentIndex();
 				switch (material_type)
 				{
 					default:
-					case MATTYPE_DIFFUSE:  enabled = (editable && !id.isNull()); break;
-					case MATTYPE_SPECULAR: enabled = (editable && ((shiny == SHINY_TEXTURE) && !specmap_id.isNull())); break;
-					case MATTYPE_NORMAL:   enabled = (editable && ((bumpy == BUMPY_TEXTURE) && !normmap_id.isNull())); break;
+					case MATTYPE_DIFFUSE:
+					{
+						enabled = editable && !id.isNull();
+						identical = identical_diff_repeats;
+						repeats = repeats_diff;
+					}
+					break;
+
+					case MATTYPE_SPECULAR:
+					{
+						enabled = (editable && ((shiny == SHINY_TEXTURE) && !specmap_id.isNull()));
+						identical = identical_spec_repeats;
+						repeats = repeats_spec;
+					}
+					break;
+
+					case MATTYPE_NORMAL:
+					{
+						enabled = (editable && ((bumpy == BUMPY_TEXTURE) && !normmap_id.isNull()));
+						identical = identical_norm_repeats;
+						repeats = repeats_norm;
+					}
+					break;
 				}
+				
 				getChildView("rptctrl")->setEnabled(enabled);
+				getChild<LLUICtrl>("rptctrl")->setValue(editable ? repeats : 1.0f);
+				getChild<LLUICtrl>("rptctrl")->setTentative(!identical);
 			}
 		}
 
