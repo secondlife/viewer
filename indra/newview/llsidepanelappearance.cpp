@@ -93,7 +93,6 @@ bool LLSidepanelAppearance::callBackExitWithoutSaveViaClose(const LLSD& notifica
 	if ( option == 0 ) 
 	{		
 		gSavedSettings.setBOOL("ExitOutfitEditWithoutSave", TRUE);
-		mEditWearable->revertChanges();
 		LLAppearanceMgr::getInstance()->wearBaseOutfit();
 		mLLFloaterSidePanelContainer->close();
 		return true;
