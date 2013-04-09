@@ -80,7 +80,7 @@ static const std::string FBCTEST_TAB_NAME	= "fbctest_panel";
 static const std::string COLLAPSED_BY_USER  = "collapsed_by_user";
 
 static const std::string FBC_SERVICES_URL = "https://pdp15.lindenlab.com";
-static const std::string FBC_SERVICES_REDIRECT_URI = "http://axcho.com/secondlife/";
+static const std::string FBC_SERVICES_REDIRECT_URI = "https://pdp15.lindenlab.com/redirect";
 
 /** Comparator for comparing avatar items by last interaction date */
 class LLAvatarItemRecentComparator : public LLAvatarItemComparator
