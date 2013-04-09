@@ -131,7 +131,9 @@ void LLSidepanelAppearance::onClickConfirmExitWithoutSaveViaBack()
 void LLSidepanelAppearance::onClose(LLFloaterSidePanelContainer* obj)
 {
 	mLLFloaterSidePanelContainer = obj;
-	if ( LLAppearanceMgr::getInstance()->isOutfitDirty() && !LLAppearanceMgr::getInstance()->isOutfitLocked() )
+	if (  LLAppearanceMgr::getInstance()->isOutfitDirty() && 
+		 !LLAppearanceMgr::getInstance()->isOutfitLocked() ||
+		 ( mEditWearable->isAvailable() && mEditWearable->isDirty() ) )
 	{
 		LLSidepanelAppearance* pSelf = (LLSidepanelAppearance *)this;
 		LLNotificationsUtil::add("ConfirmExitWithoutSave", LLSD(), LLSD(), boost::bind(&LLSidepanelAppearance::callBackExitWithoutSaveViaClose,pSelf,_1,_2) );
