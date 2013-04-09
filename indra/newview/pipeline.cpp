@@ -1327,7 +1327,6 @@ void LLPipeline::createLUTBuffers()
 					// This is fine, given we only need to create our LUT once per buffer initialization.
 					spec *= (((n + 2) * (n + 4)) / (8 * F_PI * (powf(2, -n/2) + n)));
 					
-					spec = llclamp(spec, 0.f, 1.f);
 					spec = powf(spec, 0.6f);
 
 					// Since we use R16F, we no longer have a dynamic range issue we need to work around here.
@@ -1353,7 +1352,7 @@ void LLPipeline::createLUTBuffers()
 				}
 			}
 			
-			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, GL_R8, 1, &mLightFunc);
+			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, GL_R16F, 1, &mLightFunc);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
 			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_R16F, lightResX, lightResY, GL_RED, GL_FLOAT, ls, false);
 			//LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_UNSIGNED_BYTE, lightResX, lightResY, GL_RED, GL_UNSIGNED_BYTE, ls, false);
