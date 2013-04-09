@@ -124,6 +124,7 @@ private:
 	void					onLoginFbcButtonClicked();
 	void					onFacebookAppRequestClicked();
 	void					onFacebookAppSendClicked();
+	void					onFacebookTestAddClicked();
 
 	bool					onFriendsViewSortMenuItemCheck(const LLSD& userdata);
 	bool					onRecentViewSortMenuItemCheck(const LLSD& userdata);

@@ -50,6 +50,7 @@ public:
 	 * @param[in] avatar_id - Avatar UUID to be added into the list
 	 */
 	void addAvatarIDExceptAgent(const LLUUID& avatar_id);
+	void addTestAvatarAgents();
 
 	/**
 	 * Refreshes the participant list.

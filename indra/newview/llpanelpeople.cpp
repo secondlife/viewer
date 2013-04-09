@@ -49,6 +49,7 @@
 #include "llavatarlist.h"
 #include "llavatarlistitem.h"
 #include "llcallingcard.h"			// for LLAvatarTracker
+#include "llerror.h"
 #include "llfloateravatarpicker.h"
 //#include "llfloaterminiinspector.h"
 #include "llfriendcard.h"
@@ -557,6 +558,7 @@ LLPanelPeople::LLPanelPeople()
 	mCommitCallbackRegistrar.add("People.loginFBC", boost::bind(&LLPanelPeople::onLoginFbcButtonClicked, this));
 	mCommitCallbackRegistrar.add("People.requestFBC", boost::bind(&LLPanelPeople::onFacebookAppRequestClicked, this));
 	mCommitCallbackRegistrar.add("People.sendFBC", boost::bind(&LLPanelPeople::onFacebookAppSendClicked, this));
+	mCommitCallbackRegistrar.add("People.testaddFBC", boost::bind(&LLPanelPeople::onFacebookTestAddClicked, this));
 
 
 	mCommitCallbackRegistrar.add("People.AddFriend", boost::bind(&LLPanelPeople::onAddFriendButtonClicked, this));
@@ -1789,4 +1791,19 @@ void LLPanelPeople::onFacebookAppSendClicked()
 	p.url("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Join Second Life!&link=https://join.secondlife.com&redirect_uri=" + FBC_SERVICES_URL);
 	openFacebookWeb(p);
 }
+
+void LLPanelPeople::onFacebookTestAddClicked()
+{
+	mFacebookFriends->clear();
+
+	LL_INFOS("LLPanelPeople") << "start adding 300 users" << LL_ENDL;
+
+	for(int i = 0; i < 300; ++i)
+	{
+		mFacebookFriends->addNewItem(LLUUID(), "Test", false);
+	}
+
+	LL_INFOS("LLPanelPeople") << "finished adding 300 users" << LL_ENDL;
+}
+
 // EOF
