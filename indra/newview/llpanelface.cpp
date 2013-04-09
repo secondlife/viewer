@@ -2005,6 +2005,10 @@ void LLPanelFace::onCommitMaterialsMedia(LLUICtrl* ctrl, void* userdata)
 	self->getChildView("bumpyOffsetU")->setEnabled(texParmsEnable);
 	self->getChildView("bumpyOffsetV")->setEnabled(texParmsEnable);
 	self->getChildView("checkbox planar align")->setEnabled(texParmsEnable);
+
+	// Needed to handle transitions to/from media mode
+	// NORSPEC-84
+	updateAlphaControls(ctrl,userdata);
 }
 
 // static
