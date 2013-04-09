@@ -445,7 +445,9 @@ LLGLManager::LLGLManager() :
 	mIsGFFX(FALSE),
 	mATIOffsetVerticalLines(FALSE),
 	mATIOldDriver(FALSE),
-
+#if LL_DARWIN
+	mIsMobileGF(FALSE),
+#endif
 	mHasRequirements(TRUE),
 
 	mHasSeparateSpecularColor(FALSE),
@@ -637,6 +639,13 @@ bool LLGLManager::initGL()
 		{
 			mIsGF3 = TRUE;
 		}
+#if LL_DARWIN
+		else if ((mGLRenderer.find("9400M") != std::string::npos)
+			  || (mGLRenderer.find("9600M") != std::string::npos))
+		{
+			mIsMobileGF = TRUE;
+		}
+#endif
 
 	}
 	else if (mGLVendor.find("INTEL") != std::string::npos
