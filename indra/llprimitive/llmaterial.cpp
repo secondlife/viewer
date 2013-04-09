@@ -51,6 +51,8 @@
 #define MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD     "AlphaMaskCutoff"
 #define MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD    "DiffuseAlphaMode"
 
+const LLColor4U LLMaterial::DEFAULT_SPECULAR_LIGHT_COLOR = LLColor4U::white;
+
 /**
  * Materials constants
  */
@@ -99,7 +101,8 @@ LLMaterial::LLMaterial()
 	, mSpecularRepeatX(.0f)
 	, mSpecularRepeatY(.0f)
 	, mSpecularRotation(.0f)
-	, mSpecularLightExponent(0)
+	, mSpecularLightColor(LLMaterial::DEFAULT_SPECULAR_LIGHT_COLOR)
+	, mSpecularLightExponent(LLMaterial::DEFAULT_SPECULAR_LIGHT_EXPONENT)
 	, mEnvironmentIntensity(0)
 	, mDiffuseAlphaMode(0)
 	, mAlphaMaskCutoff(0)
@@ -213,4 +216,5 @@ U32 LLMaterial::getShaderMask()
 
 	return ret;
 }
+
 
