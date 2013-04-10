@@ -198,7 +198,11 @@ void LLDrawPoolSimple::render(S32 pass)
 			if (LLPipeline::sRenderDeferred)
 			{ //if deferred rendering is enabled, bump faces aren't registered as simple
 				//render bump faces here as simple so bump faces will appear under water
-				pushBatches(LLRenderPass::PASS_BUMP, mask, TRUE, TRUE);
+				pushBatches(LLRenderPass::PASS_BUMP, mask, TRUE, TRUE);			
+				pushBatches(LLRenderPass::PASS_MATERIAL, mask, TRUE, TRUE);
+				pushBatches(LLRenderPass::PASS_SPECMAP, mask, TRUE, TRUE);
+				pushBatches(LLRenderPass::PASS_NORMMAP, mask, TRUE, TRUE);
+				pushBatches(LLRenderPass::PASS_NORMSPEC, mask, TRUE, TRUE);		
 			}
 		}
 		else
@@ -405,12 +409,20 @@ void LLDrawPoolFullbright::render(S32 pass)
 		fullbright_shader->uniform1f(LLViewerShaderMgr::FULLBRIGHT, 1.f);
 		U32 fullbright_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TEXTURE_INDEX;
 		pushBatches(LLRenderPass::PASS_FULLBRIGHT, fullbright_mask, TRUE, TRUE);
+		pushBatches(LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE, fullbright_mask, TRUE, TRUE);
+		pushBatches(LLRenderPass::PASS_SPECMAP_EMISSIVE, fullbright_mask, TRUE, TRUE);
+		pushBatches(LLRenderPass::PASS_NORMMAP_EMISSIVE, fullbright_mask, TRUE, TRUE);
+		pushBatches(LLRenderPass::PASS_NORMSPEC_EMISSIVE, fullbright_mask, TRUE, TRUE);
 	}
 	else
 	{
 		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 		U32 fullbright_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_COLOR;
 		renderTexture(LLRenderPass::PASS_FULLBRIGHT, fullbright_mask);
+		pushBatches(LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE, fullbright_mask);
+		pushBatches(LLRenderPass::PASS_SPECMAP_EMISSIVE, fullbright_mask);
+		pushBatches(LLRenderPass::PASS_NORMMAP_EMISSIVE, fullbright_mask);
+		pushBatches(LLRenderPass::PASS_NORMSPEC_EMISSIVE, fullbright_mask);
 	}
 
 	stop_glerror();
