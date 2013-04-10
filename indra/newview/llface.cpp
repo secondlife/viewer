@@ -1311,6 +1311,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	{
 		if (tep)
 		{
+			LLMaterial* mat = tep->getMaterialParams().get();
+
 			GLfloat alpha[4] =
 			{
 				0.00f,
@@ -1319,7 +1321,9 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				0.75f
 			};
 			
-			if (getPoolType() != LLDrawPool::POOL_ALPHA && (LLPipeline::sRenderDeferred || (LLPipeline::sRenderBump && tep->getShiny())))
+			if ((!LLPipeline::sRenderDeferred || !mat) &&
+				getPoolType() != LLDrawPool::POOL_ALPHA && 
+				(LLPipeline::sRenderDeferred || (LLPipeline::sRenderBump && tep->getShiny())))
 			{
 				color.mV[3] = U8 (alpha[tep->getShiny()] * 255);
 			}
