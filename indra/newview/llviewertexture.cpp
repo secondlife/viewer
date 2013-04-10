@@ -1760,7 +1760,8 @@ bool LLViewerFetchedTexture::updateFetch()
 		
 		if (mRawImage.notNull()) sRawCount--;
 		if (mAuxRawImage.notNull()) sAuxCount--;
-		bool finished = LLAppViewer::getTextureFetch()->getRequestFinished(getID(), fetch_discard, mRawImage, mAuxRawImage);
+		bool finished = LLAppViewer::getTextureFetch()->getRequestFinished(getID(), fetch_discard, mRawImage, mAuxRawImage,
+																		   mLastHttpGetStatus);
 		if (mRawImage.notNull()) sRawCount++;
 		if (mAuxRawImage.notNull()) sAuxCount++;
 		if (finished)
@@ -1825,14 +1826,25 @@ bool LLViewerFetchedTexture::updateFetch()
 				// We finished but received no data
 				if (current_discard < 0)
 				{
-					const S32 MAX_FETCH_FAILURE = 1;
+					const S32 MAX_FETCH_FAILURE = 3;
 					mFetchFailureCount++;
-					llwarns << "Fetch failure for " << mID << " failure count " << mFetchFailureCount << llendl;
-					if (getFTType() != FTT_SERVER_BAKE || mFetchFailureCount >= MAX_FETCH_FAILURE)
+					llwarns << "Fetch failure for " << mID << " failure count " << mFetchFailureCount
+							<< " status " << mLastHttpGetStatus.toHex() << llendl;
+					// Will retry server-bake textures under a limited set of circumstances.
+					if (getFTType() == FTT_SERVER_BAKE && 
+						mLastHttpGetStatus.isHttpStatus() && 
+						mLastHttpGetStatus.mType >= 500 && 
+						mLastHttpGetStatus.mType <= 599 && // Only retry 5xx failures.
+						mFetchFailureCount < MAX_FETCH_FAILURE)
+					{
+						llwarns << "Will retry fetch" << llendl;
+					}
+					else // Otherwise, assume the image is missing.
 					{
 						llwarns << "!mIsFetching, setting as missing, decode_priority " << decode_priority
 								<< " mRawDiscardLevel " << mRawDiscardLevel
 								<< " current_discard " << current_discard
+								<< " stats " << mLastHttpGetStatus.toHex()
 								<< llendl;
 						setIsMissingAsset();
 						desired_discard = -1;

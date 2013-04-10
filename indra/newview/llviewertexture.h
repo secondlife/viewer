@@ -34,6 +34,7 @@
 #include "llgltypes.h"
 #include "llrender.h"
 #include "llmetricperformancetester.h"
+#include "httpcommon.h"
 
 #include <map>
 #include <list>
@@ -446,7 +447,8 @@ protected:
 	S8  mIsRawImageValid;
 	S8  mHasFetcher;				// We've made a fecth request
 	S8  mIsFetching;				// Fetch request is active
-	bool mCanUseHTTP ;              //This texture can be fetched through http if true.
+	bool mCanUseHTTP;              //This texture can be fetched through http if true.
+	LLCore::HttpStatus mLastHttpGetStatus; // Result of the most recently completed http request for this texture.
 
 	FTType mFTType; // What category of image is this - map tile, server bake, etc?
 	mutable BOOL mIsMissingAsset;		// True if we know that there is no image asset with this image id in the database.		

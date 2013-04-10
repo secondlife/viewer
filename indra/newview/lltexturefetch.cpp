@@ -382,6 +382,8 @@ public:
 	void setCanUseHTTP(bool can_use_http) { mCanUseHTTP = can_use_http; }
 	bool getCanUseHTTP() const { return mCanUseHTTP; }
 
+	void setUrl(const std::string& url) { mUrl = url; }
+
 	LLTextureFetch & getFetcher() { return *mFetcher; }
 
 	// Inherited from LLCore::HttpHandler
@@ -1291,7 +1293,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				std::string http_url = region->getHttpUrl() ;
 				if (!http_url.empty())
 				{
-					mUrl = http_url + "/?texture_id=" + mID.asString().c_str();
+					setUrl(http_url + "/?texture_id=" + mID.asString().c_str());
 					mWriteToCacheState = CAN_WRITE ; //because this texture has a fixed texture id.
 				}
 				else
@@ -1900,7 +1902,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 	if (mFakeFailure)
 	{
 		llwarns << "For debugging, setting fake failure status for texture " << mID << llendl;
-		response->setStatus(LLCore::HttpStatus(404));
+		response->setStatus(LLCore::HttpStatus(500));
 	}
 	bool success = true;
 	bool partial = false;
@@ -1918,11 +1920,11 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 // 			<< " offset: " << offset << " length: " << length
 // 			<< llendl;
 
+	std::string reason(status.toString());
+	setGetStatus(status, reason);
 	if (! status)
 	{
 		success = false;
-		std::string reason(status.toString());
-		setGetStatus(status, reason);
 		llwarns << "CURL GET FAILED, status: " << status.toHex()
 				<< " reason: " << reason << llendl;
 	}
@@ -2535,6 +2537,7 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 		worker->setImagePriority(priority);
 		worker->setDesiredDiscard(desired_discard, desired_size);
 		worker->setCanUseHTTP(can_use_http);
+		worker->setUrl(url);
 		worker->setFakeFailure(fake_failure);
 		if (!worker->haveWork())
 		{
@@ -2741,7 +2744,8 @@ LLTextureFetchWorker* LLTextureFetch::getWorker(const LLUUID& id)
 
 // Threads:  T*
 bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
-										LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux)
+										LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux,
+										LLCore::HttpStatus& last_http_get_status)
 {
 	bool res = false;
 	LLTextureFetchWorker* worker = getWorker(id);
@@ -2763,6 +2767,7 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 		else if (worker->checkWork())
 		{
 			worker->lockWorkMutex();									// +Mw
+			last_http_get_status = worker->mGetStatus;
 			discard_level = worker->mDecodedDiscard;
 			raw = worker->mRawImage;
 			aux = worker->mAuxImage;

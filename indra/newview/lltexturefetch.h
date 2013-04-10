@@ -95,7 +95,8 @@ public:
 
 	// Threads:  T*
 	bool getRequestFinished(const LLUUID& id, S32& discard_level,
-							LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux);
+							LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux,
+							LLCore::HttpStatus& last_http_get_status);
 
 	// Threads:  T*
 	bool updateRequestPriority(const LLUUID& id, F32 priority);
