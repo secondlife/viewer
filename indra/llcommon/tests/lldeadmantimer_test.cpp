@@ -76,7 +76,7 @@ void deadmantimer_object_t::test<1>()
 }
 
 
-// Construct with negative horizon - not useful generally but will be useful in testing
+// Construct with zero horizon - not useful generally but will be useful in testing
 template<> template<>
 void deadmantimer_object_t::test<2>()
 {
@@ -142,9 +142,14 @@ void deadmantimer_object_t::test<6>()
 	U64 count(U64L(8));
 	LLDeadmanTimer timer(10.0);
 
-	U64 the_past(LLTimer::getCurrentClockCount() - float_time_to_u64(5.0));
+	// Would like to do subtraction on current time but can't because
+	// the implementation on Windows is zero-based.  We wrap around
+	// the backside resulting in a large U64 number.
+	
+	U64 the_past(LLTimer::getCurrentClockCount());
+	U64 now(the_past + float_time_to_u64(5.0));
 	timer.start(the_past);
-	ensure_equals("isExpired() returns false with 10.0 horizon time starting 5.0 in past", timer.isExpired(started, stopped, count), false);
+	ensure_equals("isExpired() returns false with 10.0 horizon time starting 5.0 in past", timer.isExpired(started, stopped, count, now), false);
 	ensure_approximately_equals("t6 - isExpired() does not modify started", started, F64(42.0), 2);
 	ensure_approximately_equals("t6 - isExpired() does not modify stopped", stopped, F64(97.0), 2);
 	ensure_equals("t6 - isExpired() does not modify count", count, U64L(8));
@@ -159,9 +164,14 @@ void deadmantimer_object_t::test<7>()
 	U64 count(U64L(8));
 	LLDeadmanTimer timer(10.0);
 
-	U64 the_past(LLTimer::getCurrentClockCount() - float_time_to_u64(20.0));
+	// Would like to do subtraction on current time but can't because
+	// the implementation on Windows is zero-based.  We wrap around
+	// the backside resulting in a large U64 number.
+	
+	U64 the_past(LLTimer::getCurrentClockCount());
+	U64 now(the_past + float_time_to_u64(20.0));
 	timer.start(the_past);
-	ensure_equals("isExpired() returns true with 10.0 horizon time starting 20.0 in past", timer.isExpired(started, stopped, count), true);
+	ensure_equals("isExpired() returns true with 10.0 horizon time starting 20.0 in past", timer.isExpired(started, stopped, count, now), true);
 	ensure_approximately_equals("starting before horizon still gives equal started / stopped", started, stopped, 8);
 }
 
@@ -174,14 +184,19 @@ void deadmantimer_object_t::test<8>()
 	U64 count(U64L(8));
 	LLDeadmanTimer timer(10.0);
 
-	U64 the_past(LLTimer::getCurrentClockCount() - float_time_to_u64(20.0));
+	// Would like to do subtraction on current time but can't because
+	// the implementation on Windows is zero-based.  We wrap around
+	// the backside resulting in a large U64 number.
+	
+	U64 the_past(LLTimer::getCurrentClockCount());
+	U64 now(the_past + float_time_to_u64(20.0));
 	timer.start(the_past);
-	ensure_equals("t8 - isExpired() returns true with 10.0 horizon time starting 20.0 in past", timer.isExpired(started, stopped, count), true);
+	ensure_equals("t8 - isExpired() returns true with 10.0 horizon time starting 20.0 in past", timer.isExpired(started, stopped, count, now), true);
 
 	started = 42.0;
 	stopped = 97.0;
 	count = U64L(8);
-	ensure_equals("t8 - second isExpired() returns false after true", timer.isExpired(started, stopped, count), false);
+	ensure_equals("t8 - second isExpired() returns false after true", timer.isExpired(started, stopped, count, now), false);
 	ensure_approximately_equals("t8 - 2nd isExpired() does not modify started", started, F64(42.0), 2);
 	ensure_approximately_equals("t8 - 2nd isExpired() does not modify stopped", stopped, F64(97.0), 2);
 	ensure_equals("t8 - 2nd isExpired() does not modify count", count, U64L(8));
