@@ -4072,7 +4072,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	U8 index = facep->getTextureIndex();
 	
-	LLMaterial* mat = LLPipeline::sRenderDeferred ? facep->getTextureEntry()->getMaterialParams() : NULL; 
+	LLMaterial* mat = LLPipeline::sRenderDeferred ? facep->getTextureEntry()->getMaterialParams().get() : NULL; 
 
 	bool batchable = false;
 
