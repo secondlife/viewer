@@ -29,8 +29,21 @@
 #include "lldeadmantimer.h"
 
 
+// *TODO:  Currently, this uses lltimer functions for its time
+// aspects and this leaks into the apis in the U64s/F64s.  Would
+// like to perhaps switch this over to TSC register-based timers
+// sometime and drop the overhead some more.
+
+
+//  Flag states and their meaning:
+//  mActive  mDone   Meaning
+//   false   false   Nothing running, no result available
+//    true   false   Timer running, no result available
+//   false    true   Timer finished, result can be read once
+//    true    true   Not allowed
+//
 LLDeadmanTimer::LLDeadmanTimer(F64 horizon)
-	: mHorizon(U64(horizon * gClockFrequency)),
+	: mHorizon(U64(llmax(horizon, F64(0.0)) * gClockFrequency)),
 	  mActive(false),			// If true, a timer is running.
 	  mDone(false),				// If true, timer has completed and can be read (once)
 	  mStarted(U64L(0)),
@@ -78,19 +91,14 @@ void LLDeadmanTimer::stop(U64 now)
 
 bool LLDeadmanTimer::isExpired(F64 & started, F64 & stopped, U64 & count, U64 now)
 {
-	if (! mActive)
-	{
-		return false;
-	}
-	
-	if (! mDone)
+	if (mActive && ! mDone)
 	{
 		if (! now)
 		{
 			now = LLTimer::getCurrentClockCount();
 		}
 
-		if (now > mExpires)
+		if (now >= mExpires)
 		{
 			// mStopped from ringBell() is the value we want
 			mActive = false;
@@ -124,7 +132,7 @@ void LLDeadmanTimer::ringBell(U64 now)
 		now = LLTimer::getCurrentClockCount();
 	}
 
-	if (now > mExpires)
+	if (now >= mExpires)
 	{
 		mActive = false;
 		mDone = true;
