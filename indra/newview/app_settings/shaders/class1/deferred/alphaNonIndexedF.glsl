@@ -55,6 +55,12 @@ uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
+#if 0
+uniform vec4 light_position[1];
+uniform vec3 light_direction[1];
+uniform vec3 light_attenuation[1]; 
+uniform vec3 light_diffuse[1];
+#endif
 
 float calcDirectionalLight(vec3 n, vec3 l)
 {
@@ -124,11 +130,17 @@ void main()
 	color.rgb = scaleSoftClip(color.rgb);
 	vec3 light_col = vec3(0,0,0);
 
-	for (int i = 2; i < 8; i++)
-	{
-		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, vary_norm, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
-	}
-	
+#define LIGHT_LOOP(i) \
+	light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, vary_norm, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+
+	LIGHT_LOOP(1)
+	LIGHT_LOOP(2)
+	LIGHT_LOOP(3)
+	LIGHT_LOOP(4)
+	LIGHT_LOOP(5)
+	LIGHT_LOOP(6)
+	LIGHT_LOOP(7)
+
 	color.rgb += diff.rgb * vary_pointlight_col * light_col;
 
 	frag_color = color;
