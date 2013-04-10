@@ -10039,9 +10039,10 @@ Cannot create large prims that intersect other players.  Please re-try when othe
     Closing this window will discard any changes you have made.
     <tag>confirm</tag>
     <usetemplate
-     name="okcancelbuttons"
+     name="okcancelignore"
      notext="Cancel"
-     yestext="OK"/>
+     yestext="OK"
+     ignoretext="Don't show me this again."/>
   </notification>
-  
+
 </notifications>

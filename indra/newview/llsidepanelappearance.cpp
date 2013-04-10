@@ -77,13 +77,11 @@ bool LLSidepanelAppearance::callBackExitWithoutSaveViaBack(const LLSD& notificat
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if ( option == 0 ) 
 	{		
-		gSavedSettings.setBOOL("ExitOutfitEditWithoutSave", TRUE);		
 		LLAppearanceMgr::instance().setOutfitDirty( true );		
 		showOutfitsInventoryPanel();
 		LLAppearanceMgr::getInstance()->wearBaseOutfit();		
 		return true;
 	}
-	gSavedSettings.setBOOL("ExitOutfitEditWithoutSave", FALSE);
 	return false;
 }
 
@@ -91,13 +89,11 @@ bool LLSidepanelAppearance::callBackExitWithoutSaveViaClose(const LLSD& notifica
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if ( option == 0 ) 
-	{		
-		gSavedSettings.setBOOL("ExitOutfitEditWithoutSave", TRUE);
+	{	
 		LLAppearanceMgr::getInstance()->wearBaseOutfit();
 		mLLFloaterSidePanelContainer->close();
 		return true;
 	}
-	gSavedSettings.setBOOL("ExitOutfitEditWithoutSave", FALSE);	
 	return false;
 }
 
