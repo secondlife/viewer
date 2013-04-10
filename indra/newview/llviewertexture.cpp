@@ -1828,8 +1828,11 @@ bool LLViewerFetchedTexture::updateFetch()
 				{
 					const S32 MAX_FETCH_FAILURE = 3;
 					mFetchFailureCount++;
-					llwarns << "Fetch failure for " << mID << " failure count " << mFetchFailureCount
-							<< " status " << mLastHttpGetStatus.toHex() << llendl;
+					if (getFTType() != FTT_MAP_TILE)
+					{
+						llwarns << "Fetch failure for " << mID << " failure count " << mFetchFailureCount
+								<< " status " << mLastHttpGetStatus.toHex() << llendl;
+					}
 					// Will retry server-bake textures under a limited set of circumstances.
 					if (getFTType() == FTT_SERVER_BAKE && 
 						mLastHttpGetStatus.isHttpStatus() && 
@@ -1841,11 +1844,14 @@ bool LLViewerFetchedTexture::updateFetch()
 					}
 					else // Otherwise, assume the image is missing.
 					{
-						llwarns << "!mIsFetching, setting as missing, decode_priority " << decode_priority
-								<< " mRawDiscardLevel " << mRawDiscardLevel
-								<< " current_discard " << current_discard
-								<< " stats " << mLastHttpGetStatus.toHex()
-								<< llendl;
+						if (getFTType() != FTT_MAP_TILE)
+						{
+							llwarns << "!mIsFetching, setting as missing, decode_priority " << decode_priority
+									<< " mRawDiscardLevel " << mRawDiscardLevel
+									<< " current_discard " << current_discard
+									<< " stats " << mLastHttpGetStatus.toHex()
+									<< llendl;
+						}
 						setIsMissingAsset();
 						desired_discard = -1;
 					}

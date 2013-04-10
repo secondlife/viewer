@@ -1526,14 +1526,20 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			{
 				if (http_not_found == mGetStatus)
 				{
-					llwarns << "Texture missing from server (404): " << mUrl << llendl;
+					if (mFTType != FTT_MAP_TILE)
+					{
+						llwarns << "Texture missing from server (404): " << mUrl << llendl;
+					}
 
-					if(mWriteToCacheState == NOT_WRITE) //map tiles
+					if(mWriteToCacheState == NOT_WRITE) //map tiles or server bakes
 					{
 						setState(DONE);
 						releaseHttpSemaphore();
-						LL_WARNS("Texture") << mID << " abort: WAIT_HTTP_REQ not found" << llendl;
-						return true; // failed, means no map tile on the empty region.
+						if (mFTType != FTT_MAP_TILE)
+						{
+							LL_WARNS("Texture") << mID << " abort: WAIT_HTTP_REQ not found" << llendl;
+						}
+						return true; 
 					}
 
 
@@ -1925,8 +1931,11 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 	if (! status)
 	{
 		success = false;
-		llwarns << "CURL GET FAILED, status: " << status.toHex()
-				<< " reason: " << reason << llendl;
+		if (mFTType != FTT_MAP_TILE) // missing map tiles are normal, don't complain about them.
+		{
+			llwarns << "CURL GET FAILED, status: " << status.toHex()
+					<< " reason: " << reason << llendl;
+		}
 	}
 	else
 	{
