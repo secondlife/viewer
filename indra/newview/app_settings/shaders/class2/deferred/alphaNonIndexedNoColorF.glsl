@@ -60,6 +60,47 @@ uniform float shadow_bias;
 
 uniform mat4 inv_proj;
 
+uniform vec4 light_position[8];
+uniform vec3 light_direction[8];
+uniform vec3 light_attenuation[8]; 
+uniform vec3 light_diffuse[8];
+
+float calcDirectionalLight(vec3 n, vec3 l)
+{
+        float a = pow(max(dot(n,l),0.0), 0.7);
+        return a;
+}
+
+float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
+{
+	//get light vector
+	vec3 lv = lp.xyz-v;
+	
+	//get distance
+	float d = dot(lv,lv);
+	
+	float da = 0.0;
+
+	if (d > 0.0 && la > 0.0 && fa > 0.0)
+	{
+		//normalize light vector
+		lv = normalize(lv);
+	
+		//distance attenuation
+		float dist2 = d/la;
+		da = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
+
+		// spotlight coefficient.
+		float spot = max(dot(-ln, lv), is_pointlight);
+		da *= spot*spot; // GL_SPOT_EXPONENT=2
+
+		//angular attenuation
+		da *= max(pow(dot(n, lv), 0.7), 0.0);		
+	}
+
+	return da;	
+}
+
 vec4 getPosition(vec2 pos_screen)
 {
 	float depth = texture2DRect(depthMap, pos_screen.xy).a;
@@ -169,15 +210,22 @@ void main()
 	{
 		shadow = 1.0;
 	}
+	vec3 dlight = calcDirectionalLight(vary_norm, light_position[0].xyz) * vary_directional.rgb * vary_pointlight_col;
 	
-	vec4 col = vec4(vary_ambient + vary_directional.rgb*shadow, 1.0);
+	vec4 col = vec4(vary_ambient + dlight*shadow, 1.0);
 	vec4 color = diff * col;
 	
 	color.rgb = atmosLighting(color.rgb);
 
 	color.rgb = scaleSoftClip(color.rgb);
+	vec3 light_col = vec3(0,0,0);
 
-	color.rgb += diff.rgb * vary_pointlight_col.rgb;
+	for (int i = 2; i < 8; i++)
+	{
+		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, vary_norm, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+	}
+	
+	color.rgb += diff.rgb * vary_pointlight_col * light_col;
 
 	frag_color = color;
 }
