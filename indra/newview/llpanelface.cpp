@@ -1780,7 +1780,7 @@ void LLPanelFace::updateMaterial()
 		mMaterial->setAlphaMaskCutoff((U8)(getChild<LLUICtrl>("maskcutoff")->getValue().asInteger()));
 
 		LLUUID norm_map_id = getChild<LLTextureCtrl>("bumpytexture control")->getImageAssetID();
-		if (bumpiness == BUMPY_TEXTURE)
+		if (!norm_map_id.isNull())
 		{
 			LL_DEBUGS("Materials") << "Setting bumpy texture, bumpiness = " << bumpiness  << LL_ENDL;
 			mMaterial->setNormalID(norm_map_id);
@@ -1810,7 +1810,7 @@ void LLPanelFace::updateMaterial()
         
 		LLUUID spec_map_id = getChild<LLTextureCtrl>("shinytexture control")->getImageAssetID();
 
-		if (shininess == SHINY_TEXTURE)
+		if (!spec_map_id.isNull())
 		{
 			LL_DEBUGS("Materials") << "Setting shiny texture, shininess = " << shininess  << LL_ENDL;
 			mMaterial->setSpecularID(spec_map_id);
@@ -1850,7 +1850,24 @@ void LLPanelFace::updateMaterial()
 		}
 		
 		LL_DEBUGS("Materials") << "Updating material: " << mMaterial->asLLSD() << LL_ENDL;
-		LLSelectMgr::getInstance()->selectionSetMaterial( mMaterial );
+        
+        LLMaterialPtr material_to_set = mMaterial;
+        
+        // If we're editing a single face and not the entire material for an object,
+        // we need to clone the material so that our changes to the material's settings
+        // don't automatically propagate to the non-selected faces
+        // NORSPEC-92
+        //
+        LLObjectSelectionHandle sel = LLSelectMgr::getInstance()->getSelection();
+        LLSelectNode* node = sel->getFirstNode();
+        if (node)
+        {
+            if (node->getTESelectMask() != TE_SELECT_MASK_ALL)
+            {
+                material_to_set = new LLMaterial(*mMaterial);
+            }
+        }
+        LLSelectMgr::getInstance()->selectionSetMaterial( material_to_set );
 	}
 	else
 	{
@@ -2030,7 +2047,7 @@ void LLPanelFace::onCommitBump(LLUICtrl* ctrl, void* userdata)
 
 	LLComboBox* combo_bumpy = self->getChild<LLComboBox>("combobox bumpiness");
 	// Need 'true' here to insure that the 'Use Texture' choice is removed
-	// when we select something other than a spec texture
+	// when we select something other than a normmap texture
 	//
 	updateBumpyControls(combo_bumpy,self, true);
 	self->updateMaterial();
@@ -2084,7 +2101,7 @@ void LLPanelFace::updateShinyControls(LLUICtrl* ctrl, void* userdata, bool mess_
 	bool show_media = (materials_media == MATMEDIA_MEDIA) && combo_matmedia->getEnabled();
 	bool show_shininess = (!show_media) && (material_type == MATTYPE_SPECULAR) && combo_matmedia->getEnabled();
 	U32 shiny_value = comboShiny->getCurrentIndex();
-	bool show_shinyctrls = (shiny_value == SHINY_TEXTURE) && show_shininess; // Use texture
+	bool show_shinyctrls = (shiny_value != 0) && show_shininess; // Use texture
 	self->getChildView("label glossiness")->setVisible(show_shinyctrls);
 	self->getChildView("glossiness")->setVisible(show_shinyctrls);
 	self->getChildView("label environment")->setVisible(show_shinyctrls);

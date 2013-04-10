@@ -4336,7 +4336,6 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	}
 
-#if !LL_DARWIN
 	if (!isSelf() || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
 	{
 		if (LLPipeline::sImpostorRender)
@@ -4363,7 +4362,6 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 		}
 	}
-#endif
 	
 	return num_indices;
 }

@@ -104,7 +104,6 @@ const F32 SILHOUETTE_UPDATE_THRESHOLD_SQUARED = 0.02f;
 const S32 MAX_ACTION_QUEUE_SIZE = 20;
 const S32 MAX_SILS_PER_FRAME = 50;
 const S32 MAX_OBJECTS_PER_PACKET = 254;
-const S32 TE_SELECT_MASK_ALL = 0xFFFFFFFF;
 
 //
 // Globals
@@ -1181,7 +1180,6 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 	if (mGridMode == GRID_MODE_LOCAL && mSelectedObjects->getObjectCount())
 	{
 		//LLViewerObject* root = getSelectedParentObject(mSelectedObjects->getFirstObject());
-		LLBBox bbox = mSavedSelectionBBox;
 		mGridOrigin = mSavedSelectionBBox.getCenterAgent();
 		mGridScale = mSavedSelectionBBox.getExtentLocal() * 0.5f;
 
@@ -1200,7 +1198,7 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 	{
 		mGridRotation = first_grid_object->getRenderRotation();
 		LLVector3 first_grid_obj_pos = first_grid_object->getRenderPosition();
-
+        (void)first_grid_obj_pos;
 		LLVector4a min_extents(F32_MAX);
 		LLVector4a max_extents(-F32_MAX);
 		BOOL grid_changed = FALSE;
