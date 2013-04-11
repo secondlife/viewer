@@ -345,9 +345,9 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		typename MeanValueType<TraceType<T> >::type getPeriodMean(const TraceType<T>& stat) const
+		typename T::value_t getPeriodMean(const TraceType<T>& stat) const
 		{
-			typename MeanValueType<TraceType<T> >::type mean = 0.0;
+			typename T::value_t mean = 0.0;
 			U32 num_periods = mRecordingPeriods.size();
 			for (S32 i = 0; i < num_periods; i++)
 			{
@@ -361,9 +361,9 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		typename MeanValueType<TraceType<T> >::type getPeriodMeanPerSec(const TraceType<T>& stat) const
+		typename T::value_t getPeriodMeanPerSec(const TraceType<T>& stat) const
 		{
-			typename MeanValueType<TraceType<T> >::type mean = 0.0;
+			typename T::value_t mean = 0.0;
 			U32 num_periods = mRecordingPeriods.size();
 			for (S32 i = 0; i < num_periods; i++)
 			{
