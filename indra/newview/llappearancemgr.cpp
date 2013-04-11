@@ -52,6 +52,7 @@
 #include "llwearablelist.h"
 #include "llsdutil.h"
 #include "llsdserialize.h"
+#include "llhttpretrypolicy.h"
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -2957,78 +2958,6 @@ void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id, bool update_base
 	if (inventory_changed) gInventory.notifyObservers();
 }
 
-// This is intended for use with HTTP Clients/Responders, but is not
-// specifically coupled with those classes.
-class LLHTTPRetryPolicy: public LLThreadSafeRefCount
-{
-public:
-	LLHTTPRetryPolicy() {}
-	virtual ~LLHTTPRetryPolicy() {}
-	virtual bool shouldRetry(S32 status, const LLSD& headers, F32& seconds_to_wait) = 0;
-};
-
-// Example of simplest possible policy, not necessarily recommended.
-// This would be a potentially dangerous policy to enable.  Removing for now:
-#if 0
-class LLAlwaysRetryImmediatelyPolicy: public LLHTTPRetryPolicy
-{
-public:
-	LLAlwaysRetryImmediatelyPolicy() {}
-	bool shouldRetry(S32 status, const LLSD& headers, F32& seconds_to_wait)
-	{
-		seconds_to_wait = 0.0;
-		return true;
-	}
-};
-#endif
-
-// Very general policy with geometric back-off after failures,
-// up to a maximum delay, and maximum number of retries.
-class LLAdaptiveRetryPolicy: public LLHTTPRetryPolicy
-{
-public:
-	LLAdaptiveRetryPolicy(F32 min_delay, F32 max_delay, F32 backoff_factor, U32 max_retries):
-		mMinDelay(min_delay),
-		mMaxDelay(max_delay),
-		mBackoffFactor(backoff_factor),
-		mMaxRetries(max_retries),
-		mDelay(min_delay),
-		mRetryCount(0)
-	{
-	}
-
-	bool shouldRetry(S32 status, const LLSD& headers, F32& seconds_to_wait)
-	{
-#if 0
-		// *TODO: Test using status codes to only retry server errors.
-		// Only server errors would potentially return a different result on retry.
-		if (!isHttpServerErrorStatus(status)) return false;
-#endif
-
-#if 0
-		// *TODO: Honor server Retry-After header.
-		// Status 503 may ask us to wait for a certain amount of time before retrying.
-		if (!headers.has(HTTP_IN_HEADER_RETRY_AFTER)
-			|| !getSecondsUntilRetryAfter(headers[HTTP_IN_HEADER_RETRY_AFTER].asStringRef(), seconds_to_wait))
-#endif
-		{
-			seconds_to_wait = mDelay;
-			mDelay = llclamp(mDelay*mBackoffFactor,mMinDelay,mMaxDelay);
-		}
-
-		mRetryCount++;
-		return (mRetryCount<=mMaxRetries);
-	}
-
-private:
-	F32 mMinDelay; // delay never less than this value
-	F32 mMaxDelay; // delay never exceeds this value
-	F32 mBackoffFactor; // delay increases by this factor after each retry, up to mMaxDelay.
-	U32 mMaxRetries; // maximum number of times shouldRetry will return true.
-	F32 mDelay; // current delay.
-	U32 mRetryCount; // number of times shouldRetry has been called.
-};
-
 class RequestAgentUpdateAppearanceResponder: public LLHTTPClient::Responder
 {
 	LOG_CLASS(RequestAgentUpdateAppearanceResponder);
@@ -3084,7 +3013,8 @@ protected:
 	void onFailure()
 	{
 		F32 seconds_to_wait;
-		if (mRetryPolicy->shouldRetry(getStatus(), getResponseHeaders(), seconds_to_wait))
+		mRetryPolicy->onFailure(getStatus(), getResponseHeaders());
+		if (mRetryPolicy->shouldRetry(seconds_to_wait))
 		{
 			llinfos << "retrying" << llendl;
 			doAfterInterval(boost::bind(&LLAppearanceMgr::requestServerAppearanceUpdate,
@@ -3327,7 +3257,8 @@ protected:
 		LL_WARNS("Avatar") << "While attempting to increment the agent's cof we got an error "
 				<< dumpResponse() << LL_ENDL;
 		F32 seconds_to_wait;
-		if (mRetryPolicy->shouldRetry(getStatus(), getResponseHeaders(), seconds_to_wait))
+		mRetryPolicy->onFailure(getStatus(), getResponseHeaders());
+		if (mRetryPolicy->shouldRetry(seconds_to_wait))
 		{
 			llinfos << "retrying" << llendl;
 			doAfterInterval(boost::bind(&LLAppearanceMgr::incrementCofVersion,
