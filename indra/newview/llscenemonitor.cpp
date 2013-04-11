@@ -523,7 +523,7 @@ void LLSceneMonitor::addMonitorResult()
 //dump results to a file _scene_monitor_results.csv
 void LLSceneMonitor::dumpToFile(std::string file_name)
 {
-	if(mMonitorResults.empty())
+	if(mMonitorResults.empty() || !getRecording())
 	{
 		return; //nothing to dump
 	}

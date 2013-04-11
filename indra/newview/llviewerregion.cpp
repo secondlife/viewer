@@ -465,8 +465,8 @@ void LLViewerRegion::saveObjectCache()
 	if(LLVOCache::hasInstance())
 	{
 		const F32 start_time_threshold = 600.0f; //seconds
-		bool removal_enabled = mRegionTimer.getElapsedTimeF32() > start_time_threshold; //allow to remove invalid objects from object cache file.
-
+		bool removal_enabled = sVOCacheCullingEnabled && (mRegionTimer.getElapsedTimeF32() > start_time_threshold); //allow to remove invalid objects from object cache file.
+		
 		LLVOCache::getInstance()->writeToCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap, mCacheDirty, removal_enabled) ;
 		mCacheDirty = FALSE;
 	}
@@ -1120,8 +1120,13 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 	max_update_time -= update_timer.getElapsedTimeF32();
 	if(max_update_time < 0.f || mImpl->mCacheMap.empty())
 	{
-	return did_update;
-}
+		return did_update;
+	}
+
+	if(!sVOCacheCullingEnabled)
+	{
+		return did_update;
+	}
 
 	sCurRegionp = this;
 
@@ -1704,6 +1709,12 @@ void LLViewerRegion::findOrphans(U32 parent_id)
 
 void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 {
+	if(!sVOCacheCullingEnabled)
+	{
+		gObjectList.processObjectUpdateFromCache(entry, this);
+		return;
+	}
+
 	if(entry != NULL && !entry->getEntry())
 	{
 		entry->setOctreeEntry(NULL);
@@ -1882,12 +1893,17 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 }
 
 LLVOCacheEntry* LLViewerRegion::getCacheEntryForOctree(U32 local_id)
+{
+	if(!sVOCacheCullingEnabled)
 	{
+		return NULL;
+	}
+
 	LLVOCacheEntry* entry = getCacheEntry(local_id);
 	removeFromVOCacheTree(entry);
 		
 	return entry;
-	}
+}
 
 LLVOCacheEntry* LLViewerRegion::getCacheEntry(U32 local_id)
 {
@@ -2172,10 +2188,14 @@ void LLViewerRegion::unpackRegionHandshake()
 	msg->addUUID("SessionID", gAgent.getSessionID());
 	msg->nextBlock("RegionInfo");
 
-	U32 flags = 0x00000001; //set the bit 0 to be 1 to ask sim to send all cacheable objects.
-	if(mImpl->mCacheMap.empty())
+	U32 flags = 0;
+	if(sVOCacheCullingEnabled)
 	{
-		flags |= 0x00000002; //set the bit 1 to be 1 to tell sim the cache file is empty, no need to send cache probes.
+		flags = 0x00000001; //set the bit 0 to be 1 to ask sim to send all cacheable objects.
+		if(mImpl->mCacheMap.empty())
+		{
+			flags |= 0x00000002; //set the bit 1 to be 1 to tell sim the cache file is empty, no need to send cache probes.
+		}
 	}
 	msg->addU32("Flags", flags );
 	msg->sendReliable(host);
