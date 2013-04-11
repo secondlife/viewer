@@ -1543,7 +1543,7 @@ void LLPanelFace::getState()
 					{
 						enabled = (editable && ((shiny == SHINY_TEXTURE) && !specmap_id.isNull()));
 						identical = identical_spec_repeats;
-						repeats = repeats_spec;
+						repeats = repeats_spec * (identical_planar_texgen ? 2.0f : 1.0f);
 					}
 					break;
 
@@ -1551,11 +1551,11 @@ void LLPanelFace::getState()
 					{
 						enabled = (editable && ((bumpy == BUMPY_TEXTURE) && !normmap_id.isNull()));
 						identical = identical_norm_repeats;
-						repeats = repeats_norm;
+						repeats = repeats_norm * (identical_planar_texgen ? 2.0f : 1.0f);
 					}
 					break;
 				}
-				
+
 				getChildView("rptctrl")->setEnabled(enabled);
 				getChild<LLUICtrl>("rptctrl")->setValue(editable ? repeats : 1.0f);
 				getChild<LLUICtrl>("rptctrl")->setTentative(!identical);
@@ -2305,8 +2305,38 @@ void LLPanelFace::onCommitRepeatsPerMeter(LLUICtrl* ctrl, void* userdata)
 
 	LLComboBox* combo_mattype = self->getChild<LLComboBox>("combobox mattype");
 	
+    F32 obj_scale_s = 1.0f;
+    F32 obj_scale_t = 1.0f;
+    
 	U32 material_type = combo_mattype->getCurrentIndex();
 
+    struct f_objscale_s : public LLSelectedTEGetFunctor<F32>
+    {
+        F32 get(LLViewerObject* object, S32 face)
+        {
+            U32 s_axis = VX;
+            U32 t_axis = VY;
+            LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
+            return object->getScale().mV[s_axis];
+        }
+
+    } scale_s_func;
+    
+    struct f_objscale_t : public LLSelectedTEGetFunctor<F32>
+    {
+        F32 get(LLViewerObject* object, S32 face)
+        {
+            U32 s_axis = VX;
+            U32 t_axis = VY;
+            LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
+            return object->getScale().mV[t_axis];
+        }
+        
+    } scale_t_func;
+    
+    LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &scale_s_func, obj_scale_s );
+    LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &scale_t_func, obj_scale_t );
+    
 	switch (material_type)
 	{
 		case MATTYPE_DIFFUSE:
@@ -2319,8 +2349,8 @@ void LLPanelFace::onCommitRepeatsPerMeter(LLUICtrl* ctrl, void* userdata)
 		{
 			LLUICtrl* bumpy_scale_u = self->getChild<LLUICtrl>("bumpyScaleU");
 			LLUICtrl* bumpy_scale_v = self->getChild<LLUICtrl>("bumpyScaleV");
-			bumpy_scale_u->setValue(bumpy_scale_u->getValue().asReal() * repeats_per_meter);
-			bumpy_scale_v->setValue(bumpy_scale_v->getValue().asReal() * repeats_per_meter);
+			bumpy_scale_u->setValue(obj_scale_s * repeats_per_meter);
+			bumpy_scale_v->setValue(obj_scale_t * repeats_per_meter);
 			self->updateMaterial();
 		}
 		break;
@@ -2329,8 +2359,8 @@ void LLPanelFace::onCommitRepeatsPerMeter(LLUICtrl* ctrl, void* userdata)
 		{
 			LLUICtrl* shiny_scale_u = self->getChild<LLUICtrl>("shinyScaleU");
 			LLUICtrl* shiny_scale_v = self->getChild<LLUICtrl>("shinyScaleV");
-			shiny_scale_u->setValue(shiny_scale_u->getValue().asReal() * repeats_per_meter);
-			shiny_scale_v->setValue(shiny_scale_v->getValue().asReal() * repeats_per_meter);
+			shiny_scale_u->setValue(obj_scale_s * repeats_per_meter);
+			shiny_scale_v->setValue(obj_scale_t * repeats_per_meter);
 			self->updateMaterial();
 		}
 		break;
