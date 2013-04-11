@@ -55,12 +55,6 @@ uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
-#if 0
-uniform vec4 light_position[1];
-uniform vec3 light_direction[1];
-uniform vec3 light_attenuation[1]; 
-uniform vec3 light_diffuse[1];
-#endif
 
 float calcDirectionalLight(vec3 n, vec3 l)
 {
@@ -120,7 +114,10 @@ void main()
 	
 	vec4 diff= texture2D(diffuseMap,vary_texcoord0.xy);
 
-	vec3 dlight = calcDirectionalLight(vary_norm, light_position[0].xyz) * vary_directional.rgb * vary_pointlight_col;
+	vec3 n = vary_norm;
+	vec3 l = light_position[0].xyz;
+	vec3 dlight = calcDirectionalLight(n, l);
+	dlight = dlight * vary_directional.rgb * vary_pointlight_col;
 
 	vec4 col = vec4(vary_ambient + dlight, vertex_color.a);
 	vec4 color = diff * col;

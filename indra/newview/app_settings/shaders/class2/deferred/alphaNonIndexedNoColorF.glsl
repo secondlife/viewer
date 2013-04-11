@@ -210,7 +210,10 @@ void main()
 	{
 		shadow = 1.0;
 	}
-	vec3 dlight = calcDirectionalLight(vary_norm, light_position[0].xyz) * vary_directional.rgb * vary_pointlight_col;
+	vec3 n = vary_norm;
+	vec3 l = light_position[0].xyz;
+	vec3 dlight = calcDirectionalLight(n, l);
+	dlight = dlight * vary_directional.rgb * vary_pointlight_col;
 	
 	vec4 col = vec4(vary_ambient + dlight*shadow, 1.0);
 	vec4 color = diff * col;
@@ -220,10 +223,16 @@ void main()
 	color.rgb = scaleSoftClip(color.rgb);
 	vec3 light_col = vec3(0,0,0);
 
-	for (int i = 2; i < 8; i++)
-	{
+#define LIGHT_LOOP(i)
 		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, vary_norm, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
-	}
+
+	LIGHT_LOOP(1)
+	LIGHT_LOOP(2)
+	LIGHT_LOOP(3)
+	LIGHT_LOOP(4)
+	LIGHT_LOOP(5)
+	LIGHT_LOOP(6)
+	LIGHT_LOOP(7)
 	
 	color.rgb += diff.rgb * vary_pointlight_col * light_col;
 
