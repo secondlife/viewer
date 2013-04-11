@@ -25,6 +25,10 @@
  
 #extension GL_ARB_texture_rectangle : enable
 
+#define INDEXED 1
+#define NON_INDEXED 2
+#define NON_INDEXED_NO_COLOR 3
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -33,7 +37,13 @@ out vec4 frag_color;
 
 uniform sampler2DRect depthMap;
 
+#if INDEX_MODE != INDEXED
+uniform sampler2D diffuseMap;
+#endif
+
+#if INDEX_MODE == INDEXED
 vec4 diffuseLookup(vec2 texcoord);
+#endif
 
 uniform vec2 screen_res;
 
@@ -46,7 +56,10 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 
+#if INDEX_MODE != NON_INDEXED_NO_COLOR
 VARYING vec4 vertex_color;
+#endif
+
 VARYING vec2 vary_texcoord0;
 
 VARYING vec3 vary_norm;
@@ -103,11 +116,21 @@ void main()
 	
 	vec4 pos = vec4(vary_position, 1.0);
 	
-	vec4 diff= diffuseLookup(vary_texcoord0.xy);
+#if INDEX_MODE == INDEXED
+	vec4 diff = diffuseLookup(vary_texcoord0.xy);
+#else
+	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
+#endif
+
+#if INDEX_MODE == NON_INDEXED_NO_COLOR
+	float vertex_color_alpha = 1.0;
+#else
+	float vertex_color_alpha = vertex_color.a;
+#endif
 
 	vec3 dlight = calcDirectionalLight(vary_norm, light_position[0].xyz) * vary_directional.rgb * vary_pointlight_col;
 
-	vec4 col = vec4(vary_ambient + dlight, vertex_color.a);
+	vec4 col = vec4(vary_ambient + dlight, vertex_color_alpha);
 	vec4 color = diff * col;
 	
 	color.rgb = atmosLighting(color.rgb);
