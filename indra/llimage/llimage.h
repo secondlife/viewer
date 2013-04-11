@@ -230,6 +230,11 @@ public:
 	// Src and dst are same size.  Src has 3 components.  Dst has 4 components.
 	void copyUnscaled3onto4( LLImageRaw* src );
 
+	// Src and dst are same size.  Src has 1 component.  Dst has 4 components.
+	// Alpha component is set to source alpha mask component.
+	// RGB components are set to fill color.
+	void copyUnscaledAlphaMask( LLImageRaw* src, const LLColor4U& fill);
+
 	// Src and dst can be any size.  Src and dst have same number of components.
 	void copyScaled( LLImageRaw* src );
 

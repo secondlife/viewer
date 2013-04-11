@@ -74,7 +74,7 @@ public:
 	void handleNavMeshResult(const LLSD &pContent, U32 pNavMeshVersion);
 	void handleNavMeshNotEnabled();
 	void handleNavMeshError();
-	void handleNavMeshError(U32 pStatus, const std::string &pReason, const std::string &pURL, U32 pNavMeshVersion);
+	void handleNavMeshError(U32 pStatus, const std::string &pReason, const LLSD& pContent, const std::string &pURL, U32 pNavMeshVersion);
 
 protected:
 

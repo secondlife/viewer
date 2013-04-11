@@ -352,7 +352,7 @@ Save all changes to clothing/body parts?
    icon="alertmodal.tga"
    name="FriendsAndGroupsOnly"
    type="alertmodal">
-    Non-friends won't know that you've choosen to ignore their calls and instant messages.
+    Non-friends won't know that you've chosen to ignore their calls and instant messages.
     <usetemplate
      name="okbutton"
      yestext="OK"/>

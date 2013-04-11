@@ -292,6 +292,11 @@ void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 	delete mPropertiesRequest;
 	mPropertiesRequest = NULL;
 }
+/*
+prep#
+			virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+				llwarns << "MuteVoiceResponder error [status:" << status << "]: " << content << llendl;
+	*/
 
 void LLInspectAvatar::updateVolumeSlider()
 {

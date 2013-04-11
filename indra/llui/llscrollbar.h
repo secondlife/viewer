@@ -124,6 +124,9 @@ public:
 
 	void				onLineUpBtnPressed(const LLSD& data);
 	void				onLineDownBtnPressed(const LLSD& data);
+		
+	S32					getThickness() const { return mThickness; }
+	void				setThickness(S32 thickness);
 
 private:
 	void				updateThumbRect();
