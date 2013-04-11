@@ -147,7 +147,7 @@ protected:
 	BOOL                        mTouched; //if set, this entry is valid, otherwise it is invalid.
 };
 
-class LLVOCachePartition : public LLViewerOctreePartition
+class LLVOCachePartition : public LLViewerOctreePartition, public LLTrace::MemTrackable<LLVOCachePartition>
 {
 public:
 	LLVOCachePartition(LLViewerRegion* regionp);
@@ -155,6 +155,8 @@ public:
 	void addEntry(LLViewerOctreeEntry* entry);
 	void removeEntry(LLViewerOctreeEntry* entry);
 	/*virtual*/ S32 cull(LLCamera &camera);
+
+	static	LLTrace::MemStatHandle	sMemStat;
 };
 
 //
