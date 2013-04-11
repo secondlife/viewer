@@ -65,7 +65,9 @@ void LLVOPartGroup::initClass()
 //static
 void LLVOPartGroup::restoreGL()
 {
-	sVB = new LLVertexBuffer(VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
+
+	//TODO: optimize out binormal mask here
+	sVB = new LLVertexBuffer(VERTEX_DATA_MASK | LLVertexBuffer::MAP_BINORMAL, GL_STREAM_DRAW_ARB);
 	U32 count = LL_MAX_PARTICLE_COUNT;
 	sVB->allocateBuffer(count*4, count*6, true);
 

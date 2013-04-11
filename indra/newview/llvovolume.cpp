@@ -4095,6 +4095,15 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		}
 	}
 	
+	//DEBUG 
+	LLVertexBuffer* buff = facep->getVertexBuffer();
+
+	if (type == LLRenderPass::PASS_ALPHA && !buff->hasDataType(LLVertexBuffer::TYPE_BINORMAL))
+	{
+		llerrs << "WTF?" << llendl;
+	}
+
+
 	if (idx >= 0 && 
 		draw_vec[idx]->mVertexBuffer == facep->getVertexBuffer() &&
 		draw_vec[idx]->mEnd == facep->getGeomIndex()-1 &&

@@ -326,7 +326,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 
 	if (mVertexShaderLevel > 0)
 	{
-		renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX);
+		renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_BINORMAL);
 	}
 	else
 	{
