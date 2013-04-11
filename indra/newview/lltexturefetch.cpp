@@ -1918,6 +1918,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 						 << " status: " << status.toHex()
 						 << " '" << status.toString() << "'"
 						 << llendl;
+
 //	unsigned int offset(0), length(0), full_length(0);
 //	response->getRange(&offset, &length, &full_length);
 // 	llwarns << "HTTP COMPLETE: " << mID << " handle: " << handle

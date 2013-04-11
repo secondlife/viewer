@@ -27,7 +27,20 @@
 #include "linden_common.h"
 #include "llhttpretrypolicy.h"
 
+bool LLAdaptiveRetryPolicy::getRetryAfter(const LLSD& headers, retry_header_time)
+{
+	return (headers.has(HTTP_IN_HEADER_RETRY_AFTER)
+			&& getSecondsUntilRetryAfter(headers[HTTP_IN_HEADER_RETRY_AFTER].asStringRef(), retry_header_time));
+}
+
 void LLAdaptiveRetryPolicy::onFailure(S32 status, const LLSD& headers)
+{
+	F32 retry_header_time;
+	bool has_retry_header_time = getRetryAfter(headers,retry_header_time);
+	onFailureCommon(status, has_retry_header_time, retry_header_time);
+}
+
+void LLAdaptiveRetryPolicy::onFailureCommon(S32 status, bool has_retry_header_time, F32 retry_header_time)
 {
 	if (mRetryCount > 0)
 	{
@@ -36,9 +49,7 @@ void LLAdaptiveRetryPolicy::onFailure(S32 status, const LLSD& headers)
 	// Honor server Retry-After header.
 	// Status 503 may ask us to wait for a certain amount of time before retrying.
 	F32 wait_time = mDelay;
-	F32 retry_header_time;
-	if (headers.has(HTTP_IN_HEADER_RETRY_AFTER)
-		&& getSecondsUntilRetryAfter(headers[HTTP_IN_HEADER_RETRY_AFTER].asStringRef(), retry_header_time))
+	if (has_retry_header_time)
 	{
 		wait_time = retry_header_time;
 	}

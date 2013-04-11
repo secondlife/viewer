@@ -396,6 +396,9 @@ private:
 	e_tex_source mFetchSource;
 	e_tex_source mOriginFetchSource;
 
+	// Retry logic
+	LLAdaptiveRetryPolicy mFetchRetryPolicy;
+	
 public:
 	//debug use
 	LLTextureFetchDebugger* getFetchDebugger() { return mFetchDebugger;}

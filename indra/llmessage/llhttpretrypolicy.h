@@ -29,7 +29,12 @@
 
 #include "lltimer.h"
 #include "llthread.h"
+
 #include "llhttpconstants.h"
+
+// For compatibility with new core http lib.
+#include "httpresponse.h"
+#include "httpheaders.h"
 
 // This is intended for use with HTTP Clients/Responders, but is not
 // specifically coupled with those classes.
@@ -40,6 +45,9 @@ public:
 	virtual ~LLHTTPRetryPolicy() {}
 	// Call once after an HTTP failure to update state.
 	virtual void onFailure(S32 status, const LLSD& headers) = 0;
+
+	virtual void onFailure(const HttpResponse *response, const HttpHeaders *headers) = 0;
+
 	virtual bool shouldRetry(F32& seconds_to_wait) const = 0;
 };
 
@@ -59,10 +67,19 @@ public:
 	{
 	}
 
+	// virtual
 	void onFailure(S32 status, const LLSD& headers);
+	// virtual
+	void onFailure(const HttpResponse *response, const HttpHeaders *headers);
+	// virtual
 	bool shouldRetry(F32& seconds_to_wait) const;
 
+protected:
+	bool getRetryAfter(const LLSD& headers, retry_header_time)
+	void onFailureCommon(S32 status, bool has_retry_header_time, F32 retry_header_time);
+
 private:
+
 	F32 mMinDelay; // delay never less than this value
 	F32 mMaxDelay; // delay never exceeds this value
 	F32 mBackoffFactor; // delay increases by this factor after each retry, up to mMaxDelay.
