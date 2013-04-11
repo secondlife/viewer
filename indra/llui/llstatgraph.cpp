@@ -66,7 +66,7 @@ void LLStatGraph::draw()
 	range = mMax - mMin;
 	if (mNewStatFloatp)
 	{
-		LLTrace::Recording& recording = LLTrace::get_frame_recording().getLastRecordingPeriod();
+		LLTrace::Recording& recording = LLTrace::get_frame_recording().getLastRecording();
 
 		if (mPerSec)
 		{
@@ -79,7 +79,7 @@ void LLStatGraph::draw()
 	}
 	else if (mNewStatIntp)
 	{
-		LLTrace::Recording& recording = LLTrace::get_frame_recording().getLastRecordingPeriod();
+		LLTrace::Recording& recording = LLTrace::get_frame_recording().getLastRecording();
 
 		if (mPerSec)
 		{

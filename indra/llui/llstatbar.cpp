@@ -103,12 +103,11 @@ void LLStatBar::draw()
 		max = 0.f,
 		mean = 0.f;
 
-	S32 num_samples = 0;
 	LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
 
 	if (mCountFloatp)
 	{
-		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecordingPeriod(); 
+		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording(); 
 
 		if (mPerSec)
 		{
@@ -116,7 +115,6 @@ void LLStatBar::draw()
 			min = frame_recording.getPeriodMinPerSec(*mCountFloatp);
 			max = frame_recording.getPeriodMaxPerSec(*mCountFloatp);
 			mean = frame_recording.getPeriodMeanPerSec(*mCountFloatp);
-			num_samples = frame_recording.getTotalRecording().getSampleCount(*mCountFloatp);
 		}
 		else
 		{
@@ -124,12 +122,11 @@ void LLStatBar::draw()
 			min = frame_recording.getPeriodMin(*mCountFloatp);
 			max = frame_recording.getPeriodMax(*mCountFloatp);
 			mean = frame_recording.getPeriodMean(*mCountFloatp);
-			num_samples = frame_recording.getTotalRecording().getSampleCount(*mCountFloatp);
 		}
 	}
 	else if (mCountIntp)
 	{
-		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecordingPeriod(); 
+		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording(); 
 
 		if (mPerSec)
 		{
@@ -137,7 +134,6 @@ void LLStatBar::draw()
 			min = frame_recording.getPeriodMinPerSec(*mCountIntp);
 			max = frame_recording.getPeriodMaxPerSec(*mCountIntp);
 			mean = frame_recording.getPeriodMeanPerSec(*mCountIntp);
-			num_samples = frame_recording.getTotalRecording().getSampleCount(*mCountIntp);
 		}
 		else
 		{
@@ -145,26 +141,25 @@ void LLStatBar::draw()
 			min = frame_recording.getPeriodMin(*mCountIntp);
 			max = frame_recording.getPeriodMax(*mCountIntp);
 			mean = frame_recording.getPeriodMean(*mCountIntp);
-			num_samples = frame_recording.getTotalRecording().getSampleCount(*mCountIntp);
 		}
 	}
 	else if (mMeasurementFloatp)
 	{
-		LLTrace::Recording& recording = frame_recording.getTotalRecording();
-		current = recording.getLastValue(*mMeasurementFloatp);
-		min = recording.getMin(*mMeasurementFloatp);
-		max = recording.getMax(*mMeasurementFloatp);
-		mean = recording.getMean(*mMeasurementFloatp);
-		num_samples = frame_recording.getTotalRecording().getSampleCount(*mMeasurementFloatp);
+		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording(); 
+
+		current = last_frame_recording.getLastValue(*mMeasurementFloatp);
+		min = frame_recording.getPeriodMin(*mMeasurementFloatp);
+		max = frame_recording.getPeriodMax(*mMeasurementFloatp);
+		mean = frame_recording.getPeriodMean(*mMeasurementFloatp);
 	}
 	else if (mMeasurementIntp)
 	{
-		LLTrace::Recording& recording = frame_recording.getTotalRecording();
-		current = recording.getLastValue(*mMeasurementIntp);
-		min = recording.getMin(*mMeasurementIntp);
-		max = recording.getMax(*mMeasurementIntp);
-		mean = recording.getMean(*mMeasurementIntp);
-		num_samples = frame_recording.getTotalRecording().getSampleCount(*mMeasurementIntp);
+		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording(); 
+
+		current = last_frame_recording.getLastValue(*mMeasurementIntp);
+		min = frame_recording.getPeriodMin(*mMeasurementIntp);
+		max = frame_recording.getPeriodMax(*mMeasurementIntp);
+		mean = frame_recording.getPeriodMean(*mMeasurementIntp);
 	}
 
 	current *= mUnitScale;
@@ -203,7 +198,7 @@ void LLStatBar::draw()
 	const S32 tick_length = 4;
 	const S32 tick_width = 1;
 
-	if (mScaleRange && num_samples)
+	if (mScaleRange && min < max)
 	{
 		F32 cur_max = mTickSpacing;
 		while(max > cur_max && mMaxBar > cur_max)
@@ -352,7 +347,7 @@ void LLStatBar::draw()
 			for (i = 1; i <= max_frame; i++)
 			{
 				F32 offset = ((F32)i / (F32)mNumFrames) * span;
-				LLTrace::Recording& recording = frame_recording.getPrevRecordingPeriod(i);
+				LLTrace::Recording& recording = frame_recording.getPrevRecording(i);
 				if (mPerSec)
 				{
 					if (mCountFloatp)

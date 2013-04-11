@@ -296,7 +296,7 @@ LLSD LLFloaterAbout::getInfo()
 
 	if (gPacketsIn > 0)
 	{
-		LLTrace::Recording cur_frame = LLTrace::get_frame_recording().snapshotCurRecordingPeriod();
+		LLTrace::Recording cur_frame = LLTrace::get_frame_recording().snapshotCurRecording();
 		info["PACKETS_LOST"] = cur_frame.getSum(LLStatViewer::PACKETS_LOST);
 		info["PACKETS_IN"] = F32(gPacketsIn);
 		info["PACKETS_PCT"] = 100.f*info["PACKETS_LOST"].asReal() / info["PACKETS_IN"].asReal();

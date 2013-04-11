@@ -254,49 +254,47 @@ namespace LLTrace
 		void nextPeriod();
 		U32 getNumPeriods() { return mRecordingPeriods.size(); }
 
-		Recording& getLastRecordingPeriod()
+		Recording& getLastRecording()
 		{
 			U32 num_periods = mRecordingPeriods.size();
 			return mRecordingPeriods[(mCurPeriod + num_periods - 1) % num_periods];
 		}
 
-		const Recording& getLastRecordingPeriod() const
+		const Recording& getLastRecording() const
 		{
-			return getPrevRecordingPeriod(1);
+			return getPrevRecording(1);
 		}
 
-		Recording& getCurRecordingPeriod()
-		{
-			return mRecordingPeriods[mCurPeriod];
-		}
-
-		const Recording& getCurRecordingPeriod() const
+		Recording& getCurRecording()
 		{
 			return mRecordingPeriods[mCurPeriod];
 		}
 
-		Recording& getPrevRecordingPeriod(U32 offset)
+		const Recording& getCurRecording() const
+		{
+			return mRecordingPeriods[mCurPeriod];
+		}
+
+		Recording& getPrevRecording(U32 offset)
 		{
 			U32 num_periods = mRecordingPeriods.size();
 			offset = llclamp(offset, 0u, num_periods - 1);
 			return mRecordingPeriods[(mCurPeriod + num_periods - offset) % num_periods];
 		}
 
-		const Recording& getPrevRecordingPeriod(U32 offset) const
+		const Recording& getPrevRecording(U32 offset) const
 		{
 			U32 num_periods = mRecordingPeriods.size();
 			offset = llclamp(offset, 0u, num_periods - 1);
 			return mRecordingPeriods[(mCurPeriod + num_periods - offset) % num_periods];
 		}
 
-		Recording snapshotCurRecordingPeriod() const
+		Recording snapshotCurRecording() const
 		{
-			Recording recording_copy(getCurRecordingPeriod());
+			Recording recording_copy(getCurRecording());
 			recording_copy.stop();
 			return recording_copy;
 		}
-
-		Recording& getTotalRecording();
 
 		template <typename T>
 		typename T::value_t getPeriodMin(const TraceType<T>& stat) const
@@ -391,7 +389,6 @@ namespace LLTrace
 	private:
 		std::vector<Recording>	mRecordingPeriods;
 		Recording	mTotalRecording;
-		bool		mTotalValid;
 		const bool	mAutoResize;
 		S32			mCurPeriod;
 	};
