@@ -585,6 +585,28 @@ void LLFloaterIMContainer::returnFloaterToHost()
 	floater->onTearOffClicked();
 }
 
+void LLFloaterIMContainer::setMinimized(BOOL b)
+{
+	bool was_minimized = isMinimized();
+	LLMultiFloater::setMinimized(b);
+
+	//Switching from minimized to un-minimized
+	if(was_minimized && !b)
+	{
+		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(mSelectedSession);
+
+		if(session_floater && !session_floater->isTornOff())
+		{
+			//When in DND mode, remove stored IM notifications
+			//Nearby chat (Null) IMs are not stored while in DND mode, so can ignore removal
+			if(gAgent.isDoNotDisturb() && mSelectedSession.notNull())
+			{
+				LLDoNotDisturbNotificationStorage::getInstance()->removeNotification(LLDoNotDisturbNotificationStorage::toastName, mSelectedSession);
+			}
+		}
+	}
+}
+
 void LLFloaterIMContainer::setVisible(BOOL visible)
 {	LLFloaterIMNearbyChat* nearby_chat;
 	if (visible)
@@ -597,10 +619,21 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 			// *TODO: find a way to move this to XML as a default panel or something like that
 			LLSD name("nearby_chat");
 			LLFloaterReg::toggleInstanceOrBringToFront(name);
-            setSelectedSession(LLUUID(NULL));
+            selectConversationPair(LLUUID(NULL), false, false);
 		}
 		openNearbyChat();
-        selectConversationPair(getSelectedSession(), false, false);
+		flashConversationItemWidget(mSelectedSession,false);
+
+		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(mSelectedSession);
+		if(session_floater && !session_floater->isMinimized())
+		{
+			//When in DND mode, remove stored IM notifications
+			//Nearby chat (Null) IMs are not stored while in DND mode, so can ignore removal
+			if(gAgent.isDoNotDisturb() && mSelectedSession.notNull())
+			{
+				LLDoNotDisturbNotificationStorage::getInstance()->removeNotification(LLDoNotDisturbNotificationStorage::toastName, mSelectedSession);
+			}
+		}
 	}
 
 	nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
@@ -624,6 +657,12 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 	
 	// Now, do the normal multifloater show/hide
 	LLMultiFloater::setVisible(visible);
+}
+
+void LLFloaterIMContainer::setVisibleAndFrontmost(BOOL take_focus, const LLSD& key)
+{
+	LLMultiFloater::setVisibleAndFrontmost(take_focus, key);
+    selectConversationPair(getSelectedSession(), false, take_focus);
 }
 
 void LLFloaterIMContainer::updateResizeLimits()
@@ -1331,7 +1370,10 @@ void LLFloaterIMContainer::showConversation(const LLUUID& session_id)
     selectConversationPair(session_id, true);
 
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
-    session_floater->restoreFloater();
+    if (session_floater)
+    {
+        session_floater->restoreFloater();
+    }
 }
 
 void LLFloaterIMContainer::clearAllFlashStates()
@@ -1380,13 +1422,6 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
     		widget->getParentFolder()->setSelection(widget, FALSE, FALSE);
     		mConversationsRoot->scrollToShowSelection();
     	}
-
-        //When in DND mode, remove stored IM notifications
-        //Nearby chat (Null) IMs are not stored while in DND mode, so can ignore removal
-        if(gAgent.isDoNotDisturb() && session_id.notNull())
-        {
-            LLDoNotDisturbNotificationStorage::getInstance()->removeNotification(LLDoNotDisturbNotificationStorage::toastName, session_id);
-        }
     }
 
     /* floater processing */
@@ -1411,14 +1446,19 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 			{
 				showStub(true);
 			}
+
+			//When in DND mode, remove stored IM notifications
+			//Nearby chat (Null) IMs are not stored while in DND mode, so can ignore removal
+			if(gAgent.isDoNotDisturb() && session_id.notNull())
+			{
+				LLDoNotDisturbNotificationStorage::getInstance()->removeNotification(LLDoNotDisturbNotificationStorage::toastName, session_id);
+			}
 		}
 
 		// Set the focus on the selected floater
-		if (!session_floater->hasFocus())
+		if (!session_floater->hasFocus() && !session_floater->isMinimized())
 		{
-			BOOL is_minimized = session_floater->isMinimized();
 			session_floater->setFocus(focus_floater);
-			session_floater->setMinimized(is_minimized);
 		}
 	}
 	flashConversationItemWidget(session_id,false);
@@ -1963,10 +2003,13 @@ bool LLFloaterIMContainer::selectNextorPreviousConversation(bool select_next, bo
 
 void LLFloaterIMContainer::expandConversation()
 {
-	LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,getSelectedSession()));
-	if (widget)
+	if(!mConversationsPane->isCollapsed())
 	{
-		widget->setOpen(!widget->isOpen());
+		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,getSelectedSession()));
+		if (widget)
+		{
+			widget->setOpen(!widget->isOpen());
+		}
 	}
 }
 
@@ -1974,8 +2017,11 @@ void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 {
 	// Always unminimize before trying to close.
 	// Most of the time the user will never see this state.
-	setMinimized(FALSE);
-
+	if(isMinimized())
+	{
+		LLMultiFloater::setMinimized(FALSE);
+	}
+	
 	LLFloater::closeFloater(app_quitting);
 }
 

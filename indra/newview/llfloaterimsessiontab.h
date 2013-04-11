@@ -101,6 +101,7 @@ public:
 	bool isMessagePaneExpanded(){return mMessagePaneExpanded;}
 	void setMessagePaneExpanded(bool expanded){mMessagePaneExpanded = expanded;}
 	void restoreFloater();
+	void saveCollapsedState();
 
 protected:
 
@@ -174,16 +175,13 @@ protected:
 	LLChatHistory* mChatHistory;
 	LLChatEntry* mInputEditor;
 	LLLayoutPanel * mChatLayoutPanel;
-	int mInputEditorPad; // padding between input field and chat history
-
+	LLLayoutStack * mInputPanels;
+	
 	LLButton* mExpandCollapseLineBtn;
 	LLButton* mExpandCollapseBtn;
 	LLButton* mTearOffBtn;
 	LLButton* mCloseBtn;
 	LLButton* mGearBtn;
-
-	S32 mFloaterHeight;
-
 
 private:
 	// Handling selection and contextual menu
@@ -208,6 +206,10 @@ private:
     bool mHasVisibleBeenInitialized;
 
 	LLTimer* mRefreshTimer; ///< Defines the rate at which refresh() is called.
+
+	S32 mInputEditorPad;
+	S32 mChatLayoutPanelHeight;
+	S32 mFloaterHeight;
 };
 
 

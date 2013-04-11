@@ -53,7 +53,7 @@
 #include "llresmgr.h"
 #include "pipeline.h"
 #include "llglheaders.h"
-
+#include "lluiimage.h"
 // Local constants...
 const S32 VERTICAL_OFFSET = 50;
 

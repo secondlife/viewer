@@ -15,6 +15,10 @@ include_directories(
     ${LLMATH_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    ${LLXML_SYSTEM_INCLUDE_DIRS}
+    )
 
 set(login_SOURCE_FILES
     lllogin.cpp

@@ -48,8 +48,8 @@
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llviewermenufile.h"
+#include "llviewertexlayer.h"
 #include "llviewerwindow.h"
-#include "lltexlayer.h"
 #include "lltrans.h"
 
 // library includes
@@ -225,10 +225,10 @@ LLAssetUploadResponder::~LLAssetUploadResponder()
 }
 
 // virtual
-void LLAssetUploadResponder::error(U32 statusNum, const std::string& reason)
+void LLAssetUploadResponder::errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
 {
-	llinfos << "LLAssetUploadResponder::error " << statusNum 
-			<< " reason: " << reason << llendl;
+	llinfos << "LLAssetUploadResponder::error [status:" 
+			<< statusNum << "]: " << content << llendl;
 	LLSD args;
 	switch(statusNum)
 	{
@@ -340,9 +340,9 @@ LLNewAgentInventoryResponder::LLNewAgentInventoryResponder(
 }
 
 // virtual
-void LLNewAgentInventoryResponder::error(U32 statusNum, const std::string& reason)
+void LLNewAgentInventoryResponder::errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
 {
-	LLAssetUploadResponder::error(statusNum, reason);
+	LLAssetUploadResponder::errorWithContent(statusNum, reason, content);
 	//LLImportColladaAssetCache::getInstance()->assetUploaded(mVFileID, LLUUID(), FALSE);
 }
 
@@ -456,7 +456,7 @@ LLSendTexLayerResponder::LLSendTexLayerResponder(const LLSD& post_data,
 
 LLSendTexLayerResponder::~LLSendTexLayerResponder()
 {
-	// mBakedUploadData is normally deleted by calls to LLTexLayerSetBuffer::onTextureUploadComplete() below
+	// mBakedUploadData is normally deleted by calls to LLViewerTexLayerSetBuffer::onTextureUploadComplete() below
 	if (mBakedUploadData)
 	{	// ...but delete it in the case where uploadComplete() is never called
 		delete mBakedUploadData;
@@ -477,22 +477,23 @@ void LLSendTexLayerResponder::uploadComplete(const LLSD& content)
 	if (result == "complete"
 		&& mBakedUploadData != NULL)
 	{	// Invoke 
-		LLTexLayerSetBuffer::onTextureUploadComplete(new_id, (void*) mBakedUploadData, 0, LL_EXSTAT_NONE);
+		LLViewerTexLayerSetBuffer::onTextureUploadComplete(new_id, (void*) mBakedUploadData, 0, LL_EXSTAT_NONE);
 		mBakedUploadData = NULL;	// deleted in onTextureUploadComplete()
 	}
 	else
 	{	// Invoke the original callback with an error result
-		LLTexLayerSetBuffer::onTextureUploadComplete(new_id, (void*) mBakedUploadData, -1, LL_EXSTAT_NONE);
+		LLViewerTexLayerSetBuffer::onTextureUploadComplete(new_id, (void*) mBakedUploadData, -1, LL_EXSTAT_NONE);
 		mBakedUploadData = NULL;	// deleted in onTextureUploadComplete()
 	}
 }
 
-void LLSendTexLayerResponder::error(U32 statusNum, const std::string& reason)
+void LLSendTexLayerResponder::errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
 {
-	llinfos << "status: " << statusNum << " reason: " << reason << llendl;
+	llinfos << "LLSendTexLayerResponder error [status:"
+			<< statusNum << "]: " << content << llendl;
 	
 	// Invoke the original callback with an error result
-	LLTexLayerSetBuffer::onTextureUploadComplete(LLUUID(), (void*) mBakedUploadData, -1, LL_EXSTAT_NONE);
+	LLViewerTexLayerSetBuffer::onTextureUploadComplete(LLUUID(), (void*) mBakedUploadData, -1, LL_EXSTAT_NONE);
 	mBakedUploadData = NULL;	// deleted in onTextureUploadComplete()
 }
 

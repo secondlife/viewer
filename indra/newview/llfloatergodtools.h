@@ -98,7 +98,7 @@ private:
 	~LLFloaterGodTools();
 	
 protected:
-	U32 computeRegionFlags() const;
+	U64 computeRegionFlags() const;
 
 protected:
 
@@ -147,8 +147,8 @@ public:
 	const std::string getSimName() const;
 	U32 getEstateID() const;
 	U32 getParentEstateID() const;
-	U32 getRegionFlags() const;
-	U32 getRegionFlagsMask() const;
+	U64 getRegionFlags() const;
+	U64 getRegionFlagsMask() const;
 	F32 getBillableFactor() const;
 	S32 getPricePerMeter() const;
 	S32 getGridPosX() const;
@@ -160,7 +160,7 @@ public:
 	void setSimName(const std::string& name);
 	void setEstateID(U32 id);
 	void setParentEstateID(U32 id);
-	void setCheckFlags(U32 flags);
+	void setCheckFlags(U64 flags);
 	void setBillableFactor(F32 billable_factor);
 	void setPricePerMeter(S32 price);
 	void setGridPosX(S32 pos);
@@ -168,7 +168,7 @@ public:
 	void setRedirectGridX(S32 pos);
 	void setRedirectGridY(S32 pos);
 
-	U32 computeRegionFlags(U32 initial_flags) const;
+	U64 computeRegionFlags(U64 initial_flags) const;
 	void clearAllWidgets();
 	void enableAllWidgets();
 
@@ -218,10 +218,10 @@ public:
 	/*virtual*/ void refresh();
 
 	void setTargetAvatar(const LLUUID& target_id);
-	U32 computeRegionFlags(U32 initial_flags) const;
+	U64 computeRegionFlags(U64 initial_flags) const;
 	void clearAllWidgets();
 	void enableAllWidgets();
-	void setCheckFlags(U32 flags);
+	void setCheckFlags(U64 flags);
 
 	void onChangeAnything();
 	void onApplyChanges();

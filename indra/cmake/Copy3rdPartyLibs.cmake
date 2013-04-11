@@ -267,7 +267,7 @@ elseif(LINUX)
         libexpat.so
         libexpat.so.1
         libfreetype.so.6
-        libglod.so
+        libGLOD.so
         libgmock_main.so
         libgmock.so.0
         libgmodule-2.0.so

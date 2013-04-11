@@ -3242,6 +3242,7 @@ void LLPhysicsDecomp::doDecomposition()
 		param_map[params[i].mName] = params+i;
 	}
 
+	U32 ret = LLCD_OK;
 	//set parameter values
 	for (decomp_params::iterator iter = mCurRequest->mParams.begin(); iter != mCurRequest->mParams.end(); ++iter)
 	{
@@ -3255,7 +3256,6 @@ void LLPhysicsDecomp::doDecomposition()
 			continue;
 		}
 
-		U32 ret = LLCD_OK;
 
 		if (param->mType == LLCDParam::LLCD_FLOAT)
 		{
@@ -3274,8 +3274,6 @@ void LLPhysicsDecomp::doDecomposition()
 
 	mCurRequest->setStatusMessage("Executing.");
 
-	LLCDResult ret = LLCD_OK;
-	
 	if (LLConvexDecomposition::getInstance() != NULL)
 	{
 		ret = LLConvexDecomposition::getInstance()->executeStage(stage);
