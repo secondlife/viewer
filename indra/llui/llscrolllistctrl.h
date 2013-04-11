@@ -430,6 +430,9 @@ private:
 	BOOL			setSort(S32 column, BOOL ascending);
 	S32				getLinesPerPage();
 
+	static void		showProfile(std::string id, bool is_group);
+	static void		sendIM(std::string id);
+	static void		addFriend(std::string id);
 	static void		showNameDetails(std::string id, bool is_group);
 	static void		copyNameToClipboard(std::string id, bool is_group);
 	static void		copySLURLToClipboard(std::string id, bool is_group);

@@ -443,6 +443,7 @@ void LLTextBase::drawSelectionBackground()
 			++rect_it)
 		{
 			LLRect selection_rect = *rect_it;
+			selection_rect = *rect_it;
 			selection_rect.translate(mVisibleTextRect.mLeft - content_display_rect.mLeft, mVisibleTextRect.mBottom - content_display_rect.mBottom);
 			gl_rect_2d(selection_rect, selection_color);
 		}
@@ -520,8 +521,8 @@ void LLTextBase::drawCursor()
 			LLRect screen_pos = calcScreenRect();
 			LLCoordGL ime_pos( screen_pos.mLeft + llfloor(cursor_rect.mLeft), screen_pos.mBottom + llfloor(cursor_rect.mTop) );
 
-			ime_pos.mX = (S32) (ime_pos.mX * LLUI::sGLScaleFactor.mV[VX]);
-			ime_pos.mY = (S32) (ime_pos.mY * LLUI::sGLScaleFactor.mV[VY]);
+			ime_pos.mX = (S32) (ime_pos.mX * LLUI::getScaleFactor().mV[VX]);
+			ime_pos.mY = (S32) (ime_pos.mY * LLUI::getScaleFactor().mV[VY]);
 			getWindow()->setLanguageTextInput( ime_pos );
 		}
 	}
@@ -1917,7 +1918,6 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	registrar.add("Url.Execute", boost::bind(&LLUrlAction::executeSLURL, url));
 	registrar.add("Url.Teleport", boost::bind(&LLUrlAction::teleportToLocation, url));
 	registrar.add("Url.ShowProfile", boost::bind(&LLUrlAction::showProfile, url));
-	registrar.add("Url.SendIM", boost::bind(&LLUrlAction::sendIM, url));
 	registrar.add("Url.AddFriend", boost::bind(&LLUrlAction::addFriend, url));
 	registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
 	registrar.add("Url.CopyLabel", boost::bind(&LLUrlAction::copyLabelToClipboard, url));
@@ -3201,7 +3201,23 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 	LLFontGL::EWordWrapStyle word_wrap_style = (line_offset == 0) 
 		? LLFontGL::WORD_BOUNDARY_IF_POSSIBLE 
 		: LLFontGL::ONLY_WORD_BOUNDARIES;
-	S32 num_chars = mStyle->getFont()->maxDrawableChars(text.c_str() + segment_offset + mStart, 
+	
+	
+	LLWString offsetString(text.c_str() + segment_offset + mStart);
+
+	if(getLength() < segment_offset + mStart)
+	{
+		llerrs << "getLength() < segment_offset + mStart\t getLength()\t" << getLength() << "\tsegment_offset:\t" 
+						<< segment_offset << "\tmStart:\t" << mStart << "\tsegments\t" << mEditor.mSegments.size() << "\tmax_chars\t" << max_chars << llendl;
+	}
+
+	if(offsetString.length() + 1 < max_chars)
+	{
+		llerrs << "offsetString.length() + 1 < max_chars\t max_chars:\t" << max_chars << "\toffsetString.length():\t" << offsetString.length()
+			<< getLength() << "\tsegment_offset:\t" << segment_offset << "\tmStart:\t" << mStart << "\tsegments\t" << mEditor.mSegments.size() << llendl;
+	}
+	
+	S32 num_chars = mStyle->getFont()->maxDrawableChars(offsetString.c_str(), 
 												(F32)num_pixels,
 												max_chars, 
 												word_wrap_style);
@@ -3474,3 +3490,7 @@ F32	LLImageTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 select
 	return 0.0;
 }
 
+void LLTextBase::setWordWrap(bool wrap)
+{
+	mWordWrap = wrap;
+}

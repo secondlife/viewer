@@ -65,8 +65,10 @@ public:
 
 	// LLView overrides
 	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void setMinimized(BOOL b);
 	/*virtual*/ void setVisible(BOOL visible);
 	/*virtual*/ BOOL getVisible();
+	/*virtual*/ void setFocus(BOOL focus);
 	// Check typing timeout timer.
 
 	/*virtual*/ void draw();

@@ -8,14 +8,12 @@
 #   DARWIN  - Mac OS X
 #   LINUX   - Linux
 #   WINDOWS - Windows
-#
-# What to build:
-#
-#   VIEWER - viewer and other viewer-side components
-#   SERVER - simulator and other server-side bits
 
 
 # Relative and absolute paths to subtrees.
+
+if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
+set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
 if(NOT DEFINED COMMON_CMAKE_DIR)
     set(COMMON_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
@@ -23,9 +21,7 @@ endif(NOT DEFINED COMMON_CMAKE_DIR)
 
 set(LIBS_CLOSED_PREFIX)
 set(LIBS_OPEN_PREFIX)
-set(LIBS_SERVER_PREFIX)
 set(SCRIPTS_PREFIX ../scripts)
-set(SERVER_PREFIX)
 set(VIEWER_PREFIX)
 set(INTEGRATION_TESTS_PREFIX)
 set(LL_TESTS ON CACHE BOOL "Build and run unit and integration tests (disable for build timing runs to reduce variation")
@@ -43,9 +39,7 @@ else(LIBS_COMMON_DIR)
 endif(LIBS_COMMON_DIR)
 set(LIBS_OPEN_DIR ${LIBS_COMMON_DIR})
 
-set(LIBS_SERVER_DIR ${CMAKE_SOURCE_DIR}/${LIBS_SERVER_PREFIX})
 set(SCRIPTS_DIR ${CMAKE_SOURCE_DIR}/${SCRIPTS_PREFIX})
-set(SERVER_DIR ${CMAKE_SOURCE_DIR}/${SERVER_PREFIX})
 set(VIEWER_DIR ${CMAKE_SOURCE_DIR}/${VIEWER_PREFIX})
 
 set(AUTOBUILD_INSTALL_DIR ${CMAKE_BINARY_DIR}/packages)
@@ -79,21 +73,57 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   # If someone has specified a word size, use that to determine the
   # architecture.  Otherwise, let the architecture specify the word size.
   if (WORD_SIZE EQUAL 32)
+    #message(STATUS "WORD_SIZE is 32")
     set(ARCH i686)
   elseif (WORD_SIZE EQUAL 64)
+    #message(STATUS "WORD_SIZE is 64")
     set(ARCH x86_64)
   else (WORD_SIZE EQUAL 32)
+    #message(STATUS "WORD_SIZE is UNDEFINED")
     execute_process(COMMAND uname -m COMMAND sed s/i.86/i686/
                     OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
     if (ARCH STREQUAL x86_64)
+      #message(STATUS "ARCH is detected as 64; ARCH is ${ARCH}")
       set(WORD_SIZE 64)
     else (ARCH STREQUAL x86_64)
+      #message(STATUS "ARCH is detected as 32; ARCH is ${ARCH}")
       set(WORD_SIZE 32)
     endif (ARCH STREQUAL x86_64)
   endif (WORD_SIZE EQUAL 32)
 
+  if (WORD_SIZE EQUAL 32)
+    set(DEB_ARCHITECTURE i386)
+    set(FIND_LIBRARY_USE_LIB64_PATHS OFF)
+    set(CMAKE_SYSTEM_LIBRARY_PATH /usr/lib32 ${CMAKE_SYSTEM_LIBRARY_PATH})
+  else (WORD_SIZE EQUAL 32)
+    set(DEB_ARCHITECTURE amd64)
+    set(FIND_LIBRARY_USE_LIB64_PATHS ON)
+  endif (WORD_SIZE EQUAL 32)
+
+  execute_process(COMMAND dpkg-architecture -a${DEB_ARCHITECTURE} -qDEB_HOST_MULTIARCH 
+      RESULT_VARIABLE DPKG_RESULT
+      OUTPUT_VARIABLE DPKG_ARCH
+      OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+  #message (STATUS "DPKG_RESULT ${DPKG_RESULT}, DPKG_ARCH ${DPKG_ARCH}")
+  if (DPKG_RESULT EQUAL 0)
+    set(CMAKE_LIBRARY_ARCHITECTURE ${DPKG_ARCH})
+    set(CMAKE_SYSTEM_LIBRARY_PATH /usr/lib/${DPKG_ARCH} /usr/local/lib/${DPKG_ARCH} ${CMAKE_SYSTEM_LIBRARY_PATH})
+  endif (DPKG_RESULT EQUAL 0)
+
+  include(ConfigurePkgConfig)
+
   set(LL_ARCH ${ARCH}_linux)
   set(LL_ARCH_DIR ${ARCH}-linux)
+
+  if (INSTALL_PROPRIETARY)
+    # Only turn on headless if we can find osmesa libraries.
+    include(FindPkgConfig)
+    #pkg_check_modules(OSMESA osmesa)
+    #if (OSMESA_FOUND)
+    #  set(BUILD_HEADLESS ON CACHE BOOL "Build headless libraries.")
+    #endif (OSMESA_FOUND)
+  endif (INSTALL_PROPRIETARY)
+
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -140,7 +170,6 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 # Default deploy grid
 set(GRID agni CACHE STRING "Target Grid")
 
-set(VIEWER ON CACHE BOOL "Build Second Life viewer.")
 set(VIEWER_CHANNEL "LindenDeveloper" CACHE STRING "Viewer Channel Name")
 set(VIEWER_LOGIN_CHANNEL ${VIEWER_CHANNEL} CACHE STRING "Fake login channel for A/B Testing")
 
@@ -153,21 +182,8 @@ set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
 set(STANDALONE OFF CACHE BOOL "Do not use Linden-supplied prebuilt libraries.")
 set(UNATTENDED OFF CACHE BOOL "Should be set to ON for building with VC Express editions.")
 
-if (NOT STANDALONE AND EXISTS ${CMAKE_SOURCE_DIR}/llphysics)
-    set(SERVER ON CACHE BOOL "Build Second Life server software.")
-endif (NOT STANDALONE AND EXISTS ${CMAKE_SOURCE_DIR}/llphysics)
-
-if (LINUX AND SERVER AND VIEWER)
-  MESSAGE(FATAL_ERROR "
-The indra source does not currently support building SERVER and VIEWER at the same time.
-Please set one of these values to OFF in your CMake cache file.
-(either by running ccmake or by editing CMakeCache.txt by hand)
-For more information, please see JIRA DEV-14943 - Cmake Linux cannot build both VIEWER and SERVER in one build environment
-  ")
-endif (LINUX AND SERVER AND VIEWER)
-
-
 set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header directives where supported.")
 
 source_group("CMake Rules" FILES CMakeLists.txt)
 
+endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)

@@ -145,10 +145,14 @@ void LLSpellChecker::refreshDictionaryMap()
 
 	// Load dictionary information (file name, friendly name, ...)
 	llifstream user_file(user_path + DICT_FILE_MAIN, std::ios::binary);
-	if ( (!user_file.is_open()) || (0 == LLSDSerialize::fromXMLDocument(sDictMap, user_file)) || (0 == sDictMap.size()) )
+	if ( (!user_file.is_open()) 
+		|| (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXMLDocument(sDictMap, user_file)) 
+		|| (0 == sDictMap.size()) )
 	{
 		llifstream app_file(app_path + DICT_FILE_MAIN, std::ios::binary);
-		if ( (!app_file.is_open()) || (0 == LLSDSerialize::fromXMLDocument(sDictMap, app_file)) || (0 == sDictMap.size()) )
+		if ( (!app_file.is_open()) 
+			|| (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXMLDocument(sDictMap, app_file)) 
+			|| (0 == sDictMap.size()) )
 		{
 			return;
 		}

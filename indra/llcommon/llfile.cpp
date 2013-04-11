@@ -56,6 +56,8 @@ std::string strerr(int errn)
 	return buffer;
 }
 
+typedef std::basic_ios<char,std::char_traits < char > > _Myios;
+
 #else
 // On Posix we want to call strerror_r(), but alarmingly, there are two
 // different variants. The one that returns int always populates the passed
@@ -324,9 +326,10 @@ const char *LLFile::tmpdir()
 
 /***************** Modified file stream created to overcome the incorrect behaviour of posix fopen in windows *******************/
 
-#if USE_LLFILESTREAMS
+#if LL_WINDOWS
 
-LLFILE *	LLFile::_Fiopen(const std::string& filename, std::ios::openmode mode,int)	// protection currently unused
+LLFILE *	LLFile::_Fiopen(const std::string& filename, 
+		std::ios::openmode mode)
 {	// open a file
 	static const char *mods[] =
 	{	// fopen mode strings corresponding to valid[i]
@@ -385,117 +388,681 @@ LLFILE *	LLFile::_Fiopen(const std::string& filename, std::ios::openmode mode,in
 	return (0);
 }
 
+#endif /* LL_WINDOWS */
+
+/************** llstdio file buffer ********************************/
+
+
+//llstdio_filebuf* llstdio_filebuf::open(const char *_Filename,
+//	ios_base::openmode _Mode)
+//{
+//#if LL_WINDOWS
+//	_Filet *_File;
+//	if (is_open() || (_File = LLFILE::_Fiopen(_Filename, _Mode)) == 0)
+//		return (0);	// open failed
+//
+//	_Init(_File, _Openfl);
+//	_Initcvt(&_USE(_Mysb::getloc(), _Cvt));
+//	return (this);	// open succeeded
+//#else
+//	std::filebuf* _file = std::filebuf::open(_Filename, _Mode);
+//	if (NULL == _file) return NULL;
+//	return this;
+//#endif
+//}
+
+
+// *TODO: Seek the underlying c stream for better cross-platform compatibility?
+#if !LL_WINDOWS
+llstdio_filebuf::int_type llstdio_filebuf::overflow(llstdio_filebuf::int_type __c)
+{
+	int_type __ret = traits_type::eof();
+	const bool __testeof = traits_type::eq_int_type(__c, __ret);
+	const bool __testout = _M_mode & ios_base::out;
+	if (__testout && !_M_reading)
+	{
+		if (this->pbase() < this->pptr())
+		{
+			// If appropriate, append the overflow char.
+			if (!__testeof)
+			{
+				*this->pptr() = traits_type::to_char_type(__c);
+				this->pbump(1);
+			}
+
+			// Convert pending sequence to external representation,
+			// and output.
+			if (_convert_to_external(this->pbase(),
+					 this->pptr() - this->pbase()))
+			{
+				_M_set_buffer(0);
+				__ret = traits_type::not_eof(__c);
+			}
+		}
+		else if (_M_buf_size > 1)
+		{
+			// Overflow in 'uncommitted' mode: set _M_writing, set
+			// the buffer to the initial 'write' mode, and put __c
+			// into the buffer.
+			_M_set_buffer(0);
+			_M_writing = true;
+			if (!__testeof)
+			{
+				*this->pptr() = traits_type::to_char_type(__c);
+				this->pbump(1);
+			}
+			__ret = traits_type::not_eof(__c);
+		}
+		else
+		{
+			// Unbuffered.
+			char_type __conv = traits_type::to_char_type(__c);
+			if (__testeof || _convert_to_external(&__conv, 1))
+			{
+				_M_writing = true;
+				__ret = traits_type::not_eof(__c);
+			}
+		}
+	}
+	return __ret;
+}
+
+bool llstdio_filebuf::_convert_to_external(char_type* __ibuf,
+						std::streamsize __ilen)
+{
+	// Sizes of external and pending output.
+	streamsize __elen;
+	streamsize __plen;
+	if (__check_facet(_M_codecvt).always_noconv())
+	{
+		//__elen = _M_file.xsputn(reinterpret_cast<char*>(__ibuf), __ilen);
+		__elen = fwrite(reinterpret_cast<void*>(__ibuf), 1,
+						__ilen, _M_file.file());
+		__plen = __ilen;
+	}
+	else
+	{
+		// Worst-case number of external bytes needed.
+		// XXX Not done encoding() == -1.
+		streamsize __blen = __ilen * _M_codecvt->max_length();
+		char* __buf = static_cast<char*>(__builtin_alloca(__blen));
+
+		char* __bend;
+		const char_type* __iend;
+		codecvt_base::result __r;
+		__r = _M_codecvt->out(_M_state_cur, __ibuf, __ibuf + __ilen,
+				__iend, __buf, __buf + __blen, __bend);
+
+		if (__r == codecvt_base::ok || __r == codecvt_base::partial)
+			__blen = __bend - __buf;
+		else if (__r == codecvt_base::noconv)
+		{
+			// Same as the always_noconv case above.
+			__buf = reinterpret_cast<char*>(__ibuf);
+			__blen = __ilen;
+		}
+		else
+			__throw_ios_failure(__N("llstdio_filebuf::_convert_to_external "
+									"conversion error"));
+  
+		//__elen = _M_file.xsputn(__buf, __blen);
+		__elen = fwrite(__buf, 1, __blen, _M_file.file());
+		__plen = __blen;
+
+		// Try once more for partial conversions.
+		if (__r == codecvt_base::partial && __elen == __plen)
+		{
+			const char_type* __iresume = __iend;
+			streamsize __rlen = this->pptr() - __iend;
+			__r = _M_codecvt->out(_M_state_cur, __iresume,
+					__iresume + __rlen, __iend, __buf,
+					__buf + __blen, __bend);
+			if (__r != codecvt_base::error)
+			{
+				__rlen = __bend - __buf;
+				//__elen = _M_file.xsputn(__buf, __rlen);
+				__elen = fwrite(__buf, 1, __rlen, _M_file.file());
+				__plen = __rlen;
+			}
+			else
+			{
+				__throw_ios_failure(__N("llstdio_filebuf::_convert_to_external "
+										"conversion error"));
+			}
+		}
+	}
+	return __elen == __plen;
+}
+
+llstdio_filebuf::int_type llstdio_filebuf::underflow()
+{
+	int_type __ret = traits_type::eof();
+	const bool __testin = _M_mode & ios_base::in;
+	if (__testin)
+	{
+		if (_M_writing)
+		{
+			if (overflow() == traits_type::eof())
+			return __ret;
+			//_M_set_buffer(-1);
+			//_M_writing = false;
+		}
+		// Check for pback madness, and if so switch back to the
+		// normal buffers and jet outta here before expensive
+		// fileops happen...
+		_M_destroy_pback();
+
+		if (this->gptr() < this->egptr())
+			return traits_type::to_int_type(*this->gptr());
+
+		// Get and convert input sequence.
+		const size_t __buflen = _M_buf_size > 1 ? _M_buf_size - 1 : 1;
+
+		// Will be set to true if ::fread() returns 0 indicating EOF.
+		bool __got_eof = false;
+		// Number of internal characters produced.
+		streamsize __ilen = 0;
+		codecvt_base::result __r = codecvt_base::ok;
+		if (__check_facet(_M_codecvt).always_noconv())
+		{
+			//__ilen = _M_file.xsgetn(reinterpret_cast<char*>(this->eback()),
+			//			__buflen);
+			__ilen = fread(reinterpret_cast<void*>(this->eback()), 1,
+						__buflen, _M_file.file());
+			if (__ilen == 0)
+				__got_eof = true;
+		}
+		else
+	    {
+			// Worst-case number of external bytes.
+			// XXX Not done encoding() == -1.
+			const int __enc = _M_codecvt->encoding();
+			streamsize __blen; // Minimum buffer size.
+			streamsize __rlen; // Number of chars to read.
+			if (__enc > 0)
+				__blen = __rlen = __buflen * __enc;
+			else
+			{
+				__blen = __buflen + _M_codecvt->max_length() - 1;
+				__rlen = __buflen;
+			}
+			const streamsize __remainder = _M_ext_end - _M_ext_next;
+			__rlen = __rlen > __remainder ? __rlen - __remainder : 0;
+
+			// An imbue in 'read' mode implies first converting the external
+			// chars already present.
+			if (_M_reading && this->egptr() == this->eback() && __remainder)
+				__rlen = 0;
+
+			// Allocate buffer if necessary and move unconverted
+			// bytes to front.
+			if (_M_ext_buf_size < __blen)
+			{
+				char* __buf = new char[__blen];
+				if (__remainder)
+					__builtin_memcpy(__buf, _M_ext_next, __remainder);
+
+				delete [] _M_ext_buf;
+				_M_ext_buf = __buf;
+				_M_ext_buf_size = __blen;
+			}
+			else if (__remainder)
+				__builtin_memmove(_M_ext_buf, _M_ext_next, __remainder);
+
+			_M_ext_next = _M_ext_buf;
+			_M_ext_end = _M_ext_buf + __remainder;
+			_M_state_last = _M_state_cur;
+
+			do
+			{
+				if (__rlen > 0)
+				{
+					// Sanity check!
+					// This may fail if the return value of
+					// codecvt::max_length() is bogus.
+					if (_M_ext_end - _M_ext_buf + __rlen > _M_ext_buf_size)
+					{
+						__throw_ios_failure(__N("llstdio_filebuf::underflow "
+							"codecvt::max_length() "
+							"is not valid"));
+					}
+					//streamsize __elen = _M_file.xsgetn(_M_ext_end, __rlen);
+					streamsize __elen = fread(_M_ext_end, 1,
+						__rlen, _M_file.file());
+					if (__elen == 0)
+						__got_eof = true;
+					else if (__elen == -1)
+					break;
+					//_M_ext_end += __elen;
+				}
+
+				char_type* __iend = this->eback();
+				if (_M_ext_next < _M_ext_end)
+				{
+					__r = _M_codecvt->in(_M_state_cur, _M_ext_next,
+							_M_ext_end, _M_ext_next,
+							this->eback(),
+							this->eback() + __buflen, __iend);
+				}
+				if (__r == codecvt_base::noconv)
+				{
+					size_t __avail = _M_ext_end - _M_ext_buf;
+					__ilen = std::min(__avail, __buflen);
+					traits_type::copy(this->eback(),
+						reinterpret_cast<char_type*>
+						(_M_ext_buf), __ilen);
+					_M_ext_next = _M_ext_buf + __ilen;
+				}
+				else
+					__ilen = __iend - this->eback();
+
+				// _M_codecvt->in may return error while __ilen > 0: this is
+				// ok, and actually occurs in case of mixed encodings (e.g.,
+				// XML files).
+				if (__r == codecvt_base::error)
+					break;
+
+				__rlen = 1;
+			} while (__ilen == 0 && !__got_eof);
+		}
+
+		if (__ilen > 0)
+		{
+			_M_set_buffer(__ilen);
+			_M_reading = true;
+			__ret = traits_type::to_int_type(*this->gptr());
+		}
+		else if (__got_eof)
+		{
+			// If the actual end of file is reached, set 'uncommitted'
+			// mode, thus allowing an immediate write without an
+			// intervening seek.
+			_M_set_buffer(-1);
+			_M_reading = false;
+			// However, reaching it while looping on partial means that
+			// the file has got an incomplete character.
+			if (__r == codecvt_base::partial)
+				__throw_ios_failure(__N("llstdio_filebuf::underflow "
+					"incomplete character in file"));
+		}
+		else if (__r == codecvt_base::error)
+			__throw_ios_failure(__N("llstdio_filebuf::underflow "
+					"invalid byte sequence in file"));
+		else
+			__throw_ios_failure(__N("llstdio_filebuf::underflow "
+					"error reading the file"));
+	}
+	return __ret;
+}
+
+std::streamsize llstdio_filebuf::xsgetn(char_type* __s, std::streamsize __n)
+{
+	// Clear out pback buffer before going on to the real deal...
+	streamsize __ret = 0;
+	if (_M_pback_init)
+	{
+		if (__n > 0 && this->gptr() == this->eback())
+		{
+			*__s++ = *this->gptr();
+			this->gbump(1);
+			__ret = 1;
+			--__n;
+		}
+		_M_destroy_pback();
+	}
+       
+	// Optimization in the always_noconv() case, to be generalized in the
+	// future: when __n > __buflen we read directly instead of using the
+	// buffer repeatedly.
+	const bool __testin = _M_mode & ios_base::in;
+	const streamsize __buflen = _M_buf_size > 1 ? _M_buf_size - 1 : 1;
+
+	if (__n > __buflen && __check_facet(_M_codecvt).always_noconv()
+		&& __testin && !_M_writing)
+	{
+		// First, copy the chars already present in the buffer.
+		const streamsize __avail = this->egptr() - this->gptr();
+		if (__avail != 0)
+		{
+			if (__avail == 1)
+				*__s = *this->gptr();
+			else
+				traits_type::copy(__s, this->gptr(), __avail);
+			__s += __avail;
+			this->gbump(__avail);
+			__ret += __avail;
+			__n -= __avail;
+		}
+
+		// Need to loop in case of short reads (relatively common
+		// with pipes).
+		streamsize __len;
+		for (;;)
+		{
+			//__len = _M_file.xsgetn(reinterpret_cast<char*>(__s), __n);
+			__len = fread(reinterpret_cast<void*>(__s), 1, 
+						__n, _M_file.file());
+			if (__len == -1)
+				__throw_ios_failure(__N("llstdio_filebuf::xsgetn "
+										"error reading the file"));
+			if (__len == 0)
+				break;
+
+			__n -= __len;
+			__ret += __len;
+			if (__n == 0)
+				break;
+
+			__s += __len;
+		}
+
+		if (__n == 0)
+		{
+			_M_set_buffer(0);
+			_M_reading = true;
+		}
+		else if (__len == 0)
+		{
+			// If end of file is reached, set 'uncommitted'
+			// mode, thus allowing an immediate write without
+			// an intervening seek.
+			_M_set_buffer(-1);
+			_M_reading = false;
+		}
+	}
+	else
+		__ret += __streambuf_type::xsgetn(__s, __n);
+
+	return __ret;
+}
+
+std::streamsize llstdio_filebuf::xsputn(char_type* __s, std::streamsize __n)
+{
+	// Optimization in the always_noconv() case, to be generalized in the
+	// future: when __n is sufficiently large we write directly instead of
+	// using the buffer.
+	streamsize __ret = 0;
+	const bool __testout = _M_mode & ios_base::out;
+	if (__check_facet(_M_codecvt).always_noconv()
+		&& __testout && !_M_reading)
+	{
+		// Measurement would reveal the best choice.
+		const streamsize __chunk = 1ul << 10;
+		streamsize __bufavail = this->epptr() - this->pptr();
+
+		// Don't mistake 'uncommitted' mode buffered with unbuffered.
+		if (!_M_writing && _M_buf_size > 1)
+			__bufavail = _M_buf_size - 1;
+
+		const streamsize __limit = std::min(__chunk, __bufavail);
+		if (__n >= __limit)
+		{
+			const streamsize __buffill = this->pptr() - this->pbase();
+			const char* __buf = reinterpret_cast<const char*>(this->pbase());
+			//__ret = _M_file.xsputn_2(__buf, __buffill,
+			//			reinterpret_cast<const char*>(__s), __n);
+			if (__buffill)
+			{
+				__ret = fwrite(__buf, 1, __buffill, _M_file.file());
+			}
+			if (__ret == __buffill)
+			{
+				__ret += fwrite(reinterpret_cast<const char*>(__s), 1,
+								__n, _M_file.file());
+			}
+			if (__ret == __buffill + __n)
+			{
+				_M_set_buffer(0);
+				_M_writing = true;
+			}
+			if (__ret > __buffill)
+				__ret -= __buffill;
+			else
+				__ret = 0;
+		}
+		else
+			__ret = __streambuf_type::xsputn(__s, __n);
+	}
+	else
+		__ret = __streambuf_type::xsputn(__s, __n);
+    return __ret;
+}
+
+int llstdio_filebuf::sync()
+{
+	return (_M_file.sync() == 0 ? 0 : -1);
+}
+#endif
+
 /************** input file stream ********************************/
 
-void llifstream::close()
-{	// close the C stream
-	if (_Filebuffer && _Filebuffer->close() == 0)
+
+llifstream::llifstream() : _M_filebuf(),
+#if LL_WINDOWS
+	std::istream(&_M_filebuf) {}
+#else
+	std::istream()
+{
+	this->init(&_M_filebuf);
+}
+#endif
+
+// explicit
+llifstream::llifstream(const std::string& _Filename, 
+		ios_base::openmode _Mode) : _M_filebuf(),
+#if LL_WINDOWS
+	std::istream(&_M_filebuf)
+{
+	if (_M_filebuf.open(_Filename.c_str(), _Mode | ios_base::in) == 0)
 	{
-		_Myios::setstate(ios_base::failbit);	/*Flawfinder: ignore*/
+		_Myios::setstate(ios_base::failbit);
 	}
 }
-
-void llifstream::open(const std::string& _Filename,	/* Flawfinder: ignore */
-	ios_base::openmode _Mode,
-	int _Prot)
-{	// open a C stream with specified mode
-
-	LLFILE* filep = LLFile::_Fiopen(_Filename,_Mode | ios_base::in, _Prot);
-	if(filep == NULL)
-	{
-		_Myios::setstate(ios_base::failbit);	/*Flawfinder: ignore*/
-		return;
-	}
-	llassert(_Filebuffer == NULL);
-	_Filebuffer = new _Myfb(filep);
-	_ShouldClose = true;
-	_Myios::init(_Filebuffer);
+#else
+	std::istream()
+{
+	this->init(&_M_filebuf);
+	this->open(_Filename.c_str(), _Mode | ios_base::in);
 }
+#endif
+
+// explicit
+llifstream::llifstream(const char* _Filename, 
+		ios_base::openmode _Mode) : _M_filebuf(),
+#if LL_WINDOWS
+	std::istream(&_M_filebuf)
+{
+	if (_M_filebuf.open(_Filename, _Mode | ios_base::in) == 0)
+	{
+		_Myios::setstate(ios_base::failbit);
+	}
+}
+#else
+	std::istream()
+{
+	this->init(&_M_filebuf);
+	this->open(_Filename, _Mode | ios_base::in);
+}
+#endif
+
+
+// explicit
+llifstream::llifstream(_Filet *_File,
+		ios_base::openmode _Mode, size_t _Size) :
+	_M_filebuf(_File, _Mode, _Size),
+#if LL_WINDOWS
+	std::istream(&_M_filebuf) {}
+#else
+	std::istream()
+{
+	this->init(&_M_filebuf);
+}
+#endif
+
+#if !LL_WINDOWS
+// explicit
+llifstream::llifstream(int __fd,
+		ios_base::openmode _Mode, size_t _Size) :
+	_M_filebuf(__fd, _Mode, _Size),
+	std::istream()
+{
+	this->init(&_M_filebuf);
+}
+#endif
 
 bool llifstream::is_open() const
 {	// test if C stream has been opened
-	if(_Filebuffer)
-		return (_Filebuffer->is_open());
-	return false;
+	return _M_filebuf.is_open();
 }
-llifstream::~llifstream()
-{
-	if (_ShouldClose)
+
+void llifstream::open(const char* _Filename, ios_base::openmode _Mode)
+{	// open a C stream with specified mode
+	if (_M_filebuf.open(_Filename, _Mode | ios_base::in) == 0)
+#if LL_WINDOWS
 	{
-		close();
+		_Myios::setstate(ios_base::failbit);
 	}
-	delete _Filebuffer;
+	else
+	{
+		_Myios::clear();
+	}
+#else
+	{
+		this->setstate(ios_base::failbit);
+	}
+	else
+	{
+		this->clear();
+	}
+#endif
 }
 
-llifstream::llifstream(const std::string& _Filename,
-	ios_base::openmode _Mode,
-	int _Prot)
-	: std::basic_istream< char , std::char_traits< char > >(NULL,true),_Filebuffer(NULL),_ShouldClose(false)
-
-{	// construct with named file and specified mode
-	open(_Filename, _Mode | ios_base::in, _Prot);	/* Flawfinder: ignore */
+void llifstream::close()
+{	// close the C stream
+	if (_M_filebuf.close() == 0)
+	{
+#if LL_WINDOWS
+		_Myios::setstate(ios_base::failbit);
+#else
+		this->setstate(ios_base::failbit);
+#endif
+	}
 }
 
 
 /************** output file stream ********************************/
 
+
+llofstream::llofstream() : _M_filebuf(),
+#if LL_WINDOWS
+	std::ostream(&_M_filebuf) {}
+#else
+	std::ostream()
+{
+	this->init(&_M_filebuf);
+}
+#endif
+
+// explicit
+llofstream::llofstream(const std::string& _Filename,
+		ios_base::openmode _Mode) : _M_filebuf(),
+#if LL_WINDOWS
+	std::ostream(&_M_filebuf)
+{
+	if (_M_filebuf.open(_Filename.c_str(), _Mode | ios_base::out) == 0)
+	{
+		_Myios::setstate(ios_base::failbit);
+	}
+}
+#else
+	std::ostream()
+{
+	this->init(&_M_filebuf);
+	this->open(_Filename.c_str(), _Mode | ios_base::out);
+}
+#endif
+
+// explicit
+llofstream::llofstream(const char* _Filename,
+		ios_base::openmode _Mode) : _M_filebuf(),
+#if LL_WINDOWS
+	std::ostream(&_M_filebuf)
+{
+	if (_M_filebuf.open(_Filename, _Mode | ios_base::out) == 0)
+	{
+		_Myios::setstate(ios_base::failbit);
+	}
+}
+#else
+	std::ostream()
+{
+	this->init(&_M_filebuf);
+	this->open(_Filename, _Mode | ios_base::out);
+}
+#endif
+
+// explicit
+llofstream::llofstream(_Filet *_File,
+			ios_base::openmode _Mode, size_t _Size) :
+	_M_filebuf(_File, _Mode, _Size),
+#if LL_WINDOWS
+	std::ostream(&_M_filebuf) {}
+#else
+	std::ostream()
+{
+	this->init(&_M_filebuf);
+}
+#endif
+
+#if !LL_WINDOWS
+// explicit
+llofstream::llofstream(int __fd,
+			ios_base::openmode _Mode, size_t _Size) :
+	_M_filebuf(__fd, _Mode, _Size),
+	std::ostream()
+{
+	this->init(&_M_filebuf);
+}
+#endif
+
 bool llofstream::is_open() const
 {	// test if C stream has been opened
-	if(_Filebuffer)
-		return (_Filebuffer->is_open());
-	return false;
+	return _M_filebuf.is_open();
 }
 
-void llofstream::open(const std::string& _Filename,	/* Flawfinder: ignore */
-	ios_base::openmode _Mode,
-	int _Prot)
+void llofstream::open(const char* _Filename, ios_base::openmode _Mode)
 {	// open a C stream with specified mode
-
-	LLFILE* filep = LLFile::_Fiopen(_Filename,_Mode | ios_base::out, _Prot);
-	if(filep == NULL)
+	if (_M_filebuf.open(_Filename, _Mode | ios_base::out) == 0)
+#if LL_WINDOWS
 	{
-		_Myios::setstate(ios_base::failbit);	/*Flawfinder: ignore*/
-		return;
+		_Myios::setstate(ios_base::failbit);
 	}
-	llassert(_Filebuffer==NULL);
-	_Filebuffer = new _Myfb(filep);
-	_ShouldClose = true;
-	_Myios::init(_Filebuffer);
+	else
+	{
+		_Myios::clear();
+	}
+#else
+	{
+		this->setstate(ios_base::failbit);
+	}
+	else
+	{
+		this->clear();
+	}
+#endif
 }
 
 void llofstream::close()
 {	// close the C stream
-	if(is_open())
+	if (_M_filebuf.close() == 0)
 	{
-		if (_Filebuffer->close() == 0)
-		{
-			_Myios::setstate(ios_base::failbit);	/*Flawfinder: ignore*/
-		}
-		delete _Filebuffer;
-		_Filebuffer = NULL;
-		_ShouldClose = false;
+#if LL_WINDOWS
+		_Myios::setstate(ios_base::failbit);
+#else
+		this->setstate(ios_base::failbit);
+#endif
 	}
 }
-
-llofstream::llofstream(const std::string& _Filename,
-	std::ios_base::openmode _Mode,
-	int _Prot)
-		: std::basic_ostream<char,std::char_traits < char > >(NULL,true),_Filebuffer(NULL),_ShouldClose(false)
-{	// construct with named file and specified mode
-	open(_Filename, _Mode , _Prot);	/* Flawfinder: ignore */
-}
-
-llofstream::~llofstream()
-{
-	// destroy the object
-	if (_ShouldClose)
-	{
-		close();
-	}
-	delete _Filebuffer;
-}
-
-#endif // #if USE_LLFILESTREAMS
 
 /************** helper functions ********************************/
 

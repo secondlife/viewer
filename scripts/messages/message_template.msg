@@ -2939,6 +2939,10 @@ version 2.0
 		PidStat Single
 		{	PID					S32				}
 	}
+	{
+		RegionInfo Variable
+		{	RegionFlagsExtended	U64				}
+	}
 }
 
 // viewer -> sim
@@ -2991,6 +2995,10 @@ version 2.0
 		{	HardMaxAgents		U32			}
 		{	HardMaxObjects		U32			}
 	}
+	{
+		RegionInfo3		Variable
+		{	RegionFlagsExtended	U64			}
+	}
 }
 
 // GodUpdateRegionInfo
@@ -3015,6 +3023,10 @@ version 2.0
 		{	PricePerMeter 		S32			}
 		{	RedirectGridX 		S32			}
 		{	RedirectGridY 		S32			}
+	}
+	{
+		RegionInfo2	Variable
+		{	RegionFlagsExtended	U64			}
 	}
 }
 
@@ -3115,6 +3127,11 @@ version 2.0
 		{	ColoName				Variable	1	}	// string
 		{	ProductSKU				Variable	1	}	// string
 		{	ProductName				Variable	1	}	// string
+	}
+	{
+		RegionInfo4		Variable
+		{	RegionFlagsExtended	U64			}
+		{	RegionProtocols		U64			}
 	}
 }
 
@@ -3570,6 +3587,12 @@ version 2.0
 	{
 		VisualParam			Variable
 		{	ParamValue		U8	}
+	}
+	{
+		AppearanceData		Variable
+		{	AppearanceVersion	U8	}
+		{	CofVersion			S32	}
+		{	Flags				U32	}
 	}
 }
 

@@ -25,6 +25,7 @@
  */
 
 #include "linden_common.h"
+#include "llscrollcontainer.h"
 
 #include "llchatentry.h"
 
@@ -42,7 +43,9 @@ LLChatEntry::LLChatEntry(const Params& p)
  	mHasHistory(p.has_history),
  	mIsExpandable(p.is_expandable),
  	mExpandLinesCount(p.expand_lines_count),
- 	mPrevLinesCount(0)
+ 	mPrevLinesCount(0),
+	mSingleLineMode(false),
+	mPrevExpandedLineCount(S32_MAX)
 {
 	// Initialize current history line iterator
 	mCurrentHistoryLine = mLineHistory.begin();
@@ -82,20 +85,23 @@ boost::signals2::connection LLChatEntry::setTextExpandedCallback(const commit_si
 
 void LLChatEntry::expandText()
 {
+	S32 line_count = mSingleLineMode ? 1 : mExpandLinesCount;
+
 	int visible_lines_count = llabs(getVisibleLines(true).first - getVisibleLines(true).second);
-	bool can_expand = getLineCount() <= mExpandLinesCount;
+	bool can_changed = getLineCount() <= line_count || line_count < mPrevExpandedLineCount ;
+	mPrevExpandedLineCount = line_count;
 
 	// true if pasted text has more lines than expand height limit and expand limit is not reached yet
-	bool text_pasted = (getLineCount() > mExpandLinesCount) && (visible_lines_count < mExpandLinesCount);
+	bool text_pasted = (getLineCount() > line_count) && (visible_lines_count < line_count);
 
-	if (mIsExpandable && (can_expand || text_pasted) && getLineCount() != mPrevLinesCount)
+	if (mIsExpandable && (can_changed || text_pasted || mSingleLineMode) && getLineCount() != mPrevLinesCount)
 	{
 		int lines_height = 0;
 		if (text_pasted)
 		{
 			// text is pasted and now mLineInfoList.size() > mExpandLineCounts and mLineInfoList is not empty,
-			// so lines_height is the sum of the last 'mExpandLinesCount' lines height
-			lines_height = (mLineInfoList.end() - mExpandLinesCount)->mRect.mTop - mLineInfoList.back().mRect.mBottom;
+			// so lines_height is the sum of the last 'expanded_line_count' lines height
+			lines_height = (mLineInfoList.end() - line_count)->mRect.mTop - mLineInfoList.back().mRect.mBottom;
 		}
 		else
 		{
@@ -114,6 +120,8 @@ void LLChatEntry::expandText()
 		{
 			(*mTextExpandedSignal)(this, LLSD() );
 		}
+
+		needsReflow();
 	}
 }
 
@@ -234,4 +242,16 @@ BOOL LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
 	}
 
 	return handled;
+}
+
+void LLChatEntry::enableSingleLineMode(bool single_line_mode)
+{
+	if (mScroller)
+	{
+		mScroller->setSize(single_line_mode ? 0 : -1);
+	}
+
+	mSingleLineMode = single_line_mode;
+	mPrevLinesCount = -1;
+	setWordWrap(!single_line_mode);
 }
