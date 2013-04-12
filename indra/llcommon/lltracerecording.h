@@ -362,7 +362,7 @@ namespace LLTrace
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
 
-			typename T::value_t mean = T::value_t();
+			typename T::value_t mean = typename T::value_t();
 			if (num_periods <= 0) { return mean; }
 
 			for (S32 i = 1; i <= num_periods; i++)
@@ -383,7 +383,7 @@ namespace LLTrace
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
 
-			typename T::value_t mean = T::value_t();
+			typename T::value_t mean = typename T::value_t();
 			if (num_periods <= 0) { return mean; }
 
 			for (S32 i = 1; i <= num_periods; i++)
