@@ -1374,9 +1374,20 @@ void LLPanelFace::getState()
 			getChildView("environment")->setEnabled(editable);
 			getChild<LLUICtrl>("environment")->setTentative(!identical);
 			getChildView("label environment")->setEnabled(editable);
-			getChildView("shinycolorswatch")->setEnabled(editable);
 			getChild<LLUICtrl>("shinycolorswatch")->setTentative(!identical);
 			getChildView("label shinycolor")->setEnabled(editable);
+		}
+		// NORSPEC-94: Set default specular color to white (will get
+		//		overwritten from material when loaded)
+		LLColorSwatchCtrl*	mShinyColorSwatch = getChild<LLColorSwatchCtrl>("shinycolorswatch");
+		color = LLColor4::white;
+		if(mShinyColorSwatch)
+		{
+			mShinyColorSwatch->setOriginal(color);
+			mShinyColorSwatch->set(color, TRUE);
+			mShinyColorSwatch->setValid(editable);
+			mShinyColorSwatch->setEnabled( editable );
+			mShinyColorSwatch->setCanApplyImmediately( editable );
 		}
 
 		U8 bumpy = 0;
