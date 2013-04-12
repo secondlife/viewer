@@ -2066,9 +2066,7 @@ S32 LLViewerObjectList::findReferences(LLDrawable *drawablep) const
 
 void LLViewerObjectList::orphanize(LLViewerObject *childp, U32 parent_id, U32 ip, U32 port)
 {
-#ifdef ORPHAN_SPAM
-	LL_DEBUGS("ORPHANS") << "Orphaning object " << childp->getID() << " with parent " << parent_id << llendl;
-#endif
+	LL_DEBUGS("ORPHANS") << "Orphaning object " << childp->getID() << " with parent " << parent_id << LL_ENDL;
 
 	// We're an orphan, flag things appropriately.
 	childp->mOrphaned = TRUE;
@@ -2156,11 +2154,11 @@ void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
 				continue;
 			}
 
+			LL_DEBUGS("ORPHANS") << "Reunited parent " << objectp->mID 
+				<< " with child " << childp->mID << LL_ENDL;
+			LL_DEBUGS("ORPHANS") << "Glob: " << objectp->getPositionGlobal() << LL_ENDL;
+			LL_DEBUGS("ORPHANS") << "Agent: " << objectp->getPositionAgent() << LL_ENDL;
 #ifdef ORPHAN_SPAM
-			llinfos << "Reunited parent " << objectp->mID 
-				<< " with child " << childp->mID << llendl;
-			llinfos << "Glob: " << objectp->getPositionGlobal() << llendl;
-			llinfos << "Agent: " << objectp->getPositionAgent() << llendl;
 			addDebugBeacon(objectp->getPositionAgent(),"");
 #endif
 			gPipeline.markMoved(objectp->mDrawable);				
