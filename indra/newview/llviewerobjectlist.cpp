@@ -2067,7 +2067,7 @@ S32 LLViewerObjectList::findReferences(LLDrawable *drawablep) const
 void LLViewerObjectList::orphanize(LLViewerObject *childp, U32 parent_id, U32 ip, U32 port)
 {
 #ifdef ORPHAN_SPAM
-	llinfos << "Orphaning object " << childp->getID() << " with parent " << parent_id << llendl;
+	LL_DEBUGS("ORPHANS") << "Orphaning object " << childp->getID() << " with parent " << parent_id << llendl;
 #endif
 
 	// We're an orphan, flag things appropriately.
