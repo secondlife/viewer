@@ -564,7 +564,7 @@ LLMediaDataClient::Responder::Responder(const request_ptr_t &request)
 }
 
 /*virtual*/
-void LLMediaDataClient::Responder::error(U32 status, const std::string& reason)
+void LLMediaDataClient::Responder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
 	mRequest->stopTracking();
 
@@ -596,8 +596,8 @@ void LLMediaDataClient::Responder::error(U32 status, const std::string& reason)
 	}
 	else 
 	{
-		std::string msg = boost::lexical_cast<std::string>(status) + ": " + reason;
-		LL_WARNS("LLMediaDataClient") << *mRequest << " http error(" << msg << ")" << LL_ENDL;
+		LL_WARNS("LLMediaDataClient") << *mRequest << " http error [status:" 
+				<< status << "]:" << content << ")" << LL_ENDL;
 	}
 }
 
@@ -1003,7 +1003,7 @@ LLMediaDataClient::Responder *LLObjectMediaNavigateClient::RequestNavigate::crea
 }
 
 /*virtual*/
-void LLObjectMediaNavigateClient::Responder::error(U32 status, const std::string& reason)
+void LLObjectMediaNavigateClient::Responder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
 	getRequest()->stopTracking();
 
@@ -1017,7 +1017,7 @@ void LLObjectMediaNavigateClient::Responder::error(U32 status, const std::string
 	// class
 	if (status == HTTP_SERVICE_UNAVAILABLE)
 	{
-		LLMediaDataClient::Responder::error(status, reason);
+		LLMediaDataClient::Responder::errorWithContent(status, reason, content);
 	}
 	else
 	{

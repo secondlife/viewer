@@ -636,7 +636,7 @@ bool LLHUDEffectLookAt::calcTargetPosition()
 			}
 			else
 			{
-				target_rot = target_av->mRoot.getWorldRotation();
+				target_rot = target_av->mRoot->getWorldRotation();
 			}
 		}
 		else // target obj is not an avatar

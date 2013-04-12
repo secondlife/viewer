@@ -166,7 +166,7 @@ void LLPanelLandInfo::refresh()
 		getChildView("button abandon land")->setEnabled(owner_release || manager_releaseable || gAgent.isGodlike());
 
 		// only mainland sims are subdividable by owner
-		if (regionp->getRegionFlags() && REGION_FLAGS_ALLOW_PARCEL_CHANGES)
+		if (regionp->getRegionFlag(REGION_FLAGS_ALLOW_PARCEL_CHANGES))
 		{
 			getChildView("button subdivide land")->setEnabled(owner_divide || manager_divideable || gAgent.isGodlike());
 		}

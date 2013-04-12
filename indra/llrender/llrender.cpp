@@ -357,7 +357,6 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
 }
 
 // LLRenderTarget is unavailible on the mapserver since it uses FBOs.
-#if !LL_MESA_HEADLESS
 bool LLTexUnit::bind(LLRenderTarget* renderTarget, bool bindDepth)
 {
 	if (mIndex < 0) return false;
@@ -380,7 +379,6 @@ bool LLTexUnit::bind(LLRenderTarget* renderTarget, bool bindDepth)
 
 	return true;
 }
-#endif // LL_MESA_HEADLESS
 
 bool LLTexUnit::bindManual(eTextureType type, U32 texture, bool hasMips)
 {

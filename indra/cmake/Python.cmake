@@ -23,7 +23,7 @@ if (WINDOWS)
 elseif (EXISTS /etc/debian_version)
   # On Debian and Ubuntu, avoid Python 2.4 if possible.
 
-  find_program(PYTHON_EXECUTABLE python2.5 python2.3 python PATHS /usr/bin)
+  find_program(PYTHON_EXECUTABLE python PATHS /usr/bin)
 
   if (PYTHON_EXECUTABLE)
     set(PYTHONINTERP_FOUND ON)

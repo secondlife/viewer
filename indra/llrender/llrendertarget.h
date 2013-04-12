@@ -28,7 +28,6 @@
 #define LL_LLRENDERTARGET_H
 
 // LLRenderTarget is unavailible on the mapserver since it uses FBOs.
-#if !LL_MESA_HEADLESS
 
 #include "llgl.h"
 #include "llrender.h"
@@ -155,8 +154,6 @@ protected:
 	
 	static LLRenderTarget* sBoundTarget;
 };
-
-#endif //!LL_MESA_HEADLESS
 
 #endif
 

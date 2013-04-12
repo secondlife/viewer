@@ -62,7 +62,7 @@ namespace
 
 		
 		void handleMessage(const LLSD& content);
-		virtual	void error(U32 status, const std::string& reason);
+		virtual	void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 		virtual	void result(const LLSD&	content);
 
 		virtual void completedRaw(U32 status,
@@ -187,7 +187,7 @@ namespace
 	}
 
 	//virtual
-	void LLEventPollResponder::error(U32 status, const	std::string& reason)
+	void LLEventPollResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
 		if (mDone) return;
 
@@ -207,13 +207,13 @@ namespace
 										+ mErrorCount * EVENT_POLL_ERROR_RETRY_SECONDS_INC
 									, this);
 
-			llwarns << "Unexpected HTTP error.  status: " << status << ", reason: " << reason << llendl;
+			llwarns << "LLEventPollResponder error [status:" << status << "]: " << content << llendl;
 		}
 		else
 		{
-			llwarns <<	"LLEventPollResponder::error: <" << mCount << "> got "
-					<<	status << ": " << reason
-					<<	(mDone ? " -- done"	: "") << llendl;
+			llwarns << "LLEventPollResponder error <" << mCount 
+					<< "> [status:" << status << "]: " << content
+					<< (mDone ? " -- done" : "") << llendl;
 			stop();
 
 			// At this point we have given up and the viewer will not receive HTTP messages from the simulator.
