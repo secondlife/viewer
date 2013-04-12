@@ -593,7 +593,12 @@ void LLVOCache::removeCache(ELLPath location, bool started)
 
 void LLVOCache::removeCache() 
 {
-	llassert_always(mInitialized) ;
+	if(!mInitialized)
+	{
+		//OK to remove cache even it is not initialized.
+		llwarns << "Object cache is not initialized yet." << llendl;
+	}
+
 	if(mReadOnly)
 	{
 		llwarns << "Not clearing object cache: Cache is currently in read-only mode." << llendl;
