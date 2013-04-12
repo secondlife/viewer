@@ -416,10 +416,10 @@ void LLStatBar::draw()
 				}
 				else
 				{
-					gGL.vertex2i(begin, (F32)bar_bottom+offset+1.f);
-					gGL.vertex2i(begin, (F32)bar_bottom+offset);
-					gGL.vertex2i(end, (F32)bar_bottom+offset);
-					gGL.vertex2i(end, (F32)bar_bottom+offset+1.f);
+					gGL.vertex2f(begin, (F32)bar_bottom+offset+1.f);
+					gGL.vertex2f(begin, (F32)bar_bottom+offset);
+					gGL.vertex2f(end, (F32)bar_bottom+offset);
+					gGL.vertex2f(end, (F32)bar_bottom+offset+1.f);
 				}
 			}
 			gGL.end();

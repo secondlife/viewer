@@ -262,7 +262,7 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	// so that the drawable parent is set properly
 	if(msg != NULL)
 	{
-	findOrphans(objectp, msg->getSenderIP(), msg->getSenderPort());
+		findOrphans(objectp, msg->getSenderIP(), msg->getSenderPort());
 	}
 	else
 	{
@@ -365,7 +365,8 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 	}
 		
 	processUpdateCore(objectp, NULL, 0, OUT_FULL_CACHED, cached_dpp, justCreated, true);
-		
+	objectp->loadFlags(entry->getUpdateFlags()); //just in case, reload update flags from cache.
+
 	recorder.log(0.2f);
 	LLVOAvatar::cullAvatarsByPixelArea();
 
@@ -446,24 +447,37 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		LLTimer update_timer;
 		BOOL justCreated = FALSE;
 		S32	msg_size = 0;
+		bool remove_from_cache = false; //remove from object cache if it is a full-update or terse update
 
 		if (compressed)
 		{
-			S32							uncompressed_length = 2048;
-			compressed_dp.reset();
-
+			S32	uncompressed_length = 2048;
+			compressed_dp.reset();			
+			
 			uncompressed_length = mesgsys->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_Data);
 			mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compressed_dpbuffer, 0, i);
 			compressed_dp.assignBuffer(compressed_dpbuffer, uncompressed_length);
 
 			if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
 			{
-				compressed_dp.unpackUUID(fullid, "ID");
-				compressed_dp.unpackU32(local_id, "LocalID");
-				compressed_dp.unpackU8(pcode, "PCode");
+				U32 flags = 0;
+				mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
+			
+				if(flags & FLAGS_TEMPORARY_ON_REZ)
+				{
+					compressed_dp.unpackUUID(fullid, "ID");
+					compressed_dp.unpackU32(local_id, "LocalID");
+					compressed_dp.unpackU8(pcode, "PCode");
+				}
+				else //send to object cache
+				{
+					regionp->cacheFullUpdate(compressed_dp, flags);
+					continue;
+				}
 			}
 			else
 			{
+				remove_from_cache = true;
 				compressed_dp.unpackU32(local_id, "LocalID");
 				getUUIDFromLocal(fullid,
 								 local_id,
@@ -493,6 +507,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		}
 		else // OUT_FULL only?
 		{
+			remove_from_cache = true;
 			mesgsys->getUUIDFast(_PREHASH_ObjectData, _PREHASH_FullID, fullid, i);
 			mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
 			msg_size += sizeof(LLUUID);
@@ -500,6 +515,11 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			// llinfos << "Full Update, obj " << local_id << ", global ID" << fullid << "from " << mesgsys->getSender() << llendl;
 		}
 		objectp = findObject(fullid);
+		
+		if(remove_from_cache)
+		{
+			objectp = regionp->forceToRemoveFromCache(local_id, objectp);
+		}
 
 		// This looks like it will break if the local_id of the object doesn't change
 		// upon boundary crossing, but we check for region id matching later...
@@ -576,10 +596,10 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				recorder.objectUpdateFailure(local_id, update_type, msg_size);
 				continue;
 			}
+
 			justCreated = TRUE;
 			mNumNewObjects++;
 		}
-
 
 		if (objectp->isDead())
 		{
@@ -594,6 +614,8 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				objectp->mLocalID = local_id;
 			}
 			processUpdateCore(objectp, user_data, i, update_type, &compressed_dp, justCreated);
+
+#if 0
 			if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
 			{
 				U32 flags = 0;
@@ -601,11 +623,12 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			
 				if(!(flags & FLAGS_TEMPORARY_ON_REZ))
 				{
-				bCached = true;
-				LLViewerRegion::eCacheUpdateResult result = objectp->mRegionp->cacheFullUpdate(objectp, compressed_dp);
+					bCached = true;
+					LLViewerRegion::eCacheUpdateResult result = objectp->mRegionp->cacheFullUpdate(objectp, compressed_dp, flags);
 					recorder.cacheFullUpdate(local_id, update_type, result, objectp, msg_size);
+				}
 			}
-		}
+#endif
 		}
 		else
 		{
@@ -657,13 +680,15 @@ void LLViewerObjectList::processCachedObjectUpdate(LLMessageSystem *mesgsys,
 		S32	msg_size = 0;
 		U32 id;
 		U32 crc;
+		U32 flags;
 		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, id, i);
 		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_CRC, crc, i);
+		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
 		msg_size += sizeof(U32) * 2;
 		
 		// Lookup data packer and add this id to cache miss lists if necessary.
 		U8 cache_miss_type = LLViewerRegion::CACHE_MISS_TYPE_NONE;
-		if(!regionp->probeCache(id, crc, cache_miss_type))
+		if(!regionp->probeCache(id, crc, flags, cache_miss_type))
 		{
 			// Cache Miss.
 			recorder.cacheMissEvent(id, update_type, cache_miss_type, msg_size);
@@ -1324,7 +1349,7 @@ void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 	}
 }
 
-BOOL LLViewerObjectList::killObject(LLViewerObject *objectp, bool cache_enabled)
+BOOL LLViewerObjectList::killObject(LLViewerObject *objectp)
 {
 	// Don't ever kill gAgentAvatarp, just force it to the agent's region
 	// unless region is NULL which is assumed to mean you are logging out.
@@ -1339,7 +1364,6 @@ BOOL LLViewerObjectList::killObject(LLViewerObject *objectp, bool cache_enabled)
 
 	if (objectp)
 	{
-		objectp->EnableToCacheTree(cache_enabled); //enable to add to VO cache tree if set.
 		objectp->markDead(); // does the right thing if object already dead
 		return TRUE;
 	}
@@ -2117,6 +2141,12 @@ void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
 		llwarns << "Trying to find orphans for dead obj " << objectp->mID 
 			<< ":" << objectp->getPCodeString() << llendl;
 		return;
+	}
+
+	//search object cache to get orphans
+	if(objectp->getRegion())
+	{
+		objectp->getRegion()->findOrphans(objectp->getLocalID());
 	}
 
 	// See if we are a parent of an orphan.

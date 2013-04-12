@@ -170,6 +170,7 @@ public:
 				S32			getBufferSize() const	{ return mBufferSize; }
 				const U8*   getBuffer() const   { return mBufferp; }    
 				void		reset()				{ mCurBufferp = mBufferp; mWriteEnabled = (mCurBufferp != NULL); }
+				void        shift(S32 offset)   { reset(); mCurBufferp += offset;}
 				void		freeBuffer()		{ delete [] mBufferp; mBufferp = mCurBufferp = NULL; mBufferSize = 0; mWriteEnabled = FALSE; }
 				void		assignBuffer(U8 *bufferp, S32 size)
 				{
