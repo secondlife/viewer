@@ -52,7 +52,6 @@ set(test_SOURCE_FILES
     llstreamtools_tut.cpp
     lltemplatemessagebuilder_tut.cpp
     lltut.cpp
-    lluuidhashmap_tut.cpp
     message_tut.cpp
     test.cpp
     )
