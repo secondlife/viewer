@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#include "linden_common.h"
-#include "llhttpretrypolicy.h"
+#include "../llviewerprecompiledheaders.h"
+#include "../llhttpretrypolicy.h"
 #include "lltut.h"
 
 namespace tut
@@ -214,6 +214,61 @@ void RetryPolicyTestObject::test<6>()
 	success = getSecondsUntilRetryAfter(str3, seconds_to_wait);
 	ensure("parse 3", success);
 	ensure_approximately_equals("parse 3", seconds_to_wait, 0.0F, 6);
+}
+
+// Test retry-after field in both llmessage and CoreHttp headers.
+template<> template<>
+void RetryPolicyTestObject::test<7>()
+{
+	LLSD sd_headers;
+	time_t nowseconds;
+	time(&nowseconds);
+	sd_headers[HTTP_IN_HEADER_RETRY_AFTER] = LLDate((F64)nowseconds).asRFC1123();
+	LLAdaptiveRetryPolicy policy(17.0,644.0,3.0,10);
+	F32 seconds_to_wait;
+	bool should_retry;
+
+	// no retry header, use default.
+	policy.onFailure(500,LLSD());
+	should_retry = policy.shouldRetry(seconds_to_wait);
+	ensure("header 1", should_retry);
+	ensure_approximately_equals("header 1", seconds_to_wait, 17.0F, 6);
+
+	// retry header should override, give delay of 0
+	policy.onFailure(503,sd_headers);
+	should_retry = policy.shouldRetry(seconds_to_wait);
+	ensure("header 2", should_retry);
+	ensure_approximately_equals("header 2", seconds_to_wait, 0.0F, 6);
+
+	// retry header in LLCore::HttpHeaders
+	{
+		LLCore::HttpResponse *response = new LLCore::HttpResponse();
+		LLCore::HttpHeaders *headers = new LLCore::HttpHeaders();
+		response->setStatus(503);
+		response->setHeaders(headers);
+		headers->mHeaders.push_back("retry-after: 600");
+		policy.onFailure(response);
+		should_retry = policy.shouldRetry(seconds_to_wait);
+		ensure("header 3",should_retry);
+		ensure_approximately_equals("header 3", seconds_to_wait, 600.0F, 6);
+		response->release();
+	}
+
+	// retry header in LLCore::HttpHeaders
+	{
+		LLCore::HttpResponse *response = new LLCore::HttpResponse();
+		LLCore::HttpHeaders *headers = new LLCore::HttpHeaders();
+		response->setStatus(503);
+		response->setHeaders(headers);
+		LLSD sd_headers;
+		time(&nowseconds);
+		headers->mHeaders.push_back("retry-after: " + LLDate((F64)nowseconds).asRFC1123());
+		policy.onFailure(response);
+		should_retry = policy.shouldRetry(seconds_to_wait);
+		ensure("header 3",should_retry);
+		ensure_approximately_equals("header 3", seconds_to_wait, 0.0F, 6);
+		response->release();
+	}
 }
 
 }

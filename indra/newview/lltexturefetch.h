@@ -397,7 +397,7 @@ private:
 	e_tex_source mOriginFetchSource;
 
 	// Retry logic
-	LLAdaptiveRetryPolicy mFetchRetryPolicy;
+	//LLAdaptiveRetryPolicy mFetchRetryPolicy;
 	
 public:
 	//debug use

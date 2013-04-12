@@ -67,7 +67,6 @@ set(llmessage_SOURCE_FILES
     llpartdata.cpp
     llproxy.cpp
     llpumpio.cpp
-    llhttpretrypolicy.cpp
     llsdappservices.cpp
     llsdhttpserver.cpp
     llsdmessage.cpp
@@ -267,6 +266,5 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llhttpclientadapter "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llxfer_file "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llhttpretrypolicy "" "${test_libs}")
 endif (LL_TESTS)
 

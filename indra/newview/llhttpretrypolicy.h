@@ -46,7 +46,7 @@ public:
 	// Call once after an HTTP failure to update state.
 	virtual void onFailure(S32 status, const LLSD& headers) = 0;
 
-	virtual void onFailure(const HttpResponse *response, const HttpHeaders *headers) = 0;
+	virtual void onFailure(const LLCore::HttpResponse *response) = 0;
 
 	virtual bool shouldRetry(F32& seconds_to_wait) const = 0;
 };
@@ -70,12 +70,13 @@ public:
 	// virtual
 	void onFailure(S32 status, const LLSD& headers);
 	// virtual
-	void onFailure(const HttpResponse *response, const HttpHeaders *headers);
+	void onFailure(const LLCore::HttpResponse *response);
 	// virtual
 	bool shouldRetry(F32& seconds_to_wait) const;
 
 protected:
-	bool getRetryAfter(const LLSD& headers, retry_header_time)
+	bool getRetryAfter(const LLSD& headers, F32& retry_header_time);
+	bool getRetryAfter(const LLCore::HttpHeaders *headers, F32& retry_header_time);
 	void onFailureCommon(S32 status, bool has_retry_header_time, F32 retry_header_time);
 
 private:
