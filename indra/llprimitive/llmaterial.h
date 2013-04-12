@@ -54,6 +54,7 @@ public:
 	
 	static const U8			DEFAULT_SPECULAR_LIGHT_EXPONENT = ((U8)(0.2f * 255));
 	static const LLColor4U	DEFAULT_SPECULAR_LIGHT_COLOR;
+	static const U8			DEFAULT_ENV_INTENSITY = ((U8)(0.05f * 255));
 
 	LLMaterial();
 	LLMaterial(const LLSD& material_data);

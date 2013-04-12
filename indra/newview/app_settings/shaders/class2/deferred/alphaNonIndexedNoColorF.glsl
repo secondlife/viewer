@@ -53,6 +53,7 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 VARYING vec2 vary_texcoord0;
+VARYING vec3 vary_norm;
 
 uniform vec2 shadow_res;
 
@@ -65,10 +66,10 @@ uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
-float calcDirectionalLight(vec3 n, vec3 l)
+vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
         float a = pow(max(dot(n,l),0.0), 0.7);
-        return a;
+        return vec3(a, a, a);
 }
 
 float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
