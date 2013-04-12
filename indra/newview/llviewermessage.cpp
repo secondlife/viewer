@@ -4222,6 +4222,9 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 	LLQuaternion head_rotation = gAgent.getHeadRotation();
 
 	camera_pos_agent = gAgentCamera.getCameraPositionAgent();
+	LLVector3 camera_velocity = LLViewerCamera::getInstance()->getVelocityDir() * LLViewerCamera::getInstance()->getAverageSpeed();
+	F32 time_delta = 1.0f; //predict the camera position in 1 second
+	camera_pos_agent += camera_velocity * time_delta;
 
 	render_state = gAgent.getRenderState();
 
