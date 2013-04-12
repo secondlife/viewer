@@ -31,6 +31,10 @@ out vec4 frag_color;
 
 uniform sampler2D tex0;
 uniform sampler2D tex1;
+uniform sampler2D dither_tex;
+uniform float dither_scale;
+uniform float dither_scale_s;
+uniform float dither_scale_t;
 
 VARYING vec2 vary_texcoord0;
 VARYING vec2 vary_texcoord1;
@@ -38,4 +42,17 @@ VARYING vec2 vary_texcoord1;
 void main() 
 {
 	frag_color = abs(texture2D(tex0, vary_texcoord0.xy) - texture2D(tex1, vary_texcoord0.xy));
+
+	vec2 dither_coord;
+	dither_coord[0] = vary_texcoord0[0] * dither_scale_s;
+	dither_coord[1] = vary_texcoord0[1] * dither_scale_t;
+	vec4 dither_vec = texture(dither_tex, dither_coord.xy);
+
+	for(int i = 0; i < 3; i++)
+	{
+		if(frag_color[i] < dither_vec[i] * dither_scale)
+		{
+			frag_color[i] = 0.f;
+		}
+	}
 }
