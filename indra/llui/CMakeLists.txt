@@ -52,7 +52,6 @@ set(llui_SOURCE_FILES
     llfloaterreglistener.cpp
     llflyoutbutton.cpp 
     llfocusmgr.cpp
-    llfunctorregistry.cpp
     lliconctrl.cpp
     llkeywords.cpp
     lllayoutstack.cpp
