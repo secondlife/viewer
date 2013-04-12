@@ -90,6 +90,7 @@ bool LLSidepanelAppearance::callBackExitWithoutSaveViaClose(const LLSD& notifica
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if ( option == 0 ) 
 	{	
+		mEditWearable->revertChanges();
 		LLAppearanceMgr::getInstance()->wearBaseOutfit();
 		mLLFloaterSidePanelContainer->close();
 		return true;
