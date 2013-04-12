@@ -60,7 +60,7 @@
 #include "llxuiparser.h"
 #include "lltracerecording.h"
 #include "llviewerdisplay.h"
-
+#include "llstartup.h"
 ////////////////////////////////////////////////////////////////////////////
 
 void (*LLViewerTextureList::sUUIDCallback)(void **, const LLUUID&) = NULL;
@@ -708,7 +708,17 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 {
 	// Update the decode priority for N images each frame
 	{
-        static const S32 MAX_PRIO_UPDATES = gSavedSettings.getS32("TextureFetchUpdatePriorities");         // default: 32
+		F32 lazy_flush_timeout = 30.f; // stop decoding
+		F32 max_inactive_time  = 20.f; // actually delete
+		S32 min_refs = 3; // 1 for mImageList, 1 for mUUIDMap, 1 for local reference
+		if(LLStartUp::getStartupState() < STATE_STARTED)
+		{
+			//do not remove pre-fetched images if viewer does not finish logging in.
+			lazy_flush_timeout = 30000.f;
+			max_inactive_time = 20000.f;
+		}
+        
+		static const S32 MAX_PRIO_UPDATES = gSavedSettings.getS32("TextureFetchUpdatePriorities");         // default: 32
 		const size_t max_update_count = llmin((S32) (MAX_PRIO_UPDATES*MAX_PRIO_UPDATES*gFrameIntervalSeconds.value()) + 1, MAX_PRIO_UPDATES);
 		S32 update_counter = llmin(max_update_count, mUUIDMap.size());
 		uuid_map_t::iterator iter = mUUIDMap.upper_bound(mLastUpdateUUID);
@@ -731,14 +741,10 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			//
 			// Flush formatted images using a lazy flush
 			//
-			const F32 LAZY_FLUSH_TIMEOUT = 30.f; // stop decoding
-			const F32 MAX_INACTIVE_TIME  = 20.f; // actually delete
-			S32 min_refs = 3; // 1 for mImageList, 1 for mUUIDMap, 1 for local reference
-			
 			S32 num_refs = imagep->getNumRefs();
 			if (num_refs == min_refs)
 			{
-				if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > LAZY_FLUSH_TIMEOUT)
+				if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > lazy_flush_timeout)
 				{
 					// Remove the unused image from the image list
 					deleteImage(imagep);
@@ -750,7 +756,7 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			{
 				if(imagep->hasSavedRawImage())
 				{
-					if(imagep->getElapsedLastReferencedSavedRawImageTime() > MAX_INACTIVE_TIME)
+					if(imagep->getElapsedLastReferencedSavedRawImageTime() > max_inactive_time)
 					{
 						imagep->destroySavedRawImage() ;
 					}
@@ -767,7 +773,7 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 				}
 				else if(imagep->isInactive())
 				{
-					if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > MAX_INACTIVE_TIME)
+					if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > max_inactive_time)
 					{
 						imagep->setDeletionCandidate() ;
 					}

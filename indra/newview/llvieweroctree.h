@@ -324,4 +324,15 @@ protected:
 	S32 mRes;
 };
 
+//scan the octree, output the info of each node for debug use.
+class LLViewerOctreeDebug : public OctreeTraveler
+{
+public:
+	virtual void processGroup(LLviewerOctreeGroup* group);
+	virtual void visit(const OctreeNode* branch);
+
+public:
+	static BOOL sInDebug;
+};
+
 #endif
