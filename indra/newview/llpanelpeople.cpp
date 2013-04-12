@@ -1792,8 +1792,12 @@ void LLPanelPeople::onFacebookAppSendClicked()
 	openFacebookWeb(p);
 }
 
+static LLFastTimer::DeclareTimer FTM_AVATAR_LIST_TEST("avatar list test");
+
 void LLPanelPeople::onFacebookTestAddClicked()
 {
+	LLFastTimer _(FTM_AVATAR_LIST_TEST);
+
 	mFacebookFriends->clear();
 
 	LL_INFOS("LLPanelPeople") << "start adding 300 users" << LL_ENDL;
