@@ -194,7 +194,9 @@ LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
     p.show_item_link_overlays = mShowItemLinkOverlays;
     p.root = NULL;
     p.options_menu = "menu_inventory.xml";
-	
+
+    llinfos << "Merov : LLInventoryPanel::createFolderRoot, name = " << getName() << ", label = " << getLabel() << ", root id = " << root_id << llendl;
+
     return LLUICtrlFactory::create<LLFolderView>(p);
 }
 
@@ -402,6 +404,8 @@ void LLInventoryPanel::modelChanged(U32 mask)
 {
 	static LLFastTimer::DeclareTimer FTM_REFRESH("Inventory Refresh");
 	LLFastTimer t2(FTM_REFRESH);
+
+    llinfos << "Merov : LLInventoryPanel::modelChanged, mask = " << mask << ", name = " << getName() << ", label = " << getLabel() << llendl;
 
 	bool handled = false;
 

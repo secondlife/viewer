@@ -795,6 +795,12 @@ void LLFolderViewItem::drawLabel(const LLFontGL * font, const F32 x, const F32 y
 
 void LLFolderViewItem::draw()
 {
+	LLFolderViewModelItem& vmi = *getViewModelItem();
+    if (vmi.getSearchableName() == "A NOUNOURS")
+    {
+        llinfos << "Merov : LLFolderViewItem::draw : Special NOUNOURS, draw it!" << llendl;
+    }
+
     const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
     const BOOL filled = show_context || (getRoot() ? getRoot()->getParentPanel()->hasFocus() : FALSE); // If we have keyboard focus, draw selection filled
 

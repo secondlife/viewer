@@ -662,7 +662,7 @@ void LLFolderView::draw()
 
 		// get preferable text height...
 		S32 pixel_height = mStatusTextBox->getTextPixelHeight();
-		bool height_changed = local_rect.getHeight() != pixel_height;
+		bool height_changed = (local_rect.getHeight() < pixel_height);
 		if (height_changed)
 		{
 			// ... if it does not match current height, lets rearrange current view.
@@ -1616,7 +1616,7 @@ void LLFolderView::update()
 	{
 		getFolderViewModel()->getFilter().clearModified();
 	}
-    llinfos << "Merov : LLFolderView::update: modified = " << getFolderViewModel()->getFilter().isModified() << ", default = " << getFolderViewModel()->getFilter().isNotDefault() << ", count = " << getFolderViewModel()->getFilter().getFilterCount() << llendl;
+    llinfos << "Merov : LLFolderView::update: parent = " << mParentPanel->getName() << ", modified = " << getFolderViewModel()->getFilter().isModified() << ", not default = " << getFolderViewModel()->getFilter().isNotDefault() << ", count = " << getFolderViewModel()->getFilter().getFilterCount() << llendl;
 
 	// automatically show matching items, and select first one if we had a selection
 	if (mNeedsAutoSelect)
