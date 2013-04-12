@@ -617,9 +617,7 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	}
 	cleared = FALSE;
 
-	LLTrace::Recording& recording = LLTrace::get_frame_recording().getTotalRecording();
-
-	LLAppViewer::getTextureFetch()->setTextureBandwidth(recording.getPerSec(LLStatViewer::TEXTURE_KBIT).value());
+	LLAppViewer::getTextureFetch()->setTextureBandwidth(LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::TEXTURE_KBIT));
 
 	{
 		using namespace LLStatViewer;
@@ -742,7 +740,7 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 
 			//
 			// Flush formatted images using a lazy flush
-			//						
+			//
 			S32 num_refs = imagep->getNumRefs();
 			if (num_refs == min_refs)
 			{

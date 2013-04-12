@@ -9816,7 +9816,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	{
 		LLTrace::CountStatHandle<>* velocity_stat = LLViewerCamera::getVelocityStat();
 		F32 fade_amt = gFrameIntervalSeconds.value() 
-			* llmax(LLTrace::get_frame_recording().getLastRecordingPeriod().getSum(*velocity_stat) / LLTrace::get_frame_recording().getLastRecordingPeriod().getDuration().value(), 1.0);
+			* llmax(LLTrace::get_frame_recording().getLastRecording().getSum(*velocity_stat) / LLTrace::get_frame_recording().getLastRecording().getDuration().value(), 1.0);
 
 		//update shadow targets
 		for (U32 i = 0; i < 2; i++)

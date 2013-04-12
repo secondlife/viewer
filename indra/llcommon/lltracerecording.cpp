@@ -360,8 +360,7 @@ U32 Recording::getSampleCount( const TraceType<MeasurementAccumulator<S64> >& st
 
 PeriodicRecording::PeriodicRecording( U32 num_periods, EPlayState state) 
 :	mAutoResize(num_periods == 0),
-	mCurPeriod(0),
-	mTotalValid(false)
+	mCurPeriod(0)
 {
 	if (num_periods)
 	{
@@ -373,7 +372,7 @@ PeriodicRecording::PeriodicRecording( U32 num_periods, EPlayState state)
 void PeriodicRecording::nextPeriod()
 {
 	EPlayState play_state = getPlayState();
-	Recording& old_recording = getCurRecordingPeriod();
+	Recording& old_recording = getCurRecording();
 	if (mAutoResize)
 	{
 		mRecordingPeriods.push_back(Recording());
@@ -382,87 +381,59 @@ void PeriodicRecording::nextPeriod()
 	mCurPeriod = (num_periods > 0) 
 				? (mCurPeriod + 1) % num_periods 
 				: mCurPeriod + 1;
-	old_recording.splitTo(getCurRecordingPeriod());
+	old_recording.splitTo(getCurRecording());
 
 	switch(play_state)
 	{
 	case STOPPED:
-		getCurRecordingPeriod().stop();
+		getCurRecording().stop();
 		break;
 	case PAUSED:
-		getCurRecordingPeriod().pause();
+		getCurRecording().pause();
 		break;
 	case STARTED:
 		break;
 	}
-	// new period, need to recalculate total
-	mTotalValid = false;
-}
-
-Recording& PeriodicRecording::getTotalRecording()
-{
-	if (!mTotalValid)
-	{
-		mTotalRecording.reset();
-		U32 num_periods = mRecordingPeriods.size();
-
-		if (num_periods)
-		{
-			for (S32 i = mCurPeriod + 1; i < mCurPeriod + num_periods; i++)
-			{
-				mTotalRecording.appendRecording(mRecordingPeriods[i % num_periods]);
-			}
-		}
-		else
-		{
-			for (S32 i = 0; i < mCurPeriod; i++)
-			{
-				mTotalRecording.appendRecording(mRecordingPeriods[i]);
-			}
-		}
-	}
-	mTotalValid = true;
-	return mTotalRecording;
 }
 
 void PeriodicRecording::start()
 {
-	getCurRecordingPeriod().start();
+	getCurRecording().start();
 }
 
 void PeriodicRecording::stop()
 {
-	getCurRecordingPeriod().stop();
+	getCurRecording().stop();
 }
 
 void PeriodicRecording::pause()
 {
-	getCurRecordingPeriod().pause();
+	getCurRecording().pause();
 }
 
 void PeriodicRecording::resume()
 {
-	getCurRecordingPeriod().resume();
+	getCurRecording().resume();
 }
 
 void PeriodicRecording::restart()
 {
-	getCurRecordingPeriod().restart();
+	getCurRecording().restart();
 }
 
 void PeriodicRecording::reset()
 {
-	getCurRecordingPeriod().reset();
+	getCurRecording().reset();
 }
 
 void PeriodicRecording::splitTo(PeriodicRecording& other)
 {
-	getCurRecordingPeriod().splitTo(other.getCurRecordingPeriod());
+	getCurRecording().splitTo(other.getCurRecording());
 }
 
 void PeriodicRecording::splitFrom(PeriodicRecording& other)
 {
-	getCurRecordingPeriod().splitFrom(other.getCurRecordingPeriod());
+	getCurRecording().splitFrom(other.getCurRecording());
 }
 
 

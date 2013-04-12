@@ -348,11 +348,12 @@ void update_statistics()
 		sample(LLStatViewer::SIM_PING, LLTrace::Seconds(10));
 	}
 
-	add(LLStatViewer::FPS, 1);
-	if (LLTrace::get_frame_recording().getTotalRecording().getSampleCount(LLStatViewer::FPS))
+	if (LLViewerStats::instance().getRecording().getSum(LLStatViewer::FPS))
 	{
-		sample(LLStatViewer::FPS_SAMPLE, LLTrace::get_frame_recording().getTotalRecording().getPerSec(LLStatViewer::FPS));
+		sample(LLStatViewer::FPS_SAMPLE, LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::FPS));
 	}
+	add(LLStatViewer::FPS, 1);
+
 	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
 	add(LLStatViewer::LAYERS_KBIT, LLTrace::Bits(layer_bits));
 	add(LLStatViewer::OBJECT_KBIT, gObjectData);

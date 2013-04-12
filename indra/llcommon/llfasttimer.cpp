@@ -176,11 +176,14 @@ TimeBlockTreeNode& TimeBlock::getTreeNode() const
 	TimeBlockTreeNode* nodep = LLTrace::get_thread_recorder()->getTimeBlockTreeNode(getIndex());
 	llassert(nodep);
 	return *nodep;
-	}
+}
+
+static LLFastTimer::DeclareTimer FTM_PROCESS_TIMES("Process FastTimer Times");
 
 //static
 void TimeBlock::processTimes()
 {
+	LLFastTimer _(FTM_PROCESS_TIMES);
 	get_clock_count(); // good place to calculate clock frequency
 	U64 cur_time = getCPUClockCount64();
 
@@ -329,12 +332,12 @@ void TimeBlock::logStats()
 			{
 				TimeBlock& timer = *it;
 				LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
-				sd[timer.getName()]["Time"] = (LLSD::Real) (frame_recording.getLastRecordingPeriod().getSum(timer).value());	
-				sd[timer.getName()]["Calls"] = (LLSD::Integer) (frame_recording.getLastRecordingPeriod().getSum(timer.callCount()));
+				sd[timer.getName()]["Time"] = (LLSD::Real) (frame_recording.getLastRecording().getSum(timer).value());	
+				sd[timer.getName()]["Calls"] = (LLSD::Integer) (frame_recording.getLastRecording().getSum(timer.callCount()));
 				
 				// computing total time here because getting the root timer's getCountHistory
 				// doesn't work correctly on the first frame
-				total_time += frame_recording.getLastRecordingPeriod().getSum(timer);
+				total_time += frame_recording.getLastRecording().getSum(timer);
 			}
 		}
 
@@ -353,7 +356,7 @@ void TimeBlock::logStats()
 void TimeBlock::dumpCurTimes()
 {
 	LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
-	LLTrace::Recording& last_frame_recording = frame_recording.getLastRecordingPeriod();
+	LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording();
 
 	// walk over timers in depth order and output timings
 	for(timer_tree_dfs_iterator_t it = begin_timer_tree(TimeBlock::getRootTimeBlock());

@@ -170,7 +170,7 @@ void LLViewerCamera::updateCameraLocation(const LLVector3 &center,
 	add(sVelocityStat, dpos);
 	add(sAngularVelocityStat, drot);
 	
-	mAverageSpeed = LLTrace::get_frame_recording().getPeriodMeanPerSec(sVelocityStat);
+	mAverageSpeed = LLTrace::get_frame_recording().getPeriodMeanPerSec(sVelocityStat, 50);
 	mAverageAngularSpeed = LLTrace::get_frame_recording().getPeriodMeanPerSec(sAngularVelocityStat);
 	mCosHalfCameraFOV = cosf(0.5f * getView() * llmax(1.0f, getAspect()));
 

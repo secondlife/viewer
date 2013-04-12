@@ -231,15 +231,6 @@ private:
 
 template<typename ACCUMULATOR> size_t AccumulatorBuffer<ACCUMULATOR>::sNextStorageSlot = 0;
 
-
-
-//TODO: replace with decltype when C++11 is enabled
-template<typename T>
-struct MeanValueType
-{
-	typedef F64 type;
-};
-
 template<typename ACCUMULATOR>
 class TraceType 
 :	 public LLInstanceTracker<TraceType<ACCUMULATOR>, std::string>
@@ -382,6 +373,7 @@ private:
 	U32	mNumSamples;
 };
 
+
 template<typename T>
 class CountAccumulator
 {
@@ -457,13 +449,6 @@ public:
 
 };
 
-
-template<>
-struct MeanValueType<TraceType<TimeBlockAccumulator> >
-{
-	typedef LLUnit<LLUnits::Seconds, F64> type;
-};
-
 template<>
 class TraceType<TimeBlockAccumulator::CallCountAspect>
 :	public TraceType<TimeBlockAccumulator>
@@ -476,13 +461,6 @@ public:
 };
 
 template<>
-struct MeanValueType<TraceType<TimeBlockAccumulator::CallCountAspect> >
-{
-	typedef F64 type;
-};
-
-
-template<>
 class TraceType<TimeBlockAccumulator::SelfTimeAspect>
 	:	public TraceType<TimeBlockAccumulator>
 {
@@ -492,13 +470,6 @@ public:
 		:	TraceType<TimeBlockAccumulator>(name, description)
 	{}
 };
-
-template<>
-struct MeanValueType<TraceType<TimeBlockAccumulator::SelfTimeAspect> >
-{
-	typedef LLUnit<LLUnits::Seconds, F64> type;
-};
-
 
 class TimeBlock;
 class TimeBlockTreeNode

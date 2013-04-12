@@ -254,108 +254,123 @@ namespace LLTrace
 		void nextPeriod();
 		U32 getNumPeriods() { return mRecordingPeriods.size(); }
 
-		Recording& getLastRecordingPeriod()
+		Recording& getLastRecording()
 		{
 			U32 num_periods = mRecordingPeriods.size();
 			return mRecordingPeriods[(mCurPeriod + num_periods - 1) % num_periods];
 		}
 
-		const Recording& getLastRecordingPeriod() const
+		const Recording& getLastRecording() const
 		{
-			return getPrevRecordingPeriod(1);
+			return getPrevRecording(1);
 		}
 
-		Recording& getCurRecordingPeriod()
-		{
-			return mRecordingPeriods[mCurPeriod];
-		}
-
-		const Recording& getCurRecordingPeriod() const
+		Recording& getCurRecording()
 		{
 			return mRecordingPeriods[mCurPeriod];
 		}
 
-		Recording& getPrevRecordingPeriod(U32 offset)
+		const Recording& getCurRecording() const
+		{
+			return mRecordingPeriods[mCurPeriod];
+		}
+
+		Recording& getPrevRecording(U32 offset)
 		{
 			U32 num_periods = mRecordingPeriods.size();
 			offset = llclamp(offset, 0u, num_periods - 1);
 			return mRecordingPeriods[(mCurPeriod + num_periods - offset) % num_periods];
 		}
 
-		const Recording& getPrevRecordingPeriod(U32 offset) const
+		const Recording& getPrevRecording(U32 offset) const
 		{
 			U32 num_periods = mRecordingPeriods.size();
 			offset = llclamp(offset, 0u, num_periods - 1);
 			return mRecordingPeriods[(mCurPeriod + num_periods - offset) % num_periods];
 		}
 
-		Recording snapshotCurRecordingPeriod() const
+		Recording snapshotCurRecording() const
 		{
-			Recording recording_copy(getCurRecordingPeriod());
+			Recording recording_copy(getCurRecording());
 			recording_copy.stop();
 			return recording_copy;
 		}
 
-		Recording& getTotalRecording();
-
 		template <typename T>
-		typename T::value_t getPeriodMin(const TraceType<T>& stat) const
+		typename T::value_t getPeriodMin(const TraceType<T>& stat, U32 num_periods = S32_MAX) const
 		{
+			size_t total_periods = mRecordingPeriods.size();
+			num_periods = llmin(num_periods, total_periods);
+
 			typename T::value_t min_val = (std::numeric_limits<typename T::value_t>::max)();
-			U32 num_periods = mRecordingPeriods.size();
-			for (S32 i = 0; i < num_periods; i++)
+			for (S32 i = 1; i <= num_periods; i++)
 			{
-				min_val = llmin(min_val, mRecordingPeriods[(mCurPeriod + i) % num_periods].getSum(stat));
+				S32 index = (mCurPeriod + total_periods - i) % total_periods;
+				min_val = llmin(min_val, mRecordingPeriods[index].getSum(stat));
 			}
 			return min_val;
 		}
 
 		template <typename T>
-		F64 getPeriodMinPerSec(const TraceType<T>& stat) const
+		F64 getPeriodMinPerSec(const TraceType<T>& stat, U32 num_periods = S32_MAX) const
 		{
+			size_t total_periods = mRecordingPeriods.size();
+			num_periods = llmin(num_periods, total_periods);
+
 			F64 min_val = (std::numeric_limits<F64>::max)();
-			U32 num_periods = mRecordingPeriods.size();
-			for (S32 i = 0; i < num_periods; i++)
+			for (S32 i = 1; i <= num_periods; i++)
 			{
-				min_val = llmin(min_val, mRecordingPeriods[(mCurPeriod + i) % num_periods].getPerSec(stat));
+				S32 index = (mCurPeriod + total_periods - i) % total_periods;
+				min_val = llmin(min_val, mRecordingPeriods[index].getPerSec(stat));
 			}
 			return min_val;
 		}
 
 		template <typename T>
-		typename T::value_t getPeriodMax(const TraceType<T>& stat) const
+		typename T::value_t getPeriodMax(const TraceType<T>& stat, U32 num_periods = S32_MAX) const
 		{
+			size_t total_periods = mRecordingPeriods.size();
+			num_periods = llmin(num_periods, total_periods);
+
 			typename T::value_t max_val = (std::numeric_limits<typename T::value_t>::min)();
-			U32 num_periods = mRecordingPeriods.size();
-			for (S32 i = 0; i < num_periods; i++)
+			for (S32 i = 1; i <= num_periods; i++)
 			{
-				max_val = llmax(max_val, mRecordingPeriods[(mCurPeriod + i) % num_periods].getSum(stat));
+				S32 index = (mCurPeriod + total_periods - i) % total_periods;
+				max_val = llmax(max_val, mRecordingPeriods[index].getSum(stat));
 			}
 			return max_val;
 		}
 
 		template <typename T>
-		F64 getPeriodMaxPerSec(const TraceType<T>& stat) const
+		F64 getPeriodMaxPerSec(const TraceType<T>& stat, U32 num_periods = S32_MAX) const
 		{
+			size_t total_periods = mRecordingPeriods.size();
+			num_periods = llmin(num_periods, total_periods);
+
 			F64 max_val = (std::numeric_limits<F64>::min)();
-			U32 num_periods = mRecordingPeriods.size();
-			for (S32 i = 1; i < num_periods; i++)
+			for (S32 i = 1; i <= num_periods; i++)
 			{
-				max_val = llmax(max_val, mRecordingPeriods[(mCurPeriod + i) % num_periods].getPerSec(stat));
+				S32 index = (mCurPeriod + total_periods - i) % total_periods;
+				max_val = llmax(max_val, mRecordingPeriods[index].getPerSec(stat));
 			}
 			return max_val;
 		}
 
 		template <typename T>
-		typename MeanValueType<TraceType<T> >::type getPeriodMean(const TraceType<T>& stat) const
+		typename T::value_t getPeriodMean(const TraceType<T>& stat, U32 num_periods = S32_MAX) const
 		{
-			typename MeanValueType<TraceType<T> >::type mean = 0.0;
-			U32 num_periods = mRecordingPeriods.size();
-			for (S32 i = 0; i < num_periods; i++)
+			size_t total_periods = mRecordingPeriods.size();
+			num_periods = llmin(num_periods, total_periods);
+
+			typename T::value_t mean = 0.0;
+			if (num_periods <= 0) { return mean; }
+
+			for (S32 i = 1; i <= num_periods; i++)
 			{
-				if (mRecordingPeriods[(mCurPeriod + i) % num_periods].getDuration() > 0.f)
+				S32 index = (mCurPeriod + total_periods - i) % total_periods;
+				if (mRecordingPeriods[index].getDuration() > 0.f)
 				{
-					mean += mRecordingPeriods[(mCurPeriod + i) % num_periods].getSum(stat);
+					mean += mRecordingPeriods[index].getSum(stat);
 				}
 			}
 			mean /= num_periods;
@@ -363,15 +378,20 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		typename MeanValueType<TraceType<T> >::type getPeriodMeanPerSec(const TraceType<T>& stat) const
+		typename T::value_t getPeriodMeanPerSec(const TraceType<T>& stat, U32 num_periods = S32_MAX) const
 		{
-			typename MeanValueType<TraceType<T> >::type mean = 0.0;
-			U32 num_periods = mRecordingPeriods.size();
-			for (S32 i = 0; i < num_periods; i++)
+			size_t total_periods = mRecordingPeriods.size();
+			num_periods = llmin(num_periods, total_periods);
+
+			typename T::value_t mean = 0.0;
+			if (num_periods <= 0) { return mean; }
+
+			for (S32 i = 1; i <= num_periods; i++)
 			{
-				if (mRecordingPeriods[i].getDuration() > 0.f)
+				S32 index = (mCurPeriod + total_periods - i) % total_periods;
+				if (mRecordingPeriods[index].getDuration() > 0.f)
 				{
-					mean += mRecordingPeriods[(mCurPeriod + i) % num_periods].getPerSec(stat);
+					mean += mRecordingPeriods[index].getPerSec(stat);
 				}
 			}
 			mean /= num_periods;
@@ -391,7 +411,6 @@ namespace LLTrace
 	private:
 		std::vector<Recording>	mRecordingPeriods;
 		Recording	mTotalRecording;
-		bool		mTotalValid;
 		const bool	mAutoResize;
 		S32			mCurPeriod;
 	};

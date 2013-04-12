@@ -333,7 +333,7 @@ static std::string get_tooltip(TimeBlock& timer, S32 history_index, PeriodicReco
 	}
 	else
 	{
-		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)LLUnit<LLUnits::Milliseconds, F64>(frame_recording.getPrevRecordingPeriod(history_index).getSum(timer)).value(), (S32)frame_recording.getPrevRecordingPeriod(history_index).getSum(timer.callCount()));
+		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)LLUnit<LLUnits::Milliseconds, F64>(frame_recording.getPrevRecording(history_index).getSum(timer)).value(), (S32)frame_recording.getPrevRecording(history_index).getSum(timer.callCount()));
 	}
 	return tooltip;
 }
@@ -417,7 +417,7 @@ void LLFastTimerView::draw()
 	printLineStats();
 	LLView::draw();
 		
-	mAllTimeMax = llmax(mAllTimeMax, mRecording->getLastRecordingPeriod().getSum(FTM_FRAME));
+	mAllTimeMax = llmax(mAllTimeMax, mRecording->getLastRecording().getSum(FTM_FRAME));
 	mHoverID = NULL;
 	mHoverBarIndex = -1;
 }
@@ -984,7 +984,7 @@ void LLFastTimerView::printLineStats()
 			LLUnit<LLUnits::Seconds, F32> ticks;
 			if (mPrintStats > 0)
 			{
-				ticks = mRecording->getPrevRecordingPeriod(mPrintStats).getSum(*idp);
+				ticks = mRecording->getPrevRecording(mPrintStats).getSum(*idp);
 			}
 			else
 			{
@@ -1096,8 +1096,8 @@ void LLFastTimerView::drawLineGraph()
 			j > 0;
 			j--)
 		{
-			LLUnit<LLUnits::Seconds, F32> time = llmax(mRecording->getPrevRecordingPeriod(j).getSum(*idp), LLUnit<LLUnits::Seconds, F64>(0.000001));
-			U32 calls = mRecording->getPrevRecordingPeriod(j).getSum(idp->callCount());
+			LLUnit<LLUnits::Seconds, F32> time = llmax(mRecording->getPrevRecording(j).getSum(*idp), LLUnit<LLUnits::Seconds, F64>(0.000001));
+			U32 calls = mRecording->getPrevRecording(j).getSum(idp->callCount());
 
 			if (alpha == 1.f)
 			{ 
@@ -1197,8 +1197,8 @@ void LLFastTimerView::drawLegend( S32 y )
 			if (mHoverBarIndex > 0 && mHoverID)
 			{
 				S32 hidx = mScrollIndex + mHoverBarIndex;
-				ms = mRecording->getPrevRecordingPeriod(hidx).getSum(*idp);
-				calls = mRecording->getPrevRecordingPeriod(hidx).getSum(idp->callCount());
+				ms = mRecording->getPrevRecording(hidx).getSum(*idp);
+				calls = mRecording->getPrevRecording(hidx).getSum(idp->callCount());
 			}
 			else
 			{
@@ -1455,7 +1455,7 @@ S32 LLFastTimerView::updateTimerBarWidths(LLTrace::TimeBlock* time_block, std::v
 	LLFastTimer _(FTM_UPDATE_TIMER_BAR_WIDTHS);
 	F32 self_time_frame_fraction = history_index == -1
 		? (mRecording->getPeriodMean(time_block->selfTime()) / mTotalTimeDisplay) 
-		: (mRecording->getPrevRecordingPeriod(history_index).getSum(time_block->selfTime()) / mTotalTimeDisplay);
+		: (mRecording->getPrevRecording(history_index).getSum(time_block->selfTime()) / mTotalTimeDisplay);
 
 	S32 self_time_width = llround(self_time_frame_fraction * (F32)mBarRect.getWidth());
 	S32 full_width = self_time_width;

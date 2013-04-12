@@ -212,8 +212,6 @@ set(llcommon_HEADER_FILES
     llpriqueuemap.h
     llprocess.h
     llprocessor.h
-    llptrskiplist.h
-    llptrskipmap.h
     llptrto.h
     llqueuedthread.h
     llrand.h
@@ -230,8 +228,6 @@ set(llcommon_HEADER_FILES
     llsecondlifeurls.h
     llsimplehash.h
     llsingleton.h
-    llskiplist.h
-    llskipmap.h
     llsortedvector.h
     llstack.h
     llstacktrace.h
@@ -255,7 +251,6 @@ set(llcommon_HEADER_FILES
     llunit.h
     lluri.h
     lluuid.h
-    lluuidhashmap.h
     llversionserver.h
     llversionviewer.h
     llwin32headers.h
