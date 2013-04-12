@@ -188,7 +188,7 @@ void TimeBlock::processTimes()
 	U64 cur_time = getCPUClockCount64();
 
 	// set up initial tree
-	for (LLInstanceTracker<TimeBlock>::instance_iter it = LLInstanceTracker<TimeBlock>::beginInstances(), end_it = LLInstanceTracker<TimeBlock>::endInstances(); 
+	for (LLInstanceTracker<TimeBlock>::instance_iter begin_it = LLInstanceTracker<TimeBlock>::beginInstances(), end_it = LLInstanceTracker<TimeBlock>::endInstances(), it = begin_it; 
 		it != end_it; 
 		++it)
 	{

@@ -499,7 +499,7 @@ void LLSceneMonitor::fetchQueryResult()
 	glGetQueryObjectuivARB(mQueryObject, GL_QUERY_RESULT_ARB, &count);
 	
 	mDiffResult = count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * mDiffPixelRatio * mDiffPixelRatio); //0.5 -> (front face + back face)
-	
+
 	addMonitorResult();
 }
 
@@ -511,19 +511,19 @@ void LLSceneMonitor::addMonitorResult()
 		return;
 	}
 
-	mRecording->extend();
-	sample(sFramePixelDiff, mDiffResult);
+		mRecording->extend();
+		sample(sFramePixelDiff, mDiffResult);
 
 	ll_monitor_result_t result;
 	result.mTimeStamp = LLImageGL::sLastFrameTime;
 	result.mDiff = mDiffResult;
 	mMonitorResults.push_back(result);
-}
+	}
 
 //dump results to a file _scene_monitor_results.csv
 void LLSceneMonitor::dumpToFile(std::string file_name)
 {
-	if(mMonitorResults.empty())
+	if(mMonitorResults.empty() || !getRecording())
 	{
 		return; //nothing to dump
 	}
