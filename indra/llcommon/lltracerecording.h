@@ -297,7 +297,7 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		typename T::value_t getPeriodMin(const TraceType<T>& stat, U32 num_periods = S32_MAX) const
+		typename T::value_t getPeriodMin(const TraceType<T>& stat, size_t num_periods = U32_MAX) const
 		{
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
@@ -312,7 +312,7 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		F64 getPeriodMinPerSec(const TraceType<T>& stat, U32 num_periods = S32_MAX) const
+		F64 getPeriodMinPerSec(const TraceType<T>& stat, size_t num_periods = U32_MAX) const
 		{
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
@@ -327,7 +327,7 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		typename T::value_t getPeriodMax(const TraceType<T>& stat, U32 num_periods = S32_MAX) const
+		typename T::value_t getPeriodMax(const TraceType<T>& stat, size_t num_periods = U32_MAX) const
 		{
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
@@ -342,7 +342,7 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		F64 getPeriodMaxPerSec(const TraceType<T>& stat, U32 num_periods = S32_MAX) const
+		F64 getPeriodMaxPerSec(const TraceType<T>& stat, size_t num_periods = U32_MAX) const
 		{
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
@@ -357,7 +357,7 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		typename T::value_t getPeriodMean(const TraceType<T>& stat, U32 num_periods = S32_MAX) const
+		typename T::value_t getPeriodMean(const TraceType<T>& stat, size_t num_periods = U32_MAX) const
 		{
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
@@ -378,7 +378,7 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		typename T::value_t getPeriodMeanPerSec(const TraceType<T>& stat, U32 num_periods = S32_MAX) const
+		typename T::value_t getPeriodMeanPerSec(const TraceType<T>& stat, size_t num_periods = U32_MAX) const
 		{
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
