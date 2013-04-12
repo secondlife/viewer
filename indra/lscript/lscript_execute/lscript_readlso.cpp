@@ -145,7 +145,6 @@ void LLScriptLSOParse::printGlobals(LLFILE *fp)
 		// get offset to skip past name
 		varoffset = global_v_offset;
 		bytestream2integer(mRawData, global_v_offset);
-		(void)offset; //hush little compiler
 		// get typeexport
 		type = *(mRawData + global_v_offset++);
 
@@ -355,7 +354,6 @@ void LLScriptLSOParse::printStates(LLFILE *fp)
 					{
 						temp_end = bytestream2integer(mRawData, read_ahead);
 						bytestream2integer(mRawData, read_ahead);
-						(void)dummy;
 						if (  (temp_end < opcode_end)
 							&&(temp_end > event_offset))
 						{
