@@ -264,6 +264,7 @@ class MeasurementAccumulator
 {
 public:
 	typedef T value_t;
+	typedef F64 mean_t;
 	typedef MeasurementAccumulator<T> self_t;
 
 	MeasurementAccumulator()
@@ -380,6 +381,7 @@ class CountAccumulator
 public:
 	typedef CountAccumulator<T> self_t;
 	typedef T value_t;
+	typedef F64 mean_t;
 
 	CountAccumulator()
 	:	mSum(0),
@@ -418,17 +420,20 @@ class TimeBlockAccumulator
 {
 public:
 	typedef LLUnit<LLUnits::Seconds, F64> value_t;
+	typedef LLUnit<LLUnits::Seconds, F64> mean_t;
 	typedef TimeBlockAccumulator self_t;
 
 	// fake class that allows us to view call count aspect of timeblock accumulator
 	struct CallCountAspect 
 	{
 		typedef U32 value_t;
+		typedef F32 mean_t;
 	};
 
 	struct SelfTimeAspect
 	{
 		typedef LLUnit<LLUnits::Seconds, F64> value_t;
+		typedef LLUnit<LLUnits::Seconds, F64> mean_t;
 	};
 
 	TimeBlockAccumulator();
