@@ -112,16 +112,16 @@ void LLStatBar::draw()
 		if (mPerSec)
 		{
 			current = last_frame_recording.getPerSec(*mCountFloatp);
-			min = frame_recording.getPeriodMinPerSec(*mCountFloatp);
-			max = frame_recording.getPeriodMaxPerSec(*mCountFloatp);
-			mean = frame_recording.getPeriodMeanPerSec(*mCountFloatp);
+			min = frame_recording.getPeriodMinPerSec(*mCountFloatp, mNumFrames);
+			max = frame_recording.getPeriodMaxPerSec(*mCountFloatp, mNumFrames);
+			mean = frame_recording.getPeriodMeanPerSec(*mCountFloatp, mNumFrames);
 		}
 		else
 		{
 			current = last_frame_recording.getSum(*mCountFloatp);
-			min = frame_recording.getPeriodMin(*mCountFloatp);
-			max = frame_recording.getPeriodMax(*mCountFloatp);
-			mean = frame_recording.getPeriodMean(*mCountFloatp);
+			min = frame_recording.getPeriodMin(*mCountFloatp, mNumFrames);
+			max = frame_recording.getPeriodMax(*mCountFloatp, mNumFrames);
+			mean = frame_recording.getPeriodMean(*mCountFloatp, mNumFrames);
 		}
 	}
 	else if (mCountIntp)
@@ -131,16 +131,16 @@ void LLStatBar::draw()
 		if (mPerSec)
 		{
 			current = last_frame_recording.getPerSec(*mCountIntp);
-			min = frame_recording.getPeriodMinPerSec(*mCountIntp);
-			max = frame_recording.getPeriodMaxPerSec(*mCountIntp);
-			mean = frame_recording.getPeriodMeanPerSec(*mCountIntp);
+			min = frame_recording.getPeriodMinPerSec(*mCountIntp, mNumFrames);
+			max = frame_recording.getPeriodMaxPerSec(*mCountIntp, mNumFrames);
+			mean = frame_recording.getPeriodMeanPerSec(*mCountIntp, mNumFrames);
 		}
 		else
 		{
 			current = last_frame_recording.getSum(*mCountIntp);
-			min = frame_recording.getPeriodMin(*mCountIntp);
-			max = frame_recording.getPeriodMax(*mCountIntp);
-			mean = frame_recording.getPeriodMean(*mCountIntp);
+			min = frame_recording.getPeriodMin(*mCountIntp, mNumFrames);
+			max = frame_recording.getPeriodMax(*mCountIntp, mNumFrames);
+			mean = frame_recording.getPeriodMean(*mCountIntp, mNumFrames);
 		}
 	}
 	else if (mMeasurementFloatp)
@@ -148,18 +148,18 @@ void LLStatBar::draw()
 		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording(); 
 
 		current = last_frame_recording.getLastValue(*mMeasurementFloatp);
-		min = frame_recording.getPeriodMin(*mMeasurementFloatp);
-		max = frame_recording.getPeriodMax(*mMeasurementFloatp);
-		mean = frame_recording.getPeriodMean(*mMeasurementFloatp);
+		min = frame_recording.getPeriodMin(*mMeasurementFloatp, mNumFrames);
+		max = frame_recording.getPeriodMax(*mMeasurementFloatp, mNumFrames);
+		mean = frame_recording.getPeriodMean(*mMeasurementFloatp, mNumFrames);
 	}
 	else if (mMeasurementIntp)
 	{
 		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording(); 
 
 		current = last_frame_recording.getLastValue(*mMeasurementIntp);
-		min = frame_recording.getPeriodMin(*mMeasurementIntp);
-		max = frame_recording.getPeriodMax(*mMeasurementIntp);
-		mean = frame_recording.getPeriodMean(*mMeasurementIntp);
+		min = frame_recording.getPeriodMin(*mMeasurementIntp, mNumFrames);
+		max = frame_recording.getPeriodMax(*mMeasurementIntp, mNumFrames);
+		mean = frame_recording.getPeriodMean(*mMeasurementIntp, mNumFrames);
 	}
 
 	current *= mUnitScale;
