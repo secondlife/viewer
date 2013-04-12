@@ -291,10 +291,55 @@ void LLPanelFace::sendTexture()
 		}
 		LLSelectMgr::getInstance()->selectionSetImage(id);
 	}
+    
+    mIsAlpha = FALSE;
+    LLGLenum image_format;
+    struct f2 : public LLSelectedTEGetFunctor<LLGLenum>
+    {
+        LLGLenum get(LLViewerObject* object, S32 te_index)
+        {
+            LLGLenum image_format = GL_RGB;
+            
+            LLViewerTexture* image = object->getTEImage(te_index);
+            if (image) image_format  = image->getPrimaryFormat();
+            return image_format;
+        }
+    } func2;
+    LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func2, image_format );
+    
+    mIsAlpha = FALSE;
+    switch (image_format)
+    {
+        case GL_RGBA:
+        case GL_ALPHA:
+        {
+            mIsAlpha = TRUE;
+        }
+            break;
+            
+        case GL_RGB: break;
+        default:
+        {
+            llwarns << "Unexpected tex format in LLPanelFace...resorting to no alpha" << llendl;
+        }
+            break;
+    }
+
+    LLComboBox* comboAlphaMode = getChild<LLComboBox>("combobox alphamode");
+	if (comboAlphaMode)
+	{
+		U32 alpha_mode = comboAlphaMode->getCurrentIndex();
+        if (mIsAlpha && (alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE))
+        {
+            alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
+        }
+        comboAlphaMode->selectNthItem(alpha_mode);
+	}
+	
 }
 
 void LLPanelFace::sendBump()
-{	
+{
 	LLComboBox*	mComboBumpiness = getChild<LLComboBox>("combobox bumpiness");
 	if(!mComboBumpiness)return;
 	U32 bumpiness = mComboBumpiness->getCurrentIndex();
@@ -789,7 +834,7 @@ void LLPanelFace::getState()
 				}
 			} alpha_get_func;
 			
-			U8 alpha_mode = 1;
+			U8 alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
 			LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &alpha_get_func, alpha_mode);
 			
 			{
@@ -798,10 +843,13 @@ void LLPanelFace::getState()
 
 				if (combobox_alphamode)
 				{
-					if (!mIsAlpha)
-					{
-						alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
-					}
+                    // Should never want to reflect something other than the correct state
+                    // if it's supposed to be set to NONE, that should be enforced elsewhere
+                    //
+					//if (!mIsAlpha)
+					//{
+					//	alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
+					//}
 					
 					combobox_alphamode->selectNthItem(alpha_mode);
 				}
@@ -1775,9 +1823,18 @@ void LLPanelFace::updateMaterial()
 	bool identical_texgen = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, selected_texgen );
 	bool identical_planar_texgen = (identical_texgen && (selected_texgen == LLTextureEntry::TEX_GEN_PLANAR));
 
-	if ((mIsAlpha && (alpha_mode != LLMaterial::DIFFUSE_ALPHA_MODE_BLEND))
-		|| (bumpiness == BUMPY_TEXTURE)
-		|| (shininess == SHINY_TEXTURE))
+    LLUUID norm_map_id = getChild<LLTextureCtrl>("bumpytexture control")->getImageAssetID();
+    LLUUID spec_map_id = getChild<LLTextureCtrl>("shinytexture control")->getImageAssetID();
+
+    bool doing_diffuse_alpha = (alpha_mode != LLMaterial::DIFFUSE_ALPHA_MODE_NONE);
+    bool doing_bumps = (bumpiness == BUMPY_TEXTURE) || !norm_map_id.isNull();
+    bool doing_shiny = (shininess == SHINY_TEXTURE) || !spec_map_id.isNull();
+    
+    doing_diffuse_alpha = doing_diffuse_alpha && mIsAlpha;
+    
+	if (doing_diffuse_alpha
+		|| doing_bumps
+		|| doing_shiny)
 	{
 		// The user's specified something that needs a material.
 		bool new_material = false;
@@ -1786,11 +1843,10 @@ void LLPanelFace::updateMaterial()
 			new_material = true;
 			mMaterial = LLMaterialPtr(new LLMaterial());
 		}
-
-		mMaterial->setDiffuseAlphaMode(getChild<LLComboBox>("combobox alphamode")->getCurrentIndex());
+  
+		mMaterial->setDiffuseAlphaMode(alpha_mode);
 		mMaterial->setAlphaMaskCutoff((U8)(getChild<LLUICtrl>("maskcutoff")->getValue().asInteger()));
-
-		LLUUID norm_map_id = getChild<LLTextureCtrl>("bumpytexture control")->getImageAssetID();
+      
 		if (!norm_map_id.isNull())
 		{
 			LL_DEBUGS("Materials") << "Setting bumpy texture, bumpiness = " << bumpiness  << LL_ENDL;
@@ -1818,8 +1874,6 @@ void LLPanelFace::updateMaterial()
 			mMaterial->setNormalRepeat(1.0f,1.0f);
 			mMaterial->setNormalRotation(0.0f);
 		}
-        
-		LLUUID spec_map_id = getChild<LLTextureCtrl>("shinytexture control")->getImageAssetID();
 
 		if (!spec_map_id.isNull())
 		{
