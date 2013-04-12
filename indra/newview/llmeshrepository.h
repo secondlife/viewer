@@ -32,6 +32,7 @@
 #include "lluuid.h"
 #include "llviewertexture.h"
 #include "llvolume.h"
+#include "lldeadmantimer.h"
 
 #define LLCONVEXDECOMPINTER_STATIC 1
 
@@ -455,14 +456,15 @@ public:
 	static U32 sCacheBytesRead;
 	static U32 sCacheBytesWritten;
 	static U32 sPeakKbps;
-	
+	static LLDeadmanTimer sQuiescentTimer;  // time-to-complete-mesh-downloads after significant events
+
 	static F32 getStreamingCost(LLSD& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
 
 	LLMeshRepository();
 
 	void init();
 	void shutdown();
-	S32 update() ;
+	S32 update();
 
 	//mesh management functions
 	S32 loadMesh(LLVOVolume* volume, const LLVolumeParams& mesh_params, S32 detail = 0, S32 last_lod = -1);
@@ -495,6 +497,11 @@ public:
 
 	S32 getMeshSize(const LLUUID& mesh_id, S32 lod);
 
+	// Quiescent timer management, main thread only.
+	static void metricsStart();
+	static void metricsStop();
+	static void metricsCheck();
+	
 	typedef std::map<LLVolumeParams, std::set<LLUUID> > mesh_load_map;
 	mesh_load_map mLoadingMeshes[4];
 	

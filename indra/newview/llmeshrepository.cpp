@@ -37,6 +37,7 @@
 #include "llcallbacklist.h"
 #include "llcurl.h"
 #include "lldatapacker.h"
+#include "lldeadmantimer.h"
 #include "llfloatermodelpreview.h"
 #include "llfloaterperms.h"
 #include "lleconomy.h"
@@ -94,8 +95,9 @@ U32 LLMeshRepository::sLODPending = 0;
 U32 LLMeshRepository::sCacheBytesRead = 0;
 U32 LLMeshRepository::sCacheBytesWritten = 0;
 U32 LLMeshRepository::sPeakKbps = 0;
-	
+LLDeadmanTimer LLMeshRepository::sQuiescentTimer(15.0);
 
+	
 const U32 MAX_TEXTURE_UPLOAD_RETRIES = 5;
 
 static S32 dump_num = 0;
@@ -114,7 +116,6 @@ std::string header_lod[] =
 	"medium_lod",
 	"high_lod"
 };
-
 
 //get the number of bytes resident in memory for given volume
 U32 get_volume_memory_size(const LLVolume* volume)
@@ -2678,6 +2679,9 @@ void LLMeshRepository::notifyDecompositionReceived(LLModel::Decomposition* decom
 
 void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVolume* volume)
 { //called from main thread
+	// Manage time-to-load metrics for mesh download operations.
+	metricsCheck();
+	
 	S32 detail = LLVolumeLODGroup::getVolumeDetailFromScale(volume->getDetail());
 
 	//get list of objects waiting to be notified this mesh is loaded
@@ -3699,3 +3703,40 @@ bool LLMeshRepository::meshRezEnabled()
 	}
 	return false;
 }
+
+void LLMeshRepository::metricsStart()
+{
+	sQuiescentTimer.start();
+}
+
+void LLMeshRepository::metricsStop()
+{
+	sQuiescentTimer.stop();
+}
+
+void LLMeshRepository::metricsCheck()
+{
+	static bool first_start(true);
+	F64 started, stopped;
+	U64 count;
+
+	if (first_start)
+	{
+		// Let the first request start the timing cycle for login.
+		metricsStart();
+		first_start = false;
+	}
+	sQuiescentTimer.ringBell();
+	if (sQuiescentTimer.isExpired(started, stopped, count))
+	{
+		LLSD metrics;
+
+		metrics["reason"] = "Mesh download quiescent";
+		metrics["scope"] = "Login";
+		metrics["start"] = started;
+		metrics["stop"] = stopped;
+		metrics["downloads"] = LLSD::Integer(count);
+		llinfos << "MetricsMarker" << metrics << llendl;
+	}
+}
+	
