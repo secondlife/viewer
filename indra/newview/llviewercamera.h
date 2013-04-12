@@ -100,7 +100,7 @@ public:
 	BOOL projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoordGL &out_point, const BOOL clamp = TRUE) const;
 	BOOL projectPosAgentToScreenEdge(const LLVector3 &pos_agent, LLCoordGL &out_point) const;
 
-	const LLVector3* getVelocityDir() const {return &mVelocityDir;}
+	LLVector3 getVelocityDir() const {return mVelocityDir;}
 	static LLTrace::CountStatHandle<>* getVelocityStat()		   {return &sVelocityStat; }
 	static LLTrace::CountStatHandle<>* getAngularVelocityStat()  {return &sAngularVelocityStat; }
 	F32     getCosHalfFov() {return mCosHalfCameraFOV;}
