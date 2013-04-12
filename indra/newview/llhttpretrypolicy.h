@@ -56,16 +56,7 @@ public:
 class LLAdaptiveRetryPolicy: public LLHTTPRetryPolicy
 {
 public:
-	LLAdaptiveRetryPolicy(F32 min_delay, F32 max_delay, F32 backoff_factor, U32 max_retries):
-		mMinDelay(min_delay),
-		mMaxDelay(max_delay),
-		mBackoffFactor(backoff_factor),
-		mMaxRetries(max_retries),
-		mDelay(min_delay),
-		mRetryCount(0),
-		mShouldRetry(true)
-	{
-	}
+	LLAdaptiveRetryPolicy(F32 min_delay, F32 max_delay, F32 backoff_factor, U32 max_retries);
 
 	// virtual
 	void onFailure(S32 status, const LLSD& headers);

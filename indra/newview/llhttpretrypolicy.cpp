@@ -28,6 +28,17 @@
 
 #include "llhttpretrypolicy.h"
 
+LLAdaptiveRetryPolicy::LLAdaptiveRetryPolicy(F32 min_delay, F32 max_delay, F32 backoff_factor, U32 max_retries):
+	mMinDelay(min_delay),
+	mMaxDelay(max_delay),
+	mBackoffFactor(backoff_factor),
+	mMaxRetries(max_retries),
+	mDelay(min_delay),
+	mRetryCount(0),
+	mShouldRetry(true)
+{
+}
+
 bool LLAdaptiveRetryPolicy::getRetryAfter(const LLSD& headers, F32& retry_header_time)
 {
 	return (headers.has(HTTP_IN_HEADER_RETRY_AFTER)
@@ -77,6 +88,11 @@ void LLAdaptiveRetryPolicy::onFailure(const LLCore::HttpResponse *response)
 
 void LLAdaptiveRetryPolicy::onFailureCommon(S32 status, bool has_retry_header_time, F32 retry_header_time)
 {
+	if (!mShouldRetry)
+	{
+		llinfos << "keep on failing" << llendl;
+		return;
+	}
 	if (mRetryCount > 0)
 	{
 		mDelay = llclamp(mDelay*mBackoffFactor,mMinDelay,mMaxDelay);
@@ -111,7 +127,12 @@ void LLAdaptiveRetryPolicy::onFailureCommon(S32 status, bool has_retry_header_ti
 
 bool LLAdaptiveRetryPolicy::shouldRetry(F32& seconds_to_wait) const
 {
-	llassert(mRetryCount>0); // have to call onFailure() before shouldRetry()
+	if (mRetryCount == 0)
+	{
+		// Called shouldRetry before any failure.
+		seconds_to_wait = F32_MAX;
+		return false;
+	}
 	seconds_to_wait = mShouldRetry ? mRetryTimer.getRemainingTimeF32() : F32_MAX;
 	return mShouldRetry;
 }

@@ -45,8 +45,12 @@ void RetryPolicyTestObject::test<1>()
 	LLSD headers;
 	F32 wait_seconds;
 	
+	// No retry until we've finished a try.
+	ensure("never retry 0", !never_retry.shouldRetry(wait_seconds));
+
+	// 0 retries max.
 	never_retry.onFailure(500,headers);
-	ensure("never retry", !never_retry.shouldRetry(wait_seconds)); 
+	ensure("never retry 1", !never_retry.shouldRetry(wait_seconds)); 
 }
 
 template<> template<>
@@ -69,6 +73,9 @@ void RetryPolicyTestObject::test<3>()
 	F32 wait_seconds;
 	bool should_retry;
 	U32 frac_bits = 6;
+
+	// No retry until we've finished a try.
+	ensure("basic_retry 0", !basic_retry.shouldRetry(wait_seconds));
 
 	// Starting wait 1.0
 	basic_retry.onFailure(500,headers);
@@ -224,10 +231,13 @@ void RetryPolicyTestObject::test<7>()
 	time_t nowseconds;
 	time(&nowseconds);
 	sd_headers[HTTP_IN_HEADER_RETRY_AFTER] = LLDate((F64)nowseconds).asRFC1123();
-	LLAdaptiveRetryPolicy policy(17.0,644.0,3.0,10);
+	LLAdaptiveRetryPolicy policy(17.0,644.0,3.0,5);
 	F32 seconds_to_wait;
 	bool should_retry;
 
+	// No retry until we've finished a try.
+	ensure("header 0", !policy.shouldRetry(seconds_to_wait));
+	
 	// no retry header, use default.
 	policy.onFailure(500,LLSD());
 	should_retry = policy.shouldRetry(seconds_to_wait);
@@ -246,7 +256,7 @@ void RetryPolicyTestObject::test<7>()
 		LLCore::HttpHeaders *headers = new LLCore::HttpHeaders();
 		response->setStatus(503);
 		response->setHeaders(headers);
-		headers->mHeaders.push_back("retry-after: 600");
+		headers->mHeaders.push_back(HTTP_IN_HEADER_RETRY_AFTER + ": 600");
 		policy.onFailure(response);
 		should_retry = policy.shouldRetry(seconds_to_wait);
 		ensure("header 3",should_retry);
@@ -262,13 +272,24 @@ void RetryPolicyTestObject::test<7>()
 		response->setHeaders(headers);
 		LLSD sd_headers;
 		time(&nowseconds);
-		headers->mHeaders.push_back("retry-after: " + LLDate((F64)nowseconds).asRFC1123());
+		headers->mHeaders.push_back(HTTP_IN_HEADER_RETRY_AFTER + ": " + LLDate((F64)nowseconds).asRFC1123());
 		policy.onFailure(response);
 		should_retry = policy.shouldRetry(seconds_to_wait);
-		ensure("header 3",should_retry);
-		ensure_approximately_equals("header 3", seconds_to_wait, 0.0F, 6);
+		ensure("header 4",should_retry);
+		ensure_approximately_equals("header 4", seconds_to_wait, 0.0F, 6);
 		response->release();
 	}
+
+	// Timeout should be clamped at max.
+	policy.onFailure(500,LLSD());
+	should_retry = policy.shouldRetry(seconds_to_wait);
+	ensure("header 5", should_retry);
+	ensure_approximately_equals("header 5", seconds_to_wait, 644.0F, 6);
+
+	// No more retries.
+	policy.onFailure(500,LLSD());
+	should_retry = policy.shouldRetry(seconds_to_wait);
+	ensure("header 6", !should_retry);
 }
 
 }
