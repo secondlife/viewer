@@ -357,7 +357,7 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		typename T::value_t getPeriodMean(const TraceType<T>& stat, size_t num_periods = U32_MAX) const
+		typename T::mean_t getPeriodMean(const TraceType<T>& stat, size_t num_periods = U32_MAX) const
 		{
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
@@ -378,7 +378,7 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		typename T::value_t getPeriodMeanPerSec(const TraceType<T>& stat, size_t num_periods = U32_MAX) const
+		typename T::mean_t getPeriodMeanPerSec(const TraceType<T>& stat, size_t num_periods = U32_MAX) const
 		{
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
