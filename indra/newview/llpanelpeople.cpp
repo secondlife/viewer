@@ -81,7 +81,7 @@ static const std::string FBCTEST_TAB_NAME	= "fbctest_panel";
 static const std::string COLLAPSED_BY_USER  = "collapsed_by_user";
 
 static const std::string FBC_SERVICES_URL = "https://pdp15.lindenlab.com/fbc";
-static const std::string FBC_SERVICES_REDIRECT_URI = "https://pdp15.lindenlab.com/fbc/redirect";
+static const std::string FBC_SERVICES_REDIRECT_URI = "https://pdp15.lindenlab.com/redirect";
 
 /** Comparator for comparing avatar items by last interaction date */
 class LLAvatarItemRecentComparator : public LLAvatarItemComparator
@@ -865,12 +865,12 @@ void LLPanelPeople::updateFbcTestList()
 		std::string url = mFbcTestBrowserHandle.get()->getTitle();
 
 		// if the browser has redirected from facebook
-		if (url.find(FBC_SERVICES_REDIRECT_URI) == 0)
+		if (url.find(getFacebookRedirectURL()) == 0)
 		{
 			// find the auth code in the url
 			std::string begin_string = "code=";
 			std::string end_string = "#";
-			size_t begin_index = begin_string.length() + url.find(begin_string, FBC_SERVICES_REDIRECT_URI.length());
+			size_t begin_index = begin_string.length() + url.find(begin_string, getFacebookRedirectURL().length());
 			size_t end_index = url.find(end_string, begin_index);
 
 			// extract the auth code from the url
@@ -1695,7 +1695,7 @@ public:
 			else if (mShowLoginIfNotConnected)
 			{
 				LLFloaterWebContent::Params p;
-				p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + FBC_SERVICES_REDIRECT_URI);
+				p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + mPanelPeople->getFacebookRedirectURL());
 				mPanelPeople->openFacebookWeb(p);
 			}
 		}
@@ -1739,14 +1739,14 @@ public:
 
 void LLPanelPeople::loadFacebookFriends()
 {
-	LLHTTPClient::get(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/friends", new FacebookFriendsResponder(this));
+	LLHTTPClient::get(getFacebookConnectURL("/friends"), new FacebookFriendsResponder(this));
 }
 
 void LLPanelPeople::tryToReconnectToFacebook()
 {
 	if (!mConnectedToFbc)
 	{
-		LLHTTPClient::get(FBC_SERVICES_URL + "/agent/" + gAgentID.asString(), new FacebookConnectedResponder(this, false));
+		LLHTTPClient::get(getFacebookConnectURL(), new FacebookConnectedResponder(this, false));
 	}
 }
 
@@ -1755,16 +1755,31 @@ void LLPanelPeople::connectToFacebook(const std::string& auth_code)
 	LLSD body;
 	body["agent_id"] = gAgentID.asString();
 	body["code"] = auth_code;
-	body["redirect_uri"] = FBC_SERVICES_REDIRECT_URI;
-	LLHTTPClient::post(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/connect", body, new FacebookConnectResponder(this));
+	body["redirect_uri"] = getFacebookRedirectURL();
+	LLHTTPClient::post(getFacebookConnectURL("/connect"), body, new FacebookConnectResponder(this));
 }
 
 void LLPanelPeople::disconnectFromFacebook()
 {
 	LLSD body;
 	body["agent_id"] = gAgentID.asString();
-	LLHTTPClient::post(FBC_SERVICES_URL + "/agent/" + gAgentID.asString() + "/disconnect", body, new FacebookDisconnectResponder(this));
+	LLHTTPClient::post(getFacebookConnectURL("/disconnect"), body, new FacebookDisconnectResponder(this));
 }
+
+std::string LLPanelPeople::getFacebookConnectURL(const std::string& route)
+{
+	static std::string sFacebookConnectUrl = gAgent.getRegion()->getCapability("FacebookConnect");
+	std::string url = sFacebookConnectUrl + route;
+	llinfos << url << llendl;
+	return url;
+}
+
+std::string LLPanelPeople::getFacebookRedirectURL()
+{
+	static std::string sFacebookRedirectUrl = gAgent.getRegion()->getCapability("FacebookRedirect");
+	llinfos << sFacebookRedirectUrl << llendl;
+	return sFacebookRedirectUrl;
+}	
 
 void LLPanelPeople::onLoginFbcButtonClicked()
 {
@@ -1774,21 +1789,21 @@ void LLPanelPeople::onLoginFbcButtonClicked()
 	}
 	else
 	{
-		LLHTTPClient::get(FBC_SERVICES_URL + "/agent/" + gAgentID.asString(), new FacebookConnectedResponder(this, true));
+		LLHTTPClient::get(getFacebookConnectURL(), new FacebookConnectedResponder(this, true));
 	}
 }
 
 void LLPanelPeople::onFacebookAppRequestClicked()
 {
 	LLFloaterWebContent::Params p;
-	p.url("http://www.facebook.com/dialog/apprequests?app_id=565771023434202&message=Test&redirect_uri=" + FBC_SERVICES_URL);
+	p.url("http://www.facebook.com/dialog/apprequests?app_id=565771023434202&message=Test&redirect_uri=" + getFacebookRedirectURL());
 	openFacebookWeb(p);
 }
 
 void LLPanelPeople::onFacebookAppSendClicked()
 {
 	LLFloaterWebContent::Params p;
-	p.url("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Join Second Life!&link=https://join.secondlife.com&redirect_uri=" + FBC_SERVICES_URL);
+	p.url("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Join Second Life!&link=https://join.secondlife.com&redirect_uri=" + getFacebookRedirectURL());
 	openFacebookWeb(p);
 }
 

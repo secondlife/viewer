@@ -66,6 +66,9 @@ public:
 	void connectToFacebook(const std::string& auth_code);
 	void disconnectFromFacebook();
 	
+	std::string getFacebookConnectURL(const std::string& route = "");
+	std::string getFacebookRedirectURL();
+	
 	bool mConnectedToFbc;
 	bool mTryToConnectToFbc;
 
