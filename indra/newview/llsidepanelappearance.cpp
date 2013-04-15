@@ -77,13 +77,11 @@ bool LLSidepanelAppearance::callBackExitWithoutSaveViaBack(const LLSD& notificat
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if ( option == 0 ) 
 	{		
-		gSavedSettings.setBOOL("ExitOutfitEditWithoutSave", TRUE);		
 		LLAppearanceMgr::instance().setOutfitDirty( true );		
 		showOutfitsInventoryPanel();
 		LLAppearanceMgr::getInstance()->wearBaseOutfit();		
 		return true;
 	}
-	gSavedSettings.setBOOL("ExitOutfitEditWithoutSave", FALSE);
 	return false;
 }
 
@@ -91,14 +89,12 @@ bool LLSidepanelAppearance::callBackExitWithoutSaveViaClose(const LLSD& notifica
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if ( option == 0 ) 
-	{		
-		gSavedSettings.setBOOL("ExitOutfitEditWithoutSave", TRUE);
+	{	
 		mEditWearable->revertChanges();
 		LLAppearanceMgr::getInstance()->wearBaseOutfit();
 		mLLFloaterSidePanelContainer->close();
 		return true;
 	}
-	gSavedSettings.setBOOL("ExitOutfitEditWithoutSave", FALSE);	
 	return false;
 }
 
@@ -131,7 +127,9 @@ void LLSidepanelAppearance::onClickConfirmExitWithoutSaveViaBack()
 void LLSidepanelAppearance::onClose(LLFloaterSidePanelContainer* obj)
 {
 	mLLFloaterSidePanelContainer = obj;
-	if ( LLAppearanceMgr::getInstance()->isOutfitDirty() && !LLAppearanceMgr::getInstance()->isOutfitLocked() )
+	if (  LLAppearanceMgr::getInstance()->isOutfitDirty() && 
+		 !LLAppearanceMgr::getInstance()->isOutfitLocked() ||
+		 ( mEditWearable->isAvailable() && mEditWearable->isDirty() ) )
 	{
 		LLSidepanelAppearance* pSelf = (LLSidepanelAppearance *)this;
 		LLNotificationsUtil::add("ConfirmExitWithoutSave", LLSD(), LLSD(), boost::bind(&LLSidepanelAppearance::callBackExitWithoutSaveViaClose,pSelf,_1,_2) );
