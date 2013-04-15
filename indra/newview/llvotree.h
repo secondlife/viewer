@@ -104,10 +104,7 @@ public:
 								 F32 twist, 
 								 F32 droop,  
 								 F32 branches, 
-								 F32 alpha);
-
-	U32 drawBranchPipeline(LLMatrix4& matrix, U16* indicesp, S32 trunk_LOD, S32 stop_level, U16 depth, U16 trunk_depth,  F32 scale, F32 twist, F32 droop,  F32 branches, F32 alpha);
- 
+								 F32 alpha); 
 
 	 /*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, 
 										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES

@@ -89,7 +89,7 @@ class LLOcclusionQueryPool : public LLGLNamePool
 public:
 	LLOcclusionQueryPool()
 	{
-		mCurQuery = 1;
+		mCurQuery = 2; //1 is reserved for LLGLSLShader
 	}
 
 protected:

@@ -2359,6 +2359,12 @@
                 <menu_item_check.on_click
                  function="Advanced.ToggleFrameTest" />
             </menu_item_check>
+          <menu_item_call
+             label="Frame Profile"
+             name="Frame Profile">
+            <menu_item_call.on_click
+             function="Advanced.ClickRenderProfile" />
+          </menu_item_call>
         </menu>
       <menu
         create_jump_keys="true"
