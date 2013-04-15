@@ -1826,7 +1826,7 @@ bool LLViewerFetchedTexture::updateFetch()
 				// We finished but received no data
 				if (current_discard < 0)
 				{
-					const S32 MAX_FETCH_FAILURE = 3;
+					const S32 MAX_FETCH_FAILURE = 1;
 					mFetchFailureCount++;
 					if (getFTType() != FTT_MAP_TILE)
 					{

@@ -63,6 +63,8 @@
 #include "bufferarray.h"
 #include "bufferstream.h"
 
+#include "llhttpretrypolicy.h"
+
 bool LLTextureFetchDebugger::sDebuggerEnabled = false ;
 LLStat LLTextureFetch::sCacheHitRate("texture_cache_hits", 128);
 LLStat LLTextureFetch::sCacheReadLatency("texture_cache_read_latency", 128);
@@ -243,6 +245,25 @@ static const S32 HTTP_REQUESTS_IN_QUEUE_LOW_WATER = 20;			// Active level at whi
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+static const char* e_state_name[] =
+{
+	"INVALID",
+	"INIT",
+	"LOAD_FROM_TEXTURE_CACHE",
+	"CACHE_POST",
+	"LOAD_FROM_NETWORK",
+	"LOAD_FROM_SIMULATOR",
+	"WAIT_HTTP_RESOURCE",
+	"WAIT_HTTP_RESOURCE2",
+	"SEND_HTTP_REQ",
+	"WAIT_HTTP_REQ",
+	"DECODE_IMAGE",
+	"DECODE_IMAGE_UPDATE",
+	"WRITE_TO_CACHE",
+	"WAIT_ON_WRITE",
+	"DONE"
+};
 
 class LLTextureFetchWorker : public LLWorkerClass, public LLCore::HttpHandler
 
@@ -552,6 +573,8 @@ private:
 	LLCore::HttpStatus mGetStatus;
 	std::string mGetReason;
 	bool mFakeFailure;
+	LLAdaptiveRetryPolicy mFetchRetryPolicy;
+
 	
 	// Work Data
 	LLMutex mWorkMutex;
@@ -896,7 +919,8 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mCacheReadCount(0U),
 	  mCacheWriteCount(0U),
 	  mResourceWaitCount(0U),
-	  mFakeFailure(fake_failure)
+	  mFakeFailure(fake_failure),
+	  mFetchRetryPolicy(15.0,15.0,1.0,10)
 {
 	mCanUseNET = mUrl.empty() ;
 	
@@ -1277,6 +1301,20 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if (mState == LOAD_FROM_NETWORK)
 	{
+		// Check for retries to previous server failures.
+		F32 wait_seconds;
+		if (mFetchRetryPolicy.shouldRetry(wait_seconds))
+		{
+			if (wait_seconds <= 0.0)
+			{
+				llinfos << mID << " retrying now" << llendl;
+			}
+			else
+			{
+				//llinfos << mID << " waiting to retry for " << wait_seconds << " seconds" << llendl;
+				return false;
+			}
+		}
 		static LLCachedControl<bool> use_http(gSavedSettings,"ImagePipelineUseHTTP");
 
 // 		if (mHost != LLHost::invalid) get_url = false;
@@ -1557,6 +1595,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				else if (http_service_unavail == mGetStatus)
 				{
 					LL_INFOS_ONCE("Texture") << "Texture server busy (503): " << mUrl << LL_ENDL;
+					llinfos << "503: HTTP GET failed for: " << mUrl
+							<< " Status: " << mGetStatus.toHex()
+							<< " Reason: '" << mGetReason << "'"
+							<< llendl;
 				}
 				else if (http_not_sat == mGetStatus)
 				{
@@ -1565,11 +1607,29 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				}
 				else
 				{
-					llinfos << "HTTP GET failed for: " << mUrl
+					llinfos << "other: HTTP GET failed for: " << mUrl
 							<< " Status: " << mGetStatus.toHex()
 							<< " Reason: '" << mGetReason << "'"
 							<< llendl;
 				}
+#if 0
+				if (isHttpServerErrorStatus(mGetStatus.mType))
+				{
+					// Check for retry
+					F32 wait_seconds;
+					if (mFetchRetryPolicy.shouldRetry(wait_seconds))
+					{
+						llinfos << mID  << " status " << (S32) mGetStatus.mType << " will retry after " << wait_seconds << llendl;
+						setState(INIT);
+						releaseHttpSemaphore();
+						return false;
+					}
+					else
+					{
+						llinfos << mID << " will not retry on status " << (S32) mGetStatus.mType << llendl;
+					}
+				}
+#endif
 
 				mUrl.clear();
 				if (cur_size > 0)
@@ -1907,12 +1967,33 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 
 	if (mFakeFailure)
 	{
-		llwarns << "For debugging, setting fake failure status for texture " << mID << llendl;
+		llwarns << mID << " for debugging, setting fake failure status for texture " << mID << llendl;
 		response->setStatus(LLCore::HttpStatus(500));
+		setFakeFailure(false);
 	}
 	bool success = true;
 	bool partial = false;
 	LLCore::HttpStatus status(response->getStatus());
+	if (!status && (mFTType == FTT_SERVER_BAKE))
+	{
+		llinfos << mID << " state " << e_state_name[mState] << llendl;
+		mFetchRetryPolicy.onFailure(response);
+		F32 retry_after;
+		if (mFetchRetryPolicy.shouldRetry(retry_after))
+		{
+			llinfos << mID << " should retry after " << retry_after << ", resetting state to INIT" << llendl;
+			mFetcher->removeFromHTTPQueue(mID, 0);
+			std::string reason(status.toString());
+			setGetStatus(status, reason);
+			releaseHttpSemaphore();
+			setState(INIT);
+			return;
+		}
+		else
+		{
+			llinfos << mID << " should not retry" << llendl;
+		}
+	}
 	
 	LL_DEBUGS("Texture") << "HTTP COMPLETE: " << mID
 						 << " status: " << status.toHex()
@@ -1934,7 +2015,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		success = false;
 		if (mFTType != FTT_MAP_TILE) // missing map tiles are normal, don't complain about them.
 		{
-			llwarns << "CURL GET FAILED, status: " << status.toHex()
+			llwarns << mID << " CURL GET FAILED, status: " << status.toHex()
 					<< " reason: " << reason << llendl;
 		}
 	}
@@ -2488,7 +2569,11 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 	{
 		return false;
 	}
-	
+
+	if (f_type == FTT_SERVER_BAKE)
+	{
+		llinfos << " requesting " << id << " " << w << "x" << h << " discard " << desired_discard << llendl;
+	}
 	LLTextureFetchWorker* worker = getWorker(id) ;
 	if (worker)
 	{
@@ -3248,24 +3333,6 @@ bool LLTextureFetchWorker::insertPacket(S32 index, U8* data, S32 size)
 
 void LLTextureFetchWorker::setState(e_state new_state)
 {
-	static const char* e_state_name[] =
-	{
-		"INVALID",
-		"INIT",
-		"LOAD_FROM_TEXTURE_CACHE",
-		"CACHE_POST",
-		"LOAD_FROM_NETWORK",
-		"LOAD_FROM_SIMULATOR",
-		"WAIT_HTTP_RESOURCE",
-		"WAIT_HTTP_RESOURCE2",
-		"SEND_HTTP_REQ",
-		"WAIT_HTTP_REQ",
-		"DECODE_IMAGE",
-		"DECODE_IMAGE_UPDATE",
-		"WRITE_TO_CACHE",
-		"WAIT_ON_WRITE",
-		"DONE"
-	};
 	LL_DEBUGS("Texture") << "id: " << mID << " FTType: " << mFTType << " disc: " << mDesiredDiscard << " sz: " << mDesiredSize << " state: " << e_state_name[mState] << " => " << e_state_name[new_state] << llendl;
 	mState = new_state;
 }

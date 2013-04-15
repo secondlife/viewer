@@ -7302,7 +7302,7 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 		LLViewerTexture* image_baked = getImage( mBakedTextureDatas[i].mTextureIndex, 0 );
 		if (id == image_baked->getID())
 		{
-			LL_DEBUGS("Avatar") << avString() << " i " << i << " id " << id << LL_ENDL;
+			//LL_DEBUGS("Avatar") << avString() << " i " << i << " id " << id << LL_ENDL;
 			mBakedTextureDatas[i].mIsLoaded = true;
 			mBakedTextureDatas[i].mLastTextureID = id;
 			mBakedTextureDatas[i].mIsUsed = true;
