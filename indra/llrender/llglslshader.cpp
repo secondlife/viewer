@@ -110,6 +110,14 @@ void LLGLSLShader::initProfile()
 }
 
 
+struct LLGLSLShaderCompareTimeElapsed
+{
+		bool operator()(const LLGLSLShader* const& lhs, const LLGLSLShader* const& rhs)
+		{
+			return lhs->mTimeElapsed < rhs->mTimeElapsed;
+		}
+};
+
 //static
 void LLGLSLShader::finishProfile()
 {
@@ -122,15 +130,7 @@ void LLGLSLShader::finishProfile()
 		sorted.push_back(*iter);
 	}
 
-	struct comp_func
-	{
-		bool operator()(const LLGLSLShader* const& lhs, const LLGLSLShader* const& rhs)
-		{
-			return lhs->mTimeElapsed < rhs->mTimeElapsed;
-		}
-	} func;
-
-	std::sort(sorted.begin(), sorted.end(), func);
+	std::sort(sorted.begin(), sorted.end(), LLGLSLShaderCompareTimeElapsed());
 
 	for (std::vector<LLGLSLShader*>::iterator iter = sorted.begin(); iter != sorted.end(); ++iter)
 	{
@@ -205,6 +205,7 @@ void LLGLSLShader::stopProfile(U32 count, U32 mode)
 
 void LLGLSLShader::placeProfileQuery()
 {
+#if !LL_DARWIN
 	if (mTimerQuery == 0)
 	{
 		glGenQueriesARB(1, &mTimerQuery);
@@ -212,10 +213,12 @@ void LLGLSLShader::placeProfileQuery()
 
 	glBeginQueryARB(GL_SAMPLES_PASSED, 1);
 	glBeginQueryARB(GL_TIME_ELAPSED, mTimerQuery);
+#endif
 }
 
 void LLGLSLShader::readProfileQuery(U32 count, U32 mode)
 {
+#if !LL_DARWIN
 	glEndQueryARB(GL_TIME_ELAPSED);
 	glEndQueryARB(GL_SAMPLES_PASSED);
 	
@@ -245,6 +248,7 @@ void LLGLSLShader::readProfileQuery(U32 count, U32 mode)
 
 	sTotalDrawCalls++;
 	mDrawCalls++;
+#endif
 }
 
 
@@ -512,6 +516,7 @@ void LLGLSLShader::mapUniform(GLint index, const vector<string> * uniforms)
 
 
 	glGetActiveUniformARB(mProgramObject, index, 1024, &length, &size, &type, (GLcharARB *)name);
+#if !LL_DARWIN
 	if (size > 0)
 	{
 		switch(type)
@@ -553,6 +558,7 @@ void LLGLSLShader::mapUniform(GLint index, const vector<string> * uniforms)
 		}
 		mTotalUniformSize += size;
 	}
+#endif
 
 	S32 location = glGetUniformLocationARB(mProgramObject, name);
 	if (location != -1)
