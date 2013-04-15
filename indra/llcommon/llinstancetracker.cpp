@@ -32,7 +32,9 @@
 // external library headers
 // other Linden headers
 
-static void* sInstanceTrackerData[ kInstanceTrackTypeCount ] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+static bool sInstanceTrackerData_initialized = false;
+static void* sInstanceTrackerData[ kInstanceTrackTypeCount ];
+
 
 void * & LLInstanceTrackerBase::getInstances(InstanceTrackType t)
 {
@@ -41,6 +43,15 @@ void * & LLInstanceTrackerBase::getInstances(InstanceTrackType t)
 	// the pair and returns a std::pair of (iterator, true). If the specified
 	// key DOES exist, insert() simply returns (iterator, false). One lookup
 	// handles both cases.
+	if (!sInstanceTrackerData_initialized)
+	{
+		for (S32 i = 0; i < (S32) kInstanceTrackTypeCount; i++)
+		{
+			sInstanceTrackerData[i] = NULL;
+		}
+		sInstanceTrackerData_initialized = true;
+	}
+
 	return sInstanceTrackerData[t];
 }
 
