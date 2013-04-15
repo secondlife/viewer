@@ -915,7 +915,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mCacheReadCount(0U),
 	  mCacheWriteCount(0U),
 	  mResourceWaitCount(0U),
-	  mFetchRetryPolicy(15.0,15.0,1.0,10)
+	  mFetchRetryPolicy(10.0,3600.0,2.0,10)
 {
 	mCanUseNET = mUrl.empty() ;
 	
@@ -1981,7 +1981,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		F32 retry_after;
 		if (mFetchRetryPolicy.shouldRetry(retry_after))
 		{
-			llinfos << mID << " should retry after " << retry_after << ", resetting state to LOAD_FROM_NETWORK" << llendl;
+			llinfos << mID << " will retry after " << retry_after << " seconds, resetting state to LOAD_FROM_NETWORK" << llendl;
 			mFetcher->removeFromHTTPQueue(mID, 0);
 			std::string reason(status.toString());
 			setGetStatus(status, reason);
@@ -1991,7 +1991,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		}
 		else
 		{
-			llinfos << mID << " should not retry" << llendl;
+			llinfos << mID << " will not retry" << llendl;
 		}
 	}
 	
@@ -3334,9 +3334,12 @@ void LLTextureFetchWorker::setState(e_state new_state)
 {
 	if (mFTType == FTT_SERVER_BAKE)
 	{
+	// NOTE: turning on these log statements is a reliable way to get
+	// blurry images fairly frequently. Presumably this is an
+	// indication of some subtle timing or locking issue.
+
 //		LL_INFOS("Texture") << "id: " << mID << " FTType: " << mFTType << " disc: " << mDesiredDiscard << " sz: " << mDesiredSize << " state: " << e_state_name[mState] << " => " << e_state_name[new_state] << llendl;
 	}
-//	LL_DEBUGS("Texture") << "id: " << mID << " FTType: " << mFTType << " disc: " << mDesiredDiscard << " sz: " << mDesiredSize << " state: " << e_state_name[mState] << " => " << e_state_name[new_state] << llendl;
 	mState = new_state;
 }
 
