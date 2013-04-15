@@ -7660,6 +7660,9 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 			 */
 			// We don't need to process this, but we also shouldn't warn on it, since that confuses people.
 		}
+		else if (!stricmp(eventTypeCstr, "VoiceServiceConnectionStateChangedEvent"))  
+		{	// Yet another ignored event
+		}
 		else
 		{
 			LL_WARNS("VivoxProtocolParser") << "Unknown event type " << eventTypeString << LL_ENDL;
