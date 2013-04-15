@@ -104,10 +104,6 @@ bool LLInventoryFilter::check(const LLFolderViewModelItem* item)
     {
         llinfos << "Merov : LLInventoryFilter::check : Here we go with our special NOUNOURS case, checked for string '" << mFilterSubString << "', passed = " << passed << ", name = " << listener->getSearchableName() << llendl;
     }
-    else
-    {
-        llinfos << "Merov : LLInventoryFilter::check : checked for string '" << mFilterSubString << "', passed = " << passed << ", name = " << listener->getSearchableName() << llendl;
-    }
 
 	return passed;
 }

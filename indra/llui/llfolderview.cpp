@@ -327,7 +327,13 @@ void LLFolderView::filter( LLFolderViewFilter& filter )
 	LLFastTimer t2(FTM_FILTER);
 	filter.setFilterCount(llclamp(LLUI::sSettingGroups["config"]->getS32("FilterItemsPerFrame"), 1, 5000));
 
-	getViewModelItem()->filter(filter);
+	bool filtered_items = getViewModelItem()->filter(filter);
+    //if (getViewModelItem()->descendantsPassedFilter(filter.getCurrentGeneration()))
+    if (filtered_items)
+    {
+        llinfos << "Merov : LLFolderView::filter, request arrange, new elements passed the filter" << llendl;
+        requestArrange();
+    }
 }
 
 void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -1665,9 +1671,14 @@ void LLFolderView::update()
     {
       S32 height = 0;
       S32 width = 0;
+        llinfos << "Merov : LLFolderView::update: parent = " << mParentPanel->getName() << ", is been arranged, last arrange = " << mLastArrangeGeneration << ", root arrange = " << getRoot()->getArrangeGeneration() << llendl;
       S32 total_height = arrange( &width, &height );
       notifyParent(LLSD().with("action", "size_changes").with("height", total_height));
     }
+      else
+      {
+          llinfos << "Merov : LLFolderView::update: parent = " << mParentPanel->getName() << ", doesn't need arranging, last arrange = " << mLastArrangeGeneration << ", root arrange = " << getRoot()->getArrangeGeneration() << llendl;
+      }
   }
 
 	// during filtering process, try to pin selected item's location on screen
