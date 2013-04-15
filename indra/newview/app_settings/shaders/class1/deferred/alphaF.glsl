@@ -56,6 +56,8 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_texcoord1;
+VARYING vec2 vary_texcoord2;
 VARYING vec3 vary_norm;
 VARYING mat3 vary_rotation;
 
@@ -137,7 +139,7 @@ void main()
 #endif
 	
 	vec3 normal = vary_norm;
-	normal = texture2D(bumpMap, vary_texcoord0.xy).xyz * 2 - 1;
+	normal = texture2D(bumpMap, vary_texcoord1.xy).xyz * 2 - 1;
 	normal = vec3(dot(normal.xyz, vary_rotation[0]),
 				dot(normal.xyz, vary_rotation[1]),
 				dot(normal.xyz, vary_rotation[2]));

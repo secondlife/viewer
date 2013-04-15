@@ -41,6 +41,8 @@ ATTRIBUTE vec3 normal;
 ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec2 texcoord0;
 ATTRIBUTE vec3 binormal;
+ATTRIBUTE vec2 texcoord1;
+ATTRIBUTE vec2 texcoord2;
 
 #if HAS_SKIN
 mat4 getObjectSkinnedTransform();
@@ -69,6 +71,8 @@ VARYING vec4 vertex_color;
 #endif
 
 VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_texcoord1;
+VARYING vec2 vary_texcoord2;
 
 VARYING vec3 vary_norm;
 VARYING mat3 vary_rotation;
@@ -155,7 +159,8 @@ void main()
 	pos = (modelview_matrix * vert);
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 #endif
-	
+	vary_texcoord1 = (texture_matrix0 * vec4(texcoord1,0,1)).xy;
+	vary_texcoord2 = (texture_matrix0 * vec4(texcoord2,0,1)).xy;
 #if INDEX_MODE == INDEXED
 	passTextureIndex();
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;

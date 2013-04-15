@@ -4771,7 +4771,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	{
 		bump_mask = bump_mask | LLVertexBuffer::MAP_BINORMAL;
 		simple_mask = simple_mask | LLVertexBuffer::MAP_TEXTURE_INDEX;
-		alpha_mask = alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_BINORMAL;
+		alpha_mask = alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_BINORMAL | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2;
 		fullbright_mask = fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX;
 	}
 
