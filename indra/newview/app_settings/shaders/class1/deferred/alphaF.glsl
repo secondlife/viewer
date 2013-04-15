@@ -81,12 +81,10 @@ uniform vec4 specular_color;
 
 uniform float shadow_offset;
 
-vec2 calcDirectionalLight(vec3 n, vec3 l)
+vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
-	vec3 refl = normalize(reflect(vary_position.xyz, n.xyz));
 	float a = pow(max(dot(n,l),0.0), 0.7);
-	refl.x = pow(pow(max(dot(refl, l), 0.0), specular_color.w * 128), 0.6);
-	return vec2(a, refl.x);
+	return vec3(a,a,a);
 }
 
 float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
@@ -144,8 +142,9 @@ void main()
 				dot(normal.xyz, vary_rotation[1]),
 				dot(normal.xyz, vary_rotation[2]));
 	
-	vec2 slight = calcDirectionalLight(normal, light_position[0].xyz);
-	vec3 dlight = slight.x * vary_directional.rgb * vary_pointlight_col;
+	vec3 l = light_position[0].xyz;
+	vec3 dlight = calcDirectionalLight(normal, l);
+	     dlight = dlight * vary_directional.rgb * vary_pointlight_col;
 
 	vec4 col = vec4(vary_ambient + dlight, vertex_color_alpha);
 	vec4 color = diff * col;
@@ -155,13 +154,24 @@ void main()
 	color.rgb = scaleSoftClip(color.rgb);
 	vec3 light_col = vec3(0,0,0);
 
+#ifdef MAC_GEFORCE_HACK
+  #define LIGHT_LOOP(i) \
+		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+		
+	LIGHT_LOOP(1)
+	LIGHT_LOOP(2)
+	LIGHT_LOOP(3)
+	LIGHT_LOOP(4)
+	LIGHT_LOOP(5)
+	LIGHT_LOOP(6)
+	LIGHT_LOOP(7)
+#else
 	for (int i = 2; i < 8; i++)
 	{
 		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
 	}
+#endif
 
-	vec3 n = normalize(reflect(vary_position.xyz, normal.xyz));
-	n = vec3(dot(n, light_position[0].xyz));
 	color.rgb += diff.rgb * vary_pointlight_col * light_col;
 
 	frag_color = color;

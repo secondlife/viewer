@@ -51,7 +51,7 @@
 #define MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD     "AlphaMaskCutoff"
 #define MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD    "DiffuseAlphaMode"
 
-const LLColor4U LLMaterial::DEFAULT_SPECULAR_LIGHT_COLOR = LLColor4U::white;
+const LLColor4U LLMaterial::DEFAULT_SPECULAR_LIGHT_COLOR(255,255,255,255);
 
 /**
  * Materials constants
@@ -103,8 +103,8 @@ LLMaterial::LLMaterial()
 	, mSpecularRotation(.0f)
 	, mSpecularLightColor(LLMaterial::DEFAULT_SPECULAR_LIGHT_COLOR)
 	, mSpecularLightExponent(LLMaterial::DEFAULT_SPECULAR_LIGHT_EXPONENT)
-	, mEnvironmentIntensity(0)
-	, mDiffuseAlphaMode(0)
+	, mEnvironmentIntensity(LLMaterial::DEFAULT_ENV_INTENSITY)
+	, mDiffuseAlphaMode(LLMaterial::DIFFUSE_ALPHA_MODE_BLEND)
 	, mAlphaMaskCutoff(0)
 {
 }

@@ -4362,7 +4362,7 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 		}
 	}
-
+	
 	return num_indices;
 }
 

@@ -3997,6 +3997,11 @@ bool can_batch_texture(LLFace* facep)
 		return false;
 	}
 
+	if (facep->getTextureEntry()->getMaterialParams().notNull())
+	{ //materials don't work with texture batching yet
+		return false;
+	}
+
 	if (facep->getTexture() && facep->getTexture()->getPrimaryFormat() == GL_ALPHA)
 	{ //can't batch invisiprims
 		return false;
@@ -4071,13 +4076,17 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	U8 index = facep->getTextureIndex();
 	
-	const LLMaterialID& matid = facep->getTextureEntry()->getMaterialID();
+	LLMaterial* mat = LLPipeline::sRenderDeferred ? facep->getTextureEntry()->getMaterialParams().get() : NULL; 
 
 	bool batchable = false;
 
 	if (index < 255 && idx >= 0)
 	{
-		if (index < draw_vec[idx]->mTextureList.size())
+		if (mat || draw_vec[idx]->mMaterial)
+		{ //can't batch textures when materials are present (yet)
+			batchable = false;
+		}
+		else if (index < draw_vec[idx]->mTextureList.size())
 		{
 			if (draw_vec[idx]->mTextureList[index].isNull())
 			{
@@ -4116,13 +4125,13 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec[idx]->mBump == bump &&
 		draw_vec[idx]->mTextureMatrix == tex_mat &&
 		draw_vec[idx]->mModelMatrix == model_mat &&
-		draw_vec[idx]->mMaterialID == matid)
+		draw_vec[idx]->mMaterial == mat)
 	{
 		draw_vec[idx]->mCount += facep->getIndicesCount();
 		draw_vec[idx]->mEnd += facep->getGeomCount();
 		draw_vec[idx]->mVSize = llmax(draw_vec[idx]->mVSize, facep->getVirtualSize());
 
-		if (index >= draw_vec[idx]->mTextureList.size())
+		if (index < 255 && index >= draw_vec[idx]->mTextureList.size())
 		{
 			draw_vec[idx]->mTextureList.resize(index+1);
 			draw_vec[idx]->mTextureList[index] = tex;
@@ -4144,22 +4153,22 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec.push_back(draw_info);
 		draw_info->mTextureMatrix = tex_mat;
 		draw_info->mModelMatrix = model_mat;
-		if (facep->getTextureEntry()->getMaterialParams().notNull())
-			{
+		if (mat)
+		{
 				// We have a material.  Update our draw info accordingly.
-				draw_info->mMaterialID = matid;
+				draw_info->mMaterial = mat;
 				LLVector4 specColor;
-				specColor.mV[0] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[0] * (1.f / 255.f);
-				specColor.mV[1] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[1] * (1.f / 255.f);
-				specColor.mV[2] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightColor().mV[2] * (1.f / 255.f);
-				specColor.mV[3] = facep->getTextureEntry()->getMaterialParams()->getSpecularLightExponent() * (1.f / 255.f);
+				specColor.mV[0] = mat->getSpecularLightColor().mV[0] * (1.f / 255.f);
+				specColor.mV[1] = mat->getSpecularLightColor().mV[1] * (1.f / 255.f);
+				specColor.mV[2] = mat->getSpecularLightColor().mV[2] * (1.f / 255.f);
+				specColor.mV[3] = mat->getSpecularLightExponent() * (1.f / 255.f);
 				draw_info->mSpecColor = specColor;
-				draw_info->mEnvIntensity = facep->getTextureEntry()->getMaterialParams()->getEnvironmentIntensity() * (1.f / 255.f);
-				draw_info->mAlphaMaskCutoff = facep->getTextureEntry()->getMaterialParams()->getAlphaMaskCutoff() * (1.f / 255.f);
-				draw_info->mDiffuseAlphaMode = facep->getTextureEntry()->getMaterialParams()->getDiffuseAlphaMode();
+				draw_info->mEnvIntensity = mat->getEnvironmentIntensity() * (1.f / 255.f);
+				draw_info->mAlphaMaskCutoff = mat->getAlphaMaskCutoff() * (1.f / 255.f);
+				draw_info->mDiffuseAlphaMode = mat->getDiffuseAlphaMode();
 				draw_info->mNormalMap = facep->getViewerObject()->getTENormalMap(facep->getTEOffset());
 				draw_info->mSpecularMap = facep->getViewerObject()->getTESpecularMap(facep->getTEOffset());
-			}
+		}
 		else 
 		{
 			U8 shiny = facep->getTextureEntry()->getShiny();
@@ -4476,7 +4485,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_GLOW);
 						}
 
-						LLMaterial* mat = te->getMaterialParams().get();
+						LLMaterial* mat = LLPipeline::sRenderDeferred ? te->getMaterialParams().get() : NULL;
 
 						if (mat)
 						{
@@ -4933,13 +4942,13 @@ struct CompareBatchBreakerModified
 		{
 			return lte->getFullbright() < rte->getFullbright();
 		}
-		else if (lhs->getTexture() != rhs->getTexture())
+		else if (LLPipeline::sRenderDeferred && lte->getMaterialParams() != rte->getMaterialParams())
 		{
-			return lhs->getTexture() < rhs->getTexture();
+			return lte->getMaterialParams() < rte->getMaterialParams();
 		}
 		else
 		{
-			return lte->getMaterialParams() < rte->getMaterialParams();
+			return lhs->getTexture() < rhs->getTexture();
 		}
 	}
 };
@@ -5070,6 +5079,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 						if (!can_batch_texture(facep))
 						{ //face is bump mapped or has an animated texture matrix -- can't 
 							//batch more than 1 texture at a time
+							facep->setTextureIndex(0);
 							break;
 						}
 
@@ -5119,6 +5129,10 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 						facep->setTextureIndex(cur_tex);
 					}
+				}
+				else
+				{
+					facep->setTextureIndex(0);
 				}
 
 				tex = texture_list[0];
@@ -5215,8 +5229,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 			index_offset += facep->getGeomCount();
 			indices_index += facep->getIndicesCount();
-
-
+			
 			//append face to appropriate render batch
 
 			BOOL force_simple = facep->getPixelArea() < FORCE_SIMPLE_RENDER_AREA;

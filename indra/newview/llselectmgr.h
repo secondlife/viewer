@@ -123,6 +123,8 @@ typedef enum e_selection_type
 	SELECT_TYPE_HUD
 }ESelectType;
 
+const S32 TE_SELECT_MASK_ALL = 0xFFFFFFFF;
+
 // Contains information about a selected object, particularly which TEs are selected.
 class LLSelectNode
 {

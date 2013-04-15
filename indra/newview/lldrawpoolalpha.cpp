@@ -253,6 +253,10 @@ void LLDrawPoolAlpha::render(S32 pass)
 				simple_shader->setMinimumAlpha(0.33f);
 
 				pushMaskBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+				pushMaskBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+				pushMaskBatches(LLRenderPass::PASS_SPECMAP_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+				pushMaskBatches(LLRenderPass::PASS_NORMMAP_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+				pushMaskBatches(LLRenderPass::PASS_NORMSPEC_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 			}
 			if (fullbright_shader)
 			{
@@ -483,7 +487,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 					current_shader = NULL;
 				}
 				
-				if (params.mMaterialID != LLMaterialID::null && current_shader == simple_shader)
+				if (params.mMaterial.notNull() && current_shader == simple_shader)
 				{
 					// I apologize in advance for not giving this its own shader.
 					// We have a material.  Supply the appropriate data here.
