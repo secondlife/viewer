@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -352,6 +352,7 @@ private:
 	// LLCurl interfaces used in the past.
 	LLCore::HttpRequest *				mHttpRequest;					// Ttf
 	LLCore::HttpOptions *				mHttpOptions;					// Ttf
+	LLCore::HttpOptions *				mHttpOptionsWithHeaders;		// Ttf
 	LLCore::HttpHeaders *				mHttpHeaders;					// Ttf
 	LLCore::HttpHeaders *				mHttpMetricsHeaders;			// Ttf
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;				// T*

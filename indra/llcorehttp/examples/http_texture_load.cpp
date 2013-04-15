@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -328,7 +328,7 @@ WorkingSet::WorkingSet()
 	mTextures.reserve(30000);
 
 	mHeaders = new LLCore::HttpHeaders;
-	mHeaders->mHeaders.push_back("Accept: image/x-j2c");
+	mHeaders->append("Accept", "image/x-j2c");
 }
 
 

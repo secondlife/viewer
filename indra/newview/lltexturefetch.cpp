@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -2480,6 +2480,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mQAMode(qa_mode),
 	  mHttpRequest(NULL),
 	  mHttpOptions(NULL),
+	  mHttpOptionsWithHeaders(NULL),
 	  mHttpHeaders(NULL),
 	  mHttpMetricsHeaders(NULL),
 	  mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
@@ -2510,11 +2511,13 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	
 	mHttpRequest = new LLCore::HttpRequest;
 	mHttpOptions = new LLCore::HttpOptions;
+	mHttpOptionsWithHeaders = new LLCore::HttpOptions;
+	mHttpOptionsWithHeaders->setWantHeaders(true);
 	mHttpHeaders = new LLCore::HttpHeaders;
 	// *TODO: Should this be 'image/j2c' instead of 'image/x-j2c' ?
-	mHttpHeaders->mHeaders.push_back(HTTP_OUT_HEADER_ACCEPT + ": " + HTTP_CONTENT_IMAGE_X_J2C);
+	mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_IMAGE_X_J2C);
 	mHttpMetricsHeaders = new LLCore::HttpHeaders;
-	mHttpMetricsHeaders->mHeaders.push_back(HTTP_OUT_HEADER_CONTENT_TYPE + ": " + HTTP_CONTENT_LLSD_XML);
+	mHttpMetricsHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
 	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicyDefault();
 }
 
@@ -2533,6 +2536,12 @@ LLTextureFetch::~LLTextureFetch()
 	{
 		mHttpOptions->release();
 		mHttpOptions = NULL;
+	}
+
+	if (mHttpOptionsWithHeaders)
+	{
+		mHttpOptionsWithHeaders->release();
+		mHttpOptionsWithHeaders = NULL;
 	}
 
 	if (mHttpHeaders)
@@ -4143,7 +4152,7 @@ void LLTextureFetchDebugger::init()
 	{
 		mHttpHeaders = new LLCore::HttpHeaders;
 		// *TODO: Should this be 'image/j2c' instead of 'image/x-j2c' ?
-		mHttpHeaders->mHeaders.push_back(HTTP_OUT_HEADER_ACCEPT + ": " + HTTP_CONTENT_IMAGE_X_J2C);
+		mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_IMAGE_X_J2C);
 	}
 }
 

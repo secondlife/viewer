@@ -47,24 +47,13 @@ bool LLAdaptiveRetryPolicy::getRetryAfter(const LLSD& headers, F32& retry_header
 
 bool LLAdaptiveRetryPolicy::getRetryAfter(const LLCore::HttpHeaders *headers, F32& retry_header_time)
 {
-	// Look for matching header. Hopefully it's correct enough to let
-	// us extract the field we are looking for. Does not purport to be
-	// in any way a viable general HTTP header parser.
 	if (headers)
 	{
-		for (std::vector<std::string>::const_iterator it = headers->mHeaders.begin();
-			 it != headers->mHeaders.end();
-			 ++it)
+		const std::string *retry_value = headers->find(HTTP_IN_HEADER_RETRY_AFTER.c_str()); 
+		if (retry_value && 
+			getSecondsUntilRetryAfter(*retry_value, retry_header_time))
 		{
-			const std::string& str = *it;
-			const std::string match = HTTP_IN_HEADER_RETRY_AFTER + ":";
-			size_t pos = str.find(match);
-			if ((pos != std::string::npos) &&
-				(pos+match.length() <= str.length()))
-			{
-				retry_header_time = strtod(str.substr(pos+match.length()).c_str(), NULL);
-				return true;
-			}
+			return true;
 		}
 	}
 	return false;
@@ -77,7 +66,6 @@ void LLAdaptiveRetryPolicy::onFailure(S32 status, const LLSD& headers)
 	onFailureCommon(status, has_retry_header_time, retry_header_time);
 }
   
-// TODO: replace this parsing junk once CoreHttp has its own header parsing capabilities.
 void LLAdaptiveRetryPolicy::onFailure(const LLCore::HttpResponse *response)
 {
 	F32 retry_header_time;

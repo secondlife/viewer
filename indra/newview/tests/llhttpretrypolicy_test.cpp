@@ -256,7 +256,7 @@ void RetryPolicyTestObject::test<7>()
 		LLCore::HttpHeaders *headers = new LLCore::HttpHeaders();
 		response->setStatus(503);
 		response->setHeaders(headers);
-		headers->mHeaders.push_back(HTTP_IN_HEADER_RETRY_AFTER + ": 600");
+		headers->append(HTTP_IN_HEADER_RETRY_AFTER, std::string("600"));
 		policy.onFailure(response);
 		should_retry = policy.shouldRetry(seconds_to_wait);
 		ensure("header 3",should_retry);
@@ -272,7 +272,7 @@ void RetryPolicyTestObject::test<7>()
 		response->setHeaders(headers);
 		LLSD sd_headers;
 		time(&nowseconds);
-		headers->mHeaders.push_back(HTTP_IN_HEADER_RETRY_AFTER + ": " + LLDate((F64)nowseconds).asRFC1123());
+		headers->append(HTTP_IN_HEADER_RETRY_AFTER,LLDate((F64)nowseconds).asRFC1123());
 		policy.onFailure(response);
 		should_retry = policy.shouldRetry(seconds_to_wait);
 		ensure("header 4",should_retry);
