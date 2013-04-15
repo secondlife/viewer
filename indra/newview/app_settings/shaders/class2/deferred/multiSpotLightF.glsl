@@ -213,9 +213,7 @@ void main()
 		
 			vec3 lcol = color.rgb * plcol.rgb * plcol.a;
 			
-			lit = da * dist_atten * noise;
-			
-			lit = pow(lit, 0.7);
+			lit = pow(da,0.7) * dist_atten * noise;
 
 			col = lcol*lit*diff_tex*shadow;
 			amb_da += (da*0.5)*(1.0-shadow)*proj_ambiance;

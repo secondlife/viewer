@@ -67,14 +67,29 @@ public:
 		SG_WATER
 	};
 	
+	static std::set<LLGLSLShader*> sInstances;
+	static bool sProfileEnabled;
+
 	LLGLSLShader();
+	~LLGLSLShader();
 
 	static GLhandleARB sCurBoundShader;
 	static LLGLSLShader* sCurBoundShaderPtr;
 	static S32 sIndexedTextureChannels;
 	static bool sNoFixedFunction;
 
+	static void initProfile();
+	static void finishProfile();
+
+	static void startProfile();
+	static void stopProfile(U32 count, U32 mode);
+
 	void unload();
+	void clearStats();
+	void dumpStats();
+	void placeProfileQuery();
+	void readProfileQuery(U32 count, U32 mode);
+
 	BOOL createShader(std::vector<std::string> * attributes,
 						std::vector<std::string> * uniforms,
 						U32 varying_count = 0,
@@ -157,6 +172,7 @@ public:
 	std::map<std::string, GLint> mUniformMap;  //lookup map of uniform name to uniform location
 	std::map<GLint, LLVector4> mValue; //lookup map of uniform location to last known value
 	std::vector<GLint> mTexture;
+	S32 mTotalUniformSize;
 	S32 mActiveTextureChannels;
 	S32 mShaderLevel;
 	S32 mShaderGroup;
@@ -165,6 +181,17 @@ public:
 	std::vector< std::pair< std::string, GLenum > > mShaderFiles;
 	std::string mName;
 	boost::unordered_map<std::string, std::string> mDefines;
+
+	//statistcis for profiling shader performance
+	U32 mTimerQuery;
+	U64 mTimeElapsed;
+	static U64 sTotalTimeElapsed;
+	U32 mTrianglesDrawn;
+	static U32 sTotalTrianglesDrawn;
+	U64 mSamplesDrawn;
+	static U64 sTotalSamplesDrawn;
+	U32 mDrawCalls;
+	static U32 sTotalDrawCalls;
 };
 
 //UI shader (declared here so llui_libtest will link properly)
