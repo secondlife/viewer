@@ -57,6 +57,7 @@ VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
+VARYING mat3 vary_rotation;
 
 #if INDEX_MODE != NON_INDEXED_NO_COLOR
 VARYING vec4 vertex_color;
@@ -73,6 +74,12 @@ uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
+
+uniform sampler2D bumpMap;
+uniform samplerCube environmentMap;
+uniform mat3 env_mat;
+
+uniform vec4 specular_color;
 
 float calcDirectionalLight(vec3 n, vec3 l)
 {
@@ -199,7 +206,7 @@ void main()
 	{
 		shadow = 1.0;
 	}
-	vec3 dlight = calcDirectionalLight(vary_norm, light_position[0].xyz) * vary_directional.rgb * vary_pointlight_col;
+	
 
 #if INDEX_MODE == INDEXED
 	vec4 diff = diffuseLookup(vary_texcoord0.xy);
@@ -213,6 +220,14 @@ void main()
 	float vertex_color_alpha = vertex_color.a;
 #endif
 
+	vec3 normal = vary_norm;
+	normal = texture2D(bumpMap, vary_texcoord0.xy).xyz * 2 - 1;
+	normal = vec3(dot(normal.xyz, vary_rotation[0]),
+				dot(normal.xyz, vary_rotation[1]),
+				dot(normal.xyz, vary_rotation[2]));
+
+	vec3 dlight = calcDirectionalLight(normal, light_position[0].xyz) * vary_directional.rgb * vary_pointlight_col;
+
 	vec4 col = vec4(vary_ambient + dlight *shadow, vertex_color_alpha);
 	vec4 color = diff * col;
 	
@@ -223,8 +238,9 @@ void main()
 
 	for (int i = 2; i < 8; i++)
 	{
-		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, vary_norm, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
 	}
+
 	
 	color.rgb += diff.rgb * vary_pointlight_col * light_col;
 

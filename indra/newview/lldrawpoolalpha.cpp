@@ -499,7 +499,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 							current_shader->bindTexture(LLShaderMgr::BUMP_MAP, params.mNormalMap);
 						} else {
 							LLViewerFetchedTexture::sFlatNormalImagep->addTextureStats(params.mVSize);
-							current_shader->bindTexture(LLShaderMgr::BUMP_MAP, params.mNormalMap);
+							current_shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
 						}
 						
 						if (params.mSpecularMap)
@@ -521,7 +521,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 						current_shader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, 0.0f);
 						
 						LLViewerFetchedTexture::sFlatNormalImagep->addTextureStats(params.mVSize);
-						current_shader->bindTexture(LLShaderMgr::BUMP_MAP, params.mNormalMap);
+						current_shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
 						
 						LLViewerFetchedTexture::sWhiteImagep->addTextureStats(params.mVSize);
 						current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);

@@ -55,14 +55,14 @@ VARYING vec3 vary_directional;
 VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
+VARYING vec2 vary_texcoord0;
+VARYING vec3 vary_norm;
+VARYING mat3 vary_rotation;
 
 #if INDEX_MODE != NON_INDEXED_NO_COLOR
 VARYING vec4 vertex_color;
 #endif
 
-VARYING vec2 vary_texcoord0;
-
-VARYING vec3 vary_norm;
 uniform mat4 inv_proj;
 
 uniform vec4 light_position[8];
@@ -70,13 +70,21 @@ uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
+uniform sampler2D bumpMap;
+uniform samplerCube environmentMap;
+uniform mat3 env_mat;
+
+uniform vec4 specular_color;
+
 
 uniform float shadow_offset;
 
-float calcDirectionalLight(vec3 n, vec3 l)
+vec2 calcDirectionalLight(vec3 n, vec3 l)
 {
-        float a = pow(max(dot(n,l),0.0), 0.7);
-        return a;
+	vec3 refl = normalize(reflect(vary_position.xyz, n.xyz));
+	float a = pow(max(dot(n,l),0.0), 0.7);
+	refl.x = pow(pow(max(dot(refl, l), 0.0), specular_color.w * 128), 0.6);
+	return vec2(a, refl.x);
 }
 
 float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
@@ -127,8 +135,15 @@ void main()
 #else
 	float vertex_color_alpha = vertex_color.a;
 #endif
-
-	vec3 dlight = calcDirectionalLight(vary_norm, light_position[0].xyz) * vary_directional.rgb * vary_pointlight_col;
+	
+	vec3 normal = vary_norm;
+	normal = texture2D(bumpMap, vary_texcoord0.xy).xyz * 2 - 1;
+	normal = vec3(dot(normal.xyz, vary_rotation[0]),
+				dot(normal.xyz, vary_rotation[1]),
+				dot(normal.xyz, vary_rotation[2]));
+	
+	vec2 slight = calcDirectionalLight(normal, light_position[0].xyz);
+	vec3 dlight = slight.x * vary_directional.rgb * vary_pointlight_col;
 
 	vec4 col = vec4(vary_ambient + dlight, vertex_color_alpha);
 	vec4 color = diff * col;
@@ -140,9 +155,11 @@ void main()
 
 	for (int i = 2; i < 8; i++)
 	{
-		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, vary_norm, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
 	}
-	
+
+	vec3 n = normalize(reflect(vary_position.xyz, normal.xyz));
+	n = vec3(dot(n, light_position[0].xyz));
 	color.rgb += diff.rgb * vary_pointlight_col * light_col;
 
 	frag_color = color;
