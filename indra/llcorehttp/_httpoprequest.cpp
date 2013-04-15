@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -610,7 +610,8 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 
 	const size_t hdr_size(size * nmemb);
 	const char * hdr_data(static_cast<const char *>(data));		// Not null terminated
-
+	bool is_header(true);
+	
 	if (hdr_size >= status_line_len && ! strncmp(status_line, hdr_data, status_line_len))
 	{
 		// One of possibly several status lines.  Reset what we know and start over
@@ -621,8 +622,9 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 		op->mStatus = HttpStatus();
 		if (op->mReplyHeaders)
 		{
-			op->mReplyHeaders->mHeaders.clear();
+			op->mReplyHeaders->clear();
 		}
+		is_header = false;
 	}
 
 	// Nothing in here wants a final CR/LF combination.  Remove
@@ -637,18 +639,18 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 	}
 	
 	// Save header if caller wants them in the response
-	if (op->mProcFlags & PF_SAVE_HEADERS)
+	if (is_header && op->mProcFlags & PF_SAVE_HEADERS)
 	{
 		// Save headers in response
 		if (! op->mReplyHeaders)
 		{
 			op->mReplyHeaders = new HttpHeaders;
 		}
-		op->mReplyHeaders->mHeaders.push_back(std::string(hdr_data, wanted_hdr_size));
+		op->mReplyHeaders->appendNormal(hdr_data, wanted_hdr_size);
 	}
 
 	// Detect and parse 'Content-Range' headers
-	if (op->mProcFlags & PF_SCAN_RANGE_HEADER)
+	if (is_header && op->mProcFlags & PF_SCAN_RANGE_HEADER)
 	{
 		char hdr_buffer[128];			// Enough for a reasonable header
 		size_t frag_size((std::min)(wanted_hdr_size, sizeof(hdr_buffer) - 1));
