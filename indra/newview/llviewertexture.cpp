@@ -962,8 +962,6 @@ void LLViewerFetchedTexture::init(bool firstinit)
 	// does not contain this image.
 	mIsMissingAsset = FALSE;
 
-	mFetchFailureCount = 0;
-
 	mLoadedCallbackDesiredDiscardLevel = S8_MAX;
 	mPauseLoadedCallBacks = FALSE ;
 
@@ -1826,35 +1824,17 @@ bool LLViewerFetchedTexture::updateFetch()
 				// We finished but received no data
 				if (current_discard < 0)
 				{
-					const S32 MAX_FETCH_FAILURE = 1;
-					mFetchFailureCount++;
 					if (getFTType() != FTT_MAP_TILE)
 					{
-						llwarns << "Fetch failure for " << mID << " failure count " << mFetchFailureCount
-								<< " status " << mLastHttpGetStatus.toHex() << llendl;
+						llwarns << mID
+								<< " Fetch failure, setting as missing, decode_priority " << decode_priority
+								<< " mRawDiscardLevel " << mRawDiscardLevel
+								<< " current_discard " << current_discard
+								<< " stats " << mLastHttpGetStatus.toHex()
+								<< llendl;
 					}
-					// Will retry server-bake textures under a limited set of circumstances.
-					if (getFTType() == FTT_SERVER_BAKE && 
-						mLastHttpGetStatus.isHttpStatus() && 
-						mLastHttpGetStatus.mType >= 500 && 
-						mLastHttpGetStatus.mType <= 599 && // Only retry 5xx failures.
-						mFetchFailureCount < MAX_FETCH_FAILURE)
-					{
-						llwarns << "Will retry fetch" << llendl;
-					}
-					else // Otherwise, assume the image is missing.
-					{
-						if (getFTType() != FTT_MAP_TILE)
-						{
-							llwarns << "!mIsFetching, setting as missing, decode_priority " << decode_priority
-									<< " mRawDiscardLevel " << mRawDiscardLevel
-									<< " current_discard " << current_discard
-									<< " stats " << mLastHttpGetStatus.toHex()
-									<< llendl;
-						}
-						setIsMissingAsset();
-						desired_discard = -1;
-					}
+					setIsMissingAsset();
+					desired_discard = -1;
 				}
 				else
 				{
@@ -1968,14 +1948,8 @@ bool LLViewerFetchedTexture::updateFetch()
 		
 		// bypass texturefetch directly by pulling from LLTextureCache
 		bool fetch_request_created = false;
-		bool fake_failure = false;
-		const bool debug_setting_fake_failures = gSavedSettings.getBOOL("TextureFetchFakeFailures");
-		if (getFTType() == FTT_SERVER_BAKE && mFetchFailureCount == 0 && debug_setting_fake_failures)
-		{
-			fake_failure = true;
-		}
 		fetch_request_created = LLAppViewer::getTextureFetch()->createRequest(mFTType, mUrl, getID(), getTargetHost(), decode_priority,
-																			  w, h, c, desired_discard, needsAux(), mCanUseHTTP, fake_failure);
+																			  w, h, c, desired_discard, needsAux(), mCanUseHTTP);
 		
 		if (fetch_request_created)
 		{
@@ -2072,7 +2046,6 @@ void LLViewerFetchedTexture::setIsMissingAsset(BOOL is_missing)
 	else
 	{
 		llinfos << mID << ": un-flagging missing asset" << llendl;
-		mFetchFailureCount = 0;
 	}
 	mIsMissingAsset = is_missing;
 }

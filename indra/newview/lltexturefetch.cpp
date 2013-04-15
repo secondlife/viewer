@@ -410,13 +410,11 @@ public:
 	// Inherited from LLCore::HttpHandler
 	// Threads:  Ttf
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
-	
-	void setFakeFailure(bool fake_failure) { mFakeFailure = fake_failure; }
 
 protected:
 	LLTextureFetchWorker(LLTextureFetch* fetcher, FTType f_type,
 						 const std::string& url, const LLUUID& id, const LLHost& host,
-						 F32 priority, S32 discard, S32 size, bool fake_failure);
+						 F32 priority, S32 discard, S32 size);
 
 private:
 
@@ -572,7 +570,6 @@ private:
 	S32 mActiveCount;
 	LLCore::HttpStatus mGetStatus;
 	std::string mGetReason;
-	bool mFakeFailure;
 	LLAdaptiveRetryPolicy mFetchRetryPolicy;
 
 	
@@ -864,8 +861,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 										   const LLHost& host,	// Simulator host
 										   F32 priority,		// Priority
 										   S32 discard,			// Desired discard
-										   S32 size,			// Desired size
-										   bool fake_failure)   // For testing, simulate http failure if true.
+										   S32 size)			// Desired size
 	: LLWorkerClass(fetcher, "TextureFetch"),
 	  LLCore::HttpHandler(),
 	  mState(INIT),
@@ -919,7 +915,6 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mCacheReadCount(0U),
 	  mCacheWriteCount(0U),
 	  mResourceWaitCount(0U),
-	  mFakeFailure(fake_failure),
 	  mFetchRetryPolicy(15.0,15.0,1.0,10)
 {
 	mCanUseNET = mUrl.empty() ;
@@ -1179,6 +1174,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		mDesiredSize = llmax(mDesiredSize, TEXTURE_CACHE_ENTRY_SIZE); // min desired size is TEXTURE_CACHE_ENTRY_SIZE
 		LL_DEBUGS("Texture") << mID << ": Priority: " << llformat("%8.0f",mImagePriority)
 							 << " Desired Discard: " << mDesiredDiscard << " Desired Size: " << mDesiredSize << LL_ENDL;
+
 		// fall through
 	}
 
@@ -1315,6 +1311,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				return false;
 			}
 		}
+
 		static LLCachedControl<bool> use_http(gSavedSettings,"ImagePipelineUseHTTP");
 
 // 		if (mHost != LLHost::invalid) get_url = false;
@@ -1965,11 +1962,14 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		mFetcher->mTextureInfo.setRequestCompleteTimeAndLog(mID, timeNow);
 	}
 
-	if (mFakeFailure)
+	static LLCachedControl<F32> fake_failure_rate(gSavedSettings, "TextureFetchFakeFailureRate");
+	F32 rand_val = ll_frand();
+	F32 rate = fake_failure_rate;
+	if (mFTType == FTT_SERVER_BAKE && (fake_failure_rate > 0.0) && (rand_val < fake_failure_rate))
 	{
-		llwarns << mID << " for debugging, setting fake failure status for texture " << mID << llendl;
-		response->setStatus(LLCore::HttpStatus(500));
-		setFakeFailure(false);
+		llwarns << mID << " for debugging, setting fake failure status for texture " << mID
+				<< " (rand was " << rand_val << "/" << rate << ")" << llendl;
+		response->setStatus(LLCore::HttpStatus(503));
 	}
 	bool success = true;
 	bool partial = false;
@@ -1981,12 +1981,12 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		F32 retry_after;
 		if (mFetchRetryPolicy.shouldRetry(retry_after))
 		{
-			llinfos << mID << " should retry after " << retry_after << ", resetting state to INIT" << llendl;
+			llinfos << mID << " should retry after " << retry_after << ", resetting state to LOAD_FROM_NETWORK" << llendl;
 			mFetcher->removeFromHTTPQueue(mID, 0);
 			std::string reason(status.toString());
 			setGetStatus(status, reason);
 			releaseHttpSemaphore();
-			setState(INIT);
+			setState(LOAD_FROM_NETWORK);
 			return;
 		}
 		else
@@ -2559,7 +2559,7 @@ LLTextureFetch::~LLTextureFetch()
 }
 
 bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const LLUUID& id, const LLHost& host, F32 priority,
-								   S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux, bool can_use_http, bool fake_failure)
+								   S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux, bool can_use_http)
 {
 	if(mFetcherLocked)
 	{
@@ -2633,7 +2633,6 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 		worker->setDesiredDiscard(desired_discard, desired_size);
 		worker->setCanUseHTTP(can_use_http);
 		worker->setUrl(url);
-		worker->setFakeFailure(fake_failure);
 		if (!worker->haveWork())
 		{
 			worker->setState(LLTextureFetchWorker::INIT);
@@ -2648,7 +2647,7 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 	}
 	else
 	{
-		worker = new LLTextureFetchWorker(this, f_type, url, id, host, priority, desired_discard, desired_size, fake_failure);
+		worker = new LLTextureFetchWorker(this, f_type, url, id, host, priority, desired_discard, desired_size);
 		lockQueue();													// +Mfq
 		mRequestMap[id] = worker;
 		unlockQueue();													// -Mfq
@@ -3333,7 +3332,11 @@ bool LLTextureFetchWorker::insertPacket(S32 index, U8* data, S32 size)
 
 void LLTextureFetchWorker::setState(e_state new_state)
 {
-	LL_DEBUGS("Texture") << "id: " << mID << " FTType: " << mFTType << " disc: " << mDesiredDiscard << " sz: " << mDesiredSize << " state: " << e_state_name[mState] << " => " << e_state_name[new_state] << llendl;
+	if (mFTType == FTT_SERVER_BAKE)
+	{
+//		LL_INFOS("Texture") << "id: " << mID << " FTType: " << mFTType << " disc: " << mDesiredDiscard << " sz: " << mDesiredSize << " state: " << e_state_name[mState] << " => " << e_state_name[new_state] << llendl;
+	}
+//	LL_DEBUGS("Texture") << "id: " << mID << " FTType: " << mFTType << " disc: " << mDesiredDiscard << " sz: " << mDesiredSize << " state: " << e_state_name[mState] << " => " << e_state_name[new_state] << llendl;
 	mState = new_state;
 }
 
