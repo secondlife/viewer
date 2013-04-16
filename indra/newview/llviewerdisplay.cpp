@@ -98,6 +98,7 @@ BOOL gDepthDirty = FALSE;
 BOOL gResizeScreenTexture = FALSE;
 BOOL gWindowResized = FALSE;
 BOOL gSnapshot = FALSE;
+BOOL gShaderProfileFrame = FALSE;
 
 U32 gRecentFrameCount = 0; // number of 'recent' frames
 LLFrameTimer gRecentFPSTime;
@@ -338,6 +339,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Startup");
 		display_startup();
 		return;
+	}
+
+
+	if (gShaderProfileFrame)
+	{
+		LLGLSLShader::initProfile();
 	}
 
 	//LLGLState::verify(FALSE);
@@ -1018,6 +1025,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	LLAppViewer::instance()->pingMainloopTimeout("Display:Done");
 
 	gShiftFrame = false;
+
+	if (gShaderProfileFrame)
+	{
+		gShaderProfileFrame = FALSE;
+		LLGLSLShader::finishProfile();
+	}
 }
 
 void render_hud_attachments()

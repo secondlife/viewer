@@ -127,9 +127,9 @@ void main()
 			
 			dist_atten *= noise;
 
-			float lit = da * dist_atten;
+			float lit = pow(da, 0.7) * dist_atten;
 
-			lit = pow(lit,0.7);
+			
 						
 			vec3 col = light_col[i].rgb*lit*diff;
 			

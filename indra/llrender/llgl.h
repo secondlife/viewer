@@ -98,6 +98,7 @@ public:
 	BOOL mHasFragmentShader;
 	S32  mNumTextureImageUnits;
 	BOOL mHasOcclusionQuery;
+	BOOL mHasTimerQuery;
 	BOOL mHasOcclusionQuery2;
 	BOOL mHasPointParameters;
 	BOOL mHasDrawBuffers;
