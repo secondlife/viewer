@@ -613,8 +613,9 @@ void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos, con
 		glVertexPointer(3, GL_FLOAT, 0, pos[0].mV);
 		glNormalPointer(GL_FLOAT, 0, norm[0].mV);
 	}
-
+	LLGLSLShader::startProfile();
 	glDrawArrays(sGLMode[mode], 0, count);
+	LLGLSLShader::stopProfile(count, mode);
 }
 
 //static
@@ -651,7 +652,9 @@ void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVecto
 		glVertexPointer(3, GL_FLOAT, 16, pos);
 	}
 
+	LLGLSLShader::startProfile();
 	glDrawElements(sGLMode[mode], num_indices, GL_UNSIGNED_SHORT, indicesp);
+	LLGLSLShader::stopProfile(num_indices, mode);
 }
 
 void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_offset) const
@@ -751,9 +754,14 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 	U16* idx = ((U16*) getIndicesPointer())+indices_offset;
 
 	stop_glerror();
+	LLGLSLShader::startProfile();
 	glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT, 
 		idx);
+	LLGLSLShader::stopProfile(count, mode);
 	stop_glerror();
+
+	
+
 	placeFence();
 }
 
@@ -797,8 +805,10 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 	}
 
 	stop_glerror();
+	LLGLSLShader::startProfile();
 	glDrawElements(sGLMode[mode], count, GL_UNSIGNED_SHORT,
 		((U16*) getIndicesPointer()) + indices_offset);
+	LLGLSLShader::stopProfile(count, mode);
 	stop_glerror();
 	placeFence();
 }
@@ -838,7 +848,9 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 	}
 
 	stop_glerror();
+	LLGLSLShader::startProfile();
 	glDrawArrays(sGLMode[mode], first, count);
+	LLGLSLShader::stopProfile(count, mode);
 	stop_glerror();
 	placeFence();
 }
