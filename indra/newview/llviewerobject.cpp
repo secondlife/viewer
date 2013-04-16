@@ -3266,14 +3266,14 @@ void LLViewerObject::boostTexturePriority(BOOL boost_children /* = TRUE */)
 	S32 tex_count = getNumTEs();
 	for (i = 0; i < tex_count; i++)
 	{
- 		getTEImage(i)->setBoostLevel(LLViewerTexture::BOOST_SELECTED);
+ 		getTEImage(i)->setBoostLevel(LLGLTexture::BOOST_SELECTED);
 	}
 
 	if (isSculpted() && !isMesh())
 	{
 		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 		LLUUID sculpt_id = sculpt_params->getSculptTexture();
-		LLViewerTextureManager::getFetchedTexture(sculpt_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE)->setBoostLevel(LLViewerTexture::BOOST_SELECTED);
+		LLViewerTextureManager::getFetchedTexture(sculpt_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE)->setBoostLevel(LLGLTexture::BOOST_SELECTED);
 	}
 	
 	if (boost_children)
@@ -4016,7 +4016,7 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry &texture_entry)
 //	if (mDrawable.notNull() && mDrawable->isVisible())
 //	{
 		const LLUUID& image_id = getTE(te)->getID();
-		mTEImages[te] = LLViewerTextureManager::getFetchedTexture(image_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+		mTEImages[te] = LLViewerTextureManager::getFetchedTexture(image_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 //	}
 }
 
@@ -4034,15 +4034,15 @@ void LLViewerObject::setTEImage(const U8 te, LLViewerTexture *imagep)
 	}
 }
 
-
-S32 LLViewerObject::setTETextureCore(const U8 te, const LLUUID& uuid, LLHost host)
+S32 LLViewerObject::setTETextureCore(const U8 te, LLViewerTexture *image)
 {
+	const LLUUID& uuid = image->getID();
 	S32 retval = 0;
 	if (uuid != getTE(te)->getID() ||
 		uuid == LLUUID::null)
 	{
 		retval = LLPrimitive::setTETexture(te, uuid);
-		mTEImages[te] = LLViewerTextureManager::getFetchedTexture(uuid, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host);
+		mTEImages[te] = image;
 		setChanged(TEXTURE);
 		if (mDrawable.notNull())
 		{
@@ -4065,7 +4065,9 @@ void LLViewerObject::changeTEImage(S32 index, LLViewerTexture* new_image)
 S32 LLViewerObject::setTETexture(const U8 te, const LLUUID& uuid)
 {
 	// Invalid host == get from the agent's sim
-	return setTETextureCore(te, uuid, LLHost::invalid);
+	LLViewerFetchedTexture *image = LLViewerTextureManager::getFetchedTexture(
+		uuid, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, LLHost::invalid);
+	return setTETextureCore(te,image);
 }
 
 

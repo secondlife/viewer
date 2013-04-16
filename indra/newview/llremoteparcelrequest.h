@@ -44,7 +44,7 @@ public:
 	/*virtual*/ void result(const LLSD& content);
 
 	//If we get back an error (not found, etc...), handle it here
-	/*virtual*/ void error(U32 status, const std::string& reason);
+	/*virtual*/ void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 
 protected:
 	LLHandle<LLRemoteParcelInfoObserver> mObserverHandle;
