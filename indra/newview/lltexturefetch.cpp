@@ -1609,24 +1609,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 							<< " Reason: '" << mGetReason << "'"
 							<< llendl;
 				}
-#if 0
-				if (isHttpServerErrorStatus(mGetStatus.mType))
-				{
-					// Check for retry
-					F32 wait_seconds;
-					if (mFetchRetryPolicy.shouldRetry(wait_seconds))
-					{
-						llinfos << mID  << " status " << (S32) mGetStatus.mType << " will retry after " << wait_seconds << llendl;
-						setState(INIT);
-						releaseHttpSemaphore();
-						return false;
-					}
-					else
-					{
-						llinfos << mID << " will not retry on status " << (S32) mGetStatus.mType << llendl;
-					}
-				}
-#endif
 
 				mUrl.clear();
 				if (cur_size > 0)
