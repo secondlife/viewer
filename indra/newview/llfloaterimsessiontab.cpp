@@ -212,7 +212,7 @@ void LLFloaterIMSessionTab::assignResizeLimits()
 	mRightPartPanel->setIgnoreReshape(is_participants_pane_collapsed);
 
     S32 participants_pane_target_width = is_participants_pane_collapsed?
-    		0 : (mParticipantListPanel->getRect().getWidth() + LLPANEL_BORDER_WIDTH);
+    		0 : (mParticipantListPanel->getRect().getWidth() + mParticipantListAndHistoryStack->getPanelSpacing());
 
     S32 new_min_width = participants_pane_target_width + mRightPartPanel->getExpandedMinDim() + mFloaterExtraWidth;
 

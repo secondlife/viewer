@@ -817,15 +817,12 @@ void LLFloaterIMContainer::assignResizeLimits()
 	bool is_conv_pane_expanded = !mConversationsPane->isCollapsed();
 	bool is_msg_pane_expanded = !mMessagesPane->isCollapsed();
 
-	// With two panels visible number of borders is three, because the borders
-	// between the panels are merged into one
-    S32 number_of_visible_borders = llmin((is_conv_pane_expanded? 2 : 0) + (is_msg_pane_expanded? 2 : 0), 3);
-    S32 summary_width_of_visible_borders = number_of_visible_borders * LLPANEL_BORDER_WIDTH;
-	S32 conv_pane_target_width = is_conv_pane_expanded?
-			(is_msg_pane_expanded?
-					mConversationsPane->getRect().getWidth()
-					: mConversationsPane->getExpandedMinDim())
-			: mConversationsPane->getMinDim();
+    S32 summary_width_of_visible_borders = (is_msg_pane_expanded ? mConversationsStack->getPanelSpacing() : 0) + 1;
+
+	S32 conv_pane_target_width = is_conv_pane_expanded
+		? ( is_msg_pane_expanded?mConversationsPane->getRect().getWidth():mConversationsPane->getExpandedMinDim() )
+		: mConversationsPane->getMinDim();
+
 	S32 msg_pane_min_width  = is_msg_pane_expanded ? mMessagesPane->getExpandedMinDim() : 0;
 	S32 new_min_width = conv_pane_target_width + msg_pane_min_width + summary_width_of_visible_borders;
 
