@@ -25,14 +25,15 @@
 
 #extension GL_ARB_texture_rectangle : enable
 
+#define INDEXED 1
+#define NON_INDEXED 2
+#define NON_INDEXED_NO_COLOR 3
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
 #define frag_color gl_FragColor
 #endif
-
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
 
 uniform sampler2DShadow shadowMap0;
 uniform sampler2DShadow shadowMap1;
@@ -40,10 +41,11 @@ uniform sampler2DShadow shadowMap2;
 uniform sampler2DShadow shadowMap3;
 uniform sampler2DRect depthMap;
 
-uniform mat4 shadow_matrix[6];
-uniform vec4 shadow_clip;
+#if INDEX_MODE != INDEXED
+uniform sampler2D diffuseMap;
+#endif
+
 uniform vec2 screen_res;
-uniform vec2 shadow_res;
 
 vec3 atmosLighting(vec3 light);
 vec3 scaleSoftClip(vec3 light);
@@ -53,8 +55,19 @@ VARYING vec3 vary_directional;
 VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
+VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_texcoord1;
+VARYING vec2 vary_texcoord2;
 VARYING vec3 vary_norm;
+VARYING mat3 vary_rotation;
 
+#if INDEX_MODE != NON_INDEXED_NO_COLOR
+VARYING vec4 vertex_color;
+#endif
+
+uniform mat4 shadow_matrix[6];
+uniform vec4 shadow_clip;
+uniform vec2 shadow_res;
 uniform float shadow_bias;
 
 uniform mat4 inv_proj;
@@ -63,6 +76,12 @@ uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
+
+uniform sampler2D bumpMap;
+uniform samplerCube environmentMap;
+uniform mat3 env_mat;
+
+uniform vec4 specular_color;
 
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
@@ -189,13 +208,31 @@ void main()
 	{
 		shadow = 1.0;
 	}
-	vec3 n = vary_norm;
-	vec3 l = light_position[0].xyz;
-	vec3 dlight = calcDirectionalLight(n, l);
-	     dlight = dlight * vary_directional.rgb * vary_pointlight_col;
-	vec4 diff = diffuseLookup(vary_texcoord0.xy);
 
-	vec4 col = vec4(vary_ambient + dlight *shadow, vertex_color.a);
+#if INDEX_MODE == INDEXED
+	
+	vec4 diff = diffuseLookup(vary_texcoord0.xy);
+#else
+	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
+#endif
+	
+#if INDEX_MODE == NON_INDEXED_NO_COLOR
+	float vertex_color_alpha = 1.0;
+#else
+	float vertex_color_alpha = vertex_color.a;
+#endif
+
+	vec3 normal = vary_norm;
+	normal = texture2D(bumpMap, vary_texcoord1.xy).xyz * 2 - 1;
+	normal = vec3(dot(normal.xyz, vary_rotation[0]),
+				dot(normal.xyz, vary_rotation[1]),
+				dot(normal.xyz, vary_rotation[2]));
+
+	vec3 l = light_position[0].xyz;
+	vec3 dlight = calcDirectionalLight(normal, l);
+	     dlight = dlight * vary_directional.rgb * vary_pointlight_col;
+
+	vec4 col = vec4(vary_ambient + dlight *shadow, vertex_color_alpha);
 	vec4 color = diff * col;
 	
 	color.rgb = atmosLighting(color.rgb);
@@ -203,9 +240,9 @@ void main()
 	color.rgb = scaleSoftClip(color.rgb);
 	vec3 light_col = vec3(0,0,0);
 
-#if MAC_GEFORCE_HACK
+#ifdef MAC_GEFORCE_HACK
   #define LIGHT_LOOP(i) \
-		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, vary_norm, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
 		
 	LIGHT_LOOP(1)
 	LIGHT_LOOP(2)
@@ -217,9 +254,10 @@ void main()
 #else
 	for (int i = 2; i < 8; i++)
 	{
-		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, vary_norm, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
 	}
 #endif
+
 	color.rgb += diff.rgb * vary_pointlight_col * light_col;
 
 	frag_color = color;

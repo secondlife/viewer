@@ -1218,10 +1218,14 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSkinnedAlphaProgram.mFeatures.isAlphaLighting = true;
 		gDeferredSkinnedAlphaProgram.mFeatures.disableTextureIndex = true;
 		gDeferredSkinnedAlphaProgram.mShaderFiles.clear();
-		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaNonIndexedF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredSkinnedAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		gDeferredSkinnedAlphaProgram.addPermutation("INDEX_MODE", "2");
+		gDeferredSkinnedAlphaProgram.addPermutation("HAS_SKIN", "1");
+		gDeferredSkinnedAlphaProgram.addPermutation("IS_AVATAR_SKIN", "0");
 		gDeferredSkinnedAlphaProgram.addPermutation("MAC_GEFORCE_HACK","0");
+		
 		success = gDeferredSkinnedAlphaProgram.createShader(NULL, NULL);
 		
 		// Hack to include uniforms for lighting without linking in lighting file
@@ -1243,9 +1247,12 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSkinnedAlphaProgramMac.mFeatures.isAlphaLighting = true;
 		gDeferredSkinnedAlphaProgramMac.mFeatures.disableTextureIndex = true;
 		gDeferredSkinnedAlphaProgramMac.mShaderFiles.clear();
-		gDeferredSkinnedAlphaProgramMac.mShaderFiles.push_back(make_pair("deferred/alphaSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredSkinnedAlphaProgramMac.mShaderFiles.push_back(make_pair("deferred/alphaNonIndexedF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredSkinnedAlphaProgramMac.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredSkinnedAlphaProgramMac.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredSkinnedAlphaProgramMac.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		gDeferredSkinnedAlphaProgramMac.addPermutation("INDEX_MODE", "2");
+		gDeferredSkinnedAlphaProgramMac.addPermutation("HAS_SKIN", "1");
+		gDeferredSkinnedAlphaProgramMac.addPermutation("IS_AVATAR_SKIN", "0");
 		gDeferredSkinnedAlphaProgramMac.addPermutation("MAC_GEFORCE_HACK","1");
 		
 		success = gDeferredSkinnedAlphaProgramMac.createShader(NULL, NULL);
@@ -1425,7 +1432,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
+		gDeferredAlphaProgram.addPermutation("INDEX_MODE", "1");
+		gDeferredAlphaProgram.addPermutation("HAS_SKIN", "0");
+		gDeferredAlphaProgram.addPermutation("IS_AVATAR_SKIN", "0");
+		gDeferredAlphaProgram.addPermutation("MAC_GEFORCE_HACK","0");
 		success = gDeferredAlphaProgram.createShader(NULL, NULL);
 
 		// Hack
@@ -1598,10 +1608,14 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarAlphaProgram.mFeatures.isAlphaLighting = true;
 		gDeferredAvatarAlphaProgram.mFeatures.disableTextureIndex = true;
 		gDeferredAvatarAlphaProgram.mShaderFiles.clear();
-		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/avatarAlphaNoColorV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaNonIndexedNoColorF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredAvatarAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
+		gDeferredAvatarAlphaProgram.addPermutation("INDEX_MODE", "3");
+		gDeferredAvatarAlphaProgram.addPermutation("HAS_SKIN", "0");
+		gDeferredAvatarAlphaProgram.addPermutation("IS_AVATAR_SKIN", "1");
+		gDeferredAvatarAlphaProgram.addPermutation("MAC_GEFORCE_HACK","0");
+		
 		success = gDeferredAvatarAlphaProgram.createShader(NULL, &mAvatarUniforms);
 
 		gDeferredAvatarAlphaProgram.mFeatures.calculatesLighting = true;

@@ -70,6 +70,7 @@ LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sMissingAssetImagep = 
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sWhiteImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sSmokeImagep = NULL;
+LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sFlatNormalImagep = NULL;
 LLViewerMediaTexture::media_map_t LLViewerMediaTexture::sMediaMap ;
 LLTexturePipelineTester* LLViewerTextureManager::sTesterp = NULL ;
 const std::string sTesterName("TextureTester");
@@ -394,6 +395,7 @@ void LLViewerTextureManager::cleanup()
 	LLViewerFetchedTexture::sSmokeImagep = NULL;
 	LLViewerFetchedTexture::sMissingAssetImagep = NULL;
 	LLViewerFetchedTexture::sWhiteImagep = NULL;
+	LLViewerFetchedTexture::sFlatNormalImagep = NULL;
 
 	LLViewerMediaTexture::cleanUpClass() ;	
 }

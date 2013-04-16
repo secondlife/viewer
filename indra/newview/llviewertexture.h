@@ -596,6 +596,7 @@ public:
 	static LLPointer<LLViewerFetchedTexture> sWhiteImagep;	// Texture to show NOTHING (whiteness)
 	static LLPointer<LLViewerFetchedTexture> sDefaultImagep; // "Default" texture for error cases, the only case of fetched texture which is generated in local.
 	static LLPointer<LLViewerFetchedTexture> sSmokeImagep; // Old "Default" translucent texture
+	static LLPointer<LLViewerFetchedTexture> sFlatNormalImagep; // Flat normal map denoting no bumpiness on a surface
 };
 
 //
