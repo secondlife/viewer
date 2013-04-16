@@ -175,9 +175,6 @@ LLGLSLShader			gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram;
 LLGLSLShader			gDeferredSkinnedDiffuseProgram;
 LLGLSLShader			gDeferredSkinnedBumpProgram;
 LLGLSLShader			gDeferredSkinnedAlphaProgram;
-#if LL_DARWIN
-LLGLSLShader			gDeferredSkinnedAlphaProgramMac;
-#endif
 LLGLSLShader			gDeferredBumpProgram;
 LLGLSLShader			gDeferredTerrainProgram;
 LLGLSLShader			gDeferredTreeProgram;
@@ -279,9 +276,6 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gDeferredSoftenProgram);
 	mShaderList.push_back(&gDeferredAlphaProgram);
 	mShaderList.push_back(&gDeferredSkinnedAlphaProgram);
-#if LL_DARWIN
-	mShaderList.push_back(&gDeferredSkinnedAlphaProgramMac);
-#endif
 	mShaderList.push_back(&gDeferredFullbrightProgram);
 	mShaderList.push_back(&gDeferredEmissiveProgram);
 	mShaderList.push_back(&gDeferredAvatarEyesProgram);
@@ -1088,9 +1082,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSkinnedDiffuseProgram.unload();
 		gDeferredSkinnedBumpProgram.unload();
 		gDeferredSkinnedAlphaProgram.unload();
-#if LL_DARWIN
-		gDeferredSkinnedAlphaProgramMac.unload();
-#endif
 		gDeferredBumpProgram.unload();
 		gDeferredImpostorProgram.unload();
 		gDeferredTerrainProgram.unload();
@@ -1221,40 +1212,12 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaNonIndexedF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredSkinnedAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		gDeferredSkinnedAlphaProgram.addPermutation("MAC_GEFORCE_HACK","0");
 		success = gDeferredSkinnedAlphaProgram.createShader(NULL, NULL);
 		
 		// Hack to include uniforms for lighting without linking in lighting file
 		gDeferredSkinnedAlphaProgram.mFeatures.calculatesLighting = true;
 		gDeferredSkinnedAlphaProgram.mFeatures.hasLighting = true;
 	}
-
-#if LL_DARWIN
-	if (success)
-	{
-		gDeferredSkinnedAlphaProgramMac.mName = "Deferred Skinned Alpha Shader";
-		gDeferredSkinnedAlphaProgramMac.mFeatures.atmosphericHelpers = true;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.hasObjectSkinning = true;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.calculatesAtmospherics = true;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.hasGamma = true;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.hasAtmospherics = true;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.calculatesLighting = false;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.hasLighting = false;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.isAlphaLighting = true;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.disableTextureIndex = true;
-		gDeferredSkinnedAlphaProgramMac.mShaderFiles.clear();
-		gDeferredSkinnedAlphaProgramMac.mShaderFiles.push_back(make_pair("deferred/alphaSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredSkinnedAlphaProgramMac.mShaderFiles.push_back(make_pair("deferred/alphaNonIndexedF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredSkinnedAlphaProgramMac.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		gDeferredSkinnedAlphaProgramMac.addPermutation("MAC_GEFORCE_HACK","1");
-		
-		success = gDeferredSkinnedAlphaProgramMac.createShader(NULL, NULL);
-		
-		// Hack to include uniforms for lighting without linking in lighting file
-		gDeferredSkinnedAlphaProgramMac.mFeatures.calculatesLighting = true;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.hasLighting = true;
-	}
-#endif
 
 	if (success)
 	{

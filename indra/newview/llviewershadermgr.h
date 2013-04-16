@@ -331,9 +331,6 @@ extern LLGLSLShader			gDeferredNonIndexedDiffuseProgram;
 extern LLGLSLShader			gDeferredSkinnedDiffuseProgram;
 extern LLGLSLShader			gDeferredSkinnedBumpProgram;
 extern LLGLSLShader			gDeferredSkinnedAlphaProgram;
-#if LL_DARWIN
-extern LLGLSLShader			gDeferredSkinnedAlphaProgramMac;
-#endif
 extern LLGLSLShader			gDeferredBumpProgram;
 extern LLGLSLShader			gDeferredTerrainProgram;
 extern LLGLSLShader			gDeferredTreeProgram;

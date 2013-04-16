@@ -70,7 +70,7 @@ vec3 calcDirectionalLight(vec3 n, vec3 l)
         return vec3(a,a,a);
 }
 
-float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
+vec3 calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
 {
 	//get light vector
 	vec3 lv = lp.xyz-v;
@@ -97,7 +97,7 @@ float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, floa
 		da *= max(pow(dot(n, lv), 0.7), 0.0);		
 	}
 
-	return da;	
+	return vec3(da,da,da);	
 }
 
 float pcfShadow(sampler2DShadow shadowMap, vec4 stc)
@@ -203,7 +203,6 @@ void main()
 	color.rgb = scaleSoftClip(color.rgb);
 	vec3 light_col = vec3(0,0,0);
 
-#if MAC_GEFORCE_HACK
   #define LIGHT_LOOP(i) \
 		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, vary_norm, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
 		
@@ -214,12 +213,7 @@ void main()
 	LIGHT_LOOP(5)
 	LIGHT_LOOP(6)
 	LIGHT_LOOP(7)
-#else
-	for (int i = 2; i < 8; i++)
-	{
-		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, vary_norm, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
-	}
-#endif
+
 	color.rgb += diff.rgb * vary_pointlight_col * light_col;
 
 	frag_color = color;

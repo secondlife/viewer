@@ -274,11 +274,7 @@ void LLDrawPoolAvatar::beginPostDeferredAlpha()
 
 void LLDrawPoolAvatar::beginDeferredRiggedAlpha()
 {
-#if LL_DARWIN
-	sVertexProgram = gGLManager.mIsMobileGF ? &gDeferredSkinnedAlphaProgramMac : &gDeferredSkinnedAlphaProgram;
-#else
 	sVertexProgram = &gDeferredSkinnedAlphaProgram;
-#endif
 	gPipeline.bindDeferredShader(*sVertexProgram);
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	gPipeline.enableLightsDynamic();
