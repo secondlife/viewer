@@ -216,21 +216,23 @@ void RetryPolicyTestObject::test<6>()
 
 	time_t nowseconds;
 	time(&nowseconds);
-	std::string str3 = LLDate((F64)nowseconds).asRFC1123();
+	std::string str3 = LLDate((F64)(nowseconds+44)).asRFC1123();
 	seconds_to_wait = F32_MAX;
 	success = getSecondsUntilRetryAfter(str3, seconds_to_wait);
+	std::cerr << " str3 [" << str3 << "]" << std::endl;
 	ensure("parse 3", success);
-	ensure_approximately_equals("parse 3", seconds_to_wait, 0.0F, 6);
+	ensure_approximately_equals("parse 3", seconds_to_wait, 44.0F, 2);
 }
 
 // Test retry-after field in both llmessage and CoreHttp headers.
 template<> template<>
 void RetryPolicyTestObject::test<7>()
 {
+	std::cerr << "7 starts" << std::endl;
+	
 	LLSD sd_headers;
 	time_t nowseconds;
 	time(&nowseconds);
-	sd_headers[HTTP_IN_HEADER_RETRY_AFTER] = LLDate((F64)nowseconds).asRFC1123();
 	LLAdaptiveRetryPolicy policy(17.0,644.0,3.0,5);
 	F32 seconds_to_wait;
 	bool should_retry;
@@ -245,40 +247,40 @@ void RetryPolicyTestObject::test<7>()
 	ensure_approximately_equals("header 1", seconds_to_wait, 17.0F, 6);
 
 	// retry header should override, give delay of 0
+	std::string date_string = LLDate((F64)(nowseconds+7)).asRFC1123();
+	sd_headers[HTTP_IN_HEADER_RETRY_AFTER] = date_string;
 	policy.onFailure(503,sd_headers);
 	should_retry = policy.shouldRetry(seconds_to_wait);
 	ensure("header 2", should_retry);
-	ensure_approximately_equals("header 2", seconds_to_wait, 0.0F, 6);
+	ensure_approximately_equals("header 2", seconds_to_wait, 7.0F, 2);
 
-	// retry header in LLCore::HttpHeaders
-	{
-		LLCore::HttpResponse *response = new LLCore::HttpResponse();
-		LLCore::HttpHeaders *headers = new LLCore::HttpHeaders();
-		response->setStatus(503);
-		response->setHeaders(headers);
-		headers->append(HTTP_IN_HEADER_RETRY_AFTER, std::string("600"));
-		policy.onFailure(response);
-		should_retry = policy.shouldRetry(seconds_to_wait);
-		ensure("header 3",should_retry);
-		ensure_approximately_equals("header 3", seconds_to_wait, 600.0F, 6);
-		response->release();
-	}
+	LLCore::HttpResponse *response;
+	LLCore::HttpHeaders *headers;
 
-	// retry header in LLCore::HttpHeaders
-	{
-		LLCore::HttpResponse *response = new LLCore::HttpResponse();
-		LLCore::HttpHeaders *headers = new LLCore::HttpHeaders();
-		response->setStatus(503);
-		response->setHeaders(headers);
-		LLSD sd_headers;
-		time(&nowseconds);
-		headers->append(HTTP_IN_HEADER_RETRY_AFTER,LLDate((F64)nowseconds).asRFC1123());
-		policy.onFailure(response);
-		should_retry = policy.shouldRetry(seconds_to_wait);
-		ensure("header 4",should_retry);
-		ensure_approximately_equals("header 4", seconds_to_wait, 0.0F, 6);
-		response->release();
-	}
+	response = new LLCore::HttpResponse();
+	headers = new LLCore::HttpHeaders();
+	response->setStatus(503);
+	response->setHeaders(headers);
+	headers->append(HTTP_IN_HEADER_RETRY_AFTER, std::string("600"));
+	policy.onFailure(response);
+	should_retry = policy.shouldRetry(seconds_to_wait);
+	ensure("header 3",should_retry);
+	ensure_approximately_equals("header 3", seconds_to_wait, 600.0F, 6);
+	response->release();
+
+	response = new LLCore::HttpResponse();
+	headers = new LLCore::HttpHeaders();
+	response->setStatus(503);
+	response->setHeaders(headers);
+	time(&nowseconds);
+	date_string = LLDate((F64)(nowseconds+77)).asRFC1123();
+	std::cerr << "date_string [" << date_string << "]" << std::endl;
+	headers->append(HTTP_IN_HEADER_RETRY_AFTER,date_string);
+	policy.onFailure(response);
+	should_retry = policy.shouldRetry(seconds_to_wait);
+	ensure("header 4",should_retry);
+	ensure_approximately_equals("header 4", seconds_to_wait, 77.0F, 2);
+	response->release();
 
 	// Timeout should be clamped at max.
 	policy.onFailure(500,LLSD());
