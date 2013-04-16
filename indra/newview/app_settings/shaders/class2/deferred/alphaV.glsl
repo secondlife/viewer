@@ -23,16 +23,33 @@
  * $/LicenseInfo$
  */
 
+#define INDEXED 1
+#define NON_INDEXED 2
+#define NON_INDEXED_NO_COLOR 3
+
 uniform mat3 normal_matrix;
 uniform mat4 texture_matrix0;
+uniform mat4 projection_matrix;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
 ATTRIBUTE vec3 position;
+#if INDEX_MODE == INDEXED
 void passTextureIndex();
+#endif
 ATTRIBUTE vec3 normal;
 ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec2 texcoord0;
+ATTRIBUTE vec3 binormal;
+ATTRIBUTE vec2 texcoord1;
+ATTRIBUTE vec2 texcoord2;
+
+
+#if HAS_SKIN
+mat4 getObjectSkinnedTransform();
+#elif IS_AVATAR_SKIN
+mat4 getSkinnedTransform();
+#endif
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 void calcAtmospherics(vec3 inPositionEye);
@@ -50,10 +67,16 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 
+#if INDEX_MODE != NON_INDEXED_NO_COLOR
 VARYING vec4 vertex_color;
+#endif
+
 VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_texcoord1;
+VARYING vec2 vary_texcoord2;
 
 VARYING vec3 vary_norm;
+VARYING mat3 vary_rotation;
 
 uniform float near_clip;
 uniform float shadow_offset;
@@ -102,19 +125,62 @@ float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, floa
 
 void main()
 {
-	//transform vertex
-	vec4 vert = vec4(position.xyz, 1.0);
-	passTextureIndex();
-	vec4 pos = (modelview_matrix * vert);
-	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
+	vec4 pos;
+	vec3 norm;
 	
+	//transform vertex
+#if HAS_SKIN
+	mat4 trans = getObjectSkinnedTransform();
+	trans = modelview_matrix * trans;
+	
+	pos = trans * vec4(position.xyz, 1.0);
+	
+	norm = position.xyz + normal.xyz;
+	norm = normalize((trans * vec4(norm, 1.0)).xyz - pos.xyz);
+	vec4 frag_pos = projection_matrix * pos;
+	gl_Position = frag_pos;
+#elif IS_AVATAR_SKIN
+	mat4 trans = getSkinnedTransform();
+	vec4 pos_in = vec4(position.xyz, 1.0);
+	pos.x = dot(trans[0], pos_in);
+	pos.y = dot(trans[1], pos_in);
+	pos.z = dot(trans[2], pos_in);
+	pos.w = 1.0;
+	
+	norm.x = dot(trans[0].xyz, normal);
+	norm.y = dot(trans[1].xyz, normal);
+	norm.z = dot(trans[2].xyz, normal);
+	norm = normalize(norm);
+	
+	vec4 frag_pos = projection_matrix * pos;
+	gl_Position = frag_pos;
+#else
+	norm = normalize(normal_matrix * normal);
+	vec4 vert = vec4(position.xyz, 1.0);
+	pos = (modelview_matrix * vert);
+	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
+#endif
+	vary_texcoord1 = (texture_matrix0 * vec4(texcoord1,0,1)).xy;
+	vary_texcoord2 = (texture_matrix0 * vec4(texcoord2,0,1)).xy;
+#if INDEX_MODE == INDEXED
+	passTextureIndex();
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-		
-	vec3 norm = normalize(normal_matrix * normal);
+#else
+	vary_texcoord0 = texcoord0;
+#endif
+	
 	vary_norm = norm;
 	float dp_directional_light = max(0.0, dot(norm, light_position[0].xyz));
 	vary_position = pos.xyz + light_position[0].xyz * (1.0-dp_directional_light)*shadow_offset;
-		
+	
+	vec3 n = norm;
+	vec3 b = normalize(normal_matrix * binormal);
+	vec3 t = cross(b, n);
+
+	vary_rotation[0] = vec3(t.x, b.x, n.x);
+	vary_rotation[1] = vec3(t.y, b.y, n.y);
+	vary_rotation[2] = vec3(t.z, b.z, n.z);
+
 	calcAtmospherics(pos.xyz);
 
 	//vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.));
@@ -132,11 +198,16 @@ void main()
 	
 	col.rgb = col.rgb*diffuse_color.rgb;
 	
+#if INDEX_MODE != NON_INDEXED_NO_COLOR
 	vertex_color = col;
-
+#endif
 	
-	
+#if HAS_SKIN
+	vary_fragcoord.xyz = frag_pos.xyz + vec3(0,0,near_clip);
+#elif IS_AVATAR_SKIN
+	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
+#else
 	pos = modelview_projection_matrix * vert;
 	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
-	
+#endif
 }
