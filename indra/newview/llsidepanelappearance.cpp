@@ -90,8 +90,9 @@ bool LLSidepanelAppearance::callBackExitWithoutSaveViaClose(const LLSD& notifica
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if ( option == 0 ) 
 	{	
+		//revert curernt edits
 		mEditWearable->revertChanges();
-		LLAppearanceMgr::getInstance()->wearBaseOutfit();
+		LLVOAvatarSelf::onCustomizeEnd(FALSE);	
 		mLLFloaterSidePanelContainer->close();
 		return true;
 	}
