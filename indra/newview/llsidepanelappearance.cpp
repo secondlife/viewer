@@ -92,6 +92,7 @@ bool LLSidepanelAppearance::callBackExitWithoutSaveViaClose(const LLSD& notifica
 	{	
 		//revert curernt edits
 		mEditWearable->revertChanges();
+		toggleWearableEditPanel(FALSE);
 		LLVOAvatarSelf::onCustomizeEnd(FALSE);	
 		mLLFloaterSidePanelContainer->close();
 		return true;
@@ -138,6 +139,7 @@ void LLSidepanelAppearance::onClose(LLFloaterSidePanelContainer* obj)
 	else
 	{
 		LLVOAvatarSelf::onCustomizeEnd(FALSE);		
+		toggleWearableEditPanel(FALSE);
 		mLLFloaterSidePanelContainer->close();
 	}
 }
