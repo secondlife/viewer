@@ -114,6 +114,7 @@ public:
 	void beginRiggedGlow();
 	void beginDeferredRiggedAlpha();
 	void beginDeferredRiggedMaterial(S32 pass);
+	void beginDeferredRiggedMaterialAlpha(S32 pass);
 
 	void endRiggedSimple();
 	void endRiggedFullbright();
@@ -124,6 +125,7 @@ public:
 	void endRiggedGlow();
 	void endDeferredRiggedAlpha();
 	void endDeferredRiggedMaterial(S32 pass);
+	void endDeferredRiggedMaterialAlpha(S32 pass);
 
 	void beginDeferredRiggedSimple();
 	void beginDeferredRiggedBump();
@@ -149,7 +151,7 @@ public:
 	void renderDeferredRiggedSimple(LLVOAvatar* avatar);
 	void renderDeferredRiggedBump(LLVOAvatar* avatar);
 	void renderDeferredRiggedMaterial(LLVOAvatar* avatar, S32 pass);
-
+	
 	typedef enum
 	{
 		RIGGED_MATERIAL=0,
