@@ -136,6 +136,7 @@ void LLSidepanelAppearance::onClose(LLFloaterSidePanelContainer* obj)
 	}
 	else
 	{
+		LLVOAvatarSelf::onCustomizeEnd(FALSE);		
 		mLLFloaterSidePanelContainer->close();
 	}
 }
