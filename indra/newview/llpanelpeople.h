@@ -22,7 +22,7 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */
+ */ 
 
 #ifndef LL_LLPANELPEOPLE_H
 #define LL_LLPANELPEOPLE_H
@@ -30,6 +30,8 @@
 #include <llpanel.h>
 
 #include "llcallingcard.h" // for avatar tracker
+#include "llconversationmodel.h"
+#include "llevents.h"
 #include "llfloaterwebcontent.h"
 #include "llvoiceclient.h"
 
@@ -41,6 +43,7 @@ class LLGroupList;
 class LLSocialList;
 class LLMenuButton;
 class LLTabContainer;
+class LLFolderView;
 
 class LLPanelPeople 
 	: public LLPanel
@@ -58,8 +61,12 @@ public:
 	// when voice is available
 	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
 
+	static void idle(void * user_data);
+
 	void openFacebookWeb(LLFloaterWebContent::Params& p);
 	void showFacebookFriends(const LLSD& friends);
+	void addTestParticipant();
+	void addParticipantToModel(LLConversationItemSession * session_model, const LLUUID& agent_id, const std::string& name);
 	void hideFacebookFriends();
 	void loadFacebookFriends();
 	void tryToReconnectToFacebook();
@@ -149,6 +156,9 @@ private:
 	bool					isAccordionCollapsedByUser(LLUICtrl* acc_tab);
 	bool					isAccordionCollapsedByUser(const std::string& name);
 
+	bool					onConversationModelEvent(const LLSD& event);
+	LLConversationViewParticipant * createConversationViewParticipant(LLConversationItem * item);
+
 	LLTabContainer*			mTabContainer;
 	LLAvatarList*			mOnlineFriendList;
 	LLAvatarList*			mAllFriendList;
@@ -170,6 +180,12 @@ private:
 	Updater*				mButtonsUpdater;
 	LLMenuButton*			mFBCGearButton;
     LLHandle< LLFloater >	mPicker;
+
+	conversations_items_map mConversationsItems;
+	conversations_widgets_map mConversationsWidgits;
+	LLConversationViewModel mConversationViewModel;
+	LLFolderView* mConversationsRoot;
+	LLEventStream mConversationsEventStream;
 };
 
 #endif //LL_LLPANELPEOPLE_H
