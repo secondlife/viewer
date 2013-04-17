@@ -68,7 +68,6 @@ VARYING vec4 vertex_color;
 
 uniform mat4 shadow_matrix[6];
 uniform vec4 shadow_clip;
-uniform vec2 shadow_res;
 uniform float shadow_bias;
 
 uniform mat4 inv_proj;
@@ -210,11 +209,11 @@ void main()
 		shadow = 1.0;
 	}
 
-#if INDEX_MODE == INDEXED
-	
-	vec4 diff = diffuseLookup(vary_texcoord0.xy);
+	vec4 diff;
+#if INDEX_MODE == INDEXED	
+	diff = diffuseLookup(vary_texcoord0.xy);
 #else
-	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
+	diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
 	
 #if INDEX_MODE == NON_INDEXED_NO_COLOR
@@ -223,8 +222,7 @@ void main()
 	float vertex_color_alpha = vertex_color.a;
 #endif
 
-	vec3 normal = vary_norm;
-	normal = texture2D(bumpMap, vary_texcoord1.xy).xyz * 2 - 1;
+	vec3 normal = texture2D(bumpMap, vary_texcoord1.xy).xyz * 2 - 1;
 	normal = vec3(dot(normal.xyz, vary_rotation[0]),
 				dot(normal.xyz, vary_rotation[1]),
 				dot(normal.xyz, vary_rotation[2]));
@@ -232,7 +230,6 @@ void main()
 	vec3 l = light_position[0].xyz;
 	vec3 dlight = calcDirectionalLight(normal, l);
 	     dlight = dlight * vary_directional.rgb * vary_pointlight_col;
-	vec4 diff = diffuseLookup(vary_texcoord0.xy);
 
 	vec4 col = vec4(vary_ambient + dlight *shadow, vertex_color_alpha);
 	vec4 color = diff * col;
@@ -240,10 +237,10 @@ void main()
 	color.rgb = atmosLighting(color.rgb);
 
 	color.rgb = scaleSoftClip(color.rgb);
-	col = vec3(0,0,0);
+	col = vec4(0,0,0,0);
 
   #define LIGHT_LOOP(i) \
-		col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, vary_norm, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+		col.rgb += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
 		
 	LIGHT_LOOP(1)
 	LIGHT_LOOP(2)
@@ -253,7 +250,7 @@ void main()
 	LIGHT_LOOP(6)
 	LIGHT_LOOP(7)
 
-	color.rgb += diff.rgb * vary_pointlight_col * col;
+	color.rgb += diff.rgb * vary_pointlight_col * col.rgb;
 
 	frag_color = color;
 }

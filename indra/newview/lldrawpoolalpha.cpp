@@ -515,21 +515,14 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 							current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
 						}
 					}
-				} else if (current_shader == simple_shader)
+				} else if (LLPipeline::sRenderDeferred && current_shader && (current_shader == simple_shader))
 				{
-					// No material.  Propegate with default parameters.
-					if (LLPipeline::sRenderDeferred)
-					{
-						current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, 0.0f, 0.0f, 0.0f, 0.0f);
-						
-						current_shader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, 0.0f);
-						
-						LLViewerFetchedTexture::sFlatNormalImagep->addTextureStats(params.mVSize);
-						current_shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
-						
-						LLViewerFetchedTexture::sWhiteImagep->addTextureStats(params.mVSize);
-						current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
-					}
+					current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, 1.0f, 1.0f, 1.0f, 1.0f);						
+					current_shader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, 0.0f);			
+					LLViewerFetchedTexture::sFlatNormalImagep->addTextureStats(params.mVSize);
+					current_shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);						
+					LLViewerFetchedTexture::sWhiteImagep->addTextureStats(params.mVSize);
+					current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
 				}
 
 				if (params.mGroup)
