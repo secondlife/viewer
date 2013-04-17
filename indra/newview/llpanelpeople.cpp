@@ -1592,10 +1592,10 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 {
 	mFacebookFriends->clear();
 
-	for (LLSD::array_const_iterator i = friends.beginArray(); i != friends.endArray(); ++i)
+	for (LLSD::map_const_iterator i = friends.beginMap(); i != friends.endMap(); ++i)
 	{
-		std::string name = (*i)["name"].asString();
-		LLUUID agent_id = (*i).has("agent_id") ? (*i)["agent_id"].asUUID() : LLUUID(NULL);
+		std::string name = i->second["name"].asString();
+		LLUUID agent_id = i->second.has("agent_id") ? i->second["agent_id"].asUUID() : LLUUID(NULL);
 		
 		mFacebookFriends->addNewItem(agent_id, name, false);
 	}
@@ -1621,15 +1621,8 @@ public:
 			llinfos << content << llendl;
 			
 			// grab some graph data now that we are connected
-			if (content["success"])
-			{
-				mPanelPeople->mConnectedToFbc = true;
-				mPanelPeople->loadFacebookFriends();
-			}
-			else if (content.has("error"))
-			{
-				llinfos << "failed to connect. reason: " << content["error"]["message"] << llendl;
-			}
+			mPanelPeople->mConnectedToFbc = true;
+			mPanelPeople->loadFacebookFriends();
 		}
 		else
 		{
@@ -1653,15 +1646,8 @@ public:
 			llinfos << content << llendl;
 			
 			// hide all the facebook stuff
-			if (content["success"])
-			{
-				mPanelPeople->mConnectedToFbc = false;
-				mPanelPeople->hideFacebookFriends();
-			}
-			else if (content.has("error"))
-			{
-				llinfos << "failed to disconnect. reason: " << content["error"]["message"] << llendl;
-			}
+			mPanelPeople->mConnectedToFbc = false;
+			mPanelPeople->hideFacebookFriends();
 		}
 		else
 		{
@@ -1686,22 +1672,20 @@ public:
 			llinfos << content << llendl;
 
 			// grab some graph data if already connected
-			if (content["connected"])
-			{
-				mPanelPeople->mConnectedToFbc = true;
-				mPanelPeople->loadFacebookFriends();
-			}
+			mPanelPeople->mConnectedToFbc = true;
+			mPanelPeople->loadFacebookFriends();
+		}
+		else
+		{
+			llinfos << "failed to get response. reason: " << reason << " status: " << status << llendl;
+
 			// show the facebook login page if not connected yet
-			else if (mShowLoginIfNotConnected)
+			if (status == 404 && mShowLoginIfNotConnected)
 			{
 				LLFloaterWebContent::Params p;
 				p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + mPanelPeople->getFacebookRedirectURL());
 				mPanelPeople->openFacebookWeb(p);
 			}
-		}
-		else
-		{
-			llinfos << "failed to get response. reason: " << reason << " status: " << status << llendl;
 		}
 	}
 };
@@ -1721,14 +1705,7 @@ public:
 			llinfos << content << llendl;
 
 			// display the list of friends
-			if (content.has("friends") && !content.has("error"))
-			{
-				mPanelPeople->showFacebookFriends(content["friends"]);
-			}
-			else if (content.has("error"))
-			{
-				llinfos << "failed to get facebook friends. reason: " << content["error"]["message"] << llendl;
-			}
+			mPanelPeople->showFacebookFriends(content);
 		}
 		else
 		{
@@ -1739,31 +1716,28 @@ public:
 
 void LLPanelPeople::loadFacebookFriends()
 {
-	LLHTTPClient::get(getFacebookConnectURL("/friends"), new FacebookFriendsResponder(this));
+	LLHTTPClient::get(getFacebookConnectURL("/friend"), new FacebookFriendsResponder(this));
 }
 
 void LLPanelPeople::tryToReconnectToFacebook()
 {
 	if (!mConnectedToFbc)
 	{
-		LLHTTPClient::get(getFacebookConnectURL(), new FacebookConnectedResponder(this, false));
+		LLHTTPClient::get(getFacebookConnectURL("/connection"), new FacebookConnectedResponder(this, false));
 	}
 }
 
 void LLPanelPeople::connectToFacebook(const std::string& auth_code)
 {
 	LLSD body;
-	body["agent_id"] = gAgentID.asString();
 	body["code"] = auth_code;
 	body["redirect_uri"] = getFacebookRedirectURL();
-	LLHTTPClient::post(getFacebookConnectURL("/connect"), body, new FacebookConnectResponder(this));
+	LLHTTPClient::put(getFacebookConnectURL("/connection"), body, new FacebookConnectResponder(this));
 }
 
 void LLPanelPeople::disconnectFromFacebook()
 {
-	LLSD body;
-	body["agent_id"] = gAgentID.asString();
-	LLHTTPClient::post(getFacebookConnectURL("/disconnect"), body, new FacebookDisconnectResponder(this));
+	LLHTTPClient::del(getFacebookConnectURL("/connection"), new FacebookDisconnectResponder(this));
 }
 
 std::string LLPanelPeople::getFacebookConnectURL(const std::string& route)
@@ -1789,7 +1763,7 @@ void LLPanelPeople::onLoginFbcButtonClicked()
 	}
 	else
 	{
-		LLHTTPClient::get(getFacebookConnectURL(), new FacebookConnectedResponder(this, true));
+		LLHTTPClient::get(getFacebookConnectURL("/connection"), new FacebookConnectedResponder(this, true));
 	}
 }
 
