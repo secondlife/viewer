@@ -43,7 +43,7 @@
 //    true    true   Not allowed
 //
 LLDeadmanTimer::LLDeadmanTimer(F64 horizon)
-	: mHorizon(U64(llmax(horizon, F64(0.0)) * gClockFrequency)),
+	: mHorizon(time_type(llmax(horizon, F64(0.0)) * gClockFrequency)),
 	  mActive(false),			// If true, a timer is running.
 	  mDone(false),				// If true, timer has completed and can be read (once)
 	  mStarted(U64L(0)),
@@ -53,7 +53,14 @@ LLDeadmanTimer::LLDeadmanTimer(F64 horizon)
 {}
 
 
-void LLDeadmanTimer::start(U64 now)
+// static
+LLDeadmanTimer::time_type LLDeadmanTimer::getNow()
+{
+	return LLTimer::getCurrentClockCount();
+}
+
+
+void LLDeadmanTimer::start(time_type now)
 {
 	// *TODO:  If active, let's complete an existing timer and save
 	// the result to the side.  I think this will be useful later.
@@ -72,7 +79,7 @@ void LLDeadmanTimer::start(U64 now)
 }
 
 
-void LLDeadmanTimer::stop(U64 now)
+void LLDeadmanTimer::stop(time_type now)
 {
 	if (! mActive)
 	{
@@ -81,7 +88,7 @@ void LLDeadmanTimer::stop(U64 now)
 
 	if (! now)
 	{
-		now = LLTimer::getCurrentClockCount();
+		now = getNow();
 	}
 	mStopped = now;
 	mActive = false;
@@ -89,13 +96,13 @@ void LLDeadmanTimer::stop(U64 now)
 }
 
 
-bool LLDeadmanTimer::isExpired(F64 & started, F64 & stopped, U64 & count, U64 now)
+bool LLDeadmanTimer::isExpired(time_type now, F64 & started, F64 & stopped, U64 & count)
 {
 	if (mActive && ! mDone)
 	{
 		if (! now)
 		{
-			now = LLTimer::getCurrentClockCount();
+			now = getNow();
 		}
 
 		if (now >= mExpires)
@@ -120,7 +127,7 @@ bool LLDeadmanTimer::isExpired(F64 & started, F64 & stopped, U64 & count, U64 no
 }
 
 	
-void LLDeadmanTimer::ringBell(U64 now)
+void LLDeadmanTimer::ringBell(time_type now, unsigned int count)
 {
 	if (! mActive)
 	{
@@ -129,7 +136,7 @@ void LLDeadmanTimer::ringBell(U64 now)
 	
 	if (! now)
 	{
-		now = LLTimer::getCurrentClockCount();
+		now = getNow();
 	}
 
 	if (now >= mExpires)
@@ -141,7 +148,7 @@ void LLDeadmanTimer::ringBell(U64 now)
 	{
 		mStopped = now;
 		mExpires = now + mHorizon;
-		++mCount;
+		mCount += count;
 	}
 	
 	return;

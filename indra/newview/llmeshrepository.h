@@ -500,7 +500,8 @@ public:
 	// Quiescent timer management, main thread only.
 	static void metricsStart();
 	static void metricsStop();
-	static void metricsCheck();
+	static void metricsProgress(unsigned int count);
+	static void metricsUpdate();
 	
 	typedef std::map<LLVolumeParams, std::set<LLUUID> > mesh_load_map;
 	mesh_load_map mLoadingMeshes[4];

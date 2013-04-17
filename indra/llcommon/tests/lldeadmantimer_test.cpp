@@ -34,12 +34,12 @@
 // Convert between floating point time deltas and U64 time deltas.
 // Reflects an implementation detail inside lldeadmantimer.cpp
 
-static U64 float_time_to_u64(F64 delta)
+static LLDeadmanTimer::time_type float_time_to_u64(F64 delta)
 {
-	return U64(delta * gClockFrequency);
+	return LLDeadmanTimer::time_type(delta * gClockFrequency);
 }
 
-static F64 u64_time_to_float(U64 delta)
+static F64 u64_time_to_float(LLDeadmanTimer::time_type delta)
 {
 	return delta * gClockFrequencyInv;
 }
@@ -69,7 +69,7 @@ void deadmantimer_object_t::test<1>()
 	U64 count(U64L(8));
 	LLDeadmanTimer timer(10.0);
 
-	ensure_equals("isExpired() returns false after ctor()", timer.isExpired(started, stopped, count), false);
+	ensure_equals("isExpired() returns false after ctor()", timer.isExpired(0, started, stopped, count), false);
 	ensure_approximately_equals("t1 - isExpired() does not modify started", started, F64(42.0), 2);
 	ensure_approximately_equals("t1 - isExpired() does not modify stopped", stopped, F64(97.0), 2);
 	ensure_equals("t1 - isExpired() does not modify count", count, U64L(8));
@@ -84,7 +84,8 @@ void deadmantimer_object_t::test<2>()
 	U64 count(U64L(8));
 	LLDeadmanTimer timer(0.0);			// Zero is pre-expired
 
-	ensure_equals("isExpired() still returns false with 0.0 time ctor()", timer.isExpired(started, stopped, count), false);
+	ensure_equals("isExpired() still returns false with 0.0 time ctor()",
+				  timer.isExpired(0, started, stopped, count), false);
 }
 
 
@@ -97,8 +98,9 @@ void deadmantimer_object_t::test<3>()
 	U64 count(U64L(8));
 	LLDeadmanTimer timer(0.0);
 
-	timer.start();
-	ensure_equals("isExpired() returns true with 0.0 horizon time", timer.isExpired(started, stopped, count), true);
+	timer.start(0);
+	ensure_equals("isExpired() returns true with 0.0 horizon time",
+				  timer.isExpired(0, started, stopped, count), true);
 	ensure_approximately_equals("expired timer with no bell ringing has stopped == started", started, stopped, 8);
 }
 
@@ -111,14 +113,15 @@ void deadmantimer_object_t::test<4>()
 	U64 count(U64L(8));
 	LLDeadmanTimer timer(0.0);
 	
-	timer.start();
-	timer.ringBell(LLTimer::getCurrentClockCount() + float_time_to_u64(1000.0));
-	ensure_equals("isExpired() returns true with 0.0 horizon time after bell ring", timer.isExpired(started, stopped, count), true);
+	timer.start(0);
+	timer.ringBell(LLDeadmanTimer::getNow() + float_time_to_u64(1000.0), 1);
+	ensure_equals("isExpired() returns true with 0.0 horizon time after bell ring",
+				  timer.isExpired(0, started, stopped, count), true);
 	ensure_approximately_equals("ringBell has no impact on expired timer leaving stopped == started", started, stopped, 8);
 }
 
 
-// start() test - unexpired timer reports unexpired
+// start(0) test - unexpired timer reports unexpired
 template<> template<>
 void deadmantimer_object_t::test<5>()
 {
@@ -126,8 +129,9 @@ void deadmantimer_object_t::test<5>()
 	U64 count(U64L(8));
 	LLDeadmanTimer timer(10.0);
 	
-	timer.start();
-	ensure_equals("isExpired() returns false after starting with 10.0 horizon time", timer.isExpired(started, stopped, count), false);
+	timer.start(0);
+	ensure_equals("isExpired() returns false after starting with 10.0 horizon time",
+				  timer.isExpired(0, started, stopped, count), false);
 	ensure_approximately_equals("t5 - isExpired() does not modify started", started, F64(42.0), 2);
 	ensure_approximately_equals("t5 - isExpired() does not modify stopped", stopped, F64(97.0), 2);
 	ensure_equals("t5 - isExpired() does not modify count", count, U64L(8));
@@ -146,10 +150,11 @@ void deadmantimer_object_t::test<6>()
 	// the implementation on Windows is zero-based.  We wrap around
 	// the backside resulting in a large U64 number.
 	
-	U64 the_past(LLTimer::getCurrentClockCount());
-	U64 now(the_past + float_time_to_u64(5.0));
+	LLDeadmanTimer::time_type the_past(LLDeadmanTimer::getNow());
+	LLDeadmanTimer::time_type now(the_past + float_time_to_u64(5.0));
 	timer.start(the_past);
-	ensure_equals("isExpired() returns false with 10.0 horizon time starting 5.0 in past", timer.isExpired(started, stopped, count, now), false);
+	ensure_equals("isExpired() returns false with 10.0 horizon time starting 5.0 in past",
+				  timer.isExpired(now, started, stopped, count), false);
 	ensure_approximately_equals("t6 - isExpired() does not modify started", started, F64(42.0), 2);
 	ensure_approximately_equals("t6 - isExpired() does not modify stopped", stopped, F64(97.0), 2);
 	ensure_equals("t6 - isExpired() does not modify count", count, U64L(8));
@@ -168,10 +173,11 @@ void deadmantimer_object_t::test<7>()
 	// the implementation on Windows is zero-based.  We wrap around
 	// the backside resulting in a large U64 number.
 	
-	U64 the_past(LLTimer::getCurrentClockCount());
-	U64 now(the_past + float_time_to_u64(20.0));
+	LLDeadmanTimer::time_type the_past(LLDeadmanTimer::getNow());
+	LLDeadmanTimer::time_type now(the_past + float_time_to_u64(20.0));
 	timer.start(the_past);
-	ensure_equals("isExpired() returns true with 10.0 horizon time starting 20.0 in past", timer.isExpired(started, stopped, count, now), true);
+	ensure_equals("isExpired() returns true with 10.0 horizon time starting 20.0 in past",
+				  timer.isExpired(now,started, stopped, count), true);
 	ensure_approximately_equals("starting before horizon still gives equal started / stopped", started, stopped, 8);
 }
 
@@ -188,15 +194,17 @@ void deadmantimer_object_t::test<8>()
 	// the implementation on Windows is zero-based.  We wrap around
 	// the backside resulting in a large U64 number.
 	
-	U64 the_past(LLTimer::getCurrentClockCount());
-	U64 now(the_past + float_time_to_u64(20.0));
+	LLDeadmanTimer::time_type the_past(LLDeadmanTimer::getNow());
+	LLDeadmanTimer::time_type now(the_past + float_time_to_u64(20.0));
 	timer.start(the_past);
-	ensure_equals("t8 - isExpired() returns true with 10.0 horizon time starting 20.0 in past", timer.isExpired(started, stopped, count, now), true);
+	ensure_equals("t8 - isExpired() returns true with 10.0 horizon time starting 20.0 in past",
+				  timer.isExpired(now, started, stopped, count), true);
 
 	started = 42.0;
 	stopped = 97.0;
 	count = U64L(8);
-	ensure_equals("t8 - second isExpired() returns false after true", timer.isExpired(started, stopped, count, now), false);
+	ensure_equals("t8 - second isExpired() returns false after true",
+				  timer.isExpired(now, started, stopped, count), false);
 	ensure_approximately_equals("t8 - 2nd isExpired() does not modify started", started, F64(42.0), 2);
 	ensure_approximately_equals("t8 - 2nd isExpired() does not modify stopped", stopped, F64(97.0), 2);
 	ensure_equals("t8 - 2nd isExpired() does not modify count", count, U64L(8));
@@ -211,40 +219,42 @@ void deadmantimer_object_t::test<9>()
 	U64 count(U64L(8));
 	LLDeadmanTimer timer(5.0);
 
-	U64 now(LLTimer::getCurrentClockCount());
+	LLDeadmanTimer::time_type now(LLDeadmanTimer::getNow());
 	F64 real_start(u64_time_to_float(now));
-	timer.start();
+	timer.start(0);
 
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
-	ensure_equals("t9 - 5.0 horizon timer has not timed out after 10 1-second bell rings", timer.isExpired(started, stopped, count, now), false);
+	timer.ringBell(now, 1);
+	ensure_equals("t9 - 5.0 horizon timer has not timed out after 10 1-second bell rings",
+				  timer.isExpired(now, started, stopped, count), false);
 	F64 last_good_ring(u64_time_to_float(now));
 
 	// Jump forward and expire
 	now += float_time_to_u64(10.0);
-	ensure_equals("t9 - 5.0 horizon timer expires on 10-second jump", timer.isExpired(started, stopped, count, now), true);
+	ensure_equals("t9 - 5.0 horizon timer expires on 10-second jump",
+				  timer.isExpired(now, started, stopped, count), true);
 	ensure_approximately_equals("t9 - started matches start() time", started, real_start, 4);
 	ensure_approximately_equals("t9 - stopped matches last ringBell() time", stopped, last_good_ring, 4);
 	ensure_equals("t9 - 10 good ringBell()s", count, U64L(10));
-	ensure_equals("t9 - single read only", timer.isExpired(started, stopped, count, now), false);
+	ensure_equals("t9 - single read only", timer.isExpired(now, started, stopped, count), false);
 }
 
 
@@ -256,40 +266,42 @@ void deadmantimer_object_t::test<10>()
 	U64 count(U64L(8));
 	LLDeadmanTimer timer(5.0);
 
-	U64 now(LLTimer::getCurrentClockCount());
+	LLDeadmanTimer::time_type now(LLDeadmanTimer::getNow());
 	F64 real_start(u64_time_to_float(now));
-	timer.start();
+	timer.start(0);
 
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
-	ensure_equals("t10 - 5.0 horizon timer has not timed out after 10 1-second bell rings", timer.isExpired(started, stopped, count, now), false);
+	timer.ringBell(now, 1);
+	ensure_equals("t10 - 5.0 horizon timer has not timed out after 10 1-second bell rings",
+				  timer.isExpired(now, started, stopped, count), false);
 	F64 last_good_ring(u64_time_to_float(now));
 
 	// Jump forward and expire
 	now += float_time_to_u64(10.0);
-	ensure_equals("t10 - 5.0 horizon timer expires on 10-second jump", timer.isExpired(started, stopped, count, now), true);
+	ensure_equals("t10 - 5.0 horizon timer expires on 10-second jump",
+				  timer.isExpired(now, started, stopped, count), true);
 	ensure_approximately_equals("t10 - started matches start() time", started, real_start, 4);
 	ensure_approximately_equals("t10 - stopped matches last ringBell() time", stopped, last_good_ring, 4);
 	ensure_equals("t10 - 10 good ringBell()s", count, U64L(10));
-	ensure_equals("t10 - single read only", timer.isExpired(started, stopped, count, now), false);
+	ensure_equals("t10 - single read only", timer.isExpired(now, started, stopped, count), false);
 
 	// Jump forward and restart
 	now += float_time_to_u64(1.0);
@@ -298,31 +310,34 @@ void deadmantimer_object_t::test<10>()
 
 	// Run a modified bell ring sequence
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
+	timer.ringBell(now, 1);
 	now += float_time_to_u64(1.0);
-	timer.ringBell(now);
-	ensure_equals("t10 - 5.0 horizon timer has not timed out after 8 1-second bell rings", timer.isExpired(started, stopped, count, now), false);
+	timer.ringBell(now, 1);
+	ensure_equals("t10 - 5.0 horizon timer has not timed out after 8 1-second bell rings",
+				  timer.isExpired(now, started, stopped, count), false);
 	last_good_ring = u64_time_to_float(now);
 
 	// Jump forward and expire
 	now += float_time_to_u64(10.0);
-	ensure_equals("t10 - 5.0 horizon timer expires on 8-second jump", timer.isExpired(started, stopped, count, now), true);
+	ensure_equals("t10 - 5.0 horizon timer expires on 8-second jump",
+				  timer.isExpired(now, started, stopped, count), true);
 	ensure_approximately_equals("t10 - 2nd started matches start() time", started, real_start, 4);
 	ensure_approximately_equals("t10 - 2nd stopped matches last ringBell() time", stopped, last_good_ring, 4);
 	ensure_equals("t10 - 8 good ringBell()s", count, U64L(8));
-	ensure_equals("t10 - single read only - 2nd start", timer.isExpired(started, stopped, count, now), false);
+	ensure_equals("t10 - single read only - 2nd start",
+				  timer.isExpired(now, started, stopped, count), false);
 }
 
 

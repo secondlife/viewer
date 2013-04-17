@@ -77,6 +77,16 @@
 class LL_COMMON_API LLDeadmanTimer
 {
 public:
+	/// Public types
+
+	/// Low-level time type chosen for compatibility with
+	/// LLTimer::getCurrentClockCount() which is the basis
+	/// of time operations in this class.  This is likely
+	/// to change in a future version in a move to TSC-based
+	/// timing.
+	typedef U64 time_type;
+	
+public:
 	/// Construct and initialize an LLDeadmanTimer
 	///
 	/// @param horizon	Time, in seconds, after the last @see ringBell()
@@ -93,6 +103,18 @@ private:
 	void operator=(const LLDeadmanTimer &);				// Not defined
 
 public:
+	/// Get the current time.  Zero-basis for this time
+	/// representation is not defined and is different on
+	/// different platforms.  Do not attempt to compute
+	/// negative times relative to the first value returned,
+	/// there may not be enough 'front porch' on the range
+	/// to prevent wraparound.
+	///
+	/// Note:  Implementation is expected to change in a
+	/// future release as well.
+	///
+	static time_type getNow();
+
 	/// Begin timing.  If the timer is already active, it is reset
 	///	and timing begins now.
 	///
@@ -100,8 +122,7 @@ public:
 	///					LLTimer::getCurrentClockCount().  If zero,
 	///					method will lookup current time.
 	///
-	void start(U64 now = U64L(0));
-
+	void start(time_type now);
 
 	/// End timing.  Actively declare the end of the event independent
 	/// of the deadman's switch operation.  @see isExpired() will return
@@ -111,10 +132,25 @@ public:
 	///					LLTimer::getCurrentClockCount().  If zero,
 	///					method will lookup current time.
 	///
-	void stop(U64 now = U64L(0));
-
+	void stop(time_type now);
 
 	/// Declare that something interesting happened.  This has two
+	/// effects on an unexpired-timer.  1)  The expiration time
+	/// is extended for 'horizon' seconds after the 'now' value.
+	/// 2)  An internal counter associated with the event is incremented
+	/// by the @ref count parameter.  This count is returned via the
+	/// @see isExpired() method.
+	///
+	/// @param now		Current time as returned by @see
+	///					LLTimer::getCurrentClockCount().  If zero,
+	///					method will lookup current time.
+	///
+	/// @param count	Count of events to be associated with
+	///					this bell ringing.
+	///
+	void ringBell(time_type now, unsigned int count);
+	
+	/// Checks on the status of the timer Declare that something interesting happened.  This has two
 	/// effects on an unexpired-timer.  1)  The expiration time
 	/// is extended for 'horizon' seconds after the 'now' value.
 	/// 2)  An internal counter associated with the event is incremented.
@@ -123,15 +159,6 @@ public:
 	/// @param now		Current time as returned by @see
 	///					LLTimer::getCurrentClockCount().  If zero,
 	///					method will lookup current time.
-	///
-	void ringBell(U64 now = U64L(0));
-	
-
-	/// Checks on the status of the timer Declare that something interesting happened.  This has two
-	/// effects on an unexpired-timer.  1)  The expiration time
-	/// is extended for 'horizon' seconds after the 'now' value.
-	/// 2)  An internal counter associated with the event is incremented.
-	/// This count is returned via the @see isExpired() method.
 	///
 	/// @param started	If expired, the starting time of the event is
 	///					returned to the caller via this reference.
@@ -146,25 +173,21 @@ public:
 	/// @param count	If expired, the number of ringBell() calls
 	///					made prior to expiration.
 	///
-	/// @param now		Current time as returned by @see
-	///					LLTimer::getCurrentClockCount().  If zero,
-	///					method will lookup current time.
-	///
 	/// @return			true if the timer has expired, false otherwise.
 	///					If true, it also returns the started,
 	///					stopped and count values otherwise these are
 	///					left unchanged.
 	///
-	bool isExpired(F64 & started, F64 & stopped, U64 & count, U64 now = U64L(0));
+	bool isExpired(time_type now, F64 & started, F64 & stopped, U64 & count);
 
 protected:
-	U64			mHorizon;
+	time_type	mHorizon;
 	bool		mActive;
 	bool		mDone;
-	U64			mStarted;
-	U64			mExpires;
-	U64			mStopped;
-	U64			mCount;
+	time_type	mStarted;
+	time_type	mExpires;
+	time_type	mStopped;
+	time_type	mCount;
 };
 	
 

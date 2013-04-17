@@ -2168,6 +2168,9 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 
 	if (status < 200 || status > 400)
 	{
+		// Manage time-to-load metrics for mesh download operations.
+		LLMeshRepository::metricsProgress(0);
+
 		//llwarns
 		//	<< "Header responder failed with status: "
 		//	<< status << ": " << reason << llendl;
@@ -2358,6 +2361,9 @@ void LLMeshRepository::shutdown()
 //called in the main thread.
 S32 LLMeshRepository::update()
 {
+	// Conditionally log a mesh metrics event
+	metricsUpdate();
+	
 	if(mUploadWaitList.empty())
 	{
 		return 0 ;
@@ -2377,6 +2383,9 @@ S32 LLMeshRepository::update()
 
 S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail, S32 last_lod)
 {
+	// Manage time-to-load metrics for mesh download operations.
+	metricsProgress(1);
+
 	if (detail < 0 || detail > 4)
 	{
 		return detail;
@@ -2680,7 +2689,7 @@ void LLMeshRepository::notifyDecompositionReceived(LLModel::Decomposition* decom
 void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVolume* volume)
 { //called from main thread
 	// Manage time-to-load metrics for mesh download operations.
-	metricsCheck();
+	metricsProgress(0);
 	
 	S32 detail = LLVolumeLODGroup::getVolumeDetailFromScale(volume->getDetail());
 
@@ -2725,6 +2734,9 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
 
 void LLMeshRepository::notifyMeshUnavailable(const LLVolumeParams& mesh_params, S32 lod)
 { //called from main thread
+	// Manage time-to-load metrics for mesh download operations.
+	metricsProgress(0);
+	
 	//get list of objects waiting to be notified this mesh is loaded
 	mesh_load_map::iterator obj_iter = mLoadingMeshes[lod].find(mesh_params);
 
@@ -3704,39 +3716,51 @@ bool LLMeshRepository::meshRezEnabled()
 	return false;
 }
 
+// Threading:  main thread only
+// static
 void LLMeshRepository::metricsStart()
 {
-	sQuiescentTimer.start();
+	sQuiescentTimer.start(0);
 }
 
+// Threading:  main thread only
+// static
 void LLMeshRepository::metricsStop()
 {
-	sQuiescentTimer.stop();
+	sQuiescentTimer.stop(0);
 }
 
-void LLMeshRepository::metricsCheck()
+// Threading:  main thread only
+// static
+void LLMeshRepository::metricsProgress(unsigned int this_count)
 {
 	static bool first_start(true);
-	F64 started, stopped;
-	U64 count;
-
 	if (first_start)
 	{
 		// Let the first request start the timing cycle for login.
 		metricsStart();
 		first_start = false;
 	}
-	sQuiescentTimer.ringBell();
-	if (sQuiescentTimer.isExpired(started, stopped, count))
+	sQuiescentTimer.ringBell(0, this_count);
+}
+
+// Threading:  main thread only
+// static
+void LLMeshRepository::metricsUpdate()
+{
+	F64 started, stopped;
+	U64 total_count;
+
+	if (sQuiescentTimer.isExpired(0, started, stopped, total_count))
 	{
 		LLSD metrics;
 
-		metrics["reason"] = "Mesh download quiescent";
+		metrics["reason"] = "Mesh Download Quiescent";
 		metrics["scope"] = "Login";
 		metrics["start"] = started;
 		metrics["stop"] = stopped;
-		metrics["downloads"] = LLSD::Integer(count);
-		llinfos << "MetricsMarker" << metrics << llendl;
+		metrics["downloads"] = LLSD::Integer(total_count);
+		llinfos << "EventMarker " << metrics << llendl;
 	}
 }
 	
