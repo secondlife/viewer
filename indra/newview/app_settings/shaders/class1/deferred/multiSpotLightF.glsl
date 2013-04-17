@@ -181,6 +181,7 @@ void main()
 	vec3 col = vec3(0,0,0);
 		
 	vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
+	diff_tex = pow(diff_tex, vec3(2.2));
 		
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
 	if (proj_tc.z > 0.0 &&
@@ -202,8 +203,6 @@ void main()
 			vec3 lcol = color.rgb * plcol.rgb * plcol.a;
 			
 			lit = da * dist_atten * noise;
-
-			lit = pow(lit, 0.7);
 			
 			col = lcol*lit*diff_tex;
 			amb_da += (da*0.5)*proj_ambiance;
@@ -223,6 +222,8 @@ void main()
 	
 	
 	vec4 spec = texture2DRect(specularRect, frag.xy);
+	spec.rgb = pow(spec.rgb, vec3(2.2));
+	
 	if (spec.a > 0.0)
 	{
 		vec3 ref = reflect(normalize(pos), norm);

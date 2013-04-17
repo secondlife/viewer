@@ -129,7 +129,7 @@ void main()
 #else
 	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
-
+	diff.rgb = pow(diff.rgb, vec3(2.2));
 #if INDEX_MODE == NON_INDEXED_NO_COLOR
 	float vertex_color_alpha = 1.0;
 #else
@@ -173,7 +173,6 @@ void main()
 #endif
 
 	color.rgb += diff.rgb * vary_pointlight_col * light_col;
-
 	frag_color = color;
 }
 

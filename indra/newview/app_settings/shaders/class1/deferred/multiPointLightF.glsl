@@ -93,7 +93,8 @@ void main()
 	norm = decode_normal(norm.xy); // unpack norm
 	norm = normalize(norm);
 	vec4 spec = texture2DRect(specularRect, frag.xy);
-	vec3 diff = texture2DRect(diffuseRect, frag.xy).rgb;
+	spec.rgb = pow(spec.rgb, vec3(2.2));
+	vec3 diff = pow(texture2DRect(diffuseRect, frag.xy).rgb, vec3(2.2));
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
 	vec3 out_col = vec3(0,0,0);
 	vec3 npos = normalize(-pos);
@@ -128,8 +129,6 @@ void main()
 			dist_atten *= noise;
 
 			float lit = da * dist_atten;
-
-			lit = pow(lit,0.7);
 						
 			vec3 col = light_col[i].rgb*lit*diff;
 			

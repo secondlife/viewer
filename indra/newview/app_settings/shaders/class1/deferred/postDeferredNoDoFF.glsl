@@ -42,6 +42,6 @@ void main()
 	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord.xy);
 	
 	vec4 bloom = texture2D(bloomMap, vary_fragcoord.xy/screen_res);
-	frag_color = diff + bloom;
+	frag_color = pow(diff + bloom, vec4(0.454545, 0.454545, 0.454545, 1.0));
 }
 

@@ -181,21 +181,21 @@ void main()
 	vary_rotation[2] = vec3(t.z, b.z, n.z);
 
 	calcAtmospherics(pos.xyz);
-
+	vec3 dff = pow(diffuse_color.rgb, vec3(2.2));
 	//vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.));
 	vec4 col = vec4(0.0, 0.0, 0.0, diffuse_color.a);
 	
-	vary_pointlight_col = diffuse_color.rgb;
+	vary_pointlight_col = dff;
 	
 	col.rgb = vec3(0,0,0);
 
 	// Add windlight lights
 	col.rgb = atmosAmbient(vec3(0.));
 	
-	vary_ambient = col.rgb*diffuse_color.rgb;
 	vary_directional.rgb = atmosAffectDirectionalLight(1);
+	vary_ambient = col.rgb*dff;
 	
-	col.rgb = col.rgb*diffuse_color.rgb;
+	col.rgb = col.rgb*dff;
 #if INDEX_MODE != NON_INDEXED_NO_COLOR
 	vertex_color = col;
 #endif
