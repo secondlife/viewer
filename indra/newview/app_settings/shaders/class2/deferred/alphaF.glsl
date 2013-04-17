@@ -240,10 +240,10 @@ void main()
 	color.rgb = atmosLighting(color.rgb);
 
 	color.rgb = scaleSoftClip(color.rgb);
-	vec3 light_col = vec3(0,0,0);
+	col = vec3(0,0,0);
 
   #define LIGHT_LOOP(i) \
-		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, vary_norm, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+		col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, vary_norm, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
 		
 	LIGHT_LOOP(1)
 	LIGHT_LOOP(2)
@@ -253,7 +253,7 @@ void main()
 	LIGHT_LOOP(6)
 	LIGHT_LOOP(7)
 
-	color.rgb += diff.rgb * vary_pointlight_col * light_col;
+	color.rgb += diff.rgb * vary_pointlight_col * col;
 
 	frag_color = color;
 }
