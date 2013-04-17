@@ -32,11 +32,16 @@ LLAdaptiveRetryPolicy::LLAdaptiveRetryPolicy(F32 min_delay, F32 max_delay, F32 b
 	mMinDelay(min_delay),
 	mMaxDelay(max_delay),
 	mBackoffFactor(backoff_factor),
-	mMaxRetries(max_retries),
-	mDelay(min_delay),
-	mRetryCount(0),
-	mShouldRetry(true)
+	mMaxRetries(max_retries)
 {
+	init();
+}
+
+void LLAdaptiveRetryPolicy::init()
+{
+	mDelay = mMinDelay;
+	mRetryCount = 0;
+	mShouldRetry = true;
 }
 
 bool LLAdaptiveRetryPolicy::getRetryAfter(const LLSD& headers, F32& retry_header_time)
@@ -57,6 +62,11 @@ bool LLAdaptiveRetryPolicy::getRetryAfter(const LLCore::HttpHeaders *headers, F3
 		}
 	}
 	return false;
+}
+
+void LLAdaptiveRetryPolicy::onSuccess()
+{
+	init();
 }
 
 void LLAdaptiveRetryPolicy::onFailure(S32 status, const LLSD& headers)

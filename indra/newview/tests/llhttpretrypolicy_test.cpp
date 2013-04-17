@@ -45,7 +45,7 @@ void RetryPolicyTestObject::test<1>()
 	LLSD headers;
 	F32 wait_seconds;
 	
-	// No retry until we've finished a try.
+	// No retry until we've failed a try.
 	ensure("never retry 0", !never_retry.shouldRetry(wait_seconds));
 
 	// 0 retries max.
@@ -74,7 +74,7 @@ void RetryPolicyTestObject::test<3>()
 	bool should_retry;
 	U32 frac_bits = 6;
 
-	// No retry until we've finished a try.
+	// No retry until we've failed a try.
 	ensure("basic_retry 0", !basic_retry.shouldRetry(wait_seconds));
 
 	// Starting wait 1.0
@@ -105,6 +105,29 @@ void RetryPolicyTestObject::test<3>()
 	basic_retry.onFailure(500,headers);
 	should_retry = basic_retry.shouldRetry(wait_seconds);
 	ensure("basic_retry 5", !should_retry);
+
+	// Max retries, should fail now.
+	basic_retry.onFailure(500,headers);
+	should_retry = basic_retry.shouldRetry(wait_seconds);
+	ensure("basic_retry 5", !should_retry);
+
+	// After a success, should reset to the starting state.
+	basic_retry.onSuccess();
+
+	// No retry until we've failed a try.
+	ensure("basic_retry 6", !basic_retry.shouldRetry(wait_seconds));
+
+	// Starting wait 1.0
+	basic_retry.onFailure(500,headers);
+	should_retry = basic_retry.shouldRetry(wait_seconds);
+	ensure("basic_retry 7", should_retry);
+	ensure_approximately_equals("basic_retry 7", wait_seconds, 1.0F, frac_bits);
+
+	// Double wait to 2.0
+	basic_retry.onFailure(500,headers);
+	should_retry = basic_retry.shouldRetry(wait_seconds);
+	ensure("basic_retry 8", should_retry);
+	ensure_approximately_equals("basic_retry 8", wait_seconds, 2.0F, frac_bits);
 }
 
 // Retries should stop as soon as a non-5xx error is received.
@@ -221,7 +244,7 @@ void RetryPolicyTestObject::test<6>()
 	success = getSecondsUntilRetryAfter(str3, seconds_to_wait);
 	std::cerr << " str3 [" << str3 << "]" << std::endl;
 	ensure("parse 3", success);
-	ensure_approximately_equals("parse 3", seconds_to_wait, 44.0F, 2);
+	ensure_approximately_equals_range("parse 3", seconds_to_wait, 44.0F, 2.0F);
 }
 
 // Test retry-after field in both llmessage and CoreHttp headers.
@@ -237,7 +260,7 @@ void RetryPolicyTestObject::test<7>()
 	F32 seconds_to_wait;
 	bool should_retry;
 
-	// No retry until we've finished a try.
+	// No retry until we've failed a try.
 	ensure("header 0", !policy.shouldRetry(seconds_to_wait));
 	
 	// no retry header, use default.
@@ -252,7 +275,7 @@ void RetryPolicyTestObject::test<7>()
 	policy.onFailure(503,sd_headers);
 	should_retry = policy.shouldRetry(seconds_to_wait);
 	ensure("header 2", should_retry);
-	ensure_approximately_equals("header 2", seconds_to_wait, 7.0F, 2);
+	ensure_approximately_equals_range("header 2", seconds_to_wait, 7.0F, 2.0F);
 
 	LLCore::HttpResponse *response;
 	LLCore::HttpHeaders *headers;
@@ -279,7 +302,7 @@ void RetryPolicyTestObject::test<7>()
 	policy.onFailure(response);
 	should_retry = policy.shouldRetry(seconds_to_wait);
 	ensure("header 4",should_retry);
-	ensure_approximately_equals("header 4", seconds_to_wait, 77.0F, 2);
+	ensure_approximately_equals_range("header 4", seconds_to_wait, 77.0F, 2.0F);
 	response->release();
 
 	// Timeout should be clamped at max.

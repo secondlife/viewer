@@ -42,7 +42,11 @@ class LLHTTPRetryPolicy: public LLThreadSafeRefCount
 {
 public:
 	LLHTTPRetryPolicy() {}
+
 	virtual ~LLHTTPRetryPolicy() {}
+	// Call after a sucess to reset retry state.
+
+	virtual void onSuccess() = 0;
 	// Call once after an HTTP failure to update state.
 	virtual void onFailure(S32 status, const LLSD& headers) = 0;
 
@@ -59,6 +63,9 @@ public:
 	LLAdaptiveRetryPolicy(F32 min_delay, F32 max_delay, F32 backoff_factor, U32 max_retries);
 
 	// virtual
+	void onSuccess();
+	
+	// virtual
 	void onFailure(S32 status, const LLSD& headers);
 	// virtual
 	void onFailure(const LLCore::HttpResponse *response);
@@ -66,16 +73,17 @@ public:
 	bool shouldRetry(F32& seconds_to_wait) const;
 
 protected:
+	void init();
 	bool getRetryAfter(const LLSD& headers, F32& retry_header_time);
 	bool getRetryAfter(const LLCore::HttpHeaders *headers, F32& retry_header_time);
 	void onFailureCommon(S32 status, bool has_retry_header_time, F32 retry_header_time);
 
 private:
 
-	F32 mMinDelay; // delay never less than this value
-	F32 mMaxDelay; // delay never exceeds this value
-	F32 mBackoffFactor; // delay increases by this factor after each retry, up to mMaxDelay.
-	U32 mMaxRetries; // maximum number of times shouldRetry will return true.
+	const F32 mMinDelay; // delay never less than this value
+	const F32 mMaxDelay; // delay never exceeds this value
+	const F32 mBackoffFactor; // delay increases by this factor after each retry, up to mMaxDelay.
+	const U32 mMaxRetries; // maximum number of times shouldRetry will return true.
 	F32 mDelay; // current default delay.
 	U32 mRetryCount; // number of times shouldRetry has been called.
 	LLTimer mRetryTimer; // time until next retry.

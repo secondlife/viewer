@@ -1976,6 +1976,10 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 			llinfos << mID << " will not retry" << llendl;
 		}
 	}
+	else
+	{
+		mFetchRetryPolicy.onSuccess();
+	}
 	
 	LL_DEBUGS("Texture") << "HTTP COMPLETE: " << mID
 						 << " status: " << status.toHex()
