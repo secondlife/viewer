@@ -478,10 +478,10 @@ bool LLAudioChannelFMODEX::updateBuffer()
 		// SJB: warnings can spam and hurt framerate, disabling
 		//FMOD_RESULT result;
 
-		result = mChannelp->setVolume(getSecondaryGain() * mCurrentSourcep->getGain());
+		mChannelp->setVolume(getSecondaryGain() * mCurrentSourcep->getGain());
 		//Check_FMOD_Error(result, "FMOD::Channel::setVolume");
 
-		result = mChannelp->setMode(mCurrentSourcep->isLoop() ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
+		mChannelp->setMode(mCurrentSourcep->isLoop() ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
 		/*if(Check_FMOD_Error(result, "FMOD::Channel::setMode"))
 		{
 			S32 index;
