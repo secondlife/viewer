@@ -35,8 +35,6 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect depthMap;
-
 #if INDEX_MODE != INDEXED
 uniform sampler2D diffuseMap;
 #endif
@@ -71,10 +69,6 @@ uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
-
-uniform sampler2D bumpMap;
-uniform samplerCube environmentMap;
-uniform mat3 env_mat;
 
 uniform vec4 specular_color;
 
@@ -137,10 +131,6 @@ void main()
 #endif
 	
 	vec3 normal = vary_norm;
-	normal = texture2D(bumpMap, vary_texcoord1.xy).xyz * 2 - 1;
-	normal = vec3(dot(normal.xyz, vary_rotation[0]),
-				dot(normal.xyz, vary_rotation[1]),
-				dot(normal.xyz, vary_rotation[2]));
 	
 	vec3 l = light_position[0].xyz;
 	vec3 dlight = calcDirectionalLight(normal, l);

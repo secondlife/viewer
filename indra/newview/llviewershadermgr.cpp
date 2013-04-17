@@ -175,9 +175,6 @@ LLGLSLShader			gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram;
 LLGLSLShader			gDeferredSkinnedDiffuseProgram;
 LLGLSLShader			gDeferredSkinnedBumpProgram;
 LLGLSLShader			gDeferredSkinnedAlphaProgram;
-#if LL_DARWIN
-LLGLSLShader			gDeferredSkinnedAlphaProgramMac;
-#endif
 LLGLSLShader			gDeferredBumpProgram;
 LLGLSLShader			gDeferredTerrainProgram;
 LLGLSLShader			gDeferredTreeProgram;
@@ -277,11 +274,16 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gUnderWaterProgram);
 	mShaderList.push_back(&gDeferredSunProgram);
 	mShaderList.push_back(&gDeferredSoftenProgram);
+	mShaderList.push_back(&gDeferredMaterialProgram[1]);
+	mShaderList.push_back(&gDeferredMaterialProgram[5]);
+	mShaderList.push_back(&gDeferredMaterialProgram[9]);
+	mShaderList.push_back(&gDeferredMaterialProgram[13]);
+	mShaderList.push_back(&gDeferredMaterialProgram[1+LLMaterial::SHADER_COUNT]);
+	mShaderList.push_back(&gDeferredMaterialProgram[5+LLMaterial::SHADER_COUNT]);
+	mShaderList.push_back(&gDeferredMaterialProgram[9+LLMaterial::SHADER_COUNT]);
+	mShaderList.push_back(&gDeferredMaterialProgram[13+LLMaterial::SHADER_COUNT]);	
 	mShaderList.push_back(&gDeferredAlphaProgram);
 	mShaderList.push_back(&gDeferredSkinnedAlphaProgram);
-#if LL_DARWIN
-	mShaderList.push_back(&gDeferredSkinnedAlphaProgramMac);
-#endif
 	mShaderList.push_back(&gDeferredFullbrightProgram);
 	mShaderList.push_back(&gDeferredEmissiveProgram);
 	mShaderList.push_back(&gDeferredAvatarEyesProgram);
@@ -789,6 +791,9 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	// Load basic dependency shaders first
 	// All of these have to load for any shaders to function
 	
+#if LL_DARWIN // Mac can't currently handle all 8 lights, 
+	S32 sum_lights_class = 2;
+#else 
 	S32 sum_lights_class = 3;
 
 	// class one cards will get the lower sum lights
@@ -799,21 +804,14 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	{
 		sum_lights_class = 2;
 	}
+#endif
 
 	// If we have sun and moon only checked, then only sum those lights.
 	if (gPipeline.getLightingDetail() == 0)
 	{
 		sum_lights_class = 1;
 	}
-	
-#if LL_DARWIN
-	// Work around driver crashes on older Macs when using deferred rendering
-	// NORSPEC-59
-	//
-	if (gGLManager.mIsMobileGF)
-		sum_lights_class = 3;
-#endif
-	
+
 	// Use the feature table to mask out the max light level to use.  Also make sure it's at least 1.
 	S32 max_light_class = gSavedSettings.getS32("RenderShaderLightingMaxLevel");
 	sum_lights_class = llclamp(sum_lights_class, 1, max_light_class);
@@ -1088,9 +1086,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSkinnedDiffuseProgram.unload();
 		gDeferredSkinnedBumpProgram.unload();
 		gDeferredSkinnedAlphaProgram.unload();
-#if LL_DARWIN
-		gDeferredSkinnedAlphaProgramMac.unload();
-#endif
 		gDeferredBumpProgram.unload();
 		gDeferredImpostorProgram.unload();
 		gDeferredTerrainProgram.unload();
@@ -1224,44 +1219,12 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSkinnedAlphaProgram.addPermutation("INDEX_MODE", "2");
 		gDeferredSkinnedAlphaProgram.addPermutation("HAS_SKIN", "1");
 		gDeferredSkinnedAlphaProgram.addPermutation("IS_AVATAR_SKIN", "0");
-		gDeferredSkinnedAlphaProgram.addPermutation("MAC_GEFORCE_HACK","0");
-		
 		success = gDeferredSkinnedAlphaProgram.createShader(NULL, NULL);
 		
 		// Hack to include uniforms for lighting without linking in lighting file
 		gDeferredSkinnedAlphaProgram.mFeatures.calculatesLighting = true;
 		gDeferredSkinnedAlphaProgram.mFeatures.hasLighting = true;
 	}
-
-#if LL_DARWIN
-	if (success)
-	{
-		gDeferredSkinnedAlphaProgramMac.mName = "Deferred Skinned Alpha Shader";
-		gDeferredSkinnedAlphaProgramMac.mFeatures.atmosphericHelpers = true;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.hasObjectSkinning = true;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.calculatesAtmospherics = true;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.hasGamma = true;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.hasAtmospherics = true;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.calculatesLighting = false;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.hasLighting = false;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.isAlphaLighting = true;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.disableTextureIndex = true;
-		gDeferredSkinnedAlphaProgramMac.mShaderFiles.clear();
-		gDeferredSkinnedAlphaProgramMac.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredSkinnedAlphaProgramMac.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredSkinnedAlphaProgramMac.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		gDeferredSkinnedAlphaProgramMac.addPermutation("INDEX_MODE", "2");
-		gDeferredSkinnedAlphaProgramMac.addPermutation("HAS_SKIN", "1");
-		gDeferredSkinnedAlphaProgramMac.addPermutation("IS_AVATAR_SKIN", "0");
-		gDeferredSkinnedAlphaProgramMac.addPermutation("MAC_GEFORCE_HACK","1");
-		
-		success = gDeferredSkinnedAlphaProgramMac.createShader(NULL, NULL);
-		
-		// Hack to include uniforms for lighting without linking in lighting file
-		gDeferredSkinnedAlphaProgramMac.mFeatures.calculatesLighting = true;
-		gDeferredSkinnedAlphaProgramMac.mFeatures.hasLighting = true;
-	}
-#endif
 
 	if (success)
 	{
@@ -1273,6 +1236,14 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		success = gDeferredBumpProgram.createShader(NULL, NULL);
 	}
 	
+	gDeferredMaterialProgram[1].mFeatures.hasLighting = false;
+	gDeferredMaterialProgram[5].mFeatures.hasLighting = false;
+	gDeferredMaterialProgram[9].mFeatures.hasLighting = false;
+	gDeferredMaterialProgram[13].mFeatures.hasLighting = false;
+	gDeferredMaterialProgram[1+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
+	gDeferredMaterialProgram[5+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
+	gDeferredMaterialProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
+	gDeferredMaterialProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
 
 	for (U32 i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
 	{
@@ -1289,7 +1260,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			gDeferredMaterialProgram[i].addPermutation("HAS_NORMAL_MAP", i & 0x8? "1" : "0");
 			gDeferredMaterialProgram[i].addPermutation("HAS_SPECULAR_MAP", i & 0x4 ? "1" : "0");
 			gDeferredMaterialProgram[i].addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
-
+			gDeferredMaterialProgram[i].addPermutation("HAS_SUN_SHADOW", mVertexShaderLevel[SHADER_DEFERRED] > 1 ? "1" : "0");
 			bool has_skin = i & 0x10;
 			gDeferredMaterialProgram[i].addPermutation("HAS_SKIN",has_skin ? "1" : "0");
 			if (has_skin)
@@ -1300,6 +1271,16 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			success = gDeferredMaterialProgram[i].createShader(NULL, NULL);
 		}
 	}
+
+	gDeferredMaterialProgram[1].mFeatures.hasLighting = true;
+	gDeferredMaterialProgram[5].mFeatures.hasLighting = true;
+	gDeferredMaterialProgram[9].mFeatures.hasLighting = true;
+	gDeferredMaterialProgram[13].mFeatures.hasLighting = true;
+	gDeferredMaterialProgram[1+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
+	gDeferredMaterialProgram[5+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
+	gDeferredMaterialProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
+	gDeferredMaterialProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
+
 
 	
 	if (success)
@@ -1435,7 +1416,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAlphaProgram.addPermutation("INDEX_MODE", "1");
 		gDeferredAlphaProgram.addPermutation("HAS_SKIN", "0");
 		gDeferredAlphaProgram.addPermutation("IS_AVATAR_SKIN", "0");
-		gDeferredAlphaProgram.addPermutation("MAC_GEFORCE_HACK","0");
 		success = gDeferredAlphaProgram.createShader(NULL, NULL);
 
 		// Hack
@@ -1609,7 +1589,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarAlphaProgram.addPermutation("INDEX_MODE", "3");
 		gDeferredAvatarAlphaProgram.addPermutation("HAS_SKIN", "0");
 		gDeferredAvatarAlphaProgram.addPermutation("IS_AVATAR_SKIN", "1");
-		gDeferredAvatarAlphaProgram.addPermutation("MAC_GEFORCE_HACK","0");
 		
 		success = gDeferredAvatarAlphaProgram.createShader(NULL, &mAvatarUniforms);
 
