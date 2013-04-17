@@ -47,6 +47,6 @@ void main()
 	
 	passTextureIndex();
 	vary_normal = normalize(normal_matrix * normal);
-
+	
 	vertex_color = diffuse_color;
 }

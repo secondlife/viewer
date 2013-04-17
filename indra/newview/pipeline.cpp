@@ -9036,6 +9036,9 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 
 	LLGLEnable cull(GL_CULL_FACE);
 
+	//enable depth clamping if available
+	LLGLEnable depth_clamp(gGLManager.mHasDepthClamp ? GL_DEPTH_CLAMP : 0);
+
 	if (use_shader)
 	{
 		gDeferredShadowCubeProgram.bind();
