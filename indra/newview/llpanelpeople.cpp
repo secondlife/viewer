@@ -567,7 +567,7 @@ LLPanelPeople::LLPanelPeople()
 	mCommitCallbackRegistrar.add("People.requestFBC", boost::bind(&LLPanelPeople::onFacebookAppRequestClicked, this));
 	mCommitCallbackRegistrar.add("People.sendFBC", boost::bind(&LLPanelPeople::onFacebookAppSendClicked, this));
 	mCommitCallbackRegistrar.add("People.testaddFBC", boost::bind(&LLPanelPeople::onFacebookTestAddClicked, this));
-
+	mCommitCallbackRegistrar.add("People.testaddFBCFolderView", boost::bind(&LLPanelPeople::addTestParticipant, this));
 
 	mCommitCallbackRegistrar.add("People.AddFriend", boost::bind(&LLPanelPeople::onAddFriendButtonClicked, this));
 	mCommitCallbackRegistrar.add("People.AddFriendWizard",	boost::bind(&LLPanelPeople::onAddFriendWizButtonClicked,	this));
@@ -1670,9 +1670,6 @@ bool LLPanelPeople::onConversationModelEvent(const LLSD& event)
 			LLConversationViewParticipant * participant_view = createConversationViewParticipant(participant_model);
 			participant_view->addToFolder(session_view);
 		}
-		
-
-		llinfos << "adding!!!!!!" << llendl;
 	}
 
 	return false;
@@ -1717,7 +1714,15 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 		std::string name = i->second["name"].asString();
 		LLUUID agent_id = i->second.has("agent_id") ? i->second["agent_id"].asUUID() : LLUUID(NULL);
 		
+		//add to avatar list
 		mFacebookFriends->addNewItem(agent_id, name, false);
+
+		//Add to folder view
+		LLConversationItemSession * session_model = dynamic_cast<LLConversationItemSession *>(mConversationsItems[LLUUID(NULL)]);
+		if(session_model)
+		{
+			addParticipantToModel(session_model, agent_id, name);
+		}
 	}
 }
 
