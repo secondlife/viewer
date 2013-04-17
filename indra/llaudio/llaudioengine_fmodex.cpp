@@ -476,7 +476,7 @@ bool LLAudioChannelFMODEX::updateBuffer()
 	if (mCurrentSourcep)
 	{
 		// SJB: warnings can spam and hurt framerate, disabling
-		FMOD_RESULT result;
+		//FMOD_RESULT result;
 
 		result = mChannelp->setVolume(getSecondaryGain() * mCurrentSourcep->getGain());
 		//Check_FMOD_Error(result, "FMOD::Channel::setVolume");
