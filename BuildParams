@@ -21,6 +21,11 @@ email_status_this_is_os = true
 # Limit extent of codeticket updates to revisions after...
 codeticket_since = 3.3.0-release
 
+# Override build system default toolchain
+# Note that this will only affect automated builds.
+Linux.gcc_version = /usr/bin/gcc-4.6
+Linux.cxx_version = /usr/bin/g++-4.6
+
 # ========================================
 # Viewer Development
 # ========================================
@@ -126,6 +131,18 @@ viewer-pathfinding.viewer_grid = agni
 viewer-pathfinding.build_debug_release_separately = true
 viewer-pathfinding.build_CYGWIN_Debug = false
 viewer-pathfinding.build_viewer_update_version_manager = false
+
+# ========================================
+# viewer-chui
+#
+# ========================================
+
+viewer-chui.viewer_channel = "Project Viewer - CHUI"
+viewer-chui.login_channel = "Project Viewer - CHUI"
+viewer-chui.viewer_grid = agni
+viewer-chui.build_debug_release_separately = true
+viewer-chui.build_CYGWIN_Debug = false
+viewer-chui.build_viewer_update_version_manager = false
 
 # =================================================================
 # asset delivery 2010 projects

@@ -35,6 +35,7 @@
 // library
 #include "llaudioengine.h"
 #include "lldatapacker.h"
+#include "llfloaterreg.h"
 #include "llinventory.h"
 #include "llkeyframemotion.h"
 #include "llmultigesture.h"
@@ -51,7 +52,7 @@
 #include "llviewermessage.h"
 #include "llvoavatarself.h"
 #include "llviewerstats.h"
-#include "llnearbychatbar.h"
+#include "llfloaterimnearbychat.h"
 #include "llappearancemgr.h"
 #include "llgesturelistener.h"
 
@@ -337,7 +338,7 @@ void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 
 	gAgent.sendReliableMessage();
 
-	LLAppearanceMgr::instance().removeCOFItemLinks(base_item_id, false);
+	LLAppearanceMgr::instance().removeCOFItemLinks(base_item_id);
 
 	notifyObservers();
 }
@@ -997,7 +998,8 @@ void LLGestureMgr::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 
 			const BOOL animate = FALSE;
 
-			LLNearbyChatBar::getInstance()->sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
+			(LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
+					sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
 
 			gesture->mCurrentStep++;
 			break;

@@ -441,7 +441,7 @@ void LLDrawable::makeActive()
 	}
 
 	llassert(isAvatar() || isRoot() || mParent->isActive());
-}
+	}
 
 
 void LLDrawable::makeStatic(BOOL warning_enabled)
@@ -455,7 +455,7 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 
 		//drawable became static with active parent, not acceptable
 		llassert(mParent.isNull() || !mParent->isActive() || !warning_enabled);
-		
+
 		LLViewerObject::const_child_list_t& child_list = mVObjp->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
 			 iter != child_list.end(); iter++)
@@ -511,7 +511,6 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	//scaling
 	LLVector3 target_scale = mVObjp->getScale();
 	LLVector3 old_scale = mCurrentScale;
-	LLVector3 dest_scale = target_scale;
 	
 	// Damping
 	F32 dist_squared = 0.f;
@@ -576,6 +575,12 @@ F32 LLDrawable::updateXform(BOOL undamped)
 			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
 			mVObjp->dirtySpatialGroup();
 		}
+	}
+	else if (!isRoot() &&
+			((dist_vec_squared(old_pos, target_pos) > 0.f)
+			|| (1.f - dot(old_rot, target_rot)) > 0.f))
+	{ //fix for BUG-840, MAINT-2275, MAINT-1742, MAINT-2247
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 	}
 	else if (!getVOVolume() && !isAvatar())
 	{
@@ -642,20 +647,10 @@ BOOL LLDrawable::updateMove()
 	{
 		return FALSE;
 	}
-
+	
 	makeActive();
 
-	BOOL done;
-
-	if (isState(MOVE_UNDAMPED))
-	{
-		done = updateMoveUndamped();
-	}
-	else
-	{
-		done = updateMoveDamped();
-	}
-	return done;
+	return isState(MOVE_UNDAMPED) ? updateMoveUndamped() : updateMoveDamped();
 }
 
 BOOL LLDrawable::updateMoveUndamped()
@@ -1241,7 +1236,6 @@ LLCamera LLSpatialBridge::transformCamera(LLCamera& camera)
 	LLCamera ret = camera;
 	LLXformMatrix* mat = mDrawable->getXform();
 	LLVector3 center = LLVector3(0,0,0) * mat->getWorldMatrix();
-	LLQuaternion rotation = LLQuaternion(mat->getWorldMatrix());
 
 	LLVector3 delta = ret.getOrigin() - center;
 	LLQuaternion rot = ~mat->getRotation();

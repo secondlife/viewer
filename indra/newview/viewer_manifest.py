@@ -1082,7 +1082,7 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libcrypto.so.*")
             self.path("libexpat.so.*")
             self.path("libssl.so.1.0.0")
-            self.path("libglod.so")
+            self.path("libGLOD.so")
             self.path("libminizip.so")
             self.path("libuuid.so*")
             self.path("libSDL-1.2.so.*")

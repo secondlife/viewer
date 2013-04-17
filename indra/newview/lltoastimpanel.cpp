@@ -104,9 +104,9 @@ LLToastIMPanel::~LLToastIMPanel()
 }
 
 //virtual
-BOOL LLToastIMPanel::handleMouseDown(S32 x, S32 y, MASK mask)
+BOOL LLToastIMPanel::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	if (LLPanel::handleMouseDown(x,y,mask) == FALSE)
+	if (LLPanel::handleMouseUp(x,y,mask) == FALSE)
 	{
 		mNotification->respond(mNotification->getResponseTemplate());
 	}

@@ -221,9 +221,9 @@ void fetchScriptLimitsRegionInfoResponder::result(const LLSD& content)
 	}
 }
 
-void fetchScriptLimitsRegionInfoResponder::error(U32 status, const std::string& reason)
+void fetchScriptLimitsRegionInfoResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	llwarns << "Error from responder " << reason << llendl;
+	llwarns << "fetchScriptLimitsRegionInfoResponder error [status:" << status << "]: " << content << llendl;
 }
 
 void fetchScriptLimitsRegionSummaryResponder::result(const LLSD& content_ref)
@@ -308,9 +308,9 @@ void fetchScriptLimitsRegionSummaryResponder::result(const LLSD& content_ref)
 	}
 }
 
-void fetchScriptLimitsRegionSummaryResponder::error(U32 status, const std::string& reason)
+void fetchScriptLimitsRegionSummaryResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	llwarns << "Error from responder " << reason << llendl;
+	llwarns << "fetchScriptLimitsRegionSummaryResponder error [status:" << status << "]: " << content << llendl;
 }
 
 void fetchScriptLimitsRegionDetailsResponder::result(const LLSD& content_ref)
@@ -417,9 +417,9 @@ result (map)
 	}
 }
 
-void fetchScriptLimitsRegionDetailsResponder::error(U32 status, const std::string& reason)
+void fetchScriptLimitsRegionDetailsResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	llwarns << "Error from responder " << reason << llendl;
+	llwarns << "fetchScriptLimitsRegionDetailsResponder error [status:" << status << "]: " << content << llendl;
 }
 
 void fetchScriptLimitsAttachmentInfoResponder::result(const LLSD& content_ref)
@@ -513,9 +513,9 @@ void fetchScriptLimitsAttachmentInfoResponder::result(const LLSD& content_ref)
 	}
 }
 
-void fetchScriptLimitsAttachmentInfoResponder::error(U32 status, const std::string& reason)
+void fetchScriptLimitsAttachmentInfoResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	llwarns << "Error from responder " << reason << llendl;
+	llwarns << "fetchScriptLimitsAttachmentInfoResponder error [status:" << status << "]: " << content << llendl;
 }
 
 ///----------------------------------------------------------------------------
@@ -602,15 +602,7 @@ void LLPanelScriptLimitsRegionMemory::onNameCache(
 		return;
 	}
 	
-	std::string name;
-	if (LLAvatarNameCache::useDisplayNames())
-	{
-		name = LLCacheName::buildUsername(full_name);
-	}
-	else
-	{
-		name = full_name;
-	}
+	std::string name = LLCacheName::buildUsername(full_name);
 
 	std::vector<LLSD>::iterator id_itor;
 	for (id_itor = mObjectListItems.begin(); id_itor != mObjectListItems.end(); ++id_itor)
@@ -713,10 +705,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 				else
 				{
 					name_is_cached = gCacheName->getFullName(owner_id, owner_buf);  // username
-					if (LLAvatarNameCache::useDisplayNames())
-					{
-						owner_buf = LLCacheName::buildUsername(owner_buf);
-					}
+					owner_buf = LLCacheName::buildUsername(owner_buf);
 				}
 				if(!name_is_cached)
 				{

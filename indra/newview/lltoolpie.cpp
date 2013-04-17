@@ -791,14 +791,10 @@ BOOL LLToolPie::handleTooltipLand(std::string line, std::string tooltip_msg)
 	
 	LLParcel* hover_parcel = LLViewerParcelMgr::getInstance()->getHoverParcel();
 	LLUUID owner;
-	S32 width = 0;
-	S32 height = 0;
 	
 	if ( hover_parcel )
 	{
 		owner = hover_parcel->getOwnerID();
-		width = S32(LLViewerParcelMgr::getInstance()->getHoverParcelWidth());
-		height = S32(LLViewerParcelMgr::getInstance()->getHoverParcelHeight());
 	}
 	
 	// Line: "Land"
@@ -973,33 +969,16 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			|| !existing_inspector->getVisible()
 			|| existing_inspector->getKey()["avatar_id"].asUUID() != hover_object->getID())
 		{
-			// IDEVO: try to get display name + username
+			// Try to get display name + username
 			std::string final_name;
-			std::string full_name;
-			if (!gCacheName->getFullName(hover_object->getID(), full_name))
-			{
-			LLNameValue* firstname = hover_object->getNVPair("FirstName");
-			LLNameValue* lastname =  hover_object->getNVPair("LastName");
-			if (firstname && lastname)
-			{
-					full_name = LLCacheName::buildFullName(
-						firstname->getString(), lastname->getString());
-				}
-				else
-				{
-					full_name = LLTrans::getString("TooltipPerson");
-				}
-			}
-
 			LLAvatarName av_name;
-			if (LLAvatarNameCache::useDisplayNames() && 
-				LLAvatarNameCache::get(hover_object->getID(), &av_name))
+			if (LLAvatarNameCache::get(hover_object->getID(), &av_name))
 			{
 				final_name = av_name.getCompleteName();
 			}
 			else
 			{
-				final_name = full_name;
+				final_name = LLTrans::getString("TooltipPerson");;
 			}
 
 			// *HACK: We may select this object, so pretend it was clicked
@@ -1610,9 +1589,6 @@ BOOL LLToolPie::handleRightClickPick()
 
 	// didn't click in any UI object, so must have clicked in the world
 	LLViewerObject *object = mPick.getObject();
-	LLViewerObject *parent = NULL;
-	if(object)
-		parent = object->getRootEdit();
 	
 	// Can't ignore children here.
 	LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE);

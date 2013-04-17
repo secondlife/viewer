@@ -33,19 +33,33 @@ namespace LLPanelPeopleMenus
 {
 
 /**
- * Menu used in the nearby people list.
+ * Menu used in the people lists.
  */
-class NearbyMenu : public LLListContextMenu
+class PeopleContextMenu : public LLListContextMenu
 {
 public:
 	/*virtual*/ LLContextMenu* createMenu();
+
+protected:
+	virtual void buildContextMenu(class LLMenuGL& menu, U32 flags);
+
 private:
 	bool enableContextMenuItem(const LLSD& userdata);
 	bool checkContextMenuItem(const LLSD& userdata);
 	void offerTeleport();
 };
 
-extern NearbyMenu gNearbyMenu;
+/**
+ * Menu used in the nearby people list.
+ */
+class NearbyPeopleContextMenu : public PeopleContextMenu
+{
+protected:
+	/*virtual*/ void buildContextMenu(class LLMenuGL& menu, U32 flags);
+};
+
+extern PeopleContextMenu gPeopleContextMenu;
+extern NearbyPeopleContextMenu gNearbyPeopleContextMenu;
 
 } // namespace LLPanelPeopleMenus
 

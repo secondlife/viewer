@@ -246,6 +246,8 @@ public:
 
 	//@}
 
+	bool onCheckVoiceEffect(const std::string& voice_effect_name);
+	void onClickVoiceEffect(const std::string& voice_effect_name);
 
 protected:
 	//////////////////////
@@ -582,7 +584,6 @@ protected:
 		bool mNameResolved;
 		bool mInSLFriends;
 		bool mInVivoxBuddies;
-		bool mNeedsNameUpdate;
 	};
 
 	typedef std::map<std::string, buddyListEntry*> buddyListMap;
@@ -641,6 +642,7 @@ protected:
 	void lookupName(const LLUUID &id);
 	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 	void avatarNameResolved(const LLUUID &id, const std::string &name);
+	boost::signals2::connection mAvatarNameCacheConnection;
 
 	/////////////////////////////
 	// Voice fonts
@@ -741,6 +743,8 @@ private:
 	std::string mRenderDevice;
 	bool mCaptureDeviceDirty;
 	bool mRenderDeviceDirty;
+
+	bool mIsInitialized;
 	
 	
 	bool checkParcelChanged(bool update = false);
@@ -851,6 +855,7 @@ private:
 	void accountGetTemplateFontsSendMessage();
 	void sessionSetVoiceFontSendMessage(sessionState *session);
 
+	void updateVoiceMorphingMenu();
 	void notifyVoiceFontObservers();
 
 	typedef enum e_voice_font_type

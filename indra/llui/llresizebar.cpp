@@ -45,7 +45,8 @@ LLResizeBar::LLResizeBar(const LLResizeBar::Params& p)
 	mSide( p.side ),
 	mSnappingEnabled(p.snapping_enabled),
 	mAllowDoubleClickSnapping(p.allow_double_click_snapping),
-	mResizingView(p.resizing_view)
+	mResizingView(p.resizing_view),
+	mResizeListener(NULL)
 {
 	setFollowsNone();
 	// set up some generically good follow code.
@@ -298,6 +299,11 @@ BOOL LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 			getWindow()->setCursor(UI_CURSOR_SIZENS);
 			break;
 		}
+	}
+
+	if (mResizeListener)
+	{
+		mResizeListener(NULL);
 	}
 
 	return handled;

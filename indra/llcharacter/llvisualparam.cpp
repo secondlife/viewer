@@ -168,7 +168,8 @@ LLVisualParam::LLVisualParam()
 	mIsAnimating( FALSE ),
 	mID( -1 ),
 	mInfo( 0 ),
-	mIsDummy(FALSE)
+	mIsDummy(FALSE),
+	mParamLocation(LOC_UNKNOWN)
 {
 }
 
@@ -250,6 +251,7 @@ void LLVisualParam::setAnimationTarget(F32 target_value, BOOL upload_bake)
 	if (mIsDummy)
 	{
 		setWeight(target_value, upload_bake);
+		mTargetWeight = mCurWeight;
 		return;
 	}
 
@@ -319,3 +321,32 @@ void LLVisualParam::resetDrivenParams()
 	// nothing to do for non-driver parameters
 	return;
 }
+
+const std::string param_location_name(const EParamLocation& loc)
+{
+	switch (loc)
+	{
+		case LOC_UNKNOWN: return "unknown";
+		case LOC_AV_SELF: return "self";
+		case LOC_AV_OTHER: return "other";
+		case LOC_WEARABLE: return "wearable";
+		default: return "error";
+	}
+}
+
+void LLVisualParam::setParamLocation(EParamLocation loc)
+{
+	if (mParamLocation == LOC_UNKNOWN || loc == LOC_UNKNOWN)
+	{
+		mParamLocation = loc;
+	}
+	else if (mParamLocation == loc)
+	{
+		// no action
+	}
+	else
+	{
+		lldebugs << "param location is already " << mParamLocation << ", not slamming to " << loc << llendl;
+	}
+}
+

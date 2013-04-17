@@ -65,6 +65,7 @@ class LLAudioChannel;
 class LLAudioChannelOpenAL;
 class LLAudioBuffer;
 class LLStreamingAudioInterface;
+struct SoundData;
 
 
 //
@@ -143,6 +144,8 @@ public:
 	void triggerSound(const LLUUID &sound_id, const LLUUID& owner_id, const F32 gain,
 					  const S32 type = LLAudioEngine::AUDIO_TYPE_NONE,
 					  const LLVector3d &pos_global = LLVector3d::zero);
+	void triggerSound(SoundData& soundData);
+
 	bool preloadSound(const LLUUID &id);
 
 	void addAudioSource(LLAudioSource *asp);
@@ -455,6 +458,27 @@ protected:
 	LLFrameTimer mLastUseTimer;
 };
 
+struct SoundData
+{
+	LLUUID audio_uuid;
+	LLUUID owner_id;
+	F32 gain;
+	S32 type;
+	LLVector3d pos_global;
+
+	SoundData(const LLUUID &audio_uuid, 
+		const LLUUID& owner_id, 
+		const F32 gain, 					  
+		const S32 type = LLAudioEngine::AUDIO_TYPE_NONE,
+		const LLVector3d &pos_global = LLVector3d::zero)
+	{
+		this->audio_uuid = audio_uuid;
+		this->owner_id = owner_id;
+		this->gain = gain;
+		this->type = type;
+		this->pos_global = pos_global;
+	}
+};
 
 
 extern LLAudioEngine* gAudiop;

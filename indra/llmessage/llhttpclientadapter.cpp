@@ -43,8 +43,11 @@ void LLHTTPClientAdapter::get(const std::string& url, LLCurl::ResponderPtr respo
 void LLHTTPClientAdapter::get(const std::string& url, LLCurl::ResponderPtr responder, const LLSD& headers) 
 {
 	LLSD empty_pragma_header = headers;
-	// as above
-	empty_pragma_header["Pragma"] = " ";
+	if (!empty_pragma_header.has("Pragma"))
+	{
+		// as above
+		empty_pragma_header["Pragma"] = " ";
+	}
 	LLHTTPClient::get(url, responder, empty_pragma_header);
 }
 
