@@ -37,11 +37,11 @@ out vec4 frag_color;
 
 uniform sampler2DRect depthMap;
 
-#if INDEX_MODE != INDEXED
+#if !INDEX_MODE || INDEX_MODE_NO_COLOR
 uniform sampler2D diffuseMap;
 #endif
 
-#if INDEX_MODE == INDEXED
+#if INDEX_MODE
 vec4 diffuseLookup(vec2 texcoord);
 #endif
 
@@ -61,7 +61,7 @@ VARYING vec2 vary_texcoord2;
 VARYING vec3 vary_norm;
 VARYING mat3 vary_rotation;
 
-#if INDEX_MODE != NON_INDEXED_NO_COLOR
+#if !INDEX_MODE_NO_COLOR
 VARYING vec4 vertex_color;
 #endif
 
@@ -124,13 +124,13 @@ void main()
 	
 	vec4 pos = vec4(vary_position, 1.0);
 	
-#if INDEX_MODE == INDEXED
+#if INDEX_MODE
 	vec4 diff= diffuseLookup(vary_texcoord0.xy);
 #else
 	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
 
-#if INDEX_MODE == NON_INDEXED_NO_COLOR
+#if INDEX_MODE_NO_COLOR
 	float vertex_color_alpha = 1.0;
 #else
 	float vertex_color_alpha = vertex_color.a;

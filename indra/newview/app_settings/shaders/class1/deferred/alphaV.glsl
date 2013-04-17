@@ -34,7 +34,7 @@ uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
 ATTRIBUTE vec3 position;
-#if INDEX_MODE == INDEXED
+#if INDEX_MODE
 void passTextureIndex();
 #endif
 ATTRIBUTE vec3 normal;
@@ -66,7 +66,7 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 
-#if INDEX_MODE != NON_INDEXED_NO_COLOR
+#if !INDEX_MODE_NO_COLOR
 VARYING vec4 vertex_color;
 #endif
 
@@ -161,7 +161,7 @@ void main()
 
 	vary_texcoord1 = (texture_matrix0 * vec4(texcoord1,0,1)).xy;
 	vary_texcoord2 = (texture_matrix0 * vec4(texcoord2,0,1)).xy;
-#if INDEX_MODE == INDEXED
+#if INDEX_MODE
 	passTextureIndex();
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 #else
@@ -197,7 +197,7 @@ void main()
 	vary_directional.rgb = atmosAffectDirectionalLight(1.0f);
 	
 	col.rgb = col.rgb*diffuse_color.rgb;
-#if INDEX_MODE != NON_INDEXED_NO_COLOR
+#if !INDEX_MODE_NO_COLOR
 	vertex_color = col;
 #endif
 	
