@@ -311,4 +311,6 @@ public:
 
 //============================================================================
 
+extern LL_COMMON_API void assert_main_thread();
+
 #endif // LL_LLTHREAD_H

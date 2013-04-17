@@ -112,14 +112,6 @@ class LLViewerObject : public LLPrimitive, public LLRefCount, public LLGLUpdate
 protected:
 	~LLViewerObject(); // use unref()
 
-	// TomY: Provide for a list of extra parameter structures, mapped by structure name
-	struct ExtraParameter
-	{
-		BOOL in_use;
-		LLNetworkData *data;
-	};
-	std::map<U16, ExtraParameter*> mExtraParameterList;
-
 public:
 	typedef std::list<LLPointer<LLViewerObject> > child_list_t;
 	typedef std::list<LLPointer<LLViewerObject> > vobj_list_t;
@@ -545,6 +537,8 @@ public:
 	std::vector<LLVector3> mUnselectedChildrenPositions ;
 
 private:
+	// TomY: Provide for a list of extra parameter structures, mapped by structure name
+	struct ExtraParameter;
 	ExtraParameter* createNewParameterEntry(U16 param_type);
 	ExtraParameter* getExtraParameterEntry(U16 param_type) const;
 	ExtraParameter* getExtraParameterEntryCreate(U16 param_type);
@@ -782,6 +776,14 @@ private:
 	LLUUID mAttachmentItemID; // ItemID of the associated object is in user inventory.
 	EObjectUpdateType	mLastUpdateType;
 	BOOL	mLastUpdateCached;
+
+	// TomY: Provide for a list of extra parameter structures, mapped by structure name
+	struct ExtraParameter
+	{
+		BOOL in_use;
+		LLNetworkData *data;
+	};
+	std::map<U16, ExtraParameter*> mExtraParameterList;
 };
 
 ///////////////////

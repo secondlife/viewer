@@ -294,6 +294,9 @@ void LLVolumeImplFlexible::onSetVolume(const LLVolumeParams &volume_params, cons
 
 void LLVolumeImplFlexible::updateRenderRes()
 {
+	if (!mAttributes)
+		return;
+
 	LLDrawable* drawablep = mVO->mDrawable;
 
 	S32 new_res = mAttributes->getSimulateLOD();
@@ -435,7 +438,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 		}
 	}
 
-	if(!mInitialized)
+	if(!mInitialized || !mAttributes)
 	{
 		//the object is not visible
 		return ;

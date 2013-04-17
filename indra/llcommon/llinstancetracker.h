@@ -102,6 +102,8 @@ protected:
     };
 };
 
+LL_COMMON_API void assert_main_thread();
+
 /// This mix-in class adds support for tracking all instances of the specified class parameter T
 /// The (optional) key associates a value of type KEY with a given instance of T, for quick lookup
 /// If KEY is not provided, then instances are stored in a simple set
@@ -116,7 +118,11 @@ class LLInstanceTracker : public LLInstanceTrackerBase
 		InstanceMap sMap;
 	};
 	static StaticData& getStatic() { return LLInstanceTrackerBase::getStatic<StaticData, MyT, T, TRACKED>(); }
-	static InstanceMap& getMap_() { return getStatic().sMap; }
+	static InstanceMap& getMap_() 
+	{
+		// assert_main_thread();   fwiw this class is not thread safe, and it used by multiple threads.  Bad things happen.
+		return getStatic().sMap; 
+	}
 
 public:
 	class instance_iter : public boost::iterator_facade<instance_iter, T, boost::forward_traversal_tag>
