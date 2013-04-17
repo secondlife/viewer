@@ -308,26 +308,28 @@ public:
 	virtual bool potentiallyVisible()
 	{
 		return passedFilter() // we've passed the filter
-			|| getLastFilterGeneration() < mRootViewModel.getFilter().getFirstSuccessGeneration() // or we don't know yet
+			|| (getLastFilterGeneration() < mRootViewModel.getFilter().getFirstSuccessGeneration()) // or we don't know yet
 			|| descendantsPassedFilter();
 	}
 
 	virtual bool passedFilter(S32 filter_generation = -1) 
 	{ 
-		if (filter_generation < 0) 
+		if (filter_generation < 0)
+        {
 			filter_generation = mRootViewModel.getFilter().getFirstSuccessGeneration();
-
-		bool passed_folder_filter = mPassedFolderFilter && mLastFolderFilterGeneration >= filter_generation;
-		bool passed_filter = mPassedFilter && mLastFilterGeneration >= filter_generation;
-		return passed_folder_filter
-				&& (descendantsPassedFilter(filter_generation)
-					|| passed_filter);
+        }
+		bool passed_folder_filter = mPassedFolderFilter && (mLastFolderFilterGeneration >= filter_generation);
+		bool passed_filter = mPassedFilter && (mLastFilterGeneration >= filter_generation);
+		return passed_folder_filter && (passed_filter || descendantsPassedFilter(filter_generation));
 	}
 
 	virtual bool descendantsPassedFilter(S32 filter_generation = -1)
 	{ 
-		if (filter_generation < 0) filter_generation = mRootViewModel.getFilter().getFirstSuccessGeneration();
-		return mMostFilteredDescendantGeneration >= filter_generation; 
+		if (filter_generation < 0)
+        {
+            filter_generation = mRootViewModel.getFilter().getFirstSuccessGeneration();
+        }
+		return mMostFilteredDescendantGeneration >= filter_generation;
 	}
 
 

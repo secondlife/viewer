@@ -1492,7 +1492,6 @@ LLPanelObjectInventory::LLPanelObjectInventory(const LLPanelObjectInventory::Par
 	mIsInventoryEmpty(TRUE),
 	mInventoryNeedsUpdate(FALSE)
 {
-    llinfos << "Merov : LLPanelObjectInventory::LLPanelObjectInventory, name = " << getName() << ", label = " << getLabel() << llendl;
 	// Setup context menu callbacks
 	mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLPanelObjectInventory::doToSelected, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));

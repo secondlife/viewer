@@ -274,11 +274,7 @@ void LLFolderViewItem::refresh()
 	}
 
 	mLabelWidthDirty = true;
-    // Merov ??
-    if (vmi.getSearchableName() == "A NOUNOURS")
-    {
-        llinfos << "Merov : LLFolderViewItem::refresh : Dirty filter for NOUNOURS" << llendl;
-    }
+    // Dirty the filter flag of the model from the view (CHUI-849)
 	vmi.dirtyFilter();
 }
 
@@ -795,12 +791,6 @@ void LLFolderViewItem::drawLabel(const LLFontGL * font, const F32 x, const F32 y
 
 void LLFolderViewItem::draw()
 {
-	LLFolderViewModelItem& vmi = *getViewModelItem();
-    if (vmi.getSearchableName() == "A NOUNOURS")
-    {
-        llinfos << "Merov : LLFolderViewItem::draw : Special NOUNOURS, draw it!" << llendl;
-    }
-
     const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
     const BOOL filled = show_context || (getRoot() ? getRoot()->getParentPanel()->hasFocus() : FALSE); // If we have keyboard focus, draw selection filled
 
@@ -954,15 +944,20 @@ void LLFolderViewFolder::addToFolder(LLFolderViewFolder* folder)
 
 static LLFastTimer::DeclareTimer FTM_ARRANGE("Arrange");
 
-// Finds width and height of this object and its children. Also
-// makes sure that this view and its children are the right size.
+// Make everything right and in the right place ready for drawing (CHUI-849)
+// * Sort everything correctly if necessary
+// * Turn widgets visible/invisible according to their model filtering state
+// * Takes animation state into account for opening/closing of folders (this makes widgets visible/invisible)
+// * Reposition visible widgets so that they line up correctly with no gap
+// * Compute the width and height of the cuurent folder and its children
+// * Makes sure that this view and its children are the right size
 S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 {
-	// sort before laying out contents
+	// Sort before laying out contents
+    // Note that we sort from the root (CHUI-849)
 	getRoot()->getFolderViewModel()->sort(this);
 
 	LLFastTimer t2(FTM_ARRANGE);
-    llinfos << "Merov : LLFolderViewFolder::arrange" << llendl;
 
 	// evaluate mHasVisibleChildren
 	mHasVisibleChildren = false;
@@ -1625,16 +1620,13 @@ void LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 }
 
 void LLFolderViewFolder::requestArrange()
-{ 
-	if ( mLastArrangeGeneration != -1)
-	{
-		mLastArrangeGeneration = -1; 
-		// flag all items up to root
-		if (mParentFolder)
-		{
-			mParentFolder->requestArrange();
-		}
-	}
+{
+    mLastArrangeGeneration = -1;
+    // flag all items up to root
+    if (mParentFolder)
+    {
+        mParentFolder->requestArrange();
+    }
 }
 
 void LLFolderViewFolder::toggleOpen()

@@ -323,17 +323,11 @@ static LLFastTimer::DeclareTimer FTM_FILTER("Filter Folder View");
 
 void LLFolderView::filter( LLFolderViewFilter& filter )
 {
-    //llinfos << "Merov : LLFolderView::filter (fast timed)" << llendl;
+    // Entry point of inventory filtering (CHUI-849)
 	LLFastTimer t2(FTM_FILTER);
 	filter.setFilterCount(llclamp(LLUI::sSettingGroups["config"]->getS32("FilterItemsPerFrame"), 1, 5000));
-
-	bool filtered_items = getViewModelItem()->filter(filter);
-    //if (getViewModelItem()->descendantsPassedFilter(filter.getCurrentGeneration()))
-    if (filtered_items)
-    {
-        llinfos << "Merov : LLFolderView::filter, request arrange, new elements passed the filter" << llendl;
-        requestArrange();
-    }
+    // Note: we filter the model, not the view
+	getViewModelItem()->filter(filter);
 }
 
 void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -1614,16 +1608,17 @@ void LLFolderView::update()
 	{
 		mNeedsAutoSelect = TRUE;
 	}
-	// filter to determine visibility before arranging
+    
+	// Filter to determine visibility before arranging
 	filter(getFolderViewModel()->getFilter());
+    
 	// Clear the modified setting on the filter only if the filter count is non-zero after running the filter process
-	// Note: if the filter count is zero, then the filter most likely halted before completing the entire set of items
+	// Note: if the filter count is zero, that means the filter exhausted its count per frame and halted before completing the entire set of items
 	if (getFolderViewModel()->getFilter().isModified() && (getFolderViewModel()->getFilter().getFilterCount() > 0))
 	{
 		getFolderViewModel()->getFilter().clearModified();
 	}
-    llinfos << "Merov : LLFolderView::update: parent = " << mParentPanel->getName() << ", modified = " << getFolderViewModel()->getFilter().isModified() << ", not default = " << getFolderViewModel()->getFilter().isNotDefault() << ", count = " << getFolderViewModel()->getFilter().getFilterCount() << llendl;
-
+    
 	// automatically show matching items, and select first one if we had a selection
 	if (mNeedsAutoSelect)
 	{
@@ -1663,22 +1658,19 @@ void LLFolderView::update()
 
   BOOL is_visible = isInVisibleChain();
 
-  //Puts folders/items in proper positions
-  if ( is_visible )
+  // Puts folders/items in proper positions
+  // arrange() takes the model filter flag into account and call sort() if necessary (CHUI-849)
+  // It also handles the open/close folder animation
+  if (is_visible)
   {
     sanitizeSelection();
-    if( needsArrange() )
+    if (needsArrange())
     {
       S32 height = 0;
       S32 width = 0;
-        llinfos << "Merov : LLFolderView::update: parent = " << mParentPanel->getName() << ", is been arranged, last arrange = " << mLastArrangeGeneration << ", root arrange = " << getRoot()->getArrangeGeneration() << llendl;
       S32 total_height = arrange( &width, &height );
       notifyParent(LLSD().with("action", "size_changes").with("height", total_height));
     }
-      else
-      {
-          llinfos << "Merov : LLFolderView::update: parent = " << mParentPanel->getName() << ", doesn't need arranging, last arrange = " << mLastArrangeGeneration << ", root arrange = " << getRoot()->getArrangeGeneration() << llendl;
-      }
   }
 
 	// during filtering process, try to pin selected item's location on screen

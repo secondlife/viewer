@@ -148,8 +148,6 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mViewsInitialized(false),
 	mInvFVBridgeBuilder(NULL)
 {
-    llinfos << "Merov : LLInventoryPanel::LLInventoryPanel, name = " << getName() << ", label = " << getLabel() << llendl;
-
 	mInvFVBridgeBuilder = &INVENTORY_BRIDGE_BUILDER;
 
 	if (!sColorSetInitialized)
@@ -194,8 +192,6 @@ LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
     p.show_item_link_overlays = mShowItemLinkOverlays;
     p.root = NULL;
     p.options_menu = "menu_inventory.xml";
-
-    llinfos << "Merov : LLInventoryPanel::createFolderRoot, name = " << getName() << ", label = " << getLabel() << ", root id = " << root_id << llendl;
 
     return LLUICtrlFactory::create<LLFolderView>(p);
 }
@@ -400,12 +396,11 @@ LLInventoryFilter::EFolderShow LLInventoryPanel::getShowFolderState()
 	return getFilter().getShowFolderState();
 }
 
+// Called when something changed in the global model (new item, item coming through the wire, rename, move, etc...) (CHUI-849)
 void LLInventoryPanel::modelChanged(U32 mask)
 {
 	static LLFastTimer::DeclareTimer FTM_REFRESH("Inventory Refresh");
 	LLFastTimer t2(FTM_REFRESH);
-
-    llinfos << "Merov : LLInventoryPanel::modelChanged, mask = " << mask << ", name = " << getName() << ", label = " << getLabel() << llendl;
 
 	bool handled = false;
 
@@ -482,7 +477,6 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		{
 			if (view_item)
 			{
-                // Merov??
 				view_item->refresh();
 			}
 		}

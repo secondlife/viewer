@@ -40,7 +40,6 @@ static S32 sModelInstance = 0;
 LLFolderViewModelInventory::LLFolderViewModelInventory()
 {
     mModelInstance = sModelInstance++;
-    llinfos << "Merov : LLFolderViewModelInventory::LLFolderViewModelInventory, instance = " << mModelInstance << llendl;
 }
 
 bool LLFolderViewModelInventory::startDrag(std::vector<LLFolderViewModelItem*>& items)
@@ -71,7 +70,6 @@ bool LLFolderViewModelInventory::startDrag(std::vector<LLFolderViewModelItem*>& 
 void LLFolderViewModelInventory::sort( LLFolderViewFolder* folder )
 {
 	LLFastTimer _(FTM_INVENTORY_SORT);
-    llinfos << "Merov : LLFolderViewModelInventory::sort of instance = " << mModelInstance << ", folder = " << folder->getName() << llendl;
 
 	if (!needsSort(folder->getViewModelItem())) return;
 
@@ -82,6 +80,7 @@ void LLFolderViewModelInventory::sort( LLFolderViewFolder* folder )
 		it != end_it;
 		++it)
 	{
+        // Recursive call to sort() on child (CHUI-849)
 		LLFolderViewFolder* child_folderp = *it;
 		sort(child_folderp);
 
@@ -136,13 +135,12 @@ void LLFolderViewModelItemInventory::requestSort()
 
 void LLFolderViewModelItemInventory::setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset, std::string::size_type string_size)
 {
+	bool before = passedFilter();
 	LLFolderViewModelItemCommon::setPassedFilter(passed, filter_generation, string_offset, string_size);
 
-	bool passed_filter_before = mPrevPassedAllFilters;
-	mPrevPassedAllFilters = passedFilter(filter_generation);
-
-	if (passed_filter_before != mPrevPassedAllFilters)
+    if (before != passed)
 	{
+        // Need to rearrange the folder if the filtered state of the item changed
 		LLFolderViewFolder* parent_folder = mFolderViewItem->getParentFolder();
 		if (parent_folder)
 		{
@@ -155,15 +153,14 @@ bool LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* ite
 {
 	S32 filter_generation = filter.getCurrentGeneration();
 
-//	bool continue_filtering = true;
 	bool new_filtered_item = false;
 	if (item->getLastFilterGeneration() < filter_generation)
 	{
-		// recursive application of the filter for child items
+		// Recursive application of the filter for child items (CHUI-849)
 		new_filtered_item = item->filter( filter );
 	}
 
-	// track latest generation to pass any child items, for each folder up to root
+	// Update latest generation to pass filter in parent and propagate up to root
 	if (item->passedFilter())
 	{
 		LLFolderViewModelItemInventory* view_model = this;
@@ -182,23 +179,30 @@ bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 {
 	const S32 filter_generation = filter.getCurrentGeneration();
 	const S32 must_pass_generation = filter.getFirstRequiredGeneration();
+    const S32 sufficient_pass_generation = filter.getFirstSuccessGeneration();
 
-    if (getSearchableName() == "A NOUNOURS")
-    {
-        llinfos << "Merov : LLFolderViewModelItemInventory::filter : special NOUNOURS case, filter count = " << filter.getFilterCount() << ", must pass = " << must_pass_generation << ", current = " << filter_generation << ", item last = " << getLastFilterGeneration() << ", folder last = " << getLastFolderFilterGeneration() << llendl;
-    }
-   
     if (getLastFilterGeneration() >= must_pass_generation
 		&& getLastFolderFilterGeneration() >= must_pass_generation
 		&& !passedFilter(must_pass_generation))
 	{
 		// failed to pass an earlier filter that was a subset of the current one
-		// go ahead and flag this item as done
+		// go ahead and flag this item as not pass
 		setPassedFilter(false, filter_generation);
 		setPassedFolderFilter(false, filter_generation);
 		return false;
 	}
 
+    if (getLastFilterGeneration() >= sufficient_pass_generation
+		&& getLastFolderFilterGeneration() >= sufficient_pass_generation
+		&& passedFilter(sufficient_pass_generation))
+	{
+		// passed an earlier filter that was a superset of the current one
+		// go ahead and flag this item as pass
+		setPassedFilter(true, filter_generation);
+		setPassedFolderFilter(true, filter_generation);
+		return true;
+	}
+    
 	const bool passed_filter_folder = (getInventoryType() == LLInventoryType::IT_CATEGORY) ? filter.checkFolder(this) : true;
 	setPassedFolderFilter(passed_filter_folder, filter_generation);
 
@@ -221,13 +225,11 @@ bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 		}
 	}
 
-	// if we didn't use all filter iterations
-	// that means we filtered all of our descendants
-	// so filter ourselves now
+	// If we didn't use all filter iterations that means we filtered all of our descendants so filter ourselves now
 	if (filter.getFilterCount() > 0)
 	{
+        // This is where filter count is hit and filter check on the item done (CHUI-849)
 		filter.decrementFilterCount();
-
 		const bool passed_filter = filter.check(this);
 		setPassedFilter(passed_filter, filter_generation, filter.getStringMatchOffset(this), filter.getFilterStringSize());
         new_filtered_item |= passed_filter;
@@ -320,7 +322,6 @@ bool LLInventorySort::operator()(const LLFolderViewModelItemInventory* const& a,
 }
 
 LLFolderViewModelItemInventory::LLFolderViewModelItemInventory( class LLFolderViewModelInventory& root_view_model ) 
-	:	LLFolderViewModelItemCommon(root_view_model),
-	mPrevPassedAllFilters(false)
+	:	LLFolderViewModelItemCommon(root_view_model)
 {
 }
