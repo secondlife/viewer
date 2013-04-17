@@ -215,7 +215,8 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
         LLFloaterReg::showInstance("im_container");
     }
 
-	if(group_ad_hoc_toast_exists)
+    bool isConversationLoggingAllowed = gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 0;
+	if(group_ad_hoc_toast_exists && isConversationLoggingAllowed)
 	{
 		LLFloaterReg::showInstance("conversation");
 	}
