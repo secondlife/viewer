@@ -1947,6 +1947,17 @@ void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id,
 	}
 }
 
+void LLFloaterIMContainer::highlightConversationItemWidget(const LLUUID& session_id, bool is_highlighted)
+{
+	//Finds the conversation line item to highlight using the session_id
+	LLConversationViewSession * widget = dynamic_cast<LLConversationViewSession *>(get_ptr_in_map(mConversationsWidgets,session_id));
+
+	if (widget)
+	{
+		widget->setHighlightState(is_highlighted);
+	}
+}
+
 bool LLFloaterIMContainer::isScrolledOutOfSight(LLConversationViewSession* conversation_item_widget)
 {
 	llassert(conversation_item_widget != NULL);

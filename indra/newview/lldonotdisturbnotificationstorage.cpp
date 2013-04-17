@@ -210,11 +210,6 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 
 	}
 
-    if(imToastExists)
-    {
-        LLFloaterReg::showInstance("im_container");
-    }
-
     bool isConversationLoggingAllowed = gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 0;
 	if(group_ad_hoc_toast_exists && isConversationLoggingAllowed)
 	{
@@ -265,11 +260,6 @@ void LLDoNotDisturbNotificationStorage::updateNotifications()
             notification->setDND(true);
             instance.update(notification);
         }
-    }
-
-    if(imToastExists)
-    {   
-        LLFloaterReg::showInstance("im_container");
     }
 
     if(imToastExists || offerExists)
