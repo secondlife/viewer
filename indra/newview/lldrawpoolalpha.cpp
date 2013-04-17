@@ -487,14 +487,13 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 					current_shader = NULL;
 				}
 				
-				if (params.mMaterial.notNull() && current_shader == simple_shader)
+				if (params.mMaterial.notNull() && current_shader && (current_shader == simple_shader))
 				{
 					// I apologize in advance for not giving this its own shader.
 					// We have a material.  Supply the appropriate data here.
 					if (LLPipeline::sRenderDeferred)
 					{
-						current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, params.mSpecColor.mV[0], params.mSpecColor.mV[1], params.mSpecColor.mV[2], params.mSpecColor.mV[3]);
-						
+						current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, params.mSpecColor.mV[0], params.mSpecColor.mV[1], params.mSpecColor.mV[2], params.mSpecColor.mV[3]);						
 						current_shader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, params.mEnvIntensity);
 						
 						if (params.mNormalMap)
@@ -515,6 +514,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 							current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
 						}
 					}
+
 				} else if (LLPipeline::sRenderDeferred && current_shader && (current_shader == simple_shader))
 				{
 					current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, 1.0f, 1.0f, 1.0f, 1.0f);						
