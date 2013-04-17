@@ -1524,12 +1524,14 @@ bool LLTextureFetchWorker::doWork(S32 param)
 								 << LL_ENDL;
 
 			// Will call callbackHttpGet when curl request completes
+			// Only server bake images use the returned headers currently, for getting retry-after field.
+			HttpOptions *options = (mFTType == FTT_SERVER_BAKE) ? mFetcher->mHttpOptionsWithHeaders: mFetcher->mHttpOptions;
 			mHttpHandle = mFetcher->mHttpRequest->requestGetByteRange(mHttpPolicyClass,
 																	  mWorkPriority,
 																	  mUrl,
 																	  mRequestedOffset,
 																	  mRequestedSize,
-																	  mFetcher->mHttpOptions,
+																	  options,
 																	  mFetcher->mHttpHeaders,
 																	  this);
 		}
