@@ -69,6 +69,10 @@ void LLFloaterSidePanelContainer::onClickCloseBtn()
 			LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance*>(getPanel("appearance"));
 			panel_appearance->onClose(this);			
 		}
+		else
+		{
+			LLFloater::onClickCloseBtn();
+		}
 	}
 	else
 	{
