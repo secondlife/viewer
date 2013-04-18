@@ -1,8 +1,8 @@
 /** 
- * @file streamingaudio_fmod.cpp
- * @brief LLStreamingAudio_FMOD implementation
+ * @file streamingaudio_fmodex.cpp
+ * @brief LLStreamingAudio_FMODEX implementation
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -28,25 +28,27 @@
 
 #include "llmath.h"
 
-#include "fmod.h"
+#include "fmod.hpp"
 #include "fmod_errors.h"
 
-#include "llstreamingaudio_fmod.h"
+#include "llstreamingaudio_fmodex.h"
 
 
-class LLAudioStreamManagerFMOD
+class LLAudioStreamManagerFMODEX
 {
 public:
-	LLAudioStreamManagerFMOD(const std::string& url);
-	int	startStream();
+	LLAudioStreamManagerFMODEX(FMOD::System *system, const std::string& url);
+	FMOD::Channel* startStream();
 	bool stopStream(); // Returns true if the stream was successfully stopped.
 	bool ready();
 
 	const std::string& getURL() 	{ return mInternetStreamURL; }
 
-	int getOpenState();
+	FMOD_OPENSTATE getOpenState(unsigned int* percentbuffered=NULL, bool* starving=NULL, bool* diskbusy=NULL);
 protected:
-	FSOUND_STREAM* mInternetStream;
+	FMOD::System* mSystem;
+	FMOD::Channel* mStreamChannel;
+	FMOD::Sound* mInternetStream;
 	bool mReady;
 
 	std::string mInternetStreamURL;
@@ -57,14 +59,17 @@ protected:
 //---------------------------------------------------------------------------
 // Internet Streaming
 //---------------------------------------------------------------------------
-LLStreamingAudio_FMOD::LLStreamingAudio_FMOD() :
+LLStreamingAudio_FMODEX::LLStreamingAudio_FMODEX(FMOD::System *system) :
+	mSystem(system),
 	mCurrentInternetStreamp(NULL),
-	mFMODInternetStreamChannel(-1),
+	mFMODInternetStreamChannelp(NULL),
 	mGain(1.0f)
 {
 	// Number of milliseconds of audio to buffer for the audio card.
 	// Must be larger than the usual Second Life frame stutter time.
-	FSOUND_Stream_SetBufferSize(200);
+	const U32 buffer_seconds = 10;		//sec
+	const U32 estimated_bitrate = 128;	//kbit/sec
+	mSystem->setStreamBufferSize(estimated_bitrate * buffer_seconds * 128/*bytes/kbit*/, FMOD_TIMEUNIT_RAWBYTES);
 
 	// Here's where we set the size of the network buffer and some buffering 
 	// parameters.  In this case we want a network buffer of 16k, we want it 
@@ -76,13 +81,13 @@ LLStreamingAudio_FMOD::LLStreamingAudio_FMOD() :
 }
 
 
-LLStreamingAudio_FMOD::~LLStreamingAudio_FMOD()
+LLStreamingAudio_FMODEX::~LLStreamingAudio_FMODEX()
 {
 	// nothing interesting/safe to do.
 }
 
 
-void LLStreamingAudio_FMOD::start(const std::string& url)
+void LLStreamingAudio_FMODEX::start(const std::string& url)
 {
 	//if (!mInited)
 	//{
@@ -96,7 +101,7 @@ void LLStreamingAudio_FMOD::start(const std::string& url)
 	if (!url.empty())
 	{
 		llinfos << "Starting internet stream: " << url << llendl;
-		mCurrentInternetStreamp = new LLAudioStreamManagerFMOD(url);
+		mCurrentInternetStreamp = new LLAudioStreamManagerFMODEX(mSystem,url);
 		mURL = url;
 	}
 	else
@@ -107,13 +112,13 @@ void LLStreamingAudio_FMOD::start(const std::string& url)
 }
 
 
-void LLStreamingAudio_FMOD::update()
+void LLStreamingAudio_FMODEX::update()
 {
 	// Kill dead internet streams, if possible
-	std::list<LLAudioStreamManagerFMOD *>::iterator iter;
+	std::list<LLAudioStreamManagerFMODEX *>::iterator iter;
 	for (iter = mDeadStreams.begin(); iter != mDeadStreams.end();)
 	{
-		LLAudioStreamManagerFMOD *streamp = *iter;
+		LLAudioStreamManagerFMODEX *streamp = *iter;
 		if (streamp->stopStream())
 		{
 			llinfos << "Closed dead stream" << llendl;
@@ -132,62 +137,66 @@ void LLStreamingAudio_FMOD::update()
 		return;
 	}
 
-	int open_state = mCurrentInternetStreamp->getOpenState();
+	unsigned int progress;
+	bool starving;
+	bool diskbusy;
+	FMOD_OPENSTATE open_state = mCurrentInternetStreamp->getOpenState(&progress, &starving, &diskbusy);
 
-	if (!open_state)
+	if (open_state == FMOD_OPENSTATE_READY)
 	{
 		// Stream is live
 
 		// start the stream if it's ready
-		if (mFMODInternetStreamChannel < 0)
+		if (!mFMODInternetStreamChannelp &&
+			(mFMODInternetStreamChannelp = mCurrentInternetStreamp->startStream()))
 		{
-			mFMODInternetStreamChannel = mCurrentInternetStreamp->startStream();
+			// Reset volume to previously set volume
+			setGain(getGain());
+			mFMODInternetStreamChannelp->setPaused(false);
+			mLastStarved.stop();
+		}
+	}
+	else if(open_state == FMOD_OPENSTATE_ERROR)
+	{
+		stop();
+		return;
+	}
 
-			if (mFMODInternetStreamChannel != -1)
+	if(mFMODInternetStreamChannelp)
+	{
+		FMOD::Sound *sound = NULL;
+
+		if(mFMODInternetStreamChannelp->getCurrentSound(&sound) == FMOD_OK && sound)
+		{
+			if(starving)
 			{
-				// Reset volume to previously set volume
-				setGain(getGain());
-				FSOUND_SetPaused(mFMODInternetStreamChannel, false);
+				if(!mLastStarved.getStarted())
+				{
+					llinfos << "Stream starvation detected! Muting stream audio until it clears." << llendl;
+					llinfos << "  (diskbusy="<<diskbusy<<")" << llendl;
+					llinfos << "  (progress="<<progress<<")" << llendl;
+					mFMODInternetStreamChannelp->setMute(true);
+				}
+				mLastStarved.start();
+			}
+			else if(mLastStarved.getStarted() && mLastStarved.getElapsedTimeF32() > 1.f)
+			{
+				mLastStarved.stop();
+				mFMODInternetStreamChannelp->setMute(false);
 			}
 		}
 	}
-		
-	switch(open_state)
-	{
-	default:
-	case 0:
-		// success
-		break;
-	case -1:
-		// stream handle is invalid
-		llwarns << "InternetStream - invalid handle" << llendl;
-		stop();
-		return;
-	case -2:
-		// opening
-		break;
-	case -3:
-		// failed to open, file not found, perhaps
-		llwarns << "InternetStream - failed to open" << llendl;
-		stop();
-		return;
-	case -4:
-		// connecting
-		break;
-	case -5:
-		// buffering
-		break;
-	}
-
 }
 
-void LLStreamingAudio_FMOD::stop()
+void LLStreamingAudio_FMODEX::stop()
 {
-	if (mFMODInternetStreamChannel != -1)
+	mLastStarved.stop();
+
+	if (mFMODInternetStreamChannelp)
 	{
-		FSOUND_SetPaused(mFMODInternetStreamChannel, true);
-		FSOUND_SetPriority(mFMODInternetStreamChannel, 0);
-		mFMODInternetStreamChannel = -1;
+		mFMODInternetStreamChannelp->setPaused(true);
+		mFMODInternetStreamChannelp->setPriority(0);
+		mFMODInternetStreamChannelp = NULL;
 	}
 
 	if (mCurrentInternetStreamp)
@@ -207,7 +216,7 @@ void LLStreamingAudio_FMOD::stop()
 	}
 }
 
-void LLStreamingAudio_FMOD::pause(int pauseopt)
+void LLStreamingAudio_FMODEX::pause(int pauseopt)
 {
 	if (pauseopt < 0)
 	{
@@ -230,7 +239,7 @@ void LLStreamingAudio_FMOD::pause(int pauseopt)
 
 // A stream is "playing" if it has been requested to start.  That
 // doesn't necessarily mean audio is coming out of the speakers.
-int LLStreamingAudio_FMOD::isPlaying()
+int LLStreamingAudio_FMODEX::isPlaying()
 {
 	if (mCurrentInternetStreamp)
 	{
@@ -247,44 +256,47 @@ int LLStreamingAudio_FMOD::isPlaying()
 }
 
 
-F32 LLStreamingAudio_FMOD::getGain()
+F32 LLStreamingAudio_FMODEX::getGain()
 {
 	return mGain;
 }
 
 
-std::string LLStreamingAudio_FMOD::getURL()
+std::string LLStreamingAudio_FMODEX::getURL()
 {
 	return mURL;
 }
 
 
-void LLStreamingAudio_FMOD::setGain(F32 vol)
+void LLStreamingAudio_FMODEX::setGain(F32 vol)
 {
 	mGain = vol;
 
-	if (mFMODInternetStreamChannel != -1)
+	if (mFMODInternetStreamChannelp)
 	{
-		vol = llclamp(vol * vol, 0.f, 1.f);
-		int vol_int = llround(vol * 255.f);
-		FSOUND_SetVolumeAbsolute(mFMODInternetStreamChannel, vol_int);
+		vol = llclamp(vol * vol, 0.f, 1.f);	//should vol be squared here?
+
+		mFMODInternetStreamChannelp->setVolume(vol);
 	}
 }
-
 
 ///////////////////////////////////////////////////////
 // manager of possibly-multiple internet audio streams
 
-LLAudioStreamManagerFMOD::LLAudioStreamManagerFMOD(const std::string& url) :
+LLAudioStreamManagerFMODEX::LLAudioStreamManagerFMODEX(FMOD::System *system, const std::string& url) :
+	mSystem(system),
+	mStreamChannel(NULL),
 	mInternetStream(NULL),
 	mReady(false)
 {
 	mInternetStreamURL = url;
-	mInternetStream = FSOUND_Stream_Open(url.c_str(), FSOUND_NORMAL | FSOUND_NONBLOCKING, 0, 0);
-	if (!mInternetStream)
+
+	FMOD_RESULT result = mSystem->createStream(url.c_str(), FMOD_2D | FMOD_NONBLOCKING | FMOD_MPEGSEARCH | FMOD_IGNORETAGS, 0, &mInternetStream);
+
+	if (result!= FMOD_OK)
 	{
 		llwarns << "Couldn't open fmod stream, error "
-			<< FMOD_ErrorString(FSOUND_GetError())
+			<< FMOD_ErrorString(result)
 			<< llendl;
 		mReady = false;
 		return;
@@ -293,48 +305,42 @@ LLAudioStreamManagerFMOD::LLAudioStreamManagerFMOD(const std::string& url) :
 	mReady = true;
 }
 
-int LLAudioStreamManagerFMOD::startStream()
+FMOD::Channel *LLAudioStreamManagerFMODEX::startStream()
 {
 	// We need a live and opened stream before we try and play it.
-	if (!mInternetStream || getOpenState())
+	if (!mInternetStream || getOpenState() != FMOD_OPENSTATE_READY)
 	{
 		llwarns << "No internet stream to start playing!" << llendl;
-		return -1;
+		return NULL;
 	}
 
-	// Make sure the stream is set to 2D mode.
-	FSOUND_Stream_SetMode(mInternetStream, FSOUND_2D);
+	if(mStreamChannel)
+		return mStreamChannel;	//Already have a channel for this stream.
 
-	return FSOUND_Stream_PlayEx(FSOUND_FREE, mInternetStream, NULL, true);
+	mSystem->playSound(FMOD_CHANNEL_FREE, mInternetStream, true, &mStreamChannel);
+	return mStreamChannel;
 }
 
-bool LLAudioStreamManagerFMOD::stopStream()
+bool LLAudioStreamManagerFMODEX::stopStream()
 {
 	if (mInternetStream)
 	{
-		int read_percent = 0;
-		int status = 0;
-		int bitrate = 0;
-		unsigned int flags = 0x0;
-		FSOUND_Stream_Net_GetStatus(mInternetStream, &status, &read_percent, &bitrate, &flags);
+
 
 		bool close = true;
-		switch (status)
+		switch (getOpenState())
 		{
-		case FSOUND_STREAM_NET_CONNECTING:
+		case FMOD_OPENSTATE_CONNECTING:
 			close = false;
 			break;
-		case FSOUND_STREAM_NET_NOTCONNECTED:
-		case FSOUND_STREAM_NET_BUFFERING:
-		case FSOUND_STREAM_NET_READY:
-		case FSOUND_STREAM_NET_ERROR:
 		default:
 			close = true;
 		}
 
 		if (close)
 		{
-			FSOUND_Stream_Close(mInternetStream);
+			mInternetStream->release();
+			mStreamChannel = NULL;
 			mInternetStream = NULL;
 			return true;
 		}
@@ -349,8 +355,19 @@ bool LLAudioStreamManagerFMOD::stopStream()
 	}
 }
 
-int LLAudioStreamManagerFMOD::getOpenState()
+FMOD_OPENSTATE LLAudioStreamManagerFMODEX::getOpenState(unsigned int* percentbuffered, bool* starving, bool* diskbusy)
 {
-	int open_state = FSOUND_Stream_GetOpenState(mInternetStream);
-	return open_state;
+	FMOD_OPENSTATE state;
+	mInternetStream->getOpenState(&state, percentbuffered, starving, diskbusy);
+	return state;
+}
+
+void LLStreamingAudio_FMODEX::setBufferSizes(U32 streambuffertime, U32 decodebuffertime)
+{
+	mSystem->setStreamBufferSize(streambuffertime/1000*128*128, FMOD_TIMEUNIT_RAWBYTES);
+	FMOD_ADVANCEDSETTINGS settings;
+	memset(&settings,0,sizeof(settings));
+	settings.cbsize=sizeof(settings);
+	settings.defaultDecodeBufferSize = decodebuffertime;//ms
+	mSystem->setAdvancedSettings(&settings);
 }
