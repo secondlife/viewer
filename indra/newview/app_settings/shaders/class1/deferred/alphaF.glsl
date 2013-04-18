@@ -56,8 +56,6 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
-VARYING vec2 vary_texcoord2;
 VARYING vec3 vary_norm;
 VARYING mat3 vary_rotation;
 
@@ -135,11 +133,8 @@ void main()
 	float vertex_color_alpha = vertex_color.a;
 #endif
 	
-	vec3 normal = vec3(0,0,1); 
-	normal = vec3(dot(normal.xyz, vary_rotation[0]),
-				dot(normal.xyz, vary_rotation[1]),
-				dot(normal.xyz, vary_rotation[2]));
-
+	vec3 normal = vary_norm; 
+	
 	vec3 l = light_position[0].xyz;
 	vec3 dlight = calcDirectionalLight(normal, l);
 	dlight = dlight * vary_directional.rgb * vary_pointlight_col;

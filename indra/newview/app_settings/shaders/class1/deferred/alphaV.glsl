@@ -40,9 +40,6 @@ void passTextureIndex();
 ATTRIBUTE vec3 normal;
 ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec2 texcoord0;
-ATTRIBUTE vec3 binormal;
-ATTRIBUTE vec2 texcoord1;
-ATTRIBUTE vec2 texcoord2;
 
 #if HAS_SKIN
 mat4 getObjectSkinnedTransform();
@@ -71,11 +68,8 @@ VARYING vec4 vertex_color;
 #endif
 
 VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
-VARYING vec2 vary_texcoord2;
 
 VARYING vec3 vary_norm;
-VARYING mat3 vary_rotation;
 
 uniform float near_clip;
 uniform float shadow_offset;
@@ -159,8 +153,7 @@ void main()
 	pos = (modelview_matrix * vert);
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 #endif
-	vary_texcoord1 = (texture_matrix0 * vec4(texcoord1,0,1)).xy;
-	vary_texcoord2 = (texture_matrix0 * vec4(texcoord2,0,1)).xy;
+	
 #if INDEX_MODE == INDEXED
 	passTextureIndex();
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
@@ -169,17 +162,7 @@ void main()
 #endif
 	
 	vary_norm = norm;
-	float dp_directional_light = max(0.0, dot(norm, light_position[0].xyz));
-	vary_position = pos.xyz + light_position[0].xyz * (1.0-dp_directional_light)*shadow_offset;
 	
-	vec3 n = norm;
-	vec3 b = normalize(normal_matrix * binormal);
-	vec3 t = cross(b, n);
-
-	vary_rotation[0] = vec3(t.x, b.x, n.x);
-	vary_rotation[1] = vec3(t.y, b.y, n.y);
-	vary_rotation[2] = vec3(t.z, b.z, n.z);
-
 	calcAtmospherics(pos.xyz);
 
 	//vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.));

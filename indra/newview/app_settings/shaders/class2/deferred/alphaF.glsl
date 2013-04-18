@@ -217,7 +217,7 @@ void main()
 	float vertex_color_alpha = vertex_color.a;
 #endif
 
-	vec3 normal = vec3(0,0,1); 
+	vec3 normal = vary_norm;
 	
 	vec3 l = light_position[0].xyz;
 	vec3 dlight = calcDirectionalLight(normal, l);
