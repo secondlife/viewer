@@ -339,5 +339,6 @@ void main()
 
 	frag_color.rgb = col;
 
-	frag_color.a = bloom;
+	//frag_color.a = bloom;
+	frag_color.a = 0.0;
 }

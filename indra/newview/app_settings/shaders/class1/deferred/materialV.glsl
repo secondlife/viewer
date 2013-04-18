@@ -23,6 +23,11 @@
  * $/LicenseInfo$
  */
 
+#define DIFFUSE_ALPHA_MODE_IGNORE 0
+#define DIFFUSE_ALPHA_MODE_BLEND 1
+#define DIFFUSE_ALPHA_MODE_MASK 2
+#define DIFFUSE_ALPHA_MODE_EMISSIVE 3
+
 #if HAS_SKIN
 uniform mat4 modelview_matrix;
 uniform mat4 projection_matrix;
@@ -32,8 +37,16 @@ uniform mat3 normal_matrix;
 uniform mat4 modelview_projection_matrix;
 #endif
 
-uniform mat4 texture_matrix0;
+#if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND
+#if !HAS_SKIN
+uniform mat4 modelview_matrix;
+#endif
 
+VARYING vec3 vary_position;
+
+#endif
+
+uniform mat4 texture_matrix0;
 
 ATTRIBUTE vec3 position;
 ATTRIBUTE vec4 diffuse_color;
@@ -70,6 +83,10 @@ void main()
 	mat = modelview_matrix * mat;
 
 	vec3 pos = (mat*vec4(position.xyz,1.0)).xyz;
+
+#if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND
+	vary_position = pos;
+#endif
 
 	gl_Position = projection_matrix*vec4(pos,1.0);
 
@@ -116,4 +133,10 @@ vary_normal  = n;
 #endif //HAS_SKIN
 	
 	vertex_color = diffuse_color;
+
+#if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND
+#if !HAS_SKIN
+	vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
+#endif
+#endif
 }

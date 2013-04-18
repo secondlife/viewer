@@ -49,8 +49,11 @@ public:
 
 	typedef enum
 	{
-		SHADER_COUNT = 16
+		SHADER_COUNT = 16,
+		ALPHA_SHADER_COUNT = 4
 	} eShaderCount;
+
+	
 	
 	static const U8			DEFAULT_SPECULAR_LIGHT_EXPONENT = ((U8)(0.2f * 255));
 	static const LLColor4U	DEFAULT_SPECULAR_LIGHT_COLOR;

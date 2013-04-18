@@ -39,7 +39,6 @@ uniform sampler2DShadow shadowMap0;
 uniform sampler2DShadow shadowMap1;
 uniform sampler2DShadow shadowMap2;
 uniform sampler2DShadow shadowMap3;
-uniform sampler2DRect depthMap;
 
 #if INDEX_MODE != INDEXED
 uniform sampler2D diffuseMap;
@@ -76,10 +75,6 @@ uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
-
-uniform sampler2D bumpMap;
-uniform samplerCube environmentMap;
-uniform mat3 env_mat;
 
 uniform vec4 specular_color;
 
@@ -223,10 +218,7 @@ void main()
 #endif
 
 	vec3 normal = texture2D(bumpMap, vary_texcoord1.xy).xyz * 2 - 1;
-	normal = vec3(dot(normal.xyz, vary_rotation[0]),
-				dot(normal.xyz, vary_rotation[1]),
-				dot(normal.xyz, vary_rotation[2]));
-
+	
 	vec3 l = light_position[0].xyz;
 	vec3 dlight = calcDirectionalLight(normal, l);
 	     dlight = dlight * vary_directional.rgb * vary_pointlight_col;
@@ -252,6 +244,7 @@ void main()
 
 	color.rgb += diff.rgb * vary_pointlight_col * col.rgb;
 
-	frag_color = color;
+	frag_color = vec4(1,0,1,1);
+	//frag_color = color;
 }
 
