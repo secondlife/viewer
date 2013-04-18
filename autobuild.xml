@@ -483,14 +483,14 @@
           </map>
         </map>
       </map>
-      <key>fmod</key>
+      <key>fmodex</key>
       <map>
         <key>license</key>
-        <string>fmod</string>
+        <string>fmodex</string>
         <key>license_file</key>
-        <string>LICENSES/fmod.txt</string>
+        <string>LICENSES/fmodex.txt</string>
         <key>name</key>
-        <string>fmod</string>
+        <string>fmodex</string>
         <key>platforms</key>
         <map>
           <key>darwin</key>
@@ -498,9 +498,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>61ead113e6479452e6b690c84b4e9d30</string>
+	      <string>89a3df89da75444877cf3197416fed67</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmod-private/rev/221852/arch/Darwin/installer/fmod-3.75-darwin-20110222.tar.bz2</string>
+	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/270029/arch/Darwin/installer/fmodex-4.44-darwin-20130205.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -510,9 +510,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0c61d643db54d2e5999be8254569d8b3</string>
+          <string>fd787931f49ece9bf99f4d1d1596f04b</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmod-private/rev/221852/arch/Linux/installer/fmod-3.75-linux-20110223.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269984/arch/Linux/installer/fmodex-4.44-linux-20130205.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -522,9 +522,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d9a9a6ad86895353bcd63374a4c1a91d</string>
+	      <string>9e0f62be63e74af18f670f864cac93da</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmod-private/rev/221852/arch/CYGWIN/installer/fmod-3.75-windows-20110222.tar.bz2</string>
+	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/270026/arch/CYGWIN/installer/fmodex-4.44-windows-20130205.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2531,7 +2531,6 @@
                   <string>"Visual Studio 10"</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DUSE_KDU=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -2620,7 +2619,6 @@
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -2708,7 +2706,6 @@
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
-                  <string>-DFMOD=FALSE</string>
                 </array>
               </map>
               <key>name</key>

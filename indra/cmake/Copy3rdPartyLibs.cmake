@@ -62,10 +62,9 @@ if(WINDOWS)
       set(release_files ${release_files} libtcmalloc_minimal.dll)
     endif(USE_TCMALLOC)
 
-    if (FMOD)
-      set(debug_files ${debug_files} fmod.dll)
-      set(release_files ${release_files} fmod.dll)
-    endif (FMOD)
+    if (FMODEX)
+      set(release_files ${release_files} fmodex.dll)
+    endif (FMODEX)
 
 #*******************************
 # Copy MS C runtime dlls, required for packaging.
@@ -222,8 +221,10 @@ elseif(DARWIN)
         libcollada14dom.dylib
        )
 
-    # fmod is statically linked on darwin
-    set(fmod_files "")
+    if (FMODEX)
+      set(debug_files ${debug_files} libfmodexL.dylib)
+      set(release_files ${release_files} libfmodex.dylib)
+    endif (FMODEX)
 
 elseif(LINUX)
     # linux is weird, multiple side by side configurations aren't supported
@@ -288,9 +289,9 @@ elseif(LINUX)
       set(release_files ${release_files} "libtcmalloc_minimal.so")
     endif (USE_TCMALLOC)
 
-    if (FMOD)
-      set(release_files ${release_files} "libfmod-3.75.so")
-    endif (FMOD)
+    if (FMODEX)
+      set(release_file ${release_files} "libfmodex.so")
+    endif (FMODEX)
 
 else(WINDOWS)
     message(STATUS "WARNING: unrecognized platform for staging 3rd party libs, skipping...")
@@ -304,8 +305,6 @@ else(WINDOWS)
     # or ARCH_PREBUILT_DIRS
     set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib/release")
     set(release_files "")
-
-    set(fmod_files "")
 
     set(debug_llkdu_src "")
     set(debug_llkdu_dst "")
@@ -368,30 +367,6 @@ copy_if_different(
     ${release_files}
     )
 set(third_party_targets ${third_party_targets} ${out_targets})
-
-if (FMOD_SDK_DIR)
-    copy_if_different(
-        ${FMOD_SDK_DIR} 
-        "${CMAKE_CURRENT_BINARY_DIR}/Debug"
-        out_targets 
-        ${fmod_files}
-        )
-    set(all_targets ${all_targets} ${out_targets})
-    copy_if_different(
-        ${FMOD_SDK_DIR} 
-        "${CMAKE_CURRENT_BINARY_DIR}/Release"
-        out_targets 
-        ${fmod_files}
-        )
-    set(all_targets ${all_targets} ${out_targets})
-    copy_if_different(
-        ${FMOD_SDK_DIR} 
-        "${CMAKE_CURRENT_BINARY_DIR}/RelWithDbgInfo"
-        out_targets 
-        ${fmod_files}
-        )
-    set(all_targets ${all_targets} ${out_targets})
-endif (FMOD_SDK_DIR)
 
 if(NOT STANDALONE)
   add_custom_target(
