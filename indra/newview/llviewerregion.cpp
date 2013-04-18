@@ -1020,11 +1020,6 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 		{
 			++iter;
 		}
-
-		//if(update_timer.getElapsedTimeF32() > max_time)
-		//{
-		//	break;
-		//}
 	}
 #endif
 
@@ -1046,24 +1041,14 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 
 				if(vo_entry->getParentID() > 0) //is a child
 				{
-					LLVOCacheEntry* parent = getCacheEntry(vo_entry->getParentID());
-					
-					//make sure the parent is active
-					if(!parent || !parent->isState(LLVOCacheEntry::ACTIVE))
-					{
-						continue;
-					}
+					//child visibility depends on its parent.
+					continue;
 				}
 
 				vo_entry->calcSceneContribution(camera_origin, needs_update, mImpl->mLastCameraUpdate);				
 				mImpl->mWaitingList.insert(vo_entry);
 			}
 		}
-
-		//if(update_timer.getElapsedTimeF32() > max_time)
-		//{
-		//	break;
-		//}
 	}
 	mImpl->mVisibleGroups.clear();
 
@@ -1145,6 +1130,7 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 
 F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 {
+#if 1
 	if(!sVOCacheCullingEnabled)
 	{
 		return max_time;
@@ -1164,7 +1150,7 @@ F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 		gObjectList.killObject(delete_list[i]->getVObj());
 	}
 	delete_list.clear();
-
+#endif
 	return max_time;
 }
 
@@ -1694,15 +1680,15 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
 //move all orphan children out of cache and insert to rendering octree.
 void LLViewerRegion::findOrphans(U32 parent_id)
 {
-	std::map<U32, OrphanList>::iterator iter = mOrphanMap.find(parent_id);
+	orphan_list_t::iterator iter = mOrphanMap.find(parent_id);
 	if(iter != mOrphanMap.end())
 	{
-		std::set<U32>* children = mOrphanMap[parent_id].getChildList();
-		for(std::set<U32>::iterator child_iter = children->begin(); child_iter != children->end(); ++child_iter)
+		std::vector<U32>* children = &mOrphanMap[parent_id];
+		for(S32 i = 0; i < children->size(); i++)
 		{
-			forceToRemoveFromCache(*child_iter, NULL);
+			forceToRemoveFromCache((*children)[i], NULL);
 		}
-			
+		children->clear();
 		mOrphanMap.erase(parent_id);
 	}
 }
@@ -1727,58 +1713,42 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 	LLVector3 pos;
 	LLVector3 scale;
 	LLQuaternion rot;
+
+	//decode spatial info and parent info
 	U32 parent_id = LLViewerObject::extractSpatialExtents(entry->getDP(), pos, scale, rot);
-	
-	entry->setBoundingInfo(pos, scale);
 	
 	if(parent_id > 0) //has parent
 	{
 		entry->setParentID(parent_id);
 	
-		//1, find parent, update position
+		//1, find the parent in cache
 		LLVOCacheEntry* parent = getCacheEntry(parent_id);
 		
-		//2, if can not, put into the orphan list.
-		if(!parent || !parent->getGroup())
+		//2, parent is not in the cache, put into the orphan list.
+		if(!parent)
 		{
-			std::map<U32, OrphanList>::iterator iter = mOrphanMap.find(parent_id);
-			if(iter != mOrphanMap.end())
+			mOrphanMap[parent_id].push_back(entry->getLocalID());
+		}
+		else //parent in cache
+		{
+			if(!parent->isState(LLVOCacheEntry::INACTIVE)) 
 			{
-				iter->second.addChild(entry->getLocalID());
+				//parent is visible, so is the child.
+				addVisibleCacheEntry(entry);
 			}
-			else 
+			else
 			{
-				//check if the parent is an uncacheable object
-				if(!parent)
-				{
-					LLUUID parent_uuid;
-					LLViewerObjectList::getUUIDFromLocal(parent_uuid,
-															parent_id,
-															getHost().getAddress(),
-															getHost().getPort());
-					LLViewerObject *parent_objp = gObjectList.findObject(parent_uuid);
-					if(parent_objp)
-					{
-						//parent is not cacheable, remove child from the cache.
-						forceToRemoveFromCache(entry->getLocalID(), NULL);
-						return;
-					}
-				}
+				parent->addChild(entry);
+			}
+		}
 
-				//otherwise insert to the orphan list
-				OrphanList o_list(entry->getLocalID());
-				mOrphanMap[parent_id] = o_list;
-			}
-			
-			return;
-		}
-		else
-		{
-			//update the child position to the region space.
-			entry->updateBoundingInfo(parent);
-		}
+		return;
 	}
 	
+	//
+	//no parent
+	//
+	entry->setBoundingInfo(pos, scale);
 	if(!entry->getGroup() && entry->isState(LLVOCacheEntry::INACTIVE))
 	{
 		addToVOCacheTree(entry);
@@ -1787,21 +1757,20 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 	if(!parent_id) //a potential parent
 	{
 		//find all children and update their bounding info
-		std::map<U32, OrphanList>::iterator iter = mOrphanMap.find(entry->getLocalID());
+		orphan_list_t::iterator iter = mOrphanMap.find(entry->getLocalID());
 		if(iter != mOrphanMap.end())
-		{
-			std::set<U32>* children = mOrphanMap[parent_id].getChildList();
-			for(std::set<U32>::iterator child_iter = children->begin(); child_iter != children->end(); ++child_iter)
+		{			
+			std::vector<U32>* orphans = &mOrphanMap[entry->getLocalID()];
+			S32 size = orphans->size();
+			for(S32 i = 0; i < size; i++)
 			{
-				LLVOCacheEntry* child = getCacheEntry(*child_iter);
+				LLVOCacheEntry* child = getCacheEntry((*orphans)[i]);
 				if(child)
 				{
-					//update the child position to the region space.
-					child->updateBoundingInfo(entry);
-					addToVOCacheTree(child);
+					entry->addChild(child);
 				}
 			}
-			
+			orphans->clear();
 			mOrphanMap.erase(entry->getLocalID());
 		}
 	}

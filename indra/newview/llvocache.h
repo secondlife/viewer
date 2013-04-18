@@ -114,8 +114,7 @@ public:
 
 	//called from processing object update message
 	void setBoundingInfo(const LLVector3& pos, const LLVector3& scale);
-	void updateBoundingInfo(LLVOCacheEntry* parent);
-
+	
 	void setTouched(BOOL touched = TRUE) {mTouched = touched;}
 	BOOL isTouched() const {return mTouched;}
 	
