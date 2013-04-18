@@ -192,10 +192,10 @@ void main()
 	col.rgb = vec3(0,0,0);
 
 	// Add windlight lights
-	col.rgb = atmosAmbient(vec3(0.));
+	col.rgb = atmosAmbient(col.rgb);
 	
 	vary_ambient = col.rgb*diffuse_color.rgb;
-	vary_directional.rgb = atmosAffectDirectionalLight(1);
+	vary_directional.rgb = atmosAffectDirectionalLight(1.0f);
 	
 	col.rgb = col.rgb*diffuse_color.rgb;
 	
