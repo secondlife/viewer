@@ -447,21 +447,9 @@ private:
 	BOOL	mCapabilitiesReceived;
 	BOOL    mReleaseNotesRequested;
 	BOOL    mDead;  //if true, this region is in the process of deleting.
-
-	class OrphanList
-	{
-	public:
-		OrphanList(){}
-		OrphanList(U32 child_id){addChild(child_id);}
-		
-		void addChild(U32 child_id) {mChildList.insert(child_id);}
-		std::set<U32>* getChildList() {return &mChildList;}
-		
-	private:
-		std::set<U32> mChildList;
-	};
 	
-	std::map<U32, OrphanList> mOrphanMap;
+	typedef std::map<U32, std::vector<U32> > orphan_list_t;
+	orphan_list_t mOrphanMap;
 	
 	class CacheMissItem
 	{
@@ -471,21 +459,9 @@ private:
 		U32                            mID;     //local object id
 		LLViewerRegion::eCacheMissType mType;   //cache miss type
 	
-#if 0
-		struct Compare
-		{
-			bool operator()(const CacheMissItem& lhs, const CacheMissItem& rhs)
-			{
-				return lhs.mID < rhs.mID; //smaller ID first.
-			}
-		};
-
-		typedef std::set<CacheMissItem, Compare> cache_miss_list_t;
-#else
 		typedef std::list<CacheMissItem> cache_miss_list_t;
-#endif
 	};
-	CacheMissItem::cache_miss_list_t        mCacheMissList;
+	CacheMissItem::cache_miss_list_t   mCacheMissList;
 	
 	caps_received_signal_t mCapabilitiesReceivedSignal;		
 	LLSD mSimulatorFeatures;

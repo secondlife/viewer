@@ -995,15 +995,19 @@ U32 LLViewerObject::checkMediaURL(const std::string &media_url)
 U32 LLViewerObject::extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector3& pos, LLVector3& scale, LLQuaternion& rot)
 {
 	U32	parent_id = 0;
-	
+	LLViewerObject::unpackParentID(dp, parent_id);
+	if(parent_id > 0)
+	{
+		//is a child, no need to decode further.
+		return parent_id;
+	}
+
 	LLViewerObject::unpackVector3(dp, scale, "Scale");
 	LLViewerObject::unpackVector3(dp, pos, "Pos");
 	
 	LLVector3 vec;
 	LLViewerObject::unpackVector3(dp, vec, "Rot");
 	rot.unpackFromVector3(vec);
-	
-	LLViewerObject::unpackParentID(dp, parent_id);
 	
 	return parent_id;
 }

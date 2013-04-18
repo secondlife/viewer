@@ -367,14 +367,6 @@ void LLVOCacheEntry::setBoundingInfo(const LLVector3& pos, const LLVector3& scal
 	setBinRadius(llmin(size.getLength3().getF32() * 4.f, 256.f));
 }
 
-void LLVOCacheEntry::updateBoundingInfo(LLVOCacheEntry* parent)
-{
-	//LLVector4a old_pos = getPositionGroup();
-	//parent->getPositionRegion() + (getPosition() * parent->getRotation());
-	
-	shift(parent->getPositionGroup());
-}
-
 //-------------------------------------------------------------------
 //LLVOCachePartition
 //-------------------------------------------------------------------
@@ -593,7 +585,12 @@ void LLVOCache::removeCache(ELLPath location, bool started)
 
 void LLVOCache::removeCache() 
 {
-	llassert_always(mInitialized) ;
+	if(!mInitialized)
+	{
+		//OK to remove cache even it is not initialized.
+		llwarns << "Object cache is not initialized yet." << llendl;
+	}
+
 	if(mReadOnly)
 	{
 		llwarns << "Not clearing object cache: Cache is currently in read-only mode." << llendl;
