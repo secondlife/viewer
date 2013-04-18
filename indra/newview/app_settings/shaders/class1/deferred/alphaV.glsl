@@ -46,8 +46,12 @@ ATTRIBUTE vec2 texcoord2;
 
 #ifdef HAS_SKIN
 mat4 getObjectSkinnedTransform();
-#elif IS_AVATAR_SKIN
+#else
+
+#ifdef IS_AVATAR_SKIN
 mat4 getSkinnedTransform();
+#endif
+
 #endif
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
