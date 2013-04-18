@@ -121,7 +121,7 @@ LLResizeBar::LLResizeBar(const LLResizeBar::Params& p)
 	{
 		LLViewBorder::Params border_params;
 		border_params.border_thickness = 1;
-		border_params.highlight_light_color = LLUIColorTable::instance().getColor("ResizebarBorderlight");
+		border_params.highlight_light_color = LLUIColorTable::instance().getColor("ResizebarBorderLight");
 		border_params.shadow_dark_color = LLUIColorTable::instance().getColor("ResizebarBorderDark");
 
 		addBorder(border_params);

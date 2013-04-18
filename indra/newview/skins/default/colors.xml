@@ -868,7 +868,7 @@
   <!--Resize bar colors -->
 
   <color
-    name="ResizebarBorderlight"
+    name="ResizebarBorderLight"
     value="0.231 0.231 0.231 1"/>
 
   <color
