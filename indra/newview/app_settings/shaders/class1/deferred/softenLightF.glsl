@@ -294,9 +294,7 @@ void main()
 	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
 
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
-	diffuse.rgb = pow(diffuse.rgb, vec3(2.2));
 	vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
-	spec.rgb = pow(spec.rgb, vec3(2.2));
 	vec3 col;
 	float bloom = 0.0;
 	if (diffuse.a < 0.9)

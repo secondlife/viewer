@@ -1,5 +1,5 @@
 /** 
- * @file postDeferredNoDoFF.glsl
+ * @file postDeferredGammaCorrect.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -32,16 +32,13 @@ out vec4 frag_color;
 #endif
 
 uniform sampler2DRect diffuseRect;
-uniform sampler2D bloomMap;
 
 uniform vec2 screen_res;
 VARYING vec2 vary_fragcoord;
 
 void main() 
 {
-	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord.xy);
-	
-	vec4 bloom = texture2D(bloomMap, vary_fragcoord.xy/screen_res);
-	frag_color = diff + bloom;
+	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord);
+	frag_color = pow(diff, vec4(0.454545, 0.454545, 0.454545, 1.0));
 }
 
