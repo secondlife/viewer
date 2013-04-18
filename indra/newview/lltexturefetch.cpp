@@ -1525,7 +1525,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 			// Will call callbackHttpGet when curl request completes
 			// Only server bake images use the returned headers currently, for getting retry-after field.
-			HttpOptions *options = (mFTType == FTT_SERVER_BAKE) ? mFetcher->mHttpOptionsWithHeaders: mFetcher->mHttpOptions;
+			LLCore::HttpOptions *options = (mFTType == FTT_SERVER_BAKE) ? mFetcher->mHttpOptionsWithHeaders: mFetcher->mHttpOptions;
 			mHttpHandle = mFetcher->mHttpRequest->requestGetByteRange(mHttpPolicyClass,
 																	  mWorkPriority,
 																	  mUrl,
@@ -2569,7 +2569,7 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 
 	if (f_type == FTT_SERVER_BAKE)
 	{
-		llinfos << " requesting " << id << " " << w << "x" << h << " discard " << desired_discard << llendl;
+		LL_DEBUGS("Avatar") << " requesting " << id << " " << w << "x" << h << " discard " << desired_discard << llendl;
 	}
 	LLTextureFetchWorker* worker = getWorker(id) ;
 	if (worker)

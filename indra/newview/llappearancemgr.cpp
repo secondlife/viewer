@@ -1661,7 +1661,7 @@ void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category)
 	}
 }
 
-void LLAppearanceMgr::purgeCategory(const LLUUID& category, bool keep_outfit_links, LLInventoryModel::item_array_t* keep_items)
+void LLAppearanceMgr::purgeCategory(const LLUUID& category, bool keep_outfit_links, LLPointer<LLInventoryCallback> cb)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
@@ -1674,19 +1674,8 @@ void LLAppearanceMgr::purgeCategory(const LLUUID& category, bool keep_outfit_lin
 			continue;
 		if (item->getIsLinkType())
 		{
-#if 0
-			if (keep_items && keep_items->find(item) != LLInventoryModel::item_array_t::FAIL)
-			{
-				llinfos << "preserved item" << llendl;
-			}
-			else
-			{
-				gInventory.purgeObject(item->getUUID());
-			}
-#else
-			gInventory.purgeObject(item->getUUID());
+			remove_inventory_item(item->getUUID(), cb);
 		}
-#endif
 	}
 }
 
@@ -1819,7 +1808,7 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	// carried over (e.g. keeping old shape if the new outfit does not
 	// contain one)
 	bool keep_outfit_links = append;
-	purgeCategory(cof, keep_outfit_links, &all_items);
+	purgeCategory(cof, keep_outfit_links, link_waiter);
 	gInventory.notifyObservers();
 
 	LL_DEBUGS("Avatar") << self_av_string() << "waiting for LLUpdateAppearanceOnDestroy" << LL_ENDL;
@@ -2824,7 +2813,7 @@ bool LLAppearanceMgr::updateBaseOutfit()
 	updateClothingOrderingInfo();
 
 	// in a Base Outfit we do not remove items, only links
-	purgeCategory(base_outfit_id, false);
+	purgeCategory(base_outfit_id, false, NULL);
 
 	LLPointer<LLInventoryCallback> dirty_state_updater =
 		new LLBoostFuncInventoryCallback(no_op_inventory_func, appearance_mgr_update_dirty_state);
@@ -3211,7 +3200,6 @@ void LLAppearanceMgr::requestServerAppearanceUpdate(LLCurl::ResponderPtr respond
 	}
 	LL_DEBUGS("Avatar") << "request url " << url << " my_cof_version " << cof_version << llendl;
 	
-	//LLCurl::ResponderPtr responder_ptr;
 	if (!responder_ptr.get())
 	{
 		responder_ptr = new RequestAgentUpdateAppearanceResponder;
