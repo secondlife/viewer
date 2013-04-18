@@ -25,10 +25,6 @@
 
 #extension GL_ARB_texture_rectangle : enable
 
-#define INDEXED 1
-#define NON_INDEXED 2
-#define NON_INDEXED_NO_COLOR 3
-
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -41,7 +37,7 @@ uniform sampler2DShadow shadowMap2;
 uniform sampler2DShadow shadowMap3;
 uniform sampler2DRect depthMap;
 
-#if !INDEX_MODE || INDEX_MODE_NO_COLOR
+#ifndef INDEX_MODE
 uniform sampler2D diffuseMap;
 #endif
 
@@ -62,7 +58,7 @@ VARYING vec2 vary_texcoord2;
 VARYING vec3 vary_norm;
 VARYING mat3 vary_rotation;
 
-#if !INDEX_MODE_NO_COLOR
+#ifdef INDEX_MODE_USE_COLOR
 VARYING vec4 vertex_color;
 #endif
 
@@ -210,16 +206,16 @@ void main()
 	}
 
 	vec4 diff;
-#if INDEX_MODE
+#ifdef INDEX_MODE
 	diff = diffuseLookup(vary_texcoord0.xy);
 #else
 	diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
 	
-#if INDEX_MODE_NO_COLOR
-	float vertex_color_alpha = 1.0;
-#else
+#ifdef INDEX_MODE_USE_COLOR
 	float vertex_color_alpha = vertex_color.a;
+#else
+	float vertex_color_alpha = 1.0;
 #endif
 
 	vec3 normal = texture2D(bumpMap, vary_texcoord1.xy).xyz * 2 - 1;

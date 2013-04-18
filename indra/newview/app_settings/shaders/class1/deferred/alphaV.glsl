@@ -34,7 +34,7 @@ uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
 ATTRIBUTE vec3 position;
-#if INDEX_MODE
+#ifdef INDEX_MODE
 void passTextureIndex();
 #endif
 ATTRIBUTE vec3 normal;
@@ -44,7 +44,7 @@ ATTRIBUTE vec3 binormal;
 ATTRIBUTE vec2 texcoord1;
 ATTRIBUTE vec2 texcoord2;
 
-#if HAS_SKIN
+#ifdef HAS_SKIN
 mat4 getObjectSkinnedTransform();
 #elif IS_AVATAR_SKIN
 mat4 getSkinnedTransform();
@@ -66,7 +66,7 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 
-#if !INDEX_MODE_NO_COLOR
+#ifdef INDEX_MODE_USE_COLOR
 VARYING vec4 vertex_color;
 #endif
 
@@ -127,7 +127,7 @@ void main()
 	vec4 pos;
 	vec3 norm;
 	//transform vertex
-#if HAS_SKIN
+#ifdef HAS_SKIN
 	mat4 trans = getObjectSkinnedTransform();
 	trans = modelview_matrix * trans;
 	
@@ -137,7 +137,8 @@ void main()
 	norm = normalize((trans * vec4(norm, 1.0)).xyz - pos.xyz);
 	vec4 frag_pos = projection_matrix * pos;
 	gl_Position = frag_pos;
-#elif IS_AVATAR_SKIN
+#else
+#ifdef IS_AVATAR_SKIN
 	mat4 trans = getSkinnedTransform();
 	vec4 pos_in = vec4(position.xyz, 1.0);
 	pos.x = dot(trans[0], pos_in);
@@ -158,10 +159,12 @@ void main()
 	pos = (modelview_matrix * vert);
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 #endif
+#endif
 
 	vary_texcoord1 = (texture_matrix0 * vec4(texcoord1,0,1)).xy;
 	vary_texcoord2 = (texture_matrix0 * vec4(texcoord2,0,1)).xy;
-#if INDEX_MODE
+
+#ifdef INDEX_MODE
 	passTextureIndex();
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 #else
@@ -197,17 +200,18 @@ void main()
 	vary_directional.rgb = atmosAffectDirectionalLight(1.0f);
 	
 	col.rgb = col.rgb*diffuse_color.rgb;
-#if !INDEX_MODE_NO_COLOR
+#ifdef INDEX_MODE_USE_COLOR
 	vertex_color = col;
 #endif
 	
-#if HAS_SKIN
+#ifdef HAS_SKIN
 	vary_fragcoord.xyz = frag_pos.xyz + vec3(0,0,near_clip);
-#elif IS_AVATAR_SKIN
+#else
+#ifdef IS_AVATAR_SKIN
 	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
 #else
 	pos = modelview_projection_matrix * vert;
 	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
 #endif
-
+#endif
 }

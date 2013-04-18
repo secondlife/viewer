@@ -1221,10 +1221,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredSkinnedAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		gDeferredSkinnedAlphaProgram.addPermutation("INDEX_MODE", "0");
-		gDeferredSkinnedAlphaProgram.addPermutation("INDEX_MODE_NO_COLOR", "0");
+		gDeferredSkinnedAlphaProgram.addPermutation("INDEX_MODE_USE_COLOR", "1");
 		gDeferredSkinnedAlphaProgram.addPermutation("HAS_SKIN", "1");
-		gDeferredSkinnedAlphaProgram.addPermutation("IS_AVATAR_SKIN", "0");
 		success = gDeferredSkinnedAlphaProgram.createShader(NULL, NULL);
 		
 		// Hack to include uniforms for lighting without linking in lighting file
@@ -1260,9 +1258,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			gDeferredMaterialProgram[i].addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
 
 			bool has_skin = i & 0x10;
-			gDeferredMaterialProgram[i].addPermutation("HAS_SKIN",has_skin ? "1" : "0");
 			if (has_skin)
 			{
+				gDeferredMaterialProgram[i].addPermutation("HAS_SKIN", "1");
 				gDeferredMaterialProgram[i].mFeatures.hasObjectSkinning = true;
 			}
 
