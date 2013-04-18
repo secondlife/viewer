@@ -507,22 +507,11 @@ LLFloater::~LLFloater()
 {
 	LLFloaterReg::removeInstance(mInstanceName, mKey);
 	
-//	delete mNotificationContext;
-//	mNotificationContext = NULL;
-
-	//// am I not hosted by another floater?
-	//if (mHostHandle.isDead())
-	//{
-	//	LLFloaterView* parent = (LLFloaterView*) getParent();
-
-	//	if( parent )
-	//	{
-	//		parent->removeChild( this );
-	//	}
-	//}
-
-	// Just in case we might still have focus here, release it.
-	releaseFocus();
+	if( gFocusMgr.childHasKeyboardFocus(this))
+	{
+		// Just in case we might still have focus here, release it.
+		releaseFocus();
+	}
 
 	// This is important so that floaters with persistent rects (i.e., those
 	// created with rect control rather than an LLRect) are restored in their
