@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2010-2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -52,6 +52,7 @@
 #include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewermenufile.h"
+#include "llviewermessage.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewertexturelist.h"
@@ -109,13 +110,20 @@ std::string make_dump_name(std::string prefix, S32 num)
 void dump_llsd_to_file(const LLSD& content, std::string filename);
 LLSD llsd_from_file(std::string filename);
 
-std::string header_lod[] = 
+const std::string header_lod[] = 
 {
 	"lowest_lod",
 	"low_lod",
 	"medium_lod",
 	"high_lod"
 };
+
+// Static data and functions to measure mesh load
+// time metrics for a new region scene.
+static bool metrics_inited(false);
+static boost::signals2::connection metrics_teleport_connection;
+static unsigned int metrics_teleport_start_count(0);
+static void metrics_teleport_started();
 
 //get the number of bytes resident in memory for given volume
 U32 get_volume_memory_size(const LLVolume* volume)
@@ -2168,9 +2176,6 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 
 	if (status < 200 || status > 400)
 	{
-		// Manage time-to-load metrics for mesh download operations.
-		LLMeshRepository::metricsProgress(0);
-
 		//llwarns
 		//	<< "Header responder failed with status: "
 		//	<< status << ": " << reason << llendl;
@@ -2310,11 +2315,25 @@ void LLMeshRepository::init()
 	
 	mThread = new LLMeshRepoThread();
 	mThread->start();
+
+	if (! metrics_inited)
+	{
+		// Get teleport started signals to restart timings.
+		metrics_teleport_connection = LLViewerMessage::getInstance()->
+			setTeleportStartedCallback(metrics_teleport_started);
+		metrics_inited = true;
+	}
 }
 
 void LLMeshRepository::shutdown()
 {
 	llinfos << "Shutting down mesh repository." << llendl;
+
+	if (metrics_inited)
+	{
+		metrics_teleport_connection.disconnect();
+		metrics_inited = false;
+	}
 
 	for (U32 i = 0; i < mUploads.size(); ++i)
 	{
@@ -3735,9 +3754,10 @@ void LLMeshRepository::metricsStop()
 void LLMeshRepository::metricsProgress(unsigned int this_count)
 {
 	static bool first_start(true);
+
 	if (first_start)
 	{
-		// Let the first request start the timing cycle for login.
+		++metrics_teleport_start_count;
 		metricsStart();
 		first_start = false;
 	}
@@ -3760,7 +3780,20 @@ void LLMeshRepository::metricsUpdate()
 		metrics["start"] = started;
 		metrics["stop"] = stopped;
 		metrics["downloads"] = LLSD::Integer(total_count);
+		metrics["teleports"] = LLSD::Integer(metrics_teleport_start_count);
 		llinfos << "EventMarker " << metrics << llendl;
 	}
 }
-	
+
+// Will use a request to start a teleport as a signal to
+// restart a timing sequence.  We don't get one of these
+// for login so initial start is done above.
+//
+// Threading:  main thread only
+// static
+void metrics_teleport_started()
+{
+	LLMeshRepository::metricsStart();
+	++metrics_teleport_start_count;
+}
+
