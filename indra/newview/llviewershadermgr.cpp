@@ -1412,8 +1412,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAlphaProgram.mShaderFiles.clear();
 		gDeferredAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredAlphaProgram.addPermutation("INDEX_MODE", "1");
+		gDeferredAlphaProgram.addPermutation("HAS_SKIN", "0");
+		gDeferredAlphaProgram.addPermutation("IS_AVATAR_SKIN", "0");
 		gDeferredAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
 		success = gDeferredAlphaProgram.createShader(NULL, NULL);
 
 		// Hack

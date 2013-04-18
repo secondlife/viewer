@@ -217,7 +217,7 @@ void main()
 	float vertex_color_alpha = vertex_color.a;
 #endif
 
-	vec3 normal = texture2D(bumpMap, vary_texcoord1.xy).xyz * 2 - 1;
+	vec3 normal = vec3(0,0,1); 
 	
 	vec3 l = light_position[0].xyz;
 	vec3 dlight = calcDirectionalLight(normal, l);
@@ -244,7 +244,6 @@ void main()
 
 	color.rgb += diff.rgb * vary_pointlight_col * col.rgb;
 
-	frag_color = vec4(1,0,1,1);
-	//frag_color = color;
+	frag_color = color;
 }
 

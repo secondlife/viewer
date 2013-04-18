@@ -152,8 +152,7 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 		gPipeline.mDeferredDepth.copyContents(gPipeline.mDeferredScreen, 0, 0, gPipeline.mDeferredScreen.getWidth(), gPipeline.mDeferredScreen.getHeight(),
 							0, 0, gPipeline.mDeferredDepth.getWidth(), gPipeline.mDeferredDepth.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);	
 		gPipeline.mDeferredDepth.bindTarget();
-		simple_shader = NULL;
-		fullbright_shader = NULL;
+		simple_shader = fullbright_shader = &gObjectFullbrightAlphaMaskProgram;
 		gObjectFullbrightAlphaMaskProgram.bind();
 		gObjectFullbrightAlphaMaskProgram.setMinimumAlpha(0.33f);
 	}
@@ -504,7 +503,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 				if(use_shaders && (current_shader != target_shader))
 				{// If we need shaders, and we're not ALREADY using the proper shader, then bind it
 				// (this way we won't rebind shaders unnecessarily).
-					llassert(target_shader != NULL);
 					current_shader = target_shader;
 					current_shader->bind();
 				}
@@ -514,7 +512,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 					current_shader = NULL;
 				}
 				
-				if (mat && !params.mFullbright)
+				if (use_shaders && mat && !params.mFullbright)
 				{
 					// I apologize in advance for not giving this its own shader.
 					// We have a material.  Supply the appropriate data here.

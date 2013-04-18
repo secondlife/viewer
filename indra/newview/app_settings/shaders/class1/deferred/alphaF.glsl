@@ -72,7 +72,6 @@ uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
-uniform sampler2D bumpMap;
 uniform samplerCube environmentMap;
 uniform mat3 env_mat;
 
@@ -125,7 +124,7 @@ void main()
 	vec4 pos = vec4(vary_position, 1.0);
 	
 #if INDEX_MODE == INDEXED
-	vec4 diff= diffuseLookup(vary_texcoord0.xy);
+	vec4 diff = diffuseLookup(vary_texcoord0.xy);
 #else
 	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
@@ -136,7 +135,7 @@ void main()
 	float vertex_color_alpha = vertex_color.a;
 #endif
 	
-	vec3 normal = texture2D(bumpMap, vary_texcoord1.xy).xyz * 2 - 1;
+	vec3 normal = vec3(0,0,1); 
 	normal = vec3(dot(normal.xyz, vary_rotation[0]),
 				dot(normal.xyz, vary_rotation[1]),
 				dot(normal.xyz, vary_rotation[2]));
