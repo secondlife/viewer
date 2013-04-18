@@ -213,14 +213,12 @@ private:
 	
 	void getDescendentsOfAssetType(const LLUUID& category, 
 										  LLInventoryModel::item_array_t& items,
-										  LLAssetType::EType type,
-										  bool follow_folder_links);
+										  LLAssetType::EType type);
 
 	void getUserDescendents(const LLUUID& category, 
 								   LLInventoryModel::item_array_t& wear_items,
 								   LLInventoryModel::item_array_t& obj_items,
-								   LLInventoryModel::item_array_t& gest_items,
-								   bool follow_folder_links);
+								   LLInventoryModel::item_array_t& gest_items);
 
 	void purgeCategory(const LLUUID& category, bool keep_outfit_links, LLPointer<LLInventoryCallback> cb);
 	static void onOutfitRename(const LLSD& notification, const LLSD& response);
