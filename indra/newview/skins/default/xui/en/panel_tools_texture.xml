@@ -392,12 +392,13 @@
                 Glossiness
             </text>
             <spinner
-             decimal_digits="3"
-             min_value="0"
-             max_value="1"
+             decimal_digits="0"
+             min_val="0"
+             max_val="255"
              follows="left|top"
              height="19"
-             initial_value="0.2"
+             initial_value="51"
+             increment="1"
              layout="topleft"
              top_delta="-4"
              left_pad="10"
@@ -417,9 +418,10 @@
                 Environment
             </text>
             <spinner
-             decimal_digits="3"
-             min_value="0"
-             max_value="1"
+             decimal_digits="0"
+             min_val="0"
+             max_val="255"
+             increment="1"
              follows="left|top"
              height="19"
              initial_value="0"

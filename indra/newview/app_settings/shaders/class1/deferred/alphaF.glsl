@@ -39,10 +39,6 @@ out vec4 frag_color;
 uniform sampler2D diffuseMap;
 #endif
 
-#if INDEX_MODE == INDEXED
-vec4 diffuseLookup(vec2 texcoord);
-#endif
-
 uniform vec2 screen_res;
 
 vec3 atmosLighting(vec3 light);
@@ -54,34 +50,24 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
-VARYING vec2 vary_texcoord2;
 VARYING vec3 vary_norm;
-VARYING mat3 vary_rotation;
 
 #if INDEX_MODE != NON_INDEXED_NO_COLOR
 VARYING vec4 vertex_color;
 #endif
-
-uniform mat4 inv_proj;
 
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
-uniform vec4 specular_color;
-
-
-uniform float shadow_offset;
-
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
-	float a = pow(max(dot(n,l),0.0), 0.7);
+	float a = max(dot(n,l),0.0);
 	return vec3(a,a,a);
 }
 
-float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
+vec3 calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
 {
 	//get light vector
 	vec3 lv = lp.xyz-v;
@@ -105,10 +91,10 @@ float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, floa
 		da *= spot*spot; // GL_SPOT_EXPONENT=2
 
 		//angular attenuation
-		da *= max(pow(dot(n, lv), 0.7), 0.0);		
+		da *= max(dot(n, lv), 0.0);		
 	}
 
-	return da;	
+	return vec3(da,da,da);	
 }
 
 void main() 
@@ -123,18 +109,18 @@ void main()
 #else
 	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
-	diff.rgb = pow(diff.rgb, vec3(2.2));
+
 #if INDEX_MODE == NON_INDEXED_NO_COLOR
 	float vertex_color_alpha = 1.0;
 #else
 	float vertex_color_alpha = vertex_color.a;
 #endif
 	
-	vec3 normal = vary_norm;
+	vec3 normal = vary_norm; 
 	
 	vec3 l = light_position[0].xyz;
 	vec3 dlight = calcDirectionalLight(normal, l);
-	     dlight = dlight * vary_directional.rgb * vary_pointlight_col;
+	dlight = dlight * vary_directional.rgb * vary_pointlight_col;
 
 	vec4 col = vec4(vary_ambient + dlight, vertex_color_alpha);
 	vec4 color = diff * col;
@@ -142,12 +128,11 @@ void main()
 	color.rgb = atmosLighting(color.rgb);
 
 	color.rgb = scaleSoftClip(color.rgb);
-	vec3 light_col = vec3(0,0,0);
+	col = vec4(0,0,0,0);
 
-#ifdef MAC_GEFORCE_HACK
-  #define LIGHT_LOOP(i) \
-		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
-		
+   #define LIGHT_LOOP(i) \
+	col.rgb += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+
 	LIGHT_LOOP(1)
 	LIGHT_LOOP(2)
 	LIGHT_LOOP(3)
@@ -155,14 +140,9 @@ void main()
 	LIGHT_LOOP(5)
 	LIGHT_LOOP(6)
 	LIGHT_LOOP(7)
-#else
-	for (int i = 2; i < 8; i++)
-	{
-		light_col += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
-	}
-#endif
 
-	color.rgb += diff.rgb * vary_pointlight_col * light_col;
+	color.rgb += diff.rgb * vary_pointlight_col * col.rgb;
+
 	frag_color = color;
 }
 

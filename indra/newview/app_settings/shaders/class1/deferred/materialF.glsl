@@ -115,7 +115,7 @@ uniform vec3 light_diffuse[8];
 
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
-	float a = pow(max(dot(n,l),0.0), 0.7);
+	float a = max(dot(n,l),0.0);
 	return vec3(a,a,a);
 }
 
@@ -149,8 +149,6 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 		da *= max(dot(n, lv), 0.0);		
 		
 		float lit = max(da * dist_atten, 0.0);
-	
-		lit = pow(lit, 0.7);
 
 		col = light_col*lit*diffuse;
 
@@ -435,6 +433,10 @@ void main()
 	}
 #endif
 
+#if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND
+	diffcol.rgb = pow(diffcol.rgb, vec3(2.2));
+#endif
+
 #if HAS_SPECULAR_MAP
 	vec4 spec = texture2D(specularMap, vary_texcoord2.xy);
 #else
@@ -566,11 +568,13 @@ void main()
 	
 			col *= diffuse.rgb;
 	
+			vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
+
 			if (spec.a > 0.0) // specular reflection
 			{
 				// the old infinite-sky shiny reflection
 				//
-				vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
+				
 				float sa = dot(refnormpersp, sun_dir.xyz);
 				vec3 dumbshiny = vary_SunlitColor*shadow*(texture2D(lightFunc, vec2(sa, spec.a)).r);
 							
@@ -578,7 +582,10 @@ void main()
 				vec3 spec_contrib = dumbshiny * spec.rgb;
 				bloom = dot(spec_contrib, spec_contrib) / 6;
 				col += spec_contrib;
+			}
 
+			if (envIntensity > 0.0)
+			{
 				//add environmentmap
 				vec3 env_vec = env_mat * refnormpersp;
 				col = mix(col.rgb, textureCube(environmentMap, env_vec).rgb, 

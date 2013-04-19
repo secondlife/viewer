@@ -1111,7 +1111,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredPostProgram.unload();		
 		gDeferredCoFProgram.unload();		
 		gDeferredDoFCombineProgram.unload();
-		gDeferredPostNoDoFProgram.unload();
 		gDeferredPostGammaCorrectProgram.unload();
 		gFXAAProgram.unload();
 		gDeferredWaterProgram.unload();
@@ -1415,10 +1414,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAlphaProgram.mShaderFiles.clear();
 		gDeferredAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		gDeferredAlphaProgram.addPermutation("INDEX_MODE", "1");
 		gDeferredAlphaProgram.addPermutation("HAS_SKIN", "0");
 		gDeferredAlphaProgram.addPermutation("IS_AVATAR_SKIN", "0");
+		gDeferredAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredAlphaProgram.createShader(NULL, NULL);
 
 		// Hack
@@ -1593,15 +1592,25 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarAlphaProgram.mShaderFiles.clear();
 		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredAvatarAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		gDeferredAvatarAlphaProgram.addPermutation("INDEX_MODE", "3");
 		gDeferredAvatarAlphaProgram.addPermutation("HAS_SKIN", "0");
 		gDeferredAvatarAlphaProgram.addPermutation("IS_AVATAR_SKIN", "1");
-		
+		gDeferredAvatarAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
 		success = gDeferredAvatarAlphaProgram.createShader(NULL, &mAvatarUniforms);
 
 		gDeferredAvatarAlphaProgram.mFeatures.calculatesLighting = true;
 		gDeferredAvatarAlphaProgram.mFeatures.hasLighting = true;
+	}
+	
+	if (success)
+	{
+		gDeferredPostGammaCorrectProgram.mName = "Deferred Gamma Correction Post Process";
+		gDeferredPostGammaCorrectProgram.mShaderFiles.clear();
+		gDeferredPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredGammaCorrect.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredPostGammaCorrectProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		success = gDeferredPostGammaCorrectProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -1652,16 +1661,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredPostNoDoFProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoDoFF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredPostNoDoFProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredPostNoDoFProgram.createShader(NULL, NULL);
-	}
-	
-	if (success)
-	{
-		gDeferredPostGammaCorrectProgram.mName = "Deferred Gamma Correct Shader";
-		gDeferredPostGammaCorrectProgram.mShaderFiles.clear();
-		gDeferredPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredGammaCorrect.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredPostGammaCorrectProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		success = gDeferredPostGammaCorrectProgram.createShader(NULL, NULL);
 	}
 
 	if (success)

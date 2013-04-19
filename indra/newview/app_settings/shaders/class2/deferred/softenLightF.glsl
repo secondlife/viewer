@@ -315,11 +315,13 @@ void main()
 	
 		col *= diffuse.rgb;
 	
+		vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
+
 		if (spec.a > 0.0) // specular reflection
 		{
 			// the old infinite-sky shiny reflection
 			//
-			vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
+			
 			float sa = dot(refnormpersp, sun_dir.xyz);
 			vec3 dumbshiny = vary_SunlitColor*scol_ambocc.r*(texture2D(lightFunc, vec2(sa, spec.a)).r);
 
@@ -327,8 +329,10 @@ void main()
 			vec3 spec_contrib = dumbshiny * spec.rgb;
 			bloom = dot(spec_contrib, spec_contrib) / 6;
 			col += spec_contrib;
+		}
 
-			//add environmentmap
+		if (envIntensity > 0.0)
+		{ //add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
 			col = mix(col.rgb, pow(textureCube(environmentMap, env_vec).rgb, vec3(2.2)) * 2.2, 
 				max(envIntensity-diffuse.a*2.0, 0.0)); 

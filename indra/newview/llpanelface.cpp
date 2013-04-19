@@ -1720,8 +1720,8 @@ void LLPanelFace::onMaterialLoaded(const LLMaterialID& material_id, const LLMate
 		getChild<LLUICtrl>("shinyOffsetV")->setValue(offset_y);
 		getChild<LLColorSwatchCtrl>("shinycolorswatch")->setOriginal(material->getSpecularLightColor());
 		getChild<LLColorSwatchCtrl>("shinycolorswatch")->set(material->getSpecularLightColor(),TRUE);
-		getChild<LLUICtrl>("glossiness")->setValue((F32)(material->getSpecularLightExponent())/255.0);
-		getChild<LLUICtrl>("environment")->setValue((F32)(material->getEnvironmentIntensity())/255.0);
+		getChild<LLUICtrl>("glossiness")->setValue(material->getSpecularLightExponent());
+		getChild<LLUICtrl>("environment")->setValue(material->getEnvironmentIntensity());
 	}
 	updateShinyControls(combobox_shininess,this, true);
 
@@ -1844,8 +1844,8 @@ void LLPanelFace::updateMaterial()
 			if (!new_material)
 			{
 				mMaterial->setSpecularLightColor(getChild<LLColorSwatchCtrl>("shinycolorswatch")->get());
-				mMaterial->setSpecularLightExponent((U8)(255*getChild<LLUICtrl>("glossiness")->getValue().asReal()));
-				mMaterial->setEnvironmentIntensity((U8)(255*getChild<LLUICtrl>("environment")->getValue().asReal()));
+				mMaterial->setSpecularLightExponent(getChild<LLUICtrl>("glossiness")->getValue().asInteger());
+				mMaterial->setEnvironmentIntensity(getChild<LLUICtrl>("environment")->getValue().asInteger());
 			}
 		}
 		else
