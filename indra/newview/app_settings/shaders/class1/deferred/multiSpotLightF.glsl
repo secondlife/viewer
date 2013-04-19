@@ -154,6 +154,8 @@ void main()
 	}
 		
 	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
+	float envIntensity = norm.z;
+
 	norm = decode_normal(norm.xy);
 	
 	norm = normalize(norm);
@@ -225,6 +227,30 @@ void main()
 	
 	if (spec.a > 0.0)
 	{
+		float lit = da * dist_atten * noise;
+		vec3 npos = -normalize(pos);
+
+		//vec3 ref = dot(pos+lv, norm);
+		vec3 h = normalize(lv+npos);
+		float nh = dot(norm, h);
+		float nv = dot(norm, npos);
+		float vh = dot(npos, h);
+		float sa = nh;
+		float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
+
+		float gtdenom = 2 * nh;
+		float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
+								
+		if (nh > 0.0)
+		{
+			float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
+			col += lit*scol*color.rgb*spec.rgb;
+			//col += spec.rgb;
+		}
+	}	
+
+	if (envIntensity > 0.0)
+	{
 		vec3 ref = reflect(normalize(pos), norm);
 		
 		//project from point pos in direction ref to plane proj_p, proj_n
@@ -241,8 +267,9 @@ void main()
 			{
 				stc.xy /= stc.w;
 
-				float fatten = clamp(spec.a*spec.a+spec.a*0.5, 0.25, 1.0);
+				float fatten = clamp(envIntensity*envIntensity+envIntensity*0.5, 0.25, 1.0);
 				
+				//stc.xy = (stc.xy - vec2(0.5)) * fatten + vec2(0.5);
 				stc.xy = (stc.xy - vec2(0.5)) * fatten + vec2(0.5);
 								
 				if (stc.x < 1.0 &&
@@ -250,28 +277,7 @@ void main()
 					stc.x > 0.0 &&
 					stc.y > 0.0)
 				{
-
-					vec3 npos = -normalize(pos);
-					lv = pfinal-pos.xyz;
-					lv = normalize(lv);
-
-					vec3 h = normalize(lv+npos);
-					float nh = dot(norm, h);
-					float nv = dot(norm, npos);
-					float vh = dot(npos, h);
-					float sa = nh;
-					float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
-					float gtdenom = 2 * nh;
-					float gt = max(0,(min(gtdenom * nv / vh, gtdenom * da / vh)));
-
-					if (sa > 0.0)
-					{
-						float scol = fres * texture2D(lightFunc, vec2(nh, spec.a)).r * gt / (nh * da);
-						col += scol*color.rgb*texture2DLodSpecular(projectionMap, stc.xy, proj_lod-spec.a*proj_lod).rgb*spec.rgb;
-					}
-					
-					//vec4 scol = texture2DLodSpecular(projectionMap, stc.xy, proj_lod-spec.a*proj_lod);
-					//col += dist_atten*scol.rgb*color.rgb*scol.a*spec.rgb;
+					col += color.rgb*texture2DLodSpecular(projectionMap, stc.xy, proj_lod-envIntensity*proj_lod).rgb*spec.rgb;										
 				}
 			}
 		}
