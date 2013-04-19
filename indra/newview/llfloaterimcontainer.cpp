@@ -2020,7 +2020,9 @@ void LLFloaterIMContainer::expandConversation()
 	}
 }
 
-void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
+// For conversations, closeFloater() (linked to Ctrl-W) does not actually close the floater but the active conversation.
+// This is intentional so it doesn't confuse the user. onClickCloseBtn() closes the whole floater.
+void LLFloaterIMContainer::onClickCloseBtn()
 {
 	// Always unminimize before trying to close.
 	// Most of the time the user will never see this state.
@@ -2029,7 +2031,25 @@ void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 		LLMultiFloater::setMinimized(FALSE);
 	}
 	
-	LLFloater::closeFloater(app_quitting);
+	LLFloater::closeFloater();
+}
+
+void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
+{
+	// Check for currently active session
+	LLUUID session_id = getSelectedSession();
+	// If current session is Nearby Chat or there is only one session remaining, close the floater
+	if (mConversationsItems.size() == 1 || session_id == LLUUID())
+	{
+		onClickCloseBtn();
+	}
+
+	// Otherwise, close current conversation
+	LLFloaterIMSessionTab* active_conversation = LLFloaterIMSessionTab::getConversation(session_id);
+	if (active_conversation)
+	{
+		active_conversation->closeFloater();
+	}
 }
 
 // EOF

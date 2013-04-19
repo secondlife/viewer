@@ -130,6 +130,7 @@ private:
 	void onStubCollapseButtonClicked();
 	void processParticipantsStyleUpdate();
 	void onSpeakButtonClicked();
+	/*virtual*/ void onClickCloseBtn();
 
 	void collapseConversationsPane(bool collapse, bool save_is_allowed=true);
 
