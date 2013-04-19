@@ -1,5 +1,5 @@
 /** 
- * @file listener_fmod.h
+ * @file listener_fmodex.h
  * @brief Description of LISTENER class abstracting the audio support
  * as an FMOD 3D implementation (windows and Linux)
  *
@@ -25,16 +25,23 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LISTENER_FMOD_H
-#define LL_LISTENER_FMOD_H
+#ifndef LL_LISTENER_FMODEX_H
+#define LL_LISTENER_FMODEX_H
 
 #include "lllistener.h"
 
-class LLListener_FMOD : public LLListener
+//Stubs
+namespace FMOD
+{
+	class System;
+}
+
+//Interfaces
+class LLListener_FMODEX : public LLListener
 {
  public:  
-	LLListener_FMOD();
-	virtual ~LLListener_FMOD();
+	LLListener_FMODEX(FMOD::System *system);
+	virtual ~LLListener_FMODEX();
 	virtual void init();  
 
 	virtual void translate(LLVector3 offset);
@@ -47,8 +54,8 @@ class LLListener_FMOD : public LLListener
 	virtual F32 getDopplerFactor();
 	virtual void setRolloffFactor(F32 factor);
 	virtual F32 getRolloffFactor();
-
  protected:
+	 FMOD::System *mSystem;
 	 F32 mDopplerFactor;
 	 F32 mRolloffFactor;
 };
