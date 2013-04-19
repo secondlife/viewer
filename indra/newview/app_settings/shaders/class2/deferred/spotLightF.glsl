@@ -41,7 +41,6 @@ uniform sampler2D noiseMap;
 uniform sampler2D projectionMap;
 uniform sampler2D lightFunc;
 
-
 uniform mat4 proj_mat; //screen space to light space
 uniform float proj_near; //near clip for projection
 uniform vec3 proj_p; //plane projection is emitting from (in screen space)
@@ -83,7 +82,6 @@ vec3 decode_normal (vec2 enc)
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
-	ret.rgb = pow(ret.rgb, vec3(2.2));
 	
 	vec2 dist = tc-vec2(0.5);
 	
@@ -99,7 +97,6 @@ vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
-	ret.rgb = pow(ret.rgb, vec3(2.2));
 	
 	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
@@ -117,7 +114,6 @@ vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
-	ret.rgb = pow(ret.rgb, vec3(2.2));
 	
 	vec2 dist = tc-vec2(0.5);
 	
@@ -170,6 +166,7 @@ void main()
 	}
 	
 	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
+	float envIntensity = norm.z;
 	norm = decode_normal(norm.xy);
 	
 	norm = normalize(norm);
@@ -199,6 +196,10 @@ void main()
 		
 	vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
 		
+	vec4 spec = texture2DRect(specularRect, frag.xy);
+
+	
+
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
 	if (proj_tc.z > 0.0 &&
 		proj_tc.x < 1.0 &&
@@ -206,11 +207,13 @@ void main()
 		proj_tc.x > 0.0 &&
 		proj_tc.y > 0.0)
 	{
-		float lit = 0.0;
 		float amb_da = proj_ambiance;
+		float lit = 0.0;
 		
 		if (da > 0.0)
 		{
+			lit = da * dist_atten * noise;
+
 			float diff = clamp((l_dist-proj_focus)/proj_range, 0.0, 1.0);
 			float lod = diff * proj_lod;
 			
@@ -218,8 +221,6 @@ void main()
 		
 			vec3 lcol = color.rgb * plcol.rgb * plcol.a;
 			
-			lit = da * dist_atten * noise;
-
 			col = lcol*lit*diff_tex*shadow;
 			amb_da += (da*0.5)*(1.0-shadow)*proj_ambiance;
 		}
@@ -236,9 +237,36 @@ void main()
 		col += amb_da*color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a;
 	}
 	
-	
-	vec4 spec = texture2DRect(specularRect, frag.xy);
+
 	if (spec.a > 0.0)
+	{
+		float lit = da * dist_atten * noise;
+		vec3 npos = -normalize(pos);
+
+		//vec3 ref = dot(pos+lv, norm);
+		vec3 h = normalize(lv+npos);
+		float nh = dot(norm, h);
+		float nv = dot(norm, npos);
+		float vh = dot(npos, h);
+		float sa = nh;
+		float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
+
+		float gtdenom = 2 * nh;
+		float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
+								
+		if (nh > 0.0)
+		{
+			float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
+			col += lit*scol*color.rgb*spec.rgb*shadow;
+			//col += spec.rgb;
+		}
+	}	
+	
+	
+	
+	
+
+	if (envIntensity > 0.0)
 	{
 		vec3 ref = reflect(normalize(pos), norm);
 		
@@ -256,8 +284,9 @@ void main()
 			{
 				stc.xy /= stc.w;
 
-				float fatten = clamp(spec.a*spec.a+spec.a*0.5, 0.25, 1.0);
+				float fatten = clamp(envIntensity*envIntensity+envIntensity*0.5, 0.25, 1.0);
 				
+				//stc.xy = (stc.xy - vec2(0.5)) * fatten + vec2(0.5);
 				stc.xy = (stc.xy - vec2(0.5)) * fatten + vec2(0.5);
 								
 				if (stc.x < 1.0 &&
@@ -265,25 +294,7 @@ void main()
 					stc.x > 0.0 &&
 					stc.y > 0.0)
 				{
-					vec3 npos = -normalize(pos);
-					lv = pfinal-pos.xyz;
-					lv = normalize(lv);
-
-					vec3 h = normalize(lv+npos);
-					float nh = dot(norm, h);
-					float nv = dot(norm, npos);
-					float vh = dot(npos, h);
-					float sa = nh;
-					float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
-
-					float gtdenom = 2 * nh;
-					float gt = max(0,(min(gtdenom * nv / vh, gtdenom * da / vh)));
-
-					if (nh > 0.0)
-					{
-						float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-						col += scol*color.rgb*texture2DLodSpecular(projectionMap, stc.xy, proj_lod-spec.a*proj_lod).rgb*shadow*spec.rgb;
-					}
+					col += color.rgb*texture2DLodSpecular(projectionMap, stc.xy, proj_lod-envIntensity*proj_lod).rgb*shadow*spec.rgb;										
 				}
 			}
 		}
