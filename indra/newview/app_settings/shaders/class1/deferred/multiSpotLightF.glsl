@@ -169,6 +169,7 @@ void main()
 	
 	float fa = falloff+1.0;
 	float dist_atten = min(1.0-(dist2-1.0*(1.0-fa))/fa, 1.0);
+	dist_atten = pow(dist_atten, 2.2) * 2.2;
 	if (dist_atten <= 0.0)
 	{
 		discard;

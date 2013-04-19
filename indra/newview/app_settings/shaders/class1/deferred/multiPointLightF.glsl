@@ -125,6 +125,8 @@ void main()
 			float fa = light_col[i].a+1.0;
 			float dist_atten = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
 			
+			dist_atten = pow(dist_atten, 2.2) * 2.2;
+
 			dist_atten *= noise;
 
 			float lit = da * dist_atten;
