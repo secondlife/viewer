@@ -1204,8 +1204,7 @@ const LLViewerInventoryItem* LLAppearanceMgr::getBaseOutfitLink()
 									cat_array,
 									item_array,
 									false,
-									is_category,
-									false);
+									is_category);
 	for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
 		 iter != item_array.end();
 		 iter++)
@@ -1661,7 +1660,7 @@ void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category)
 	}
 }
 
-void LLAppearanceMgr::purgeCategory(const LLUUID& category, bool keep_outfit_links, LLInventoryModel::item_array_t* keep_items)
+void LLAppearanceMgr::purgeCategory(const LLUUID& category, bool keep_outfit_links, LLPointer<LLInventoryCallback> cb)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
@@ -1674,19 +1673,8 @@ void LLAppearanceMgr::purgeCategory(const LLUUID& category, bool keep_outfit_lin
 			continue;
 		if (item->getIsLinkType())
 		{
-#if 0
-			if (keep_items && keep_items->find(item) != LLInventoryModel::item_array_t::FAIL)
-			{
-				llinfos << "preserved item" << llendl;
-			}
-			else
-			{
-				gInventory.purgeObject(item->getUUID());
-			}
-#else
-			gInventory.purgeObject(item->getUUID());
+			remove_inventory_item(item->getUUID(), cb);
 		}
-#endif
 	}
 }
 
@@ -1749,7 +1737,7 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	if (!append)
 	{
 		LLInventoryModel::item_array_t gest_items;
-		getDescendentsOfAssetType(cof, gest_items, LLAssetType::AT_GESTURE, false);
+		getDescendentsOfAssetType(cof, gest_items, LLAssetType::AT_GESTURE);
 		for(S32 i = 0; i  < gest_items.count(); ++i)
 		{
 			LLViewerInventoryItem *gest_item = gest_items.get(i);
@@ -1766,8 +1754,8 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	// required parts are missing.
 	// Preserve body parts from COF if appending.
 	LLInventoryModel::item_array_t body_items;
-	getDescendentsOfAssetType(cof, body_items, LLAssetType::AT_BODYPART, false);
-	getDescendentsOfAssetType(category, body_items, LLAssetType::AT_BODYPART, false);
+	getDescendentsOfAssetType(cof, body_items, LLAssetType::AT_BODYPART);
+	getDescendentsOfAssetType(category, body_items, LLAssetType::AT_BODYPART);
 	if (append)
 		reverse(body_items.begin(), body_items.end());
 	// Reduce body items to max of one per type.
@@ -1777,8 +1765,8 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	// - Wearables: include COF contents only if appending.
 	LLInventoryModel::item_array_t wear_items;
 	if (append)
-		getDescendentsOfAssetType(cof, wear_items, LLAssetType::AT_CLOTHING, false);
-	getDescendentsOfAssetType(category, wear_items, LLAssetType::AT_CLOTHING, false);
+		getDescendentsOfAssetType(cof, wear_items, LLAssetType::AT_CLOTHING);
+	getDescendentsOfAssetType(category, wear_items, LLAssetType::AT_CLOTHING);
 	// Reduce wearables to max of one per type.
 	removeDuplicateItems(wear_items);
 	filterWearableItems(wear_items, LLAgentWearables::MAX_CLOTHING_PER_TYPE);
@@ -1786,15 +1774,15 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	// - Attachments: include COF contents only if appending.
 	LLInventoryModel::item_array_t obj_items;
 	if (append)
-		getDescendentsOfAssetType(cof, obj_items, LLAssetType::AT_OBJECT, false);
-	getDescendentsOfAssetType(category, obj_items, LLAssetType::AT_OBJECT, false);
+		getDescendentsOfAssetType(cof, obj_items, LLAssetType::AT_OBJECT);
+	getDescendentsOfAssetType(category, obj_items, LLAssetType::AT_OBJECT);
 	removeDuplicateItems(obj_items);
 
 	// - Gestures: include COF contents only if appending.
 	LLInventoryModel::item_array_t gest_items;
 	if (append)
-		getDescendentsOfAssetType(cof, gest_items, LLAssetType::AT_GESTURE, false);
-	getDescendentsOfAssetType(category, gest_items, LLAssetType::AT_GESTURE, false);
+		getDescendentsOfAssetType(cof, gest_items, LLAssetType::AT_GESTURE);
+	getDescendentsOfAssetType(category, gest_items, LLAssetType::AT_GESTURE);
 	removeDuplicateItems(gest_items);
 	
 	// Create links to new COF contents.
@@ -1819,7 +1807,7 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	// carried over (e.g. keeping old shape if the new outfit does not
 	// contain one)
 	bool keep_outfit_links = append;
-	purgeCategory(cof, keep_outfit_links, &all_items);
+	purgeCategory(cof, keep_outfit_links, link_waiter);
 	gInventory.notifyObservers();
 
 	LL_DEBUGS("Avatar") << self_av_string() << "waiting for LLUpdateAppearanceOnDestroy" << LL_ENDL;
@@ -1938,7 +1926,7 @@ S32 LLAppearanceMgr::findExcessOrDuplicateItems(const LLUUID& cat_id,
 	S32 to_kill_count = 0;
 
 	LLInventoryModel::item_array_t items;
-	getDescendentsOfAssetType(cat_id, items, type, false);
+	getDescendentsOfAssetType(cat_id, items, type);
 	LLInventoryModel::item_array_t curr_items = items;
 	removeDuplicateItems(items);
 	if (max_items > 0)
@@ -2020,7 +2008,6 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 	
 	//dumpCat(getCOF(),"COF, start");
 
-	bool follow_folder_links = false;
 	LLUUID current_outfit_id = getCOF();
 
 	// Find all the wearables that are in the COF's subtree.
@@ -2028,7 +2015,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 	LLInventoryModel::item_array_t wear_items;
 	LLInventoryModel::item_array_t obj_items;
 	LLInventoryModel::item_array_t gest_items;
-	getUserDescendents(current_outfit_id, wear_items, obj_items, gest_items, follow_folder_links);
+	getUserDescendents(current_outfit_id, wear_items, obj_items, gest_items);
 	// Get rid of non-links in case somehow the COF was corrupted.
 	remove_non_link_items(wear_items);
 	remove_non_link_items(obj_items);
@@ -2124,8 +2111,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 
 void LLAppearanceMgr::getDescendentsOfAssetType(const LLUUID& category,
 													LLInventoryModel::item_array_t& items,
-													LLAssetType::EType type,
-													bool follow_folder_links)
+													LLAssetType::EType type)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLIsType is_of_type(type);
@@ -2133,15 +2119,13 @@ void LLAppearanceMgr::getDescendentsOfAssetType(const LLUUID& category,
 									cats,
 									items,
 									LLInventoryModel::EXCLUDE_TRASH,
-									is_of_type,
-									follow_folder_links);
+									is_of_type);
 }
 
 void LLAppearanceMgr::getUserDescendents(const LLUUID& category, 
 											 LLInventoryModel::item_array_t& wear_items,
 											 LLInventoryModel::item_array_t& obj_items,
-											 LLInventoryModel::item_array_t& gest_items,
-											 bool follow_folder_links)
+											 LLInventoryModel::item_array_t& gest_items)
 {
 	LLInventoryModel::cat_array_t wear_cats;
 	LLFindWearables is_wearable;
@@ -2149,8 +2133,7 @@ void LLAppearanceMgr::getUserDescendents(const LLUUID& category,
 									wear_cats,
 									wear_items,
 									LLInventoryModel::EXCLUDE_TRASH,
-									is_wearable,
-									follow_folder_links);
+									is_wearable);
 
 	LLInventoryModel::cat_array_t obj_cats;
 	LLIsType is_object( LLAssetType::AT_OBJECT );
@@ -2158,8 +2141,7 @@ void LLAppearanceMgr::getUserDescendents(const LLUUID& category,
 									obj_cats,
 									obj_items,
 									LLInventoryModel::EXCLUDE_TRASH,
-									is_object,
-									follow_folder_links);
+									is_object);
 
 	// Find all gestures in this folder
 	LLInventoryModel::cat_array_t gest_cats;
@@ -2168,8 +2150,7 @@ void LLAppearanceMgr::getUserDescendents(const LLUUID& category,
 									gest_cats,
 									gest_items,
 									LLInventoryModel::EXCLUDE_TRASH,
-									is_gesture,
-									follow_folder_links);
+									is_gesture);
 }
 
 void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append)
@@ -2525,8 +2506,7 @@ void LLAppearanceMgr::removeAllClothesFromAvatar()
 									dummy,
 									clothing_items,
 									LLInventoryModel::EXCLUDE_TRASH,
-									is_clothing,
-									false);
+									is_clothing);
 	uuid_vec_t item_ids;
 	for (LLInventoryModel::item_array_t::iterator it = clothing_items.begin();
 		it != clothing_items.end(); ++it)
@@ -2824,7 +2804,7 @@ bool LLAppearanceMgr::updateBaseOutfit()
 	updateClothingOrderingInfo();
 
 	// in a Base Outfit we do not remove items, only links
-	purgeCategory(base_outfit_id, false);
+	purgeCategory(base_outfit_id, false, NULL);
 
 	LLPointer<LLInventoryCallback> dirty_state_updater =
 		new LLBoostFuncInventoryCallback(no_op_inventory_func, appearance_mgr_update_dirty_state);
@@ -2921,7 +2901,7 @@ void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id, bool update_base
 
 	// COF is processed if cat_id is not specified
 	LLInventoryModel::item_array_t wear_items;
-	getDescendentsOfAssetType(cat_id, wear_items, LLAssetType::AT_CLOTHING, false);
+	getDescendentsOfAssetType(cat_id, wear_items, LLAssetType::AT_CLOTHING);
 
 	wearables_by_type_t items_by_type(LLWearableType::WT_COUNT);
 	divvyWearablesByType(wear_items, items_by_type);
@@ -3211,7 +3191,6 @@ void LLAppearanceMgr::requestServerAppearanceUpdate(LLCurl::ResponderPtr respond
 	}
 	LL_DEBUGS("Avatar") << "request url " << url << " my_cof_version " << cof_version << llendl;
 	
-	//LLCurl::ResponderPtr responder_ptr;
 	if (!responder_ptr.get())
 	{
 		responder_ptr = new RequestAgentUpdateAppearanceResponder;

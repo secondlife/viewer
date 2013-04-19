@@ -624,8 +624,7 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 											cat_array_t& cats,
 											item_array_t& items,
 											BOOL include_trash,
-											LLInventoryCollectFunctor& add,
-											BOOL follow_folder_links)
+											LLInventoryCollectFunctor& add)
 {
 	// Start with categories
 	if(!include_trash)
@@ -652,36 +651,6 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 	LLViewerInventoryItem* item = NULL;
 	item_array_t* item_array = get_ptr_in_map(mParentChildItemTree, id);
 
-	// Follow folder links recursively.  Currently never goes more
-	// than one level deep (for current outfit support)
-	// Note: if making it fully recursive, need more checking against infinite loops.
-	if (follow_folder_links && item_array)
-	{
-		S32 count = item_array->count();
-		for(S32 i = 0; i < count; ++i)
-		{
-			item = item_array->get(i);
-			if (item && item->getActualType() == LLAssetType::AT_LINK_FOLDER)
-			{
-				LLViewerInventoryCategory *linked_cat = item->getLinkedCategory();
-				if (linked_cat && linked_cat->getPreferredType() != LLFolderType::FT_OUTFIT)
-					// BAP - was 
-					// LLAssetType::lookupIsEnsembleCategoryType(linked_cat->getPreferredType()))
-					// Change back once ensemble typing is in place.
-				{
-					if(add(linked_cat,NULL))
-					{
-						// BAP should this be added here?  May not
-						// matter if it's only being used in current
-						// outfit traversal.
-						cats.put(LLPointer<LLViewerInventoryCategory>(linked_cat));
-					}
-					collectDescendentsIf(linked_cat->getUUID(), cats, items, include_trash, add, FALSE);
-				}
-			}
-		}
-	}
-	
 	// Move onto items
 	if(item_array)
 	{
@@ -1171,8 +1140,14 @@ void LLInventoryModel::deleteObject(const LLUUID& id)
 		mParentChildCategoryTree.erase(id);
 	}
 	addChangedMask(LLInventoryObserver::REMOVE, id);
+	bool is_link_type = obj->getIsLinkType();
 	obj = NULL; // delete obj
-	updateLinkedObjectsFromPurge(id);
+	// Can't have links to links, so there's no need for this update
+	// if the item removed is a link.
+	if (!is_link_type)
+	{
+		updateLinkedObjectsFromPurge(id);
+	}
 	gInventory.notifyObservers();
 }
 
