@@ -34,13 +34,17 @@ uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
 ATTRIBUTE vec3 position;
-#if (INDEX_MODE == INDEXED)
+
+#if USE_INDEXED_TEX
 void passTextureIndex();
 #endif
+
 ATTRIBUTE vec3 normal;
-#if (INDEX_MODE != NON_INDEXED_NO_COLOR)
+
+#if USE_VERTEX_COLOR
 ATTRIBUTE vec4 diffuse_color;
 #endif
+
 ATTRIBUTE vec2 texcoord0;
 
 #if HAS_SKIN
@@ -65,7 +69,7 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 
-#if INDEX_MODE != NON_INDEXED_NO_COLOR
+#if USE_VERTEX_COLOR
 VARYING vec4 vertex_color;
 #endif
 
@@ -158,7 +162,7 @@ void main()
 
 #endif
 
-#if (INDEX_MODE == INDEXED)
+#if USE_INDEXED_TEX
 	passTextureIndex();
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 #else
@@ -170,9 +174,10 @@ void main()
 
 	calcAtmospherics(pos.xyz);
 
-#if (INDEX_MODE == NON_INDEXED_NO_COLOR)
+#if !USE_VERTEX_COLOR
 	vec4 diffuse_color = vec4(1,1,1,1);
 #endif
+
 	//vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.));
 	vec4 col = vec4(0.0, 0.0, 0.0, diffuse_color.a);
 	
@@ -188,7 +193,8 @@ void main()
 	vary_directional.rgb = atmosAffectDirectionalLight(1.0f);
 	
 	col.rgb = col.rgb*diffuse_color.rgb;
-#if (INDEX_MODE != NON_INDEXED_NO_COLOR)
+
+#if USE_VERTEX_COLOR
 	vertex_color = col;
 #endif
 	
