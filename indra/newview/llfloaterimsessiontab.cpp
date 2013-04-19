@@ -1083,21 +1083,26 @@ void LLFloaterIMSessionTab::saveCollapsedState()
 }
 BOOL LLFloaterIMSessionTab::handleKeyHere(KEY key, MASK mask )
 {
+	BOOL handled = FALSE;
+
 	if(mask == MASK_ALT)
 	{
 		LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
 		if (KEY_RETURN == key && !isTornOff())
 		{
 			floater_container->expandConversation();
+			handled = TRUE;
 		}
 		if ((KEY_UP == key) || (KEY_LEFT == key))
 		{
 			floater_container->selectNextorPreviousConversation(false);
+			handled = TRUE;
 		}
 		if ((KEY_DOWN == key ) || (KEY_RIGHT == key))
 		{
 			floater_container->selectNextorPreviousConversation(true);
+			handled = TRUE;
 		}
 	}
-	return TRUE;
+	return handled;
 }

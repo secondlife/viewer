@@ -1962,23 +1962,28 @@ bool LLFloaterIMContainer::isScrolledOutOfSight(LLConversationViewSession* conve
 
 BOOL LLFloaterIMContainer::handleKeyHere(KEY key, MASK mask )
 {
+	BOOL handled = FALSE;
+
 	if(mask == MASK_ALT)
 	{
 		if (KEY_RETURN == key )
 		{
 			expandConversation();
+			handled = TRUE;
 		}
 
 		if ((KEY_DOWN == key ) || (KEY_RIGHT == key))
 		{
 			selectNextorPreviousConversation(true);
+			handled = TRUE;
 		}
 		if ((KEY_UP == key) || (KEY_LEFT == key))
 		{
 			selectNextorPreviousConversation(false);
+			handled = TRUE;
 		}
 	}
-	return TRUE;
+	return handled;
 }
 
 bool LLFloaterIMContainer::selectAdjacentConversation(bool focus_selected)
