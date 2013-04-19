@@ -60,6 +60,7 @@ uniform float density_multiplier;
 uniform float distance_multiplier;
 uniform float max_y;
 uniform vec4 glow;
+uniform float global_gamma;
 uniform float scene_light_strength;
 uniform mat3 env_mat;
 uniform mat3 ssao_effect_mat;
@@ -230,9 +231,9 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 		  + tmpAmbient)));
 
 	//brightness of surface both sunlight and ambient
-	setSunlitColor(vec3(sunlight * .5));
-	setAmblitColor(vec3(tmpAmbient * .25));
-	setAdditiveColor(getAdditiveColor() * vec3(1.0 - temp1));
+	setSunlitColor(pow(vec3(sunlight * .5), vec3(global_gamma)) * 3.3);
+	setAmblitColor(pow(vec3(tmpAmbient * .25), vec3(global_gamma)) * 3.3);
+	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(global_gamma)) * 3.3);
 }
 
 vec3 atmosLighting(vec3 light)
@@ -291,12 +292,9 @@ void main()
 	norm.xyz = decode_normal(norm.xy); // unpack norm
 		
 	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
-	
-	da = pow(da, 0.7);
 
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
 	vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
-	
 	vec3 col;
 	float bloom = 0.0;
 	if (diffuse.a < 0.9)
@@ -327,7 +325,7 @@ void main()
 		if (envIntensity > 0.0)
 		{ //add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
-			col = mix(col.rgb, textureCube(environmentMap, env_vec).rgb, 
+			col = mix(col.rgb, pow(textureCube(environmentMap, env_vec).rgb, vec3(2.2)) * 2.2, 
 				max(envIntensity-diffuse.a*2.0, 0.0)); 
 		}
 
@@ -343,5 +341,6 @@ void main()
 
 	frag_color.rgb = col;
 
-	frag_color.a = bloom;
+	//frag_color.a = bloom;
+	frag_color.a = 0.0;
 }

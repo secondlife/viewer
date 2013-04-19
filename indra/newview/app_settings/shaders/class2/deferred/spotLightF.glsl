@@ -83,6 +83,7 @@ vec3 decode_normal (vec2 enc)
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret.rgb = pow(ret.rgb, vec3(2.2));
 	
 	vec2 dist = tc-vec2(0.5);
 	
@@ -98,6 +99,7 @@ vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret.rgb = pow(ret.rgb, vec3(2.2));
 	
 	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
@@ -115,6 +117,7 @@ vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret.rgb = pow(ret.rgb, vec3(2.2));
 	
 	vec2 dist = tc-vec2(0.5);
 	
@@ -182,6 +185,7 @@ void main()
 	
 	float fa = falloff+1.0;
 	float dist_atten = min(1.0-(dist2-1.0*(1.0-fa))/fa, 1.0);
+	dist_atten = pow(dist_atten, 2.2) * 2.2;
 	if (dist_atten <= 0.0)
 	{
 		discard;
@@ -214,7 +218,7 @@ void main()
 		
 			vec3 lcol = color.rgb * plcol.rgb * plcol.a;
 			
-			lit = pow(da, 0.7) * dist_atten * noise;
+			lit = da * dist_atten * noise;
 
 			col = lcol*lit*diff_tex*shadow;
 			amb_da += (da*0.5)*(1.0-shadow)*proj_ambiance;

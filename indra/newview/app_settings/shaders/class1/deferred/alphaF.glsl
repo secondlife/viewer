@@ -25,22 +25,18 @@
  
 #extension GL_ARB_texture_rectangle : enable
 
+#define INDEXED 1
+#define NON_INDEXED 2
+#define NON_INDEXED_NO_COLOR 3
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect depthMap;
-
-#ifndef INDEX_MODE
-#ifndef INDEX_MODE_USE_COLOR
+#if INDEX_MODE != INDEXED
 uniform sampler2D diffuseMap;
-#endif
-#endif
-
-#ifdef INDEX_MODE
-vec4 diffuseLookup(vec2 texcoord);
 #endif
 
 uniform vec2 screen_res;
@@ -54,34 +50,20 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
-VARYING vec2 vary_texcoord2;
 VARYING vec3 vary_norm;
-VARYING mat3 vary_rotation;
 
-#ifdef INDEX_MODE_USE_COLOR
+#if INDEX_MODE != NON_INDEXED_NO_COLOR
 VARYING vec4 vertex_color;
 #endif
-
-uniform mat4 inv_proj;
 
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
-uniform sampler2D bumpMap;
-uniform samplerCube environmentMap;
-uniform mat3 env_mat;
-
-uniform vec4 specular_color;
-
-
-uniform float shadow_offset;
-
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
-        float a = pow(max(dot(n,l),0.0), 0.7);
+	float a = max(dot(n,l),0.0);
 	return vec3(a,a,a);
 }
 
@@ -109,7 +91,7 @@ vec3 calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float
 		da *= spot*spot; // GL_SPOT_EXPONENT=2
 
 		//angular attenuation
-		da *= max(pow(dot(n, lv), 0.7), 0.0);		
+		da *= max(dot(n, lv), 0.0);		
 	}
 
 	return vec3(da,da,da);	
@@ -122,22 +104,19 @@ void main()
 	
 	vec4 pos = vec4(vary_position, 1.0);
 	
-#ifdef INDEX_MODE
+#if INDEX_MODE == INDEXED
 	vec4 diff= diffuseLookup(vary_texcoord0.xy);
 #else
 	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
-
-#ifdef INDEX_MODE_USE_COLOR
-	float vertex_color_alpha = vertex_color.a;
-#else
+	diff.rgb = pow(diff.rgb, vec3(2.2));
+#if INDEX_MODE == NON_INDEXED_NO_COLOR
 	float vertex_color_alpha = 1.0;
+#else
+	float vertex_color_alpha = vertex_color.a;
 #endif
 	
-	vec3 normal = texture2D(bumpMap, vary_texcoord1.xy).xyz * 2 - 1;
-	normal = vec3(dot(normal.xyz, vary_rotation[0]),
-				dot(normal.xyz, vary_rotation[1]),
-				dot(normal.xyz, vary_rotation[2]));
+	vec3 normal = vary_norm; 
 
 	vec3 l = light_position[0].xyz;
 	vec3 dlight = calcDirectionalLight(normal, l);

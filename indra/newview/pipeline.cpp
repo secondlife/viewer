@@ -398,7 +398,7 @@ void validate_framebuffer_object();
 
 bool addDeferredAttachments(LLRenderTarget& target)
 {
-	return target.addColorAttachment(GL_RGBA) && //specular
+	return target.addColorAttachment(GL_SRGB8_ALPHA8) && //specular
 			target.addColorAttachment(GL_RGB10_A2); //normal+z
 }
 
@@ -9488,7 +9488,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 	//currently used for amount to extrude frusta corners for constructing shadow frusta
 	LLVector3 n = RenderShadowNearDist;
-	(void)n;
 	//F32 nearDist[] = { n.mV[0], n.mV[1], n.mV[2], n.mV[2] };
 
 	//put together a universal "near clip" plane for shadow frusta

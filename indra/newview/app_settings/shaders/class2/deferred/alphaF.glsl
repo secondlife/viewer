@@ -25,6 +25,10 @@
 
 #extension GL_ARB_texture_rectangle : enable
 
+#define INDEXED 1
+#define NON_INDEXED 2
+#define NON_INDEXED_NO_COLOR 3
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -35,9 +39,8 @@ uniform sampler2DShadow shadowMap0;
 uniform sampler2DShadow shadowMap1;
 uniform sampler2DShadow shadowMap2;
 uniform sampler2DShadow shadowMap3;
-uniform sampler2DRect depthMap;
 
-#ifndef INDEX_MODE
+#if INDEX_MODE != INDEXED
 uniform sampler2D diffuseMap;
 #endif
 
@@ -53,12 +56,9 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
-VARYING vec2 vary_texcoord2;
 VARYING vec3 vary_norm;
-VARYING mat3 vary_rotation;
 
-#ifdef INDEX_MODE_USE_COLOR
+#if INDEX_MODE != NON_INDEXED_NO_COLOR
 VARYING vec4 vertex_color;
 #endif
 
@@ -66,18 +66,10 @@ uniform mat4 shadow_matrix[6];
 uniform vec4 shadow_clip;
 uniform float shadow_bias;
 
-uniform mat4 inv_proj;
-
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
-
-uniform sampler2D bumpMap;
-uniform samplerCube environmentMap;
-uniform mat3 env_mat;
-
-uniform vec4 specular_color;
 
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
@@ -206,22 +198,19 @@ void main()
 	}
 
 	vec4 diff;
-#ifdef INDEX_MODE
+#if INDEX_MODE == INDEXED	
 	diff = diffuseLookup(vary_texcoord0.xy);
 #else
 	diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
-	
-#ifdef INDEX_MODE_USE_COLOR
-	float vertex_color_alpha = vertex_color.a;
-#else
+	diff.rgb = pow(diff.rgb, vec3(2.2));
+#if INDEX_MODE == NON_INDEXED_NO_COLOR
 	float vertex_color_alpha = 1.0;
+#else
+	float vertex_color_alpha = vertex_color.a;
 #endif
 
-	vec3 normal = texture2D(bumpMap, vary_texcoord1.xy).xyz * 2 - 1;
-	normal = vec3(dot(normal.xyz, vary_rotation[0]),
-				dot(normal.xyz, vary_rotation[1]),
-				dot(normal.xyz, vary_rotation[2]));
+	vec3 normal = vary_norm;
 
 	vec3 l = light_position[0].xyz;
 	vec3 dlight = calcDirectionalLight(normal, l);

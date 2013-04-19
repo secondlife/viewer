@@ -1,9 +1,9 @@
 /** 
- * @file lightFullbrightNonIndexedAlphaMaskF.glsl
+ * @file postDeferredGammaCorrect.glsl
  *
- * $LicenseInfo:firstyear=2011&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2011, Linden Research, Inc.
+ * Copyright (C) 2007, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,8 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+ 
+#extension GL_ARB_texture_rectangle : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -29,30 +31,16 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform float minimum_alpha;
+uniform sampler2DRect diffuseRect;
+
+uniform vec2 screen_res;
+VARYING vec2 vary_fragcoord;
+
 uniform float texture_gamma;
 
-vec3 fullbrightAtmosTransport(vec3 light);
-vec3 fullbrightScaleSoftClip(vec3 light);
-
-uniform sampler2D diffuseMap;
-
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
-
-void fullbright_lighting()
+void main() 
 {
-	vec4 color = texture2D(diffuseMap,vary_texcoord0.xy) * vertex_color;
-	
-	if (color.a < minimum_alpha)
-	{
-		discard;
-	}
-	color.rgb = pow(color.rgb, vec3(texture_gamma));
-	color.rgb = fullbrightAtmosTransport(color.rgb);
-	
-	color.rgb = fullbrightScaleSoftClip(color.rgb);
-
-	frag_color = color;
+	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord);
+	frag_color = pow(diff, vec4(texture_gamma, texture_gamma, texture_gamma, 1.0));
 }
 

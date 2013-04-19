@@ -111,8 +111,9 @@ void main()
 	vec3 col = texture2DRect(diffuseRect, frag.xy).rgb;
 	float fa = falloff+1.0;
 	float dist_atten = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
-	float lit = pow(da, 0.7) * dist_atten * noise;
-	
+	dist_atten = pow(dist_atten, 2.2) * 2.2;
+	float lit = da * dist_atten * noise;
+
 	col = color.rgb*lit*col;
 
 	vec4 spec = texture2DRect(specularRect, frag.xy);

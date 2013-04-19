@@ -152,8 +152,7 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 		gPipeline.mDeferredDepth.copyContents(gPipeline.mDeferredScreen, 0, 0, gPipeline.mDeferredScreen.getWidth(), gPipeline.mDeferredScreen.getHeight(),
 							0, 0, gPipeline.mDeferredDepth.getWidth(), gPipeline.mDeferredDepth.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);	
 		gPipeline.mDeferredDepth.bindTarget();
-		simple_shader = NULL;
-		fullbright_shader = NULL;
+		simple_shader = fullbright_shader = &gObjectFullbrightAlphaMaskProgram;
 		gObjectFullbrightAlphaMaskProgram.bind();
 		gObjectFullbrightAlphaMaskProgram.setMinimumAlpha(0.33f);
 	}
@@ -441,6 +440,13 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 
 				LLRenderPass::applyModelMatrix(params);
 				
+				LLMaterial* mat = NULL;
+
+				if (deferred_render && !LLPipeline::sUnderWaterRender)
+				{
+					mat = params.mMaterial;
+				}
+
 				if (params.mFullbright)
 				{
 					// Turn off lighting if it hasn't already been so.
@@ -473,11 +479,30 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 					light_enabled = TRUE;
 				}
 
-				// If we need shaders, and we're not ALREADY using the proper shader, then bind it
-				// (this way we won't rebind shaders unnecessarily).
-				if(use_shaders && (current_shader != target_shader))
+				if (!params.mFullbright && deferred_render && mat)
 				{
-					llassert(target_shader != NULL);
+					U32 mask = mat->getShaderMask();
+
+					llassert(mask < LLMaterial::SHADER_COUNT);
+					target_shader = &(gDeferredMaterialProgram[mask]);
+
+					if (current_shader != target_shader)
+					{
+						gPipeline.bindDeferredShader(*target_shader);
+					}
+				}
+				else if (!params.mFullbright)
+				{
+					target_shader = simple_shader;
+				}
+				else
+				{
+					target_shader = fullbright_shader;
+				}
+				
+				if(use_shaders && (current_shader != target_shader))
+				{// If we need shaders, and we're not ALREADY using the proper shader, then bind it
+				// (this way we won't rebind shaders unnecessarily).
 					current_shader = target_shader;
 					current_shader->bind();
 				}
@@ -487,7 +512,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 					current_shader = NULL;
 				}
 				
-				if (params.mMaterial.notNull() && current_shader && (current_shader == simple_shader))
+				if (use_shaders && mat && !params.mFullbright)
 				{
 					// I apologize in advance for not giving this its own shader.
 					// We have a material.  Supply the appropriate data here.
@@ -542,12 +567,20 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 						}
 					}
 				}
-				else
+				else  
 				{ //not batching textures or batch has only 1 texture -- might need a texture matrix
 					if (params.mTexture.notNull())
 					{
 						params.mTexture->addTextureStats(params.mVSize);
-						gGL.getTexUnit(0)->bind(params.mTexture, TRUE) ;
+						if (use_shaders && mat)
+						{
+							current_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, params.mTexture);
+						}
+						else
+						{
+							gGL.getTexUnit(0)->bind(params.mTexture, TRUE);
+						}
+						
 						if (params.mTextureMatrix)
 						{
 							tex_setup = true;

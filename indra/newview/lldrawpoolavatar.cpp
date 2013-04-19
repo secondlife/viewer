@@ -230,7 +230,7 @@ void LLDrawPoolAvatar::renderDeferred(S32 pass)
 
 S32 LLDrawPoolAvatar::getNumPostDeferredPasses()
 {
-	return 6;
+	return 10;
 }
 
 void LLDrawPoolAvatar::beginPostDeferredPass(S32 pass)
@@ -254,6 +254,8 @@ void LLDrawPoolAvatar::beginPostDeferredPass(S32 pass)
 		break;
 	case 5:
 		beginRiggedGlow();
+	default:
+		beginDeferredRiggedMaterialAlpha(pass-6);
 		break;
 	}
 }
@@ -280,11 +282,34 @@ void LLDrawPoolAvatar::beginDeferredRiggedAlpha()
 	gPipeline.enableLightsDynamic();
 }
 
+void LLDrawPoolAvatar::beginDeferredRiggedMaterialAlpha(S32 pass)
+{
+	switch (pass)
+	{
+	case 0: pass = 1; break;
+	case 1: pass = 5; break;
+	case 2: pass = 9; break;
+	default: pass = 13; break;
+	}
+
+	pass += LLMaterial::SHADER_COUNT;
+
+	sVertexProgram = &gDeferredMaterialProgram[pass];
+
+	gPipeline.bindDeferredShader(*sVertexProgram);
+	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+	normal_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::BUMP_MAP);
+	specular_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::SPECULAR_MAP);
+	gPipeline.enableLightsDynamic();
+}
+
 void LLDrawPoolAvatar::endDeferredRiggedAlpha()
 {
 	LLVertexBuffer::unbind();
 	gPipeline.unbindDeferredShader(*sVertexProgram);
 	sDiffuseChannel = 0;
+	normal_channel = -1;
+	specular_channel = -1;
 	sVertexProgram = NULL;
 }
 
@@ -310,6 +335,9 @@ void LLDrawPoolAvatar::endPostDeferredPass(S32 pass)
 	case 5:
 		endRiggedGlow();
 		break;
+	default:
+		endDeferredRiggedAlpha();
+		break;
 	}
 }
 
@@ -333,7 +361,11 @@ void LLDrawPoolAvatar::renderPostDeferred(S32 pass)
 		6, //rigged fullbright shiny
 		7, //rigged alpha
 		8, //rigged fullbright alpha
-		9, //rigged glow
+		9, //rigged material alpha 1
+		10,//rigged material alpha 2
+		11,//rigged material alpha 3
+		12,//rigged material alpha 4
+		13, //rigged glow
 	};
 
 	pass = actual_pass[pass];
@@ -1015,6 +1047,13 @@ void LLDrawPoolAvatar::endDeferredRiggedBump()
 
 void LLDrawPoolAvatar::beginDeferredRiggedMaterial(S32 pass)
 {
+	if (pass == 1 ||
+		pass == 5 ||
+		pass == 9 ||
+		pass == 13)
+	{ //skip alpha passes
+		return;
+	}
 	sVertexProgram = &gDeferredMaterialProgram[pass+LLMaterial::SHADER_COUNT];
 	sVertexProgram->bind();
 	normal_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::BUMP_MAP);
@@ -1024,6 +1063,14 @@ void LLDrawPoolAvatar::beginDeferredRiggedMaterial(S32 pass)
 
 void LLDrawPoolAvatar::endDeferredRiggedMaterial(S32 pass)
 {
+	if (pass == 1 ||
+		pass == 5 ||
+		pass == 9 ||
+		pass == 13)
+	{
+		return;
+	}
+
 	LLVertexBuffer::unbind();
 	sVertexProgram->disableTexture(LLViewerShaderMgr::BUMP_MAP);
 	sVertexProgram->disableTexture(LLViewerShaderMgr::SPECULAR_MAP);
@@ -1211,9 +1258,19 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 	if (is_deferred_render && pass >= 5 && pass <= 21)
 	{
-		renderDeferredRiggedMaterial(avatarp, pass-5);
+		S32 p = pass-5;
+
+		if (p != 1 &&
+			p != 5 &&
+			p != 9 &&
+			p != 13)
+		{
+			renderDeferredRiggedMaterial(avatarp, p);
+		}
 		return;
 	}
+
+
 
 
 	if (pass == 5)
@@ -1228,7 +1285,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		return;
 	}
 
-	if (pass >= 7 && pass < 9)
+	if (pass >= 7 && pass < 13)
 	{
 		if (pass == 7)
 		{
@@ -1241,9 +1298,24 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 			renderRiggedFullbrightAlpha(avatarp);
 			return;
 		}
+
+		S32 p = 0;
+		switch (pass)
+		{
+		case 9: p = 1; break;
+		case 10: p = 5; break;
+		case 11: p = 9; break;
+		case 12: p = 13; break;
+		}
+
+		{
+			LLGLEnable blend(GL_BLEND);
+			renderDeferredRiggedMaterial(avatarp, p);
+		}
+		return;
 	}
 
-	if (pass == 9)
+	if (pass == 13)
 	{
 		renderRiggedGlow(avatarp);
 		
@@ -1543,7 +1615,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 
 			LLMaterial* mat = face->getTextureEntry()->getMaterialParams().get();
 
-			if (is_deferred_render && mat)
+			if (mat)
 			{
 				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture(LLRender::DIFFUSE_MAP));
 				gGL.getTexUnit(normal_channel)->bind(face->getTexture(LLRender::NORMAL_MAP));
