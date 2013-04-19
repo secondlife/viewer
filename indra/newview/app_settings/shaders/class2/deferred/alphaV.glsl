@@ -38,7 +38,9 @@ ATTRIBUTE vec3 position;
 void passTextureIndex();
 #endif
 ATTRIBUTE vec3 normal;
+#if INDEX_MODE != NON_INDEXED_NO_COLOR
 ATTRIBUTE vec4 diffuse_color;
+#endif
 ATTRIBUTE vec2 texcoord0;
 
 #if HAS_SKIN
@@ -166,6 +168,10 @@ void main()
 	vary_position = pos.xyz + light_position[0].xyz * (1.0-dp_directional_light)*shadow_offset;
 	
 	calcAtmospherics(pos.xyz);
+
+#if INDEX_MODE == NON_INDEXED_NO_COLOR
+	vec4 diffuse_color = vec4(1,1,1,1);
+#endif
 
 	//vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.));
 	vec4 col = vec4(0.0, 0.0, 0.0, diffuse_color.a);

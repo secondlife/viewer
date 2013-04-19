@@ -56,10 +56,7 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
-VARYING vec2 vary_texcoord2;
 VARYING vec3 vary_norm;
-VARYING mat3 vary_rotation;
 
 #if INDEX_MODE != NON_INDEXED_NO_COLOR
 VARYING vec4 vertex_color;
@@ -69,14 +66,10 @@ uniform mat4 shadow_matrix[6];
 uniform vec4 shadow_clip;
 uniform float shadow_bias;
 
-uniform mat4 inv_proj;
-
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
-
-uniform vec4 specular_color;
 
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {

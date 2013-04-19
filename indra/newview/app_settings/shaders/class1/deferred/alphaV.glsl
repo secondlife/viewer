@@ -38,7 +38,9 @@ ATTRIBUTE vec3 position;
 void passTextureIndex();
 #endif
 ATTRIBUTE vec3 normal;
+#if INDEX_MODE != NON_INDEXED_NO_COLOR
 ATTRIBUTE vec4 diffuse_color;
+#endif
 ATTRIBUTE vec2 texcoord0;
 
 #if HAS_SKIN
@@ -72,8 +74,6 @@ VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
 
 uniform float near_clip;
-uniform float shadow_offset;
-uniform float shadow_bias;
 
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
@@ -162,9 +162,13 @@ void main()
 #endif
 	
 	vary_norm = norm;
-	
+	vary_position = pos.xyz;
+
 	calcAtmospherics(pos.xyz);
 
+#if INDEX_MODE == NON_INDEXED_NO_COLOR
+	vec4 diffuse_color = vec4(1,1,1,1);
+#endif
 	//vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.));
 	vec4 col = vec4(0.0, 0.0, 0.0, diffuse_color.a);
 	

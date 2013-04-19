@@ -35,14 +35,8 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect depthMap;
-
 #if INDEX_MODE != INDEXED
 uniform sampler2D diffuseMap;
-#endif
-
-#if INDEX_MODE == INDEXED
-vec4 diffuseLookup(vec2 texcoord);
 #endif
 
 uniform vec2 screen_res;
@@ -57,26 +51,15 @@ VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
-VARYING mat3 vary_rotation;
 
 #if INDEX_MODE != NON_INDEXED_NO_COLOR
 VARYING vec4 vertex_color;
 #endif
 
-uniform mat4 inv_proj;
-
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
-
-uniform samplerCube environmentMap;
-uniform mat3 env_mat;
-
-uniform vec4 specular_color;
-
-
-uniform float shadow_offset;
 
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
