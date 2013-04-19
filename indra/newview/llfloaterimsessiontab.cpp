@@ -212,7 +212,7 @@ void LLFloaterIMSessionTab::assignResizeLimits()
 	mRightPartPanel->setIgnoreReshape(is_participants_pane_collapsed);
 
     S32 participants_pane_target_width = is_participants_pane_collapsed?
-    		0 : (mParticipantListPanel->getRect().getWidth() + LLPANEL_BORDER_WIDTH);
+    		0 : (mParticipantListPanel->getRect().getWidth() + mParticipantListAndHistoryStack->getPanelSpacing());
 
     S32 new_min_width = participants_pane_target_width + mRightPartPanel->getExpandedMinDim() + mFloaterExtraWidth;
 
@@ -1083,21 +1083,26 @@ void LLFloaterIMSessionTab::saveCollapsedState()
 }
 BOOL LLFloaterIMSessionTab::handleKeyHere(KEY key, MASK mask )
 {
+	BOOL handled = FALSE;
+
 	if(mask == MASK_ALT)
 	{
 		LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
 		if (KEY_RETURN == key && !isTornOff())
 		{
 			floater_container->expandConversation();
+			handled = TRUE;
 		}
 		if ((KEY_UP == key) || (KEY_LEFT == key))
 		{
 			floater_container->selectNextorPreviousConversation(false);
+			handled = TRUE;
 		}
 		if ((KEY_DOWN == key ) || (KEY_RIGHT == key))
 		{
 			floater_container->selectNextorPreviousConversation(true);
+			handled = TRUE;
 		}
 	}
-	return TRUE;
+	return handled;
 }

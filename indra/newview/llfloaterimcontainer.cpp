@@ -54,6 +54,7 @@
 #include "llworld.h"
 #include "llsdserialize.h"
 #include "llviewerobjectlist.h"
+#include "boost/foreach.hpp"
 
 //
 // LLFloaterIMContainer
@@ -660,6 +661,23 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 	LLMultiFloater::setVisible(visible);
 }
 
+void LLFloaterIMContainer::getDetachedConversationFloaters(floater_list_t& floaters)
+{
+	typedef conversations_widgets_map::value_type conv_pair;
+	BOOST_FOREACH(conv_pair item, mConversationsWidgets)
+	{
+		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(item.second);
+		if (widget)
+		{
+			LLFloater* session_floater = widget->getSessionFloater();
+			if (session_floater && session_floater->isDetachedAndNotMinimized())
+			{
+				floaters.push_back(session_floater);
+			}
+		}
+	}
+}
+
 void LLFloaterIMContainer::setVisibleAndFrontmost(BOOL take_focus, const LLSD& key)
 {
 	LLMultiFloater::setVisibleAndFrontmost(take_focus, key);
@@ -799,15 +817,12 @@ void LLFloaterIMContainer::assignResizeLimits()
 	bool is_conv_pane_expanded = !mConversationsPane->isCollapsed();
 	bool is_msg_pane_expanded = !mMessagesPane->isCollapsed();
 
-	// With two panels visible number of borders is three, because the borders
-	// between the panels are merged into one
-    S32 number_of_visible_borders = llmin((is_conv_pane_expanded? 2 : 0) + (is_msg_pane_expanded? 2 : 0), 3);
-    S32 summary_width_of_visible_borders = number_of_visible_borders * LLPANEL_BORDER_WIDTH;
-	S32 conv_pane_target_width = is_conv_pane_expanded?
-			(is_msg_pane_expanded?
-					mConversationsPane->getRect().getWidth()
-					: mConversationsPane->getExpandedMinDim())
-			: mConversationsPane->getMinDim();
+    S32 summary_width_of_visible_borders = (is_msg_pane_expanded ? mConversationsStack->getPanelSpacing() : 0) + 1;
+
+	S32 conv_pane_target_width = is_conv_pane_expanded
+		? ( is_msg_pane_expanded?mConversationsPane->getRect().getWidth():mConversationsPane->getExpandedMinDim() )
+		: mConversationsPane->getMinDim();
+
 	S32 msg_pane_min_width  = is_msg_pane_expanded ? mMessagesPane->getExpandedMinDim() : 0;
 	S32 new_min_width = conv_pane_target_width + msg_pane_min_width + summary_width_of_visible_borders;
 
@@ -1947,23 +1962,28 @@ bool LLFloaterIMContainer::isScrolledOutOfSight(LLConversationViewSession* conve
 
 BOOL LLFloaterIMContainer::handleKeyHere(KEY key, MASK mask )
 {
+	BOOL handled = FALSE;
+
 	if(mask == MASK_ALT)
 	{
 		if (KEY_RETURN == key )
 		{
 			expandConversation();
+			handled = TRUE;
 		}
 
 		if ((KEY_DOWN == key ) || (KEY_RIGHT == key))
 		{
 			selectNextorPreviousConversation(true);
+			handled = TRUE;
 		}
 		if ((KEY_UP == key) || (KEY_LEFT == key))
 		{
 			selectNextorPreviousConversation(false);
+			handled = TRUE;
 		}
 	}
-	return TRUE;
+	return handled;
 }
 
 bool LLFloaterIMContainer::selectAdjacentConversation(bool focus_selected)

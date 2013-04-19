@@ -238,6 +238,7 @@ public:
 	void			center();
 
 	LLMultiFloater* getHost();
+	bool isDetachedAndNotMinimized();
 
 	void			applyTitle();
 	std::string		getCurrentTitle() const;

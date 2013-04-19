@@ -652,6 +652,10 @@ void LLTextBase::drawText()
 			mSpellCheckEnd = end;
 		}
 	}
+	else
+	{
+		mMisspellRanges.clear();
+	}
 
 	LLTextSegmentPtr cur_segment = *seg_iter;
 

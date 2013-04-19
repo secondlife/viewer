@@ -87,6 +87,8 @@ public:
 
 	/*virtual*/ void setFlashState(bool flash_state);
 
+	LLFloater* getSessionFloater();
+
 private:
 
 	void onCurrentVoiceSessionChanged(const LLUUID& session_id);

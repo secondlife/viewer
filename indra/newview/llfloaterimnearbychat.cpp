@@ -568,7 +568,10 @@ void LLFloaterIMNearbyChat::sendChat( EChatType type )
 			if (0 == channel)
 			{
 				// discard returned "found" boolean
-				LLGestureMgr::instance().triggerAndReviseString(utf8text, &utf8_revised_text);
+				if(!LLGestureMgr::instance().triggerAndReviseString(utf8text, &utf8_revised_text))
+				{
+					utf8_revised_text = utf8text;
+				}
 			}
 			else
 			{
@@ -582,7 +585,6 @@ void LLFloaterIMNearbyChat::sendChat( EChatType type )
 			if (!utf8_revised_text.empty())
 			{
 				// Chat with animation
-				utf8_revised_text = utf8text;
 				sendChatFromViewer(utf8_revised_text, type, TRUE);
 			}
 		}

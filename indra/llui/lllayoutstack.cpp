@@ -214,8 +214,15 @@ LLLayoutStack::Params::Params()
 	open_time_constant("open_time_constant", 0.02f),
 	close_time_constant("close_time_constant", 0.03f),
 	resize_bar_overlap("resize_bar_overlap", 1),
-	border_size("border_size", LLCachedControl<S32>(*LLUI::sSettingGroups["config"], "UIResizeBarHeight", 0))
-{}
+	border_size("border_size", LLCachedControl<S32>(*LLUI::sSettingGroups["config"], "UIResizeBarHeight", 0)),
+	show_drag_handle("show_drag_handle", false),
+	drag_handle_first_indent("drag_handle_first_indent", 0),
+	drag_handle_second_indent("drag_handle_second_indent", 0),
+	drag_handle_thickness("drag_handle_thickness", 5),
+	drag_handle_shift("drag_handle_shift", 2)
+{
+	addSynonym(border_size, "drag_handle_gap");
+}
 
 LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p) 
 :	LLView(p),
@@ -227,8 +234,14 @@ LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p)
 	mClip(p.clip),
 	mOpenTimeConstant(p.open_time_constant),
 	mCloseTimeConstant(p.close_time_constant),
-	mResizeBarOverlap(p.resize_bar_overlap)
-{}
+	mResizeBarOverlap(p.resize_bar_overlap),
+	mShowDragHandle(p.show_drag_handle),
+	mDragHandleFirstIndent(p.drag_handle_first_indent),
+	mDragHandleSecondIndent(p.drag_handle_second_indent),
+	mDragHandleThickness(p.drag_handle_thickness),
+	mDragHandleShift(p.drag_handle_shift)
+{
+}
 
 LLLayoutStack::~LLLayoutStack()
 {
@@ -260,6 +273,26 @@ void LLLayoutStack::draw()
 		{LLLocalClipRect clip(clip_rect, mClip);
 			// only force drawing invisible children if visible amount is non-zero
 			drawChild(panelp, 0, 0, !clip_rect.isEmpty());
+		}
+	}
+
+	const LLView::child_list_t * child_listp = getChildList();
+	BOOST_FOREACH(LLView * childp, * child_listp)
+	{
+		LLResizeBar * resize_barp = dynamic_cast<LLResizeBar*>(childp);
+		if (resize_barp && resize_barp->isShowDragHandle() && resize_barp->getVisible() && resize_barp->getRect().isValid())
+		{
+			LLRect screen_rect = resize_barp->calcScreenRect();
+			if (LLUI::getRootView()->getLocalRect().overlaps(screen_rect) && LLUI::sDirtyRect.overlaps(screen_rect))
+			{
+				LLUI::pushMatrix();
+				{
+					const LLRect& rb_rect(resize_barp->getRect());
+					LLUI::translate(rb_rect.mLeft, rb_rect.mBottom);
+					resize_barp->draw();
+				}
+				LLUI::popMatrix();
+			}
 		}
 	}
 }
@@ -390,7 +423,6 @@ void LLLayoutStack::updateLayout()
 	BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
 	{
 		F32 panel_dim = llmax(panelp->getExpandedMinDim(), panelp->mTargetDim);
-		F32 panel_visible_dim = panelp->getVisibleDim();
 
 		LLRect panel_rect;
 		if (mOrientation == HORIZONTAL)
@@ -407,27 +439,61 @@ void LLLayoutStack::updateLayout()
 										getRect().getWidth(),
 										llround(panel_dim));
 		}
-		panelp->setIgnoreReshape(true);
-		panelp->setShape(panel_rect);
-		panelp->setIgnoreReshape(false);
 
 		LLRect resize_bar_rect(panel_rect);
-
+		LLResizeBar * resize_barp = panelp->getResizeBar();
+		bool show_drag_handle = resize_barp->isShowDragHandle();
 		F32 panel_spacing = (F32)mPanelSpacing * panelp->getVisibleAmount();
+		F32 panel_visible_dim = panelp->getVisibleDim();
+		S32 panel_spacing_round = (S32)(llround(panel_spacing));
+
 		if (mOrientation == HORIZONTAL)
 		{
-			resize_bar_rect.mLeft = panel_rect.mRight - mResizeBarOverlap;
-			resize_bar_rect.mRight = panel_rect.mRight + (S32)(llround(panel_spacing)) + mResizeBarOverlap;
-
 			cur_pos += panel_visible_dim + panel_spacing;
+
+			if (show_drag_handle && panel_spacing_round > mDragHandleThickness)
+			{
+				resize_bar_rect.mLeft = panel_rect.mRight + mDragHandleShift;
+				resize_bar_rect.mRight = resize_bar_rect.mLeft + mDragHandleThickness;
+			}
+			else
+			{
+				resize_bar_rect.mLeft = panel_rect.mRight - mResizeBarOverlap;
+				resize_bar_rect.mRight = panel_rect.mRight + panel_spacing_round + mResizeBarOverlap;
+			}
+
+			if (show_drag_handle)
+			{
+				resize_bar_rect.mBottom += mDragHandleSecondIndent;
+				resize_bar_rect.mTop -= mDragHandleFirstIndent;
+			}
+
 		}
 		else //VERTICAL
 		{
-			resize_bar_rect.mTop = panel_rect.mBottom + mResizeBarOverlap;
-			resize_bar_rect.mBottom = panel_rect.mBottom - (S32)(llround(panel_spacing)) - mResizeBarOverlap;
-
 			cur_pos -= panel_visible_dim + panel_spacing;
+
+			if (show_drag_handle && panel_spacing_round > mDragHandleThickness)
+			{
+				resize_bar_rect.mTop = panel_rect.mBottom - mDragHandleShift;
+				resize_bar_rect.mBottom = resize_bar_rect.mTop - mDragHandleThickness;
+			}
+			else
+			{
+				resize_bar_rect.mTop = panel_rect.mBottom + mResizeBarOverlap;
+				resize_bar_rect.mBottom = panel_rect.mBottom - panel_spacing_round - mResizeBarOverlap;
+			}
+
+			if (show_drag_handle)
+			{
+				resize_bar_rect.mLeft += mDragHandleFirstIndent;
+				resize_bar_rect.mRight -= mDragHandleSecondIndent;
+			}
 		}
+
+		panelp->setIgnoreReshape(true);
+		panelp->setShape(panel_rect);
+		panelp->setIgnoreReshape(false);
 		panelp->mResizeBar->setShape(resize_bar_rect);
 	}
 
@@ -475,15 +541,13 @@ void LLLayoutStack::createResizeBar(LLLayoutPanel* panelp)
 	{
 		if (lp->mResizeBar == NULL)
 		{
-			LLResizeBar::Side side = (mOrientation == HORIZONTAL) ? LLResizeBar::RIGHT : LLResizeBar::BOTTOM;
-			LLRect resize_bar_rect = getRect();
-
 			LLResizeBar::Params resize_params;
 			resize_params.name("resize");
 			resize_params.resizing_view(lp);
 			resize_params.min_size(lp->getRelevantMinDim());
-			resize_params.side(side);
+			resize_params.side((mOrientation == HORIZONTAL) ? LLResizeBar::RIGHT : LLResizeBar::BOTTOM);
 			resize_params.snapping_enabled(false);
+			resize_params.show_drag_handle(mShowDragHandle);
 			LLResizeBar* resize_bar = LLUICtrlFactory::create<LLResizeBar>(resize_params);
 			lp->mResizeBar = resize_bar;
 			LLView::addChild(resize_bar, 0);
@@ -865,3 +929,4 @@ void LLLayoutStack::updateResizeBarLimits()
 		previous_visible_panelp = visible_panelp;
 	}
 }
+
