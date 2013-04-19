@@ -498,9 +498,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-	      <string>89a3df89da75444877cf3197416fed67</string>
+	      <string>10352aab979c333a52dbad21b6e6fba9</string>
               <key>url</key>
-	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/270029/arch/Darwin/installer/fmodex-4.44-darwin-20130205.tar.bz2</string>
+	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/274403/arch/Darwin/installer/fmodex-4.44-darwin-20130419.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -510,9 +510,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-          <string>fd787931f49ece9bf99f4d1d1596f04b</string>
+          <string>79e45527aa9fb90b813599dff5ce01a7</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/269984/arch/Linux/installer/fmodex-4.44-linux-20130205.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/274378/arch/Linux/installer/fmodex-4.44-linux-20130419.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -522,9 +522,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-	      <string>9e0f62be63e74af18f670f864cac93da</string>
+	      <string>81a2f77651e37b704198c7ea72f63040</string>
               <key>url</key>
-	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/270026/arch/CYGWIN/installer/fmodex-4.44-windows-20130205.tar.bz2</string>
+	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/274401/arch/CYGWIN/installer/fmodex-4.44-windows-20130419.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
