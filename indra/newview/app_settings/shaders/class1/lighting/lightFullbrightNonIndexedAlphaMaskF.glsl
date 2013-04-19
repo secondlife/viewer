@@ -30,6 +30,7 @@ out vec4 frag_color;
 #endif
 
 uniform float minimum_alpha;
+uniform float texture_gamma;
 
 vec3 fullbrightAtmosTransport(vec3 light);
 vec3 fullbrightScaleSoftClip(vec3 light);
@@ -47,7 +48,7 @@ void fullbright_lighting()
 	{
 		discard;
 	}
-
+	color.rgb = pow(color.rgb, vec3(texture_gamma));
 	color.rgb = fullbrightAtmosTransport(color.rgb);
 	
 	color.rgb = fullbrightScaleSoftClip(color.rgb);
