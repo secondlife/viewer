@@ -3402,6 +3402,17 @@
       <key>Value</key>
       <integer>500</integer>
     </map>
+    <key>FilterItemsMaxTimePerFrame</key>
+    <map>
+        <key>Comment</key>
+        <string>Max time devoted to items filtering per frame (in milliseconds)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>100</integer>
+    </map>
     <key>FindLandArea</key>
     <map>
       <key>Comment</key>

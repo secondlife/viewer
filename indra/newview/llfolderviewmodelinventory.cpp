@@ -153,11 +153,11 @@ bool LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* ite
 {
 	S32 filter_generation = filter.getCurrentGeneration();
 
-	bool new_filtered_item = false;
+	bool continue_filtering = true;
 	if (item->getLastFilterGeneration() < filter_generation)
 	{
 		// Recursive application of the filter for child items (CHUI-849)
-		new_filtered_item = item->filter( filter );
+		continue_filtering = item->filter( filter );
 	}
 
 	// Update latest generation to pass filter in parent and propagate up to root
@@ -172,14 +172,13 @@ bool LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* ite
 		}
 	}
 
-	return new_filtered_item;
+	return continue_filtering;
 }
 
 bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 {
 	const S32 filter_generation = filter.getCurrentGeneration();
 	const S32 must_pass_generation = filter.getFirstRequiredGeneration();
-    const S32 sufficient_pass_generation = filter.getFirstSuccessGeneration();
 
     if (getLastFilterGeneration() >= must_pass_generation
 		&& getLastFolderFilterGeneration() >= must_pass_generation
@@ -189,9 +188,11 @@ bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 		// go ahead and flag this item as not pass
 		setPassedFilter(false, filter_generation);
 		setPassedFolderFilter(false, filter_generation);
-		return false;
+		return true;
 	}
 
+    /*
+     const S32 sufficient_pass_generation = filter.getFirstSuccessGeneration();
     if (getLastFilterGeneration() >= sufficient_pass_generation
 		&& getLastFolderFilterGeneration() >= sufficient_pass_generation
 		&& passedFilter(sufficient_pass_generation))
@@ -202,23 +203,23 @@ bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 		setPassedFolderFilter(true, filter_generation);
 		return true;
 	}
+     */
     
 	const bool passed_filter_folder = (getInventoryType() == LLInventoryType::IT_CATEGORY) ? filter.checkFolder(this) : true;
 	setPassedFolderFilter(passed_filter_folder, filter_generation);
 
-	bool new_filtered_item = false;
+	bool continue_filtering = true;
 
 	if (!mChildren.empty()
 		&& (getLastFilterGeneration() < must_pass_generation // haven't checked descendants against minimum required generation to pass
             || descendantsPassedFilter(must_pass_generation))) // or at least one descendant has passed the minimum requirement
 	{
 		// now query children
-		for (child_list_t::iterator iter = mChildren.begin(), end_iter = mChildren.end();
-			iter != end_iter && filter.getFilterCount() > 0;
-			++iter)
+		for (child_list_t::iterator iter = mChildren.begin(), end_iter = mChildren.end(); iter != end_iter; ++iter)
 		{
-			new_filtered_item |= filterChildItem((*iter), filter);
-            if (filter.getFilterCount() <= 0)
+			continue_filtering = filterChildItem((*iter), filter);
+            //if (filter.getFilterCount() <= 0)
+            if (!continue_filtering)
 			{
 				break;
 			}
@@ -226,15 +227,17 @@ bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 	}
 
 	// If we didn't use all filter iterations that means we filtered all of our descendants so filter ourselves now
-	if (filter.getFilterCount() > 0)
+	//if (filter.getFilterCount() > 0)
+    if (continue_filtering)
 	{
         // This is where filter count is hit and filter check on the item done (CHUI-849)
-		filter.decrementFilterCount();
+		//filter.decrementFilterCount();
+		filter.incrementFilterCount(); // Temp
 		const bool passed_filter = filter.check(this);
 		setPassedFilter(passed_filter, filter_generation, filter.getStringMatchOffset(this), filter.getFilterStringSize());
-        new_filtered_item |= passed_filter;
+        continue_filtering = !filter.isTimedOut();
 	}
-    return new_filtered_item;
+    return continue_filtering;
 }
 
 LLFolderViewModelInventory* LLInventoryPanel::getFolderViewModel()

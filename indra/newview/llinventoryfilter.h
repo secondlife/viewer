@@ -222,6 +222,13 @@ public:
 	void 				decrementFilterCount();
 
 	// +-------------------------------------------------------------------+
+	// + Time
+	// +-------------------------------------------------------------------+
+	void 				resetTime(S32 timeout);
+    bool                isTimedOut();
+	void 				incrementFilterCount(); // Temp!
+    
+	// +-------------------------------------------------------------------+
 	// + Default
 	// +-------------------------------------------------------------------+
 	bool 				isDefault() const;
@@ -271,6 +278,8 @@ private:
 	S32						mFilterCount;
 	EFilterModified 		mFilterModified;
 
+	LLTimer                 mFilterTime;
+    
 	std::string 			mFilterText;
 	std::string 			mEmptyLookupMessage;
 };

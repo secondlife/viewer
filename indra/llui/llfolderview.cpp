@@ -325,9 +325,19 @@ void LLFolderView::filter( LLFolderViewFilter& filter )
 {
     // Entry point of inventory filtering (CHUI-849)
 	LLFastTimer t2(FTM_FILTER);
-	filter.setFilterCount(llclamp(LLUI::sSettingGroups["config"]->getS32("FilterItemsPerFrame"), 1, 5000));
+	//filter.setFilterCount(llclamp(LLUI::sSettingGroups["config"]->getS32("FilterItemsPerFrame"), 1, 5000));
+    filter.resetTime(llclamp(LLUI::sSettingGroups["config"]->getS32("FilterItemsMaxTimePerFrame"), 1, 1000));
     // Note: we filter the model, not the view
 	getViewModelItem()->filter(filter);
+    // Test the filter state
+    if (filter.isTimedOut())
+    {
+        llinfos << "Merov : filter of " << mParentPanel->getName() << " not finished, count = " << filter.getFilterCount() << llendl;
+    }
+    else if (filter.getFilterCount() != 0)
+    {
+        llinfos << "Merov : last filter of " << mParentPanel->getName() << " done! count = " << filter.getFilterCount() << llendl;
+    }
 }
 
 void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -1614,7 +1624,8 @@ void LLFolderView::update()
     
 	// Clear the modified setting on the filter only if the filter count is non-zero after running the filter process
 	// Note: if the filter count is zero, that means the filter exhausted its count per frame and halted before completing the entire set of items
-	if (getFolderViewModel()->getFilter().isModified() && (getFolderViewModel()->getFilter().getFilterCount() > 0))
+	//if (getFolderViewModel()->getFilter().isModified() && (getFolderViewModel()->getFilter().getFilterCount() > 0))
+    if (getFolderViewModel()->getFilter().isModified() && (!getFolderViewModel()->getFilter().isTimedOut()))
 	{
 		getFolderViewModel()->getFilter().clearModified();
 	}

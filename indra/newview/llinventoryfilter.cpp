@@ -1026,6 +1026,26 @@ void LLInventoryFilter::decrementFilterCount()
 	mFilterCount--; 
 }
 
+void LLInventoryFilter::incrementFilterCount()
+{
+	mFilterCount++;
+}
+
+bool LLInventoryFilter::isTimedOut()
+{
+	return mFilterTime.hasExpired();
+}
+
+void LLInventoryFilter::resetTime(S32 timeout)
+{
+    mFilterCount = 0;
+	mFilterTime.reset();
+    F32 time_in_sec = (F32)(timeout)/1000.0;
+	mFilterTime.setTimerExpirySec(time_in_sec);
+}
+
+
+
 S32 LLInventoryFilter::getCurrentGeneration() const 
 { 
 	return mCurrentGeneration;

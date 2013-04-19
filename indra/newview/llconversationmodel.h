@@ -256,7 +256,11 @@ public:
 	void 				setFilterCount(S32 count) { }
 	S32 				getFilterCount() const { return 0; }
 	void 				decrementFilterCount() { }
-		
+
+  	void 				resetTime(S32 timeout) { }
+    bool                isTimedOut() { return false; }
+	void 				incrementFilterCount() { } // Temp!
+   
 	bool 				isDefault() const { return true; }
 	bool 				isNotDefault() const { return false; }
 	void 				markDefault() { }

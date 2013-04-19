@@ -94,6 +94,13 @@ public:
 	virtual void 				decrementFilterCount() = 0;
 
 	// +-------------------------------------------------------------------+
+	// + Time
+	// +-------------------------------------------------------------------+
+	virtual void 				resetTime(S32 timeout) = 0;
+    virtual bool                isTimedOut() = 0;
+	virtual void 				incrementFilterCount() = 0; // Temp!
+    
+	// +-------------------------------------------------------------------+
 	// + Default
 	// +-------------------------------------------------------------------+
 	virtual bool 				isDefault() const = 0;

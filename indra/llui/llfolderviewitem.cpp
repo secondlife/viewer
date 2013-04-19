@@ -949,7 +949,7 @@ static LLFastTimer::DeclareTimer FTM_ARRANGE("Arrange");
 // * Turn widgets visible/invisible according to their model filtering state
 // * Takes animation state into account for opening/closing of folders (this makes widgets visible/invisible)
 // * Reposition visible widgets so that they line up correctly with no gap
-// * Compute the width and height of the cuurent folder and its children
+// * Compute the width and height of the current folder and its children
 // * Makes sure that this view and its children are the right size
 S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 {
