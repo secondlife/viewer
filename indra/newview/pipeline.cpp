@@ -7124,7 +7124,17 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			mScreen.bindTexture(0,channel);
 			gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 		}
+		
 		gDeferredPostGammaCorrectProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mScreen.getWidth(), mScreen.getHeight());
+		
+		F32 gamma = 1.0;
+		if (!LLViewerCamera::getInstance()->cameraUnderWater())
+		{
+			gamma = 1.0/2.2;
+		}
+		
+		gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, gamma);
+		
 		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
 		gGL.vertex2f(-1,-1);

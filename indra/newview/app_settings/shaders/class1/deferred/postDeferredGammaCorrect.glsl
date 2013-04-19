@@ -36,9 +36,11 @@ uniform sampler2DRect diffuseRect;
 uniform vec2 screen_res;
 VARYING vec2 vary_fragcoord;
 
+uniform float texture_gamma;
+
 void main() 
 {
 	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord);
-	frag_color = pow(diff, vec4(0.454545, 0.454545, 0.454545, 1.0));
+	frag_color = pow(diff, vec4(texture_gamma, texture_gamma, texture_gamma, 1.0));
 }
 
