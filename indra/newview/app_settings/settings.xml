@@ -3391,27 +3391,27 @@
         <key>Value</key>
             <real>10.0</real>
         </map>
-    <key>FilterItemsPerFrame</key>
-    <map>
-      <key>Comment</key>
-      <string>Maximum number of inventory items to match against search filter every frame (lower to increase framerate while searching, higher to improve search speed)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>500</integer>
-    </map>
-    <key>FilterItemsMaxTimePerFrame</key>
+    <key>FilterItemsMaxTimePerFrameVisible</key>
     <map>
         <key>Comment</key>
-        <string>Max time devoted to items filtering per frame (in milliseconds)</string>
+        <string>Max time devoted to items filtering per frame for visible inventory listings (in milliseconds)</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
         <string>S32</string>
         <key>Value</key>
-        <integer>100</integer>
+        <integer>10</integer>
+    </map>
+    <key>FilterItemsMaxTimePerFrameUnvisible</key>
+    <map>
+        <key>Comment</key>
+        <string>Max time devoted to items filtering per frame for non visible inventory listings (in milliseconds)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>1</integer>
     </map>
     <key>FindLandArea</key>
     <map>

@@ -87,18 +87,10 @@ public:
 	virtual void 				setModified(EFilterModified behavior = FILTER_RESTART) = 0;
 
 	// +-------------------------------------------------------------------+
-	// + Count
-	// +-------------------------------------------------------------------+
-	virtual void 				setFilterCount(S32 count) = 0;
-	virtual S32 				getFilterCount() const = 0;
-	virtual void 				decrementFilterCount() = 0;
-
-	// +-------------------------------------------------------------------+
 	// + Time
 	// +-------------------------------------------------------------------+
 	virtual void 				resetTime(S32 timeout) = 0;
     virtual bool                isTimedOut() = 0;
-	virtual void 				incrementFilterCount() = 0; // Temp!
     
 	// +-------------------------------------------------------------------+
 	// + Default

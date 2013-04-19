@@ -215,18 +215,10 @@ public:
 	void 				setModified(EFilterModified behavior = FILTER_RESTART);
 
 	// +-------------------------------------------------------------------+
-	// + Count
-	// +-------------------------------------------------------------------+
-	void 				setFilterCount(S32 count);
-	S32 				getFilterCount() const;
-	void 				decrementFilterCount();
-
-	// +-------------------------------------------------------------------+
 	// + Time
 	// +-------------------------------------------------------------------+
 	void 				resetTime(S32 timeout);
     bool                isTimedOut();
-	void 				incrementFilterCount(); // Temp!
     
 	// +-------------------------------------------------------------------+
 	// + Default
@@ -275,9 +267,7 @@ private:
 	S32						mFirstRequiredGeneration;
 	S32						mFirstSuccessGeneration;
 
-	S32						mFilterCount;
 	EFilterModified 		mFilterModified;
-
 	LLTimer                 mFilterTime;
     
 	std::string 			mFilterText;

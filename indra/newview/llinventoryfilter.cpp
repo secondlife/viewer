@@ -70,8 +70,7 @@ LLInventoryFilter::LLInventoryFilter(const Params& p)
 	mFilterSubString(p.substring),
 	mCurrentGeneration(0),
 	mFirstRequiredGeneration(0),
-	mFirstSuccessGeneration(0),
-	mFilterCount(0)
+	mFirstSuccessGeneration(0)
 {
 	// copy mFilterOps into mDefaultFilterOps
 	markDefault();
@@ -1012,25 +1011,6 @@ LLInventoryFilter::EFolderShow LLInventoryFilter::getShowFolderState() const
 	return mFilterOps.mShowFolderState; 
 }
 
-void LLInventoryFilter::setFilterCount(S32 count) 
-{ 
-	mFilterCount = count; 
-}
-S32 LLInventoryFilter::getFilterCount() const
-{
-	return mFilterCount;
-}
-
-void LLInventoryFilter::decrementFilterCount() 
-{ 
-	mFilterCount--; 
-}
-
-void LLInventoryFilter::incrementFilterCount()
-{
-	mFilterCount++;
-}
-
 bool LLInventoryFilter::isTimedOut()
 {
 	return mFilterTime.hasExpired();
@@ -1038,15 +1018,12 @@ bool LLInventoryFilter::isTimedOut()
 
 void LLInventoryFilter::resetTime(S32 timeout)
 {
-    mFilterCount = 0;
 	mFilterTime.reset();
     F32 time_in_sec = (F32)(timeout)/1000.0;
 	mFilterTime.setTimerExpirySec(time_in_sec);
 }
 
-
-
-S32 LLInventoryFilter::getCurrentGeneration() const 
+S32 LLInventoryFilter::getCurrentGeneration() const
 { 
 	return mCurrentGeneration;
 }

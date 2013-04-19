@@ -191,6 +191,7 @@ bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 		return true;
 	}
 
+    // *TODO : Revise the logic for fast pass on less restrictive filter case
     /*
      const S32 sufficient_pass_generation = filter.getFirstSuccessGeneration();
     if (getLastFilterGeneration() >= sufficient_pass_generation
@@ -218,7 +219,6 @@ bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 		for (child_list_t::iterator iter = mChildren.begin(), end_iter = mChildren.end(); iter != end_iter; ++iter)
 		{
 			continue_filtering = filterChildItem((*iter), filter);
-            //if (filter.getFilterCount() <= 0)
             if (!continue_filtering)
 			{
 				break;
@@ -226,13 +226,10 @@ bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
 		}
 	}
 
-	// If we didn't use all filter iterations that means we filtered all of our descendants so filter ourselves now
-	//if (filter.getFilterCount() > 0)
+	// If we didn't use all the filter time that means we filtered all of our descendants so we can filter ourselves now
     if (continue_filtering)
 	{
-        // This is where filter count is hit and filter check on the item done (CHUI-849)
-		//filter.decrementFilterCount();
-		filter.incrementFilterCount(); // Temp
+        // This is where filter check on the item done (CHUI-849)
 		const bool passed_filter = filter.check(this);
 		setPassedFilter(passed_filter, filter_generation, filter.getStringMatchOffset(this), filter.getFilterStringSize());
         continue_filtering = !filter.isTimedOut();
