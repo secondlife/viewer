@@ -40,7 +40,7 @@ uniform sampler2DShadow shadowMap1;
 uniform sampler2DShadow shadowMap2;
 uniform sampler2DShadow shadowMap3;
 
-#if USE_DIFFUSE_TEX
+#ifdef USE_DIFFUSE_TEX
 uniform sampler2D diffuseMap;
 #endif
 
@@ -58,7 +58,7 @@ VARYING vec3 vary_pointlight_col;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
 
-#if USE_VERTEX_COLOR
+#ifdef USE_VERTEX_COLOR
 VARYING vec4 vertex_color;
 #endif
 
@@ -199,11 +199,11 @@ void main()
 
 	vec4 diff;
 
-#if USE_INDEXED_TEX
+#ifdef USE_INDEXED_TEX
 	diff = diffuseLookup(vary_texcoord0.xy);
 #endif
 
-#if USE_DIFFUSE_TEX
+#ifdef USE_DIFFUSE_TEX
 	diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
 
@@ -211,7 +211,7 @@ void main()
 
 	float vertex_color_alpha = 1.0;
 
-#if USE_VERTEX_COLOR
+#ifdef USE_VERTEX_COLOR
 	vertex_color_alpha = vertex_color.a;	
 #endif
 
