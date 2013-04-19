@@ -34,19 +34,23 @@ uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
 ATTRIBUTE vec3 position;
-#if INDEX_MODE == INDEXED
+#if (INDEX_MODE == INDEXED)
 void passTextureIndex();
 #endif
 ATTRIBUTE vec3 normal;
-#if INDEX_MODE != NON_INDEXED_NO_COLOR
+#if (INDEX_MODE != NON_INDEXED_NO_COLOR)
 ATTRIBUTE vec4 diffuse_color;
 #endif
 ATTRIBUTE vec2 texcoord0;
 
 #if HAS_SKIN
 mat4 getObjectSkinnedTransform();
-#elif IS_AVATAR_SKIN
+#else
+
+#if IS_AVATAR_SKIN
 mat4 getSkinnedTransform();
+#endif
+
 #endif
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
@@ -65,7 +69,7 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 
-#if INDEX_MODE != NON_INDEXED_NO_COLOR
+#if (INDEX_MODE != NON_INDEXED_NO_COLOR)
 VARYING vec4 vertex_color;
 #endif
 
@@ -134,7 +138,9 @@ void main()
 	norm = normalize((trans * vec4(norm, 1.0)).xyz - pos.xyz);
 	vec4 frag_pos = projection_matrix * pos;
 	gl_Position = frag_pos;
-#elif IS_AVATAR_SKIN
+#else
+
+#if IS_AVATAR_SKIN
 	mat4 trans = getSkinnedTransform();
 	vec4 pos_in = vec4(position.xyz, 1.0);
 	pos.x = dot(trans[0], pos_in);
@@ -155,8 +161,10 @@ void main()
 	pos = (modelview_matrix * vert);
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 #endif
-	
-#if INDEX_MODE == INDEXED
+
+#endif
+
+#if (INDEX_MODE == INDEXED)
 	passTextureIndex();
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 #else
@@ -169,7 +177,7 @@ void main()
 	
 	calcAtmospherics(pos.xyz);
 
-#if INDEX_MODE == NON_INDEXED_NO_COLOR
+#if (INDEX_MODE == NON_INDEXED_NO_COLOR)
 	vec4 diffuse_color = vec4(1,1,1,1);
 #endif
 
@@ -190,16 +198,21 @@ void main()
 	
 	col.rgb = col.rgb*dff;
 	
-#if INDEX_MODE != NON_INDEXED_NO_COLOR
+#if (INDEX_MODE != NON_INDEXED_NO_COLOR)
 	vertex_color = col;
 #endif
 	
 #if HAS_SKIN
 	vary_fragcoord.xyz = frag_pos.xyz + vec3(0,0,near_clip);
-#elif IS_AVATAR_SKIN
+#else
+
+#if IS_AVATAR_SKIN
 	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
 #else
 	pos = modelview_projection_matrix * vert;
 	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
 #endif
+
+#endif
+
 }

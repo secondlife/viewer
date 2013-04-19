@@ -40,7 +40,7 @@ uniform sampler2DShadow shadowMap1;
 uniform sampler2DShadow shadowMap2;
 uniform sampler2DShadow shadowMap3;
 
-#if INDEX_MODE != INDEXED
+#if (INDEX_MODE != INDEXED)
 uniform sampler2D diffuseMap;
 #endif
 
@@ -58,7 +58,7 @@ VARYING vec3 vary_pointlight_col;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
 
-#if INDEX_MODE != NON_INDEXED_NO_COLOR
+#if (INDEX_MODE != NON_INDEXED_NO_COLOR)
 VARYING vec4 vertex_color;
 #endif
 
@@ -198,13 +198,13 @@ void main()
 	}
 
 	vec4 diff;
-#if INDEX_MODE == INDEXED	
+#if (INDEX_MODE == INDEXED)
 	diff = diffuseLookup(vary_texcoord0.xy);
 #else
 	diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
 	diff.rgb = pow(diff.rgb, vec3(2.2));
-#if INDEX_MODE == NON_INDEXED_NO_COLOR
+#if (INDEX_MODE == NON_INDEXED_NO_COLOR)
 	float vertex_color_alpha = 1.0;
 #else
 	float vertex_color_alpha = vertex_color.a;

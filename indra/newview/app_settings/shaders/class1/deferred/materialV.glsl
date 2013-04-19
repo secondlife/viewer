@@ -37,7 +37,8 @@ uniform mat3 normal_matrix;
 uniform mat4 modelview_projection_matrix;
 #endif
 
-#if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND
+#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
+
 #if !HAS_SKIN
 uniform mat4 modelview_matrix;
 #endif
@@ -84,7 +85,7 @@ void main()
 
 	vec3 pos = (mat*vec4(position.xyz,1.0)).xyz;
 
-#if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND
+#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 	vary_position = pos;
 #endif
 
@@ -134,7 +135,7 @@ vary_normal  = n;
 	
 	vertex_color = diffuse_color;
 
-#if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND
+#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 #if !HAS_SKIN
 	vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
 #endif
