@@ -206,8 +206,7 @@ void main()
 #ifdef USE_DIFFUSE_TEX
 	diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
-
-	diff.rgb = pow(diff.rgb, vec3(2.2));
+	diff.rgb = pow(diff.rgb, vec3(2.2f, 2.2f, 2.2f));
 
 	float vertex_color_alpha = 1.0;
 
@@ -216,7 +215,6 @@ void main()
 #endif
 
 	vec3 normal = vary_norm;
-
 	vec3 l = light_position[0].xyz;
 	vec3 dlight = calcDirectionalLight(normal, l);
 	     dlight = dlight * vary_directional.rgb * vary_pointlight_col;
@@ -225,12 +223,11 @@ void main()
 	vec4 color = diff * col;
 	
 	color.rgb = atmosLighting(color.rgb);
-
 	color.rgb = scaleSoftClip(color.rgb);
-	col = vec4(0,0,0,0);
+	col = vec4(0.0f,0.0f,0.0f,0.0f);
 
   #define LIGHT_LOOP(i) \
-		col.rgb += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+	col.rgb += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
 		
 	LIGHT_LOOP(1)
 	LIGHT_LOOP(2)
@@ -241,6 +238,5 @@ void main()
 	LIGHT_LOOP(7)
 
 	color.rgb += diff.rgb * vary_pointlight_col * col.rgb;
-
 	frag_color = color;
 }

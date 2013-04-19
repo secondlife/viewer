@@ -190,7 +190,7 @@ void main()
 	// Add windlight lights
 	col.rgb = atmosAmbient(col.rgb);
 	
-	vary_directional.rgb = atmosAffectDirectionalLight(1);
+	vary_directional.rgb = atmosAffectDirectionalLight(1.0f);
 	vary_ambient = col.rgb*dff;
 	
 	col.rgb = col.rgb*dff;
