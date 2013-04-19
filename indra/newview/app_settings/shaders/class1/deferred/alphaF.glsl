@@ -35,7 +35,7 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-#if USE_DIFFUSE_TEX
+#ifdef USE_DIFFUSE_TEX
 uniform sampler2D diffuseMap;
 #endif
 
@@ -52,7 +52,7 @@ VARYING vec3 vary_pointlight_col;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
 
-#if USE_VERTEX_COLOR
+#ifdef USE_VERTEX_COLOR
 VARYING vec4 vertex_color;
 #endif
 
@@ -104,7 +104,7 @@ void main()
 	
 	vec4 pos = vec4(vary_position, 1.0);
 	
-#if USE_INDEXED_TEX
+#ifdef USE_INDEXED_TEX
 	vec4 diff = diffuseLookup(vary_texcoord0.xy);
 #else
 	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
@@ -112,7 +112,7 @@ void main()
 
 	diff.rgb = pow(diff.rgb, vec3(2.2));
 
-#if USE_VERTEX_COLOR
+#ifdef USE_VERTEX_COLOR
 	float vertex_color_alpha = vertex_color.a;	
 #else
 	float vertex_color_alpha = 1.0;

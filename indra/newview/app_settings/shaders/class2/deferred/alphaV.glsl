@@ -23,9 +23,15 @@
  * $/LicenseInfo$
  */
 
-#define INDEXED 1
-#define NON_INDEXED 2
-#define NON_INDEXED_NO_COLOR 3
+vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
+void calcAtmospherics(vec3 inPositionEye);
+
+vec3 calcDirectionalLight(vec3 n, vec3 l);
+
+vec3 atmosAmbient(vec3 light);
+vec3 atmosAffectDirectionalLight(float lightIntensity);
+vec3 scaleDownLight(vec3 light);
+vec3 scaleUpLight(vec3 light);
 
 uniform mat3 normal_matrix;
 uniform mat4 texture_matrix0;
@@ -35,37 +41,25 @@ uniform mat4 modelview_projection_matrix;
 
 ATTRIBUTE vec3 position;
 
-#if USE_INDEXED_TEX
+#ifdef USE_INDEXED_TEX
 void passTextureIndex();
 #endif
 
 ATTRIBUTE vec3 normal;
 
-#if USE_VERTEX_COLOR
+#ifdef USE_VERTEX_COLOR
 ATTRIBUTE vec4 diffuse_color;
 #endif
 
 ATTRIBUTE vec2 texcoord0;
 
-#if HAS_SKIN
+#ifdef HAS_SKIN
 mat4 getObjectSkinnedTransform();
 #else
-
-#if IS_AVATAR_SKIN
+#ifdef IS_AVATAR_SKIN
 mat4 getSkinnedTransform();
 #endif
-
 #endif
-
-vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
-void calcAtmospherics(vec3 inPositionEye);
-
-float calcDirectionalLight(vec3 n, vec3 l);
-
-vec3 atmosAmbient(vec3 light);
-vec3 atmosAffectDirectionalLight(float lightIntensity);
-vec3 scaleDownLight(vec3 light);
-vec3 scaleUpLight(vec3 light);
 
 VARYING vec3 vary_ambient;
 VARYING vec3 vary_directional;
@@ -73,12 +67,11 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 
-#if USE_VERTEX_COLOR
+#ifdef USE_VERTEX_COLOR
 VARYING vec4 vertex_color;
 #endif
 
 VARYING vec2 vary_texcoord0;
-
 VARYING vec3 vary_norm;
 
 uniform float near_clip;
@@ -90,13 +83,13 @@ uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
-float calcDirectionalLight(vec3 n, vec3 l)
+vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
         float a = max(dot(n,l),0.0);
-        return a;
+        return vec3(a,a,a);
 }
 
-float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
+vec3 calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
 {
 	//get light vector
 	vec3 lv = lp.xyz-v;
@@ -123,7 +116,7 @@ float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, floa
 		da *= max(dot(n, lv), 0.0);		
 	}
 
-	return da;	
+	return vec3(da,da,da);	
 }
 
 void main()
@@ -132,7 +125,7 @@ void main()
 	vec3 norm;
 	
 	//transform vertex
-#if HAS_SKIN
+#ifdef HAS_SKIN
 	mat4 trans = getObjectSkinnedTransform();
 	trans = modelview_matrix * trans;
 	
@@ -144,7 +137,7 @@ void main()
 	gl_Position = frag_pos;
 #else
 
-#if IS_AVATAR_SKIN
+#ifdef IS_AVATAR_SKIN
 	mat4 trans = getSkinnedTransform();
 	vec4 pos_in = vec4(position.xyz, 1.0);
 	pos.x = dot(trans[0], pos_in);
@@ -168,7 +161,7 @@ void main()
 
 #endif
 
-#if USE_INDEXED_TEX
+#ifdef USE_INDEXED_TEX
 	passTextureIndex();
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 #else
@@ -181,7 +174,7 @@ void main()
 	
 	calcAtmospherics(pos.xyz);
 
-#if !USE_VERTEX_COLOR
+#ifndef USE_VERTEX_COLOR
 	vec4 diffuse_color = vec4(1,1,1,1);
 #endif
 
@@ -202,15 +195,15 @@ void main()
 	
 	col.rgb = col.rgb*dff;
 	
-#if USE_VERTEX_COLOR
+#ifdef USE_VERTEX_COLOR
 	vertex_color = col;
 #endif
 	
-#if HAS_SKIN
+#ifdef HAS_SKIN
 	vary_fragcoord.xyz = frag_pos.xyz + vec3(0,0,near_clip);
 #else
 
-#if IS_AVATAR_SKIN
+#ifdef IS_AVATAR_SKIN
 	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
 #else
 	pos = modelview_projection_matrix * vert;

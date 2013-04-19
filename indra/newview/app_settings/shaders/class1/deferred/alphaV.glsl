@@ -35,19 +35,19 @@ uniform mat4 modelview_projection_matrix;
 
 ATTRIBUTE vec3 position;
 
-#if USE_INDEXED_TEX
+#ifdef USE_INDEXED_TEX
 void passTextureIndex();
 #endif
 
 ATTRIBUTE vec3 normal;
 
-#if USE_VERTEX_COLOR
+#ifdef USE_VERTEX_COLOR
 ATTRIBUTE vec4 diffuse_color;
 #endif
 
 ATTRIBUTE vec2 texcoord0;
 
-#if HAS_SKIN
+#ifdef HAS_SKIN
 mat4 getObjectSkinnedTransform();
 #elif IS_AVATAR_SKIN
 mat4 getSkinnedTransform();
@@ -69,7 +69,7 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
 
-#if USE_VERTEX_COLOR
+#ifdef USE_VERTEX_COLOR
 VARYING vec4 vertex_color;
 #endif
 
@@ -126,7 +126,7 @@ void main()
 	vec3 norm;
 	
 	//transform vertex
-#if HAS_SKIN
+#ifdef HAS_SKIN
 	mat4 trans = getObjectSkinnedTransform();
 	trans = modelview_matrix * trans;
 	
@@ -138,7 +138,7 @@ void main()
 	gl_Position = frag_pos;
 #else
 
-#if IS_AVATAR_SKIN
+#ifdef IS_AVATAR_SKIN
 	mat4 trans = getSkinnedTransform();
 	vec4 pos_in = vec4(position.xyz, 1.0);
 	pos.x = dot(trans[0], pos_in);
@@ -162,7 +162,7 @@ void main()
 
 #endif
 
-#if USE_INDEXED_TEX
+#ifdef USE_INDEXED_TEX
 	passTextureIndex();
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 #else
@@ -174,7 +174,7 @@ void main()
 
 	calcAtmospherics(pos.xyz);
 
-#if !USE_VERTEX_COLOR
+#ifndef USE_VERTEX_COLOR
 	vec4 diffuse_color = vec4(1,1,1,1);
 #endif
 
@@ -194,15 +194,15 @@ void main()
 	
 	col.rgb = col.rgb*diffuse_color.rgb;
 
-#if USE_VERTEX_COLOR
+#ifdef USE_VERTEX_COLOR
 	vertex_color = col;
 #endif
 	
-#if HAS_SKIN
+#ifdef HAS_SKIN
 	vary_fragcoord.xyz = frag_pos.xyz + vec3(0,0,near_clip);
 #else
 
-#if IS_AVATAR_SKIN
+#ifdef IS_AVATAR_SKIN
 	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
 #else
 	pos = modelview_projection_matrix * vert;
