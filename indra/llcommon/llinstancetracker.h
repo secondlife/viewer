@@ -46,22 +46,6 @@
 class LL_COMMON_API LLInstanceTrackerBase : public boost::noncopyable
 {
 protected:
-	/// Get a process-unique void* pointer slot for the specified type_info
-	static void * & getInstances(std::type_info const & info);
-
-	/// Find or create a STATICDATA instance for the specified TRACKED class.
-	/// STATICDATA must be default-constructible.
-	template<typename STATICDATA, class TRACKED>
-	static STATICDATA& getStatic()
-	{
-		void *& instances = getInstances(typeid(TRACKED));
-		if (! instances)
-		{
-			instances = new STATICDATA;
-		}
-		return *static_cast<STATICDATA*>(instances);
-	}
-
     /// It's not essential to derive your STATICDATA (for use with
     /// getStatic()) from StaticBase; it's just that both known
     /// implementations do.
@@ -92,7 +76,7 @@ class LLInstanceTracker : public LLInstanceTrackerBase
 	{
 		InstanceMap sMap;
 	};
-	static StaticData& getStatic() { return LLInstanceTrackerBase::getStatic<StaticData, MyT>(); }
+	static StaticData& getStatic() { static StaticData sData; return sData;}
 	static InstanceMap& getMap_() { return getStatic().sMap; }
 
 public:
@@ -240,7 +224,7 @@ class LLInstanceTracker<T, void> : public LLInstanceTrackerBase
 	{
 		InstanceSet sSet;
 	};
-	static StaticData& getStatic() { return LLInstanceTrackerBase::getStatic<StaticData, MyT>(); }
+	static StaticData& getStatic() { static StaticData sData; return sData; }
 	static InstanceSet& getSet_() { return getStatic().sSet; }
 
 public:
