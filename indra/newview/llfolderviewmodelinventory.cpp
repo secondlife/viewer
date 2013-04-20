@@ -35,12 +35,6 @@
 // class LLFolderViewModelInventory
 //
 static LLFastTimer::DeclareTimer FTM_INVENTORY_SORT("Sort");
-static S32 sModelInstance = 0;
-
-LLFolderViewModelInventory::LLFolderViewModelInventory()
-{
-    mModelInstance = sModelInstance++;
-}
 
 bool LLFolderViewModelInventory::startDrag(std::vector<LLFolderViewModelItem*>& items)
 {
@@ -137,8 +131,9 @@ void LLFolderViewModelItemInventory::setPassedFilter(bool passed, S32 filter_gen
 {
 	bool before = passedFilter();
 	LLFolderViewModelItemCommon::setPassedFilter(passed, filter_generation, string_offset, string_size);
+	bool after = passedFilter();
 
-    if (before != passed)
+    if (before != after)
 	{
         // Need to rearrange the folder if the filtered state of the item changed
 		LLFolderViewFolder* parent_folder = mFolderViewItem->getParentFolder();

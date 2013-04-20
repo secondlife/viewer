@@ -103,8 +103,6 @@ class LLFolderViewModelInventory
 public:
 	typedef LLFolderViewModel<LLInventorySort,   LLFolderViewModelItemInventory, LLFolderViewModelItemInventory,   LLInventoryFilter> base_t;
 
-    LLFolderViewModelInventory();
-    
 	void setTaskID(const LLUUID& id) {mTaskID = id;}
 
 	void sort(LLFolderViewFolder* folder);
@@ -113,6 +111,5 @@ public:
 
 private:
 	LLUUID mTaskID;
-    S32 mModelInstance;
 };
 #endif // LL_LLFOLDERVIEWMODELINVENTORY_H
