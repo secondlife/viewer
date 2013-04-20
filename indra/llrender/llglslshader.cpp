@@ -280,6 +280,7 @@ void LLGLSLShader::unload()
 	mTexture.clear();
 	mUniform.clear();
 	mShaderFiles.clear();
+	mDefines.clear();
 
 	if (mProgramObject)
 	{

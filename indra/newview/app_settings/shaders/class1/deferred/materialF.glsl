@@ -622,6 +622,13 @@ void main()
 
 #else
 	frag_data[0] = final_color;
+
+#ifdef UGLY_MAC_HACK
+	// magic spec exp clamp fixes rendering artifacts on older mac GF drivers
+	//
+	final_specular = min(final_specular, vec4(1.0f, 1.0f, 1.0f, 0.125f));
+#endif
+
 	frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.
 	frag_data[2] = final_normal; // XY = Normal.  Z = Env. intensity.
 #endif

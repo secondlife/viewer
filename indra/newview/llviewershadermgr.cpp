@@ -1210,8 +1210,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSkinnedAlphaProgram.mFeatures.isAlphaLighting = true;
 		gDeferredSkinnedAlphaProgram.mFeatures.disableTextureIndex = true;
 		gDeferredSkinnedAlphaProgram.mShaderFiles.clear();
-		gDeferredSkinnedAlphaProgram.mDefines.clear();
-
 		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredSkinnedAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
@@ -1262,6 +1260,16 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			gDeferredMaterialProgram[i].addPermutation("HAS_SUN_SHADOW", mVertexShaderLevel[SHADER_DEFERRED] > 1 ? "1" : "0");
 			bool has_skin = i & 0x10;
 			gDeferredMaterialProgram[i].addPermutation("HAS_SKIN",has_skin ? "1" : "0");
+
+		#if LL_DARWIN
+			// include spec exp clamp to fix older mac rendering artifacts
+			//
+			if (gGLManager.mIsMobileGF)
+			{
+				gDeferredMaterialProgram[i].addPermutation("UGLY_MAC_HACK","1");
+			}
+		#endif
+
 			if (has_skin)
 			{
 				gDeferredMaterialProgram[i].mFeatures.hasObjectSkinning = true;
@@ -1409,8 +1417,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		}
 			
 		gDeferredAlphaProgram.mShaderFiles.clear();
-		gDeferredAlphaProgram.mDefines.clear();
-
 		gDeferredAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredSkinnedAlphaProgram.addPermutation("USE_INDEXED_TEX", "1");
