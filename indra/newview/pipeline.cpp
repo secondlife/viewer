@@ -908,11 +908,17 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		BOOL ssao = RenderDeferredSSAO;
 		
 		//allocate deferred rendering color buffers
-		if (!mDeferredScreen.allocate(resX, resY, GL_RGBA8, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		if (!mDeferredScreen.allocate(resX, resY, GL_SRGB8_ALPHA8, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!addDeferredAttachments(mDeferredScreen)) return false;
 		
-		if (!mScreen.allocate(resX, resY, GL_RGBA12, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		GLuint screenFormat = GL_RGBA16;
+		if (gGLManager.mIsATI)
+		{
+			screenFormat = GL_RGBA12;
+		}
+		
+		if (!mScreen.allocate(resX, resY, screenFormat, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (samples > 0)
 		{
 			if (!mFXAABuffer.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
@@ -1327,8 +1333,6 @@ void LLPipeline::createLUTBuffers()
 					// This is fine, given we only need to create our LUT once per buffer initialization.
 					spec *= (((n + 2) * (n + 4)) / (8 * F_PI * (powf(2, -n/2) + n)));
 					
-					spec = powf(spec, 0.6f);
-
 					// Since we use R16F, we no longer have a dynamic range issue we need to work around here.
 					// Though some older drivers may not like this, newer drivers shouldn't have this problem.
 					ls[y*lightResX+x] = spec;
@@ -7107,6 +7111,47 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	gGL.setColorMask(true, true);
 	glClearColor(0,0,0,0);
 		
+	if (sRenderDeferred)
+	{
+		mScreen.bindTarget();
+		// Apply gamma correction to the frame here.
+		gDeferredPostGammaCorrectProgram.bind();
+		//mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+		S32 channel = 0;
+		channel = gDeferredPostGammaCorrectProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
+		if (channel > -1)
+		{
+			mScreen.bindTexture(0,channel);
+			gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+		}
+		
+		gDeferredPostGammaCorrectProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mScreen.getWidth(), mScreen.getHeight());
+		
+		F32 gamma = 1.0;
+		if (!LLViewerCamera::getInstance()->cameraUnderWater())
+		{
+			gamma = 1.0/2.2;
+		}
+		
+		gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, gamma);
+		
+		gGL.begin(LLRender::TRIANGLE_STRIP);
+		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+		gGL.vertex2f(-1,-1);
+		
+		gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+		gGL.vertex2f(-1,3);
+		
+		gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+		gGL.vertex2f(3,-1);
+		
+		gGL.end();
+		
+		gGL.getTexUnit(channel)->unbind(mScreen.getUsage());
+		gDeferredPostGammaCorrectProgram.unbind();
+		mScreen.flush();
+	}
+	
 	{
 		{
 			LLFastTimer ftm(FTM_RENDER_BLOOM_FBO);
@@ -8267,6 +8312,10 @@ void LLPipeline::renderDeferredLighting()
 								continue;
 							}
 							
+							col.mV[0] = powf(col.mV[0], 2.2f);
+							col.mV[1] = powf(col.mV[1], 2.2f);
+							col.mV[2] = powf(col.mV[2], 2.2f);
+							
 							LLFastTimer ftm(FTM_LOCAL_LIGHTS);
 							gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);
@@ -8323,6 +8372,9 @@ void LLPipeline::renderDeferredLighting()
 					setupSpotLight(gDeferredSpotLightProgram, drawablep);
 					
 					LLColor3 col = volume->getLightColor();
+					col.mV[0] = powf(col.mV[0], 2.2f);
+					col.mV[1] = powf(col.mV[1], 2.2f);
+					col.mV[2] = powf(col.mV[2], 2.2f);
 					
 					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
 					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);
@@ -8372,6 +8424,10 @@ void LLPipeline::renderDeferredLighting()
 					col[count] = light_colors.front();
 					light_colors.pop_front();
 
+					col[count].mV[0] = powf(col[count].mV[0], 2.2f);
+					col[count].mV[1] = powf(col[count].mV[1], 2.2f);
+					col[count].mV[2] = powf(col[count].mV[2], 2.2f);
+					
 					far_z = llmin(light[count].mV[2]-sqrtf(light[count].mV[3]), far_z);
 					//col[count] = pow4fsrgb(col[count], 2.2f);
 					count++;
@@ -8414,6 +8470,10 @@ void LLPipeline::renderDeferredLighting()
 					setupSpotLight(gDeferredMultiSpotLightProgram, drawablep);
 
 					LLColor3 col = volume->getLightColor();
+					
+					col.mV[0] = powf(col.mV[0], 2.2f);
+					col.mV[1] = powf(col.mV[1], 2.2f);
+					col.mV[2] = powf(col.mV[2], 2.2f);
 					
 					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, tc.v);
 					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);

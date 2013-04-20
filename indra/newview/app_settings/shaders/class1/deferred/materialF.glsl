@@ -381,13 +381,11 @@ vec3 scaleSoftClip(vec3 light)
 }
 
 #else
-
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[3];
 #else
 #define frag_data gl_FragData
 #endif
-
 #endif
 
 uniform sampler2D diffuseMap;
@@ -632,5 +630,4 @@ void main()
 	frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.
 	frag_data[2] = final_normal; // XY = Normal.  Z = Env. intensity.
 #endif
-
 }

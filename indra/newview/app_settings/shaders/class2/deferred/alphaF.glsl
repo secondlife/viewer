@@ -238,5 +238,7 @@ void main()
 	LIGHT_LOOP(7)
 
 	color.rgb += diff.rgb * vary_pointlight_col * col.rgb;
+
 	frag_color = color;
 }
+

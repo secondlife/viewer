@@ -23,16 +23,6 @@
  * $/LicenseInfo$
  */
 
-vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
-void calcAtmospherics(vec3 inPositionEye);
-
-vec3 calcDirectionalLight(vec3 n, vec3 l);
-
-vec3 atmosAmbient(vec3 light);
-vec3 atmosAffectDirectionalLight(float lightIntensity);
-vec3 scaleDownLight(vec3 light);
-vec3 scaleUpLight(vec3 light);
-
 uniform mat3 normal_matrix;
 uniform mat4 texture_matrix0;
 uniform mat4 projection_matrix;
@@ -60,6 +50,16 @@ mat4 getObjectSkinnedTransform();
 mat4 getSkinnedTransform();
 #endif
 #endif
+
+vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
+void calcAtmospherics(vec3 inPositionEye);
+
+float calcDirectionalLight(vec3 n, vec3 l);
+
+vec3 atmosAmbient(vec3 light);
+vec3 atmosAffectDirectionalLight(float lightIntensity);
+vec3 scaleDownLight(vec3 light);
+vec3 scaleUpLight(vec3 light);
 
 VARYING vec3 vary_ambient;
 VARYING vec3 vary_directional;

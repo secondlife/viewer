@@ -177,7 +177,6 @@ void main()
 #ifndef USE_VERTEX_COLOR
 	vec4 diffuse_color = vec4(1,1,1,1);
 #endif
-
 	//vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.));
 	vec4 col = vec4(0.0, 0.0, 0.0, diffuse_color.a);
 	

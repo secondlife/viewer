@@ -275,6 +275,14 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gUnderWaterProgram);
 	mShaderList.push_back(&gDeferredSunProgram);
 	mShaderList.push_back(&gDeferredSoftenProgram);
+	mShaderList.push_back(&gDeferredMaterialProgram[1]);
+	mShaderList.push_back(&gDeferredMaterialProgram[5]);
+	mShaderList.push_back(&gDeferredMaterialProgram[9]);
+	mShaderList.push_back(&gDeferredMaterialProgram[13]);
+	mShaderList.push_back(&gDeferredMaterialProgram[1+LLMaterial::SHADER_COUNT]);
+	mShaderList.push_back(&gDeferredMaterialProgram[5+LLMaterial::SHADER_COUNT]);
+	mShaderList.push_back(&gDeferredMaterialProgram[9+LLMaterial::SHADER_COUNT]);
+	mShaderList.push_back(&gDeferredMaterialProgram[13+LLMaterial::SHADER_COUNT]);	
 	mShaderList.push_back(&gDeferredAlphaProgram);
 	mShaderList.push_back(&gDeferredSkinnedAlphaProgram);
 	mShaderList.push_back(&gDeferredFullbrightProgram);
@@ -1107,6 +1115,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredPostProgram.unload();		
 		gDeferredCoFProgram.unload();		
 		gDeferredDoFCombineProgram.unload();
+		gDeferredPostGammaCorrectProgram.unload();
 		gFXAAProgram.unload();
 		gDeferredWaterProgram.unload();
 		gDeferredWLSkyProgram.unload();
@@ -1596,14 +1605,27 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarAlphaProgram.mFeatures.isAlphaLighting = true;
 		gDeferredAvatarAlphaProgram.mFeatures.disableTextureIndex = true;
 		gDeferredAvatarAlphaProgram.mShaderFiles.clear();
-		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/avatarAlphaNoColorV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaNonIndexedNoColorF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredAvatarAlphaProgram.addPermutation("USE_DIFFUSE_TEX", "1");
+		gDeferredAvatarAlphaProgram.addPermutation("USE_VERTEX_COLOR", "1");
+		gDeferredAvatarAlphaProgram.addPermutation("IS_AVATAR_SKIN", "1");
 		gDeferredAvatarAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 
 		success = gDeferredAvatarAlphaProgram.createShader(NULL, &mAvatarUniforms);
 
 		gDeferredAvatarAlphaProgram.mFeatures.calculatesLighting = true;
 		gDeferredAvatarAlphaProgram.mFeatures.hasLighting = true;
+	}
+
+	if (success)
+	{
+		gDeferredPostGammaCorrectProgram.mName = "Deferred Gamma Correction Post Process";
+		gDeferredPostGammaCorrectProgram.mShaderFiles.clear();
+		gDeferredPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredGammaCorrect.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredPostGammaCorrectProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		success = gDeferredPostGammaCorrectProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
