@@ -50,7 +50,7 @@ ATTRIBUTE vec2 texcoord0;
 #ifdef HAS_SKIN
 mat4 getObjectSkinnedTransform();
 #else
-ifdef IS_AVATAR_SKIN
+#ifdef IS_AVATAR_SKIN
 mat4 getSkinnedTransform();
 #endif
 #endif

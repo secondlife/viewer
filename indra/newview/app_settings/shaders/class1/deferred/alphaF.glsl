@@ -106,9 +106,7 @@ void main()
 	
 #ifdef USE_INDEXED_TEX
 	vec4 diff = diffuseLookup(vary_texcoord0.xy);
-#endif
-
-#ifdef USE_DIFFUSE_TEX
+#else
 	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
 
