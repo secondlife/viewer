@@ -10040,7 +10040,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			{
 				static LLCullResult result[4];
 
-				//LLGLEnable enable(GL_DEPTH_CLAMP_NV);
 				renderShadow(view[j], proj[j], shadow_cam, result[j], TRUE, TRUE, target_width);
 			}
 
