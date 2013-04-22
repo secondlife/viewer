@@ -129,11 +129,11 @@ void LLFolderViewModelItemInventory::requestSort()
 
 void LLFolderViewModelItemInventory::setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset, std::string::size_type string_size)
 {
-	bool before = passedFilter();
 	LLFolderViewModelItemCommon::setPassedFilter(passed, filter_generation, string_offset, string_size);
-	bool after = passedFilter();
+	bool before = mPrevPassedAllFilters;
+	mPrevPassedAllFilters = passedFilter(filter_generation);
 
-    if (before != after)
+    if (before != mPrevPassedAllFilters)
 	{
         // Need to rearrange the folder if the filtered state of the item changed
 		LLFolderViewFolder* parent_folder = mFolderViewItem->getParentFolder();
@@ -316,7 +316,8 @@ bool LLInventorySort::operator()(const LLFolderViewModelItemInventory* const& a,
 	}
 }
 
-LLFolderViewModelItemInventory::LLFolderViewModelItemInventory( class LLFolderViewModelInventory& root_view_model ) 
-	:	LLFolderViewModelItemCommon(root_view_model)
+LLFolderViewModelItemInventory::LLFolderViewModelItemInventory( class LLFolderViewModelInventory& root_view_model ) :
+    LLFolderViewModelItemCommon(root_view_model),
+    mPrevPassedAllFilters(false)
 {
 }
