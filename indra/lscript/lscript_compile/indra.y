@@ -2,8 +2,10 @@
 	#include "linden_common.h"
 	#include "lscript_tree.h"
 
-    #ifdef __cplusplus
+    #if !LL_DARWIN
+    #ifdef __cplusplus 
     extern "C" {
+    #endif
     #endif
 
 	int yylex(void);
@@ -20,8 +22,10 @@
 	#pragma warning( disable : 4065 )	// warning: switch statement contains 'default' but no 'case' labels
 	#endif
 
+    #if !LL_DARWIN
     #ifdef __cplusplus
     }
+    #endif
     #endif
 %}
 
