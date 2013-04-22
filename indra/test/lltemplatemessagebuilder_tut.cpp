@@ -963,7 +963,6 @@ namespace tut
 		memset(buffer, 0xcc, bufferSize);
 		reader->getString(_PREHASH_Test1, _PREHASH_Test0, bufferSize, 
 						  outBuffer);
-		(void)outValue2;
 		ensure_equals("Ensure present value ", outValue, inValue);
 		ensure_equals("Ensure unchanged buffer ", strlen(outBuffer), 0);
 		delete reader;
