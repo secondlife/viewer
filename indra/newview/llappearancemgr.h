@@ -49,7 +49,8 @@ class LLAppearanceMgr: public LLSingleton<LLAppearanceMgr>
 public:
 	typedef std::vector<LLInventoryModel::item_array_t> wearables_by_type_t;
 
-	void updateAppearanceFromCOF(bool update_base_outfit_ordering = false);
+	void updateAppearanceFromCOF(bool update_base_outfit_ordering = false,
+								 bool enforce_item_restrictions = true);
 	bool needToSaveCOF();
 	void updateCOF(const LLUUID& category, bool append = false);
 	void wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append);
@@ -65,7 +66,8 @@ public:
 								   LLAssetType::EType type,
 								   S32 max_items,
 								   LLInventoryModel::item_array_t& items_to_kill);
-	void enforceItemRestrictions();
+	void findAllExcessOrDuplicateItems(const LLUUID& cat_id,
+									  LLInventoryModel::item_array_t& items_to_kill);
 
 	// Copy all items and the src category itself.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
@@ -128,6 +130,10 @@ public:
 	void linkAll(const LLUUID& category,
 				 LLInventoryModel::item_array_t& items,
 				 LLPointer<LLInventoryCallback> cb);
+
+	// And bulk removal.
+	void removeAll(LLInventoryModel::item_array_t& items,
+				   LLPointer<LLInventoryCallback> cb);
 
 	// Add COF link to individual item.
 	void addCOFItemLink(const LLUUID& item_id, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL, const std::string description = "");
@@ -220,7 +226,8 @@ private:
 								   LLInventoryModel::item_array_t& obj_items,
 								   LLInventoryModel::item_array_t& gest_items);
 
-	void purgeCategory(const LLUUID& category, bool keep_outfit_links, LLPointer<LLInventoryCallback> cb);
+	void removeCategoryContents(const LLUUID& category, bool keep_outfit_links,
+								LLPointer<LLInventoryCallback> cb);
 	static void onOutfitRename(const LLSD& notification, const LLSD& response);
 
 	void setOutfitLocked(bool locked);
@@ -254,13 +261,15 @@ public:
 class LLUpdateAppearanceOnDestroy: public LLInventoryCallback
 {
 public:
-	LLUpdateAppearanceOnDestroy(bool update_base_outfit_ordering = false);
+	LLUpdateAppearanceOnDestroy(bool update_base_outfit_ordering = false,
+								bool enforce_item_restrictions = true);
 	virtual ~LLUpdateAppearanceOnDestroy();
 	/* virtual */ void fire(const LLUUID& inv_item);
 
 private:
 	U32 mFireCount;
 	bool mUpdateBaseOrder;
+	bool mEnforceItemRestrictions;
 };
 
 
