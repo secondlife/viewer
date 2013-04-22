@@ -106,11 +106,13 @@ void main()
 	
 #ifdef USE_INDEXED_TEX
 	vec4 diff = diffuseLookup(vary_texcoord0.xy);
-#else
+#endif
+
+#ifdef USE_DIFFUSE_TEX
 	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
 
-	diff.rgb = pow(diff.rgb, vec3(2.2));
+	diff.rgb = pow(diff.rgb, vec3(2.2f, 2.2f, 2.2f));
 
 #ifdef USE_VERTEX_COLOR
 	float vertex_color_alpha = vertex_color.a;	
