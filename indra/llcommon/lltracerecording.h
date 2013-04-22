@@ -254,6 +254,8 @@ namespace LLTrace
 		void nextPeriod();
 		U32 getNumPeriods() { return mRecordingPeriods.size(); }
 
+		void appendPeriodicRecording(PeriodicRecording& other);
+
 		Recording& getLastRecording()
 		{
 			U32 num_periods = mRecordingPeriods.size();
@@ -424,6 +426,7 @@ namespace LLTrace
 		void extend();
 
 		Recording& getAcceptedRecording() { return mAcceptedRecording; }
+		const Recording& getAcceptedRecording() const {return mAcceptedRecording;}
 
 		// implementation for LLStopWatchControlsMixin
 		/*virtual*/ void start();
@@ -435,10 +438,33 @@ namespace LLTrace
 		/*virtual*/ void splitTo(ExtendableRecording& other);
 		/*virtual*/ void splitFrom(ExtendableRecording& other);
 
-		const Recording& getAcceptedRecording() const {return mAcceptedRecording;}
 	private:
 		Recording mAcceptedRecording;
 		Recording mPotentialRecording;
+	};
+
+	class ExtendablePeriodicRecording
+	:	public LLStopWatchControlsMixin<ExtendablePeriodicRecording>
+	{
+	public:
+		void extend();
+
+		PeriodicRecording& getAcceptedRecording() { return mAcceptedRecording; }
+		const PeriodicRecording& getAcceptedRecording() const {return mAcceptedRecording;}
+
+		// implementation for LLStopWatchControlsMixin
+		/*virtual*/ void start();
+		/*virtual*/ void stop();
+		/*virtual*/ void pause();
+		/*virtual*/ void resume();
+		/*virtual*/ void restart();
+		/*virtual*/ void reset();
+		/*virtual*/ void splitTo(ExtendablePeriodicRecording& other);
+		/*virtual*/ void splitFrom(ExtendablePeriodicRecording& other);
+
+	private:
+		PeriodicRecording mAcceptedRecording;
+		PeriodicRecording mPotentialRecording;
 	};
 }
 

@@ -396,6 +396,76 @@ void PeriodicRecording::nextPeriod()
 	}
 }
 
+
+void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
+{
+	if (other.mRecordingPeriods.size() < 2) return;
+
+	EPlayState play_state = getPlayState();
+	pause();
+
+	EPlayState other_play_state = other.getPlayState();
+	other.pause();
+
+	if (mAutoResize)
+	{
+		// copy everything after current period of other recording to end of buffer
+		// this will only apply if other recording is using a fixed circular buffer
+		if (other.mCurPeriod < other.mRecordingPeriods.size() - 1)
+		{
+			std::copy(	other.mRecordingPeriods.begin() + other.mCurPeriod + 1,
+						other.mRecordingPeriods.end(),
+						std::back_inserter(mRecordingPeriods));
+		}
+
+		// copy everything from beginning of other recording's buffer up to, but not including
+		// current period
+		std::copy(	other.mRecordingPeriods.begin(),
+					other.mRecordingPeriods.begin() + other.mCurPeriod,
+					std::back_inserter(mRecordingPeriods));
+
+		mCurPeriod = mRecordingPeriods.size() - 1;
+	}
+	else
+	{
+		size_t num_to_copy = llmin(	mRecordingPeriods.size(), other.mRecordingPeriods.size() );
+		std::vector<Recording>::iterator src_it = other.mRecordingPeriods.begin() 
+													+ (	(other.mCurPeriod + 1)									// cur period
+															+ (other.mRecordingPeriods.size() - num_to_copy)	// minus room for copy
+														% other.mRecordingPeriods.size());
+		std::vector<Recording>::iterator dest_it = mRecordingPeriods.begin() + ((mCurPeriod + 1) % mRecordingPeriods.size());
+
+		for(S32 i = 0; i < num_to_copy; i++)
+		{
+			*dest_it = *src_it;
+
+			if (++src_it == other.mRecordingPeriods.end())
+			{
+				src_it = other.mRecordingPeriods.begin();
+			}
+
+			if (++dest_it == mRecordingPeriods.end())
+			{
+				dest_it = mRecordingPeriods.begin();
+			}
+		}
+		
+		mCurPeriod = (mCurPeriod + num_to_copy) % mRecordingPeriods.size();
+	}
+
+	// if copying from periodic recording that wasn't active advance our period to the next available one
+	// otherwise continue recording on top of the last period of data received from the other recording
+	if (other_play_state != STARTED)
+	{
+		nextPeriod();
+	}
+
+	setPlayState(play_state);
+	other.setPlayState(other_play_state);
+}
+
+
+
 void PeriodicRecording::start()
 {
 	getCurRecording().start();
@@ -500,6 +570,72 @@ void ExtendableRecording::splitTo(ExtendableRecording& other)
 void ExtendableRecording::splitFrom(ExtendableRecording& other)
 {
 	LLStopWatchControlsMixin<ExtendableRecording>::splitFrom(other);
+	mPotentialRecording.splitFrom(other.mPotentialRecording);
+}
+
+///////////////////////////////////////////////////////////////////////
+// ExtendablePeriodicRecording
+///////////////////////////////////////////////////////////////////////
+
+void ExtendablePeriodicRecording::extend()
+{
+	// stop recording to get latest data
+	mPotentialRecording.stop();
+	// push the data back to accepted recording
+	mAcceptedRecording.appendPeriodicRecording(mPotentialRecording);
+	// flush data, so we can start from scratch
+	mPotentialRecording.reset();
+	// go back to play state we were in initially
+	mPotentialRecording.setPlayState(getPlayState());
+}
+
+void ExtendablePeriodicRecording::start()
+{
+	LLStopWatchControlsMixin<ExtendablePeriodicRecording>::start();
+	mPotentialRecording.start();
+}
+
+void ExtendablePeriodicRecording::stop()
+{
+	LLStopWatchControlsMixin<ExtendablePeriodicRecording>::stop();
+	mPotentialRecording.stop();
+}
+
+void ExtendablePeriodicRecording::pause()
+{
+	LLStopWatchControlsMixin<ExtendablePeriodicRecording>::pause();
+	mPotentialRecording.pause();
+}
+
+void ExtendablePeriodicRecording::resume()
+{
+	LLStopWatchControlsMixin<ExtendablePeriodicRecording>::resume();
+	mPotentialRecording.resume();
+}
+
+void ExtendablePeriodicRecording::restart()
+{
+	LLStopWatchControlsMixin<ExtendablePeriodicRecording>::restart();
+	mAcceptedRecording.reset();
+	mPotentialRecording.restart();
+}
+
+void ExtendablePeriodicRecording::reset()
+{
+	LLStopWatchControlsMixin<ExtendablePeriodicRecording>::reset();
+	mAcceptedRecording.reset();
+	mPotentialRecording.reset();
+}
+
+void ExtendablePeriodicRecording::splitTo(ExtendablePeriodicRecording& other)
+{
+	LLStopWatchControlsMixin<ExtendablePeriodicRecording>::splitTo(other);
+	mPotentialRecording.splitTo(other.mPotentialRecording);
+}
+
+void ExtendablePeriodicRecording::splitFrom(ExtendablePeriodicRecording& other)
+{
+	LLStopWatchControlsMixin<ExtendablePeriodicRecording>::splitFrom(other);
 	mPotentialRecording.splitFrom(other.mPotentialRecording);
 }
 

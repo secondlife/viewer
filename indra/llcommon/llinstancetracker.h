@@ -67,6 +67,7 @@ protected:
 /// The (optional) key associates a value of type KEY with a given instance of T, for quick lookup
 /// If KEY is not provided, then instances are stored in a simple set
 /// @NOTE: see explicit specialization below for default KEY==void case
+/// @NOTE: this class is not thread-safe unless used as read-only
 template<typename T, typename KEY = void>
 class LLInstanceTracker : public LLInstanceTrackerBase
 {
@@ -120,13 +121,13 @@ public:
 		typedef boost::iterator_facade<key_iter, KEY, boost::forward_traversal_tag> super_t;
 
 		key_iter(typename InstanceMap::iterator it)
-			:	mIterator(it)
+		:	mIterator(it)
 		{
 			getStatic().incrementDepth();
 		}
 
 		key_iter(const key_iter& other)
-			:	mIterator(other.mIterator)
+		:	mIterator(other.mIterator)
 		{
 			getStatic().incrementDepth();
 		}
@@ -171,7 +172,10 @@ public:
 		return instance_iter(getMap_().end());
 	}
 
-	static S32 instanceCount() { return getMap_().size(); }
+	static S32 instanceCount() 
+	{ 
+		return getMap_().size(); 
+	}
 
 	static key_iter beginKeys()
 	{
