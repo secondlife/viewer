@@ -386,6 +386,10 @@ void LLConversationItemSession::buildContextMenu(LLMenuGL& menu, U32 flags)
         addVoiceOptions(items);
         items.push_back(std::string("chat_history"));
     }
+    else if(this->getType() == CONV_SESSION_NEARBY)
+    {
+        items.push_back(std::string("chat_history"));
+    }
 
     hide_context_entries(menu, items, disabled_items);
 }

@@ -1164,7 +1164,7 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         }
         else if("chat_history" == command)
         {
-			if (selectedIDS.size() > 0)
+        	if (selectedIDS.size() > 0)
 			{
 				LLAvatarActions::viewChatHistory(selectedIDS.front());
 			}
@@ -1176,6 +1176,17 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         		doToParticipants(command, selectedIDS);
         	}
         }
+    }
+    //if there is no LLFloaterIMSession* instance for selected conversation it might be Nearby chat
+    else
+    {
+    	if(conversationItem->getType() == LLConversationItem::CONV_SESSION_NEARBY)
+    	{
+    		if("chat_history" == command)
+    	    {
+    	      	LLFloaterReg::showInstance("preview_conversation", LLSD(LLUUID::null), true);
+    	    }
+    	}
     }
 }
 
@@ -1232,8 +1243,19 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 	//Enable Chat history item for ad-hoc and group conversations
 	if ("can_chat_history" == item && uuids.size() > 0)
 	{
-		bool is_group = (getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_GROUP);
-		return LLLogChat::isTranscriptExist(uuids.front(),is_group);
+		//Disable menu item if selected participant is user agent
+		if(uuids.front() != gAgentID)
+		{
+			if (getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_NEARBY)
+			{
+				return LLLogChat::isNearbyTranscriptExist();
+			}
+			else
+			{
+				bool is_group = (getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_GROUP);
+				return LLLogChat::isTranscriptExist(uuids.front(),is_group);
+			}
+		}
 	}
 
 	// If nothing is selected(and selected item is not group chat), everything needs to be disabled
@@ -1944,6 +1966,17 @@ void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id,
 	if (widget)
 	{
 		widget->setFlashState(is_flashes);
+	}
+}
+
+void LLFloaterIMContainer::highlightConversationItemWidget(const LLUUID& session_id, bool is_highlighted)
+{
+	//Finds the conversation line item to highlight using the session_id
+	LLConversationViewSession * widget = dynamic_cast<LLConversationViewSession *>(get_ptr_in_map(mConversationsWidgets,session_id));
+
+	if (widget)
+	{
+		widget->setHighlightState(is_highlighted);
 	}
 }
 

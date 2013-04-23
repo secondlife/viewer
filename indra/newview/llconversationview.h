@@ -86,6 +86,7 @@ public:
 	virtual void refresh();
 
 	/*virtual*/ void setFlashState(bool flash_state);
+	void setHighlightState(bool hihglight_state);
 
 	LLFloater* getSessionFloater();
 

@@ -118,6 +118,13 @@ void LLConversationViewSession::setFlashState(bool flash_state)
 	mFlashTimer->stopFlashing();
 }
 
+void LLConversationViewSession::setHighlightState(bool hihglight_state)
+{
+	mFlashStateOn = hihglight_state;
+	mFlashStarted = true;
+	mFlashTimer->stopFlashing();
+}
+
 void LLConversationViewSession::startFlashing()
 {
 	if (isInVisibleChain() && mFlashStateOn && !mFlashStarted)
