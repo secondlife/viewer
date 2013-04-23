@@ -53,6 +53,9 @@ add_executable(SLPlugin
 set_target_properties(SLPlugin
   PROPERTIES
   MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/slplugin_info.plist
+if (WINDOWS)
+  LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMTD\""
+endif (WINDOWS)
   )
 
 target_link_libraries(SLPlugin
