@@ -167,8 +167,10 @@ public:
 	virtual void dump();	// debug info to llinfos
 	
 	/*virtual*/ bool bindDefaultImage(const S32 stage = 0) ;
+	/*virtual*/ bool bindDebugImage(const S32 stage = 0) ;
 	/*virtual*/ void forceImmediateUpdate() ;
-	
+	/*virtual*/ bool isActiveFetching();
+
 	const LLUUID& getID() const { return mID; }
 	
 	void setBoostLevel(S32 level);
@@ -506,6 +508,9 @@ public:
 	void        loadFromFastCache();
 	void        setInFastCacheList(bool in_list) { mInFastCacheList = in_list; }
 	bool        isInFastCacheList() { return mInFastCacheList; }
+
+	/*virtual*/bool  isActiveFetching(); //is actively in fetching by the fetching pipeline.
+
 protected:
 	/*virtual*/ void switchToCachedImage();
 	S32 getCurrentDiscardLevelForFetching() ;
