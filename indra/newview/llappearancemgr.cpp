@@ -421,86 +421,6 @@ public:
 	}
 };
 
-class LLCallAfterInventoryLinkMgr: public LLCallAfterInventoryBatchMgr
-{
-public:
-	LLCallAfterInventoryLinkMgr(LLInventoryModel::item_array_t& src_items,
-								const LLUUID& dst_cat_id,
-								const std::string& phase_name,
-								nullary_func_t on_completion_func,
-								nullary_func_t on_failure_func = no_op,
-								 F32 retry_after = DEFAULT_RETRY_AFTER_INTERVAL,
-								 S32 max_retries = DEFAULT_MAX_RETRIES
-		):
-		LLCallAfterInventoryBatchMgr(dst_cat_id, phase_name, on_completion_func, on_failure_func, retry_after, max_retries)
-	{
-		addItems(src_items);
-	}
-	
-	virtual bool requestOperation(const LLUUID& item_id)
-	{
-		bool request_sent = false;
-		LLViewerInventoryItem *item = gInventory.getItem(item_id);
-		if (item)
-		{
-			if (item->getParentUUID() == mDstCatID)
-			{
-				LL_DEBUGS("Avatar") << "item " << item_id << " name " << item->getName() << " is already a child of " << mDstCatID << llendl;
-				return false;
-			}
-			LL_DEBUGS("Avatar") << "linking item " << item_id << " name " << item->getName() << " to " << mDstCatID << llendl;
-			// create an inventory item link.
-			if (ll_frand() < gSavedSettings.getF32("InventoryDebugSimulateOpFailureRate"))
-			{
-				LL_DEBUGS("Avatar") << "simulating failure by not sending request for item " << item_id << llendl;
-				return true;
-			}
-			link_inventory_item(gAgent.getID(),
-								item->getLinkedUUID(),
-								mDstCatID,
-								item->getName(),
-								item->getActualDescription(),
-								LLAssetType::AT_LINK,
-								new LLBoostFuncInventoryCallback(
-									boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item_id,_1,LLTimer())));
-			return true;
-		}
-		else
-		{
-			// create a base outfit link if appropriate.
-			LLViewerInventoryCategory *catp = gInventory.getCategory(item_id);
-			if (!catp)
-			{
-				llwarns << "link request failed, id not found as inventory item or category " << item_id << llendl;
-				return false;
-			}
-			const LLUUID cof = LLAppearanceMgr::instance().getCOF();
-			std::string new_outfit_name = "";
-
-			LLAppearanceMgr::instance().purgeBaseOutfitLink(cof);
-
-			if (catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
-			{
-				if (ll_frand() < gSavedSettings.getF32("InventoryDebugSimulateOpFailureRate"))
-				{
-					LL_DEBUGS("Avatar") << "simulating failure by not sending request for item " << item_id << llendl;
-					return true;
-				}
-				LL_DEBUGS("Avatar") << "linking folder " << item_id << " name " << catp->getName() << " to cof " << cof << llendl;
-				link_inventory_item(gAgent.getID(), item_id, cof, catp->getName(), "",
-									LLAssetType::AT_LINK_FOLDER, 
-									new LLBoostFuncInventoryCallback(
-										boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item_id,_1,LLTimer())));
-				new_outfit_name = catp->getName();
-				request_sent = true;
-			}
-	
-			LLAppearanceMgr::instance().updatePanelOutfitName(new_outfit_name);
-		}
-		return request_sent;
-	}
-};
-
 LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy(bool update_base_outfit_ordering,
 														 bool enforce_item_restrictions):
 	mFireCount(0),
@@ -532,6 +452,32 @@ void LLUpdateAppearanceOnDestroy::fire(const LLUUID& inv_item)
 #endif
 	mFireCount++;
 }
+
+LLUpdateAppearanceAndEditWearableOnDestroy::LLUpdateAppearanceAndEditWearableOnDestroy(const LLUUID& item_id):
+	mItemID(item_id)
+{
+}
+
+LLUpdateAppearanceAndEditWearableOnDestroy::~LLUpdateAppearanceAndEditWearableOnDestroy()
+{
+	LLAppearanceMgr::instance().updateAppearanceFromCOF();
+	
+	// Start editing the item if previously requested.
+	gAgentWearables.editWearableIfRequested(mItemID);
+	
+	// TODO: camera mode may not be changed if a debug setting is tweaked
+	if( gAgentCamera.cameraCustomizeAvatar() )
+	{
+		// If we're in appearance editing mode, the current tab may need to be refreshed
+		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(
+			LLFloaterSidePanelContainer::getPanel("appearance"));
+		if (panel)
+		{
+			panel->showDefaultSubpart();
+		}
+	}
+}
+
 
 struct LLFoundData
 {
@@ -1272,8 +1218,12 @@ void wear_on_avatar_cb(const LLUUID& inv_item, bool do_replace = false)
 	}
 }
 
-bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_update, bool replace, LLPointer<LLInventoryCallback> cb)
+bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear,
+									   bool do_update,
+									   bool replace,
+									   LLPointer<LLInventoryCallback> cb)
 {
+
 	if (item_id_to_wear.isNull()) return false;
 
 	// *TODO: issue with multi-wearable should be fixed:
@@ -1320,7 +1270,11 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 			{
 				removeCOFItemLinks(gAgentWearables.getWearableItemID(item_to_wear->getWearableType(), wearable_count-1));
 			}
-			addCOFItemLink(item_to_wear, do_update, cb);
+			if (!cb && do_update)
+			{
+				cb = new LLUpdateAppearanceAndEditWearableOnDestroy(item_id_to_wear);
+			}
+			addCOFItemLink(item_to_wear, cb);
 		} 
 		break;
 	case LLAssetType::AT_BODYPART:
@@ -1329,8 +1283,11 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 		// Remove the existing wearables of the same type.
 		// Remove existing body parts anyway because we must not be able to wear e.g. two skins.
 		removeCOFLinksOfType(item_to_wear->getWearableType());
-
-		addCOFItemLink(item_to_wear, do_update, cb);
+		if (!cb && do_update)
+		{
+			cb = new LLUpdateAppearanceAndEditWearableOnDestroy(item_id_to_wear);
+		}
+		addCOFItemLink(item_to_wear, cb);
 		break;
 	case LLAssetType::AT_OBJECT:
 		rez_attachment(item_to_wear, NULL, replace);
@@ -1640,7 +1597,7 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 	return items.size() > 0;
 }
 
-void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category)
+void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> cb)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
@@ -1656,7 +1613,7 @@ void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category)
 			LLViewerInventoryCategory* catp = item->getLinkedCategory();
 			if(catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
 			{
-				gInventory.purgeObject(item->getUUID());
+				remove_inventory_item(item->getUUID(), cb);
 			}
 		}
 	}
@@ -1843,7 +1800,7 @@ void LLAppearanceMgr::createBaseOutfitLink(const LLUUID& category, LLPointer<LLI
 	LLViewerInventoryCategory* catp = gInventory.getCategory(category);
 	std::string new_outfit_name = "";
 
-	purgeBaseOutfitLink(cof);
+	purgeBaseOutfitLink(cof, link_waiter);
 
 	if (catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
 	{
@@ -2339,9 +2296,8 @@ bool areMatchingWearables(const LLViewerInventoryItem *a, const LLViewerInventor
 class LLDeferredCOFLinkObserver: public LLInventoryObserver
 {
 public:
-	LLDeferredCOFLinkObserver(const LLUUID& item_id, bool do_update, LLPointer<LLInventoryCallback> cb = NULL, std::string description = ""):
+	LLDeferredCOFLinkObserver(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb = NULL, std::string description = ""):
 		mItemID(item_id),
-		mDoUpdate(do_update),
 		mCallback(cb),
 		mDescription(description)
 	{
@@ -2357,14 +2313,13 @@ public:
 		if (item)
 		{
 			gInventory.removeObserver(this);
-			LLAppearanceMgr::instance().addCOFItemLink(item,mDoUpdate,mCallback);
+			LLAppearanceMgr::instance().addCOFItemLink(item, mCallback);
 			delete this;
 		}
 	}
 
 private:
 	const LLUUID mItemID;
-	bool mDoUpdate;
 	std::string mDescription;
 	LLPointer<LLInventoryCallback> mCallback;
 };
@@ -2372,42 +2327,26 @@ private:
 
 // BAP - note that this runs asynchronously if the item is not already loaded from inventory.
 // Dangerous if caller assumes link will exist after calling the function.
-void LLAppearanceMgr::addCOFItemLink(const LLUUID &item_id, bool do_update, LLPointer<LLInventoryCallback> cb, const std::string description)
+void LLAppearanceMgr::addCOFItemLink(const LLUUID &item_id,
+									 LLPointer<LLInventoryCallback> cb,
+									 const std::string description)
 {
 	const LLInventoryItem *item = gInventory.getItem(item_id);
 	if (!item)
 	{
-		LLDeferredCOFLinkObserver *observer = new LLDeferredCOFLinkObserver(item_id, do_update, cb, description);
+		LLDeferredCOFLinkObserver *observer = new LLDeferredCOFLinkObserver(item_id, cb, description);
 		gInventory.addObserver(observer);
 	}
 	else
 	{
-		addCOFItemLink(item, do_update, cb, description);
+		addCOFItemLink(item, cb, description);
 	}
 }
 
-void modified_cof_cb(const LLUUID& inv_item)
-{
-	LLAppearanceMgr::instance().updateAppearanceFromCOF();
-
-	// Start editing the item if previously requested.
-	gAgentWearables.editWearableIfRequested(inv_item);
-
-	// TODO: camera mode may not be changed if a debug setting is tweaked
-	if( gAgentCamera.cameraCustomizeAvatar() )
-	{
-		// If we're in appearance editing mode, the current tab may need to be refreshed
-		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
-		if (panel)
-		{
-			panel->showDefaultSubpart();
-		}
-	}
-}
-
-void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item, bool do_update, LLPointer<LLInventoryCallback> cb, const std::string description)
+void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item,
+									 LLPointer<LLInventoryCallback> cb,
+									 const std::string description)
 {		
-	std::string link_description = description;
 	const LLViewerInventoryItem *vitem = dynamic_cast<const LLViewerInventoryItem*>(item);
 	if (!vitem)
 	{
@@ -2447,30 +2386,19 @@ void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item, bool do_update
 			++count;
 			if (is_body_part && inv_item->getIsLinkType()  && (vitem->getWearableType() == wearable_type))
 			{
-				gInventory.purgeObject(inv_item->getUUID());
+				remove_inventory_item(inv_item->getUUID(), cb);
 			}
 			else if (count >= LLAgentWearables::MAX_CLOTHING_PER_TYPE)
 			{
 				// MULTI-WEARABLES: make sure we don't go over MAX_CLOTHING_PER_TYPE
-				gInventory.purgeObject(inv_item->getUUID());
+				remove_inventory_item(inv_item->getUUID(), cb);
 			}
 		}
 	}
 
-	if (linked_already)
+	if (!linked_already)
 	{
-		if (do_update)
-		{	
-			LLAppearanceMgr::updateAppearanceFromCOF();
-		}
-		return;
-	}
-	else
-	{
-		if(do_update && cb.isNull())
-		{
-			cb = new LLBoostFuncInventoryCallback(modified_cof_cb);
-		}
+		std::string link_description = description;
 		if (vitem->getIsLinkType())
 		{
 			link_description = vitem->getActualDescription();
@@ -2483,7 +2411,6 @@ void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item, bool do_update
 							 LLAssetType::AT_LINK,
 							 cb);
 	}
-	return;
 }
 
 LLInventoryModel::item_array_t LLAppearanceMgr::findCOFItemLinks(const LLUUID& item_id)
@@ -2567,7 +2494,7 @@ void LLAppearanceMgr::removeAllAttachmentsFromAvatar()
 	removeItemsFromAvatar(ids_to_remove);
 }
 
-void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id)
+void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb)
 {
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
@@ -2582,12 +2509,12 @@ void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id)
 		const LLInventoryItem* item = item_array.get(i).get();
 		if (item->getIsLinkType() && item->getLinkedUUID() == item_id)
 		{
-			gInventory.purgeObject(item->getUUID());
+			remove_inventory_item(item->getUUID(), cb);
 		}
 	}
 }
 
-void LLAppearanceMgr::removeCOFLinksOfType(LLWearableType::EType type)
+void LLAppearanceMgr::removeCOFLinksOfType(LLWearableType::EType type, LLPointer<LLInventoryCallback> cb)
 {
 	LLFindWearablesOfType filter_wearables_of_type(type);
 	LLInventoryModel::cat_array_t cats;
@@ -2600,7 +2527,7 @@ void LLAppearanceMgr::removeCOFLinksOfType(LLWearableType::EType type)
 		const LLViewerInventoryItem* item = *it;
 		if (item->getIsLinkType()) // we must operate on links only
 		{
-			gInventory.purgeObject(item->getUUID());
+			remove_inventory_item(item->getUUID(), cb);
 		}
 	}
 }
@@ -3550,7 +3477,7 @@ void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 		   // we have to pass do_update = true to call LLAppearanceMgr::updateAppearanceFromCOF.
 		   // it will trigger gAgentWariables.notifyLoadingFinished()
 		   // But it is not acceptable solution. See EXT-7777
-		   LLAppearanceMgr::addCOFItemLink(item_id, false);  // Add COF link for item.
+		   LLAppearanceMgr::addCOFItemLink(item_id);  // Add COF link for item.
 	   }
 	   else
 	   {
@@ -3586,8 +3513,8 @@ bool LLAppearanceMgr::isLinkInCOF(const LLUUID& obj_id)
 	 gInventory.collectDescendentsIf(LLAppearanceMgr::instance().getCOF(),
 									 cats,
 									 items,
-	 LLInventoryModel::EXCLUDE_TRASH,
-	 find_links);
+									 LLInventoryModel::EXCLUDE_TRASH,
+									 find_links);
 
 	 return !items.empty();
 }

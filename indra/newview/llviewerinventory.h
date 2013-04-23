@@ -274,7 +274,7 @@ class LLBoostFuncInventoryCallback: public LLInventoryCallback
 {
 public:
 
-	LLBoostFuncInventoryCallback(inventory_func_type fire_func,
+	LLBoostFuncInventoryCallback(inventory_func_type fire_func = no_op_inventory_func,
 								 nullary_func_type destroy_func = no_op):
 		mFireFunc(fire_func),
 		mDestroyFunc(destroy_func)

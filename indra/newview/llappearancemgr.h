@@ -107,12 +107,13 @@ public:
 	const LLUUID getBaseOutfitUUID();
 
 	// Wear/attach an item (from a user's inventory) on the agent
-	bool wearItemOnAvatar(const LLUUID& item_to_wear, bool do_update = true, bool replace = false, LLPointer<LLInventoryCallback> cb = NULL);
+	bool wearItemOnAvatar(const LLUUID& item_to_wear, bool do_update, bool replace = false,
+						  LLPointer<LLInventoryCallback> cb = NULL);
 
 	// Update the displayed outfit name in UI.
 	void updatePanelOutfitName(const std::string& name);
 
-	void purgeBaseOutfitLink(const LLUUID& category);
+	void purgeBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> cb = NULL);
 	void createBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> link_waiter);
 
 	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
@@ -136,15 +137,15 @@ public:
 				   LLPointer<LLInventoryCallback> cb);
 
 	// Add COF link to individual item.
-	void addCOFItemLink(const LLUUID& item_id, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL, const std::string description = "");
-	void addCOFItemLink(const LLInventoryItem *item, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL, const std::string description = "");
+	void addCOFItemLink(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb = NULL, const std::string description = "");
+	void addCOFItemLink(const LLInventoryItem *item, LLPointer<LLInventoryCallback> cb = NULL, const std::string description = "");
 
 	// Find COF entries referencing the given item.
 	LLInventoryModel::item_array_t findCOFItemLinks(const LLUUID& item_id);
 
 	// Remove COF entries
-	void removeCOFItemLinks(const LLUUID& item_id);
-	void removeCOFLinksOfType(LLWearableType::EType type);
+	void removeCOFItemLinks(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb = NULL);
+	void removeCOFLinksOfType(LLWearableType::EType type, LLPointer<LLInventoryCallback> cb = NULL);
 	void removeAllClothesFromAvatar();
 	void removeAllAttachmentsFromAvatar();
 
@@ -272,6 +273,20 @@ private:
 	bool mEnforceItemRestrictions;
 };
 
+class LLUpdateAppearanceAndEditWearableOnDestroy: public LLInventoryCallback
+{
+public:
+	LLUpdateAppearanceAndEditWearableOnDestroy(const LLUUID& item_id);
+
+	/* virtual */ void fire(const LLUUID& item_id) {}
+
+	~LLUpdateAppearanceAndEditWearableOnDestroy();
+	
+private:
+	LLUUID mItemID;
+};
+
+class 
 
 #define SUPPORT_ENSEMBLES 0
 
