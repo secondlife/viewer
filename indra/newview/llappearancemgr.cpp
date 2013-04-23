@@ -501,9 +501,11 @@ public:
 	}
 };
 
-LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy(bool update_base_outfit_ordering):
+LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy(bool update_base_outfit_ordering,
+														 bool enforce_item_restrictions):
 	mFireCount(0),
-	mUpdateBaseOrder(update_base_outfit_ordering)
+	mUpdateBaseOrder(update_base_outfit_ordering),
+	mEnforceItemRestrictions(enforce_item_restrictions)
 {
 	selfStartPhase("update_appearance_on_destroy");
 }
@@ -517,7 +519,7 @@ LLUpdateAppearanceOnDestroy::~LLUpdateAppearanceOnDestroy()
 
 		selfStopPhase("update_appearance_on_destroy");
 
-		LLAppearanceMgr::instance().updateAppearanceFromCOF(mUpdateBaseOrder);
+		LLAppearanceMgr::instance().updateAppearanceFromCOF(mUpdateBaseOrder, mEnforceItemRestrictions);
 	}
 }
 
@@ -1660,7 +1662,8 @@ void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category)
 	}
 }
 
-void LLAppearanceMgr::purgeCategory(const LLUUID& category, bool keep_outfit_links, LLPointer<LLInventoryCallback> cb)
+void LLAppearanceMgr::removeCategoryContents(const LLUUID& category, bool keep_outfit_links,
+											 LLPointer<LLInventoryCallback> cb)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
@@ -1723,6 +1726,18 @@ void LLAppearanceMgr::linkAll(const LLUUID& cat_uuid,
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 		LL_DEBUGS("Avatar") << self_av_string() << "Linking Item [ name:" << item->getName() << " UUID:" << item->getUUID() << " ] to Category [ name:" << cat_name << " UUID:" << cat_uuid << " ] " << LL_ENDL;
 #endif
+	}
+}
+
+void LLAppearanceMgr::removeAll(LLInventoryModel::item_array_t& items_to_kill,
+							   LLPointer<LLInventoryCallback> cb)
+{
+	for (LLInventoryModel::item_array_t::iterator it = items_to_kill.begin();
+		 it != items_to_kill.end();
+		 ++it)
+	{
+		LLViewerInventoryItem *item = *it;
+		remove_inventory_item(item->getUUID(), cb);
 	}
 }
 
@@ -1807,8 +1822,7 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	// carried over (e.g. keeping old shape if the new outfit does not
 	// contain one)
 	bool keep_outfit_links = append;
-	purgeCategory(cof, keep_outfit_links, link_waiter);
-	gInventory.notifyObservers();
+	removeCategoryContents(cof, keep_outfit_links, link_waiter);
 
 	LL_DEBUGS("Avatar") << self_av_string() << "waiting for LLUpdateAppearanceOnDestroy" << LL_ENDL;
 }
@@ -1945,34 +1959,20 @@ S32 LLAppearanceMgr::findExcessOrDuplicateItems(const LLUUID& cat_id,
 	return to_kill_count;
 }
 	
-												 
-void LLAppearanceMgr::enforceItemRestrictions()
+
+void LLAppearanceMgr::findAllExcessOrDuplicateItems(const LLUUID& cat_id,
+													LLInventoryModel::item_array_t& items_to_kill)
 {
-	S32 purge_count = 0;
-	LLInventoryModel::item_array_t items_to_kill;
-
-	purge_count += findExcessOrDuplicateItems(getCOF(),LLAssetType::AT_BODYPART,
-											  1, items_to_kill);
-	purge_count += findExcessOrDuplicateItems(getCOF(),LLAssetType::AT_CLOTHING,
-											  LLAgentWearables::MAX_CLOTHING_PER_TYPE, items_to_kill);
-	purge_count += findExcessOrDuplicateItems(getCOF(),LLAssetType::AT_OBJECT,
-											  -1, items_to_kill);
-
-	if (items_to_kill.size()>0)
-	{
-		for (LLInventoryModel::item_array_t::iterator it = items_to_kill.begin();
-			 it != items_to_kill.end();
-			 ++it)
-		{
-			LLViewerInventoryItem *item = *it;
-			LL_DEBUGS("Avatar") << self_av_string() << "purging duplicate or excess item " << item->getName() << LL_ENDL;
-			gInventory.purgeObject(item->getUUID());
-		}
-		gInventory.notifyObservers();
-	}
+	findExcessOrDuplicateItems(cat_id,LLAssetType::AT_BODYPART,
+							   1, items_to_kill);
+	findExcessOrDuplicateItems(cat_id,LLAssetType::AT_CLOTHING,
+							   LLAgentWearables::MAX_CLOTHING_PER_TYPE, items_to_kill);
+	findExcessOrDuplicateItems(cat_id,LLAssetType::AT_OBJECT,
+							   -1, items_to_kill);
 }
 
-void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
+void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering,
+											  bool enforce_item_restrictions)
 {
 	if (mIsInUpdateAppearanceFromCOF)
 	{
@@ -1985,14 +1985,31 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 
 	LL_DEBUGS("Avatar") << self_av_string() << "starting" << LL_ENDL;
 
+	if (enforce_item_restrictions)
+	{
+		LLInventoryModel::item_array_t items_to_kill;
+		findAllExcessOrDuplicateItems(getCOF(), items_to_kill);
+		if (items_to_kill.size()>0)
+		{
+			// The point here is just to call
+			// updateAppearanceFromCOF() again after excess items
+			// have been removed. That time we will set
+			// enforce_item_restrictions to false so we don't get
+			// caught in a perpetual loop.
+			LLPointer<LLInventoryCallback> cb(
+				new LLUpdateAppearanceOnDestroy(update_base_outfit_ordering, false));
+
+			// Remove duplicate or excess wearables. Should normally be enforced at the UI level, but
+			// this should catch anything that gets through.
+			removeAll(items_to_kill, cb);
+			return;
+		}
+	}
+
 	//checking integrity of the COF in terms of ordering of wearables, 
 	//checking and updating links' descriptions of wearables in the COF (before analyzed for "dirty" state)
 	updateClothingOrderingInfo(LLUUID::null, update_base_outfit_ordering);
 
-	// Remove duplicate or excess wearables. Should normally be enforced at the UI level, but
-	// this should catch anything that gets through.
-	enforceItemRestrictions();
-	
 	// update dirty flag to see if the state of the COF matches
 	// the saved outfit stored as a folder link
 	updateIsDirty();
@@ -2804,7 +2821,7 @@ bool LLAppearanceMgr::updateBaseOutfit()
 	updateClothingOrderingInfo();
 
 	// in a Base Outfit we do not remove items, only links
-	purgeCategory(base_outfit_id, false, NULL);
+	removeCategoryContents(base_outfit_id, false, NULL);
 
 	LLPointer<LLInventoryCallback> dirty_state_updater =
 		new LLBoostFuncInventoryCallback(no_op_inventory_func, appearance_mgr_update_dirty_state);
