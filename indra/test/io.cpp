@@ -1141,7 +1141,6 @@ namespace tut
 		ensure("Connected to server", connected);
 		lldebugs << "connected" << llendl;
 		pump_loop(mPump,0.1f);
-		(void)elapsed;
 		count = mPump->runningChains();
 		ensure_equals("server chain onboard", count, 2);
 		lldebugs << "** Client is connected." << llendl;

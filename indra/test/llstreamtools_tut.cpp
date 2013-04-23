@@ -389,13 +389,10 @@ namespace tut
 		is.str(str = "  First Second \t \r  \n Third  Fourth-ShouldThisBePartOfFourth  Fifth\n");
 		actual_result = "";
 		get_word(actual_result, is); // First
-		(void)ret;
 		actual_result = "";
 		get_word(actual_result, is); // Second
-		(void)ret;
 		actual_result = "";
 		get_word(actual_result, is); // Third
-		(void)ret;
 
 		// the current implementation of get_word seems inconsistent with
 		// skip_to_next_word. skip_to_next_word treats any character other
@@ -486,7 +483,6 @@ namespace tut
 		is.str(str = "First Second \t \r\n Third  Fourth-ShouldThisBePartOfFourth  IsThisFifth\n");
 		actual_result = "";
 		get_line(actual_result, is);
-		(void)ret;
 		expected_result = "First Second \t \r\n";
 		ensure_equals("get_line: 1", actual_result, expected_result);
 
@@ -551,7 +547,6 @@ namespace tut
 		is.str(str = "Should not skip lone \r.\r\n");
 		actual_result = "";
 		get_line(actual_result, is);
-		(void)ret;
 		expected_result = "Should not skip lone \r.\r\n";
 		ensure_equals("get_line: carriage return skipped even though not followed by newline", actual_result, expected_result);
 	}
@@ -569,7 +564,6 @@ namespace tut
 		is.str(str = "\n");
 		actual_result = "";
 		get_line(actual_result, is);
-		(void)ret;
 		expected_result = "\n";
 		ensure_equals("get_line: Just newline", actual_result, expected_result);
 	}
@@ -588,7 +582,6 @@ namespace tut
 		is.str(str = "First Line.\nSecond Line.\n");
 		actual_result = "";
 		get_line(actual_result, is, 255);
-		(void)ret;
 		expected_result = "First Line.\n";
 		ensure_equals("get_line: Basic Operation", actual_result, expected_result);
 
