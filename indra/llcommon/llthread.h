@@ -225,6 +225,71 @@ void LLThread::unlockData()
 
 // see llmemory.h for LLPointer<> definition
 
+#if (1)		// Old code - see comment below
+class LL_COMMON_API LLThreadSafeRefCount
+{
+public:
+	static void initThreadSafeRefCount(); // creates sMutex
+	static void cleanupThreadSafeRefCount(); // destroys sMutex
+	
+private:
+	static LLMutex* sMutex;
+
+protected:
+	virtual ~LLThreadSafeRefCount(); // use unref()
+	
+public:
+	LLThreadSafeRefCount();
+	LLThreadSafeRefCount(const LLThreadSafeRefCount&);
+	LLThreadSafeRefCount& operator=(const LLThreadSafeRefCount& ref) 
+	{
+		if (sMutex)
+		{
+			sMutex->lock();
+		}
+		mRef = 0;
+		if (sMutex)
+		{
+			sMutex->unlock();
+		}
+		return *this;
+	}
+
+
+	
+	void ref()
+	{
+		if (sMutex) sMutex->lock();
+		mRef++; 
+		if (sMutex) sMutex->unlock();
+	} 
+
+	S32 unref()
+	{
+		llassert(mRef >= 1);
+		if (sMutex) sMutex->lock();
+		S32 res = --mRef;
+		if (sMutex) sMutex->unlock();
+		if (0 == res) 
+		{
+			delete this; 
+			return 0;
+		}
+		return res;
+	}	
+	S32 getNumRefs() const
+	{
+		return mRef;
+	}
+
+private: 
+	S32	mRef; 
+};
+
+#else
+	// New code -  This was from https://bitbucket.org/lindenlab/viewer-cat/commits/b03bb43e4ead57f904cb3c1e9745dc8460de6efc
+	// and attempts 
+
 class LL_COMMON_API LLThreadSafeRefCount
 {
 public:
@@ -263,7 +328,7 @@ public:
 			// so that two threads who get into the if in parallel
 			// don't both attempt to the delete.
 			//
-			mRef--;
+			mRef--;			// Simon:  why not  if (mRef == 1) delete this; ?   There still seems to be a window where mRef could be modified
 			if (mRef == 0)
 				delete this; 			
 			if (sMutex) sMutex->unlock();
@@ -280,6 +345,7 @@ public:
 private: 
 	LLAtomic32< S32	> mRef; 
 };
+#endif // new code
 
 /**
  * intrusive pointer support for LLThreadSafeRefCount
