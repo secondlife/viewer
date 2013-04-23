@@ -29,7 +29,7 @@
 
 #include "llpersontabview.h"
 
-static LLDefaultChildRegistry::Register<LLPersonTabView> r_person_folder_view("person_folder_view");
+static LLDefaultChildRegistry::Register<LLPersonTabView> r_person_tab_view("person_tab_view");
 
 const LLColor4U DEFAULT_WHITE(255, 255, 255);
 

@@ -695,7 +695,7 @@ BOOL LLPanelPeople::postBuild()
 	LLPanel * socialtwo_tab = getChild<LLPanel>(FBCTESTTWO_TAB_NAME);
 
 	//Create folder view
-	LLConversationItem* base_item = new LLConversationItem(mConversationViewModel);
+	LLPersonModelCommon* base_item = new LLPersonModelCommon(mConversationViewModel);
 
 	LLFolderView::Params folder_view_params(LLUICtrlFactory::getDefaultParams<LLFolderView>());
 	folder_view_params.parent_panel = friends_tab;
