@@ -43,7 +43,7 @@ LLFolderViewFolder(p)
 }
 
 S32 LLPersonFolderView::getLabelXPos()
-{
+{ 
 	return getIndentation() + mArrowSize + 15;//Should be a .xml variable but causes crash;
 }
 
@@ -55,7 +55,7 @@ LLPersonFolderView::~LLPersonFolderView()
 void LLPersonFolderView::draw()
 {
 	static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
-	static const LLFolderViewItem::Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
+	static const LLFolderViewItem::Params& default_params = LLUICtrlFactory::getDefaultParams<LLPersonFolderView>();
 
 	static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
 	static LLUIColor sFlashBgColor = LLUIColorTable::instance().getColor("MenuItemFlashBgColor", DEFAULT_WHITE);
