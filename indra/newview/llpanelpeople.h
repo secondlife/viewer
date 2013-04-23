@@ -45,6 +45,14 @@ class LLMenuButton;
 class LLTabContainer;
 class LLFolderView;
 
+class LLPersonFolderModel;
+class LLPersonFolderView;
+class LLPersonView;
+class LLPersonModel;
+
+typedef std::map<LLUUID, LLPersonFolderModel *> person_folder_model_map;
+typedef std::map<LLUUID, LLPersonFolderView *> person_folder_view_map;
+
 class LLPanelPeople 
 	: public LLPanel
 	, public LLVoiceClientStatusObserver
@@ -66,7 +74,7 @@ public:
 	void openFacebookWeb(LLFloaterWebContent::Params& p);
 	void showFacebookFriends(const LLSD& friends);
 	void addTestParticipant();
-	void addParticipantToModel(LLConversationItemSession * session_model, const LLUUID& agent_id, const std::string& name);
+	void addParticipantToModel(LLPersonFolderModel * session_model, const LLUUID& agent_id, const std::string& name);
 	void hideFacebookFriends();
 	void loadFacebookFriends();
 	void tryToReconnectToFacebook();
@@ -157,7 +165,7 @@ private:
 	bool					isAccordionCollapsedByUser(const std::string& name);
 
 	bool					onConversationModelEvent(const LLSD& event);
-	LLConversationViewParticipant * createConversationViewParticipant(LLConversationItem * item);
+	LLPersonView * createConversationViewParticipant(LLPersonModel * item);
 
 	LLTabContainer*			mTabContainer;
 	LLAvatarList*			mOnlineFriendList;
@@ -181,8 +189,8 @@ private:
 	LLMenuButton*			mFBCGearButton;
     LLHandle< LLFloater >	mPicker;
 
-	conversations_items_map mConversationsItems;
-	conversations_widgets_map mConversationsWidgits;
+	person_folder_model_map mPersonFolderModelMap;
+	person_folder_view_map mPersonFolderViewMap;
 	LLConversationViewModel mConversationViewModel;
 	LLFolderView* mConversationsRoot;
 	LLEventStream mConversationsEventStream;

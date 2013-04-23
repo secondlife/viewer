@@ -63,6 +63,8 @@
 #include "llnetmap.h"
 #include "llpanelpeoplemenus.h"
 #include "llparticipantlist.h"
+#include "llpersonmodelcommon.h"
+#include "llpersonfolderview.h"
 #include "llsidetraypanelcontainer.h"
 #include "llrecentpeople.h"
 #include "llviewercontrol.h"		// for gSavedSettings
@@ -696,7 +698,6 @@ BOOL LLPanelPeople::postBuild()
 	LLConversationItem* base_item = new LLConversationItem(mConversationViewModel);
 
 	LLFolderView::Params folder_view_params(LLUICtrlFactory::getDefaultParams<LLFolderView>());
-	folder_view_params.rect.left(0).right(0).top(0).bottom(0);
 	folder_view_params.parent_panel = friends_tab;
 	folder_view_params.listener = base_item;
 	folder_view_params.view_model = &mConversationViewModel;
@@ -709,7 +710,9 @@ BOOL LLPanelPeople::postBuild()
 
 	//Create scroller
 	LLRect scroller_view_rect = socialtwo_tab->getRect();
-	//scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
+	scroller_view_rect.mTop -= 4;
+	scroller_view_rect.mRight -=6;
+	scroller_view_rect.mLeft += 2;
 	LLScrollContainer::Params scroller_params(LLUICtrlFactory::getDefaultParams<LLFolderViewScrollContainer>());
 	scroller_params.rect(scroller_view_rect);
 
@@ -722,21 +725,18 @@ BOOL LLPanelPeople::postBuild()
 
 	//Create a session
 	//LLSpeakerMgr* speaker_manager = (LLSpeakerMgr*)LLLocalSpeakerMgr::getInstance();
-	LLConversationItemSession* item = new LLConversationItemSession(LLUUID(NULL), mConversationViewModel);
-	item->renameItem("Facebook Friends");
-	LLConversationViewSession::Params params;
-
+	LLPersonFolderModel* item = new LLPersonFolderModel("Facebook Friends", mConversationViewModel);
+	LLPersonFolderView::Params params;
 	params.name = item->getDisplayName();
 	params.root = mConversationsRoot;
 	params.listener = item;
 	params.tool_tip = params.name;
-	params.container = LLFloaterIMContainer::getInstance();
-	LLConversationViewSession * widget = LLUICtrlFactory::create<LLConversationViewSession>(params);
+	LLPersonFolderView * widget = LLUICtrlFactory::create<LLPersonFolderView>(params);
 	widget->addToFolder(mConversationsRoot);
 
-	mConversationsItems[LLUUID(NULL)] = item;
-	mConversationsWidgits[LLUUID(NULL)] = widget;
-
+	mPersonFolderModelMap[item->getID()] = item;
+	mPersonFolderViewMap[item->getID()] = widget;
+	
 	gIdleCallbacks.addFunction(idle, this);
 
 	//===Test END========================================================================
@@ -1656,28 +1656,32 @@ bool LLPanelPeople::isAccordionCollapsedByUser(const std::string& name)
 bool LLPanelPeople::onConversationModelEvent(const LLSD& event)
 {
 	std::string type = event.get("type").asString();
-	LLUUID session_id = event.get("session_uuid").asUUID();
-	LLUUID participant_id = event.get("participant_uuid").asUUID();
+	LLUUID folder_id = event.get("folder_id").asUUID();
+	LLUUID person_id = event.get("person_id").asUUID();
 
 	if(type == "add_participant")
 	{
-		LLConversationItemSession * session_model = dynamic_cast<LLConversationItemSession *>(mConversationsItems[session_id]);
-		LLConversationViewSession * session_view = dynamic_cast<LLConversationViewSession *>(mConversationsWidgits[session_id]);
-		LLConversationItemParticipant * participant_model = session_model->findParticipant(participant_id);
-
-		if(participant_model)
+		LLPersonFolderModel * person_folder_model = dynamic_cast<LLPersonFolderModel *>(mPersonFolderModelMap[folder_id]);
+		LLPersonFolderView * person_folder_view = dynamic_cast<LLPersonFolderView *>(mPersonFolderViewMap[person_id]);
+		
+		if(person_folder_model)
 		{
-			LLConversationViewParticipant * participant_view = createConversationViewParticipant(participant_model);
-			participant_view->addToFolder(session_view);
+			LLPersonModel * person_model = person_folder_model->findParticipant(person_id);
+
+			if(person_model)
+			{
+				LLPersonView * participant_view = createConversationViewParticipant(person_model);
+				participant_view->addToFolder(person_folder_view);
+			}
 		}
 	}
 
 	return false;
 }
 
-LLConversationViewParticipant * LLPanelPeople::createConversationViewParticipant(LLConversationItem * item)
+LLPersonView * LLPanelPeople::createConversationViewParticipant(LLPersonModel * item)
 {
-	LLConversationViewParticipant::Params params;
+	LLPersonView::Params params;
 	LLRect panel_rect = getChild<LLPanel>(FBCTESTTWO_TAB_NAME)->getRect();
 
 	params.name = item->getDisplayName();
@@ -1687,10 +1691,9 @@ LLConversationViewParticipant * LLPanelPeople::createConversationViewParticipant
 	//24 is the the current hight of an item (itemHeight) loaded from conversation_view_participant.xml.
 	params.rect = LLRect (0, 24, panel_rect.getWidth(), 0);
 	params.tool_tip = params.name;
-	params.participant_id = item->getUUID();
 	params.folder_indentation = 2;
 
-	return LLUICtrlFactory::create<LLConversationViewParticipant>(params);
+	return LLUICtrlFactory::create<LLPersonView>(params);
 }
 
 void LLPanelPeople::openFacebookWeb(LLFloaterWebContent::Params& p)
@@ -1718,11 +1721,11 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 		mFacebookFriends->addNewItem(agent_id, name, false);
 
 		//Add to folder view
-		LLConversationItemSession * session_model = dynamic_cast<LLConversationItemSession *>(mConversationsItems[LLUUID(NULL)]);
-		if(session_model)
-		{
-			addParticipantToModel(session_model, agent_id, name);
-		}
+		//LLConversationItemSession * session_model = dynamic_cast<LLConversationItemSession *>(mConversationsItems[LLUUID(NULL)]);
+		//if(session_model)
+		//{
+		//	addParticipantToModel(session_model, agent_id, name);
+		//}
 	}
 }
 
@@ -1730,22 +1733,17 @@ void LLPanelPeople::addTestParticipant()
 {
 	for(int i = 0; i < 300; ++i)
 	{
-		LLConversationItemSession * session_model = dynamic_cast<LLConversationItemSession *>(mConversationsItems[LLUUID(NULL)]);
-		addParticipantToModel(session_model, LLUUID().generateNewID(), "Test");
+		LLPersonFolderModel * person_folder_model = dynamic_cast<LLPersonFolderModel *>(mPersonFolderModelMap.begin()->second);
+		addParticipantToModel(person_folder_model, LLUUID().generateNewID(), "EastBayGuy");
 	}
-	}
+}
 
-void LLPanelPeople::addParticipantToModel(LLConversationItemSession * session_model, const LLUUID& agent_id, const std::string& name)
+void LLPanelPeople::addParticipantToModel(LLPersonFolderModel * person_folder_model, const LLUUID& agent_id, const std::string& name)
 {
-	LLConversationItemParticipant* participant = NULL;
+	LLPersonModel* person_model = NULL;
 
-	// Create a participant model
-	LLAvatarName avatar_name;
-	bool has_name = LLAvatarNameCache::get(agent_id, &avatar_name);
-	std::string avatar_name_string = has_name ? name + " (" + avatar_name.getDisplayName() + ")" : name;
-
-	participant = new LLConversationItemParticipant(avatar_name_string , agent_id, mConversationViewModel);
-	session_model->addParticipant(participant);
+	person_model = new LLPersonModel(name, mConversationViewModel);
+	person_folder_model->addParticipant(person_model);
 }
 
 void LLPanelPeople::hideFacebookFriends()

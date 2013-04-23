@@ -95,7 +95,6 @@ void LLConversationItem::postEvent(const std::string& event_type, LLConversation
 	LLUUID participant_id = (participant ? participant->getUUID() : LLUUID());
 	LLSD event(LLSDMap("type", event_type)("session_uuid", session_id)("participant_uuid", participant_id));
 	LLEventPumps::instance().obtain("ConversationsEvents").post(event);
-	LLEventPumps::instance().obtain("ConversationsEventsTwo").post(event);
 }
 
 // Virtual action callbacks
