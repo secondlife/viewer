@@ -864,4 +864,19 @@
   <color
     name="blue"
     value="0 0 1 1"/>
+
+  <!--Resize bar colors -->
+
+  <color
+    name="ResizebarBorderLight"
+    value="0.231 0.231 0.231 1"/>
+
+  <color
+    name="ResizebarBorderDark"
+    value="0.133 0.133 0.133 1"/>
+
+  <color
+    name="ResizebarBody"
+    value="0.208 0.208 0.208 1"/>
+    
 </colors>

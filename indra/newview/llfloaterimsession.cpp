@@ -469,7 +469,10 @@ void LLFloaterIMSession::addP2PSessionParticipants(const LLSD& notification, con
 	temp_ids.insert(temp_ids.end(), uuids.begin(), uuids.end());
 
 	// then we can close the current session
-	onClose(false);
+	if(findInstance(mSessionID))
+	{
+		onClose(false);
+	}
 
 	// we start a new session so reset the initialization flag
 	mSessionInitialized = false;

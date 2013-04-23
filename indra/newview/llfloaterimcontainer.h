@@ -130,6 +130,7 @@ private:
 	void onStubCollapseButtonClicked();
 	void processParticipantsStyleUpdate();
 	void onSpeakButtonClicked();
+	/*virtual*/ void onClickCloseBtn();
 
 	void collapseConversationsPane(bool collapse, bool save_is_allowed=true);
 
@@ -177,6 +178,7 @@ private:
 	LLLayoutStack* mConversationsStack;
 	
 	bool mInitialized;
+	bool mIsFirstLaunch;
 
 	LLUUID mSelectedSession;
 	std::string mGeneralTitle;
@@ -191,9 +193,12 @@ public:
 	void updateSpeakBtnState();
 	static bool isConversationLoggingAllowed();
 	void flashConversationItemWidget(const LLUUID& session_id, bool is_flashes);
+	void highlightConversationItemWidget(const LLUUID& session_id, bool is_highlighted);
 	bool isScrolledOutOfSight(LLConversationViewSession* conversation_item_widget);
 	boost::signals2::connection mMicroChangedSignal;
 	S32 getConversationListItemSize() { return mConversationsWidgets.size(); }
+	typedef std::list<LLFloater*> floater_list_t;
+	void getDetachedConversationFloaters(floater_list_t& floaters);
 
 private:
 	LLConversationViewSession* createConversationItemWidget(LLConversationItem* item);

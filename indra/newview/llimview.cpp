@@ -103,6 +103,7 @@ BOOL LLSessionTimeoutTimer::tick()
 }
 
 
+void notify_of_message(const LLSD& msg, bool is_dnd_msg);
 
 void process_dnd_im(const LLSD& notification)
 {
@@ -129,15 +130,9 @@ void process_dnd_im(const LLSD& notification)
             fromID, 
             false, 
             false); //will need slight refactor to retrieve whether offline message or not (assume online for now)
+	}
 
-		LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-		
-		if (im_box)
-		{
-			im_box->flashConversationItemWidget(sessionID, true);
-		}
-
-    }
+	notify_of_message(data, true);
 }
 
 
@@ -158,87 +153,89 @@ static void on_avatar_name_cache_toast(const LLUUID& agent_id,
 	LLNotificationsUtil::add("IMToast", args, args, boost::bind(&LLFloaterIMContainer::showConversation, LLFloaterIMContainer::getInstance(), msg["session_id"].asUUID()));
 }
 
-void on_new_message(const LLSD& msg)
+void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 {
-    std::string user_preferences;
-    LLUUID participant_id = msg["from_id"].asUUID();
-    LLUUID session_id = msg["session_id"].asUUID();
-    LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
+	std::string user_preferences;
+	LLUUID participant_id = msg[is_dnd_msg ? "FROM_ID" : "from_id"].asUUID();
+	LLUUID session_id = msg[is_dnd_msg ? "SESSION_ID" : "session_id"].asUUID();
+	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
 
-    // do not show notification which goes from agent
-    if (gAgent.getID() == participant_id)
-    {
-        return;
-    }
+	// do not show notification which goes from agent
+	if (gAgent.getID() == participant_id)
+	{
+		return;
+	}
 
-    // determine state of conversations floater
-    enum {CLOSED, NOT_ON_TOP, ON_TOP, ON_TOP_AND_ITEM_IS_SELECTED} conversations_floater_status;
+	// determine state of conversations floater
+	enum {CLOSED, NOT_ON_TOP, ON_TOP, ON_TOP_AND_ITEM_IS_SELECTED} conversations_floater_status;
 
 
-    LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+	LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
 	LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
+	bool store_dnd_message = false; // flag storage of a dnd message
 
 	if (!LLFloater::isVisible(im_box) || im_box->isMinimized())
 	{
 		conversations_floater_status = CLOSED;
 	}
 	else if (!im_box->hasFocus() &&
-			    !(session_floater && LLFloater::isVisible(session_floater)
-	            && !session_floater->isMinimized() && session_floater->hasFocus()))
+		!(session_floater && LLFloater::isVisible(session_floater)
+		&& !session_floater->isMinimized() && session_floater->hasFocus()))
 	{
 		conversations_floater_status = NOT_ON_TOP;
 	}
 	else if (im_box->getSelectedSession() != session_id)
 	{
 		conversations_floater_status = ON_TOP;
-    }
+	}
 	else
 	{
 		conversations_floater_status = ON_TOP_AND_ITEM_IS_SELECTED;
 	}
 
-    //  determine user prefs for this session
-    if (session_id.isNull())
-    {
-    	user_preferences = gSavedSettings.getString("NotificationNearbyChatOptions");
-    }
-    else if(session->isP2PSessionType())
-    {
-        if (LLAvatarTracker::instance().isBuddy(participant_id))
-        {
-        	user_preferences = gSavedSettings.getString("NotificationFriendIMOptions");
-        }
-        else
-        {
-        	user_preferences = gSavedSettings.getString("NotificationNonFriendIMOptions");
-        }
-    }
-    else if(session->isAdHocSessionType())
-    {
-    	user_preferences = gSavedSettings.getString("NotificationConferenceIMOptions");
-    }
-    else if(session->isGroupSessionType())
-    {
-    	user_preferences = gSavedSettings.getString("NotificationGroupChatOptions");
-    }
+	//  determine user prefs for this session
+	if (session_id.isNull())
+	{
+		user_preferences = gSavedSettings.getString("NotificationNearbyChatOptions");
+	}
+	else if(session->isP2PSessionType())
+	{
+		if (LLAvatarTracker::instance().isBuddy(participant_id))
+		{
+			user_preferences = gSavedSettings.getString("NotificationFriendIMOptions");
+		}
+		else
+		{
+			user_preferences = gSavedSettings.getString("NotificationNonFriendIMOptions");
+		}
+	}
+	else if(session->isAdHocSessionType())
+	{
+		user_preferences = gSavedSettings.getString("NotificationConferenceIMOptions");
+	}
+	else if(session->isGroupSessionType())
+	{
+		user_preferences = gSavedSettings.getString("NotificationGroupChatOptions");
+	}
 
-    // actions:
+	// actions:
 
-    // 0. nothing - exit
-    if (("none" == user_preferences ||
-    		ON_TOP_AND_ITEM_IS_SELECTED == conversations_floater_status)
-    	    && session_floater->isMessagePaneExpanded())
-    {
-    	return;
-    }
-
-    // 1. open floater and [optional] surface it
-    if ("openconversations" == user_preferences &&
-    		(CLOSED == conversations_floater_status
-    				|| NOT_ON_TOP == conversations_floater_status))
-    {
-    	if(!gAgent.isDoNotDisturb())
-        {
+	// 0. nothing - exit
+	if (("none" == user_preferences ||
+		ON_TOP_AND_ITEM_IS_SELECTED == conversations_floater_status)
+		&& session_floater->isMessagePaneExpanded())
+	{
+		return;
+	}
+	
+	// 1. open floater and [optional] surface it
+	if (("openconversations" == user_preferences &&
+		(CLOSED == conversations_floater_status
+		|| NOT_ON_TOP == conversations_floater_status))
+		|| is_dnd_msg )
+	{
+		if(!gAgent.isDoNotDisturb())
+		{
 			// Open conversations floater
 			LLFloaterReg::showInstance("im_container");
 			im_box->collapseMessagesPane(false);
@@ -260,57 +257,100 @@ void on_new_message(const LLSD& msg)
 				}
 			}
 		}
-        else
-        {
-            //If in DND mode, allow notification to be stored so upon DND exit
-            //useMostItrusiveIMNotification will be called to notify user a message exists
-            if(session_id.notNull()
-               && participant_id.notNull()
-		       && !session_floater->isShown())
-            {
-                LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
-	        }
-        }
-    }
+		else
+		{
+			store_dnd_message = true;
+		}
 
-    // 2. Flash line item
-    if ("openconversations" == user_preferences
-    		|| ON_TOP == conversations_floater_status
-    		|| ("toast" == user_preferences && ON_TOP != conversations_floater_status)
-    		|| ("flash" == user_preferences && CLOSED == conversations_floater_status))
-    {
-    	if(!LLMuteList::getInstance()->isMuted(participant_id))
-    	{
-    		im_box->flashConversationItemWidget(session_id, true);
-    	}
-    }
+	}
 
-    // 3. Flash FUI button
-    if (("toast" == user_preferences || "flash" == user_preferences) &&
-    		(CLOSED == conversations_floater_status
-    		    || NOT_ON_TOP == conversations_floater_status))
-    {
-    	if(!LLMuteList::getInstance()->isMuted(participant_id)
-            && !gAgent.isDoNotDisturb())
-    	{
-    		gToolBarView->flashCommand(LLCommandId("chat"), true);
-    	}
-    }
+	// 2. Flash line item
+	if ("openconversations" == user_preferences
+		|| ON_TOP == conversations_floater_status
+		|| ("toast" == user_preferences && ON_TOP != conversations_floater_status)
+		|| ("flash" == user_preferences && CLOSED == conversations_floater_status)
+		|| is_dnd_msg)
+	{
+		if(!LLMuteList::getInstance()->isMuted(participant_id))
+		{
+			if(gAgent.isDoNotDisturb())
+			{
+				store_dnd_message = true;
+			}
+			else
+			{
+				if (is_dnd_msg && (ON_TOP == conversations_floater_status || 
+									NOT_ON_TOP == conversations_floater_status || 
+									CLOSED == conversations_floater_status))
+				{
+					im_box->highlightConversationItemWidget(session_id, true);
+				}
+				else
+				{
+					im_box->flashConversationItemWidget(session_id, true);
+				}
+			}
+		}
+	}
 
-    // 4. Toast
-    if ((("toast" == user_preferences) &&
-    		(CLOSED == conversations_floater_status
-    		    || NOT_ON_TOP == conversations_floater_status))
-    		    || !session_floater->isMessagePaneExpanded())
+	// 3. Flash FUI button
+	if (("toast" == user_preferences || "flash" == user_preferences) &&
+		(CLOSED == conversations_floater_status
+		|| NOT_ON_TOP == conversations_floater_status)
+		&& !is_dnd_msg) //prevent flashing FUI button because the conversation floater will have already opened
+	{
+		if(!LLMuteList::getInstance()->isMuted(participant_id))
+		{
+			if(!gAgent.isDoNotDisturb())
+			{
+				gToolBarView->flashCommand(LLCommandId("chat"), true);
+			}
+			else
+			{
+				store_dnd_message = true;
+			}
+		}
+	}
 
-    {
-        //Show IM toasts (upper right toasts)
-        // Skip toasting for system messages and for nearby chat
-        if(session_id.notNull() && participant_id.notNull())
-        {
-            LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
-        }
-    }
+	// 4. Toast
+	if ((("toast" == user_preferences) &&
+		(ON_TOP_AND_ITEM_IS_SELECTED != conversations_floater_status))
+		|| !session_floater->isMessagePaneExpanded())
+
+	{
+		//Show IM toasts (upper right toasts)
+		// Skip toasting for system messages and for nearby chat
+		if(session_id.notNull() && participant_id.notNull())
+		{
+			if(!is_dnd_msg)
+			{
+				if(gAgent.isDoNotDisturb())
+				{
+					store_dnd_message = true;
+				}
+				else
+				{
+					LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+				}
+			}
+		}
+	}
+	if (store_dnd_message)
+	{
+		// If in DND mode, allow notification to be stored so upon DND exit 
+		// the user will be notified with some limitations (see 'is_dnd_msg' flag checks)
+		if(session_id.notNull()
+			&& participant_id.notNull()
+			&& !session_floater->isShown())
+		{
+			LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+		}
+	}
+}
+
+void on_new_message(const LLSD& msg)
+{
+	notify_of_message(msg, false);
 }
 
 LLIMModel::LLIMModel() 
