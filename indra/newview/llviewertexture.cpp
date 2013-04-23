@@ -698,6 +698,28 @@ void LLViewerTexture::setBoostLevel(S32 level)
 
 }
 
+bool LLViewerTexture::isActiveFetching()
+{
+	return false;
+}
+
+bool LLViewerTexture::bindDebugImage(const S32 stage)
+{
+	if (stage < 0) return false;
+
+	bool res = true;
+	if (LLViewerTexture::sCheckerBoardImagep.notNull() && (this != LLViewerTexture::sCheckerBoardImagep.get()))
+	{
+		res = gGL.getTexUnit(stage)->bind(LLViewerTexture::sCheckerBoardImagep);
+	}
+
+	if(!res)
+	{
+		return bindDefaultImage(stage);
+	}
+
+	return res;
+}
 
 bool LLViewerTexture::bindDefaultImage(S32 stage) 
 {
@@ -1988,6 +2010,13 @@ bool LLViewerFetchedTexture::setDebugFetching(S32 debug_level)
 	mDesiredDiscardLevel = debug_level;	
 
 	return true;
+}
+
+bool LLViewerFetchedTexture::isActiveFetching()
+{
+	static LLCachedControl<bool> monitor_enabled(gSavedSettings,"DebugShowTextureInfo");
+
+	return mFetchState > 7 && mFetchState < 10 && monitor_enabled; //in state of WAIT_HTTP_REQ or DECODE_IMAGE.
 }
 
 bool LLViewerFetchedTexture::updateFetch()

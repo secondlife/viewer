@@ -245,6 +245,11 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 		return texture->bindDefaultImage(mIndex);
 	}
 
+	if(texture->isActiveFetching()) //in debug
+	{
+		return texture->bindDebugImage(mIndex);
+	}
+
 	//in audit, replace the selected texture by the default one.
 	if ((mCurrTexture != gl_tex->getTexName()) || forceBind)
 	{
