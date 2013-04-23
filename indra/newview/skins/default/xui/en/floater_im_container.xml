@@ -129,7 +129,7 @@
          auto_resize="true"
          user_resize="true"
          name="messages_layout_panel"
-         expanded_min_dim="232">
+         expanded_min_dim="183">
             <panel_container
              bottom="-1"
              follows="all"
