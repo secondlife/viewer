@@ -64,7 +64,7 @@
 #include "llpanelpeoplemenus.h"
 #include "llparticipantlist.h"
 #include "llpersonmodelcommon.h"
-#include "llpersonfolderview.h"
+#include "llpersontabview.h"
 #include "llsidetraypanelcontainer.h"
 #include "llrecentpeople.h"
 #include "llviewercontrol.h"		// for gSavedSettings
@@ -725,13 +725,13 @@ BOOL LLPanelPeople::postBuild()
 
 	//Create a session
 	//LLSpeakerMgr* speaker_manager = (LLSpeakerMgr*)LLLocalSpeakerMgr::getInstance();
-	LLPersonFolderModel* item = new LLPersonFolderModel("Facebook Friends", mConversationViewModel);
-	LLPersonFolderView::Params params;
+	LLPersonTabModel* item = new LLPersonTabModel("Facebook Friends", mConversationViewModel);
+	LLPersonTabView::Params params;
 	params.name = item->getDisplayName();
 	params.root = mConversationsRoot;
 	params.listener = item;
 	params.tool_tip = params.name;
-	LLPersonFolderView * widget = LLUICtrlFactory::create<LLPersonFolderView>(params);
+	LLPersonTabView * widget = LLUICtrlFactory::create<LLPersonTabView>(params);
 	widget->addToFolder(mConversationsRoot);
 
 	mPersonFolderModelMap[item->getID()] = item;
@@ -1661,8 +1661,8 @@ bool LLPanelPeople::onConversationModelEvent(const LLSD& event)
 
 	if(type == "add_participant")
 	{
-		LLPersonFolderModel * person_folder_model = dynamic_cast<LLPersonFolderModel *>(mPersonFolderModelMap[folder_id]);
-		LLPersonFolderView * person_folder_view = dynamic_cast<LLPersonFolderView *>(mPersonFolderViewMap[person_id]);
+		LLPersonTabModel * person_folder_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderModelMap[folder_id]);
+		LLPersonTabView * person_folder_view = dynamic_cast<LLPersonTabView *>(mPersonFolderViewMap[person_id]);
 		
 		if(person_folder_model)
 		{
@@ -1733,12 +1733,12 @@ void LLPanelPeople::addTestParticipant()
 {
 	for(int i = 0; i < 300; ++i)
 	{
-		LLPersonFolderModel * person_folder_model = dynamic_cast<LLPersonFolderModel *>(mPersonFolderModelMap.begin()->second);
+		LLPersonTabModel * person_folder_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderModelMap.begin()->second);
 		addParticipantToModel(person_folder_model, LLUUID().generateNewID(), "EastBayGuy");
 	}
 }
 
-void LLPanelPeople::addParticipantToModel(LLPersonFolderModel * person_folder_model, const LLUUID& agent_id, const std::string& name)
+void LLPanelPeople::addParticipantToModel(LLPersonTabModel * person_folder_model, const LLUUID& agent_id, const std::string& name)
 {
 	LLPersonModel* person_model = NULL;
 

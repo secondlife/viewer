@@ -54,7 +54,7 @@ LLPersonModelCommon::~LLPersonModelCommon()
 
 }
 
-void LLPersonModelCommon::postEvent(const std::string& event_type, LLPersonFolderModel* folder, LLPersonModel* person)
+void LLPersonModelCommon::postEvent(const std::string& event_type, LLPersonTabModel* folder, LLPersonModel* person)
 {
 	LLUUID folder_id = folder->getID();
 	LLUUID person_id = person->getID();
@@ -84,34 +84,34 @@ void LLPersonModelCommon::showProperties(void)
 }
 
 //
-// LLPersonFolderModel
+// LLPersonTabModel
 // 
 
-LLPersonFolderModel::LLPersonFolderModel(std::string display_name, LLFolderViewModelInterface& root_view_model) :
+LLPersonTabModel::LLPersonTabModel(std::string display_name, LLFolderViewModelInterface& root_view_model) :
 LLPersonModelCommon(display_name,root_view_model)
 {
 
 }
 
-LLPersonFolderModel::LLPersonFolderModel(LLFolderViewModelInterface& root_view_model) :
+LLPersonTabModel::LLPersonTabModel(LLFolderViewModelInterface& root_view_model) :
 LLPersonModelCommon(root_view_model)
 {
 
 }
 
-void LLPersonFolderModel::addParticipant(LLPersonModel* participant)
+void LLPersonTabModel::addParticipant(LLPersonModel* participant)
 {
 	addChild(participant);
 	postEvent("add_participant", this, participant);
 }
 
-void LLPersonFolderModel::removeParticipant(LLPersonModel* participant)
+void LLPersonTabModel::removeParticipant(LLPersonModel* participant)
 {
 	removeChild(participant);
 	postEvent("remove_participant", this, participant);
 }
 
-void LLPersonFolderModel::removeParticipant(const LLUUID& participant_id)
+void LLPersonTabModel::removeParticipant(const LLUUID& participant_id)
 {
 	LLPersonModel* participant = findParticipant(participant_id);
 	if (participant)
@@ -120,12 +120,12 @@ void LLPersonFolderModel::removeParticipant(const LLUUID& participant_id)
 	}
 }
 
-void LLPersonFolderModel::clearParticipants()
+void LLPersonTabModel::clearParticipants()
 {
 	clearChildren();
 }
 
-LLPersonModel* LLPersonFolderModel::findParticipant(const LLUUID& person_id)
+LLPersonModel* LLPersonTabModel::findParticipant(const LLUUID& person_id)
 {
 	LLPersonModel * person_model = NULL;
 	child_list_t::iterator iter;
@@ -144,7 +144,7 @@ LLPersonModel* LLPersonFolderModel::findParticipant(const LLUUID& person_id)
 }
 
 //
-// LLConversationItemParticipant
+// LLPersonModel
 // 
 
 LLPersonModel::LLPersonModel(std::string display_name, LLFolderViewModelInterface& root_view_model) :

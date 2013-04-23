@@ -1,6 +1,6 @@
 /** 
-* @file   llpersonfolderview.h
-* @brief  Header file for llpersonfolderview
+* @file   llpersontabview.h
+* @brief  Header file for llpersontabview
 * @author Gilbert@lindenlab.com
 *
 * $LicenseInfo:firstyear=2013&license=viewerlgpl$
@@ -24,13 +24,13 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLPERSONFOLDERVIEW_H
-#define LL_LLPERSONFOLDERVIEW_H
+#ifndef LL_LLPERSONTABVIEW_H
+#define LL_LLPERSONTABVIEW_H
 
 #include "llavatariconctrl.h"
 #include "llfolderviewitem.h"
 
-class LLPersonFolderView : public LLFolderViewFolder
+class LLPersonTabView : public LLFolderViewFolder
 {
 
 public:
@@ -40,8 +40,8 @@ public:
 		Params();
 	};
 
-	LLPersonFolderView(const LLPersonFolderView::Params& p);
-	virtual ~LLPersonFolderView();
+	LLPersonTabView(const LLPersonTabView::Params& p);
+	virtual ~LLPersonTabView();
 
 	S32 getLabelXPos();
 
@@ -89,5 +89,5 @@ private:
 	//LLView* getItemChildView(EAvatarListItemChildIndex child_view_index);
 };
 
-#endif // LL_LLPERSONFOLDERVIEW_H
+#endif // LL_LLPERSONTABVIEW_H
 

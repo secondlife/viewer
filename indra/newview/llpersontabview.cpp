@@ -1,6 +1,6 @@
 /** 
-* @file llpersonfolderview.cpp
-* @brief Implementation of llpersonfolderview
+* @file llpersontabview.cpp
+* @brief Implementation of llpersontabview
 * @author Gilbert@lindenlab.com
 *
 * $LicenseInfo:firstyear=2013&license=viewerlgpl$
@@ -27,35 +27,35 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llpersonfolderview.h"
+#include "llpersontabview.h"
 
-static LLDefaultChildRegistry::Register<LLPersonFolderView> r_person_folder_view("person_folder_view");
+static LLDefaultChildRegistry::Register<LLPersonTabView> r_person_folder_view("person_folder_view");
 
 const LLColor4U DEFAULT_WHITE(255, 255, 255);
 
-LLPersonFolderView::Params::Params()
+LLPersonTabView::Params::Params()
 {}
 
-LLPersonFolderView::LLPersonFolderView(const LLPersonFolderView::Params& p) :
+LLPersonTabView::LLPersonTabView(const LLPersonTabView::Params& p) :
 LLFolderViewFolder(p)
 {
 
 }
 
-S32 LLPersonFolderView::getLabelXPos()
+S32 LLPersonTabView::getLabelXPos()
 { 
 	return getIndentation() + mArrowSize + 15;//Should be a .xml variable but causes crash;
 }
 
-LLPersonFolderView::~LLPersonFolderView()
+LLPersonTabView::~LLPersonTabView()
 {
 
 }
 
-void LLPersonFolderView::draw()
+void LLPersonTabView::draw()
 {
 	static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
-	static const LLFolderViewItem::Params& default_params = LLUICtrlFactory::getDefaultParams<LLPersonFolderView>();
+	static const LLFolderViewItem::Params& default_params = LLUICtrlFactory::getDefaultParams<LLPersonTabView>();
 
 	static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
 	static LLUIColor sFlashBgColor = LLUIColorTable::instance().getColor("MenuItemFlashBgColor", DEFAULT_WHITE);
@@ -79,7 +79,7 @@ void LLPersonFolderView::draw()
 }
 
 //
-// LLPersonFolderModel
+// LLPersonView
 // 
 
 

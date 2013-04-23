@@ -45,13 +45,13 @@ class LLMenuButton;
 class LLTabContainer;
 class LLFolderView;
 
-class LLPersonFolderModel;
-class LLPersonFolderView;
+class LLPersonTabModel;
+class LLPersonTabView;
 class LLPersonView;
 class LLPersonModel;
 
-typedef std::map<LLUUID, LLPersonFolderModel *> person_folder_model_map;
-typedef std::map<LLUUID, LLPersonFolderView *> person_folder_view_map;
+typedef std::map<LLUUID, LLPersonTabModel *> person_folder_model_map;
+typedef std::map<LLUUID, LLPersonTabView *> person_folder_view_map;
 
 class LLPanelPeople 
 	: public LLPanel
@@ -74,7 +74,7 @@ public:
 	void openFacebookWeb(LLFloaterWebContent::Params& p);
 	void showFacebookFriends(const LLSD& friends);
 	void addTestParticipant();
-	void addParticipantToModel(LLPersonFolderModel * session_model, const LLUUID& agent_id, const std::string& name);
+	void addParticipantToModel(LLPersonTabModel * session_model, const LLUUID& agent_id, const std::string& name);
 	void hideFacebookFriends();
 	void loadFacebookFriends();
 	void tryToReconnectToFacebook();

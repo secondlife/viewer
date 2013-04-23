@@ -30,7 +30,7 @@
 #include "../llui/llfolderviewitem.h"
 #include "../llui/llfolderviewmodel.h"
 
-class LLPersonFolderModel;
+class LLPersonTabModel;
 class LLPersonModel;
 
 // Conversation items: we hold a list of those and create an LLFolderViewItem widget for each  
@@ -93,7 +93,7 @@ public:
 		std::string& tooltip_msg) { return FALSE; }
 
 	const LLUUID& getID() {return mID;}
-	void postEvent(const std::string& event_type, LLPersonFolderModel* session, LLPersonModel* participant);
+	void postEvent(const std::string& event_type, LLPersonTabModel* session, LLPersonModel* participant);
 
 protected:
 
@@ -101,11 +101,11 @@ protected:
 	LLUUID mID;
 };	
 
-class LLPersonFolderModel : public LLPersonModelCommon
+class LLPersonTabModel : public LLPersonModelCommon
 {
 public:
-	LLPersonFolderModel(std::string display_name, LLFolderViewModelInterface& root_view_model);
-	LLPersonFolderModel(LLFolderViewModelInterface& root_view_model);
+	LLPersonTabModel(std::string display_name, LLFolderViewModelInterface& root_view_model);
+	LLPersonTabModel(LLFolderViewModelInterface& root_view_model);
 
 	LLPointer<LLUIImage> getIcon() const { return NULL; }
 	void addParticipant(LLPersonModel* participant);
