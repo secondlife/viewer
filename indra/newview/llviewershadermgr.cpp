@@ -1608,7 +1608,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredAvatarAlphaProgram.addPermutation("USE_DIFFUSE_TEX", "1");
 		gDeferredAvatarAlphaProgram.addPermutation("IS_AVATAR_SKIN", "1");
-		gDeferredAvatarAlphaProgram.addPermutation("USE_VERTEX_COLOR", "1");
 		gDeferredAvatarAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 
 		success = gDeferredAvatarAlphaProgram.createShader(NULL, &mAvatarUniforms);
