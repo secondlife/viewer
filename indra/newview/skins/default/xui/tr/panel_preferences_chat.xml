@@ -1,86 +1,34 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Metin Sohbeti" name="chat">
-	<panel>
-		<check_box initial_value="true" label="Sohbet sırasında yazma animasyonunu oynat" name="play_typing_animation"/>
-		<check_box label="Çevrimdışı olduğunda Aİ&apos;ler e-posta ile bana gönderilsin" name="send_im_to_email"/>
-		<check_box label="Sadece arkadaşlar ve gruplar beni arasın veya Aİ göndersin" name="voice_call_friends_only_check"/>
-		<text name="font_size">
-			Font büyüklüğü:
-		</text>
-		<combo_box name="chat_font_size">
-			<item label="Küçük" name="Small" value="0"/>
-			<item label="Orta" name="Medium" value="1"/>
-			<item label="Büyük" name="Large" value="2"/>
-		</combo_box>
-		<check_box label="Balon Sohbeti" name="bubble_text_chat"/>
-	</panel>
-	<panel>
-		<text name="notifications">
-			Bildirimler
-		</text>
-		<text name="friend_ims">
-			Arkadaş Aİ&apos;leri:
-		</text>
-		<combo_box name="FriendIMOptions">
-			<item label="Sohbetler penceresini aç" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Mesajı aç" name="PopUpMessage" value="toast"/>
-			<item label="Araç çubuğu düğmesi yanıp sönsün" name="FlashToolbarButton" value="flash"/>
-			<item label="Hiçbiri" name="None" value="none"/>
-		</combo_box>
-		<text name="non_friend_ims">
-			Arkadaş harici Aİ&apos;ler:
-		</text>
-		<combo_box name="NonFriendIMOptions">
-			<item label="Sohbetler penceresini aç" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Mesajı açılır pencerede göster" name="PopUpMessage" value="toast"/>
-			<item label="Araç çubuğu düğmesi yanıp sönsün" name="FlashToolbarButton" value="flash"/>
-			<item label="Hiçbiri" name="None" value="none"/>
-		</combo_box>
-		<text name="conference_ims">
-			Konferans Aİ&apos;leri:
-		</text>
-		<combo_box name="ConferenceIMOptions">
-			<item label="Sohbetler penceresini aç" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Mesajı aç" name="PopUpMessage" value="toast"/>
-			<item label="Araç çubuğu düğmesi yanıp sönsün" name="FlashToolbarButton" value="flash"/>
-			<item label="Hiçbiri" name="None" value="none"/>
-		</combo_box>
-		<text name="group_chat">
-			Grup sohbeti:
-		</text>
-		<combo_box name="GroupChatOptions">
-			<item label="Sohbetler penceresini aç" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Mesajı aç" name="PopUpMessage" value="toast"/>
-			<item label="Araç çubuğu düğmesi yanıp sönsün" name="FlashToolbarButton" value="flash"/>
-			<item label="Hiçbiri" name="None" value="none"/>
-		</combo_box>
-		<text name="nearby_chat">
-			Yakındaki sohbet:
-		</text>
-		<combo_box name="NearbyChatOptions">
-			<item label="Sohbetler penceresini aç" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Mesajı aç" name="PopUpMessage" value="toast"/>
-			<item label="Araç çubuğu düğmesi yanıp sönsün" name="FlashToolBarButton" value="flash"/>
-			<item label="Hiçbiri" name="None" value="none"/>
-		</combo_box>
-		<text name="notifications_alert">
-			Tüm bildirimleri geçici olarak durdurmak için İletişim Kur &gt; Rahatsız Etme seçeneğini kullanın.
-		</text>
-	</panel>
-	<panel>
-		<text name="play_sound">
-			Sesi çal:
-		</text>
-		<check_box label="Yeni sohbet" name="new_conversation"/>
-		<check_box label="Gelen sesli arama" name="incoming_voice_call"/>
-		<check_box label="Işınlama teklifi" name="teleport_offer"/>
-		<check_box label="Envanter teklifi" name="inventory_offer"/>
-	</panel>
-	<panel>
-		<button label="Günlüğü temizle..." name="clear_log"/>
-		<button label="Dökümleri sil..." name="delete_transcripts"/>
-		<button label="Gözat..." label_selected="Gözat" name="log_path_button"/>
-	</panel>
+	<text name="font_size">
+		Font büyüklüğü:
+	</text>
+	<radio_group name="chat_font_size">
+		<radio_item label="Küçük" name="radio" value="0"/>
+		<radio_item label="Orta" name="radio2" value="1"/>
+		<radio_item label="Büyük" name="radio3" value="2"/>
+	</radio_group>
+	<check_box initial_value="true" label="Sohbet sırasında yazma animasyonunu oynat" name="play_typing_animation"/>
+	<check_box label="Çevrimdışı olduğunda Aİ&apos;ler e-posta ile bana gönderilsin" name="send_im_to_email"/>
+	<check_box label="Düz metin Aİ&apos;ler ve sohbet geçmişini etkinleştir" name="plain_text_chat_history"/>
+	<check_box label="Balon Sohbeti" name="bubble_text_chat"/>
+	<text name="show_ims_in_label">
+		Aİ&apos;leri şurada göster:
+	</text>
+	<text name="requires_restart_label">
+		(tekrar başlatma gerekir)
+	</text>
+	<radio_group name="chat_window" tool_tip="Anlık İletileri ayrı gezdiricilerde veya çoklu sekmelere sahip tek bir gezdiricide gösterin (tekrar başlatma gerekir)">
+		<radio_item label="Ayrı Pencereler" name="radio" value="0"/>
+		<radio_item label="Sekmeler" name="radio2" value="1"/>
+	</radio_group>
+	<text name="disable_toast_label">
+		Gelen sohbet için açılır pencereleri etkinleştir:
+	</text>
+	<check_box label="Grup Sohbetleri" name="EnableGroupChatPopups" tool_tip="Bir Grup Sohbet iletisi gönderildiğinde açılır pencereleri görmek için işaretle"/>
+	<check_box label="Aİ Sohbetleri" name="EnableIMChatPopups" tool_tip="Bir anlık ileti geldiğinde açılır pencereleri görmek için işaretle"/>
+	<spinner label="Yakındaki sohbet iletilerinin vurgulanma süresi:" name="nearby_toasts_lifetime"/>
+	<spinner label="Yakındaki sohbet iletilerinin sönme süresi:" name="nearby_toasts_fadingtime"/>
 	<button label="Çeviri..." name="ok_btn"/>
 	<button label="Otomatik Yerine Koy..." name="autoreplace_showgui"/>
 	<button label="Yazım Denetimi Yapılıyor..." name="spellcheck_showgui"/>

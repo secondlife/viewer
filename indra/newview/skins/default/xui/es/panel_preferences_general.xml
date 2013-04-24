@@ -69,9 +69,6 @@
 		<combo_box.item label="nunca" name="item4"/>
 	</combo_box>
 	<text name="text_box3">
-		Respuesta de No molestar:
+		Respuesta cuando estoy en modo ocupado:
 	</text>
-	<text_editor name="do_not_disturb_response">
-		log_in_to_change
-	</text_editor>
 </panel>

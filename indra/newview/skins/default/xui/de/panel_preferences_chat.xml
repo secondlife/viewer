@@ -1,86 +1,34 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Text-Chat" name="chat">
-	<panel>
-		<check_box initial_value="true" label="Beim Chatten Tippanimation abspielen" name="play_typing_animation"/>
-		<check_box label="IMs per Email zuschicken, wenn ich offline bin" name="send_im_to_email"/>
-		<check_box label="Nur IMs und Anrufe von Freunden oder Gruppen durchstellen" name="voice_call_friends_only_check"/>
-		<text name="font_size">
-			Schriftgröße:
-		</text>
-		<combo_box name="chat_font_size">
-			<item label="Klein" name="Small" value="0"/>
-			<item label="Mittel" name="Medium" value="1"/>
-			<item label="Groß" name="Large" value="2"/>
-		</combo_box>
-		<check_box label="Blasen-Chat" name="bubble_text_chat"/>
-	</panel>
-	<panel>
-		<text name="notifications">
-			Benachrichtigungen
-		</text>
-		<text name="friend_ims">
-			IMs von Freunden:
-		</text>
-		<combo_box name="FriendIMOptions">
-			<item label="Unterhaltungsfenster öffnen" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Nachricht in Popup anzeigen" name="PopUpMessage" value="toast"/>
-			<item label="Flash-Symbolleistenschaltfläche" name="FlashToolbarButton" value="flash"/>
-			<item label="None" name="None" value="none"/>
-		</combo_box>
-		<text name="non_friend_ims">
-			IMs von anderen:
-		</text>
-		<combo_box name="NonFriendIMOptions">
-			<item label="Unterhaltungsfenster öffnen" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Nachricht in Popup anzeigen" name="PopUpMessage" value="toast"/>
-			<item label="Flash-Symbolleistenschaltfläche" name="FlashToolbarButton" value="flash"/>
-			<item label="None" name="None" value="none"/>
-		</combo_box>
-		<text name="conference_ims">
-			Konferenz-IMs:
-		</text>
-		<combo_box name="ConferenceIMOptions">
-			<item label="Unterhaltungsfenster öffnen" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Nachricht in Popup anzeigen" name="PopUpMessage" value="toast"/>
-			<item label="Flash-Symbolleistenschaltfläche" name="FlashToolbarButton" value="flash"/>
-			<item label="None" name="None" value="none"/>
-		</combo_box>
-		<text name="group_chat">
-			Gruppen-Chat:
-		</text>
-		<combo_box name="GroupChatOptions">
-			<item label="Unterhaltungsfenster öffnen" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Nachricht in Popup anzeigen" name="PopUpMessage" value="toast"/>
-			<item label="Flash-Symbolleistenschaltfläche" name="FlashToolbarButton" value="flash"/>
-			<item label="None" name="None" value="none"/>
-		</combo_box>
-		<text name="nearby_chat">
-			Chat in der Nähe:
-		</text>
-		<combo_box name="NearbyChatOptions">
-			<item label="Unterhaltungsfenster öffnen" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Nachricht in Popup anzeigen" name="PopUpMessage" value="toast"/>
-			<item label="Flash-Symbolleistenschaltfläche" name="FlashToolBarButton" value="flash"/>
-			<item label="None" name="None" value="none"/>
-		</combo_box>
-		<text name="notifications_alert">
-			Um vorübergehend alle Benachrichtigungen zu stoppen, wählen Sie „Unterhalten“ &gt; „Nicht stören“.
-		</text>
-	</panel>
-	<panel>
-		<text name="play_sound">
-			Sound abspielen:
-		</text>
-		<check_box label="Neue Unterhaltung" name="new_conversation"/>
-		<check_box label="Eingehender Anruf..." name="incoming_voice_call"/>
-		<check_box label="Teleport-Angebot" name="teleport_offer"/>
-		<check_box label="Inventarangebot" name="inventory_offer"/>
-	</panel>
-	<panel>
-		<button label="Protokoll löschen..." name="clear_log"/>
-		<button label="Protokolle löschen..." name="delete_transcripts"/>
-		<button label="Durchsuchen..." label_selected="Durchsuchen" name="log_path_button"/>
-	</panel>
+	<text name="font_size">
+		Schriftgröße:
+	</text>
+	<radio_group name="chat_font_size">
+		<radio_item label="Klein" name="radio" value="0"/>
+		<radio_item label="Mittel" name="radio2" value="1"/>
+		<radio_item label="Groß" name="radio3" value="2"/>
+	</radio_group>
+	<check_box initial_value="true" label="Beim Chatten Tippanimation abspielen" name="play_typing_animation"/>
+	<check_box label="IMs per Email zuschicken, wenn ich offline bin" name="send_im_to_email"/>
+	<check_box label="Kompakten IM- und Text-Chatverlauf aktivieren" name="plain_text_chat_history"/>
+	<check_box label="Blasen-Chat" name="bubble_text_chat"/>
+	<text name="show_ims_in_label">
+		IMs anzeigen in:
+	</text>
+	<text name="requires_restart_label">
+		(Neustart erforderlich)
+	</text>
+	<radio_group name="chat_window" tool_tip="Zeigen Sie Ihre Sofortnachrichten (Instant Messages) in einem anderen Fenster oder in einem einzigen Fenster mit vielen Registerkarten an (Neustart erforderlich).">
+		<radio_item label="Getrennte Fenster" name="radio" value="0"/>
+		<radio_item label="Registerkarten" name="radio2" value="1"/>
+	</radio_group>
+	<text name="disable_toast_label">
+		Popups für eingehende Chats aktivieren:
+	</text>
+	<check_box label="Gruppen-Chats" name="EnableGroupChatPopups" tool_tip="Markieren, um Popups zu sehen, wenn Gruppen-Chat-Message eintrifft"/>
+	<check_box label="IM-Chats" name="EnableIMChatPopups" tool_tip="Markieren, um Popups zu sehen, wenn Instant Message eintrifft"/>
+	<spinner label="Lebenszeit von Toasts für Chat in der Nähe:" name="nearby_toasts_lifetime"/>
+	<spinner label="Ein-/Ausblenddauer von Toasts für Chat in der Nähe:" name="nearby_toasts_fadingtime"/>
 	<button label="Übersetzen..." name="ok_btn"/>
 	<button label="Automatisch ersetzen..." name="autoreplace_showgui"/>
 	<button label="Rechtschreibprüfung..." name="spellcheck_showgui"/>

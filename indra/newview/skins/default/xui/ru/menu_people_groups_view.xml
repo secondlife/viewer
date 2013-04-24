@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<toggleable_menu name="menu_group_plus">
-	<menu_item_check label="Показывать значки группы" name="Display Group Icons"/>
-</toggleable_menu>

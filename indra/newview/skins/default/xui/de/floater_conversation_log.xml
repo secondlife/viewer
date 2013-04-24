@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_conversation_log" title="UNTERHALTUNGSPROTOKOLL">
-	<panel name="buttons_panel">
-		<filter_editor label="Nach Personen filtern" name="people_filter_input"/>
-		<menu_button name="conversation_view_btn" tool_tip="Anzeige-/Sortieroptionen"/>
-		<menu_button name="conversations_gear_btn" tool_tip="Aktionen für ausgewählte Person/Gruppe"/>
-	</panel>
-</floater>

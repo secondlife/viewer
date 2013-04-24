@@ -19,7 +19,7 @@
 	<button label="預設" label_selected="預設" name="Default"/>
 	<button label="空白" label_selected="空白" name="Blank"/>
 	<button label="無" label_selected="無" name="None"/>
-	<check_box initial_value="true" label="立即套用" name="apply_immediate_check"/>
+	<check_box initial_value="true" label="實時預覽" name="apply_immediate_check"/>
 	<text name="preview_disabled" value="已停用預覽"/>
 	<filter_editor label="材質過濾器" name="inventory search editor"/>
 	<check_box initial_value="false" label="顯示資料夾" name="show_folders_check"/>

@@ -137,7 +137,7 @@
 		Çık
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/?sourceid=[sourceid]
+		http://join.secondlife.com/index.php?lang=tr-TR&amp;sourceid=[sourceid]
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Kullandığınız görüntüleyici ile artık Second Life&apos;a erişemezsiniz. Yeni bir görüntüleyiciyi karşıdan yüklemek için lütfen şu sayfayı ziyaret edin:
@@ -619,8 +619,8 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="AvatarAway">
 		Uzakta
 	</string>
-	<string name="AvatarDoNotDisturb">
-		Rahatsız Etme
+	<string name="AvatarBusy">
+		Meşgul
 	</string>
 	<string name="AvatarMuted">
 		Engellenmiş
@@ -856,12 +856,6 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="ST_NO_JOINT">
 		KÖK veya EKLEM bulunamıyor.
 	</string>
-	<string name="NearbyChatTitle">
-		Yakındaki sohbet
-	</string>
-	<string name="NearbyChatLabel">
-		(Yakındaki sohbet)
-	</string>
 	<string name="whisper">
 		fısıldar:
 	</string>
@@ -925,14 +919,11 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="ControlYourCamera">
 		Kameranızı kontrol etmek
 	</string>
-	<string name="NotConnected">
-		Bağlı Değil
-	</string>
-	<string name="AgentNameSubst">
-		(Siz)
-	</string>
 	<string name="TeleportYourAgent">
 		Sizi ışınlama
+	</string>
+	<string name="NotConnected">
+		Bağlı Değil
 	</string>
 	<string name="SIM_ACCESS_PG">
 		Genel
@@ -1014,6 +1005,18 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="dictionary_files">
 		Sözlükler
+	</string>
+	<string name="AvatarSetNotAway">
+		Uzakta Değil
+	</string>
+	<string name="AvatarSetAway">
+		Uzakta
+	</string>
+	<string name="AvatarSetNotBusy">
+		Meşgul Değil
+	</string>
+	<string name="AvatarSetBusy">
+		Meşgul
 	</string>
 	<string name="shape">
 		Şekil
@@ -1983,8 +1986,8 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="PanelContentsNewScript">
 		Yeni Komut Dosyası
 	</string>
-	<string name="DoNotDisturbModeResponseDefault">
-		Bu sakin &quot;Rahatsız Etme&quot; seçeneğini devreye almış, mesajınızı sonra görecek.
+	<string name="BusyModeResponseDefault">
+		İleti gönderdiğiniz Sakin &apos;meşgul modu&apos;nda, bu da rahatsız edilmek istemediği anlamına geliyor.  İletiniz daha sonra incelenmesi için kendisine ait Aİ panelinde gösterilecektir.
 	</string>
 	<string name="MuteByName">
 		(Adına göre)
@@ -2096,6 +2099,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="GroupMoneyDate">
 		[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]
+	</string>
+	<string name="ViewerObjectContents">
+		İçerik
 	</string>
 	<string name="AcquiredItems">
 		Alınan Öğeler
@@ -3868,7 +3874,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Genel Bölge
 	</string>
 	<string name="LocationCtrlSeeAVsTooltip">
-		Bu parselin içindeki avatarlar, bu parselin dışındaki avatarlar tarafından görülemez veya işitilemez
+		Bu parselin dışında avatarlar görünür durumda ve sohbete izin veriliyor
 	</string>
 	<string name="LocationCtrlPathfindingDirtyTooltip">
 		Bölge yeniden kaydedilinceye kadar hareket eden nesneler bu bölgede doğru davranmayabilir.
@@ -3945,12 +3951,6 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	<string name="IM_unblock_only_groups_friends">
 		Bu mesajı görmek için Tercihler/Gizlilik&apos;de &apos;Sadece arkadaşlar ve gruplar beni arasın veya Aİ göndersin&apos; seçeneğinin işaretini kaldırmalısınız.
 	</string>
-	<string name="OnlineStatus">
-		Çevrimiçi
-	</string>
-	<string name="OfflineStatus">
-		Çevrimdışı
-	</string>
 	<string name="answered_call">
 		Aramanız yanıtlandı
 	</string>
@@ -3959,9 +3959,6 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	</string>
 	<string name="you_joined_call">
 		Sesli aramaya katıldınız
-	</string>
-	<string name="you_auto_rejected_call-im">
-		&quot;Rahatsız Etme&quot; seçeneğini devredeyken sesli aramayı otomatik olarak reddettiniz.
 	</string>
 	<string name="name_started_call">
 		[NAME] bir sesli arama başlattı
@@ -3979,7 +3976,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Bağlanıyor...
 	</string>
 	<string name="conference-title">
-		Çok kişili sohbet
+		Özel Konferans
 	</string>
 	<string name="conference-title-incoming">
 		[AGENT_NAME] ile konferans
@@ -4869,9 +4866,6 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="Command_Chat_Label">
 		Sohbet
 	</string>
-	<string name="Command_Conversations_Label">
-		Sohbetler
-	</string>
 	<string name="Command_Compass_Label">
 		Pusula
 	</string>
@@ -4946,9 +4940,6 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="Command_Chat_Tooltip">
 		Metin kullanarak yakındaki kişilerle sohbet etmek
-	</string>
-	<string name="Command_Conversations_Tooltip">
-		Herkesle sohbet et
 	</string>
 	<string name="Command_Compass_Tooltip">
 		Pusula
@@ -5078,14 +5069,5 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="UserDictionary">
 		[User]
-	</string>
-	<string name="logging_calls_disabled_log_empty">
-		Sohbetlerin günlüğü tutulmuyor. Bir günlük tutmaya başlamak için, Tercihler &gt; Sohbet altında &quot;Kaydet: Sadece günlük&quot; veya &quot;Kaydet: Günlük ve dökümler&quot; seçimini yapın.
-	</string>
-	<string name="logging_calls_disabled_log_not_empty">
-		Bundan böyle sohbetlerin günlükleri tutulmayacak. Bir günlük tutmaya devam etmek için, Tercihler &gt; Sohbet altında &quot;Kaydet: Sadece günlük&quot; veya &quot;Kaydet: Günlük ve dökümler&quot; seçimini yapın.
-	</string>
-	<string name="logging_calls_enabled_log_empty">
-		Günlüğü tutulmuş sohbet yok. Siz biriyle iletişime geçtikten sonra veya biri sizinle iletişime geçtikten sonra, burada bir günlük girişi gösterilir.
 	</string>
 </strings>

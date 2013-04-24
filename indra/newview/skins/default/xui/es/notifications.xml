@@ -511,24 +511,6 @@ El objeto debe de haber sido borrado o estar fuera de rango (&apos;out of range&
 		</url>
 		<usetemplate ignoretext="Mi controlador de gráficos no está actualizado" name="okcancelignore" notext="No" yestext="Sí"/>
 	</notification>
-	<notification name="AMDOldDriver">
-		Probablemente ya existe un controlador más reciente para tu procesador de gráficos. La actualización del controlador de gráficos puede mejorar sustancialmente el rendimiento.
-
-    ¿Deseas visitar [_URL] para comprobar si hay controladores actualizados?
-		<url name="url">
-			http://support.amd.com/us/Pages/AMDSupportHub.aspx
-		</url>
-		<usetemplate ignoretext="Mi controlador de gráficos no está actualizado" name="okcancelignore" notext="No" yestext="Sí"/>
-	</notification>
-	<notification name="NVIDIAOldDriver">
-		Probablemente ya existe un controlador más reciente para tu procesador de gráficos.  La actualización del controlador de gráficos puede mejorar sustancialmente el rendimiento.
-
-    ¿Deseas visitar [_URL] para comprobar si hay controladores actualizados?
-		<url name="url">
-			http://www.nvidia.com/Download/index.aspx?lang=es
-		</url>
-		<usetemplate ignoretext="Mi controlador de gráficos no está actualizado" name="okcancelignore" notext="No" yestext="Sí"/>
-	</notification>
 	<notification name="UnknownGPU">
 		Tu sistema usa una tarjeta gráfica que [APP_NAME] no reconoce.
 Suele suceder con hardware nuevo que todavía no ha sido probado con [APP_NAME].  Probablemente todo irá bien, pero deberás ajustar tus configuraciones gráficas.
@@ -1571,13 +1553,10 @@ Debemos reiniciar [APP_NAME] para instalar la actualización.
 		En este momento, no se puede ofrecer el ser amigo. Por favor, vuelve a intentarlo en un momento.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="DoNotDisturbModeSet">
-		Está activado No molestar. No obtendrás un aviso cuando recibas comunicaciones.
-
-- Los otros residentes recibirán tu respuesta de No molestar (se configura en Preferencias &gt; General).
-- Se rehusarán los ofrecimientos de teleporte.
-- Se rechazarán las llamadas de voz.
-		<usetemplate ignoretext="Cambio mi estado al modo No molestar" name="okignore" yestext="OK"/>
+	<notification name="BusyModeSet">
+		Pasar al modo ocupado.
+Se ocultará el chat y los mensajes instantáneos   (éstos recibirán tu Respuesta en el modo ocupado). Se rehusarán todos los ofrecimientos de teleporte. Todas las ofertas de inventario irán a tu Papelera.
+		<usetemplate ignoretext="Cambio mi estado al modo ocupado" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="JoinedTooManyGroupsMember">
 		Has superado tu número máximo de grupos. Por favor, sal de al menos uno antes de entrar en éste, o rehúsa la oferta.
@@ -2064,10 +2043,6 @@ Dado que estos objetos tienen scripts, moverlos a tu inventario puede provocar u
 		¿Ir a tu [http://secondlife.com/account/ Panel de Control] para ver el historial de tu cuenta?
 		<usetemplate ignoretext="Abrir mi navegador para ver el historial de mi cuenta" name="okcancelignore" notext="Cancelar" yestext="Ir a la página"/>
 	</notification>
-	<notification name="ConfirmAddingChatParticipants">
-		Si agregas una persona a una conversación en curso, se creará una conversación nueva. Todos los participantes recibirán notificaciones de la nueva conversación.
-		<usetemplate ignoretext="Confirmar agregar participantes al chat" name="okcancelignore" notext="Cancelar" yestext="Aceptar"/>
-	</notification>
 	<notification name="ConfirmQuit">
 		¿Estás seguro de que quieres salir?
 		<usetemplate ignoretext="Confirmar antes de salir" name="okcancelignore" notext="No salir" yestext="Salir"/>
@@ -2141,14 +2116,14 @@ Linden Lab
 			<button ignore="Nunca reemplazar" name="No" text="Cancelar"/>
 		</form>
 	</notification>
-	<notification label="Advertencia del modo No molestar" name="DoNotDisturbModePay">
-		Tienes activado No molestar. No podrás recibir ningún objeto ofrecido a cambio de este pago.
+	<notification label="¡Aviso! Modo Ocupado" name="BusyModePay">
+		Estás en el modo Ocupado. Por tanto, no recibirás ningún ítem a cambio de este pago.
 
-¿Deseas desactivar No molestar antes de finalizar esta transacción?
+¿Quieres salir del modo Ocupado antes de completar esta transacción?
 		<form name="form">
-			<ignore name="ignore" text="Voy a pagar a una persona u objeto mientras estoy en el modo No molestar"/>
-			<button ignore="Salir siempre del modo No molestar" name="Yes" text="OK"/>
-			<button ignore="No salir nunca del modo No molestar" name="No" text="Cancelar"/>
+			<ignore name="ignore" save_option="true" text="Voy a pagar a una persona u objeto mientras estoy en el modo ocupado"/>
+			<button ignore="Siempre salir del modo Ocupado" name="Yes" text="OK"/>
+			<button ignore="Nunca salir del modo Ocupado" name="No" text="Cancelar"/>
 		</form>
 	</notification>
 	<notification name="ConfirmDeleteProtectedCategory">
@@ -2283,8 +2258,11 @@ Publícala en una página web para que otros puedan acceder fácilmente a esta p
 	<notification name="GroupNotice">
 		Asunto: [SUBJECT], Mensaje: [MESSAGE]
 	</notification>
-	<notification name="FriendOnlineOffline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; está [STATUS]
+	<notification name="FriendOnline">
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; está conectado
+	</notification>
+	<notification name="FriendOffline">
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; está desconectado
 	</notification>
 	<notification name="AddSelfFriend">
 		Aunque eres muy agradable, no puedes añadirte como amigo a ti mismo.
@@ -2511,6 +2489,13 @@ Aquí no puedes volar.
 	</notification>
 	<notification name="DynamicPathfindingDisabled">
 		Esta región no tiene activado el pathfinding dinámico. Los objetos programados que utilicen llamadas LSL de pathfinding pueden tener un comportamiento inesperado en ella.
+	</notification>
+	<notification name="PathfindingRebakeNavmesh">
+		Si cambias ciertos objetos en esta región, otros objetos móviles podrían tener un comportamiento incorrecto. Para que los objetos móviles se comporten correctamente, pulsa el botón “Recargar la región”. Si quieres más información, elige “Ayuda”.
+		<url name="url">
+			http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+		</url>
+		<usetemplate helptext="Ayuda" ignoretext="Si cambias ciertos objetos en esta región, otros objetos móviles podrían tener un comportamiento incorrecto." name="okhelpignore" yestext="OK"/>
 	</notification>
 	<notification name="PathfindingCannotRebakeNavmesh">
 		Se ha producido un error. Puede haber ocurrido un problema en la red o el servidor, o quizás no tengas derechos de construcción. Este problema podría resolverse cerrando la sesión e iniciando una sesión nueva.
@@ -2772,9 +2757,9 @@ Del objeto: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, propietario: [NAME]?
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		Atención: El objeto &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; solicita un acceso pleno a tu cuenta de dólares Linden. Si le autorizas el acceso, podrá retirar fondos de tu cuenta en cualquier momento o vaciarla por completo, cuando lo desee y sin más advertencias.
+		Atención: El objeto &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; solicita un acceso total a tu cuenta de dólares Linden. Si le autorizas el acceso, podrá retirar fondos de tu cuenta en cualquier momento o vaciarla por completo, de manera permanente y sin más advertencias.
   
-No autorices el acceso a tu cuenta si no conoces cuál es la razón exacta.
+Estas solicitudes pocas veces son legítimas. No autorices el acceso si no conoces la razón exacta por la que desea el acceso a tu cuenta.
 		<form name="form">
 			<button name="Grant" text="Permitir acceso total"/>
 			<button name="Deny" text="Denegar"/>
@@ -3345,634 +3330,5 @@ Intento cancelado.
 	<notification name="PathfindingDeleteMultipleItems">
 		Vas a eliminar [NUM_ITEMS] objetos. ¿Estás seguro de que deseas continuar?
 		<usetemplate ignoretext="¿Estás seguro de que quieres eliminar varios elementos?" name="okcancelignore" notext="No" yestext="Sí"/>
-	</notification>
-	<notification name="AvatarFrozen">
-		[AV_FREEZER] te ha congelado. No puedes moverte ni interactuar con el mundo.
-	</notification>
-	<notification name="AvatarFrozenDuration">
-		[AV_FREEZER] te ha congelado durante [AV_FREEZE_TIME] segundos. No puedes moverte ni interactuar con el mundo.
-	</notification>
-	<notification name="YouFrozeAvatar">
-		Avatar congelado.
-	</notification>
-	<notification name="AvatarHasUnFrozenYou">
-		[AV_FREEZER] te ha descongelado.
-	</notification>
-	<notification name="AvatarUnFrozen">
-		Avatar descongelado.
-	</notification>
-	<notification name="AvatarFreezeFailure">
-		Error al congelar: no tienes permisos de administrador en esa parcela.
-	</notification>
-	<notification name="AvatarFreezeThaw">
-		La congelación ha terminado, puedes seguir con tus asuntos.
-	</notification>
-	<notification name="AvatarCantFreeze">
-		Lo sentimos, ese usuario no se puede congelar.
-	</notification>
-	<notification name="NowOwnObject">
-		Ahora eres el propietario del objeto [OBJECT_NAME]
-	</notification>
-	<notification name="CantRezOnLand">
-		No se puede colocar el objeto en [OBJECT_POS] porque el propietario de ese terreno no lo permite. Usa la herramienta de terreno para ver quién es el propietario.
-	</notification>
-	<notification name="RezFailTooManyRequests">
-		El objeto no se puede colocar porque hay demasiadas solicitudes.
-	</notification>
-	<notification name="SitFailCantMove">
-		No te puedes sentar porque en este momento no puedes desplazarte.
-	</notification>
-	<notification name="SitFailNotAllowedOnLand">
-		No te puedes sentar porque no tienes permiso para estar en ese terreno.
-	</notification>
-	<notification name="SitFailNotSameRegion">
-		Acércate. No te puedes sentar en el objeto porque
-no está en la misma región que tú.
-	</notification>
-	<notification name="NoNewObjectRegionFull">
-		No se puede crear el nuevo objeto. La región está llena.
-	</notification>
-	<notification name="FailedToPlaceObject">
-		Error al colocar el objeto en el lugar especificado.  Vuelve a intentarlo.
-	</notification>
-	<notification name="NoOwnNoGardening">
-		No puedes crear árboles y hierba en un terreno que no es tuyo.
-	</notification>
-	<notification name="NoCopyPermsNoObject">
-		Error al copiar: careces de permiso para copiar el objeto &apos;[OBJ_NAME]&apos;.
-	</notification>
-	<notification name="NoTransPermsNoObject">
-		Error al copiar: no se te puede transferir el objeto &apos;[OBJ_NAME]&apos;.
-	</notification>
-	<notification name="AddToNavMeshNoCopy">
-		Error al copiar porque el objeto &apos;[OBJ_NAME]&apos; contribuye al navmesh.
-	</notification>
-	<notification name="DupeWithNoRootsSelected">
-		Duplicación sin objetos raíz seleccionados.
-	</notification>
-	<notification name="CantDupeCuzRegionIsFull">
-		No se pueden duplicar objetos porque la región está llena.
-	</notification>
-	<notification name="CantDupeCuzParcelNotFound">
-		No se pueden duplicar los objetos: no se encuentra la parcela en la que se hallan.
-	</notification>
-	<notification name="CantCreateCuzParcelFull">
-		No se puede crear el objeto porque 
-la parcela está llena.
-	</notification>
-	<notification name="RezAttemptFailed">
-		Error al intentar colocar un objeto.
-	</notification>
-	<notification name="ToxicInvRezAttemptFailed">
-		No se puede crear un objeto que ha causado problemas en esta región.
-	</notification>
-	<notification name="InvItemIsBlacklisted">
-		Ese objeto de inventario está en la lista negra.
-	</notification>
-	<notification name="NoCanRezObjects">
-		Actualmente no tienes autorización para crear objetos.
-	</notification>
-	<notification name="LandSearchBlocked">
-		Búsqueda de terrenos bloqueada.
-Has realizado demasiadas búsquedas de terreno con excesiva rapidez.
-Prueba otra vez dentro de un minuto.
-	</notification>
-	<notification name="NotEnoughResourcesToAttach">
-		No hay suficientes recursos de script disponibles para anexar el objeto
-	</notification>
-	<notification name="YouDiedAndGotTPHome">
-		Has muerto y te has teleportado a tu lugar de origen
-	</notification>
-	<notification name="EjectComingSoon">
-		Te han expulsado de aquí y tienes [EJECT_TIME] segundos para salir.
-	</notification>
-	<notification name="NoEnterServerFull">
-		No puedes entrar en esta región porque 
-el servidor está lleno.
-	</notification>
-	<notification name="SaveBackToInvDisabled">
-		Se ha deshabilitado Devolver el objeto a mi inventario.
-	</notification>
-	<notification name="NoExistNoSaveToContents">
-		No se puede guardar &apos;[OBJ_NAME]&apos; en el contenido del objeto porque el objeto desde el cual ha sido colocado ya no existe.
-	</notification>
-	<notification name="NoModNoSaveToContents">
-		No se puede guardar &apos;[OBJ_NAME]&apos; en el contenido del objeto porque no tienes permiso para modificar el objeto &apos;[DEST_NAME]&apos;.
-	</notification>
-	<notification name="NoSaveBackToInvDisabled">
-		No se puede guardar &apos;[OBJ_NAME]&apos; de nuevo en el inventario; esta operación está desactivada.
-	</notification>
-	<notification name="NoCopyNoSelCopy">
-		No se puede copiar tu selección porque no tienes permiso para copiar el objeto &apos;[OBJ_NAME]&apos;.
-	</notification>
-	<notification name="NoTransNoSelCopy">
-		No se puede copiar tu selección porque el objeto &apos;[OBJ_NAME]&apos; es intransferible.
-	</notification>
-	<notification name="NoTransNoCopy">
-		No se puede copiar tu selección porque el objeto &apos;[OBJ_NAME]&apos; es intransferible.
-	</notification>
-	<notification name="NoPermsNoRemoval">
-		El sistema de permisos no admite la eliminación del objeto &apos;[OBJ_NAME]&apos; del simulador.
-	</notification>
-	<notification name="NoModNoSaveSelection">
-		No se puede guardar tu selección porque no tienes permiso para modificar el objeto &apos;[OBJ_NAME]&apos;.
-	</notification>
-	<notification name="NoCopyNoSaveSelection">
-		No se puede guardar tu selección porque el objeto &apos;[OBJ_NAME]&apos; no se puede copiar.
-	</notification>
-	<notification name="NoModNoTaking">
-		No se puede aceptar tu selección porque no tienes permiso para modificar el objeto &apos;[OBJ_NAME]&apos;.
-	</notification>
-	<notification name="RezDestInternalError">
-		Error interno: tipo de destino desconocido.
-	</notification>
-	<notification name="DeleteFailObjNotFound">
-		Error al borrar: el objeto no se encuentra
-	</notification>
-	<notification name="SorryCantEjectUser">
-		Lo sentimos, ese usuario no se puede expulsar.
-	</notification>
-	<notification name="RegionSezNotAHome">
-		Esta región no te permite configurar aquí tu lugar de origen.
-	</notification>
-	<notification name="HomeLocationLimits">
-		Tu &apos;Lugar de origen&apos; solo se puede configurar en tu terreno o en un punto de información del continente.
-	</notification>
-	<notification name="HomePositionSet">
-		Posición de origen ajustada.
-	</notification>
-	<notification name="AvatarEjected">
-		Avatar expulsado.
-	</notification>
-	<notification name="AvatarEjectFailed">
-		Error al expulsar: no tienes permiso de administrador en esa parcela.
-	</notification>
-	<notification name="CantMoveObjectParcelFull">
-		No se puede mover el objeto &apos;[OBJECT_NAME]&apos; a
-[OBJ_POSITION] en la región [REGION_NAME] porque la parcela está llena.
-	</notification>
-	<notification name="CantMoveObjectParcelPerms">
-		No se puede mover el objeto &apos;[OBJECT_NAME]&apos; a
-[OBJ_POSITION] de la región [REGION_NAME] porque tus objetos no están permitidos en esta parcela.
-	</notification>
-	<notification name="CantMoveObjectParcelResources">
-		No se puede mover el objeto &apos;[OBJECT_NAME]&apos; a
-[OBJ_POSITION] de la región [REGION_NAME] porque no hay suficientes recursos para este objeto en esta parcela.
-	</notification>
-	<notification name="CantMoveObjectRegionVersion">
-		No se puede mover el objeto &apos;[OBJECT_NAME]&apos; a
-[OBJ_POSITION] de la región [REGION_NAME] porque la otra región ejecuta una versión más antigua que no admite la recepción de este objeto atravesando regiones.
-	</notification>
-	<notification name="CantMoveObjectNavMesh">
-		No se puede mover el objeto &apos;[OBJECT_NAME]&apos; a
-[OBJ_POSITION] en la región [REGION_NAME] porque no puedes modificar el navmesh a través de límites de región.
-	</notification>
-	<notification name="CantMoveObjectWTF">
-		No se puede mover el objeto &apos;[OBJECT_NAME]&apos; a
-[OBJ_POSITION] en la región [REGION_NAME] por un motivo desconocido. ([FAILURE_TYPE])
-	</notification>
-	<notification name="NoPermModifyObject">
-		No tienes permiso para modificar ese objeto
-	</notification>
-	<notification name="CantEnablePhysObjContributesToNav">
-		No se puede habilitar la física para un objeto que contribuye al navmesh.
-	</notification>
-	<notification name="CantEnablePhysKeyframedObj">
-		No se puede activar la física para los objetos con fotogramas clave.
-	</notification>
-	<notification name="CantEnablePhysNotEnoughLandResources">
-		No se puede habilitar la física para el objeto: recursos de terreno insuficientes.
-	</notification>
-	<notification name="CantEnablePhysCostTooGreat">
-		No se puede activar la física para un objeto con un coste de recursos de física mayor que [MAX_OBJECTS]
-	</notification>
-	<notification name="PhantomWithConcavePiece">
-		Este objeto no puede tener una pieza cóncava porque es inmaterial y contribuye al navmesh.
-	</notification>
-	<notification name="UnableAddItem">
-		¡No se puede añadir un objeto!
-	</notification>
-	<notification name="UnableEditItem">
-		¡No se puede editar esto!
-	</notification>
-	<notification name="NoPermToEdit">
-		No puedes editar esto.
-	</notification>
-	<notification name="NoPermToCopyInventory">
-		No está permitido copiar ese inventario.
-	</notification>
-	<notification name="CantSaveItemDoesntExist">
-		No se puede guardar en el contenido del objeto: el objeto ya no existe.
-	</notification>
-	<notification name="CantSaveItemAlreadyExists">
-		No se puede guardar en el contenido del objeto: el inventario ya contiene un objeto con ese nombre
-	</notification>
-	<notification name="CantSaveModifyAttachment">
-		No se puede guardar en el contenido del objeto: se modificarían los permisos de anexo.
-	</notification>
-	<notification name="TooManyScripts">
-		Demasiados scripts.
-	</notification>
-	<notification name="UnableAddScript">
-		¡No se puede añadir un script!
-	</notification>
-	<notification name="AssetServerTimeoutObjReturn">
-		El servidor de objetos no respondió puntualmente. El objeto se ha devuelto al sim.
-	</notification>
-	<notification name="RegionDisablePhysicsShapes">
-		Esta región no tiene habilitadas las formas de física.
-	</notification>
-	<notification name="NoModNavmeshAcrossRegions">
-		No se puede modificar el navmesh a través de límites de región.
-	</notification>
-	<notification name="NoSetPhysicsPropertiesOnObjectType">
-		No se pueden establecer propiedades de física en ese tipo de objeto.
-	</notification>
-	<notification name="NoSetRootPrimWithNoShape">
-		No se puede establecer que un prim raíz no tenga forma.
-	</notification>
-	<notification name="NoRegionSupportPhysMats">
-		Esta región no tiene habilitados los materiales de física.
-	</notification>
-	<notification name="OnlyRootPrimPhysMats">
-		Solo se pueden ajustar los materiales de física de las prims raíces.
-	</notification>
-	<notification name="NoSupportCharacterPhysMats">
-		Aun no es posible configurar materiales de física para los personajes.
-	</notification>
-	<notification name="InvalidPhysMatProperty">
-		Una o varias de las propiedades de los materiales de física especificados no son válidas.
-	</notification>
-	<notification name="NoPermsAlterStitchingMeshObj">
-		No se puede cambiar el tipo de unión de un objeto de la malla.
-	</notification>
-	<notification name="NoPermsAlterShapeMeshObj">
-		No se puede cambiar la forma de un objeto de la malla
-	</notification>
-	<notification name="FullRegionCantEnter">
-		No puedes entrar en esta región porque \nla región está llena.
-	</notification>
-	<notification name="LinkFailedOwnersDiffer">
-		Error de vínculo: los propietarios son diferentes
-	</notification>
-	<notification name="LinkFailedNoModNavmeshAcrossRegions">
-		Error de vínculo: no se puede modificar el navmesh a través de límites de región.
-	</notification>
-	<notification name="LinkFailedNoPermToEdit">
-		Error de vínculo: no tienes permiso de edición.
-	</notification>
-	<notification name="LinkFailedTooManyPrims">
-		Error de vínculo: demasiadas primitivas
-	</notification>
-	<notification name="LinkFailedCantLinkNoCopyNoTrans">
-		Error de vínculo: no se pueden vincular &apos;no copiable&apos; y &apos;no transferible&apos;
-	</notification>
-	<notification name="LinkFailedNothingLinkable">
-		Error de vínculo: no hay objetos que se puedan vincular.
-	</notification>
-	<notification name="LinkFailedTooManyPathfindingChars">
-		Error de vínculo: demasiados personajes de pathfinding
-	</notification>
-	<notification name="LinkFailedInsufficientLand">
-		Error de vínculo: recursos de terreno insuficientes
-	</notification>
-	<notification name="LinkFailedTooMuchPhysics">
-		El objeto utiliza una cantidad excesiva de recursos de física; se ha desactivado su dinámica.
-	</notification>
-	<notification name="TeleportedHomeByObjectOnParcel">
-		Has sido teleportado al origen por el objeto &apos;[OBJECT_NAME]&apos; de la parcela &apos;[PARCEL_NAME]&apos;
-	</notification>
-	<notification name="TeleportedHomeByObject">
-		Has sido teleportado a tu origen por el objeto &apos;[OBJECT_NAME]&apos;
-	</notification>
-	<notification name="TeleportedByAttachment">
-		Has sido teleportado por un anexo de [ITEM_ID]
-	</notification>
-	<notification name="TeleportedByObjectOnParcel">
-		Has sido teleportado por el objeto &apos;[OBJECT_NAME]&apos; de la parcela &apos;[PARCEL_NAME]&apos;
-	</notification>
-	<notification name="TeleportedByObjectOwnedBy">
-		Has sido teleportado por el objeto &apos;[OBJECT_NAME]&apos; que es propiedad de [OWNER_ID]
-	</notification>
-	<notification name="TeleportedByObjectUnknownUser">
-		Has sido teleportado por el objeto &apos;[OBJECT_NAME]&apos; cuyo propietario es un usuario desconocido.
-	</notification>
-	<notification name="CantCreateObjectRegionFull">
-		No se puede crear el objeto solicitado. La región está llena.
-	</notification>
-	<notification name="CantAttackMultipleObjOneSpot">
-		No puedes anexar varios objetos a un solo lugar.
-	</notification>
-	<notification name="CantCreateMultipleObjAtLoc">
-		Aquí no se pueden crear varios objetos.
-	</notification>
-	<notification name="UnableToCreateObjTimeOut">
-		No se puede crear el objeto solicitado. El objeto no se encuentra en la base de datos.
-	</notification>
-	<notification name="UnableToCreateObjUnknown">
-		No se puede crear el objeto solicitado. Ha expirado el tiempo de la solicitud. Vuelve a intentarlo.
-	</notification>
-	<notification name="UnableToCreateObjMissingFromDB">
-		No se puede crear el objeto solicitado. Vuelve a intentarlo.
-	</notification>
-	<notification name="RezFailureTookTooLong">
-		Error al colocar: la carga del objeto solicitado ha tardado demasiado.
-	</notification>
-	<notification name="FailedToPlaceObjAtLoc">
-		Error al colocar el objeto en el lugar especificado. Vuelve a intentarlo.
-	</notification>
-	<notification name="CantCreatePlantsOnLand">
-		No se pueden crear plantas en este terreno.
-	</notification>
-	<notification name="CantRestoreObjectNoWorldPos">
-		No se puede restaurar el objeto. No se ha encontrado una posición del mundo.
-	</notification>
-	<notification name="CantRezObjectInvalidMeshData">
-		No se puede colocar el objeto porque sus datos de malla no son válidos.
-	</notification>
-	<notification name="CantRezObjectTooManyScripts">
-		No se puede colocar el objeto porque la región ya contiene demasiados scripts.
-	</notification>
-	<notification name="CantCreateObjectNoAccess">
-		Tus privilegios de acceso no te permiten crear objetos allí.
-	</notification>
-	<notification name="CantCreateObject">
-		Actualmente no tienes autorización para crear objetos.
-	</notification>
-	<notification name="InvalidObjectParams">
-		Los parámetros de objeto no son válidos
-	</notification>
-	<notification name="CantDuplicateObjectNoAcess">
-		Tus privilegios de acceso no te permiten duplicar objetos aquí.
-	</notification>
-	<notification name="CantChangeShape">
-		No tienes permiso para cambiar esta forma.
-	</notification>
-	<notification name="NoAccessToClaimObjects">
-		Tus privilegios de acceso no te permiten reclamar objetos aquí.
-	</notification>
-	<notification name="DeedFailedNoPermToDeedForGroup">
-		Error de transferencia: no tienes permiso para transferir objetos para tu grupo.
-	</notification>
-	<notification name="NoPrivsToBuyObject">
-		Tus privilegios de acceso no te autorizan a comprar objetos aquí.
-	</notification>
-	<notification name="CantAttachObjectAvatarSittingOnIt">
-		No se puede anexar el objeto porque un avatar está sentado en él.
-	</notification>
-	<notification name="WhyAreYouTryingToWearShrubbery">
-		No te puedes poner árboles y hierba como anexos.
-	</notification>
-	<notification name="CantAttachGroupOwnedObjs">
-		No se pueden anexar objetos que son propiedad de grupos.
-	</notification>
-	<notification name="CantAttachObjectsNotOwned">
-		No puedes anexar objetos de los que no eres propietario.
-	</notification>
-	<notification name="CantAttachNavmeshObjects">
-		No se pueden anexar objetos que contribuyen al navmesh.
-	</notification>
-	<notification name="CantAttachObjectNoMovePermissions">
-		No se puede anexar el objeto porque no tienes permiso para moverlo.
-	</notification>
-	<notification name="CantAttachNotEnoughScriptResources">
-		No hay suficientes recursos de script disponibles para anexar el objeto
-	</notification>
-	<notification name="CantDropItemTrialUser">
-		No se pueden soltar objetos aquí; inténtalo en la zona de prueba gratuita.
-	</notification>
-	<notification name="CantDropMeshAttachment">
-		No se pueden soltar anexos de la malla. Quítalos en el inventario y después colócalos en el mundo.
-	</notification>
-	<notification name="CantDropAttachmentNoPermission">
-		Error al soltar el anexo: no tienes permiso para soltarlo allí.
-	</notification>
-	<notification name="CantDropAttachmentInsufficientLandResources">
-		Error al soltar el anexo: recurso de terreno disponible insuficiente.
-	</notification>
-	<notification name="CantDropAttachmentInsufficientResources">
-		Error al soltar los anexos: los recursos disponibles son insuficientes.
-	</notification>
-	<notification name="CantDropObjectFullParcel">
-		No se puede soltar el objeto aquí. La parcela está llena.
-	</notification>
-	<notification name="CantTouchObjectBannedFromParcel">
-		No puedes tocar/agarrar este objeto porque tienes prohibida la entrada en la parcela de terreno.
-	</notification>
-	<notification name="PlzNarrowDeleteParams">
-		Acota los parámetros de eliminación.
-	</notification>
-	<notification name="UnableToUploadAsset">
-		No se puede subir el activo.
-	</notification>
-	<notification name="CantTeleportCouldNotFindUser">
-		No se ha podido encontrar el usuario para teleportarlo al origen
-	</notification>
-	<notification name="GodlikeRequestFailed">
-		error en la solicitud de superpoderes
-	</notification>
-	<notification name="GenericRequestFailed">
-		error de solicitud genérico
-	</notification>
-	<notification name="CantUploadPostcard">
-		No se puede subir la postal. Vuelve a intentarlo más tarde.
-	</notification>
-	<notification name="CantFetchInventoryForGroupNotice">
-		No se pueden obtener los datos de inventario del aviso de grupo.
-	</notification>
-	<notification name="CantSendGroupNoticeNotPermitted">
-		No se puede enviar el aviso de grupo: no está permitido.
-	</notification>
-	<notification name="CantSendGroupNoticeCantConstructInventory">
-		No se puede enviar el aviso del grupo: el inventario no se puede construir.
-	</notification>
-	<notification name="CantParceInventoryInNotice">
-		No se puede analizar el inventario del aviso.
-	</notification>
-	<notification name="TerrainUploadFailed">
-		Error al subir terreno.
-	</notification>
-	<notification name="TerrainFileWritten">
-		Se ha registrado el archivo de terreno.
-	</notification>
-	<notification name="TerrainFileWrittenStartingDownload">
-		Archivo de terreno registrado, iniciando la descarga...
-	</notification>
-	<notification name="TerrainBaked">
-		Terreno predeterminado.
-	</notification>
-	<notification name="TenObjectsDisabledPlzRefresh">
-		Solamente se han desactivado los 10 primeros objetos seleccionados. Si es preciso, actualiza y selecciona otros objetos.
-	</notification>
-	<notification name="UpdateViewerBuyParcel">
-		Para comprar esta parcela debes actualizar el visor.
-	</notification>
-	<notification name="CantBuyParcelNotForSale">
-		Error al comprar: esta parcela no está en venta.
-	</notification>
-	<notification name="CantBuySalePriceOrLandAreaChanged">
-		No se puede comprar: el precio de venta o la superficie del terreno han cambiado.
-	</notification>
-	<notification name="CantBuyParcelNotAuthorized">
-		No eres el comprador autorizado de esta parcela.
-	</notification>
-	<notification name="CantBuyParcelAwaitingPurchaseAuth">
-		No puedes comprar esta parcela porque ya está en espera de una autorización de compra
-	</notification>
-	<notification name="CantBuildOverflowParcel">
-		No se pueden construir objetos aquí porque se desbordaría la parcela.
-	</notification>
-	<notification name="SelectedMultipleOwnedLand">
-		Has seleccionado un terreno con propietarios diferentes. Selecciona un área más pequeña y repite la operación.
-	</notification>
-	<notification name="CantJoinTooFewLeasedParcels">
-		La selección no contiene suficientes parcelas alquiladas para unirlas.
-	</notification>
-	<notification name="CantDivideLandMultipleParcelsSelected">
-		No se puede dividir el terreno.\nHay varias parcelas seleccionadas.\nPrueba a seleccionar un terreno más pequeño.
-	</notification>
-	<notification name="CantDivideLandCantFindParcel">
-		No se puede dividir el terreno.\nNo se encuentra la parcela.\nAvísanos con Ayuda -&gt; Notificar fallo...
-	</notification>
-	<notification name="CantDivideLandWholeParcelSelected">
-		No se puede dividir el terreno. Está seleccionada la parcela completa.\nPrueba a seleccionar un terreno más pequeño.
-	</notification>
-	<notification name="LandHasBeenDivided">
-		El terreno se ha dividido.
-	</notification>
-	<notification name="PassPurchased">
-		Has comprado un pase.
-	</notification>
-	<notification name="RegionDisallowsClassifieds">
-		La región no permite anuncios.
-	</notification>
-	<notification name="LandPassExpireSoon">
-		Tu pase para este terreno está a punto de caducar.
-	</notification>
-	<notification name="CantSitNoSuitableSurface">
-		Esta superficie no es adecuada para sentarse, prueba en otro sitio.
-	</notification>
-	<notification name="CantSitNoRoom">
-		No hay sitio para sentarse aquí, prueba en otro lugar.
-	</notification>
-	<notification name="ClaimObjectFailedNoPermission">
-		Error al reclamar el objeto: no tienes permiso
-	</notification>
-	<notification name="ClaimObjectFailedNoMoney">
-		Error al reclamar el objeto: no tienes suficientes L$.
-	</notification>
-	<notification name="CantDeedGroupLand">
-		No se puede transferir un terreno propiedad de un grupo.
-	</notification>
-	<notification name="BuyObjectFailedNoMoney">
-		Error al comprar el objeto, no tienes suficientes L$.
-	</notification>
-	<notification name="BuyInventoryFailedNoMoney">
-		Error al comprar el inventario: no tienes suficientes L$.
-	</notification>
-	<notification name="BuyPassFailedNoMoney">
-		No tienes suficientes L$ para comprar un pase a este terreno.
-	</notification>
-	<notification name="CantBuyPassTryAgain">
-		No se puede comprar el pase ahora mismo. Vuelve a intentarlo más tarde.
-	</notification>
-	<notification name="CantCreateObjectParcelFull">
-		No se puede crear el objeto porque \nla parcela está llena.
-	</notification>
-	<notification name="FailedPlacingObject">
-		Error al colocar el objeto en el lugar especificado.  Vuelve a intentarlo.
-	</notification>
-	<notification name="CantCreateLandmarkForEvent">
-		No se puede crear un hito para el evento.
-	</notification>
-	<notification name="GodBeatsFreeze">
-		¡Tus superpoderes anulan la congelación!
-	</notification>
-	<notification name="SpecialPowersRequestFailedLogged">
-		Error en la solicitud de poderes especiales. Esta solicitud se ha registrado.
-	</notification>
-	<notification name="ExpireExplanation">
-		El sistema actualmente no puede procesar tu solicitud. Ha expirado el tiempo de la solicitud.
-	</notification>
-	<notification name="DieExplanation">
-		El sistema no puede procesar tu solicitud.
-	</notification>
-	<notification name="AddPrimitiveFailure">
-		Dinero insuficiente para crear la primitiva.
-	</notification>
-	<notification name="RezObjectFailure">
-		Dinero insuficiente para crear el objeto.
-	</notification>
-	<notification name="ResetHomePositionNotLegal">
-		Se ha restaurado la posición de origen, puesto que dicha posición no era válida.
-	</notification>
-	<notification name="CantInviteRegionFull">
-		Actualmente no puedes invitar a nadie a tu ubicación, puesto que la región está llena. Vuelve a intentarlo más tarde.
-	</notification>
-	<notification name="CantSetHomeAtRegion">
-		Esta región no te permite configurar aquí tu lugar de origen.
-	</notification>
-	<notification name="ListValidHomeLocations">
-		Tu &apos;Lugar de origen&apos; solo se puede configurar en tu terreno o en un punto de información del continente.
-	</notification>
-	<notification name="SetHomePosition">
-		Posición de origen ajustada.
-	</notification>
-	<notification name="CantDerezInventoryError">
-		No se puede quitar el objeto por un error del inventario.
-	</notification>
-	<notification name="CantCreateRequestedInv">
-		No se puede crear el inventario solicitado.
-	</notification>
-	<notification name="CantCreateRequestedInvFolder">
-		No se puede crear la carpeta de inventario solicitada.
-	</notification>
-	<notification name="CantCreateInventory">
-		No se puede crear el inventario.
-	</notification>
-	<notification name="CantCreateLandmark">
-		No se puede crear un hito.
-	</notification>
-	<notification name="CantCreateOutfit">
-		No se puede crear el vestuario en este momento. Prueba otra vez dentro de un minuto.
-	</notification>
-	<notification name="InventoryNotForSale">
-		El inventario no está en venta.
-	</notification>
-	<notification name="CantFindInvItem">
-		No se encuentra el objeto del inventario.
-	</notification>
-	<notification name="CantFindObject">
-		No se puede encontrar el objeto.
-	</notification>
-	<notification name="CantTransfterMoneyRegionDisabled">
-		En esta región actualmente no están activadas las transferencias de dinero a los objetos.
-	</notification>
-	<notification name="CantPayNoAgent">
-		No se ha averiguado a quién se debe pagar.
-	</notification>
-	<notification name="CantDonateToPublicObjects">
-		No se pueden dar L$ a los objetos públicos.
-	</notification>
-	<notification name="InventoryCreationInWorldObjectFailed">
-		Error al crear un inventario de objeto del mundo virtual.
-	</notification>
-	<notification name="UserBalanceOrLandUsageError">
-		Un error interno nos ha impedido actualizar tu visor correctamente. El saldo en L$ o las parcelas en propiedad presentadas en el visor podrían no coincidir con tu saldo real en los servidores.
-	</notification>
-	<notification name="LargePrimAgentIntersect">
-		No se pueden crear prims grandes que intersectan a otros jugadores. Reinténtalo cuando se hayan movido otros jugadores.
-	</notification>
-	<notification name="PreferenceChatClearLog">
-		Esto eliminará los registros de conversaciones anteriores y las copias de seguridad de ese archivo.
-		<usetemplate ignoretext="Confirmar antes de eliminar el registro de conversaciones anteriores." name="okcancelignore" notext="Cancelar" yestext="OK"/>
-	</notification>
-	<notification name="PreferenceChatDeleteTranscripts">
-		Esta acción eliminará las transcripciones de todas las conversaciones anteriores. La lista de conversaciones pasadas no resultará afectada. Se eliminarán de la carpeta [FOLDER] todos los archivos que tengan el sufijo .txt y txt.backup.
-		<usetemplate ignoretext="Confirmar antes de eliminar transcripciones." name="okcancelignore" notext="Cancelar" yestext="OK"/>
-	</notification>
-	<notification name="PreferenceChatPathChanged">
-		No se pueden mover los archivos. Ruta anterior restaurada.
-		<usetemplate ignoretext="No se pueden mover los archivos. Ruta anterior restaurada." name="okignore" yestext="OK"/>
 	</notification>
 </notifications>

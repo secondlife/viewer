@@ -1,59 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="panel_im">
-	<floater.string name="call_btn_start">
-		Conv_toolbar_open_call
-	</floater.string>
-	<floater.string name="call_btn_stop">
-		Conv_toolbar_hang_up
-	</floater.string>
-	<floater.string name="collapseline_icon" value="Conv_collapse_to_one_line"/>
-	<floater.string name="expandline_icon" value="Conv_expand_one_line"/>
-	<floater.string name="collapse_icon" value="Conv_toolbar_collapse"/>
-	<floater.string name="expand_icon" value="Conv_toolbar_expand"/>
-	<floater.string name="tear_off_icon" value="Conv_toolbar_arrow_ne"/>
-	<floater.string name="return_icon" value="Conv_toolbar_arrow_sw"/>
-	<floater.string name="participant_added" value="[NAME] foi convidado para a conversa."/>
-	<floater.string name="multiple_participants_added" value="[NAME] foram convidados para a conversa."/>
-	<floater.string name="tooltip_to_separate_window" value="Mover esta conversa para uma janela separada"/>
-	<floater.string name="tooltip_to_main_window" value="Mover esta conversa para a janela principal"/>
-	<floater.string name="start_call_button_tooltip" value="Abrir conexão por voz"/>
-	<floater.string name="end_call_button_tooltip" value="Encerrar conexão por voz"/>
-	<floater.string name="expcol_button_not_tearoff_tooltip" value="Recolher este painel"/>
-	<floater.string name="expcol_button_tearoff_and_expanded_tooltip" value="Recolher lista de participantes"/>
-	<floater.string name="expcol_button_tearoff_and_collapsed_tooltip" value="Expandir a lista de participantes"/>
-	<view name="contents_view">
-		<layout_stack name="main_stack">
-			<layout_panel name="toolbar_panel">
-				<menu_button name="view_options_btn" tool_tip="Opções de exibição/ordenação"/>
-				<menu_button name="gear_btn" tool_tip="Ações nas pessoas selecionadas"/>
-				<button name="add_btn" tool_tip="Adicionar alguém a esta conversa"/>
-				<button name="voice_call_btn" tool_tip="Abrir conexão por voz"/>
-				<button name="close_btn" tool_tip="Encerrar esta conversa"/>
-				<button name="expand_collapse_btn" tool_tip="Recolher/expandir este painel"/>
-			</layout_panel>
-			<layout_panel name="body_panel">
-				<layout_stack name="im_panels">
-					<layout_panel name="right_part_holder">
-						<panel name="trnsAndChat_panel">
-							<layout_stack name="translate_and_chat_stack">
-								<layout_panel name="translate_chat_checkbox_lp">
-									<check_box label="Traduzir bate-papo" name="translate_chat_checkbox"/>
-								</layout_panel>
-							</layout_stack>
-						</panel>
-					</layout_panel>
-				</layout_stack>
-			</layout_panel>
-			<layout_panel name="chat_layout_panel">
-				<layout_stack name="input_panels">
-					<layout_panel name="input_editor_layout_panel">
-						<chat_editor label="Para" name="chat_editor"/>
-					</layout_panel>
-					<layout_panel name="input_button_layout_panel">
-						<button name="minz_btn" tool_tip="Mostrar/ocultar painel de mensagens"/>
-					</layout_panel>
-				</layout_stack>
-			</layout_panel>
-		</layout_stack>
-	</view>
+	<layout_stack name="im_panels">
+		<layout_panel>
+			<line_editor label="Para" name="chat_editor"/>
+		</layout_panel>
+	</layout_stack>
 </floater>

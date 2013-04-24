@@ -2,7 +2,7 @@
 <menu name="menu_group_plus">
 	<menu_item_call label="Ver dados" name="View Info"/>
 	<menu_item_call label="Bate-papo" name="Chat"/>
-	<menu_item_call label="Chamada de voz" name="Call"/>
+	<menu_item_call label="Ligar" name="Call"/>
 	<menu_item_call label="Ativar" name="Activate"/>
 	<menu_item_call label="Sair" name="Leave"/>
 </menu>

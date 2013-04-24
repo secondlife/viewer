@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<toggleable_menu name="menu_modes">
-	<menu_item_check label="Vue compacte" name="compact_view"/>
-	<menu_item_check label="Vue développée" name="expanded_view"/>
-	<menu_item_check label="Afficher l’heure" name="IMShowTime"/>
-	<menu_item_check label="Afficher les noms dans les conversations privées" name="IMShowNamesForP2PConv"/>
-</toggleable_menu>

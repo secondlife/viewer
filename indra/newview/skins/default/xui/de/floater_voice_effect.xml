@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="Orte" name="voice_effects" title="VOICE-MORPHING-VORSCHAU">
+<floater label="Orte" name="voice_effects" title="VOICE MORPHING">
 	<string name="no_voice_effect">
 		(Kein Voice-Morphing)
 	</string>

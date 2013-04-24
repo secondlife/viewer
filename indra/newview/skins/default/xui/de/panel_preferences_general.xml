@@ -69,9 +69,9 @@
 		<combo_box.item label="nie" name="item4"/>
 	</combo_box>
 	<text name="text_box3">
-		Nicht-stören-Antwort:
+		Antwort, wenn im „Beschäftigt“-Modus:
 	</text>
-	<text_editor name="do_not_disturb_response">
+	<text_editor name="busy_response">
 		log_in_to_change
 	</text_editor>
 </panel>

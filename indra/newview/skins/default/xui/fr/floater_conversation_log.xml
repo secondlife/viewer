@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_conversation_log" title="JOURNAL DES CONVERSATIONS">
-	<panel name="buttons_panel">
-		<filter_editor label="Filtrer les personnes" name="people_filter_input"/>
-		<menu_button name="conversation_view_btn" tool_tip="Options d&apos;affichage/de tri"/>
-		<menu_button name="conversations_gear_btn" tool_tip="Actions sur la personne ou le groupe sélectionné"/>
-	</panel>
-</floater>

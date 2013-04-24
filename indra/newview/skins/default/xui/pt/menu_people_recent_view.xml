@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<toggleable_menu name="menu_group_plus">
-	<menu_item_check label="Ordenar por mais recente" name="sort_most"/>
-	<menu_item_check label="Ordenar por nome" name="sort_name"/>
-	<menu_item_check label="Exibir ícones de pessoas" name="view_icons"/>
-</toggleable_menu>

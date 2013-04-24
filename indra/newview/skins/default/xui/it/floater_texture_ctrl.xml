@@ -19,7 +19,7 @@
 	<button label="Default" label_selected="Default" name="Default"/>
 	<button label="Vuoto" label_selected="Vuoto" name="Blank"/>
 	<button label="Niente" label_selected="Niente" name="None"/>
-	<check_box initial_value="true" label="Applica adesso" name="apply_immediate_check"/>
+	<check_box initial_value="true" label="Anteprima dal vivo" name="apply_immediate_check"/>
 	<text name="preview_disabled" value="Anteprima disattivata"/>
 	<filter_editor label="Filtro texture" name="inventory search editor"/>
 	<check_box initial_value="false" label="Mostra cartelle" name="show_folders_check"/>

@@ -68,9 +68,9 @@
 		<combo_box.item label="никогда" name="item4"/>
 	</combo_box>
 	<text name="text_box3">
-		Ответ в режиме «Не беспокоить»:
+		Ответ в режиме «Занят»:
 	</text>
-	<text_editor name="do_not_disturb_response">
+	<text_editor name="busy_response">
 		log_in_to_change
 	</text_editor>
 </panel>

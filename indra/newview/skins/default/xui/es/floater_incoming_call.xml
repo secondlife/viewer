@@ -10,7 +10,7 @@
 		anónimo
 	</floater.string>
 	<floater.string name="VoiceInviteP2P">
-		te está llamando.
+		está llamando.
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
 		ha entrado en un chat de voz en multiconferencia.
@@ -25,9 +25,9 @@
 		¿Quieres dejar [CURRENT_CHAT] y entrar en este chat de voz?
 	</floater.string>
 	<text name="question">
-		Si respondes, te desconectarás de la conversación de voz actual.
+		¿Quieres dejar [CURRENT_CHAT] y entrar a este chat de voz?
 	</text>
-	<button label="Responder" label_selected="Responder" name="Accept"/>
-	<button label="Ignorar" label_selected="Ignorar" name="Reject"/>
-	<button label="Abrir MI en su lugar" name="Start IM"/>
+	<button label="Aceptar" label_selected="Aceptar" name="Accept"/>
+	<button label="Rechazar" label_selected="Rechazar" name="Reject"/>
+	<button label="Comenzar un MI" name="Start IM"/>
 </floater>

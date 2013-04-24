@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<toggleable_menu name="menu_modes">
-	<menu_item_check label="Vista compatta" name="compact_view"/>
-	<menu_item_check label="Vista espansa" name="expanded_view"/>
-	<menu_item_check label="Mostra orario" name="IMShowTime"/>
-	<menu_item_check label="Mostra i nomi nelle conversazioni individuali" name="IMShowNamesForP2PConv"/>
-</toggleable_menu>

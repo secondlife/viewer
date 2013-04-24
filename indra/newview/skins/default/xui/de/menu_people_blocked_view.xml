@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<toggleable_menu name="menu_blocked_view">
-	<menu_item_check label="Nach Namen sortieren" name="sort_by_name"/>
-	<menu_item_check label="Nach Typ sortieren" name="sort_by_type"/>
-</toggleable_menu>

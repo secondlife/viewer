@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_conversation_log" title="会話ログ">
-	<panel name="buttons_panel">
-		<filter_editor label="人をフィルター" name="people_filter_input"/>
-		<menu_button name="conversation_view_btn" tool_tip="表示 / 並べ替えのオプション"/>
-		<menu_button name="conversations_gear_btn" tool_tip="選択した住人・グループに対するアクション"/>
-	</panel>
-</floater>

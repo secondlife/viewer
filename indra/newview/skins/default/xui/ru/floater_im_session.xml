@@ -1,59 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="panel_im">
-	<floater.string name="call_btn_start">
-		Conv_toolbar_open_call
-	</floater.string>
-	<floater.string name="call_btn_stop">
-		Conv_toolbar_hang_up
-	</floater.string>
-	<floater.string name="collapseline_icon" value="Conv_collapse_to_one_line"/>
-	<floater.string name="expandline_icon" value="Conv_expand_one_line"/>
-	<floater.string name="collapse_icon" value="Conv_toolbar_collapse"/>
-	<floater.string name="expand_icon" value="Conv_toolbar_expand"/>
-	<floater.string name="tear_off_icon" value="Conv_toolbar_arrow_ne"/>
-	<floater.string name="return_icon" value="Conv_toolbar_arrow_sw"/>
-	<floater.string name="participant_added" value="[NAME] приглашен(а) на разговор."/>
-	<floater.string name="multiple_participants_added" value="[NAME] приглашены на разговор."/>
-	<floater.string name="tooltip_to_separate_window" value="Перенести этот разговор в отдельное окно"/>
-	<floater.string name="tooltip_to_main_window" value="Вернуть этот разговор в главное окно"/>
-	<floater.string name="start_call_button_tooltip" value="Открыть голосовое подключение"/>
-	<floater.string name="end_call_button_tooltip" value="Закрыть голосовое подключение"/>
-	<floater.string name="expcol_button_not_tearoff_tooltip" value="Свернуть эту панель"/>
-	<floater.string name="expcol_button_tearoff_and_expanded_tooltip" value="Свернуть список участников"/>
-	<floater.string name="expcol_button_tearoff_and_collapsed_tooltip" value="Развернуть список участников"/>
-	<view name="contents_view">
-		<layout_stack name="main_stack">
-			<layout_panel name="toolbar_panel">
-				<menu_button name="view_options_btn" tool_tip="Параметры просмотра/сортировки"/>
-				<menu_button name="gear_btn" tool_tip="Действия с выбранным жителем"/>
-				<button name="add_btn" tool_tip="Добавить участника в этот разговор"/>
-				<button name="voice_call_btn" tool_tip="Открыть голосовое подключение"/>
-				<button name="close_btn" tool_tip="Завершить этот разговор"/>
-				<button name="expand_collapse_btn" tool_tip="Развернуть/свернуть эту панель"/>
-			</layout_panel>
-			<layout_panel name="body_panel">
-				<layout_stack name="im_panels">
-					<layout_panel name="right_part_holder">
-						<panel name="trnsAndChat_panel">
-							<layout_stack name="translate_and_chat_stack">
-								<layout_panel name="translate_chat_checkbox_lp">
-									<check_box label="Переводить чат" name="translate_chat_checkbox"/>
-								</layout_panel>
-							</layout_stack>
-						</panel>
-					</layout_panel>
-				</layout_stack>
-			</layout_panel>
-			<layout_panel name="chat_layout_panel">
-				<layout_stack name="input_panels">
-					<layout_panel name="input_editor_layout_panel">
-						<chat_editor label="Кому" name="chat_editor"/>
-					</layout_panel>
-					<layout_panel name="input_button_layout_panel">
-						<button name="minz_btn" tool_tip="Показать/скрыть панель сообщений"/>
-					</layout_panel>
-				</layout_stack>
-			</layout_panel>
-		</layout_stack>
-	</view>
+	<layout_stack name="im_panels">
+		<layout_panel>
+			<line_editor label="Кому" name="chat_editor"/>
+		</layout_panel>
+	</layout_stack>
 </floater>

@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<toggleable_menu name="menu_conversation_view">
-	<menu_item_check label="Ordenar alfabéticamente" name="sort_by_name"/>
-	<menu_item_check label="Ordenar por fecha" name="sort_by_date"/>
-	<menu_item_check label="Ordenar con los amigos al principio" name="sort_by_friends"/>
-	<menu_item_call label="Ver el historial de chat..." name="view_nearby_chat_history"/>
-</toggleable_menu>

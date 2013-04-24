@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_voice_volume" title="VOLUME DO BATE-PAPO DE VOZ">
-	<slider label="Bate-papo de voz" name="chat_voice_volume"/>
-</floater>

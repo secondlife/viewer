@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="場所" name="voice_effects" title="ボイスモーフィングのプレビュー">
+<floater label="場所" name="voice_effects" title="ボイスモーフィング">
 	<string name="no_voice_effect">
 		（ボイスモーフィングなし）
 	</string>

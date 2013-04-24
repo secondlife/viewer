@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="Endroits" name="voice_effects" title="APERÇU DES EFFETS DE VOIX">
+<floater label="Endroits" name="voice_effects" title="EFFET DE VOIX">
 	<string name="no_voice_effect">
 		(Aucun effet de voix)
 	</string>

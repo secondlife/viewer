@@ -72,7 +72,6 @@
 			<combo_box.item label="購買物件" name="Buyobject"/>
 			<combo_box.item label="支付物件" name="Payobject"/>
 			<combo_box.item label="打開" name="Open"/>
-			<combo_box.item label="縮放" name="Zoom"/>
 		</combo_box>
 		<panel name="perms_inv">
 			<text name="perm_modify">

@@ -71,7 +71,7 @@
 			<text name="show_label">
 				顯示：
 			</text>
-			<check_box label="測試" name="show_world"/>
+			<check_box label="世界" name="show_world"/>
 			<check_box label="僅限可移動的" name="show_world_movables_only"/>
 			<check_box label="導航網面" name="show_navmesh"/>
 			<text name="show_walkability_label">

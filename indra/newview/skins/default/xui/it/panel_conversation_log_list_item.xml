@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="conversation_log_list_item">
-	<icon name="voice_session_icon" tool_tip="La conversazione includeva la voce"/>
-	<icon name="unread_ims_icon" tool_tip="Sono arrivati dei messaggi mentre eri via"/>
-	<button name="delete_btn" tool_tip="Elimina questo elemento"/>
-</panel>

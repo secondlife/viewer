@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="conversation_log_list_item">
-	<icon name="voice_session_icon" tool_tip="Enthielt eine Voice-Unterhaltung"/>
-	<icon name="unread_ims_icon" tool_tip="Nachrichten trafen ein, während Sie abgemeldet waren"/>
-	<button name="delete_btn" tool_tip="Diesen Eintrag entfernen"/>
-</panel>

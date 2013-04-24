@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="preview_conversation" title="CONVERSATION:">
-	<floater.string name="Title">
-		CONVERSATION: [NAME]
-	</floater.string>
-	<text name="page_label" value="Page"/>
-</floater>

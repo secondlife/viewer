@@ -1,59 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="panel_im">
-	<floater.string name="call_btn_start">
-		Conv_toolbar_open_call
-	</floater.string>
-	<floater.string name="call_btn_stop">
-		Conv_toolbar_hang_up
-	</floater.string>
-	<floater.string name="collapseline_icon" value="Conv_collapse_to_one_line"/>
-	<floater.string name="expandline_icon" value="Conv_expand_one_line"/>
-	<floater.string name="collapse_icon" value="Conv_toolbar_collapse"/>
-	<floater.string name="expand_icon" value="Conv_toolbar_expand"/>
-	<floater.string name="tear_off_icon" value="Conv_toolbar_arrow_ne"/>
-	<floater.string name="return_icon" value="Conv_toolbar_arrow_sw"/>
-	<floater.string name="participant_added" value="[NAME] 已受邀加入交談。"/>
-	<floater.string name="multiple_participants_added" value="[NAME] 已受邀加入交談。"/>
-	<floater.string name="tooltip_to_separate_window" value="為這個交談另開新視窗"/>
-	<floater.string name="tooltip_to_main_window" value="將這個交談移回到主視窗"/>
-	<floater.string name="start_call_button_tooltip" value="建立語音通聯"/>
-	<floater.string name="end_call_button_tooltip" value="切斷語音通聯"/>
-	<floater.string name="expcol_button_not_tearoff_tooltip" value="縮疊這一區塊"/>
-	<floater.string name="expcol_button_tearoff_and_expanded_tooltip" value="縮疊參與者清單"/>
-	<floater.string name="expcol_button_tearoff_and_collapsed_tooltip" value="展開參與者清單"/>
-	<view name="contents_view">
-		<layout_stack name="main_stack">
-			<layout_panel name="toolbar_panel">
-				<menu_button name="view_options_btn" tool_tip="檢視/排序的選項"/>
-				<menu_button name="gear_btn" tool_tip="對選取的人採取動作"/>
-				<button name="add_btn" tool_tip="新增某人到這個交談"/>
-				<button name="voice_call_btn" tool_tip="建立語音通聯"/>
-				<button name="close_btn" tool_tip="結束這個交談"/>
-				<button name="expand_collapse_btn" tool_tip="縮疊/展開這個框"/>
-			</layout_panel>
-			<layout_panel name="body_panel">
-				<layout_stack name="im_panels">
-					<layout_panel name="right_part_holder">
-						<panel name="trnsAndChat_panel">
-							<layout_stack name="translate_and_chat_stack">
-								<layout_panel name="translate_chat_checkbox_lp">
-									<check_box label="翻譯聊天內容" name="translate_chat_checkbox"/>
-								</layout_panel>
-							</layout_stack>
-						</panel>
-					</layout_panel>
-				</layout_stack>
-			</layout_panel>
-			<layout_panel name="chat_layout_panel">
-				<layout_stack name="input_panels">
-					<layout_panel name="input_editor_layout_panel">
-						<chat_editor label="至" name="chat_editor"/>
-					</layout_panel>
-					<layout_panel name="input_button_layout_panel">
-						<button name="minz_btn" tool_tip="顯示/隱藏訊息框"/>
-					</layout_panel>
-				</layout_stack>
-			</layout_panel>
-		</layout_stack>
-	</view>
+	<layout_stack name="im_panels">
+		<layout_panel>
+			<line_editor label="至" name="chat_editor"/>
+		</layout_panel>
+	</layout_stack>
 </floater>

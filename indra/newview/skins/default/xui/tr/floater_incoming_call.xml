@@ -10,7 +10,7 @@
 		anonim
 	</floater.string>
 	<floater.string name="VoiceInviteP2P">
-		sizi arıyor.
+		arıyor.
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
 		bir Sesli Sohbet aramasına bir konferans araması ile katıldı.
@@ -25,9 +25,9 @@
 		[CURRENT_CHAT] sohbetinden ayrılıp, bu sesli sohbete katılmak istiyor musunuz?
 	</floater.string>
 	<text name="question">
-		Yanıtlarsanız, mevcut sesli sohbetinizle bağlantınız kesilecek.
+		[CURRENT_CHAT] sohbetinden ayrılıp, bu sesli sohbete katılmak istiyor musunuz?
 	</text>
-	<button label="Yanıtla" label_selected="Yanıtla" name="Accept"/>
-	<button label="Yok say" label_selected="Yok say" name="Reject"/>
-	<button label="Bunun yerine Aİ aç" name="Start IM"/>
+	<button label="Kabul Et" label_selected="Kabul Et" name="Accept"/>
+	<button label="Reddet" label_selected="Reddet" name="Reject"/>
+	<button label="Aİ Başlat" name="Start IM"/>
 </floater>

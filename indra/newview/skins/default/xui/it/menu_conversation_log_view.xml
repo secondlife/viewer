@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<toggleable_menu name="menu_conversation_view">
-	<menu_item_check label="Ordina in base al nome" name="sort_by_name"/>
-	<menu_item_check label="Ordina in base alla data" name="sort_by_date"/>
-	<menu_item_check label="Ordina con gli amici in alto" name="sort_by_friends"/>
-	<menu_item_call label="Mostra la cronologia delle chat vicine..." name="view_nearby_chat_history"/>
-</toggleable_menu>

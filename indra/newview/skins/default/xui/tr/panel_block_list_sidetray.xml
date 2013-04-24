@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="block_list_panel">
-	<panel label="bottom_panel" name="blocked_buttons_panel">
-		<filter_editor label="Filtrele" name="blocked_filter_input"/>
-		<menu_button name="blocked_gear_btn" tool_tip="Seçilen kişi veya nesne üzerindeki eylemler"/>
-		<menu_button name="view_btn" tool_tip="Sıralama seçenekleri"/>
-		<menu_button name="plus_btn" tool_tip="Engellenecek bir Sakin veya nesne seç"/>
-		<button name="unblock_btn" tool_tip="Engelleme listesinden Sakini veya nesneyi kaldır"/>
-	</panel>
-	<block_list name="blocked" tool_tip="Şu anda engellenmiş olan Sakinler listesi"/>
+	<text name="title_text">
+		Listeyi Engelle
+	</text>
+	<scroll_list name="blocked" tool_tip="Şu anda engellenmiş olan Sakinler listesi"/>
+	<button label="Kişiyi engelle" name="Block resident..." tool_tip="Engellenecek bir Sakin seç"/>
+	<button label="Nesneyi ada göre engelle" name="Block object by name..." tool_tip="Ada göre engellenecek bir nesne seç"/>
+	<button label="Engellemeyi Kaldır" name="Unblock" tool_tip="Engelleme listesinden Sakini veya nesneyi kaldır"/>
 </panel>
