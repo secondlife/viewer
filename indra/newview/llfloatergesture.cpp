@@ -617,9 +617,10 @@ void LLFloaterGesture::addToCurrentOutFit()
 	uuid_vec_t ids;
 	getSelectedIds(ids);
 	LLAppearanceMgr* am = LLAppearanceMgr::getInstance();
+	LLPointer<LLInventoryCallback> cb = new LLUpdateAppearanceOnDestroy;
 	for(uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); it++)
 	{
-		am->addCOFItemLink(*it, new LLUpdateAppearanceAndEditWearableOnDestroy(*it));
+		am->addCOFItemLink(*it, cb);
 	}
 }
 

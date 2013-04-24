@@ -430,6 +430,16 @@ LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy(bool update_base_outfit
 	selfStartPhase("update_appearance_on_destroy");
 }
 
+void LLUpdateAppearanceOnDestroy::fire(const LLUUID& inv_item)
+{
+	LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(inv_item);
+	const std::string item_name = item ? item->getName() : "ITEM NOT FOUND";
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	LL_DEBUGS("Avatar") << self_av_string() << "callback fired [ name:" << item_name << " UUID:" << inv_item << " count:" << mFireCount << " ] " << LL_ENDL;
+#endif
+	mFireCount++;
+}
+
 LLUpdateAppearanceOnDestroy::~LLUpdateAppearanceOnDestroy()
 {
 	if (!LLApp::isExiting())
@@ -443,16 +453,6 @@ LLUpdateAppearanceOnDestroy::~LLUpdateAppearanceOnDestroy()
 	}
 }
 
-void LLUpdateAppearanceOnDestroy::fire(const LLUUID& inv_item)
-{
-	LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(inv_item);
-	const std::string item_name = item ? item->getName() : "ITEM NOT FOUND";
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	LL_DEBUGS("Avatar") << self_av_string() << "callback fired [ name:" << item_name << " UUID:" << inv_item << " count:" << mFireCount << " ] " << LL_ENDL;
-#endif
-	mFireCount++;
-}
-
 LLUpdateAppearanceAndEditWearableOnDestroy::LLUpdateAppearanceAndEditWearableOnDestroy(const LLUUID& item_id):
 	mItemID(item_id)
 {
@@ -460,20 +460,23 @@ LLUpdateAppearanceAndEditWearableOnDestroy::LLUpdateAppearanceAndEditWearableOnD
 
 LLUpdateAppearanceAndEditWearableOnDestroy::~LLUpdateAppearanceAndEditWearableOnDestroy()
 {
-	LLAppearanceMgr::instance().updateAppearanceFromCOF();
-	
-	// Start editing the item if previously requested.
-	gAgentWearables.editWearableIfRequested(mItemID);
-	
-	// TODO: camera mode may not be changed if a debug setting is tweaked
-	if( gAgentCamera.cameraCustomizeAvatar() )
+	if (!LLApp::isExiting())
 	{
-		// If we're in appearance editing mode, the current tab may need to be refreshed
-		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(
-			LLFloaterSidePanelContainer::getPanel("appearance"));
-		if (panel)
+		LLAppearanceMgr::instance().updateAppearanceFromCOF();
+		
+		// Start editing the item if previously requested.
+		gAgentWearables.editWearableIfRequested(mItemID);
+		
+		// TODO: camera mode may not be changed if a debug setting is tweaked
+		if( gAgentCamera.cameraCustomizeAvatar() )
 		{
-			panel->showDefaultSubpart();
+			// If we're in appearance editing mode, the current tab may need to be refreshed
+			LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(
+				LLFloaterSidePanelContainer::getPanel("appearance"));
+			if (panel)
+			{
+				panel->showDefaultSubpart();
+			}
 		}
 	}
 }
@@ -1587,13 +1590,10 @@ void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category, LLPointer<LLIn
 		LLViewerInventoryItem *item = items.get(i);
 		if (item->getActualType() != LLAssetType::AT_LINK_FOLDER)
 			continue;
-		if (item->getIsLinkType())
+		LLViewerInventoryCategory* catp = item->getLinkedCategory();
+		if(catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
 		{
-			LLViewerInventoryCategory* catp = item->getLinkedCategory();
-			if(catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
-			{
-				remove_inventory_item(item->getUUID(), cb);
-			}
+			remove_inventory_item(item->getUUID(), cb);
 		}
 	}
 }
@@ -2276,7 +2276,7 @@ bool areMatchingWearables(const LLViewerInventoryItem *a, const LLViewerInventor
 class LLDeferredCOFLinkObserver: public LLInventoryObserver
 {
 public:
-	LLDeferredCOFLinkObserver(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb = NULL, std::string description = ""):
+	LLDeferredCOFLinkObserver(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb, const std::string& description):
 		mItemID(item_id),
 		mCallback(cb),
 		mDescription(description)
@@ -2293,7 +2293,7 @@ public:
 		if (item)
 		{
 			gInventory.removeObserver(this);
-			LLAppearanceMgr::instance().addCOFItemLink(item, mCallback);
+			LLAppearanceMgr::instance().addCOFItemLink(item, mCallback, mDescription);
 			delete this;
 		}
 	}
