@@ -1178,10 +1178,11 @@ void LLInventoryModel::deleteObject(const LLUUID& id)
 		mParentChildCategoryTree.erase(id);
 	}
 	addChangedMask(LLInventoryObserver::REMOVE, id);
-	bool is_link_type = obj->getIsLinkType();
 	obj = NULL; // delete obj
+
 	// Can't have links to links, so there's no need for this update
 	// if the item removed is a link.
+	bool is_link_type = obj->getIsLinkType();
 	if (!is_link_type)
 	{
 		updateLinkedObjectsFromPurge(id);
@@ -1208,7 +1209,7 @@ void LLInventoryModel::updateLinkedObjectsFromPurge(const LLUUID &baseobj_id)
 
 	// REBUILD is expensive, so clear the current change list first else
 	// everything else on the changelist will also get rebuilt.
-	if (item_array.size())
+	if (item_array.size() > 0)
 	{
 		gInventory.notifyObservers();
 		for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();

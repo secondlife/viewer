@@ -1079,10 +1079,15 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
 
         if (force_save_as)
         {
-                // the name of the wearable has changed, re-save wearable with new name
-                LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID());
+			// FIXME race condition if removeCOFItemLinks does not
+			// complete immediately.  Looks like we're counting on the
+			// fact that updateAppearanceFromCOF will get called after
+			// we exit customize mode.
+
+			// the name of the wearable has changed, re-save wearable with new name
+			LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID());
 			gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, new_name, description, FALSE);
-                mNameEditor->setText(mWearableItem->getName());
+			mNameEditor->setText(mWearableItem->getName());
         }
         else
         {
@@ -1091,6 +1096,14 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
 			// version so texture baking service knows appearance has changed.
 			if (link_item)
 			{
+				// FIXME - two link-modifying calls here plus one
+				// inventory change request, none of which use a
+				// callback. When does a new appearance request go out
+				// and how is it synced with these changes?  As above,
+				// we seem to be implicitly depending on
+				// updateAppearanceFromCOF() to be called when we
+				// exit customize mode.
+
 				// Create new link
 				link_inventory_item( gAgent.getID(),
 									 link_item->getLinkedUUID(),
@@ -1100,9 +1113,9 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
 									 LLAssetType::AT_LINK,
 									 NULL);
 				// Remove old link
-				gInventory.purgeObject(link_item->getUUID());
+				remove_inventory_item(link_item->getUUID());
 			}
-                gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
+			gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
         }
 
 	

@@ -1265,18 +1265,21 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear,
 	switch (item_to_wear->getType())
 	{
 	case LLAssetType::AT_CLOTHING:
-		if (gAgentWearables.areWearablesLoaded())
+	if (gAgentWearables.areWearablesLoaded())
 		{
-			S32 wearable_count = gAgentWearables.getWearableCount(item_to_wear->getWearableType());
-			if ((replace && wearable_count != 0) ||
-				(wearable_count >= LLAgentWearables::MAX_CLOTHING_PER_TYPE) )
-			{
-				removeCOFItemLinks(gAgentWearables.getWearableItemID(item_to_wear->getWearableType(), wearable_count-1));
-			}
 			if (!cb && do_update)
 			{
 				cb = new LLUpdateAppearanceAndEditWearableOnDestroy(item_id_to_wear);
 			}
+			S32 wearable_count = gAgentWearables.getWearableCount(item_to_wear->getWearableType());
+			if ((replace && wearable_count != 0) ||
+				(wearable_count >= LLAgentWearables::MAX_CLOTHING_PER_TYPE) )
+			{
+				LLUUID item_id = gAgentWearables.getWearableItemID(item_to_wear->getWearableType(),
+																   wearable_count-1);
+				removeCOFItemLinks(item_id, cb);
+			}
+
 			addCOFItemLink(item_to_wear, cb);
 		} 
 		break;
@@ -3284,21 +3287,22 @@ void LLAppearanceMgr::removeItemsFromAvatar(const uuid_vec_t& ids_to_remove)
 	if (ids_to_remove.empty())
 	{
 		llwarns << "called with empty list, nothing to do" << llendl;
+		return;
 	}
+	LLPointer<LLInventoryCallback> cb = new LLUpdateAppearanceOnDestroy;
 	for (uuid_vec_t::const_iterator it = ids_to_remove.begin(); it != ids_to_remove.end(); ++it)
 	{
 		const LLUUID& id_to_remove = *it;
 		const LLUUID& linked_item_id = gInventory.getLinkedItemID(id_to_remove);
-		removeCOFItemLinks(linked_item_id);
+		removeCOFItemLinks(linked_item_id, cb);
 	}
-	updateAppearanceFromCOF();
 }
 
 void LLAppearanceMgr::removeItemFromAvatar(const LLUUID& id_to_remove)
 {
 	LLUUID linked_item_id = gInventory.getLinkedItemID(id_to_remove);
-	removeCOFItemLinks(linked_item_id);
-	updateAppearanceFromCOF();
+	LLPointer<LLInventoryCallback> cb = new LLUpdateAppearanceOnDestroy;
+	removeCOFItemLinks(linked_item_id, cb);
 }
 
 bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_body)
