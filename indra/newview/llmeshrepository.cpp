@@ -1235,8 +1235,8 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 				mLODReqQ.push(req);
 				LLMeshRepository::sLODProcessing++;
 			}
+			mPendingLOD.erase(iter);
 		}
-		mPendingLOD.erase(iter);
 	}
 
 	return true;
