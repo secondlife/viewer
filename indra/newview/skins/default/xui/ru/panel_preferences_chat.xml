@@ -1,34 +1,86 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Текстовый чат" name="chat">
-	<text name="font_size">
-		Размер шрифта:
-	</text>
-	<radio_group name="chat_font_size">
-		<radio_item label="Мелкий" name="radio" value="0"/>
-		<radio_item label="Средний" name="radio2" value="1"/>
-		<radio_item label="Крупный" name="radio3" value="2"/>
-	</radio_group>
-	<check_box initial_value="истина" label="Воспроизводить анимацию ввода текста при общении" name="play_typing_animation"/>
-	<check_box label="Отправлять мне сообщения по почте, когда меня нет в сети" name="send_im_to_email"/>
-	<check_box label="Вести журнал текстового IM и чата" name="plain_text_chat_history"/>
-	<check_box label="Чат в пузырьках" name="bubble_text_chat"/>
-	<text name="show_ims_in_label">
-		Показывать сообщения:
-	</text>
-	<text name="requires_restart_label">
-		(требуется перезапуск)
-	</text>
-	<radio_group name="chat_window" tool_tip="Показывать IM-сообщения в отдельных окнах или же в одном окне с несколькими вкладками (требуется перезапуск)">
-		<radio_item label="В отдельных окнах" name="radio" value="0"/>
-		<radio_item label="На вкладках" name="radio2" value="1"/>
-	</radio_group>
-	<text name="disable_toast_label">
-		Включить всплывающие сообщения с новыми репликами в чате:
-	</text>
-	<check_box label="Групповой чат" name="EnableGroupChatPopups" tool_tip="Отображать всплывающие уведомления при появлении сообщений в групповом чате"/>
-	<check_box label="Текстовые чаты" name="EnableIMChatPopups" tool_tip="Отображать всплывающие уведомления при получении IM-сообщений"/>
-	<spinner label="Время отображения всплывающих реплик:" name="nearby_toasts_lifetime"/>
-	<spinner label="Время затухания всплывающих реплик:" name="nearby_toasts_fadingtime"/>
+	<panel>
+		<check_box initial_value="истина" label="Воспроизводить анимацию ввода текста при общении" name="play_typing_animation"/>
+		<check_box label="Отправлять мне сообщения по почте, когда меня нет в сети" name="send_im_to_email"/>
+		<check_box label="Только друзья и группы могут звонить мне и отправлять IM" name="voice_call_friends_only_check"/>
+		<text name="font_size">
+			Размер шрифта:
+		</text>
+		<combo_box name="chat_font_size">
+			<item label="Мелкий" name="Small" value="0"/>
+			<item label="Средний" name="Medium" value="1"/>
+			<item label="Крупный" name="Large" value="2"/>
+		</combo_box>
+		<check_box label="Чат в пузырьках" name="bubble_text_chat"/>
+	</panel>
+	<panel>
+		<text name="notifications">
+			Уведомления
+		</text>
+		<text name="friend_ims">
+			IM друзей:
+		</text>
+		<combo_box name="FriendIMOptions">
+			<item label="Открыть окно разговоров" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Сообщение во всплывающем окне" name="PopUpMessage" value="всплывание"/>
+			<item label="Мигание кнопки на панели инструментов" name="FlashToolbarButton" value="мигание"/>
+			<item label="Нет" name="None" value="нет"/>
+		</combo_box>
+		<text name="non_friend_ims">
+			IM чужих:
+		</text>
+		<combo_box name="NonFriendIMOptions">
+			<item label="Открыть окно разговоров" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Сообщение во всплывающем окне" name="PopUpMessage" value="всплывание"/>
+			<item label="Мигание кнопки на панели инструментов" name="FlashToolbarButton" value="мигание"/>
+			<item label="Нет" name="None" value="нет"/>
+		</combo_box>
+		<text name="conference_ims">
+			IM конференции:
+		</text>
+		<combo_box name="ConferenceIMOptions">
+			<item label="Открыть окно разговоров" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Сообщение во всплывающем окне" name="PopUpMessage" value="всплывание"/>
+			<item label="Мигание кнопки на панели инструментов" name="FlashToolbarButton" value="мигание"/>
+			<item label="Нет" name="None" value="нет"/>
+		</combo_box>
+		<text name="group_chat">
+			Групповой чат:
+		</text>
+		<combo_box name="GroupChatOptions">
+			<item label="Открыть окно разговоров" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Сообщение во всплывающем окне" name="PopUpMessage" value="всплывание"/>
+			<item label="Мигание кнопки на панели инструментов" name="FlashToolbarButton" value="мигание"/>
+			<item label="Нет" name="None" value="нет"/>
+		</combo_box>
+		<text name="nearby_chat">
+			Локальный чат:
+		</text>
+		<combo_box name="NearbyChatOptions">
+			<item label="Открыть окно разговоров" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Сообщение во всплывающем окне" name="PopUpMessage" value="всплывание"/>
+			<item label="Мигание кнопки на панели инструментов" name="FlashToolBarButton" value="мигание"/>
+			<item label="Нет" name="None" value="нет"/>
+		</combo_box>
+		<text name="notifications_alert">
+			Для временного отключения всех уведомлений вызовите меню «Общение &gt; Не беспокоить».
+		</text>
+	</panel>
+	<panel>
+		<text name="play_sound">
+			Звук:
+		</text>
+		<check_box label="Новый разговор" name="new_conversation"/>
+		<check_box label="Входящий голосовой вызов" name="incoming_voice_call"/>
+		<check_box label="Предложение телепортации" name="teleport_offer"/>
+		<check_box label="Предложение инвентаря" name="inventory_offer"/>
+	</panel>
+	<panel>
+		<button label="Очистить журнал..." name="clear_log"/>
+		<button label="Удалить записи..." name="delete_transcripts"/>
+		<button label="Обзор..." label_selected="Обзор" name="log_path_button"/>
+	</panel>
 	<button label="Перевод..." name="ok_btn"/>
 	<button label="Автозамена..." name="autoreplace_showgui"/>
 	<button label="Проверка правописания..." name="spellcheck_showgui"/>
