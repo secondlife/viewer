@@ -180,7 +180,7 @@ T convert_from_llsd(const LLSD& sd, eControlType type, const std::string& contro
 }
 
 //const U32 STRING_CACHE_SIZE = 10000;
-class LLControlGroup : public INSTANCE_TRACKER_KEYED(LLControlGroup, std::string)
+class LLControlGroup : public LLInstanceTracker<LLControlGroup, std::string>
 {
 	LOG_CLASS(LLControlGroup);
 
@@ -197,7 +197,7 @@ public:
 	~LLControlGroup();
 	void cleanup();
 	
-	typedef INSTANCE_TRACKER_KEYED(LLControlGroup, std::string)::instance_iter instance_iter;
+	typedef LLInstanceTracker<LLControlGroup, std::string>::instance_iter instance_iter;
 
 	LLControlVariablePtr getControl(const std::string& name);
 
@@ -306,7 +306,7 @@ public:
 //! without have to manually create and bind a listener to a local
 //! object.
 template <class T>
-class LLControlCache : public LLRefCount, public LLInstanceTracker<LLControlCache<T>, InstanceTrackType_LLControlCache, std::string>
+class LLControlCache : public LLRefCount, public LLInstanceTracker<LLControlCache<T>, std::string>
 {
 public:
 	// This constructor will declare a control if it doesn't exist in the contol group
@@ -314,7 +314,7 @@ public:
 					const std::string& name, 
 					const T& default_value, 
 					const std::string& comment)
-	:	LLInstanceTracker<LLControlCache<T>, InstanceTrackType_LLControlCache, std::string >(name)
+	:	LLInstanceTracker<LLControlCache<T>, std::string >(name)
 	{
 		if(!group.controlExists(name))
 		{
@@ -329,7 +329,7 @@ public:
 
 	LLControlCache(LLControlGroup& group,
 					const std::string& name)
-	:	LLInstanceTracker<LLControlCache<T>, InstanceTrackType_LLControlCache, std::string >(name)
+	:	LLInstanceTracker<LLControlCache<T>, std::string >(name)
 	{
 		if(!group.controlExists(name))
 		{

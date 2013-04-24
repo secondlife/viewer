@@ -116,7 +116,7 @@ struct LLCoordFloater : LLCoord<LL_COORD_FLOATER>
 	
 };
 
-class LLFloater : public LLPanel, public INSTANCE_TRACKER(LLFloater)
+class LLFloater : public LLPanel, public LLInstanceTracker<LLFloater>
 {
 	friend class LLFloaterView;
 	friend class LLFloaterReg;

@@ -64,7 +64,7 @@ private:
 
 
 class LLNameListCtrl
-:	public LLScrollListCtrl, public INSTANCE_TRACKER(LLNameListCtrl)
+:	public LLScrollListCtrl, public LLInstanceTracker<LLNameListCtrl>
 {
 public:
 

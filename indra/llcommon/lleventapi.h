@@ -41,10 +41,10 @@
  * Deriving from LLInstanceTracker lets us enumerate instances.
  */
 class LL_COMMON_API LLEventAPI: public LLDispatchListener,
-                  public INSTANCE_TRACKER_KEYED(LLEventAPI, std::string)
+                  public LLInstanceTracker<LLEventAPI, std::string>
 {
     typedef LLDispatchListener lbase;
-    typedef INSTANCE_TRACKER_KEYED(LLEventAPI, std::string) ibase;
+    typedef LLInstanceTracker<LLEventAPI, std::string> ibase;
 
 public:
 

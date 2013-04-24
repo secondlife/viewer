@@ -572,7 +572,8 @@ S32	LLToast::notifyParent(const LLSD& info)
 //static
 void LLToast::updateClass()
 {
-	for (INSTANCE_TRACKER(LLToast)::instance_iter iter = INSTANCE_TRACKER(LLToast)::beginInstances(); iter != INSTANCE_TRACKER(LLToast)::endInstances(); ) 
+	for (LLInstanceTracker<LLToast>::instance_iter iter = LLInstanceTracker<LLToast>::beginInstances(); 
+			iter != LLInstanceTracker<LLToast>::endInstances(); ) 
 	{
 		LLToast& toast = *iter++;
 		

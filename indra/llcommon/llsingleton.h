@@ -30,38 +30,6 @@
 #include <typeinfo>
 #include <boost/noncopyable.hpp>
 
-/// @brief A global registry of all singletons to prevent duplicate allocations
-/// across shared library boundaries
-class LL_COMMON_API LLSingletonRegistry {
-	private:
-		typedef std::map<std::string, void *> TypeMap;
-		static TypeMap * sSingletonMap;
-
-		static void checkInit()
-		{
-			if(sSingletonMap == NULL)
-			{
-				sSingletonMap = new TypeMap();
-			}
-		}
-
-	public:
-		template<typename T> static void * & get()
-		{
-			std::string name(typeid(T).name());
-
-			checkInit();
-
-			// the first entry of the pair returned by insert will be either the existing
-			// iterator matching our key, or the newly inserted NULL initialized entry
-			// see "Insert element" in http://www.sgi.com/tech/stl/UniqueAssociativeContainer.html
-			TypeMap::iterator result =
-				sSingletonMap->insert(std::make_pair(name, (void*)NULL)).first;
-
-			return result->second;
-		}
-};
-
 // LLSingleton implements the getInstance() method part of the Singleton
 // pattern. It can't make the derived class constructors protected, though, so
 // you have to do that yourself.
@@ -93,7 +61,6 @@ class LLSingleton : private boost::noncopyable
 private:
 	typedef enum e_init_state
 	{
-		UNINITIALIZED,
 		CONSTRUCTING,
 		INITIALIZING,
 		INITIALIZED,
@@ -109,8 +76,11 @@ private:
 		
 		SingletonInstanceData()
 		:	mSingletonInstance(NULL),
-			mInitState(UNINITIALIZED)
-		{}
+			mInitState(CONSTRUCTING)
+		{
+			mSingletonInstance = new DERIVED_TYPE(); 
+			mInitState = INITIALIZING;
+		}
 
 		~SingletonInstanceData()
 		{
@@ -159,16 +129,8 @@ public:
 	static SingletonInstanceData& getData()
 	{
 		// this is static to cache the lookup results
-		static void * & registry = LLSingletonRegistry::get<DERIVED_TYPE>();
-
-		// *TODO - look into making this threadsafe
-		if(NULL == registry)
-		{
-			static SingletonInstanceData data;
-			registry = &data;
-		}
-
-		return *static_cast<SingletonInstanceData *>(registry);
+		static SingletonInstanceData sData;
+		return sData;
 	}
 
 	static DERIVED_TYPE* getInstance()
@@ -185,13 +147,11 @@ public:
 			llwarns << "Trying to access deleted singleton " << typeid(DERIVED_TYPE).name() << " creating new instance" << llendl;
 		}
 		
-		if (!data.mSingletonInstance) 
+		if (data.mInitState == INITIALIZING) 
 		{
-			data.mInitState = CONSTRUCTING;
-			data.mSingletonInstance = new DERIVED_TYPE(); 
-			data.mInitState = INITIALIZING;
+			// go ahead and flag ourselves as initialized so we can be reentrant during initialization
+			data.mInitState = INITIALIZED;
 			data.mSingletonInstance->initSingleton(); 
-			data.mInitState = INITIALIZED;	
 		}
 		
 		return data.mSingletonInstance;

@@ -34,7 +34,7 @@
 
 class LLSD;
 
-class LLConsole : public LLFixedBuffer, public LLUICtrl, public INSTANCE_TRACKER(LLConsole)
+class LLConsole : public LLFixedBuffer, public LLUICtrl, public LLInstanceTracker<LLConsole>
 {
 public:
 

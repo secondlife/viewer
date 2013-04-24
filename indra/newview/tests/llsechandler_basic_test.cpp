@@ -69,7 +69,7 @@ extern bool _cert_hostname_wildcard_match(const std::string& hostname, const std
 std::string gFirstName;
 std::string gLastName;
 LLControlGroup::LLControlGroup(const std::string& name)
-: INSTANCE_TRACKER_KEYED(LLControlGroup, std::string)(name) {}
+: LLInstanceTracker<LLControlGroup, std::string>(name) {}
 LLControlGroup::~LLControlGroup() {}
 BOOL LLControlGroup::declareString(const std::string& name,
                                    const std::string& initial_val,

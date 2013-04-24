@@ -38,33 +38,6 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 
-enum InstanceTrackType
-{
-	InstanceTrackType_LLEventAPI,
-	InstanceTrackType_LLEventTimer,
-	InstanceTrackType_NamedTimer,
-	InstanceTrackType_DeclareTimer,
-	InstanceTrackType_LLLeap,
-	InstanceTrackType_LLGLNamePool,
-	InstanceTrackType_LLConsole,
-	InstanceTrackType_LLFloater,
-	InstanceTrackType_LLFloaterWebContent,
-	InstanceTrackType_LLLayoutStack,
-	InstanceTrackType_LLNotificationContext,
-	InstanceTrackType_LLWindow,
-	InstanceTrackType_LLControlGroup,
-	InstanceTrackType_LLControlCache,
-	InstanceTrackType_LLMediaCtrl,
-	InstanceTrackType_LLNameListCtrl,
-	InstanceTrackType_LLToast,
-	InstanceTrackType_Keyed,	// for integ tests
-	InstanceTrackType_Unkeyed,	// for integ tests
-	kInstanceTrackTypeCount
-};
-
-#define INSTANCE_TRACKER(T)			LLInstanceTracker< T, InstanceTrackType_##T >
-#define INSTANCE_TRACKER_KEYED(T,K)	LLInstanceTracker< T, InstanceTrackType_##T, K >
-
 /**
  * Base class manages "class-static" data that must actually have singleton
  * semantics: one instance per process, rather than one instance per module as
@@ -73,22 +46,7 @@ enum InstanceTrackType
 class LL_COMMON_API LLInstanceTrackerBase
 {
 protected:
-	/// Get a process-unique void* pointer slot for the specified type_info
-	//static void * & getInstances(std::type_info const & info);
-	static void * & getInstances(InstanceTrackType t);
 
-	/// Find or create a STATICDATA instance for the specified TRACKED class.
-	/// STATICDATA must be default-constructible.
-	template<typename STATICDATA, class TRACKED, class INST, InstanceTrackType TRACKEDTYPE>
-	static STATICDATA& getStatic()
-	{
-		void *& instances = getInstances(TRACKEDTYPE);
-		if (! instances)
-		{
-			instances = new STATICDATA;
-		}
-		return *static_cast<STATICDATA*>(instances);
-	}
 
     /// It's not essential to derive your STATICDATA (for use with
     /// getStatic()) from StaticBase; it's just that both known
@@ -108,16 +66,16 @@ LL_COMMON_API void assert_main_thread();
 /// The (optional) key associates a value of type KEY with a given instance of T, for quick lookup
 /// If KEY is not provided, then instances are stored in a simple set
 /// @NOTE: see explicit specialization below for default KEY==T* case
-template<typename T, enum InstanceTrackType TRACKED, typename KEY = T*>
+template<typename T, typename KEY = T*>
 class LLInstanceTracker : public LLInstanceTrackerBase
 {
-	typedef LLInstanceTracker<T, TRACKED, KEY> MyT;
+	typedef LLInstanceTracker<T, KEY> self_t;
 	typedef typename std::map<KEY, T*> InstanceMap;
 	struct StaticData: public StaticBase
 	{
 		InstanceMap sMap;
 	};
-	static StaticData& getStatic() { return LLInstanceTrackerBase::getStatic<StaticData, MyT, T, TRACKED>(); }
+	static StaticData& getStatic() { static StaticData sData; return sData;}
 	static InstanceMap& getMap_() 
 	{
 		// assert_main_thread();   fwiw this class is not thread safe, and it used by multiple threads.  Bad things happen.
@@ -263,16 +221,16 @@ private:
 
 /// explicit specialization for default case where KEY is T*
 /// use a simple std::set<T*>
-template<typename T, enum InstanceTrackType TRACKED>
-class LLInstanceTracker<T, TRACKED, T*> : public LLInstanceTrackerBase
+template<typename T>
+class LLInstanceTracker<T, T*> : public LLInstanceTrackerBase
 {
-	typedef LLInstanceTracker<T, TRACKED, T*> MyT;
+	typedef LLInstanceTracker<T, T*> self_t;
 	typedef typename std::set<T*> InstanceSet;
 	struct StaticData: public StaticBase
 	{
 		InstanceSet sSet;
 	};
-	static StaticData& getStatic() { return LLInstanceTrackerBase::getStatic<StaticData, MyT, T, TRACKED>(); }
+	static StaticData& getStatic() { static StaticData sData; return sData; }
 	static InstanceSet& getSet_() { return getStatic().sSet; }
 
 public:

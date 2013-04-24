@@ -32,26 +32,4 @@
 // external library headers
 // other Linden headers
 
-static bool sInstanceTrackerData_initialized = false;
-static void* sInstanceTrackerData[ kInstanceTrackTypeCount ];
-
-
-void * & LLInstanceTrackerBase::getInstances(InstanceTrackType t)
-{
-	// std::map::insert() is just what we want here. You attempt to insert a
-	// (key, value) pair. If the specified key doesn't yet exist, it inserts
-	// the pair and returns a std::pair of (iterator, true). If the specified
-	// key DOES exist, insert() simply returns (iterator, false). One lookup
-	// handles both cases.
-	if (!sInstanceTrackerData_initialized)
-	{
-		for (S32 i = 0; i < (S32) kInstanceTrackTypeCount; i++)
-		{
-			sInstanceTrackerData[i] = NULL;
-		}
-		sInstanceTrackerData_initialized = true;
-	}
-
-	return sInstanceTrackerData[t];
-}
 

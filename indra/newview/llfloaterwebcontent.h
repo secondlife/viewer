@@ -40,11 +40,11 @@ class LLIconCtrl;
 class LLFloaterWebContent :
 	public LLFloater,
 	public LLViewerMediaObserver,
-	public INSTANCE_TRACKER_KEYED(LLFloaterWebContent, std::string)
+	public LLInstanceTracker<LLFloaterWebContent, std::string>
 {
 public:
 
-	typedef INSTANCE_TRACKER_KEYED(LLFloaterWebContent, std::string) instance_tracker_t;
+	typedef LLInstanceTracker<LLFloaterWebContent, std::string> instance_tracker_t;
     LOG_CLASS(LLFloaterWebContent);
 
 	struct _Params : public LLInitParam::Block<_Params>

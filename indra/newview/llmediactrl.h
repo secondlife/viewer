@@ -42,7 +42,7 @@ class LLMediaCtrl :
 	public LLPanel,
 	public LLViewerMediaObserver,
 	public LLViewerMediaEventEmitter,
-	public INSTANCE_TRACKER_KEYED(LLMediaCtrl, LLUUID)
+	public LLInstanceTracker<LLMediaCtrl, LLUUID>
 {
 	LOG_CLASS(LLMediaCtrl);
 public:

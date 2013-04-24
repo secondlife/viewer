@@ -69,7 +69,7 @@ private :
  * Represents toast pop-up.
  * This is a parent view for all toast panels.
  */
-class LLToast : public LLModalDialog, public INSTANCE_TRACKER(LLToast)
+class LLToast : public LLModalDialog, public LLInstanceTracker<LLToast>
 {
 	friend class LLToastLifeTimer;
 public:

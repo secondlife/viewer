@@ -33,7 +33,7 @@
 #include "lltimer.h"
 
 // class for scheduling a function to be called at a given frequency (approximate, inprecise)
-class LL_COMMON_API LLEventTimer : public INSTANCE_TRACKER(LLEventTimer)
+class LL_COMMON_API LLEventTimer : public LLInstanceTracker<LLEventTimer>
 {
 public:
 

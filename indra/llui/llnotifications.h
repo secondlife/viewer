@@ -135,11 +135,11 @@ typedef LLFunctorRegistration<LLNotificationResponder> LLNotificationFunctorRegi
 
 // context data that can be looked up via a notification's payload by the display logic
 // derive from this class to implement specific contexts
-class LLNotificationContext : public INSTANCE_TRACKER_KEYED(LLNotificationContext, LLUUID)
+class LLNotificationContext : public LLInstanceTracker<LLNotificationContext, LLUUID>
 {
 public:
 
-	LLNotificationContext() : INSTANCE_TRACKER_KEYED(LLNotificationContext, LLUUID)(LLUUID::generateNewID())
+	LLNotificationContext() : LLInstanceTracker<LLNotificationContext, LLUUID>(LLUUID::generateNewID())
 	{
 	}
 
@@ -815,7 +815,7 @@ typedef boost::intrusive_ptr<LLNotificationChannel> LLNotificationChannelPtr;
 class LLNotificationChannel : 
 	boost::noncopyable, 
 	public LLNotificationChannelBase,
-	public LLInstanceTracker<LLNotificationChannel, InstanceTrackType_LLNotificationContext, std::string>
+	public LLInstanceTracker<LLNotificationChannel, std::string>
 {
 	LOG_CLASS(LLNotificationChannel);
 

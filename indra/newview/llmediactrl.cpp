@@ -81,7 +81,7 @@ LLMediaCtrl::Params::Params()
 
 LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	LLPanel( p ),
-	INSTANCE_TRACKER_KEYED(LLMediaCtrl, LLUUID)(LLUUID::generateNewID()),
+	LLInstanceTracker<LLMediaCtrl, LLUUID>(LLUUID::generateNewID()),
 	mTextureDepthBytes( 4 ),
 	mBorder(NULL),
 	mFrequentUpdates( true ),

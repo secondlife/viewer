@@ -1121,7 +1121,7 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 
 LLNotificationChannel::LLNotificationChannel(const Params& p)
 :	LLNotificationChannelBase(p.filter()),
-	LLInstanceTracker<LLNotificationChannel, InstanceTrackType_LLNotificationContext, std::string>(p.name.isProvided() ? p.name : LLUUID::generateNewID().asString()),
+	LLInstanceTracker<LLNotificationChannel, std::string>(p.name.isProvided() ? p.name : LLUUID::generateNewID().asString()),
 	mName(p.name.isProvided() ? p.name : LLUUID::generateNewID().asString())
 {
 	BOOST_FOREACH(const std::string& source, p.sources)
@@ -1135,7 +1135,7 @@ LLNotificationChannel::LLNotificationChannel(const std::string& name,
 											 const std::string& parent,
 											 LLNotificationFilter filter) 
 :	LLNotificationChannelBase(filter),
-	LLInstanceTracker<LLNotificationChannel, InstanceTrackType_LLNotificationContext, std::string>(name),
+	LLInstanceTracker<LLNotificationChannel, std::string>(name),
 	mName(name)
 {
 	// bind to notification broadcast

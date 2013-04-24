@@ -295,7 +295,7 @@ LLControlGroup gSavedSettings("test");
 std::string LLUI::getLanguage() { return "en"; }
 std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args) { return "dummy"; }
 
-LLControlGroup::LLControlGroup(const std::string& name) : INSTANCE_TRACKER_KEYED(LLControlGroup, std::string)(name) {}
+LLControlGroup::LLControlGroup(const std::string& name) : LLInstanceTracker<LLControlGroup, std::string>(name) {}
 std::string LLControlGroup::getString(const std::string& name) { return "dummy"; }
 LLControlGroup::~LLControlGroup() {}
 

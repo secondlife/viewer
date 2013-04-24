@@ -37,7 +37,7 @@
 // Mock objects for the dependencies of the code we're testing                               
 
 LLControlGroup::LLControlGroup(const std::string& name)
-: INSTANCE_TRACKER_KEYED(LLControlGroup, std::string)(name) {}
+: LLInstanceTracker<LLControlGroup, std::string>(name) {}
 LLControlGroup::~LLControlGroup() {}
 BOOL LLControlGroup::declareString(const std::string& name,
                                    const std::string& initial_val,
