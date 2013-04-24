@@ -75,6 +75,8 @@
 #include "llsociallist.h"
 #include "llspeakers.h"
 #include "llfloaterwebcontent.h"
+#include "llurlaction.h"
+#include "llcommandhandler.h"
 
 #define FRIEND_LIST_UPDATE_TIMEOUT	0.5
 #define NEARBY_LIST_UPDATE_INTERVAL 1
@@ -91,6 +93,36 @@ static const std::string COLLAPSED_BY_USER  = "collapsed_by_user";
 
 static const std::string FBC_SERVICES_URL = "https://pdp15.lindenlab.com/fbc";
 static const std::string FBC_SERVICES_REDIRECT_URI = "https://pdp15.lindenlab.com/redirect";
+
+class LLFacebookConnectHandler : public LLCommandHandler
+{
+public:
+	LLFacebookConnectHandler() : LLCommandHandler("fbc", UNTRUSTED_THROTTLE), mPanelPeople(NULL) { }
+
+	LLPanelPeople* mPanelPeople;
+
+	bool handle(const LLSD& tokens, const LLSD& query_map,
+				LLMediaCtrl* web)
+	{
+		if (tokens.size() > 0)
+		{
+			if (tokens[0].asString() == "connect")
+			{
+				if (query_map.has("code"))
+				{
+					if (mPanelPeople)
+					{
+						mPanelPeople->connectToFacebook(query_map["code"]);
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+};
+LLFacebookConnectHandler gFacebookConnectHandler;
 
 /** Comparator for comparing avatar items by last interaction date */
 class LLAvatarItemRecentComparator : public LLAvatarItemComparator
@@ -1652,6 +1684,9 @@ bool LLPanelPeople::isAccordionCollapsedByUser(const std::string& name)
 
 void LLPanelPeople::openFacebookWeb(LLFloaterWebContent::Params& p)
 {
+	gFacebookConnectHandler.mPanelPeople = this;
+	LLUrlAction::openURLExternal(p.url);
+	
 	LLFloater* browser = LLFloaterReg::showInstance("web_content", p);
 
 	if (browser)
