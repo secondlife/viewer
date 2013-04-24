@@ -63,6 +63,7 @@
 #include "llnetmap.h"
 #include "llpanelpeoplemenus.h"
 #include "llparticipantlist.h"
+#include "llpersonfolderview.h"
 #include "llpersonmodelcommon.h"
 #include "llpersontabview.h"
 #include "llsidetraypanelcontainer.h"
@@ -549,7 +550,6 @@ LLPanelPeople::LLPanelPeople()
 	:	LLPanel(),
 		mConnectedToFbc(false),
 		mConversationsRoot(NULL),
-		mConversationsEventStream("ConversationsEventsTwo"),
 		mTryToConnectToFbc(true),
 		mTabContainer(NULL),
 		mOnlineFriendList(NULL),
@@ -605,8 +605,6 @@ LLPanelPeople::~LLPanelPeople()
 	}
 
 	if (mFbcTestBrowserHandle.get()) mFbcTestBrowserHandle.get()->die();
-
-	mConversationsEventStream.stopListening("ConversationsRefresh");
 }
 
 void LLPanelPeople::onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LLSD& param, LLAvatarList* avatar_list)
@@ -697,7 +695,7 @@ BOOL LLPanelPeople::postBuild()
 	//Create folder view
 	LLPersonModelCommon* base_item = new LLPersonModelCommon(mPersonFolderViewModel);
 
-	LLFolderView::Params folder_view_params(LLUICtrlFactory::getDefaultParams<LLFolderView>());
+	LLPersonFolderView::Params folder_view_params(LLUICtrlFactory::getDefaultParams<LLPersonFolderView>());
 	folder_view_params.parent_panel = friends_tab;
 	folder_view_params.listener = base_item;
 	folder_view_params.view_model = &mPersonFolderViewModel;
@@ -705,8 +703,7 @@ BOOL LLPanelPeople::postBuild()
 	folder_view_params.use_ellipses = false;
 	folder_view_params.options_menu = "menu_conversation.xml";
 	folder_view_params.name = "fbcfolderview";
-	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(folder_view_params);
-	mConversationsEventStream.listen("ConversationsRefresh", boost::bind(&LLPanelPeople::onConversationModelEvent, this, _1));
+	mConversationsRoot = LLUICtrlFactory::create<LLPersonFolderView>(folder_view_params);
 
 	//Create scroller
 	LLRect scroller_view_rect = socialtwo_tab->getRect();
@@ -734,8 +731,8 @@ BOOL LLPanelPeople::postBuild()
 	LLPersonTabView * widget = LLUICtrlFactory::create<LLPersonTabView>(params);
 	widget->addToFolder(mConversationsRoot);
 
-	mPersonFolderModelMap[item->getID()] = item;
-	mPersonFolderViewMap[item->getID()] = widget;
+	mConversationsRoot->mPersonFolderModelMap[item->getID()] = item;
+	mConversationsRoot->mPersonFolderViewMap[item->getID()] = widget;
 	
 	gIdleCallbacks.addFunction(idle, this);
 
@@ -1653,49 +1650,6 @@ bool LLPanelPeople::isAccordionCollapsedByUser(const std::string& name)
 	return isAccordionCollapsedByUser(getChild<LLUICtrl>(name));
 }
 
-bool LLPanelPeople::onConversationModelEvent(const LLSD& event)
-{
-	std::string type = event.get("type").asString();
-	LLUUID folder_id = event.get("folder_id").asUUID();
-	LLUUID person_id = event.get("person_id").asUUID();
-
-	if(type == "add_participant")
-	{
-		LLPersonTabModel * person_folder_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderModelMap[folder_id]);
-		LLPersonTabView * person_folder_view = dynamic_cast<LLPersonTabView *>(mPersonFolderViewMap[person_id]);
-		
-		if(person_folder_model)
-		{
-			LLPersonModel * person_model = person_folder_model->findParticipant(person_id);
-
-			if(person_model)
-			{
-				LLPersonView * participant_view = createConversationViewParticipant(person_model);
-				participant_view->addToFolder(person_folder_view);
-			}
-		}
-	}
-
-	return false;
-}
-
-LLPersonView * LLPanelPeople::createConversationViewParticipant(LLPersonModel * item)
-{
-	LLPersonView::Params params;
-	LLRect panel_rect = getChild<LLPanel>(FBCTESTTWO_TAB_NAME)->getRect();
-
-	params.name = item->getDisplayName();
-	params.root = mConversationsRoot;
-	params.listener = item;
-
-	//24 is the the current hight of an item (itemHeight) loaded from conversation_view_participant.xml.
-	params.rect = LLRect (0, 24, panel_rect.getWidth(), 0);
-	params.tool_tip = params.name;
-	params.folder_indentation = 2;
-
-	return LLUICtrlFactory::create<LLPersonView>(params);
-}
-
 void LLPanelPeople::openFacebookWeb(LLFloaterWebContent::Params& p)
 {
 	LLFloater* browser = LLFloaterReg::showInstance("web_content", p);
@@ -1733,7 +1687,7 @@ void LLPanelPeople::addTestParticipant()
 {
 	for(int i = 0; i < 300; ++i)
 	{
-		LLPersonTabModel * person_folder_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderModelMap.begin()->second);
+		LLPersonTabModel * person_folder_model = dynamic_cast<LLPersonTabModel *>(mConversationsRoot->mPersonFolderModelMap.begin()->second);
 		addParticipantToModel(person_folder_model, LLUUID().generateNewID(), "EastBayGuy");
 	}
 }

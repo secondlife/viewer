@@ -31,7 +31,6 @@
 
 #include "llcallingcard.h" // for avatar tracker
 #include "llpersonmodelcommon.h"
-#include "llevents.h"
 #include "llfloaterwebcontent.h"
 #include "llvoiceclient.h"
 
@@ -40,18 +39,10 @@ class LLAvatarListSocial;
 class LLAvatarName;
 class LLFilterEditor;
 class LLGroupList;
+class LLPersonFolderView;
 class LLSocialList;
 class LLMenuButton;
 class LLTabContainer;
-class LLFolderView;
-
-class LLPersonTabModel;
-class LLPersonTabView;
-class LLPersonView;
-class LLPersonModel;
-
-typedef std::map<LLUUID, LLPersonTabModel *> person_folder_model_map;
-typedef std::map<LLUUID, LLPersonTabView *> person_folder_view_map;
 
 class LLPanelPeople 
 	: public LLPanel
@@ -164,9 +155,6 @@ private:
 	bool					isAccordionCollapsedByUser(LLUICtrl* acc_tab);
 	bool					isAccordionCollapsedByUser(const std::string& name);
 
-	bool					onConversationModelEvent(const LLSD& event);
-	LLPersonView * createConversationViewParticipant(LLPersonModel * item);
-
 	LLTabContainer*			mTabContainer;
 	LLAvatarList*			mOnlineFriendList;
 	LLAvatarList*			mAllFriendList;
@@ -189,11 +177,8 @@ private:
 	LLMenuButton*			mFBCGearButton;
     LLHandle< LLFloater >	mPicker;
 
-	person_folder_model_map mPersonFolderModelMap;
-	person_folder_view_map mPersonFolderViewMap;
 	LLPersonFolderViewModel mPersonFolderViewModel;
-	LLFolderView* mConversationsRoot;
-	LLEventStream mConversationsEventStream;
+	LLPersonFolderView* mConversationsRoot;
 };
 
 #endif //LL_LLPANELPEOPLE_H
