@@ -1178,11 +1178,11 @@ void LLInventoryModel::deleteObject(const LLUUID& id)
 		mParentChildCategoryTree.erase(id);
 	}
 	addChangedMask(LLInventoryObserver::REMOVE, id);
-	obj = NULL; // delete obj
-
+	
 	// Can't have links to links, so there's no need for this update
 	// if the item removed is a link.
 	bool is_link_type = obj->getIsLinkType();
+	obj = NULL; // delete obj
 	if (!is_link_type)
 	{
 		updateLinkedObjectsFromPurge(id);

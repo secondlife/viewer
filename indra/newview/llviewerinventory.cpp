@@ -1276,7 +1276,7 @@ void remove_inventory_item(
 	}
 	else
 	{
-		llwarns << "remove_inventory_item called for nonexistent item " << item_id << llendl;
+		llwarns << "remove_inventory_item called for invalid or nonexistent item " << item_id << llendl;
 	}
 }
 
