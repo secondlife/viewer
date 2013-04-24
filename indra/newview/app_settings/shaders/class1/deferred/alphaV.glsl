@@ -182,18 +182,23 @@ void main()
 	//vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.));
 	vec4 col = vec4(0.0, 0.0, 0.0, diffuse_color.a);
 	
-	vary_pointlight_col = diffuse_color.rgb;
+	vec3 diff = pow(diffuse_color.rgb, vec3(2.2));
+
+	
+
+	vary_pointlight_col = diff;
+
 	
 	col.rgb = vec3(0,0,0);
 
 	// Add windlight lights
 	col.rgb = atmosAmbient(col.rgb);
 	
-	vary_ambient = col.rgb*diffuse_color.rgb;
+	vary_ambient = col.rgb*diff.rgb;
 
 	vary_directional.rgb = atmosAffectDirectionalLight(1.0f);
 	
-	col.rgb = col.rgb*diffuse_color.rgb;
+	col.rgb = col.rgb*diff.rgb;
 	
 #ifdef USE_VERTEX_COLOR
 	vertex_color = col;
