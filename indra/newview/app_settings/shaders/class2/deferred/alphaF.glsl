@@ -25,10 +25,6 @@
 
 #extension GL_ARB_texture_rectangle : enable
 
-#define INDEXED 1
-#define NON_INDEXED 2
-#define NON_INDEXED_NO_COLOR 3
-
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -40,7 +36,7 @@ uniform sampler2DShadow shadowMap1;
 uniform sampler2DShadow shadowMap2;
 uniform sampler2DShadow shadowMap3;
 
-#if INDEX_MODE != INDEXED
+#ifdef USE_DIFFUSE_TEX
 uniform sampler2D diffuseMap;
 #endif
 
@@ -58,7 +54,7 @@ VARYING vec3 vary_pointlight_col;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
 
-#if INDEX_MODE != NON_INDEXED_NO_COLOR
+#ifdef USE_VERTEX_COLOR
 VARYING vec4 vertex_color;
 #endif
 
@@ -198,20 +194,23 @@ void main()
 	}
 
 	vec4 diff;
-#if INDEX_MODE == INDEXED	
+
+#ifdef USE_INDEXED_TEX
 	diff = diffuseLookup(vary_texcoord0.xy);
-#else
+#endif
+
+#ifdef USE_DIFFUSE_TEX
 	diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
-	diff.rgb = pow(diff.rgb, vec3(2.2));
-#if INDEX_MODE == NON_INDEXED_NO_COLOR
+	diff.rgb = pow(diff.rgb, vec3(2.2f, 2.2f, 2.2f));
+
 	float vertex_color_alpha = 1.0;
-#else
-	float vertex_color_alpha = vertex_color.a;
+
+#ifdef USE_VERTEX_COLOR
+	vertex_color_alpha = vertex_color.a;	
 #endif
 
 	vec3 normal = vary_norm;
-	
 	vec3 l = light_position[0].xyz;
 	vec3 dlight = calcDirectionalLight(normal, l);
 	     dlight = dlight * vary_directional.rgb * vary_pointlight_col;
@@ -220,9 +219,9 @@ void main()
 	vec4 color = diff * col;
 	
 	color.rgb = atmosLighting(color.rgb);
-
 	color.rgb = scaleSoftClip(color.rgb);
-	col = vec4(0,0,0,0);
+
+	col = vec4(0.0f,0.0f,0.0f,0.0f);
 
   #define LIGHT_LOOP(i) \
 		col.rgb += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);

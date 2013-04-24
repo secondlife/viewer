@@ -792,9 +792,6 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	// Load basic dependency shaders first
 	// All of these have to load for any shaders to function
 	
-#if LL_DARWIN // Mac can't currently handle all 8 lights, 
-	S32 sum_lights_class = 2;
-#else 
 	S32 sum_lights_class = 3;
 
 	// class one cards will get the lower sum lights
@@ -805,7 +802,6 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	{
 		sum_lights_class = 2;
 	}
-#endif
 
 	// If we have sun and moon only checked, then only sum those lights.
 	if (gPipeline.getLightingDetail() == 0)
@@ -813,6 +809,14 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 		sum_lights_class = 1;
 	}
 
+#if LL_DARWIN
+	// Work around driver crashes on older Macs when using deferred rendering
+	// NORSPEC-59
+	//
+	if (gGLManager.mIsMobileGF)
+		sum_lights_class = 3;
+#endif
+	
 	// Use the feature table to mask out the max light level to use.  Also make sure it's at least 1.
 	S32 max_light_class = gSavedSettings.getS32("RenderShaderLightingMaxLevel");
 	sum_lights_class = llclamp(sum_lights_class, 1, max_light_class);
@@ -1218,9 +1222,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredSkinnedAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		gDeferredSkinnedAlphaProgram.addPermutation("INDEX_MODE", "2");
+		gDeferredSkinnedAlphaProgram.addPermutation("USE_DIFFUSE_TEX", "1");
+		gDeferredSkinnedAlphaProgram.addPermutation("USE_VERTEX_COLOR", "1");
 		gDeferredSkinnedAlphaProgram.addPermutation("HAS_SKIN", "1");
-		gDeferredSkinnedAlphaProgram.addPermutation("IS_AVATAR_SKIN", "0");
 		success = gDeferredSkinnedAlphaProgram.createShader(NULL, NULL);
 		
 		// Hack to include uniforms for lighting without linking in lighting file
@@ -1265,6 +1269,16 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			gDeferredMaterialProgram[i].addPermutation("HAS_SUN_SHADOW", mVertexShaderLevel[SHADER_DEFERRED] > 1 ? "1" : "0");
 			bool has_skin = i & 0x10;
 			gDeferredMaterialProgram[i].addPermutation("HAS_SKIN",has_skin ? "1" : "0");
+
+		#if LL_DARWIN
+			// include spec exp clamp to fix older mac rendering artifacts
+			//
+			if (gGLManager.mIsMobileGF)
+			{
+				gDeferredMaterialProgram[i].addPermutation("UGLY_MAC_HACK","1");
+			}
+		#endif
+
 			if (has_skin)
 			{
 				gDeferredMaterialProgram[i].mFeatures.hasObjectSkinning = true;
@@ -1414,9 +1428,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAlphaProgram.mShaderFiles.clear();
 		gDeferredAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredAlphaProgram.addPermutation("INDEX_MODE", "1");
-		gDeferredAlphaProgram.addPermutation("HAS_SKIN", "0");
-		gDeferredAlphaProgram.addPermutation("IS_AVATAR_SKIN", "0");
+		gDeferredAlphaProgram.addPermutation("USE_INDEXED_TEX", "1");
+		gDeferredAlphaProgram.addPermutation("USE_VERTEX_COLOR", "1");
 		gDeferredAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredAlphaProgram.createShader(NULL, NULL);
 
@@ -1592,8 +1605,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarAlphaProgram.mShaderFiles.clear();
 		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredAvatarAlphaProgram.addPermutation("INDEX_MODE", "3");
-		gDeferredAvatarAlphaProgram.addPermutation("HAS_SKIN", "0");
+		gDeferredAvatarAlphaProgram.addPermutation("USE_DIFFUSE_TEX", "1");
 		gDeferredAvatarAlphaProgram.addPermutation("IS_AVATAR_SKIN", "1");
 		gDeferredAvatarAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 

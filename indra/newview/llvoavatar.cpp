@@ -4336,6 +4336,15 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	}
 
+#if LL_DARWIN
+    // blatant hack to avoid driver crash on rendering mMeshLODs for eyelashes and baked hair below
+    // NORSPEC-59
+    if (gGLManager.mIsMobileGF)
+    {
+        return num_indices;
+    }
+#endif
+
 	if (!isSelf() || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
 	{
 		if (LLPipeline::sImpostorRender)

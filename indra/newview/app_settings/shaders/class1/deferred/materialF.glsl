@@ -29,7 +29,8 @@
 #define DIFFUSE_ALPHA_MODE_EMISSIVE 3
 
 
-#if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND
+#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -349,29 +350,32 @@ vec3 atmosGetDiffuseSunlightColor()
 
 vec3 scaleDownLight(vec3 light)
 {
-	return (light / scene_light_strength );
+	return (light / vec3(scene_light_strength, scene_light_strength, scene_light_strength));
 }
 
 vec3 scaleUpLight(vec3 light)
 {
-	return (light * scene_light_strength);
+	return (light * vec3(scene_light_strength, scene_light_strength, scene_light_strength));
 }
 
 vec3 atmosAmbient(vec3 light)
 {
-	return getAmblitColor() + light / 2.0;
+	return getAmblitColor() + (light * vec3(0.5f, 0.5f, 0.5f));
 }
 
 vec3 atmosAffectDirectionalLight(float lightIntensity)
 {
-	return getSunlitColor() * lightIntensity;
+	return getSunlitColor() * vec3(lightIntensity, lightIntensity, lightIntensity);
 }
 
 vec3 scaleSoftClip(vec3 light)
 {
 	//soft clip effect:
-	light = 1. - clamp(light, vec3(0.), vec3(1.));
-	light = 1. - pow(light, gamma.xxx);
+    vec3 zeroes = vec3(0.0f, 0.0f, 0.0f);
+    vec3 ones   = vec3(1.0f, 1.0f, 1.0f);
+
+	light = ones - clamp(light, zeroes, ones);
+	light = ones - pow(light, gamma.xxx);
 
 	return light;
 }
@@ -399,7 +403,7 @@ VARYING vec2 vary_texcoord2;
 uniform float env_intensity;
 uniform vec4 specular_color;
 
-#if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK
+#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK)
 uniform float minimum_alpha;
 #endif
 
@@ -426,14 +430,14 @@ void main()
 	vec4 diffcol = texture2D(diffuseMap, vary_texcoord0.xy);
 	diffcol.rgb *= vertex_color.rgb;
 
-#if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK
+#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK)
 	if (diffcol.a < minimum_alpha)
 	{
 		discard;
 	}
 #endif
 
-#if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND
+#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 	diffcol.rgb = pow(diffcol.rgb, vec3(2.2));
 #endif
 
@@ -456,9 +460,12 @@ void main()
 	vec3 tnorm = vary_normal;
 #endif
 
+    norm.xyz = tnorm;
+    norm.xyz = normalize(norm.xyz);
+
 	vec4 final_color = diffcol;
 	
-#if DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE
+#if (DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE)
 	final_color.a = 0;
 #endif
 
@@ -475,8 +482,7 @@ void main()
 #endif
 	
 
-#if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND
-	{
+#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 		//forward rendering, output just lit RGBA
 	vec3 pos = vary_position;
 
@@ -549,26 +555,27 @@ void main()
 	float shadow = 1.0;
 #endif
 
+	spec = final_specular;
 		vec4 diffuse = final_color;
-		vec3 norm = normalize(tnorm);
-		vec4 spec = final_specular;
 		float envIntensity = final_normal.z;
 
-		vec3 col;
+    vec3 col = vec3(0.0f,0.0f,0.0f);
+
 		float bloom = 0.0;
-		{
 			calcAtmospherics(pos.xyz, 1.0);
 	
-			float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
+	vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
-			da = pow(da, 0.7);
+	float da =dot(norm.xyz, sun_dir.xyz);
+    float final_da = pow(da, 0.7f);
+          final_da = min(final_da, shadow);
+          final_da = max(final_da, diffuse.a);
+          final_da = max(final_da, 0.0f);
 
-			col = atmosAmbient(vec3(0));
-			col += atmosAffectDirectionalLight(max(min(da, shadow), diffuse.a));
+	col.rgb = atmosAmbient(col);
+	col.rgb = col.rgb + atmosAffectDirectionalLight(final_da);
+	col.rgb *= diffuse.rgb;
 	
-			col *= diffuse.rgb;
-	
-			vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
 			if (spec.a > 0.0) // specular reflection
 			{
@@ -595,33 +602,10 @@ void main()
 			col = atmosLighting(col);
 			col = scaleSoftClip(col);
 
-			//col = mix(col.rgb, diffuse.rgb, diffuse.a);
-		}
-	
-		vec3 light_col = vec3(0,0,0);
-
 		vec3 npos = normalize(-pos.xyz);
 
-		
-		/*vec3 calcPointLightOrSpotLight(
-			vec3 light_col, 
-			vec3 npos, 
-			vec3 diffuse, 
-			vec4 spec, 
-			vec3 v, 
-			vec3 n, 
-			vec4 lp, 
-			vec3 ln, 
-			float la, 
-			float fa, 
-			float is_pointlight)
-
-		*/
-
-	/*
-#ifdef MAC_GEFORCE_HACK
  #define LIGHT_LOOP(i) \
-		light_col += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm, light_position[i], light_direction[i], light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+	col.rgb = col.rgb + calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
 
 		LIGHT_LOOP(1)
 		LIGHT_LOOP(2)
@@ -630,34 +614,19 @@ void main()
 		LIGHT_LOOP(5)
 		LIGHT_LOOP(6)
 		LIGHT_LOOP(7)
-#else*/
-	for (int i = 2; i < 8; i++)
-	{
-		light_col += calcPointLightOrSpotLight(
-			light_diffuse[i].rgb, 
-			npos, 
-			diffuse.rgb, 
-			final_specular, 
-			pos.xyz, 
-			norm, 
-			light_position[i], 
-			light_direction[i], 
-			light_attenuation[i].x, 
-			light_attenuation[i].y, 
-			light_attenuation[i].z);
-	}
-//#endif
 
-		col += light_col;
-		frag_color.rgb = col;
-		
-	}
-
-
+	frag_color.rgb = col.rgb;
 	frag_color.a = diffcol.a*vertex_color.a;
 
 #else
 	frag_data[0] = final_color;
+
+#ifdef UGLY_MAC_HACK
+	// magic spec exp clamp fixes rendering artifacts on older mac GF drivers
+	//
+	final_specular = min(final_specular, vec4(1.0f, 1.0f, 1.0f, 0.125f));
+#endif
+
 	frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.
 	frag_data[2] = final_normal; // XY = Normal.  Z = Env. intensity.
 #endif
