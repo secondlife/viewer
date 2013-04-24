@@ -106,6 +106,7 @@ public:
 	};
 	
 	static void updateClass();
+	static void cleanupToasts();
 
 	LLToast(const LLToast::Params& p);
 	virtual ~LLToast();

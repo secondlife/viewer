@@ -150,6 +150,7 @@
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
 #include "lltextureview.h"
+#include "lltoast.h"
 #include "lltool.h"
 #include "lltoolbarview.h"
 #include "lltoolcomp.h"
@@ -2035,6 +2036,9 @@ void LLViewerWindow::shutdownViews()
 	}
 	llinfos << "Global views cleaned." << llendl ;
 	
+	LLNotificationsUI::LLToast::cleanupToasts();
+	llinfos << "Leftover toast cleaned up." << llendl;
+
 	// DEV-40930: Clear sModalStack. Otherwise, any LLModalDialog left open
 	// will crump with LL_ERRS.
 	LLModalDialog::shutdownModals();
