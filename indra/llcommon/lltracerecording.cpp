@@ -362,6 +362,10 @@ PeriodicRecording::PeriodicRecording( U32 num_periods, EPlayState state)
 :	mAutoResize(num_periods == 0),
 	mCurPeriod(0)
 {
+	if (mAutoResize) 
+	{
+		num_periods = 1;
+	}
 	if (num_periods)
 	{
 		mRecordingPeriods.resize(num_periods);
@@ -464,7 +468,61 @@ void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 	other.setPlayState(other_play_state);
 }
 
+LLUnit<LLUnits::Seconds, F64> PeriodicRecording::getDuration()
+{
+	LLUnit<LLUnits::Seconds, F64> duration;
+	size_t num_periods = mRecordingPeriods.size();
+	for (size_t i = 1; i <= num_periods; i++)
+	{
+		size_t index = (mCurPeriod + num_periods - i) % num_periods;
+		duration += mRecordingPeriods[index].getDuration();
+	}
+	return duration;
+}
 
+
+LLTrace::Recording PeriodicRecording::snapshotCurRecording() const
+{
+	Recording recording_copy(getCurRecording());
+	recording_copy.stop();
+	return recording_copy;
+}
+
+
+Recording& PeriodicRecording::getLastRecording()
+{
+	U32 num_periods = mRecordingPeriods.size();
+	return mRecordingPeriods[(mCurPeriod + num_periods - 1) % num_periods];
+}
+
+const Recording& PeriodicRecording::getLastRecording() const
+{
+	return getPrevRecording(1);
+}
+
+Recording& PeriodicRecording::getCurRecording()
+{
+	return mRecordingPeriods[mCurPeriod];
+}
+
+const Recording& PeriodicRecording::getCurRecording() const
+{
+	return mRecordingPeriods[mCurPeriod];
+}
+
+Recording& PeriodicRecording::getPrevRecording( U32 offset )
+{
+	U32 num_periods = mRecordingPeriods.size();
+	offset = llclamp(offset, 0u, num_periods - 1);
+	return mRecordingPeriods[(mCurPeriod + num_periods - offset) % num_periods];
+}
+
+const Recording& PeriodicRecording::getPrevRecording( U32 offset ) const
+{
+	U32 num_periods = mRecordingPeriods.size();
+	offset = llclamp(offset, 0u, num_periods - 1);
+	return mRecordingPeriods[(mCurPeriod + num_periods - offset) % num_periods];
+}
 
 void PeriodicRecording::start()
 {
@@ -576,6 +634,13 @@ void ExtendableRecording::splitFrom(ExtendableRecording& other)
 ///////////////////////////////////////////////////////////////////////
 // ExtendablePeriodicRecording
 ///////////////////////////////////////////////////////////////////////
+
+
+ExtendablePeriodicRecording::ExtendablePeriodicRecording() 
+:	mAcceptedRecording(0), 
+	mPotentialRecording(0)
+{
+}
 
 void ExtendablePeriodicRecording::extend()
 {

@@ -254,49 +254,16 @@ namespace LLTrace
 		void nextPeriod();
 		U32 getNumPeriods() { return mRecordingPeriods.size(); }
 
+		LLUnit<LLUnits::Seconds, F64> getDuration();
+
 		void appendPeriodicRecording(PeriodicRecording& other);
-
-		Recording& getLastRecording()
-		{
-			U32 num_periods = mRecordingPeriods.size();
-			return mRecordingPeriods[(mCurPeriod + num_periods - 1) % num_periods];
-		}
-
-		const Recording& getLastRecording() const
-		{
-			return getPrevRecording(1);
-		}
-
-		Recording& getCurRecording()
-		{
-			return mRecordingPeriods[mCurPeriod];
-		}
-
-		const Recording& getCurRecording() const
-		{
-			return mRecordingPeriods[mCurPeriod];
-		}
-
-		Recording& getPrevRecording(U32 offset)
-		{
-			U32 num_periods = mRecordingPeriods.size();
-			offset = llclamp(offset, 0u, num_periods - 1);
-			return mRecordingPeriods[(mCurPeriod + num_periods - offset) % num_periods];
-		}
-
-		const Recording& getPrevRecording(U32 offset) const
-		{
-			U32 num_periods = mRecordingPeriods.size();
-			offset = llclamp(offset, 0u, num_periods - 1);
-			return mRecordingPeriods[(mCurPeriod + num_periods - offset) % num_periods];
-		}
-
-		Recording snapshotCurRecording() const
-		{
-			Recording recording_copy(getCurRecording());
-			recording_copy.stop();
-			return recording_copy;
-		}
+		Recording& getLastRecording();
+		const Recording& getLastRecording() const;
+		Recording& getCurRecording();
+		const Recording& getCurRecording() const;
+		Recording& getPrevRecording(U32 offset);
+		const Recording& getPrevRecording(U32 offset) const;
+		Recording snapshotCurRecording() const;
 
 		template <typename T>
 		typename T::value_t getPeriodMin(const TraceType<T>& stat, size_t num_periods = U32_MAX) const
@@ -447,10 +414,11 @@ namespace LLTrace
 	:	public LLStopWatchControlsMixin<ExtendablePeriodicRecording>
 	{
 	public:
+		ExtendablePeriodicRecording();
 		void extend();
 
-		PeriodicRecording& getAcceptedRecording() { return mAcceptedRecording; }
-		const PeriodicRecording& getAcceptedRecording() const {return mAcceptedRecording;}
+		PeriodicRecording& getAcceptedRecording()				{ return mAcceptedRecording; }
+		const PeriodicRecording& getAcceptedRecording() const	{return mAcceptedRecording;}
 
 		// implementation for LLStopWatchControlsMixin
 		/*virtual*/ void start();
