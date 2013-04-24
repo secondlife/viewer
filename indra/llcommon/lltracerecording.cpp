@@ -362,6 +362,10 @@ PeriodicRecording::PeriodicRecording( U32 num_periods, EPlayState state)
 :	mAutoResize(num_periods == 0),
 	mCurPeriod(0)
 {
+	if (mAutoResize) 
+	{
+		num_periods = 1;
+	}
 	if (num_periods)
 	{
 		mRecordingPeriods.resize(num_periods);
