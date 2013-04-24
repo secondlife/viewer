@@ -465,7 +465,7 @@ void main()
 
 	vec4 final_color = diffcol;
 	
-#if (DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE)
+#if DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE
 	final_color.a = 0;
 #endif
 
@@ -483,7 +483,7 @@ void main()
 	
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-	//forward rendering, output just lit RGBA
+		//forward rendering, output just lit RGBA
 	vec3 pos = vary_position;
 
 #if HAS_SUN_SHADOW
@@ -556,13 +556,13 @@ void main()
 #endif
 
 	spec = final_specular;
-	vec4 diffuse = final_color;
-	float envIntensity = final_normal.z;
+		vec4 diffuse = final_color;
+		float envIntensity = final_normal.z;
 
     vec3 col = vec3(0.0f,0.0f,0.0f);
 
-	float bloom = 0.0;
-	calcAtmospherics(pos.xyz, 1.0);
+		float bloom = 0.0;
+			calcAtmospherics(pos.xyz, 1.0);
 	
 	vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
@@ -577,43 +577,43 @@ void main()
 	col.rgb *= diffuse.rgb;
 	
 
-	if (spec.a > 0.0) // specular reflection
-	{
-		// the old infinite-sky shiny reflection
-		//
+			if (spec.a > 0.0) // specular reflection
+			{
+				// the old infinite-sky shiny reflection
+				//
 				
-		float sa = dot(refnormpersp, sun_dir.xyz);
-		vec3 dumbshiny = vary_SunlitColor*shadow*(texture2D(lightFunc, vec2(sa, spec.a)).r);
+				float sa = dot(refnormpersp, sun_dir.xyz);
+				vec3 dumbshiny = vary_SunlitColor*shadow*(texture2D(lightFunc, vec2(sa, spec.a)).r);
 							
-		// add the two types of shiny together
-		vec3 spec_contrib = dumbshiny * spec.rgb;
-		bloom = dot(spec_contrib, spec_contrib) / 6;
-		col += spec_contrib;
-	}
+				// add the two types of shiny together
+				vec3 spec_contrib = dumbshiny * spec.rgb;
+				bloom = dot(spec_contrib, spec_contrib) / 6;
+				col += spec_contrib;
+			}
 
-	if (envIntensity > 0.0)
-	{
-		//add environmentmap
-		vec3 env_vec = env_mat * refnormpersp;
-		col = mix(col.rgb, textureCube(environmentMap, env_vec).rgb, 
-		max(envIntensity-diffuse.a*2.0, 0.0));
-	}
+			if (envIntensity > 0.0)
+			{
+				//add environmentmap
+				vec3 env_vec = env_mat * refnormpersp;
+				col = mix(col.rgb, textureCube(environmentMap, env_vec).rgb, 
+					max(envIntensity-diffuse.a*2.0, 0.0));
+			}
 	
-	col = atmosLighting(col);
-	col = scaleSoftClip(col);
+			col = atmosLighting(col);
+			col = scaleSoftClip(col);
 
-	vec3 npos = normalize(-pos.xyz);
-		
+		vec3 npos = normalize(-pos.xyz);
+
  #define LIGHT_LOOP(i) \
 	col.rgb = col.rgb + calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
 
-	LIGHT_LOOP(1)
-	LIGHT_LOOP(2)
-	LIGHT_LOOP(3)
-	LIGHT_LOOP(4)
-	LIGHT_LOOP(5)
-	LIGHT_LOOP(6)
-	LIGHT_LOOP(7)
+		LIGHT_LOOP(1)
+		LIGHT_LOOP(2)
+		LIGHT_LOOP(3)
+		LIGHT_LOOP(4)
+		LIGHT_LOOP(5)
+		LIGHT_LOOP(6)
+		LIGHT_LOOP(7)
 
 	frag_color.rgb = col.rgb;
 	frag_color.a = diffcol.a*vertex_color.a;

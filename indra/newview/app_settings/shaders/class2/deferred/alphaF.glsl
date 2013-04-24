@@ -25,10 +25,6 @@
 
 #extension GL_ARB_texture_rectangle : enable
 
-#define INDEXED 1
-#define NON_INDEXED 2
-#define NON_INDEXED_NO_COLOR 3
-
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -228,9 +224,8 @@ void main()
 	col = vec4(0.0f,0.0f,0.0f,0.0f);
 
   #define LIGHT_LOOP(i) \
-	col.rgb += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
-
-
+		col.rgb += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+		
 	LIGHT_LOOP(1)
 	LIGHT_LOOP(2)
 	LIGHT_LOOP(3)
@@ -240,8 +235,7 @@ void main()
 	LIGHT_LOOP(7)
 
 	color.rgb += diff.rgb * vary_pointlight_col * col.rgb;
-	
+
 	frag_color = color;
-	
 }
 

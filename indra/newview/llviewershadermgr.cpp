@@ -808,7 +808,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	{
 		sum_lights_class = 1;
 	}
-	
+
 #if LL_DARWIN
 	// Work around driver crashes on older Macs when using deferred rendering
 	// NORSPEC-59
@@ -1431,7 +1431,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAlphaProgram.addPermutation("USE_INDEXED_TEX", "1");
 		gDeferredAlphaProgram.addPermutation("USE_VERTEX_COLOR", "1");
 		gDeferredAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
 		success = gDeferredAlphaProgram.createShader(NULL, NULL);
 
 		// Hack
@@ -1615,7 +1614,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarAlphaProgram.mFeatures.calculatesLighting = true;
 		gDeferredAvatarAlphaProgram.mFeatures.hasLighting = true;
 	}
-
+	
 	if (success)
 	{
 		gDeferredPostGammaCorrectProgram.mName = "Deferred Gamma Correction Post Process";
@@ -3045,4 +3044,3 @@ LLViewerShaderMgr::shader_iter LLViewerShaderMgr::endShaders() const
 {
 	return mShaderList.end();
 }
-

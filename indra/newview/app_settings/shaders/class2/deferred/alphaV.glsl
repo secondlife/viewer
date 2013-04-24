@@ -158,7 +158,7 @@ void main()
 	pos = (modelview_matrix * vert);
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 #endif
-
+	
 #endif
 
 #ifdef USE_INDEXED_TEX
