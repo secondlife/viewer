@@ -1541,15 +1541,8 @@ bool LLAppearanceMgr::getCanRemoveOutfit(const LLUUID& outfit_cat_id)
 // static
 bool LLAppearanceMgr::getCanRemoveFromCOF(const LLUUID& outfit_cat_id)
 {
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
 	LLFindWearablesEx is_worn(/*is_worn=*/ true, /*include_body_parts=*/ false);
-	gInventory.collectDescendentsIf(outfit_cat_id,
-		cats,
-		items,
-		LLInventoryModel::EXCLUDE_TRASH,
-		is_worn);
-	return items.size() > 0;
+	return gInventory.hasMatchingDirectDescendent(outfit_cat_id, is_worn);
 }
 
 // static
@@ -1560,15 +1553,8 @@ bool LLAppearanceMgr::getCanAddToCOF(const LLUUID& outfit_cat_id)
 		return false;
 	}
 
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
 	LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ false);
-	gInventory.collectDescendentsIf(outfit_cat_id,
-		cats,
-		items,
-		LLInventoryModel::EXCLUDE_TRASH,
-		not_worn);
-	return items.size() > 0;
+	return gInventory.hasMatchingDirectDescendent(outfit_cat_id, not_worn);
 }
 
 bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
@@ -1586,15 +1572,8 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 	}
 
 	// Check whether the outfit contains any wearables we aren't wearing already (STORM-702).
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
 	LLFindWearablesEx is_worn(/*is_worn=*/ false, /*include_body_parts=*/ true);
-	gInventory.collectDescendentsIf(outfit_cat_id,
-		cats,
-		items,
-		LLInventoryModel::EXCLUDE_TRASH,
-		is_worn);
-	return items.size() > 0;
+	return gInventory.hasMatchingDirectDescendent(outfit_cat_id, is_worn);
 }
 
 void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> cb)
@@ -2243,6 +2222,7 @@ void LLAppearanceMgr::wearInventoryCategoryOnAvatar( LLInventoryCategory* catego
 	LLAppearanceMgr::changeOutfit(TRUE, category->getUUID(), append);
 }
 
+// FIXME do we really want to search entire inventory for matching name?
 void LLAppearanceMgr::wearOutfitByName(const std::string& name)
 {
 	LL_INFOS("Avatar") << self_av_string() << "Wearing category " << name << LL_ENDL;
@@ -3501,22 +3481,21 @@ void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
 
 BOOL LLAppearanceMgr::getIsInCOF(const LLUUID& obj_id) const
 {
-	return gInventory.isObjectDescendentOf(obj_id, getCOF());
+	const LLUUID& cof = getCOF();
+	if (obj_id == cof)
+		return TRUE;
+	const LLInventoryObject* obj = gInventory.getObject(obj_id);
+	if (obj && obj->getParentUUID() == cof)
+		return TRUE;
+	return FALSE;
 }
 
 // static
 bool LLAppearanceMgr::isLinkInCOF(const LLUUID& obj_id)
 {
-	 LLInventoryModel::cat_array_t cats;
-	 LLInventoryModel::item_array_t items;
-	 LLLinkedItemIDMatches find_links(gInventory.getLinkedItemID(obj_id));
-	 gInventory.collectDescendentsIf(LLAppearanceMgr::instance().getCOF(),
-									 cats,
-									 items,
-									 LLInventoryModel::EXCLUDE_TRASH,
-									 find_links);
-
-	 return !items.empty();
+	const LLUUID& target_id = gInventory.getLinkedItemID(obj_id);
+	LLLinkedItemIDMatches find_links(target_id);
+	return gInventory.hasMatchingDirectDescendent(LLAppearanceMgr::instance().getCOF(), find_links);
 }
 
 BOOL LLAppearanceMgr::getIsProtectedCOFItem(const LLUUID& obj_id) const
@@ -3533,18 +3512,6 @@ BOOL LLAppearanceMgr::getIsProtectedCOFItem(const LLUUID& obj_id) const
 	// For now, don't allow direct deletion from the COF.  Instead, force users
 	// to choose "Detach" or "Take Off".
 	return TRUE;
-	/*
-	const LLInventoryObject *obj = gInventory.getObject(obj_id);
-	if (!obj) return FALSE;
-
-	// Can't delete bodyparts, since this would be equivalent to removing the item.
-	if (obj->getType() == LLAssetType::AT_BODYPART) return TRUE;
-
-	// Can't delete the folder link, since this is saved for bookkeeping.
-	if (obj->getActualType() == LLAssetType::AT_LINK_FOLDER) return TRUE;
-
-	return FALSE;
-	*/
 }
 
 class CallAfterCategoryFetchStage2: public LLInventoryFetchItemsObserver

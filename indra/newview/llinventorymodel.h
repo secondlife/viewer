@@ -205,6 +205,9 @@ public:
 		EXCLUDE_TRASH = FALSE, 
 		INCLUDE_TRASH = TRUE 
 	};
+	// Simpler existence test if matches don't actually need to be collected.
+	bool hasMatchingDirectDescendent(const LLUUID& cat_id,
+									 LLInventoryCollectFunctor& filter);
 	void collectDescendents(const LLUUID& id,
 							cat_array_t& categories,
 							item_array_t& items,
