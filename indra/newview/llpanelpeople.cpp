@@ -695,12 +695,12 @@ BOOL LLPanelPeople::postBuild()
 	LLPanel * socialtwo_tab = getChild<LLPanel>(FBCTESTTWO_TAB_NAME);
 
 	//Create folder view
-	LLPersonModelCommon* base_item = new LLPersonModelCommon(mConversationViewModel);
+	LLPersonModelCommon* base_item = new LLPersonModelCommon(mPersonFolderViewModel);
 
 	LLFolderView::Params folder_view_params(LLUICtrlFactory::getDefaultParams<LLFolderView>());
 	folder_view_params.parent_panel = friends_tab;
 	folder_view_params.listener = base_item;
-	folder_view_params.view_model = &mConversationViewModel;
+	folder_view_params.view_model = &mPersonFolderViewModel;
 	folder_view_params.root = NULL;
 	folder_view_params.use_ellipses = false;
 	folder_view_params.options_menu = "menu_conversation.xml";
@@ -725,7 +725,7 @@ BOOL LLPanelPeople::postBuild()
 
 	//Create a session
 	//LLSpeakerMgr* speaker_manager = (LLSpeakerMgr*)LLLocalSpeakerMgr::getInstance();
-	LLPersonTabModel* item = new LLPersonTabModel("Facebook Friends", mConversationViewModel);
+	LLPersonTabModel* item = new LLPersonTabModel("Facebook Friends", mPersonFolderViewModel);
 	LLPersonTabView::Params params;
 	params.name = item->getDisplayName();
 	params.root = mConversationsRoot;
@@ -1742,7 +1742,7 @@ void LLPanelPeople::addParticipantToModel(LLPersonTabModel * person_folder_model
 {
 	LLPersonModel* person_model = NULL;
 
-	person_model = new LLPersonModel(name, mConversationViewModel);
+	person_model = new LLPersonModel(name, mPersonFolderViewModel);
 	person_folder_model->addParticipant(person_model);
 }
 
