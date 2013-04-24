@@ -182,7 +182,12 @@ void main()
 	//vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.));
 	vec4 col = vec4(0.0, 0.0, 0.0, diffuse_color.a);
 	
-	vary_pointlight_col = diffuse_color.rgb;
+	vec3 diff = pow(diffuse_color.rgb, vec3(2.2));
+
+	
+
+	vary_pointlight_col = diff;
+
 	
 	col.rgb = vec3(0,0,0);
 
