@@ -194,11 +194,11 @@ void main()
 	// Add windlight lights
 	col.rgb = atmosAmbient(col.rgb);
 	
-	vary_ambient = col.rgb*diffuse_color.rgb;
+	vary_ambient = col.rgb*diff.rgb;
 
 	vary_directional.rgb = atmosAffectDirectionalLight(1.0f);
 	
-	col.rgb = col.rgb*diffuse_color.rgb;
+	col.rgb = col.rgb*diff.rgb;
 	
 #ifdef USE_VERTEX_COLOR
 	vertex_color = col;
