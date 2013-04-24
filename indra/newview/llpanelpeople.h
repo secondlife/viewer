@@ -30,7 +30,7 @@
 #include <llpanel.h>
 
 #include "llcallingcard.h" // for avatar tracker
-#include "llconversationmodel.h"
+#include "llpersonmodelcommon.h"
 #include "llevents.h"
 #include "llfloaterwebcontent.h"
 #include "llvoiceclient.h"
@@ -191,7 +191,7 @@ private:
 
 	person_folder_model_map mPersonFolderModelMap;
 	person_folder_view_map mPersonFolderViewMap;
-	LLConversationViewModel mConversationViewModel;
+	LLPersonFolderViewModel mPersonFolderViewModel;
 	LLFolderView* mConversationsRoot;
 	LLEventStream mConversationsEventStream;
 };
