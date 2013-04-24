@@ -63,7 +63,7 @@ public:
 	bool isEnabled()const {return mEnabled;}
 	bool needsUpdate() const;
 	
-	LLTrace::ExtendableRecording* getRecording() const {return mRecording;}
+	LLTrace::ExtendablePeriodicRecording* getRecording() const {return mRecording;}
 	void dumpToFile(std::string file_name);
 	bool hasResults() const { return !mMonitorResults.empty();}
 
@@ -102,7 +102,7 @@ private:
 
 	std::vector<LLAnimPauseRequest> mAvatarPauseHandles;
 
-	LLTrace::ExtendableRecording* mRecording;
+	LLTrace::ExtendablePeriodicRecording* mRecording;
 
 	//---------------------------------------
 	typedef struct _monitor_result

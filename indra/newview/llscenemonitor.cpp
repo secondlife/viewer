@@ -73,7 +73,7 @@ LLSceneMonitor::LLSceneMonitor() :
 	mFrames[0] = NULL;
 	mFrames[1] = NULL;
 
-	mRecording = new LLTrace::ExtendableRecording();
+	mRecording = new LLTrace::ExtendablePeriodicRecording();
 	mRecording->start();
 }
 
