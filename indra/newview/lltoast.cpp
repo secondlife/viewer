@@ -596,8 +596,6 @@ void LLToast::updateClass()
 // static 
 void LLToast::cleanupToasts()
 {
-	LL_CHECK_MEMORY;
-	
 	LLToast * toastp = NULL;
 
 	while (LLInstanceTracker<LLToast>::instanceCount() > 0)
