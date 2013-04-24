@@ -1,4 +1,3 @@
-sDestroyImmediate
 /** 
 * @file llsociallist.cpp
 * @brief Implementation of llsociallist
@@ -37,7 +36,7 @@ sDestroyImmediate
 #include "llavatarnamecache.h"
 #include "lloutputmonitorctrl.h"
 #include "lltextutil.h"
-    
+
 static LLDefaultChildRegistry::Register<LLSocialList> r("social_list");
 
 LLSocialList::LLSocialList(const Params&p) : LLFlatListViewEx(p)

@@ -117,7 +117,7 @@ void LLPersonView::draw()
 	const LLFontGL * font = LLFontGL::getFontSansSerifSmall();
 	F32 text_left = (F32)getLabelXPos();
 	F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad;
-	LLColor4 color = color = mIsSelected ? sHighlightFgColor : sFgColor;
+	LLColor4 color = mIsSelected ? sHighlightFgColor : sFgColor;
 	F32 right_x  = 0;
 
 	drawLabel(font, text_left, y, color, right_x);
