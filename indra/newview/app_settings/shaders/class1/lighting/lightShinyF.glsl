@@ -50,7 +50,7 @@ void shiny_lighting()
 	color.rgb = atmosLighting(color.rgb);
 
 	color.rgb = scaleSoftClip(color.rgb);
-	color.a = max(color.a, vertex_color.a);
+	color.a = 1.0;
 	frag_color = color;
 }
 

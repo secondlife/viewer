@@ -917,6 +917,11 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		{
 			screenFormat = GL_RGBA12;
 		}
+
+		if (gGLManager.mGLVersion < 4.f && gGLManager.mIsNVIDIA)
+		{
+			screenFormat = GL_RGBA16F_ARB;
+		}
 		
 		if (!mScreen.allocate(resX, resY, screenFormat, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (samples > 0)
@@ -1672,14 +1677,7 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 				alpha = false;
 				break;
 			default: //alpha mode set to "mask", go to alpha pool if fullbright
-				if (te->getFullbright())
-				{ 
-					alpha = true;
-				}
-				else
-				{
-					alpha = false; // Material's alpha mode is set to none, mask, or emissive.  Toss it into the opaque material draw pool.
-				}
+				alpha = false; // Material's alpha mode is set to none, mask, or emissive.  Toss it into the opaque material draw pool.
 				break;
 		}
 	}
@@ -10040,7 +10038,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			{
 				static LLCullResult result[4];
 
-				//LLGLEnable enable(GL_DEPTH_CLAMP_NV);
 				renderShadow(view[j], proj[j], shadow_cam, result[j], TRUE, TRUE, target_width);
 			}
 
