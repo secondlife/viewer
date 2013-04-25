@@ -163,16 +163,6 @@ bool LLChatEntry::useLabel()
     return !getLength() && !mLabel.empty();
 }
 
-void LLChatEntry::onFocusReceived()
-{
-
-}
-
-void LLChatEntry::onFocusLost()
-{
-
-}
-
 BOOL LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
 {
 	BOOL handled = FALSE;
