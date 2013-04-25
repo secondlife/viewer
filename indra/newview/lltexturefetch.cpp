@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -62,6 +62,8 @@
 #include "httpresponse.h"
 #include "bufferarray.h"
 #include "bufferstream.h"
+
+#include "llhttpretrypolicy.h"
 
 bool LLTextureFetchDebugger::sDebuggerEnabled = false ;
 LLStat LLTextureFetch::sCacheHitRate("texture_cache_hits", 128);
@@ -244,6 +246,25 @@ static const S32 HTTP_REQUESTS_IN_QUEUE_LOW_WATER = 20;			// Active level at whi
 
 //////////////////////////////////////////////////////////////////////////////
 
+static const char* e_state_name[] =
+{
+	"INVALID",
+	"INIT",
+	"LOAD_FROM_TEXTURE_CACHE",
+	"CACHE_POST",
+	"LOAD_FROM_NETWORK",
+	"LOAD_FROM_SIMULATOR",
+	"WAIT_HTTP_RESOURCE",
+	"WAIT_HTTP_RESOURCE2",
+	"SEND_HTTP_REQ",
+	"WAIT_HTTP_REQ",
+	"DECODE_IMAGE",
+	"DECODE_IMAGE_UPDATE",
+	"WRITE_TO_CACHE",
+	"WAIT_ON_WRITE",
+	"DONE"
+};
+
 class LLTextureFetchWorker : public LLWorkerClass, public LLCore::HttpHandler
 
 {
@@ -382,12 +403,14 @@ public:
 	void setCanUseHTTP(bool can_use_http) { mCanUseHTTP = can_use_http; }
 	bool getCanUseHTTP() const { return mCanUseHTTP; }
 
+	void setUrl(const std::string& url) { mUrl = url; }
+
 	LLTextureFetch & getFetcher() { return *mFetcher; }
 
 	// Inherited from LLCore::HttpHandler
 	// Threads:  Ttf
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
-	
+
 protected:
 	LLTextureFetchWorker(LLTextureFetch* fetcher, FTType f_type,
 						 const std::string& url, const LLUUID& id, const LLHost& host,
@@ -547,6 +570,8 @@ private:
 	S32 mActiveCount;
 	LLCore::HttpStatus mGetStatus;
 	std::string mGetReason;
+	LLAdaptiveRetryPolicy mFetchRetryPolicy;
+
 	
 	// Work Data
 	LLMutex mWorkMutex;
@@ -889,7 +914,8 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mHttpHasResource(false),
 	  mCacheReadCount(0U),
 	  mCacheWriteCount(0U),
-	  mResourceWaitCount(0U)
+	  mResourceWaitCount(0U),
+	  mFetchRetryPolicy(10.0,3600.0,2.0,10)
 {
 	mCanUseNET = mUrl.empty() ;
 	
@@ -1148,6 +1174,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		mDesiredSize = llmax(mDesiredSize, TEXTURE_CACHE_ENTRY_SIZE); // min desired size is TEXTURE_CACHE_ENTRY_SIZE
 		LL_DEBUGS("Texture") << mID << ": Priority: " << llformat("%8.0f",mImagePriority)
 							 << " Desired Discard: " << mDesiredDiscard << " Desired Size: " << mDesiredSize << LL_ENDL;
+
 		// fall through
 	}
 
@@ -1270,6 +1297,21 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if (mState == LOAD_FROM_NETWORK)
 	{
+		// Check for retries to previous server failures.
+		F32 wait_seconds;
+		if (mFetchRetryPolicy.shouldRetry(wait_seconds))
+		{
+			if (wait_seconds <= 0.0)
+			{
+				llinfos << mID << " retrying now" << llendl;
+			}
+			else
+			{
+				//llinfos << mID << " waiting to retry for " << wait_seconds << " seconds" << llendl;
+				return false;
+			}
+		}
+
 		static LLCachedControl<bool> use_http(gSavedSettings,"ImagePipelineUseHTTP");
 
 // 		if (mHost != LLHost::invalid) get_url = false;
@@ -1286,7 +1328,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				std::string http_url = region->getHttpUrl() ;
 				if (!http_url.empty())
 				{
-					mUrl = http_url + "/?texture_id=" + mID.asString().c_str();
+					setUrl(http_url + "/?texture_id=" + mID.asString().c_str());
 					mWriteToCacheState = CAN_WRITE ; //because this texture has a fixed texture id.
 				}
 				else
@@ -1482,12 +1524,14 @@ bool LLTextureFetchWorker::doWork(S32 param)
 								 << LL_ENDL;
 
 			// Will call callbackHttpGet when curl request completes
+			// Only server bake images use the returned headers currently, for getting retry-after field.
+			LLCore::HttpOptions *options = (mFTType == FTT_SERVER_BAKE) ? mFetcher->mHttpOptionsWithHeaders: mFetcher->mHttpOptions;
 			mHttpHandle = mFetcher->mHttpRequest->requestGetByteRange(mHttpPolicyClass,
 																	  mWorkPriority,
 																	  mUrl,
 																	  mRequestedOffset,
 																	  mRequestedSize,
-																	  mFetcher->mHttpOptions,
+																	  options,
 																	  mFetcher->mHttpHeaders,
 																	  this);
 		}
@@ -1519,15 +1563,22 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			{
 				if (http_not_found == mGetStatus)
 				{
-					if(mWriteToCacheState == NOT_WRITE) //map tiles
+					if (mFTType != FTT_MAP_TILE)
+					{
+						llwarns << "Texture missing from server (404): " << mUrl << llendl;
+					}
+
+					if(mWriteToCacheState == NOT_WRITE) //map tiles or server bakes
 					{
 						setState(DONE);
 						releaseHttpSemaphore();
-						LL_DEBUGS("Texture") << mID << " abort: WAIT_HTTP_REQ not found" << llendl;
-						return true; // failed, means no map tile on the empty region.
+						if (mFTType != FTT_MAP_TILE)
+						{
+							LL_WARNS("Texture") << mID << " abort: WAIT_HTTP_REQ not found" << llendl;
+						}
+						return true; 
 					}
 
-					llwarns << "Texture missing from server (404): " << mUrl << llendl;
 
 					// roll back to try UDP
 					if (mCanUseNET)
@@ -1543,6 +1594,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				else if (http_service_unavail == mGetStatus)
 				{
 					LL_INFOS_ONCE("Texture") << "Texture server busy (503): " << mUrl << LL_ENDL;
+					llinfos << "503: HTTP GET failed for: " << mUrl
+							<< " Status: " << mGetStatus.toHex()
+							<< " Reason: '" << mGetReason << "'"
+							<< llendl;
 				}
 				else if (http_not_sat == mGetStatus)
 				{
@@ -1551,7 +1606,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				}
 				else
 				{
-					llinfos << "HTTP GET failed for: " << mUrl
+					llinfos << "other: HTTP GET failed for: " << mUrl
 							<< " Status: " << mGetStatus.toHex()
 							<< " Reason: '" << mGetReason << "'"
 							<< llendl;
@@ -1891,14 +1946,48 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		mFetcher->mTextureInfo.setRequestCompleteTimeAndLog(mID, timeNow);
 	}
 
+	static LLCachedControl<F32> fake_failure_rate(gSavedSettings, "TextureFetchFakeFailureRate");
+	F32 rand_val = ll_frand();
+	F32 rate = fake_failure_rate;
+	if (mFTType == FTT_SERVER_BAKE && (fake_failure_rate > 0.0) && (rand_val < fake_failure_rate))
+	{
+		llwarns << mID << " for debugging, setting fake failure status for texture " << mID
+				<< " (rand was " << rand_val << "/" << rate << ")" << llendl;
+		response->setStatus(LLCore::HttpStatus(503));
+	}
 	bool success = true;
 	bool partial = false;
 	LLCore::HttpStatus status(response->getStatus());
+	if (!status && (mFTType == FTT_SERVER_BAKE))
+	{
+		llinfos << mID << " state " << e_state_name[mState] << llendl;
+		mFetchRetryPolicy.onFailure(response);
+		F32 retry_after;
+		if (mFetchRetryPolicy.shouldRetry(retry_after))
+		{
+			llinfos << mID << " will retry after " << retry_after << " seconds, resetting state to LOAD_FROM_NETWORK" << llendl;
+			mFetcher->removeFromHTTPQueue(mID, 0);
+			std::string reason(status.toString());
+			setGetStatus(status, reason);
+			releaseHttpSemaphore();
+			setState(LOAD_FROM_NETWORK);
+			return;
+		}
+		else
+		{
+			llinfos << mID << " will not retry" << llendl;
+		}
+	}
+	else
+	{
+		mFetchRetryPolicy.onSuccess();
+	}
 	
 	LL_DEBUGS("Texture") << "HTTP COMPLETE: " << mID
 						 << " status: " << status.toHex()
 						 << " '" << status.toString() << "'"
 						 << llendl;
+
 //	unsigned int offset(0), length(0), full_length(0);
 //	response->getRange(&offset, &length, &full_length);
 // 	llwarns << "HTTP COMPLETE: " << mID << " handle: " << handle
@@ -1907,13 +1996,16 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 // 			<< " offset: " << offset << " length: " << length
 // 			<< llendl;
 
+	std::string reason(status.toString());
+	setGetStatus(status, reason);
 	if (! status)
 	{
 		success = false;
-		std::string reason(status.toString());
-		setGetStatus(status, reason);
-		llwarns << "CURL GET FAILED, status: " << status.toHex()
-				<< " reason: " << reason << llendl;
+		if (mFTType != FTT_MAP_TILE) // missing map tiles are normal, don't complain about them.
+		{
+			llwarns << mID << " CURL GET FAILED, status: " << status.toHex()
+					<< " reason: " << reason << llendl;
+		}
 	}
 	else
 	{
@@ -2376,6 +2468,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mQAMode(qa_mode),
 	  mHttpRequest(NULL),
 	  mHttpOptions(NULL),
+	  mHttpOptionsWithHeaders(NULL),
 	  mHttpHeaders(NULL),
 	  mHttpMetricsHeaders(NULL),
 	  mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
@@ -2406,11 +2499,13 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	
 	mHttpRequest = new LLCore::HttpRequest;
 	mHttpOptions = new LLCore::HttpOptions;
+	mHttpOptionsWithHeaders = new LLCore::HttpOptions;
+	mHttpOptionsWithHeaders->setWantHeaders(true);
 	mHttpHeaders = new LLCore::HttpHeaders;
 	// *TODO: Should this be 'image/j2c' instead of 'image/x-j2c' ?
-	mHttpHeaders->mHeaders.push_back(HTTP_OUT_HEADER_ACCEPT + ": " + HTTP_CONTENT_IMAGE_X_J2C);
+	mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_IMAGE_X_J2C);
 	mHttpMetricsHeaders = new LLCore::HttpHeaders;
-	mHttpMetricsHeaders->mHeaders.push_back(HTTP_OUT_HEADER_CONTENT_TYPE + ": " + HTTP_CONTENT_LLSD_XML);
+	mHttpMetricsHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
 	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicyDefault();
 }
 
@@ -2429,6 +2524,12 @@ LLTextureFetch::~LLTextureFetch()
 	{
 		mHttpOptions->release();
 		mHttpOptions = NULL;
+	}
+
+	if (mHttpOptionsWithHeaders)
+	{
+		mHttpOptionsWithHeaders->release();
+		mHttpOptionsWithHeaders = NULL;
 	}
 
 	if (mHttpHeaders)
@@ -2465,7 +2566,11 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 	{
 		return false;
 	}
-	
+
+	if (f_type == FTT_SERVER_BAKE)
+	{
+		LL_DEBUGS("Avatar") << " requesting " << id << " " << w << "x" << h << " discard " << desired_discard << llendl;
+	}
 	LLTextureFetchWorker* worker = getWorker(id) ;
 	if (worker)
 	{
@@ -2523,7 +2628,8 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 		worker->mNeedsAux = needs_aux;
 		worker->setImagePriority(priority);
 		worker->setDesiredDiscard(desired_discard, desired_size);
-		worker->setCanUseHTTP(can_use_http) ;
+		worker->setCanUseHTTP(can_use_http);
+		worker->setUrl(url);
 		if (!worker->haveWork())
 		{
 			worker->setState(LLTextureFetchWorker::INIT);
@@ -2729,7 +2835,8 @@ LLTextureFetchWorker* LLTextureFetch::getWorker(const LLUUID& id)
 
 // Threads:  T*
 bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
-										LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux)
+										LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux,
+										LLCore::HttpStatus& last_http_get_status)
 {
 	bool res = false;
 	LLTextureFetchWorker* worker = getWorker(id);
@@ -2751,6 +2858,7 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 		else if (worker->checkWork())
 		{
 			worker->lockWorkMutex();									// +Mw
+			last_http_get_status = worker->mGetStatus;
 			discard_level = worker->mDecodedDiscard;
 			raw = worker->mRawImage;
 			aux = worker->mAuxImage;
@@ -3221,25 +3329,14 @@ bool LLTextureFetchWorker::insertPacket(S32 index, U8* data, S32 size)
 
 void LLTextureFetchWorker::setState(e_state new_state)
 {
-	static const char* e_state_name[] =
+	if (mFTType == FTT_SERVER_BAKE)
 	{
-		"INVALID",
-		"INIT",
-		"LOAD_FROM_TEXTURE_CACHE",
-		"CACHE_POST",
-		"LOAD_FROM_NETWORK",
-		"LOAD_FROM_SIMULATOR",
-		"WAIT_HTTP_RESOURCE",
-		"WAIT_HTTP_RESOURCE2",
-		"SEND_HTTP_REQ",
-		"WAIT_HTTP_REQ",
-		"DECODE_IMAGE",
-		"DECODE_IMAGE_UPDATE",
-		"WRITE_TO_CACHE",
-		"WAIT_ON_WRITE",
-		"DONE"
-	};
-	LL_DEBUGS("Texture") << "id: " << mID << " FTType: " << mFTType << " disc: " << mDesiredDiscard << " sz: " << mDesiredSize << " state: " << e_state_name[mState] << " => " << e_state_name[new_state] << llendl;
+	// NOTE: turning on these log statements is a reliable way to get
+	// blurry images fairly frequently. Presumably this is an
+	// indication of some subtle timing or locking issue.
+
+//		LL_INFOS("Texture") << "id: " << mID << " FTType: " << mFTType << " disc: " << mDesiredDiscard << " sz: " << mDesiredSize << " state: " << e_state_name[mState] << " => " << e_state_name[new_state] << llendl;
+	}
 	mState = new_state;
 }
 
@@ -4043,7 +4140,7 @@ void LLTextureFetchDebugger::init()
 	{
 		mHttpHeaders = new LLCore::HttpHeaders;
 		// *TODO: Should this be 'image/j2c' instead of 'image/x-j2c' ?
-		mHttpHeaders->mHeaders.push_back(HTTP_OUT_HEADER_ACCEPT + ": " + HTTP_CONTENT_IMAGE_X_J2C);
+		mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_IMAGE_X_J2C);
 	}
 }
 

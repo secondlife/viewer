@@ -49,7 +49,8 @@ class LLAppearanceMgr: public LLSingleton<LLAppearanceMgr>
 public:
 	typedef std::vector<LLInventoryModel::item_array_t> wearables_by_type_t;
 
-	void updateAppearanceFromCOF(bool update_base_outfit_ordering = false);
+	void updateAppearanceFromCOF(bool update_base_outfit_ordering = false,
+								 bool enforce_item_restrictions = true);
 	bool needToSaveCOF();
 	void updateCOF(const LLUUID& category, bool append = false);
 	void wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append);
@@ -65,7 +66,8 @@ public:
 								   LLAssetType::EType type,
 								   S32 max_items,
 								   LLInventoryModel::item_array_t& items_to_kill);
-	void enforceItemRestrictions();
+	void findAllExcessOrDuplicateItems(const LLUUID& cat_id,
+									  LLInventoryModel::item_array_t& items_to_kill);
 
 	// Copy all items and the src category itself.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
@@ -105,12 +107,13 @@ public:
 	const LLUUID getBaseOutfitUUID();
 
 	// Wear/attach an item (from a user's inventory) on the agent
-	bool wearItemOnAvatar(const LLUUID& item_to_wear, bool do_update = true, bool replace = false, LLPointer<LLInventoryCallback> cb = NULL);
+	bool wearItemOnAvatar(const LLUUID& item_to_wear, bool do_update, bool replace = false,
+						  LLPointer<LLInventoryCallback> cb = NULL);
 
 	// Update the displayed outfit name in UI.
 	void updatePanelOutfitName(const std::string& name);
 
-	void purgeBaseOutfitLink(const LLUUID& category);
+	void purgeBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> cb = NULL);
 	void createBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> link_waiter);
 
 	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
@@ -129,16 +132,20 @@ public:
 				 LLInventoryModel::item_array_t& items,
 				 LLPointer<LLInventoryCallback> cb);
 
+	// And bulk removal.
+	void removeAll(LLInventoryModel::item_array_t& items,
+				   LLPointer<LLInventoryCallback> cb);
+
 	// Add COF link to individual item.
-	void addCOFItemLink(const LLUUID& item_id, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL, const std::string description = "");
-	void addCOFItemLink(const LLInventoryItem *item, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL, const std::string description = "");
+	void addCOFItemLink(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb = NULL, const std::string description = "");
+	void addCOFItemLink(const LLInventoryItem *item, LLPointer<LLInventoryCallback> cb = NULL, const std::string description = "");
 
 	// Find COF entries referencing the given item.
 	LLInventoryModel::item_array_t findCOFItemLinks(const LLUUID& item_id);
 
 	// Remove COF entries
-	void removeCOFItemLinks(const LLUUID& item_id);
-	void removeCOFLinksOfType(LLWearableType::EType type);
+	void removeCOFItemLinks(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb = NULL);
+	void removeCOFLinksOfType(LLWearableType::EType type, LLPointer<LLInventoryCallback> cb = NULL);
 	void removeAllClothesFromAvatar();
 	void removeAllAttachmentsFromAvatar();
 
@@ -213,16 +220,15 @@ private:
 	
 	void getDescendentsOfAssetType(const LLUUID& category, 
 										  LLInventoryModel::item_array_t& items,
-										  LLAssetType::EType type,
-										  bool follow_folder_links);
+										  LLAssetType::EType type);
 
 	void getUserDescendents(const LLUUID& category, 
 								   LLInventoryModel::item_array_t& wear_items,
 								   LLInventoryModel::item_array_t& obj_items,
-								   LLInventoryModel::item_array_t& gest_items,
-								   bool follow_folder_links);
+								   LLInventoryModel::item_array_t& gest_items);
 
-	void purgeCategory(const LLUUID& category, bool keep_outfit_links, LLInventoryModel::item_array_t* keep_items = NULL);
+	void removeCategoryContents(const LLUUID& category, bool keep_outfit_links,
+								LLPointer<LLInventoryCallback> cb);
 	static void onOutfitRename(const LLSD& notification, const LLSD& response);
 
 	void setOutfitLocked(bool locked);
@@ -256,15 +262,31 @@ public:
 class LLUpdateAppearanceOnDestroy: public LLInventoryCallback
 {
 public:
-	LLUpdateAppearanceOnDestroy(bool update_base_outfit_ordering = false);
+	LLUpdateAppearanceOnDestroy(bool update_base_outfit_ordering = false,
+								bool enforce_item_restrictions = true);
 	virtual ~LLUpdateAppearanceOnDestroy();
 	/* virtual */ void fire(const LLUUID& inv_item);
 
 private:
 	U32 mFireCount;
 	bool mUpdateBaseOrder;
+	bool mEnforceItemRestrictions;
 };
 
+class LLUpdateAppearanceAndEditWearableOnDestroy: public LLInventoryCallback
+{
+public:
+	LLUpdateAppearanceAndEditWearableOnDestroy(const LLUUID& item_id);
+
+	/* virtual */ void fire(const LLUUID& item_id) {}
+
+	~LLUpdateAppearanceAndEditWearableOnDestroy();
+	
+private:
+	LLUUID mItemID;
+};
+
+class 
 
 #define SUPPORT_ENSEMBLES 0
 

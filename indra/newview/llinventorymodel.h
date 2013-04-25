@@ -205,6 +205,9 @@ public:
 		EXCLUDE_TRASH = FALSE, 
 		INCLUDE_TRASH = TRUE 
 	};
+	// Simpler existence test if matches don't actually need to be collected.
+	bool hasMatchingDirectDescendent(const LLUUID& cat_id,
+									 LLInventoryCollectFunctor& filter);
 	void collectDescendents(const LLUUID& id,
 							cat_array_t& categories,
 							item_array_t& items,
@@ -213,8 +216,7 @@ public:
 							  cat_array_t& categories,
 							  item_array_t& items,
 							  BOOL include_trash,
-							  LLInventoryCollectFunctor& add,
-							  BOOL follow_folder_links = FALSE);
+							  LLInventoryCollectFunctor& add);
 
 	// Collect all items in inventory that are linked to item_id.
 	// Assumes item_id is itself not a linked item.

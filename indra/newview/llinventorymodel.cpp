@@ -593,6 +593,40 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	return id;
 }
 
+// This is optimized for the case that we just want to know whether a
+// category has any immediate children meeting a condition, without
+// needing to recurse or build up any lists.
+bool LLInventoryModel::hasMatchingDirectDescendent(const LLUUID& cat_id,
+												   LLInventoryCollectFunctor& filter)
+{
+	LLInventoryModel::cat_array_t *cats;
+	LLInventoryModel::item_array_t *items;
+	getDirectDescendentsOf(cat_id, cats, items);
+	if (cats)
+	{
+		for (LLInventoryModel::cat_array_t::const_iterator it = cats->begin();
+			 it != cats->end(); ++it)
+		{
+			if (filter(*it,NULL))
+			{
+				return true;
+			}
+		}
+	}
+	if (items)
+	{
+		for (LLInventoryModel::item_array_t::const_iterator it = items->begin();
+			 it != items->end(); ++it)
+		{
+			if (filter(NULL,*it))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+												  
 // Starting with the object specified, add it's descendents to the
 // array provided, but do not add the inventory object specified by
 // id. There is no guaranteed order. Neither array will be erased
@@ -624,8 +658,7 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 											cat_array_t& cats,
 											item_array_t& items,
 											BOOL include_trash,
-											LLInventoryCollectFunctor& add,
-											BOOL follow_folder_links)
+											LLInventoryCollectFunctor& add)
 {
 	// Start with categories
 	if(!include_trash)
@@ -652,36 +685,6 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 	LLViewerInventoryItem* item = NULL;
 	item_array_t* item_array = get_ptr_in_map(mParentChildItemTree, id);
 
-	// Follow folder links recursively.  Currently never goes more
-	// than one level deep (for current outfit support)
-	// Note: if making it fully recursive, need more checking against infinite loops.
-	if (follow_folder_links && item_array)
-	{
-		S32 count = item_array->count();
-		for(S32 i = 0; i < count; ++i)
-		{
-			item = item_array->get(i);
-			if (item && item->getActualType() == LLAssetType::AT_LINK_FOLDER)
-			{
-				LLViewerInventoryCategory *linked_cat = item->getLinkedCategory();
-				if (linked_cat && linked_cat->getPreferredType() != LLFolderType::FT_OUTFIT)
-					// BAP - was 
-					// LLAssetType::lookupIsEnsembleCategoryType(linked_cat->getPreferredType()))
-					// Change back once ensemble typing is in place.
-				{
-					if(add(linked_cat,NULL))
-					{
-						// BAP should this be added here?  May not
-						// matter if it's only being used in current
-						// outfit traversal.
-						cats.put(LLPointer<LLViewerInventoryCategory>(linked_cat));
-					}
-					collectDescendentsIf(linked_cat->getUUID(), cats, items, include_trash, add, FALSE);
-				}
-			}
-		}
-	}
-	
 	// Move onto items
 	if(item_array)
 	{
@@ -754,6 +757,10 @@ LLInventoryModel::item_array_t LLInventoryModel::collectLinkedItems(const LLUUID
 																	const LLUUID& start_folder_id)
 {
 	item_array_t items;
+	const LLInventoryObject *obj = getObject(id);
+	if (!obj || obj->getIsLinkType())
+		return items;
+	
 	LLInventoryModel::cat_array_t cat_array;
 	LLLinkedItemIDMatches is_linked_item_match(id);
 	collectDescendentsIf((start_folder_id == LLUUID::null ? gInventory.getRootFolderID() : start_folder_id),
@@ -1171,8 +1178,15 @@ void LLInventoryModel::deleteObject(const LLUUID& id)
 		mParentChildCategoryTree.erase(id);
 	}
 	addChangedMask(LLInventoryObserver::REMOVE, id);
+	
+	// Can't have links to links, so there's no need for this update
+	// if the item removed is a link.
+	bool is_link_type = obj->getIsLinkType();
 	obj = NULL; // delete obj
-	updateLinkedObjectsFromPurge(id);
+	if (!is_link_type)
+	{
+		updateLinkedObjectsFromPurge(id);
+	}
 	gInventory.notifyObservers();
 }
 
@@ -1195,17 +1209,20 @@ void LLInventoryModel::updateLinkedObjectsFromPurge(const LLUUID &baseobj_id)
 
 	// REBUILD is expensive, so clear the current change list first else
 	// everything else on the changelist will also get rebuilt.
-	gInventory.notifyObservers();
-	for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
-		 iter != item_array.end();
-		 iter++)
+	if (item_array.size() > 0)
 	{
-		const LLViewerInventoryItem *linked_item = (*iter);
-		const LLUUID &item_id = linked_item->getUUID();
-		if (item_id == baseobj_id) continue;
-		addChangedMask(LLInventoryObserver::REBUILD, item_id);
+		gInventory.notifyObservers();
+		for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
+			iter != item_array.end();
+			iter++)
+		{
+			const LLViewerInventoryItem *linked_item = (*iter);
+			const LLUUID &item_id = linked_item->getUUID();
+			if (item_id == baseobj_id) continue;
+			addChangedMask(LLInventoryObserver::REBUILD, item_id);
+		}
+		gInventory.notifyObservers();
 	}
-	gInventory.notifyObservers();
 }
 
 // This is a method which collects the descendents of the id

@@ -67,15 +67,21 @@ void LLFloaterSidePanelContainer::onClickCloseBtn()
 		if (parent == this )
 		{
 			LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance*>(getPanel("appearance"));
-			if ( panel_appearance )
-			{
-				panel_appearance->getWearable()->onClose();
-				panel_appearance->showOutfitsInventoryPanel();
-			}
+			panel_appearance->onClose(this);			
+		}
+		else
+		{
+			LLFloater::onClickCloseBtn();
 		}
 	}
-	
-	LLFloater::onClickCloseBtn();
+	else
+	{
+		LLFloater::onClickCloseBtn();
+	}
+}
+void LLFloaterSidePanelContainer::close()
+{
+		LLFloater::onClickCloseBtn();
 }
 
 LLPanel* LLFloaterSidePanelContainer::openChildPanel(const std::string& panel_name, const LLSD& params)

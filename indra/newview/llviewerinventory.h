@@ -274,7 +274,7 @@ class LLBoostFuncInventoryCallback: public LLInventoryCallback
 {
 public:
 
-	LLBoostFuncInventoryCallback(inventory_func_type fire_func,
+	LLBoostFuncInventoryCallback(inventory_func_type fire_func = no_op_inventory_func,
 								 nullary_func_type destroy_func = no_op):
 		mFireFunc(fire_func),
 		mDestroyFunc(destroy_func)
@@ -365,6 +365,10 @@ void move_inventory_item(
 	const std::string& new_name,
 	LLPointer<LLInventoryCallback> cb);
 
+void remove_inventory_item(
+	const LLUUID& item_id,
+	LLPointer<LLInventoryCallback> cb);
+	
 const LLUUID get_folder_by_itemtype(const LLInventoryItem *src);
 
 void copy_inventory_from_notecard(const LLUUID& destination_id,

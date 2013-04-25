@@ -1179,6 +1179,107 @@ void move_inventory_item(
 	gAgent.sendReliableMessage();
 }
 
+void handle_item_deletion(const LLUUID& item_id)
+{
+	LLPointer<LLViewerInventoryItem> obj = gInventory.getItem(item_id);
+	if(obj)
+	{
+		// From item removeFromServer()
+		LLInventoryModel::LLCategoryUpdate up(obj->getParentUUID(), -1);
+		gInventory.accountForUpdate(up);
+
+		// From purgeObject()
+		LLPreview::hide(item_id);
+		gInventory.deleteObject(item_id);
+	}
+}
+
+class RemoveItemResponder: public LLHTTPClient::Responder
+{
+public:
+	RemoveItemResponder(const LLUUID& item_id, LLPointer<LLInventoryCallback> callback):
+		mItemUUID(item_id),
+		mCallback(callback)
+	{
+	}
+	/* virtual */ void httpSuccess()
+	{
+		const LLSD& content = getContent();
+		if (!content.isMap())
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
+		llinfos << "succeeded: " << ll_pretty_print_sd(content) << llendl;
+
+		handle_item_deletion(mItemUUID);
+
+		if (mCallback)
+		{
+			mCallback->fire(mItemUUID);
+		}
+	}
+	/*virtual*/ void httpFailure()
+	{
+		const LLSD& content = getContent();
+		if (!content.isMap())
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
+		llwarns << "failed for " << mItemUUID << " content: " << ll_pretty_print_sd(content) << llendl;
+	}
+private:
+	LLPointer<LLInventoryCallback> mCallback;
+	const LLUUID mItemUUID;
+};
+
+void remove_inventory_item(
+	const LLUUID& item_id,
+	LLPointer<LLInventoryCallback> cb)
+{
+	llinfos << "item_id: [" << item_id << "] " << llendl;
+	LLPointer<LLViewerInventoryItem> obj = gInventory.getItem(item_id);
+	if(obj)
+	{
+		std::string cap;
+		if (gAgent.getRegion())
+		{
+			cap = gAgent.getRegion()->getCapability("InventoryAPIv3");
+		}
+		if (!cap.empty())
+		{
+			std::string url = cap + std::string("/item/") + item_id.asString();
+			llinfos << "url: " << url << llendl;
+			LLCurl::ResponderPtr responder_ptr = new RemoveItemResponder(item_id,cb);
+			LLHTTPClient::del(url,responder_ptr);
+		}
+		else // no cap
+		{
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessageFast(_PREHASH_RemoveInventoryItem);
+			msg->nextBlockFast(_PREHASH_AgentData);
+			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID()); 
+			msg->nextBlockFast(_PREHASH_InventoryData);
+			msg->addUUIDFast(_PREHASH_ItemID, item_id);
+			gAgent.sendReliableMessage();
+
+			// Update inventory and call callback immediately since
+			// message-based system has no callback mechanism (!)
+			handle_item_deletion(item_id);
+			if (cb)
+			{
+				cb->fire(item_id);
+			}
+		}
+	}
+	else
+	{
+		llwarns << "remove_inventory_item called for invalid or nonexistent item " << item_id << llendl;
+	}
+}
+
 const LLUUID get_folder_by_itemtype(const LLInventoryItem *src)
 {
 	LLUUID retval = LLUUID::null;
