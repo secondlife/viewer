@@ -126,6 +126,7 @@ public:
 
 	// LLTextureCtrl interface
 	void			showPicker(BOOL take_focus);
+	bool			isPickerShown() { return !mFloaterHandle.isDead(); }
 	void			setLabel(const std::string& label);
 	void			setLabelWidth(S32 label_width) {mLabelWidth =label_width;}	
 	const std::string&	getLabel() const							{ return mLabel; }
