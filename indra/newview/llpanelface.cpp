@@ -1878,6 +1878,7 @@ void LLPanelFace::updateMaterial()
                 material_to_set = new LLMaterial(*mMaterial);
             }
         }
+
         LLSelectMgr::getInstance()->selectionSetMaterial( material_to_set );
 	}
 	else
