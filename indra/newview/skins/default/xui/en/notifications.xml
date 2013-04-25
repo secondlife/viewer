@@ -6524,7 +6524,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    icon="notify.tga"
    name="JoinGroup"
    persist="true"
-   type="notify">
+   type="offer">
     <tag>group</tag>
 [MESSAGE]
     <form name="form">

@@ -115,7 +115,8 @@ void LLDoNotDisturbNotificationStorage::saveNotifications()
 	{
 		LLNotificationPtr notificationPtr = historyIter->second;
 
-		if (!notificationPtr->isRespondedTo() && !notificationPtr->isCancelled() && !notificationPtr->isExpired())
+		if (!notificationPtr->isRespondedTo() && !notificationPtr->isCancelled() &&
+			!notificationPtr->isExpired() && !notificationPtr->isPersistent())
 		{
 			data.append(notificationPtr->asLLSD(true));
 		}
