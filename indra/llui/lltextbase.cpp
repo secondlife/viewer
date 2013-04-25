@@ -2606,21 +2606,18 @@ void LLTextBase::setCursorAtLocalPos( S32 local_x, S32 local_y, bool round, bool
 void LLTextBase::changeLine( S32 delta )
 {
 	S32 line = getLineNumFromDocIndex(mCursorPos);
+	S32 max_line_nb = getLineCount() - 1;
+	max_line_nb = (max_line_nb < 0 ? 0 : max_line_nb);
+    
+	S32 new_line = llclamp(line + delta, 0, max_line_nb);
 
-	S32 new_line = line;
-	if( (delta < 0) && (line > 0 ) )
-	{
-		new_line = line - 1;
-	}
-	else if( (delta > 0) && (line < (getLineCount() - 1)) )
-	{
-		new_line = line + 1;
-	}
-
-	LLRect visible_region = getVisibleDocumentRect();
-
-	S32 new_cursor_pos = getDocIndexFromLocalCoord(mDesiredXPixel, mLineInfoList[new_line].mRect.mBottom + mVisibleTextRect.mBottom - visible_region.mBottom, TRUE);
-	setCursorPos(new_cursor_pos, true);
+    if (new_line != line)
+    {
+        LLRect visible_region = getVisibleDocumentRect();
+        S32 new_cursor_pos = getDocIndexFromLocalCoord(mDesiredXPixel,
+                                                       mLineInfoList[new_line].mRect.mBottom + mVisibleTextRect.mBottom - visible_region.mBottom, TRUE);
+        setCursorPos(new_cursor_pos, true);
+    }
 }
 
 bool LLTextBase::scrolledToStart()
