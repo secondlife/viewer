@@ -153,7 +153,7 @@ public:
 
 	static DERIVED_TYPE* getIfExists()
 	{
-		SingletonInstanceData& data = getData();
+		SingletonInstanceData& data = getSingletonData();
 		return data.mSingletonInstance;
 	}
 
