@@ -301,12 +301,16 @@ public:
 		
 		if ( regionp->getRegionImpl()->mCapabilities.size() != regionp->getRegionImpl()->mSecondCapabilitiesTracker.size() )
 		{
-			llinfos<<"BaseCapabilitiesCompleteTracker "<<"Sim sent duplicate seed caps that differs in size - most likely content."<<llendl;			
+			llinfos << "BaseCapabilitiesCompleteTracker " << "sim " << regionp->getName()
+				<< " sent duplicate seed caps that differs in size - most likely content. " 
+				<< (S32) regionp->getRegionImpl()->mCapabilities.size() << " vs " << regionp->getRegionImpl()->mSecondCapabilitiesTracker.size()
+				<< llendl;			
 			//todo#add cap debug versus original check?
-			/*CapabilityMap::const_iterator iter = regionp->getRegionImpl()->mCapabilities.begin();
+			/*
+			CapabilityMap::const_iterator iter = regionp->getRegionImpl()->mCapabilities.begin();
 			while (iter!=regionp->getRegionImpl()->mCapabilities.end() )
 			{
-				llinfos<<"BaseCapabilitiesCompleteTracker Original "<<iter->first<<" "<< iter->second<<llendl;
+				llinfos << "BaseCapabilitiesCompleteTracker Original " << iter->first << " is " << iter->second << llendl;
 				++iter;
 			}
 			*/
