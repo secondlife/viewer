@@ -50,8 +50,15 @@ public:
 
 protected:	
 	 void draw();
+	 void drawHighlight();
 
 private:
+
+	// Background images
+	LLPointer<LLUIImage> mImageHeader;
+	LLPointer<LLUIImage> mImageHeaderOver;
+	LLPointer<LLUIImage> mImageHeaderFocused;
+
 };
 
 class LLPersonView : public LLFolderViewItem

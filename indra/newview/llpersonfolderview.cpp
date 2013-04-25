@@ -47,21 +47,24 @@ LLPersonFolderView::~LLPersonFolderView()
 
 BOOL LLPersonFolderView::handleMouseDown( S32 x, S32 y, MASK mask )
 {
-	LLFolderViewItem * prior_item = getCurSelectedItem();
-	LLFolderViewItem * current_item;
+	LLFolderViewItem * item = getCurSelectedItem();
 
-	bool selected_item = LLFolderView::handleMouseDown(x, y, mask);
-
-	current_item = getCurSelectedItem();
-	
-	LLPersonTabView * prior_folder = dynamic_cast<LLPersonTabView *>(prior_item);
-
-	if(prior_folder && current_item != prior_folder)
+	//Will disable highlight on tab
+	if(item)
 	{
-		prior_folder->highlight = false;
+		LLPersonTabView * person_tab= dynamic_cast<LLPersonTabView *>(item);
+		if(person_tab)
+		{
+			person_tab->highlight = false;
+		}
+		else
+		{
+			person_tab = dynamic_cast<LLPersonTabView *>(item->getParent());
+			person_tab->highlight = false;
+		}
 	}
 
-	return selected_item;
+	return LLFolderView::handleMouseDown(x, y, mask);
 }
 
 bool LLPersonFolderView::onConversationModelEvent(const LLSD &event)

@@ -38,9 +38,11 @@ LLPersonTabView::Params::Params()
 
 LLPersonTabView::LLPersonTabView(const LLPersonTabView::Params& p) :
 LLFolderViewFolder(p),
-highlight(false)
+highlight(false),
+mImageHeader(LLUI::getUIImage("Accordion_Off")),
+mImageHeaderOver(LLUI::getUIImage("Accordion_Over")),
+mImageHeaderFocused(LLUI::getUIImage("Accordion_Selected"))
 {
-
 }
 
 S32 LLPersonTabView::getLabelXPos()
@@ -73,7 +75,7 @@ void LLPersonTabView::draw()
 	static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
 	static LLUIColor sFlashBgColor = LLUIColorTable::instance().getColor("MenuItemFlashBgColor", DEFAULT_WHITE);
 	static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
-	static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("DkGray", DEFAULT_WHITE);
+	
 
 	const LLFontGL * font = LLFontGL::getFontSansSerif();
 	F32 text_left = (F32)getLabelXPos();
@@ -81,14 +83,62 @@ void LLPersonTabView::draw()
 	LLColor4 color = sFgColor;
 	F32 right_x  = 0;
 
-	drawHighlight(false, highlight, sHighlightBgColor, sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
+	//drawHighlight(false, highlight, sHighlightBgColor, sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
 	
+	drawHighlight();
 	updateLabelRotation();
 	drawOpenFolderArrow(default_params, sFgColor);
 
 	drawLabel(font, text_left, y, color, right_x);
 
 	LLView::draw();
+}
+
+void LLPersonTabView::drawHighlight()
+{
+	S32 width = getRect().getWidth();
+	S32 height = mItemHeight;
+	S32 x = 1;
+	S32 y = getRect().getHeight() - mItemHeight;
+
+	//const S32 FOCUS_LEFT = 1;
+	//const S32 focus_top = getRect().getHeight();
+	//const S32 focus_bottom = getRect().getHeight() - mItemHeight;
+	//static LLUIColor bgColor = LLUIColorTable::instance().getColor("DkGray2", DEFAULT_WHITE);
+	//static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
+
+	if(highlight)
+	{
+		//reference will remove
+		/*gl_rect_2d(FOCUS_LEFT,
+			focus_top,
+			getRect().getWidth() - 2,
+			focus_bottom,
+			sMouseOverColor, TRUE);*/
+		mImageHeaderFocused->draw(x,y,width,height);
+	}
+	else
+	{
+		//reference will remove
+		/*gl_rect_2d(FOCUS_LEFT,
+			focus_top,
+			getRect().getWidth() - 2,
+			focus_bottom,
+			bgColor, TRUE);*/
+		mImageHeader->draw(x,y,width,height);
+	}
+
+	if(mIsMouseOverTitle)
+	{
+		//reference will remove
+		/*gl_rect_2d(FOCUS_LEFT,
+			focus_top,
+			getRect().getWidth() - 2,
+			focus_bottom,
+			sMouseOverColor, TRUE);*/
+		mImageHeaderOver->draw(x,y,width,height);
+	}
+
 }
 
 //
