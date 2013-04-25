@@ -44,7 +44,9 @@ public:
 	virtual ~LLPersonTabView();
 
 	S32 getLabelXPos();
+	bool highlight;
 
+	BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 
 protected:	
 	 void draw();

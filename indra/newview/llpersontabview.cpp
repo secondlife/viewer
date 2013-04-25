@@ -37,7 +37,8 @@ LLPersonTabView::Params::Params()
 {}
 
 LLPersonTabView::LLPersonTabView(const LLPersonTabView::Params& p) :
-LLFolderViewFolder(p)
+LLFolderViewFolder(p),
+highlight(false)
 {
 
 }
@@ -50,6 +51,18 @@ S32 LLPersonTabView::getLabelXPos()
 LLPersonTabView::~LLPersonTabView()
 {
 
+}
+
+BOOL LLPersonTabView::handleMouseDown( S32 x, S32 y, MASK mask )
+{
+	bool selected_item = LLFolderViewFolder::handleMouseDown(x, y, mask);
+
+	if(selected_item)
+	{
+		highlight = true;
+	}
+
+	return selected_item;
 }
 
 void LLPersonTabView::draw()
@@ -68,7 +81,7 @@ void LLPersonTabView::draw()
 	LLColor4 color = sFgColor;
 	F32 right_x  = 0;
 
-	drawHighlight(false, mIsSelected, sHighlightBgColor, sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
+	drawHighlight(false, highlight, sHighlightBgColor, sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
 	
 	updateLabelRotation();
 	drawOpenFolderArrow(default_params, sFgColor);

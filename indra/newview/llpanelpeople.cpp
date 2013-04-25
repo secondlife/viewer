@@ -753,7 +753,6 @@ BOOL LLPanelPeople::postBuild()
 	mConversationsRoot->setFollowsAll();
 
 	//Create a session
-	//LLSpeakerMgr* speaker_manager = (LLSpeakerMgr*)LLLocalSpeakerMgr::getInstance();
 	LLPersonTabModel* item = new LLPersonTabModel("Facebook Friends", mPersonFolderViewModel);
 	LLPersonTabView::Params params;
 	params.name = item->getDisplayName();
@@ -761,6 +760,18 @@ BOOL LLPanelPeople::postBuild()
 	params.listener = item;
 	params.tool_tip = params.name;
 	LLPersonTabView * widget = LLUICtrlFactory::create<LLPersonTabView>(params);
+	widget->addToFolder(mConversationsRoot);
+
+	mConversationsRoot->mPersonFolderModelMap[item->getID()] = item;
+	mConversationsRoot->mPersonFolderViewMap[item->getID()] = widget;
+
+	//Create a session
+	item = new LLPersonTabModel("Facebook Friends Tab Two", mPersonFolderViewModel);
+	params.name = item->getDisplayName();
+	params.root = mConversationsRoot;
+	params.listener = item;
+	params.tool_tip = params.name;
+	widget = LLUICtrlFactory::create<LLPersonTabView>(params);
 	widget->addToFolder(mConversationsRoot);
 
 	mConversationsRoot->mPersonFolderModelMap[item->getID()] = item;

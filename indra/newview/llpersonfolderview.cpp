@@ -45,6 +45,25 @@ LLPersonFolderView::~LLPersonFolderView()
 	mConversationsEventStream.stopListening("ConversationsRefresh");
 }
 
+BOOL LLPersonFolderView::handleMouseDown( S32 x, S32 y, MASK mask )
+{
+	LLFolderViewItem * prior_item = getCurSelectedItem();
+	LLFolderViewItem * current_item;
+
+	bool selected_item = LLFolderView::handleMouseDown(x, y, mask);
+
+	current_item = getCurSelectedItem();
+	
+	LLPersonTabView * prior_folder = dynamic_cast<LLPersonTabView *>(prior_item);
+
+	if(prior_folder && current_item != prior_folder)
+	{
+		prior_folder->highlight = false;
+	}
+
+	return selected_item;
+}
+
 bool LLPersonFolderView::onConversationModelEvent(const LLSD &event)
 {
 	std::string type = event.get("type").asString();

@@ -51,8 +51,9 @@ public:
 	~LLPersonFolderView();
 
 	bool onConversationModelEvent(const LLSD &event);
-
 	LLPersonView * createConversationViewParticipant(LLPersonModel * item);
+
+	BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 
 	person_folder_model_map mPersonFolderModelMap;
 	person_folder_view_map mPersonFolderViewMap;
