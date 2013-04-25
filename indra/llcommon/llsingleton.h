@@ -78,6 +78,11 @@ private:
 		:	mSingletonInstance(NULL),
 			mInitState(CONSTRUCTING)
 		{
+			construct();
+		}
+
+		void construct()
+		{
 			mSingletonInstance = new DERIVED_TYPE(); 
 			mInitState = INITIALIZING;
 		}
@@ -139,6 +144,7 @@ public:
 		if (data.mInitState == DELETED)
 		{
 			llwarns << "Trying to access deleted singleton " << typeid(DERIVED_TYPE).name() << " creating new instance" << llendl;
+			data.construct();
 		}
 		
 		if (data.mInitState == INITIALIZING) 
