@@ -297,7 +297,6 @@ void main()
 	vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
 	vec3 col;
 	float bloom = 0.0;
-	//if (diffuse.a < 0.9)
 	{
 		calcAtmospherics(pos.xyz, 1.0);
 	
