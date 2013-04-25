@@ -118,7 +118,6 @@ public:
 	void cloneViewerItem(LLPointer<LLViewerInventoryItem>& newitem) const;
 
 	// virtual methods
-	virtual void removeFromServer( void );
 	virtual void updateParentOnServer(BOOL restamp) const;
 	virtual void updateServer(BOOL is_new) const;
 	void fetchFromServer(void) const;
@@ -198,7 +197,6 @@ public:
 	LLViewerInventoryCategory(const LLViewerInventoryCategory* other);
 	void copyViewerCategory(const LLViewerInventoryCategory* other);
 
-	virtual void removeFromServer();
 	virtual void updateParentOnServer(BOOL restamp_children) const;
 	virtual void updateServer(BOOL is_new) const;
 
@@ -369,6 +367,18 @@ void remove_inventory_item(
 	const LLUUID& item_id,
 	LLPointer<LLInventoryCallback> cb);
 	
+void remove_inventory_category(
+	const LLUUID& cat_id,
+	LLPointer<LLInventoryCallback> cb);
+	
+void remove_inventory_object(
+	const LLUUID& object_id,
+	LLPointer<LLInventoryCallback> cb);
+
+void purge_descendents_of(
+	const LLUUID& cat_id,
+	LLPointer<LLInventoryCallback> cb);
+
 const LLUUID get_folder_by_itemtype(const LLInventoryItem *src);
 
 void copy_inventory_from_notecard(const LLUUID& destination_id,

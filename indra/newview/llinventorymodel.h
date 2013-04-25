@@ -325,6 +325,14 @@ public:
 	// Delete
 	//--------------------------------------------------------------------
 public:
+	
+	// Update model after an item is confirmed as removed from
+	// server. Works for categories or items.
+	void onObjectDeletedFromServer(const LLUUID& item_id);
+
+	// Update model after all descendents removed from server.
+	void onDescendentsPurgedFromServer(const LLUUID& object_id);
+
 	// Delete a particular inventory object by ID. Will purge one
 	// object from the internal data structures, maintaining a
 	// consistent internal state. No cache accounting, observer
@@ -337,17 +345,6 @@ public:
 	/// removeItem() or removeCategory(), whichever is appropriate
 	void removeObject(const LLUUID& object_id);
 
-	// Delete a particular inventory object by ID, and delete it from
-	// the server. Also updates linked items.
-	void purgeObject(const LLUUID& id);
-
-	// Collects and purges the descendants of the id
-	// provided. If the category is not found, no action is
-	// taken. This method goes through the long winded process of
-	// removing server representation of folders and items while doing
-	// cache accounting in a fairly efficient manner. This method does
-	// not notify observers (though maybe it should...)
-	void purgeDescendentsOf(const LLUUID& id);
 protected:
 	void updateLinkedObjectsFromPurge(const LLUUID& baseobj_id);
 	

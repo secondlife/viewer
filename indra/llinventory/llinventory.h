@@ -101,7 +101,6 @@ public:
 	virtual BOOL importLegacyStream(std::istream& input_stream);
 	virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
 
-	virtual void removeFromServer();
 	virtual void updateParentOnServer(BOOL) const;
 	virtual void updateServer(BOOL) const;
 

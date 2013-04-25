@@ -249,13 +249,6 @@ BOOL LLInventoryObject::exportLegacyStream(std::ostream& output_stream, BOOL) co
 	return TRUE;
 }
 
-
-void LLInventoryObject::removeFromServer()
-{
-	// don't do nothin'
-	llwarns << "LLInventoryObject::removeFromServer() called.  Doesn't do anything." << llendl;
-}
-
 void LLInventoryObject::updateParentOnServer(BOOL) const
 {
 	// don't do nothin'
