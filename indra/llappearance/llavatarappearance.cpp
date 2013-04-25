@@ -491,11 +491,13 @@ void LLAvatarAppearance::computeBodySize()
 	// Certain configurations of avatars can force the overall height (with offset) to go negative.
 	// Enforce a constraint to make sure we don't go below 0.1 meters.
 	// Camera positioning and other things start to break down when your avatar is "walking" while being fully underground
-	if (new_body_size.mV[VZ] + mAvatarOffset.mV[VZ] < 0.1f) 
+	if (new_body_size.mV[VZ] + mAvatarOffset.mV[VZ] < 1.1f) 
 	{
-		mAvatarOffset.mV[VZ] = -(new_body_size.mV[VZ] - 0.11f); // avoid floating point rounding making the above check continue to fail.
+		F32 old_offset = mAvatarOffset.mV[VZ];
+		F32 old_effective_height = new_body_size.mV[VZ] + mAvatarOffset.mV[VZ];
+		mAvatarOffset.mV[VZ] = -(new_body_size.mV[VZ] - 1.11f); // avoid floating point rounding making the above check continue to fail.
 
-		llassert(new_body_size.mV[VZ] + mAvatarOffset.mV[VZ] >= 0.1f);
+		llassert(new_body_size.mV[VZ] + mAvatarOffset.mV[VZ] >= 1.1f);
 
 		if (mWearableData && isSelf()) 
 		{
