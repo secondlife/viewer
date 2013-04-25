@@ -29,7 +29,6 @@
 
 
 #include "linden_common.h"		// Modifies curl/curl.h interfaces
-#include "llsingleton.h"
 
 #include <string>
 #include <curl/curl.h>
@@ -65,8 +64,6 @@ class HttpOpRequest : public HttpOperation
 {
 public:
 	HttpOpRequest();
-
-	friend class CurlHandleHandler;
 
 protected:
 	virtual ~HttpOpRequest();							// Use release()

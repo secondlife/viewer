@@ -380,18 +380,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	// Get policy options
 	HttpPolicyGlobal & policy(service->getPolicy().getGlobalOptions());
 	
-	mCurlHandle = LLCurlHandleHandler::getInstance()->CreateCurlHandle();
-
-	if (HTTP_ENABLE_LINKSYS_WRT54G_V5_DNS_FIX)
-	{
-		// The Linksys WRT54G V5 router has an issue with frequent
-		// DNS lookups from LAN machines.  If they happen too often,
-		// like for every HTTP request, the router gets annoyed after
-		// about 700 or so requests and starts issuing TCP RSTs to
-		// new connections.  Reuse the DNS lookups for even a few
-		// seconds and no RSTs.
-		curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
-	}
+	mCurlHandle = LLCurl::createStandardCurlHandle();
 
 	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
 	curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION,  readCallback);	

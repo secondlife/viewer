@@ -53,14 +53,6 @@ class LLCurlThread;
 // For whatever reason, this is not typedef'd in curl.h
 typedef size_t (*curl_header_callback)(void *ptr, size_t size, size_t nmemb, void *stream);
 
-class LLCurlHandleHandler : public LLSingleton<LLCurlHandleHandler>
-{
-public:
-	static CURL* the_one_true_curl_handle;
-	LLCurlHandleHandler();
-	static CURL* CreateCurlHandle();
-};
-
 class LLCurl
 {
 	LOG_CLASS(LLCurl);
@@ -196,6 +188,8 @@ public:
 	static CURL*  newEasyHandle() ;
 	static void   deleteEasyHandle(CURL* handle) ;
 
+	static CURL*	createStandardCurlHandle();
+
 private:
 	static std::string sCAPath;
 	static std::string sCAFile;
@@ -205,6 +199,7 @@ private:
 	static LLMutex* sHandleMutexp ;
 	static S32      sTotalHandles ;
 	static S32      sMaxHandles;
+	static CURL*	sCurlTemplateStandardHandle;
 public:
 	static bool     sNotQuitting;
 	static F32      sCurlRequestTimeOut;	

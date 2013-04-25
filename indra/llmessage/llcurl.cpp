@@ -92,6 +92,7 @@ S32      LLCurl::sTotalHandles = 0 ;
 bool     LLCurl::sNotQuitting = true;
 F32      LLCurl::sCurlRequestTimeOut = 120.f; //seonds
 S32      LLCurl::sMaxHandles = 256; //max number of handles, (multi handles and easy handles combined).
+CURL*	 LLCurl::sCurlTemplateStandardHandle = NULL;
 
 void check_curl_code(CURLcode code)
 {
@@ -1815,7 +1816,7 @@ CURL*  LLCurl::newEasyHandle()
 	}
 	sTotalHandles++;
 
-	CURL* ret = LLCurlHandleHandler::getInstance()->CreateCurlHandle();
+	CURL* ret = createStandardCurlHandle();
 	if(!ret)
 	{
 		llwarns << "failed to create curl handle." << llendl ;
@@ -1849,23 +1850,46 @@ void LLCurlFF::check_multi_code(CURLMcode code)
 	check_curl_multi_code(code);
 }
 
-CURL* LLCurlHandleHandler::the_one_true_curl_handle;
 
-LLCurlHandleHandler::LLCurlHandleHandler()
+// Static
+CURL* LLCurl::createStandardCurlHandle()
 {
-	the_one_true_curl_handle = curl_easy_init();
-	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_NOSIGNAL, 1);
-	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_NOPROGRESS, 1);
-	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_ENCODING, "");	
-	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_AUTOREFERER, 1);
-	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_FOLLOWLOCATION, 1);	
-	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_SSL_VERIFYPEER, 1);
-	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_SSL_VERIFYHOST, 0);
-	curl_easy_setopt(the_one_true_curl_handle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
-}
+	if (sCurlTemplateStandardHandle == NULL)
+	{	// Late creation of the template curl handle
+		sCurlTemplateStandardHandle = curl_easy_init();
+		if (sCurlTemplateStandardHandle == NULL)
+		{
+			llwarns << "curl error calling curl_easy_init()" << llendl;
+		}
+		else
+		{
+			CURLcode result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+			check_curl_code(result);
+			result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_NOSIGNAL, 1);
+			check_curl_code(result);
+			result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_NOPROGRESS, 1);
+			check_curl_code(result);
+			result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_ENCODING, "");	
+			check_curl_code(result);
+			result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_AUTOREFERER, 1);
+			check_curl_code(result);
+			result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_FOLLOWLOCATION, 1);	
+			check_curl_code(result);
+			result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_SSL_VERIFYPEER, 1);
+			check_curl_code(result);
+			result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_SSL_VERIFYHOST, 0);
+			check_curl_code(result);
 
-CURL* LLCurlHandleHandler::CreateCurlHandle()
-{
-	return curl_easy_duphandle(the_one_true_curl_handle);
+			// The Linksys WRT54G V5 router has an issue with frequent
+			// DNS lookups from LAN machines.  If they happen too often,
+			// like for every HTTP request, the router gets annoyed after
+			// about 700 or so requests and starts issuing TCP RSTs to
+			// new connections.  Reuse the DNS lookups for even a few
+			// seconds and no RSTs.
+			result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
+			check_curl_code(result);
+		}
+	}
+
+	return curl_easy_duphandle(sCurlTemplateStandardHandle);
 }
