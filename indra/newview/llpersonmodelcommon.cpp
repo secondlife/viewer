@@ -38,7 +38,8 @@
 
 LLPersonModelCommon::LLPersonModelCommon(std::string display_name, LLFolderViewModelInterface& root_view_model) :
 LLFolderViewModelItemCommon(root_view_model),
-	mName(display_name)
+	mName(display_name),
+	mID(LLUUID().generateNewID())
 {
 }
 

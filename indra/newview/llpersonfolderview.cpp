@@ -73,7 +73,7 @@ bool LLPersonFolderView::onConversationModelEvent(const LLSD &event)
 	if(type == "add_participant")
 	{
 		LLPersonTabModel * person_folder_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderModelMap[folder_id]);
-		LLPersonTabView * person_folder_view = dynamic_cast<LLPersonTabView *>(mPersonFolderViewMap[person_id]);
+		LLPersonTabView * person_folder_view = dynamic_cast<LLPersonTabView *>(mPersonFolderViewMap[folder_id]);
 
 		if(person_folder_model)
 		{
