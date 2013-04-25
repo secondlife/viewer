@@ -442,8 +442,11 @@ void LLFloaterIMSession::addSessionParticipants(const uuid_vec_t& uuids)
 	}
 	else
 	{
-		// remember whom we have invited, to notify others later, when the invited ones actually join
-		mInvitedParticipants.insert(mInvitedParticipants.end(), uuids.begin(), uuids.end());
+		if(findInstance(mSessionID))
+		{
+			// remember whom we have invited, to notify others later, when the invited ones actually join
+			mInvitedParticipants.insert(mInvitedParticipants.end(), uuids.begin(), uuids.end());
+		}
 		
 		inviteToSession(uuids);
 	}
@@ -472,13 +475,15 @@ void LLFloaterIMSession::addP2PSessionParticipants(const LLSD& notification, con
 	if(findInstance(mSessionID))
 	{
 		onClose(false);
+
+		// remember whom we have invited, to notify others later, when the invited ones actually join
+		mInvitedParticipants.insert(mInvitedParticipants.end(), uuids.begin(), uuids.end());
 	}
 
 	// we start a new session so reset the initialization flag
 	mSessionInitialized = false;
 
-	// remember whom we have invited, to notify others later, when the invited ones actually join
-	mInvitedParticipants.insert(mInvitedParticipants.end(), uuids.begin(), uuids.end());
+
 
 	// Start a new ad hoc voice call if we invite new participants to a P2P call,
 	// or start a text chat otherwise.
