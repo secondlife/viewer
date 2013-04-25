@@ -145,7 +145,9 @@ public:
 		if (data.mInitState == DELETED)
 		{
 			llwarns << "Trying to access deleted singleton " << typeid(DERIVED_TYPE).name() << " creating new instance" << llendl;
-		}
+			data.mSingletonInstance = new DERIVED_TYPE(); 
+			data.mInitState = INITIALIZING;
+		}	// Fall into INITIALIZING case below 
 		
 		if (data.mInitState == INITIALIZING) 
 		{
