@@ -1861,7 +1861,7 @@ S32 LLVOVolume::setTEColor(const U8 te, const LLColor4& color)
 	const LLTextureEntry *tep = getTE(te);
 	if (!tep)
 	{
-		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+		LL_WARNS("MaterialTEs") << "No texture entry for te " << (S32)te << ", object " << mID << LL_ENDL;
 	}
 	else if (color != tep->getColor())
 	{
@@ -1975,6 +1975,7 @@ S32 LLVOVolume::setTEGlow(const U8 te, const F32 glow)
 
 void LLVOVolume::setTEMaterialParamsCallback(const LLMaterialID &pMaterialID, const LLMaterialPtr pMaterialParams)
 {
+	LL_DEBUGS("MaterialTEs") << "materialid " << pMaterialID.asString() << LL_ENDL;
 	for (U8 i = 0; i < getNumTEs(); i++)
 	{
 		if (getTE(i) && (getTE(i)->getMaterialID().isNull() || (getTE(i)->getMaterialID() == pMaterialID)))
@@ -1987,9 +1988,11 @@ void LLVOVolume::setTEMaterialParamsCallback(const LLMaterialID &pMaterialID, co
 S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 {
 		S32 res = LLViewerObject::setTEMaterialID(te, pMaterialID);
+		LL_DEBUGS("MaterialTEs") << "te "<< (S32)te << " materialid " << pMaterialID.asString() << " res " << res
+								 << ( LLSelectMgr::getInstance()->getSelection()->contains(const_cast<LLVOVolume*>(this), te) ? " selected" : " not selected" )
+								 << LL_ENDL;
 		if (res)
 		{
-			LL_DEBUGS("MaterialTEs") << " " << pMaterialID.asString() << LL_ENDL;
 			LLMaterialMgr::instance().get(getRegion()->getRegionID(), pMaterialID, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2));
 			gPipeline.markTextured(mDrawable);
 			mFaceMappingChanged = TRUE;
@@ -2000,6 +2003,9 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams)
 {
 	S32 res = LLViewerObject::setTEMaterialParams(te, pMaterialParams);
+	LL_DEBUGS("MaterialTEs") << "te " << (S32)te << " material " << pMaterialParams->asLLSD() << " res " << res
+							 << ( LLSelectMgr::getInstance()->getSelection()->contains(const_cast<LLVOVolume*>(this), te) ? " selected" : " not selected" )
+							 << LL_ENDL;
 	if (res)
 	{
 		gPipeline.markTextured(mDrawable);
