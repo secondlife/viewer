@@ -178,7 +178,7 @@ private:
     LLHandle< LLFloater >	mPicker;
 
 	LLPersonFolderViewModel mPersonFolderViewModel;
-	LLPersonFolderView* mConversationsRoot;
+	LLPersonFolderView* mPersonFolderView;
 };
 
 #endif //LL_LLPANELPEOPLE_H

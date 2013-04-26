@@ -581,7 +581,7 @@ private:
 LLPanelPeople::LLPanelPeople()
 	:	LLPanel(),
 		mConnectedToFbc(false),
-		mConversationsRoot(NULL),
+		mPersonFolderView(NULL),
 		mTryToConnectToFbc(true),
 		mTabContainer(NULL),
 		mOnlineFriendList(NULL),
@@ -735,7 +735,7 @@ BOOL LLPanelPeople::postBuild()
 	folder_view_params.use_ellipses = false;
 	folder_view_params.options_menu = "menu_conversation.xml";
 	folder_view_params.name = "fbcfolderview";
-	mConversationsRoot = LLUICtrlFactory::create<LLPersonFolderView>(folder_view_params);
+	mPersonFolderView = LLUICtrlFactory::create<LLPersonFolderView>(folder_view_params);
 
 	//Create scroller
 	LLRect scroller_view_rect = socialtwo_tab->getRect();
@@ -747,35 +747,35 @@ BOOL LLPanelPeople::postBuild()
 
 	LLScrollContainer* scroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
 	socialtwo_tab->addChildInBack(scroller);
-	scroller->addChild(mConversationsRoot);
+	scroller->addChild(mPersonFolderView);
 	scroller->setFollowsAll();
-	mConversationsRoot->setScrollContainer(scroller);
-	mConversationsRoot->setFollowsAll();
+	mPersonFolderView->setScrollContainer(scroller);
+	mPersonFolderView->setFollowsAll();
 
 	//Create a session
 	LLPersonTabModel* item = new LLPersonTabModel("Facebook Friends", mPersonFolderViewModel);
 	LLPersonTabView::Params params;
 	params.name = item->getDisplayName();
-	params.root = mConversationsRoot;
+	params.root = mPersonFolderView;
 	params.listener = item;
 	params.tool_tip = params.name;
 	LLPersonTabView * widget = LLUICtrlFactory::create<LLPersonTabView>(params);
-	widget->addToFolder(mConversationsRoot);
+	widget->addToFolder(mPersonFolderView);
 
-	mConversationsRoot->mPersonFolderModelMap[item->getID()] = item;
-	mConversationsRoot->mPersonFolderViewMap[item->getID()] = widget;
+	mPersonFolderView->mPersonFolderModelMap[item->getID()] = item;
+	mPersonFolderView->mPersonFolderViewMap[item->getID()] = widget;
 
 	//Create a session
 	item = new LLPersonTabModel("Facebook Friends Tab Two", mPersonFolderViewModel);
 	params.name = item->getDisplayName();
-	params.root = mConversationsRoot;
+	params.root = mPersonFolderView;
 	params.listener = item;
 	params.tool_tip = params.name;
 	widget = LLUICtrlFactory::create<LLPersonTabView>(params);
-	widget->addToFolder(mConversationsRoot);
+	widget->addToFolder(mPersonFolderView);
 
-	mConversationsRoot->mPersonFolderModelMap[item->getID()] = item;
-	mConversationsRoot->mPersonFolderViewMap[item->getID()] = widget;
+	mPersonFolderView->mPersonFolderModelMap[item->getID()] = item;
+	mPersonFolderView->mPersonFolderViewMap[item->getID()] = widget;
 	
 	gIdleCallbacks.addFunction(idle, this);
 
@@ -865,7 +865,7 @@ void LLPanelPeople::onChange(EStatusType status, const std::string &channelURI, 
 void LLPanelPeople::idle(void * user_data)
 {
 	LLPanelPeople * self = static_cast<LLPanelPeople *>(user_data);
-	self->mConversationsRoot->update();
+	self->mPersonFolderView->update();
 }
 
 void LLPanelPeople::updateFriendListHelpText()
@@ -1721,11 +1721,11 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 		mFacebookFriends->addNewItem(agent_id, name, false);
 
 		//Add to folder view
-		//LLConversationItemSession * session_model = dynamic_cast<LLConversationItemSession *>(mConversationsItems[LLUUID(NULL)]);
-		//if(session_model)
-		//{
-		//	addParticipantToModel(session_model, agent_id, name);
-		//}
+		LLPersonTabModel * session_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->mPersonFolderModelMap.begin()->second);
+		if(session_model)
+		{
+			addParticipantToModel(session_model, agent_id, name);
+		}
 	}
 }
 
@@ -1733,7 +1733,7 @@ void LLPanelPeople::addTestParticipant()
 {
 	for(int i = 0; i < 300; ++i)
 	{
-		LLPersonTabModel * person_folder_model = dynamic_cast<LLPersonTabModel *>(mConversationsRoot->mPersonFolderModelMap.begin()->second);
+		LLPersonTabModel * person_folder_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->mPersonFolderModelMap.begin()->second);
 		addParticipantToModel(person_folder_model, LLUUID().generateNewID(), "EastBayGuy");
 	}
 }
