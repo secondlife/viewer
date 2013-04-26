@@ -1136,6 +1136,79 @@ void LLInventoryModel::changeCategoryParent(LLViewerInventoryCategory* cat,
 	notifyObservers();
 }
 
+// Update model after descendents have been purged.
+void LLInventoryModel::onDescendentsPurgedFromServer(const LLUUID& object_id)
+{
+	LLPointer<LLViewerInventoryCategory> cat = getCategory(object_id);
+	if (cat.notNull())
+	{
+		// do the cache accounting
+		S32 descendents = cat->getDescendentCount();
+		if(descendents > 0)
+		{
+			LLInventoryModel::LLCategoryUpdate up(object_id, -descendents);
+			accountForUpdate(up);
+		}
+
+		// we know that descendent count is 0, however since the
+		// accounting may actually not do an update, we should force
+		// it here.
+		cat->setDescendentCount(0);
+
+		// unceremoniously remove anything we have locally stored.
+		LLInventoryModel::cat_array_t categories;
+		LLInventoryModel::item_array_t items;
+		collectDescendents(object_id,
+						   categories,
+						   items,
+						   LLInventoryModel::INCLUDE_TRASH);
+		S32 count = items.count();
+
+		LLUUID uu_id;
+		for(S32 i = 0; i < count; ++i)
+		{
+			uu_id = items.get(i)->getUUID();
+
+			// This check prevents the deletion of a previously deleted item.
+			// This is necessary because deletion is not done in a hierarchical
+			// order. The current item may have been already deleted as a child
+			// of its deleted parent.
+			if (getItem(uu_id))
+			{
+				deleteObject(uu_id);
+			}
+		}
+
+		count = categories.count();
+		for(S32 i = 0; i < count; ++i)
+		{
+			uu_id = categories.get(i)->getUUID();
+			if (getCategory(uu_id))
+			{
+				deleteObject(uu_id);
+			}
+		}
+	}
+}
+
+// Update model after an item is confirmed as removed from
+// server. Works for categories or items.
+void LLInventoryModel::onObjectDeletedFromServer(const LLUUID& object_id)
+{
+	LLPointer<LLInventoryObject> obj = getObject(object_id);
+	if(obj)
+	{
+		// From item/cat removeFromServer()
+		LLInventoryModel::LLCategoryUpdate up(obj->getParentUUID(), -1);
+		accountForUpdate(up);
+
+		// From purgeObject()
+		LLPreview::hide(object_id);
+		deleteObject(object_id);
+	}
+}
+
+
 // Delete a particular inventory object by ID.
 void LLInventoryModel::deleteObject(const LLUUID& id)
 {
@@ -1187,20 +1260,7 @@ void LLInventoryModel::deleteObject(const LLUUID& id)
 	{
 		updateLinkedObjectsFromPurge(id);
 	}
-	gInventory.notifyObservers();
-}
-
-// Delete a particular inventory item by ID, and remove it from the server.
-void LLInventoryModel::purgeObject(const LLUUID &id)
-{
-	lldebugs << "LLInventoryModel::purgeObject() [ id: " << id << " ] " << llendl;
-	LLPointer<LLInventoryObject> obj = getObject(id);
-	if(obj)
-	{
-		obj->removeFromServer();
-		LLPreview::hide(id);
-		deleteObject(id);
-	}
+	notifyObservers();
 }
 
 void LLInventoryModel::updateLinkedObjectsFromPurge(const LLUUID &baseobj_id)
@@ -1222,119 +1282,6 @@ void LLInventoryModel::updateLinkedObjectsFromPurge(const LLUUID &baseobj_id)
 			addChangedMask(LLInventoryObserver::REBUILD, item_id);
 		}
 		gInventory.notifyObservers();
-	}
-}
-
-// This is a method which collects the descendents of the id
-// provided. If the category is not found, no action is
-// taken. This method goes through the long winded process of
-// cancelling any calling cards, removing server representation of
-// folders, items, etc in a fairly efficient manner.
-void LLInventoryModel::purgeDescendentsOf(const LLUUID& id)
-{
-	EHasChildren children = categoryHasChildren(id);
-	if(children == CHILDREN_NO)
-	{
-		llinfos << "Not purging descendents of " << id << llendl;
-		return;
-	}
-	LLPointer<LLViewerInventoryCategory> cat = getCategory(id);
-	if (cat.notNull())
-	{
-		if (LLClipboard::instance().hasContents() && LLClipboard::instance().isCutMode())
-		{
-			// Something on the clipboard is in "cut mode" and needs to be preserved
-			llinfos << "LLInventoryModel::purgeDescendentsOf " << cat->getName()
-			<< " iterate and purge non hidden items" << llendl;
-			cat_array_t* categories;
-			item_array_t* items;
-			// Get the list of direct descendants in tha categoy passed as argument
-			getDirectDescendentsOf(id, categories, items);
-			std::vector<LLUUID> list_uuids;
-			// Make a unique list with all the UUIDs of the direct descendants (items and categories are not treated differently)
-			// Note: we need to do that shallow copy as purging things will invalidate the categories or items lists
-			for (cat_array_t::const_iterator it = categories->begin(); it != categories->end(); ++it)
-			{
-				list_uuids.push_back((*it)->getUUID());
-			}
-			for (item_array_t::const_iterator it = items->begin(); it != items->end(); ++it)
-			{
-				list_uuids.push_back((*it)->getUUID());
-			}
-			// Iterate through the list and only purge the UUIDs that are not on the clipboard
-			for (std::vector<LLUUID>::const_iterator it = list_uuids.begin(); it != list_uuids.end(); ++it)
-			{
-				if (!LLClipboard::instance().isOnClipboard(*it))
-				{
-					purgeObject(*it);
-				}
-			}
-		}
-		else
-		{
-			// Fast purge
-			// do the cache accounting
-			llinfos << "LLInventoryModel::purgeDescendentsOf " << cat->getName()
-				<< llendl;
-			S32 descendents = cat->getDescendentCount();
-			if(descendents > 0)
-			{
-				LLCategoryUpdate up(id, -descendents);
-				accountForUpdate(up);
-			}
-
-			// we know that descendent count is 0, however since the
-			// accounting may actually not do an update, we should force
-			// it here.
-			cat->setDescendentCount(0);
-
-			// send it upstream
-			LLMessageSystem* msg = gMessageSystem;
-			msg->newMessage("PurgeInventoryDescendents");
-			msg->nextBlock("AgentData");
-			msg->addUUID("AgentID", gAgent.getID());
-			msg->addUUID("SessionID", gAgent.getSessionID());
-			msg->nextBlock("InventoryData");
-			msg->addUUID("FolderID", id);
-			gAgent.sendReliableMessage();
-
-			// unceremoniously remove anything we have locally stored.
-			cat_array_t categories;
-			item_array_t items;
-			collectDescendents(id,
-							   categories,
-							   items,
-							   INCLUDE_TRASH);
-			S32 count = items.count();
-
-			item_map_t::iterator item_map_end = mItemMap.end();
-			cat_map_t::iterator cat_map_end = mCategoryMap.end();
-			LLUUID uu_id;
-
-			for(S32 i = 0; i < count; ++i)
-			{
-				uu_id = items.get(i)->getUUID();
-
-				// This check prevents the deletion of a previously deleted item.
-				// This is necessary because deletion is not done in a hierarchical
-				// order. The current item may have been already deleted as a child
-				// of its deleted parent.
-				if (mItemMap.find(uu_id) != item_map_end)
-				{
-					deleteObject(uu_id);
-				}
-			}
-
-			count = categories.count();
-			for(S32 i = 0; i < count; ++i)
-			{
-				uu_id = categories.get(i)->getUUID();
-				if (mCategoryMap.find(uu_id) != cat_map_end)
-				{
-					deleteObject(uu_id);
-				}
-			}
-		}
 	}
 }
 
@@ -3114,8 +3061,7 @@ bool LLInventoryModel::callbackEmptyFolderType(const LLSD& notification, const L
 	if (option == 0) // YES
 	{
 		const LLUUID folder_id = findCategoryUUIDForType(preferred_type);
-		purgeDescendentsOf(folder_id);
-		notifyObservers();
+		purge_descendents_of(folder_id, NULL);
 	}
 	return false;
 }
@@ -3130,8 +3076,7 @@ void LLInventoryModel::emptyFolderType(const std::string notification, LLFolderT
 	else
 	{
 		const LLUUID folder_id = findCategoryUUIDForType(preferred_type);
-		purgeDescendentsOf(folder_id);
-		notifyObservers();
+		purge_descendents_of(folder_id, NULL);
 	}
 }
 

@@ -1159,17 +1159,10 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 
 void LLInvFVBridge::purgeItem(LLInventoryModel *model, const LLUUID &uuid)
 {
-	LLInventoryCategory* cat = model->getCategory(uuid);
-	if (cat)
-	{
-		model->purgeDescendentsOf(uuid);
-		model->notifyObservers();
-	}
 	LLInventoryObject* obj = model->getObject(uuid);
 	if (obj)
 	{
-		model->purgeObject(uuid);
-		model->notifyObservers();
+		remove_inventory_object(uuid, NULL);
 	}
 }
 

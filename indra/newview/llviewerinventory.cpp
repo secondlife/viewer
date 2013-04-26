@@ -65,6 +65,7 @@
 #include "llavataractions.h"
 #include "lllogininstance.h"
 #include "llfavoritesbar.h"
+#include "llclipboard.h"
 
 // Two do-nothing ops for use in callbacks.
 void no_op_inventory_func(const LLUUID&) {} 
@@ -345,24 +346,6 @@ void LLViewerInventoryItem::cloneViewerItem(LLPointer<LLViewerInventoryItem>& ne
 	}
 }
 
-void LLViewerInventoryItem::removeFromServer()
-{
-	lldebugs << "Removing inventory item " << mUUID << " from server."
-			 << llendl;
-
-	LLInventoryModel::LLCategoryUpdate up(mParentUUID, -1);
-	gInventory.accountForUpdate(up);
-
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessageFast(_PREHASH_RemoveInventoryItem);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID()); 
-	msg->nextBlockFast(_PREHASH_InventoryData);
-	msg->addUUIDFast(_PREHASH_ItemID, mUUID);
-	gAgent.sendReliableMessage();
-}
-
 void LLViewerInventoryItem::updateServer(BOOL is_new) const
 {
 	if(!mIsComplete)
@@ -634,30 +617,6 @@ void LLViewerInventoryCategory::updateServer(BOOL is_new) const
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 	msg->nextBlockFast(_PREHASH_FolderData);
 	packMessage(msg);
-	gAgent.sendReliableMessage();
-}
-
-void LLViewerInventoryCategory::removeFromServer( void )
-{
-	llinfos << "Removing inventory category " << mUUID << " from server."
-			<< llendl;
-	// communicate that change with the server.
-	if(LLFolderType::lookupIsProtectedType(mPreferredType))
-	{
-		LLNotificationsUtil::add("CannotRemoveProtectedCategories");
-		return;
-	}
-
-	LLInventoryModel::LLCategoryUpdate up(mParentUUID, -1);
-	gInventory.accountForUpdate(up);
-
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessageFast(_PREHASH_RemoveInventoryFolder);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->nextBlockFast(_PREHASH_FolderData);
-	msg->addUUIDFast(_PREHASH_FolderID, mUUID);
 	gAgent.sendReliableMessage();
 }
 
@@ -1179,25 +1138,10 @@ void move_inventory_item(
 	gAgent.sendReliableMessage();
 }
 
-void handle_item_deletion(const LLUUID& item_id)
-{
-	LLPointer<LLViewerInventoryItem> obj = gInventory.getItem(item_id);
-	if(obj)
-	{
-		// From item removeFromServer()
-		LLInventoryModel::LLCategoryUpdate up(obj->getParentUUID(), -1);
-		gInventory.accountForUpdate(up);
-
-		// From purgeObject()
-		LLPreview::hide(item_id);
-		gInventory.deleteObject(item_id);
-	}
-}
-
-class RemoveItemResponder: public LLHTTPClient::Responder
+class RemoveObjectResponder: public LLHTTPClient::Responder
 {
 public:
-	RemoveItemResponder(const LLUUID& item_id, LLPointer<LLInventoryCallback> callback):
+	RemoveObjectResponder(const LLUUID& item_id, LLPointer<LLInventoryCallback> callback):
 		mItemUUID(item_id),
 		mCallback(callback)
 	{
@@ -1212,7 +1156,7 @@ public:
 		}
 		llinfos << "succeeded: " << ll_pretty_print_sd(content) << llendl;
 
-		handle_item_deletion(mItemUUID);
+		gInventory.onObjectDeletedFromServer(mItemUUID);
 
 		if (mCallback)
 		{
@@ -1222,12 +1166,14 @@ public:
 	/*virtual*/ void httpFailure()
 	{
 		const LLSD& content = getContent();
+		S32 status = getStatus();
+		const std::string& reason = getReason();
 		if (!content.isMap())
 		{
-			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			llwarns << "Malformed response contents " << content << " id " << mItemUUID << " status " << status << " reason " << reason << llendl;
 			return;
 		}
-		llwarns << "failed for " << mItemUUID << " content: " << ll_pretty_print_sd(content) << llendl;
+		llwarns << "failed for " << mItemUUID << " content: " << ll_pretty_print_sd(content) << " status " << status << " reason " << reason << llendl;
 	}
 private:
 	LLPointer<LLInventoryCallback> mCallback;
@@ -1251,7 +1197,7 @@ void remove_inventory_item(
 		{
 			std::string url = cap + std::string("/item/") + item_id.asString();
 			llinfos << "url: " << url << llendl;
-			LLCurl::ResponderPtr responder_ptr = new RemoveItemResponder(item_id,cb);
+			LLCurl::ResponderPtr responder_ptr = new RemoveObjectResponder(item_id,cb);
 			LLHTTPClient::del(url,responder_ptr);
 		}
 		else // no cap
@@ -1267,7 +1213,7 @@ void remove_inventory_item(
 
 			// Update inventory and call callback immediately since
 			// message-based system has no callback mechanism (!)
-			handle_item_deletion(item_id);
+			gInventory.onObjectDeletedFromServer(item_id);
 			if (cb)
 			{
 				cb->fire(item_id);
@@ -1277,6 +1223,226 @@ void remove_inventory_item(
 	else
 	{
 		llwarns << "remove_inventory_item called for invalid or nonexistent item " << item_id << llendl;
+	}
+}
+
+class LLRemoveObjectOnDestroy: public LLInventoryCallback
+{
+public:
+	LLRemoveObjectOnDestroy(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb):
+		mID(item_id),
+		mCB(cb)
+	{
+	}
+	/* virtual */ void fire(const LLUUID& item_id) {}
+	~LLRemoveObjectOnDestroy()
+	{
+		remove_inventory_object(mID, mCB);
+	}
+private:
+	LLUUID mID;
+	LLPointer<LLInventoryCallback> mCB;
+};
+
+void remove_inventory_category(
+	const LLUUID& cat_id,
+	LLPointer<LLInventoryCallback> cb)
+{
+	llinfos << "cat_id: [" << cat_id << "] " << llendl;
+	LLPointer<LLViewerInventoryCategory> obj = gInventory.getCategory(cat_id);
+	if(obj)
+	{
+		if(LLFolderType::lookupIsProtectedType(obj->getPreferredType()))
+		{
+			LLNotificationsUtil::add("CannotRemoveProtectedCategories");
+			return;
+		}
+		LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(cat_id);
+		if(children != LLInventoryModel::CHILDREN_NO)
+		{
+			llinfos << "Will purge descendents first before deleting category " << cat_id << llendl;
+			LLPointer<LLInventoryCallback> wrap_cb = new LLRemoveObjectOnDestroy(cat_id,cb); 
+			purge_descendents_of(cat_id, wrap_cb);
+			return;
+		}
+
+		std::string cap;
+		if (gAgent.getRegion())
+		{
+			cap = gAgent.getRegion()->getCapability("InventoryAPIv3");
+		}
+		if (!cap.empty())
+		{
+			std::string url = cap + std::string("/category/") + cat_id.asString();
+			llinfos << "url: " << url << llendl;
+			LLCurl::ResponderPtr responder_ptr = new RemoveObjectResponder(cat_id,cb);
+			LLHTTPClient::del(url,responder_ptr);
+		}
+		else // no cap
+		{
+
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessageFast(_PREHASH_RemoveInventoryFolder);
+			msg->nextBlockFast(_PREHASH_AgentData);
+			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			msg->nextBlockFast(_PREHASH_FolderData);
+			msg->addUUIDFast(_PREHASH_FolderID, cat_id);
+			gAgent.sendReliableMessage();
+
+			// Update inventory and call callback immediately since
+			// message-based system has no callback mechanism (!)
+			gInventory.onObjectDeletedFromServer(cat_id);
+			if (cb)
+			{
+				cb->fire(cat_id);
+			}
+		}
+	}
+	else
+	{
+		llwarns << "remove_inventory_category called for invalid or nonexistent item " << cat_id << llendl;
+	}
+}
+
+void remove_inventory_object(
+	const LLUUID& object_id,
+	LLPointer<LLInventoryCallback> cb)
+{
+	if (gInventory.getCategory(object_id))
+	{
+		remove_inventory_category(object_id, cb);
+	}
+	else
+	{
+		remove_inventory_item(object_id, cb);
+	}
+}
+
+class PurgeDescendentsResponder: public LLHTTPClient::Responder
+{
+public:
+	PurgeDescendentsResponder(const LLUUID& item_id, LLPointer<LLInventoryCallback> callback):
+		mItemUUID(item_id),
+		mCallback(callback)
+	{
+	}
+	/* virtual */ void httpSuccess()
+	{
+		const LLSD& content = getContent();
+		if (!content.isMap())
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
+		llinfos << "succeeded: " << ll_pretty_print_sd(content) << llendl;
+
+		gInventory.onDescendentsPurgedFromServer(mItemUUID);
+
+		if (mCallback)
+		{
+			mCallback->fire(mItemUUID);
+		}
+	}
+	/*virtual*/ void httpFailure()
+	{
+		const LLSD& content = getContent();
+		S32 status = getStatus();
+		const std::string& reason = getReason();
+		if (!content.isMap())
+		{
+			llwarns << "Malformed response contents " << content << " id " << mItemUUID << " status " << status << " reason " << reason << llendl;
+			return;
+		}
+		llwarns << "failed for " << mItemUUID << " content: " << ll_pretty_print_sd(content) << " status " << status << " reason " << reason << llendl;
+	}
+private:
+	LLPointer<LLInventoryCallback> mCallback;
+	const LLUUID mItemUUID;
+};
+
+// This is a method which collects the descendents of the id
+// provided. If the category is not found, no action is
+// taken. This method goes through the long winded process of
+// cancelling any calling cards, removing server representation of
+// folders, items, etc in a fairly efficient manner.
+void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
+{
+	LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(id);
+	if(children == LLInventoryModel::CHILDREN_NO)
+	{
+		llinfos << "No descendents to purge for " << id << llendl;
+		return;
+	}
+	LLPointer<LLViewerInventoryCategory> cat = gInventory.getCategory(id);
+	if (cat.notNull())
+	{
+		if (LLClipboard::instance().hasContents() && LLClipboard::instance().isCutMode())
+		{
+			// Something on the clipboard is in "cut mode" and needs to be preserved
+			llinfos << "purge_descendents_of clipboard case " << cat->getName()
+			<< " iterate and purge non hidden items" << llendl;
+			LLInventoryModel::cat_array_t* categories;
+			LLInventoryModel::item_array_t* items;
+			// Get the list of direct descendants in tha categoy passed as argument
+			gInventory.getDirectDescendentsOf(id, categories, items);
+			std::vector<LLUUID> list_uuids;
+			// Make a unique list with all the UUIDs of the direct descendants (items and categories are not treated differently)
+			// Note: we need to do that shallow copy as purging things will invalidate the categories or items lists
+			for (LLInventoryModel::cat_array_t::const_iterator it = categories->begin(); it != categories->end(); ++it)
+			{
+				list_uuids.push_back((*it)->getUUID());
+			}
+			for (LLInventoryModel::item_array_t::const_iterator it = items->begin(); it != items->end(); ++it)
+			{
+				list_uuids.push_back((*it)->getUUID());
+			}
+			// Iterate through the list and only purge the UUIDs that are not on the clipboard
+			for (std::vector<LLUUID>::const_iterator it = list_uuids.begin(); it != list_uuids.end(); ++it)
+			{
+				if (!LLClipboard::instance().isOnClipboard(*it))
+				{
+					remove_inventory_object(*it, NULL);
+				}
+			}
+		}
+		else
+		{
+			std::string cap;
+			if (gAgent.getRegion())
+			{
+				cap = gAgent.getRegion()->getCapability("InventoryAPIv3");
+			}
+			if (!cap.empty())
+			{
+				std::string url = cap + std::string("/category/") + id.asString() + "/children";
+				llinfos << "url: " << url << llendl;
+				LLCurl::ResponderPtr responder_ptr = new PurgeDescendentsResponder(id,cb);
+				LLHTTPClient::del(url,responder_ptr);
+			}
+			else // no cap
+			{
+				// Fast purge
+				llinfos << "purge_descendents_of fast case " << cat->getName() << llendl;
+
+				// send it upstream
+				LLMessageSystem* msg = gMessageSystem;
+				msg->newMessage("PurgeInventoryDescendents");
+				msg->nextBlock("AgentData");
+				msg->addUUID("AgentID", gAgent.getID());
+				msg->addUUID("SessionID", gAgent.getSessionID());
+				msg->nextBlock("InventoryData");
+				msg->addUUID("FolderID", id);
+				gAgent.sendReliableMessage();
+
+				// Update model immediately because there is no callback mechanism.
+				gInventory.onDescendentsPurgedFromServer(id);
+				if (cb)
+				{
+					cb->fire(id);
+				}
+			}
+		}
 	}
 }
 
