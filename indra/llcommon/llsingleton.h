@@ -176,7 +176,7 @@ public:
 	// Use this to avoid accessing singletons before the can safely be constructed
 	static bool instanceExists()
 	{
-		return sReentrantConstructorGuard || getSingletonData().mInitState == INITIALIZED;
+		return !sReentrantConstructorGuard && getSingletonData().mInitState == INITIALIZED;
 	}
 	
 	// Has this singleton already been deleted?
