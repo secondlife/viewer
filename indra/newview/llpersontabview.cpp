@@ -163,7 +163,7 @@ void LLPersonView::draw()
 
 void LLPersonView::drawHighlight()
 {
-	static LLUIColor outline_color = LLUIColorTable::instance().getColor("Green_80", DEFAULT_WHITE);
+	static LLUIColor outline_color = LLUIColorTable::instance().getColor("EmphasisColor", DEFAULT_WHITE);
 
 	S32 width = getRect().getWidth();
 	S32 height = mItemHeight;
