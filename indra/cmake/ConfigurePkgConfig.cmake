@@ -62,7 +62,7 @@ IF("$ENV{PKG_CONFIG_LIBDIR}" STREQUAL "")
   SET(VALID_PKG_LIBDIRS "${VALID_PKG_LIBDIRS}:/usr/share/pkgconfig:/usr/local/share/pkgconfig")
 
   # Remove first unwanted ':'
-  string(SUBSTRING ${VALID_PKG_LIBDIRS} 1 -1 VALID_PKG_LIBDIRS)
+  string(SUBSTRING ${VALID_PKG_LIBDIRS} 1 0 VALID_PKG_LIBDIRS)
 
   # Set PKG_CONFIG_LIBDIR environment.
   SET(ENV{PKG_CONFIG_LIBDIR} ${VALID_PKG_LIBDIRS})
