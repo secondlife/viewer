@@ -83,8 +83,10 @@ private:
 
 		void construct()
 		{
+			sReentrantConstructorGuard = true;
 			mSingletonInstance = new DERIVED_TYPE(); 
 			mInitState = INITIALIZING;
+			sReentrantConstructorGuard = false;
 		}
 
 		~SingletonInstanceData()
@@ -174,7 +176,7 @@ public:
 	// Use this to avoid accessing singletons before the can safely be constructed
 	static bool instanceExists()
 	{
-		return getSingletonData().mInitState == INITIALIZED;
+		return sReentrantConstructorGuard || getSingletonData().mInitState == INITIALIZED;
 	}
 	
 	// Has this singleton already been deleted?
@@ -194,6 +196,11 @@ private:
 	}
 
 	virtual void initSingleton() {}
+
+	static bool sReentrantConstructorGuard;
 };
+
+template<typename T>
+bool LLSingleton<T>::sReentrantConstructorGuard = false;
 
 #endif
