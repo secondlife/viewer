@@ -1168,7 +1168,7 @@ public:
 		const LLSD& content = getContent();
 		if (!content.isMap())
 		{
-			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			llwarns << "Malformed response contents" << content << llendl;
 			return;
 		}
 		llwarns << "failed for " << mItemUUID << " content: " << ll_pretty_print_sd(content) << llendl;
@@ -1347,7 +1347,7 @@ public:
 		const LLSD& content = getContent();
 		if (!content.isMap())
 		{
-			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			llwarns << "Malformed response contents" << content << llendl;
 			return;
 		}
 		llwarns << "failed for " << mItemUUID << " content: " << ll_pretty_print_sd(content) << llendl;
