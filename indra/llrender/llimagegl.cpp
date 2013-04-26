@@ -748,13 +748,16 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 				S32 height = getHeight(mCurrentDiscardLevel);
 				S32 nummips = mMaxDiscardLevel - mCurrentDiscardLevel + 1;
 				S32 w = width, h = height;
+
+
+				const U8* new_data = 0;
+				(void)new_data;
+
 				const U8* prev_mip_data = 0;
 				const U8* cur_mip_data = 0;
 #ifdef SHOW_ASSERT
 				S32 cur_mip_size = 0;
-				S32 prev_mip_size = 0;
 #endif
-				
 				mMipLevels = nummips;
 
 				for (int m=0; m<nummips; m++)
@@ -769,20 +772,23 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 					else
 					{
 						S32 bytes = w * h * mComponents;
+						U8* new_data = new U8[bytes];
+
 #ifdef SHOW_ASSERT
 						llassert(prev_mip_data);
-						llassert(prev_mip_size == bytes*4);
-						U8* new_data = new U8[bytes];
+						llassert(cur_mip_size == bytes*4);
 						llassert_always(new_data);
 #endif
+
 						LLImageBase::generateMip(prev_mip_data, new_data, w, h, mComponents);
 						cur_mip_data = new_data;
+#ifdef SHOW_ASSERT
 						cur_mip_size = bytes; 
+#endif
 
 					}
-#ifdef SHOW_ASSERT
 					llassert(w > 0 && h > 0 && cur_mip_data);
-#endif
+					(void)cur_mip_data;
 					{
 // 						LLFastTimer t1(FTM_TEMP4);
 						if(mFormatSwapBytes)
@@ -813,7 +819,6 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 						delete[] prev_mip_data;
 					}
 					prev_mip_data = cur_mip_data;
-					prev_mip_size = cur_mip_size;
 					w >>= 1;
 					h >>= 1;
 				}
