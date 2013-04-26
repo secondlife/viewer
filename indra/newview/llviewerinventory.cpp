@@ -1166,12 +1166,14 @@ public:
 	/*virtual*/ void httpFailure()
 	{
 		const LLSD& content = getContent();
+		S32 status = getStatus();
+		const std::string& reason = getReason();
 		if (!content.isMap())
 		{
-			llwarns << "Malformed response contents" << content << llendl;
+			llwarns << "Malformed response contents " << content << " id " << mItemUUID << " status " << status << " reason " << reason << llendl;
 			return;
 		}
-		llwarns << "failed for " << mItemUUID << " content: " << ll_pretty_print_sd(content) << llendl;
+		llwarns << "failed for " << mItemUUID << " content: " << ll_pretty_print_sd(content) << " status " << status << " reason " << reason << llendl;
 	}
 private:
 	LLPointer<LLInventoryCallback> mCallback;
@@ -1345,12 +1347,14 @@ public:
 	/*virtual*/ void httpFailure()
 	{
 		const LLSD& content = getContent();
+		S32 status = getStatus();
+		const std::string& reason = getReason();
 		if (!content.isMap())
 		{
-			llwarns << "Malformed response contents" << content << llendl;
+			llwarns << "Malformed response contents " << content << " id " << mItemUUID << " status " << status << " reason " << reason << llendl;
 			return;
 		}
-		llwarns << "failed for " << mItemUUID << " content: " << ll_pretty_print_sd(content) << llendl;
+		llwarns << "failed for " << mItemUUID << " content: " << ll_pretty_print_sd(content) << " status " << status << " reason " << reason << llendl;
 	}
 private:
 	LLPointer<LLInventoryCallback> mCallback;
