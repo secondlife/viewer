@@ -2577,7 +2577,9 @@ bool LLAppViewer::initConfiguration()
     // What can happen is that someone can use IE (or potentially 
     // other browsers) and do the rough equivalent of command 
     // injection and steal passwords. Phoenix. SL-55321
+
 	LLSLURL option_slurl;
+
     if(clp.hasOption("url"))
     {
 		option_slurl = LLSLURL(clp.getOption("url")[0]);
@@ -2592,6 +2594,21 @@ bool LLAppViewer::initConfiguration()
 		option_slurl = LLSLURL(clp.getOption("slurl")[0]);
 		LLStartUp::setStartSLURL(option_slurl);
     }
+	
+	//RN: if we received a URL, hand it off to the existing instance.
+	// don't call anotherInstanceRunning() when doing URL handoff, as
+	// it relies on checking a marker file which will not work when running
+	// out of different directories
+
+	if (option_slurl.isValid() &&
+		(gSavedSettings.getBOOL("SLURLPassToOtherInstance")))
+	{
+		if (sendURLToOtherInstance(option_slurl.getSLURLString()))
+		{
+			// successfully handed off URL to existing instance, exit
+			return false;
+		}
+	}
 
 	const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
 	if(skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
@@ -2681,21 +2698,6 @@ bool LLAppViewer::initConfiguration()
 	gWindowTitle += std::string(" ") + gArgs;
 #endif
 	LLStringUtil::truncate(gWindowTitle, 255);
-
-	//RN: if we received a URL, hand it off to the existing instance.
-	// don't call anotherInstanceRunning() when doing URL handoff, as
-	// it relies on checking a marker file which will not work when running
-	// out of different directories
-
-	if (option_slurl.isValid() &&
-		(gSavedSettings.getBOOL("SLURLPassToOtherInstance")))
-	{
-		if (sendURLToOtherInstance(option_slurl.getSLURLString()))
-		{
-			// successfully handed off URL to existing instance, exit
-			return false;
-		}
-	}
 
 	if (!gSavedSettings.getBOOL("AllowMultipleViewers"))
 	{
