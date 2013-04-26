@@ -225,7 +225,6 @@ void LLThread::unlockData()
 
 // see llmemory.h for LLPointer<> definition
 
-#if (1)		// Old code - see comment below
 class LL_COMMON_API LLThreadSafeRefCount
 {
 public:
@@ -243,99 +242,28 @@ public:
 	LLThreadSafeRefCount(const LLThreadSafeRefCount&);
 	LLThreadSafeRefCount& operator=(const LLThreadSafeRefCount& ref) 
 	{
-		if (sMutex)
-		{
-			sMutex->lock();
-		}
 		mRef = 0;
-		if (sMutex)
-		{
-			sMutex->unlock();
-		}
 		return *this;
 	}
 
-
-	
 	void ref()
 	{
-		if (sMutex) sMutex->lock();
 		mRef++; 
-		if (sMutex) sMutex->unlock();
 	} 
 
-	S32 unref()
+	void unref()
 	{
 		llassert(mRef >= 1);
-		if (sMutex) sMutex->lock();
-		S32 res = --mRef;
-		if (sMutex) sMutex->unlock();
-		if (0 == res) 
-		{
-			delete this; 
-			return 0;
+		if ((--mRef) == 0)		// See note in llapr.h on atomic decrement operator return value.  
+		{	
+			// If we hit zero, the caller should be the only smart pointer owning the object and we can delete it.
+			// It is technically possible for a vanilla pointer to mess this up, or another thread to
+			// jump in, find this object, create another smart pointer and end up dangling, but if
+			// the code is that bad and not thread-safe, it's trouble already.
+			delete this;
 		}
-		return res;
-	}	
-	S32 getNumRefs() const
-	{
-		return mRef;
 	}
 
-private: 
-	S32	mRef; 
-};
-
-#else
-	// New code -  This was from https://bitbucket.org/lindenlab/viewer-cat/commits/b03bb43e4ead57f904cb3c1e9745dc8460de6efc
-	// and attempts 
-
-class LL_COMMON_API LLThreadSafeRefCount
-{
-public:
-	static void initThreadSafeRefCount(); // creates sMutex
-	static void cleanupThreadSafeRefCount(); // destroys sMutex
-	
-private:
-	static LLMutex* sMutex;
-
-protected:
-	virtual ~LLThreadSafeRefCount(); // use unref()
-	
-public:
-	LLThreadSafeRefCount();
-	LLThreadSafeRefCount(const LLThreadSafeRefCount&);
-	LLThreadSafeRefCount& operator=(const LLThreadSafeRefCount& ref) 
-	{
-		mRef = 0;
-		return *this;
-	}
-
-	void ref()
-	{
-		mRef++; 
-	} 
-
-	S32 unref()
-	{
-		llassert(mRef >= 1);		
-		bool time_to_die = (mRef == 1);		
-		if (time_to_die)
-		{
-			if (sMutex) sMutex->lock();
-			// Looks redundant, but is very much not
-			// We need to check again once we've acquired the lock
-			// so that two threads who get into the if in parallel
-			// don't both attempt to the delete.
-			//
-			mRef--;			// Simon:  why not  if (mRef == 1) delete this; ?   There still seems to be a window where mRef could be modified
-			if (mRef == 0)
-				delete this; 			
-			if (sMutex) sMutex->unlock();
-			return 0;
-		}
-		return --mRef;		
-	}
 	S32 getNumRefs() const
 	{
 		const S32 currentVal = mRef.CurrentValue();
@@ -345,7 +273,7 @@ public:
 private: 
 	LLAtomic32< S32	> mRef; 
 };
-#endif // new code
+
 
 /**
  * intrusive pointer support for LLThreadSafeRefCount
