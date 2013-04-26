@@ -79,8 +79,12 @@ public:
 
 protected:	
 	void draw();
+	void drawHighlight();
 
 private:
+
+	LLPointer<LLUIImage> mImageOver;
+	LLPointer<LLUIImage> mImageSelected;
 
 	LLAvatarIconCtrl* mAvatarIcon;
 	LLButton * mInfoBtn;
