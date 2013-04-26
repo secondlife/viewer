@@ -63,6 +63,8 @@ public:
 	/*virtual*/ void setVisible(BOOL visible);
 	/*virtual*/ void setVisibleAndFrontmost(BOOL take_focus=TRUE, const LLSD& key = LLSD());
 	/*virtual*/ void updateResizeLimits();
+	/*virtual*/ void handleReshape(const LLRect& rect, bool by_user);
+
 	void onCloseFloater(LLUUID& id);
 
 	/*virtual*/ void addFloater(LLFloater* floaterp, 

@@ -804,13 +804,6 @@ void LLFloaterIMContainer::reshapeFloaterAndSetResizeLimits(bool collapse, S32 d
 	setCanMinimize(at_least_one_panel_is_expanded);
 
     assignResizeLimits();
-
-    // force set correct size for the title after show/hide minimize button
-	LLRect cur_rect = getRect();
-	LLRect force_rect = cur_rect;
-	force_rect.mRight = cur_rect.mRight + 1;
-    setRect(force_rect);
-    setRect(cur_rect);
 }
 
 void LLFloaterIMContainer::assignResizeLimits()
@@ -2103,6 +2096,12 @@ void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 	{
 		active_conversation->closeFloater();
 	}
+}
+
+void LLFloaterIMContainer::handleReshape(const LLRect& rect, bool by_user)
+{
+	LLMultiFloater::handleReshape(rect, by_user);
+	storeRectControl();
 }
 
 // EOF
