@@ -863,6 +863,11 @@ void LLViewerTexture::reorganizeFaceList()
 	static const F32 MAX_WAIT_TIME = 20.f; // seconds
 	static const U32 MAX_EXTRA_BUFFER_SIZE = 4 ;
 
+	if(mLastFaceListUpdateTimer.getElapsedTimeF32() < MAX_WAIT_TIME)
+	{
+		return;
+	}
+
 	for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
 	{
 		if(mNumFaces[i] + MAX_EXTRA_BUFFER_SIZE > mFaceList[i].size())
