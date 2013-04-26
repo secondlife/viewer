@@ -62,7 +62,7 @@ public:
 
 	static void idle(void * user_data);
 
-	void openFacebookWeb(LLFloaterWebContent::Params& p);
+	void openFacebookWeb(std::string url);
 	void showFacebookFriends(const LLSD& friends);
 	void addTestParticipant();
 	void addParticipantToModel(LLPersonTabModel * session_model, const LLUUID& agent_id, const std::string& name);

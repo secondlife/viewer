@@ -2577,19 +2577,20 @@ bool LLAppViewer::initConfiguration()
     // What can happen is that someone can use IE (or potentially 
     // other browsers) and do the rough equivalent of command 
     // injection and steal passwords. Phoenix. SL-55321
+	LLSLURL option_slurl;
     if(clp.hasOption("url"))
     {
-		LLStartUp::setStartSLURL(LLSLURL(clp.getOption("url")[0]));
+		option_slurl = LLSLURL(clp.getOption("url")[0]);
+		LLStartUp::setStartSLURL(option_slurl);
 		if(LLStartUp::getStartSLURL().getType() == LLSLURL::LOCATION) 
 		{  
 			LLGridManager::getInstance()->setGridChoice(LLStartUp::getStartSLURL().getGrid());
-			
-		}  
+		}
     }
     else if(clp.hasOption("slurl"))
     {
-		LLSLURL start_slurl(clp.getOption("slurl")[0]);
-		LLStartUp::setStartSLURL(start_slurl);
+		option_slurl = LLSLURL(clp.getOption("slurl")[0]);
+		LLStartUp::setStartSLURL(option_slurl);
     }
 
 	const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
@@ -2686,10 +2687,10 @@ bool LLAppViewer::initConfiguration()
 	// it relies on checking a marker file which will not work when running
 	// out of different directories
 
-	if (LLStartUp::getStartSLURL().isValid() &&
+	if (option_slurl.isValid() &&
 		(gSavedSettings.getBOOL("SLURLPassToOtherInstance")))
 	{
-		if (sendURLToOtherInstance(LLStartUp::getStartSLURL().getSLURLString()))
+		if (sendURLToOtherInstance(option_slurl.getSLURLString()))
 		{
 			// successfully handed off URL to existing instance, exit
 			return false;

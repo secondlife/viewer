@@ -113,6 +113,7 @@ public:
 					if (mPanelPeople)
 					{
 						mPanelPeople->connectToFacebook(query_map["code"]);
+						mPanelPeople = NULL;
 						return true;
 					}
 				}
@@ -970,46 +971,7 @@ void LLPanelPeople::updateRecentList()
 
 void LLPanelPeople::updateFbcTestList()
 {
-	if (mFbcTestBrowserHandle.get())
-	{
-		// get the current browser url (from the title bar, of course!)
-		std::string url = mFbcTestBrowserHandle.get()->getTitle();
-
-		// if the browser has redirected from facebook
-		if (url.find(getFacebookRedirectURL()) == 0)
-		{
-			// find the auth code in the url
-			std::string begin_string = "code=";
-			std::string end_string = "#";
-			size_t begin_index = begin_string.length() + url.find(begin_string, getFacebookRedirectURL().length());
-			size_t end_index = url.find(end_string, begin_index);
-
-			// extract the auth code from the url
-			std::string auth_code;
-			if (end_index != std::string::npos)
-			{
-				auth_code = url.substr(begin_index, end_index - begin_index);
-			}
-			else
-			{
-				auth_code = url.substr(begin_index);
-			}
-			llinfos << "extracted code " << auth_code << " from url " << url << llendl;
-			
-			// finish authenticating on the server
-			connectToFacebook(auth_code);
-
-			// close the browser window
-			mFbcTestBrowserHandle.get()->die();
-
-			// get rid of the handle
-			mFbcTestBrowserHandle = LLHandle<LLFloater>();
-			
-			// stop updating
-			mFbcTestListUpdater->setActive(false);
-		}
-	}
-	else if (mTryToConnectToFbc)
+	if (mTryToConnectToFbc)
 	{	
 		// try to reconnect to facebook!
 		tryToReconnectToFacebook();
@@ -1693,19 +1655,10 @@ bool LLPanelPeople::isAccordionCollapsedByUser(const std::string& name)
 	return isAccordionCollapsedByUser(getChild<LLUICtrl>(name));
 }
 
-void LLPanelPeople::openFacebookWeb(LLFloaterWebContent::Params& p)
+void LLPanelPeople::openFacebookWeb(std::string url)
 {
 	gFacebookConnectHandler.mPanelPeople = this;
-	LLUrlAction::openURLExternal(p.url);
-	
-	LLFloater* browser = LLFloaterReg::showInstance("web_content", p);
-
-	if (browser)
-	{
-		// start checking the browser to see if the data is available yet
-		mFbcTestBrowserHandle = browser->getHandle();
-		mFbcTestListUpdater->setActive(true);
-	}
+	LLUrlAction::openURLExternal(url);
 }
 
 void LLPanelPeople::showFacebookFriends(const LLSD& friends)
@@ -1827,9 +1780,7 @@ public:
 			// show the facebook login page if not connected yet
 			if (status == 404 && mShowLoginIfNotConnected)
 			{
-				LLFloaterWebContent::Params p;
-				p.url("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + mPanelPeople->getFacebookRedirectURL());
-				mPanelPeople->openFacebookWeb(p);
+				mPanelPeople->openFacebookWeb("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + mPanelPeople->getFacebookRedirectURL());
 			}
 		}
 	}
@@ -1914,16 +1865,12 @@ void LLPanelPeople::onLoginFbcButtonClicked()
 
 void LLPanelPeople::onFacebookAppRequestClicked()
 {
-	LLFloaterWebContent::Params p;
-	p.url("http://www.facebook.com/dialog/apprequests?app_id=565771023434202&message=Test&redirect_uri=" + getFacebookRedirectURL());
-	openFacebookWeb(p);
+	openFacebookWeb("http://www.facebook.com/dialog/apprequests?app_id=565771023434202&message=Test&redirect_uri=" + getFacebookRedirectURL());
 }
 
 void LLPanelPeople::onFacebookAppSendClicked()
 {
-	LLFloaterWebContent::Params p;
-	p.url("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Join Second Life!&link=https://join.secondlife.com&redirect_uri=" + getFacebookRedirectURL());
-	openFacebookWeb(p);
+	openFacebookWeb("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Join Second Life!&link=https://join.secondlife.com&redirect_uri=" + getFacebookRedirectURL());
 }
 
 static LLFastTimer::DeclareTimer FTM_AVATAR_LIST_TEST("avatar list test");
