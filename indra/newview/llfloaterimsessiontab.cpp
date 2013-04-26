@@ -896,6 +896,7 @@ void LLFloaterIMSessionTab::restoreFloater()
 		mExpandCollapseLineBtn->setImageOverlay(getString("expandline_icon"));
 		setMessagePaneExpanded(true);
 		saveCollapsedState();
+		mInputEditor->enableSingleLineMode(false);
 		enableResizeCtrls(true, true, true);
 	}
 }
