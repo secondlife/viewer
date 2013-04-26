@@ -300,9 +300,9 @@ void LLPanelFace::sendBump()
 	U32 bumpiness = mComboBumpiness->getCurrentIndex();
 	if (bumpiness < BUMPY_TEXTURE)
 	{
-		LLTextureCtrl* texture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
-		//texture_ctrl->setImageAssetID(LLUUID());
-		texture_ctrl->clear();
+		LL_DEBUGS("Materials") << "clearing bumptexture control" << LL_ENDL;
+		LLTextureCtrl* bumpytexture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
+		bumpytexture_ctrl->clear();
 		LLSD dummy_data;
 		onSelectMaterialTexture(dummy_data);
 	}
@@ -610,7 +610,7 @@ void LLPanelFace::getState()
 
 		// only turn on auto-adjust button if there is a media renderer and the media is loaded
 		getChildView("button align")->setEnabled(editable);
-		
+
 		LLComboBox* combobox_matmedia = getChild<LLComboBox>("combobox matmedia");
 		if (combobox_matmedia)
 		{
@@ -662,7 +662,7 @@ void LLPanelFace::getState()
 		LLUUID id;
 		LLUUID normmap_id;
 		LLUUID specmap_id;
-		
+
 		// Texture
 		{
 			struct f1 : public LLSelectedTEGetFunctor<LLUUID>
@@ -799,22 +799,22 @@ void LLPanelFace::getState()
 				if (combobox_alphamode)
 				{
 					if (!mIsAlpha)
-				{
+					{
 						alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
-				}
+					}
 					
 					combobox_alphamode->selectNthItem(alpha_mode);
-			}
-			else
-			{
+				}
+				else
+				{
 					llwarns << "failed childGetSelectionInterface for 'combobox alphamode'" << llendl;
 				}
 
 				updateAlphaControls(getChild<LLComboBox>("combobox alphamode"),this);
 			}
 			
-				if(texture_ctrl)
-				{
+			if(texture_ctrl)
+			{
                 if (identical_diffuse)
 				{
 					texture_ctrl->setTentative( FALSE );
@@ -826,22 +826,22 @@ void LLPanelFace::getState()
 					getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
 				}
                 else if (id.isNull())
-					{
-						// None selected
-						texture_ctrl->setTentative( FALSE );
-						texture_ctrl->setEnabled( FALSE );
-						texture_ctrl->setImageAssetID( LLUUID::null );
+				{
+					// None selected
+					texture_ctrl->setTentative( FALSE );
+					texture_ctrl->setEnabled( FALSE );
+					texture_ctrl->setImageAssetID( LLUUID::null );
 					getChildView("combobox alphamode")->setEnabled( FALSE );
 					getChildView("label alphamode")->setEnabled( FALSE );
 					getChildView("maskcutoff")->setEnabled( FALSE);
 					getChildView("label maskcutoff")->setEnabled( FALSE );
-					}
-					else
-					{
-						// Tentative: multiple selected with different textures
-						texture_ctrl->setTentative( TRUE );
-						texture_ctrl->setEnabled( editable );
-						texture_ctrl->setImageAssetID( id );
+				}
+				else
+				{
+					// Tentative: multiple selected with different textures
+					texture_ctrl->setTentative( TRUE );
+					texture_ctrl->setEnabled( editable );
+					texture_ctrl->setImageAssetID( id );
                     getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha);
                     getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
                     getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
@@ -856,20 +856,20 @@ void LLPanelFace::getState()
                     shinytexture_ctrl->setTentative( FALSE );
                     shinytexture_ctrl->setEnabled( editable );
                     shinytexture_ctrl->setImageAssetID( specmap_id );
-					}
+                }
                 else if (specmap_id.isNull())
                 {
                     shinytexture_ctrl->setTentative( FALSE );
                     shinytexture_ctrl->setEnabled( FALSE );
                     shinytexture_ctrl->setImageAssetID( LLUUID::null );
-				}
+                }
                 else
                 {
 					shinytexture_ctrl->setTentative( TRUE );
 					shinytexture_ctrl->setEnabled( editable );
                     shinytexture_ctrl->setImageAssetID( specmap_id );
-			}
-		}
+                }
+            }
 
             if (bumpytexture_ctrl)
             {
@@ -1343,7 +1343,7 @@ void LLPanelFace::getState()
 		U8 shiny = 0;
 
 		// Shiny
-		{
+		{			
 			struct f9 : public LLSelectedTEGetFunctor<U8>
 			{
 				U8 get(LLViewerObject* object, S32 face)
@@ -1393,7 +1393,7 @@ void LLPanelFace::getState()
 		U8 bumpy = 0;
 
 		// Bumpy
-		{
+		{			
 			struct f10 : public LLSelectedTEGetFunctor<U8>
 			{
 				U8 get(LLViewerObject* object, S32 face)
@@ -1409,7 +1409,7 @@ void LLPanelFace::getState()
 
 			LLCtrlSelectionInterface* combobox_bumpiness = childGetSelectionInterface("combobox bumpiness");
 			if (combobox_bumpiness)
-			{
+			{				
 				combobox_bumpiness->selectNthItem(bumpy);
 			}
 			else
@@ -1421,7 +1421,7 @@ void LLPanelFace::getState()
 			getChildView("label bumpiness")->setEnabled(editable);
 		}
 
-		{
+		{			
 			LLCtrlSelectionInterface* combobox_texgen =
 			      childGetSelectionInterface("combobox texgen");
 			if (combobox_texgen)
@@ -1483,7 +1483,7 @@ void LLPanelFace::getState()
 					F32 repeats_t = object->getTE(face)->mScaleT / object->getScale().mV[t_axis];
 					return llmax(repeats_s, repeats_t);
 				}
-			
+
 			} func_diff;
 			bool identical_diff_repeats = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func_diff, repeats_diff );
 			
@@ -1638,7 +1638,7 @@ void LLPanelFace::getState()
 		getChildView("button align")->setEnabled(FALSE);
 		//getChildView("has media")->setEnabled(FALSE);
 		//getChildView("media info set")->setEnabled(FALSE);
-		
+
 		onCommitMaterialsMedia(NULL,this);
 
 		// Set variable values for numeric expressions
@@ -1878,7 +1878,6 @@ void LLPanelFace::updateMaterial()
                 material_to_set = new LLMaterial(*mMaterial);
             }
         }
-
         LLSelectMgr::getInstance()->selectionSetMaterial( material_to_set );
 	}
 	else
@@ -2161,7 +2160,7 @@ void LLPanelFace::updateBumpyControls(LLUICtrl* ctrl, void* userdata, bool mess_
 void LLPanelFace::onCommitShiny(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
-	self->sendShiny();
+	self->sendShiny();	
 	LLComboBox* combo_shiny = self->getChild<LLComboBox>("combobox shininess");
 	// Need 'true' here to insure that the 'Use Texture' choice is removed
 	// when we select something other than a spec texture
@@ -2353,8 +2352,8 @@ void LLPanelFace::onCommitRepeatsPerMeter(LLUICtrl* ctrl, void* userdata)
 	{
 		case MATTYPE_DIFFUSE:
 		{
-	LLSelectMgr::getInstance()->selectionTexScaleAutofit( repeats_per_meter );
-}
+			LLSelectMgr::getInstance()->selectionTexScaleAutofit( repeats_per_meter );
+		}
 		break;
 
 		case MATTYPE_NORMAL:

@@ -71,7 +71,6 @@
 #include "llhudtext.h"
 #include "lllightconstants.h"
 #include "llmeshrepository.h"
-#include "llpipelinelistener.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
 #include "llsky.h"
@@ -381,8 +380,6 @@ S32		LLPipeline::sVisibleLightCount = 0;
 F32		LLPipeline::sMinRenderSize = 0.f;
 BOOL	LLPipeline::sRenderingHUDs;
 
-// EventHost API LLPipeline listener.
-static LLPipelineListener sPipelineListener;
 
 static LLCullResult* sCull = NULL;
 
@@ -498,29 +495,19 @@ void LLPipeline::init()
 	LLViewerStats::getInstance()->mTrianglesDrawnStat.reset();
 	resetFrameStats();
 
-	if (gSavedSettings.getBOOL("DisableAllRenderFeatures"))
+	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
 	{
-		clearAllRenderDebugFeatures();
+		mRenderTypeEnabled[i] = TRUE; //all rendering types start enabled
 	}
-	else
-	{
-		setAllRenderDebugFeatures(); // By default, all debugging features on
-	}
-	clearAllRenderDebugDisplays(); // All debug displays off
 
-	if (gSavedSettings.getBOOL("DisableAllRenderTypes"))
-	{
-		clearAllRenderTypes();
-	}
-	else
-	{
-		setAllRenderTypes(); // By default, all rendering types start enabled
+	mRenderDebugFeatureMask = 0xffffffff; // All debugging features on
+	mRenderDebugMask = 0;	// All debug starts off
+
 	// Don't turn on ground when this is set
 	// Mac Books with intel 950s need this
 	if(!gSavedSettings.getBOOL("RenderGround"))
 	{
 		toggleRenderType(RENDER_TYPE_GROUND);
-	}
 	}
 
 	// make sure RenderPerformanceTest persists (hackity hack hack)
@@ -924,7 +911,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		if (!mDeferredScreen.allocate(resX, resY, GL_SRGB8_ALPHA8, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!addDeferredAttachments(mDeferredScreen)) return false;
-	
+		
 		GLuint screenFormat = GL_RGBA16;
 		if (gGLManager.mIsATI)
 		{
@@ -1228,7 +1215,7 @@ void LLPipeline::createGLBuffers()
 
 		for (U32 i = 0; i < 3; i++)
 		{
-			mGlow[i].allocate(512,glow_res,GL_RGBA,FALSE,FALSE);
+			mGlow[i].allocate(512,glow_res, GL_RGBA,FALSE,FALSE);
 		}
 
 		allocateScreenBuffer(resX,resY);
@@ -1350,7 +1337,7 @@ void LLPipeline::createLUTBuffers()
 					// Note: This is the full equation that applies the full normalization curve, not an approximation.
 					// This is fine, given we only need to create our LUT once per buffer initialization.
 					spec *= (((n + 2) * (n + 4)) / (8 * F_PI * (powf(2, -n/2) + n)));
-					
+
 					// Since we use R16F, we no longer have a dynamic range issue we need to work around here.
 					// Though some older drivers may not like this, newer drivers shouldn't have this problem.
 					ls[y*lightResX+x] = spec;
@@ -1677,7 +1664,7 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 	{
 		alpha = alpha || (imagep->getComponents() == 4 && imagep->getType() != LLViewerTexture::MEDIA_TEXTURE) || (imagep->getComponents() == 2);
 	}
-
+	
 	if (alpha && te->getMaterialParams())
 	{
 		switch (te->getMaterialParams()->getDiffuseAlphaMode())
@@ -1690,14 +1677,7 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 				alpha = false;
 				break;
 			default: //alpha mode set to "mask", go to alpha pool if fullbright
-				if (te->getFullbright())
-				{ 
-					alpha = true;
-				}
-				else
-				{
 					alpha = false; // Material's alpha mode is set to none, mask, or emissive.  Toss it into the opaque material draw pool.
-				}
 				break;
 		}
 	}
@@ -5636,7 +5616,7 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 		llassert( poolp == mBumpPool );
 		mBumpPool = NULL;
 		break;
-	
+			
 	case LLDrawPool::POOL_MATERIALS:
 		llassert(poolp == mMaterialsPool);
 		mMaterialsPool = NULL;
@@ -7023,7 +7003,7 @@ void LLPipeline::renderObjects(U32 type, U32 mask, BOOL texture, BOOL batch_text
 	assertInitialized();
 	gGL.loadMatrix(gGLModelView);
 	gGLLastMatrix = NULL;
-	mAlphaPool->pushBatches(type, mask, texture, batch_texture);
+	mSimplePool->pushBatches(type, mask, texture, batch_texture);
 	gGL.loadMatrix(gGLModelView);
 	gGLLastMatrix = NULL;		
 }
@@ -7140,10 +7120,10 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	gGL.loadIdentity();
 
 	LLGLDisable test(GL_ALPHA_TEST);
-
+	
 	gGL.setColorMask(true, true);
 	glClearColor(0,0,0,0);
-		
+	
 	if (sRenderDeferred)
 	{
 		mScreen.bindTarget();
@@ -7522,7 +7502,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 					mScreen.bindTexture(0, channel);
 					gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 				}
-
+				
 				if (!LLViewerCamera::getInstance()->cameraUnderWater())
 				{
 					shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2);
@@ -7570,7 +7550,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			{
 				mScreen.bindTexture(0, channel);
 			}
-
+			
 			if (!LLViewerCamera::getInstance()->cameraUnderWater())
 			{
 				shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2);
@@ -8456,7 +8436,7 @@ void LLPipeline::renderDeferredLighting()
 					fullscreen_lights.pop_front();
 					col[count] = light_colors.front();
 					light_colors.pop_front();
-
+					
 					col[count].mV[0] = powf(col[count].mV[0], 2.2f);
 					col[count].mV[1] = powf(col[count].mV[1], 2.2f);
 					col[count].mV[2] = powf(col[count].mV[2], 2.2f);

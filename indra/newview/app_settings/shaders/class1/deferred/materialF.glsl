@@ -465,7 +465,7 @@ void main()
 
 	vec4 final_color = diffcol;
 	
-#if DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE
+#if (DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE)
 	final_color.a = 0;
 #endif
 
