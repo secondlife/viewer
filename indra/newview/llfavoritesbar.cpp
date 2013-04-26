@@ -1649,7 +1649,6 @@ void LLFavoritesOrderStorage::saveItemsOrder( const LLInventoryModel::item_array
 
 	gInventory.notifyObservers();
 }
-
 // See also LLInventorySort where landmarks in the Favorites folder are sorted.
 class LLViewerInventoryItemSort
 {

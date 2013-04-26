@@ -328,7 +328,7 @@ void LLApp::setupErrorHandling()
 	// future releases of Darwin.  This test is really only needed for developers
 	// starting the app from a debugger anyway.
 	#ifndef LL_RELEASE_FOR_DOWNLOAD
-    	int mib[4];
+    int mib[4];
 	mib[0] = CTL_KERN;
 	mib[1] = KERN_PROC;
 	mib[2] = KERN_PROC_PID;

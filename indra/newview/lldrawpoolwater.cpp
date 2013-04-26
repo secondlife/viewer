@@ -66,11 +66,11 @@ LLVector3 LLDrawPoolWater::sLightDir;
 LLDrawPoolWater::LLDrawPoolWater() :
 	LLFacePool(POOL_WATER)
 {
-	mHBTex[0] = LLViewerTextureManager::getFetchedTexture(gSunTextureID, TRUE, LLViewerTexture::BOOST_UI);
+	mHBTex[0] = LLViewerTextureManager::getFetchedTexture(gSunTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 	gGL.getTexUnit(0)->bind(mHBTex[0]) ;
 	mHBTex[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
 
-	mHBTex[1] = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, TRUE, LLViewerTexture::BOOST_UI);
+	mHBTex[1] = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 	gGL.getTexUnit(0)->bind(mHBTex[1]);
 	mHBTex[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
 
@@ -80,7 +80,7 @@ LLDrawPoolWater::LLDrawPoolWater() :
 	mWaterImagep->setNoDelete();
 	mOpaqueWaterImagep = LLViewerTextureManager::getFetchedTexture(OPAQUE_WATER_TEXTURE);
 	llassert(mOpaqueWaterImagep);
-	mWaterNormp = LLViewerTextureManager::getFetchedTexture(DEFAULT_WATER_NORMAL, TRUE, LLViewerTexture::BOOST_BUMP);
+	mWaterNormp = LLViewerTextureManager::getFetchedTexture(DEFAULT_WATER_NORMAL);
 	mWaterNormp->setNoDelete();
 
 	restoreGL();
@@ -563,7 +563,7 @@ void LLDrawPoolWater::shade()
 	// change mWaterNormp if needed
 	if (mWaterNormp->getID() != param_mgr->getNormalMapID())
 	{
-		mWaterNormp = LLViewerTextureManager::getFetchedTexture(param_mgr->getNormalMapID(), TRUE, LLViewerTexture::BOOST_BUMP);
+		mWaterNormp = LLViewerTextureManager::getFetchedTexture(param_mgr->getNormalMapID());
 	}
 
 	mWaterNormp->addTextureStats(1024.f*1024.f);

@@ -1154,15 +1154,6 @@ void LLFloaterPreference::refreshEnabledState()
 						gSavedSettings.getBOOL("RenderAvatarVP") &&
 						(ctrl_wind_light->get()) ? TRUE : FALSE;
 
-	if (!enabled)
-	{
-		llinfos << "LLFloaterPreference: NOT ENABLING DEFFERED....feature available? "
-			<< (LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") ? "yup" : "nope")
-			<< " shaders? " << (shaders ? "yup" : "nope") << " FBO? " << (gGLManager.mHasFramebufferObject ? "yup" : "nope")
-			<< " renderAvVP? " << (gSavedSettings.getBOOL("RenderAvatarVP") ? "yup" : "nope")
-			<< " windlight? " << ((ctrl_wind_light->get()) ? "yup" : "nope") << llendl;
-	}
-
 	ctrl_deferred->setEnabled(enabled);
 	
 	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");

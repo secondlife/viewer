@@ -16,10 +16,7 @@
 			<menu_item_call label="停止我身上的動作" name="Stop Animating My Avatar"/>
 			<menu_item_call label="行走 / 跑步 / 飛行…" name="Walk / run / fly"/>
 		</menu>
-		<menu label="狀態" name="Status">
-			<menu_item_call label="離開" name="Set Away"/>
-			<menu_item_call label="忙碌" name="Set Busy"/>
-		</menu>
+		<menu label="狀態" name="Status"/>
 		<menu_item_call label="購買 L$…" name="Buy and Sell L$"/>
 		<menu_item_call label="商家發件匣…" name="MerchantOutbox"/>
 		<menu_item_call label="帳戶主控臺…" name="Manage My Account"/>
@@ -30,14 +27,18 @@
 		<menu_item_call label="退出 [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="溝通" name="Communicate">
-		<menu_item_check label="聊天…" name="Nearby Chat"/>
+		<menu_item_check label="交談……" name="Conversations"/>
+		<menu_item_check label="附近的聊天……" name="Nearby Chat"/>
 		<menu_item_check label="說話" name="Speak"/>
-		<menu_item_check label="語音設定…" name="Nearby Voice"/>
-		<menu_item_check label="語音變聲…" name="ShowVoice"/>
+		<menu label="語音變聲" name="VoiceMorphing">
+			<menu_item_check label="沒有變聲效果" name="NoVoiceMorphing"/>
+			<menu_item_check label="預覽……" name="Preview"/>
+			<menu_item_call label="訂閱……" name="Subscribe"/>
+		</menu>
 		<menu_item_check label="姿勢…" name="Gestures"/>
-		<menu_item_call label="朋友" name="My Friends"/>
-		<menu_item_call label="群組" name="My Groups"/>
-		<menu_item_call label="附近的人群" name="Active Speakers"/>
+		<menu_item_check label="朋友" name="My Friends"/>
+		<menu_item_check label="群組" name="My Groups"/>
+		<menu_item_check label="附近的人群" name="Active Speakers"/>
 		<menu_item_call label="封鎖清單" name="Block List"/>
 	</menu>
 	<menu label="世界" name="World">

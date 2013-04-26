@@ -4,17 +4,17 @@
 ## These options are for self-assisted troubleshooting during this beta
 ## testing phase; you should not usually need to touch them.
 
+## - Avoids using any FMOD Ex audio driver.
+#export LL_BAD_FMODEX_DRIVER=x
 ## - Avoids using any OpenAL audio driver.
 #export LL_BAD_OPENAL_DRIVER=x
-## - Avoids using any FMOD audio driver.
-#export LL_BAD_FMOD_DRIVER=x
 
-## - Avoids using the FMOD ESD audio driver.
-#export LL_BAD_FMOD_ESD=x
-## - Avoids using the FMOD OSS audio driver.
-#export LL_BAD_FMOD_OSS=x
-## - Avoids using the FMOD ALSA audio driver.
+## - Avoids using the FMOD Ex PulseAudio audio driver.
+#export LL_BAD_FMOD_PULSEAUDIO=x
+## - Avoids using the FMOD or FMOD Ex ALSA audio driver.
 #export LL_BAD_FMOD_ALSA=x
+## - Avoids using the FMOD or FMOD Ex OSS audio driver.
+#export LL_BAD_FMOD_OSS=x
 
 ## - Avoids the optional OpenGL extensions which have proven most problematic
 ##   on some hardware.  Disabling this option may cause BETTER PERFORMANCE but
@@ -45,6 +45,7 @@ if [ "`uname -m`" = "x86_64" ]; then
     echo '64-bit Linux detected.'
 fi
 
+
 ## Everything below this line is just for advanced troubleshooters.
 ##-------------------------------------------------------------------
 
@@ -60,7 +61,15 @@ fi
 export SDL_VIDEO_X11_DGAMOUSE=0
 
 ## - Works around a problem with misconfigured 64-bit systems not finding GL
-export LIBGL_DRIVERS_PATH="${LIBGL_DRIVERS_PATH}":/usr/lib64/dri:/usr/lib32/dri:/usr/lib/dri
+I386_MULTIARCH="$(dpkg-architecture -ai386 -qDEB_HOST_MULTIARCH 2>/dev/null)"
+MULTIARCH_ERR=$?
+if [ $MULTIARCH_ERR -eq 0 ]; then
+    echo 'Multi-arch support detected.'
+    MULTIARCH_GL_DRIVERS="/usr/lib/${I386_MULTIARCH}/dri"
+    export LIBGL_DRIVERS_PATH="${LIBGL_DRIVERS_PATH}:${MULTIARCH_GL_DRIVERS}:/usr/lib64/dri:/usr/lib32/dri:/usr/lib/dri"
+else
+    export LIBGL_DRIVERS_PATH="${LIBGL_DRIVERS_PATH}:/usr/lib64/dri:/usr/lib32/dri:/usr/lib/dri"
+fi
 
 ## - The 'scim' GTK IM module widely crashes the viewer.  Avoid it.
 if [ "$GTK_IM_MODULE" = "scim" ]; then
@@ -117,18 +126,32 @@ export LD_LIBRARY_PATH="$PWD/lib:${LD_LIBRARY_PATH}"
 # Simply embedding $(<etc/gridargs.dat) into a command line treats each of
 # Second, Life and Developer as separate args -- no good. We need bash to
 # process quotes using eval.
-# First read it without scanning, then scan that string. Break quoted words
+# First, check if we have been instructed to skip reading in gridargs.dat:
+skip_gridargs=false
+argnum=0
+for ARG in "$@"; do
+    if [ "--skip-gridargs" == "$ARG" ]; then
+        skip_gridargs=true
+    else
+        ARGS[$argnum]="$ARG"
+        argnum=$(($argnum+1))
+    fi
+done
+
+# Second, read it without scanning, then scan that string. Break quoted words
 # into a bash array. Note that if gridargs.dat is empty, or contains only
 # whitespace, the resulting gridargs array will be empty -- zero entries --
 # therefore "${gridargs[@]}" entirely vanishes from the command line below,
 # just as we want.
-eval gridargs=("$(<etc/gridargs.dat)")
+if ! $skip_gridargs ; then
+    eval gridargs=("$(<etc/gridargs.dat)")
+fi
 
 # Run the program.
 # Don't quote $LL_WRAPPER because, if empty, it should simply vanish from the
 # command line. But DO quote "$@": preserve separate args as individually
 # quoted. Similar remarks about the contents of gridargs.
-$LL_WRAPPER bin/do-not-directly-run-secondlife-bin "${gridargs[@]}" "$@"
+$LL_WRAPPER bin/do-not-directly-run-secondlife-bin "${gridargs[@]}" "${ARGS[@]}"
 LL_RUN_ERR=$?
 
 # Handle any resulting errors

@@ -850,12 +850,10 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 		return 0;
 	}
 
-	S32 ret = LLSDSerialize::fromXML(settings, infile);
-
-	if (ret <= 0)
+	if (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXML(settings, infile))
 	{
 		infile.close();
-		llwarns << "Unable to open LLSD control file " << filename << ". Trying Legacy Method." << llendl;		
+		llwarns << "Unable to parse LLSD control file " << filename << ". Trying Legacy Method." << llendl;
 		return loadFromFileLegacy(filename, TRUE, TYPE_STRING);
 	}
 

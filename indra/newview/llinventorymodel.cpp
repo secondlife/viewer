@@ -460,9 +460,10 @@ public:
 	{
 	}
 	
-	virtual void error(U32 status, const std::string& reason)
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
-		LL_WARNS("InvAPI") << "CreateInventoryCategory failed.   status = " << status << ", reasion = \"" << reason << "\"" << LL_ENDL;
+		LL_WARNS("InvAPI") << "CreateInventoryCategory failed [status:"
+				<< status << "]: " << content << LL_ENDL;
 	}
 	
 	virtual void result(const LLSD& content)
@@ -1410,7 +1411,6 @@ void  LLInventoryModel::fetchInventoryResponder::result(const LLSD& content)
 	item_array_t items;
 	update_map_t update;
 	S32 count = content["items"].size();
-	bool all_one_folder = true;
 	LLUUID folder_id;
 	// Does this loop ever execute more than once?
 	for(S32 i = 0; i < count; ++i)
@@ -1443,10 +1443,6 @@ void  LLInventoryModel::fetchInventoryResponder::result(const LLSD& content)
 		{
 			folder_id = titem->getParentUUID();
 		}
-		else
-		{
-			all_one_folder = false;
-		}
 	}
 
 	U32 changes = 0x0;
@@ -1460,10 +1456,9 @@ void  LLInventoryModel::fetchInventoryResponder::result(const LLSD& content)
 }
 
 //If we get back an error (not found, etc...), handle it here
-void LLInventoryModel::fetchInventoryResponder::error(U32 status, const std::string& reason)
+void LLInventoryModel::fetchInventoryResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	llinfos << "fetchInventory::error "
-		<< status << ": " << reason << llendl;
+	llwarns << "fetchInventory error [status:" << status << "]: " << content << llendl;
 	gInventory.notifyObservers();
 }
 
@@ -1996,8 +1991,9 @@ bool LLInventoryModel::loadSkeleton(
 		{
 			LLViewerInventoryCategory* cat = (*invalid_cat_it).get();
 			cat->setVersion(NO_VERSION);
-			llinfos << "Invalidating category name: " << cat->getName() << " UUID: " << cat->getUUID() << " due to invalid descendents cache" << llendl;
+			LL_DEBUGS("Inventory") << "Invalidating category name: " << cat->getName() << " UUID: " << cat->getUUID() << " due to invalid descendents cache" << llendl;
 		}
+		LL_INFOS("Inventory") << "Invalidated " << invalid_categories.size() << " categories due to invalid descendents cache" << llendl;
 
 		// At this point, we need to set the known descendents for each
 		// category which successfully cached so that we do not
@@ -2534,7 +2530,6 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account)
 	item_array_t items;
 	update_map_t update;
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
-	bool all_one_folder = true;
 	LLUUID folder_id;
 	// Does this loop ever execute more than once?
 	for(S32 i = 0; i < count; ++i)
@@ -2565,10 +2560,6 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account)
 		if (folder_id.isNull())
 		{
 			folder_id = titem->getParentUUID();
-		}
-		else
-		{
-			all_one_folder = false;
 		}
 	}
 	if(account)
@@ -3295,8 +3286,71 @@ void LLInventoryModel::updateItemsOrder(LLInventoryModel::item_array_t& items, c
 	}
 }
 
+//* @param[in] items vector of items in order to be saved.
+/*
+void LLInventoryModel::saveItemsOrder(const LLInventoryModel::item_array_t& items)
+{
+	int sortField = 0;
 
+	// current order is saved by setting incremental values (1, 2, 3, ...) for the sort field
+	for (item_array_t::const_iterator i = items.begin(); i != items.end(); ++i)
+	{
+		LLViewerInventoryItem* item = *i;
 
+		item->setSortField(++sortField);
+		item->setComplete(TRUE);
+		item->updateServer(FALSE);
+
+		updateItem(item);
+
+		// Tell the parent folder to refresh its sort order.
+		addChangedMask(LLInventoryObserver::SORT, item->getParentUUID());
+	}
+
+	notifyObservers();
+}
+*/
+// See also LLInventorySort where landmarks in the Favorites folder are sorted.
+class LLViewerInventoryItemSort
+{
+public:
+	bool operator()(const LLPointer<LLViewerInventoryItem>& a, const LLPointer<LLViewerInventoryItem>& b)
+	{
+		return a->getSortField() < b->getSortField();
+	}
+};
+
+/**
+ * Sorts passed items by LLViewerInventoryItem sort field.
+ *
+ * @param[in, out] items - array of items, not sorted.
+ */
+//static void rearrange_item_order_by_sort_field(LLInventoryModel::item_array_t& items)
+//{
+//	static LLViewerInventoryItemSort sort_functor;
+//	std::sort(items.begin(), items.end(), sort_functor);
+//}
+
+// * @param source_item_id - LLUUID of the source item to be moved into new position
+// * @param target_item_id - LLUUID of the target item before which source item should be placed.
+/*
+void LLInventoryModel::rearrangeFavoriteLandmarks(const LLUUID& source_item_id, const LLUUID& target_item_id)
+{
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLIsType is_type(LLAssetType::AT_LANDMARK);
+	LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+	gInventory.collectDescendentsIf(favorites_id, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
+
+	// ensure items are sorted properly before changing order. EXT-3498
+	rearrange_item_order_by_sort_field(items);
+
+	// update order
+	updateItemsOrder(items, source_item_id, target_item_id);
+
+	saveItemsOrder(items);
+}
+*/
 //----------------------------------------------------------------------------
 
 // *NOTE: DEBUG functionality

@@ -21,6 +21,10 @@ include_directories(
     ${LLXML_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
     )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    ${LLXML_SYSTEM_INCLUDE_DIRS}
+    )
 
 set(win_crash_logger_SOURCE_FILES
     win_crash_logger.cpp

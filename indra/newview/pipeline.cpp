@@ -71,6 +71,7 @@
 #include "llhudtext.h"
 #include "lllightconstants.h"
 #include "llmeshrepository.h"
+#include "llpipelinelistener.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
 #include "llsky.h"
@@ -380,6 +381,8 @@ S32		LLPipeline::sVisibleLightCount = 0;
 F32		LLPipeline::sMinRenderSize = 0.f;
 BOOL	LLPipeline::sRenderingHUDs;
 
+// EventHost API LLPipeline listener.
+static LLPipelineListener sPipelineListener;
 
 static LLCullResult* sCull = NULL;
 
@@ -495,19 +498,29 @@ void LLPipeline::init()
 	LLViewerStats::getInstance()->mTrianglesDrawnStat.reset();
 	resetFrameStats();
 
-	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
+	if (gSavedSettings.getBOOL("DisableAllRenderFeatures"))
 	{
-		mRenderTypeEnabled[i] = TRUE; //all rendering types start enabled
+		clearAllRenderDebugFeatures();
 	}
+	else
+	{
+		setAllRenderDebugFeatures(); // By default, all debugging features on
+	}
+	clearAllRenderDebugDisplays(); // All debug displays off
 
-	mRenderDebugFeatureMask = 0xffffffff; // All debugging features on
-	mRenderDebugMask = 0;	// All debug starts off
-
+	if (gSavedSettings.getBOOL("DisableAllRenderTypes"))
+	{
+		clearAllRenderTypes();
+	}
+	else
+	{
+		setAllRenderTypes(); // By default, all rendering types start enabled
 	// Don't turn on ground when this is set
 	// Mac Books with intel 950s need this
 	if(!gSavedSettings.getBOOL("RenderGround"))
 	{
 		toggleRenderType(RENDER_TYPE_GROUND);
+	}
 	}
 
 	// make sure RenderPerformanceTest persists (hackity hack hack)
@@ -911,7 +924,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		if (!mDeferredScreen.allocate(resX, resY, GL_SRGB8_ALPHA8, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!addDeferredAttachments(mDeferredScreen)) return false;
-		
+	
 		GLuint screenFormat = GL_RGBA16;
 		if (gGLManager.mIsATI)
 		{
@@ -1215,7 +1228,7 @@ void LLPipeline::createGLBuffers()
 
 		for (U32 i = 0; i < 3; i++)
 		{
-			mGlow[i].allocate(512,glow_res, GL_RGBA,FALSE,FALSE);
+			mGlow[i].allocate(512,glow_res,GL_RGBA,FALSE,FALSE);
 		}
 
 		allocateScreenBuffer(resX,resY);
@@ -1664,7 +1677,7 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 	{
 		alpha = alpha || (imagep->getComponents() == 4 && imagep->getType() != LLViewerTexture::MEDIA_TEXTURE) || (imagep->getComponents() == 2);
 	}
-	
+
 	if (alpha && te->getMaterialParams())
 	{
 		switch (te->getMaterialParams()->getDiffuseAlphaMode())
@@ -5623,7 +5636,7 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 		llassert( poolp == mBumpPool );
 		mBumpPool = NULL;
 		break;
-			
+	
 	case LLDrawPool::POOL_MATERIALS:
 		llassert(poolp == mMaterialsPool);
 		mMaterialsPool = NULL;
@@ -6028,7 +6041,6 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			if (light->isLightSpotlight() // directional (spot-)light
 			    && (LLPipeline::sRenderDeferred || RenderSpotLightsInNondeferred)) // these are only rendered as GL spotlights if we're in deferred rendering mode *or* the setting forces them on
 			{
-				LLVector3 spotparams = light->getSpotLightParams();
 				LLQuaternion quat = light->getRenderRotation();
 				LLVector3 at_axis(0,0,-1); // this matches deferred rendering's object light direction
 				at_axis *= quat;
@@ -6559,6 +6571,22 @@ void LLPipeline::setRenderDebugFeatureControl(U32 bit, bool value)
 	}
 }
 
+void LLPipeline::pushRenderDebugFeatureMask()
+{
+	mRenderDebugFeatureStack.push(mRenderDebugFeatureMask);
+}
+
+void LLPipeline::popRenderDebugFeatureMask()
+{
+	if (mRenderDebugFeatureStack.empty())
+	{
+		llerrs << "Depleted render feature stack." << llendl;
+	}
+
+	mRenderDebugFeatureMask = mRenderDebugFeatureStack.top();
+	mRenderDebugFeatureStack.pop();
+}
+
 // static
 void LLPipeline::setRenderScriptedBeacons(BOOL val)
 {
@@ -6995,7 +7023,7 @@ void LLPipeline::renderObjects(U32 type, U32 mask, BOOL texture, BOOL batch_text
 	assertInitialized();
 	gGL.loadMatrix(gGLModelView);
 	gGLLastMatrix = NULL;
-	mSimplePool->pushBatches(type, mask, texture, batch_texture);
+	mAlphaPool->pushBatches(type, mask, texture, batch_texture);
 	gGL.loadMatrix(gGLModelView);
 	gGLLastMatrix = NULL;		
 }
@@ -7494,7 +7522,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 					mScreen.bindTexture(0, channel);
 					gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 				}
-				
+
 				if (!LLViewerCamera::getInstance()->cameraUnderWater())
 				{
 					shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2);
@@ -7542,7 +7570,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			{
 				mScreen.bindTexture(0, channel);
 			}
-			
+
 			if (!LLViewerCamera::getInstance()->cameraUnderWater())
 			{
 				shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2);
@@ -10653,6 +10681,22 @@ void LLPipeline::clearRenderTypeMask(U32 type, ...)
 	if (type > END_RENDER_TYPES)
 	{
 		llerrs << "Invalid render type." << llendl;
+	}
+}
+
+void LLPipeline::setAllRenderTypes()
+{
+	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
+	{
+		mRenderTypeEnabled[i] = TRUE;
+	}
+}
+
+void LLPipeline::clearAllRenderTypes()
+{
+	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
+	{
+		mRenderTypeEnabled[i] = FALSE;
 	}
 }
 

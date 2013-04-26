@@ -28,6 +28,10 @@ include_directories(
     ${GOOGLEMOCK_INCLUDE_DIRS}
     ${TUT_INCLUDE_DIR}
     )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    ${LLXML_SYSTEM_INCLUDE_DIRS}
+    )
 
 set(test_SOURCE_FILES
     io.cpp

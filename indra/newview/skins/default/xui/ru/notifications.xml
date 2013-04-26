@@ -516,6 +516,24 @@
 		</url>
 		<usetemplate ignoretext="Мой графический драйвер устарел" name="okcancelignore" notext="Нет" yestext="Да"/>
 	</notification>
+	<notification name="AMDOldDriver">
+		Возможно, для вашей видеокарты имеется более новый драйвер.  Обновление драйвера может существенно повысить быстродействие.
+
+    Проверить наличие обновления для драйвера по адресу [_URL]?
+		<url name="url">
+			http://support.amd.com/us/Pages/AMDSupportHub.aspx
+		</url>
+		<usetemplate ignoretext="Мой графический драйвер устарел" name="okcancelignore" notext="Нет" yestext="Да"/>
+	</notification>
+	<notification name="NVIDIAOldDriver">
+		Возможно, для вашей видеокарты имеется более новый драйвер.  Обновление драйвера может существенно повысить быстродействие.
+
+    Проверить наличие обновления для драйвера по адресу [_URL]?
+		<url name="url">
+			http://www.nvidia.com/Download/index.aspx?lang=ru-ru
+		</url>
+		<usetemplate ignoretext="Мой графический драйвер устарел" name="okcancelignore" notext="Нет" yestext="Да"/>
+	</notification>
 	<notification name="UnknownGPU">
 		В вашей системе установлена графическая карта, которую [APP_NAME] не может распознать.
 Так часто бывает, если новое оборудование еще не было проверено на работу с [APP_NAME].  Скорее всего, оно будет работать нормально, но, возможно, придется отрегулировать параметры графики.
@@ -1546,10 +1564,13 @@ http://secondlife.com/download.
 		Сейчас невозможно предложить дружбу. Повторите попытку через минуту.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="BusyModeSet">
-		Установлен режим «Занят».
-Сообщения чата и IM будут скрыты. На IM-сообщения будет возвращаться заданный ответ в режиме «Занят». Все предложения телепортации будут отклоняться. Все предложения инвентаря будут направлены в корзину.
-		<usetemplate ignoretext="Смена моего статуса на режим «Занят»" name="okignore" yestext="OK"/>
+	<notification name="DoNotDisturbModeSet">
+		Режим «Не беспокоить» включен.  Вы не будете получать уведомлений о входящих вызовах.
+
+- Другие жители будут получать ваш ответ, установленный для режима «Не беспокоить» (Настройки &gt; Общие).
+- Предложения телепортации будут отклоняться.
+- Голосовые вызовы будут отклоняться.
+		<usetemplate ignoretext="Смена моего статуса на режим «Не беспокоить»" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="JoinedTooManyGroupsMember">
 		Достигнуто максимальное количество групп. Выйдите из другой группы, прежде чем вступать в эту, или отклоните предложение.
@@ -2033,6 +2054,10 @@ http://secondlife.com/download.
 		Перейти на [http://secondlife.com/account/ информационную панель], чтобы увидеть историю аккаунта?
 		<usetemplate ignoretext="Запустить браузер для просмотра истории аккаунта" name="okcancelignore" notext="Отмена" yestext="Перейти на страницу"/>
 	</notification>
+	<notification name="ConfirmAddingChatParticipants">
+		При добавлении участника в существующий разговор будет создан новый разговор.  Все участники получат уведомления о новом разговоре.
+		<usetemplate ignoretext="Подтвердите добавление участников чата" name="okcancelignore" notext="Отмена" yestext="ОК"/>
+	</notification>
 	<notification name="ConfirmQuit">
 		Выйти из программы?
 		<usetemplate ignoretext="Подтверждать перед выходом" name="okcancelignore" notext="Не выходить" yestext="Выйти"/>
@@ -2107,14 +2132,14 @@ http://secondlife.com/download.
 			<button ignore="Не заменять" name="No" text="Отмена"/>
 		</form>
 	</notification>
-	<notification label="Предупреждение о режиме «Занят»" name="BusyModePay">
-		У вас включен режим «Занят», поэтому вы не получите никаких предметов, предлагаемых в обмен на этот платеж.
+	<notification label="Предупреждение режима «Не беспокоить»" name="DoNotDisturbModePay">
+		Включен режим «Не беспокоить». Вы не будете получать никаких предметов, предлагаемых в обмен за этот платеж.
 
-Хотите отключить режим «Занят» до завершения этой транзакции?
+Отключить режим «Не беспокоить» перед завершением этой операции?
 		<form name="form">
-			<ignore name="ignore" text="Я собираюсь заплатить за пользователя или объект, когда включен режим «Занят»"/>
-			<button ignore="Всегда отключать режим «Занят»" name="Yes" text="OK"/>
-			<button ignore="Не отключать режим «Занят»" name="No" text="Отмена"/>
+			<ignore name="ignore" text="Я собираюсь заплатить за пользователя или объект, когда включен режим «Не беспокоить»"/>
+			<button ignore="Всегда выходить из режима «Не беспокоить»" name="Yes" text="OK"/>
+			<button ignore="Не выходить из режима «Не беспокоить»" name="No" text="Отмена"/>
 		</form>
 	</notification>
 	<notification name="ConfirmDeleteProtectedCategory">
@@ -2249,11 +2274,8 @@ http://secondlife.com/download.
 	<notification name="GroupNotice">
 		Раздел: [SUBJECT], сообщение: [MESSAGE]
 	</notification>
-	<notification name="FriendOnline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; в сети
-	</notification>
-	<notification name="FriendOffline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; не в сети
+	<notification name="FriendOnlineOffline">
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; [STATUS]
 	</notification>
 	<notification name="AddSelfFriend">
 		Вы лучше всех, но нельзя добавить в друзья себя самого.
@@ -2481,13 +2503,6 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="DynamicPathfindingDisabled">
 		В этом регионе не разрешен динамический поиск пути.  Возможны нарушения работы скриптовых объектов с использованием вызовов LSL поиска пути.
-	</notification>
-	<notification name="PathfindingRebakeNavmesh">
-		Изменение некоторых объектов в регионе может привести к неправильному поведению других подвижных объектов.  Чтобы исправить их поведение, нажмите кнопку «Восстановить регион».  Более подробная информация – по ссылке «Справка».
-		<url name="url">
-			http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
-		</url>
-		<usetemplate helptext="Справка" ignoretext="Изменение некоторых объектов в регионе может привести к неправильному поведению других подвижных объектов." name="okhelpignore" yestext="OK"/>
 	</notification>
 	<notification name="PathfindingCannotRebakeNavmesh">
 		Произошла ошибка.  Возможно, неполадка в сети или на сервере, или у вас нет прав на строительство.  Иногда для устранения этой проблемы достаточно выйти и снова войти.
@@ -2751,7 +2766,7 @@ http://secondlife.com/download.
 	<notification name="ScriptQuestionCaution">
 		Предупреждение. Объект «&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;» требует полного доступа к вашему аккаунту для Linden-долларов. Если разрешить такой доступ, объект сможет в любое время снимать средства с вашего аккаунта или полностью опустошать его неоднократно и без предупреждения.
   
-Такое требование чаще всего незаконно. Не разрешайте доступ к своему аккаунту, если только не полностью осознаете, зачем он нужен этому объекту.
+Не разрешайте доступ к своему аккаунту, если только не полностью осознаете, зачем он нужен этому объекту.
 		<form name="form">
 			<button name="Grant" text="Разрешить полный доступ"/>
 			<button name="Deny" text="Отклонить"/>
@@ -3332,5 +3347,633 @@ http://secondlife.com/download.
 	<notification name="PathfindingDeleteMultipleItems">
 		Вы удаляете несколько предметов ([NUM_ITEMS]).  Продолжить?
 		<usetemplate ignoretext="Удалить несколько предметов?" name="okcancelignore" notext="Нет" yestext="Да"/>
+	</notification>
+	<notification name="AvatarFrozen">
+		[AV_FREEZER] заморозил вас. В это время вы не можете перемещаться и выполнять другие действия с миром.
+	</notification>
+	<notification name="AvatarFrozenDuration">
+		[AV_FREEZER] заморозил вас на [AV_FREEZE_TIME] сек. В это время вы не можете перемещаться и выполнять другие действия с миром.
+	</notification>
+	<notification name="YouFrozeAvatar">
+		Аватар заморожен.
+	</notification>
+	<notification name="AvatarHasUnFrozenYou">
+		[AV_FREEZER] разморозил вас.
+	</notification>
+	<notification name="AvatarUnFrozen">
+		Аватар разморожен.
+	</notification>
+	<notification name="AvatarFreezeFailure">
+		Не удалось заморозить: у вас нет прав администратора на этом участке.
+	</notification>
+	<notification name="AvatarFreezeThaw">
+		Заморозка кончилась, занимайтесь своим делом.
+	</notification>
+	<notification name="AvatarCantFreeze">
+		Невозможно заморозить этого пользователя.
+	</notification>
+	<notification name="NowOwnObject">
+		Вы стали владельцем объекта [OBJECT_NAME]
+	</notification>
+	<notification name="CantRezOnLand">
+		Нельзя выложить объект на [OBJECT_POS]: это не разрешено владельцем земли.  Узнать, кто владелец, можно с помощью инструмента «Земля».
+	</notification>
+	<notification name="RezFailTooManyRequests">
+		Невозможно выложить объект: слишком много запросов.
+	</notification>
+	<notification name="SitFailCantMove">
+		Нельзя сесть: сейчас вы не можете двигаться.
+	</notification>
+	<notification name="SitFailNotAllowedOnLand">
+		Вам не разрешено садиться на этой земле.
+	</notification>
+	<notification name="SitFailNotSameRegion">
+		Попробуйте переместиться ближе.  Нельзя сесть на объект:
+он находится в другом регионе.
+	</notification>
+	<notification name="NoNewObjectRegionFull">
+		Невозможно создать новый объект. Регион уже заполнен.
+	</notification>
+	<notification name="FailedToPlaceObject">
+		Не удалось поместить объект в указанное место.  Повторите попытку.
+	</notification>
+	<notification name="NoOwnNoGardening">
+		Вы не можете создавать деревья и траву на чужой земле.
+	</notification>
+	<notification name="NoCopyPermsNoObject">
+		Не удалось скопировать: вам не разрешено копировать объект «[OBJ_NAME]».
+	</notification>
+	<notification name="NoTransPermsNoObject">
+		Не удалось скопировать: объект «[OBJ_NAME]» нельзя перенести к вам.
+	</notification>
+	<notification name="AddToNavMeshNoCopy">
+		Не удалось скопировать: объект «[OBJ_NAME]» относится к навигационной сетке.
+	</notification>
+	<notification name="DupeWithNoRootsSelected">
+		Выбран дубликат без корневых объектов.
+	</notification>
+	<notification name="CantDupeCuzRegionIsFull">
+		Невозможно дублировать объекты: регион заполнен.
+	</notification>
+	<notification name="CantDupeCuzParcelNotFound">
+		Невозможно дублировать объекты: не удалось найти их участок.
+	</notification>
+	<notification name="CantCreateCuzParcelFull">
+		Нельзя создать объект: 
+участок уже заполнен.
+	</notification>
+	<notification name="RezAttemptFailed">
+		Не удалось выложить объект.
+	</notification>
+	<notification name="ToxicInvRezAttemptFailed">
+		Невозможно создать элемент, который вызвал проблемы в этом регионе.
+	</notification>
+	<notification name="InvItemIsBlacklisted">
+		Этот предмет инвентаря находится в черном списке.
+	</notification>
+	<notification name="NoCanRezObjects">
+		Сейчас вам не разрешено создавать объекты.
+	</notification>
+	<notification name="LandSearchBlocked">
+		Поиск по земле заблокирован.
+Вы провели слишком много операций поиска за короткое время.
+Повторите попытку через минуту.
+	</notification>
+	<notification name="NotEnoughResourcesToAttach">
+		Недостаточно свободных ресурсов скриптинга для присоединения объекта!
+	</notification>
+	<notification name="YouDiedAndGotTPHome">
+		Вы умерли и были телепортированы в ваше домашнее местоположение
+	</notification>
+	<notification name="EjectComingSoon">
+		Вам запрещено здесь присутствовать; у вас есть [EJECT_TIME] сек, чтобы покинуть это место.
+	</notification>
+	<notification name="NoEnterServerFull">
+		Вам нет доступа в этот регион: 
+серпер переполнен.
+	</notification>
+	<notification name="SaveBackToInvDisabled">
+		Сохранение в инвентаре отключено.
+	</notification>
+	<notification name="NoExistNoSaveToContents">
+		Нельзя сохранить «[OBJ_NAME]» в содержимом объекта: объект, из которого оно было выложено, уже не существует.
+	</notification>
+	<notification name="NoModNoSaveToContents">
+		Нельзя сохранить «[OBJ_NAME]» в содержимом объекта: вам не разрешено изменять объект «[DEST_NAME]».
+	</notification>
+	<notification name="NoSaveBackToInvDisabled">
+		Невозможно сохранить «[OBJ_NAME]» в инвентаре: эта операция запрещена.
+	</notification>
+	<notification name="NoCopyNoSelCopy">
+		Нельзя скопировать выбранное: вам не разрешено копировать объект «[OBJ_NAME]».
+	</notification>
+	<notification name="NoTransNoSelCopy">
+		Невозможно скопировать выбранный предмет: объект «[OBJ_NAME]» не переносится.
+	</notification>
+	<notification name="NoTransNoCopy">
+		Невозможно скопировать выбранный предмет: объект «[OBJ_NAME]» не переносится.
+	</notification>
+	<notification name="NoPermsNoRemoval">
+		Удаление объекта «[OBJ_NAME]» из симулятора запрещено системой разрешений.
+	</notification>
+	<notification name="NoModNoSaveSelection">
+		Нельзя сохранить выбранное: вам не разрешено изменять объект «[OBJ_NAME]».
+	</notification>
+	<notification name="NoCopyNoSaveSelection">
+		Невозможно сохранить выбранный предмет: объект «[OBJ_NAME]» не копируется.
+	</notification>
+	<notification name="NoModNoTaking">
+		Нельзя забрать выбранное: вам не разрешено изменять объект «[OBJ_NAME]».
+	</notification>
+	<notification name="RezDestInternalError">
+		Внутренняя ошибка: неизвестный тип места назначения.
+	</notification>
+	<notification name="DeleteFailObjNotFound">
+		Невозможно удалить: объект не найден
+	</notification>
+	<notification name="SorryCantEjectUser">
+		Невозможно выбросить этого пользователя.
+	</notification>
+	<notification name="RegionSezNotAHome">
+		Вам не разрешено устанавливать свое домашнее местоположение в этом регионе.
+	</notification>
+	<notification name="HomeLocationLimits">
+		Задать домашнее местоположение можно только на вашей земле или в Инфохабе материка.
+	</notification>
+	<notification name="HomePositionSet">
+		Задано положение дома.
+	</notification>
+	<notification name="AvatarEjected">
+		Аватар выброшен.
+	</notification>
+	<notification name="AvatarEjectFailed">
+		Не удалось выбросить: у вас нет прав администратора на этом участке.
+	</notification>
+	<notification name="CantMoveObjectParcelFull">
+		Нельзя переместить объект «[OBJECT_NAME]» в позицию «[OBJ_POSITION]» региона [REGION_NAME]: участок уже заполнен.
+	</notification>
+	<notification name="CantMoveObjectParcelPerms">
+		Нельзя переместить объект «[OBJECT_NAME]» в позицию
+«[OBJ_POSITION]» региона [REGION_NAME]: вашим объектам не разрешено присутствовать на этом участке.
+	</notification>
+	<notification name="CantMoveObjectParcelResources">
+		Нельзя переместить объект «[OBJECT_NAME]» в позицию
+«[OBJ_POSITION]» региона [REGION_NAME]: на этом участке недостаточно ресурсов для данного объекта.
+	</notification>
+	<notification name="CantMoveObjectRegionVersion">
+		Нельзя переместить объект «[OBJECT_NAME]» в позицию
+[OBJ_POSITION] региона [REGION_NAME]: в другом регионе работает старая версия симулятора, которая не поддерживает прием этого объекта через границу регионов.
+	</notification>
+	<notification name="CantMoveObjectNavMesh">
+		Нельзя переместить объект «[OBJECT_NAME]» в позицию
+«[OBJ_POSITION]» региона [REGION_NAME]: вам не разрешено изменять навигационную сетку за пределами региона.
+	</notification>
+	<notification name="CantMoveObjectWTF">
+		Нельзя переместить объект «[OBJECT_NAME]» в позицию
+[OBJ_POSITION] региона [REGION_NAME] по неизвестной причине. ([FAILURE_TYPE])
+	</notification>
+	<notification name="NoPermModifyObject">
+		У вас нет прав на изменение этого объекта
+	</notification>
+	<notification name="CantEnablePhysObjContributesToNav">
+		Нельзя включить физику для объекта, который относится к навигационной сетке.
+	</notification>
+	<notification name="CantEnablePhysKeyframedObj">
+		Нельзя включить физику для объектов с ключевыми кадрами.
+	</notification>
+	<notification name="CantEnablePhysNotEnoughLandResources">
+		Нельзя включить физику для объекта -- недостаточно земельных ресурсов.
+	</notification>
+	<notification name="CantEnablePhysCostTooGreat">
+		Нельзя включить физику для объекта с расходом ресурсов физики больше [MAX_OBJECTS]
+	</notification>
+	<notification name="PhantomWithConcavePiece">
+		Этот объект не может содержать вогнутых элементов: это фантом, который относится к навигационной сетке.
+	</notification>
+	<notification name="UnableAddItem">
+		Невозможно добавить предмет!
+	</notification>
+	<notification name="UnableEditItem">
+		Редактирование невозможно!
+	</notification>
+	<notification name="NoPermToEdit">
+		Редактирование не разрешено.
+	</notification>
+	<notification name="NoPermToCopyInventory">
+		Не разрешено копировать этот инвентарь.
+	</notification>
+	<notification name="CantSaveItemDoesntExist">
+		Нельзя сохранить в содержимом объекта: предмет уже не существует.
+	</notification>
+	<notification name="CantSaveItemAlreadyExists">
+		Нельзя сохранить в содержимом объекта: предмет с таким названием уже есть в инвентаре
+	</notification>
+	<notification name="CantSaveModifyAttachment">
+		Нельзя сохранить в содержимом объекта: это приведет к изменению разрешений прикрепленного объекта.
+	</notification>
+	<notification name="TooManyScripts">
+		Слишком много скриптов.
+	</notification>
+	<notification name="UnableAddScript">
+		Невозможно добавить скрипт!
+	</notification>
+	<notification name="AssetServerTimeoutObjReturn">
+		Сервер активов не ответил в заданное время.  Объект возвращен в симулятор.
+	</notification>
+	<notification name="RegionDisablePhysicsShapes">
+		В этом регионе не разрешены фигуры с физическими данными.
+	</notification>
+	<notification name="NoModNavmeshAcrossRegions">
+		Нельзя изменять навигационную сетку за пределами региона.
+	</notification>
+	<notification name="NoSetPhysicsPropertiesOnObjectType">
+		Нельзя задать свойства физики для объекта этого типа.
+	</notification>
+	<notification name="NoSetRootPrimWithNoShape">
+		Нельзя задать корневой примитив без фигуры.
+	</notification>
+	<notification name="NoRegionSupportPhysMats">
+		В этом регионе не разрешены материалы с физическими данными.
+	</notification>
+	<notification name="OnlyRootPrimPhysMats">
+		Настройка материалов с физическими данными разрешена только для корневых примитивов.
+	</notification>
+	<notification name="NoSupportCharacterPhysMats">
+		Присвоение персонажам материалов с физическими данными еще не поддерживается.
+	</notification>
+	<notification name="InvalidPhysMatProperty">
+		Одно или несколько свойств указанного материала с физическими данными недопустимы.
+	</notification>
+	<notification name="NoPermsAlterStitchingMeshObj">
+		Не разрешается изменять тип стыковки меш-объекта.
+	</notification>
+	<notification name="NoPermsAlterShapeMeshObj">
+		Не разрешается изменять форму меш-объекта
+	</notification>
+	<notification name="FullRegionCantEnter">
+		Вам нет доступа в этот регион: \nрегион заполнен.
+	</notification>
+	<notification name="LinkFailedOwnersDiffer">
+		Связь невозможна -- разные владельцы
+	</notification>
+	<notification name="LinkFailedNoModNavmeshAcrossRegions">
+		Связь невозможна – нельзя изменять навигационную сетку за пределами региона.
+	</notification>
+	<notification name="LinkFailedNoPermToEdit">
+		Связь невозможна: у вас нет разрешения на редактирование.
+	</notification>
+	<notification name="LinkFailedTooManyPrims">
+		Связь невозможна -- слишком много примитивов
+	</notification>
+	<notification name="LinkFailedCantLinkNoCopyNoTrans">
+		Связь невозможна -- нельзя связать некопируемый и непереносимый объекты
+	</notification>
+	<notification name="LinkFailedNothingLinkable">
+		Связь невозможна -- нет связываемых объектов.
+	</notification>
+	<notification name="LinkFailedTooManyPathfindingChars">
+		Связь невозможна -- слишком много персонажей с поиском пути
+	</notification>
+	<notification name="LinkFailedInsufficientLand">
+		Связь невозможна -- недостаточно земельных ресурсов
+	</notification>
+	<notification name="LinkFailedTooMuchPhysics">
+		Объект использует слишком много ресурсов физики -- динамическое поведение отключено.
+	</notification>
+	<notification name="TeleportedHomeByObjectOnParcel">
+		Вы были телепортированы домой объектом «[OBJECT_NAME]» на участке «[PARCEL_NAME]»
+	</notification>
+	<notification name="TeleportedHomeByObject">
+		Вы были телепортированы домой объектом «[OBJECT_NAME]»
+	</notification>
+	<notification name="TeleportedByAttachment">
+		Вы были телепортированы прикрепленным объектом [ITEM_ID]
+	</notification>
+	<notification name="TeleportedByObjectOnParcel">
+		Вы были телепортированы объектом «[OBJECT_NAME]» на участке «[PARCEL_NAME]»
+	</notification>
+	<notification name="TeleportedByObjectOwnedBy">
+		Вы были телепортированы объектом «[OBJECT_NAME]», владелец – [OWNER_ID]
+	</notification>
+	<notification name="TeleportedByObjectUnknownUser">
+		Вы были телепортированы объектом «[OBJECT_NAME]», владелец неизвестен.
+	</notification>
+	<notification name="CantCreateObjectRegionFull">
+		Невозможно создать запрошенный объект. Регион уже заполнен.
+	</notification>
+	<notification name="CantAttackMultipleObjOneSpot">
+		Нельзя присоединить несколько объектов к одной точке.
+	</notification>
+	<notification name="CantCreateMultipleObjAtLoc">
+		Здесь нельзя создать несколько объектов.
+	</notification>
+	<notification name="UnableToCreateObjTimeOut">
+		Невозможно создать запрошенный объект. Объекта нет в базе данных.
+	</notification>
+	<notification name="UnableToCreateObjUnknown">
+		Невозможно создать запрошенный объект. Истекло время запроса. Повторите попытку.
+	</notification>
+	<notification name="UnableToCreateObjMissingFromDB">
+		Невозможно создать запрошенный объект. Повторите попытку.
+	</notification>
+	<notification name="RezFailureTookTooLong">
+		Не удалось выложить, загрузка нужного объекта длится слишком долго.
+	</notification>
+	<notification name="FailedToPlaceObjAtLoc">
+		Не удалось поместить объект в указанное место.  Повторите попытку.
+	</notification>
+	<notification name="CantCreatePlantsOnLand">
+		Вам нельзя создавать растения на этой земле.
+	</notification>
+	<notification name="CantRestoreObjectNoWorldPos">
+		Невозможно восстановить объект. Не найдена позиция в игровом мире.
+	</notification>
+	<notification name="CantRezObjectInvalidMeshData">
+		Невозможно выложить объект: его данные сетки неверны.
+	</notification>
+	<notification name="CantRezObjectTooManyScripts">
+		Невозможно выложить объект: в этом регионе уже сликом много скриптов.
+	</notification>
+	<notification name="CantCreateObjectNoAccess">
+		Ваши привилегии доступа не разрешают создание объектов на этом месте.
+	</notification>
+	<notification name="CantCreateObject">
+		Сейчас вам не разрешено создавать объекты.
+	</notification>
+	<notification name="InvalidObjectParams">
+		Неверные параметры объекта
+	</notification>
+	<notification name="CantDuplicateObjectNoAcess">
+		Ваши привилегии доступа не разрешают дублирование объектов на этом месте.
+	</notification>
+	<notification name="CantChangeShape">
+		Вам не разрешено изменять эту фигуру.
+	</notification>
+	<notification name="NoAccessToClaimObjects">
+		Ваши привилегии доступа не разрешают претендовать на объекты на этом месте.
+	</notification>
+	<notification name="DeedFailedNoPermToDeedForGroup">
+		Не удалось передать: вам не разрешено передавать объекты для этой группы.
+	</notification>
+	<notification name="NoPrivsToBuyObject">
+		Ваши привилегии доступа не разрешают покупать объекты на этом месте.
+	</notification>
+	<notification name="CantAttachObjectAvatarSittingOnIt">
+		Невозможно присоединить объект: на нем сидит аватар.
+	</notification>
+	<notification name="WhyAreYouTryingToWearShrubbery">
+		Деревья и траву нельзя носить как прикрепленные объекты.
+	</notification>
+	<notification name="CantAttachGroupOwnedObjs">
+		Нельзя присоединять объекты, принадлежащие группе.
+	</notification>
+	<notification name="CantAttachObjectsNotOwned">
+		Нельзя прикреплять объекты, которыми вы не владеете.
+	</notification>
+	<notification name="CantAttachNavmeshObjects">
+		Невозможно присоединить объекты, которые относятся к навигационной сетке.
+	</notification>
+	<notification name="CantAttachObjectNoMovePermissions">
+		Нельзя присоединить объект: вам не разрешено его перемещать.
+	</notification>
+	<notification name="CantAttachNotEnoughScriptResources">
+		Недостаточно свободных ресурсов скриптинга для присоединения объекта!
+	</notification>
+	<notification name="CantDropItemTrialUser">
+		Здесь нельзя сбрасывать объекты; перейдите в бесплатную область для гостей.
+	</notification>
+	<notification name="CantDropMeshAttachment">
+		Нельзя сбрасывать прикрепленные меш-объекты. Отсоедините их в инвентарь, а затем выложите в игровой мир.
+	</notification>
+	<notification name="CantDropAttachmentNoPermission">
+		Не удалось сбросить прикрепленный объект: вам не разрешено оставлять его здесь.
+	</notification>
+	<notification name="CantDropAttachmentInsufficientLandResources">
+		Не удалось сбросить прикрепленный объект: не хватает свободных земельных ресурсов.
+	</notification>
+	<notification name="CantDropAttachmentInsufficientResources">
+		Не удалось сбросить прикрепленные объекты: не хватает свободных ресурсов.
+	</notification>
+	<notification name="CantDropObjectFullParcel">
+		Нельзя сбросить объект здесь.  Участок уже заполнен.
+	</notification>
+	<notification name="CantTouchObjectBannedFromParcel">
+		Нельзя коснуться/взять этот объект: вы забанены на этом участке.
+	</notification>
+	<notification name="PlzNarrowDeleteParams">
+		Уточните параметры удаления.
+	</notification>
+	<notification name="UnableToUploadAsset">
+		Невозможно отправить актив.
+	</notification>
+	<notification name="CantTeleportCouldNotFindUser">
+		Не удалось найти пользователя для телепортации домой
+	</notification>
+	<notification name="GodlikeRequestFailed">
+		режим творца недоступен
+	</notification>
+	<notification name="GenericRequestFailed">
+		не удалось выполнить общий запрос
+	</notification>
+	<notification name="CantUploadPostcard">
+		Невозможно отправить открытку.  Повторите попытку позже.
+	</notification>
+	<notification name="CantFetchInventoryForGroupNotice">
+		Невозможно получить данные инвентаря для группового уведомления.
+	</notification>
+	<notification name="CantSendGroupNoticeNotPermitted">
+		Невозможно отправить групповое уведомление -- не разрешено.
+	</notification>
+	<notification name="CantSendGroupNoticeCantConstructInventory">
+		Невозможно отправить групповое уведомление -- не удалось собрать инвентарь.
+	</notification>
+	<notification name="CantParceInventoryInNotice">
+		Невозможно проанализировать инвентарь, указанный в уведомлении.
+	</notification>
+	<notification name="TerrainUploadFailed">
+		Не удалось загрузить ландшафт.
+	</notification>
+	<notification name="TerrainFileWritten">
+		Файл ландшафта записан.
+	</notification>
+	<notification name="TerrainFileWrittenStartingDownload">
+		Файл ландшафта записан, начинается загрузка...
+	</notification>
+	<notification name="TerrainBaked">
+		Ландшафт готов.
+	</notification>
+	<notification name="TenObjectsDisabledPlzRefresh">
+		Отключены только первые 10 выбранных объектов. Обновите экран и выберите объекты снова, если требуется.
+	</notification>
+	<notification name="UpdateViewerBuyParcel">
+		Для покупки этого участка необходимо обновить клиент.
+	</notification>
+	<notification name="CantBuyParcelNotForSale">
+		Невозможно купить, этот участок не предназначен для продажи.
+	</notification>
+	<notification name="CantBuySalePriceOrLandAreaChanged">
+		Невозможно купить: цена или площадь земли изменились.
+	</notification>
+	<notification name="CantBuyParcelNotAuthorized">
+		Вам не разрешено покупать этот участок.
+	</notification>
+	<notification name="CantBuyParcelAwaitingPurchaseAuth">
+		Вы не можете приобрести этот участок: он уже ожидает подтверждения покупки
+	</notification>
+	<notification name="CantBuildOverflowParcel">
+		Здесь нельзя создавать объекты – участок будет переполнен.
+	</notification>
+	<notification name="SelectedMultipleOwnedLand">
+		Вы выбрали землю с разными владельцами. Выберите меньшую область и повторите попытку.
+	</notification>
+	<notification name="CantJoinTooFewLeasedParcels">
+		Выбрано недостаточно арендуемых участков для вступления.
+	</notification>
+	<notification name="CantDivideLandMultipleParcelsSelected">
+		Нельзя разделить землю.\nВыбрано больше одного участка.\nВыберите меньшую территорию.
+	</notification>
+	<notification name="CantDivideLandCantFindParcel">
+		Нельзя разделить землю.\nНе удалось найти участок.\nСообщите об этой неполадке: Справка -&gt; Сообщить об ошибке...
+	</notification>
+	<notification name="CantDivideLandWholeParcelSelected">
+		Невозможно разделить землю. Выбран весь участок.\nПопробуйте выбрать территорию поменьше.
+	</notification>
+	<notification name="LandHasBeenDivided">
+		Земля разделена.
+	</notification>
+	<notification name="PassPurchased">
+		Вы приобрели пропуск.
+	</notification>
+	<notification name="RegionDisallowsClassifieds">
+		В регионе не разрешены рекламные объявления.
+	</notification>
+	<notification name="LandPassExpireSoon">
+		Ваш пропуск на эту землю скоро закончится.
+	</notification>
+	<notification name="CantSitNoSuitableSurface">
+		Нет подходящей поверхности, чтобы сесть. Попробуйте в другом месте.
+	</notification>
+	<notification name="CantSitNoRoom">
+		Здесь нет места, чтобы сесть. Попробуйте в другом месте.
+	</notification>
+	<notification name="ClaimObjectFailedNoPermission">
+		Невозможно претендовать на объект: у вас нет разрешения
+	</notification>
+	<notification name="ClaimObjectFailedNoMoney">
+		Невозможно претендовать на объект: у вас не хватает L$.
+	</notification>
+	<notification name="CantDeedGroupLand">
+		Нельзя передать землю, принадлежащую группе.
+	</notification>
+	<notification name="BuyObjectFailedNoMoney">
+		Не удалось купить объект: у вас не хватает L$.
+	</notification>
+	<notification name="BuyInventoryFailedNoMoney">
+		Не удалось купить инвентарь: у вас не хватает L$.
+	</notification>
+	<notification name="BuyPassFailedNoMoney">
+		У вас недостаточно L$, чтобы заплатить за проход на эту землю.
+	</notification>
+	<notification name="CantBuyPassTryAgain">
+		Сейчас нельзя купить пропуск.  Повторите попытку позже.
+	</notification>
+	<notification name="CantCreateObjectParcelFull">
+		Невозможно создать объект:\nучасток заполнен.
+	</notification>
+	<notification name="FailedPlacingObject">
+		Не удалось поместить объект в указанное место.  Повторите попытку.
+	</notification>
+	<notification name="CantCreateLandmarkForEvent">
+		Невозможно создать закладку для события.
+	</notification>
+	<notification name="GodBeatsFreeze">
+		Сила творца одолевает заморозку!
+	</notification>
+	<notification name="SpecialPowersRequestFailedLogged">
+		Не удалось выполнить запрос на особые способности. Запрос зарегистрирован.
+	</notification>
+	<notification name="ExpireExplanation">
+		Система сейчас не может обработать ваш запрос. Истекло время запроса.
+	</notification>
+	<notification name="DieExplanation">
+		Система не может обработать ваш запрос.
+	</notification>
+	<notification name="AddPrimitiveFailure">
+		Недостаточно денег для создания примитива.
+	</notification>
+	<notification name="RezObjectFailure">
+		Недостаточно денег для создания объекта.
+	</notification>
+	<notification name="ResetHomePositionNotLegal">
+		Недопустимое домашнее местоположение; восстановлено стандартное местоположение.
+	</notification>
+	<notification name="CantInviteRegionFull">
+		Сейчас вы не можете никого пригласить к себе: регион уже заполнен. Повторите попытку позже.
+	</notification>
+	<notification name="CantSetHomeAtRegion">
+		Вам не разрешено устанавливать свое домашнее местоположение в этом регионе.
+	</notification>
+	<notification name="ListValidHomeLocations">
+		Задать домашнее местоположение можно только на вашей земле или в Инфохабе материка.
+	</notification>
+	<notification name="SetHomePosition">
+		Домашнее местоположение задано.
+	</notification>
+	<notification name="CantDerezInventoryError">
+		Невозможно забрать объект: сбой инвентаря.
+	</notification>
+	<notification name="CantCreateRequestedInv">
+		Невозможно создать требуемый инвентарь.
+	</notification>
+	<notification name="CantCreateRequestedInvFolder">
+		Невозможно создать требуемую папку инвентаря.
+	</notification>
+	<notification name="CantCreateInventory">
+		Невозможно создать этот инвентарь.
+	</notification>
+	<notification name="CantCreateLandmark">
+		Невозможно создать закладку.
+	</notification>
+	<notification name="CantCreateOutfit">
+		Сейчас нельзя создать костюм. Попробуйте через минуту.
+	</notification>
+	<notification name="InventoryNotForSale">
+		Инвентарь не для продажи.
+	</notification>
+	<notification name="CantFindInvItem">
+		Не удалось найти предмет из инвентаря.
+	</notification>
+	<notification name="CantFindObject">
+		Не удалось найти объект.
+	</notification>
+	<notification name="CantTransfterMoneyRegionDisabled">
+		Сейчас в этом регионе запрещен перевод денег на объекты.
+	</notification>
+	<notification name="CantPayNoAgent">
+		Непонятно, кому платить.
+	</notification>
+	<notification name="CantDonateToPublicObjects">
+		Нельзя отдавать L$ за общедоступные объекты.
+	</notification>
+	<notification name="InventoryCreationInWorldObjectFailed">
+		Не удалось создать инвентарь в объекте игрового мира.
+	</notification>
+	<notification name="UserBalanceOrLandUsageError">
+		Не удалось обновить клиент из-за внутренней ошибки.  Отображаемый в клиенте баланс L$ или владение участками могут не соответствовать действительному балансу на серверах.
+	</notification>
+	<notification name="LargePrimAgentIntersect">
+		Нельзя создавать большие примитивы, которые пересекаются с другими игроками.  Повторите попытку, когда другие игроки уйдут.
+	</notification>
+	<notification name="PreferenceChatClearLog">
+		Будут удалены журналы предыдущих разговоров и все резервные копии этих файлов.
+		<usetemplate ignoretext="Подтверждать удаление журнала предыдущих разговоров." name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="PreferenceChatDeleteTranscripts">
+		Будут удалены записи всех предыдущих разговоров. Список прошедших разговоров не изменится. Все файлы с расширениями .txt и txt.backup в папке [FOLDER] будут удалены.
+		<usetemplate ignoretext="Подтверждать удаление записей." name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="PreferenceChatPathChanged">
+		Невозможно переместить файлы. Восстановлен прежний путь.
+		<usetemplate ignoretext="Невозможно переместить файлы. Восстановлен прежний путь." name="okignore" yestext="OK"/>
 	</notification>
 </notifications>

@@ -22,6 +22,10 @@ include_directories(
     ${LLXML_INCLUDE_DIRS}
     ${FREETYPE_INCLUDE_DIRS}
     )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    ${LLXML_SYSTEM_INCLUDE_DIRS}
+    )
 
 set(linux_crash_logger_SOURCE_FILES
     linux_crash_logger.cpp

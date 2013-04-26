@@ -21,6 +21,11 @@ email_status_this_is_os = true
 # Limit extent of codeticket updates to revisions after...
 codeticket_since = 3.3.0-release
 
+# Override build system default toolchain
+# Note that this will only affect automated builds.
+Linux.gcc_version = /usr/bin/gcc-4.6
+Linux.cxx_version = /usr/bin/g++-4.6
+
 # ========================================
 # Viewer Development
 # ========================================
@@ -58,6 +63,7 @@ viewer-release.login_channel = "Second Life Release"
 viewer-release.build_debug_release_separately = true
 viewer-release.build_viewer_update_version_manager = true
 viewer-release.codeticket_add_context = false
+
 
 # ========================================
 # mesh-development

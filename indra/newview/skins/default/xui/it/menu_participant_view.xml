@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="participant_manu_view">
+	<menu_item_check label="Ordina le conversazioni in base al tipo" name="sort_sessions_by_type"/>
+	<menu_item_check label="Ordina le conversazioni in base al nome" name="sort_sessions_by_name"/>
+	<menu_item_check label="Ordina le conversazioni in base alle attività più recenti" name="sort_sessions_by_recent"/>
+	<menu_item_check label="Ordina i partecipanti in base al nome" name="sort_participants_by_name"/>
+	<menu_item_check label="Ordina i partecipanti in base alle attività più recenti" name="sort_participants_by_recent"/>
+	<menu_item_call label="Preferenze chat..." name="chat_preferences"/>
+	<menu_item_call label="Preferenze privacy..." name="privacy_preferences"/>
+	<menu_item_check label="Registro conversazioni..." name="Conversation"/>
+	<menu_item_check label="Traduci chat vicina" name="Translate_chat"/>
+	<menu_item_check label="Impostazioni traduzione..." name="Translation_settings"/>
+</toggleable_menu>

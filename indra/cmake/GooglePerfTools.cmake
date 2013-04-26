@@ -10,7 +10,7 @@ if (STANDALONE)
 else (STANDALONE)
   if (WINDOWS)
     if (USE_TCMALLOC)
-       use_prebuilt_binary(tcmalloc)
+       use_prebuilt_binary(gperftools)
        set(TCMALLOC_LIBRARIES 
          debug libtcmalloc_minimal-debug
          optimized libtcmalloc_minimal)
@@ -23,7 +23,7 @@ else (STANDALONE)
   endif (WINDOWS)
   if (LINUX)
     if (USE_TCMALLOC)
-      use_prebuilt_binary(tcmalloc)
+      use_prebuilt_binary(gperftools)
       set(TCMALLOC_LIBRARIES 
         tcmalloc)
     else (USE_TCMALLOC)
