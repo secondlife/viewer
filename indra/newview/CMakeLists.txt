@@ -2118,7 +2118,7 @@ if (LL_TESTS)
   set_source_files_properties(
     llmediadataclient.cpp
     PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
+    LL_TEST_ADDITIONAL_LIBRARIES "${LLPRIMITIVE_LIBRARIES}"
   )
 
   set_source_files_properties(

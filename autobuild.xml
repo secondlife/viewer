@@ -834,9 +834,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>98994d5b0b4b3d43be22aa6a5c36e6fa</string>
+              <string>d2542614df9dd99cbb5ff67e76d4a6c1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-mock-graham/rev/272961/arch/CYGWIN/installer/gmock-1.6.0-windows-20130327.tar.bz2</string>
+	      <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-mock/rev/274899/arch/CYGWIN/installer/gmock-1.6.0-windows-20130426.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
