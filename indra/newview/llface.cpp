@@ -1624,11 +1624,18 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			U8 tex_mode = 0;
 	
+			bool tex_anim = false;
+
+			LLVOVolume* vobj = (LLVOVolume*) (LLViewerObject*) mVObjp;	
+			tex_mode = vobj->mTexAnimMode;
+
+			if (vobj->mTextureAnimp)
+			{ //texture animation is in play, override specular and normal map tex coords with diffuse texcoords
+				tex_anim = true;
+			}
+
 			if (isState(TEXTURE_ANIM))
 			{
-				LLVOVolume* vobj = (LLVOVolume*) (LLViewerObject*) mVObjp;	
-				tex_mode = vobj->mTexAnimMode;
-
 				if (!tex_mode)
 				{
 					clearState(TEXTURE_ANIM);
@@ -1643,7 +1650,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 					do_xform = false;
 				}
-
+				
 				if (getVirtualSize() >= MIN_TEX_ANIM_SIZE)
 				{ //don't override texture transform during tc bake
 					tex_mode = 0;
@@ -1802,7 +1809,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							if (mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1))
 							{
 								mVertexBuffer->getTexCoord1Strider(dst, mGeomIndex, mGeomCount, map_range);
-								if (mat)
+								if (mat && !tex_anim)
 								{
 									r  = mat->getNormalRotation();
 									mat->getNormalOffset(os, ot);
@@ -1822,7 +1829,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							if (mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD2))
 							{
 								mVertexBuffer->getTexCoord2Strider(dst, mGeomIndex, mGeomCount, map_range);
-								if (mat)
+								if (mat && !tex_anim)
 								{
 									r  = mat->getSpecularRotation();
 									mat->getSpecularOffset(os, ot);

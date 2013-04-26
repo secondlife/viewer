@@ -300,7 +300,6 @@ void main()
 	vec3 col;
 	float bloom = 0.0;
 
-	if (diffuse.a < 0.9)
 	{
 		vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
 		
@@ -331,22 +330,19 @@ void main()
 			col += spec_contrib;
 		}
 
+		col = mix(col, diffuse.rgb, diffuse.a);
+
 		if (envIntensity > 0.0)
 		{ //add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
 			col = mix(col.rgb, pow(textureCube(environmentMap, env_vec).rgb, vec3(2.2)) * 2.2, 
-				max(envIntensity-diffuse.a*2.0, 0.0)); 
+				envIntensity); 
 		}
 			
 		col = atmosLighting(col);
 		col = scaleSoftClip(col);
-
-		col = mix(col, diffuse.rgb, diffuse.a);
 	}
-	else
-	{
-		col = diffuse.rgb;
-	}
+	
 		
 	frag_color.rgb = col;
 	frag_color.a = bloom;

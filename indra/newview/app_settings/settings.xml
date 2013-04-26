@@ -8471,7 +8471,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <real>512</real>
+    <real>1024</real>
   </map>
 
   <key>RenderSpecularResY</key>
@@ -8483,7 +8483,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <real>128</real>
+    <real>256</real>
   </map>
 
   <key>RenderSpecularExponent</key>
