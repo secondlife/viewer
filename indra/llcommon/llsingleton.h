@@ -61,6 +61,7 @@ class LLSingleton : private boost::noncopyable
 private:
 	typedef enum e_init_state
 	{
+		UNINITIALIZED,
 		CONSTRUCTING,
 		INITIALIZING,
 		INITIALIZED,
@@ -68,30 +69,23 @@ private:
 	} EInitState;
 	
 	// stores pointer to singleton instance
-	// and tracks initialization state of singleton
-	struct SingletonInstanceData
+	struct SingletonLifetimeManager
 	{
-		EInitState		mInitState;
-		DERIVED_TYPE*	mSingletonInstance;
-		
-		SingletonInstanceData()
-		:	mSingletonInstance(NULL),
-			mInitState(CONSTRUCTING)
+		SingletonLifetimeManager()
 		{
 			construct();
 		}
 
-		void construct()
+		static void construct()
 		{
-			sReentrantConstructorGuard = true;
-			mSingletonInstance = new DERIVED_TYPE(); 
-			mInitState = INITIALIZING;
-			sReentrantConstructorGuard = false;
+			sData.mInitState = CONSTRUCTING;
+			sData.mInstance = new DERIVED_TYPE(); 
+			sData.mInitState = INITIALIZING;
 		}
 
-		~SingletonInstanceData()
+		~SingletonLifetimeManager()
 		{
-			if (mInitState != DELETED)
+			if (sData.mInitState != DELETED)
 			{
 				deleteSingleton();
 			}
@@ -101,9 +95,8 @@ private:
 public:
 	virtual ~LLSingleton()
 	{
-		SingletonInstanceData& data = getSingletonData();
-		data.mSingletonInstance = NULL;
-		data.mInitState = DELETED;
+		sData.mInstance = NULL;
+		sData.mInitState = DELETED;
 	}
 
 	/**
@@ -128,41 +121,45 @@ public:
 	 */
 	static void deleteSingleton()
 	{
-		delete getSingletonData().mSingletonInstance;
-		getSingletonData().mSingletonInstance = NULL;
-		getSingletonData().mInitState = DELETED;
+		delete sData.mInstance;
+		sData.mInstance = NULL;
+		sData.mInitState = DELETED;
 	}
 
 
 	static DERIVED_TYPE* getInstance()
 	{
-		SingletonInstanceData& data = getSingletonData();
+		static SingletonLifetimeManager sLifeTimeMgr;
 
-		if (data.mInitState == CONSTRUCTING)
+		switch (sData.mInitState)
 		{
+		case UNINITIALIZED:
+			// should never be uninitialized at this point
+			llassert(false);
+			break;
+		case CONSTRUCTING:
 			llerrs << "Tried to access singleton " << typeid(DERIVED_TYPE).name() << " from singleton constructor!" << llendl;
+			break;
+		case INITIALIZING:
+			// go ahead and flag ourselves as initialized so we can be reentrant during initialization
+			sData.mInitState = INITIALIZED;	
+			sData.mInstance->initSingleton(); 
+			return sData.mInstance;
+			break;
+		case INITIALIZED:
+			return sData.mInstance;
+		case DELETED:
+			llwarns << "Trying to access deleted singleton " << typeid(DERIVED_TYPE).name() << " creating new instance" << llendl;
+			SingletonLifetimeManager::construct();
+			return sData.mInstance;
 		}
 
-		if (data.mInitState == DELETED)
-		{
-			llwarns << "Trying to access deleted singleton " << typeid(DERIVED_TYPE).name() << " creating new instance" << llendl;
-			data.construct();
-		}
-		
-		if (data.mInitState == INITIALIZING) 
-		{
-			// go ahead and flag ourselves as initialized so we can be reentrant during initialization
-			data.mInitState = INITIALIZED;	
-			data.mSingletonInstance->initSingleton(); 
-		}
-		
-		return data.mSingletonInstance;
+		return NULL;
 	}
 
 	static DERIVED_TYPE* getIfExists()
 	{
-		SingletonInstanceData& data = getSingletonData();
-		return data.mSingletonInstance;
+		return sData.mInstance;
 	}
 
 	// Reference version of getInstance()
@@ -176,31 +173,29 @@ public:
 	// Use this to avoid accessing singletons before the can safely be constructed
 	static bool instanceExists()
 	{
-		return !sReentrantConstructorGuard && getSingletonData().mInitState == INITIALIZED;
+		return sData.mInitState == INITIALIZED;
 	}
 	
 	// Has this singleton already been deleted?
 	// Use this to avoid accessing singletons from a static object's destructor
 	static bool destroyed()
 	{
-		return getSingletonData().mInitState == DELETED;
+		return sData.mInitState == DELETED;
 	}
 
 private:
 
-	static SingletonInstanceData& getSingletonData()
-	{
-		// this is static to cache the lookup results
-		static SingletonInstanceData sData;
-		return sData;
-	}
-
 	virtual void initSingleton() {}
 
-	static bool sReentrantConstructorGuard;
+	struct SingletonData
+	{
+		EInitState		mInitState;
+		DERIVED_TYPE*	mInstance;
+	};
+	static SingletonData sData;
 };
 
 template<typename T>
-bool LLSingleton<T>::sReentrantConstructorGuard = false;
+typename LLSingleton<T>::SingletonData LLSingleton<T>::sData;
 
 #endif
