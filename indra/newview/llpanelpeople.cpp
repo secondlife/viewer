@@ -672,6 +672,7 @@ BOOL LLPanelPeople::postBuild()
 	getChild<LLFilterEditor>("friends_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 	getChild<LLFilterEditor>("groups_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 	getChild<LLFilterEditor>("recent_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
+	getChild<LLFilterEditor>("fbc_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 
 	mTabContainer = getChild<LLTabContainer>("tabs");
 	mTabContainer->setCommitCallback(boost::bind(&LLPanelPeople::onTabSelected, this, _2));
@@ -729,7 +730,8 @@ BOOL LLPanelPeople::postBuild()
 	LLPersonModelCommon* base_item = new LLPersonModelCommon(mPersonFolderViewModel);
 
 	LLPersonFolderView::Params folder_view_params(LLUICtrlFactory::getDefaultParams<LLPersonFolderView>());
-	folder_view_params.parent_panel = friends_tab;
+    
+	folder_view_params.parent_panel = socialtwo_tab;
 	folder_view_params.listener = base_item;
 	folder_view_params.view_model = &mPersonFolderViewModel;
 	folder_view_params.root = NULL;
@@ -740,8 +742,8 @@ BOOL LLPanelPeople::postBuild()
 
 	//Create scroller
 	LLRect scroller_view_rect = socialtwo_tab->getRect();
-	scroller_view_rect.mTop -= 4;
-	scroller_view_rect.mRight -=6;
+	scroller_view_rect.mTop -= 2+27; // 27 is the height of the top toolbar
+	scroller_view_rect.mRight -= 4;
 	scroller_view_rect.mLeft += 2;
 	LLScrollContainer::Params scroller_params(LLUICtrlFactory::getDefaultParams<LLFolderViewScrollContainer>());
 	scroller_params.rect(scroller_view_rect);
