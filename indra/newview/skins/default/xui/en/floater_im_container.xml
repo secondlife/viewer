@@ -24,7 +24,7 @@
      value="Conv_toolbar_expand"/>
     <layout_stack
      animate="true" 
-     bottom="-1"
+     bottom="-5"
      drag_handle_gap="6"
      drag_handle_first_indent="27"
      drag_handle_second_indent="10"
