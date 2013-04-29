@@ -136,21 +136,22 @@ public:
 		case UNINITIALIZED:
 			// should never be uninitialized at this point
 			llassert(false);
-			break;
+			return NULL;
 		case CONSTRUCTING:
 			llerrs << "Tried to access singleton " << typeid(DERIVED_TYPE).name() << " from singleton constructor!" << llendl;
-			break;
+			return NULL;
 		case INITIALIZING:
 			// go ahead and flag ourselves as initialized so we can be reentrant during initialization
 			sData.mInitState = INITIALIZED;	
 			sData.mInstance->initSingleton(); 
 			return sData.mInstance;
-			break;
 		case INITIALIZED:
 			return sData.mInstance;
 		case DELETED:
 			llwarns << "Trying to access deleted singleton " << typeid(DERIVED_TYPE).name() << " creating new instance" << llendl;
 			SingletonLifetimeManager::construct();
+			sData.mInitState = INITIALIZED;	
+			sData.mInstance->initSingleton(); 
 			return sData.mInstance;
 		}
 
