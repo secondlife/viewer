@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -2650,6 +2650,156 @@ void HttpRequestTestObjectType::test<21>()
 	}
 }
 
+// BUG-2295 Tests - Content-Range header received but no body
+template <> template <>
+void HttpRequestTestObjectType::test<22>()
+{
+	ScopedCurlInit ready;
+
+	std::string url_base(get_base_url());
+	// std::cerr << "Base:  "  << url_base << std::endl;
+	
+	set_test_name("BUG-2295");
+
+	// Handler can be stack-allocated *if* there are no dangling
+	// references to it after completion of this method.
+	// Create before memory record as the string copy will bump numbers.
+	TestHandler2 handler(this, "handler");
+		
+	// record the total amount of dynamically allocated memory
+	mMemTotal = GetMemTotal();
+	mHandlerCalls = 0;
+
+	HttpRequest * req = NULL;
+
+	try
+	{
+		// Get singletons created
+		HttpRequest::createService();
+		
+		// Start threading early so that thread memory is invariant
+		// over the test.
+		HttpRequest::startThread();
+
+		// create a new ref counted object with an implicit reference
+		req = new HttpRequest();
+		ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
+
+		// ======================================
+		// Issue bug2295 GETs that will get a 206
+		// ======================================
+		mStatus = HttpStatus(206);
+		static const int test_count(3);
+		for (int i(0); i < test_count; ++i)
+		{
+			char buffer[128];
+			sprintf(buffer, "/bug2295/%d/", i);
+			HttpHandle handle = req->requestGetByteRange(HttpRequest::DEFAULT_POLICY_ID,
+														 0U,
+														 url_base + buffer,
+														 0,
+														 25,
+														 NULL,
+														 NULL,
+														 &handler);
+			ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
+		}
+		
+		// Run the notification pump.
+		int count(0);
+		int limit(10);
+		while (count++ < limit && mHandlerCalls < test_count)
+		{
+			req->update(1000000);
+			usleep(100000);
+		}
+		ensure("Request executed in reasonable time", count < limit);
+		ensure("One handler invocation for each request", mHandlerCalls == test_count);
+
+		// ======================================
+		// Issue bug2295 GETs that will get a libcurl 18 (PARTIAL_FILE)
+		// ======================================
+		mStatus = HttpStatus(HttpStatus::EXT_CURL_EASY, CURLE_PARTIAL_FILE);
+		static const int test2_count(1);
+		for (int i(0); i < test2_count; ++i)
+		{
+			char buffer[128];
+			sprintf(buffer, "/bug2295/00000012/%d/", i);
+			HttpHandle handle = req->requestGetByteRange(HttpRequest::DEFAULT_POLICY_ID,
+														 0U,
+														 url_base + buffer,
+														 0,
+														 25,
+														 NULL,
+														 NULL,
+														 &handler);
+			ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
+		}
+		
+		// Run the notification pump.
+		count = 0;
+		limit = 10;
+		while (count++ < limit && mHandlerCalls < (test_count + test2_count))
+		{
+			req->update(1000000);
+			usleep(100000);
+		}
+		ensure("Request executed in reasonable time", count < limit);
+		ensure("One handler invocation for each request", mHandlerCalls == (test_count + test2_count));
+
+		// ======================================
+		// Okay, request a shutdown of the servicing thread
+		// ======================================
+		mStatus = HttpStatus();
+		HttpHandle handle = req->requestStopThread(&handler);
+		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
+	
+		// Run the notification pump again
+		count = 0;
+		limit = 10;
+		while (count++ < limit && mHandlerCalls < (test_count + test2_count + 1))
+		{
+			req->update(1000000);
+			usleep(100000);
+		}
+		ensure("Second request executed in reasonable time", count < limit);
+		ensure("Second handler invocation", mHandlerCalls == (test_count + test2_count + 1));
+
+		// See that we actually shutdown the thread
+		count = 0;
+		limit = 10;
+		while (count++ < limit && ! HttpService::isStopped())
+		{
+			usleep(100000);
+		}
+		ensure("Thread actually stopped running", HttpService::isStopped());
+	
+		// release the request object
+		delete req;
+		req = NULL;
+
+		// Shut down service
+		HttpRequest::destroyService();
+	
+		ensure("4 + 1 handler calls on the way out", (test_count + test2_count + 1) == mHandlerCalls);
+
+#if defined(WIN32)
+		// Can only do this memory test on Windows.  On other platforms,
+		// the LL logging system holds on to memory and produces what looks
+		// like memory leaks...
+	
+		// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
+		ensure("Memory usage back to that at entry", mMemTotal == GetMemTotal());
+#endif
+	}
+	catch (...)
+	{
+		stop_thread(req);
+		delete req;
+		HttpRequest::destroyService();
+		throw;
+	}
+}
 
 }  // end namespace tut
 

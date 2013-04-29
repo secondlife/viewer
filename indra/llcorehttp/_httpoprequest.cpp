@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -186,9 +186,11 @@ void HttpOpRequest::stageFromActive(HttpService * service)
 	if (mReplyLength)
 	{
 		// If non-zero, we received and processed a Content-Range
-		// header with the response.  Verify that what it says
-		// is consistent with the received data.
-		if (mReplyLength != mReplyBody->size())
+		// header with the response.  If there is received data
+		// (and there may not be due to protocol violations,
+		// HEAD requests, etc., see BUG-2295) Verify that what it
+		// says is consistent with the received data.
+		if (mReplyBody && mReplyBody->size() && mReplyLength != mReplyBody->size())
 		{
 			// Not as expected, fail the request
 			mStatus = HttpStatus(HttpStatus::LLCORE, HE_INV_CONTENT_RANGE_HDR);
