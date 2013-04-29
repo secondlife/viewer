@@ -627,6 +627,10 @@ S32 LLViewerInventoryCategory::getVersion() const
 
 void LLViewerInventoryCategory::setVersion(S32 version)
 {
+	if (mPreferredType == LLFolderType::FT_CURRENT_OUTFIT)
+	{
+		llinfos << "cof version change " << mVersion << " => " << version << llendl;
+	}
 	mVersion = version;
 }
 
@@ -1189,7 +1193,7 @@ void remove_inventory_item(
 	if(obj)
 	{
 		std::string cap;
-		if (gAgent.getRegion())
+		if (gAgent.getRegion() && gSavedSettings.getBOOL("UseAISv3Inventory"))
 		{
 			cap = gAgent.getRegion()->getCapability("InventoryAPIv3");
 		}
@@ -1267,7 +1271,7 @@ void remove_inventory_category(
 		}
 
 		std::string cap;
-		if (gAgent.getRegion())
+		if (gAgent.getRegion() && gSavedSettings.getBOOL("UseAISv3Inventory"))
 		{
 			cap = gAgent.getRegion()->getCapability("InventoryAPIv3");
 		}
@@ -1409,7 +1413,7 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 		else
 		{
 			std::string cap;
-			if (gAgent.getRegion())
+			if (gAgent.getRegion() && gSavedSettings.getBOOL("UseAISv3Inventory"))
 			{
 				cap = gAgent.getRegion()->getCapability("InventoryAPIv3");
 			}
