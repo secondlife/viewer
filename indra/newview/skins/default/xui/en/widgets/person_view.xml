@@ -6,8 +6,20 @@
   item_top_pad="3"
   mouse_opaque="true"
   follows="left|top|right"
+  icon_pad="4"
+  icon_width="20"
   text_pad="6"
   text_pad_left="4"
   text_pad_right="4"
   arrow_size="10"
-  max_folder_item_overlap="2"/>
+  max_folder_item_overlap="2">
+    <avatar_icon
+      follows="left"
+      layout="topleft"
+      height="20"
+      default_icon_name="Generic_Person"
+      left="5"
+      top="2"
+      width="20" />
+ </person_view>
+

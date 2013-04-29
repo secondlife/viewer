@@ -69,6 +69,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
 	{
 		Params();
+		Optional<LLAvatarIconCtrl::Params> avatar_icon;
 	};
 
 	LLPersonView(const LLPersonView::Params& p);
@@ -76,6 +77,7 @@ public:
 
 	 S32 getLabelXPos();
 	 void addToFolder(LLFolderViewFolder * person_folder_view);
+	 void initFromParams(const LLPersonView::Params & params);
 
 protected:	
 	void draw();

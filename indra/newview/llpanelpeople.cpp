@@ -755,7 +755,7 @@ BOOL LLPanelPeople::postBuild()
 	mPersonFolderView->setScrollContainer(scroller);
 	mPersonFolderView->setFollowsAll();
 
-	//Create a session
+	//Create a person tab
 	LLPersonTabModel* item = new LLPersonTabModel("Facebook Friends", mPersonFolderViewModel);
 	LLPersonTabView::Params params;
 	params.name = item->getDisplayName();
@@ -768,7 +768,7 @@ BOOL LLPanelPeople::postBuild()
 	mPersonFolderView->mPersonFolderModelMap[item->getID()] = item;
 	mPersonFolderView->mPersonFolderViewMap[item->getID()] = widget;
 
-	//Create a session
+	//Create a person tab
 	item = new LLPersonTabModel("Facebook Friends Tab Two", mPersonFolderViewModel);
 	params.name = item->getDisplayName();
 	params.root = mPersonFolderView;

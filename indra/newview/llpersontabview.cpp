@@ -116,20 +116,22 @@ void LLPersonTabView::drawHighlight()
 
 static LLDefaultChildRegistry::Register<LLPersonView> r_person_view("person_view");
 
-LLPersonView::Params::Params()
+LLPersonView::Params::Params() :
+avatar_icon("avatar_icon")
 {}
 
 LLPersonView::LLPersonView(const LLPersonView::Params& p) :
 LLFolderViewItem(p),
 mImageOver(LLUI::getUIImage("ListItem_Over")),
-mImageSelected(LLUI::getUIImage("ListItem_Select"))
+mImageSelected(LLUI::getUIImage("ListItem_Select")),
+mAvatarIcon(NULL)
 {
 
 }
 
 S32 LLPersonView::getLabelXPos()
 {
-	return getIndentation();
+	return getIndentation() + mAvatarIcon->getRect().getWidth() + mIconPad;
 }
 
 void LLPersonView::addToFolder(LLFolderViewFolder * person_folder_view)
@@ -185,4 +187,12 @@ void LLPersonView::drawHighlight()
 	{
 		mImageOver->draw(x, y, width, height);
 	}
+}
+
+void LLPersonView::initFromParams(const LLPersonView::Params & params)
+{
+	LLAvatarIconCtrl::Params avatar_icon_params(params.avatar_icon());
+	applyXUILayout(avatar_icon_params, this);
+	mAvatarIcon = LLUICtrlFactory::create<LLAvatarIconCtrl>(avatar_icon_params);
+	addChild(mAvatarIcon);
 }
