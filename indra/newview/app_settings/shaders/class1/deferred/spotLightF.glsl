@@ -76,9 +76,15 @@ vec3 decode_normal (vec2 enc)
     return n;
 }
 
+vec4 correctWithGamma(vec4 col)
+{
+	return vec4(pow(col.rgb, vec3(2.2)), col.a);
+}
+
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret = correctWithGamma(ret);
 	
 	vec2 dist = tc-vec2(0.5);
 	
@@ -94,6 +100,7 @@ vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret = correctWithGamma(ret);
 	
 	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
@@ -111,6 +118,7 @@ vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret = correctWithGamma(ret);
 	
 	vec2 dist = tc-vec2(0.5);
 	
@@ -188,6 +196,8 @@ void main()
 	
 
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
+	vec3 dlit = vec3(0, 0, 0);
+	
 	if (proj_tc.z > 0.0 &&
 		proj_tc.x < 1.0 &&
 		proj_tc.y < 1.0 &&
@@ -205,13 +215,11 @@ void main()
 			float lod = diff * proj_lod;
 			
 			vec4 plcol = texture2DLodDiffuse(projectionMap, proj_tc.xy, lod);
-		
-			vec3 lcol = color.rgb * plcol.rgb * plcol.a;
+			dlit = color.rgb * plcol.rgb * plcol.a;
 			
-			col = lcol*lit*diff_tex;
+			col = dlit*lit*diff_tex;
 			//amb_da += (da*0.5)*(1.0-shadow)*proj_ambiance;
 		}
-		
 		//float diff = clamp((proj_range-proj_focus)/proj_range, 0.0, 1.0);
 		vec4 amb_plcol = texture2DLodAmbient(projectionMap, proj_tc.xy, proj_lod);
 							
@@ -220,14 +228,12 @@ void main()
 		amb_da *= dist_atten * noise;
 			
 		amb_da = min(amb_da, 1.0-lit);
-			
-		col += amb_da*color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a;
+		col += amb_da*color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a*diff_tex.rgb;
 	}
 	
 
 	if (spec.a > 0.0)
 	{
-		float lit = da * dist_atten * noise;
 		vec3 npos = -normalize(pos);
 
 		//vec3 ref = dot(pos+lv, norm);
@@ -243,8 +249,9 @@ void main()
 								
 		if (nh > 0.0)
 		{
+			
 			float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-			col += lit*scol*color.rgb*spec.rgb;
+			col += dlit*scol*spec.rgb;
 			//col += spec.rgb;
 		}
 	}	

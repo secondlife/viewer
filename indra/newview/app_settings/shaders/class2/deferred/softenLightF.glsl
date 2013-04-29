@@ -234,9 +234,9 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 		  + tmpAmbient)));
 
 	//brightness of surface both sunlight and ambient
-	setSunlitColor(pow(vec3(sunlight * .5), vec3(global_gamma)) * 3.3);
-	setAmblitColor(pow(vec3(tmpAmbient * .25), vec3(global_gamma)) * 3.3);
-	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(global_gamma)) * 3.3);
+	setSunlitColor(pow(vec3(sunlight * .5), vec3(global_gamma)) * global_gamma);
+	setAmblitColor(pow(vec3(tmpAmbient * .25), vec3(global_gamma)) * global_gamma);
+	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(global_gamma)) * global_gamma);
 }
 
 vec3 atmosLighting(vec3 light)
@@ -311,7 +311,7 @@ void main()
 		calcAtmospherics(pos.xyz, ambocc);
 	
 		col = atmosAmbient(vec3(0));
-		col += atmosAffectDirectionalLight(max(min(da, scol), diffuse.a));
+		col += atmosAffectDirectionalLight(max(min(da, scol) * 2.6, diffuse.a));
 	
 		col *= diffuse.rgb;
 	

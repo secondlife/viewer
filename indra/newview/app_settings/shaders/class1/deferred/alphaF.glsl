@@ -121,7 +121,7 @@ void main()
 	vec3 normal = vary_norm; 
 	
 	vec3 l = light_position[0].xyz;
-	vec3 dlight = calcDirectionalLight(normal, l);
+	vec3 dlight = calcDirectionalLight(normal, l) * 2.6;
 	dlight = dlight * vary_directional.rgb * vary_pointlight_col;
 
 	vec4 col = vec4(vary_ambient + dlight, vertex_color_alpha);

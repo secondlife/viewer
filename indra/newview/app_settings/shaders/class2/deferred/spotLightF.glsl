@@ -79,9 +79,15 @@ vec3 decode_normal (vec2 enc)
     return n;
 }
 
+vec4 correctWithGamma(vec4 col)
+{
+	return vec4(pow(col.rgb, vec3(2.2)), col.a);
+}
+
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret = correctWithGamma(ret);
 	
 	vec2 dist = tc-vec2(0.5);
 	
@@ -97,6 +103,7 @@ vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret = correctWithGamma(ret);
 	
 	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
@@ -114,6 +121,7 @@ vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret = correctWithGamma(ret);
 	
 	vec2 dist = tc-vec2(0.5);
 	
@@ -198,7 +206,7 @@ void main()
 		
 	vec4 spec = texture2DRect(specularRect, frag.xy);
 
-	
+	vec3 dlit = vec3(0, 0, 0);
 
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
 	if (proj_tc.z > 0.0 &&
@@ -219,9 +227,9 @@ void main()
 			
 			vec4 plcol = texture2DLodDiffuse(projectionMap, proj_tc.xy, lod);
 		
-			vec3 lcol = color.rgb * plcol.rgb * plcol.a;
+			dlit = color.rgb * plcol.rgb * plcol.a;
 			
-			col = lcol*lit*diff_tex*shadow;
+			col = dlit*lit*diff_tex*shadow;
 			amb_da += (da*0.5)*(1.0-shadow)*proj_ambiance;
 		}
 		
@@ -240,7 +248,6 @@ void main()
 
 	if (spec.a > 0.0)
 	{
-		float lit = da * dist_atten * noise;
 		vec3 npos = -normalize(pos);
 
 		//vec3 ref = dot(pos+lv, norm);
@@ -257,7 +264,7 @@ void main()
 		if (nh > 0.0)
 		{
 			float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-			col += lit*scol*color.rgb*spec.rgb*shadow;
+			col += dlit*scol*spec.rgb*shadow;
 			//col += spec.rgb;
 		}
 	}	

@@ -326,9 +326,9 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 		  + tmpAmbient)));
 
 	//brightness of surface both sunlight and ambient
-	setSunlitColor(vec3(sunlight * .5));
-	setAmblitColor(vec3(tmpAmbient * .25));
-	setAdditiveColor(getAdditiveColor() * vec3(1.0 - temp1));
+	setSunlitColor(pow(vec3(sunlight * .5), vec3(2.2)) * 2.2);
+	setAmblitColor(pow(vec3(tmpAmbient * .25), vec3(2.2)) * 2.2);
+	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(2.2)) * 2.2);
 }
 
 vec3 atmosLighting(vec3 light)
@@ -567,13 +567,13 @@ void main()
 	vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
 	float da =dot(norm.xyz, sun_dir.xyz);
-    float final_da = pow(da, 0.7f);
+    float final_da = da;
           final_da = min(final_da, shadow);
           final_da = max(final_da, diffuse.a);
           final_da = max(final_da, 0.0f);
 
 	col.rgb = atmosAmbient(col);
-	col.rgb = col.rgb + atmosAffectDirectionalLight(final_da);
+	col.rgb = col.rgb + atmosAffectDirectionalLight(final_da * 2.6);
 	col.rgb *= diffuse.rgb;
 	
 
@@ -595,7 +595,7 @@ void main()
 			{
 				//add environmentmap
 				vec3 env_vec = env_mat * refnormpersp;
-				col = mix(col.rgb, textureCube(environmentMap, env_vec).rgb, 
+				col = mix(col.rgb, pow(textureCube(environmentMap, env_vec).rgb, vec3(2.2)) * 2.2, 
 					max(envIntensity-diffuse.a*2.0, 0.0));
 			}
 	
