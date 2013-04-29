@@ -2890,7 +2890,7 @@ protected:
 		}
 		if (content["success"].asBoolean())
 		{
-			LL_DEBUGS("Avatar") << dumpResponse() << LL_ENDL;
+			//LL_DEBUGS("Avatar") << dumpResponse() << LL_ENDL;
 			if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
 			{
 				dumpContents(gAgentAvatarp->getFullname() + "_appearance_request_ok", content);
@@ -2907,7 +2907,8 @@ protected:
 	{
 		const LLSD& content = getContent();
 		LL_WARNS("Avatar") << "appearance update request failed "
-				<< dumpResponse() << LL_ENDL;
+						   << dumpResponse() << LL_ENDL;
+
 		if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
 		{
 			dumpContents(gAgentAvatarp->getFullname() + "_appearance_request_error", content);
@@ -3247,6 +3248,13 @@ void show_created_outfit(LLUUID& folder_id, bool show_panel = true)
 	LLAppearanceMgr::getInstance()->updateIsDirty();
 	gAgentWearables.notifyLoadingFinished(); // New outfit is saved.
 	LLAppearanceMgr::getInstance()->updatePanelOutfitName("");
+
+	// For SSB, need to update appearance after we add a base outfit
+	// link, since, the COF version has changed. There is a race
+	// condition in initial outfit setup which can lead to rez
+	// failures - SH-3860.
+	LLPointer<LLInventoryCallback> cb = new LLUpdateAppearanceOnDestroy;
+	LLAppearanceMgr::getInstance()->createBaseOutfitLink(folder_id, cb);
 }
 
 LLUUID LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, bool show_panel)
@@ -3267,7 +3275,6 @@ LLUUID LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, b
 	LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(no_op_inventory_func,
 																		 boost::bind(show_created_outfit,folder_id,show_panel));
 	shallowCopyCategoryContents(getCOF(),folder_id, cb);
-	createBaseOutfitLink(folder_id, cb);
 
 	dumpCat(folder_id,"COF, new outfit");
 
