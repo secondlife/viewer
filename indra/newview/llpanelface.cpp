@@ -300,9 +300,9 @@ void LLPanelFace::sendBump()
 	U32 bumpiness = mComboBumpiness->getCurrentIndex();
 	if (bumpiness < BUMPY_TEXTURE)
 	{
-		LLTextureCtrl* texture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
-		//texture_ctrl->setImageAssetID(LLUUID());
-		texture_ctrl->clear();
+		LL_DEBUGS("Materials") << "clearing bumptexture control" << LL_ENDL;
+		LLTextureCtrl* bumpytexture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
+		bumpytexture_ctrl->clear();
 		LLSD dummy_data;
 		onSelectMaterialTexture(dummy_data);
 	}
@@ -397,10 +397,6 @@ struct LLPanelFaceSetTEFunctor : public LLSelectedTEFunctor
 			if (valid)
 			{
 				value = ctrlTexScaleS->get();
-				//if( checkFlipScaleS->get() )
-				//{
-				//	value = -value;
-				//}
 				if (comboTexGen &&
 				    comboTexGen->getCurrentIndex() == 1)
 				{
@@ -635,20 +631,11 @@ void LLPanelFace::getState()
 		}
 		else
 		{
-			llwarns << "failed getChild for 'combobox mattype'" << llendl;
+			LL_WARNS("Materials") << "failed getChild for 'combobox mattype'" << LL_ENDL;
 		}
 		getChildView("combobox mattype")->setEnabled(editable);
 
 		onCommitMaterialsMedia(NULL, this);
-		
-		//if ( LLMediaEngine::getInstance()->getMediaRenderer () )
-		//	if ( LLMediaEngine::getInstance()->getMediaRenderer ()->isLoaded () )
-		//	{	
-		//		
-		//		//mLabelTexAutoFix->setEnabled ( editable );
-		//		
-		//		//mBtnAutoFix->setEnabled ( editable );
-		//	}
 
 		bool identical;
         bool identical_diffuse;
@@ -813,7 +800,7 @@ void LLPanelFace::getState()
 				updateAlphaControls(getChild<LLComboBox>("combobox alphamode"),this);
 			}
 			
-			if(texture_ctrl)
+			if(texture_ctrl && !texture_ctrl->isPickerShown())
 			{
                 if (identical_diffuse)
 				{
@@ -849,7 +836,7 @@ void LLPanelFace::getState()
                 }
             }
             
-            if (shinytexture_ctrl)
+            if (shinytexture_ctrl && !shinytexture_ctrl->isPickerShown())
             {
                 if (identical_spec)
                 {
@@ -871,7 +858,7 @@ void LLPanelFace::getState()
                 }
             }
 
-            if (bumpytexture_ctrl)
+            if (bumpytexture_ctrl && !bumpytexture_ctrl->isPickerShown())
             {
                 if (identical_norm)
 				{
@@ -1656,12 +1643,13 @@ void LLPanelFace::getState()
 
 void LLPanelFace::refresh()
 {
+	LL_DEBUGS("Materials") << LL_ENDL;
 	getState();
 }
 
 void LLPanelFace::onMaterialLoaded(const LLMaterialID& material_id, const LLMaterialPtr material)
 { //laying out UI based on material parameters (calls setVisible on various components)
-	LL_DEBUGS("Materials") << "Loaded material " << material_id.asString() << material->asLLSD() << LL_ENDL;
+	LL_DEBUGS("Materials") << "material id " << material_id.asString() << " data " << material->asLLSD() << LL_ENDL;
 	
 	//make a local copy of the material for editing 
 	// (prevents local edits from overwriting client state on shared materials)
@@ -1941,7 +1929,7 @@ void LLPanelFace::onCommitMaterialsMedia(LLUICtrl* ctrl, void* userdata)
 	LLComboBox* combo_bumpiness = self->getChild<LLComboBox>("combobox bumpiness");
 	if (!combo_mattype || !combo_matmedia || !combo_shininess || !combo_bumpiness)
 	{
-		llwarns << "Combo box not found...exiting." << llendl;
+		LL_WARNS("Materials") << "Combo box not found...exiting." << LL_ENDL;
 		return;
 	}
 	U32 materials_media = combo_matmedia->getCurrentIndex();
@@ -2127,7 +2115,7 @@ void LLPanelFace::updateBumpyControls(LLUICtrl* ctrl, void* userdata, bool mess_
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	LLTextureCtrl* texture_ctrl = self->getChild<LLTextureCtrl>("bumpytexture control");
 	LLUUID bumpy_texture_ID = texture_ctrl->getImageAssetID();
-	LL_DEBUGS("Materials") << "Bumpy texture selected: " << bumpy_texture_ID << LL_ENDL;
+	LL_DEBUGS("Materials") << "texture: " << bumpy_texture_ID << (mess_with_combobox ? "" : " do not") << " update combobox" << LL_ENDL;
 	LLComboBox* comboBumpy = self->getChild<LLComboBox>("combobox bumpiness");
 	if (!comboBumpy)
 	{
@@ -2453,6 +2441,7 @@ void LLPanelFace::onCommitPlanarAlign(LLUICtrl* ctrl, void* userdata)
 
 void LLPanelFace::onTextureSelectionChanged(LLInventoryItem* itemp)
 {
+	LL_DEBUGS("Materials") << "item asset " << itemp->getAssetUUID() << LL_ENDL;
 	LLComboBox* combo_mattype = getChild<LLComboBox>("combobox mattype");
 	if (!combo_mattype)
 	{
@@ -2470,7 +2459,7 @@ void LLPanelFace::onTextureSelectionChanged(LLInventoryItem* itemp)
 			break;
 		// no default needed
 	}
-		
+	LL_DEBUGS("Materials") << "control " << which_control << LL_ENDL;
 	LLTextureCtrl* texture_ctrl = getChild<LLTextureCtrl>(which_control);
 	if (texture_ctrl)
 	{
