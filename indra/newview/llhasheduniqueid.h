@@ -1,10 +1,10 @@
 /** 
- * @file llversionviewer.h
- * @brief
+ * @file llhasheduniqueid.h
+ * @brief retrieves obfuscated but unique id for the system
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2013&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,19 +23,12 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+#ifndef LL_LLHASHEDUNIQUEID_H
+#define LL_LLHASHEDUNIQUEID_H
+#include "llmd5.h"
 
-#ifndef LL_LLVERSIONVIEWER_H
-#define LL_LLVERSIONVIEWER_H
+/// Get an obfuscated identifier for this system 
+bool llHashedUniqueID(unsigned char id[MD5HEX_STR_SIZE]);
+///< @returns true if the id is considered valid (if false, the id is all zeros)
 
-const S32 LL_VERSION_MAJOR = 3;
-const S32 LL_VERSION_MINOR = 5;
-const S32 LL_VERSION_PATCH = 2;
-const S32 LL_VERSION_BUILD = 264760;
-
-const char * const LL_CHANNEL = "Second Life Developer";
-
-#if LL_DARWIN
-const char * const LL_VERSION_BUNDLE_ID = "com.secondlife.indra.viewer";
-#endif
-
-#endif
+#endif // LL_LLHASHEDUNIQUEID_H

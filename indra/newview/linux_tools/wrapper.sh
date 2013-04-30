@@ -122,7 +122,7 @@ export SAVED_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
 export LD_LIBRARY_PATH="$PWD/lib:${LD_LIBRARY_PATH}"
 
 # Have to deal specially with gridargs.dat; typical contents look like:
-# --channel "Second Life Developer"  --settings settings_developer.xml
+# --channel "Second Life Test"  --settings settings_test.xml
 # Simply embedding $(<etc/gridargs.dat) into a command line treats each of
 # Second, Life and Developer as separate args -- no good. We need bash to
 # process quotes using eval.

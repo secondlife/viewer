@@ -232,6 +232,19 @@
          name="Install_manual"
          value="0" />
   </combo_box>
+  <check_box
+    top_delta="4"
+    enabled="true"
+    follows="left|top"
+    height="14"
+    initial_value="true"
+    control_name="UpdateWillingToTest"
+    label="Willing to update to release candidates"
+    left_delta="0"
+    mouse_opaque="true"
+    name="update_willing_to_test"
+    width="400"           
+    top_pad="5"/>
   <text
      type="string"
      length="1"
