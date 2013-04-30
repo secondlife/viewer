@@ -148,14 +148,21 @@ LLPersonModel* LLPersonTabModel::findParticipant(const LLUUID& person_id)
 // LLPersonModel
 // 
 
-LLPersonModel::LLPersonModel(std::string display_name, LLFolderViewModelInterface& root_view_model) :
-LLPersonModelCommon(display_name,root_view_model)
+LLPersonModel::LLPersonModel(const LLUUID& agent_id, const std::string display_name, LLFolderViewModelInterface& root_view_model) :
+LLPersonModelCommon(display_name,root_view_model),
+mAgentID(agent_id)
 {
 }
 
 LLPersonModel::LLPersonModel(LLFolderViewModelInterface& root_view_model) :
-LLPersonModelCommon(root_view_model)
+LLPersonModelCommon(root_view_model),
+mAgentID(LLUUID(NULL))
 {
+}
+
+LLUUID LLPersonModel::getAgentID()
+{
+	return mAgentID;
 }
 
 //

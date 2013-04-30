@@ -120,11 +120,13 @@ private:
 class LLPersonModel : public LLPersonModelCommon
 {
 public:
-	LLPersonModel(std::string display_name, LLFolderViewModelInterface& root_view_model);
+	LLPersonModel(const LLUUID& agent_id, const std::string display_name, LLFolderViewModelInterface& root_view_model);
 	LLPersonModel(LLFolderViewModelInterface& root_view_model);
 
-private:
+	LLUUID getAgentID();
 
+private:
+	LLUUID mAgentID;
 };
 
 // Filtering functional object

@@ -1698,7 +1698,7 @@ void LLPanelPeople::addParticipantToModel(LLPersonTabModel * person_folder_model
 {
 	LLPersonModel* person_model = NULL;
 
-	person_model = new LLPersonModel(name, mPersonFolderViewModel);
+	person_model = new LLPersonModel(agent_id, name, mPersonFolderViewModel);
 	person_folder_model->addParticipant(person_model);
 }
 

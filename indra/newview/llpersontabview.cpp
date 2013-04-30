@@ -29,6 +29,10 @@
 
 #include "llpersontabview.h"
 
+#include "llavataractions.h"
+#include "llfloaterreg.h"
+#include "llpersonmodelcommon.h"
+
 static LLDefaultChildRegistry::Register<LLPersonTabView> r_person_tab_view("person_tab_view");
 
 const LLColor4U DEFAULT_WHITE(255, 255, 255);
@@ -174,6 +178,12 @@ BOOL LLPersonView::postBuild()
 	
 	initChildVec();
 	updateChildren();
+
+	LLPersonModel * person_model = static_cast<LLPersonModel *>(getViewModelItem());
+
+	mInfoBtn->setClickedCallback(boost::bind(&LLFloaterReg::showInstance, "inspect_avatar", LLSD().with("avatar_id", person_model->getAgentID()), FALSE));
+	mProfileBtn->setClickedCallback(boost::bind(&LLAvatarActions::showProfile, person_model->getAgentID()));
+
 	return LLFolderViewItem::postBuild();
 }
 
