@@ -90,6 +90,7 @@
       visible="false"      
       width="16" />
     <profile_btn
+      layout="topleft"
       follows="right"
       height="20"
       image_overlay="Web_Profile_Off"
@@ -98,7 +99,7 @@
       name="profile_btn"
       tab_stop="false"
       tool_tip="View profile"
-      top_delta="-2"
+      top="2"
       visible="false"
       width="20" />
     <output_monitor
