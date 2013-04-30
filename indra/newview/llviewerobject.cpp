@@ -4093,7 +4093,12 @@ S32 LLViewerObject::setTENormalMapCore(const U8 te, LLViewerTexture *image)
 		uuid == LLUUID::null)
 	{
 		LLTextureEntry* tep = getTE(te);
-		LLMaterial* mat = tep ? tep->getMaterialParams() : NULL;
+		LLMaterial* mat = NULL;
+		if (tep)
+		{
+		   mat = tep->getMaterialParams();
+		}
+
 		if (mat)
 		{
 			mat->setNormalID(uuid);
@@ -4118,7 +4123,12 @@ S32 LLViewerObject::setTESpecularMapCore(const U8 te, LLViewerTexture *image)
 		uuid == LLUUID::null)
 	{
 		LLTextureEntry* tep = getTE(te);
-		LLMaterial* mat = tep ? tep->getMaterialParams() : NULL;
+		LLMaterial* mat = NULL;
+		if (tep)
+		{
+			mat = tep->getMaterialParams();
+		}
+
 		if (mat)
 		{
 			mat->setSpecularID(uuid);
