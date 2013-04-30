@@ -86,11 +86,15 @@ public:
 	LLPersonView(const LLPersonView::Params& p);
 	virtual ~LLPersonView();
 
-	 S32 getLabelXPos();
-	 void addToFolder(LLFolderViewFolder * person_folder_view);
-	 void initFromParams(const LLPersonView::Params & params);
+	S32 getLabelXPos();
+	void addToFolder(LLFolderViewFolder * person_folder_view);
+	void initFromParams(const LLPersonView::Params & params);
+	BOOL postBuild();
+	void onMouseEnter(S32 x, S32 y, MASK mask);
+	void onMouseLeave(S32 x, S32 y, MASK mask);
 
 protected:	
+	
 	void draw();
 	void drawHighlight();
 
@@ -123,12 +127,12 @@ private:
 		ALIC_COUNT,
 	} EAvatarListItemChildIndex;
 
+	typedef std::vector<std::pair<LLView *, S32>> ChildAndWidthVec;
+	ChildAndWidthVec mChildAndWidthVec;
+
 	static bool	sStaticInitialized;
-	static S32 sMouseOverChildrenWidths[ALIC_COUNT];
-	static S32 sMouseOverChildren[ALIC_COUNT];
 	static void initChildrenWidths(LLPersonView* self);
 	void updateChildren();
-	//LLView* getItemChildView(EAvatarListItemChildIndex child_view_index);
 };
 
 #endif // LL_LLPERSONTABVIEW_H

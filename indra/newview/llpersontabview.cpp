@@ -142,7 +142,6 @@ mInfoBtn(NULL),
 mProfileBtn(NULL),
 mOutputMonitorCtrl(NULL)
 {
-	initChildrenWidths(this);
 }
 
 S32 LLPersonView::getLabelXPos()
@@ -160,6 +159,29 @@ void LLPersonView::addToFolder(LLFolderViewFolder * person_folder_view)
 LLPersonView::~LLPersonView()
 {
 
+}
+
+BOOL LLPersonView::postBuild()
+{
+	initChildrenWidths(this);
+	updateChildren();
+	return LLFolderViewItem::postBuild();
+}
+
+void LLPersonView::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+	mInfoBtn->setVisible(TRUE);
+	mProfileBtn->setVisible(TRUE);
+	updateChildren();
+	LLFolderViewItem::onMouseEnter(x, y, mask);
+}
+
+void LLPersonView::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	mInfoBtn->setVisible(FALSE);
+	mProfileBtn->setVisible(FALSE);
+	updateChildren();
+	LLFolderViewItem::onMouseLeave(x, y, mask);
 }
 
 void LLPersonView::draw()
@@ -222,6 +244,11 @@ void LLPersonView::initFromParams(const LLPersonView::Params & params)
 	mPermissionEditTheirsIcon = LLUICtrlFactory::create<LLIconCtrl>(permission_edit_theirs_icon);
 	addChild(mPermissionEditTheirsIcon);
 
+	LLIconCtrl::Params permission_edit_mine_icon(params.permission_edit_mine_icon());
+	applyXUILayout(permission_edit_mine_icon, this);
+	mPermissionEditMineIcon = LLUICtrlFactory::create<LLIconCtrl>(permission_edit_mine_icon);
+	addChild(mPermissionEditMineIcon);
+
 	LLIconCtrl::Params permission_map_icon(params.permission_map_icon());
 	applyXUILayout(permission_map_icon, this);
 	mPermissionMapIcon = LLUICtrlFactory::create<LLIconCtrl>(permission_map_icon);
@@ -250,5 +277,53 @@ void LLPersonView::initFromParams(const LLPersonView::Params & params)
 
 void LLPersonView::initChildrenWidths(LLPersonView* self)
 {
+	S32 output_monitor_width = self->getRect().getWidth() - self->mOutputMonitorCtrl->getRect().mLeft;
+	S32 profile_btn_width = self->mOutputMonitorCtrl->getRect().mLeft - self->mProfileBtn->getRect().mLeft;
+	S32 info_btn_width = self->mProfileBtn->getRect().mLeft - self->mInfoBtn->getRect().mLeft;
+	S32 permission_online_icon_width = self->mInfoBtn->getRect().mLeft - self->mPermissionOnlineIcon->getRect().mLeft;
+	S32 permissions_map_icon_width = self->mPermissionOnlineIcon->getRect().mLeft - self->mPermissionMapIcon->getRect().mLeft;
+	S32 permission_edit_mine_icon_width = self->mPermissionMapIcon->getRect().mLeft - self->mPermissionEditMineIcon->getRect().mLeft;
+	S32 permission_edit_theirs_icon_width = self->mPermissionEditMineIcon->getRect().mLeft - self->mPermissionEditTheirsIcon->getRect().mLeft;
+	S32 last_interaction_time_textbox_width = self->mPermissionEditTheirsIcon->getRect().mLeft - self->mLastInteractionTimeTextbox->getRect().mLeft;
 
+	self->mChildAndWidthVec.push_back(std::pair<LLView *, S32>(self->mOutputMonitorCtrl, output_monitor_width));
+	self->mChildAndWidthVec.push_back(std::pair<LLView *, S32>(self->mProfileBtn, profile_btn_width));
+	self->mChildAndWidthVec.push_back(std::pair<LLView *, S32>(self->mInfoBtn, info_btn_width));
+	self->mChildAndWidthVec.push_back(std::pair<LLView *, S32>(self->mPermissionOnlineIcon, permission_online_icon_width));
+	self->mChildAndWidthVec.push_back(std::pair<LLView *, S32>(self->mPermissionMapIcon, permissions_map_icon_width));
+	self->mChildAndWidthVec.push_back(std::pair<LLView *, S32>(self->mPermissionEditMineIcon, permission_edit_mine_icon_width));
+	self->mChildAndWidthVec.push_back(std::pair<LLView *, S32>(self->mPermissionEditTheirsIcon, permission_edit_theirs_icon_width));
+	self->mChildAndWidthVec.push_back(std::pair<LLView *, S32>(self->mLastInteractionTimeTextbox, last_interaction_time_textbox_width));
+
+}
+
+void LLPersonView::updateChildren()
+{
+	mLabelPaddingRight = 0;
+	LLView * control;
+	S32 control_width;
+	LLRect control_rect;
+
+	for(S32 i = 0; i < mChildAndWidthVec.size(); ++i)
+	{
+		control = mChildAndWidthVec[i].first;
+
+		if(!control->getVisible())
+		{
+			continue;
+		}
+
+		control_width = mChildAndWidthVec[i].second;
+		mLabelPaddingRight += control_width;
+
+		control_rect = control->getRect();
+		control_rect.setLeftTopAndSize(
+			getLocalRect().getWidth() - mLabelPaddingRight,
+			control_rect.mTop,
+			control_rect.getWidth(),
+			control_rect.getHeight());
+
+		control->setShape(control_rect);
+
+	}
 }
