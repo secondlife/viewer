@@ -627,10 +627,6 @@ S32 LLViewerInventoryCategory::getVersion() const
 
 void LLViewerInventoryCategory::setVersion(S32 version)
 {
-	if (mPreferredType == LLFolderType::FT_CURRENT_OUTFIT)
-	{
-		llinfos << "cof version change " << mVersion << " => " << version << llendl;
-	}
 	mVersion = version;
 }
 
