@@ -116,6 +116,9 @@ void LLPersonTabView::drawHighlight()
 
 static LLDefaultChildRegistry::Register<LLPersonView> r_person_view("person_view");
 
+bool LLPersonView::sChildrenWidthsInitialized = false;
+ChildWidthVec LLPersonView::mChildWidthVec;
+
 LLPersonView::Params::Params() :
 avatar_icon("avatar_icon"),
 last_interaction_time_textbox("last_interaction_time_textbox"),
@@ -163,7 +166,13 @@ LLPersonView::~LLPersonView()
 
 BOOL LLPersonView::postBuild()
 {
-	initChildrenWidths(this);
+	if(!sChildrenWidthsInitialized)
+	{
+		initChildrenWidthVec(this);
+		sChildrenWidthsInitialized = true;
+	}
+	
+	initChildVec();
 	updateChildren();
 	return LLFolderViewItem::postBuild();
 }
@@ -275,7 +284,7 @@ void LLPersonView::initFromParams(const LLPersonView::Params & params)
 	addChild(mOutputMonitorCtrl);
 }
 
-void LLPersonView::initChildrenWidths(LLPersonView* self)
+void LLPersonView::initChildrenWidthVec(LLPersonView* self)
 {
 	S32 output_monitor_width = self->getRect().getWidth() - self->mOutputMonitorCtrl->getRect().mLeft;
 	S32 profile_btn_width = self->mOutputMonitorCtrl->getRect().mLeft - self->mProfileBtn->getRect().mLeft;
@@ -286,15 +295,26 @@ void LLPersonView::initChildrenWidths(LLPersonView* self)
 	S32 permission_edit_theirs_icon_width = self->mPermissionEditMineIcon->getRect().mLeft - self->mPermissionEditTheirsIcon->getRect().mLeft;
 	S32 last_interaction_time_textbox_width = self->mPermissionEditTheirsIcon->getRect().mLeft - self->mLastInteractionTimeTextbox->getRect().mLeft;
 
-	self->mChildAndWidthVec.push_back(std::pair<LLView *, S32>(self->mOutputMonitorCtrl, output_monitor_width));
-	self->mChildAndWidthVec.push_back(std::pair<LLView *, S32>(self->mProfileBtn, profile_btn_width));
-	self->mChildAndWidthVec.push_back(std::pair<LLView *, S32>(self->mInfoBtn, info_btn_width));
-	self->mChildAndWidthVec.push_back(std::pair<LLView *, S32>(self->mPermissionOnlineIcon, permission_online_icon_width));
-	self->mChildAndWidthVec.push_back(std::pair<LLView *, S32>(self->mPermissionMapIcon, permissions_map_icon_width));
-	self->mChildAndWidthVec.push_back(std::pair<LLView *, S32>(self->mPermissionEditMineIcon, permission_edit_mine_icon_width));
-	self->mChildAndWidthVec.push_back(std::pair<LLView *, S32>(self->mPermissionEditTheirsIcon, permission_edit_theirs_icon_width));
-	self->mChildAndWidthVec.push_back(std::pair<LLView *, S32>(self->mLastInteractionTimeTextbox, last_interaction_time_textbox_width));
+	self->mChildWidthVec.push_back(output_monitor_width);
+	self->mChildWidthVec.push_back(profile_btn_width);
+	self->mChildWidthVec.push_back(info_btn_width);
+	self->mChildWidthVec.push_back(permission_online_icon_width);
+	self->mChildWidthVec.push_back(permissions_map_icon_width);
+	self->mChildWidthVec.push_back(permission_edit_mine_icon_width);
+	self->mChildWidthVec.push_back(permission_edit_theirs_icon_width);
+	self->mChildWidthVec.push_back(last_interaction_time_textbox_width);
+}
 
+void LLPersonView::initChildVec()
+{
+	mChildVec.push_back(mOutputMonitorCtrl);
+	mChildVec.push_back(mProfileBtn);
+	mChildVec.push_back(mInfoBtn);
+	mChildVec.push_back(mPermissionOnlineIcon);
+	mChildVec.push_back(mPermissionMapIcon);
+	mChildVec.push_back(mPermissionEditMineIcon);
+	mChildVec.push_back(mPermissionEditTheirsIcon);
+	mChildVec.push_back(mLastInteractionTimeTextbox);
 }
 
 void LLPersonView::updateChildren()
@@ -304,16 +324,18 @@ void LLPersonView::updateChildren()
 	S32 control_width;
 	LLRect control_rect;
 
-	for(S32 i = 0; i < mChildAndWidthVec.size(); ++i)
+	llassert(mChildWidthVec.size() == mChildVec.size());
+
+	for(S32 i = 0; i < mChildWidthVec.size(); ++i)
 	{
-		control = mChildAndWidthVec[i].first;
+		control = mChildVec[i];
 
 		if(!control->getVisible())
 		{
 			continue;
 		}
 
-		control_width = mChildAndWidthVec[i].second;
+		control_width = mChildWidthVec[i];
 		mLabelPaddingRight += control_width;
 
 		control_rect = control->getRect();

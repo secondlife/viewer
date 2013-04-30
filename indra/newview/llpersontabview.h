@@ -64,6 +64,9 @@ private:
 
 };
 
+typedef std::vector<S32> ChildWidthVec;
+typedef std::vector<LLView *> ChildVec;
+
 class LLPersonView : public LLFolderViewItem
 {
 
@@ -127,11 +130,14 @@ private:
 		ALIC_COUNT,
 	} EAvatarListItemChildIndex;
 
-	typedef std::vector<std::pair<LLView *, S32>> ChildAndWidthVec;
-	ChildAndWidthVec mChildAndWidthVec;
+	//Widths of controls are same for every instance so can be static
+	static ChildWidthVec mChildWidthVec;
+	//Control pointers are different for each instance so non-static
+	ChildVec mChildVec;
 
-	static bool	sStaticInitialized;
-	static void initChildrenWidths(LLPersonView* self);
+	static bool	sChildrenWidthsInitialized;
+	static void initChildrenWidthVec(LLPersonView* self);
+	void initChildVec();
 	void updateChildren();
 };
 
