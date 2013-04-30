@@ -6863,8 +6863,29 @@ Do not allow access if you do not fully understand why it wants access to your a
 [FOOTERTEXT]
     </footer>
   </notification>
+	
+	<notification
+	 icon="notify.tga"
+	 name="UnknownScriptQuestion"
+	 persist="false"
+	 type="notify">
+		&apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, an object owned by &apos;[NAME]&apos;, requested an unknown script runtime permission. 
 
-  <notification
+Please update your viewer to grant this permission.
+		<tag>confirm</tag>
+		<form name="form">
+			<button
+			 index="0"
+			 name="Ok"
+			 text="Ok"/>
+			<button
+			 index="2"
+			 name="Mute"
+			 text="Block"/>
+		</form>
+	</notification>
+
+	<notification
    icon="notify.tga"
    name="ScriptDialog"
    show_toast="false"

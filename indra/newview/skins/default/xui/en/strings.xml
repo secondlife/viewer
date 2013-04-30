@@ -410,7 +410,12 @@ Please try logging in again in a minute.</string>
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
   <string name="TeleportYourAgent">Teleport you</string>
-
+	<string name="JoinAnExperience">Join an experience</string> <!-- not used -->
+	<string name="SilentlyManageEstateAccess">Suppress alerts when managing estate access lists</string>
+	<string name="OverrideYourAnimations">Replace your default animations</string>
+	<string name="ScriptReturnObjects">Return objects on your behalf</string>
+	<string name="UnknownScriptPermission">(unknown)!</string>
+	
 	<!-- Sim Access labels -->
 	<string name="SIM_ACCESS_PG">General</string>
 	<string name="SIM_ACCESS_MATURE">Moderate</string>

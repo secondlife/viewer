@@ -163,7 +163,11 @@ const std::string SCRIPT_QUESTIONS[SCRIPT_PERMISSION_EOF] =
 		"ChangePermissions",
 		"TrackYourCamera",
 		"ControlYourCamera",
-		"TeleportYourAgent"
+		"TeleportYourAgent",
+		"JoinAnExperience",
+		"SilentlyManageEstateAccess",
+		"OverrideYourAnimations",
+		"ScriptReturnObjects"
 	};
 
 const BOOL SCRIPT_QUESTION_IS_CAUTION[SCRIPT_PERMISSION_EOF] = 
@@ -179,7 +183,11 @@ const BOOL SCRIPT_QUESTION_IS_CAUTION[SCRIPT_PERMISSION_EOF] =
 	FALSE,	// ChangePermissions
 	FALSE,	// TrackYourCamera,
 	FALSE,	// ControlYourCamera
-	FALSE	// TeleportYourAgent
+	FALSE,	// TeleportYourAgent
+	FALSE,	// JoinAnExperience
+	FALSE,	// SilentlyManageEstateAccess
+	FALSE,	// OverrideYourAnimations
+	FALSE,	// ScriptReturnObjects
 };
 
 bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
@@ -6424,7 +6432,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 		LLSD args;
 		args["OBJECTNAME"] = object_name;
 		args["NAME"] = LLCacheName::cleanFullName(owner_name);
-
+		S32 known_questions = 0;
 		BOOL has_not_only_debit = questions ^ LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_DEBIT];
 		// check the received permission flags against each permission
 		for (S32 i = 0; i < SCRIPT_PERMISSION_EOF; i++)
@@ -6432,7 +6440,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 			if (questions & LSCRIPTRunTimePermissionBits[i])
 			{
 				count++;
-
+				known_questions |= LSCRIPTRunTimePermissionBits[i];
 				// check whether permission question should cause special caution dialog
 				caution |= (SCRIPT_QUESTION_IS_CAUTION[i]);
 
@@ -6442,32 +6450,40 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 				script_question += "    " + LLTrans::getString(SCRIPT_QUESTIONS[i]) + "\n";
 			}
 		}
+	
 		args["QUESTIONS"] = script_question;
 
-		LLSD payload;
-		payload["task_id"] = taskid;
-		payload["item_id"] = itemid;
-		payload["sender"] = sender.getIPandPort();
-		payload["questions"] = questions;
-		payload["object_name"] = object_name;
-		payload["owner_name"] = owner_name;
-
-		// check whether cautions are even enabled or not
-		if (gSavedSettings.getBOOL("PermissionsCautionEnabled"))
+		if (known_questions != questions)
+		{	// This is in addition to the normal dialog.
+			LLNotificationsUtil::add("UnknownScriptQuestion",args);
+		}
+		
+		if (known_questions)
 		{
-			if (caution)
+			LLSD payload;
+			payload["task_id"] = taskid;
+			payload["item_id"] = itemid;
+			payload["sender"] = sender.getIPandPort();
+			payload["questions"] = known_questions;
+			payload["object_name"] = object_name;
+			payload["owner_name"] = owner_name;
+
+			// check whether cautions are even enabled or not
+			if (gSavedSettings.getBOOL("PermissionsCautionEnabled"))
 			{
-				args["FOOTERTEXT"] = (count > 1) ? LLTrans::getString("AdditionalPermissionsRequestHeader") + "\n\n" + script_question : "";
+				if (caution)
+				{
+					args["FOOTERTEXT"] = (count > 1) ? LLTrans::getString("AdditionalPermissionsRequestHeader") + "\n\n" + script_question : "";
+				}
+				// display the caution permissions prompt
+				LLNotificationsUtil::add(caution ? "ScriptQuestionCaution" : "ScriptQuestion", args, payload);
 			}
-			// display the caution permissions prompt
-			LLNotificationsUtil::add(caution ? "ScriptQuestionCaution" : "ScriptQuestion", args, payload);
+			else
+			{
+				// fall back to default behavior if cautions are entirely disabled
+				LLNotificationsUtil::add("ScriptQuestion", args, payload);
+			}
 		}
-		else
-		{
-			// fall back to default behavior if cautions are entirely disabled
-			LLNotificationsUtil::add("ScriptQuestion", args, payload);
-		}
-
 	}
 }
 
