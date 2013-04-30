@@ -21,5 +21,86 @@
       left="5"
       top="2"
       width="20" />
+    <last_interaction_time_textbox
+      layout="topleft"
+      follows="right"
+      font="SansSerifSmall"
+      height="15"
+      left_pad="5"
+      right="-164"
+      name="last_interaction_time_textbox"
+      text_color="LtGray_50"
+      value="0s"
+      width="35" />
+    <permission_edit_theirs_icon
+      layout="topleft"
+      height="16"
+      follows="right"
+      image_name="Permission_Edit_Objects_Theirs"
+      left_pad="3"
+      right="-129"
+      name="permission_edit_theirs_icon"
+      tool_tip="You can edit this friend&apos;s objects"
+      top="4"
+      width="16" />
+    <permission_edit_mine_icon
+      layout="topleft"
+      height="16"
+      follows="right"
+      image_name="Permission_Edit_Objects_Mine"
+      left_pad="3"
+      right="-110"
+      name="permission_edit_mine_icon"
+      tool_tip="This friend can edit, delete or take your objects"
+      width="16" />
+    <permission_map_icon
+      height="16"
+      follows="right"
+      image_name="Permission_Visible_Map"
+      left_pad="3"
+      tool_tip="This friend can locate you on the map"
+      right="-91"
+      name="permission_map_icon"
+      width="16" />
+    <permission_online_icon
+      height="16"
+      follows="right"
+      image_name="Permission_Visible_Online"
+      left_pad="3"
+      right="-72"
+      name="permission_online_icon"
+      tool_tip="This friend can see when you&apos;re online"
+      width="16" />
+    <info_btn
+      follows="right"
+      height="16"
+      image_pressed="Info_Press"
+      image_unselected="Info_Over"
+      left_pad="3"
+      right="-53"
+      name="info_btn"
+      tool_tip="More info"
+      tab_stop="false"
+      width="16" />
+    <profile_btn
+      follows="right"
+      height="20"
+      image_overlay="Web_Profile_Off"
+      left_pad="5"
+      right="-28"
+      name="profile_btn"
+      tab_stop="false"
+      tool_tip="View profile"
+      top_delta="-2"
+      width="20" />
+    <output_monitor
+      auto_update="true"
+      follows="right"
+      draw_border="false"
+      height="16"
+      right="-3"
+      mouse_opaque="true"
+      name="speaking_indicator"
+      width="20" />
  </person_view>
 
