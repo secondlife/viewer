@@ -181,6 +181,7 @@ BOOL LLPersonView::postBuild()
 
 	LLPersonModel * person_model = static_cast<LLPersonModel *>(getViewModelItem());
 
+	mAvatarIcon->setValue(person_model->getAgentID());
 	mInfoBtn->setClickedCallback(boost::bind(&LLFloaterReg::showInstance, "inspect_avatar", LLSD().with("avatar_id", person_model->getAgentID()), FALSE));
 	mProfileBtn->setClickedCallback(boost::bind(&LLAvatarActions::showProfile, person_model->getAgentID()));
 

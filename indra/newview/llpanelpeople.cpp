@@ -1698,7 +1698,12 @@ void LLPanelPeople::addParticipantToModel(LLPersonTabModel * person_folder_model
 {
 	LLPersonModel* person_model = NULL;
 
-	person_model = new LLPersonModel(agent_id, name, mPersonFolderViewModel);
+	LLAvatarName avatar_name;
+	bool avatar_name_exists = LLAvatarNameCache::get(agent_id, &avatar_name);
+
+	std::string aggregated_name = avatar_name_exists ? name + " (" + avatar_name.getDisplayName() + ") " : name;
+
+	person_model = new LLPersonModel(agent_id, aggregated_name, mPersonFolderViewModel);
 	person_folder_model->addParticipant(person_model);
 }
 
