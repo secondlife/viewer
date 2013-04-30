@@ -2086,7 +2086,7 @@ void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 	// Check for currently active session
 	LLUUID session_id = getSelectedSession();
 	// If current session is Nearby Chat or there is only one session remaining, close the floater
-	if (mConversationsItems.size() == 1 || session_id == LLUUID())
+	if (mConversationsItems.size() == 1 || session_id == LLUUID() || app_quitting)
 	{
 		onClickCloseBtn();
 	}
