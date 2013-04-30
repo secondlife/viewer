@@ -157,3 +157,65 @@ LLPersonModel::LLPersonModel(LLFolderViewModelInterface& root_view_model) :
 LLPersonModelCommon(root_view_model)
 {
 }
+
+//
+// LLPersonViewFilter
+//
+
+LLPersonViewFilter::LLPersonViewFilter() :
+    mEmpty(""),
+    mFilterSubString(""),
+    mFilterModified(FILTER_NONE)
+{
+}
+
+void LLPersonViewFilter::setFilterSubString(const std::string& string)
+{
+	std::string filter_sub_string_new = string;
+	LLStringUtil::trimHead(filter_sub_string_new);
+	LLStringUtil::toUpper(filter_sub_string_new);
+    
+	if (mFilterSubString != filter_sub_string_new)
+	{
+		mFilterSubString = filter_sub_string_new;
+	}
+}
+
+std::string::size_type LLPersonViewFilter::getFilterStringSize() const
+{
+	return mFilterSubString.size();
+}
+
+bool LLPersonViewFilter::check(const LLFolderViewModelItem* item)
+{
+	//const LLPersonModelCommon* person = dynamic_cast<const LLPersonModelCommon*>(item);
+	std::string::size_type string_offset = mFilterSubString.size() ? item->getSearchableName().find(mFilterSubString) : std::string::npos;
+    
+	return (mFilterSubString.size() == 0 || string_offset != std::string::npos);
+}
+
+bool LLPersonViewFilter::showAllResults() const
+{
+	return mFilterSubString.size() > 0;
+}
+
+std::string::size_type LLPersonViewFilter::getStringMatchOffset(LLFolderViewModelItem* item) const
+{
+	return mFilterSubString.size() ? item->getSearchableName().find(mFilterSubString) : std::string::npos;
+}
+
+bool LLPersonViewFilter::isActive() const
+{
+	return mFilterSubString.size();
+}
+
+bool LLPersonViewFilter::isModified() const
+{
+    return isActive();
+}
+
+void LLPersonViewFilter::clearModified()
+{
+    mFilterModified = FILTER_NONE;
+	setFilterSubString("");
+}
