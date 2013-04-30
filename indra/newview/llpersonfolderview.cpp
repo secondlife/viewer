@@ -104,7 +104,6 @@ LLPersonView * LLPersonFolderView::createConversationViewParticipant(LLPersonMod
 	//24 should be loaded from .xml somehow
 	params.rect = LLRect (0, 24, getRect().getWidth(), 0);
 	params.tool_tip = params.name;
-	params.folder_indentation = 2;
 
 	return LLUICtrlFactory::create<LLPersonView>(params);
 }

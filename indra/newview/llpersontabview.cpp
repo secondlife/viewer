@@ -117,16 +117,32 @@ void LLPersonTabView::drawHighlight()
 static LLDefaultChildRegistry::Register<LLPersonView> r_person_view("person_view");
 
 LLPersonView::Params::Params() :
-avatar_icon("avatar_icon")
+avatar_icon("avatar_icon"),
+last_interaction_time_textbox("last_interaction_time_textbox"),
+permission_edit_theirs_icon("permission_edit_theirs_icon"),
+permission_edit_mine_icon("permission_edit_mine_icon"),
+permission_map_icon("permission_map_icon"),
+permission_online_icon("permission_online_icon"),
+info_btn("info_btn"),
+profile_btn("profile_btn"),
+output_monitor("output_monitor")
 {}
 
 LLPersonView::LLPersonView(const LLPersonView::Params& p) :
 LLFolderViewItem(p),
 mImageOver(LLUI::getUIImage("ListItem_Over")),
 mImageSelected(LLUI::getUIImage("ListItem_Select")),
-mAvatarIcon(NULL)
+mAvatarIcon(NULL),
+mLastInteractionTimeTextbox(NULL),
+mPermissionEditTheirsIcon(NULL),
+mPermissionEditMineIcon(NULL),
+mPermissionMapIcon(NULL),
+mPermissionOnlineIcon(NULL),
+mInfoBtn(NULL),
+mProfileBtn(NULL),
+mOutputMonitorCtrl(NULL)
 {
-
+	initChildrenWidths(this);
 }
 
 S32 LLPersonView::getLabelXPos()
@@ -175,7 +191,7 @@ void LLPersonView::drawHighlight()
 	if(mIsSelected)
 	{
 		mImageSelected->draw(x, y, width, height);
-		//Need to find a better color that matches the outline in avatarlistitem
+		//Draw outline
 		gl_rect_2d(x, 
 			height, 
 			width,
@@ -195,4 +211,44 @@ void LLPersonView::initFromParams(const LLPersonView::Params & params)
 	applyXUILayout(avatar_icon_params, this);
 	mAvatarIcon = LLUICtrlFactory::create<LLAvatarIconCtrl>(avatar_icon_params);
 	addChild(mAvatarIcon);
+	
+	LLTextBox::Params last_interaction_time_textbox(params.last_interaction_time_textbox());
+	applyXUILayout(last_interaction_time_textbox, this);
+	mLastInteractionTimeTextbox = LLUICtrlFactory::create<LLTextBox>(last_interaction_time_textbox);
+	addChild(mLastInteractionTimeTextbox);
+
+	LLIconCtrl::Params permission_edit_theirs_icon(params.permission_edit_theirs_icon());
+	applyXUILayout(permission_edit_theirs_icon, this);
+	mPermissionEditTheirsIcon = LLUICtrlFactory::create<LLIconCtrl>(permission_edit_theirs_icon);
+	addChild(mPermissionEditTheirsIcon);
+
+	LLIconCtrl::Params permission_map_icon(params.permission_map_icon());
+	applyXUILayout(permission_map_icon, this);
+	mPermissionMapIcon = LLUICtrlFactory::create<LLIconCtrl>(permission_map_icon);
+	addChild(mPermissionMapIcon);
+
+	LLIconCtrl::Params permission_online_icon(params.permission_online_icon());
+	applyXUILayout(permission_online_icon, this);
+	mPermissionOnlineIcon = LLUICtrlFactory::create<LLIconCtrl>(permission_online_icon);
+	addChild(mPermissionOnlineIcon);
+
+	LLButton::Params info_btn(params.info_btn());
+	applyXUILayout(info_btn, this);
+	mInfoBtn = LLUICtrlFactory::create<LLButton>(info_btn);
+	addChild(mInfoBtn);
+
+	LLButton::Params profile_btn(params.profile_btn());
+	applyXUILayout(profile_btn, this);
+	mProfileBtn = LLUICtrlFactory::create<LLButton>(profile_btn);
+	addChild(mProfileBtn);
+	
+	LLOutputMonitorCtrl::Params output_monitor(params.output_monitor());
+	applyXUILayout(output_monitor, this);
+	mOutputMonitorCtrl = LLUICtrlFactory::create<LLOutputMonitorCtrl>(output_monitor);
+	addChild(mOutputMonitorCtrl);
+}
+
+void LLPersonView::initChildrenWidths(LLPersonView* self)
+{
+
 }

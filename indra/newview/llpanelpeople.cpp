@@ -91,9 +91,6 @@ static const std::string FBCTEST_TAB_NAME	= "fbctest_panel";
 static const std::string FBCTESTTWO_TAB_NAME	= "fbctesttwo_panel";
 static const std::string COLLAPSED_BY_USER  = "collapsed_by_user";
 
-static const std::string FBC_SERVICES_URL = "https://pdp15.lindenlab.com/fbc";
-static const std::string FBC_SERVICES_REDIRECT_URI = "https://pdp15.lindenlab.com/redirect";
-
 class LLFacebookConnectHandler : public LLCommandHandler
 {
 public:
@@ -1733,6 +1730,14 @@ public:
 			llinfos << "failed to get response. reason: " << reason << " status: " << status << llendl;
 		}
 	}
+
+	/*virtual*/ void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+	{
+		if (status == 302)
+		{
+			mPanelPeople->openFacebookWeb(content["location"]);
+		}
+	}
 };
 
 class FacebookDisconnectResponder : public LLHTTPClient::Responder
@@ -1786,7 +1791,7 @@ public:
 			// show the facebook login page if not connected yet
 			if (status == 404 && mShowLoginIfNotConnected)
 			{
-				mPanelPeople->openFacebookWeb("https://www.facebook.com/dialog/oauth?client_id=565771023434202&redirect_uri=" + mPanelPeople->getFacebookRedirectURL());
+				mPanelPeople->connectToFacebook();
 			}
 		}
 	}
@@ -1814,6 +1819,14 @@ public:
 			llinfos << "failed to get response. reason: " << reason << " status: " << status << llendl;
 		}
 	}
+
+	/*virtual*/ void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+	{
+		if (status == 302)
+		{
+			mPanelPeople->openFacebookWeb(content["location"]);
+		}
+	}
 };
 
 void LLPanelPeople::loadFacebookFriends()
@@ -1832,8 +1845,9 @@ void LLPanelPeople::tryToReconnectToFacebook()
 void LLPanelPeople::connectToFacebook(const std::string& auth_code)
 {
 	LLSD body;
-	body["code"] = auth_code;
-	body["redirect_uri"] = getFacebookRedirectURL();
+	if (!auth_code.empty())
+		body["code"] = auth_code;
+
 	LLHTTPClient::put(getFacebookConnectURL("/connection"), body, new FacebookConnectResponder(this));
 }
 
@@ -1850,13 +1864,6 @@ std::string LLPanelPeople::getFacebookConnectURL(const std::string& route)
 	return url;
 }
 
-std::string LLPanelPeople::getFacebookRedirectURL()
-{
-	static std::string sFacebookRedirectUrl = gAgent.getRegion()->getCapability("FacebookRedirect");
-	llinfos << sFacebookRedirectUrl << llendl;
-	return sFacebookRedirectUrl;
-}	
-
 void LLPanelPeople::onLoginFbcButtonClicked()
 {
 	if (mConnectedToFbc)
@@ -1871,12 +1878,10 @@ void LLPanelPeople::onLoginFbcButtonClicked()
 
 void LLPanelPeople::onFacebookAppRequestClicked()
 {
-	openFacebookWeb("http://www.facebook.com/dialog/apprequests?app_id=565771023434202&message=Test&redirect_uri=" + getFacebookRedirectURL());
 }
 
 void LLPanelPeople::onFacebookAppSendClicked()
 {
-	openFacebookWeb("https://www.facebook.com/dialog/send?app_id=565771023434202&name=Join Second Life!&link=https://join.secondlife.com&redirect_uri=" + getFacebookRedirectURL());
 }
 
 static LLFastTimer::DeclareTimer FTM_AVATAR_LIST_TEST("avatar list test");

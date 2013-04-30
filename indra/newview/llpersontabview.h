@@ -28,7 +28,10 @@
 #define LL_LLPERSONTABVIEW_H
 
 #include "llavatariconctrl.h"
+#include "llbutton.h"
 #include "llfolderviewitem.h"
+#include "lloutputmonitorctrl.h"
+#include "lltextbox.h"
 
 class LLPersonTabView : public LLFolderViewFolder
 {
@@ -70,6 +73,14 @@ public:
 	{
 		Params();
 		Optional<LLAvatarIconCtrl::Params> avatar_icon;
+		Optional<LLTextBox::Params> last_interaction_time_textbox;
+		Optional<LLIconCtrl::Params> permission_edit_theirs_icon;
+		Optional<LLIconCtrl::Params> permission_edit_mine_icon;
+		Optional<LLIconCtrl::Params> permission_map_icon;
+		Optional<LLIconCtrl::Params> permission_online_icon;
+		Optional<LLButton::Params> info_btn;
+		Optional<LLButton::Params> profile_btn;
+		Optional<LLOutputMonitorCtrl::Params> output_monitor;
 	};
 
 	LLPersonView(const LLPersonView::Params& p);
@@ -89,18 +100,34 @@ private:
 	LLPointer<LLUIImage> mImageSelected;
 
 	LLAvatarIconCtrl* mAvatarIcon;
+	LLTextBox * mLastInteractionTimeTextbox;
+	LLIconCtrl * mPermissionEditTheirsIcon;
+	LLIconCtrl * mPermissionEditMineIcon;
+	LLIconCtrl * mPermissionMapIcon;
+	LLIconCtrl * mPermissionOnlineIcon;
 	LLButton * mInfoBtn;
+	LLButton * mProfileBtn;
+	LLOutputMonitorCtrl * mOutputMonitorCtrl;
+
+
 
 	typedef enum e_avatar_item_child {
 		ALIC_SPEAKER_INDICATOR,
+		ALIC_PROFILE_BUTTON,
 		ALIC_INFO_BUTTON,
+		ALIC_PERMISSION_ONLINE,
+		ALIC_PERMISSION_MAP,
+		ALIC_PERMISSION_EDIT_MINE,
+		ALIC_PERMISSION_EDIT_THEIRS,
+		ALIC_INTERACTION_TIME,
 		ALIC_COUNT,
 	} EAvatarListItemChildIndex;
 
-	static bool	sStaticInitialized; // this variable is introduced to improve code readability
-	static S32 sChildrenWidths[ALIC_COUNT];
-	//static void initChildrenWidths(LLConversationViewParticipant* self);
-	//void updateChildren();
+	static bool	sStaticInitialized;
+	static S32 sMouseOverChildrenWidths[ALIC_COUNT];
+	static S32 sMouseOverChildren[ALIC_COUNT];
+	static void initChildrenWidths(LLPersonView* self);
+	void updateChildren();
 	//LLView* getItemChildView(EAvatarListItemChildIndex child_view_index);
 };
 

@@ -69,11 +69,10 @@ public:
 	void hideFacebookFriends();
 	void loadFacebookFriends();
 	void tryToReconnectToFacebook();
-	void connectToFacebook(const std::string& auth_code);
+	void connectToFacebook(const std::string& auth_code = "");
 	void disconnectFromFacebook();
 	
 	std::string getFacebookConnectURL(const std::string& route = "");
-	std::string getFacebookRedirectURL();
 	
 	bool mConnectedToFbc;
 	bool mTryToConnectToFbc;
