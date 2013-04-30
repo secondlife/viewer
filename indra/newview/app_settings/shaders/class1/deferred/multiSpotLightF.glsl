@@ -184,6 +184,7 @@ void main()
 	vec3 col = vec3(0,0,0);
 		
 	vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
+	vec3 dlit = vec3(0, 0, 0);
 		
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
 	if (proj_tc.z > 0.0 &&
@@ -202,14 +203,13 @@ void main()
 			
 			vec4 plcol = texture2DLodDiffuse(projectionMap, proj_tc.xy, lod);
 		
-			vec3 lcol = color.rgb * plcol.rgb * plcol.a;
+			dlit = color.rgb * plcol.rgb * plcol.a;
 			
 			lit = da * dist_atten * noise;
 			
-			col = lcol*lit*diff_tex;
+			col = dlit*lit*diff_tex;
 			amb_da += (da*0.5)*proj_ambiance;
 		}
-		
 		//float diff = clamp((proj_range-proj_focus)/proj_range, 0.0, 1.0);
 		vec4 amb_plcol = texture2DLodAmbient(projectionMap, proj_tc.xy, proj_lod);
 							
@@ -218,8 +218,7 @@ void main()
 		amb_da *= dist_atten * noise;
 			
 		amb_da = min(amb_da, 1.0-lit);
-			
-		col += amb_da*color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a;
+		col += amb_da*color.rgb*diff_tex*amb_plcol.rgb*amb_plcol.a;
 	}
 	
 	
@@ -227,7 +226,6 @@ void main()
 	
 	if (spec.a > 0.0)
 	{
-		float lit = da * dist_atten * noise;
 		vec3 npos = -normalize(pos);
 
 		//vec3 ref = dot(pos+lv, norm);
@@ -244,7 +242,7 @@ void main()
 		if (nh > 0.0)
 		{
 			float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-			col += lit*scol*color.rgb*spec.rgb;
+			col += dlit*scol*spec.rgb;
 			//col += spec.rgb;
 		}
 	}	

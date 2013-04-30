@@ -131,16 +131,10 @@ void calcAtmospherics(vec3 inPositionEye) {
 	  + (haze_horizon * haze_weight) * (sunlight*(1.-cloud_shadow) * temp2.x
 		  + tmpAmbient)));
 	
-	float gammaScale = 1.0;
-	if (global_gamma > 1.0)
-	{
-		gammaScale = global_gamma / 2 + global_gamma;
-	}
-
 	//brightness of surface both sunlight and ambient
-	setSunlitColor(pow(vec3(sunlight * .5), vec3(global_gamma)) * gammaScale);
-	setAmblitColor(pow(vec3(tmpAmbient * .25), vec3(global_gamma)) * gammaScale);
-	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(global_gamma)) * gammaScale);
+	setSunlitColor(pow(vec3(sunlight * .5), vec3(global_gamma)) * global_gamma);
+	setAmblitColor(pow(vec3(tmpAmbient * .25), vec3(global_gamma)) * global_gamma);
+	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(global_gamma)) * global_gamma);
 
 	// vary_SunlitColor = vec3(0);
 	// vary_AmblitColor = vec3(0);

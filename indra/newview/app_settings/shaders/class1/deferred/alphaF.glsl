@@ -121,7 +121,7 @@ void main()
 	vec3 normal = vary_norm; 
 	
 	vec3 l = light_position[0].xyz;
-	vec3 dlight = calcDirectionalLight(normal, l);
+	vec3 dlight = calcDirectionalLight(normal, l) * 2.6;
 	dlight = dlight * vary_directional.rgb * vary_pointlight_col;
 
 	vec4 col = vec4(vary_ambient + dlight, vertex_color_alpha);
@@ -132,8 +132,7 @@ void main()
 	color.rgb = scaleSoftClip(color.rgb);
 	col = vec4(0,0,0,0);
 
-   #define LIGHT_LOOP(i) \
-	col.rgb += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+   #define LIGHT_LOOP(i) col.rgb += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
 
 	LIGHT_LOOP(1)
 	LIGHT_LOOP(2)

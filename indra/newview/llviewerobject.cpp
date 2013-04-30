@@ -4086,47 +4086,50 @@ S32 LLViewerObject::setTETextureCore(const U8 te, LLViewerTexture *image)
 
 S32 LLViewerObject::setTENormalMapCore(const U8 te, LLViewerTexture *image)
 {
-	S32 retval = 0;
+	llassert(image);
+	S32 retval = TEM_CHANGE_TEXTURE;
 	const LLUUID& uuid = image->getID();
-	if (uuid != getTE(te)->getMaterialParams()->getNormalID())
+	if (uuid != getTE(te)->getID() ||
+		uuid == LLUUID::null)
 	{
-		retval = TEM_CHANGE_TEXTURE;
 		LLTextureEntry* tep = getTE(te);
-		LLMaterial* mat = tep->getMaterialParams();
+		LLMaterial* mat = tep ? tep->getMaterialParams() : NULL;
 		if (mat)
 		{
 			mat->setNormalID(uuid);
 		}
-		mTENormalMaps[te] = image;
+
 		setChanged(TEXTURE);
 		if (mDrawable.notNull())
 		{
 			gPipeline.markTextured(mDrawable);
 		}
 	}
+	mTENormalMaps[te] = image;	
 	return retval;
 }
 
 S32 LLViewerObject::setTESpecularMapCore(const U8 te, LLViewerTexture *image)
 {
-	S32 retval = 0;
+	llassert(image);
+	S32 retval = TEM_CHANGE_TEXTURE;
 	const LLUUID& uuid = image->getID();
-	if (uuid != getTE(te)->getMaterialParams()->getSpecularID())
+	if (uuid != getTE(te)->getID() ||
+		uuid == LLUUID::null)
 	{
-		retval = TEM_CHANGE_TEXTURE;
 		LLTextureEntry* tep = getTE(te);
-		LLMaterial* mat = tep->getMaterialParams();
+		LLMaterial* mat = tep ? tep->getMaterialParams() : NULL;
 		if (mat)
 		{
 			mat->setSpecularID(uuid);
-		}
-		mTESpecularMaps[te] = image;
+		}		
 		setChanged(TEXTURE);
 		if (mDrawable.notNull())
 		{
 			gPipeline.markTextured(mDrawable);
 		}
 	}
+	mTESpecularMaps[te] = image;
 	return retval;
 }
 

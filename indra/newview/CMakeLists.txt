@@ -754,6 +754,7 @@ set(viewer_HEADER_FILES
     lldrawpoolalpha.h
     lldrawpoolavatar.h
     lldrawpoolbump.h
+    lldrawpoolmaterials.h
     lldrawpoolground.h
     lldrawpoolsimple.h
     lldrawpoolsky.h
