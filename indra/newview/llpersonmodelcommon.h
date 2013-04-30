@@ -127,7 +127,7 @@ private:
 
 };
 
-//Below code is just copied and adjusted from llconversationmodel.h, will need to investigate further
+// Filtering functional object
 
 class LLPersonViewFilter : public LLFolderViewFilter
 {
@@ -143,20 +143,23 @@ public:
 	// Default sort order is by type for sessions and by date for participants
 	static const U32 SO_DEFAULT = (SO_SESSION_TYPE << 16) | (SO_DATE);
 
-	LLPersonViewFilter() { mEmpty = ""; }
+	LLPersonViewFilter();
 	~LLPersonViewFilter() {}
 
-	bool 				check(const LLFolderViewModelItem* item) { return true; }
+	void 				setFilterSubString(const std::string& string);
+	std::string::size_type getFilterStringSize() const;
+	bool 				check(const LLFolderViewModelItem* item);
+	bool				showAllResults() const;
+	std::string::size_type getStringMatchOffset(LLFolderViewModelItem* item) const;
+ 	bool 				isActive() const;
+	bool 				isModified() const;
+	void 				clearModified();
+   
 	bool				checkFolder(const LLFolderViewModelItem* folder) const { return true; }
+    
 	void 				setEmptyLookupMessage(const std::string& message) { }
 	std::string			getEmptyLookupMessage() const { return mEmpty; }
-	bool				showAllResults() const { return true; }
-	std::string::size_type getStringMatchOffset(LLFolderViewModelItem* item) const { return std::string::npos; }
-	std::string::size_type getFilterStringSize() const { return 0; }
 
-	bool 				isActive() const { return false; }
-	bool 				isModified() const { return false; }
-	void 				clearModified() { }
 	const std::string& 	getName() const { return mEmpty; }
 	const std::string& 	getFilterText() { return mEmpty; }
 	void 				setModified(EFilterModified behavior = FILTER_RESTART) { }
@@ -173,8 +176,11 @@ public:
 	S32 				getCurrentGeneration() const { return 0; }
 	S32 				getFirstSuccessGeneration() const { return 0; }
 	S32 				getFirstRequiredGeneration() const { return 0; }
+    
 private:
-	std::string mEmpty;
+	std::string         mEmpty;
+	std::string			mFilterSubString;
+	EFilterModified 	mFilterModified;
 };
 
 class LLPersonViewSort

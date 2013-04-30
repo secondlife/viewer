@@ -1200,23 +1200,23 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
 	{
 		// store accordion tabs opened/closed state before any manipulation with accordion tabs
 		if (!saved_filter.empty())
-	{
-		notifyChildren(LLSD().with("action","store_state"));
-	}
+        {
+            notifyChildren(LLSD().with("action","store_state"));
+        }
 
 		mOnlineFriendList->setNameFilter(filter);
 		mAllFriendList->setNameFilter(filter);
 
-	setAccordionCollapsedByUser("tab_online", false);
-	setAccordionCollapsedByUser("tab_all", false);
-	showFriendsAccordionsIfNeeded();
+        setAccordionCollapsedByUser("tab_online", false);
+        setAccordionCollapsedByUser("tab_all", false);
+        showFriendsAccordionsIfNeeded();
 
 		// restore accordion tabs state _after_ all manipulations
 		if(saved_filter.empty())
-	{
-		notifyChildren(LLSD().with("action","restore_state"));
-	}
-}
+        {
+            notifyChildren(LLSD().with("action","restore_state"));
+        }
+    }
 	else if (cur_tab == GROUP_TAB_NAME)
 	{
 		mGroupList->setNameFilter(filter);
@@ -1225,6 +1225,10 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
 	{
 		mRecentList->setNameFilter(filter);
 	}
+    else if (cur_tab == FBCTESTTWO_TAB_NAME)
+    {
+        mPersonFolderViewModel.getFilter().setFilterSubString(filter);
+    }
 }
 
 void LLPanelPeople::onTabSelected(const LLSD& param)
