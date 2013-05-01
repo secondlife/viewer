@@ -31,6 +31,7 @@
       name="last_interaction_time_textbox"
       text_color="LtGray_50"
       value="0s"
+      visible="false" 
       width="35" />
     <permission_edit_theirs_icon
       layout="topleft"
@@ -42,6 +43,7 @@
       name="permission_edit_theirs_icon"
       tool_tip="You can edit this friend&apos;s objects"
       top="4"
+      visible="false" 
       width="16" />
     <permission_edit_mine_icon
       layout="topleft"
@@ -52,6 +54,8 @@
       right="-110"
       name="permission_edit_mine_icon"
       tool_tip="This friend can edit, delete or take your objects"
+      top="4"
+      visible="false" 
       width="16" />
     <permission_map_icon
       height="16"
@@ -61,6 +65,7 @@
       tool_tip="This friend can locate you on the map"
       right="-91"
       name="permission_map_icon"
+      visible="false" 
       width="16" />
     <permission_online_icon
       height="16"
@@ -70,6 +75,7 @@
       right="-72"
       name="permission_online_icon"
       tool_tip="This friend can see when you&apos;re online"
+      visible="false" 
       width="16" />
     <info_btn
       follows="right"
@@ -81,8 +87,10 @@
       name="info_btn"
       tool_tip="More info"
       tab_stop="false"
+      visible="false"      
       width="16" />
     <profile_btn
+      layout="topleft"
       follows="right"
       height="20"
       image_overlay="Web_Profile_Off"
@@ -91,7 +99,8 @@
       name="profile_btn"
       tab_stop="false"
       tool_tip="View profile"
-      top_delta="-2"
+      top="2"
+      visible="false"
       width="20" />
     <output_monitor
       auto_update="true"
@@ -101,6 +110,7 @@
       right="-3"
       mouse_opaque="true"
       name="speaking_indicator"
+      visible="false"
       width="20" />
  </person_view>
 

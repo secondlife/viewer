@@ -29,6 +29,10 @@
 
 #include "llpersontabview.h"
 
+#include "llavataractions.h"
+#include "llfloaterreg.h"
+#include "llpersonmodelcommon.h"
+
 static LLDefaultChildRegistry::Register<LLPersonTabView> r_person_tab_view("person_tab_view");
 
 const LLColor4U DEFAULT_WHITE(255, 255, 255);
@@ -116,6 +120,9 @@ void LLPersonTabView::drawHighlight()
 
 static LLDefaultChildRegistry::Register<LLPersonView> r_person_view("person_view");
 
+bool LLPersonView::sChildrenWidthsInitialized = false;
+ChildWidthVec LLPersonView::mChildWidthVec;
+
 LLPersonView::Params::Params() :
 avatar_icon("avatar_icon"),
 last_interaction_time_textbox("last_interaction_time_textbox"),
@@ -142,7 +149,6 @@ mInfoBtn(NULL),
 mProfileBtn(NULL),
 mOutputMonitorCtrl(NULL)
 {
-	initChildrenWidths(this);
 }
 
 S32 LLPersonView::getLabelXPos()
@@ -160,6 +166,42 @@ void LLPersonView::addToFolder(LLFolderViewFolder * person_folder_view)
 LLPersonView::~LLPersonView()
 {
 
+}
+
+BOOL LLPersonView::postBuild()
+{
+	if(!sChildrenWidthsInitialized)
+	{
+		initChildrenWidthVec(this);
+		sChildrenWidthsInitialized = true;
+	}
+	
+	initChildVec();
+	updateChildren();
+
+	LLPersonModel * person_model = static_cast<LLPersonModel *>(getViewModelItem());
+
+	mAvatarIcon->setValue(person_model->getAgentID());
+	mInfoBtn->setClickedCallback(boost::bind(&LLFloaterReg::showInstance, "inspect_avatar", LLSD().with("avatar_id", person_model->getAgentID()), FALSE));
+	mProfileBtn->setClickedCallback(boost::bind(&LLAvatarActions::showProfile, person_model->getAgentID()));
+
+	return LLFolderViewItem::postBuild();
+}
+
+void LLPersonView::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+	mInfoBtn->setVisible(TRUE);
+	mProfileBtn->setVisible(TRUE);
+	updateChildren();
+	LLFolderViewItem::onMouseEnter(x, y, mask);
+}
+
+void LLPersonView::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	mInfoBtn->setVisible(FALSE);
+	mProfileBtn->setVisible(FALSE);
+	updateChildren();
+	LLFolderViewItem::onMouseLeave(x, y, mask);
 }
 
 void LLPersonView::draw()
@@ -222,6 +264,11 @@ void LLPersonView::initFromParams(const LLPersonView::Params & params)
 	mPermissionEditTheirsIcon = LLUICtrlFactory::create<LLIconCtrl>(permission_edit_theirs_icon);
 	addChild(mPermissionEditTheirsIcon);
 
+	LLIconCtrl::Params permission_edit_mine_icon(params.permission_edit_mine_icon());
+	applyXUILayout(permission_edit_mine_icon, this);
+	mPermissionEditMineIcon = LLUICtrlFactory::create<LLIconCtrl>(permission_edit_mine_icon);
+	addChild(mPermissionEditMineIcon);
+
 	LLIconCtrl::Params permission_map_icon(params.permission_map_icon());
 	applyXUILayout(permission_map_icon, this);
 	mPermissionMapIcon = LLUICtrlFactory::create<LLIconCtrl>(permission_map_icon);
@@ -248,7 +295,68 @@ void LLPersonView::initFromParams(const LLPersonView::Params & params)
 	addChild(mOutputMonitorCtrl);
 }
 
-void LLPersonView::initChildrenWidths(LLPersonView* self)
+void LLPersonView::initChildrenWidthVec(LLPersonView* self)
 {
+	S32 output_monitor_width = self->getRect().getWidth() - self->mOutputMonitorCtrl->getRect().mLeft;
+	S32 profile_btn_width = self->mOutputMonitorCtrl->getRect().mLeft - self->mProfileBtn->getRect().mLeft;
+	S32 info_btn_width = self->mProfileBtn->getRect().mLeft - self->mInfoBtn->getRect().mLeft;
+	S32 permission_online_icon_width = self->mInfoBtn->getRect().mLeft - self->mPermissionOnlineIcon->getRect().mLeft;
+	S32 permissions_map_icon_width = self->mPermissionOnlineIcon->getRect().mLeft - self->mPermissionMapIcon->getRect().mLeft;
+	S32 permission_edit_mine_icon_width = self->mPermissionMapIcon->getRect().mLeft - self->mPermissionEditMineIcon->getRect().mLeft;
+	S32 permission_edit_theirs_icon_width = self->mPermissionEditMineIcon->getRect().mLeft - self->mPermissionEditTheirsIcon->getRect().mLeft;
+	S32 last_interaction_time_textbox_width = self->mPermissionEditTheirsIcon->getRect().mLeft - self->mLastInteractionTimeTextbox->getRect().mLeft;
 
+	self->mChildWidthVec.push_back(output_monitor_width);
+	self->mChildWidthVec.push_back(profile_btn_width);
+	self->mChildWidthVec.push_back(info_btn_width);
+	self->mChildWidthVec.push_back(permission_online_icon_width);
+	self->mChildWidthVec.push_back(permissions_map_icon_width);
+	self->mChildWidthVec.push_back(permission_edit_mine_icon_width);
+	self->mChildWidthVec.push_back(permission_edit_theirs_icon_width);
+	self->mChildWidthVec.push_back(last_interaction_time_textbox_width);
+}
+
+void LLPersonView::initChildVec()
+{
+	mChildVec.push_back(mOutputMonitorCtrl);
+	mChildVec.push_back(mProfileBtn);
+	mChildVec.push_back(mInfoBtn);
+	mChildVec.push_back(mPermissionOnlineIcon);
+	mChildVec.push_back(mPermissionMapIcon);
+	mChildVec.push_back(mPermissionEditMineIcon);
+	mChildVec.push_back(mPermissionEditTheirsIcon);
+	mChildVec.push_back(mLastInteractionTimeTextbox);
+}
+
+void LLPersonView::updateChildren()
+{
+	mLabelPaddingRight = 0;
+	LLView * control;
+	S32 control_width;
+	LLRect control_rect;
+
+	llassert(mChildWidthVec.size() == mChildVec.size());
+
+	for(S32 i = 0; i < mChildWidthVec.size(); ++i)
+	{
+		control = mChildVec[i];
+
+		if(!control->getVisible())
+		{
+			continue;
+		}
+
+		control_width = mChildWidthVec[i];
+		mLabelPaddingRight += control_width;
+
+		control_rect = control->getRect();
+		control_rect.setLeftTopAndSize(
+			getLocalRect().getWidth() - mLabelPaddingRight,
+			control_rect.mTop,
+			control_rect.getWidth(),
+			control_rect.getHeight());
+
+		control->setShape(control_rect);
+
+	}
 }

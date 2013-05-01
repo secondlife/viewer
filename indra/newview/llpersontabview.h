@@ -64,6 +64,9 @@ private:
 
 };
 
+typedef std::vector<S32> ChildWidthVec;
+typedef std::vector<LLView *> ChildVec;
+
 class LLPersonView : public LLFolderViewItem
 {
 
@@ -86,11 +89,15 @@ public:
 	LLPersonView(const LLPersonView::Params& p);
 	virtual ~LLPersonView();
 
-	 S32 getLabelXPos();
-	 void addToFolder(LLFolderViewFolder * person_folder_view);
-	 void initFromParams(const LLPersonView::Params & params);
+	S32 getLabelXPos();
+	void addToFolder(LLFolderViewFolder * person_folder_view);
+	void initFromParams(const LLPersonView::Params & params);
+	BOOL postBuild();
+	void onMouseEnter(S32 x, S32 y, MASK mask);
+	void onMouseLeave(S32 x, S32 y, MASK mask);
 
 protected:	
+	
 	void draw();
 	void drawHighlight();
 
@@ -123,12 +130,15 @@ private:
 		ALIC_COUNT,
 	} EAvatarListItemChildIndex;
 
-	static bool	sStaticInitialized;
-	static S32 sMouseOverChildrenWidths[ALIC_COUNT];
-	static S32 sMouseOverChildren[ALIC_COUNT];
-	static void initChildrenWidths(LLPersonView* self);
+	//Widths of controls are same for every instance so can be static
+	static ChildWidthVec mChildWidthVec;
+	//Control pointers are different for each instance so non-static
+	ChildVec mChildVec;
+
+	static bool	sChildrenWidthsInitialized;
+	static void initChildrenWidthVec(LLPersonView* self);
+	void initChildVec();
 	void updateChildren();
-	//LLView* getItemChildView(EAvatarListItemChildIndex child_view_index);
 };
 
 #endif // LL_LLPERSONTABVIEW_H
