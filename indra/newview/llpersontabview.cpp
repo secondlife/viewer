@@ -65,6 +65,7 @@ BOOL LLPersonTabView::handleMouseDown( S32 x, S32 y, MASK mask )
 
 	if(selected_item)
 	{
+		gFocusMgr.setKeyboardFocus( this );
 		highlight = true;
 	}
 
@@ -202,6 +203,41 @@ void LLPersonView::onMouseLeave(S32 x, S32 y, MASK mask)
 	mProfileBtn->setVisible(FALSE);
 	updateChildren();
 	LLFolderViewItem::onMouseLeave(x, y, mask);
+}
+
+BOOL LLPersonView::handleMouseDown( S32 x, S32 y, MASK mask)
+{
+	if(!LLView::childrenHandleMouseDown(x, y, mask))
+	{
+		gFocusMgr.setMouseCapture( this );
+	}
+
+	if (!mIsSelected)
+	{
+		if(mask & MASK_CONTROL)
+		{
+			getRoot()->changeSelection(this, !mIsSelected);
+		}
+		else if (mask & MASK_SHIFT)
+		{
+			getParentFolder()->extendSelectionTo(this);
+		}
+		else
+		{
+			getRoot()->setSelection(this, FALSE);
+		}
+		make_ui_sound("UISndClick");
+	}
+	else
+	{
+		// If selected, we reserve the decision of deselecting/reselecting to the mouse up moment.
+		// This is necessary so we maintain selection consistent when starting a drag.
+		mSelectPending = TRUE;
+	}
+
+	mDragStartX = x;
+	mDragStartY = y;
+	return TRUE;
 }
 
 void LLPersonView::draw()
