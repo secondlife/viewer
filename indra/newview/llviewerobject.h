@@ -55,7 +55,6 @@ class LLDrawable;
 class LLHost;
 class LLHUDText;
 class LLWorld;
-class LLMaterialID;
 class LLNameValue;
 class LLNetMap;
 class LLMessageSystem;
@@ -87,6 +86,18 @@ typedef void (*inventory_callback)(LLViewerObject*,
 								   LLInventoryObject::object_list_t*,
 								   S32 serial_num,
 								   void*);
+
+// for exporting textured materials from SL
+struct LLMaterialExportInfo
+{
+public:
+	LLMaterialExportInfo(S32 mat_index, S32 texture_index, LLColor4 color) : 
+	  mMaterialIndex(mat_index), mTextureIndex(texture_index), mColor(color) {};
+
+	S32			mMaterialIndex;
+	S32			mTextureIndex;
+	LLColor4	mColor;
+};
 
 struct PotentialReturnableObject
 {
@@ -292,9 +303,9 @@ public:
 	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid);
 	/*virtual*/ S32		setTENormalMap(const U8 te, const LLUUID &uuid);
 	/*virtual*/ S32		setTESpecularMap(const U8 te, const LLUUID &uuid);
-	S32 setTETextureCore(const U8 te, const LLUUID& uuid, LLHost host);
-	S32 setTENormalMapCore(const U8 te, const LLUUID& uuid, LLHost host);
-	S32 setTESpecularMapCore(const U8 te, const LLUUID& uuid, LLHost host);
+	S32 setTETextureCore(const U8 te, LLViewerTexture *image);
+	S32 setTENormalMapCore(const U8 te, LLViewerTexture *image);
+	S32 setTESpecularMapCore(const U8 te, LLViewerTexture *image);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor3 &color);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor4 &color);
 	/*virtual*/ S32		setTEScale(const U8 te, const F32 s, const F32 t);
@@ -657,7 +668,7 @@ protected:
 	//
 
 	static void processTaskInvFile(void** user_data, S32 error_code, LLExtStat ext_status);
-	void loadTaskInvFile(const std::string& filename);
+	BOOL loadTaskInvFile(const std::string& filename);
 	void doInventoryCallback();
 	
 	BOOL isOnMap();

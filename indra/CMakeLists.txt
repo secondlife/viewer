@@ -41,6 +41,7 @@ endif ("${CMAKE_SOURCE_DIR}/../autobuild.xml" IS_NEWER_THAN "${CMAKE_BINARY_DIR}
 add_subdirectory(cmake)
 
 add_subdirectory(${LIBS_OPEN_PREFIX}llaudio)
+add_subdirectory(${LIBS_OPEN_PREFIX}llappearance)
 add_subdirectory(${LIBS_OPEN_PREFIX}llcharacter)
 add_subdirectory(${LIBS_OPEN_PREFIX}llcommon)
 add_subdirectory(${LIBS_OPEN_PREFIX}llcorehttp)
@@ -63,7 +64,6 @@ if (WINDOWS AND EXISTS ${LIBS_CLOSED_DIR}copy_win_scripts)
 endif (WINDOWS AND EXISTS ${LIBS_CLOSED_DIR}copy_win_scripts)
 
 add_custom_target(viewer)
-if (VIEWER)
   add_subdirectory(${LIBS_OPEN_PREFIX}llcrashlogger)
   add_subdirectory(${LIBS_OPEN_PREFIX}llplugin)
   add_subdirectory(${LIBS_OPEN_PREFIX}llui)
@@ -82,7 +82,12 @@ if (VIEWER)
 
   if (LINUX)
     add_subdirectory(${VIEWER_PREFIX}linux_crash_logger)
-    add_dependencies(viewer linux-crash-logger-strip-target)
+  add_subdirectory(${VIEWER_PREFIX}linux_updater)
+  if (INSTALL_PROPRIETARY)
+      include(LLAppearanceUtility)
+      add_subdirectory(${LLAPPEARANCEUTILITY_SRC_DIR} ${LLAPPEARANCEUTILITY_BIN_DIR})
+  endif (INSTALL_PROPRIETARY)
+  add_dependencies(viewer linux-crash-logger-strip-target linux-updater)
   elseif (DARWIN)
     add_subdirectory(${VIEWER_PREFIX}mac_crash_logger)
     add_subdirectory(${VIEWER_PREFIX}mac_updater)
@@ -103,31 +108,9 @@ if (VIEWER)
 
   add_subdirectory(${VIEWER_PREFIX}newview)
   add_dependencies(viewer secondlife-bin)
-endif (VIEWER)
-
-# Linux builds the viewer and server in 2 separate projects
-# In order for build server to work on linux, 
-# the viewer project needs a server target.
-# This is not true for mac and windows.
-if (LINUX) 
-  add_custom_target(server)
-endif (LINUX)
-if (SERVER)
-  if (NOT LINUX)
-    add_custom_target(server)
-  endif (NOT LINUX)
-  include(${SERVER_PREFIX}Server.cmake)
-endif (SERVER)
-
-# Windows builds include tools like VFS tool
-if (SERVER)
-  if (WINDOWS)
-    add_subdirectory(${SERVER_PREFIX}tools)
-  endif (WINDOWS)
-endif (SERVER)
 
 if (LL_TESTS)
-  # Define after the custom viewer and server targets are created so
+  # Define after the custom targets are created so
   # individual apps can add themselves as dependencies
   add_subdirectory(${INTEGRATION_TESTS_PREFIX}integration_tests)
 endif (LL_TESTS)

@@ -29,6 +29,7 @@
 // file include
 #define LLSELECTMGR_CPP
 #include "llselectmgr.h"
+#include "llmaterialmgr.h"
 
 // library includes
 #include "llcachename.h"
@@ -63,7 +64,6 @@
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llinventorymodel.h"
-#include "llmaterialmgr.h"
 #include "llmenugl.h"
 #include "llmeshrepository.h"
 #include "llmutelist.h"
@@ -1197,8 +1197,7 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 	else if (mGridMode == GRID_MODE_REF_OBJECT && first_grid_object && first_grid_object->mDrawable.notNull())
 	{
 		mGridRotation = first_grid_object->getRenderRotation();
-		LLVector3 first_grid_obj_pos = first_grid_object->getRenderPosition();
-        (void)first_grid_obj_pos;
+
 		LLVector4a min_extents(F32_MAX);
 		LLVector4a max_extents(-F32_MAX);
 		BOOL grid_changed = FALSE;
@@ -1604,7 +1603,7 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 				// Texture picker defaults aren't inventory items
 				// * Don't need to worry about permissions for them
 				// * Can just apply the texture and be done with it.
-				objectp->setTEImage(te, LLViewerTextureManager::getFetchedTexture(mImageID, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+				objectp->setTEImage(te, LLViewerTextureManager::getFetchedTexture(mImageID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 			}
 			return true;
 		}
@@ -1770,7 +1769,7 @@ BOOL LLSelectMgr::selectionRevertTextures()
 					}
 					else
 					{
-						object->setTEImage(te, LLViewerTextureManager::getFetchedTexture(id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+						object->setTEImage(te, LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 					}
 				}
 			}
@@ -1923,7 +1922,7 @@ void LLSelectMgr::selectionSetMedia(U8 media_type, const LLSD &media_data)
 					llassert(mMediaData.isMap());
 					const LLTextureEntry *texture_entry = object->getTE(te);
 					if (!mMediaData.isMap() ||
-						((NULL != texture_entry) && !texture_entry->hasMedia() && !mMediaData.has(LLMediaEntry::HOME_URL_KEY)))
+						(NULL != texture_entry) && !texture_entry->hasMedia() && !mMediaData.has(LLMediaEntry::HOME_URL_KEY))
 					{
 						// skip adding/updating media
 					}
@@ -5248,7 +5247,7 @@ void LLSelectMgr::updateSilhouettes()
 
 	if (!mSilhouetteImagep)
 	{
-		mSilhouetteImagep = LLViewerTextureManager::getFetchedTextureFromFile("silhouette.j2c", TRUE, LLViewerTexture::BOOST_UI);
+		mSilhouetteImagep = LLViewerTextureManager::getFetchedTextureFromFile("silhouette.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI);
 	}
 
 	mHighlightedObjects->cleanupNodes();

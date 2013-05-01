@@ -154,7 +154,8 @@ namespace tut
 		BOOL has_perm_mask = FALSE;
 		llsaleinfo1.importLegacyStream(istream, has_perm_mask, perm_mask);
 					
-		ensure("importLegacyStream() fn failed ", llsaleinfo.getSalePrice() == llsaleinfo1.getSalePrice() &&
+		ensure("importStream() fn failed ",
+			llsaleinfo.getSalePrice() == llsaleinfo1.getSalePrice() &&
 										       llsaleinfo.getSaleType() == llsaleinfo1.getSaleType());		
 	}
 

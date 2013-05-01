@@ -2,7 +2,7 @@
 <floater
  positioning="cascading"
  legacy_header_height="18"
- height="615"
+ height="590"
  layout="topleft"
  bg_opaque_image="Window_NoTitle_Foreground"
  bg_alpha_image="Window_NoTitle_Background"
@@ -830,7 +830,7 @@
     width="282"/>
     <tab_container
      follows="left|top"
-     height="435"
+     height="410"
      halign="center"
      left="0"
      name="Object Info Tabs"
@@ -1353,7 +1353,7 @@ even though the user gets a free copy.
       <panel
          border="false"
          follows="all"
-         height="592"
+         height="567"
          label="Object"
          layout="topleft"
          left_delta="0"
@@ -2110,7 +2110,7 @@ even though the user gets a free copy.
         <panel
          border="false"
          follows="all"
-         height="392"
+         height="367"
          label="Features"
          layout="topleft"
          left_delta="0"
@@ -2530,7 +2530,7 @@ even though the user gets a free copy.
              border_visible="true"
              bevel_style="in"
              follows="left|top|right"
-             height="350"
+             height="325"
              layout="topleft"
              left="10"
              name="contents_inventory"
@@ -2540,7 +2540,7 @@ even though the user gets a free copy.
         </tab_container>
 	<panel
 	 follows="left|top"
-     height="409"
+     height="384"
      layout="topleft"
      left_delta="0"
      name="land info panel"

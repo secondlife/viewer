@@ -16,10 +16,7 @@
 			<menu_item_call label="Arrêter mon animation" name="Stop Animating My Avatar"/>
 			<menu_item_call label="Marcher / Courir / Voler..." name="Walk / run / fly"/>
 		</menu>
-		<menu label="Statut" name="Status">
-			<menu_item_call label="Absent" name="Set Away"/>
-			<menu_item_call label="Occupé" name="Set Busy"/>
-		</menu>
+		<menu label="Statut" name="Status"/>
 		<menu_item_call label="Acheter des L$..." name="Buy and Sell L$"/>
 		<menu_item_call label="Boîte d&apos;envoi vendeur..." name="MerchantOutbox"/>
 		<menu_item_call label="Page d&apos;accueil du compte..." name="Manage My Account">
@@ -32,14 +29,18 @@
 		<menu_item_call label="Quitter [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Communiquer" name="Communicate">
-		<menu_item_check label="Chat..." name="Nearby Chat"/>
+		<menu_item_check label="Conversations..." name="Conversations"/>
+		<menu_item_check label="Chat près de moi..." name="Nearby Chat"/>
 		<menu_item_check label="Parler" name="Speak"/>
-		<menu_item_check label="Paramètres vocaux..." name="Nearby Voice"/>
-		<menu_item_check label="Effet de voix..." name="ShowVoice"/>
+		<menu label="Effet de voix" name="VoiceMorphing">
+			<menu_item_check label="Aucun effet de voix" name="NoVoiceMorphing"/>
+			<menu_item_check label="Aperçu..." name="Preview"/>
+			<menu_item_call label="S&apos;abonner..." name="Subscribe"/>
+		</menu>
 		<menu_item_check label="Gestes..." name="Gestures"/>
-		<menu_item_call label="Amis" name="My Friends"/>
-		<menu_item_call label="Groupes" name="My Groups"/>
-		<menu_item_call label="Personnes près de vous" name="Active Speakers"/>
+		<menu_item_check label="Amis" name="My Friends"/>
+		<menu_item_check label="Groupes" name="My Groups"/>
+		<menu_item_check label="Personnes près de vous" name="Active Speakers"/>
 		<menu_item_call label="Liste des ignorés" name="Block List"/>
 	</menu>
 	<menu label="Monde" name="World">

@@ -1847,14 +1847,15 @@ public:
 		GroupMemberDataResponder() {}
 		virtual ~GroupMemberDataResponder() {}
 		virtual void result(const LLSD& pContent);
-		virtual void error(U32 pStatus, const std::string& pReason);
+		virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent);
 private:
 		LLSD mMemberData;
 };
 
-void GroupMemberDataResponder::error(U32 pStatus, const std::string& pReason)
+void GroupMemberDataResponder::errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent)
 {
-	LL_WARNS("GrpMgr") << "Error receiving group member data." << LL_ENDL;
+	LL_WARNS("GrpMgr") << "Error receiving group member data [status:" 
+		<< pStatus << "]: " << pContent << LL_ENDL;
 }
 
 void GroupMemberDataResponder::result(const LLSD& content)

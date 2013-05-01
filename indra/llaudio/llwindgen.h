@@ -27,6 +27,7 @@
 #define WINDGEN_H
 
 #include "llcommon.h"
+#include "llrand.h"
 
 template <class MIXBUFFERFORMAT_T>
 class LLWindGen
@@ -54,6 +55,8 @@ public:
 	}
 
 	const U32 getInputSamplingRate() { return mInputSamplingRate; }
+	const F32 getNextSample();
+	const F32 getClampedSample(bool clamp, F32 sample);
 	
 	// newbuffer = the buffer passed from the previous DSP unit.
 	// numsamples = length in samples-per-channel at this mix time.
@@ -89,7 +92,7 @@ public:
 			
 			// Start with white noise
 			// This expression is fragile, rearrange it and it will break!
-			next_sample = (F32)rand() * (1.0f / (F32)(RAND_MAX / (U16_MAX / 8))) + (F32)(S16_MIN / 8);
+			next_sample = getNextSample();
 			
 			// Apply a pinking filter
 			// Magic numbers taken from PKE method at http://www.firstpr.com.au/dsp/pink-noise/
@@ -126,25 +129,15 @@ public:
 			for (U8 i=mSubSamples; i && numsamples; --i, --numsamples) 
 			{
 				mLastSample = mLastSample + delta;
-				S32	sample_right = (S32)(mLastSample * mCurrentPanGainR);
-				S32	sample_left = (S32)mLastSample - sample_right;
+				MIXBUFFERFORMAT_T	sample_right = (MIXBUFFERFORMAT_T)getClampedSample(clip, mLastSample * mCurrentPanGainR);
+				MIXBUFFERFORMAT_T	sample_left = (MIXBUFFERFORMAT_T)getClampedSample(clip, mLastSample - (F32)sample_right);
 				
-				if (!clip)
-				{
-					*cursamplep = (MIXBUFFERFORMAT_T)sample_left;
+				*cursamplep = sample_left;
 					++cursamplep;
-					*cursamplep = (MIXBUFFERFORMAT_T)sample_right;
-					++cursamplep;
-				}
-				else
-				{
-					*cursamplep = (MIXBUFFERFORMAT_T)llclamp(sample_left, (S32)S16_MIN, (S32)S16_MAX);
-					++cursamplep;
-					*cursamplep = (MIXBUFFERFORMAT_T)llclamp(sample_right, (S32)S16_MIN, (S32)S16_MAX);
+				*cursamplep = sample_right;
 					++cursamplep;
 				}
 			}
-		}
 		
 		return newbuffer;
 	}
@@ -172,5 +165,10 @@ private:
 	F32 mCurrentPanGainR;
 	F32 mLastSample;
 };
+
+template<class T> inline const F32 LLWindGen<T>::getNextSample() { return (F32)rand() * (1.0f / (F32)(RAND_MAX / (U16_MAX / 8))) + (F32)(S16_MIN / 8); }
+template<> inline const F32 LLWindGen<F32>::getNextSample() { return ll_frand()-.5f; }
+template<class T> inline const F32 LLWindGen<T>::getClampedSample(bool clamp, F32 sample) { return clamp ? (F32)llclamp((S32)sample,(S32)S16_MIN,(S32)S16_MAX) : sample; }
+template<> inline const F32 LLWindGen<F32>::getClampedSample(bool clamp, F32 sample) { return sample; }
 
 #endif

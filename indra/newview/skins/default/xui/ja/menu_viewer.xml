@@ -16,10 +16,7 @@
 			<menu_item_call label="私のアニメーションを停止する" name="Stop Animating My Avatar"/>
 			<menu_item_call label="歩行／走行／飛行..." name="Walk / run / fly"/>
 		</menu>
-		<menu label="ログイン" name="Status">
-			<menu_item_call label="一時退席中" name="Set Away"/>
-			<menu_item_call label="取り込み中" name="Set Busy"/>
-		</menu>
+		<menu label="ログイン" name="Status"/>
 		<menu_item_call label="L$ の購入..." name="Buy and Sell L$"/>
 		<menu_item_call label="マーチャントアウトボックス..." name="MerchantOutbox"/>
 		<menu_item_call label="マイアカウント..." name="Manage My Account">
@@ -32,14 +29,18 @@
 		<menu_item_call label="[APP_NAME] を終了" name="Quit"/>
 	</menu>
 	<menu label="コミュニケーション" name="Communicate">
-		<menu_item_check label="チャット..." name="Nearby Chat"/>
+		<menu_item_check label="会話..." name="Conversations"/>
+		<menu_item_check label="近くのチャット..." name="Nearby Chat"/>
 		<menu_item_check label="話す" name="Speak"/>
-		<menu_item_check label="ボイス設定..." name="Nearby Voice"/>
-		<menu_item_check label="ボイスモーフィング..." name="ShowVoice"/>
+		<menu label="ボイスモーフィング" name="VoiceMorphing">
+			<menu_item_check label="ボイスモーフィングなし" name="NoVoiceMorphing"/>
+			<menu_item_check label="プレビュー..." name="Preview"/>
+			<menu_item_call label="申し込む..." name="Subscribe"/>
+		</menu>
 		<menu_item_check label="ジェスチャー..." name="Gestures"/>
-		<menu_item_call label="フレンド" name="My Friends"/>
-		<menu_item_call label="グループ" name="My Groups"/>
-		<menu_item_call label="近くにいる人" name="Active Speakers"/>
+		<menu_item_check label="フレンド" name="My Friends"/>
+		<menu_item_check label="グループ" name="My Groups"/>
+		<menu_item_check label="近くにいる人" name="Active Speakers"/>
 		<menu_item_call label="リストをブロック" name="Block List"/>
 	</menu>
 	<menu label="世界" name="World">

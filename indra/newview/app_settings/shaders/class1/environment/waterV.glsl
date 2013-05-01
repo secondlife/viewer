@@ -28,6 +28,7 @@ uniform mat4 modelview_projection_matrix;
 
 ATTRIBUTE vec3 position;
 
+
 void calcAtmospherics(vec3 inPositionEye);
 
 uniform vec2 d1;

@@ -120,7 +120,6 @@ BOOL	LLPanelFace::postBuild()
 	childSetCommitCallback("maskcutoff",&LLPanelFace::onCommitMaterial, this);
 	childSetAction("button align",&LLPanelFace::onClickAutoFix,this);
 
-	LLRect	rect = this->getRect();
 	LLTextureCtrl*	mTextureCtrl;
 	LLTextureCtrl*	mShinyTextureCtrl;
 	LLTextureCtrl*	mBumpyTextureCtrl;

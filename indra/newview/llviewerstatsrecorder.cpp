@@ -256,7 +256,7 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 	size_t data_size = data_msg.str().size();
 	if ( data_size != fwrite(data_msg.str().c_str(), 1, data_size, mObjectCacheFile ))
 	{
-		llwarns << "Unable to write complete stats record to " << STATS_FILE_NAME << llendl;
+				llwarns << "Unable to write complete column data to " << STATS_FILE_NAME << llendl;
 	}
 	clearStats();
 }

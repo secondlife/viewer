@@ -47,37 +47,6 @@
 
 namespace tut
 {
-	LLSD storage;
-
-	class LLSDStorageNode : public LLHTTPNode
-	{
-	public:
-		LLSD simpleGet() const					{ return storage; }
-		LLSD simplePut(const LLSD& value) const	{ storage = value; return LLSD(); }
-	};
-
-	class ErrorNode : public LLHTTPNode
-	{
-	public:
-		void get(ResponsePtr r, const LLSD& context) const
-			{ r->status(599, "Intentional error"); }
-		void post(ResponsePtr r, const LLSD& context, const LLSD& input) const
-			{ r->status(input["status"], input["reason"]); }
-	};
-
-	class TimeOutNode : public LLHTTPNode
-	{
-	public:
-		void get(ResponsePtr r, const LLSD& context) const
-		{
-            /* do nothing, the request will eventually time out */ 
-		}
-	};
-
-	LLHTTPRegistration<LLSDStorageNode> gStorageNode("/test/storage");
-	LLHTTPRegistration<ErrorNode>		gErrorNode("/test/error");
-	LLHTTPRegistration<TimeOutNode>		gTimeOutNode("/test/timeout");
-
 	struct HTTPClientTestData
 	{
 	public:
@@ -91,7 +60,6 @@ namespace tut
 			ensure("Set environment variable PORT to local test server port", PORT);
 			apr_pool_create(&mPool, NULL);
 			LLCurl::initClass(false);
-			mServerPump = new LLPumpIO(mPool);
 			mClientPump = new LLPumpIO(mPool);
 
 			LLHTTPClient::setPump(*mClientPump);
@@ -99,18 +67,9 @@ namespace tut
 
 		~HTTPClientTestData()
 		{
-			delete mServerPump;
 			delete mClientPump;
 			LLProxy::cleanupClass();
 			apr_pool_destroy(mPool);
-		}
-
-		void setupTheServer()
-		{
-			LLHTTPNode& root = LLIOHTTPServer::create(mPool, *mServerPump, 8888);
-
-			LLHTTPStandardServices::useServices();
-			LLHTTPRegistrar::buildAllServices(root);
 		}
 
 		void runThePump(float timeout = 100.0f)
@@ -120,11 +79,7 @@ namespace tut
 
 			while(!mSawCompleted && !mSawCompletedHeader && !timer.hasExpired())
 			{
-				if (mServerPump)
-				{
-					mServerPump->pump();
-					mServerPump->callback();
-				}
+				LLFrameTimer::updateFrameTime();
 				if (mClientPump)
 				{
 					mClientPump->pump();
@@ -133,18 +88,11 @@ namespace tut
 			}
 		}
 
-		void killServer()
-		{
-			delete mServerPump;
-			mServerPump = NULL;
-		}
-
 		const char* const PORT;
 		const std::string local_server;
 
 	private:
 		apr_pool_t* mPool;
-		LLPumpIO* mServerPump;
 		LLPumpIO* mClientPump;
 
 	protected:
@@ -288,9 +236,7 @@ namespace tut
 		sd["list"][1]["three"] = 3;
 		sd["list"][1]["four"] = 4;
 		
-		setupTheServer();
-
-		LLHTTPClient::post("http://localhost:8888/web/echo", sd, newResult());
+		LLHTTPClient::post(local_server + "web/echo", sd, newResult());
 		runThePump();
 		ensureStatusOK();
 		ensure_equals("echoed result matches", getResult(), sd);
@@ -303,12 +249,11 @@ namespace tut
 
 		sd["message"] = "This is my test message.";
 
-		setupTheServer();
-		LLHTTPClient::put("http://localhost:8888/test/storage", sd, newResult());
+		LLHTTPClient::put(local_server + "test/storage", sd, newResult());
 		runThePump();
 		ensureStatusOK();
 
-		LLHTTPClient::get("http://localhost:8888/test/storage", newResult());
+		LLHTTPClient::get(local_server + "test/storage", newResult());
 		runThePump();
 		ensureStatusOK();
 		ensure_equals("echoed result matches", getResult(), sd);
@@ -322,9 +267,7 @@ namespace tut
 		sd["status"] = 543;
 		sd["reason"] = "error for testing";
 
-		setupTheServer();
-
-		LLHTTPClient::post("http://localhost:8888/test/error", sd, newResult());
+		LLHTTPClient::post(local_server + "test/error", sd, newResult());
 		runThePump();
 		ensureStatusError();
 		ensure_contains("reason", mReason, sd["reason"]);
@@ -333,23 +276,16 @@ namespace tut
 	template<> template<>
 		void HTTPClientTestObject::test<6>()
 	{
-		setupTheServer();
-
-		LLHTTPClient::get("http://localhost:8888/test/timeout", newResult());
-		runThePump(1.0f);
-		killServer();
-		runThePump();
+		const F32 timeout = 1.0f;
+		LLHTTPClient::get(local_server + "test/timeout", newResult(), LLSD(), timeout);
+		runThePump(timeout * 5.0f);
 		ensureStatusError();
-		ensure_equals("reason", mReason, "STATUS_ERROR");
+		ensure_equals("reason", mReason, "STATUS_EXPIRED");
 	}
 
 	template<> template<>
 		void HTTPClientTestObject::test<7>()
 	{
-		// Can not use the little mini server.  The blocking request
-		// won't ever let it run.  Instead get from a known LLSD
-		// source and compare results with the non-blocking get which
-		// is tested against the mini server earlier.
 		LLHTTPClient::get(local_server, newResult());
 		runThePump();
 		ensureStatusOK();

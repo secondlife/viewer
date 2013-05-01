@@ -16,10 +16,7 @@
 			<menu_item_call label="Остановить анимацию" name="Stop Animating My Avatar"/>
 			<menu_item_call label="Ходьба / бег / полет..." name="Walk / run / fly"/>
 		</menu>
-		<menu label="Статус" name="Status">
-			<menu_item_call label="Нет на месте" name="Set Away"/>
-			<menu_item_call label="Не беспокоить" name="Set Busy"/>
-		</menu>
+		<menu label="Статус" name="Status"/>
 		<menu_item_call label="Купить L$..." name="Buy and Sell L$"/>
 		<menu_item_call label="Торговые исходящие..." name="MerchantOutbox"/>
 		<menu_item_call label="Информационная панель аккаунта..." name="Manage My Account"/>
@@ -30,14 +27,18 @@
 		<menu_item_call label="Выход из [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Общение" name="Communicate">
-		<menu_item_check label="Чат..." name="Nearby Chat"/>
+		<menu_item_check label="Разговоры..." name="Conversations"/>
+		<menu_item_check label="Локальный чат..." name="Nearby Chat"/>
 		<menu_item_check label="Говорить" name="Speak"/>
-		<menu_item_check label="Настройки голоса..." name="Nearby Voice"/>
-		<menu_item_check label="Изменение голоса..." name="ShowVoice"/>
+		<menu label="Изменение голоса" name="VoiceMorphing">
+			<menu_item_check label="Без изменения голоса" name="NoVoiceMorphing"/>
+			<menu_item_check label="Просмотр..." name="Preview"/>
+			<menu_item_call label="Подписаться..." name="Subscribe"/>
+		</menu>
 		<menu_item_check label="Жесты..." name="Gestures"/>
-		<menu_item_call label="Друзья" name="My Friends"/>
-		<menu_item_call label="Группы" name="My Groups"/>
-		<menu_item_call label="Люди неподалеку" name="Active Speakers"/>
+		<menu_item_check label="Друзья" name="My Friends"/>
+		<menu_item_check label="Группы" name="My Groups"/>
+		<menu_item_check label="Люди неподалеку" name="Active Speakers"/>
 		<menu_item_call label="Черный список" name="Block List"/>
 	</menu>
 	<menu label="Мир" name="World">

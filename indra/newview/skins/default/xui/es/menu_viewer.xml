@@ -16,10 +16,7 @@
 			<menu_item_call label="Parar mis animaciones" name="Stop Animating My Avatar"/>
 			<menu_item_call label="Caminar / Correr / Volar..." name="Walk / run / fly"/>
 		</menu>
-		<menu label="Estado" name="Status">
-			<menu_item_call label="Ausente" name="Set Away"/>
-			<menu_item_call label="Ocupado" name="Set Busy"/>
-		</menu>
+		<menu label="Estado" name="Status"/>
 		<menu_item_call label="Comprar L$..." name="Buy and Sell L$"/>
 		<menu_item_call label="Panel de control de la cuenta..." name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=es"/>
@@ -31,14 +28,18 @@
 		<menu_item_call label="Salir de [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Comunicarme" name="Communicate">
+		<menu_item_check label="Conversaciones..." name="Conversations"/>
 		<menu_item_check label="Chat..." name="Nearby Chat"/>
 		<menu_item_check label="Hablar" name="Speak"/>
-		<menu_item_check label="Configuración de voz..." name="Nearby Voice"/>
-		<menu_item_check label="Transformación de voz..." name="ShowVoice"/>
+		<menu label="Transformación de voz" name="VoiceMorphing">
+			<menu_item_check label="Sin transformación de voz" name="NoVoiceMorphing"/>
+			<menu_item_check label="Probar..." name="Preview"/>
+			<menu_item_call label="Suscribir..." name="Subscribe"/>
+		</menu>
 		<menu_item_check label="Gestos..." name="Gestures"/>
-		<menu_item_call label="Amigos" name="My Friends"/>
-		<menu_item_call label="Grupos" name="My Groups"/>
-		<menu_item_call label="Gente cerca" name="Active Speakers"/>
+		<menu_item_check label="Amigos" name="My Friends"/>
+		<menu_item_check label="Grupos" name="My Groups"/>
+		<menu_item_check label="Gente cerca" name="Active Speakers"/>
 		<menu_item_call label="Lista de ignorados" name="Block List"/>
 	</menu>
 	<menu label="Mundo" name="World">

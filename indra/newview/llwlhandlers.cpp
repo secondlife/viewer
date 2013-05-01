@@ -121,9 +121,11 @@ LLEnvironmentRequestResponder::LLEnvironmentRequestResponder()
 
 	LLEnvManagerNew::getInstance()->onRegionSettingsResponse(unvalidated_content);
 }
-/*virtual*/ void LLEnvironmentRequestResponder::error(U32 status, const std::string& reason)
+/*virtual*/
+void LLEnvironmentRequestResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	LL_INFOS("WindlightCaps") << "Got an error, not using region windlight..." << LL_ENDL;
+	LL_INFOS("WindlightCaps") << "Got an error, not using region windlight... [status:" 
+		<< status << "]: " << content << LL_ENDL;
 	LLEnvManagerNew::getInstance()->onRegionSettingsResponse(LLSD());
 }
 
@@ -190,14 +192,15 @@ bool LLEnvironmentApply::initiateRequest(const LLSD& content)
 		LLEnvManagerNew::instance().onRegionSettingsApplyResponse(false);
 	}
 }
-/*virtual*/ void LLEnvironmentApplyResponder::error(U32 status, const std::string& reason)
+/*virtual*/
+void LLEnvironmentApplyResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	std::stringstream msg;
-	msg << reason << " (Code " << status << ")";
-
-	LL_WARNS("WindlightCaps") << "Couldn't apply windlight settings to region!  Reason: " << msg << LL_ENDL;
+	LL_WARNS("WindlightCaps") << "Couldn't apply windlight settings to region!  [status:"
+		<< status << "]: " << content << LL_ENDL;
 
 	LLSD args(LLSD::emptyMap());
+	std::stringstream msg;
+	msg << reason << " (Code " << status << ")";
 	args["FAIL_REASON"] = msg.str();
 	LLNotificationsUtil::add("WLRegionApplyFail", args);
 }

@@ -333,7 +333,7 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 	vector< pair<string,GLenum> >::iterator fileIter = mShaderFiles.begin();
 	for ( ; fileIter != mShaderFiles.end(); fileIter++ )
 	{
-		GLhandleARB shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, mDefines, mFeatures.mIndexedTextureChannels);
+		GLhandleARB shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, &mDefines, mFeatures.mIndexedTextureChannels);
 		LL_DEBUGS("ShaderLoading") << "SHADER FILE: " << (*fileIter).first << " mShaderLevel=" << mShaderLevel << LL_ENDL;
 		if (shaderhandle > 0)
 		{

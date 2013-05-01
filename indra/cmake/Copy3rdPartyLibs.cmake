@@ -62,10 +62,9 @@ if(WINDOWS)
       set(release_files ${release_files} libtcmalloc_minimal.dll)
     endif(USE_TCMALLOC)
 
-    if (FMOD)
-      set(debug_files ${debug_files} fmod.dll)
-      set(release_files ${release_files} fmod.dll)
-    endif (FMOD)
+    if (FMODEX)
+      set(release_files ${release_files} fmodex.dll)
+    endif (FMODEX)
 
 #*******************************
 # Copy MS C runtime dlls, required for packaging.
@@ -265,7 +264,7 @@ elseif(LINUX)
         libdb-5.1.so
         libexpat.so
         libexpat.so.1
-        libglod.so
+        libGLOD.so
         libgmock_main.so
         libgmock.so.0
         libgmodule-2.0.so
@@ -287,9 +286,9 @@ elseif(LINUX)
       set(release_files ${release_files} "libtcmalloc_minimal.so")
     endif (USE_TCMALLOC)
 
-    if (FMOD)
-      set(release_files ${release_files} "libfmod-3.75.so")
-    endif (FMOD)
+    if (FMODEX)
+      set(release_file ${release_files} "libfmodex.so")
+    endif (FMODEX)
 
 else(WINDOWS)
     message(STATUS "WARNING: unrecognized platform for staging 3rd party libs, skipping...")
@@ -303,8 +302,6 @@ else(WINDOWS)
     # or ARCH_PREBUILT_DIRS
     set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib/release")
     set(release_files "")
-
-    set(fmod_files "")
 
     set(debug_llkdu_src "")
     set(debug_llkdu_dst "")

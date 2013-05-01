@@ -6021,7 +6021,6 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			if (light->isLightSpotlight() // directional (spot-)light
 			    && (LLPipeline::sRenderDeferred || RenderSpotLightsInNondeferred)) // these are only rendered as GL spotlights if we're in deferred rendering mode *or* the setting forces them on
 			{
-				LLVector3 spotparams = light->getSpotLightParams();
 				LLQuaternion quat = light->getRenderRotation();
 				LLVector3 at_axis(0,0,-1); // this matches deferred rendering's object light direction
 				at_axis *= quat;
@@ -6550,6 +6549,22 @@ void LLPipeline::setRenderDebugFeatureControl(U32 bit, bool value)
 	{
 		gPipeline.mRenderDebugFeatureMask &= !bit;
 	}
+}
+
+void LLPipeline::pushRenderDebugFeatureMask()
+{
+	mRenderDebugFeatureStack.push(mRenderDebugFeatureMask);
+}
+
+void LLPipeline::popRenderDebugFeatureMask()
+{
+	if (mRenderDebugFeatureStack.empty())
+	{
+		llerrs << "Depleted render feature stack." << llendl;
+	}
+
+	mRenderDebugFeatureMask = mRenderDebugFeatureStack.top();
+	mRenderDebugFeatureStack.pop();
 }
 
 // static
@@ -9301,9 +9316,6 @@ BOOL LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector
 		3,7	
 	};
 
-	LLVector3 center = (max+min)*0.5f;
-	LLVector3 size = (max-min)*0.5f;
-	
 	for (U32 i = 0; i < 12; i++)
 	{
 		for (U32 j = 0; j < 6; ++j)
@@ -9545,7 +9557,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	mSunOrthoClipPlanes = LLVector4(clip, clip.mV[2]*clip.mV[2]/clip.mV[1]);
 
 	//currently used for amount to extrude frusta corners for constructing shadow frusta
-	LLVector3 n = RenderShadowNearDist;
+	//LLVector3 n = RenderShadowNearDist;
 	//F32 nearDist[] = { n.mV[0], n.mV[1], n.mV[2], n.mV[2] };
 
 	//put together a universal "near clip" plane for shadow frusta
@@ -10646,6 +10658,22 @@ void LLPipeline::clearRenderTypeMask(U32 type, ...)
 	if (type > END_RENDER_TYPES)
 	{
 		llerrs << "Invalid render type." << llendl;
+	}
+}
+
+void LLPipeline::setAllRenderTypes()
+{
+	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
+	{
+		mRenderTypeEnabled[i] = TRUE;
+	}
+}
+
+void LLPipeline::clearAllRenderTypes()
+{
+	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
+	{
+		mRenderTypeEnabled[i] = FALSE;
 	}
 }
 

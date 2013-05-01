@@ -849,7 +849,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	for (U32 i = 0; i < shaders.size(); i++)
 	{
 		// Note usage of GL_VERTEX_SHADER_ARB
-		if (loadShaderFile(shaders[i].first, shaders[i].second, GL_VERTEX_SHADER_ARB, attribs) == 0)
+		if (loadShaderFile(shaders[i].first, shaders[i].second, GL_VERTEX_SHADER_ARB, &attribs) == 0)
 		{
 			return FALSE;
 		}
@@ -901,7 +901,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	for (U32 i = 0; i < shaders.size(); i++)
 	{
 		// Note usage of GL_FRAGMENT_SHADER_ARB
-		if (loadShaderFile(shaders[i].first, shaders[i].second, GL_FRAGMENT_SHADER_ARB, attribs, index_channels[i]) == 0)
+		if (loadShaderFile(shaders[i].first, shaders[i].second, GL_FRAGMENT_SHADER_ARB, &attribs, index_channels[i]) == 0)
 		{
 			return FALSE;
 		}
