@@ -524,7 +524,7 @@ void LLviewerOctreeGroup::handleChildAddition(const OctreeNode* parent, OctreeNo
 	}
 	else
 	{
-		OCT_ERRS << "LLSpatialGroup redundancy detected." << llendl;
+		OCT_ERRS << "LLviewerOctreeGroup redundancy detected." << llendl;
 	}
 
 	unbound();
