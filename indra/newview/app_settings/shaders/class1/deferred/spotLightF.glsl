@@ -234,6 +234,7 @@ void main()
 
 	if (spec.a > 0.0)
 	{
+		dlit *= min(da*6.0, 1.0) * dist_atten;
 		vec3 npos = -normalize(pos);
 
 		//vec3 ref = dot(pos+lv, norm);

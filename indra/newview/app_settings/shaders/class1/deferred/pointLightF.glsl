@@ -119,6 +119,8 @@ void main()
 	vec4 spec = texture2DRect(specularRect, frag.xy);
 	if (spec.a > 0.0)
 	{
+		lit = min(da*6.0, 1.0) * dist_atten;
+
 		vec3 npos = -normalize(pos);
 		vec3 h = normalize(lv+npos);
 		float nh = dot(norm, h);
