@@ -95,6 +95,7 @@ public:
 	BOOL postBuild();
 	void onMouseEnter(S32 x, S32 y, MASK mask);
 	void onMouseLeave(S32 x, S32 y, MASK mask);
+	BOOL handleMouseDown( S32 x, S32 y, MASK mask);
 
 protected:	
 	

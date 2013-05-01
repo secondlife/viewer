@@ -1689,7 +1689,7 @@ void LLPanelPeople::addTestParticipant()
 	for(int i = 0; i < 300; ++i)
 	{
 		LLPersonTabModel * person_folder_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->mPersonFolderModelMap.begin()->second);
-		addParticipantToModel(person_folder_model, LLUUID().generateNewID(), "EastBayGuy");
+		addParticipantToModel(person_folder_model, gAgent.getID(), "Test Name");
 	}
 }
 

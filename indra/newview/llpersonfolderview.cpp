@@ -64,7 +64,12 @@ BOOL LLPersonFolderView::handleMouseDown( S32 x, S32 y, MASK mask )
 		}
 	}
 
-	return LLFolderView::handleMouseDown(x, y, mask);
+	mKeyboardSelection = FALSE; 
+	mSearchString.clear();
+
+	LLEditMenuHandler::gEditMenuHandler = this;
+
+	return LLView::handleMouseDown( x, y, mask );
 }
 
 bool LLPersonFolderView::onConversationModelEvent(const LLSD &event)
