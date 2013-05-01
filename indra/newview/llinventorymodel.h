@@ -227,6 +227,9 @@ public:
 	// Check if one object has a parent chain up to the category specified by UUID.
 	BOOL isObjectDescendentOf(const LLUUID& obj_id, const LLUUID& cat_id) const;
 
+	// Follow parent chain to the top.
+	bool getObjectTopmostAncestor(const LLUUID& object_id, LLUUID& result) const;
+	
 	//--------------------------------------------------------------------
 	// Find
 	//--------------------------------------------------------------------
@@ -551,6 +554,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void dumpInventory() const;
+	bool validate() const;
 
 /**                    Miscellaneous
  **                                                                            **

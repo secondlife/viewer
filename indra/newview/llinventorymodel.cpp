@@ -252,6 +252,23 @@ const LLViewerInventoryCategory* LLInventoryModel::getFirstDescendantOf(const LL
 	return NULL;
 }
 
+bool LLInventoryModel::getObjectTopmostAncestor(const LLUUID& object_id, LLUUID& result) const
+{
+	LLInventoryObject *object = getObject(object_id);
+	while (object && object->getParentUUID().notNull())
+	{
+		LLInventoryObject *parent_object = getObject(object->getParentUUID());
+		if (!parent_object)
+		{
+			llwarns << "unable to trace topmost ancestor, missing item for uuid " << object->getParentUUID() << llendl;
+			return false;
+		}
+		object = parent_object;
+	}
+	result = object->getUUID();
+	return true;
+}
+
 // Get the object by id. Returns NULL if not found.
 LLInventoryObject* LLInventoryModel::getObject(const LLUUID& id) const
 {
@@ -2083,7 +2100,7 @@ void LLInventoryModel::buildParentChildMap()
 			// implement it, we would need a set or map of uuid pairs
 			// which would be (folder_id, new_parent_id) to be sent up
 			// to the server.
-			llinfos << "Lost categroy: " << cat->getUUID() << " - "
+			llinfos << "Lost category: " << cat->getUUID() << " - "
 					<< cat->getName() << llendl;
 			++lost;
 			// plop it into the lost & found.
@@ -2102,6 +2119,8 @@ void LLInventoryModel::buildParentChildMap()
 				// it's a protected folder.
 				cat->setParent(gInventory.getRootFolderID());
 			}
+			// FIXME note that updateServer() fails with protected
+			// types, so this will not work as intended in that case.
 			cat->updateServer(TRUE);
 			catsp = getUnlockedCatArray(cat->getParentUUID());
 			if(catsp)
@@ -2247,6 +2266,11 @@ void LLInventoryModel::buildParentChildMap()
 			notifyObservers();
 		}
 	}
+
+	//if (!gInventory.validate())
+	//{
+	//	llwarns << "model failed validity check!" << llendl;
+	//}
 }
 
 struct LLUUIDAndName
@@ -2917,6 +2941,9 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 		InventoryCallbackInfo cbinfo = (*inv_it);
 		gInventoryCallbacks.fire(cbinfo.mCallback, cbinfo.mInvID);
 	}
+
+	//gInventory.validate();
+
 	// Don't show the inventory.  We used to call showAgentInventory here.
 	//LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
 	//if(view)
@@ -3361,6 +3388,174 @@ void LLInventoryModel::dumpInventory() const
 		}
 	}
 	llinfos << "\n**********************\nEnd Inventory Dump" << llendl;
+}
+
+// Do various integrity checks on model, logging issues found and
+// returning an overall good/bad flag.
+bool LLInventoryModel::validate() const
+{
+	bool valid = true;
+
+	if (getRootFolderID().isNull())
+	{
+		llwarns << "no root folder id" << llendl;
+		valid = false;
+	}
+	if (getLibraryRootFolderID().isNull())
+	{
+		llwarns << "no root folder id" << llendl;
+		valid = false;
+	}
+
+	if (mCategoryMap.size() + 1 != mParentChildCategoryTree.size())
+	{
+		// ParentChild should be one larger because of the special entry for null uuid.
+		llinfos << "unexpected sizes: cat map size " << mCategoryMap.size()
+				<< " parent/child " << mParentChildCategoryTree.size() << llendl;
+		valid = false;
+	}
+	S32 cat_lock = 0;
+	S32 item_lock = 0;
+	S32 desc_unknown_count = 0;
+	S32 version_unknown_count = 0;
+	for(cat_map_t::const_iterator cit = mCategoryMap.begin(); cit != mCategoryMap.end(); ++cit)
+	{
+		const LLUUID& cat_id = cit->first;
+		const LLViewerInventoryCategory *cat = cit->second;
+		if (!cat)
+		{
+			llwarns << "invalid cat" << llendl;
+			valid = false;
+			continue;
+		}
+		if (cat_id != cat->getUUID())
+		{
+			llwarns << "cat id/index mismatch " << cat_id << " " << cat->getUUID() << llendl;
+			valid = false;
+		}
+
+		if (cat->getParentUUID().isNull())
+		{
+			if (cat_id != getRootFolderID() && cat_id != getLibraryRootFolderID())
+			{
+				llwarns << "cat " << cat_id << " has no parent, but is not root ("
+						<< getRootFolderID() << ") or library root ("
+						<< getLibraryRootFolderID() << ")" << llendl;
+			}
+		}
+		cat_array_t* cats;
+		item_array_t* items;
+		getDirectDescendentsOf(cat_id,cats,items);
+		if (!cats || !items)
+		{
+			llwarns << "invalid direct descendents for " << cat_id << llendl;
+			valid = false;
+			continue;
+		}
+		if (cat->getDescendentCount() == LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN)
+		{
+			desc_unknown_count++;
+		}
+		else if (cats->size() + items->size() != cat->getDescendentCount())
+		{
+			llwarns << "invalid desc count for " << cat_id << " name " << cat->getName()
+					<< " cached " << cat->getDescendentCount()
+					<< " expected " << cats->size() << "+" << items->size()
+					<< "=" << cats->size() +items->size() << llendl;
+			valid = false;
+		}
+		if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
+		{
+			version_unknown_count++;
+		}
+		if (mCategoryLock.count(cat_id))
+		{
+			cat_lock++;
+		}
+		if (mItemLock.count(cat_id))
+		{
+			item_lock++;
+		}
+		for (S32 i = 0; i<items->size(); i++)
+		{
+			LLViewerInventoryItem *item = items->get(i);
+
+			if (!item)
+			{
+				llwarns << "null item at index " << i << " for cat " << cat_id << llendl;
+				valid = false;
+				continue;
+			}
+
+			const LLUUID& item_id = item->getUUID();
+			
+			if (item->getParentUUID() != cat_id)
+			{
+				llwarns << "wrong parent for " << item_id << " found "
+						<< item->getParentUUID() << " expected " << cat_id
+						<< llendl;
+				valid = false;
+			}
+
+
+			// Entries in items and mItemMap should correspond.
+			item_map_t::const_iterator it = mItemMap.find(item_id);
+			if (it == mItemMap.end())
+			{
+				llwarns << "item " << item_id << " found as child of "
+						<< cat_id << " but not in top level mItemMap" << llendl;
+				valid = false;
+			}
+			else
+			{
+				LLViewerInventoryItem *top_item = it->second;
+				if (top_item != item)
+				{
+					llwarns << "item mismatch, item_id " << item_id
+							<< " top level entry is different, uuid " << top_item->getUUID() << llendl;
+				}
+			}
+
+			// Topmost ancestor should be root or library.
+			LLUUID topmost_ancestor_id;
+			bool found = getObjectTopmostAncestor(item_id, topmost_ancestor_id);
+			if (!found)
+			{
+				llwarns << "unable to find topmost ancestor for " << item_id << llendl;
+				valid = false;
+			}
+			else
+			{
+				if (topmost_ancestor_id != getRootFolderID() &&
+					topmost_ancestor_id != getLibraryRootFolderID())
+				{
+					llwarns << "unrecognized top level ancestor for " << item_id
+							<< " got " << topmost_ancestor_id
+							<< " expected " << getRootFolderID()
+							<< " or " << getLibraryRootFolderID() << llendl;
+					valid = false;
+				}
+			}
+		}
+
+	}
+	if (cat_lock > 0 || item_lock > 0)
+	{
+		llwarns << "Found locks on some categories: sub-cat arrays "
+				<< cat_lock << ", item arrays " << item_lock << llendl;
+	}
+	if (desc_unknown_count != 0)
+	{
+		llinfos << "Found " << desc_unknown_count << " cats with unknown descendent count" << llendl; 
+	}
+	if (version_unknown_count != 0)
+	{
+		llinfos << "Found " << version_unknown_count << " cats with unknown version" << llendl;
+	}
+
+	llinfos << "Validate done, valid = " << (U32) valid << llendl;
+
+	return valid;
 }
 
 ///----------------------------------------------------------------------------
