@@ -216,7 +216,7 @@ void main()
 			
 			vec4 plcol = texture2DLodDiffuse(projectionMap, proj_tc.xy, lod);
 			dlit = color.rgb * plcol.rgb * plcol.a;
-		
+			
 			col = dlit*lit*diff_tex;
 			//amb_da += (da*0.5)*(1.0-shadow)*proj_ambiance;
 		}
@@ -234,6 +234,7 @@ void main()
 
 	if (spec.a > 0.0)
 	{
+		dlit *= min(da*6.0, 1.0) * dist_atten;
 		vec3 npos = -normalize(pos);
 
 		//vec3 ref = dot(pos+lv, norm);
