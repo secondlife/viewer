@@ -111,12 +111,11 @@ public:
 					{
 						mPanelPeople->connectToFacebook(query_map["code"]);
 						mPanelPeople = NULL;
-						return true;
 					}
 				}
+				return true;
 			}
 		}
-
 		return false;
 	}
 };
