@@ -760,12 +760,13 @@ bool LLGLManager::initGL()
 	{ //using multisample textures on ATI results in black screen for some reason
 		mHasTextureMultisample = FALSE;
 	}
-#endif
+
 
 	if (mIsIntel && mGLVersion <= 3.f)
 	{ //never try to use framebuffer objects on older intel drivers (crashy)
 		mHasFramebufferObject = FALSE;
 	}
+#endif
 
 	if (mHasFramebufferObject)
 	{
