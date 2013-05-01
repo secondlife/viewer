@@ -163,8 +163,9 @@ LLPersonModelCommon(root_view_model)
 //
 
 LLPersonViewFilter::LLPersonViewFilter() :
-    mEmpty(""),
+    mEmptyLookupMessage(""),
     mFilterSubString(""),
+    mName(""),
     mFilterModified(FILTER_NONE)
 {
 }
@@ -177,21 +178,10 @@ void LLPersonViewFilter::setFilterSubString(const std::string& string)
     
 	if (mFilterSubString != filter_sub_string_new)
 	{
+        // *TODO : Add logic to support more and less restrictive filtering
+        mFilterModified = FILTER_RESTART;
 		mFilterSubString = filter_sub_string_new;
 	}
-}
-
-std::string::size_type LLPersonViewFilter::getFilterStringSize() const
-{
-	return mFilterSubString.size();
-}
-
-bool LLPersonViewFilter::check(const LLFolderViewModelItem* item)
-{
-	//const LLPersonModelCommon* person = dynamic_cast<const LLPersonModelCommon*>(item);
-	std::string::size_type string_offset = mFilterSubString.size() ? item->getSearchableName().find(mFilterSubString) : std::string::npos;
-    
-	return (mFilterSubString.size() == 0 || string_offset != std::string::npos);
 }
 
 bool LLPersonViewFilter::showAllResults() const
@@ -199,9 +189,21 @@ bool LLPersonViewFilter::showAllResults() const
 	return mFilterSubString.size() > 0;
 }
 
+bool LLPersonViewFilter::check(const LLFolderViewModelItem* item)
+{
+	std::string::size_type string_offset = mFilterSubString.size() ? item->getSearchableName().find(mFilterSubString) : std::string::npos;
+    
+	return (mFilterSubString.size() == 0 || string_offset != std::string::npos);
+}
+
 std::string::size_type LLPersonViewFilter::getStringMatchOffset(LLFolderViewModelItem* item) const
 {
 	return mFilterSubString.size() ? item->getSearchableName().find(mFilterSubString) : std::string::npos;
+}
+
+std::string::size_type LLPersonViewFilter::getFilterStringSize() const
+{
+	return mFilterSubString.size();
 }
 
 bool LLPersonViewFilter::isActive() const
@@ -211,11 +213,21 @@ bool LLPersonViewFilter::isActive() const
 
 bool LLPersonViewFilter::isModified() const
 {
-    return isActive();
+	return mFilterModified != FILTER_NONE;
 }
 
 void LLPersonViewFilter::clearModified()
 {
     mFilterModified = FILTER_NONE;
-	setFilterSubString("");
 }
+
+void LLPersonViewFilter::setEmptyLookupMessage(const std::string& message)
+{
+	mEmptyLookupMessage = message;
+}
+
+std::string LLPersonViewFilter::getEmptyLookupMessage() const
+{
+	return mEmptyLookupMessage;
+}
+
