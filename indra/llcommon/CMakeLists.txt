@@ -79,6 +79,7 @@ set(llcommon_SOURCE_FILES
     llptrto.cpp 
     llprocess.cpp
     llprocessor.cpp
+    llprocinfo.cpp
     llqueuedthread.cpp
     llrand.cpp
     llrefcount.cpp
@@ -207,6 +208,7 @@ set(llcommon_HEADER_FILES
     llpriqueuemap.h
     llprocess.h
     llprocessor.h
+    llprocinfo.h
     llptrskiplist.h
     llptrskipmap.h
     llptrto.h
@@ -331,6 +333,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llinstancetracker "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lllazy "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llprocessor "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llprocinfo "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llrand "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llsdserialize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llsingleton "" "${test_libs}")                          
