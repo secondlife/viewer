@@ -396,10 +396,6 @@ struct LLPanelFaceSetTEFunctor : public LLSelectedTEFunctor
 			if (valid)
 			{
 				value = ctrlTexScaleS->get();
-				//if( checkFlipScaleS->get() )
-				//{
-				//	value = -value;
-				//}
 				if (comboTexGen &&
 				    comboTexGen->getCurrentIndex() == 1)
 				{
@@ -634,20 +630,11 @@ void LLPanelFace::getState()
 		}
 		else
 		{
-			llwarns << "failed getChild for 'combobox mattype'" << llendl;
+			LL_WARNS("Materials") << "failed getChild for 'combobox mattype'" << LL_ENDL;
 		}
 		getChildView("combobox mattype")->setEnabled(editable);
 
 		onCommitMaterialsMedia(NULL, this);
-		
-		//if ( LLMediaEngine::getInstance()->getMediaRenderer () )
-		//	if ( LLMediaEngine::getInstance()->getMediaRenderer ()->isLoaded () )
-		//	{	
-		//		
-		//		//mLabelTexAutoFix->setEnabled ( editable );
-		//		
-		//		//mBtnAutoFix->setEnabled ( editable );
-		//	}
 
 		bool identical;
         bool identical_diffuse;

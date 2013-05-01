@@ -564,7 +564,7 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 		}
 	}
 	sDesiredDiscardBias = llclamp(sDesiredDiscardBias, desired_discard_bias_min, desired_discard_bias_max);
-	
+		
 	F32 camera_moving_speed = LLViewerCamera::getInstance()->getAverageSpeed() ;
 	F32 camera_angular_speed = LLViewerCamera::getInstance()->getAverageAngularSpeed();
 	sCameraMovingBias = llmax(0.2f * camera_moving_speed, 2.0f * camera_angular_speed - 1);
@@ -871,10 +871,10 @@ void LLViewerTexture::reorganizeFaceList()
 	for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
 	{
 		if(mNumFaces[i] + MAX_EXTRA_BUFFER_SIZE > mFaceList[i].size())
-	        {
-   		    return ;
-	        }
-
+		{
+			return ;
+		}
+			
 		mFaceList[i].erase(mFaceList[i].begin() + mNumFaces[i], mFaceList[i].end());
 	}
 	
@@ -1373,7 +1373,7 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 		return FALSE;
 	}
 	
-		res = mGLTexturep->createGLTexture(mRawDiscardLevel, mRawImage, usename, TRUE, mBoostLevel);
+	res = mGLTexturep->createGLTexture(mRawDiscardLevel, mRawImage, usename, TRUE, mBoostLevel);
 	
 	setActive() ;
 
@@ -1668,26 +1668,26 @@ void LLViewerFetchedTexture::updateVirtualSize()
 		llassert(mNumFaces[ch] <= mFaceList[ch].size());
 
 		for(U32 i = 0 ; i < mNumFaces[ch]; i++)
-	{				
+		{				
 			LLFace* facep = mFaceList[ch][i] ;
-		if( facep )
-		{
-			LLDrawable* drawable = facep->getDrawable();
-			if (drawable)
+			if( facep )
 			{
-				if(drawable->isRecentlyVisible())
+				LLDrawable* drawable = facep->getDrawable();
+				if (drawable)
 				{
-					if (getBoostLevel() == LLViewerTexture::BOOST_NONE && 
-						drawable->getVObj() && drawable->getVObj()->isSelected())
+					if(drawable->isRecentlyVisible())
 					{
-						setBoostLevel(LLViewerTexture::BOOST_SELECTED);
+						if (getBoostLevel() == LLViewerTexture::BOOST_NONE && 
+							drawable->getVObj() && drawable->getVObj()->isSelected())
+						{
+							setBoostLevel(LLViewerTexture::BOOST_SELECTED);
+						}
+						addTextureStats(facep->getVirtualSize()) ;
+						setAdditionalDecodePriority(facep->getImportanceToCamera()) ;
 					}
-					addTextureStats(facep->getVirtualSize()) ;
-					setAdditionalDecodePriority(facep->getImportanceToCamera()) ;
 				}
 			}
 		}
-	}
 	}
 	//reset whether or not a face was selected after 10 seconds
 	const F32 SELECTION_RESET_TIME = 10.f;
@@ -3123,11 +3123,11 @@ BOOL LLViewerMediaTexture::findFaces()
 		{
 			const ll_face_list_t* face_list = tex->getFaceList(ch) ;
 			U32 end = tex->getNumFaces(ch) ;
-		for(U32 i = 0 ; i < end ; i++)
-		{
-			mMediaFaceList.push_back((*face_list)[i]) ;
+			for(U32 i = 0 ; i < end ; i++)
+			{
+				mMediaFaceList.push_back((*face_list)[i]) ;
+			}
 		}
-	}
 	}
 	
 	if(!mMediaImplp)
@@ -3271,9 +3271,9 @@ void LLViewerMediaTexture::removeFace(U32 ch, LLFace* facep)
 			
 			for (U32 ch = 0; ch < 3; ++ch)
 			{
-			//
-			//we have some trouble here: the texture of the face is changed.
-			//we need to find the former texture, and remove it from the list to avoid memory leaking.
+				//
+				//we have some trouble here: the texture of the face is changed.
+				//we need to find the former texture, and remove it from the list to avoid memory leaking.
 				
 				llassert(mNumFaces[ch] <= mFaceList[ch].size());
 
@@ -3447,14 +3447,14 @@ F32 LLViewerMediaTexture::getMaxVirtualSize()
 		{
 			llassert(mNumFaces[ch] <= mFaceList[ch].size());
 			for(U32 i = 0 ; i < mNumFaces[ch] ; i++)
-		{
-				LLFace* facep = mFaceList[ch][i] ;
-			if(facep->getDrawable()->isRecentlyVisible())
 			{
-				addTextureStats(facep->getVirtualSize()) ;
-			}
-		}		
-	}
+				LLFace* facep = mFaceList[ch][i] ;
+				if(facep->getDrawable()->isRecentlyVisible())
+				{
+					addTextureStats(facep->getVirtualSize()) ;
+				}
+			}		
+		}
 	}
 	else //media is not in playing
 	{

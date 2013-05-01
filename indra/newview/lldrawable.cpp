@@ -484,7 +484,7 @@ void LLDrawable::makeActive()
 	}
 
 	llassert(isAvatar() || isRoot() || mParent->isActive());
-	}
+}
 
 
 void LLDrawable::makeStatic(BOOL warning_enabled)

@@ -1707,7 +1707,7 @@ bool LLAppViewer::cleanup()
 		gAudiop->setStreamingAudioImpl(NULL);
 
 		// shut down the audio subsystem
-        gAudiop->shutdown();
+			gAudiop->shutdown();
 
 		delete gAudiop;
 		gAudiop = NULL;
@@ -1780,7 +1780,7 @@ bool LLAppViewer::cleanup()
 	llinfos << "Cleaning up Objects" << llendflush;
 	
 	LLViewerObject::cleanupVOClasses();
-
+	
 	LLAvatarAppearance::cleanupClass();
 	
 	LLPostProcess::cleanupClass();
@@ -3582,7 +3582,7 @@ void LLAppViewer::requestQuit()
 
 	// Try to send metrics back to the grid
 	metricsSend(!gDisconnected);
-
+	
 	// Try to send last batch of avatar rez metrics.
 	if (!gDisconnected && isAgentAvatarValid())
 	{

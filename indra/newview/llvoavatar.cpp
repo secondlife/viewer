@@ -822,7 +822,7 @@ LLVOAvatar::~LLVOAvatar()
 		}
 
 	logPendingPhases();
-	
+
 	lldebugs << "LLVOAvatar Destructor (0x" << this << ") id:" << mID << llendl;
 
 	std::for_each(mAttachmentPoints.begin(), mAttachmentPoints.end(), DeletePairedPointer());
@@ -3999,7 +3999,7 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 		}
 	}
-
+	
 	return num_indices;
 }
 
@@ -5835,18 +5835,18 @@ BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 	{
 		const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = tex_iter->second;
 		if (texture_dict->mWearableType == type)
-		{
+	{
 			// Thus, you must check to see if the corresponding baked texture is defined.
 			// NOTE: this is a poor substitute if you actually want to know about individual pieces of clothing
 			// this works for detecting a skirt (most important), but is ineffective at any piece of clothing that
 			// gets baked into a texture that always exists (upper or lower).
 			if (texture_dict->mIsUsedByBakedTexture)
-			{
+	{
 				const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
 				return isTextureDefined(LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(baked_index)->mTextureIndex);
 	}
 			return FALSE;
-		}
+	}
 	}
 	return FALSE;
 }
@@ -5955,9 +5955,9 @@ void LLVOAvatar::updateRezzedStatusTimers()
 		{
 			// load level has decreased. start phase timers for higher load levels.
 			for (S32 i = rez_status+1; i <= mLastRezzedStatus; i++)
-			{
+		{
 				startPhase("load_" + LLVOAvatar::rezStatusToString(i));
-			}
+		}
 		}
 		else if (rez_status > mLastRezzedStatus)
 		{
@@ -5966,16 +5966,16 @@ void LLVOAvatar::updateRezzedStatusTimers()
 			{
 				stopPhase("load_" + LLVOAvatar::rezStatusToString(i));
 				stopPhase("first_load_" + LLVOAvatar::rezStatusToString(i), false);
-			}
+		}
 			if (rez_status == 3)
-			{
+		{
 				// "fully loaded", mark any pending appearance change complete.
 				selfStopPhase("update_appearance_from_cof");
 				selfStopPhase("wear_inventory_category", false);
 				selfStopPhase("process_initial_wearables_update", false);
 			}
 		}
-
+		
 		mLastRezzedStatus = rez_status;
 	}
 }
@@ -6034,7 +6034,7 @@ void LLVOAvatar::stopPhase(const std::string& phase_name, bool err_check)
 void LLVOAvatar::logPendingPhases()
 {
 	if (!isAgentAvatarValid())
-	{
+		{
 		return;
 	}
 	
@@ -6050,7 +6050,7 @@ void LLVOAvatar::logPendingPhases()
 			if (!completed)
 			{
 				logMetricsTimerRecord(phase_name, elapsed, completed);
-			}
+		}
 		}
 	}
 		}
@@ -6071,7 +6071,7 @@ void LLVOAvatar::logPendingPhasesAllAvatars()
 		}
 
 void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapsed, bool completed)
-{
+		{
 	if (!isAgentAvatarValid())
 		{
 		return;
@@ -6321,7 +6321,7 @@ void LLVOAvatar::updateMeshTextures()
 				if (mesh)
 		{
 					mesh->setTexture( baked_img );
-				}
+			}
 			}
 		}
 		else if (!isUsingLocalAppearance() && is_layer_baked[i])
@@ -6366,8 +6366,8 @@ void LLVOAvatar::updateMeshTextures()
 				{
 					mesh->setLayerSet( layerset );
 			}
+			}
 		}
-	}
 		else
 		{
 			debugColorizeSubMeshes(i,LLColor4::blue);
@@ -6387,7 +6387,7 @@ void LLVOAvatar::updateMeshTextures()
 		{
 			LLAvatarJointMesh* mesh = (*iter);
 			if (mesh)
-			{
+		{
 				mesh->setColor( color );
 				mesh->setTexture( hair_img );
 			}
@@ -6481,8 +6481,8 @@ void LLVOAvatar::applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_com
 		if (morph_target)
 	{
 			morph_target->applyMask(tex_data, width, height, num_components, maskedMorph->mInvert);
-	}
 }
+	}
 }
 
 
@@ -6768,7 +6768,7 @@ void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value)
 
 void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 	const LLAppearanceMessageContents& contents)
-{
+	{
 	std::string outfilename = get_sequential_numbered_file_name(dump_prefix,".xml");
 	const std::vector<F32>& params_for_dump = contents.mParamWeights;
 	const LLTEContents& tec = contents.mTEContents;
@@ -7327,7 +7327,7 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 				avatar_joint_mesh_list_t::iterator iter = mBakedTextureDatas[i].mJointMeshes.begin();
 				avatar_joint_mesh_list_t::iterator end  = mBakedTextureDatas[i].mJointMeshes.end();
 				for (; iter != end; ++iter)
-				{
+			{
 					LLAvatarJointMesh* mesh = (*iter);
 					if (mesh)
 			{
@@ -7375,7 +7375,7 @@ std::string get_sequential_numbered_file_name(const std::string& prefix,
 	file_num_type::iterator it = file_nums.find(prefix);
 	S32 num = 0;
 	if (it != file_nums.end())
-	{
+{
 		num = it->second;
 	}
 	file_nums[prefix] = num+1;
@@ -7446,7 +7446,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 			}
 		}
 	}
-	}
+		}
 	else 
 	{
 		// Just dump all params sequentially.
@@ -7629,7 +7629,7 @@ void LLVOAvatar::setIsUsingServerBakes(BOOL newval)
 
 // virtual
 void LLVOAvatar::removeMissingBakedTextures()
-	{
+			{
 }
 
 //virtual
@@ -7937,7 +7937,7 @@ const std::string LLVOAvatar::getBakedStatusForPrintout() const
 		 ++iter)
 	{
 		const ETextureIndex index = iter->first;
-		const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
+		const LLVOAvatarDictionary::TextureEntry *texture_dict = iter->second;
 		if (texture_dict->mIsBakedTexture)
 		{
 			line += texture_dict->mName;

@@ -184,8 +184,8 @@ protected:
 	mutable F32 mAdditionalDecodePriority;  // priority add to mDecodePriority.
 	LLFrameTimer mLastReferencedTimer;	
 
-	ll_face_list_t    mFaceList[LLRender::NUM_TEXTURE_CHANNELS] ; //reverse pointer pointing to the faces using this image as texture
-	U32               mNumFaces[LLRender::NUM_TEXTURE_CHANNELS] ;
+	ll_face_list_t    mFaceList[LLRender::NUM_TEXTURE_CHANNELS]; //reverse pointer pointing to the faces using this image as texture
+	U32               mNumFaces[LLRender::NUM_TEXTURE_CHANNELS];
 	LLFrameTimer      mLastFaceListUpdateTimer ;
 
 	ll_volume_list_t  mVolumeList;
@@ -216,7 +216,7 @@ public:
 	static S32 sMaxSmallImageSize ;
 	static BOOL sFreezeImageScalingDown ;//do not scale down image res if set.
 	static F32  sCurrentTime ;
-
+	
 	enum EDebugTexels
 	{
 		DEBUG_TEXELS_OFF,

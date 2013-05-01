@@ -201,6 +201,8 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mTotalCRC(0),
 	mListIndex(-1),
 	mTEImages(NULL),
+	mTENormalMaps(NULL),
+	mTESpecularMaps(NULL),
 	mGLName(0),
 	mbCanSelect(TRUE),
 	mFlags(0),
@@ -321,6 +323,18 @@ void LLViewerObject::deleteTEImages()
 {
 	delete[] mTEImages;
 	mTEImages = NULL;
+	
+	if (mTENormalMaps != NULL)
+	{
+		delete[] mTENormalMaps;
+		mTENormalMaps = NULL;
+	}
+	
+	if (mTESpecularMaps != NULL)
+	{
+		delete[] mTESpecularMaps;
+		mTESpecularMaps = NULL;
+	}	
 }
 
 void LLViewerObject::markDead()
@@ -4039,7 +4053,7 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry &texture_entry)
 {
 	LLPrimitive::setTE(te, texture_entry);
 
-		const LLUUID& image_id = getTE(te)->getID();
+	const LLUUID& image_id = getTE(te)->getID();
 		mTEImages[te] = LLViewerTextureManager::getFetchedTexture(image_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 	
 	if (getTE(te)->getMaterialParams().notNull())
@@ -4093,7 +4107,12 @@ S32 LLViewerObject::setTENormalMapCore(const U8 te, LLViewerTexture *image)
 		uuid == LLUUID::null)
 	{
 		LLTextureEntry* tep = getTE(te);
-		LLMaterial* mat = tep ? tep->getMaterialParams() : NULL;
+		LLMaterial* mat = NULL;
+		if (tep)
+		{
+		   mat = tep->getMaterialParams();
+		}
+
 		if (mat)
 		{
 			mat->setNormalID(uuid);
@@ -4118,11 +4137,16 @@ S32 LLViewerObject::setTESpecularMapCore(const U8 te, LLViewerTexture *image)
 		uuid == LLUUID::null)
 	{
 		LLTextureEntry* tep = getTE(te);
-		LLMaterial* mat = tep ? tep->getMaterialParams() : NULL;
+		LLMaterial* mat = NULL;
+		if (tep)
+		{
+			mat = tep->getMaterialParams();
+		}
+
 		if (mat)
 		{
 			mat->setSpecularID(uuid);
-		}		
+		}
 		setChanged(TEXTURE);
 		if (mDrawable.notNull())
 		{

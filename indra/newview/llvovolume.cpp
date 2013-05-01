@@ -5386,7 +5386,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					}
 					else
 					{
-					registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
+						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
 					}
 					if (LLPipeline::sRenderDeferred && !hud_group && LLPipeline::sRenderBump && te->getBumpmap())
 					{ //if this is the deferred render and a bump map is present, register in post deferred bump
@@ -5408,9 +5408,9 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 						}
 						else
 						{
-						registerFace(group, facep, LLRenderPass::PASS_SIMPLE);
+							registerFace(group, facep, LLRenderPass::PASS_SIMPLE);
+						}
 					}
-				}
 				}
 				
 				

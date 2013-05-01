@@ -315,6 +315,15 @@ S32  LLPrimitive::setTERotation(const U8 index, const F32 r)
 	return mTextureList.setRotation(index, r);
 }
 
+S32 LLPrimitive::setTEMaterialID(const U8 index, const LLMaterialID& pMaterialID)
+{
+	return mTextureList.setMaterialID(index, pMaterialID);
+}
+
+S32 LLPrimitive::setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams)
+{
+	return mTextureList.setMaterialParams(index, pMaterialParams);
+}
 
 //===============================================================
 S32  LLPrimitive::setTEBumpShinyFullbright(const U8 index, const U8 bump)
@@ -363,16 +372,6 @@ S32  LLPrimitive::setTEMediaFlags(const U8 index, const U8 media_flags)
 S32 LLPrimitive::setTEGlow(const U8 index, const F32 glow)
 {
 	return mTextureList.setGlow(index, glow);
-}
-
-S32 LLPrimitive::setTEMaterialID(const U8 index, const LLMaterialID& pMaterialID)
-{
-	return mTextureList.setMaterialID(index, pMaterialID);
-}
-
-S32 LLPrimitive::setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams)
-{
-	return mTextureList.setMaterialParams(index, pMaterialParams);
 }
 
 LLPCode LLPrimitive::legacyToPCode(const U8 legacy)
@@ -1258,7 +1257,7 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec)
 {
 	S32 retval = 0;
-
+	
    // temp buffer for material ID processing
    // data will end up in tec.material_id[]	
    U8 material_data[LLTEContents::MAX_TES*16];
@@ -1324,11 +1323,11 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
 	{
 		tec.material_ids[i].set(&material_data[i * 16]);
 	}
-
+	
 	retval = 1;
 	return retval;
-}
-
+	}
+	
 S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
 {
 	S32 retval = 0;
@@ -1345,9 +1344,9 @@ S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
 		retval |= setTEBumpShinyFullbright(i, tec.bump[i]);
 		retval |= setTEMediaTexGen(i, tec.media_flags[i]);
 		retval |= setTEGlow(i, (F32)tec.glow[i] / (F32)0xFF);
-
+		
                 retval |= setTEMaterialID(i, tec.material_ids[i]);
-
+		
 		coloru = LLColor4U(tec.colors + 4*i);
 
 		// Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)
