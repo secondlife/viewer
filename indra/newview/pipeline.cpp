@@ -7835,6 +7835,10 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	{
 		gGL.getTexUnit(channel)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
 	}
+	else
+	{
+		llinfos << "Failed to bind light func texture. Ugly lighting dead ahead!" << llendl;
+	}
 
 	stop_glerror();
 
