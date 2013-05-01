@@ -7937,7 +7937,7 @@ const std::string LLVOAvatar::getBakedStatusForPrintout() const
 		 ++iter)
 	{
 		const ETextureIndex index = iter->first;
-		const LLVOAvatarDictionary::TextureEntry *texture_dict = iter->second;
+		const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
 		if (texture_dict->mIsBakedTexture)
 		{
 			line += texture_dict->mName;
