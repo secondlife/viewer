@@ -138,49 +138,69 @@ public:
 	enum ESortOrderType
 	{
 		SO_NAME = 0,						// Sort by name
-		SO_DATE = 0x1,						// Sort by date (most recent)
-		SO_SESSION_TYPE = 0x2,				// Sort by type (valid only for sessions)
-		SO_DISTANCE = 0x3,					// Sort by distance (valid only for participants in nearby chat)
+		SO_ONLINE_STATUS = 0x1				// Sort by online status (i.e. online or not)
 	};
-	// Default sort order is by type for sessions and by date for participants
-	static const U32 SO_DEFAULT = (SO_SESSION_TYPE << 16) | (SO_DATE);
+	// Default sort order is by name
+	static const U32 SO_DEFAULT = SO_NAME;
 
 	LLPersonViewFilter();
 	~LLPersonViewFilter() {}
 
-	void 				setFilterSubString(const std::string& string);
-	std::string::size_type getFilterStringSize() const;
+	// +-------------------------------------------------------------------+
+	// + Execution And Results
+	// +-------------------------------------------------------------------+
 	bool 				check(const LLFolderViewModelItem* item);
+	bool				checkFolder(const LLFolderViewModelItem* folder) const { return true; }
+    
+	void 				setEmptyLookupMessage(const std::string& message);
+	std::string			getEmptyLookupMessage() const;
+    
 	bool				showAllResults() const;
+    
 	std::string::size_type getStringMatchOffset(LLFolderViewModelItem* item) const;
+	std::string::size_type getFilterStringSize() const;
+
+ 	// +-------------------------------------------------------------------+
+	// + Status
+	// +-------------------------------------------------------------------+
  	bool 				isActive() const;
 	bool 				isModified() const;
 	void 				clearModified();
-   
-	bool				checkFolder(const LLFolderViewModelItem* folder) const { return true; }
+	const std::string& 	getName() const { return mName; }
+	const std::string& 	getFilterText() { return mName; }
+	void 				setModified(EFilterModified behavior = FILTER_RESTART) { mFilterModified = behavior; }
     
-	void 				setEmptyLookupMessage(const std::string& message) { }
-	std::string			getEmptyLookupMessage() const { return mEmpty; }
-
-	const std::string& 	getName() const { return mEmpty; }
-	const std::string& 	getFilterText() { return mEmpty; }
-	void 				setModified(EFilterModified behavior = FILTER_RESTART) { }
-
+	// +-------------------------------------------------------------------+
+	// + Count
+	// +-------------------------------------------------------------------+
+    // Note : we currently filter the whole person list at once, no need to count then.
 	void 				setFilterCount(S32 count) { }
 	S32 				getFilterCount() const { return 0; }
 	void 				decrementFilterCount() { }
 
-	bool 				isDefault() const { return true; }
-	bool 				isNotDefault() const { return false; }
+	// +-------------------------------------------------------------------+
+	// + Default
+	// +-------------------------------------------------------------------+
+    // Note : we don't support runtime default setting for person filter
+	bool 				isDefault() const  { return !isActive(); }
+	bool 				isNotDefault() const { return isActive(); }
 	void 				markDefault() { }
-	void 				resetDefault() { }
-
+	void 				resetDefault() { setModified(); }
+    
+	// +-------------------------------------------------------------------+
+	// + Generation
+	// +-------------------------------------------------------------------+
+    // Note : unclear if we have to take tab on generation at that point
 	S32 				getCurrentGeneration() const { return 0; }
 	S32 				getFirstSuccessGeneration() const { return 0; }
 	S32 				getFirstRequiredGeneration() const { return 0; }
-    
+
+    // Non Virtual Methods (i.e. specific to this class)
+	void 				setFilterSubString(const std::string& string);
+   
 private:
-	std::string         mEmpty;
+	std::string         mName;
+	std::string         mEmptyLookupMessage;
 	std::string			mFilterSubString;
 	EFilterModified 	mFilterModified;
 };
