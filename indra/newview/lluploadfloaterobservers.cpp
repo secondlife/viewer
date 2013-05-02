@@ -33,9 +33,10 @@ LLUploadModelPremissionsResponder::LLUploadModelPremissionsResponder(const LLHan
 {
 }
 
-void LLUploadModelPremissionsResponder::error(U32 status, const std::string& reason)
+void LLUploadModelPremissionsResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	llwarns << "LLUploadModelPremissionsResponder::error("<< status << ": " << reason << ")" << llendl;
+	llwarns << "LLUploadModelPremissionsResponder error [status:"
+			<< status << "]: " << content << llendl;
 
 	LLUploadPermissionsObserver* observer = mObserverHandle.get();
 

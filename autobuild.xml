@@ -18,9 +18,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b2fe1c860613a68e74d4384be418ffee</string>
+              <string>e6071abd822c0688390382a26f8a782c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/232684/arch/Darwin/installer/glod-1.0pre4-darwin-20110610.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/267984/arch/Darwin/installer/glod-1.0pre4-darwin-20121211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -30,9 +30,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c0c64dae149d0892343e2ff300fd06b9</string>
+              <string>176736c52b3cde6ca8e7d9e173d91731</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/232684/arch/Linux/installer/glod-1.0pre4-linux-20110611.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/268002/arch/Linux/installer/glod-1.0pre4-linux-20121212.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -606,9 +606,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9f8a9dc39fd7c3da0fb3533782d1fddf</string>
+              <string>ca95bbdabd2bed612af79a3704fdbe79</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freetype/rev/226814/arch/Linux/installer/freetype-2.3.9-linux-20110418.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freetype/rev/265843/arch/Linux/installer/freetype-2.3.9-linux-20121013.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -690,9 +690,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>26f2df1f0b0fa01e94e0253e322f3583</string>
+              <string>1b1f1e9975e3a671c9faf32fcf4b6d43</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glh_linear-linux-20101001.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glh_linear/rev/263308/arch/Linux/installer/glh_linear-0.0.0-linux-20120810.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -837,6 +837,42 @@
               <string>212701468920519f3989677cea9ca4f1</string>
               <key>url</key>
               <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gmock-1.5.0-windows-20110224.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
+      <key>gperftools</key>
+      <map>
+        <key>license</key>
+        <string>bsd</string>
+        <key>license_file</key>
+        <string>LICENSES/gperftools.txt</string>
+        <key>name</key>
+        <string>gperftools</string>
+        <key>platforms</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>8aedfdcf670348c18a9991ae1b384a61</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/262672/arch/Linux/installer/gperftools-2.0-linux-20120727.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>f62841804acb91e1309603a84f3f0ce8</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/262672/arch/CYGWIN/installer/gperftools-2.0-windows-20120727.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1239,6 +1275,32 @@
           </map>
         </map>
       </map>
+      <key>llappearanceutility-source</key>
+      <map>
+        <key>license</key>
+        <string>TEMPORARY</string>
+        <key>license_file</key>
+        <string>LICENSES/llappearanceutility.txt</string>
+        <key>name</key>
+        <string>llappearanceutility-source</string>
+        <key>platforms</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>5bc44db15eb3cca021382e40e04a9a38</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearanceutility-source/rev/271972/arch/Linux/installer/llappearanceutility_source-0.1-linux-20130315.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>0.1</string>
+      </map>
       <key>llphysicsextensions_source</key>
       <map>
         <key>license</key>
@@ -1268,9 +1330,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b706fdeed4ce2182d434043dc33d9d1d</string>
+              <string>a6856b4d58a3b71321acad7e1fa9c8d4</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source/rev/263415/arch/Linux/installer/llphysicsextensions_source-0.3-linux-20120814.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source/rev/265749/arch/Linux/installer/llphysicsextensions_source-0.3-linux-20121011.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1773,42 +1835,6 @@
               <string>1e821cc7d25eabad013b7f3db260dd6b</string>
               <key>url</key>
               <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/231678/arch/CYGWIN/installer/slvoice-3.2.0002.10426-windows-20110601.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
-      <key>tcmalloc</key>
-      <map>
-        <key>license</key>
-        <string>bsd</string>
-        <key>license_file</key>
-        <string>LICENSES/google-perftools.txt</string>
-        <key>name</key>
-        <string>tcmalloc</string>
-        <key>platforms</key>
-        <map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>8aedfdcf670348c18a9991ae1b384a61</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/262672/arch/Linux/installer/gperftools-2.0-linux-20120727.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>f62841804acb91e1309603a84f3f0ce8</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/262672/arch/CYGWIN/installer/gperftools-2.0-windows-20120727.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>

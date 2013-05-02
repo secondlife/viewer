@@ -108,7 +108,7 @@ public:
 	virtual ~NavMeshStatusResponder();
 
 	virtual void result(const LLSD &pContent);
-	virtual void error(U32 pStatus, const std::string& pReason);
+	virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent);
 
 protected:
 
@@ -130,7 +130,7 @@ public:
 	virtual ~NavMeshResponder();
 
 	virtual void result(const LLSD &pContent);
-	virtual void error(U32 pStatus, const std::string& pReason);
+	virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent);
 
 protected:
 
@@ -151,7 +151,7 @@ public:
 	virtual ~AgentStateResponder();
 
 	virtual void result(const LLSD &pContent);
-	virtual void error(U32 pStatus, const std::string& pReason);
+	virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent);
 
 protected:
 
@@ -170,7 +170,7 @@ public:
 	virtual ~NavMeshRebakeResponder();
 
 	virtual void result(const LLSD &pContent);
-	virtual void error(U32 pStatus, const std::string& pReason);
+	virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent);
 
 protected:
 
@@ -190,9 +190,11 @@ public:
 	virtual ~LinksetsResponder();
 
 	void handleObjectLinksetsResult(const LLSD &pContent);
-	void handleObjectLinksetsError(U32 pStatus, const std::string &pReason, const std::string &pURL);
+	void handleObjectLinksetsError(U32 pStatus, const std::string &pReason, 
+								   const LLSD& pContent, const std::string &pURL);
 	void handleTerrainLinksetsResult(const LLSD &pContent);
-	void handleTerrainLinksetsError(U32 pStatus, const std::string &pReason, const std::string &pURL);
+	void handleTerrainLinksetsError(U32 pStatus, const std::string &pReason,
+									const LLSD& pContent, const std::string &pURL);
 
 protected:
 
@@ -230,7 +232,7 @@ public:
 	virtual ~ObjectLinksetsResponder();
 
 	virtual void result(const LLSD &pContent);
-	virtual void error(U32 pStatus, const std::string &pReason);
+	virtual void errorWithContent(U32 pStatus, const std::string &pReason, const LLSD& pContent);
 
 protected:
 
@@ -250,7 +252,7 @@ public:
 	virtual ~TerrainLinksetsResponder();
 
 	virtual void result(const LLSD &pContent);
-	virtual void error(U32 pStatus, const std::string &pReason);
+	virtual void errorWithContent(U32 pStatus, const std::string &pReason, const LLSD& pContent);
 
 protected:
 
@@ -270,7 +272,7 @@ public:
 	virtual ~CharactersResponder();
 
 	virtual void result(const LLSD &pContent);
-	virtual void error(U32 pStatus, const std::string &pReason);
+	virtual void errorWithContent(U32 pStatus, const std::string &pReason, const LLSD& pContent);
 
 protected:
 
@@ -800,9 +802,9 @@ void NavMeshStatusResponder::result(const LLSD &pContent)
 	LLPathfindingManager::getInstance()->handleNavMeshStatusRequest(navMeshStatus, mRegion, mIsGetStatusOnly);
 }
 
-void NavMeshStatusResponder::error(U32 pStatus, const std::string& pReason)
+void NavMeshStatusResponder::errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent)
 {
-	llwarns << "error with request to URL '" << mCapabilityURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
+	llwarns << "NavMeshStatusResponder error [status:" << pStatus << "]: " << pContent << llendl;
 	LLPathfindingNavMeshStatus navMeshStatus(mRegionUUID);
 	LLPathfindingManager::getInstance()->handleNavMeshStatusRequest(navMeshStatus, mRegion, mIsGetStatusOnly);
 }
@@ -828,9 +830,9 @@ void NavMeshResponder::result(const LLSD &pContent)
 	mNavMeshPtr->handleNavMeshResult(pContent, mNavMeshVersion);
 }
 
-void NavMeshResponder::error(U32 pStatus, const std::string& pReason)
+void NavMeshResponder::errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent)
 {
-	mNavMeshPtr->handleNavMeshError(pStatus, pReason, mCapabilityURL, mNavMeshVersion);
+	mNavMeshPtr->handleNavMeshError(pStatus, pReason, pContent, mCapabilityURL, mNavMeshVersion);
 }
 
 //---------------------------------------------------------------------------
@@ -855,9 +857,9 @@ void AgentStateResponder::result(const LLSD &pContent)
 	LLPathfindingManager::getInstance()->handleAgentState(canRebakeRegion);
 }
 
-void AgentStateResponder::error(U32 pStatus, const std::string &pReason)
+void AgentStateResponder::errorWithContent(U32 pStatus, const std::string &pReason, const LLSD& pContent)
 {
-	llwarns << "error with request to URL '" << mCapabilityURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
+	llwarns << "AgentStateResponder error [status:" << pStatus << "]: " << pContent << llendl;
 	LLPathfindingManager::getInstance()->handleAgentState(FALSE);
 }
 
@@ -881,9 +883,9 @@ void NavMeshRebakeResponder::result(const LLSD &pContent)
 	mRebakeNavMeshCallback(true);
 }
 
-void NavMeshRebakeResponder::error(U32 pStatus, const std::string &pReason)
+void NavMeshRebakeResponder::errorWithContent(U32 pStatus, const std::string &pReason, const LLSD& pContent)
 {
-	llwarns << "error with request to URL '" << mCapabilityURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
+	llwarns << "NavMeshRebakeResponder error [status:" << pStatus << "]: " << pContent << llendl;
 	mRebakeNavMeshCallback(false);
 }
 
@@ -916,9 +918,11 @@ void LinksetsResponder::handleObjectLinksetsResult(const LLSD &pContent)
 	}
 }
 
-void LinksetsResponder::handleObjectLinksetsError(U32 pStatus, const std::string &pReason, const std::string &pURL)
+void LinksetsResponder::handleObjectLinksetsError(U32 pStatus, const std::string &pReason,
+												 const LLSD& pContent, const std::string &pURL)
 {
-	llwarns << "error with request to URL '" << pURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
+	llwarns << "LinksetsResponder object linksets error with request to URL '" << pURL << "' [status:"
+			<< pStatus << "]: " << pContent << llendl;
 	mObjectMessagingState = kReceivedError;
 	if (mTerrainMessagingState != kWaiting)
 	{
@@ -937,8 +941,11 @@ void LinksetsResponder::handleTerrainLinksetsResult(const LLSD &pContent)
 	}
 }
 
-void LinksetsResponder::handleTerrainLinksetsError(U32 pStatus, const std::string &pReason, const std::string &pURL)
+void LinksetsResponder::handleTerrainLinksetsError(U32 pStatus, const std::string &pReason,
+												   const LLSD& pContent, const std::string &pURL)
 {
+	llwarns << "LinksetsResponder terrain linksets error with request to URL '" << pURL << "' [status:"
+			<< pStatus << "]: " << pContent << llendl;
 	mTerrainMessagingState = kReceivedError;
 	if (mObjectMessagingState != kWaiting)
 	{
@@ -988,9 +995,9 @@ void ObjectLinksetsResponder::result(const LLSD &pContent)
 	mLinksetsResponsderPtr->handleObjectLinksetsResult(pContent);
 }
 
-void ObjectLinksetsResponder::error(U32 pStatus, const std::string &pReason)
+void ObjectLinksetsResponder::errorWithContent(U32 pStatus, const std::string &pReason, const LLSD& pContent)
 {
-	mLinksetsResponsderPtr->handleObjectLinksetsError(pStatus, pReason, mCapabilityURL);
+	mLinksetsResponsderPtr->handleObjectLinksetsError(pStatus, pReason, pContent, mCapabilityURL);
 }
 
 //---------------------------------------------------------------------------
@@ -1013,9 +1020,9 @@ void TerrainLinksetsResponder::result(const LLSD &pContent)
 	mLinksetsResponsderPtr->handleTerrainLinksetsResult(pContent);
 }
 
-void TerrainLinksetsResponder::error(U32 pStatus, const std::string &pReason)
+void TerrainLinksetsResponder::errorWithContent(U32 pStatus, const std::string &pReason, const LLSD& pContent)
 {
-	mLinksetsResponsderPtr->handleTerrainLinksetsError(pStatus, pReason, mCapabilityURL);
+	mLinksetsResponsderPtr->handleTerrainLinksetsError(pStatus, pReason, pContent, mCapabilityURL);
 }
 
 //---------------------------------------------------------------------------
@@ -1040,9 +1047,9 @@ void CharactersResponder::result(const LLSD &pContent)
 	mCharactersCallback(mRequestId, LLPathfindingManager::kRequestCompleted, characterListPtr);
 }
 
-void CharactersResponder::error(U32 pStatus, const std::string &pReason)
+void CharactersResponder::errorWithContent(U32 pStatus, const std::string &pReason, const LLSD& pContent)
 {
-	llwarns << "error with request to URL '" << mCapabilityURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
+	llwarns << "CharactersResponder error [status:" << pStatus << "]: " << pContent << llendl;
 
 	LLPathfindingObjectListPtr characterListPtr =  LLPathfindingObjectListPtr(new LLPathfindingCharacterList());
 	mCharactersCallback(mRequestId, LLPathfindingManager::kRequestError, characterListPtr);

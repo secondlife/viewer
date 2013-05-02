@@ -195,7 +195,7 @@ protected:
 	public:
 		Responder(const request_ptr_t &request);
 		//If we get back an error (not found, etc...), handle it here
-		virtual void error(U32 status, const std::string& reason);
+		virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 		//If we get back a normal response, handle it here.	 Default just logs it.
 		virtual void result(const LLSD& content);
 
@@ -400,7 +400,7 @@ protected:
     public:
         Responder(const request_ptr_t &request)
             : LLMediaDataClient::Responder(request) {}
-		virtual void error(U32 status, const std::string& reason);
+		virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
         virtual void result(const LLSD &content);
     private:
         void mediaNavigateBounceBack();
