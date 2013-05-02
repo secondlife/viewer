@@ -46,13 +46,14 @@ public:
 	// Stub those things we won't really be using in this conversation context
 	virtual const std::string& getName() const { return mName; }
 	virtual const std::string& getDisplayName() const { return mName; }
-	virtual const std::string& getSearchableName() const { return mName; }
+	virtual const std::string& getSearchableName() const { return mSearchableName; }
+
 	virtual LLPointer<LLUIImage> getIcon() const { return NULL; }
 	virtual LLPointer<LLUIImage> getOpenIcon() const { return getIcon(); }
 	virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
 	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
 	virtual BOOL isItemRenameable() const { return TRUE; }
-	virtual BOOL renameItem(const std::string& new_name) { mName = new_name; return TRUE; }
+	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL isItemMovable( void ) const { return FALSE; }
 	virtual BOOL isItemRemovable( void ) const { return FALSE; }
 	virtual BOOL isItemInTrash( void) const { return FALSE; }
@@ -70,10 +71,12 @@ public:
 	virtual bool hasChildren() const { return FALSE; }
 
 	virtual bool potentiallyVisible() { return true; }
-	virtual bool filter( LLFolderViewFilter& filter) { return false; }
+    
+	virtual bool filter( LLFolderViewFilter& filter);
+
 	virtual bool descendantsPassedFilter(S32 filter_generation = -1) { return true; }
-	virtual void setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0) { }
-	virtual bool passedFilter(S32 filter_generation = -1) { return true; }
+//	virtual void setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0) { }
+	virtual bool passedFilter(S32 filter_generation = -1) { return mPassedFilter; }
 
 	// The action callbacks
 	virtual void performAction(LLInventoryModel* model, std::string action);
@@ -97,7 +100,8 @@ public:
 
 protected:
 
-	std::string mName;	// Name of the session or the participant
+	std::string mName;              // Name of the person
+	std::string mSearchableName;	// Name used in string matching for this person
 	LLUUID mID;
 };	
 
@@ -175,7 +179,7 @@ public:
 	// +-------------------------------------------------------------------+
     // Note : we currently filter the whole person list at once, no need to count then.
 	void 				setFilterCount(S32 count) { }
-	S32 				getFilterCount() const { return 0; }
+	S32 				getFilterCount() const { return 1; }
 	void 				decrementFilterCount() { }
 
 	// +-------------------------------------------------------------------+

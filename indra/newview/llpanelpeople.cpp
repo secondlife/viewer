@@ -1687,10 +1687,22 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 
 void LLPanelPeople::addTestParticipant()
 {
+    std::string suffix("Aa");
+    std::string prefix("EastBayGuy");
 	for(int i = 0; i < 300; ++i)
 	{
 		LLPersonTabModel * person_folder_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->mPersonFolderModelMap.begin()->second);
-		addParticipantToModel(person_folder_model, LLUUID().generateNewID(), "EastBayGuy");
+        std::string name = prefix + " " + suffix;
+		addParticipantToModel(person_folder_model, LLUUID().generateNewID(), name);
+        // Next suffix : Aa, Ab, Ac ... Az, Ba, Bb, Bc ... Bz, Ca, Cb ...
+        suffix[1]+=1;
+        if (suffix[1]=='{')
+        {
+            suffix[1]='a';
+            suffix[0]+=1;
+            if (suffix[0]=='[')
+                suffix[0]='A';
+        }
 	}
 }
 
