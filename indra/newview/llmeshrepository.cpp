@@ -96,7 +96,7 @@ U32 LLMeshRepository::sLODPending = 0;
 U32 LLMeshRepository::sCacheBytesRead = 0;
 U32 LLMeshRepository::sCacheBytesWritten = 0;
 U32 LLMeshRepository::sPeakKbps = 0;
-LLDeadmanTimer LLMeshRepository::sQuiescentTimer(15.0, true);
+LLDeadmanTimer LLMeshRepository::sQuiescentTimer(15.0, true);	// true -> gather cpu metrics
 
 	
 const U32 MAX_TEXTURE_UPLOAD_RETRIES = 5;
@@ -3769,9 +3769,9 @@ void LLMeshRepository::metricsProgress(unsigned int this_count)
 void LLMeshRepository::metricsUpdate()
 {
 	F64 started, stopped;
-	U64 total_count;
-
-	if (sQuiescentTimer.isExpired(0, started, stopped, total_count))
+	U64 total_count(U64L(0)), user_cpu(U64L(0)), sys_cpu(U64L(0));
+	
+	if (sQuiescentTimer.isExpired(0, started, stopped, total_count, user_cpu, sys_cpu))
 	{
 		LLSD metrics;
 
@@ -3781,6 +3781,8 @@ void LLMeshRepository::metricsUpdate()
 		metrics["stop"] = stopped;
 		metrics["downloads"] = LLSD::Integer(total_count);
 		metrics["teleports"] = LLSD::Integer(metrics_teleport_start_count);
+		metrics["user_cpu"] = double(user_cpu) / 1.0e6;
+		metrics["sys_cpu"] = double(sys_cpu) / 1.0e6;
 		llinfos << "EventMarker " << metrics << llendl;
 	}
 }

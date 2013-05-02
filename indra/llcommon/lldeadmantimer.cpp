@@ -110,13 +110,13 @@ void LLDeadmanTimer::stop(time_type now)
 
 
 bool LLDeadmanTimer::isExpired(time_type now, F64 & started, F64 & stopped, U64 & count,
-							   LLProcInfo::time_type & user_cpu, LLProcInfo::time_type & sys_cpu)
+							   U64 & user_cpu, U64 & sys_cpu)
 {
 	const bool status(isExpired(now, started, stopped, count));
 	if (status)
 	{
-		user_cpu = mUEndCPU - mUStartCPU;
-		sys_cpu = mSEndCPU - mSStartCPU;
+		user_cpu = U64(mUEndCPU - mUStartCPU);
+		sys_cpu = U64(mSEndCPU - mSStartCPU);
 	}
 	return status;
 }

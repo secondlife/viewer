@@ -81,16 +81,15 @@ void deadmantimer_object_t::test<1>()
 	{
 		// With cpu metrics
 		F64 started(42.0), stopped(97.0);
-		U64 count(U64L(8));
-		LLProcInfo::time_type user_cpu(29000), sys_cpu(57000);
+		U64 count(U64L(8)), user_cpu(29000), sys_cpu(57000);
 		LLDeadmanTimer timer(10.0, true);
 
 		ensure_equals("WCM isExpired() returns false after ctor()", timer.isExpired(0, started, stopped, count, user_cpu, sys_cpu), false);
 		ensure_approximately_equals("WCM t1 - isExpired() does not modify started", started, F64(42.0), 2);
 		ensure_approximately_equals("WCM t1 - isExpired() does not modify stopped", stopped, F64(97.0), 2);
 		ensure_equals("WCM t1 - isExpired() does not modify count", count, U64L(8));
-		ensure_equals("WCM t1 - isExpired() does not modify user_cpu", user_cpu, LLProcInfo::time_type(29000));
-		ensure_equals("WCM t1 - isExpired() does not modify sys_cpu", sys_cpu, LLProcInfo::time_type(57000));
+		ensure_equals("WCM t1 - isExpired() does not modify user_cpu", user_cpu, U64L(29000));
+		ensure_equals("WCM t1 - isExpired() does not modify sys_cpu", sys_cpu, U64L(57000));
 	}
 }
 
@@ -112,8 +111,7 @@ void deadmantimer_object_t::test<2>()
 	{
 		// With cpu metrics
 		F64 started(42.0), stopped(97.0);
-		U64 count(U64L(8));
-		LLProcInfo::time_type user_cpu(29000), sys_cpu(57000);
+		U64 count(U64L(8)), user_cpu(29000), sys_cpu(57000);
 		LLDeadmanTimer timer(0.0, true);			// Zero is pre-expired
 		
 		ensure_equals("WCM isExpired() still returns false with 0.0 time ctor()",
@@ -141,8 +139,7 @@ void deadmantimer_object_t::test<3>()
 	{
 		// With cpu metrics
 		F64 started(42.0), stopped(97.0);
-		U64 count(U64L(8));
-		LLProcInfo::time_type user_cpu(29000), sys_cpu(57000);
+		U64 count(U64L(8)), user_cpu(29000), sys_cpu(57000);
 		LLDeadmanTimer timer(0.0, true);
 
 		timer.start(0);
@@ -172,8 +169,7 @@ void deadmantimer_object_t::test<4>()
 	{
 		// With cpu metrics
 		F64 started(42.0), stopped(97.0);
-		U64 count(U64L(8));
-		LLProcInfo::time_type user_cpu(29000), sys_cpu(57000);
+		U64 count(U64L(8)), user_cpu(29000), sys_cpu(57000);
 		LLDeadmanTimer timer(0.0, true);
 	
 		timer.start(0);
@@ -205,8 +201,7 @@ void deadmantimer_object_t::test<5>()
 	{
 		// With cpu metrics
 		F64 started(42.0), stopped(97.0);
-		U64 count(U64L(8));
-		LLProcInfo::time_type user_cpu(29000), sys_cpu(57000);
+		U64 count(U64L(8)), user_cpu(29000), sys_cpu(57000);
 		LLDeadmanTimer timer(10.0, true);
 	
 		timer.start(0);
@@ -215,8 +210,8 @@ void deadmantimer_object_t::test<5>()
 		ensure_approximately_equals("WCM t5 - isExpired() does not modify started", started, F64(42.0), 2);
 		ensure_approximately_equals("WCM t5 - isExpired() does not modify stopped", stopped, F64(97.0), 2);
 		ensure_equals("WCM t5 - isExpired() does not modify count", count, U64L(8));
-		ensure_equals("WCM t5 - isExpired() does not modify user_cpu", user_cpu, LLProcInfo::time_type(29000));
-		ensure_equals("WCM t5 - isExpired() does not modify sys_cpu", sys_cpu, LLProcInfo::time_type(57000));
+		ensure_equals("WCM t5 - isExpired() does not modify user_cpu", user_cpu, U64L(29000));
+		ensure_equals("WCM t5 - isExpired() does not modify sys_cpu", sys_cpu, U64L(57000));
 	}
 }
 
@@ -247,8 +242,7 @@ void deadmantimer_object_t::test<6>()
 	{
 		// With cpu metrics
 		F64 started(42.0), stopped(97.0);
-		U64 count(U64L(8));
-		LLProcInfo::time_type user_cpu(29000), sys_cpu(57000);
+		U64 count(U64L(8)), user_cpu(29000), sys_cpu(57000);
 		LLDeadmanTimer timer(10.0, true);
 
 		// Would like to do subtraction on current time but can't because
@@ -263,8 +257,8 @@ void deadmantimer_object_t::test<6>()
 		ensure_approximately_equals("WCM t6 - isExpired() does not modify started", started, F64(42.0), 2);
 		ensure_approximately_equals("WCM t6 - isExpired() does not modify stopped", stopped, F64(97.0), 2);
 		ensure_equals("t6 - isExpired() does not modify count", count, U64L(8));
-		ensure_equals("WCM t6 - isExpired() does not modify user_cpu", user_cpu, LLProcInfo::time_type(29000));
-		ensure_equals("WCM t6 - isExpired() does not modify sys_cpu", sys_cpu, LLProcInfo::time_type(57000));
+		ensure_equals("WCM t6 - isExpired() does not modify user_cpu", user_cpu, U64L(29000));
+		ensure_equals("WCM t6 - isExpired() does not modify sys_cpu", sys_cpu, U64L(57000));
 	}
 }
 
@@ -293,9 +287,8 @@ void deadmantimer_object_t::test<7>()
 	{
 		// With cpu metrics
 		F64 started(42.0), stopped(97.0);
-		U64 count(U64L(8));
+		U64 count(U64L(8)), user_cpu(29000), sys_cpu(57000);
 		LLDeadmanTimer timer(10.0, true);
-		LLProcInfo::time_type user_cpu(29000), sys_cpu(57000);
 		
 		// Would like to do subtraction on current time but can't because
 		// the implementation on Windows is zero-based.  We wrap around
@@ -343,9 +336,8 @@ void deadmantimer_object_t::test<8>()
 	{
 		// With cpu metrics
 		F64 started(42.0), stopped(97.0);
-		U64 count(U64L(8));
+		U64 count(U64L(8)), user_cpu(29000), sys_cpu(57000);
 		LLDeadmanTimer timer(10.0, true);
-		LLProcInfo::time_type user_cpu(29000), sys_cpu(57000);
 
 		// Would like to do subtraction on current time but can't because
 		// the implementation on Windows is zero-based.  We wrap around
@@ -367,8 +359,8 @@ void deadmantimer_object_t::test<8>()
 		ensure_approximately_equals("WCM t8 - 2nd isExpired() does not modify started", started, F64(42.0), 2);
 		ensure_approximately_equals("WCM t8 - 2nd isExpired() does not modify stopped", stopped, F64(97.0), 2);
 		ensure_equals("WCM t8 - 2nd isExpired() does not modify count", count, U64L(8));
-		ensure_equals("WCM t8 - 2nd isExpired() does not modify user_cpu", user_cpu, LLProcInfo::time_type(29000));
-		ensure_equals("WCM t8 - 2nd isExpired() does not modify sys_cpu", sys_cpu, LLProcInfo::time_type(57000));
+		ensure_equals("WCM t8 - 2nd isExpired() does not modify user_cpu", user_cpu, U64L(29000));
+		ensure_equals("WCM t8 - 2nd isExpired() does not modify sys_cpu", sys_cpu, U64L(57000));
 	}
 }
 
@@ -423,9 +415,8 @@ void deadmantimer_object_t::test<9>()
 	{
 		// With cpu metrics
 		F64 started(42.0), stopped(97.0);
-		U64 count(U64L(8));
+		U64 count(U64L(8)), user_cpu(29000), sys_cpu(57000);
 		LLDeadmanTimer timer(5.0, true);
-		LLProcInfo::time_type user_cpu(29000), sys_cpu(57000);
 
 		LLDeadmanTimer::time_type now(LLDeadmanTimer::getNow());
 		F64 real_start(u64_time_to_float(now));
@@ -553,9 +544,9 @@ void deadmantimer_object_t::test<10>()
 	{
 		// With cpu metrics
 		F64 started(42.0), stopped(97.0);
-		U64 count(U64L(8));
+		U64 count(U64L(8)), user_cpu(29000), sys_cpu(57000);
+
 		LLDeadmanTimer timer(5.0, true);
-		LLProcInfo::time_type user_cpu(29000), sys_cpu(57000);
 
 		LLDeadmanTimer::time_type now(LLDeadmanTimer::getNow());
 		F64 real_start(u64_time_to_float(now));

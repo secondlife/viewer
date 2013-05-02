@@ -190,7 +190,7 @@ public:
 	///					left unchanged.
 	///
 	bool isExpired(time_type now, F64 & started, F64 & stopped, U64 & count,
-				   LLProcInfo::time_type & user_cpu, LLProcInfo::time_type & sys_cpu);
+				   U64 & user_cpu, U64 & sys_cpu);
 
 	/// Identical to the six-arugment form except is does without the
 	/// CPU time return if the caller isn't interested in it.
