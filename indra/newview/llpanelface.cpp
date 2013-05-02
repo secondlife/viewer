@@ -1953,11 +1953,11 @@ void LLPanelFace::onCommitMaterialsMedia(LLUICtrl* ctrl, void* userdata)
 	U32 materials_media = combo_matmedia->getCurrentIndex();
 	U32 material_type = combo_mattype->getCurrentIndex();
 	bool show_media = (materials_media == MATMEDIA_MEDIA) && combo_matmedia->getEnabled();
-	bool show_texture = (!show_media) && (material_type == MATTYPE_DIFFUSE) && combo_matmedia->getEnabled();
+	bool show_texture = (show_media || ((material_type == MATTYPE_DIFFUSE) && combo_matmedia->getEnabled()));
 	bool show_bumpiness = (!show_media) && (material_type == MATTYPE_NORMAL) && combo_matmedia->getEnabled();
 	bool show_shininess = (!show_media) && (material_type == MATTYPE_SPECULAR) && combo_matmedia->getEnabled();
 	self->getChildView("combobox mattype")->setVisible(!show_media);
-	self->getChildView("rptctrl")->setVisible(!show_media);
+	self->getChildView("rptctrl")->setVisible(show_texture);
 
 	// Media controls
 	self->getChildView("media_info")->setVisible(show_media);
@@ -1966,12 +1966,12 @@ void LLPanelFace::onCommitMaterialsMedia(LLUICtrl* ctrl, void* userdata)
 	self->getChildView("button align")->setVisible(show_media);
 
 	// Diffuse texture controls
-	self->getChildView("texture control")->setVisible(show_texture);
-	self->getChildView("label alphamode")->setVisible(show_texture);
-	self->getChildView("combobox alphamode")->setVisible(show_texture);
+	self->getChildView("texture control")->setVisible(show_texture && !show_media);
+	self->getChildView("label alphamode")->setVisible(show_texture && !show_media);
+	self->getChildView("combobox alphamode")->setVisible(show_texture && !show_media);
 	self->getChildView("label maskcutoff")->setVisible(false);
 	self->getChildView("maskcutoff")->setVisible(false);
-	if (show_texture)
+	if (show_texture && !show_media)
 	{
 		updateAlphaControls(ctrl, userdata);
 	}
