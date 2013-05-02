@@ -50,13 +50,21 @@ add_executable(SLPlugin
     ${SLPlugin_SOURCE_FILES}
 )
 
+if (WINDOWS)
+set_target_properties(SLPlugin
+  PROPERTIES
+  LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMTD\""
+  )
+elseif (DARWIN)
 set_target_properties(SLPlugin
   PROPERTIES
   MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/slplugin_info.plist
-if (WINDOWS)
-  LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMTD\""
-endif (WINDOWS)
   )
+else ()		# LINUX
+set_target_properties(SLPlugin
+  PROPERTIES
+  )
+endif ()
 
 target_link_libraries(SLPlugin
   ${LLPLUGIN_LIBRARIES}
