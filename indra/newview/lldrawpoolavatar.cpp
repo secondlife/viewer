@@ -252,10 +252,11 @@ void LLDrawPoolAvatar::beginPostDeferredPass(S32 pass)
 	case 4:
 		beginRiggedFullbrightAlpha();
 		break;
-	case 5:
+	case 9:
 		beginRiggedGlow();
+		break;
 	default:
-		beginDeferredRiggedMaterialAlpha(pass-6);
+		beginDeferredRiggedMaterialAlpha(pass-5);
 		break;
 	}
 }
@@ -368,14 +369,14 @@ void LLDrawPoolAvatar::renderPostDeferred(S32 pass)
 		13, //rigged glow
 	};
 
-	pass = actual_pass[pass];
+	S32 p = actual_pass[pass];
 
 	if (LLPipeline::sImpostorRender)
 	{ //HACK for impostors so actual pass ends up being proper pass
-		pass -= 2;
+		p -= 2;
 	}
 
-	render(pass);
+	render(p);
 }
 
 
@@ -1299,20 +1300,28 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 			return;
 		}
 
-		S32 p = 0;
-		switch (pass)
+		if (LLPipeline::sRenderDeferred)
 		{
-		case 9: p = 1; break;
-		case 10: p = 5; break;
-		case 11: p = 9; break;
-		case 12: p = 13; break;
-		}
+			S32 p = 0;
+			switch (pass)
+			{
+			case 9: p = 1; break;
+			case 10: p = 5; break;
+			case 11: p = 9; break;
+			case 12: p = 13; break;
+			}
 
-		{
-			LLGLEnable blend(GL_BLEND);
-			renderDeferredRiggedMaterial(avatarp, p);
+			{
+				LLGLEnable blend(GL_BLEND);
+				renderDeferredRiggedMaterial(avatarp, p);
+			}
+			return;
 		}
-		return;
+		else if (pass == 9)
+		{
+			renderRiggedGlow(avatarp);
+			return;
+		}
 	}
 
 	if (pass == 13)
