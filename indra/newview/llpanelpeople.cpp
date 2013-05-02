@@ -111,12 +111,11 @@ public:
 					{
 						mPanelPeople->connectToFacebook(query_map["code"]);
 						mPanelPeople = NULL;
-						return true;
 					}
 				}
+				return true;
 			}
 		}
-
 		return false;
 	}
 };
@@ -1688,12 +1687,12 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 void LLPanelPeople::addTestParticipant()
 {
     std::string suffix("Aa");
-    std::string prefix("EastBayGuy");
+    std::string prefix("Test Name");
 	for(int i = 0; i < 300; ++i)
 	{
 		LLPersonTabModel * person_folder_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->mPersonFolderModelMap.begin()->second);
         std::string name = prefix + " " + suffix;
-		addParticipantToModel(person_folder_model, LLUUID().generateNewID(), name);
+		addParticipantToModel(person_folder_model, gAgent.getID(), name);
         // Next suffix : Aa, Ab, Ac ... Az, Ba, Bb, Bc ... Bz, Ca, Cb ...
         suffix[1]+=1;
         if (suffix[1]=='{')
