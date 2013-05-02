@@ -1097,6 +1097,12 @@ bool LLFace::canRenderAsMask()
 	{
 		return false;
 	}
+
+	LLMaterial* mat = te->getMaterialParams();
+	if (mat && mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND)
+	{
+		return false;
+	}
 	
 	if ((te->getColor().mV[3] == 1.0f) && // can't treat as mask if we have face alpha
 		(te->getGlow() == 0.f) && // glowing masks are hard to implement - don't mask
