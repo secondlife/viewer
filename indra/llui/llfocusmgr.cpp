@@ -469,7 +469,7 @@ void LLFocusMgr::setAppHasFocus(BOOL focus)
 	mAppHasFocus = focus; 
 }
 
-LLUICtrl* LLFocusMgr::getLastFocusForGroup(LLView* subtree_root) const
+LLView* LLFocusMgr::getLastFocusForGroup(LLView* subtree_root) const
 {
 	if (subtree_root)
 	{
@@ -477,7 +477,7 @@ LLUICtrl* LLFocusMgr::getLastFocusForGroup(LLView* subtree_root) const
 		if (found_it != mImpl->mFocusHistory.end())
 		{
 			// found last focus for this subtree
-			return static_cast<LLUICtrl*>(found_it->second.get());
+			return found_it->second.get();
 		}
 	}
 	return NULL;

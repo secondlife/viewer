@@ -1346,7 +1346,7 @@ void LLFloater::setFocus( BOOL b )
 	{
 		return;
 	}
-	LLUICtrl* last_focus = gFocusMgr.getLastFocusForGroup(this);
+	LLView* last_focus = gFocusMgr.getLastFocusForGroup(this);
 	// a descendent already has focus
 	BOOL child_had_focus = hasFocus();
 
