@@ -2252,7 +2252,7 @@ BOOL LLPipeline::getVisibleExtents(LLCamera& camera, LLVector3& min, LLVector3& 
 	min = LLVector3(X,X,X);
 	max = LLVector3(-X,-X,-X);
 
-	U32 saved_camera_id = LLViewerCamera::sCurCameraID;
+	LLViewerCamera::eCameraID saved_camera_id = LLViewerCamera::sCurCameraID;
 	LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 
 	BOOL res = TRUE;
@@ -9437,7 +9437,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 				mShadowFrustPoints[j].clear();
 			}
 
-			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_SHADOW0+j;
+			LLViewerCamera::sCurCameraID = (LLViewerCamera::eCameraID)(LLViewerCamera::CAMERA_SHADOW0+j);
 
 			//restore render matrices
 			glh_set_current_modelview(saved_view);
@@ -9821,7 +9821,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		//update shadow targets
 		for (U32 i = 0; i < 2; i++)
 		{ //for each current shadow
-			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_SHADOW4+i;
+			LLViewerCamera::sCurCameraID = (LLViewerCamera::eCameraID)(LLViewerCamera::CAMERA_SHADOW4+i);
 
 			if (mShadowSpotLight[i].notNull() && 
 				(mShadowSpotLight[i] == mTargetShadowSpotLight[0] ||
@@ -9940,7 +9940,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 			static LLCullResult result[2];
 
-			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_SHADOW0+i+4;
+			LLViewerCamera::sCurCameraID = (LLViewerCamera::eCameraID)(LLViewerCamera::CAMERA_SHADOW0 + i + 4);
 
 			renderShadow(view[i+4], proj[i+4], shadow_cam, result[i], FALSE, FALSE, target_width);
 
