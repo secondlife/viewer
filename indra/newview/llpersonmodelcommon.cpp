@@ -31,21 +31,23 @@
 
 #include "llevents.h"
 #include "llsdutil.h"
+#include "llstring.h"
 
 //
 // LLPersonModelCommon
 // 
 
 LLPersonModelCommon::LLPersonModelCommon(std::string display_name, LLFolderViewModelInterface& root_view_model) :
-LLFolderViewModelItemCommon(root_view_model),
-	mName(display_name),
+    LLFolderViewModelItemCommon(root_view_model),
 	mID(LLUUID().generateNewID())
 {
+    renameItem(display_name);
 }
 
 LLPersonModelCommon::LLPersonModelCommon(LLFolderViewModelInterface& root_view_model) :
-LLFolderViewModelItemCommon(root_view_model),
+    LLFolderViewModelItemCommon(root_view_model),
 	mName(""),
+    mSearchableName(""),
 	mID(LLUUID().generateNewID())
 {
 }
@@ -53,6 +55,14 @@ LLFolderViewModelItemCommon(root_view_model),
 LLPersonModelCommon::~LLPersonModelCommon()
 {
 
+}
+
+BOOL LLPersonModelCommon::renameItem(const std::string& new_name)
+{
+    mName = new_name;
+    mSearchableName = new_name;
+    LLStringUtil::toUpper(mSearchableName);
+    return TRUE;
 }
 
 void LLPersonModelCommon::postEvent(const std::string& event_type, LLPersonTabModel* folder, LLPersonModel* person)
@@ -82,6 +92,39 @@ void LLPersonModelCommon::previewItem( void )
 
 void LLPersonModelCommon::showProperties(void)
 {
+}
+
+bool LLPersonModelCommon::filter( LLFolderViewFilter& filter)
+{
+    // See LLFolderViewModelItemInventory::filter()
+/*
+    if (!filter.isModified())
+    {
+        llinfos << "Merov : LLPersonModelCommon::filter, exit, no modif" << llendl;
+        return true;
+    }
+*/        
+    if (!mChildren.empty())
+    {
+        //llinfos << "Merov : LLPersonModelCommon::filter, filtering folder = " << getDisplayName() << llendl;
+        setPassedFilter(1, -1, filter.getStringMatchOffset(this), filter.getFilterStringSize());
+        for (child_list_t::iterator iter = mChildren.begin(), end_iter = mChildren.end();
+            iter != end_iter;
+            ++iter)
+        {
+            // LLFolderViewModelItem
+            LLPersonModelCommon* item = dynamic_cast<LLPersonModelCommon*>(*iter);
+            item->filter(filter);
+        }
+    }
+    else
+    {
+        const bool passed_filter = filter.check(this);
+        setPassedFilter(passed_filter, -1, filter.getStringMatchOffset(this), filter.getFilterStringSize());
+    }
+    
+    filter.clearModified();
+    return true;
 }
 
 //
@@ -186,7 +229,7 @@ void LLPersonViewFilter::setFilterSubString(const std::string& string)
 	if (mFilterSubString != filter_sub_string_new)
 	{
         // *TODO : Add logic to support more and less restrictive filtering
-        mFilterModified = FILTER_RESTART;
+        setModified(FILTER_RESTART);
 		mFilterSubString = filter_sub_string_new;
 	}
 }
@@ -198,9 +241,7 @@ bool LLPersonViewFilter::showAllResults() const
 
 bool LLPersonViewFilter::check(const LLFolderViewModelItem* item)
 {
-	std::string::size_type string_offset = mFilterSubString.size() ? item->getSearchableName().find(mFilterSubString) : std::string::npos;
-    
-	return (mFilterSubString.size() == 0 || string_offset != std::string::npos);
+	return (mFilterSubString.size() ? (item->getSearchableName().find(mFilterSubString) != std::string::npos) : true);
 }
 
 std::string::size_type LLPersonViewFilter::getStringMatchOffset(LLFolderViewModelItem* item) const
