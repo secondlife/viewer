@@ -83,8 +83,8 @@ void procinfo_object_t::test<2>()
 	
 	LLProcInfo::getCPUUsage(user2, system2);
 
-	ensure_equals("getCPUUsage() user value increases over time", user2 > user, true);
-	ensure_equals("getCPUUsage() system value increases over time", system2 > system, true);
+	ensure_equals("getCPUUsage() user value doesn't decrease over time", user2 >= user, true);
+	ensure_equals("getCPUUsage() system value doesn't decrease over time", system2 >= system, true);
 }
 
 
