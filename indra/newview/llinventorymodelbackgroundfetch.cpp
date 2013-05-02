@@ -172,6 +172,8 @@ void LLInventoryModelBackgroundFetch::setAllFoldersFetched()
 		mRecursiveLibraryFetchStarted)
 	{
 		mAllFoldersFetched = TRUE;
+		//llinfos << "All folders fetched, validating" << llendl;
+		//gInventory.validate();
 	}
 	mFolderFetchActive = false;
 }

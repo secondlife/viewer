@@ -802,14 +802,14 @@ void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string c
 //------------------------------------------------------------------------
 LLVOAvatar::~LLVOAvatar()
 {
-		if (!mFullyLoaded)
-		{
+	if (!mFullyLoaded)
+	{
 		debugAvatarRezTime("AvatarRezLeftCloudNotification","left after ruth seconds as cloud");
-		}
-		else
-		{
+	}
+	else
+	{
 		debugAvatarRezTime("AvatarRezLeftNotification","left sometime after declouding");
-		}
+	}
 
 	logPendingPhases();
 	
@@ -6059,6 +6059,11 @@ void LLVOAvatar::stopPhase(const std::string& phase_name, bool err_check)
 
 void LLVOAvatar::logPendingPhases()
 {
+	if (!isAgentAvatarValid())
+	{
+		return;
+	}
+	
 	for (LLViewerStats::phase_map_t::iterator it = getPhases().begin();
 		 it != getPhases().end();
 		 ++it)
@@ -6093,6 +6098,11 @@ void LLVOAvatar::logPendingPhasesAllAvatars()
 
 void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapsed, bool completed)
 {
+	if (!isAgentAvatarValid())
+	{
+		return;
+	}
+	
 	LLSD record;
 	record["timer_name"] = phase_name;
 	record["avatar_id"] = getID();
@@ -6109,13 +6119,6 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 	record["is_using_server_bakes"] = ((bool) isUsingServerBakes());
 	record["is_self"] = isSelf();
 	
-
-#if 0 // verbose logging
-	std::ostringstream ostr;
-	ostr << LLSDNotationStreamer(record);
-	LL_DEBUGS("Avatar") << "record\n" << ostr.str() << llendl;
-#endif
-
 	if (isAgentAvatarValid())
 	{
 		gAgentAvatarp->addMetricsTimerRecord(record);
