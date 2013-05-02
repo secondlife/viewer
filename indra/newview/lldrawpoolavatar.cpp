@@ -182,6 +182,7 @@ void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 		break;
 	case 4:
 		beginDeferredRiggedBump();
+		break;
 	default:
 		beginDeferredRiggedMaterial(pass-5);
 		break;
