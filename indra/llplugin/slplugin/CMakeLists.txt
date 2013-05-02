@@ -55,14 +55,10 @@ set_target_properties(SLPlugin
   PROPERTIES
   LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMTD\""
   )
-elseif (DARWIN)
+else ()
 set_target_properties(SLPlugin
   PROPERTIES
   MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/slplugin_info.plist
-  )
-else ()		# LINUX
-set_target_properties(SLPlugin
-  PROPERTIES
   )
 endif ()
 
