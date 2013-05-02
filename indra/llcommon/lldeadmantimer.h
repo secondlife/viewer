@@ -32,6 +32,7 @@
 #include "linden_common.h"
 
 #include "lltimer.h"
+#include "llprocinfo.h"
 
 
 /// @file lldeadmantimer.h
@@ -93,7 +94,11 @@ public:
 	///                 call at which point the timer will consider itself
 	///					expired.
 	///
-	LLDeadmanTimer(F64 horizon);
+	/// @param inc_cpu	If true, gather system and user cpu stats while
+	///					running the timer.  This does require more syscalls
+	///					during updates.  If false, cpu usage data isn't
+	///					collected and will be zero if queried.
+	LLDeadmanTimer(F64 horizon, bool inc_cpu);
 
 	~LLDeadmanTimer() 
 		{}
@@ -173,21 +178,38 @@ public:
 	/// @param count	If expired, the number of ringBell() calls
 	///					made prior to expiration.
 	///
+	/// @param user_cpu	Amount of CPU spent in user mode by the process
+	///					during the event.  Value in microseconds and will
+	///					read zero if not enabled by the constructor.
+	///
+	/// @param sys_cpu	Amount of CPU spent in system mode by the process.
+	///
 	/// @return			true if the timer has expired, false otherwise.
 	///					If true, it also returns the started,
 	///					stopped and count values otherwise these are
 	///					left unchanged.
 	///
+	bool isExpired(time_type now, F64 & started, F64 & stopped, U64 & count,
+				   LLProcInfo::time_type & user_cpu, LLProcInfo::time_type & sys_cpu);
+
+	/// Identical to the six-arugment form except is does without the
+	/// CPU time return if the caller isn't interested in it.
 	bool isExpired(time_type now, F64 & started, F64 & stopped, U64 & count);
 
 protected:
-	time_type	mHorizon;
-	bool		mActive;
-	bool		mDone;
-	time_type	mStarted;
-	time_type	mExpires;
-	time_type	mStopped;
-	time_type	mCount;
+	time_type					mHorizon;
+	bool						mActive;
+	bool						mDone;
+	time_type					mStarted;
+	time_type					mExpires;
+	time_type					mStopped;
+	time_type					mCount;
+
+	const bool					mIncCPU;		// Include CPU metrics in timer
+	LLProcInfo::time_type		mUStartCPU;
+	LLProcInfo::time_type		mUEndCPU;
+	LLProcInfo::time_type		mSStartCPU;
+	LLProcInfo::time_type		mSEndCPU;
 };
 	
 

@@ -96,7 +96,7 @@ U32 LLMeshRepository::sLODPending = 0;
 U32 LLMeshRepository::sCacheBytesRead = 0;
 U32 LLMeshRepository::sCacheBytesWritten = 0;
 U32 LLMeshRepository::sPeakKbps = 0;
-LLDeadmanTimer LLMeshRepository::sQuiescentTimer(15.0);
+LLDeadmanTimer LLMeshRepository::sQuiescentTimer(15.0, true);
 
 	
 const U32 MAX_TEXTURE_UPLOAD_RETRIES = 5;
