@@ -5214,6 +5214,36 @@ void LLVOAvatar::updateVisualParams()
 	updateHeadOffset();
 }
 
+/*virtual*/ 
+void LLVOAvatar::computeBodySize()
+{
+	LLAvatarAppearance::computeBodySize();
+
+	// Certain configurations of avatars can force the overall height (with offset) to go negative.
+	// Enforce a constraint to make sure we don't go below 0.1 meters.
+	// Camera positioning and other things start to break down when your avatar is "walking" while being fully underground
+	if (isSelf() && getWearableData())
+	{
+		LLViewerWearable* shape = (LLViewerWearable*)getWearableData()->getWearable(LLWearableType::WT_SHAPE, 0);
+		if (shape && shape->getVolitile()) 
+		{
+			F32 hover_value = shape->getVisualParamWeight(AVATAR_HOVER);
+			if (hover_value < 0.0f && (mBodySize.mV[VZ] + hover_value < 1.1f))
+			{
+				hover_value = -(mBodySize.mV[VZ] - 1.1f); // avoid floating point rounding making the above check continue to fail.
+				llassert(mBodySize.mV[VZ] + hover_value >= 1.1f);
+
+				hover_value =  llmin(hover_value, 0.0f); // don't force the hover value to be greater than 0.
+
+				mAvatarOffset.mV[VZ] = hover_value;
+				shape->setVisualParamWeight(AVATAR_HOVER,hover_value, FALSE);
+
+			}
+		}
+	}
+}
+
+
 //-----------------------------------------------------------------------------
 // isActive()
 //-----------------------------------------------------------------------------

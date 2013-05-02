@@ -212,6 +212,9 @@ public:
 	/*virtual*/ LLVector3		getPosAgentFromGlobal(const LLVector3d &position);
 	virtual void			updateVisualParams();
 
+	/*virtual*/ void		computeBodySize();
+
+
 
 /**                    Inherited
  **                                                                            **
