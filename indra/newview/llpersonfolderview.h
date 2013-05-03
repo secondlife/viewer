@@ -50,6 +50,10 @@ public:
 	LLPersonFolderView(const Params &p);
 	~LLPersonFolderView();
 
+	
+	void createPersonTabs();
+	void createPersonTab(const std::string& tab_name);
+
 	bool onConversationModelEvent(const LLSD &event);
 	LLPersonView * createConversationViewParticipant(LLPersonModel * item);
 

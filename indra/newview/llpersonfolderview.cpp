@@ -38,11 +38,35 @@ LLFolderView(p),
 	mConversationsEventStream("ConversationsEventsTwo")
 {
 	mConversationsEventStream.listen("ConversationsRefresh", boost::bind(&LLPersonFolderView::onConversationModelEvent, this, _1));
+
+	createPersonTabs();
 }
 
 LLPersonFolderView::~LLPersonFolderView()
 {
 	mConversationsEventStream.stopListening("ConversationsRefresh");
+}
+
+void LLPersonFolderView::createPersonTabs()
+{
+	createPersonTab("SL residents you may want to friend");
+	createPersonTab("Invite people you know to SL");
+}
+
+void LLPersonFolderView::createPersonTab(const std::string& tab_name)
+{
+	//Create a person tab
+	LLPersonTabModel* item = new LLPersonTabModel(tab_name, *mViewModel);
+	LLPersonTabView::Params params;
+	params.name = item->getDisplayName();
+	params.root = this;
+	params.listener = item;
+	params.tool_tip = params.name;
+	LLPersonTabView * widget = LLUICtrlFactory::create<LLPersonTabView>(params);
+	widget->addToFolder(this);
+
+	mPersonFolderModelMap[item->getID()] = item;
+	mPersonFolderViewMap[item->getID()] = widget;
 }
 
 BOOL LLPersonFolderView::handleMouseDown( S32 x, S32 y, MASK mask )

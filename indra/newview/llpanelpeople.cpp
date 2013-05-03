@@ -750,31 +750,6 @@ BOOL LLPanelPeople::postBuild()
 	scroller->setFollowsAll();
 	mPersonFolderView->setScrollContainer(scroller);
 	mPersonFolderView->setFollowsAll();
-
-	//Create a person tab
-	LLPersonTabModel* item = new LLPersonTabModel("Facebook Friends", mPersonFolderViewModel);
-	LLPersonTabView::Params params;
-	params.name = item->getDisplayName();
-	params.root = mPersonFolderView;
-	params.listener = item;
-	params.tool_tip = params.name;
-	LLPersonTabView * widget = LLUICtrlFactory::create<LLPersonTabView>(params);
-	widget->addToFolder(mPersonFolderView);
-
-	mPersonFolderView->mPersonFolderModelMap[item->getID()] = item;
-	mPersonFolderView->mPersonFolderViewMap[item->getID()] = widget;
-
-	//Create a person tab
-	item = new LLPersonTabModel("Facebook Friends Tab Two", mPersonFolderViewModel);
-	params.name = item->getDisplayName();
-	params.root = mPersonFolderView;
-	params.listener = item;
-	params.tool_tip = params.name;
-	widget = LLUICtrlFactory::create<LLPersonTabView>(params);
-	widget->addToFolder(mPersonFolderView);
-
-	mPersonFolderView->mPersonFolderModelMap[item->getID()] = item;
-	mPersonFolderView->mPersonFolderViewMap[item->getID()] = widget;
 	
 	gIdleCallbacks.addFunction(idle, this);
 
