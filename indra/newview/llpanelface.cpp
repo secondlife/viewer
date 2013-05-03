@@ -2118,7 +2118,7 @@ void LLPanelFace::updateShinyControls(LLUICtrl* ctrl, void* userdata, bool mess_
 	bool show_media = (materials_media == MATMEDIA_MEDIA) && combo_matmedia->getEnabled();
 	bool show_shininess = (!show_media) && (material_type == MATTYPE_SPECULAR) && combo_matmedia->getEnabled();
 	U32 shiny_value = comboShiny->getCurrentIndex();
-	bool show_shinyctrls = (shiny_value != 0) && show_shininess; // Use texture
+	bool show_shinyctrls = (shiny_value == SHINY_TEXTURE) && show_shininess; // Use texture
 	self->getChildView("label glossiness")->setVisible(show_shinyctrls);
 	self->getChildView("glossiness")->setVisible(show_shinyctrls);
 	self->getChildView("label environment")->setVisible(show_shinyctrls);
