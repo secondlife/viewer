@@ -1642,14 +1642,18 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 {
 	mFacebookFriends->clear();
 	S32 model_index;
+	LLAvatarTracker& avatar_tracker = LLAvatarTracker::instance();
 
 	for (LLSD::map_const_iterator i = friends.beginMap(); i != friends.endMap(); ++i)
 	{
 		std::string name = i->second["name"].asString();
 		LLUUID agent_id = i->second.has("agent_id") ? i->second["agent_id"].asUUID() : LLUUID(NULL);
 		
+		//add to avatar list
+		mFacebookFriends->addNewItem(agent_id, name, false);
+
 		//FB+SL but not SL friend
-		if(agent_id.notNull())
+		if(agent_id.notNull() && !avatar_tracker.isBuddy(agent_id))
 		{
 			model_index = 0;
 		}
@@ -1658,9 +1662,6 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 		{
 			model_index = 1;
 		}
-
-		//add to avatar list
-		mFacebookFriends->addNewItem(agent_id, name, false);
 
 		//Add to folder view
 		LLPersonTabModel * session_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->mPersonFolderModelMap[mPersonFolderView->mPersonTabIDs[model_index]]);
