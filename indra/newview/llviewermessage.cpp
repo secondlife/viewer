@@ -6476,8 +6476,13 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 
 		if (known_questions != questions)
 		{	// This is in addition to the normal dialog.
+			LLSD payload;
+			payload["task_id"] = taskid;
+			payload["item_id"] = itemid;
+			payload["object_name"] = object_name;
+			
 			args["DOWNLOADURL"] = LLTrans::getString("ViewerDownloadURL");
-			LLNotificationsUtil::add("UnknownScriptQuestion",args);
+			LLNotificationsUtil::add("UnknownScriptQuestion",args,payload);
 		}
 		
 		if (known_questions)
