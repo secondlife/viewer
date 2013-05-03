@@ -34,6 +34,7 @@
 #include "llaudioengine.h"
 #include "llviewercontrol.h"
 #include "llfontgl.h"
+#include "llwearable.h"
 #include "sound_ids.h"
 #include "v3math.h"
 #include "v3color.h"

@@ -383,7 +383,7 @@ public:
 
 			if (isAgentAvatarValid())
 			{
-				tvector = gAgent.getPosGlobalFromAgent(gAgentAvatarp->mRoot.getWorldPosition());
+				tvector = gAgent.getPosGlobalFromAgent(gAgentAvatarp->mRoot->getWorldPosition());
 				agent_root_center_text = llformat("AgentRootCenter %f %f %f",
 												  (F32)(tvector.mdV[VX]), (F32)(tvector.mdV[VY]), (F32)(tvector.mdV[VZ]));
 			}
@@ -1573,6 +1573,16 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	LLViewerWindow::sMovieBaseName = "SLmovie";
 	resetSnapshotLoc();
 
+
+	/*
+	LLWindowCallbacks* callbacks,
+	const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height, U32 flags,
+	BOOL fullscreen, 
+	BOOL clearBg,
+	BOOL disable_vsync,
+	BOOL ignore_pixel_depth,
+	U32 fsaa_samples)
+	*/
 	// create window
 	mWindow = LLWindowManager::createWindow(this,
 		p.title, p.name, p.x, p.y, p.width, p.height, 0,
@@ -1798,6 +1808,7 @@ void LLViewerWindow::initBase()
 
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
+	gFloaterView->setFloaterSnapView(main_view->getChild<LLView>("floater_snap_region")->getHandle());
 	gSnapshotFloaterView = main_view->getChild<LLSnapshotFloaterView>("Snapshot Floater View");
 
 	// Console
@@ -2145,7 +2156,7 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 
 		calcDisplayScale();
 	
-		BOOL display_scale_changed = mDisplayScale != LLUI::sGLScaleFactor;
+		BOOL display_scale_changed = mDisplayScale != LLUI::getScaleFactor();
 		LLUI::setScaleFactor(mDisplayScale);
 
 		// update our window rectangle
@@ -2351,7 +2362,7 @@ void LLViewerWindow::draw()
 		// scale view by UI global scale factor and aspect ratio correction factor
 		gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
 
-		LLVector2 old_scale_factor = LLUI::sGLScaleFactor;
+		LLVector2 old_scale_factor = LLUI::getScaleFactor();
 		// apply camera zoom transform (for high res screenshots)
 		F32 zoom_factor = LLViewerCamera::getInstance()->getZoomFactor();
 		S16 sub_region = LLViewerCamera::getInstance()->getZoomSubRegion();
@@ -2365,7 +2376,7 @@ void LLViewerWindow::draw()
 						(F32)getWindowHeightScaled() * -(F32)pos_y, 
 						0.f);
 			gGL.scalef(zoom_factor, zoom_factor, 1.f);
-			LLUI::sGLScaleFactor *= zoom_factor;
+			LLUI::getScaleFactor() *= zoom_factor;
 		}
 
 		// Draw tool specific overlay on world
@@ -2413,7 +2424,7 @@ void LLViewerWindow::draw()
 				LLFontGL::HCENTER, LLFontGL::TOP);
 		}
 
-		LLUI::sGLScaleFactor = old_scale_factor;
+		LLUI::setScaleFactor(old_scale_factor);
 	}
 	LLUI::popMatrix();
 	gGL.popMatrix();
@@ -3216,8 +3227,8 @@ void LLViewerWindow::updateLayout()
 
 void LLViewerWindow::updateMouseDelta()
 {
-	S32 dx = lltrunc((F32) (mCurrentMousePoint.mX - mLastMousePoint.mX) * LLUI::sGLScaleFactor.mV[VX]);
-	S32 dy = lltrunc((F32) (mCurrentMousePoint.mY - mLastMousePoint.mY) * LLUI::sGLScaleFactor.mV[VY]);
+	S32 dx = lltrunc((F32) (mCurrentMousePoint.mX - mLastMousePoint.mX) * LLUI::getScaleFactor().mV[VX]);
+	S32 dy = lltrunc((F32) (mCurrentMousePoint.mY - mLastMousePoint.mY) * LLUI::getScaleFactor().mV[VY]);
 
 	//RN: fix for asynchronous notification of mouse leaving window not working
 	LLCoordWindow mouse_pos;
@@ -4782,7 +4793,7 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		gResizeScreenTexture = TRUE;
 		gWindowResized = TRUE;
 
-		if (isAgentAvatarValid() && !gAgentAvatarp->isUsingBakedTextures())
+		if (isAgentAvatarValid() && gAgentAvatarp->isEditingAppearance())
 		{
 			LLVisualParamHint::requestHintUpdates();
 		}

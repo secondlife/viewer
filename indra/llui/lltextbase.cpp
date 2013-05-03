@@ -443,6 +443,7 @@ void LLTextBase::drawSelectionBackground()
 			++rect_it)
 		{
 			LLRect selection_rect = *rect_it;
+			selection_rect = *rect_it;
 			selection_rect.translate(mVisibleTextRect.mLeft - content_display_rect.mLeft, mVisibleTextRect.mBottom - content_display_rect.mBottom);
 			gl_rect_2d(selection_rect, selection_color);
 		}
@@ -520,8 +521,8 @@ void LLTextBase::drawCursor()
 			LLRect screen_pos = calcScreenRect();
 			LLCoordGL ime_pos( screen_pos.mLeft + llfloor(cursor_rect.mLeft), screen_pos.mBottom + llfloor(cursor_rect.mTop) );
 
-			ime_pos.mX = (S32) (ime_pos.mX * LLUI::sGLScaleFactor.mV[VX]);
-			ime_pos.mY = (S32) (ime_pos.mY * LLUI::sGLScaleFactor.mV[VY]);
+			ime_pos.mX = (S32) (ime_pos.mX * LLUI::getScaleFactor().mV[VX]);
+			ime_pos.mY = (S32) (ime_pos.mY * LLUI::getScaleFactor().mV[VY]);
 			getWindow()->setLanguageTextInput( ime_pos );
 		}
 	}
@@ -651,6 +652,10 @@ void LLTextBase::drawText()
 			mSpellCheckStart = start;
 			mSpellCheckEnd = end;
 		}
+	}
+	else
+	{
+		mMisspellRanges.clear();
 	}
 
 	LLTextSegmentPtr cur_segment = *seg_iter;
@@ -1917,7 +1922,6 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	registrar.add("Url.Execute", boost::bind(&LLUrlAction::executeSLURL, url));
 	registrar.add("Url.Teleport", boost::bind(&LLUrlAction::teleportToLocation, url));
 	registrar.add("Url.ShowProfile", boost::bind(&LLUrlAction::showProfile, url));
-	registrar.add("Url.SendIM", boost::bind(&LLUrlAction::sendIM, url));
 	registrar.add("Url.AddFriend", boost::bind(&LLUrlAction::addFriend, url));
 	registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
 	registrar.add("Url.CopyLabel", boost::bind(&LLUrlAction::copyLabelToClipboard, url));
@@ -2602,21 +2606,18 @@ void LLTextBase::setCursorAtLocalPos( S32 local_x, S32 local_y, bool round, bool
 void LLTextBase::changeLine( S32 delta )
 {
 	S32 line = getLineNumFromDocIndex(mCursorPos);
+	S32 max_line_nb = getLineCount() - 1;
+	max_line_nb = (max_line_nb < 0 ? 0 : max_line_nb);
+    
+	S32 new_line = llclamp(line + delta, 0, max_line_nb);
 
-	S32 new_line = line;
-	if( (delta < 0) && (line > 0 ) )
-	{
-		new_line = line - 1;
-	}
-	else if( (delta > 0) && (line < (getLineCount() - 1)) )
-	{
-		new_line = line + 1;
-	}
-
-	LLRect visible_region = getVisibleDocumentRect();
-
-	S32 new_cursor_pos = getDocIndexFromLocalCoord(mDesiredXPixel, mLineInfoList[new_line].mRect.mBottom + mVisibleTextRect.mBottom - visible_region.mBottom, TRUE);
-	setCursorPos(new_cursor_pos, true);
+    if (new_line != line)
+    {
+        LLRect visible_region = getVisibleDocumentRect();
+        S32 new_cursor_pos = getDocIndexFromLocalCoord(mDesiredXPixel,
+                                                       mLineInfoList[new_line].mRect.mBottom + mVisibleTextRect.mBottom - visible_region.mBottom, TRUE);
+        setCursorPos(new_cursor_pos, true);
+    }
 }
 
 bool LLTextBase::scrolledToStart()

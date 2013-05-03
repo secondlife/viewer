@@ -115,7 +115,8 @@ void LLDoNotDisturbNotificationStorage::saveNotifications()
 	{
 		LLNotificationPtr notificationPtr = historyIter->second;
 
-		if (!notificationPtr->isRespondedTo() && !notificationPtr->isCancelled() && !notificationPtr->isExpired())
+		if (!notificationPtr->isRespondedTo() && !notificationPtr->isCancelled() &&
+			!notificationPtr->isExpired() && !notificationPtr->isPersistent())
 		{
 			data.append(notificationPtr->asLLSD(true));
 		}
@@ -210,12 +211,8 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 
 	}
 
-    if(imToastExists)
-    {
-        LLFloaterReg::showInstance("im_container");
-    }
-
-	if(group_ad_hoc_toast_exists)
+    bool isConversationLoggingAllowed = gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 0;
+	if(group_ad_hoc_toast_exists && isConversationLoggingAllowed)
 	{
 		LLFloaterReg::showInstance("conversation");
 	}
@@ -264,11 +261,6 @@ void LLDoNotDisturbNotificationStorage::updateNotifications()
             notification->setDND(true);
             instance.update(notification);
         }
-    }
-
-    if(imToastExists)
-    {   
-        LLFloaterReg::showInstance("im_container");
     }
 
     if(imToastExists || offerExists)

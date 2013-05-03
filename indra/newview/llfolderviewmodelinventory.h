@@ -59,9 +59,8 @@ public:
 
 	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const = 0;
 	virtual LLToolDragAndDrop::ESource getDragSource() const = 0;
-
 protected:
-	bool								mPrevPassedAllFilters;
+    bool mPrevPassedAllFilters;
 };
 
 class LLInventorySort

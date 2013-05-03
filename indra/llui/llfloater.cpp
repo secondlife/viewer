@@ -507,22 +507,11 @@ LLFloater::~LLFloater()
 {
 	LLFloaterReg::removeInstance(mInstanceName, mKey);
 	
-//	delete mNotificationContext;
-//	mNotificationContext = NULL;
-
-	//// am I not hosted by another floater?
-	//if (mHostHandle.isDead())
-	//{
-	//	LLFloaterView* parent = (LLFloaterView*) getParent();
-
-	//	if( parent )
-	//	{
-	//		parent->removeChild( this );
-	//	}
-	//}
-
-	// Just in case we might still have focus here, release it.
-	releaseFocus();
+	if( gFocusMgr.childHasKeyboardFocus(this))
+	{
+		// Just in case we might still have focus here, release it.
+		releaseFocus();
+	}
 
 	// This is important so that floaters with persistent rects (i.e., those
 	// created with rect control rather than an LLRect) are restored in their
@@ -2788,7 +2777,7 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	}
 
 	// move window fully onscreen
-	if (floater->translateIntoRect( getSnapRect(), allow_partial_outside ? FLOATER_MIN_VISIBLE_PIXELS : S32_MAX ))
+	if (floater->translateIntoRect( gFloaterView->getRect(), allow_partial_outside ? FLOATER_MIN_VISIBLE_PIXELS : S32_MAX ))
 	{
 		floater->clearSnapTarget();
 	}
@@ -3256,6 +3245,11 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 bool LLFloater::isShown() const
 {
     return ! isMinimized() && isInVisibleChain();
+}
+
+bool LLFloater::isDetachedAndNotMinimized()
+{
+	return !getHost() && !isMinimized();
 }
 
 /* static */

@@ -77,11 +77,7 @@ private:
 	{
 		uuid_vec_t selected_uuids;
 		mPanelWearing->getSelectedItemsUUIDs(selected_uuids);
-
-		for (uuid_vec_t::const_iterator it=selected_uuids.begin(); it != selected_uuids.end(); ++it)
-		{
-				LLAppearanceMgr::instance().removeItemFromAvatar(*it);
-		}
+		LLAppearanceMgr::instance().removeItemsFromAvatar(selected_uuids);
 	}
 
 	LLToggleableMenu*		mMenu;
@@ -97,12 +93,11 @@ protected:
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
-		functor_t take_off = boost::bind(&LLAppearanceMgr::removeItemFromAvatar, LLAppearanceMgr::getInstance(), _1);
-
 		registrar.add("Wearing.Edit", boost::bind(&edit_outfit));
-		registrar.add("Wearing.TakeOff", boost::bind(handleMultiple, take_off, mUUIDs));
-		registrar.add("Wearing.Detach", boost::bind(handleMultiple, take_off, mUUIDs));
-
+		registrar.add("Wearing.TakeOff",
+					  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs));
+		registrar.add("Wearing.Detach", 
+					  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs));
 		LLContextMenu* menu = createFromFile("menu_wearing_tab.xml");
 
 		updateMenuItemsVisibility(menu);

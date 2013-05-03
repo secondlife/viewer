@@ -3146,6 +3146,13 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 	const S32 CURSOR_HEIGHT = 22;		// Approximate "normal" cursor size
 	const S32 CURSOR_WIDTH = 12;
 
+	if (menu->getChildList()->empty())
+	{
+		return;
+	}
+
+	menu->setVisible( TRUE );
+
 	//Do not show menu if all menu items are disabled
 	BOOL item_enabled = false;
 	for (LLView::child_list_t::const_iterator itor = menu->getChildList()->begin();
@@ -3156,8 +3163,9 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 		item_enabled = item_enabled || menu_item->getEnabled();
 	}
 
-	if(menu->getChildList()->empty() || !item_enabled)
+	if(!item_enabled)
 	{
+		menu->setVisible( FALSE );
 		return;
 	}
 
@@ -3172,8 +3180,6 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 	{
 		menu->mFirstVisibleItem = NULL;
 	}
-
-	menu->setVisible( TRUE );
 
 	// Fix menu rect if needed.
 	menu->needsArrange();

@@ -1485,6 +1485,7 @@ void assert_glerror()
 void clear_glerror()
 {
 	glGetError();
+	glGetError();
 }
 
 ///////////////////////////////////////////////////////////////

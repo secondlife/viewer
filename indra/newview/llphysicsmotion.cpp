@@ -166,7 +166,7 @@ protected:
 		}
 
         
-        void setParamValue(LLViewerVisualParam *param,
+        void setParamValue(const LLViewerVisualParam *param,
                            const F32 new_value_local,
                                                    F32 behavior_maxeffect);
 
@@ -428,14 +428,13 @@ F32 LLPhysicsMotion::toLocal(const LLVector3 &world)
 F32 LLPhysicsMotion::calculateVelocity_local()
 {
 	const F32 world_to_model_scale = 100.0f;
-        LLJoint *joint = mJointState->getJoint();
-        const LLVector3 position_world = joint->getWorldPosition();
-        const LLQuaternion rotation_world = joint->getWorldRotation();
-        const LLVector3 last_position_world = mPosition_world;
+	LLJoint *joint = mJointState->getJoint();
+	const LLVector3 position_world = joint->getWorldPosition();
+	const LLVector3 last_position_world = mPosition_world;
 	const LLVector3 positionchange_world = (position_world-last_position_world) * world_to_model_scale;
-        const LLVector3 velocity_world = positionchange_world;
-        const F32 velocity_local = toLocal(velocity_world);
-        return velocity_local;
+	const LLVector3 velocity_world = positionchange_world;
+	const F32 velocity_local = toLocal(velocity_world);
+	return velocity_local;
 }
 
 F32 LLPhysicsMotion::calculateAcceleration_local(const F32 velocity_local)
@@ -673,12 +672,10 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 								 0,
 								 FALSE);
 			}
-			for (LLDriverParam::entry_list_t::iterator iter = driver_param->mDriven.begin();
-			     iter != driver_param->mDriven.end();
-			     ++iter)
+			S32 num_driven = driver_param->getDrivenParamsCount();
+			for (S32 i = 0; i < num_driven; ++i)
 			{
-				LLDrivenEntry &entry = (*iter);
-				LLViewerVisualParam *driven_param = entry.mParam;
+				const LLViewerVisualParam *driven_param = driver_param->getDrivenParam(i);
 				setParamValue(driven_param,position_new_local_clamped, behavior_maxeffect);
 			}
 		}
@@ -758,7 +755,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 }
 
 // Range of new_value_local is assumed to be [0 , 1] normalized.
-void LLPhysicsMotion::setParamValue(LLViewerVisualParam *param,
+void LLPhysicsMotion::setParamValue(const LLViewerVisualParam *param,
                                     F32 new_value_normalized,
 				    F32 behavior_maxeffect)
 {

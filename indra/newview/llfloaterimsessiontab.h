@@ -182,6 +182,9 @@ protected:
 	LLButton* mTearOffBtn;
 	LLButton* mCloseBtn;
 	LLButton* mGearBtn;
+	LLButton* mAddBtn;
+    LLButton* mVoiceButton;
+    LLUICtrl* mTranslationCheckBox;
 
 private:
 	// Handling selection and contextual menu

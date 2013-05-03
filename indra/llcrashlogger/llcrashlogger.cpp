@@ -147,7 +147,7 @@ void LLCrashLogger::gatherFiles()
 
 	// Look for it in the debug_info.log file
 	if (debug_log_file.is_open())
-	{		
+	{
 		LLSDSerialize::fromXML(mDebugLog, debug_log_file);
 
 		mCrashInPreviousExec = mDebugLog["CrashNotHandled"].asBoolean();

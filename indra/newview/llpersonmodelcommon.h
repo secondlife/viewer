@@ -178,10 +178,17 @@ public:
 	// + Count
 	// +-------------------------------------------------------------------+
     // Note : we currently filter the whole person list at once, no need to count then.
-	void 				setFilterCount(S32 count) { }
-	S32 				getFilterCount() const { return 1; }
-	void 				decrementFilterCount() { }
+	//void 				setFilterCount(S32 count) { }
+	//S32 				getFilterCount() const { return 1; }
+	//void 				decrementFilterCount() { }
 
+	// +-------------------------------------------------------------------+
+	// + Time
+	// +-------------------------------------------------------------------+
+    // Note : we currently filter the whole person list at once, no need to timeout then.
+	void 				resetTime(S32 timeout) { }
+    bool                isTimedOut() { return false; }
+    
 	// +-------------------------------------------------------------------+
 	// + Default
 	// +-------------------------------------------------------------------+
