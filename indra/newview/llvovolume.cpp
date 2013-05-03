@@ -4152,7 +4152,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec.push_back(draw_info);
 		draw_info->mTextureMatrix = tex_mat;
 		draw_info->mModelMatrix = model_mat;
-		if (mat)
+		if (mat && LLPipeline::sRenderBump && LLPipeline::sRenderDeferred)
 		{
 				// We have a material.  Update our draw info accordingly.
 				draw_info->mMaterial = mat;
@@ -4178,6 +4178,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 				0.5f,
 				0.75f
 			};
+			llassert(shiny <= 3);
 			float spec = alpha[shiny];
 			LLVector4 specColor(spec, spec, spec, spec);
 			draw_info->mSpecColor = specColor;

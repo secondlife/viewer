@@ -1018,7 +1018,8 @@ void LLPipeline::updateRenderDeferred()
 {
 	BOOL deferred = ((RenderDeferred && 
 					 LLRenderTarget::sUseFBO &&
-					 LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&	 
+					 LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
+					 LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") &&
 					 VertexShaderEnable && 
 					 RenderAvatarVP &&
 					 WindLightUseAtmosShaders) ? TRUE : FALSE) &&
