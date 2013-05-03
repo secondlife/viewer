@@ -291,6 +291,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+    <key>AudioLevelUnderwaterRolloff</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls the distance-based dropoff of audio volume underwater(fraction or multiple of default audio rolloff)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>5.0</real>
+    </map>
     <key>AudioLevelSFX</key>
     <map>
       <key>Comment</key>
@@ -11183,7 +11194,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>0.0</integer>
+      <real>0.0</real>
     </map>
     <key>TextureFetchUpdateSkipLowPriority</key>
     <map>
@@ -12439,6 +12450,17 @@
       <key>Value</key>
       <integer>3</integer>
     </map>
+    <key>UpdaterWillingToTest</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow upgrades to release candidate viewers with new features and fixes.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>UpdaterServiceCheckPeriod</key>
     <map>
       <key>Comment</key>
@@ -12471,17 +12493,6 @@
       <string>String</string>
       <key>Value</key>
       <string>update</string>
-    </map>
-    <key>UpdaterServiceProtocolVersion</key>
-    <map>
-      <key>Comment</key>
-      <string>The update protocol version to use.</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>v1.0</string>
     </map>
     <key>UploadBakedTexOld</key>
     <map>
@@ -12822,6 +12833,7 @@
       <key>Type</key>
       <string>LLSD</string>
       <key>Value</key>
+      <string/>
     </map>
     <key>VFSOldSize</key>
     <map>
@@ -13448,7 +13460,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>-1.0</integer>
+      <real>-1.0</real>
     </map>
     <key>ForcePeriodicRenderingTime</key>
     <map>
@@ -13459,7 +13471,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>-1.0</integer>
+      <real>-1.0</real>
     </map>
     <key>ZoomDirect</key>
     <map>
@@ -14446,7 +14458,6 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-
   <key>DisablePrecacheDelayAfterTeleporting</key>
   <map>
     <key>Comment</key>
@@ -14457,6 +14468,39 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
+  <key>FMODExProfilerEnable</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable profiler tool if using FMOD Ex</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+    </map>
+  <key>FMODExDecodeBufferSize</key>
+  <map>
+    <key>Comment</key>
+    <string>Sets the streaming decode buffer size (in milliseconds)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>1000</integer>
+    </map>
+  <key>FMODExStreamBufferSize</key>
+  <map>
+    <key>Comment</key>
+    <string>Sets the streaming buffer size (in milliseconds)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>7000</integer>
   </map>
 </map>
 </llsd>
