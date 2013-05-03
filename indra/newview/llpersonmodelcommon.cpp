@@ -96,8 +96,8 @@ void LLPersonModelCommon::showProperties(void)
 
 bool LLPersonModelCommon::filter( LLFolderViewFilter& filter)
 {
-    // See LLFolderViewModelItemInventory::filter()
 /*
+ Hack: for the moment, we always apply the filter if we're called
     if (!filter.isModified())
     {
         llinfos << "Merov : LLPersonModelCommon::filter, exit, no modif" << llendl;
@@ -106,19 +106,20 @@ bool LLPersonModelCommon::filter( LLFolderViewFilter& filter)
 */        
     if (!mChildren.empty())
     {
-        //llinfos << "Merov : LLPersonModelCommon::filter, filtering folder = " << getDisplayName() << llendl;
-        setPassedFilter(1, -1, filter.getStringMatchOffset(this), filter.getFilterStringSize());
+        // If the current instance has children, it's a "person folder" and always passes filters (we do not filter out empty folders)
+        setPassedFilter(1, -1);
+        // Call filter recursively on all children
         for (child_list_t::iterator iter = mChildren.begin(), end_iter = mChildren.end();
             iter != end_iter;
             ++iter)
         {
-            // LLFolderViewModelItem
             LLPersonModelCommon* item = dynamic_cast<LLPersonModelCommon*>(*iter);
             item->filter(filter);
         }
     }
     else
     {
+        // If there's no children, the current instance is a person and we check and set the passed filter flag on it
         const bool passed_filter = filter.check(this);
         setPassedFilter(passed_filter, -1, filter.getStringMatchOffset(this), filter.getFilterStringSize());
     }

@@ -175,14 +175,6 @@ public:
 	void 				setModified(EFilterModified behavior = FILTER_RESTART) { mFilterModified = behavior; }
     
 	// +-------------------------------------------------------------------+
-	// + Count
-	// +-------------------------------------------------------------------+
-    // Note : we currently filter the whole person list at once, no need to count then.
-	//void 				setFilterCount(S32 count) { }
-	//S32 				getFilterCount() const { return 1; }
-	//void 				decrementFilterCount() { }
-
-	// +-------------------------------------------------------------------+
 	// + Time
 	// +-------------------------------------------------------------------+
     // Note : we currently filter the whole person list at once, no need to timeout then.
