@@ -133,6 +133,7 @@ private:
 	void processParticipantsStyleUpdate();
 	void onSpeakButtonClicked();
 	/*virtual*/ void onClickCloseBtn();
+	/*virtual*/ void closeHostedFloater();
 
 	void collapseConversationsPane(bool collapse, bool save_is_allowed=true);
 

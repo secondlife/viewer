@@ -2081,6 +2081,11 @@ void LLFloaterIMContainer::onClickCloseBtn()
 	LLFloater::closeFloater();
 }
 
+void LLFloaterIMContainer::closeHostedFloater()
+{
+	onClickCloseBtn();
+}
+
 void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 {
 	// Check for currently active session
