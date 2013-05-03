@@ -5225,7 +5225,7 @@ void LLVOAvatar::computeBodySize()
 	if (isSelf() && getWearableData())
 	{
 		LLViewerWearable* shape = (LLViewerWearable*)getWearableData()->getWearable(LLWearableType::WT_SHAPE, 0);
-		if (shape && shape->getVolitile()) 
+		if (shape && !shape->getVolitile()) 
 		{
 			F32 hover_value = shape->getVisualParamWeight(AVATAR_HOVER);
 			if (hover_value < 0.0f && (mBodySize.mV[VZ] + hover_value < 1.1f))
