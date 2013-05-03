@@ -1098,6 +1098,12 @@ bool LLFace::canRenderAsMask()
 		return false;
 	}
 	
+	LLMaterial* mat = te->getMaterialParams();
+	if (mat && mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND)
+	{
+		return false;
+	}
+	
 	if ((te->getColor().mV[3] == 1.0f) && // can't treat as mask if we have face alpha
 		(te->getGlow() == 0.f) && // glowing masks are hard to implement - don't mask
 		getTexture()->getIsAlphaMask()) // texture actually qualifies for masking (lazily recalculated but expensive)
@@ -1626,8 +1632,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	
 			bool tex_anim = false;
 
-				LLVOVolume* vobj = (LLVOVolume*) (LLViewerObject*) mVObjp;	
-				tex_mode = vobj->mTexAnimMode;
+			LLVOVolume* vobj = (LLVOVolume*) (LLViewerObject*) mVObjp;	
+			tex_mode = vobj->mTexAnimMode;
 
 			if (vobj->mTextureAnimp)
 			{ //texture animation is in play, override specular and normal map tex coords with diffuse texcoords
@@ -1650,7 +1656,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 					do_xform = false;
 				}
-
+				
 				if (getVirtualSize() >= MIN_TEX_ANIM_SIZE)
 				{ //don't override texture transform during tc bake
 					tex_mode = 0;
