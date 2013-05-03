@@ -61,6 +61,7 @@ public:
 
 	person_folder_model_map mPersonFolderModelMap;
 	person_folder_view_map mPersonFolderViewMap;
+	std::vector<LLUUID> mPersonTabIDs;
 	LLEventStream mConversationsEventStream;
 };
 

@@ -1641,17 +1641,29 @@ void LLPanelPeople::openFacebookWeb(std::string url)
 void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 {
 	mFacebookFriends->clear();
+	S32 model_index;
 
 	for (LLSD::map_const_iterator i = friends.beginMap(); i != friends.endMap(); ++i)
 	{
 		std::string name = i->second["name"].asString();
 		LLUUID agent_id = i->second.has("agent_id") ? i->second["agent_id"].asUUID() : LLUUID(NULL);
 		
+		//FB+SL but not SL friend
+		if(agent_id.notNull())
+		{
+			model_index = 0;
+		}
+		//FB only friend
+		else
+		{
+			model_index = 1;
+		}
+
 		//add to avatar list
 		mFacebookFriends->addNewItem(agent_id, name, false);
 
 		//Add to folder view
-		LLPersonTabModel * session_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->mPersonFolderModelMap.begin()->second);
+		LLPersonTabModel * session_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->mPersonFolderModelMap[mPersonFolderView->mPersonTabIDs[model_index]]);
 		if(session_model)
 		{
 			addParticipantToModel(session_model, agent_id, name);
@@ -1663,11 +1675,29 @@ void LLPanelPeople::addTestParticipant()
 {
     std::string suffix("Aa");
     std::string prefix("Test Name");
+	LLPersonTabModel * person_folder_model;
+	LLUUID agentID;
+	std::string name;
+	S32 model_index;
+
 	for(int i = 0; i < 300; ++i)
 	{
-		LLPersonTabModel * person_folder_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->mPersonFolderModelMap.begin()->second);
-        std::string name = prefix + " " + suffix;
-		addParticipantToModel(person_folder_model, gAgent.getID(), name);
+		//Adds FB+SL people that aren't yet SL friends
+		if(i < 10)
+		{
+			model_index = 0;	
+			agentID = gAgent.getID();
+		}
+		//Adds FB only friends
+		else
+		{
+			model_index = 1;
+			agentID = LLUUID(NULL);
+		}
+
+		person_folder_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->mPersonFolderModelMap[mPersonFolderView->mPersonTabIDs[model_index]]);
+        name = prefix + " " + suffix;
+		addParticipantToModel(person_folder_model, agentID, name);
         // Next suffix : Aa, Ab, Ac ... Az, Ba, Bb, Bc ... Bz, Ca, Cb ...
         suffix[1]+=1;
         if (suffix[1]=='{')

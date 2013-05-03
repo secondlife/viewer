@@ -65,6 +65,7 @@ void LLPersonFolderView::createPersonTab(const std::string& tab_name)
 	LLPersonTabView * widget = LLUICtrlFactory::create<LLPersonTabView>(params);
 	widget->addToFolder(this);
 
+	mPersonTabIDs.push_back(item->getID());
 	mPersonFolderModelMap[item->getID()] = item;
 	mPersonFolderViewMap[item->getID()] = widget;
 }
