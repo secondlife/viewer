@@ -6290,6 +6290,19 @@ void notify_cautioned_script_question(const LLSD& notification, const LLSD& resp
 	}
 }
 
+void script_question_mute(const LLUUID& item_id, const std::string& object_name);
+
+bool unknown_script_question_cb(const LLSD& notification, const LLSD& response)
+{
+	// Only care if they muted the object here.
+	if ( response["Mute"] ) // mute
+	{
+		LLUUID item_id = notification["payload"]["item_id"].asUUID();
+		script_question_mute(item_id,notification["payload"]["object_name"].asString());
+	}
+	return false;
+}
+
 bool script_question_cb(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -6340,34 +6353,42 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 
 	if ( response["Mute"] ) // mute
 	{
-		LLMuteList::getInstance()->add(LLMute(item_id, notification["payload"]["object_name"].asString(), LLMute::OBJECT));
-
-		// purge the message queue of any previously queued requests from the same source. DEV-4879
-		class OfferMatcher : public LLNotificationsUI::LLScreenChannel::Matcher
-		{
-		public:
-			OfferMatcher(const LLUUID& to_block) : blocked_id(to_block) {}
-			bool matches(const LLNotificationPtr notification) const
-			{
-				if (notification->getName() == "ScriptQuestionCaution"
-					|| notification->getName() == "ScriptQuestion")
-				{
-					return (notification->getPayload()["item_id"].asUUID() == blocked_id);
-				}
-				return false;
-			}
-		private:
-			const LLUUID& blocked_id;
-		};
-
-		LLNotificationsUI::LLChannelManager::getInstance()->killToastsFromChannel(LLUUID(
-				gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(item_id));
+		script_question_mute(item_id,notification["payload"]["object_name"].asString());
 	}
 
 	return false;
 }
+
+void script_question_mute(const LLUUID& item_id, const std::string& object_name)
+{
+	LLMuteList::getInstance()->add(LLMute(item_id, object_name, LLMute::OBJECT));
+
+    // purge the message queue of any previously queued requests from the same source. DEV-4879
+    class OfferMatcher : public LLNotificationsUI::LLScreenChannel::Matcher
+    {
+    public:
+    	OfferMatcher(const LLUUID& to_block) : blocked_id(to_block) {}
+      	bool matches(const LLNotificationPtr notification) const
+        {
+            if (notification->getName() == "ScriptQuestionCaution"
+                || notification->getName() == "ScriptQuestion"
+				|| notification->getName() == "UnknownScriptQuestion")
+            {
+                return (notification->getPayload()["item_id"].asUUID() == blocked_id);
+            }
+            return false;
+        }
+    private:
+        const LLUUID& blocked_id;
+    };
+
+    LLNotificationsUI::LLChannelManager::getInstance()->killToastsFromChannel(LLUUID(
+            gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(item_id));
+}
+
 static LLNotificationFunctorRegistration script_question_cb_reg_1("ScriptQuestion", script_question_cb);
 static LLNotificationFunctorRegistration script_question_cb_reg_2("ScriptQuestionCaution", script_question_cb);
+static LLNotificationFunctorRegistration unknown_script_question_cb_reg("UnknownScriptQuestion", unknown_script_question_cb);
 
 void process_script_question(LLMessageSystem *msg, void **user_data)
 {
@@ -6455,6 +6476,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 
 		if (known_questions != questions)
 		{	// This is in addition to the normal dialog.
+			args["DOWNLOADURL"] = LLTrans::getString("ViewerDownloadURL");
 			LLNotificationsUtil::add("UnknownScriptQuestion",args);
 		}
 		

@@ -6869,14 +6869,15 @@ Do not allow access if you do not fully understand why it wants access to your a
 	 name="UnknownScriptQuestion"
 	 persist="false"
 	 type="notify">
-		&apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, an object owned by &apos;[NAME]&apos;, requested an unknown script runtime permission. 
+The runtime script permission requested by &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, an object owned by &apos;[NAME]&apos;, isn&apos;t recognized by the viewer and can&apos;t be granted.
 
-Please update your viewer to grant this permission.
+To grant this permission please update your viewer to the latest version from [DOWNLOADURL].
 		<tag>confirm</tag>
 		<form name="form">
 			<button
-			 index="0"
-			 name="Ok"
+			 default="true"
+			 index="1"
+			 name="Deny"
 			 text="Ok"/>
 			<button
 			 index="2"
