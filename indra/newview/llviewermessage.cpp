@@ -6297,8 +6297,8 @@ bool unknown_script_question_cb(const LLSD& notification, const LLSD& response)
 	// Only care if they muted the object here.
 	if ( response["Mute"] ) // mute
 	{
-		LLUUID item_id = notification["payload"]["item_id"].asUUID();
-		script_question_mute(item_id,notification["payload"]["object_name"].asString());
+		LLUUID task_id = notification["payload"]["task_id"].asUUID();
+		script_question_mute(task_id,notification["payload"]["object_name"].asString());
 	}
 	return false;
 }
@@ -6353,15 +6353,15 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 
 	if ( response["Mute"] ) // mute
 	{
-		script_question_mute(item_id,notification["payload"]["object_name"].asString());
+		script_question_mute(task_id,notification["payload"]["object_name"].asString());
 	}
 
 	return false;
 }
 
-void script_question_mute(const LLUUID& item_id, const std::string& object_name)
+void script_question_mute(const LLUUID& task_id, const std::string& object_name)
 {
-	LLMuteList::getInstance()->add(LLMute(item_id, object_name, LLMute::OBJECT));
+	LLMuteList::getInstance()->add(LLMute(task_id, object_name, LLMute::OBJECT));
 
     // purge the message queue of any previously queued requests from the same source. DEV-4879
     class OfferMatcher : public LLNotificationsUI::LLScreenChannel::Matcher
@@ -6374,7 +6374,7 @@ void script_question_mute(const LLUUID& item_id, const std::string& object_name)
                 || notification->getName() == "ScriptQuestion"
 				|| notification->getName() == "UnknownScriptQuestion")
             {
-                return (notification->getPayload()["item_id"].asUUID() == blocked_id);
+                return (notification->getPayload()["task_id"].asUUID() == blocked_id);
             }
             return false;
         }
@@ -6383,7 +6383,7 @@ void script_question_mute(const LLUUID& item_id, const std::string& object_name)
     };
 
     LLNotificationsUI::LLChannelManager::getInstance()->killToastsFromChannel(LLUUID(
-            gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(item_id));
+            gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(task_id));
 }
 
 static LLNotificationFunctorRegistration script_question_cb_reg_1("ScriptQuestion", script_question_cb);
