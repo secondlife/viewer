@@ -37,6 +37,7 @@ LLPersonFolderView::LLPersonFolderView(const Params &p) :
 LLFolderView(p),
 	mConversationsEventStream("ConversationsEventsTwo")
 {
+    rename("Persons");  // For tracking!
 	mConversationsEventStream.listen("ConversationsRefresh", boost::bind(&LLPersonFolderView::onConversationModelEvent, this, _1));
 }
 

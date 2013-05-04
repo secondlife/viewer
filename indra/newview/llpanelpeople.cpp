@@ -1224,6 +1224,7 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
     else if (cur_tab == FBCTESTTWO_TAB_NAME)
     {
         mPersonFolderViewModel.getFilter().setFilterSubString(filter);
+        mPersonFolderView->requestArrange();
     }
 }
 
