@@ -4100,7 +4100,6 @@ S32 LLViewerObject::setTETextureCore(const U8 te, LLViewerTexture *image)
 
 S32 LLViewerObject::setTENormalMapCore(const U8 te, LLViewerTexture *image)
 {
-	llassert(image);
 	S32 retval = TEM_CHANGE_TEXTURE;
 	const LLUUID& uuid = image ? image->getID() : LLUUID::null;
 	if (uuid != getTE(te)->getID() ||
