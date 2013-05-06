@@ -1641,7 +1641,7 @@ void LLPanelPeople::openFacebookWeb(std::string url)
 void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 {
 	mFacebookFriends->clear();
-	S32 model_index;
+	LLPersonTabModel::tab_type tab_type;
 	LLAvatarTracker& avatar_tracker = LLAvatarTracker::instance();
 
 	for (LLSD::map_const_iterator i = friends.beginMap(); i != friends.endMap(); ++i)
@@ -1655,16 +1655,16 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 		//FB+SL but not SL friend
 		if(agent_id.notNull() && !avatar_tracker.isBuddy(agent_id))
 		{
-			model_index = 0;
+			tab_type = LLPersonTabModel::FB_SL_NON_SL_FRIEND;
 		}
 		//FB only friend
 		else
 		{
-			model_index = 1;
+			tab_type = LLPersonTabModel::FB_ONLY_FRIEND;
 		}
 
 		//Add to person tab model
-		LLPersonTabModel * person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(model_index));
+		LLPersonTabModel * person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(tab_type));
 		if(person_tab_model)
 		{
 			addParticipantToModel(person_tab_model, agent_id, name);
@@ -1679,24 +1679,24 @@ void LLPanelPeople::addTestParticipant()
 	LLPersonTabModel * person_tab_model;
 	LLUUID agentID;
 	std::string name;
-	S32 model_index;
+	LLPersonTabModel::tab_type tab_type;
 
 	for(int i = 0; i < 300; ++i)
 	{
 		//Adds FB+SL people that aren't yet SL friends
 		if(i < 10)
 		{
-			model_index = 0;	
+			tab_type = LLPersonTabModel::FB_SL_NON_SL_FRIEND;	
 			agentID = gAgent.getID();
 		}
 		//Adds FB only friends
 		else
 		{
-			model_index = 1;
+			tab_type = LLPersonTabModel::FB_ONLY_FRIEND;
 			agentID = LLUUID(NULL);
 		}
 
-		person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(model_index));
+		person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(tab_type));
         name = prefix + " " + suffix;
 		addParticipantToModel(person_tab_model, agentID, name);
         // Next suffix : Aa, Ab, Ac ... Az, Ba, Bb, Bc ... Bz, Ca, Cb ...

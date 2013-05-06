@@ -33,6 +33,8 @@
 #include "lloutputmonitorctrl.h"
 #include "lltextbox.h"
 
+class LLPersonTabModel;
+
 class LLPersonTabView : public LLFolderViewFolder
 {
 
@@ -104,9 +106,11 @@ protected:
 
 private:
 
+	//Short-cut to tab model
+	LLPersonTabModel * mPersonTabModel;
+
 	LLPointer<LLUIImage> mImageOver;
 	LLPointer<LLUIImage> mImageSelected;
-
 	LLAvatarIconCtrl* mAvatarIcon;
 	LLTextBox * mLastInteractionTimeTextbox;
 	LLIconCtrl * mPermissionEditTheirsIcon;
@@ -116,8 +120,6 @@ private:
 	LLButton * mInfoBtn;
 	LLButton * mProfileBtn;
 	LLOutputMonitorCtrl * mOutputMonitorCtrl;
-
-
 
 	typedef enum e_avatar_item_child {
 		ALIC_SPEAKER_INDICATOR,

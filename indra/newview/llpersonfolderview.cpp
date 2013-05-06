@@ -30,7 +30,6 @@
 #include "llpersonfolderview.h"
 
 #include "llpersontabview.h"
-#include "llpersonmodelcommon.h"
 
 
 LLPersonFolderView::LLPersonFolderView(const Params &p) : 
@@ -76,14 +75,14 @@ BOOL LLPersonFolderView::handleMouseDown( S32 x, S32 y, MASK mask )
 
 void LLPersonFolderView::createPersonTabs()
 {
-	createPersonTab("SL residents you may want to friend");
-	createPersonTab("Invite people you know to SL");
+	createPersonTab(LLPersonTabModel::FB_SL_NON_SL_FRIEND, "SL residents you may want to friend");
+	createPersonTab(LLPersonTabModel::FB_ONLY_FRIEND, "Invite people you know to SL");
 }
 
-void LLPersonFolderView::createPersonTab(const std::string& tab_name)
+void LLPersonFolderView::createPersonTab(LLPersonTabModel::tab_type tab_type, const std::string& tab_name)
 {
 	//Create a person tab
-	LLPersonTabModel* item = new LLPersonTabModel(tab_name, *mViewModel);
+	LLPersonTabModel* item = new LLPersonTabModel(tab_type, tab_name, *mViewModel);
 	LLPersonTabView::Params params;
 	params.name = item->getDisplayName();
 	params.root = this;
@@ -92,7 +91,7 @@ void LLPersonFolderView::createPersonTab(const std::string& tab_name)
 	LLPersonTabView * widget = LLUICtrlFactory::create<LLPersonTabView>(params);
 	widget->addToFolder(this);
 
-	mIndexToFolderVec.push_back(item->getID());
+	mIndexToFolderMap[tab_type] = item->getID();
 	mPersonFolderModelMap[item->getID()] = item;
 	mPersonFolderViewMap[item->getID()] = widget;
 }
@@ -138,12 +137,12 @@ LLPersonView * LLPersonFolderView::createConversationViewParticipant(LLPersonMod
 	return LLUICtrlFactory::create<LLPersonView>(params);
 }
 
-LLPersonTabModel * LLPersonFolderView::getPersonTabModelByIndex(const S32 index)
+LLPersonTabModel * LLPersonFolderView::getPersonTabModelByIndex(LLPersonTabModel::tab_type tab_type)
 {
-	return mPersonFolderModelMap[mIndexToFolderVec[index]];
+	return mPersonFolderModelMap[mIndexToFolderMap[tab_type]];
 }
 
-LLPersonTabView * LLPersonFolderView::getPersonTabViewByIndex(const S32 index)
+LLPersonTabView * LLPersonFolderView::getPersonTabViewByIndex(LLPersonTabModel::tab_type tab_type)
 {
-	return mPersonFolderViewMap[mIndexToFolderVec[index]];
+	return mPersonFolderViewMap[mIndexToFolderMap[tab_type]];
 }

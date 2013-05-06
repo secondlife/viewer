@@ -160,8 +160,10 @@ S32 LLPersonView::getLabelXPos()
 void LLPersonView::addToFolder(LLFolderViewFolder * person_folder_view)
 {
 	LLFolderViewItem::addToFolder(person_folder_view);
-	//Added item to folder, could change folder's mHasVisibleChildren flag so call arrange
+	//Added item to folder could change folder's mHasVisibleChildren flag so call arrange
 	person_folder_view->requestArrange();
+
+	mPersonTabModel = static_cast<LLPersonTabModel *>(getParentFolder()->getViewModelItem());
 }
 
 LLPersonView::~LLPersonView()
@@ -191,16 +193,24 @@ BOOL LLPersonView::postBuild()
 
 void LLPersonView::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	mInfoBtn->setVisible(TRUE);
-	mProfileBtn->setVisible(TRUE);
+	if(mPersonTabModel->mTabType == LLPersonTabModel::FB_SL_NON_SL_FRIEND)
+	{
+		mInfoBtn->setVisible(TRUE);
+		mProfileBtn->setVisible(TRUE);
+	}
+
 	updateChildren();
 	LLFolderViewItem::onMouseEnter(x, y, mask);
 }
 
 void LLPersonView::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	mInfoBtn->setVisible(FALSE);
-	mProfileBtn->setVisible(FALSE);
+	if(mPersonTabModel->mTabType == LLPersonTabModel::FB_SL_NON_SL_FRIEND)
+	{
+		mInfoBtn->setVisible(FALSE);
+		mProfileBtn->setVisible(FALSE);
+	}
+
 	updateChildren();
 	LLFolderViewItem::onMouseLeave(x, y, mask);
 }
