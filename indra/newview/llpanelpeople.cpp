@@ -1663,7 +1663,7 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 			model_index = 1;
 		}
 
-		//Add to folder view
+		//Add to person tab model
 		LLPersonTabModel * person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(model_index));
 		if(person_tab_model)
 		{
