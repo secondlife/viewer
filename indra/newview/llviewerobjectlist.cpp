@@ -47,6 +47,7 @@
 #include "lltooltip.h"
 #include "llworld.h"
 #include "llstring.h"
+#include "llhudicon.h"
 #include "llhudnametag.h"
 #include "lldrawable.h"
 #include "llflexibleobject.h"
@@ -2275,3 +2276,10 @@ bool LLViewerObjectList::OrphanInfo::operator!=(const OrphanInfo &rhs) const
 }
 
 
+LLDebugBeacon::~LLDebugBeacon()
+{
+	if (mHUDObject.notNull())
+	{
+		mHUDObject->markDead();
+	}
+}

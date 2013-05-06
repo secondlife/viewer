@@ -39,6 +39,7 @@
 #include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llframetimer.h"
+#include "llhudicon.h"
 #include "llinventory.h"
 #include "llinventorydefines.h"
 #include "llmaterialtable.h"

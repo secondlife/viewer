@@ -123,10 +123,7 @@ void LLWorld::destroyClass()
 		LLViewerRegion* region_to_delete = *region_it++;
 		removeRegion(region_to_delete->getHost());
 	}
-	if(LLVOCache::hasInstance())
-	{
-		LLVOCache::getInstance()->destroyClass() ;
-	}
+	LLVOCache::deleteSingleton();
 	LLViewerPartSim::getInstance()->destroyClass();
 
 	mDefaultWaterTexturep = NULL ;

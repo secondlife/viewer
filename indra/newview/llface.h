@@ -28,7 +28,6 @@
 #define LL_LLFACE_H
 
 #include "llstrider.h"
-
 #include "llrender.h"
 #include "v2math.h"
 #include "v3math.h"
@@ -37,7 +36,6 @@
 #include "v4coloru.h"
 #include "llquaternion.h"
 #include "xform.h"
-#include "lldarrayptr.h"
 #include "llvertexbuffer.h"
 #include "llviewertexture.h"
 #include "lldrawable.h"
@@ -47,10 +45,8 @@ class LLFacePool;
 class LLVolume;
 class LLViewerTexture;
 class LLTextureEntry;
-class LLVertexProgram;
-class LLViewerTexture;
-class LLGeometryManager;
 class LLTextureAtlasSlot;
+class LLDrawInfo;
 
 const F32 MIN_ALPHA_SIZE = 1024.f;
 const F32 MIN_TEX_ANIM_SIZE = 512.f;

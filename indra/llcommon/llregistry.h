@@ -29,7 +29,6 @@
 
 #include <list>
 
-#include <boost/type_traits.hpp>
 #include "llsingleton.h"
 #include "llstl.h"
 
@@ -47,12 +46,11 @@ template <typename KEY, typename VALUE, typename COMPARATOR = LLRegistryDefaultC
 class LLRegistry
 {
 public:
-	typedef LLRegistry<KEY, VALUE, COMPARATOR>											registry_t;
-	typedef typename boost::add_reference<typename boost::add_const<KEY>::type>::type	ref_const_key_t;
-	typedef typename boost::add_reference<typename boost::add_const<VALUE>::type>::type	ref_const_value_t;
-	typedef typename boost::add_reference<VALUE>::type									ref_value_t;
-	typedef typename boost::add_pointer<typename boost::add_const<VALUE>::type>::type	ptr_const_value_t;
-	typedef typename boost::add_pointer<VALUE>::type									ptr_value_t;
+	typedef LLRegistry<KEY, VALUE, COMPARATOR>		registry_t;
+	typedef const KEY& 								ref_const_key_t;
+	typedef const VALUE&							ref_const_value_t;
+	typedef const VALUE*							ptr_const_value_t;
+	typedef VALUE*									ptr_value_t;
 
 	class Registrar
 	{

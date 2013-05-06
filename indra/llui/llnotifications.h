@@ -96,7 +96,8 @@
 #include "llfunctorregistry.h"
 #include "llpointer.h"
 #include "llinitparam.h"
-#include "llnotificationslistener.h"
+#include "llinstancetracker.h"
+//#include "llnotificationslistener.h"
 #include "llnotificationptr.h"
 
 class LLAvatarName;
@@ -966,7 +967,7 @@ private:
 
 	bool mIgnoreAllNotifications;
 
-    boost::scoped_ptr<LLNotificationsListener> mListener;
+    boost::scoped_ptr<class LLNotificationsListener> mListener;
 };
 
 /**

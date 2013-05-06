@@ -26,7 +26,7 @@
 
 #include "linden_common.h"
 
-#include "net.h"
+//#include "net.h"
 
 // system library includes
 #include <stdexcept>

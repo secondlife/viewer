@@ -225,6 +225,7 @@ public:
 	void removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* drawablep);	
 	void killCacheEntry(U32 local_id); //physically delete the cache entry	
 	void clearVisibleGroup(LLviewerOctreeGroup* group);
+	bool hasVisibleGroup(LLviewerOctreeGroup* group);
 
 	// Like idleUpdate, but forces everything to complete regardless of
 	// how long it takes.

@@ -34,13 +34,15 @@
 #include "llcontrol.h"
 #include "lldir.h"
 #include "llwindow.h"
+#include "llxmlnode.h"
 
 extern LLControlGroup gSavedSettings;
 
 using std::string;
 using std::map;
 
-bool fontDescInitFromXML(LLXMLNodePtr node, LLFontDescriptor& desc);
+bool font_desc_init_from_xml(LLXMLNodePtr node, LLFontDescriptor& desc);
+bool init_from_xml(LLFontRegistry* registry, LLXMLNodePtr node);
 
 LLFontDescriptor::LLFontDescriptor():
 	mStyle(0)
@@ -207,7 +209,7 @@ bool LLFontRegistry::parseFontInfo(const std::string& xml_filename)
 		if (root->hasName("fonts"))
 		{
 			// Expect a collection of children consisting of "font" or "font_size" entries
-			bool init_succ = initFromXML(root);
+			bool init_succ = init_from_xml(this, root);
 			success = success || init_succ;
 		}
 	}
@@ -230,7 +232,7 @@ std::string currentOsName()
 #endif
 }
 
-bool fontDescInitFromXML(LLXMLNodePtr node, LLFontDescriptor& desc)
+bool font_desc_init_from_xml(LLXMLNodePtr node, LLFontDescriptor& desc)
 {
 	if (node->hasName("font"))
 	{
@@ -263,14 +265,14 @@ bool fontDescInitFromXML(LLXMLNodePtr node, LLFontDescriptor& desc)
 		{
 			if (child_name == currentOsName())
 			{
-				fontDescInitFromXML(child, desc);
+				font_desc_init_from_xml(child, desc);
 			}
 		}
 	}
 	return true;
 }
 
-bool LLFontRegistry::initFromXML(LLXMLNodePtr node)
+bool init_from_xml(LLFontRegistry* registry, LLXMLNodePtr node)
 {
 	LLXMLNodePtr child;
 	
@@ -281,17 +283,17 @@ bool LLFontRegistry::initFromXML(LLXMLNodePtr node)
 		if (child->hasName("font"))
 		{
 			LLFontDescriptor desc;
-			bool font_succ = fontDescInitFromXML(child, desc);
+			bool font_succ = font_desc_init_from_xml(child, desc);
 			LLFontDescriptor norm_desc = desc.normalize();
 			if (font_succ)
 			{
 				// if this is the first time we've seen this font name,
 				// create a new template map entry for it.
-				const LLFontDescriptor *match_desc = getMatchingFontDesc(desc);
+				const LLFontDescriptor *match_desc = registry->getMatchingFontDesc(desc);
 				if (match_desc == NULL)
 				{
 					// Create a new entry (with no corresponding font).
-					mFontMap[norm_desc] = NULL;
+					registry->mFontMap[norm_desc] = NULL;
 				}
 				// otherwise, find the existing entry and combine data. 
 				else
@@ -306,8 +308,8 @@ bool LLFontRegistry::initFromXML(LLXMLNodePtr node)
 											desc.getFileNames().end());
 					LLFontDescriptor new_desc = *match_desc;
 					new_desc.getFileNames() = match_file_names;
-					mFontMap.erase(*match_desc);
-					mFontMap[new_desc] = NULL;
+					registry->mFontMap.erase(*match_desc);
+					registry->mFontMap[new_desc] = NULL;
 				}
 			}
 		}
@@ -318,7 +320,7 @@ bool LLFontRegistry::initFromXML(LLXMLNodePtr node)
 			if (child->getAttributeString("name",size_name) &&
 				child->getAttributeF32("size",size_value))
 			{
-				mFontSizes[size_name] = size_value;
+				registry->mFontSizes[size_name] = size_value;
 			}
 
 		}

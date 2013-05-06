@@ -91,15 +91,15 @@ private:
 	BOOL				mPaused;
 	
 	// static function passed to APR thread creation routine
-	static void *APR_THREAD_FUNC staticRun(apr_thread_t *apr_threadp, void *datap);
+	static void *APR_THREAD_FUNC staticRun(struct apr_thread_t *apr_threadp, void *datap);
 
 protected:
 	std::string			mName;
 	class LLCondition*	mRunCondition;
 	LLMutex*			mDataLock;
 
-	apr_thread_t		*mAPRThreadp;
-	apr_pool_t			*mAPRPoolp;
+	apr_thread_t*		mAPRThreadp;
+	apr_pool_t*			mAPRPoolp;
 	BOOL				mIsLocalPool;
 	EThreadStatus		mStatus;
 	U32					mID;
@@ -107,7 +107,7 @@ protected:
 	//a local apr_pool for APRFile operations in this thread. If it exists, LLAPRFile::sAPRFilePoolp should not be used.
 	//Note: this pool is used by APRFile ONLY, do NOT use it for any other purposes.
 	//      otherwise it will cause severe memory leaking!!! --bao
-	LLVolatileAPRPool  *mLocalAPRFilePoolp ; 
+	LLVolatileAPRPool*	mLocalAPRFilePoolp ; 
 
 	void setQuitting();
 	

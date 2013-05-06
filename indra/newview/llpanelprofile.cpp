@@ -36,6 +36,7 @@
 #include "lltabcontainer.h"
 #include "llviewercontrol.h"
 #include "llviewernetwork.h"
+#include "llweb.h"
 
 static const std::string PANEL_PICKS = "panel_picks";
 

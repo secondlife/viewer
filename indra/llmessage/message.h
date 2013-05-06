@@ -50,9 +50,9 @@
 #include "lltimer.h"
 #include "llpacketring.h"
 #include "llhost.h"
-#include "llhttpclient.h"
+#include "llcurl.h"
 #include "llhttpnode.h"
-#include "llpacketack.h"
+//#include "llpacketack.h"
 #include "llsingleton.h"
 #include "message_prehash.h"
 #include "llstl.h"
@@ -158,7 +158,6 @@ const F32 LL_MAX_LOST_TIMEOUT				= 5.f;				// Maximum amount of time before cons
 const S32 MAX_MESSAGE_COUNT_NUM = 1024;
 
 // Forward declarations
-class LLCircuit;
 class LLVector3;
 class LLVector4;
 class LLVector3d;
@@ -214,19 +213,19 @@ class LLMessageSystem : public LLMessageSenderInterface
 
  public:
 	LLPacketRing				mPacketRing;
-	LLReliablePacketParams			mReliablePacketParams;
+	LLReliablePacketParams		mReliablePacketParams;
 
 	// Set this flag to TRUE when you want *very* verbose logs.
-	BOOL mVerboseLog;
+	BOOL						mVerboseLog;
 
-	F32                                     mMessageFileVersionNumber;
+	F32                         mMessageFileVersionNumber;
 
 	typedef std::map<const char *, LLMessageTemplate*> message_template_name_map_t;
 	typedef std::map<U32, LLMessageTemplate*> message_template_number_map_t;
 
 private:
 	message_template_name_map_t		mMessageTemplates;
-	message_template_number_map_t		mMessageNumbers;
+	message_template_number_map_t	mMessageNumbers;
 
 public:
 	S32					mSystemVersionMajor;
@@ -235,7 +234,7 @@ public:
 	S32					mSystemVersionServer;
 	U32					mVersionFlags;
 
-	BOOL					mbProtected;
+	BOOL				mbProtected;
 
 	U32					mNumberHighFreqMessages;
 	U32					mNumberMediumFreqMessages;
@@ -255,11 +254,11 @@ public:
 	U32					mReliablePacketsIn;	    // total reliable packets in
 	U32					mReliablePacketsOut;	    // total reliable packets out
 
-	U32                                     mDroppedPackets;            // total dropped packets in
-	U32                                     mResentPackets;             // total resent packets out
-	U32                                     mFailedResendPackets;       // total resend failure packets out
-	U32                                     mOffCircuitPackets;         // total # of off-circuit packets rejected
-	U32                                     mInvalidOnCircuitPackets;   // total # of on-circuit but invalid packets rejected
+	U32                 mDroppedPackets;            // total dropped packets in
+	U32                 mResentPackets;             // total resent packets out
+	U32                 mFailedResendPackets;       // total resend failure packets out
+	U32                 mOffCircuitPackets;         // total # of off-circuit packets rejected
+	U32                 mInvalidOnCircuitPackets;   // total # of on-circuit but invalid packets rejected
 
 	S64					mUncompressedBytesIn;	    // total uncompressed size of compressed packets in
 	S64					mUncompressedBytesOut;	    // total uncompressed size of compressed packets out
@@ -268,14 +267,14 @@ public:
 	S64					mTotalBytesIn;		    // total size of all uncompressed packets in
 	S64					mTotalBytesOut;		    // total size of all uncompressed packets out
 
-	BOOL                                    mSendReliable;              // does the outgoing message require a pos ack?
+	BOOL                mSendReliable;              // does the outgoing message require a pos ack?
 
-	LLCircuit 	 			mCircuitInfo;
+	LLCircuit 	 		mCircuitInfo;
 	F64					mCircuitPrintTime;	    // used to print circuit debug info every couple minutes
 	F32					mCircuitPrintFreq;	    // seconds
 
-	std::map<U64, U32>			mIPPortToCircuitCode;
-	std::map<U32, U64>			mCircuitCodeToIPPort;
+	std::map<U64, U32>	mIPPortToCircuitCode;
+	std::map<U32, U64>	mCircuitCodeToIPPort;
 	U32					mOurCircuitCode;
 	S32					mSendPacketFailureCount;
 	S32					mUnackedListDepth;
@@ -494,7 +493,7 @@ public:
 		void (*callback)(void **,S32), 
 		void ** callback_data);
 
-	LLHTTPClient::ResponderPtr createResponder(const std::string& name);
+	LLCurl::ResponderPtr createResponder(const std::string& name);
 	S32		sendMessage(const LLHost &host);
 	S32		sendMessage(const U32 circuit);
 private:

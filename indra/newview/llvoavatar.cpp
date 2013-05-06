@@ -55,7 +55,6 @@
 #include "lldriverparam.h"
 #include "lleditingmotion.h"
 #include "llemote.h"
-//#include "llfirstuse.h"
 #include "llfloatertools.h"
 #include "llheadrotmotion.h"
 #include "llhudeffecttrail.h"
@@ -80,10 +79,12 @@
 #include "lltexlayer.h"
 #include "lltoolmorph.h"
 #include "llviewercamera.h"
+#include "llviewerjointmesh.h"
 #include "llviewertexturelist.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
 #include "llviewershadermgr.h"
 #include "llviewerstats.h"
 #include "llvoavatarself.h"
@@ -215,6 +216,24 @@ struct LLTextureMaskData
 	LLUUID				mAvatarID;
 	S32					mLastDiscardLevel;
 };
+
+// Simple utility functions to eventually replace the common 2-line
+// idiom scattered throughout the viewer codebase.  Note that where
+// possible we would rather be using smart pointers of some sort.
+
+template <class T>
+inline void delete_and_clear(T*& ptr)
+{
+	delete ptr;
+	ptr = NULL;
+}
+
+template <class T>
+inline void delete_and_clear_array(T*& array_ptr)
+{
+	delete[] array_ptr;
+	array_ptr = NULL;
+}
 
 /*********************************************************************************
  **                                                                             **
@@ -824,14 +843,14 @@ LLVOAvatar::~LLVOAvatar()
 	mRoot.removeAllChildren();
 	mJointMap.clear();
 
-	deleteAndClearArray(mSkeleton);
-	deleteAndClearArray(mCollisionVolumes);
+	delete_and_clear_array(mSkeleton);
+	delete_and_clear_array(mCollisionVolumes);
 
 	mNumJoints = 0;
 
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
-		deleteAndClear(mBakedTextureDatas[i].mTexLayerSet);
+		delete_and_clear(mBakedTextureDatas[i].mTexLayerSet);
 		mBakedTextureDatas[i].mMeshes.clear();
 
 		for (morph_list_t::iterator iter2 = mBakedTextureDatas[i].mMaskedMorphs.begin();
@@ -845,9 +864,9 @@ LLVOAvatar::~LLVOAvatar()
 	std::for_each(mAttachmentPoints.begin(), mAttachmentPoints.end(), DeletePairedPointer());
 	mAttachmentPoints.clear();
 
-	deleteAndClear(mTexSkinColor);
-	deleteAndClear(mTexHairColor);
-	deleteAndClear(mTexEyeColor);
+	delete_and_clear(mTexSkinColor);
+	delete_and_clear(mTexHairColor);
+	delete_and_clear(mTexEyeColor);
 
 	std::for_each(mMeshes.begin(), mMeshes.end(), DeletePairedPointer());
 	mMeshes.clear();
@@ -1234,7 +1253,7 @@ void LLVOAvatar::initClass()
 	// parse avatar_lad.xml
 	if (sAvatarXmlInfo)
 	{ //this can happen if a login attempt failed
-		deleteAndClear(sAvatarXmlInfo);
+		delete_and_clear(sAvatarXmlInfo);
 	}
 	sAvatarXmlInfo = new LLVOAvatarXmlInfo;
 	if (!sAvatarXmlInfo->parseXmlSkeletonNode(root))
@@ -1278,7 +1297,7 @@ void LLVOAvatar::initClass()
 
 void LLVOAvatar::cleanupClass()
 {
-	deleteAndClear(sAvatarXmlInfo);
+	delete_and_clear(sAvatarXmlInfo);
 	sSkeletonXMLTree.cleanup();
 	sXMLTree.cleanup();
 }
@@ -4188,7 +4207,7 @@ U32 LLVOAvatar::renderSkinnedAttachments()
 //-----------------------------------------------------------------------------
 // renderSkinned()
 //-----------------------------------------------------------------------------
-U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
+U32 LLVOAvatar::renderSkinned()
 {
 	U32 num_indices = 0;
 
@@ -4324,57 +4343,50 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 	//--------------------------------------------------------------------
 	// render all geometry attached to the skeleton
 	//--------------------------------------------------------------------
-	LLViewerJointMesh::sRenderPass = pass;
 
-	if (pass == AVATAR_RENDER_PASS_SINGLE)
+	bool should_alpha_mask = shouldAlphaMask();
+	LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
+		
+	if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
 	{
-
-		bool should_alpha_mask = shouldAlphaMask();
-		LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
+		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
+	}
 		
-		if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
+	BOOL first_pass = TRUE;
+	if (!LLDrawPoolAvatar::sSkipOpaque)
+	{
+		if (!isSelf() || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
 		{
-			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
-		}
-		
-		BOOL first_pass = TRUE;
-		if (!LLDrawPoolAvatar::sSkipOpaque)
-		{
-			if (!isSelf() || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
+			if (isTextureVisible(TEX_HEAD_BAKED) || mIsDummy)
 			{
-				if (isTextureVisible(TEX_HEAD_BAKED) || mIsDummy)
-				{
-					num_indices += mMeshLOD[MESH_ID_HEAD]->render(mAdjustedPixelArea, TRUE, mIsDummy);
-					first_pass = FALSE;
-				}
-			}
-			if (isTextureVisible(TEX_UPPER_BAKED) || mIsDummy)
-			{
-				num_indices += mMeshLOD[MESH_ID_UPPER_BODY]->render(mAdjustedPixelArea, first_pass, mIsDummy);
+				num_indices += mMeshLOD[MESH_ID_HEAD]->render(mAdjustedPixelArea, TRUE, mIsDummy);
 				first_pass = FALSE;
 			}
+		}
+		if (isTextureVisible(TEX_UPPER_BAKED) || mIsDummy)
+		{
+			num_indices += mMeshLOD[MESH_ID_UPPER_BODY]->render(mAdjustedPixelArea, first_pass, mIsDummy);
+			first_pass = FALSE;
+		}
 			
-			if (isTextureVisible(TEX_LOWER_BAKED) || mIsDummy)
-			{
-				num_indices += mMeshLOD[MESH_ID_LOWER_BODY]->render(mAdjustedPixelArea, first_pass, mIsDummy);
-				first_pass = FALSE;
-			}
-		}
-
-		if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
+		if (isTextureVisible(TEX_LOWER_BAKED) || mIsDummy)
 		{
-			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
-		}
-
-		if (!LLDrawPoolAvatar::sSkipTransparent || LLPipeline::sImpostorRender)
-		{
-			LLGLState blend(GL_BLEND, !mIsDummy);
-			LLGLState test(GL_ALPHA_TEST, !mIsDummy);
-			num_indices += renderTransparent(first_pass);
+			num_indices += mMeshLOD[MESH_ID_LOWER_BODY]->render(mAdjustedPixelArea, first_pass, mIsDummy);
+			first_pass = FALSE;
 		}
 	}
-	
-	LLViewerJointMesh::sRenderPass = AVATAR_RENDER_PASS_SINGLE;
+
+	if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
+	{
+		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+	}
+
+	if (!LLDrawPoolAvatar::sSkipTransparent || LLPipeline::sImpostorRender)
+	{
+		LLGLState blend(GL_BLEND, !mIsDummy);
+		LLGLState test(GL_ALPHA_TEST, !mIsDummy);
+		num_indices += renderTransparent(first_pass);
+	}
 	
 	return num_indices;
 }
@@ -5331,7 +5343,7 @@ LLVector3	LLVOAvatar::getPosAgentFromGlobal(const LLVector3d &position)
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::allocateCharacterJoints( U32 num )
 {
-	deleteAndClearArray(mSkeleton);
+	delete_and_clear_array(mSkeleton);
 	mNumJoints = 0;
 
 	mSkeleton = new LLViewerJoint[num];
@@ -5355,7 +5367,7 @@ BOOL LLVOAvatar::allocateCharacterJoints( U32 num )
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::allocateCollisionVolumes( U32 num )
 {
-	deleteAndClearArray(mCollisionVolumes);
+	delete_and_clear_array(mCollisionVolumes);
 	mNumCollisionVolumes = 0;
 
 	mCollisionVolumes = new LLViewerJointCollisionVolume[num];
@@ -7870,9 +7882,9 @@ LLVOAvatar::LLVOAvatarXmlInfo::~LLVOAvatarXmlInfo()
 	std::for_each(mMeshInfoList.begin(), mMeshInfoList.end(), DeletePointer());
 	std::for_each(mSkeletalDistortionInfoList.begin(), mSkeletalDistortionInfoList.end(), DeletePointer());		
 	std::for_each(mAttachmentInfoList.begin(), mAttachmentInfoList.end(), DeletePointer());
-	deleteAndClear(mTexSkinColorInfo);
-	deleteAndClear(mTexHairColorInfo);
-	deleteAndClear(mTexEyeColorInfo);
+	delete_and_clear(mTexSkinColorInfo);
+	delete_and_clear(mTexHairColorInfo);
+	delete_and_clear(mTexEyeColorInfo);
 	std::for_each(mLayerInfoList.begin(), mLayerInfoList.end(), DeletePointer());		
 	std::for_each(mDriverInfoList.begin(), mDriverInfoList.end(), DeletePointer());
 	std::for_each(mMorphMaskInfoList.begin(), mMorphMaskInfoList.end(), DeletePointer());
@@ -8203,7 +8215,7 @@ BOOL LLVOAvatar::LLVOAvatarXmlInfo::parseXmlColorNodes(LLXmlTreeNode* root)
 				mTexSkinColorInfo = new LLTexGlobalColorInfo;
 				if( !mTexSkinColorInfo->parseXml( color_node ) )
 				{
-					deleteAndClear(mTexSkinColorInfo);
+					delete_and_clear(mTexSkinColorInfo);
 					llwarns << "avatar file: mTexSkinColor->parseXml() failed" << llendl;
 					return FALSE;
 				}
@@ -8218,7 +8230,7 @@ BOOL LLVOAvatar::LLVOAvatarXmlInfo::parseXmlColorNodes(LLXmlTreeNode* root)
 				mTexHairColorInfo = new LLTexGlobalColorInfo;
 				if( !mTexHairColorInfo->parseXml( color_node ) )
 				{
-					deleteAndClear(mTexHairColorInfo);
+					delete_and_clear(mTexHairColorInfo);
 					llwarns << "avatar file: mTexHairColor->parseXml() failed" << llendl;
 					return FALSE;
 				}

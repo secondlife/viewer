@@ -38,6 +38,7 @@
 #include "llsd.h"
 #include "llvoavatar.h"
 #include "lltrace.h"
+#include "llinitparam.h"
 
 /**
  * @class LLViewerAssetStats

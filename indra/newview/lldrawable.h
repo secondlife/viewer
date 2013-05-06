@@ -309,7 +309,7 @@ private:
 	LLVector3		mCurrentScale;
 	
 	static U32 sNumZombieDrawables;
-	static LLDynamicArrayPtr<LLPointer<LLDrawable> > sDeadList;
+	static LLDynamicArray<LLPointer<LLDrawable>, 32> sDeadList;
 } LL_ALIGN_POSTFIX(16);
 
 

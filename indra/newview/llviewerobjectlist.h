@@ -237,20 +237,14 @@ protected:
 class LLDebugBeacon
 {
 public:
-	~LLDebugBeacon()
-	{
-		if (mHUDObject.notNull())
-		{
-			mHUDObject->markDead();
-		}
-	}
+	~LLDebugBeacon();
 
 	LLVector3 mPositionAgent;
 	std::string mString;
 	LLColor4 mColor;
 	LLColor4 mTextColor;
 	S32 mLineWidth;
-	LLPointer<LLHUDObject> mHUDObject;
+	LLPointer<class LLHUDObject> mHUDObject;
 };
 
 

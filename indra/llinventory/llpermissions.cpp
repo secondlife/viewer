@@ -31,7 +31,6 @@
 
 // library includes
 #include "message.h"
-#include "metapropertyt.h"
 #include "llsd.h"
 
 ///----------------------------------------------------------------------------
@@ -893,21 +892,6 @@ std::ostream& operator<<(std::ostream &s, const LLPermissions &perm)
 	s << ", NextOwnerMask=0x" << perm.getMaskNextOwner() << std::dec;
 	s << "}";
 	return s;
-}
-
-template <>
-void LLMetaClassT<LLPermissions>::reflectProperties(LLMetaClass& meta_class)
-{
-	reflectProperty(meta_class, "mCreator", &LLPermissions::mCreator);
-	reflectProperty(meta_class, "mOwner", &LLPermissions::mOwner);
-	reflectProperty(meta_class, "mGroup", &LLPermissions::mGroup);
-	reflectProperty(meta_class, "mIsGroupOwned", &LLPermissions::mIsGroupOwned);
-}
-
-// virtual
-const LLMetaClass& LLPermissions::getMetaClass() const
-{
-	return LLMetaClassT<LLPermissions>::instance();
 }
 
 ///----------------------------------------------------------------------------

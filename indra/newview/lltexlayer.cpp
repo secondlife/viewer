@@ -31,6 +31,7 @@
 #include "llagent.h"
 #include "llimagej2c.h"
 #include "llimagetga.h"
+#include "lllocaltextureobject.h"
 #include "llnotificationsutil.h"
 #include "llvfile.h"
 #include "llvfs.h"

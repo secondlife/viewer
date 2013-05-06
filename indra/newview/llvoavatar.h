@@ -33,7 +33,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/signals2.hpp>
+#include <boost/signals2/trackable.hpp>
 
 #include "imageids.h"			// IMG_INVISIBLE
 #include "llchat.h"
@@ -69,6 +69,7 @@ class LLHUDEffectSpiral;
 class LLTexGlobalColor;
 class LLVOAvatarBoneInfo;
 class LLVOAvatarSkeletonInfo;
+class LLViewerJointMesh;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
@@ -435,7 +436,7 @@ public:
 	bool		isVisuallyMuted() const;
 
 	U32 		renderRigid();
-	U32 		renderSkinned(EAvatarRenderPass pass);
+	U32 		renderSkinned();
 	F32			getLastSkinTime() { return mLastSkinTime; }
 	U32			renderSkinnedAttachments();
 	U32 		renderTransparent(BOOL first_pass);

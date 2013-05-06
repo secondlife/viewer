@@ -43,6 +43,7 @@
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llinventoryfunctions.h"
+#include "lllocaltextureobject.h"
 #include "llnotificationsutil.h"
 #include "llselectmgr.h"
 #include "lltoolgrab.h"	// for needsRenderBeam

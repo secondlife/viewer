@@ -30,8 +30,7 @@
 #include <map>
 
 #include "llassetstorage.h"
-#include "lldarrayptr.h"
-#include "llhudicon.h"
+//#include "llhudicon.h"
 #include "llinventory.h"
 #include "llrefcount.h"
 #include "llprimitive.h"
@@ -43,34 +42,30 @@
 #include "v3math.h"
 #include "llvertexbuffer.h"
 #include "llbbox.h"
-#include "llbbox.h"
 
 class LLAgent;			// TODO: Get rid of this.
 class LLAudioSource;
 class LLAudioSourceVO;
-class LLDataPacker;
 class LLColor4;
-class LLFrameTimer;
+class LLDataPacker;
+class LLDataPackerBinaryBuffer;
 class LLDrawable;
-class LLHost;
 class LLHUDText;
-class LLWorld;
-class LLNameValue;
-class LLNetMap;
+class LLHost;
 class LLMessageSystem;
+class LLNameValue;
 class LLPartSysData;
-class LLPrimitive;
 class LLPipeline;
 class LLTextureEntry;
-class LLViewerTexture;
+class LLVOAvatar;
+class LLVOInventoryListener;
 class LLViewerInventoryItem;
 class LLViewerObject;
+class LLViewerObjectMedia;
 class LLViewerPartSourceScript;
 class LLViewerRegion;
-class LLViewerObjectMedia;
-class LLVOInventoryListener;
-class LLVOAvatar;
-class LLDataPackerBinaryBuffer;
+class LLViewerTexture;
+class LLWorld;
 
 typedef enum e_object_update_type
 {
@@ -645,7 +640,7 @@ public:
 
 	// TODO: Make all this stuff private.  JC
 	LLPointer<LLHUDText> mText;
-	LLPointer<LLHUDIcon> mIcon;
+	LLPointer<class LLHUDIcon> mIcon;
 
 	static			BOOL		sUseSharedDrawables;
 	static	LLTrace::MemStatHandle	sMemStat;

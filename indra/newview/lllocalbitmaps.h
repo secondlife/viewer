@@ -33,6 +33,8 @@
 #include "llvoavatardefines.h"
 
 class LLScrollListCtrl;
+class LLImageRaw;
+class LLViewerObject;
 
 class LLLocalBitmap
 {

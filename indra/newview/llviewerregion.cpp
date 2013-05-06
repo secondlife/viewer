@@ -94,28 +94,29 @@ typedef std::map<std::string, std::string> CapabilityMap;
 class LLViewerRegionImpl {
 public:
 	LLViewerRegionImpl(LLViewerRegion * region, LLHost const & host)
-		:	mHost(host),
-			mCompositionp(NULL),
-			mEventPoll(NULL),
-			mSeedCapMaxAttempts(MAX_CAP_REQUEST_ATTEMPTS),
-			mSeedCapMaxAttemptsBeforeLogin(MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN),
-			mSeedCapAttempts(0),
-			mHttpResponderID(0),
-			mLastCameraUpdate(0),
-			mLastCameraOrigin(),
-		    // I'd prefer to set the LLCapabilityListener name to match the region
-		    // name -- it's disappointing that's not available at construction time.
-		    // We could instead store an LLCapabilityListener*, making
-		    // setRegionNameAndZone() replace the instance. Would that pose
-		    // consistency problems? Can we even request a capability before calling
-		    // setRegionNameAndZone()?
-		    // For testability -- the new Michael Feathers paradigm --
-		    // LLCapabilityListener binds all the globals it expects to need at
-		    // construction time.
-		    mCapabilityListener(host.getString(), gMessageSystem, *region,
-		                        gAgent.getID(), gAgent.getSessionID())
-	{
-	}
+	:	mHost(host),
+		mCompositionp(NULL),
+		mEventPoll(NULL),
+		mSeedCapMaxAttempts(MAX_CAP_REQUEST_ATTEMPTS),
+		mSeedCapMaxAttemptsBeforeLogin(MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN),
+		mSeedCapAttempts(0),
+		mHttpResponderID(0),
+		mLastCameraUpdate(0),
+		mLastCameraOrigin(),
+		mVOCachePartition(NULL),
+		mLandp(NULL),
+		// I'd prefer to set the LLCapabilityListener name to match the region
+		// name -- it's disappointing that's not available at construction time.
+		// We could instead store an LLCapabilityListener*, making
+		// setRegionNameAndZone() replace the instance. Would that pose
+		// consistency problems? Can we even request a capability before calling
+		// setRegionNameAndZone()?
+		// For testability -- the new Michael Feathers paradigm --
+		// LLCapabilityListener binds all the globals it expects to need at
+		// construction time.
+		mCapabilityListener(host.getString(), gMessageSystem, *region,
+		                    gAgent.getID(), gAgent.getSessionID())
+	{}
 
 	void buildCapabilityNames(LLSD& capabilityNames);
 
@@ -439,7 +440,7 @@ void LLViewerRegion::loadObjectCache()
 	// Presume success.  If it fails, we don't want to try again.
 	mCacheLoaded = TRUE;
 
-	if(LLVOCache::hasInstance())
+	if(LLVOCache::instanceExists())
 	{
 		LLVOCache::getInstance()->readFromCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap) ;
 		if (mImpl->mCacheMap.empty())
@@ -462,7 +463,7 @@ void LLViewerRegion::saveObjectCache()
 		return;
 	}
 
-	if(LLVOCache::hasInstance())
+	if(LLVOCache::instanceExists())
 	{
 		const F32 start_time_threshold = 600.0f; //seconds
 		bool removal_enabled = sVOCacheCullingEnabled && (mRegionTimer.getElapsedTimeF32() > start_time_threshold); //allow to remove invalid objects from object cache file.
@@ -755,7 +756,7 @@ void LLViewerRegion::replaceCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry
 
 	if(old_entry)
 	{
-		old_entry->copyTo(new_entry);
+		old_entry->moveTo(new_entry);
 		state = old_entry->getState();
 		in_vo_tree = (state == LLVOCacheEntry::INACTIVE && old_entry->getGroup() != NULL);
 		killCacheEntry(old_entry);
@@ -940,6 +941,11 @@ void LLViewerRegion::addVisibleCacheEntry(LLVOCacheEntry* entry)
 		entry->setState(LLVOCacheEntry::IN_QUEUE);
 	}
 	mImpl->mVisibleEntries.insert(entry);
+}
+
+bool LLViewerRegion::hasVisibleGroup(LLviewerOctreeGroup* group)
+{
+	return mImpl->mVisibleGroups.find(group) != mImpl->mVisibleGroups.end();
 }
 
 void LLViewerRegion::clearVisibleGroup(LLviewerOctreeGroup* group)

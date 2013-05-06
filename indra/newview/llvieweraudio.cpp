@@ -36,6 +36,7 @@
 #include "llviewerwindow.h"
 #include "llvoiceclient.h"
 #include "llviewermedia.h"
+#include "llviewerregion.h"
 #include "llprogressview.h"
 #include "llcallbacklist.h"
 #include "llstartup.h"

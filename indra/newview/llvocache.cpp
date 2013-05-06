@@ -170,7 +170,7 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 LLVOCacheEntry::~LLVOCacheEntry()
 {
 	mDP.freeBuffer();
-	//llassert(mState == INACTIVE);
+	llassert(mState == INACTIVE);
 }
 
 //virtual 
@@ -191,7 +191,7 @@ void LLVOCacheEntry::setOctreeEntry(LLViewerOctreeEntry* entry)
 	LLViewerOctreeEntryData::setOctreeEntry(entry);
 }
 
-void LLVOCacheEntry::copyTo(LLVOCacheEntry* new_entry)
+void LLVOCacheEntry::moveTo(LLVOCacheEntry* new_entry)
 {
 	//copy LLViewerOctreeEntry
 	if(mEntry.notNull())
@@ -206,6 +206,7 @@ void LLVOCacheEntry::copyTo(LLVOCacheEntry* new_entry)
 	{
 		new_entry->addChild(getChild(i));
 	}
+	mChildrenList.clear();
 }
 
 void LLVOCacheEntry::setState(U32 state)
@@ -465,37 +466,10 @@ const U32 INVALID_TIME = 0 ;
 const char* object_cache_dirname = "objectcache";
 const char* header_filename = "object.cache";
 
-LLVOCache* LLVOCache::sInstance = NULL;
-
-//static 
-LLVOCache* LLVOCache::getInstance() 
-{	
-	if(!sInstance)
-	{
-		sInstance = new LLVOCache() ;
-	}
-	return sInstance ;
-}
-
-//static 
-BOOL LLVOCache::hasInstance() 
-{
-	return sInstance != NULL ;
-}
-
-//static 
-void LLVOCache::destroyClass() 
-{
-	if(sInstance)
-	{
-		delete sInstance ;
-		sInstance = NULL ;
-	}
-}
 
 LLVOCache::LLVOCache():
-	mInitialized(FALSE),
-	mReadOnly(TRUE),
+	mInitialized(false),
+	mReadOnly(true),
 	mNumEntries(0),
 	mCacheSize(1)
 {
@@ -532,7 +506,7 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 		llwarns << "Cache already initialized." << llendl;
 		return ;
 	}
-	mInitialized = TRUE ;
+	mInitialized = true;
 
 	setDirNames(location);
 	if (!mReadOnly)
@@ -580,7 +554,7 @@ void LLVOCache::removeCache(ELLPath location, bool started)
 	LLFile::rmdir(cache_dir);
 
 	clearCacheInMemory();
-	mInitialized = FALSE ;
+	mInitialized = false;
 }
 
 void LLVOCache::removeCache() 
@@ -607,23 +581,23 @@ void LLVOCache::removeCache()
 
 void LLVOCache::removeEntry(HeaderEntryInfo* entry) 
 {
-	llassert_always(mInitialized) ;
+	llassert_always(mInitialized);
 	if(mReadOnly)
 	{
-		return ;
+		return;
 	}
 	if(!entry)
 	{
-		return ;
+		return;
 	}
 
-	header_entry_queue_t::iterator iter = mHeaderEntryQueue.find(entry) ;
+	header_entry_queue_t::iterator iter = mHeaderEntryQueue.find(entry);
 	if(iter != mHeaderEntryQueue.end())
 	{		
-		mHandleEntryMap.erase(entry->mHandle) ;		
-		mHeaderEntryQueue.erase(iter) ;
-		removeFromCache(entry) ;
-		delete entry ;
+		mHandleEntryMap.erase(entry->mHandle);		
+		mHeaderEntryQueue.erase(iter);
+		removeFromCache(entry);
+		delete entry;
 
 		mNumEntries = mHandleEntryMap.size() ;
 	}

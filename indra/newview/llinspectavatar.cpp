@@ -37,6 +37,7 @@
 #include "lldateutil.h"
 #include "llfloaterreporter.h"
 #include "llfloaterworldmap.h"
+#include "llhttpclient.h"
 #include "llimview.h"
 #include "llinspect.h"
 #include "llmutelist.h"
@@ -46,6 +47,7 @@
 #include "llviewermenu.h"
 #include "llvoiceclient.h"
 #include "llviewerobjectlist.h"
+#include "llviewerregion.h"
 #include "lltransientfloatermgr.h"
 #include "llnotificationsutil.h"
 

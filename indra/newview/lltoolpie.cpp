@@ -42,6 +42,7 @@
 #include "llfloaterscriptdebug.h"
 #include "lltooltip.h"
 #include "llhudeffecttrail.h"
+#include "llhudicon.h"
 #include "llhudmanager.h"
 #include "llkeyboard.h"
 #include "llmediaentry.h"

@@ -38,6 +38,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llfloaterreg.h"
+#include "llhudicon.h"
 #include "llmeshrepository.h"
 #include "llpanellogin.h"
 #include "llviewerkeyboard.h"

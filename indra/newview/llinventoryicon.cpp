@@ -30,6 +30,7 @@
 #include "lldictionary.h"
 #include "llinventorydefines.h"
 #include "llui.h"
+#include "lluiimage.h"
 #include "llwearabletype.h"
 
 struct IconEntry : public LLDictionaryEntry
@@ -46,6 +47,8 @@ class LLIconDictionary : public LLSingleton<LLIconDictionary>,
 public:
 	LLIconDictionary();
 };
+
+typedef LLPointer<LLUIImage> LLUIImagePtr;
 
 LLIconDictionary::LLIconDictionary()
 {

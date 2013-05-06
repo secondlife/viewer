@@ -78,9 +78,6 @@ public:
 	void setGroup(LLviewerOctreeGroup* group);
 	void removeData(LLViewerOctreeEntryData* data);
 
-	LLViewerOctreeEntryData* getData(U32 data_type)const {return mData[data_type];}
-	bool                     hasData(U32 data_type)const {return mData[data_type] != NULL;}
-
 	LLViewerOctreeEntryData* getDrawable() const {return mData[LLDRAWABLE];}
 	bool                     hasDrawable() const {return mData[LLDRAWABLE] != NULL;}
 	LLViewerOctreeEntryData* getVOCacheEntry() const {return mData[LLVOCACHEENTRY];}

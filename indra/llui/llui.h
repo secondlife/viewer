@@ -31,15 +31,14 @@
 
 #include "llpointer.h"		// LLPointer<>
 #include "llrect.h"
-#include "llcontrol.h"
 #include "llcoord.h"
+#include "llcontrol.h"
 #include "llglslshader.h"
 #include "llinitparam.h"
 #include "llregistry.h"
 #include "lluicolor.h"
 #include "lluicolortable.h"
 #include <boost/signals2.hpp>
-#include "lllazyvalue.h"
 #include "llframetimer.h"
 #include <limits>
 
@@ -59,6 +58,7 @@ class LLWindow;
 class LLView;
 class LLHelp;
 class LLRenderTarget;
+class LLControlGroup;
 
 // UI colors
 extern const LLColor4 UI_VERTEX_COLOR;

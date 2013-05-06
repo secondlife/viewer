@@ -37,13 +37,6 @@ class LLFace;
 class LLCharacter;
 class LLTexLayerSet;
 
-typedef enum e_avatar_render_pass
-{
-	AVATAR_RENDER_PASS_SINGLE,
-	AVATAR_RENDER_PASS_CLOTHING_INNER,
-	AVATAR_RENDER_PASS_CLOTHING_OUTER
-} EAvatarRenderPass;
-
 class LLSkinJoint
 {
 public:
@@ -84,7 +77,6 @@ public:
 	static BOOL					sPipelineRender;
 	//RN: this is here for testing purposes
 	static U32					sClothingMaskImageName;
-	static EAvatarRenderPass	sRenderPass;
 	static LLColor4				sClothingInnerColor;
 
 public:

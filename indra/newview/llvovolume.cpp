@@ -406,7 +406,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 				dp->dumpBufferToLog();
 				llwarns << "Flushing cache files" << llendl;
 
-				if(LLVOCache::hasInstance() && getRegion())
+				if(LLVOCache::instanceExists() && getRegion())
 				{
 					LLVOCache::getInstance()->removeEntry(getRegion()->getHandle()) ;
 				}

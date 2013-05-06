@@ -34,12 +34,12 @@
 #include "llassetstorage.h"
 #include "llwearabletype.h"
 #include "llfile.h"
-#include "lllocaltextureobject.h"
 
 class LLViewerInventoryItem;
 class LLVisualParam;
 class LLTexGlobalColorInfo;
 class LLTexGlobalColor;
+class LLLocalTextureObject;
 
 class LLWearable
 {

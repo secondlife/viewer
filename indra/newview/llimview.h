@@ -33,13 +33,12 @@
 
 #include "lllogchat.h"
 #include "llvoicechannel.h"
-
+#include "lldarray.h"
 
 class LLAvatarName;
 class LLFriendObserver;
 class LLCallDialogManager;	
 class LLIMSpeakerMgr;
-
 /**
  * Timeout Timer for outgoing Ad-Hoc/Group IM sessions which being initialized by the server
  */

@@ -41,6 +41,7 @@
 #include "llui.h"
 #include "message.h"
 #include "roles_constants.h"
+#include "llhttpclient.h"
 #include "lltransactiontypes.h"
 #include "llstatusbar.h"
 #include "lleconomy.h"
@@ -50,6 +51,7 @@
 #include "llnotificationsutil.h"
 #include "lluictrlfactory.h"
 #include "lltrans.h"
+#include "llviewerregion.h"
 #include <boost/regex.hpp>
 
 #if LL_MSVC

@@ -29,7 +29,6 @@
 
 #include "lluuid.h"
 #include "lldatapacker.h"
-#include "lldlinked.h"
 #include "lldir.h"
 #include "llvieweroctree.h"
 
@@ -101,7 +100,7 @@ public:
 	void recordHit();
 	void recordDupe() { mDupeCount++; }
 	
-	void copyTo(LLVOCacheEntry* new_entry); //copy variables 
+	void moveTo(LLVOCacheEntry* new_entry); //copy variables 
 	/*virtual*/ void setOctreeEntry(LLViewerOctreeEntry* entry);
 
 	void setParentID(U32 id) {mParentID = id;}
@@ -161,9 +160,10 @@ public:
 //
 //Note: LLVOCache is not thread-safe
 //
-class LLVOCache
+class LLVOCache : public LLSingleton<LLVOCache>
 {
 private:
+	friend LLSingleton<LLVOCache>;
 	struct HeaderEntryInfo
 	{
 		HeaderEntryInfo() : mIndex(0), mHandle(0), mTime(0) {}
@@ -206,7 +206,7 @@ public:
 	void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache, bool removal_enabled);
 	void removeEntry(U64 handle) ;
 
-	void setReadOnly(BOOL read_only) {mReadOnly = read_only;} 
+	void setReadOnly(bool read_only) {mReadOnly = read_only;} 
 
 private:
 	void setDirNames(ELLPath location);	
@@ -222,9 +222,9 @@ private:
 	BOOL updateEntry(const HeaderEntryInfo* entry);
 	
 private:
-	BOOL                 mEnabled;
-	BOOL                 mInitialized ;
-	BOOL                 mReadOnly ;
+	bool                 mEnabled;
+	bool                 mInitialized ;
+	bool                 mReadOnly ;
 	HeaderMetaInfo       mMetaInfo;
 	U32                  mCacheSize;
 	U32                  mNumEntries;
@@ -233,12 +233,6 @@ private:
 	LLVolatileAPRPool*   mLocalAPRFilePoolp ; 	
 	header_entry_queue_t mHeaderEntryQueue;
 	handle_entry_map_t   mHandleEntryMap;	
-
-	static LLVOCache* sInstance ;
-public:
-	static LLVOCache* getInstance() ;
-	static BOOL       hasInstance() ;	
-	static void       destroyClass() ;
 };
 
 #endif

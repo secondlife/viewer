@@ -31,7 +31,7 @@
 #include "llfoldertype.h"
 #include "lldarray.h"
 #include "llframetimer.h"
-#include "llhttpclient.h"
+#include "llcurl.h"
 #include "lluuid.h"
 #include "llpermissionsflags.h"
 #include "llstring.h"
@@ -79,7 +79,7 @@ public:
 	typedef LLDynamicArray<LLPointer<LLViewerInventoryItem> > item_array_t;
 	typedef std::set<LLUUID> changed_items_t;
 
-	class fetchInventoryResponder : public LLHTTPClient::Responder
+	class fetchInventoryResponder : public LLCurl::Responder
 	{
 	public:
 		fetchInventoryResponder(const LLSD& request_sd) : mRequestSD(request_sd) {};

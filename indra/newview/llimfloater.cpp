@@ -38,6 +38,7 @@
 #include "llchiclet.h"
 #include "llchicletbar.h"
 #include "llfloaterreg.h"
+#include "llhttpclient.h"
 #include "llimfloatercontainer.h" // to replace separate IM Floaters with multifloater container
 #include "llinventoryfunctions.h"
 #include "lllayoutstack.h"
@@ -49,6 +50,7 @@
 #include "lltrans.h"
 #include "llchathistory.h"
 #include "llnotifications.h"
+#include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
 #include "lltransientfloatermgr.h"

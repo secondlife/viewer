@@ -27,7 +27,6 @@
 #ifndef LL_LLVIEWERPARTSIM_H
 #define LL_LLVIEWERPARTSIM_H
 
-#include "lldarrayptr.h"
 #include "llframetimer.h"
 #include "llpointer.h"
 #include "llpartdata.h"
@@ -36,7 +35,6 @@
 class LLViewerTexture;
 class LLViewerPart;
 class LLViewerRegion;
-class LLViewerTexture;
 class LLVOPartGroup;
 
 #define LL_MAX_PARTICLE_COUNT 8192

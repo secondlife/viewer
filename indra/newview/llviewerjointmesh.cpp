@@ -128,7 +128,6 @@ BOOL LLSkinJoint::setupSkinJoint( LLViewerJoint *joint)
 //-----------------------------------------------------------------------------
 
 BOOL LLViewerJointMesh::sPipelineRender = FALSE;
-EAvatarRenderPass LLViewerJointMesh::sRenderPass = AVATAR_RENDER_PASS_SINGLE;
 U32 LLViewerJointMesh::sClothingMaskImageName = 0;
 LLColor4 LLViewerJointMesh::sClothingInnerColor;
 

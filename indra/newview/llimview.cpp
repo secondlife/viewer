@@ -63,6 +63,7 @@
 #include "lltoolbarview.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
 
 
 const static std::string ADHOC_NAME_SUFFIX(" Conference");
