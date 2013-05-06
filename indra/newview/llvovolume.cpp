@@ -4167,7 +4167,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_info->mEnvIntensity = spec;
 		draw_info->mSpecularMap = NULL;
 
-		if (mat && LLPipeline::sRenderBump && LLPipeline::sRenderDeferred)
+		if (mat)
 		{
 				// We have a material.  Update our draw info accordingly.
 				draw_info->mMaterial = mat;
