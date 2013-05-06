@@ -61,6 +61,7 @@ class LLSingleton : private boost::noncopyable
 private:
 	typedef enum e_init_state
 	{
+		UNINITIALIZED,
 		CONSTRUCTING,
 		INITIALIZING,
 		INITIALIZED,
@@ -68,23 +69,23 @@ private:
 	} EInitState;
 	
 	// stores pointer to singleton instance
-	// and tracks initialization state of singleton
-	struct SingletonInstanceData
+	struct SingletonLifetimeManager
 	{
-		EInitState		mInitState;
-		DERIVED_TYPE*	mSingletonInstance;
-		
-		SingletonInstanceData()
-		:	mSingletonInstance(NULL),
-			mInitState(CONSTRUCTING)
+		SingletonLifetimeManager()
 		{
-			mSingletonInstance = new DERIVED_TYPE(); 
-			mInitState = INITIALIZING;
+			construct();
 		}
 
-		~SingletonInstanceData()
+		static void construct()
 		{
-			if (mInitState != DELETED)
+			sData.mInitState = CONSTRUCTING;
+			sData.mInstance = new DERIVED_TYPE(); 
+			sData.mInitState = INITIALIZING;
+		}
+
+		~SingletonLifetimeManager()
+		{
+			if (sData.mInitState != DELETED)
 			{
 				deleteSingleton();
 			}
@@ -94,9 +95,8 @@ private:
 public:
 	virtual ~LLSingleton()
 	{
-		SingletonInstanceData& data = getData();
-		data.mSingletonInstance = NULL;
-		data.mInitState = DELETED;
+		sData.mInstance = NULL;
+		sData.mInitState = DELETED;
 	}
 
 	/**
@@ -121,42 +121,46 @@ public:
 	 */
 	static void deleteSingleton()
 	{
-		delete getData().mSingletonInstance;
-		getData().mSingletonInstance = NULL;
-		getData().mInitState = DELETED;
+		delete sData.mInstance;
+		sData.mInstance = NULL;
+		sData.mInitState = DELETED;
 	}
 
-	static SingletonInstanceData& getData()
-	{
-		// this is static to cache the lookup results
-		static SingletonInstanceData sData;
-		return sData;
-	}
 
 	static DERIVED_TYPE* getInstance()
 	{
-		SingletonInstanceData& data = getData();
+		static SingletonLifetimeManager sLifeTimeMgr;
 
-		if (data.mInitState == CONSTRUCTING)
+		switch (sData.mInitState)
 		{
+		case UNINITIALIZED:
+			// should never be uninitialized at this point
+			llassert(false);
+			return NULL;
+		case CONSTRUCTING:
 			llerrs << "Tried to access singleton " << typeid(DERIVED_TYPE).name() << " from singleton constructor!" << llendl;
+			return NULL;
+		case INITIALIZING:
+			// go ahead and flag ourselves as initialized so we can be reentrant during initialization
+			sData.mInitState = INITIALIZED;	
+			sData.mInstance->initSingleton(); 
+			return sData.mInstance;
+		case INITIALIZED:
+			return sData.mInstance;
+		case DELETED:
+			llwarns << "Trying to access deleted singleton " << typeid(DERIVED_TYPE).name() << " creating new instance" << llendl;
+			SingletonLifetimeManager::construct();
+			sData.mInitState = INITIALIZED;	
+			sData.mInstance->initSingleton(); 
+			return sData.mInstance;
 		}
 
-		if (data.mInitState == DELETED)
-		{
-			llwarns << "Trying to access deleted singleton " << typeid(DERIVED_TYPE).name() << " creating new instance" << llendl;
-			data.mSingletonInstance = new DERIVED_TYPE(); 
-			data.mInitState = INITIALIZING;
-		}	// Fall into INITIALIZING case below 
-		
-		if (data.mInitState == INITIALIZING) 
-		{
-			// go ahead and flag ourselves as initialized so we can be reentrant during initialization
-			data.mInitState = INITIALIZED;
-			data.mSingletonInstance->initSingleton(); 
-		}
-		
-		return data.mSingletonInstance;
+		return NULL;
+	}
+
+	static DERIVED_TYPE* getIfExists()
+	{
+		return sData.mInstance;
 	}
 
 	// Reference version of getInstance()
@@ -170,18 +174,29 @@ public:
 	// Use this to avoid accessing singletons before the can safely be constructed
 	static bool instanceExists()
 	{
-		return getData().mInitState == INITIALIZED;
+		return sData.mInitState == INITIALIZED;
 	}
 	
 	// Has this singleton already been deleted?
 	// Use this to avoid accessing singletons from a static object's destructor
 	static bool destroyed()
 	{
-		return getData().mInitState == DELETED;
+		return sData.mInitState == DELETED;
 	}
 
 private:
+
 	virtual void initSingleton() {}
+
+	struct SingletonData
+	{
+		EInitState		mInitState;
+		DERIVED_TYPE*	mInstance;
+	};
+	static SingletonData sData;
 };
+
+template<typename T>
+typename LLSingleton<T>::SingletonData LLSingleton<T>::sData;
 
 #endif

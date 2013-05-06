@@ -2699,23 +2699,32 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 	if(ft && (0 == error_code) &&
 	   (object = gObjectList.findObject(ft->mTaskID)))
 	{
-		object->loadTaskInvFile(ft->mFilename);
-
-		LLInventoryObject::object_list_t::iterator it = object->mInventory->begin();
-		LLInventoryObject::object_list_t::iterator end = object->mInventory->end();
-		std::list<LLUUID>& pending_lst = object->mPendingInventoryItemsIDs;
-
-		for (; it != end && pending_lst.size(); ++it)
+		if (object->loadTaskInvFile(ft->mFilename))
 		{
-			LLViewerInventoryItem* item = dynamic_cast<LLViewerInventoryItem*>(it->get());
-			if(item && item->getType() != LLAssetType::AT_CATEGORY)
+
+			LLInventoryObject::object_list_t::iterator it = object->mInventory->begin();
+			LLInventoryObject::object_list_t::iterator end = object->mInventory->end();
+			std::list<LLUUID>& pending_lst = object->mPendingInventoryItemsIDs;
+
+			for (; it != end && pending_lst.size(); ++it)
 			{
-				std::list<LLUUID>::iterator id_it = std::find(pending_lst.begin(), pending_lst.begin(), item->getAssetUUID());
-				if (id_it != pending_lst.end())
+				LLViewerInventoryItem* item = dynamic_cast<LLViewerInventoryItem*>(it->get());
+				if(item && item->getType() != LLAssetType::AT_CATEGORY)
 				{
-					pending_lst.erase(id_it);
+					std::list<LLUUID>::iterator id_it = std::find(pending_lst.begin(), pending_lst.begin(), item->getAssetUUID());
+					if (id_it != pending_lst.end())
+					{
+						pending_lst.erase(id_it);
+					}
 				}
 			}
+		}
+		else
+		{
+			// MAINT-2597 - crash when trying to edit a no-mod object
+			// Somehow get an contents inventory response, but with an invalid stream (possibly 0 size?)
+			// Stated repro was specific to no-mod objects so failing without user interaction should be safe.
+			llwarns << "Trying to load invalid task inventory file. Ignoring file contents." << llendl;
 		}
 	}
 	else
@@ -2728,7 +2737,7 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 	delete ft;
 }
 
-void LLViewerObject::loadTaskInvFile(const std::string& filename)
+BOOL LLViewerObject::loadTaskInvFile(const std::string& filename)
 {
 	std::string filename_and_local_path = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, filename);
 	llifstream ifs(filename_and_local_path);
@@ -2775,8 +2784,11 @@ void LLViewerObject::loadTaskInvFile(const std::string& filename)
 	{
 		llwarns << "unable to load task inventory: " << filename_and_local_path
 				<< llendl;
+		return FALSE;
 	}
 	doInventoryCallback();
+
+	return TRUE;
 }
 
 void LLViewerObject::doInventoryCallback()
