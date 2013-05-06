@@ -5222,7 +5222,7 @@ void LLVOAvatar::computeBodySize()
 	// Certain configurations of avatars can force the overall height (with offset) to go negative.
 	// Enforce a constraint to make sure we don't go below 0.1 meters.
 	// Camera positioning and other things start to break down when your avatar is "walking" while being fully underground
-	if (isSelf() && getWearableData())
+	if (isSelf() && getWearableData() && isFullyLoaded() && !LLApp::isQuitting())
 	{
 		LLViewerWearable* shape = (LLViewerWearable*)getWearableData()->getWearable(LLWearableType::WT_SHAPE, 0);
 		if (shape && !shape->getVolitile()) 
