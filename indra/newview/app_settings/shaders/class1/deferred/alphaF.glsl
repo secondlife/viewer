@@ -35,11 +35,23 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
+#if HAS_SHADOW
+uniform sampler2DShadow shadowMap0;
+uniform sampler2DShadow shadowMap1;
+uniform sampler2DShadow shadowMap2;
+uniform sampler2DShadow shadowMap3;
+
+uniform vec2 shadow_res;
+
+uniform mat4 shadow_matrix[6];
+uniform vec4 shadow_clip;
+uniform float shadow_bias;
+
+#endif
+
 #ifdef USE_DIFFUSE_TEX
 uniform sampler2D diffuseMap;
 #endif
-
-uniform vec2 screen_res;
 
 vec3 atmosLighting(vec3 light);
 vec3 scaleSoftClip(vec3 light);
@@ -60,6 +72,8 @@ uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
+
+uniform vec2 screen_res;
 
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
@@ -98,6 +112,27 @@ vec3 calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float
 	return vec3(da,da,da);	
 }
 
+#if HAS_SHADOW
+float pcfShadow(sampler2DShadow shadowMap, vec4 stc)
+{
+	stc.xyz /= stc.w;
+	stc.z += shadow_bias;
+		
+	stc.x = floor(stc.x*shadow_res.x + fract(stc.y*shadow_res.y*12345))/shadow_res.x; // add some chaotic jitter to X sample pos according to Y to disguise the snapping going on here
+	
+	float cs = shadow2D(shadowMap, stc.xyz).x;
+	float shadow = cs;
+	
+    shadow += shadow2D(shadowMap, stc.xyz+vec3(2.0/shadow_res.x, 1.5/shadow_res.y, 0.0)).x;
+    shadow += shadow2D(shadowMap, stc.xyz+vec3(1.0/shadow_res.x, -1.5/shadow_res.y, 0.0)).x;
+    shadow += shadow2D(shadowMap, stc.xyz+vec3(-1.0/shadow_res.x, 1.5/shadow_res.y, 0.0)).x;
+    shadow += shadow2D(shadowMap, stc.xyz+vec3(-2.0/shadow_res.x, -1.5/shadow_res.y, 0.0)).x;
+                       
+    return shadow*0.2;
+}
+#endif
+
+
 void main() 
 {
 	vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
@@ -105,6 +140,73 @@ void main()
 	
 	vec4 pos = vec4(vary_position, 1.0);
 	
+
+#if HAS_SHADOW
+	float shadow = 0.0;
+	vec4 spos = pos;
+		
+	if (spos.z > -shadow_clip.w)
+	{	
+		vec4 lpos;
+		
+		vec4 near_split = shadow_clip*-0.75;
+		vec4 far_split = shadow_clip*-1.25;
+		vec4 transition_domain = near_split-far_split;
+		float weight = 0.0;
+
+		if (spos.z < near_split.z)
+		{
+			lpos = shadow_matrix[3]*spos;
+			
+			float w = 1.0;
+			w -= max(spos.z-far_split.z, 0.0)/transition_domain.z;
+			shadow += pcfShadow(shadowMap3, lpos)*w;
+			weight += w;
+			shadow += max((pos.z+shadow_clip.z)/(shadow_clip.z-shadow_clip.w)*2.0-1.0, 0.0);
+		}
+
+		if (spos.z < near_split.y && spos.z > far_split.z)
+		{
+			lpos = shadow_matrix[2]*spos;
+			
+			float w = 1.0;
+			w -= max(spos.z-far_split.y, 0.0)/transition_domain.y;
+			w -= max(near_split.z-spos.z, 0.0)/transition_domain.z;
+			shadow += pcfShadow(shadowMap2, lpos)*w;
+			weight += w;
+		}
+
+		if (spos.z < near_split.x && spos.z > far_split.y)
+		{
+			lpos = shadow_matrix[1]*spos;
+			
+			float w = 1.0;
+			w -= max(spos.z-far_split.x, 0.0)/transition_domain.x;
+			w -= max(near_split.y-spos.z, 0.0)/transition_domain.y;
+			shadow += pcfShadow(shadowMap1, lpos)*w;
+			weight += w;
+		}
+
+		if (spos.z > far_split.x)
+		{
+			lpos = shadow_matrix[0]*spos;
+							
+			float w = 1.0;
+			w -= max(near_split.x-spos.z, 0.0)/transition_domain.x;
+				
+			shadow += pcfShadow(shadowMap0, lpos)*w;
+			weight += w;
+		}
+		
+
+		shadow /= weight;
+	}
+	else
+	{
+		shadow = 1.0;
+	}
+#endif
+
 #ifdef USE_INDEXED_TEX
 	vec4 diff = diffuseLookup(vary_texcoord0.xy);
 #else
@@ -125,7 +227,12 @@ void main()
 	vec3 dlight = calcDirectionalLight(normal, l) * 2.6;
 	dlight = dlight * vary_directional.rgb * vary_pointlight_col;
 
+#if HAS_SHADOW
+	vec4 col = vec4(vary_ambient + dlight * shadow, vertex_color_alpha);
+#else
 	vec4 col = vec4(vary_ambient + dlight, vertex_color_alpha);
+#endif
+
 	vec4 color = diff * col;
 	
 	color.rgb = atmosLighting(color.rgb);
