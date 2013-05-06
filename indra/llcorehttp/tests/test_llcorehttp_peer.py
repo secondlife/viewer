@@ -35,6 +35,10 @@ import time
 import select
 import getopt
 from threading import Thread
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn
 
@@ -64,6 +68,7 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
     -- '/bug2295/00000018/0/'  Generates PARTIAL_FILE (18) error in libcurl.
                            "Content-Range: bytes 0-75/2983",
                            "Content-Length: 76"
+    -- '/bug2295/inv_cont_range/0/'  Generates HE_INVALID_CONTENT_RANGE error in llcorehttp.
 
     Some combinations make no sense, there's no effort to protect
     you from that.
@@ -150,6 +155,7 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
             # appear in the body without actually getting the body.
             # Library needs to defend against this case.
             #
+            body = None
             if "/bug2295/0/" in self.path:
                 self.send_response(206)
                 self.send_header("Content-Range", "bytes 0-75/2983")
@@ -164,6 +170,10 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_response(206)
                 self.send_header("Content-Range", "bytes 0-75/2983")
                 self.send_header("Content-Length", "76")
+            elif "/bug2295/inv_cont_range/0/" in self.path:
+                self.send_response(206)
+                self.send_header("Content-Range", "bytes 0-75/2983")
+                body = "Some text, but not enough."
             else:
                 # Unknown request
                 self.send_response(400)
@@ -171,7 +181,8 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
                 self.reflect_headers()
             self.send_header("Content-type", "text/plain")
             self.end_headers()
-            # No data
+            if body:
+                self.wfile.write(body)
         else:
             # Normal response path
             data = data.copy()          # we're going to modify

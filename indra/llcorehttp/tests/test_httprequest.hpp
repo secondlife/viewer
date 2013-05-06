@@ -2670,10 +2670,15 @@ void HttpRequestTestObjectType::test<22>()
 	mMemTotal = GetMemTotal();
 	mHandlerCalls = 0;
 
+	HttpOptions * options = NULL;
 	HttpRequest * req = NULL;
 
 	try
 	{
+		// options set
+		options = new HttpOptions();
+		options->setRetries(1);			// Partial_File is retryable and can timeout in here
+
 		// Get singletons created
 		HttpRequest::createService();
 		
@@ -2699,7 +2704,7 @@ void HttpRequestTestObjectType::test<22>()
 														 url_base + buffer,
 														 0,
 														 25,
-														 NULL,
+														 options,
 														 NULL,
 														 &handler);
 			ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
@@ -2707,18 +2712,19 @@ void HttpRequestTestObjectType::test<22>()
 		
 		// Run the notification pump.
 		int count(0);
-		int limit(10);
+		int limit(30);
 		while (count++ < limit && mHandlerCalls < test_count)
 		{
 			req->update(1000000);
 			usleep(100000);
 		}
-		ensure("Request executed in reasonable time", count < limit);
-		ensure("One handler invocation for each request", mHandlerCalls == test_count);
+		ensure("Request executed in reasonable time - ms1", count < limit);
+		ensure("One handler invocation for each request - ms1", mHandlerCalls == test_count);
 
 		// ======================================
 		// Issue bug2295 GETs that will get a libcurl 18 (PARTIAL_FILE)
 		// ======================================
+		mHandlerCalls = 0;
 		mStatus = HttpStatus(HttpStatus::EXT_CURL_EASY, CURLE_PARTIAL_FILE);
 		static const int test2_count(1);
 		for (int i(0); i < test2_count; ++i)
@@ -2730,7 +2736,7 @@ void HttpRequestTestObjectType::test<22>()
 														 url_base + buffer,
 														 0,
 														 25,
-														 NULL,
+														 options,
 														 NULL,
 														 &handler);
 			ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
@@ -2738,32 +2744,65 @@ void HttpRequestTestObjectType::test<22>()
 		
 		// Run the notification pump.
 		count = 0;
-		limit = 10;
-		while (count++ < limit && mHandlerCalls < (test_count + test2_count))
+		limit = 30;
+		while (count++ < limit && mHandlerCalls < test2_count)
 		{
 			req->update(1000000);
 			usleep(100000);
 		}
-		ensure("Request executed in reasonable time", count < limit);
-		ensure("One handler invocation for each request", mHandlerCalls == (test_count + test2_count));
+		ensure("Request executed in reasonable time - ms2", count < limit);
+		ensure("One handler invocation for each request - ms2", mHandlerCalls == test2_count);
+
+		// ======================================
+		// Issue bug2295 GETs that will get an llcorehttp HE_INV_CONTENT_RANGE_HDR status
+		// ======================================
+		mHandlerCalls = 0;
+		mStatus = HttpStatus(HttpStatus::LLCORE, HE_INV_CONTENT_RANGE_HDR);
+		static const int test3_count(1);
+		for (int i(0); i < test3_count; ++i)
+		{
+			char buffer[128];
+			sprintf(buffer, "/bug2295/inv_cont_range/%d/", i);
+			HttpHandle handle = req->requestGetByteRange(HttpRequest::DEFAULT_POLICY_ID,
+														 0U,
+														 url_base + buffer,
+														 0,
+														 25,
+														 options,
+														 NULL,
+														 &handler);
+			ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
+		}
+		
+		// Run the notification pump.
+		count = 0;
+		limit = 30;
+		while (count++ < limit && mHandlerCalls < test3_count)
+		{
+			req->update(1000000);
+			usleep(100000);
+		}
+		ensure("Request executed in reasonable time - ms3", count < limit);
+		ensure("One handler invocation for each request - ms3", mHandlerCalls == test3_count);
 
 		// ======================================
 		// Okay, request a shutdown of the servicing thread
 		// ======================================
 		mStatus = HttpStatus();
+		mHandlerCalls = 0;
 		HttpHandle handle = req->requestStopThread(&handler);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
 		count = 0;
-		limit = 10;
-		while (count++ < limit && mHandlerCalls < (test_count + test2_count + 1))
+		limit = 20;
+		while (count++ < limit && mHandlerCalls < 1)
 		{
 			req->update(1000000);
 			usleep(100000);
 		}
-		ensure("Second request executed in reasonable time", count < limit);
-		ensure("Second handler invocation", mHandlerCalls == (test_count + test2_count + 1));
+		ensure("Shutdown request executed in reasonable time", count < limit);
+		ensure("Shutdown handler invocation", mHandlerCalls == 1);
 
 		// See that we actually shutdown the thread
 		count = 0;
@@ -2773,7 +2812,14 @@ void HttpRequestTestObjectType::test<22>()
 			usleep(100000);
 		}
 		ensure("Thread actually stopped running", HttpService::isStopped());
-	
+
+		// release options
+		if (options)
+		{
+			options->release();
+			options = NULL;
+		}
+		
 		// release the request object
 		delete req;
 		req = NULL;
@@ -2781,8 +2827,6 @@ void HttpRequestTestObjectType::test<22>()
 		// Shut down service
 		HttpRequest::destroyService();
 	
-		ensure("4 + 1 handler calls on the way out", (test_count + test2_count + 1) == mHandlerCalls);
-
 #if defined(WIN32)
 		// Can only do this memory test on Windows.  On other platforms,
 		// the LL logging system holds on to memory and produces what looks
