@@ -186,12 +186,19 @@ bool LLMaterial::operator != (const LLMaterial& rhs) const
 }
 
 
-U32 LLMaterial::getShaderMask()
+U32 LLMaterial::getShaderMask(U32 alpha_mode)
 { //NEVER incorporate this value into the message system -- this function will vary depending on viewer implementation
 	U32 ret = 0;
 
 	//two least significant bits are "diffuse alpha mode"
-	ret = getDiffuseAlphaMode();
+	if (alpha_mode != DIFFUSE_ALPHA_MODE_DEFAULT)
+	{
+		ret = alpha_mode;
+	}
+	else
+	{
+		ret = getDiffuseAlphaMode();
+	}
 
 	llassert(ret < SHADER_COUNT);
 

@@ -119,8 +119,8 @@ public:
 	LL_ALIGN_16(LLFace* mFace); //associated face
 	F32 mDistance;
 	U32 mDrawMode;
-		
 	LLMaterialPtr mMaterial; // If this is null, the following parameters are unused.
+	U32 mShaderMask;
 	LLPointer<LLViewerTexture> mSpecularMap;
 	const LLMatrix4* mSpecularMapMatrix;
 	LLPointer<LLViewerTexture> mNormalMap;
