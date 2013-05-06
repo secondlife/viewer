@@ -1327,7 +1327,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				0.75f
 			};
 			
-			if ((!LLPipeline::sRenderDeferred || !mat) &&
+			if ((!LLPipeline::sRenderDeferred || !mat || mat->getSpecularID().isNull()) &&
 				getPoolType() != LLDrawPool::POOL_ALPHA && 
 				(LLPipeline::sRenderDeferred || (LLPipeline::sRenderBump && tep->getShiny())))
 			{
@@ -1335,6 +1335,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				color.mV[3] = U8 (alpha[tep->getShiny()] * 255);
 			}
 		}
+
 	}
 
 	// INDICES
