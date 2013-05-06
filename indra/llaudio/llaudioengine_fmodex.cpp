@@ -305,8 +305,11 @@ void LLAudioEngine_FMODEX::shutdown()
 	LLAudioEngine::shutdown();
 	
 	llinfos << "LLAudioEngine_FMODEX::shutdown() closing FMOD Ex" << llendl;
-	mSystem->close();
-	mSystem->release();
+	if ( mSystem ) // speculative fix for MAINT-2657
+	{
+		mSystem->close();
+		mSystem->release();
+	}
 	llinfos << "LLAudioEngine_FMODEX::shutdown() done closing FMOD Ex" << llendl;
 
 	delete mListenerp;
