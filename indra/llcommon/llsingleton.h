@@ -143,6 +143,8 @@ public:
 		case INITIALIZING:
 			// go ahead and flag ourselves as initialized so we can be reentrant during initialization
 			sData.mInitState = INITIALIZED;	
+			// initialize singleton after constructing it so that it can reference other singletons which in turn depend on it,
+			// thus breaking cyclic dependencies
 			sData.mInstance->initSingleton(); 
 			return sData.mInstance;
 		case INITIALIZED:
@@ -150,6 +152,7 @@ public:
 		case DELETED:
 			llwarns << "Trying to access deleted singleton " << typeid(DERIVED_TYPE).name() << " creating new instance" << llendl;
 			SingletonLifetimeManager::construct();
+			// same as first time construction
 			sData.mInitState = INITIALIZED;	
 			sData.mInstance->initSingleton(); 
 			return sData.mInstance;
@@ -190,6 +193,8 @@ private:
 
 	struct SingletonData
 	{
+		// explicitly has a default constructor so that member variables are zero initialized in BSS
+		// and only changed by singleton logic, not constructor running during startup
 		EInitState		mInitState;
 		DERIVED_TYPE*	mInstance;
 	};
