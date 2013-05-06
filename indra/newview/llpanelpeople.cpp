@@ -1664,10 +1664,10 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 		}
 
 		//Add to folder view
-		LLPersonTabModel * session_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->mPersonFolderModelMap[mPersonFolderView->mPersonTabIDs[model_index]]);
-		if(session_model)
+		LLPersonTabModel * person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(model_index));
+		if(person_tab_model)
 		{
-			addParticipantToModel(session_model, agent_id, name);
+			addParticipantToModel(person_tab_model, agent_id, name);
 		}
 	}
 }
@@ -1676,7 +1676,7 @@ void LLPanelPeople::addTestParticipant()
 {
     std::string suffix("Aa");
     std::string prefix("Test Name");
-	LLPersonTabModel * person_folder_model;
+	LLPersonTabModel * person_tab_model;
 	LLUUID agentID;
 	std::string name;
 	S32 model_index;
@@ -1696,9 +1696,9 @@ void LLPanelPeople::addTestParticipant()
 			agentID = LLUUID(NULL);
 		}
 
-		person_folder_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->mPersonFolderModelMap[mPersonFolderView->mPersonTabIDs[model_index]]);
+		person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(model_index));
         name = prefix + " " + suffix;
-		addParticipantToModel(person_folder_model, agentID, name);
+		addParticipantToModel(person_tab_model, agentID, name);
         // Next suffix : Aa, Ab, Ac ... Az, Ba, Bb, Bc ... Bz, Ca, Cb ...
         suffix[1]+=1;
         if (suffix[1]=='{')

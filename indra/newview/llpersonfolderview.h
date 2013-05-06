@@ -50,18 +50,19 @@ public:
 	LLPersonFolderView(const Params &p);
 	~LLPersonFolderView();
 
+	BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	
 	void createPersonTabs();
 	void createPersonTab(const std::string& tab_name);
-
 	bool onConversationModelEvent(const LLSD &event);
 	LLPersonView * createConversationViewParticipant(LLPersonModel * item);
 
-	BOOL handleMouseDown( S32 x, S32 y, MASK mask );
+	LLPersonTabModel * getPersonTabModelByIndex(const S32 index);
+	LLPersonTabView * getPersonTabViewByIndex(const S32 index);
 
 	person_folder_model_map mPersonFolderModelMap;
 	person_folder_view_map mPersonFolderViewMap;
-	std::vector<LLUUID> mPersonTabIDs;
+	std::vector<LLUUID> mIndexToFolderVec;
 	LLEventStream mConversationsEventStream;
 };
 
