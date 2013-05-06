@@ -481,7 +481,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 
 				if (!params.mFullbright && deferred_render && mat)
 				{
-					U32 mask = mat->getShaderMask();
+					U32 mask = params.mShaderMask;
 
 					llassert(mask < LLMaterial::SHADER_COUNT);
 					target_shader = &(gDeferredMaterialProgram[mask]);
