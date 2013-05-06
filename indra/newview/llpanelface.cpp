@@ -1297,6 +1297,7 @@ void LLPanelFace::getState()
 			mColorSwatch->setEnabled( editable );
 			mColorSwatch->setCanApplyImmediately( editable );
 		}
+
 		// Color transparency
 		{
 			getChildView("color trans")->setEnabled(editable);
@@ -1363,14 +1364,10 @@ void LLPanelFace::getState()
 			getChild<LLUICtrl>("shinycolorswatch")->setTentative(!identical);
 			getChildView("label shinycolor")->setEnabled(editable);
 		}
-		// NORSPEC-94: Set default specular color to white (will get
-		//		overwritten from material when loaded)
+
 		LLColorSwatchCtrl*	mShinyColorSwatch = getChild<LLColorSwatchCtrl>("shinycolorswatch");
-		color = LLColor4::white;
 		if(mShinyColorSwatch)
 		{
-			mShinyColorSwatch->setOriginal(color);
-			mShinyColorSwatch->set(color, TRUE);
 			mShinyColorSwatch->setValid(editable);
 			mShinyColorSwatch->setEnabled( editable );
 			mShinyColorSwatch->setCanApplyImmediately( editable );
@@ -1716,12 +1713,19 @@ void LLPanelFace::onMaterialLoaded(const LLMaterialID& material_id, const LLMate
 		getChild<LLUICtrl>("shinyRot")->setValue(rot*RAD_TO_DEG);
 		getChild<LLUICtrl>("shinyOffsetU")->setValue(offset_x);
 		getChild<LLUICtrl>("shinyOffsetV")->setValue(offset_y);
-		getChild<LLColorSwatchCtrl>("shinycolorswatch")->setOriginal(material->getSpecularLightColor());
-		getChild<LLColorSwatchCtrl>("shinycolorswatch")->set(material->getSpecularLightColor(),TRUE);
 		getChild<LLUICtrl>("glossiness")->setValue(material->getSpecularLightExponent());
 		getChild<LLUICtrl>("environment")->setValue(material->getEnvironmentIntensity());
 	}
 	updateShinyControls(combobox_shininess,this, true);
+
+	// Assert desired colorswatch color to match material AFTER updateShinyControls
+	// to avoid getting overwritten with the default on some UI state changes.
+	//
+	if (!material->getSpecularID().isNull())
+	{
+		getChild<LLColorSwatchCtrl>("shinycolorswatch")->setOriginal(material->getSpecularLightColor());
+		getChild<LLColorSwatchCtrl>("shinycolorswatch")->set(material->getSpecularLightColor(),TRUE);
+	}
 
 	// Bumpy (normal)
 	texture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
@@ -2097,6 +2101,18 @@ void LLPanelFace::updateShinyControls(LLUICtrl* ctrl, void* userdata, bool mess_
 			if (!comboShiny->itemExists(USE_TEXTURE))
 			{
 				comboShiny->add(USE_TEXTURE);
+				
+				// NORSPEC-94: Set default specular color to white
+				//
+				LLColorSwatchCtrl*	mShinyColorSwatch = self->getChild<LLColorSwatchCtrl>("shinycolorswatch");
+				if(mShinyColorSwatch)
+				{
+					// Doing sets in a getState func causes the 'blinking updates' of swatch colors....DON'T.
+					//
+					LL_DEBUGS("Materials") << "Resetting specular color to default of white" << LL_ENDL;
+					mShinyColorSwatch->setOriginal(LLColor4::white);
+					mShinyColorSwatch->set(LLColor4::white, TRUE);
+				}
 			}
 			comboShiny->setSimple(USE_TEXTURE);
 		}
