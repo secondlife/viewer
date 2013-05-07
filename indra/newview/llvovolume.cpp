@@ -4088,6 +4088,21 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	bool batchable = false;
 
+	U32 shader_mask = 0xFFFFFFFF; //no shader
+
+	if (mat)
+	{
+		if (type == LLRenderPass::PASS_ALPHA)
+		{
+			shader_mask = mat->getShaderMask(LLMaterial::DIFFUSE_ALPHA_MODE_BLEND);
+		}
+		else
+		{
+			shader_mask = mat->getShaderMask();
+		}
+	}
+
+
 	if (index < 255 && idx >= 0)
 	{
 		if (mat || draw_vec[idx]->mMaterial)
@@ -4124,7 +4139,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec[idx]->mBump == bump &&
 		draw_vec[idx]->mTextureMatrix == tex_mat &&
 		draw_vec[idx]->mModelMatrix == model_mat &&
-		draw_vec[idx]->mMaterial == mat)
+		draw_vec[idx]->mMaterial == mat &&
+		draw_vec[idx]->mShaderMask == shader_mask)
 	{
 		draw_vec[idx]->mCount += facep->getIndicesCount();
 		draw_vec[idx]->mEnd += facep->getGeomCount();
@@ -4152,37 +4168,46 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec.push_back(draw_info);
 		draw_info->mTextureMatrix = tex_mat;
 		draw_info->mModelMatrix = model_mat;
+		
+		U8 shiny = facep->getTextureEntry()->getShiny();
+		float alpha[4] =
+		{
+			0.00f,
+			0.25f,
+			0.5f,
+			0.75f
+		};
+		float spec = alpha[shiny & TEM_SHINY_MASK];
+		LLVector4 specColor(spec, spec, spec, spec);
+		draw_info->mSpecColor = specColor;
+		draw_info->mEnvIntensity = spec;
+		draw_info->mSpecularMap = NULL;
+
 		if (mat)
 		{
 				// We have a material.  Update our draw info accordingly.
 				draw_info->mMaterial = mat;
-				LLVector4 specColor;
-				specColor.mV[0] = mat->getSpecularLightColor().mV[0] * (1.f / 255.f);
-				specColor.mV[1] = mat->getSpecularLightColor().mV[1] * (1.f / 255.f);
-				specColor.mV[2] = mat->getSpecularLightColor().mV[2] * (1.f / 255.f);
-				specColor.mV[3] = mat->getSpecularLightExponent() * (1.f / 255.f);
-				draw_info->mSpecColor = specColor;
-				draw_info->mEnvIntensity = mat->getEnvironmentIntensity() * (1.f / 255.f);
+				draw_info->mShaderMask = shader_mask;
+
+				if (!mat->getSpecularID().isNull())
+				{
+					LLVector4 specColor;
+					specColor.mV[0] = mat->getSpecularLightColor().mV[0] * (1.f / 255.f);
+					specColor.mV[1] = mat->getSpecularLightColor().mV[1] * (1.f / 255.f);
+					specColor.mV[2] = mat->getSpecularLightColor().mV[2] * (1.f / 255.f);
+					specColor.mV[3] = mat->getSpecularLightExponent() * (1.f / 255.f);
+					draw_info->mSpecColor = specColor;
+					draw_info->mEnvIntensity = mat->getEnvironmentIntensity() * (1.f / 255.f);
+					draw_info->mSpecularMap = facep->getViewerObject()->getTESpecularMap(facep->getTEOffset());
+				}
+
 				draw_info->mAlphaMaskCutoff = mat->getAlphaMaskCutoff() * (1.f / 255.f);
 				draw_info->mDiffuseAlphaMode = mat->getDiffuseAlphaMode();
 				draw_info->mNormalMap = facep->getViewerObject()->getTENormalMap(facep->getTEOffset());
-				draw_info->mSpecularMap = facep->getViewerObject()->getTESpecularMap(facep->getTEOffset());
+				
 		}
 		else 
 		{
-			U8 shiny = facep->getTextureEntry()->getShiny();
-			float alpha[4] =
-			{
-				0.00f,
-				0.25f,
-				0.5f,
-				0.75f
-			};
-			float spec = alpha[shiny];
-			LLVector4 specColor(spec, spec, spec, spec);
-			draw_info->mSpecColor = specColor;
-			draw_info->mEnvIntensity = spec;
-
 			if (type == LLRenderPass::PASS_GRASS)
 			{
 				draw_info->mAlphaMaskCutoff = 0.5f;
@@ -5278,6 +5303,10 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				else if (no_materials)
 				{
 					registerFace(group, facep, LLRenderPass::PASS_SIMPLE);
+				}
+				else if (te->getColor().mV[3] < 0.999f)
+				{
+					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
 				}
 				else
 				{

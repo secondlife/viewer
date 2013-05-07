@@ -1018,7 +1018,8 @@ void LLPipeline::updateRenderDeferred()
 {
 	BOOL deferred = ((RenderDeferred && 
 					 LLRenderTarget::sUseFBO &&
-					 LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&	 
+					 LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
+					 LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") &&
 					 VertexShaderEnable && 
 					 RenderAvatarVP &&
 					 WindLightUseAtmosShaders) ? TRUE : FALSE) &&
@@ -1659,7 +1660,8 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 		return 0;
 	}
 		
-	bool alpha = te->getColor().mV[3] < 0.999f;
+	bool color_alpha = te->getColor().mV[3] < 0.999f;
+	bool alpha = color_alpha;
 	if (imagep)
 	{
 		alpha = alpha || (imagep->getComponents() == 4 && imagep->getType() != LLViewerTexture::MEDIA_TEXTURE) || (imagep->getComponents() == 2);
@@ -1674,10 +1676,10 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 				break;
 			case 0: //alpha mode set to none, never go to alpha pool
 			case 3: //alpha mode set to emissive, never go to alpha pool
-				alpha = false;
+				alpha = color_alpha;
 				break;
 			default: //alpha mode set to "mask", go to alpha pool if fullbright
-				alpha = false; // Material's alpha mode is set to none, mask, or emissive.  Toss it into the opaque material draw pool.
+				alpha = color_alpha; // Material's alpha mode is set to none, mask, or emissive.  Toss it into the opaque material draw pool.
 				break;
 		}
 	}
