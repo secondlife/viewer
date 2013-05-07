@@ -753,11 +753,19 @@ void LLMeshRepoThread::run()
 
 	while (!LLApp::isQuitting())
 	{
-		mWaiting = true;
-		mSignal->wait();
-		mWaiting = false;
-
-		if (! LLApp::isQuitting() && ! mHttpRequestSet.empty())
+		if (! mHttpRequestSet.empty())
+		{
+			mHttpRequest->update(0L);
+			ms_sleep(100);
+		}
+		else
+		{
+			mWaiting = true;
+			mSignal->wait();
+			mWaiting = false;
+		}
+		
+		if (! LLApp::isQuitting())
 		{
 			static U32 count = 0;
 
@@ -846,7 +854,6 @@ void LLMeshRepoThread::run()
 			}
 
 			mCurlRequest->process();
-			mHttpRequest->update(0L);
 		}
 	}
 	
@@ -1007,10 +1014,35 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 
 			std::string http_url = constructUrl(mesh_id);
 			if (!http_url.empty())
-			{				
+			{
+#if 0
 				ret = mCurlRequest->getByteRange(http_url, headers, offset, size,
 												 new LLMeshSkinInfoResponder(mesh_id, offset, size));
-				if(ret)
+#else
+				LLMeshSkinInfoHandler * handler = new LLMeshSkinInfoHandler(mesh_id, offset, size);
+				// LL_WARNS("Mesh") << "MESH:  Issuing Skin Info Request" << LL_ENDL;
+				LLCore::HttpHandle handle = mHttpRequest->requestGetByteRange(mHttpPolicyClass,
+																			  0,				// *TODO:  Get better priority value
+																			  http_url,
+																			  offset,
+																			  size,
+																			  mHttpOptions,
+																			  mHttpHeaders,
+																			  handler);
+				if (LLCORE_HTTP_HANDLE_INVALID == handle)
+				{
+					// *TODO:  Better error message
+					llwarns << "HTTP GET request failed for mesh " << mID << llendl;
+					delete handler;
+					ret = false;
+				}
+				else
+				{
+					handler->mHttpHandle = handle;
+					mHttpRequestSet.insert(handler);
+				}
+#endif
+				if (ret)
 				{
 					LLMeshRepository::sHTTPRequestCount++;
 				}
@@ -1089,10 +1121,35 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 
 			std::string http_url = constructUrl(mesh_id);
 			if (!http_url.empty())
-			{				
+			{
+#if 0
 				ret = mCurlRequest->getByteRange(http_url, headers, offset, size,
 												 new LLMeshDecompositionResponder(mesh_id, offset, size));
-				if(ret)
+#else
+				LLMeshDecompositionHandler * handler = new LLMeshDecompositionHandler(mesh_id, offset, size);
+				// LL_WARNS("Mesh") << "MESH:  Issuing Decomp Request" << LL_ENDL;
+				LLCore::HttpHandle handle = mHttpRequest->requestGetByteRange(mHttpPolicyClass,
+																			  0,	// *TODO:  Get better priority value
+																			  http_url,
+																			  offset,
+																			  size,
+																			  mHttpOptions,
+																			  mHttpHeaders,
+																			  handler);
+				if (LLCORE_HTTP_HANDLE_INVALID == handle)
+				{
+					// *TODO:  Better error message
+					llwarns << "HTTP GET request failed for decomposition mesh " << mID << llendl;
+					delete handler;
+					ret = false;
+				}
+				else
+				{
+					handler->mHttpHandle = handle;
+					mHttpRequestSet.insert(handler);
+				}
+#endif
+				if (ret)
 				{
 					LLMeshRepository::sHTTPRequestCount++;
 				}
@@ -1170,11 +1227,35 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 
 			std::string http_url = constructUrl(mesh_id);
 			if (!http_url.empty())
-			{				
+			{
+#if 0
 				ret = mCurlRequest->getByteRange(http_url, headers, offset, size,
 												 new LLMeshPhysicsShapeResponder(mesh_id, offset, size));
-
-				if(ret)
+#else
+				LLMeshPhysicsShapeHandler * handler = new LLMeshPhysicsShapeHandler(mesh_id, offset, size);
+				// LL_WARNS("Mesh") << "MESH:  Issuing Physics Shape Request" << LL_ENDL;
+				LLCore::HttpHandle handle = mHttpRequest->requestGetByteRange(mHttpPolicyClass,
+																			  0,		// *TODO:  Get better priority value
+																			  http_url,
+																			  offset,
+																			  size,
+																			  mHttpOptions,
+																			  mHttpHeaders,
+																			  handler);
+				if (LLCORE_HTTP_HANDLE_INVALID == handle)
+				{
+					// *TODO:  Better error message
+					llwarns << "HTTP GET request failed for physics shape mesh " << mID << llendl;
+					delete handler;
+					ret = false;
+				}
+				else
+				{
+					handler->mHttpHandle = handle;
+					mHttpRequestSet.insert(handler);
+				}
+#endif
+				if (ret)
 				{
 					LLMeshRepository::sHTTPRequestCount++;
 				}
@@ -1261,6 +1342,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, U32& c
 		retval = mCurlRequest->getByteRange(http_url, headers, 0, MESH_HEADER_SIZE, new LLMeshHeaderResponder(mesh_params));
 #else
 		LLMeshHeaderHandler * handler = new LLMeshHeaderHandler(mesh_params);
+		// LL_WARNS("Mesh") << "MESH:  Issuing Request" << LL_ENDL;
 		LLCore::HttpHandle handle = mHttpRequest->requestGetByteRange(mHttpPolicyClass,
 																	  0,				// *TODO:  Get better priority value
 																	  http_url,
@@ -1352,10 +1434,34 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 
 			std::string http_url = constructUrl(mesh_id);
 			if (!http_url.empty())
-			{				
+			{
+#if 0
 				retval = mCurlRequest->getByteRange(constructUrl(mesh_id), headers, offset, size,
 										   new LLMeshLODResponder(mesh_params, lod, offset, size));
-
+#else
+				LLMeshLODHandler * handler = new LLMeshLODHandler(mesh_params, lod, offset, size);
+				// LL_WARNS("Mesh") << "MESH:  Issuing LOD Request" << LL_ENDL;
+				LLCore::HttpHandle handle = mHttpRequest->requestGetByteRange(mHttpPolicyClass,
+																			  0,		// *TODO:  Get better priority value
+																			  http_url,
+																			  offset,
+																			  size,
+																			  mHttpOptions,
+																			  mHttpHeaders,
+																			  handler);
+				if (LLCORE_HTTP_HANDLE_INVALID == handle)
+				{
+					// *TODO:  Better error message
+					llwarns << "HTTP GET request failed for LOD mesh " << mID << llendl;
+					delete handler;
+					retval = false;
+				}
+				else
+				{
+					handler->mHttpHandle = handle;
+					mHttpRequestSet.insert(handler);
+				}
+#endif
 				if(retval)
 				{
 					LLMeshRepository::sHTTPRequestCount++;
@@ -2445,6 +2551,7 @@ LLMeshHeaderHandler::~LLMeshHeaderHandler()
 
 void LLMeshHeaderHandler::processFailure(LLCore::HttpStatus status)
 {
+	LL_WARNS("Mesh") << "MESH:  Processing Failure" << LL_ENDL;
 	if (is_retryable(status))
 	{
 		llwarns << "Timeout or service unavailable, retrying." << llendl;
@@ -2463,6 +2570,7 @@ void LLMeshHeaderHandler::processFailure(LLCore::HttpStatus status)
 
 void LLMeshHeaderHandler::processData(LLCore::BufferArray * body, U8 * data, S32 data_size)
 {
+	// LL_WARNS("Mesh") << "MESH:  Processing Data" << LL_ENDL;
 	bool success = gMeshRepo.mThread->headerReceived(mMeshParams, data, data_size);
 	llassert(success);
 	if (! success)
@@ -4379,103 +4487,6 @@ bool is_retryable(LLCore::HttpStatus status)
 //
 //
 #if 0
-	  mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
-	mHttpRequest = new LLCore::HttpRequest;
-	mHttpOptions = new LLCore::HttpOptions;
-	mHttpHeaders = new LLCore::HttpHeaders;
-	mHttpHeaders->mHeaders.push_back("Accept: image/x-j2c");
-	mHttpMetricsHeaders = new LLCore::HttpHeaders;
-	mHttpMetricsHeaders->mHeaders.push_back("Content-Type: application/llsd+xml");
-	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicyDefault();
-
-
-	LLCore::HttpHandle		mHttpHandle;				// Handle of any active request
-	LLCore::BufferArray	*	mHttpBufferArray;			// Refcounted pointer to response data 
-	int						mHttpPolicyClass;
-	bool					mHttpActive;				// Active request to http library
-	unsigned int			mHttpReplySize;				// Actual received data size
-	unsigned int			mHttpReplyOffset;			// Actual received data offset
-	bool					mHttpHasResource;			// Counts against Fetcher's mHttpSemaphore
-
-									 
-		mHttpHandle = LLCORE_HTTP_HANDLE_INVALID;
-		if (!mUrl.empty())
-		{
-			mRequestedTimer.reset();
-			mLoaded = FALSE;
-			mGetStatus = LLCore::HttpStatus();
-			mGetReason.clear();
-			LL_DEBUGS("Texture") << "HTTP GET: " << mID << " Offset: " << mRequestedOffset
-								 << " Bytes: " << mRequestedSize
-								 << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth() << "/" << mFetcher->mMaxBandwidth
-								 << LL_ENDL;
-
-			// Will call callbackHttpGet when curl request completes
-			mHttpHandle = mFetcher->mHttpRequest->requestGetByteRange(mHttpPolicyClass,
-																	  mWorkPriority,
-																	  mUrl,
-																	  mRequestedOffset,
-																	  mRequestedSize,
-																	  mFetcher->mHttpOptions,
-																	  mFetcher->mHttpHeaders,
-																	  this);
-		}
-		if (LLCORE_HTTP_HANDLE_INVALID == mHttpHandle)
-		{
-			llwarns << "HTTP GET request failed for " << mID << llendl;
-			resetFormattedData();
-			releaseHttpSemaphore();
-			return true; // failed
-		}
-
-		mHttpActive = true;
-		mFetcher->addToHTTPQueue(mID);
-		recordTextureStart(true);
-		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
-		mState = WAIT_HTTP_REQ;	
-		
-		// fall through
-	}
-
-
-
-// Threads:  Ttf
-// virtual
-void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
-{
-	static LLCachedControl<bool> log_to_viewer_log(gSavedSettings, "LogTextureDownloadsToViewerLog");
-	static LLCachedControl<bool> log_to_sim(gSavedSettings, "LogTextureDownloadsToSimulator");
-	static LLCachedControl<bool> log_texture_traffic(gSavedSettings, "LogTextureNetworkTraffic") ;
-
-	LLMutexLock lock(&mWorkMutex);										// +Mw
-
-	mHttpActive = false;
-	
-	if (log_to_viewer_log || log_to_sim)
-	{
-		U64 timeNow = LLTimer::getTotalTime();
-		mFetcher->mTextureInfo.setRequestStartTime(mID, mMetricsStartTime);
-		mFetcher->mTextureInfo.setRequestType(mID, LLTextureInfoDetails::REQUEST_TYPE_HTTP);
-		mFetcher->mTextureInfo.setRequestSize(mID, mRequestedSize);
-		mFetcher->mTextureInfo.setRequestOffset(mID, mRequestedOffset);
-		mFetcher->mTextureInfo.setRequestCompleteTimeAndLog(mID, timeNow);
-	}
-
-	bool success = true;
-	bool partial = false;
-	LLCore::HttpStatus status(response->getStatus());
-	
-	lldebugs << "HTTP COMPLETE: " << mID
-			 << " status: " << status.toHex()
-			 << " '" << status.toString() << "'"
-			 << llendl;
-//	unsigned int offset(0), length(0), full_length(0);
-//	response->getRange(&offset, &length, &full_length);
-// 	llwarns << "HTTP COMPLETE: " << mID << " handle: " << handle
-// 			<< " status: " << status.toULong() << " '" << status.toString() << "'"
-// 			<< " req offset: " << mRequestedOffset << " req length: " << mRequestedSize
-// 			<< " offset: " << offset << " length: " << length
-// 			<< llendl;
 
 	if (! status)
 	{
@@ -4499,19 +4510,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 	
 	S32 data_size = callbackHttpGet(response, partial, success);
 			
-	if (log_texture_traffic && data_size > 0)
-	{
-		LLViewerTexture* tex = LLViewerTextureManager::findTexture(mID);
-		if (tex)
-		{
-			gTotalTextureBytesPerBoostLevel[tex->getBoostLevel()] += data_size ;
-		}
-	}
 
-	mFetcher->removeFromHTTPQueue(mID, data_size);
-	
-	recordTextureDone(true);
-}																		// -Mw
 
 
 // Threads:  Ttf
