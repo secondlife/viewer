@@ -176,6 +176,7 @@ void LLInventoryModelBackgroundFetch::setAllFoldersFetched()
 		//gInventory.validate();
 	}
 	mFolderFetchActive = false;
+	mBackgroundFetchActive = false;
 }
 
 void LLInventoryModelBackgroundFetch::backgroundFetchCB(void *)
