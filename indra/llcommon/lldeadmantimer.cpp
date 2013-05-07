@@ -42,14 +42,19 @@
 //   false    true   Timer finished, result can be read once
 //    true    true   Not allowed
 //
-LLDeadmanTimer::LLDeadmanTimer(F64 horizon)
+LLDeadmanTimer::LLDeadmanTimer(F64 horizon, bool inc_cpu)
 	: mHorizon(time_type(llmax(horizon, F64(0.0)) * gClockFrequency)),
 	  mActive(false),			// If true, a timer is running.
 	  mDone(false),				// If true, timer has completed and can be read (once)
 	  mStarted(U64L(0)),
 	  mExpires(U64L(0)),
 	  mStopped(U64L(0)),
-	  mCount(U64L(0))
+	  mCount(U64L(0)),
+	  mIncCPU(inc_cpu),
+	  mUStartCPU(LLProcInfo::time_type(U64L(0))),
+	  mUEndCPU(LLProcInfo::time_type(U64L(0))),
+	  mSStartCPU(LLProcInfo::time_type(U64L(0))),
+	  mSEndCPU(LLProcInfo::time_type(U64L(0)))
 {}
 
 
@@ -76,6 +81,10 @@ void LLDeadmanTimer::start(time_type now)
 	mExpires = now + mHorizon;
 	mStopped = now;
 	mCount = U64L(0);
+	if (mIncCPU)
+	{
+		LLProcInfo::getCPUUsage(mUStartCPU, mSStartCPU);
+	}
 }
 
 
@@ -93,9 +102,26 @@ void LLDeadmanTimer::stop(time_type now)
 	mStopped = now;
 	mActive = false;
 	mDone = true;
+	if (mIncCPU)
+	{
+		LLProcInfo::getCPUUsage(mUEndCPU, mSEndCPU);
+	}
 }
 
 
+bool LLDeadmanTimer::isExpired(time_type now, F64 & started, F64 & stopped, U64 & count,
+							   U64 & user_cpu, U64 & sys_cpu)
+{
+	const bool status(isExpired(now, started, stopped, count));
+	if (status)
+	{
+		user_cpu = U64(mUEndCPU - mUStartCPU);
+		sys_cpu = U64(mSEndCPU - mSStartCPU);
+	}
+	return status;
+}
+
+		
 bool LLDeadmanTimer::isExpired(time_type now, F64 & started, F64 & stopped, U64 & count)
 {
 	if (mActive && ! mDone)
@@ -141,14 +167,20 @@ void LLDeadmanTimer::ringBell(time_type now, unsigned int count)
 
 	if (now >= mExpires)
 	{
+		// Timer has expired, this event will be dropped
 		mActive = false;
 		mDone = true;
 	}
 	else
 	{
+		// Timer renewed, keep going
 		mStopped = now;
 		mExpires = now + mHorizon;
 		mCount += count;
+		if (mIncCPU)
+		{
+			LLProcInfo::getCPUUsage(mUEndCPU, mSEndCPU);
+		}
 	}
 	
 	return;
