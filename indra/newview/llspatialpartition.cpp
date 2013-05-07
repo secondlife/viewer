@@ -4652,7 +4652,8 @@ LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
 	mDistance(0.f),
 	mDrawMode(LLRender::TRIANGLES),
 	mBlendFuncSrc(LLRender::BF_SOURCE_ALPHA),
-	mBlendFuncDst(LLRender::BF_ONE_MINUS_SOURCE_ALPHA)
+	mBlendFuncDst(LLRender::BF_ONE_MINUS_SOURCE_ALPHA),
+	mHasGlow(FALSE)
 {
 	mVertexBuffer->validateRange(mStart, mEnd, mCount, mOffset);
 	
