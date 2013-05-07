@@ -1537,7 +1537,7 @@ void LLPanelFace::getState()
 					{
 						enabled = (editable && ((shiny == SHINY_TEXTURE) && !specmap_id.isNull()));
 						identical = identical_spec_repeats;
-						repeats = repeats_spec * (identical_planar_texgen ? 2.0f : 1.0f);
+						repeats = repeats_spec;
 					}
 					break;
 
@@ -1545,12 +1545,12 @@ void LLPanelFace::getState()
 					{
 						enabled = (editable && ((bumpy == BUMPY_TEXTURE) && !normmap_id.isNull()));
 						identical = identical_norm_repeats;
-						repeats = repeats_norm * (identical_planar_texgen ? 2.0f : 1.0f);
+						repeats = repeats_norm;
 					}
 					break;
 				}
 
-				getChildView("rptctrl")->setEnabled(enabled);
+				getChildView("rptctrl")->setEnabled(identical_planar_texgen ? FALSE : enabled);
 				getChild<LLUICtrl>("rptctrl")->setValue(editable ? repeats : 1.0f);
 				getChild<LLUICtrl>("rptctrl")->setTentative(!identical);
 			}
@@ -1978,7 +1978,7 @@ void LLPanelFace::onCommitMaterialsMedia(LLUICtrl* ctrl, void* userdata)
 	bool show_bumpiness = (!show_media) && (material_type == MATTYPE_NORMAL) && combo_matmedia->getEnabled();
 	bool show_shininess = (!show_media) && (material_type == MATTYPE_SPECULAR) && combo_matmedia->getEnabled();
 	self->getChildView("combobox mattype")->setVisible(!show_media);
-	self->getChildView("rptctrl")->setVisible(show_texture);
+	self->getChildView("rptctrl")->setVisible(true);
 
 	// Media controls
 	self->getChildView("media_info")->setVisible(show_media);
