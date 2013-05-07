@@ -273,6 +273,10 @@ void LLVOPartGroup::getBlendFunc(S32 idx, U32& src, U32& dst)
 		src = part->mBlendFuncSource;
 		dst = part->mBlendFuncDest;
 	}
+	else
+	{
+		llerrs << "WTF?" << llendl;
+	}
 }
 
 LLVector3 LLVOPartGroup::getCameraPosition() const
@@ -670,7 +674,7 @@ void LLVOPartGroup::getGeometry(S32 idx,
 		}
 		else 
 		{
-			pglow = LLColor4U(0, 0, 0, (U8) (255.f*part.mStartGlow));
+			pglow = LLColor4U(0, 0, 0, (U8) llround(255.f*part.mStartGlow));
 			pcolor = part.mStartColor;
 		}
 	}
@@ -685,10 +689,13 @@ void LLVOPartGroup::getGeometry(S32 idx,
 	*colorsp++ = color;
 	*colorsp++ = color;
 
-	*emissivep++ = pglow;
-	*emissivep++ = pglow;
-	*emissivep++ = part.mGlow;
-	*emissivep++ = part.mGlow;
+	//if (pglow.mV[3] || part.mGlow.mV[3])
+	{ //only write glow if it is not zero
+		*emissivep++ = pglow;
+		*emissivep++ = pglow;
+		*emissivep++ = part.mGlow;
+		*emissivep++ = part.mGlow;
+	}
 
 
 	if (!(part.mFlags & LLPartData::LL_PART_EMISSIVE_MASK))
@@ -873,8 +880,17 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 		LLStrider<LLColor4U> cur_col = colorsp + geom_idx;
 		LLStrider<LLColor4U> cur_glow = emissivep + geom_idx;
 
+		LLColor4U* start_glow = cur_glow.get();
+
 		object->getGeometry(facep->getTEOffset(), cur_vert, cur_norm, cur_tc, cur_col, cur_glow, cur_idx);
 		
+		BOOL has_glow = FALSE;
+
+		if (cur_glow.get() != start_glow)
+		{
+			has_glow = TRUE;
+		}
+
 		llassert(facep->getGeomCount() == 4);
 		llassert(facep->getIndicesCount() == 6);
 
@@ -894,26 +910,32 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 
 		object->getBlendFunc(facep->getTEOffset(), bf_src, bf_dst);
 
-		if (idx >= 0 &&
-			draw_vec[idx]->mTexture == facep->getTexture() &&
-			draw_vec[idx]->mFullbright == fullbright &&
-			draw_vec[idx]->mBlendFuncDst == bf_dst &&
-			draw_vec[idx]->mBlendFuncSrc == bf_src)
+		
+		if (idx >= 0)
 		{
-			if (draw_vec[idx]->mEnd == facep->getGeomIndex()-1)
+			LLDrawInfo* info = draw_vec[idx];
+
+			if (info->mTexture == facep->getTexture() &&
+				info->mHasGlow == has_glow &&
+				info->mFullbright == fullbright &&
+				info->mBlendFuncDst == bf_dst &&
+				info->mBlendFuncSrc == bf_src)
 			{
-				batched = true;
-				draw_vec[idx]->mCount += facep->getIndicesCount();
-				draw_vec[idx]->mEnd += facep->getGeomCount();
-				draw_vec[idx]->mVSize = llmax(draw_vec[idx]->mVSize, vsize);
-			}
-			else if (draw_vec[idx]->mStart == facep->getGeomIndex()+facep->getGeomCount()+1)
-			{
-				batched = true;
-				draw_vec[idx]->mCount += facep->getIndicesCount();
-				draw_vec[idx]->mStart -= facep->getGeomCount();
-				draw_vec[idx]->mOffset = facep->getIndicesStart();
-				draw_vec[idx]->mVSize = llmax(draw_vec[idx]->mVSize, vsize);
+				if (draw_vec[idx]->mEnd == facep->getGeomIndex()-1)
+				{
+					batched = true;
+					info->mCount += facep->getIndicesCount();
+					info->mEnd += facep->getGeomCount();
+					info->mVSize = llmax(draw_vec[idx]->mVSize, vsize);
+				}
+				else if (draw_vec[idx]->mStart == facep->getGeomIndex()+facep->getGeomCount()+1)
+				{
+					batched = true;
+					info->mCount += facep->getIndicesCount();
+					info->mStart -= facep->getGeomCount();
+					info->mOffset = facep->getIndicesStart();
+					info->mVSize = llmax(draw_vec[idx]->mVSize, vsize);
+				}
 			}
 		}
 
@@ -932,6 +954,8 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 			info->mVSize = vsize;
 			info->mBlendFuncDst = bf_dst;
 			info->mBlendFuncSrc = bf_src;
+			info->mHasGlow = has_glow;
+			info->mParticle = TRUE;
 			draw_vec.push_back(info);
 			//for alpha sorting
 			facep->setDrawInfo(info);
