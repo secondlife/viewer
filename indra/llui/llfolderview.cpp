@@ -1653,11 +1653,6 @@ void LLFolderView::update()
 
   BOOL is_visible = isInVisibleChain();
     
-    if (getName() == "Persons")
-    {
-        llinfos << "Merov : update Persons, is_visible = " << is_visible << llendl;
-    }
-
   // Puts folders/items in proper positions
   // arrange() takes the model filter flag into account and call sort() if necessary (CHUI-849)
   // It also handles the open/close folder animation

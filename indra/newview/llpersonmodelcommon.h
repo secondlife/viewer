@@ -75,7 +75,7 @@ public:
 	virtual bool filter( LLFolderViewFilter& filter);
 
 	virtual bool descendantsPassedFilter(S32 filter_generation = -1) { return true; }
-//	virtual void setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0) { }
+	virtual void setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0);
 	virtual bool passedFilter(S32 filter_generation = -1) { return mPassedFilter; }
 
 	// The action callbacks
@@ -102,6 +102,7 @@ protected:
 
 	std::string mName;              // Name of the person
 	std::string mSearchableName;	// Name used in string matching for this person
+    bool mPrevPassedAllFilters;
 	LLUUID mID;
 };	
 
@@ -172,7 +173,7 @@ public:
 	void 				clearModified();
 	const std::string& 	getName() const { return mName; }
 	const std::string& 	getFilterText() { return mName; }
-	void 				setModified(EFilterModified behavior = FILTER_RESTART) { mFilterModified = behavior; }
+	void 				setModified(EFilterModified behavior = FILTER_RESTART) { mFilterModified = behavior; mCurrentGeneration++; }
     
 	// +-------------------------------------------------------------------+
 	// + Time
@@ -193,10 +194,10 @@ public:
 	// +-------------------------------------------------------------------+
 	// + Generation
 	// +-------------------------------------------------------------------+
-    // Note : unclear if we have to take tab on generation at that point
-	S32 				getCurrentGeneration() const { return 0; }
-	S32 				getFirstSuccessGeneration() const { return 0; }
-	S32 				getFirstRequiredGeneration() const { return 0; }
+    // Note : For the moment, we do not support restrictive filtering so all generation indexes are pointing to the current generation
+	S32 				getCurrentGeneration() const { return mCurrentGeneration; }
+	S32 				getFirstSuccessGeneration() const { return mCurrentGeneration; }
+	S32 				getFirstRequiredGeneration() const { return mCurrentGeneration; }
 
     // Non Virtual Methods (i.e. specific to this class)
 	void 				setFilterSubString(const std::string& string);
@@ -206,6 +207,7 @@ private:
 	std::string         mEmptyLookupMessage;
 	std::string			mFilterSubString;
 	EFilterModified 	mFilterModified;
+	S32					mCurrentGeneration;
 };
 
 class LLPersonViewSort

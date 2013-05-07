@@ -48,6 +48,7 @@ LLPersonModelCommon::LLPersonModelCommon(LLFolderViewModelInterface& root_view_m
     LLFolderViewModelItemCommon(root_view_model),
 	mName(""),
     mSearchableName(""),
+    mPrevPassedAllFilters(false),
 	mID(LLUUID().generateNewID())
 {
 }
@@ -103,11 +104,11 @@ bool LLPersonModelCommon::filter( LLFolderViewFilter& filter)
         llinfos << "Merov : LLPersonModelCommon::filter, exit, no modif" << llendl;
         return true;
     }
-*/        
+ */
     if (!mChildren.empty())
     {
         // If the current instance has children, it's a "person folder" and always passes filters (we do not filter out empty folders)
-        setPassedFilter(1, -1);
+        setPassedFilter(1, filter.getCurrentGeneration());
         // Call filter recursively on all children
         for (child_list_t::iterator iter = mChildren.begin(), end_iter = mChildren.end();
             iter != end_iter;
@@ -121,12 +122,30 @@ bool LLPersonModelCommon::filter( LLFolderViewFilter& filter)
     {
         // If there's no children, the current instance is a person and we check and set the passed filter flag on it
         const bool passed_filter = filter.check(this);
-        setPassedFilter(passed_filter, -1, filter.getStringMatchOffset(this), filter.getFilterStringSize());
+        setPassedFilter(passed_filter, filter.getCurrentGeneration(), filter.getStringMatchOffset(this), filter.getFilterStringSize());
     }
     
     filter.clearModified();
     return true;
 }
+
+void LLPersonModelCommon::setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset, std::string::size_type string_size)
+{
+	LLFolderViewModelItemCommon::setPassedFilter(passed, filter_generation, string_offset, string_size);
+	bool before = mPrevPassedAllFilters;
+	mPrevPassedAllFilters = passedFilter(filter_generation);
+    
+    if (before != mPrevPassedAllFilters)
+	{
+        // Need to rearrange the folder if the filtered state of the item changed
+		LLFolderViewFolder* parent_folder = mFolderViewItem->getParentFolder();
+		if (parent_folder)
+		{
+			parent_folder->requestArrange();
+		}
+	}
+}
+
 
 //
 // LLPersonTabModel
@@ -217,7 +236,8 @@ LLPersonViewFilter::LLPersonViewFilter() :
     mEmptyLookupMessage(""),
     mFilterSubString(""),
     mName(""),
-    mFilterModified(FILTER_NONE)
+    mFilterModified(FILTER_NONE),
+    mCurrentGeneration(0)
 {
 }
 

@@ -953,12 +953,6 @@ static LLFastTimer::DeclareTimer FTM_ARRANGE("Arrange");
 // * Makes sure that this view and its children are the right size
 S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 {
-    llinfos << "Merov : LLFolderViewFolder::arrange, folder = " << getName() << llendl;
-    if (getName() == "Facebook Friends Tab Two")
-    {
-        llinfos << "Merov : Arranging Facebook Friends Tab Two, needs arrange = " << needsArrange() << ", is open = " << isOpen() << llendl;
-    }
-    
 	// Sort before laying out contents
     // Note that we sort from the root (CHUI-849)
 	getRoot()->getFolderViewModel()->sort(this);
@@ -1115,11 +1109,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 
 BOOL LLFolderViewFolder::needsArrange()
 {
-    if (getName() != "")
-    {
-        llinfos << "Merov : needsArrange for " << getName() << ", last = " << mLastArrangeGeneration << ", current = " << getRoot()->getArrangeGeneration() << ", need = " << (mLastArrangeGeneration < getRoot()->getArrangeGeneration() ? "true" : "false") << llendl;
-    }
-	return mLastArrangeGeneration != getRoot()->getArrangeGeneration();
+	return mLastArrangeGeneration < getRoot()->getArrangeGeneration();
 }
 
 // Passes selection information on to children and record selection
@@ -1641,10 +1631,6 @@ void LLFolderViewFolder::requestArrange()
 
 void LLFolderViewFolder::toggleOpen()
 {
-    if (getName() == "Facebook Friends Tab Two")
-    {
-        llinfos << "Merov : toggleOpen, currently open is = " << isOpen() << llendl;
-    }
 	setOpen(!isOpen());
 }
 
