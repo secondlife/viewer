@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -97,8 +97,8 @@ namespace LLCore
 {
 
 // Maxium number of policy classes that can be defined.
-// *TODO:  Currently limited to the default class, extend.
-const int HTTP_POLICY_CLASS_LIMIT = 1;
+// *TODO:  Currently limited to the default class + 1, extend.
+const int HTTP_POLICY_CLASS_LIMIT = 2;
 
 // Debug/informational tracing.  Used both
 // as a global option and in per-request traces.

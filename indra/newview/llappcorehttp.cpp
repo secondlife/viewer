@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -38,7 +38,9 @@ LLAppCoreHttp::LLAppCoreHttp()
 	  mStopHandle(LLCORE_HTTP_HANDLE_INVALID),
 	  mStopRequested(0.0),
 	  mStopped(false),
-	  mPolicyDefault(-1)
+	  mPolicyDefault(-1),
+	  mPolicyTexture(-1),
+	  mPolicyMesh(-1)
 {}
 
 
@@ -95,6 +97,9 @@ void LLAppCoreHttp::init()
 	
 	// Setup default policy and constrain if directed to
 	mPolicyDefault = LLCore::HttpRequest::DEFAULT_POLICY_ID;
+
+	// Texture policy will use default for now.
+	mPolicyTexture = mPolicyDefault;
 	static const std::string texture_concur("TextureFetchConcurrency");
 	if (gSavedSettings.controlExists(texture_concur))
 	{
@@ -103,7 +108,7 @@ void LLAppCoreHttp::init()
 		if (concur > 0)
 		{
 			LLCore::HttpStatus status;
-			status = LLCore::HttpRequest::setPolicyClassOption(mPolicyDefault,
+			status = LLCore::HttpRequest::setPolicyClassOption(mPolicyTexture,
 															   LLCore::HttpRequest::CP_CONNECTION_LIMIT,
 															   concur);
 			if (! status)
@@ -117,6 +122,43 @@ void LLAppCoreHttp::init()
 				LL_INFOS("Init") << "Application settings overriding default texture fetch concurrency.  New value:  "
 								 << concur
 								 << LL_ENDL;
+			}
+		}
+	}
+
+	// Create the mesh class
+	mPolicyMesh = LLCore::HttpRequest::createPolicyClass();
+	if (! mPolicyMesh)
+	{
+		LL_WARNS("Init") << "Failed to create HTTP policy class for Mesh.  Using default policy."
+						 << LL_ENDL;
+		mPolicyMesh = mPolicyDefault;
+	}
+	else
+	{
+		static const std::string mesh_concur("MeshMaxConcurrentRequests");
+		if (gSavedSettings.controlExists(mesh_concur))
+		{
+			U32 setting(llmin(gSavedSettings.getU32(mesh_concur), U32(32)));
+			
+			if (setting > 0)
+			{
+				LLCore::HttpStatus status;
+				status = LLCore::HttpRequest::setPolicyClassOption(mPolicyMesh,
+																   LLCore::HttpRequest::CP_CONNECTION_LIMIT,
+																   setting);
+				if (! status)
+				{
+					LL_WARNS("Init") << "Unable to set mesh fetch concurrency.  Reason:  "
+									 << status.toString()
+								 << LL_ENDL;
+				}
+				else
+				{
+					LL_INFOS("Init") << "Application settings overriding default mesh fetch concurrency.  New value:  "
+									 << setting
+									 << LL_ENDL;
+				}
 			}
 		}
 	}

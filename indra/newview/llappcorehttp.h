@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -70,6 +70,18 @@ public:
 		{
 			return mPolicyDefault;
 		}
+
+	// Get the texture fetch policy class.
+	int getPolicyTexture() const
+		{
+			return mPolicyTexture;
+		}
+
+	// Get the mesh fetch policy class.
+	int getPolicyMesh() const
+		{
+			return mPolicyMesh;
+		}
 	
 private:
 	static const F64			MAX_THREAD_WAIT_TIME;
@@ -80,6 +92,8 @@ private:
 	F64							mStopRequested;
 	bool						mStopped;
 	int							mPolicyDefault;
+	int							mPolicyTexture;
+	int							mPolicyMesh;
 };
 
 

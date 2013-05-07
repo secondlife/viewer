@@ -66,6 +66,7 @@
 #include "llfoldertype.h"
 #include "llviewerparcelmgr.h"
 #include "lluploadfloaterobservers.h"
+#include "bufferarray.h"
 
 #include "boost/lexical_cast.hpp"
 
@@ -77,6 +78,7 @@
 
 LLMeshRepository gMeshRepo;
 
+const S32 MESH_HEADER_SIZE = 4096;
 const U32 MAX_MESH_REQUESTS_PER_SECOND = 100;
 
 // Maximum mesh version to support.  Three least significant digits are reserved for the minor version, 
@@ -124,6 +126,7 @@ static bool metrics_inited(false);
 static boost::signals2::connection metrics_teleport_connection;
 static unsigned int metrics_teleport_start_count(0);
 static void metrics_teleport_started();
+static bool is_retryable(LLCore::HttpStatus status);
 
 //get the number of bytes resident in memory for given volume
 U32 get_volume_memory_size(const LLVolume* volume)
@@ -209,6 +212,160 @@ S32 LLMeshRepoThread::sActiveHeaderRequests = 0;
 S32 LLMeshRepoThread::sActiveLODRequests = 0;
 U32	LLMeshRepoThread::sMaxConcurrentRequests = 1;
 
+class LLMeshHandlerBase : public LLCore::HttpHandler
+{
+public:
+	LLMeshHandlerBase()
+		: LLCore::HttpHandler(),
+		  mMeshParams(),
+		  mProcessed(false)
+	{}
+	virtual ~LLMeshHandlerBase();
+
+protected:
+	LLMeshHandlerBase(const LLMeshHandlerBase &);				// Not defined
+	void operator=(const LLMeshHandlerBase &);					// Not defined
+	
+public:
+	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+	virtual void processData(LLCore::BufferArray * body, U8 * data, S32 data_size) = 0;
+	virtual void processFailure(LLCore::HttpStatus status) = 0;
+	
+public:
+	LLVolumeParams		mMeshParams;
+	bool				mProcessed;
+	LLCore::HttpHandle	mHttpHandle;
+};
+
+
+class LLMeshHeaderHandler : public LLMeshHandlerBase
+{
+public:
+	LLMeshHeaderHandler(const LLVolumeParams & mesh_params)
+		: LLMeshHandlerBase()
+	{
+		mMeshParams = mesh_params;
+		LLMeshRepoThread::incActiveHeaderRequests();
+	}
+	virtual ~LLMeshHeaderHandler();
+
+protected:
+	LLMeshHeaderHandler(const LLMeshHeaderHandler &);			// Not defined
+	void operator=(const LLMeshHeaderHandler &);				// Not defined
+	
+public:
+	virtual void processData(LLCore::BufferArray * body, U8 * data, S32 data_size);
+	virtual void processFailure(LLCore::HttpStatus status);
+};
+
+
+class LLMeshLODHandler : public LLMeshHandlerBase
+{
+public:
+	LLMeshLODHandler(const LLVolumeParams & mesh_params, S32 lod, U32 offset, U32 requested_bytes)
+		: LLMeshHandlerBase(),
+		  mLOD(lod),
+		  mRequestedBytes(requested_bytes),
+		  mOffset(offset)
+	{
+		mMeshParams = mesh_params;
+		LLMeshRepoThread::incActiveLODRequests();
+	}
+	virtual ~LLMeshLODHandler();
+	
+protected:
+	LLMeshLODHandler(const LLMeshLODHandler &);					// Not defined
+	void operator=(const LLMeshLODHandler &);					// Not defined
+	
+public:
+	virtual void processData(LLCore::BufferArray * body, U8 * data, S32 data_size);
+	virtual void processFailure(LLCore::HttpStatus status);
+
+public:
+	S32 mLOD;
+	U32 mRequestedBytes;
+	U32 mOffset;
+};
+
+
+class LLMeshSkinInfoHandler : public LLMeshHandlerBase
+{
+public:
+	LLMeshSkinInfoHandler(const LLUUID& id, U32 offset, U32 size)
+		: LLMeshHandlerBase(),
+		  mMeshID(id),
+		  mRequestedBytes(size),
+		  mOffset(offset)
+	{}
+	virtual ~LLMeshSkinInfoHandler();
+
+protected:
+	LLMeshSkinInfoHandler(const LLMeshSkinInfoHandler &);		// Not defined
+	void operator=(const LLMeshSkinInfoHandler &);				// Not defined
+	
+public:
+	virtual void processData(LLCore::BufferArray * body, U8 * data, S32 data_size);
+	virtual void processFailure(LLCore::HttpStatus status);
+
+public:
+	LLUUID mMeshID;
+	U32 mRequestedBytes;
+	U32 mOffset;
+};
+
+
+class LLMeshDecompositionHandler : public LLMeshHandlerBase
+{
+public:
+	LLMeshDecompositionHandler(const LLUUID& id, U32 offset, U32 size)
+		: LLMeshHandlerBase(),
+		  mMeshID(id),
+		  mRequestedBytes(size),
+		  mOffset(offset)
+	{}
+	virtual ~LLMeshDecompositionHandler();
+
+protected:
+	LLMeshDecompositionHandler(const LLMeshDecompositionHandler &);		// Not defined
+	void operator=(const LLMeshDecompositionHandler &);					// Not defined
+	
+public:
+	virtual void processData(LLCore::BufferArray * body, U8 * data, S32 data_size);
+	virtual void processFailure(LLCore::HttpStatus status);
+
+public:
+	LLUUID mMeshID;
+	U32 mRequestedBytes;
+	U32 mOffset;
+};
+
+
+class LLMeshPhysicsShapeHandler : public LLMeshHandlerBase
+{
+public:
+	LLMeshPhysicsShapeHandler(const LLUUID& id, U32 offset, U32 size)
+		: LLMeshHandlerBase(),
+		  mMeshID(id),
+		  mRequestedBytes(size),
+		  mOffset(offset)
+	{}
+	virtual ~LLMeshPhysicsShapeHandler();
+
+protected:
+	LLMeshPhysicsShapeHandler(const LLMeshPhysicsShapeHandler &);	// Not defined
+	void operator=(const LLMeshPhysicsShapeHandler &);				// Not defined
+	
+public:
+	virtual void processData(LLCore::BufferArray * body, U8 * data, S32 data_size);
+	virtual void processFailure(LLCore::HttpStatus status);
+
+public:
+	LLUUID		mMeshID;
+	U32			mRequestedBytes;
+	U32			mOffset;
+};
+
+	
 class LLMeshHeaderResponder : public LLCurl::Responder
 {
 public:
@@ -538,16 +695,45 @@ public:
 };
 
 LLMeshRepoThread::LLMeshRepoThread()
-: LLThread("mesh repo") 
+: LLThread("mesh repo"),
+  mCurlRequest(NULL),
+  mWaiting(false),
+  mHttpRequest(NULL),
+  mHttpOptions(NULL),
+  mHttpHeaders(NULL),
+  mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID)
 { 
-	mWaiting = false;
 	mMutex = new LLMutex(NULL);
 	mHeaderMutex = new LLMutex(NULL);
 	mSignal = new LLCondition(NULL);
+	mHttpRequest = new LLCore::HttpRequest;
+	mHttpOptions = new LLCore::HttpOptions;
+	mHttpHeaders = new LLCore::HttpHeaders;
+	mHttpHeaders->mHeaders.push_back("Accept: application/vnd.ll.mesh");
+	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicyMesh();
 }
 
 LLMeshRepoThread::~LLMeshRepoThread()
 {
+	for (http_request_set::iterator iter(mHttpRequestSet.begin());
+		 iter != mHttpRequestSet.end();
+		 ++iter)
+	{
+		delete *iter;
+	}
+	mHttpRequestSet.clear();
+	if (mHttpHeaders)
+	{
+		mHttpHeaders->release();
+		mHttpHeaders = NULL;
+	}
+	if (mHttpOptions)
+	{
+		mHttpOptions->release();
+		mHttpOptions = NULL;
+	}
+	delete mHttpRequest;
+	mHttpRequest = NULL;
 	delete mMutex;
 	mMutex = NULL;
 	delete mHeaderMutex;
@@ -571,7 +757,7 @@ void LLMeshRepoThread::run()
 		mSignal->wait();
 		mWaiting = false;
 
-		if (!LLApp::isQuitting())
+		if (! LLApp::isQuitting() && ! mHttpRequestSet.empty())
 		{
 			static U32 count = 0;
 
@@ -660,6 +846,7 @@ void LLMeshRepoThread::run()
 			}
 
 			mCurlRequest->process();
+			mHttpRequest->update(0L);
 		}
 	}
 	
@@ -1045,13 +1232,15 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, U32& c
 		S32 size = file.getSize();
 
 		if (size > 0)
-		{ //NOTE -- if the header size is ever more than 4KB, this will break
-			U8 buffer[4096];
-			S32 bytes = llmin(size, 4096);
+		{
+			// *NOTE:  if the header size is ever more than 4KB, this will break
+			U8 buffer[MESH_HEADER_SIZE];
+			S32 bytes = llmin(size, MESH_HEADER_SIZE);
 			LLMeshRepository::sCacheBytesRead += bytes;	
 			file.read(buffer, bytes);
 			if (headerReceived(mesh_params, buffer, bytes))
-			{ //did not do an HTTP request, return false
+			{
+				// Found mesh in VFS cache
 				return true;
 			}
 		}
@@ -1068,7 +1257,31 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, U32& c
 		//grab first 4KB if we're going to bother with a fetch.  Cache will prevent future fetches if a full mesh fits
 		//within the first 4KB
 		//NOTE -- this will break of headers ever exceed 4KB		
-		retval = mCurlRequest->getByteRange(http_url, headers, 0, 4096, new LLMeshHeaderResponder(mesh_params));
+#if 0
+		retval = mCurlRequest->getByteRange(http_url, headers, 0, MESH_HEADER_SIZE, new LLMeshHeaderResponder(mesh_params));
+#else
+		LLMeshHeaderHandler * handler = new LLMeshHeaderHandler(mesh_params);
+		LLCore::HttpHandle handle = mHttpRequest->requestGetByteRange(mHttpPolicyClass,
+																	  0,				// *TODO:  Get better priority value
+																	  http_url,
+																	  0,
+																	  MESH_HEADER_SIZE,
+																	  mHttpOptions,
+																	  mHttpHeaders,
+																	  handler);
+		if (LLCORE_HTTP_HANDLE_INVALID == handle)
+		{
+			// *TODO:  Better error message
+			llwarns << "HTTP GET request failed for mesh " << mID << llendl;
+			delete handler;
+			retval = false;
+		}
+		else
+		{
+			handler->mHttpHandle = handle;
+			mHttpRequestSet.insert(handler);
+		}
+#endif		
 		if(retval)
 		{
 			LLMeshRepository::sHTTPRequestCount++;
@@ -1209,7 +1422,7 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 			LLMutexLock lock(mHeaderMutex);
 			mMeshHeaderSize[mesh_id] = header_size;
 			mMeshHeader[mesh_id] = header;
-			}
+		}
 
 
 		LLMutexLock lock(mMutex); // make sure only one thread access mPendingLOD at the same time.
@@ -2162,6 +2375,336 @@ void LLMeshPhysicsShapeResponder::completedRaw(U32 status, const std::string& re
 	delete [] data;
 }
 
+	
+LLMeshHandlerBase::~LLMeshHandlerBase()
+{}
+
+
+void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
+{
+	mProcessed = true;
+
+	LLCore::HttpStatus status(response->getStatus());
+	if (! status)
+	{
+		processFailure(status);
+	}
+	else
+	{
+		// From texture fetch code and applies here:
+		//
+		// A warning about partial (HTTP 206) data.  Some grid services
+		// do *not* return a 'Content-Range' header in the response to
+		// Range requests with a 206 status.  We're forced to assume
+		// we get what we asked for in these cases until we can fix
+		// the services.
+		static const LLCore::HttpStatus par_status(HTTP_PARTIAL_CONTENT);
+
+		LLCore::BufferArray * body(response->getBody());
+		S32 data_size(body ? body->size() : 0);
+		U8 * data(NULL);
+
+		if (data_size > 0)
+		{
+			// *TODO: Try to get rid of data copying and add interfaces
+			// that support BufferArray directly.
+			data = new U8[data_size];
+			body->read(0, (char *) data, data_size);
+			LLMeshRepository::sBytesReceived += llmin(data_size, MESH_HEADER_SIZE);
+		}
+
+		processData(body, data, data_size);
+
+		delete [] data;
+	}
+
+	// Release handler
+	gMeshRepo.mThread->mHttpRequestSet.erase(this);
+
+	delete this;		// Must be last statement
+}
+
+
+LLMeshHeaderHandler::~LLMeshHeaderHandler()
+{
+	if (!LLApp::isQuitting())
+	{
+		if (! mProcessed)
+		{
+			// something went wrong, retry
+			llwarns << "Timeout or service unavailable, retrying." << llendl;
+			LLMeshRepository::sHTTPRetryCount++;
+			LLMeshRepoThread::HeaderRequest req(mMeshParams);
+			LLMutexLock lock(gMeshRepo.mThread->mMutex);
+			gMeshRepo.mThread->mHeaderReqQ.push(req);
+		}
+		LLMeshRepoThread::decActiveHeaderRequests();
+	}
+}
+
+
+void LLMeshHeaderHandler::processFailure(LLCore::HttpStatus status)
+{
+	if (is_retryable(status))
+	{
+		llwarns << "Timeout or service unavailable, retrying." << llendl;
+		LLMeshRepository::sHTTPRetryCount++;
+		LLMeshRepoThread::HeaderRequest req(mMeshParams);
+		LLMutexLock lock(gMeshRepo.mThread->mMutex);
+		gMeshRepo.mThread->mHeaderReqQ.push(req);
+	}
+	else
+	{
+		// *TODO:  better error message
+		llwarns << "Unhandled status." << llendl;
+	}
+}
+
+
+void LLMeshHeaderHandler::processData(LLCore::BufferArray * body, U8 * data, S32 data_size)
+{
+	bool success = gMeshRepo.mThread->headerReceived(mMeshParams, data, data_size);
+	llassert(success);
+	if (! success)
+	{
+		// *TODO:  Get real reason for parse failure here
+		llwarns << "Unable to parse mesh header: " << llendl;
+	}
+	else if (data && data_size > 0)
+	{
+		// header was successfully retrieved from sim, cache in vfs
+		LLUUID mesh_id = mMeshParams.getSculptID();
+		LLSD header = gMeshRepo.mThread->mMeshHeader[mesh_id];
+
+		S32 version = header["version"].asInteger();
+
+		if (version <= MAX_MESH_VERSION)
+		{
+			std::stringstream str;
+
+			S32 lod_bytes = 0;
+
+			for (U32 i = 0; i < LLModel::LOD_PHYSICS; ++i)
+			{
+				// figure out how many bytes we'll need to reserve in the file
+				std::string lod_name = header_lod[i];
+				lod_bytes = llmax(lod_bytes, header[lod_name]["offset"].asInteger()+header[lod_name]["size"].asInteger());
+			}
+		
+			// just in case skin info or decomposition is at the end of the file (which it shouldn't be)
+			lod_bytes = llmax(lod_bytes, header["skin"]["offset"].asInteger() + header["skin"]["size"].asInteger());
+			lod_bytes = llmax(lod_bytes, header["physics_convex"]["offset"].asInteger() + header["physics_convex"]["size"].asInteger());
+
+			S32 header_bytes = (S32) gMeshRepo.mThread->mMeshHeaderSize[mesh_id];
+			S32 bytes = lod_bytes + header_bytes; 
+
+		
+			// It's possible for the remote asset to have more data than is needed for the local cache
+			// only allocate as much space in the VFS as is needed for the local cache
+			data_size = llmin(data_size, bytes);
+
+			LLVFile file(gVFS, mesh_id, LLAssetType::AT_MESH, LLVFile::WRITE);
+			if (file.getMaxSize() >= bytes || file.setMaxSize(bytes))
+			{
+				LLMeshRepository::sCacheBytesWritten += data_size;
+
+				file.write(data, data_size);
+			
+				// zero out the rest of the file 
+				U8 block[MESH_HEADER_SIZE];
+				memset(block, 0, MESH_HEADER_SIZE);
+
+				while (bytes-file.tell() > MESH_HEADER_SIZE)
+				{
+					file.write(block, MESH_HEADER_SIZE);
+				}
+
+				S32 remaining = bytes-file.tell();
+					
+				if (remaining > 0)
+				{
+					file.write(block, remaining);
+				}
+			}
+		}
+	}
+}
+
+
+LLMeshLODHandler::~LLMeshLODHandler()
+{
+	if (! LLApp::isQuitting())
+	{
+		if (! mProcessed)
+		{
+			llwarns << "Killed without being processed, retrying." << llendl;
+			LLMeshRepository::sHTTPRetryCount++;
+			gMeshRepo.mThread->lockAndLoadMeshLOD(mMeshParams, mLOD);
+		}
+		LLMeshRepoThread::decActiveLODRequests();
+	}
+}
+
+void LLMeshLODHandler::processFailure(LLCore::HttpStatus status)
+{
+	if (is_retryable(status))
+	{
+		llwarns << "Timeout or service unavailable, retrying." << llendl;
+		LLMeshRepository::sHTTPRetryCount++;
+		// *FIXME:  Is this safe?  Does this need locking?
+		gMeshRepo.mThread->loadMeshLOD(mMeshParams, mLOD);
+	}
+	else
+	{
+		// *TODO:  better error message
+		llwarns << "Unhandled status." << llendl;
+	}
+}
+
+void LLMeshLODHandler::processData(LLCore::BufferArray * body, U8 * data, S32 data_size)
+{
+	if (gMeshRepo.mThread->lodReceived(mMeshParams, mLOD, data, data_size))
+	{
+		// good fetch from sim, write to VFS for caching
+		LLVFile file(gVFS, mMeshParams.getSculptID(), LLAssetType::AT_MESH, LLVFile::WRITE);
+
+		S32 offset = mOffset;
+		S32 size = mRequestedBytes;
+
+		if (file.getSize() >= offset+size)
+		{
+			file.seek(offset);
+			file.write(data, size);
+			LLMeshRepository::sCacheBytesWritten += size;
+		}
+	}
+}
+
+
+LLMeshSkinInfoHandler::~LLMeshSkinInfoHandler()
+{
+		llassert(mProcessed);
+}
+
+void LLMeshSkinInfoHandler::processFailure(LLCore::HttpStatus status)
+{
+	if (is_retryable(status))
+	{
+		llwarns << "Timeout or service unavailable, retrying." << llendl;
+		LLMeshRepository::sHTTPRetryCount++;
+		// *FIXME:  Is this safe?  Does this need locking?
+		gMeshRepo.mThread->loadMeshSkinInfo(mMeshID);
+	}
+	else
+	{
+		// *TODO:  better error message
+		llwarns << "Unhandled status." << llendl;
+	}
+}
+
+void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * body, U8 * data, S32 data_size)
+{
+	if (gMeshRepo.mThread->skinInfoReceived(mMeshID, data, data_size))
+	{
+		// good fetch from sim, write to VFS for caching
+		LLVFile file(gVFS, mMeshID, LLAssetType::AT_MESH, LLVFile::WRITE);
+
+		S32 offset = mOffset;
+		S32 size = mRequestedBytes;
+
+		if (file.getSize() >= offset+size)
+		{
+			LLMeshRepository::sCacheBytesWritten += size;
+			file.seek(offset);
+			file.write(data, size);
+		}
+	}
+}
+
+
+LLMeshDecompositionHandler::~LLMeshDecompositionHandler()
+{
+		llassert(mProcessed);
+}
+
+void LLMeshDecompositionHandler::processFailure(LLCore::HttpStatus status)
+{
+	if (is_retryable(status))
+	{
+		llwarns << "Timeout or service unavailable, retrying." << llendl;
+		LLMeshRepository::sHTTPRetryCount++;
+		// *FIXME:  Is this safe?  Does this need locking?
+		gMeshRepo.mThread->loadMeshDecomposition(mMeshID);
+	}
+	else
+	{
+		// *TODO:  better error message
+		llwarns << "Unhandled status." << llendl;
+	}
+}
+
+void LLMeshDecompositionHandler::processData(LLCore::BufferArray * body, U8 * data, S32 data_size)
+{
+	if (gMeshRepo.mThread->decompositionReceived(mMeshID, data, data_size))
+	{
+		// good fetch from sim, write to VFS for caching
+		LLVFile file(gVFS, mMeshID, LLAssetType::AT_MESH, LLVFile::WRITE);
+
+		S32 offset = mOffset;
+		S32 size = mRequestedBytes;
+
+		if (file.getSize() >= offset+size)
+		{
+			LLMeshRepository::sCacheBytesWritten += size;
+			file.seek(offset);
+			file.write(data, size);
+		}
+	}
+}
+
+
+LLMeshPhysicsShapeHandler::~LLMeshPhysicsShapeHandler()
+{
+		llassert(mProcessed);
+}
+
+void LLMeshPhysicsShapeHandler::processFailure(LLCore::HttpStatus status)
+{
+	if (is_retryable(status))
+	{
+		llwarns << "Timeout or service unavailable, retrying." << llendl;
+		LLMeshRepository::sHTTPRetryCount++;
+		// *FIXME:  Is this safe?  Does this need locking?
+		gMeshRepo.mThread->loadMeshPhysicsShape(mMeshID);
+	}
+	else
+	{
+		// *TODO:  better error message
+		llwarns << "Unhandled status." << llendl;
+	}
+}
+
+	
+void LLMeshPhysicsShapeHandler::processData(LLCore::BufferArray * body, U8 * data, S32 data_size)
+{
+	if (gMeshRepo.mThread->physicsShapeReceived(mMeshID, data, data_size))
+	{
+		// good fetch from sim, write to VFS for caching
+		LLVFile file(gVFS, mMeshID, LLAssetType::AT_MESH, LLVFile::WRITE);
+
+		S32 offset = mOffset;
+		S32 size = mRequestedBytes;
+
+		if (file.getSize() >= offset+size)
+		{
+			LLMeshRepository::sCacheBytesWritten += size;
+			file.seek(offset);
+			file.write(data, size);
+		}
+	}
+}
+
+
 void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 							  const LLChannelDescriptors& channels,
 							  const LLIOPipe::buffer_ptr_t& buffer)
@@ -2215,7 +2758,7 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 		buffer->readAfter(channels.in(), NULL, data, data_size);
 	}
 
-	LLMeshRepository::sBytesReceived += llmin(data_size, 4096);
+	LLMeshRepository::sBytesReceived += llmin(data_size, MESH_HEADER_SIZE);
 
 	bool success = gMeshRepo.mThread->headerReceived(mMeshParams, data, data_size);
 	
@@ -2267,12 +2810,12 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 				file.write((const U8*) data, data_size);
 			
 				//zero out the rest of the file 
-				U8 block[4096];
-				memset(block, 0, 4096);
+				U8 block[MESH_HEADER_SIZE];
+				memset(block, 0, MESH_HEADER_SIZE);
 
-				while (bytes-file.tell() > 4096)
+				while (bytes-file.tell() > MESH_HEADER_SIZE)
 				{
-					file.write(block, 4096);
+					file.write(block, MESH_HEADER_SIZE);
 				}
 
 				S32 remaining = bytes-file.tell();
@@ -3796,4 +4339,287 @@ void metrics_teleport_started()
 	LLMeshRepository::metricsStart();
 	++metrics_teleport_start_count;
 }
+
+
+// This comes from an edit in viewer-cat.  Unify this once that's
+// available everywhere.
+bool is_retryable(LLCore::HttpStatus status)
+{
+	static const LLCore::HttpStatus cant_connect(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
+	static const LLCore::HttpStatus cant_res_proxy(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_PROXY);
+	static const LLCore::HttpStatus cant_res_host(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_HOST);
+	static const LLCore::HttpStatus send_error(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_SEND_ERROR);
+	static const LLCore::HttpStatus recv_error(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_RECV_ERROR);
+	static const LLCore::HttpStatus upload_failed(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_UPLOAD_FAILED);
+	static const LLCore::HttpStatus op_timedout(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_OPERATION_TIMEDOUT);
+	static const LLCore::HttpStatus post_error(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_HTTP_POST_ERROR);
+	static const LLCore::HttpStatus partial_file(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_PARTIAL_FILE);
+	static const LLCore::HttpStatus inv_cont_range(LLCore::HttpStatus::LLCORE, LLCore::HE_INV_CONTENT_RANGE_HDR);
+	
+	return ((! status) &&
+			((status.isHttpStatus() && status.mType >= 499 && status.mType <= 599) ||		// Include special 499 in retryables
+			 status == cant_connect ||			// Connection reset/endpoint problems
+			 status == cant_res_proxy ||		// DNS problems
+			 status == cant_res_host ||			// DNS problems
+			 status == send_error ||			// General socket problems
+			 status == recv_error ||			// General socket problems
+			 status == upload_failed ||			// Transport problem
+			 status == op_timedout ||			// Timer expired
+			 status == post_error ||			// Transport problem
+			 status == partial_file ||			// Data inconsistency in response
+			 status == inv_cont_range));		// Short data read disagrees with content-range
+}
+
+
+
+
+// ===========
+//
+// HTTP fragments I'll be needing
+//
+//
+#if 0
+	  mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
+	mHttpRequest = new LLCore::HttpRequest;
+	mHttpOptions = new LLCore::HttpOptions;
+	mHttpHeaders = new LLCore::HttpHeaders;
+	mHttpHeaders->mHeaders.push_back("Accept: image/x-j2c");
+	mHttpMetricsHeaders = new LLCore::HttpHeaders;
+	mHttpMetricsHeaders->mHeaders.push_back("Content-Type: application/llsd+xml");
+	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicyDefault();
+
+
+	LLCore::HttpHandle		mHttpHandle;				// Handle of any active request
+	LLCore::BufferArray	*	mHttpBufferArray;			// Refcounted pointer to response data 
+	int						mHttpPolicyClass;
+	bool					mHttpActive;				// Active request to http library
+	unsigned int			mHttpReplySize;				// Actual received data size
+	unsigned int			mHttpReplyOffset;			// Actual received data offset
+	bool					mHttpHasResource;			// Counts against Fetcher's mHttpSemaphore
+
+									 
+		mHttpHandle = LLCORE_HTTP_HANDLE_INVALID;
+		if (!mUrl.empty())
+		{
+			mRequestedTimer.reset();
+			mLoaded = FALSE;
+			mGetStatus = LLCore::HttpStatus();
+			mGetReason.clear();
+			LL_DEBUGS("Texture") << "HTTP GET: " << mID << " Offset: " << mRequestedOffset
+								 << " Bytes: " << mRequestedSize
+								 << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth() << "/" << mFetcher->mMaxBandwidth
+								 << LL_ENDL;
+
+			// Will call callbackHttpGet when curl request completes
+			mHttpHandle = mFetcher->mHttpRequest->requestGetByteRange(mHttpPolicyClass,
+																	  mWorkPriority,
+																	  mUrl,
+																	  mRequestedOffset,
+																	  mRequestedSize,
+																	  mFetcher->mHttpOptions,
+																	  mFetcher->mHttpHeaders,
+																	  this);
+		}
+		if (LLCORE_HTTP_HANDLE_INVALID == mHttpHandle)
+		{
+			llwarns << "HTTP GET request failed for " << mID << llendl;
+			resetFormattedData();
+			releaseHttpSemaphore();
+			return true; // failed
+		}
+
+		mHttpActive = true;
+		mFetcher->addToHTTPQueue(mID);
+		recordTextureStart(true);
+		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
+		mState = WAIT_HTTP_REQ;	
+		
+		// fall through
+	}
+
+
+
+// Threads:  Ttf
+// virtual
+void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
+{
+	static LLCachedControl<bool> log_to_viewer_log(gSavedSettings, "LogTextureDownloadsToViewerLog");
+	static LLCachedControl<bool> log_to_sim(gSavedSettings, "LogTextureDownloadsToSimulator");
+	static LLCachedControl<bool> log_texture_traffic(gSavedSettings, "LogTextureNetworkTraffic") ;
+
+	LLMutexLock lock(&mWorkMutex);										// +Mw
+
+	mHttpActive = false;
+	
+	if (log_to_viewer_log || log_to_sim)
+	{
+		U64 timeNow = LLTimer::getTotalTime();
+		mFetcher->mTextureInfo.setRequestStartTime(mID, mMetricsStartTime);
+		mFetcher->mTextureInfo.setRequestType(mID, LLTextureInfoDetails::REQUEST_TYPE_HTTP);
+		mFetcher->mTextureInfo.setRequestSize(mID, mRequestedSize);
+		mFetcher->mTextureInfo.setRequestOffset(mID, mRequestedOffset);
+		mFetcher->mTextureInfo.setRequestCompleteTimeAndLog(mID, timeNow);
+	}
+
+	bool success = true;
+	bool partial = false;
+	LLCore::HttpStatus status(response->getStatus());
+	
+	lldebugs << "HTTP COMPLETE: " << mID
+			 << " status: " << status.toHex()
+			 << " '" << status.toString() << "'"
+			 << llendl;
+//	unsigned int offset(0), length(0), full_length(0);
+//	response->getRange(&offset, &length, &full_length);
+// 	llwarns << "HTTP COMPLETE: " << mID << " handle: " << handle
+// 			<< " status: " << status.toULong() << " '" << status.toString() << "'"
+// 			<< " req offset: " << mRequestedOffset << " req length: " << mRequestedSize
+// 			<< " offset: " << offset << " length: " << length
+// 			<< llendl;
+
+	if (! status)
+	{
+		success = false;
+		std::string reason(status.toString());
+		setGetStatus(status, reason);
+		llwarns << "CURL GET FAILED, status: " << status.toHex()
+				<< " reason: " << reason << llendl;
+	}
+	else
+	{
+		// A warning about partial (HTTP 206) data.  Some grid services
+		// do *not* return a 'Content-Range' header in the response to
+		// Range requests with a 206 status.  We're forced to assume
+		// we get what we asked for in these cases until we can fix
+		// the services.
+		static const LLCore::HttpStatus par_status(HTTP_PARTIAL_CONTENT);
+
+		partial = (par_status == status);
+	}
+	
+	S32 data_size = callbackHttpGet(response, partial, success);
+			
+	if (log_texture_traffic && data_size > 0)
+	{
+		LLViewerTexture* tex = LLViewerTextureManager::findTexture(mID);
+		if (tex)
+		{
+			gTotalTextureBytesPerBoostLevel[tex->getBoostLevel()] += data_size ;
+		}
+	}
+
+	mFetcher->removeFromHTTPQueue(mID, data_size);
+	
+	recordTextureDone(true);
+}																		// -Mw
+
+
+// Threads:  Ttf
+// Locks:  Mw
+S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
+										  bool partial, bool success)
+{
+	S32 data_size = 0 ;
+
+	if (mState != WAIT_HTTP_REQ)
+	{
+		llwarns << "callbackHttpGet for unrequested fetch worker: " << mID
+				<< " req=" << mSentRequest << " state= " << mState << llendl;
+		return data_size;
+	}
+	if (mLoaded)
+	{
+		llwarns << "Duplicate callback for " << mID.asString() << llendl;
+		return data_size ; // ignore duplicate callback
+	}
+	if (success)
+	{
+		// get length of stream:
+		LLCore::BufferArray * body(response->getBody());
+		data_size = body ? body->size() : 0;
+
+		LL_DEBUGS("Texture") << "HTTP RECEIVED: " << mID.asString() << " Bytes: " << data_size << LL_ENDL;
+		if (data_size > 0)
+		{
+			LLViewerStatsRecorder::instance().textureFetch(data_size);
+			// *TODO: set the formatted image data here directly to avoid the copy
+
+			// Hold on to body for later copy
+			llassert_always(NULL == mHttpBufferArray);
+			body->addRef();
+			mHttpBufferArray = body;
+
+			if (partial)
+			{
+				unsigned int offset(0), length(0), full_length(0);
+				response->getRange(&offset, &length, &full_length);
+				if (! offset && ! length)
+				{
+					// This is the case where we receive a 206 status but
+					// there wasn't a useful Content-Range header in the response.
+					// This could be because it was badly formatted but is more
+					// likely due to capabilities services which scrub headers
+					// from responses.  Assume we got what we asked for...
+					mHttpReplySize = data_size;
+					mHttpReplyOffset = mRequestedOffset;
+				}
+				else
+				{
+					mHttpReplySize = length;
+					mHttpReplyOffset = offset;
+				}
+			}
+
+			if (! partial)
+			{
+				// Response indicates this is the entire asset regardless
+				// of our asking for a byte range.  Mark it so and drop
+				// any partial data we might have so that the current
+				// response body becomes the entire dataset.
+				if (data_size <= mRequestedOffset)
+				{
+					LL_WARNS("Texture") << "Fetched entire texture " << mID
+										<< " when it was expected to be marked complete.  mImageSize:  "
+										<< mFileSize << " datasize:  " << mFormattedImage->getDataSize()
+										<< LL_ENDL;
+				}
+				mHaveAllData = TRUE;
+				llassert_always(mDecodeHandle == 0);
+				mFormattedImage = NULL; // discard any previous data we had
+			}
+			else if (data_size < mRequestedSize)
+			{
+				mHaveAllData = TRUE;
+			}
+			else if (data_size > mRequestedSize)
+			{
+				// *TODO: This shouldn't be happening any more  (REALLY don't expect this anymore)
+				llwarns << "data_size = " << data_size << " > requested: " << mRequestedSize << llendl;
+				mHaveAllData = TRUE;
+				llassert_always(mDecodeHandle == 0);
+				mFormattedImage = NULL; // discard any previous data we had
+			}
+		}
+		else
+		{
+			// We requested data but received none (and no error),
+			// so presumably we have all of it
+			mHaveAllData = TRUE;
+		}
+		mRequestedSize = data_size;
+	}
+	else
+	{
+		mRequestedSize = -1; // error
+	}
+	
+	mLoaded = TRUE;
+	setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
+
+	LLViewerStatsRecorder::instance().log(0.2f);
+	return data_size ;
+}
+
+#endif
+// ============
 

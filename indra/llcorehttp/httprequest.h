@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -158,10 +158,17 @@ public:
 
 	/// Create a new policy class into which requests can be made.
 	///
+	/// All class creation must occur before threads are started and
+	/// transport begins.  Policy classes are limited to a small value.
+	/// Currently that limit is the default class + 1.
+	///
 	/// @return			If positive, the policy_id used to reference
-	///					the class in other methods.  If 0, an error
-	///					occurred and @see getStatus() may provide more
-	///					detail on the reason.
+	///					the class in other methods.  If 0, requests
+	///					for classes have exceeded internal limits
+	///					or caller has tried to create a class after
+	///					threads have been started.  Caller must fallback
+	///					and recover.
+	///
 	static policy_t createPolicyClass();
 
 	enum EClassPolicy

@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2010-2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -33,6 +33,11 @@
 #include "llviewertexture.h"
 #include "llvolume.h"
 #include "lldeadmantimer.h"
+#include "httpcommon.h"
+#include "httprequest.h"
+#include "httpoptions.h"
+#include "httpheaders.h"
+#include "httphandler.h"
 
 #define LLCONVEXDECOMPINTER_STATIC 1
 
@@ -315,6 +320,15 @@ public:
 	//map of pending header requests and currently desired LODs
 	typedef std::map<LLVolumeParams, std::vector<S32> > pending_lod_map;
 	pending_lod_map mPendingLOD;
+
+	// llcorehttp library interface objects.
+	LLCore::HttpRequest *				mHttpRequest;
+	LLCore::HttpOptions *				mHttpOptions;
+	LLCore::HttpHeaders *				mHttpHeaders;
+	LLCore::HttpRequest::policy_t		mHttpPolicyClass;
+
+	typedef std::set<LLCore::HttpHandler *> http_request_set;
+	http_request_set					mHttpRequestSet;			// Outstanding HTTP requests
 
 	static std::string constructUrl(LLUUID mesh_id);
 
