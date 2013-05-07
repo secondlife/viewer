@@ -1791,6 +1791,8 @@ void LLPanelFace::updateMaterial()
 
 		LLMaterialPtr material_to_set = mMaterial;
 
+		bool subselection = false;
+
 		// If we're editing a single face and not the entire material for an object,
 		// we need to clone the material so that our changes to the material's settings
 		// don't automatically propagate to the non-selected faces
@@ -1804,6 +1806,7 @@ void LLPanelFace::updateMaterial()
 			{
 				llinfos << "Cloning material to apply to subselection." << llendl;
 				material_to_set = new LLMaterial(mMaterial->asLLSD());
+				subselection = true;
 			}
 			else
 			{
@@ -1888,7 +1891,21 @@ void LLPanelFace::updateMaterial()
 		
 		LL_DEBUGS("Materials") << "Updating material: " << material_to_set->asLLSD() << LL_ENDL;
        
-      LLSelectMgr::getInstance()->selectionSetMaterial( material_to_set );
+
+		if (node && node->getObject() && node->getObject()->permModify() && subselection)
+		{	
+			int selected_te = node->getLastSelectedTE();
+			if (selected_te >= 0)
+			{
+				LLMaterialMgr::getInstance()->put(node->getObject()->getID(),selected_te,*material_to_set);
+				node->getObject()->getTE(selected_te)->setMaterialParams(material_to_set);
+				node->getObject()->sendTEUpdate();
+			}
+		}
+		else
+		{
+			LLSelectMgr::getInstance()->selectionSetMaterial( material_to_set );
+		}
 	}
 	else
 	{
