@@ -64,11 +64,23 @@ vec4 getPosition(vec2 pos_screen)
 	return pos;
 }
 
+vec3 decode_normal (vec2 enc)
+{
+    vec2 fenc = enc*4-2;
+    float f = dot(fenc,fenc);
+    float g = sqrt(1-f/4);
+    vec3 n;
+    n.xy = fenc*g;
+    n.z = 1-f/2;
+    return n;
+}
+
 void main() 
 {
     vec2 tc = vary_fragcoord.xy;
 	vec3 norm = texture2DRect(normalMap, tc).xyz;
-	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
+	norm = decode_normal(norm.xy); // unpack norm
+
 	vec3 pos = getPosition(tc).xyz;
 	vec4 ccol = texture2DRect(lightMap, tc).rgba;
 	
