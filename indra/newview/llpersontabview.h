@@ -77,6 +77,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
 	{
 		Params();
+		Optional<LLIconCtrl::Params> facebook_icon;
 		Optional<LLAvatarIconCtrl::Params> avatar_icon;
 		Optional<LLTextBox::Params> last_interaction_time_textbox;
 		Optional<LLIconCtrl::Params> permission_edit_theirs_icon;
@@ -111,6 +112,7 @@ private:
 
 	LLPointer<LLUIImage> mImageOver;
 	LLPointer<LLUIImage> mImageSelected;
+	LLIconCtrl * mFacebookIcon;
 	LLAvatarIconCtrl* mAvatarIcon;
 	LLTextBox * mLastInteractionTimeTextbox;
 	LLIconCtrl * mPermissionEditTheirsIcon;

@@ -125,6 +125,7 @@ bool LLPersonView::sChildrenWidthsInitialized = false;
 ChildWidthVec LLPersonView::mChildWidthVec;
 
 LLPersonView::Params::Params() :
+facebook_icon("facebook_icon"),
 avatar_icon("avatar_icon"),
 last_interaction_time_textbox("last_interaction_time_textbox"),
 permission_edit_theirs_icon("permission_edit_theirs_icon"),
@@ -140,6 +141,7 @@ LLPersonView::LLPersonView(const LLPersonView::Params& p) :
 LLFolderViewItem(p),
 mImageOver(LLUI::getUIImage("ListItem_Over")),
 mImageSelected(LLUI::getUIImage("ListItem_Select")),
+mFacebookIcon(NULL),
 mAvatarIcon(NULL),
 mLastInteractionTimeTextbox(NULL),
 mPermissionEditTheirsIcon(NULL),
@@ -154,7 +156,19 @@ mOutputMonitorCtrl(NULL)
 
 S32 LLPersonView::getLabelXPos()
 {
-	return getIndentation() + mAvatarIcon->getRect().getWidth() + mIconPad;
+	S32 label_x_pos;
+
+	if(mAvatarIcon->getVisible())
+	{
+		label_x_pos = getIndentation() + mAvatarIcon->getRect().getWidth() + mIconPad;
+	}
+	else
+	{
+		label_x_pos = getIndentation() + mFacebookIcon->getRect().getWidth() + mIconPad;
+	}
+
+
+	return label_x_pos;
 }
 
 void LLPersonView::addToFolder(LLFolderViewFolder * person_folder_view)
@@ -164,6 +178,16 @@ void LLPersonView::addToFolder(LLFolderViewFolder * person_folder_view)
 	person_folder_view->requestArrange();
 
 	mPersonTabModel = static_cast<LLPersonTabModel *>(getParentFolder()->getViewModelItem());
+
+	if(mPersonTabModel->mTabType == LLPersonTabModel::FB_SL_NON_SL_FRIEND)
+	{
+		mAvatarIcon->setVisible(TRUE);
+	}
+	else if(mPersonTabModel->mTabType == LLPersonTabModel::FB_ONLY_FRIEND)
+	{
+		mFacebookIcon->setVisible(TRUE); 
+	}
+
 }
 
 LLPersonView::~LLPersonView()
@@ -295,11 +319,16 @@ void LLPersonView::drawHighlight()
 
 void LLPersonView::initFromParams(const LLPersonView::Params & params)
 {
+	LLIconCtrl::Params facebook_icon_params(params.facebook_icon());
+	applyXUILayout(facebook_icon_params, this);
+	mFacebookIcon = LLUICtrlFactory::create<LLIconCtrl>(facebook_icon_params);
+	addChild(mFacebookIcon);
+
 	LLAvatarIconCtrl::Params avatar_icon_params(params.avatar_icon());
 	applyXUILayout(avatar_icon_params, this);
 	mAvatarIcon = LLUICtrlFactory::create<LLAvatarIconCtrl>(avatar_icon_params);
 	addChild(mAvatarIcon);
-	
+
 	LLTextBox::Params last_interaction_time_textbox(params.last_interaction_time_textbox());
 	applyXUILayout(last_interaction_time_textbox, this);
 	mLastInteractionTimeTextbox = LLUICtrlFactory::create<LLTextBox>(last_interaction_time_textbox);
