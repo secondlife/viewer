@@ -151,8 +151,9 @@ void LLPersonModelCommon::setPassedFilter(bool passed, S32 filter_generation, st
 // LLPersonTabModel
 // 
 
-LLPersonTabModel::LLPersonTabModel(std::string display_name, LLFolderViewModelInterface& root_view_model) :
-LLPersonModelCommon(display_name,root_view_model)
+LLPersonTabModel::LLPersonTabModel(tab_type tab_type, std::string display_name, LLFolderViewModelInterface& root_view_model) :
+LLPersonModelCommon(display_name,root_view_model),
+mTabType(tab_type)
 {
 
 }

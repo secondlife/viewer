@@ -27,16 +27,16 @@
 #ifndef LL_LLPERSONFOLDERVIEW_H
 #define LL_LLPERSONFOLDERVIEW_H
 
-class LLPersonTabModel;
+#include "llevents.h"
+#include "llfolderview.h"
+#include "llpersonmodelcommon.h"
+
 class LLPersonTabView;
 class LLPersonView;
 class LLPersonModel;
 
 typedef std::map<LLUUID, LLPersonTabModel *> person_folder_model_map;
 typedef std::map<LLUUID, LLPersonTabView *> person_folder_view_map;
-
-#include "llevents.h"
-#include "llfolderview.h"
 
 class LLPersonFolderView : public LLFolderView
 {
@@ -50,13 +50,19 @@ public:
 	LLPersonFolderView(const Params &p);
 	~LLPersonFolderView();
 
+	BOOL handleMouseDown( S32 x, S32 y, MASK mask );
+	
+	void createPersonTabs();
+	void createPersonTab(LLPersonTabModel::tab_type tab_type, const std::string& tab_name);
 	bool onConversationModelEvent(const LLSD &event);
 	LLPersonView * createConversationViewParticipant(LLPersonModel * item);
 
-	BOOL handleMouseDown( S32 x, S32 y, MASK mask );
+	LLPersonTabModel * getPersonTabModelByIndex(LLPersonTabModel::tab_type tab_type);
+	LLPersonTabView * getPersonTabViewByIndex(LLPersonTabModel::tab_type tab_type);
 
 	person_folder_model_map mPersonFolderModelMap;
 	person_folder_view_map mPersonFolderViewMap;
+	std::map<LLPersonTabModel::tab_type, LLUUID> mIndexToFolderMap;
 	LLEventStream mConversationsEventStream;
 };
 

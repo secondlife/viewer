@@ -33,6 +33,8 @@
 #include "lloutputmonitorctrl.h"
 #include "lltextbox.h"
 
+class LLPersonTabModel;
+
 class LLPersonTabView : public LLFolderViewFolder
 {
 
@@ -75,6 +77,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
 	{
 		Params();
+		Optional<LLIconCtrl::Params> facebook_icon;
 		Optional<LLAvatarIconCtrl::Params> avatar_icon;
 		Optional<LLTextBox::Params> last_interaction_time_textbox;
 		Optional<LLIconCtrl::Params> permission_edit_theirs_icon;
@@ -104,9 +107,12 @@ protected:
 
 private:
 
+	//Short-cut to tab model
+	LLPersonTabModel * mPersonTabModel;
+
 	LLPointer<LLUIImage> mImageOver;
 	LLPointer<LLUIImage> mImageSelected;
-
+	LLIconCtrl * mFacebookIcon;
 	LLAvatarIconCtrl* mAvatarIcon;
 	LLTextBox * mLastInteractionTimeTextbox;
 	LLIconCtrl * mPermissionEditTheirsIcon;
@@ -116,8 +122,6 @@ private:
 	LLButton * mInfoBtn;
 	LLButton * mProfileBtn;
 	LLOutputMonitorCtrl * mOutputMonitorCtrl;
-
-
 
 	typedef enum e_avatar_item_child {
 		ALIC_SPEAKER_INDICATOR,

@@ -750,31 +750,6 @@ BOOL LLPanelPeople::postBuild()
 	scroller->setFollowsAll();
 	mPersonFolderView->setScrollContainer(scroller);
 	mPersonFolderView->setFollowsAll();
-
-	//Create a person tab
-	LLPersonTabModel* item = new LLPersonTabModel("Facebook Friends", mPersonFolderViewModel);
-	LLPersonTabView::Params params;
-	params.name = item->getDisplayName();
-	params.root = mPersonFolderView;
-	params.listener = item;
-	params.tool_tip = params.name;
-	LLPersonTabView * widget = LLUICtrlFactory::create<LLPersonTabView>(params);
-	widget->addToFolder(mPersonFolderView);
-
-	mPersonFolderView->mPersonFolderModelMap[item->getID()] = item;
-	mPersonFolderView->mPersonFolderViewMap[item->getID()] = widget;
-
-	//Create a person tab
-	item = new LLPersonTabModel("Facebook Friends Tab Two", mPersonFolderViewModel);
-	params.name = item->getDisplayName();
-	params.root = mPersonFolderView;
-	params.listener = item;
-	params.tool_tip = params.name;
-	widget = LLUICtrlFactory::create<LLPersonTabView>(params);
-	widget->addToFolder(mPersonFolderView);
-
-	mPersonFolderView->mPersonFolderModelMap[item->getID()] = item;
-	mPersonFolderView->mPersonFolderViewMap[item->getID()] = widget;
 	
 	gIdleCallbacks.addFunction(idle, this);
 
@@ -1667,6 +1642,8 @@ void LLPanelPeople::openFacebookWeb(std::string url)
 void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 {
 	mFacebookFriends->clear();
+	LLPersonTabModel::tab_type tab_type;
+	LLAvatarTracker& avatar_tracker = LLAvatarTracker::instance();
 
 	for (LLSD::map_const_iterator i = friends.beginMap(); i != friends.endMap(); ++i)
 	{
@@ -1676,11 +1653,22 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 		//add to avatar list
 		mFacebookFriends->addNewItem(agent_id, name, false);
 
-		//Add to folder view
-		LLPersonTabModel * session_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->mPersonFolderModelMap.begin()->second);
-		if(session_model)
+		//FB+SL but not SL friend
+		if(agent_id.notNull() && !avatar_tracker.isBuddy(agent_id))
 		{
-			addParticipantToModel(session_model, agent_id, name);
+			tab_type = LLPersonTabModel::FB_SL_NON_SL_FRIEND;
+		}
+		//FB only friend
+		else
+		{
+			tab_type = LLPersonTabModel::FB_ONLY_FRIEND;
+		}
+
+		//Add to person tab model
+		LLPersonTabModel * person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(tab_type));
+		if(person_tab_model)
+		{
+			addParticipantToModel(person_tab_model, agent_id, name);
 		}
 	}
 }
@@ -1689,11 +1677,29 @@ void LLPanelPeople::addTestParticipant()
 {
     std::string suffix("Aa");
     std::string prefix("Test Name");
+	LLPersonTabModel * person_tab_model;
+	LLUUID agentID;
+	std::string name;
+	LLPersonTabModel::tab_type tab_type;
+
 	for(int i = 0; i < 300; ++i)
 	{
-		LLPersonTabModel * person_folder_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->mPersonFolderModelMap.begin()->second);
-        std::string name = prefix + " " + suffix;
-		addParticipantToModel(person_folder_model, gAgent.getID(), name);
+		//Adds FB+SL people that aren't yet SL friends
+		if(i < 10)
+		{
+			tab_type = LLPersonTabModel::FB_SL_NON_SL_FRIEND;	
+			agentID = gAgent.getID();
+		}
+		//Adds FB only friends
+		else
+		{
+			tab_type = LLPersonTabModel::FB_ONLY_FRIEND;
+			agentID = LLUUID(NULL);
+		}
+
+		person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(tab_type));
+        name = prefix + " " + suffix;
+		addParticipantToModel(person_tab_model, agentID, name);
         // Next suffix : Aa, Ab, Ac ... Az, Ba, Bb, Bc ... Bz, Ca, Cb ...
         suffix[1]+=1;
         if (suffix[1]=='{')

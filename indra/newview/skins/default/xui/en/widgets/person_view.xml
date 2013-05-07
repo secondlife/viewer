@@ -13,6 +13,17 @@
   text_pad_right="4"
   arrow_size="10"
   max_folder_item_overlap="2">
+    <facebook_icon
+      layout="topleft"
+      follows="left"
+      height="16"
+      image_name="Facebook_Icon"
+      left="5"
+      top="5"
+      name="facebook_icon"
+      tool_tip="Facebook User"
+      visible="false"
+      width="16" />
     <avatar_icon
       follows="left"
       layout="topleft"
@@ -20,6 +31,7 @@
       default_icon_name="Generic_Person"
       left="5"
       top="2"
+      visible="false"
       width="20" />
     <last_interaction_time_textbox
       layout="topleft"

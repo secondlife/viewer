@@ -30,7 +30,6 @@
 #include "llpersonfolderview.h"
 
 #include "llpersontabview.h"
-#include "llpersonmodelcommon.h"
 
 
 LLPersonFolderView::LLPersonFolderView(const Params &p) : 
@@ -39,6 +38,8 @@ LLFolderView(p),
 {
     rename("Persons");  // For tracking!
 	mConversationsEventStream.listen("ConversationsRefresh", boost::bind(&LLPersonFolderView::onConversationModelEvent, this, _1));
+
+	createPersonTabs();
 }
 
 LLPersonFolderView::~LLPersonFolderView()
@@ -73,6 +74,29 @@ BOOL LLPersonFolderView::handleMouseDown( S32 x, S32 y, MASK mask )
 	return LLView::handleMouseDown( x, y, mask );
 }
 
+void LLPersonFolderView::createPersonTabs()
+{
+	createPersonTab(LLPersonTabModel::FB_SL_NON_SL_FRIEND, "SL residents you may want to friend");
+	createPersonTab(LLPersonTabModel::FB_ONLY_FRIEND, "Invite people you know to SL");
+}
+
+void LLPersonFolderView::createPersonTab(LLPersonTabModel::tab_type tab_type, const std::string& tab_name)
+{
+	//Create a person tab
+	LLPersonTabModel* item = new LLPersonTabModel(tab_type, tab_name, *mViewModel);
+	LLPersonTabView::Params params;
+	params.name = item->getDisplayName();
+	params.root = this;
+	params.listener = item;
+	params.tool_tip = params.name;
+	LLPersonTabView * widget = LLUICtrlFactory::create<LLPersonTabView>(params);
+	widget->addToFolder(this);
+
+	mIndexToFolderMap[tab_type] = item->getID();
+	mPersonFolderModelMap[item->getID()] = item;
+	mPersonFolderViewMap[item->getID()] = widget;
+}
+
 bool LLPersonFolderView::onConversationModelEvent(const LLSD &event)
 {
 	std::string type = event.get("type").asString();
@@ -81,17 +105,17 @@ bool LLPersonFolderView::onConversationModelEvent(const LLSD &event)
 
 	if(type == "add_participant")
 	{
-		LLPersonTabModel * person_folder_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderModelMap[folder_id]);
-		LLPersonTabView * person_folder_view = dynamic_cast<LLPersonTabView *>(mPersonFolderViewMap[folder_id]);
+		LLPersonTabModel * person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderModelMap[folder_id]);
+		LLPersonTabView * person_tab_view = dynamic_cast<LLPersonTabView *>(mPersonFolderViewMap[folder_id]);
 
-		if(person_folder_model)
+		if(person_tab_model)
 		{
-			LLPersonModel * person_model = person_folder_model->findParticipant(person_id);
+			LLPersonModel * person_model = person_tab_model->findParticipant(person_id);
 
 			if(person_model)
 			{
-				LLPersonView * participant_view = createConversationViewParticipant(person_model);
-				participant_view->addToFolder(person_folder_view);
+				LLPersonView * person_view = createConversationViewParticipant(person_model);
+				person_view->addToFolder(person_tab_view);
 			}
 		}
 	}
@@ -112,4 +136,14 @@ LLPersonView * LLPersonFolderView::createConversationViewParticipant(LLPersonMod
 	params.tool_tip = params.name;
 
 	return LLUICtrlFactory::create<LLPersonView>(params);
+}
+
+LLPersonTabModel * LLPersonFolderView::getPersonTabModelByIndex(LLPersonTabModel::tab_type tab_type)
+{
+	return mPersonFolderModelMap[mIndexToFolderMap[tab_type]];
+}
+
+LLPersonTabView * LLPersonFolderView::getPersonTabViewByIndex(LLPersonTabModel::tab_type tab_type)
+{
+	return mPersonFolderViewMap[mIndexToFolderMap[tab_type]];
 }

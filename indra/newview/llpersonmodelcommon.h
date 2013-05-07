@@ -109,7 +109,13 @@ protected:
 class LLPersonTabModel : public LLPersonModelCommon
 {
 public:
-	LLPersonTabModel(std::string display_name, LLFolderViewModelInterface& root_view_model);
+	enum tab_type
+	{
+		FB_SL_NON_SL_FRIEND,
+		FB_ONLY_FRIEND,
+	};
+
+	LLPersonTabModel(tab_type tab_type, std::string display_name, LLFolderViewModelInterface& root_view_model);
 	LLPersonTabModel(LLFolderViewModelInterface& root_view_model);
 
 	LLPointer<LLUIImage> getIcon() const { return NULL; }
@@ -118,6 +124,8 @@ public:
 	void removeParticipant(const LLUUID& participant_id);
 	void clearParticipants();
 	LLPersonModel* findParticipant(const LLUUID& person_id);
+
+	tab_type mTabType;
 
 private:
 };
