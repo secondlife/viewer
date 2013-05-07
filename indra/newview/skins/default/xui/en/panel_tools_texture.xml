@@ -2,7 +2,7 @@
 <panel
          border="false"
          follows="all"
-         height="400"
+         height="420"
          label="Texture"
          layout="topleft"
          left="0"
@@ -139,7 +139,7 @@
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
-             fallback_image="locked_image.j2c"
+             fallback_image="materials_ui_x_24.png"
              follows="left|top"
              height="80"
              label="Texture       "
@@ -216,7 +216,7 @@
              allow_no_texture="true"
              can_apply_immediately="true"
              default_image_name="Default"
-             fallback_image="locked_image.j2c"
+             fallback_image="materials_ui_x_24.png"
              follows="left|top"
              height="80"
              label="Texture       "
@@ -327,7 +327,7 @@
              allow_no_texture="true"
              can_apply_immediately="true"
              default_image_name="Default"
-             fallback_image="locked_image.j2c"
+             fallback_image="materials_ui_x_24.png"
              follows="left|top"
              height="80"
              label="Texture       "
@@ -743,7 +743,7 @@
              left="7"
              name="checkbox planar align"
              tool_tip="Align textures on all selected faces with the last selected face. Requires Planar texture mapping."
-             top_delta="26"
+             top_delta="16"
              width="260" />
             <web_browser
              visible="false"

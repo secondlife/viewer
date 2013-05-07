@@ -1660,7 +1660,8 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 		return 0;
 	}
 		
-	bool alpha = te->getColor().mV[3] < 0.999f;
+	bool color_alpha = te->getColor().mV[3] < 0.999f;
+	bool alpha = color_alpha;
 	if (imagep)
 	{
 		alpha = alpha || (imagep->getComponents() == 4 && imagep->getType() != LLViewerTexture::MEDIA_TEXTURE) || (imagep->getComponents() == 2);
@@ -1675,10 +1676,10 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 				break;
 			case 0: //alpha mode set to none, never go to alpha pool
 			case 3: //alpha mode set to emissive, never go to alpha pool
-				alpha = false;
+				alpha = color_alpha;
 				break;
 			default: //alpha mode set to "mask", go to alpha pool if fullbright
-				alpha = false; // Material's alpha mode is set to none, mask, or emissive.  Toss it into the opaque material draw pool.
+				alpha = color_alpha; // Material's alpha mode is set to none, mask, or emissive.  Toss it into the opaque material draw pool.
 				break;
 		}
 	}
@@ -7834,12 +7835,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	channel = shader.enableTexture(LLShaderMgr::DEFERRED_LIGHTFUNC);
 	if (channel > -1)
 	{
-		//llinfos << "Shader " << shader.mName << " binding light func texture on uniform index " << channel << llendl;
 		gGL.getTexUnit(channel)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
-	}
-	else
-	{
-		//llinfos << "Shader " << shader.mName << " failed to bind light func texture. Ugly lighting dead ahead!" << llendl;
 	}
 
 	stop_glerror();
