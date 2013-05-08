@@ -1887,7 +1887,8 @@ void LLPanelPeople::disconnectFromFacebook()
 
 std::string LLPanelPeople::getFacebookConnectURL(const std::string& route)
 {
-	static std::string sFacebookConnectUrl = gAgent.getRegion()->getCapability("FacebookConnect");
+	//static std::string sFacebookConnectUrl = gAgent.getRegion()->getCapability("FacebookConnect");
+	static std::string sFacebookConnectUrl = "https://pdp15.lindenlab.com/fbc/agent/" + gAgentID.asString(); // TEMPORARY HACK FOR FB DEMO - Cho
 	std::string url = sFacebookConnectUrl + route;
 	llinfos << url << llendl;
 	return url;
