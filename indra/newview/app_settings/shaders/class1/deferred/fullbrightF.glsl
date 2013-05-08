@@ -42,9 +42,12 @@ void main()
 {
 	float shadow = 1.0;
 
-	vec4 color = diffuseLookup(vary_texcoord0.xy)* vertex_color;
+	vec4 color = diffuseLookup(vary_texcoord0.xy) * pow(vertex_color.rgb,vec3(2.2f));
+	
 	color.rgb = fullbrightAtmosTransport(color.rgb);
+
 	color.rgb = fullbrightScaleSoftClip(color.rgb);
+
 	frag_color = color;
 }
 
