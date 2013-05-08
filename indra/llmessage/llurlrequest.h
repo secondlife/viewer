@@ -95,7 +95,7 @@ public:
 	 *
 	 * @param action One of the ERequestAction enumerations.
 	 */
-	LLURLRequest(ERequestAction action);
+	LLURLRequest(ERequestAction action, bool follow_redirects = true);
 
 	/** 
 	 * @brief Constructor.
@@ -103,7 +103,7 @@ public:
 	 * @param action One of the ERequestAction enumerations.
 	 * @param url The url of the request. It should already be encoded.
 	 */
-	LLURLRequest(ERequestAction action, const std::string& url);
+	LLURLRequest(ERequestAction action, const std::string& url, bool follow_redirects = true);
 
 	/** 
 	 * @brief Destructor.
@@ -219,10 +219,11 @@ protected:
 	};
 	EState mState;
 	ERequestAction mAction;
+	bool mFollowRedirects;
 	LLURLRequestDetail* mDetail;
 	LLIOPipe::ptr_t mCompletionCallback;
-	 S32 mRequestTransferedBytes;
-	 S32 mResponseTransferedBytes;
+	S32 mRequestTransferedBytes;
+	S32 mResponseTransferedBytes;
 
 	static CURLcode _sslCtxCallback(CURL * curl, void *sslctx, void *param);
 	
