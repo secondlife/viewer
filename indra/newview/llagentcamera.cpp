@@ -2267,22 +2267,22 @@ void LLAgentCamera::changeCameraToCustomizeAvatar()
 		gFocusMgr.setKeyboardFocus( NULL );
 		gFocusMgr.setMouseCapture( NULL );
 
-			// Remove any pitch or rotation from the avatar
-			LLVector3 at = gAgent.getAtAxis();
-			at.mV[VZ] = 0.f;
-			at.normalize();
-			gAgent.resetAxes(at);
+		// Remove any pitch or rotation from the avatar
+		LLVector3 at = gAgent.getAtAxis();
+		at.mV[VZ] = 0.f;
+		at.normalize();
+		gAgent.resetAxes(at);
 
-			gAgent.sendAnimationRequest(ANIM_AGENT_CUSTOMIZE, ANIM_REQUEST_START);
-			gAgent.setCustomAnim(TRUE);
-			gAgentAvatarp->startMotion(ANIM_AGENT_CUSTOMIZE);
-			LLMotion* turn_motion = gAgentAvatarp->findMotion(ANIM_AGENT_CUSTOMIZE);
+		gAgent.sendAnimationRequest(ANIM_AGENT_CUSTOMIZE, ANIM_REQUEST_START);
+		gAgent.setCustomAnim(TRUE);
+		gAgentAvatarp->startMotion(ANIM_AGENT_CUSTOMIZE);
+		LLMotion* turn_motion = gAgentAvatarp->findMotion(ANIM_AGENT_CUSTOMIZE);
 
-			if (turn_motion)
-			{
-				// delay camera animation long enough to play through turn animation
-				setAnimationDuration(turn_motion->getDuration() + CUSTOMIZE_AVATAR_CAMERA_ANIM_SLOP);
-			}
+		if (turn_motion)
+		{
+			// delay camera animation long enough to play through turn animation
+			setAnimationDuration(turn_motion->getDuration() + CUSTOMIZE_AVATAR_CAMERA_ANIM_SLOP);
+		}
 	}
 
 	LLVector3 agent_at = gAgent.getAtAxis();

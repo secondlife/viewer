@@ -143,7 +143,7 @@ public:
 
 	CapabilityMap mCapabilities;
 	CapabilityMap mSecondCapabilitiesTracker; 
-	
+
 	LLEventPoll* mEventPoll;
 
 	S32 mSeedCapMaxAttempts;
@@ -220,7 +220,7 @@ public:
 		}
     }
 
-    void result(const LLSD& content)
+   void result(const LLSD& content)
     {
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
 		if(!regionp) //region was removed
@@ -1587,7 +1587,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("EventQueueGet");
 
 	if (gSavedSettings.getBOOL("UseHTTPInventory"))
-	{
+	{	
 		capabilityNames.append("FetchLib2");
 		capabilityNames.append("FetchLibDescendents2");
 		capabilityNames.append("FetchInventory2");
@@ -1606,7 +1606,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("LandResources");
 	capabilityNames.append("MapLayer");
 	capabilityNames.append("MapLayerGod");
-	capabilityNames.append("MeshUploadFlag");
+	capabilityNames.append("MeshUploadFlag");	
 	capabilityNames.append("NavMeshGenerationStatus");
 	capabilityNames.append("NewFileAgentInventory");
 	capabilityNames.append("ObjectMedia");
@@ -1647,7 +1647,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("ViewerMetrics");
 	capabilityNames.append("ViewerStartAuction");
 	capabilityNames.append("ViewerStats");
-	
+
 	// Please add new capabilities alphabetically to reduce
 	// merge conflicts.
 }
@@ -1655,8 +1655,8 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 void LLViewerRegion::setSeedCapability(const std::string& url)
 {
 	if (getCapability("Seed") == url)
-    {
-		// llwarns << "Ignoring duplicate seed capability" << llendl;
+    {	
+		//llwarns << "Ignoring duplicate seed capability" << llendl;
 		//Instead of just returning we build up a second set of seed caps and compare them 
 		//to the "original" seed cap received and determine why there is problem!
 		LLSD capabilityNames = LLSD::emptyArray();

@@ -224,7 +224,7 @@ static void request(
 	{
 		if (responder)
 		{
-		responder->completed(U32_MAX, "No pump", LLSD());
+			responder->completed(U32_MAX, "No pump", LLSD());
 		}
 		delete body_injector;
 		return;
@@ -238,9 +238,9 @@ static void request(
 		{
 			responder->completed(498, "Internal Error - curl failure", LLSD());
 		}
-		delete req ;
+		delete req;
 		delete body_injector;
-		return ;
+		return;
 	}
 
 	req->setSSLVerifyCallback(LLHTTPClient::getCertVerifyCallback(), (void *)req);

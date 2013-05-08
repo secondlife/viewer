@@ -62,15 +62,15 @@ using namespace LLAvatarAppearanceDefines;
 
 // Callback to wear and start editing an item that has just been created.
 void wear_and_edit_cb(const LLUUID& inv_item)
-	{
-		if (inv_item.isNull()) return;
-
-		// Request editing the item after it gets worn.
-		gAgentWearables.requestEditingWearable(inv_item);
-
-		// Wear it.
-		LLAppearanceMgr::instance().wearItemOnAvatar(inv_item);
-	}
+{
+	if (inv_item.isNull()) return;
+	
+	// Request editing the item after it gets worn.
+	gAgentWearables.requestEditingWearable(inv_item);
+	
+	// Wear it.
+	LLAppearanceMgr::instance().wearItemOnAvatar(inv_item);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -180,10 +180,10 @@ void LLAgentWearables::initClass()
 }
 
 void LLAgentWearables::setAvatarObject(LLVOAvatarSelf *avatar)
-{ 
+{
 	llassert(avatar);
-		avatar->outputRezTiming("Sending wearables request");
-		sendAgentWearablesRequest();
+	avatar->outputRezTiming("Sending wearables request");
+	sendAgentWearablesRequest();
 	setAvatarAppearance(avatar);
 }
 
@@ -706,47 +706,47 @@ LLViewerWearable* LLAgentWearables::getViewerWearable(const LLWearableType::ETyp
 }
 
 const LLViewerWearable* LLAgentWearables::getViewerWearable(const LLWearableType::EType type, U32 index /*= 0*/) const
-	{
+{
 	return dynamic_cast<const LLViewerWearable*> (getWearable(type, index));
 }
 
 // static
 BOOL LLAgentWearables::selfHasWearable(LLWearableType::EType type)
-	{
+{
 	return (gAgentWearables.getWearableCount(type) > 0);
-	}
-	
+}
+
 // virtual
 void LLAgentWearables::wearableUpdated(LLWearable *wearable, BOOL removed)
-	{
+{
 	if (isAgentAvatarValid())
 	{
 		const BOOL upload_result = removed;
 		gAgentAvatarp->wearableUpdated(wearable->getType(), upload_result);
-}
+	}
 
 	LLWearableData::wearableUpdated(wearable, removed);
 
 	if (!removed)
-{
+	{
 		LLViewerWearable* viewer_wearable = dynamic_cast<LLViewerWearable*>(wearable);
 		viewer_wearable->refreshName();
 
-	// Hack pt 2. If the wearable we just loaded has definition version 24,
-	// then force a re-save of this wearable after slamming the version number to 22.
-	// This number was incorrectly incremented for internal builds before release, and
-	// this fix will ensure that the affected wearables are re-saved with the right version number.
-	// the versions themselves are compatible. This code can be removed before release.
-	if( wearable->getDefinitionVersion() == 24 )
-	{
-		wearable->setDefinitionVersion(22);
-		U32 index = getWearableIndex(wearable);
+		// Hack pt 2. If the wearable we just loaded has definition version 24,
+		// then force a re-save of this wearable after slamming the version number to 22.
+		// This number was incorrectly incremented for internal builds before release, and
+		// this fix will ensure that the affected wearables are re-saved with the right version number.
+		// the versions themselves are compatible. This code can be removed before release.
+		if( wearable->getDefinitionVersion() == 24 )
+		{
+			wearable->setDefinitionVersion(22);
+			U32 index = getWearableIndex(wearable);
 			llinfos << "forcing wearable type " << wearable->getType() << " to version 22 from 24" << llendl;
-		saveWearable(wearable->getType(),index,TRUE);
-	}
+			saveWearable(wearable->getType(),index,TRUE);
+		}
 
 		checkWearableAgainstInventory(viewer_wearable);
-}
+	}
 }
 
 BOOL LLAgentWearables::itemUpdatePending(const LLUUID& item_id) const
@@ -965,8 +965,8 @@ public:
 		llinfos << "All items created" << llendl;
 		LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
 		LLAppearanceMgr::instance().linkAll(LLAppearanceMgr::instance().getCOF(),
-												mItemsToLink,
-												link_waiter);
+											mItemsToLink,
+											link_waiter);
 	}
 	void addPendingWearable(LLViewerWearable *wearable)
 	{
@@ -1495,13 +1495,13 @@ void LLAgentWearables::queryWearableCache()
 
 // virtual
 void LLAgentWearables::invalidateBakedTextureHash(LLMD5& hash) const
+{
+	// Add some garbage into the hash so that it becomes invalid.
+	if (isAgentAvatarValid())
 	{
-		// Add some garbage into the hash so that it becomes invalid.
-			if (isAgentAvatarValid())
-			{
-				hash.update((const unsigned char*)gAgentAvatarp->getID().mData, UUID_BYTES);
-			}
-		}
+		hash.update((const unsigned char*)gAgentAvatarp->getID().mData, UUID_BYTES);
+	}
+}
 
 // User has picked "remove from avatar" from a menu.
 // static

@@ -561,6 +561,12 @@ std::vector<LLFastTimer::NamedTimer*>& LLFastTimer::NamedTimer::getChildren()
 	return mChildren;
 }
 
+// static
+LLFastTimer::NamedTimer& LLFastTimer::NamedTimer::getRootNamedTimer()
+{
+        return *NamedTimerFactory::instance().getRootTimer();
+}
+
 //static
 LLFastTimer::NamedTimer& LLFastTimer::NamedTimer::getRootNamedTimer()
 {

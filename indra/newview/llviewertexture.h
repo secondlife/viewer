@@ -139,8 +139,6 @@ public:
 
 	LLFrameTimer* getLastReferencedTimer() {return &mLastReferencedTimer ;}
 	
-	S32 getFullWidth() const { return mFullWidth; }
-	S32 getFullHeight() const { return mFullHeight; }	
 	/*virtual*/ void setKnownDrawSize(S32 width, S32 height);
 
 	virtual void addFace(U32 channel, LLFace* facep) ;
@@ -401,7 +399,7 @@ protected:
 	S32 getCurrentDiscardLevelForFetching() ;
 
 private:
-	void init(bool firstinit) ;
+	void init(bool firstinit) ;	
 	void cleanup() ;
 
 	void saveRawImage() ;
@@ -443,7 +441,7 @@ protected:
 	S8  mHasFetcher;				// We've made a fecth request
 	S8  mIsFetching;				// Fetch request is active
 	bool mCanUseHTTP ;              //This texture can be fetched through http if true.
-	
+
 	FTType mFTType; // What category of image is this - map tile, server bake, etc?
 	mutable S8 mIsMissingAsset;		// True if we know that there is no image asset with this image id in the database.		
 

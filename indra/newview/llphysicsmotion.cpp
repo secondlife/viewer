@@ -428,13 +428,13 @@ F32 LLPhysicsMotion::toLocal(const LLVector3 &world)
 F32 LLPhysicsMotion::calculateVelocity_local()
 {
 	const F32 world_to_model_scale = 100.0f;
-        LLJoint *joint = mJointState->getJoint();
-        const LLVector3 position_world = joint->getWorldPosition();
-        const LLVector3 last_position_world = mPosition_world;
+	LLJoint *joint = mJointState->getJoint();
+	const LLVector3 position_world = joint->getWorldPosition();
+	const LLVector3 last_position_world = mPosition_world;
 	const LLVector3 positionchange_world = (position_world-last_position_world) * world_to_model_scale;
-        const LLVector3 velocity_world = positionchange_world;
-        const F32 velocity_local = toLocal(velocity_world);
-        return velocity_local;
+	const LLVector3 velocity_world = positionchange_world;
+	const F32 velocity_local = toLocal(velocity_world);
+	return velocity_local;
 }
 
 F32 LLPhysicsMotion::calculateAcceleration_local(const F32 velocity_local)

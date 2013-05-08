@@ -213,7 +213,7 @@ namespace
 		{
 			llwarns << "LLEventPollResponder error <" << mCount 
 					<< "> [status:" << status << "]: " << content
-					<<	(mDone ? " -- done"	: "") << llendl;
+					<< (mDone ? " -- done" : "") << llendl;
 			stop();
 
 			// At this point we have given up and the viewer will not receive HTTP messages from the simulator.

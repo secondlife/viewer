@@ -153,21 +153,21 @@ if (LINUX)
       -pthread
       )
 
-    add_definitions(-DAPPID=secondlife)
-    add_definitions(-fvisibility=hidden)
-    # don't catch SIGCHLD in our base application class for the viewer - some of our 3rd party libs may need their *own* SIGCHLD handler to work.  Sigh!  The viewer doesn't need to catch SIGCHLD anyway.
-    add_definitions(-DLL_IGNORE_SIGCHLD)
-    if (WORD_SIZE EQUAL 32)
-      add_definitions(-march=pentium4)
-    endif (WORD_SIZE EQUAL 32)
-    add_definitions(-mfpmath=sse)
-    #add_definitions(-ftree-vectorize) # THIS CRASHES GCC 3.1-3.2
-    if (NOT STANDALONE)
-      # this stops us requiring a really recent glibc at runtime
-      add_definitions(-fno-stack-protector)
-      # linking can be very memory-hungry, especially the final viewer link
-      set(CMAKE_CXX_LINK_FLAGS "-Wl,--no-keep-memory")
-    endif (NOT STANDALONE)
+  add_definitions(-DAPPID=secondlife)
+  add_definitions(-fvisibility=hidden)
+  # don't catch SIGCHLD in our base application class for the viewer - some of our 3rd party libs may need their *own* SIGCHLD handler to work.  Sigh!  The viewer doesn't need to catch SIGCHLD anyway.
+  add_definitions(-DLL_IGNORE_SIGCHLD)
+  if (WORD_SIZE EQUAL 32)
+    add_definitions(-march=pentium4)
+  endif (WORD_SIZE EQUAL 32)
+  add_definitions(-mfpmath=sse)
+  #add_definitions(-ftree-vectorize) # THIS CRASHES GCC 3.1-3.2
+  if (NOT STANDALONE)
+    # this stops us requiring a really recent glibc at runtime
+    add_definitions(-fno-stack-protector)
+    # linking can be very memory-hungry, especially the final viewer link
+    set(CMAKE_CXX_LINK_FLAGS "-Wl,--no-keep-memory")
+  endif (NOT STANDALONE)
 
   set(CMAKE_CXX_FLAGS_DEBUG "-fno-inline ${CMAKE_CXX_FLAGS_DEBUG}")
   set(CMAKE_CXX_FLAGS_RELEASE "-O2 ${CMAKE_CXX_FLAGS_RELEASE}")

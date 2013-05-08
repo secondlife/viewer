@@ -11,8 +11,8 @@ set(LLRENDER_INCLUDE_DIRS
 
 if (BUILD_HEADLESS)
   set(LLRENDER_HEADLESS_LIBRARIES
-      llrenderheadless
-      )
+    llrenderheadless
+    )
 endif (BUILD_HEADLESS)
 set(LLRENDER_LIBRARIES
     llrender

@@ -624,7 +624,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 	{
 		is_compressed = true;
 	}
-
+	
 	
 	
 	if (mUseMipMaps)
@@ -772,6 +772,8 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 					else
 					{
 						S32 bytes = w * h * mComponents;
+#ifdef SHOW_ASSERT
+#endif
 						U8* new_data = new U8[bytes];
 
 #ifdef SHOW_ASSERT

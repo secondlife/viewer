@@ -275,7 +275,7 @@ LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(
 }
 	
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromFile(
-	                                               const std::string& filename,												   
+	                                               const std::string& filename,
 												   FTType f_type,
 												   BOOL usemipmaps,
 												   LLViewerTexture::EBoostLevel boost_priority,
@@ -288,7 +288,7 @@ LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromFile(
 }
 
 //static 
-LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromUrl(const std::string& url,									 
+LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromUrl(const std::string& url,
 									 FTType f_type,
 									 BOOL usemipmaps,
 									 LLViewerTexture::EBoostLevel boost_priority,
@@ -395,7 +395,7 @@ void LLViewerTextureManager::init()
 	LLViewerTexture::sCheckerBoardImagep = LLViewerTextureManager::getLocalTexture(image_raw.get(), TRUE);
 
 	LLViewerTexture::initClass() ;
-
+	
 	// Create a texture manager bridge.
 	gTextureManagerBridgep = new LLViewerTextureManagerBridge;
 
@@ -1097,6 +1097,7 @@ void LLViewerFetchedTexture::loadFromFastCache()
 		{ 
 			//discard all oversized textures.
 			destroyRawImage();
+			llwarns << "oversized, setting as missing" << llendl;
 			setIsMissingAsset();
 			mRawDiscardLevel = INVALID_DISCARD_LEVEL ;
 		}
@@ -1206,7 +1207,7 @@ void LLViewerFetchedTexture::destroyTexture()
 	{
 		return ;
 	}
-	
+
 	//LL_DEBUGS("Avatar") << mID << llendl;
 	destroyGLTexture() ;
 	mFullyLoaded = FALSE ;
@@ -1368,6 +1369,7 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 		// An inappropriately-sized image was uploaded (through a non standard client)
 		// We treat these images as missing assets which causes them to
 		// be renderd as 'missing image' and to stop requesting data
+		llwarns << "!size_ok, setting as missing" << llendl;
 		setIsMissingAsset();
 		destroyRawImage();
 		return FALSE;

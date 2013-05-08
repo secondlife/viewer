@@ -156,7 +156,7 @@ namespace tut
 					
 		ensure("importStream() fn failed ",
 			llsaleinfo.getSalePrice() == llsaleinfo1.getSalePrice() &&
-										       llsaleinfo.getSaleType() == llsaleinfo1.getSaleType());		
+			llsaleinfo.getSaleType() == llsaleinfo1.getSaleType());
 	}
 
 	template<> template<>

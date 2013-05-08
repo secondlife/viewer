@@ -144,7 +144,7 @@ done
 # therefore "${gridargs[@]}" entirely vanishes from the command line below,
 # just as we want.
 if ! $skip_gridargs ; then
-eval gridargs=("$(<etc/gridargs.dat)")
+    eval gridargs=("$(<etc/gridargs.dat)")
 fi
 
 # Run the program.

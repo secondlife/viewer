@@ -1780,6 +1780,8 @@ bool LLAppViewer::cleanup()
 	llinfos << "Cleaning up Objects" << llendflush;
 	
 	LLViewerObject::cleanupVOClasses();
+
+	LLAvatarAppearance::cleanupClass();
 	
 	LLAvatarAppearance::cleanupClass();
 	
@@ -3582,6 +3584,12 @@ void LLAppViewer::requestQuit()
 
 	// Try to send metrics back to the grid
 	metricsSend(!gDisconnected);
+
+	// Try to send last batch of avatar rez metrics.
+	if (!gDisconnected && isAgentAvatarValid())
+	{
+		gAgentAvatarp->updateAvatarRezMetrics(true); // force a last packet to be sent.
+	}
 	
 	// Try to send last batch of avatar rez metrics.
 	if (!gDisconnected && isAgentAvatarValid())

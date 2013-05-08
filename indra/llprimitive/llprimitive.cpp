@@ -1257,7 +1257,6 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec)
 {
 	S32 retval = 0;
-
    // temp buffer for material ID processing
    // data will end up in tec.material_id[]	
    U8 material_data[LLTEContents::MAX_TES*16];
@@ -1331,7 +1330,7 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
 S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
 {
 	S32 retval = 0;
-	
+
 	LLColor4 color;
 	LLColor4U coloru;
 	for (U32 i = 0; i < tec.face_count; i++)
@@ -1362,6 +1361,15 @@ S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
 	}
 
 	return retval;
+}
+
+S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num)
+{
+	LLTEContents tec;
+	S32 retval = parseTEMessage(mesgsys, block_name, block_num, tec);
+	if (!retval)
+		return retval;
+	return applyParsedTEMessage(tec);
 }
 
 S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num)
