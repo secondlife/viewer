@@ -139,7 +139,8 @@ void LLAppCoreHttp::init()
 		static const std::string mesh_concur("MeshMaxConcurrentRequests");
 		if (gSavedSettings.controlExists(mesh_concur))
 		{
-			U32 setting(llmin(gSavedSettings.getU32(mesh_concur), U32(32)));
+			U32 setting(llmin(gSavedSettings.getU32(mesh_concur), 256U) / 4U);
+			setting = llmax(setting, 2U);
 			
 			if (setting > 0)
 			{
