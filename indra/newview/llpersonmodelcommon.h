@@ -40,6 +40,7 @@ class LLPersonModelCommon : public LLFolderViewModelItemCommon
 public:
 
 	LLPersonModelCommon(std::string name, LLFolderViewModelInterface& root_view_model);
+	LLPersonModelCommon(std::string display_name, std::string suffix, LLFolderViewModelInterface& root_view_model);
 	LLPersonModelCommon(LLFolderViewModelInterface& root_view_model);
 	virtual ~LLPersonModelCommon();
 
@@ -51,7 +52,7 @@ public:
 	virtual LLPointer<LLUIImage> getIcon() const { return NULL; }
 	virtual LLPointer<LLUIImage> getOpenIcon() const { return getIcon(); }
 	virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
-	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
+	virtual std::string getLabelSuffix() const { return mLabelSuffix; }
 	virtual BOOL isItemRenameable() const { return TRUE; }
 	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL isItemMovable( void ) const { return FALSE; }
@@ -101,6 +102,7 @@ public:
 protected:
 
 	std::string mName;              // Name of the person
+	std::string mLabelSuffix;
 	std::string mSearchableName;	// Name used in string matching for this person
     bool mPrevPassedAllFilters;
 	LLUUID mID;
@@ -133,7 +135,7 @@ private:
 class LLPersonModel : public LLPersonModelCommon
 {
 public:
-	LLPersonModel(const LLUUID& agent_id, const std::string display_name, LLFolderViewModelInterface& root_view_model);
+	LLPersonModel(const LLUUID& agent_id, const std::string display_name, const std::string suffix, LLFolderViewModelInterface& root_view_model);
 	LLPersonModel(LLFolderViewModelInterface& root_view_model);
 
 	LLUUID getAgentID();

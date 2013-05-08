@@ -732,6 +732,7 @@ BOOL LLPanelPeople::postBuild()
 	folder_view_params.view_model = &mPersonFolderViewModel;
 	folder_view_params.root = NULL;
 	folder_view_params.use_ellipses = false;
+	folder_view_params.use_label_suffix = true;
 	folder_view_params.options_menu = "menu_conversation.xml";
 	folder_view_params.name = "fbcfolderview";
 	mPersonFolderView = LLUICtrlFactory::create<LLPersonFolderView>(folder_view_params);
@@ -1676,7 +1677,7 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 void LLPanelPeople::addTestParticipant()
 {
     std::string suffix("Aa");
-    std::string prefix("Test Name");
+    std::string prefix("Second Life User Name Goes Here");
 	LLPersonTabModel * person_tab_model;
 	LLUUID agentID;
 	std::string name;
@@ -1717,11 +1718,15 @@ void LLPanelPeople::addParticipantToModel(LLPersonTabModel * person_folder_model
 	LLPersonModel* person_model = NULL;
 
 	LLAvatarName avatar_name;
-	bool avatar_name_exists = LLAvatarNameCache::get(agent_id, &avatar_name);
+	bool has_name = LLAvatarNameCache::get(agent_id, &avatar_name);
+	std::string avatar_name_string;
+	
+	if(has_name)
+	{
+		avatar_name_string = avatar_name.getDisplayName();
+	}
 
-	std::string aggregated_name = avatar_name_exists ? name + " (" + avatar_name.getDisplayName() + ") " : name;
-
-	person_model = new LLPersonModel(agent_id, aggregated_name, mPersonFolderViewModel);
+	person_model = new LLPersonModel(agent_id, name, avatar_name_string, mPersonFolderViewModel);
 	person_folder_model->addParticipant(person_model);
 }
 

@@ -39,14 +39,24 @@
 
 LLPersonModelCommon::LLPersonModelCommon(std::string display_name, LLFolderViewModelInterface& root_view_model) :
     LLFolderViewModelItemCommon(root_view_model),
+	mLabelSuffix(""),
 	mID(LLUUID().generateNewID())
 {
     renameItem(display_name);
 }
 
+LLPersonModelCommon::LLPersonModelCommon(std::string display_name, std::string suffix, LLFolderViewModelInterface& root_view_model) :
+LLFolderViewModelItemCommon(root_view_model),
+	mID(LLUUID().generateNewID())
+{
+	mLabelSuffix = suffix;
+	renameItem(display_name);
+}
+
 LLPersonModelCommon::LLPersonModelCommon(LLFolderViewModelInterface& root_view_model) :
     LLFolderViewModelItemCommon(root_view_model),
 	mName(""),
+	mLabelSuffix(""),
     mSearchableName(""),
     mPrevPassedAllFilters(false),
 	mID(LLUUID().generateNewID())
@@ -212,8 +222,8 @@ LLPersonModel* LLPersonTabModel::findParticipant(const LLUUID& person_id)
 // LLPersonModel
 // 
 
-LLPersonModel::LLPersonModel(const LLUUID& agent_id, const std::string display_name, LLFolderViewModelInterface& root_view_model) :
-LLPersonModelCommon(display_name,root_view_model),
+LLPersonModel::LLPersonModel(const LLUUID& agent_id, const std::string display_name, const std::string suffix, LLFolderViewModelInterface& root_view_model) :
+LLPersonModelCommon(display_name, suffix, root_view_model),
 mAgentID(agent_id)
 {
 }
