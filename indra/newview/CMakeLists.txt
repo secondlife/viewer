@@ -185,6 +185,7 @@ set(viewer_SOURCE_FILES
     llexpandabletextbox.cpp
     llexternaleditor.cpp
     llface.cpp
+    llfacebookconnect.cpp
     llfasttimerview.cpp
     llfavoritesbar.cpp
     llfeaturemanager.cpp
@@ -769,6 +770,7 @@ set(viewer_HEADER_FILES
     llexpandabletextbox.h
     llexternaleditor.h
     llface.h
+    llfacebookconnect.h
     llfasttimerview.h
     llfavoritesbar.h
     llfeaturemanager.h

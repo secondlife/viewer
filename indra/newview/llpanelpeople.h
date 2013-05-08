@@ -63,13 +63,9 @@ public:
 	static void idle(void * user_data);
 
 	void openFacebookWeb(std::string url);
-	void showFacebookFriends(const LLSD& friends);
 	void addTestParticipant();
 	void addParticipantToModel(LLPersonTabModel * session_model, const LLUUID& agent_id, const std::string& name);
-	void hideFacebookFriends();
-	void loadFacebookFriends();
 	void tryToReconnectToFacebook();
-	void connectToFacebook(const std::string& auth_code = "");
 	void disconnectFromFacebook();
 	
 	std::string getFacebookConnectURL(const std::string& route = "");

@@ -1639,40 +1639,6 @@ void LLPanelPeople::openFacebookWeb(std::string url)
 	LLUrlAction::openURLExternal(url);
 }
 
-void LLPanelPeople::showFacebookFriends(const LLSD& friends)
-{
-	mFacebookFriends->clear();
-	LLPersonTabModel::tab_type tab_type;
-	LLAvatarTracker& avatar_tracker = LLAvatarTracker::instance();
-
-	for (LLSD::map_const_iterator i = friends.beginMap(); i != friends.endMap(); ++i)
-	{
-		std::string name = i->second["name"].asString();
-		LLUUID agent_id = i->second.has("agent_id") ? i->second["agent_id"].asUUID() : LLUUID(NULL);
-		
-		//add to avatar list
-		mFacebookFriends->addNewItem(agent_id, name, false);
-
-		//FB+SL but not SL friend
-		if(agent_id.notNull() && !avatar_tracker.isBuddy(agent_id))
-		{
-			tab_type = LLPersonTabModel::FB_SL_NON_SL_FRIEND;
-		}
-		//FB only friend
-		else
-		{
-			tab_type = LLPersonTabModel::FB_ONLY_FRIEND;
-		}
-
-		//Add to person tab model
-		LLPersonTabModel * person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(tab_type));
-		if(person_tab_model)
-		{
-			addParticipantToModel(person_tab_model, agent_id, name);
-		}
-	}
-}
-
 void LLPanelPeople::addTestParticipant()
 {
     std::string suffix("Aa");
@@ -1725,141 +1691,6 @@ void LLPanelPeople::addParticipantToModel(LLPersonTabModel * person_folder_model
 	person_folder_model->addParticipant(person_model);
 }
 
-void LLPanelPeople::hideFacebookFriends()
-{
-	mFacebookFriends->clear();
-}
-
-class FacebookConnectResponder : public LLHTTPClient::Responder
-{
-public:
-
-	LLPanelPeople * mPanelPeople;
-
-	FacebookConnectResponder(LLPanelPeople * panel_people) : mPanelPeople(panel_people) {}
-
-	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
-	{
-		if (isGoodStatus(status))
-		{
-			llinfos << content << llendl;
-			
-			// grab some graph data now that we are connected
-			mPanelPeople->mConnectedToFbc = true;
-			mPanelPeople->loadFacebookFriends();
-		}
-		else
-		{
-			llinfos << "failed to get response. reason: " << reason << " status: " << status << llendl;
-		}
-	}
-
-	/*virtual*/ void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-	{
-		if (status == 302)
-		{
-			mPanelPeople->openFacebookWeb(content["location"]);
-		}
-	}
-};
-
-class FacebookDisconnectResponder : public LLHTTPClient::Responder
-{
-public:
-
-	LLPanelPeople * mPanelPeople;
-
-	FacebookDisconnectResponder(LLPanelPeople * panel_people) : mPanelPeople(panel_people) {}
-
-	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
-	{
-		if (isGoodStatus(status))
-		{
-			llinfos << content << llendl;
-			
-			// hide all the facebook stuff
-			mPanelPeople->mConnectedToFbc = false;
-			mPanelPeople->hideFacebookFriends();
-		}
-		else
-		{
-			llinfos << "failed to get response. reason: " << reason << " status: " << status << llendl;
-		}
-	}
-};
-
-class FacebookConnectedResponder : public LLHTTPClient::Responder
-{
-public:
-
-	LLPanelPeople * mPanelPeople;
-	bool mShowLoginIfNotConnected;
-
-	FacebookConnectedResponder(LLPanelPeople * panel_people, bool show_login_if_not_connected) : mPanelPeople(panel_people), mShowLoginIfNotConnected(show_login_if_not_connected) {}
-
-	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
-	{
-		if (isGoodStatus(status))
-		{
-			llinfos << content << llendl;
-
-			// grab some graph data if already connected
-			mPanelPeople->mConnectedToFbc = true;
-			mPanelPeople->loadFacebookFriends();
-		}
-		else
-		{
-			llinfos << "failed to get response. reason: " << reason << " status: " << status << llendl;
-
-			// show the facebook login page if not connected yet
-			if (status == 404 && mShowLoginIfNotConnected)
-			{
-				mPanelPeople->connectToFacebook();
-			}
-		}
-	}
-};
-
-class FacebookFriendsResponder : public LLHTTPClient::Responder
-{
-public:
-
-	LLPanelPeople * mPanelPeople;
-
-	FacebookFriendsResponder(LLPanelPeople * panel_people) : mPanelPeople(panel_people) {}
-
-	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
-	{
-		if (isGoodStatus(status))
-		{
-			llinfos << content << llendl;
-
-			// display the list of friends
-			mPanelPeople->showFacebookFriends(content);
-		}
-		else
-		{
-			llinfos << "failed to get response. reason: " << reason << " status: " << status << llendl;
-		}
-	}
-
-	/*virtual*/ void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-	{
-		if (status == 302)
-		{
-			mPanelPeople->openFacebookWeb(content["location"]);
-		}
-	}
-};
-
-void LLPanelPeople::loadFacebookFriends()
-{
-	const bool follow_redirects=false;
-	const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
-	LLHTTPClient::get(getFacebookConnectURL("/friend"), new FacebookFriendsResponder(this),
-					  LLSD(), timeout, follow_redirects);
-}
-
 void LLPanelPeople::tryToReconnectToFacebook()
 {
 	if (!mConnectedToFbc)
@@ -1869,15 +1700,6 @@ void LLPanelPeople::tryToReconnectToFacebook()
 		LLHTTPClient::get(getFacebookConnectURL("/connection"), new FacebookConnectedResponder(this, false),
 						  LLSD(), timeout, follow_redirects);
 	}
-}
-
-void LLPanelPeople::connectToFacebook(const std::string& auth_code)
-{
-	LLSD body;
-	if (!auth_code.empty())
-		body["code"] = auth_code;
-
-	LLHTTPClient::put(getFacebookConnectURL("/connection"), body, new FacebookConnectResponder(this));
 }
 
 void LLPanelPeople::disconnectFromFacebook()
