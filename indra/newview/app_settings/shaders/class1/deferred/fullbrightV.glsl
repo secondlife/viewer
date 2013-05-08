@@ -57,8 +57,6 @@ void main()
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	
 	calcAtmospherics(pos.xyz);
-	
-	vertex_color.rgb = pow(diffuse_color, vec3(2.2f,2.2f,2.2f));
-	vertex_color.a   = diffuse_color.a;
-	
+
+	vertex_color = diffuse_color;
 }
