@@ -150,16 +150,19 @@ std::string LLURLRequest::actionAsVerb(LLURLRequest::ERequestAction action)
 	return VERBS[action];
 }
 
-LLURLRequest::LLURLRequest(LLURLRequest::ERequestAction action) :
-	mAction(action)
+LLURLRequest::LLURLRequest(LLURLRequest::ERequestAction action, bool follow_redirects /* = true */) :
+	mAction(action),
+	mFollowRedirects(follow_redirects)
 {
 	initialize();
 }
 
 LLURLRequest::LLURLRequest(
 	LLURLRequest::ERequestAction action,
-	const std::string& url) :
-	mAction(action)
+	const std::string& url,
+	bool follow_redirects /* = true */) :
+	mAction(action),
+	mFollowRedirects(follow_redirects)
 {
 	initialize();
 	setURL(url);
@@ -479,12 +482,18 @@ bool LLURLRequest::configure()
 	case HTTP_HEAD:
 		mDetail->mCurlRequest->setopt(CURLOPT_HEADER, 1);
 		mDetail->mCurlRequest->setopt(CURLOPT_NOBODY, 1);
-		mDetail->mCurlRequest->setopt(CURLOPT_FOLLOWLOCATION, 1);
+		if (mFollowRedirects)
+		{
+			mDetail->mCurlRequest->setopt(CURLOPT_FOLLOWLOCATION, 1);
+		}
 		rv = true;
 		break;
 	case HTTP_GET:
 		mDetail->mCurlRequest->setopt(CURLOPT_HTTPGET, 1);
-		mDetail->mCurlRequest->setopt(CURLOPT_FOLLOWLOCATION, 1);
+		if (mFollowRedirects)
+		{
+			mDetail->mCurlRequest->setopt(CURLOPT_FOLLOWLOCATION, 1);
+		}
 
 		// Set Accept-Encoding to allow response compression
 		mDetail->mCurlRequest->setoptString(CURLOPT_ENCODING, "");

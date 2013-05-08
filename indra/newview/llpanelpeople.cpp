@@ -1854,14 +1854,20 @@ public:
 
 void LLPanelPeople::loadFacebookFriends()
 {
-	LLHTTPClient::get(getFacebookConnectURL("/friend"), new FacebookFriendsResponder(this));
+	const bool follow_redirects=false;
+	const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
+	LLHTTPClient::get(getFacebookConnectURL("/friend"), new FacebookFriendsResponder(this),
+					  LLSD(), timeout, follow_redirects);
 }
 
 void LLPanelPeople::tryToReconnectToFacebook()
 {
 	if (!mConnectedToFbc)
 	{
-		LLHTTPClient::get(getFacebookConnectURL("/connection"), new FacebookConnectedResponder(this, false));
+		const bool follow_redirects=false;
+		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
+		LLHTTPClient::get(getFacebookConnectURL("/connection"), new FacebookConnectedResponder(this, false),
+						  LLSD(), timeout, follow_redirects);
 	}
 }
 
@@ -1881,7 +1887,8 @@ void LLPanelPeople::disconnectFromFacebook()
 
 std::string LLPanelPeople::getFacebookConnectURL(const std::string& route)
 {
-	static std::string sFacebookConnectUrl = gAgent.getRegion()->getCapability("FacebookConnect");
+	//static std::string sFacebookConnectUrl = gAgent.getRegion()->getCapability("FacebookConnect");
+	static std::string sFacebookConnectUrl = "https://pdp15.lindenlab.com/fbc/agent/" + gAgentID.asString(); // TEMPORARY HACK FOR FB DEMO - Cho
 	std::string url = sFacebookConnectUrl + route;
 	llinfos << url << llendl;
 	return url;
@@ -1895,7 +1902,10 @@ void LLPanelPeople::onLoginFbcButtonClicked()
 	}
 	else
 	{
-		LLHTTPClient::get(getFacebookConnectURL("/connection"), new FacebookConnectedResponder(this, true));
+		const bool follow_redirects=false;
+		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
+		LLHTTPClient::get(getFacebookConnectURL("/connection"), new FacebookConnectedResponder(this, true),
+						  LLSD(), timeout, follow_redirects);
 	}
 }
 
