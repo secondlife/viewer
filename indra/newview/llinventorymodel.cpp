@@ -2267,10 +2267,10 @@ void LLInventoryModel::buildParentChildMap()
 		}
 	}
 
-	//if (!gInventory.validate())
-	//{
-	//	llwarns << "model failed validity check!" << llendl;
-	//}
+	// if (!gInventory.validate())
+	// {
+	// 	llwarns << "model failed validity check!" << llendl;
+	// }
 }
 
 struct LLUUIDAndName
@@ -3002,7 +3002,7 @@ void LLInventoryModel::processInventoryDescendents(LLMessageSystem* msg,void**)
 		// If the item has already been added (e.g. from link prefetch), then it doesn't need to be re-added.
 		if (gInventory.getItem(titem->getUUID()))
 		{
-			lldebugs << "Skipping prefetched item [ Name: " << titem->getName() << " | Type: " << titem->getActualType() << " | ItemUUID: " << titem->getUUID() << " ] " << llendl;
+			llinfos << "Skipping prefetched item [ Name: " << titem->getName() << " | Type: " << titem->getActualType() << " | ItemUUID: " << titem->getUUID() << " ] " << llendl;
 			continue;
 		}
 		gInventory.updateItem(titem);
@@ -3458,7 +3458,8 @@ bool LLInventoryModel::validate() const
 		}
 		else if (cats->size() + items->size() != cat->getDescendentCount())
 		{
-			llwarns << "invalid desc count for " << cat_id << " name " << cat->getName()
+			llwarns << "invalid desc count for " << cat_id << " name [" << cat->getName()
+					<< "] parent " << cat->getParentUUID()
 					<< " cached " << cat->getDescendentCount()
 					<< " expected " << cats->size() << "+" << items->size()
 					<< "=" << cats->size() +items->size() << llendl;
@@ -3538,7 +3539,86 @@ bool LLInventoryModel::validate() const
 			}
 		}
 
+		// Does this category appear as a child of its supposed parent?
+		const LLUUID& parent_id = cat->getParentUUID();
+		if (!parent_id.isNull())
+		{
+			cat_array_t* cats;
+			item_array_t* items;
+			getDirectDescendentsOf(parent_id,cats,items);
+			if (!cats)
+			{
+				llwarns << "cat " << cat_id << " name [" << cat->getName()
+						<< "] orphaned - no child cat array for alleged parent " << parent_id << llendl;
+				valid = false;
+			}
+			else
+			{
+				bool found = false;
+				for (S32 i = 0; i<cats->size(); i++)
+				{
+					LLViewerInventoryCategory *kid_cat = cats->get(i);
+					if (kid_cat == cat)
+					{
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+				{
+					llwarns << "cat " << cat_id << " name [" << cat->getName()
+							<< "] orphaned - not found in child cat array of alleged parent " << parent_id << llendl;
+				}
+			}
+		}
 	}
+
+	for(item_map_t::const_iterator iit = mItemMap.begin(); iit != mItemMap.end(); ++iit)
+	{
+		const LLUUID& item_id = iit->first;
+		LLViewerInventoryItem *item = iit->second;
+		if (item->getUUID() != item_id)
+		{
+			llwarns << "item_id " << item_id << " does not match " << item->getUUID() << llendl;
+			valid = false;
+		}
+
+		const LLUUID& parent_id = item->getParentUUID();
+		if (parent_id.isNull())
+		{
+			llwarns << "item " << item_id << " name [" << item->getName() << "] has null parent id!" << llendl;
+		}
+		else
+		{
+			cat_array_t* cats;
+			item_array_t* items;
+			getDirectDescendentsOf(parent_id,cats,items);
+			if (!items)
+			{
+				llwarns << "item " << item_id << " name [" << item->getName()
+						<< "] orphaned - alleged parent has no child items list " << parent_id << llendl;
+			}
+			else
+			{
+				bool found = false;
+				for (S32 i=0; i<items->size(); ++i)
+				{
+					if (items->get(i) == item) 
+					{
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+				{
+					llwarns << "item " << item_id << " name [" << item->getName()
+							<< "] orphaned - not found as child of alleged parent " << parent_id << llendl;
+				}
+			}
+				
+		}
+	}
+	
 	if (cat_lock > 0 || item_lock > 0)
 	{
 		llwarns << "Found locks on some categories: sub-cat arrays "
