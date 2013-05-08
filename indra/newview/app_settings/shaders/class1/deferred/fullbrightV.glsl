@@ -58,7 +58,7 @@ void main()
 	
 	calcAtmospherics(pos.xyz);
 	
-	vertex_color = diffuse_color;
-
+	vertex_color.rgb = pow(diffuse_color, vec3(2.2f,2.2f,2.2f));
+	vertex_color.a   = diffuse_color.a;
 	
 }
