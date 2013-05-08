@@ -159,7 +159,9 @@ void LLVisualParamHint::preRender(BOOL clear_depth)
 	gAgentAvatarp->setVisualParamWeight("Blink_Left", 0.f);
 	gAgentAvatarp->setVisualParamWeight("Blink_Right", 0.f);
 	gAgentAvatarp->updateComposites();
-	gAgentAvatarp->updateVisualParams();
+	// Calling LLCharacter version, as we don't want position/height changes to cause the avatar to jump
+	// up and down when we're doing preview renders. -Nyx
+	gAgentAvatarp->LLCharacter::updateVisualParams();
 	gAgentAvatarp->updateGeometry(gAgentAvatarp->mDrawable);
 	gAgentAvatarp->updateLOD();
 
