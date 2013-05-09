@@ -70,12 +70,12 @@ protected:
 public:
 	void* operator new(size_t size)
 	{
-		return ll_aligned_malloc_16(size);
+		return ll_aligned_malloc(size,64);
 	}
 
 	void operator delete(void* ptr)
 	{
-		ll_aligned_free_16(ptr);
+		ll_aligned_free(ptr);
 	}
 
 
@@ -121,6 +121,7 @@ public:
 	U32 mDrawMode;
 	U32 mBlendFuncSrc;
 	U32 mBlendFuncDst;
+	BOOL mHasGlow;
 
 	struct CompareTexture
 	{

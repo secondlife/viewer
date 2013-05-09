@@ -387,7 +387,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 		}
 
 		// Do glow interpolation
-		part->mGlow.mV[3] = (U8) (lerp(part->mStartGlow, part->mEndGlow, frac)*255.f);
+		part->mGlow.mV[3] = (U8) llround(lerp(part->mStartGlow, part->mEndGlow, frac)*255.f);
 
 		// Set the last update time to now.
 		part->mLastUpdateTime = cur_time;

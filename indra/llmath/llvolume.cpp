@@ -4520,7 +4520,11 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 		S32 tc_size = (mNumVertices*sizeof(LLVector2)+0xF) & ~0xF;
 			
 		LLVector4a::memcpyNonAliased16((F32*) mPositions, (F32*) src.mPositions, vert_size);
-		LLVector4a::memcpyNonAliased16((F32*) mNormals, (F32*) src.mNormals, vert_size);
+
+		if (src.mNormals)
+		{
+			LLVector4a::memcpyNonAliased16((F32*) mNormals, (F32*) src.mNormals, vert_size);
+		}
 
 		if(src.mTexCoords)
 		{
