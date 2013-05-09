@@ -76,9 +76,12 @@ protected:
 	void 	onCommitTexture(const LLSD& data);
 	void 	onCancelTexture(const LLSD& data);
 	void 	onSelectTexture(const LLSD& data);
-	void 	onCommitMaterialTexture(const LLSD& data);
-	void 	onCancelMaterialTexture(const LLSD& data);
-	void 	onSelectMaterialTexture(const LLSD& data);
+	void 	onCommitSpecularTexture(const LLSD& data);
+	void 	onCancelSpecularTexture(const LLSD& data);
+	void 	onSelectSpecularTexture(const LLSD& data);
+	void 	onCommitNormalTexture(const LLSD& data);
+	void 	onCancelNormalTexture(const LLSD& data);
+	void 	onSelectNormalTexture(const LLSD& data);
 	void 	onCommitColor(const LLSD& data);
 	void 	onCommitShinyColor(const LLSD& data);
 	void 	onCommitAlpha(const LLSD& data);
@@ -93,8 +96,8 @@ protected:
 	static void		onCommitMaterialType(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitBump(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitTexGen(			LLUICtrl* ctrl, void* userdata);
-	static void		updateShinyControls(		LLUICtrl* ctrl, void* userdata, bool mess_with_combobox = false);
-	static void		updateBumpyControls(		LLUICtrl* ctrl, void* userdata, bool mess_with_combobox = false);
+	static void		updateShinyControls(		LLUICtrl* ctrl, void* userdata, bool is_setting_texture = false, bool mess_with_combobox = false);
+	static void		updateBumpyControls(		LLUICtrl* ctrl, void* userdata, bool is_setting_texture = false, bool mess_with_combobox = false);
 	static void		onCommitShiny(			LLUICtrl* ctrl, void* userdata);
 	static void		updateAlphaControls(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitAlphaMode(		LLUICtrl* ctrl, void* userdata);
