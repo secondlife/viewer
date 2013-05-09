@@ -731,7 +731,7 @@ BOOL LLPanelPeople::postBuild()
 	folder_view_params.listener = base_item;
 	folder_view_params.view_model = &mPersonFolderViewModel;
 	folder_view_params.root = NULL;
-	folder_view_params.use_ellipses = false;
+	folder_view_params.use_ellipses = true;
 	folder_view_params.use_label_suffix = true;
 	folder_view_params.options_menu = "menu_conversation.xml";
 	folder_view_params.name = "fbcfolderview";
@@ -1677,7 +1677,7 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 void LLPanelPeople::addTestParticipant()
 {
     std::string suffix("Aa");
-    std::string prefix("Second Life User Name Goes Here");
+    std::string prefix("Facebook User Name");
 	LLPersonTabModel * person_tab_model;
 	LLUUID agentID;
 	std::string name;
@@ -1726,7 +1726,7 @@ void LLPanelPeople::addParticipantToModel(LLPersonTabModel * person_folder_model
 		avatar_name_string = avatar_name.getDisplayName();
 	}
 
-	person_model = new LLPersonModel(agent_id, name, avatar_name_string, mPersonFolderViewModel);
+	person_model = new LLPersonModel(agent_id, avatar_name_string, name, mPersonFolderViewModel);
 	person_folder_model->addParticipant(person_model);
 }
 
