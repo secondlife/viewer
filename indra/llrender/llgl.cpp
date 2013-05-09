@@ -86,7 +86,7 @@ void APIENTRY gl_debug_callback(GLenum source,
 	}
 	else
 	{
-		llwarns << "----- GL WARNING -------" << llendl;
+		llwarns << "----- GL WARNING -------" << llendl;		
 	}
 	llwarns << "Type: " << std::hex << type << llendl;
 	llwarns << "ID: " << std::hex << id << llendl;

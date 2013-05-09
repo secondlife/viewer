@@ -68,9 +68,9 @@
 		<combo_box.item label="絕不" name="item4"/>
 	</combo_box>
 	<text name="text_box3">
-		忙碌模式回應：
+		「請勿打擾」預設回應：
 	</text>
-	<text_editor name="busy_response">
+	<text_editor name="do_not_disturb_response">
 		log_in_to_change
 	</text_editor>
 </panel>
