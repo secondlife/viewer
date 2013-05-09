@@ -1149,7 +1149,7 @@ void LLFloaterPreference::refreshEnabledState()
 	//Deferred/SSAO/Shadows
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
 	
-	BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") && 
+	BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
 						((bumpshiny_ctrl && bumpshiny_ctrl->get()) ? TRUE : FALSE) &&
 						shaders && 
 						gGLManager.mHasFramebufferObject &&
@@ -1163,7 +1163,9 @@ void LLFloaterPreference::refreshEnabledState()
 	LLComboBox* ctrl_shadow = getChild<LLComboBox>("ShadowDetail");
 
 	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO") && (ctrl_deferred->get() ? TRUE : FALSE);
-		
+	
+	ctrl_deferred->set(gSavedSettings.getBOOL("RenderDeferred"));
+
 	ctrl_ssao->setEnabled(enabled);
 	ctrl_dof->setEnabled(enabled);
 
