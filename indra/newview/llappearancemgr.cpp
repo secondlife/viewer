@@ -2947,7 +2947,7 @@ protected:
 
 	void debugCOF(const LLSD& content)
 	{
-		LL_DEBUGS("Avatar") << "AIS COF, version found: " << content["expected"].asInteger() << llendl;
+		LL_INFOS("Avatar") << "AIS COF, version found: " << content["expected"].asInteger() << llendl;
 		std::set<LLUUID> ais_items, local_items;
 		const LLSD& cof_raw = content["cof_raw"];
 		for (LLSD::array_const_iterator it = cof_raw.beginArray();
@@ -2959,14 +2959,14 @@ protected:
 				ais_items.insert(item["item_id"].asUUID());
 				if (item["type"].asInteger() == 24) // link
 				{
-					LL_DEBUGS("Avatar") << "Link: item_id: " << item["item_id"].asUUID()
+					LL_INFOS("Avatar") << "Link: item_id: " << item["item_id"].asUUID()
 										<< " linked_item_id: " << item["asset_id"].asUUID()
 										<< " name: " << item["name"].asString()
 										<< llendl; 
 				}
 				else if (item["type"].asInteger() == 25) // folder link
 				{
-					LL_DEBUGS("Avatar") << "Folder link: item_id: " << item["item_id"].asUUID()
+					LL_INFOS("Avatar") << "Folder link: item_id: " << item["item_id"].asUUID()
 										<< " linked_item_id: " << item["asset_id"].asUUID()
 										<< " name: " << item["name"].asString()
 										<< llendl; 
@@ -2974,15 +2974,15 @@ protected:
 				}
 				else
 				{
-					LL_DEBUGS("Avatar") << "Other: item_id: " << item["item_id"].asUUID()
+					LL_INFOS("Avatar") << "Other: item_id: " << item["item_id"].asUUID()
 										<< " linked_item_id: " << item["asset_id"].asUUID()
 										<< " name: " << item["name"].asString()
 										<< llendl; 
 				}
 			}
 		}
-		LL_DEBUGS("Avatar") << llendl;
-		LL_DEBUGS("Avatar") << "Local COF, version requested: " << content["observed"].asInteger() << llendl;
+		LL_INFOS("Avatar") << llendl;
+		LL_INFOS("Avatar") << "Local COF, version requested: " << content["observed"].asInteger() << llendl;
 		LLInventoryModel::cat_array_t cat_array;
 		LLInventoryModel::item_array_t item_array;
 		gInventory.collectDescendents(LLAppearanceMgr::instance().getCOF(),
@@ -2991,24 +2991,24 @@ protected:
 		{
 			const LLViewerInventoryItem* inv_item = item_array.get(i).get();
 			local_items.insert(inv_item->getUUID());
-			LL_DEBUGS("Avatar") << "item_id: " << inv_item->getUUID()
+			LL_INFOS("Avatar") << "item_id: " << inv_item->getUUID()
 								<< " linked_item_id: " << inv_item->getLinkedUUID()
 								<< " name: " << inv_item->getName()
 								<< llendl;
 		}
-		LL_DEBUGS("Avatar") << llendl;
+		LL_INFOS("Avatar") << llendl;
 		for (std::set<LLUUID>::iterator it = local_items.begin(); it != local_items.end(); ++it)
 		{
 			if (ais_items.find(*it) == ais_items.end())
 			{
-				LL_DEBUGS("Avatar") << "LOCAL ONLY: " << *it << llendl;
+				LL_INFOS("Avatar") << "LOCAL ONLY: " << *it << llendl;
 			}
 		}
 		for (std::set<LLUUID>::iterator it = ais_items.begin(); it != ais_items.end(); ++it)
 		{
 			if (local_items.find(*it) == local_items.end())
 			{
-				LL_DEBUGS("Avatar") << "AIS ONLY: " << *it << llendl;
+				LL_INFOS("Avatar") << "AIS ONLY: " << *it << llendl;
 			}
 		}
 	}
