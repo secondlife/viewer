@@ -705,6 +705,20 @@ void LLFeatureManager::setGraphicsLevel(S32 level, bool skipFeatures)
 	switch (level)
 	{
 		case 0:
+#if LL_DARWIN
+			// This Mac-specific change is to insure that we force 'Basic Shaders' for all Mac
+			// systems which support them instead of falling back to fixed-function unnecessarily
+			// MAINT-2157
+			//
+			if (gGLManager.mGLVersion < 2.1f)
+			{
+				maskFeatures("LowFixedFunction");			
+			}
+			else
+			{ //same as low, but with "Basic Shaders" enabled
+				maskFeatures("Low");
+			}
+#else
 			if (gGLManager.mGLVersion < 3.f || gGLManager.mIsIntel)
 			{ //only use fixed function by default if GL version < 3.0 or this is an intel graphics chip
 				maskFeatures("LowFixedFunction");			
@@ -713,6 +727,7 @@ void LLFeatureManager::setGraphicsLevel(S32 level, bool skipFeatures)
 			{ //same as low, but with "Basic Shaders" enabled
 				maskFeatures("Low");
 			}
+#endif
 			break;
 		case 1:
 			maskFeatures("LowMid");

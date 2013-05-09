@@ -1,34 +1,86 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="チャット" name="chat">
-	<text name="font_size">
-		文字の大きさ：
-	</text>
-	<radio_group name="chat_font_size">
-		<radio_item label="小" name="radio" value="0"/>
-		<radio_item label="中" name="radio2" value="1"/>
-		<radio_item label="大" name="radio3" value="2"/>
-	</radio_group>
-	<check_box initial_value="true" label="チャット中にタイピング動作のアニメーションを再生" name="play_typing_animation"/>
-	<check_box label="オフライン時に受け取った IM をメールで受信" name="send_im_to_email"/>
-	<check_box label="IM とチャット履歴に文字だけ表示する" name="plain_text_chat_history"/>
-	<check_box label="吹き出しチャット" name="bubble_text_chat"/>
-	<text name="show_ims_in_label">
-		IM の表示方法：
-	</text>
-	<text name="requires_restart_label">
-		（再起動後に反映）
-	</text>
-	<radio_group name="chat_window" tool_tip="インスタントメッセージを別フローター、または1つのフローターに複数タブで表示します（要再起動）">
-		<radio_item label="別々のウィンドウ" name="radio" value="0"/>
-		<radio_item label="タブ" name="radio2" value="1"/>
-	</radio_group>
-	<text name="disable_toast_label">
-		受信チャットのポップアップを有効にする
-	</text>
-	<check_box label="グループチャット" name="EnableGroupChatPopups" tool_tip="これを選択すると、グループチャットメッセージを受信した際にポップアップが表示されます"/>
-	<check_box label="IM チャット" name="EnableIMChatPopups" tool_tip="これを選択すると、インスタントメッセージを受信した際にポップアップが表示されます"/>
-	<spinner label="近くのチャットメッセージが表示される長さ：" name="nearby_toasts_lifetime"/>
-	<spinner label="近くのチャットメッセージが消えるまでの長さ：" name="nearby_toasts_fadingtime"/>
+	<panel>
+		<check_box initial_value="true" label="チャット中にタイピング動作のアニメーションを再生" name="play_typing_animation"/>
+		<check_box label="オフライン時に受け取った IM をメールで受信" name="send_im_to_email"/>
+		<check_box label="フレンドとグループ以外からはコールと IM を受信しない" name="voice_call_friends_only_check"/>
+		<text name="font_size">
+			文字の大きさ：
+		</text>
+		<combo_box name="chat_font_size">
+			<item label="小規模" name="Small" value="0"/>
+			<item label="中" name="Medium" value="1"/>
+			<item label="大規模" name="Large" value="2"/>
+		</combo_box>
+		<check_box label="吹き出しチャット" name="bubble_text_chat"/>
+	</panel>
+	<panel>
+		<text name="notifications">
+			通知
+		</text>
+		<text name="friend_ims">
+			フレンド IM:
+		</text>
+		<combo_box name="FriendIMOptions">
+			<item label="会話ウィンドウを開く" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="メッセージのポップアップ" name="PopUpMessage" value="toast"/>
+			<item label="Flash ツールバーボタン" name="FlashToolbarButton" value="flash"/>
+			<item label="フィルターなし" name="None" value="none"/>
+		</combo_box>
+		<text name="non_friend_ims">
+			非フレンド IM:
+		</text>
+		<combo_box name="NonFriendIMOptions">
+			<item label="会話ウィンドウを開く" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="メッセージのポップアップ" name="PopUpMessage" value="toast"/>
+			<item label="Flash ツールバーボタン" name="FlashToolbarButton" value="flash"/>
+			<item label="フィルターなし" name="None" value="none"/>
+		</combo_box>
+		<text name="conference_ims">
+			コンファレンス IM:
+		</text>
+		<combo_box name="ConferenceIMOptions">
+			<item label="会話ウィンドウを開く" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="メッセージのポップアップ" name="PopUpMessage" value="toast"/>
+			<item label="Flashツールバーボタン" name="FlashToolbarButton" value="flash"/>
+			<item label="フィルターなし" name="None" value="none"/>
+		</combo_box>
+		<text name="group_chat">
+			グループチャット:
+		</text>
+		<combo_box name="GroupChatOptions">
+			<item label="会話ウィンドウを開く" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="メッセージのポップアップ" name="PopUpMessage" value="toast"/>
+			<item label="Flash ツールバーボタン" name="FlashToolbarButton" value="flash"/>
+			<item label="なし" name="None" value="none"/>
+		</combo_box>
+		<text name="nearby_chat">
+			近くのチャット:
+		</text>
+		<combo_box name="NearbyChatOptions">
+			<item label="会話ウィンドウを開く" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="メッセージのポップアップ" name="PopUpMessage" value="toast"/>
+			<item label="Flash ツールバーボタン" name="FlashToolBarButton" value="flash"/>
+			<item label="フィルターなし" name="None" value="none"/>
+		</combo_box>
+		<text name="notifications_alert">
+			すべての通知を一時的に受け付けないようにするには、「コミュニケート」&gt;「通知を受けない」を使用します。
+		</text>
+	</panel>
+	<panel>
+		<text name="play_sound">
+			音の再生:
+		</text>
+		<check_box label="新しい会話" name="new_conversation"/>
+		<check_box label="ボイスコールの着信" name="incoming_voice_call"/>
+		<check_box label="テレポートを渡す" name="teleport_offer"/>
+		<check_box label="アイテムのオファー" name="inventory_offer"/>
+	</panel>
+	<panel>
+		<button label="ログのクリア..." name="clear_log"/>
+		<button label="テキストの削除..." name="delete_transcripts"/>
+		<button label="参照..." label_selected="参照" name="log_path_button"/>
+	</panel>
 	<button label="他の言語..." name="ok_btn"/>
 	<button label="自動置換..." name="autoreplace_showgui"/>
 	<button label="スペルチェック中..." name="spellcheck_showgui"/>

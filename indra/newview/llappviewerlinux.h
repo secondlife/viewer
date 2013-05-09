@@ -63,7 +63,7 @@ protected:
 	virtual bool restoreErrorTrap();
 	virtual void handleCrashReporting(bool reportFreeze);
 
-	virtual bool initLogging();
+	virtual void initLogging();
 	virtual bool initParseCommandLine(LLCommandLineParser& clp);
 
 	virtual bool initSLURLHandler();

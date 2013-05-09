@@ -29,7 +29,7 @@
 #if ! defined(LL_LLCOROS_H)
 #define LL_LLCOROS_H
 
-#include <boost/coroutine/coroutine.hpp>
+#include <boost/dcoroutine/coroutine.hpp>
 #include "llsingleton.h"
 #include <boost/ptr_container/ptr_map.hpp>
 #include <string>
@@ -78,8 +78,8 @@
 class LL_COMMON_API LLCoros: public LLSingleton<LLCoros>
 {
 public:
-    /// Canonical boost::coroutines::coroutine signature we use
-    typedef boost::coroutines::coroutine<void()> coro;
+    /// Canonical boost::dcoroutines::coroutine signature we use
+    typedef boost::dcoroutines::coroutine<void()> coro;
     /// Canonical 'self' type
     typedef coro::self self;
 

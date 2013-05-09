@@ -30,7 +30,6 @@
 
 // llcommon
 #include "llevents.h"
-#include "llmd5.h"
 #include "stringize.h"
 
 // llmessage (!)
@@ -40,6 +39,7 @@
 #include "lllogin.h"
 
 // newview
+#include "llhasheduniqueid.h"
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
 #include "llversioninfo.h"
@@ -202,7 +202,7 @@ MandatoryUpdateMachine::MandatoryUpdateMachine(LLLoginInstance & loginInstance, 
 
 void MandatoryUpdateMachine::start(void)
 {
-	llinfos << "starting manditory update machine" << llendl;
+	llinfos << "starting mandatory update machine" << llendl;
 	
 	if(mUpdaterService.isChecking()) {
 		switch(mUpdaterService.getState()) {
@@ -488,6 +488,13 @@ LLLoginInstance::LLLoginInstance() :
 	mDispatcher.add("indeterminate", "", boost::bind(&LLLoginInstance::handleIndeterminate, this, _1));
 }
 
+void LLLoginInstance::setPlatformInfo(const std::string platform,
+									  const std::string platform_version)
+{
+	mPlatform = platform;
+	mPlatformVersion = platform_version;
+}
+
 LLLoginInstance::~LLLoginInstance()
 {
 }
@@ -579,26 +586,22 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	// (re)initialize the request params with creds.
 	LLSD request_params = user_credential->getLoginParams();
 
-	char hashed_unique_id_string[MD5HEX_STR_SIZE];		/* Flawfinder: ignore */
-	LLMD5 hashed_unique_id;
-	unsigned char unique_id[MAC_ADDRESS_BYTES];
-	if(LLUUID::getNodeID(unique_id) == 0) {
-		if(LLMachineID::getUniqueID(unique_id, sizeof(unique_id)) == 0) {
-			llerrs << "Failed to get an id; cannot uniquely identify this machine." << llendl;
-		}
+	unsigned char hashed_unique_id_string[MD5HEX_STR_SIZE];
+	if ( ! llHashedUniqueID(hashed_unique_id_string) )
+	{
+		llwarns << "Not providing a unique id in request params" << llendl;
 	}
-	hashed_unique_id.update(unique_id, MAC_ADDRESS_BYTES);
-	hashed_unique_id.finalize();
-	hashed_unique_id.hex_digest(hashed_unique_id_string);
-	
 	request_params["start"] = construct_start_string();
 	request_params["skipoptional"] = mSkipOptionalUpdate;
 	request_params["agree_to_tos"] = false; // Always false here. Set true in 
 	request_params["read_critical"] = false; // handleTOSResponse
 	request_params["last_exec_event"] = mLastExecEvent;
-	request_params["mac"] = hashed_unique_id_string;
-	request_params["version"] = LLVersionInfo::getChannelAndVersion(); // Includes channel name
+	request_params["last_exec_duration"] = mLastExecDuration;
+	request_params["mac"] = (char*)hashed_unique_id_string;
+	request_params["version"] = LLVersionInfo::getVersion();
 	request_params["channel"] = LLVersionInfo::getChannel();
+	request_params["platform"] = mPlatform;
+	request_params["platform_version"] = mPlatformVersion;
 	request_params["id0"] = mSerialNumber;
 	request_params["host_id"] = gSavedSettings.getString("HostID");
 	request_params["extended_errors"] = true; // request message_id and message_args
@@ -784,20 +787,20 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 	LLSD payload;
 	payload["mandatory"] = mandatory;
 
-/*
- We're constructing one of the following 9 strings here:
-	 "DownloadWindowsMandatory"
-	 "DownloadWindowsReleaseForDownload"
-	 "DownloadWindows"
-	 "DownloadMacMandatory"
-	 "DownloadMacReleaseForDownload"
-	 "DownloadMac"
-	 "DownloadLinuxMandatory"
-	 "DownloadLinuxReleaseForDownload"
-	 "DownloadLinux"
- 
- I've called them out explicitly in this comment so that they can be grepped for.
- */
+	/*
+	 * We're constructing one of the following 9 strings here:
+	 *   "DownloadWindowsMandatory"
+	 *	 "DownloadWindowsReleaseForDownload"
+	 *	 "DownloadWindows"
+	 *	 "DownloadMacMandatory"
+	 *	 "DownloadMacReleaseForDownload"
+	 *	 "DownloadMac"
+	 *	 "DownloadLinuxMandatory"
+	 *	 "DownloadLinuxReleaseForDownload"
+	 *	 "DownloadLinux"
+ 	 *
+	 * I've called them out explicitly in this comment so that they can be grepped for.
+	 */
 	std::string notification_name = "Download";
 	
 #if LL_WINDOWS
