@@ -2137,7 +2137,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		if (mDrawable->isState(LLDrawable::FORCE_INVISIBLE) && !mOrphaned)
 		{
 // 			lldebugs << "Clearing force invisible: " << mID << ":" << getPCodeString() << ":" << getPositionAgent() << llendl;
-			mDrawable->setState(LLDrawable::CLEAR_INVISIBLE);
+			mDrawable->clearState(LLDrawable::FORCE_INVISIBLE);
+			gPipeline.markRebuild( mDrawable, LLDrawable::REBUILD_ALL, TRUE );
 		}
 	}
 
