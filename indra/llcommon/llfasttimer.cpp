@@ -568,12 +568,6 @@ LLFastTimer::NamedTimer& LLFastTimer::NamedTimer::getRootNamedTimer()
 }
 
 //static
-LLFastTimer::NamedTimer& LLFastTimer::NamedTimer::getRootNamedTimer()
-{
-        return *NamedTimerFactory::instance().getRootTimer();
-}
-
-//static
 void LLFastTimer::nextFrame()
 {
 	countsPerSecond(); // good place to calculate clock frequency

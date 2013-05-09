@@ -1372,15 +1372,6 @@ S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_nam
 	return applyParsedTEMessage(tec);
 }
 
-S32 LLPrimitive::unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num)
-{
-	LLTEContents tec;
-	S32 retval = parseTEMessage(mesgsys, block_name, block_num, tec);
-	if (!retval)
-		return retval;
-	return applyParsedTEMessage(tec);
-}
-
 S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 {
 	// use a negative block_num to indicate a single-block read (a non-variable block)

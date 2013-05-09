@@ -69,11 +69,6 @@ public:
 	// *TODO: Eliminate this in favor of username only
 	std::string getLegacyName() const;
 	
-	// Returns "James Linden" or "bobsmith123 Resident" for backwards
-	// compatibility with systems like voice and muting
-	// *TODO: Eliminate this in favor of username only
-	std::string getLegacyName() const;
-	
 	// "José Sanchez" or "James Linden", UTF-8 encoded Unicode
 	// Takes the display name preference into account. This is truly the name that should 
 	// be used for all UI where an avatar name has to be used unless we truly want something else (rare)

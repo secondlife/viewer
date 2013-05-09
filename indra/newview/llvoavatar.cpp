@@ -5839,8 +5839,6 @@ BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 			}
 			return FALSE;
 		}
-		}
-	return FALSE;
 	}
 	return FALSE;
 }
@@ -6478,8 +6476,7 @@ void LLVOAvatar::applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_com
 		{
 			morph_target->applyMask(tex_data, width, height, num_components, maskedMorph->mInvert);
 		}
-}
-}
+	}
 }
 
 
@@ -7439,30 +7436,6 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 				{
 					// MULTIPLE_WEARABLES: extend to multiple wearables?
 					LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
-				if( te_image )
-				{
-					std::string uuid_str;
-					te_image->getID().toString( uuid_str );
-					apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
-				}
-			}
-		}
-			}
-		}
-	else 
-	{
-		// Just dump all params sequentially.
-		for (LLVisualParam* param = getFirstVisualParam(); param; param = getNextVisualParam())
-		{
-			LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
-			dump_visual_param(file, viewer_param, viewer_param->getWeight());
-		}
-
-		for (U8 te = 0; te < TEX_NUM_INDICES; te++)
-		{
-			{
-				// MULTIPLE_WEARABLES: extend to multiple wearables?
-				LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
 					if( te_image )
 					{
 						std::string uuid_str;
@@ -7471,7 +7444,6 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 					}
 				}
 			}
-
 		}
 	}
 	else 
@@ -7485,19 +7457,17 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 
 		for (U8 te = 0; te < TEX_NUM_INDICES; te++)
 		{
+			// MULTIPLE_WEARABLES: extend to multiple wearables?
+			LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
+			if( te_image )
 			{
-				// MULTIPLE_WEARABLES: extend to multiple wearables?
-				LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
-				if( te_image )
-				{
-					std::string uuid_str;
-					te_image->getID().toString( uuid_str );
-					apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
-				}
+				std::string uuid_str;
+				te_image->getID().toString( uuid_str );
+				apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
 			}
 		}
-
 	}
+
 	apr_file_printf( file, "\t</archetype>\n" );
 	apr_file_printf( file, "\n</linden_genepool>\n" );
 
