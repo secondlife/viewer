@@ -3522,7 +3522,7 @@ bool LLAppViewer::anotherInstanceRunning()
 	{
 		// File exists, try opening with write permissions
 		LLAPRFile outfile ;
-		outfile.open(marker_file, LL_APR_WB);
+		outfile.open(marker_file, LL_APR_AB);
 		apr_file_t* fMarker = outfile.getFileHandle() ; 
 		if (!fMarker)
 		{
