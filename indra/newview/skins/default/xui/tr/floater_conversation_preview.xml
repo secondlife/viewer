@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview_conversation" title="KONUŞMA:">
+	<floater.string name="Title">
+		KONUŞMA: [NAME]
+	</floater.string>
+	<text name="page_label" value="Sayfa"/>
+</floater>

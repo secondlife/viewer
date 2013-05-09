@@ -137,7 +137,7 @@
 		終了
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=ja-JP&amp;sourceid=[sourceid]
+		http://join.secondlife.com/?sourceid=[sourceid]
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		お使いの古いビューワでは Second Life にアクセスできません。以下のページから新しいビューワをダウンロードしてください：
@@ -622,8 +622,8 @@ support@secondlife.com にお問い合わせください。
 	<string name="AvatarAway">
 		一時退席中
 	</string>
-	<string name="AvatarBusy">
-		取り込み中
+	<string name="AvatarDoNotDisturb">
+		通知を受けない
 	</string>
 	<string name="AvatarMuted">
 		ブロック中
@@ -859,6 +859,12 @@ support@secondlife.com にお問い合わせください。
 	<string name="ST_NO_JOINT">
 		ROOT または JOINT が見つかりません
 	</string>
+	<string name="NearbyChatTitle">
+		近くのチャット
+	</string>
+	<string name="NearbyChatLabel">
+		(近くのチャット)
+	</string>
 	<string name="whisper">
 		のささやき:
 	</string>
@@ -922,11 +928,14 @@ support@secondlife.com にお問い合わせください。
 	<string name="ControlYourCamera">
 		カメラのコントロール
 	</string>
-	<string name="TeleportYourAgent">
-		あなたをテレポート
-	</string>
 	<string name="NotConnected">
 		接続されていません
+	</string>
+	<string name="AgentNameSubst">
+		(あなた)
+	</string>
+	<string name="TeleportYourAgent">
+		あなたをテレポート
 	</string>
 	<string name="SIM_ACCESS_PG">
 		General
@@ -1008,18 +1017,6 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="dictionary_files">
 		辞書
-	</string>
-	<string name="AvatarSetNotAway">
-		一時退席中解除
-	</string>
-	<string name="AvatarSetAway">
-		一時退席中
-	</string>
-	<string name="AvatarSetNotBusy">
-		取り込み中解除
-	</string>
-	<string name="AvatarSetBusy">
-		取り込み中
 	</string>
 	<string name="shape">
 		シェイプ
@@ -1989,8 +1986,8 @@ support@secondlife.com にお問い合わせください。
 	<string name="PanelContentsNewScript">
 		新規スクリプト
 	</string>
-	<string name="BusyModeResponseDefault">
-		メッセージを送った住人は、誰にも邪魔をされたくないため現在「取り込み中」モードです。  あなたのメッセージは、あとで確認できるように IM パネルに表示されます。
+	<string name="DoNotDisturbModeResponseDefault">
+		この住民が「通知を受けない」をオンにすると、あなたのメッセージが後で表示されるようになります。
 	</string>
 	<string name="MuteByName">
 		（名称別）
@@ -2102,9 +2099,6 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="GroupMoneyDate">
 		[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日[weekday,datetime,utc]
-	</string>
-	<string name="ViewerObjectContents">
-		内容
 	</string>
 	<string name="AcquiredItems">
 		取得アイテム
@@ -3877,7 +3871,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		General リージョン
 	</string>
 	<string name="LocationCtrlSeeAVsTooltip">
-		この区画外にアバターを見えるようにして、チャットも許可
+		この区画内のアバターは、この区画の外にいるアバターからは見ることも聞くこともできません。
 	</string>
 	<string name="LocationCtrlPathfindingDirtyTooltip">
 		地域（リージョン）が再構築されるまで、移動するオブジェクトは正しく動作しない可能性があります。
@@ -3954,6 +3948,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="IM_unblock_only_groups_friends">
 		このメッセージを表示するには、「環境設定」の「プライバシー」で「フレンドとグループ以外からはコールと IM を受信しない」チェックボックスをオフにします。
 	</string>
+	<string name="OnlineStatus">
+		オンライン
+	</string>
+	<string name="OfflineStatus">
+		オフライン
+	</string>
 	<string name="answered_call">
 		相手がコールを受けました
 	</string>
@@ -3962,6 +3962,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="you_joined_call">
 		ボイスコールに参加しました
+	</string>
+	<string name="you_auto_rejected_call-im">
+		「通知を受けない」がオンのときに、自動的にボイスコールを拒否しました。
 	</string>
 	<string name="name_started_call">
 		[NAME] はボイスコールを開始します
@@ -3979,7 +3982,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		接続中...
 	</string>
 	<string name="conference-title">
-		アドホックコンファレンス
+		複数人チャット
 	</string>
 	<string name="conference-title-incoming">
 		[AGENT_NAME] とコンファレンスする
@@ -4859,6 +4862,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Command_Chat_Label">
 		チャット
 	</string>
+	<string name="Command_Conversations_Label">
+		会話
+	</string>
 	<string name="Command_Compass_Label">
 		コンパス
 	</string>
@@ -4933,6 +4939,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Command_Chat_Tooltip">
 		近くの人と文字チャットする
+	</string>
+	<string name="Command_Conversations_Tooltip">
+		全員との会話
 	</string>
 	<string name="Command_Compass_Tooltip">
 		コンパス
@@ -5062,5 +5071,14 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="UserDictionary">
 		[User]
+	</string>
+	<string name="logging_calls_disabled_log_empty">
+		会話はログに記録されていません。ログの記録を開始するには、「環境設定」&gt;「チャット」で「保存: ログのみ」または「保存: ログと会話のテキスト」を選択します。
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		これ以上の会話は記録されません。ログの記録を再開するには、「環境設定」&gt;「チャット」で「保存: ログのみ」または「保存: ログと会話のテキスト」を選択します。
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		ログイン時の会話はありません。誰かにご連絡した後、または誰かがあなたに連絡した後、ログエントリがここに表示されます。
 	</string>
 </strings>

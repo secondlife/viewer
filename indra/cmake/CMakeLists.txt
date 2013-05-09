@@ -12,7 +12,6 @@ set(cmake_SOURCE_FILES
     Audio.cmake
     BerkeleyDB.cmake
     Boost.cmake
-    BuildVersion.cmake
     CARes.cmake
     CMakeCopyIfDifferent.cmake
     ConfigurePkgConfig.cmake
@@ -24,12 +23,11 @@ set(cmake_SOURCE_FILES
     DragDrop.cmake
     EXPAT.cmake
     ExamplePlugin.cmake
-    FMOD.cmake
     FindAPR.cmake
     FindAutobuild.cmake
     FindBerkeleyDB.cmake
     FindCARes.cmake
-    FindFMOD.cmake
+    FindFMODEX.cmake
     FindGLH.cmake
     FindGoogleBreakpad.cmake
     FindGooglePerfTools.cmake
@@ -40,6 +38,7 @@ set(cmake_SOURCE_FILES
     FindSCP.cmake
     FindXmlRpcEpi.cmake
     FindZLIB.cmake
+    FMODEX.cmake
     FreeType.cmake
     GLEXT.cmake
     GLH.cmake

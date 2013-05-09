@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_conversation_view">
+	<menu_item_check label="Сортировать по имени" name="sort_by_name"/>
+	<menu_item_check label="Сортировать по дате" name="sort_by_date"/>
+	<menu_item_check label="Сначала друзья" name="sort_by_friends"/>
+	<menu_item_call label="Посмотреть журнал локального чата..." name="view_nearby_chat_history"/>
+</toggleable_menu>
