@@ -54,8 +54,8 @@
 #include "llcallingcard.h"			// for LLAvatarTracker
 #include "llcallbacklist.h"
 #include "llerror.h"
+#include "llfacebookconnect.h"
 #include "llfloateravatarpicker.h"
-//#include "llfloaterminiinspector.h"
 #include "llfriendcard.h"
 #include "llgroupactions.h"
 #include "llgrouplist.h"
@@ -76,7 +76,6 @@
 #include "llspeakers.h"
 #include "llfloaterwebcontent.h"
 #include "llurlaction.h"
-#include "llcommandhandler.h"
 
 #define FRIEND_LIST_UPDATE_TIMEOUT	0.5
 #define NEARBY_LIST_UPDATE_INTERVAL 1
@@ -91,35 +90,6 @@ static const std::string FBCTEST_TAB_NAME	= "fbctest_panel";
 static const std::string FBCTESTTWO_TAB_NAME	= "fbctesttwo_panel";
 static const std::string COLLAPSED_BY_USER  = "collapsed_by_user";
 
-class LLFacebookConnectHandler : public LLCommandHandler
-{
-public:
-	LLFacebookConnectHandler() : LLCommandHandler("fbc", UNTRUSTED_THROTTLE), mPanelPeople(NULL) { }
-
-	LLPanelPeople* mPanelPeople;
-
-	bool handle(const LLSD& tokens, const LLSD& query_map,
-				LLMediaCtrl* web)
-	{
-		if (tokens.size() > 0)
-		{
-			if (tokens[0].asString() == "connect")
-			{
-				if (query_map.has("code"))
-				{
-					if (mPanelPeople)
-					{
-						mPanelPeople->connectToFacebook(query_map["code"]);
-						mPanelPeople = NULL;
-					}
-				}
-				return true;
-			}
-		}
-		return false;
-	}
-};
-LLFacebookConnectHandler gFacebookConnectHandler;
 
 /** Comparator for comparing avatar items by last interaction date */
 class LLAvatarItemRecentComparator : public LLAvatarItemComparator
@@ -577,7 +547,6 @@ private:
 
 LLPanelPeople::LLPanelPeople()
 	:	LLPanel(),
-		mConnectedToFbc(false),
 		mPersonFolderView(NULL),
 		mTryToConnectToFbc(true),
 		mTabContainer(NULL),
@@ -947,7 +916,7 @@ void LLPanelPeople::updateFbcTestList()
 	if (mTryToConnectToFbc)
 	{	
 		// try to reconnect to facebook!
-		tryToReconnectToFacebook();
+		LLFacebookConnect::instance().tryToReconnectToFacebook();
 
 		// don't try again
 		mTryToConnectToFbc = false;
@@ -1633,11 +1602,12 @@ bool LLPanelPeople::isAccordionCollapsedByUser(const std::string& name)
 	return isAccordionCollapsedByUser(getChild<LLUICtrl>(name));
 }
 
+/*
 void LLPanelPeople::openFacebookWeb(std::string url)
 {
-	gFacebookConnectHandler.mPanelPeople = this;
 	LLUrlAction::openURLExternal(url);
 }
+*/
 
 void LLPanelPeople::addTestParticipant()
 {
@@ -1691,43 +1661,15 @@ void LLPanelPeople::addParticipantToModel(LLPersonTabModel * person_folder_model
 	person_folder_model->addParticipant(person_model);
 }
 
-void LLPanelPeople::tryToReconnectToFacebook()
-{
-	if (!mConnectedToFbc)
-	{
-		const bool follow_redirects=false;
-		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
-		LLHTTPClient::get(getFacebookConnectURL("/connection"), new FacebookConnectedResponder(this, false),
-						  LLSD(), timeout, follow_redirects);
-	}
-}
-
-void LLPanelPeople::disconnectFromFacebook()
-{
-	LLHTTPClient::del(getFacebookConnectURL("/connection"), new FacebookDisconnectResponder(this));
-}
-
-std::string LLPanelPeople::getFacebookConnectURL(const std::string& route)
-{
-	//static std::string sFacebookConnectUrl = gAgent.getRegion()->getCapability("FacebookConnect");
-	static std::string sFacebookConnectUrl = "https://pdp15.lindenlab.com/fbc/agent/" + gAgentID.asString(); // TEMPORARY HACK FOR FB DEMO - Cho
-	std::string url = sFacebookConnectUrl + route;
-	llinfos << url << llendl;
-	return url;
-}
-
 void LLPanelPeople::onLoginFbcButtonClicked()
 {
-	if (mConnectedToFbc)
+	if (LLFacebookConnect::instance().getConnected())
 	{
-		disconnectFromFacebook();
+		LLFacebookConnect::instance().disconnectFromFacebook();
 	}
 	else
 	{
-		const bool follow_redirects=false;
-		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
-		LLHTTPClient::get(getFacebookConnectURL("/connection"), new FacebookConnectedResponder(this, true),
-						  LLSD(), timeout, follow_redirects);
+        LLFacebookConnect::instance().getConnectionToFacebook();
 	}
 }
 

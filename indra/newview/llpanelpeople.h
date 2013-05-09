@@ -62,16 +62,11 @@ public:
 
 	static void idle(void * user_data);
 
-	void openFacebookWeb(std::string url);
+//	void openFacebookWeb(std::string url);
 	void addTestParticipant();
 	void addParticipantToModel(LLPersonTabModel * session_model, const LLUUID& agent_id, const std::string& name);
-	void tryToReconnectToFacebook();
-	void disconnectFromFacebook();
 	
-	std::string getFacebookConnectURL(const std::string& route = "");
-	
-	bool mConnectedToFbc;
-	bool mTryToConnectToFbc;
+    bool mTryToConnectToFbc;
 
 	// internals
 	class Updater;

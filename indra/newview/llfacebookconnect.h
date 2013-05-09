@@ -49,9 +49,14 @@ public:
     void loadFacebookFriends();
     void hideFacebookFriends();
 	void connectToFacebook(const std::string& auth_code = "");
+	void disconnectFromFacebook();
+	void tryToReconnectToFacebook();
+    void getConnectionToFacebook();
+    
 	void showFacebookFriends(const LLSD& friends);
     
     void setConnected(bool connected) { mConnectedToFbc = connected; }
+    bool getConnected() { return mConnectedToFbc; }
 
 private:
 
@@ -59,7 +64,8 @@ private:
 
 	LLFacebookConnect();
 	~LLFacebookConnect() {};
-    
+ 	std::string getFacebookConnectURL(const std::string& route = "");
+   
     bool mConnectedToFbc;
 };
 
