@@ -4296,7 +4296,7 @@ void LLAgent::sendAgentSetAppearance()
 		return;
 	}
 
-	if (!isAgentAvatarValid() || (getRegion() && getRegion()->getCentralBakeVersion())) return;
+	if (!isAgentAvatarValid() || gAgentAvatarp->isEditingAppearance() || (getRegion() && getRegion()->getCentralBakeVersion())) return;
 
 	// At this point we have a complete appearance to send and are in a non-baking region.
 	// DRANO FIXME
