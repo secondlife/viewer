@@ -373,6 +373,24 @@ S32 LLPrimitive::setTEMaterialParams(const U8 index, const LLMaterialPtr pMateri
 	return mTextureList.setMaterialParams(index, pMaterialParams);
 }
 
+void LLPrimitive::setAllTESelected(bool sel)
+{
+	for (int i = 0, cnt = getNumTEs(); i < cnt; i++)
+	{
+		setTESelected(i, sel);
+	}
+}
+	
+void LLPrimitive::setTESelected(const U8 te, bool sel)
+{
+	LLTextureEntry* tep = getTE(te);
+	if ( (tep) && (tep->setSelected(sel)) && (!sel) && (tep->hasPendingMaterialUpdate()) )
+	{
+		LLMaterialID material_id = tep->getMaterialID();
+		setTEMaterialID(te, material_id);
+	}
+}
+
 LLPCode LLPrimitive::legacyToPCode(const U8 legacy)
 {
 	// TODO: Should this default to something valid?

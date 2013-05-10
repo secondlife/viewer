@@ -332,6 +332,7 @@ public:
 	LLTextureEntry* getTE(const U8 te_num) const;
 
 	virtual void setNumTEs(const U8 num_tes);
+	virtual void setAllTESelected(bool sel);
 	virtual void setAllTETextures(const LLUUID &tex_id);
 	virtual void setTE(const U8 index, const LLTextureEntry& te);
 	virtual S32 setTEColor(const U8 te, const LLColor4 &color);
@@ -357,6 +358,7 @@ public:
 	virtual S32 setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
 	virtual S32 setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams);
 	virtual BOOL setMaterial(const U8 material); // returns TRUE if material changed
+	virtual void setTESelected(const U8 te, bool sel);
 
 	void copyTEs(const LLPrimitive *primitive);
 	S32 packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_face_index, EMsgVariableType type) const;

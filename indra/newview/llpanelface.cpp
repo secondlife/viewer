@@ -262,7 +262,6 @@ BOOL	LLPanelFace::postBuild()
 
 LLPanelFace::LLPanelFace()
 :	LLPanel(),
-	mMaterialID(LLMaterialID::null),
 	mMaterial(LLMaterialPtr()),
 	mIsAlpha(false)
 {
@@ -1575,26 +1574,23 @@ void LLPanelFace::getState()
 
 		// Materials
 		{
-			mMaterialID = LLMaterialID::null;
-			mMaterial = NULL;
-
-			struct f1 : public LLSelectedTEGetFunctor<LLMaterialID>
+			struct f1 : public LLSelectedTEGetFunctor<LLMaterialPtr>
 			{
-				LLMaterialID get(LLViewerObject* object, S32 te_index)
+				LLMaterialPtr get(LLViewerObject* object, S32 te_index)
 				{
 					LLMaterialID material_id;
 					
-					return object->getTE(te_index)->getMaterialID();
+					return object->getTE(te_index)->getMaterialParams();
 				}
 			} func;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, mMaterialID );
-			llinfos << "Material ID returned: '"
-				<< mMaterialID.asString() << "', isNull? "
-				<< (mMaterialID.isNull()?"TRUE":"FALSE") << llendl;
-			if (!mMaterialID.isNull() && editable)
+
+			LLMaterialPtr material;
+			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, material );
+			
+			mMaterial = (material) ? new LLMaterial(*material) : NULL;
+			if (mMaterial && editable)
 			{
-				llinfos << "Requesting material ID " << mMaterialID.asString() << llendl;
-				LLMaterialMgr::getInstance()->get(objectp->getRegion()->getRegionID(),mMaterialID,boost::bind(&LLPanelFace::onMaterialLoaded, this, _1, _2));
+				onMaterialLoaded(mMaterial);
 			}
 		}
 
@@ -1659,15 +1655,8 @@ void LLPanelFace::refresh()
 	getState();
 }
 
-void LLPanelFace::onMaterialLoaded(const LLMaterialID& material_id, const LLMaterialPtr material)
+void LLPanelFace::onMaterialLoaded(const LLMaterialPtr material)
 { //laying out UI based on material parameters (calls setVisible on various components)
-	LL_DEBUGS("Materials") << "Loaded material " << material_id.asString() << material->asLLSD() << LL_ENDL;
-	
-	//make a local copy of the material for editing 
-	// (prevents local edits from overwriting client state on shared materials)
-	mMaterial   = new LLMaterial(*material);
-	mMaterialID = material_id;
-
 	// Alpha
 	LLCtrlSelectionInterface* combobox_alphamode =
 	      childGetSelectionInterface("combobox alphamode");
@@ -1780,13 +1769,9 @@ void LLPanelFace::updateMaterial()
 		|| (shininess == SHINY_TEXTURE))
 	{
 		// The user's specified something that needs a material.
-		bool new_material = false;
-		if (!mMaterial)
-		{
-			new_material = true;
-			mMaterial = LLMaterialPtr(new LLMaterial());
-		}
+		bool new_material = !mMaterial;
 
+		mMaterial = LLMaterialPtr(new LLMaterial());
 		mMaterial->setDiffuseAlphaMode(getChild<LLComboBox>("combobox alphamode")->getCurrentIndex());
 		mMaterial->setAlphaMaskCutoff((U8)(getChild<LLUICtrl>("maskcutoff")->getValue().asInteger()));
 
@@ -1866,11 +1851,10 @@ void LLPanelFace::updateMaterial()
 	else
 	{
 		// The user has specified settings that don't need a material.
-		if (mMaterial || !mMaterialID.isNull())
+		if (mMaterial)
 		{
 			LL_DEBUGS("Materials") << "Resetting material entry" << LL_ENDL;
 			mMaterial = NULL;
-			mMaterialID = LLMaterialID::null;
 			// Delete existing material entry...
 			LLSelectMgr::getInstance()->selectionRemoveMaterial();
 		}

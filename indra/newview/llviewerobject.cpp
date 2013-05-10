@@ -531,6 +531,17 @@ void LLViewerObject::setNameValueList(const std::string& name_value_list)
 	}
 }
 
+void LLViewerObject::setSelected(BOOL sel)
+{
+	mUserSelected = sel;
+	resetRot();
+
+	if (!sel)
+	{
+		setAllTESelected(false);
+	}
+}
+
 // This method returns true if the object is over land owned by the
 // agent.
 bool LLViewerObject::isReturnable()
@@ -4354,10 +4365,13 @@ S32 LLViewerObject::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID
 							 << ", material " << pMaterialID
 							 << LL_ENDL;
 		retval = LLPrimitive::setTEMaterialID(te, pMaterialID);
-		setChanged(TEXTURE);
-		if (mDrawable.notNull() && retval)
+		if (retval)
 		{
-			gPipeline.markTextured(mDrawable);
+			setChanged(TEXTURE);
+			if (mDrawable.notNull() && retval)
+			{
+				gPipeline.markTextured(mDrawable);
+			}
 		}
 	}
 	return retval;
