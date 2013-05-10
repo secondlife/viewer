@@ -79,17 +79,9 @@ void parse_string();
 #define yyfree indra_free
 
 
-#if LL_DARWIN
 int yyparse( void );
 int yylex( void );
 int yyerror(const char *fmt, ...);
-#else
-#if defined(__cplusplus)
-extern "C" { int yyparse( void ); }
-extern "C" { int yylex( void ); }
-extern "C" { int yyerror(const char *fmt, ...); }
-#endif
-#endif
 
 %}
 
