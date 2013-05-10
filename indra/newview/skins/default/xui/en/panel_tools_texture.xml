@@ -644,8 +644,8 @@
              layout="topleft"
 			 label_width="205"
              left="10"
-             max_val="180"
-             min_val="-180"
+             max_val="9999"
+             min_val="-9999"
              name="bumpyRot"
              width="265" />
 
@@ -707,8 +707,8 @@
              layout="topleft"
 			 label_width="205"
              left="10"
-             max_val="180"
-             min_val="-180"
+             max_val="9999"
+             min_val="-9999"
              name="shinyRot"
              width="265" />
 
