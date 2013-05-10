@@ -2905,15 +2905,14 @@ protected:
 	// Error
 	/*virtual*/ void httpFailure()
 	{
-		const LLSD& content = getContent();
-		LL_WARNS("Avatar") << "appearance update request failed "
-						   << dumpResponse() << LL_ENDL;
+		LL_WARNS("Avatar") << "appearance update request failed, status "
+						   << getStatus() << " reason " << getReason() << LL_ENDL;
 
 		if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
 		{
+			const LLSD& content = getContent();
 			dumpContents(gAgentAvatarp->getFullname() + "_appearance_request_error", content);
 			debugCOF(content);
-		
 		}
 		onFailure();
 	}
