@@ -85,7 +85,7 @@ LLTextureEntry::LLTextureEntry(const LLTextureEntry &rhs)
 	mMediaFlags = rhs.mMediaFlags;
 	mGlow = rhs.mGlow;
 	mMaterialID = rhs.mMaterialID;
-
+	mMaterial = rhs.mMaterial;
 	if (rhs.mMediaEntry != NULL) {
 		// Make a copy
 		mMediaEntry = new LLMediaEntry(*rhs.mMediaEntry);
@@ -107,6 +107,7 @@ LLTextureEntry &LLTextureEntry::operator=(const LLTextureEntry &rhs)
 		mMediaFlags = rhs.mMediaFlags;
 		mGlow = rhs.mGlow;
 		mMaterialID = rhs.mMaterialID;
+		mMaterial = rhs.mMaterial;
 		if (mMediaEntry != NULL) {
 			delete mMediaEntry;
 		}
