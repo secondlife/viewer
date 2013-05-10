@@ -1257,7 +1257,6 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec)
 {
 	S32 retval = 0;
-	
    // temp buffer for material ID processing
    // data will end up in tec.material_id[]	
    U8 material_data[LLTEContents::MAX_TES*16];

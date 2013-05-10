@@ -1783,6 +1783,8 @@ bool LLAppViewer::cleanup()
 	
 	LLAvatarAppearance::cleanupClass();
 	
+	LLAvatarAppearance::cleanupClass();
+	
 	LLPostProcess::cleanupClass();
 
 	LLTracker::cleanupInstance();
@@ -3582,6 +3584,12 @@ void LLAppViewer::requestQuit()
 
 	// Try to send metrics back to the grid
 	metricsSend(!gDisconnected);
+	
+	// Try to send last batch of avatar rez metrics.
+	if (!gDisconnected && isAgentAvatarValid())
+	{
+		gAgentAvatarp->updateAvatarRezMetrics(true); // force a last packet to be sent.
+	}
 	
 	// Try to send last batch of avatar rez metrics.
 	if (!gDisconnected && isAgentAvatarValid())

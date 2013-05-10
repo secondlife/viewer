@@ -1859,17 +1859,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLAPPEARANCE_LIBRARIES}
     )
 
-if (USE_KDU)
-    target_link_libraries(${VIEWER_BINARY_NAME}
-        ${LLKDU_LIBRARIES}
-        ${KDU_LIBRARY}
-        )
-else (USE_KDU)
-    target_link_libraries(${VIEWER_BINARY_NAME}
-        ${LLIMAGEJ2COJ_LIBRARIES}
-        )
-endif (USE_KDU)
-
 build_version(viewer)
 
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
@@ -2086,6 +2075,15 @@ if (LL_TESTS)
     llversioninfo.cpp
     llworldmap.cpp
     llworldmipmap.cpp
+  )
+
+  set_source_files_properties(
+    llworldmap.cpp
+    llworldmipmap.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_SOURCE_FILES 
+    tests/llviewertexture_stub.cpp
+    #llviewertexturelist.cpp
   )
 
   set_source_files_properties(

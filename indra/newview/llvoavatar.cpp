@@ -24,12 +24,6 @@
  * $/LicenseInfo$
  */
 
-#if LL_MSVC
-// disable warning about boost::lexical_cast returning uninitialized data
-// when it fails to parse the string
-#pragma warning (disable:4701)
-#endif
-
 #include "llviewerprecompiledheaders.h"
 
 #include "llvoavatar.h"
@@ -113,12 +107,6 @@ extern F32 SPEED_ADJUST_MAX_SEC;
 extern F32 ANIM_SPEED_MAX;
 extern F32 ANIM_SPEED_MIN;
 
-#if LL_MSVC
-// disable boost::lexical_cast warning
-#pragma warning (disable:4702)
-#endif
-
-#include <boost/lexical_cast.hpp>
 
 // #define OUTPUT_BREAST_DATA
 
@@ -199,8 +187,6 @@ const F32 NAMETAG_UPDATE_THRESHOLD = 0.3f;
 const F32 NAMETAG_VERTICAL_SCREEN_OFFSET = 25.f;
 const F32 NAMETAG_VERT_OFFSET_WEIGHT = 0.17f;
 
-const LLColor4 DUMMY_COLOR = LLColor4(0.5,0.5,0.5,1.0);
-
 enum ERenderName
 {
 	RENDER_NAME_NEVER,
@@ -276,6 +262,8 @@ struct LLVOAvatarChildJoint : public LLInitParam::ChoiceBlock<LLVOAvatarChildJoi
 	{}
 };
 
+	
+
 struct LLVOAvatarBoneInfo : public LLInitParam::Block<LLVOAvatarBoneInfo, LLVOAvatarCollisionVolumeInfo>
 {
 	LLVOAvatarBoneInfo() 
@@ -304,6 +292,8 @@ struct LLVOAvatarSkeletonInfo : public LLInitParam::Block<LLVOAvatarSkeletonInfo
 									num_collision_volumes;
 	Mandatory<LLVOAvatarChildJoint>	skeleton_root;
 };
+
+
 
 //-----------------------------------------------------------------------------
 // class LLBodyNoiseMotion
@@ -5853,6 +5843,8 @@ BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 
 
 
+
+
 // virtual
 void LLVOAvatar::invalidateComposite( LLTexLayerSet* layerset, BOOL upload_result )
 {
@@ -6484,6 +6476,7 @@ void LLVOAvatar::applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_com
 }
 	}
 }
+
 
 
 // returns TRUE if morph masks are present and not valid for a given baked texture, FALSE otherwise
@@ -7393,6 +7386,10 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 	}
 	if (outprefix.empty())
 {
+		outprefix = getFullname() + (isSelf()?"_s":"_o");
+	}
+	if (outprefix.empty())
+	{
 		outprefix = std::string("new_archetype");
 	}
 	std::string outfilename = get_sequential_numbered_file_name(outprefix,".xml");
@@ -7458,7 +7455,6 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 
 		for (U8 te = 0; te < TEX_NUM_INDICES; te++)
 		{
-			{
 				// MULTIPLE_WEARABLES: extend to multiple wearables?
 				LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
 				if( te_image )
@@ -7470,7 +7466,6 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 			}
 		}
 
-	}
 	apr_file_printf( file, "\t</archetype>\n" );
 	apr_file_printf( file, "\n</linden_genepool>\n" );
 
