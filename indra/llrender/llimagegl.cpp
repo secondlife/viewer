@@ -773,7 +773,10 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 					{
 						S32 bytes = w * h * mComponents;
 #ifdef SHOW_ASSERT
+						llassert(prev_mip_data);
+						llassert(cur_mip_size == bytes*4);
 #endif
+
 						U8* new_data = new U8[bytes];
 
 #ifdef SHOW_ASSERT
