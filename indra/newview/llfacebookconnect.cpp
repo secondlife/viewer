@@ -173,6 +173,7 @@ public:
 LLFacebookConnect::LLFacebookConnect()
 :	mConnectedToFbc(false)
 {
+    llinfos << "Merov : LLFacebookConnect::LLFacebookConnect" << llendl;
 }
 
 void LLFacebookConnect::init()
@@ -181,6 +182,7 @@ void LLFacebookConnect::init()
 
 std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route)
 {
+    llinfos << "Merov : LLFacebookConnect::getFacebookConnectURL. route = " << route << llendl;
 	//static std::string sFacebookConnectUrl = gAgent.getRegion()->getCapability("FacebookConnect");
 	static std::string sFacebookConnectUrl = "https://pdp15.lindenlab.com/fbc/agent/" + gAgentID.asString(); // TEMPORARY HACK FOR FB DEMO - Cho
 	std::string url = sFacebookConnectUrl + route;
@@ -190,6 +192,7 @@ std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route)
 
 void LLFacebookConnect::loadFacebookFriends()
 {
+    llinfos << "Merov : LLFacebookConnect::loadFacebookFriends" << llendl;
 	const bool follow_redirects=false;
 	const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
 	LLHTTPClient::get(getFacebookConnectURL("/friend"), new LLFacebookFriendsResponder(),
@@ -198,12 +201,14 @@ void LLFacebookConnect::loadFacebookFriends()
 
 void LLFacebookConnect::hideFacebookFriends()
 {
+    llinfos << "Merov : LLFacebookConnect::hideFacebookFriends" << llendl;
     // That needs to be done in llpanelpeople...
 	//mFacebookFriends->clear();
 }
 
 void LLFacebookConnect::connectToFacebook(const std::string& auth_code)
 {
+    llinfos << "Merov : LLFacebookConnect::connectToFacebook" << llendl;
 	LLSD body;
 	if (!auth_code.empty())
 		body["code"] = auth_code;
@@ -213,11 +218,13 @@ void LLFacebookConnect::connectToFacebook(const std::string& auth_code)
 
 void LLFacebookConnect::disconnectFromFacebook()
 {
+    llinfos << "Merov : LLFacebookConnect::disconnectFromFacebook" << llendl;
 	LLHTTPClient::del(getFacebookConnectURL("/connection"), new LLFacebookDisconnectResponder());
 }
 
 void LLFacebookConnect::tryToReconnectToFacebook()
 {
+    llinfos << "Merov : LLFacebookConnect::tryToReconnectToFacebook" << llendl;
 	if (!mConnectedToFbc)
 	{
 		const bool follow_redirects=false;
@@ -229,6 +236,7 @@ void LLFacebookConnect::tryToReconnectToFacebook()
 
 void LLFacebookConnect::getConnectionToFacebook()
 {
+    llinfos << "Merov : LLFacebookConnect::getConnectionToFacebook" << llendl;
     const bool follow_redirects=false;
     const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
     LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(true),
@@ -242,7 +250,7 @@ void LLFacebookConnect::showFacebookFriends(const LLSD& friends)
 	//mFacebookFriends->clear();
 	//LLPersonTabModel::tab_type tab_type;
 	LLAvatarTracker& avatar_tracker = LLAvatarTracker::instance();
-    llinfos << "LLFacebookConnect::showFacebookFriends" << llendl;
+    llinfos << "Merov : LLFacebookConnect::showFacebookFriends" << llendl;
     
 	for (LLSD::map_const_iterator i = friends.beginMap(); i != friends.endMap(); ++i)
 	{
@@ -257,15 +265,15 @@ void LLFacebookConnect::showFacebookFriends(const LLSD& friends)
 		if(agent_id.notNull() && !avatar_tracker.isBuddy(agent_id))
 		{
 			//tab_type = LLPersonTabModel::FB_SL_NON_SL_FRIEND;
-            is_SL_friend = false;
+            is_SL_friend = true;
 		}
 		//FB only friend
 		else
 		{
 			//tab_type = LLPersonTabModel::FB_ONLY_FRIEND;
-            is_SL_friend = true;
+            is_SL_friend = false;
 		}
-        llinfos << "LLFacebookConnect : agent_id = " << agent_id << ", name = " << name << ", SL friend = " << is_SL_friend << llendl;
+        llinfos << "Merov : LLFacebookConnect : agent_id = " << agent_id << ", name = " << name << ", SL friend = " << is_SL_friend << llendl;
         
 		//Add to person tab model
         /*
