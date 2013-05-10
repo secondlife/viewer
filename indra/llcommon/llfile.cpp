@@ -702,7 +702,7 @@ std::streamsize llstdio_filebuf::xsgetn(char_type* __s, std::streamsize __n)
 	if (_M_pback_init)
 	{
 		if (__n > 0 && this->gptr() == this->eback())
-	{
+		{
 			*__s++ = *this->gptr();
 			this->gbump(1);
 			__ret = 1;
@@ -732,7 +732,7 @@ std::streamsize llstdio_filebuf::xsgetn(char_type* __s, std::streamsize __n)
 			this->gbump(__avail);
 			__ret += __avail;
 			__n -= __avail;
-}
+		}
 
 		// Need to loop in case of short reads (relatively common
 		// with pipes).
@@ -757,7 +757,7 @@ std::streamsize llstdio_filebuf::xsgetn(char_type* __s, std::streamsize __n)
 		}
 
 		if (__n == 0)
-	{
+		{
 			_M_set_buffer(0);
 			_M_reading = true;
 		}
@@ -768,8 +768,8 @@ std::streamsize llstdio_filebuf::xsgetn(char_type* __s, std::streamsize __n)
 			// an intervening seek.
 			_M_set_buffer(-1);
 			_M_reading = false;
+		}
 	}
-}
 	else
 		__ret += __streambuf_type::xsgetn(__s, __n);
 
@@ -809,9 +809,9 @@ std::streamsize llstdio_filebuf::xsputn(char_type* __s, std::streamsize __n)
 	{
 				__ret += fwrite(reinterpret_cast<const char*>(__s), 1,
 								__n, _M_file.file());
-}
+	}
 			if (__ret == __buffill + __n)
-{
+			{
 				_M_set_buffer(0);
 				_M_writing = true;
 }
@@ -829,9 +829,9 @@ std::streamsize llstdio_filebuf::xsputn(char_type* __s, std::streamsize __n)
 }
 
 int llstdio_filebuf::sync()
-	{
+{
 	return (_M_file.sync() == 0 ? 0 : -1);
-	}
+}
 #endif
 
 /************** input file stream ********************************/
@@ -963,7 +963,7 @@ llofstream::llofstream() : _M_filebuf(),
 	std::ostream(&_M_filebuf) {}
 #else
 	std::ostream()
-		{
+{
 	this->init(&_M_filebuf);
 }
 #endif
@@ -999,7 +999,7 @@ llofstream::llofstream(const char* _Filename,
 	{
 		_Myios::setstate(ios_base::failbit);
 	}
-		}
+}
 #else
 	std::ostream()
 {
@@ -1018,7 +1018,7 @@ llofstream::llofstream(_Filet *_File,
 	std::ostream()
 {
 	this->init(&_M_filebuf);
-	}
+}
 #endif
 
 #if !LL_WINDOWS
