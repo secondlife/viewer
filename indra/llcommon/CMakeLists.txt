@@ -247,7 +247,6 @@ set(llcommon_HEADER_FILES
     lluuid.h
     lluuidhashmap.h
     llversionserver.h
-    llversionviewer.h
     llworkerthread.h
     ll_template_cast.h
     metaclass.h

@@ -170,8 +170,7 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 # Default deploy grid
 set(GRID agni CACHE STRING "Target Grid")
 
-set(VIEWER_CHANNEL "LindenDeveloper" CACHE STRING "Viewer Channel Name")
-set(VIEWER_LOGIN_CHANNEL ${VIEWER_CHANNEL} CACHE STRING "Fake login channel for A/B Testing")
+set(VIEWER_CHANNEL "Second Life Test" CACHE STRING "Viewer Channel Name")
 
 if (XCODE_VERSION GREATER 4.2)
   set(ENABLE_SIGNING OFF CACHE BOOL "Enable signing the viewer")

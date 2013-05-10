@@ -116,7 +116,6 @@
 			<menu_item_call label="Kaufen" name="Menu Object Buy"/>
 			<menu_item_call label="Nehmen" name="Menu Object Take"/>
 			<menu_item_call label="Kopie nehmen" name="Take Copy"/>
-			<menu_item_call label="Objekt wieder in meinem Inventar speichern" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Wieder in Objektinhalt speichern" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="Objekt zurückgeben" name="Return Object back to Owner"/>
 		</menu>
@@ -394,9 +393,14 @@
 				<menu_item_call label="Weiblich testen" name="Test Female"/>
 				<menu_item_check label="Avatarauswahl zulassen" name="Allow Select Avatar"/>
 			</menu>
+			<menu label="Animationsgeschwindigkeit" name="Animation Speed">
+				<menu_item_call label="Alle Animationen 10 % schneller" name="All Animations 10 Faster"/>
+				<menu_item_call label="Alle Animationen 10 % langsamer" name="All Animations 10 Slower"/>
+				<menu_item_call label="Alle Animationsgeschwindigkeiten zurücksetzen" name="Reset All Animation Speed"/>
+				<menu_item_check label="Zeitlupen-Animationen" name="Slow Motion Animations"/>
+			</menu>
 			<menu_item_call label="Param auf Standard erzwingen" name="Force Params to Default"/>
 			<menu_item_check label="Animations-Info" name="Animation Info"/>
-			<menu_item_check label="Zeitlupen-Animationen" name="Slow Motion Animations"/>
 			<menu_item_check label="Kamerafokus anzeigen" name="Show Look At"/>
 			<menu_item_check label="Klickpunkt anzeigen??" name="Show Point At"/>
 			<menu_item_check label="Fehler in Landaktualisierung beseitigen" name="Debug Joint Updates"/>

@@ -114,7 +114,6 @@
 			<menu_item_call label="Satın Al" name="Menu Object Buy"/>
 			<menu_item_call label="Al" name="Menu Object Take"/>
 			<menu_item_call label="Kopya Al" name="Take Copy"/>
-			<menu_item_call label="Envanterime Geri Kaydet" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Nesne İçeriklerine Geri Kaydet" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="Nesneyi İade Et" name="Return Object back to Owner"/>
 		</menu>
@@ -129,6 +128,7 @@
 			<menu_item_call label="Bağlantı kümeleri..." name="pathfinding_linksets_menu_item"/>
 			<menu_item_call label="Karakterler..." name="pathfinding_characters_menu_item"/>
 			<menu_item_call label="Görüntüleme / test..." name="pathfinding_console_menu_item"/>
+			<menu_item_call label="Bölgeyi tekrar kaydet" name="pathfinding_rebake_navmesh_item"/>
 		</menu>
 		<menu label="Seçenklr." name="Options">
 			<menu_item_check label="Gelişmiş İzinleri Göster" name="DebugPermissions"/>
@@ -158,6 +158,13 @@
 	<menu label="Yardım" name="Help">
 		<menu_item_call label="Nasıl yapılır..." name="How To"/>
 		<menu_item_call label="[SECOND_LIFE] Yardımı" name="Second Life Help"/>
+		<menu_item_call label="Kullanıcı kılavuzu" name="User’s guide"/>
+		<menu_item_call label="Bilgi Bankası" name="Knowledge Base"/>
+		<menu_item_call label="Wiki" name="Wiki"/>
+		<menu_item_call label="Topluluk Forumları" name="Community Forums"/>
+		<menu_item_call label="Destek portalı" name="Support portal"/>
+		<menu_item_call label="[SECOND_LIFE] Haberleri" name="Second Life News"/>
+		<menu_item_call label="[SECOND_LIFE] Blogları" name="Second Life Blogs"/>
 		<menu_item_call label="Kötüye Kullanımı Bildir" name="Report Abuse"/>
 		<menu_item_call label="Hata Bildir" name="Report Bug"/>
 		<menu_item_call label="[APP_NAME] Hakkında" name="About Second Life"/>
@@ -384,9 +391,14 @@
 				<menu_item_call label="Test Dişisi" name="Test Female"/>
 				<menu_item_check label="Avatar Seçimine İzin Ver" name="Allow Select Avatar"/>
 			</menu>
+			<menu label="Animasyon Hızı" name="Animation Speed">
+				<menu_item_call label="Tüm Animasyonlar %10 Daha Hızlı" name="All Animations 10 Faster"/>
+				<menu_item_call label="Tüm Animasyonlar %10 Daha Yavaş" name="All Animations 10 Slower"/>
+				<menu_item_call label="Tüm Animasyon Hızlarını Sıfırla" name="Reset All Animation Speed"/>
+				<menu_item_check label="Yavaş Hareket Animasyonları" name="Slow Motion Animations"/>
+			</menu>
 			<menu_item_call label="Parametreleri Varsayılana Zorla" name="Force Params to Default"/>
 			<menu_item_check label="Animasyon Bilgisi" name="Animation Info"/>
-			<menu_item_check label="Yavaş Hareket Animasyonları" name="Slow Motion Animations"/>
 			<menu_item_check label="Şuraya Bak&apos;ı Göster" name="Show Look At"/>
 			<menu_item_check label="Şuraya İşaret Et&apos;i Göster" name="Show Point At"/>
 			<menu_item_check label="Eklem Güncelleştirmeleri İçin Hata Ayıklama" name="Debug Joint Updates"/>

@@ -186,9 +186,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ac37d0038c91b0672fa31a02731f0eac</string>
+              <string>06dd7af75e1eb179aed54fd58d8688af</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/268347/arch/Darwin/installer/boost-1.52.0-darwin-20121218.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/270698/arch/Darwin/installer/boost-1.52.0-darwin-20130221.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -198,9 +198,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>146ed8a8c2ef8ab3f0a6c4f214fc5c22</string>
+              <string>50c8b50b7cced52cc5656fb44e9b12cf</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/268347/arch/Linux/installer/boost-1.52.0-linux-20121218.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/270698/arch/Linux/installer/boost-1.52.0-linux-20130222.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -210,9 +210,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3ea60f17d986b7e8a3351298734bdca4</string>
+              <string>742fc9675b033df7f9c6f215ff250f6c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/268347/arch/CYGWIN/installer/boost-1.52.0-windows-20121218.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost/rev/270698/arch/CYGWIN/installer/boost-1.52.0-windows-20130221.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -747,6 +747,7 @@
           </map>
         </map>
       </map>
+
       <key>google_breakpad</key>
       <map>
         <key>license</key>

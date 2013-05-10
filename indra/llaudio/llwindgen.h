@@ -57,7 +57,7 @@ public:
 	const U32 getInputSamplingRate() { return mInputSamplingRate; }
 	const F32 getNextSample();
 	const F32 getClampedSample(bool clamp, F32 sample);
-	
+
 	// newbuffer = the buffer passed from the previous DSP unit.
 	// numsamples = length in samples-per-channel at this mix time.
 	// NOTE: generates L/R interleaved stereo
@@ -133,11 +133,11 @@ public:
 				MIXBUFFERFORMAT_T	sample_left = (MIXBUFFERFORMAT_T)getClampedSample(clip, mLastSample - (F32)sample_right);
 				
 				*cursamplep = sample_left;
-					++cursamplep;
+				++cursamplep;
 				*cursamplep = sample_right;
-					++cursamplep;
-				}
+				++cursamplep;
 			}
+		}
 		
 		return newbuffer;
 	}

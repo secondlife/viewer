@@ -187,6 +187,7 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 		<< mObjectUpdateFailures << " update failures"
 		<< llendl;
 
+	U32 data_size;
 	if (mObjectCacheFile == NULL)
 	{
 		mStartTime = LLTimer::getTotalSeconds();
@@ -216,10 +217,10 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 				<< "Texture Fetch bps\t"
 				<< "\n";
 
-			size_t data_size = data_msg.str().size();
-			if ( data_size != fwrite(data_msg.str().c_str(), 1, data_size, mObjectCacheFile ))
+			data_size = data_msg.str().size();
+			if (fwrite(data_msg.str().c_str(), 1, data_size, mObjectCacheFile ) != data_size)
 			{
-				llwarns << "Unable to write complete column headings to " << STATS_FILE_NAME << llendl;
+				llwarns << "failed to write full headers to " << STATS_FILE_NAME << llendl;
 			}
 		}
 		else
@@ -258,6 +259,7 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 	{
 				llwarns << "Unable to write complete column data to " << STATS_FILE_NAME << llendl;
 	}
+
 	clearStats();
 }
 
