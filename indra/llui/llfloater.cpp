@@ -704,9 +704,15 @@ void LLFloater::openFloater(const LLSD& key)
 	dirtyRect();
 }
 
+void LLFloater::verifyClose()
+{
+	LLPanel::handleCloseConfirmation();
+}
+
 void LLFloater::closeFloater(bool app_quitting)
 {
 	llinfos << "Closing floater " << getName() << llendl;
+	
 	if (app_quitting)
 	{
 		LLFloater::sQuitting = true;
@@ -781,7 +787,7 @@ void LLFloater::closeFloater(bool app_quitting)
 		dirtyRect();
 
 		// Close callbacks
-		onClose(app_quitting);
+		onClose(app_quitting);	
 		mCloseSignal(this, LLSD(app_quitting));
 		
 		// Hide or Destroy
@@ -1788,11 +1794,19 @@ void LLFloater::initRectControl()
 void LLFloater::closeFrontmostFloater()
 {
 	LLFloater* floater_to_close = gFloaterView->getFrontmostClosableFloater();
-	if(floater_to_close)
+	if( floater_to_close )
 	{
-		floater_to_close->closeFloater();
+		if ( floater_to_close->mVerifyUponClose )
+		{			
+			floater_to_close->verifyClose();
+			//Closing of the window handle in the subclass - so bug out here.
+			return;
+		}
+		else
+		{
+			floater_to_close->closeFloater();
+		}
 	}
-
 	// if nothing took focus after closing focused floater
 	// give it to next floater (to allow closing multiple windows via keyboard in rapid succession)
 	if (gFocusMgr.getKeyboardFocus() == NULL)
@@ -2631,7 +2645,14 @@ void LLFloaterView::closeAllChildren(bool app_quitting)
 		if (floaterp->canClose() && !floaterp->isDead() &&
 			(app_quitting || floaterp->getVisible()))
 		{
-			floaterp->closeFloater(app_quitting);
+			if ( floaterp->mVerifyUponClose )
+			{			
+				floaterp->verifyClose();
+			}
+			else
+			{
+				floaterp->closeFloater(app_quitting);
+			}
 		}
 	}
 }

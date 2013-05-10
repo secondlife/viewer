@@ -50,8 +50,9 @@ public:
 	~LLFloaterSidePanelContainer();
 
 	/*virtual*/ void onOpen(const LLSD& key);
-
 	/*virtual*/ void onClickCloseBtn();
+	/*virtual*/ BOOL postBuild();
+				void  onConfirmationClose( const LLSD &confirm );
 
 	LLPanel* openChildPanel(const std::string& panel_name, const LLSD& params);
 

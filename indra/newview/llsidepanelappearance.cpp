@@ -90,11 +90,12 @@ bool LLSidepanelAppearance::callBackExitWithoutSaveViaClose(const LLSD& notifica
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if ( option == 0 ) 
 	{	
-		//revert curernt edits
-		mEditWearable->revertChanges();
-		toggleWearableEditPanel(FALSE);
-		LLVOAvatarSelf::onCustomizeEnd(FALSE);	
-		mLLFloaterSidePanelContainer->close();
+		//revert current edits
+		mEditWearable->revertChanges();					
+		//LLAppearanceMgr::getInstance()->wearBaseOutfit();				
+		toggleWearableEditPanel(FALSE);		
+		LLVOAvatarSelf::onCustomizeEnd( FALSE );	
+		mLLFloaterSidePanelContainer->close();			
 		return true;
 	}
 	return false;
@@ -115,7 +116,7 @@ void LLSidepanelAppearance::onClickConfirmExitWithoutSaveViaClose()
 
 void LLSidepanelAppearance::onClickConfirmExitWithoutSaveViaBack()
 {
-	if ( LLAppearanceMgr::getInstance()->isOutfitDirty() && !mSidePanelJustOpened && !LLAppearanceMgr::getInstance()->isOutfitLocked() )
+	if ( LLAppearanceMgr::getInstance()->isOutfitDirty() && !mSidePanelJustOpened /*&& !LLAppearanceMgr::getInstance()->isOutfitLocked()*/ )
 	{
 		LLSidepanelAppearance* pSelf = (LLSidepanelAppearance *)this;
 		LLNotificationsUtil::add("ConfirmExitWithoutSave", LLSD(), LLSD(), boost::bind(&LLSidepanelAppearance::callBackExitWithoutSaveViaBack,pSelf,_1,_2) );
@@ -128,9 +129,9 @@ void LLSidepanelAppearance::onClickConfirmExitWithoutSaveViaBack()
 
 void LLSidepanelAppearance::onClose(LLFloaterSidePanelContainer* obj)
 {
-	mLLFloaterSidePanelContainer = obj;
-	if (  LLAppearanceMgr::getInstance()->isOutfitDirty() && 
-		 !LLAppearanceMgr::getInstance()->isOutfitLocked() ||
+	mLLFloaterSidePanelContainer = obj;	
+	if (  /*LLAppearanceMgr::getInstance()->isOutfitDirty() && */
+		 /*!LLAppearanceMgr::getInstance()->isOutfitLocked() ||*/
 		 ( mEditWearable->isAvailable() && mEditWearable->isDirty() ) )
 	{
 		LLSidepanelAppearance* pSelf = (LLSidepanelAppearance *)this;
@@ -275,8 +276,9 @@ void LLSidepanelAppearance::onVisibilityChange(const LLSD &new_visibility)
 
 void LLSidepanelAppearance::updateToVisibility(const LLSD &new_visibility)
 {
-	if (new_visibility["visible"].asBoolean())
+	if (new_visibility["visible"].asBoolean() )
 	{
+
 		const BOOL is_outfit_edit_visible = mOutfitEdit && mOutfitEdit->getVisible();
 		const BOOL is_wearable_edit_visible = mEditWearable && mEditWearable->getVisible();
 

@@ -114,7 +114,9 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 	mCommitCallbackRegistrar(false),
 	mEnableCallbackRegistrar(false),
 	mXMLFilename(p.filename),
-	mVisibleSignal(NULL)
+	mVisibleSignal(NULL),
+	mCloseConfirmationSignal(NULL),
+	mVerifyUponClose(false)
 	// *NOTE: Be sure to also change LLPanel::initFromParams().  We have too
 	// many classes derived from LLPanel to retrofit them all to pass in params.
 {
@@ -127,6 +129,7 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 LLPanel::~LLPanel()
 {
 	delete mVisibleSignal;
+	delete mCloseConfirmationSignal;
 }
 
 // virtual
@@ -349,6 +352,14 @@ void LLPanel::handleVisibilityChange ( BOOL new_visibility )
 		(*mVisibleSignal)(this, LLSD(new_visibility) ); // Pass BOOL as LLSD
 }
 
+
+void LLPanel::handleCloseConfirmation( )
+{	
+	if (mCloseConfirmationSignal)
+	{
+		(*mCloseConfirmationSignal)(this, LLSD() ); 
+	}
+}
 void LLPanel::setFocus(BOOL b)
 {
 	if( b && !hasFocus())
@@ -959,10 +970,17 @@ boost::signals2::connection LLPanel::setVisibleCallback( const commit_signal_t::
 	{
 		mVisibleSignal = new commit_signal_t();
 	}
-
 	return mVisibleSignal->connect(cb);
 }
 
+boost::signals2::connection LLPanel::setCloseConfirmationCallback( const commit_signal_t::slot_type& cb )
+{
+	if (!mCloseConfirmationSignal)
+	{
+		mCloseConfirmationSignal = new commit_signal_t();
+	}	
+	return mCloseConfirmationSignal->connect(cb);
+}
 static LLFastTimer::DeclareTimer FTM_BUILD_PANELS("Build Panels");
 
 //-----------------------------------------------------------------------------

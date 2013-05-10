@@ -45,6 +45,39 @@ LLFloaterSidePanelContainer::LLFloaterSidePanelContainer(const LLSD& key, const 
 	// Prevent transient floaters (e.g. IM windows) from hiding
 	// when this floater is clicked.
 	LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::GLOBAL, this);
+	//We want this container to handle the shutdown logic of the sidepanelappearance.
+	mVerifyUponClose = TRUE;
+}
+
+BOOL LLFloaterSidePanelContainer::postBuild()
+{
+	setCloseConfirmationCallback( boost::bind(&LLFloaterSidePanelContainer::onConfirmationClose,this,_2));
+	return TRUE;
+}
+
+void  LLFloaterSidePanelContainer::onConfirmationClose( const LLSD &confirm )
+{
+	/*
+	LLPanelOutfitEdit* panel_outfit_edit = dynamic_cast<LLPanelOutfitEdit*>(LLFloaterSidePanelContainer::getPanel("appearance", "panel_outfit_edit"));
+	if (panel_outfit_edit)
+	{
+		LLFloater *parent = gFloaterView->getParentFloater(panel_outfit_edit);
+		if (parent == this )
+		{
+			LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance*>(getPanel("appearance"));
+			panel_appearance->onClose(this);			
+		}
+		else
+		{
+			LLFloater::onClickCloseBtn();
+		}
+	}
+	else
+	{
+		LLFloater::onClickCloseBtn();
+	}
+	*/
+	onClickCloseBtn();
 }
 
 LLFloaterSidePanelContainer::~LLFloaterSidePanelContainer()
