@@ -1197,14 +1197,39 @@ void LLInventoryModel::onDescendentsPurgedFromServer(const LLUUID& object_id)
 		}
 
 		count = categories.count();
-		for(S32 i = 0; i < count; ++i)
+		// Slightly kludgy way to make sure categories are removed
+		// only after their child categories have gone away.
+
+		// FIXME: Would probably make more sense to have this whole
+		// descendent-clearing thing be a post-order recursive
+		// function to get the leaf-up behavior automatically.
+		S32 deleted_count;
+		S32 total_deleted_count = 0;
+		do
 		{
-			uu_id = categories.get(i)->getUUID();
-			if (getCategory(uu_id))
+			deleted_count = 0;
+			for(S32 i = 0; i < count; ++i)
 			{
-				deleteObject(uu_id);
+				uu_id = categories.get(i)->getUUID();
+				if (getCategory(uu_id))
+				{
+					cat_array_t* cat_list = getUnlockedCatArray(uu_id);
+					if (!cat_list || (cat_list->size() == 0))
+					{
+						deleteObject(uu_id);
+						deleted_count++;
+					}
+				}
 			}
+			total_deleted_count += deleted_count;
 		}
+		while (deleted_count > 0);
+		if (total_deleted_count != count)
+		{
+			llwarns << "Unexpected count of categories deleted, got "
+					<< total_deleted_count << " expected " << count << llendl;
+		}
+		gInventory.validate();
 	}
 }
 
@@ -1258,12 +1283,20 @@ void LLInventoryModel::deleteObject(const LLUUID& id)
 	item_list = getUnlockedItemArray(id);
 	if(item_list)
 	{
+		if (item_list->size())
+		{
+			llwarns << "Deleting cat " << id << " while it still has child items" << llendl;
+		}
 		delete item_list;
 		mParentChildItemTree.erase(id);
 	}
 	cat_list = getUnlockedCatArray(id);
 	if(cat_list)
 	{
+		if (cat_list->size())
+		{
+			llwarns << "Deleting cat " << id << " while it still has child cats" << llendl;
+		}
 		delete cat_list;
 		mParentChildCategoryTree.erase(id);
 	}
@@ -2084,11 +2117,16 @@ void LLInventoryModel::buildParentChildMap()
 	S32 count = cats.count();
 	S32 i;
 	S32 lost = 0;
+	cat_array_t lost_cats;
 	for(i = 0; i < count; ++i)
 	{
 		LLViewerInventoryCategory* cat = cats.get(i);
 		catsp = getUnlockedCatArray(cat->getParentUUID());
-		if(catsp)
+		if(catsp &&
+		   // Only the two root folders should be children of null.
+		   // Others should go to lost & found.
+		   (cat->getParentUUID().notNull() || 
+			cat->getPreferredType() == LLFolderType::FT_ROOT_INVENTORY ))
 		{
 			catsp->put(cat);
 		}
@@ -2103,39 +2141,48 @@ void LLInventoryModel::buildParentChildMap()
 			llinfos << "Lost category: " << cat->getUUID() << " - "
 					<< cat->getName() << llendl;
 			++lost;
-			// plop it into the lost & found.
-			LLFolderType::EType pref = cat->getPreferredType();
-			if(LLFolderType::FT_NONE == pref)
-			{
-				cat->setParent(findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
-			}
-			else if(LLFolderType::FT_ROOT_INVENTORY == pref)
-			{
-				// it's the root
-				cat->setParent(LLUUID::null);
-			}
-			else
-			{
-				// it's a protected folder.
-				cat->setParent(gInventory.getRootFolderID());
-			}
-			// FIXME note that updateServer() fails with protected
-			// types, so this will not work as intended in that case.
-			cat->updateServer(TRUE);
-			catsp = getUnlockedCatArray(cat->getParentUUID());
-			if(catsp)
-			{
-				catsp->put(cat);
-			}
-			else
-			{		
-				llwarns << "Lost and found Not there!!" << llendl;
-			}
+			lost_cats.put(cat);
 		}
 	}
 	if(lost)
 	{
 		llwarns << "Found  " << lost << " lost categories." << llendl;
+	}
+
+	// Do moves in a separate pass to make sure we've properly filed
+	// the FT_LOST_AND_FOUND category before we try to find its UUID.
+	for(i = 0; i<lost_cats.count(); ++i)
+	{
+		LLViewerInventoryCategory *cat = lost_cats.get(i);
+
+		// plop it into the lost & found.
+		LLFolderType::EType pref = cat->getPreferredType();
+		if(LLFolderType::FT_NONE == pref)
+		{
+			cat->setParent(findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
+		}
+		else if(LLFolderType::FT_ROOT_INVENTORY == pref)
+		{
+			// it's the root
+			cat->setParent(LLUUID::null);
+		}
+		else
+		{
+			// it's a protected folder.
+			cat->setParent(gInventory.getRootFolderID());
+		}
+		// FIXME note that updateServer() fails with protected
+		// types, so this will not work as intended in that case.
+		cat->updateServer(TRUE);
+		catsp = getUnlockedCatArray(cat->getParentUUID());
+		if(catsp)
+		{
+			catsp->put(cat);
+		}
+		else
+		{		
+			llwarns << "Lost and found Not there!!" << llendl;
+		}
 	}
 
 	const BOOL COF_exists = (findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, FALSE) != LLUUID::null);
@@ -2267,10 +2314,10 @@ void LLInventoryModel::buildParentChildMap()
 		}
 	}
 
-	// if (!gInventory.validate())
-	// {
-	// 	llwarns << "model failed validity check!" << llendl;
-	// }
+	if (!gInventory.validate())
+	{
+	 	llwarns << "model failed validity check!" << llendl;
+	}
 }
 
 struct LLUUIDAndName
