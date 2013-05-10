@@ -4337,7 +4337,9 @@ void LLAgent::sendAgentSetAppearance()
 	// to compensate for the COLLISION_TOLERANCE ugliness we will have 
 	// to tweak this number again
 	const LLVector3 body_size = gAgentAvatarp->mBodySize + gAgentAvatarp->mAvatarOffset;
-	msg->addVector3Fast(_PREHASH_Size, body_size);	
+	msg->addVector3Fast(_PREHASH_Size, body_size);
+	
+	LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "Sent AgentSetAppearance with height: " << body_size.mv[VZ] << " base: " << gAgentAvatarp->mBodySize.mV[VZ] << " hover: " << gAgentAvatarp->mAvatarOffset.mV[VZ] << LL_ENDL;	
 
 	// To guard against out of order packets
 	// Note: always start by sending 1.  This resets the server's count. 0 on the server means "uninitialized"
