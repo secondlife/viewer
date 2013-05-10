@@ -1677,7 +1677,7 @@ void LLPanelPeople::showFacebookFriends(const LLSD& friends)
 void LLPanelPeople::addTestParticipant()
 {
     std::string suffix("Aa");
-    std::string prefix("Facebook User Name");
+    std::string prefix("FB Name");
 	LLPersonTabModel * person_tab_model;
 	LLUUID agentID;
 	std::string name;
@@ -1718,7 +1718,7 @@ void LLPanelPeople::addParticipantToModel(LLPersonTabModel * person_folder_model
 	LLPersonModel* person_model = NULL;
 
 	LLAvatarName avatar_name;
-	bool has_name = LLAvatarNameCache::get(agent_id, &avatar_name);
+	bool has_name = agent_id.notNull() ? LLAvatarNameCache::get(agent_id, &avatar_name) : false;
 	std::string avatar_name_string;
 	
 	if(has_name)

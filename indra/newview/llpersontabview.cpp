@@ -300,8 +300,14 @@ void LLPersonView::draw()
 	F32 right_x  = 0;
 
 	drawHighlight();
-	drawLabel(mLabel, font, text_left, y, color, right_x);
-	drawLabel(mLabelSuffix, font, mFacebookIcon->getRect().mRight + 7, y, color, right_x);
+	if(mLabel.length())
+	{
+		drawLabel(mLabel, font, text_left, y, color, right_x);
+	}
+	if(mLabelSuffix.length())
+	{
+		drawLabel(mLabelSuffix, font, mFacebookIcon->getRect().mRight + 7, y, color, right_x);
+	}
 
 	LLView::draw();
 }
