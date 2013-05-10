@@ -19,7 +19,7 @@
             <string>
                 Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never).
                 Valid values are: 0, 120, 300, 600, 1800
-</string>
+    </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -14116,6 +14116,28 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
+  <key>TeleportArrivalDelay</key>
+  <map>
+    <key>Comment</key>
+    <string>Time to wait before displaying world during teleport (seconds)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>2</real>
+  </map>
+  <key>TeleportLocalDelay</key>
+  <map>
+    <key>Comment</key>
+    <string>Delay to prevent teleports after starting an in-sim teleport. (seconds)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1</real>
   </map>
 </map>
 </llsd>

@@ -331,7 +331,7 @@ LLviewerOctreeGroup::~LLviewerOctreeGroup()
 	{
 		LLViewerRegion::sCurRegionp->clearVisibleGroup(this);
 	}
-	llassert(LLViewerRegion::sCurRegionp->hasVisibleGroup(this) == false);
+	llassert(!LLViewerRegion::sCurRegionp || LLViewerRegion::sCurRegionp->hasVisibleGroup(this) == false);
 }
 
 LLviewerOctreeGroup::LLviewerOctreeGroup(OctreeNode* node) :

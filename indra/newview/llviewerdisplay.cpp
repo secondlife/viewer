@@ -85,9 +85,6 @@ extern bool gShiftFrame;
 LLPointer<LLViewerTexture> gDisconnectedImagep = NULL;
 
 // used to toggle renderer back on after teleport
-const F32 TELEPORT_RENDER_DELAY = 20.f; // Max time a teleport is allowed to take before we raise the curtain
-const F32 TELEPORT_ARRIVAL_DELAY = 2.f; // Time to preload the world before raising the curtain after we've actually already arrived.
-const F32 TELEPORT_LOCAL_DELAY = 1.0f;  // Delay to prevent teleports after starting an in-sim teleport.
 BOOL		 gTeleportDisplay = FALSE;
 LLFrameTimer gTeleportDisplayTimer;
 LLFrameTimer gTeleportArrivalTimer;
@@ -373,7 +370,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	{
 		LLFastTimer t(FTM_TELEPORT_DISPLAY);
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Teleport");
-		const F32 TELEPORT_ARRIVAL_DELAY = 2.f; // Time to preload the world before raising the curtain after we've actually already arrived.
+		static LLCachedControl<F32> teleport_arrival_delay(gSavedSettings, "TeleportArrivalDelay");
+		static LLCachedControl<F32> teleport_local_delay(gSavedSettings, "TeleportLocalDelay");
 
 		S32 attach_count = 0;
 		if (isAgentAvatarValid())
@@ -441,7 +439,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		case LLAgent::TELEPORT_ARRIVING:
 			// Make the user wait while content "pre-caches"
 			{
-				F32 arrival_fraction = (gTeleportArrivalTimer.getElapsedTimeF32() / TELEPORT_ARRIVAL_DELAY);
+				F32 arrival_fraction = (gTeleportArrivalTimer.getElapsedTimeF32() / teleport_arrival_delay());
 				if( arrival_fraction > 1.f )
 				{
 					arrival_fraction = 1.f;
@@ -458,7 +456,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			// Short delay when teleporting in the same sim (progress screen active but not shown - did not
 			// fall-through from TELEPORT_START)
 			{
-				if( gTeleportDisplayTimer.getElapsedTimeF32() > TELEPORT_LOCAL_DELAY )
+				if( gTeleportDisplayTimer.getElapsedTimeF32() > teleport_local_delay() )
 				{
 					//LLFirstUse::useTeleport();
 					gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
