@@ -1908,8 +1908,6 @@ S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
 	LLViewerFetchedTexture *image = getBakedTextureImage(te,uuid);
 	llassert(image);
 	return setTETextureCore(te, image);
-	llassert(image);
-	return setTETextureCore(te, image);
 }
 
 static LLFastTimer::DeclareTimer FTM_AVATAR_UPDATE("Avatar Update");
