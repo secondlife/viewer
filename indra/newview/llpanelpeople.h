@@ -88,7 +88,7 @@ private:
 	void					updateFriendList();
 	void					updateNearbyList();
 	void					updateRecentList();
-	void					updateFbcTestList();
+	void					updateFacebookList();
 
 	bool					isItemsFreeOfFriends(const uuid_vec_t& uuids);
 
@@ -152,6 +152,7 @@ private:
 	LLAvatarList*			mRecentList;
 	LLGroupList*			mGroupList;
 	LLSocialList*			mFacebookFriends;
+    S32                     mFacebookListGeneration;
 	LLNetMap*				mMiniMap;
 
 	std::vector<std::string> mSavedOriginalFilters;
@@ -162,7 +163,7 @@ private:
 	Updater*				mFriendListUpdater;
 	Updater*				mNearbyListUpdater;
 	Updater*				mRecentListUpdater;
-	Updater*				mFbcTestListUpdater;
+	Updater*				mFacebookListUpdater;
 	Updater*				mButtonsUpdater;
 	LLMenuButton*			mFBCGearButton;
     LLHandle< LLFloater >	mPicker;

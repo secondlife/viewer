@@ -40,24 +40,21 @@ class LLFacebookConnect : public LLSingleton<LLFacebookConnect>
 {
 	LOG_CLASS(LLFacebookConnect);
 public:
-	/*
-	 * Performs initial setup, by requesting config data from the web service if
-	 * it has not already been received.
-	 */
-	void init();
-
-    void loadFacebookFriends();
-    void hideFacebookFriends();
 	void connectToFacebook(const std::string& auth_code = "");
 	void disconnectFromFacebook();
 	void tryToReconnectToFacebook();
     void getConnectionToFacebook();
     
-	void showFacebookFriends(const LLSD& friends);
+    void loadFacebookFriends();
+
+    void clearContent();
+	void storeContent(const LLSD& content);
+    const LLSD& getContent() const;
     
     void setConnected(bool connected) { mConnectedToFbc = connected; }
     bool getConnected() { return mConnectedToFbc; }
-
+    S32  generation() { return mGeneration; }
+    
 private:
 
 	friend class LLSingleton<LLFacebookConnect>;
@@ -67,6 +64,8 @@ private:
  	std::string getFacebookConnectURL(const std::string& route = "");
    
     bool mConnectedToFbc;
+    LLSD mContent;
+    S32  mGeneration;  
 };
 
 #endif // LL_LLFACEBOOKCONNECT_H

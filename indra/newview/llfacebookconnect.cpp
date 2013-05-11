@@ -98,9 +98,9 @@ public:
 		{
 			LL_DEBUGS("FacebookConnect") << "Disconnect successful. content: " << content << LL_ENDL;
 			
-			// Hide all the facebook stuff
+			// Clear all facebook stuff
             LLFacebookConnect::instance().setConnected(false);
-			LLFacebookConnect::instance().hideFacebookFriends();
+			LLFacebookConnect::instance().clearContent();
 		}
 		else
 		{
@@ -156,9 +156,7 @@ public:
 		if (isGoodStatus(status))
 		{
 			LL_DEBUGS("FacebookConnect") << "Getting Facebook friends successful. content: " << content << LL_ENDL;
-            
-			// Display the list of friends
-			LLFacebookConnect::instance().showFacebookFriends(content);
+			LLFacebookConnect::instance().storeContent(content);
 		}
 		else
 		{
@@ -171,18 +169,14 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 //
 LLFacebookConnect::LLFacebookConnect()
-:	mConnectedToFbc(false)
-{
-    llinfos << "Merov : LLFacebookConnect::LLFacebookConnect" << llendl;
-}
-
-void LLFacebookConnect::init()
+:	mConnectedToFbc(false),
+    mContent(),
+    mGeneration(0)
 {
 }
 
 std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route)
 {
-    llinfos << "Merov : LLFacebookConnect::getFacebookConnectURL. route = " << route << llendl;
 	//static std::string sFacebookConnectUrl = gAgent.getRegion()->getCapability("FacebookConnect");
 	static std::string sFacebookConnectUrl = "https://pdp15.lindenlab.com/fbc/agent/" + gAgentID.asString(); // TEMPORARY HACK FOR FB DEMO - Cho
 	std::string url = sFacebookConnectUrl + route;
@@ -190,25 +184,8 @@ std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route)
 	return url;
 }
 
-void LLFacebookConnect::loadFacebookFriends()
-{
-    llinfos << "Merov : LLFacebookConnect::loadFacebookFriends" << llendl;
-	const bool follow_redirects=false;
-	const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
-	LLHTTPClient::get(getFacebookConnectURL("/friend"), new LLFacebookFriendsResponder(),
-					  LLSD(), timeout, follow_redirects);
-}
-
-void LLFacebookConnect::hideFacebookFriends()
-{
-    llinfos << "Merov : LLFacebookConnect::hideFacebookFriends" << llendl;
-    // That needs to be done in llpanelpeople...
-	//mFacebookFriends->clear();
-}
-
 void LLFacebookConnect::connectToFacebook(const std::string& auth_code)
 {
-    llinfos << "Merov : LLFacebookConnect::connectToFacebook" << llendl;
 	LLSD body;
 	if (!auth_code.empty())
 		body["code"] = auth_code;
@@ -218,13 +195,11 @@ void LLFacebookConnect::connectToFacebook(const std::string& auth_code)
 
 void LLFacebookConnect::disconnectFromFacebook()
 {
-    llinfos << "Merov : LLFacebookConnect::disconnectFromFacebook" << llendl;
 	LLHTTPClient::del(getFacebookConnectURL("/connection"), new LLFacebookDisconnectResponder());
 }
 
 void LLFacebookConnect::tryToReconnectToFacebook()
 {
-    llinfos << "Merov : LLFacebookConnect::tryToReconnectToFacebook" << llendl;
 	if (!mConnectedToFbc)
 	{
 		const bool follow_redirects=false;
@@ -236,54 +211,35 @@ void LLFacebookConnect::tryToReconnectToFacebook()
 
 void LLFacebookConnect::getConnectionToFacebook()
 {
-    llinfos << "Merov : LLFacebookConnect::getConnectionToFacebook" << llendl;
     const bool follow_redirects=false;
     const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
     LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(true),
                   LLSD(), timeout, follow_redirects);
 }
 
-void LLFacebookConnect::showFacebookFriends(const LLSD& friends)
+void LLFacebookConnect::loadFacebookFriends()
 {
-    /* All that needs to be rewritten a different way */
-    // FOR TESTING ONLY!! Print out the data in the log
-	//mFacebookFriends->clear();
-	//LLPersonTabModel::tab_type tab_type;
-	LLAvatarTracker& avatar_tracker = LLAvatarTracker::instance();
-    llinfos << "Merov : LLFacebookConnect::showFacebookFriends" << llendl;
-    
-	for (LLSD::map_const_iterator i = friends.beginMap(); i != friends.endMap(); ++i)
-	{
-		std::string name = i->second["name"].asString();
-		LLUUID agent_id = i->second.has("agent_id") ? i->second["agent_id"].asUUID() : LLUUID(NULL);
-		
-		//add to avatar list
-		//mFacebookFriends->addNewItem(agent_id, name, false);
-        
-		//FB+SL but not SL friend
-        bool is_SL_friend = false;
-		if(agent_id.notNull() && !avatar_tracker.isBuddy(agent_id))
-		{
-			//tab_type = LLPersonTabModel::FB_SL_NON_SL_FRIEND;
-            is_SL_friend = true;
-		}
-		//FB only friend
-		else
-		{
-			//tab_type = LLPersonTabModel::FB_ONLY_FRIEND;
-            is_SL_friend = false;
-		}
-        llinfos << "Merov : LLFacebookConnect : agent_id = " << agent_id << ", name = " << name << ", SL friend = " << is_SL_friend << llendl;
-        
-		//Add to person tab model
-        /*
-		LLPersonTabModel * person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(tab_type));
-		if(person_tab_model)
-		{
-			addParticipantToModel(person_tab_model, agent_id, name);
-		}
-         */
-	}
+	const bool follow_redirects=false;
+	const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
+	LLHTTPClient::get(getFacebookConnectURL("/friend"), new LLFacebookFriendsResponder(),
+					  LLSD(), timeout, follow_redirects);
+}
+
+void LLFacebookConnect::storeContent(const LLSD& content)
+{
+    mGeneration++;
+    mContent = content;
+}
+
+const LLSD& LLFacebookConnect::getContent() const
+{
+    return mContent;
+}
+
+void LLFacebookConnect::clearContent()
+{
+    mGeneration++;
+    mContent = LLSD();
 }
 
 

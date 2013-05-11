@@ -555,12 +555,13 @@ LLPanelPeople::LLPanelPeople()
 		mNearbyList(NULL),
 		mRecentList(NULL),
 		mGroupList(NULL),
-		mMiniMap(NULL)
+		mMiniMap(NULL),
+        mFacebookListGeneration(0)
 {
 	mFriendListUpdater = new LLFriendListUpdater(boost::bind(&LLPanelPeople::updateFriendList,	this));
 	mNearbyListUpdater = new LLNearbyListUpdater(boost::bind(&LLPanelPeople::updateNearbyList,	this));
 	mRecentListUpdater = new LLRecentListUpdater(boost::bind(&LLPanelPeople::updateRecentList,	this));
-	mFbcTestListUpdater = new LLFbcTestListUpdater(boost::bind(&LLPanelPeople::updateFbcTestList,	this));
+	mFacebookListUpdater = new LLFbcTestListUpdater(boost::bind(&LLPanelPeople::updateFacebookList,	this));
 	mButtonsUpdater = new LLButtonsUpdater(boost::bind(&LLPanelPeople::updateButtons, this));
 
 	mCommitCallbackRegistrar.add("People.loginFBC", boost::bind(&LLPanelPeople::onLoginFbcButtonClicked, this));
@@ -595,7 +596,7 @@ LLPanelPeople::~LLPanelPeople()
 	delete mNearbyListUpdater;
 	delete mFriendListUpdater;
 	delete mRecentListUpdater;
-	delete mFbcTestListUpdater;
+	delete mFacebookListUpdater;
 
 	if(LLVoiceClient::instanceExists())
 	{
@@ -683,13 +684,17 @@ BOOL LLPanelPeople::postBuild()
 	mAllFriendList->setContextMenu(&LLPanelPeopleMenus::gPeopleContextMenu);
 	mOnlineFriendList->setContextMenu(&LLPanelPeopleMenus::gPeopleContextMenu);
 
+    //===Temporary ========================================================================
+
 	LLPanel * social_tab = getChild<LLPanel>(FBCTEST_TAB_NAME);
 	mFacebookFriends = social_tab->getChild<LLSocialList>("facebook_friends");
-	social_tab->setVisibleCallback(boost::bind(&Updater::setActive, mFbcTestListUpdater, _2));
+    // Note: we use the same updater for both test lists (brute force but OK since it's temporary)
+	social_tab->setVisibleCallback(boost::bind(&Updater::setActive, mFacebookListUpdater, _2));
 
 	//===Test START========================================================================
 
 	LLPanel * socialtwo_tab = getChild<LLPanel>(FBCTESTTWO_TAB_NAME);
+	socialtwo_tab->setVisibleCallback(boost::bind(&Updater::setActive, mFacebookListUpdater, _2));
 
 	//Create folder view
 	LLPersonModelCommon* base_item = new LLPersonModelCommon(mPersonFolderViewModel);
@@ -911,7 +916,7 @@ void LLPanelPeople::updateRecentList()
 	mRecentList->setDirty();
 }
 
-void LLPanelPeople::updateFbcTestList()
+void LLPanelPeople::updateFacebookList()
 {
 	if (mTryToConnectToFbc)
 	{	
@@ -922,8 +927,45 @@ void LLPanelPeople::updateFbcTestList()
 		mTryToConnectToFbc = false;
 		
 		// stop updating
-		mFbcTestListUpdater->setActive(false);
+		mFacebookListUpdater->setActive(false);
 	}
+    
+    if (LLFacebookConnect::instance().generation() != mFacebookListGeneration)
+    {
+        mFacebookListGeneration = LLFacebookConnect::instance().generation();
+        LLSD friends = LLFacebookConnect::instance().getContent();
+
+        mFacebookFriends->clear();
+        LLPersonTabModel::tab_type tab_type;
+        LLAvatarTracker& avatar_tracker = LLAvatarTracker::instance();
+        
+        for (LLSD::map_const_iterator i = friends.beginMap(); i != friends.endMap(); ++i)
+        {
+            std::string name = i->second["name"].asString();
+            LLUUID agent_id = i->second.has("agent_id") ? i->second["agent_id"].asUUID() : LLUUID(NULL);
+            
+            //add to avatar list
+            mFacebookFriends->addNewItem(agent_id, name, false);
+            
+            //FB+SL but not SL friend
+            if (agent_id.notNull() && !avatar_tracker.isBuddy(agent_id))
+            {
+                tab_type = LLPersonTabModel::FB_SL_NON_SL_FRIEND;
+            }
+            //FB only friend
+            else
+            {
+                tab_type = LLPersonTabModel::FB_ONLY_FRIEND;
+            }
+            
+            //Add to person tab model
+            LLPersonTabModel * person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(tab_type));
+            if (person_tab_model)
+            {
+                addParticipantToModel(person_tab_model, agent_id, name);
+            }
+        }
+    }
 }
 
 void LLPanelPeople::updateButtons()
