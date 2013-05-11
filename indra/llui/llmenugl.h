@@ -82,7 +82,7 @@ protected:
 	friend class LLUICtrlFactory;
 public:
 	// LLView overrides
-	/*virtual*/ void handleVisibilityChange(BOOL new_visibility);
+	/*virtual*/ void onVisibilityChange(BOOL new_visibility);
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleRightMouseUp(S32 x, S32 y, MASK mask);
@@ -631,7 +631,7 @@ public:
 	virtual void updateBranchParent( LLView* parentp );
 
 	// LLView Functionality
-	virtual void handleVisibilityChange( BOOL curVisibilityIn );
+	virtual void onVisibilityChange( BOOL curVisibilityIn );
 
 	virtual void draw();
 

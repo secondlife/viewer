@@ -1222,13 +1222,13 @@ void LLTextBase::setReadOnlyColor(const LLColor4 &c)
 }
 
 //virtual
-void LLTextBase::handleVisibilityChange( BOOL new_visibility )
+void LLTextBase::onVisibilityChange( BOOL new_visibility )
 {
 	if(!new_visibility && mPopupMenu)
 	{
 		mPopupMenu->hide();
 	}
-	LLUICtrl::handleVisibilityChange(new_visibility);
+	LLUICtrl::onVisibilityChange(new_visibility);
 }
 
 //virtual

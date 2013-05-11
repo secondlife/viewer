@@ -342,9 +342,9 @@ BOOL LLPanel::handleKeyHere( KEY key, MASK mask )
 	return handled;
 }
 
-void LLPanel::handleVisibilityChange ( BOOL new_visibility )
+void LLPanel::onVisibilityChange ( BOOL new_visibility )
 {
-	LLUICtrl::handleVisibilityChange ( new_visibility );
+	LLUICtrl::onVisibilityChange ( new_visibility );
 	if (mVisibleSignal)
 		(*mVisibleSignal)(this, LLSD(new_visibility) ); // Pass BOOL as LLSD
 }

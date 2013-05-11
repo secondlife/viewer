@@ -2865,7 +2865,7 @@ void LLPanelEnvironmentInfo::onOpen(const LLSD& key)
 }
 
 // virtual
-void LLPanelEnvironmentInfo::handleVisibilityChange(BOOL new_visibility)
+void LLPanelEnvironmentInfo::onVisibilityChange(BOOL new_visibility)
 {
 	// If hiding (user switched to another tab or closed the floater),
 	// display user's preferred environment.

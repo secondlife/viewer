@@ -52,7 +52,7 @@ boost::signals2::connection LLToggleableMenu::setVisibilityChangeCallback(const 
 }
 
 // virtual
-void LLToggleableMenu::handleVisibilityChange (BOOL curVisibilityIn)
+void LLToggleableMenu::onVisibilityChange (BOOL curVisibilityIn)
 {
 	S32 x,y;
 	LLUI::getMousePositionLocal(LLUI::getRootView(), &x, &y);

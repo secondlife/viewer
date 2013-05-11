@@ -158,7 +158,7 @@ public:
 	/**
 	 * Raises notifyParent event with "child_visibility_change" = new_visibility
 	 */
-	void handleVisibilityChange(BOOL new_visibility);
+	void onVisibilityChange(BOOL new_visibility);
 
 	// Changes expand/collapse state and triggers expand/collapse callbacks
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);

@@ -549,13 +549,13 @@ BOOL LLMenuItemGL::setLabelArg( const std::string& key, const LLStringExplicit& 
 	return TRUE;
 }
 
-void LLMenuItemGL::handleVisibilityChange(BOOL new_visibility)
+void LLMenuItemGL::onVisibilityChange(BOOL new_visibility)
 {
 	if (getMenu())
 	{
 		getMenu()->needsArrange();
 	}
-	LLView::handleVisibilityChange(new_visibility);
+	LLView::onVisibilityChange(new_visibility);
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1146,13 +1146,13 @@ void LLMenuItemBranchGL::updateBranchParent(LLView* parentp)
 	}
 }
 
-void LLMenuItemBranchGL::handleVisibilityChange( BOOL new_visibility )
+void LLMenuItemBranchGL::onVisibilityChange( BOOL new_visibility )
 {
 	if (new_visibility == FALSE && getBranch() && !getBranch()->getTornOff())
 	{
 		getBranch()->setVisible(FALSE);
 	}
-	LLMenuItemGL::handleVisibilityChange(new_visibility);
+	LLMenuItemGL::onVisibilityChange(new_visibility);
 }
 
 BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask )

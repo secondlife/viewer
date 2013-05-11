@@ -422,7 +422,7 @@ BOOL LLMediaCtrl::handleKeyHere( KEY key, MASK mask )
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LLMediaCtrl::handleVisibilityChange ( BOOL new_visibility )
+void LLMediaCtrl::onVisibilityChange ( BOOL new_visibility )
 {
 	llinfos << "visibility changed to " << (new_visibility?"true":"false") << llendl;
 	if(mMediaSource)

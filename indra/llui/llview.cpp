@@ -641,21 +641,21 @@ void LLView::setVisible(BOOL visible)
 		{
 			// tell all children of this view that the visibility may have changed
 			dirtyRect();
-			handleVisibilityChange( visible );
+			onVisibilityChange( visible );
 		}
 		updateBoundingRect();
 	}
 }
 
 // virtual
-void LLView::handleVisibilityChange ( BOOL new_visibility )
+void LLView::onVisibilityChange ( BOOL new_visibility )
 {
 	BOOST_FOREACH(LLView* viewp, mChildList)
 	{
 		// only views that are themselves visible will have their overall visibility affected by their ancestors
 		if (viewp->getVisible())
 		{
-			viewp->handleVisibilityChange ( new_visibility );
+			viewp->onVisibilityChange ( new_visibility );
 		}
 	}
 }

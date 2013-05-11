@@ -596,7 +596,7 @@ LLControlGroup*	LLFloater::getControlGroup()
 
 void LLFloater::setVisible( BOOL visible )
 {
-	LLPanel::setVisible(visible); // calls handleVisibilityChange()
+	LLPanel::setVisible(visible); // calls onVisibilityChange()
 	if( visible && mFirstLook )
 	{
 		mFirstLook = FALSE;
@@ -628,14 +628,14 @@ void LLFloater::setVisible( BOOL visible )
 }
 
 // virtual
-void LLFloater::handleVisibilityChange ( BOOL new_visibility )
+void LLFloater::onVisibilityChange ( BOOL new_visibility )
 {
 	if (new_visibility)
 	{
 		if (getHost())
 			getHost()->setFloaterFlashing(this, FALSE);
 	}
-	LLPanel::handleVisibilityChange ( new_visibility );
+	LLPanel::onVisibilityChange ( new_visibility );
 }
 
 void LLFloater::openFloater(const LLSD& key)
@@ -779,7 +779,7 @@ void LLFloater::closeFloater(bool app_quitting)
 		}
 		else
 		{
-			setVisible(FALSE); // hide before destroying (so handleVisibilityChange() gets called)
+			setVisible(FALSE); // hide before destroying (so onVisibilityChange() gets called)
 			if (!mReuseInstance)
 			{
 				destroy();

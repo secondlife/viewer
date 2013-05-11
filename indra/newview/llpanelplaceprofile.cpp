@@ -302,9 +302,9 @@ void LLPanelPlaceProfile::processParcelInfo(const LLParcelData& parcel_data)
 }
 
 // virtual
-void LLPanelPlaceProfile::handleVisibilityChange(BOOL new_visibility)
+void LLPanelPlaceProfile::onVisibilityChange(BOOL new_visibility)
 {
-	LLPanel::handleVisibilityChange(new_visibility);
+	LLPanel::onVisibilityChange(new_visibility);
 
 	LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
 	if (!parcel_mgr)

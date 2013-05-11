@@ -162,7 +162,7 @@ BOOL LLSidepanelTaskInfo::postBuild()
 	return TRUE;
 }
 
-/*virtual*/ void LLSidepanelTaskInfo::handleVisibilityChange ( BOOL visible )
+/*virtual*/ void LLSidepanelTaskInfo::onVisibilityChange ( BOOL visible )
 {
 	if (visible)
 	{
