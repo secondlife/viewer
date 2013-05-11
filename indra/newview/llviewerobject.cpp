@@ -2714,25 +2714,25 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 		if (object->loadTaskInvFile(ft->mFilename))
 		{
 
-		LLInventoryObject::object_list_t::iterator it = object->mInventory->begin();
-		LLInventoryObject::object_list_t::iterator end = object->mInventory->end();
-		std::list<LLUUID>& pending_lst = object->mPendingInventoryItemsIDs;
+			LLInventoryObject::object_list_t::iterator it = object->mInventory->begin();
+			LLInventoryObject::object_list_t::iterator end = object->mInventory->end();
+			std::list<LLUUID>& pending_lst = object->mPendingInventoryItemsIDs;
 
-		for (; it != end && pending_lst.size(); ++it)
-		{
-			LLViewerInventoryItem* item = dynamic_cast<LLViewerInventoryItem*>(it->get());
-			if(item && item->getType() != LLAssetType::AT_CATEGORY)
+			for (; it != end && pending_lst.size(); ++it)
 			{
-				std::list<LLUUID>::iterator id_it = std::find(pending_lst.begin(), pending_lst.begin(), item->getAssetUUID());
-				if (id_it != pending_lst.end())
+				LLViewerInventoryItem* item = dynamic_cast<LLViewerInventoryItem*>(it->get());
+				if(item && item->getType() != LLAssetType::AT_CATEGORY)
 				{
-					pending_lst.erase(id_it);
+					std::list<LLUUID>::iterator id_it = std::find(pending_lst.begin(), pending_lst.begin(), item->getAssetUUID());
+					if (id_it != pending_lst.end())
+					{
+						pending_lst.erase(id_it);
+					}
 				}
 			}
 		}
-	}
-	else
-	{
+		else
+		{
 			// MAINT-2597 - crash when trying to edit a no-mod object
 			// Somehow get an contents inventory response, but with an invalid stream (possibly 0 size?)
 			// Stated repro was specific to no-mod objects so failing without user interaction should be safe.
@@ -4144,7 +4144,7 @@ S32 LLViewerObject::setTESpecularMapCore(const U8 te, LLViewerTexture *image)
 		if (mat)
 		{
 			mat->setSpecularID(uuid);
-		}
+		}		
 		setChanged(TEXTURE);
 		if (mDrawable.notNull())
 		{
