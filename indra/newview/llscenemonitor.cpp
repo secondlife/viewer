@@ -271,9 +271,9 @@ void LLSceneMonitor::capture()
 	static LLCachedControl<F32>  scene_load_sample_time(gSavedSettings, "SceneLoadingMonitorSampleTime");
 	static LLFrameTimer timer;	
 
-	LLTrace::Recording* last_frame_recording = LLTrace::get_frame_recording()->getPrevRecording();
-	if (last_frame_recording->getMax(LLViewerCamera::getVelocityStat()) > 0.001f
-		|| last_frame_recording->getMax(LLViewerCamera::getAngularVelocityStat() > 0.01f)
+	LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
+	if (last_frame_recording.getSum(*LLViewerCamera::getVelocityStat()) > 0.001f
+		|| last_frame_recording.getSum(*LLViewerCamera::getAngularVelocityStat()) > 0.01f)
 	{
 		mRecording->reset();
 	}
@@ -296,7 +296,7 @@ void LLSceneMonitor::capture()
 
 	if(timer.getElapsedTimeF32() > scene_load_sample_time()
 		&& mEnabled
-		&& LLGLShader::sNoFixedFunction
+		&& LLGLSLShader::sNoFixedFunction
 		&& last_capture_time != gFrameCount)
 	{
 		timer.reset();
@@ -595,7 +595,7 @@ void LLSceneMonitorView::draw()
 	LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::LEFT, LLFontGL::TOP);
 	lines++;
 
-	num_str = llformat("Sampling time: %.3f seconds", gSavedSettings->getF32("SceneLoadingMonitorSampleTime"));
+	num_str = llformat("Sampling time: %.3f seconds", gSavedSettings.getF32("SceneLoadingMonitorSampleTime"));
 	LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::LEFT, LLFontGL::TOP);
 	lines++;
 
