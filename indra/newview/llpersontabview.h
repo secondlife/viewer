@@ -104,6 +104,7 @@ protected:
 	
 	void draw();
 	void drawHighlight();
+	void drawLabel(const std::string text, const LLFontGL * font, const F32 x, const F32 y, const LLColor4& color, F32 &right_x);
 
 private:
 

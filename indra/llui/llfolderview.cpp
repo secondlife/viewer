@@ -185,7 +185,7 @@ LLFolderView::LLFolderView(const Params& p)
 	mAutoOpenCandidate = NULL;
 	mAutoOpenTimer.stop();
 	mKeyboardSelection = FALSE;
-	mIndentation = p.folder_indentation;
+	mIndentation = 	getParentFolder() ? getParentFolder()->getIndentation() + mLocalIndentation : 0;  
 
 	//clear label
 	// go ahead and render root folder as usual

@@ -173,6 +173,8 @@ S32 LLPersonView::getLabelXPos()
 
 void LLPersonView::addToFolder(LLFolderViewFolder * person_folder_view)
 {
+	const LLFontGL * font = LLFontGL::getFontSansSerifSmall();
+
 	LLFolderViewItem::addToFolder(person_folder_view);
 	//Added item to folder could change folder's mHasVisibleChildren flag so call arrange
 	person_folder_view->requestArrange();
@@ -182,6 +184,18 @@ void LLPersonView::addToFolder(LLFolderViewFolder * person_folder_view)
 	if(mPersonTabModel->mTabType == LLPersonTabModel::FB_SL_NON_SL_FRIEND)
 	{
 		mAvatarIcon->setVisible(TRUE);
+		mFacebookIcon->setVisible(TRUE); 
+
+		S32 label_width = font->getWidth(mLabel);
+		F32 text_left = (F32)getLabelXPos();
+
+		LLRect mFacebookIconRect = mFacebookIcon->getRect();
+		S32 new_left = text_left + label_width + 7;
+		mFacebookIconRect.set(new_left, 
+			mFacebookIconRect.mTop, 
+			new_left + mFacebookIconRect.getWidth(),
+			mFacebookIconRect.mBottom);
+		mFacebookIcon->setRect(mFacebookIconRect);
 	}
 	else if(mPersonTabModel->mTabType == LLPersonTabModel::FB_ONLY_FRIEND)
 	{
@@ -286,7 +300,14 @@ void LLPersonView::draw()
 	F32 right_x  = 0;
 
 	drawHighlight();
-	drawLabel(font, text_left, y, color, right_x);
+	if(mLabel.length())
+	{
+		drawLabel(mLabel, font, text_left, y, color, right_x);
+	}
+	if(mLabelSuffix.length())
+	{
+		drawLabel(mLabelSuffix, font, mFacebookIcon->getRect().mRight + 7, y, color, right_x);
+	}
 
 	LLView::draw();
 }
@@ -315,6 +336,13 @@ void LLPersonView::drawHighlight()
 	{
 		mImageOver->draw(x, y, width, height);
 	}
+}
+
+void LLPersonView::drawLabel(const std::string text, const LLFontGL * font, const F32 x, const F32 y, const LLColor4& color, F32 &right_x)
+{
+	font->renderUTF8(text, 0, x, y, color,
+		LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+		S32_MAX, getRect().getWidth() - (S32) x - mLabelPaddingRight, &right_x, TRUE);
 }
 
 void LLPersonView::initFromParams(const LLPersonView::Params & params)
