@@ -165,7 +165,7 @@ void LLIMFloater::newIMCallback(const LLSD& data){
 	}
 }
 
-void LLIMFloater::onVisibilityChange(const LLSD& new_visibility)
+void LLIMFloater::onVisibilityChanged(const LLSD& new_visibility)
 {
 	bool visible = new_visibility.asBoolean();
 

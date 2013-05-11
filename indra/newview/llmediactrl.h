@@ -171,7 +171,7 @@ public:
 		void convertInputCoords(S32& x, S32& y);
 
 	private:
-		void onVisibilityChange ( const LLSD& new_visibility );
+		void onVisibilityChanged ( const LLSD& new_visibility );
 		void onPopup(const LLSD& notification, const LLSD& response);
 
 		const S32 mTextureDepthBytes;

@@ -142,7 +142,7 @@ BOOL LLSidepanelAppearance::postBuild()
 	mCurrOutfitPanel = getChild<LLPanel>("panel_currentlook");
 
 
-	setVisibleCallback(boost::bind(&LLSidepanelAppearance::onVisibilityChange,this,_2));
+	setVisibleCallback(boost::bind(&LLSidepanelAppearance::onVisibilityChanged,this,_2));
 
 	return TRUE;
 }
@@ -181,7 +181,7 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 	mOpened = true;
 }
 
-void LLSidepanelAppearance::onVisibilityChange(const LLSD &new_visibility)
+void LLSidepanelAppearance::onVisibilityChanged(const LLSD &new_visibility)
 {
 	LLSD visibility;
 	visibility["visible"] = new_visibility.asBoolean();

@@ -225,7 +225,7 @@ void LLFloaterLand::onOpen(const LLSD& key)
 	refresh();
 }
 
-void LLFloaterLand::onVisibilityChange(const LLSD& visible)
+void LLFloaterLand::onVisibilityChanged(const LLSD& visible)
 {
 	if (!visible.asBoolean())
 	{
@@ -255,7 +255,7 @@ LLFloaterLand::LLFloaterLand(const LLSD& seed)
 
 BOOL LLFloaterLand::postBuild()
 {	
-	setVisibleCallback(boost::bind(&LLFloaterLand::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLFloaterLand::onVisibilityChanged, this, _2));
 	
 	LLTabContainer* tab = getChild<LLTabContainer>("landtab");
 

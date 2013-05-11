@@ -9469,6 +9469,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SceneLoadingMonitorSampleTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Time between screen samples when monitor scene load (seconds)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1</real>
+    </map>
     <key>ScriptHelpFollowsCursor</key>
     <map>
       <key>Comment</key>

@@ -253,7 +253,7 @@ void LLPreviewGesture::onUpdateSucceeded()
 	refresh();
 }
 
-void LLPreviewGesture::onVisibilityChange ( const LLSD& new_visibility )
+void LLPreviewGesture::onVisibilityChanged ( const LLSD& new_visibility )
 {
 	if (new_visibility.asBoolean())
 	{
@@ -333,7 +333,7 @@ LLPreviewGesture::~LLPreviewGesture()
 
 BOOL LLPreviewGesture::postBuild()
 {
-	setVisibleCallback(boost::bind(&LLPreviewGesture::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLPreviewGesture::onVisibilityChanged, this, _2));
 	
 	LLLineEditor* edit;
 	LLComboBox* combo;

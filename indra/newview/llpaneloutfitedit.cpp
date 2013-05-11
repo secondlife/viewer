@@ -488,7 +488,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 	childSetCommitCallback("shop_btn_1", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
 	childSetCommitCallback("shop_btn_2", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
 
-	setVisibleCallback(boost::bind(&LLPanelOutfitEdit::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLPanelOutfitEdit::onVisibilityChanged, this, _2));
 
 	mWearablesGearMenuBtn = getChild<LLMenuButton>("wearables_gear_menu_btn");
 	mGearMenuBtn = getChild<LLMenuButton>("gear_menu_btn");
@@ -774,7 +774,7 @@ void LLPanelOutfitEdit::onPlusBtnClicked(void)
 	}
 }
 
-void LLPanelOutfitEdit::onVisibilityChange(const LLSD &in_visible_chain)
+void LLPanelOutfitEdit::onVisibilityChanged(const LLSD &in_visible_chain)
 {
 	showAddWearablesPanel(false);
 	mWearableItemsList->resetSelection();

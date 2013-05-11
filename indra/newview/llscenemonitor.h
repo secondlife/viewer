@@ -46,7 +46,7 @@ public:
 	void destroyClass();
 	
 	void freezeAvatar(LLCharacter* avatarp);
-	void setDebugViewerVisible(BOOL visible);
+	void setDebugViewerVisible(bool visible);
 
 	void capture(); //capture the main frame buffer
 	void compare(); //compare the stored two buffers.	
@@ -58,7 +58,6 @@ public:
 	const LLRenderTarget* getDiffTarget() const {return mDiff;}
 	F32  getDiffTolerance() const {return mDiffTolerance;}
 	F32  getDiffResult() const { return mDiffResult;}
-	F32  getSamplingTime() const { return mSamplingTime;}
 	F32  getDiffPixelRatio() const { return mDiffPixelRatio;}
 	bool isEnabled()const {return mEnabled;}
 	bool needsUpdate() const;
@@ -71,27 +70,25 @@ private:
 	void freezeScene();
 	void unfreezeScene();
 	void reset();
-	bool preCapture();
+	LLRenderTarget& getCaptureTarget();
 	void generateDitheringTexture(S32 width, S32 height);
 
 	void addMonitorResult();
 private:
-	BOOL mEnabled;
-	BOOL mNeedsUpdateDiff;
-	BOOL mHasNewDiff;
-	BOOL mHasNewQueryResult;
-	BOOL mDebugViewerVisible;
-	BOOL mQuitting;
+	bool mEnabled;
+	bool mNeedsUpdateDiff;
+	bool mHasNewDiff;
+	bool mHasNewQueryResult;
+	bool mDebugViewerVisible;
+	bool mQuitting;
 
 	LLRenderTarget* mFrames[2];
 	LLRenderTarget* mDiff;
-	LLRenderTarget* mCurTarget;
 
 	GLuint  mQueryObject; //used for glQuery
 	F32     mDiffResult;  //aggregate results of mDiff.
 	F32     mDiffTolerance; //pixels are filtered out when R+G+B < mDiffTolerance
 
-	F32     mSamplingTime; //time interval to capture frames, in seconds
 	F32     mDiffPixelRatio; //ratio of pixels used for comparison against the original mDiff size along one dimension
 
 	LLPointer<LLViewerTexture> mDitheringTexture;
@@ -119,7 +116,8 @@ public:
 	LLSceneMonitorView(const LLRect& rect);
 
 	virtual void draw();
-	virtual void setVisible(BOOL visible);
+
+	virtual void onVisibilityChange(BOOL visible);
 
 protected:
 	virtual void onClickCloseBtn();
