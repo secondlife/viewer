@@ -1991,21 +1991,23 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 								<< LL_ENDL;
 		
 	LL_DEBUGS("MaterialTEs") << " " << pMaterialID.asString() << LL_ENDL;
-	// Use TE-specific version of boost CB hook-up to avoid cross-contaminatin'
-	LLMaterialMgr::instance().get(getRegion()->getRegionID(), pMaterialID, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2, te));			
-	setChanged(TEXTURE);
-   if (!mDrawable.isNull())
+	if (res)
 	{
-		gPipeline.markTextured(mDrawable);
+		LLMaterialMgr::instance().get(getRegion()->getRegionID(), pMaterialID, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2, te));			
+		setChanged(TEXTURE);
+		if (!mDrawable.isNull())
+		{
+			gPipeline.markTextured(mDrawable);
+		}
+		mFaceMappingChanged = TRUE;
 	}
-	mFaceMappingChanged = TRUE;
-	return TEM_CHANGE_TEXTURE;
+	return res;
 }
 
 S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams)
 {
 	S32 res = LLViewerObject::setTEMaterialParams(te, pMaterialParams);
-	LL_DEBUGS("MaterialTEs") << "te " << (S32)te << " material " << pMaterialParams->asLLSD() << " res " << res
+	LL_DEBUGS("MaterialTEs") << "te " << (S32)te << " material " << ((pMaterialParams) ? pMaterialParams->asLLSD() : LLSD("null")) << " res " << res
 							 << ( LLSelectMgr::getInstance()->getSelection()->contains(const_cast<LLVOVolume*>(this), te) ? " selected" : " not selected" )
 							 << LL_ENDL;
 	setChanged(TEXTURE);

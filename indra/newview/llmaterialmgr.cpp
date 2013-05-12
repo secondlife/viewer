@@ -116,6 +116,7 @@ void LLMaterialsResponder::error(U32 pStatus, const std::string& pReason)
 
 LLMaterialMgr::LLMaterialMgr()
 {
+	mMaterials.insert(std::pair<LLMaterialID, LLMaterialPtr>(LLMaterialID::null, LLMaterialPtr(NULL)));
 	gIdleCallbacks.addFunction(&LLMaterialMgr::onIdle, NULL);
 	LLWorld::instance().setRegionRemovedCallback(boost::bind(&LLMaterialMgr::onRegionRemoved, this, _1));
 }
