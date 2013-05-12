@@ -1992,7 +1992,7 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 		
 	LL_DEBUGS("MaterialTEs") << " " << pMaterialID.asString() << LL_ENDL;
 	// Use TE-specific version of boost CB hook-up to avoid cross-contaminatin'
-	LLMaterialMgr::instance().getTE(getRegion()->getRegionID(), pMaterialID, te, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2, _3));			
+	LLMaterialMgr::instance().get(getRegion()->getRegionID(), pMaterialID, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2, te));			
 	setChanged(TEXTURE);
    if (!mDrawable.isNull())
 	{
