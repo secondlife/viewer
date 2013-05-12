@@ -61,6 +61,8 @@ LLTextureEntry* LLTextureEntry::newTextureEntry()
 //===============================================================
 LLTextureEntry::LLTextureEntry()
   : mMediaEntry(NULL)
+  , mSelected(false)
+  , mMaterialUpdatePending(false)
 {
 	init(LLUUID::null,1.f,1.f,0.f,0.f,0.f,DEFAULT_BUMP_CODE);
 }
@@ -537,10 +539,17 @@ S32 LLTextureEntry::setGlow(F32 glow)
 
 S32 LLTextureEntry::setMaterialID(const LLMaterialID& pMaterialID)
 {
-	if (mMaterialID != pMaterialID)
+	if ( (mMaterialID != pMaterialID) || (mMaterialUpdatePending && !mSelected) )
 	{
+		if (mSelected)
+		{
+			mMaterialUpdatePending = true;
+			mMaterialID = pMaterialID;
+			return TEM_CHANGE_NONE;
+		}
+
+		mMaterialUpdatePending = false;
 		mMaterialID = pMaterialID;
-		
 	}
 	if (mMaterialID.isNull())
 	{
@@ -551,7 +560,10 @@ S32 LLTextureEntry::setMaterialID(const LLMaterialID& pMaterialID)
 
 S32 LLTextureEntry::setMaterialParams(const LLMaterialPtr pMaterialParams)
 {
-
+	if (mSelected)
+	{
+		mMaterialUpdatePending = true;
+	}
 	mMaterial = pMaterialParams;
 	return TEM_CHANGE_TEXTURE;
 }
