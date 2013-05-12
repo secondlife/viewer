@@ -118,8 +118,6 @@ private:
 	 */
 	void onTextureSelectionChanged(LLInventoryItem* itemp);
 
-	LLMaterialID mMaterialID;
-	LLMaterialPtr mMaterial;
 	bool mIsAlpha;
 	
 	/* These variables interlock processing of materials updates sent to
