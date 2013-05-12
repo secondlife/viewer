@@ -221,8 +221,10 @@ elseif(DARWIN)
         libcollada14dom.dylib
        )
 
-    # fmod is statically linked on darwin
-    set(fmod_files "")
+    if (FMODEX)
+      set(debug_files ${debug_files} libfmodexL.dylib)
+      set(release_files ${release_files} libfmodex.dylib)
+    endif (FMODEX)
 
 elseif(LINUX)
     # linux is weird, multiple side by side configurations aren't supported
@@ -253,12 +255,13 @@ elseif(LINUX)
         libapr-1.so.0
         libaprutil-1.so.0
         libatk-1.0.so
+        libboost_context-mt.so.${BOOST_VERSION}.0
+        libboost_filesystem-mt.so.${BOOST_VERSION}.0
         libboost_program_options-mt.so.${BOOST_VERSION}.0
         libboost_regex-mt.so.${BOOST_VERSION}.0
-        libboost_thread-mt.so.${BOOST_VERSION}.0
-        libboost_filesystem-mt.so.${BOOST_VERSION}.0
         libboost_signals-mt.so.${BOOST_VERSION}.0
         libboost_system-mt.so.${BOOST_VERSION}.0
+        libboost_thread-mt.so.${BOOST_VERSION}.0
         libcollada14dom.so
         libcrypto.so.1.0.0
         libdb-5.1.so
@@ -364,30 +367,6 @@ copy_if_different(
     ${release_files}
     )
 set(third_party_targets ${third_party_targets} ${out_targets})
-
-if (FMOD_SDK_DIR)
-    copy_if_different(
-        ${FMOD_SDK_DIR} 
-        "${CMAKE_CURRENT_BINARY_DIR}/Debug"
-        out_targets 
-        ${fmod_files}
-        )
-    set(all_targets ${all_targets} ${out_targets})
-    copy_if_different(
-        ${FMOD_SDK_DIR} 
-        "${CMAKE_CURRENT_BINARY_DIR}/Release"
-        out_targets 
-        ${fmod_files}
-        )
-    set(all_targets ${all_targets} ${out_targets})
-    copy_if_different(
-        ${FMOD_SDK_DIR} 
-        "${CMAKE_CURRENT_BINARY_DIR}/RelWithDbgInfo"
-        out_targets 
-        ${fmod_files}
-        )
-    set(all_targets ${all_targets} ${out_targets})
-endif (FMOD_SDK_DIR)
 
 if(NOT STANDALONE)
   add_custom_target(

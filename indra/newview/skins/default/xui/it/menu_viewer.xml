@@ -116,7 +116,6 @@
 			<menu_item_call label="Acquista" name="Menu Object Buy"/>
 			<menu_item_call label="Prendi" name="Menu Object Take"/>
 			<menu_item_call label="Prendi copia" name="Take Copy"/>
-			<menu_item_call label="Salva nell&apos;inventario" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Salva nei contenuti oggetto" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="Restituisci oggetto" name="Return Object back to Owner"/>
 		</menu>
@@ -131,6 +130,7 @@
 			<menu_item_call label="Set collegati..." name="pathfinding_linksets_menu_item"/>
 			<menu_item_call label="Personaggi..." name="pathfinding_characters_menu_item"/>
 			<menu_item_call label="Visualizza / test..." name="pathfinding_console_menu_item"/>
+			<menu_item_call label="Rebake regione" name="pathfinding_rebake_navmesh_item"/>
 		</menu>
 		<menu label="Opzioni" name="Options">
 			<menu_item_check label="Mostra autorizzazioni avanzate" name="DebugPermissions"/>
@@ -160,6 +160,13 @@
 	<menu label="Aiuto" name="Help">
 		<menu_item_call label="Istruzioni..." name="How To"/>
 		<menu_item_call label="Aiuto di [SECOND_LIFE]" name="Second Life Help"/>
+		<menu_item_call label="Guida dell&apos;utente" name="User’s guide"/>
+		<menu_item_call label="Base di conoscenza" name="Knowledge Base"/>
+		<menu_item_call label="Wiki" name="Wiki"/>
+		<menu_item_call label="Forum della comunità" name="Community Forums"/>
+		<menu_item_call label="Portale assistenza" name="Support portal"/>
+		<menu_item_call label="[SECOND_LIFE] Notizie" name="Second Life News"/>
+		<menu_item_call label="[SECOND_LIFE] Blog" name="Second Life Blogs"/>
 		<menu_item_call label="Segnala abuso" name="Report Abuse"/>
 		<menu_item_call label="Segnala bug" name="Report Bug"/>
 		<menu_item_call label="Informazioni su [APP_NAME]" name="About Second Life"/>
@@ -337,9 +344,14 @@
 				<menu_item_call label="Alterna la geometria dei personaggi" name="Toggle Character Geometry"/>
 				<menu_item_check label="Consenti selezione avatar" name="Allow Select Avatar"/>
 			</menu>
+			<menu label="Velocità animazione" name="Animation Speed">
+				<menu_item_call label="Accelera tutte le animazioni del 10%" name="All Animations 10 Faster"/>
+				<menu_item_call label="Rallenta tutte le animazioni del 10%" name="All Animations 10 Slower"/>
+				<menu_item_call label="Ripristina la velocità di tutte le animazioni" name="Reset All Animation Speed"/>
+				<menu_item_check label="Animazioni lente" name="Slow Motion Animations"/>
+			</menu>
 			<menu_item_call label="Forza i parametri sui valori predefiniti" name="Force Params to Default"/>
 			<menu_item_check label="Informazioni sull&apos;animazione" name="Animation Info"/>
-			<menu_item_check label="Animazioni lente" name="Slow Motion Animations"/>
 			<menu_item_check label="Disabilita livello di dettaglio" name="Disable LOD"/>
 			<menu_item_check label="Mostra schemi collisione" name="Show Collision Skeleton"/>
 			<menu_item_check label="Mostra bersaglio" name="Display Agent Target"/>

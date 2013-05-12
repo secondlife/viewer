@@ -2160,7 +2160,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		if (mDrawable->isState(LLDrawable::FORCE_INVISIBLE) && !mOrphaned)
 		{
 // 			lldebugs << "Clearing force invisible: " << mID << ":" << getPCodeString() << ":" << getPositionAgent() << llendl;
-			mDrawable->setState(LLDrawable::CLEAR_INVISIBLE);
+			mDrawable->clearState(LLDrawable::FORCE_INVISIBLE);
+			gPipeline.markRebuild( mDrawable, LLDrawable::REBUILD_ALL, TRUE );
 		}
 	}
 
@@ -4149,7 +4150,7 @@ S32 LLViewerObject::setTESpecularMapCore(const U8 te, LLViewerTexture *image)
 		if (mat)
 		{
 			mat->setSpecularID(uuid);
-		}
+		}		
 	}
 	changeTESpecularMap(te, image);
 	return retval;
@@ -4396,11 +4397,11 @@ S32 LLViewerObject::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID
 	// Kitty would like to know if this is necessary?
 	// Since we should get a setTEMaterialParams that does it anyway?
 	//
-	setChanged(TEXTURE);
+		setChanged(TEXTURE);
 	if (mDrawable.notNull())
-	{
-		gPipeline.markTextured(mDrawable);
-	}
+		{
+			gPipeline.markTextured(mDrawable);
+		}
 	return retval;
 }
 
@@ -4414,19 +4415,19 @@ S32 LLViewerObject::setTEMaterialParams(const U8 te, const LLMaterialPtr pMateri
 		return 0;
 	}
 
-	retval = LLPrimitive::setTEMaterialParams(te, pMaterialParams);
-	LL_DEBUGS("Material") << "Changing material params for te " << (S32)te
-							<< ", object " << mID
-								<< " (" << retval << ")"
-							<< LL_ENDL;
-	setTENormalMap(te, tep->getMaterialParams()->getNormalID());
-	setTESpecularMap(te, tep->getMaterialParams()->getSpecularID());
+		retval = LLPrimitive::setTEMaterialParams(te, pMaterialParams);
+		LL_DEBUGS("Material") << "Changing material params for te " << (S32)te
+							  << ", object " << mID
+			                  << " (" << retval << ")"
+							  << LL_ENDL;
+		setTENormalMap(te, tep->getMaterialParams()->getNormalID());
+		setTESpecularMap(te, tep->getMaterialParams()->getSpecularID());
 
-	setChanged(TEXTURE);
+		setChanged(TEXTURE);
 	if (mDrawable.notNull())
-	{
-		gPipeline.markTextured(mDrawable);
-	}
+		{
+			gPipeline.markTextured(mDrawable);
+		}
 
 	return retval;
 }

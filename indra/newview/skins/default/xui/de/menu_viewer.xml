@@ -116,7 +116,6 @@
 			<menu_item_call label="Kaufen" name="Menu Object Buy"/>
 			<menu_item_call label="Nehmen" name="Menu Object Take"/>
 			<menu_item_call label="Kopie nehmen" name="Take Copy"/>
-			<menu_item_call label="Objekt wieder in meinem Inventar speichern" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Wieder in Objektinhalt speichern" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="Objekt zurückgeben" name="Return Object back to Owner"/>
 		</menu>

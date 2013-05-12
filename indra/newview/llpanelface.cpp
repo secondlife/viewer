@@ -1608,9 +1608,9 @@ void LLPanelFace::getState()
 				// Shiny (specular)
 				F32 offset_x, offset_y, repeat_x, repeat_y, rot;
 				LLTextureCtrl* texture_ctrl = getChild<LLTextureCtrl>("shinytexture control");
-				texture_ctrl->setImageAssetID(material->getSpecularID());
+				texture_ctrl->setImageAssetID(mMaterial->getSpecularID());
 				LLComboBox* combobox_shininess = getChild<LLComboBox>("combobox shininess");
-				if (!material->getSpecularID().isNull())
+				if (!mMaterial->getSpecularID().isNull())
 				{
 					mMaterial->getSpecularOffset(offset_x,offset_y);
 					mMaterial->getSpecularRepeat(repeat_x,repeat_y);
@@ -1635,7 +1635,7 @@ void LLPanelFace::getState()
 				// Assert desired colorswatch color to match material AFTER updateShinyControls
 				// to avoid getting overwritten with the default on some UI state changes.
 				//
-				if (!material->getSpecularID().isNull())
+				if (!mMaterial->getSpecularID().isNull())
 				{
 					getChild<LLColorSwatchCtrl>("shinycolorswatch")->setOriginal(mMaterial->getSpecularLightColor());
 					getChild<LLColorSwatchCtrl>("shinycolorswatch")->set(mMaterial->getSpecularLightColor(),TRUE);
@@ -1656,7 +1656,7 @@ void LLPanelFace::getState()
 						repeat_y *= 2.0f;
 					}
 
-					rot = material->getNormalRotation();
+					rot = mMaterial->getNormalRotation();
 					getChild<LLUICtrl>("bumpyScaleU")->setValue(repeat_x);
 					getChild<LLUICtrl>("bumpyScaleV")->setValue(repeat_y);
 					getChild<LLUICtrl>("bumpyRot")->setValue(rot*RAD_TO_DEG);

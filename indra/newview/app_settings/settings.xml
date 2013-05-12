@@ -2015,7 +2015,7 @@
       <key>Value</key>
       <string />
     </map>
-	<key>DebugAvatarAppearanceMessage</key>
+  <key>DebugAvatarAppearanceMessage</key>
   <map>
     <key>Comment</key>
     <string>Dump a bunch of XML files when handling appearance messages</string>
@@ -2070,7 +2070,7 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
-    <key>DebugAvatarCompositeBaked</key>
+  <key>DebugAvatarCompositeBaked</key>
   <map>
     <key>Comment</key>
     <string>Colorize avatar meshes based on baked/composite state.</string>
@@ -11183,7 +11183,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>0.0</integer>
+      <real>0.0</real>
     </map>
     <key>TextureFetchUpdateSkipLowPriority</key>
     <map>

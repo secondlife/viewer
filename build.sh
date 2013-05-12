@@ -65,18 +65,15 @@ pre_build()
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
 
-    check_for "Before 'autobuild configure'" ${build_dir}/packages/dictionaries
+    check_for "Confirm dictionaries are installed before 'autobuild configure'" ${build_dir}/packages/dictionaries
 
     "$AUTOBUILD" configure -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DRELEASE_CRASH_REPORTING:BOOL=ON \
      -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
-     -DVIEWER_LOGIN_CHANNEL:STRING="\"$viewer_login_channel\"" \
      -DGRID:STRING="\"$viewer_grid\"" \
      -DLL_TESTS:BOOL="$run_tests" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url
-
-    check_for "After 'autobuild configure'" ${build_dir}/packages/dictionaries
 
  end_section "Pre$variant"
 }
@@ -110,7 +107,6 @@ build()
   if $build_viewer
   then
     begin_section "Viewer$variant"
-    check_for "Before 'autobuild build'" ${build_dir}/packages/dictionaries
 
     "$AUTOBUILD" build --no-configure -c $variant
     build_ok=$?
@@ -135,8 +131,6 @@ build()
     else
       echo false >"$build_dir"/build_ok
     fi
-    check_for "After 'autobuild configure'" ${build_dir}/packages/dictionaries
-
   fi
 }
 
@@ -171,21 +165,6 @@ fi
 # Check to see if we're skipping the platform
 eval '$build_'"$arch" || pass
 
-# Run the version number update script
-# File no longer exists in code-sep branch, so let's make sure it exists in order to use it.
-if test -f scripts/update_version_files.py ; then
-  begin_section UpdateVer
-  eval $(python scripts/update_version_files.py \
-                --channel="$viewer_channel" \
-                --server_channel="$server_channel" \
-                --revision=$revision \
-                --verbose \
-         | sed -n -e "s,Setting viewer channel/version: '\([^']*\)' / '\([^']*\)',VIEWER_CHANNEL='\1';VIEWER_VERSION='\2',p")\
-  || fail update_version_files.py
-  echo "{\"Type\":\"viewer\",\"Version\":\"${VIEWER_VERSION}\"}" > summary.json
-  end_section UpdateVer
-fi
-
 if [ -z "$AUTOBUILD" ]
 then
   export autobuild_dir="$here/../../../autobuild/bin/"
@@ -209,27 +188,11 @@ then
 fi
 
 # load autbuild provided shell functions and variables
-# Merov: going back to the previous code that passes even if it fails catching a failure
-# TODO: use the correct code here under and fix the llbase import in python code
-#if "$AUTOBUILD" source_environment > source_environment
-#then
-#  . source_environment
-#else
-  # dump environment variables for debugging
-#  env|sort
-#  record_failure "autobuild source_environment failed"
-#  cat source_environment >&3
-#  exit 1
-#fi
 eval "$("$AUTOBUILD" source_environment)"
 
 # dump environment variables for debugging
 env|sort
 
-check_for "Before 'autobuild install'" ${build_dir}/packages/dictionaries
-
-
-check_for "After 'autobuild install'" ${build_dir}/packages/dictionaries
 # Now run the build
 succeeded=true
 build_processes=
@@ -403,7 +366,7 @@ then
         do
           upload_item symbolfile "$build_dir/$symbolfile" binary/octet-stream
         done
-        
+
         # Upload the llphysicsextensions_tpv package, if one was produced
         # *TODO: Make this an upload-extension
         if [ -r "$build_dir/llphysicsextensions_package" ]

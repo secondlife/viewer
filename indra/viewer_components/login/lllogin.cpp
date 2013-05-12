@@ -23,7 +23,6 @@
  * $/LicenseInfo$
  */
 
-#include <boost/coroutine/coroutine.hpp>
 #include "linden_common.h"
 #include "llsd.h"
 #include "llsdutil.h"

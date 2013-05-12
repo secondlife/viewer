@@ -116,7 +116,6 @@
 			<menu_item_call label="買う" name="Menu Object Buy"/>
 			<menu_item_call label="取る" name="Menu Object Take"/>
 			<menu_item_call label="コピーを取る" name="Take Copy"/>
-			<menu_item_call label="マイインベントリに保存" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="オブジェクトの中身に保存" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="オブジェクトを返却する" name="Return Object back to Owner"/>
 		</menu>
@@ -131,6 +130,7 @@
 			<menu_item_call label="リンクセット..." name="pathfinding_linksets_menu_item"/>
 			<menu_item_call label="キャラクター..." name="pathfinding_characters_menu_item"/>
 			<menu_item_call label="表示/テスト..." name="pathfinding_console_menu_item"/>
+			<menu_item_call label="地域の再構築" name="pathfinding_rebake_navmesh_item"/>
 		</menu>
 		<menu label="オプション" name="Options">
 			<menu_item_check label="権限の詳細を表示する" name="DebugPermissions"/>
@@ -160,6 +160,13 @@
 	<menu label="ヘルプ" name="Help">
 		<menu_item_call label="ハウツー..." name="How To"/>
 		<menu_item_call label="[SECOND_LIFE] ヘルプ" name="Second Life Help"/>
+		<menu_item_call label="ユーザーガイド" name="User’s guide"/>
+		<menu_item_call label="ナレッジベース" name="Knowledge Base"/>
+		<menu_item_call label="Wiki" name="Wiki"/>
+		<menu_item_call label="コミュニティフォーラム" name="Community Forums"/>
+		<menu_item_call label="日本語サポートページ" name="Support portal"/>
+		<menu_item_call label="[SECOND_LIFE] ニュース" name="Second Life News"/>
+		<menu_item_call label="[SECOND_LIFE] ブログ" name="Second Life Blogs"/>
 		<menu_item_call label="嫌がらせを報告する" name="Report Abuse"/>
 		<menu_item_call label="バグを報告する" name="Report Bug"/>
 		<menu_item_call label="[APP_NAME] について" name="About Second Life"/>
@@ -386,9 +393,14 @@
 				<menu_item_call label="女性アバターのテスト" name="Test Female"/>
 				<menu_item_check label="選択アバター許可" name="Allow Select Avatar"/>
 			</menu>
+			<menu label="アニメーションのスピード" name="Animation Speed">
+				<menu_item_call label="すべてのアニメーションのスピードを 10% アップ" name="All Animations 10 Faster"/>
+				<menu_item_call label="すべてのアニメーションのスピードを 10% ダウン" name="All Animations 10 Slower"/>
+				<menu_item_call label="すべてのアニメーションのスピードをリセット" name="Reset All Animation Speed"/>
+				<menu_item_check label="アニメーションをスローモーション" name="Slow Motion Animations"/>
+			</menu>
 			<menu_item_call label="パラメータを強制的にデフォルトにする" name="Force Params to Default"/>
 			<menu_item_check label="アニメーション情報" name="Animation Info"/>
-			<menu_item_check label="スローモーションのアニメーション" name="Slow Motion Animations"/>
 			<menu_item_check label="見ているものを表示する" name="Show Look At"/>
 			<menu_item_check label="クリックした場所を表示する" name="Show Point At"/>
 			<menu_item_check label="結合部のアップデートのデバッグ" name="Debug Joint Updates"/>
