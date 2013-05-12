@@ -211,7 +211,7 @@ public:
 	LLViewerRegion* getRegion() const				{ return mRegionp; }
 
 	BOOL isSelected() const							{ return mUserSelected; }
-	virtual void setSelected(BOOL sel)				{ mUserSelected = sel; resetRot();}
+	virtual void setSelected(BOOL sel);
 
 	const LLUUID &getID() const						{ return mID; }
 	U32 getLocalID() const							{ return mLocalID; }

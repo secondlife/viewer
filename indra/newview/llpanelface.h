@@ -87,7 +87,7 @@ protected:
 	void 	onCommitAlpha(const LLSD& data);
 	void 	onCancelColor(const LLSD& data);
 	void 	onSelectColor(const LLSD& data);
-	void    onMaterialLoaded(const LLMaterialID& material_id, const LLMaterialPtr material);
+
 	void    updateMaterial();
 	
 	static 	void onCommitTextureInfo( 		LLUICtrl* ctrl, void* userdata);

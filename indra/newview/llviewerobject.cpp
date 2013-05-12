@@ -530,6 +530,17 @@ void LLViewerObject::setNameValueList(const std::string& name_value_list)
 	}
 }
 
+void LLViewerObject::setSelected(BOOL sel)
+{
+	mUserSelected = sel;
+	resetRot();
+
+	if (!sel)
+	{
+		setAllTESelected(false);
+	}
+}
+
 // This method returns true if the object is over land owned by the
 // agent.
 bool LLViewerObject::isReturnable()
@@ -4116,14 +4127,8 @@ S32 LLViewerObject::setTENormalMapCore(const U8 te, LLViewerTexture *image)
 		{
 			mat->setNormalID(uuid);
 		}
-
-		setChanged(TEXTURE);
-		if (mDrawable.notNull())
-		{
-			gPipeline.markTextured(mDrawable);
-		}
 	}
-	mTENormalMaps[te] = image;	
+	changeTENormalMap(te,image);	
 	return retval;
 }
 
@@ -4144,14 +4149,9 @@ S32 LLViewerObject::setTESpecularMapCore(const U8 te, LLViewerTexture *image)
 		if (mat)
 		{
 			mat->setSpecularID(uuid);
-		}		
-		setChanged(TEXTURE);
-		if (mDrawable.notNull())
-		{
-			gPipeline.markTextured(mDrawable);
 		}
 	}
-	mTESpecularMaps[te] = image;
+	changeTESpecularMap(te, image);
 	return retval;
 }
 
@@ -4171,6 +4171,11 @@ void LLViewerObject::changeTENormalMap(S32 index, LLViewerTexture* new_image)
 	{
 		return ;
 	}
+	setChanged(TEXTURE);
+	if (mDrawable.notNull())
+	{
+		gPipeline.markTextured(mDrawable);
+	}
 	mTENormalMaps[index] = new_image ;
 }
 
@@ -4179,6 +4184,11 @@ void LLViewerObject::changeTESpecularMap(S32 index, LLViewerTexture* new_image)
 	if(index < 0 || index >= getNumTEs())
 	{
 		return ;
+	}
+	setChanged(TEXTURE);
+	if (mDrawable.notNull())
+	{
+		gPipeline.markTextured(mDrawable);
 	}
 	mTESpecularMaps[index] = new_image ;
 }
@@ -4375,18 +4385,21 @@ S32 LLViewerObject::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID
 							 << ", material " << pMaterialID
 							 << LL_ENDL;
 	}
-	else if (pMaterialID != tep->getMaterialID())
+	//else if (pMaterialID != tep->getMaterialID())
 	{
 		LL_DEBUGS("Material") << "Changing texture entry for te " << (S32)te
 							 << ", object " << mID
 							 << ", material " << pMaterialID
 							 << LL_ENDL;
 		retval = LLPrimitive::setTEMaterialID(te, pMaterialID);
-		setChanged(TEXTURE);
-		if (mDrawable.notNull() && retval)
-		{
-			gPipeline.markTextured(mDrawable);
-		}
+	}
+	// Kitty would like to know if this is necessary?
+	// Since we should get a setTEMaterialParams that does it anyway?
+	//
+	setChanged(TEXTURE);
+	if (mDrawable.notNull())
+	{
+		gPipeline.markTextured(mDrawable);
 	}
 	return retval;
 }
@@ -4398,22 +4411,23 @@ S32 LLViewerObject::setTEMaterialParams(const U8 te, const LLMaterialPtr pMateri
 	if (!tep)
 	{
 		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+		return 0;
 	}
-	else if (pMaterialParams != tep->getMaterialParams())
+
+	retval = LLPrimitive::setTEMaterialParams(te, pMaterialParams);
+	LL_DEBUGS("Material") << "Changing material params for te " << (S32)te
+							<< ", object " << mID
+								<< " (" << retval << ")"
+							<< LL_ENDL;
+	setTENormalMap(te, tep->getMaterialParams()->getNormalID());
+	setTESpecularMap(te, tep->getMaterialParams()->getSpecularID());
+
+	setChanged(TEXTURE);
+	if (mDrawable.notNull())
 	{
-		retval = LLPrimitive::setTEMaterialParams(te, pMaterialParams);
-		LL_DEBUGS("Material") << "Changing material params for te " << (S32)te
-							  << ", object " << mID
-			                  << " (" << retval << ")"
-							  << LL_ENDL;
-		setTENormalMap(te, tep->getMaterialParams()->getNormalID());
-		setTESpecularMap(te, tep->getMaterialParams()->getSpecularID());
-		setChanged(TEXTURE);
-		if (mDrawable.notNull() && retval)
-		{
-			gPipeline.markTextured(mDrawable);
-		}
+		gPipeline.markTextured(mDrawable);
 	}
+
 	return retval;
 }
 

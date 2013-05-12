@@ -67,12 +67,16 @@ LLTextureEntry::LLTextureEntry()
 
 LLTextureEntry::LLTextureEntry(const LLUUID& tex_id)
   : mMediaEntry(NULL)
+  , mSelected(false)
+  , mMaterialUpdatePending(false)
 {
 	init(tex_id,1.f,1.f,0.f,0.f,0.f,DEFAULT_BUMP_CODE);
 }
 
 LLTextureEntry::LLTextureEntry(const LLTextureEntry &rhs)
   : mMediaEntry(NULL)
+  , mSelected(false)
+  , mMaterialUpdatePending(false)
 {
 	mID = rhs.mID;
 	mScaleS = rhs.mScaleS;
@@ -536,23 +540,20 @@ S32 LLTextureEntry::setMaterialID(const LLMaterialID& pMaterialID)
 	if (mMaterialID != pMaterialID)
 	{
 		mMaterialID = pMaterialID;
-		if (mMaterialID.isNull())
-		{
-			setMaterialParams(NULL);
-		}
-		return TEM_CHANGE_TEXTURE;
+		
 	}
-	return TEM_CHANGE_NONE;
+	if (mMaterialID.isNull())
+	{
+		setMaterialParams(NULL);
+	}
+	return TEM_CHANGE_TEXTURE;
 }
 
 S32 LLTextureEntry::setMaterialParams(const LLMaterialPtr pMaterialParams)
 {
-	if (mMaterial != pMaterialParams)
-	{
-		mMaterial = pMaterialParams;
-		return TEM_CHANGE_TEXTURE;
-	}
-	return TEM_CHANGE_NONE;
+
+	mMaterial = pMaterialParams;
+	return TEM_CHANGE_TEXTURE;
 }
 
 void LLTextureEntry::setMediaData(const LLMediaEntry &media_entry)

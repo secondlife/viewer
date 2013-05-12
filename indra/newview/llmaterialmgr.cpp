@@ -216,6 +216,51 @@ boost::signals2::connection LLMaterialMgr::get(const LLUUID& region_id, const LL
 	return connection;
 }
 
+boost::signals2::connection LLMaterialMgr::getTE(const LLUUID& region_id, const LLMaterialID& material_id, U32 te, LLMaterialMgr::get_callback_te_t::slot_type cb)
+{
+	boost::signals2::connection connection;
+
+	material_map_t::const_iterator itMaterial = mMaterials.find(material_id);
+	if (itMaterial != mMaterials.end())
+	{
+		LL_DEBUGS("Materials") << "region " << region_id << " found materialid " << material_id << LL_ENDL;
+		get_callback_te_t signal;
+		signal.connect(cb);
+		signal(material_id, itMaterial->second, te);
+		connection = boost::signals2::connection();
+	}
+	else
+	{
+		if (!isGetPending(region_id, material_id))
+		{
+			get_queue_t::iterator itQueue = mGetQueue.find(region_id);
+			if (mGetQueue.end() == itQueue)
+			{
+				LL_DEBUGS("Materials") << "mGetQueue inserting region "<<region_id << LL_ENDL;
+				std::pair<get_queue_t::iterator, bool> ret = mGetQueue.insert(std::pair<LLUUID, material_queue_t>(region_id, material_queue_t()));
+				itQueue = ret.first;
+			}
+			LL_DEBUGS("Materials") << "adding material id " << material_id << LL_ENDL;
+			itQueue->second.insert(material_id);
+			markGetPending(region_id, material_id);
+		}
+
+		TEMaterialPair te_mat_pair;
+		te_mat_pair.te = te;
+		te_mat_pair.materialID = material_id;
+
+		get_callback_te_map_t::iterator itCallback = mGetTECallbacks.find(te_mat_pair);
+		if (itCallback == mGetTECallbacks.end())
+		{
+			std::pair<get_callback_te_map_t::iterator, bool> ret = mGetTECallbacks.insert(std::pair<TEMaterialPair, get_callback_te_t*>(te_mat_pair, new get_callback_te_t()));
+			itCallback = ret.first;
+		}
+		connection = itCallback->second->connect(cb);
+	}
+
+	return connection;
+}
+
 bool LLMaterialMgr::isGetAllPending(const LLUUID& region_id) const
 {
 	getall_pending_map_t::const_iterator itPending = mGetAllPending.find(region_id);
@@ -298,6 +343,22 @@ const LLMaterialPtr LLMaterialMgr::setMaterial(const LLUUID& region_id, const LL
 
 		delete itCallback->second;
 		mGetCallbacks.erase(itCallback);
+	}
+
+	TEMaterialPair te_mat_pair;
+	te_mat_pair.materialID = material_id;
+
+	U32 i = 0;
+	while (i < LLTEContents::MAX_TES)
+	{
+		te_mat_pair.te = i++;
+		get_callback_te_map_t::iterator itCallbackTE = mGetTECallbacks.find(te_mat_pair);
+		if (itCallbackTE != mGetTECallbacks.end())
+		{
+			(*itCallbackTE->second)(material_id, itMaterial->second, te_mat_pair.te);
+			delete itCallbackTE->second;
+			mGetTECallbacks.erase(itCallbackTE);
+		}
 	}
 
 	return itMaterial->second;

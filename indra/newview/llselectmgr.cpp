@@ -815,6 +815,7 @@ void LLSelectMgr::addAsFamily(std::vector<LLViewerObject*>& objects, BOOL add_to
 			if (objectp->getNumTEs() > 0)
 			{
 				nodep->selectAllTEs(TRUE);
+				objectp->setAllTESelected(true);
 			}
 			else
 			{
@@ -872,10 +873,12 @@ void LLSelectMgr::addAsIndividual(LLViewerObject *objectp, S32 face, BOOL undoab
 	else if (face == SELECT_ALL_TES)
 	{
 		nodep->selectAllTEs(TRUE);
+		objectp->setAllTESelected(true);
 	}
 	else if (0 <= face && face < SELECT_MAX_TES)
 	{
 		nodep->selectTE(face, TRUE);
+		objectp->setTESelected(face, true);
 	}
 	else
 	{
@@ -1095,6 +1098,7 @@ LLObjectSelectionHandle LLSelectMgr::selectHighlightedObjects()
 
 		// flag this object as selected
 		objectp->setSelected(TRUE);
+		objectp->setAllTESelected(true);
 
 		mSelectedObjects->mSelectType = getSelectTypeForObject(objectp);
 
@@ -1318,6 +1322,7 @@ void LLSelectMgr::remove(LLViewerObject *objectp, S32 te, BOOL undoable)
 		if (nodep->isTESelected(te))
 		{
 			nodep->selectTE(te, FALSE);
+			objectp->setTESelected(te, false);
 		}
 		else
 		{

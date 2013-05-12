@@ -100,6 +100,10 @@ public:
 
 	void init(const LLUUID& tex_id, F32 scale_s, F32 scale_t, F32 offset_s, F32 offset_t, F32 rotation, U8 bump);
 
+	bool hasPendingMaterialUpdate() const { return mMaterialUpdatePending; }
+	bool isSelected() const { return mSelected; }
+	bool setSelected(bool sel) { bool prev_sel = mSelected; mSelected = sel; return prev_sel; }
+
 	// These return a TEM_ flag from above to indicate if something changed.
 	S32  setID (const LLUUID &tex_id);
 	S32  setColor(const LLColor4 &color);
@@ -194,11 +198,13 @@ public:
 	static const char* TEXTURE_MEDIA_DATA_KEY;
 
 protected:
+	bool                mSelected;
 	LLUUID				mID;					// Texture GUID
 	LLColor4			mColor;
 	U8					mBump;					// Bump map, shiny, and fullbright
 	U8					mMediaFlags;			// replace with web page, movie, etc.
 	F32                 mGlow;
+	bool                mMaterialUpdatePending;
 	LLMaterialID        mMaterialID;
 	LLMaterialPtr		mMaterial;
 
