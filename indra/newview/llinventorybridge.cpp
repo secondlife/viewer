@@ -1566,18 +1566,18 @@ void LLItemBridge::buildDisplayName() const
 	else
 	{
 		mDisplayName.assign(LLStringUtil::null);
-}
-
+	}
+	
 	mSearchableName.assign(mDisplayName);
 	mSearchableName.append(getLabelSuffix());
 	LLStringUtil::toUpper(mSearchableName);
-
+	
     //Name set, so trigger a sort
     if(mParent)
-{
-        mParent->requestSort();
+	{
+		mParent->requestSort();
 	}
-	}
+}
 
 LLFontGL::StyleFlags LLItemBridge::getLabelStyle() const
 {
@@ -1901,8 +1901,7 @@ void LLFolderBridge::update()
 		possibly_has_children = true;
 	}
 
-	bool loading = (possibly_has_children
-		&& !up_to_date );
+	bool loading = (possibly_has_children && !up_to_date );
 
 	if (loading != mIsLoading)
 	{
@@ -1929,12 +1928,13 @@ void LLFolderBridge::update()
 			||	(LLInventoryModelBackgroundFetch::instance().folderFetchActive()
 				&&	root_is_loading))
 		{
+			buildDisplayName();
 			mDisplayName = LLInvFVBridge::getDisplayName() + " ( " +   LLTrans::getString("LoadingData") + " ) ";
 			mIsLoading = true;
 		}
 		else
 		{
-			mDisplayName = LLInvFVBridge::getDisplayName();
+			buildDisplayName();
 			mIsLoading = false;
 		}
 	}

@@ -1154,8 +1154,8 @@ public:
 			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
 			return;
 		}
-		llinfos << "succeeded: " << ll_pretty_print_sd(content) << llendl;
-
+		gInventory.onAISUpdateReceived("removeObjectResponder " + mItemUUID.asString(), content);
+		// FIXME - not needed after AIS starts returning deleted item in its response.
 		gInventory.onObjectDeletedFromServer(mItemUUID);
 
 		if (mCallback)
@@ -1335,9 +1335,7 @@ public:
 			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
 			return;
 		}
-		llinfos << "succeeded: " << ll_pretty_print_sd(content) << llendl;
-
-		gInventory.onDescendentsPurgedFromServer(mItemUUID);
+		gInventory.onAISUpdateReceived("purgeDescendentsResponder " + mItemUUID.asString(), content);
 
 		if (mCallback)
 		{

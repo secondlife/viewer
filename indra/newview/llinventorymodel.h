@@ -328,19 +328,22 @@ public:
 	// Delete
 	//--------------------------------------------------------------------
 public:
-	
+
+	// Update model after an AISv3 update received for any operation.
+	void onAISUpdateReceived(const std::string& context, const LLSD& update);
+		
 	// Update model after an item is confirmed as removed from
 	// server. Works for categories or items.
-	void onObjectDeletedFromServer(const LLUUID& item_id);
+	void onObjectDeletedFromServer(const LLUUID& item_id, bool fix_broken_links = true);
 
 	// Update model after all descendents removed from server.
-	void onDescendentsPurgedFromServer(const LLUUID& object_id);
+	void onDescendentsPurgedFromServer(const LLUUID& object_id, bool fix_broken_links = true);
 
 	// Delete a particular inventory object by ID. Will purge one
 	// object from the internal data structures, maintaining a
 	// consistent internal state. No cache accounting, observer
 	// notification, or server update is performed.
-	void deleteObject(const LLUUID& id);
+	void deleteObject(const LLUUID& id, bool fix_broken_links = true);
 	/// move Item item_id to Trash
 	void removeItem(const LLUUID& item_id);
 	/// move Category category_id to Trash

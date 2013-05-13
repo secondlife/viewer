@@ -48,6 +48,7 @@
 #include "llcallbacklist.h"
 #include "llvoavatarself.h"
 #include "llgesturemgr.h"
+#include "llsdutil.h"
 #include <typeinfo>
 
 //#define DIFF_INVENTORY_FILES
@@ -1153,8 +1154,69 @@ void LLInventoryModel::changeCategoryParent(LLViewerInventoryCategory* cat,
 	notifyObservers();
 }
 
+void parse_llsd_uuid_array(const LLSD& content, const std::string& name, uuid_vec_t& ids)
+{
+	ids.clear();
+	if (content.has(name))
+	{
+		for(LLSD::array_const_iterator it = content[name].beginArray(),
+				end = content[name].endArray();
+				it != end; ++it)
+		{
+			ids.push_back((*it).asUUID());
+		}
+	}
+}
+
+void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLSD& update)
+{
+	llinfos << "ais update " << context << ":" << ll_pretty_print_sd(update) << llendl;
+
+	uuid_vec_t cat_ids;
+	parse_llsd_uuid_array(update,"_categories_removed",cat_ids);
+	for (uuid_vec_t::const_iterator it = cat_ids.begin();
+		 it != cat_ids.end(); ++it)
+	{
+		llinfos << "remove category: " << *it << llendl;
+		onObjectDeletedFromServer(*it, false);
+	}
+
+	uuid_vec_t item_ids;
+	parse_llsd_uuid_array(update,"_category_items_removed",item_ids);
+	for (uuid_vec_t::const_iterator it = item_ids.begin();
+		 it != item_ids.end(); ++it)
+	{
+		llinfos << "remove item: " << *it << llendl;
+		onObjectDeletedFromServer(*it, false);
+	}
+
+	uuid_vec_t broken_link_ids;
+	parse_llsd_uuid_array(update,"_broken_links_removed",broken_link_ids);
+	for (uuid_vec_t::const_iterator it = broken_link_ids.begin();
+		 it != broken_link_ids.end(); ++it)
+	{
+		llinfos << "remove broken link: " << *it << llendl;
+		onObjectDeletedFromServer(*it, false);
+	}
+
+	const std::string& ucv = "_updated_category_versions";
+	if (update.has(ucv))
+	{
+		for(LLSD::map_const_iterator it = update[ucv].beginMap(),
+				end = update[ucv].endMap();
+				it != end; ++it)
+		{
+			const LLUUID id((*it).first);
+			S32 version = (*it).second.asInteger();
+			llinfos << "update category: " << id << " to version " << version << llendl;
+		}
+	}
+
+	
+}
+
 // Update model after descendents have been purged.
-void LLInventoryModel::onDescendentsPurgedFromServer(const LLUUID& object_id)
+void LLInventoryModel::onDescendentsPurgedFromServer(const LLUUID& object_id, bool fix_broken_links)
 {
 	LLPointer<LLViewerInventoryCategory> cat = getCategory(object_id);
 	if (cat.notNull())
@@ -1192,7 +1254,7 @@ void LLInventoryModel::onDescendentsPurgedFromServer(const LLUUID& object_id)
 			// of its deleted parent.
 			if (getItem(uu_id))
 			{
-				deleteObject(uu_id);
+				deleteObject(uu_id, fix_broken_links);
 			}
 		}
 
@@ -1216,7 +1278,7 @@ void LLInventoryModel::onDescendentsPurgedFromServer(const LLUUID& object_id)
 					cat_array_t* cat_list = getUnlockedCatArray(uu_id);
 					if (!cat_list || (cat_list->size() == 0))
 					{
-						deleteObject(uu_id);
+						deleteObject(uu_id, fix_broken_links);
 						deleted_count++;
 					}
 				}
@@ -1235,24 +1297,30 @@ void LLInventoryModel::onDescendentsPurgedFromServer(const LLUUID& object_id)
 
 // Update model after an item is confirmed as removed from
 // server. Works for categories or items.
-void LLInventoryModel::onObjectDeletedFromServer(const LLUUID& object_id)
+void LLInventoryModel::onObjectDeletedFromServer(const LLUUID& object_id, bool fix_broken_links)
 {
 	LLPointer<LLInventoryObject> obj = getObject(object_id);
 	if(obj)
 	{
+		if (getCategory(object_id))
+		{
+			// For category, need to delete/update all children first.
+			onDescendentsPurgedFromServer(object_id, fix_broken_links);
+		}
+
 		// From item/cat removeFromServer()
 		LLInventoryModel::LLCategoryUpdate up(obj->getParentUUID(), -1);
 		accountForUpdate(up);
 
 		// From purgeObject()
 		LLPreview::hide(object_id);
-		deleteObject(object_id);
+		deleteObject(object_id, fix_broken_links);
 	}
 }
 
 
 // Delete a particular inventory object by ID.
-void LLInventoryModel::deleteObject(const LLUUID& id)
+void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links)
 {
 	lldebugs << "LLInventoryModel::deleteObject()" << llendl;
 	LLPointer<LLInventoryObject> obj = getObject(id);
@@ -1303,10 +1371,11 @@ void LLInventoryModel::deleteObject(const LLUUID& id)
 	addChangedMask(LLInventoryObserver::REMOVE, id);
 	
 	// Can't have links to links, so there's no need for this update
-	// if the item removed is a link.
+	// if the item removed is a link. Can also skip if source of the
+	// update is getting broken link info separately.
 	bool is_link_type = obj->getIsLinkType();
 	obj = NULL; // delete obj
-	if (!is_link_type)
+	if (fix_broken_links && !is_link_type)
 	{
 		updateLinkedObjectsFromPurge(id);
 	}
