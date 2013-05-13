@@ -109,7 +109,7 @@ void LLFloaterIMSession::refresh()
 void LLFloaterIMSession::onTearOffClicked()
 {
     LLFloaterIMSessionTab::onTearOffClicked();
-
+    mSpeakingIndicator->setVisible(mIsP2PChat);
     if(mIsP2PChat)
     {
         if(isTornOff())
