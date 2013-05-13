@@ -1991,17 +1991,15 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 								<< LL_ENDL;
 		
 	LL_DEBUGS("MaterialTEs") << " " << pMaterialID.asString() << LL_ENDL;
-	if (res)
-	{
-		LLMaterialMgr::instance().get(getRegion()->getRegionID(), pMaterialID, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2, te));			
+	// Use TE-specific version of boost CB hook-up to avoid cross-contaminatin'
+	LLMaterialMgr::instance().getTE(getRegion()->getRegionID(), pMaterialID, te, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2, _3));			
 		setChanged(TEXTURE);
 		if (!mDrawable.isNull())
 		{
 			gPipeline.markTextured(mDrawable);
 		}
 		mFaceMappingChanged = TRUE;
-	}
-	return res;
+	return TEM_CHANGE_TEXTURE;
 }
 
 S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams)

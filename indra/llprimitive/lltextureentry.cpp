@@ -539,28 +539,21 @@ S32 LLTextureEntry::setGlow(F32 glow)
 
 S32 LLTextureEntry::setMaterialID(const LLMaterialID& pMaterialID)
 {
-	if ( (mMaterialID != pMaterialID) || (mMaterialUpdatePending && !mSelected) )
+	if (mMaterialID != pMaterialID)
 	{
-		if (mSelected)
-		{
-			mMaterialUpdatePending = true;
-			mMaterialID = pMaterialID;
-			return TEM_CHANGE_NONE;
-		}
-
-		mMaterialUpdatePending = false;
 		mMaterialID = pMaterialID;
+		
+	}
+	if (mMaterialID.isNull())
+		{
+		setMaterialParams(NULL);
+		}
 		return TEM_CHANGE_TEXTURE;
 	}
-	return TEM_CHANGE_NONE;
-}
 
 S32 LLTextureEntry::setMaterialParams(const LLMaterialPtr pMaterialParams)
 {
-	if (mSelected)
-	{
-		mMaterialUpdatePending = true;
-	}
+
 	mMaterial = pMaterialParams;
 	return TEM_CHANGE_TEXTURE;
 }

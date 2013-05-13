@@ -567,7 +567,7 @@
              layout="topleft"
 			 label_width="205"
              left="10"
-             max_val="10"
+             max_val="100"
              min_val="0.1"
              name="rptctrl"
              width="265" />

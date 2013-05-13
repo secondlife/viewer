@@ -67,7 +67,7 @@ protected:
 	void			sendTexGen();				// applies and sends bump map
 	void			sendShiny();			// applies and sends shininess
 	void			sendFullbright();		// applies and sends full bright
-	void            sendGlow();
+	void        sendGlow();
 	void			sendMedia();
 
 	// this function is to return TRUE if the drag should succeed.
@@ -88,28 +88,48 @@ protected:
 	void 	onCancelColor(const LLSD& data);
 	void 	onSelectColor(const LLSD& data);
 
-	void    updateMaterial();
-	
-	static 	void onCommitTextureInfo( 		LLUICtrl* ctrl, void* userdata);
-	static void		onCommitMaterial(		LLUICtrl* ctrl, void* userdata);
-	static void		onCommitMaterialsMedia(		LLUICtrl* ctrl, void* userdata);
-	static void		onCommitMaterialType(		LLUICtrl* ctrl, void* userdata);
-	static void		onCommitBump(			LLUICtrl* ctrl, void* userdata);
+	// Make UI reflect state of currently selected material (refresh)
+	// and UI mode (e.g. editing normal map v diffuse map)
+	//
+	void updateUI();
+
+	// Callback funcs for individual controls
+	//
+	static void		onCommitTextureInfo( 	LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterial(			LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterialsMedia(	LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterialType(	LLUICtrl* ctrl, void* userdata);
+	static void		onCommitBump(				LLUICtrl* ctrl, void* userdata);
 	static void		onCommitTexGen(			LLUICtrl* ctrl, void* userdata);
-	static void		updateShinyControls(		LLUICtrl* ctrl, void* userdata, bool is_setting_texture = false, bool mess_with_combobox = false);
-	static void		updateBumpyControls(		LLUICtrl* ctrl, void* userdata, bool is_setting_texture = false, bool mess_with_combobox = false);
-	static void		onCommitShiny(			LLUICtrl* ctrl, void* userdata);
-	static void		updateAlphaControls(		LLUICtrl* ctrl, void* userdata);
+	static void		onCommitShiny(				LLUICtrl* ctrl, void* userdata);
 	static void		onCommitAlphaMode(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitFullbright(		LLUICtrl* ctrl, void* userdata);
-	static void     onCommitGlow(           LLUICtrl* ctrl, void *userdata);
-	static void		onCommitPlanarAlign(	LLUICtrl* ctrl, void* userdata);
-	
+	static void    onCommitGlow(				LLUICtrl* ctrl, void *userdata);
+	static void		onCommitPlanarAlign(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitRepeatsPerMeter(	LLUICtrl* ctrl, void* userinfo);
 	static void		onClickAutoFix(void*);
-	static F32      valueGlow(LLViewerObject* object, S32 face);
+
+	static F32     valueGlow(LLViewerObject* object, S32 face);
 
 private:
+
+	// Update visibility of controls to match current UI mode
+	// (e.g. materials vs media editing)
+	//
+	// Do NOT call updateUI from within this function.
+	//
+	void updateVisibility();
+
+	// Make material reflect current state of UI (apply edit)
+	//
+	void updateMaterial();
+
+	// Update vis and enabling of specific subsets of controls based on material params
+	// (e.g. hide the spec controls if no spec texture is applied)
+	//
+	void updateShinyControls(bool is_setting_texture = false, bool mess_with_combobox = false);
+	void updateBumpyControls(bool is_setting_texture = false, bool mess_with_combobox = false);
+	void updateAlphaControls();
 
 	/*
 	 * Checks whether the selected texture from the LLFloaterTexturePicker can be applied to the currently selected object.
