@@ -1128,7 +1128,6 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 	createVisibleObjects(max_update_time);
 
 	mImpl->mVisibleGroups.clear();
-	mImpl->mWaitingList.clear();
 
 	sCurRegionp = NULL;
 	return did_update;
@@ -1141,16 +1140,40 @@ F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 	{
 		return max_time;
 	}
-
-	std::vector<LLDrawable*> delete_list;
-	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mActiveSet.begin();
-		iter != mImpl->mActiveSet.end(); ++iter)
+	if(mImpl->mActiveSet.empty())
 	{
+		return max_time;
+	}
+
+	static LLVOCacheEntry* last_visited_entry = NULL;
+
+	const size_t MAX_UPDATE = 32; 
+	std::vector<LLDrawable*> delete_list;
+	S32 update_counter = llmin(MAX_UPDATE, mImpl->mActiveSet.size());
+	LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mActiveSet.upper_bound(last_visited_entry);	
+	
+	for(; update_counter > 0; --update_counter, ++iter)
+	{	
+		if(iter == mImpl->mActiveSet.end())
+		{
+			iter = mImpl->mActiveSet.begin();
+		}
+
 		if(!(*iter)->isRecentlyVisible())
 		{
 			killObject((*iter), delete_list);
 		}
 	}
+
+	if(iter == mImpl->mActiveSet.end())
+	{
+		last_visited_entry = NULL;
+	}
+	else
+	{
+		last_visited_entry = *iter;
+	}
+
 	for(S32 i = 0; i < delete_list.size(); i++)
 	{
 		gObjectList.killObject(delete_list[i]->getVObj());
