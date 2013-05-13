@@ -50,7 +50,7 @@ LLSceneMonitorView* gSceneMonitorView = NULL;
 //2, (?) disable all sky and water;
 //3, capture frames periodically, by calling "capture()";
 //4, compute pixel differences between two latest captured frames, by calling "compare()", results are stored at mDiff;
-//5, compute the number of pixels in mDiff above some tolerance threshold in GPU, by calling "queryDiff() -> calcDiffAggregate()";
+//5, compute the number of pixels in mDiff above some tolerance threshold in GPU, by calling "calcDiffAggregate()";
 //6, use gl occlusion query to fetch the result from GPU, by calling "fetchQueryResult()";
 //END.
 //
@@ -402,17 +402,10 @@ void LLSceneMonitor::compare()
 
 	mHasNewDiff = true;
 	
-	queryDiff();
-}
-
-void LLSceneMonitor::queryDiff()
-{
-	if(mDebugViewerVisible)
+	if (!mDebugViewerVisible)
 	{
-		return;
+		calcDiffAggregate();
 	}
-
-	calcDiffAggregate();
 }
 
 //calculate Diff aggregate information in GPU, and enable gl occlusion query to capture it.
@@ -492,6 +485,7 @@ void LLSceneMonitor::fetchQueryResult()
 	
 	mDiffResult = count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * mDiffPixelRatio * mDiffPixelRatio); //0.5 -> (front face + back face)
 
+	LL_DEBUGS("SceneMonitor") << "Frame difference: " << mDiffResult << LL_ENDL;
 	sample(sFramePixelDiff, mDiffResult);
 
 	const F32 diff_threshold = 0.001f;

@@ -39,6 +39,7 @@ class LLViewerTexture;
 
 class LLSceneMonitor :  public LLSingleton<LLSceneMonitor>
 {
+	LOG_CLASS(LLSceneMonitor);
 public:
 	LLSceneMonitor();
 	~LLSceneMonitor();
@@ -50,7 +51,6 @@ public:
 
 	void capture(); //capture the main frame buffer
 	void compare(); //compare the stored two buffers.	
-	void queryDiff();	
 	void fetchQueryResult();
 	void calcDiffAggregate();
 	void setDiffTolerance(F32 tol) {mDiffTolerance = tol;}
