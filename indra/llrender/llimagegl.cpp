@@ -715,12 +715,9 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 
 					mMipLevels = wpo2(llmax(w, h));
 
-					if (!gGLManager.mHasFramebufferObject)
-					{
-						//use legacy mipmap generation mode
-						glTexParameteri(mTarget, GL_GENERATE_MIPMAP, GL_TRUE);
-					}
-										
+					//use legacy mipmap generation mode (note: making this condional can cause rendering issues)
+					glTexParameteri(mTarget, GL_GENERATE_MIPMAP, GL_TRUE);
+
 					LLImageGL::setManualImage(mTarget, 0, mFormatInternal,
 								 w, h, 
 								 mFormatPrimary, mFormatType,
