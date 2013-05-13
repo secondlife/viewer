@@ -30,6 +30,8 @@
 
 #include "llfloater.h"
 
+class LLSidepanelAppearance;
+
 /**
  * Class LLFloaterSidePanelContainer
  *
@@ -81,6 +83,9 @@ public:
 		}
 		return panel;
 	}
+
+private:
+	LLSidepanelAppearance* getSidePanelAppearance();
 };
 
 #endif // LL_LLFLOATERSIDEPANELCONTAINER_H

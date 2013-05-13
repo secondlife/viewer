@@ -73,7 +73,9 @@ public:
 	void onClickConfirmExitWithoutSaveViaBack();
 	bool callBackExitWithoutSaveViaClose(const LLSD& notification, const LLSD& response);
 	void onClickConfirmExitWithoutSaveViaClose();
-
+	bool checkForDirtyEdits();	
+	bool callBackExitWithoutSaveIntoAppearance(const LLSD& notification, const LLSD& response);
+	void onClickConfirmExitWithoutSaveIntoAppearance();
 
 private:
 	void onFilterEdit(const std::string& search_string);
