@@ -485,7 +485,7 @@ void LLSceneMonitor::fetchQueryResult()
 	
 	mDiffResult = count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * mDiffPixelRatio * mDiffPixelRatio); //0.5 -> (front face + back face)
 
-	LL_DEBUGS("SceneMonitor") << "Frame difference: " << mDiffResult << LL_ENDL;
+	LL_DEBUGS("SceneMonitor") << "Frame difference: " << std::setprecision(4) << mDiffResult << LL_ENDL;
 	sample(sFramePixelDiff, mDiffResult);
 
 	const F32 diff_threshold = 0.001f;
