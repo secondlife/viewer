@@ -442,7 +442,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 				
 				LLMaterial* mat = NULL;
 
-				if (deferred_render && !LLPipeline::sUnderWaterRender)
+				if (!params.mFullbright && deferred_render && !LLPipeline::sUnderWaterRender)
 				{
 					mat = params.mMaterial;
 				}
