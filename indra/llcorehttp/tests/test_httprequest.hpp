@@ -1226,11 +1226,11 @@ void HttpRequestTestObjectType::test<12>()
 
 		// Run the notification pump.
 		int count(0);
-		int limit(10);
+		int limit(200);
 		while (count++ < limit && mHandlerCalls < 1)
 		{
 			req->update(1000000);
-			usleep(100000);
+			usleep(10000);
 		}
 		ensure("Request executed in reasonable time", count < limit);
 		ensure("One handler invocation for request", mHandlerCalls == 1);
@@ -1339,8 +1339,8 @@ void HttpRequestTestObjectType::test<13>()
 		HttpHandle handle = req->requestGetByteRange(HttpRequest::DEFAULT_POLICY_ID,
 													 0U,
 													 url_base,
-													 0,
-													 0,
+													 0,	
+												 0,
 													 opts,
 													 NULL,
 													 &handler);
@@ -1352,11 +1352,11 @@ void HttpRequestTestObjectType::test<13>()
 
 		// Run the notification pump.
 		int count(0);
-		int limit(10);
+		int limit(200);
 		while (count++ < limit && mHandlerCalls < 1)
 		{
 			req->update(1000000);
-			usleep(100000);
+			usleep(10000);
 		}
 		ensure("Request executed in reasonable time", count < limit);
 		ensure("One handler invocation for request", mHandlerCalls == 1);
