@@ -255,6 +255,7 @@ protected:
 	S32				insert(S32 pos, const LLWString &wstr, bool group_with_next_op, LLTextSegmentPtr segment);
 	S32				remove(S32 pos, S32 length, bool group_with_next_op);
 	
+	void			focusLostHelper();
 	void			updateAllowingLanguageInput();
 	BOOL			hasPreeditString() const;
 
