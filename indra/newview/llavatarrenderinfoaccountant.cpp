@@ -249,7 +249,7 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
 		{
 			LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*iter);
 			if (avatar &&
-				avatar->getRezzedStatus() == 2 &&					// Fully rezzed
+				avatar->getRezzedStatus() >= 2 &&					// Mostly rezzed (maybe without baked textures downloaded)
 				!avatar->isDead() &&								// Not dead yet
 				avatar->getObjectHost() == regionp->getHost())		// Ensure it's on the same region
 			{

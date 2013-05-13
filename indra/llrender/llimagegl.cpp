@@ -736,10 +736,11 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 						stop_glerror();
 					}
 
-					if (gGLManager.mHasFramebufferObject)
+					if (LLRender::sGLCoreProfile)
 					{
 						glGenerateMipmap(mTarget);
-					}
+					}	
+					stop_glerror();
 				}
 			}
 			else
@@ -1116,37 +1117,46 @@ void LLImageGL::deleteTextures(LLTexUnit::eTextureType type, U32 format, S32 mip
 {
 	if (gGLManager.mInited)
 	{
-		if (LLRender::sGLCoreProfile)
+		switch (format)
 		{
-			switch (format)
+			case 0:
+
+			// We get ARB errors in debug when attempting to use glTexImage2D with these deprecated pix formats
+			//
+			case GL_LUMINANCE8:
+			case GL_INTENSITY8:
+			case GL_ALPHA8:
+				glDeleteTextures(numTextures, textures);
+			break;
+
+			default:
 			{
-				case GL_LUMINANCE8: format = GL_RGB8; break;
-				case GL_LUMINANCE8_ALPHA8:
-				case GL_ALPHA8: format = GL_RGBA8; break;
-			}
-		}
-
-		if (format == 0 ||  type == LLTexUnit::TT_CUBE_MAP || mip_levels == -1)
-		{ //unknown internal format or unknown number of mip levels, not safe to reuse
-			glDeleteTextures(numTextures, textures);
-		}
-		else
-		{
-			for (S32 i = 0; i < numTextures; ++i)
-			{ //remove texture from VRAM by setting its size to zero
-				for (S32 j = 0; j <= mip_levels; j++)
-				{
-					gGL.getTexUnit(0)->bindManual(type, textures[i]);
-
-					glTexImage2D(LLTexUnit::getInternalType(type), j, format, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+				if (type == LLTexUnit::TT_CUBE_MAP || mip_levels == -1)
+				{ //unknown internal format or unknown number of mip levels, not safe to reuse
+					glDeleteTextures(numTextures, textures);
 				}
+				else
+				{
+					for (S32 i = 0; i < numTextures; ++i)
+					{ //remove texture from VRAM by setting its size to zero
 
-				llassert(std::find(sDeadTextureList[type][format].begin(),
-								   sDeadTextureList[type][format].end(), textures[i]) == 
-								   sDeadTextureList[type][format].end());
+						for (S32 j = 0; j <= mip_levels; j++)
+						{
+							gGL.getTexUnit(0)->bindManual(type, textures[i]);
+							U32 internal_type = LLTexUnit::getInternalType(type);
+							glTexImage2D(internal_type, j, format, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+							stop_glerror();
+						}
 
-				sDeadTextureList[type][format].push_back(textures[i]);
-			}	
+						llassert(std::find(sDeadTextureList[type][format].begin(),
+							sDeadTextureList[type][format].end(), textures[i]) == 
+							sDeadTextureList[type][format].end());
+
+						sDeadTextureList[type][format].push_back(textures[i]);
+					}	
+				}				
+			}
+			break;
 		}
 	}
 	

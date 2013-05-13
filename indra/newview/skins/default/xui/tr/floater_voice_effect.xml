@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="Yerler" name="voice_effects" title="SES ŞEKİLLENDİRME">
+<floater label="Yerler" name="voice_effects" title="SES ŞEKİLLENDİRME ÖNİZLEMESİ">
 	<string name="no_voice_effect">
 		(Ses Şekillendirme Yok)
 	</string>
