@@ -1589,7 +1589,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			{ //upload matrix palette to shader
 				LLMatrix4 mat[32];
 
-				U32 count = llmin(skin->mJointNames.size(), (U32) 32);
+				U32 count = llmin((U32) skin->mJointNames.size(), (U32) 32);
 
 				for (U32 i = 0; i < count; ++i)
 				{
