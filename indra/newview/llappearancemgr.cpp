@@ -2871,7 +2871,8 @@ class RequestAgentUpdateAppearanceResponder: public LLHTTPClient::Responder
 public:
 	RequestAgentUpdateAppearanceResponder()
 	{
-		mRetryPolicy = new LLAdaptiveRetryPolicy(1.0, 32.0, 2.0, 10);
+		bool retry_on_4xx = true;
+		mRetryPolicy = new LLAdaptiveRetryPolicy(1.0, 32.0, 2.0, 10, retry_on_4xx);
 	}
 
 	virtual ~RequestAgentUpdateAppearanceResponder()

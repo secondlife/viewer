@@ -28,11 +28,12 @@
 
 #include "llhttpretrypolicy.h"
 
-LLAdaptiveRetryPolicy::LLAdaptiveRetryPolicy(F32 min_delay, F32 max_delay, F32 backoff_factor, U32 max_retries):
+LLAdaptiveRetryPolicy::LLAdaptiveRetryPolicy(F32 min_delay, F32 max_delay, F32 backoff_factor, U32 max_retries, bool retry_on_4xx):
 	mMinDelay(min_delay),
 	mMaxDelay(max_delay),
 	mBackoffFactor(backoff_factor),
-	mMaxRetries(max_retries)
+	mMaxRetries(max_retries),
+	mRetryOn4xx(retry_on_4xx)
 {
 	init();
 }
@@ -108,7 +109,7 @@ void LLAdaptiveRetryPolicy::onFailureCommon(S32 status, bool has_retry_header_ti
 		llinfos << "Too many retries " << mRetryCount << ", will not retry" << llendl;
 		mShouldRetry = false;
 	}
-	if (!isHttpServerErrorStatus(status))
+	if (!mRetryOn4xx && !isHttpServerErrorStatus(status))
 	{
 		llinfos << "Non-server error " << status << ", will not retry" << llendl;
 		mShouldRetry = false;

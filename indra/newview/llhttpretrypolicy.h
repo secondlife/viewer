@@ -60,7 +60,7 @@ public:
 class LLAdaptiveRetryPolicy: public LLHTTPRetryPolicy
 {
 public:
-	LLAdaptiveRetryPolicy(F32 min_delay, F32 max_delay, F32 backoff_factor, U32 max_retries);
+	LLAdaptiveRetryPolicy(F32 min_delay, F32 max_delay, F32 backoff_factor, U32 max_retries, bool retry_on_4xx = false);
 
 	// virtual
 	void onSuccess();
@@ -88,6 +88,7 @@ private:
 	U32 mRetryCount; // number of times shouldRetry has been called.
 	LLTimer mRetryTimer; // time until next retry.
 	bool mShouldRetry; // Becomes false after too many retries, or the wrong sort of status received, etc.
+	bool mRetryOn4xx; // Normally only retry on 5xx server errors.
 };
 
 #endif

@@ -56,12 +56,19 @@ void RetryPolicyTestObject::test<1>()
 template<> template<>
 void RetryPolicyTestObject::test<2>()
 {
-	LLAdaptiveRetryPolicy retry404(1.0,2.0,3.0,10);
 	LLSD headers;
 	F32 wait_seconds;
-	
-	retry404.onFailure(404,headers);
-	ensure("no retry on 404", !retry404.shouldRetry(wait_seconds)); 
+
+	// Normally only retry on server error (5xx)
+	LLAdaptiveRetryPolicy noRetry404(1.0,2.0,3.0,10);
+	noRetry404.onFailure(404,headers);
+	ensure("no retry on 404", !noRetry404.shouldRetry(wait_seconds)); 
+
+	// Can retry on 4xx errors if enabled by flag.
+	bool do_retry_4xx = true;
+	LLAdaptiveRetryPolicy doRetry404(1.0,2.0,3.0,10,do_retry_4xx);
+	doRetry404.onFailure(404,headers);
+	ensure("do retry on 404", doRetry404.shouldRetry(wait_seconds)); 
 }
 
 template<> template<>
