@@ -145,12 +145,14 @@ void LLSidepanelAppearance::onClickConfirmExitWithoutSaveIntoAppearance()
 }
 void LLSidepanelAppearance::onClickConfirmExitWithoutSaveViaBack()
 {
-	if ( LLAppearanceMgr::getInstance()->isOutfitDirty() && !mSidePanelJustOpened /*&& !LLAppearanceMgr::getInstance()->isOutfitLocked()*/ )
+	/*
+	if ( LLAppearanceMgr::getInstance()->isOutfitDirty() && !mSidePanelJustOpened && !LLAppearanceMgr::getInstance()->isOutfitLocked() )
 	{
 		LLSidepanelAppearance* pSelf = (LLSidepanelAppearance *)this;
 		LLNotificationsUtil::add("ConfirmExitWithoutSave", LLSD(), LLSD(), boost::bind(&LLSidepanelAppearance::callBackExitWithoutSaveViaBack,pSelf,_1,_2) );
 	}
 	else
+		*/
 	{
 		showOutfitsInventoryPanel();
 	}
