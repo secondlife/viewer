@@ -14,12 +14,16 @@
 	NSWindow *inputWindow;
 	LLNonInlineTextView *inputView;
 	NSTimer *frameTimer;
+	NSString *currentInputLanguage;
 }
 
 @property (assign) IBOutlet LLNSWindow *window;
 @property (assign) IBOutlet NSWindow *inputWindow;
 @property (assign) IBOutlet LLNonInlineTextView *inputView;
 
+@property (retain) NSString *currentInputLanguage;
+
 - (void) mainLoop;
 - (void) showInputWindow:(bool)show;
+- (void) languageUpdated;
 @end
