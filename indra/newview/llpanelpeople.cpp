@@ -943,27 +943,31 @@ void LLPanelPeople::updateFacebookList()
         {
             std::string name = i->second["name"].asString();
             LLUUID agent_id = i->second.has("agent_id") ? i->second["agent_id"].asUUID() : LLUUID(NULL);
-            
+            bool second_life_buddy = agent_id.notNull() ? avatar_tracker.isBuddy(agent_id) : false;
+
             //add to avatar list
             mFacebookFriends->addNewItem(agent_id, name, false);
             
-            //FB+SL but not SL friend
-            if (agent_id.notNull() && !avatar_tracker.isBuddy(agent_id))
-            {
-                tab_type = LLPersonTabModel::FB_SL_NON_SL_FRIEND;
-            }
-            //FB only friend
-            else
-            {
-                tab_type = LLPersonTabModel::FB_ONLY_FRIEND;
-            }
-            
-            //Add to person tab model
-            LLPersonTabModel * person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(tab_type));
-            if (person_tab_model)
-            {
-                addParticipantToModel(person_tab_model, agent_id, name);
-            }
+			if(!second_life_buddy)
+			{
+				//FB+SL but not SL friend
+				if (agent_id.notNull())
+				{
+					tab_type = LLPersonTabModel::FB_SL_NON_SL_FRIEND;
+				}
+				//FB only friend
+				else
+				{
+					tab_type = LLPersonTabModel::FB_ONLY_FRIEND;
+				}
+
+				//Add to person tab model
+				LLPersonTabModel * person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(tab_type));
+				if (person_tab_model)
+				{
+					addParticipantToModel(person_tab_model, agent_id, name);
+				}
+			}
         }
     }
 }
