@@ -1027,12 +1027,18 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 }
 
 //static
+void LLPipeline::updateRenderBump()
+{
+	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
+}
+
+//static
 void LLPipeline::updateRenderDeferred()
 {
 	BOOL deferred = ((RenderDeferred && 
 					 LLRenderTarget::sUseFBO &&
 					 LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
-					 LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") &&
+					 LLPipeline::sRenderBump &&
 					 VertexShaderEnable && 
 					 RenderAvatarVP &&
 					 WindLightUseAtmosShaders) ? TRUE : FALSE) &&
@@ -6992,7 +6998,9 @@ void LLPipeline::doResetVertexBuffers()
 
 	LLVertexBuffer::unbind();	
 	
-	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
+	updateRenderBump();
+	updateRenderDeferred();
+
 	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
 	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
 	LLVertexBuffer::sUseVAO = gSavedSettings.getBOOL("RenderUseVAO");

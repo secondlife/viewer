@@ -146,6 +146,9 @@ public:
 
 	const std::string&	getDefaultImageName() const					{ return mDefaultImageName; }
 
+	void			setBlankImageAssetID( const LLUUID& id )	{ mBlankImageAssetID = id; }
+	const LLUUID&	getBlankImageAssetID() const { return mBlankImageAssetID; }
+
 	void			setCaption(const std::string& caption);
 	void			setCanApplyImmediately(BOOL b);
 
@@ -202,6 +205,7 @@ private:
 	LLUUID					 	mImageItemID;
 	LLUUID					 	mImageAssetID;
 	LLUUID					 	mDefaultImageAssetID;
+	LLUUID					 	mBlankImageAssetID;
 	LLUIImagePtr				mFallbackImage;
 	std::string					mDefaultImageName;
 	LLHandle<LLFloater>			mFloaterHandle;

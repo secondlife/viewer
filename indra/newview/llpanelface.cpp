@@ -157,7 +157,8 @@ BOOL	LLPanelFace::postBuild()
 	mShinyTextureCtrl = getChild<LLTextureCtrl>("shinytexture control");
 	if(mShinyTextureCtrl)
 	{
-		mShinyTextureCtrl->setDefaultImageAssetID(LLUUID( gSavedSettings.getString( "DefaultObjectTexture" )));
+		mShinyTextureCtrl->setDefaultImageAssetID(LLUUID( gSavedSettings.getString( "DefaultObjectSpecularTexture" )));
+		mShinyTextureCtrl->setBlankImageAssetID(LLUUID( gSavedSettings.getString( "DefaultBlankSpecularTexture" )));
 		mShinyTextureCtrl->setCommitCallback( boost::bind(&LLPanelFace::onCommitSpecularTexture, this, _2) );
 		mShinyTextureCtrl->setOnCancelCallback( boost::bind(&LLPanelFace::onCancelSpecularTexture, this, _2) );
 		mShinyTextureCtrl->setOnSelectCallback( boost::bind(&LLPanelFace::onSelectSpecularTexture, this, _2) );
@@ -172,7 +173,8 @@ BOOL	LLPanelFace::postBuild()
 	mBumpyTextureCtrl = getChild<LLTextureCtrl>("bumpytexture control");
 	if(mBumpyTextureCtrl)
 	{
-		mBumpyTextureCtrl->setDefaultImageAssetID(LLUUID( gSavedSettings.getString( "DefaultObjectTexture" )));
+		mBumpyTextureCtrl->setDefaultImageAssetID(LLUUID( gSavedSettings.getString( "DefaultObjectNormalTexture" )));
+		mBumpyTextureCtrl->setBlankImageAssetID(LLUUID( gSavedSettings.getString( "DefaultBlankNormalTexture" )));
 		mBumpyTextureCtrl->setCommitCallback( boost::bind(&LLPanelFace::onCommitNormalTexture, this, _2) );
 		mBumpyTextureCtrl->setOnCancelCallback( boost::bind(&LLPanelFace::onCancelNormalTexture, this, _2) );
 		mBumpyTextureCtrl->setOnSelectCallback( boost::bind(&LLPanelFace::onSelectNormalTexture, this, _2) );
@@ -741,23 +743,23 @@ void LLPanelFace::updateUI()
 			} func2;
 			LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func2, image_format );
             
-            mIsAlpha = FALSE;
-            switch (image_format)
-            {
-                case GL_RGBA:
-                case GL_ALPHA:
-                {
-                    mIsAlpha = TRUE;
-                }
-                break;
+         mIsAlpha = FALSE;
+         switch (image_format)
+         {
+               case GL_RGBA:
+               case GL_ALPHA:
+               {
+                  mIsAlpha = TRUE;
+               }
+               break;
 
-                case GL_RGB: break;
-                default:
-                {
-                    llwarns << "Unexpected tex format in LLPanelFace...resorting to no alpha" << llendl;
-                }
-                break;
-            }
+               case GL_RGB: break;
+               default:
+               {
+                  llwarns << "Unexpected tex format in LLPanelFace...resorting to no alpha" << llendl;
+               }
+               break;
+         }
 
 			if(LLViewerMedia::textureHasMedia(id))
 			{
@@ -768,15 +770,15 @@ void LLPanelFace::updateUI()
 			struct alpha_get : public LLSelectedTEGetFunctor<U8>
 			{
 				U8 get(LLViewerObject* object, S32 te_index)
-			{
+				{
 					U8 ret = 1;
 					
 					LLMaterial* mat = object->getTE(te_index)->getMaterialParams().get();
 
 					if (mat)
-				{
+					{
 						ret = mat->getDiffuseAlphaMode();
-				}
+					}
 									
 					return ret;
 				}
@@ -808,7 +810,7 @@ void LLPanelFace::updateUI()
 			
 			if(texture_ctrl && !texture_ctrl->isPickerShown())
 			{
-                if (identical_diffuse)
+				if (identical_diffuse)
 				{
 					texture_ctrl->setTentative( FALSE );
 					texture_ctrl->setEnabled( editable );
@@ -818,7 +820,7 @@ void LLPanelFace::updateUI()
 					getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
 					getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
 				}
-                else if (id.isNull())
+				else if (id.isNull())
 				{
 					// None selected
 					texture_ctrl->setTentative( FALSE );
@@ -835,54 +837,54 @@ void LLPanelFace::updateUI()
 					texture_ctrl->setTentative( TRUE );
 					texture_ctrl->setEnabled( editable );
 					texture_ctrl->setImageAssetID( id );
-                    getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha);
-                    getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
-                    getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
-                    getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
-                }
-            }
+					getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha);
+					getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
+					getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
+					getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
+				}
+			}
             
-            if (shinytexture_ctrl && !shinytexture_ctrl->isPickerShown())
+         if (shinytexture_ctrl && !shinytexture_ctrl->isPickerShown())
+         {
+				if (identical_spec)
+				{
+					shinytexture_ctrl->setTentative( FALSE );
+					shinytexture_ctrl->setEnabled( editable );
+					shinytexture_ctrl->setImageAssetID( specmap_id );
+            }
+            else if (specmap_id.isNull())
+				{
+               shinytexture_ctrl->setTentative( FALSE );
+               shinytexture_ctrl->setEnabled( FALSE );
+					shinytexture_ctrl->setImageAssetID( LLUUID::null );
+            }
+            else
             {
-                if (identical_spec)
-                {
-                    shinytexture_ctrl->setTentative( FALSE );
-                    shinytexture_ctrl->setEnabled( editable );
-                    shinytexture_ctrl->setImageAssetID( specmap_id );
-                }
-                else if (specmap_id.isNull())
-                {
-                    shinytexture_ctrl->setTentative( FALSE );
-                    shinytexture_ctrl->setEnabled( FALSE );
-                    shinytexture_ctrl->setImageAssetID( LLUUID::null );
-                }
-                else
-                {
 					shinytexture_ctrl->setTentative( TRUE );
 					shinytexture_ctrl->setEnabled( editable );
-                    shinytexture_ctrl->setImageAssetID( specmap_id );
-                }
-            }
+					shinytexture_ctrl->setImageAssetID( specmap_id );
+				}
+         }
 
-            if (bumpytexture_ctrl && !bumpytexture_ctrl->isPickerShown())
-            {
-                if (identical_norm)
+         if (bumpytexture_ctrl && !bumpytexture_ctrl->isPickerShown())
+         {
+				if (identical_norm)
 				{
-                    bumpytexture_ctrl->setTentative( FALSE );
-                    bumpytexture_ctrl->setEnabled( editable );
-                    bumpytexture_ctrl->setImageAssetID( normmap_id );
-                }
-                else if (normmap_id.isNull())
-                {
-                    bumpytexture_ctrl->setTentative( FALSE );
-                    bumpytexture_ctrl->setEnabled( FALSE );
+					bumpytexture_ctrl->setTentative( FALSE );
+					bumpytexture_ctrl->setEnabled( editable );
+					bumpytexture_ctrl->setImageAssetID( normmap_id );
+				}
+				else if (normmap_id.isNull())
+				{
+					bumpytexture_ctrl->setTentative( FALSE );
+					bumpytexture_ctrl->setEnabled( FALSE );
 					bumpytexture_ctrl->setImageAssetID( LLUUID::null );
 				}
-                else
-                {
+            else
+            {
 					bumpytexture_ctrl->setTentative( TRUE );
 					bumpytexture_ctrl->setEnabled( editable );
-                    bumpytexture_ctrl->setImageAssetID( normmap_id );
+					bumpytexture_ctrl->setImageAssetID( normmap_id );
 				}
 			}
 		}

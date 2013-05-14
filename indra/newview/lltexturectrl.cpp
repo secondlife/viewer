@@ -144,7 +144,7 @@ public:
 	static void		onBtnCancel( void* userdata );
 		   void		onBtnPipette( );
 	//static void		onBtnRevert( void* userdata );
-	static void		onBtnWhite( void* userdata );
+	static void		onBtnBlank( void* userdata );
 	static void		onBtnNone( void* userdata );
 	static void		onBtnClear( void* userdata );
 		   void		onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
@@ -426,7 +426,7 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 	childSetAction("Default",LLFloaterTexturePicker::onBtnSetToDefault,this);
 	childSetAction("None", LLFloaterTexturePicker::onBtnNone,this);
-	childSetAction("Blank", LLFloaterTexturePicker::onBtnWhite,this);
+	childSetAction("Blank", LLFloaterTexturePicker::onBtnBlank,this);
 
 
 	childSetCommitCallback("show_folders_check", onShowFolders, this);
@@ -581,7 +581,7 @@ void LLFloaterTexturePicker::draw()
 		}
 
 		getChildView("Default")->setEnabled(mImageAssetID != mOwner->getDefaultImageAssetID());
-		getChildView("Blank")->setEnabled(mImageAssetID != mWhiteImageAssetID );
+		getChildView("Blank")->setEnabled(mImageAssetID != mOwner->getBlankImageAssetID());
 		getChildView("None")->setEnabled(mOwner->getAllowNoTexture() && !mImageAssetID.isNull() );
 
 		LLFloater::draw();
@@ -721,11 +721,11 @@ void LLFloaterTexturePicker::onBtnSetToDefault(void* userdata)
 }
 
 // static
-void LLFloaterTexturePicker::onBtnWhite(void* userdata)
+void LLFloaterTexturePicker::onBtnBlank(void* userdata)
 {
 	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
 	self->setCanApply(true, true);
-	self->setImageID( self->mWhiteImageAssetID );
+	self->setImageID( self->mOwner->getBlankImageAssetID() );
 	self->commitIfImmediateSet();
 }
 

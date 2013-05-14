@@ -395,6 +395,7 @@ public:
 	static void toggleRenderHighlights(void* data);
 	static BOOL getRenderHighlights(void* data);
 
+	static void updateRenderBump();
 	static void updateRenderDeferred();
 	static void refreshCachedSettings();
 

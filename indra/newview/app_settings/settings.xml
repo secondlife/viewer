@@ -2862,6 +2862,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>DefaultBlankNormalTexture</key>
+  <map>
+    <key>Comment</key>
+    <string>Texture used as 'Blank' in texture picker for normal maps. (UUID texture reference)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>5b53359e-59dd-d8a2-04c3-9e65134da47a</string>
+  </map>
+  <key>DefaultBlankSpecularTexture</key>
+  <map>
+    <key>Comment</key>
+    <string>Texture used as 'Blank' in texture picker for specular maps. (UUID texture reference)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>cd35472f-71fa-9b9c-8e73-a2c324f5751a</string>
+  </map>
 	<key>DefaultFemaleAvatar</key>
 	<map>
 	  <key>Comment</key>
@@ -2884,8 +2906,29 @@
 	  <key>Value</key>
 	  <string>Male Shape &amp; Outfit</string>
 	</map>
-
-    <key>DefaultObjectTexture</key>
+  <key>DefaultObjectNormalTexture</key>
+  <map>
+    <key>Comment</key>
+    <string>Texture used as 'Default' in texture picker for normal map. (UUID texture reference)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>2d9dd1d8-9d57-3cfb-f965-f7613e702d8e</string>
+  </map>
+  <key>DefaultObjectSpecularTexture</key>
+  <map>
+    <key>Comment</key>
+    <string>Texture used as 'Default' in texture picker for specular map. (UUID texture reference)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>e0491381-964c-0d68-1caa-91ab2f4c6d6a</string>
+  </map>
+  <key>DefaultObjectTexture</key>
     <map>
       <key>Comment</key>
       <string>Texture used as 'Default' in texture picker. (UUID texture reference)</string>
