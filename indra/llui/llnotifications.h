@@ -97,7 +97,7 @@
 #include "llpointer.h"
 #include "llinitparam.h"
 #include "llinstancetracker.h"
-//#include "llnotificationslistener.h"
+#include "llnotificationslistener.h"
 #include "llnotificationptr.h"
 
 class LLAvatarName;
