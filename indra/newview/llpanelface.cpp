@@ -1177,7 +1177,7 @@ void LLPanelFace::updateUI()
 			{
 				F32 get(LLViewerObject* object, S32 face)
 				{
-					F32 s = 1.f, t = 1.f;
+					F32 s = 0.f, t = 0.f;
 
 					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
 					if (mat)
@@ -1199,7 +1199,7 @@ void LLPanelFace::updateUI()
 			{
 				F32 get(LLViewerObject* object, S32 face)
 				{
-					F32 s = 1.f, t = 1.f;
+					F32 s = 0.f, t = 0.f;
 
 					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
 					if (mat)
