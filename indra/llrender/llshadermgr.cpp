@@ -1120,8 +1120,6 @@ void LLShaderMgr::initAttribsAndUniforms()
 
 	mReservedUniforms.push_back("matrixPalette");
 	
-	
-	mReservedUniforms.reserve(12);
 	mReservedUniforms.push_back("screenTex");
 	mReservedUniforms.push_back("screenDepth");
 	mReservedUniforms.push_back("refTex");
