@@ -69,10 +69,11 @@ public:
 		delete mData;
    	}
 	
-	virtual void error(U32 statusNum, const std::string& reason)
+	virtual void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
    	{
-		llwarns << "Error: " << reason << llendl;
-		LLUpdateTaskInventoryResponder::error(statusNum, reason);
+		llwarns << "LLAssetUploadChainResponder Error [status:" 
+				<< statusNum << "]: " << content << llendl;
+		LLUpdateTaskInventoryResponder::errorWithContent(statusNum, reason, content);
    		LLAssetUploadQueue *queue = mSupplier->get();
    		if (queue)
 		{

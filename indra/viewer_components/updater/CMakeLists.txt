@@ -19,6 +19,10 @@ include_directories(
     ${LLPLUGIN_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
     ${CURL_INCLUDE_DIRS}
+    ${CMAKE_SOURCE_DIR}/newview
+    )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
     )
 
 set(updater_service_SOURCE_FILES
@@ -37,6 +41,12 @@ set(updater_service_HEADER_FILES
 
 set_source_files_properties(${updater_service_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
+
+set_source_files_properties(
+   llupdaterservice.cpp 
+   PROPERTIES
+   COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}" # see BuildVersion.cmake
+   )
 
 list(APPEND 
     updater_service_SOURCE_FILES 

@@ -59,6 +59,7 @@
 #include "llbuycurrencyhtml.h"
 #include "llfloatergodtools.h"
 #include "llfloaterinventory.h"
+#include "llfloaterimcontainer.h"
 #include "llfloaterland.h"
 #include "llfloaterpathfindingcharacters.h"
 #include "llfloaterpathfindinglinksets.h"
@@ -107,6 +108,7 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerstats.h"
 #include "llvoavatarself.h"
+#include "llvoicevivox.h"
 #include "llworldmap.h"
 #include "pipeline.h"
 #include "llviewerjoystick.h"
@@ -123,7 +125,7 @@
 #include "llpathfindingmanager.h"
 #include "boost/unordered_map.hpp"
 
-using namespace LLVOAvatarDefines;
+using namespace LLAvatarAppearanceDefines;
 
 typedef LLPointer<LLViewerObject> LLViewerObjectPtr;
 
@@ -177,9 +179,6 @@ LLContextMenu* gAttachBodyPartPieMenus[8];
 LLContextMenu* gDetachPieMenu = NULL;
 LLContextMenu* gDetachScreenPieMenu = NULL;
 LLContextMenu* gDetachBodyPartPieMenus[8];
-
-LLMenuItemCallGL* gAFKMenu = NULL;
-LLMenuItemCallGL* gBusyMenu = NULL;
 
 //
 // Local prototypes
@@ -470,8 +469,6 @@ void init_menus()
 	gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", upload_cost);
 	gMenuHolder->childSetLabelArg("Bulk Upload", "[COST]", upload_cost);
 	
-	gAFKMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Away", TRUE);
-	gBusyMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Busy", TRUE);
 	gAttachSubMenu = gMenuBarView->findChildMenuByName("Attach Object", TRUE);
 	gDetachSubMenu = gMenuBarView->findChildMenuByName("Detach Object", TRUE);
 
@@ -1580,11 +1577,26 @@ class LLAdvancedEnableGrabBakedTexture : public view_listener_t
 ///////////////////////
 
 
+class LLAdvancedEnableAppearanceToXML : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
+	}
+};
+
 class LLAdvancedAppearanceToXML : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLVOAvatar::dumpArchetypeXML(NULL);
+		std::string emptyname;
+		LLVOAvatar* avatar =
+			find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		if (!avatar)
+		{
+			avatar = gAgentAvatarp;
+		}
+		avatar->dumpArchetypeXML(emptyname);
 		return true;
 	}
 };
@@ -2830,7 +2842,7 @@ class LLSelfRemoveAllAttachments : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLAgentWearables::userRemoveAllAttachments();
+		LLAppearanceMgr::instance().removeAllAttachmentsFromAvatar();
 		return true;
 	}
 };
@@ -3295,15 +3307,6 @@ bool enable_freeze_eject(const LLSD& avatar_id)
 	return new_value;
 }
 
-
-void login_done(S32 which, void *user)
-{
-	llinfos << "Login done " << which << llendl;
-
-	LLPanelLogin::closePanel();
-}
-
-
 bool callback_leave_group(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -3521,7 +3524,8 @@ class LLTogglePanelPeopleTab : public view_listener_t
 
 		if (   panel_name == "friends_panel"
 			|| panel_name == "groups_panel"
-			|| panel_name == "nearby_panel")
+			|| panel_name == "nearby_panel"
+			|| panel_name == "blocked_panel")
 		{
 			return togglePeoplePanel(panel_name, param);
 		}
@@ -5568,16 +5572,6 @@ void toggle_debug_menus(void*)
 // 	gExportDialog = LLUploadDialog::modalUploadDialog("Exporting selected objects...");
 // }
 //
-
-class LLCommunicateBlockList : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterSidePanelContainer::showPanel("people", "panel_block_list_sidetray", LLSD());
-		return true;
-	}
-};
-
 class LLWorldSetHomeLocation : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -5651,18 +5645,18 @@ class LLWorldSetAway : public view_listener_t
 	}
 };
 
-class LLWorldSetBusy : public view_listener_t
+class LLWorldSetDoNotDisturb : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		if (gAgent.getBusy())
+		if (gAgent.isDoNotDisturb())
 		{
-			gAgent.clearBusy();
+			gAgent.setDoNotDisturb(false);
 		}
 		else
 		{
-			gAgent.setBusy();
-			LLNotificationsUtil::add("BusyModeSet");
+			gAgent.setDoNotDisturb(true);
+			LLNotificationsUtil::add("DoNotDisturbModeSet");
 		}
 		return true;
 	}
@@ -5824,7 +5818,7 @@ bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjec
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0)
 	{
-		gAgent.clearBusy();
+		gAgent.setDoNotDisturb(false);
 	}
 
 	LLViewerObject* objectp = selection->getPrimaryObject();
@@ -5857,12 +5851,12 @@ bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjec
 
 void handle_give_money_dialog()
 {
-	LLNotification::Params params("BusyModePay");
+	LLNotification::Params params("DoNotDisturbModePay");
 	params.functor.function(boost::bind(complete_give_money, _1, _2, LLSelectMgr::getInstance()->getSelection()));
 
-	if (gAgent.getBusy())
+	if (gAgent.isDoNotDisturb())
 	{
-		// warn users of being in busy mode during a transaction
+		// warn users of being in do not disturb mode during a transaction
 		LLNotifications::instance().add(params);
 	}
 	else
@@ -6458,23 +6452,21 @@ class LLAttachmentDetachFromPoint : public view_listener_t
 {
 	bool handleEvent(const LLSD& user_data)
 	{
+		uuid_vec_t ids_to_remove;
 		const LLViewerJointAttachment *attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, user_data.asInteger(), (LLViewerJointAttachment*)NULL);
 		if (attachment->getNumObjects() > 0)
 		{
-			gMessageSystem->newMessage("ObjectDetach");
-			gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-			gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-			gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			
 			for (LLViewerJointAttachment::attachedobjs_vec_t::const_iterator iter = attachment->mAttachedObjects.begin();
 				 iter != attachment->mAttachedObjects.end();
 				 iter++)
 			{
 				LLViewerObject *attached_object = (*iter);
-				gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-				gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, attached_object->getLocalID());
+				ids_to_remove.push_back(attached_object->getAttachmentItemID());
 			}
-			gMessageSystem->sendReliable( gAgent.getRegionHost() );
+		}
+		if (!ids_to_remove.empty())
+		{
+			LLAppearanceMgr::instance().removeItemsFromAvatar(ids_to_remove);
 		}
 		return true;
 	}
@@ -6547,17 +6539,8 @@ class LLAttachmentDetach : public view_listener_t
 			return true;
 		}
 
-		// The sendDetach() method works on the list of selected
-		// objects.  Thus we need to clear the list, make sure it only
-		// contains the object the user clicked, send the message,
-		// then clear the list.
-		// We use deselectAll to update the simulator's notion of what's
-		// selected, and removeAll just to change things locally.
-		//RN: I thought it was more useful to detach everything that was selected
-		if (LLSelectMgr::getInstance()->getSelection()->isAttachment())
-		{
-			LLSelectMgr::getInstance()->sendDetach();
-		}
+		LLAppearanceMgr::instance().removeItemFromAvatar(object->getAttachmentItemID());
+
 		return true;
 	}
 };
@@ -7412,7 +7395,7 @@ void handle_grab_baked_texture(void* data)
 	if(folder_id.notNull())
 	{
 		std::string name;
-		name = "Baked " + LLVOAvatarDictionary::getInstance()->getBakedTexture(baked_tex_index)->mNameCapitalized + " Texture";
+		name = "Baked " + LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(baked_tex_index)->mNameCapitalized + " Texture";
 
 		LLUUID item_id;
 		item_id.generate();
@@ -7634,6 +7617,20 @@ void handle_web_content_test(const LLSD& param)
 	LLWeb::loadURLInternal(url);
 }
 
+void handle_show_url(const LLSD& param)
+{
+	std::string url = param.asString();
+	if(gSavedSettings.getBOOL("UseExternalBrowser"))
+	{
+		LLWeb::loadURLExternal(url);
+	}
+	else
+	{
+		LLWeb::loadURLInternal(url);
+	}
+
+}
+
 void handle_buy_currency_test(void*)
 {
 	std::string url =
@@ -7657,6 +7654,10 @@ void handle_rebake_textures(void*)
 	// Slam pending upload count to "unstick" things
 	bool slam_for_debug = true;
 	gAgentAvatarp->forceBakeAllTextures(slam_for_debug);
+	if (gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion())
+	{
+		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
+	}
 }
 
 void toggle_visibility(void* user_data)
@@ -7887,6 +7888,22 @@ class LLViewCheckRenderType : public view_listener_t
 	}
 };
 
+class LLViewStatusAway : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return (gAgent.isInitialized() && gAgent.getAFK());
+	}
+};
+
+class LLViewStatusDoNotDisturb : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return (gAgent.isInitialized() && gAgent.isDoNotDisturb());
+	}
+};
+
 class LLViewShowHUDAttachments : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -7923,7 +7940,7 @@ class LLEditTakeOff : public view_listener_t
 	{
 		std::string clothing = userdata.asString();
 		if (clothing == "all")
-			LLWearableBridge::removeAllClothesFromAvatar();
+			LLAppearanceMgr::instance().removeAllClothesFromAvatar();
 		else
 		{
 			LLWearableType::EType type = LLWearableType::typeNameToType(clothing);
@@ -7933,8 +7950,8 @@ class LLEditTakeOff : public view_listener_t
 			{
 				// MULTI-WEARABLES: assuming user wanted to remove top shirt.
 				U32 wearable_index = gAgentWearables.getWearableCount(type) - 1;
-				LLViewerInventoryItem *item = dynamic_cast<LLViewerInventoryItem*>(gAgentWearables.getWearableInventoryItem(type,wearable_index));
-				LLWearableBridge::removeItemFromAvatar(item);
+				LLUUID item_id = gAgentWearables.getWearableItemID(type,wearable_index);
+				LLAppearanceMgr::instance().removeItemFromAvatar(item_id);
 			}
 				
 		}
@@ -8113,11 +8130,7 @@ class LLWorldPostProcess : public view_listener_t
 
 void handle_flush_name_caches()
 {
-	// Toggle display names on and off to flush
-	bool use_display_names = LLAvatarNameCache::useDisplayNames();
-	LLAvatarNameCache::setUseDisplayNames(!use_display_names);
-	LLAvatarNameCache::setUseDisplayNames(use_display_names);
-
+	LLAvatarNameCache::cleanupClass();
 	if (gCacheName) gCacheName->clear();
 }
 
@@ -8141,6 +8154,11 @@ public:
 		calculateCost();
 	}
 };
+
+void handle_voice_morphing_subscribe()
+{
+	LLWeb::loadURLExternal(LLTrans::getString("voice_morphing_url"));
+}
 
 class LLToggleUIHints : public view_listener_t
 {
@@ -8273,8 +8291,7 @@ void initialize_menus()
 
 	view_listener_t::addEnable(new LLUploadCostCalculator(), "Upload.CalculateCosts");
 
-
-	commit.add("Inventory.NewWindow", boost::bind(&LLFloaterInventory::showAgentInventory));
+	enable.add("Conversation.IsConversationLoggingAllowed", boost::bind(&LLFloaterIMContainer::isConversationLoggingAllowed));
 
 	// Agent
 	commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
@@ -8320,14 +8337,21 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLViewCheckShowHoverTips(), "View.CheckShowHoverTips");
 	view_listener_t::addMenu(new LLViewCheckHighlightTransparent(), "View.CheckHighlightTransparent");
 	view_listener_t::addMenu(new LLViewCheckRenderType(), "View.CheckRenderType");
+	view_listener_t::addMenu(new LLViewStatusAway(), "View.Status.CheckAway");
+	view_listener_t::addMenu(new LLViewStatusDoNotDisturb(), "View.Status.CheckDoNotDisturb");
 	view_listener_t::addMenu(new LLViewCheckHUDAttachments(), "View.CheckHUDAttachments");
-
+	
 	// Me > Movement
 	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
-	
-	// Communicate
-	view_listener_t::addMenu(new LLCommunicateBlockList(), "Communicate.BlockList");
-	
+
+	// Communicate > Voice morphing > Subscribe...
+	commit.add("Communicate.VoiceMorphing.Subscribe", boost::bind(&handle_voice_morphing_subscribe));
+	LLVivoxVoiceClient * voice_clientp = LLVivoxVoiceClient::getInstance();
+	enable.add("Communicate.VoiceMorphing.NoVoiceMorphing.Check"
+		, boost::bind(&LLVivoxVoiceClient::onCheckVoiceEffect, voice_clientp, "NoVoiceMorphing"));
+	commit.add("Communicate.VoiceMorphing.NoVoiceMorphing.Click"
+		, boost::bind(&LLVivoxVoiceClient::onClickVoiceEffect, voice_clientp, "NoVoiceMorphing"));
+
 	// World menu
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
 	view_listener_t::addMenu(new LLWorldCreateLandmark(), "World.CreateLandmark");
@@ -8335,7 +8359,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldSetHomeLocation(), "World.SetHomeLocation");
 	view_listener_t::addMenu(new LLWorldTeleportHome(), "World.TeleportHome");
 	view_listener_t::addMenu(new LLWorldSetAway(), "World.SetAway");
-	view_listener_t::addMenu(new LLWorldSetBusy(), "World.SetBusy");
+	view_listener_t::addMenu(new LLWorldSetDoNotDisturb(), "World.SetDoNotDisturb");
 
 	view_listener_t::addMenu(new LLWorldEnableCreateLandmark(), "World.EnableCreateLandmark");
 	view_listener_t::addMenu(new LLWorldEnableSetHomeLocation(), "World.EnableSetHomeLocation");
@@ -8451,6 +8475,7 @@ void initialize_menus()
 	// Advanced > UI
 	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test,	_2));	// sigh! this one opens the MEDIA browser
 	commit.add("Advanced.WebContentTest", boost::bind(&handle_web_content_test, _2));	// this one opens the Web Content floater
+	commit.add("Advanced.ShowURL", boost::bind(&handle_show_url, _2));
 	view_listener_t::addMenu(new LLAdvancedBuyCurrencyTest(), "Advanced.BuyCurrencyTest");
 	view_listener_t::addMenu(new LLAdvancedDumpSelectMgr(), "Advanced.DumpSelectMgr");
 	view_listener_t::addMenu(new LLAdvancedDumpInventory(), "Advanced.DumpInventory");
@@ -8484,6 +8509,7 @@ void initialize_menus()
 
 	// Advanced > Character > Character Tests
 	view_listener_t::addMenu(new LLAdvancedAppearanceToXML(), "Advanced.AppearanceToXML");
+	view_listener_t::addMenu(new LLAdvancedEnableAppearanceToXML(), "Advanced.EnableAppearanceToXML");
 	view_listener_t::addMenu(new LLAdvancedToggleCharacterGeometry(), "Advanced.ToggleCharacterGeometry");
 
 	view_listener_t::addMenu(new LLAdvancedTestMale(), "Advanced.TestMale");

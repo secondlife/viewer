@@ -1,9 +1,9 @@
 <llsd>
     <map>
-    <key>BusyResponseChanged</key>
+    <key>DoNotDisturbResponseChanged</key>
         <map>
         <key>Comment</key>
-            <string>Does user's busy mode message differ from default?</string>
+            <string>Does user's do not disturb mode message differ from default?</string>
         <key>Persist</key>
             <integer>1</integer>
         <key>Type</key>
@@ -11,17 +11,72 @@
         <key>Value</key>
             <integer>0</integer>
         </map>
-    <key>BusyModeResponse</key>
+    <key>DoNotDisturbModeResponse</key>
         <map>
         <key>Comment</key>
-            <string>Auto response to instant messages while in busy mode.</string>
+            <string>Auto response to instant messages while in do not disturb mode.</string>
         <key>Persist</key>
             <integer>1</integer>
         <key>Type</key>
             <string>String</string>
         <key>Value</key>
-            <string>The Resident you messaged is in &apos;busy mode&apos; which means they have requested not to be disturbed.  Your message will still be shown in their IM panel for later viewing.</string>
+            <string>This resident has turned on &apos;Do Not Disturb&apos; and will see your message later.</string>
         </map>
+    <key>ConversationsExpandMessagePaneFirst</key>
+    <map>
+        <key>Comment</key>
+            <string>Expand either messages or conversations list pane from Conversations compact mode.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+    </map>
+    <key>ConversationsListPaneCollapsed</key>
+    <map>
+        <key>Comment</key>
+            <string>Stores the expanded/collapsed state of the conversations list pane in Conversations floater.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+    </map>
+    <key>ConversationsListPaneWidth</key>
+    <map>
+        <key>Comment</key>
+            <string>Conversations floater list pane width.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>205</integer>
+    </map>
+    <key>ConversationsMessagePaneCollapsed</key>
+    <map>
+        <key>Comment</key>
+            <string>Stores the expanded/collapsed state of Conversations floater message pane.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+    </map>
+    <key>ConversationsMessagePaneWidth</key>
+    <map>
+        <key>Comment</key>
+            <string>Conversations floater message pane width.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>412</integer>
+    </map>
     <key>InstantMessageLogPath</key>
         <map>
         <key>Comment</key>
@@ -121,17 +176,6 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
-    <key>LogInstantMessages</key>
-        <map>
-        <key>Comment</key>
-            <string>Log Instant Messages</string>
-        <key>Persist</key>
-            <integer>1</integer>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <integer>1</integer>
-        </map>
     <key>LogShowHistory</key>
         <map>
         <key>Comment</key>
@@ -215,7 +259,51 @@
         <key>Value</key>
             <integer>0</integer>
         </map>
-      <key>ShowFavoritesOnLogin</key>
+    <key>TranslatingEnabled</key>
+        <map>
+        <key>Comment</key>
+            <string>Translation prefs are set</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>KeepConversationLogTranscripts</key>
+    	<map>
+      	<key>Comment</key>
+      		<string>Keep a conversation log and transcripts</string>
+      	<key>Persist</key>
+      		<integer>1</integer>
+      	<key>Type</key>
+      		<string>S32</string>
+      	<key>Value</key>
+      		<integer>2</integer>
+    	</map>    
+    <key>NearbyChatIsNotTornOff</key>
+    <map>
+      <key>Comment</key>
+      <string>saving torn-off state of the nearby chat between sessions</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>NearbyChatIsNotCollapsed</key>
+    <map>
+      <key>Comment</key>
+      <string>Saving expanded/collapsed state of the nearby chat between sessions</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowFavoritesOnLogin</key>
         <map>
         <key>Comment</key>
              <string>Determines whether favorites of last logged in user will be saved on exit from viewer and shown on login screen</string>

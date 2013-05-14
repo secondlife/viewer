@@ -171,7 +171,7 @@ LLFloaterIMPanel::LLFloaterIMPanel(const std::string& session_label,
 	// enable line history support for instant message bar
 	mInputEditor->setEnableLineHistory(TRUE);
 
-	//*TODO we probably need the same "awaiting message" thing in LLIMFloater
+	//*TODO we probably need the same "awaiting message" thing in LLFloaterIMSession
 	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(mSessionUUID);
 	if (!im_session)
 	{
@@ -394,9 +394,10 @@ public:
 		mSessionID = session_id;
 	}
 
-	void error(U32 statusNum, const std::string& reason)
+	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
 	{
-		llinfos << "Error inviting all agents to session" << llendl;
+		llwarns << "Error inviting all agents to session [status:" 
+				<< statusNum << "]: " << content << llendl;
 		//throw something back to the viewer here?
 	}
 

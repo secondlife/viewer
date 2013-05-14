@@ -60,7 +60,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>2.1.0.13828</string>
+	<string>${VIEWER_VERSION_MAJOR}.${VIEWER_VERSION_MINOR}.${VIEWER_VERSION_PATCH}.${VIEWER_VERSION_REVISION}</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSMainNibFile</key>

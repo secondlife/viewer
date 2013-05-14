@@ -30,6 +30,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llappviewer.h"
+#include "lldeferredsounds.h"
 #include "llvieweraudio.h"
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
@@ -42,6 +43,8 @@
 #include "llviewerparcelmgr.h"
 #include "llparcel.h"
 #include "llviewermessage.h"
+
+#include "llstreamingaudio.h"
 
 /////////////////////////////////////////////////////////
 
@@ -101,6 +104,11 @@ void LLViewerAudio::startInternetStreamWithAutoFade(std::string streamURI)
 		else
 		{
 			mFadeState = FADE_IN;
+
+			LLStreamingAudioInterface *stream = gAudiop->getStreamingAudioImpl();
+			if(stream && stream->supportsAdjustableBufferSizes())
+				stream->setBufferSizes(gSavedSettings.getU32("FMODExStreamBufferSize"),gSavedSettings.getU32("FMODExDecodeBufferSize"));
+
 			gAudiop->startInternetStream(mNextStreamURI);
 			startFading();
 			registerIdleListener();
@@ -156,6 +164,11 @@ bool LLViewerAudio::onIdleUpdate()
 			if (!mNextStreamURI.empty())
 			{
 				mFadeState = FADE_IN;
+
+				LLStreamingAudioInterface *stream = gAudiop->getStreamingAudioImpl();
+				if(stream && stream->supportsAdjustableBufferSizes())
+					stream->setBufferSizes(gSavedSettings.getU32("FMODExStreamBufferSize"),gSavedSettings.getU32("FMODExDecodeBufferSize"));
+
 				gAudiop->startInternetStream(mNextStreamURI);
 				startFading();
 			}
@@ -385,9 +398,20 @@ void audio_update_volume(bool force_update)
 		gAudiop->setMasterGain ( master_volume );
 
 		gAudiop->setDopplerFactor(gSavedSettings.getF32("AudioLevelDoppler"));
-		gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelRolloff"));
+
+		if(!LLViewerCamera::getInstance()->cameraUnderWater())
+			gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelRolloff"));
+		else
+			gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelUnderwaterRolloff"));
+
 		gAudiop->setMuted(mute_audio || progress_view_visible);
 		
+		//Play any deferred sounds when unmuted
+		if(!gAudiop->getMuted())
+		{
+			LLDeferredSounds::instance().playdeferredSounds();
+		}
+
 		if (force_update)
 		{
 			audio_update_wind(true);
@@ -466,44 +490,22 @@ void audio_update_listener()
 void audio_update_wind(bool force_update)
 {
 #ifdef kAUDIO_ENABLE_WIND
-	//
-	//  Extract height above water to modulate filter by whether above/below water 
-	// 
+
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)
 	{
-		static F32 last_camera_water_height = -1000.f;
-		LLVector3 camera_pos = gAgentCamera.getCameraPositionAgent();
-		F32 camera_water_height = camera_pos.mV[VZ] - region->getWaterHeight();
-		
-		//
-		//  Don't update rolloff factor unless water surface has been crossed
-		//
-		if (force_update || (last_camera_water_height * camera_water_height) < 0.f)
-		{
-            static LLUICachedControl<F32> rolloff("AudioLevelRolloff", 1.0f);
-			if (camera_water_height < 0.f)
-			{
-				gAudiop->setRolloffFactor(rolloff * LL_ROLLOFF_MULTIPLIER_UNDER_WATER);
-			}
-			else 
-			{
-				gAudiop->setRolloffFactor(rolloff);
-			}
-		}
-        
-        // Scale down the contribution of weather-simulation wind to the
-        // ambient wind noise.  Wind velocity averages 3.5 m/s, with gusts to 7 m/s
-        // whereas steady-state avatar walk velocity is only 3.2 m/s.
-        // Without this the world feels desolate on first login when you are
-        // standing still.
-        static LLUICachedControl<F32> wind_level("AudioLevelWind", 0.5f);
-        LLVector3 scaled_wind_vec = gWindVec * wind_level;
-        
-        // Mix in the avatar's motion, subtract because when you walk north,
-        // the apparent wind moves south.
-        LLVector3 final_wind_vec = scaled_wind_vec - gAgent.getVelocity();
-        
+		// Scale down the contribution of weather-simulation wind to the
+		// ambient wind noise.  Wind velocity averages 3.5 m/s, with gusts to 7 m/s
+		// whereas steady-state avatar walk velocity is only 3.2 m/s.
+		// Without this the world feels desolate on first login when you are
+		// standing still.
+		static LLUICachedControl<F32> wind_level("AudioLevelWind", 0.5f);
+		LLVector3 scaled_wind_vec = gWindVec * wind_level;
+
+		// Mix in the avatar's motion, subtract because when you walk north,
+		// the apparent wind moves south.
+		LLVector3 final_wind_vec = scaled_wind_vec - gAgent.getVelocity();
+
 		// rotate the wind vector to be listener (agent) relative
 		gRelativeWindVec = gAgent.getFrameAgent().rotateToLocal( final_wind_vec );
 
@@ -536,8 +538,7 @@ void audio_update_wind(bool force_update)
 			gAudiop->mMaxWindGain = llmax(gAudiop->mMaxWindGain - volume_delta, 0.f);
 		}
 		
-		last_camera_water_height = camera_water_height;
-		gAudiop->updateWind(gRelativeWindVec, camera_water_height);
+		gAudiop->updateWind(gRelativeWindVec, gAgentCamera.getCameraPositionAgent()[VZ] - gAgent.getRegion()->getWaterHeight());
 	}
 #endif
 }

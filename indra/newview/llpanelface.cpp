@@ -84,7 +84,6 @@ BOOL	LLPanelFace::postBuild()
 	childSetCommitCallback("TexOffsetV",LLPanelFace::onCommitTextureInfo, this);
 	childSetAction("button align",&LLPanelFace::onClickAutoFix,this);
 
-	LLRect	rect = this->getRect();
 	LLTextureCtrl*	mTextureCtrl;
 	LLColorSwatchCtrl*	mColorSwatch;
 

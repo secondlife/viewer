@@ -64,7 +64,7 @@ public:
 						   EAcceptance* accept,
 						   std::string& tooltip_msg);
 	
-	void showNotification(const LLSD& notify);
+	void showNotification(const LLNotificationPtr& notification);
 
 	BOOL handleHover(S32 x, S32 y, MASK mask);
 	void onMouseLeave(S32 x, S32 y, MASK mask);

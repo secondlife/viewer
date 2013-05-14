@@ -30,6 +30,8 @@
 #include <map>
 #include <string>
 
+#include "llerror.h"
+
 struct LL_COMMON_API LLDictionaryEntry
 {
 	LLDictionaryEntry(const std::string &name);

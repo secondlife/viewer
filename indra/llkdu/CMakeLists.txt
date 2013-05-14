@@ -41,7 +41,10 @@ set_source_files_properties(${llkdu_HEADER_FILES}
 list(APPEND llkdu_SOURCE_FILES ${llkdu_HEADER_FILES})
 
 if (USE_KDU)
-  add_library (${LLKDU_LIBRARIES} ${llkdu_SOURCE_FILES})
+  add_library (llkdu ${llkdu_SOURCE_FILES})
+
+  target_link_libraries(llkdu
+    ${KDU_LIBRARY})
   
   # Add tests
   if (LL_TESTS)
