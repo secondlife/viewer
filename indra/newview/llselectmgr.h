@@ -147,7 +147,7 @@ public:
 	// *NOTE: invalidate stored textures and colors when # faces change
 	void saveColors();
 	void saveTextures(const uuid_vec_t& textures);
-	void saveTextureScaleRatios();
+	void saveTextureScaleRatios(LLRender::eTexIndex index_to_query);
 
 	BOOL allowOperationOnNode(PermissionBit op, U64 group_proxy_power) const;
 
@@ -514,6 +514,11 @@ public:
 	void saveSelectedObjectColors();
 	void saveSelectedObjectTextures();
 
+	// Sets which texture channel to query for scale and rot of display
+	// and depends on UI state of LLPanelFace when editing
+	void setTextureChannel(LLRender::eTexIndex texIndex) { mTextureChannel = texIndex; }
+	LLRender::eTexIndex getTextureChannel() { return mTextureChannel; }
+
 	void selectionUpdatePhysics(BOOL use_physics);
 	void selectionUpdateTemporary(BOOL is_temporary);
 	void selectionUpdatePhantom(BOOL is_ghost);
@@ -777,6 +782,7 @@ private:
 	EGridMode				mGridMode;
 
 	BOOL					mTEMode;			// render te
+	LLRender::eTexIndex	mTextureChannel; // diff, norm, or spec, depending on UI editing mode
 	LLVector3d				mSelectionCenterGlobal;
 	LLBBox					mSelectionBBox;
 

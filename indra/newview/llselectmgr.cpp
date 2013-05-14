@@ -188,6 +188,7 @@ LLSelectMgr::LLSelectMgr()
    mDebugSelectMgr(LLCachedControl<bool>(gSavedSettings, "DebugSelectMgr", FALSE))
 {
 	mTEMode = FALSE;
+	mTextureChannel = LLRender::DIFFUSE_MAP;
 	mLastCameraPos.clearVec();
 
 	sHighlightThickness	= gSavedSettings.getF32("SelectionHighlightThickness");
@@ -236,6 +237,8 @@ void LLSelectMgr::clearSelections()
 	mHighlightedObjects->deleteAllNodes();
 	mRectSelectedObjects.clear();
 	mGridObjects.deleteAllNodes();
+
+	LLPipeline::setRenderHighlightTextureChannel(LLRender::DIFFUSE_MAP);
 }
 
 void LLSelectMgr::update()
@@ -843,6 +846,10 @@ void LLSelectMgr::addAsIndividual(LLViewerObject *objectp, S32 face, BOOL undoab
 {
 	// check to see if object is already in list
 	LLSelectNode *nodep = mSelectedObjects->findNode(objectp);
+
+	// Reset (in anticipation of being set to an appropriate value by panel refresh, if they're up)
+	//
+	setTextureChannel(LLRender::DIFFUSE_MAP);
 
 	// if not in list, add it
 	if (!nodep)
@@ -4467,7 +4474,8 @@ void LLSelectMgr::saveSelectedObjectTransform(EActionType action_type)
 	struct f : public LLSelectedNodeFunctor
 	{
 		EActionType mActionType;
-		f(EActionType a) : mActionType(a) {}
+		LLSelectMgr* mManager;
+		f(EActionType a, LLSelectMgr* p) : mActionType(a), mManager(p) {}
 		virtual bool apply(LLSelectNode* selectNode)
 		{
 			LLViewerObject*	object = selectNode->getObject();
@@ -4514,10 +4522,10 @@ void LLSelectMgr::saveSelectedObjectTransform(EActionType action_type)
 			}
 		
 			selectNode->mSavedScale = object->getScale();
-			selectNode->saveTextureScaleRatios();
+			selectNode->saveTextureScaleRatios(mManager->mTextureChannel);			
 			return true;
 		}
-	} func(action_type);
+	} func(action_type, this);
 	getSelection()->applyToNodes(&func);	
 	
 	mSavedSelectionBBox = getBBoxOfSelection();
@@ -5828,23 +5836,72 @@ void LLSelectNode::saveTextures(const uuid_vec_t& textures)
 	}
 }
 
-void LLSelectNode::saveTextureScaleRatios()
+void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
 {
 	mTextureScaleRatios.clear();
 	if (mObject.notNull())
 	{
+		
+		LLVector3 scale = mObject->getScale();
+
 		for (U8 i = 0; i < mObject->getNumTEs(); i++)
 		{
-			F32 s,t;
-			const LLTextureEntry* tep = mObject->getTE(i);
-			tep->getScale(&s,&t);
-			U32 s_axis = 0;
-			U32 t_axis = 0;
+			F32 s = 1.0f;
+			F32 t = 1.0f;
+			
+			LLVector3 v;
 
+			const LLTextureEntry* tep = mObject->getTE(i);
+			if (!tep)
+				continue;
+
+			LLMaterialPtr mat = tep->getMaterialParams();
+
+			U32 s_axis = VX;
+			U32 t_axis = VY;
 			LLPrimitive::getTESTAxes(i, &s_axis, &t_axis);
 
-			LLVector3 v;
-			LLVector3 scale = mObject->getScale();
+			switch(index_to_query)
+			{
+				case LLRender::DIFFUSE_MAP:
+				{
+					tep->getScale(&s,&t);
+				}
+				break;
+
+				case LLRender::NORMAL_MAP:
+				{
+					if (mat)
+					{
+						mat->getNormalRepeat(s, t);
+					}
+					else
+					{
+						tep->getScale(&s,&t);
+					}
+									
+				}
+				break;
+
+				case LLRender::SPECULAR_MAP:
+				{
+					if (mat)
+					{
+						mat->getSpecularRepeat(s, t);
+					}
+					else
+					{
+						tep->getScale(&s,&t);
+					}
+				}
+				break;
+
+				default:
+					// should never be.
+					//
+					llassert_always(false);
+				break;
+			}
 
 			if (tep->getTexGen() == LLTextureEntry::TEX_GEN_PLANAR)
 			{

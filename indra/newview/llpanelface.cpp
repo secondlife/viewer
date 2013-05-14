@@ -1646,6 +1646,18 @@ void LLPanelFace::updateUI()
 					getChild<LLColorSwatchCtrl>("shinycolorswatch")->set(material->getSpecularLightColor(),TRUE);
 				}
 
+				// Update sel manager as to which channel we're editing so it can reflect the correct overlay UI
+				// NORSPEC-103
+				LLRender::eTexIndex channel_to_edit = (combobox_matmedia->getCurrentIndex() == MATMEDIA_MATERIAL) ? (LLRender::eTexIndex)combobox_mattype->getCurrentIndex() : LLRender::DIFFUSE_MAP;
+
+				if ( ((channel_to_edit == LLRender::NORMAL_MAP) && material->getNormalID().isNull())
+					||((channel_to_edit == LLRender::SPECULAR_MAP) && material->getSpecularID().isNull()))
+				{
+					channel_to_edit = LLRender::DIFFUSE_MAP;
+				}
+
+				LLSelectMgr::getInstance()->setTextureChannel(channel_to_edit);
+
 				// Bumpy (normal)
 				texture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
 				texture_ctrl->setImageAssetID(material->getNormalID());
@@ -1670,7 +1682,10 @@ void LLPanelFace::updateUI()
 				}
 				updateBumpyControls(!material->getNormalID().isNull(), true);
 			}
-
+			else
+			{
+				LLSelectMgr::getInstance()->setTextureChannel(LLRender::DIFFUSE_MAP);
+			}
 		}
 
 		// Set variable values for numeric expressions
@@ -1856,7 +1871,7 @@ void LLPanelFace::updateMaterial()
 		}
 		
 		LL_DEBUGS("Materials") << "Updating material: " << material->asLLSD() << LL_ENDL;
-
+		
 		LLSelectMgr::getInstance()->selectionSetMaterial( material );
 	}
 	else
