@@ -1587,9 +1587,11 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 		{
 			if (sShaderLevel > 0)
 			{ //upload matrix palette to shader
-				LLMatrix4 mat[64];
+				LLMatrix4 mat[32];
 
-				for (U32 i = 0; i < skin->mJointNames.size(); ++i)
+				U32 count = llmin((U32) skin->mJointNames.size(), (U32) 32);
+
+				for (U32 i = 0; i < count; ++i)
 				{
 					LLJoint* joint = avatar->getJoint(skin->mJointNames[i]);
 					if (joint)
@@ -1602,7 +1604,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				stop_glerror();
 
 				LLDrawPoolAvatar::sVertexProgram->uniformMatrix4fv("matrixPalette", 
-					skin->mJointNames.size(),
+					count,
 					FALSE,
 					(GLfloat*) mat[0].mMatrix);
 				
