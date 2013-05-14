@@ -121,7 +121,7 @@ vec3 calcDirectionalLight(vec3 n, vec3 l)
 }
 
 
-vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
+vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, inout float glare)
 {
 	//get light vector
 	vec3 lv = lp.xyz-v;
@@ -169,7 +169,13 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 			if (nh > 0.0)
 			{
 				float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-				col += lit*scol*light_col.rgb*spec.rgb;
+				vec3 speccol = lit*scol*light_col.rgb*spec.rgb;
+				col += speccol;
+
+				float cur_glare = max(speccol.r, speccol.g);
+				cur_glare = max(cur_glare, speccol.b);
+				glare = max(glare, speccol.r);
+				glare += max(cur_glare, 0.0);
 				//col += spec.rgb;
 			}
 		}
@@ -442,7 +448,7 @@ void main()
 #endif
 
 #if HAS_SPECULAR_MAP
-	vec4 spec = texture2D(specularMap, vary_texcoord2.xy);
+	vec4 spec = texture2D(specularMap, vary_texcoord2.xy)*specular_color;
 #else
 	vec4 spec = specular_color;
 #endif
@@ -472,7 +478,7 @@ void main()
 	vec4 final_specular = spec;
 #if HAS_SPECULAR_MAP
 	//final_color.rgb *= 1 - spec.a * env_intensity;
-	final_specular.rgb *= specular_color.rgb;
+	//final_specular.rgb *= specular_color.rgb;
 	
 	vec4 final_normal = vec4(encode_normal(normalize(tnorm)), spec.a * env_intensity, 0.0);
 	final_specular.a = specular_color.a * norm.a;
@@ -577,6 +583,8 @@ void main()
 	col.rgb *= diffuse.rgb;
 	
 
+			float glare = 0.0;
+
 			if (spec.a > 0.0) // specular reflection
 			{
 				// the old infinite-sky shiny reflection
@@ -588,6 +596,10 @@ void main()
 				// add the two types of shiny together
 				vec3 spec_contrib = dumbshiny * spec.rgb;
 				bloom = dot(spec_contrib, spec_contrib) / 6;
+
+				glare = max(spec_contrib.r, spec_contrib.g);
+				glare = max(glare, spec_contrib.b);
+
 				col += spec_contrib;
 			}
 
@@ -595,8 +607,15 @@ void main()
 			{
 				//add environmentmap
 				vec3 env_vec = env_mat * refnormpersp;
-				col = mix(col.rgb, pow(textureCube(environmentMap, env_vec).rgb, vec3(2.2)) * 2.2, 
+				vec3 refcol = pow(textureCube(environmentMap, env_vec).rgb, vec3(2.2)) * 2.2;
+
+				col = mix(col.rgb, refcol, 
 					max(envIntensity-diffuse.a*2.0, 0.0));
+				
+				float cur_glare = max(refcol.r, refcol.g);
+				cur_glare = max(cur_glare, refcol.b);
+				cur_glare *= envIntensity*4.0;
+				glare += cur_glare;
 			}
 	
 			col = atmosLighting(col);
@@ -604,18 +623,19 @@ void main()
 
 		vec3 npos = normalize(-pos.xyz);
 
- #define LIGHT_LOOP(i) col.rgb = col.rgb + calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+ #define LIGHT_LOOP(i) col.rgb = col.rgb + calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare);
 
-		LIGHT_LOOP(1)
+		/*LIGHT_LOOP(1)
 		LIGHT_LOOP(2)
 		LIGHT_LOOP(3)
 		LIGHT_LOOP(4)
 		LIGHT_LOOP(5)
 		LIGHT_LOOP(6)
-		LIGHT_LOOP(7)
+		LIGHT_LOOP(7)*/
 
 	frag_color.rgb = col.rgb;
-	frag_color.a = diffcol.a*vertex_color.a;
+	glare = min(glare, 1.0);
+	frag_color.a = max(diffcol.a*vertex_color.a, glare);
 
 #else
 	frag_data[0] = final_color;
