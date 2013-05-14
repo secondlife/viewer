@@ -4183,13 +4183,13 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_info->mSpecColor = specColor;
 		draw_info->mEnvIntensity = spec;
 		draw_info->mSpecularMap = NULL;
+		draw_info->mMaterial = mat;
+		draw_info->mShaderMask = shader_mask;
 
 		if (mat)
 		{
 				// We have a material.  Update our draw info accordingly.
-				draw_info->mMaterial = mat;
-				draw_info->mShaderMask = shader_mask;
-
+				
 				if (!mat->getSpecularID().isNull())
 				{
 					LLVector4 specColor;
