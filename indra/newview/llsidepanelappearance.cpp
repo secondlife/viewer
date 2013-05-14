@@ -114,14 +114,45 @@ void LLSidepanelAppearance::onClickConfirmExitWithoutSaveViaClose()
 	}
 }
 
+
+bool LLSidepanelAppearance::callBackExitWithoutSaveIntoAppearance(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if ( option == 0 ) 
+	{	
+		//revert current edits
+		mEditWearable->revertChanges();
+		toggleWearableEditPanel(FALSE);		
+		LLVOAvatarSelf::onCustomizeEnd( FALSE );	
+		//mLLFloaterSidePanelContainer->close();			
+		showOutfitsInventoryPanel();
+		return true;
+	}
+	return false;
+}
+
+void LLSidepanelAppearance::onClickConfirmExitWithoutSaveIntoAppearance()
+{
+	if ( LLAppearanceMgr::getInstance()->isOutfitDirty() && !LLAppearanceMgr::getInstance()->isOutfitLocked() )
+	{
+		LLSidepanelAppearance* pSelf = (LLSidepanelAppearance *)this;
+		LLNotificationsUtil::add("ConfirmExitWithoutSave", LLSD(), LLSD(), boost::bind(&LLSidepanelAppearance::callBackExitWithoutSaveIntoAppearance,pSelf,_1,_2) );
+	}
+	else
+	{
+		showOutfitsInventoryPanel();
+	}
+}
 void LLSidepanelAppearance::onClickConfirmExitWithoutSaveViaBack()
 {
-	if ( LLAppearanceMgr::getInstance()->isOutfitDirty() && !mSidePanelJustOpened /*&& !LLAppearanceMgr::getInstance()->isOutfitLocked()*/ )
+	/*
+	if ( LLAppearanceMgr::getInstance()->isOutfitDirty() && !mSidePanelJustOpened && !LLAppearanceMgr::getInstance()->isOutfitLocked() )
 	{
 		LLSidepanelAppearance* pSelf = (LLSidepanelAppearance *)this;
 		LLNotificationsUtil::add("ConfirmExitWithoutSave", LLSD(), LLSD(), boost::bind(&LLSidepanelAppearance::callBackExitWithoutSaveViaBack,pSelf,_1,_2) );
 	}
 	else
+		*/
 	{
 		showOutfitsInventoryPanel();
 	}
@@ -628,4 +659,9 @@ void LLSidepanelAppearance::updateScrollingPanelList()
 	{
 		mEditWearable->updateScrollingPanelList();
 	}
+}
+
+bool LLSidepanelAppearance::checkForDirtyEdits()
+{
+	return ( mEditWearable->isDirty() ) ? true : false;
 }
