@@ -55,6 +55,7 @@ public:
     bool getConnected() { return mConnectedToFbc; }
     S32  generation() { return mGeneration; }
     
+    void openFacebookWeb(std::string url);
 private:
 
 	friend class LLSingleton<LLFacebookConnect>;

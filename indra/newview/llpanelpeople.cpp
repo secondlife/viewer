@@ -75,7 +75,6 @@
 #include "llsociallist.h"
 #include "llspeakers.h"
 #include "llfloaterwebcontent.h"
-#include "llurlaction.h"
 
 #define FRIEND_LIST_UPDATE_TIMEOUT	0.5
 #define NEARBY_LIST_UPDATE_INTERVAL 1
@@ -1644,13 +1643,6 @@ bool LLPanelPeople::isAccordionCollapsedByUser(const std::string& name)
 {
 	return isAccordionCollapsedByUser(getChild<LLUICtrl>(name));
 }
-
-/*
-void LLPanelPeople::openFacebookWeb(std::string url)
-{
-	LLUrlAction::openURLExternal(url);
-}
-*/
 
 void LLPanelPeople::addTestParticipant()
 {

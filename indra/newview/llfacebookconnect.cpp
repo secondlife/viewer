@@ -31,12 +31,13 @@
 
 #include "llagent.h"
 #include "llcallingcard.h"			// for LLAvatarTracker
-//#include "llcommandhandler.h"
+#include "llcommandhandler.h"
 #include "llhttpclient.h"
+#include "llurlaction.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-/*
+
 class LLFacebookConnectHandler : public LLCommandHandler
 {
 public:
@@ -59,7 +60,6 @@ public:
 	}
 };
 LLFacebookConnectHandler gFacebookConnectHandler;
-*/
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -83,6 +83,15 @@ public:
 			LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
 		}
 	}
+    
+    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+    {
+        if (status == 302)
+        {
+            LLFacebookConnect::instance().openFacebookWeb(content["location"]);
+        }
+    }
+    
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -163,6 +172,14 @@ public:
 			LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
 		}
 	}
+
+    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+    {
+        if (status == 302)
+        {
+            LLFacebookConnect::instance().openFacebookWeb(content["location"]);
+        }
+    }
 };
 
 
@@ -173,6 +190,11 @@ LLFacebookConnect::LLFacebookConnect()
     mContent(),
     mGeneration(0)
 {
+}
+
+void LLFacebookConnect::openFacebookWeb(std::string url)
+{
+	LLUrlAction::openURLExternal(url);
 }
 
 std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route)

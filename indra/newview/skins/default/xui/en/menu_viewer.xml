@@ -19,7 +19,7 @@
         label="Connect to Facebook..."
         name="ConnectToFacebook">
         <menu_item_call.on_click
-          function="People.loginFBC" />
+          function="Facebook.Connect" />
       </menu_item_call>
       <menu_item_separator/>
       <menu_item_call

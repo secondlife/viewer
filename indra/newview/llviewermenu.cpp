@@ -52,6 +52,7 @@
 #include "lldaycyclemanager.h"
 #include "lldebugview.h"
 #include "llenvmanager.h"
+#include "llfacebookconnect.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
 #include "llfloaterbuy.h"
@@ -5970,6 +5971,21 @@ void handle_report_abuse()
 	LLFloaterReporter::showFromMenu(COMPLAINT_REPORT);
 }
 
+void handle_facebook_connect()
+{
+	if (LLFacebookConnect::instance().getConnected())
+	{
+		LLFacebookConnect::instance().disconnectFromFacebook();
+	}
+	else
+	{
+        LLFacebookConnect::instance().getConnectionToFacebook();
+	}
+}
+
+//bool is_facebook_connected();
+
+
 void handle_buy_currency()
 {
 	LLBuyCurrencyHTML::openCurrencyFloater();
@@ -8719,4 +8735,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");
 	view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
 	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
+    
+    // Facebook Connect
+	commit.add("Facebook.Connect", boost::bind(&handle_facebook_connect));
 }
