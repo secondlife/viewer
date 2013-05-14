@@ -4393,15 +4393,18 @@ S32 LLViewerObject::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID
 							 << ", material " << pMaterialID
 							 << LL_ENDL;
 		retval = LLPrimitive::setTEMaterialID(te, pMaterialID);
-	}
-		// Kitty would like to know if this is necessary?
-		// Since we should get a setTEMaterialParams that does it anyway?
-		//
-		setChanged(TEXTURE);
-		if (mDrawable.notNull())
+		if (retval)
 		{
-			gPipeline.markTextured(mDrawable);
+			// Kitty would like to know if this is necessary?
+			// Since we should get a setTEMaterialParams that does it anyway?
+			//
+			setChanged(TEXTURE);
+			if (mDrawable.notNull())
+			{
+				gPipeline.markTextured(mDrawable);
+			}
 		}
+	}
 	return retval;
 }
 
