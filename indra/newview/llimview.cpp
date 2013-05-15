@@ -196,32 +196,63 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 	//  determine user prefs for this session
 	if (session_id.isNull())
 	{
-		user_preferences = gSavedSettings.getString("NotificationNearbyChatOptions");
+		if (msg["source_type"].asInteger() == CHAT_SOURCE_OBJECT)
+		{
+			user_preferences = gSavedSettings.getString("NotificationObjectIMOptions");
+			if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundObjectIM") == TRUE))
+			{
+				make_ui_sound("UISndNewIncomingIMSession");
+			}
+		}
+		else
+		{
+			user_preferences = gSavedSettings.getString("NotificationNearbyChatOptions");
+			if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNearbyChatIM") == TRUE))
+			{
+				make_ui_sound("UISndNewIncomingIMSession");
+			}
+		}
 	}
 	else if(session->isP2PSessionType())
 	{
 		if (LLAvatarTracker::instance().isBuddy(participant_id))
 		{
 			user_preferences = gSavedSettings.getString("NotificationFriendIMOptions");
+			if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundFriendIM") == TRUE))
+			{
+				make_ui_sound("UISndNewIncomingIMSession");
+			}
 		}
 		else
 		{
 			user_preferences = gSavedSettings.getString("NotificationNonFriendIMOptions");
+			if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNonFriendIM") == TRUE))
+			{
+				make_ui_sound("UISndNewIncomingIMSession");
+			}
 		}
 	}
 	else if(session->isAdHocSessionType())
 	{
 		user_preferences = gSavedSettings.getString("NotificationConferenceIMOptions");
+		if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundConferenceIM") == TRUE))
+		{
+			make_ui_sound("UISndNewIncomingIMSession");
+		}
 	}
 	else if(session->isGroupSessionType())
 	{
 		user_preferences = gSavedSettings.getString("NotificationGroupChatOptions");
+		if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundGroupChatIM") == TRUE))
+		{
+			make_ui_sound("UISndNewIncomingIMSession");
+		}
 	}
 
 	// actions:
 
 	// 0. nothing - exit
-	if (("none" == user_preferences ||
+	if (("noaction" == user_preferences ||
 		ON_TOP_AND_ITEM_IS_SELECTED == conversations_floater_status)
 		&& session_floater->isMessagePaneExpanded())
 	{

@@ -3666,6 +3666,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		LLSD msg_notify = LLSD(LLSD::emptyMap());
 		msg_notify["session_id"] = LLUUID();
         msg_notify["from_id"] = chat.mFromID;
+		msg_notify["source_type"] = chat.mSourceType;
         on_new_message(msg_notify);
 	}
 }

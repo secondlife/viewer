@@ -6398,7 +6398,10 @@
     <key>NotificationConferenceIMOptions</key>
     <map>
       <key>Comment</key>
-      <string>Specifies how the UI responds to Conference IM Notifications.</string>
+      <string>
+        Specifies how the UI responds to Conference IM Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6409,7 +6412,10 @@
     <key>NotificationFriendIMOptions</key>
     <map>
       <key>Comment</key>
-      <string>Specifies how the UI responds to Friend IM Notifications.</string>
+      <string>
+        Specifies how the UI responds to Friend IM Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6420,7 +6426,10 @@
     <key>NotificationGroupChatOptions</key>
     <map>
       <key>Comment</key>
-      <string>Specifies how the UI responds to Group Chat Notifications.</string>
+      <string>
+        Specifies how the UI responds to Group Chat Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6431,7 +6440,10 @@
     <key>NotificationNearbyChatOptions</key>
     <map>
       <key>Comment</key>
-      <string>Specifies how the UI responds to Nearby Chat Notifications.</string>
+      <string>
+        Specifies how the UI responds to Nearby Chat Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6442,13 +6454,30 @@
     <key>NotificationNonFriendIMOptions</key>
     <map>
       <key>Comment</key>
-      <string>Specifies how the UI responds to Non Friend IM Notifications.</string>
+      <string>
+        Specifies how the UI responds to Non Friend IM Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
       <string>toast</string>
+    </map>  
+    <key>NotificationObjectIMOptions</key>
+    <map>
+      <key>Comment</key>
+      <string>
+        Specifies how the UI responds to Object IM Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>noaction</string>
     </map>  
     <key>NotificationToastLifeTime</key>
     <map>
@@ -6988,6 +7017,72 @@
       <key>Value</key>
       <integer>0</integer>
     </map>  
+    <key>PlaySoundFriendIM</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when friend's IM received.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PlaySoundNonFriendIM</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when non-friend's IM received.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PlaySoundConferenceIM</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when conference IM received.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PlaySoundGroupChatIM</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when group chat IM received.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PlaySoundNearbyChatIM</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when nearby chat IM received.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PlaySoundObjectIM</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when IM fom an object received.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PlaySoundNewConversation</key>
     <map>
       <key>Comment</key>
