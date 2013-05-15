@@ -1547,6 +1547,11 @@ bool LLAppearanceMgr::getCanRemoveOutfit(const LLUUID& outfit_cat_id)
 // static
 bool LLAppearanceMgr::getCanRemoveFromCOF(const LLUUID& outfit_cat_id)
 {
+	if (gAgentWearables.isCOFChangeInProgress())
+	{
+		return false;
+	}
+
 	LLFindWearablesEx is_worn(/*is_worn=*/ true, /*include_body_parts=*/ false);
 	return gInventory.hasMatchingDirectDescendent(outfit_cat_id, is_worn);
 }
@@ -1578,8 +1583,8 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 	}
 
 	// Check whether the outfit contains any wearables we aren't wearing already (STORM-702).
-	LLFindWearablesEx is_worn(/*is_worn=*/ false, /*include_body_parts=*/ true);
-	return gInventory.hasMatchingDirectDescendent(outfit_cat_id, is_worn);
+	LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ true);
+	return gInventory.hasMatchingDirectDescendent(outfit_cat_id, not_worn);
 }
 
 void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> cb)
@@ -3001,11 +3006,13 @@ protected:
 							   << llendl;
 		}
 		LL_INFOS("Avatar") << " ================================= " << llendl;
+		S32 local_only = 0, ais_only = 0;
 		for (std::set<LLUUID>::iterator it = local_items.begin(); it != local_items.end(); ++it)
 		{
 			if (ais_items.find(*it) == ais_items.end())
 			{
 				LL_INFOS("Avatar") << "LOCAL ONLY: " << *it << llendl;
+				local_only++;
 			}
 		}
 		for (std::set<LLUUID>::iterator it = ais_items.begin(); it != ais_items.end(); ++it)
@@ -3013,9 +3020,10 @@ protected:
 			if (local_items.find(*it) == local_items.end())
 			{
 				LL_INFOS("Avatar") << "AIS ONLY: " << *it << llendl;
+				ais_only++;
 			}
 		}
-		if (local_items.size()==0 && ais_items.size()==0)
+		if (local_only==0 && ais_only==0)
 		{
 			LL_INFOS("Avatar") << "COF contents identical, only version numbers differ (req "
 							   << content["observed"].asInteger()

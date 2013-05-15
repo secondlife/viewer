@@ -1182,8 +1182,8 @@ void remove_inventory_item(
 	const LLUUID& item_id,
 	LLPointer<LLInventoryCallback> cb)
 {
-	llinfos << "item_id: [" << item_id << "] " << llendl;
 	LLPointer<LLViewerInventoryItem> obj = gInventory.getItem(item_id);
+	llinfos << "item_id: [" << item_id << "] name " << (obj ? obj->getName() : "(NOT FOUND)") << llendl;
 	if(obj)
 	{
 		std::string cap;

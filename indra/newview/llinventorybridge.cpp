@@ -3579,6 +3579,10 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 		{
 			disabled_items.push_back(std::string("Replace Outfit"));
 		}
+		if (!LLAppearanceMgr::instance().getCanAddToCOF(mUUID))
+		{
+			disabled_items.push_back(std::string("Add To Outfit"));
+		}
 		items.push_back(std::string("Outfit Separator"));
 	}
 }
