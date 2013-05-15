@@ -2059,7 +2059,7 @@ void LLSelectMgr::selectionRemoveMaterial()
 			{
 			        LL_DEBUGS("Materials") << "Removing material from object " << object->getID() << " face " << face << LL_ENDL;
 				LLMaterialMgr::getInstance()->remove(object->getID(),face);
-				object->setTEMaterialID(face,LLMaterialID::null);
+				object->setTEMaterialParams(face, NULL);
 			}
 			return true;
 		}
@@ -5865,7 +5865,7 @@ void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
 			{
 				case LLRender::DIFFUSE_MAP:
 				{
-					tep->getScale(&s,&t);
+			tep->getScale(&s,&t);
 				}
 				break;
 
