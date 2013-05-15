@@ -1155,8 +1155,6 @@ public:
 			return;
 		}
 		gInventory.onAISUpdateReceived("removeObjectResponder " + mItemUUID.asString(), content);
-		// FIXME - not needed after AIS starts returning deleted item in its response.
-		gInventory.onObjectDeletedFromServer(mItemUUID);
 
 		if (mCallback)
 		{
@@ -1226,18 +1224,26 @@ void remove_inventory_item(
 	}
 }
 
-class LLRemoveObjectOnDestroy: public LLInventoryCallback
+class LLRemoveCategoryOnDestroy: public LLInventoryCallback
 {
 public:
-	LLRemoveObjectOnDestroy(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb):
-		mID(item_id),
+	LLRemoveCategoryOnDestroy(const LLUUID& cat_id, LLPointer<LLInventoryCallback> cb):
+		mID(cat_id),
 		mCB(cb)
 	{
 	}
 	/* virtual */ void fire(const LLUUID& item_id) {}
-	~LLRemoveObjectOnDestroy()
+	~LLRemoveCategoryOnDestroy()
 	{
-		remove_inventory_object(mID, mCB);
+		LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(mID);
+		if(children != LLInventoryModel::CHILDREN_NO)
+		{
+			llwarns << "remove descendents failed, cannot remove category " << llendl;
+		}
+		else
+		{
+			remove_inventory_category(mID, mCB);
+		}
 	}
 private:
 	LLUUID mID;
@@ -1257,15 +1263,6 @@ void remove_inventory_category(
 			LLNotificationsUtil::add("CannotRemoveProtectedCategories");
 			return;
 		}
-		LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(cat_id);
-		if(children != LLInventoryModel::CHILDREN_NO)
-		{
-			llinfos << "Will purge descendents first before deleting category " << cat_id << llendl;
-			LLPointer<LLInventoryCallback> wrap_cb = new LLRemoveObjectOnDestroy(cat_id,cb); 
-			purge_descendents_of(cat_id, wrap_cb);
-			return;
-		}
-
 		std::string cap;
 		if (gAgent.getRegion())
 		{
@@ -1280,6 +1277,16 @@ void remove_inventory_category(
 		}
 		else // no cap
 		{
+			// RemoveInventoryFolder does not remove children, so must
+			// clear descendents first.
+			LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(cat_id);
+			if(children != LLInventoryModel::CHILDREN_NO)
+			{
+				llinfos << "Will purge descendents first before deleting category " << cat_id << llendl;
+				LLPointer<LLInventoryCallback> wrap_cb = new LLRemoveCategoryOnDestroy(cat_id, cb); 
+				purge_descendents_of(cat_id, wrap_cb);
+				return;
+			}
 
 			LLMessageSystem* msg = gMessageSystem;
 			msg->newMessageFast(_PREHASH_RemoveInventoryFolder);
