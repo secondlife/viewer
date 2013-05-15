@@ -23,6 +23,7 @@ codeticket_since = 3.3.0-release
 
 # Override build system default toolchain
 # Note that this will only affect automated builds.
+Linux.distcc_version = ""
 Linux.gcc_version = /usr/bin/gcc-4.6
 Linux.cxx_version = /usr/bin/g++-4.6
 
