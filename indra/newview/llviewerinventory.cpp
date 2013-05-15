@@ -1189,7 +1189,7 @@ void remove_inventory_item(
 	if(obj)
 	{
 		std::string cap;
-		if (gAgent.getRegion() && gSavedSettings.getBOOL("UseAISv3Inventory"))
+		if (gAgent.getRegion())
 		{
 			cap = gAgent.getRegion()->getCapability("InventoryAPIv3");
 		}
@@ -1267,7 +1267,7 @@ void remove_inventory_category(
 		}
 
 		std::string cap;
-		if (gAgent.getRegion() && gSavedSettings.getBOOL("UseAISv3Inventory"))
+		if (gAgent.getRegion())
 		{
 			cap = gAgent.getRegion()->getCapability("InventoryAPIv3");
 		}
@@ -1407,7 +1407,7 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 		else
 		{
 			std::string cap;
-			if (gAgent.getRegion() && gSavedSettings.getBOOL("UseAISv3Inventory"))
+			if (gAgent.getRegion())
 			{
 				cap = gAgent.getRegion()->getCapability("InventoryAPIv3");
 			}

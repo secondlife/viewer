@@ -14033,17 +14033,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>UseAISv3Inventory</key>
-    <map>
-      <key>Comment</key>
-      <string>Allow use of AISv3 inventory - this setting should only be needed during development.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>ClickToWalk</key>
     <map>
       <key>Comment</key>
