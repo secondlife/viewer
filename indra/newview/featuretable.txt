@@ -441,7 +441,7 @@ list OpenGLPre15
 RenderVBOEnable				1	0
 
 list OpenGLPre30
-RenderDeferred				0	0
+RenderDeferred				1	0
 RenderMaxTextureIndex		1	1
 
 list Intel
