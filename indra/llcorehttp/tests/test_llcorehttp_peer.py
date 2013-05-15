@@ -73,6 +73,8 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
     Some combinations make no sense, there's no effort to protect
     you from that.
     """
+    ignore_exceptions = (Exception,)
+
     def read(self):
         # The following logic is adapted from the library module
         # SimpleXMLRPCServer.py.
@@ -112,20 +114,29 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self, withdata=True):
         # Of course, don't attempt to read data.
-        self.answer(dict(reply="success", status=200,
-                         reason="Your GET operation worked"))
+        try:
+            self.answer(dict(reply="success", status=200,
+                             reason="Your GET operation worked"))
+        except self.ignore_exceptions, e:
+            print >> sys.stderr, "Exception during GET (ignoring): %s" % str(e)
 
     def do_POST(self):
         # Read the provided POST data.
         # self.answer(self.read())
-        self.answer(dict(reply="success", status=200,
-                         reason=self.read()))
+        try:
+            self.answer(dict(reply="success", status=200,
+                             reason=self.read()))
+        except self.ignore_exceptions, e:
+            print >> sys.stderr, "Exception during POST (ignoring): %s" % str(e)
 
     def do_PUT(self):
         # Read the provided PUT data.
         # self.answer(self.read())
-        self.answer(dict(reply="success", status=200,
-                         reason=self.read()))
+        try:
+            self.answer(dict(reply="success", status=200,
+                             reason=self.read()))
+        except self.ignore_exceptions, e:
+            print >> sys.stderr, "Exception during PUT (ignoring): %s" % str(e)
 
     def answer(self, data, withdata=True):
         debug("%s.answer(%s): self.path = %r", self.__class__.__name__, data, self.path)
@@ -223,6 +234,17 @@ class Server(ThreadingMixIn, HTTPServer):
     # operation of freeport() absolutely depends on it being off.
     allow_reuse_address = False
 
+    # Override of BaseServer.handle_error().  Not too interested
+    # in errors and the default handler emits a scary traceback
+    # to stderr which annoys some.  Disable this override to get
+    # default behavior which *shouldn't* cause the program to return
+    # a failure status.
+    def handle_error(self, request, client_address):
+        print '-'*40
+        print 'Ignoring exception during processing of request from',
+        print client_address
+        print '-'*40
+
 if __name__ == "__main__":
     do_valgrind = False
     path_search = False
@@ -249,3 +271,4 @@ if __name__ == "__main__":
         args = ["valgrind", "--log-file=./valgrind.log"] + args
         path_search = True
     sys.exit(run(server=Thread(name="httpd", target=httpd.serve_forever), use_path=path_search, *args))
+
