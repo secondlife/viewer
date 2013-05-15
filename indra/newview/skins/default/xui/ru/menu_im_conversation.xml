@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Conversation Gear Menu">
+	<menu_item_call label="Смотреть профиль" name="View Profile"/>
+	<menu_item_call label="Добавить друга" name="Add Friend"/>
+	<menu_item_call label="Удалить друга" name="remove_friend"/>
+	<menu_item_call label="Предложить телепортацию" name="offer_teleport"/>
+	<menu_item_call label="Пригласить в группу..." name="invite_to_group"/>
+	<menu_item_call label="Журнал чата..." name="chat_history"/>
+	<menu_item_call label="Приблизить" name="zoom_in"/>
+	<menu_item_call label="Карта" name="map"/>
+	<menu_item_call label="Поделиться" name="Share"/>
+	<menu_item_call label="Заплатить" name="Pay"/>
+	<menu_item_check label="Блокировать голос" name="Block/Unblock"/>
+	<menu_item_check label="Блокировать текст" name="MuteText"/>
+</toggleable_menu>

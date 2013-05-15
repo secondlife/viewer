@@ -79,11 +79,9 @@ void parse_string();
 #define yyfree indra_free
 
 
-#if defined(__cplusplus)
-extern "C" { int yylex( void ); }
-extern "C" { int yyparse( void ); }
-extern "C" { int yyerror(const char *fmt, ...); }
-#endif
+int yyparse( void );
+int yylex( void );
+int yyerror(const char *fmt, ...);
 
 %}
 
@@ -237,6 +235,8 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "PERMISSION_TRACK_CAMERA"		{ count(); yylval.ival = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_TRACK_CAMERA]; return(INTEGER_CONSTANT); }
 "PERMISSION_CONTROL_CAMERA"		{ count(); yylval.ival = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_CONTROL_CAMERA]; return(INTEGER_CONSTANT); }
 "PERMISSION_TELEPORT"			{ count(); yylval.ival = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_TELEPORT]; return(INTEGER_CONSTANT); }
+"PERMISSION_SILENT_ESTATE_MANAGEMENT"   { count(); yylval.ival = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_SILENT_ESTATE_MANAGEMENT]; return(INTEGER_CONSTANT); }
+"PERMISSION_OVERRIDE_ANIMATIONS"    { count(); yylval.ival = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS]; return(INTEGER_CONSTANT); }
 
 "INVENTORY_TEXTURE"					{ count(); yylval.ival = LLAssetType::AT_TEXTURE; return(INTEGER_CONSTANT); }
 "INVENTORY_SOUND"					{ count(); yylval.ival = LLAssetType::AT_SOUND; return(INTEGER_CONSTANT); }
@@ -338,6 +338,8 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "ATTACH_HUD_BOTTOM_LEFT" { count(); yylval.ival = 36; return(INTEGER_CONSTANT); }
 "ATTACH_HUD_BOTTOM"		{ count(); yylval.ival = 37; return(INTEGER_CONSTANT); }
 "ATTACH_HUD_BOTTOM_RIGHT"	{ count(); yylval.ival = 38; return(INTEGER_CONSTANT); }
+"ATTACH_NECK"   { count(); yylval.ival = 39; return(INTEGER_CONSTANT); }
+"ATTACH_AVATAR_CENTER"   { count(); yylval.ival = 40; return(INTEGER_CONSTANT); }
 
 "LAND_LEVEL"		{ count(); yylval.ival = E_LANDBRUSH_LEVEL; return(INTEGER_CONSTANT); }
 "LAND_RAISE"		{ count(); yylval.ival = E_LANDBRUSH_RAISE; return(INTEGER_CONSTANT); }
@@ -376,6 +378,10 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "PSYS_PART_END_SCALE"	{ count(); yylval.ival = LLPS_PART_END_SCALE; return (INTEGER_CONSTANT); }
 "PSYS_PART_MAX_AGE"		{ count(); yylval.ival = LLPS_PART_MAX_AGE; return (INTEGER_CONSTANT); }
 
+"PSYS_PART_BLEND_FUNC_SOURCE"	{ count(); yylval.ival = LLPS_PART_BLEND_FUNC_SOURCE; return (INTEGER_CONSTANT); }
+"PSYS_PART_BLEND_FUNC_DEST"		{ count(); yylval.ival = LLPS_PART_BLEND_FUNC_DEST; return (INTEGER_CONSTANT); }
+"PSYS_PART_START_GLOW"	{ count(); yylval.ival = LLPS_PART_START_GLOW; return (INTEGER_CONSTANT); }
+"PSYS_PART_END_GLOW"	{ count(); yylval.ival = LLPS_PART_END_GLOW; return (INTEGER_CONSTANT); }
 
 "PSYS_PART_WIND_MASK"				{ count(); yylval.ival = LLPartData::LL_PART_WIND_MASK; return(INTEGER_CONSTANT); }
 "PSYS_PART_INTERP_COLOR_MASK"		{ count(); yylval.ival = LLPartData::LL_PART_INTERP_COLOR_MASK; return(INTEGER_CONSTANT); }
@@ -386,6 +392,16 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "PSYS_PART_TARGET_POS_MASK"			{ count(); yylval.ival = LLPartData::LL_PART_TARGET_POS_MASK; return(INTEGER_CONSTANT); }
 "PSYS_PART_EMISSIVE_MASK"			{ count(); yylval.ival = LLPartData::LL_PART_EMISSIVE_MASK; return(INTEGER_CONSTANT); }
 "PSYS_PART_TARGET_LINEAR_MASK"		{ count(); yylval.ival = LLPartData::LL_PART_TARGET_LINEAR_MASK; return(INTEGER_CONSTANT); }
+"PSYS_PART_RIBBON_MASK"				{ count(); yylval.ival = LLPartData::LL_PART_RIBBON_MASK; return(INTEGER_CONSTANT); }
+
+"PSYS_PART_BF_ONE"						{ count(); yylval.ival = LLPartData::LL_PART_BF_ONE; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_ZERO"						{ count(); yylval.ival = LLPartData::LL_PART_BF_ZERO; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_DEST_COLOR"				{ count(); yylval.ival = LLPartData::LL_PART_BF_DEST_COLOR; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_SOURCE_COLOR"				{ count(); yylval.ival = LLPartData::LL_PART_BF_SOURCE_COLOR; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_ONE_MINUS_DEST_COLOR"		{ count(); yylval.ival = LLPartData::LL_PART_BF_ONE_MINUS_DEST_COLOR; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_ONE_MINUS_SOURCE_COLOR"	{ count(); yylval.ival = LLPartData::LL_PART_BF_ONE_MINUS_SOURCE_COLOR; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_SOURCE_ALPHA"				{ count(); yylval.ival = LLPartData::LL_PART_BF_SOURCE_ALPHA; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_ONE_MINUS_SOURCE_ALPHA"	{ count(); yylval.ival = LLPartData::LL_PART_BF_ONE_MINUS_SOURCE_ALPHA; return(INTEGER_CONSTANT); }
 
 
 "PSYS_SRC_MAX_AGE"					{ count(); yylval.ival = LLPS_SRC_MAX_AGE; return(INTEGER_CONSTANT); }

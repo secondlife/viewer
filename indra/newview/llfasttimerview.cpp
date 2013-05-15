@@ -345,7 +345,7 @@ BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return TRUE;
 }
 
-static LLFastTimer::DeclareTimer FTM_RENDER_TIMER("Timers", true);
+static LLFastTimer::DeclareTimer FTM_RENDER_TIMER("Timers");
 
 static std::map<LLFastTimer::NamedTimer*, LLColor4> sTimerColors;
 

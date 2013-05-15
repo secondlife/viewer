@@ -109,8 +109,8 @@ void LLRenderTarget::resize(U32 resx, U32 resy, U32 color_fmt)
 
 bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage, bool use_fbo, S32 samples)
 {
-	resx = llmin(resx, (U32) 4096);
-	resy = llmin(resy, (U32) 4096);
+	resx = llmin(resx, (U32) gGLManager.mGLMaxTextureSize);
+	resy = llmin(resy, (U32) gGLManager.mGLMaxTextureSize);
 
 	stop_glerror();
 	release();
@@ -457,6 +457,12 @@ U32 LLRenderTarget::getTexture(U32 attachment) const
 	}
 	return mTex[attachment];
 }
+
+U32 LLRenderTarget::getNumTextures() const
+{
+	return mTex.size();
+}
+
 
 void LLRenderTarget::bindTexture(U32 index, S32 channel)
 {

@@ -37,7 +37,6 @@ class LLPath;
 
 template <class T> class LLOctreeNode;
 
-class LLVector4a;
 class LLVolumeFace;
 class LLVolume;
 class LLVolumeTriangle;
@@ -50,12 +49,15 @@ class LLVolumeTriangle;
 #include "v3math.h"
 #include "v3dmath.h"
 #include "v4math.h"
+#include "llvector4a.h"
+#include "llmatrix4a.h"
 #include "llquaternion.h"
 #include "llstrider.h"
 #include "v4coloru.h"
 #include "llrefcount.h"
 #include "llpointer.h"
 #include "llfile.h"
+#include "llalignedarray.h"
 
 //============================================================================
 
@@ -708,16 +710,16 @@ public:
 		LLFaceID  mFaceID;
 	};
 	
-	std::vector<LLVector3> mProfile;	
-	std::vector<LLVector2> mNormals;
+	LLAlignedArray<LLVector4a, 64> mProfile;	
+	//LLAlignedArray<LLVector4a, 64> mNormals;
 	std::vector<Face>      mFaces;
-	std::vector<LLVector3> mEdgeNormals;
-	std::vector<LLVector3> mEdgeCenters;
+
+	//LLAlignedArray<LLVector4a, 64> mEdgeNormals;
+	//LLAlignedArray<LLVector4a, 64> mEdgeCenters;
 
 	friend std::ostream& operator<<(std::ostream &s, const LLProfile &profile);
 
 protected:
-	void genNormals(const LLProfileParams& params);
 	static S32 getNumNGonPoints(const LLProfileParams& params, S32 sides, F32 offset=0.0f, F32 bevel = 0.0f, F32 ang_scale = 1.f, S32 split = 0);
 	void genNGon(const LLProfileParams& params, S32 sides, F32 offset=0.0f, F32 bevel = 0.0f, F32 ang_scale = 1.f, S32 split = 0);
 
@@ -741,13 +743,29 @@ protected:
 class LLPath
 {
 public:
-	struct PathPt
+	class PathPt
 	{
-		LLVector3	 mPos;
-		LLVector2    mScale;
-		LLQuaternion mRot;
+	public:
+		LLMatrix4a   mRot;
+		LLVector4a	 mPos;
+		
+		LLVector4a   mScale;
 		F32			 mTexT;
-		PathPt() { mPos.setVec(0,0,0); mTexT = 0; mScale.setVec(0,0); mRot.loadIdentity(); }
+		F32 pad[3]; //for alignment
+		PathPt() 
+		{ 
+			mPos.clear(); 
+			mTexT = 0; 
+			mScale.clear(); 
+			mRot.setRows(LLVector4a(1,0,0,0),
+						LLVector4a(0,1,0,0),
+						LLVector4a(0,0,1,0));
+
+			//distinguished data in the pad for debugging
+			pad[0] = 3.14159f;
+			pad[1] = -3.14159f;
+			pad[2] = 0.585f;
+		}
 	};
 
 public:
@@ -779,7 +797,7 @@ public:
 	friend std::ostream& operator<<(std::ostream &s, const LLPath &path);
 
 public:
-	std::vector<PathPt> mPath;
+	LLAlignedArray<PathPt, 64> mPath;
 
 protected:
 	BOOL		  mOpen;
@@ -912,6 +930,7 @@ public:
 	LLVector2   mTexCoordExtents[2]; //minimum and maximum of texture coordinates of the face.
 
 	S32 mNumVertices;
+	S32 mNumAllocatedVertices;
 	S32 mNumIndices;
 
 	LLVector4a* mPositions;
@@ -933,6 +952,9 @@ public:
 
 	LLOctreeNode<LLVolumeTriangle>* mOctree;
 
+	//whether or not face has been cache optimized
+	BOOL mOptimized;
+
 private:
 	BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);
 	BOOL createCap(LLVolume* volume, BOOL partial_build = FALSE);
@@ -947,11 +969,7 @@ protected:
 	~LLVolume(); // use unref
 
 public:
-	struct Point
-	{
-		LLVector3 mPos;
-	};
-
+		
 	struct FaceParams
 	{
 		LLFaceID mFaceID;
@@ -974,8 +992,8 @@ public:
 	const LLProfile& getProfile() const						{ return *mProfilep; }
 	LLPath& getPath() const									{ return *mPathp; }
 	void resizePath(S32 length);
-	const std::vector<Point>& getMesh() const				{ return mMesh; }
-	const LLVector3& getMeshPt(const U32 i) const			{ return mMesh[i].mPos; }
+	const LLAlignedArray<LLVector4a,64>&	getMesh() const				{ return mMesh; }
+	const LLVector4a& getMeshPt(const U32 i) const			{ return mMesh[i]; }
 
 	void setDirty() { mPathp->setDirty(); mProfilep->setDirty(); }
 
@@ -990,10 +1008,7 @@ public:
 	S32 getSculptLevel() const                              { return mSculptLevel; }
 	void setSculptLevel(S32 level)							{ mSculptLevel = level; }
 
-	S32 *getTriangleIndices(U32 &num_indices) const;
-
-	// returns number of triangle indeces required for path/profile mesh
-	S32 getNumTriangleIndices() const;
+	
 	static void getLoDTriangleCounts(const LLVolumeParams& params, S32* counts);
 
 	S32 getNumTriangles(S32* vcount = NULL) const;
@@ -1066,7 +1081,8 @@ public:
 	LLVolumeParams mParams;
 	LLPath *mPathp;
 	LLProfile *mProfilep;
-	std::vector<Point> mMesh;
+	LLAlignedArray<LLVector4a,64> mMesh;
+	
 	
 	BOOL mGenerateSingleFace;
 	typedef std::vector<LLVolumeFace> face_list_t;

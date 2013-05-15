@@ -65,6 +65,7 @@ class LLWindow;
 class LLRootView;
 class LLWindowListener;
 class LLViewerWindowListener;
+class LLVOPartGroup;
 class LLPopupView;
 
 #define PICK_HALF_WIDTH 5
@@ -87,7 +88,8 @@ public:
 	LLPickInfo();
 	LLPickInfo(const LLCoordGL& mouse_pos, 
 		MASK keyboard_mask, 
-		BOOL pick_transparent, 
+		BOOL pick_transparent,
+		BOOL pick_particle,
 		BOOL pick_surface_info,
 		void (*pick_callback)(const LLPickInfo& pick_info));
 
@@ -108,6 +110,8 @@ public:
 	LLVector3d		mPosGlobal;
 	LLVector3		mObjectOffset;
 	LLUUID			mObjectID;
+	LLUUID			mParticleOwnerID;
+	LLUUID			mParticleSourceID;
 	S32				mObjectFace;
 	LLHUDIcon*		mHUDIcon;
 	LLVector3       mIntersection;
@@ -117,6 +121,7 @@ public:
 	LLVector3		mNormal;
 	LLVector3		mBinormal;
 	BOOL			mPickTransparent;
+	BOOL			mPickParticle;
 	void		    getSurfaceInfo();
 
 private:
@@ -355,7 +360,7 @@ public:
 	void			returnEmptyPicks();
 
 	void			pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback)(const LLPickInfo& pick_info), BOOL pick_transparent = FALSE);
-	LLPickInfo		pickImmediate(S32 x, S32 y, BOOL pick_transparent);
+	LLPickInfo		pickImmediate(S32 x, S32 y, BOOL pick_transparent, BOOL pick_particle = FALSE);
 	LLHUDIcon* cursorIntersectIcon(S32 mouse_x, S32 mouse_y, F32 depth,
 										   LLVector3* intersection);
 
@@ -499,6 +504,8 @@ extern LLFrameTimer		gAwayTimer;				// tracks time before setting the avatar awa
 extern LLFrameTimer		gAwayTriggerTimer;		// how long the avatar has been away
 
 extern LLViewerObject*  gDebugRaycastObject;
+extern LLVOPartGroup*	gDebugRaycastParticle;
+extern LLVector3		gDebugRaycastParticleIntersection;
 extern LLVector3        gDebugRaycastIntersection;
 extern LLVector2        gDebugRaycastTexCoord;
 extern LLVector3        gDebugRaycastNormal;

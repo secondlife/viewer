@@ -60,7 +60,6 @@ class HttpOptions;
 /// the information needed to make a working request which can
 /// then be enqueued to a request queue.
 ///
-
 class HttpOpRequest : public HttpOperation
 {
 public:

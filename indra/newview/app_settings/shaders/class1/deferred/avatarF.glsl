@@ -31,6 +31,8 @@ out vec4 frag_data[3];
 
 uniform sampler2D diffuseMap;
 
+uniform float minimum_alpha;
+
 VARYING vec3 vary_normal;
 VARYING vec2 vary_texcoord0;
 
@@ -38,7 +40,7 @@ void main()
 {
 	vec4 diff = texture2D(diffuseMap, vary_texcoord0.xy);
 	
-	if (diff.a < 0.2)
+	if (diff.a < minimum_alpha)
 	{
 		discard;
 	}

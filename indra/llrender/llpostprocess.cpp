@@ -31,6 +31,21 @@
 #include "llsdserialize.h"
 #include "llrender.h"
 
+static LLStaticHashedString sRenderTexture("RenderTexture");
+static LLStaticHashedString sBrightness("brightness");
+static LLStaticHashedString sContrast("contrast");
+static LLStaticHashedString sContrastBase("contrastBase");
+static LLStaticHashedString sSaturation("saturation");
+static LLStaticHashedString sLumWeights("lumWeights");
+static LLStaticHashedString sNoiseTexture("NoiseTexture");
+static LLStaticHashedString sBrightMult("brightMult");
+static LLStaticHashedString sNoiseStrength("noiseStrength");
+static LLStaticHashedString sExtractLow("extractLow");
+static LLStaticHashedString sExtractHigh("extractHigh");
+static LLStaticHashedString sBloomStrength("bloomStrength");
+static LLStaticHashedString sTexelSize("texelSize");
+static LLStaticHashedString sBlurDirection("blurDirection");
+static LLStaticHashedString sBlurWidth("blurWidth");
 
 LLPostProcess * gPostProcess = NULL;
 
@@ -258,12 +273,12 @@ void LLPostProcess::applyColorFilterShader(void)
 void LLPostProcess::createColorFilterShader(void)
 {
 	/// Define uniform names
-	colorFilterUniforms["RenderTexture"] = 0;
-	colorFilterUniforms["brightness"] = 0;
-	colorFilterUniforms["contrast"] = 0;
-	colorFilterUniforms["contrastBase"] = 0;
-	colorFilterUniforms["saturation"] = 0;
-	colorFilterUniforms["lumWeights"] = 0;
+	colorFilterUniforms[sRenderTexture] = 0;
+	colorFilterUniforms[sBrightness] = 0;
+	colorFilterUniforms[sContrast] = 0;
+	colorFilterUniforms[sContrastBase] = 0;
+	colorFilterUniforms[sSaturation] = 0;
+	colorFilterUniforms[sLumWeights] = 0;
 }
 
 void LLPostProcess::applyNightVisionShader(void)
@@ -307,11 +322,11 @@ void LLPostProcess::applyNightVisionShader(void)
 void LLPostProcess::createNightVisionShader(void)
 {
 	/// Define uniform names
-	nightVisionUniforms["RenderTexture"] = 0;
-	nightVisionUniforms["NoiseTexture"] = 0;
-	nightVisionUniforms["brightMult"] = 0;	
-	nightVisionUniforms["noiseStrength"] = 0;
-	nightVisionUniforms["lumWeights"] = 0;	
+	nightVisionUniforms[sRenderTexture] = 0;
+	nightVisionUniforms[sNoiseTexture] = 0;
+	nightVisionUniforms[sBrightMult] = 0;	
+	nightVisionUniforms[sNoiseStrength] = 0;
+	nightVisionUniforms[sLumWeights] = 0;	
 
 	createNoiseTexture(mNoiseTexture);
 }
@@ -326,25 +341,25 @@ void LLPostProcess::createBloomShader(void)
 	createTexture(mTempBloomTexture, unsigned(screenW * 0.5), unsigned(screenH * 0.5));
 
 	/// Create Bloom Extract Shader
-	bloomExtractUniforms["RenderTexture"] = 0;
-	bloomExtractUniforms["extractLow"] = 0;
-	bloomExtractUniforms["extractHigh"] = 0;	
-	bloomExtractUniforms["lumWeights"] = 0;	
+	bloomExtractUniforms[sRenderTexture] = 0;
+	bloomExtractUniforms[sExtractLow] = 0;
+	bloomExtractUniforms[sExtractHigh] = 0;	
+	bloomExtractUniforms[sLumWeights] = 0;	
 	
 	/// Create Bloom Blur Shader
-	bloomBlurUniforms["RenderTexture"] = 0;
-	bloomBlurUniforms["bloomStrength"] = 0;	
-	bloomBlurUniforms["texelSize"] = 0;
-	bloomBlurUniforms["blurDirection"] = 0;
-	bloomBlurUniforms["blurWidth"] = 0;
+	bloomBlurUniforms[sRenderTexture] = 0;
+	bloomBlurUniforms[sBloomStrength] = 0;	
+	bloomBlurUniforms[sTexelSize] = 0;
+	bloomBlurUniforms[sBlurDirection] = 0;
+	bloomBlurUniforms[sBlurWidth] = 0;
 }
 
 void LLPostProcess::getShaderUniforms(glslUniforms & uniforms, GLhandleARB & prog)
 {
 	/// Find uniform locations and insert into map	
-	std::map<const char *, GLuint>::iterator i;
+	glslUniforms::iterator i;
 	for (i  = uniforms.begin(); i != uniforms.end(); ++i){
-		i->second = glGetUniformLocationARB(prog, i->first);
+		i->second = glGetUniformLocationARB(prog, i->first.String().c_str());
 	}
 }
 

@@ -715,9 +715,9 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 
 					mMipLevels = wpo2(llmax(w, h));
 
-					//use legacy mipmap generation mode
+					//use legacy mipmap generation mode (note: making this condional can cause rendering issues)
 					glTexParameteri(mTarget, GL_GENERATE_MIPMAP, GL_TRUE);
-					
+
 					LLImageGL::setManualImage(mTarget, 0, mFormatInternal,
 								 w, h, 
 								 mFormatPrimary, mFormatType,
@@ -732,6 +732,12 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 						glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
 						stop_glerror();
 					}
+
+					if (LLRender::sGLCoreProfile)
+					{
+						glGenerateMipmap(mTarget);
+					}	
+					stop_glerror();
 				}
 			}
 			else
@@ -1071,6 +1077,16 @@ void LLImageGL::generateTextures(LLTexUnit::eTextureType type, U32 format, S32 n
 	LLFastTimer t(FTM_GENERATE_TEXTURES);
 	bool empty = true;
 
+	if (LLRender::sGLCoreProfile)
+	{
+		switch (format)
+		{
+			case GL_LUMINANCE8: format = GL_RGB8; break;
+			case GL_LUMINANCE8_ALPHA8:
+			case GL_ALPHA8: format = GL_RGBA8; break;
+		}
+	}
+
 	dead_texturelist_t::iterator iter = sDeadTextureList[type].find(format);
 	
 	if (iter != sDeadTextureList[type].end())
@@ -1098,27 +1114,46 @@ void LLImageGL::deleteTextures(LLTexUnit::eTextureType type, U32 format, S32 mip
 {
 	if (gGLManager.mInited)
 	{
-		if (format == 0 ||  type == LLTexUnit::TT_CUBE_MAP || mip_levels == -1)
-		{ //unknown internal format or unknown number of mip levels, not safe to reuse
-			glDeleteTextures(numTextures, textures);
-		}
-		else
+		switch (format)
 		{
-			for (S32 i = 0; i < numTextures; ++i)
-			{ //remove texture from VRAM by setting its size to zero
-				for (S32 j = 0; j <= mip_levels; j++)
-				{
-					gGL.getTexUnit(0)->bindManual(type, textures[i]);
+			case 0:
 
-					glTexImage2D(LLTexUnit::getInternalType(type), j, format, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+			// We get ARB errors in debug when attempting to use glTexImage2D with these deprecated pix formats
+			//
+			case GL_LUMINANCE8:
+			case GL_INTENSITY8:
+			case GL_ALPHA8:
+				glDeleteTextures(numTextures, textures);
+			break;
+
+			default:
+			{
+				if (type == LLTexUnit::TT_CUBE_MAP || mip_levels == -1)
+				{ //unknown internal format or unknown number of mip levels, not safe to reuse
+					glDeleteTextures(numTextures, textures);
 				}
+				else
+				{
+					for (S32 i = 0; i < numTextures; ++i)
+					{ //remove texture from VRAM by setting its size to zero
 
-				llassert(std::find(sDeadTextureList[type][format].begin(),
-								   sDeadTextureList[type][format].end(), textures[i]) == 
-								   sDeadTextureList[type][format].end());
+						for (S32 j = 0; j <= mip_levels; j++)
+						{
+							gGL.getTexUnit(0)->bindManual(type, textures[i]);
+							U32 internal_type = LLTexUnit::getInternalType(type);
+							glTexImage2D(internal_type, j, format, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+							stop_glerror();
+						}
 
-				sDeadTextureList[type][format].push_back(textures[i]);
-			}	
+						llassert(std::find(sDeadTextureList[type][format].begin(),
+							sDeadTextureList[type][format].end(), textures[i]) == 
+							sDeadTextureList[type][format].end());
+
+						sDeadTextureList[type][format].push_back(textures[i]);
+					}	
+				}				
+			}
+			break;
 		}
 	}
 	

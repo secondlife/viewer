@@ -37,6 +37,7 @@ class LLSD;
 class LLConsole : public LLFixedBuffer, public LLUICtrl, public LLInstanceTracker<LLConsole>
 {
 public:
+
 	typedef enum e_font_size
 	{
 		MONOSPACE = -1,

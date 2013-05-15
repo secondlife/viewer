@@ -1912,10 +1912,10 @@ bool LLTextureCache::writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 dis
 		h >>= i;
 		if(w * h *c > 0) //valid
 		{
-			LLPointer<LLImageRaw> newraw = new LLImageRaw(raw->getData(), raw->getWidth(), raw->getHeight(), raw->getComponents());
-			newraw->scale(w, h) ;
-			raw = newraw;
-
+			//make a duplicate to keep the original raw image untouched.
+			raw = raw->duplicate();
+			raw->scale(w, h) ;
+			
 			discardlevel += i ;
 		}
 	}

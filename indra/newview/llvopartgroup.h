@@ -42,8 +42,7 @@ public:
 
 	//vertex buffer for holding all particles
 	static LLPointer<LLVertexBuffer> sVB;
-	static S32 sVBSlotFree[LL_MAX_PARTICLE_COUNT];
-	static S32* sVBSlotCursor;
+	static S32 sVBSlotCursor;
 
 	static void initClass();
 	static void restoreGL();
@@ -57,6 +56,7 @@ public:
 							LLVertexBuffer::MAP_NORMAL |
 							LLVertexBuffer::MAP_TEXCOORD0 |
 							LLVertexBuffer::MAP_COLOR |
+							LLVertexBuffer::MAP_EMISSIVE |
 							LLVertexBuffer::MAP_TEXTURE_INDEX
 	};
 
@@ -69,20 +69,37 @@ public:
 	virtual void updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);
 	virtual U32 getPartitionType() const;
 	
+	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+										  S32 face,
+										  BOOL pick_transparent,
+										  S32* face_hit,
+										  LLVector3* intersection,
+										  LLVector2* tex_coord,
+										  LLVector3* normal,
+										  LLVector3* bi_normal);
+
 	/*virtual*/ void setPixelAreaAndAngle(LLAgent &agent);
 	/*virtual*/ void updateTextures();
 
 	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
 	/*virtual*/ BOOL        updateGeometry(LLDrawable *drawable);
+	void		getGeometry(const LLViewerPart& part,							
+								LLStrider<LLVector4a>& verticesp);
+				
 				void		getGeometry(S32 idx,
 								LLStrider<LLVector4a>& verticesp,
 								LLStrider<LLVector3>& normalsp, 
 								LLStrider<LLVector2>& texcoordsp,
 								LLStrider<LLColor4U>& colorsp, 
+								LLStrider<LLColor4U>& emissivep,
 								LLStrider<U16>& indicesp);
 
 	void updateFaceSize(S32 idx) { }
 	F32 getPartSize(S32 idx);
+	void getBlendFunc(S32 idx, U32& src, U32& dst);
+	LLUUID getPartOwner(S32 idx);
+	LLUUID getPartSource(S32 idx);
+
 	void setViewerPartGroup(LLViewerPartGroup *part_groupp)		{ mViewerPartGroupp = part_groupp; }
 	LLViewerPartGroup* getViewerPartGroup()	{ return mViewerPartGroupp; }
 

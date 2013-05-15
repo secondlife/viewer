@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -103,7 +103,7 @@ void HttpStatusTestObjectType::test<2>()
 template <> template <>
 void HttpStatusTestObjectType::test<3>()
 {
-	set_test_name("HttpStatus valid error string conversion");
+	set_test_name("HttpStatus valid status string conversion");
 	
 	HttpStatus status;
 	status.mType = HttpStatus::EXT_CURL_EASY;
@@ -135,7 +135,7 @@ void HttpStatusTestObjectType::test<3>()
 template <> template <>
 void HttpStatusTestObjectType::test<4>()
 {
-	set_test_name("HttpStatus invalid error string conversion");
+	set_test_name("HttpStatus invalid status string conversion");
 	
 	HttpStatus status;
 	status.mType = HttpStatus::EXT_CURL_EASY;
@@ -227,7 +227,7 @@ void HttpStatusTestObjectType::test<6>()
 template <> template <>
 void HttpStatusTestObjectType::test<7>()
 {
-	set_test_name("HttpStatus HTTP error text strings");
+	set_test_name("HttpStatus HTTP status text strings");
 
 	HttpStatus status(100, HE_REPLY_ERROR);
 	std::string msg(status.toString());

@@ -163,7 +163,7 @@ size_t LLCamera::readFrustumFromBuffer(const char *buffer)
 
 S32 LLCamera::AABBInFrustum(const LLVector4a &center, const LLVector4a& radius) 
 {
-	static const LLVector4a scaler[] = {
+	const LLVector4a scaler[] = {
 		LLVector4a(-1,-1,-1),
 		LLVector4a( 1,-1,-1),
 		LLVector4a(-1, 1,-1),
@@ -207,7 +207,7 @@ S32 LLCamera::AABBInFrustum(const LLVector4a &center, const LLVector4a& radius)
 
 S32 LLCamera::AABBInFrustumNoFarClip(const LLVector4a& center, const LLVector4a& radius) 
 {
-	static const LLVector4a scaler[] = {
+	const LLVector4a scaler[] = {
 		LLVector4a(-1,-1,-1),
 		LLVector4a( 1,-1,-1),
 		LLVector4a(-1, 1,-1),

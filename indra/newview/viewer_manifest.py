@@ -160,14 +160,6 @@ class ViewerManifest(LLManifest):
             if not self.path2basename(os.path.join(os.pardir, os.pardir), "summary.json"):
                 print "No summary.json file"
 
-    def login_channel(self):
-        """Channel reported for login and upgrade purposes ONLY;
-        used for A/B testing"""
-        # NOTE: Do not return the normal channel if login_channel
-        # is not specified, as some code may branch depending on
-        # whether or not this is present
-        return self.args.get('login_channel')
-
     def grid(self):
         return self.args['grid']
     def channel(self):
@@ -179,16 +171,24 @@ class ViewerManifest(LLManifest):
     def channel_lowerword(self):
         return self.channel_oneword().lower()
 
+    def app_name(self):
+        app_suffix='Test'
+        channel_type=self.channel_lowerword()
+        if channel_type == 'release' :
+            app_suffix='Viewer'
+        elif re.match('^(beta|project).*',channel_type) :
+            app_suffix=self.channel_unique()
+        return "Second Life "+app_suffix
+        
     def icon_path(self):
         icon_path="icons/"
         channel_type=self.channel_lowerword()
-        if channel_type == 'release' \
-        or channel_type == 'development' \
-        :
+        print "Icon channel type '%s'" % channel_type
+        if channel_type == 'release' :
             icon_path += channel_type
-        elif channel_type == 'betaviewer' :
+        elif re.match('^beta.*',channel_type) :
             icon_path += 'beta'
-        elif re.match('project.*',channel_type) :
+        elif re.match('^project.*',channel_type) :
             icon_path += 'project'
         else :
             icon_path += 'test'
@@ -205,14 +205,6 @@ class ViewerManifest(LLManifest):
                          "--helperuri http://preview-%(grid)s.secondlife.com/helpers/" %\
                            {'grid':self.grid()}
 
-        # set command line flags for channel
-        channel_flags = ''
-        if self.login_channel() and self.login_channel() != self.channel():
-            # Report a special channel during login, but use default
-            channel_flags = '--channel "%s"' % (self.login_channel())
-        elif not self.default_channel():
-            channel_flags = '--channel "%s"' % self.channel()
-
         # Deal with settings 
         setting_flags = ''
         if not self.default_channel() or not self.default_grid():
@@ -223,7 +215,7 @@ class ViewerManifest(LLManifest):
                 setting_flags = '--settings settings_%s_%s.xml'\
                                 % (self.grid(), self.channel_lowerword())
                                                 
-        return " ".join((channel_flags, grid_flags, setting_flags)).strip()
+        return " ".join((grid_flags, setting_flags)).strip()
 
     def extract_names(self,src):
         try:
@@ -250,13 +242,13 @@ class ViewerManifest(LLManifest):
 
 class WindowsManifest(ViewerManifest):
     def final_exe(self):
-        if self.default_channel():
-            if self.default_grid():
-                return "SecondLife.exe"
-            else:
-                return "SecondLifePreview.exe"
-        else:
-            return ''.join(self.channel().split()) + '.exe'
+        app_suffix="Test"
+        channel_type=self.channel_lowerword()
+        if channel_type == 'release' :
+            app_suffix=''
+        elif re.match('^(beta|project).*',channel_type) :
+            app_suffix=''.join(self.channel_unique().split())
+        return "SecondLife"+app_suffix+".exe"
 
     def test_msvcrt_and_copy_action(self, src, dst):
         # This is used to test a dll manifest.
@@ -304,25 +296,8 @@ class WindowsManifest(ViewerManifest):
         else:
             print "Doesn't exist:", src
         
-    ### DISABLED MANIFEST CHECKING for vs2010.  we may need to reenable this
-    # shortly.  If this hasn't been reenabled by the 2.9 viewer release then it
-    # should be deleted -brad
-    #def enable_crt_manifest_check(self):
-    #    if self.is_packaging_viewer():
-    #       WindowsManifest.copy_action = WindowsManifest.test_msvcrt_and_copy_action
-
-    #def enable_no_crt_manifest_check(self):
-    #    if self.is_packaging_viewer():
-    #        WindowsManifest.copy_action = WindowsManifest.test_for_no_msvcrt_manifest_and_copy_action
-
-    #def disable_manifest_check(self):
-    #    if self.is_packaging_viewer():
-    #        del WindowsManifest.copy_action
-
     def construct(self):
         super(WindowsManifest, self).construct()
-
-        #self.enable_crt_manifest_check()
 
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
@@ -333,15 +308,11 @@ class WindowsManifest(ViewerManifest):
                                         'llplugin', 'slplugin', self.args['configuration']),
                            "slplugin.exe")
         
-        #self.disable_manifest_check()
-
         self.path2basename("../viewer_components/updater/scripts/windows", "update_install.bat")
         # Get shared libs from the shared libs staging directory
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
 
-            #self.enable_crt_manifest_check()
-            
             # Get llcommon and deps. If missing assume static linkage and continue.
             try:
                 self.path('llcommon.dll')
@@ -352,8 +323,6 @@ class WindowsManifest(ViewerManifest):
             except RuntimeError, err:
                 print err.message
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
-
-            #self.disable_manifest_check()
 
             # Mesh 3rd party libs needed for auto LOD and collada reading
             try:
@@ -367,10 +336,14 @@ class WindowsManifest(ViewerManifest):
                 print err.message
                 print "Skipping COLLADA and GLOD libraries (assumming linked statically)"
 
-
-            # Get fmod dll, continue if missing
-            if not self.path("fmod.dll"):
-                print "Skipping fmod.dll"
+            # Get fmodex dll, continue if missing
+            try:
+                if self.args['configuration'].lower() == 'debug':
+                    self.path("fmodexL.dll")
+                else:
+                    self.path("fmodex.dll")
+            except:
+                print "Skipping fmodex audio library(assuming other audio engine)"
 
             # For textures
             if self.args['configuration'].lower() == 'debug':
@@ -417,8 +390,6 @@ class WindowsManifest(ViewerManifest):
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
         self.path("featuretable_xp.txt")
-
-        #self.enable_no_crt_manifest_check()
 
         # Media plugins - QuickTime
         if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
@@ -499,15 +470,10 @@ class WindowsManifest(ViewerManifest):
 
                 self.end_prefix()
 
-        #self.disable_manifest_check()
-
         # pull in the crash logger and updater from other projects
         # tag:"crash-logger" here as a cue to the exporter
         self.path(src='../win_crash_logger/%s/windows-crash-logger.exe' % self.args['configuration'],
                   dst="win_crash_logger.exe")
-# For CHOP-397, windows updater no longer used.
-#        self.path(src='../win_updater/%s/windows-updater.exe' % self.args['configuration'],
-#                  dst="updater.exe")
 
         if not self.is_packaging_viewer():
             self.package_file = "copied_deps"    
@@ -570,6 +536,7 @@ class WindowsManifest(ViewerManifest):
             'channel':self.channel(),
             'channel_oneword':self.channel_oneword(),
             'channel_unique':self.channel_unique(),
+            'subchannel_underscores':'_'.join(self.channel_unique().split())
             }
 
         version_vars = """
@@ -591,7 +558,7 @@ class WindowsManifest(ViewerManifest):
                 Caption "Second Life"
                 """
             else:
-                # beta grid viewer
+                # alternate grid viewer
                 installer_file = "Second_Life_%(version_dashes)s_(%(grid_caps)s)_Setup.exe"
                 grid_vars_template = """
                 OutFile "%(installer_file)s"
@@ -603,8 +570,8 @@ class WindowsManifest(ViewerManifest):
                 Caption "Second Life %(grid)s ${VERSION}"
                 """
         else:
-            # some other channel on some grid
-            installer_file = "Second_Life_%(version_dashes)s_%(channel_oneword)s_Setup.exe"
+            # some other channel (grid name not used)
+            installer_file = "Second_Life_%(version_dashes)s_%(subchannel_underscores)s_Setup.exe"
             grid_vars_template = """
             OutFile "%(installer_file)s"
             !define INSTFLAGS "%(flags)s"
@@ -666,13 +633,15 @@ class DarwinManifest(ViewerManifest):
         self.path(self.args['configuration'] + "/Second Life.app", dst="")
 
         if self.prefix(src="", dst="Contents"):  # everything goes in Contents
-            self.path("Info-SecondLife.plist", dst="Info.plist")
+            self.path("Info.plist", dst="Info.plist")
 
             # copy additional libs in <bundle>/Contents/MacOS/
             self.path("../packages/lib/release/libndofdev.dylib", dst="Resources/libndofdev.dylib")
             self.path("../packages/lib/release/libhunspell-1.3.0.dylib", dst="Resources/libhunspell-1.3.0.dylib")
 
-            self.path("../viewer_components/updater/scripts/darwin/update_install", "MacOS/update_install")
+            if self.prefix(dst="MacOS"):
+                self.path2basename("../viewer_components/updater/scripts/darwin", "*.py")
+                self.end_prefix()
 
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
@@ -694,7 +663,11 @@ class DarwinManifest(ViewerManifest):
                 self.path("SecondLife.nib")
                 
                 # Translations
-                self.path("English.lproj")
+                self.path("English.lproj/language.txt")
+                self.replace_in(src="English.lproj/InfoPlist.strings",
+                                dst="English.lproj/InfoPlist.strings",
+                                searchdict={'%%VERSION%%':'.'.join(self.args['version'])}
+                                )
                 self.path("German.lproj")
                 self.path("Japanese.lproj")
                 self.path("Korean.lproj")
@@ -743,6 +716,7 @@ class DarwinManifest(ViewerManifest):
                                 "libcollada14dom.dylib",
                                 "libexpat.1.5.2.dylib",
                                 "libexception_handler.dylib",
+                                "libfmodex.dylib",
                                 "libGLOD.dylib",
                                 ):
                     dylibs += path_optional(os.path.join(libdir, libfile), libfile)
@@ -757,14 +731,9 @@ class DarwinManifest(ViewerManifest):
                                 'SLVoice',
                                 ):
                      self.path2basename(libdir, libfile)
-                
-                # FMOD for sound
-                libfile = "libfmodwrapper.dylib"
-                path_optional(os.path.join(self.args['configuration'], libfile), libfile)
-                
+
                 # our apps
                 for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
-                                         ("mac_updater", "mac-updater.app"),
                                          # plugin launcher
                                          (os.path.join("llplugin", "slplugin"), "SLPlugin.app"),
                                          ):
@@ -810,7 +779,7 @@ class DarwinManifest(ViewerManifest):
     def copy_finish(self):
         # Force executable permissions to be set for scripts
         # see CHOP-223 and http://mercurial.selenic.com/bts/issue1802
-        for script in 'Contents/MacOS/update_install',:
+        for script in 'Contents/MacOS/update_install.py',:
             self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
@@ -879,10 +848,7 @@ class DarwinManifest(ViewerManifest):
 
             # Copy everything in to the mounted .dmg
 
-            if self.default_channel() and not self.default_grid():
-                app_name = "Second Life " + self.args['grid']
-            else:
-                app_name = channel_standin.strip()
+            app_name = self.app_name()
 
             # Hack:
             # Because there is no easy way to coerce the Finder into positioning
@@ -1067,12 +1033,13 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libaprutil-1.so")
             self.path("libaprutil-1.so.0")
             self.path("libaprutil-1.so.0.4.1")
+            self.path("libboost_context-mt.so.*")
+            self.path("libboost_filesystem-mt.so.*")
             self.path("libboost_program_options-mt.so.*")
             self.path("libboost_regex-mt.so.*")
-            self.path("libboost_thread-mt.so.*")
-            self.path("libboost_filesystem-mt.so.*")
             self.path("libboost_signals-mt.so.*")
             self.path("libboost_system-mt.so.*")
+            self.path("libboost_thread-mt.so.*")
             self.path("libbreakpad_client.so.0.0.0")
             self.path("libbreakpad_client.so.0")
             self.path("libbreakpad_client.so")
@@ -1122,11 +1089,13 @@ class Linux_i686Manifest(LinuxManifest):
                 pass
 
             try:
-                    self.path("libfmod-3.75.so")
+                    self.path("libfmodex-*.so")
+                    self.path("libfmodex.so")
                     pass
             except:
-                    print "Skipping libfmod-3.75.so - not found"
+                    print "Skipping libfmodex.so - not found"
                     pass
+
             self.end_prefix("lib")
 
             # Vivox runtimes

@@ -558,15 +558,17 @@ void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image)
 	llassert_always(mInitialized) ;
 	llassert(image);
 	if (image->isInImageList())
-	{
-		llerrs << "LLViewerTextureList::addImageToList - Image already in list" << llendl;
+	{	// Flag is already set?
+		llwarns << "LLViewerTextureList::addImageToList - image " << image->getID()  << " already in list" << llendl;
 	}
-	if((mImageList.insert(image)).second != true) 
+	else
 	{
-		llerrs << "Error happens when insert image to mImageList!" << llendl ;
+		if((mImageList.insert(image)).second != true) 
+		{
+			llwarns << "Error happens when insert image " << image->getID()  << " into mImageList!" << llendl ;
+		}
+		image->setInImageList(TRUE) ;
 	}
-	
-	image->setInImageList(TRUE) ;
 }
 
 void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
@@ -574,24 +576,46 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 	assert_main_thread();
 	llassert_always(mInitialized) ;
 	llassert(image);
-	if (!image->isInImageList())
+
+	S32 count = 0;
+	if (image->isInImageList())
 	{
-		llinfos << "RefCount: " << image->getNumRefs() << llendl ;
-		uuid_map_t::iterator iter = mUUIDMap.find(image->getID());
-		if(iter == mUUIDMap.end() || iter->second != image)
+		count = mImageList.erase(image) ;
+		if(count != 1) 
 		{
-			llinfos << "Image is not in mUUIDMap!" << llendl ;
+			llwarns << "Image  " << image->getID() 
+				<< " had mInImageList set but mImageList.erase() returned " << count
+				<< llendl;
 		}
-		llerrs << "LLViewerTextureList::removeImageFromList - Image not in list" << llendl;
+	}
+	else
+	{	// Something is wrong, image is expected in list or callers should check first
+		llwarns << "Calling removeImageFromList() for " << image->getID() 
+			<< " but doesn't have mInImageList set"
+			<< " ref count is " << image->getNumRefs()
+			<< llendl;
+		uuid_map_t::iterator iter = mUUIDMap.find(image->getID());
+		if(iter == mUUIDMap.end())
+		{
+			llwarns << "Image  " << image->getID() << " is also not in mUUIDMap!" << llendl ;
+		}
+		else if (iter->second != image)
+		{
+			llwarns << "Image  " << image->getID() << " was in mUUIDMap but with different pointer" << llendl ;
+		}
+		else
+		{
+			llwarns << "Image  " << image->getID() << " was in mUUIDMap with same pointer" << llendl ;
+		}
+		count = mImageList.erase(image) ;
+		if(count != 0) 
+		{	// it was in the list already?
+			llwarns << "Image  " << image->getID() 
+				<< " had mInImageList false but mImageList.erase() returned " << count
+				<< llendl;
+		}
 	}
 
-	S32 count = mImageList.erase(image) ;
-	if(count != 1) 
-	{
-		llinfos << image->getID() << llendl ;
-		llerrs << "Error happens when remove image from mImageList: " << count << llendl ;
-	}
-      
 	image->setInImageList(FALSE) ;
 }
 
@@ -1234,7 +1258,7 @@ S32 LLViewerTextureList::getMinVideoRamSetting()
 
 //static
 // Returns max setting for TextureMemory (in MB)
-S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended)
+S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, float mem_multiplier)
 {
 	S32 max_texmem;
 	if (gGLManager.mVRAM != 0)
@@ -1278,7 +1302,10 @@ S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended)
 		max_texmem = llmin(max_texmem, (S32)(system_ram/2));
 	else
 		max_texmem = llmin(max_texmem, (S32)(system_ram));
-		
+    
+    // limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
+	max_texmem = llmin(max_texmem, (S32) (mem_multiplier * (F32) max_texmem));
+
 	max_texmem = llclamp(max_texmem, getMinVideoRamSetting(), MAX_VIDEO_RAM_IN_MEGA_BYTES); 
 	
 	return max_texmem;
@@ -1291,7 +1318,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 	// Initialize the image pipeline VRAM settings
 	S32 cur_mem = gSavedSettings.getS32("TextureMemory");
 	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
-	S32 default_mem = getMaxVideoRamSetting(true); // recommended default
+	S32 default_mem = getMaxVideoRamSetting(true, mem_multiplier); // recommended default
 	if (mem == 0)
 	{
 		mem = cur_mem > 0 ? cur_mem : default_mem;
@@ -1301,10 +1328,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 		mem = default_mem;
 	}
 
-	// limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
-	mem = llmin(mem, (S32) (mem_multiplier * (F32) default_mem));
-
-	mem = llclamp(mem, getMinVideoRamSetting(), getMaxVideoRamSetting());
+	mem = llclamp(mem, getMinVideoRamSetting(), getMaxVideoRamSetting(false, mem_multiplier));
 	if (mem != cur_mem)
 	{
 		gSavedSettings.setS32("TextureMemory", mem);

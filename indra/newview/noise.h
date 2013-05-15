@@ -310,6 +310,8 @@ static void normalize3(F32 v[3])
 
 static void init(void)
 {
+	// we want repeatable noise (e.g. for stable terrain texturing), so seed with known value
+	srand(42);
 	int i, j, k;
 
 	for (i = 0 ; i < B ; i++) {
@@ -340,6 +342,9 @@ static void init(void)
 		for (j = 0 ; j < 3 ; j++)
 			g3[B + i][j] = g3[i][j];
 	}
+
+	// reintroduce entropy
+	srand(time(NULL));		// Flawfinder: ignore
 }
 
 #undef B
