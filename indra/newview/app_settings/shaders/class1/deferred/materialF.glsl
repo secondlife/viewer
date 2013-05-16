@@ -625,13 +625,13 @@ void main()
 
  #define LIGHT_LOOP(i) col.rgb = col.rgb + calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare);
 
-		/*LIGHT_LOOP(1)
+		LIGHT_LOOP(1)
 		LIGHT_LOOP(2)
 		LIGHT_LOOP(3)
 		LIGHT_LOOP(4)
 		LIGHT_LOOP(5)
 		LIGHT_LOOP(6)
-		LIGHT_LOOP(7)*/
+		LIGHT_LOOP(7)
 
 	frag_color.rgb = col.rgb;
 	glare = min(glare, 1.0);
