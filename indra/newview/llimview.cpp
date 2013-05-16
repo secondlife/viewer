@@ -315,7 +315,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 	// 4. Toast
 	if ((("toast" == user_preferences) &&
 		(ON_TOP_AND_ITEM_IS_SELECTED != conversations_floater_status) &&
-		(!session_floater->isTornOff()))
+		(!session_floater->isTornOff() || !LLFloater::isVisible(session_floater)))
 		|| !session_floater->isMessagePaneExpanded())
 
 	{
