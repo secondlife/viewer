@@ -1475,6 +1475,7 @@ void LLFloater::moveResizeHandlesToFront()
 	}
 }
 
+/*virtual*/
 BOOL LLFloater::isFrontmost()
 {
 	LLFloaterView* floater_view = getParentByType<LLFloaterView>();

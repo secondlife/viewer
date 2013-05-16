@@ -2067,6 +2067,15 @@ void LLFloaterIMContainer::expandConversation()
 	}
 }
 
+// By default, if torn off session is currently frontmost, LLFloater::isFrontmost() will return FALSE, which can lead to some bugs
+// So LLFloater::isFrontmost() is overriden here to check both selected session and the IM floater itself
+/*virtual*/
+BOOL LLFloaterIMContainer::isFrontmost()
+{
+	LLFloaterIMSessionTab* selected_session = LLFloaterIMSessionTab::getConversation(mSelectedSession);
+	return (selected_session && selected_session->isFrontmost()) || LLFloater::isFrontmost();
+}
+
 // For conversations, closeFloater() (linked to Ctrl-W) does not actually close the floater but the active conversation.
 // This is intentional so it doesn't confuse the user. onClickCloseBtn() closes the whole floater.
 void LLFloaterIMContainer::onClickCloseBtn()

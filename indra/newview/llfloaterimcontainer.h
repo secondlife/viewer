@@ -118,6 +118,7 @@ public:
 	void assignResizeLimits();
 	virtual BOOL handleKeyHere(KEY key, MASK mask );
 	/*virtual*/ void closeFloater(bool app_quitting = false);
+	/*virtual*/ BOOL isFrontmost();
 
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
