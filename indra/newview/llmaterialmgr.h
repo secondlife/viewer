@@ -44,9 +44,11 @@ public:
 	typedef std::map<LLMaterialID, LLMaterialPtr> material_map_t;
 
 	typedef boost::signals2::signal<void (const LLMaterialID&, const LLMaterialPtr)> get_callback_t;
+	typedef boost::signals2::signal<void (const LLMaterialID&, const LLMaterialPtr, U32 te)> get_callback_te_t;
 
 	const LLMaterialPtr         get(const LLUUID& region_id, const LLMaterialID& material_id);
 	boost::signals2::connection get(const LLUUID& region_id, const LLMaterialID& material_id, get_callback_t::slot_type cb);
+	boost::signals2::connection getTE(const LLUUID& region_id, const LLMaterialID& material_id, U32 te, get_callback_te_t::slot_type cb);
 
 	typedef boost::signals2::signal<void (const LLUUID&, const material_map_t&)> getall_callback_t;
 	void                        getAll(const LLUUID& region_id);
@@ -79,6 +81,26 @@ protected:
 	get_pending_map_t  mGetPending;
 	typedef std::map<LLMaterialID, get_callback_t*> get_callback_map_t;
 	get_callback_map_t mGetCallbacks;
+
+	// struct for TE-specific material ID query
+	struct TEMaterialPair
+	{
+		U32 te;
+		LLMaterialID materialID;
+	};
+
+	// needed for std::map compliance only
+	//
+	friend inline bool operator<(
+		const struct LLMaterialMgr::TEMaterialPair& lhs,
+		const struct LLMaterialMgr::TEMaterialPair& rhs)
+	{
+		return (lhs.materialID < rhs.materialID) ? TRUE :
+		       (lhs.te	< rhs.te) ? TRUE : FALSE;
+	}
+
+	typedef std::map<TEMaterialPair, get_callback_te_t*> get_callback_te_map_t;
+	get_callback_te_map_t mGetTECallbacks;
 
 	typedef std::set<LLUUID> getall_queue_t;
 	getall_queue_t        mGetAllQueue;
