@@ -224,8 +224,6 @@ public:
 	void addActiveCacheEntry(LLVOCacheEntry* entry);
 	void removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* drawablep);	
 	void killCacheEntry(U32 local_id); //physically delete the cache entry	
-	void clearVisibleGroup(LLviewerOctreeGroup* group);
-	bool hasVisibleGroup(LLviewerOctreeGroup* group);
 
 	// Like idleUpdate, but forces everything to complete regardless of
 	// how long it takes.
@@ -396,7 +394,6 @@ public:
 	LLDynamicArray<U32> mMapAvatars;
 	LLDynamicArray<LLUUID> mMapAvatarIDs;
 
-	static LLViewerRegion* sCurRegionp;
 	static BOOL sVOCacheCullingEnabled; //vo cache culling enabled or not.
 private:
 	LLViewerRegionImpl * mImpl;

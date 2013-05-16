@@ -327,11 +327,7 @@ void LLViewerOctreeEntryData::setVisible() const
 
 LLviewerOctreeGroup::~LLviewerOctreeGroup()
 {
-	if(LLViewerRegion::sCurRegionp && isVisible())
-	{
-		LLViewerRegion::sCurRegionp->clearVisibleGroup(this);
-	}
-	llassert(!LLViewerRegion::sCurRegionp || LLViewerRegion::sCurRegionp->hasVisibleGroup(this) == false);
+	//empty here
 }
 
 LLviewerOctreeGroup::LLviewerOctreeGroup(OctreeNode* node) :
