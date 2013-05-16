@@ -166,7 +166,7 @@ void LLGestureMgr::activateGestures(LLViewerInventoryItem::item_array_t& items)
 			continue;
 		}
 		else 
-		{ // Make gesture active and persistent through login sessions.  -spatters 07-12-06
+		{ // Make gesture active and persistent through login sessions.  -Aura 07-12-06
 			activateGesture(item->getUUID());
 		}
 
