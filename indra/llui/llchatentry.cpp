@@ -163,6 +163,18 @@ bool LLChatEntry::useLabel()
     return !getLength() && !mLabel.empty();
 }
 
+void LLChatEntry::onFocusReceived()
+{
+	LLUICtrl::onFocusReceived();
+	updateAllowingLanguageInput();
+}
+
+void LLChatEntry::onFocusLost()
+{
+	LLTextEditor::focusLostHelper();
+	LLUICtrl::onFocusLost();
+}
+
 BOOL LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
 {
 	BOOL handled = FALSE;

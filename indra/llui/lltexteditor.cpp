@@ -1964,8 +1964,7 @@ void LLTextEditor::onFocusReceived()
 	updateAllowingLanguageInput();
 }
 
-// virtual, from LLView
-void LLTextEditor::onFocusLost()
+void LLTextEditor::focusLostHelper()
 {
 	updateAllowingLanguageInput();
 
@@ -1982,7 +1981,11 @@ void LLTextEditor::onFocusLost()
 
 	// Make sure cursor is shown again
 	getWindow()->showCursorFromMouseMove();
+}
 
+void LLTextEditor::onFocusLost()
+{
+	focusLostHelper();
 	LLTextBase::onFocusLost();
 }
 
