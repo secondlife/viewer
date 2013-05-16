@@ -463,6 +463,12 @@ void LLViewerShaderMgr::setShaders()
 		S32 deferred_class = 0;
 		S32 transform_class = gGLManager.mHasTransformFeedback ? 1 : 0;
 
+		static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback");
+		if (!use_transform_feedback)
+		{
+			transform_class = 0;
+		}
+		
 		if (LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
 		    gSavedSettings.getBOOL("RenderDeferred") &&
 			gSavedSettings.getBOOL("RenderAvatarVP") &&

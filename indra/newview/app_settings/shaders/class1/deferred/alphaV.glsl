@@ -184,7 +184,7 @@ void main()
 	
 
 	vary_pointlight_col.rgb = diff;
-	vary_pointlight_col.a = vertex_color.a;
+	vary_pointlight_col.a = col.a;
 
 	col.rgb = vec3(0,0,0);
 
