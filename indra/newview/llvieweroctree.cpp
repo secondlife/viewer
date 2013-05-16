@@ -327,11 +327,7 @@ void LLViewerOctreeEntryData::setVisible() const
 
 LLviewerOctreeGroup::~LLviewerOctreeGroup()
 {
-	if(LLViewerRegion::sCurRegionp && isVisible())
-	{
-		LLViewerRegion::sCurRegionp->clearVisibleGroup(this);
-	}
-	llassert(!LLViewerRegion::sCurRegionp || LLViewerRegion::sCurRegionp->hasVisibleGroup(this) == false);
+	//empty here
 }
 
 LLviewerOctreeGroup::LLviewerOctreeGroup(OctreeNode* node) :
@@ -525,7 +521,7 @@ void LLviewerOctreeGroup::handleChildAddition(const OctreeNode* parent, OctreeNo
 	}
 	else
 	{
-		OCT_ERRS << "LLSpatialGroup redundancy detected." << llendl;
+		OCT_ERRS << "LLviewerOctreeGroup redundancy detected." << llendl;
 	}
 
 	unbound();

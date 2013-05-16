@@ -86,7 +86,6 @@ const F32 CAP_REQUEST_TIMEOUT = 18;
 // Even though we gave up on login, keep trying for caps after we are logged in:
 const S32 MAX_CAP_REQUEST_ATTEMPTS = 30;
 
-LLViewerRegion* LLViewerRegion::sCurRegionp = NULL;
 BOOL LLViewerRegion::sVOCacheCullingEnabled = FALSE;
 
 typedef std::map<std::string, std::string> CapabilityMap;
@@ -143,7 +142,7 @@ public:
 	LLVOCacheEntry::vocache_entry_map_t	  mCacheMap; //all cached entries
 	LLVOCacheEntry::vocache_entry_set_t   mActiveSet; //all active entries;
 	LLVOCacheEntry::vocache_entry_set_t   mWaitingSet; //entries waiting for LLDrawable to be generated.	
-	std::set< LLviewerOctreeGroup* >      mVisibleGroups; //visible groupa
+	std::set< LLPointer<LLviewerOctreeGroup> >      mVisibleGroups; //visible groupa
 	LLVOCachePartition*                   mVOCachePartition;
 	LLVOCacheEntry::vocache_entry_set_t   mVisibleEntries; //must-be-created visible entries wait for objects creation.	
 	LLVOCacheEntry::vocache_entry_priority_list_t mWaitingList; //transient list storing sorted visible entries waiting for object creation.
@@ -943,23 +942,6 @@ void LLViewerRegion::addVisibleCacheEntry(LLVOCacheEntry* entry)
 	mImpl->mVisibleEntries.insert(entry);
 }
 
-bool LLViewerRegion::hasVisibleGroup(LLviewerOctreeGroup* group)
-{
-	return mImpl->mVisibleGroups.find(group) != mImpl->mVisibleGroups.end();
-}
-
-void LLViewerRegion::clearVisibleGroup(LLviewerOctreeGroup* group)
-{
-	if(mDead)
-	{
-		return;
-	}
-
-	llassert(!group->getOctreeNode() || group->isEmpty());
-
-	mImpl->mVisibleGroups.erase(group);
-}
-
 F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 {
 	if(mImpl->mVisibleGroups.empty() && mImpl->mVisibleEntries.empty())
@@ -1030,11 +1012,12 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 #endif
 
 	//process visible groups
-	std::set< LLviewerOctreeGroup* >::iterator group_iter = mImpl->mVisibleGroups.begin();
+	std::set< LLPointer<LLviewerOctreeGroup> >::iterator group_iter = mImpl->mVisibleGroups.begin();
 	for(; group_iter != mImpl->mVisibleGroups.end(); ++group_iter)
 	{
-		LLviewerOctreeGroup* group = *group_iter;
-		if(!group->getOctreeNode() || group->isEmpty())
+		LLPointer<LLviewerOctreeGroup> group = *group_iter;
+		if(group->getNumRefs() < 3 || //group to be deleted
+			!group->getOctreeNode() || group->isEmpty()) //group empty
 		{
 			continue;
 		}
@@ -1056,7 +1039,6 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 			}
 		}
 	}
-	mImpl->mVisibleGroups.clear();
 
 	if(needs_update)
 	{
@@ -1119,8 +1101,6 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 		return did_update;
 	}
 
-	sCurRegionp = this;
-
 	//kill invisible objects
 	max_update_time = killInvisibleObjects(max_update_time);	
 	
@@ -1128,9 +1108,7 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 	createVisibleObjects(max_update_time);
 
 	mImpl->mVisibleGroups.clear();
-	mImpl->mWaitingList.clear();
 
-	sCurRegionp = NULL;
 	return did_update;
 }
 
@@ -1141,16 +1119,40 @@ F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 	{
 		return max_time;
 	}
-
-	std::vector<LLDrawable*> delete_list;
-	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mActiveSet.begin();
-		iter != mImpl->mActiveSet.end(); ++iter)
+	if(mImpl->mActiveSet.empty())
 	{
+		return max_time;
+	}
+
+	static LLVOCacheEntry* last_visited_entry = NULL;
+
+	const size_t MAX_UPDATE = 32; 
+	std::vector<LLDrawable*> delete_list;
+	S32 update_counter = llmin(MAX_UPDATE, mImpl->mActiveSet.size());
+	LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mActiveSet.upper_bound(last_visited_entry);	
+	
+	for(; update_counter > 0; --update_counter, ++iter)
+	{	
+		if(iter == mImpl->mActiveSet.end())
+		{
+			iter = mImpl->mActiveSet.begin();
+		}
+
 		if(!(*iter)->isRecentlyVisible())
 		{
 			killObject((*iter), delete_list);
 		}
 	}
+
+	if(iter == mImpl->mActiveSet.end())
+	{
+		last_visited_entry = NULL;
+	}
+	else
+	{
+		last_visited_entry = *iter;
+	}
+
 	for(S32 i = 0; i < delete_list.size(); i++)
 	{
 		gObjectList.killObject(delete_list[i]->getVObj());
