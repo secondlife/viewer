@@ -158,7 +158,6 @@ BOOL	LLPanelFace::postBuild()
 	if(mShinyTextureCtrl)
 	{
 		mShinyTextureCtrl->setDefaultImageAssetID(LLUUID( gSavedSettings.getString( "DefaultObjectSpecularTexture" )));
-		mShinyTextureCtrl->setBlankImageAssetID(LLUUID( gSavedSettings.getString( "DefaultBlankSpecularTexture" )));
 		mShinyTextureCtrl->setCommitCallback( boost::bind(&LLPanelFace::onCommitSpecularTexture, this, _2) );
 		mShinyTextureCtrl->setOnCancelCallback( boost::bind(&LLPanelFace::onCancelSpecularTexture, this, _2) );
 		mShinyTextureCtrl->setOnSelectCallback( boost::bind(&LLPanelFace::onSelectSpecularTexture, this, _2) );
@@ -1220,7 +1219,7 @@ void LLPanelFace::updateUI()
 			{
 				F32 get(LLViewerObject* object, S32 face)
 				{
-					F32 s = 1.f, t = 1.f;
+					F32 s = 0.f, t = 0.f;
 
 					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
 					if (mat)
@@ -1242,7 +1241,7 @@ void LLPanelFace::updateUI()
 			{
 				F32 get(LLViewerObject* object, S32 face)
 				{
-					F32 s = 1.f, t = 1.f;
+					F32 s = 0.f, t = 0.f;
 
 					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
 					if (mat)
@@ -1665,6 +1664,18 @@ void LLPanelFace::updateUI()
 					getChild<LLColorSwatchCtrl>("shinycolorswatch")->set(material->getSpecularLightColor(),TRUE);
 				}
 
+				// Update sel manager as to which channel we're editing so it can reflect the correct overlay UI
+				// NORSPEC-103
+				LLRender::eTexIndex channel_to_edit = (combobox_matmedia->getCurrentIndex() == MATMEDIA_MATERIAL) ? (LLRender::eTexIndex)combobox_mattype->getCurrentIndex() : LLRender::DIFFUSE_MAP;
+
+				if ( ((channel_to_edit == LLRender::NORMAL_MAP) && material->getNormalID().isNull())
+					||((channel_to_edit == LLRender::SPECULAR_MAP) && material->getSpecularID().isNull()))
+				{
+					channel_to_edit = LLRender::DIFFUSE_MAP;
+				}
+
+				LLSelectMgr::getInstance()->setTextureChannel(channel_to_edit);
+
 				// Bumpy (normal)
 				texture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
 				texture_ctrl->setImageAssetID(material->getNormalID());
@@ -1689,7 +1700,10 @@ void LLPanelFace::updateUI()
 				}
 				updateBumpyControls(!material->getNormalID().isNull(), true);
 			}
-
+			else
+			{
+				LLSelectMgr::getInstance()->setTextureChannel(LLRender::DIFFUSE_MAP);
+			}
 		}
 
 		// Set variable values for numeric expressions
@@ -1875,7 +1889,7 @@ void LLPanelFace::updateMaterial()
 		}
 		
 		LL_DEBUGS("Materials") << "Updating material: " << material->asLLSD() << LL_ENDL;
-
+		
 		LLSelectMgr::getInstance()->selectionSetMaterial( material );
 	}
 	else

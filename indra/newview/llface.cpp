@@ -582,7 +582,9 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 		}
 		else
 		{
-			mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
+			// cheaters sometimes prosper...
+			//
+			mVertexBuffer->setBuffer(mVertexBuffer->getTypeMask());
 			mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
 		}
 

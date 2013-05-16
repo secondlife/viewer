@@ -143,6 +143,9 @@ LLGLSLShader		gUnderWaterProgram;
 
 //interface shaders
 LLGLSLShader		gHighlightProgram;
+LLGLSLShader		gHighlightNormalProgram;
+LLGLSLShader		gHighlightSpecularProgram;
+
 LLGLSLShader		gPathfindingProgram;
 LLGLSLShader		gPathfindingNoNormalsProgram;
 
@@ -752,6 +755,8 @@ void LLViewerShaderMgr::unloadShaders()
 	gAvatarEyeballProgram.unload();
 	gAvatarPickProgram.unload();
 	gHighlightProgram.unload();
+	gHighlightNormalProgram.unload();
+	gHighlightSpecularProgram.unload();
 
 	gWLSkyProgram.unload();
 	gWLCloudProgram.unload();
@@ -2701,6 +2706,26 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		gHighlightProgram.mShaderFiles.push_back(make_pair("interface/highlightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gHighlightProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];		
 		success = gHighlightProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gHighlightNormalProgram.mName = "Highlight Normals Shader";
+		gHighlightNormalProgram.mShaderFiles.clear();
+		gHighlightNormalProgram.mShaderFiles.push_back(make_pair("interface/highlightNormV.glsl", GL_VERTEX_SHADER_ARB));
+		gHighlightNormalProgram.mShaderFiles.push_back(make_pair("interface/highlightF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gHighlightNormalProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];		
+		success = gHighlightNormalProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gHighlightSpecularProgram.mName = "Highlight Spec Shader";
+		gHighlightSpecularProgram.mShaderFiles.clear();
+		gHighlightSpecularProgram.mShaderFiles.push_back(make_pair("interface/highlightSpecV.glsl", GL_VERTEX_SHADER_ARB));
+		gHighlightSpecularProgram.mShaderFiles.push_back(make_pair("interface/highlightF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gHighlightSpecularProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];		
+		success = gHighlightSpecularProgram.createShader(NULL, NULL);
 	}
 
 	if (success)

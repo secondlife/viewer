@@ -165,7 +165,6 @@ protected:
 	LLUUID				mImageAssetID; // Currently selected texture
 	LLUIImagePtr		mFallbackImage; // What to show if currently selected texture is null.
 
-	LLUUID				mWhiteImageAssetID;
 	LLUUID				mSpecialCurrentImageAssetID;  // Used when the asset id has no corresponding texture in the user's inventory.
 	LLUUID				mOriginalImageAssetID;
 
@@ -208,8 +207,7 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 :	LLFloater(LLSD()),
 	mOwner( owner ),
 	mImageAssetID( owner->getImageAssetID() ),
-	mFallbackImage( fallback_image ),
-	mWhiteImageAssetID( gSavedSettings.getString( "UIImgWhiteUUID" ) ),
+	mFallbackImage( fallback_image ),	
 	mOriginalImageAssetID(owner->getImageAssetID()),
 	mLabel(label),
 	mTentativeLabel(NULL),
@@ -1056,6 +1054,12 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 	mDefaultImageName(p.default_image_name),
 	mFallbackImage(p.fallback_image)
 {
+
+	// Default of defaults is white image for diff tex
+	//
+	LLUUID whiteImage( gSavedSettings.getString( "UIImgWhiteUUID" ) );
+	setBlankImageAssetID( whiteImage );
+
 	setAllowNoTexture(p.allow_no_texture);
 	setCanApplyImmediately(p.can_apply_immediately);
 	mCommitOnSelection = !p.no_commit_on_selection;

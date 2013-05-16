@@ -394,12 +394,15 @@ public:
 	static void setRenderHighlights(BOOL val);
 	static void toggleRenderHighlights(void* data);
 	static BOOL getRenderHighlights(void* data);
+	static void setRenderHighlightTextureChannel(LLRender::eTexIndex channel); // sets which UV setup to display in highlight overlay
 
 	static void updateRenderBump();
 	static void updateRenderDeferred();
 	static void refreshCachedSettings();
 
 	static void throttleNewMemoryAllocation(BOOL disable);
+
+	
 
 	void addDebugBlip(const LLVector3& position, const LLColor4& color);
 
@@ -846,6 +849,10 @@ protected:
 public:
 	static BOOL				sRenderBeacons;
 	static BOOL				sRenderHighlight;
+
+	// Determines which set of UVs to use in highlight display
+	//
+	static LLRender::eTexIndex sRenderHighlightTextureChannel;
 
 	//debug use
 	static U32              sCurRenderPoolType ;

@@ -96,7 +96,7 @@ protected:
 		const struct LLMaterialMgr::TEMaterialPair& rhs)
 	{
 		return (lhs.materialID < rhs.materialID) ? TRUE :
-				 (lhs.te			  < rhs.te)			  ? TRUE : FALSE;
+		       (lhs.te	< rhs.te) ? TRUE : FALSE;
 	}
 
 	typedef std::map<TEMaterialPair, get_callback_te_t*> get_callback_te_map_t;

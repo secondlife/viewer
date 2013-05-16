@@ -301,6 +301,9 @@ extern LLGLSLShader			gGlowExtractProgram;
 
 //interface shaders
 extern LLGLSLShader			gHighlightProgram;
+extern LLGLSLShader			gHighlightNormalProgram;
+extern LLGLSLShader			gHighlightSpecularProgram;
+
 extern LLGLSLShader			gPathfindingProgram;
 extern LLGLSLShader			gPathfindingNoNormalsProgram;
 
