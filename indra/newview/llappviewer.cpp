@@ -1203,6 +1203,8 @@ LLFastTimer::DeclareTimer FTM_FRAME("Frame", true);
 
 bool LLAppViewer::mainLoop()
 {
+	llinfos << "***********************Entering main_loop***********************" << llendflush;
+
 	mMainloopTimeout = new LLWatchdogTimeout();
 	
 	//-------------------------------------------
@@ -1539,7 +1541,7 @@ bool LLAppViewer::mainLoop()
 
 	destroyMainloopTimeout();
 
-	llinfos << "Exiting main_loop" << llendflush;
+	llinfos << "***********************Exiting main_loop***********************" << llendflush;
 
 	return true;
 }
@@ -1568,11 +1570,9 @@ bool LLAppViewer::cleanup()
 	LLEventPumps::instance().reset();
 
 	//dump scene loading monitor results
-	if(LLSceneMonitor::getInstance()->hasResults())
+	if(LLSceneMonitor::instance().hasResults())
 	{
-		std::string file_name = "scene_monitor_results.csv";
-		LLSceneMonitor::getInstance()->dumpToFile(
-			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, file_name));
+		LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
 	}
 
 	if (LLFastTimerView::sAnalyzePerformance)
@@ -4257,6 +4257,7 @@ void LLAppViewer::idle()
 	{
 		if (gRenderStartTime.getElapsedTimeF32() > qas)
 		{
+			llinfos << "Quitting after " << qas << " seconds. See setting \"QuitAfterSeconds\"." << llendl;
 			LLAppViewer::instance()->forceQuit();
 		}
 	}

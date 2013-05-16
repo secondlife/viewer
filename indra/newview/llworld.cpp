@@ -135,7 +135,7 @@ void LLWorld::destroyClass()
 	//make all visible drawbles invisible.
 	LLDrawable::incrementVisible();
 
-	LLSceneMonitor::getInstance()->destroyClass();
+	LLSceneMonitor::deleteSingleton();
 }
 
 

@@ -64,7 +64,7 @@ public:
 	
 	LLTrace::ExtendablePeriodicRecording* getRecording() const {return mRecording;}
 	void dumpToFile(std::string file_name);
-	bool hasResults() const { return !mMonitorResults.empty();}
+	bool hasResults() const { return mRecording->getAcceptedRecording().getDuration() != 0;}
 
 private:
 	void freezeScene();
@@ -76,11 +76,16 @@ private:
 	void addMonitorResult();
 private:
 	bool mEnabled;
-	bool mNeedsUpdateDiff;
-	bool mHasNewDiff;
-	bool mHasNewQueryResult;
 	bool mDebugViewerVisible;
-	bool mQuitting;
+
+	enum EDiffState
+	{
+		WAITING_FOR_NEXT_DIFF,
+		NEED_DIFF,
+		EXECUTE_DIFF,
+		WAIT_ON_RESULT,
+		VIEWER_QUITTING
+	}	mDiffState;
 
 	LLRenderTarget* mFrames[2];
 	LLRenderTarget* mDiff;

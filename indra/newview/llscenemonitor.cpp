@@ -60,11 +60,8 @@ LLSceneMonitor::LLSceneMonitor() :
 	mDiff(NULL),
 	mDiffResult(0.f),
 	mDiffTolerance(0.1f),
-	mNeedsUpdateDiff(false),
-	mHasNewDiff(false),
-	mHasNewQueryResult(false),
+	mDiffState(WAITING_FOR_NEXT_DIFF),
 	mDebugViewerVisible(false),
-	mQuitting(false),
 	mQueryObject(0),
 	mDiffPixelRatio(0.5f)
 {
@@ -72,12 +69,11 @@ LLSceneMonitor::LLSceneMonitor() :
 	mFrames[1] = NULL;
 
 	mRecording = new LLTrace::ExtendablePeriodicRecording();
-	mRecording->start();
 }
 
 LLSceneMonitor::~LLSceneMonitor()
 {
-	mQuitting = true;
+	mDiffState = VIEWER_QUITTING;
 	destroyClass();
 }
 
@@ -99,6 +95,8 @@ void LLSceneMonitor::reset()
 	mFrames[0] = NULL;
 	mFrames[1] = NULL;
 	mDiff = NULL;
+
+	mRecording->reset();
 
 	unfreezeScene();
 
@@ -248,7 +246,7 @@ void LLSceneMonitor::unfreezeScene()
 	//thaw all avatars
 	mAvatarPauseHandles.clear();
 
-	if(mQuitting)
+	if(mDiffState == VIEWER_QUITTING)
 	{
 		return; //we are quitting viewer.
 	}
@@ -267,7 +265,7 @@ void LLSceneMonitor::unfreezeScene()
 void LLSceneMonitor::capture()
 {
 	static U32 last_capture_time = 0;
-	static LLCachedControl<bool> monitor_enabled(gSavedSettings,"SceneLoadingMonitorEnabled");
+	static LLCachedControl<bool> monitor_enabled(gSavedSettings, "SceneLoadingMonitorEnabled");
 	static LLCachedControl<F32>  scene_load_sample_time(gSavedSettings, "SceneLoadingMonitorSampleTime");
 	static LLFrameTimer timer;	
 
@@ -275,7 +273,7 @@ void LLSceneMonitor::capture()
 	if (last_frame_recording.getSum(*LLViewerCamera::getVelocityStat()) > 0.001f
 		|| last_frame_recording.getSum(*LLViewerCamera::getAngularVelocityStat()) > 0.01f)
 	{
-		mRecording->reset();
+		reset();
 	}
 
 	bool enabled = monitor_enabled || mDebugViewerVisible;
@@ -283,11 +281,11 @@ void LLSceneMonitor::capture()
 	{
 		if(mEnabled)
 		{
-			reset();
 			unfreezeScene();
 		}
 		else
 		{
+			reset();
 			freezeScene();
 		}
 
@@ -299,7 +297,10 @@ void LLSceneMonitor::capture()
 		&& LLGLSLShader::sNoFixedFunction
 		&& last_capture_time != gFrameCount)
 	{
+		mRecording->resume();
+
 		timer.reset();
+
 		last_capture_time = gFrameCount;
 
 		LLRenderTarget& cur_target = getCaptureTarget();
@@ -315,13 +316,13 @@ void LLSceneMonitor::capture()
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);		
 		glBindFramebuffer(GL_FRAMEBUFFER, old_FBO);
 
-		mNeedsUpdateDiff = true;
+		mDiffState = NEED_DIFF;
 	}
 }
 
 bool LLSceneMonitor::needsUpdate() const
 {
-	return mNeedsUpdateDiff;
+	return mDiffState == NEED_DIFF;
 }
 
 static LLFastTimer::DeclareTimer FTM_GENERATE_SCENE_LOAD_DITHER_TEXTURE("Generate Scene Load Dither Texture");
@@ -329,11 +330,10 @@ static LLFastTimer::DeclareTimer FTM_SCENE_LOAD_IMAGE_DIFF("Scene Load Image Dif
 
 void LLSceneMonitor::compare()
 {
-	if(!mNeedsUpdateDiff)
+	if(mDiffState != NEED_DIFF)
 	{
 		return;
 	}
-	mNeedsUpdateDiff = false;
 
 	if(!mFrames[0] || !mFrames[1])
 	{
@@ -345,6 +345,7 @@ void LLSceneMonitor::compare()
 	}
 
 	LLFastTimer _(FTM_SCENE_LOAD_IMAGE_DIFF);
+	mDiffState = EXECUTE_DIFF;
 
 	S32 width = gViewerWindow->getWindowWidthRaw();
 	S32 height = gViewerWindow->getWindowHeightRaw();
@@ -400,8 +401,6 @@ void LLSceneMonitor::compare()
 	gGL.getTexUnit(2)->disable();
 	gGL.getTexUnit(2)->unbind(LLTexUnit::TT_TEXTURE);
 
-	mHasNewDiff = true;
-	
 	if (!mDebugViewerVisible)
 	{
 		calcDiffAggregate();
@@ -413,7 +412,7 @@ void LLSceneMonitor::calcDiffAggregate()
 {
 	LLFastTimer _(FTM_SCENE_LOAD_IMAGE_DIFF);
 
-	if(!mHasNewDiff && !mDebugViewerVisible)
+	if(mDiffState != EXECUTE_DIFF && !mDebugViewerVisible)
 	{
 		return;
 	}	
@@ -435,18 +434,17 @@ void LLSceneMonitor::calcDiffAggregate()
 	gOneTextureFilterProgram.bind();
 	gOneTextureFilterProgram.uniform1f("tolerance", mDiffTolerance);
 
-	if(mHasNewDiff)
+	if(mDiffState == EXECUTE_DIFF)
 	{
 		glBeginQueryARB(GL_SAMPLES_PASSED_ARB, mQueryObject);
 	}
 
 	gl_draw_scaled_target(0, 0, S32(mDiff->getWidth() * mDiffPixelRatio), S32(mDiff->getHeight() * mDiffPixelRatio), mDiff);
 
-	if(mHasNewDiff)
+	if(mDiffState == EXECUTE_DIFF)
 	{
 		glEndQueryARB(GL_SAMPLES_PASSED_ARB);
-		mHasNewDiff = false;	
-		mHasNewQueryResult = true;
+		mDiffState = WAIT_ON_RESULT;
 	}
 		
 	gOneTextureFilterProgram.unbind();
@@ -467,31 +465,30 @@ void LLSceneMonitor::fetchQueryResult()
 {
 	LLFastTimer _(FTM_SCENE_LOAD_IMAGE_DIFF);
 
-	if(!mHasNewQueryResult)
+	if(mDiffState == WAIT_ON_RESULT)
 	{
-		return;
-	}
-	mHasNewQueryResult = false;
+		mDiffState = WAITING_FOR_NEXT_DIFF;
 
-	GLuint available = 0;
-	glGetQueryObjectuivARB(mQueryObject, GL_QUERY_RESULT_AVAILABLE_ARB, &available);
-	if(!available)
-	{
-		return;
-	}
-
-	GLuint count = 0;
-	glGetQueryObjectuivARB(mQueryObject, GL_QUERY_RESULT_ARB, &count);
+		GLuint available = 0;
+		glGetQueryObjectuivARB(mQueryObject, GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+		if(available)
+		{
+			GLuint count = 0;
+			glGetQueryObjectuivARB(mQueryObject, GL_QUERY_RESULT_ARB, &count);
 	
-	mDiffResult = count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * mDiffPixelRatio * mDiffPixelRatio); //0.5 -> (front face + back face)
+			mDiffResult = count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * mDiffPixelRatio * mDiffPixelRatio); //0.5 -> (front face + back face)
 
-	LL_DEBUGS("SceneMonitor") << "Frame difference: " << std::setprecision(4) << mDiffResult << LL_ENDL;
-	sample(sFramePixelDiff, mDiffResult);
+			LL_DEBUGS("SceneMonitor") << "Frame difference: " << std::setprecision(4) << mDiffResult << LL_ENDL;
+			sample(sFramePixelDiff, mDiffResult);
 
-	const F32 diff_threshold = 0.001f;
-	if(mDiffResult > diff_threshold)
-	{
-		mRecording->extend();
+			mRecording->getPotentialRecording().nextPeriod();
+
+			static LLCachedControl<F32> diff_threshold(gSavedSettings,"SceneLoadingPixelDiffThreshold");
+			if(mDiffResult > diff_threshold())
+			{
+				mRecording->extend();
+			}
+		}
 	}
 }
 
@@ -503,29 +500,124 @@ void LLSceneMonitor::addMonitorResult()
 	mMonitorResults.push_back(result);
 }
 
-//dump results to a file _scene_monitor_results.csv
+//dump results to a file _scene_xmonitor_results.csv
 void LLSceneMonitor::dumpToFile(std::string file_name)
 {
-	if(mMonitorResults.empty() || !getRecording())
-	{
-		return; //nothing to dump
-	}
+	LL_INFOS("SceneMonitor") << "Saving scene load stats to " << file_name << LL_ENDL; 
 
 	std::ofstream os(file_name.c_str());
 
 	//total scene loading time
-	os << llformat("Scene Loading time: %.4f seconds\n", (F32)getRecording()->getAcceptedRecording().getDuration().value());
+	os << std::setprecision(4);
 
-	S32 num_results = mMonitorResults.size();
-	for(S32 i = 0; i < num_results; i++)
+	LLTrace::PeriodicRecording& scene_load_recording = mRecording->getAcceptedRecording();
+	U32 frame_count = scene_load_recording.getNumPeriods();
+
+	LLUnit<LLUnits::Seconds, F64> frame_time;
+
+	os << "Stat";
+	for (S32 frame = 0; frame < frame_count; frame++)
 	{
-		os << llformat("%.4f %.4f\n", mMonitorResults[i].mTimeStamp, mMonitorResults[i].mDiff);
+		frame_time += scene_load_recording.getPrevRecording(frame_count - frame).getDuration();
+		os << ", " << frame_time.value();
+	}
+	os << std::endl;
+
+	for (LLTrace::CountStatHandle<F64>::instance_iter it = LLTrace::CountStatHandle<F64>::beginInstances(), end_it = LLTrace::CountStatHandle<F64>::endInstances();
+		it != end_it;
+		++it)
+	{
+		std::ostringstream row;
+		row << it->getName();
+
+		S32 samples = 0;
+
+		for (S32 i = frame_count - 1; i >= 0; --i)
+		{
+			samples += scene_load_recording.getPrevRecording(i).getSampleCount(*it);
+			row << ", " << scene_load_recording.getPrevRecording(i).getSum(*it);
+		}
+
+		row << std::endl;
+
+		if (samples > 0)
+		{
+			os << row.str();
+		}
+	}
+
+	for (LLTrace::CountStatHandle<S64>::instance_iter it = LLTrace::CountStatHandle<S64>::beginInstances(), end_it = LLTrace::CountStatHandle<S64>::endInstances();
+		it != end_it;
+		++it)
+	{
+		std::ostringstream row;
+		row << it->getName();
+
+		S32 samples = 0;
+
+		for (S32 i = frame_count - 1; i >= 0; --i)
+		{
+			samples += scene_load_recording.getPrevRecording(i).getSampleCount(*it);
+			row << ", " << scene_load_recording.getPrevRecording(i).getSum(*it);
+		}
+
+		row << std::endl;
+
+		if (samples > 0)
+		{
+			os << row.str();
+		}
+	}
+
+	for (LLTrace::MeasurementStatHandle<F64>::instance_iter it = LLTrace::MeasurementStatHandle<F64>::beginInstances(), end_it = LLTrace::MeasurementStatHandle<F64>::endInstances();
+		it != end_it;
+		++it)
+	{
+		std::ostringstream row;
+		row << it->getName();
+
+		S32 samples = 0;
+
+		for (S32 i = frame_count - 1; i >= 0; --i)
+		{
+			samples += scene_load_recording.getPrevRecording(i).getSampleCount(*it);
+			row << ", " << scene_load_recording.getPrevRecording(i).getMean(*it);
+		}
+
+		row << std::endl;
+
+		if (samples > 0)
+		{
+			os << row.str();
+		}
+	}
+
+	for (LLTrace::MeasurementStatHandle<S64>::instance_iter it = LLTrace::MeasurementStatHandle<S64>::beginInstances(), end_it = LLTrace::MeasurementStatHandle<S64>::endInstances();
+		it != end_it;
+		++it)
+	{
+		std::ostringstream row;
+		row << it->getName();
+
+		S32 samples = 0;
+
+		for (S32 i = frame_count - 1; i >= 0; --i)
+		{
+			samples += scene_load_recording.getPrevRecording(i).getSampleCount(*it);
+			row << ", " << scene_load_recording.getPrevRecording(i).getMean(*it);
+		}
+
+		row << std::endl;
+
+		if (samples > 0)
+		{
+			os << row.str();
+		}
 	}
 
 	os.flush();
 	os.close();
 
-	mMonitorResults.clear();
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -563,8 +655,6 @@ void LLSceneMonitorView::draw()
 	F32 ratio = LLSceneMonitor::getInstance()->getDiffPixelRatio();
 	S32 height = (S32)(target->getHeight() * ratio);
 	S32 width = (S32)(target->getWidth() * ratio);
-	//S32 height = (S32) (gViewerWindow->getWindowRectScaled().getHeight()*0.5f);
-	//S32 width = (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.5f);
 	
 	LLRect new_rect;
 	new_rect.setLeftTopAndSize(getRect().mLeft, getRect().mTop, width, height);

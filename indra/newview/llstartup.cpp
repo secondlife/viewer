@@ -2048,7 +2048,7 @@ bool idle_startup()
 		static LLFrameTimer wearables_timer;
 
 		const F32 wearables_time = wearables_timer.getElapsedTimeF32();
-		const F32 MAX_WEARABLES_TIME = 10.f;
+		static LLCachedControl<F32> max_wearables_time(gSavedSettings, "ClothingLoadingDelay");
 
 		if (!gAgent.isGenderChosen() && isAgentAvatarValid())
 		{
@@ -2068,7 +2068,7 @@ bool idle_startup()
 		
 		display_startup();
 
-		if (wearables_time > MAX_WEARABLES_TIME)
+		if (wearables_time > max_wearables_time())
 		{
 			LLNotificationsUtil::add("ClothingLoading");
 			add(LLStatViewer::LOADING_WEARABLES_LONG_DELAY, 1);
@@ -2102,7 +2102,7 @@ bool idle_startup()
 		display_startup();
 		update_texture_fetch();
 		display_startup();
-		set_startup_status(0.9f + 0.1f * wearables_time / MAX_WEARABLES_TIME,
+		set_startup_status(0.9f + 0.1f * wearables_time / max_wearables_time(),
 						 LLTrans::getString("LoginDownloadingClothing").c_str(),
 						 gAgent.mMOTD.c_str());
 		display_startup();

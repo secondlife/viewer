@@ -6848,6 +6848,17 @@
       <key>Value</key>
       <real>6.0</real>
     </map>
+    <key>ClothingLoadingDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Time to wait for avatar appearance to resolve before showing world (seconds)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>10.0</real>
+    </map>
 	<key>PreferredMaturity</key>
     <map>
       <key>Comment</key>
@@ -7403,7 +7414,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-
   <key>OctreeMaxNodeCapacity</key>
   <map>
     <key>Comment</key>
@@ -9478,7 +9488,18 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>1</real>
+      <real>0.25</real>
+    </map>
+    <key>SceneLoadingPixelDiffThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>Amount of pixels changed required to consider the scene as still loading (fraction of pixels on screen)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0003</real>
     </map>
     <key>ScriptHelpFollowsCursor</key>
     <map>

@@ -46,12 +46,12 @@ public:
 		STARTED
 	};
 
-	virtual void start();
-	virtual void stop();
-	virtual void pause();
-	virtual void resume();
-	virtual void restart();
-	virtual void reset();
+	void start();
+	void stop();
+	void pause();
+	void resume();
+	void restart();
+	void reset();
 
 	bool isStarted() const { return mPlayState == STARTED; }
 	bool isPaused() const  { return mPlayState == PAUSED; }
@@ -67,11 +67,11 @@ protected:
 
 private:
 	// trigger active behavior (without reset)
-	virtual void handleStart(){};
+	virtual void handleStart() = 0;
 	// stop active behavior
-	virtual void handleStop(){};
+	virtual void handleStop() = 0;
 	// clear accumulated state, can be called while started
-	virtual void handleReset(){};
+	virtual void handleReset() = 0;
 
 	EPlayState mPlayState;
 };
@@ -84,7 +84,13 @@ public:
 	typedef LLStopWatchControlsMixin<DERIVED> self_t;
 	virtual void splitTo(DERIVED& other)
 	{
+		EPlayState play_state = getPlayState();
+		stop();
+		other.reset();
+
 		handleSplitTo(other);
+
+		other.setPlayState(play_state);
 	}
 
 	virtual void splitFrom(DERIVED& other)
@@ -124,7 +130,9 @@ namespace LLTrace
 		LLCopyOnWritePointer<AccumulatorBuffer<MemStatAccumulator> >			mMemStats;
 	};
 
-	class Recording : public LLStopWatchControlsMixin<Recording>, public RecordingBuffers
+	class Recording 
+	:	public LLStopWatchControlsMixin<Recording>, 
+		public RecordingBuffers
 	{
 	public:
 		Recording();
@@ -367,15 +375,12 @@ namespace LLTrace
 			return mean;
 		}
 
+	private:
 		// implementation for LLStopWatchControlsMixin
-		/*virtual*/ void start();
-		/*virtual*/ void stop();
-		/*virtual*/ void pause();
-		/*virtual*/ void resume();
-		/*virtual*/ void restart();
-		/*virtual*/ void reset();
-		/*virtual*/ void splitTo(PeriodicRecording& other);
-		/*virtual*/ void splitFrom(PeriodicRecording& other);
+		/*virtual*/ void handleStart();
+		/*virtual*/ void handleStop();
+		/*virtual*/ void handleReset();
+		/*virtual*/ void handleSplitTo(PeriodicRecording& other);
 
 	private:
 		std::vector<Recording>	mRecordingPeriods;
@@ -395,15 +400,15 @@ namespace LLTrace
 		Recording& getAcceptedRecording() { return mAcceptedRecording; }
 		const Recording& getAcceptedRecording() const {return mAcceptedRecording;}
 
+		Recording& getPotentialRecording()				{ return mPotentialRecording; }
+		const Recording& getPotentialRecording() const	{ return mPotentialRecording;}
+
+	private:
 		// implementation for LLStopWatchControlsMixin
-		/*virtual*/ void start();
-		/*virtual*/ void stop();
-		/*virtual*/ void pause();
-		/*virtual*/ void resume();
-		/*virtual*/ void restart();
-		/*virtual*/ void reset();
-		/*virtual*/ void splitTo(ExtendableRecording& other);
-		/*virtual*/ void splitFrom(ExtendableRecording& other);
+		/*virtual*/ void handleStart();
+		/*virtual*/ void handleStop();
+		/*virtual*/ void handleReset();
+		/*virtual*/ void handleSplitTo(ExtendableRecording& other);
 
 	private:
 		Recording mAcceptedRecording;
@@ -419,16 +424,16 @@ namespace LLTrace
 
 		PeriodicRecording& getAcceptedRecording()				{ return mAcceptedRecording; }
 		const PeriodicRecording& getAcceptedRecording() const	{return mAcceptedRecording;}
+		
+		PeriodicRecording& getPotentialRecording()				{ return mPotentialRecording; }
+		const PeriodicRecording& getPotentialRecording() const	{return mPotentialRecording;}
 
+	private:
 		// implementation for LLStopWatchControlsMixin
-		/*virtual*/ void start();
-		/*virtual*/ void stop();
-		/*virtual*/ void pause();
-		/*virtual*/ void resume();
-		/*virtual*/ void restart();
-		/*virtual*/ void reset();
-		/*virtual*/ void splitTo(ExtendablePeriodicRecording& other);
-		/*virtual*/ void splitFrom(ExtendablePeriodicRecording& other);
+		/*virtual*/ void handleStart();
+		/*virtual*/ void handleStop();
+		/*virtual*/ void handleReset();
+		/*virtual*/ void handleSplitTo(ExtendablePeriodicRecording& other);
 
 	private:
 		PeriodicRecording mAcceptedRecording;
