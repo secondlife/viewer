@@ -187,7 +187,8 @@ public:
 	/*virtual*/ S32		setTEMediaFlags(const U8 te, const U8 media_flags);
 	/*virtual*/ S32		setTEGlow(const U8 te, const F32 glow);
 	/*virtual*/ S32		setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
-				void	setTEMaterialParamsCallback(const LLMaterialID& pMaterialID, const LLMaterialPtr pMaterialParams, U32 te);
+				void	setTEMaterialParamsCallback(const LLMaterialID& pMaterialID, const LLMaterialPtr pMaterialParams);
+				void	setTEMaterialParamsCallbackTE(const LLMaterialID& pMaterialID, const LLMaterialPtr pMaterialParams, U32 te);
 	/*virtual*/ S32		setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams);
 	/*virtual*/ S32		setTEScale(const U8 te, const F32 s, const F32 t);
 	/*virtual*/ S32		setTEScaleS(const U8 te, const F32 s);
@@ -382,3 +383,4 @@ protected:
 };
 
 #endif // LL_LLVOVOLUME_H
+
