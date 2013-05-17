@@ -657,6 +657,42 @@ void LLPanelFace::updateUI()
 		LLUUID normmap_id;
 		LLUUID specmap_id;
 
+		// Color swatch
+		{
+			getChildView("color label")->setEnabled(editable);
+		}
+		LLColorSwatchCtrl*	mColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
+		LLColor4 color = LLColor4::white;
+		if(mColorSwatch)
+		{
+			struct f7 : public LLSelectedTEGetFunctor<LLColor4>
+			{
+				LLColor4 get(LLViewerObject* object, S32 face)
+				{
+					return object->getTE(face)->getColor();
+				}
+			} func;
+			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, color );
+			
+			mColorSwatch->setOriginal(color);
+			mColorSwatch->set(color, TRUE);
+
+			mColorSwatch->setValid(editable);
+			mColorSwatch->setEnabled( editable );
+			mColorSwatch->setCanApplyImmediately( editable );
+		}
+
+		// Color transparency
+		{
+			getChildView("color trans")->setEnabled(editable);
+		}
+
+		F32 transparency = (1.f - color.mV[VALPHA]) * 100.f;
+		{
+			getChild<LLUICtrl>("ColorTrans")->setValue(editable ? transparency : 0);
+			getChildView("ColorTrans")->setEnabled(editable);
+		}
+
 		// Texture
 		{
 			struct f1 : public LLSelectedTEGetFunctor<LLUUID>
@@ -792,10 +828,17 @@ void LLPanelFace::updateUI()
 
 				if (combobox_alphamode)
 				{
+
+					if (transparency > 0.f)
+					{ //it is invalid to have any alpha mode other than blend if transparency is greater than zero ... 
+						alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
+					}
+
 					if (!mIsAlpha)
-					{
+					{ // ... unless there is no alpha channel in the texture, in which case alpha mode MUST ebe none
 						alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
 					}
+
 					
 					combobox_alphamode->selectNthItem(alpha_mode);
 				}
@@ -814,7 +857,7 @@ void LLPanelFace::updateUI()
 					texture_ctrl->setTentative( FALSE );
 					texture_ctrl->setEnabled( editable );
 					texture_ctrl->setImageAssetID( id );
-					getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha);
+					getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha && transparency <= 0.f);
 					getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
 					getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
 					getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
@@ -836,7 +879,7 @@ void LLPanelFace::updateUI()
 					texture_ctrl->setTentative( TRUE );
 					texture_ctrl->setEnabled( editable );
 					texture_ctrl->setImageAssetID( id );
-					getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha);
+					getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha && transparency <= 0.f);
 					getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
 					getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
 					getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
@@ -1281,42 +1324,6 @@ void LLPanelFace::updateUI()
 			getChildView("bumpyRot")->setEnabled(editable && normmap_id.notNull());
 		}
 
-		// Color swatch
-		{
-			getChildView("color label")->setEnabled(editable);
-		}
-		LLColorSwatchCtrl*	mColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
-		LLColor4 color = LLColor4::white;
-		if(mColorSwatch)
-		{
-			struct f7 : public LLSelectedTEGetFunctor<LLColor4>
-			{
-				LLColor4 get(LLViewerObject* object, S32 face)
-				{
-					return object->getTE(face)->getColor();
-				}
-			} func;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, color );
-			
-			mColorSwatch->setOriginal(color);
-			mColorSwatch->set(color, TRUE);
-
-			mColorSwatch->setValid(editable);
-			mColorSwatch->setEnabled( editable );
-			mColorSwatch->setCanApplyImmediately( editable );
-		}
-
-		// Color transparency
-		{
-			getChildView("color trans")->setEnabled(editable);
-		}
-
-		F32 transparency = (1.f - color.mV[VALPHA]) * 100.f;
-		{
-			getChild<LLUICtrl>("ColorTrans")->setValue(editable ? transparency : 0);
-			getChildView("ColorTrans")->setEnabled(editable);
-		}
-
 		{
 			F32 glow = 0.f;
 			struct f8 : public LLSelectedTEGetFunctor<F32>
@@ -1586,7 +1593,19 @@ void LLPanelFace::updateUI()
 					childGetSelectionInterface("combobox alphamode");
 				if (combobox_alphamode)
 				{
-					combobox_alphamode->selectNthItem(material->getDiffuseAlphaMode());
+					U32 alpha_mode = material->getDiffuseAlphaMode();
+
+					if (transparency > 0.f)
+					{ //it is invalid to have any alpha mode other than blend if transparency is greater than zero ... 
+						alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
+					}
+
+					if (!mIsAlpha)
+					{ // ... unless there is no alpha channel in the texture, in which case alpha mode MUST ebe none
+						alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
+					}
+
+					combobox_alphamode->selectNthItem(alpha_mode);
 				}
 				else
 				{

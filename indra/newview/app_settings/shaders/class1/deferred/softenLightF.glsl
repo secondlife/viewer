@@ -301,6 +301,13 @@ void main()
 		calcAtmospherics(pos.xyz, 1.0);
 	
 		col = atmosAmbient(vec3(0));
+		float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
+		ambient *= 0.5;
+		ambient *= ambient;
+		ambient = (1.0-ambient);
+
+		col.rgb *= ambient;
+
 		col += atmosAffectDirectionalLight(max(min(da, 1.0) * 2.6, diffuse.a));
 	
 		col *= diffuse.rgb;
