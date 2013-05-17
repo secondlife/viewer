@@ -1976,8 +1976,11 @@ S32 LLVOVolume::setTEGlow(const U8 te, const F32 glow)
 void LLVOVolume::setTEMaterialParamsCallback(const LLMaterialID &pMaterialID, const LLMaterialPtr pMaterialParams, U32 te)
 {
 	LL_DEBUGS("MaterialTEs") << "materialid " << pMaterialID.asString() << " to TE " << te << LL_ENDL;
+	if (te >= getNumTEs())
+		return;
+
 	LLTextureEntry* texture_entry = getTE(te);
-	if (texture_entry && (texture_entry->getMaterialID().isNull() || (texture_entry->getMaterialID() == pMaterialID)))
+	if (texture_entry)
 	{
 		setTEMaterialParams(te, pMaterialParams);
 	}
