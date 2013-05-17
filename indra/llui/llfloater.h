@@ -529,7 +529,7 @@ public:
 	LLRect			findNeighboringPosition( LLFloater* reference_floater, LLFloater* neighbor );
 
 	// Given a child of gFloaterView, make sure this view can fit entirely onscreen.
-	void			adjustToFitScreen(LLFloater* floater, BOOL allow_partial_outside);
+	void			adjustToFitScreen(LLFloater* floater, BOOL allow_partial_outside, BOOL snap_in_toolbars = false);
 
 	void			setMinimizePositionVerticalOffset(S32 offset) { mMinimizePositionVOffset = offset; }
 	void			getMinimizePosition( S32 *left, S32 *bottom);
