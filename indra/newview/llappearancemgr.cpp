@@ -1765,7 +1765,10 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	// the link_waiter so links can be followed for any items that get
 	// carried over (e.g. keeping old shape if the new outfit does not
 	// contain one)
-	bool keep_outfit_links = append;
+
+	// even in the non-append case, createBaseOutfitLink() already
+	// deletes the existing link, don't need to do it again here.
+	bool keep_outfit_links = true;
 	removeCategoryContents(cof, keep_outfit_links, link_waiter);
 
 	LL_DEBUGS("Avatar") << self_av_string() << "waiting for LLUpdateAppearanceOnDestroy" << LL_ENDL;
