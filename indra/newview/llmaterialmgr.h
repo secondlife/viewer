@@ -44,11 +44,13 @@ public:
 	typedef std::map<LLMaterialID, LLMaterialPtr> material_map_t;
 
 	typedef boost::signals2::signal<void (const LLMaterialID&, const LLMaterialPtr)> get_callback_t;
-	typedef boost::signals2::signal<void (const LLMaterialID&, const LLMaterialPtr, U32 te)> get_callback_te_t;
-
 	const LLMaterialPtr         get(const LLUUID& region_id, const LLMaterialID& material_id);
 	boost::signals2::connection get(const LLUUID& region_id, const LLMaterialID& material_id, get_callback_t::slot_type cb);
+
+#if USE_TE_SPECIFIC_REGISTRATION
+	typedef boost::signals2::signal<void (const LLMaterialID&, const LLMaterialPtr, U32 te)> get_callback_te_t;
 	boost::signals2::connection getTE(const LLUUID& region_id, const LLMaterialID& material_id, U32 te, get_callback_te_t::slot_type cb);
+#endif
 
 	typedef boost::signals2::signal<void (const LLUUID&, const material_map_t&)> getall_callback_t;
 	void                        getAll(const LLUUID& region_id);
@@ -82,6 +84,7 @@ protected:
 	typedef std::map<LLMaterialID, get_callback_t*> get_callback_map_t;
 	get_callback_map_t mGetCallbacks;
 
+#if USE_TE_SPECIFIC_REGISTRATION
 	// struct for TE-specific material ID query
 	struct TEMaterialPair
 	{
@@ -101,6 +104,7 @@ protected:
 
 	typedef std::map<TEMaterialPair, get_callback_te_t*> get_callback_te_map_t;
 	get_callback_te_map_t mGetTECallbacks;
+#endif
 
 	typedef std::set<LLUUID> getall_queue_t;
 	getall_queue_t        mGetAllQueue;
@@ -118,3 +122,4 @@ protected:
 };
 
 #endif // LL_LLMATERIALMGR_H
+

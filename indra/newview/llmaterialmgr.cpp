@@ -217,6 +217,7 @@ boost::signals2::connection LLMaterialMgr::get(const LLUUID& region_id, const LL
 	return connection;
 }
 
+#if USE_TE_SPECIFIC_REGISTRATION
 boost::signals2::connection LLMaterialMgr::getTE(const LLUUID& region_id, const LLMaterialID& material_id, U32 te, LLMaterialMgr::get_callback_te_t::slot_type cb)
 {
 	boost::signals2::connection connection;
@@ -261,6 +262,7 @@ boost::signals2::connection LLMaterialMgr::getTE(const LLUUID& region_id, const 
 
 	return connection;
 }
+#endif
 
 bool LLMaterialMgr::isGetAllPending(const LLUUID& region_id) const
 {
@@ -346,6 +348,7 @@ const LLMaterialPtr LLMaterialMgr::setMaterial(const LLUUID& region_id, const LL
 		mGetCallbacks.erase(itCallback);
 	}
 
+#if USE_TE_SPECIFIC_REGISTRATION
 	TEMaterialPair te_mat_pair;
 	te_mat_pair.materialID = material_id;
 
@@ -361,6 +364,7 @@ const LLMaterialPtr LLMaterialMgr::setMaterial(const LLUUID& region_id, const LL
 			mGetTECallbacks.erase(itCallbackTE);
 		}
 	}
+#endif
 
 	return itMaterial->second;
 }
@@ -779,3 +783,4 @@ void LLMaterialMgr::onRegionRemoved(LLViewerRegion* regionp)
 	clearGetQueues(regionp->getRegionID());
 	// Put doesn't need clearing: objects that can't be found will clean up in processPutQueue()
 }
+
