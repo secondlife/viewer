@@ -71,7 +71,7 @@ LLPersonModelCommon::~LLPersonModelCommon()
 BOOL LLPersonModelCommon::renameItem(const std::string& new_name)
 {
     mName = new_name;
-    mSearchableName = new_name;
+    mSearchableName = new_name + " " + mLabelSuffix;
     LLStringUtil::toUpper(mSearchableName);
     return TRUE;
 }
