@@ -2999,11 +2999,10 @@ bool LLVOAvatar::isVisuallyMuted()
 
 	if (!isSelf())
 	{
-		static LLCachedControl<bool> render_mute_enabled(gSavedSettings, "RenderAutoMuteEnabled");
+		static LLCachedControl<F32> render_mute_threshold(gSavedSettings, "RenderAutoMuteThreshold");
 		static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit");
 		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit");
 		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderCostLimit");
-		static LLCachedControl<U32> visibility_rank(gSavedSettings, "RenderAutoMuteVisibilityRank");
 
 		if (mVisuallyMuteSetting == ALWAYS_VISUAL_MUTE)
 		{	// Always want to see this AV as an imposter
@@ -3013,7 +3012,7 @@ bool LLVOAvatar::isVisuallyMuted()
 		{	// Never show as imposter
 			muted = false;
 		}
-		else if (render_mute_enabled)
+		else if (LLVOAvatar::sLODFactor <= render_mute_threshold)
 		{
 			F64 now = LLFrameTimer::getTotalSeconds();
 
@@ -3034,13 +3033,14 @@ bool LLVOAvatar::isVisuallyMuted()
 				// Could be part of the grand || collection above, but yanked out to make the logic visible
 				if (!muted)
 				{
-					if (visibility_rank > 0)
+					if (sMaxVisible > 0)
 					{	// They are above the visibilty rank - mute them
-						muted = (mVisibilityRank > visibility_rank);
+						muted = (mVisibilityRank > sMaxVisible);
 					}
 			
+					/* Not used - always draw friends or those in IMs.  Works nicely, needs UI?
 					if (muted ||					// Don't mute friends or IMs
-						visibility_rank == 0)
+						sMaxVisible == 0)
 					{
 						muted = !(LLAvatarTracker::instance().isBuddy(getID()));
 						if (muted)
@@ -3049,6 +3049,7 @@ bool LLVOAvatar::isVisuallyMuted()
 							muted = !gIMMgr->hasSession(session_id);
 						}
 					}
+					*/
 				}
 
 				// Save visual mute state and set interval for updating
@@ -7879,8 +7880,6 @@ void LLVOAvatar::idleUpdateRenderCost()
 
 	calculateUpdateRenderCost();				// Update mVisualComplexity if needed
 	
-	doRenderCostNagging(max_render_cost);		// Remind the user their AV is too complex
-
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHAME))
 	{
 		std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
@@ -7888,46 +7887,6 @@ void LLVOAvatar::idleUpdateRenderCost()
 		F32 green = 1.f-llclamp(((F32) mVisualComplexity-(F32)ARC_LIMIT)/(F32)ARC_LIMIT, 0.f, 1.f);
 		F32 red = llmin((F32) mVisualComplexity/(F32)ARC_LIMIT, 1.f);
 		mText->setColor(LLColor4(red,green,0,1));
-	}
-}
-
-
-// Remind the user about their expensive avatar
-void LLVOAvatar::doRenderCostNagging(U32 max_render_cost)
-{
-	if (isSelf())
-	{
-		static S32 sOldComplexity = 0;
-		static F64 sLastRenderCostNagTime = 0.0;
-
-		const F64 RENDER_NAG_INTERVAL = 60.0;
-
-		F64 now = LLFrameTimer::getTotalSeconds();
-		if (sLastRenderCostNagTime > 0.0 &&
-			(now - sLastRenderCostNagTime) > RENDER_NAG_INTERVAL &&
-			sOldComplexity != mVisualComplexity)
-		{
-			sOldComplexity = mVisualComplexity;
-
-			if (max_render_cost > 0)
-			{ //pop up notification that you have exceeded a render cost limit
-				if (mVisualComplexity > max_render_cost+max_render_cost/2)
-				{
-					LLNotificationsUtil::add("ExceededHighDetailRenderCost");
-					sLastRenderCostNagTime = now;
-				}
-				else if (mVisualComplexity > max_render_cost)
-				{
-					LLNotificationsUtil::add("ExceededMidDetailRenderCost");
-					sLastRenderCostNagTime = now;
-				}
-				else if (mVisualComplexity > max_render_cost/2)
-				{
-					LLNotificationsUtil::add("ExceededLowDetailRenderCost");
-					sLastRenderCostNagTime = now;
-				}
-			}
-		}
 	}
 }
 

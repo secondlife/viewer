@@ -9480,7 +9480,7 @@
   <key>RenderAutoMuteByteLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum bytes of attachments before an avatar is automatically visually muted (0 for no limit).</string>
+    <string>Maximum bytes of attachments before an avatar is rendered as a simple imposter (0 for no limit).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9491,7 +9491,7 @@
   <key>RenderAutoMuteRenderCostLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum render weight before an avatar is automatically visually muted (0 to not use this limit).</string>
+    <string>Maximum render weight before an avatar is rendered as a simple imposter (0 to not use this limit).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9502,7 +9502,7 @@
   <key>RenderAutoMuteSurfaceAreaLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum surface area of attachments before an avatar is automatically visually muted (0 to not use this limit).</string>
+    <string>Maximum surface area of attachments before an avatar is rendered as a simple imposter (0 to not use this limit).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9510,16 +9510,16 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  <key>RenderAutoMuteEnabled</key>
+  <key>RenderAutoMuteThreshold</key>
   <map>
     <key>Comment</key>
-    <string>Apply visual muting to high cost, non-friends, not in IM, or somewhat distant avatars</string>
+    <string>Threshold on the Avatar Detail slider where simple imposter mode is enabled.  (less than 0 is always on, greather than 1 always off)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
-    <string>Boolean</string>
+    <string>F32</string>
     <key>Value</key>
-    <integer>0</integer>
+    <real>0.25</real>
   </map>
   <key>RenderAutoMuteLogging</key>
   <map>
@@ -9531,19 +9531,7 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
-  </map>
-  <key>RenderAutoMuteVisibilityRank</key>
-  <map>
-    <key>Comment</key>
-    <string>Number of avatars to show normally for visual muting mode.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-    
+  </map>    
   <key>RenderAutoHideSurfaceAreaLimit</key>
   <map>
     <key>Comment</key>

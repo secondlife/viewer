@@ -203,45 +203,6 @@ Message Template [PATH] not found.
   </notification>
 
   <notification
-   icon="notify.tga"
-   name="ExceededHighDetailRenderCost"
-   persist="false"
-   type="alertmodal">
-    Your avatar has become too complex to be rendered by even high performance computers.  Almost all Residents will see a low detail stand in instead of your actual avatar.
-    <unique/>
-    <usetemplate
-     ignoretext="Avatar exceeded high detail complexity."
-     name="okignore"
-     yestext="Close"/>
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="ExceededMidDetailRenderCost"
-   persist="false"
-   type="alertmodal">
-    Your avatar has become too complex to be rendered by most computers.  Many Residents will see a low detail stand in instead of your actual avatar.
-  <unique/>
-  <usetemplate
-   ignoretext="Avatar exceeded mid detail complexity."
-   name="okignore"
-   yestext="Close"/>
-</notification>
-
-  <notification
- icon="notify.tga"
- name="ExceededLowDetailRenderCost"
- persist="false"
- type="alertmodal">
-    Your avatar has become too complex to be rendered by some computers.  Some Residents will see a low detail stand in instead of your actual avatar.
-  <unique/>
-  <usetemplate
-   ignoretext="Avatar exceeded low detail complexity."
-   name="okignore"
-   yestext="Close"/>
-  </notification>
-
-  <notification
    icon="alertmodal.tga"
    name="WearableSave"
    type="alertmodal">
