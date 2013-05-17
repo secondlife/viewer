@@ -83,6 +83,8 @@ uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
+uniform vec3 sun_dir;
+
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
         float a = max(dot(n,l),0.0);
@@ -190,6 +192,13 @@ void main()
 	// Add windlight lights
 	col.rgb = atmosAmbient(col.rgb);
 	
+	float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
+	ambient *= 0.5;
+	ambient *= ambient;
+	ambient = (1.0-ambient);
+
+	col.rgb *= ambient;
+
 	vary_directional.rgb = atmosAffectDirectionalLight(1.0f);
 	vary_ambient = col.rgb*dff;
 	

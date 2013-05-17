@@ -69,8 +69,11 @@ VARYING vec3 vary_ambient;
 VARYING vec3 vary_directional;
 VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
-VARYING vec4 vary_pointlight_col;
+VARYING vec3 vary_pointlight_col;
 
+#ifdef USE_VERTEX_COLOR
+VARYING vec4 vertex_color;
+#endif
 
 VARYING vec2 vary_texcoord0;
 
@@ -82,6 +85,8 @@ uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
+
+uniform vec3 sun_dir;
 
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
@@ -183,21 +188,30 @@ void main()
 
 	
 
-	vary_pointlight_col.rgb = diff;
-	vary_pointlight_col.a = diffuse_color.a;
+	vary_pointlight_col = diff;
 
+	
 	col.rgb = vec3(0,0,0);
 
 	// Add windlight lights
 	col.rgb = atmosAmbient(col.rgb);
 	
+	float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
+	ambient *= 0.5;
+	ambient *= ambient;
+	ambient = (1.0-ambient);
+
+	col.rgb *= ambient;
+
 	vary_ambient = col.rgb*diff.rgb;
 
 	vary_directional.rgb = atmosAffectDirectionalLight(1.0f);
 	
 	col.rgb = col.rgb*diff.rgb;
 	
-
+#ifdef USE_VERTEX_COLOR
+	vertex_color = col;
+#endif
 	
 #ifdef HAS_SKIN
 	vary_fragcoord.xyz = frag_pos.xyz + vec3(0,0,near_clip);

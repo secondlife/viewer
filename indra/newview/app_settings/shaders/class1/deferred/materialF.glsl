@@ -579,6 +579,14 @@ void main()
           final_da = max(final_da, 0.0f);
 
 	col.rgb = atmosAmbient(col);
+	
+	float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
+	ambient *= 0.5;
+	ambient *= ambient;
+	ambient = (1.0-ambient);
+
+	col.rgb *= ambient;
+
 	col.rgb = col.rgb + atmosAffectDirectionalLight(final_da * 2.6);
 	col.rgb *= diffuse.rgb;
 	
@@ -625,13 +633,13 @@ void main()
 
  #define LIGHT_LOOP(i) col.rgb = col.rgb + calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare);
 
-		/*LIGHT_LOOP(1)
+		LIGHT_LOOP(1)
 		LIGHT_LOOP(2)
 		LIGHT_LOOP(3)
 		LIGHT_LOOP(4)
 		LIGHT_LOOP(5)
 		LIGHT_LOOP(6)
-		LIGHT_LOOP(7)*/
+		LIGHT_LOOP(7)
 
 	frag_color.rgb = col.rgb;
 	glare = min(glare, 1.0);

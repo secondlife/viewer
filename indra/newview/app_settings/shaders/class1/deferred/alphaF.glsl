@@ -60,9 +60,13 @@ VARYING vec3 vary_ambient;
 VARYING vec3 vary_directional;
 VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
-VARYING vec4 vary_pointlight_col;
+VARYING vec3 vary_pointlight_col;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
+
+#ifdef USE_VERTEX_COLOR
+VARYING vec4 vertex_color;
+#endif
 
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
@@ -212,7 +216,7 @@ void main()
 	diff.rgb = pow(diff.rgb, vec3(2.2f, 2.2f, 2.2f));
 
 #ifdef USE_VERTEX_COLOR
-	float vertex_color_alpha = vary_pointlight_col.a;	
+	float vertex_color_alpha = vertex_color.a;	
 #else
 	float vertex_color_alpha = 1.0;
 #endif
@@ -221,7 +225,7 @@ void main()
 	
 	vec3 l = light_position[0].xyz;
 	vec3 dlight = calcDirectionalLight(normal, l) * 2.6;
-	dlight = dlight * vary_directional.rgb * vary_pointlight_col.rgb;
+	dlight = dlight * vary_directional.rgb * vary_pointlight_col;
 
 #if HAS_SHADOW
 	vec4 col = vec4(vary_ambient + dlight * shadow, vertex_color_alpha);
@@ -246,7 +250,7 @@ void main()
 	LIGHT_LOOP(6)
 	LIGHT_LOOP(7)
 
-	color.rgb += diff.rgb * vary_pointlight_col.rgb * col.rgb;
+	color.rgb += diff.rgb * vary_pointlight_col * col.rgb;
 
 	frag_color = color;
 }
