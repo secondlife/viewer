@@ -69,8 +69,11 @@ VARYING vec3 vary_ambient;
 VARYING vec3 vary_directional;
 VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
-VARYING vec4 vary_pointlight_col;
+VARYING vec3 vary_pointlight_col;
 
+#ifdef USE_VERTEX_COLOR
+VARYING vec4 vertex_color;
+#endif
 
 VARYING vec2 vary_texcoord0;
 
@@ -183,9 +186,9 @@ void main()
 
 	
 
-	vary_pointlight_col.rgb = diff;
-	vary_pointlight_col.a = col.a;
+	vary_pointlight_col = diff;
 
+	
 	col.rgb = vec3(0,0,0);
 
 	// Add windlight lights
@@ -197,7 +200,9 @@ void main()
 	
 	col.rgb = col.rgb*diff.rgb;
 	
-
+#ifdef USE_VERTEX_COLOR
+	vertex_color = col;
+#endif
 	
 #ifdef HAS_SKIN
 	vary_fragcoord.xyz = frag_pos.xyz + vec3(0,0,near_clip);
