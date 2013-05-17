@@ -579,6 +579,14 @@ void main()
           final_da = max(final_da, 0.0f);
 
 	col.rgb = atmosAmbient(col);
+	
+	float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
+	ambient *= 0.5;
+	ambient *= ambient;
+	ambient = (1.0-ambient);
+
+	col.rgb *= ambient;
+
 	col.rgb = col.rgb + atmosAffectDirectionalLight(final_da * 2.6);
 	col.rgb *= diffuse.rgb;
 	
