@@ -296,7 +296,7 @@ void main()
 	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
 
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
-
+	
 	vec3 col;
 	float bloom = 0.0;
 
@@ -310,6 +310,14 @@ void main()
 		calcAtmospherics(pos.xyz, ambocc);
 	
 		col = atmosAmbient(vec3(0));
+
+		float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
+		ambient *= 0.5;
+		ambient *= ambient;
+		ambient = (1.0-ambient);
+
+		col *= ambient;
+
 		col += atmosAffectDirectionalLight(max(min(da, scol) * 2.6, diffuse.a));
 	
 		col *= diffuse.rgb;
