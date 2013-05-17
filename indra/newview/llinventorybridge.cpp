@@ -200,6 +200,7 @@ const std::string& LLInvFVBridge::getDisplayName() const
 	{
 		buildDisplayName();
 	}
+
 	return mDisplayName;
 }
 
@@ -1894,49 +1895,19 @@ void LLFolderBridge::buildDisplayName() const
 
 void LLFolderBridge::update()
 {
-	bool possibly_has_children = false;
-	bool up_to_date = isUpToDate();
-	if(!up_to_date && hasChildren()) // we know we have children but  haven't  fetched them (doesn't obey filter)
-	{
-		possibly_has_children = true;
-	}
-
-	bool loading = (possibly_has_children && !up_to_date );
+	// we know we have children but  haven't  fetched them (doesn't obey filter)
+	bool loading = !isUpToDate() && hasChildren() && mFolderViewItem->isOpen();
 
 	if (loading != mIsLoading)
 	{
-		if ( loading && !mIsLoading )
+		if ( loading )
 		{
 			// Measure how long we've been in the loading state
 			mTimeSinceRequestStart.reset();
 		}
+		mIsLoading = loading;
 
-		const BOOL in_inventory = gInventory.isObjectDescendentOf(getUUID(),   gInventory.getRootFolderID());
-		const BOOL in_library = gInventory.isObjectDescendentOf(getUUID(),   gInventory.getLibraryRootFolderID());
-
-		bool root_is_loading = false;
-		if (in_inventory)
-		{
-			root_is_loading =   LLInventoryModelBackgroundFetch::instance().inventoryFetchInProgress();
-		}
-		if (in_library)
-		{
-			root_is_loading =   LLInventoryModelBackgroundFetch::instance().libraryFetchInProgress();
-		}
-		if ((mIsLoading
-				&&	mTimeSinceRequestStart.getElapsedTimeF32() >=   gSavedSettings.getF32("FolderLoadingMessageWaitTime"))
-			||	(LLInventoryModelBackgroundFetch::instance().folderFetchActive()
-				&&	root_is_loading))
-		{
-			buildDisplayName();
-			mDisplayName = LLInvFVBridge::getDisplayName() + " ( " +   LLTrans::getString("LoadingData") + " ) ";
-			mIsLoading = true;
-		}
-		else
-		{
-			buildDisplayName();
-			mIsLoading = false;
-		}
+		mFolderViewItem->refresh();
 	}
 }
 
@@ -3056,6 +3027,13 @@ LLUIImagePtr LLFolderBridge::getIconOverlay() const
 	return NULL;
 }
 
+std::string LLFolderBridge::getLabelSuffix() const
+{
+	static LLCachedControl<F32> folder_loading_message_delay(gSavedSettings, "FolderLoadingMessageWaitTime");
+	return mIsLoading && mTimeSinceRequestStart.getElapsedTimeF32() >= folder_loading_message_delay() 
+		? llformat(" ( %s ) ", LLTrans::getString("LoadingData").c_str())
+		: LLStringUtil::null;
+}
 
 BOOL LLFolderBridge::renameItem(const std::string& new_name)
 {
