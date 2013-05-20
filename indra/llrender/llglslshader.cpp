@@ -57,6 +57,7 @@ bool LLGLSLShader::sNoFixedFunction = false;
 //UI shader -- declared here so llui_libtest will link properly
 LLGLSLShader	gUIProgram;
 LLGLSLShader	gSolidColorProgram;
+LLGLSLShader	gSolidColorProgramIntel;
 
 BOOL shouldChange(const LLVector4& v1, const LLVector4& v2)
 {

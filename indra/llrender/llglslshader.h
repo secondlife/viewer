@@ -160,5 +160,8 @@ extern LLGLSLShader			gSolidColorProgram;
 //Alpha mask shader (declared here so llappearance can access properly)
 extern LLGLSLShader			gAlphaMaskProgram;
 
+// Solid color Shader for Intel Graphics
+extern LLGLSLShader			gSolidColorProgramIntel;
+
 
 #endif
