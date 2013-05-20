@@ -1212,7 +1212,7 @@ void LLFloaterIMContainer::doToSelectedGroup(const LLSD& userdata)
 
     if (action == "group_profile")
     {
-        LLGroupActions::show(mSelectedSession);
+    	LLGroupActions::show(mSelectedSession);
     }
     else if (action == "activate_group")
     {
@@ -2095,8 +2095,31 @@ void LLFloaterIMContainer::closeHostedFloater()
 	onClickCloseBtn();
 }
 
+void LLFloaterIMContainer::closeAllConversations()
+{
+	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
+	for (;widget_it != mConversationsWidgets.end(); ++widget_it)
+	{
+		if (widget_it->first != LLUUID())
+		{
+			LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
+			if (widget)
+			{
+				widget->destroyView();
+				mConversationsItems.erase(widget_it->first);
+				mConversationsWidgets.erase(widget_it->first);
+			}
+		}
+	}
+}
 void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 {
+	if(app_quitting)
+	{
+		gAgent.setDoNotDisturb(true);
+		closeAllConversations();
+	}
+
 	// Check for currently active session
 	LLUUID session_id = getSelectedSession();
 	// If current session is Nearby Chat or there is only one session remaining, close the floater
@@ -2110,6 +2133,11 @@ void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 	if (active_conversation)
 	{
 		active_conversation->closeFloater();
+		if(app_quitting)
+		{
+			LLFloater::closeFloater(app_quitting);
+		}
+
 	}
 }
 
