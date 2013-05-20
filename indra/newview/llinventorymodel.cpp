@@ -1170,14 +1170,13 @@ void parse_llsd_uuid_array(const LLSD& content, const std::string& name, uuid_ve
 
 void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLSD& update)
 {
-	llinfos << "ais update " << context << ":" << ll_pretty_print_sd(update) << llendl;
+	LL_DEBUGS("Inventory") << "ais update " << context << ":" << ll_pretty_print_sd(update) << llendl;
 
 	uuid_vec_t cat_ids;
 	parse_llsd_uuid_array(update,"_categories_removed",cat_ids);
 	for (uuid_vec_t::const_iterator it = cat_ids.begin();
 		 it != cat_ids.end(); ++it)
 	{
-		llinfos << "remove category: " << *it << llendl;
 		onObjectDeletedFromServer(*it, false);
 	}
 
@@ -1186,7 +1185,6 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 	for (uuid_vec_t::const_iterator it = item_ids.begin();
 		 it != item_ids.end(); ++it)
 	{
-		llinfos << "remove item: " << *it << llendl;
 		onObjectDeletedFromServer(*it, false);
 	}
 
@@ -1195,10 +1193,13 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 	for (uuid_vec_t::const_iterator it = broken_link_ids.begin();
 		 it != broken_link_ids.end(); ++it)
 	{
-		llinfos << "remove broken link: " << *it << llendl;
 		onObjectDeletedFromServer(*it, false);
 	}
 
+	// TODO - how can we use this version info? Need to be sure all
+	// changes are going through AIS first, or at least through
+	// something with a reliable responder.
+#if 0
 	const std::string& ucv = "_updated_category_versions";
 	if (update.has(ucv))
 	{
@@ -1208,9 +1209,9 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 		{
 			const LLUUID id((*it).first);
 			S32 version = (*it).second.asInteger();
-			llinfos << "update category: " << id << " to version " << version << llendl;
 		}
 	}
+#endif
 
 	
 }
@@ -1291,7 +1292,7 @@ void LLInventoryModel::onDescendentsPurgedFromServer(const LLUUID& object_id, bo
 			llwarns << "Unexpected count of categories deleted, got "
 					<< total_deleted_count << " expected " << count << llendl;
 		}
-		gInventory.validate();
+		//gInventory.validate();
 	}
 }
 
@@ -2925,7 +2926,7 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	LLUUID tid;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_TransactionID, tid);
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-	llinfos << "Bulk inventory: " << tid << llendl;
+	LL_DEBUGS("Inventory") << "Bulk inventory: " << tid << llendl;
 #endif
 
 	update_map_t update;
@@ -2937,9 +2938,9 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	{
 		LLPointer<LLViewerInventoryCategory> tfolder = new LLViewerInventoryCategory(gAgent.getID());
 		tfolder->unpackMessage(msg, _PREHASH_FolderData, i);
-		llinfos << "unpacked folder '" << tfolder->getName() << "' ("
-				<< tfolder->getUUID() << ") in " << tfolder->getParentUUID()
-				<< llendl;
+		LL_DEBUGS("Inventory") << "unpacked folder '" << tfolder->getName() << "' ("
+							   << tfolder->getUUID() << ") in " << tfolder->getParentUUID()
+							   << llendl;
 		if(tfolder->getUUID().notNull())
 		{
 			folders.push_back(tfolder);
@@ -2979,8 +2980,8 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	{
 		LLPointer<LLViewerInventoryItem> titem = new LLViewerInventoryItem;
 		titem->unpackMessage(msg, _PREHASH_ItemData, i);
-		llinfos << "unpacked item '" << titem->getName() << "' in "
-				<< titem->getParentUUID() << llendl;
+		LL_DEBUGS("Inventory") << "unpacked item '" << titem->getName() << "' in "
+							   << titem->getParentUUID() << llendl;
 		U32 callback_id;
 		msg->getU32Fast(_PREHASH_ItemData, _PREHASH_CallbackID, callback_id);
 		if(titem->getUUID().notNull() ) // && callback_id.notNull() )
@@ -3118,7 +3119,8 @@ void LLInventoryModel::processInventoryDescendents(LLMessageSystem* msg,void**)
 		// If the item has already been added (e.g. from link prefetch), then it doesn't need to be re-added.
 		if (gInventory.getItem(titem->getUUID()))
 		{
-			llinfos << "Skipping prefetched item [ Name: " << titem->getName() << " | Type: " << titem->getActualType() << " | ItemUUID: " << titem->getUUID() << " ] " << llendl;
+			LL_DEBUGS("Inventory") << "Skipping prefetched item [ Name: " << titem->getName()
+								   << " | Type: " << titem->getActualType() << " | ItemUUID: " << titem->getUUID() << " ] " << llendl;
 			continue;
 		}
 		gInventory.updateItem(titem);

@@ -1147,13 +1147,11 @@ public:
 	AISCommand(LLPointer<LLInventoryCallback> callback):
 		mCallback(callback)
 	{
-		llinfos << "constructor" << llendl;
 		mRetryPolicy = new LLAdaptiveRetryPolicy(1.0, 32.0, 2.0, 10);
 	}
 
 	virtual ~AISCommand()
 	{
-		llinfos << "destructor" << llendl;
 	}
 
 	void run_command()
@@ -1206,13 +1204,13 @@ public:
 		const LLSD& headers = getResponseHeaders();
 		if (!content.isMap())
 		{
-			llwarns << "Malformed response contents " << content
-					<< " status " << status << " reason " << reason << llendl;
+			LL_DEBUGS("Inventory") << "Malformed response contents " << content
+								   << " status " << status << " reason " << reason << llendl;
 		}
 		else
 		{
-			llwarns << "failed with content: " << ll_pretty_print_sd(content)
-					<< " status " << status << " reason " << reason << llendl;
+			LL_DEBUGS("Inventory") << "failed with content: " << ll_pretty_print_sd(content)
+								   << " status " << status << " reason " << reason << llendl;
 		}
 		mRetryPolicy->onFailure(status, headers);
 		F32 seconds_to_wait;
@@ -1247,20 +1245,44 @@ private:
 	LLPointer<LLInventoryCallback> mCallback;
 };
 
-class RemoveObjectCommand: public AISCommand
+class RemoveItemCommand: public AISCommand
 {
 public:
-	RemoveObjectCommand(const LLUUID& item_id,
-						LLPointer<LLInventoryCallback> callback):
+	RemoveItemCommand(const LLUUID& item_id,
+					  LLPointer<LLInventoryCallback> callback):
 		AISCommand(callback)
 	{
 		std::string cap;
 		if (!getCap(cap))
 		{
+			llwarns << "No cap found" << llendl;
 			return;
 		}
-		const std::string url = cap + std::string("/item/") + item_id.asString();
-		llinfos << "url: " << url << llendl;
+		std::string url = cap + std::string("/item/") + item_id.asString();
+		LL_DEBUGS("Inventory") << "url: " << url << llendl;
+		LLHTTPClient::ResponderPtr responder = this;
+		LLSD headers;
+		F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
+		command_func_type cmd = boost::bind(&LLHTTPClient::del, url, responder, headers, timeout);
+		setCommandFunc(cmd);
+	}
+};
+
+class RemoveCategoryCommand: public AISCommand
+{
+public:
+	RemoveCategoryCommand(const LLUUID& item_id,
+						  LLPointer<LLInventoryCallback> callback):
+		AISCommand(callback)
+	{
+		std::string cap;
+		if (!getCap(cap))
+		{
+			llwarns << "No cap found" << llendl;
+			return;
+		}
+		std::string url = cap + std::string("/category/") + item_id.asString();
+		LL_DEBUGS("Inventory") << "url: " << url << llendl;
 		LLHTTPClient::ResponderPtr responder = this;
 		LLSD headers;
 		F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
@@ -1279,10 +1301,11 @@ public:
 		std::string cap;
 		if (!getCap(cap))
 		{
+			llwarns << "No cap found" << llendl;
 			return;
 		}
 		std::string url = cap + std::string("/category/") + item_id.asString() + "/children";
-		llinfos << "url: " << url << llendl;
+		LL_DEBUGS("Inventory") << "url: " << url << llendl;
 		LLCurl::ResponderPtr responder = this;
 		LLSD headers;
 		F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
@@ -1296,13 +1319,13 @@ void remove_inventory_item(
 	LLPointer<LLInventoryCallback> cb)
 {
 	LLPointer<LLViewerInventoryItem> obj = gInventory.getItem(item_id);
-	llinfos << "item_id: [" << item_id << "] name " << (obj ? obj->getName() : "(NOT FOUND)") << llendl;
+	LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << (obj ? obj->getName() : "(NOT FOUND)") << llendl;
 	if(obj)
 	{
 		std::string cap;
 		if (AISCommand::getCap(cap))
 		{
-			LLPointer<AISCommand> cmd_ptr = new RemoveObjectCommand(item_id, cb);
+			LLPointer<AISCommand> cmd_ptr = new RemoveItemCommand(item_id, cb);
 			cmd_ptr->run_command();
 		}
 		else // no cap
@@ -1361,7 +1384,7 @@ void remove_inventory_category(
 	const LLUUID& cat_id,
 	LLPointer<LLInventoryCallback> cb)
 {
-	llinfos << "cat_id: [" << cat_id << "] " << llendl;
+	LL_DEBUGS("Inventory") << "cat_id: [" << cat_id << "] " << llendl;
 	LLPointer<LLViewerInventoryCategory> obj = gInventory.getCategory(cat_id);
 	if(obj)
 	{
@@ -1373,9 +1396,7 @@ void remove_inventory_category(
 		std::string cap;
 		if (AISCommand::getCap(cap))
 		{
-			std::string url = cap + std::string("/category/") + cat_id.asString();
-			llinfos << "url: " << url << llendl;
-			LLPointer<AISCommand> cmd_ptr = new RemoveObjectCommand(cat_id, cb);
+			LLPointer<AISCommand> cmd_ptr = new RemoveCategoryCommand(cat_id, cb);
 			cmd_ptr->run_command();
 		}
 		else // no cap
@@ -1385,7 +1406,7 @@ void remove_inventory_category(
 			LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(cat_id);
 			if(children != LLInventoryModel::CHILDREN_NO)
 			{
-				llinfos << "Will purge descendents first before deleting category " << cat_id << llendl;
+				LL_DEBUGS("Inventory") << "Will purge descendents first before deleting category " << cat_id << llendl;
 				LLPointer<LLInventoryCallback> wrap_cb = new LLRemoveCategoryOnDestroy(cat_id, cb); 
 				purge_descendents_of(cat_id, wrap_cb);
 				return;
@@ -1439,7 +1460,7 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 	LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(id);
 	if(children == LLInventoryModel::CHILDREN_NO)
 	{
-		llinfos << "No descendents to purge for " << id << llendl;
+		LL_DEBUGS("Inventory") << "No descendents to purge for " << id << llendl;
 		return;
 	}
 	LLPointer<LLViewerInventoryCategory> cat = gInventory.getCategory(id);
@@ -1448,8 +1469,8 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 		if (LLClipboard::instance().hasContents() && LLClipboard::instance().isCutMode())
 		{
 			// Something on the clipboard is in "cut mode" and needs to be preserved
-			llinfos << "purge_descendents_of clipboard case " << cat->getName()
-			<< " iterate and purge non hidden items" << llendl;
+			LL_DEBUGS("Inventory") << "purge_descendents_of clipboard case " << cat->getName()
+								   << " iterate and purge non hidden items" << llendl;
 			LLInventoryModel::cat_array_t* categories;
 			LLInventoryModel::item_array_t* items;
 			// Get the list of direct descendants in tha categoy passed as argument
@@ -1485,7 +1506,7 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 			else // no cap
 			{
 				// Fast purge
-				llinfos << "purge_descendents_of fast case " << cat->getName() << llendl;
+				LL_DEBUGS("Inventory") << "purge_descendents_of fast case " << cat->getName() << llendl;
 
 				// send it upstream
 				LLMessageSystem* msg = gMessageSystem;
