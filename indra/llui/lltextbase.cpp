@@ -443,6 +443,7 @@ void LLTextBase::drawSelectionBackground()
 			++rect_it)
 		{
 			LLRect selection_rect = *rect_it;
+			selection_rect = *rect_it;
 			selection_rect.translate(mVisibleTextRect.mLeft - content_display_rect.mLeft, mVisibleTextRect.mBottom - content_display_rect.mBottom);
 			gl_rect_2d(selection_rect, selection_color);
 		}
@@ -520,8 +521,8 @@ void LLTextBase::drawCursor()
 			LLRect screen_pos = calcScreenRect();
 			LLCoordGL ime_pos( screen_pos.mLeft + llfloor(cursor_rect.mLeft), screen_pos.mBottom + llfloor(cursor_rect.mTop) );
 
-			ime_pos.mX = (S32) (ime_pos.mX * LLUI::sGLScaleFactor.mV[VX]);
-			ime_pos.mY = (S32) (ime_pos.mY * LLUI::sGLScaleFactor.mV[VY]);
+			ime_pos.mX = (S32) (ime_pos.mX * LLUI::getScaleFactor().mV[VX]);
+			ime_pos.mY = (S32) (ime_pos.mY * LLUI::getScaleFactor().mV[VY]);
 			getWindow()->setLanguageTextInput( ime_pos );
 		}
 	}
@@ -1917,7 +1918,6 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	registrar.add("Url.Execute", boost::bind(&LLUrlAction::executeSLURL, url));
 	registrar.add("Url.Teleport", boost::bind(&LLUrlAction::teleportToLocation, url));
 	registrar.add("Url.ShowProfile", boost::bind(&LLUrlAction::showProfile, url));
-	registrar.add("Url.SendIM", boost::bind(&LLUrlAction::sendIM, url));
 	registrar.add("Url.AddFriend", boost::bind(&LLUrlAction::addFriend, url));
 	registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
 	registrar.add("Url.CopyLabel", boost::bind(&LLUrlAction::copyLabelToClipboard, url));
@@ -3490,3 +3490,7 @@ F32	LLImageTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 select
 	return 0.0;
 }
 
+void LLTextBase::setWordWrap(bool wrap)
+{
+	mWordWrap = wrap;
+}

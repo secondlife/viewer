@@ -579,3 +579,5 @@ void LLRenderTarget::getViewport(S32* viewport)
 	viewport[3] = mResY;
 }
 
+
+

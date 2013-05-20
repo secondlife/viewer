@@ -1701,7 +1701,6 @@ void LLManipRotate::highlightManipulators( S32 x, S32 y )
 		return;
 	}
 	
-	LLQuaternion object_rot = first_object->getRenderRotation();
 	LLVector3 rotation_center = gAgent.getPosAgentFromGlobal(mRotationCenter);
 	LLVector3 mouse_dir_x;
 	LLVector3 mouse_dir_y;

@@ -32,6 +32,7 @@
 #include "llthread.h"
 #include "llstat.h"
 #include "llvfs.h"
+#include "llmemory.h"
 
 const S32 LLVFile::READ			= 0x00000001;
 const S32 LLVFile::WRITE		= 0x00000002;
@@ -134,13 +135,13 @@ U8* LLVFile::readFile(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type, S
 		data = NULL;
 	}
 	else
-	{
-		data = new U8[file_size];
+	{		
+		data = (U8*) ll_aligned_malloc_16(file_size);
 		file.read(data, file_size);	/* Flawfinder: ignore */ 
 		
 		if (file.getLastBytesRead() != (S32)file_size)
 		{
-			delete[] data;
+			ll_aligned_free(data);
 			data = NULL;
 			file_size = 0;
 		}

@@ -65,18 +65,15 @@ pre_build()
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
 
-    check_for "Before 'autobuild configure'" ${build_dir}/packages/dictionaries
+    check_for "Confirm dictionaries are installed before 'autobuild configure'" ${build_dir}/packages/dictionaries
 
     "$AUTOBUILD" configure -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DRELEASE_CRASH_REPORTING:BOOL=ON \
      -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
-     -DVIEWER_LOGIN_CHANNEL:STRING="\"$viewer_login_channel\"" \
      -DGRID:STRING="\"$viewer_grid\"" \
      -DLL_TESTS:BOOL="$run_tests" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url
-
-    check_for "After 'autobuild configure'" ${build_dir}/packages/dictionaries
 
  end_section "Pre$variant"
 }
@@ -110,21 +107,30 @@ build()
   if $build_viewer
   then
     begin_section "Viewer$variant"
-    check_for "Before 'autobuild build'" ${build_dir}/packages/dictionaries
 
     "$AUTOBUILD" build --no-configure -c $variant
-    viewer_build_ok=$?
+    build_ok=$?
     end_section "Viewer$variant"
+
+    # Run build extensions
+    if [ $build_ok -eq 0 -a -d ${build_dir}/packages/build-extensions ]; then
+        for extension in ${build_dir}/packages/build-extensions/*.sh; do
+            . $extension
+            if [ $build_ok -ne 0 ]; then
+                break
+            fi
+        done
+    fi
+
+    # *TODO: Make this a build extension.
     package_llphysicsextensions_tpv
     tpvlib_build_ok=$?
-    if [ $viewer_build_ok -eq 0 -a $tpvlib_build_ok -eq 0 ]
+    if [ $build_ok -eq 0 -a $tpvlib_build_ok -eq 0 ]
     then
       echo true >"$build_dir"/build_ok
     else
       echo false >"$build_dir"/build_ok
     fi
-    check_for "After 'autobuild configure'" ${build_dir}/packages/dictionaries
-
   fi
 }
 
@@ -159,21 +165,6 @@ fi
 # Check to see if we're skipping the platform
 eval '$build_'"$arch" || pass
 
-# Run the version number update script
-# File no longer exists in code-sep branch, so let's make sure it exists in order to use it.
-if test -f scripts/update_version_files.py ; then
-  begin_section UpdateVer
-  eval $(python scripts/update_version_files.py \
-                --channel="$viewer_channel" \
-                --server_channel="$server_channel" \
-                --revision=$revision \
-                --verbose \
-         | sed -n -e "s,Setting viewer channel/version: '\([^']*\)' / '\([^']*\)',VIEWER_CHANNEL='\1';VIEWER_VERSION='\2',p")\
-  || fail update_version_files.py
-  echo "{\"Type\":\"viewer\",\"Version\":\"${VIEWER_VERSION}\"}" > summary.json
-  end_section UpdateVer
-fi
-
 if [ -z "$AUTOBUILD" ]
 then
   export autobuild_dir="$here/../../../autobuild/bin/"
@@ -197,27 +188,11 @@ then
 fi
 
 # load autbuild provided shell functions and variables
-# Merov: going back to the previous code that passes even if it fails catching a failure
-# TODO: use the correct code here under and fix the llbase import in python code
-#if "$AUTOBUILD" source_environment > source_environment
-#then
-#  . source_environment
-#else
-  # dump environment variables for debugging
-#  env|sort
-#  record_failure "autobuild source_environment failed"
-#  cat source_environment >&3
-#  exit 1
-#fi
 eval "$("$AUTOBUILD" source_environment)"
 
 # dump environment variables for debugging
 env|sort
 
-check_for "Before 'autobuild install'" ${build_dir}/packages/dictionaries
-
-
-check_for "After 'autobuild install'" ${build_dir}/packages/dictionaries
 # Now run the build
 succeeded=true
 build_processes=
@@ -292,12 +267,86 @@ then
   end_section WaitParallel
 fi
 
+# build debian package
+if [ "$arch" == "Linux" ]
+then
+  if $succeeded
+  then
+    if $build_viewer_deb && [ "$last_built_variant" == "Release" ]
+    then
+      begin_section "Build Viewer Debian Package"
+      local have_private_repo=false
+      # mangle the changelog
+      dch --force-bad-version \
+          --distribution unstable \
+          --newversion "${VIEWER_VERSION}" \
+          "Automated build #$build_id, repository $branch revision $revision." \
+          >> "$build_log" 2>&1
+
+      # build the debian package
+      $pkg_default_debuild_command  >>"$build_log" 2>&1 || record_failure "\"$pkg_default_debuild_command\" failed."
+
+      # Unmangle the changelog file
+      hg revert debian/changelog
+
+      end_section "Build Viewer Debian Package"
+
+      # Run debian extensions
+      if [ -d ${build_dir}/packages/debian-extensions ]; then
+          for extension in ${build_dir}/packages/debian-extensions/*.sh; do
+              . $extension
+          done
+      fi
+      # Move any .deb results.
+      mkdir -p ../packages_public
+      mkdir -p ../packages_private
+      mv ${build_dir}/packages/*.deb ../packages_public 2>/dev/null || true
+      mv ${build_dir}/packages/packages_private/*.deb ../packages_private 2>/dev/null || true
+
+      # upload debian package and create repository
+      begin_section "Upload Debian Repository"
+      for deb_file in `/bin/ls ../packages_public/*.deb ../*.deb 2>/dev/null`; do
+        upload_item debian $deb_file binary/octet-stream
+      done
+      for deb_file in `/bin/ls ../packages_private/*.deb 2>/dev/null`; do
+        upload_item debian_private $deb_file binary/octet-stream
+        have_private_repo=true
+      done
+
+      create_deb_repo
+
+      # Rename the local debian_repo* directories so that the master buildscript
+      # doesn't make a remote repo again.
+      for debian_repo_type in debian_repo debian_repo_private; do
+        if [ -d "$build_log_dir/$debian_repo_type" ]; then
+          mv $build_log_dir/$debian_repo_type $build_log_dir/${debian_repo_type}_pushed
+        fi
+      done
+
+      if [ $have_private_repo = true ]; then
+        eval "$python_command \"$redirect\" '\${private_S3PROXY_URL}${S3PREFIX}repo/$repo/rev/$revision/index.html'"\
+            >"$build_log_dir/private.html" || fatal generating redirect
+        upload_item global_redirect "$build_log_dir/private.html" text/html
+        
+      fi
+
+      end_section "Upload Debian Repository"
+      
+    else
+      echo skipping debian build
+    fi
+  else
+    echo skipping debian build due to failed build.
+  fi
+fi
+
+
 # check status and upload results to S3
 if $succeeded
 then
   if $build_viewer
   then
-    begin_section Upload
+    begin_section Upload Installer
     # Upload installer - note that ONLY THE FIRST ITEM uploaded as "installer"
     # will appear in the version manager.
     package=$(installer_$arch)
@@ -317,8 +366,9 @@ then
         do
           upload_item symbolfile "$build_dir/$symbolfile" binary/octet-stream
         done
-        
+
         # Upload the llphysicsextensions_tpv package, if one was produced
+        # *TODO: Make this an upload-extension
         if [ -r "$build_dir/llphysicsextensions_package" ]
         then
             llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
@@ -332,15 +382,22 @@ then
         ;;
       esac
 
+      # Run upload extensions
+      if [ -d ${build_dir}/packages/upload-extensions ]; then
+          for extension in ${build_dir}/packages/upload-extensions/*.sh; do
+              . $extension
+          done
+      fi
+
       # Upload stub installers
       upload_stub_installers "$build_dir_stubs"
     fi
-    end_section Upload
+    end_section Upload Installer
   else
-    echo skipping viewer
+    echo skipping upload of installer
   fi
 else
-  echo skipping upload of build results due to failed build.
+  echo skipping upload of installer due to failed build.
 fi
 
 # The branch independent build.sh script invoking this script will finish processing

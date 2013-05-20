@@ -16,10 +16,7 @@
 			<menu_item_call label="Arrêter mon animation" name="Stop Animating My Avatar"/>
 			<menu_item_call label="Marcher / Courir / Voler..." name="Walk / run / fly"/>
 		</menu>
-		<menu label="Statut" name="Status">
-			<menu_item_call label="Absent" name="Set Away"/>
-			<menu_item_call label="Occupé" name="Set Busy"/>
-		</menu>
+		<menu label="Statut" name="Status"/>
 		<menu_item_call label="Acheter des L$..." name="Buy and Sell L$"/>
 		<menu_item_call label="Boîte d&apos;envoi vendeur..." name="MerchantOutbox"/>
 		<menu_item_call label="Page d&apos;accueil du compte..." name="Manage My Account">
@@ -32,14 +29,18 @@
 		<menu_item_call label="Quitter [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Communiquer" name="Communicate">
-		<menu_item_check label="Chat..." name="Nearby Chat"/>
+		<menu_item_check label="Conversations..." name="Conversations"/>
+		<menu_item_check label="Chat près de moi..." name="Nearby Chat"/>
 		<menu_item_check label="Parler" name="Speak"/>
-		<menu_item_check label="Paramètres vocaux..." name="Nearby Voice"/>
-		<menu_item_check label="Effet de voix..." name="ShowVoice"/>
+		<menu label="Effet de voix" name="VoiceMorphing">
+			<menu_item_check label="Aucun effet de voix" name="NoVoiceMorphing"/>
+			<menu_item_check label="Aperçu..." name="Preview"/>
+			<menu_item_call label="S&apos;abonner..." name="Subscribe"/>
+		</menu>
 		<menu_item_check label="Gestes..." name="Gestures"/>
-		<menu_item_call label="Amis" name="My Friends"/>
-		<menu_item_call label="Groupes" name="My Groups"/>
-		<menu_item_call label="Personnes près de vous" name="Active Speakers"/>
+		<menu_item_check label="Amis" name="My Friends"/>
+		<menu_item_check label="Groupes" name="My Groups"/>
+		<menu_item_check label="Personnes près de vous" name="Active Speakers"/>
 		<menu_item_call label="Liste des ignorés" name="Block List"/>
 	</menu>
 	<menu label="Monde" name="World">
@@ -115,7 +116,6 @@
 			<menu_item_call label="Acheter" name="Menu Object Buy"/>
 			<menu_item_call label="Prendre" name="Menu Object Take"/>
 			<menu_item_call label="Prendre une copie" name="Take Copy"/>
-			<menu_item_call label="Enregistrer dans mon inventaire" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Enregistrer dans le contenu des objets" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="Renvoi de l&apos;objet" name="Return Object back to Owner"/>
 		</menu>
@@ -130,6 +130,7 @@
 			<menu_item_call label="Groupes de liens..." name="pathfinding_linksets_menu_item"/>
 			<menu_item_call label="Personnages..." name="pathfinding_characters_menu_item"/>
 			<menu_item_call label="Vue / test..." name="pathfinding_console_menu_item"/>
+			<menu_item_call label="Refiger la région" name="pathfinding_rebake_navmesh_item"/>
 		</menu>
 		<menu label="Options" name="Options">
 			<menu_item_check label="Afficher les droits avancés" name="DebugPermissions"/>
@@ -159,6 +160,13 @@
 	<menu label="Aide" name="Help">
 		<menu_item_call label="Aide rapide..." name="How To"/>
 		<menu_item_call label="Aide de [SECOND_LIFE]" name="Second Life Help"/>
+		<menu_item_call label="Guide de l&apos;utilisateur" name="User’s guide"/>
+		<menu_item_call label="Base de connaissances" name="Knowledge Base"/>
+		<menu_item_call label="Wiki" name="Wiki"/>
+		<menu_item_call label="Forums de la communauté" name="Community Forums"/>
+		<menu_item_call label="Portail d&apos;assistance" name="Support portal"/>
+		<menu_item_call label="Actualités [SECOND_LIFE]" name="Second Life News"/>
+		<menu_item_call label="Blogs [SECOND_LIFE]" name="Second Life Blogs"/>
 		<menu_item_call label="Signaler une infraction" name="Report Abuse"/>
 		<menu_item_call label="Signaler un bug" name="Report Bug"/>
 		<menu_item_call label="À propos de [APP_NAME]" name="About Second Life"/>
@@ -385,9 +393,14 @@
 				<menu_item_call label="Test femme" name="Test Female"/>
 				<menu_item_check label="Autoriser la sélection de l&apos;avatar" name="Allow Select Avatar"/>
 			</menu>
+			<menu label="Vitesse d&apos;animation" name="Animation Speed">
+				<menu_item_call label="Toutes les animations 10 % plus rapides" name="All Animations 10 Faster"/>
+				<menu_item_call label="Toutes les animations 10 % plus lentes" name="All Animations 10 Slower"/>
+				<menu_item_call label="Réinitialiser la vitesse de toutes les animations" name="Reset All Animation Speed"/>
+				<menu_item_check label="Animations au ralenti" name="Slow Motion Animations"/>
+			</menu>
 			<menu_item_call label="Forcer les paramètres par défaut" name="Force Params to Default"/>
 			<menu_item_check label="Infos sur l&apos;animation" name="Animation Info"/>
-			<menu_item_check label="Animations au ralenti" name="Slow Motion Animations"/>
 			<menu_item_check label="Afficher la direction du regard" name="Show Look At"/>
 			<menu_item_check label="Afficher la direction du pointeur" name="Show Point At"/>
 			<menu_item_check label="Débogages des mises à jour" name="Debug Joint Updates"/>

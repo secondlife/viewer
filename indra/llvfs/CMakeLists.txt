@@ -8,6 +8,7 @@ include(UnixInstall)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
     )
 
 set(llvfs_SOURCE_FILES
@@ -44,12 +45,12 @@ if (LINUX)
   LIST(APPEND llvfs_SOURCE_FILES lldir_linux.cpp)
   LIST(APPEND llvfs_HEADER_FILES lldir_linux.h)
 
-  if (VIEWER AND INSTALL)
+  if (INSTALL)
     set_source_files_properties(lldir_linux.cpp
                                 PROPERTIES COMPILE_FLAGS
                                 "-DAPP_RO_DATA_DIR=\\\"${APP_SHARE_DIR}\\\""
                                 )
-  endif (VIEWER AND INSTALL)
+  endif (INSTALL)
 endif (LINUX)
 
 if (WINDOWS)
@@ -70,6 +71,7 @@ set(vfs_BOOST_LIBRARIES
     )
 
 target_link_libraries(llvfs
+    ${LLCOMMON_LIBRARIES}
     ${vfs_BOOST_LIBRARIES}
     )
 

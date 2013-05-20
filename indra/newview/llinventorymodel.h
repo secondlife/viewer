@@ -84,7 +84,7 @@ public:
 	public:
 		fetchInventoryResponder(const LLSD& request_sd) : mRequestSD(request_sd) {};
 		void result(const LLSD& content);			
-		void error(U32 status, const std::string& reason);
+		void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 	protected:
 		LLSD mRequestSD;
 	};
@@ -231,7 +231,8 @@ public:
 	// Returns the uuid of the category that specifies 'type' as what it 
 	// defaults to containing. The category is not necessarily only for that type. 
 	//    NOTE: If create_folder is true, this will create a new inventory category 
-	//    on the fly if one does not exist. 
+	//    on the fly if one does not exist. *NOTE: if find_in_library is true it 
+	//    will search in the user's library folder instead of "My Inventory"
 	const LLUUID findCategoryUUIDForType(LLFolderType::EType preferred_type, 
 										 bool create_folder = true);
 	//    will search in the user's library folder instead of "My Inventory"
@@ -362,6 +363,12 @@ public:
 	// Gets an iterator on an item vector knowing only the item UUID.
 	// Returns end() of the vector if not found.
 	static LLInventoryModel::item_array_t::iterator findItemIterByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id);
+
+
+	// Rearranges Landmarks inside Favorites folder.
+	// Moves source landmark before target one.
+	void rearrangeFavoriteLandmarks(const LLUUID& source_item_id, const LLUUID& target_item_id);
+	//void saveItemsOrder(const LLInventoryModel::item_array_t& items);
 
 	//--------------------------------------------------------------------
 	// Creation
