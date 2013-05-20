@@ -1599,7 +1599,8 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("GetExperiences");
 	capabilityNames.append("GetExperienceInfo");
 	capabilityNames.append("GetCreatorExperiences");
-	capabilityNames.append("GetMesh");
+    capabilityNames.append("GetMesh");
+    capabilityNames.append("GetMetadata");
 	capabilityNames.append("GetObjectCost");
 	capabilityNames.append("GetObjectPhysicsData");
 	capabilityNames.append("GetTexture");

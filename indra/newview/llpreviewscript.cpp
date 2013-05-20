@@ -1244,6 +1244,33 @@ public:
 	}
 };
 
+class ExperienceAssociationResponder : public LLHTTPClient::Responder
+{
+public:
+    ExperienceAssociationResponder(const LLUUID& parent):mParent(parent)
+    {
+    }
+
+    LLUUID mParent;
+
+    virtual void result(const LLSD& content)
+    {
+
+        LLLiveLSLEditor* scriptCore = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", mParent);
+
+        if(!scriptCore || !content.has("experience"))
+            return;
+
+        scriptCore->setAssociatedExperience(content["experience"].asUUID());
+    }
+
+    virtual void error(U32 status, const std::string& reason)
+    {
+        llinfos << "Failed to look up associated script: " << status << ": " << reason << llendl;
+    }
+
+};
+
 void LLScriptEdCore::requestExperiences()
 {
 	mExperiences->setEnabled(FALSE);
@@ -1262,13 +1289,13 @@ void LLScriptEdCore::requestExperiences()
 void LLScriptEdCore::addExperienceInfo( const LLSD& experience )
 {
 	mExperiences->setEnabled(TRUE);
-	mExperiences->add(experience[LLExperienceCache::NAME], experience);
+	mExperiences->add(experience[LLExperienceCache::NAME], experience[LLExperienceCache::EXPERIENCE_ID].asUUID());
 }
 
 void LLScriptEdCore::clearExperiences()
 {
 	mExperiences->removeall();
-	mExperiences->add("No Experience");
+	mExperiences->add("No Experience", LLUUID::null);
 }
 
 LLUUID LLScriptEdCore::getSelectedExperience()const
@@ -1280,6 +1307,19 @@ LLUUID LLScriptEdCore::getSelectedExperience()const
 	}
 	return LLUUID::null;
 }
+
+void LLScriptEdCore::setAssociatedExperience( const LLUUID& experience_id )
+{
+    mAssociatedExperience = experience_id;
+    if(experience_id.isNull())
+    {
+        if(!mExperiences->setSelectedByValue(mAssociatedExperience, TRUE))
+        {
+            mExperiences->setSelectedByValue(LLUUID::null, TRUE);
+        }
+    }
+}
+
 
 
 
@@ -1954,7 +1994,7 @@ void LLLiveLSLEditor::loadAsset()
 			LLHost host(object->getRegion()->getIP(),
 						object->getRegion()->getPort());
 			gMessageSystem->sendReliable(host);
-			*/
+			*/           
 		}
 	}
 	else
@@ -1987,11 +2027,26 @@ void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 	lldebugs << "LLLiveLSLEditor::onLoadComplete: got uuid " << asset_id
 		 << llendl;
 	LLUUID* xored_id = (LLUUID*)user_data;
-	
+
+   
 	LLLiveLSLEditor* instance = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", *xored_id);
 	
 	if(instance )
 	{
+        LLViewerRegion* region = gAgent.getRegion();
+        if (region)
+        {
+            std::string lookup_url=region->getCapability("GetMetadata"); 
+            //lookup_url = "http://127.0.0.1:12035/meta";
+            if(!lookup_url.empty())
+            {
+                lookup_url += "/";
+                lookup_url += asset_id.asString();
+                lookup_url += "/experience";
+                LLHTTPClient::get(lookup_url, new ExperienceAssociationResponder(*xored_id));
+            }
+        }
+
 		if( LL_ERR_NOERR == status )
 		{
 			instance->loadScriptText(vfs, asset_id, type);
@@ -2508,4 +2563,12 @@ BOOL LLLiveLSLEditor::monoChecked() const
 		return mMonoCheckbox->getValue()? TRUE : FALSE;
 	}
 	return FALSE;
+}
+
+void LLLiveLSLEditor::setAssociatedExperience( const LLUUID& experience_id )
+{
+    if(mScriptEd)
+    {
+        mScriptEd->setAssociatedExperience(experience_id);
+    }
 }

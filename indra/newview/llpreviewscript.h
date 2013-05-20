@@ -108,7 +108,8 @@ public:
 	virtual bool	hasAccelerators() const { return true; }
 	void			addExperienceInfo( const LLSD& experience );
 	void			clearExperiences();
-	LLUUID 			getSelectedExperience()const;
+    LLUUID 			getSelectedExperience()const;
+    void            setAssociatedExperience( const LLUUID& experience_id );
 
 private:
 	void		onBtnHelp();
@@ -139,7 +140,7 @@ private:
 	void			(*mLoadCallback)(void* userdata);
 	void			(*mSaveCallback)(void* userdata, BOOL close_after_save);
 	void			(*mSearchReplaceCallback) (void* userdata);
-	void*			mUserdata;
+    void*			mUserdata;
 	LLComboBox		*mFunctions;
 	LLComboBox		*mExperiences;
 	BOOL			mForceClose;
@@ -153,6 +154,7 @@ private:
 	BOOL			mEnableSave;
 	BOOL			mHasScriptData;
 	LLLiveLSLFile*	mLiveFile;
+    LLUUID          mAssociatedExperience;
 
 	LLScriptEdContainer* mContainer; // parent view
 };
@@ -234,7 +236,8 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 	
-	void setIsNew() { mIsNew = TRUE; }
+    void setIsNew() { mIsNew = TRUE; }
+    void setAssociatedExperience( const LLUUID& experience_id );
 	
 private:
 	virtual BOOL canClose();
@@ -285,7 +288,7 @@ private:
 	S32					mPendingUploads;
 
 	BOOL getIsModifiable() const { return mIsModifiable; } // Evaluated on load assert
-	
+
 	LLCheckBoxCtrl*	mMonoCheckbox;
 	BOOL mIsModifiable;
 };
