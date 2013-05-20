@@ -1391,7 +1391,8 @@ void LLPanelFace::updateUI()
 			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &bump_func, rotation );
 			identical = align_planar ? identical_planar_aligned : identical;
 
-			getChild<LLUICtrl>("bumpyRot")->setValue(editable ? rotation * RAD_TO_DEG : 0);
+			F32 normal_rot_deg = rotation * RAD_TO_DEG;
+			getChild<LLUICtrl>("bumpyRot")->setValue(editable ? normal_rot_deg : 0.0f);
 			getChild<LLUICtrl>("bumpyRot")->setTentative(LLSD((BOOL)(!identical)));
 			getChildView("bumpyRot")->setEnabled(editable && normmap_id.notNull());
 		}
@@ -1835,7 +1836,8 @@ void LLPanelFace::updateMaterial()
 			material->setNormalOffset(getChild<LLUICtrl>("bumpyOffsetU")->getValue().asReal(),
 							getChild<LLUICtrl>("bumpyOffsetV")->getValue().asReal());
 			material->setNormalRepeat(bumpy_scale_u, bumpy_scale_v);
-			material->setNormalRotation(getChild<LLUICtrl>("bumpyRot")->getValue().asReal()*DEG_TO_RAD);
+			F32 normal_rot_rads = getChild<LLUICtrl>("bumpyRot")->getValue().asReal()*DEG_TO_RAD;
+			material->setNormalRotation(normal_rot_rads);
 		}
 		else
 		{
