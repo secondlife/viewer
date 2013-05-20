@@ -486,8 +486,10 @@ void LLSceneMonitor::fetchQueryResult()
 			{
 				mRecording->extend();
 			}
-
-			mRecording->getPotentialRecording().nextPeriod();
+			else
+			{
+				mRecording->getPotentialRecording().nextPeriod();
+			}
 		}
 	}
 }
