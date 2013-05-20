@@ -133,11 +133,19 @@ Recording::Recording()
 {}
 
 Recording::Recording( const Recording& other )
-:	RecordingBuffers(other),
-	mElapsedSeconds(other.mElapsedSeconds),
-	mSamplingTimer(other.mSamplingTimer)
+:	mSamplingTimer(other.mSamplingTimer)
 {
-	LLStopWatchControlsMixin<Recording>::setPlayState(other.getPlayState());
+	Recording& mutable_other = const_cast<Recording&>(other);
+	EPlayState other_play_state = other.getPlayState();
+	mutable_other.pause();
+
+	appendBuffers(other);
+
+	LLStopWatchControlsMixin<Recording>::setPlayState(other_play_state);
+	mutable_other.setPlayState(other_play_state);
+
+	// above call will clear mElapsedSeconds as a side effect, so copy it here
+	mElapsedSeconds = other.mElapsedSeconds;
 }
 
 
@@ -380,9 +388,7 @@ void PeriodicRecording::nextPeriod()
 
 	Recording& old_recording = getCurRecording();
 
-	mCurPeriod = mRecordingPeriods.empty()
-				? mCurPeriod + 1
-				: (mCurPeriod + 1) % mRecordingPeriods.size();
+	mCurPeriod = (mCurPeriod + 1) % mRecordingPeriods.size();
 	old_recording.splitTo(getCurRecording());
 }
 
@@ -526,9 +532,22 @@ void PeriodicRecording::handleStop()
 
 void PeriodicRecording::handleReset()
 {
-	mRecordingPeriods.clear();
-	mRecordingPeriods.push_back(Recording());
+	if (mAutoResize)
+	{
+		mRecordingPeriods.clear();
+		mRecordingPeriods.push_back(Recording());
+	}
+	else
+	{
+		for (std::vector<Recording>::iterator it = mRecordingPeriods.begin(), end_it = mRecordingPeriods.end();
+			it != end_it;
+			++it)
+		{
+			it->reset();
+		}
+	}
 	mCurPeriod = 0;
+	getCurRecording().setPlayState(getPlayState());
 }
 
 void PeriodicRecording::handleSplitTo(PeriodicRecording& other)
@@ -656,7 +675,6 @@ void LLStopWatchControlsMixinCommon::stop()
 	case STOPPED:
 		break;
 	case PAUSED:
-		handleStop();
 		break;
 	case STARTED:
 		handleStop();

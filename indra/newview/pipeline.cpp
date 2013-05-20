@@ -3233,8 +3233,6 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 	}
 		
 	postSort(camera);	
-
-	LLSceneMonitor::getInstance()->fetchQueryResult();
 }
 
 void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)

@@ -481,13 +481,13 @@ void LLSceneMonitor::fetchQueryResult()
 			LL_DEBUGS("SceneMonitor") << "Frame difference: " << std::setprecision(4) << mDiffResult << LL_ENDL;
 			sample(sFramePixelDiff, mDiffResult);
 
-			mRecording->getPotentialRecording().nextPeriod();
-
 			static LLCachedControl<F32> diff_threshold(gSavedSettings,"SceneLoadingPixelDiffThreshold");
 			if(mDiffResult > diff_threshold())
 			{
 				mRecording->extend();
 			}
+
+			mRecording->getPotentialRecording().nextPeriod();
 		}
 	}
 }
