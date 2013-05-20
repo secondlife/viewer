@@ -153,7 +153,6 @@ void LLStreamingAudio_FMODEX::update()
 			// Reset volume to previously set volume
 			setGain(getGain());
 			mFMODInternetStreamChannelp->setPaused(false);
-			mLastStarved.stop();
 		}
 	}
 	else if(open_state == FMOD_OPENSTATE_ERROR)
@@ -168,21 +167,43 @@ void LLStreamingAudio_FMODEX::update()
 
 		if(mFMODInternetStreamChannelp->getCurrentSound(&sound) == FMOD_OK && sound)
 		{
+			FMOD_TAG tag;
+			S32 tagcount, dirtytagcount;
+
+			if(sound->getNumTags(&tagcount, &dirtytagcount) == FMOD_OK && dirtytagcount)
+			{
+				for(S32 i = 0; i < tagcount; ++i)
+				{
+					if(sound->getTag(NULL, i, &tag)!=FMOD_OK)
+						continue;
+
+					if (tag.type == FMOD_TAGTYPE_FMOD)
+					{
+						if (!strcmp(tag.name, "Sample Rate Change"))
+						{
+							llinfos << "Stream forced changing sample rate to " << *((float *)tag.data) << llendl;
+							mFMODInternetStreamChannelp->setFrequency(*((float *)tag.data));
+						}
+						continue;
+					}
+				}
+			}
+
 			if(starving)
 			{
-				if(!mLastStarved.getStarted())
+				bool paused = false;
+				mFMODInternetStreamChannelp->getPaused(&paused);
+				if(!paused)
 				{
-					llinfos << "Stream starvation detected! Muting stream audio until it clears." << llendl;
+					llinfos << "Stream starvation detected! Pausing stream until buffer nearly full." << llendl;
 					llinfos << "  (diskbusy="<<diskbusy<<")" << llendl;
 					llinfos << "  (progress="<<progress<<")" << llendl;
-					mFMODInternetStreamChannelp->setMute(true);
+					mFMODInternetStreamChannelp->setPaused(true);
 				}
-				mLastStarved.start();
 			}
-			else if(mLastStarved.getStarted() && mLastStarved.getElapsedTimeF32() > 1.f)
+			else if(progress > 80)
 			{
-				mLastStarved.stop();
-				mFMODInternetStreamChannelp->setMute(false);
+				mFMODInternetStreamChannelp->setPaused(false);
 			}
 		}
 	}
@@ -190,8 +211,6 @@ void LLStreamingAudio_FMODEX::update()
 
 void LLStreamingAudio_FMODEX::stop()
 {
-	mLastStarved.stop();
-
 	if (mFMODInternetStreamChannelp)
 	{
 		mFMODInternetStreamChannelp->setPaused(true);
@@ -291,7 +310,7 @@ LLAudioStreamManagerFMODEX::LLAudioStreamManagerFMODEX(FMOD::System *system, con
 {
 	mInternetStreamURL = url;
 
-	FMOD_RESULT result = mSystem->createStream(url.c_str(), FMOD_2D | FMOD_NONBLOCKING | FMOD_MPEGSEARCH | FMOD_IGNORETAGS, 0, &mInternetStream);
+	FMOD_RESULT result = mSystem->createStream(url.c_str(), FMOD_2D | FMOD_NONBLOCKING | FMOD_IGNORETAGS, 0, &mInternetStream);
 
 	if (result!= FMOD_OK)
 	{

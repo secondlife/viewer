@@ -440,7 +440,7 @@ bool LLAppViewerLinux::beingDebugged()
 #endif
 }
 
-bool LLAppViewerLinux::initLogging()
+void LLAppViewerLinux::initLogging()
 {
 	// Remove the last stack trace, if any
 	// This file is no longer created, since the move to Google Breakpad
@@ -449,7 +449,7 @@ bool LLAppViewerLinux::initLogging()
 		gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
 	LLFile::remove(old_stack_file);
 
-	return LLAppViewer::initLogging();
+	LLAppViewer::initLogging();
 }
 
 bool LLAppViewerLinux::initParseCommandLine(LLCommandLineParser& clp)
