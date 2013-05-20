@@ -62,7 +62,6 @@ public:
 	virtual void draw();
 
 	LLTrace::TimeBlock* getLegendID(S32 y);
-	F64 getTime(const std::string& name);
 
 protected:
 	virtual	void	onClickCloseBtn();
