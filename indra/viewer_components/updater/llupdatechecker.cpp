@@ -108,25 +108,30 @@ void LLUpdateChecker::Implementation::checkVersion(std::string const & hostUrl,
 												   unsigned char       uniqueid[MD5HEX_STR_SIZE],
 												   bool                willing_to_test)
 {
-	llassert(!mInProgress);
-	
-	mInProgress = true;
+	if (!mInProgress)
+	{
+		mInProgress = true;
 
-	mHostUrl     	 = hostUrl;
-	mServicePath 	 = servicePath;
-	mChannel     	 = channel;
-	mVersion     	 = version;
-	mPlatform        = platform;
-	mPlatformVersion = platform_version;
-	memcpy(mUniqueId, uniqueid, MD5HEX_STR_SIZE);
-	mWillingToTest   = willing_to_test;
+		mHostUrl     	 = hostUrl;
+		mServicePath 	 = servicePath;
+		mChannel     	 = channel;
+		mVersion     	 = version;
+		mPlatform        = platform;
+		mPlatformVersion = platform_version;
+		memcpy(mUniqueId, uniqueid, MD5HEX_STR_SIZE);
+		mWillingToTest   = willing_to_test;
 	
-	mProtocol = sProtocolVersion;
+		mProtocol = sProtocolVersion;
 
-	std::string checkUrl = buildUrl(hostUrl, servicePath, channel, version, platform, platform_version, uniqueid, willing_to_test);
-	LL_INFOS("UpdaterService") << "checking for updates at " << checkUrl << LL_ENDL;
+		std::string checkUrl = buildUrl(hostUrl, servicePath, channel, version, platform, platform_version, uniqueid, willing_to_test);
+		LL_INFOS("UpdaterService") << "checking for updates at " << checkUrl << LL_ENDL;
 	
-	mHttpClient.get(checkUrl, this);
+		mHttpClient.get(checkUrl, this);
+	}
+	else
+	{
+		LL_WARNS("UpdaterService") << "attempting to restart a check when one is in progress; ignored" << LL_ENDL;
+	}
 }
 
 void LLUpdateChecker::Implementation::completed(U32 status,
