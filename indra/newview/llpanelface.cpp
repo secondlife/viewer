@@ -291,17 +291,16 @@ void LLPanelFace::sendTexture()
 	}
 }
 
-void LLPanelFace::sendBump()
+void LLPanelFace::sendBump(U32 bumpiness)
 {	
-	LLComboBox*	mComboBumpiness = getChild<LLComboBox>("combobox bumpiness");
-	if(!mComboBumpiness)return;
-	U32 bumpiness = mComboBumpiness->getCurrentIndex();
 	if (bumpiness < BUMPY_TEXTURE)
 	{
 		LL_DEBUGS("Materials") << "clearing bumptexture control" << LL_ENDL;
 		LLTextureCtrl* bumpytexture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
+		bumpytexture_ctrl->clear();
 		bumpytexture_ctrl->setImageAssetID(LLUUID());
 	}
+
 	U8 bump = (U8) bumpiness & TEM_BUMP_MASK;
 	LLSelectMgr::getInstance()->selectionSetBumpmap( bump );
 
@@ -317,14 +316,12 @@ void LLPanelFace::sendTexGen()
 	LLSelectMgr::getInstance()->selectionSetTexGen( tex_gen );
 }
 
-void LLPanelFace::sendShiny()
+void LLPanelFace::sendShiny(U32 shininess)
 {
-	LLComboBox*	mComboShininess = getChild<LLComboBox>("combobox shininess");
-	if(!mComboShininess)return;
-	U32 shininess = mComboShininess->getCurrentIndex();
 	if (shininess < SHINY_TEXTURE)
 	{
 		LLTextureCtrl* texture_ctrl = getChild<LLTextureCtrl>("shinytexture control");
+		texture_ctrl->clear();
 		texture_ctrl->setImageAssetID(LLUUID());
 	}
 	U8 shiny = (U8) shininess & TEM_SHINY_MASK;
@@ -963,7 +960,7 @@ void LLPanelFace::updateUI()
             
          if (shinytexture_ctrl && !shinytexture_ctrl->isPickerShown())
          {
-				if (identical_spec)
+				if (identical_spec && (shiny == SHINY_TEXTURE))
 				{
 					shinytexture_ctrl->setTentative( FALSE );
 					shinytexture_ctrl->setEnabled( editable );
@@ -985,7 +982,7 @@ void LLPanelFace::updateUI()
 
          if (bumpytexture_ctrl && !bumpytexture_ctrl->isPickerShown())
          {
-				if (identical_norm)
+				if (identical_norm && (bumpy == BUMPY_TEXTURE))
 				{
 					bumpytexture_ctrl->setTentative( FALSE );
 					bumpytexture_ctrl->setEnabled( editable );
@@ -1633,7 +1630,7 @@ void LLPanelFace::updateUI()
 				LLTextureCtrl* texture_ctrl = getChild<LLTextureCtrl>("shinytexture control");
 				texture_ctrl->setImageAssetID(material->getSpecularID());
 
-				if (!material->getSpecularID().isNull())
+				if (!material->getSpecularID().isNull() && (shiny == SHINY_TEXTURE))
 				{
 					material->getSpecularOffset(offset_x,offset_y);
 					material->getSpecularRepeat(repeat_x,repeat_y);
@@ -1652,8 +1649,9 @@ void LLPanelFace::updateUI()
 					getChild<LLUICtrl>("shinyOffsetV")->setValue(offset_y);
 					getChild<LLUICtrl>("glossiness")->setValue(material->getSpecularLightExponent());
 					getChild<LLUICtrl>("environment")->setValue(material->getEnvironmentIntensity());
+
+					updateShinyControls(!material->getSpecularID().isNull(), true);
 				}
-				updateShinyControls(!material->getSpecularID().isNull(), true);
 
 				// Assert desired colorswatch color to match material AFTER updateShinyControls
 				// to avoid getting overwritten with the default on some UI state changes.
@@ -1680,7 +1678,7 @@ void LLPanelFace::updateUI()
 				texture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
 				texture_ctrl->setImageAssetID(material->getNormalID());
 
-				if (!material->getNormalID().isNull())
+				if (!material->getNormalID().isNull() && (bumpy == BUMPY_TEXTURE))
 				{
 					material->getNormalOffset(offset_x,offset_y);
 					material->getNormalRepeat(repeat_x,repeat_y);
@@ -1697,8 +1695,9 @@ void LLPanelFace::updateUI()
 					getChild<LLUICtrl>("bumpyRot")->setValue(rot*RAD_TO_DEG);
 					getChild<LLUICtrl>("bumpyOffsetU")->setValue(offset_x);
 					getChild<LLUICtrl>("bumpyOffsetV")->setValue(offset_y);
+
+					updateBumpyControls(!material->getNormalID().isNull(), true);
 				}
-				updateBumpyControls(!material->getNormalID().isNull(), true);
 			}
 			else
 			{
@@ -2041,9 +2040,14 @@ void LLPanelFace::onCommitMaterialType(LLUICtrl* ctrl, void* userdata)
 void LLPanelFace::onCommitBump(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
-	self->sendBump();
-	self->updateBumpyControls(false, true);
-	self->updateMaterial();
+
+	LLComboBox*	mComboBumpiness = self->getChild<LLComboBox>("combobox bumpiness");
+	if(!mComboBumpiness)
+		return;
+
+	U32 bumpiness = mComboBumpiness->getCurrentIndex();
+
+	self->sendBump(bumpiness);
 }
 
 // static
@@ -2156,12 +2160,15 @@ void LLPanelFace::updateBumpyControls(bool is_setting_texture, bool mess_with_co
 void LLPanelFace::onCommitShiny(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
-	self->sendShiny();	
-	// Need 'true' here to insure that the 'Use Texture' choice is removed
-	// when we select something other than a spec texture
-	//
-	self->updateShinyControls(false, true);
-	self->updateMaterial();
+
+
+	LLComboBox*	mComboShininess = self->getChild<LLComboBox>("combobox shininess");
+	if(!mComboShininess)
+		return;
+	
+	U32 shininess = mComboShininess->getCurrentIndex();
+
+	self->sendShiny(shininess);
 }
 
 // static
@@ -2256,41 +2263,54 @@ void LLPanelFace::onSelectTexture(const LLSD& data)
 void LLPanelFace::onCommitSpecularTexture( const LLSD& data )
 {
 	LL_DEBUGS("Materials") << data << LL_ENDL;
-	updateShinyControls(true, true);
-	updateMaterial();
+	sendShiny(SHINY_TEXTURE);
 }
 
 void LLPanelFace::onCommitNormalTexture( const LLSD& data )
 {
 	LL_DEBUGS("Materials") << data << LL_ENDL;
-	updateBumpyControls(true, true);
-	updateMaterial();
+	sendBump(BUMPY_TEXTURE);
 }
 
 void LLPanelFace::onCancelSpecularTexture(const LLSD& data)
 {
-	updateMaterial();
-	updateShinyControls(false, true);
+	U8 shiny = 0;		
+	struct get_shiny : public LLSelectedTEGetFunctor<U8>
+	{
+		U8 get(LLViewerObject* object, S32 face)
+		{
+			return (U8)(object->getTE(face)->getShiny());
+		}
+	} func;
+	LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, shiny );
+	sendShiny(shiny);
 }
 
 void LLPanelFace::onCancelNormalTexture(const LLSD& data)
 {
-	updateMaterial();
-	updateBumpyControls(false, true);
+	U8 bumpy = 0;		
+	struct get_bumpy : public LLSelectedTEGetFunctor<U8>
+	{
+		U8 get(LLViewerObject* object, S32 face)
+		{
+			return (U8)(object->getTE(face)->getBumpmap());
+		}
+
+	} func;
+	LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, bumpy );
+	sendBump(bumpy);
 }
 
 void LLPanelFace::onSelectSpecularTexture(const LLSD& data)
 {
 	LL_DEBUGS("Materials") << data << LL_ENDL;
-	updateMaterial();
-	updateShinyControls(true, true);
+	sendShiny(SHINY_TEXTURE);
 }
 
 void LLPanelFace::onSelectNormalTexture(const LLSD& data)
 {
 	LL_DEBUGS("Materials") << data << LL_ENDL;
-	updateBumpyControls(true, true);
-	updateMaterial();
+	sendBump(BUMPY_TEXTURE);
 }
 
 //static

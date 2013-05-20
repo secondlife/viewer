@@ -1980,7 +1980,7 @@ void LLVOVolume::setTEMaterialParamsCallbackTE(const LLMaterialID &pMaterialID, 
 		return;
 
 	LLTextureEntry* texture_entry = getTE(te);
-	if (texture_entry)
+	if (texture_entry && (texture_entry->getMaterialID() == pMaterialID))
 	{
 		setTEMaterialParams(te, pMaterialParams);
 	}
@@ -2009,7 +2009,7 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 	if (res)
 	{
 #if USE_TE_SPECIFIC_REGISTRATION
-		LLMaterialMgr::instance().getTE(getRegion()->getRegionID(), pMaterialID, te, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2, _3));			
+		LLMaterialMgr::instance().getTE(getRegion()->getRegionID(), pMaterialID, te, boost::bind(&LLVOVolume::setTEMaterialParamsCallbackTE, this, _1, _2, _3));			
 #else
 		LLMaterialMgr::instance().get(getRegion()->getRegionID(), pMaterialID, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2));
 #endif
