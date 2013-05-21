@@ -1300,12 +1300,7 @@ void LLScriptEdCore::clearExperiences()
 
 LLUUID LLScriptEdCore::getSelectedExperience()const
 {
-	LLSD value = mExperiences->getSelectedValue();
-	if(value.has(LLExperienceCache::EXPERIENCE_ID))
-	{
-		return value[LLExperienceCache::EXPERIENCE_ID].asUUID();
-	}
-	return LLUUID::null;
+	return (LLUUID)mExperiences->getSelectedValue();
 }
 
 void LLScriptEdCore::setAssociatedExperience( const LLUUID& experience_id )
