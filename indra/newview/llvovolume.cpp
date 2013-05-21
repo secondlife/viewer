@@ -4531,7 +4531,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_GLOW);
 						}
 
-						LLMaterial* mat = LLPipeline::sRenderDeferred ? te->getMaterialParams().get() : NULL;
+						LLMaterial* mat = te->getMaterialParams().get();
 
 						if (mat)
 						{
@@ -4549,6 +4549,13 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 								{
 									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT);
 								}
+							}
+							else if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
+							{
+								// This feels unclean, but is the only way to get alpha masked rigged stuff to show up
+								// with masking correctly in both deferred and non-deferred paths. NORSPEC-191
+								//
+								pool->addRiggedFace(facep, LLPipeline::sRenderDeferred ? LLDrawPoolAvatar::RIGGED_MATERIAL_ALPHA_MASK : LLDrawPoolAvatar::RIGGED_ALPHA);
 							}
 							else
 							{
