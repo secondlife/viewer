@@ -67,6 +67,11 @@ private:
 		INITIALIZED,
 		DELETED
 	} EInitState;
+    
+    static DERIVED_TYPE* constructSingleton()
+    {
+        return new DERIVED_TYPE();
+    }
 	
 	// stores pointer to singleton instance
 	struct SingletonLifetimeManager
@@ -79,7 +84,7 @@ private:
 		static void construct()
 		{
 			sData.mInitState = CONSTRUCTING;
-			sData.mInstance = new DERIVED_TYPE(); 
+			sData.mInstance = constructSingleton();
 			sData.mInitState = INITIALIZING;
 		}
 

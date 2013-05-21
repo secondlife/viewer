@@ -163,7 +163,6 @@ public:
 class LLVOCache : public LLSingleton<LLVOCache>
 {
 private:
-	friend LLSingleton<LLVOCache>;
 	struct HeaderEntryInfo
 	{
 		HeaderEntryInfo() : mIndex(0), mHandle(0), mTime(0) {}
@@ -194,6 +193,7 @@ private:
 	typedef std::set<HeaderEntryInfo*, header_entry_less> header_entry_queue_t;
 	typedef std::map<U64, HeaderEntryInfo*> handle_entry_map_t;
 private:
+    friend class LLSingleton<LLVOCache>;
 	LLVOCache() ;
 
 public:
