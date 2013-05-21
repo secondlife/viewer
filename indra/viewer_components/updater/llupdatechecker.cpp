@@ -140,6 +140,7 @@ void LLUpdateChecker::Implementation::httpCompleted()
 
 	S32 status = getStatus();
 	const LLSD& content = getContent();
+	const std::string& reason = getReason();
 	if(status != 200)
 	{
 		std::string server_error;
