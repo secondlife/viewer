@@ -175,11 +175,11 @@ public:
 	{}
 
 	LLCopyOnWritePointer(Type* ptr) 
-	:	LLPointer(ptr)
+	:	LLPointer<Type>(ptr)
 	{}
 
 	LLCopyOnWritePointer(LLPointer<Type>& ptr)
-	:	LLPointer(ptr)
+	:	LLPointer<Type>(ptr)
 	{}
 
 	Type* write()
@@ -190,25 +190,11 @@ public:
 
 	void makeUnique()
 	{
-		if (notNull() && mPointer->getNumRefs() > 1)
+		if (LLPointer<Type>::notNull() && mPointer->getNumRefs() > 1)
 		{
-			*(LLPointer*)(this) = new Type(*mPointer);
+			*(LLPointer<Type>*)(this) = new Type(*mPointer);
 		}
 	}
-	/*operator BOOL()  const						{ return (mPointer != NULL); }
-	operator bool()  const						{ return (mPointer != NULL); }
-	bool operator!() const						{ return (mPointer == NULL); }
-	bool isNull() const							{ return (mPointer == NULL); }
-	bool notNull() const						{ return (mPointer != NULL); }
-
-	bool operator !=(Type* ptr) const           { return (mPointer != ptr); 	}
-	bool operator ==(Type* ptr) const           { return (mPointer == ptr); 	}
-	bool operator ==(const LLCopyOnWritePointer<Type>& ptr) const     { return (mPointer == ptr.mPointer); 	}
-	bool operator < (const LLCopyOnWritePointer<Type>& ptr) const     { return (mPointer < ptr.mPointer); 	}
-	bool operator > (const LLCopyOnWritePointer<Type>& ptr) const     { return (mPointer > ptr.mPointer); 	}
-
-	operator const Type*()   const				{ return mPointer; }
-	const Type*	operator->() const				{ return mPointer; }*/
 };
 
 #endif
