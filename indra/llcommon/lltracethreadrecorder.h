@@ -106,7 +106,7 @@ namespace LLTrace
 
 		MasterThreadRecorder* 	mMaster;
 
-		class SharedData
+		class SharedData : public Recording
 		{
 		public:
 			void appendFrom(const Recording& source);
@@ -116,7 +116,6 @@ namespace LLTrace
 			void reset();
 		private:
 			LLMutex		mRecordingMutex;
-			Recording	mRecording;
 		};
 		SharedData		mSharedData;
 	};

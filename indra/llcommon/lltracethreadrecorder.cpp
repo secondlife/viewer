@@ -118,7 +118,7 @@ ThreadRecorder::active_recording_list_t::iterator ThreadRecorder::update( Record
 		if (next_it != mActiveRecordings.end())
 		{
 			// ...push our gathered data down to it
-			(*next_it)->mPartialRecording.appendBuffers((*it)->mPartialRecording);
+			(*next_it)->mPartialRecording.append((*it)->mPartialRecording);
 		}
 
 		// copy accumulated measurements into result buffer and clear accumulator (mPartialRecording)
@@ -156,7 +156,7 @@ void ThreadRecorder::deactivate( Recording* recording )
 		++next_it;
 		if (next_it != mActiveRecordings.end())
 		{
-			(*next_it)->mTargetRecording->makePrimary();
+			(*next_it)->mTargetRecording->mBuffers.write()->makePrimary();
 		}
 
 		delete *it;
@@ -171,8 +171,8 @@ ThreadRecorder::ActiveRecording::ActiveRecording( Recording* target )
 
 void ThreadRecorder::ActiveRecording::moveBaselineToTarget()
 {
-	mTargetRecording->appendBuffers(mPartialRecording);
-	mPartialRecording.resetBuffers();
+	mTargetRecording->mBuffers.write()->append(mPartialRecording);
+	mPartialRecording.reset();
 }
 
 
@@ -203,31 +203,31 @@ void SlaveThreadRecorder::pushToMaster()
 void SlaveThreadRecorder::SharedData::appendFrom( const Recording& source )
 {
 	LLMutexLock lock(&mRecordingMutex);
-	mRecording.appendRecording(source);
+	appendRecording(source);
 }
 
 void SlaveThreadRecorder::SharedData::appendTo( Recording& sink )
 {
 	LLMutexLock lock(&mRecordingMutex);
-	sink.appendRecording(mRecording);
+	sink.appendRecording(*this);
 }
 
 void SlaveThreadRecorder::SharedData::mergeFrom( const RecordingBuffers& source )
 {
 	LLMutexLock lock(&mRecordingMutex);
-	mRecording.mergeBuffers(source);
+	mBuffers.write()->merge(source);
 }
 
 void SlaveThreadRecorder::SharedData::mergeTo( RecordingBuffers& sink )
 {
 	LLMutexLock lock(&mRecordingMutex);
-	sink.mergeBuffers(mRecording);
+	sink.merge(*mBuffers);
 }
 
 void SlaveThreadRecorder::SharedData::reset()
 {
 	LLMutexLock lock(&mRecordingMutex);
-	mRecording.reset();
+	Recording::reset();
 }
 
 

@@ -64,7 +64,7 @@
 namespace LLStatViewer
 {
 
-LLTrace::CountStatHandle<>	FPS("fpsstat"),
+LLTrace::CountStatHandle<>	FPS("framesrendered"),
 							PACKETS_IN("packetsinstat"),
 							PACKETS_LOST("packetsloststat"),
 							PACKETS_OUT("packetsoutstat"),
@@ -322,19 +322,24 @@ void update_statistics()
 			add(LLStatViewer::TOOLBOX_TIME, gFrameIntervalSeconds);
 		}
 	}
+
+	LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
+
 	sample(LLStatViewer::ENABLE_VBO, (F64)gSavedSettings.getBOOL("RenderVBOEnable"));
 	sample(LLStatViewer::LIGHTING_DETAIL, (F64)gPipeline.getLightingDetail());
 	sample(LLStatViewer::DRAW_DISTANCE, (F64)gSavedSettings.getF32("RenderFarClip"));
 	sample(LLStatViewer::CHAT_BUBBLES, (F64)gSavedSettings.getBOOL("UseChatBubbles"));
 
-	sample(LLStatViewer::FRAME_STACKTIME, LLTrace::Seconds(gDebugView->mFastTimerView->getTime("Frame")));
-	F64 idle_secs = gDebugView->mFastTimerView->getTime("Idle");
-	F64 network_secs = gDebugView->mFastTimerView->getTime("Network");
-	sample(LLStatViewer::UPDATE_STACKTIME, LLTrace::Seconds(idle_secs - network_secs));
-	sample(LLStatViewer::NETWORK_STACKTIME, LLTrace::Seconds(network_secs));
-	sample(LLStatViewer::IMAGE_STACKTIME, LLTrace::Seconds(gDebugView->mFastTimerView->getTime("Update Images")));
-	sample(LLStatViewer::REBUILD_STACKTIME, LLTrace::Seconds(gDebugView->mFastTimerView->getTime("Sort Draw State")));
-	sample(LLStatViewer::RENDER_STACKTIME, LLTrace::Seconds(gDebugView->mFastTimerView->getTime("Geometry")));
+	typedef LLInstanceTracker<LLTrace::TraceType<LLTrace::TimeBlockAccumulator>, std::string> trace_type_t;
+
+	sample(LLStatViewer::FRAME_STACKTIME, last_frame_recording.getSum(*trace_type_t::getInstance("Frame")).as<LLUnits::Seconds>());
+	LLUnit<LLUnits::Seconds, F64> idle_secs = last_frame_recording.getSum(*trace_type_t::getInstance("Idle"));
+	LLUnit<LLUnits::Seconds, F64> network_secs = last_frame_recording.getSum(*trace_type_t::getInstance("Network"));
+	sample(LLStatViewer::UPDATE_STACKTIME, idle_secs - network_secs);
+	sample(LLStatViewer::NETWORK_STACKTIME, network_secs);
+	sample(LLStatViewer::IMAGE_STACKTIME, last_frame_recording.getSum(*trace_type_t::getInstance("Update Images")).as<LLUnits::Seconds>());
+	sample(LLStatViewer::REBUILD_STACKTIME, last_frame_recording.getSum(*trace_type_t::getInstance("Sort Draw State")).as<LLUnits::Seconds>());
+	sample(LLStatViewer::RENDER_STACKTIME, last_frame_recording.getSum(*trace_type_t::getInstance("Render Geometry")).as<LLUnits::Seconds>());
 		
 	LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(gAgent.getRegion()->getHost());
 	if (cdp)

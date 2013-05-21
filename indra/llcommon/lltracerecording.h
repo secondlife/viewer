@@ -106,33 +106,28 @@ private:
 
 namespace LLTrace
 {
-	class RecordingBuffers
+	struct RecordingBuffers : public LLRefCount
 	{
-	public:
 		RecordingBuffers();
 
 		void handOffTo(RecordingBuffers& other);
 		void makePrimary();
 		bool isPrimary() const;
 
-		void makeUnique();
+		void append(const RecordingBuffers& other);
+		void merge(const RecordingBuffers& other);
+		void reset(RecordingBuffers* other = NULL);
 
-		void appendBuffers(const RecordingBuffers& other);
-		void mergeBuffers(const RecordingBuffers& other);
-		void resetBuffers(RecordingBuffers* other = NULL);
-
-	protected:
-		LLCopyOnWritePointer<AccumulatorBuffer<CountAccumulator<F64> > >		mCountsFloat;
-		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<F64> > >	mMeasurementsFloat;
-		LLCopyOnWritePointer<AccumulatorBuffer<CountAccumulator<S64> > >		mCounts;
-		LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<S64> > >	mMeasurements;
-		LLCopyOnWritePointer<AccumulatorBuffer<TimeBlockAccumulator> >			mStackTimers;
-		LLCopyOnWritePointer<AccumulatorBuffer<MemStatAccumulator> >			mMemStats;
+		AccumulatorBuffer<CountAccumulator<F64> > 		mCountsFloat;
+		AccumulatorBuffer<MeasurementAccumulator<F64> > mMeasurementsFloat;
+		AccumulatorBuffer<CountAccumulator<S64> > 		mCounts;
+		AccumulatorBuffer<MeasurementAccumulator<S64> > mMeasurements;
+		AccumulatorBuffer<TimeBlockAccumulator> 		mStackTimers;
+		AccumulatorBuffer<MemStatAccumulator> 			mMemStats;
 	};
 
 	class Recording 
-	:	public LLStopWatchControlsMixin<Recording>, 
-		public RecordingBuffers
+	:	public LLStopWatchControlsMixin<Recording>
 	{
 	public:
 		Recording();
@@ -148,6 +143,9 @@ namespace LLTrace
 
 		// grab latest recorded data
 		void update();
+
+		// ensure that buffers are exclusively owned by this recording
+		void makeUnique() { mBuffers.makeUnique(); }
 
 		// Timer accessors
 		LLUnit<LLUnits::Seconds, F64> getSum(const TraceType<TimeBlockAccumulator>& stat) const;
@@ -237,7 +235,7 @@ namespace LLTrace
 
 		LLUnit<LLUnits::Seconds, F64> getDuration() const { return LLUnit<LLUnits::Seconds, F64>(mElapsedSeconds); }
 
-	private:
+	protected:
 		friend class ThreadRecorder;
 
 		// implementation for LLStopWatchControlsMixin
@@ -249,8 +247,9 @@ namespace LLTrace
 		// returns data for current thread
 		class ThreadRecorder* getThreadRecorder(); 
 
-		LLTimer			mSamplingTimer;
-		F64				mElapsedSeconds;
+		LLTimer				mSamplingTimer;
+		F64					mElapsedSeconds;
+		LLCopyOnWritePointer<RecordingBuffers>	mBuffers;
 	};
 
 	class LL_COMMON_API PeriodicRecording

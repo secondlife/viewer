@@ -40,37 +40,31 @@ namespace LLTrace
 ///////////////////////////////////////////////////////////////////////
 
 RecordingBuffers::RecordingBuffers() 
-:	mCountsFloat(new AccumulatorBuffer<CountAccumulator<F64> >()),
-	mMeasurementsFloat(new AccumulatorBuffer<MeasurementAccumulator<F64> >()),
-	mCounts(new AccumulatorBuffer<CountAccumulator<S64> >()),
-	mMeasurements(new AccumulatorBuffer<MeasurementAccumulator<S64> >()),
-	mStackTimers(new AccumulatorBuffer<TimeBlockAccumulator>()),
-	mMemStats(new AccumulatorBuffer<MemStatAccumulator>())
 {}
 
 void RecordingBuffers::handOffTo(RecordingBuffers& other)
 {
-	other.mCountsFloat.write()->reset(mCountsFloat);
-	other.mMeasurementsFloat.write()->reset(mMeasurementsFloat);
-	other.mCounts.write()->reset(mCounts);
-	other.mMeasurements.write()->reset(mMeasurements);
-	other.mStackTimers.write()->reset(mStackTimers);
-	other.mMemStats.write()->reset(mMemStats);
+	other.mCountsFloat.reset(&mCountsFloat);
+	other.mMeasurementsFloat.reset(&mMeasurementsFloat);
+	other.mCounts.reset(&mCounts);
+	other.mMeasurements.reset(&mMeasurements);
+	other.mStackTimers.reset(&mStackTimers);
+	other.mMemStats.reset(&mMemStats);
 }
 
 void RecordingBuffers::makePrimary()
 {
-	mCountsFloat.write()->makePrimary();
-	mMeasurementsFloat.write()->makePrimary();
-	mCounts.write()->makePrimary();
-	mMeasurements.write()->makePrimary();
-	mStackTimers.write()->makePrimary();
-	mMemStats.write()->makePrimary();
+	mCountsFloat.makePrimary();
+	mMeasurementsFloat.makePrimary();
+	mCounts.makePrimary();
+	mMeasurements.makePrimary();
+	mStackTimers.makePrimary();
+	mMemStats.makePrimary();
 
 	ThreadRecorder* thread_recorder = get_thread_recorder().get();
-	AccumulatorBuffer<TimeBlockAccumulator>& timer_accumulator_buffer = *mStackTimers.write();
+	AccumulatorBuffer<TimeBlockAccumulator>& timer_accumulator_buffer = mStackTimers;
 	// update stacktimer parent pointers
-	for (S32 i = 0, end_i = mStackTimers->size(); i < end_i; i++)
+	for (S32 i = 0, end_i = mStackTimers.size(); i < end_i; i++)
 	{
 		TimeBlockTreeNode* tree_node = thread_recorder->getTimeBlockTreeNode(i);
 		if (tree_node)
@@ -82,46 +76,36 @@ void RecordingBuffers::makePrimary()
 
 bool RecordingBuffers::isPrimary() const
 {
-	return mCounts->isPrimary();
+	return mCounts.isPrimary();
 }
 
-void RecordingBuffers::makeUnique()
+void RecordingBuffers::append( const RecordingBuffers& other )
 {
-	mCountsFloat.makeUnique();
-	mMeasurementsFloat.makeUnique();
-	mCounts.makeUnique();
-	mMeasurements.makeUnique();
-	mStackTimers.makeUnique();
-	mMemStats.makeUnique();
+	mCountsFloat.addSamples(other.mCountsFloat);
+	mMeasurementsFloat.addSamples(other.mMeasurementsFloat);
+	mCounts.addSamples(other.mCounts);
+	mMeasurements.addSamples(other.mMeasurements);
+	mMemStats.addSamples(other.mMemStats);
+	mStackTimers.addSamples(other.mStackTimers);
 }
 
-void RecordingBuffers::appendBuffers( const RecordingBuffers& other )
+void RecordingBuffers::merge( const RecordingBuffers& other)
 {
-	mCountsFloat.write()->addSamples(*other.mCountsFloat);
-	mMeasurementsFloat.write()->addSamples(*other.mMeasurementsFloat);
-	mCounts.write()->addSamples(*other.mCounts);
-	mMeasurements.write()->addSamples(*other.mMeasurements);
-	mMemStats.write()->addSamples(*other.mMemStats);
-	mStackTimers.write()->addSamples(*other.mStackTimers);
+	mCountsFloat.addSamples(other.mCountsFloat);
+	mMeasurementsFloat.addSamples(other.mMeasurementsFloat);
+	mCounts.addSamples(other.mCounts);
+	mMeasurements.addSamples(other.mMeasurements);
+	mMemStats.addSamples(other.mMemStats);
 }
 
-void RecordingBuffers::mergeBuffers( const RecordingBuffers& other)
+void RecordingBuffers::reset(RecordingBuffers* other)
 {
-	mCountsFloat.write()->addSamples(*other.mCountsFloat);
-	mMeasurementsFloat.write()->addSamples(*other.mMeasurementsFloat);
-	mCounts.write()->addSamples(*other.mCounts);
-	mMeasurements.write()->addSamples(*other.mMeasurements);
-	mMemStats.write()->addSamples(*other.mMemStats);
-}
-
-void RecordingBuffers::resetBuffers(RecordingBuffers* other)
-{
-	mCountsFloat.write()->reset(other ? other->mCountsFloat : LLCopyOnWritePointer<AccumulatorBuffer<CountAccumulator<F64> > >());
-	mMeasurementsFloat.write()->reset(other ? other->mMeasurementsFloat : LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<F64> > >());
-	mCounts.write()->reset(other ? other->mCounts : LLCopyOnWritePointer<AccumulatorBuffer<CountAccumulator<S64> > >());
-	mMeasurements.write()->reset(other ? other->mMeasurements : LLCopyOnWritePointer<AccumulatorBuffer<MeasurementAccumulator<S64> > >());
-	mStackTimers.write()->reset(other ? other->mStackTimers : LLCopyOnWritePointer<AccumulatorBuffer<TimeBlockAccumulator> >());
-	mMemStats.write()->reset(other ? other->mMemStats : LLCopyOnWritePointer<AccumulatorBuffer<MemStatAccumulator> >());
+	mCountsFloat.reset(other ? &other->mCountsFloat : NULL);
+	mMeasurementsFloat.reset(other ? &other->mMeasurementsFloat : NULL);
+	mCounts.reset(other ? &other->mCounts : NULL);
+	mMeasurements.reset(other ? &other->mMeasurements : NULL);
+	mStackTimers.reset(other ? &other->mStackTimers : NULL);
+	mMemStats.reset(other ? &other->mMemStats : NULL);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -130,22 +114,24 @@ void RecordingBuffers::resetBuffers(RecordingBuffers* other)
 
 Recording::Recording() 
 :	mElapsedSeconds(0)
-{}
+{
+	mBuffers = new RecordingBuffers();
+}
 
 Recording::Recording( const Recording& other )
-:	mSamplingTimer(other.mSamplingTimer)
 {
 	Recording& mutable_other = const_cast<Recording&>(other);
 	EPlayState other_play_state = other.getPlayState();
 	mutable_other.pause();
 
-	appendBuffers(other);
+	mBuffers = other.mBuffers;
 
 	LLStopWatchControlsMixin<Recording>::setPlayState(other_play_state);
 	mutable_other.setPlayState(other_play_state);
 
 	// above call will clear mElapsedSeconds as a side effect, so copy it here
 	mElapsedSeconds = other.mElapsedSeconds;
+	mSamplingTimer = other.mSamplingTimer;
 }
 
 
@@ -166,7 +152,7 @@ void Recording::update()
 
 void Recording::handleReset()
 {
-	resetBuffers();
+	mBuffers.write()->reset();
 
 	mElapsedSeconds = 0.0;
 	mSamplingTimer.reset();
@@ -187,42 +173,42 @@ void Recording::handleStop()
 
 void Recording::handleSplitTo(Recording& other)
 {
-	handOffTo(other);
+	mBuffers.write()->handOffTo(*other.mBuffers.write());
 }
 
 void Recording::appendRecording( const Recording& other )
 {
-	appendBuffers(other);
+	mBuffers.write()->append(*other.mBuffers);
 	mElapsedSeconds += other.mElapsedSeconds;
 }
 
 void Recording::mergeRecording( const Recording& other)
 {
-	mergeBuffers(other);
+	mBuffers.write()->merge(*other.mBuffers);
 }
 
 LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumulator>& stat) const
 {
-	const TimeBlockAccumulator& accumulator = (*mStackTimers)[stat.getIndex()];
+	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 	return (F64)(accumulator.mTotalTimeCounter - accumulator.mStartTotalTimeCounter) 
 				/ (F64)LLTrace::TimeBlock::countsPerSecond();
 }
 
 LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat) const
 {
-	const TimeBlockAccumulator& accumulator = (*mStackTimers)[stat.getIndex()];
+	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 	return (F64)(accumulator.mSelfTimeCounter) / (F64)LLTrace::TimeBlock::countsPerSecond();
 }
 
 
 U32 Recording::getSum(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat) const
 {
-	return (*mStackTimers)[stat.getIndex()].mCalls;
+	return mBuffers->mStackTimers[stat.getIndex()].mCalls;
 }
 
 LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccumulator>& stat) const
 {
-	const TimeBlockAccumulator& accumulator = (*mStackTimers)[stat.getIndex()];
+	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 
 	return (F64)(accumulator.mTotalTimeCounter - accumulator.mStartTotalTimeCounter) 
 				/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds);
@@ -230,7 +216,7 @@ LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccu
 
 LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat) const
 {
-	const TimeBlockAccumulator& accumulator = (*mStackTimers)[stat.getIndex()];
+	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 
 	return (F64)(accumulator.mSelfTimeCounter) 
 			/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds);
@@ -238,45 +224,45 @@ LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccu
 
 F32 Recording::getPerSec(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat) const
 {
-	return (F32)(*mStackTimers)[stat.getIndex()].mCalls / mElapsedSeconds;
+	return (F32)mBuffers->mStackTimers[stat.getIndex()].mCalls / mElapsedSeconds;
 }
 
 LLUnit<LLUnits::Bytes, U32> Recording::getSum(const TraceType<MemStatAccumulator>& stat) const
 {
-	return (*mMemStats)[stat.getIndex()].mAllocatedCount;
+	return mBuffers->mMemStats[stat.getIndex()].mAllocatedCount;
 }
 
 LLUnit<LLUnits::Bytes, F32> Recording::getPerSec(const TraceType<MemStatAccumulator>& stat) const
 {
-	return (F32)(*mMemStats)[stat.getIndex()].mAllocatedCount / mElapsedSeconds;
+	return (F32)mBuffers->mMemStats[stat.getIndex()].mAllocatedCount / mElapsedSeconds;
 }
 
 
 F64 Recording::getSum( const TraceType<CountAccumulator<F64> >& stat ) const
 {
-	return (*mCountsFloat)[stat.getIndex()].getSum();
+	return mBuffers->mCountsFloat[stat.getIndex()].getSum();
 }
 
 S64 Recording::getSum( const TraceType<CountAccumulator<S64> >& stat ) const
 {
-	return (*mCounts)[stat.getIndex()].getSum();
+	return mBuffers->mCounts[stat.getIndex()].getSum();
 }
 
 F64 Recording::getSum( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
-	return (F64)(*mMeasurementsFloat)[stat.getIndex()].getSum();
+	return (F64)mBuffers->mMeasurementsFloat[stat.getIndex()].getSum();
 }
 
 S64 Recording::getSum( const TraceType<MeasurementAccumulator<S64> >& stat ) const
 {
-	return (S64)(*mMeasurements)[stat.getIndex()].getSum();
+	return (S64)mBuffers->mMeasurements[stat.getIndex()].getSum();
 }
 
 
 
 F64 Recording::getPerSec( const TraceType<CountAccumulator<F64> >& stat ) const
 {
-	F64 sum = (*mCountsFloat)[stat.getIndex()].getSum();
+	F64 sum = mBuffers->mCountsFloat[stat.getIndex()].getSum();
 	return  (sum != 0.0) 
 		? (sum / mElapsedSeconds)
 		: 0.0;
@@ -284,7 +270,7 @@ F64 Recording::getPerSec( const TraceType<CountAccumulator<F64> >& stat ) const
 
 F64 Recording::getPerSec( const TraceType<CountAccumulator<S64> >& stat ) const
 {
-	S64 sum = (*mCounts)[stat.getIndex()].getSum();
+	S64 sum = mBuffers->mCounts[stat.getIndex()].getSum();
 	return (sum != 0) 
 		? ((F64)sum / mElapsedSeconds)
 		: 0.0;
@@ -292,72 +278,72 @@ F64 Recording::getPerSec( const TraceType<CountAccumulator<S64> >& stat ) const
 
 U32 Recording::getSampleCount( const TraceType<CountAccumulator<F64> >& stat ) const
 {
-	return (*mCountsFloat)[stat.getIndex()].getSampleCount();
+	return mBuffers->mCountsFloat[stat.getIndex()].getSampleCount();
 }
 
 U32 Recording::getSampleCount( const TraceType<CountAccumulator<S64> >& stat ) const
 {
-	return (*mMeasurementsFloat)[stat.getIndex()].getSampleCount();
+	return mBuffers->mMeasurementsFloat[stat.getIndex()].getSampleCount();
 }
 
 F64 Recording::getMin( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
-	return (*mMeasurementsFloat)[stat.getIndex()].getMin();
+	return mBuffers->mMeasurementsFloat[stat.getIndex()].getMin();
 }
 
 S64 Recording::getMin( const TraceType<MeasurementAccumulator<S64> >& stat ) const
 {
-	return (*mMeasurements)[stat.getIndex()].getMin();
+	return mBuffers->mMeasurements[stat.getIndex()].getMin();
 }
 
 F64 Recording::getMax( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
-	return (*mMeasurementsFloat)[stat.getIndex()].getMax();
+	return mBuffers->mMeasurementsFloat[stat.getIndex()].getMax();
 }
 
 S64 Recording::getMax( const TraceType<MeasurementAccumulator<S64> >& stat ) const
 {
-	return (*mMeasurements)[stat.getIndex()].getMax();
+	return mBuffers->mMeasurements[stat.getIndex()].getMax();
 }
 
 F64 Recording::getMean( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
-	return (*mMeasurementsFloat)[stat.getIndex()].getMean();
+	return mBuffers->mMeasurementsFloat[stat.getIndex()].getMean();
 }
 
 F64 Recording::getMean( const TraceType<MeasurementAccumulator<S64> >& stat ) const
 {
-	return (*mMeasurements)[stat.getIndex()].getMean();
+	return mBuffers->mMeasurements[stat.getIndex()].getMean();
 }
 
 F64 Recording::getStandardDeviation( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
-	return (*mMeasurementsFloat)[stat.getIndex()].getStandardDeviation();
+	return mBuffers->mMeasurementsFloat[stat.getIndex()].getStandardDeviation();
 }
 
 F64 Recording::getStandardDeviation( const TraceType<MeasurementAccumulator<S64> >& stat ) const
 {
-	return (*mMeasurements)[stat.getIndex()].getStandardDeviation();
+	return mBuffers->mMeasurements[stat.getIndex()].getStandardDeviation();
 }
 
 F64 Recording::getLastValue( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
-	return (*mMeasurementsFloat)[stat.getIndex()].getLastValue();
+	return mBuffers->mMeasurementsFloat[stat.getIndex()].getLastValue();
 }
 
 S64 Recording::getLastValue( const TraceType<MeasurementAccumulator<S64> >& stat ) const
 {
-	return (*mMeasurements)[stat.getIndex()].getLastValue();
+	return mBuffers->mMeasurements[stat.getIndex()].getLastValue();
 }
 
 U32 Recording::getSampleCount( const TraceType<MeasurementAccumulator<F64> >& stat ) const
 {
-	return (*mMeasurementsFloat)[stat.getIndex()].getSampleCount();
+	return mBuffers->mMeasurementsFloat[stat.getIndex()].getSampleCount();
 }
 
 U32 Recording::getSampleCount( const TraceType<MeasurementAccumulator<S64> >& stat ) const
 {
-	return (*mMeasurements)[stat.getIndex()].getSampleCount();
+	return mBuffers->mMeasurements[stat.getIndex()].getSampleCount();
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -366,16 +352,9 @@ U32 Recording::getSampleCount( const TraceType<MeasurementAccumulator<S64> >& st
 
 PeriodicRecording::PeriodicRecording( U32 num_periods, EPlayState state) 
 :	mAutoResize(num_periods == 0),
-	mCurPeriod(0)
+	mCurPeriod(0),
+	mRecordingPeriods(num_periods ? num_periods : 1)
 {
-	if (mAutoResize) 
-	{
-		num_periods = 1;
-	}
-	if (num_periods)
-	{
-		mRecordingPeriods.resize(num_periods);
-	}
 	setPlayState(state);
 }
 
@@ -552,7 +531,7 @@ void PeriodicRecording::handleReset()
 
 void PeriodicRecording::handleSplitTo(PeriodicRecording& other)
 {
-	getCurRecording().handOffTo(other.getCurRecording());
+	getCurRecording().splitTo(other.getCurRecording());
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -589,7 +568,7 @@ void ExtendableRecording::handleReset()
 
 void ExtendableRecording::handleSplitTo(ExtendableRecording& other)
 {
-	mPotentialRecording.handOffTo(other.mPotentialRecording);
+	mPotentialRecording.splitTo(other.mPotentialRecording);
 }
 
 

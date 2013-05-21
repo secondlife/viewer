@@ -422,13 +422,6 @@ void LLFastTimerView::draw()
 	mHoverBarIndex = -1;
 }
 
-F64 LLFastTimerView::getTime(const std::string& name)
-{
-	//TODO: replace calls to this with use of timer object directly
-	//llstatic_assert(false, "TODO: implement");
-	return 0.0;
-}
-
 void saveChart(const std::string& label, const char* suffix, LLImageRaw* scratch)
 {
 	//read result back into raw image
