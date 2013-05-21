@@ -72,6 +72,7 @@
 			<combo_box.item label="Nesneyi satın al" name="Buyobject"/>
 			<combo_box.item label="Nesneye ödeme yap" name="Payobject"/>
 			<combo_box.item label="Aç" name="Open"/>
+			<combo_box.item label="Yakınlaştır" name="Zoom"/>
 		</combo_box>
 		<panel name="perms_inv">
 			<text name="perm_modify">

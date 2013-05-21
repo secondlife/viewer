@@ -35,7 +35,7 @@
 #include "llapr.h"
 
 //#if LL_DARWIN
-// MBW -- XXX -- Getting rid of SecondLifeVorbis for now -- no fmod means no name collisions.
+// MBW -- XXX -- Getting rid of SecondLifeVorbis for now
 #if 0
 #include "VorbisFramework.h"
 
