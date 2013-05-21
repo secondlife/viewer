@@ -686,6 +686,25 @@ void LLPanelFace::updateUI()
 			getChildView("ColorTrans")->setEnabled(editable);
 		}
 
+		// Specular map
+		struct spec_get : public LLSelectedTEGetFunctor<LLUUID>
+		{
+			LLUUID get(LLViewerObject* object, S32 te_index)
+			{
+				LLUUID id;
+
+				LLMaterial* mat = object->getTE(te_index)->getMaterialParams().get();
+
+				if (mat)
+				{
+					id = mat->getSpecularID();
+				}
+
+				return id;
+			}
+		} spec_get_func;
+		identical_spec = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &spec_get_func, specmap_id );
+
 		U8 shiny = 0;
 
 		// Shiny
@@ -701,9 +720,10 @@ void LLPanelFace::updateUI()
 
 			LLCtrlSelectionInterface* combobox_shininess =
 				childGetSelectionInterface("combobox shininess");
+
 			if (combobox_shininess)
 			{
-				combobox_shininess->selectNthItem((S32)shiny);
+				combobox_shininess->selectNthItem(specmap_id.isNull() ? (S32)shiny : SHINY_TEXTURE);
 			}
 			else
 			{
@@ -812,28 +832,6 @@ void LLPanelFace::updateUI()
 
 			if (bumpy != BUMPY_TEXTURE)
 				normmap_id = LLUUID::null;
-
-			// Specular map
-			struct spec_get : public LLSelectedTEGetFunctor<LLUUID>
-			{
-				LLUUID get(LLViewerObject* object, S32 te_index)
-				{
-					LLUUID id;
-					
-					LLMaterial* mat = object->getTE(te_index)->getMaterialParams().get();
-
-					if (mat)
-					{
-						id = mat->getSpecularID();
-					}
-									
-					return id;
-				}
-			} spec_get_func;
-			identical_spec = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &spec_get_func, specmap_id );
-
-			if (shiny != SHINY_TEXTURE)
-				specmap_id = LLUUID::null;
 
 			mIsAlpha = FALSE;
 			LLGLenum image_format;
@@ -960,7 +958,9 @@ void LLPanelFace::updateUI()
             
          if (shinytexture_ctrl && !shinytexture_ctrl->isPickerShown())
          {
-				if (identical_spec && (shiny == SHINY_TEXTURE))
+				// Can't use this test as we can't actually store SHINY_TEXTURE in the TEs *sigh*
+				//
+				if (identical_spec /*&& (shiny == SHINY_TEXTURE)*/)
 				{
 					shinytexture_ctrl->setTentative( FALSE );
 					shinytexture_ctrl->setEnabled( editable );
@@ -1850,7 +1850,7 @@ void LLPanelFace::updateMaterial()
         
 		LLUUID spec_map_id = getChild<LLTextureCtrl>("shinytexture control")->getImageAssetID();
 
-		if (!spec_map_id.isNull()  && (shininess == SHINY_TEXTURE))
+		if (!spec_map_id.isNull() && (shininess == SHINY_TEXTURE))
 		{
 			LL_DEBUGS("Materials") << "Setting shiny texture, shininess = " << shininess  << LL_ENDL;
 			material->setSpecularID(spec_map_id);
