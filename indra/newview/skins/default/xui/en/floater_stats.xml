@@ -38,7 +38,7 @@
 			   name="fps"
 			   label="FPS"
 			   unit_label="fps"
-			   stat="fpsstat"
+			   stat="framesrendered"
 			   bar_min="0"
 			   bar_max="60"
 			   tick_spacing="6"

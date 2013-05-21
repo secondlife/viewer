@@ -270,10 +270,12 @@ void LLSceneMonitor::capture()
 	static LLFrameTimer timer;	
 
 	LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
-	if (last_frame_recording.getSum(*LLViewerCamera::getVelocityStat()) > 0.001f
-		|| last_frame_recording.getSum(*LLViewerCamera::getAngularVelocityStat()) > 0.01f)
+	if (mEnabled 
+		&&	(last_frame_recording.getSum(*LLViewerCamera::getVelocityStat()) > 0.001f
+			|| last_frame_recording.getSum(*LLViewerCamera::getAngularVelocityStat()) > 0.01f))
 	{
 		reset();
+		freezeScene();
 	}
 
 	bool enabled = monitor_enabled || mDebugViewerVisible;

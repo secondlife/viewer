@@ -64,7 +64,7 @@
 namespace LLStatViewer
 {
 
-LLTrace::CountStatHandle<>	FPS("fpsstat"),
+LLTrace::CountStatHandle<>	FPS("framesrendered"),
 							PACKETS_IN("packetsinstat"),
 							PACKETS_LOST("packetsloststat"),
 							PACKETS_OUT("packetsoutstat"),
