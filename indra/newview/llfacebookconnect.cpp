@@ -96,6 +96,35 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+class LLFacebookPostResponder : public LLHTTPClient::Responder
+{
+	LOG_CLASS(LLFacebookPostResponder);
+public:
+    
+	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+	{
+		if (isGoodStatus(status))
+		{
+			LL_DEBUGS("FacebookConnect") << "Post successful. content: " << content << LL_ENDL;
+		}
+		else
+		{
+			LL_WARNS("FacebookConnect") << "Failed to get a post response. reason: " << reason << " status: " << status << LL_ENDL;
+		}
+	}
+    
+    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+    {
+        if (status == 302)
+        {
+            LLFacebookConnect::instance().openFacebookWeb(content["location"]);
+        }
+    }
+    
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
 class LLFacebookDisconnectResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLFacebookDisconnectResponder);
@@ -245,6 +274,20 @@ void LLFacebookConnect::loadFacebookFriends()
 	const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
 	LLHTTPClient::get(getFacebookConnectURL("/friend"), new LLFacebookFriendsResponder(),
 					  LLSD(), timeout, follow_redirects);
+}
+
+void LLFacebookConnect::postCheckinMessage(const std::string& message, const std::string& url)
+{
+    // Note: We need to improve the API support to provide all the relevant data if possible
+    // Full set described : http://facebook-python-library.docs-library.appspot.com/facebook-python/library-manual.html
+	LLSD body;
+	if (!message.empty())
+		body["message"] = message;
+	if (!url.empty())
+		body["link"] = url;
+    
+    // Note: we can use that route for different publish action. We should be able to use the same responder.
+	LLHTTPClient::post(getFacebookConnectURL("/share"), body, new LLFacebookPostResponder());
 }
 
 void LLFacebookConnect::storeContent(const LLSD& content)

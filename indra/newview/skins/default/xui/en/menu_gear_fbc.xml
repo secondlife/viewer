@@ -41,4 +41,11 @@
     <menu_item_check.on_click
      function="People.testaddFBCFolderView"/>
   </menu_item_check>  
+  <menu_item_check
+   label="Facebook post checkin message"
+   layout="topleft"
+   name="Facebook Checkin">
+   <menu_item_check.on_click
+    function="People.testFBCCheckin"/>
+  </menu_item_check>
 </toggleable_menu>

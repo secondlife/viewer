@@ -76,6 +76,9 @@
 #include "llspeakers.h"
 #include "llfloaterwebcontent.h"
 
+#include "llagentui.h"
+#include "llslurl.h"
+
 #define FRIEND_LIST_UPDATE_TIMEOUT	0.5
 #define NEARBY_LIST_UPDATE_INTERVAL 1
 #define FBCTEST_LIST_UPDATE_INTERVAL 0.25
@@ -568,6 +571,7 @@ LLPanelPeople::LLPanelPeople()
 	mCommitCallbackRegistrar.add("People.sendFBC", boost::bind(&LLPanelPeople::onFacebookAppSendClicked, this));
 	mCommitCallbackRegistrar.add("People.testaddFBC", boost::bind(&LLPanelPeople::onFacebookTestAddClicked, this));
 	mCommitCallbackRegistrar.add("People.testaddFBCFolderView", boost::bind(&LLPanelPeople::addTestParticipant, this));
+	mCommitCallbackRegistrar.add("People.testFBCCheckin", boost::bind(&LLPanelPeople::onFacebookCheckinClicked, this));
 
 	mCommitCallbackRegistrar.add("People.AddFriend", boost::bind(&LLPanelPeople::onAddFriendButtonClicked, this));
 	mCommitCallbackRegistrar.add("People.AddFriendWizard",	boost::bind(&LLPanelPeople::onAddFriendWizButtonClicked,	this));
@@ -1714,6 +1718,15 @@ void LLPanelPeople::onLoginFbcButtonClicked()
 	{
         LLFacebookConnect::instance().getConnectionToFacebook();
 	}
+}
+
+void LLPanelPeople::onFacebookCheckinClicked()
+{
+    // Get the local SLURL 
+	LLSLURL slurl;
+	LLAgentUI::buildSLURL(slurl);
+
+    LLFacebookConnect::instance().postCheckinMessage("Here I am in SL!", slurl.getSLURLString());
 }
 
 void LLPanelPeople::onFacebookAppRequestClicked()

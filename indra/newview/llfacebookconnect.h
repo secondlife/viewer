@@ -46,6 +46,7 @@ public:
     void getConnectionToFacebook();
     
     void loadFacebookFriends();
+    void postCheckinMessage(const std::string& message, const std::string& url);
 
     void clearContent();
 	void storeContent(const LLSD& content);
