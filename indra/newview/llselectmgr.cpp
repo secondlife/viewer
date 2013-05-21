@@ -2507,8 +2507,42 @@ void LLSelectMgr::adjustTexturesByScale(BOOL send_to_sim, BOOL stretch)
 				// Apply new scale to face
 				if (planar)
 				{
-					object->setTEScale(te_num, 1.f/object_scale.mV[s_axis]*scale_ratio.mV[s_axis],
-										1.f/object_scale.mV[t_axis]*scale_ratio.mV[t_axis]);
+					F32 scale_s = scale_ratio.mV[s_axis]/object_scale.mV[s_axis];
+					F32 scale_t = scale_ratio.mV[t_axis]/object_scale.mV[t_axis];
+
+					switch (mTextureChannel)
+					{
+						case LLRender::DIFFUSE_MAP:
+							{
+								object->setTEScale(te_num, scale_s, scale_t);
+							}
+							break;
+
+						case LLRender::NORMAL_MAP:
+							{
+								LLTextureEntry* tep = object->getTE(te_num);
+								if (tep && !tep->getMaterialParams().isNull())
+								{
+									LLMaterialPtr p = tep->getMaterialParams();
+									p->setNormalRepeat(scale_s * 0.5f, scale_t * 0.5f);
+								}
+							}
+							break;
+
+						case LLRender::SPECULAR_MAP:
+							{
+								LLTextureEntry* tep = object->getTE(te_num);
+								if (tep && !tep->getMaterialParams().isNull())
+								{
+									LLMaterialPtr p = tep->getMaterialParams();
+									p->setSpecularRepeat(scale_s * 0.5f, scale_t * 0.5f);
+								}
+							}
+							break;
+						default:
+							break;
+					}
+					
 				}
 				else
 				{
