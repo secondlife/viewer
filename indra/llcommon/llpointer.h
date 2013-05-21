@@ -170,7 +170,8 @@ class LLCopyOnWritePointer : public LLPointer<Type>
 {
 public:
 	typedef LLCopyOnWritePointer<Type> self_t;
-
+    typedef LLPointer<Type> pointer_t;
+    
 	LLCopyOnWritePointer() 
 	{}
 
@@ -185,14 +186,14 @@ public:
 	Type* write()
 	{
 		makeUnique();
-		return mPointer;
+		return pointer_t::mPointer;
 	}
 
 	void makeUnique()
 	{
-		if (LLPointer<Type>::notNull() && mPointer->getNumRefs() > 1)
+		if (pointer_t::notNull() && pointer_t::mPointer->getNumRefs() > 1)
 		{
-			*(LLPointer<Type>*)(this) = new Type(*mPointer);
+			*(pointer_t*)(this) = new Type(*pointer_t::mPointer);
 		}
 	}
 };
