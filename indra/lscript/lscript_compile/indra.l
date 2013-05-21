@@ -273,6 +273,24 @@ int yyerror(const char *fmt, ...);
 "OBJECT_OWNER"			{ count(); yylval.ival = OBJECT_OWNER; return(INTEGER_CONSTANT); }
 "OBJECT_GROUP"			{ count(); yylval.ival = OBJECT_GROUP; return(INTEGER_CONSTANT); }
 "OBJECT_CREATOR"		{ count(); yylval.ival = OBJECT_CREATOR; return(INTEGER_CONSTANT); }
+"OBJECT_RUNNING_SCRIPT_COUNT"	{ count(); yylval.ival = OBJECT_RUNNING_SCRIPT_COUNT; return(INTEGER_CONSTANT); }
+"OBJECT_TOTAL_SCRIPT_COUNT"		{ count(); yylval.ival = OBJECT_TOTAL_SCRIPT_COUNT; return(INTEGER_CONSTANT); }
+"OBJECT_SCRIPT_MEMORY"			{ count(); yylval.ival = OBJECT_SCRIPT_MEMORY; return(INTEGER_CONSTANT); }
+"OBJECT_SCRIPT_TIME"			{ count(); yylval.ival = OBJECT_SCRIPT_TIME; return(INTEGER_CONSTANT); }
+"OBJECT_PRIM_EQUIVALENCE"		{ count(); yylval.ival = OBJECT_PRIM_EQUIVALENCE; return(INTEGER_CONSTANT); }
+"OBJECT_SERVER_COST"			{ count(); yylval.ival = OBJECT_SERVER_COST; return(INTEGER_CONSTANT); }
+"OBJECT_STREAMING_COST"			{ count(); yylval.ival = OBJECT_STREAMING_COST; return(INTEGER_CONSTANT); }
+"OBJECT_PHYSICS_COST"			{ count(); yylval.ival = OBJECT_PHYSICS_COST; return(INTEGER_CONSTANT); }
+"OBJECT_CHARACTER_TIME"			{ count(); yylval.ival = OBJECT_CHARACTER_TIME; return(INTEGER_CONSTANT); }
+"OBJECT_ROOT"					{ count(); yylval.ival = OBJECT_ROOT; return(INTEGER_CONSTANT); }
+"OBJECT_ATTACHED_POINT"			{ count(); yylval.ival = OBJECT_ATTACHED_POINT; return(INTEGER_CONSTANT); }
+"OBJECT_PATHFINDING_TYPE"		{ count(); yylval.ival = OBJECT_PATHFINDING_TYPE; return(INTEGER_CONSTANT); }
+"OBJECT_PHYSICS"				{ count(); yylval.ival = OBJECT_PHYSICS; return(INTEGER_CONSTANT); }
+"OBJECT_PHANTOM"				{ count(); yylval.ival = OBJECT_PHANTOM; return(INTEGER_CONSTANT); }
+"OBJECT_TEMP_ON_REZ"			{ count(); yylval.ival = OBJECT_TEMP_ON_REZ; return(INTEGER_CONSTANT); }
+"OBJECT_RENDER_WEIGHT"			{ count(); yylval.ival = OBJECT_RENDER_WEIGHT; return(INTEGER_CONSTANT); }
+"OBJECT_ATTACHMENT_GEOMETRY_BYTES"		{ count(); yylval.ival = OBJECT_ATTACHMENT_GEOMETRY_BYTES; return(INTEGER_CONSTANT); }
+"OBJECT_ATTACHMENT_SURFACE_AREA"		{ count(); yylval.ival = OBJECT_ATTACHMENT_SURFACE_AREA; return(INTEGER_CONSTANT); }
 
 "TYPE_INTEGER"			{ count(); yylval.ival = LST_INTEGER; return(INTEGER_CONSTANT); }	
 "TYPE_FLOAT"			{ count(); yylval.ival = LST_FLOATINGPOINT; return(INTEGER_CONSTANT); }	
