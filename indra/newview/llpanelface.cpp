@@ -1538,7 +1538,7 @@ void LLPanelFace::updateUI()
 				BOOL identical = true;
 				F32  repeats = 1.0f;
 
-				U32 material_type = combobox_mattype->getCurrentIndex();
+				U32 material_type = (combobox_matmedia->getCurrentIndex() == MATMEDIA_MATERIAL) ? combobox_mattype->getCurrentIndex() : MATTYPE_DIFFUSE;
 				switch (material_type)
 				{
 					default:
