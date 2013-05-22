@@ -28,6 +28,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
+#include "llhasheduniqueid.h"
 
 class LLUpdaterServiceImpl;
 
@@ -70,11 +71,15 @@ public:
 	LLUpdaterService();
 	~LLUpdaterService();
 
-	void initialize(const std::string& protocol_version,
-				    const std::string& url, 
-				    const std::string& path,
-				    const std::string& channel,
-				    const std::string& version);
+	void initialize(const std::string& 	url, 
+				    const std::string& 	path,
+				    const std::string& 	channel,
+				    const std::string& 	version,
+					const std::string&  platform,
+					const std::string&  platform_version,
+					const unsigned char uniqueid[MD5HEX_STR_SIZE],
+					const bool&         willing_to_test
+					);
 
 	void setCheckPeriod(unsigned int seconds);
 	void setBandwidthLimit(U64 bytesPerSecond);

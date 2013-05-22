@@ -115,7 +115,7 @@ std::string LLCoros::getNameByID(const void* self_id) const
     // passed to us comes.
     for (CoroMap::const_iterator mi(mCoros.begin()), mend(mCoros.end()); mi != mend; ++mi)
     {
-        namespace coro_private = boost::coroutines::detail;
+        namespace coro_private = boost::dcoroutines::detail;
         if (static_cast<void*>(coro_private::coroutine_accessor::get_impl(const_cast<coro&>(*mi->second)).get())
             == self_id)
         {
