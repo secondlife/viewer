@@ -38,7 +38,7 @@ typedef LLAtomic32<U32> LLAtomicU32;
 class LLErrorThread;
 class LLLiveFile;
 #if LL_LINUX
-typedef struct siginfo siginfo_t;
+#include <signal.h>
 #endif
 
 typedef void (*LLAppErrorHandler)();
