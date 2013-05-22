@@ -12504,16 +12504,16 @@
       <key>Value</key>
       <string>update</string>
     </map>
-    <key>UpdaterServiceProtocolVersion</key>
+    <key>UpdaterWillingToTest</key>
     <map>
       <key>Comment</key>
-      <string>The update protocol version to use.</string>
+      <string>Whether or not the updater should offer test candidate upgrades.</string>
       <key>Persist</key>
-      <integer>0</integer>
+      <integer>1</integer>
       <key>Type</key>
-      <string>String</string>
+      <string>Boolean</string>
       <key>Value</key>
-      <string>v1.0</string>
+      <string>1</string>
     </map>
     <key>UploadBakedTexOld</key>
     <map>
