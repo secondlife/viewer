@@ -1290,6 +1290,10 @@ void LLScriptEdCore::addExperienceInfo( const LLSD& experience )
 {
 	mExperiences->setEnabled(TRUE);
 	mExperiences->add(experience[LLExperienceCache::NAME], experience[LLExperienceCache::EXPERIENCE_ID].asUUID());
+    if(mAssociatedExperience == experience[LLExperienceCache::EXPERIENCE_ID].asUUID())
+    {
+        setAssociatedExperience(mAssociatedExperience);
+    }
 }
 
 void LLScriptEdCore::clearExperiences()
@@ -1306,7 +1310,7 @@ LLUUID LLScriptEdCore::getSelectedExperience()const
 void LLScriptEdCore::setAssociatedExperience( const LLUUID& experience_id )
 {
     mAssociatedExperience = experience_id;
-    if(experience_id.isNull())
+    if(experience_id.notNull())
     {
         if(!mExperiences->setSelectedByValue(mAssociatedExperience, TRUE))
         {
@@ -2028,19 +2032,8 @@ void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 	
 	if(instance )
 	{
-        LLViewerRegion* region = gAgent.getRegion();
-        if (region)
-        {
-            std::string lookup_url=region->getCapability("GetMetadata"); 
-            //lookup_url = "http://127.0.0.1:12035/meta";
-            if(!lookup_url.empty())
-            {
-                lookup_url += "/";
-                lookup_url += asset_id.asString();
-                lookup_url += "/experience";
-                LLHTTPClient::get(lookup_url, new ExperienceAssociationResponder(*xored_id));
-            }
-        }
+        instance->fetchAssociatedExperience(asset_id);
+
 
 		if( LL_ERR_NOERR == status )
 		{
@@ -2487,6 +2480,25 @@ void LLLiveLSLEditor::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* use
 	LLFile::remove(dst_filename);
 	delete data;
 }
+
+void LLLiveLSLEditor::fetchAssociatedExperience(const LLUUID& asset_id)
+{
+    LLViewerRegion* region = gAgent.getRegion();
+    if (region)
+    {
+        std::string lookup_url=region->getCapability("GetMetadata"); 
+        if(!lookup_url.empty())
+        {
+            LLSD request;
+            request["asset-id"]=asset_id;
+            LLSD fields;
+            fields.append("experience");
+            request["fields"] = fields;
+            LLHTTPClient::post(lookup_url, request, new ExperienceAssociationResponder(getKey()));
+        }
+    }
+}
+
 
 BOOL LLLiveLSLEditor::canClose()
 {

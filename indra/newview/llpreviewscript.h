@@ -238,6 +238,7 @@ public:
 	
     void setIsNew() { mIsNew = TRUE; }
     void setAssociatedExperience( const LLUUID& experience_id );
+    void fetchAssociatedExperience(const LLUUID& asset_id);
 	
 private:
 	virtual BOOL canClose();
