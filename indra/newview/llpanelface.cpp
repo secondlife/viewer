@@ -318,16 +318,18 @@ void LLPanelFace::sendTexGen()
 
 void LLPanelFace::sendShiny(U32 shininess)
 {
+	LLTextureCtrl* texture_ctrl = getChild<LLTextureCtrl>("shinytexture control");
+
 	if (shininess < SHINY_TEXTURE)
-	{
-		LLTextureCtrl* texture_ctrl = getChild<LLTextureCtrl>("shinytexture control");
+	{		
 		texture_ctrl->clear();
 		texture_ctrl->setImageAssetID(LLUUID());
-	}
-	U8 shiny = (U8) shininess & TEM_SHINY_MASK;
-	LLSelectMgr::getInstance()->selectionSetShiny( shiny );
 
-	updateShinyControls(shininess == SHINY_TEXTURE, true);
+		U8 shiny = (U8) shininess & TEM_SHINY_MASK;
+		LLSelectMgr::getInstance()->selectionSetShiny( shiny );
+	}
+
+	updateShinyControls(!texture_ctrl->getImageAssetID().isNull(), true);
 	updateMaterial();
 }
 
@@ -721,9 +723,11 @@ void LLPanelFace::updateUI()
 			LLCtrlSelectionInterface* combobox_shininess =
 				childGetSelectionInterface("combobox shininess");
 
+			shiny = specmap_id.isNull() ? shiny : SHINY_TEXTURE;
+
 			if (combobox_shininess)
 			{
-				combobox_shininess->selectNthItem(specmap_id.isNull() ? (S32)shiny : SHINY_TEXTURE);
+				combobox_shininess->selectNthItem((S32)shiny);
 			}
 			else
 			{
@@ -2276,6 +2280,7 @@ void LLPanelFace::onCommitNormalTexture( const LLSD& data )
 
 void LLPanelFace::onCancelSpecularTexture(const LLSD& data)
 {
+
 	U8 shiny = 0;		
 	struct get_shiny : public LLSelectedTEGetFunctor<U8>
 	{
@@ -2285,6 +2290,9 @@ void LLPanelFace::onCancelSpecularTexture(const LLSD& data)
 		}
 	} func;
 	LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, shiny );
+
+	LLUUID spec_map_id = getChild<LLTextureCtrl>("shinytexture control")->getImageAssetID();
+	shiny = spec_map_id.isNull() ? shiny : SHINY_TEXTURE;
 	sendShiny(shiny);
 }
 
