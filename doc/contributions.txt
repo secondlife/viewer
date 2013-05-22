@@ -901,6 +901,7 @@ Nicky Dasmijn
 	VWR-29228
 	MAINT-873
 	SUN-72
+	BUG-2432
 Nicky Perian
 	OPEN-1
 	STORM-1087
