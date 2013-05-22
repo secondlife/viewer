@@ -2523,8 +2523,10 @@ void LLSelectMgr::adjustTexturesByScale(BOOL send_to_sim, BOOL stretch)
 								LLTextureEntry* tep = object->getTE(te_num);
 								if (tep && !tep->getMaterialParams().isNull())
 								{
-									LLMaterialPtr p = tep->getMaterialParams();
+									LLMaterialPtr orig = tep->getMaterialParams();
+									LLMaterialPtr p = new LLMaterial(orig->asLLSD());
 									p->setNormalRepeat(scale_s * 0.5f, scale_t * 0.5f);
+									selectionSetMaterial( p );
 								}
 							}
 							break;
@@ -2534,8 +2536,10 @@ void LLSelectMgr::adjustTexturesByScale(BOOL send_to_sim, BOOL stretch)
 								LLTextureEntry* tep = object->getTE(te_num);
 								if (tep && !tep->getMaterialParams().isNull())
 								{
-									LLMaterialPtr p = tep->getMaterialParams();
+									LLMaterialPtr orig = tep->getMaterialParams();
+									LLMaterialPtr p = new LLMaterial(orig->asLLSD());
 									p->setSpecularRepeat(scale_s * 0.5f, scale_t * 0.5f);
+									selectionSetMaterial( p );
 								}
 							}
 							break;
