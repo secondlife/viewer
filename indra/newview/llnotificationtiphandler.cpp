@@ -83,13 +83,6 @@ bool LLTipHandler::processNotification(const LLNotificationPtr& notification)
 	if (notification->canLogToChat())
 	{
 		LLHandlerUtil::logToNearbyChat(notification, CHAT_SOURCE_SYSTEM);
-
-		// don't show toast if Nearby Chat is opened
-		LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
-		if (nearby_chat->isChatVisible())
-		{
-			return false;
-		}
 	}
 
 	std::string session_name = notification->getPayload()["SESSION_NAME"];
