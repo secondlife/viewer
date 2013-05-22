@@ -640,7 +640,6 @@ void LLViewerShaderMgr::unloadShaders()
 	gTwoTextureAddProgram.unload();
 	gOneTextureNoColorProgram.unload();
 	gSolidColorProgram.unload();
-	gSolidColorProgramIntel.unload();
 
 	gObjectFullbrightNoColorProgram.unload();
 	gObjectFullbrightNoColorWaterProgram.unload();
@@ -2701,24 +2700,6 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 			gSolidColorProgram.bind();
 			gSolidColorProgram.uniform1i(sTex0, 0);
 			gSolidColorProgram.unbind();
-		}
-	}
-
-	// When running with a intel gfx card, do not use the solidcolor?.glsl files. Instead use a custom one 
-	// for those cards. Passing color as a uniform and not a shader attribute
-	if (success)
-	{
-		gSolidColorProgramIntel.mName = "Solid Color Shader for Intel";
-		gSolidColorProgramIntel.mShaderFiles.clear();
-		gSolidColorProgramIntel.mShaderFiles.push_back(make_pair("interface/solidcolorIntelV.glsl", GL_VERTEX_SHADER_ARB));
-		gSolidColorProgramIntel.mShaderFiles.push_back(make_pair("interface/solidcolorF.glsl", GL_FRAGMENT_SHADER_ARB)); // The standard fragment shader is just fine. So keep it.
-		gSolidColorProgramIntel.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
-		success = gSolidColorProgramIntel.createShader(NULL, NULL);
-		if (success)
-		{
-			gSolidColorProgramIntel.bind();
-			gSolidColorProgramIntel.uniform1i(sTex0, 0);
-			gSolidColorProgramIntel.unbind();
 		}
 	}
 
