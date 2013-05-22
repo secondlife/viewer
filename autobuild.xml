@@ -522,9 +522,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0980cdf98a322a780ba739e324d0b955</string>
+	      <string>91752db72202807cffb33c1ec3fd90fc</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/274401/arch/CYGWIN/installer/fmodex-4.44-windows-20130419.tar.bz2</string>
+	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/276321/arch/CYGWIN/installer/fmodex-4.44-windows-20130521.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
