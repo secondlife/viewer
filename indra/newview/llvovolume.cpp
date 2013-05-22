@@ -1980,7 +1980,7 @@ void LLVOVolume::setTEMaterialParamsCallbackTE(const LLMaterialID &pMaterialID, 
 		return;
 
 	LLTextureEntry* texture_entry = getTE(te);
-	if (texture_entry)
+	if (texture_entry && (texture_entry->getMaterialID() == pMaterialID))
 	{
 		setTEMaterialParams(te, pMaterialParams);
 	}
@@ -2009,7 +2009,7 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 	if (res)
 	{
 #if USE_TE_SPECIFIC_REGISTRATION
-		LLMaterialMgr::instance().getTE(getRegion()->getRegionID(), pMaterialID, te, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2, _3));			
+		LLMaterialMgr::instance().getTE(getRegion()->getRegionID(), pMaterialID, te, boost::bind(&LLVOVolume::setTEMaterialParamsCallbackTE, this, _1, _2, _3));			
 #else
 		LLMaterialMgr::instance().get(getRegion()->getRegionID(), pMaterialID, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2));
 #endif
@@ -4531,7 +4531,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_GLOW);
 						}
 
-						LLMaterial* mat = LLPipeline::sRenderDeferred ? te->getMaterialParams().get() : NULL;
+						LLMaterial* mat = te->getMaterialParams().get();
 
 						if (mat)
 						{
@@ -4549,6 +4549,13 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 								{
 									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT);
 								}
+							}
+							else if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
+							{
+								// This feels unclean, but is the only way to get alpha masked rigged stuff to show up
+								// with masking correctly in both deferred and non-deferred paths. NORSPEC-191
+								//
+								pool->addRiggedFace(facep, LLPipeline::sRenderDeferred ? LLDrawPoolAvatar::RIGGED_MATERIAL_ALPHA_MASK : LLDrawPoolAvatar::RIGGED_ALPHA);
 							}
 							else
 							{
@@ -5359,6 +5366,28 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					mask = llmin(mask, (U32)(sizeof(pass)/sizeof(U32)-1));
 
 					registerFace(group, facep, pass[mask]);
+				}
+			}
+			else if (mat)
+			{
+				if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
+				{
+					registerFace(group, facep, fullbright ? LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK : LLRenderPass::PASS_ALPHA_MASK);
+				}
+				else if (is_alpha || (te->getColor().mV[3] < 0.999f))
+				{
+					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
+				}
+				else if (gPipeline.canUseVertexShaders()
+					&& LLPipeline::sRenderBump 
+					&& te->getShiny() 
+					&& can_be_shiny)
+				{
+					registerFace(group, facep, fullbright ? LLRenderPass::PASS_FULLBRIGHT_SHINY : LLRenderPass::PASS_SHINY);
+				}
+				else
+				{
+					registerFace(group, facep, fullbright ? LLRenderPass::PASS_FULLBRIGHT : LLRenderPass::PASS_SIMPLE);
 				}
 			}
 			else if (is_alpha)

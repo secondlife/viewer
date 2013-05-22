@@ -63,9 +63,9 @@ protected:
 	void			sendTextureInfo();		// applies and sends texture scale, offset, etc.
 	void			sendColor();			// applies and sends color
 	void			sendAlpha();			// applies and sends transparency
-	void			sendBump();				// applies and sends bump map
+	void			sendBump(U32 bumpiness);				// applies and sends bump map
 	void			sendTexGen();				// applies and sends bump map
-	void			sendShiny();			// applies and sends shininess
+	void			sendShiny(U32 shininess);			// applies and sends shininess
 	void			sendFullbright();		// applies and sends full bright
 	void        sendGlow();
 	void			sendMedia();
