@@ -31,6 +31,8 @@
 #include "llmaterialid.h"
 #include "llsingleton.h"
 
+#define USE_TE_SPECIFIC_REGISTRATION 1
+
 class LLViewerRegion;
 
 class LLMaterialMgr : public LLSingleton<LLMaterialMgr>
