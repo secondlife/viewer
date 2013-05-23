@@ -121,6 +121,7 @@ public:
 	F32 mDistance;
 	U32 mDrawMode;
 	LLMaterialPtr mMaterial; // If this is null, the following parameters are unused.
+	LLMaterialID mMaterialID;
 	U32 mShaderMask;
 	LLPointer<LLViewerTexture> mSpecularMap;
 	const LLMatrix4* mSpecularMapMatrix;

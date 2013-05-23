@@ -337,34 +337,41 @@ const LLMaterialPtr LLMaterialMgr::setMaterial(const LLUUID& region_id, const LL
 		itMaterial = ret.first;
 	}
 
-	mGetPending.erase(pending_material_t(region_id, material_id));
+	// we may have cleared our queues on leaving a region before we recv'd our
+	// update for this material...too late now!
+	//
+	if (isGetPending(region_id, material_id))
+	{		
+	
+	#if USE_TE_SPECIFIC_REGISTRATION
+		TEMaterialPair te_mat_pair;
+		te_mat_pair.materialID = material_id;
 
-	get_callback_map_t::iterator itCallback = mGetCallbacks.find(material_id);
-	if (itCallback != mGetCallbacks.end())
-	{
-		(*itCallback->second)(material_id, itMaterial->second);
-
-		delete itCallback->second;
-		mGetCallbacks.erase(itCallback);
-	}
-
-#if USE_TE_SPECIFIC_REGISTRATION
-	TEMaterialPair te_mat_pair;
-	te_mat_pair.materialID = material_id;
-
-	U32 i = 0;
-	while (i < LLTEContents::MAX_TES)
-	{
-		te_mat_pair.te = i++;
-		get_callback_te_map_t::iterator itCallbackTE = mGetTECallbacks.find(te_mat_pair);
-		if (itCallbackTE != mGetTECallbacks.end())
+		U32 i = 0;
+		while (i < LLTEContents::MAX_TES)
 		{
-			(*itCallbackTE->second)(material_id, itMaterial->second, te_mat_pair.te);
-			delete itCallbackTE->second;
-			mGetTECallbacks.erase(itCallbackTE);
+			te_mat_pair.te = i++;
+			get_callback_te_map_t::iterator itCallbackTE = mGetTECallbacks.find(te_mat_pair);
+			if (itCallbackTE != mGetTECallbacks.end())
+			{
+				(*itCallbackTE->second)(material_id, itMaterial->second, te_mat_pair.te);
+				delete itCallbackTE->second;
+				mGetTECallbacks.erase(itCallbackTE);
+			}
+		}
+	#endif
+
+		get_callback_map_t::iterator itCallback = mGetCallbacks.find(material_id);
+		if (itCallback != mGetCallbacks.end())
+		{
+			(*itCallback->second)(material_id, itMaterial->second);
+
+			delete itCallback->second;
+			mGetCallbacks.erase(itCallback);
 		}
 	}
-#endif
+
+	mGetPending.erase(pending_material_t(region_id, material_id));
 
 	return itMaterial->second;
 }

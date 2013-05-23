@@ -1683,7 +1683,7 @@ void LLPanelFace::updateUI()
 				texture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
 				texture_ctrl->setImageAssetID(material->getNormalID());
 
-				if (!material->getNormalID().isNull() && (bumpy == BUMPY_TEXTURE))
+				if (!material->getNormalID().isNull())
 				{
 					material->getNormalOffset(offset_x,offset_y);
 					material->getNormalRepeat(repeat_x,repeat_y);
