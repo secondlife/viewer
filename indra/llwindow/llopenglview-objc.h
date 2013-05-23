@@ -47,6 +47,10 @@
 
 @end
 
+@interface LLUserInputWindow : NSPanel
+
+@end
+
 @interface LLNonInlineTextView : NSTextView
 {
 	LLOpenGLView *glview;

@@ -527,6 +527,15 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 @end
 
+@implementation LLUserInputWindow
+
+- (void) close
+{
+    [self orderOut:self];
+}
+
+@end
+
 @implementation LLNonInlineTextView
 
 - (void) setGLView:(LLOpenGLView *)view
@@ -536,16 +545,30 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) insertText:(id)insertString
 {
+	[[self inputContext] discardMarkedText];
+    [self setString:@""];
+    [_window orderOut:_window];
 	[self insertText:insertString replacementRange:NSMakeRange(0, 0)];
 }
 
 - (void) insertText:(id)aString replacementRange:(NSRange)replacementRange
 {
 	[glview insertText:aString replacementRange:replacementRange];
+}
+
+- (void) insertNewline:(id)sender
+{
 	[[self textStorage] setValue:@""];
 	[[self inputContext] discardMarkedText];
     [self setString:@""];
-    [_window orderOut:_window];
+}
+
+- (void)doCommandBySelector:(SEL)aSelector
+{
+	if (aSelector == @selector(insertNewline:))
+	{
+		[self insertNewline:self];
+	}
 }
 
 @end
