@@ -979,7 +979,14 @@ void LLDrawPoolAvatar::beginRiggedFullbrightShiny()
 		}
 		else
 		{
-			sVertexProgram = &gSkinnedObjectFullbrightShinyProgram;
+			if (LLPipeline::sRenderDeferred)
+			{
+				sVertexProgram = &gDeferredSkinnedFullbrightShinyProgram;
+			}
+			else
+			{
+				sVertexProgram = &gSkinnedObjectFullbrightShinyProgram;
+			}
 		}
 	}
 	else
