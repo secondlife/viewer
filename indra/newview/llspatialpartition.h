@@ -112,6 +112,7 @@ public:
 	U32 mOffset;
 	BOOL mFullbright;
 	U8 mBump;
+	U8 mShiny;
 	BOOL mParticle;
 	F32 mPartSize;
 	F32 mVSize;
