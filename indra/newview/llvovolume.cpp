@@ -5003,6 +5003,10 @@ struct CompareBatchBreakerModified
 		{
 			return lte->getMaterialParams() < rte->getMaterialParams();
 		}
+		else if (LLPipeline::sRenderDeferred && (lte->getMaterialParams() == rte->getMaterialParams()) && (lte->getShiny() != rte->getShiny()))
+		{
+			return lte->getShiny() < rte->getShiny();
+		}
 		else
 		{
 			return lhs->getTexture() < rhs->getTexture();

@@ -2666,7 +2666,8 @@
             </menu_item_call>
             <menu_item_call
              label="Selected Material Info"
-             name="Selected Material Info">
+             name="Selected Material Info"
+             shortcut="control|alt|shift|M">
                 <menu_item_call.on_click
                  function="Advanced.SelectedMaterialInfo" />
             </menu_item_call>
