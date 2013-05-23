@@ -73,7 +73,6 @@ private:
 	LLRenderTarget& getCaptureTarget();
 	void generateDitheringTexture(S32 width, S32 height);
 
-	void addMonitorResult();
 private:
 	bool mEnabled;
 	bool mDebugViewerVisible;
@@ -105,14 +104,6 @@ private:
 	std::vector<LLAnimPauseRequest> mAvatarPauseHandles;
 
 	LLTrace::ExtendablePeriodicRecording* mRecording;
-
-	//---------------------------------------
-	typedef struct _monitor_result
-	{
-		F32 mTimeStamp;
-		F32 mDiff;
-	} ll_monitor_result_t;
-	std::vector<ll_monitor_result_t> mMonitorResults;
 };
 
 class LLSceneMonitorView : public LLFloater
