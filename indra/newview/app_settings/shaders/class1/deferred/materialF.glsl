@@ -28,6 +28,9 @@
 #define DIFFUSE_ALPHA_MODE_MASK 2
 #define DIFFUSE_ALPHA_MODE_EMISSIVE 3
 
+#if DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE
+uniform float emissive_brightness;
+#endif
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 
@@ -36,7 +39,6 @@ out vec4 frag_color;
 #else
 #define frag_color gl_FragColor
 #endif
-
 
 #if HAS_SUN_SHADOW
 
@@ -472,7 +474,7 @@ void main()
 	vec4 final_color = diffcol;
 	
 #if (DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE)
-	final_color.a = 0;
+	final_color.a = emissive_brightness;
 #endif
 
 	vec4 final_specular = spec;
@@ -646,6 +648,7 @@ void main()
 	frag_color.a = max(diffcol.a*vertex_color.a, glare);
 
 #else
+
 	frag_data[0] = final_color;
 
 #ifdef UGLY_MAC_HACK
