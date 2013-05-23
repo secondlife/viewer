@@ -496,14 +496,6 @@ void LLSceneMonitor::fetchQueryResult()
 	}
 }
 
-void LLSceneMonitor::addMonitorResult()
-{
-	ll_monitor_result_t result;
-	result.mTimeStamp = LLImageGL::sLastFrameTime;
-	result.mDiff = mDiffResult;
-	mMonitorResults.push_back(result);
-}
-
 //dump results to a file _scene_xmonitor_results.csv
 void LLSceneMonitor::dumpToFile(std::string file_name)
 {
