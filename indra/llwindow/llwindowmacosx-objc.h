@@ -95,10 +95,10 @@ void showInputWindow(bool show);
 
 // These are all implemented in llwindowmacosx.cpp.
 // This is largely for easier interop between Obj-C and C++ (at least in the viewer's case due to the BOOL vs. BOOL conflict)
-void callKeyUp(unsigned short key, unsigned int mask);
-void callKeyDown(unsigned short key, unsigned int mask);
+bool callKeyUp(unsigned short key, unsigned int mask);
+bool callKeyDown(unsigned short key, unsigned int mask);
 void callResetKeys();
-void callUnicodeCallback(wchar_t character, unsigned int mask);
+bool callUnicodeCallback(wchar_t character, unsigned int mask);
 void callRightMouseDown(float *pos, unsigned int mask);
 void callRightMouseUp(float *pos, unsigned int mask);
 void callLeftMouseDown(float *pos, unsigned int mask);
@@ -129,13 +129,14 @@ void callHandleDragDropped(std::string url);
 std::basic_string<wchar_t> getPreeditString();
 void getPreeditSelectionRange(int *position, int *length);
 void getPreeditMarkedRange(int *position, int *length);
-void handleUnicodeCharacter(wchar_t c);
+bool handleUnicodeCharacter(wchar_t c);
 void updatePreeditor(unsigned short *str);
 void setPreeditMarkedRange(int position, int length);
 void resetPreedit();
 int wstring_length(const std::basic_string<wchar_t> & wstr, const int woffset, const int utf16_length, int *unaligned);
 void setMarkedText(unsigned short *text, unsigned int *selectedRange, unsigned int *replacementRange, long text_len, attributedStringInfo segments);
 void getPreeditLocation(float *location, unsigned int length);
+void allowDirectMarkedTextInput(bool allow);
 
 NSWindowRef getMainAppWindow();
 GLViewRef getGLView();

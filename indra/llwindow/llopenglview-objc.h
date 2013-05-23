@@ -20,6 +20,7 @@
 	bool mHasMarkedText;
 	unsigned int mMarkedTextLength;
 	NSAttributedString *mMarkedText;
+    bool mMarkedTextAllowed;
 }
 - (id) initWithSamples:(NSUInteger)samples;
 - (id) initWithSamples:(NSUInteger)samples andVsync:(BOOL)vsync;
@@ -41,6 +42,8 @@
 - (CGLPixelFormatObj*)getCGLPixelFormatObj;
 
 - (unsigned long) getVramSize;
+
+- (void) allowMarkedTextInput:(bool)allowed;
 
 @end
 

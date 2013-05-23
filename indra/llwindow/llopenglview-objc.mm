@@ -45,6 +45,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	segment_standouts seg_standouts;
 	NSRange effectiveRange;
 	NSRange limitRange = NSMakeRange(0, [str length]);
+    
 	while (limitRange.length > 0) {
 		NSNumber *attr = [str attribute:NSUnderlineStyleAttributeName atIndex:limitRange.location longestEffectiveRange:&effectiveRange inRange:limitRange];
 		limitRange = NSMakeRange(NSMaxRange(effectiveRange), NSMaxRange(limitRange) - NSMaxRange(effectiveRange));
@@ -402,32 +403,40 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void)setMarkedText:(id)aString selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange
 {
-	if ([aString class] == NSClassFromString(@"NSConcreteMutableAttributedString"))
-	{
-		unsigned int selected[2] = {
-			selectedRange.location,
-			selectedRange.length
-		};
-		
-		unsigned int replacement[2] = {
-			replacementRange.location,
-			replacementRange.length
-		};
-		
-		unichar text[[aString length]];
-		[[aString mutableString] getCharacters:text range:NSMakeRange(0, [aString length])];
-		attributedStringInfo segments = getSegments((NSAttributedString *)aString);
-		setMarkedText(text, selected, replacement, [aString length], segments);
-		mHasMarkedText = TRUE;
-		mMarkedTextLength = [aString length];
-		mMarkedText = (NSAttributedString*)[aString mutableString];
-	}
+    if (mMarkedTextAllowed)
+    {
+        if ([aString class] == NSClassFromString(@"NSConcreteMutableAttributedString"))
+        {
+            unsigned int selected[2] = {
+                selectedRange.location,
+                selectedRange.length
+            };
+            
+            unsigned int replacement[2] = {
+                replacementRange.location,
+                replacementRange.length
+            };
+            
+            unichar text[[aString length]];
+            [[aString mutableString] getCharacters:text range:NSMakeRange(0, [aString length])];
+            attributedStringInfo segments = getSegments((NSAttributedString *)aString);
+            setMarkedText(text, selected, replacement, [aString length], segments);
+            mHasMarkedText = TRUE;
+            mMarkedTextLength = [aString length];
+            mMarkedText = (NSAttributedString*)[aString mutableString];
+        }
+    } else {
+        showInputWindow(true);
+    }
 }
 
 - (void)commitCurrentPreedit
 {
-	[self insertText:mMarkedText replacementRange:NSMakeRange(0, [mMarkedText length])];
-	[[self inputContext] discardMarkedText];
+    if (mMarkedText)
+    {
+        [self insertText:mMarkedText];
+        [[self inputContext] discardMarkedText];
+    }
 }
 
 - (void)unmarkText
@@ -452,11 +461,12 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void)insertText:(id)aString replacementRange:(NSRange)replacementRange
 {
+    bool success = false;
 	if (!mHasMarkedText)
 	{
 		for (NSInteger i = 0; i < [aString length]; i++)
 		{
-			callUnicodeCallback([aString characterAtIndex:i], mModifiers);
+			success = callUnicodeCallback([aString characterAtIndex:i], mModifiers);
 		}
 	} else {
 		// We may never get this point since unmarkText may be called before insertText ever gets called once we submit our text.
@@ -465,10 +475,12 @@ attributedStringInfo getSegments(NSAttributedString *str)
 		
 		for (NSInteger i = 0; i < [aString length]; i++)
 		{
-			handleUnicodeCharacter([aString characterAtIndex:i]);
+			success = handleUnicodeCharacter([aString characterAtIndex:i]);
 		}
 		mHasMarkedText = FALSE;
 	}
+    
+    NSLog(@"Successful text input: %d", success);
 }
 
 - (void) insertNewline:(id)sender
@@ -508,6 +520,11 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	return NO;
 }
 
+- (void) allowMarkedTextInput:(bool)allowed
+{
+    mMarkedTextAllowed = allowed;
+}
+
 @end
 
 @implementation LLNonInlineTextView
@@ -525,9 +542,10 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (void) insertText:(id)aString replacementRange:(NSRange)replacementRange
 {
 	[glview insertText:aString replacementRange:replacementRange];
-	[_window orderOut:_window];
 	[[self textStorage] setValue:@""];
 	[[self inputContext] discardMarkedText];
+    [self setString:@""];
+    [_window orderOut:_window];
 }
 
 @end

@@ -204,14 +204,14 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 // These functions are used as wrappers for our internal event handling callbacks.
 // It's a good idea to wrap these to avoid reworking more code than we need to within LLWindow.
 
-void callKeyUp(unsigned short key, unsigned int mask)
+bool callKeyUp(unsigned short key, unsigned int mask)
 {
-	gKeyboard->handleKeyUp(key, mask);
+	return gKeyboard->handleKeyUp(key, mask);
 }
 
-void callKeyDown(unsigned short key, unsigned int mask)
+bool callKeyDown(unsigned short key, unsigned int mask)
 {
-	gKeyboard->handleKeyDown(key, mask);
+	return gKeyboard->handleKeyDown(key, mask);
 }
 
 void callResetKeys()
@@ -219,9 +219,9 @@ void callResetKeys()
 	gKeyboard->resetKeys();
 }
 
-void callUnicodeCallback(wchar_t character, unsigned int mask)
+bool callUnicodeCallback(wchar_t character, unsigned int mask)
 {
-	gWindowImplementation->getCallbacks()->handleUnicodeChar(character, mask);
+	return gWindowImplementation->getCallbacks()->handleUnicodeChar(character, mask);
 }
 
 void callFocus()
@@ -408,12 +408,15 @@ void setPreeditMarkedRange(int position, int length)
 	}
 }
 
-void handleUnicodeCharacter(wchar_t c)
+bool handleUnicodeCharacter(wchar_t c)
 {
+    bool success = false;
 	if (gWindowImplementation->getPreeditor())
 	{
-		gWindowImplementation->getPreeditor()->handleUnicodeCharHere(c);
+        success = gWindowImplementation->getPreeditor()->handleUnicodeCharHere(c);
 	}
+    
+    return success;
 }
 
 void resetPreedit()
@@ -1033,21 +1036,7 @@ BOOL LLWindowMacOSX::setCursorPosition(const LLCoordWindow position)
 
 	return result;
 }
-/*
-static void fixOrigin(void)
-{
-	GrafPtr port;
-	Rect portrect;
 
-	::GetPort(&port);
-	::GetPortBounds(port, &portrect);
-	if((portrect.left != 0) || (portrect.top != 0))
-	{
-		// Mozilla sometimes changes our port origin.
-		::SetOrigin(0,0);
-	}
-}
-*/
 BOOL LLWindowMacOSX::getCursorPosition(LLCoordWindow *position)
 {
 	float cursor_point[2];
@@ -1840,7 +1829,14 @@ void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
 		return;
 	}
 	
-	showInputWindow(!b);
+	if (preeditor == NULL) {
+        // If we don't have a pre editor, then we can't accept direct marked text input.
+        // We needs an input window (which is handled internally by LLOpenGLView)
+		allowDirectMarkedTextInput(false);
+	} else {
+        // If we have a preeditor, then accept direct marked text input.
+        allowDirectMarkedTextInput(true);
+    }
 	
 	// Take care of old and new preeditors.
 	if (preeditor != mPreeditor || !b)
