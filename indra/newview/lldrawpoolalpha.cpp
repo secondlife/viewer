@@ -351,7 +351,7 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 	for (LLCullResult::sg_iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
-		if (group->mSpatialPartition->mRenderByGroup &&
+		if (group->getSpatialPartition()->mRenderByGroup &&
 			!group->isDead())
 		{
 			LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA];	
@@ -389,15 +389,15 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 	{
 		LLSpatialGroup* group = *i;
 		llassert(group);
-		llassert(group->mSpatialPartition);
+		llassert(group->getSpatialPartition());
 
-		if (group->mSpatialPartition->mRenderByGroup &&
+		if (group->getSpatialPartition()->mRenderByGroup &&
 		    !group->isDead())
 		{
 			bool draw_glow_for_this_partition = mVertexShaderLevel > 0 && // no shaders = no glow.
 				// All particle systems seem to come off the wire with texture entries which claim that they glow.  This is probably a bug in the data.  Suppress.
-				group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_PARTICLE &&
-				group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_HUD_PARTICLE;
+				group->getSpatialPartition()->mPartitionType != LLViewerRegion::PARTITION_PARTICLE &&
+				group->getSpatialPartition()->mPartitionType != LLViewerRegion::PARTITION_HUD_PARTICLE;
 
 			LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA];
 

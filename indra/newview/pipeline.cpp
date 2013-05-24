@@ -1663,7 +1663,7 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 	if (drawablep->getSpatialGroup())
 	{
 		LLFastTimer t(FTM_REMOVE_FROM_SPATIAL_PARTITION);
-		if (!drawablep->getSpatialGroup()->mSpatialPartition->remove(drawablep, drawablep->getSpatialGroup()))
+		if (!drawablep->getSpatialGroup()->getSpatialPartition()->remove(drawablep, drawablep->getSpatialGroup()))
 		{
 #ifdef LL_RELEASE_FOR_DOWNLOAD
 			llwarns << "Couldn't remove object from spatial group!" << llendl;
@@ -2480,7 +2480,7 @@ void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera)
 
 	assertInitialized();
 	
-	if (!group->mSpatialPartition->mRenderByGroup)
+	if (!group->getSpatialPartition()->mRenderByGroup)
 	{ //render by drawable
 		sCull->pushDrawableGroup(group);
 	}
@@ -2729,7 +2729,7 @@ void LLPipeline::rebuildGroups()
 		{
 			group->rebuildGeom();
 			
-			if (group->mSpatialPartition->mRenderByGroup)
+			if (group->getSpatialPartition()->mRenderByGroup)
 			{
 				count++;
 			}
@@ -3052,9 +3052,9 @@ void LLPipeline::markMeshDirty(LLSpatialGroup* group)
 
 void LLPipeline::markRebuild(LLSpatialGroup* group, BOOL priority)
 {
-	if (group && !group->isDead() && group->mSpatialPartition)
+	if (group && !group->isDead() && group->getSpatialPartition())
 	{
-		if (group->mSpatialPartition->mPartitionType == LLViewerRegion::PARTITION_HUD)
+		if (group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_HUD)
 		{
 			priority = TRUE;
 		}
@@ -3631,7 +3631,7 @@ void LLPipeline::postSort(LLCamera& camera)
 			
 			if (alpha != group->mDrawMap.end())
 			{ //store alpha groups for sorting
-				LLSpatialBridge* bridge = group->mSpatialPartition->asBridge();
+				LLSpatialBridge* bridge = group->getSpatialPartition()->asBridge();
 				if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
 				{
 					if (bridge)
@@ -5202,7 +5202,7 @@ void LLPipeline::renderDebug()
 				continue;
 			}
 
-			LLSpatialBridge* bridge = group->mSpatialPartition->asBridge();
+			LLSpatialBridge* bridge = group->getSpatialPartition()->asBridge();
 
 			if (bridge && (!bridge->mDrawable || bridge->mDrawable->isDead()))
 			{
@@ -9990,7 +9990,7 @@ void LLPipeline::renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL textu
 		LLSpatialGroup* group = *i;
 		if (!group->isDead() &&
 			(!sUseOcclusion || !group->isOcclusionState(LLSpatialGroup::OCCLUDED)) &&
-			gPipeline.hasRenderType(group->mSpatialPartition->mDrawableType) &&
+			gPipeline.hasRenderType(group->getSpatialPartition()->mDrawableType) &&
 			group->mDrawMap.find(type) != group->mDrawMap.end())
 		{
 			pass->renderGroup(group,type,mask,texture);

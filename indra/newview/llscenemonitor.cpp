@@ -107,7 +107,7 @@ void LLSceneMonitor::reset()
 
 	if(mQueryObject > 0)
 	{
-		release_occlusion_query_object_name(mQueryObject);
+		LLOcclusionCullingGroup::releaseOcclusionQueryObjectName(mQueryObject);
 		mQueryObject = 0;
 	}
 }
@@ -437,7 +437,7 @@ void LLSceneMonitor::calcDiffAggregate()
 
 	if(!mQueryObject)
 	{
-		mQueryObject = get_new_occlusion_query_object_name();
+		mQueryObject = LLOcclusionCullingGroup::getNewOcclusionQueryObjectName();
 	}
 
 	LLGLDepthTest depth(true, false, GL_ALWAYS);

@@ -594,9 +594,9 @@ public:
 			
 			ypos += y_inc;
 
-			if (!LLSpatialGroup::sPendingQueries.empty())
+			if (!LLOcclusionCullingGroup::sPendingQueries.empty())
 			{
-				addText(xpos,ypos, llformat("%d Queries pending", LLSpatialGroup::sPendingQueries.size()));
+				addText(xpos,ypos, llformat("%d Queries pending", LLOcclusionCullingGroup::sPendingQueries.size()));
 				ypos += y_inc;
 			}
 

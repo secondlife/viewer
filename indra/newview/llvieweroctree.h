@@ -43,12 +43,25 @@ class LLViewerRegion;
 class LLViewerOctreeEntryData;
 class LLviewerOctreeGroup;
 class LLViewerOctreeEntry;
+class LLViewerOctreePartition;
 
 typedef LLOctreeListener<LLViewerOctreeEntry>	OctreeListener;
 typedef LLTreeNode<LLViewerOctreeEntry>			TreeNode;
 typedef LLOctreeNode<LLViewerOctreeEntry>		OctreeNode;
 typedef LLOctreeRoot<LLViewerOctreeEntry>		OctreeRoot;
 typedef LLOctreeTraveler<LLViewerOctreeEntry>	OctreeTraveler;
+
+#if LL_OCTREE_PARANOIA_CHECK
+#define assert_octree_valid(x) x->validate()
+#define assert_states_valid(x) ((LLviewerOctreeGroup*) x->mSpatialPartition->mOctree->getListener(0))->checkStates()
+#else
+#define assert_octree_valid(x)
+#define assert_states_valid(x)
+#endif
+
+// get index buffer for binary encoded axis vertex buffer given a box at center being viewed by given camera
+U32 get_box_fan_indices(LLCamera* camera, const LLVector4a& center);
+U8* get_box_fan_indices_ptr(LLCamera* camera, const LLVector4a& center);
 
 S32 AABBSphereIntersect(const LLVector4a& min, const LLVector4a& max, const LLVector3 &origin, const F32 &rad);
 S32 AABBSphereIntersectR2(const LLVector4a& min, const LLVector4a& max, const LLVector3 &origin, const F32 &radius_squared);
@@ -181,14 +194,15 @@ class LLviewerOctreeGroup : public LLOctreeListener<LLViewerOctreeEntry>
 protected:
 	~LLviewerOctreeGroup();
 
-public:
+public:	
 	enum
 	{
 		CLEAN              = 0x00000000,
 		DIRTY              = 0x00000001,
 		OBJECT_DIRTY       = 0x00000002,
 		SKIP_FRUSTUM_CHECK = 0x00000004,
-		INVALID_STATE      = 0x00000008,
+		DEAD               = 0x00000008,
+		INVALID_STATE      = 0x00000010,
 	};
 
 public:
@@ -216,6 +230,8 @@ public:
 
 	virtual void unbound();
 	virtual void rebound();
+	
+	BOOL isDead()							{ return hasState(DEAD); }	
 
 	void setVisible();
 	BOOL isVisible() const;
@@ -251,9 +267,11 @@ public:
 	U32 getElementCount() const { return mOctreeNode->getElementCount(); }
 	bool hasElement(LLViewerOctreeEntryData* data);
 	
+protected:
+	void checkStates();
 private:
-	virtual bool boundObjects(BOOL empty, LLVector4a& minOut, LLVector4a& maxOut);	
-	
+	virtual bool boundObjects(BOOL empty, LLVector4a& minOut, LLVector4a& maxOut);			
+
 protected:
 	U32         mState;
 	OctreeNode* mOctreeNode;	
@@ -261,11 +279,75 @@ protected:
 	LL_ALIGN_16(LLVector4a mBounds[2]);        // bounding box (center, size) of this node and all its children (tight fit to objects)
 	LL_ALIGN_16(LLVector4a mObjectBounds[2]);  // bounding box (center, size) of objects in this node
 	LL_ALIGN_16(LLVector4a mExtents[2]);       // extents (min, max) of this node and all its children
-	LL_ALIGN_16(LLVector4a mObjectExtents[2]); // extents (min, max) of objects in this node
+	LL_ALIGN_16(LLVector4a mObjectExtents[2]); // extents (min, max) of objects in this node	
 
 public:
-	S32         mVisible[LLViewerCamera::NUM_CAMERAS];
+	S32         mVisible[LLViewerCamera::NUM_CAMERAS];	
+
 }LL_ALIGN_POSTFIX(16);
+
+//octree group which has capability to support occlusion culling
+//LL_ALIGN_PREFIX(16)
+class LLOcclusionCullingGroup : public LLviewerOctreeGroup
+{
+public:
+	typedef enum
+	{
+		OCCLUDED				= 0x00010000,
+		QUERY_PENDING			= 0x00020000,
+		ACTIVE_OCCLUSION		= 0x00040000,
+		DISCARD_QUERY			= 0x00080000,
+		EARLY_FAIL				= 0x00100000,
+	} eOcclusionState;
+
+	typedef enum
+	{
+		STATE_MODE_SINGLE = 0,		//set one node
+		STATE_MODE_BRANCH,			//set entire branch
+		STATE_MODE_DIFF,			//set entire branch as long as current state is different
+		STATE_MODE_ALL_CAMERAS,		//used for occlusion state, set state for all cameras
+	} eSetStateMode;
+
+public:
+	LLOcclusionCullingGroup(OctreeNode* node, LLViewerOctreePartition* part);
+	LLOcclusionCullingGroup(const LLOcclusionCullingGroup& rhs) : LLviewerOctreeGroup(rhs)
+	{
+		*this = rhs;
+	}
+	~LLOcclusionCullingGroup();
+
+	void setOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
+	void clearOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
+	void checkOcclusion(); //read back last occlusion query (if any)
+	void doOcclusion(LLCamera* camera); //issue occlusion query
+	BOOL isOcclusionState(U32 state) const	{ return mOcclusionState[LLViewerCamera::sCurCameraID] & state ? TRUE : FALSE; }		
+	
+	BOOL needsUpdate();
+
+	//virtual 
+	void handleChildAddition(const OctreeNode* parent, OctreeNode* child);
+
+	static U32 getNewOcclusionQueryObjectName();
+	static void releaseOcclusionQueryObjectName(U32 name);
+
+protected:
+	void releaseOcclusionQueryObjectNames();
+
+private:	
+	BOOL earlyFail(LLCamera* camera);
+
+protected:
+	U32         mOcclusionState[LLViewerCamera::NUM_CAMERAS];
+	U32         mOcclusionIssued[LLViewerCamera::NUM_CAMERAS];
+
+	S32         mLODHash;
+
+	LLViewerOctreePartition* mSpatialPartition;
+	U32		                 mOcclusionQuery[LLViewerCamera::NUM_CAMERAS];
+
+public:		
+	static std::set<U32> sPendingQueries;
+};//LL_ALIGN_POSTFIX(16);
 
 class LLViewerOctreePartition
 {
@@ -275,11 +357,16 @@ public:
 
 	// Cull on arbitrary frustum
 	virtual S32 cull(LLCamera &camera) = 0;
+	BOOL isOcclusionEnabled();
 
 public:	
 	U32              mPartitionType;
+	U32              mDrawableType;
 	OctreeNode*      mOctree;
 	LLViewerRegion*  mRegionp; // the region this partition belongs to.
+	BOOL             mOcclusionEnabled; // if TRUE, occlusion culling is performed
+	U32              mLODSeed;
+	U32              mLODPeriod;	//number of frames between LOD updates for a given spatial group (staggered by mLODSeed)
 };
 
 class LLViewerOctreeCull : public OctreeTraveler
