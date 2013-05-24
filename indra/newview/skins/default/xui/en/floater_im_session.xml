@@ -222,7 +222,7 @@
                      default_tab_group="3"
                      tab_group="2"
                      name="right_part_holder"
-                     min_width="172">
+                     min_width="236">
                         <layout_stack
                          animate="true" 
                          default_tab_group="2"
