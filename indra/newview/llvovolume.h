@@ -31,6 +31,7 @@
 #include "llviewertexture.h"
 #include "llviewermedia.h"
 #include "llframetimer.h"
+#include "lllocalbitmaps.h"
 #include "m3math.h"		// LLMatrix3
 #include "m4math.h"		// LLMatrix4
 #include <map>
@@ -346,6 +347,7 @@ public:
 private:
 	friend class LLDrawable;
 	friend class LLFace;
+	friend class LLLocalBitmap; // necessary for accessing mFaceMappingChanged.
 
 	BOOL		mFaceMappingChanged;
 	LLFrameTimer mTextureUpdateTimer;
