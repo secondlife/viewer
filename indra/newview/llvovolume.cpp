@@ -1976,7 +1976,7 @@ S32 LLVOVolume::setTEGlow(const U8 te, const F32 glow)
 void LLVOVolume::setTEMaterialParamsCallbackTE(const LLUUID& objectID, const LLMaterialID &pMaterialID, const LLMaterialPtr pMaterialParams, U32 te)
 {
 	LLVOVolume* pVol = (LLVOVolume*)gObjectList.findObject(objectID);
-	if (pVol && pVol->getVolume())
+	if (pVol)
 	{
 		LL_DEBUGS("MaterialTEs") << "materialid " << pMaterialID.asString() << " to TE " << te << LL_ENDL;
 		if (te >= pVol->getNumTEs())
