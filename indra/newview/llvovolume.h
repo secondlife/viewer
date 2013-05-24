@@ -159,6 +159,7 @@ public:
 				const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const;
 
 				void	markForUpdate(BOOL priority)			{ LLViewerObject::markForUpdate(priority); mVolumeChanged = TRUE; }
+				void    faceMappingChanged()                    { mFaceMappingChanged=TRUE; };
 
 	/*virtual*/ void	onShift(const LLVector4a &shift_vector); // Called when the drawable shifts
 
@@ -347,7 +348,6 @@ public:
 private:
 	friend class LLDrawable;
 	friend class LLFace;
-	friend class LLLocalBitmap; // necessary for accessing mFaceMappingChanged.
 
 	BOOL		mFaceMappingChanged;
 	LLFrameTimer mTextureUpdateTimer;

@@ -485,10 +485,8 @@ void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id, U32 channel)
 			}
 
 			if (update_mat)
-			{   // i had to make LLLocalBitmap friend of LLVOVolume for this,
-                // i realize it might seem somewhat hacky, but it's also simple.
-                // will gladly accept a better solution though.
-                object->mDrawable->getVOVolume()->mFaceMappingChanged = TRUE;
+			{
+                object->mDrawable->getVOVolume()->faceMappingChanged();
 			}
 		}
 	}
