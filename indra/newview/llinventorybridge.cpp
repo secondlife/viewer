@@ -1692,13 +1692,9 @@ BOOL LLItemBridge::renameItem(const std::string& new_name)
 	LLViewerInventoryItem* item = getItem();
 	if(item && (item->getName() != new_name))
 	{
-		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-		new_item->rename(new_name);
-		new_item->updateServer(FALSE);
-		model->updateItem(new_item);
-
-		model->notifyObservers();
-		buildDisplayName();
+		LLSD updates;
+		updates["name"] = new_name;
+		update_inventory_item(item->getUUID(),updates, NULL);
 	}
 	// return FALSE because we either notified observers (& therefore
 	// rebuilt) or we didn't update.

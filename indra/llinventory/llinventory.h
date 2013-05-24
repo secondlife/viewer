@@ -86,16 +86,14 @@ public:
 	void setType(LLAssetType::EType type);
 	virtual void setCreationDate(time_t creation_date_utc); // only stored for items
 
-private:
 	// in place correction for inventory name string
-	void correctInventoryName(std::string& name);
+	static void correctInventoryName(std::string& name);
 
 	//--------------------------------------------------------------------
 	// File Support
 	//   Implemented here so that a minimal information set can be transmitted
 	//   between simulator and viewer.
 	//--------------------------------------------------------------------
-public:
 	// virtual BOOL importFile(LLFILE* fp);
 	virtual BOOL exportFile(LLFILE* fp, BOOL include_asset_key = TRUE) const;
 	virtual BOOL importLegacyStream(std::istream& input_stream);

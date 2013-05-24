@@ -139,6 +139,8 @@ public:
 	//void updateAssetOnServer() const;
 
 	virtual void packMessage(LLMessageSystem* msg) const;
+	// Contents of updates will take precedence over fields of item where they differ.
+	void packUpdateMessage(LLMessageSystem* msg, const LLSD& updates) const;
 	virtual void setTransactionID(const LLTransactionID& transaction_id);
 	struct comparePointers
 	{
@@ -223,6 +225,8 @@ public:
 	bool importFileLocal(LLFILE* fp);
 	void determineFolderType();
 	void changeType(LLFolderType::EType new_folder_type);
+
+	void packUpdateMessage(LLMessageSystem* msg, const LLSD& updates) const;
 
 private:
 	friend class LLInventoryModel;
@@ -361,6 +365,16 @@ void move_inventory_item(
 	const LLUUID& item_id,
 	const LLUUID& parent_id,
 	const std::string& new_name,
+	LLPointer<LLInventoryCallback> cb);
+
+void update_inventory_item(
+	const LLUUID& item_id,
+	const LLSD& updates,
+	LLPointer<LLInventoryCallback> cb);
+
+void update_inventory_category(
+	const LLUUID& cat_id,
+	const LLSD& updates,
 	LLPointer<LLInventoryCallback> cb);
 
 void remove_inventory_item(

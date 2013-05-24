@@ -487,6 +487,17 @@ bool LLURLRequest::configure()
 		rv = true;
 		break;
 
+	case HTTP_PATCH:
+		// Disable the expect http 1.1 extension. POST and PUT default
+		// to turning this on, and I am not too sure what it means.
+		addHeader(HTTP_OUT_HEADER_EXPECT);
+
+		mDetail->mCurlRequest->setopt(CURLOPT_UPLOAD, 1);
+		mDetail->mCurlRequest->setopt(CURLOPT_INFILESIZE, bytes);
+		mDetail->mCurlRequest->setoptString(CURLOPT_CUSTOMREQUEST, "PATCH");
+		rv = true;
+		break;
+
 	case HTTP_POST:
 		// Disable the expect http 1.1 extension. POST and PUT default
 		// to turning this on, and I am not too sure what it means.

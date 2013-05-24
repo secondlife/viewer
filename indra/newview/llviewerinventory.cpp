@@ -260,6 +260,240 @@ LLInventoryHandler gInventoryHandler;
 
 
 ///----------------------------------------------------------------------------
+/// Classes for AISv3 support.
+///----------------------------------------------------------------------------
+class AISCommand: public LLHTTPClient::Responder
+{
+public:
+	typedef boost::function<void()> command_func_type;
+
+	AISCommand(LLPointer<LLInventoryCallback> callback):
+		mCallback(callback)
+	{
+		mRetryPolicy = new LLAdaptiveRetryPolicy(1.0, 32.0, 2.0, 10);
+	}
+
+	virtual ~AISCommand()
+	{
+	}
+
+	void run_command()
+	{
+		mCommandFunc();
+	}
+
+	void setCommandFunc(command_func_type command_func)
+	{
+		mCommandFunc = command_func;
+	}
+	
+	// Need to do command-specific parsing to get an id here.  May or
+	// may not need to bother, since most LLInventoryCallbacks do
+	// their work in the destructor.
+	virtual bool getResponseUUID(const LLSD& content, LLUUID& id)
+	{
+		return false;
+	}
+	
+	/* virtual */ void httpSuccess()
+	{
+		// Command func holds a reference to self, need to release it
+		// after a success or final failure.
+		setCommandFunc(no_op);
+		
+		const LLSD& content = getContent();
+		if (!content.isMap())
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
+		mRetryPolicy->onSuccess();
+		
+		gInventory.onAISUpdateReceived("AISCommand", content);
+
+		if (mCallback)
+		{
+			LLUUID item_id; // will default to null if parse fails.
+			getResponseUUID(content,item_id);
+			mCallback->fire(item_id);
+		}
+	}
+
+	/*virtual*/ void httpFailure()
+	{
+		const LLSD& content = getContent();
+		S32 status = getStatus();
+		const std::string& reason = getReason();
+		const LLSD& headers = getResponseHeaders();
+		if (!content.isMap())
+		{
+			LL_DEBUGS("Inventory") << "Malformed response contents " << content
+								   << " status " << status << " reason " << reason << llendl;
+		}
+		else
+		{
+			LL_DEBUGS("Inventory") << "failed with content: " << ll_pretty_print_sd(content)
+								   << " status " << status << " reason " << reason << llendl;
+		}
+		mRetryPolicy->onFailure(status, headers);
+		F32 seconds_to_wait;
+		if (mRetryPolicy->shouldRetry(seconds_to_wait))
+		{
+			doAfterInterval(boost::bind(&AISCommand::run_command,this),seconds_to_wait);
+		}
+		else
+		{
+			// Command func holds a reference to self, need to release it
+			// after a success or final failure.
+			setCommandFunc(no_op);
+		}
+	}
+
+	static bool getCap(std::string& cap)
+	{
+		if (gAgent.getRegion())
+		{
+			cap = gAgent.getRegion()->getCapability("InventoryAPIv3");
+		}
+		if (!cap.empty())
+		{
+			return true;
+		}
+		return false;
+	}
+
+private:
+	command_func_type mCommandFunc;
+	LLPointer<LLHTTPRetryPolicy> mRetryPolicy;
+	LLPointer<LLInventoryCallback> mCallback;
+};
+
+class RemoveItemCommand: public AISCommand
+{
+public:
+	RemoveItemCommand(const LLUUID& item_id,
+					  LLPointer<LLInventoryCallback> callback):
+		AISCommand(callback)
+	{
+		std::string cap;
+		if (!getCap(cap))
+		{
+			llwarns << "No cap found" << llendl;
+			return;
+		}
+		std::string url = cap + std::string("/item/") + item_id.asString();
+		LL_DEBUGS("Inventory") << "url: " << url << llendl;
+		LLHTTPClient::ResponderPtr responder = this;
+		LLSD headers;
+		F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
+		command_func_type cmd = boost::bind(&LLHTTPClient::del, url, responder, headers, timeout);
+		setCommandFunc(cmd);
+	}
+};
+
+class RemoveCategoryCommand: public AISCommand
+{
+public:
+	RemoveCategoryCommand(const LLUUID& item_id,
+						  LLPointer<LLInventoryCallback> callback):
+		AISCommand(callback)
+	{
+		std::string cap;
+		if (!getCap(cap))
+		{
+			llwarns << "No cap found" << llendl;
+			return;
+		}
+		std::string url = cap + std::string("/category/") + item_id.asString();
+		LL_DEBUGS("Inventory") << "url: " << url << llendl;
+		LLHTTPClient::ResponderPtr responder = this;
+		LLSD headers;
+		F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
+		command_func_type cmd = boost::bind(&LLHTTPClient::del, url, responder, headers, timeout);
+		setCommandFunc(cmd);
+	}
+};
+
+class PurgeDescendentsCommand: public AISCommand
+{
+public:
+	PurgeDescendentsCommand(const LLUUID& item_id,
+							LLPointer<LLInventoryCallback> callback):
+		AISCommand(callback)
+	{
+		std::string cap;
+		if (!getCap(cap))
+		{
+			llwarns << "No cap found" << llendl;
+			return;
+		}
+		std::string url = cap + std::string("/category/") + item_id.asString() + "/children";
+		LL_DEBUGS("Inventory") << "url: " << url << llendl;
+		LLCurl::ResponderPtr responder = this;
+		LLSD headers;
+		F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
+		command_func_type cmd = boost::bind(&LLHTTPClient::del, url, responder, headers, timeout);
+		setCommandFunc(cmd);
+	}
+};
+
+class UpdateItemCommand: public AISCommand
+{
+public:
+	UpdateItemCommand(const LLUUID& item_id,
+					  const LLSD& updates,
+					  LLPointer<LLInventoryCallback> callback):
+		mUpdates(updates),
+		AISCommand(callback)
+	{
+		std::string cap;
+		if (!getCap(cap))
+		{
+			llwarns << "No cap found" << llendl;
+			return;
+		}
+		std::string url = cap + std::string("/item/") + item_id.asString();
+		LL_DEBUGS("Inventory") << "url: " << url << llendl;
+		LLCurl::ResponderPtr responder = this;
+		LLSD headers;
+		headers["Content-Type"] = "application/llsd+xml";
+		F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
+		command_func_type cmd = boost::bind(&LLHTTPClient::patch, url, mUpdates, responder, headers, timeout);
+		setCommandFunc(cmd);
+	}
+private:
+	LLSD mUpdates;
+};
+
+class UpdateCategoryCommand: public AISCommand
+{
+public:
+	UpdateCategoryCommand(const LLUUID& item_id,
+						  const LLSD& updates,
+						  LLPointer<LLInventoryCallback> callback):
+		mUpdates(updates),
+		AISCommand(callback)
+	{
+		std::string cap;
+		if (!getCap(cap))
+		{
+			llwarns << "No cap found" << llendl;
+			return;
+		}
+		std::string url = cap + std::string("/category/") + item_id.asString();
+		LL_DEBUGS("Inventory") << "url: " << url << llendl;
+		LLCurl::ResponderPtr responder = this;
+		LLSD headers;
+		headers["Content-Type"] = "application/llsd+xml";
+		F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
+		command_func_type cmd = boost::bind(&LLHTTPClient::patch, url, mUpdates, responder, headers, timeout);
+		setCommandFunc(cmd);
+	}
+private:
+	LLSD mUpdates;
+};
+
+///----------------------------------------------------------------------------
 /// Class LLViewerInventoryItem
 ///----------------------------------------------------------------------------
 
@@ -456,6 +690,20 @@ void LLViewerInventoryItem::setTransactionID(const LLTransactionID& transaction_
 // virtual
 void LLViewerInventoryItem::packMessage(LLMessageSystem* msg) const
 {
+	static const LLSD updates;
+	packUpdateMessage(msg,updates);
+}
+
+void LLViewerInventoryItem::packUpdateMessage(LLMessageSystem* msg, const LLSD& updates) const
+{
+	for (LLSD::map_const_iterator it = updates.beginMap(); it != updates.endMap(); ++it)
+	{
+		if ((it->first != "desc") && (it->first != "name"))
+		{
+			llerrs << "unhandled field: " << it->first << llendl;
+		}
+	}
+	
 	msg->addUUIDFast(_PREHASH_ItemID, mUUID);
 	msg->addUUIDFast(_PREHASH_FolderID, mParentUUID);
 	mPermissions.packMessage(msg);
@@ -466,12 +714,29 @@ void LLViewerInventoryItem::packMessage(LLMessageSystem* msg) const
 	msg->addS8Fast(_PREHASH_InvType, type);
 	msg->addU32Fast(_PREHASH_Flags, mFlags);
 	mSaleInfo.packMessage(msg);
-	msg->addStringFast(_PREHASH_Name, mName);
-	msg->addStringFast(_PREHASH_Description, mDescription);
+	if (updates.has("name"))
+	{
+		std::string new_name = updates["name"].asString();
+		LLInventoryObject::correctInventoryName(new_name);
+		msg->addStringFast(_PREHASH_Name, new_name);
+	}
+	else
+	{
+		msg->addStringFast(_PREHASH_Name, mName);
+	}
+	if (updates.has("desc"))
+	{
+		msg->addStringFast(_PREHASH_Description, updates["desc"].asString());
+	}
+	else
+	{
+		msg->addStringFast(_PREHASH_Description, mDescription);
+	}
 	msg->addS32Fast(_PREHASH_CreationDate, mCreationDate);
 	U32 crc = getCRC32();
 	msg->addU32Fast(_PREHASH_CRC, crc);
 }
+
 // virtual
 BOOL LLViewerInventoryItem::importFile(LLFILE* fp)
 {
@@ -582,6 +847,32 @@ void LLViewerInventoryCategory::copyViewerCategory(const LLViewerInventoryCatego
 	mDescendentsRequested = other->mDescendentsRequested;
 }
 
+
+void LLViewerInventoryCategory::packUpdateMessage(LLMessageSystem* msg, const LLSD& updates) const
+{
+	for (LLSD::map_const_iterator it = updates.beginMap(); it != updates.endMap(); ++it)
+	{
+		if (it->first != "name")
+		{
+			llerrs << "unhandled field: " << it->first << llendl;
+		}
+	}
+	
+	msg->addUUIDFast(_PREHASH_FolderID, mUUID);
+	msg->addUUIDFast(_PREHASH_ParentID, mParentUUID);
+	S8 type = static_cast<S8>(mPreferredType);
+	msg->addS8Fast(_PREHASH_Type, type);
+	if (updates.has("name"))
+	{
+		std::string new_name = updates["name"].asString();
+		LLInventoryObject::correctInventoryName(new_name);
+		msg->addStringFast(_PREHASH_Name, new_name);
+	}
+	else
+	{
+		msg->addStringFast(_PREHASH_Name, mName);
+	}
+}
 
 void LLViewerInventoryCategory::updateParentOnServer(BOOL restamp) const
 {
@@ -1139,180 +1430,87 @@ void move_inventory_item(
 	gAgent.sendReliableMessage();
 }
 
-class AISCommand: public LLHTTPClient::Responder
+// Note this only supports updating an existing item. Goes through AISv3
+// code path where available. Not all uses of item->updateServer() can
+// easily be switched to this paradigm.
+void update_inventory_item(
+	const LLUUID& item_id,
+	const LLSD& updates,
+	LLPointer<LLInventoryCallback> cb)
 {
-public:
-	typedef boost::function<void()> command_func_type;
-
-	AISCommand(LLPointer<LLInventoryCallback> callback):
-		mCallback(callback)
-	{
-		mRetryPolicy = new LLAdaptiveRetryPolicy(1.0, 32.0, 2.0, 10);
-	}
-
-	virtual ~AISCommand()
-	{
-	}
-
-	void run_command()
-	{
-		mCommandFunc();
-	}
-
-	void setCommandFunc(command_func_type command_func)
-	{
-		mCommandFunc = command_func;
-	}
-	
-	// Need to do command-specific parsing to get an id here.  May or
-	// may not need to bother, since most LLInventoryCallbacks do
-	// their work in the destructor.
-	virtual bool getResponseUUID(const LLSD& content, LLUUID& id)
-	{
-		return false;
-	}
-	
-	/* virtual */ void httpSuccess()
-	{
-		// Command func holds a reference to self, need to release it
-		// after a success or final failure.
-		setCommandFunc(no_op);
-		
-		const LLSD& content = getContent();
-		if (!content.isMap())
-		{
-			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-			return;
-		}
-		mRetryPolicy->onSuccess();
-		
-		gInventory.onAISUpdateReceived("AISCommand", content);
-
-		if (mCallback)
-		{
-			LLUUID item_id; // will default to null if parse fails.
-			getResponseUUID(content,item_id);
-			mCallback->fire(item_id);
-		}
-	}
-
-	/*virtual*/ void httpFailure()
-	{
-		const LLSD& content = getContent();
-		S32 status = getStatus();
-		const std::string& reason = getReason();
-		const LLSD& headers = getResponseHeaders();
-		if (!content.isMap())
-		{
-			LL_DEBUGS("Inventory") << "Malformed response contents " << content
-								   << " status " << status << " reason " << reason << llendl;
-		}
-		else
-		{
-			LL_DEBUGS("Inventory") << "failed with content: " << ll_pretty_print_sd(content)
-								   << " status " << status << " reason " << reason << llendl;
-		}
-		mRetryPolicy->onFailure(status, headers);
-		F32 seconds_to_wait;
-		if (mRetryPolicy->shouldRetry(seconds_to_wait))
-		{
-			doAfterInterval(boost::bind(&AISCommand::run_command,this),seconds_to_wait);
-		}
-		else
-		{
-			// Command func holds a reference to self, need to release it
-			// after a success or final failure.
-			setCommandFunc(no_op);
-		}
-	}
-
-	static bool getCap(std::string& cap)
-	{
-		if (gAgent.getRegion())
-		{
-			cap = gAgent.getRegion()->getCapability("InventoryAPIv3");
-		}
-		if (!cap.empty())
-		{
-			return true;
-		}
-		return false;
-	}
-
-private:
-	command_func_type mCommandFunc;
-	LLPointer<LLHTTPRetryPolicy> mRetryPolicy;
-	LLPointer<LLInventoryCallback> mCallback;
-};
-
-class RemoveItemCommand: public AISCommand
-{
-public:
-	RemoveItemCommand(const LLUUID& item_id,
-					  LLPointer<LLInventoryCallback> callback):
-		AISCommand(callback)
+	LLPointer<LLViewerInventoryItem> obj = gInventory.getItem(item_id);
+	LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << (obj ? obj->getName() : "(NOT FOUND)") << llendl;
+	if(obj)
 	{
 		std::string cap;
-		if (!getCap(cap))
+		if (AISCommand::getCap(cap))
 		{
-			llwarns << "No cap found" << llendl;
-			return;
+			LLPointer<AISCommand> cmd_ptr = new UpdateItemCommand(item_id, updates, cb);
+			cmd_ptr->run_command();
 		}
-		std::string url = cap + std::string("/item/") + item_id.asString();
-		LL_DEBUGS("Inventory") << "url: " << url << llendl;
-		LLHTTPClient::ResponderPtr responder = this;
-		LLSD headers;
-		F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-		command_func_type cmd = boost::bind(&LLHTTPClient::del, url, responder, headers, timeout);
-		setCommandFunc(cmd);
-	}
-};
+		else // no cap
+		{
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessageFast(_PREHASH_UpdateInventoryItem);
+			msg->nextBlockFast(_PREHASH_AgentData);
+			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			msg->addUUIDFast(_PREHASH_TransactionID, obj->getTransactionID());
+			msg->nextBlockFast(_PREHASH_InventoryData);
+			msg->addU32Fast(_PREHASH_CallbackID, 0);
+			obj->packUpdateMessage(msg, updates);
+			gAgent.sendReliableMessage();
 
-class RemoveCategoryCommand: public AISCommand
-{
-public:
-	RemoveCategoryCommand(const LLUUID& item_id,
-						  LLPointer<LLInventoryCallback> callback):
-		AISCommand(callback)
-	{
-		std::string cap;
-		if (!getCap(cap))
-		{
-			llwarns << "No cap found" << llendl;
-			return;
+			gInventory.onItemUpdated(item_id, updates);
+			if (cb)
+			{
+				cb->fire(item_id);
+			}
 		}
-		std::string url = cap + std::string("/category/") + item_id.asString();
-		LL_DEBUGS("Inventory") << "url: " << url << llendl;
-		LLHTTPClient::ResponderPtr responder = this;
-		LLSD headers;
-		F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-		command_func_type cmd = boost::bind(&LLHTTPClient::del, url, responder, headers, timeout);
-		setCommandFunc(cmd);
 	}
-};
+}
 
-class PurgeDescendentsCommand: public AISCommand
+void update_inventory_category(
+	const LLUUID& cat_id,
+	const LLSD& updates,
+	LLPointer<LLInventoryCallback> cb)
 {
-public:
-	PurgeDescendentsCommand(const LLUUID& item_id,
-							LLPointer<LLInventoryCallback> callback):
-		AISCommand(callback)
+	LLPointer<LLViewerInventoryCategory> obj = gInventory.getCategory(cat_id);
+	LL_DEBUGS("Inventory") << "cat_id: [" << cat_id << "] name " << (obj ? obj->getName() : "(NOT FOUND)") << llendl;
+	if(obj)
 	{
-		std::string cap;
-		if (!getCap(cap))
+		if (LLFolderType::lookupIsProtectedType(obj->getPreferredType()))
 		{
-			llwarns << "No cap found" << llendl;
+			LLNotificationsUtil::add("CannotModifyProtectedCategories");
 			return;
 		}
-		std::string url = cap + std::string("/category/") + item_id.asString() + "/children";
-		LL_DEBUGS("Inventory") << "url: " << url << llendl;
-		LLCurl::ResponderPtr responder = this;
-		LLSD headers;
-		F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-		command_func_type cmd = boost::bind(&LLHTTPClient::del, url, responder, headers, timeout);
-		setCommandFunc(cmd);
+
+		//std::string cap;
+		// FIXME - restore this once the back-end work has been done.
+		if (0) // if (AISCommand::getCap(cap))
+		{
+			LLPointer<AISCommand> cmd_ptr = new UpdateCategoryCommand(cat_id, updates, cb);
+			cmd_ptr->run_command();
+		}
+		else // no cap
+		{
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessageFast(_PREHASH_UpdateInventoryFolder);
+			msg->nextBlockFast(_PREHASH_AgentData);
+			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			msg->nextBlockFast(_PREHASH_FolderData);
+			obj->packUpdateMessage(msg, updates);
+			gAgent.sendReliableMessage();
+
+			gInventory.onCategoryUpdated(cat_id, updates);
+			if (cb)
+			{
+				cb->fire(cat_id);
+			}
+		}
 	}
-};
+}
 
 void remove_inventory_item(
 	const LLUUID& item_id,

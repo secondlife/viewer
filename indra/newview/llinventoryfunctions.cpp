@@ -123,12 +123,9 @@ void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::s
 		return;
 	}
 
-	LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat);
-	new_cat->rename(new_name);
-	new_cat->updateServer(FALSE);
-	model->updateCategory(new_cat);
-
-	model->notifyObservers();
+	LLSD updates;
+	updates["name"] = new_name;
+	update_inventory_category(cat_id, updates, NULL);
 }
 
 void copy_inventory_category(LLInventoryModel* model,

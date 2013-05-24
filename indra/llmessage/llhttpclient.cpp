@@ -304,7 +304,7 @@ static void request(
 					gMessageSystem->mPort));
 	}
 
-	if (method == HTTP_PUT || method == HTTP_POST)
+	if (method == HTTP_PUT || method == HTTP_POST || method == HTTP_PATCH)
 	{
 		if(!headers.has(HTTP_OUT_HEADER_CONTENT_TYPE))
 		{
@@ -554,6 +554,16 @@ void LLHTTPClient::put(
 	const F32 timeout)
 {
 	request(url, HTTP_PUT, new LLSDInjector(body), responder, timeout, headers);
+}
+
+void LLHTTPClient::patch(
+	const std::string& url,
+	const LLSD& body,
+	ResponderPtr responder,
+	const LLSD& headers,
+	const F32 timeout)
+{
+	request(url, HTTP_PATCH, new LLSDInjector(body), responder, timeout, headers);
 }
 
 void LLHTTPClient::post(

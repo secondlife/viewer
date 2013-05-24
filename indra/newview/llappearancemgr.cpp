@@ -2812,8 +2812,10 @@ struct WearablesOrderComparator
 		//items with ordering information but not for the associated wearables type
 		if (!item1_valid && item2_valid) 
 			return false;
+		else if (item1_valid && !item2_valid)
+			return true;
 
-		return true;
+		return item1->getName() < item2->getName();
 	}
 
 	U32 mControlSize;

@@ -1196,6 +1196,36 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 		onObjectDeletedFromServer(*it, false);
 	}
 
+	if (update.has("item_id"))
+	{
+		// item has been modified or possibly created (would be better if we could distinguish these cases directly)
+		LLUUID item_id = update["item_id"].asUUID();
+		LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		LLViewerInventoryCategory *cat = gInventory.getCategory(item_id);
+		if (item)
+		{
+			LLSD changes;
+			if (update.has("name") && update["name"] != item->getName())
+			{
+				changes["name"] = update["name"];
+			}
+			if (update.has("desc") && update["desc"] != item->getActualDescription())
+			{
+				changes["desc"] = update["desc"];
+			}
+			onItemUpdated(item_id,changes);
+		}
+		else if (cat)
+		{
+			llerrs << "don't handle cat update yet" << llendl;
+		}
+		else
+		{
+			llerrs << "don't handle creation case yet" << llendl;
+		}
+	
+	}
+
 	// TODO - how can we use this version info? Need to be sure all
 	// changes are going through AIS first, or at least through
 	// something with a reliable responder.
@@ -1212,8 +1242,69 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 		}
 	}
 #endif
-
 	
+}
+
+void LLInventoryModel::onItemUpdated(const LLUUID& item_id, const LLSD& updates)
+{
+	U32 mask = LLInventoryObserver::NONE;
+
+	LLPointer<LLViewerInventoryItem> item = gInventory.getItem(item_id);
+	LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << (item ? item->getName() : "(NOT FOUND)") << llendl;
+	if(item)
+	{
+		for (LLSD::map_const_iterator it = updates.beginMap();
+			 it != updates.endMap(); ++it)
+		{
+			if (it->first == "name")
+			{
+				llinfos << "Updating name from " << item->getName() << " to " << it->second.asString() << llendl;
+				item->rename(it->second.asString());
+				mask |= LLInventoryObserver::LABEL;
+			}
+			else if (it->first == "desc")
+			{
+				llinfos << "Updating description from " << item->getActualDescription()
+						<< " to " << it->second.asString() << llendl;
+				item->setDescription(it->second.asString());
+			}
+			else
+			{
+				llerrs << "unhandled updates for field: " << it->first << llendl;
+			}
+		}
+		mask |= LLInventoryObserver::INTERNAL;
+		addChangedMask(mask, item->getUUID());
+		gInventory.notifyObservers(); // do we want to be able to make this optional?
+	}
+}
+
+void LLInventoryModel::onCategoryUpdated(const LLUUID& cat_id, const LLSD& updates)
+{
+	U32 mask = LLInventoryObserver::NONE;
+
+	LLPointer<LLViewerInventoryCategory> cat = gInventory.getCategory(cat_id);
+	LL_DEBUGS("Inventory") << "cat_id: [" << cat_id << "] name " << (cat ? cat->getName() : "(NOT FOUND)") << llendl;
+	if(cat)
+	{
+		for (LLSD::map_const_iterator it = updates.beginMap();
+			 it != updates.endMap(); ++it)
+		{
+			if (it->first == "name")
+			{
+				llinfos << "Updating name from " << cat->getName() << " to " << it->second.asString() << llendl;
+				cat->rename(it->second.asString());
+				mask |= LLInventoryObserver::LABEL;
+			}
+			else
+			{
+				llerrs << "unhandled updates for field: " << it->first << llendl;
+			}
+		}
+		mask |= LLInventoryObserver::INTERNAL;
+		addChangedMask(mask, cat->getUUID());
+		gInventory.notifyObservers(); // do we want to be able to make this optional?
+	}
 }
 
 // Update model after descendents have been purged.
