@@ -62,9 +62,9 @@ void LLChatEntry::draw()
 {
 	if(mIsExpandable)
 	{
+		reflow();
 		expandText();
 	}
-
 	LLTextEditor::draw();
 }
 
