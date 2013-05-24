@@ -88,23 +88,32 @@ protected:
 
 #if USE_TE_SPECIFIC_REGISTRATION
 	// struct for TE-specific material ID query
-	struct TEMaterialPair
+	class TEMaterialPair
 	{
+	public:
+
 		U32 te;
 		LLMaterialID materialID;
-	};
 
-	// needed for std::map compliance only
-	//
+		bool operator==(const TEMaterialPair& b) const { return (materialID == b.materialID) && (te == b.te); }
+	};
+	
 	friend inline bool operator<(
-		const struct LLMaterialMgr::TEMaterialPair& lhs,
-		const struct LLMaterialMgr::TEMaterialPair& rhs)
+		const LLMaterialMgr::TEMaterialPair& lhs,
+		const LLMaterialMgr::TEMaterialPair& rhs)
 	{
-		return (lhs.materialID < rhs.materialID) ? TRUE :
-		       (lhs.te	< rhs.te) ? TRUE : FALSE;
+		return (lhs.te	< rhs.te) ? TRUE :
+			(lhs.materialID < rhs.materialID);
 	}
 
-	typedef std::map<TEMaterialPair, get_callback_te_t*> get_callback_te_map_t;
+	struct TEMaterialPairHasher
+	{
+		enum { bucket_size = 8 };
+		size_t operator()(const TEMaterialPair& key_value) const { return *((size_t*)key_value.materialID.get());  } // cheesy, but effective
+		bool   operator()(const TEMaterialPair& left, const TEMaterialPair& right) const { return left < right; }
+	};
+
+	typedef boost::unordered_map<TEMaterialPair, get_callback_te_t*, TEMaterialPairHasher> get_callback_te_map_t;
 	get_callback_te_map_t mGetTECallbacks;
 #endif
 
