@@ -340,7 +340,7 @@ public:
 	void onDescendentsPurgedFromServer(const LLUUID& object_id, bool fix_broken_links = true);
 
 	// Update model after an existing item gets updated on server.
-	void onItemUpdated(const LLUUID& item_id, const LLSD& updates);
+	void onItemUpdated(const LLUUID& item_id, const LLSD& updates, bool update_parent_version);
 
 	// Update model after an existing category gets updated on server.
 	void onCategoryUpdated(const LLUUID& cat_id, const LLSD& updates);

@@ -422,10 +422,12 @@ public:
 };
 
 LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy(bool update_base_outfit_ordering,
-														 bool enforce_item_restrictions):
+														 bool enforce_item_restrictions,
+														 bool enforce_ordering):
 	mFireCount(0),
 	mUpdateBaseOrder(update_base_outfit_ordering),
-	mEnforceItemRestrictions(enforce_item_restrictions)
+	mEnforceItemRestrictions(enforce_item_restrictions),
+	mEnforceOrdering(enforce_ordering)
 {
 	selfStartPhase("update_appearance_on_destroy");
 }
@@ -449,7 +451,7 @@ LLUpdateAppearanceOnDestroy::~LLUpdateAppearanceOnDestroy()
 
 		selfStopPhase("update_appearance_on_destroy");
 
-		LLAppearanceMgr::instance().updateAppearanceFromCOF(mUpdateBaseOrder, mEnforceItemRestrictions);
+		LLAppearanceMgr::instance().updateAppearanceFromCOF(mUpdateBaseOrder, mEnforceItemRestrictions, mEnforceOrdering);
 	}
 }
 
@@ -1918,8 +1920,22 @@ void LLAppearanceMgr::findAllExcessOrDuplicateItems(const LLUUID& cat_id,
 							   -1, items_to_kill);
 }
 
+void LLAppearanceMgr::enforceCOFItemRestrictions(LLPointer<LLInventoryCallback> cb)
+{
+	LLInventoryModel::item_array_t items_to_kill;
+	findAllExcessOrDuplicateItems(getCOF(), items_to_kill);
+	if (items_to_kill.size()>0)
+	{
+		// Remove duplicate or excess wearables. Should normally be enforced at the UI level, but
+		// this should catch anything that gets through.
+		removeAll(items_to_kill, cb);
+		return;
+	}
+}
+
 void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering,
-											  bool enforce_item_restrictions)
+											  bool enforce_item_restrictions,
+											  bool enforce_ordering)
 {
 	if (mIsInUpdateAppearanceFromCOF)
 	{
@@ -1927,35 +1943,37 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering,
 		return;
 	}
 
-	BoolSetter setIsInUpdateAppearanceFromCOF(mIsInUpdateAppearanceFromCOF);
-	selfStartPhase("update_appearance_from_cof");
-
 	LL_DEBUGS("Avatar") << self_av_string() << "starting" << LL_ENDL;
 
 	if (enforce_item_restrictions)
 	{
-		LLInventoryModel::item_array_t items_to_kill;
-		findAllExcessOrDuplicateItems(getCOF(), items_to_kill);
-		if (items_to_kill.size()>0)
-		{
-			// The point here is just to call
-			// updateAppearanceFromCOF() again after excess items
-			// have been removed. That time we will set
-			// enforce_item_restrictions to false so we don't get
-			// caught in a perpetual loop.
-			LLPointer<LLInventoryCallback> cb(
-				new LLUpdateAppearanceOnDestroy(update_base_outfit_ordering, false));
-
-			// Remove duplicate or excess wearables. Should normally be enforced at the UI level, but
-			// this should catch anything that gets through.
-			removeAll(items_to_kill, cb);
-			return;
-		}
+		// The point here is just to call
+		// updateAppearanceFromCOF() again after excess items
+		// have been removed. That time we will set
+		// enforce_item_restrictions to false so we don't get
+		// caught in a perpetual loop.
+		LLPointer<LLInventoryCallback> cb(
+			new LLUpdateAppearanceOnDestroy(update_base_outfit_ordering, false, enforce_ordering));
+		enforceCOFItemRestrictions(cb);
+		return;
 	}
 
-	//checking integrity of the COF in terms of ordering of wearables, 
-	//checking and updating links' descriptions of wearables in the COF (before analyzed for "dirty" state)
-	updateClothingOrderingInfo(LLUUID::null, update_base_outfit_ordering);
+	if (enforce_ordering)
+	{
+		//checking integrity of the COF in terms of ordering of wearables, 
+		//checking and updating links' descriptions of wearables in the COF (before analyzed for "dirty" state)
+
+		// As with enforce_item_restrictions handling above, we want
+		// to wait for the update callbacks, then (finally!) call
+		// updateAppearanceFromCOF() with no additional COF munging needed.
+		LLPointer<LLInventoryCallback> cb(
+			new LLUpdateAppearanceOnDestroy(false, false, false));
+		updateClothingOrderingInfo(LLUUID::null, update_base_outfit_ordering, cb);
+		return;
+	}
+
+	BoolSetter setIsInUpdateAppearanceFromCOF(mIsInUpdateAppearanceFromCOF);
+	selfStartPhase("update_appearance_from_cof");
 
 	// update dirty flag to see if the state of the COF matches
 	// the saved outfit stored as a folder link
@@ -1966,11 +1984,6 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering,
 	{
 		requestServerAppearanceUpdate();
 	}
-	// DRANO really should wait for the appearance message to set this.
-	// verify that deleting this line doesn't break anything.
-	//gAgentAvatarp->setIsUsingServerBakes(gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion());
-	
-	//dumpCat(getCOF(),"COF, start");
 
 	LLUUID current_outfit_id = getCOF();
 
@@ -2821,7 +2834,9 @@ struct WearablesOrderComparator
 	U32 mControlSize;
 };
 
-void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id, bool update_base_outfit_ordering)
+void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id,
+												 bool update_base_outfit_ordering,
+												 LLPointer<LLInventoryCallback> cb)
 {
 	if (cat_id.isNull())
 	{
@@ -2831,7 +2846,7 @@ void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id, bool update_base
 			const LLUUID base_outfit_id = getBaseOutfitUUID();
 			if (base_outfit_id.notNull())
 			{
-				updateClothingOrderingInfo(base_outfit_id,false);
+				updateClothingOrderingInfo(base_outfit_id,false,cb);
 			}
 		}
 	}
@@ -2843,7 +2858,6 @@ void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id, bool update_base
 	wearables_by_type_t items_by_type(LLWearableType::WT_COUNT);
 	divvyWearablesByType(wear_items, items_by_type);
 
-	bool inventory_changed = false;
 	for (U32 type = LLWearableType::WT_SHIRT; type < LLWearableType::WT_COUNT; type++)
 	{
 		
@@ -2862,17 +2876,11 @@ void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id, bool update_base
 			std::string new_order_str = build_order_string((LLWearableType::EType)type, i);
 			if (new_order_str == item->getActualDescription()) continue;
 
-			item->setDescription(new_order_str);
-			item->setComplete(TRUE);
- 			item->updateServer(FALSE);
-			gInventory.updateItem(item);
-			
-			inventory_changed = true;
+			LLSD updates;
+			updates["desc"] = new_order_str;
+			update_inventory_item(item->getUUID(),updates,cb);
 		}
 	}
-
-	//*TODO do we really need to notify observers?
-	if (inventory_changed) gInventory.notifyObservers();
 }
 
 class RequestAgentUpdateAppearanceResponder: public LLHTTPClient::Responder

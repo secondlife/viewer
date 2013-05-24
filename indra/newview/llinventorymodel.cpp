@@ -1213,7 +1213,7 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 			{
 				changes["desc"] = update["desc"];
 			}
-			onItemUpdated(item_id,changes);
+			onItemUpdated(item_id,changes,true);
 		}
 		else if (cat)
 		{
@@ -1245,7 +1245,7 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 	
 }
 
-void LLInventoryModel::onItemUpdated(const LLUUID& item_id, const LLSD& updates)
+void LLInventoryModel::onItemUpdated(const LLUUID& item_id, const LLSD& updates, bool update_parent_version)
 {
 	U32 mask = LLInventoryObserver::NONE;
 
@@ -1275,6 +1275,12 @@ void LLInventoryModel::onItemUpdated(const LLUUID& item_id, const LLSD& updates)
 		}
 		mask |= LLInventoryObserver::INTERNAL;
 		addChangedMask(mask, item->getUUID());
+		if (update_parent_version)
+		{
+			// Descendent count is unchanged, but folder version incremented.
+			LLInventoryModel::LLCategoryUpdate up(item->getParentUUID(), 0);
+			accountForUpdate(up);
+		}
 		gInventory.notifyObservers(); // do we want to be able to make this optional?
 	}
 }
@@ -1851,47 +1857,6 @@ void LLInventoryModel::accountForUpdate(
 		accountForUpdate(up);
 	}
 }
-
-
-/*
-void LLInventoryModel::incrementCategoryVersion(const LLUUID& category_id)
-{
-	LLViewerInventoryCategory* cat = getCategory(category_id);
-	if(cat)
-	{
-		S32 version = cat->getVersion();
-		if(LLViewerInventoryCategory::VERSION_UNKNOWN != version)
-		{
-			cat->setVersion(version + 1);
-			llinfos << "IncrementVersion: " << cat->getName() << " "
-					<< cat->getVersion() << llendl;
-		}
-		else
-		{
-			llinfos << "Attempt to increment version when unknown: "
-					<< category_id << llendl;
-		}
-	}
-	else
-	{
-		llinfos << "Attempt to increment category: " << category_id << llendl;
-	}
-}
-void LLInventoryModel::incrementCategorySetVersion(
-	const std::set<LLUUID>& categories)
-{
-	if(!categories.empty())
-	{ 
-		std::set<LLUUID>::const_iterator it = categories.begin();
-		std::set<LLUUID>::const_iterator end = categories.end();
-		for(; it != end; ++it)
-		{
-			incrementCategoryVersion(*it);
-		}
-	}
-}
-*/
-
 
 LLInventoryModel::EHasChildren LLInventoryModel::categoryHasChildren(
 	const LLUUID& cat_id) const

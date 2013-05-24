@@ -726,7 +726,9 @@ void LLViewerInventoryItem::packUpdateMessage(LLMessageSystem* msg, const LLSD& 
 	}
 	if (updates.has("desc"))
 	{
-		msg->addStringFast(_PREHASH_Description, updates["desc"].asString());
+		std::string new_desc = updates["desc"].asString();
+		LLInventoryItem::correctInventoryDescription(new_desc);
+		msg->addStringFast(_PREHASH_Description, new_desc);
 	}
 	else
 	{
@@ -1461,7 +1463,7 @@ void update_inventory_item(
 			obj->packUpdateMessage(msg, updates);
 			gAgent.sendReliableMessage();
 
-			gInventory.onItemUpdated(item_id, updates);
+			gInventory.onItemUpdated(item_id, updates,false);
 			if (cb)
 			{
 				cb->fire(item_id);

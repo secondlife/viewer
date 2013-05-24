@@ -50,7 +50,8 @@ public:
 	typedef std::vector<LLInventoryModel::item_array_t> wearables_by_type_t;
 
 	void updateAppearanceFromCOF(bool update_base_outfit_ordering = false,
-								 bool enforce_item_restrictions = true);
+								 bool enforce_item_restrictions = true,
+								 bool enforce_ordering = true);
 	bool needToSaveCOF();
 	void updateCOF(const LLUUID& category, bool append = false);
 	void wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append);
@@ -68,6 +69,7 @@ public:
 								   LLInventoryModel::item_array_t& items_to_kill);
 	void findAllExcessOrDuplicateItems(const LLUUID& cat_id,
 									  LLInventoryModel::item_array_t& items_to_kill);
+	void enforceCOFItemRestrictions(LLPointer<LLInventoryCallback> cb);
 
 	// Copy all items and the src category itself.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
@@ -190,7 +192,9 @@ public:
 
 	//Check ordering information on wearables stored in links' descriptions and update if it is invalid
 	// COF is processed if cat_id is not specified
-	void updateClothingOrderingInfo(LLUUID cat_id = LLUUID::null, bool update_base_outfit_ordering = false);
+	void updateClothingOrderingInfo(LLUUID cat_id = LLUUID::null,
+									bool update_base_outfit_ordering = false,
+									LLPointer<LLInventoryCallback> cb = NULL);
 
 	bool isOutfitLocked() { return mOutfitLocked; }
 
@@ -263,7 +267,8 @@ class LLUpdateAppearanceOnDestroy: public LLInventoryCallback
 {
 public:
 	LLUpdateAppearanceOnDestroy(bool update_base_outfit_ordering = false,
-								bool enforce_item_restrictions = true);
+								bool enforce_item_restrictions = true,
+								bool enforce_ordering = true);
 	virtual ~LLUpdateAppearanceOnDestroy();
 	/* virtual */ void fire(const LLUUID& inv_item);
 
@@ -271,6 +276,7 @@ private:
 	U32 mFireCount;
 	bool mUpdateBaseOrder;
 	bool mEnforceItemRestrictions;
+	bool mEnforceOrdering;
 };
 
 class LLUpdateAppearanceAndEditWearableOnDestroy: public LLInventoryCallback

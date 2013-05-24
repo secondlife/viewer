@@ -171,6 +171,7 @@ public:
 	//--------------------------------------------------------------------
 public:
 	void setAssetUUID(const LLUUID& asset_id);
+	static void correctInventoryDescription(std::string& name);
 	void setDescription(const std::string& new_desc);
 	void setSaleInfo(const LLSaleInfo& sale_info);
 	void setPermissions(const LLPermissions& perm);

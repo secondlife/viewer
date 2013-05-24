@@ -416,12 +416,17 @@ U32 LLInventoryItem::getCRC32() const
 	return crc;
 }
 
+// static
+void LLInventoryItem::correctInventoryDescription(std::string& desc)
+{
+	LLStringUtil::replaceNonstandardASCII(desc, ' ');
+	LLStringUtil::replaceChar(desc, '|', ' ');
+}
 
 void LLInventoryItem::setDescription(const std::string& d)
 {
 	std::string new_desc(d);
-	LLStringUtil::replaceNonstandardASCII(new_desc, ' ');
-	LLStringUtil::replaceChar(new_desc, '|', ' ');
+	LLInventoryItem::correctInventoryDescription(new_desc);
 	if( new_desc != mDescription )
 	{
 		mDescription = new_desc;
