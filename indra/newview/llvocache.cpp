@@ -397,28 +397,33 @@ void LLVOCachePartition::removeEntry(LLViewerOctreeEntry* entry)
 class LLVOCacheOctreeCull : public LLViewerOctreeCull
 {
 public:
-	LLVOCacheOctreeCull(LLCamera* camera, LLViewerRegion* regionp, const LLVector3& shift) : LLViewerOctreeCull(camera), mRegionp(regionp) 
+	LLVOCacheOctreeCull(LLCamera* camera, LLViewerRegion* regionp, const LLVector3& shift, bool use_object_cache_occlusion) 
+		: LLViewerOctreeCull(camera), 
+		  mRegionp(regionp)
 	{
 		mLocalShift = shift;
+		mUseObjectCacheOcclusion = (use_object_cache_occlusion && LLPipeline::sUseOcclusion);
 	}
 
 	virtual bool earlyFail(LLviewerOctreeGroup* base_group)
 	{
-		LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)base_group;
-		if(group->needsUpdate())
+		if( mUseObjectCacheOcclusion &&
+			base_group->getOctreeNode()->getParent()) //never occlusion cull the root node
 		{
-			return false; //needs to issue new occlusion culling check.
+			LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)base_group;
+			if(group->needsUpdate())
+			{
+				return false; //needs to issue new occlusion culling check.
+			}
+
+			group->checkOcclusion();
+
+			if (group->isOcclusionState(LLSpatialGroup::OCCLUDED))
+			{
+				return true;
+			}
 		}
 
-		group->checkOcclusion();
-
-		if (group->getOctreeNode()->getParent() &&	//never occlusion cull the root node
-		  	LLPipeline::sUseOcclusion &&			//ignore occlusion if disabled			
-			group->isOcclusionState(LLSpatialGroup::OCCLUDED))
-		{
-			return true;
-		}
-		
 		return false;
 	}
 
@@ -448,24 +453,29 @@ public:
 
 	virtual void processGroup(LLviewerOctreeGroup* base_group)
 	{
-		LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)base_group;
-		if (group->needsUpdate() || group->mVisible[LLViewerCamera::sCurCameraID] < LLDrawable::getCurrentFrame() - 1)
+		if(mUseObjectCacheOcclusion && base_group->getOctreeNode()->getParent())
 		{
-			((LLOcclusionCullingGroup*)group)->doOcclusion(mCamera);
-			group->setVisible();
-			return; //wait for occlusion culling results
+			LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)base_group;
+			if (group->needsUpdate() || group->mVisible[LLViewerCamera::sCurCameraID] < LLDrawable::getCurrentFrame() - 1)
+			{
+				((LLOcclusionCullingGroup*)group)->doOcclusion(mCamera);
+				group->setVisible();
+				return; //wait for occlusion culling results
+			}
 		}
-
-		mRegionp->addVisibleGroup(group);
+		mRegionp->addVisibleGroup(base_group);
 	}
 
 private:
 	LLViewerRegion* mRegionp;
 	LLVector3       mLocalShift; //shift vector from agent space to local region space.
+	bool            mUseObjectCacheOcclusion;
 };
 
 S32 LLVOCachePartition::cull(LLCamera &camera)
 {
+	static LLCachedControl<bool> use_object_cache_occlusion(gSavedSettings,"UseObjectCacheOcclusion");
+
 	if(!LLViewerRegion::sVOCacheCullingEnabled)
 	{
 		return 0;
@@ -477,7 +487,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera)
 	LLVector3 region_agent = mRegionp->getOriginAgent();
 	camera.calcRegionFrustumPlanes(region_agent);
 
-	LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent);
+	LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent, use_object_cache_occlusion);
 	culler.traverse(mOctree);
 
 	return 0;
