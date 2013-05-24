@@ -1973,27 +1973,19 @@ S32 LLVOVolume::setTEGlow(const U8 te, const F32 glow)
 	return  res;
 }
 
-void LLVOVolume::setTEMaterialParamsCallbackTE(const LLMaterialID &pMaterialID, const LLMaterialPtr pMaterialParams, U32 te)
+void LLVOVolume::setTEMaterialParamsCallbackTE(const LLUUID& objectID, const LLMaterialID &pMaterialID, const LLMaterialPtr pMaterialParams, U32 te)
 {
-	LL_DEBUGS("MaterialTEs") << "materialid " << pMaterialID.asString() << " to TE " << te << LL_ENDL;
-	if (te >= getNumTEs())
-		return;
-
-	LLTextureEntry* texture_entry = getTE(te);
-	if (texture_entry && (texture_entry->getMaterialID() == pMaterialID))
+	LLVOVolume* pVol = (LLVOVolume*)gObjectList.findObject(objectID);
+	if (pVol && pVol->getVolume())
 	{
-		setTEMaterialParams(te, pMaterialParams);
-	}
-}
+		LL_DEBUGS("MaterialTEs") << "materialid " << pMaterialID.asString() << " to TE " << te << LL_ENDL;
+		if (te >= pVol->getNumTEs())
+			return;
 
-void LLVOVolume::setTEMaterialParamsCallback(const LLMaterialID &pMaterialID, const LLMaterialPtr pMaterialParams)
-{
-	LL_DEBUGS("MaterialTEs") << "materialid " << pMaterialID.asString() << LL_ENDL;
-	for (U8 i = 0; i < getNumTEs(); i++)
-	{
-		if (getTE(i) && (getTE(i)->getMaterialID().isNull() || (getTE(i)->getMaterialID() == pMaterialID)))
+		LLTextureEntry* texture_entry = pVol->getTE(te);
+		if (texture_entry && (texture_entry->getMaterialID() == pMaterialID))
 		{
-			setTEMaterialParams(i, pMaterialParams);
+			pVol->setTEMaterialParams(te, pMaterialParams);
 		}
 	}
 }
@@ -2008,11 +2000,8 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 	LL_DEBUGS("MaterialTEs") << " " << pMaterialID.asString() << LL_ENDL;
 	if (res)
 	{
-#if USE_TE_SPECIFIC_REGISTRATION
-		LLMaterialMgr::instance().getTE(getRegion()->getRegionID(), pMaterialID, te, boost::bind(&LLVOVolume::setTEMaterialParamsCallbackTE, this, _1, _2, _3));			
-#else
-		LLMaterialMgr::instance().get(getRegion()->getRegionID(), pMaterialID, boost::bind(&LLVOVolume::setTEMaterialParamsCallback, this, _1, _2));
-#endif
+		LLMaterialMgr::instance().getTE(getRegion()->getRegionID(), pMaterialID, te, boost::bind(&LLVOVolume::setTEMaterialParamsCallbackTE, getID(), _1, _2, _3));
+
 		setChanged(TEXTURE);
 		if (!mDrawable.isNull())
 		{

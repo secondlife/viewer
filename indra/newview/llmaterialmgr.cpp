@@ -217,7 +217,6 @@ boost::signals2::connection LLMaterialMgr::get(const LLUUID& region_id, const LL
 	return connection;
 }
 
-#if USE_TE_SPECIFIC_REGISTRATION
 boost::signals2::connection LLMaterialMgr::getTE(const LLUUID& region_id, const LLMaterialID& material_id, U32 te, LLMaterialMgr::get_callback_te_t::slot_type cb)
 {
 	boost::signals2::connection connection;
@@ -262,7 +261,6 @@ boost::signals2::connection LLMaterialMgr::getTE(const LLUUID& region_id, const 
 
 	return connection;
 }
-#endif
 
 bool LLMaterialMgr::isGetAllPending(const LLUUID& region_id) const
 {
@@ -343,7 +341,6 @@ const LLMaterialPtr LLMaterialMgr::setMaterial(const LLUUID& region_id, const LL
 	if (isGetPending(region_id, material_id))
 	{		
 	
-	#if USE_TE_SPECIFIC_REGISTRATION
 		TEMaterialPair te_mat_pair;
 		te_mat_pair.materialID = material_id;
 
@@ -359,7 +356,6 @@ const LLMaterialPtr LLMaterialMgr::setMaterial(const LLUUID& region_id, const LL
 				mGetTECallbacks.erase(itCallbackTE);
 			}
 		}
-	#endif
 
 		get_callback_map_t::iterator itCallback = mGetCallbacks.find(material_id);
 		if (itCallback != mGetCallbacks.end())

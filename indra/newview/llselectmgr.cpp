@@ -2501,57 +2501,41 @@ void LLSelectMgr::adjustTexturesByScale(BOOL send_to_sim, BOOL stretch)
 					continue;
 				}
 				
-				LLVector3 scale_ratio = selectNode->mTextureScaleRatios[te_num]; 
 				LLVector3 object_scale = object->getScale();
+				LLVector3 diffuse_scale_ratio  = selectNode->mTextureScaleRatios[LLRender::DIFFUSE_MAP][te_num]; 
+				LLVector3 normal_scale_ratio   = selectNode->mTextureScaleRatios[LLRender::NORMAL_MAP][te_num]; 
+				LLVector3 specular_scale_ratio = selectNode->mTextureScaleRatios[LLRender::SPECULAR_MAP][te_num]; 
 				
 				// Apply new scale to face
 				if (planar)
 				{
-					F32 scale_s = scale_ratio.mV[s_axis]/object_scale.mV[s_axis];
-					F32 scale_t = scale_ratio.mV[t_axis]/object_scale.mV[t_axis];
+					F32 diffuse_scale_s = diffuse_scale_ratio.mV[s_axis]/object_scale.mV[s_axis];
+					F32 diffuse_scale_t = diffuse_scale_ratio.mV[t_axis]/object_scale.mV[t_axis];
 
-					switch (mTextureChannel)
-					{
-						case LLRender::DIFFUSE_MAP:
-							{
-								object->setTEScale(te_num, scale_s, scale_t);
-							}
-							break;
+					F32 normal_scale_s = normal_scale_ratio.mV[s_axis]/object_scale.mV[s_axis];
+					F32 normal_scale_t = normal_scale_ratio.mV[t_axis]/object_scale.mV[t_axis];
 
-						case LLRender::NORMAL_MAP:
-							{
-								LLTextureEntry* tep = object->getTE(te_num);
-								if (tep && !tep->getMaterialParams().isNull())
-								{
-									LLMaterialPtr orig = tep->getMaterialParams();
-									LLMaterialPtr p = new LLMaterial(orig->asLLSD());
-									p->setNormalRepeat(scale_s * 0.5f, scale_t * 0.5f);
-									selectionSetMaterial( p );
-								}
-							}
-							break;
+					F32 specular_scale_s = specular_scale_ratio.mV[s_axis]/object_scale.mV[s_axis];
+					F32 specular_scale_t = specular_scale_ratio.mV[t_axis]/object_scale.mV[t_axis];
 
-						case LLRender::SPECULAR_MAP:
-							{
-								LLTextureEntry* tep = object->getTE(te_num);
-								if (tep && !tep->getMaterialParams().isNull())
-								{
-									LLMaterialPtr orig = tep->getMaterialParams();
-									LLMaterialPtr p = new LLMaterial(orig->asLLSD());
-									p->setSpecularRepeat(scale_s * 0.5f, scale_t * 0.5f);
-									selectionSetMaterial( p );
-								}
-							}
-							break;
-						default:
-							break;
-					}
 					
+					object->setTEScale(te_num, diffuse_scale_s, diffuse_scale_t);
+
+					LLTextureEntry* tep = object->getTE(te_num);
+
+					if (tep && !tep->getMaterialParams().isNull())
+					{
+						LLMaterialPtr orig = tep->getMaterialParams();
+						LLMaterialPtr p = new LLMaterial(orig->asLLSD());
+						p->setNormalRepeat(normal_scale_s, normal_scale_t);
+						p->setSpecularRepeat(specular_scale_s, specular_scale_t);
+						selectionSetMaterial( p );
+					}
 				}
 				else
 				{
-					object->setTEScale(te_num, scale_ratio.mV[s_axis]*object_scale.mV[s_axis],
-											scale_ratio.mV[t_axis]*object_scale.mV[t_axis]);
+					object->setTEScale(te_num, diffuse_scale_ratio.mV[s_axis]*object_scale.mV[s_axis],
+													   diffuse_scale_ratio.mV[t_axis]*object_scale.mV[t_axis]);
 				}
 				send = send_to_sim;
 			}
@@ -5876,7 +5860,10 @@ void LLSelectNode::saveTextures(const uuid_vec_t& textures)
 
 void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
 {
-	mTextureScaleRatios.clear();
+	mTextureScaleRatios[LLRender::DIFFUSE_MAP].clear();
+	mTextureScaleRatios[LLRender::NORMAL_MAP].clear();
+	mTextureScaleRatios[LLRender::SPECULAR_MAP].clear();
+
 	if (mObject.notNull())
 	{
 		
@@ -5884,9 +5871,15 @@ void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
 
 		for (U8 i = 0; i < mObject->getNumTEs(); i++)
 		{
-			F32 s = 1.0f;
-			F32 t = 1.0f;
+			F32 diffuse_s = 1.0f;
+			F32 diffuse_t = 1.0f;
 			
+			F32 normal_s = 1.0f;
+			F32 normal_t = 1.0f;
+
+			F32 specular_s = 1.0f;
+			F32 specular_t = 1.0f;
+
 			LLVector3 v;
 
 			const LLTextureEntry* tep = mObject->getTE(i);
@@ -5899,60 +5892,54 @@ void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
 			U32 t_axis = VY;
 			LLPrimitive::getTESTAxes(i, &s_axis, &t_axis);
 
-			switch(index_to_query)
+			tep->getScale(&diffuse_s,&diffuse_t);
+			
+			if (mat)
 			{
-				case LLRender::DIFFUSE_MAP:
-				{
-			tep->getScale(&s,&t);
-				}
-				break;
+				mat->getNormalRepeat(normal_s, normal_t);
+			}
+			else
+			{
+				tep->getScale(&normal_s,&normal_t);
+			}
 
-				case LLRender::NORMAL_MAP:
-				{
-					if (mat)
-					{
-						mat->getNormalRepeat(s, t);
-					}
-					else
-					{
-						tep->getScale(&s,&t);
-					}
-									
-				}
-				break;
-
-				case LLRender::SPECULAR_MAP:
-				{
-					if (mat)
-					{
-						mat->getSpecularRepeat(s, t);
-					}
-					else
-					{
-						tep->getScale(&s,&t);
-					}
-				}
-				break;
-
-				default:
-					// should never be.
-					//
-					llassert_always(false);
-				break;
+			if (mat)
+			{
+				mat->getSpecularRepeat(specular_s, specular_t);
+			}
+			else
+			{
+				tep->getScale(&specular_s,&specular_t);
 			}
 
 			if (tep->getTexGen() == LLTextureEntry::TEX_GEN_PLANAR)
 			{
-				v.mV[s_axis] = s*scale.mV[s_axis];
-				v.mV[t_axis] = t*scale.mV[t_axis];
+				v.mV[s_axis] = diffuse_s*scale.mV[s_axis];
+				v.mV[t_axis] = diffuse_t*scale.mV[t_axis];
+				mTextureScaleRatios[LLRender::DIFFUSE_MAP].push_back(v);
+
+				v.mV[s_axis] = diffuse_s*scale.mV[s_axis];
+				v.mV[t_axis] = diffuse_t*scale.mV[t_axis];
+				mTextureScaleRatios[LLRender::NORMAL_MAP].push_back(v);
+
+				v.mV[s_axis] = diffuse_s*scale.mV[s_axis];
+				v.mV[t_axis] = diffuse_t*scale.mV[t_axis];
+				mTextureScaleRatios[LLRender::SPECULAR_MAP].push_back(v);
 			}
 			else
 			{
-				v.mV[s_axis] = s/scale.mV[s_axis];
-				v.mV[t_axis] = t/scale.mV[t_axis];
-			}
+				v.mV[s_axis] = diffuse_s/scale.mV[s_axis];
+				v.mV[t_axis] = diffuse_t/scale.mV[t_axis];
+				mTextureScaleRatios[LLRender::DIFFUSE_MAP].push_back(v);
 
-			mTextureScaleRatios.push_back(v);
+				v.mV[s_axis] = normal_s/scale.mV[s_axis];
+				v.mV[t_axis] = normal_t/scale.mV[t_axis];
+				mTextureScaleRatios[LLRender::NORMAL_MAP].push_back(v);
+
+				v.mV[s_axis] = specular_s/scale.mV[s_axis];
+				v.mV[t_axis] = specular_t/scale.mV[t_axis];
+				mTextureScaleRatios[LLRender::SPECULAR_MAP].push_back(v);
+			}			
 		}
 	}
 }
