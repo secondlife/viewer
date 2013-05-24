@@ -373,10 +373,11 @@ void LLVOCacheEntry::setBoundingInfo(const LLVector3& pos, const LLVector3& scal
 //-------------------------------------------------------------------
 LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
 {
+	mLODPeriod = 16;
 	mRegionp = regionp;
 	mPartitionType = LLViewerRegion::PARTITION_VO_CACHE;
 	
-	new LLviewerOctreeGroup(mOctree);
+	new LLOcclusionCullingGroup(mOctree, this);
 }
 
 void LLVOCachePartition::addEntry(LLViewerOctreeEntry* entry)
@@ -401,11 +402,31 @@ public:
 		mLocalShift = shift;
 	}
 
+	virtual bool earlyFail(LLviewerOctreeGroup* base_group)
+	{
+		LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)base_group;
+		if(group->needsUpdate())
+		{
+			return false; //needs to issue new occlusion culling check.
+		}
+
+		group->checkOcclusion();
+
+		if (group->getOctreeNode()->getParent() &&	//never occlusion cull the root node
+		  	LLPipeline::sUseOcclusion &&			//ignore occlusion if disabled			
+			group->isOcclusionState(LLSpatialGroup::OCCLUDED))
+		{
+			return true;
+		}
+		
+		return false;
+	}
+
 	virtual S32 frustumCheck(const LLviewerOctreeGroup* group)
 	{
-		//S32 res = AABBInRegionFrustumGroupBounds(group);
+		S32 res = AABBInRegionFrustumGroupBounds(group);
 		
-		S32 res = AABBInRegionFrustumNoFarClipGroupBounds(group);
+		//S32 res = AABBInRegionFrustumNoFarClipGroupBounds(group);
 		if (res != 0)
 		{
 			res = llmin(res, AABBRegionSphereIntersectGroupExtents(group, mLocalShift));
@@ -415,9 +436,9 @@ public:
 
 	virtual S32 frustumCheckObjects(const LLviewerOctreeGroup* group)
 	{
-		//S32 res = AABBInRegionFrustumObjectBounds(group);
+		S32 res = AABBInRegionFrustumObjectBounds(group);
 
-		S32 res = AABBInRegionFrustumNoFarClipObjectBounds(group);
+		//S32 res = AABBInRegionFrustumNoFarClipObjectBounds(group);
 		if (res != 0)
 		{
 			res = llmin(res, AABBRegionSphereIntersectObjectExtents(group, mLocalShift));
@@ -427,7 +448,15 @@ public:
 
 	virtual void processGroup(LLviewerOctreeGroup* base_group)
 	{
-		mRegionp->addVisibleGroup(base_group);
+		LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)base_group;
+		if (group->needsUpdate() || group->mVisible[LLViewerCamera::sCurCameraID] < LLDrawable::getCurrentFrame() - 1)
+		{
+			((LLOcclusionCullingGroup*)group)->doOcclusion(mCamera);
+			group->setVisible();
+			return; //wait for occlusion culling results
+		}
+
+		mRegionp->addVisibleGroup(group);
 	}
 
 private:

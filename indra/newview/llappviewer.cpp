@@ -1417,18 +1417,7 @@ bool LLAppViewer::mainLoop()
 					S32 io_pending = 0;
 					F32 max_time = llmin(gFrameIntervalSeconds.value() *10.f, 1.f);
 
-					{
-						LLFastTimer ftm(FTM_TEXTURE_CACHE);
- 						work_pending += LLAppViewer::getTextureCache()->update(max_time); // unpauses the texture cache thread
-					}
-					{
-						LLFastTimer ftm(FTM_DECODE);
-	 					work_pending += LLAppViewer::getImageDecodeThread()->update(max_time); // unpauses the image thread
-					}
-					{
-						LLFastTimer ftm(FTM_DECODE);
-	 					work_pending += LLAppViewer::getTextureFetch()->update(max_time); // unpauses the texture fetch thread
-					}
+					work_pending += updateTextureThreads(max_time);
 
 					{
 						LLFastTimer ftm(FTM_VFS);
@@ -1544,6 +1533,24 @@ bool LLAppViewer::mainLoop()
 	llinfos << "***********************Exiting main_loop***********************" << llendflush;
 
 	return true;
+}
+
+S32 LLAppViewer::updateTextureThreads(F32 max_time)
+{
+	S32 work_pending = 0;
+	{
+		LLFastTimer ftm(FTM_TEXTURE_CACHE);
+ 		work_pending += LLAppViewer::getTextureCache()->update(max_time); // unpauses the texture cache thread
+	}
+	{
+		LLFastTimer ftm(FTM_DECODE);
+	 	work_pending += LLAppViewer::getImageDecodeThread()->update(max_time); // unpauses the image thread
+	}
+	{
+		LLFastTimer ftm(FTM_DECODE);
+	 	work_pending += LLAppViewer::getTextureFetch()->update(max_time); // unpauses the texture fetch thread
+	}
+	return work_pending;
 }
 
 void LLAppViewer::flushVFSIO()

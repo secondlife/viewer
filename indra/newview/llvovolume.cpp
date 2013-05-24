@@ -4190,7 +4190,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	
 	LLVOAvatar* pAvatarVO = NULL;
 
-	LLSpatialBridge* bridge = group->mSpatialPartition->asBridge();
+	LLSpatialBridge* bridge = group->getSpatialPartition()->asBridge();
 	if (bridge)
 	{
 		if (bridge->mAvatar.isNull())
@@ -4227,10 +4227,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	std::vector<LLFace*> simple_faces;
 
 	std::vector<LLFace*> alpha_faces;
-	U32 useage = group->mSpatialPartition->mBufferUsage;
+	U32 useage = group->getSpatialPartition()->mBufferUsage;
 
-	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcVertexSize(group->mSpatialPartition->mVertexDataMask);
-	U32 max_total = (gSavedSettings.getS32("RenderMaxNodeSize")*1024)/LLVertexBuffer::calcVertexSize(group->mSpatialPartition->mVertexDataMask);
+	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
+	U32 max_total = (gSavedSettings.getS32("RenderMaxNodeSize")*1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
 	max_vertices = llmin(max_vertices, (U32) 65535);
 
 	U32 cur_total = 0;
@@ -4837,7 +4837,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 #endif
 	
 	//calculate maximum number of vertices to store in a single buffer
-	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcVertexSize(group->mSpatialPartition->mVertexDataMask);
+	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
 	max_vertices = llmin(max_vertices, (U32) 65535);
 
 	{
@@ -5228,7 +5228,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_count, U32 &index_count)
 {	
 	//initialize to default usage for this partition
-	U32 usage = group->mSpatialPartition->mBufferUsage;
+	U32 usage = group->getSpatialPartition()->mBufferUsage;
 	
 	//clear off any old faces
 	mFaceList.clear();

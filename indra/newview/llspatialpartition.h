@@ -55,12 +55,6 @@ class LLViewerRegion;
 
 void pushVerts(LLFace* face, U32 mask);
 
-// get index buffer for binary encoded axis vertex buffer given a box at center being viewed by given camera
-U32 get_box_fan_indices(LLCamera* camera, const LLVector4a& center);
-U8* get_box_fan_indices_ptr(LLCamera* camera, const LLVector4a& center);
-GLuint get_new_occlusion_query_object_name();
-void release_occlusion_query_object_name(GLuint name);
-
 class LLDrawInfo : public LLRefCount 
 {
 protected:
@@ -191,13 +185,13 @@ public:
 };
 
 LL_ALIGN_PREFIX(16)
-class LLSpatialGroup : public LLviewerOctreeGroup
+class LLSpatialGroup : public LLOcclusionCullingGroup
 {
 	friend class LLSpatialPartition;
 	friend class LLOctreeStateCheck;
 public:
 
-	LLSpatialGroup(const LLSpatialGroup& rhs) : LLviewerOctreeGroup(rhs)
+	LLSpatialGroup(const LLSpatialGroup& rhs) : LLOcclusionCullingGroup(rhs)
 	{
 		*this = rhs;
 	}
@@ -218,7 +212,6 @@ public:
 		return *this;
 	}
 
-	static std::set<GLuint> sPendingQueries; //pending occlusion queries
 	static U32 sNodeCount;
 	static BOOL sNoDelete; //deletion of spatial groups and draw info not allowed if TRUE
 
@@ -256,17 +249,7 @@ public:
 
 	typedef enum
 	{
-		OCCLUDED				= 0x00010000,
-		QUERY_PENDING			= 0x00020000,
-		ACTIVE_OCCLUSION		= 0x00040000,
-		DISCARD_QUERY			= 0x00080000,
-		EARLY_FAIL				= 0x00100000,
-	} eOcclusionState;
-
-	typedef enum
-	{
-		DEAD					= LLviewerOctreeGroup::INVALID_STATE,
-		GEOM_DIRTY				= (DEAD << 1),
+		GEOM_DIRTY				= LLviewerOctreeGroup::INVALID_STATE,
 		ALPHA_DIRTY				= (GEOM_DIRTY << 1),
 		IN_IMAGE_QUEUE			= (ALPHA_DIRTY << 1),
 		IMAGE_DIRTY				= (IN_IMAGE_QUEUE << 1),
@@ -275,33 +258,19 @@ public:
 		IN_BUILD_Q1				= (NEW_DRAWINFO << 1),
 		IN_BUILD_Q2				= (IN_BUILD_Q1 << 1),
 		STATE_MASK				= 0x0000FFFF,
-	} eSpatialState;
-
-	typedef enum
-	{
-		STATE_MODE_SINGLE = 0,		//set one node
-		STATE_MODE_BRANCH,			//set entire branch
-		STATE_MODE_DIFF,			//set entire branch as long as current state is different
-		STATE_MODE_ALL_CAMERAS,		//used for occlusion state, set state for all cameras
-	} eSetStateMode;
+	} eSpatialState;	
 
 	LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part);
 
-	BOOL isHUDGroup() ;
-	BOOL isDead()							{ return hasState(DEAD); }
-	BOOL isOcclusionState(U32 state) const	{ return mOcclusionState[LLViewerCamera::sCurCameraID] & state ? TRUE : FALSE; }
+	BOOL isHUDGroup() ;	
 	
 	void clearDrawMap();
 	void validate();
-	void checkStates();
 	void validateDrawMap();
 	
 	void setState(U32 state, S32 mode);
 	void clearState(U32 state, S32 mode);
-	void clearState(U32 state)     {mState &= ~state;}	
-
-	void setOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
-	void clearOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
+	void clearState(U32 state)     {mState &= ~state;}		
 
 	LLSpatialGroup* getParent();
 
@@ -309,13 +278,10 @@ public:
 	BOOL removeObject(LLDrawable *drawablep, BOOL from_octree = FALSE);
 	BOOL updateInGroup(LLDrawable *drawablep, BOOL immediate = FALSE); // Update position if it's in the group
 	BOOL isRecentlyVisible() const;
-	void shift(const LLVector4a &offset);
-	void checkOcclusion(); //read back last occlusion query (if any)
-	void doOcclusion(LLCamera* camera); //issue occlusion query
+	void shift(const LLVector4a &offset);	
 	void destroyGL(bool keep_occlusion = false);
 	
 	void updateDistance(LLCamera& camera);
-	BOOL needsUpdate();
 	F32 getUpdateUrgency() const;
 	BOOL changeLOD();
 	void rebuildGeom();
@@ -326,6 +292,8 @@ public:
 	void dirtyMesh() { setState(MESH_DIRTY); }
 
 	void drawObjectBox(LLColor4 col);
+
+	LLSpatialPartition* getSpatialPartition() {return (LLSpatialPartition*)mSpatialPartition;}
 
 	 //LISTENER FUNCTIONS
 	virtual void handleInsertion(const TreeNode* node, LLViewerOctreeEntry* face);
@@ -372,12 +340,8 @@ private:
 //-------------------
 
 protected:
-	virtual ~LLSpatialGroup();
-
-	U32 mOcclusionState[LLViewerCamera::NUM_CAMERAS];
-	U32 mOcclusionIssued[LLViewerCamera::NUM_CAMERAS];
-
-	S32 mLODHash;
+	virtual ~LLSpatialGroup();	
+	
 	static S32 sLODSeed;
 
 public:
@@ -387,11 +351,9 @@ public:
 	U32 mGeometryBytes; //used by volumes to track how many bytes of geometry data are in this node
 	F32 mSurfaceArea; //used by volumes to track estimated surface area of geometry in this node
 
-	F32 mBuilt;
-	LLSpatialPartition* mSpatialPartition;
+	F32 mBuilt;	
 	
-	LLPointer<LLVertexBuffer> mVertexBuffer;
-	GLuint					mOcclusionQuery[LLViewerCamera::NUM_CAMERAS];
+	LLPointer<LLVertexBuffer> mVertexBuffer;	
 
 	U32 mBufferUsage;
 	draw_map_t mDrawMap;
@@ -461,21 +423,18 @@ public:
 	void renderDebug();
 	void renderIntersectingBBoxes(LLCamera* camera);
 	void restoreGL();
-	void resetVertexBuffers();
-	BOOL isOcclusionEnabled();
+	void resetVertexBuffers();	
+
 	BOOL getVisibleExtents(LLCamera& camera, LLVector3& visMin, LLVector3& visMax);
 
 public:
 	LLSpatialBridge* mBridge; // NULL for non-LLSpatialBridge instances, otherwise, mBridge == this
 							// use a pointer instead of making "isBridge" and "asBridge" virtual so it's safe
-							// to call asBridge() from the destructor
-	BOOL mOcclusionEnabled; // if TRUE, occlusion culling is performed
+							// to call asBridge() from the destructor	
+	
 	BOOL mInfiniteFarClip; // if TRUE, frustum culling ignores far clip plane
-	U32 mBufferUsage;
-	U32   mDrawableType;
-	const BOOL mRenderByGroup;
-	U32 mLODSeed;
-	U32 mLODPeriod;	//number of frames between LOD updates for a given spatial group (staggered by mLODSeed)
+	U32 mBufferUsage;	
+	const BOOL mRenderByGroup;	
 	U32 mVertexDataMask;
 	F32 mSlopRatio; //percentage distance must change before drawables receive LOD update (default is 0.25);
 	BOOL mDepthMask; //if TRUE, objects in this partition will be written to depth during alpha rendering

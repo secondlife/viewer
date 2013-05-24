@@ -1145,7 +1145,7 @@ LLSpatialBridge::~LLSpatialBridge()
 	LLSpatialGroup* group = getSpatialGroup();
 	if (group)
 	{
-		group->mSpatialPartition->remove(this, group);
+		group->getSpatialPartition()->remove(this, group);
 	}
 	}
 

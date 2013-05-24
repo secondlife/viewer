@@ -27,6 +27,11 @@
 #include "llviewerprecompiledheaders.h"
 #include "llvieweroctree.h"
 #include "llviewerregion.h"
+#include "pipeline.h"
+#include "llviewercontrol.h"
+#include "llappviewer.h"
+#include "llglslshader.h"
+#include "llviewershadermgr.h"
 
 //-----------------------------------------------------------------------------------
 //static variables definitions
@@ -37,6 +42,100 @@ BOOL LLViewerOctreeDebug::sInDebug = FALSE;
 //-----------------------------------------------------------------------------------
 //some global functions definitions
 //-----------------------------------------------------------------------------------
+typedef enum
+{
+	b000 = 0x00,
+	b001 = 0x01,
+	b010 = 0x02,
+	b011 = 0x03,
+	b100 = 0x04,
+	b101 = 0x05,
+	b110 = 0x06,
+	b111 = 0x07,
+} eLoveTheBits;
+
+//contact Runitai Linden for a copy of the SL object used to write this table
+//basically, you give the table a bitmask of the look-at vector to a node and it
+//gives you a triangle fan index array
+static U16 sOcclusionIndices[] =
+{
+	 //000
+		b111, b110, b010, b011, b001, b101, b100, b110,
+	 //001 
+		b011, b010, b000, b001, b101, b111, b110, b010,
+	 //010
+		b101, b100, b110, b111, b011, b001, b000, b100,
+	 //011 
+		b001, b000, b100, b101, b111, b011, b010, b000,
+	 //100 
+		b110, b000, b010, b011, b111, b101, b100, b000,
+	 //101 
+		b010, b100, b000, b001, b011, b111, b110, b100,
+	 //110
+		b100, b010, b110, b111, b101, b001, b000, b010,
+	 //111
+		b000, b110, b100, b101, b001, b011, b010, b110,
+};
+
+U32 get_box_fan_indices(LLCamera* camera, const LLVector4a& center)
+{
+	LLVector4a origin;
+	origin.load3(camera->getOrigin().mV);
+
+	S32 cypher = center.greaterThan(origin).getGatheredBits() & 0x7;
+	
+	return cypher*8;
+}
+
+U8* get_box_fan_indices_ptr(LLCamera* camera, const LLVector4a& center)
+{
+	LLVector4a origin;
+	origin.load3(camera->getOrigin().mV);
+
+	S32 cypher = center.greaterThan(origin).getGatheredBits() & 0x7;
+	
+	return (U8*) (sOcclusionIndices+cypher*8);
+}
+
+//create a vertex buffer for efficiently rendering cubes
+LLVertexBuffer* ll_create_cube_vb(U32 type_mask, U32 usage)
+{
+	LLVertexBuffer* ret = new LLVertexBuffer(type_mask, usage);
+
+	ret->allocateBuffer(8, 64, true);
+
+	LLStrider<LLVector3> pos;
+	LLStrider<U16> idx;
+
+	ret->getVertexStrider(pos);
+	ret->getIndexStrider(idx);
+
+	pos[0] = LLVector3(-1,-1,-1);
+	pos[1] = LLVector3(-1,-1, 1);
+	pos[2] = LLVector3(-1, 1,-1);
+	pos[3] = LLVector3(-1, 1, 1);
+	pos[4] = LLVector3( 1,-1,-1);
+	pos[5] = LLVector3( 1,-1, 1);
+	pos[6] = LLVector3( 1, 1,-1);
+	pos[7] = LLVector3( 1, 1, 1);
+
+	for (U32 i = 0; i < 64; i++)
+	{
+		idx[i] = sOcclusionIndices[i];
+	}
+
+	ret->flush();
+
+	return ret;
+}
+
+
+#define LL_TRACK_PENDING_OCCLUSION_QUERIES 0
+
+const F32 SG_OCCLUSION_FUDGE = 0.25f;
+#define SG_DISCARD_TOLERANCE 0.01f
+
+
 S32 AABBSphereIntersect(const LLVector3& min, const LLVector3& max, const LLVector3 &origin, const F32 &rad)
 {
 	return AABBSphereIntersectR2(min, max, origin, rad*rad);
@@ -537,6 +636,11 @@ void LLviewerOctreeGroup::handleChildRemoval(const OctreeNode* parent, const Oct
 
 LLviewerOctreeGroup* LLviewerOctreeGroup::getParent()
 {
+	if (isDead())
+	{
+		return NULL;
+	}
+
 	if(!mOctreeNode)
 	{
 		return NULL;
@@ -626,10 +730,519 @@ void LLviewerOctreeGroup::setVisible()
 {
 	mVisible[LLViewerCamera::sCurCameraID] = LLViewerOctreeEntryData::getCurrentFrame();
 }
+
+void LLviewerOctreeGroup::checkStates()
+{
+#if LL_OCTREE_PARANOIA_CHECK
+	//LLOctreeStateCheck checker;
+	//checker.traverse(mOctreeNode);
+#endif
+}
+
+//-------------------------------------------------------------------------------------------
+//occulsion culling functions and classes
+//-------------------------------------------------------------------------------------------
+std::set<U32> LLOcclusionCullingGroup::sPendingQueries;
+class LLOcclusionQueryPool : public LLGLNamePool
+{
+public:
+	LLOcclusionQueryPool()
+	{
+		mCurQuery = 1;
+	}
+
+protected:
+
+	std::list<GLuint> mAvailableName;
+	GLuint mCurQuery;
+		
+	virtual GLuint allocateName()
+	{
+		GLuint ret = 0;
+
+		if (!mAvailableName.empty())
+		{
+			ret = mAvailableName.front();
+			mAvailableName.pop_front();
+		}
+		else
+		{
+			ret = mCurQuery++;
+		}
+
+		return ret;
+	}
+
+	virtual void releaseName(GLuint name)
+	{
+#if LL_TRACK_PENDING_OCCLUSION_QUERIES
+		LLSpatialGroup::sPendingQueries.erase(name);
+#endif
+		llassert(std::find(mAvailableName.begin(), mAvailableName.end(), name) == mAvailableName.end());
+		mAvailableName.push_back(name);
+	}
+};
+
+static LLOcclusionQueryPool sQueryPool;
+U32 LLOcclusionCullingGroup::getNewOcclusionQueryObjectName()
+{
+	return sQueryPool.allocate();
+}
+
+void LLOcclusionCullingGroup::releaseOcclusionQueryObjectName(GLuint name)
+{
+	sQueryPool.release(name);
+}
+
+//=====================================
+//		Occlusion State Set/Clear
+//=====================================
+class LLSpatialSetOcclusionState : public OctreeTraveler
+{
+public:
+	U32 mState;
+	LLSpatialSetOcclusionState(U32 state) : mState(state) { }
+	virtual void visit(const OctreeNode* branch) { ((LLOcclusionCullingGroup*) branch->getListener(0))->setOcclusionState(mState); }	
+};
+
+class LLSpatialSetOcclusionStateDiff : public LLSpatialSetOcclusionState
+{
+public:
+	LLSpatialSetOcclusionStateDiff(U32 state) : LLSpatialSetOcclusionState(state) { }
+
+	virtual void traverse(const OctreeNode* n)
+	{
+		LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*) n->getListener(0);
+		
+		if (!group->isOcclusionState(mState))
+		{
+			OctreeTraveler::traverse(n);
+		}
+	}
+};
+
+
+LLOcclusionCullingGroup::LLOcclusionCullingGroup(OctreeNode* node, LLViewerOctreePartition* part) : 
+	LLviewerOctreeGroup(node),
+	mSpatialPartition(part)
+{
+	part->mLODSeed = (part->mLODSeed+1)%part->mLODPeriod;
+	mLODHash = part->mLODSeed;
+
+	OctreeNode* oct_parent = node->getOctParent();
+	LLOcclusionCullingGroup* parent = oct_parent ? (LLOcclusionCullingGroup*) oct_parent->getListener(0) : NULL;
+
+	for (U32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
+	{
+		mOcclusionQuery[i] = 0;
+		mOcclusionIssued[i] = 0;
+		mOcclusionState[i] = parent ? SG_STATE_INHERIT_MASK & parent->mOcclusionState[i] : 0;
+		mVisible[i] = 0;
+	}
+}
+
+LLOcclusionCullingGroup::~LLOcclusionCullingGroup()
+{
+	releaseOcclusionQueryObjectNames();
+}
+
+BOOL LLOcclusionCullingGroup::needsUpdate()
+{
+	return (LLDrawable::getCurrentFrame() % mSpatialPartition->mLODPeriod == mLODHash) ? TRUE : FALSE;
+}
+
+//virtual 
+void LLOcclusionCullingGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* child)
+{
+	if (child->getListenerCount() == 0)
+	{
+		new LLOcclusionCullingGroup(child, mSpatialPartition);
+	}
+	else
+	{
+		OCT_ERRS << "LLOcclusionCullingGroup redundancy detected." << llendl;
+	}
+
+	unbound();
+	
+	((LLviewerOctreeGroup*)child->getListener(0))->unbound();
+}
+
+void LLOcclusionCullingGroup::releaseOcclusionQueryObjectNames()
+{
+	if (gGLManager.mHasOcclusionQuery)
+	{
+		for (U32 i = 0; i < LLViewerCamera::NUM_CAMERAS; ++i)
+		{
+			if (mOcclusionQuery[i])
+			{
+				releaseOcclusionQueryObjectName(mOcclusionQuery[i]);
+				mOcclusionQuery[i] = 0;
+			}
+		}
+	}
+}
+
+void LLOcclusionCullingGroup::setOcclusionState(U32 state, S32 mode) 
+{
+	if (mode > STATE_MODE_SINGLE)
+	{
+		if (mode == STATE_MODE_DIFF)
+		{
+			LLSpatialSetOcclusionStateDiff setter(state);
+			setter.traverse(mOctreeNode);
+		}
+		else if (mode == STATE_MODE_BRANCH)
+		{
+			LLSpatialSetOcclusionState setter(state);
+			setter.traverse(mOctreeNode);
+		}
+		else
+		{
+			for (U32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
+			{
+				mOcclusionState[i] |= state;
+
+				if ((state & DISCARD_QUERY) && mOcclusionQuery[i])
+				{
+					releaseOcclusionQueryObjectName(mOcclusionQuery[i]);
+					mOcclusionQuery[i] = 0;
+				}
+			}
+		}
+	}
+	else
+	{
+		mOcclusionState[LLViewerCamera::sCurCameraID] |= state;
+		if ((state & DISCARD_QUERY) && mOcclusionQuery[LLViewerCamera::sCurCameraID])
+		{
+			releaseOcclusionQueryObjectName(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+			mOcclusionQuery[LLViewerCamera::sCurCameraID] = 0;
+		}
+	}
+}
+
+class LLSpatialClearOcclusionState : public OctreeTraveler
+{
+public:
+	U32 mState;
+	
+	LLSpatialClearOcclusionState(U32 state) : mState(state) { }
+	virtual void visit(const OctreeNode* branch) { ((LLOcclusionCullingGroup*) branch->getListener(0))->clearOcclusionState(mState); }
+};
+
+class LLSpatialClearOcclusionStateDiff : public LLSpatialClearOcclusionState
+{
+public:
+	LLSpatialClearOcclusionStateDiff(U32 state) : LLSpatialClearOcclusionState(state) { }
+
+	virtual void traverse(const OctreeNode* n)
+	{
+		LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*) n->getListener(0);
+		
+		if (group->isOcclusionState(mState))
+		{
+			OctreeTraveler::traverse(n);
+		}
+	}
+};
+
+void LLOcclusionCullingGroup::clearOcclusionState(U32 state, S32 mode)
+{
+	if (mode > STATE_MODE_SINGLE)
+	{
+		if (mode == STATE_MODE_DIFF)
+		{
+			LLSpatialClearOcclusionStateDiff clearer(state);
+			clearer.traverse(mOctreeNode);
+		}
+		else if (mode == STATE_MODE_BRANCH)
+		{
+			LLSpatialClearOcclusionState clearer(state);
+			clearer.traverse(mOctreeNode);
+		}
+		else
+		{
+			for (U32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
+			{
+				mOcclusionState[i] &= ~state;
+			}
+		}
+	}
+	else
+	{
+		mOcclusionState[LLViewerCamera::sCurCameraID] &= ~state;
+	}
+}
+
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_READBACK("Readback Occlusion");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_WAIT("Occlusion Wait");
+
+BOOL LLOcclusionCullingGroup::earlyFail(LLCamera* camera)
+{
+	if (camera->getOrigin().isExactlyZero())
+	{
+		return FALSE;
+	}
+
+	const F32 vel = SG_OCCLUSION_FUDGE*2.f;
+	LLVector4a fudge;
+	fudge.splat(vel);
+
+	const LLVector4a* bounds = getBounds();
+	const LLVector4a& c = bounds[0];
+	LLVector4a r;
+	r.setAdd(bounds[1], fudge);
+
+	/*if (r.magVecSquared() > 1024.0*1024.0)
+	{
+		return TRUE;
+	}*/
+
+	LLVector4a e;
+	e.load3(camera->getOrigin().mV);
+	
+	LLVector4a min;
+	min.setSub(c,r);
+	LLVector4a max;
+	max.setAdd(c,r);
+	
+	S32 lt = e.lessThan(min).getGatheredBits() & 0x7;
+	if (lt)
+	{
+		return FALSE;
+	}
+
+	S32 gt = e.greaterThan(max).getGatheredBits() & 0x7;
+	if (gt)
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+void LLOcclusionCullingGroup::checkOcclusion()
+{
+	if (LLPipeline::sUseOcclusion > 1)
+	{
+		LLFastTimer t(FTM_OCCLUSION_READBACK);
+		LLOcclusionCullingGroup* parent = (LLOcclusionCullingGroup*)getParent();
+		if (parent && parent->isOcclusionState(LLOcclusionCullingGroup::OCCLUDED))
+		{	//if the parent has been marked as occluded, the child is implicitly occluded
+			clearOcclusionState(QUERY_PENDING | DISCARD_QUERY);
+		}
+		else if (isOcclusionState(QUERY_PENDING))
+		{	//otherwise, if a query is pending, read it back
+
+			GLuint available = 0;
+			if (mOcclusionQuery[LLViewerCamera::sCurCameraID])
+			{
+				glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+
+				static LLCachedControl<bool> wait_for_query(gSavedSettings, "RenderSynchronousOcclusion");
+
+				if (wait_for_query && mOcclusionIssued[LLViewerCamera::sCurCameraID] < gFrameCount)
+				{ //query was issued last frame, wait until it's available
+					S32 max_loop = 1024;
+					LLFastTimer t(FTM_OCCLUSION_WAIT);
+					while (!available && max_loop-- > 0)
+					{
+						//do some usefu work while we wait
+						F32 max_time = llmin(gFrameIntervalSeconds.value()*10.f, 1.f);
+						LLAppViewer::instance()->updateTextureThreads(max_time);
+						
+						glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+					}
+				}
+			}
+			else
+			{
+				available = 1;
+			}
+
+			if (available)
+			{ //result is available, read it back, otherwise wait until next frame
+				GLuint res = 1;
+				if (!isOcclusionState(DISCARD_QUERY) && mOcclusionQuery[LLViewerCamera::sCurCameraID])
+				{
+					glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_ARB, &res);	
+#if LL_TRACK_PENDING_OCCLUSION_QUERIES
+					sPendingQueries.erase(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+#endif
+				}
+				else if (mOcclusionQuery[LLViewerCamera::sCurCameraID])
+				{ //delete the query to avoid holding onto hundreds of pending queries
+					releaseOcclusionQueryObjectName(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+					mOcclusionQuery[LLViewerCamera::sCurCameraID] = 0;
+				}
+				
+				if (isOcclusionState(DISCARD_QUERY))
+				{
+					res = 2;
+				}
+
+				if (res > 0)
+				{
+					assert_states_valid(this);
+					clearOcclusionState(LLOcclusionCullingGroup::OCCLUDED, LLOcclusionCullingGroup::STATE_MODE_DIFF);
+					assert_states_valid(this);
+				}
+				else
+				{
+					assert_states_valid(this);
+					
+					setOcclusionState(LLOcclusionCullingGroup::OCCLUDED, LLOcclusionCullingGroup::STATE_MODE_DIFF);
+					
+					assert_states_valid(this);
+				}
+
+				clearOcclusionState(QUERY_PENDING | DISCARD_QUERY);
+			}
+		}
+		else if (mSpatialPartition->isOcclusionEnabled() && isOcclusionState(LLOcclusionCullingGroup::OCCLUDED))
+		{	//check occlusion has been issued for occluded node that has not had a query issued
+			assert_states_valid(this);
+			clearOcclusionState(LLOcclusionCullingGroup::OCCLUDED, LLOcclusionCullingGroup::STATE_MODE_DIFF);
+			assert_states_valid(this);
+		}
+	}
+}
+
+static LLFastTimer::DeclareTimer FTM_PUSH_OCCLUSION_VERTS("Push Occlusion");
+static LLFastTimer::DeclareTimer FTM_SET_OCCLUSION_STATE("Occlusion State");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_EARLY_FAIL("Occlusion Early Fail");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_ALLOCATE("Allocate");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_BUILD("Build");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_BEGIN_QUERY("Begin Query");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_END_QUERY("End Query");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_SET_BUFFER("Set Buffer");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_DRAW_WATER("Draw Water");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_DRAW("Draw");
+
+void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera)
+{
+	if (mSpatialPartition->isOcclusionEnabled() && LLPipeline::sUseOcclusion > 1)
+	{
+		// Don't cull hole/edge water, unless we have the GL_ARB_depth_clamp extension
+		if (earlyFail(camera))
+		{
+			LLFastTimer t(FTM_OCCLUSION_EARLY_FAIL);
+			setOcclusionState(LLOcclusionCullingGroup::DISCARD_QUERY);
+			assert_states_valid(this);
+			clearOcclusionState(LLOcclusionCullingGroup::OCCLUDED, LLOcclusionCullingGroup::STATE_MODE_DIFF);
+			assert_states_valid(this);
+		}
+		else
+		{
+			if (!isOcclusionState(QUERY_PENDING) || isOcclusionState(DISCARD_QUERY))
+			{
+				{ //no query pending, or previous query to be discarded
+					LLFastTimer t(FTM_RENDER_OCCLUSION);
+
+					if (!mOcclusionQuery[LLViewerCamera::sCurCameraID])
+					{
+						LLFastTimer t(FTM_OCCLUSION_ALLOCATE);
+						mOcclusionQuery[LLViewerCamera::sCurCameraID] = getNewOcclusionQueryObjectName();
+					}
+
+					// Depth clamp all water to avoid it being culled as a result of being
+					// behind the far clip plane, and in the case of edge water to avoid
+					// it being culled while still visible.
+					bool const use_depth_clamp = gGLManager.mHasDepthClamp &&
+												(mSpatialPartition->mDrawableType == LLDrawPool::POOL_WATER ||						
+												mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER);
+
+					LLGLEnable clamp(use_depth_clamp ? GL_DEPTH_CLAMP : 0);				
+						
+#if !LL_DARWIN					
+					U32 mode = gGLManager.mHasOcclusionQuery2 ? GL_ANY_SAMPLES_PASSED : GL_SAMPLES_PASSED_ARB;
+#else
+					U32 mode = GL_SAMPLES_PASSED_ARB;
+#endif
+					
+#if LL_TRACK_PENDING_OCCLUSION_QUERIES
+					sPendingQueries.insert(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+#endif
+
+					{
+						LLFastTimer t(FTM_PUSH_OCCLUSION_VERTS);
+						
+						//store which frame this query was issued on
+						mOcclusionIssued[LLViewerCamera::sCurCameraID] = gFrameCount;
+
+						{
+							LLFastTimer t(FTM_OCCLUSION_BEGIN_QUERY);
+							glBeginQueryARB(mode, mOcclusionQuery[LLViewerCamera::sCurCameraID]);					
+						}
+					
+						LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+						llassert(shader);
+
+						shader->uniform3fv(LLShaderMgr::BOX_CENTER, 1, mBounds[0].getF32ptr());
+						shader->uniform3f(LLShaderMgr::BOX_SIZE, mBounds[1][0]+SG_OCCLUSION_FUDGE, 
+																 mBounds[1][1]+SG_OCCLUSION_FUDGE, 
+																 mBounds[1][2]+SG_OCCLUSION_FUDGE);
+
+						if (!use_depth_clamp && mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER)
+						{
+							LLFastTimer t(FTM_OCCLUSION_DRAW_WATER);
+
+							LLGLSquashToFarClip squash(glh_get_current_projection(), 1);
+							if (camera->getOrigin().isExactlyZero())
+							{ //origin is invalid, draw entire box
+								gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
+								gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, b111*8);				
+							}
+							else
+							{
+								gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, mBounds[0]));
+							}
+						}
+						else
+						{
+							LLFastTimer t(FTM_OCCLUSION_DRAW);
+							if (camera->getOrigin().isExactlyZero())
+							{ //origin is invalid, draw entire box
+								gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
+								gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, b111*8);				
+							}
+							else
+							{
+								gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, mBounds[0]));
+							}
+						}
+
+
+						{
+							LLFastTimer t(FTM_OCCLUSION_END_QUERY);
+							glEndQueryARB(mode);
+						}
+					}
+				}
+
+				{
+					LLFastTimer t(FTM_SET_OCCLUSION_STATE);
+					setOcclusionState(LLOcclusionCullingGroup::QUERY_PENDING);
+					clearOcclusionState(LLOcclusionCullingGroup::DISCARD_QUERY);
+				}
+			}
+		}
+	}
+}
+//-------------------------------------------------------------------------------------------
+//end of occulsion culling functions and classes
+//-------------------------------------------------------------------------------------------
+
 //-----------------------------------------------------------------------------------
 //class LLViewerOctreePartition definitions
 //-----------------------------------------------------------------------------------
-LLViewerOctreePartition::LLViewerOctreePartition() : mRegionp(NULL)
+LLViewerOctreePartition::LLViewerOctreePartition() : 
+	mRegionp(NULL), 
+	mOcclusionEnabled(TRUE), 
+	mDrawableType(0),
+	mLODSeed(0),
+	mLODPeriod(1)
 {
 	LLVector4a center, size;
 	center.splat(0.f);
@@ -642,6 +1255,11 @@ LLViewerOctreePartition::~LLViewerOctreePartition()
 {
 	delete mOctree;
 	mOctree = NULL;
+}
+
+BOOL LLViewerOctreePartition::isOcclusionEnabled()
+{
+	return mOcclusionEnabled || LLPipeline::sUseOcclusion > 2;
 }
 
 //-----------------------------------------------------------------------------------
