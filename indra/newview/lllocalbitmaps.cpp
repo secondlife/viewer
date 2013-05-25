@@ -58,6 +58,8 @@
 #include "lltexlayerparams.h"
 #include "llvovolume.h"
 #include "llnotificationsutil.h"
+#include "pipeline.h"
+#include "llmaterialmgr.h"
 
 /*=======================================*/
 /*  Formal declarations, constants, etc. */
@@ -339,7 +341,12 @@ void LLLocalBitmap::replaceIDs(LLUUID old_id, LLUUID new_id)
 		return;
 	}
 
-	updateUserPrims(old_id, new_id);
+	// processing updates per channel; makes the process scalable.
+	// the only actual difference is in SetTE* call i.e. SetTETexture, SetTENormal, etc.
+	updateUserPrims(old_id, new_id, LLRender::DIFFUSE_MAP);
+	updateUserPrims(old_id, new_id, LLRender::NORMAL_MAP);
+	updateUserPrims(old_id, new_id, LLRender::SPECULAR_MAP);
+	
 	updateUserSculpts(old_id, new_id); // isn't there supposed to be an IMG_DEFAULT_SCULPT or something?
 	
 	// default safeguard image for layers
@@ -367,17 +374,15 @@ void LLLocalBitmap::replaceIDs(LLUUID old_id, LLUUID new_id)
 
 // this function sorts the faces from a getFaceList[getNumFaces] into a list of objects
 // in order to prevent multiple sendTEUpdate calls per object during updateUserPrims
-std::vector<LLViewerObject*> LLLocalBitmap::prepUpdateObjects(LLUUID old_id)
+std::vector<LLViewerObject*> LLLocalBitmap::prepUpdateObjects(LLUUID old_id, U32 channel)
 {
 	std::vector<LLViewerObject*> obj_list;
 	LLViewerFetchedTexture* old_texture = gTextureList.findImage(old_id);
-
-	U32 ch = LLRender::DIFFUSE_MAP;
-
-	for(U32 face_iterator = 0; face_iterator < old_texture->getNumFaces(ch); face_iterator++)
+	
+	for(U32 face_iterator = 0; face_iterator < old_texture->getNumFaces(channel); face_iterator++)
 	{
 		// getting an object from a face
-		LLFace* face_to_object = (*old_texture->getFaceList(ch))[face_iterator];
+		LLFace* face_to_object = (*old_texture->getFaceList(channel))[face_iterator];
 
 		if(face_to_object)
 		{
@@ -418,9 +423,9 @@ std::vector<LLViewerObject*> LLLocalBitmap::prepUpdateObjects(LLUUID old_id)
 	return obj_list;
 }
 
-void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id)
+void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id, U32 channel)
 {
-	std::vector<LLViewerObject*> objectlist = prepUpdateObjects(old_id);
+	std::vector<LLViewerObject*> objectlist = prepUpdateObjects(old_id, channel);
 
 	for(std::vector<LLViewerObject*>::iterator object_iterator = objectlist.begin();
 		object_iterator != objectlist.end(); object_iterator++)
@@ -429,7 +434,8 @@ void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id)
 
 		if(object)
 		{
-			bool update_obj = false;
+			bool update_tex = false;
+			bool update_mat = false;
 			S32 num_faces = object->getNumFaces();
 
 			for (U8 face_iter = 0; face_iter < num_faces; face_iter++)
@@ -437,19 +443,50 @@ void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id)
 				if (object->mDrawable)
 				{
 					LLFace* face = object->mDrawable->getFace(face_iter);
-					if (face && face->getTexture() && face->getTexture()->getID() == old_id)
+					if (face && face->getTexture(channel) && face->getTexture(channel)->getID() == old_id)
 					{
-						object->setTEImage(face_iter, LLViewerTextureManager::getFetchedTexture(
-							new_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+						// these things differ per channel, unless there already is a universal
+						// texture setting function to setTE that takes channel as a param?
+						// p.s.: switch for now, might become if - if an extra test is needed to verify before touching normalmap/specmap
+						switch(channel)
+						{
+							case LLRender::DIFFUSE_MAP:
+							{
+                                object->setTETexture(face_iter, new_id);
+                                update_tex = true;
+								break;
+							}
 
-						update_obj = true;
+							case LLRender::NORMAL_MAP:
+							{
+								object->setTENormalMap(face_iter, new_id);
+								update_mat = true;
+								update_tex = true;
+                                break;
+							}
+
+							case LLRender::SPECULAR_MAP:
+							{
+								object->setTESpecularMap(face_iter, new_id);
+                                update_mat = true;
+								update_tex = true;
+                                break;
+							}
+						}
+						// end switch
+
 					}
 				}
 			}
 			
-			if (update_obj)
+			if (update_tex)
 			{
 				object->sendTEUpdate();
+			}
+
+			if (update_mat)
+			{
+                object->mDrawable->getVOVolume()->faceMappingChanged();
 			}
 		}
 	}

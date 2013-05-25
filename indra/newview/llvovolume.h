@@ -31,6 +31,7 @@
 #include "llviewertexture.h"
 #include "llviewermedia.h"
 #include "llframetimer.h"
+#include "lllocalbitmaps.h"
 #include "m3math.h"		// LLMatrix3
 #include "m4math.h"		// LLMatrix4
 #include <map>
@@ -158,6 +159,7 @@ public:
 				const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const;
 
 				void	markForUpdate(BOOL priority)			{ LLViewerObject::markForUpdate(priority); mVolumeChanged = TRUE; }
+				void    faceMappingChanged()                    { mFaceMappingChanged=TRUE; };
 
 	/*virtual*/ void	onShift(const LLVector4a &shift_vector); // Called when the drawable shifts
 
