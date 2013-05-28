@@ -1822,10 +1822,7 @@ void LLPanelFace::updateMaterial()
 		LLMaterialPtr material( (!new_material) ? new LLMaterial(cur_material->asLLSD()) : new LLMaterial());
 		llassert_always(material);
 
-		if (!is_default_blend_mode)
-		{
-			material->setDiffuseAlphaMode(getChild<LLComboBox>("combobox alphamode")->getCurrentIndex());			
-		}
+		material->setDiffuseAlphaMode(getChild<LLComboBox>("combobox alphamode")->getCurrentIndex());
 		material->setAlphaMaskCutoff((U8)(getChild<LLUICtrl>("maskcutoff")->getValue().asInteger()));
 
 		if (!norm_map_id.isNull() && (bumpiness == BUMPY_TEXTURE))
@@ -2269,6 +2266,48 @@ void LLPanelFace::onSelectTexture(const LLSD& data)
 {
 	LLSelectMgr::getInstance()->saveSelectedObjectTextures();
 	sendTexture();
+
+	LLGLenum image_format;
+	struct f2 : public LLSelectedTEGetFunctor<LLGLenum>
+	{
+		LLGLenum get(LLViewerObject* object, S32 te_index)
+		{
+			LLGLenum image_format = GL_RGB;
+					
+			LLViewerTexture* image = object->getTEImage(te_index);
+			if (image) image_format  = image->getPrimaryFormat();
+			return image_format;
+		}
+	} func2;
+	LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func2, image_format );
+    
+	LLCtrlSelectionInterface* combobox_alphamode =
+		childGetSelectionInterface("combobox alphamode");
+
+	U32 alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
+	if (combobox_alphamode)
+	{
+		switch (image_format)
+		{
+		case GL_RGBA:
+		case GL_ALPHA:
+			{
+				alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
+			}
+			break;
+
+		case GL_RGB: break;
+		default:
+			{
+				llwarns << "Unexpected tex format in LLPanelFace...resorting to no alpha" << llendl;
+			}
+			break;
+		}
+
+		combobox_alphamode->selectNthItem(alpha_mode);
+	}
+
+	updateMaterial();
 }
 
 void LLPanelFace::onCommitSpecularTexture( const LLSD& data )
