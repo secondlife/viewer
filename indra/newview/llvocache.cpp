@@ -60,8 +60,7 @@ LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &
 	mDupeCount(0),
 	mCRCChangeCount(0),
 	mState(INACTIVE),
-	mRepeatedVisCounter(0),
-	mVisFrameRange(64),
+	mMinFrameRange(64),
 	mSceneContrib(0.f),
 	mTouched(TRUE),
 	mParentID(0)
@@ -81,8 +80,7 @@ LLVOCacheEntry::LLVOCacheEntry()
 	mCRCChangeCount(0),
 	mBuffer(NULL),
 	mState(INACTIVE),
-	mRepeatedVisCounter(0),
-	mVisFrameRange(64),
+	mMinFrameRange(64),
 	mSceneContrib(0.f),
 	mTouched(TRUE),
 	mParentID(0)
@@ -95,8 +93,7 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	mBuffer(NULL),
 	mUpdateFlags(-1),
 	mState(INACTIVE),
-	mRepeatedVisCounter(0),
-	mVisFrameRange(64),
+	mMinFrameRange(64),
 	mSceneContrib(0.f),
 	mTouched(FALSE),
 	mParentID(0)
@@ -215,35 +212,26 @@ void LLVOCacheEntry::setState(U32 state)
 
 	if(getState() == ACTIVE)
 	{
-		const S32 MIN_REAVTIVE_INTERVAL = 20;
+		const S32 MIN_REAVTIVE_INTERVAL = 32;
 		U32 last_visible = getVisible();
 		
 		setVisible();
 
-		if(getVisible() - last_visible < MIN_REAVTIVE_INTERVAL + mVisFrameRange)
+		if(getVisible() - last_visible < MIN_REAVTIVE_INTERVAL + mMinFrameRange)
 		{
-			mRepeatedVisCounter++;
+			mMinFrameRange = llmin(mMinFrameRange * 2, 2048);
 		}
 		else
 		{
-			mRepeatedVisCounter = 0;
-			mVisFrameRange = 64;
-		}
-
-		if(mRepeatedVisCounter > 2) 
-		{
-			//if repeatedly becomes visible immediately after invisible, enlarge the visible frame range
-
-			mRepeatedVisCounter = 0;
-			mVisFrameRange *= 2;
+			mMinFrameRange = 64; //reset
 		}
 	}
 }
 
 //virtual 
-S32  LLVOCacheEntry::getMinVisFrameRange()const
+S32  LLVOCacheEntry::getMinFrameRange()const
 {
-	return mVisFrameRange;
+	return mMinFrameRange;
 }
 
 void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)

@@ -87,7 +87,7 @@ public:
 	U32 getCRC() const				{ return mCRC; }
 	S32 getHitCount() const			{ return mHitCount; }
 	S32 getCRCChangeCount() const	{ return mCRCChangeCount; }
-	S32 getMinVisFrameRange()const;	
+	S32 getMinFrameRange()const;	
 
 	void calcSceneContribution(const LLVector3& camera_origin, bool needs_update, U32 last_update);
 	void setSceneContribution(F32 scene_contrib) {mSceneContrib = scene_contrib;}
@@ -116,7 +116,7 @@ public:
 	
 	void setTouched(BOOL touched = TRUE) {mTouched = touched;}
 	BOOL isTouched() const {return mTouched;}
-	
+
 	void setUpdateFlags(U32 flags) {mUpdateFlags = flags;}
 	U32  getUpdateFlags() const    {return mUpdateFlags;}
 
@@ -137,8 +137,7 @@ protected:
 	U8							*mBuffer;
 
 	F32                         mSceneContrib; //projected scene contributuion of this object.
-	S32                         mVisFrameRange;
-	S32                         mRepeatedVisCounter; //number of repeatedly visible within a short time.
+	S32                         mMinFrameRange;
 	U32                         mState; //high 16 bits reserved for special use.
 	std::vector<LLVOCacheEntry*> mChildrenList; //children entries in a linked set.
 

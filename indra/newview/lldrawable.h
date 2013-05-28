@@ -193,7 +193,7 @@ public:
 
 	LLSpatialPartition* getSpatialPartition();
 	
-	virtual S32 getMinVisFrameRange()const;
+	virtual S32 getMinFrameRange()const;
 	void removeFromOctree();
 
 	void setSpatialBridge(LLSpatialBridge* bridge) { mSpatialBridge = (LLDrawable*) bridge; }
