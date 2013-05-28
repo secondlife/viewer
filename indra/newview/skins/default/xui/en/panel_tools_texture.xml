@@ -318,10 +318,13 @@
                  label="weave"
                  name="weave"
                  value="weave" />
+              <!--
+                 NORSPEC-182, ensure item doesn't show up in menu until it should
                 <combo_box.item
                  label="Use texture"
                  name="Use texture"
                  value="Use texture" />
+                 -->
             </combo_box>
             <texture_picker
              allow_no_texture="true"
@@ -373,10 +376,13 @@
                  label="High"
                  name="High"
                  value="High" />
+              <!--
+                 NORSPEC-182, ensure item doesn't show up in menu until it should
                 <combo_box.item
                  label="Use texture"
                  name="Use texture"
                  value="Use texture" />
+                 -->
             </combo_box>
             <text
              type="string"
