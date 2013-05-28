@@ -50,6 +50,7 @@
 #include "llviewerwearable.h"
 #include "llnotificationsutil.h"
 #include "llfloatersidepanelcontainer.h"
+#include "llviewerfoldertype.h"
 
 static LLRegisterPanelClassWrapper<LLSidepanelAppearance> t_appearance("sidepanel_appearance");
 
@@ -85,58 +86,86 @@ bool LLSidepanelAppearance::callBackExitWithoutSaveViaBack(const LLSD& notificat
 	return false;
 }
 
-bool LLSidepanelAppearance::callBackExitWithoutSaveViaClose(const LLSD& notification, const LLSD& response)
+void LLSidepanelAppearance::onCloseFromAppearance(LLFloaterSidePanelContainer* obj)
 {
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if ( option == 0 ) 
-	{	
-		//revert current edits
-		mEditWearable->revertChanges();					
-		//LLAppearanceMgr::getInstance()->wearBaseOutfit();				
-		toggleWearableEditPanel(FALSE);		
-		LLVOAvatarSelf::onCustomizeEnd( FALSE );	
-		mLLFloaterSidePanelContainer->close();			
-		return true;
-	}
-	return false;
-}
-
-void LLSidepanelAppearance::onClickConfirmExitWithoutSaveViaClose()
-{
-	if ( LLAppearanceMgr::getInstance()->isOutfitDirty() && !LLAppearanceMgr::getInstance()->isOutfitLocked() )
+	mLLFloaterSidePanelContainer = obj;	
+	if ( mEditWearable->isAvailable() && mEditWearable->isDirty() ) 
 	{
 		LLSidepanelAppearance* pSelf = (LLSidepanelAppearance *)this;
 		LLNotificationsUtil::add("ConfirmExitWithoutSave", LLSD(), LLSD(), boost::bind(&LLSidepanelAppearance::callBackExitWithoutSaveViaClose,pSelf,_1,_2) );
 	}
 	else
-	{
-		showOutfitsInventoryPanel();
+	{		
+		LLVOAvatarSelf::onCustomizeEnd(FALSE);		
+		toggleWearableEditPanel(FALSE);
+		mLLFloaterSidePanelContainer->mForceCloseAfterVerify=false;
 	}
 }
-
-
-bool LLSidepanelAppearance::callBackExitWithoutSaveIntoAppearance(const LLSD& notification, const LLSD& response)
+bool LLSidepanelAppearance::onSaveCommit(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (0 == option)
+	{
+		std::string outfit_name = response["message"].asString();
+		LLStringUtil::trim(outfit_name);
+		std::string current_outfit_name;
+
+		LLAppearanceMgr::getInstance()->getBaseOutfitName(current_outfit_name);
+
+		if ( current_outfit_name == outfit_name )
+		{
+			LLAppearanceMgr::getInstance()->updateBaseOutfit();
+		}
+		else		
+		{
+			LLUUID outfit_folder = LLAppearanceMgr::getInstance()->makeNewOutfitLinks( outfit_name,FALSE );		
+		}		
+
+		LLVOAvatarSelf::onCustomizeEnd( FALSE );	
+		mLLFloaterSidePanelContainer->close();		
+	}
+
+	return false;
+}
+bool LLSidepanelAppearance::callBackExitWithoutSaveViaClose(const LLSD& notification, const LLSD& response)
+{	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if ( option == 0 ) 
 	{	
-		//revert current edits
-		mEditWearable->revertChanges();
-		toggleWearableEditPanel(FALSE);		
-		LLVOAvatarSelf::onCustomizeEnd( FALSE );	
-		//mLLFloaterSidePanelContainer->close();			
-		showOutfitsInventoryPanel();
-		return true;
+		std::string outfit_name;
+		if (!LLAppearanceMgr::getInstance()->getBaseOutfitName(outfit_name))
+		{
+			outfit_name = LLViewerFolderType::lookupNewCategoryName(LLFolderType::FT_OUTFIT);
+		}
+
+		LLSD args;
+		args["DESC"] = outfit_name;
+
+		LLSD payload;
+		LLNotificationsUtil::add("SaveOutfitEither", args, payload, boost::bind(&LLSidepanelAppearance::onSaveCommit, this, _1, _2));
+		showOutfitEditPanel();
+		return false;
 	}
+	else if ( option == 1 )
+	{
+		mEditWearable->revertChanges();					
+		toggleWearableEditPanel(FALSE);	
+		showOutfitEditPanel();
+		LLVOAvatarSelf::onCustomizeEnd( FALSE );	
+		mRevertSet = true;
+		return false;
+	}
+	mLLFloaterSidePanelContainer->mForceCloseAfterVerify = false;
+	//mRevertSet = true;
 	return false;
 }
 
-void LLSidepanelAppearance::onClickConfirmExitWithoutSaveIntoAppearance()
+void LLSidepanelAppearance::onClickConfirmExitWithoutSaveIntoAppearance( LLFloaterSidePanelContainer* obj )
 {
-	if ( LLAppearanceMgr::getInstance()->isOutfitDirty() && !LLAppearanceMgr::getInstance()->isOutfitLocked() )
+	mLLFloaterSidePanelContainer = obj;	
+	if ( LLAppearanceMgr::getInstance()->isOutfitDirty() ||  mEditWearable->isDirty() )
 	{
 		LLSidepanelAppearance* pSelf = (LLSidepanelAppearance *)this;
-		LLNotificationsUtil::add("ConfirmExitWithoutSave", LLSD(), LLSD(), boost::bind(&LLSidepanelAppearance::callBackExitWithoutSaveIntoAppearance,pSelf,_1,_2) );
+		LLNotificationsUtil::add("ConfirmExitWithoutSave", LLSD(), LLSD(), boost::bind(&LLSidepanelAppearance::callBackExitWithoutSaveViaClose,pSelf,_1,_2) );
 	}
 	else
 	{
@@ -145,33 +174,19 @@ void LLSidepanelAppearance::onClickConfirmExitWithoutSaveIntoAppearance()
 }
 void LLSidepanelAppearance::onClickConfirmExitWithoutSaveViaBack()
 {
-	/*
-	if ( LLAppearanceMgr::getInstance()->isOutfitDirty() && !mSidePanelJustOpened && !LLAppearanceMgr::getInstance()->isOutfitLocked() )
-	{
-		LLSidepanelAppearance* pSelf = (LLSidepanelAppearance *)this;
-		LLNotificationsUtil::add("ConfirmExitWithoutSave", LLSD(), LLSD(), boost::bind(&LLSidepanelAppearance::callBackExitWithoutSaveViaBack,pSelf,_1,_2) );
-	}
-	else
-		*/
-	{
-		showOutfitsInventoryPanel();
-	}
+	showOutfitsInventoryPanel();
 }
 
 void LLSidepanelAppearance::onClose(LLFloaterSidePanelContainer* obj)
-{
-	mLLFloaterSidePanelContainer = obj;	
-	if (  /*LLAppearanceMgr::getInstance()->isOutfitDirty() && */
-		 /*!LLAppearanceMgr::getInstance()->isOutfitLocked() ||*/
-		 ( mEditWearable->isAvailable() && mEditWearable->isDirty() ) )
+{	mLLFloaterSidePanelContainer = obj;	
+	if ( mEditWearable->isAvailable() && mEditWearable->isDirty() ) 
 	{
 		LLSidepanelAppearance* pSelf = (LLSidepanelAppearance *)this;
 		LLNotificationsUtil::add("ConfirmExitWithoutSave", LLSD(), LLSD(), boost::bind(&LLSidepanelAppearance::callBackExitWithoutSaveViaClose,pSelf,_1,_2) );
 	}
 	else
-	{
+	{				
 		LLVOAvatarSelf::onCustomizeEnd(FALSE);		
-		toggleWearableEditPanel(FALSE);
 		mLLFloaterSidePanelContainer->close();
 	}
 }
@@ -183,7 +198,8 @@ LLSidepanelAppearance::LLSidepanelAppearance() :
 	mOutfitEdit(NULL),
 	mCurrOutfitPanel(NULL),
 	mOpened(false),
-	mSidePanelJustOpened(true)
+	mSidePanelJustOpened(true),
+	mRevertSet(false)
 {
 	LLOutfitObserver& outfit_observer =  LLOutfitObserver::instance();
 	outfit_observer.addBOFReplacedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
@@ -264,10 +280,14 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 	{
 		// No specific panel requested.
 		// If we're opened for the first time then show My Outfits.
-		// Else do nothing.
+		// Else show outfit edit panel
 		if (!mOpened)
 		{
 			showOutfitsInventoryPanel();
+		}
+		else
+		{
+			showOutfitEditPanel();
 		}
 	}
 	else
@@ -665,3 +685,4 @@ bool LLSidepanelAppearance::checkForDirtyEdits()
 {
 	return ( mEditWearable->isDirty() ) ? true : false;
 }
+

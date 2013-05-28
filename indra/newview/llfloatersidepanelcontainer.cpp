@@ -70,7 +70,16 @@ void LLFloaterSidePanelContainer::onOpen(const LLSD& key)
 {
 	getChild<LLPanel>(sMainPanelName)->onOpen(key);
 }
-
+void LLFloaterSidePanelContainer::onClose(bool app_quitting)
+{		
+	mForceCloseAfterVerify = true;  		
+	LLSidepanelAppearance* panel = getSidePanelAppearance();
+	if ( panel )
+	{		
+		panel->mRevertSet = true;
+		panel->onCloseFromAppearance( this );			
+	}
+}
 void LLFloaterSidePanelContainer::onClickCloseBtn()
 {
 	LLSidepanelAppearance* panel = getSidePanelAppearance();
@@ -127,7 +136,7 @@ void LLFloaterSidePanelContainer::showPanel(const std::string& floater_name, con
 			{
 				if ( panel->checkForDirtyEdits() )
 				{
-					panel->onClickConfirmExitWithoutSaveIntoAppearance();
+					panel->onClickConfirmExitWithoutSaveIntoAppearance( floaterp );
 				}
 				else
 				{

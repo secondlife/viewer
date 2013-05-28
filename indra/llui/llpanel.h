@@ -255,8 +255,6 @@ public:
 	boost::signals2::connection setVisibleCallback( const commit_signal_t::slot_type& cb );
 	boost::signals2::connection setCloseConfirmationCallback( const commit_signal_t::slot_type& cb );
 
-public:
-	const BOOL confirmClose() const { return mVerifyUponClose; }
 
 protected:
 	// Override to set not found list
@@ -276,6 +274,9 @@ protected:
 	std::string		mXMLFilename;
 	//Specific close-down logic in subclass
 	BOOL			mVerifyUponClose;
+public:	
+	BOOL			mForceCloseAfterVerify;
+
 private:
 	BOOL			mBgVisible;				// any background at all?
 	BOOL			mBgOpaque;				// use opaque color or image

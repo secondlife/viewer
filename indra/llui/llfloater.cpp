@@ -713,6 +713,18 @@ void LLFloater::closeFloater(bool app_quitting)
 {
 	llinfos << "Closing floater " << getName() << llendl;
 	
+	if (!app_quitting)
+	{
+		if ( mVerifyUponClose && !mForceCloseAfterVerify )
+		{
+			onClose( app_quitting );
+			if ( mForceCloseAfterVerify ) 
+			{			
+				return;
+			}			
+		}
+	}	
+
 	if (app_quitting)
 	{
 		LLFloater::sQuitting = true;

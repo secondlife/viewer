@@ -50,7 +50,8 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);	
-				void onClose(LLFloaterSidePanelContainer* obj);
+	/*virtual*/	void onClose(LLFloaterSidePanelContainer* obj);
+
 	void onClickCloseBtn();
 
 	void refreshCurrentOutfitName(const std::string& name = "");
@@ -72,10 +73,9 @@ public:
 	bool callBackExitWithoutSaveViaBack(const LLSD& notification, const LLSD& response);
 	void onClickConfirmExitWithoutSaveViaBack();
 	bool callBackExitWithoutSaveViaClose(const LLSD& notification, const LLSD& response);
-	void onClickConfirmExitWithoutSaveViaClose();
 	bool checkForDirtyEdits();	
-	bool callBackExitWithoutSaveIntoAppearance(const LLSD& notification, const LLSD& response);
-	void onClickConfirmExitWithoutSaveIntoAppearance();
+	void onClickConfirmExitWithoutSaveIntoAppearance(LLFloaterSidePanelContainer* obj);
+	void onCloseFromAppearance(LLFloaterSidePanelContainer* obj);
 
 private:
 	void onFilterEdit(const std::string& search_string);
@@ -87,6 +87,9 @@ private:
 	void toggleMyOutfitsPanel(BOOL visible);
 	void toggleOutfitEditPanel(BOOL visible, BOOL disable_camera_switch = FALSE);
 	void toggleWearableEditPanel(BOOL visible, LLViewerWearable* wearable = NULL, BOOL disable_camera_switch = FALSE);
+
+
+	bool	onSaveCommit(const LLSD& notification, const LLSD& response);
 
 	LLFilterEditor*			mFilterEditor;
 	LLPanelOutfitsInventory* mPanelOutfitsInventory;
@@ -115,6 +118,9 @@ private:
 	bool mSidePanelJustOpened;
 	LLFloaterSidePanelContainer* mLLFloaterSidePanelContainer;
 
+public:
+
+	bool mRevertSet;
 };
 
 #endif //LL_LLSIDEPANELAPPEARANCE_H

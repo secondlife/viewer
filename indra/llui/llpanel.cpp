@@ -116,7 +116,8 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 	mXMLFilename(p.filename),
 	mVisibleSignal(NULL),
 	mCloseConfirmationSignal(NULL),
-	mVerifyUponClose(false)
+	mVerifyUponClose(false),
+	mForceCloseAfterVerify(false)
 	// *NOTE: Be sure to also change LLPanel::initFromParams().  We have too
 	// many classes derived from LLPanel to retrofit them all to pass in params.
 {

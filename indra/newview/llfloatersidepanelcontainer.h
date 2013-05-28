@@ -44,6 +44,8 @@ class LLSidepanelAppearance;
  */
 class LLFloaterSidePanelContainer : public LLFloater
 {
+	friend class LLSidePanelAppearance;
+
 private:
 	static const std::string sMainPanelName;
 
@@ -52,6 +54,7 @@ public:
 	~LLFloaterSidePanelContainer();
 
 	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void onClickCloseBtn();
 	/*virtual*/ BOOL postBuild();
 				void  onConfirmationClose( const LLSD &confirm );

@@ -10118,13 +10118,33 @@ Cannot create large prims that intersect other players.  Please re-try when othe
    icon="alertmodal.tga"
    name="ConfirmExitWithoutSave"
    type="alertmodal">
-    Closing this window will discard any changes you have made.
+    You have not saved the changes to your outfit. Would you like to save it now?
     <tag>confirm</tag>
     <usetemplate
-     name="okcancelignore"
-     notext="Cancel"
-     yestext="OK"
-     ignoretext="Don't show me this again."/>
+     name="yesnocancelbuttons"
+     notext="Revert"
+     yestext="Yes"
+     canceltext="Dismiss"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   label="Save Outfit"
+   name="SaveOutfitEither"
+   type="alertmodal">
+    <unique/>
+    Save outfit (defaults to current outfit):
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="message" type="text">
+        [DESC]
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="Save"/>     
+    </form>
   </notification>
 
 </notifications>
