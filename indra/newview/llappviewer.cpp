@@ -4974,6 +4974,7 @@ void LLAppViewer::disconnectViewer()
 	{
 		LLWorld::getInstance()->destroyClass();
 	}
+	LLVOCache::deleteSingleton();
 
 	// call all self-registered classes
 	LLDestroyClassList::instance().fireCallbacks();
