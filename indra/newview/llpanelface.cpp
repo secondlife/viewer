@@ -1822,10 +1822,12 @@ void LLPanelFace::updateMaterial()
 		LLMaterialPtr material( (!new_material) ? new LLMaterial(cur_material->asLLSD()) : new LLMaterial());
 		llassert_always(material);
 
-		material->setDiffuseAlphaMode(getChild<LLComboBox>("combobox alphamode")->getCurrentIndex());
+		if (!is_default_blend_mode)
+		{
+			material->setDiffuseAlphaMode(getChild<LLComboBox>("combobox alphamode")->getCurrentIndex());			
+		}
 		material->setAlphaMaskCutoff((U8)(getChild<LLUICtrl>("maskcutoff")->getValue().asInteger()));
 
-		
 		if (!norm_map_id.isNull() && (bumpiness == BUMPY_TEXTURE))
 		{
 			LL_DEBUGS("Materials") << "Setting bumpy texture, bumpiness = " << bumpiness  << LL_ENDL;
