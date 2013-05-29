@@ -977,7 +977,7 @@ void LLFloaterIMContainer::setSortOrder(const LLConversationSort& order)
 			conversation_floater->setSortOrder(order);
 		}
 	}
-	
+
 	gSavedSettings.setU32("ConversationSortOrder", (U32)order);
 }
 
@@ -1148,6 +1148,10 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         if("close_conversation" == command)
         {
             LLFloater::onClickClose(conversationFloater);
+        }
+        else if("close_all_conversations" == command)
+        {
+        	closeAllConversations();
         }
         else if("open_voice_conversation" == command)
         {
@@ -2097,19 +2101,20 @@ void LLFloaterIMContainer::closeHostedFloater()
 
 void LLFloaterIMContainer::closeAllConversations()
 {
-	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
-	for (;widget_it != mConversationsWidgets.end(); ++widget_it)
+	LLDynamicArray<LLUUID> ids;
+	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); it_session++)
 	{
-		if (widget_it->first != LLUUID())
+		LLUUID session_id = it_session->first;
+		if (session_id != LLUUID())
 		{
-			LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
-			if (widget)
-			{
-				widget->destroyView();
-				mConversationsItems.erase(widget_it->first);
-				mConversationsWidgets.erase(widget_it->first);
-			}
+			ids.push_back(session_id);
 		}
+	}
+
+	for (LLDynamicArray<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); 	++it)
+	{
+		LLFloaterIMSession *conversationFloater = LLFloaterIMSession::findInstance(*it);
+		LLFloater::onClickClose(conversationFloater);
 	}
 }
 void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)

@@ -367,12 +367,14 @@ void LLConversationItemSession::buildContextMenu(LLMenuGL& menu, U32 flags)
     if(this->getType() == CONV_SESSION_1_ON_1)
     {
         items.push_back(std::string("close_conversation"));
+        items.push_back(std::string("close_all_conversations"));
         items.push_back(std::string("separator_disconnect_from_voice"));
         buildParticipantMenuOptions(items, flags);
     }
     else if(this->getType() == CONV_SESSION_GROUP)
     {
         items.push_back(std::string("close_conversation"));
+        items.push_back(std::string("close_all_conversations"));
         addVoiceOptions(items);
         items.push_back(std::string("chat_history"));
         items.push_back(std::string("separator_chat_history"));
@@ -383,6 +385,7 @@ void LLConversationItemSession::buildContextMenu(LLMenuGL& menu, U32 flags)
     else if(this->getType() == CONV_SESSION_AD_HOC)
     {
         items.push_back(std::string("close_conversation"));
+        items.push_back(std::string("close_all_conversations"));
         addVoiceOptions(items);
         items.push_back(std::string("chat_history"));
     }

@@ -12,6 +12,12 @@
      name="close_conversation">
         <on_click function="Avatar.DoToSelected" parameter="close_conversation"/>
 	 </menu_item_call>
+	 <menu_item_call
+     label="Close All conversations"
+     layout="topleft"
+     name="close_all_conversations">
+        <on_click function="Avatar.DoToSelected" parameter="close_all_conversations"/>
+	 </menu_item_call>
      <menu_item_call
      label="Open voice conversation"
      layout="topleft"
