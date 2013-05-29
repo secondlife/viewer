@@ -1463,7 +1463,7 @@ void update_inventory_item(
 			obj->packUpdateMessage(msg, updates);
 			gAgent.sendReliableMessage();
 
-			gInventory.onItemUpdated(item_id, updates,false);
+			gInventory.onItemUpdated(item_id, updates,true);
 			if (cb)
 			{
 				cb->fire(item_id);

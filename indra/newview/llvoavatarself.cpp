@@ -234,6 +234,22 @@ void LLVOAvatarSelf::initInstance()
 	//doPeriodically(output_self_av_texture_diagnostics, 30.0);
 	doPeriodically(update_avatar_rez_metrics, 5.0);
 	doPeriodically(check_for_unsupported_baked_appearance, 120.0);
+	doPeriodically(boost::bind(&LLVOAvatarSelf::checkStuckAppearance, this), 30.0);
+}
+
+bool LLVOAvatarSelf::checkStuckAppearance()
+{
+	if (gAgentWearables.isCOFChangeInProgress())
+	{
+		LL_DEBUGS("Avatar") << "checking for stuck appearance" << llendl;
+		F32 change_time = gAgentWearables.getCOFChangeTime();
+		LL_DEBUGS("Avatar") << "change in progress for " << change_time << " seconds" << llendl;
+		S32 active_hp = LLAppearanceMgr::instance().countActiveHoldingPatterns();
+		LL_DEBUGS("Avatar") << "active holding patterns " << active_hp << " seconds" << llendl;
+	}
+
+	// Return false to continue running check periodically.
+	return LLApp::isExiting();
 }
 
 // virtual

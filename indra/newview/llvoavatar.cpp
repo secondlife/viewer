@@ -6023,7 +6023,7 @@ void LLVOAvatar::startPhase(const std::string& phase_name)
 			return;
 		}
 	}
-	LL_DEBUGS("Avatar") << "started phase " << phase_name << llendl;
+	LL_DEBUGS("Avatar") << avString() << " started phase " << phase_name << llendl;
 	getPhases().startPhase(phase_name);
 }
 

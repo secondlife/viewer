@@ -120,6 +120,8 @@ public:
 
 	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
 
+	S32 countActiveHoldingPatterns();
+
 	// For debugging - could be moved elsewhere.
 	void dumpCat(const LLUUID& cat_id, const std::string& msg);
 	void dumpItemArray(const LLInventoryModel::item_array_t& items, const std::string& msg);

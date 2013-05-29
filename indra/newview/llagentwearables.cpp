@@ -1897,6 +1897,7 @@ bool LLAgentWearables::changeInProgress() const
 void LLAgentWearables::notifyLoadingStarted()
 {
 	mCOFChangeInProgress = true;
+	mCOFChangeTimer.reset();
 	mLoadingStartedSignal();
 }
 

@@ -138,6 +138,7 @@ public:
 public:
 	/*virtual*/ BOOL 	updateCharacter(LLAgent &agent);
 	/*virtual*/ void 	idleUpdateTractorBeam();
+	bool				checkStuckAppearance();
 
 	//--------------------------------------------------------------------
 	// Loading state

@@ -547,6 +547,7 @@ public:
 	bool isMostRecent();
 	void handleLateArrivals();
 	void resetTime(F32 timeout);
+	static S32 countActive() { return sActiveHoldingPatterns.size(); }
 	
 private:
 	found_list_t mFoundList;
@@ -1834,6 +1835,11 @@ void LLAppearanceMgr::updateAgentWearables(LLWearableHoldingPattern* holder, boo
 	{
 		gAgentWearables.setWearableOutfit(items, wearables, !append);
 	}
+}
+
+S32 LLAppearanceMgr::countActiveHoldingPatterns()
+{
+	return LLWearableHoldingPattern::countActive();
 }
 
 static void remove_non_link_items(LLInventoryModel::item_array_t &items)

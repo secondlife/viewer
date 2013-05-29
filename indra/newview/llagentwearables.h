@@ -77,6 +77,7 @@ public:
 	BOOL			isWearableCopyable(LLWearableType::EType type, U32 index /*= 0*/) const;
 	BOOL			areWearablesLoaded() const;
 	bool			isCOFChangeInProgress() const { return mCOFChangeInProgress; }
+	F32				getCOFChangeTime() const { return mCOFChangeTimer.getElapsedTimeF32(); }
 	void			updateWearablesLoaded();
 	void			checkWearablesLoaded() const;
 	bool			canMoveWearable(const LLUUID& item_id, bool closer_to_body) const;
@@ -237,6 +238,7 @@ private:
 	 * True if agent's outfit is being changed now.
 	 */
 	BOOL			mCOFChangeInProgress;
+	LLTimer			mCOFChangeTimer;
 	
 	//--------------------------------------------------------------------------------
 	// Support classes
