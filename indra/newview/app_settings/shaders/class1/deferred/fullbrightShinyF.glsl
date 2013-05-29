@@ -1,5 +1,5 @@
 /** 
- * @file lightFullbrightF.glsl
+ * @file fullbrightShinyF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,6 +22,8 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+ 
+
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -29,23 +31,37 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
+#ifndef diffuseLookup
+uniform sampler2D diffuseMap;
+#endif
+
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
+VARYING vec3 vary_texcoord1;
 
-uniform float texture_gamma;
+uniform samplerCube environmentMap;
 
-vec3 fullbrightAtmosTransport(vec3 light);
+vec3 fullbrightShinyAtmosTransport(vec3 light);
 vec3 fullbrightScaleSoftClip(vec3 light);
 
-void fullbright_lighting()
+void main()
 {
-	vec4 color = diffuseLookup(vary_texcoord0.xy) * vertex_color;
+#ifdef diffuseLookup
+	vec4 color = diffuseLookup(vary_texcoord0.xy);
+#else
+	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
+#endif
+	color.rgb *= vertex_color.rgb;
 	
-	color.rgb = pow(color.rgb, vec3(texture_gamma));
+	vec3 envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;	
+	color.rgb = mix(color.rgb, envColor.rgb, vertex_color.a);
 
-	color.rgb = fullbrightAtmosTransport(color.rgb);
+	color.rgb = pow(color.rgb,vec3(2.2f,2.2f,2.2f));
 	
+	color.rgb = fullbrightShinyAtmosTransport(color.rgb);
 	color.rgb = fullbrightScaleSoftClip(color.rgb);
+
+	color.a = 1.0;
 
 	frag_color = color;
 }

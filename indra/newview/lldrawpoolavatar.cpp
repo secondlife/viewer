@@ -894,7 +894,14 @@ void LLDrawPoolAvatar::beginRiggedFullbright()
 		}
 		else
 		{
-			sVertexProgram = &gSkinnedObjectFullbrightProgram;
+			if (LLPipeline::sRenderDeferred)
+			{
+				sVertexProgram = &gDeferredSkinnedFullbrightProgram;
+			}
+			else
+			{
+				sVertexProgram = &gSkinnedObjectFullbrightProgram;
+			}
 		}
 	}
 	else
@@ -913,6 +920,15 @@ void LLDrawPoolAvatar::beginRiggedFullbright()
 	{
 		sDiffuseChannel = 0;
 		sVertexProgram->bind();
+
+		if (LLPipeline::sRenderingHUDs || !LLPipeline::sRenderDeferred)
+		{
+			sVertexProgram->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.0f);
+		} 
+		else 
+		{
+			sVertexProgram->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+		}
 	}
 }
 
@@ -979,7 +995,14 @@ void LLDrawPoolAvatar::beginRiggedFullbrightShiny()
 		}
 		else
 		{
-			sVertexProgram = &gSkinnedObjectFullbrightShinyProgram;
+			if (LLPipeline::sRenderDeferred)
+			{
+				sVertexProgram = &gDeferredSkinnedFullbrightShinyProgram;
+			}
+			else
+			{
+				sVertexProgram = &gSkinnedObjectFullbrightShinyProgram;
+			}
 		}
 	}
 	else
@@ -994,11 +1017,19 @@ void LLDrawPoolAvatar::beginRiggedFullbrightShiny()
 		}
 	}
 
-
 	if (sShaderLevel > 0 || gPipeline.canUseVertexShaders())
 	{
 		sVertexProgram->bind();
 		LLDrawPoolBump::bindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel, false);
+
+		if (LLPipeline::sRenderingHUDs || !LLPipeline::sRenderDeferred)
+		{
+			sVertexProgram->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.0f);
+		} 
+		else 
+		{
+			sVertexProgram->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+		}
 	}
 }
 
@@ -1625,7 +1656,8 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				gGL.diffuseColor4f(0,0,0,face->getTextureEntry()->getGlow());
 			}*/
 
-			LLMaterial* mat = face->getTextureEntry()->getMaterialParams().get();
+			const LLTextureEntry* te = face->getTextureEntry();
+			LLMaterial* mat = te->getMaterialParams().get();
 
 			if (mat)
 			{
@@ -1636,13 +1668,27 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				LLColor4U col = mat->getSpecularLightColor();
 				U8 spec = mat->getSpecularLightExponent();
 
-				U8 env = mat->getEnvironmentIntensity();
+				F32 env = mat->getEnvironmentIntensity()/255.f;
 
-				sVertexProgram->uniform4f(LLShaderMgr::SPECULAR_COLOR, col.mV[0]/255.f, col.mV[1]/255.f, col.mV[2]/255.f, spec/255.f);
-
-				sVertexProgram->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, env/255.f);
+				if (mat->getSpecularID().isNull())
+				{
+					env = te->getShiny()*0.25f;
+				}
 		
-				sVertexProgram->setMinimumAlpha(mat->getAlphaMaskCutoff()/255.f);
+				BOOL fullbright = te->getFullbright();
+
+				sVertexProgram->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, fullbright ? 1.f : 0.f);
+				sVertexProgram->uniform4f(LLShaderMgr::SPECULAR_COLOR, col.mV[0]/255.f, col.mV[1]/255.f, col.mV[2]/255.f, spec/255.f);
+				sVertexProgram->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, env);
+
+				if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
+				{
+					sVertexProgram->setMinimumAlpha(mat->getAlphaMaskCutoff()/255.f);
+				}
+				else
+				{
+					sVertexProgram->setMinimumAlpha(0.f);
+				}
 
 				for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
 				{
@@ -1656,6 +1702,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			else
 			{
 				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture());
+				sVertexProgram->setMinimumAlpha(0.f);
 				if (normal_channel > -1)
 				{
 					LLDrawPoolBump::bindBumpMap(face, normal_channel);

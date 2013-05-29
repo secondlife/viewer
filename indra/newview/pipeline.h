@@ -434,6 +434,8 @@ public:
 		RENDER_TYPE_TERRAIN						= LLDrawPool::POOL_TERRAIN,
 		RENDER_TYPE_SIMPLE						= LLDrawPool::POOL_SIMPLE,
 		RENDER_TYPE_GRASS						= LLDrawPool::POOL_GRASS,
+		RENDER_TYPE_ALPHA_MASK					= LLDrawPool::POOL_ALPHA_MASK,
+		RENDER_TYPE_FULLBRIGHT_ALPHA_MASK		= LLDrawPool::POOL_FULLBRIGHT_ALPHA_MASK,
 		RENDER_TYPE_FULLBRIGHT					= LLDrawPool::POOL_FULLBRIGHT,
 		RENDER_TYPE_BUMP						= LLDrawPool::POOL_BUMP,
 		RENDER_TYPE_MATERIALS					= LLDrawPool::POOL_MATERIALS,
@@ -807,6 +809,8 @@ protected:
 	LLDrawPool*					mGroundPool;
 	LLRenderPass*				mSimplePool;
 	LLRenderPass*				mGrassPool;
+	LLRenderPass*				mAlphaMaskPool;
+	LLRenderPass*				mFullbrightAlphaMaskPool;
 	LLRenderPass*				mFullbrightPool;
 	LLDrawPool*					mInvisiblePool;
 	LLDrawPool*					mGlowPool;
