@@ -118,6 +118,7 @@
 
 #include "llleap.h"
 #include "stringize.h"
+#include "llcoros.h"
 
 // Third party library includes
 #include <boost/bind.hpp>
@@ -756,6 +757,7 @@ bool LLAppViewer::init()
 
 	//set the max heap size.
 	initMaxHeapSize() ;
+	LLCoros::instance().setStackSize(gSavedSettings.getS32("CoroutineStackSize"));
 
 	LLPrivateMemoryPoolManager::initClass((BOOL)gSavedSettings.getBOOL("MemoryPrivatePoolEnabled"), (U32)gSavedSettings.getU32("MemoryPrivatePoolSize")*1024*1024) ;
 
@@ -2810,6 +2812,16 @@ bool LLAppViewer::initConfiguration()
 	gLastRunVersion = gSavedSettings.getString("LastRunVersion");
 
 	loadColorSettings();
+
+	// Let anyone else who cares know that we've populated our settings
+	// variables.
+	for (LLControlGroup::key_iter ki(LLControlGroup::beginKeys()), kend(LLControlGroup::endKeys());
+		 ki != kend; ++ki)
+	{
+		// For each named instance of LLControlGroup, send an event saying
+		// we've initialized an LLControlGroup instance by that name.
+		LLEventPumps::instance().obtain("LLControlGroup").post(LLSDMap("init", *ki));
+	}
 
 	return true; // Config was successful.
 }
