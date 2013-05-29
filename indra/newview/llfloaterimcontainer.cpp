@@ -2132,17 +2132,19 @@ void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 	{
 		onClickCloseBtn();
 	}
-
-	// Otherwise, close current conversation
-	LLFloaterIMSessionTab* active_conversation = LLFloaterIMSessionTab::getConversation(session_id);
-	if (active_conversation)
+	else
 	{
-		active_conversation->closeFloater();
-		if(app_quitting)
+		// Otherwise, close current conversation
+		LLFloaterIMSessionTab* active_conversation = LLFloaterIMSessionTab::getConversation(session_id);
+		if (active_conversation)
 		{
-			LLFloater::closeFloater(app_quitting);
-		}
+			active_conversation->closeFloater();
+			if(app_quitting)
+			{
+				LLFloater::closeFloater(app_quitting);
+			}
 
+		}
 	}
 }
 
