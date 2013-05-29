@@ -248,6 +248,15 @@ vec3 atmosTransport(vec3 light) {
 	light += getAdditiveColor() * 2.0;
 	return light;
 }
+
+vec3 fullbrightAtmosTransport(vec3 light) {
+	float brightness = dot(light.rgb, vec3(0.33333));
+
+	return mix(atmosTransport(light.rgb), light.rgb + getAdditiveColor().rgb, brightness * brightness);
+}
+
+
+
 vec3 atmosGetDiffuseSunlightColor()
 {
 	return getSunlitColor();
@@ -279,6 +288,13 @@ vec3 scaleSoftClip(vec3 light)
 	light = 1. - clamp(light, vec3(0.), vec3(1.));
 	light = 1. - pow(light, gamma.xxx);
 
+	return light;
+}
+
+
+vec3 fullbrightScaleSoftClip(vec3 light)
+{
+	//soft clip effect:
 	return light;
 }
 
@@ -328,32 +344,36 @@ void main()
 			col += spec_contrib;
 		}
 	
-		col = mix(col.rgb, diffuse.rgb, diffuse.a);
-
+		
+		col = mix(col.rgb, pow(diffuse.rgb, vec3(1.0/2.2)), diffuse.a);
+		
+		
 		if (envIntensity > 0.0)
 		{ //add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
 			
 			float exponent = mix(2.2, 1.0, diffuse.a);
+			vec3 refcol = pow(textureCube(environmentMap, env_vec).rgb, vec3(exponent))*exponent;
 
-			col = mix(col.rgb, pow(textureCube(environmentMap, env_vec).rgb, vec3(exponent)) * exponent, 
-				envIntensity); 
+			col = mix(col.rgb, refcol, 
+				envIntensity);  
 
-			exponent = mix(1.0, 2.2, diffuse.a);
-			col.rgb = pow(col.rgb, vec3(exponent))/exponent;
 		}
 
+		float exponent = mix(1.0, 2.2, diffuse.a);
+		col = pow(col, vec3(exponent));
+				
 		if (norm.w < 0.5)
 		{
-			col = atmosLighting(col);
-			col = scaleSoftClip(col);
+			col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
+			col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
 		}
 
+		//col = vec3(1,0,1);
 		//col.g = envIntensity;
 	}
 	
 	frag_color.rgb = col;
 
-	//frag_color.a = bloom;
-	frag_color.a = 0.0;
+	frag_color.a = bloom;
 }

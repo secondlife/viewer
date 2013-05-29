@@ -28,9 +28,7 @@
 #define DIFFUSE_ALPHA_MODE_MASK 2
 #define DIFFUSE_ALPHA_MODE_EMISSIVE 3
 
-#if DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE
 uniform float emissive_brightness;
-#endif
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 
@@ -388,6 +386,18 @@ vec3 scaleSoftClip(vec3 light)
 	return light;
 }
 
+vec3 fullbrightAtmosTransport(vec3 light) {
+	float brightness = dot(light.rgb, vec3(0.33333));
+
+	return mix(atmosTransport(light.rgb), light.rgb + getAdditiveColor().rgb, brightness * brightness);
+}
+
+vec3 fullbrightScaleSoftClip(vec3 light)
+{
+	//soft clip effect:
+	return light;
+}
+
 #else
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[3];
@@ -446,6 +456,7 @@ void main()
 #endif
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
+	vec3 old_diffcol = diffcol.rgb;
 	diffcol.rgb = pow(diffcol.rgb, vec3(2.2));
 #endif
 
@@ -475,6 +486,8 @@ void main()
 	
 #if (DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE)
 	final_color.a = emissive_brightness;
+#else
+	final_color.a = max(final_color.a, emissive_brightness);
 #endif
 
 	vec4 final_specular = spec;
@@ -613,24 +626,33 @@ void main()
 				col += spec_contrib;
 			}
 
+			col = mix(col.rgb, old_diffcol.rgb, diffuse.a);
+
 			if (envIntensity > 0.0)
 			{
 				//add environmentmap
 				vec3 env_vec = env_mat * refnormpersp;
-				vec3 refcol = pow(textureCube(environmentMap, env_vec).rgb, vec3(2.2)) * 2.2;
+				float exponent = mix(2.2, 1.0, diffuse.a);
+
+				vec3 refcol = pow(textureCube(environmentMap, env_vec).rgb, vec3(exponent))*exponent;
 
 				col = mix(col.rgb, refcol, 
-					max(envIntensity-diffuse.a*2.0, 0.0));
-				
+					envIntensity);  
+
 				float cur_glare = max(refcol.r, refcol.g);
 				cur_glare = max(cur_glare, refcol.b);
 				cur_glare *= envIntensity*4.0;
 				glare += cur_glare;
 			}
-	
-			col = atmosLighting(col);
-			col = scaleSoftClip(col);
 
+			float exponent = mix(1.0, 2.2, diffuse.a);
+			col = pow(col, vec3(exponent));
+				
+	
+			col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
+			col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
+
+			
 		vec3 npos = normalize(-pos.xyz);
 
  #define LIGHT_LOOP(i) col.rgb = col.rgb + calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare);
@@ -646,7 +668,6 @@ void main()
 	frag_color.rgb = col.rgb;
 	glare = min(glare, 1.0);
 	frag_color.a = max(diffcol.a*vertex_color.a, glare);
-
 #else
 
 	frag_data[0] = final_color;
