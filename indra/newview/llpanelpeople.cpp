@@ -1726,7 +1726,7 @@ void LLPanelPeople::onFacebookCheckinClicked()
 	LLSLURL slurl;
 	LLAgentUI::buildSLURL(slurl);
 
-    LLFacebookConnect::instance().postCheckinMessage("Here I am in SL!", slurl.getSLURLString());
+    LLFacebookConnect::instance().postCheckinMessage("Here I am in SL!", slurl.getSLURLString(), slurl.getRegion(), "", "", "");
 }
 
 void LLPanelPeople::onFacebookAppRequestClicked()

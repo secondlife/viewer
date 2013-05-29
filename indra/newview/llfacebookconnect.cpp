@@ -276,18 +276,24 @@ void LLFacebookConnect::loadFacebookFriends()
 					  LLSD(), timeout, follow_redirects);
 }
 
-void LLFacebookConnect::postCheckinMessage(const std::string& message, const std::string& url)
+void LLFacebookConnect::postCheckinMessage(const std::string& message, const std::string& link, const std::string& name, const std::string& caption, const std::string& description, const std::string& picture)
 {
-    // Note: We need to improve the API support to provide all the relevant data if possible
-    // Full set described : http://facebook-python-library.docs-library.appspot.com/facebook-python/library-manual.html
-	LLSD body;
+    LLSD body;
 	if (!message.empty())
 		body["message"] = message;
-	if (!url.empty())
-		body["link"] = url;
+	if (!link.empty())
+		body["link"] = link;
+	if (!name.empty())
+		body["name"] = name;
+	if (!caption.empty())
+		body["caption"] = caption;
+	if (!description.empty())
+		body["description"] = description;
+	if (!picture.empty())
+		body["picture"] = picture;
     
     // Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::post(getFacebookConnectURL("/share"), body, new LLFacebookPostResponder());
+	LLHTTPClient::post(getFacebookConnectURL("/share/wall"), body, new LLFacebookPostResponder());
 }
 
 void LLFacebookConnect::storeContent(const LLSD& content)
