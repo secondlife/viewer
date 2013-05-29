@@ -1905,6 +1905,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>CoroutineStackSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Size (in bytes) for each coroutine stack</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>262144</integer>
+    </map>
     <key>CreateToolCopyCenters</key>
     <map>
       <key>Comment</key>
@@ -12548,6 +12559,17 @@
       <string>String</string>
       <key>Value</key>
       <string>update</string>
+    </map>
+    <key>UpdaterWillingToTest</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not the updater should offer test candidate upgrades.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <string>1</string>
     </map>
     <key>UploadBakedTexOld</key>
     <map>
