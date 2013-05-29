@@ -4031,7 +4031,7 @@ void LLAppViewer::purgeCache()
 void LLAppViewer::purgeCacheImmediate()
 {
 	LL_INFOS("AppCache") << "Purging Object Cache and Texture Cache immediately..." << LL_ENDL;
-	LLAppViewer::getTextureCache()->purgeCache(LL_PATH_CACHE);
+	LLAppViewer::getTextureCache()->purgeCache(LL_PATH_CACHE, false);
 	LLVOCache::getInstance()->removeCache(LL_PATH_CACHE, true);
 }
 
