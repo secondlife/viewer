@@ -183,7 +183,7 @@ void LLInventoryModelBackgroundFetch::backgroundFetchCB(void *)
 
 void LLInventoryModelBackgroundFetch::backgroundFetch()
 {
-	if (mBackgroundFetchActive && gAgent.getRegion())
+	if (mBackgroundFetchActive && gAgent.getRegion() && gAgent.getRegion()->capabilitiesReceived())
 	{
 		// If we'll be using the capability, we'll be sending batches and the background thing isn't as important.
 		if (gSavedSettings.getBOOL("UseHTTPInventory")) 
@@ -366,7 +366,7 @@ class LLInventoryModelFetchItemResponder : public LLInventoryModel::fetchInvento
 public:
 	LLInventoryModelFetchItemResponder(const LLSD& request_sd) : LLInventoryModel::fetchInventoryResponder(request_sd) {};
 	void result(const LLSD& content);			
-	void error(U32 status, const std::string& reason);
+	void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 };
 
 void LLInventoryModelFetchItemResponder::result( const LLSD& content )
@@ -375,9 +375,9 @@ void LLInventoryModelFetchItemResponder::result( const LLSD& content )
 	LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
 }
 
-void LLInventoryModelFetchItemResponder::error( U32 status, const std::string& reason )
+void LLInventoryModelFetchItemResponder::errorWithContent( U32 status, const std::string& reason, const LLSD& content )
 {
-	LLInventoryModel::fetchInventoryResponder::error(status, reason);
+	LLInventoryModel::fetchInventoryResponder::errorWithContent(status, reason, content);
 	LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
 }
 
@@ -391,7 +391,7 @@ public:
 	{};
 	//LLInventoryModelFetchDescendentsResponder() {};
 	void result(const LLSD& content);
-	void error(U32 status, const std::string& reason);
+	void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 protected:
 	BOOL getIsRecursive(const LLUUID& cat_id) const;
 private:
@@ -529,12 +529,12 @@ void LLInventoryModelFetchDescendentsResponder::result(const LLSD& content)
 }
 
 // If we get back an error (not found, etc...), handle it here.
-void LLInventoryModelFetchDescendentsResponder::error(U32 status, const std::string& reason)
+void LLInventoryModelFetchDescendentsResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
 	LLInventoryModelBackgroundFetch *fetcher = LLInventoryModelBackgroundFetch::getInstance();
 
-	llinfos << "LLInventoryModelFetchDescendentsResponder::error "
-		<< status << ": " << reason << llendl;
+	llinfos << "LLInventoryModelFetchDescendentsResponder::error [status:"
+			<< status << "]: " << content << llendl;
 						
 	fetcher->incrFetchCount(-1);
 
@@ -564,7 +564,6 @@ BOOL LLInventoryModelFetchDescendentsResponder::getIsRecursive(const LLUUID& cat
 {
 	return (std::find(mRecursiveCatUUIDs.begin(),mRecursiveCatUUIDs.end(), cat_id) != mRecursiveCatUUIDs.end());
 }
-
 // Bundle up a bunch of requests to send all at once.
 // static   
 void LLInventoryModelBackgroundFetch::bulkFetch()
@@ -687,20 +686,23 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 	{
 		if (folder_count)
 		{
-			std::string url = region->getCapability("FetchInventoryDescendents2");   
-			mFetchCount++;
-			if (folder_request_body["folders"].size())
+			std::string url = region->getCapability("FetchInventoryDescendents2");   			
+			if ( !url.empty() )
 			{
-				LLInventoryModelFetchDescendentsResponder *fetcher = new LLInventoryModelFetchDescendentsResponder(folder_request_body, recursive_cats);
-				LLHTTPClient::post(url, folder_request_body, fetcher, 300.0);
-			}
-			if (folder_request_body_lib["folders"].size())
-			{
-				std::string url_lib = gAgent.getRegion()->getCapability("FetchLibDescendents2");
+				mFetchCount++;
+				if (folder_request_body["folders"].size())
+				{
+					LLInventoryModelFetchDescendentsResponder *fetcher = new LLInventoryModelFetchDescendentsResponder(folder_request_body, recursive_cats);
+					LLHTTPClient::post(url, folder_request_body, fetcher, 300.0);
+				}
+				if (folder_request_body_lib["folders"].size())
+				{
+					std::string url_lib = gAgent.getRegion()->getCapability("FetchLibDescendents2");
 
-				LLInventoryModelFetchDescendentsResponder *fetcher = new LLInventoryModelFetchDescendentsResponder(folder_request_body_lib, recursive_cats);
-				LLHTTPClient::post(url_lib, folder_request_body_lib, fetcher, 300.0);
-			}
+					LLInventoryModelFetchDescendentsResponder *fetcher = new LLInventoryModelFetchDescendentsResponder(folder_request_body_lib, recursive_cats);
+					LLHTTPClient::post(url_lib, folder_request_body_lib, fetcher, 300.0);
+				}
+			}					
 		}
 		if (item_count)
 		{

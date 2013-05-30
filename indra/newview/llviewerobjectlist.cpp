@@ -284,7 +284,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 {
 	LLFastTimer t(FTM_PROCESS_OBJECTS);	
 	
-	LLVector3d camera_global = gAgentCamera.getCameraPositionGlobal();
 	LLViewerObject *objectp;
 	S32			num_objects;
 	U32			local_id;
@@ -303,6 +302,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 	{
 		//llinfos << "TEST: !cached && !compressed && update_type != OUT_FULL" << llendl;
 		gTerseObjectUpdates += num_objects;
+		/*
 		S32 size;
 		if (mesgsys->getReceiveCompressedSize())
 		{
@@ -312,10 +312,12 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		{
 			size = mesgsys->getReceiveSize();
 		}
-		//llinfos << "Received terse " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
+		llinfos << "Received terse " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
+		*/
 	}
 	else
 	{
+		/*
 		S32 size;
 		if (mesgsys->getReceiveCompressedSize())
 		{
@@ -326,7 +328,8 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			size = mesgsys->getReceiveSize();
 		}
 
-		// llinfos << "Received " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
+		llinfos << "Received " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
+		*/
 		gFullObjectUpdates += num_objects;
 	}
 
@@ -688,12 +691,12 @@ public:
 		}
 	}
 
-	void error(U32 statusNum, const std::string& reason)
+	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
 	{
 		llwarns
 			<< "Transport error requesting object cost "
-			<< "HTTP status: " << statusNum << ", reason: "
-			<< reason << "." << llendl;
+			<< "[status: " << statusNum << "]: "
+			<< content << llendl;
 
 		// TODO*: Error message to user
 		// For now just clear the request from the pending list
@@ -777,12 +780,12 @@ public:
 		}
 	}
 
-	void error(U32 statusNum, const std::string& reason)
+	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
 	{
 		llwarns
 			<< "Transport error requesting object physics flags "
-			<< "HTTP status: " << statusNum << ", reason: "
-			<< reason << "." << llendl;
+			<< "[status: " << statusNum << "]: "
+			<< content << llendl;
 
 		// TODO*: Error message to user
 		// For now just clear the request from the pending list
@@ -2062,8 +2065,9 @@ void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
 			if (childp->mDrawable.notNull())
 			{
 				// Make the drawable visible again and set the drawable parent
- 				childp->mDrawable->setState(LLDrawable::CLEAR_INVISIBLE);
+				childp->mDrawable->clearState(LLDrawable::FORCE_INVISIBLE);
 				childp->setDrawableParent(objectp->mDrawable); // LLViewerObjectList::findOrphans()
+				gPipeline.markRebuild( childp->mDrawable, LLDrawable::REBUILD_ALL, TRUE );
 			}
 
 			// Make certain particles, icon and HUD aren't hidden

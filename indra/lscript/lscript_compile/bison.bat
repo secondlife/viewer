@@ -2,10 +2,11 @@
 @REM find m4, even if neither program is present in PATH.
 
 @set bison=%1
-set M4PATH=%2
+shift
+set M4PATH=%1
+shift
 set M4=
-@set output=%3
-@set input=%4
 
 set PATH=%M4PATH%;%PATH%
-%bison% -d -o %output% %input%
+@REM %* does not work with shift...
+%bison% %1 %2 %3 %4 %5 %6 %7 %8 %9
