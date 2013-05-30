@@ -74,10 +74,12 @@ ThreadRecorder::~ThreadRecorder()
 {
 	delete mRootTimer;
 
-	while(mActiveRecordings.size())
+	if (!mActiveRecordings.empty())
 	{
-		mActiveRecordings.front()->mTargetRecording->stop();
+		std::for_each(mActiveRecordings.begin(), mActiveRecordings.end(), DeletePointer());
+		mActiveRecordings.clear();
 	}
+
 	set_thread_recorder(NULL);
 	delete[] mTimeBlockTreeNodes;
 }
@@ -97,34 +99,40 @@ void ThreadRecorder::activate( Recording* recording )
 	ActiveRecording* active_recording = new ActiveRecording(recording);
 	if (!mActiveRecordings.empty())
 	{
-		mActiveRecordings.front()->mPartialRecording.handOffTo(active_recording->mPartialRecording);
+		mActiveRecordings.back()->mPartialRecording.handOffTo(active_recording->mPartialRecording);
 	}
-	mActiveRecordings.push_front(active_recording);
+	mActiveRecordings.push_back(active_recording);
 
-	mActiveRecordings.front()->mPartialRecording.makePrimary();
+	mActiveRecordings.back()->mPartialRecording.makePrimary();
 }
 
-ThreadRecorder::active_recording_list_t::iterator ThreadRecorder::update( Recording* recording )
+ThreadRecorder::active_recording_list_t::reverse_iterator ThreadRecorder::bringUpToDate( Recording* recording )
 {
-	active_recording_list_t::iterator it, end_it;
-	for (it = mActiveRecordings.begin(), end_it = mActiveRecordings.end();
+	if (mActiveRecordings.empty()) return mActiveRecordings.rend();
+
+	mActiveRecordings.back()->mPartialRecording.flush();
+
+	active_recording_list_t::reverse_iterator it, end_it;
+	for (it = mActiveRecordings.rbegin(), end_it = mActiveRecordings.rend();
 		it != end_it;
 		++it)
 	{
-		active_recording_list_t::iterator next_it = it;
+		ActiveRecording* cur_recording = *it;
+
+		active_recording_list_t::reverse_iterator next_it = it;
 		++next_it;
 
 		// if we have another recording further down in the stack...
-		if (next_it != mActiveRecordings.end())
+		if (next_it != mActiveRecordings.rend())
 		{
 			// ...push our gathered data down to it
-			(*next_it)->mPartialRecording.append((*it)->mPartialRecording);
+			(*next_it)->mPartialRecording.append(cur_recording->mPartialRecording);
 		}
 
 		// copy accumulated measurements into result buffer and clear accumulator (mPartialRecording)
-		(*it)->moveBaselineToTarget();
+		cur_recording->movePartialToTarget();
 
-		if ((*it)->mTargetRecording == recording)
+		if (cur_recording->mTargetRecording == recording)
 		{
 			// found the recording, so return it
 			break;
@@ -139,28 +147,30 @@ ThreadRecorder::active_recording_list_t::iterator ThreadRecorder::update( Record
 	return it;
 }
 
-AccumulatorBuffer<CountAccumulator<F64> > 		gCountsFloat;
-AccumulatorBuffer<MeasurementAccumulator<F64> >	gMeasurementsFloat;
-AccumulatorBuffer<CountAccumulator<S64> >		gCounts;
-AccumulatorBuffer<MeasurementAccumulator<S64> >	gMeasurements;
-AccumulatorBuffer<TimeBlockAccumulator>			gStackTimers;
-AccumulatorBuffer<MemStatAccumulator>			gMemStats;
+AccumulatorBuffer<CountAccumulator<F64> > 	gCountsFloat;
+AccumulatorBuffer<EventAccumulator<F64> >	gMeasurementsFloat;
+AccumulatorBuffer<CountAccumulator<S64> >	gCounts;
+AccumulatorBuffer<EventAccumulator<S64> >	gMeasurements;
+AccumulatorBuffer<TimeBlockAccumulator>		gStackTimers;
+AccumulatorBuffer<MemStatAccumulator>		gMemStats;
 
 void ThreadRecorder::deactivate( Recording* recording )
 {
-	active_recording_list_t::iterator it = update(recording);
-	if (it != mActiveRecordings.end())
+	active_recording_list_t::reverse_iterator it = bringUpToDate(recording);
+	if (it != mActiveRecordings.rend())
 	{
 		// and if we've found the recording we wanted to update
-		active_recording_list_t::iterator next_it = it;
+		active_recording_list_t::reverse_iterator next_it = it;
 		++next_it;
-		if (next_it != mActiveRecordings.end())
+		if (next_it != mActiveRecordings.rend())
 		{
-			(*next_it)->mTargetRecording->mBuffers.write()->makePrimary();
+			(*next_it)->mPartialRecording.makePrimary();
 		}
 
-		delete *it;
-		mActiveRecordings.erase(it);
+		active_recording_list_t::iterator recording_to_remove = (++it).base();
+		llassert((*recording_to_remove)->mTargetRecording == recording);
+		delete *recording_to_remove;
+		mActiveRecordings.erase(recording_to_remove);
 	}
 }
 
@@ -169,10 +179,11 @@ ThreadRecorder::ActiveRecording::ActiveRecording( Recording* target )
 {
 }
 
-void ThreadRecorder::ActiveRecording::moveBaselineToTarget()
+void ThreadRecorder::ActiveRecording::movePartialToTarget()
 {
 	mTargetRecording->mBuffers.write()->append(mPartialRecording);
-	mPartialRecording.reset();
+	// reset based on self to keep history
+	mPartialRecording.reset(&mPartialRecording);
 }
 
 
@@ -180,21 +191,22 @@ void ThreadRecorder::ActiveRecording::moveBaselineToTarget()
 // SlaveThreadRecorder
 ///////////////////////////////////////////////////////////////////////
 
-SlaveThreadRecorder::SlaveThreadRecorder()
+SlaveThreadRecorder::SlaveThreadRecorder(MasterThreadRecorder& master)
+:	mMasterRecorder(master)
 {
-	getMasterThreadRecorder().addSlaveThread(this);
+	mMasterRecorder.addSlaveThread(this);
 }
 
 SlaveThreadRecorder::~SlaveThreadRecorder()
 {
-	getMasterThreadRecorder().removeSlaveThread(this);
+	mMasterRecorder.removeSlaveThread(this);
 }
 
 void SlaveThreadRecorder::pushToMaster()
 {
 	mThreadRecording.stop();
 	{
-		LLMutexLock(getMasterThreadRecorder().getSlaveListMutex());
+		LLMutexLock(mMasterRecorder.getSlaveListMutex());
 		mSharedData.appendFrom(mThreadRecording);
 	}
 	mThreadRecording.start();
@@ -243,7 +255,7 @@ void MasterThreadRecorder::pullFromSlaveThreads()
 
 	LLMutexLock lock(&mSlaveListMutex);
 
-	RecordingBuffers& target_recording_buffers = mActiveRecordings.front()->mPartialRecording;
+	RecordingBuffers& target_recording_buffers = mActiveRecordings.back()->mPartialRecording;
 	for (slave_thread_recorder_list_t::iterator it = mSlaveThreadRecorders.begin(), end_it = mSlaveThreadRecorders.end();
 		it != end_it;
 		++it)

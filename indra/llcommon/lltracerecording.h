@@ -117,11 +117,14 @@ namespace LLTrace
 		void append(const RecordingBuffers& other);
 		void merge(const RecordingBuffers& other);
 		void reset(RecordingBuffers* other = NULL);
+		void flush();
 
 		AccumulatorBuffer<CountAccumulator<F64> > 		mCountsFloat;
-		AccumulatorBuffer<MeasurementAccumulator<F64> > mMeasurementsFloat;
 		AccumulatorBuffer<CountAccumulator<S64> > 		mCounts;
-		AccumulatorBuffer<MeasurementAccumulator<S64> > mMeasurements;
+		AccumulatorBuffer<SampleAccumulator<F64> >		mSamplesFloat;
+		AccumulatorBuffer<SampleAccumulator<S64> >		mSamples;
+		AccumulatorBuffer<EventAccumulator<F64> >		mEventsFloat;
+		AccumulatorBuffer<EventAccumulator<S64> >		mEvents;
 		AccumulatorBuffer<TimeBlockAccumulator> 		mStackTimers;
 		AccumulatorBuffer<MemStatAccumulator> 			mMemStats;
 	};
@@ -181,57 +184,101 @@ namespace LLTrace
 		U32 getSampleCount(const TraceType<CountAccumulator<S64> >& stat) const;
 
 
-		// MeasurementStatHandle accessors
-		F64 getSum(const TraceType<MeasurementAccumulator<F64> >& stat) const;
-		S64 getSum(const TraceType<MeasurementAccumulator<S64> >& stat) const;
+		// SampleStatHandle accessors
+		F64 getMin(const TraceType<SampleAccumulator<F64> >& stat) const;
+		S64 getMin(const TraceType<SampleAccumulator<S64> >& stat) const;
 		template <typename T>
-		T getSum(const MeasurementStatHandle<T>& stat) const
+		T getMin(const SampleStatHandle<T>& stat) const
 		{
-			return (T)getSum(static_cast<const TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
+			return (T)getMin(static_cast<const TraceType<SampleAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
 		}
 
-		F64 getMin(const TraceType<MeasurementAccumulator<F64> >& stat) const;
-		S64 getMin(const TraceType<MeasurementAccumulator<S64> >& stat) const;
+		F64 getMax(const TraceType<SampleAccumulator<F64> >& stat) const;
+		S64 getMax(const TraceType<SampleAccumulator<S64> >& stat) const;
 		template <typename T>
-		T getMin(const MeasurementStatHandle<T>& stat) const
+		T getMax(const SampleStatHandle<T>& stat) const
 		{
-			return (T)getMin(static_cast<const TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
+			return (T)getMax(static_cast<const TraceType<SampleAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
 		}
 
-		F64 getMax(const TraceType<MeasurementAccumulator<F64> >& stat) const;
-		S64 getMax(const TraceType<MeasurementAccumulator<S64> >& stat) const;
+		F64 getMean(const TraceType<SampleAccumulator<F64> >& stat) const;
+		F64 getMean(const TraceType<SampleAccumulator<S64> >& stat) const;
 		template <typename T>
-		T getMax(const MeasurementStatHandle<T>& stat) const
+		T getMean(SampleStatHandle<T>& stat) const
 		{
-			return (T)getMax(static_cast<const TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
+			return (T)getMean(static_cast<const TraceType<SampleAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
 		}
 
-		F64 getMean(const TraceType<MeasurementAccumulator<F64> >& stat) const;
-		F64 getMean(const TraceType<MeasurementAccumulator<S64> >& stat) const;
+		F64 getStandardDeviation(const TraceType<SampleAccumulator<F64> >& stat) const;
+		F64 getStandardDeviation(const TraceType<SampleAccumulator<S64> >& stat) const;
 		template <typename T>
-		T getMean(MeasurementStatHandle<T>& stat) const
+		T getStandardDeviation(const SampleStatHandle<T>& stat) const
 		{
-			return (T)getMean(static_cast<const TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
+			return (T)getStandardDeviation(static_cast<const TraceType<SampleAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
 		}
 
-		F64 getStandardDeviation(const TraceType<MeasurementAccumulator<F64> >& stat) const;
-		F64 getStandardDeviation(const TraceType<MeasurementAccumulator<S64> >& stat) const;
+		F64 getLastValue(const TraceType<SampleAccumulator<F64> >& stat) const;
+		S64 getLastValue(const TraceType<SampleAccumulator<S64> >& stat) const;
 		template <typename T>
-		T getStandardDeviation(const MeasurementStatHandle<T>& stat) const
+		T getLastValue(const SampleStatHandle<T>& stat) const
 		{
-			return (T)getMean(static_cast<const TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
+			return (T)getLastValue(static_cast<const TraceType<SampleAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
 		}
 
-		F64 getLastValue(const TraceType<MeasurementAccumulator<F64> >& stat) const;
-		S64 getLastValue(const TraceType<MeasurementAccumulator<S64> >& stat) const;
+		U32 getSampleCount(const TraceType<SampleAccumulator<F64> >& stat) const;
+		U32 getSampleCount(const TraceType<SampleAccumulator<S64> >& stat) const;
+
+		// EventStatHandle accessors
+		F64 getSum(const TraceType<EventAccumulator<F64> >& stat) const;
+		S64 getSum(const TraceType<EventAccumulator<S64> >& stat) const;
 		template <typename T>
-		T getLastValue(const MeasurementStatHandle<T>& stat) const
+		T getSum(const EventStatHandle<T>& stat) const
 		{
-			return (T)getLastValue(static_cast<const TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
+			return (T)getSum(static_cast<const TraceType<EventAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
 		}
 
-		U32 getSampleCount(const TraceType<MeasurementAccumulator<F64> >& stat) const;
-		U32 getSampleCount(const TraceType<MeasurementAccumulator<S64> >& stat) const;
+		F64 getMin(const TraceType<EventAccumulator<F64> >& stat) const;
+		S64 getMin(const TraceType<EventAccumulator<S64> >& stat) const;
+		template <typename T>
+		T getMin(const EventStatHandle<T>& stat) const
+		{
+			return (T)getMin(static_cast<const TraceType<EventAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
+		}
+
+		F64 getMax(const TraceType<EventAccumulator<F64> >& stat) const;
+		S64 getMax(const TraceType<EventAccumulator<S64> >& stat) const;
+		template <typename T>
+		T getMax(const EventStatHandle<T>& stat) const
+		{
+			return (T)getMax(static_cast<const TraceType<EventAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
+		}
+
+		F64 getMean(const TraceType<EventAccumulator<F64> >& stat) const;
+		F64 getMean(const TraceType<EventAccumulator<S64> >& stat) const;
+		template <typename T>
+		T getMean(EventStatHandle<T>& stat) const
+		{
+			return (T)getMean(static_cast<const TraceType<EventAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
+		}
+
+		F64 getStandardDeviation(const TraceType<EventAccumulator<F64> >& stat) const;
+		F64 getStandardDeviation(const TraceType<EventAccumulator<S64> >& stat) const;
+		template <typename T>
+		T getStandardDeviation(const EventStatHandle<T>& stat) const
+		{
+			return (T)getStandardDeviation(static_cast<const TraceType<EventAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
+		}
+
+		F64 getLastValue(const TraceType<EventAccumulator<F64> >& stat) const;
+		S64 getLastValue(const TraceType<EventAccumulator<S64> >& stat) const;
+		template <typename T>
+		T getLastValue(const EventStatHandle<T>& stat) const
+		{
+			return (T)getLastValue(static_cast<const TraceType<EventAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >&> (stat));
+		}
+
+		U32 getSampleCount(const TraceType<EventAccumulator<F64> >& stat) const;
+		U32 getSampleCount(const TraceType<EventAccumulator<S64> >& stat) const;
 
 		LLUnit<LLUnits::Seconds, F64> getDuration() const { return LLUnit<LLUnits::Seconds, F64>(mElapsedSeconds); }
 
@@ -272,17 +319,48 @@ namespace LLTrace
 		const Recording& getPrevRecording(U32 offset) const;
 		Recording snapshotCurRecording() const;
 
+		// catch all for stats that have a defined sum
 		template <typename T>
 		typename T::value_t getPeriodMin(const TraceType<T>& stat, size_t num_periods = U32_MAX) const
 		{
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
 
-			typename T::value_t min_val = (std::numeric_limits<typename T::value_t>::max)();
+			typename T::value_t min_val = std::numeric_limits<typename T::value_t>::max();
 			for (S32 i = 1; i <= num_periods; i++)
 			{
 				S32 index = (mCurPeriod + total_periods - i) % total_periods;
 				min_val = llmin(min_val, mRecordingPeriods[index].getSum(stat));
+			}
+			return min_val;
+		}
+
+		template <typename T>
+		typename T getPeriodMin(const TraceType<SampleAccumulator<T> >& stat, size_t num_periods = U32_MAX) const
+		{
+			size_t total_periods = mRecordingPeriods.size();
+			num_periods = llmin(num_periods, total_periods);
+
+			typename T min_val = std::numeric_limits<T>::max();
+			for (S32 i = 1; i <= num_periods; i++)
+			{
+				S32 index = (mCurPeriod + total_periods - i) % total_periods;
+				min_val = llmin(min_val, mRecordingPeriods[index].getMin(stat));
+			}
+			return min_val;
+		}
+		
+		template <typename T>
+		typename T getPeriodMin(const TraceType<EventAccumulator<T> >& stat, size_t num_periods = U32_MAX) const
+		{
+			size_t total_periods = mRecordingPeriods.size();
+			num_periods = llmin(num_periods, total_periods);
+
+			typename T min_val = std::numeric_limits<T>::max();
+			for (S32 i = 1; i <= num_periods; i++)
+			{
+				S32 index = (mCurPeriod + total_periods - i) % total_periods;
+				min_val = llmin(min_val, mRecordingPeriods[index].getMin(stat));
 			}
 			return min_val;
 		}
@@ -293,7 +371,7 @@ namespace LLTrace
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
 
-			F64 min_val = (std::numeric_limits<F64>::max)();
+			F64 min_val = std::numeric_limits<F64>::max();
 			for (S32 i = 1; i <= num_periods; i++)
 			{
 				S32 index = (mCurPeriod + total_periods - i) % total_periods;
@@ -302,17 +380,48 @@ namespace LLTrace
 			return min_val;
 		}
 
+		// catch all for stats that have a defined sum
 		template <typename T>
 		typename T::value_t getPeriodMax(const TraceType<T>& stat, size_t num_periods = U32_MAX) const
 		{
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
 
-			typename T::value_t max_val = (std::numeric_limits<typename T::value_t>::min)();
+			typename T::value_t max_val = std::numeric_limits<typename T::value_t>::min();
 			for (S32 i = 1; i <= num_periods; i++)
 			{
 				S32 index = (mCurPeriod + total_periods - i) % total_periods;
 				max_val = llmax(max_val, mRecordingPeriods[index].getSum(stat));
+			}
+			return max_val;
+		}
+
+		template <typename T>
+		typename T getPeriodMax(const TraceType<SampleAccumulator<T> >& stat, size_t num_periods = U32_MAX) const
+		{
+			size_t total_periods = mRecordingPeriods.size();
+			num_periods = llmin(num_periods, total_periods);
+
+			typename T max_val = std::numeric_limits<T>::min();
+			for (S32 i = 1; i <= num_periods; i++)
+			{
+				S32 index = (mCurPeriod + total_periods - i) % total_periods;
+				max_val = llmax(max_val, mRecordingPeriods[index].getMax(stat));
+			}
+			return max_val;
+		}
+
+		template <typename T>
+		typename T getPeriodMax(const TraceType<EventAccumulator<T> >& stat, size_t num_periods = U32_MAX) const
+		{
+			size_t total_periods = mRecordingPeriods.size();
+			num_periods = llmin(num_periods, total_periods);
+
+			typename T max_val = std::numeric_limits<T>::min();
+			for (S32 i = 1; i <= num_periods; i++)
+			{
+				S32 index = (mCurPeriod + total_periods - i) % total_periods;
+				max_val = llmax(max_val, mRecordingPeriods[index].getMax(stat));
 			}
 			return max_val;
 		}
@@ -323,7 +432,7 @@ namespace LLTrace
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
 
-			F64 max_val = (std::numeric_limits<F64>::min)();
+			F64 max_val = std::numeric_limits<F64>::min();
 			for (S32 i = 1; i <= num_periods; i++)
 			{
 				S32 index = (mCurPeriod + total_periods - i) % total_periods;
@@ -332,13 +441,14 @@ namespace LLTrace
 			return max_val;
 		}
 
+		// catch all for stats that have a defined sum
 		template <typename T>
-		typename T::mean_t getPeriodMean(const TraceType<T>& stat, size_t num_periods = U32_MAX) const
+		typename T::mean_t getPeriodMean(const TraceType<T >& stat, size_t num_periods = U32_MAX) const
 		{
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
 
-			typename T::mean_t mean = typename T::mean_t();
+			typename T::mean_t mean = 0;
 			if (num_periods <= 0) { return mean; }
 
 			for (S32 i = 1; i <= num_periods; i++)
@@ -349,7 +459,65 @@ namespace LLTrace
 					mean += mRecordingPeriods[index].getSum(stat);
 				}
 			}
-			mean /= num_periods;
+			mean = mean / num_periods;
+			return mean;
+		}
+
+		template <typename T>
+		typename SampleAccumulator<T>::mean_t getPeriodMean(const TraceType<SampleAccumulator<T> >& stat, size_t num_periods = U32_MAX) const
+		{
+			size_t total_periods = mRecordingPeriods.size();
+			num_periods = llmin(num_periods, total_periods);
+
+			LLUnit<LLUnits::Seconds, F64> total_duration = 0.f;
+
+			typename SampleAccumulator<T>::mean_t mean = 0;
+			if (num_periods <= 0) { return mean; }
+
+			for (S32 i = 1; i <= num_periods; i++)
+			{
+				S32 index = (mCurPeriod + total_periods - i) % total_periods;
+				if (mRecordingPeriods[index].getDuration() > 0.f)
+				{
+					LLUnit<LLUnits::Seconds, F64> recording_duration = mRecordingPeriods[index].getDuration();
+					mean += mRecordingPeriods[index].getMean(stat) * recording_duration.value();
+					total_duration += recording_duration;
+				}
+			}
+
+			if (total_duration.value())
+			{
+				mean = mean / total_duration;
+			}
+			return mean;
+		}
+
+		template <typename T>
+		typename EventAccumulator<T>::mean_t getPeriodMean(const TraceType<EventAccumulator<T> >& stat, size_t num_periods = U32_MAX) const
+		{
+			size_t total_periods = mRecordingPeriods.size();
+			num_periods = llmin(num_periods, total_periods);
+
+			typename EventAccumulator<T>::mean_t mean = 0;
+			if (num_periods <= 0) { return mean; }
+
+			S32 total_sample_count = 0;
+
+			for (S32 i = 1; i <= num_periods; i++)
+			{
+				S32 index = (mCurPeriod + total_periods - i) % total_periods;
+				if (mRecordingPeriods[index].getDuration() > 0.f)
+				{
+					S32 period_sample_count = mRecordingPeriods[index].getSampleCount(stat);
+					mean += mRecordingPeriods[index].getMean(stat) * period_sample_count;
+					total_sample_count += period_sample_count;
+				}
+			}
+
+			if (total_sample_count)
+			{
+				mean = mean / total_sample_count;
+			}
 			return mean;
 		}
 
@@ -359,7 +527,7 @@ namespace LLTrace
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
 
-			typename T::mean_t mean = typename T::mean_t();
+			typename T::mean_t mean = 0;
 			if (num_periods <= 0) { return mean; }
 
 			for (S32 i = 1; i <= num_periods; i++)
@@ -370,7 +538,7 @@ namespace LLTrace
 					mean += mRecordingPeriods[index].getPerSec(stat);
 				}
 			}
-			mean /= num_periods;
+			mean = mean / num_periods;
 			return mean;
 		}
 

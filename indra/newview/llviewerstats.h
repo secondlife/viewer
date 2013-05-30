@@ -46,10 +46,10 @@ struct SimMeasurementSampler : public LLInstanceTracker<SimMeasurementSampler, E
 };
 
 template<typename T = F64>
-struct SimMeasurement : public LLTrace::MeasurementStatHandle<T>, public SimMeasurementSampler
+struct SimMeasurement : public LLTrace::SampleStatHandle<T>, public SimMeasurementSampler
 {
 	SimMeasurement(const char* name, const char* description, ESimStatID stat_id)
-	:	LLTrace::MeasurementStatHandle<T>(name, description),
+	:	LLTrace::SampleStatHandle<T>(name, description),
 		SimMeasurementSampler(stat_id)	
 	{}
 
@@ -66,7 +66,8 @@ void sample(SimMeasurement<T>& measurement, VALUE_T value)
 {
 	LLTrace::sample(measurement, value);
 }
-extern LLTrace::CountStatHandle<>						FPS,
+
+extern LLTrace::CountStatHandle<>			FPS,
 											PACKETS_IN,
 											PACKETS_LOST,
 											PACKETS_OUT,
@@ -76,7 +77,6 @@ extern LLTrace::CountStatHandle<>						FPS,
 											IM_COUNT,
 											OBJECT_CREATE,
 											OBJECT_REZ,
-											LOADING_WEARABLES_LONG_DELAY,
 											LOGIN_TIMEOUTS,
 											LSL_SAVES,
 											ANIMATION_UPLOADS,
@@ -102,15 +102,9 @@ extern LLTrace::CountStatHandle<LLTrace::Kilobits>	KBIT,
 											ACTUAL_IN_KBIT,
 											ACTUAL_OUT_KBIT;
 
-extern LLTrace::CountStatHandle<LLTrace::Seconds>		AVATAR_EDIT_TIME,
-											TOOLBOX_TIME,
-											MOUSELOOK_TIME,
-											FPS_10_TIME,
-											FPS_8_TIME,
-											FPS_2_TIME,
-											SIM_20_FPS_TIME,
-											SIM_PHYSICS_20_FPS_TIME,
-											LOSS_5_PERCENT_TIME;
+extern LLTrace::CountStatHandle<LLTrace::Seconds>		SIM_20_FPS_TIME,
+														SIM_PHYSICS_20_FPS_TIME,
+														LOSS_5_PERCENT_TIME;
 
 extern SimMeasurement<>						SIM_TIME_DILATION,
 											SIM_FPS,
@@ -133,32 +127,29 @@ extern SimMeasurement<>						SIM_TIME_DILATION,
 											SIM_PHYSICS_PINNED_TASKS,
 											SIM_PHYSICS_LOD_TASKS;
 
-extern LLTrace::MeasurementStatHandle<>		FPS_SAMPLE,
-											NUM_IMAGES,
-											NUM_RAW_IMAGES,
-											NUM_OBJECTS,
-											NUM_ACTIVE_OBJECTS,
-											NUM_SIZE_CULLED,
-											NUM_VIS_CULLED,
-											ENABLE_VBO,
-											LIGHTING_DETAIL,
-											VISIBLE_AVATARS,
-											SHADER_OBJECTS,
-											DRAW_DISTANCE,
-											CHAT_BUBBLES,
-											PENDING_VFS_OPERATIONS,
-											PACKETS_LOST_PERCENT,
-											WINDOW_WIDTH,
-											WINDOW_HEIGHT;
+extern LLTrace::SampleStatHandle<>		FPS_SAMPLE,
+										NUM_IMAGES,
+										NUM_RAW_IMAGES,
+										NUM_OBJECTS,
+										NUM_ACTIVE_OBJECTS,
+										NUM_SIZE_CULLED,
+										NUM_VIS_CULLED,
+										ENABLE_VBO,
+										LIGHTING_DETAIL,
+										VISIBLE_AVATARS,
+										SHADER_OBJECTS,
+										DRAW_DISTANCE,
+										PENDING_VFS_OPERATIONS,
+										PACKETS_LOST_PERCENT,
+										WINDOW_WIDTH,
+										WINDOW_HEIGHT;
 
-extern LLTrace::MeasurementStatHandle<LLTrace::Meters> AGENT_POSITION_SNAP;
-
-extern LLTrace::MeasurementStatHandle<LLTrace::Bytes>	DELTA_BANDWIDTH,
-														MAX_BANDWIDTH,
-														GL_TEX_MEM,
-														GL_BOUND_MEM,
-														RAW_MEM,
-														FORMATTED_MEM;
+extern LLTrace::SampleStatHandle<LLTrace::Bytes>	DELTA_BANDWIDTH,
+													MAX_BANDWIDTH,
+													GL_TEX_MEM,
+													GL_BOUND_MEM,
+													RAW_MEM,
+													FORMATTED_MEM;
 
 extern SimMeasurement<LLTrace::Milliseconds>	SIM_FRAME_TIME,
 												SIM_NET_TIME,
@@ -179,17 +170,29 @@ extern SimMeasurement<LLTrace::Bytes>			SIM_UNACKED_BYTES,
 												SIM_PHYSICS_MEM;
 
 
-extern LLTrace::MeasurementStatHandle<LLTrace::Milliseconds>	FRAMETIME_JITTER,
-													FRAMETIME_SLEW,
-													LOGIN_SECONDS,
-													REGION_CROSSING_TIME,
-													FRAME_STACKTIME,
-													UPDATE_STACKTIME,
-													NETWORK_STACKTIME,
-													IMAGE_STACKTIME,
-													REBUILD_STACKTIME,
-													RENDER_STACKTIME,
-													SIM_PING;
+extern LLTrace::SampleStatHandle<LLTrace::Milliseconds>	FRAMETIME_JITTER,
+														FRAMETIME_SLEW,
+														SIM_PING;
+
+extern LLTrace::EventStatHandle<LLTrace::Meters> AGENT_POSITION_SNAP;
+
+extern LLTrace::EventStatHandle<>	LOADING_WEARABLES_LONG_DELAY;
+
+extern LLTrace::EventStatHandle<LLTrace::Milliseconds>	REGION_CROSSING_TIME,
+														FRAME_STACKTIME,
+														UPDATE_STACKTIME,
+														NETWORK_STACKTIME,
+														IMAGE_STACKTIME,
+														REBUILD_STACKTIME,
+														RENDER_STACKTIME;
+
+extern LLTrace::EventStatHandle<LLTrace::Seconds>	AVATAR_EDIT_TIME,
+													TOOLBOX_TIME,
+													MOUSELOOK_TIME,
+													FPS_10_TIME,
+													FPS_8_TIME,
+													FPS_2_TIME;
+
 }
 
 class LLViewerStats : public LLSingleton<LLViewerStats>

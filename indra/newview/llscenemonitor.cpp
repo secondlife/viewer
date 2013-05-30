@@ -462,7 +462,7 @@ void LLSceneMonitor::calcDiffAggregate()
 	}	
 }
 
-static LLTrace::MeasurementStatHandle<> sFramePixelDiff("FramePixelDifference");
+static LLTrace::EventStatHandle<> sFramePixelDiff("FramePixelDifference");
 void LLSceneMonitor::fetchQueryResult()
 {
 	LLFastTimer _(FTM_SCENE_LOAD_IMAGE_DIFF);
@@ -481,16 +481,18 @@ void LLSceneMonitor::fetchQueryResult()
 			mDiffResult = count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * mDiffPixelRatio * mDiffPixelRatio); //0.5 -> (front face + back face)
 
 			LL_DEBUGS("SceneMonitor") << "Frame difference: " << std::setprecision(4) << mDiffResult << LL_ENDL;
-			sample(sFramePixelDiff, mDiffResult);
+			record(sFramePixelDiff, mDiffResult);
 
 			static LLCachedControl<F32> diff_threshold(gSavedSettings,"SceneLoadingPixelDiffThreshold");
 			if(mDiffResult > diff_threshold())
 			{
 				mRecording->extend();
+				llassert(mRecording->getAcceptedRecording().getLastRecording().getSum(LLStatViewer::FPS));
 			}
 			else
 			{
 				mRecording->getPotentialRecording().nextPeriod();
+				llassert(mRecording->getPotentialRecording().getLastRecording().getSum(LLStatViewer::FPS));
 			}
 		}
 	}
@@ -503,7 +505,6 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 
 	std::ofstream os(file_name.c_str());
 
-	//total scene loading time
 	os << std::setprecision(4);
 
 	LLTrace::PeriodicRecording& scene_load_recording = mRecording->getAcceptedRecording();
@@ -565,7 +566,7 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 		}
 	}
 
-	for (LLTrace::MeasurementStatHandle<F64>::instance_iter it = LLTrace::MeasurementStatHandle<F64>::beginInstances(), end_it = LLTrace::MeasurementStatHandle<F64>::endInstances();
+	for (LLTrace::EventStatHandle<F64>::instance_iter it = LLTrace::EventStatHandle<F64>::beginInstances(), end_it = LLTrace::EventStatHandle<F64>::endInstances();
 		it != end_it;
 		++it)
 	{
@@ -588,7 +589,53 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 		}
 	}
 
-	for (LLTrace::MeasurementStatHandle<S64>::instance_iter it = LLTrace::MeasurementStatHandle<S64>::beginInstances(), end_it = LLTrace::MeasurementStatHandle<S64>::endInstances();
+	for (LLTrace::EventStatHandle<S64>::instance_iter it = LLTrace::EventStatHandle<S64>::beginInstances(), end_it = LLTrace::EventStatHandle<S64>::endInstances();
+		it != end_it;
+		++it)
+	{
+		std::ostringstream row;
+		row << it->getName();
+
+		S32 samples = 0;
+
+		for (S32 i = frame_count - 1; i >= 0; --i)
+		{
+			samples += scene_load_recording.getPrevRecording(i).getSampleCount(*it);
+			row << ", " << scene_load_recording.getPrevRecording(i).getMean(*it);
+		}
+
+		row << std::endl;
+
+		if (samples > 0)
+		{
+			os << row.str();
+		}
+	}
+
+	for (LLTrace::SampleStatHandle<F64>::instance_iter it = LLTrace::SampleStatHandle<F64>::beginInstances(), end_it = LLTrace::SampleStatHandle<F64>::endInstances();
+		it != end_it;
+		++it)
+	{
+		std::ostringstream row;
+		row << it->getName();
+
+		S32 samples = 0;
+
+		for (S32 i = frame_count - 1; i >= 0; --i)
+		{
+			samples += scene_load_recording.getPrevRecording(i).getSampleCount(*it);
+			row << ", " << scene_load_recording.getPrevRecording(i).getMean(*it);
+		}
+
+		row << std::endl;
+
+		if (samples > 0)
+		{
+			os << row.str();
+		}
+	}
+
+	for (LLTrace::SampleStatHandle<S64>::instance_iter it = LLTrace::SampleStatHandle<S64>::beginInstances(), end_it = LLTrace::SampleStatHandle<S64>::endInstances();
 		it != end_it;
 		++it)
 	{

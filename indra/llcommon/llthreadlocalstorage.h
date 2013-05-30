@@ -131,6 +131,10 @@ public:
 		if (!sInitialized) return false;
 		return get() == other;
 	}
+
+	bool isNull() const { return !sInitialized || get() == NULL; }
+
+	bool notNull() const { return sInitialized && get() != NULL; }
 };
 
 template<typename DERIVED_TYPE>

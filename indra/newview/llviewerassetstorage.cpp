@@ -69,7 +69,7 @@ public:
 protected:
 	void recordMetrics()
 		{
-			if (mMetricsStartTime)
+			if (mMetricsStartTime.value())
 			{
 				// Okay, it appears this request was used for useful things.  Record
 				// the expected dequeue and duration of request processing.

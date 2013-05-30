@@ -57,10 +57,12 @@ public:
 
 	struct StatParams : public LLInitParam::ChoiceBlock<StatParams>
 	{
-		Alternative<LLTrace::TraceType<LLTrace::CountAccumulator<F64> >* >			count_stat_float;
-		Alternative<LLTrace::TraceType<LLTrace::CountAccumulator<S64> >* >			count_stat_int;
-		Alternative<LLTrace::TraceType<LLTrace::MeasurementAccumulator<F64> >* >	measurement_stat_float;
-		Alternative<LLTrace::TraceType<LLTrace::MeasurementAccumulator<S64> >* >	measurement_stat_int;
+		Alternative<LLTrace::TraceType<LLTrace::CountAccumulator<F64> >* >	count_stat_float;
+		Alternative<LLTrace::TraceType<LLTrace::CountAccumulator<S64> >* >	count_stat_int;
+		Alternative<LLTrace::TraceType<LLTrace::EventAccumulator<F64> >* >	event_stat_float;
+		Alternative<LLTrace::TraceType<LLTrace::EventAccumulator<S64> >* >	event_stat_int;
+		Alternative<LLTrace::TraceType<LLTrace::SampleAccumulator<F64> >* >	sample_stat_float;
+		Alternative<LLTrace::TraceType<LLTrace::SampleAccumulator<S64> >* >	sample_stat_int;
 	};
 
 	struct Params : public LLInitParam::Block<Params, LLView::Params>

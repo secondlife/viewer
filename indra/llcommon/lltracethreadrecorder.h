@@ -39,15 +39,15 @@ namespace LLTrace
 	{
 	protected:
 		struct ActiveRecording;
-		typedef std::list<ActiveRecording*> active_recording_list_t;
+		typedef std::vector<ActiveRecording*> active_recording_list_t;
 	public:
 		ThreadRecorder();
 
 		virtual ~ThreadRecorder();
 
 		void activate(Recording* recording);
-		active_recording_list_t::iterator update(Recording* recording);
 		void deactivate(Recording* recording);
+		active_recording_list_t::reverse_iterator bringUpToDate(Recording* recording);
 
 		virtual void pushToMaster() = 0;
 
@@ -58,10 +58,10 @@ namespace LLTrace
 		{
 			ActiveRecording(Recording* target);
 
-			Recording*	mTargetRecording;
+			Recording*			mTargetRecording;
 			RecordingBuffers	mPartialRecording;
 
-			void moveBaselineToTarget();
+			void movePartialToTarget();
 		};
 		Recording					mThreadRecording;
 
@@ -98,7 +98,7 @@ namespace LLTrace
 	class LL_COMMON_API SlaveThreadRecorder : public ThreadRecorder
 	{
 	public:
-		SlaveThreadRecorder();
+		SlaveThreadRecorder(MasterThreadRecorder& master);
 		~SlaveThreadRecorder();
 
 		// call this periodically to gather stats data for master thread to consume
@@ -117,7 +117,8 @@ namespace LLTrace
 		private:
 			LLMutex		mRecordingMutex;
 		};
-		SharedData		mSharedData;
+		SharedData				mSharedData;
+		MasterThreadRecorder&	mMasterRecorder;
 	};
 }
 
