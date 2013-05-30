@@ -1665,20 +1665,22 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				gGL.getTexUnit(normal_channel)->bind(face->getTexture(LLRender::NORMAL_MAP));
 				gGL.getTexUnit(specular_channel)->bind(face->getTexture(LLRender::SPECULAR_MAP));
 
-				LLColor4U col = mat->getSpecularLightColor();
-				U8 spec = mat->getSpecularLightExponent();
+				LLColor4 col = mat->getSpecularLightColor();
+				F32 spec = mat->getSpecularLightExponent()/255.f;
 
 				F32 env = mat->getEnvironmentIntensity()/255.f;
 
 				if (mat->getSpecularID().isNull())
 				{
 					env = te->getShiny()*0.25f;
+					col.set(env,env,env,0);
+					spec = env;
 				}
 		
 				BOOL fullbright = te->getFullbright();
 
 				sVertexProgram->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, fullbright ? 1.f : 0.f);
-				sVertexProgram->uniform4f(LLShaderMgr::SPECULAR_COLOR, col.mV[0]/255.f, col.mV[1]/255.f, col.mV[2]/255.f, spec/255.f);
+				sVertexProgram->uniform4f(LLShaderMgr::SPECULAR_COLOR, col.mV[0], col.mV[1], col.mV[2], spec);
 				sVertexProgram->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, env);
 
 				if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
