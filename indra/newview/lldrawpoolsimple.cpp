@@ -214,6 +214,167 @@ void LLDrawPoolSimple::render(S32 pass)
 	}
 }
 
+
+
+
+
+
+
+
+
+
+static LLFastTimer::DeclareTimer FTM_RENDER_ALPHA_MASK("Alpha Mask");
+
+LLDrawPoolAlphaMask::LLDrawPoolAlphaMask() :
+	LLRenderPass(POOL_ALPHA_MASK)
+{
+}
+
+void LLDrawPoolAlphaMask::prerender()
+{
+	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
+}
+
+void LLDrawPoolAlphaMask::beginRenderPass(S32 pass)
+{
+	LLFastTimer t(FTM_RENDER_ALPHA_MASK);
+
+	if (LLPipeline::sUnderWaterRender)
+	{
+		simple_shader = &gObjectSimpleWaterAlphaMaskProgram;
+	}
+	else
+	{
+		simple_shader = &gObjectSimpleAlphaMaskProgram;
+	}
+
+	if (mVertexShaderLevel > 0)
+	{
+		simple_shader->bind();
+	}
+	else 
+	{
+		// don't use shaders!
+		if (gGLManager.mHasShaderObjects)
+		{
+			LLGLSLShader::bindNoShader();
+		}		
+	}
+}
+
+void LLDrawPoolAlphaMask::endRenderPass(S32 pass)
+{
+	LLFastTimer t(FTM_RENDER_ALPHA_MASK);
+	stop_glerror();
+	LLRenderPass::endRenderPass(pass);
+	stop_glerror();
+	if (mVertexShaderLevel > 0)
+	{
+		simple_shader->unbind();
+	}
+}
+
+void LLDrawPoolAlphaMask::render(S32 pass)
+{
+	LLGLDisable blend(GL_BLEND);
+	LLFastTimer t(FTM_RENDER_ALPHA_MASK);
+	
+	if (mVertexShaderLevel > 0)
+	{
+		simple_shader->bind();
+		simple_shader->setMinimumAlpha(0.33f);
+
+		pushMaskBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+		pushMaskBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+		pushMaskBatches(LLRenderPass::PASS_SPECMAP_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+		pushMaskBatches(LLRenderPass::PASS_NORMMAP_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+		pushMaskBatches(LLRenderPass::PASS_NORMSPEC_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+	}
+	else
+	{
+		pushMaskBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask(), TRUE, FALSE);
+		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT); //OK
+	}
+}
+
+LLDrawPoolFullbrightAlphaMask::LLDrawPoolFullbrightAlphaMask() :
+	LLRenderPass(POOL_FULLBRIGHT_ALPHA_MASK)
+{
+}
+
+void LLDrawPoolFullbrightAlphaMask::prerender()
+{
+	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
+}
+
+void LLDrawPoolFullbrightAlphaMask::beginRenderPass(S32 pass)
+{
+	LLFastTimer t(FTM_RENDER_ALPHA_MASK);
+
+	if (LLPipeline::sUnderWaterRender)
+	{
+		simple_shader = &gObjectFullbrightWaterAlphaMaskProgram;
+	}
+	else
+	{
+		simple_shader = &gObjectFullbrightAlphaMaskProgram;
+	}
+
+	if (mVertexShaderLevel > 0)
+	{
+		simple_shader->bind();
+	}
+	else 
+	{
+		// don't use shaders!
+		if (gGLManager.mHasShaderObjects)
+		{
+			LLGLSLShader::bindNoShader();
+		}		
+	}
+}
+
+void LLDrawPoolFullbrightAlphaMask::endRenderPass(S32 pass)
+{
+	LLFastTimer t(FTM_RENDER_ALPHA_MASK);
+	stop_glerror();
+	LLRenderPass::endRenderPass(pass);
+	stop_glerror();
+	if (mVertexShaderLevel > 0)
+	{
+		simple_shader->unbind();
+	}
+}
+
+void LLDrawPoolFullbrightAlphaMask::render(S32 pass)
+{
+	LLFastTimer t(FTM_RENDER_ALPHA_MASK);
+
+	if (mVertexShaderLevel > 0)
+	{
+		if (simple_shader)
+		{
+			simple_shader->bind();
+			simple_shader->setMinimumAlpha(0.33f);
+			if (LLPipeline::sRenderingHUDs || !LLPipeline::sRenderDeferred)
+			{
+				simple_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.0f);
+			} else {
+				simple_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+			}
+		}
+		pushMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+		//LLGLSLShader::bindNoShader();
+	}
+	else
+	{
+		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+		pushMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, getVertexDataMask(), TRUE, FALSE);
+		gPipeline.enableLightsDynamic();
+		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT); //OK
+	}
+}
+
 //===============================
 //DEFERRED IMPLEMENTATION
 //===============================
@@ -242,6 +403,28 @@ void LLDrawPoolSimple::renderDeferred(S32 pass)
 		pushBatches(LLRenderPass::PASS_SIMPLE, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 	}
 }
+
+static LLFastTimer::DeclareTimer FTM_RENDER_ALPHA_MASK_DEFERRED("Deferred Alpha Mask");
+
+void LLDrawPoolAlphaMask::beginDeferredPass(S32 pass)
+{
+	
+}
+
+void LLDrawPoolAlphaMask::endDeferredPass(S32 pass)
+{
+	
+}
+
+void LLDrawPoolAlphaMask::renderDeferred(S32 pass)
+{
+	LLFastTimer t(FTM_RENDER_ALPHA_MASK_DEFERRED);
+	gDeferredDiffuseAlphaMaskProgram.bind();
+	gDeferredDiffuseAlphaMaskProgram.setMinimumAlpha(0.33f);
+	pushMaskBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+	gDeferredDiffuseAlphaMaskProgram.unbind();			
+}
+
 
 // grass drawpool
 LLDrawPoolGrass::LLDrawPoolGrass() :
@@ -407,6 +590,8 @@ void LLDrawPoolFullbright::render(S32 pass)
 	{
 		fullbright_shader->bind();
 		fullbright_shader->uniform1f(LLViewerShaderMgr::FULLBRIGHT, 1.f);
+		fullbright_shader->uniform1f(LLViewerShaderMgr::TEXTURE_GAMMA, 1.f);
+
 		U32 fullbright_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TEXTURE_INDEX;
 		pushBatches(LLRenderPass::PASS_FULLBRIGHT, fullbright_mask, TRUE, TRUE);
 		pushBatches(LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE, fullbright_mask, TRUE, TRUE);
@@ -432,4 +617,33 @@ S32 LLDrawPoolFullbright::getNumPasses()
 { 
 	return 1;
 }
+
+
+void LLDrawPoolFullbrightAlphaMask::beginPostDeferredPass(S32 pass)
+{
+	gObjectFullbrightAlphaMaskProgram.bind();
+	if (LLPipeline::sRenderingHUDs || !LLPipeline::sRenderDeferred)
+	{
+		gObjectFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.0f);
+	} 
+	else 
+	{
+		gObjectFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+	}
+}
+
+void LLDrawPoolFullbrightAlphaMask::renderPostDeferred(S32 pass)
+{
+	LLFastTimer t(FTM_RENDER_FULLBRIGHT);
+	LLGLDisable blend(GL_BLEND);
+	U32 fullbright_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TEXTURE_INDEX;
+	pushMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, fullbright_mask, TRUE, TRUE);
+}
+
+void LLDrawPoolFullbrightAlphaMask::endPostDeferredPass(S32 pass)
+{
+	gObjectFullbrightAlphaMaskProgram.unbind();
+	LLRenderPass::endRenderPass(pass);
+}
+
 

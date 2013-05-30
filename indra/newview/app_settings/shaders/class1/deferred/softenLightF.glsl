@@ -231,9 +231,9 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 		  + tmpAmbient)));
 
 	//brightness of surface both sunlight and ambient
-	setSunlitColor(pow(vec3(sunlight * .5), vec3(global_gamma)) * 2.2);
-	setAmblitColor(pow(vec3(tmpAmbient * .25), vec3(global_gamma)) * 2.2);
-	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(global_gamma)) * 2.2);
+	setSunlitColor(pow(vec3(sunlight * .5), vec3(global_gamma)) * global_gamma);
+	setAmblitColor(pow(vec3(tmpAmbient * .25), vec3(global_gamma)) * global_gamma);
+	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(global_gamma)) * global_gamma);
 }
 
 vec3 atmosLighting(vec3 light)
@@ -248,6 +248,15 @@ vec3 atmosTransport(vec3 light) {
 	light += getAdditiveColor() * 2.0;
 	return light;
 }
+
+vec3 fullbrightAtmosTransport(vec3 light) {
+	float brightness = dot(light.rgb, vec3(0.33333));
+
+	return mix(atmosTransport(light.rgb), light.rgb + getAdditiveColor().rgb, brightness * brightness);
+}
+
+
+
 vec3 atmosGetDiffuseSunlightColor()
 {
 	return getSunlitColor();
@@ -282,6 +291,13 @@ vec3 scaleSoftClip(vec3 light)
 	return light;
 }
 
+
+vec3 fullbrightScaleSoftClip(vec3 light)
+{
+	//soft clip effect:
+	return light;
+}
+
 void main() 
 {
 	vec2 tc = vary_fragcoord.xy;
@@ -308,7 +324,7 @@ void main()
 
 		col.rgb *= ambient;
 
-		col += atmosAffectDirectionalLight(max(min(da, 1.0) * 2.6, diffuse.a));
+		col += atmosAffectDirectionalLight(max(min(da, 1.0) * 2.6, 0.0));
 	
 		col *= diffuse.rgb;
 	
@@ -328,21 +344,36 @@ void main()
 			col += spec_contrib;
 		}
 	
+		
+		col = mix(col.rgb, pow(diffuse.rgb, vec3(1.0/2.2)), diffuse.a);
+		
+		
 		if (envIntensity > 0.0)
 		{ //add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
-			col = mix(col.rgb, pow(textureCube(environmentMap, env_vec).rgb, vec3(2.2)) * 2.2, 
-				envIntensity); 
+			
+			float exponent = mix(2.2, 1.0, diffuse.a);
+			vec3 refcol = pow(textureCube(environmentMap, env_vec).rgb, vec3(exponent))*exponent;
+
+			col = mix(col.rgb, refcol, 
+				envIntensity);  
+
 		}
 
-		col = atmosLighting(col);
-		col = scaleSoftClip(col);
+		float exponent = mix(1.0, 2.2, diffuse.a);
+		col = pow(col, vec3(exponent));
+				
+		if (norm.w < 0.5)
+		{
+			col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
+			col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
+		}
 
-		col = mix(col.rgb, diffuse.rgb, diffuse.a);
+		//col = vec3(1,0,1);
+		//col.g = envIntensity;
 	}
 	
 	frag_color.rgb = col;
 
-	//frag_color.a = bloom;
-	frag_color.a = 0.0;
+	frag_color.a = bloom;
 }

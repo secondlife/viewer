@@ -695,6 +695,8 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		}
 		*/
 
+		text[count++] = strdup("#define HAS_DIFFUSE_LOOKUP 1\n");
+
 		//uniform declartion
 		for (S32 i = 0; i < texture_index_channels; ++i)
 		{
@@ -751,6 +753,10 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			// (for passing integers between vertex and fragment shaders)
 			llerrs << "Indexed texture rendering requires GLSL 1.30 or later." << llendl;
 		}
+	}
+	else
+	{
+		text[count++] = strdup("#define HAS_DIFFUSE_LOOKUP 0\n");
 	}
 
 	//copy file into memory
@@ -1068,6 +1074,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 
 
 	mReservedUniforms.push_back("minimum_alpha");
+	mReservedUniforms.push_back("emissive_brightness");
 
 	mReservedUniforms.push_back("shadow_matrix");
 	mReservedUniforms.push_back("env_mat");
