@@ -183,7 +183,7 @@ public:
 	U64				mCreationDate;
 	std::vector<LLColor4>	mSavedColors;
 	uuid_vec_t		mSavedTextures;
-	std::vector<LLVector3>  mTextureScaleRatios[LLRender::NUM_TEXTURE_CHANNELS];
+	std::vector<LLVector3>  mTextureScaleRatios;
 	std::vector<LLVector3>	mSilhouetteVertices;	// array of vertices to render silhouette of object
 	std::vector<LLVector3>	mSilhouetteNormals;	// array of normals to render silhouette of object
 	BOOL					mSilhouetteExists;	// need to generate silhouette?
