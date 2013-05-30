@@ -233,7 +233,7 @@ namespace LLViewerAssetStatsFF
 		&sDequeuedAssetRequestsOther            
 	};
 
-	static LLTrace::MeasurementStatHandle<LLTrace::Seconds>	sResponseAssetRequestsTempTextureHTTP   ("assetresponsetimestemptexturehttp", 
+	static LLTrace::EventStatHandle<LLTrace::Seconds>	sResponseAssetRequestsTempTextureHTTP   ("assetresponsetimestemptexturehttp",
 																							"Time spent responding to temporary texture asset http requests"),
 													sResponseAssetRequestsTempTextureUDP    ("assetresponsetimestemptextureudp", 
 																							"Time spent responding to temporary texture asset udp requests"),
@@ -250,7 +250,7 @@ namespace LLViewerAssetStatsFF
 													sResponsedAssetRequestsOther            ("assetresponsetimesother", 
 																							"Time spent responding to other asset requests");
 
-	static LLTrace::MeasurementStatHandle<LLTrace::Seconds>* sResponse[EVACCount] = {
+	static LLTrace::EventStatHandle<LLTrace::Seconds>* sResponse[EVACCount] = {
 		&sResponseAssetRequestsTempTextureHTTP,   
 		&sResponseAssetRequestsTempTextureUDP,  
 		&sResponseAssetRequestsNonTempTextureHTTP,
@@ -283,7 +283,6 @@ LLViewerAssetStats::LLViewerAssetStats(const LLViewerAssetStats & src)
 	mPhaseStats(src.mPhaseStats),
 	mAvatarRezStates(src.mAvatarRezStates)
 {
-	src.mCurRecording->update();
 	mRegionRecordings = src.mRegionRecordings;
 
 	mCurRecording = &mRegionRecordings[mRegionHandle];
@@ -485,7 +484,7 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 						.resp_mean(rec.getMean(*sResponse[EVACOtherGet]).value());
 		}
 
-		S32 fps = (S32)rec.getSum(LLStatViewer::FPS_SAMPLE);
+		S32 fps = (S32)rec.getLastValue(LLStatViewer::FPS_SAMPLE);
 		if (!compact_output || fps != 0)
 		{
 			r.fps.count(fps);
@@ -561,7 +560,7 @@ void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, 
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	sample(*sResponse[int(eac)], LLTrace::Microseconds(duration));
+	record(*sResponse[int(eac)], LLTrace::Microseconds(duration));
 }
 
 void record_avatar_stats()

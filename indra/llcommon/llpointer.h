@@ -196,6 +196,9 @@ public:
 			*(pointer_t*)(this) = new Type(*pointer_t::mPointer);
 		}
 	}
+
+	const Type*	operator->() const	{ return pointer_t::mPointer; }
+	const Type&	operator*() const	{ return *pointer_t::mPointer; }
 };
 
 #endif

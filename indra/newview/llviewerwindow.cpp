@@ -249,7 +249,7 @@ std::string	LLViewerWindow::sSnapshotDir;
 
 std::string	LLViewerWindow::sMovieBaseName;
 
-LLTrace::MeasurementStatHandle<> LLViewerWindow::sMouseVelocityStat("Mouse Velocity");
+LLTrace::SampleStatHandle<> LLViewerWindow::sMouseVelocityStat("Mouse Velocity");
 
 
 class RecordToChatConsole : public LLError::Recorder, public LLSingleton<RecordToChatConsole>
@@ -456,6 +456,8 @@ public:
 		
 		if (gSavedSettings.getBOOL("DebugShowRenderInfo"))
 		{
+			LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
+
 			if (gPipeline.getUseVertexShaders() == 0)
 			{
 				addText(xpos, ypos, "Shaders Disabled");
@@ -561,7 +563,7 @@ public:
 			addText(xpos, ypos, llformat("%d Unique Textures", LLImageGL::sUniqueCount));
 			ypos += y_inc;
 
-			addText(xpos, ypos, llformat("%d Render Calls", gPipeline.mBatchCount));
+			addText(xpos, ypos, llformat("%d Render Calls", last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize)));
             ypos += y_inc;
 
 			addText(xpos, ypos, llformat("%d/%d Objects Active", gObjectList.getNumActiveObjects(), gObjectList.getNumObjects()));
@@ -576,15 +578,10 @@ public:
 			gPipeline.mTextureMatrixOps = 0;
 			gPipeline.mMatrixOpCount = 0;
 
-			if (gPipeline.mBatchCount > 0)
-			{
-				addText(xpos, ypos, llformat("Batch min/max/mean: %d/%d/%d", gPipeline.mMinBatchSize, gPipeline.mMaxBatchSize, 
-					gPipeline.mTrianglesDrawn/gPipeline.mBatchCount));
-
-				gPipeline.mMinBatchSize = gPipeline.mMaxBatchSize;
-				gPipeline.mMaxBatchSize = 0;
-				gPipeline.mBatchCount = 0;
-			}
+ 			if (last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize) > 0)
+  			{
+ 				addText(xpos, ypos, llformat("Batch min/max/mean: %d/%d/%d", last_frame_recording.getMin(LLPipeline::sStatBatchSize), last_frame_recording.getMax(LLPipeline::sStatBatchSize), last_frame_recording.getMean(LLPipeline::sStatBatchSize)));
+  			}
             ypos += y_inc;
 
 			addText(xpos, ypos, llformat("UI Verts/Calls: %d/%d", LLRender::sUIVerts, LLRender::sUICalls));

@@ -914,7 +914,7 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 		{
 			++mRegionCrossingCount;
 			LLTrace::Seconds delta = mRegionCrossingTimer.getElapsedTimeF32();
-			sample(LLStatViewer::REGION_CROSSING_TIME, delta);
+			record(LLStatViewer::REGION_CROSSING_TIME, delta);
 
 			// Diagnostics
 			llinfos << "Region crossing took " << (F32)(delta * 1000.0).value() << " ms " << llendl;

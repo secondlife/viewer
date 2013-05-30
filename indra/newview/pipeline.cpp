@@ -198,6 +198,7 @@ BOOL LLPipeline::CameraOffset;
 F32 LLPipeline::CameraMaxCoF;
 F32 LLPipeline::CameraDoFResScale;
 F32 LLPipeline::RenderAutoHideSurfaceAreaLimit;
+LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
 
 const F32 BACKLIGHT_DAY_MAGNITUDE_AVATAR = 0.2f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_AVATAR = 0.1f;
@@ -403,17 +404,9 @@ bool addDeferredAttachments(LLRenderTarget& target)
 
 LLPipeline::LLPipeline() :
 	mBackfaceCull(FALSE),
-	mBatchCount(0),
 	mMatrixOpCount(0),
 	mTextureMatrixOps(0),
-	mMaxBatchSize(0),
-	mMinBatchSize(0),
-	mMeanBatchSize(0),
-	mTrianglesDrawn(0),
 	mNumVisibleNodes(0),
-	mVerticesRelit(0),
-	mLightingChanges(0),
-	mGeometryChanges(0),
 	mNumVisibleFaces(0),
 
 	mInitialized(FALSE),
@@ -1809,17 +1802,7 @@ void LLPipeline::resetFrameStats()
 {
 	assertInitialized();
 
-	add(LLStatViewer::TRIANGLES_DRAWN, mTrianglesDrawn);
-
-	if (mBatchCount > 0)
-	{
-		mMeanBatchSize = gPipeline.mTrianglesDrawn/gPipeline.mBatchCount;
-	}
-	mTrianglesDrawn = 0;
 	sCompiles        = 0;
-	mVerticesRelit   = 0;
-	mLightingChanges = 0;
-	mGeometryChanges = 0;
 	mNumVisibleFaces = 0;
 
 	if (mOldRenderDebugMask != mRenderDebugMask)
@@ -1827,7 +1810,6 @@ void LLPipeline::resetFrameStats()
 		gObjectList.clearDebugText();
 		mOldRenderDebugMask = mRenderDebugMask;
 	}
-		
 }
 
 //external functions for asynchronous updating
@@ -2585,7 +2567,6 @@ BOOL LLPipeline::updateDrawableGeom(LLDrawable* drawablep, BOOL priority)
 	if (update_complete && assertInitialized())
 	{
 		drawablep->setState(LLDrawable::BUILT);
-		mGeometryChanges++;
 	}
 	return update_complete;
 }
@@ -3347,7 +3328,6 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 		}
 	}
 	
-
 	mNumVisibleFaces += drawablep->getNumFaces();
 }
 
@@ -4516,10 +4496,8 @@ void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_type)
 		count = index_count/3;
 	}
 
-	mTrianglesDrawn += count;
-	mBatchCount++;
-	mMaxBatchSize = llmax(mMaxBatchSize, count);
-	mMinBatchSize = llmin(mMinBatchSize, count);
+	record(sStatBatchSize, count);
+	add(LLStatViewer::TRIANGLES_DRAWN, count);
 
 	if (LLPipeline::sRenderFrameTest)
 	{

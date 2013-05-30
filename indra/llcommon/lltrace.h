@@ -73,7 +73,7 @@ bool isInitialized();
 const LLThreadLocalPointer<class ThreadRecorder>& get_thread_recorder();
 void set_thread_recorder(class ThreadRecorder*);
 
-class MasterThreadRecorder& getMasterThreadRecorder();
+class MasterThreadRecorder& getUIThreadRecorder();
 
 // one per thread per type
 template<typename ACCUMULATOR>
@@ -148,6 +148,15 @@ public:
 		}
 	}
 
+	void flush()
+	{
+		llassert(mStorageSize >= sNextStorageSlot);
+		for (size_t i = 0; i < sNextStorageSlot; i++)
+		{
+			mStorage[i].flush();
+		}
+	}
+
 	void makePrimary()
 	{
 		LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(mStorage);
@@ -166,10 +175,12 @@ public:
 	// NOTE: this is not thread-safe.  We assume that slots are reserved in the main thread before any child threads are spawned
 	size_t reserveSlot()
 	{
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 		if (LLTrace::isInitialized())
 		{
 			llerrs << "Attempting to declare trace object after program initialization.  Trace objects should be statically initialized." << llendl;
 		}
+#endif
 		size_t next_slot = sNextStorageSlot++;
 		if (next_slot >= mStorageSize)
 		{
@@ -260,14 +271,14 @@ protected:
 };
 
 template<typename T>
-class MeasurementAccumulator
+class EventAccumulator
 {
 public:
 	typedef T value_t;
 	typedef F64 mean_t;
-	typedef MeasurementAccumulator<T> self_t;
+	typedef EventAccumulator<T> self_t;
 
-	MeasurementAccumulator()
+	EventAccumulator()
 	:	mSum(0),
 		mMin((std::numeric_limits<T>::max)()),
 		mMax((std::numeric_limits<T>::min)()),
@@ -277,7 +288,7 @@ public:
 		mLastValue(0)
 	{}
 
-	void sample(T value)
+	void record(T value)
 	{
 		mNumSamples++;
 		mSum += value;
@@ -301,17 +312,10 @@ public:
 		if (other.mNumSamples)
 		{
 			mSum += other.mSum;
-			if (other.mMin < mMin)
-			{
-				mMin = other.mMin;
-			}
-			if (other.mMax > mMax)
-			{
-				mMax = other.mMax;
-			}
-			F64 weight = (F64)mNumSamples / (F64)(mNumSamples + other.mNumSamples);
-			mNumSamples += other.mNumSamples;
-			mMean = mMean * weight + other.mMean * (1.f - weight);
+
+			// NOTE: both conditions will hold first time through
+			if (other.mMin < mMin) { mMin = other.mMin; }
+			if (other.mMax > mMax) { mMax = other.mMax; }
 
 			// combine variance (and hence standard deviation) of 2 different sized sample groups using
 			// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
@@ -333,12 +337,16 @@ public:
 			else
 			{
 				mVarianceSum = (F64)mNumSamples
-					* ((((n_1 - 1.f) * v_1)
-					+ ((n_2 - 1.f) * v_2)
-					+ (((n_1 * n_2) / (n_1 + n_2))
-					* ((m_1 * m_1) + (m_2 * m_2) - (2.f * m_1 * m_2))))
-					/ (n_1 + n_2 - 1.f));
+								* ((((n_1 - 1.f) * v_1)
+									+ ((n_2 - 1.f) * v_2)
+									+ (((n_1 * n_2) / (n_1 + n_2))
+										* ((m_1 * m_1) + (m_2 * m_2) - (2.f * m_1 * m_2))))
+									/ (n_1 + n_2 - 1.f));
 			}
+
+			F64 weight = (F64)mNumSamples / (F64)(mNumSamples + other.mNumSamples);
+			mNumSamples += other.mNumSamples;
+			mMean = mMean * weight + other.mMean * (1.f - weight);
 			mLastValue = other.mLastValue;
 		}
 	}
@@ -347,12 +355,14 @@ public:
 	{
 		mNumSamples = 0;
 		mSum = 0;
-		mMin = 0;
-		mMax = 0;
+		mMin = std::numeric_limits<T>::max();
+		mMax = std::numeric_limits<T>::min();
 		mMean = 0;
 		mVarianceSum = 0;
 		mLastValue = other ? other->mLastValue : 0;
 	}
+
+	void flush() {}
 
 	T	getSum() const { return (T)mSum; }
 	T	getMin() const { return (T)mMin; }
@@ -374,6 +384,150 @@ private:
 	U32	mNumSamples;
 };
 
+
+template<typename T>
+class SampleAccumulator
+{
+public:
+	typedef T value_t;
+	typedef F64 mean_t;
+	typedef SampleAccumulator<T> self_t;
+
+	SampleAccumulator()
+	:	mSum(0),
+		mMin((std::numeric_limits<T>::max)()),
+		mMax((std::numeric_limits<T>::min)()),
+		mMean(0),
+		mVarianceSum(0),
+		mLastSampleTimeStamp(LLTimer::getTotalSeconds()),
+		mTotalSamplingTime(0),
+		mNumSamples(0),
+		mLastValue(0),
+		mHasValue(false)
+	{}
+
+	void sample(T value)
+	{
+		LLUnitImplicit<LLUnits::Seconds, F64> time_stamp = LLTimer::getTotalSeconds();
+		LLUnitImplicit<LLUnits::Seconds, F64> delta_time = time_stamp - mLastSampleTimeStamp;
+		mLastSampleTimeStamp = time_stamp;
+
+		if (mHasValue)
+		{
+			mTotalSamplingTime += delta_time;
+			mSum += (F64)mLastValue * delta_time;
+
+			// NOTE: both conditions will hold first time through
+			if (value < mMin) { mMin = value; }
+			if (value > mMax) { mMax = value; }
+
+			F64 old_mean = mMean;
+			mMean += (delta_time / mTotalSamplingTime) * ((F64)mLastValue - old_mean);
+			mVarianceSum += delta_time * ((F64)mLastValue - old_mean) * ((F64)mLastValue - mMean);
+		}
+
+		mLastValue = value;
+		mNumSamples++;
+		mHasValue = true;
+	}
+
+	void addSamples(const self_t& other)
+	{
+		if (other.mTotalSamplingTime)
+		{
+			mSum += other.mSum;
+
+			// NOTE: both conditions will hold first time through
+			if (other.mMin < mMin) { mMin = other.mMin; }
+			if (other.mMax > mMax) { mMax = other.mMax; }
+
+			// combine variance (and hence standard deviation) of 2 different sized sample groups using
+			// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
+			F64 n_1 = mTotalSamplingTime,
+				n_2 = other.mTotalSamplingTime;
+			F64 m_1 = mMean,
+				m_2 = other.mMean;
+			F64 v_1 = mVarianceSum / mTotalSamplingTime,
+				v_2 = other.mVarianceSum / other.mTotalSamplingTime;
+			if (n_1 == 0)
+			{
+				mVarianceSum = other.mVarianceSum;
+			}
+			else if (n_2 == 0)
+			{
+				// variance is unchanged
+				// mVarianceSum = mVarianceSum;
+			}
+			else
+			{
+				mVarianceSum =	mTotalSamplingTime
+								* ((((n_1 - 1.f) * v_1)
+									+ ((n_2 - 1.f) * v_2)
+									+ (((n_1 * n_2) / (n_1 + n_2))
+										* ((m_1 * m_1) + (m_2 * m_2) - (2.f * m_1 * m_2))))
+									/ (n_1 + n_2 - 1.f));
+			}
+
+			llassert(other.mTotalSamplingTime > 0);
+			F64 weight = mTotalSamplingTime / (mTotalSamplingTime + other.mTotalSamplingTime);
+			mNumSamples += other.mNumSamples;
+			mTotalSamplingTime += other.mTotalSamplingTime;
+			mMean = (mMean * weight) + (other.mMean * (1.0 - weight));
+			mLastValue = other.mLastValue;
+			mLastSampleTimeStamp = other.mLastSampleTimeStamp;
+			mHasValue |= other.mHasValue;
+		}
+	}
+
+	void reset(const self_t* other)
+	{
+		mNumSamples = 0;
+		mSum = 0;
+		mMin = std::numeric_limits<T>::max();
+		mMax = std::numeric_limits<T>::min();
+		mMean = other ? other->mLastValue : 0;
+		mVarianceSum = 0;
+		mLastSampleTimeStamp = LLTimer::getTotalSeconds();
+		mTotalSamplingTime = 0;
+		mLastValue = other ? other->mLastValue : 0;
+		mHasValue = other ? other->mHasValue : false;
+	}
+
+	void flush()
+	{
+		LLUnitImplicit<LLUnits::Seconds, F64> time_stamp = LLTimer::getTotalSeconds();
+		LLUnitImplicit<LLUnits::Seconds, F64> delta_time = time_stamp - mLastSampleTimeStamp;
+
+		mSum += (F64)mLastValue * delta_time;
+
+		mTotalSamplingTime += delta_time;
+		mLastSampleTimeStamp = time_stamp;
+	}
+
+	T	getSum() const { return (T)mSum; }
+	T	getMin() const { return (T)mMin; }
+	T	getMax() const { return (T)mMax; }
+	T	getLastValue() const { return (T)mLastValue; }
+	F64	getMean() const { return mMean; }
+	F64 getStandardDeviation() const { return sqrtf(mVarianceSum / mTotalSamplingTime); }
+	U32 getSampleCount() const { return mNumSamples; }
+
+private:
+	T	mSum,
+		mMin,
+		mMax,
+		mLastValue;
+
+	bool mHasValue;
+
+	F64	mMean,
+		mVarianceSum;
+
+	LLUnitImplicit<LLUnits::Seconds, F64>	mLastSampleTimeStamp,
+											mTotalSamplingTime;
+
+	U32	mNumSamples;
+};
 
 template<typename T>
 class CountAccumulator
@@ -405,6 +559,8 @@ public:
 		mNumSamples = 0;
 		mSum = 0;
 	}
+
+	void flush() {}
 
 	T	getSum() const { return (T)mSum; }
 
@@ -439,6 +595,7 @@ public:
 	TimeBlockAccumulator();
 	void addSamples(const self_t& other);
 	void reset(const self_t* other);
+	void flush() {}
 
 	//
 	// members
@@ -493,25 +650,44 @@ public:
 
 
 template <typename T = F64>
-class MeasurementStatHandle
-:	public TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >
+class EventStatHandle
+:	public TraceType<EventAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >
 {
 public:
 	typedef typename LLUnits::HighestPrecisionType<T>::type_t storage_t;
-	typedef TraceType<MeasurementAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> > trace_t;
+	typedef TraceType<EventAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> > trace_t;
 
-	MeasurementStatHandle(const char* name, const char* description = NULL) 
+	EventStatHandle(const char* name, const char* description = NULL)
 	:	trace_t(name, description)
 	{}
 };
 
 template<typename T, typename VALUE_T>
-void sample(MeasurementStatHandle<T>& measurement, VALUE_T value)
+void record(EventStatHandle<T>& measurement, VALUE_T value)
+{
+	T converted_value(value);
+	measurement.getPrimaryAccumulator()->record(LLUnits::rawValue(converted_value));
+}
+
+template <typename T = F64>
+class SampleStatHandle
+:	public TraceType<SampleAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >
+{
+public:
+	typedef typename LLUnits::HighestPrecisionType<T>::type_t storage_t;
+	typedef TraceType<SampleAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> > trace_t;
+
+	SampleStatHandle(const char* name, const char* description = NULL)
+	:	trace_t(name, description)
+	{}
+};
+
+template<typename T, typename VALUE_T>
+void sample(SampleStatHandle<T>& measurement, VALUE_T value)
 {
 	T converted_value(value);
 	measurement.getPrimaryAccumulator()->sample(LLUnits::rawValue(converted_value));
 }
-
 
 template <typename T = F64>
 class CountStatHandle
@@ -559,6 +735,8 @@ struct MemStatAccumulator
 		mAllocatedCount = 0;
 		mDeallocatedCount = 0;
 	}
+
+	void flush() {}
 
 	size_t		mSize,
 				mChildSize;

@@ -1244,7 +1244,7 @@ bool LLAppViewer::mainLoop()
 		LLTrace::get_frame_recording().nextPeriod();
 		LLTrace::TimeBlock::logStats();
 
-		LLTrace::getMasterThreadRecorder().pullFromSlaveThreads();
+		LLTrace::getUIThreadRecorder().pullFromSlaveThreads();
 
 		//clear call stack records
 		llclearcallstacks;

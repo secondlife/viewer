@@ -212,7 +212,7 @@ BOOL LLStatusBar::postBuild()
 	pgp.rect(r);
 	pgp.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
 	pgp.mouse_opaque(false);
-	pgp.stat.measurement_stat_float(&LLStatViewer::PACKETS_LOST_PERCENT);
+	pgp.stat.sample_stat_float(&LLStatViewer::PACKETS_LOST_PERCENT);
 	pgp.units("%");
 	pgp.min(0.f);
 	pgp.max(5.f);

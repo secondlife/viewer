@@ -65,8 +65,8 @@
 #include "bufferstream.h"
 
 bool LLTextureFetchDebugger::sDebuggerEnabled = false ;
-LLTrace::MeasurementStatHandle<> LLTextureFetch::sCacheHitRate("texture_cache_hits");
-LLTrace::MeasurementStatHandle<> LLTextureFetch::sCacheReadLatency("texture_cache_read_latency");
+LLTrace::SampleStatHandle<> LLTextureFetch::sCacheHitRate("texture_cache_hits");
+LLTrace::SampleStatHandle<> LLTextureFetch::sCacheReadLatency("texture_cache_read_latency");
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1833,7 +1833,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 	if (log_to_viewer_log || log_to_sim)
 	{
 		U64 timeNow = LLTimer::getTotalTime();
-		mFetcher->mTextureInfo.setRequestStartTime(mID, mMetricsStartTime);
+		mFetcher->mTextureInfo.setRequestStartTime(mID, mMetricsStartTime.value());
 		mFetcher->mTextureInfo.setRequestType(mID, LLTextureInfoDetails::REQUEST_TYPE_HTTP);
 		mFetcher->mTextureInfo.setRequestSize(mID, mRequestedSize);
 		mFetcher->mTextureInfo.setRequestOffset(mID, mRequestedOffset);
@@ -2278,7 +2278,7 @@ bool LLTextureFetchWorker::writeToCacheComplete()
 // Threads:  Ttf
 void LLTextureFetchWorker::recordTextureStart(bool is_http)
 {
-	if (! mMetricsStartTime)
+	if (! mMetricsStartTime.value())
 	{
 		mMetricsStartTime = LLViewerAssetStatsFF::get_timestamp();
 	}
@@ -2291,7 +2291,7 @@ void LLTextureFetchWorker::recordTextureStart(bool is_http)
 // Threads:  Ttf
 void LLTextureFetchWorker::recordTextureDone(bool is_http)
 {
-	if (mMetricsStartTime)
+	if (mMetricsStartTime.value())
 	{
 		LLViewerAssetStatsFF::record_response(LLViewerAssetType::AT_TEXTURE,
 													  is_http,

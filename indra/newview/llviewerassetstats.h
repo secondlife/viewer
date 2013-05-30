@@ -83,7 +83,7 @@ public:
 	 * for compatibility with the pre-existing timestamp on the texture
 	 * fetcher class, LLTextureFetch.
 	 */
-	typedef U64 duration_t;
+	typedef LLUnit<LLUnits::Microseconds, U64> duration_t;
 
 	/**
 	 * Type for the region identifier used in stats.  Currently uses
