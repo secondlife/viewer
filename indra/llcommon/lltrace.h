@@ -175,10 +175,12 @@ public:
 	// NOTE: this is not thread-safe.  We assume that slots are reserved in the main thread before any child threads are spawned
 	size_t reserveSlot()
 	{
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 		if (LLTrace::isInitialized())
 		{
 			llerrs << "Attempting to declare trace object after program initialization.  Trace objects should be statically initialized." << llendl;
 		}
+#endif
 		size_t next_slot = sNextStorageSlot++;
 		if (next_slot >= mStorageSize)
 		{
