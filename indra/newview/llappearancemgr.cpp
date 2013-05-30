@@ -3250,6 +3250,15 @@ void LLAppearanceMgr::incrementCofVersion(LLHTTPClient::ResponderPtr responder_p
 	LLHTTPClient::get(url, body, responder_ptr, headers, 30.0f);
 }
 
+U32 LLAppearanceMgr::getNumAttachmentsInCOF()
+{
+	const LLUUID cof = getCOF();
+	LLInventoryModel::item_array_t obj_items;
+	getDescendentsOfAssetType(cof, obj_items, LLAssetType::AT_OBJECT);
+	return obj_items.size();
+}
+
+
 std::string LLAppearanceMgr::getAppearanceServiceURL() const
 {
 	if (gSavedSettings.getString("DebugAvatarAppearanceServiceURLOverride").empty())
