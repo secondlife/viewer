@@ -167,7 +167,7 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 LLVOCacheEntry::~LLVOCacheEntry()
 {
 	mDP.freeBuffer();
-	llassert(mState == INACTIVE);
+	//llassert(mState == INACTIVE);
 }
 
 //virtual 
