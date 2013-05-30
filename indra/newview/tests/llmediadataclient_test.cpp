@@ -126,7 +126,9 @@ void LLHTTPClient::post(
 	result[LLTextureEntry::OBJECT_ID_KEY] = body[LLTextureEntry::OBJECT_ID_KEY];
 	if ( url == FAKE_OBJECT_MEDIA_CAP_URL_503 )
 	{
-		responder->error(HTTP_SERVICE_UNAVAILABLE, "fake reason");
+		LLSD content;
+		content["reason"] = "fake reason";
+		responder->errorWithContent(HTTP_SERVICE_UNAVAILABLE, "fake reason", content);
 		return;
 	}
 	else if (url == FAKE_OBJECT_MEDIA_NAVIGATE_CAP_URL_ERROR) 

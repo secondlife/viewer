@@ -55,6 +55,7 @@
 #include "lltrans.h"
 #include "llscrollcontainer.h"
 #include "llstatusbar.h"
+#include "llviewertexture.h"
 
 const S32 MINIMUM_PRICE_FOR_LISTING = 50;	// L$
 

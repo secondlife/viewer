@@ -1,5 +1,6 @@
 # -*- cmake -*-
 include(Prebuilt)
+include(FreeType)
 
 if (STANDALONE)
   include(FindPkgConfig)
@@ -47,6 +48,7 @@ else (STANDALONE)
         pangoft2-1.0
         pangox-1.0
         pangoxft-1.0
+        ${FREETYPE_LIBRARIES}
         )
   endif (LINUX)
 

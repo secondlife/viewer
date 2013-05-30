@@ -92,7 +92,7 @@ void nvapi_error(NvAPI_Status status)
 	llwarns << szDesc << llendl;
 
 	//should always trigger when asserts are enabled
-	llassert(status == NVAPI_OK);
+	//llassert(status == NVAPI_OK);
 }
 
 // Create app mutex creates a unique global windows object. 
@@ -509,9 +509,9 @@ bool LLAppViewerWin32::cleanup()
 	return result;
 }
 
-bool LLAppViewerWin32::initLogging()
+void LLAppViewerWin32::initLogging()
 {
-	return LLAppViewer::initLogging();
+	LLAppViewer::initLogging();
 }
 
 void LLAppViewerWin32::initConsole()

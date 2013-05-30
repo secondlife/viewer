@@ -91,6 +91,9 @@ template <> template <>
 void HttpStatusTestObjectType::test<2>()
 {
 	set_test_name("HttpStatus memory structure");
+#if LL_WINDOWS
+	skip("MAINT-2302: This frequently (though not always) fails on Windows.");
+#endif
 
 	// Require that an HttpStatus object can be trivially
 	// returned as a function return value in registers.
@@ -104,6 +107,9 @@ template <> template <>
 void HttpStatusTestObjectType::test<3>()
 {
 	set_test_name("HttpStatus valid error string conversion");
+#if LL_WINDOWS
+	skip("MAINT-2302: This frequently (though not always) fails on Windows.");
+#endif
 	
 	HttpStatus status;
 	status.mType = HttpStatus::EXT_CURL_EASY;
@@ -136,6 +142,9 @@ template <> template <>
 void HttpStatusTestObjectType::test<4>()
 {
 	set_test_name("HttpStatus invalid error string conversion");
+#if LL_WINDOWS
+	skip("MAINT-2302: This frequently (though not always) fails on Windows.");
+#endif
 	
 	HttpStatus status;
 	status.mType = HttpStatus::EXT_CURL_EASY;
@@ -161,6 +170,9 @@ template <> template <>
 void HttpStatusTestObjectType::test<5>()
 {
 	set_test_name("HttpStatus equality/inequality testing");
+#if LL_WINDOWS
+	skip("MAINT-2302: This frequently (though not always) fails on Windows.");
+#endif
 
 	// Make certain equality/inequality tests do not pass
 	// through the bool conversion.  Distinct successful
@@ -181,6 +193,9 @@ template <> template <>
 void HttpStatusTestObjectType::test<6>()
 {
 	set_test_name("HttpStatus basic HTTP status encoding");
+#if LL_WINDOWS
+	skip("MAINT-2302: This frequently (though not always) fails on Windows.");
+#endif
 	
 	HttpStatus status;
 	status.mType = 200;
@@ -228,6 +243,9 @@ template <> template <>
 void HttpStatusTestObjectType::test<7>()
 {
 	set_test_name("HttpStatus HTTP error text strings");
+#if LL_WINDOWS
+	skip("MAINT-2302: This frequently (though not always) fails on Windows.");
+#endif
 
 	HttpStatus status(100, HE_REPLY_ERROR);
 	std::string msg(status.toString());

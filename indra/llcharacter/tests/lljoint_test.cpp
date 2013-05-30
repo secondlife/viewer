@@ -150,11 +150,11 @@ namespace tut
 	template<> template<>
 	void lljoint_object::test<11>()
 	{
-		LLJoint lljoint("parent");
 		S32 joint_num = 12;
-		lljoint.setJointNum(joint_num);
+		LLJoint lljoint(joint_num);
+		lljoint.setName("parent");
 		S32 jointNum = 	lljoint.getJointNum();
-		ensure("setJointNum()/getJointNum failed ", (jointNum == joint_num));
+		ensure("getJointNum failed ", (jointNum == joint_num));
 	}
 
 	template<> template<>
