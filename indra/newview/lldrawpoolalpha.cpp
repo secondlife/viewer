@@ -144,8 +144,8 @@ void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 	
 	if (LLPipeline::sUnderWaterRender)
 	{
-		simple_shader = &gObjectSimpleWaterAlphaMaskProgram;
-		fullbright_shader = &gObjectFullbrightWaterAlphaMaskProgram;
+		simple_shader = &gObjectSimpleWaterProgram;
+		fullbright_shader = &gObjectFullbrightWaterProgram;
 		emissive_shader = &gObjectEmissiveWaterProgram;
 	}
 	else
