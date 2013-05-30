@@ -39,7 +39,7 @@
 
 namespace LLStatViewer
 {
-	LLTrace::MeasurementStatHandle<>		FPS_SAMPLE("fpssample");
+	LLTrace::SampleStatHandle<>		FPS_SAMPLE("fpssample");
 }
 
 void LLVOAvatar::getNearbyRezzedStats(std::vector<S32>& counts)
