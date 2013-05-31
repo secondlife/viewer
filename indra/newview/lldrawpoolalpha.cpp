@@ -94,7 +94,7 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 	if (pass == 0)
 	{
 		simple_shader = &gDeferredAlphaProgram;
-		fullbright_shader = &gObjectFullbrightAlphaMaskProgram;
+		fullbright_shader = &gObjectFullbrightProgram;
 
 		//prime simple shader (loads shadow relevant uniforms)
 		gPipeline.bindDeferredShader(*simple_shader);
@@ -150,8 +150,8 @@ void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 	}
 	else
 	{
-		simple_shader = &gObjectSimpleAlphaMaskProgram;
-		fullbright_shader = &gObjectFullbrightAlphaMaskProgram;
+		simple_shader = &gObjectSimpleProgram;
+		fullbright_shader = &gObjectFullbrightProgram;
 		emissive_shader = &gObjectEmissiveProgram;
 	}
 
