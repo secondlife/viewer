@@ -6013,9 +6013,12 @@ void LLVOAvatar::clearPhases()
 
 void LLVOAvatar::startPhase(const std::string& phase_name)
 {
-	F32 elapsed;
-	bool completed;
-	if (getPhases().getPhaseValues(phase_name, elapsed, completed))
+	F32 elapsed = 0.0;
+	bool completed = false;
+	bool found = getPhases().getPhaseValues(phase_name, elapsed, completed);
+	//LL_DEBUGS("Avatar") << avString() << " phase state " << phase_name
+	//					<< " found " << found << " elapsed " << elapsed << " completed " << completed << llendl;
+	if (found)
 	{
 		if (!completed)
 		{
@@ -6029,9 +6032,12 @@ void LLVOAvatar::startPhase(const std::string& phase_name)
 
 void LLVOAvatar::stopPhase(const std::string& phase_name, bool err_check)
 {
-	F32 elapsed;
-	bool completed;
-	if (getPhases().getPhaseValues(phase_name, elapsed, completed))
+	F32 elapsed = 0.0;
+	bool completed = false;
+	bool found = getPhases().getPhaseValues(phase_name, elapsed, completed);
+	//LL_DEBUGS("Avatar") << avString() << " phase state " << phase_name
+	//					<< " found " << found << " elapsed " << elapsed << " completed " << completed << llendl;
+	if (found)
 	{
 		if (!completed)
 		{

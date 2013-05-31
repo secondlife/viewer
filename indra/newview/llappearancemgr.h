@@ -71,6 +71,8 @@ public:
 									  LLInventoryModel::item_array_t& items_to_kill);
 	void enforceCOFItemRestrictions(LLPointer<LLInventoryCallback> cb);
 
+	S32 getActiveCopyOperations() const;
+	
 	// Copy all items and the src category itself.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
 							 LLPointer<LLInventoryCallback> cb);

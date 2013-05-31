@@ -246,6 +246,8 @@ bool LLVOAvatarSelf::checkStuckAppearance()
 		LL_DEBUGS("Avatar") << "change in progress for " << change_time << " seconds" << llendl;
 		S32 active_hp = LLAppearanceMgr::instance().countActiveHoldingPatterns();
 		LL_DEBUGS("Avatar") << "active holding patterns " << active_hp << " seconds" << llendl;
+		S32 active_copies = LLAppearanceMgr::instance().getActiveCopyOperations();
+		LL_DEBUGS("Avatar") << "active copy operations " << active_copies << llendl;
 	}
 
 	// Return false to continue running check periodically.
@@ -2369,7 +2371,6 @@ LLSD summarize_by_buckets(std::vector<LLSD> in_records,
 
 void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
 {
-	// gAgentAvatarp->stopAllPhases();
 	static volatile bool reporting_started(false);
 	static volatile S32 report_sequence(0);
 

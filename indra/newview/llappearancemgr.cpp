@@ -397,6 +397,12 @@ public:
 		LLCallAfterInventoryBatchMgr(dst_cat_id, phase_name, on_completion_func, on_failure_func, retry_after, max_retries)
 	{
 		addItems(src_items);
+		sInstanceCount++;
+	}
+
+	~LLCallAfterInventoryCopyMgr()
+	{
+		sInstanceCount--;
 	}
 	
 	virtual bool requestOperation(const LLUUID& item_id)
@@ -419,7 +425,14 @@ public:
 			);
 		return true;
 	}
+
+	static S32 getInstanceCount() { return sInstanceCount; }
+	
+private:
+	static S32 sInstanceCount;
 };
+
+S32 LLCallAfterInventoryCopyMgr::sInstanceCount = 0;
 
 LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy(bool update_base_outfit_ordering,
 														 bool enforce_item_restrictions,
@@ -2152,6 +2165,11 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 	callAfterCategoryFetch(category->getUUID(),boost::bind(&LLAppearanceMgr::wearCategoryFinal,
 														   &LLAppearanceMgr::instance(),
 														   category->getUUID(), copy, append));
+}
+
+S32 LLAppearanceMgr::getActiveCopyOperations() const
+{
+	return LLCallAfterInventoryCopyMgr::getInstanceCount(); 
 }
 
 void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool append)
