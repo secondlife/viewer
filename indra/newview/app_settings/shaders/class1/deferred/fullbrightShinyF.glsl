@@ -46,11 +46,13 @@ vec3 fullbrightScaleSoftClip(vec3 light);
 
 void main()
 {
-#ifdef diffuseLookup
+#if HAS_DIFFUSE_LOOKUP
 	vec4 color = diffuseLookup(vary_texcoord0.xy);
 #else
 	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
 #endif
+
+	
 	color.rgb *= vertex_color.rgb;
 	
 	vec3 envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;	

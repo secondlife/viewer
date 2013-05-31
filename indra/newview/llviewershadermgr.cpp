@@ -1495,7 +1495,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightShinyProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredFullbrightShinyProgram.mFeatures.hasGamma = true;
 		gDeferredFullbrightShinyProgram.mFeatures.hasTransport = true;
-		gDeferredFullbrightShinyProgram.mFeatures.mIndexedTextureChannels = 0;
+		gDeferredFullbrightShinyProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels-1;
 		gDeferredFullbrightShinyProgram.mShaderFiles.clear();
 		gDeferredFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyF.glsl", GL_FRAGMENT_SHADER_ARB));
