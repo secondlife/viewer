@@ -49,7 +49,7 @@ namespace LLTrace
 		void deactivate(Recording* recording);
 		active_recording_list_t::reverse_iterator bringUpToDate(Recording* recording);
 
-		virtual void pushToMaster() = 0;
+		virtual bool pushToMaster() = 0;
 
 		TimeBlockTreeNode* getTimeBlockTreeNode(S32 index);
 
@@ -80,19 +80,22 @@ namespace LLTrace
 		void addSlaveThread(class SlaveThreadRecorder* child);
 		void removeSlaveThread(class SlaveThreadRecorder* child);
 
-		/*virtual */ void pushToMaster();
+		/*virtual */ bool pushToMaster();
 
 		// call this periodically to gather stats data from slave threads
 		void pullFromSlaveThreads();
 
 		LLMutex* getSlaveListMutex() { return &mSlaveListMutex; }
 
+		U32	getPullCount() { return mPullCount; }
+
 	private:
 
 		typedef std::list<class SlaveThreadRecorder*> slave_thread_recorder_list_t;
 
-		slave_thread_recorder_list_t	mSlaveThreadRecorders;
-		LLMutex							mSlaveListMutex;
+		slave_thread_recorder_list_t	mSlaveThreadRecorders;	// list of slave thread recorders associated with this master
+		LLMutex							mSlaveListMutex;		// protects access to slave list
+		LLAtomicU32						mPullCount;				// number of times data has been pulled from slaves
 	};
 
 	class LL_COMMON_API SlaveThreadRecorder : public ThreadRecorder
@@ -102,7 +105,7 @@ namespace LLTrace
 		~SlaveThreadRecorder();
 
 		// call this periodically to gather stats data for master thread to consume
-		/*virtual*/ void pushToMaster();
+		/*virtual*/ bool pushToMaster();
 
 		MasterThreadRecorder* 	mMaster;
 
@@ -119,6 +122,7 @@ namespace LLTrace
 		};
 		SharedData				mSharedData;
 		MasterThreadRecorder&	mMasterRecorder;
+		U32						mPushCount;
 	};
 }
 

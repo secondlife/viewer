@@ -336,12 +336,12 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		typename T getPeriodMin(const TraceType<SampleAccumulator<T> >& stat, size_t num_periods = U32_MAX) const
+		T getPeriodMin(const TraceType<SampleAccumulator<T> >& stat, size_t num_periods = U32_MAX) const
 		{
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
 
-			typename T min_val = std::numeric_limits<T>::max();
+			T min_val = std::numeric_limits<T>::max();
 			for (S32 i = 1; i <= num_periods; i++)
 			{
 				S32 index = (mCurPeriod + total_periods - i) % total_periods;
@@ -351,7 +351,7 @@ namespace LLTrace
 		}
 		
 		template <typename T>
-		typename T getPeriodMin(const TraceType<EventAccumulator<T> >& stat, size_t num_periods = U32_MAX) const
+		T getPeriodMin(const TraceType<EventAccumulator<T> >& stat, size_t num_periods = U32_MAX) const
 		{
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);

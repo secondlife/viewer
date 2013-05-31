@@ -490,8 +490,9 @@ void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 	{
 		if (mAutoResize)
 		{
-			for (S32 other_index = (other.mCurPeriod + 2) % other_recording_count; 
-				other_index != other.mCurPeriod; 
+			for (S32 other_index = (other.mCurPeriod + 2) % other_recording_count,
+				end_index = (other.mCurPeriod + 1) % other_recording_count; 
+				other_index != end_index; 
 				other_index = (other_index + 1) % other_recording_count)
 			{
 				llassert(other.mRecordingPeriods[other_index].getDuration() != 0.f 
