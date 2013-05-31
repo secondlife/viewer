@@ -85,6 +85,7 @@ private:
 	// methods indirectly called by the updaters
 	void					updateFriendListHelpText();
 	void					updateFriendList();
+	void					updateSuggestedFriendList();
 	void					updateNearbyList();
 	void					updateRecentList();
 	void					updateFacebookList();
@@ -148,6 +149,7 @@ private:
 	LLTabContainer*			mTabContainer;
 	LLAvatarList*			mOnlineFriendList;
 	LLAvatarList*			mAllFriendList;
+	LLAvatarList*			mSuggestedFriends;
 	LLAvatarList*			mNearbyList;
 	LLAvatarList*			mRecentList;
 	LLGroupList*			mGroupList;

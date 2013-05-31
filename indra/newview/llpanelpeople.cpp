@@ -652,8 +652,11 @@ BOOL LLPanelPeople::postBuild()
 	// updater is active only if panel is visible to user.
 	friends_tab->setVisibleCallback(boost::bind(&Updater::setActive, mFriendListUpdater, _2));
     friends_tab->setVisibleCallback(boost::bind(&LLPanelPeople::removePicker, this));
+	friends_tab->setVisibleCallback(boost::bind(&Updater::setActive, mFacebookListUpdater, _2));
+
 	mOnlineFriendList = friends_tab->getChild<LLAvatarList>("avatars_online");
 	mAllFriendList = friends_tab->getChild<LLAvatarList>("avatars_all");
+	mSuggestedFriends = friends_tab->getChild<LLAvatarList>("suggested_friends");
 	mOnlineFriendList->setNoItemsCommentText(getString("no_friends_online"));
 	mOnlineFriendList->setShowIcons("FriendsListShowIcons");
 	mOnlineFriendList->showPermissions("FriendsListShowPermissions");
@@ -895,6 +898,35 @@ void LLPanelPeople::updateFriendList()
 	//update trash and other buttons according to a selected item
 	updateButtons();
 	showFriendsAccordionsIfNeeded();
+
+	updateSuggestedFriendList();
+}
+
+void LLPanelPeople::updateSuggestedFriendList()
+{
+	const LLAvatarTracker& av_tracker = LLAvatarTracker::instance();
+	uuid_vec_t& suggested_friends = mSuggestedFriends->getIDs();
+	suggested_friends.clear();
+
+	//Add suggested friends
+	LLSD friends = LLFacebookConnect::instance().getContent();
+	for (LLSD::map_const_iterator i = friends.beginMap(); i != friends.endMap(); ++i)
+	{
+		std::string name = i->second["name"].asString();
+		LLUUID agent_id = i->second.has("agent_id") ? i->second["agent_id"].asUUID() : LLUUID(NULL);
+		bool second_life_buddy = agent_id.notNull() ? av_tracker.isBuddy(agent_id) : false;
+
+		if(!second_life_buddy)
+		{
+			//FB+SL but not SL friend
+			if (agent_id.notNull())
+			{
+				suggested_friends.push_back(agent_id);
+			}
+		}
+	}
+
+	mSuggestedFriends->setDirty(true, true);
 }
 
 void LLPanelPeople::updateNearbyList()
@@ -973,6 +1005,8 @@ void LLPanelPeople::updateFacebookList()
 				}
 			}
         }
+
+		updateSuggestedFriendList();
     }
 }
 
