@@ -313,11 +313,6 @@ template<typename DERIVED_TYPE>
 class LLThreadLocalSingletonPointer
 {
 public:
-	void operator =(DERIVED_TYPE* value)
-	{
-		setInstance(value);
-	}
-    
 	LL_FORCE_INLINE static DERIVED_TYPE* getInstance()
 	{
 #if LL_DARWIN
@@ -328,7 +323,7 @@ public:
 #endif
 	}
 
-	LL_FORCE_INLINE static void setInstance(DERIVED_TYPE* instance)
+	static void setInstance(DERIVED_TYPE* instance)
 	{
 #if LL_DARWIN
         createTLSKey();
@@ -339,6 +334,7 @@ public:
 	}
 
 private:
+
 #if LL_WINDOWS
 	static __declspec(thread) DERIVED_TYPE* sInstance;
 #elif LL_LINUX

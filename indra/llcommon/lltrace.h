@@ -35,6 +35,7 @@
 #include "llunit.h"
 #include "llapr.h"
 #include "llthreadlocalstorage.h"
+#include "lltimer.h"
 
 #include <list>
 
@@ -75,7 +76,6 @@ void set_thread_recorder(class ThreadRecorder*);
 
 class MasterThreadRecorder& getUIThreadRecorder();
 
-// one per thread per type
 template<typename ACCUMULATOR>
 class AccumulatorBuffer : public LLRefCount
 {
@@ -104,9 +104,9 @@ public:
 
 	~AccumulatorBuffer()
 	{
-		if (LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance() == mStorage)
+		if (isPrimary())
 		{
-			LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(getDefaultBuffer()->mStorage);
+			LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(NULL);
 		}
 		delete[] mStorage;
 	}
@@ -169,7 +169,8 @@ public:
 
 	LL_FORCE_INLINE static ACCUMULATOR* getPrimaryStorage() 
 	{ 
-		return LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance(); 
+		ACCUMULATOR* accumulator = LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance();
+		return accumulator ? accumulator : sDefaultBuffer->mStorage;
 	}
 
 	// NOTE: this is not thread-safe.  We assume that slots are reserved in the main thread before any child threads are spawned
@@ -222,25 +223,27 @@ public:
 
 	static self_t* getDefaultBuffer()
 	{
-		// this buffer is allowed to leak so that trace calls from global destructors have somewhere to put their data
-		// so as not to trigger an access violation
-		static self_t* sBuffer = new AccumulatorBuffer(StaticAllocationMarker());
 		static bool sInitialized = false;
 		if (!sInitialized)
 		{
-			sBuffer->resize(DEFAULT_ACCUMULATOR_BUFFER_SIZE);
+			// this buffer is allowed to leak so that trace calls from global destructors have somewhere to put their data
+			// so as not to trigger an access violation
+			sDefaultBuffer = new AccumulatorBuffer(StaticAllocationMarker());
 			sInitialized = true;
+			sDefaultBuffer->resize(DEFAULT_ACCUMULATOR_BUFFER_SIZE);
 		}
-		return sBuffer;
+		return sDefaultBuffer;
 	}
 
 private:
 	ACCUMULATOR*	mStorage;
 	size_t			mStorageSize;
 	static size_t	sNextStorageSlot;
+	static self_t*	sDefaultBuffer;
 };
 
 template<typename ACCUMULATOR> size_t AccumulatorBuffer<ACCUMULATOR>::sNextStorageSlot = 0;
+template<typename ACCUMULATOR> AccumulatorBuffer<ACCUMULATOR>* AccumulatorBuffer<ACCUMULATOR>::sDefaultBuffer = NULL;
 
 template<typename ACCUMULATOR>
 class TraceType 
