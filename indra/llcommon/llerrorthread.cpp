@@ -106,7 +106,7 @@ void LLErrorThread::run()
 	// This thread sits and waits for the sole purpose
 	// of waiting for the signal/exception handlers to flag the
 	// application state as APP_STATUS_ERROR.
-	llinfos << "thread_error - Waiting for an error" << llendl;
+	//llinfos << "thread_error - Waiting for an error" << llendl;
 
 	S32 counter = 0;
 #if !LL_WINDOWS

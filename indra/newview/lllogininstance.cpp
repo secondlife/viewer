@@ -642,6 +642,8 @@ bool LLLoginInstance::handleLoginEvent(const LLSD& event)
 
 void LLLoginInstance::handleLoginFailure(const LLSD& event)
 {
+	
+
 	// Login has failed. 
 	// Figure out why and respond...
 	LLSD response = event["data"];
@@ -654,6 +656,8 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 	// to reconnect or to end the attempt in failure.
 	if(reason_response == "tos")
 	{
+		llinfos << "LLLoginInstance::handleLoginFailure ToS" << llendl;
+
 		LLSD data(LLSD::emptyMap());
 		data["message"] = message_response;
 		data["reply_pump"] = TOS_REPLY_PUMP;
@@ -666,6 +670,8 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 	}
 	else if(reason_response == "critical")
 	{
+		llinfos << "LLLoginInstance::handleLoginFailure Crit" << llendl;
+
 		LLSD data(LLSD::emptyMap());
 		data["message"] = message_response;
 		data["reply_pump"] = TOS_REPLY_PUMP;
@@ -687,21 +693,28 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 	}
 	else if(reason_response == "update" || gSavedSettings.getBOOL("ForceMandatoryUpdate"))
 	{
+		llinfos << "LLLoginInstance::handleLoginFailure update" << llendl;
+
 		gSavedSettings.setBOOL("ForceMandatoryUpdate", FALSE);
 		updateApp(true, message_response);
 	}
 	else if(reason_response == "optional")
 	{
+		llinfos << "LLLoginInstance::handleLoginFailure optional" << llendl;
+
 		updateApp(false, message_response);
 	}
 	else
 	{	
+		llinfos << "LLLoginInstance::handleLoginFailure attemptComplete" << llendl;
 		attemptComplete();
 	}	
 }
 
 void LLLoginInstance::handleLoginSuccess(const LLSD& event)
 {
+	llinfos << "LLLoginInstance::handleLoginSuccess" << llendl;
+
 	if(gSavedSettings.getBOOL("ForceMandatoryUpdate"))
 	{
 		LLSD response = event["data"];
@@ -745,12 +758,16 @@ bool LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
 {
 	if(accepted)
 	{	
+		llinfos << "LLLoginInstance::handleTOSResponse: accepted" << llendl;
+
 		// Set the request data to true and retry login.
 		mRequestData["params"][key] = true; 
 		reconnect();
 	}
 	else
 	{
+		llinfos << "LLLoginInstance::handleTOSResponse: attemptComplete" << llendl;
+
 		attemptComplete();
 	}
 
