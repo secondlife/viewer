@@ -95,7 +95,9 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 	{
 		simple_shader = &gDeferredAlphaProgram;
 		fullbright_shader = &gObjectFullbrightProgram;
-
+		fullbright_shader->bind();
+		fullbright_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f); 
+		fullbright_shader->unbind();
 		//prime simple shader (loads shadow relevant uniforms)
 		gPipeline.bindDeferredShader(*simple_shader);
 	}
