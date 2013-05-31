@@ -67,7 +67,7 @@ inline bool Check_FMOD_Error(FMOD_RESULT result, const char *string)
 {
 	if(result == FMOD_OK)
 		return false;
-	llwarns << string << " Error: " << FMOD_ErrorString(result) << llendl;
+	lldebugs << string << " Error: " << FMOD_ErrorString(result) << llendl;
 	return true;
 }
 
