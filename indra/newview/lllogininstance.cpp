@@ -661,7 +661,8 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 		LLSD data(LLSD::emptyMap());
 		data["message"] = message_response;
 		data["reply_pump"] = TOS_REPLY_PUMP;
-		gViewerWindow->setShowProgress(FALSE);
+		if (gViewerWindow)
+			gViewerWindow->setShowProgress(FALSE);
 		LLFloaterReg::showInstance("message_tos", data);
 		LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
 			.listen(TOS_LISTENER_NAME,
@@ -684,7 +685,9 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 			data["certificate"] = response["certificate"];
 		}
 		
-		gViewerWindow->setShowProgress(FALSE);
+		if (gViewerWindow)
+			gViewerWindow->setShowProgress(FALSE);
+
 		LLFloaterReg::showInstance("message_critical", data);
 		LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
 			.listen(TOS_LISTENER_NAME,
@@ -736,6 +739,8 @@ void LLLoginInstance::handleLoginSuccess(const LLSD& event)
 void LLLoginInstance::handleDisconnect(const LLSD& event)
 {
     // placeholder
+
+	llinfos << "LLLoginInstance::handleDisconnect placeholder " << llendl;
 }
 
 void LLLoginInstance::handleIndeterminate(const LLSD& event)
@@ -744,10 +749,13 @@ void LLLoginInstance::handleIndeterminate(const LLSD& event)
 	// gave the viewer a new url and params to try.
 	// The login module handles the retry, but it gives us the
 	// server response so that we may show
-	// the user some status.
+	// the user some status.	
+
 	LLSD message = event.get("data").get("message");
 	if(message.isDefined())
 	{
+		llinfos << "LLLoginInstance::handleIndeterminate " << message.asString() << llendl;
+
 		LLSD progress_update;
 		progress_update["desc"] = message;
 		LLEventPumps::getInstance()->obtain("LLProgressView").post(progress_update);

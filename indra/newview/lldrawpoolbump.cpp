@@ -921,6 +921,8 @@ void LLBumpImageList::init()
 	llassert( mDarknessEntries.size() == 0 );
 
 	LLStandardBumpmap::init();
+
+	LLStandardBumpmap::restoreGL();
 }
 
 void LLBumpImageList::clear()
