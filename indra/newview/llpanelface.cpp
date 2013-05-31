@@ -960,11 +960,11 @@ void LLPanelFace::updateUI()
 				}
 			}
             
-         if (shinytexture_ctrl && !shinytexture_ctrl->isPickerShown())
+         if (shinytexture_ctrl)
          {
 				// Can't use this test as we can't actually store SHINY_TEXTURE in the TEs *sigh*
 				//
-				if (identical_spec /*&& (shiny == SHINY_TEXTURE)*/)
+				if (identical_spec && (shiny == SHINY_TEXTURE))
 				{
 					shinytexture_ctrl->setTentative( FALSE );
 					shinytexture_ctrl->setEnabled( editable );
@@ -2041,6 +2041,17 @@ void LLPanelFace::onCommitMaterialType(LLUICtrl* ctrl, void* userdata)
     // like the texture ctrls for diffuse/norm/spec so that they are correct
     // when switching modes
     //
+
+	 LLTextureCtrl* texture_ctrl = self->getChild<LLTextureCtrl>("shinytexture control");
+	 if (texture_ctrl)
+		 texture_ctrl->clear();
+
+	 texture_ctrl = self->getChild<LLTextureCtrl>("bumpytexture control");
+	 if (texture_ctrl)
+		 texture_ctrl->clear();
+
+	 self->updateShinyControls(false,true);
+	 self->updateBumpyControls(false,true);
     self->updateUI();
 }
 
