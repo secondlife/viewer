@@ -104,6 +104,9 @@ bool LLAudioEngine_FMODEX::init(const S32 num_channels, void* userdata)
 	//if(Check_FMOD_Error(result, "FMOD::Memory_Initialize"))
 	//	return false;
 
+	// turn off non-error log spam to fmod.log (TODO: why do we even have an fmod.log if we don't link against log lib?)
+	FMOD::Debug_SetLevel(FMOD_DEBUG_LEVEL_ERROR);
+
 	result = FMOD::System_Create(&mSystem);
 	if(Check_FMOD_Error(result, "FMOD::System_Create"))
 		return false;
