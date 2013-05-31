@@ -247,7 +247,7 @@ void SlaveThreadRecorder::SharedData::reset()
 // MasterThreadRecorder
 ///////////////////////////////////////////////////////////////////////
 
-LLFastTimer::DeclareTimer FTM_PULL_TRACE_DATA_FROM_SLAVES("Pull slave trace data");
+static LLFastTimer::DeclareTimer FTM_PULL_TRACE_DATA_FROM_SLAVES("Pull slave trace data");
 void MasterThreadRecorder::pullFromSlaveThreads()
 {
 	LLFastTimer _(FTM_PULL_TRACE_DATA_FROM_SLAVES);

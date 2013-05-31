@@ -44,8 +44,6 @@ public:
 	LLSceneMonitor();
 	~LLSceneMonitor();
 
-	void destroyClass();
-	
 	void freezeAvatar(LLCharacter* avatarp);
 	void setDebugViewerVisible(bool visible);
 
@@ -62,9 +60,9 @@ public:
 	bool isEnabled()const {return mEnabled;}
 	bool needsUpdate() const;
 	
-	LLTrace::ExtendablePeriodicRecording* getRecording() const {return mRecording;}
+	const LLTrace::ExtendablePeriodicRecording* getRecording() const {return &mSceneLoadRecording;}
 	void dumpToFile(std::string file_name);
-	bool hasResults() const { return mRecording->getAcceptedRecording().getDuration() != 0;}
+	bool hasResults() const { return mSceneLoadRecording.getAcceptedRecording().getDuration() != 0;}
 
 private:
 	void freezeScene();
@@ -103,7 +101,8 @@ private:
 
 	std::vector<LLAnimPauseRequest> mAvatarPauseHandles;
 
-	LLTrace::ExtendablePeriodicRecording* mRecording;
+	LLTrace::ExtendablePeriodicRecording mSceneLoadRecording;
+	LLTrace::Recording					 mMonitorRecording;
 };
 
 class LLSceneMonitorView : public LLFloater

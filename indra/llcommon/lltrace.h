@@ -504,9 +504,11 @@ public:
 		LLUnitImplicit<LLUnits::Seconds, F64> time_stamp = LLTimer::getTotalSeconds();
 		LLUnitImplicit<LLUnits::Seconds, F64> delta_time = time_stamp - mLastSampleTimeStamp;
 
-		mSum += (F64)mLastValue * delta_time;
-
-		mTotalSamplingTime += delta_time;
+		if (mHasValue)
+		{
+			mSum += (F64)mLastValue * delta_time;
+			mTotalSamplingTime += delta_time;
+		}
 		mLastSampleTimeStamp = time_stamp;
 	}
 

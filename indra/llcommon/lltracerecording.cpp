@@ -538,7 +538,7 @@ void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 	other.setPlayState(other_play_state);
 }
 
-LLUnit<LLUnits::Seconds, F64> PeriodicRecording::getDuration()
+LLUnit<LLUnits::Seconds, F64> PeriodicRecording::getDuration() const
 {
 	LLUnit<LLUnits::Seconds, F64> duration;
 	size_t num_periods = mRecordingPeriods.size();

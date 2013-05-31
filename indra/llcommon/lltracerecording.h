@@ -308,7 +308,7 @@ namespace LLTrace
 		void nextPeriod();
 		U32 getNumPeriods() { return mRecordingPeriods.size(); }
 
-		LLUnit<LLUnits::Seconds, F64> getDuration();
+		LLUnit<LLUnits::Seconds, F64> getDuration() const;
 
 		void appendPeriodicRecording(PeriodicRecording& other);
 		Recording& getLastRecording();
@@ -356,7 +356,7 @@ namespace LLTrace
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
 
-			typename T min_val = std::numeric_limits<T>::max();
+			T min_val = std::numeric_limits<T>::max();
 			for (S32 i = 1; i <= num_periods; i++)
 			{
 				S32 index = (mCurPeriod + total_periods - i) % total_periods;
@@ -397,7 +397,7 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		typename T getPeriodMax(const TraceType<SampleAccumulator<T> >& stat, size_t num_periods = U32_MAX) const
+		T getPeriodMax(const TraceType<SampleAccumulator<T> >& stat, size_t num_periods = U32_MAX) const
 		{
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
@@ -412,7 +412,7 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		typename T getPeriodMax(const TraceType<EventAccumulator<T> >& stat, size_t num_periods = U32_MAX) const
+		T getPeriodMax(const TraceType<EventAccumulator<T> >& stat, size_t num_periods = U32_MAX) const
 		{
 			size_t total_periods = mRecordingPeriods.size();
 			num_periods = llmin(num_periods, total_periods);
@@ -551,7 +551,6 @@ namespace LLTrace
 
 	private:
 		std::vector<Recording>	mRecordingPeriods;
-		Recording	mTotalRecording;
 		const bool	mAutoResize;
 		S32			mCurPeriod;
 	};

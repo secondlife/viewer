@@ -471,6 +471,9 @@ struct Hertz { typedef Hertz base_unit_t; };
 LL_DECLARE_DERIVED_UNIT(1000, Hertz, Kilohertz);
 LL_DECLARE_DERIVED_UNIT(1000 * 1000, Hertz, Megahertz);
 LL_DECLARE_DERIVED_UNIT(1000 * 1000 * 1000, Hertz, Gigahertz);
+
+struct Radians { typedef Radians base_unit_t; };
+LL_DECLARE_DERIVED_UNIT(DEG_TO_RAD, Radians, Degrees);
 } // namespace LLUnits
 
 #endif // LL_LLUNIT_H

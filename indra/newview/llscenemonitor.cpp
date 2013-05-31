@@ -67,22 +67,13 @@ LLSceneMonitor::LLSceneMonitor() :
 {
 	mFrames[0] = NULL;
 	mFrames[1] = NULL;
-
-	mRecording = new LLTrace::ExtendablePeriodicRecording();
 }
 
 LLSceneMonitor::~LLSceneMonitor()
 {
 	mDiffState = VIEWER_QUITTING;
-	destroyClass();
-}
-
-void LLSceneMonitor::destroyClass()
-{
 	reset();
 
-	delete mRecording;
-	mRecording = NULL;
 	mDitheringTexture = NULL;
 }
 
@@ -96,7 +87,8 @@ void LLSceneMonitor::reset()
 	mFrames[1] = NULL;
 	mDiff = NULL;
 
-	mRecording->reset();
+	mMonitorRecording.reset();
+	mSceneLoadRecording.reset();
 
 	unfreezeScene();
 
@@ -269,10 +261,9 @@ void LLSceneMonitor::capture()
 	static LLCachedControl<F32>  scene_load_sample_time(gSavedSettings, "SceneLoadingMonitorSampleTime");
 	static LLFrameTimer timer;	
 
-	LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
 	if (mEnabled 
-		&&	(last_frame_recording.getSum(*LLViewerCamera::getVelocityStat()) > 0.001f
-			|| last_frame_recording.getSum(*LLViewerCamera::getAngularVelocityStat()) > 0.01f))
+		&&	(mMonitorRecording.getSum(*LLViewerCamera::getVelocityStat()) > 0.1f
+			|| mMonitorRecording.getSum(*LLViewerCamera::getAngularVelocityStat()) > 0.05f))
 	{
 		reset();
 		freezeScene();
@@ -299,7 +290,8 @@ void LLSceneMonitor::capture()
 		&& LLGLSLShader::sNoFixedFunction
 		&& last_capture_time != gFrameCount)
 	{
-		mRecording->resume();
+		mSceneLoadRecording.resume();
+		mMonitorRecording.resume();
 
 		timer.reset();
 
@@ -486,13 +478,13 @@ void LLSceneMonitor::fetchQueryResult()
 			static LLCachedControl<F32> diff_threshold(gSavedSettings,"SceneLoadingPixelDiffThreshold");
 			if(mDiffResult > diff_threshold())
 			{
-				mRecording->extend();
-				llassert(mRecording->getAcceptedRecording().getLastRecording().getSum(LLStatViewer::FPS));
+				mSceneLoadRecording.extend();
+				llassert(mSceneLoadRecording.getAcceptedRecording().getLastRecording().getSum(LLStatViewer::FPS));
 			}
 			else
 			{
-				mRecording->getPotentialRecording().nextPeriod();
-				llassert(mRecording->getPotentialRecording().getLastRecording().getSum(LLStatViewer::FPS));
+				mSceneLoadRecording.getPotentialRecording().nextPeriod();
+				llassert(mSceneLoadRecording.getPotentialRecording().getLastRecording().getSum(LLStatViewer::FPS));
 			}
 		}
 	}
@@ -501,13 +493,15 @@ void LLSceneMonitor::fetchQueryResult()
 //dump results to a file _scene_xmonitor_results.csv
 void LLSceneMonitor::dumpToFile(std::string file_name)
 {
+	if (!hasResults()) return;
+
 	LL_INFOS("SceneMonitor") << "Saving scene load stats to " << file_name << LL_ENDL; 
 
 	std::ofstream os(file_name.c_str());
 
 	os << std::setprecision(4);
 
-	LLTrace::PeriodicRecording& scene_load_recording = mRecording->getAcceptedRecording();
+	LLTrace::PeriodicRecording& scene_load_recording = mSceneLoadRecording.getAcceptedRecording();
 	U32 frame_count = scene_load_recording.getNumPeriods();
 
 	LLUnit<LLUnits::Seconds, F64> frame_time;
