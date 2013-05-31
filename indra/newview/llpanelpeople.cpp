@@ -830,7 +830,7 @@ void LLPanelPeople::updateFriendListHelpText()
 
 	// Seems sometimes all_friends can be empty because of issue with Inventory loading (clear cache, slow connection...)
 	// So, lets check all lists to avoid overlapping the text with online list. See EXT-6448.
-	bool any_friend_exists = mAllFriendList->filterHasMatches() || mOnlineFriendList->filterHasMatches();
+	bool any_friend_exists = mAllFriendList->filterHasMatches() || mOnlineFriendList->filterHasMatches() || mSuggestedFriends->filterHasMatches();
 	no_friends_text->setVisible(!any_friend_exists);
 	if (no_friends_text->getVisible())
 	{
@@ -897,9 +897,8 @@ void LLPanelPeople::updateFriendList()
 	mAllFriendList->setDirty(true, !mAllFriendList->filterHasMatches());
 	//update trash and other buttons according to a selected item
 	updateButtons();
-	showFriendsAccordionsIfNeeded();
-
 	updateSuggestedFriendList();
+	showFriendsAccordionsIfNeeded();
 }
 
 void LLPanelPeople::updateSuggestedFriendList()
@@ -926,7 +925,9 @@ void LLPanelPeople::updateSuggestedFriendList()
 		}
 	}
 
-	mSuggestedFriends->setDirty(true, true);
+	//Force a refresh when there aren't any filter matches (prevent displaying content that shouldn't display)
+	mSuggestedFriends->setDirty(true, !mSuggestedFriends->filterHasMatches());
+	showFriendsAccordionsIfNeeded();
 }
 
 void LLPanelPeople::updateNearbyList()
@@ -1007,6 +1008,7 @@ void LLPanelPeople::updateFacebookList()
         }
 
 		updateSuggestedFriendList();
+		showFriendsAccordionsIfNeeded();
     }
 }
 
@@ -1230,9 +1232,11 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
 
 		mOnlineFriendList->setNameFilter(filter);
 		mAllFriendList->setNameFilter(filter);
+		mSuggestedFriends->setNameFilter(filter);
 
         setAccordionCollapsedByUser("tab_online", false);
         setAccordionCollapsedByUser("tab_all", false);
+		setAccordionCollapsedByUser("tab_suggested_friends", false);
         showFriendsAccordionsIfNeeded();
 
 		// restore accordion tabs state _after_ all manipulations
@@ -1623,6 +1627,7 @@ void LLPanelPeople::showFriendsAccordionsIfNeeded()
 		// Expand and show accordions if needed, else - hide them
 		showAccordion("tab_online", mOnlineFriendList->filterHasMatches());
 		showAccordion("tab_all", mAllFriendList->filterHasMatches());
+		showAccordion("tab_suggested_friends", mSuggestedFriends->filterHasMatches());
 
 		// Rearrange accordions
 		LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("friends_accordion");
