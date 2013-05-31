@@ -2041,17 +2041,6 @@ void LLPanelFace::onCommitMaterialType(LLUICtrl* ctrl, void* userdata)
     // like the texture ctrls for diffuse/norm/spec so that they are correct
     // when switching modes
     //
-
-	 LLTextureCtrl* texture_ctrl = self->getChild<LLTextureCtrl>("shinytexture control");
-	 if (texture_ctrl)
-		 texture_ctrl->clear();
-
-	 texture_ctrl = self->getChild<LLTextureCtrl>("bumpytexture control");
-	 if (texture_ctrl)
-		 texture_ctrl->clear();
-
-	 self->updateShinyControls(false,true);
-	 self->updateBumpyControls(false,true);
     self->updateUI();
 }
 
