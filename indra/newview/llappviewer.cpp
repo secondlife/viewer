@@ -1578,10 +1578,7 @@ bool LLAppViewer::cleanup()
 	LLEventPumps::instance().reset();
 
 	//dump scene loading monitor results
-	if(LLSceneMonitor::instance().hasResults())
-	{
-		LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
-	}
+	LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
 
 	if (LLFastTimerView::sAnalyzePerformance)
 	{
