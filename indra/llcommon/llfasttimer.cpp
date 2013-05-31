@@ -180,6 +180,7 @@ TimeBlockTreeNode& TimeBlock::getTreeNode() const
 
 static LLFastTimer::DeclareTimer FTM_PROCESS_TIMES("Process FastTimer Times");
 
+// not thread safe, so only call on main thread
 //static
 void TimeBlock::processTimes()
 {
@@ -195,8 +196,8 @@ void TimeBlock::processTimes()
 		TimeBlock& timer = *it;
 		if (&timer == &TimeBlock::getRootTimeBlock()) continue;
 			
-			// bootstrap tree construction by attaching to last timer to be on stack
-			// when this timer was called
+		// bootstrap tree construction by attaching to last timer to be on stack
+		// when this timer was called
 		if (timer.getParent() == &TimeBlock::getRootTimeBlock())
 		{
 			TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
@@ -233,30 +234,30 @@ void TimeBlock::processTimes()
 			TimeBlockAccumulator* accumulator = timerp->getPrimaryAccumulator();
 
 			if (accumulator->mMoveUpTree)
-		{
+			{
 				// since ancestors have already been visited, re-parenting won't affect tree traversal
-			//step up tree, bringing our descendants with us
-			LL_DEBUGS("FastTimers") << "Moving " << timerp->getName() << " from child of " << timerp->getParent()->getName() <<
-				" to child of " << timerp->getParent()->getParent()->getName() << LL_ENDL;
-			timerp->setParent(timerp->getParent()->getParent());
-				accumulator->mParent = timerp->getParent();
-				accumulator->mMoveUpTree = false;
+				//step up tree, bringing our descendants with us
+				LL_DEBUGS("FastTimers") << "Moving " << timerp->getName() << " from child of " << timerp->getParent()->getName() <<
+					" to child of " << timerp->getParent()->getParent()->getName() << LL_ENDL;
+				timerp->setParent(timerp->getParent()->getParent());
+					accumulator->mParent = timerp->getParent();
+					accumulator->mMoveUpTree = false;
 
-			// don't bubble up any ancestors until descendants are done bubbling up
-				// as ancestors may call this timer only on certain paths, so we want to resolve
-				// child-most block locations before their parents
-			it.skipAncestors();
+				// don't bubble up any ancestors until descendants are done bubbling up
+					// as ancestors may call this timer only on certain paths, so we want to resolve
+					// child-most block locations before their parents
+				it.skipAncestors();
+			}
 		}
 	}
-}
 
 	// walk up stack of active timers and accumulate current time while leaving timing structures active
 	BlockTimerStackRecord* stack_record			= ThreadTimerStack::getInstance();
 	BlockTimer* cur_timer						= stack_record->mActiveTimer;
 	TimeBlockAccumulator* accumulator = stack_record->mTimeBlock->getPrimaryAccumulator();
 
-	// root defined by parent pointing to self
-	while(cur_timer && cur_timer->mParentTimerData.mActiveTimer != cur_timer)
+	while(cur_timer 
+		&& cur_timer->mParentTimerData.mActiveTimer != cur_timer) // root defined by parent pointing to self
 	{
 		U64 cumulative_time_delta = cur_time - cur_timer->mStartTime;
 		accumulator->mTotalTimeCounter += cumulative_time_delta - (accumulator->mTotalTimeCounter - cur_timer->mBlockStartTotalTimeCounter);
@@ -413,8 +414,11 @@ TimeBlockAccumulator::TimeBlockAccumulator()
 	mParent(NULL)
 {}
 
-void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other )
+void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other, bool append )
 {
+	// we can't merge two unrelated time block samples, as that will screw with the nested timings
+	// due to the call hierarchy of each thread
+	llassert(append);
 	mTotalTimeCounter += other.mTotalTimeCounter - other.mStartTotalTimeCounter;
 	mSelfTimeCounter += other.mSelfTimeCounter;
 	mCalls += other.mCalls;

@@ -121,12 +121,12 @@ public:
 		return mStorage[index]; 
 	}
 
-	void addSamples(const AccumulatorBuffer<ACCUMULATOR>& other)
+	void addSamples(const AccumulatorBuffer<ACCUMULATOR>& other, bool append = true)
 	{
 		llassert(mStorageSize >= sNextStorageSlot && other.mStorageSize > sNextStorageSlot);
 		for (size_t i = 0; i < sNextStorageSlot; i++)
 		{
-			mStorage[i].addSamples(other.mStorage[i]);
+			mStorage[i].addSamples(other.mStorage[i], append);
 		}
 	}
 
@@ -310,7 +310,7 @@ public:
 		mLastValue = value;
 	}
 
-	void addSamples(const self_t& other)
+	void addSamples(const self_t& other, bool append)
 	{
 		if (other.mNumSamples)
 		{
@@ -350,7 +350,7 @@ public:
 			F64 weight = (F64)mNumSamples / (F64)(mNumSamples + other.mNumSamples);
 			mNumSamples += other.mNumSamples;
 			mMean = mMean * weight + other.mMean * (1.f - weight);
-			mLastValue = other.mLastValue;
+			if (append) mLastValue = other.mLastValue;
 		}
 	}
 
@@ -434,7 +434,7 @@ public:
 		mHasValue = true;
 	}
 
-	void addSamples(const self_t& other)
+	void addSamples(const self_t& other, bool append)
 	{
 		if (other.mTotalSamplingTime)
 		{
@@ -476,9 +476,12 @@ public:
 			mNumSamples += other.mNumSamples;
 			mTotalSamplingTime += other.mTotalSamplingTime;
 			mMean = (mMean * weight) + (other.mMean * (1.0 - weight));
-			mLastValue = other.mLastValue;
-			mLastSampleTimeStamp = other.mLastSampleTimeStamp;
-			mHasValue |= other.mHasValue;
+			if (append)
+			{
+				mLastValue = other.mLastValue;
+				mLastSampleTimeStamp = other.mLastSampleTimeStamp;
+				mHasValue |= other.mHasValue;
+			}
 		}
 	}
 
@@ -551,7 +554,7 @@ public:
 		mSum += value;
 	}
 
-	void addSamples(const CountAccumulator<T>& other)
+	void addSamples(const CountAccumulator<T>& other, bool /*append*/)
 	{
 		mSum += other.mSum;
 		mNumSamples += other.mNumSamples;
@@ -596,7 +599,7 @@ public:
 	};
 
 	TimeBlockAccumulator();
-	void addSamples(const self_t& other);
+	void addSamples(const self_t& other, bool /*append*/);
 	void reset(const self_t* other);
 	void flush() {}
 
@@ -716,6 +719,8 @@ void add(CountStatHandle<T>& count, VALUE_T value)
 
 struct MemStatAccumulator
 {
+	typedef MemStatAccumulator self_t;
+
 	MemStatAccumulator()
 	:	mSize(0),
 		mChildSize(0),
@@ -723,7 +728,7 @@ struct MemStatAccumulator
 		mDeallocatedCount(0)
 	{}
 
-	void addSamples(const MemStatAccumulator& other)
+	void addSamples(const MemStatAccumulator& other, bool /*append*/)
 	{
 		mSize += other.mSize;
 		mChildSize += other.mChildSize;

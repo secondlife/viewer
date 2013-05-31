@@ -1241,6 +1241,7 @@ bool LLAppViewer::mainLoop()
 	while (!LLApp::isExiting())
 	{
 		LLFastTimer _(FTM_FRAME);
+		LLTrace::TimeBlock::processTimes();
 		LLTrace::get_frame_recording().nextPeriod();
 		LLTrace::TimeBlock::logStats();
 

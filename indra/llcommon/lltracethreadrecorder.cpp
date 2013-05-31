@@ -202,21 +202,14 @@ SlaveThreadRecorder::~SlaveThreadRecorder()
 	mMasterRecorder.removeSlaveThread(this);
 }
 
-bool SlaveThreadRecorder::pushToMaster()
+void SlaveThreadRecorder::pushToMaster()
 {
-	if (mPushCount != mMasterRecorder.getPullCount())
+	mThreadRecording.stop();
 	{
-		mThreadRecording.stop();
-		{
-			LLMutexLock(mMasterRecorder.getSlaveListMutex());
-			mSharedData.appendFrom(mThreadRecording);
-		}
-		mThreadRecording.start();
-
-		mPushCount = mMasterRecorder.getPullCount();
-		return true;
+		LLMutexLock(mMasterRecorder.getSlaveListMutex());
+		mSharedData.appendFrom(mThreadRecording);
 	}
-	return false;
+	mThreadRecording.start();
 }
 
 void SlaveThreadRecorder::SharedData::appendFrom( const Recording& source )
@@ -271,8 +264,6 @@ void MasterThreadRecorder::pullFromSlaveThreads()
 		(*it)->mSharedData.mergeTo(target_recording_buffers);
 		(*it)->mSharedData.reset();
 	}
-
-	mPullCount++;
 }
 
 void MasterThreadRecorder::addSlaveThread( class SlaveThreadRecorder* child )
@@ -298,10 +289,8 @@ void MasterThreadRecorder::removeSlaveThread( class SlaveThreadRecorder* child )
 	}
 }
 
-bool MasterThreadRecorder::pushToMaster()
-{
-	return false;
-}
+void MasterThreadRecorder::pushToMaster()
+{}
 
 MasterThreadRecorder::MasterThreadRecorder()
 {}

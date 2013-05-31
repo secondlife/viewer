@@ -97,13 +97,15 @@ void RecordingBuffers::append( const RecordingBuffers& other )
 
 void RecordingBuffers::merge( const RecordingBuffers& other)
 {
-	mCountsFloat.addSamples(other.mCountsFloat);
-	mCounts.addSamples(other.mCounts);
-	mSamplesFloat.addSamples(other.mSamplesFloat);
-	mSamples.addSamples(other.mSamples);
-	mEventsFloat.addSamples(other.mEventsFloat);
-	mEvents.addSamples(other.mEvents);
-	mMemStats.addSamples(other.mMemStats);
+	mCountsFloat.addSamples(other.mCountsFloat, false);
+	mCounts.addSamples(other.mCounts, false);
+	mSamplesFloat.addSamples(other.mSamplesFloat, false);
+	mSamples.addSamples(other.mSamples, false);
+	mEventsFloat.addSamples(other.mEventsFloat, false);
+	mEvents.addSamples(other.mEvents, false);
+	mMemStats.addSamples(other.mMemStats, false);
+	// for now, hold out timers from merge, need to be displayed per thread
+	//mStackTimers.addSamples(other.mStackTimers, false);
 }
 
 void RecordingBuffers::reset(RecordingBuffers* other)
@@ -190,7 +192,6 @@ void Recording::handleStop()
 {
 	mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
 	mBuffers.write()->flush();
-	LLTrace::TimeBlock::processTimes();
 	LLTrace::get_thread_recorder()->deactivate(this);
 }
 
