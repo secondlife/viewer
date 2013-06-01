@@ -286,13 +286,13 @@ LLViewerAssetStats::LLViewerAssetStats(const LLViewerAssetStats & src)
 	mRegionRecordings = src.mRegionRecordings;
 
 	mCurRecording = &mRegionRecordings[mRegionHandle];
-	mCurRecording->stop();
 
 	// assume this is being passed to another thread, so make sure we have unique copies of recording data
 	for (PerRegionRecordingContainer::iterator it = mRegionRecordings.begin(), end_it = mRegionRecordings.end();
 		it != end_it;
 		++it)
 	{
+		it->second.stop();
 		it->second.makeUnique();
 	}
 

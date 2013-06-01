@@ -221,88 +221,101 @@ void Recording::mergeRecording( const Recording& other)
 	setPlayState(play_state);
 }
 
-LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumulator>& stat) const
+LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumulator>& stat)
 {
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
+	update();
 	return (F64)(accumulator.mTotalTimeCounter - accumulator.mStartTotalTimeCounter) 
 				/ (F64)LLTrace::TimeBlock::countsPerSecond();
 }
 
-LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat) const
+LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat)
 {
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
+	update();
 	return (F64)(accumulator.mSelfTimeCounter) / (F64)LLTrace::TimeBlock::countsPerSecond();
 }
 
 
-U32 Recording::getSum(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat) const
+U32 Recording::getSum(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat)
 {
+	update();
 	return mBuffers->mStackTimers[stat.getIndex()].mCalls;
 }
 
-LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccumulator>& stat) const
+LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccumulator>& stat)
 {
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 
+	update();
 	return (F64)(accumulator.mTotalTimeCounter - accumulator.mStartTotalTimeCounter) 
 				/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds);
 }
 
-LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat) const
+LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat)
 {
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 
+	update();
 	return (F64)(accumulator.mSelfTimeCounter) 
 			/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds);
 }
 
-F32 Recording::getPerSec(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat) const
+F32 Recording::getPerSec(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat)
 {
+	update();
 	return (F32)mBuffers->mStackTimers[stat.getIndex()].mCalls / mElapsedSeconds;
 }
 
-LLUnit<LLUnits::Bytes, U32> Recording::getSum(const TraceType<MemStatAccumulator>& stat) const
+LLUnit<LLUnits::Bytes, U32> Recording::getSum(const TraceType<MemStatAccumulator>& stat)
 {
+	update();
 	return mBuffers->mMemStats[stat.getIndex()].mAllocatedCount;
 }
 
-LLUnit<LLUnits::Bytes, F32> Recording::getPerSec(const TraceType<MemStatAccumulator>& stat) const
+LLUnit<LLUnits::Bytes, F32> Recording::getPerSec(const TraceType<MemStatAccumulator>& stat)
 {
+	update();
 	return (F32)mBuffers->mMemStats[stat.getIndex()].mAllocatedCount / mElapsedSeconds;
 }
 
 
-F64 Recording::getSum( const TraceType<CountAccumulator<F64> >& stat ) const
+F64 Recording::getSum( const TraceType<CountAccumulator<F64> >& stat )
 {
+	update();
 	return mBuffers->mCountsFloat[stat.getIndex()].getSum();
 }
 
-S64 Recording::getSum( const TraceType<CountAccumulator<S64> >& stat ) const
+S64 Recording::getSum( const TraceType<CountAccumulator<S64> >& stat )
 {
+	update();
 	return mBuffers->mCounts[stat.getIndex()].getSum();
 }
 
-F64 Recording::getSum( const TraceType<EventAccumulator<F64> >& stat ) const
+F64 Recording::getSum( const TraceType<EventAccumulator<F64> >& stat )
 {
+	update();
 	return (F64)mBuffers->mEventsFloat[stat.getIndex()].getSum();
 }
 
-S64 Recording::getSum( const TraceType<EventAccumulator<S64> >& stat ) const
+S64 Recording::getSum( const TraceType<EventAccumulator<S64> >& stat )
 {
+	update();
 	return (S64)mBuffers->mEvents[stat.getIndex()].getSum();
 }
 
 
 
-F64 Recording::getPerSec( const TraceType<CountAccumulator<F64> >& stat ) const
+F64 Recording::getPerSec( const TraceType<CountAccumulator<F64> >& stat )
 {
+	update();
 	F64 sum = mBuffers->mCountsFloat[stat.getIndex()].getSum();
 	return  (sum != 0.0) 
 		? (sum / mElapsedSeconds)
 		: 0.0;
 }
 
-F64 Recording::getPerSec( const TraceType<CountAccumulator<S64> >& stat ) const
+F64 Recording::getPerSec( const TraceType<CountAccumulator<S64> >& stat )
 {
 	S64 sum = mBuffers->mCounts[stat.getIndex()].getSum();
 	return (sum != 0) 
@@ -310,133 +323,159 @@ F64 Recording::getPerSec( const TraceType<CountAccumulator<S64> >& stat ) const
 		: 0.0;
 }
 
-U32 Recording::getSampleCount( const TraceType<CountAccumulator<F64> >& stat ) const
+U32 Recording::getSampleCount( const TraceType<CountAccumulator<F64> >& stat )
 {
+	update();
 	return mBuffers->mCountsFloat[stat.getIndex()].getSampleCount();
 }
 
-U32 Recording::getSampleCount( const TraceType<CountAccumulator<S64> >& stat ) const
+U32 Recording::getSampleCount( const TraceType<CountAccumulator<S64> >& stat )
 {
+	update();
 	return mBuffers->mCounts[stat.getIndex()].getSampleCount();
 }
 
-F64 Recording::getMin( const TraceType<SampleAccumulator<F64> >& stat ) const
+F64 Recording::getMin( const TraceType<SampleAccumulator<F64> >& stat )
 {
+	update();
 	return mBuffers->mSamplesFloat[stat.getIndex()].getMin();
 }
 
-S64 Recording::getMin( const TraceType<SampleAccumulator<S64> >& stat ) const
+S64 Recording::getMin( const TraceType<SampleAccumulator<S64> >& stat )
 {
+	update();
 	return mBuffers->mSamples[stat.getIndex()].getMin();
 }
 
-F64 Recording::getMax( const TraceType<SampleAccumulator<F64> >& stat ) const
+F64 Recording::getMax( const TraceType<SampleAccumulator<F64> >& stat )
 {
+	update();
 	return mBuffers->mSamplesFloat[stat.getIndex()].getMax();
 }
 
-S64 Recording::getMax( const TraceType<SampleAccumulator<S64> >& stat ) const
+S64 Recording::getMax( const TraceType<SampleAccumulator<S64> >& stat )
 {
+	update();
 	return mBuffers->mSamples[stat.getIndex()].getMax();
 }
 
-F64 Recording::getMean( const TraceType<SampleAccumulator<F64> >& stat ) const
+F64 Recording::getMean( const TraceType<SampleAccumulator<F64> >& stat )
 {
+	update();
 	return mBuffers->mSamplesFloat[stat.getIndex()].getMean();
 }
 
-F64 Recording::getMean( const TraceType<SampleAccumulator<S64> >& stat ) const
+F64 Recording::getMean( const TraceType<SampleAccumulator<S64> >& stat )
 {
+	update();
 	return mBuffers->mSamples[stat.getIndex()].getMean();
 }
 
-F64 Recording::getStandardDeviation( const TraceType<SampleAccumulator<F64> >& stat ) const
+F64 Recording::getStandardDeviation( const TraceType<SampleAccumulator<F64> >& stat )
 {
+	update();
 	return mBuffers->mSamplesFloat[stat.getIndex()].getStandardDeviation();
 }
 
-F64 Recording::getStandardDeviation( const TraceType<SampleAccumulator<S64> >& stat ) const
+F64 Recording::getStandardDeviation( const TraceType<SampleAccumulator<S64> >& stat )
 {
+	update();
 	return mBuffers->mSamples[stat.getIndex()].getStandardDeviation();
 }
 
-F64 Recording::getLastValue( const TraceType<SampleAccumulator<F64> >& stat ) const
+F64 Recording::getLastValue( const TraceType<SampleAccumulator<F64> >& stat )
 {
+	update();
 	return mBuffers->mSamplesFloat[stat.getIndex()].getLastValue();
 }
 
-S64 Recording::getLastValue( const TraceType<SampleAccumulator<S64> >& stat ) const
+S64 Recording::getLastValue( const TraceType<SampleAccumulator<S64> >& stat )
 {
+	update();
 	return mBuffers->mSamples[stat.getIndex()].getLastValue();
 }
 
-U32 Recording::getSampleCount( const TraceType<SampleAccumulator<F64> >& stat ) const
+U32 Recording::getSampleCount( const TraceType<SampleAccumulator<F64> >& stat )
 {
+	update();
 	return mBuffers->mSamplesFloat[stat.getIndex()].getSampleCount();
 }
 
-U32 Recording::getSampleCount( const TraceType<SampleAccumulator<S64> >& stat ) const
+U32 Recording::getSampleCount( const TraceType<SampleAccumulator<S64> >& stat )
 {
+	update();
 	return mBuffers->mSamples[stat.getIndex()].getSampleCount();
 }
 
-F64 Recording::getMin( const TraceType<EventAccumulator<F64> >& stat ) const
+F64 Recording::getMin( const TraceType<EventAccumulator<F64> >& stat )
 {
+	update();
 	return mBuffers->mEventsFloat[stat.getIndex()].getMin();
 }
 
-S64 Recording::getMin( const TraceType<EventAccumulator<S64> >& stat ) const
+S64 Recording::getMin( const TraceType<EventAccumulator<S64> >& stat )
 {
+	update();
 	return mBuffers->mEvents[stat.getIndex()].getMin();
 }
 
-F64 Recording::getMax( const TraceType<EventAccumulator<F64> >& stat ) const
+F64 Recording::getMax( const TraceType<EventAccumulator<F64> >& stat )
 {
+	update();
 	return mBuffers->mEventsFloat[stat.getIndex()].getMax();
 }
 
-S64 Recording::getMax( const TraceType<EventAccumulator<S64> >& stat ) const
+S64 Recording::getMax( const TraceType<EventAccumulator<S64> >& stat )
 {
+	update();
 	return mBuffers->mEvents[stat.getIndex()].getMax();
 }
 
-F64 Recording::getMean( const TraceType<EventAccumulator<F64> >& stat ) const
+F64 Recording::getMean( const TraceType<EventAccumulator<F64> >& stat )
 {
+	update();
 	return mBuffers->mEventsFloat[stat.getIndex()].getMean();
 }
 
-F64 Recording::getMean( const TraceType<EventAccumulator<S64> >& stat ) const
+F64 Recording::getMean( const TraceType<EventAccumulator<S64> >& stat )
 {
+	update();
 	return mBuffers->mEvents[stat.getIndex()].getMean();
 }
 
-F64 Recording::getStandardDeviation( const TraceType<EventAccumulator<F64> >& stat ) const
+F64 Recording::getStandardDeviation( const TraceType<EventAccumulator<F64> >& stat )
 {
+	update();
 	return mBuffers->mEventsFloat[stat.getIndex()].getStandardDeviation();
 }
 
-F64 Recording::getStandardDeviation( const TraceType<EventAccumulator<S64> >& stat ) const
+F64 Recording::getStandardDeviation( const TraceType<EventAccumulator<S64> >& stat )
 {
+	update();
 	return mBuffers->mEvents[stat.getIndex()].getStandardDeviation();
 }
 
-F64 Recording::getLastValue( const TraceType<EventAccumulator<F64> >& stat ) const
+F64 Recording::getLastValue( const TraceType<EventAccumulator<F64> >& stat )
 {
+	update();
 	return mBuffers->mEventsFloat[stat.getIndex()].getLastValue();
 }
 
-S64 Recording::getLastValue( const TraceType<EventAccumulator<S64> >& stat ) const
+S64 Recording::getLastValue( const TraceType<EventAccumulator<S64> >& stat )
 {
+	update();
 	return mBuffers->mEvents[stat.getIndex()].getLastValue();
 }
 
-U32 Recording::getSampleCount( const TraceType<EventAccumulator<F64> >& stat ) const
+U32 Recording::getSampleCount( const TraceType<EventAccumulator<F64> >& stat )
 {
+	update();
 	return mBuffers->mEventsFloat[stat.getIndex()].getSampleCount();
 }
 
-U32 Recording::getSampleCount( const TraceType<EventAccumulator<S64> >& stat ) const
+U32 Recording::getSampleCount( const TraceType<EventAccumulator<S64> >& stat )
 {
+	update();
 	return mBuffers->mEvents[stat.getIndex()].getSampleCount();
 }
 

@@ -240,7 +240,7 @@ void LLSceneMonitor::unfreezeScene()
 
 	if(mDiffState == VIEWER_QUITTING)
 	{
-		return; //we are quitting viewer.
+		return;
 	}
 
 	// thaw everything else

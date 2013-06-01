@@ -207,7 +207,7 @@ public:
 
 	void updateFrameStats(const F64 time_diff);
 	
-	void addToMessage(LLSD &body) const;
+	void addToMessage(LLSD &body);
 
 	struct  StatsAccumulator
 	{
