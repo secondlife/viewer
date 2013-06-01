@@ -371,6 +371,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                name="tab_suggested_friends"
                title="People you may want to friend">
                 <avatar_list
+                 ignore_online_status="true"
                  allow_select="true"
                  follows="all"
                  height="173"
