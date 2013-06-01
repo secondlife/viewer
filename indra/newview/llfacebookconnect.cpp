@@ -211,7 +211,6 @@ public:
     }
 };
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 LLFacebookConnect::LLFacebookConnect()
@@ -294,6 +293,16 @@ void LLFacebookConnect::postCheckinMessage(const std::string& message, const std
     
     // Note: we can use that route for different publish action. We should be able to use the same responder.
 	LLHTTPClient::post(getFacebookConnectURL("/share/wall"), body, new LLFacebookPostResponder());
+}
+
+void LLFacebookConnect::sharePhoto(const std::string& image_url, const std::string& caption)
+{
+	LLSD body;
+	body["image"] = image_url;
+	body["caption"] = caption;
+	
+    // Note: we can use that route for different publish action. We should be able to use the same responder.
+	LLHTTPClient::post(getFacebookConnectURL("/share/photo"), body, new LLFacebookPostResponder());
 }
 
 void LLFacebookConnect::storeContent(const LLSD& content)
