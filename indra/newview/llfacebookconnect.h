@@ -47,6 +47,7 @@ public:
     
     void loadFacebookFriends();
     void postCheckinMessage(const std::string& message, const std::string& link, const std::string& name, const std::string& caption, const std::string& description, const std::string& picture);
+	void sharePhoto(const std::string& image_url, const std::string& caption);
 
     void clearContent();
 	void storeContent(const LLSD& content);
