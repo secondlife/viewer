@@ -567,6 +567,7 @@ with the same filename but different name
   <texture name="Snapshot_Email" file_name="snapshot_email.png" preload="false" />
   <texture name="Snapshot_Inventory" file_name="toolbar_icons/inventory.png" preload="false" />
   <texture name="Snapshot_Profile" file_name="toolbar_icons/profile.png" preload="false" />
+  <texture name="Snapshot_Facebook" file_name="toolbar_icons/facebook.png" preload="false" />
 
   <texture name="startup_logo"  file_name="windows/startup_logo.png" preload="true" />
 

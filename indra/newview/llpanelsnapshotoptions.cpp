@@ -51,6 +51,7 @@ private:
 	void updateUploadCost();
 	void openPanel(const std::string& panel_name);
 	void onSaveToProfile();
+	void onSaveToFacebook();
 	void onSaveToEmail();
 	void onSaveToInventory();
 	void onSaveToComputer();
@@ -60,6 +61,7 @@ static LLRegisterPanelClassWrapper<LLPanelSnapshotOptions> panel_class("llpanels
 
 LLPanelSnapshotOptions::LLPanelSnapshotOptions()
 {
+	mCommitCallbackRegistrar.add("Snapshot.SaveToFacebook",		boost::bind(&LLPanelSnapshotOptions::onSaveToFacebook,	this));
 	mCommitCallbackRegistrar.add("Snapshot.SaveToProfile",		boost::bind(&LLPanelSnapshotOptions::onSaveToProfile,	this));
 	mCommitCallbackRegistrar.add("Snapshot.SaveToEmail",		boost::bind(&LLPanelSnapshotOptions::onSaveToEmail,		this));
 	mCommitCallbackRegistrar.add("Snapshot.SaveToInventory",	boost::bind(&LLPanelSnapshotOptions::onSaveToInventory,	this));
@@ -97,6 +99,11 @@ void LLPanelSnapshotOptions::openPanel(const std::string& panel_name)
 	parent->openPanel(panel_name);
 	parent->getCurrentPanel()->onOpen(LLSD());
 	LLFloaterSnapshot::postPanelSwitch();
+}
+
+void LLPanelSnapshotOptions::onSaveToFacebook()
+{
+	openPanel("panel_snapshot_facebook");
 }
 
 void LLPanelSnapshotOptions::onSaveToProfile()
