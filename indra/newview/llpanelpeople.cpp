@@ -689,6 +689,7 @@ BOOL LLPanelPeople::postBuild()
 	mRecentList->setContextMenu(&LLPanelPeopleMenus::gPeopleContextMenu);
 	mAllFriendList->setContextMenu(&LLPanelPeopleMenus::gPeopleContextMenu);
 	mOnlineFriendList->setContextMenu(&LLPanelPeopleMenus::gPeopleContextMenu);
+	mSuggestedFriends->setContextMenu(&LLPanelPeopleMenus::gPeopleContextMenu);
 
     //===Temporary ========================================================================
 
