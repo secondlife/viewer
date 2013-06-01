@@ -60,7 +60,9 @@ bool LLCoros::cleanup(const LLSD&)
         // since last tick?
         if (mi->second->exited())
         {
-            LL_INFOS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << LL_ENDL;
+			   // BUG-2707?
+            //LL_INFOS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << LL_ENDL;
+
             // The erase() call will invalidate its passed iterator value --
             // so increment mi FIRST -- but pass its original value to
             // erase(). This is what postincrement is all about.
@@ -94,7 +96,8 @@ std::string LLCoros::generateDistinctName(const std::string& prefix) const
     {
         if (mCoros.find(name) == mCoros.end())
         {
-            LL_INFOS("LLCoros") << "LLCoros: launching coroutine " << name << LL_ENDL;
+			   //BUG-2707?
+            //LL_INFOS("LLCoros") << "LLCoros: launching coroutine " << name << LL_ENDL;
             return name;
         }
     }

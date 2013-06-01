@@ -75,11 +75,11 @@ void* F_STDCALL decode_alloc(unsigned int size, FMOD_MEMORY_TYPE type, const cha
 {
 	if(type & FMOD_MEMORY_STREAM_DECODE)
 	{
-		llinfos << "Decode buffer size: " << size << llendl;
+		LL_DEBUGS("FMODEX") << "Decode buffer size: " << size << llendl;
 	}
 	else if(type & FMOD_MEMORY_STREAM_FILE)
 	{
-		llinfos << "Strean buffer size: " << size << llendl;
+		LL_DEBUGS("FMODEX") << "Strean buffer size: " << size << llendl;
 	}
 	return new char[size];
 }
@@ -304,16 +304,16 @@ void LLAudioEngine_FMODEX::shutdown()
 {
 	stopInternetStream();
 
-	llinfos << "About to LLAudioEngine::shutdown()" << llendl;
+	LL_DEBUGS("FMODEX") << "About to LLAudioEngine::shutdown()" << llendl;
 	LLAudioEngine::shutdown();
 	
-	llinfos << "LLAudioEngine_FMODEX::shutdown() closing FMOD Ex" << llendl;
+	LL_DEBUGS("FMODEX") << "LLAudioEngine_FMODEX::shutdown() closing FMOD Ex" << llendl;
 	if ( mSystem ) // speculative fix for MAINT-2657
 	{
 	mSystem->close();
 	mSystem->release();
 	}
-	llinfos << "LLAudioEngine_FMODEX::shutdown() done closing FMOD Ex" << llendl;
+	LL_DEBUGS("FMODEX") << "LLAudioEngine_FMODEX::shutdown() done closing FMOD Ex" << llendl;
 
 	delete mListenerp;
 	mListenerp = NULL;
@@ -475,7 +475,7 @@ bool LLAudioChannelFMODEX::updateBuffer()
 			Check_FMOD_Error(result, "FMOD::System::playSound");
 		}
 
-		//llinfos << "Setting up channel " << std::hex << mChannelID << std::dec << llendl;
+		//LL_DEBUGS("FMODEX") << "Setting up channel " << std::hex << mChannelID << std::dec << llendl;
 	}
 
 	// If we have a source for the channel, we need to update its gain.
@@ -563,11 +563,11 @@ void LLAudioChannelFMODEX::cleanup()
 {
 	if (!mChannelp)
 	{
-		//llinfos << "Aborting cleanup with no channel handle." << llendl;
+		//LL_DEBUGS("FMODEX") << "Aborting cleanup with no channel handle." << llendl;
 		return;
 	}
 
-	//llinfos << "Cleaning up channel: " << mChannelID << llendl;
+	//LL_DEBUGS("FMODEX") << "Cleaning up channel: " << mChannelID << llendl;
 	Check_FMOD_Error(mChannelp->stop(),"FMOD::Channel::stop");
 
 	mCurrentBufferp = NULL;

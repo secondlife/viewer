@@ -218,8 +218,7 @@ bool LLApp::parseCommandOptions(int argc, char** argv)
 	{
 		if(argv[ii][0] != '-')
 		{
-			llinfos << "Did not find option identifier while parsing token: "
-				<< argv[ii] << llendl;
+			lldebugs << "Did not find option identifier while parsing token: "<< argv[ii] << llendl;
 			return false;
 		}
 		int offset = 1;
@@ -896,7 +895,7 @@ bool unix_minidump_callback(const google_breakpad::MinidumpDescriptor& minidump_
 		--remaining;
 	}
 	
-	llinfos << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << llendl;
+	//llinfos << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << llendl;
 	LLApp::runErrorHandler();
 	
 #ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -942,7 +941,7 @@ bool unix_post_minidump_callback(const char *dump_dir,
 		strncpy(path, ".dmp", remaining);
 	}
 	
-	llinfos << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << llendl;
+	//llinfos << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << llendl;
 	LLApp::runErrorHandler();
 	
 #ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -985,12 +984,12 @@ bool windows_post_minidump_callback(const wchar_t* dump_path,
 		strncpy(path, ".dmp", remaining);
 	}
 
-	llinfos << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << llendl;
-    // *NOTE:Mani - this code is stolen from LLApp, where its never actually used.
+	//llinfos << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << llendl;
+   // *NOTE:Mani - this code is stolen from LLApp, where its never actually used.
 	//OSMessageBox("Attach Debugger Now", "Error", OSMB_OK);
-    // *TODO: Translate the signals/exceptions into cross-platform stuff
+   // *TODO: Translate the signals/exceptions into cross-platform stuff
 	// Windows implementation
-	llinfos << "Entering Windows Exception Handler..." << llendl;
+	//llinfos << "Entering Windows Exception Handler..." << llendl;
 
 	if (LLApp::isError())
 	{

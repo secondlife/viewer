@@ -570,20 +570,20 @@ void LLReqID::stamp(LLSD& response) const
 {
     if (! (response.isUndefined() || response.isMap()))
     {
+		  // BUG-2707?
         // If 'response' was previously completely empty, it's okay to
         // turn it into a map. If it was already a map, then it should be
         // okay to add a key. But if it was anything else (e.g. a scalar),
         // assigning a ["reqid"] key will DISCARD the previous value,
         // replacing it with a map. That would be Bad.
-        LL_INFOS("LLReqID") << "stamp(" << mReqid << ") leaving non-map response unmodified: "
-                            << response << LL_ENDL;
+        //LL_INFOS("LLReqID") << "stamp(" << mReqid << ") leaving non-map response unmodified: " << response << LL_ENDL;
         return;
     }
     LLSD oldReqid(response["reqid"]);
     if (! (oldReqid.isUndefined() || llsd_equals(oldReqid, mReqid)))
     {
-        LL_INFOS("LLReqID") << "stamp(" << mReqid << ") preserving existing [\"reqid\"] value "
-                            << oldReqid << " in response: " << response << LL_ENDL;
+		  // BUG-2707?
+        //LL_INFOS("LLReqID") << "stamp(" << mReqid << ") preserving existing [\"reqid\"] value "<< oldReqid << " in response: " << response << LL_ENDL;
         return;
     }
     response["reqid"] = mReqid;

@@ -889,10 +889,10 @@ void LLPolyMesh::dumpDiagInfo()
 
         std::string buf;
 
-        llinfos << "-----------------------------------------------------" << llendl;
-        llinfos << "       Global PolyMesh Table (DEBUG only)" << llendl;
-        llinfos << "   Verts    Faces  Mem(KB) Name" << llendl;
-        llinfos << "-----------------------------------------------------" << llendl;
+        LL_DEBUGS("LLPolyMesh") << "-----------------------------------------------------" << llendl;
+        LL_DEBUGS("LLPolyMesh") << "       Global PolyMesh Table (DEBUG only)" << llendl;
+        LL_DEBUGS("LLPolyMesh") << "   Verts    Faces  Mem(KB) Name" << llendl;
+        LL_DEBUGS("LLPolyMesh") << "-----------------------------------------------------" << llendl;
 
         // print each loaded mesh, and it's memory usage
         for(LLPolyMeshSharedDataTable::iterator iter = sGlobalSharedMeshList.begin();
@@ -906,17 +906,17 @@ void LLPolyMesh::dumpDiagInfo()
                 U32 num_kb = mesh->getNumKB();
 
                 buf = llformat("%8d %8d %8d %s", num_verts, num_faces, num_kb, mesh_name.c_str());
-                llinfos << buf << llendl;
+                LL_DEBUGS("LLPolyMesh") << buf << llendl;
 
                 total_verts += num_verts;
                 total_faces += num_faces;
                 total_kb += num_kb;
         }
 
-        llinfos << "-----------------------------------------------------" << llendl;
+        LL_DEBUGS("LLPolyMesh") << "-----------------------------------------------------" << llendl;
         buf = llformat("%8d %8d %8d TOTAL", total_verts, total_faces, total_kb );
-        llinfos << buf << llendl;
-        llinfos << "-----------------------------------------------------" << llendl;
+        LL_DEBUGS("LLPolyMesh") << buf << llendl;
+        LL_DEBUGS("LLPolyMesh") << "-----------------------------------------------------" << llendl;
 }
 
 //-----------------------------------------------------------------------------
