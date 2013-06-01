@@ -263,7 +263,7 @@ void LLViewerStats::updateFrameStats(const F64 time_diff)
 	mLastTimeDiff = time_diff;
 }
 
-void LLViewerStats::addToMessage(LLSD &body) const
+void LLViewerStats::addToMessage(LLSD &body)
 {
 	LLSD &misc = body["misc"];
 	
