@@ -86,7 +86,8 @@ void LLTexLayerParamAlpha::dumpCacheByteCount()
 {
 	S32 gl_bytes = 0;
 	getCacheByteCount( &gl_bytes);
-	LL_DEBUGS("LLTexLayerParamAlpha") << "Processed Alpha Texture Cache GL:" << (gl_bytes/1024) << "KB" << llendl;
+	// BUG-2707?
+	//LL_DEBUGS("LLTexLayerParamAlpha") << "Processed Alpha Texture Cache GL:" << (gl_bytes/1024) << "KB" << llendl;
 }
 
 // static 

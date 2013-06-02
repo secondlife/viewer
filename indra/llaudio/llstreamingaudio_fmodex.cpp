@@ -100,13 +100,13 @@ void LLStreamingAudio_FMODEX::start(const std::string& url)
 
 	if (!url.empty())
 	{
-		LL_DEBUGS("FMODEX") << "Starting internet stream: " << url << llendl;
+		//LL_DEBUGS("FMODEX") << "Starting internet stream: " << url << llendl;
 		mCurrentInternetStreamp = new LLAudioStreamManagerFMODEX(mSystem,url);
 		mURL = url;
 	}
 	else
 	{
-		LL_DEBUGS("FMODEX") << "Set internet stream to null" << llendl;
+		//LL_DEBUGS("FMODEX") << "Set internet stream to null" << llendl;
 		mURL.clear();
 	}
 }
@@ -121,7 +121,7 @@ void LLStreamingAudio_FMODEX::update()
 		LLAudioStreamManagerFMODEX *streamp = *iter;
 		if (streamp->stopStream())
 		{
-			LL_DEBUGS("FMODEX") << "Closed dead stream" << llendl;
+			//LL_DEBUGS("FMODEX") << "Closed dead stream" << llendl;
 			delete streamp;
 			mDeadStreams.erase(iter++);
 		}
@@ -181,7 +181,7 @@ void LLStreamingAudio_FMODEX::update()
 					{
 						if (!strcmp(tag.name, "Sample Rate Change"))
 						{
-							LL_DEBUGS("FMODEX") << "Stream forced changing sample rate to " << *((float *)tag.data) << llendl;
+							//LL_DEBUGS("FMODEX") << "Stream forced changing sample rate to " << *((float *)tag.data) << llendl;
 							mFMODInternetStreamChannelp->setFrequency(*((float *)tag.data));
 						}
 						continue;
@@ -195,9 +195,9 @@ void LLStreamingAudio_FMODEX::update()
 				mFMODInternetStreamChannelp->getPaused(&paused);
 				if(!paused)
 				{
-					LL_DEBUGS("FMODEX") << "Stream starvation detected! Pausing stream until buffer nearly full." << llendl;
-					LL_DEBUGS("FMODEX") << "  (diskbusy="<<diskbusy<<")" << llendl;
-					LL_DEBUGS("FMODEX") << "  (progress="<<progress<<")" << llendl;
+					//LL_DEBUGS("FMODEX") << "Stream starvation detected! Pausing stream until buffer nearly full." << llendl;
+					//LL_DEBUGS("FMODEX") << "  (diskbusy="<<diskbusy<<")" << llendl;
+					//LL_DEBUGS("FMODEX") << "  (progress="<<progress<<")" << llendl;
 					mFMODInternetStreamChannelp->setPaused(true);
 				}
 			}
@@ -220,14 +220,14 @@ void LLStreamingAudio_FMODEX::stop()
 
 	if (mCurrentInternetStreamp)
 	{
-		LL_DEBUGS("FMODEX") << "Stopping internet stream: " << mCurrentInternetStreamp->getURL() << llendl;
+		//LL_DEBUGS("FMODEX") << "Stopping internet stream: " << mCurrentInternetStreamp->getURL() << llendl;
 		if (mCurrentInternetStreamp->stopStream())
 		{
 			delete mCurrentInternetStreamp;
 		}
 		else
 		{
-			LL_DEBUGS("FMODEX") << "Pushing stream to dead list: " << mCurrentInternetStreamp->getURL() << llendl;
+			//LL_DEBUGS("FMODEX") << "Pushing stream to dead list: " << mCurrentInternetStreamp->getURL() << llendl;
 			mDeadStreams.push_back(mCurrentInternetStreamp);
 		}
 		mCurrentInternetStreamp = NULL;

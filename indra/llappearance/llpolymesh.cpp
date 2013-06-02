@@ -889,10 +889,10 @@ void LLPolyMesh::dumpDiagInfo()
 
         std::string buf;
 
-        LL_DEBUGS("LLPolyMesh") << "-----------------------------------------------------" << llendl;
-        LL_DEBUGS("LLPolyMesh") << "       Global PolyMesh Table (DEBUG only)" << llendl;
-        LL_DEBUGS("LLPolyMesh") << "   Verts    Faces  Mem(KB) Name" << llendl;
-        LL_DEBUGS("LLPolyMesh") << "-----------------------------------------------------" << llendl;
+        //LL_DEBUGS("LLPolyMesh") << "-----------------------------------------------------" << llendl;
+        //LL_DEBUGS("LLPolyMesh") << "       Global PolyMesh Table (DEBUG only)" << llendl;
+        //LL_DEBUGS("LLPolyMesh") << "   Verts    Faces  Mem(KB) Name" << llendl;
+        //LL_DEBUGS("LLPolyMesh") << "-----------------------------------------------------" << llendl;
 
         // print each loaded mesh, and it's memory usage
         for(LLPolyMeshSharedDataTable::iterator iter = sGlobalSharedMeshList.begin();
@@ -906,17 +906,17 @@ void LLPolyMesh::dumpDiagInfo()
                 U32 num_kb = mesh->getNumKB();
 
                 buf = llformat("%8d %8d %8d %s", num_verts, num_faces, num_kb, mesh_name.c_str());
-                LL_DEBUGS("LLPolyMesh") << buf << llendl;
+                //LL_DEBUGS("LLPolyMesh") << buf << llendl;
 
                 total_verts += num_verts;
                 total_faces += num_faces;
                 total_kb += num_kb;
         }
 
-        LL_DEBUGS("LLPolyMesh") << "-----------------------------------------------------" << llendl;
+        //LL_DEBUGS("LLPolyMesh") << "-----------------------------------------------------" << llendl;
         buf = llformat("%8d %8d %8d TOTAL", total_verts, total_faces, total_kb );
-        LL_DEBUGS("LLPolyMesh") << buf << llendl;
-        LL_DEBUGS("LLPolyMesh") << "-----------------------------------------------------" << llendl;
+        //LL_DEBUGS("LLPolyMesh") << buf << llendl;
+        //LL_DEBUGS("LLPolyMesh") << "-----------------------------------------------------" << llendl;
 }
 
 //-----------------------------------------------------------------------------

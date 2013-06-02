@@ -81,7 +81,7 @@ public:
 		// incrementing, listen on "mainloop".
 		if (mCount++ == 0)
 		{
-			LL_DEBUGS("LLProcess") << "listening on \"mainloop\"" << LL_ENDL;
+			//LL_DEBUGS("LLProcess") << "listening on \"mainloop\"" << LL_ENDL;
 			mConnection = LLEventPumps::instance().obtain("mainloop")
 				.listen("LLProcessListener", boost::bind(&LLProcessListener::tick, this, _1));
 		}
@@ -93,7 +93,7 @@ public:
 		// stop listening on "mainloop".
 		if (--mCount == 0)
 		{
-			LL_DEBUGS("LLProcess") << "disconnecting from \"mainloop\"" << LL_ENDL;
+			//LL_DEBUGS("LLProcess") << "disconnecting from \"mainloop\"" << LL_ENDL;
 			mConnection.disconnect();
 		}
 	}
@@ -118,7 +118,7 @@ private:
 		// centralize such calls, using "mainloop" to ensure it happens once
 		// per frame, and refcounting running LLProcess objects to remain
 		// registered only while needed.
-		LL_DEBUGS("LLProcess") << "calling apr_proc_other_child_refresh_all()" << LL_ENDL;
+		//LL_DEBUGS("LLProcess") << "calling apr_proc_other_child_refresh_all()" << LL_ENDL;
 		apr_proc_other_child_refresh_all(APR_OC_REASON_RUNNING);
 		return false;
 	}
@@ -216,13 +216,13 @@ public:
 					remainptr += written;
 					remainlen -= written;
 
-					char msgbuf[512];
-					LL_DEBUGS("LLProcess") << "wrote " << written << " of " << towrite
-										   << " bytes to " << mDesc
-										   << " (original " << total << "),"
-										   << " code " << err << ": "
-										   << apr_strerror(err, msgbuf, sizeof(msgbuf))
-										   << LL_ENDL;
+					//char msgbuf[512];
+					//LL_DEBUGS("LLProcess") << "wrote " << written << " of " << towrite
+					//					   << " bytes to " << mDesc
+					//					   << " (original " << total << "),"
+					//					   << " code " << err << ": "
+					//					   << apr_strerror(err, msgbuf, sizeof(msgbuf))
+					//					   << LL_ENDL;
 
 					// The parent end of this pipe is nonblocking. If we weren't able
 					// to write everything we wanted, don't keep banging on it -- that
@@ -738,8 +738,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 		{
 			mPipes.replace(i, new ReadPipeImpl(desc, pipe, FILESLOT(i)));
 		}
-		LL_DEBUGS("LLProcess") << "Instantiating " << typeid(mPipes[i]).name()
-							   << "('" << desc << "')" << LL_ENDL;
+		LL_DEBUGS("LLProcess") << "Instantiating " << typeid(mPipes[i]).name() << "('" << desc << "')" << LL_ENDL;
 	}
 }
 

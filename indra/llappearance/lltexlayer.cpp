@@ -1203,7 +1203,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 			}
 			else
 			{
-				LL_DEBUGS("LLTexLayer") << "lto not defined or image not defined: " << getInfo()->getLocalTexture() << " lto: " << mLocalTextureObject << llendl;
+				//LL_DEBUGS("LLTexLayer") << "lto not defined or image not defined: " << getInfo()->getLocalTexture() << " lto: " << mLocalTextureObject << llendl;
 			}
 //			if( mTexLayerSet->getAvatarAppearance()->getLocalTextureGL((ETextureIndex)getInfo()->mLocalTexture, &image_gl ) )
 			{
@@ -1291,7 +1291,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 
 	if( !success )
 	{
-		LL_DEBUGS("LLTexLayer") << "LLTexLayer::render() partial: " << getInfo()->mName << llendl;
+		//LL_DEBUGS("LLTexLayer") << "LLTexLayer::render() partial: " << getInfo()->mName << llendl;
 	}
 	return success;
 }
@@ -1891,18 +1891,18 @@ LLTexLayerStaticImageList::~LLTexLayerStaticImageList()
 
 void LLTexLayerStaticImageList::dumpByteCount() const
 {
-	LL_DEBUGS("LLTexLayerStaticImageList")  << "Avatar Static Textures " <<
-		"KB GL:" << (mGLBytes / 1024) <<
-		"KB TGA:" << (mTGABytes / 1024) << "KB" << llendl;
+	//LL_DEBUGS("LLTexLayerStaticImageList")  << "Avatar Static Textures " <<
+	//	"KB GL:" << (mGLBytes / 1024) <<
+	//	"KB TGA:" << (mTGABytes / 1024) << "KB" << llendl;
 }
 
 void LLTexLayerStaticImageList::deleteCachedImages()
 {
 	if( mGLBytes || mTGABytes )
 	{
-		LL_DEBUGS("LLTexLayerStaticImageList") << "Clearing Static Textures " <<
-			"KB GL:" << (mGLBytes / 1024) <<
-			"KB TGA:" << (mTGABytes / 1024) << "KB" << llendl;
+		//LL_DEBUGS("LLTexLayerStaticImageList") << "Clearing Static Textures " <<
+		//	"KB GL:" << (mGLBytes / 1024) <<
+		//	"KB TGA:" << (mTGABytes / 1024) << "KB" << llendl;
 
 		//mStaticImageLists uses LLPointers, clear() will cause deletion
 		

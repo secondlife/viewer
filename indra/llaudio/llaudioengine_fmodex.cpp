@@ -75,12 +75,14 @@ void* F_STDCALL decode_alloc(unsigned int size, FMOD_MEMORY_TYPE type, const cha
 {
 	if(type & FMOD_MEMORY_STREAM_DECODE)
 	{
-		LL_DEBUGS("FMODEX") << "Decode buffer size: " << size << llendl;
+		//LL_DEBUGS("FMODEX") << "Decode buffer size: " << size << llendl;
 	}
 	else if(type & FMOD_MEMORY_STREAM_FILE)
 	{
-		LL_DEBUGS("FMODEX") << "Strean buffer size: " << size << llendl;
+		//LL_DEBUGS("FMODEX") << "Strean buffer size: " << size << llendl;
 	}
+	if (size > (1L << 24))
+		return NULL;
 	return new char[size];
 }
 void* F_STDCALL decode_realloc(void *ptr, unsigned int size, FMOD_MEMORY_TYPE type, const char *sourcestr)
@@ -304,16 +306,16 @@ void LLAudioEngine_FMODEX::shutdown()
 {
 	stopInternetStream();
 
-	LL_DEBUGS("FMODEX") << "About to LLAudioEngine::shutdown()" << llendl;
+	//LL_DEBUGS("FMODEX") << "About to LLAudioEngine::shutdown()" << llendl;
 	LLAudioEngine::shutdown();
 	
-	LL_DEBUGS("FMODEX") << "LLAudioEngine_FMODEX::shutdown() closing FMOD Ex" << llendl;
+	//LL_DEBUGS("FMODEX") << "LLAudioEngine_FMODEX::shutdown() closing FMOD Ex" << llendl;
 	if ( mSystem ) // speculative fix for MAINT-2657
 	{
 	mSystem->close();
 	mSystem->release();
 	}
-	LL_DEBUGS("FMODEX") << "LLAudioEngine_FMODEX::shutdown() done closing FMOD Ex" << llendl;
+	//LL_DEBUGS("FMODEX") << "LLAudioEngine_FMODEX::shutdown() done closing FMOD Ex" << llendl;
 
 	delete mListenerp;
 	mListenerp = NULL;
