@@ -117,14 +117,17 @@ private:
 
 void LLLogin::Impl::connect(const std::string& uri, const LLSD& login_params)
 {
-    LL_DEBUGS("LLLogin") << " connect with  uri '" << uri << "', login_params " << login_params << LL_ENDL;
+    // BUG-2707?
+    //LL_DEBUGS("LLLogin") << " connect with  uri '" << uri << "', login_params " << login_params << LL_ENDL;
 	
     // Launch a coroutine with our login_() method. Run the coroutine until
     // its first wait; at that point, return here.
     std::string coroname = 
         LLCoros::instance().launch("LLLogin::Impl::login_",
                                    boost::bind(&Impl::login_, this, _1, uri, login_params));
-    LL_DEBUGS("LLLogin") << " connected with  uri '" << uri << "', login_params " << login_params << LL_ENDL;	
+
+    // BUG-2707?
+    //LL_DEBUGS("LLLogin") << " connected with  uri '" << uri << "', login_params " << login_params << LL_ENDL;	
 }
 
 void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_params)
@@ -137,8 +140,11 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
 	//{
 	//	printable_params["params"]["passwd"] = "*******";
 	//}
-    LL_DEBUGS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName(self)
-                        << " with uri '" << uri << "', parameters " << printable_params << LL_ENDL;
+	//
+	//
+// BUG-2707?
+//    LL_DEBUGS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName(self)
+//                        << " with uri '" << uri << "', parameters " << printable_params << LL_ENDL;
 
 	// Arriving in SRVRequest state
     LLEventStream replyPump("SRVreply", true);
@@ -150,7 +156,9 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
         sendProgressEvent("offline", "srvrequest");
 
         // Request SRV record.
-        LL_DEBUGS("LLLogin") << "Requesting SRV record from " << uri << LL_ENDL;
+	// BUG-2707?
+        //LL_DEBUGS("LLLogin") << "Requesting SRV record from " << uri << LL_ENDL;
+
 
         // *NOTE:Mani - Completely arbitrary default timeout value for SRV request.
 		F32 seconds_to_timeout = 5.0f;
@@ -230,8 +238,9 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
                 // Still Downloading -- send progress update.
                 sendProgressEvent("offline", "downloading");
             }
-				 
-			LL_DEBUGS("LLLogin") << "Auth Response: " << mAuthResponse << LL_ENDL;
+	
+	    // BUG-2707?
+            //LL_DEBUGS("LLLogin") << "Auth Response: " << mAuthResponse << LL_ENDL;
             status = mAuthResponse["status"].asString();
 
             // Okay, we've received our final status event for this
@@ -276,7 +285,8 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
 		 */
 		if( status == "Started")
 		{
-			LL_DEBUGS("LLLogin") << mAuthResponse << LL_ENDL;
+			// BUG-2707?
+			//LL_DEBUGS("LLLogin") << mAuthResponse << LL_ENDL;
 			continue;
 		}
 

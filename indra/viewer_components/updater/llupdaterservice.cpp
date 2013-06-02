@@ -206,6 +206,8 @@ void LLUpdaterServiceImpl::initialize(const std::string&  url,
 	mPlatformVersion = platform_version;
 	memcpy(mUniqueId, uniqueid, MD5HEX_STR_SIZE);
 	mWillingToTest = willing_to_test;
+
+#if BUG_2707
 	LL_DEBUGS("UpdaterService")
 		<< "\n  url: " << mUrl
 		<< "\n  path: " << mPath
@@ -214,6 +216,7 @@ void LLUpdaterServiceImpl::initialize(const std::string&  url,
 		<< "\n  uniqueid: " << mUniqueId
 		<< "\n  willing: " << ( mWillingToTest ? "testok" : "testno" )
 		<< LL_ENDL;
+#endif
 }
 
 void LLUpdaterServiceImpl::setCheckPeriod(unsigned int seconds)
@@ -431,12 +434,15 @@ void LLUpdaterServiceImpl::response(LLSD const & content)
 		BOOL required = content["required"].asBoolean();
 		LLURI url(content["url"].asString());
 		std::string more_info = content["more_info"].asString();
+
+		#if BUG_2707
 		LL_DEBUGS("UpdaterService")
 			<< "Starting download of "
 			<< ( required ? "required" : "optional" ) << " update"
 			<< " to channel '" << mNewChannel << "' version " << mNewVersion
 			<< " more info '" << more_info << "'"
 			<< LL_ENDL;
+		#endif
 		mUpdateDownloader.download(url, content["hash"].asString(), mNewChannel, mNewVersion, more_info, required);
 	}
 }
@@ -459,6 +465,8 @@ void LLUpdaterServiceImpl::downloadComplete(LLSD const & data)
 	payload["channel"] = mNewChannel;
 	payload["info_url"] = data["info_url"];
 	event["payload"] = payload;
+
+	#if BUG_2707
 	LL_DEBUGS("UpdaterService")
 		<< "Download complete "
 		<< ( data["required"].asBoolean() ? "required" : "optional" )
@@ -466,6 +474,7 @@ void LLUpdaterServiceImpl::downloadComplete(LLSD const & data)
 		<< " version " << mNewVersion
 		<< " info " << data["info_url"].asString()
 		<< LL_ENDL;
+	#endif
 
 	LLEventPumps::instance().obtain("mainlooprepeater").post(event);
 
@@ -542,7 +551,8 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 		// Check for failed install.
 		if(LLFile::isfile(ll_install_failed_marker_path()))
 		{
-			LL_DEBUGS("UpdaterService") << "found marker " << ll_install_failed_marker_path() << LL_ENDL;;
+			// BUG-2707?
+			//LL_DEBUGS("UpdaterService") << "found marker " << ll_install_failed_marker_path() << LL_ENDL;;
 			int requiredValue = 0; 
 			{
 				llifstream stream(ll_install_failed_marker_path());
