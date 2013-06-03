@@ -876,6 +876,8 @@ void LLDrawPoolAvatar::beginRiggedGlow()
 	{
 		sDiffuseChannel = 0;
 		sVertexProgram->bind();
+
+		sVertexProgram->uniform1f(LLShaderMgr::TEXTURE_GAMMA, LLPipeline::sRenderDeferred ? 2.2f : 1.1f);
 	}
 }
 

@@ -2508,7 +2508,6 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 			gSkinnedObjectEmissiveProgram.mFeatures.hasTransport = true;
 			gSkinnedObjectEmissiveProgram.mFeatures.isFullbright = true;
 			gSkinnedObjectEmissiveProgram.mFeatures.hasObjectSkinning = true;
-			gSkinnedObjectEmissiveProgram.mFeatures.hasAlphaMask = true;
 			gSkinnedObjectEmissiveProgram.mFeatures.disableTextureIndex = true;
 			gSkinnedObjectEmissiveProgram.mShaderFiles.clear();
 			gSkinnedObjectEmissiveProgram.mShaderFiles.push_back(make_pair("objects/emissiveSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
@@ -2525,7 +2524,6 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 			gSkinnedObjectEmissiveWaterProgram.mFeatures.hasTransport = true;
 			gSkinnedObjectEmissiveWaterProgram.mFeatures.isFullbright = true;
 			gSkinnedObjectEmissiveWaterProgram.mFeatures.hasObjectSkinning = true;
-			gSkinnedObjectEmissiveWaterProgram.mFeatures.hasAlphaMask = true;
 			gSkinnedObjectEmissiveWaterProgram.mFeatures.disableTextureIndex = true;
 			gSkinnedObjectEmissiveWaterProgram.mFeatures.hasWaterFog = true;
 			gSkinnedObjectEmissiveWaterProgram.mShaderFiles.clear();
