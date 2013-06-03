@@ -47,6 +47,7 @@ static LLFastTimer::DeclareTimer FTM_RENDER_GRASS_DEFERRED("Deferred Grass");
 void LLDrawPoolGlow::beginPostDeferredPass(S32 pass)
 {
 	gDeferredEmissiveProgram.bind();
+	gDeferredEmissiveProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
 }
 
 static LLFastTimer::DeclareTimer FTM_RENDER_GLOW_PUSH("Glow Push");
@@ -110,6 +111,7 @@ void LLDrawPoolGlow::render(S32 pass)
 	
 	LLGLSLShader* shader = LLPipeline::sUnderWaterRender ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
 	shader->bind();
+	shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.f);
 
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 	gGL.setColorMask(false, true);
