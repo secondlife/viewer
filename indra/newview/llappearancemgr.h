@@ -235,8 +235,6 @@ private:
 								   LLInventoryModel::item_array_t& obj_items,
 								   LLInventoryModel::item_array_t& gest_items);
 
-	void removeCategoryContents(const LLUUID& category, bool keep_outfit_links,
-								LLPointer<LLInventoryCallback> cb);
 	static void onOutfitRename(const LLSD& notification, const LLSD& response);
 
 	void setOutfitLocked(bool locked);

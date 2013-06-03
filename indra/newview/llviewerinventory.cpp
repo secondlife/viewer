@@ -1828,6 +1828,54 @@ void create_new_item(const std::string& name,
 	
 }	
 
+void slam_inventory_folder(const LLUUID& folder_id,
+						   const LLSD& contents,
+						   LLPointer<LLInventoryCallback> cb)
+{
+	std::string cap;
+	if (AISCommand::getCap(cap))
+	{
+		//LLPointer<AISCommand> cmd_ptr = new SlamFolderCommand(folder_id, contents, cb);
+		//cmd_ptr->run_command();
+	}
+	else // no cap
+	{
+		for (LLSD::array_const_iterator it = contents.beginArray();
+			 it != contents.endArray();
+			 ++it)
+		{
+			const LLSD& item_contents = *it;
+			link_inventory_item(gAgent.getID(),
+								item_contents["linked_id"].asUUID(),
+								folder_id,
+								item_contents["name"].asString(),
+								item_contents["desc"].asString(),
+								LLAssetType::EType(item_contents["type"].asInteger()),
+								cb);
+		}
+		remove_folder_contents(folder_id,false,cb);
+	}
+}
+
+void remove_folder_contents(const LLUUID& category, bool keep_outfit_links,
+							LLPointer<LLInventoryCallback> cb)
+{
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	gInventory.collectDescendents(category, cats, items,
+								  LLInventoryModel::EXCLUDE_TRASH);
+	for (S32 i = 0; i < items.count(); ++i)
+	{
+		LLViewerInventoryItem *item = items.get(i);
+		if (keep_outfit_links && (item->getActualType() == LLAssetType::AT_LINK_FOLDER))
+			continue;
+		if (item->getIsLinkType())
+		{
+			remove_inventory_item(item->getUUID(), cb);
+		}
+	}
+}
+
 const std::string NEW_LSL_NAME = "New Script"; // *TODO:Translate? (probably not)
 const std::string NEW_NOTECARD_NAME = "New Note"; // *TODO:Translate? (probably not)
 const std::string NEW_GESTURE_NAME = "New Gesture"; // *TODO:Translate? (probably not)
@@ -2263,3 +2311,5 @@ BOOL LLViewerInventoryItem::regenerateLink()
 	gInventory.notifyObservers();
 	return TRUE;
 }
+
+

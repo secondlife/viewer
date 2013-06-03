@@ -1622,25 +1622,6 @@ void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category, LLPointer<LLIn
 	}
 }
 
-void LLAppearanceMgr::removeCategoryContents(const LLUUID& category, bool keep_outfit_links,
-											 LLPointer<LLInventoryCallback> cb)
-{
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	gInventory.collectDescendents(category, cats, items,
-								  LLInventoryModel::EXCLUDE_TRASH);
-	for (S32 i = 0; i < items.count(); ++i)
-	{
-		LLViewerInventoryItem *item = items.get(i);
-		if (keep_outfit_links && (item->getActualType() == LLAssetType::AT_LINK_FOLDER))
-			continue;
-		if (item->getIsLinkType())
-		{
-			remove_inventory_item(item->getUUID(), cb);
-		}
-	}
-}
-
 // Keep the last N wearables of each type.  For viewer 2.0, N is 1 for
 // both body parts and clothing items.
 void LLAppearanceMgr::filterWearableItems(
@@ -1704,6 +1685,11 @@ void LLAppearanceMgr::removeAll(LLInventoryModel::item_array_t& items_to_kill,
 void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 {
 	LLViewerInventoryCategory *pcat = gInventory.getCategory(category);
+	if (!pcat)
+	{
+		llwarns << "no category found for id " << category << llendl;
+		return;
+	}
 	LL_INFOS("Avatar") << self_av_string() << "starting, cat '" << (pcat ? pcat->getName() : "[UNKNOWN]") << "'" << LL_ENDL;
 
 	const LLUUID cof = getCOF();
@@ -1769,6 +1755,7 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 
 	// Will link all the above items.
 	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
+#if 0
 	linkAll(cof,all_items,link_waiter);
 
 	// Add link to outfit if category is an outfit. 
@@ -1785,7 +1772,34 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	// even in the non-append case, createBaseOutfitLink() already
 	// deletes the existing link, don't need to do it again here.
 	bool keep_outfit_links = true;
-	removeCategoryContents(cof, keep_outfit_links, link_waiter);
+	remove_folder_contents(cof, keep_outfit_links, link_waiter);
+#else
+	LLSD contents = LLSD::emptyArray();
+	for (LLInventoryModel::item_array_t::const_iterator it = all_items.begin();
+		 it != all_items.end(); ++it)
+	{
+		LLSD item_contents;
+		LLInventoryItem *item = *it;
+		item_contents["name"] = item->getName();
+		item_contents["desc"] = item->getActualDescription();
+		item_contents["linked_id"] = item->getLinkedUUID();
+		item_contents["type"] = LLAssetType::AT_LINK; 
+		contents.append(item_contents);
+	}
+	const LLUUID& base_id = append ? getBaseOutfitUUID() : category;
+	LLViewerInventoryCategory *base_cat = gInventory.getCategory(base_id);
+	if (base_cat)
+	{
+		LLSD base_contents;
+		base_contents["name"] = base_cat->getName();
+		base_contents["desc"] = "";
+		base_contents["linked_id"] = base_cat->getLinkedUUID();
+		base_contents["type"] = LLAssetType::AT_LINK_FOLDER; 
+		contents.append(base_contents);
+	}
+	llinfos << "slamming to: " << ll_pretty_print_sd(contents) << llendl;
+	slam_inventory_folder(getCOF(), contents, link_waiter);
+#endif
 
 	LL_DEBUGS("Avatar") << self_av_string() << "waiting for LLUpdateAppearanceOnDestroy" << LL_ENDL;
 }
@@ -2776,7 +2790,7 @@ bool LLAppearanceMgr::updateBaseOutfit()
 	updateClothingOrderingInfo();
 
 	// in a Base Outfit we do not remove items, only links
-	removeCategoryContents(base_outfit_id, false, NULL);
+	remove_folder_contents(base_outfit_id, false, NULL);
 
 	LLPointer<LLInventoryCallback> dirty_state_updater =
 		new LLBoostFuncInventoryCallback(no_op_inventory_func, appearance_mgr_update_dirty_state);
