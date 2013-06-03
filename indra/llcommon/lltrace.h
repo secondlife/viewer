@@ -273,25 +273,23 @@ protected:
 	const size_t		mAccumulatorIndex;
 };
 
-template<typename T>
 class EventAccumulator
 {
 public:
-	typedef T value_t;
+	typedef F64 value_t;
 	typedef F64 mean_t;
-	typedef EventAccumulator<T> self_t;
 
 	EventAccumulator()
 	:	mSum(0),
-		mMin((std::numeric_limits<T>::max)()),
-		mMax((std::numeric_limits<T>::min)()),
+		mMin((std::numeric_limits<F64>::max)()),
+		mMax((std::numeric_limits<F64>::min)()),
 		mMean(0),
 		mVarianceSum(0),
 		mNumSamples(0),
 		mLastValue(0)
 	{}
 
-	void record(T value)
+	void record(F64 value)
 	{
 		mNumSamples++;
 		mSum += value;
@@ -305,12 +303,12 @@ public:
 			mMax = value;
 		}
 		F64 old_mean = mMean;
-		mMean += ((F64)value - old_mean) / (F64)mNumSamples;
-		mVarianceSum += ((F64)value - old_mean) * ((F64)value - mMean);
+		mMean += (value - old_mean) / (F64)mNumSamples;
+		mVarianceSum += (value - old_mean) * (value - mMean);
 		mLastValue = value;
 	}
 
-	void addSamples(const self_t& other, bool append)
+	void addSamples(const EventAccumulator& other, bool append)
 	{
 		if (other.mNumSamples)
 		{
@@ -354,12 +352,12 @@ public:
 		}
 	}
 
-	void reset(const self_t* other)
+	void reset(const EventAccumulator* other)
 	{
 		mNumSamples = 0;
 		mSum = 0;
-		mMin = std::numeric_limits<T>::max();
-		mMax = std::numeric_limits<T>::min();
+		mMin = std::numeric_limits<F64>::max();
+		mMax = std::numeric_limits<F64>::min();
 		mMean = 0;
 		mVarianceSum = 0;
 		mLastValue = other ? other->mLastValue : 0;
@@ -367,16 +365,16 @@ public:
 
 	void flush() {}
 
-	T	getSum() const { return (T)mSum; }
-	T	getMin() const { return (T)mMin; }
-	T	getMax() const { return (T)mMax; }
-	T	getLastValue() const { return (T)mLastValue; }
+	F64	getSum() const { return mSum; }
+	F64	getMin() const { return mMin; }
+	F64	getMax() const { return mMax; }
+	F64	getLastValue() const { return mLastValue; }
 	F64	getMean() const { return mMean; }
 	F64 getStandardDeviation() const { return sqrtf(mVarianceSum / mNumSamples); }
 	U32 getSampleCount() const { return mNumSamples; }
 
 private:
-	T	mSum,
+	F64	mSum,
 		mMin,
 		mMax,
 		mLastValue;
@@ -388,18 +386,16 @@ private:
 };
 
 
-template<typename T>
 class SampleAccumulator
 {
 public:
-	typedef T value_t;
+	typedef F64 value_t;
 	typedef F64 mean_t;
-	typedef SampleAccumulator<T> self_t;
 
 	SampleAccumulator()
 	:	mSum(0),
-		mMin((std::numeric_limits<T>::max)()),
-		mMax((std::numeric_limits<T>::min)()),
+		mMin((std::numeric_limits<F64>::max)()),
+		mMax((std::numeric_limits<F64>::min)()),
 		mMean(0),
 		mVarianceSum(0),
 		mLastSampleTimeStamp(LLTimer::getTotalSeconds()),
@@ -409,7 +405,7 @@ public:
 		mHasValue(false)
 	{}
 
-	void sample(T value)
+	void sample(F64 value)
 	{
 		LLUnitImplicit<LLUnits::Seconds, F64> time_stamp = LLTimer::getTotalSeconds();
 		LLUnitImplicit<LLUnits::Seconds, F64> delta_time = time_stamp - mLastSampleTimeStamp;
@@ -418,15 +414,15 @@ public:
 		if (mHasValue)
 		{
 			mTotalSamplingTime += delta_time;
-			mSum += (F64)mLastValue * delta_time;
+			mSum += mLastValue * delta_time;
 
 			// NOTE: both conditions will hold first time through
 			if (value < mMin) { mMin = value; }
 			if (value > mMax) { mMax = value; }
 
 			F64 old_mean = mMean;
-			mMean += (delta_time / mTotalSamplingTime) * ((F64)mLastValue - old_mean);
-			mVarianceSum += delta_time * ((F64)mLastValue - old_mean) * ((F64)mLastValue - mMean);
+			mMean += (delta_time / mTotalSamplingTime) * (mLastValue - old_mean);
+			mVarianceSum += delta_time * (mLastValue - old_mean) * (mLastValue - mMean);
 		}
 
 		mLastValue = value;
@@ -434,7 +430,7 @@ public:
 		mHasValue = true;
 	}
 
-	void addSamples(const self_t& other, bool append)
+	void addSamples(const SampleAccumulator& other, bool append)
 	{
 		if (other.mTotalSamplingTime)
 		{
@@ -485,12 +481,12 @@ public:
 		}
 	}
 
-	void reset(const self_t* other)
+	void reset(const SampleAccumulator* other)
 	{
 		mNumSamples = 0;
 		mSum = 0;
-		mMin = std::numeric_limits<T>::max();
-		mMax = std::numeric_limits<T>::min();
+		mMin = std::numeric_limits<F64>::max();
+		mMax = std::numeric_limits<F64>::min();
 		mMean = other ? other->mLastValue : 0;
 		mVarianceSum = 0;
 		mLastSampleTimeStamp = LLTimer::getTotalSeconds();
@@ -506,22 +502,22 @@ public:
 
 		if (mHasValue)
 		{
-			mSum += (F64)mLastValue * delta_time;
+			mSum += mLastValue * delta_time;
 			mTotalSamplingTime += delta_time;
 		}
 		mLastSampleTimeStamp = time_stamp;
 	}
 
-	T	getSum() const { return (T)mSum; }
-	T	getMin() const { return (T)mMin; }
-	T	getMax() const { return (T)mMax; }
-	T	getLastValue() const { return (T)mLastValue; }
+	F64	getSum() const { return mSum; }
+	F64	getMin() const { return mMin; }
+	F64	getMax() const { return mMax; }
+	F64	getLastValue() const { return mLastValue; }
 	F64	getMean() const { return mMean; }
 	F64 getStandardDeviation() const { return sqrtf(mVarianceSum / mTotalSamplingTime); }
 	U32 getSampleCount() const { return mNumSamples; }
 
 private:
-	T	mSum,
+	F64	mSum,
 		mMin,
 		mMax,
 		mLastValue;
@@ -537,12 +533,10 @@ private:
 	U32	mNumSamples;
 };
 
-template<typename T>
 class CountAccumulator
 {
 public:
-	typedef CountAccumulator<T> self_t;
-	typedef T value_t;
+	typedef F64 value_t;
 	typedef F64 mean_t;
 
 	CountAccumulator()
@@ -550,19 +544,19 @@ public:
 		mNumSamples(0)
 	{}
 
-	void add(T value)
+	void add(F64 value)
 	{
 		mNumSamples++;
 		mSum += value;
 	}
 
-	void addSamples(const CountAccumulator<T>& other, bool /*append*/)
+	void addSamples(const CountAccumulator& other, bool /*append*/)
 	{
 		mSum += other.mSum;
 		mNumSamples += other.mNumSamples;
 	}
 
-	void reset(const self_t* other)
+	void reset(const CountAccumulator* other)
 	{
 		mNumSamples = 0;
 		mSum = 0;
@@ -570,12 +564,12 @@ public:
 
 	void flush() {}
 
-	T	getSum() const { return (T)mSum; }
+	F64	getSum() const { return mSum; }
 
 	U32 getSampleCount() const { return mNumSamples; }
 
 private:
-	T	mSum;
+	F64	mSum;
 
 	U32	mNumSamples;
 };
@@ -659,11 +653,11 @@ public:
 
 template <typename T = F64>
 class EventStatHandle
-:	public TraceType<EventAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >
+:	public TraceType<EventAccumulator>
 {
 public:
 	typedef typename LLUnits::HighestPrecisionType<T>::type_t storage_t;
-	typedef TraceType<EventAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> > trace_t;
+	typedef TraceType<EventAccumulator> trace_t;
 
 	EventStatHandle(const char* name, const char* description = NULL)
 	:	trace_t(name, description)
@@ -679,11 +673,11 @@ void record(EventStatHandle<T>& measurement, VALUE_T value)
 
 template <typename T = F64>
 class SampleStatHandle
-:	public TraceType<SampleAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >
+:	public TraceType<SampleAccumulator>
 {
 public:
-	typedef typename LLUnits::HighestPrecisionType<T>::type_t storage_t;
-	typedef TraceType<SampleAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> > trace_t;
+	typedef F64 storage_t;
+	typedef TraceType<SampleAccumulator> trace_t;
 
 	SampleStatHandle(const char* name, const char* description = NULL)
 	:	trace_t(name, description)
@@ -699,11 +693,11 @@ void sample(SampleStatHandle<T>& measurement, VALUE_T value)
 
 template <typename T = F64>
 class CountStatHandle
-:	public TraceType<CountAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> >
+:	public TraceType<CountAccumulator>
 {
 public:
 	typedef typename LLUnits::HighestPrecisionType<T>::type_t storage_t;
-	typedef TraceType<CountAccumulator<typename LLUnits::HighestPrecisionType<T>::type_t> > trace_t;
+	typedef TraceType<CountAccumulator> trace_t;
 
 	CountStatHandle(const char* name, const char* description = NULL) 
 	:	trace_t(name)

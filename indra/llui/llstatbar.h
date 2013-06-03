@@ -111,12 +111,9 @@ private:
 	bool		 mScaleRange;
 	EOrientation mOrientation;
 
-	LLTrace::TraceType<LLTrace::CountAccumulator<F64> >*	mCountFloatp;
-	LLTrace::TraceType<LLTrace::CountAccumulator<S64> >*	mCountIntp;
-	LLTrace::TraceType<LLTrace::EventAccumulator<F64> >*	mEventFloatp;
-	LLTrace::TraceType<LLTrace::EventAccumulator<S64> >*	mEventIntp;
-	LLTrace::TraceType<LLTrace::SampleAccumulator<F64> >*	mSampleFloatp;
-	LLTrace::TraceType<LLTrace::SampleAccumulator<S64> >*	mSampleIntp;
+	LLTrace::TraceType<LLTrace::CountAccumulator>*			mCountFloatp;
+	LLTrace::TraceType<LLTrace::EventAccumulator>*			mEventFloatp;
+	LLTrace::TraceType<LLTrace::SampleAccumulator>*			mSampleFloatp;
 
 	LLFrameTimer mUpdateTimer;
 	LLUIString   mLabel;

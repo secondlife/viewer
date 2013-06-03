@@ -44,11 +44,8 @@ RecordingBuffers::RecordingBuffers()
 
 void RecordingBuffers::handOffTo(RecordingBuffers& other)
 {
-	other.mCountsFloat.reset(&mCountsFloat);
 	other.mCounts.reset(&mCounts);
-	other.mSamplesFloat.reset(&mSamplesFloat);
 	other.mSamples.reset(&mSamples);
-	other.mEventsFloat.reset(&mEventsFloat);
 	other.mEvents.reset(&mEvents);
 	other.mStackTimers.reset(&mStackTimers);
 	other.mMemStats.reset(&mMemStats);
@@ -56,11 +53,8 @@ void RecordingBuffers::handOffTo(RecordingBuffers& other)
 
 void RecordingBuffers::makePrimary()
 {
-	mCountsFloat.makePrimary();
 	mCounts.makePrimary();
-	mSamplesFloat.makePrimary();
 	mSamples.makePrimary();
-	mEventsFloat.makePrimary();
 	mEvents.makePrimary();
 	mStackTimers.makePrimary();
 	mMemStats.makePrimary();
@@ -85,11 +79,8 @@ bool RecordingBuffers::isPrimary() const
 
 void RecordingBuffers::append( const RecordingBuffers& other )
 {
-	mCountsFloat.addSamples(other.mCountsFloat);
 	mCounts.addSamples(other.mCounts);
-	mSamplesFloat.addSamples(other.mSamplesFloat);
 	mSamples.addSamples(other.mSamples);
-	mEventsFloat.addSamples(other.mEventsFloat);
 	mEvents.addSamples(other.mEvents);
 	mMemStats.addSamples(other.mMemStats);
 	mStackTimers.addSamples(other.mStackTimers);
@@ -97,11 +88,8 @@ void RecordingBuffers::append( const RecordingBuffers& other )
 
 void RecordingBuffers::merge( const RecordingBuffers& other)
 {
-	mCountsFloat.addSamples(other.mCountsFloat, false);
 	mCounts.addSamples(other.mCounts, false);
-	mSamplesFloat.addSamples(other.mSamplesFloat, false);
 	mSamples.addSamples(other.mSamples, false);
-	mEventsFloat.addSamples(other.mEventsFloat, false);
 	mEvents.addSamples(other.mEvents, false);
 	mMemStats.addSamples(other.mMemStats, false);
 	// for now, hold out timers from merge, need to be displayed per thread
@@ -110,11 +98,8 @@ void RecordingBuffers::merge( const RecordingBuffers& other)
 
 void RecordingBuffers::reset(RecordingBuffers* other)
 {
-	mCountsFloat.reset(other ? &other->mCountsFloat : NULL);
 	mCounts.reset(other ? &other->mCounts : NULL);
-	mSamplesFloat.reset(other ? &other->mSamplesFloat : NULL);
 	mSamples.reset(other ? &other->mSamples : NULL);
-	mEventsFloat.reset(other ? &other->mEventsFloat : NULL);
 	mEvents.reset(other ? &other->mEvents : NULL);
 	mStackTimers.reset(other ? &other->mStackTimers : NULL);
 	mMemStats.reset(other ? &other->mMemStats : NULL);
@@ -122,7 +107,6 @@ void RecordingBuffers::reset(RecordingBuffers* other)
 
 void RecordingBuffers::flush()
 {
-	mSamplesFloat.flush();
 	mSamples.flush();
 }
 
@@ -280,200 +264,100 @@ LLUnit<LLUnits::Bytes, F32> Recording::getPerSec(const TraceType<MemStatAccumula
 }
 
 
-F64 Recording::getSum( const TraceType<CountAccumulator<F64> >& stat )
-{
-	update();
-	return mBuffers->mCountsFloat[stat.getIndex()].getSum();
-}
-
-S64 Recording::getSum( const TraceType<CountAccumulator<S64> >& stat )
+F64 Recording::getSum( const TraceType<CountAccumulator>& stat )
 {
 	update();
 	return mBuffers->mCounts[stat.getIndex()].getSum();
 }
 
-F64 Recording::getSum( const TraceType<EventAccumulator<F64> >& stat )
+F64 Recording::getSum( const TraceType<EventAccumulator>& stat )
 {
 	update();
-	return (F64)mBuffers->mEventsFloat[stat.getIndex()].getSum();
+	return (F64)mBuffers->mEvents[stat.getIndex()].getSum();
 }
 
-S64 Recording::getSum( const TraceType<EventAccumulator<S64> >& stat )
+F64 Recording::getPerSec( const TraceType<CountAccumulator>& stat )
 {
 	update();
-	return (S64)mBuffers->mEvents[stat.getIndex()].getSum();
-}
-
-
-
-F64 Recording::getPerSec( const TraceType<CountAccumulator<F64> >& stat )
-{
-	update();
-	F64 sum = mBuffers->mCountsFloat[stat.getIndex()].getSum();
+	F64 sum = mBuffers->mCounts[stat.getIndex()].getSum();
 	return  (sum != 0.0) 
 		? (sum / mElapsedSeconds)
 		: 0.0;
 }
 
-F64 Recording::getPerSec( const TraceType<CountAccumulator<S64> >& stat )
-{
-	S64 sum = mBuffers->mCounts[stat.getIndex()].getSum();
-	return (sum != 0) 
-		? ((F64)sum / mElapsedSeconds)
-		: 0.0;
-}
-
-U32 Recording::getSampleCount( const TraceType<CountAccumulator<F64> >& stat )
-{
-	update();
-	return mBuffers->mCountsFloat[stat.getIndex()].getSampleCount();
-}
-
-U32 Recording::getSampleCount( const TraceType<CountAccumulator<S64> >& stat )
+U32 Recording::getSampleCount( const TraceType<CountAccumulator>& stat )
 {
 	update();
 	return mBuffers->mCounts[stat.getIndex()].getSampleCount();
 }
 
-F64 Recording::getMin( const TraceType<SampleAccumulator<F64> >& stat )
-{
-	update();
-	return mBuffers->mSamplesFloat[stat.getIndex()].getMin();
-}
-
-S64 Recording::getMin( const TraceType<SampleAccumulator<S64> >& stat )
+F64 Recording::getMin( const TraceType<SampleAccumulator>& stat )
 {
 	update();
 	return mBuffers->mSamples[stat.getIndex()].getMin();
 }
 
-F64 Recording::getMax( const TraceType<SampleAccumulator<F64> >& stat )
-{
-	update();
-	return mBuffers->mSamplesFloat[stat.getIndex()].getMax();
-}
-
-S64 Recording::getMax( const TraceType<SampleAccumulator<S64> >& stat )
+F64 Recording::getMax( const TraceType<SampleAccumulator>& stat )
 {
 	update();
 	return mBuffers->mSamples[stat.getIndex()].getMax();
 }
 
-F64 Recording::getMean( const TraceType<SampleAccumulator<F64> >& stat )
-{
-	update();
-	return mBuffers->mSamplesFloat[stat.getIndex()].getMean();
-}
-
-F64 Recording::getMean( const TraceType<SampleAccumulator<S64> >& stat )
+F64 Recording::getMean( const TraceType<SampleAccumulator>& stat )
 {
 	update();
 	return mBuffers->mSamples[stat.getIndex()].getMean();
 }
 
-F64 Recording::getStandardDeviation( const TraceType<SampleAccumulator<F64> >& stat )
-{
-	update();
-	return mBuffers->mSamplesFloat[stat.getIndex()].getStandardDeviation();
-}
-
-F64 Recording::getStandardDeviation( const TraceType<SampleAccumulator<S64> >& stat )
+F64 Recording::getStandardDeviation( const TraceType<SampleAccumulator>& stat )
 {
 	update();
 	return mBuffers->mSamples[stat.getIndex()].getStandardDeviation();
 }
 
-F64 Recording::getLastValue( const TraceType<SampleAccumulator<F64> >& stat )
-{
-	update();
-	return mBuffers->mSamplesFloat[stat.getIndex()].getLastValue();
-}
-
-S64 Recording::getLastValue( const TraceType<SampleAccumulator<S64> >& stat )
+F64 Recording::getLastValue( const TraceType<SampleAccumulator>& stat )
 {
 	update();
 	return mBuffers->mSamples[stat.getIndex()].getLastValue();
 }
 
-U32 Recording::getSampleCount( const TraceType<SampleAccumulator<F64> >& stat )
-{
-	update();
-	return mBuffers->mSamplesFloat[stat.getIndex()].getSampleCount();
-}
-
-U32 Recording::getSampleCount( const TraceType<SampleAccumulator<S64> >& stat )
+U32 Recording::getSampleCount( const TraceType<SampleAccumulator>& stat )
 {
 	update();
 	return mBuffers->mSamples[stat.getIndex()].getSampleCount();
 }
 
-F64 Recording::getMin( const TraceType<EventAccumulator<F64> >& stat )
-{
-	update();
-	return mBuffers->mEventsFloat[stat.getIndex()].getMin();
-}
-
-S64 Recording::getMin( const TraceType<EventAccumulator<S64> >& stat )
+F64 Recording::getMin( const TraceType<EventAccumulator>& stat )
 {
 	update();
 	return mBuffers->mEvents[stat.getIndex()].getMin();
 }
 
-F64 Recording::getMax( const TraceType<EventAccumulator<F64> >& stat )
-{
-	update();
-	return mBuffers->mEventsFloat[stat.getIndex()].getMax();
-}
-
-S64 Recording::getMax( const TraceType<EventAccumulator<S64> >& stat )
+F64 Recording::getMax( const TraceType<EventAccumulator>& stat )
 {
 	update();
 	return mBuffers->mEvents[stat.getIndex()].getMax();
 }
 
-F64 Recording::getMean( const TraceType<EventAccumulator<F64> >& stat )
-{
-	update();
-	return mBuffers->mEventsFloat[stat.getIndex()].getMean();
-}
-
-F64 Recording::getMean( const TraceType<EventAccumulator<S64> >& stat )
+F64 Recording::getMean( const TraceType<EventAccumulator>& stat )
 {
 	update();
 	return mBuffers->mEvents[stat.getIndex()].getMean();
 }
 
-F64 Recording::getStandardDeviation( const TraceType<EventAccumulator<F64> >& stat )
-{
-	update();
-	return mBuffers->mEventsFloat[stat.getIndex()].getStandardDeviation();
-}
-
-F64 Recording::getStandardDeviation( const TraceType<EventAccumulator<S64> >& stat )
+F64 Recording::getStandardDeviation( const TraceType<EventAccumulator>& stat )
 {
 	update();
 	return mBuffers->mEvents[stat.getIndex()].getStandardDeviation();
 }
 
-F64 Recording::getLastValue( const TraceType<EventAccumulator<F64> >& stat )
-{
-	update();
-	return mBuffers->mEventsFloat[stat.getIndex()].getLastValue();
-}
-
-S64 Recording::getLastValue( const TraceType<EventAccumulator<S64> >& stat )
+F64 Recording::getLastValue( const TraceType<EventAccumulator>& stat )
 {
 	update();
 	return mBuffers->mEvents[stat.getIndex()].getLastValue();
 }
 
-U32 Recording::getSampleCount( const TraceType<EventAccumulator<F64> >& stat )
-{
-	update();
-	return mBuffers->mEventsFloat[stat.getIndex()].getSampleCount();
-}
-
-U32 Recording::getSampleCount( const TraceType<EventAccumulator<S64> >& stat )
+U32 Recording::getSampleCount( const TraceType<EventAccumulator>& stat )
 {
 	update();
 	return mBuffers->mEvents[stat.getIndex()].getSampleCount();
@@ -666,6 +550,122 @@ void PeriodicRecording::handleSplitTo(PeriodicRecording& other)
 {
 	getCurRecording().splitTo(other.getCurRecording());
 }
+
+
+F64 PeriodicRecording::getPeriodMean( const TraceType<EventAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
+{
+	size_t total_periods = mRecordingPeriods.size();
+	num_periods = llmin(num_periods, total_periods);
+
+	F64 mean = 0;
+	if (num_periods <= 0) { return mean; }
+
+	S32 total_sample_count = 0;
+
+	for (S32 i = 1; i <= num_periods; i++)
+	{
+		S32 index = (mCurPeriod + total_periods - i) % total_periods;
+		if (mRecordingPeriods[index].getDuration() > 0.f)
+		{
+			S32 period_sample_count = mRecordingPeriods[index].getSampleCount(stat);
+			mean += mRecordingPeriods[index].getMean(stat) * period_sample_count;
+			total_sample_count += period_sample_count;
+		}
+	}
+
+	if (total_sample_count)
+	{
+		mean = mean / total_sample_count;
+	}
+	return mean;
+}
+
+F64 PeriodicRecording::getPeriodMin( const TraceType<EventAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
+{
+	size_t total_periods = mRecordingPeriods.size();
+	num_periods = llmin(num_periods, total_periods);
+
+	F64 min_val = std::numeric_limits<F64>::max();
+	for (S32 i = 1; i <= num_periods; i++)
+	{
+		S32 index = (mCurPeriod + total_periods - i) % total_periods;
+		min_val = llmin(min_val, mRecordingPeriods[index].getMin(stat));
+	}
+	return min_val;
+}
+
+F64 PeriodicRecording::getPeriodMax( const TraceType<EventAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
+{
+	size_t total_periods = mRecordingPeriods.size();
+	num_periods = llmin(num_periods, total_periods);
+
+	F64 max_val = std::numeric_limits<F64>::min();
+	for (S32 i = 1; i <= num_periods; i++)
+	{
+		S32 index = (mCurPeriod + total_periods - i) % total_periods;
+		max_val = llmax(max_val, mRecordingPeriods[index].getMax(stat));
+	}
+	return max_val;
+}
+
+F64 PeriodicRecording::getPeriodMin( const TraceType<SampleAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
+{
+	size_t total_periods = mRecordingPeriods.size();
+	num_periods = llmin(num_periods, total_periods);
+
+	F64 min_val = std::numeric_limits<F64>::max();
+	for (S32 i = 1; i <= num_periods; i++)
+	{
+		S32 index = (mCurPeriod + total_periods - i) % total_periods;
+		min_val = llmin(min_val, mRecordingPeriods[index].getMin(stat));
+	}
+	return min_val;
+}
+
+F64 PeriodicRecording::getPeriodMax(const TraceType<SampleAccumulator>& stat, size_t num_periods /*= U32_MAX*/)
+{
+	size_t total_periods = mRecordingPeriods.size();
+	num_periods = llmin(num_periods, total_periods);
+
+	F64 max_val = std::numeric_limits<F64>::min();
+	for (S32 i = 1; i <= num_periods; i++)
+	{
+		S32 index = (mCurPeriod + total_periods - i) % total_periods;
+		max_val = llmax(max_val, mRecordingPeriods[index].getMax(stat));
+	}
+	return max_val;
+}
+
+
+F64 PeriodicRecording::getPeriodMean( const TraceType<SampleAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
+{
+	size_t total_periods = mRecordingPeriods.size();
+	num_periods = llmin(num_periods, total_periods);
+
+	LLUnit<LLUnits::Seconds, F64> total_duration = 0.f;
+
+	F64 mean = 0;
+	if (num_periods <= 0) { return mean; }
+
+	for (S32 i = 1; i <= num_periods; i++)
+	{
+		S32 index = (mCurPeriod + total_periods - i) % total_periods;
+		if (mRecordingPeriods[index].getDuration() > 0.f)
+		{
+			LLUnit<LLUnits::Seconds, F64> recording_duration = mRecordingPeriods[index].getDuration();
+			mean += mRecordingPeriods[index].getMean(stat) * recording_duration.value();
+			total_duration += recording_duration;
+		}
+	}
+
+	if (total_duration.value())
+	{
+		mean = mean / total_duration;
+	}
+	return mean;
+}
+
+
 
 ///////////////////////////////////////////////////////////////////////
 // ExtendableRecording

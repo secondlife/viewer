@@ -147,13 +147,6 @@ ThreadRecorder::active_recording_list_t::reverse_iterator ThreadRecorder::bringU
 	return it;
 }
 
-AccumulatorBuffer<CountAccumulator<F64> > 	gCountsFloat;
-AccumulatorBuffer<EventAccumulator<F64> >	gMeasurementsFloat;
-AccumulatorBuffer<CountAccumulator<S64> >	gCounts;
-AccumulatorBuffer<EventAccumulator<S64> >	gMeasurements;
-AccumulatorBuffer<TimeBlockAccumulator>		gStackTimers;
-AccumulatorBuffer<MemStatAccumulator>		gMemStats;
-
 void ThreadRecorder::deactivate( Recording* recording )
 {
 	active_recording_list_t::reverse_iterator it = bringUpToDate(recording);

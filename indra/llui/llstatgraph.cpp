@@ -47,8 +47,7 @@ LLStatGraph::LLStatGraph(const Params& p)
 	mPerSec(true),
 	mPrecision(p.precision),
 	mValue(p.value),
-	mNewStatFloatp(p.stat.count_stat_float),
-	mNewStatIntp(p.stat.count_stat_int)
+	mNewStatFloatp(p.stat.count_stat_float)
 {
 	setToolTip(p.name());
 
@@ -75,19 +74,6 @@ void LLStatGraph::draw()
 		else
 		{
 			mValue = recording.getSum(*mNewStatFloatp);
-		}
-	}
-	else if (mNewStatIntp)
-	{
-		LLTrace::Recording& recording = LLTrace::get_frame_recording().getLastRecording();
-
-		if (mPerSec)
-		{
-			mValue = recording.getPerSec(*mNewStatIntp);
-		}
-		else
-		{
-			mValue = recording.getSum(*mNewStatIntp);
 		}
 	}
 
