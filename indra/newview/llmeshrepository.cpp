@@ -1237,7 +1237,6 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 			}
 			mPendingLOD.erase(iter);
 		}
-		}
 	}
 
 	return true;
