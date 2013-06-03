@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="Luoghi" name="voice_effects" title="MANIPOLAZIONE VOCE">
+<floater label="Luoghi" name="voice_effects" title="ANTEPRIMA MANIPOLAZIONE VOCE">
 	<string name="no_voice_effect">
 		(Nessuna manipolazione voce)
 	</string>

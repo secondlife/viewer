@@ -300,7 +300,7 @@ public:
 	/** 
 	 * @brief Constructor
 	 */
-	LLSDXMLParser();
+	LLSDXMLParser(bool emit_errors=true);
 
 protected:
 	/** 
@@ -747,25 +747,25 @@ public:
 		return f->format(sd, str, LLSDFormatter::OPTIONS_PRETTY);
 	}
 
-	static S32 fromXMLEmbedded(LLSD& sd, std::istream& str)
+	static S32 fromXMLEmbedded(LLSD& sd, std::istream& str, bool emit_errors=true)
 	{
 		// no need for max_bytes since xml formatting is not
 		// subvertable by bad sizes.
-		LLPointer<LLSDXMLParser> p = new LLSDXMLParser;
+		LLPointer<LLSDXMLParser> p = new LLSDXMLParser(emit_errors);
 		return p->parse(str, sd, LLSDSerialize::SIZE_UNLIMITED);
 	}
 	// Line oriented parser, 30% faster than fromXML(), but can
 	// only be used when you know you have the complete XML
 	// document available in the stream.
-	static S32 fromXMLDocument(LLSD& sd, std::istream& str)
+	static S32 fromXMLDocument(LLSD& sd, std::istream& str, bool emit_errors=true)
 	{
-		LLPointer<LLSDXMLParser> p = new LLSDXMLParser();
+		LLPointer<LLSDXMLParser> p = new LLSDXMLParser(emit_errors);
 		return p->parseLines(str, sd);
 	}
-	static S32 fromXML(LLSD& sd, std::istream& str)
+	static S32 fromXML(LLSD& sd, std::istream& str, bool emit_errors=true)
 	{
-		return fromXMLEmbedded(sd, str);
-//		return fromXMLDocument(sd, str);
+		return fromXMLEmbedded(sd, str, emit_errors);
+//		return fromXMLDocument(sd, str, emit_errors);
 	}
 
 	/*

@@ -291,6 +291,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+    <key>AudioLevelUnderwaterRolloff</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls the distance-based dropoff of audio volume underwater(fraction or multiple of default audio rolloff)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>5.0</real>
+    </map>
     <key>AudioLevelSFX</key>
     <map>
       <key>Comment</key>
@@ -1894,6 +1905,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>CoroutineStackSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Size (in bytes) for each coroutine stack</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>262144</integer>
+    </map>
     <key>CreateToolCopyCenters</key>
     <map>
       <key>Comment</key>
@@ -2004,6 +2026,39 @@
       <key>Value</key>
       <string />
     </map>
+  <key>DebugAvatarAppearanceMessage</key>
+  <map>
+    <key>Comment</key>
+    <string>Dump a bunch of XML files when handling appearance messages</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>DebugAvatarExperimentalServerAppearanceUpdate</key>
+  <map>
+    <key>Comment</key>
+    <string>Experiment with sending full cof_contents instead of cof_version</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+    <key>DebugAvatarAppearanceServiceURLOverride</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to use for baked texture requests; overrides value returned by login server.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
 	<key>DebugAvatarRezTime</key>
 	<map>
 		<key>Comment</key>
@@ -2026,6 +2081,17 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
+  <key>DebugAvatarCompositeBaked</key>
+  <map>
+    <key>Comment</key>
+    <string>Colorize avatar meshes based on baked/composite state.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
     <key>DebugBeaconLineWidth</key>
     <map>
       <key>Comment</key>
@@ -2036,6 +2102,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>DebugForceAppearanceRequestFailure</key>
+    <map>
+      <key>Comment</key>
+      <string>Request wrong cof version to test the failure path for server appearance update requests.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>DebugHideEmptySystemFolders</key>
     <map>
@@ -4380,6 +4457,28 @@
       <string>F32</string>
       <key>Value</key>
       <real>1.0</real>
+    </map>
+    <key>InventoryDebugSimulateOpFailureRate</key>
+    <map>
+      <key>Comment</key>
+        <string>Rate at which we simulate failures of copy/link requests in some operations</string>
+      <key>Persist</key>
+        <integer>1</integer>
+      <key>Type</key>
+        <string>F32</string>
+      <key>Value</key>
+        <real>0.0</real>
+    </map>
+    <key>InventoryDebugSimulateLateOpRate</key>
+    <map>
+      <key>Comment</key>
+        <string>Rate at which we simulate late-completing copy/link requests in some operations</string>
+      <key>Persist</key>
+        <integer>1</integer>
+      <key>Type</key>
+        <string>F32</string>
+      <key>Value</key>
+        <real>0.0</real>
     </map>
     <key>InventoryDisplayInbox</key>
     <map>
@@ -8903,6 +9002,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>DisableAllRenderTypes</key>
+    <map>
+      <key>Comment</key>
+      <string>Disables all rendering types.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>DisableAllRenderFeatures</key>
+    <map>
+      <key>Comment</key>
+      <string>Disables all rendering features.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RenderHUDInSnapshot</key>
     <map>
       <key>Comment</key>
@@ -11084,7 +11205,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>0.0</integer>
+      <real>0.0</real>
     </map>
     <key>TextureFetchUpdateSkipLowPriority</key>
     <map>
@@ -12340,6 +12461,17 @@
       <key>Value</key>
       <integer>3</integer>
     </map>
+    <key>UpdaterWillingToTest</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow upgrades to release candidate viewers with new features and fixes.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>UpdaterServiceCheckPeriod</key>
     <map>
       <key>Comment</key>
@@ -12373,16 +12505,16 @@
       <key>Value</key>
       <string>update</string>
     </map>
-    <key>UpdaterServiceProtocolVersion</key>
+    <key>UpdaterWillingToTest</key>
     <map>
       <key>Comment</key>
-      <string>The update protocol version to use.</string>
+      <string>Whether or not the updater should offer test candidate upgrades.</string>
       <key>Persist</key>
-      <integer>0</integer>
+      <integer>1</integer>
       <key>Type</key>
-      <string>String</string>
+      <string>Boolean</string>
       <key>Value</key>
-      <string>v1.0</string>
+      <string>1</string>
     </map>
     <key>UploadBakedTexOld</key>
     <map>
@@ -12723,6 +12855,7 @@
       <key>Type</key>
       <string>LLSD</string>
       <key>Value</key>
+      <string/>
     </map>
     <key>VFSOldSize</key>
     <map>
@@ -13339,6 +13472,28 @@
       <string>S32</string>
       <key>Value</key>
       <integer>-1</integer>
+    </map>
+    <key>MaxFPS</key>
+    <map>
+      <key>Comment</key>
+      <string>Yield some time to the local host if we reach a threshold framerate.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>-1.0</real>
+    </map>
+    <key>ForcePeriodicRenderingTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Periodically enable all rendering masks for a single frame.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>-1.0</real>
     </map>
     <key>ZoomDirect</key>
     <map>
@@ -14324,6 +14479,50 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
+  <key>DisablePrecacheDelayAfterTeleporting</key>
+  <map>
+    <key>Comment</key>
+    <string>Disables the artificial delay in the viewer that precaches some incoming assets</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>FMODExProfilerEnable</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable profiler tool if using FMOD Ex</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+    </map>
+  <key>FMODExDecodeBufferSize</key>
+  <map>
+    <key>Comment</key>
+    <string>Sets the streaming decode buffer size (in milliseconds)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>1000</integer>
+    </map>
+  <key>FMODExStreamBufferSize</key>
+  <map>
+    <key>Comment</key>
+    <string>Sets the streaming buffer size (in milliseconds)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>7000</integer>
   </map>
 </map>
 </llsd>

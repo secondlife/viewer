@@ -89,7 +89,7 @@ class fetchScriptLimitsRegionInfoResponder: public LLHTTPClient::Responder
 		fetchScriptLimitsRegionInfoResponder(const LLSD& info) : mInfo(info) {};
 
 		void result(const LLSD& content);
-		void error(U32 status, const std::string& reason);
+		void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 	public:
 	protected:
 		LLSD mInfo;
@@ -101,7 +101,7 @@ class fetchScriptLimitsRegionSummaryResponder: public LLHTTPClient::Responder
 		fetchScriptLimitsRegionSummaryResponder(const LLSD& info) : mInfo(info) {};
 
 		void result(const LLSD& content);
-		void error(U32 status, const std::string& reason);
+		void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 	public:
 	protected:
 		LLSD mInfo;
@@ -113,7 +113,7 @@ class fetchScriptLimitsRegionDetailsResponder: public LLHTTPClient::Responder
 		fetchScriptLimitsRegionDetailsResponder(const LLSD& info) : mInfo(info) {};
 
 		void result(const LLSD& content);
-		void error(U32 status, const std::string& reason);
+		void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 	public:
 	protected:
 		LLSD mInfo;
@@ -125,7 +125,7 @@ class fetchScriptLimitsAttachmentInfoResponder: public LLHTTPClient::Responder
 		fetchScriptLimitsAttachmentInfoResponder() {};
 
 		void result(const LLSD& content);
-		void error(U32 status, const std::string& reason);
+		void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 	public:
 	protected:
 };

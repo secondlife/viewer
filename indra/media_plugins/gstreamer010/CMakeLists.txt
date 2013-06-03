@@ -12,7 +12,7 @@ include(LLWindow)
 include(Linking)
 include(PluginAPI)
 include(MediaPluginBase)
-include(FindOpenGL)
+include(OpenGL)
 
 include(GStreamer010Plugin)
 
@@ -27,6 +27,9 @@ include_directories(
     ${GSTREAMER010_INCLUDE_DIRS}
     ${GSTREAMER010_PLUGINS_BASE_INCLUDE_DIRS}
 )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    )
 
 ### media_plugin_gstreamer010
 
