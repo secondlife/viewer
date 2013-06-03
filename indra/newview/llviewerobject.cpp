@@ -3821,19 +3821,19 @@ LLViewerObject* LLViewerObject::getRootEdit() const
 }
 
 
-BOOL LLViewerObject::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+BOOL LLViewerObject::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 										  S32 face,
 										  BOOL pick_transparent,
 										  S32* face_hit,
-										  LLVector3* intersection,
+										  LLVector4a* intersection,
 										  LLVector2* tex_coord,
-										  LLVector3* normal,
-										  LLVector3* bi_normal)
+										  LLVector4a* normal,
+										  LLVector4a* tangent)
 {
 	return false;
 }
 
-BOOL LLViewerObject::lineSegmentBoundingBox(const LLVector3& start, const LLVector3& end)
+BOOL LLViewerObject::lineSegmentBoundingBox(const LLVector4a& start, const LLVector4a& end)
 {
 	if (mDrawable.isNull() || mDrawable->isDead())
 	{
@@ -3850,11 +3850,7 @@ BOOL LLViewerObject::lineSegmentBoundingBox(const LLVector3& start, const LLVect
 	size.setSub(ext[1], ext[0]);
 	size.mul(0.5f);
 
-	LLVector4a starta, enda;
-	starta.load3(start.mV);
-	enda.load3(end.mV);
-
-	return LLLineSegmentBoxIntersect(starta, enda, center, size);
+	return LLLineSegmentBoxIntersect(start, end, center, size);
 }
 
 U8 LLViewerObject::getMediaType() const

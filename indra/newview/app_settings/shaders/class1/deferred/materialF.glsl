@@ -495,7 +495,7 @@ void main()
 	//final_color.rgb *= 1 - spec.a * env_intensity;
 	//final_specular.rgb *= specular_color.rgb;
 	
-	vec4 final_normal = vec4(encode_normal(normalize(tnorm)), spec.a * env_intensity, 0.0);
+	vec4 final_normal = vec4(encode_normal(normalize(tnorm)), env_intensity, 0.0);
 	final_specular.a = specular_color.a * norm.a;
 #else
 	vec4 final_normal = vec4(encode_normal(normalize(tnorm)), env_intensity, 0.0);

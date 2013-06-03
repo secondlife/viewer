@@ -207,7 +207,7 @@ public:
 		RIGGED_NORMMAP_VMASK =
 						LLVertexBuffer::MAP_VERTEX | 
 						LLVertexBuffer::MAP_NORMAL | 
-						LLVertexBuffer::MAP_BINORMAL | 
+						LLVertexBuffer::MAP_TANGENT | 
 						LLVertexBuffer::MAP_TEXCOORD0 |
 						LLVertexBuffer::MAP_TEXCOORD1 |
 						LLVertexBuffer::MAP_COLOR |
@@ -218,7 +218,7 @@ public:
 		RIGGED_NORMSPEC_VMASK =
 						LLVertexBuffer::MAP_VERTEX | 
 						LLVertexBuffer::MAP_NORMAL | 
-						LLVertexBuffer::MAP_BINORMAL | 
+						LLVertexBuffer::MAP_TANGENT | 
 						LLVertexBuffer::MAP_TEXCOORD0 |
 						LLVertexBuffer::MAP_TEXCOORD1 |
 						LLVertexBuffer::MAP_TEXCOORD2 |
@@ -247,7 +247,7 @@ public:
 		RIGGED_DEFERRED_BUMP_MASK = LLVertexBuffer::MAP_VERTEX | 
 							 LLVertexBuffer::MAP_NORMAL | 
 							 LLVertexBuffer::MAP_TEXCOORD0 |
-							 LLVertexBuffer::MAP_BINORMAL |
+							 LLVertexBuffer::MAP_TANGENT |
 							 LLVertexBuffer::MAP_COLOR |
 							 LLVertexBuffer::MAP_WEIGHT4,
 		RIGGED_DEFERRED_SIMPLE_MASK = LLVertexBuffer::MAP_VERTEX | 
