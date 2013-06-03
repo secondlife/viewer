@@ -13491,7 +13491,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>-1.0</integer>
+      <real>-1.0</real>
     </map>
     <key>ForcePeriodicRenderingTime</key>
     <map>
@@ -13502,7 +13502,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>-1.0</integer>
+      <real>-1.0</real>
     </map>
     <key>ZoomDirect</key>
     <map>
