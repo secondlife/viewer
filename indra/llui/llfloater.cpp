@@ -717,9 +717,13 @@ void LLFloater::closeFloater(bool app_quitting)
 	{
 		if ( mVerifyUponClose && !mForceCloseAfterVerify )
 		{
+
+			llinfos<<"prep#dogshit1"<<llendl;
 			onClose( app_quitting );
 			if ( mForceCloseAfterVerify ) 
 			{			
+
+				llinfos<<"prep#dogshit1b"<<llendl;
 				return;
 			}			
 		}
@@ -727,6 +731,7 @@ void LLFloater::closeFloater(bool app_quitting)
 
 	if (app_quitting)
 	{	
+		llinfos<<"prep#dogshit2"<<llendl;
 		LLFloater::sQuitting = true;
 	}
 	

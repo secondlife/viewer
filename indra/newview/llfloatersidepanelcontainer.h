@@ -89,7 +89,8 @@ public:
 
 private:
 	LLSidepanelAppearance* getSidePanelAppearance();
-private: 
+
+public: 
 	bool mAppQuiting;
 };
 
