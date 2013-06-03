@@ -116,7 +116,7 @@ public:
 	/*virtual*/ void	draw();	
 	/*virtual*/ BOOL	handleKeyHere( KEY key, MASK mask );
 	/*virtual*/ void 	handleVisibilityChange ( BOOL new_visibility );
-				void	handleCloseConfirmation( );
+				void	handleCloseConfirmation( bool app_quitting );
 
 
 	// From LLFocusableElement

@@ -225,7 +225,7 @@ public:
 
 	// If allowed, close the floater cleanly, releasing focus.
 	virtual void	closeFloater(bool app_quitting = false);
-	virtual void	verifyClose();
+	virtual void	verifyClose( bool app_quitting = false );
 
 	// Close the floater or its host. Use when hidding or toggling a floater instance.
 	virtual void	closeHostedFloater();

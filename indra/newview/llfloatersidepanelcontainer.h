@@ -89,6 +89,8 @@ public:
 
 private:
 	LLSidepanelAppearance* getSidePanelAppearance();
+private: 
+	bool mAppQuiting;
 };
 
 #endif // LL_LLFLOATERSIDEPANELCONTAINER_H

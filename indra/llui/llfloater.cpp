@@ -704,9 +704,9 @@ void LLFloater::openFloater(const LLSD& key)
 	dirtyRect();
 }
 
-void LLFloater::verifyClose()
+void LLFloater::verifyClose( bool app_quitting )
 {
-	LLPanel::handleCloseConfirmation();
+	LLPanel::handleCloseConfirmation( app_quitting );
 }
 
 void LLFloater::closeFloater(bool app_quitting)
@@ -726,7 +726,7 @@ void LLFloater::closeFloater(bool app_quitting)
 	}	
 
 	if (app_quitting)
-	{
+	{	
 		LLFloater::sQuitting = true;
 	}
 	
@@ -2659,7 +2659,7 @@ void LLFloaterView::closeAllChildren(bool app_quitting)
 		{
 			if ( floaterp->mVerifyUponClose )
 			{			
-				floaterp->verifyClose();
+				floaterp->verifyClose(app_quitting);
 			}
 			else
 			{
