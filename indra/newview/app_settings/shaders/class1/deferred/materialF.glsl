@@ -665,6 +665,9 @@ void main()
 		LIGHT_LOOP(6)
 		LIGHT_LOOP(7)
 
+
+	col.rgb = pow(col.rgb, vec3(1.0/2.2));
+
 	frag_color.rgb = col.rgb;
 	glare = min(glare, 1.0);
 	frag_color.a = max(diffcol.a*vertex_color.a, glare);
