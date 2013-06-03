@@ -404,6 +404,7 @@ Ganymedes Costagravas
 Geenz Spad
 	STORM-1823
 	STORM-1900
+	NORSPEC-229
 Gene Frostbite
 GeneJ Composer
 Geneko Nemeth

@@ -217,7 +217,7 @@ extern LLGLSLShader			gTransformPositionProgram;
 extern LLGLSLShader			gTransformTexCoordProgram;
 extern LLGLSLShader			gTransformNormalProgram;
 extern LLGLSLShader			gTransformColorProgram;
-extern LLGLSLShader			gTransformBinormalProgram;
+extern LLGLSLShader			gTransformTangentProgram;
 
 
 

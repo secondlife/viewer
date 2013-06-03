@@ -68,7 +68,7 @@ LLGLSLShader			gTransformPositionProgram;
 LLGLSLShader			gTransformTexCoordProgram;
 LLGLSLShader			gTransformNormalProgram;
 LLGLSLShader			gTransformColorProgram;
-LLGLSLShader			gTransformBinormalProgram;
+LLGLSLShader			gTransformTangentProgram;
 
 //utility shaders
 LLGLSLShader	gOcclusionProgram;
@@ -789,7 +789,7 @@ void LLViewerShaderMgr::unloadShaders()
 	gTransformTexCoordProgram.unload();
 	gTransformNormalProgram.unload();
 	gTransformColorProgram.unload();
-	gTransformBinormalProgram.unload();
+	gTransformTangentProgram.unload();
 
 	mVertexShaderLevel[SHADER_LIGHTING] = 0;
 	mVertexShaderLevel[SHADER_OBJECT] = 0;
@@ -3043,7 +3043,7 @@ BOOL LLViewerShaderMgr::loadTransformShaders()
 		gTransformTexCoordProgram.unload();
 		gTransformNormalProgram.unload();
 		gTransformColorProgram.unload();
-		gTransformBinormalProgram.unload();
+		gTransformTangentProgram.unload();
 		return TRUE;
 	}
 
@@ -3106,16 +3106,16 @@ BOOL LLViewerShaderMgr::loadTransformShaders()
 
 	if (success)
 	{
-		gTransformBinormalProgram.mName = "Binormal Transform Shader";
-		gTransformBinormalProgram.mShaderFiles.clear();
-		gTransformBinormalProgram.mShaderFiles.push_back(make_pair("transform/binormalV.glsl", GL_VERTEX_SHADER_ARB));
-		gTransformBinormalProgram.mShaderLevel = mVertexShaderLevel[SHADER_TRANSFORM];
+		gTransformTangentProgram.mName = "Binormal Transform Shader";
+		gTransformTangentProgram.mShaderFiles.clear();
+		gTransformTangentProgram.mShaderFiles.push_back(make_pair("transform/binormalV.glsl", GL_VERTEX_SHADER_ARB));
+		gTransformTangentProgram.mShaderLevel = mVertexShaderLevel[SHADER_TRANSFORM];
 
 		const char* varyings[] = {
-			"binormal_out",
+			"tangent_out",
 		};
 	
-		success = gTransformBinormalProgram.createShader(NULL, NULL, 1, varyings);
+		success = gTransformTangentProgram.createShader(NULL, NULL, 1, varyings);
 	}
 
 	

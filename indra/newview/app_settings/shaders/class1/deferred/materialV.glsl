@@ -56,7 +56,7 @@ ATTRIBUTE vec2 texcoord0;
 
 
 #if HAS_NORMAL_MAP
-ATTRIBUTE vec3 binormal;
+ATTRIBUTE vec4 tangent;
 ATTRIBUTE vec2 texcoord1;
 
 VARYING vec3 vary_mat0;
@@ -110,8 +110,8 @@ void main()
 #if HAS_SKIN
 	vec3 n = normalize((mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz);
 #if HAS_NORMAL_MAP
-	vec3 b = normalize((mat*vec4(binormal.xyz+position.xyz,1.0)).xyz-pos.xyz);
-	vec3 t = cross(b, n);
+	vec3 t = normalize((mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz);
+	vec3 b = cross(n, t)*tangent.w;
 	
 	vary_mat0 = vec3(t.x, b.x, n.x);
 	vary_mat1 = vec3(t.y, b.y, n.y);
@@ -122,8 +122,9 @@ vary_normal  = n;
 #else //HAS_SKIN
 	vec3 n = normalize(normal_matrix * normal);
 #if HAS_NORMAL_MAP
-	vec3 b = normalize(normal_matrix * binormal);
-	vec3 t = cross(b, n);
+	vec3 t = normalize(normal_matrix * tangent.xyz);
+	vec3 b = cross(n,t)*tangent.w;
+	//vec3 t = cross(b,n) * binormal.w;
 	
 	vary_mat0 = vec3(t.x, b.x, n.x);
 	vary_mat1 = vec3(t.y, b.y, n.y);

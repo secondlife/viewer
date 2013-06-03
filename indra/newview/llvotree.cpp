@@ -1112,8 +1112,8 @@ void LLVOTree::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 	mDrawable->setPositionGroup(pos);
 }
 
-BOOL LLVOTree::lineSegmentIntersect(const LLVector3& start, const LLVector3& end, S32 face, BOOL pick_transparent, S32 *face_hitp,
-									  LLVector3* intersection,LLVector2* tex_coord, LLVector3* normal, LLVector3* bi_normal)
+BOOL LLVOTree::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, S32 *face_hitp,
+									  LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 	
 {
 
@@ -1142,16 +1142,19 @@ BOOL LLVOTree::lineSegmentIntersect(const LLVector3& start, const LLVector3& end
 
 	LLVector3 pos, norm;
 		
-	if (linesegment_tetrahedron(start, end, center, size, quat, pos, norm))
+	LLVector3 start3(start.getF32ptr());
+	LLVector3 end3(end.getF32ptr());
+
+	if (linesegment_tetrahedron(start3, end3, center, size, quat, pos, norm))
 	{
 		if (intersection)
 		{
-			*intersection = pos;
+			intersection->load3(pos.mV);
 		}
 
 		if (normal)
 		{
-			*normal = norm;
+			normal->load3(norm.mV);
 		}
 		return TRUE;
 	}

@@ -6886,20 +6886,20 @@ void LLPipeline::setRenderHighlightTextureChannel(LLRender::eTexIndex channel)
 	sRenderHighlightTextureChannel = channel;
 }
 
-LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, const LLVector3& end,
+LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start, const LLVector4a& end,
 														BOOL pick_transparent,												
 														S32* face_hit,
-														LLVector3* intersection,         // return the intersection point
+														LLVector4a* intersection,         // return the intersection point
 														LLVector2* tex_coord,            // return the texture coordinates of the intersection point
-														LLVector3* normal,               // return the surface normal at the intersection point
-														LLVector3* bi_normal             // return the surface bi-normal at the intersection point
+														LLVector4a* normal,               // return the surface normal at the intersection point
+														LLVector4a* tangent             // return the surface tangent at the intersection point
 	)
 {
 	LLDrawable* drawable = NULL;
 
-	LLVector3 local_end = end;
+	LLVector4a local_end = end;
 
-	LLVector3 position;
+	LLVector4a position;
 
 	sPickAvatar = FALSE; //LLToolMgr::getInstance()->inBuildMode() ? FALSE : TRUE;
 	
@@ -6919,7 +6919,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 				LLSpatialPartition* part = region->getSpatialPartition(j);
 				if (part && hasRenderType(part->mDrawableType))
 				{
-					LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, face_hit, &position, tex_coord, normal, bi_normal);
+					LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, face_hit, &position, tex_coord, normal, tangent);
 					if (hit)
 					{
 						drawable = hit;
@@ -6934,8 +6934,8 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 	{
 		//save hit info in case we need to restore
 		//due to attachment override
-		LLVector3 local_normal;
-		LLVector3 local_binormal;
+		LLVector4a local_normal;
+		LLVector4a local_tangent;
 		LLVector2 local_texcoord;
 		S32 local_face_hit = -1;
 
@@ -6947,9 +6947,9 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 		{
 			local_texcoord = *tex_coord;
 		}
-		if (bi_normal)
+		if (tangent)
 		{
-			local_binormal = *bi_normal;
+			local_tangent = *tangent;
 		}
 		if (normal)
 		{
@@ -6968,12 +6968,15 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 			LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_BRIDGE);
 			if (part && hasRenderType(part->mDrawableType))
 			{
-				LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, face_hit, &position, tex_coord, normal, bi_normal);
+				LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, face_hit, &position, tex_coord, normal, tangent);
 				if (hit)
 				{
+					LLVector4a delta;
+					delta.setSub(position, local_end);
+
 					if (!drawable || 
 						!drawable->getVObj()->isAttachment() ||
-						(position-local_end).magVec() > ATTACHMENT_OVERRIDE_DIST)
+						delta.getLength3().getF32() > ATTACHMENT_OVERRIDE_DIST)
 					{ //avatar overrides if previously hit drawable is not an attachment or 
 					  //attachment is far enough away from detected intersection
 						drawable = hit;
@@ -6991,9 +6994,9 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 						{
 							*tex_coord = local_texcoord;
 						}
-						if (bi_normal)
+						if (tangent)
 						{
-							*bi_normal = local_binormal;
+							*tangent = local_tangent;
 						}
 						if (normal)
 						{
@@ -7027,13 +7030,13 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 	return drawable ? drawable->getVObj().get() : NULL;
 }
 
-LLViewerObject* LLPipeline::lineSegmentIntersectInHUD(const LLVector3& start, const LLVector3& end,
+LLViewerObject* LLPipeline::lineSegmentIntersectInHUD(const LLVector4a& start, const LLVector4a& end,
 													  BOOL pick_transparent,													
 													  S32* face_hit,
-													  LLVector3* intersection,         // return the intersection point
+													  LLVector4a* intersection,         // return the intersection point
 													  LLVector2* tex_coord,            // return the texture coordinates of the intersection point
-													  LLVector3* normal,               // return the surface normal at the intersection point
-													  LLVector3* bi_normal             // return the surface bi-normal at the intersection point
+													  LLVector4a* normal,               // return the surface normal at the intersection point
+													  LLVector4a* tangent				// return the surface tangent at the intersection point
 	)
 {
 	LLDrawable* drawable = NULL;
@@ -7053,7 +7056,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInHUD(const LLVector3& start, co
 		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_HUD);
 		if (part)
 		{
-			LLDrawable* hit = part->lineSegmentIntersect(start, end, pick_transparent, face_hit, intersection, tex_coord, normal, bi_normal);
+			LLDrawable* hit = part->lineSegmentIntersect(start, end, pick_transparent, face_hit, intersection, tex_coord, normal, tangent);
 			if (hit)
 			{
 				drawable = hit;
@@ -7513,13 +7516,18 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			{
 				if (LLViewerJoystick::getInstance()->getOverrideCamera())
 				{ //focus on point under cursor
-					focus_point = gDebugRaycastIntersection;
+					focus_point.set(gDebugRaycastIntersection.getF32ptr());
 				}
 				else if (gAgentCamera.cameraMouselook())
 				{ //focus on point under mouselook crosshairs
+					LLVector4a result;
+					result.clear();
+
 					gViewerWindow->cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE,
 													NULL,
-													&focus_point);
+													&result);
+
+					focus_point.set(result.getF32ptr());
 				}
 				else
 				{
