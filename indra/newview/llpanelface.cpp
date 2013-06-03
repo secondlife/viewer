@@ -960,11 +960,11 @@ void LLPanelFace::updateUI()
 				}
 			}
             
-         if (shinytexture_ctrl && !shinytexture_ctrl->isPickerShown())
+         if (shinytexture_ctrl)
          {
 				// Can't use this test as we can't actually store SHINY_TEXTURE in the TEs *sigh*
 				//
-				if (identical_spec /*&& (shiny == SHINY_TEXTURE)*/)
+				if (identical_spec && (shiny == SHINY_TEXTURE))
 				{
 					shinytexture_ctrl->setTentative( FALSE );
 					shinytexture_ctrl->setEnabled( editable );

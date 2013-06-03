@@ -513,7 +513,14 @@ void LLDrawPoolBump::beginFullbrightShiny()
 	}
 	else
 	{
-		shader = &gObjectFullbrightShinyProgram;
+		if (LLPipeline::sRenderDeferred)
+		{
+			shader = &gDeferredFullbrightShinyProgram;
+		}
+		else
+		{
+			shader = &gObjectFullbrightShinyProgram;
+		}
 	}
 
 	LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
@@ -914,6 +921,8 @@ void LLBumpImageList::init()
 	llassert( mDarknessEntries.size() == 0 );
 
 	LLStandardBumpmap::init();
+
+	LLStandardBumpmap::restoreGL();
 }
 
 void LLBumpImageList::clear()

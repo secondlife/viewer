@@ -1,5 +1,5 @@
-/** 
- * @file lightFullbrightF.glsl
+/**
+ * @file fullbrightShinyV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,30 +23,45 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
+uniform mat3 normal_matrix;
+uniform mat4 texture_matrix0;
+uniform mat4 texture_matrix1;
+uniform mat4 modelview_matrix;
+uniform mat4 modelview_projection_matrix;
+
+
+void calcAtmospherics(vec3 inPositionEye);
+
+uniform vec4 origin;
+
+
+
+ATTRIBUTE vec3 position;
+void passTextureIndex();
+ATTRIBUTE vec3 normal;
+ATTRIBUTE vec4 diffuse_color;
+ATTRIBUTE vec2 texcoord0;
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
+VARYING vec3 vary_texcoord1;
 
-uniform float texture_gamma;
 
-vec3 fullbrightAtmosTransport(vec3 light);
-vec3 fullbrightScaleSoftClip(vec3 light);
-
-void fullbright_lighting()
+void main()
 {
-	vec4 color = diffuseLookup(vary_texcoord0.xy) * vertex_color;
+	//transform vertex
+	vec4 vert = vec4(position.xyz,1.0);
+	passTextureIndex();
+	vec4 pos = (modelview_matrix * vert);
+	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 	
-	color.rgb = pow(color.rgb, vec3(texture_gamma));
+	vec3 norm = normalize(normal_matrix * normal);
+	vec3 ref = reflect(pos.xyz, -norm);
 
-	color.rgb = fullbrightAtmosTransport(color.rgb);
-	
-	color.rgb = fullbrightScaleSoftClip(color.rgb);
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
+	vary_texcoord1 = (texture_matrix1*vec4(ref,1.0)).xyz;
 
-	frag_color = color;
+	calcAtmospherics(pos.xyz);
+
+	vertex_color = diffuse_color;
 }
-

@@ -268,6 +268,8 @@ std::string gPoolNames[] =
 	"POOL_SKY",
 	"POOL_WL_SKY",
 	"POOL_TREE",
+	"POOL_ALPHA_MASK",
+	"POOL_FULLBRIGHT_ALPHA_MASK",
 	"POOL_GRASS",
 	"POOL_INVISIBLE",
 	"POOL_AVATAR",
@@ -439,10 +441,14 @@ LLPipeline::LLPipeline() :
 	mWaterPool(NULL),
 	mGroundPool(NULL),
 	mSimplePool(NULL),
+	mGrassPool(NULL),
+	mAlphaMaskPool(NULL),
+	mFullbrightAlphaMaskPool(NULL),
 	mFullbrightPool(NULL),
 	mInvisiblePool(NULL),
 	mGlowPool(NULL),
 	mBumpPool(NULL),
+	mMaterialsPool(NULL),
 	mWLSkyPool(NULL),
 	mLightMask(0),
 	mLightMovingMask(0),
@@ -489,6 +495,8 @@ void LLPipeline::init()
 	//create render pass pools
 	getPool(LLDrawPool::POOL_ALPHA);
 	getPool(LLDrawPool::POOL_SIMPLE);
+	getPool(LLDrawPool::POOL_ALPHA_MASK);
+	getPool(LLDrawPool::POOL_FULLBRIGHT_ALPHA_MASK);
 	getPool(LLDrawPool::POOL_GRASS);
 	getPool(LLDrawPool::POOL_FULLBRIGHT);
 	getPool(LLDrawPool::POOL_INVISIBLE);
@@ -1591,6 +1599,14 @@ LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerTexture *tex0)
 		poolp = mGrassPool;
 		break;
 
+	case LLDrawPool::POOL_ALPHA_MASK:
+		poolp = mAlphaMaskPool;
+		break;
+
+	case LLDrawPool::POOL_FULLBRIGHT_ALPHA_MASK:
+		poolp = mFullbrightAlphaMaskPool;
+		break;
+
 	case LLDrawPool::POOL_FULLBRIGHT:
 		poolp = mFullbrightPool;
 		break;
@@ -1699,14 +1715,7 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 				alpha = color_alpha;
 				break;
 			default: //alpha mode set to "mask", go to alpha pool if fullbright
-				if (te->getFullbright())
-				{
-					alpha = true;
-				}
-				else
-				{
-					alpha = color_alpha; // Material's alpha mode is set to none, mask, or emissive.  Toss it into the opaque material draw pool.
-				}
+				alpha = color_alpha; // Material's alpha mode is set to none, mask, or emissive.  Toss it into the opaque material draw pool.
 				break;
 		}
 	}
@@ -5487,6 +5496,32 @@ void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 		}
 		break;
 
+	case LLDrawPool::POOL_ALPHA_MASK:
+		if (mAlphaMaskPool)
+		{
+			llassert(0);
+			llwarns << "Ignoring duplicate alpha mask pool." << llendl;
+			break;
+		}
+		else
+		{
+			mAlphaMaskPool = (LLRenderPass*) new_poolp;
+		}
+		break;
+
+	case LLDrawPool::POOL_FULLBRIGHT_ALPHA_MASK:
+		if (mFullbrightAlphaMaskPool)
+		{
+			llassert(0);
+			llwarns << "Ignoring duplicate alpha mask pool." << llendl;
+			break;
+		}
+		else
+		{
+			mFullbrightAlphaMaskPool = (LLRenderPass*) new_poolp;
+		}
+		break;
+		
 	case LLDrawPool::POOL_GRASS:
 		if (mGrassPool)
 		{
@@ -5651,6 +5686,16 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 	case LLDrawPool::POOL_SIMPLE:
 		llassert(mSimplePool == poolp);
 		mSimplePool = NULL;
+		break;
+
+	case LLDrawPool::POOL_ALPHA_MASK:
+		llassert(mAlphaMaskPool == poolp);
+		mAlphaMaskPool = NULL;
+		break;
+
+	case LLDrawPool::POOL_FULLBRIGHT_ALPHA_MASK:
+		llassert(mFullbrightAlphaMaskPool == poolp);
+		mFullbrightAlphaMaskPool = NULL;
 		break;
 
 	case LLDrawPool::POOL_GRASS:
@@ -7145,7 +7190,7 @@ void LLPipeline::renderMaskedObjects(U32 type, U32 mask, BOOL texture, BOOL batc
 	assertInitialized();
 	gGL.loadMatrix(gGLModelView);
 	gGLLastMatrix = NULL;
-	mAlphaPool->pushMaskBatches(type, mask, texture, batch_texture);
+	mAlphaMaskPool->pushMaskBatches(type, mask, texture, batch_texture);
 	gGL.loadMatrix(gGLModelView);
 	gGLLastMatrix = NULL;		
 }
@@ -8663,6 +8708,8 @@ void LLPipeline::renderDeferredLighting()
 						 LLPipeline::RENDER_TYPE_PASS_INVISIBLE,
 						 LLPipeline::RENDER_TYPE_PASS_INVISI_SHINY,
 						 LLPipeline::RENDER_TYPE_AVATAR,
+						 LLPipeline::RENDER_TYPE_ALPHA_MASK,
+						 LLPipeline::RENDER_TYPE_FULLBRIGHT_ALPHA_MASK,
 						 END_RENDER_TYPES);
 		
 		renderGeomPostDeferred(*LLViewerCamera::getInstance());

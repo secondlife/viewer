@@ -378,7 +378,7 @@ void LLApp::startErrorThread()
 	//
 	if(!mThreadErrorp)
 	{
-		llinfos << "Starting error thread" << llendl;
+//		llinfos << "Starting error thread" << llendl;
 		mThreadErrorp = new LLErrorThread();
 		mThreadErrorp->setUserData((void *) this);
 		mThreadErrorp->start();
