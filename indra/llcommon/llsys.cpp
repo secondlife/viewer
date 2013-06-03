@@ -1385,7 +1385,7 @@ public:
             return false;
         }
         // Congratulations, we've hit a new low.  :-P
-
+#if BUG_2707_A_LOWER_KIND_OF_LOW
         LL_INFOS("FrameWatcher") << ' ';
         if (! prevSize)
         {
@@ -1398,6 +1398,7 @@ public:
         }
         LL_CONT << std::fixed << std::setprecision(1) << framerate << '\n'
                 << LLMemoryInfo() << LL_ENDL;
+#endif
 
         return false;
     }
