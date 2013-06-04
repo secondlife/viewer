@@ -1731,8 +1731,7 @@ void LLPrivateMemoryPool::removeFromHashTable(LLMemoryChunk* chunk)
 
 void LLPrivateMemoryPool::rehash()
 {
-	//BUG-2707?
-	//LL_DEBUGS(LLMemory) << "new hash factor: " << mHashFactor << llendl ;
+	LL_DEBUGS("LLMemory") << "new hash factor: " << mHashFactor << llendl ;
 
 	mChunkHashList.clear() ;
 	mChunkHashList.resize(mHashFactor) ;

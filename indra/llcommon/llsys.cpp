@@ -1385,7 +1385,7 @@ public:
             return false;
         }
         // Congratulations, we've hit a new low.  :-P
-#if BUG_2707_A_LOWER_KIND_OF_LOW
+#if _DEBUG
         LL_INFOS("FrameWatcher") << ' ';
         if (! prevSize)
         {

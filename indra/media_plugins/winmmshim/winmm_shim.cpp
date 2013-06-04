@@ -56,22 +56,23 @@ void ll_winmm_shim_initialize(){
 		// grab winmm.dll from system path, where it should live
 		wsprintf(dll_path, "%s\\winmm.dll", system_path);
 		HMODULE winmm_handle = ::LoadLibrary(dll_path);
-		
+
 		if (winmm_handle != NULL)
 		{	// we have a dll, let's get out pointers!
 			initialized = true;
 			init_function_pointers(winmm_handle);
-#if BUG_2707_HUNT
+#if defined(_DEBUG)
 			::OutputDebugStringA("WINMM_SHIM.DLL: real winmm.dll initialized successfully\n");
 #endif
 		}
+#if defined(_DEBUG)
 		else
 		{
 			// failed to initialize real winmm.dll
-#if BUG_2707_HUNT
 			::OutputDebugStringA("WINMM_SHIM.DLL: Failed to initialize real winmm.dll\n");
-#endif
 		}
+#endif
+
 	}
 	LeaveCriticalSection(&sCriticalSection);
 }

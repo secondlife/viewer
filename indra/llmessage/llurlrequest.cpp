@@ -314,13 +314,11 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		 const F32 TIMEOUT_ADJUSTMENT = 2.0f;
 		 mDetail->mByteAccumulator = 0;
 		 pump->adjustTimeoutSeconds(TIMEOUT_ADJUSTMENT);
-// BUG-2707?
-		 //lldebugs << "LLURLRequest adjustTimeoutSeconds for request: " << mDetail->mURL << llendl;
-		 if (mState == STATE_INITIALIZED)
-		 {
-// BUG-2707?
-			  //llinfos << "LLURLRequest adjustTimeoutSeconds called during upload" << llendl;
-		 }
+		lldebugs << "LLURLRequest adjustTimeoutSeconds for request: " << mDetail->mURL << llendl;
+		if (mState == STATE_INITIALIZED)
+		{
+			llinfos << "LLURLRequest adjustTimeoutSeconds called during upload" << llendl;
+		}
 	}
 
 	switch(mState)
@@ -384,8 +382,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 			context[CONTEXT_REQUEST][CONTEXT_TRANSFERED_BYTES] = mRequestTransferedBytes;
 			context[CONTEXT_RESPONSE][CONTEXT_TRANSFERED_BYTES] = mResponseTransferedBytes;
 
-			// BUG-2707?
-			//lldebugs << this << "Setting context to " << context << llendl;
+			lldebugs << this << "Setting context to " << context << llendl;
 
 			switch(result)
 			{
@@ -441,8 +438,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		eos = true;
 		context[CONTEXT_REQUEST][CONTEXT_TRANSFERED_BYTES] = mRequestTransferedBytes;
 		context[CONTEXT_RESPONSE][CONTEXT_TRANSFERED_BYTES] = mResponseTransferedBytes;
-		// BUG-2707?
-		//lldebugs << this << "Setting context to " << context << llendl;
+		lldebugs << this << "Setting context to " << context << llendl;
 
 		return STATUS_DONE;
 
@@ -451,8 +447,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		context[CONTEXT_REQUEST][CONTEXT_TRANSFERED_BYTES] = mRequestTransferedBytes;
 		context[CONTEXT_RESPONSE][CONTEXT_TRANSFERED_BYTES] = mResponseTransferedBytes;
 
-		// BUG-2707?
-		//lldebugs << this << "Setting context to " << context << llendl;
+		lldebugs << this << "Setting context to " << context << llendl;
 		return STATUS_ERROR;
 	}
 }

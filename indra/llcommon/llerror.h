@@ -283,6 +283,12 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 #define LL_ENDL llendl
 #define LL_CONT	(*_out)
 
+#if LL_WINDOWS && defined(_DEBUG)
+	#define LL_WINDOWS_OUTPUT_DEBUG(a) OutputDebugString(utf8str_to_utf16str(a).c_str()), OutputDebugString("\n")
+#else
+	#define LL_WINDOWS_OUTPUT_DEBUG(a)
+#endif
+
 	/*
 		Use this construct if you need to do computation in the middle of a
 		message:
