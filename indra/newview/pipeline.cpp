@@ -6951,9 +6951,17 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
 		{
 			local_tangent = *tangent;
 		}
+		else
+		{
+			local_tangent.clear();
+		}
 		if (normal)
 		{
 			local_normal = *normal;
+		}
+		else
+		{
+			local_normal.clear();
 		}
 				
 		const F32 ATTACHMENT_OVERRIDE_DIST = 0.1f;
