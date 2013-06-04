@@ -495,7 +495,7 @@ void main()
 	//final_color.rgb *= 1 - spec.a * env_intensity;
 	//final_specular.rgb *= specular_color.rgb;
 	
-	vec4 final_normal = vec4(encode_normal(normalize(tnorm)), spec.a * env_intensity, 0.0);
+	vec4 final_normal = vec4(encode_normal(normalize(tnorm)), env_intensity, 0.0);
 	final_specular.a = specular_color.a * norm.a;
 #else
 	vec4 final_normal = vec4(encode_normal(normalize(tnorm)), env_intensity, 0.0);
@@ -664,6 +664,9 @@ void main()
 		LIGHT_LOOP(5)
 		LIGHT_LOOP(6)
 		LIGHT_LOOP(7)
+
+
+	col.rgb = pow(col.rgb, vec3(1.0/2.2));
 
 	frag_color.rgb = col.rgb;
 	glare = min(glare, 1.0);

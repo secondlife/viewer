@@ -229,13 +229,13 @@ LLFrameTimer	gAwayTriggerTimer;
 BOOL			gShowOverlayTitle = FALSE;
 
 LLViewerObject*  gDebugRaycastObject = NULL;
-LLVector3       gDebugRaycastIntersection;
-LLVector2       gDebugRaycastTexCoord;
-LLVector3       gDebugRaycastNormal;
-LLVector3       gDebugRaycastBinormal;
-S32				gDebugRaycastFaceHit;
-LLVector3		gDebugRaycastStart;
-LLVector3		gDebugRaycastEnd;
+LLVector4a       gDebugRaycastIntersection;
+LLVector2        gDebugRaycastTexCoord;
+LLVector4a       gDebugRaycastNormal;
+LLVector4a       gDebugRaycastTangent;
+S32				 gDebugRaycastFaceHit;
+LLVector4a		 gDebugRaycastStart;
+LLVector4a		 gDebugRaycastEnd;
 
 // HUD display lines in lower right
 BOOL				gDisplayWindInfo = FALSE;
@@ -2841,7 +2841,7 @@ void LLViewerWindow::updateUI()
 											  &gDebugRaycastIntersection,
 											  &gDebugRaycastTexCoord,
 											  &gDebugRaycastNormal,
-											  &gDebugRaycastBinormal,
+											  &gDebugRaycastTangent,
 											  &gDebugRaycastStart,
 											  &gDebugRaycastEnd);
 	}
@@ -3739,7 +3739,7 @@ LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot,  BOOL pick_trans
 }
 
 LLHUDIcon* LLViewerWindow::cursorIntersectIcon(S32 mouse_x, S32 mouse_y, F32 depth,
-										   LLVector3* intersection)
+										   LLVector4a* intersection)
 {
 	S32 x = mouse_x;
 	S32 y = mouse_y;
@@ -3751,14 +3751,17 @@ LLHUDIcon* LLViewerWindow::cursorIntersectIcon(S32 mouse_x, S32 mouse_y, F32 dep
 	}
 
 	// world coordinates of mouse
+	// VECTORIZE THIS
 	LLVector3 mouse_direction_global = mouseDirectionGlobal(x,y);
 	LLVector3 mouse_point_global = LLViewerCamera::getInstance()->getOrigin();
 	LLVector3 mouse_world_start = mouse_point_global;
 	LLVector3 mouse_world_end   = mouse_point_global + mouse_direction_global * depth;
 
-	return LLHUDIcon::lineSegmentIntersectAll(mouse_world_start, mouse_world_end, intersection);
-
+	LLVector4a start, end;
+	start.load3(mouse_world_start.mV);
+	end.load3(mouse_world_end.mV);
 	
+	return LLHUDIcon::lineSegmentIntersectAll(start, end, intersection);
 }
 
 LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 depth,
@@ -3766,12 +3769,12 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 												S32 this_face,
 												BOOL pick_transparent,
 												S32* face_hit,
-												LLVector3 *intersection,
+												LLVector4a *intersection,
 												LLVector2 *uv,
-												LLVector3 *normal,
-												LLVector3 *binormal,
-												LLVector3* start,
-												LLVector3* end)
+												LLVector4a *normal,
+												LLVector4a *tangent,
+												LLVector4a* start,
+												LLVector4a* end)
 {
 	S32 x = mouse_x;
 	S32 y = mouse_y;
@@ -3806,17 +3809,27 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 	if (!LLViewerJoystick::getInstance()->getOverrideCamera())
 	{ //always set raycast intersection to mouse_world_end unless
 		//flycam is on (for DoF effect)
-		gDebugRaycastIntersection = mouse_world_end;
+		gDebugRaycastIntersection.load3(mouse_world_end.mV);
 	}
+
+	LLVector4a mw_start;
+	mw_start.load3(mouse_world_start.mV);
+	LLVector4a mw_end;
+	mw_end.load3(mouse_world_end.mV);
+
+	LLVector4a mh_start;
+	mh_start.load3(mouse_hud_start.mV);
+	LLVector4a mh_end;
+	mh_end.load3(mouse_hud_end.mV);
 
 	if (start)
 	{
-		*start = mouse_world_start;
+		*start = mw_start;
 	}
 
 	if (end)
 	{
-		*end = mouse_world_end;
+		*end = mw_end;
 	}
 
 	LLViewerObject* found = NULL;
@@ -3825,16 +3838,16 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 	{
 		if (this_object->isHUDAttachment()) // is a HUD object?
 		{
-			if (this_object->lineSegmentIntersect(mouse_hud_start, mouse_hud_end, this_face, pick_transparent,
-												  face_hit, intersection, uv, normal, binormal))
+			if (this_object->lineSegmentIntersect(mh_start, mh_end, this_face, pick_transparent,
+												  face_hit, intersection, uv, normal, tangent))
 			{
 				found = this_object;
 			}
 		}
 		else // is a world object
 		{
-			if (this_object->lineSegmentIntersect(mouse_world_start, mouse_world_end, this_face, pick_transparent,
-												  face_hit, intersection, uv, normal, binormal))
+			if (this_object->lineSegmentIntersect(mw_start, mw_end, this_face, pick_transparent,
+												  face_hit, intersection, uv, normal, tangent))
 			{
 				found = this_object;
 			}
@@ -3842,20 +3855,20 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 	}
 	else // check ALL objects
 	{
-		found = gPipeline.lineSegmentIntersectInHUD(mouse_hud_start, mouse_hud_end, pick_transparent,
-													face_hit, intersection, uv, normal, binormal);
+		found = gPipeline.lineSegmentIntersectInHUD(mh_start, mh_end, pick_transparent,
+													face_hit, intersection, uv, normal, tangent);
 
 		if (!found) // if not found in HUD, look in world:
 		{
-			found = gPipeline.lineSegmentIntersectInWorld(mouse_world_start, mouse_world_end, pick_transparent,
-														  face_hit, intersection, uv, normal, binormal);
+			found = gPipeline.lineSegmentIntersectInWorld(mw_start, mw_end, pick_transparent,
+														  face_hit, intersection, uv, normal, tangent);
 			if (found && !pick_transparent)
 			{
 				gDebugRaycastIntersection = *intersection;
 			}
 		}
 	}
-
+		
 	return found;
 }
 
@@ -5112,6 +5125,7 @@ LLPickInfo::LLPickInfo()
 	  mXYCoords(-1, -1),
 	  mIntersection(),
 	  mNormal(),
+	  mTangent(),
 	  mBinormal(),
 	  mHUDIcon(NULL),
 	  mPickTransparent(FALSE)
@@ -5133,6 +5147,7 @@ LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos,
 	  mSTCoords(-1.f, -1.f),
 	  mXYCoords(-1, -1),
 	  mNormal(),
+	  mTangent(),
 	  mBinormal(),
 	  mHUDIcon(NULL),
 	  mPickTransparent(pick_transparent)
@@ -5143,19 +5158,26 @@ void LLPickInfo::fetchResults()
 {
 
 	S32 face_hit = -1;
-	LLVector3 intersection, normal, binormal;
+	LLVector4a intersection, normal;
+	LLVector4a tangent;
+
 	LLVector2 uv;
 
 	LLHUDIcon* hit_icon = gViewerWindow->cursorIntersectIcon(mMousePt.mX, mMousePt.mY, 512.f, &intersection);
 	
+	LLVector4a origin;
+	origin.load3(LLViewerCamera::getInstance()->getOrigin().mV);
 	F32 icon_dist = 0.f;
 	if (hit_icon)
 	{
-		icon_dist = (LLViewerCamera::getInstance()->getOrigin()-intersection).magVec();
+		LLVector4a delta;
+		delta.setSub(intersection, origin);
+		icon_dist = delta.getLength3().getF32();
 	}
+
 	LLViewerObject* hit_object = gViewerWindow->cursorIntersect(mMousePt.mX, mMousePt.mY, 512.f,
 									NULL, -1, mPickTransparent, &face_hit,
-									&intersection, &uv, &normal, &binormal);
+									&intersection, &uv, &normal, &tangent);
 	
 	mPickPt = mMousePt;
 
@@ -5165,9 +5187,13 @@ void LLPickInfo::fetchResults()
 	
 	LLViewerObject* objectp = hit_object;
 
+
+	LLVector4a delta;
+	delta.setSub(origin, intersection);
+
 	if (hit_icon && 
 		(!objectp || 
-		icon_dist < (LLViewerCamera::getInstance()->getOrigin()-intersection).magVec()))
+		icon_dist < delta.getLength3().getF32()))
 	{
 		// was this name referring to a hud icon?
 		mHUDIcon = hit_icon;
@@ -5204,11 +5230,16 @@ void LLPickInfo::fetchResults()
 			{
 				mPickType = PICK_OBJECT;
 			}
-			mObjectOffset = gAgentCamera.calcFocusOffset(objectp, intersection, mPickPt.mX, mPickPt.mY);
+
+			LLVector3 v_intersection(intersection.getF32ptr());
+
+			mObjectOffset = gAgentCamera.calcFocusOffset(objectp, v_intersection, mPickPt.mX, mPickPt.mY);
 			mObjectID = objectp->mID;
 			mObjectFace = (te_offset == NO_FACE) ? -1 : (S32)te_offset;
 
-			mPosGlobal = gAgent.getPosGlobalFromAgent(intersection);
+			
+
+			mPosGlobal = gAgent.getPosGlobalFromAgent(v_intersection);
 			
 			if (mWantSurfaceInfo)
 			{
@@ -5252,7 +5283,16 @@ void LLPickInfo::getSurfaceInfo()
 	mIntersection = LLVector3(0,0,0);
 	mNormal       = LLVector3(0,0,0);
 	mBinormal     = LLVector3(0,0,0);
+	mTangent	  = LLVector4(0,0,0,0);
 	
+	LLVector4a tangent;
+	LLVector4a intersection;
+	LLVector4a normal;
+
+	tangent.clear();
+	normal.clear();
+	intersection.clear();
+
 	LLViewerObject* objectp = getObject();
 
 	if (objectp)
@@ -5260,10 +5300,10 @@ void LLPickInfo::getSurfaceInfo()
 		if (gViewerWindow->cursorIntersect(llround((F32)mMousePt.mX), llround((F32)mMousePt.mY), 1024.f,
 										   objectp, -1, mPickTransparent,
 										   &mObjectFace,
-										   &mIntersection,
+										   &intersection,
 										   &mSTCoords,
-										   &mNormal,
-										   &mBinormal))
+										   &normal,
+										   &tangent))
 		{
 			// if we succeeded with the intersect above, compute the texture coordinates:
 
@@ -5272,9 +5312,25 @@ void LLPickInfo::getSurfaceInfo()
 				LLFace* facep = objectp->mDrawable->getFace(mObjectFace);
 				if (facep)
 				{
-				mUVCoords = facep->surfaceToTexture(mSTCoords, mIntersection, mNormal);
+					mUVCoords = facep->surfaceToTexture(mSTCoords, intersection, normal);
+				}
 			}
-			}
+
+			mIntersection.set(intersection.getF32ptr());
+			mNormal.set(normal.getF32ptr());
+			mTangent.set(tangent.getF32ptr());
+
+			//extrapoloate binormal from normal and tangent
+			
+			LLVector4a binormal;
+			binormal.setCross3(normal, tangent);
+			binormal.mul(tangent.getF32ptr()[3]);
+
+			mBinormal.set(binormal.getF32ptr());
+
+			mBinormal.normalize();
+			mNormal.normalize();
+			mTangent.normalize();
 
 			// and XY coords:
 			updateXYCoords();

@@ -252,6 +252,8 @@ void main()
 
 	color.rgb += diff.rgb * vary_pointlight_col * col.rgb;
 
+	color.rgb = pow(color.rgb, vec3(1.0/2.2));
+
 	frag_color = color;
 }
 
