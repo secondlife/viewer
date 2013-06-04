@@ -981,7 +981,7 @@ void LLFloaterIMContainer::setSortOrder(const LLConversationSort& order)
 	gSavedSettings.setU32("ConversationSortOrder", (U32)order);
 }
 
-void LLFloaterIMContainer::getSelectedUUIDs(uuid_vec_t& selected_uuids)
+void LLFloaterIMContainer::getSelectedUUIDs(uuid_vec_t& selected_uuids, bool participant_uuids/* = true*/)
 {
     const std::set<LLFolderViewItem*> selectedItems = mConversationsRoot->getSelectionList();
 
@@ -994,7 +994,7 @@ void LLFloaterIMContainer::getSelectedUUIDs(uuid_vec_t& selected_uuids)
         conversationItem = static_cast<LLConversationItem *>((*it)->getViewModelItem());
       
 		//When a one-on-one conversation exists, retrieve the participant id from the conversation floater
-		if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
+		if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1 && participant_uuids)
 		{
 			LLFloaterIMSession * conversation_floaterp = LLFloaterIMSession::findInstance(conversationItem->getUUID());
 			LLUUID participant_id = conversation_floaterp->getOtherParticipantUUID();
@@ -1149,9 +1149,10 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         {
             LLFloater::onClickClose(conversationFloater);
         }
-        else if("close_all_conversations" == command)
+        else if("close_selected_conversations" == command)
         {
-        	closeAllConversations();
+        	getSelectedUUIDs(selectedIDS,false);
+        	closeSelectedConversations(selectedIDS);
         }
         else if("open_voice_conversation" == command)
         {
@@ -2115,6 +2116,22 @@ void LLFloaterIMContainer::closeAllConversations()
 	{
 		LLFloaterIMSession *conversationFloater = LLFloaterIMSession::findInstance(*it);
 		LLFloater::onClickClose(conversationFloater);
+	}
+}
+
+void LLFloaterIMContainer::closeSelectedConversations(const uuid_vec_t& ids)
+{
+	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
+	{
+		//We don't need to close Nearby chat, so skip it
+		if (*it != LLUUID())
+		{
+			LLFloaterIMSession *conversationFloater = LLFloaterIMSession::findInstance(*it);
+			if(conversationFloater)
+			{
+				LLFloater::onClickClose(conversationFloater);
+			}
+		}
 	}
 }
 void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)

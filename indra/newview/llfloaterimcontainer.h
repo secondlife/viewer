@@ -119,6 +119,7 @@ public:
 	virtual BOOL handleKeyHere(KEY key, MASK mask );
 	/*virtual*/ void closeFloater(bool app_quitting = false);
     void closeAllConversations();
+    void closeSelectedConversations(const uuid_vec_t& ids);
 	/*virtual*/ BOOL isFrontmost();
 
 
@@ -151,7 +152,7 @@ private:
 	void setSortOrderParticipants(const LLConversationFilter::ESortOrderType order);
 	void setSortOrder(const LLConversationSort& order);
 
-    void getSelectedUUIDs(uuid_vec_t& selected_uuids);
+    void getSelectedUUIDs(uuid_vec_t& selected_uuids, bool participant_uuids = true);
     const LLConversationItem * getCurSelectedViewModelItem();
     void getParticipantUUIDs(uuid_vec_t& selected_uuids);
     void doToSelected(const LLSD& userdata);
