@@ -492,18 +492,18 @@ void LLSceneMonitor::fetchQueryResult()
 
 //dump results to a file _scene_xmonitor_results.csv
 void LLSceneMonitor::dumpToFile(std::string file_name)
-{
-	using namespace LLTrace;
+{	using namespace LLTrace;
+
 	if (!hasResults()) return;
 
 	LL_INFOS("SceneMonitor") << "Saving scene load stats to " << file_name << LL_ENDL; 
 
 	std::ofstream os(file_name.c_str());
 
-	os << std::setprecision(4);
+	os << std::setprecision(3);
 
 	PeriodicRecording& scene_load_recording = mSceneLoadRecording.getAcceptedRecording();
-	U32 frame_count = scene_load_recording.getNumPeriods();
+	const U32 frame_count = scene_load_recording.getNumPeriods();
 
 	LLUnit<LLUnits::Seconds, F64> frame_time;
 
@@ -515,7 +515,8 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 	}
 	os << std::endl;
 
-	for (CountStatHandle<F64>::instance_iter it = CountStatHandle<F64>::beginInstances(), end_it = CountStatHandle<F64>::endInstances();
+	typedef TraceType<CountAccumulator> trace_count;
+	for (trace_count::instance_iter it = trace_count::beginInstances(), end_it = trace_count::endInstances();
 		it != end_it;
 		++it)
 	{
@@ -538,30 +539,9 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 		}
 	}
 
-	for (CountStatHandle<S64>::instance_iter it = CountStatHandle<S64>::beginInstances(), end_it = CountStatHandle<S64>::endInstances();
-		it != end_it;
-		++it)
-	{
-		std::ostringstream row;
-		row << it->getName();
+	typedef TraceType<EventAccumulator> trace_event;
 
-		S32 samples = 0;
-
-		for (S32 i = frame_count - 1; i >= 0; --i)
-		{
-			samples += scene_load_recording.getPrevRecording(i).getSampleCount(*it);
-			row << ", " << scene_load_recording.getPrevRecording(i).getSum(*it);
-		}
-
-		row << std::endl;
-
-		if (samples > 0)
-		{
-			os << row.str();
-		}
-	}
-
-	for (EventStatHandle<F64>::instance_iter it = EventStatHandle<F64>::beginInstances(), end_it = EventStatHandle<F64>::endInstances();
+	for (trace_event::instance_iter it = trace_event::beginInstances(), end_it = trace_event::endInstances();
 		it != end_it;
 		++it)
 	{
@@ -584,7 +564,9 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 		}
 	}
 
-	for (EventStatHandle<S64>::instance_iter it = EventStatHandle<S64>::beginInstances(), end_it = EventStatHandle<S64>::endInstances();
+	typedef TraceType<SampleAccumulator> trace_sample;
+
+	for (trace_sample::instance_iter it = trace_sample::beginInstances(), end_it = trace_sample::endInstances();
 		it != end_it;
 		++it)
 	{
@@ -607,27 +589,19 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 		}
 	}
 
-	for (TraceType<SampleAccumulator>::instance_iter it = TraceType<SampleAccumulator>::beginInstances(), end_it = TraceType<SampleAccumulator>::endInstances();
+	typedef TraceType<MemStatAccumulator> trace_mem;
+	for (trace_mem::instance_iter it = trace_mem::beginInstances(), end_it = trace_mem::endInstances();
 		it != end_it;
 		++it)
 	{
-		std::ostringstream row;
-		row << it->getName();
-
-		S32 samples = 0;
+		os << it->getName();
 
 		for (S32 i = frame_count - 1; i >= 0; --i)
 		{
-			samples += scene_load_recording.getPrevRecording(i).getSampleCount(*it);
-			row << ", " << scene_load_recording.getPrevRecording(i).getMean(*it);
+			os << ", " << scene_load_recording.getPrevRecording(i).getSum(*it).as<LLUnits::Megabytes>().value();
 		}
 
-		row << std::endl;
-
-		if (samples > 0)
-		{
-			os << row.str();
-		}
+		os << std::endl;
 	}
 
 	os.flush();

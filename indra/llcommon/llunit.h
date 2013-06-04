@@ -423,11 +423,13 @@ struct HighestPrecisionType<LLUnit<UNIT_TYPE, STORAGE_TYPE> >
 	typedef typename HighestPrecisionType<STORAGE_TYPE>::type_t type_t;
 };
 
-#define LL_DECLARE_DERIVED_UNIT(conversion_factor, base_unit_name, unit_name)                   \
+#define LL_DECLARE_DERIVED_UNIT(conversion_factor, base_unit_name, unit_name, unit_label)		\
 struct unit_name                                                                                \
 {                                                                                               \
 	typedef base_unit_name base_unit_t;                                                         \
+	static const char* sUnitLabel;																\
 };                                                                                              \
+const char* unit_name::sUnitLabel = unit_label;													\
 template<typename STORAGE_TYPE>                                                                 \
 struct ConversionFactor<unit_name, base_unit_name, STORAGE_TYPE>                                \
 {                                                                                               \
@@ -446,34 +448,39 @@ struct ConversionFactor<base_unit_name, unit_name, STORAGE_TYPE>						        \
 	}                                                                                           \
 }
 
-struct Bytes { typedef Bytes base_unit_t; };
-LL_DECLARE_DERIVED_UNIT(1024, Bytes, Kilobytes);
-LL_DECLARE_DERIVED_UNIT(1024 * 1024, Bytes, Megabytes);
-LL_DECLARE_DERIVED_UNIT(1024 * 1024 * 1024, Bytes, Gigabytes);
-LL_DECLARE_DERIVED_UNIT(1.0 / 8.0, Bytes, Bits);
-LL_DECLARE_DERIVED_UNIT(1024 / 8, Bytes, Kilobits);
-LL_DECLARE_DERIVED_UNIT(1024 / 8, Bytes, Megabits);
-LL_DECLARE_DERIVED_UNIT(1024 * 1024 * 1024 / 8, Bytes, Gigabits);
+struct Bytes { typedef Bytes base_unit_t; static const char* sUnitLabel;};
+const char* Bytes::sUnitLabel = "B";
+LL_DECLARE_DERIVED_UNIT(1024, Bytes, Kilobytes, "KiB");
+LL_DECLARE_DERIVED_UNIT(1024 * 1024, Bytes, Megabytes, "MiB");
+LL_DECLARE_DERIVED_UNIT(1024 * 1024 * 1024, Bytes, Gigabytes, "GiB");
+LL_DECLARE_DERIVED_UNIT(1.0 / 8.0, Bytes, Bits, "b");
+LL_DECLARE_DERIVED_UNIT(1024 / 8, Bytes, Kilobits, "Kib");
+LL_DECLARE_DERIVED_UNIT(1024 / 8, Bytes, Megabits, "Mib");
+LL_DECLARE_DERIVED_UNIT(1024 * 1024 * 1024 / 8, Bytes, Gigabits, "Gib");
 
-struct Seconds { typedef Seconds base_unit_t; };
-LL_DECLARE_DERIVED_UNIT(60, Seconds, Minutes);
-LL_DECLARE_DERIVED_UNIT(60 * 60, Seconds, Hours);
-LL_DECLARE_DERIVED_UNIT(1.0 / 1000.0, Seconds, Milliseconds);
-LL_DECLARE_DERIVED_UNIT(1.0 / 1000000.0, Seconds, Microseconds);
-LL_DECLARE_DERIVED_UNIT(1.0 / 1000000000.0, Seconds, Nanoseconds);
+struct Seconds { typedef Seconds base_unit_t; static const char* sUnitLabel; };
+const char* Seconds::sUnitLabel = "s";
+LL_DECLARE_DERIVED_UNIT(60, Seconds, Minutes, "min");
+LL_DECLARE_DERIVED_UNIT(60 * 60, Seconds, Hours, "h");
+LL_DECLARE_DERIVED_UNIT(1.0 / 1000.0, Seconds, Milliseconds, "ms");
+LL_DECLARE_DERIVED_UNIT(1.0 / 1000000.0, Seconds, Microseconds, "\x09\x3cs");
+LL_DECLARE_DERIVED_UNIT(1.0 / 1000000000.0, Seconds, Nanoseconds, "ns");
 
-struct Meters { typedef Meters base_unit_t; };
-LL_DECLARE_DERIVED_UNIT(1000, Meters, Kilometers);
-LL_DECLARE_DERIVED_UNIT(1.0 / 100.0, Meters, Centimeters);
-LL_DECLARE_DERIVED_UNIT(1.0 / 1000.0, Meters, Millimeters);
+struct Meters { typedef Meters base_unit_t; static const char* sUnitLabel; };
+const char* Meters::sUnitLabel = "m";
+LL_DECLARE_DERIVED_UNIT(1000, Meters, Kilometers, "km");
+LL_DECLARE_DERIVED_UNIT(1.0 / 100.0, Meters, Centimeters, "cm");
+LL_DECLARE_DERIVED_UNIT(1.0 / 1000.0, Meters, Millimeters, "mm");
 
-struct Hertz { typedef Hertz base_unit_t; };
-LL_DECLARE_DERIVED_UNIT(1000, Hertz, Kilohertz);
-LL_DECLARE_DERIVED_UNIT(1000 * 1000, Hertz, Megahertz);
-LL_DECLARE_DERIVED_UNIT(1000 * 1000 * 1000, Hertz, Gigahertz);
+struct Hertz { typedef Hertz base_unit_t; static const char* sUnitLabel; };
+const char* Hertz::sUnitLabel = "Hz";
+LL_DECLARE_DERIVED_UNIT(1000, Hertz, Kilohertz, "KHz");
+LL_DECLARE_DERIVED_UNIT(1000 * 1000, Hertz, Megahertz, "MHz");
+LL_DECLARE_DERIVED_UNIT(1000 * 1000 * 1000, Hertz, Gigahertz, "GHz");
 
-struct Radians { typedef Radians base_unit_t; };
-LL_DECLARE_DERIVED_UNIT(DEG_TO_RAD, Radians, Degrees);
+struct Radians { typedef Radians base_unit_t; static const char* sUnitLabel;};
+const char* Radians::sUnitLabel = "rad";
+LL_DECLARE_DERIVED_UNIT(DEG_TO_RAD, Radians, Degrees, "deg");
 } // namespace LLUnits
 
 #endif // LL_LLUNIT_H
