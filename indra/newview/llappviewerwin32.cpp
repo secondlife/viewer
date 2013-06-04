@@ -509,9 +509,9 @@ bool LLAppViewerWin32::cleanup()
 	return result;
 }
 
-void LLAppViewerWin32::initLogging()
+void LLAppViewerWin32::initLoggingAndGetLastDuration()
 {
-	LLAppViewer::initLogging();
+	LLAppViewer::initLoggingAndGetLastDuration();
 }
 
 void LLAppViewerWin32::initConsole()
