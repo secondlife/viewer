@@ -137,14 +137,14 @@ public:
 
 	/*virtual*/ U32		getTriangleCount(S32* vcount = NULL) const;
 	/*virtual*/ U32		getHighLODTriangleCount();
-	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, 
+	/*virtual*/ BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, 
 										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
 										  BOOL pick_transparent = FALSE,
 										  S32* face_hit = NULL,                 // which face was hit
-										  LLVector3* intersection = NULL,       // return the intersection point
+										  LLVector4a* intersection = NULL,       // return the intersection point
 										  LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point
-										  LLVector3* normal = NULL,             // return the surface normal at the intersection point
-										  LLVector3* bi_normal = NULL           // return the surface bi-normal at the intersection point
+										  LLVector4a* normal = NULL,             // return the surface normal at the intersection point
+										  LLVector4a* tangent = NULL           // return the surface tangent at the intersection point
 		);
 	
 				LLVector3 agentPositionToVolume(const LLVector3& pos) const;

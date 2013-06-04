@@ -1046,7 +1046,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 				{ //already cached
 					break;
 				}
-				volume->genBinormals(i);
+				volume->genTangents(i);
 				LLFace::cacheFaceInVRAM(face);
 			}
 		}
@@ -3612,8 +3612,8 @@ LLVector3 LLVOVolume::volumeDirectionToAgent(const LLVector3& dir) const
 }
 
 
-BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end, S32 face, BOOL pick_transparent, S32 *face_hitp,
-									  LLVector3* intersection,LLVector2* tex_coord, LLVector3* normal, LLVector3* bi_normal)
+BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, S32 *face_hitp,
+									  LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 	
 {
 	if (!mbCanSelect 
@@ -3645,23 +3645,25 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 	
 	if (volume)
 	{	
-		LLVector3 v_start, v_end, v_dir;
-	
+		LLVector4a local_start = start;
+		LLVector4a local_end = end;
+		
 		if (transform)
 		{
-			v_start = agentPositionToVolume(start);
-			v_end = agentPositionToVolume(end);
-		}
-		else
-		{
-			v_start = start;
-			v_end = end;
-		}
+			LLVector3 v_start(start.getF32ptr());
+			LLVector3 v_end(end.getF32ptr());
 		
-		LLVector3 p;
-		LLVector3 n;
+			v_start = agentPositionToVolume(v_start);
+			v_end = agentPositionToVolume(v_end);
+
+			local_start.load3(v_start.mV);
+			local_end.load3(v_end.mV);
+		}
+				
+		LLVector4a p;
+		LLVector4a n;
 		LLVector2 tc;
-		LLVector3 bn;
+		LLVector4a tn;
 
 		if (intersection != NULL)
 		{
@@ -3678,9 +3680,9 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 			n = *normal;
 		}
 
-		if (bi_normal != NULL)
+		if (tangent != NULL)
 		{
-			bn = *bi_normal;
+			tn = *tangent;
 		}
 
 		S32 face_hit = -1;
@@ -3706,8 +3708,8 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 				continue;
 			}
 
-			face_hit = volume->lineSegmentIntersect(v_start, v_end, i,
-													&p, &tc, &n, &bn);
+			face_hit = volume->lineSegmentIntersect(local_start, local_end, i,
+													&p, &tc, &n, &tn);
 			
 			if (face_hit >= 0 && mDrawable->getNumFaces() > face_hit)
 			{
@@ -3716,7 +3718,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 				if (face &&
 					(pick_transparent || !face->getTexture() || !face->getTexture()->hasGLTexture() || face->getTexture()->getMask(face->surfaceToTexture(tc, p, n))))
 				{
-					v_end = p;
+					local_end = p;
 					if (face_hitp != NULL)
 					{
 						*face_hitp = face_hit;
@@ -3726,7 +3728,9 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 					{
 						if (transform)
 						{
-							*intersection = volumePositionToAgent(p);  // must map back to agent space
+							LLVector3 v_p(p.getF32ptr());
+
+							intersection->load3(volumePositionToAgent(v_p).mV);  // must map back to agent space
 						}
 						else
 						{
@@ -3738,27 +3742,37 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 					{
 						if (transform)
 						{
-							*normal = volumeDirectionToAgent(n);
+							LLVector3 v_n(n.getF32ptr());
+							normal->load3(volumeDirectionToAgent(v_n).mV);
 						}
 						else
 						{
 							*normal = n;
 						}
 
-						(*normal).normVec();
+						(*normal).normalize3fast();
 					}
 
-					if (bi_normal != NULL)
+					if (tangent != NULL)
 					{
 						if (transform)
 						{
-							*bi_normal = volumeDirectionToAgent(bn);
+							LLVector3 v_tn(tn.getF32ptr());
+
+							LLVector4a trans_tangent;
+							trans_tangent.load3(volumeDirectionToAgent(v_tn).mV);
+
+							LLVector4Logical mask;
+							mask.clear();
+							mask.setElement<3>();
+
+							tangent->setSelectWithMask(mask, tn, trans_tangent);
 						}
 						else
 						{
-							*bi_normal = bn;
+							*tangent = tn;
 						}
-						(*bi_normal).normVec();
+						(*tangent).normalize3fast();
 					}
 
 					if (tex_coord != NULL)
@@ -4038,7 +4052,7 @@ static LLFastTimer::DeclareTimer FTM_REGISTER_FACE("Register Face");
 void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep, U32 type)
 {
 	LLFastTimer t(FTM_REGISTER_FACE);
-	if (type == LLRenderPass::PASS_ALPHA && facep->getTextureEntry()->getMaterialParams().notNull() && !facep->getVertexBuffer()->hasDataType(LLVertexBuffer::TYPE_BINORMAL))
+	if (type == LLRenderPass::PASS_ALPHA && facep->getTextureEntry()->getMaterialParams().notNull() && !facep->getVertexBuffer()->hasDataType(LLVertexBuffer::TYPE_TANGENT))
 	{
 		LL_WARNS("RenderMaterials") << "Oh no! No binormals for this alpha blended face!" << LL_ENDL;
 	}
@@ -4747,11 +4761,11 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 								if (mat->getNormalID().notNull())
 								{
 									if (mat->getSpecularID().notNull())
-									{ //has normal and specular maps (needs texcoord1, texcoord2, and binormal)
+									{ //has normal and specular maps (needs texcoord1, texcoord2, and tangent)
 										normspec_faces.push_back(facep);
 									}
 									else
-									{ //has normal map (needs texcoord1 and binormal)
+									{ //has normal map (needs texcoord1 and tangent)
 										norm_faces.push_back(facep);
 									}
 								}
@@ -4765,7 +4779,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 								}									
 							}
 							else if (te->getBumpmap())
-							{ //needs normal + binormal
+							{ //needs normal + tangent
 								bump_faces.push_back(facep);
 							}
 							else if (te->getShiny() || !te->getFullbright())
@@ -4781,7 +4795,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						else
 						{
 							if (te->getBumpmap() && LLPipeline::sRenderBump)
-							{ //needs normal + binormal
+							{ //needs normal + tangent
 								bump_faces.push_back(facep);
 							}
 							else if ((te->getShiny() && LLPipeline::sRenderBump) ||
@@ -4822,7 +4836,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 bump_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR;
 	U32 fullbright_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR;
 
-	U32 norm_mask = simple_mask | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_BINORMAL;
+	U32 norm_mask = simple_mask | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TANGENT;
 	U32 normspec_mask = norm_mask | LLVertexBuffer::MAP_TEXCOORD2;
 	U32 spec_mask = simple_mask | LLVertexBuffer::MAP_TEXCOORD2;
 
@@ -4841,9 +4855,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	if (batch_textures)
 	{
-		bump_mask = bump_mask | LLVertexBuffer::MAP_BINORMAL;
+		bump_mask = bump_mask | LLVertexBuffer::MAP_TANGENT;
 		simple_mask = simple_mask | LLVertexBuffer::MAP_TEXTURE_INDEX;
-		alpha_mask = alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_BINORMAL | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2;
+		alpha_mask = alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2;
 		fullbright_mask = fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX;
 	}
 

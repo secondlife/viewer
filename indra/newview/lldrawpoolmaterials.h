@@ -52,7 +52,7 @@ public:
 		LLVertexBuffer::MAP_TEXCOORD1 |
 		LLVertexBuffer::MAP_TEXCOORD2 |
 		LLVertexBuffer::MAP_COLOR |
-		LLVertexBuffer::MAP_BINORMAL
+		LLVertexBuffer::MAP_TANGENT
 	};
 	
 	/*virtual*/ U32 getVertexDataMask() { return VERTEX_DATA_MASK; }

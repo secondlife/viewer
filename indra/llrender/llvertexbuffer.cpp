@@ -342,7 +342,7 @@ S32 LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_MAX] =
 	sizeof(LLVector2), // TYPE_TEXCOORD3,
 	sizeof(LLColor4U), // TYPE_COLOR,
 	sizeof(LLColor4U), // TYPE_EMISSIVE, only alpha is used currently
-	sizeof(LLVector4), // TYPE_BINORMAL,
+	sizeof(LLVector4), // TYPE_TANGENT,
 	sizeof(F32),	   // TYPE_WEIGHT,
 	sizeof(LLVector4), // TYPE_WEIGHT4,
 	sizeof(LLVector4), // TYPE_CLOTHWEIGHT,
@@ -359,7 +359,7 @@ static std::string vb_type_name[] =
 	"TYPE_TEXCOORD3",
 	"TYPE_COLOR",
 	"TYPE_EMISSIVE",
-	"TYPE_BINORMAL",
+	"TYPE_TANGENT",
 	"TYPE_WEIGHT",
 	"TYPE_WEIGHT4",
 	"TYPE_CLOTHWEIGHT",
@@ -542,16 +542,16 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 				}
 			}
 
-			if (sLastMask & MAP_BINORMAL)
+			if (sLastMask & MAP_TANGENT)
 			{
-				if (!(data_mask & MAP_BINORMAL))
+				if (!(data_mask & MAP_TANGENT))
 				{
 					glClientActiveTextureARB(GL_TEXTURE2_ARB);
 					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 					glClientActiveTextureARB(GL_TEXTURE0_ARB);
 				}
 			}
-			else if (data_mask & MAP_BINORMAL)
+			else if (data_mask & MAP_TANGENT)
 			{
 				glClientActiveTextureARB(GL_TEXTURE2_ARB);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -1354,7 +1354,7 @@ void LLVertexBuffer::setupVertexArray()
 		2, //TYPE_TEXCOORD3,
 		4, //TYPE_COLOR,
 		4, //TYPE_EMISSIVE,
-		3, //TYPE_BINORMAL,
+		4, //TYPE_TANGENT,
 		1, //TYPE_WEIGHT,
 		4, //TYPE_WEIGHT4,
 		4, //TYPE_CLOTHWEIGHT,
@@ -1371,7 +1371,7 @@ void LLVertexBuffer::setupVertexArray()
 		GL_FLOAT, //TYPE_TEXCOORD3,
 		GL_UNSIGNED_BYTE, //TYPE_COLOR,
 		GL_UNSIGNED_BYTE, //TYPE_EMISSIVE,
-		GL_FLOAT,   //TYPE_BINORMAL,
+		GL_FLOAT,   //TYPE_TANGENT,
 		GL_FLOAT, //TYPE_WEIGHT,
 		GL_FLOAT, //TYPE_WEIGHT4,
 		GL_FLOAT, //TYPE_CLOTHWEIGHT,
@@ -1388,7 +1388,7 @@ void LLVertexBuffer::setupVertexArray()
 		false, //TYPE_TEXCOORD3,
 		false, //TYPE_COLOR,
 		false, //TYPE_EMISSIVE,
-		false, //TYPE_BINORMAL,
+		false, //TYPE_TANGENT,
 		false, //TYPE_WEIGHT,
 		false, //TYPE_WEIGHT4,
 		false, //TYPE_CLOTHWEIGHT,
@@ -1405,7 +1405,7 @@ void LLVertexBuffer::setupVertexArray()
 		GL_FALSE, //TYPE_TEXCOORD3,
 		GL_TRUE, //TYPE_COLOR,
 		GL_TRUE, //TYPE_EMISSIVE,
-		GL_FALSE,   //TYPE_BINORMAL,
+		GL_FALSE,   //TYPE_TANGENT,
 		GL_FALSE, //TYPE_WEIGHT,
 		GL_FALSE, //TYPE_WEIGHT4,
 		GL_FALSE, //TYPE_CLOTHWEIGHT,
@@ -2078,9 +2078,13 @@ bool LLVertexBuffer::getNormalStrider(LLStrider<LLVector3>& strider, S32 index, 
 {
 	return VertexBufferStrider<LLVector3,TYPE_NORMAL>::get(*this, strider, index, count, map_range);
 }
-bool LLVertexBuffer::getBinormalStrider(LLStrider<LLVector3>& strider, S32 index, S32 count, bool map_range)
+bool LLVertexBuffer::getTangentStrider(LLStrider<LLVector3>& strider, S32 index, S32 count, bool map_range)
 {
-	return VertexBufferStrider<LLVector3,TYPE_BINORMAL>::get(*this, strider, index, count, map_range);
+	return VertexBufferStrider<LLVector3,TYPE_TANGENT>::get(*this, strider, index, count, map_range);
+}
+bool LLVertexBuffer::getTangentStrider(LLStrider<LLVector4a>& strider, S32 index, S32 count, bool map_range)
+{
+	return VertexBufferStrider<LLVector4a,TYPE_TANGENT>::get(*this, strider, index, count, map_range);
 }
 bool LLVertexBuffer::getColorStrider(LLStrider<LLColor4U>& strider, S32 index, S32 count, bool map_range)
 {
@@ -2390,11 +2394,11 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
 			void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD1]);
 			glVertexAttribPointerARB(loc,2,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD1], ptr);
 		}
-		if (data_mask & MAP_BINORMAL)
+		if (data_mask & MAP_TANGENT)
 		{
-			S32 loc = TYPE_BINORMAL;
-			void* ptr = (void*)(base + mOffsets[TYPE_BINORMAL]);
-			glVertexAttribPointerARB(loc, 3,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_BINORMAL], ptr);
+			S32 loc = TYPE_TANGENT;
+			void* ptr = (void*)(base + mOffsets[TYPE_TANGENT]);
+			glVertexAttribPointerARB(loc, 4,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TANGENT], ptr);
 		}
 		if (data_mask & MAP_TEXCOORD0)
 		{
@@ -2472,10 +2476,10 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
 			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD1], (void*)(base + mOffsets[TYPE_TEXCOORD1]));
 			glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		}
-		if (data_mask & MAP_BINORMAL)
+		if (data_mask & MAP_TANGENT)
 		{
 			glClientActiveTextureARB(GL_TEXTURE2_ARB);
-			glTexCoordPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_BINORMAL], (void*)(base + mOffsets[TYPE_BINORMAL]));
+			glTexCoordPointer(4,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_TANGENT], (void*)(base + mOffsets[TYPE_TANGENT]));
 			glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		}
 		if (data_mask & MAP_TEXCOORD0)

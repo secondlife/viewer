@@ -204,7 +204,7 @@ public:
 	};
 };
 
-LL_ALIGN_PREFIX(16)
+LL_ALIGN_PREFIX(64)
 class LLSpatialGroup : public LLOctreeListener<LLDrawable>
 {
 	friend class LLSpatialPartition;
@@ -490,13 +490,13 @@ public:
 	LLSpatialGroup *put(LLDrawable *drawablep, BOOL was_visible = FALSE);
 	BOOL remove(LLDrawable *drawablep, LLSpatialGroup *curp);
 	
-	LLDrawable* lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+	LLDrawable* lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 									 BOOL pick_transparent, 
 									 S32* face_hit,                          // return the face hit
-									 LLVector3* intersection = NULL,         // return the intersection point
+									 LLVector4a* intersection = NULL,         // return the intersection point
 									 LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
-									 LLVector3* normal = NULL,               // return the surface normal at the intersection point
-									 LLVector3* bi_normal = NULL             // return the surface bi-normal at the intersection point
+									 LLVector4a* normal = NULL,               // return the surface normal at the intersection point
+									 LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
 		);
 	
 	

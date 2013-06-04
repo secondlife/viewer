@@ -977,7 +977,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedAttribs.push_back("texcoord3");
 	mReservedAttribs.push_back("diffuse_color");
 	mReservedAttribs.push_back("emissive");
-	mReservedAttribs.push_back("binormal");
+	mReservedAttribs.push_back("tangent");
 	mReservedAttribs.push_back("weight");
 	mReservedAttribs.push_back("weight4");
 	mReservedAttribs.push_back("clothing");

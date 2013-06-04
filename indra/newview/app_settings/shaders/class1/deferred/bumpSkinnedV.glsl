@@ -30,7 +30,7 @@ ATTRIBUTE vec3 position;
 ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec3 normal;
 ATTRIBUTE vec2 texcoord0;
-ATTRIBUTE vec3 binormal;
+ATTRIBUTE vec4 tangent;
 
 VARYING vec3 vary_mat0;
 VARYING vec3 vary_mat1;
@@ -52,8 +52,8 @@ void main()
 	
 	
 	vec3 n = normalize((mat * vec4(normal.xyz+position.xyz, 1.0)).xyz-pos.xyz);
-	vec3 b = normalize((mat * vec4(binormal.xyz+position.xyz, 1.0)).xyz-pos.xyz);
-	vec3 t = cross(b, n);
+	vec3 t = normalize((mat * vec4(tangent.xyz+position.xyz, 1.0)).xyz-pos.xyz);
+	vec3 b = cross(n, t) * tangent.w;
 	
 	vary_mat0 = vec3(t.x, b.x, n.x);
 	vary_mat1 = vec3(t.y, b.y, n.y);
