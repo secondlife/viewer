@@ -265,6 +265,8 @@ public:
 
 	size_t getIndex() const { return mAccumulatorIndex; }
 
+	virtual const char* getUnitLabel() { return ""; }
+
 	const std::string& getName() const { return mName; }
 
 protected:
@@ -662,6 +664,9 @@ public:
 	EventStatHandle(const char* name, const char* description = NULL)
 	:	trace_t(name, description)
 	{}
+
+	/*virtual*/ const char* getUnitLabel() { return LLGetUnitLabel<T>::getUnitLabel(); }
+
 };
 
 template<typename T, typename VALUE_T>
@@ -682,6 +687,8 @@ public:
 	SampleStatHandle(const char* name, const char* description = NULL)
 	:	trace_t(name, description)
 	{}
+
+	/*virtual*/ const char* getUnitLabel() { return LLGetUnitLabel<T>::getUnitLabel(); }
 };
 
 template<typename T, typename VALUE_T>
@@ -703,6 +710,7 @@ public:
 	:	trace_t(name)
 	{}
 
+	/*virtual*/ const char* getUnitLabel() { return LLGetUnitLabel<T>::getUnitLabel(); }
 };
 
 template<typename T, typename VALUE_T>
@@ -755,6 +763,8 @@ public:
 	MemStatHandle(const char* name)
 	:	trace_t(name)
 	{}
+
+	/*virtual*/ const char* getUnitLabel() { return "B"; }
 };
 
 // measures effective memory footprint of specified type

@@ -523,12 +523,18 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 		std::ostringstream row;
 		row << it->getName();
 
+		const char* unit_label = it->getUnitLabel();
+		if(unit_label[0])
+		{
+			row << "(" << unit_label << ")";
+		}
+
 		S32 samples = 0;
 
-		for (S32 i = frame_count - 1; i >= 0; --i)
+		for (S32 frame = 0; frame < frame_count; frame++)
 		{
-			samples += scene_load_recording.getPrevRecording(i).getSampleCount(*it);
-			row << ", " << scene_load_recording.getPrevRecording(i).getSum(*it);
+			samples += scene_load_recording.getPrevRecording(frame_count - frame).getSampleCount(*it);
+			row << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getSum(*it);
 		}
 
 		row << std::endl;
@@ -550,10 +556,10 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 
 		S32 samples = 0;
 
-		for (S32 i = frame_count - 1; i >= 0; --i)
+		for (S32 frame = 0; frame < frame_count; frame++)
 		{
-			samples += scene_load_recording.getPrevRecording(i).getSampleCount(*it);
-			row << ", " << scene_load_recording.getPrevRecording(i).getMean(*it);
+			samples += scene_load_recording.getPrevRecording(frame_count - frame).getSampleCount(*it);
+			row << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getMean(*it);
 		}
 
 		row << std::endl;
@@ -575,10 +581,10 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 
 		S32 samples = 0;
 
-		for (S32 i = frame_count - 1; i >= 0; --i)
+		for (S32 frame = 0; frame < frame_count; frame++)
 		{
-			samples += scene_load_recording.getPrevRecording(i).getSampleCount(*it);
-			row << ", " << scene_load_recording.getPrevRecording(i).getMean(*it);
+			samples += scene_load_recording.getPrevRecording(frame_count - frame).getSampleCount(*it);
+			row << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getMean(*it);
 		}
 
 		row << std::endl;
@@ -596,9 +602,9 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 	{
 		os << it->getName();
 
-		for (S32 i = frame_count - 1; i >= 0; --i)
+		for (S32 frame = 0; frame < frame_count; frame++)
 		{
-			os << ", " << scene_load_recording.getPrevRecording(i).getSum(*it).as<LLUnits::Megabytes>().value();
+			os << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getSum(*it).value();
 		}
 
 		os << std::endl;
@@ -606,7 +612,6 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 
 	os.flush();
 	os.close();
-
 }
 
 //-------------------------------------------------------------------------------------------------------------
