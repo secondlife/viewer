@@ -1310,8 +1310,7 @@ void LLXUIParser::parserWarning(const std::string& message)
 {
 #ifdef LL_WINDOWS
 	// use Visual Studo friendly formatting of output message for easy access to originating xml
-	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()).c_str());
-	LL_WINDOWS_OUTPUT_DEBUG(utf16str);
+	LL_WINDOWS_OUTPUT_DEBUG(utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str())));
 #else
 	Parser::parserWarning(message);
 #endif
@@ -1320,8 +1319,7 @@ void LLXUIParser::parserWarning(const std::string& message)
 void LLXUIParser::parserError(const std::string& message)
 {
 #ifdef LL_WINDOWS
-	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()).c_str());
-	LL_WINDOWS_OUTPUT_DEBUG(utf16str);
+	LL_WINDOWS_OUTPUT_DEBUG(utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str())));
 #else
 	Parser::parserError(message);
 #endif
@@ -1639,8 +1637,7 @@ void LLSimpleXUIParser::parserWarning(const std::string& message)
 {
 #ifdef LL_WINDOWS
 	// use Visual Studo friendly formatting of output message for easy access to originating xml
-	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()).c_str());
-	LL_WINDOWS_OUTPUT_DEBUG(utf16str);
+	LL_WINDOWS_OUTPUT_DEBUG(utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str())));
 #else
 	Parser::parserWarning(message);
 #endif
@@ -1649,8 +1646,7 @@ void LLSimpleXUIParser::parserWarning(const std::string& message)
 void LLSimpleXUIParser::parserError(const std::string& message)
 {
 #ifdef LL_WINDOWS
-	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()).c_str());
-	LL_WINDOWS_OUTPUT_DEBUG(utf16str);
+	LL_WINDOWS_OUTPUT_DEBUG(utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str())));
 #else
 	Parser::parserError(message);
 #endif

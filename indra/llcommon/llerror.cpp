@@ -201,7 +201,7 @@ namespace {
 		virtual void recordMessage(LLError::ELevel level,
 								   const std::string& message)
 		{
-			LL_WINDOWS_OUTPUT_DEBUG(wstring_to_utf16str(utf8str_to_wstring(message)));
+			LL_WINDOWS_OUTPUT_DEBUG(wstring_to_utf16str(utf8str_to_wstring(message)).c_str());
 		}
 	};
 #endif
@@ -1398,5 +1398,19 @@ namespace LLError
    {
        sIndex = 0 ;
    }
+
+#if LL_WINDOWS && !defined(LL_RELEASE_FOR_DOWNLOAD)
+	void LLOutputDebugUTF16(const unsigned short* s)
+	{
+		// Be careful not to enable this in non-debug builds as there are bad interactions between the
+		// exceptions thrown by this function and the handling of stacks in coroutine fibers. BUG-2707
+		//
+		#if defined(_DEBUG)
+			OutputDebugString(s);
+			OutputDebugString(TEXT("\n"));
+		#endif
+	}
+#endif
+
 }
 
