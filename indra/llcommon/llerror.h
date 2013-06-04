@@ -200,7 +200,7 @@ namespace LLError
    }; 
 
 #if LL_WINDOWS && !defined(LL_RELEASE_FOR_DOWNLOAD)
-	void LLOutputDebugUTF16(const unsigned short* s);
+	void LLOutputDebugUTF8(const std::string& s);
 #endif
 
 }
@@ -209,7 +209,7 @@ namespace LLError
 	// Macro accepting a wchar_t* for display in windows debugging console in debug builds only
 	// (wchar_t flavor chosen for maximal utility with unicode text debugging)
 	//
-	#define LL_WINDOWS_OUTPUT_DEBUG(a) LLError::LLOutputDebugUTF16((a))
+	#define LL_WINDOWS_OUTPUT_DEBUG(a) LLError::LLOutputDebugUTF8((a))
 #else
 	#define LL_WINDOWS_OUTPUT_DEBUG(a)
 #endif
