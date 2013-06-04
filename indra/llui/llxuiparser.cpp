@@ -1308,11 +1308,13 @@ bool LLXUIParser::writeSDValue(Parser& parser, const void* val_ptr, name_stack_t
 
 void LLXUIParser::parserWarning(const std::string& message)
 {
-#ifdef LL_WINDOWS && BUG_2707_HUNT
+#ifdef LL_WINDOWS
+#if BUG_2707_HUNT
 	// use Visual Studo friendly formatting of output message for easy access to originating xml
 	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()).c_str());
 	utf16str += '\n';
 	OutputDebugString(utf16str.c_str());
+#endif
 #else
 	Parser::parserWarning(message);
 #endif
@@ -1320,10 +1322,12 @@ void LLXUIParser::parserWarning(const std::string& message)
 
 void LLXUIParser::parserError(const std::string& message)
 {
-#ifdef LL_WINDOWS && BUG_2707_HUNT
+#ifdef LL_WINDOWS
+#if BUG_2707_HUNT
 	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()).c_str());
 	utf16str += '\n';
 	OutputDebugString(utf16str.c_str());
+#endif
 #else
 	Parser::parserError(message);
 #endif
@@ -1639,11 +1643,13 @@ bool LLSimpleXUIParser::processText()
 
 void LLSimpleXUIParser::parserWarning(const std::string& message)
 {
-#ifdef LL_WINDOWS && BUG_2707_HUNT
+#ifdef LL_WINDOWS
+#if BUG_2707_HUNT
 	// use Visual Studo friendly formatting of output message for easy access to originating xml
 	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()).c_str());
 	utf16str += '\n';
 	OutputDebugString(utf16str.c_str());
+#endif
 #else
 	Parser::parserWarning(message);
 #endif
@@ -1651,10 +1657,12 @@ void LLSimpleXUIParser::parserWarning(const std::string& message)
 
 void LLSimpleXUIParser::parserError(const std::string& message)
 {
-#ifdef LL_WINDOWS && BUG_2707_HUNT
+#ifdef LL_WINDOWS
+#if BUG_2707_HUNT
 	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()).c_str());
 	utf16str += '\n';
 	OutputDebugString(utf16str.c_str());
+#endif
 #else
 	Parser::parserError(message);
 #endif
