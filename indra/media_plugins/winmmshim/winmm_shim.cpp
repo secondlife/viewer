@@ -61,12 +61,16 @@ void ll_winmm_shim_initialize(){
 		{	// we have a dll, let's get out pointers!
 			initialized = true;
 			init_function_pointers(winmm_handle);
+#if BUG_2707_HUNT
 			::OutputDebugStringA("WINMM_SHIM.DLL: real winmm.dll initialized successfully\n");
+#endif
 		}
 		else
 		{
 			// failed to initialize real winmm.dll
+#if BUG_2707_HUNT
 			::OutputDebugStringA("WINMM_SHIM.DLL: Failed to initialize real winmm.dll\n");
+#endif
 		}
 	}
 	LeaveCriticalSection(&sCriticalSection);

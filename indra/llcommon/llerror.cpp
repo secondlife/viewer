@@ -201,10 +201,12 @@ namespace {
 		virtual void recordMessage(LLError::ELevel level,
 								   const std::string& message)
 		{
+#if BUG_2707_HUNT
 			llutf16string utf16str =
 				wstring_to_utf16str(utf8str_to_wstring(message));
 			utf16str += '\n';
 			OutputDebugString(utf16str.c_str());
+#endif
 		}
 	};
 #endif
