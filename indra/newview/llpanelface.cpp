@@ -2387,8 +2387,6 @@ void LLPanelFace::onCommitRepeatsPerMeter(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	
-	gFocusMgr.setKeyboardFocus( NULL );
-
 	LLUICtrl* repeats_ctrl = self->getChild<LLUICtrl>("rptctrl");
 
 	F32 repeats_per_meter = repeats_ctrl->getValue().asReal();
