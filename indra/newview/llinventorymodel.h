@@ -334,7 +334,7 @@ public:
 		
 	// Update model after an item is confirmed as removed from
 	// server. Works for categories or items.
-	void onObjectDeletedFromServer(const LLUUID& item_id, bool fix_broken_links = true);
+	void onObjectDeletedFromServer(const LLUUID& item_id, bool fix_broken_links = true, bool update_parent_version = true);
 
 	// Update model after all descendents removed from server.
 	void onDescendentsPurgedFromServer(const LLUUID& object_id, bool fix_broken_links = true);

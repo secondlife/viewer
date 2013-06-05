@@ -493,6 +493,34 @@ private:
 	LLSD mUpdates;
 };
 
+class SlamFolderCommand: public AISCommand
+{
+public:
+	SlamFolderCommand(const LLUUID& folder_id, const LLSD& contents, LLPointer<LLInventoryCallback> callback):
+		mContents(contents),
+		AISCommand(callback)
+	{
+		std::string cap;
+		if (!getCap(cap))
+		{
+			llwarns << "No cap found" << llendl;
+			return;
+		}
+		LLUUID tid;
+		tid.generate();
+		std::string url = cap + std::string("/category/") + folder_id.asString() + "/links?tid=" + tid.asString();
+		llinfos << url << llendl;
+		LLCurl::ResponderPtr responder = this;
+		LLSD headers;
+		headers["Content-Type"] = "application/llsd+xml";
+		F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
+		command_func_type cmd = boost::bind(&LLHTTPClient::put, url, mContents, responder, headers, timeout);
+		setCommandFunc(cmd);
+	}
+private:
+	LLSD mContents;
+};
+
 ///----------------------------------------------------------------------------
 /// Class LLViewerInventoryItem
 ///----------------------------------------------------------------------------
@@ -1835,8 +1863,8 @@ void slam_inventory_folder(const LLUUID& folder_id,
 	std::string cap;
 	if (AISCommand::getCap(cap))
 	{
-		//LLPointer<AISCommand> cmd_ptr = new SlamFolderCommand(folder_id, contents, cb);
-		//cmd_ptr->run_command();
+		LLPointer<AISCommand> cmd_ptr = new SlamFolderCommand(folder_id, contents, cb);
+		cmd_ptr->run_command();
 	}
 	else // no cap
 	{

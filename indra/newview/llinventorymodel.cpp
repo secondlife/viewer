@@ -1172,77 +1172,188 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 {
 	LL_DEBUGS("Inventory") << "ais update " << context << ":" << ll_pretty_print_sd(update) << llendl;
 
+	// Track changes to descendent counts for accounting.
+	std::map<LLUUID,S32> cat_deltas;
+	typedef std::map<LLUUID,LLPointer<LLViewerInventoryItem> > deferred_item_map_t;
+	deferred_item_map_t items_created;
+	deferred_item_map_t items_updated;
+	std::set<LLUUID> objects_deleted;
+
+	// parse _categories_removed -> objects_deleted
 	uuid_vec_t cat_ids;
 	parse_llsd_uuid_array(update,"_categories_removed",cat_ids);
 	for (uuid_vec_t::const_iterator it = cat_ids.begin();
 		 it != cat_ids.end(); ++it)
 	{
-		onObjectDeletedFromServer(*it, false);
+		LLViewerInventoryCategory *cat = getCategory(*it);
+		cat_deltas[cat->getParentUUID()]--;
+		objects_deleted.insert(*it);
 	}
 
+	// parse _categories_items_removed -> objects_deleted
 	uuid_vec_t item_ids;
 	parse_llsd_uuid_array(update,"_category_items_removed",item_ids);
 	for (uuid_vec_t::const_iterator it = item_ids.begin();
 		 it != item_ids.end(); ++it)
 	{
-		onObjectDeletedFromServer(*it, false);
+		LLViewerInventoryItem *item = getItem(*it);
+		cat_deltas[item->getParentUUID()]--;
+		objects_deleted.insert(*it);
 	}
 
+	// parse _broken_links_removed -> objects_deleted
 	uuid_vec_t broken_link_ids;
 	parse_llsd_uuid_array(update,"_broken_links_removed",broken_link_ids);
 	for (uuid_vec_t::const_iterator it = broken_link_ids.begin();
 		 it != broken_link_ids.end(); ++it)
 	{
-		onObjectDeletedFromServer(*it, false);
+		LLViewerInventoryItem *item = getItem(*it);
+		cat_deltas[item->getParentUUID()]--;
+		objects_deleted.insert(*it);
 	}
 
+	// parse _created_items
+	uuid_vec_t created_item_ids;
+	parse_llsd_uuid_array(update,"_created_items",created_item_ids);
+
+	if (update.has("_embedded"))
+	{
+		const LLSD& embedded = update["_embedded"];
+		for(LLSD::map_const_iterator it = embedded.beginMap(),
+				end = embedded.endMap();
+				it != end; ++it)
+		{
+			const std::string& field = (*it).first;
+
+			// parse created links
+			if (field == "link")
+			{
+				const LLSD& links = embedded["link"];
+				for(LLSD::map_const_iterator linkit = links.beginMap(),
+						linkend = links.endMap();
+					linkit != linkend; ++linkit)
+				{
+					const LLUUID link_id((*linkit).first);
+					const LLSD& link_map = (*linkit).second;
+					uuid_vec_t::const_iterator pos =
+						std::find(created_item_ids.begin(),
+								  created_item_ids.end(),link_id);
+					if (pos != created_item_ids.end())
+					{
+						LLPointer<LLViewerInventoryItem> new_link(new LLViewerInventoryItem);
+						BOOL rv = new_link->unpackMessage(link_map);
+						if (rv)
+						{
+							items_created[link_id] = new_link;
+							const LLUUID& parent_id = new_link->getParentUUID();
+							cat_deltas[parent_id]++;
+						}
+						else
+						{
+							llwarns << "failed to unpack" << llendl;
+						}
+					}
+					else
+					{
+						LL_DEBUGS("Inventory") << "Ignoring link not in created items list " << link_id << llendl;
+					}
+				}
+		}
+			else
+			{
+				llwarns << "unrecognized embedded field " << field << llendl;
+			}
+		}
+		
+	}
+
+	// Parse item update at the top level.
 	if (update.has("item_id"))
 	{
-		// item has been modified or possibly created (would be better if we could distinguish these cases directly)
 		LLUUID item_id = update["item_id"].asUUID();
-		LLViewerInventoryItem *item = gInventory.getItem(item_id);
-		LLViewerInventoryCategory *cat = gInventory.getCategory(item_id);
-		if (item)
+		LLPointer<LLViewerInventoryItem> new_item(new LLViewerInventoryItem);
+		BOOL rv = new_item->unpackMessage(update);
+		if (rv)
 		{
-			LLSD changes;
-			if (update.has("name") && update["name"] != item->getName())
-			{
-				changes["name"] = update["name"];
-			}
-			if (update.has("desc") && update["desc"] != item->getActualDescription())
-			{
-				changes["desc"] = update["desc"];
-			}
-			onItemUpdated(item_id,changes,true);
-		}
-		else if (cat)
-		{
-			llerrs << "don't handle cat update yet" << llendl;
+			items_updated[item_id] = new_item;
+			// This statement is here to cause a new entry with 0
+			// delta to be created if it does not already exist;
+			// otherwise has no effect.
+			cat_deltas[new_item->getParentUUID()];
 		}
 		else
 		{
-			llerrs << "don't handle creation case yet" << llendl;
+			llerrs << "unpack failed" << llendl;
 		}
-	
 	}
 
+	// Do descendent/version accounting.
+	// Can remove this if/when we use the version info directly.
+	for (std::map<LLUUID,S32>::const_iterator catit = cat_deltas.begin();
+		 catit != cat_deltas.end(); ++catit)
+	{
+		const LLUUID cat_id(catit->first);
+		S32 delta = catit->second;
+		LLInventoryModel::LLCategoryUpdate up(cat_id, delta);
+		gInventory.accountForUpdate(up);
+	}
+	
 	// TODO - how can we use this version info? Need to be sure all
 	// changes are going through AIS first, or at least through
 	// something with a reliable responder.
-#if 0
 	const std::string& ucv = "_updated_category_versions";
 	if (update.has(ucv))
 	{
 		for(LLSD::map_const_iterator it = update[ucv].beginMap(),
 				end = update[ucv].endMap();
-				it != end; ++it)
+			it != end; ++it)
 		{
 			const LLUUID id((*it).first);
 			S32 version = (*it).second.asInteger();
+			LLViewerInventoryCategory *cat = gInventory.getCategory(id);
+			if (cat->getVersion() != version)
+			{
+				llwarns << "Possible version mismatch, viewer " << cat->getVersion()
+						<< " server " << version << llendl;
+			}
 		}
 	}
-#endif
+
+	// CREATE ITEMS
+	for (deferred_item_map_t::const_iterator create_it = items_created.begin();
+		 create_it != items_created.end(); ++create_it)
+	{
+		LLUUID item_id(create_it->first);
+		LLPointer<LLViewerInventoryItem> new_item = create_it->second;
+
+		// FIXME risky function since it calls updateServer() in some
+		// cases.  Maybe break out the update/create cases, in which
+		// case this is create.
+		LL_DEBUGS("Inventory") << "created item " << item_id << llendl;
+		gInventory.updateItem(new_item);
+	}
 	
+	// UPDATE ITEMS
+	for (deferred_item_map_t::const_iterator update_it = items_updated.begin();
+		 update_it != items_updated.end(); ++update_it)
+	{
+		LLUUID item_id(update_it->first);
+		LLPointer<LLViewerInventoryItem> new_item = update_it->second;
+		// FIXME risky function since it calls updateServer() in some
+		// cases.  Maybe break out the update/create cases, in which
+		// case this is update.
+		LL_DEBUGS("Inventory") << "updated item " << item_id << llendl;
+		gInventory.updateItem(new_item);
+	}
+
+	// DELETE OBJECTS
+	for (std::set<LLUUID>::const_iterator del_it = objects_deleted.begin();
+		 del_it != objects_deleted.end(); ++del_it)
+	{
+		LL_DEBUGS("Inventory") << "deleted item " << *del_it << llendl;
+		onObjectDeletedFromServer(*del_it, false, false);
+	}
+
 }
 
 void LLInventoryModel::onItemUpdated(const LLUUID& item_id, const LLSD& updates, bool update_parent_version)
@@ -1395,7 +1506,7 @@ void LLInventoryModel::onDescendentsPurgedFromServer(const LLUUID& object_id, bo
 
 // Update model after an item is confirmed as removed from
 // server. Works for categories or items.
-void LLInventoryModel::onObjectDeletedFromServer(const LLUUID& object_id, bool fix_broken_links)
+void LLInventoryModel::onObjectDeletedFromServer(const LLUUID& object_id, bool fix_broken_links, bool update_parent_version)
 {
 	LLPointer<LLInventoryObject> obj = getObject(object_id);
 	if(obj)
@@ -1406,9 +1517,13 @@ void LLInventoryModel::onObjectDeletedFromServer(const LLUUID& object_id, bool f
 			onDescendentsPurgedFromServer(object_id, fix_broken_links);
 		}
 
+
 		// From item/cat removeFromServer()
-		LLInventoryModel::LLCategoryUpdate up(obj->getParentUUID(), -1);
-		accountForUpdate(up);
+		if (update_parent_version)
+		{
+			LLInventoryModel::LLCategoryUpdate up(obj->getParentUUID(), -1);
+			accountForUpdate(up);
+		}
 
 		// From purgeObject()
 		LLPreview::hide(object_id);

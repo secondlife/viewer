@@ -50,6 +50,7 @@ static const std::string INV_DESC_LABEL("desc");
 static const std::string INV_PERMISSIONS_LABEL("permissions");
 static const std::string INV_SHADOW_ID_LABEL("shadow_id");
 static const std::string INV_ASSET_ID_LABEL("asset_id");
+static const std::string INV_LINKED_ID_LABEL("linked_id");
 static const std::string INV_SALE_INFO_LABEL("sale_info");
 static const std::string INV_FLAGS_LABEL("flags");
 static const std::string INV_CREATION_DATE_LABEL("created_at");
@@ -1105,6 +1106,11 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd)
 		cipher.decrypt(mAssetUUID.mData, UUID_BYTES);
 	}
 	w = INV_ASSET_ID_LABEL;
+	if (sd.has(w))
+	{
+		mAssetUUID = sd[w];
+	}
+	w = INV_LINKED_ID_LABEL;
 	if (sd.has(w))
 	{
 		mAssetUUID = sd[w];
