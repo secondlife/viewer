@@ -62,8 +62,8 @@ class LLWebProfileResponders::ConfigResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLWebProfileResponders::ConfigResponder);
 
 public:
-	ConfigResponder(LLPointer<LLImageFormatted> imagep)
-	:	mImagep(imagep)
+	ConfigResponder(LLPointer<LLImageFormatted> imagep, LLWebProfile::image_url_callback_t cb)
+	:	mImagep(imagep), mImageCallback(cb)
 	{
 	}
 
@@ -113,11 +113,12 @@ public:
 
 		// Do the actual image upload using the configuration.
 		LL_DEBUGS("Snapshots") << "Got upload config, POSTing image to " << upload_url << ", config=[" << config << "]" << llendl;
-		LLWebProfile::post(mImagep, config, upload_url);
+		LLWebProfile::post(mImagep, config, upload_url, mImageCallback);
 	}
 
 private:
 	LLPointer<LLImageFormatted> mImagep;
+	LLWebProfile::image_url_callback_t mImageCallback;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -127,6 +128,22 @@ class LLWebProfileResponders::PostImageRedirectResponder : public LLHTTPClient::
 	LOG_CLASS(LLWebProfileResponders::PostImageRedirectResponder);
 
 public:
+	PostImageRedirectResponder(LLWebProfile::image_url_callback_t cb)
+	:	mImageCallback(cb)
+	{
+	}
+
+	/*virtual*/ void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+	{
+		if (status == 200)
+		{
+			std::string image_url = content.get("Location");
+			llinfos << "Image uploaded to " << image_url << llendl;
+			if (!mImageCallback.empty() && !image_url.empty())
+				mImageCallback(image_url);
+		}
+	}
+
 	/*virtual*/ void completedRaw(
 		U32 status,
 		const std::string& reason,
@@ -148,9 +165,9 @@ public:
 		LL_DEBUGS("Snapshots") << "Uploading image succeeded. Response: [" << body << "]" << llendl;
 		LLWebProfile::reportImageUploadStatus(true);
 	}
-
+	
 private:
-	LLPointer<LLImageFormatted> mImagep;
+	LLWebProfile::image_url_callback_t mImageCallback;
 };
 
 
@@ -161,6 +178,11 @@ class LLWebProfileResponders::PostImageResponder : public LLHTTPClient::Responde
 	LOG_CLASS(LLWebProfileResponders::PostImageResponder);
 
 public:
+	PostImageResponder(LLWebProfile::image_url_callback_t cb)
+	:	mImageCallback(cb)
+	{
+	}
+
 	/*virtual*/ void completedHeader(U32 status, const std::string& reason, const LLSD& content)
 	{
 		// Viewer seems to fail to follow a 303 redirect on POST request
@@ -172,7 +194,7 @@ public:
 			headers["Cookie"] = LLWebProfile::getAuthCookie();
 			const std::string& redir_url = content["location"];
 			LL_DEBUGS("Snapshots") << "Got redirection URL: " << redir_url << llendl;
-			LLHTTPClient::get(redir_url, new LLWebProfileResponders::PostImageRedirectResponder, headers);
+			LLHTTPClient::get(redir_url, new LLWebProfileResponders::PostImageRedirectResponder(mImageCallback), headers);
 		}
 		else
 		{
@@ -188,6 +210,9 @@ public:
 							  const LLIOPipe::buffer_ptr_t& buffer)
 	{
 	}
+	
+private:
+	LLWebProfile::image_url_callback_t mImageCallback;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -197,7 +222,7 @@ std::string LLWebProfile::sAuthCookie;
 LLWebProfile::status_callback_t LLWebProfile::mStatusCallback;
 
 // static
-void LLWebProfile::uploadImage(LLPointer<LLImageFormatted> image, const std::string& caption, bool add_location)
+void LLWebProfile::uploadImage(LLPointer<LLImageFormatted> image, const std::string& caption, bool add_location, LLWebProfile::image_url_callback_t cb)
 {
 	// Get upload configuration data.
 	std::string config_url(getProfileURL(LLStringUtil::null) + "snapshots/s3_upload_config");
@@ -207,7 +232,7 @@ void LLWebProfile::uploadImage(LLPointer<LLImageFormatted> image, const std::str
 	LL_DEBUGS("Snapshots") << "Requesting " << config_url << llendl;
 	LLSD headers = LLViewerMedia::getHeaders();
 	headers["Cookie"] = getAuthCookie();
-	LLHTTPClient::get(config_url, new LLWebProfileResponders::ConfigResponder(image), headers);
+	LLHTTPClient::get(config_url, new LLWebProfileResponders::ConfigResponder(image, cb), headers);
 }
 
 // static
@@ -218,7 +243,7 @@ void LLWebProfile::setAuthCookie(const std::string& cookie)
 }
 
 // static
-void LLWebProfile::post(LLPointer<LLImageFormatted> image, const LLSD& config, const std::string& url)
+void LLWebProfile::post(LLPointer<LLImageFormatted> image, const LLSD& config, const std::string& url, LLWebProfile::image_url_callback_t cb)
 {
 	if (dynamic_cast<LLImagePNG*>(image.get()) == 0)
 	{
@@ -284,7 +309,7 @@ void LLWebProfile::post(LLPointer<LLImageFormatted> image, const LLSD& config, c
 	memcpy(data, body.str().data(), size);
 
 	// Send request, successful upload will trigger posting metadata.
-	LLHTTPClient::postRaw(url, data, size, new LLWebProfileResponders::PostImageResponder(), headers);
+	LLHTTPClient::postRaw(url, data, size, new LLWebProfileResponders::PostImageResponder(cb), headers);
 }
 
 // static
