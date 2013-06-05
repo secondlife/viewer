@@ -1170,7 +1170,10 @@ void parse_llsd_uuid_array(const LLSD& content, const std::string& name, uuid_ve
 
 void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLSD& update)
 {
-	LL_DEBUGS("Inventory") << "ais update " << context << ":" << ll_pretty_print_sd(update) << llendl;
+	if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+	{
+		dump_sequential_xml(gAgentAvatarp->getFullname() + "_ais_update", update);
+	}
 
 	// Track changes to descendent counts for accounting.
 	std::map<LLUUID,S32> cat_deltas;

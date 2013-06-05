@@ -1797,7 +1797,10 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 		base_contents["type"] = LLAssetType::AT_LINK_FOLDER; 
 		contents.append(base_contents);
 	}
-	llinfos << "slamming to: " << ll_pretty_print_sd(contents) << llendl;
+	if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+	{
+		dump_sequential_xml(gAgentAvatarp->getFullname() + "_slam_request", contents);
+	}
 	slam_inventory_folder(getCOF(), contents, link_waiter);
 #endif
 
@@ -2950,7 +2953,7 @@ protected:
 			//LL_DEBUGS("Avatar") << dumpResponse() << LL_ENDL;
 			if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
 			{
-				dumpContents(gAgentAvatarp->getFullname() + "_appearance_request_ok", content);
+				dump_sequential_xml(gAgentAvatarp->getFullname() + "_appearance_request_ok", content);
 			}
 		}
 		else
@@ -2968,7 +2971,7 @@ protected:
 		if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
 		{
 			const LLSD& content = getContent();
-			dumpContents(gAgentAvatarp->getFullname() + "_appearance_request_error", content);
+			dump_sequential_xml(gAgentAvatarp->getFullname() + "_appearance_request_error", content);
 			debugCOF(content);
 		}
 		onFailure();
@@ -2991,15 +2994,6 @@ protected:
 			llwarns << "giving up after too many retries" << llendl;
 		}
 	}	
-
-	void dumpContents(const std::string outprefix, const LLSD& content)
-	{
-		std::string outfilename = get_sequential_numbered_file_name(outprefix,".xml");
-		std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
-		std::ofstream ofs(fullpath.c_str(), std::ios_base::out);
-		ofs << LLSDOStreamer<LLSDXMLFormatter>(content, LLSDFormatter::OPTIONS_PRETTY);
-		LL_DEBUGS("Avatar") << "results saved to: " << fullpath << LL_ENDL;
-	}
 
 	void debugCOF(const LLSD& content)
 	{
