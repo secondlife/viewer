@@ -188,21 +188,21 @@ public:
 	void		markMeshDirty(LLSpatialGroup* group);
 
 	//get the object between start and end that's closest to start.
-	LLViewerObject* lineSegmentIntersectInWorld(const LLVector3& start, const LLVector3& end,
+	LLViewerObject* lineSegmentIntersectInWorld(const LLVector4a& start, const LLVector4a& end,
 												BOOL pick_transparent,
 												S32* face_hit,                          // return the face hit
-												LLVector3* intersection = NULL,         // return the intersection point
+												LLVector4a* intersection = NULL,         // return the intersection point
 												LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
-												LLVector3* normal = NULL,               // return the surface normal at the intersection point
-												LLVector3* bi_normal = NULL             // return the surface bi-normal at the intersection point  
+												LLVector4a* normal = NULL,               // return the surface normal at the intersection point
+												LLVector4a* tangent = NULL             // return the surface tangent at the intersection point  
 		);
-	LLViewerObject* lineSegmentIntersectInHUD(const LLVector3& start, const LLVector3& end,
+	LLViewerObject* lineSegmentIntersectInHUD(const LLVector4a& start, const LLVector4a& end,
 											  BOOL pick_transparent,
 											  S32* face_hit,                          // return the face hit
-											  LLVector3* intersection = NULL,         // return the intersection point
+											  LLVector4a* intersection = NULL,         // return the intersection point
 											  LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
-											  LLVector3* normal = NULL,               // return the surface normal at the intersection point
-											  LLVector3* bi_normal = NULL             // return the surface bi-normal at the intersection point
+											  LLVector4a* normal = NULL,               // return the surface normal at the intersection point
+											  LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
 		);
 
 	// Something about these textures has changed.  Dirty them.

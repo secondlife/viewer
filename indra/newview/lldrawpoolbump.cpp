@@ -856,7 +856,7 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
 	LLCullResult::drawinfo_iterator begin = gPipeline.beginRenderMap(type);
 	LLCullResult::drawinfo_iterator end = gPipeline.endRenderMap(type);
 
-	U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_BINORMAL | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_COLOR;
+	U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_COLOR;
 	
 	for (LLCullResult::drawinfo_iterator i = begin; i != end; ++i)	
 	{

@@ -47,6 +47,8 @@ void fullbright_lighting()
 	
 	color.rgb = fullbrightScaleSoftClip(color.rgb);
 
+	color.rgb = pow(color.rgb, vec3(1.0/texture_gamma));
+
 	frag_color = color;
 }
 

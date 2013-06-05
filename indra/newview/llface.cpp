@@ -106,41 +106,6 @@ void planarProjection(LLVector2 &tc, const LLVector4a& normal,
 	tc.mV[0] = 1.0f+((binormal.dot3(vec).getF32())*2 - 0.5f);
 }
 
-void sphericalProjection(LLVector2 &tc, const LLVector4a& normal,
-						 const LLVector4a &mCenter, const LLVector4a& vec)
-{	//BROKEN
-	/*tc.mV[0] = acosf(vd.mNormal * LLVector3(1,0,0))/3.14159f;
-	
-	tc.mV[1] = acosf(vd.mNormal * LLVector3(0,0,1))/6.284f;
-	if (vd.mNormal.mV[1] > 0)
-	{
-		tc.mV[1] = 1.0f-tc.mV[1];
-	}*/
-}
-
-void cylindricalProjection(LLVector2 &tc, const LLVector4a& normal, const LLVector4a &mCenter, const LLVector4a& vec)
-{	//BROKEN
-	/*LLVector3 binormal;
-	float d = vd.mNormal * LLVector3(1,0,0);
-	if (d >= 0.5f || d <= -0.5f)
-	{
-		binormal = LLVector3(0,1,0);
-	}
-	else{
-		binormal = LLVector3(1,0,0);
-	}
-	LLVector3 tangent = binormal % vd.mNormal;
-
-	tc.mV[1] = -((tangent*vec)*2 - 0.5f);
-
-	tc.mV[0] = acosf(vd.mNormal * LLVector3(1,0,0))/6.284f;
-
-	if (vd.mNormal.mV[1] < 0)
-	{
-		tc.mV[0] = 1.0f-tc.mV[0];
-	}*/
-}
-
 ////////////////////
 //
 // LLFace implementation
@@ -937,7 +902,7 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 // integrated with getGeometryVolume() for its texture coordinate
 // generation - but i'll leave that to someone more familiar
 // with the implications.
-LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, LLVector3 position, LLVector3 normal)
+LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, const LLVector4a& position, const LLVector4a& normal)
 {
 	LLVector2 tc = surface_coord;
 	
@@ -957,7 +922,9 @@ LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, LLVector3 position, 
 		LLVector4a& center = *(mDrawablep->getVOVolume()->getVolume()->getVolumeFace(mTEOffset).mCenter);
 		
 		LLVector4a volume_position;
-		volume_position.load3(mDrawablep->getVOVolume()->agentPositionToVolume(position).mV);
+		LLVector3 v_position(position.getF32ptr());
+
+		volume_position.load3(mDrawablep->getVOVolume()->agentPositionToVolume(v_position).mV);
 		
 		if (!mDrawablep->getVOVolume()->isVolumeGlobal())
 		{
@@ -967,23 +934,14 @@ LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, LLVector3 position, 
 		}
 		
 		LLVector4a volume_normal;
-		volume_normal.load3(mDrawablep->getVOVolume()->agentDirectionToVolume(normal).mV);
+		LLVector3 v_normal(normal.getF32ptr());
+		volume_normal.load3(mDrawablep->getVOVolume()->agentDirectionToVolume(v_normal).mV);
 		volume_normal.normalize3fast();
 		
-		switch (texgen)
+		if (texgen == LLTextureEntry::TEX_GEN_PLANAR)
 		{
-		case LLTextureEntry::TEX_GEN_PLANAR:
 			planarProjection(tc, volume_normal, center, volume_position);
-			break;
-		case LLTextureEntry::TEX_GEN_SPHERICAL:
-			sphericalProjection(tc, volume_normal, center, volume_position);
-			break;
-		case LLTextureEntry::TEX_GEN_CYLINDRICAL:
-			cylindricalProjection(tc, volume_normal, center, volume_position);
-			break;
-		default:
-			break;
-		}		
+		}
 	}
 
 	if (mTextureMatrix)	// if we have a texture matrix, use it
@@ -1010,7 +968,12 @@ void LLFace::getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_po
 	const LLMatrix4& vol_mat = getWorldMatrix();
 	const LLVolumeFace& vf = getViewerObject()->getVolume()->getVolumeFace(mTEOffset);
 	const LLVector4a& normal4a = vf.mNormals[0];
-	const LLVector4a& binormal4a = vf.mBinormals[0];
+	const LLVector4a& tangent = vf.mTangents[0];
+
+	LLVector4a binormal4a;
+	binormal4a.setCross3(normal4a, tangent);
+	binormal4a.mul(tangent.getF32ptr()[3]);
+
 	LLVector2 projected_binormal;
 	planarProjection(projected_binormal, normal4a, *vf.mCenter, binormal4a);
 	projected_binormal -= LLVector2(0.5f, 0.5f); // this normally happens in xform()
@@ -1138,7 +1101,7 @@ void LLFace::cacheFaceInVRAM(const LLVolumeFace& vf)
 {
 	LLFastTimer t(FTM_FACE_GEOM_VOLUME);
 	U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 |
-				LLVertexBuffer::MAP_BINORMAL | LLVertexBuffer::MAP_NORMAL;
+				LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_NORMAL;
 	
 	if (vf.mWeights)
 	{
@@ -1151,11 +1114,11 @@ void LLFace::cacheFaceInVRAM(const LLVolumeFace& vf)
 	buff->allocateBuffer(vf.mNumVertices, 0, true);
 
 	LLStrider<LLVector4a> f_vert;
-	LLStrider<LLVector3> f_binorm;
+	LLStrider<LLVector4a> f_tangent;
 	LLStrider<LLVector3> f_norm;
 	LLStrider<LLVector2> f_tc;
 
-	buff->getBinormalStrider(f_binorm);
+	buff->getTangentStrider(f_tangent);
 	buff->getVertexStrider(f_vert);
 	buff->getNormalStrider(f_norm);
 	buff->getTexCoord0Strider(f_tc);
@@ -1163,7 +1126,7 @@ void LLFace::cacheFaceInVRAM(const LLVolumeFace& vf)
 	for (U32 i = 0; i < vf.mNumVertices; ++i)
 	{
 		*f_vert++ = vf.mPositions[i];
-		(*f_binorm++).set(vf.mBinormals[i].getF32ptr());
+		*f_tangent++ = vf.mTangents[i];
 		*f_tc++ = vf.mTexCoords[i];
 		(*f_norm++).set(vf.mNormals[i].getF32ptr());
 	}
@@ -1205,7 +1168,7 @@ static LLFastTimer::DeclareTimer FTM_FACE_GEOM_TEXTURE("Texture");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_COLOR("Color");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_EMISSIVE("Emissive");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_WEIGHTS("Weights");
-static LLFastTimer::DeclareTimer FTM_FACE_GEOM_BINORMAL("Binormal");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_TANGENT("Binormal");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_INDEX("Index");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_INDEX_TAIL("Tail");
 static LLFastTimer::DeclareTimer FTM_FACE_POSITION_STORE("Pos");
@@ -1271,7 +1234,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	LLStrider<LLVector2> tex_coords2;
 	LLStrider<LLVector3> norm;
 	LLStrider<LLColor4U> colors;
-	LLStrider<LLVector3> binorm;
+	LLStrider<LLVector3> tangent;
 	LLStrider<U16> indicesp;
 	LLStrider<LLVector4> wght;
 
@@ -1293,7 +1256,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	bool rebuild_emissive = rebuild_color && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE);
 	bool rebuild_tcoord = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_TCOORD);
 	bool rebuild_normal = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL);
-	bool rebuild_binormal = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_BINORMAL);
+	bool rebuild_tangent = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TANGENT);
 	bool rebuild_weights = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_WEIGHT4);
 
 	const LLTextureEntry *tep = mVObjp->getTE(f);
@@ -1441,7 +1404,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (vf.mVertexBuffer.isNull() || buff->getNumVerts() != vf.mNumVertices)
 		{
-			mVObjp->getVolume()->genBinormals(f);
+			mVObjp->getVolume()->genTangents(f);
 			LLFace::cacheFaceInVRAM(vf);
 			buff = (LLVertexBuffer*) vf.mVertexBuffer.get();
 		}		
@@ -1526,15 +1489,15 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			glEndTransformFeedback();
 		}
 
-		if (rebuild_binormal)
+		if (rebuild_tangent)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_BINORMAL);
-			gTransformBinormalProgram.bind();
+			LLFastTimer t(FTM_FACE_GEOM_TANGENT);
+			gTransformTangentProgram.bind();
 			
-			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_BINORMAL, mGeomIndex, mGeomCount);
+			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_TANGENT, mGeomIndex, mGeomCount);
 						
 			glBeginTransformFeedback(GL_POINTS);
-			buff->setBuffer(LLVertexBuffer::MAP_BINORMAL);
+			buff->setBuffer(LLVertexBuffer::MAP_TANGENT);
 			push_for_transform(buff, vf.mNumVertices, mGeomCount);
 			glEndTransformFeedback();
 		}
@@ -1596,7 +1559,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		
 			if (bump_code)
 			{
-				mVObjp->getVolume()->genBinormals(f);
+				mVObjp->getVolume()->genTangents(f);
 				F32 offset_multiple; 
 				switch( bump_code )
 				{
@@ -1645,7 +1608,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			U8 texgen = getTextureEntry()->getTexGen();
 			if (rebuild_tcoord && texgen != LLTextureEntry::TEX_GEN_DEFAULT)
 			{ //planar texgen needs binormals
-				mVObjp->getVolume()->genBinormals(f);
+				mVObjp->getVolume()->genTangents(f);
 			}
 
 			U8 tex_mode = 0;
@@ -1887,20 +1850,10 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				
 							vec.mul(scalea);
 
-							switch (texgen)
+							if (texgen == LLTextureEntry::TEX_GEN_PLANAR)
 							{
-								case LLTextureEntry::TEX_GEN_PLANAR:
-									planarProjection(tc, norm, center, vec);
-									break;
-								case LLTextureEntry::TEX_GEN_SPHERICAL:
-									sphericalProjection(tc, norm, center, vec);
-									break;
-								case LLTextureEntry::TEX_GEN_CYLINDRICAL:
-									cylindricalProjection(tc, norm, center, vec);
-									break;
-								default:
-									break;
-							}		
+								planarProjection(tc, norm, center, vec);
+							}
 						}
 
 						if (tex_mode && mTextureMatrix)
@@ -1934,11 +1887,14 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		
 					for (S32 i = 0; i < num_vertices; i++)
 					{
-						LLVector4a tangent;
-						tangent.setCross3(vf.mBinormals[i], vf.mNormals[i]);
+						LLVector4a tangent = vf.mTangents[i];
 
+						LLVector4a binorm;
+						binorm.setCross3(vf.mNormals[i], tangent);
+						binorm.mul(tangent.getF32ptr()[3]);
+						
 						LLMatrix4a tangent_to_object;
-						tangent_to_object.setRows(tangent, vf.mBinormals[i], vf.mNormals[i]);
+						tangent_to_object.setRows(tangent, binorm, vf.mNormals[i]);
 						LLVector4a t;
 						tangent_to_object.rotate(binormal_dir, t);
 						LLVector4a binormal;
@@ -2056,21 +2012,28 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			}
 		}
 		
-		if (rebuild_binormal)
+		if (rebuild_tangent)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_BINORMAL);
-			mVertexBuffer->getBinormalStrider(binorm, mGeomIndex, mGeomCount, map_range);
-			F32* binormals = (F32*) binorm.get();
+			LLFastTimer t(FTM_FACE_GEOM_TANGENT);
+			mVertexBuffer->getTangentStrider(tangent, mGeomIndex, mGeomCount, map_range);
+			F32* tangents = (F32*) tangent.get();
 			
-			mVObjp->getVolume()->genBinormals(f);
+			mVObjp->getVolume()->genTangents(f);
 			
+			LLVector4Logical mask;
+			mask.clear();
+			mask.setElement<3>();
+
 			for (S32 i = 0; i < num_vertices; i++)
 			{
-				LLVector4a binormal;
-				mat_normal.rotate(vf.mBinormals[i], binormal);
-				binormal.normalize3fast();
-				binormal.store4a(binormals);
-				binormals += 4;
+				LLVector4a tangent_out;
+				mat_normal.rotate(vf.mTangents[i], tangent_out);
+				tangent_out.normalize3fast();
+				
+				tangent_out.setSelectWithMask(mask, vf.mTangents[i], tangent_out);
+				tangent_out.store4a(tangents);
+				
+				tangents += 4;
 			}
 
 			if (map_range)
