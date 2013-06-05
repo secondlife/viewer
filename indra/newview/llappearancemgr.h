@@ -208,6 +208,8 @@ public:
 
 	void incrementCofVersion(LLHTTPClient::ResponderPtr responder_ptr = NULL);
 
+	U32 getNumAttachmentsInCOF();
+
 	// *HACK Remove this after server side texture baking is deployed on all sims.
 	void incrementCofVersionLegacy();
 

@@ -151,11 +151,17 @@ bool LLSidepanelAppearance::callBackExitWithoutSaveViaClose(const LLSD& notifica
 		toggleWearableEditPanel(FALSE);	
 		showOutfitEditPanel();
 		LLVOAvatarSelf::onCustomizeEnd( FALSE );	
-		mRevertSet = true;
+		if ( !mLLFloaterSidePanelContainer->mAppQuiting ) 
+		{
+			mRevertSet = true; 			
+		}
+		else
+		{
+			mLLFloaterSidePanelContainer->closeFloater( true );
+		}
 		return false;
 	}
 	mLLFloaterSidePanelContainer->mForceCloseAfterVerify = false;
-	//mRevertSet = true;
 	return false;
 }
 

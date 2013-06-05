@@ -354,11 +354,11 @@ void LLPanel::handleVisibilityChange ( BOOL new_visibility )
 }
 
 
-void LLPanel::handleCloseConfirmation( )
+void LLPanel::handleCloseConfirmation( bool app_quitting)
 {	
 	if (mCloseConfirmationSignal)
 	{
-		(*mCloseConfirmationSignal)(this, LLSD() ); 
+		(*mCloseConfirmationSignal)(this, LLSD( app_quitting ) ); 
 	}
 }
 void LLPanel::setFocus(BOOL b)

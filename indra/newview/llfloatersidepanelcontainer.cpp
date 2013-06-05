@@ -40,7 +40,8 @@
 const std::string LLFloaterSidePanelContainer::sMainPanelName("main_panel");
 
 LLFloaterSidePanelContainer::LLFloaterSidePanelContainer(const LLSD& key, const Params& params)
-:	LLFloater(key, params)
+: LLFloater(key, params)
+, mAppQuiting( false )
 {
 	// Prevent transient floaters (e.g. IM windows) from hiding
 	// when this floater is clicked.
@@ -56,7 +57,8 @@ BOOL LLFloaterSidePanelContainer::postBuild()
 }
 
 void  LLFloaterSidePanelContainer::onConfirmationClose( const LLSD &confirm )
-{	
+{
+	mAppQuiting = confirm.asBoolean();
 	onClickCloseBtn();
 }
 
@@ -69,10 +71,12 @@ LLFloaterSidePanelContainer::~LLFloaterSidePanelContainer()
 void LLFloaterSidePanelContainer::onOpen(const LLSD& key)
 {
 	getChild<LLPanel>(sMainPanelName)->onOpen(key);
+	mAppQuiting = false;
 }
-void LLFloaterSidePanelContainer::onClose(bool app_quitting)
-{		
-	mForceCloseAfterVerify = true;  		
+
+void LLFloaterSidePanelContainer::onClose( bool app_quitting )
+{
+	if (! mAppQuiting ) { mForceCloseAfterVerify = true; }
 	LLSidepanelAppearance* panel = getSidePanelAppearance();
 	if ( panel )
 	{		
@@ -80,6 +84,7 @@ void LLFloaterSidePanelContainer::onClose(bool app_quitting)
 		panel->onCloseFromAppearance( this );			
 	}
 }
+
 void LLFloaterSidePanelContainer::onClickCloseBtn()
 {
 	LLSidepanelAppearance* panel = getSidePanelAppearance();

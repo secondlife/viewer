@@ -704,9 +704,9 @@ void LLFloater::openFloater(const LLSD& key)
 	dirtyRect();
 }
 
-void LLFloater::verifyClose()
+void LLFloater::verifyClose( bool app_quitting )
 {
-	LLPanel::handleCloseConfirmation();
+	LLPanel::handleCloseConfirmation( app_quitting );
 }
 
 void LLFloater::closeFloater(bool app_quitting)
@@ -717,16 +717,21 @@ void LLFloater::closeFloater(bool app_quitting)
 	{
 		if ( mVerifyUponClose && !mForceCloseAfterVerify )
 		{
+
+			llinfos<<"prep#dogshit1"<<llendl;
 			onClose( app_quitting );
 			if ( mForceCloseAfterVerify ) 
 			{			
+
+				llinfos<<"prep#dogshit1b"<<llendl;
 				return;
 			}			
 		}
 	}	
 
 	if (app_quitting)
-	{
+	{	
+		llinfos<<"prep#dogshit2"<<llendl;
 		LLFloater::sQuitting = true;
 	}
 	
@@ -2659,7 +2664,7 @@ void LLFloaterView::closeAllChildren(bool app_quitting)
 		{
 			if ( floaterp->mVerifyUponClose )
 			{			
-				floaterp->verifyClose();
+				floaterp->verifyClose(app_quitting);
 			}
 			else
 			{
