@@ -62,6 +62,7 @@ S32 LLDrawPoolAvatar::sDiffuseChannel = 0;
 
 
 static bool is_deferred_render = false;
+static bool is_post_deferred_render = false;
 
 extern BOOL gUseGLPick;
 
@@ -377,7 +378,9 @@ void LLDrawPoolAvatar::renderPostDeferred(S32 pass)
 		p -= 2;
 	}
 
+	is_post_deferred_render = true;
 	render(p);
+	is_post_deferred_render = false;
 }
 
 
@@ -1273,6 +1276,22 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		else
 		{
 			renderRiggedSimple(avatarp);
+
+			if (LLPipeline::sRenderDeferred)
+			{ //render "simple" materials
+				renderRigged(avatarp, RIGGED_MATERIAL);
+				renderRigged(avatarp, RIGGED_MATERIAL_ALPHA_MASK);
+				renderRigged(avatarp, RIGGED_MATERIAL_ALPHA_EMISSIVE);
+				renderRigged(avatarp, RIGGED_NORMMAP);
+				renderRigged(avatarp, RIGGED_NORMMAP_MASK);
+				renderRigged(avatarp, RIGGED_NORMMAP_EMISSIVE);	
+				renderRigged(avatarp, RIGGED_SPECMAP);
+				renderRigged(avatarp, RIGGED_SPECMAP_MASK);
+				renderRigged(avatarp, RIGGED_SPECMAP_EMISSIVE);
+				renderRigged(avatarp, RIGGED_NORMSPEC);
+				renderRigged(avatarp, RIGGED_NORMSPEC_MASK);
+				renderRigged(avatarp, RIGGED_NORMSPEC_EMISSIVE);
+			}
 		}
 		return;
 	}
@@ -1311,6 +1330,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	if (pass == 5)
 	{
 		renderRiggedShinySimple(avatarp);
+				
 		return;
 	}
 
@@ -1325,6 +1345,24 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		if (pass == 7)
 		{
 			renderRiggedAlpha(avatarp);
+
+			if (LLPipeline::sRenderDeferred && !is_post_deferred_render)
+			{ //render transparent materials under water
+				LLGLEnable blend(GL_BLEND);
+
+				gGL.setColorMask(true, true);
+				gGL.blendFunc(LLRender::BF_SOURCE_ALPHA,
+								LLRender::BF_ONE_MINUS_SOURCE_ALPHA,
+								LLRender::BF_ZERO,
+								LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
+
+				renderRigged(avatarp, RIGGED_MATERIAL_ALPHA);
+				renderRigged(avatarp, RIGGED_SPECMAP_BLEND);
+				renderRigged(avatarp, RIGGED_NORMMAP_BLEND);
+				renderRigged(avatarp, RIGGED_NORMSPEC_BLEND);
+
+				gGL.setColorMask(true, false);
+			}
 			return;
 		}
 
@@ -1334,7 +1372,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 			return;
 		}
 
-		if (LLPipeline::sRenderDeferred)
+		if (LLPipeline::sRenderDeferred && is_post_deferred_render)
 		{
 			S32 p = 0;
 			switch (pass)
