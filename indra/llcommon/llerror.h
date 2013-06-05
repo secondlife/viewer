@@ -206,7 +206,7 @@ namespace LLError
 }
 
 #if LL_WINDOWS
-	// Macro accepting a const std::string& for display in windows debugging console in debug builds only
+	// Macro accepting a std::string for display in windows debugging console
 	#define LL_WINDOWS_OUTPUT_DEBUG(a) LLError::LLOutputDebugUTF8(a)
 #else
 	#define LL_WINDOWS_OUTPUT_DEBUG(a)
