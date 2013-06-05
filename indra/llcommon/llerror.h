@@ -206,10 +206,8 @@ namespace LLError
 }
 
 #if LL_WINDOWS
-	// Macro accepting a wchar_t* for display in windows debugging console in debug builds only
-	// (wchar_t flavor chosen for maximal utility with unicode text debugging)
-	//
-	#define LL_WINDOWS_OUTPUT_DEBUG(a) LLError::LLOutputDebugUTF8((a))
+	// Macro accepting a const std::string& for display in windows debugging console in debug builds only
+	#define LL_WINDOWS_OUTPUT_DEBUG(a) LLError::LLOutputDebugUTF8(a)
 #else
 	#define LL_WINDOWS_OUTPUT_DEBUG(a)
 #endif

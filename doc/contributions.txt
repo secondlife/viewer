@@ -901,6 +901,7 @@ Nicky Dasmijn
 	MAINT-873
 	SUN-72
 	BUG-2432
+	BUG-2707
 Nicky Perian
 	OPEN-1
 	STORM-1087
