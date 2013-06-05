@@ -239,6 +239,9 @@ void LLVOAvatarSelf::initInstance()
 
 bool LLVOAvatarSelf::checkStuckAppearance()
 {
+	const F32 CONDITIONAL_UNSTICK_INTERVAL = 300.0;
+	const F32 UNCONDITIONAL_UNSTICK_INTERVAL = 600.0;
+	
 	if (gAgentWearables.isCOFChangeInProgress())
 	{
 		LL_DEBUGS("Avatar") << "checking for stuck appearance" << llendl;
@@ -246,6 +249,14 @@ bool LLVOAvatarSelf::checkStuckAppearance()
 		LL_DEBUGS("Avatar") << "change in progress for " << change_time << " seconds" << llendl;
 		S32 active_hp = LLAppearanceMgr::instance().countActiveHoldingPatterns();
 		LL_DEBUGS("Avatar") << "active holding patterns " << active_hp << " seconds" << llendl;
+		S32 active_copies = LLAppearanceMgr::instance().getActiveCopyOperations();
+		LL_DEBUGS("Avatar") << "active copy operations " << active_copies << llendl;
+
+		if ((change_time > CONDITIONAL_UNSTICK_INTERVAL && active_copies == 0) ||
+			(change_time > UNCONDITIONAL_UNSTICK_INTERVAL))
+		{
+			gAgentWearables.notifyLoadingFinished();
+		}
 	}
 
 	// Return false to continue running check periodically.
@@ -2369,7 +2380,6 @@ LLSD summarize_by_buckets(std::vector<LLSD> in_records,
 
 void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
 {
-	// gAgentAvatarp->stopAllPhases();
 	static volatile bool reporting_started(false);
 	static volatile S32 report_sequence(0);
 

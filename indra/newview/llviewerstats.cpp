@@ -734,44 +734,28 @@ void send_stats()
 	LLHTTPClient::post(url, body, new ViewerStatsResponder());
 }
 
-LLFrameTimer& LLViewerStats::PhaseMap::getPhaseTimer(const std::string& phase_name)
+LLTimer& LLViewerStats::PhaseMap::getPhaseTimer(const std::string& phase_name)
 {
 	phase_map_t::iterator iter = mPhaseMap.find(phase_name);
 	if (iter == mPhaseMap.end())
 	{
-		LLFrameTimer timer;
+		LLTimer timer;
 		mPhaseMap[phase_name] = timer;
 	}
-	LLFrameTimer& timer = mPhaseMap[phase_name];
+	LLTimer& timer = mPhaseMap[phase_name];
 	return timer;
 }
 
 void LLViewerStats::PhaseMap::startPhase(const std::string& phase_name)
 {
-	LLFrameTimer& timer = getPhaseTimer(phase_name);
-	lldebugs << "startPhase " << phase_name << llendl;
-	timer.unpause();
-}
-
-void LLViewerStats::PhaseMap::stopAllPhases()
-{
-	for (phase_map_t::iterator iter = mPhaseMap.begin();
-		 iter != mPhaseMap.end(); ++iter)
-	{
-		const std::string& phase_name = iter->first;
-		if (iter->second.getStarted())
-		{
-			// Going from started to paused state - record stats.
-			recordPhaseStat(phase_name,iter->second.getElapsedTimeF32());
-		}
-		lldebugs << "stopPhase (all) " << phase_name << llendl;
-		iter->second.pause();
-	}
+	LLTimer& timer = getPhaseTimer(phase_name);
+	timer.start();
+	LL_DEBUGS("Avatar") << "startPhase " << phase_name << llendl;
 }
 
 void LLViewerStats::PhaseMap::clearPhases()
 {
-	lldebugs << "clearPhases" << llendl;
+	LL_DEBUGS("Avatar") << "clearPhases" << llendl;
 
 	mPhaseMap.clear();
 }
@@ -796,7 +780,6 @@ LLViewerStats::PhaseMap::PhaseMap()
 {
 }
 
-
 void LLViewerStats::PhaseMap::stopPhase(const std::string& phase_name)
 {
 	phase_map_t::iterator iter = mPhaseMap.find(phase_name);
@@ -809,6 +792,7 @@ void LLViewerStats::PhaseMap::stopPhase(const std::string& phase_name)
 		}
 	}
 }
+
 // static
 LLViewerStats::StatsAccumulator& LLViewerStats::PhaseMap::getPhaseStats(const std::string& phase_name)
 {
@@ -832,14 +816,18 @@ void LLViewerStats::PhaseMap::recordPhaseStat(const std::string& phase_name, F32
 bool LLViewerStats::PhaseMap::getPhaseValues(const std::string& phase_name, F32& elapsed, bool& completed)
 {
 	phase_map_t::iterator iter = mPhaseMap.find(phase_name);
+	bool found = false;
 	if (iter != mPhaseMap.end())
 	{
+		found = true;
 		elapsed =  iter->second.getElapsedTimeF32();
 		completed = !iter->second.getStarted();
-		return true;
+		LL_DEBUGS("Avatar") << " phase_name " << phase_name << " elapsed " << elapsed << " completed " << completed << " timer addr " << (S32)(&iter->second) << llendl;
 	}
 	else
 	{
-		return false;
+		LL_DEBUGS("Avatar") << " phase_name " << phase_name << " NOT FOUND"  << llendl;
 	}
+
+	return found;
 }

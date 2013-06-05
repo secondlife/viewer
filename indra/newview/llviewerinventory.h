@@ -407,4 +407,11 @@ void menu_create_inventory_item(LLInventoryPanel* root,
 								const LLSD& userdata,
 								const LLUUID& default_parent_uuid = LLUUID::null);
 
+void slam_inventory_folder(const LLUUID& folder_id,
+						   const LLSD& contents,
+						   LLPointer<LLInventoryCallback> cb);
+
+void remove_folder_contents(const LLUUID& folder_id, bool keep_outfit_links,
+							  LLPointer<LLInventoryCallback> cb);
+
 #endif // LL_LLVIEWERINVENTORY_H

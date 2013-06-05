@@ -998,6 +998,7 @@ extern const S32 MAX_TEXTURE_VIRTUAL_SIZE_RESET_INTERVAL;
 
 std::string get_sequential_numbered_file_name(const std::string& prefix,
 											  const std::string& suffix);
+void dump_sequential_xml(const std::string outprefix, const LLSD& content);
 void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value);
 
 #endif // LL_VOAVATAR_H

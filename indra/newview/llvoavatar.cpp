@@ -6049,9 +6049,12 @@ void LLVOAvatar::clearPhases()
 
 void LLVOAvatar::startPhase(const std::string& phase_name)
 {
-	F32 elapsed;
-	bool completed;
-	if (getPhases().getPhaseValues(phase_name, elapsed, completed))
+	F32 elapsed = 0.0;
+	bool completed = false;
+	bool found = getPhases().getPhaseValues(phase_name, elapsed, completed);
+	//LL_DEBUGS("Avatar") << avString() << " phase state " << phase_name
+	//					<< " found " << found << " elapsed " << elapsed << " completed " << completed << llendl;
+	if (found)
 	{
 		if (!completed)
 		{
@@ -6065,9 +6068,12 @@ void LLVOAvatar::startPhase(const std::string& phase_name)
 
 void LLVOAvatar::stopPhase(const std::string& phase_name, bool err_check)
 {
-	F32 elapsed;
-	bool completed;
-	if (getPhases().getPhaseValues(phase_name, elapsed, completed))
+	F32 elapsed = 0.0;
+	bool completed = false;
+	bool found = getPhases().getPhaseValues(phase_name, elapsed, completed);
+	//LL_DEBUGS("Avatar") << avString() << " phase state " << phase_name
+	//					<< " found " << found << " elapsed " << elapsed << " completed " << completed << llendl;
+	if (found)
 	{
 		if (!completed)
 		{
@@ -7444,6 +7450,15 @@ std::string get_sequential_numbered_file_name(const std::string& prefix,
 	std::string outfilename = prefix + " " + llformat("%04d",num) + ".xml";
 	std::replace(outfilename.begin(),outfilename.end(),' ','_');
 	return outfilename;
+}
+
+void dump_sequential_xml(const std::string outprefix, const LLSD& content)
+{
+	std::string outfilename = get_sequential_numbered_file_name(outprefix,".xml");
+	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
+	std::ofstream ofs(fullpath.c_str(), std::ios_base::out);
+	ofs << LLSDOStreamer<LLSDXMLFormatter>(content, LLSDFormatter::OPTIONS_PRETTY);
+	LL_DEBUGS("Avatar") << "results saved to: " << fullpath << LL_ENDL;
 }
 
 void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_wearables )

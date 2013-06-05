@@ -71,6 +71,8 @@ public:
 									  LLInventoryModel::item_array_t& items_to_kill);
 	void enforceCOFItemRestrictions(LLPointer<LLInventoryCallback> cb);
 
+	S32 getActiveCopyOperations() const;
+	
 	// Copy all items and the src category itself.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
 							 LLPointer<LLInventoryCallback> cb);
@@ -235,8 +237,6 @@ private:
 								   LLInventoryModel::item_array_t& obj_items,
 								   LLInventoryModel::item_array_t& gest_items);
 
-	void removeCategoryContents(const LLUUID& category, bool keep_outfit_links,
-								LLPointer<LLInventoryCallback> cb);
 	static void onOutfitRename(const LLSD& notification, const LLSD& response);
 
 	void setOutfitLocked(bool locked);
