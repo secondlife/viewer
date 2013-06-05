@@ -75,14 +75,12 @@ void* F_STDCALL decode_alloc(unsigned int size, FMOD_MEMORY_TYPE type, const cha
 {
 	if(type & FMOD_MEMORY_STREAM_DECODE)
 	{
-		//LL_DEBUGS("FMODEX") << "Decode buffer size: " << size << llendl;
+		llinfos << "Decode buffer size: " << size << llendl;
 	}
 	else if(type & FMOD_MEMORY_STREAM_FILE)
 	{
-		//LL_DEBUGS("FMODEX") << "Strean buffer size: " << size << llendl;
+		llinfos << "Strean buffer size: " << size << llendl;
 	}
-	if (size > (1L << 24))
-		return NULL;
 	return new char[size];
 }
 void* F_STDCALL decode_realloc(void *ptr, unsigned int size, FMOD_MEMORY_TYPE type, const char *sourcestr)
@@ -260,18 +258,28 @@ bool LLAudioEngine_FMODEX::init(const S32 num_channels, void* userdata)
 
 	int r_numbuffers, r_samplerate, r_channels, r_bits;
 	unsigned int r_bufferlength;
-	char r_name[256];
 	mSystem->getDSPBufferSize(&r_bufferlength, &r_numbuffers);
-	mSystem->getSoftwareFormat(&r_samplerate, NULL, &r_channels, NULL, NULL, &r_bits);
-	mSystem->getDriverInfo(0, r_name, 255, 0);
-	r_name[255] = '\0';
-	int latency = (int)(1000.0f * r_bufferlength * r_numbuffers / r_samplerate);
+	LL_INFOS("AppInit") << "LLAudioEngine_FMODEX::init(): r_bufferlength=" << r_bufferlength << " bytes" << LL_ENDL;
+	LL_INFOS("AppInit") << "LLAudioEngine_FMODEX::init(): r_numbuffers=" << r_numbuffers << LL_ENDL;
 
-	LL_INFOS("AppInit") << "FMOD device: "<< r_name << "\n"
-		<< "FMOD Ex parameters: " << r_samplerate << " Hz * " << r_channels << " * " <<r_bits <<" bit\n"
-		<< "\tbuffer " << r_bufferlength << " * " << r_numbuffers << " (" << latency <<"ms)" << LL_ENDL;
+	mSystem->getSoftwareFormat(&r_samplerate, NULL, &r_channels, NULL, NULL, &r_bits);
+	LL_INFOS("AppInit") << "LLAudioEngine_FMODEX::init(): r_samplerate=" << r_samplerate << "Hz" << LL_ENDL;
+	LL_INFOS("AppInit") << "LLAudioEngine_FMODEX::init(): r_channels=" << r_channels << LL_ENDL;
+	LL_INFOS("AppInit") << "LLAudioEngine_FMODEX::init(): r_bits =" << r_bits << LL_ENDL;
+
+	char r_name[512];
+	mSystem->getDriverInfo(0, r_name, 511, 0);
+	r_name[511] = '\0';
+	LL_INFOS("AppInit") << "LLAudioEngine_FMODEX::init(): r_name=\"" << r_name << "\"" <<  LL_ENDL;
+
+	int latency = 100; // optimistic default - i suspect if sample rate is 0, everything breaks. 
+	if ( r_samplerate != 0 )
+		latency = (int)(1000.0f * r_bufferlength * r_numbuffers / r_samplerate);
+	LL_INFOS("AppInit") << "LLAudioEngine_FMODEX::init(): latency=" << latency << "ms" << LL_ENDL;
 
 	mInited = true;
+
+	LL_INFOS("AppInit") << "LLAudioEngine_FMODEX::init(): initialization complete." << LL_ENDL;
 
 	return true;
 }
@@ -306,16 +314,16 @@ void LLAudioEngine_FMODEX::shutdown()
 {
 	stopInternetStream();
 
-	//LL_DEBUGS("FMODEX") << "About to LLAudioEngine::shutdown()" << llendl;
+	llinfos << "About to LLAudioEngine::shutdown()" << llendl;
 	LLAudioEngine::shutdown();
 	
-	//LL_DEBUGS("FMODEX") << "LLAudioEngine_FMODEX::shutdown() closing FMOD Ex" << llendl;
+	llinfos << "LLAudioEngine_FMODEX::shutdown() closing FMOD Ex" << llendl;
 	if ( mSystem ) // speculative fix for MAINT-2657
 	{
 	mSystem->close();
 	mSystem->release();
 	}
-	//LL_DEBUGS("FMODEX") << "LLAudioEngine_FMODEX::shutdown() done closing FMOD Ex" << llendl;
+	llinfos << "LLAudioEngine_FMODEX::shutdown() done closing FMOD Ex" << llendl;
 
 	delete mListenerp;
 	mListenerp = NULL;
@@ -477,7 +485,7 @@ bool LLAudioChannelFMODEX::updateBuffer()
 			Check_FMOD_Error(result, "FMOD::System::playSound");
 		}
 
-		//LL_DEBUGS("FMODEX") << "Setting up channel " << std::hex << mChannelID << std::dec << llendl;
+		//llinfos << "Setting up channel " << std::hex << mChannelID << std::dec << llendl;
 	}
 
 	// If we have a source for the channel, we need to update its gain.
@@ -565,11 +573,11 @@ void LLAudioChannelFMODEX::cleanup()
 {
 	if (!mChannelp)
 	{
-		//LL_DEBUGS("FMODEX") << "Aborting cleanup with no channel handle." << llendl;
+		//llinfos << "Aborting cleanup with no channel handle." << llendl;
 		return;
 	}
 
-	//LL_DEBUGS("FMODEX") << "Cleaning up channel: " << mChannelID << llendl;
+	//llinfos << "Cleaning up channel: " << mChannelID << llendl;
 	Check_FMOD_Error(mChannelp->stop(),"FMOD::Channel::stop");
 
 	mCurrentBufferp = NULL;

@@ -89,8 +89,7 @@ BOOL LLSkinJoint::setupSkinJoint( LLAvatarJoint *joint)
 	mJoint = joint;
 	if ( !mJoint )
 	{
-		//llinfos << "Can't find joint" << llendl;
-		return FALSE;
+		llinfos << "Can't find joint" << llendl;
 	}
 
 	// compute the inverse root skin matrix

@@ -86,7 +86,7 @@ void LLTexLayerParamAlpha::dumpCacheByteCount()
 {
 	S32 gl_bytes = 0;
 	getCacheByteCount( &gl_bytes);
-	LL_DEBUGS("LLTexLayerParamAlpha") << "Processed Alpha Texture Cache GL:" << (gl_bytes/1024) << "KB" << llendl;
+	llinfos << "Processed Alpha Texture Cache GL:" << (gl_bytes/1024) << "KB" << llendl;
 }
 
 // static 
@@ -481,7 +481,7 @@ void LLTexLayerParamColor::setWeight(F32 weight, BOOL upload_bake)
 			}
 		}
 
-//		LL_DEBUGS(LLTexLayerParamAlpha) << "param " << mName << " = " << new_weight << llendl;
+//		llinfos << "param " << mName << " = " << new_weight << llendl;
 	}
 }
 

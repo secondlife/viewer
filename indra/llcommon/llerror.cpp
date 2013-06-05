@@ -201,7 +201,10 @@ namespace {
 		virtual void recordMessage(LLError::ELevel level,
 								   const std::string& message)
 		{
-			LL_WINDOWS_OUTPUT_DEBUG(wstring_to_utf16str(utf8str_to_wstring(message)));
+			llutf16string utf16str =
+				wstring_to_utf16str(utf8str_to_wstring(message));
+			utf16str += '\n';
+			OutputDebugString(utf16str.c_str());
 		}
 	};
 #endif

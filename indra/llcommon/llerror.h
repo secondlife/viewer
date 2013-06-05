@@ -283,20 +283,6 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 #define LL_ENDL llendl
 #define LL_CONT	(*_out)
 
-// Short story: We don't want to enable this in release builds.
-//
-// Long story: ...because this call generates C++ exceptions
-// which are handled and fine under the debugger, but instant death should they occur from
-// within a coroutine's stackframe due to inherent limitations of Windows 32-bit SEH
-// interacting with the fiber-based coroutine support used by boost.
-//
-// gmad BUG-2707/MAINT-2740
-#if LL_WINDOWS && defined(_DEBUG)
-	#define LL_WINDOWS_OUTPUT_DEBUG(a) OutputDebugString(utf8str_to_utf16str(a).c_str()), OutputDebugString("\n")
-#else
-	#define LL_WINDOWS_OUTPUT_DEBUG(a)
-#endif
-
 	/*
 		Use this construct if you need to do computation in the middle of a
 		message:

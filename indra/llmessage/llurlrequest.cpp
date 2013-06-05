@@ -381,9 +381,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 			mState = STATE_HAVE_RESPONSE;
 			context[CONTEXT_REQUEST][CONTEXT_TRANSFERED_BYTES] = mRequestTransferedBytes;
 			context[CONTEXT_RESPONSE][CONTEXT_TRANSFERED_BYTES] = mResponseTransferedBytes;
-
 			lldebugs << this << "Setting context to " << context << llendl;
-
 			switch(result)
 			{
 				case CURLE_OK:
@@ -439,14 +437,12 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		context[CONTEXT_REQUEST][CONTEXT_TRANSFERED_BYTES] = mRequestTransferedBytes;
 		context[CONTEXT_RESPONSE][CONTEXT_TRANSFERED_BYTES] = mResponseTransferedBytes;
 		lldebugs << this << "Setting context to " << context << llendl;
-
 		return STATUS_DONE;
 
 	default:
 		PUMP_DEBUG;
 		context[CONTEXT_REQUEST][CONTEXT_TRANSFERED_BYTES] = mRequestTransferedBytes;
 		context[CONTEXT_RESPONSE][CONTEXT_TRANSFERED_BYTES] = mResponseTransferedBytes;
-
 		lldebugs << this << "Setting context to " << context << llendl;
 		return STATUS_ERROR;
 	}
