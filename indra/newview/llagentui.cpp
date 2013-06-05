@@ -130,6 +130,11 @@ BOOL LLAgentUI::buildLocationString(std::string& str, ELocationFormat fmt,const 
 				sim_access_string.empty() ? "" : " - ",
 				sim_access_string.c_str());
 			break;
+		case LOCATION_FORMAT_NORMAL_COORDS:
+			buffer = llformat("%s (%d, %d, %d)",
+				region_name.c_str(),
+				pos_x, pos_y, pos_z);
+			break;
 		}
 	}
 	else
@@ -163,6 +168,11 @@ BOOL LLAgentUI::buildLocationString(std::string& str, ELocationFormat fmt,const 
 				pos_x, pos_y, pos_z,
 				sim_access_string.empty() ? "" : " - ",
 				sim_access_string.c_str());
+			break;
+		case LOCATION_FORMAT_NORMAL_COORDS:
+			buffer = llformat("%s (%d, %d, %d)",
+				parcel_name.c_str(),
+				pos_x, pos_y, pos_z);
 			break;
 		}
 	}
