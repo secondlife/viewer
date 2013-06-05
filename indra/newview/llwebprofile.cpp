@@ -62,8 +62,8 @@ class LLWebProfileResponders::ConfigResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLWebProfileResponders::ConfigResponder);
 
 public:
-	ConfigResponder(LLPointer<LLImageFormatted> imagep, const std::string& caption, LLWebProfile::image_url_callback_t cb)
-	:	mImagep(imagep), mImageCaption(caption), mImageCallback(cb)
+	ConfigResponder(LLPointer<LLImageFormatted> imagep, LLWebProfile::image_url_callback_t cb)
+	:	mImagep(imagep), mImageCallback(cb)
 	{
 	}
 
@@ -113,12 +113,11 @@ public:
 
 		// Do the actual image upload using the configuration.
 		LL_DEBUGS("Snapshots") << "Got upload config, POSTing image to " << upload_url << ", config=[" << config << "]" << llendl;
-		LLWebProfile::post(mImagep, config, upload_url, mImageCaption, mImageCallback);
+		LLWebProfile::post(mImagep, config, upload_url, mImageCallback);
 	}
 
 private:
 	LLPointer<LLImageFormatted> mImagep;
-	std::string mImageCaption;
 	LLWebProfile::image_url_callback_t mImageCallback;
 };
 
@@ -129,8 +128,8 @@ class LLWebProfileResponders::PostImageRedirectResponder : public LLHTTPClient::
 	LOG_CLASS(LLWebProfileResponders::PostImageRedirectResponder);
 
 public:
-	PostImageRedirectResponder(const std::string& caption, LLWebProfile::image_url_callback_t cb)
-	:	mImageCaption(caption), mImageCallback(cb)
+	PostImageRedirectResponder(LLWebProfile::image_url_callback_t cb)
+	:	mImageCallback(cb)
 	{
 	}
 
@@ -141,7 +140,7 @@ public:
 			std::string image_url = content.get("Location");
 			llinfos << "Image uploaded to " << image_url << llendl;
 			if (!mImageCallback.empty() && !image_url.empty())
-				mImageCallback(image_url, mImageCaption);
+				mImageCallback(image_url);
 		}
 	}
 
@@ -168,7 +167,6 @@ public:
 	}
 	
 private:
-	std::string mImageCaption;
 	LLWebProfile::image_url_callback_t mImageCallback;
 };
 
@@ -180,8 +178,8 @@ class LLWebProfileResponders::PostImageResponder : public LLHTTPClient::Responde
 	LOG_CLASS(LLWebProfileResponders::PostImageResponder);
 
 public:
-	PostImageResponder(const std::string& caption, LLWebProfile::image_url_callback_t cb)
-	:	mImageCaption(caption), mImageCallback(cb)
+	PostImageResponder(LLWebProfile::image_url_callback_t cb)
+	:	mImageCallback(cb)
 	{
 	}
 
@@ -196,7 +194,7 @@ public:
 			headers["Cookie"] = LLWebProfile::getAuthCookie();
 			const std::string& redir_url = content["location"];
 			LL_DEBUGS("Snapshots") << "Got redirection URL: " << redir_url << llendl;
-			LLHTTPClient::get(redir_url, new LLWebProfileResponders::PostImageRedirectResponder(mImageCaption, mImageCallback), headers);
+			LLHTTPClient::get(redir_url, new LLWebProfileResponders::PostImageRedirectResponder(mImageCallback), headers);
 		}
 		else
 		{
@@ -214,7 +212,6 @@ public:
 	}
 	
 private:
-	std::string mImageCaption;
 	LLWebProfile::image_url_callback_t mImageCallback;
 };
 
@@ -235,7 +232,7 @@ void LLWebProfile::uploadImage(LLPointer<LLImageFormatted> image, const std::str
 	LL_DEBUGS("Snapshots") << "Requesting " << config_url << llendl;
 	LLSD headers = LLViewerMedia::getHeaders();
 	headers["Cookie"] = getAuthCookie();
-	LLHTTPClient::get(config_url, new LLWebProfileResponders::ConfigResponder(image, caption, cb), headers);
+	LLHTTPClient::get(config_url, new LLWebProfileResponders::ConfigResponder(image, cb), headers);
 }
 
 // static
@@ -246,7 +243,7 @@ void LLWebProfile::setAuthCookie(const std::string& cookie)
 }
 
 // static
-void LLWebProfile::post(LLPointer<LLImageFormatted> image, const LLSD& config, const std::string& url, const std::string& caption, LLWebProfile::image_url_callback_t cb)
+void LLWebProfile::post(LLPointer<LLImageFormatted> image, const LLSD& config, const std::string& url, LLWebProfile::image_url_callback_t cb)
 {
 	if (dynamic_cast<LLImagePNG*>(image.get()) == 0)
 	{
@@ -312,7 +309,7 @@ void LLWebProfile::post(LLPointer<LLImageFormatted> image, const LLSD& config, c
 	memcpy(data, body.str().data(), size);
 
 	// Send request, successful upload will trigger posting metadata.
-	LLHTTPClient::postRaw(url, data, size, new LLWebProfileResponders::PostImageResponder(caption, cb), headers);
+	LLHTTPClient::postRaw(url, data, size, new LLWebProfileResponders::PostImageResponder(cb), headers);
 }
 
 // static
