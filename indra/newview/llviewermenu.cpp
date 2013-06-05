@@ -5992,16 +5992,40 @@ void handle_facebook_checkin()
 	LLAgentUI::buildSLURL(slurl);
 	std::string slurl_string = slurl.getSLURLString();
 
-	//Get the location name
+	std::string region_name = gAgent.getRegion()->getName();
+
+	//Get the parcel name
 	LLViewerParcelMgr * parcel = LLViewerParcelMgr::getInstance();
-	std::string parcel_string = parcel->getAgentParcelName();
+	std::string parcel_title = parcel->getAgentParcelName();
 
-	//Get the location description
-	LLVector3 agent_pos = gAgent.getPositionAgent();
-	std::string description;
-	LLAgentUI::buildLocationString(description, LLAgentUI::LOCATION_FORMAT_FULL, agent_pos);
+	//Create the location
+	LLVector3 agent_pos_region = gAgent.getPositionAgent();
+	S32 pos_x = S32(agent_pos_region.mV[VX]);
+	S32 pos_y = S32(agent_pos_region.mV[VY]);
+	S32 pos_z = S32(agent_pos_region.mV[VZ]);
 
-	LLFacebookConnect::instance().postCheckin(slurl_string, parcel_string, description, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDL4jdC_vCh0ow-QCXZjN-WNojEXWiz0APEa6Qhpl8cxawjkoC7w", "");
+	// Round the numbers based on the velocity
+	F32 velocity_mag_sq = gAgent.getVelocity().magVecSquared();
+
+	const F32 FLY_CUTOFF = 6.f;		// meters/sec
+	const F32 FLY_CUTOFF_SQ = FLY_CUTOFF * FLY_CUTOFF;
+	const F32 WALK_CUTOFF = 1.5f;	// meters/sec
+	const F32 WALK_CUTOFF_SQ = WALK_CUTOFF * WALK_CUTOFF;
+
+	if (velocity_mag_sq > FLY_CUTOFF_SQ)
+	{
+		pos_x -= pos_x % 4;
+		pos_y -= pos_y % 4;
+	}
+	else if (velocity_mag_sq > WALK_CUTOFF_SQ)
+	{
+		pos_x -= pos_x % 2;
+		pos_y -= pos_y % 2;
+	}
+
+	std::string description = llformat("%s (%d, %d, %d)", parcel_title.c_str(), pos_x, pos_y, pos_z);
+
+	LLFacebookConnect::instance().postCheckin(slurl_string, region_name, description, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDL4jdC_vCh0ow-QCXZjN-WNojEXWiz0APEa6Qhpl8cxawjkoC7w", "");
 }
 
 //bool is_facebook_connected();
