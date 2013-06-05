@@ -2121,8 +2121,8 @@ void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 {
 	if(app_quitting)
 	{
-		gAgent.setDoNotDisturb(true);
 		closeAllConversations();
+		onClickCloseBtn();
 	}
 
 	// Check for currently active session
@@ -2139,11 +2139,6 @@ void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 		if (active_conversation)
 		{
 			active_conversation->closeFloater();
-			if(app_quitting)
-			{
-				LLFloater::closeFloater(app_quitting);
-			}
-
 		}
 	}
 }
