@@ -14,6 +14,7 @@
       border="false"
       height="60"
       layout="topleft"
+      name="general_chat_settings" 
       top="10"
       left="13"
       width="517">
@@ -97,6 +98,7 @@
       border="false"
       height="165"
       layout="topleft"
+      name="im_notification_settings" 	
       left="13"
       width="517">
 
@@ -382,6 +384,7 @@
       border="false"
       height="50"
       layout="topleft"
+      name="play_sound_settings"  	
       left="13"
       top_pad="10"
       width="517">
@@ -444,6 +447,7 @@
   <panel
       height="50"
       layout="topleft"
+      name="log_settings" 	
       left="13"
       top_pad="10"
       width="505">
