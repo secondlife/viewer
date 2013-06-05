@@ -65,8 +65,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // extern
-const LLUnit<LLUnits::Megabytes, S32> gMinVideoRam = 32;
-const LLUnit<LLUnits::Megabytes, S32> gMaxVideoRam = 512;
+const LLUnit<LLUnits::Mibibytes, S32> gMinVideoRam = 32;
+const LLUnit<LLUnits::Mibibytes, S32> gMaxVideoRam = 512;
 
 
 // statics
@@ -89,8 +89,8 @@ F32 LLViewerTexture::sDesiredDiscardBias = 0.f;
 F32 LLViewerTexture::sDesiredDiscardScale = 1.1f;
 LLUnit<LLUnits::Bytes, S32> LLViewerTexture::sBoundTextureMemory = 0;
 LLUnit<LLUnits::Bytes, S32> LLViewerTexture::sTotalTextureMemory = 0;
-LLUnit<LLUnits::Megabytes, S32> LLViewerTexture::sMaxBoundTextureMem = 0;
-LLUnit<LLUnits::Megabytes, S32> LLViewerTexture::sMaxTotalTextureMem = 0;
+LLUnit<LLUnits::Mibibytes, S32> LLViewerTexture::sMaxBoundTextureMem = 0;
+LLUnit<LLUnits::Mibibytes, S32> LLViewerTexture::sMaxTotalTextureMem = 0;
 LLUnit<LLUnits::Bytes, S32> LLViewerTexture::sMaxDesiredTextureMem = 0 ;
 S8  LLViewerTexture::sCameraMovingDiscardBias = 0 ;
 F32 LLViewerTexture::sCameraMovingBias = 0.0f ;

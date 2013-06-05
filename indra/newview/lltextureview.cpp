@@ -507,13 +507,13 @@ private:
 
 void LLGLTexMemBar::draw()
 {
-	LLUnit<LLUnits::Megabytes, S32> bound_mem = LLViewerTexture::sBoundTextureMemory;
- 	LLUnit<LLUnits::Megabytes, S32> max_bound_mem = LLViewerTexture::sMaxBoundTextureMem;
-	LLUnit<LLUnits::Megabytes, S32> total_mem = LLViewerTexture::sTotalTextureMemory;
-	LLUnit<LLUnits::Megabytes, S32> max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
+	LLUnit<LLUnits::Mibibytes, S32> bound_mem = LLViewerTexture::sBoundTextureMemory;
+ 	LLUnit<LLUnits::Mibibytes, S32> max_bound_mem = LLViewerTexture::sMaxBoundTextureMem;
+	LLUnit<LLUnits::Mibibytes, S32> total_mem = LLViewerTexture::sTotalTextureMemory;
+	LLUnit<LLUnits::Mibibytes, S32> max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
-	F32 cache_usage = (F32)LLTrace::Megabytes(LLAppViewer::getTextureCache()->getUsage()).value() ;
-	F32 cache_max_usage = (F32)LLTrace::Megabytes(LLAppViewer::getTextureCache()->getMaxUsage()).value() ;
+	F32 cache_usage = (F32)LLTrace::Mibibytes(LLAppViewer::getTextureCache()->getUsage()).value() ;
+	F32 cache_max_usage = (F32)LLTrace::Mibibytes(LLAppViewer::getTextureCache()->getMaxUsage()).value() ;
 	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
 	LLUnit<LLUnits::Bytes, F32> total_texture_downloaded = gTotalTextureData;

@@ -94,7 +94,7 @@ extern LLTrace::CountStatHandle<>			FPS,
 											NUM_NEW_OBJECTS;
 
 
-extern LLTrace::CountStatHandle<LLTrace::Kilobits>	KBIT,
+extern LLTrace::CountStatHandle<LLTrace::Kibibits>	KBIT,
 											LAYERS_KBIT,
 											OBJECT_KBIT,
 											ASSET_KBIT,

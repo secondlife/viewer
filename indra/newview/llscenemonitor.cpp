@@ -554,6 +554,12 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 		std::ostringstream row;
 		row << it->getName();
 
+		const char* unit_label = it->getUnitLabel();
+		if(unit_label[0])
+		{
+			row << "(" << unit_label << ")";
+		}
+
 		S32 samples = 0;
 
 		for (S32 frame = 0; frame < frame_count; frame++)
@@ -579,6 +585,12 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 		std::ostringstream row;
 		row << it->getName();
 
+		const char* unit_label = it->getUnitLabel();
+		if(unit_label[0])
+		{
+			row << "(" << unit_label << ")";
+		}
+
 		S32 samples = 0;
 
 		for (S32 frame = 0; frame < frame_count; frame++)
@@ -600,11 +612,11 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 		it != end_it;
 		++it)
 	{
-		os << it->getName();
+		os << it->getName() << "(KiB)";
 
 		for (S32 frame = 0; frame < frame_count; frame++)
 		{
-			os << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getSum(*it).value();
+			os << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getMax(*it).as<LLUnits::Kibibytes>().value();
 		}
 
 		os << std::endl;

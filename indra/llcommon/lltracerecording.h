@@ -149,16 +149,28 @@ namespace LLTrace
 
 		// Timer accessors
 		LLUnit<LLUnits::Seconds, F64> getSum(const TraceType<TimeBlockAccumulator>& stat);
-		LLUnit<LLUnits::Seconds, F64> getSum(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat);
-		U32 getSum(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat);
+		LLUnit<LLUnits::Seconds, F64> getSum(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat);
+		U32 getSum(const TraceType<TimeBlockAccumulator::CallCountFacet>& stat);
 
 		LLUnit<LLUnits::Seconds, F64> getPerSec(const TraceType<TimeBlockAccumulator>& stat);
-		LLUnit<LLUnits::Seconds, F64> getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat);
-		F32 getPerSec(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat);
+		LLUnit<LLUnits::Seconds, F64> getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat);
+		F32 getPerSec(const TraceType<TimeBlockAccumulator::CallCountFacet>& stat);
 
 		// Memory accessors
-		LLUnit<LLUnits::Bytes, U32> getSum(const TraceType<MemStatAccumulator>& stat);
-		LLUnit<LLUnits::Bytes, F32> getPerSec(const TraceType<MemStatAccumulator>& stat);
+		LLUnit<LLUnits::Bytes, F64> getMin(const TraceType<MemStatAccumulator>& stat);
+		LLUnit<LLUnits::Bytes, F64> getMean(const TraceType<MemStatAccumulator>& stat);
+		LLUnit<LLUnits::Bytes, F64> getMax(const TraceType<MemStatAccumulator>& stat);
+		LLUnit<LLUnits::Bytes, F64> getStandardDeviation(const TraceType<MemStatAccumulator>& stat);
+		LLUnit<LLUnits::Bytes, F64> getLastValue(const TraceType<MemStatAccumulator>& stat);
+
+		LLUnit<LLUnits::Bytes, F64> getMin(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
+		LLUnit<LLUnits::Bytes, F64> getMean(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
+		LLUnit<LLUnits::Bytes, F64> getMax(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
+		LLUnit<LLUnits::Bytes, F64> getStandardDeviation(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
+		LLUnit<LLUnits::Bytes, F64> getLastValue(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
+
+		U32 getSum(const TraceType<MemStatAccumulator::AllocationCountFacet>& stat);
+		U32 getSum(const TraceType<MemStatAccumulator::DeallocationCountFacet>& stat);
 
 		// CountStatHandle accessors
 		F64 getSum(const TraceType<CountAccumulator>& stat);
@@ -186,18 +198,18 @@ namespace LLTrace
 			return (T)getMin(static_cast<const TraceType<SampleAccumulator>&> (stat));
 		}
 
-		F64 getMax(const TraceType<SampleAccumulator>& stat);
-		template <typename T>
-		T getMax(const SampleStatHandle<T>& stat)
-		{
-			return (T)getMax(static_cast<const TraceType<SampleAccumulator>&> (stat));
-		}
-
 		F64 getMean(const TraceType<SampleAccumulator>& stat);
 		template <typename T>
 		T getMean(SampleStatHandle<T>& stat)
 		{
 			return (T)getMean(static_cast<const TraceType<SampleAccumulator>&> (stat));
+		}
+
+		F64 getMax(const TraceType<SampleAccumulator>& stat);
+		template <typename T>
+		T getMax(const SampleStatHandle<T>& stat)
+		{
+			return (T)getMax(static_cast<const TraceType<SampleAccumulator>&> (stat));
 		}
 
 		F64 getStandardDeviation(const TraceType<SampleAccumulator>& stat);

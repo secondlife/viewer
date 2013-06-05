@@ -46,13 +46,13 @@ namespace LLTrace
 class Recording;
 
 typedef LLUnit<LLUnits::Bytes, F64>			Bytes;
-typedef LLUnit<LLUnits::Kilobytes, F64>		Kilobytes;
-typedef LLUnit<LLUnits::Megabytes, F64>		Megabytes;
-typedef LLUnit<LLUnits::Gigabytes, F64>		Gigabytes;
+typedef LLUnit<LLUnits::Kibibytes, F64>		Kibibytes;
+typedef LLUnit<LLUnits::Mibibytes, F64>		Mibibytes;
+typedef LLUnit<LLUnits::Gibibytes, F64>		Gibibytes;
 typedef LLUnit<LLUnits::Bits, F64>			Bits;
-typedef LLUnit<LLUnits::Kilobits, F64>		Kilobits;
-typedef LLUnit<LLUnits::Megabits, F64>		Megabits;
-typedef LLUnit<LLUnits::Gigabits, F64>		Gigabits;
+typedef LLUnit<LLUnits::Kibibits, F64>		Kibibits;
+typedef LLUnit<LLUnits::Mibibits, F64>		Mibibits;
+typedef LLUnit<LLUnits::Gibibits, F64>		Gibibits;
 
 typedef LLUnit<LLUnits::Seconds, F64>		Seconds;
 typedef LLUnit<LLUnits::Milliseconds, F64>	Milliseconds;
@@ -583,14 +583,14 @@ public:
 	typedef LLUnit<LLUnits::Seconds, F64> mean_t;
 	typedef TimeBlockAccumulator self_t;
 
-	// fake class that allows us to view call count aspect of timeblock accumulator
-	struct CallCountAspect 
+	// fake classes that allows us to view different facets of underlying statistic
+	struct CallCountFacet 
 	{
 		typedef U32 value_t;
 		typedef F32 mean_t;
 	};
 
-	struct SelfTimeAspect
+	struct SelfTimeFacet
 	{
 		typedef LLUnit<LLUnits::Seconds, F64> value_t;
 		typedef LLUnit<LLUnits::Seconds, F64> mean_t;
@@ -616,7 +616,7 @@ public:
 };
 
 template<>
-class TraceType<TimeBlockAccumulator::CallCountAspect>
+class TraceType<TimeBlockAccumulator::CallCountFacet>
 :	public TraceType<TimeBlockAccumulator>
 {
 public:
@@ -627,7 +627,7 @@ public:
 };
 
 template<>
-class TraceType<TimeBlockAccumulator::SelfTimeAspect>
+class TraceType<TimeBlockAccumulator::SelfTimeFacet>
 	:	public TraceType<TimeBlockAccumulator>
 {
 public:
@@ -725,35 +725,90 @@ struct MemStatAccumulator
 {
 	typedef MemStatAccumulator self_t;
 
+	// fake classes that allows us to view different facets of underlying statistic
+	struct AllocationCountFacet 
+	{
+		typedef U32 value_t;
+		typedef F32 mean_t;
+	};
+
+	struct DeallocationCountFacet 
+	{
+		typedef U32 value_t;
+		typedef F32 mean_t;
+	};
+
+	struct ChildMemFacet
+	{
+		typedef LLUnit<LLUnits::Bytes, F64> value_t;
+		typedef LLUnit<LLUnits::Bytes, F64> mean_t;
+	};
+
 	MemStatAccumulator()
-	:	mSize(0),
-		mChildSize(0),
-		mAllocatedCount(0),
+	:	mAllocatedCount(0),
 		mDeallocatedCount(0)
 	{}
 
-	void addSamples(const MemStatAccumulator& other, bool /*append*/)
+	void addSamples(const MemStatAccumulator& other, bool append)
 	{
-		mSize += other.mSize;
-		mChildSize += other.mChildSize;
+		mSize.addSamples(other.mSize, append);
+		mChildSize.addSamples(other.mChildSize, append);
 		mAllocatedCount += other.mAllocatedCount;
 		mDeallocatedCount += other.mDeallocatedCount;
 	}
 
 	void reset(const MemStatAccumulator* other)
 	{
-		mSize = 0;
-		mChildSize = 0;
+		mSize.reset(other ? &other->mSize : NULL);
+		mChildSize.reset(other ? &other->mChildSize : NULL);
 		mAllocatedCount = 0;
 		mDeallocatedCount = 0;
 	}
 
-	void flush() {}
+	void flush() 
+	{
+		mSize.flush();
+		mChildSize.flush();
+	}
 
-	size_t		mSize,
-				mChildSize;
-	int			mAllocatedCount,
-				mDeallocatedCount;
+	SampleAccumulator	mSize,
+						mChildSize;
+	int					mAllocatedCount,
+						mDeallocatedCount;
+};
+
+
+template<>
+class TraceType<MemStatAccumulator::AllocationCountFacet>
+:	public TraceType<MemStatAccumulator>
+{
+public:
+
+	TraceType(const char* name, const char* description = "")
+	:	TraceType<MemStatAccumulator>(name, description)
+	{}
+};
+
+template<>
+class TraceType<MemStatAccumulator::DeallocationCountFacet>
+:	public TraceType<MemStatAccumulator>
+{
+public:
+
+	TraceType(const char* name, const char* description = "")
+	:	TraceType<MemStatAccumulator>(name, description)
+	{}
+};
+
+template<>
+class TraceType<MemStatAccumulator::ChildMemFacet>
+	:	public TraceType<MemStatAccumulator>
+{
+public:
+
+	TraceType(const char* name, const char* description = "")
+		:	TraceType<MemStatAccumulator>(name, description)
+	{}
 };
 
 class MemStatHandle : public TraceType<MemStatAccumulator>
@@ -765,6 +820,21 @@ public:
 	{}
 
 	/*virtual*/ const char* getUnitLabel() { return "B"; }
+
+	TraceType<MemStatAccumulator::AllocationCountFacet>& allocationCount() 
+	{ 
+		return static_cast<TraceType<MemStatAccumulator::AllocationCountFacet>&>(*(TraceType<MemStatAccumulator>*)this);
+	}
+
+	TraceType<MemStatAccumulator::DeallocationCountFacet>& deallocationCount() 
+	{ 
+		return static_cast<TraceType<MemStatAccumulator::DeallocationCountFacet>&>(*(TraceType<MemStatAccumulator>*)this);
+	}
+
+	TraceType<MemStatAccumulator::ChildMemFacet>& childMem() 
+	{ 
+		return static_cast<TraceType<MemStatAccumulator::ChildMemFacet>&>(*(TraceType<MemStatAccumulator>*)this);
+	}
 };
 
 // measures effective memory footprint of specified type
@@ -865,7 +935,7 @@ public:
 		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 		if (accumulator)
 		{
-			accumulator->mSize += size;
+			accumulator->mSize.sample(accumulator->mSize.getLastValue() + (F64)size);
 			accumulator->mAllocatedCount++;
 		}
 
@@ -877,7 +947,7 @@ public:
 		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 		if (accumulator)
 		{
-			accumulator->mSize -= size;
+			accumulator->mSize.sample(accumulator->mSize.getLastValue() - (F64)size);
 			accumulator->mAllocatedCount--;
 			accumulator->mDeallocatedCount++;
 		}
@@ -889,7 +959,7 @@ public:
 		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 		if (accumulator)
 		{
-			accumulator->mSize += size;
+			accumulator->mSize.sample(accumulator->mSize.getLastValue() + (F64)size);
 			accumulator->mAllocatedCount++;
 		}
 
@@ -901,7 +971,7 @@ public:
 		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 		if (accumulator)
 		{
-			accumulator->mSize -= size;
+			accumulator->mSize.sample(accumulator->mSize.getLastValue() - (F64)size);
 			accumulator->mAllocatedCount--;
 			accumulator->mDeallocatedCount++;
 		}
@@ -924,13 +994,13 @@ public:
 	}
 
 
-	void memClaim(size_t size)
+	void memClaimAmount(size_t size)
 	{
 		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 		mMemFootprint += size;
 		if (accumulator)
 		{
-			accumulator->mSize += size;
+			accumulator->mSize.sample(accumulator->mSize.getLastValue() + (F64)size);
 		}
 	}
 
@@ -949,14 +1019,13 @@ public:
 		return value;
 	}
 
-	void memDisclaim(size_t size)
+	void memDisclaimAmount(size_t size)
 	{
 		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 		if (accumulator)
 		{
-			accumulator->mSize -= size;
+			accumulator->mSize.sample(accumulator->mSize.getLastValue() - (F64)size);
 		}
-		mMemFootprint -= size;
 	}
 
 private:
@@ -971,7 +1040,7 @@ private:
 			if (accumulator)
 			{
 				size_t footprint = MemFootprint<TRACKED>::measure(tracked);
-				accumulator->mSize += footprint;
+				accumulator->mSize.sample(accumulator->mSize.getLastValue() + (F64)footprint);
 				tracker.mMemFootprint += footprint;
 			}
 		}
@@ -982,7 +1051,7 @@ private:
 			if (accumulator)
 			{
 				size_t footprint = MemFootprint<TRACKED>::measure(tracked);
-				accumulator->mSize -= footprint;
+				accumulator->mSize.sample(accumulator->mSize.getLastValue() - (F64)footprint);
 				tracker.mMemFootprint -= footprint;
 			}
 		}
@@ -996,7 +1065,7 @@ private:
 			MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 			if (accumulator)
 			{
-				accumulator->mChildSize += MemFootprint<TRACKED>::measure(tracked);
+				accumulator->mChildSize.sample(accumulator->mChildSize.getLastValue() + (F64)MemFootprint<TRACKED>::measure(tracked));
 			}
 		}
 
@@ -1005,7 +1074,7 @@ private:
 			MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 			if (accumulator)
 			{
-				accumulator->mChildSize -= MemFootprint<TRACKED>::measure(tracked);
+				accumulator->mChildSize.sample(accumulator->mChildSize.getLastValue() - (F64)MemFootprint<TRACKED>::measure(tracked));
 			}
 		}
 	};

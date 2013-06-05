@@ -34,24 +34,10 @@
 namespace LLUnits
 {
 
-template<typename T>
-struct HighestPrecisionType
-{
-	typedef T type_t;
-};
-
-template<> struct HighestPrecisionType<F32> { typedef F64 type_t; };
-template<> struct HighestPrecisionType<S32> { typedef S64 type_t; };
-template<> struct HighestPrecisionType<U32> { typedef S64 type_t; };
-template<> struct HighestPrecisionType<S16> { typedef S64 type_t; };
-template<> struct HighestPrecisionType<U16> { typedef S64 type_t; };
-template<> struct HighestPrecisionType<S8> { typedef S64 type_t; };
-template<> struct HighestPrecisionType<U8> { typedef S64 type_t; };
-
 template<typename DERIVED_UNITS_TAG, typename BASE_UNITS_TAG, typename VALUE_TYPE>
 struct ConversionFactor
 {
-	static typename HighestPrecisionType<VALUE_TYPE>::type_t get()
+	static F64 get()
 	{
 		// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
 		llstatic_assert_template(DERIVED_UNITS_TAG, false,  "Cannot convert between types.");
@@ -61,7 +47,7 @@ struct ConversionFactor
 template<typename BASE_UNITS_TAG, typename VALUE_TYPE>
 struct ConversionFactor<BASE_UNITS_TAG, BASE_UNITS_TAG, VALUE_TYPE>
 {
-	static typename HighestPrecisionType<VALUE_TYPE>::type_t get() 
+	static F64 get() 
 	{ 
 		return 1; 
 	}
@@ -433,12 +419,6 @@ STORAGE_TYPE rawValue(LLUnit<UNIT_TYPE, STORAGE_TYPE> val) { return val.value();
 template<typename UNIT_TYPE, typename STORAGE_TYPE> 
 STORAGE_TYPE rawValue(LLUnitImplicit<UNIT_TYPE, STORAGE_TYPE> val) { return val.value(); }
 
-template<typename UNIT_TYPE, typename STORAGE_TYPE> 
-struct HighestPrecisionType<LLUnit<UNIT_TYPE, STORAGE_TYPE> >
-{
-	typedef typename HighestPrecisionType<STORAGE_TYPE>::type_t type_t;
-};
-
 #define LL_DECLARE_DERIVED_UNIT(conversion_factor, base_unit_name, unit_name, unit_label)		\
 struct unit_name                                                                                \
 {                                                                                               \
@@ -448,49 +428,54 @@ struct unit_name                                                                
 template<typename STORAGE_TYPE>                                                                 \
 struct ConversionFactor<unit_name, base_unit_name, STORAGE_TYPE>                                \
 {                                                                                               \
-	static typename HighestPrecisionType<STORAGE_TYPE>::type_t get()                            \
+	static F64 get()                                                                            \
 	{                                                                                           \
-		return typename HighestPrecisionType<STORAGE_TYPE>::type_t(conversion_factor);          \
+		return (F64)conversion_factor;                                                          \
 	}                                                                                           \
 };                                                                                              \
 	                                                                                            \
 template<typename STORAGE_TYPE>                                                                 \
 struct ConversionFactor<base_unit_name, unit_name, STORAGE_TYPE>						        \
 {                                                                                               \
-	static typename HighestPrecisionType<STORAGE_TYPE>::type_t get()                            \
+	static F64 get()                                                                            \
 	{                                                                                           \
-		return typename HighestPrecisionType<STORAGE_TYPE>::type_t(1.0 / (conversion_factor));  \
+		return (F64)(1.0 / (conversion_factor));                                                \
 	}                                                                                           \
 }
 
-struct Bytes { typedef Bytes base_unit_t; static const char* getUnitLabel() { return "B"; }};
-LL_DECLARE_DERIVED_UNIT(1024, Bytes, Kilobytes, "KiB");
-LL_DECLARE_DERIVED_UNIT(1024 * 1024, Bytes, Megabytes, "MiB");
-LL_DECLARE_DERIVED_UNIT(1024 * 1024 * 1024, Bytes, Gigabytes, "GiB");
-LL_DECLARE_DERIVED_UNIT(1.0 / 8.0, Bytes, Bits, "b");
-LL_DECLARE_DERIVED_UNIT(1024 / 8, Bytes, Kilobits, "Kib");
-LL_DECLARE_DERIVED_UNIT(1024 / 8, Bytes, Megabits, "Mib");
-LL_DECLARE_DERIVED_UNIT(1024 * 1024 * 1024 / 8, Bytes, Gigabits, "Gib");
+#define LL_DECLARE_BASE_UNIT(base_unit_name, unit_label) \
+struct base_unit_name { typedef base_unit_name base_unit_t; static const char* getUnitLabel() { return unit_label; }}
 
-struct Seconds { typedef Seconds base_unit_t; static const char* getUnitLabel() { return "s"; } };
+LL_DECLARE_BASE_UNIT(Bytes, "B");
+LL_DECLARE_DERIVED_UNIT(1024, Bytes, Kibibytes, "KiB");
+LL_DECLARE_DERIVED_UNIT(1024 * 1024, Bytes, Mibibytes, "MiB");
+LL_DECLARE_DERIVED_UNIT(1024 * 1024 * 1024, Bytes, Gibibytes, "GiB");
+LL_DECLARE_DERIVED_UNIT(1.0 / 8.0, Bytes, Bits, "b");
+LL_DECLARE_DERIVED_UNIT(1024 / 8, Bytes, Kibibits, "Kib");
+LL_DECLARE_DERIVED_UNIT(1024 / 8, Bytes, Mibibits, "Mib");
+LL_DECLARE_DERIVED_UNIT(1024 * 1024 * 1024 / 8, Bytes, Gibibits, "Gib");
+
+LL_DECLARE_BASE_UNIT(Seconds, "s");
 LL_DECLARE_DERIVED_UNIT(60, Seconds, Minutes, "min");
 LL_DECLARE_DERIVED_UNIT(60 * 60, Seconds, Hours, "h");
 LL_DECLARE_DERIVED_UNIT(1.0 / 1000.0, Seconds, Milliseconds, "ms");
 LL_DECLARE_DERIVED_UNIT(1.0 / 1000000.0, Seconds, Microseconds, "\x09\x3cs");
 LL_DECLARE_DERIVED_UNIT(1.0 / 1000000000.0, Seconds, Nanoseconds, "ns");
 
-struct Meters { typedef Meters base_unit_t; static const char* getUnitLabel() { return "m"; } };
+LL_DECLARE_BASE_UNIT(Meters, "m");
 LL_DECLARE_DERIVED_UNIT(1000, Meters, Kilometers, "km");
 LL_DECLARE_DERIVED_UNIT(1.0 / 100.0, Meters, Centimeters, "cm");
 LL_DECLARE_DERIVED_UNIT(1.0 / 1000.0, Meters, Millimeters, "mm");
 
-struct Hertz { typedef Hertz base_unit_t; static const char* getUnitLabel() { return "Hz"; } };
+LL_DECLARE_BASE_UNIT(Hertz, "Hz");
 LL_DECLARE_DERIVED_UNIT(1000, Hertz, Kilohertz, "KHz");
 LL_DECLARE_DERIVED_UNIT(1000 * 1000, Hertz, Megahertz, "MHz");
 LL_DECLARE_DERIVED_UNIT(1000 * 1000 * 1000, Hertz, Gigahertz, "GHz");
 
-struct Radians { typedef Radians base_unit_t; static const char* getUnitLabel() { return "rad"; } };
+LL_DECLARE_BASE_UNIT(Radians, "rad");
 LL_DECLARE_DERIVED_UNIT(DEG_TO_RAD, Radians, Degrees, "deg");
+
+
 } // namespace LLUnits
 
 #endif // LL_LLUNIT_H

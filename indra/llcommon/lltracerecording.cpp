@@ -213,7 +213,7 @@ LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumul
 				/ (F64)LLTrace::TimeBlock::countsPerSecond();
 }
 
-LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat)
+LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat)
 {
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 	update();
@@ -221,7 +221,7 @@ LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumul
 }
 
 
-U32 Recording::getSum(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat)
+U32 Recording::getSum(const TraceType<TimeBlockAccumulator::CallCountFacet>& stat)
 {
 	update();
 	return mBuffers->mStackTimers[stat.getIndex()].mCalls;
@@ -236,7 +236,7 @@ LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccu
 				/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds);
 }
 
-LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeAspect>& stat)
+LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat)
 {
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 
@@ -245,22 +245,82 @@ LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccu
 			/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds);
 }
 
-F32 Recording::getPerSec(const TraceType<TimeBlockAccumulator::CallCountAspect>& stat)
+F32 Recording::getPerSec(const TraceType<TimeBlockAccumulator::CallCountFacet>& stat)
 {
 	update();
 	return (F32)mBuffers->mStackTimers[stat.getIndex()].mCalls / mElapsedSeconds;
 }
 
-LLUnit<LLUnits::Bytes, U32> Recording::getSum(const TraceType<MemStatAccumulator>& stat)
+LLUnit<LLUnits::Bytes, F64> Recording::getMin(const TraceType<MemStatAccumulator>& stat)
+{
+	update();
+	return mBuffers->mMemStats[stat.getIndex()].mSize.getMin();
+}
+
+LLUnit<LLUnits::Bytes, F64> Recording::getMean(const TraceType<MemStatAccumulator>& stat)
+{
+	update();
+	return mBuffers->mMemStats[stat.getIndex()].mSize.getMean();
+}
+
+LLUnit<LLUnits::Bytes, F64> Recording::getMax(const TraceType<MemStatAccumulator>& stat)
+{
+	update();
+	return mBuffers->mMemStats[stat.getIndex()].mSize.getMax();
+}
+
+LLUnit<LLUnits::Bytes, F64> Recording::getStandardDeviation(const TraceType<MemStatAccumulator>& stat)
+{
+	update();
+	return mBuffers->mMemStats[stat.getIndex()].mSize.getStandardDeviation();
+}
+
+LLUnit<LLUnits::Bytes, F64> Recording::getLastValue(const TraceType<MemStatAccumulator>& stat)
+{
+	update();
+	return mBuffers->mMemStats[stat.getIndex()].mSize.getLastValue();
+}
+
+LLUnit<LLUnits::Bytes, F64> Recording::getMin(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+{
+	update();
+	return mBuffers->mMemStats[stat.getIndex()].mChildSize.getMin();
+}
+
+LLUnit<LLUnits::Bytes, F64> Recording::getMean(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+{
+	update();
+	return mBuffers->mMemStats[stat.getIndex()].mChildSize.getMean();
+}
+
+LLUnit<LLUnits::Bytes, F64> Recording::getMax(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+{
+	update();
+	return mBuffers->mMemStats[stat.getIndex()].mChildSize.getMax();
+}
+
+LLUnit<LLUnits::Bytes, F64> Recording::getStandardDeviation(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+{
+	update();
+	return mBuffers->mMemStats[stat.getIndex()].mChildSize.getStandardDeviation();
+}
+
+LLUnit<LLUnits::Bytes, F64> Recording::getLastValue(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+{
+	update();
+	return mBuffers->mMemStats[stat.getIndex()].mChildSize.getLastValue();
+}
+
+U32 Recording::getSum(const TraceType<MemStatAccumulator::AllocationCountFacet>& stat)
 {
 	update();
 	return mBuffers->mMemStats[stat.getIndex()].mAllocatedCount;
 }
 
-LLUnit<LLUnits::Bytes, F32> Recording::getPerSec(const TraceType<MemStatAccumulator>& stat)
+U32 Recording::getSum(const TraceType<MemStatAccumulator::DeallocationCountFacet>& stat)
 {
 	update();
-	return (F32)mBuffers->mMemStats[stat.getIndex()].mAllocatedCount / mElapsedSeconds;
+	return mBuffers->mMemStats[stat.getIndex()].mAllocatedCount;
 }
 
 

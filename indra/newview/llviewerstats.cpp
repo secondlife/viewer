@@ -89,7 +89,7 @@ LLTrace::CountStatHandle<>	FPS("framesrendered"),
 							TEX_BAKES("texbakes"),
 							TEX_REBAKES("texrebakes"),
 							NUM_NEW_OBJECTS("numnewobjectsstat");
-LLTrace::CountStatHandle<LLTrace::Kilobits>	KBIT("kbitstat"),
+LLTrace::CountStatHandle<LLTrace::Kibibits>	KBIT("kbitstat"),
 											LAYERS_KBIT("layerskbitstat"),
 											OBJECT_KBIT("objectkbitstat"),
 											ASSET_KBIT("assetkbitstat"),
@@ -552,9 +552,9 @@ void send_stats()
 
 	LLSD &download = body["downloads"];
 
-	download["world_kbytes"] = LLTrace::Kilobytes(gTotalWorldData).value();
-	download["object_kbytes"] = LLTrace::Kilobytes(gTotalObjectData).value();
-	download["texture_kbytes"] = LLTrace::Kilobytes(gTotalTextureData).value();
+	download["world_kbytes"] = LLTrace::Kibibytes(gTotalWorldData).value();
+	download["object_kbytes"] = LLTrace::Kibibytes(gTotalObjectData).value();
+	download["texture_kbytes"] = LLTrace::Kibibytes(gTotalTextureData).value();
 	download["mesh_kbytes"] = LLMeshRepository::sBytesReceived/1024.0;
 
 	LLSD &in = body["stats"]["net"]["in"];

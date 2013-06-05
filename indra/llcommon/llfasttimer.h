@@ -101,14 +101,14 @@ public:
 	void setCollapsed(bool collapsed)	{ mCollapsed = collapsed; }
 	bool getCollapsed() const			{ return mCollapsed; }
 
-	TraceType<TimeBlockAccumulator::CallCountAspect>& callCount() 
+	TraceType<TimeBlockAccumulator::CallCountFacet>& callCount() 
 	{ 
-		return static_cast<TraceType<TimeBlockAccumulator::CallCountAspect>&>(*(TraceType<TimeBlockAccumulator>*)this);
+		return static_cast<TraceType<TimeBlockAccumulator::CallCountFacet>&>(*(TraceType<TimeBlockAccumulator>*)this);
 	}
 
-	TraceType<TimeBlockAccumulator::SelfTimeAspect>& selfTime() 
+	TraceType<TimeBlockAccumulator::SelfTimeFacet>& selfTime() 
 	{ 
-		return static_cast<TraceType<TimeBlockAccumulator::SelfTimeAspect>&>(*(TraceType<TimeBlockAccumulator>*)this);
+		return static_cast<TraceType<TimeBlockAccumulator::SelfTimeFacet>&>(*(TraceType<TimeBlockAccumulator>*)this);
 	}
 
 	static TimeBlock& getRootTimeBlock();
@@ -277,8 +277,6 @@ public:
 LL_FORCE_INLINE BlockTimer::BlockTimer(TimeBlock& timer)
 {
 #if FAST_TIMER_ON
-	mStartTime = TimeBlock::getCPUClockCount64();
-
 	BlockTimerStackRecord* cur_timer_data = ThreadTimerStack::getIfExists();
 	TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
 	accumulator->mActiveCount++;
@@ -292,6 +290,8 @@ LL_FORCE_INLINE BlockTimer::BlockTimer(TimeBlock& timer)
 	cur_timer_data->mActiveTimer = this;
 	cur_timer_data->mTimeBlock = &timer;
 	cur_timer_data->mChildTime = 0;
+
+	mStartTime = TimeBlock::getCPUClockCount64();
 #endif
 }
 
