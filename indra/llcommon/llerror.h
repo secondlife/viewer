@@ -199,13 +199,13 @@ namespace LLError
 	   static void end(std::ostringstream* _out) ;
    }; 
 
-#if LL_WINDOWS && !defined(LL_RELEASE_FOR_DOWNLOAD)
+#if LL_WINDOWS
 	void LLOutputDebugUTF8(const std::string& s);
 #endif
 
 }
 
-#if LL_WINDOWS && !defined(LL_RELEASE_FOR_DOWNLOAD)
+#if LL_WINDOWS
 	// Macro accepting a wchar_t* for display in windows debugging console in debug builds only
 	// (wchar_t flavor chosen for maximal utility with unicode text debugging)
 	//

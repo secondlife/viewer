@@ -1399,18 +1399,19 @@ namespace LLError
        sIndex = 0 ;
    }
 
-#if LL_WINDOWS && !defined(LL_RELEASE_FOR_DOWNLOAD)
+#if LL_WINDOWS
 	void LLOutputDebugUTF8(const std::string& s)
 	{
 		// Be careful not to enable this in non-debug builds as there are bad interactions between the
 		// exceptions thrown by this function and the handling of stacks in coroutine fibers. BUG-2707
 		//
-		#if defined(_DEBUG)
+		if (IsDebuggerPresent())
+		{
 			// Need UTF16 for Unicode OutputDebugString
 			//
 			OutputDebugString(utf8str_to_utf16str(s).c_str());
 			OutputDebugString(TEXT("\n"));
-		#endif
+		}
 	}
 #endif
 
