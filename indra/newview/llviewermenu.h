@@ -137,7 +137,9 @@ bool handle_go_to();
 
 // Facebook Connect
 void handle_facebook_connect();
-//bool is_facebook_connected();
+
+//Facebook Checkin
+void handle_facebook_checkin();
 
 // Export to XML or Collada
 void handle_export_selected( void * );

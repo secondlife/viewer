@@ -45,6 +45,7 @@
 #include "llagent.h"
 #include "llagentaccess.h"
 #include "llagentcamera.h"
+#include "llagentui.h"
 #include "llagentwearables.h"
 #include "llagentpilot.h"
 #include "llcompilequeue.h"
@@ -5983,6 +5984,26 @@ void handle_facebook_connect()
 	}
 }
 
+void handle_facebook_checkin()
+{
+
+	// Get the location SLURL 
+	LLSLURL slurl;
+	LLAgentUI::buildSLURL(slurl);
+	std::string slurl_string = slurl.getSLURLString();
+
+	//Get the location name
+	LLViewerParcelMgr * parcel = LLViewerParcelMgr::getInstance();
+	std::string parcel_string = parcel->getAgentParcelName();
+
+	//Get the location description
+	LLVector3 agent_pos = gAgent.getPositionAgent();
+	std::string description;
+	LLAgentUI::buildLocationString(description, LLAgentUI::LOCATION_FORMAT_FULL, agent_pos);
+
+	LLFacebookConnect::instance().postCheckin(slurl_string, parcel_string, description, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDL4jdC_vCh0ow-QCXZjN-WNojEXWiz0APEa6Qhpl8cxawjkoC7w", "");
+}
+
 //bool is_facebook_connected();
 
 
@@ -8738,4 +8759,6 @@ void initialize_menus()
     
     // Facebook Connect
 	commit.add("Facebook.Connect", boost::bind(&handle_facebook_connect));
+	// Facebook Checkin
+	commit.add("Facebook.Checkin", boost::bind(&handle_facebook_checkin));
 }

@@ -275,6 +275,24 @@ void LLFacebookConnect::loadFacebookFriends()
 					  LLSD(), timeout, follow_redirects);
 }
 
+void LLFacebookConnect::postCheckin(const std::string& location, const std::string& name, const std::string& description, const std::string& image, const std::string& message)
+{
+	LLSD body;
+	if (!location.empty())
+		body["location"] = location;
+	if (!name.empty())
+		body["name"] = name;
+	if (!description.empty())
+		body["description"] = description;
+	if (!image.empty())
+		body["image"] = image;
+	if (!message.empty())
+		body["message"] = message;
+
+	// Note: we can use that route for different publish action. We should be able to use the same responder.
+	LLHTTPClient::post(getFacebookConnectURL("/share/checkin"), body, new LLFacebookPostResponder());
+}
+
 void LLFacebookConnect::postCheckinMessage(const std::string& message, const std::string& link, const std::string& name, const std::string& caption, const std::string& description, const std::string& picture)
 {
     LLSD body;
