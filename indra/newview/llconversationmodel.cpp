@@ -363,7 +363,7 @@ void LLConversationItemSession::buildContextMenu(LLMenuGL& menu, U32 flags)
     lldebugs << "LLConversationItemParticipant::buildContextMenu()" << llendl;
     menuentry_vec_t items;
     menuentry_vec_t disabled_items;
-    if(flags & ITEM_IN_MULTI_SELECTION)
+    if((flags & ITEM_IN_MULTI_SELECTION) && (this->getType() != CONV_SESSION_NEARBY))
     {
     	items.push_back(std::string("close_selected_conversations"));
     }
