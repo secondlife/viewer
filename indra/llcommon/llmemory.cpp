@@ -987,27 +987,27 @@ void LLPrivateMemoryPool::LLMemoryChunk::dump()
 	}
 #endif
 #if 0
-	LL_DEBUGS(LLMemory) << "---------------------------" << llendl ;
-	LL_DEBUGS(LLMemory) << "Chunk buffer: " << (U32)getBuffer() << " size: " << getBufferSize() << llendl ;
+	llinfos << "---------------------------" << llendl ;
+	llinfos << "Chunk buffer: " << (U32)getBuffer() << " size: " << getBufferSize() << llendl ;
 
-	LL_DEBUGS(LLMemory) << "available blocks ... " << llendl ;
+	llinfos << "available blocks ... " << llendl ;
 	for(S32 i = 0 ; i < mBlockLevels ; i++)
 	{
 		LLMemoryBlock* blk = mAvailBlockList[i] ;
 		while(blk)
 		{
-			LL_DEBUGS(LLMemory) << "blk buffer " << (U32)blk->getBuffer() << " size: " << blk->getBufferSize() << llendl ;
+			llinfos << "blk buffer " << (U32)blk->getBuffer() << " size: " << blk->getBufferSize() << llendl ;
 			blk = blk->mNext ;
 		}
 	}
 
-	LL_DEBUGS(LLMemory) << "free blocks ... " << llendl ;
+	llinfos << "free blocks ... " << llendl ;
 	for(S32 i = 0 ; i < mPartitionLevels ; i++)
 	{
 		LLMemoryBlock* blk = mFreeSpaceList[i] ;
 		while(blk)
 		{
-			LL_DEBUGS(LLMemory) << "blk buffer " << (U32)blk->getBuffer() << " size: " << blk->getBufferSize() << llendl ;
+			llinfos << "blk buffer " << (U32)blk->getBuffer() << " size: " << blk->getBufferSize() << llendl ;
 			blk = blk->mNext ;
 		}
 	}
@@ -1731,7 +1731,7 @@ void LLPrivateMemoryPool::removeFromHashTable(LLMemoryChunk* chunk)
 
 void LLPrivateMemoryPool::rehash()
 {
-	LL_DEBUGS("LLMemory") << "new hash factor: " << mHashFactor << llendl ;
+	llinfos << "new hash factor: " << mHashFactor << llendl ;
 
 	mChunkHashList.clear() ;
 	mChunkHashList.resize(mHashFactor) ;
@@ -1848,7 +1848,7 @@ LLPrivateMemoryPoolManager::~LLPrivateMemoryPoolManager()
 		S32 k = 0 ;
 		for(mem_allocation_info_t::iterator iter = sMemAllocationTracker.begin() ; iter != sMemAllocationTracker.end() ; ++iter)
 		{
-			LL_DEBUGS(LLMemory) << k++ << ", " << (U32)iter->first << " : " << iter->second << llendl ;
+			llinfos << k++ << ", " << (U32)iter->first << " : " << iter->second << llendl ;
 		}
 		sMemAllocationTracker.clear() ;
 	}
@@ -2190,8 +2190,8 @@ void LLPrivateMemoryPoolTester::testAndTime(U32 size, U32 times)
 {
 	LLTimer timer ;
 
-	LL_DEBUGS(LLMemory) << " -**********************- " << llendl ;
-	LL_DEBUGS(LLMemory) << "test size: " << size << " test times: " << times << llendl ;
+	llinfos << " -**********************- " << llendl ;
+	llinfos << "test size: " << size << " test times: " << times << llendl ;
 
 	timer.reset() ;
 	char** p = new char*[times] ;
@@ -2212,7 +2212,7 @@ void LLPrivateMemoryPoolTester::testAndTime(U32 size, U32 times)
 		FREE_MEM(sPool, p[i]) ;
 		p[i] = NULL ;
 	}
-	LL_DEBUGS(LLMemory) << "time spent using customized memory pool: " << timer.getElapsedTimeF32() << llendl ;
+	llinfos << "time spent using customized memory pool: " << timer.getElapsedTimeF32() << llendl ;
 
 	timer.reset() ;
 
@@ -2232,7 +2232,7 @@ void LLPrivateMemoryPoolTester::testAndTime(U32 size, U32 times)
 		::delete[] p[i] ;
 		p[i] = NULL ;
 	}
-	LL_DEBUGS(LLMemory) << "time spent using standard allocator/de-allocator: " << timer.getElapsedTimeF32() << llendl ;
+	llinfos << "time spent using standard allocator/de-allocator: " << timer.getElapsedTimeF32() << llendl ;
 
 	delete[] p;
 }

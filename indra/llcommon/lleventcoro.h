@@ -220,21 +220,21 @@ LLSD postAndWait(SELF& self, const LLSD& event, const LLEventPumpOrPumpName& req
         // request event.
         LLSD modevent(event);
         LLEventDetail::storeToLLSDPath(modevent, replyPumpNamePath, replyPump.getPump().getName());
-		//LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
-      //                           << " posting to " << requestPump.getPump().getName()
-		//						 << LL_ENDL;
+		LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
+                                 << " posting to " << requestPump.getPump().getName()
+								 << LL_ENDL;
 
 		// *NOTE:Mani - Removed because modevent could contain user's hashed passwd.
 		//                         << ": " << modevent << LL_ENDL;
         requestPump.getPump().post(modevent);
     }
-    //LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
-    //                         << " about to wait on LLEventPump " << replyPump.getPump().getName()
-    //                         << LL_ENDL;
+    LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
+                             << " about to wait on LLEventPump " << replyPump.getPump().getName()
+                             << LL_ENDL;
     // trying to dereference ("resolve") the future makes us wait for it
     LLSD value(*future);
-    //LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
-    //                         << " resuming with " << value << LL_ENDL;
+    LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
+                             << " resuming with " << value << LL_ENDL;
     // returning should disconnect the connection
     return value;
 }
@@ -351,19 +351,19 @@ LLEventWithID postAndWait2(SELF& self, const LLSD& event,
                                        replyPump0.getPump().getName());
         LLEventDetail::storeToLLSDPath(modevent, replyPump1NamePath,
                                        replyPump1.getPump().getName());
-        //LL_DEBUGS("lleventcoro") << "postAndWait2(): coroutine " << name
-        //                         << " posting to " << requestPump.getPump().getName()
-        //                         << ": " << modevent << LL_ENDL;
+        LL_DEBUGS("lleventcoro") << "postAndWait2(): coroutine " << name
+                                 << " posting to " << requestPump.getPump().getName()
+                                 << ": " << modevent << LL_ENDL;
         requestPump.getPump().post(modevent);
     }
-    //LL_DEBUGS("lleventcoro") << "postAndWait2(): coroutine " << name
-    //                         << " about to wait on LLEventPumps " << replyPump0.getPump().getName()
-    //                         << ", " << replyPump1.getPump().getName() << LL_ENDL;
+    LL_DEBUGS("lleventcoro") << "postAndWait2(): coroutine " << name
+                             << " about to wait on LLEventPumps " << replyPump0.getPump().getName()
+                             << ", " << replyPump1.getPump().getName() << LL_ENDL;
     // trying to dereference ("resolve") the future makes us wait for it
     LLEventWithID value(*future);
-    //LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << name
-    //                        << " resuming with (" << value.first << ", " << value.second << ")"
-    //                         << LL_ENDL;
+    LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << name
+                             << " resuming with (" << value.first << ", " << value.second << ")"
+                             << LL_ENDL;
     // returning should disconnect both connections
     return value;
 }

@@ -61,7 +61,6 @@ bool LLCoros::cleanup(const LLSD&)
         if (mi->second->exited())
         {
 			   LL_INFOS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << LL_ENDL;
-
             // The erase() call will invalidate its passed iterator value --
             // so increment mi FIRST -- but pass its original value to
             // erase(). This is what postincrement is all about.

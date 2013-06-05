@@ -124,7 +124,6 @@ void LLLogin::Impl::connect(const std::string& uri, const LLSD& login_params)
     std::string coroname = 
         LLCoros::instance().launch("LLLogin::Impl::login_",
                                    boost::bind(&Impl::login_, this, _1, uri, login_params));
-
     LL_DEBUGS("LLLogin") << " connected with  uri '" << uri << "', login_params " << login_params << LL_ENDL;	
 }
 
@@ -138,8 +137,6 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
 	//{
 	//	printable_params["params"]["passwd"] = "*******";
 	//}
-	//
-	//
 	LL_DEBUGS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName(self)
                         << " with uri '" << uri << "', parameters " << printable_params << LL_ENDL;
 
@@ -166,7 +163,6 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
 		// array containing our original URI.
 		LLSD fakeResponse(LLSD::emptyArray());
 		fakeResponse.append(uri);
-
 		filter.eventAfter(seconds_to_timeout, fakeResponse);
 
 		std::string srv_pump_name = "LLAres";
@@ -235,8 +231,7 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
                 sendProgressEvent("offline", "downloading");
             }
 	
-	    // BUG-2707?
-            //LL_DEBUGS("LLLogin") << "Auth Response: " << mAuthResponse << LL_ENDL;
+			LL_DEBUGS("LLLogin") << "Auth Response: " << mAuthResponse << LL_ENDL;
             status = mAuthResponse["status"].asString();
 
             // Okay, we've received our final status event for this
@@ -281,8 +276,7 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
 		 */
 		if( status == "Started")
 		{
-			// BUG-2707?
-			//LL_DEBUGS("LLLogin") << mAuthResponse << LL_ENDL;
+			LL_DEBUGS("LLLogin") << mAuthResponse << LL_ENDL;
 			continue;
 		}
 

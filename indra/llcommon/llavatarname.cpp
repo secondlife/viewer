@@ -230,10 +230,10 @@ std::string LLAvatarName::getUserName() const
 
 void LLAvatarName::dump() const
 {
-	//LL_DEBUGS("AvNameCache") << "LLAvatarName: "
-	//                         << "user '" << mUsername << "' "
-	//						 << "display '" << mDisplayName << "' "
-	//                         << "expires in " << mExpires - LLFrameTimer::getTotalSeconds() << " seconds"
-	//						 << LL_ENDL;
+	LL_DEBUGS("AvNameCache") << "LLAvatarName: "
+	                         << "user '" << mUsername << "' "
+							 << "display '" << mDisplayName << "' "
+	                         << "expires in " << mExpires - LLFrameTimer::getTotalSeconds() << " seconds"
+							 << LL_ENDL;
 }
 

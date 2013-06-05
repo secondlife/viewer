@@ -206,7 +206,6 @@ void LLUpdaterServiceImpl::initialize(const std::string&  url,
 	mPlatformVersion = platform_version;
 	memcpy(mUniqueId, uniqueid, MD5HEX_STR_SIZE);
 	mWillingToTest = willing_to_test;
-
 	LL_DEBUGS("UpdaterService")
 		<< "\n  url: " << mUrl
 		<< "\n  path: " << mPath
@@ -432,14 +431,12 @@ void LLUpdaterServiceImpl::response(LLSD const & content)
 		BOOL required = content["required"].asBoolean();
 		LLURI url(content["url"].asString());
 		std::string more_info = content["more_info"].asString();
-
 		LL_DEBUGS("UpdaterService")
 			<< "Starting download of "
 			<< ( required ? "required" : "optional" ) << " update"
 			<< " to channel '" << mNewChannel << "' version " << mNewVersion
 			<< " more info '" << more_info << "'"
 			<< LL_ENDL;
-
 		mUpdateDownloader.download(url, content["hash"].asString(), mNewChannel, mNewVersion, more_info, required);
 	}
 }
@@ -462,7 +459,6 @@ void LLUpdaterServiceImpl::downloadComplete(LLSD const & data)
 	payload["channel"] = mNewChannel;
 	payload["info_url"] = data["info_url"];
 	event["payload"] = payload;
-
 	LL_DEBUGS("UpdaterService")
 		<< "Download complete "
 		<< ( data["required"].asBoolean() ? "required" : "optional" )

@@ -1032,9 +1032,9 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 {
 	mStatsMap = loadStatsMap();
 
-//	LL_DEBUGS("LLMemoryInfo") << "Populated mStatsMap:\n";
-//	LLSDSerialize::toPrettyXML(mStatsMap, LL_CONT);
-//	LL_ENDL;
+	LL_DEBUGS("LLMemoryInfo") << "Populated mStatsMap:\n";
+	LLSDSerialize::toPrettyXML(mStatsMap, LL_CONT);
+	LL_ENDL;
 
 	return *this;
 }
