@@ -1007,6 +1007,10 @@ void LLFloaterIMContainer::doToParticipants(const std::string& command, uuid_vec
 		{
 			LLAvatarActions::offerTeleport(selectedIDS);
 		}
+		else if ("request_teleport" == command)
+		{
+			LLAvatarActions::teleportRequest(selectedIDS.front());
+		}
 		else if ("voice_call" == command)
 		{
 			LLAvatarActions::startCall(userID);

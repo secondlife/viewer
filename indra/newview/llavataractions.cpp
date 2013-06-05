@@ -443,6 +443,7 @@ void LLAvatarActions::teleport_request_callback(const LLSD& notification, const 
 // static
 void LLAvatarActions::teleportRequest(const LLUUID& id)
 {
+llwarns << "DBG " << llendl;
 	std::string name;
 	gCacheName->getFullName(id, name);
 	gCacheName->cleanFullName(name);

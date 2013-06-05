@@ -132,6 +132,7 @@ void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t& items, U32
 		items.push_back(std::string("view_profile"));
 		items.push_back(std::string("im"));
 		items.push_back(std::string("offer_teleport"));
+		items.push_back(std::string("request_teleport"));
 		items.push_back(std::string("voice_call"));
 		items.push_back(std::string("chat_history"));
 		items.push_back(std::string("separator_chat_history"));
