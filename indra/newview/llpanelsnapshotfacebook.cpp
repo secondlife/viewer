@@ -38,6 +38,8 @@
 #include "llsidetraypanelcontainer.h"
 #include "llwebprofile.h"
 
+#include "llfacebookconnect.h"
+
 /**
  * Posts a snapshot to the resident Facebook account.
  */
@@ -98,4 +100,7 @@ void LLPanelSnapshotFacebook::onSend()
 
 	LLWebProfile::uploadImage(LLFloaterSnapshot::getImageData(), caption, add_location);
 	LLFloaterSnapshot::postSave();
+
+	// test with a placeholder image, until we can figure out a way to grab the uploaded image url
+	LLFacebookConnect::instance().sharePhoto("http://fc02.deviantart.net/fs43/i/2009/125/a/9/Future_of_Frog_by_axcho.jpg", caption);
 }
