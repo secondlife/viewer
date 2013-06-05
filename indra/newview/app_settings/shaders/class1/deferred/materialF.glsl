@@ -419,7 +419,7 @@ VARYING vec2 vary_texcoord2;
 #endif
 
 uniform float env_intensity;
-uniform vec4 specular_color;
+uniform vec4 specular_color;  // specular color RGB and specular exponent (glossiness) in alpha
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK)
 uniform float minimum_alpha;
@@ -461,9 +461,10 @@ void main()
 #endif
 
 #if HAS_SPECULAR_MAP
-	vec4 spec = texture2D(specularMap, vary_texcoord2.xy)*specular_color;
+	vec4 spec = texture2D(specularMap, vary_texcoord2.xy);
+	spec.rgb *= specular_color.rgb;
 #else
-	vec4 spec = specular_color;
+	vec4 spec = vec4(specular_color.rgb, 1.0);
 #endif
 
 #if HAS_NORMAL_MAP
@@ -495,7 +496,7 @@ void main()
 	//final_color.rgb *= 1 - spec.a * env_intensity;
 	//final_specular.rgb *= specular_color.rgb;
 	
-	vec4 final_normal = vec4(encode_normal(normalize(tnorm)), env_intensity, 0.0);
+	vec4 final_normal = vec4(encode_normal(normalize(tnorm)), env_intensity * spec.a, 0.0);
 	final_specular.a = specular_color.a * norm.a;
 #else
 	vec4 final_normal = vec4(encode_normal(normalize(tnorm)), env_intensity, 0.0);
