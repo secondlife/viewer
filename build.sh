@@ -279,7 +279,7 @@ then
       # mangle the changelog
       dch --force-bad-version \
           --distribution unstable \
-          --newversion "${VIEWER_VERSION}" \
+          --newversion "${revision}" \
           "Automated build #$build_id, repository $branch revision $revision." \
           >> "$build_log" 2>&1
 
