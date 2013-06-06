@@ -758,7 +758,6 @@ void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
 void LLFloaterModelPreview::draw()
 {
 	LLFloater::draw();
-	LLRect r = getRect();
 
 	mModelPreview->update();
 
@@ -1682,7 +1681,6 @@ bool LLModelLoader::doLoadModel()
 						
 						//If no skeleton, do a breadth-first search to get at specific joints
 						bool rootNode = false;
-						bool skeletonWithNoRootNode = false;
 						
 						//Need to test for a skeleton that does not have a root node
 						//This occurs when your instance controller does not have an associated scene 
@@ -1692,10 +1690,6 @@ bool LLModelLoader::doLoadModel()
 							if ( pSkeletonRootNode )
 							{
 								rootNode = true;
-							}
-							else 
-							{
-								skeletonWithNoRootNode = true;
 							}
 
 						}
@@ -2500,7 +2494,7 @@ void LLModelLoader::loadTextures()
 				if(!material.mDiffuseMapFilename.empty())
 				{
 					material.mDiffuseMap = 
-						LLViewerTextureManager::getFetchedTextureFromUrl("file://" + material.mDiffuseMapFilename, TRUE, LLViewerTexture::BOOST_PREVIEW);
+						LLViewerTextureManager::getFetchedTextureFromUrl("file://" + material.mDiffuseMapFilename, FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_PREVIEW);
 					material.mDiffuseMap->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, mPreview, NULL, FALSE);
 					material.mDiffuseMap->forceToSaveRawImage(0, F32_MAX);
 					mNumOfFetchingTextures++ ;
@@ -3902,7 +3896,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	{
 		triangle_count += mBaseModel[i]->getNumTriangles();
 	}
-
+	
 	//get ratio of uninstanced triangles to instanced triangles
 	F32 triangle_ratio = (F32) triangle_count / (F32) instanced_triangle_count;
 
@@ -5018,16 +5012,9 @@ BOOL LLModelPreview::render()
 	bool upload_skin = mFMP->childGetValue("upload_skin").asBoolean();	
 	bool upload_joints = mFMP->childGetValue("upload_joints").asBoolean();
 
-	bool resetJoints = false;
 	if ( upload_joints != mLastJointUpdate )
 	{
-		if ( mLastJointUpdate )
-		{
-			resetJoints = true;
-		}
-
 		mLastJointUpdate = upload_joints;
-
 	}
 
 	for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)

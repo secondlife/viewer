@@ -43,7 +43,7 @@
  * semantics: one instance per process, rather than one instance per module as
  * sometimes happens with data simply declared static.
  */
-class LL_COMMON_API LLInstanceTrackerBase : public boost::noncopyable
+class LL_COMMON_API LLInstanceTrackerBase
 {
 protected:
     /// It's not essential to derive your STATICDATA (for use with
@@ -203,6 +203,9 @@ protected:
 	virtual const KEY& getKey() const { return mInstanceKey; }
 
 private:
+	LLInstanceTracker( const LLInstanceTracker& );
+	const LLInstanceTracker& operator=( const LLInstanceTracker& );
+
 	void add_(KEY key) 
 	{ 
 		mInstanceKey = key; 

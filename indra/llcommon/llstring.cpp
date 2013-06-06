@@ -51,6 +51,23 @@ std::string ll_safe_string(const char* in, S32 maxlen)
 	return std::string();
 }
 
+bool is_char_hex(char hex)
+{
+	if((hex >= '0') && (hex <= '9'))
+	{
+		return true;
+	}
+	else if((hex >= 'a') && (hex <='f'))
+	{
+		return true;
+	}
+	else if((hex >= 'A') && (hex <='F'))
+	{
+		return true;
+	}
+	return false; // uh - oh, not hex any more...
+}
+
 U8 hex_as_nybble(char hex)
 {
 	if((hex >= '0') && (hex <= '9'))

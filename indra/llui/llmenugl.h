@@ -478,6 +478,12 @@ public:
 	// remove all items on the menu
 	void empty( void );
 
+	// erase group of items from menu
+	void erase( S32 begin, S32 end, bool arrange = true );
+
+	// add new item at position
+	void insert( S32 begin, LLView * ctrl, bool arrange = true );
+
 	void			setItemLastSelected(LLMenuItemGL* item);	// must be in menu
 	U32				getItemCount();				// number of menu items
 	LLMenuItemGL*	getItem(S32 number);		// 0 = first item
@@ -675,8 +681,6 @@ public:
 	// can't set visibility directly, must call show or hide
 	virtual void	setVisible			(BOOL visible);
 	
-	virtual void	draw				();
-	
 	virtual void	show				(S32 x, S32 y, LLView* spawning_view = NULL);
 	virtual void	hide				();
 
@@ -697,7 +701,6 @@ protected:
 	LLRootHandle<LLContextMenu>	mHandle;
 	LLHandle<LLView>			mSpawningViewHandle;
 };
-
 
 //-----------------------------------------------------------------------------
 // class LLContextMenuBranch

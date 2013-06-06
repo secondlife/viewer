@@ -102,12 +102,12 @@ public:
 	bool getCollapsed() const			{ return mCollapsed; }
 
 	TraceType<TimeBlockAccumulator::CallCountFacet>& callCount() 
-	{ 
+	{
 		return static_cast<TraceType<TimeBlockAccumulator::CallCountFacet>&>(*(TraceType<TimeBlockAccumulator>*)this);
 	}
 
 	TraceType<TimeBlockAccumulator::SelfTimeFacet>& selfTime() 
-	{ 
+	{
 		return static_cast<TraceType<TimeBlockAccumulator::SelfTimeFacet>&>(*(TraceType<TimeBlockAccumulator>*)this);
 	}
 

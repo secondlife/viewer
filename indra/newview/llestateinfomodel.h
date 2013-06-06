@@ -85,19 +85,38 @@ protected:
 private:
 	bool commitEstateInfoCaps();
 	void commitEstateInfoDataserver();
-	U32  getFlags() const { return mFlags; }
-	void setFlag(U32 flag, bool val);
+	inline bool getFlag(U64 flag) const;
+	inline void setFlag(U64 flag, bool val);
+	U64  getFlags() const { return mFlags; }
 	std::string getInfoDump();
 
 	// estate info
 	std::string	mName;			/// estate name
 	LLUUID		mOwnerID;		/// estate owner id
 	U32			mID;			/// estate id
-	U32			mFlags;			/// estate flags
+	U64			mFlags;			/// estate flags
 	F32			mSunHour;		/// estate sun hour
 
 	update_signal_t mUpdateSignal; /// emitted when we receive update from sim
 	update_signal_t mCommitSignal; /// emitted when our update gets applied to sim
 };
+
+inline bool LLEstateInfoModel::getFlag(U64 flag) const
+{
+	return ((mFlags & flag) != 0);
+}
+
+inline void LLEstateInfoModel::setFlag(U64 flag, bool val)
+{
+	if (val)
+	{
+		mFlags |= flag;
+	}
+	else
+	{
+		mFlags &= ~flag;
+	}
+}
+
 
 #endif // LL_LLESTATEINFOMODEL_H

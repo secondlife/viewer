@@ -75,7 +75,7 @@ int ll_install_update(std::string const & script,
 			llassert(!"unpossible copy mode");
 	}
 	
-	llinfos << "UpdateInstaller: installing " << updatePath << " using " <<
+	LL_INFOS("Updater") << "UpdateInstaller: installing " << updatePath << " using " <<
 		actualScriptPath << LL_ENDL;
 	
 	LLProcess::Params params;

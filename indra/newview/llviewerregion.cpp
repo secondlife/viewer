@@ -156,6 +156,7 @@ public:
 	LLUUID mCacheID;
 
 	CapabilityMap mCapabilities;
+	CapabilityMap mSecondCapabilitiesTracker; 
 	
 	LLEventPoll* mEventPoll;
 
@@ -226,9 +227,9 @@ public:
 	virtual ~BaseCapabilitiesComplete()
 	{ }
 
-    void error(U32 statusNum, const std::string& reason)
+    void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
     {
-		LL_WARNS2("AppInit", "Capabilities") << statusNum << ": " << reason << LL_ENDL;
+		LL_WARNS2("AppInit", "Capabilities") << "[status:" << statusNum << ":] " << content << LL_ENDL;
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
 		if (regionp)
 		{
@@ -254,6 +255,7 @@ public:
 		for(iter = content.beginMap(); iter != content.endMap(); ++iter)
 		{
 			regionp->setCapability(iter->first, iter->second);
+			
 			LL_DEBUGS2("AppInit", "Capabilities") << "got capability for " 
 				<< iter->first << LL_ENDL;
 
@@ -282,6 +284,62 @@ private:
 	S32 mID;
 };
 
+class BaseCapabilitiesCompleteTracker :  public LLHTTPClient::Responder
+{
+	LOG_CLASS(BaseCapabilitiesCompleteTracker);
+public:
+	BaseCapabilitiesCompleteTracker( U64 region_handle)
+	: mRegionHandle(region_handle)
+	{ }
+	
+	virtual ~BaseCapabilitiesCompleteTracker()
+	{ }
+
+	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+	{
+		llwarns << "BaseCapabilitiesCompleteTracker error [status:"
+				<< statusNum << "]: " << content << llendl;
+	}
+
+	void result(const LLSD& content)
+	{
+		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
+		if( !regionp ) 
+		{
+			return ;
+		}		
+		LLSD::map_const_iterator iter;
+		for(iter = content.beginMap(); iter != content.endMap(); ++iter)
+		{
+			regionp->setCapabilityDebug(iter->first, iter->second);	
+			//llinfos<<"BaseCapabilitiesCompleteTracker New Caps "<<iter->first<<" "<< iter->second<<llendl;
+		}
+		
+		if ( regionp->getRegionImpl()->mCapabilities.size() != regionp->getRegionImpl()->mSecondCapabilitiesTracker.size() )
+		{
+			llinfos<<"BaseCapabilitiesCompleteTracker "<<"Sim sent duplicate seed caps that differs in size - most likely content."<<llendl;			
+			//todo#add cap debug versus original check?
+			/*CapabilityMap::const_iterator iter = regionp->getRegionImpl()->mCapabilities.begin();
+			while (iter!=regionp->getRegionImpl()->mCapabilities.end() )
+			{
+				llinfos<<"BaseCapabilitiesCompleteTracker Original "<<iter->first<<" "<< iter->second<<llendl;
+				++iter;
+			}
+			*/
+			regionp->getRegionImplNC()->mSecondCapabilitiesTracker.clear();
+		}
+
+	}
+
+	static BaseCapabilitiesCompleteTracker* build( U64 region_handle )
+	{
+		return new BaseCapabilitiesCompleteTracker( region_handle );
+	}
+
+private:
+	U64 mRegionHandle;	
+};
+
 
 LLViewerRegion::LLViewerRegion(const U64 &handle,
 							   const LLHost &host,
@@ -295,9 +353,11 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mZoning(""),
 	mIsEstateManager(FALSE),
 	mRegionFlags( REGION_FLAGS_DEFAULT ),
+	mRegionProtocols( 0 ),
 	mSimAccess( SIM_ACCESS_MIN ),
 	mBillableFactor(1.0),
 	mMaxTasks(DEFAULT_MAX_REGION_WIDE_PRIM_COUNT),
+	mCentralBakeVersion(0),
 	mClassID(0),
 	mCPURatio(0),
 	mColoName("unknown"),
@@ -485,18 +545,6 @@ void LLViewerRegion::sendReliableMessage()
 	gMessageSystem->sendReliable(mImpl->mHost);
 }
 
-void LLViewerRegion::setFlags(BOOL b, U32 flags)
-{
-	if (b)
-	{
-		mRegionFlags |=  flags;
-	}
-	else
-	{
-		mRegionFlags &= ~flags;
-	}
-}
-
 void LLViewerRegion::setWaterHeight(F32 water_level)
 {
 	mImpl->mLandp->setWaterHeight(water_level);
@@ -509,10 +557,10 @@ F32 LLViewerRegion::getWaterHeight() const
 
 BOOL LLViewerRegion::isVoiceEnabled() const
 {
-	return (getRegionFlags() & REGION_FLAGS_ALLOW_VOICE);
+	return getRegionFlag(REGION_FLAGS_ALLOW_VOICE);
 }
 
-void LLViewerRegion::setRegionFlags(U32 flags)
+void LLViewerRegion::setRegionFlags(U64 flags)
 {
 	mRegionFlags = flags;
 }
@@ -605,7 +653,7 @@ std::string LLViewerRegion::getLocalizedSimProductName() const
 }
 
 // static
-std::string LLViewerRegion::regionFlagsToString(U32 flags)
+std::string LLViewerRegion::regionFlagsToString(U64 flags)
 {
 	std::string result;
 
@@ -1746,8 +1794,8 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 			}
 			else
 			{
-				mOrphanMap[parent_id].push_back(entry->getLocalID());
-			}
+			mOrphanMap[parent_id].push_back(entry->getLocalID());
+		}
 		}
 		else //parent in cache
 		{
@@ -2089,7 +2137,8 @@ void LLViewerRegion::unpackRegionHandshake()
 {
 	LLMessageSystem *msg = gMessageSystem;
 
-	U32 region_flags;
+	U64 region_flags = 0;
+	U64 region_protocols = 0;
 	U8 sim_access;
 	std::string sim_name;
 	LLUUID sim_owner;
@@ -2098,7 +2147,6 @@ void LLViewerRegion::unpackRegionHandshake()
 	F32 billable_factor;
 	LLUUID cache_id;
 
-	msg->getU32		("RegionInfo", "RegionFlags", region_flags);
 	msg->getU8		("RegionInfo", "SimAccess", sim_access);
 	msg->getString	("RegionInfo", "SimName", sim_name);
 	msg->getUUID	("RegionInfo", "SimOwner", sim_owner);
@@ -2107,7 +2155,20 @@ void LLViewerRegion::unpackRegionHandshake()
 	msg->getF32		("RegionInfo", "BillableFactor", billable_factor);
 	msg->getUUID	("RegionInfo", "CacheID", cache_id );
 
+	if (msg->has(_PREHASH_RegionInfo4))
+	{
+		msg->getU64Fast(_PREHASH_RegionInfo4, _PREHASH_RegionFlagsExtended, region_flags);
+		msg->getU64Fast(_PREHASH_RegionInfo4, _PREHASH_RegionProtocols, region_protocols);
+	}
+	else
+	{
+		U32 flags = 0;
+		msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_RegionFlags, flags);
+		region_flags = flags;
+	}
+
 	setRegionFlags(region_flags);
+	setRegionProtocols(region_protocols);
 	setSimAccess(sim_access);
 	setRegionNameAndZone(sim_name);
 	setOwner(sim_owner);
@@ -2146,6 +2207,8 @@ void LLViewerRegion::unpackRegionHandshake()
 		mProductName = productName;
 	}
 
+
+	mCentralBakeVersion = region_protocols & 1; // was (S32)gSavedSettings.getBOOL("UseServerTextureBaking");
 	LLVLComposition *compp = getComposition();
 	if (compp)
 	{
@@ -2242,6 +2305,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 		capabilityNames.append("FetchLibDescendents2");
 		capabilityNames.append("FetchInventory2");
 		capabilityNames.append("FetchInventoryDescendents2");
+		capabilityNames.append("IncrementCOFVersion");
 	}
 
 	capabilityNames.append("GetDisplayNames");
@@ -2284,6 +2348,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("UntrustedSimulatorMessage");
 	capabilityNames.append("UpdateAgentInformation");
 	capabilityNames.append("UpdateAgentLanguage");
+	capabilityNames.append("UpdateAvatarAppearance");
 	capabilityNames.append("UpdateGestureAgentInventory");
 	capabilityNames.append("UpdateGestureTaskInventory");
 	capabilityNames.append("UpdateNotecardAgentInventory");
@@ -2304,6 +2369,12 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	if (getCapability("Seed") == url)
     {
 		// llwarns << "Ignoring duplicate seed capability" << llendl;
+		//Instead of just returning we build up a second set of seed caps and compare them 
+		//to the "original" seed cap received and determine why there is problem!
+		LLSD capabilityNames = LLSD::emptyArray();
+		mImpl->buildCapabilityNames( capabilityNames );
+		LLHTTPClient::post( url, capabilityNames, BaseCapabilitiesCompleteTracker::build(getHandle() ),
+							LLSD(), CAP_REQUEST_TIMEOUT );
 		return;
     }
 	
@@ -2376,9 +2447,9 @@ public:
     { }
 	
 	
-    void error(U32 statusNum, const std::string& reason)
+    void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
     {
-		LL_WARNS2("AppInit", "SimulatorFeatures") << statusNum << ": " << reason << LL_ENDL;
+		LL_WARNS2("AppInit", "SimulatorFeatures") << "[status:" << statusNum << "]: " << content << LL_ENDL;
 		retry();
     }
 
@@ -2439,6 +2510,11 @@ void LLViewerRegion::setCapability(const std::string& name, const std::string& u
 	}
 }
 
+void LLViewerRegion::setCapabilityDebug(const std::string& name, const std::string& url)
+{
+	mImpl->mSecondCapabilitiesTracker[name] = url;
+}
+
 bool LLViewerRegion::isSpecialCapabilityName(const std::string &name)
 {
 	return name == "EventQueueGet" || name == "UntrustedSimulatorMessage";
@@ -2446,6 +2522,11 @@ bool LLViewerRegion::isSpecialCapabilityName(const std::string &name)
 
 std::string LLViewerRegion::getCapability(const std::string& name) const
 {
+	if (!capabilitiesReceived() && (name!=std::string("Seed")) && (name!=std::string("ObjectMedia")))
+	{
+		llwarns << "getCapability called before caps received" << llendl;
+	}
+	
 	CapabilityMap::const_iterator iter = mImpl->mCapabilities.find(name);
 	if(iter == mImpl->mCapabilities.end())
 	{
@@ -2514,7 +2595,7 @@ LLVOCachePartition* LLViewerRegion::getVOCachePartition()
 
 // the viewer can not yet distinquish between normal- and estate-owned objects
 // so we collapse these two bits and enable the UI if either are set
-const U32 ALLOW_RETURN_ENCROACHING_OBJECT = REGION_FLAGS_ALLOW_RETURN_ENCROACHING_OBJECT
+const U64 ALLOW_RETURN_ENCROACHING_OBJECT = REGION_FLAGS_ALLOW_RETURN_ENCROACHING_OBJECT
 											| REGION_FLAGS_ALLOW_RETURN_ENCROACHING_ESTATE_OBJECT;
 
 bool LLViewerRegion::objectIsReturnable(const LLVector3& pos, const std::vector<LLBBox>& boxes) const
@@ -2522,7 +2603,7 @@ bool LLViewerRegion::objectIsReturnable(const LLVector3& pos, const std::vector<
 	return (mParcelOverlay != NULL)
 		&& (mParcelOverlay->isOwnedSelf(pos)
 			|| mParcelOverlay->isOwnedGroup(pos)
-			|| ((mRegionFlags & ALLOW_RETURN_ENCROACHING_OBJECT)
+			|| (getRegionFlag(ALLOW_RETURN_ENCROACHING_OBJECT)
 				&& mParcelOverlay->encroachesOwned(boxes)) );
 }
 

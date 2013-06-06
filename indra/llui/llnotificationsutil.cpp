@@ -27,7 +27,6 @@
 #include "llnotificationsutil.h"
 
 #include "llnotifications.h"
-#include "llnotificationslistener.h"
 #include "llsd.h"
 #include "llxmlnode.h"	// apparently needed to call LLNotifications::instance()
 

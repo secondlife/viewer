@@ -30,6 +30,7 @@
 #include "llapp.h"
 #include "llapr.h"
 #include "apr_thread_cond.h"
+#include "boost/intrusive_ptr.hpp"
 #include "llmutex.h"
 
 LL_COMMON_API void assert_main_thread();
@@ -209,6 +210,22 @@ private:
 	S32	mRef; 
 };
 
+/**
+ * intrusive pointer support for LLThreadSafeRefCount
+ * this allows you to use boost::intrusive_ptr with any LLThreadSafeRefCount-derived type
+ */
+namespace boost
+{
+	inline void intrusive_ptr_add_ref(LLThreadSafeRefCount* p) 
+	{
+		p->ref();
+	}
+
+	inline void intrusive_ptr_release(LLThreadSafeRefCount* p) 
+	{
+		p->unref(); 
+	}
+};
 //============================================================================
 
 // Simple responder for self destructing callbacks

@@ -229,7 +229,6 @@ extern LLGLSLShader			gSplatTextureRectProgram;
 extern LLGLSLShader			gGlowCombineFXAAProgram;
 extern LLGLSLShader			gDebugProgram;
 extern LLGLSLShader			gClipProgram;
-extern LLGLSLShader			gAlphaMaskProgram;
 
 //output tex0[tc0] + tex1[tc1]
 extern LLGLSLShader			gTwoTextureAddProgram;
@@ -237,7 +236,7 @@ extern LLGLSLShader			gTwoTextureAddProgram;
 extern LLGLSLShader			gTwoTextureCompareProgram;
 //discard some fragments based on user-set color tolerance
 extern LLGLSLShader			gOneTextureFilterProgram;
-
+						
 extern LLGLSLShader			gOneTextureNoColorProgram;
 
 //object shaders

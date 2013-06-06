@@ -103,16 +103,14 @@ LLFloaterReporter::LLFloaterReporter(const LLSD& key)
 	mPicking( FALSE), 
 	mPosition(),
 	mCopyrightWarningSeen( FALSE ),
-	mResourceDatap(new LLResourceData())
+	mResourceDatap(new LLResourceData()),
+	mAvatarNameCacheConnection()
 {
 }
 
 // static
 void LLFloaterReporter::processRegionInfo(LLMessageSystem* msg)
 {
-	U32 region_flags;
-	msg->getU32("RegionInfo", "RegionFlags", region_flags);
-	
 	if ( LLFloaterReg::instanceVisible("reporter") )
 	{
 		LLNotificationsUtil::add("HelpReportAbuseEmailLL");
@@ -187,6 +185,11 @@ BOOL LLFloaterReporter::postBuild()
 // virtual
 LLFloaterReporter::~LLFloaterReporter()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+
 	// child views automatically deleted
 	mObjectID 		= LLUUID::null;
 
@@ -285,10 +288,13 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 
 void LLFloaterReporter::onClickSelectAbuser()
 {
-	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterReporter::callbackAvatarID, this, _1, _2), FALSE, TRUE );
+    LLView * button = findChild<LLButton>("select_abuser", TRUE);
+
+    LLFloater * root_floater = gFloaterView->getParentFloater(this);
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterReporter::callbackAvatarID, this, _1, _2), FALSE, TRUE, FALSE, root_floater->getName(), button);
 	if (picker)
 	{
-		gFloaterView->getParentFloater(this)->addDependentFloater(picker);
+		root_floater->addDependentFloater(picker);
 	}
 }
 
@@ -310,11 +316,17 @@ void LLFloaterReporter::setFromAvatarID(const LLUUID& avatar_id)
 	std::string avatar_link = LLSLURL("agent", mObjectID, "inspect").getSLURLString();
 	getChild<LLUICtrl>("owner_name")->setValue(avatar_link);
 
-	LLAvatarNameCache::get(avatar_id, boost::bind(&LLFloaterReporter::onAvatarNameCache, this, _1, _2));
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+	mAvatarNameCacheConnection = LLAvatarNameCache::get(avatar_id, boost::bind(&LLFloaterReporter::onAvatarNameCache, this, _1, _2));
 }
 
 void LLFloaterReporter::onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	if (mObjectID == avatar_id)
 	{
 		mOwnerName = av_name.getCompleteName();
@@ -698,7 +710,7 @@ class LLUserReportResponder : public LLHTTPClient::Responder
 public:
 	LLUserReportResponder(): LLHTTPClient::Responder()  {}
 
-	void error(U32 status, const std::string& reason)
+	void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
 		// *TODO do some user messaging here
 		LLUploadDialog::modalUploadFinished();
@@ -768,8 +780,8 @@ void LLFloaterReporter::takeScreenshot()
 
 	// store in the image list so it doesn't try to fetch from the server
 	LLPointer<LLViewerFetchedTexture> image_in_list = 
-		LLViewerTextureManager::getFetchedTexture(mResourceDatap->mAssetInfo.mUuid, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::FETCHED_TEXTURE);
-	image_in_list->createGLTexture(0, raw, 0, TRUE, LLViewerTexture::OTHER);
+		LLViewerTextureManager::getFetchedTexture(mResourceDatap->mAssetInfo.mUuid);
+	image_in_list->createGLTexture(0, raw, 0, TRUE, LLGLTexture::OTHER);
 	
 	// the texture picker then uses that texture
 	LLTexturePicker* texture = getChild<LLTextureCtrl>("screenshot");
@@ -816,12 +828,7 @@ void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, 
 		return;
 	}
 
-	EReportType report_type = UNKNOWN_REPORT;
-	if (data->mPreferredLocation == LLResourceData::INVALID_LOCATION)
-	{
-		report_type = COMPLAINT_REPORT;
-	}
-	else 
+	if (data->mPreferredLocation != LLResourceData::INVALID_LOCATION)
 	{
 		llwarns << "Unknown report type : " << data->mPreferredLocation << llendl;
 	}

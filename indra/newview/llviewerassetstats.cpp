@@ -279,14 +279,12 @@ LLViewerAssetStats::LLViewerAssetStats()
 
 
 LLViewerAssetStats::LLViewerAssetStats(const LLViewerAssetStats & src)
-:	mRegionHandle(src.mRegionHandle),
-	mPhaseStats(src.mPhaseStats),
-	mAvatarRezStates(src.mAvatarRezStates)
+:	mRegionHandle(src.mRegionHandle)
 {
 	mRegionRecordings = src.mRegionRecordings;
 
 	mCurRecording = &mRegionRecordings[mRegionHandle];
-
+	
 	// assume this is being passed to another thread, so make sure we have unique copies of recording data
 	for (PerRegionRecordingContainer::iterator it = mRegionRecordings.begin(), end_it = mRegionRecordings.end();
 		it != end_it;
@@ -354,14 +352,6 @@ void LLViewerAssetStats::setRegion(region_handle_t region_handle)
 	mRegionHandle = region_handle;
 }
 
-void LLViewerAssetStats::recordAvatarStats()
-{
-	LLVOAvatar::getNearbyRezzedStats(mAvatarRezStates);
-	mPhaseStats.clear();
-	mPhaseStats["cloud"] = LLViewerStats::PhaseMap::getPhaseStats("cloud");
-	mPhaseStats["cloud-or-gray"] = LLViewerStats::PhaseMap::getPhaseStats("cloud-or-gray");
-}
-
 void LLViewerAssetStats::updateStats()
 {
 	if (mCurRecording && mCurRecording->isStarted())
@@ -373,9 +363,9 @@ void LLViewerAssetStats::updateStats()
 void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 {
 	using namespace LLViewerAssetStatsFF;
-	
+
 	stats.regions.setProvided();
-	
+
 	for (PerRegionRecordingContainer::iterator it = mRegionRecordings.begin(), end_it = mRegionRecordings.end();
 		it != end_it;
 		++it)
@@ -500,17 +490,6 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 	}
 
 	stats.duration(mCurRecording ? LLUnit<LLUnits::Microseconds, F64>(mCurRecording->getDuration()).value() : 0.0);
-	stats.avatar.setProvided(true);
-
-	for (S32 rez_stat=0; rez_stat < mAvatarRezStates.size(); ++rez_stat)
-	{
-		stats.avatar.nearby	.cloud(mAvatarRezStates[0])
-							.gray(mAvatarRezStates[1])
-							.textured(mAvatarRezStates[2]);
-	}
-
-	stats.avatar.phase_stats	.cloud(mPhaseStats["cloud"].asLLSD())
-								.cloud_or_gray(mPhaseStats["cloud-or-gray"].asLLSD());
 }
 
 LLSD LLViewerAssetStats::asLLSD(bool compact_output)
@@ -561,14 +540,6 @@ void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, 
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
 	record(*sResponse[int(eac)], LLTrace::Microseconds(duration));
-}
-
-void record_avatar_stats()
-{
-	if (! gViewerAssetStats)
-		return;
-
-	gViewerAssetStats->recordAvatarStats();
 }
 
 void init()
@@ -622,23 +593,9 @@ LLViewerAssetStats::RegionStats::RegionStats()
 	duration("duration")
 {}
 
-LLViewerAssetStats::AvatarRezState::AvatarRezState() 
-:	cloud("cloud"),
-	gray("gray"),
-	textured("textured")
-{}
-
-LLViewerAssetStats::AvatarInfo::AvatarInfo() 
-:	nearby("nearby"),
-	phase_stats("phase_stats")
-{
-
-}
-
 LLViewerAssetStats::AssetStats::AssetStats() 
 :	regions("regions"),
 	duration("duration"),
-	avatar("avatar"),
 	session_id("session_id"),
 	agent_id("agent_id"),
 	message("message"),

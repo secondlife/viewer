@@ -156,18 +156,6 @@ const S32 DB_USER_SKILLS_BUF_SIZE		= 255;
 const S32 DB_NV_NAME_STR_LEN			= 128;
 const S32 DB_NV_NAME_BUF_SIZE			= 129;
 
-// votes.vote_text						varchar(254)
-const S32 DB_VOTE_TEXT_STR_LEN			= 254;
-const S32 DB_VOTE_TEXT_BUF_SIZE			= 255;
-
-// vpte type text						varchar(9)
-const S32 DB_VOTE_TYPE_STR_LEN			= 9;
-const S32 DB_VOTE_TYPE_BUF_SIZE			= 10;
-
-// vote result text
-const S32 DB_VOTE_RESULT_BUF_LEN		= 8;
-const S32 DB_VOTE_RESULT_BUF_SIZE		= 9;
-
 // user_start_location.location_name	varchar(254)
 const S32 DB_START_LOCATION_STR_LEN		= 254;
 const S32 DB_START_LOCATION_BUF_SIZE	= 255;

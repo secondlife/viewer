@@ -127,7 +127,7 @@ LLSpatialGroup::~LLSpatialGroup()
 		sZombieGroups--;
 	}
 	
-	sNodeCount--;	
+	sNodeCount--;
 
 	clearDrawMap();
 	clearAtlasList() ;
@@ -487,7 +487,7 @@ void LLSpatialPartition::rebuildMesh(LLSpatialGroup* group)
 }
 
 LLSpatialGroup* LLSpatialGroup::getParent()
-{
+{	
 	return (LLSpatialGroup*)LLviewerOctreeGroup::getParent();
 }
 
@@ -654,7 +654,7 @@ LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part) : LLO
 	mObjectBoxSize(1.f),
 	mGeometryBytes(0),
 	mSurfaceArea(0.f),
-	mBuilt(0.f),	
+	mBuilt(0.f),
 	mVertexBuffer(NULL), 
 	mBufferUsage(part->mBufferUsage),
 	mDistance(0.f),
@@ -938,7 +938,7 @@ LLSpatialPartition::LLSpatialPartition(U32 data_mask, BOOL render_by_group, U32 
 : mRenderByGroup(render_by_group), mBridge(NULL)
 {
 	mRegionp = regionp;		
-	mPartitionType = LLViewerRegion::PARTITION_NONE;		
+	mPartitionType = LLViewerRegion::PARTITION_NONE;
 	mVertexDataMask = data_mask;
 	mBufferUsage = buffer_usage;
 	mDepthMask = FALSE;
@@ -1472,7 +1472,7 @@ S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* result
 	
 	return 0;
 }
-
+	
 S32 LLSpatialPartition::cull(LLCamera &camera)
 {
 #if LL_OCTREE_PARANOIA_CHECK
@@ -1829,7 +1829,7 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 
 void renderCrossHairs(LLVector3 position, F32 size, LLColor4 color)
 {
-	gGL.diffuseColor4fv(color.mV);
+	gGL.color4fv(color.mV);
 	gGL.begin(LLRender::LINES);
 	{
 		gGL.vertex3fv((position - LLVector3(size, 0.f, 0.f)).mV);
@@ -2631,9 +2631,9 @@ void renderTexturePriority(LLDrawable* drawable)
 		drawBox(center, size);
 		
 		/*S32 boost = imagep->getBoostLevel();
-		if (boost>LLViewerTexture::BOOST_NONE)
+		if (boost>LLGLTexture::BOOST_NONE)
 		{
-			F32 t = (F32) boost / (F32) (LLViewerTexture::BOOST_MAX_LEVEL-1);
+			F32 t = (F32) boost / (F32) (LLGLTexture::BOOST_MAX_LEVEL-1);
 			LLVector4 col = lerp(boost_cold, boost_hot, t);
 			LLGLEnable blend_on(GL_BLEND);
 			gGL.blendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -3084,8 +3084,8 @@ void renderAgentTarget(LLVOAvatar* avatar)
 	if (avatar->isSelf())
 	{
 		renderCrossHairs(avatar->getPositionAgent(), 0.2f, LLColor4(1, 0, 0, 0.8f));
-		renderCrossHairs(avatar->mDrawable->getPositionAgent(), 0.2f, LLColor4(1, 0, 0, 0.8f));
-		renderCrossHairs(avatar->mRoot.getWorldPosition(), 0.2f, LLColor4(1, 1, 1, 0.8f));
+		renderCrossHairs(avatar->mDrawable->getPositionAgent(), 0.2f, LLColor4(0, 1, 0, 0.8f));
+		renderCrossHairs(avatar->mRoot->getWorldPosition(), 0.2f, LLColor4(1, 1, 1, 0.8f));
 		renderCrossHairs(avatar->mPelvisp->getWorldPosition(), 0.2f, LLColor4(0, 0, 1, 0.8f));
 	}
 }
@@ -3149,9 +3149,6 @@ public:
 		{
 			return;
 		}
-
-		LLVector4a nodeCenter = bounds[0];
-		LLVector4a octCenter = group->getOctreeNode()->getCenter();
 
 		group->rebuildGeom();
 		group->rebuildMesh();
@@ -3638,11 +3635,9 @@ public:
 	}
 
 	virtual bool check(LLViewerOctreeEntry* entry)
-	{	
+	{
 		LLDrawable* drawable = (LLDrawable*)entry->getDrawable();
-		LLVector3 local_start = mStart;
-		LLVector3 local_end = mEnd;
-
+	
 		if (!drawable || !gPipeline.hasRenderType(drawable->getRenderType()) || !drawable->isVisible())
 		{
 			return false;

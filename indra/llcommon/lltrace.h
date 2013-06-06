@@ -33,7 +33,6 @@
 #include "llmemory.h"
 #include "llrefcount.h"
 #include "llunit.h"
-#include "llapr.h"
 #include "llthreadlocalstorage.h"
 #include "lltimer.h"
 

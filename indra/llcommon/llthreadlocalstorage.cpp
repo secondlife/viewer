@@ -28,6 +28,7 @@
 
 #include "linden_common.h"
 #include "llthreadlocalstorage.h"
+#include "llapr.h"
 
 //
 //LLThreadLocalPointerBase
@@ -45,6 +46,21 @@ void LLThreadLocalPointerBase::set( void* value )
 		llerrs << "Failed to set thread local data" << llendl;
 	}
 }
+
+void* LLThreadLocalPointerBase::get() const
+{
+	// llassert(sInitialized);
+	void* ptr;
+	apr_status_t result =
+		apr_threadkey_private_get(&ptr, mThreadKey);
+	if (result != APR_SUCCESS)
+	{
+		ll_apr_warn_status(result);
+		llerrs << "Failed to get thread local data" << llendl;
+	}
+	return ptr;
+}
+
 
 void LLThreadLocalPointerBase::initStorage( )
 {

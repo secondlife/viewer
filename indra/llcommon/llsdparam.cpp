@@ -228,7 +228,7 @@ LLSD& LLParamSDParserUtilities::getSDWriteNode(LLSD& input, LLInitParam::Parser:
 		{
 			child_sd = sd_to_write;
 			if (child_sd->isUndefined())
-		{
+			{
 				*child_sd = LLSD::emptyArray();
 			}
 			if (new_traversal)
@@ -299,11 +299,12 @@ void LLParamSDParserUtilities::readSDValues(read_sd_cb_t cb, const LLSD& sd)
 	LLInitParam::Parser::name_stack_t stack = LLInitParam::Parser::name_stack_t();
 	readSDValues(cb, sd, stack);
 }
+
 namespace LLInitParam
 {
 	// LLSD specialization
 	// block param interface
-	bool ParamValue<LLSD, TypeValues<LLSD>, false>::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack, bool new_name)
+	bool ParamValue<LLSD, NOT_BLOCK>::deserializeBlock(Parser& p, Parser::name_stack_range_t& name_stack, bool new_name)
 	{
 		if (name_stack.first == name_stack.second
 			&& p.readValue<LLSD>(mValue))
@@ -324,18 +325,18 @@ namespace LLInitParam
 	}
 
 	//static
-	void ParamValue<LLSD, TypeValues<LLSD>, false>::serializeElement(Parser& p, const LLSD& sd, Parser::name_stack_t& name_stack)
+	void ParamValue<LLSD, NOT_BLOCK>::serializeElement(Parser& p, const LLSD& sd, Parser::name_stack_t& name_stack)
 	{
 		p.writeValue<LLSD::String>(sd.asString(), name_stack);
 	}
 
-	bool ParamValue<LLSD, TypeValues<LLSD>, false>::serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const BaseBlock* diff_block) const
+	bool ParamValue<LLSD, NOT_BLOCK>::serializeBlock(Parser& p, Parser::name_stack_t& name_stack_range, const predicate_rule_t predicate_rule, const BaseBlock* diff_block) const
 	{
 		// attempt to write LLSD out directly
-		if (!p.writeValue<LLSD>(mValue, name_stack))
+		if (!p.writeValue<LLSD>(mValue, name_stack_range))
 		{
 			// otherwise read from LLSD value and serialize out to parser (which could be LLSD, XUI, etc)
-			LLParamSDParserUtilities::readSDValues(boost::bind(&serializeElement, boost::ref(p), _1, _2), mValue, name_stack);
+			LLParamSDParserUtilities::readSDValues(boost::bind(&serializeElement, boost::ref(p), _1, _2), mValue, name_stack_range);
 		}
 		return true;
 	}

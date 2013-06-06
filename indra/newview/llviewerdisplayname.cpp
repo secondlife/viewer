@@ -53,14 +53,17 @@ namespace LLViewerDisplayName
 		sNameChangedSignal.connect(cb); 
 	}
 
+	void doNothing() { }
 }
 
 class LLSetDisplayNameResponder : public LLHTTPClient::Responder
 {
 public:
 	// only care about errors
-	/*virtual*/ void error(U32 status, const std::string& reason)
+	/*virtual*/ void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
+		llwarns << "LLSetDisplayNameResponder error [status:"
+				<< status << "]: " << content << llendl;
 		LLViewerDisplayName::sSetDisplayNameSignal(false, "", LLSD());
 		LLViewerDisplayName::sSetDisplayNameSignal.disconnect_all_slots();
 	}
@@ -97,7 +100,7 @@ void LLViewerDisplayName::set(const std::string& display_name, const set_name_sl
 
 	// People API expects array of [ "old value", "new value" ]
 	LLSD change_array = LLSD::emptyArray();
-	change_array.append(av_name.mDisplayName);
+	change_array.append(av_name.getDisplayName());
 	change_array.append(display_name);
 	
 	llinfos << "Set name POST to " << cap_url << llendl;
@@ -139,9 +142,9 @@ public:
 			LLUUID agent_id = gAgent.getID();
 			// Flush stale data
 			LLAvatarNameCache::erase( agent_id );
-			// Queue request for new data
-			LLAvatarName ignored;
-			LLAvatarNameCache::get( agent_id, &ignored );
+			// Queue request for new data: nothing to do on callback though...
+			// Note: no need to disconnect the callback as it never gets out of scope
+			LLAvatarNameCache::get(agent_id, boost::bind(&LLViewerDisplayName::doNothing));
 			// Kill name tag, as it is wrong
 			LLVOAvatar::invalidateNameTag( agent_id );
 		}
@@ -189,8 +192,8 @@ class LLDisplayNameUpdate : public LLHTTPNode
 
 		LLSD args;
 		args["OLD_NAME"] = old_display_name;
-		args["SLID"] = av_name.mUsername;
-		args["NEW_NAME"] = av_name.mDisplayName;
+		args["SLID"] = av_name.getUserName();
+		args["NEW_NAME"] = av_name.getDisplayName();
 		LLNotificationsUtil::add("DisplayNameUpdate", args);
 		if (agent_id == gAgent.getID())
 		{

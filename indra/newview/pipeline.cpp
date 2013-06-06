@@ -71,6 +71,7 @@
 #include "llhudtext.h"
 #include "lllightconstants.h"
 #include "llmeshrepository.h"
+#include "llpipelinelistener.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
 #include "llsky.h"
@@ -380,6 +381,8 @@ BOOL    LLPipeline::sMemAllocationThrottled = FALSE;
 S32		LLPipeline::sVisibleLightCount = 0;
 F32		LLPipeline::sMinRenderSize = 0.f;
 
+// EventHost API LLPipeline listener.
+static LLPipelineListener sPipelineListener;
 
 static LLCullResult* sCull = NULL;
 
@@ -485,19 +488,29 @@ void LLPipeline::init()
 
 	resetFrameStats();
 
-	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
+	if (gSavedSettings.getBOOL("DisableAllRenderFeatures"))
 	{
-		mRenderTypeEnabled[i] = TRUE; //all rendering types start enabled
+		clearAllRenderDebugFeatures();
 	}
-
-	mRenderDebugFeatureMask = 0xffffffff; // All debugging features on
-	mRenderDebugMask = 0;	// All debug starts off
-
-	// Don't turn on ground when this is set
-	// Mac Books with intel 950s need this
-	if(!gSavedSettings.getBOOL("RenderGround"))
+	else
 	{
-		toggleRenderType(RENDER_TYPE_GROUND);
+		setAllRenderDebugFeatures(); // By default, all debugging features on
+	}
+	clearAllRenderDebugDisplays(); // All debug displays off
+
+	if (gSavedSettings.getBOOL("DisableAllRenderTypes"))
+	{
+		clearAllRenderTypes();
+	}
+	else
+	{
+		setAllRenderTypes(); // By default, all rendering types start enabled
+		// Don't turn on ground when this is set
+		// Mac Books with intel 950s need this
+		if(!gSavedSettings.getBOOL("RenderGround"))
+		{
+			toggleRenderType(RENDER_TYPE_GROUND);
+		}
 	}
 
 	// make sure RenderPerformanceTest persists (hackity hack hack)
@@ -3283,11 +3296,6 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 		{
 			drawablep->setVisible(camera, NULL, FALSE);
 		}
-		else if (drawablep->isState(LLDrawable::CLEAR_INVISIBLE))
-		{
-			// clear invisible flag here to avoid single frame glitch
-			drawablep->clearState(LLDrawable::FORCE_INVISIBLE|LLDrawable::CLEAR_INVISIBLE);
-		}
 	}
 
 	if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
@@ -5253,11 +5261,6 @@ void LLPipeline::rebuildPools()
 		}
 		max_count--;
 	}
-
-	if (isAgentAvatarValid())
-	{
-		gAgentAvatarp->rebuildHUD();
-	}
 }
 
 void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
@@ -5742,7 +5745,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 				// crazy cast so that we can overwrite the fade value
 				// even though gcc enforces sets as const
 				// (fade value doesn't affect sort so this is safe)
-				Light* farthest_light = ((Light*) (&(*(mNearbyLights.rbegin()))));
+				Light* farthest_light = (const_cast<Light*>(&(*(mNearbyLights.rbegin()))));
 				if (light->dist < farthest_light->dist)
 				{
 					if (farthest_light->fade >= 0.f)
@@ -5885,7 +5888,6 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			if (light->isLightSpotlight() // directional (spot-)light
 			    && (LLPipeline::sRenderDeferred || RenderSpotLightsInNondeferred)) // these are only rendered as GL spotlights if we're in deferred rendering mode *or* the setting forces them on
 			{
-				LLVector3 spotparams = light->getSpotLightParams();
 				LLQuaternion quat = light->getRenderRotation();
 				LLVector3 at_axis(0,0,-1); // this matches deferred rendering's object light direction
 				at_axis *= quat;
@@ -6414,6 +6416,22 @@ void LLPipeline::setRenderDebugFeatureControl(U32 bit, bool value)
 	{
 		gPipeline.mRenderDebugFeatureMask &= !bit;
 	}
+}
+
+void LLPipeline::pushRenderDebugFeatureMask()
+{
+	mRenderDebugFeatureStack.push(mRenderDebugFeatureMask);
+}
+
+void LLPipeline::popRenderDebugFeatureMask()
+{
+	if (mRenderDebugFeatureStack.empty())
+	{
+		llerrs << "Depleted render feature stack." << llendl;
+	}
+
+	mRenderDebugFeatureMask = mRenderDebugFeatureStack.top();
+	mRenderDebugFeatureStack.pop();
 }
 
 // static
@@ -9049,9 +9067,6 @@ BOOL LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector
 		3,7	
 	};
 
-	LLVector3 center = (max+min)*0.5f;
-	LLVector3 size = (max-min)*0.5f;
-	
 	for (U32 i = 0; i < 12; i++)
 	{
 		for (U32 j = 0; j < 6; ++j)
@@ -9277,7 +9292,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	mSunOrthoClipPlanes = LLVector4(clip, clip.mV[2]*clip.mV[2]/clip.mV[1]);
 
 	//currently used for amount to extrude frusta corners for constructing shadow frusta
-	LLVector3 n = RenderShadowNearDist;
+	//LLVector3 n = RenderShadowNearDist;
 	//F32 nearDist[] = { n.mV[0], n.mV[1], n.mV[2], n.mV[2] };
 
 	//put together a universal "near clip" plane for shadow frusta
@@ -10381,6 +10396,22 @@ void LLPipeline::clearRenderTypeMask(U32 type, ...)
 	if (type > END_RENDER_TYPES)
 	{
 		llerrs << "Invalid render type." << llendl;
+	}
+}
+
+void LLPipeline::setAllRenderTypes()
+{
+	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
+	{
+		mRenderTypeEnabled[i] = TRUE;
+	}
+}
+
+void LLPipeline::clearAllRenderTypes()
+{
+	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
+	{
+		mRenderTypeEnabled[i] = FALSE;
 	}
 }
 

@@ -27,7 +27,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lldirpicker.h"
-//#include "llviewermessage.h"
 #include "llworld.h"
 #include "llviewerwindow.h"
 #include "llkeyboard.h"
@@ -36,6 +35,7 @@
 #include "lltrans.h"
 #include "llwindow.h"	// beforeDialog()
 #include "llviewercontrol.h"
+#include "llwin32headerslean.h"
 
 #if LL_LINUX || LL_SOLARIS
 # include "llfilepicker.h"
@@ -327,6 +327,8 @@ BOOL LLDirPicker::getDir(std::string* filename)
 		return FALSE;
 	}
 
+#if !LL_MESA_HEADLESS
+
 	if (mFilePicker)
 	{
 		GtkWindow* picker = mFilePicker->buildFilePicker(false, true,
@@ -340,6 +342,8 @@ BOOL LLDirPicker::getDir(std::string* filename)
 		   return (!mFilePicker->getFirstFile().empty());
 		}
 	}
+#endif // !LL_MESA_HEADLESS
+
 	return FALSE;
 }
 

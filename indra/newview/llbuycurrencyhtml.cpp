@@ -61,6 +61,10 @@ public:
 		if ( params.size() >= 3 )
 		{
 			result_code = params[ 2 ].asInteger();
+			if ( result_code != 0 )
+			{
+				LL_WARNS("LLBuyCurrency") << "Received nonzero result code: " << result_code << LL_ENDL ;
+			}
 		};
 
 		// open the legacy XUI based currency floater

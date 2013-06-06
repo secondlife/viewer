@@ -33,7 +33,6 @@
 #include "llfolderviewitem.h"
 
 
-#define SUPPORTING_FRESH_ITEM_COUNT	1
 
 
 
@@ -45,9 +44,6 @@ public:
 	
 	LLInboxInventoryPanel(const Params& p);
 	~LLInboxInventoryPanel();
-
-	// virtual
-	void buildFolderView(const LLInventoryPanel::Params& params);
 
 	// virtual
 	LLFolderViewFolder * createFolderViewFolder(LLInvFVBridge * bridge);
@@ -63,13 +59,13 @@ public:
 		Optional<LLBadge::Params>	new_badge;
 		
 		Params()
-		: new_badge("new_badge")
-		{
-		}
+		:	new_badge("new_badge")
+		{}
 	};
 	
 	LLInboxFolderViewFolder(const Params& p);
 	
+    void addItem(LLFolderViewItem* item);
 	void draw();
 	
 	void selectItem();
@@ -81,8 +77,6 @@ public:
 	bool isFresh() const { return mFresh; }
 	
 protected:
-	void setCreationDate(time_t creation_date_utc);
-
 	bool mFresh;
 };
 
@@ -95,14 +89,13 @@ public:
 		Optional<LLBadge::Params>	new_badge;
 
 		Params()
-			: new_badge("new_badge")
-		{
-		}
+		:	new_badge("new_badge")
+		{}
 	};
 
 	LLInboxFolderViewItem(const Params& p);
 
-	BOOL addToFolder(LLFolderViewFolder* folder, LLFolderView* root);
+	void addToFolder(LLFolderViewFolder* folder);
 	BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
 
 	void draw();

@@ -310,19 +310,27 @@ public:
 
 	BOOL hasRenderDebugFeatureMask(const U32 mask) const	{ return (mRenderDebugFeatureMask & mask) ? TRUE : FALSE; }
 	BOOL hasRenderDebugMask(const U32 mask) const			{ return (mRenderDebugMask & mask) ? TRUE : FALSE; }
-	
-
+	void setAllRenderDebugFeatures() { mRenderDebugFeatureMask = 0xffffffff; }
+	void clearAllRenderDebugFeatures() { mRenderDebugFeatureMask = 0x0; }
+	void setAllRenderDebugDisplays() { mRenderDebugMask = 0xffffffff; }
+	void clearAllRenderDebugDisplays() { mRenderDebugMask = 0x0; }
 
 	BOOL hasRenderType(const U32 type) const;
 	BOOL hasAnyRenderType(const U32 type, ...) const;
 
 	void setRenderTypeMask(U32 type, ...);
-	void orRenderTypeMask(U32 type, ...);
+	// This is equivalent to 'setRenderTypeMask'
+	//void orRenderTypeMask(U32 type, ...);
 	void andRenderTypeMask(U32 type, ...);
 	void clearRenderTypeMask(U32 type, ...);
+	void setAllRenderTypes();
+	void clearAllRenderTypes();
 	
 	void pushRenderTypeMask();
 	void popRenderTypeMask();
+
+	void pushRenderDebugFeatureMask();
+	void popRenderDebugFeatureMask();
 
 	static void toggleRenderType(U32 type);
 
@@ -613,6 +621,7 @@ protected:
 
 	U32						mRenderDebugFeatureMask;
 	U32						mRenderDebugMask;
+	std::stack<U32>			mRenderDebugFeatureStack;
 
 	U32						mOldRenderDebugMask;
 	

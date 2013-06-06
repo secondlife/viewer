@@ -6066,13 +6066,7 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 	S32 max_t = volume->getPath().mPath.size();
 
 	// S32 i;
-	//S32 num_vertices = 0;
-	//S32 num_indices = 0;
 	S32	grid_size = (profile.size()-1)/4;
-	//S32	quad_count = (grid_size * grid_size);
-
-	//num_vertices = (grid_size+1)*(grid_size+1);
-	//num_indices = quad_count * 4;
 
 	LLVector4a& min = mExtents[0];
 	LLVector4a& max = mExtents[1];

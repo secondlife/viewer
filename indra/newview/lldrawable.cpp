@@ -135,7 +135,7 @@ void LLDrawable::init(bool new_entry)
 	
 		getRegion()->addActiveCacheEntry(vo_entry);		
 	}
-
+	
 	llassert(!vo_entry || vo_entry->getEntry() == mEntry);
 
 	initVisible(sCurVisible - 2);//invisible for the current frame and the last frame.
@@ -331,7 +331,7 @@ LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep)
 {
 	LLFace *face;
-	
+
 	{
 		LLFastTimer t(FTM_ALLOCATE_FACE);
 	face = new LLFace(this, mVObjp);
@@ -561,7 +561,6 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	//scaling
 	LLVector3 target_scale = mVObjp->getScale();
 	LLVector3 old_scale = mCurrentScale;
-	LLVector3 dest_scale = target_scale;
 	
 	// Damping
 	F32 dist_squared = 0.f;
@@ -626,6 +625,12 @@ F32 LLDrawable::updateXform(BOOL undamped)
 			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
 			mVObjp->dirtySpatialGroup();
 		}
+	}
+	else if (!isRoot() &&
+			((dist_vec_squared(old_pos, target_pos) > 0.f)
+			|| (1.f - dot(old_rot, target_rot)) > 0.f))
+	{ //fix for BUG-840, MAINT-2275, MAINT-1742, MAINT-2247
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 	}
 	else if (!getVOVolume() && !isAvatar())
 	{
@@ -695,17 +700,7 @@ BOOL LLDrawable::updateMove()
 
 	makeActive();
 
-	BOOL done;
-
-	if (isState(MOVE_UNDAMPED))
-	{
-		done = updateMoveUndamped();
-	}
-	else
-	{
-		done = updateMoveDamped();
-	}
-	return done;
+	return isState(MOVE_UNDAMPED) ? updateMoveUndamped() : updateMoveDamped();
 }
 
 BOOL LLDrawable::updateMoveUndamped()
@@ -1241,7 +1236,6 @@ LLCamera LLSpatialBridge::transformCamera(LLCamera& camera)
 	LLCamera ret = camera;
 	LLXformMatrix* mat = mDrawable->getXform();
 	LLVector3 center = LLVector3(0,0,0) * mat->getWorldMatrix();
-	LLQuaternion rotation = LLQuaternion(mat->getWorldMatrix());
 
 	LLVector3 delta = ret.getOrigin() - center;
 	LLQuaternion rot = ~mat->getRotation();

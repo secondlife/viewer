@@ -37,6 +37,18 @@ typedef boost::shared_ptr<LLNotificationForm> LLNotificationFormPtr;
 // from the appropriate local language directory).
 struct LLNotificationTemplate
 {
+	struct CombineBehaviorNames
+		:	public LLInitParam::TypeValuesHelper<LLNotification::ECombineBehavior, CombineBehaviorNames>
+	{
+		static void declareValues()
+		{
+			declare("replace_with_new", LLNotification::REPLACE_WITH_NEW);
+			declare("keep_old", LLNotification::KEEP_OLD);
+			declare("cancel_old", LLNotification::CANCEL_OLD);
+		}
+	};
+
+
 	struct GlobalString : public LLInitParam::Block<GlobalString>
 	{
 		Mandatory<std::string>	name,
@@ -70,9 +82,11 @@ struct LLNotificationTemplate
 		Optional<LLInitParam::Flag>	dummy_val;
 	public:
 		Multiple<UniquenessContext>	contexts;
+		Optional<LLNotification::ECombineBehavior, CombineBehaviorNames> combine;
 
 		UniquenessConstraint()
 		:	contexts("context"),
+			combine("combine", LLNotification::REPLACE_WITH_NEW),
 			dummy_val("")
 		{}
 	};
@@ -159,7 +173,10 @@ struct LLNotificationTemplate
 	struct Params : public LLInitParam::Block<Params>
 	{
 		Mandatory<std::string>			name;
-		Optional<bool>					persist;
+		Optional<bool>					persist,
+										log_to_im,
+										show_toast,
+										log_to_chat;
 		Optional<std::string>			functor,
 										icon,
 										label,
@@ -180,6 +197,9 @@ struct LLNotificationTemplate
 		Params()
 		:	name("name"),
 			persist("persist", false),
+			log_to_im("log_to_im", false),
+			show_toast("show_toast", true),
+			log_to_chat("log_to_chat", true),
 			functor("functor"),
 			icon("icon"),
 			label("label"),
@@ -238,6 +258,7 @@ struct LLNotificationTemplate
     // (used for things like progress indications, or repeating warnings
     // like "the grid is going down in N minutes")
     bool mUnique;
+	LLNotification::ECombineBehavior mCombineBehavior;
     // if we want to be unique only if a certain part of the payload or substitutions args
 	// are constant specify the field names for the payload. The notification will only be
     // combined if all of the fields named in the context are identical in the
@@ -278,12 +299,15 @@ struct LLNotificationTemplate
     LLNotificationFormPtr mForm;
 	// default priority for notifications of this type
 	ENotificationPriority mPriority;
-	// UUID of the audio file to be played when this notification arrives
-	// this is loaded as a name, but looked up to get the UUID upon template load.
-	// If null, it wasn't specified.
-	LLUUID mSoundEffect;
+	// Stores the sound name which can then be used to play the sound using make_ui_sound
+	std::string mSoundName;
 	// List of tags that rules can match against.
 	std::list<std::string> mTags;
+
+	// inject these notifications into chat/IM streams
+	bool mLogToChat;
+	bool mLogToIM;
+	bool mShowToast;
 };
 
 #endif //LL_LLNOTIFICATION_TEMPLATE_H

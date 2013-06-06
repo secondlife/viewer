@@ -29,7 +29,6 @@
 #define LL_LLTHREADLOCALSTORAGE_H
 
 #include "llinstancetracker.h"
-#include "llapr.h"
 
 class LLThreadLocalPointerBase : public LLInstanceTracker<LLThreadLocalPointerBase>
 {
@@ -63,26 +62,14 @@ public:
 protected:
 	void set(void* value);
 
-	LL_FORCE_INLINE void* get() const
-	{
-		// llassert(sInitialized);
-		void* ptr;
-		apr_status_t result =
-		apr_threadkey_private_get(&ptr, mThreadKey);
-		if (result != APR_SUCCESS)
-		{
-			ll_apr_warn_status(result);
-			llerrs << "Failed to get thread local data" << llendl;
-		}
-		return ptr;
-	}
+	void* get() const;
 
 	void initStorage();
 	void destroyStorage();
 
 protected:
-	apr_threadkey_t* mThreadKey;
-	static bool		sInitialized;
+	struct apr_threadkey_t*	mThreadKey;
+	static bool				sInitialized;
 };
 
 template <typename T>

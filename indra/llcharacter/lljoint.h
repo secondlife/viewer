@@ -106,10 +106,15 @@ public:
 
 public:
 	LLJoint();
+	LLJoint(S32 joint_num);
+	// *TODO: Only used for LLVOAvatarSelf::mScreenp.  *DOES NOT INITIALIZE mResetAfterRestoreOldXform*
 	LLJoint( const std::string &name, LLJoint *parent=NULL );
-
 	virtual ~LLJoint();
 
+private:
+	void init();
+
+public:
 	// set name and parent
 	void setup( const std::string &name, LLJoint *parent=NULL );
 
@@ -179,7 +184,6 @@ public:
 	virtual BOOL isAnimatable() const { return TRUE; }
 
 	S32 getJointNum() const { return mJointNum; }
-	void setJointNum(S32 joint_num) { mJointNum = joint_num; }
 	
 	void restoreOldXform( void );
 	void restoreToDefaultXform( void );

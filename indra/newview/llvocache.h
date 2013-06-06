@@ -31,6 +31,7 @@
 #include "lldatapacker.h"
 #include "lldir.h"
 #include "llvieweroctree.h"
+#include "llapr.h"
 
 //---------------------------------------------------------------------------
 // Cache entries

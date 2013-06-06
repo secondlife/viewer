@@ -131,47 +131,19 @@ public:
 		RegionStats();
 	};
 
-	struct AvatarRezState : public LLInitParam::Block<AvatarRezState>
-	{
-		Mandatory<S32>	cloud,
-						gray,
-						textured;
-		AvatarRezState();
-	};
-
-	struct AvatarPhaseStats : public LLInitParam::Block<AvatarPhaseStats>
-	{
-		Mandatory<LLSD>	cloud,
-						cloud_or_gray;
-
-		AvatarPhaseStats()
-		:	cloud("cloud"),
-			cloud_or_gray("cloud-or-gray")
-		{}
-	};
-
-	struct AvatarInfo : public LLInitParam::Block<AvatarInfo>
-	{
-		Optional<AvatarRezState> nearby;
-		Optional<AvatarPhaseStats> phase_stats;
-
-		AvatarInfo();
-	};
-
 	struct AssetStats : public LLInitParam::Block<AssetStats>
 	{
 		Multiple<RegionStats>	regions;
 		Mandatory<F64>			duration;
-		Mandatory<AvatarInfo>	avatar;
-
+		
 		Mandatory<LLUUID>		session_id,
 								agent_id;
-
+		
 		Mandatory<std::string>	message;
 		Mandatory<S32>			sequence;
 		Mandatory<bool>			initial,
 								break_;
-
+		
 		AssetStats();
 	};
 
@@ -191,13 +163,10 @@ public:
 	// collection calls.
 	void setRegion(region_handle_t region_handle);
 
-	// Avatar-related statistics
-	void recordAvatarStats();
-
 	// gather latest metrics data
 	// call from main thread
 	void updateStats();
-
+	
 	// Retrieve current metrics for all visited regions (NULL region UUID/handle excluded)
     // Uses AssetStats structure seen above
 	void getStats(AssetStats& stats, bool compact_output);
@@ -220,10 +189,6 @@ protected:
 
 	// Metrics data for all regions during one collection cycle
 	PerRegionRecordingContainer mRegionRecordings;
-
-	// Nearby avatar stats
-	std::vector<S32> mAvatarRezStates;
-	LLViewerStats::phase_stats_t mPhaseStats;
 };
 
 

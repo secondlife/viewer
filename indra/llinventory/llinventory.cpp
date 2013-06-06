@@ -76,13 +76,15 @@ LLInventoryObject::LLInventoryObject(const LLUUID& uuid,
 	mUUID(uuid),
 	mParentUUID(parent_uuid),
 	mType(type),
-	mName(name)
+	mName(name),
+	mCreationDate(0)
 {
 	correctInventoryName(mName);
 }
 
 LLInventoryObject::LLInventoryObject() :
-	mType(LLAssetType::AT_NONE)
+	mType(LLAssetType::AT_NONE),
+	mCreationDate(0)
 {
 }
 
@@ -276,6 +278,26 @@ void LLInventoryObject::correctInventoryName(std::string& name)
 	LLStringUtil::truncate(name, DB_INV_ITEM_NAME_STR_LEN);
 }
 
+time_t LLInventoryObject::getCreationDate() const
+{
+	return mCreationDate;
+}
+
+void LLInventoryObject::setCreationDate(time_t creation_date_utc)
+{
+	mCreationDate = creation_date_utc;
+}
+
+
+const std::string& LLInventoryItem::getDescription() const
+{
+	return mDescription;
+}
+
+const std::string& LLInventoryItem::getActualDescription() const
+{
+	return mDescription;
+}
 
 ///----------------------------------------------------------------------------
 /// Class LLInventoryItem
@@ -298,9 +320,10 @@ LLInventoryItem::LLInventoryItem(const LLUUID& uuid,
 	mDescription(desc),
 	mSaleInfo(sale_info),
 	mInventoryType(inv_type),
-	mFlags(flags),
-	mCreationDate(creation_date_utc)
+	mFlags(flags)
 {
+	mCreationDate = creation_date_utc;
+
 	LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
 	LLStringUtil::replaceChar(mDescription, '|', ' ');
 	mPermissions.initMasks(inv_type);
@@ -313,9 +336,9 @@ LLInventoryItem::LLInventoryItem() :
 	mDescription(),
 	mSaleInfo(),
 	mInventoryType(LLInventoryType::IT_NONE),
-	mFlags(0),
-	mCreationDate(0)
+	mFlags(0)
 {
+	mCreationDate = 0;
 }
 
 LLInventoryItem::LLInventoryItem(const LLInventoryItem* other) :
@@ -375,16 +398,6 @@ void LLInventoryItem::setAssetUUID(const LLUUID& asset_id)
 }
 
 
-const std::string& LLInventoryItem::getDescription() const
-{
-	return mDescription;
-}
-
-time_t LLInventoryItem::getCreationDate() const
-{
-	return mCreationDate;
-}
-
 U32 LLInventoryItem::getCRC32() const
 {
 	// *FIX: Not a real crc - more of a checksum.
@@ -439,11 +452,6 @@ void LLInventoryItem::setInventoryType(LLInventoryType::EType inv_type)
 void LLInventoryItem::setFlags(U32 flags)
 {
 	mFlags = flags;
-}
-
-void LLInventoryItem::setCreationDate(time_t creation_date_utc)
-{
-	mCreationDate = creation_date_utc;
 }
 
 // Currently only used in the Viewer to handle calling cards
@@ -506,6 +514,12 @@ U32 LLInventoryItem::getFlags() const
 {
 	return mFlags;
 }
+
+time_t LLInventoryItem::getCreationDate() const
+{
+	return mCreationDate;
+}
+
 
 // virtual
 void LLInventoryItem::packMessage(LLMessageSystem* msg) const

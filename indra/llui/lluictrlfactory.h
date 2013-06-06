@@ -98,7 +98,7 @@ private:
 		ParamDefaults()
 		{
 			// look up template file for this param block...
-			const std::string* param_block_tag = getWidgetTag(&typeid(PARAM_BLOCK));
+			const std::string* param_block_tag = LLWidgetNameRegistry::instance().getValue(&typeid(PARAM_BLOCK));
 			if (param_block_tag)
 			{	// ...and if it exists, back fill values using the most specific template first
 				PARAM_BLOCK params;
@@ -132,7 +132,6 @@ public:
 	template<typename T>
 	static const typename T::Params& getDefaultParams()
 	{
-		//#pragma message("Generating ParamDefaults")
 		return ParamDefaults<typename T::Params, 0>::instance().get();
 	}
 
@@ -165,7 +164,7 @@ public:
 	static T* createFromFile(const std::string &filename, LLView *parent, const widget_registry_t& registry)
 	{
 		T* widget = NULL;
-		
+
 		instance().pushFileName(filename);
 		{
 			LLXMLNodePtr root_node;
@@ -175,7 +174,7 @@ public:
 				llwarns << "Couldn't parse XUI file: " << instance().getCurFileName() << llendl;
 				goto fail;
 			}
-			
+
 			LLView* view = getInstance()->createFromXML(root_node, parent, filename, registry, NULL);
 			if (view)
 			{
@@ -282,8 +281,6 @@ private:
 		return widget;
 	}
 
-
-	static const std::string* getWidgetTag(const std::type_info* widget_type);
 
 	// this exists to get around dependency on llview
 	static void setCtrlParent(LLView* view, LLView* parent, S32 tab_group);

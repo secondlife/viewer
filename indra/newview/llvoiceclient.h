@@ -302,6 +302,9 @@ public:
 	LLVoiceClient();	
 	~LLVoiceClient();
 
+	typedef boost::signals2::signal<void(void)> micro_changed_signal_t;
+	micro_changed_signal_t mMicroChangedSignal;
+
 	void init(LLPumpIO *pump);	// Call this once at application startup (creates connector)
 	void terminate();	// Call this to clean up during shutdown
 	
@@ -400,6 +403,8 @@ public:
 	void keyUp(KEY key, MASK mask);
 	void middleMouseState(bool down);
 	
+	boost::signals2::connection MicroChangedCallback(const micro_changed_signal_t::slot_type& cb ) { return mMicroChangedSignal.connect(cb); }
+
 	
 	/////////////////////////////
 	// Accessors for data related to nearby speakers
@@ -454,6 +459,7 @@ public:
 protected:
 	LLVoiceModuleInterface* mVoiceModule;
 	LLPumpIO *m_servicePump;
+
 
 	LLCachedControl<bool> mVoiceEffectEnabled;
 	LLCachedControl<std::string> mVoiceEffectDefault;

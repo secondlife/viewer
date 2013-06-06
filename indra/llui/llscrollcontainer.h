@@ -67,6 +67,7 @@ public:
 							max_auto_scroll_rate;
 		Optional<LLUIColor>	bg_color;
 		Optional<LLScrollbar::callback_t> scroll_callback;
+		Optional<S32>		size;
 		
 		Params();
 	};
@@ -114,6 +115,9 @@ public:
 	virtual bool	addChild(LLView* view, S32 tab_group = 0);
 	
 	bool autoScroll(S32 x, S32 y);
+
+	S32 getSize() const { return mSize; }
+	void setSize(S32 thickness);
 
 protected:
 	LLView*		mScrolledView;

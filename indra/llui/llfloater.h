@@ -217,13 +217,17 @@ public:
 	/*virtual*/ void setFocus( BOOL b );
 	/*virtual*/ void setIsChrome(BOOL is_chrome);
 	/*virtual*/ void setRect(const LLRect &rect);
+                void setIsSingleInstance(BOOL is_single_instance);
 
 	void 			initFloater(const Params& p);
 
 	void			openFloater(const LLSD& key = LLSD());
 
 	// If allowed, close the floater cleanly, releasing focus.
-	void			closeFloater(bool app_quitting = false);
+	virtual void	closeFloater(bool app_quitting = false);
+
+	// Close the floater or its host. Use when hidding or toggling a floater instance.
+	virtual void	closeHostedFloater();
 
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	
@@ -301,6 +305,7 @@ public:
 	/*virtual*/ void onVisibilityChange ( BOOL new_visibility ); // do not override
 	
 	void			setFrontmost(BOOL take_focus = TRUE);
+    virtual void	setVisibleAndFrontmost(BOOL take_focus=TRUE, const LLSD& key = LLSD());    
 	
 	// Defaults to false.
 	virtual BOOL	canSaveAs() const { return FALSE; }
@@ -324,6 +329,8 @@ public:
 	virtual void    setDocked(bool docked, bool pop_on_undock = true);
 
 	virtual void    setTornOff(bool torn_off) { mTornOff = torn_off; }
+	bool isTornOff() {return mTornOff;}
+	void setOpenPositioning(LLFloaterEnums::EOpenPositioning pos) {mPositioning = pos;}
 
 
 	// Close the floater returned by getFrontmostClosableFloater() and 
@@ -354,6 +361,7 @@ protected:
 
 	void			stackWith(LLFloater& other);
 
+	virtual void    initRectControl();
 	virtual bool	applyRectControl();
 	bool			applyDockState();
 	void			applyPositioning(LLFloater* other, bool on_open);
@@ -367,7 +375,6 @@ protected:
 	void		 	setInstanceName(const std::string& name);
 	
 	virtual void	bringToFront(S32 x, S32 y);
-	virtual void	setVisibleAndFrontmost(BOOL take_focus=TRUE);    
 	
 	void			setExpandedRect(const LLRect& rect) { mExpandedRect = rect; } // size when not minimized
 	const LLRect&	getExpandedRect() const { return mExpandedRect; }
@@ -441,9 +448,10 @@ private:
 	LLUIString		mTitle;
 	LLUIString		mShortTitle;
 	
-	BOOL			mSingleInstance;	// TRUE if there is only ever one instance of the floater
-	bool			mReuseInstance;		// true if we want to hide the floater when we close it instead of destroying it
-	std::string		mInstanceName;		// Store the instance name so we can remove ourselves from the list
+	BOOL			mSingleInstance;	  // TRUE if there is only ever one instance of the floater
+	bool			mReuseInstance;		  // true if we want to hide the floater when we close it instead of destroying it
+    bool            mIsReuseInitialized;  // true if mReuseInstance already set from parameters
+	std::string		mInstanceName;		  // Store the instance name so we can remove ourselves from the list
 	
 	BOOL			mCanTearOff;
 	BOOL			mCanMinimize;
@@ -570,6 +578,7 @@ private:
 	S32				mMinimizePositionVOffset;
 	typedef std::vector<std::pair<LLHandle<LLFloater>, boost::signals2::connection> > hidden_floaters_t;
 	hidden_floaters_t mHiddenFloaters;
+	LLFloater *		mFrontChild;
 };
 
 //

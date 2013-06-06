@@ -274,7 +274,6 @@ public:
  		NEARBY_LIGHT	= 0x00200000, // In gPipeline.mNearbyLightSet
 		BUILT			= 0x00400000,
 		FORCE_INVISIBLE = 0x00800000, // stay invis until CLEAR_INVISIBLE is set (set of orphaned)
-		CLEAR_INVISIBLE = 0x01000000, // clear FORCE_INVISIBLE next draw frame
 		REBUILD_SHADOW =  0x02000000,
 		HAS_ALPHA		= 0x04000000,
 		RIGGED			= 0x08000000,

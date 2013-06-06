@@ -270,9 +270,6 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
 	mSection[0].mVelocity.setVec(0,0,0);
 	mSection[0].mAxisRotation.setQuat(begin_rot,0,0,1);
 
-	LLVector3 parentSectionPosition = mSection[0].mPosition;
-	LLVector3 last_direction = mSection[0].mDirection;
-
 	remapSections(mSection, mInitializedRes, mSection, mSimulateRes);
 	mInitializedRes = mSimulateRes;
 
@@ -381,21 +378,31 @@ void LLVolumeImplFlexible::doIdleUpdate()
 							id = parent->getVolumeInterfaceID();
 						}
 
-						if ((LLDrawable::getCurrentFrame()+id)%update_period == 0)
-						{
-							sUpdateDelay[mInstanceIndex] = (S32) update_period-1;
-
-							updateRenderRes();
-
-							gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
-						}
-					}
+				if (mVO->isRootEdit())
+				{
+					id = mID;
 				}
 				else
 				{
-					sUpdateDelay[mInstanceIndex] = (S32) update_period;
+					LLVOVolume* parent = (LLVOVolume*) mVO->getParent();
+					id = parent->getVolumeInterfaceID();
+				}
+
+				if ((LLDrawable::getCurrentFrame()+id)%update_period == 0)
+				{
+							sUpdateDelay[mInstanceIndex] = (S32) update_period-1;
+
+					updateRenderRes();
+
+					gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
 				}
 			}
+		}
+				else
+				{
+					sUpdateDelay[mInstanceIndex] = (S32) update_period;
+	}
+}
 
 		}
 	}
@@ -420,7 +427,6 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	if ((mSimulateRes == 0 || !mInitialized) && mVO->mDrawable->isVisible()) 
 	{
 		BOOL force_update = mSimulateRes == 0 ? TRUE : FALSE;
-
 		doIdleUpdate();
 
 		if (!force_update || !gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))
@@ -435,7 +441,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 		return ;
 	}
 
-	// stinson 11/12/2012: Need to check with davep on the following.
+	// Fix for MAINT-1894
 	// Skipping the flexible update if render res is negative.  If we were to continue with a negative value,
 	// the subsequent S32 num_render_sections = 1<<mRenderRes; code will specify a really large number of
 	// render sections which will then create a length exception in the std::vector::resize() method.

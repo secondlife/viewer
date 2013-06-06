@@ -38,10 +38,9 @@ class LLTexUnit ;
 class LLFontGL ;
 
 //
-//this is an abstract class as the parent for the class LLViewerTexture
-//through the following virtual functions, the class LLViewerTexture can be reached from /llrender.
+//this is an abstract class as the parent for the class LLGLTexture
 //
-class LLTexture : public LLRefCount
+class LLTexture : public virtual LLRefCount
 {
 	friend class LLTexUnit ;
 	friend class LLFontGL ;
@@ -53,7 +52,7 @@ public:
 	LLTexture(){}
 
 	//
-	//interfaces to access LLViewerTexture
+	//interfaces to access LLGLTexture
 	//
 	virtual S8         getType() const = 0 ;
 	virtual void       setKnownDrawSize(S32 width, S32 height) = 0 ;

@@ -201,7 +201,7 @@ void TimeBlock::processTimes()
 		if (timer.getParent() == &TimeBlock::getRootTimeBlock())
 		{
 			TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
-
+			
 			if (accumulator->mLastCaller)
 			{
 				timer.setParent(accumulator->mLastCaller);

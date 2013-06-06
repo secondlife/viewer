@@ -174,7 +174,7 @@ LLTrace::SampleStatHandle<LLTrace::Milliseconds>	FRAMETIME_JITTER("frametimejitt
 LLTrace::EventStatHandle<LLTrace::Meters> AGENT_POSITION_SNAP("agentpositionsnap", "agent position corrections");
 
 LLTrace::EventStatHandle<>	LOADING_WEARABLES_LONG_DELAY("loadingwearableslongdelay", "Wearables took too long to load");
-
+	
 LLTrace::EventStatHandle<LLTrace::Milliseconds>	REGION_CROSSING_TIME("regioncrossingtime", "CROSSING_AVG"),
 												FRAME_STACKTIME("framestacktime", "FRAME_SECS"),
 												UPDATE_STACKTIME("updatestacktime", "UPDATE_SECS"),
@@ -182,7 +182,7 @@ LLTrace::EventStatHandle<LLTrace::Milliseconds>	REGION_CROSSING_TIME("regioncros
 												IMAGE_STACKTIME("imagestacktime", "IMAGE_SECS"),
 												REBUILD_STACKTIME("rebuildstacktime", "REBUILD_SECS"),
 												RENDER_STACKTIME("renderstacktime", "RENDER_SECS");
-
+	
 LLTrace::EventStatHandle<LLTrace::Seconds>	AVATAR_EDIT_TIME("avataredittime", "Seconds in Edit Appearance"),
 											TOOLBOX_TIME("toolboxtime", "Seconds using Toolbox"),
 											MOUSELOOK_TIME("mouselooktime", "Seconds in Mouselook"),
@@ -190,7 +190,7 @@ LLTrace::EventStatHandle<LLTrace::Seconds>	AVATAR_EDIT_TIME("avataredittime", "S
 											FPS_8_TIME("fps8time", "Seconds below 8 FPS"),
 											FPS_2_TIME("fps2time", "Seconds below 2 FPS");
 
-	
+
 }
 
 LLViewerStats::LLViewerStats() 
@@ -636,25 +636,6 @@ void LLViewerStats::PhaseMap::startPhase(const std::string& phase_name)
 	timer.unpause();
 }
 
-void LLViewerStats::PhaseMap::stopPhase(const std::string& phase_name)
-{
-	phase_map_t::iterator iter = mPhaseMap.find(phase_name);
-	if (iter != mPhaseMap.end())
-	{
-		if (iter->second.getStarted())
-		{
-			// Going from started to paused state - record stats.
-			recordPhaseStat(phase_name,iter->second.getElapsedTimeF32());
-		}
-		lldebugs << "stopPhase " << phase_name << llendl;
-		iter->second.pause();
-	}
-	else
-	{
-		lldebugs << "stopPhase " << phase_name << " is not started, no-op" << llendl;
-	}
-}
-
 void LLViewerStats::PhaseMap::stopAllPhases()
 {
 	for (phase_map_t::iterator iter = mPhaseMap.begin();
@@ -698,6 +679,19 @@ LLViewerStats::PhaseMap::PhaseMap()
 {
 }
 
+
+void LLViewerStats::PhaseMap::stopPhase(const std::string& phase_name)
+{
+	phase_map_t::iterator iter = mPhaseMap.find(phase_name);
+	if (iter != mPhaseMap.end())
+	{
+		if (iter->second.getStarted())
+		{
+			// Going from started to stopped state - record stats.
+			iter->second.stop();
+		}
+	}
+}
 // static
 LLViewerStats::StatsAccumulator& LLViewerStats::PhaseMap::getPhaseStats(const std::string& phase_name)
 {
@@ -717,3 +711,18 @@ void LLViewerStats::PhaseMap::recordPhaseStat(const std::string& phase_name, F32
 	stats.push(value);
 }
 
+
+bool LLViewerStats::PhaseMap::getPhaseValues(const std::string& phase_name, F32& elapsed, bool& completed)
+{
+	phase_map_t::iterator iter = mPhaseMap.find(phase_name);
+	if (iter != mPhaseMap.end())
+	{
+		elapsed =  iter->second.getElapsedTimeF32();
+		completed = !iter->second.getStarted();
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}

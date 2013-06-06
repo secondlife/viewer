@@ -33,8 +33,6 @@
 // in viewer.
 // It is used to precompile headers for improved build speed.
 
-#include <boost/coroutine/coroutine.hpp>
-
 #include "linden_common.h"
 
 // Work around stupid Microsoft STL warning
@@ -75,7 +73,6 @@
 #include "llstrider.h"
 #include "llstring.h"
 #include "llsys.h"
-#include "llthread.h"
 #include "lltimer.h"
 #include "stdenums.h"
 #include "stdtypes.h"

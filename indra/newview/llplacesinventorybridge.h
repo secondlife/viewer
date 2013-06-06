@@ -82,13 +82,14 @@ protected:
  *
  * It builds Bridges for Landmarks and Folders in Places Landmarks Panel
  */
-class LLPlacesInventoryBridgeBuilder : public LLInventoryFVBridgeBuilder
+class LLPlacesInventoryBridgeBuilder : public LLInventoryFolderViewModelBuilder
 {
 public:
 	/*virtual*/ LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
 											LLAssetType::EType actual_asset_type,
 											LLInventoryType::EType inv_type,
 											LLInventoryPanel* inventory,
+											LLFolderViewModelInventory* view_model,
 											LLFolderView* root,
 											const LLUUID& uuid,
 											U32 flags = 0x00) const;

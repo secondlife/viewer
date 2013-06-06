@@ -33,7 +33,8 @@
 #include "llagentdata.h" 			// gAgentID, gAgentSessionID
 #include "llcharacter.h"
 #include "llcoordframe.h"			// for mFrameAgent
-#include "llvoavatardefines.h"
+#include "llavatarappearancedefines.h"
+#include "llpermissionsflags.h"
 #include "lldarray.h"
 
 #include <boost/function.hpp>
@@ -380,14 +381,13 @@ public:
 	void			sitDown();
 
 	//--------------------------------------------------------------------
-	// Busy
+	// Do Not Disturb
 	//--------------------------------------------------------------------
 public:
-	void			setBusy();
-	void			clearBusy();
-	BOOL			getBusy() const;
+	void			setDoNotDisturb(bool pIsDoNotDisturb);
+	bool			isDoNotDisturb() const;
 private:
-	BOOL			mIsBusy;
+	bool			mIsDoNotDisturb;
 
 	//--------------------------------------------------------------------
 	// Grab
@@ -611,6 +611,7 @@ private:
 
 	void            handleTeleportFinished();
 	void            handleTeleportFailed();
+	void			handleServerBakeRegionTransition(const LLUUID& region_id);
 
 	//--------------------------------------------------------------------
 	// Teleport State
@@ -845,6 +846,7 @@ private:
 public:
 	void			sendMessage(); // Send message to this agent's region
 	void			sendReliableMessage();
+	void 			dumpSentAppearance(const std::string& dump_prefix);
 	void			sendAgentSetAppearance();
 	void 			sendAgentDataUpdateRequest();
 	void 			sendAgentUserInfoRequest();
@@ -903,7 +905,7 @@ private:
 	S32				mNumPendingQueries;
 	S32				mWearablesCacheQueryID;
 	U32				mUpdateSerialNum;
-	S32		    	mActiveCacheQueries[LLVOAvatarDefines::BAKED_NUM_INDICES];
+	S32		    	mActiveCacheQueries[LLAvatarAppearanceDefines::BAKED_NUM_INDICES];
 };
 
 extern LLAgentQueryManager gAgentQueryManager;

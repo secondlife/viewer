@@ -40,7 +40,7 @@
 #include "lltooltip.h"
 #include "llappviewer.h"
 #include "llselectmgr.h"
-#include "lltexlayer.h"
+#include "llviewertexlayer.h"
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
 #include "llviewercontrol.h"
@@ -172,7 +172,7 @@ void LLTextureBar::draw()
 	{
 		color = LLColor4::green4;
 	}
-	else if (mImagep->getBoostLevel() > LLViewerTexture::BOOST_NONE)
+	else if (mImagep->getBoostLevel() > LLGLTexture::BOOST_NONE)
 	{
 		color = LLColor4::magenta;
 	}
@@ -422,14 +422,14 @@ void LLAvatarTexBar::draw()
 	LLColor4 color;
 	
 	U32 line_num = 1;
-	for (LLVOAvatarDefines::LLVOAvatarDictionary::BakedTextures::const_iterator baked_iter = LLVOAvatarDefines::LLVOAvatarDictionary::getInstance()->getBakedTextures().begin();
-		 baked_iter != LLVOAvatarDefines::LLVOAvatarDictionary::getInstance()->getBakedTextures().end();
+	for (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
+		 baked_iter != LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().end();
 		 ++baked_iter)
 	{
-		const LLVOAvatarDefines::EBakedTextureIndex baked_index = baked_iter->first;
-		const LLTexLayerSet *layerset = avatarp->debugGetLayerSet(baked_index);
+		const LLAvatarAppearanceDefines::EBakedTextureIndex baked_index = baked_iter->first;
+		const LLViewerTexLayerSet *layerset = avatarp->debugGetLayerSet(baked_index);
 		if (!layerset) continue;
-		const LLTexLayerSetBuffer *layerset_buffer = layerset->getComposite();
+		const LLViewerTexLayerSetBuffer *layerset_buffer = layerset->getViewerComposite();
 		if (!layerset_buffer) continue;
 
 		LLColor4 text_color = LLColor4::white;
@@ -526,7 +526,7 @@ void LLGLTexMemBar::draw()
 	LLGLSUIDefault gls_ui;
 	LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);
 	LLColor4 color;
-	
+
 	// Gray background using completely magic numbers
 	gGL.color4f(0.f, 0.f, 0.f, 0.25f);
 	// const LLRect & rect(getRect());

@@ -471,6 +471,7 @@ inline std::string chop_tail_copy(
  * @brief This translates a nybble stored as a hex value from 0-f back
  * to a nybble in the low order bits of the return byte.
  */
+LL_COMMON_API bool is_char_hex(char hex);
 LL_COMMON_API U8 hex_as_nybble(char hex);
 
 /**

@@ -50,6 +50,7 @@
 
 // Need commdlg.h for OPENFILENAMEA
 #ifdef LL_WINDOWS
+#include "llwin32headers.h"
 #include <commdlg.h>
 #endif
 

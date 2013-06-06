@@ -1205,7 +1205,7 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 	{
 		LLVOAvatar* pVOAvatar = (LLVOAvatar*) *iter;
 
-		if (!pVOAvatar->isDead() && !pVOAvatar->isSelf() && !pVOAvatar->mIsDummy)
+		if (!pVOAvatar->isDead() && !pVOAvatar->mIsDummy)
 		{
 			LLVector3d pos_global = pVOAvatar->getPositionGlobal();
 			LLUUID uuid = pVOAvatar->getID();

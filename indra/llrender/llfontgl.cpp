@@ -542,7 +542,6 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 	
 	BOOL clip = FALSE;
 	F32 cur_x = 0;
-	F32 drawn_x = 0;
 
 	S32 start_of_last_word = 0;
 	BOOL in_word = FALSE;
@@ -600,6 +599,11 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 		if(!fgi)
 		{
 			fgi = mFontFreetype->getGlyphInfo(wch);
+
+			if (NULL == fgi)
+			{
+				return 0;
+			}
 		}
 
 		// account for glyphs that run beyond the starting point for the next glyphs
@@ -625,7 +629,6 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 
 		// Round after kerning.
 		cur_x = (F32)llround(cur_x);
-		drawn_x = cur_x;
 	}
 
 	if( clip )

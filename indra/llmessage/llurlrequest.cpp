@@ -175,6 +175,10 @@ LLURLRequest::~LLURLRequest()
 void LLURLRequest::setURL(const std::string& url)
 {
 	mDetail->mURL = url;
+	if (url.empty())
+	{
+		llwarns << "empty URL specified" << llendl;
+	}
 }
 
 std::string LLURLRequest::getURL() const

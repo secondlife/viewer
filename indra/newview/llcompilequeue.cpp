@@ -161,18 +161,6 @@ BOOL LLFloaterScriptQueue::start()
 {
 	std::string buffer;
 
-	LLSelectMgr *mgr = LLSelectMgr::getInstance();
-	LLObjectSelectionHandle selectHandle = mgr->getSelection();
-	U32 n_objects = 0;
-	if (gSavedSettings.getBOOL("EditLinkedParts"))
-	{
-		n_objects = selectHandle->getObjectCount();
-	}
-	else
-	{
-		n_objects = selectHandle->getRootObjectCount();
-	}
-
 	LLStringUtil::format_map_t args;
 	args["[START]"] = mStartString;
 	args["[COUNT]"] = llformat ("%d", mObjectIDs.count());

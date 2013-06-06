@@ -17,6 +17,7 @@ include_directories(
     ${EXPAT_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS}
+    ${BREAKPAD_INCLUDE_DIRECTORIES}
     )
 
 # add_executable(lltreeiterators lltreeiterators.cpp)
@@ -145,6 +146,7 @@ set(llcommon_HEADER_FILES
     lldate.h
     lldefs.h
     lldependencies.h
+    lldeleteutils.h
     lldepthstack.h
     lldictionary.h
     lldoubledispatch.h
@@ -236,8 +238,7 @@ set(llcommon_HEADER_FILES
     lluri.h
     lluuid.h
     llversionserver.h
-    llversionviewer.h
-    llwin32headers.h
+	llwin32headers.h
     llwin32headerslean.h
     llworkerthread.h
     ll_template_cast.h
@@ -322,6 +323,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llunits "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lleventdispatcher "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lleventcoro "" "${test_libs};${BOOST_CONTEXT_LIBRARY}")
   LL_ADD_INTEGRATION_TEST(llprocess "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llleap "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llstreamqueue "" "${test_libs}")
