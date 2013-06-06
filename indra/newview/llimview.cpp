@@ -311,9 +311,10 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 			}
 			else
 			{
-				if (is_dnd_msg && (ON_TOP == conversations_floater_status || 
+				if ((is_dnd_msg && (ON_TOP == conversations_floater_status || 
 									NOT_ON_TOP == conversations_floater_status || 
 									CLOSED == conversations_floater_status))
+					|| CLOSED == conversations_floater_status)
 				{
 					im_box->highlightConversationItemWidget(session_id, true);
 				}
