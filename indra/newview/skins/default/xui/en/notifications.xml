@@ -5954,7 +5954,7 @@ Your calling card was declined.
    icon="notifytip.tga"
    name="TeleportToPerson"
    type="notifytip">
-    To open a private conversation with someone, right-click on their avatar and choose "IM" from the menu.
+    To open a private conversation with someone, right-click on their avatar and choose &apos;IM&apos; from the menu.
   </notification>
 
   <notification
