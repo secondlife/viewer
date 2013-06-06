@@ -5997,8 +5997,12 @@ void handle_facebook_checkin()
 	std::string region_name = gAgent.getRegion()->getName();
 	std::string description;
 	LLAgentUI::buildLocationString(description, LLAgentUI::LOCATION_FORMAT_NORMAL_COORDS, gAgent.getPositionAgent());
+	LLVector3d center_agent = gAgent.getRegion()->getCenterGlobal();
+	int x_pos = center_agent[0] / 256.0;
+	int y_pos = center_agent[1] / 256.0;
+	std::string locationMap = llformat("http://map.secondlife.com/map-1-%d-%d-objects.jpg", x_pos, y_pos);
 
-	LLFacebookConnect::instance().postCheckin(slurl_string, region_name, description, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDL4jdC_vCh0ow-QCXZjN-WNojEXWiz0APEa6Qhpl8cxawjkoC7w", "");
+	LLFacebookConnect::instance().postCheckin(slurl_string, region_name, description, locationMap, "");
 }
 
 void handle_buy_currency()
