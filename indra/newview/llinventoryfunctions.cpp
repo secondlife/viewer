@@ -738,6 +738,13 @@ bool LLIsOfAssetType::operator()(LLInventoryCategory* cat, LLInventoryItem* item
 	return FALSE;
 }
 
+bool LLIsValidItemLink::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	LLViewerInventoryItem *vitem = dynamic_cast<LLViewerInventoryItem*>(item);
+	if (!vitem) return false;
+	return (vitem->getActualType() == LLAssetType::AT_LINK  && !vitem->getIsBrokenLink());
+}
+
 bool LLIsTypeWithPermissions::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 {
 	if(mType == LLAssetType::AT_CATEGORY)

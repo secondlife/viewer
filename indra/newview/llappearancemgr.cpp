@@ -2611,7 +2611,7 @@ void LLAppearanceMgr::updateIsDirty()
 
 	if (base_outfit.notNull())
 	{
-		LLIsOfAssetType collector = LLIsOfAssetType(LLAssetType::AT_LINK);
+		LLIsValidItemLink collector;
 
 		LLInventoryModel::cat_array_t cof_cats;
 		LLInventoryModel::item_array_t cof_items;
@@ -2625,6 +2625,7 @@ void LLAppearanceMgr::updateIsDirty()
 
 		if(outfit_items.count() != cof_items.count())
 		{
+			LL_DEBUGS("Avatar") << "item count different" << llendl;
 			// Current outfit folder should have one more item than the outfit folder.
 			// this one item is the link back to the outfit folder itself.
 			mOutfitIsDirty = true;
@@ -2644,6 +2645,22 @@ void LLAppearanceMgr::updateIsDirty()
 				item1->getName() != item2->getName() ||
 				item1->getActualDescription() != item2->getActualDescription())
 			{
+				if (item1->getLinkedUUID() != item2->getLinkedUUID())
+				{
+					LL_DEBUGS("Avatar") << "link id different " << llendl;
+				}
+				else
+				{
+					if (item1->getName() != item2->getName())
+					{
+						LL_DEBUGS("Avatar") << "name different " << item1->getName() << " " << item2->getName() << llendl;
+					}
+					if (item1->getActualDescription() != item2->getActualDescription())
+					{
+						LL_DEBUGS("Avatar") << "desc different " << item1->getActualDescription()
+											<< " " << item2->getActualDescription() << llendl;
+					}
+				}
 				mOutfitIsDirty = true;
 				return;
 			}
