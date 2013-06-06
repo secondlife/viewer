@@ -6630,6 +6630,7 @@ However, this region contains content accessible to adults only.
   <notification
    icon="notify.tga"
    name="TeleportRequest"
+   log_to_im="true"
    type="offer">
 [NAME_SLURL] is requesting to be teleported to your location.
 [MESSAGE]

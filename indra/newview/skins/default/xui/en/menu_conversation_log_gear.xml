@@ -56,6 +56,16 @@
       function="Calllog.Enable"
       parameter="can_offer_teleport"/>
     </menu_item_call>
+    <menu_item_call
+    label="Request Teleport"
+    name="request_teleport">
+      <on_click
+       function="Calllog.Action"
+       parameter="request_teleport"/>
+      <on_enable
+      function="Calllog.Enable"
+      parameter="can_offer_teleport"/>
+    </menu_item_call>
     <menu_item_separator />
     <menu_item_call
      label="Add Friend"

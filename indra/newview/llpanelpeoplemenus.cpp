@@ -261,7 +261,6 @@ void PeopleContextMenu::requestTeleport()
 {
 	// boost::bind cannot recognize overloaded method LLAvatarActions::teleportRequest(),
 	// so we have to use a wrapper.
-llwarns << "DBG " << llendl;
 	LLAvatarActions::teleportRequest(mUUIDs.front());
 }
 
@@ -269,7 +268,6 @@ void PeopleContextMenu::offerTeleport()
 {
 	// boost::bind cannot recognize overloaded method LLAvatarActions::offerTeleport(),
 	// so we have to use a wrapper.
-llwarns << "DBG " << llendl;
 	LLAvatarActions::offerTeleport(mUUIDs);
 }
 

@@ -311,8 +311,11 @@ void LLConversationLogList::onCustomAction(const LLSD& userdata)
 	}
 	else if ("offer_teleport" == command_name)
 	{
-llwarns << "DBG " << llendl;
 		LLAvatarActions::offerTeleport(selected_conversation_participant_id);
+	}
+	else if ("request_teleport" == command_name)
+	{
+		LLAvatarActions::teleportRequest(selected_conversation_participant_id);
 	}
 	else if("add_friend" == command_name)
 	{
