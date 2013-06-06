@@ -55,6 +55,7 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 private:
+	/*virtual*/ void updateCustomResControls(); ///< Show/hide facebook custom controls
 	/*virtual*/ std::string getWidthSpinnerName() const		{ return "facebook_snapshot_width"; }
 	/*virtual*/ std::string getHeightSpinnerName() const	{ return "facebook_snapshot_height"; }
 	/*virtual*/ std::string getAspectRatioCBName() const	{ return "facebook_keep_aspect_check"; }
@@ -84,6 +85,7 @@ BOOL LLPanelSnapshotFacebook::postBuild()
 // virtual
 void LLPanelSnapshotFacebook::onOpen(const LLSD& key)
 {
+	updateControls(key);
 	LLPanelSnapshot::onOpen(key);
 }
 
@@ -93,6 +95,13 @@ void LLPanelSnapshotFacebook::updateControls(const LLSD& info)
 	const bool have_snapshot = info.has("have-snapshot") ? info["have-snapshot"].asBoolean() : true;
     const bool is_connected = LLFacebookConnect::instance().getConnected();
 	getChild<LLUICtrl>("post_btn")->setEnabled(have_snapshot && is_connected);
+}
+
+// virtual
+void LLPanelSnapshotFacebook::updateCustomResControls()
+{
+    const bool is_connected = LLFacebookConnect::instance().getConnected();
+	getChild<LLUICtrl>("post_btn")->setEnabled(is_connected);
 }
 
 void LLPanelSnapshotFacebook::onSend()
