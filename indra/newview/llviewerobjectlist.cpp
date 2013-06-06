@@ -2045,6 +2045,10 @@ LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRe
 // 		llwarns << "Couldn't create object of type " << LLPrimitive::pCodeToString(pcode) << " id:" << fullid << llendl;
 		return NULL;
 	}
+	if(regionp)
+	{
+		regionp->addToCreatedList(local_id); 
+	}
 
 	mUUIDObjectMap[fullid] = objectp;
 	setUUIDAndLocal(fullid,
