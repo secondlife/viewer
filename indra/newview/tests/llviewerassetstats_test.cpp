@@ -343,8 +343,8 @@ namespace tut
 		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_BODYPART, false, false);
 
 		gViewerAssetStats->updateStats();
-		LLSD sd = gViewerAssetStatsMain->asLLSD(false);
-		ensure("Correct single-key LLSD map root", is_triple_key_map(sd, "regions", "duration", "avatar"));
+		LLSD sd = gViewerAssetStats->asLLSD(false);
+		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
 		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd["regions"], region1_handle));
 		sd = sd["regions"][0];
 		
@@ -367,47 +367,9 @@ namespace tut
 		ensure("sd[get_gesture_udp][dequeued] is reset", (0 == sd["get_gesture_udp"]["dequeued"].asInteger()));
 	}
 
-	// Create two global instances and verify no interactions
-	template<> template<>
-	void tst_viewerassetstats_index_object_t::test<5>()
-	{
-		gViewerAssetStats = new LLViewerAssetStats();
-		LLViewerAssetStatsFF::set_region(region1_handle);
-
-		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE, false, false);
-		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_TEXTURE, false, false);
-
-		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_BODYPART, false, false);
-		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_BODYPART, false, false);
-
-		gViewerAssetStats->updateStats();
-		LLSD sd = gViewerAssetStatsMain->asLLSD(false);
-		ensure("Correct single-key LLSD map root", is_triple_key_map(sd, "regions", "duration", "avatar"));
-		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd["regions"], region1_handle));
-		sd = sd["regions"][0];
-		
-		// Check a few points on the tree for content
-		ensure("sd[get_texture_non_temp_udp][enqueued] is 1", (1 == sd["get_texture_non_temp_udp"]["enqueued"].asInteger()));
-		ensure("sd[get_texture_temp_udp][enqueued] is 0", (0 == sd["get_texture_temp_udp"]["enqueued"].asInteger()));
-		ensure("sd[get_texture_non_temp_http][enqueued] is 0", (0 == sd["get_texture_non_temp_http"]["enqueued"].asInteger()));
-		ensure("sd[get_texture_temp_http][enqueued] is 0", (0 == sd["get_texture_temp_http"]["enqueued"].asInteger()));
-		ensure("sd[get_gesture_udp][dequeued] is 0", (0 == sd["get_gesture_udp"]["dequeued"].asInteger()));
-
-		// Reset and check zeros...
-		// Reset leaves current region in place
-		gViewerAssetStats->reset();
-		sd = gViewerAssetStats->asLLSD(false)["regions"][0];
-		
-		delete gViewerAssetStats;
-		gViewerAssetStats = NULL;
-
-		ensure("sd[get_texture_non_temp_udp][enqueued] is reset", (0 == sd["get_texture_non_temp_udp"]["enqueued"].asInteger()));
-		ensure("sd[get_gesture_udp][dequeued] is reset", (0 == sd["get_gesture_udp"]["dequeued"].asInteger()));
-	}
-
     // Check multiple region collection
 	template<> template<>
-	void tst_viewerassetstats_index_object_t::test<6>()
+	void tst_viewerassetstats_index_object_t::test<5>()
 	{
 		gViewerAssetStats = new LLViewerAssetStats();
 
@@ -452,8 +414,8 @@ namespace tut
 
 		// Reset and check zeros...
 		// Reset leaves current region in place
-		gViewerAssetStatsMain->reset();
-		sd = gViewerAssetStatsMain->asLLSD(false);
+		gViewerAssetStats->reset();
+		sd = gViewerAssetStats->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
 		ensure("Correct single-slot LLSD array regions (p2)", is_single_slot_array(sd["regions"], region2_handle));
 		sd2 = sd["regions"][0];
@@ -467,7 +429,7 @@ namespace tut
 
     // Check multiple region collection jumping back-and-forth between regions
 	template<> template<>
-	void tst_viewerassetstats_index_object_t::test<7>()
+	void tst_viewerassetstats_index_object_t::test<6>()
 	{
 		gViewerAssetStats = new LLViewerAssetStats();
 
@@ -525,8 +487,8 @@ namespace tut
 
 		// Reset and check zeros...
 		// Reset leaves current region in place
-		gViewerAssetStatsMain->reset();
-		sd = gViewerAssetStatsMain->asLLSD(false);
+		gViewerAssetStats->reset();
+		sd = gViewerAssetStats->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "duration", "regions"));
 		ensure("Correct single-slot LLSD array regions (p2)", is_single_slot_array(sd["regions"], region2_handle));
 		sd2 = get_region(sd, region2_handle);
@@ -541,7 +503,7 @@ namespace tut
 
 	// Non-texture assets ignore transport and persistence flags
 	template<> template<>
-	void tst_viewerassetstats_index_object_t::test<8>()
+	void tst_viewerassetstats_index_object_t::test<7>()
 	{
 		gViewerAssetStats = new LLViewerAssetStats();
 		LLViewerAssetStatsFF::set_region(region1_handle);
@@ -570,7 +532,7 @@ namespace tut
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
 
 		gViewerAssetStats->updateStats();
-		sd = gViewerAssetStatsMain->asLLSD(false);
+		LLSD sd = gViewerAssetStats->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
 		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd["regions"], region1_handle));
 		sd = get_region(sd, region1_handle);

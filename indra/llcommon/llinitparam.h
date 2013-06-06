@@ -1429,7 +1429,6 @@ namespace LLInitParam
 		{
 			bool serialized = false;
 			const self_t& typed_param = static_cast<const self_t&>(param);
-			if (!typed_param.isProvided()) return false;
 
 			LLPredicate::Value<ESerializePredicates> predicate;
 
@@ -1686,7 +1685,6 @@ namespace LLInitParam
 		{
 			bool serialized = false;
 			const self_t& typed_param = static_cast<const self_t&>(param);
-			if (!typed_param.isProvided()) return false;
 			LLPredicate::Value<ESerializePredicates> predicate;
 
 			predicate.set(REQUIRED, typed_param.mMinCount > 0);
