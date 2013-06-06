@@ -41,6 +41,7 @@ struct ConversionFactor
 	{
 		// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
 		llstatic_assert_template(DERIVED_UNITS_TAG, false,  "Cannot convert between types.");
+        return 0;
 	}
 };
 
@@ -473,7 +474,7 @@ LL_DECLARE_DERIVED_UNIT(1000 * 1000, Hertz, Megahertz, "MHz");
 LL_DECLARE_DERIVED_UNIT(1000 * 1000 * 1000, Hertz, Gigahertz, "GHz");
 
 LL_DECLARE_BASE_UNIT(Radians, "rad");
-LL_DECLARE_DERIVED_UNIT(DEG_TO_RAD, Radians, Degrees, "deg");
+LL_DECLARE_DERIVED_UNIT(0.01745329251994, Radians, Degrees, "deg");
 
 
 } // namespace LLUnits

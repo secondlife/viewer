@@ -657,7 +657,7 @@ class EventStatHandle
 :	public TraceType<EventAccumulator>
 {
 public:
-	typedef typename F64 storage_t;
+	typedef F64 storage_t;
 	typedef TraceType<EventAccumulator> trace_t;
 
 	EventStatHandle(const char* name, const char* description = NULL)
@@ -702,7 +702,7 @@ class CountStatHandle
 :	public TraceType<CountAccumulator>
 {
 public:
-	typedef typename F64 storage_t;
+	typedef F64 storage_t;
 	typedef TraceType<CountAccumulator> trace_t;
 
 	CountStatHandle(const char* name, const char* description = NULL) 

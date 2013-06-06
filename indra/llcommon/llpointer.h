@@ -193,7 +193,7 @@ public:
 	{
 		if (pointer_t::notNull() && pointer_t::mPointer->getNumRefs() > 1)
 		{
-			*(pointer_t*)(this) = new Type(*pointer_t::mPointer);
+			*(pointer_t* )(this) = new Type(*pointer_t::mPointer);
 		}
 	}
 
