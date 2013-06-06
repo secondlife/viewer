@@ -1247,6 +1247,13 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 						BOOL rv = new_link->unpackMessage(link_map);
 						if (rv)
 						{
+							LLPermissions default_perms;
+							default_perms.init(gAgent.getID(),gAgent.getID(),LLUUID::null,LLUUID::null);
+							default_perms.initMasks(PERM_NONE,PERM_NONE,PERM_NONE,PERM_NONE,PERM_NONE);
+							new_link->setPermissions(default_perms);
+							LLSaleInfo default_sale_info;
+							new_link->setSaleInfo(default_sale_info);
+							//LL_DEBUGS("Inventory") << "creating link from llsd: " << ll_pretty_print_sd(link_map) << llendl;
 							items_created[link_id] = new_link;
 							const LLUUID& parent_id = new_link->getParentUUID();
 							cat_deltas[parent_id]++;
