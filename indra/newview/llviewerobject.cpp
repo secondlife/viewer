@@ -343,6 +343,10 @@ void LLViewerObject::markDead()
 
 		// Mark itself as dead
 		mDead = TRUE;
+		if(mRegionp)
+		{
+			mRegionp->removeFromCreatedList(getLocalID()); 
+		}
 		gObjectList.cleanupReferences(this);
 
 		LLViewerObject *childp;
@@ -1046,6 +1050,17 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		}
 		else
 		{
+			if(regionp != mRegionp)
+			{
+				if(mRegionp)
+				{
+					mRegionp->removeFromCreatedList(getLocalID()); 
+				}
+				if(regionp)
+				{
+					regionp->addToCreatedList(getLocalID()); 
+				}
+			}
 			mRegionp = regionp ;
 		}
 	}	
@@ -5454,7 +5469,18 @@ void LLViewerObject::setRegion(LLViewerRegion *regionp)
 	{
 		llwarns << "viewer object set region to NULL" << llendl;
 	}
-	
+	if(regionp != mRegionp)
+	{
+		if(mRegionp)
+		{
+			mRegionp->removeFromCreatedList(getLocalID()); 
+		}
+		if(regionp)
+		{
+			regionp->addToCreatedList(getLocalID()); 
+		}
+	}
+
 	mLatestRecvPacketID = 0;
 	mRegionp = regionp;
 

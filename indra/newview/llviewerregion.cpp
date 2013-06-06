@@ -146,6 +146,7 @@ public:
 	LLVOCachePartition*                   mVOCachePartition;
 	LLVOCacheEntry::vocache_entry_set_t   mVisibleEntries; //must-be-created visible entries wait for objects creation.	
 	LLVOCacheEntry::vocache_entry_priority_list_t mWaitingList; //transient list storing sorted visible entries waiting for object creation.
+	std::set<U32>                          mNonCacheableCreatedList; //list of local ids of all non-cacheable objects
 
 	// time?
 	// LRU info?
@@ -1694,7 +1695,9 @@ void LLViewerRegion::findOrphans(U32 parent_id)
 		std::vector<U32>* children = &mOrphanMap[parent_id];
 		for(S32 i = 0; i < children->size(); i++)
 		{
-			forceToRemoveFromCache((*children)[i], NULL);
+			//parent is visible, so is the child.
+			LLVOCacheEntry* child = getCacheEntry((*children)[i]);
+			addVisibleCacheEntry(child);
 		}
 		children->clear();
 		mOrphanMap.erase(parent_id);
@@ -1735,7 +1738,16 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 		//2, parent is not in the cache, put into the orphan list.
 		if(!parent)
 		{
-			mOrphanMap[parent_id].push_back(entry->getLocalID());
+			//check if parent is non-cacheable and already created
+			if(isNonCacheableObjectCreated(parent_id))
+			{
+				//parent is visible, so is the child.
+				addVisibleCacheEntry(entry);
+			}
+			else
+			{
+				mOrphanMap[parent_id].push_back(entry->getLocalID());
+			}
 		}
 		else //parent in cache
 		{
@@ -1899,6 +1911,36 @@ void LLViewerRegion::addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_ty
 #else
 	mCacheMissList.push_back(CacheMissItem(id, miss_type));
 #endif
+}
+
+//check if a non-cacheable object is already created.
+bool LLViewerRegion::isNonCacheableObjectCreated(U32 local_id)
+{
+	if(mImpl && local_id > 0 && mImpl->mNonCacheableCreatedList.find(local_id) != mImpl->mNonCacheableCreatedList.end())
+	{
+		return true;
+	}
+	return false;
+}
+
+void LLViewerRegion::removeFromCreatedList(U32 local_id)
+{	
+	if(mImpl && local_id > 0)
+	{
+		std::set<U32>::iterator iter = mImpl->mNonCacheableCreatedList.find(local_id);
+		if(iter != mImpl->mNonCacheableCreatedList.end())
+		{
+			mImpl->mNonCacheableCreatedList.erase(iter);
+		}
+	}
+}
+
+void LLViewerRegion::addToCreatedList(U32 local_id)
+{
+	if(mImpl && local_id > 0)
+	{
+		mImpl->mNonCacheableCreatedList.insert(local_id);
+	}
 }
 
 // Get data packer for this object, if we have cached data

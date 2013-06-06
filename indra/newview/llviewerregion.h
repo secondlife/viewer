@@ -347,6 +347,9 @@ public:
 	void getNeighboringRegions( std::vector<LLViewerRegion*>& uniqueRegions );
 	void getNeighboringRegionsStatus( std::vector<S32>& regions );
 	
+	void removeFromCreatedList(U32 local_id);
+	void addToCreatedList(U32 local_id);
+
 private:
 	void addToVOCacheTree(LLVOCacheEntry* entry);
 	LLViewerObject* addNewObject(LLVOCacheEntry* entry);
@@ -361,6 +364,8 @@ private:
 
 	void addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type);
 	void decodeBoundingInfo(LLVOCacheEntry* entry);
+	bool isNonCacheableObjectCreated(U32 local_id);	
+
 public:
 	struct CompareDistance
 	{
