@@ -275,10 +275,10 @@ then
     if $build_viewer_deb && [ "$last_built_variant" == "Release" ]
     then
       begin_section "Build Viewer Debian Package"
-      local have_private_repo=false
+      have_private_repo=false
       
       # Get the current version. 
-      local current_version=`dpkg-parsechangelog | grep ^Version | awk '{ print $2 }'`
+      current_version=`dpkg-parsechangelog | grep ^Version | awk '{ print $2 }'`
       
       # mangle the changelog
       dch --force-bad-version \
