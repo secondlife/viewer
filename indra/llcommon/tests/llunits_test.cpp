@@ -33,9 +33,9 @@
 namespace LLUnits
 {
 	// using powers of 2 to allow strict floating point equality
-	struct Quatloos { typedef Quatloos base_unit_t; };
-	LL_DECLARE_DERIVED_UNIT(4, Quatloos, Latinum);
-	LL_DECLARE_DERIVED_UNIT((1.0 / 4.0), Quatloos, Solari);
+	LL_DECLARE_BASE_UNIT(Quatloos, "Quat");
+	LL_DECLARE_DERIVED_UNIT(4, Quatloos, Latinum, "Lat");
+	LL_DECLARE_DERIVED_UNIT((1.0 / 4.0), Quatloos, Solari, "Sol");
 }
 
 namespace tut
