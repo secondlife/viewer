@@ -5974,14 +5974,16 @@ void handle_report_abuse()
 
 void handle_facebook_connect()
 {
-	if (LLFacebookConnect::instance().getConnected())
-	{
-		LLFacebookConnect::instance().disconnectFromFacebook();
-	}
-	else
+	if (!LLFacebookConnect::instance().getConnected())
 	{
         LLFacebookConnect::instance().getConnectionToFacebook();
 	}
+}
+
+bool enable_facebook_connect()
+{
+    // The menu item will be disabled if we are already connected
+    return !LLFacebookConnect::instance().getConnected();
 }
 
 void handle_facebook_checkin()
@@ -5998,9 +6000,6 @@ void handle_facebook_checkin()
 
 	LLFacebookConnect::instance().postCheckin(slurl_string, region_name, description, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDL4jdC_vCh0ow-QCXZjN-WNojEXWiz0APEa6Qhpl8cxawjkoC7w", "");
 }
-
-//bool is_facebook_connected();
-
 
 void handle_buy_currency()
 {
@@ -8754,6 +8753,8 @@ void initialize_menus()
     
     // Facebook Connect
 	commit.add("Facebook.Connect", boost::bind(&handle_facebook_connect));
+	enable.add("Facebook.EnableConnect", boost::bind(&enable_facebook_connect));
+    
 	// Facebook Checkin
 	commit.add("Facebook.Checkin", boost::bind(&handle_facebook_checkin));
 }

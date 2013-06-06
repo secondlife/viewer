@@ -90,7 +90,8 @@ void LLPanelSnapshotFacebook::onOpen(const LLSD& key)
 void LLPanelSnapshotFacebook::updateControls(const LLSD& info)
 {
 	const bool have_snapshot = info.has("have-snapshot") ? info["have-snapshot"].asBoolean() : true;
-	getChild<LLUICtrl>("post_btn")->setEnabled(have_snapshot);
+    const bool is_connected = LLFacebookConnect::instance().getConnected();
+	getChild<LLUICtrl>("post_btn")->setEnabled(have_snapshot && is_connected);
 }
 
 void LLPanelSnapshotFacebook::onSend()
