@@ -58,21 +58,14 @@
 #include "pipeline.h"
 #include "llappviewer.h"
 #include "llxuiparser.h"
+#include "lltracerecording.h"
 #include "llviewerdisplay.h"
-
+#include "llstartup.h"
 ////////////////////////////////////////////////////////////////////////////
 
 void (*LLViewerTextureList::sUUIDCallback)(void **, const LLUUID&) = NULL;
 
-U32 LLViewerTextureList::sTextureBits = 0;
-U32 LLViewerTextureList::sTexturePackets = 0;
 S32 LLViewerTextureList::sNumImages = 0;
-LLStat LLViewerTextureList::sNumImagesStat("Num Images", 32, TRUE);
-LLStat LLViewerTextureList::sNumRawImagesStat("Num Raw Images", 32, TRUE);
-LLStat LLViewerTextureList::sGLTexMemStat("GL Texture Mem", 32, TRUE);
-LLStat LLViewerTextureList::sGLBoundMemStat("GL Bound Mem", 32, TRUE);
-LLStat LLViewerTextureList::sRawMemStat("Raw Image Mem", 32, TRUE);
-LLStat LLViewerTextureList::sFormattedMemStat("Formatted Image Mem", 32, TRUE);
 
 LLViewerTextureList gTextureList;
 static LLFastTimer::DeclareTimer FTM_PROCESS_IMAGES("Process Images");
@@ -324,7 +317,7 @@ void LLViewerTextureList::restoreGL()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string& filename,
+LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string& filename,												   
 												   FTType f_type,
 												   BOOL usemipmaps,
 												   LLViewerTexture::EBoostLevel boost_priority,
@@ -376,7 +369,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 	}
 
 	LLPointer<LLViewerFetchedTexture> imagep = findImage(new_id);
-
+	
 	if (!imagep.isNull())
 	{
 		LLViewerFetchedTexture *texture = imagep.get();
@@ -432,7 +425,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 }
 
 
-LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
+LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,											       
 												   FTType f_type,
 												   BOOL usemipmaps,
 												   LLViewerTexture::EBoostLevel boost_priority,
@@ -475,7 +468,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 		{
 			llwarns << "FTType mismatch: requested " << f_type << " image has " << imagep->getFTType() << llendl;
 		}
-		
+	
 	}
 	if (imagep.isNull())
 	{
@@ -488,7 +481,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 }
 
 //when this function is called, there is no such texture in the gTextureList with image_id.
-LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
+LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,											       
 												   FTType f_type,
 												   BOOL usemipmaps,
 												   LLViewerTexture::EBoostLevel boost_priority,
@@ -649,9 +642,11 @@ static LLFastTimer::DeclareTimer FTM_IMAGE_FETCH("Fetch");
 static LLFastTimer::DeclareTimer FTM_FAST_CACHE_IMAGE_FETCH("Fast Cache Fetch");
 static LLFastTimer::DeclareTimer FTM_IMAGE_CREATE("Create");
 static LLFastTimer::DeclareTimer FTM_IMAGE_STATS("Stats");
+static LLFastTimer::DeclareTimer FTM_UPDATE_IMAGES("Update Images");
 
 void LLViewerTextureList::updateImages(F32 max_time)
 {
+	LLFastTimer _(FTM_UPDATE_IMAGES);
 	static BOOL cleared = FALSE;
 	if(gTeleportDisplay)
 	{
@@ -665,14 +660,17 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	}
 	cleared = FALSE;
 
-	LLAppViewer::getTextureFetch()->setTextureBandwidth(LLViewerStats::getInstance()->mTextureKBitStat.getMeanPerSec());
+	LLAppViewer::getTextureFetch()->setTextureBandwidth(LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::TEXTURE_KBIT));
 
-	LLViewerStats::getInstance()->mNumImagesStat.addValue(sNumImages);
-	LLViewerStats::getInstance()->mNumRawImagesStat.addValue(LLImageRaw::sRawImageCount);
-	LLViewerStats::getInstance()->mGLTexMemStat.addValue((F32)BYTES_TO_MEGA_BYTES(LLImageGL::sGlobalTextureMemoryInBytes));
-	LLViewerStats::getInstance()->mGLBoundMemStat.addValue((F32)BYTES_TO_MEGA_BYTES(LLImageGL::sBoundTextureMemoryInBytes));
-	LLViewerStats::getInstance()->mRawMemStat.addValue((F32)BYTES_TO_MEGA_BYTES(LLImageRaw::sGlobalRawMemory));
-	LLViewerStats::getInstance()->mFormattedMemStat.addValue((F32)BYTES_TO_MEGA_BYTES(LLImageFormatted::sGlobalFormattedMemory));
+	{
+		using namespace LLStatViewer;
+		sample(NUM_IMAGES, sNumImages);
+		sample(NUM_RAW_IMAGES, LLImageRaw::sRawImageCount);
+		sample(GL_TEX_MEM, LLImageGL::sGlobalTextureMemory);
+		sample(GL_BOUND_MEM, LLImageGL::sBoundTextureMemory);
+		sample(RAW_MEM, LLTrace::Bytes(LLImageRaw::sGlobalRawMemory));
+		sample(FORMATTED_MEM, LLTrace::Bytes(LLImageFormatted::sGlobalFormattedMemory));
+	}
 
 	{
 		//loading from fast cache 
@@ -753,8 +751,18 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 {
 	// Update the decode priority for N images each frame
 	{
-        static const S32 MAX_PRIO_UPDATES = gSavedSettings.getS32("TextureFetchUpdatePriorities");         // default: 32
-		const size_t max_update_count = llmin((S32) (MAX_PRIO_UPDATES*MAX_PRIO_UPDATES*gFrameIntervalSeconds) + 1, MAX_PRIO_UPDATES);
+		F32 lazy_flush_timeout = 30.f; // stop decoding
+		F32 max_inactive_time  = 20.f; // actually delete
+		S32 min_refs = 3; // 1 for mImageList, 1 for mUUIDMap, 1 for local reference
+		if(LLStartUp::getStartupState() < STATE_STARTED)
+		{
+			//do not remove pre-fetched images if viewer does not finish logging in.
+			lazy_flush_timeout = 30000.f;
+			max_inactive_time = 20000.f;
+		}
+        
+		static const S32 MAX_PRIO_UPDATES = gSavedSettings.getS32("TextureFetchUpdatePriorities");         // default: 32
+		const size_t max_update_count = llmin((S32) (MAX_PRIO_UPDATES*MAX_PRIO_UPDATES*gFrameIntervalSeconds.value()) + 1, MAX_PRIO_UPDATES);
 		S32 update_counter = llmin(max_update_count, mUUIDMap.size());
 		uuid_map_t::iterator iter = mUUIDMap.upper_bound(mLastUpdateUUID);
 		while ((update_counter-- > 0) && !mUUIDMap.empty())
@@ -776,14 +784,10 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			//
 			// Flush formatted images using a lazy flush
 			//
-			const F32 LAZY_FLUSH_TIMEOUT = 30.f; // stop decoding
-			const F32 MAX_INACTIVE_TIME  = 20.f; // actually delete
-			S32 min_refs = 3; // 1 for mImageList, 1 for mUUIDMap, 1 for local reference
-			
 			S32 num_refs = imagep->getNumRefs();
 			if (num_refs == min_refs)
 			{
-				if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > LAZY_FLUSH_TIMEOUT)
+				if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > lazy_flush_timeout)
 				{
 					// Remove the unused image from the image list
 					deleteImage(imagep);
@@ -795,7 +799,7 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			{
 				if(imagep->hasSavedRawImage())
 				{
-					if(imagep->getElapsedLastReferencedSavedRawImageTime() > MAX_INACTIVE_TIME)
+					if(imagep->getElapsedLastReferencedSavedRawImageTime() > max_inactive_time)
 					{
 						imagep->destroySavedRawImage() ;
 					}
@@ -812,7 +816,7 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 				}
 				else if(imagep->isInactive())
 				{
-					if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > MAX_INACTIVE_TIME)
+					if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > max_inactive_time)
 					{
 						imagep->setDeletionCandidate() ;
 					}
@@ -988,11 +992,11 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 	static const F32 MIN_PRIORITY_THRESHOLD = gSavedSettings.getF32("TextureFetchUpdatePriorityThreshold"); // default: 0.0
 	static const bool SKIP_LOW_PRIO = gSavedSettings.getBOOL("TextureFetchUpdateSkipLowPriority");          // default: false
 
-	size_t max_priority_count = llmin((S32) (MAX_HIGH_PRIO_COUNT*MAX_HIGH_PRIO_COUNT*gFrameIntervalSeconds)+1, MAX_HIGH_PRIO_COUNT);
+	size_t max_priority_count = llmin((S32) (MAX_HIGH_PRIO_COUNT*MAX_HIGH_PRIO_COUNT*gFrameIntervalSeconds.value())+1, MAX_HIGH_PRIO_COUNT);
 	max_priority_count = llmin(max_priority_count, mImageList.size());
 	
 	size_t total_update_count = mUUIDMap.size();
-	size_t max_update_count = llmin((S32) (MAX_UPDATE_COUNT*MAX_UPDATE_COUNT*gFrameIntervalSeconds)+1, MAX_UPDATE_COUNT);
+	size_t max_update_count = llmin((S32) (MAX_UPDATE_COUNT*MAX_UPDATE_COUNT*gFrameIntervalSeconds.value())+1, MAX_UPDATE_COUNT);
 	max_update_count = llmin(max_update_count, total_update_count);	
 	
 	// MAX_HIGH_PRIO_COUNT high priority entries
@@ -1229,7 +1233,7 @@ S32 LLViewerTextureList::getMinVideoRamSetting()
 {
 	S32 system_ram = (S32)BYTES_TO_MEGA_BYTES(gSysMemory.getPhysicalMemoryClamped());
 	//min texture mem sets to 64M if total physical mem is more than 1.5GB
-	return (system_ram > 1500) ? 64 : MIN_VIDEO_RAM_IN_MEGA_BYTES ;
+	return (system_ram > 1500) ? 64 : gMinVideoRam.value() ;
 }
 
 //static
@@ -1279,7 +1283,7 @@ S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended)
 	else
 		max_texmem = llmin(max_texmem, (S32)(system_ram));
 		
-	max_texmem = llclamp(max_texmem, getMinVideoRamSetting(), MAX_VIDEO_RAM_IN_MEGA_BYTES); 
+	max_texmem = llclamp(max_texmem, getMinVideoRamSetting(), gMaxVideoRam.value()); 
 	
 	return max_texmem;
 }
@@ -1367,8 +1371,8 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 	{
 		received_size = msg->getReceiveSize() ;		
 	}
-	gTextureList.sTextureBits += received_size * 8;
-	gTextureList.sTexturePackets++;
+	add(LLStatViewer::TEXTURE_KBIT, LLTrace::Bytes(received_size));
+	add(LLStatViewer::TEXTURE_PACKETS, 1);
 	
 	U8 codec;
 	U16 packets;
@@ -1440,8 +1444,9 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 	{
 		received_size = msg->getReceiveSize() ;		
 	}
-	gTextureList.sTextureBits += received_size * 8;
-	gTextureList.sTexturePackets++;
+
+	add(LLStatViewer::TEXTURE_KBIT, LLTrace::Bytes(received_size));
+	add(LLStatViewer::TEXTURE_PACKETS, 1);
 	
 	//llprintline("Start decode, image header...");
 	msg->getUUIDFast(_PREHASH_ImageID, _PREHASH_ID, id);

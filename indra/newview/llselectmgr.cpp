@@ -1545,7 +1545,7 @@ void LLObjectSelection::applyNoCopyTextureToTEs(LLViewerInventoryItem* item)
 				}
 
 				// apply texture for the selected faces
-				LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
+				add(LLStatViewer::EDIT_TEXTURE, 1);
 				object->setTEImage(te, image);
 				dialog_refresh_all();
 
@@ -2980,18 +2980,18 @@ private:
 void LLSelectMgr::getFirst(LLSelectGetFirstTest* test)
 {
 	if (gSavedSettings.getBOOL("EditLinkedParts"))
-	{
+{
 		for (LLObjectSelection::valid_iterator iter = getSelection()->valid_begin();
 			iter != getSelection()->valid_end(); ++iter )
-		{
+	{
 			if (!test->checkMatchingNode(*iter))
-			{
+		{
 				break;
 			}
 		}
-	}
-	else
-	{
+		}
+		else
+		{
 		for (LLObjectSelection::root_object_iterator iter = getSelection()->root_object_begin();
 			iter != getSelection()->root_object_end(); ++iter )
 		{
@@ -3001,31 +3001,31 @@ void LLSelectMgr::getFirst(LLSelectGetFirstTest* test)
 			}
 		}
 	}
-}
+	}
 
 //-----------------------------------------------------------------------------
 // selectGetCreator()
 // Creator information only applies to roots unless editing linked parts.
 //-----------------------------------------------------------------------------
 struct LLSelectGetFirstCreator : public LLSelectGetFirstTest
-{
+	{
 protected:
 	virtual const LLUUID& getValueFromNode(LLSelectNode* node)
-	{
+		{
 		return node->mPermissions->getCreator();
-	}
+		}
 };
 
 BOOL LLSelectMgr::selectGetCreator(LLUUID& result_id, std::string& name)
-{
+		{
 	LLSelectGetFirstCreator test;
 	getFirst(&test);
 
 	if (test.mFirstValue.isNull())
-	{
-		name = LLTrans::getString("AvatarNameNobody");
+		{
+			name = LLTrans::getString("AvatarNameNobody");
 		return FALSE;
-	}
+		}
 	
 	result_id = test.mFirstValue;
 	
@@ -3046,18 +3046,18 @@ BOOL LLSelectMgr::selectGetCreator(LLUUID& result_id, std::string& name)
 // Owner information only applies to roots unless editing linked parts.
 //-----------------------------------------------------------------------------
 struct LLSelectGetFirstOwner : public LLSelectGetFirstTest
-{
+	{
 protected:
 	virtual const LLUUID& getValueFromNode(LLSelectNode* node)
-	{
+		{
 		// Don't use 'getOwnership' since we return a reference, not a copy.
 		// Will return LLUUID::null if unowned (which is not allowed and should never happen.)
 		return node->mPermissions->isGroupOwned() ? node->mPermissions->getGroup() : node->mPermissions->getOwner();
-	}
+		}
 };
 
 BOOL LLSelectMgr::selectGetOwner(LLUUID& result_id, std::string& name)
-{
+		{
 	LLSelectGetFirstOwner test;
 	getFirst(&test);
 
@@ -3096,34 +3096,34 @@ struct LLSelectGetFirstLastOwner : public LLSelectGetFirstTest
 {
 protected:
 	virtual const LLUUID& getValueFromNode(LLSelectNode* node)
-	{
+{
 		return node->mPermissions->getLastOwner();
 	}
 };
 
 BOOL LLSelectMgr::selectGetLastOwner(LLUUID& result_id, std::string& name)
-{
+	{
 	LLSelectGetFirstLastOwner test;
 	getFirst(&test);
 
 	if (test.mFirstValue.isNull())
-	{
-		return FALSE;
-	}
+		{
+			return FALSE;
+		}
 
 	result_id = test.mFirstValue;
 	
 	if (test.mIdentical)
-	{
+		{
 		name = LLSLURL("agent", test.mFirstValue, "inspect").getSLURLString();
-	}
-	else
-	{
+		}
+		else
+		{
 		name.assign( "" );
-	}
+			}
 
 	return test.mIdentical;
-}
+		}
 
 //-----------------------------------------------------------------------------
 // selectGetGroup()
@@ -3153,10 +3153,10 @@ BOOL LLSelectMgr::selectGetGroup(LLUUID& result_id)
 // Returns TRUE if the first selected is group owned.
 //-----------------------------------------------------------------------------
 struct LLSelectGetFirstGroupOwner : public LLSelectGetFirstTest
-{
+	{
 protected:
 	virtual const LLUUID& getValueFromNode(LLSelectNode* node)
-	{
+		{
 		if (node->mPermissions->isGroupOwned())
 		{
 			return node->mPermissions->getGroup();
@@ -3412,9 +3412,7 @@ bool LLSelectMgr::confirmDelete(const LLSD& notification, const LLSD& response, 
 			gAgentCamera.setLookAt(LOOKAT_TARGET_CLEAR);
 
 			// Keep track of how many objects have been deleted.
-			F64 obj_delete_count = LLViewerStats::getInstance()->getStat(LLViewerStats::ST_OBJECT_DELETE_COUNT);
-			obj_delete_count += LLSelectMgr::getInstance()->mSelectedObjects->getObjectCount();
-			LLViewerStats::getInstance()->setStat(LLViewerStats::ST_OBJECT_DELETE_COUNT, obj_delete_count );
+			add(LLStatViewer::DELETE_OBJECT, LLSelectMgr::getInstance()->mSelectedObjects->getObjectCount());
 		}
 		break;
 	case 1:

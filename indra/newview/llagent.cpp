@@ -754,7 +754,7 @@ void LLAgent::setFlying(BOOL fly)
 		}
 		if( !was_flying )
 		{
-			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_FLY_COUNT);
+			add(LLStatViewer::FLY, 1);
 		}
 		setControlFlags(AGENT_CONTROL_FLY);
 	}
@@ -2830,10 +2830,10 @@ BOOL LLAgent::isInGroup(const LLUUID& group_id, BOOL ignore_god_mode /* FALSE */
 	if (!ignore_god_mode && isGodlike())
 		return true;
 
-	S32 count = mGroups.count();
-	for(S32 i = 0; i < count; ++i)
+	U32 count = mGroups.size();
+	for(U32 i = 0; i < count; ++i)
 	{
-		if(mGroups.get(i).mID == group_id)
+		if(mGroups[i].mID == group_id)
 		{
 			return TRUE;
 		}
@@ -2850,12 +2850,12 @@ BOOL LLAgent::hasPowerInGroup(const LLUUID& group_id, U64 power) const
 	// GP_NO_POWERS can also mean no power is enough to grant an ability.
 	if (GP_NO_POWERS == power) return FALSE;
 
-	S32 count = mGroups.count();
-	for(S32 i = 0; i < count; ++i)
+	U32 count = mGroups.size();
+	for(U32 i = 0; i < count; ++i)
 	{
-		if(mGroups.get(i).mID == group_id)
+		if(mGroups[i].mID == group_id)
 		{
-			return (BOOL)((mGroups.get(i).mPowers & power) > 0);
+			return (BOOL)((mGroups[i].mPowers & power) > 0);
 		}
 	}
 	return FALSE;
@@ -2871,12 +2871,12 @@ U64 LLAgent::getPowerInGroup(const LLUUID& group_id) const
 	if (isGodlike())
 		return GP_ALL_POWERS;
 	
-	S32 count = mGroups.count();
-	for(S32 i = 0; i < count; ++i)
+	U32 count = mGroups.size();
+	for(U32 i = 0; i < count; ++i)
 	{
-		if(mGroups.get(i).mID == group_id)
+		if(mGroups[i].mID == group_id)
 		{
-			return (mGroups.get(i).mPowers);
+			return (mGroups[i].mPowers);
 		}
 	}
 
@@ -2885,12 +2885,12 @@ U64 LLAgent::getPowerInGroup(const LLUUID& group_id) const
 
 BOOL LLAgent::getGroupData(const LLUUID& group_id, LLGroupData& data) const
 {
-	S32 count = mGroups.count();
+	S32 count = mGroups.size();
 	for(S32 i = 0; i < count; ++i)
 	{
-		if(mGroups.get(i).mID == group_id)
+		if(mGroups[i].mID == group_id)
 		{
-			data = mGroups.get(i);
+			data = mGroups[i];
 			return TRUE;
 		}
 	}
@@ -2899,12 +2899,12 @@ BOOL LLAgent::getGroupData(const LLUUID& group_id, LLGroupData& data) const
 
 S32 LLAgent::getGroupContribution(const LLUUID& group_id) const
 {
-	S32 count = mGroups.count();
+	S32 count = mGroups.size();
 	for(S32 i = 0; i < count; ++i)
 	{
-		if(mGroups.get(i).mID == group_id)
+		if(mGroups[i].mID == group_id)
 		{
-			S32 contribution = mGroups.get(i).mContribution;
+			S32 contribution = mGroups[i].mContribution;
 			return contribution;
 		}
 	}
@@ -2913,12 +2913,12 @@ S32 LLAgent::getGroupContribution(const LLUUID& group_id) const
 
 BOOL LLAgent::setGroupContribution(const LLUUID& group_id, S32 contribution)
 {
-	S32 count = mGroups.count();
+	S32 count = mGroups.size();
 	for(S32 i = 0; i < count; ++i)
 	{
-		if(mGroups.get(i).mID == group_id)
+		if(mGroups[i].mID == group_id)
 		{
-			mGroups.get(i).mContribution = contribution;
+			mGroups[i].mContribution = contribution;
 			LLMessageSystem* msg = gMessageSystem;
 			msg->newMessage("SetGroupContribution");
 			msg->nextBlock("AgentData");
@@ -2936,13 +2936,13 @@ BOOL LLAgent::setGroupContribution(const LLUUID& group_id, S32 contribution)
 
 BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOOL list_in_profile)
 {
-	S32 count = mGroups.count();
+	S32 count = mGroups.size();
 	for(S32 i = 0; i < count; ++i)
 	{
-		if(mGroups.get(i).mID == group_id)
+		if(mGroups[i].mID == group_id)
 		{
-			mGroups.get(i).mAcceptNotices = accept_notices;
-			mGroups.get(i).mListInProfile = list_in_profile;
+			mGroups[i].mAcceptNotices = accept_notices;
+			mGroups[i].mListInProfile = list_in_profile;
 			LLMessageSystem* msg = gMessageSystem;
 			msg->newMessage("SetGroupAcceptNotices");
 			msg->nextBlock("AgentData");
@@ -2962,7 +2962,7 @@ BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOO
 
 BOOL LLAgent::canJoinGroups() const
 {
-	return mGroups.count() < gMaxAgentGroups;
+	return (S32)mGroups.size() < gMaxAgentGroups;
 }
 
 LLQuaternion LLAgent::getHeadRotation()
@@ -3792,7 +3792,7 @@ bool LLAgent::teleportCore(bool is_local)
 	gAgentCamera.resetView(FALSE);
 
 	// local logic
-	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TELEPORT_COUNT);
+	add(LLStatViewer::TELEPORT, 1);
 	if (is_local)
 	{
 		gAgent.setTeleportState( LLAgent::TELEPORT_LOCAL );
@@ -4109,7 +4109,7 @@ void LLAgent::setTeleportState(ETeleportState state)
 
 		case TELEPORT_ARRIVING:
 		// First two position updates after a teleport tend to be weird
-		LLViewerStats::getInstance()->mAgentPositionSnaps.mCountOfNextUpdatesToIgnore = 2;
+		//LLViewerStats::getInstance()->mAgentPositionSnaps.mCountOfNextUpdatesToIgnore = 2;
 
 		// Let the interested parties know we've teleported.
 		LLViewerParcelMgr::getInstance()->onTeleportFinished(false, getPositionGlobal());

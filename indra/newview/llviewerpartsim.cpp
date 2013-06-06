@@ -151,8 +151,8 @@ LLViewerPartGroup::LLViewerPartGroup(const LLVector3 &center_agent, const F32 bo
 
 	if (group != NULL)
 	{
-		LLVector3 center(group->mOctreeNode->getCenter().getF32ptr());
-		LLVector3 size(group->mOctreeNode->getSize().getF32ptr());
+		LLVector3 center(group->getOctreeNode()->getCenter().getF32ptr());
+		LLVector3 size(group->getOctreeNode()->getSize().getF32ptr());
 		size += LLVector3(0.01f, 0.01f, 0.01f);
 		mMinObjPos = center - size;
 		mMaxObjPos = center + size;
@@ -467,6 +467,20 @@ LLViewerPartSim::LLViewerPartSim()
 	mID = ++id_seed;
 }
 
+//enable/disable particle system
+void LLViewerPartSim::enable(bool enabled)
+{
+	if(!enabled && sMaxParticleCount > 0)
+	{
+		sMaxParticleCount = 0; //disable
+	}
+	else if(enabled && sMaxParticleCount < 1)
+	{
+		sMaxParticleCount = llmin(gSavedSettings.getS32("RenderMaxPartCount"), LL_MAX_PARTICLE_COUNT);
+	}
+
+	return;
+}
 
 void LLViewerPartSim::destroyClass()
 {

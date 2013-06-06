@@ -38,24 +38,13 @@ class LLLayoutPanel;
 class LLLayoutStack : public LLView, public LLInstanceTracker<LLLayoutStack>
 {
 public:
-	typedef enum e_layout_orientation
-	{
-		HORIZONTAL,
-		VERTICAL
-	} ELayoutOrientation;
-
-	struct OrientationNames
-	:	public LLInitParam::TypeValuesHelper<ELayoutOrientation, OrientationNames>
-	{
-		static void declareValues();
-	};
 
 	struct LayoutStackRegistry : public LLChildRegistry<LayoutStackRegistry>
 	{};
 
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
-		Mandatory<ELayoutOrientation, OrientationNames>	orientation;
+		Mandatory<EOrientation>	orientation;
 		Optional<S32>			border_size;
 		Optional<bool>			animate,
 								clip;
@@ -105,7 +94,7 @@ private:
 	bool animatePanels();
 	void createResizeBar(LLLayoutPanel* panel);
 
-	const ELayoutOrientation mOrientation;
+	const EOrientation mOrientation;
 
 	typedef std::vector<LLLayoutPanel*> e_panel_list_t;
 	e_panel_list_t mPanels;
@@ -183,7 +172,7 @@ public:
 
 	bool isCollapsed() const { return mCollapsed;}
 
-	void setOrientation(LLLayoutStack::ELayoutOrientation orientation);
+	void setOrientation(LLView::EOrientation orientation);
 	void storeOriginalDim();
 
 	void setIgnoreReshape(bool ignore) { mIgnoreReshape = ignore; }
@@ -202,7 +191,7 @@ protected:
 	F32		mFractionalSize;
 	S32		mTargetDim;
 	bool	mIgnoreReshape;
-	LLLayoutStack::ELayoutOrientation mOrientation;
+	LLView::EOrientation mOrientation;
 	class LLResizeBar* mResizeBar;
 };
 

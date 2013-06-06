@@ -463,7 +463,7 @@ void LLDrawPoolWater::renderReflection(LLFace* face)
 
 	gGL.getTexUnit(0)->bind(mHBTex[dr]);
 
-	LLOverrideFaceColor override(this, face->getFaceColor().mV);
+	LLOverrideFaceColor override(this, LLColor4(face->getFaceColor().mV));
 	face->renderIndexed();
 }
 

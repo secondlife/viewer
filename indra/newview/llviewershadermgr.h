@@ -232,6 +232,10 @@ extern LLGLSLShader			gClipProgram;
 
 //output tex0[tc0] + tex1[tc1]
 extern LLGLSLShader			gTwoTextureAddProgram;
+//output tex0[tc0] - tex1[tc1]
+extern LLGLSLShader			gTwoTextureCompareProgram;
+//discard some fragments based on user-set color tolerance
+extern LLGLSLShader			gOneTextureFilterProgram;
 						
 extern LLGLSLShader			gOneTextureNoColorProgram;
 

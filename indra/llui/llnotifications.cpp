@@ -516,7 +516,7 @@ LLNotification::LLNotification(const LLSDParamAdapter<Params>& p) :
 
 
 LLSD LLNotification::asLLSD(bool excludeTemplateElements)
-{
+{ 
 	LLParamSDParser parser;
 
 	Params p;
@@ -544,12 +544,12 @@ LLSD LLNotification::asLLSD(bool excludeTemplateElements)
         mForm->getElements(dynamicElements, templateForm->getNumElements());
         p.form_elements = dynamicElements;
     }
-    
+
     if(mResponder)
     {
         p.functor.responder_sd = mResponder->asLLSD();
     }
-    
+
 	if(!mResponseFunctorName.empty())
 	{
 		p.functor.name = mResponseFunctorName;

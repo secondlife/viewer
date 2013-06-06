@@ -78,6 +78,8 @@ LLGLSLShader	gGlowCombineProgram;
 LLGLSLShader	gSplatTextureRectProgram;
 LLGLSLShader	gGlowCombineFXAAProgram;
 LLGLSLShader	gTwoTextureAddProgram;
+LLGLSLShader	gTwoTextureCompareProgram;
+LLGLSLShader	gOneTextureFilterProgram;
 LLGLSLShader	gOneTextureNoColorProgram;
 LLGLSLShader	gDebugProgram;
 LLGLSLShader	gClipProgram;
@@ -672,6 +674,8 @@ void LLViewerShaderMgr::unloadShaders()
 	gSplatTextureRectProgram.unload();
 	gGlowCombineFXAAProgram.unload();
 	gTwoTextureAddProgram.unload();
+	gTwoTextureCompareProgram.unload();
+	gOneTextureFilterProgram.unload();
 	gOneTextureNoColorProgram.unload();
 	gSolidColorProgram.unload();
 
@@ -2704,6 +2708,38 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 			gTwoTextureAddProgram.bind();
 			gTwoTextureAddProgram.uniform1i("tex0", 0);
 			gTwoTextureAddProgram.uniform1i("tex1", 1);
+		}
+	}
+
+	if (success)
+	{
+		gTwoTextureCompareProgram.mName = "Two Texture Compare Shader";
+		gTwoTextureCompareProgram.mShaderFiles.clear();
+		gTwoTextureCompareProgram.mShaderFiles.push_back(make_pair("interface/twotexturecompareV.glsl", GL_VERTEX_SHADER_ARB));
+		gTwoTextureCompareProgram.mShaderFiles.push_back(make_pair("interface/twotexturecompareF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gTwoTextureCompareProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
+		success = gTwoTextureCompareProgram.createShader(NULL, NULL);
+		if (success)
+		{
+			gTwoTextureCompareProgram.bind();
+			gTwoTextureCompareProgram.uniform1i("tex0", 0);
+			gTwoTextureCompareProgram.uniform1i("tex1", 1);
+			gTwoTextureCompareProgram.uniform1i("dither_tex", 2);
+		}
+	}
+
+	if (success)
+	{
+		gOneTextureFilterProgram.mName = "One Texture Filter Shader";
+		gOneTextureFilterProgram.mShaderFiles.clear();
+		gOneTextureFilterProgram.mShaderFiles.push_back(make_pair("interface/onetexturefilterV.glsl", GL_VERTEX_SHADER_ARB));
+		gOneTextureFilterProgram.mShaderFiles.push_back(make_pair("interface/onetexturefilterF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gOneTextureFilterProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
+		success = gOneTextureFilterProgram.createShader(NULL, NULL);
+		if (success)
+		{
+			gOneTextureFilterProgram.bind();
+			gOneTextureFilterProgram.uniform1i("tex0", 0);
 		}
 	}
 

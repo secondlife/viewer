@@ -145,7 +145,7 @@ public:
 	void updatePlusButton();
 	void onPlusBtnClicked(void);
 
-	void onVisibilityChange(const LLSD &in_visible_chain);
+	void onVisibilityChanged(const LLSD &in_visible_chain);
 
 	void applyFolderViewFilter(EFolderViewItemType type);
 	void applyListViewFilter(EListViewItemType type);

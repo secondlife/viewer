@@ -26,8 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "apr_pools.h"
-#include "apr_dso.h"
+#include "llapr.h"
 #include "llhttpstatuscodes.h"
 #include "llmeshrepository.h"
 

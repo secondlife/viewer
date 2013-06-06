@@ -31,6 +31,7 @@
 
 #include "llbuffer.h"
 #include "llbufferstream.h"
+#include "llfasttimer.h"
 #include "llpumpio.h"
 #include "llsdserialize.h"
 #include "llstl.h"

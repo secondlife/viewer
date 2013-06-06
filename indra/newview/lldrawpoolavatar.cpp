@@ -421,7 +421,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	
 	if (pass == 0)
 	{
-		avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
+		avatarp->renderSkinned();
 	}
 	else
 	{
@@ -1246,7 +1246,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 	if( !single_avatar || (avatarp == single_avatar) )
 	{
-		avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
+		avatarp->renderSkinned();
 	}
 }
 

@@ -72,7 +72,7 @@ private:
 
 inline void RefCounted::addRef() const
 {
-	S32 count(mRefCount++);
+	S32 count(++mRefCount);
 	llassert_always(count >= 0);
 }
 
@@ -82,7 +82,7 @@ inline void RefCounted::release() const
 	S32 count(mRefCount);
 	llassert_always(count != NOT_REF_COUNTED);
 	llassert_always(count > 0);
-	count = mRefCount--;
+	count = --mRefCount;
 
 	// clean ourselves up if that was the last reference
 	if (0 == count)

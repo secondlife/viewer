@@ -32,12 +32,12 @@
 #include "llpermissions.h"
 #include "llsaleinfo.h"
 #include "llwearabletype.h"
-#include "lllocaltextureobject.h"
 
 class LLMD5;
 class LLVisualParam;
 class LLTexGlobalColorInfo;
 class LLTexGlobalColor;
+class LLLocalTextureObject;
 class LLAvatarAppearance;
 
 // Abstract class.
@@ -116,7 +116,7 @@ public:
 protected:
 	typedef std::map<S32, LLLocalTextureObject*> te_map_t;
 	void				syncImages(te_map_t &src, te_map_t &dst);
-	void				destroyTextures();
+	void				destroyTextures();	
 	void			 	createVisualParams(LLAvatarAppearance *avatarp);
 	void 				createLayers(S32 te, LLAvatarAppearance *avatarp);
 	BOOL				getNextPopulatedLine(std::istream& input_stream, char* buffer, U32 buffer_size);

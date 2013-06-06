@@ -501,7 +501,7 @@ void LLViewerJoystick::moveObjects(bool reset)
 	};
 
 	F32 cur_delta[6];
-	F32 time = gFrameIntervalSeconds;
+	F32 time = gFrameIntervalSeconds.value();
 
 	// avoid making ridicously big movements if there's a big drop in fps 
 	if (time > .2f)
@@ -665,7 +665,7 @@ void LLViewerJoystick::moveAvatar(bool reset)
 	};
 
 	// time interval in seconds between this frame and the previous
-	F32 time = gFrameIntervalSeconds;
+	F32 time = gFrameIntervalSeconds.value();
 
 	// avoid making ridicously big movements if there's a big drop in fps 
 	if (time > .2f)
@@ -878,7 +878,7 @@ void LLViewerJoystick::moveFlycam(bool reset)
 		gSavedSettings.getF32("FlycamAxisDeadZone6")
 	};
 
-	F32 time = gFrameIntervalSeconds;
+	F32 time = gFrameIntervalSeconds.value();
 
 	// avoid making ridiculously big movements if there's a big drop in fps 
 	if (time > .2f)

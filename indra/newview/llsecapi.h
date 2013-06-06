@@ -30,6 +30,7 @@
 #include <vector>
 #include <openssl/x509.h>
 #include <ostream>
+#include "llthread.h"
 
 #ifdef LL_WINDOWS
 #pragma warning(disable:4250)

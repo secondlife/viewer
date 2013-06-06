@@ -39,6 +39,7 @@
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
+#include "lllocaltextureobject.h"
 #include "llmd5.h"
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
@@ -64,10 +65,10 @@ using namespace LLAvatarAppearanceDefines;
 void wear_and_edit_cb(const LLUUID& inv_item)
 {
 	if (inv_item.isNull()) return;
-	
+
 	// Request editing the item after it gets worn.
 	gAgentWearables.requestEditingWearable(inv_item);
-	
+
 	// Wear it.
 	LLAppearanceMgr::instance().wearItemOnAvatar(inv_item);
 }
@@ -180,7 +181,7 @@ void LLAgentWearables::initClass()
 }
 
 void LLAgentWearables::setAvatarObject(LLVOAvatarSelf *avatar)
-{
+{ 
 	llassert(avatar);
 	avatar->outputRezTiming("Sending wearables request");
 	sendAgentWearablesRequest();

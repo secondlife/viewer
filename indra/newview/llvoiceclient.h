@@ -34,7 +34,6 @@ class LLVOAvatar;
 #include "lliosocket.h"
 #include "v3math.h"
 #include "llframetimer.h"
-#include "llviewerregion.h"
 #include "llcallingcard.h"   // for LLFriendObserver
 #include "llsecapi.h"
 #include "llcontrol.h"

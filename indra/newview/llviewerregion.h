@@ -34,7 +34,6 @@
 
 #include "lldarray.h"
 #include "llwind.h"
-#include "llstat.h"
 #include "v3dmath.h"
 #include "llstring.h"
 #include "llregionflags.h"
@@ -66,8 +65,11 @@ class LLDataPacker;
 class LLDataPackerBinaryBuffer;
 class LLHost;
 class LLBBox;
-
+class LLSpatialGroup;
+class LLDrawable;
 class LLViewerRegionImpl;
+class LLviewerOctreeGroup;
+class LLVOCachePartition;
 
 class LLViewerRegion: public LLCapabilityProvider // implements this interface
 {
@@ -85,6 +87,7 @@ public:
 		PARTITION_VOLUME,
 		PARTITION_BRIDGE,
 		PARTITION_HUD_PARTICLE,
+		PARTITION_VO_CACHE,
 		PARTITION_NONE,
 		NUM_PARTITIONS
 	} eObjectPartitions;
@@ -223,6 +226,11 @@ public:
 	F32	getWidth() const						{ return mWidth; }
 
 	BOOL idleUpdate(F32 max_update_time);
+	void addVisibleGroup(LLviewerOctreeGroup* group);
+	void addVisibleCacheEntry(LLVOCacheEntry* entry);
+	void addActiveCacheEntry(LLVOCacheEntry* entry);
+	void removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* drawablep);	
+	void killCacheEntry(U32 local_id); //physically delete the cache entry	
 
 	// Like idleUpdate, but forces everything to complete regardless of
 	// how long it takes.
@@ -315,10 +323,16 @@ public:
 	} eCacheUpdateResult;
 
 	// handle a full update message
-	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp);
-	LLDataPacker *getDP(U32 local_id, U32 crc, U8 &cache_miss_type);
+	eCacheUpdateResult cacheFullUpdate(LLDataPackerBinaryBuffer &dp, U32 flags);
+	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp, U32 flags);	
+	LLVOCacheEntry* getCacheEntryForOctree(U32 local_id);
+	LLVOCacheEntry* getCacheEntry(U32 local_id);
+	bool probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss_type);
 	void requestCacheMisses();
 	void addCacheMissFull(const U32 local_id);
+	//remove from object cache if the object receives a full-update or terse update
+	LLViewerObject* forceToRemoveFromCache(U32 local_id, LLViewerObject* objectp);
+	void findOrphans(U32 parent_id);
 
 	void dumpCache();
 
@@ -332,7 +346,9 @@ public:
     virtual std::string getDescription() const;
 	std::string getHttpUrl() const { return mHttpUrl ;}
 
+	U32 getNumOfActiveCachedObjects() const;
 	LLSpatialPartition* getSpatialPartition(U32 type);
+	LLVOCachePartition* getVOCachePartition();
 
 	bool objectIsReturnable(const LLVector3& pos, const std::vector<LLBBox>& boxes) const;
 	bool childrenObjectReturnable( const std::vector<LLBBox>& boxes ) const;
@@ -342,7 +358,21 @@ public:
 	void getNeighboringRegionsStatus( std::vector<S32>& regions );
 	const LLViewerRegionImpl * getRegionImpl() const { return mImpl; }
 	LLViewerRegionImpl * getRegionImplNC() { return mImpl; }
+	
+private:
+	void addToVOCacheTree(LLVOCacheEntry* entry);
+	LLViewerObject* addNewObject(LLVOCacheEntry* entry);
+	void killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list);	
+	void removeFromVOCacheTree(LLVOCacheEntry* entry);
+	void replaceCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry* new_entry);
+	void killCacheEntry(LLVOCacheEntry* entry); //physically delete the cache entry	
 
+	F32 killInvisibleObjects(F32 max_time);
+	F32 createVisibleObjects(F32 max_time);
+	F32 updateVisibleEntries(F32 max_time); //update visible entries
+
+	void addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type);
+	void decodeBoundingInfo(LLVOCacheEntry* entry);
 public:
 	struct CompareDistance
 	{
@@ -362,9 +392,8 @@ public:
 	LLWind  mWind;
 	LLViewerParcelOverlay	*mParcelOverlay;
 
-	LLStat	mBitStat;
-	LLStat	mPacketsStat;
-	LLStat	mPacketsLostStat;
+	F32		mBitsReceived;
+	F32		mPacketsReceived;
 
 	LLMatrix4 mRenderMatrix;
 
@@ -376,8 +405,10 @@ public:
 	LLDynamicArray<U32> mMapAvatars;
 	LLDynamicArray<LLUUID> mMapAvatarIDs;
 
+	static BOOL sVOCacheCullingEnabled; //vo cache culling enabled or not.
 private:
 	LLViewerRegionImpl * mImpl;
+	LLFrameTimer         mRegionTimer;
 
 	F32			mWidth;			// Width of region on a side (meters)
 	U64			mHandle;
@@ -421,18 +452,29 @@ private:
 	// Maps local ids to cache entries.
 	// Regions can have order 10,000 objects, so assume
 	// a structure of size 2^14 = 16,000
-	BOOL									mCacheLoaded;
-	BOOL                                    mCacheDirty;
+	BOOL	mCacheLoaded;
+	BOOL    mCacheDirty;
+	BOOL	mAlive;					// can become false if circuit disconnects
+	BOOL	mCapabilitiesReceived;
+	BOOL    mReleaseNotesRequested;
+	BOOL    mDead;  //if true, this region is in the process of deleting.
 
-	LLDynamicArray<U32>						mCacheMissFull;
-	LLDynamicArray<U32>						mCacheMissCRC;
+	typedef std::map<U32, std::vector<U32> > orphan_list_t;
+	orphan_list_t mOrphanMap;
 
-	bool	mAlive;					// can become false if circuit disconnects
-	bool	mCapabilitiesReceived;
-	caps_received_signal_t mCapabilitiesReceivedSignal;
+	class CacheMissItem
+	{
+	public:
+		CacheMissItem(U32 id, LLViewerRegion::eCacheMissType miss_type) : mID(id), mType(miss_type){}
 
-	BOOL mReleaseNotesRequested;
+		U32                            mID;     //local object id
+		LLViewerRegion::eCacheMissType mType;   //cache miss type
+
+		typedef std::list<CacheMissItem> cache_miss_list_t;
+	};
+	CacheMissItem::cache_miss_list_t   mCacheMissList;
 	
+	caps_received_signal_t mCapabilitiesReceivedSignal;		
 	LLSD mSimulatorFeatures;
 };
 

@@ -70,6 +70,7 @@
 #include "llviewermenu.h"
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"
+#include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llwearablelist.h"
@@ -3222,7 +3223,7 @@ void LLFolderBridge::pasteFromClipboard()
 						LLViewerInventoryCategory* vicat = (LLViewerInventoryCategory *) model->getCategory(item_id);
 						llassert(vicat);
 						if (vicat)
-						{       
+						{
                             //changeCategoryParent() implicity calls dirtyFilter
 							changeCategoryParent(model, vicat, parent_id, FALSE);
 						}

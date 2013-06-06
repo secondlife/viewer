@@ -6923,7 +6923,7 @@ Do not allow access if you do not fully understand why it wants access to your a
 [FOOTERTEXT]
     </footer>
   </notification>
-	
+
 	<notification
 	 icon="notify.tga"
 	 name="UnknownScriptQuestion"

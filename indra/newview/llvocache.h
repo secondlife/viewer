@@ -29,51 +29,138 @@
 
 #include "lluuid.h"
 #include "lldatapacker.h"
-#include "lldlinked.h"
 #include "lldir.h"
-
+#include "llvieweroctree.h"
+#include "llapr.h"
 
 //---------------------------------------------------------------------------
 // Cache entries
 class LLVOCacheEntry;
+class LLCamera;
 
-class LLVOCacheEntry
+class LLVOCacheEntry : public LLViewerOctreeEntryData
 {
+public:
+	enum //low 16-bit state
+	{
+		INACTIVE = 0x00000000,     //not visible
+		IN_QUEUE = 0x00000001,     //in visible queue, object to be created
+		WAITING  = 0x00000002,     //object creation request sent
+		ACTIVE   = 0x00000004      //object created, and in rendering pipeline.
+	};
+
+	struct CompareVOCacheEntry
+	{
+		bool operator()(const LLVOCacheEntry* const& lhs, const LLVOCacheEntry* const& rhs)
+		{
+			F32 lpa = lhs->getSceneContribution();
+			F32 rpa = rhs->getSceneContribution();
+
+			//larger pixel area first
+			if(lpa > rpa)		
+			{
+				return true;
+			}
+			else if(lpa < rpa)
+			{
+				return false;
+			}
+			else
+			{
+				return lhs < rhs;
+			}			
+		}
+	};
+protected:
+	~LLVOCacheEntry();
 public:
 	LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &dp);
 	LLVOCacheEntry(LLAPRFile* apr_file);
-	LLVOCacheEntry();
-	~LLVOCacheEntry();
+	LLVOCacheEntry();	
 
+	void setState(U32 state);
+	//void clearState(U32 state) {mState &= ~state;}
+	bool isState(U32 state)    {return mState == state;}
+	bool hasState(U32 state)   {return mState & state;}
+	U32  getState() const      {return mState;}
+	
 	U32 getLocalID() const			{ return mLocalID; }
 	U32 getCRC() const				{ return mCRC; }
 	S32 getHitCount() const			{ return mHitCount; }
 	S32 getCRCChangeCount() const	{ return mCRCChangeCount; }
+	S32 getMinFrameRange()const;	
+
+	void calcSceneContribution(const LLVector3& camera_origin, bool needs_update, U32 last_update);
+	void setSceneContribution(F32 scene_contrib) {mSceneContrib = scene_contrib;}
+	F32 getSceneContribution() const             { return mSceneContrib;}
 
 	void dump() const;
 	BOOL writeToFile(LLAPRFile* apr_file) const;
-	void assignCRC(U32 crc, LLDataPackerBinaryBuffer &dp);
 	LLDataPackerBinaryBuffer *getDP(U32 crc);
+	LLDataPackerBinaryBuffer *getDP();
 	void recordHit();
 	void recordDupe() { mDupeCount++; }
+	
+	void moveTo(LLVOCacheEntry* new_entry); //copy variables 
+	/*virtual*/ void setOctreeEntry(LLViewerOctreeEntry* entry);
+
+	void setParentID(U32 id) {mParentID = id;}
+	U32  getParentID() const {return mParentID;}
+
+	void addChild(LLVOCacheEntry* entry);
+	LLVOCacheEntry* getChild(S32 i) {return mChildrenList[i];}
+	S32  getNumOfChildren()         {return mChildrenList.size();}
+	void clearChildrenList()        {mChildrenList.clear();}
+
+	//called from processing object update message
+	void setBoundingInfo(const LLVector3& pos, const LLVector3& scale);
+	
+	void setTouched(BOOL touched = TRUE) {mTouched = touched;}
+	BOOL isTouched() const {return mTouched;}
+
+	void setUpdateFlags(U32 flags) {mUpdateFlags = flags;}
+	U32  getUpdateFlags() const    {return mUpdateFlags;}
 
 public:
-	typedef std::map<U32, LLVOCacheEntry*>	vocache_entry_map_t;
+	typedef std::map<U32, LLPointer<LLVOCacheEntry> >	   vocache_entry_map_t;
+	typedef std::set<LLVOCacheEntry*>                      vocache_entry_set_t;
+	typedef std::set<LLVOCacheEntry*, CompareVOCacheEntry> vocache_entry_priority_list_t;	
 
 protected:
 	U32							mLocalID;
+	U32                         mParentID;
 	U32							mCRC;
+	U32                         mUpdateFlags; //receive from sim
 	S32							mHitCount;
 	S32							mDupeCount;
 	S32							mCRCChangeCount;
 	LLDataPackerBinaryBuffer	mDP;
 	U8							*mBuffer;
+
+	F32                         mSceneContrib; //projected scene contributuion of this object.
+	S32                         mMinFrameRange;
+	U32                         mState; //high 16 bits reserved for special use.
+	std::vector<LLVOCacheEntry*> mChildrenList; //children entries in a linked set.
+
+	BOOL                        mTouched; //if set, this entry is valid, otherwise it is invalid.
+};
+
+class LLVOCachePartition : public LLViewerOctreePartition, public LLTrace::MemTrackable<LLVOCachePartition>
+{
+public:
+	LLVOCachePartition(LLViewerRegion* regionp);
+
+	void addEntry(LLViewerOctreeEntry* entry);
+	void removeEntry(LLViewerOctreeEntry* entry);
+	/*virtual*/ S32 cull(LLCamera &camera);
+
+	static	LLTrace::MemStatHandle	sMemStat;
 };
 
 //
 //Note: LLVOCache is not thread-safe
 //
-class LLVOCache
+class LLVOCache : public LLSingleton<LLVOCache>
 {
 private:
 	struct HeaderEntryInfo
@@ -106,19 +193,20 @@ private:
 	typedef std::set<HeaderEntryInfo*, header_entry_less> header_entry_queue_t;
 	typedef std::map<U64, HeaderEntryInfo*> handle_entry_map_t;
 private:
+    friend class LLSingleton<LLVOCache>;
 	LLVOCache() ;
 
 public:
 	~LLVOCache() ;
 
 	void initCache(ELLPath location, U32 size, U32 cache_version) ;
-	void removeCache(ELLPath location) ;
+	void removeCache(ELLPath location, bool started = false) ;
 
 	void readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) ;
-	void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache) ;
+	void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache, bool removal_enabled);
 	void removeEntry(U64 handle) ;
 
-	void setReadOnly(BOOL read_only) {mReadOnly = read_only;} 
+	void setReadOnly(bool read_only) {mReadOnly = read_only;} 
 
 private:
 	void setDirNames(ELLPath location);	
@@ -134,9 +222,9 @@ private:
 	BOOL updateEntry(const HeaderEntryInfo* entry);
 	
 private:
-	BOOL                 mEnabled;
-	BOOL                 mInitialized ;
-	BOOL                 mReadOnly ;
+	bool                 mEnabled;
+	bool                 mInitialized ;
+	bool                 mReadOnly ;
 	HeaderMetaInfo       mMetaInfo;
 	U32                  mCacheSize;
 	U32                  mNumEntries;
@@ -145,12 +233,6 @@ private:
 	LLVolatileAPRPool*   mLocalAPRFilePoolp ; 	
 	header_entry_queue_t mHeaderEntryQueue;
 	handle_entry_map_t   mHandleEntryMap;	
-
-	static LLVOCache* sInstance ;
-public:
-	static LLVOCache* getInstance() ;
-	static BOOL       hasInstance() ;	
-	static void       destroyClass() ;
 };
 
 #endif

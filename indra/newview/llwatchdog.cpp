@@ -27,6 +27,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llwatchdog.h"
+#include "llthread.h"
 
 const U32 WATCHDOG_SLEEP_TIME_USEC = 1000000;
 

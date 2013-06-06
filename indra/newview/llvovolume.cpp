@@ -406,7 +406,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 				dp->dumpBufferToLog();
 				llwarns << "Flushing cache files" << llendl;
 
-				if(LLVOCache::hasInstance() && getRegion())
+				if(LLVOCache::instanceExists() && getRegion())
 				{
 					LLVOCache::getInstance()->removeEntry(getRegion()->getHandle()) ;
 				}
@@ -1143,7 +1143,7 @@ void LLVOVolume::sculpt()
 			{	// Log first time, then every 100 afterwards otherwise this can flood the logs
 				llwarns << "WARNING!!: Current discard for sculpty " << mSculptTexture->getID() 
 					<< " at " << current_discard 
-					<< " is less than -2." << llendl;
+				<< " is less than -2." << llendl;
 				low_sculpty_discard_warning_count = 0;
 			}
 			
@@ -1157,7 +1157,7 @@ void LLVOVolume::sculpt()
 			{	// Log first time, then every 100 afterwards otherwise this can flood the logs
 				llwarns << "WARNING!!: Current discard for sculpty " << mSculptTexture->getID() 
 					<< " at " << current_discard 
-					<< " is more than than allowed max of " << MAX_DISCARD_LEVEL << llendl;
+				<< " is more than than allowed max of " << MAX_DISCARD_LEVEL << llendl;
 				high_sculpty_discard_warning_count = 0;
 			}
 
@@ -3945,8 +3945,8 @@ U32 LLVOVolume::getPartitionType() const
 	return LLViewerRegion::PARTITION_VOLUME;
 }
 
-LLVolumePartition::LLVolumePartition()
-: LLSpatialPartition(LLVOVolume::VERTEX_DATA_MASK, TRUE, GL_DYNAMIC_DRAW_ARB)
+LLVolumePartition::LLVolumePartition(LLViewerRegion* regionp)
+: LLSpatialPartition(LLVOVolume::VERTEX_DATA_MASK, TRUE, GL_DYNAMIC_DRAW_ARB, regionp)
 {
 	mLODPeriod = 32;
 	mDepthMask = FALSE;
@@ -3956,8 +3956,8 @@ LLVolumePartition::LLVolumePartition()
 	mBufferUsage = GL_DYNAMIC_DRAW_ARB;
 }
 
-LLVolumeBridge::LLVolumeBridge(LLDrawable* drawablep)
-: LLSpatialBridge(drawablep, TRUE, LLVOVolume::VERTEX_DATA_MASK)
+LLVolumeBridge::LLVolumeBridge(LLDrawable* drawablep, LLViewerRegion* regionp)
+: LLSpatialBridge(drawablep, TRUE, LLVOVolume::VERTEX_DATA_MASK, regionp)
 {
 	mDepthMask = FALSE;
 	mLODPeriod = 32;
@@ -4175,9 +4175,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	group->mLastUpdateViewAngle = group->mViewAngle;
 
-	if (!group->isState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::ALPHA_DIRTY))
+	if (!group->hasState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::ALPHA_DIRTY))
 	{
-		if (group->isState(LLSpatialGroup::MESH_DIRTY) && !LLPipeline::sDelayVBUpdate)
+		if (group->hasState(LLSpatialGroup::MESH_DIRTY) && !LLPipeline::sDelayVBUpdate)
 		{
 			rebuildMesh(group);
 		}
@@ -4190,7 +4190,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	
 	LLVOAvatar* pAvatarVO = NULL;
 
-	LLSpatialBridge* bridge = group->mSpatialPartition->asBridge();
+	LLSpatialBridge* bridge = group->getSpatialPartition()->asBridge();
 	if (bridge)
 	{
 		if (bridge->mAvatar.isNull())
@@ -4215,7 +4215,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	group->mSurfaceArea = 0;
 	
 	//cache object box size since it might be used for determining visibility
-	group->mObjectBoxSize = group->mObjectBounds[1].getLength3().getF32();
+	const LLVector4a* bounds = group->getObjectBounds();
+	group->mObjectBoxSize = bounds[1].getLength3().getF32();
 
 	group->clearDrawMap();
 
@@ -4226,10 +4227,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	std::vector<LLFace*> simple_faces;
 
 	std::vector<LLFace*> alpha_faces;
-	U32 useage = group->mSpatialPartition->mBufferUsage;
+	U32 useage = group->getSpatialPartition()->mBufferUsage;
 
-	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcVertexSize(group->mSpatialPartition->mVertexDataMask);
-	U32 max_total = (gSavedSettings.getS32("RenderMaxNodeSize")*1024)/LLVertexBuffer::calcVertexSize(group->mSpatialPartition->mVertexDataMask);
+	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
+	U32 max_total = (gSavedSettings.getS32("RenderMaxNodeSize")*1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
 	max_vertices = llmin(max_vertices, (U32) 65535);
 
 	U32 cur_total = 0;
@@ -4242,9 +4243,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		//get all the faces into a list
 		for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 		{
-			LLDrawable* drawablep = *drawable_iter;
+			LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
 		
-			if (drawablep->isDead() || drawablep->isState(LLDrawable::FORCE_INVISIBLE) )
+			if (!drawablep || drawablep->isDead() || drawablep->isState(LLDrawable::FORCE_INVISIBLE) )
 			{
 				continue;
 			}
@@ -4648,9 +4649,12 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		//drawables have been rebuilt, clear rebuild status
 		for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 		{
-			LLDrawable* drawablep = *drawable_iter;
+			LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
+			if(drawablep)
+			{
 			drawablep->clearState(LLDrawable::REBUILD_ALL);
 		}
+	}
 	}
 
 	group->mLastUpdateTime = gFrameTimeSeconds;
@@ -4675,7 +4679,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 {
 	llassert(group);
-	if (group && group->isState(LLSpatialGroup::MESH_DIRTY) && !group->isState(LLSpatialGroup::GEOM_DIRTY))
+	if (group && group->hasState(LLSpatialGroup::MESH_DIRTY) && !group->hasState(LLSpatialGroup::GEOM_DIRTY))
 	{
 		LLFastTimer ftm(FTM_REBUILD_VOLUME_VB);
 		LLFastTimer t(FTM_REBUILD_VOLUME_GEN_DRAW_INFO); //make sure getgeometryvolume shows up in the right place in timers
@@ -4688,9 +4692,9 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
 		for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 		{
-			LLDrawable* drawablep = *drawable_iter;
+			LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
 
-			if (!drawablep->isDead() && drawablep->isState(LLDrawable::REBUILD_ALL) && !drawablep->isState(LLDrawable::RIGGED) )
+			if (drawablep && !drawablep->isDead() && drawablep->isState(LLDrawable::REBUILD_ALL) && !drawablep->isState(LLDrawable::RIGGED) )
 			{
 				LLVOVolume* vobj = drawablep->getVOVolume();
 				vobj->preRebuild();
@@ -4756,7 +4760,11 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 			llwarns << "Not all mapped vertex buffers are unmapped!" << llendl ; 
 			for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 			{
-				LLDrawable* drawablep = *drawable_iter;
+				LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
+				if(!drawablep)
+				{
+					continue;
+				}
 				for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
 				{
 					LLFace* face = drawablep->getFace(i);
@@ -4829,7 +4837,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 #endif
 	
 	//calculate maximum number of vertices to store in a single buffer
-	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcVertexSize(group->mSpatialPartition->mVertexDataMask);
+	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
 	max_vertices = llmin(max_vertices, (U32) 65535);
 
 	{
@@ -5220,7 +5228,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_count, U32 &index_count)
 {	
 	//initialize to default usage for this partition
-	U32 usage = group->mSpatialPartition->mBufferUsage;
+	U32 usage = group->getSpatialPartition()->mBufferUsage;
 	
 	//clear off any old faces
 	mFaceList.clear();
@@ -5229,9 +5237,9 @@ void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_coun
 
 	for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 	{
-		LLDrawable* drawablep = *drawable_iter;
+		LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
 		
-		if (drawablep->isDead())
+		if (!drawablep || drawablep->isDead())
 		{
 			continue;
 		}
@@ -5269,7 +5277,7 @@ void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_coun
 	group->mBufferUsage = usage;
 }
 
-LLHUDPartition::LLHUDPartition()
+LLHUDPartition::LLHUDPartition(LLViewerRegion* regionp) : LLBridgePartition(regionp)
 {
 	mPartitionType = LLViewerRegion::PARTITION_HUD;
 	mDrawableType = LLPipeline::RENDER_TYPE_HUD;

@@ -28,7 +28,7 @@
  */
 
 #if LL_WINDOWS
-#include <windows.h>
+#include "llwin32headerslean.h"
 #include <stdlib.h>                 // Windows errno
 #else
 #include <errno.h>
@@ -848,7 +848,7 @@ llifstream::llifstream() : _M_filebuf(),
 #endif
 
 // explicit
-llifstream::llifstream(const std::string& _Filename, 
+llifstream::llifstream(const std::string& _Filename,
 		ios_base::openmode _Mode) : _M_filebuf(),
 #if LL_WINDOWS
 	std::istream(&_M_filebuf)

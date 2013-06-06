@@ -237,7 +237,6 @@ set(viewer_SOURCE_FILES
     llfloaterinspect.cpp
     llfloaterinventory.cpp
     llfloaterjoystick.cpp
-    llfloaterlagmeter.cpp
     llfloaterland.cpp
     llfloaterlandholdings.cpp
     llfloatermap.cpp
@@ -262,6 +261,7 @@ set(viewer_SOURCE_FILES
     llfloaterregiondebugconsole.cpp
     llfloaterregioninfo.cpp
     llfloaterreporter.cpp
+    llfloatersceneloadstats.cpp
     llfloaterscriptdebug.cpp
     llfloaterscriptlimits.cpp
     llfloatersearch.cpp
@@ -484,6 +484,7 @@ set(viewer_SOURCE_FILES
     llremoteparcelrequest.cpp
     llsavedsettingsglue.cpp
     llsaveoutfitcombobtn.cpp
+    llscenemonitor.cpp
     llsceneview.cpp
     llscreenchannel.cpp
     llscriptfloater.cpp
@@ -605,6 +606,7 @@ set(viewer_SOURCE_FILES
     llviewernetwork.cpp
     llviewerobject.cpp
     llviewerobjectlist.cpp
+    llvieweroctree.cpp
     llviewerparcelmedia.cpp
     llviewerparcelmediaautoplay.cpp
     llviewerparcelmgr.cpp
@@ -818,7 +820,6 @@ set(viewer_HEADER_FILES
     llfloaterinspect.h
     llfloaterinventory.h
     llfloaterjoystick.h
-    llfloaterlagmeter.h
     llfloaterland.h
     llfloaterlandholdings.h
     llfloatermap.h
@@ -843,6 +844,7 @@ set(viewer_HEADER_FILES
     llfloaterregiondebugconsole.h
     llfloaterregioninfo.h
     llfloaterreporter.h
+    llfloatersceneloadstats.h
     llfloaterscriptdebug.h
     llfloaterscriptlimits.h
     llfloatersearch.h
@@ -1055,6 +1057,7 @@ set(viewer_HEADER_FILES
     llrootview.h
     llsavedsettingsglue.h
     llsaveoutfitcombobtn.h
+    llscenemonitor.h
     llsceneview.h
     llscreenchannel.h
     llscriptfloater.h
@@ -1176,6 +1179,7 @@ set(viewer_HEADER_FILES
     llviewernetwork.h
     llviewerobject.h
     llviewerobjectlist.h
+    llvieweroctree.h
     llviewerparcelmedia.h
     llviewerparcelmediaautoplay.h
     llviewerparcelmgr.h
@@ -1563,7 +1567,7 @@ endif (WINDOWS)
 
 if (OPENAL)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_OPENAL")
-endif (OPENAL)          
+endif (OPENAL)
 
 if (FMODEX)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMODEX")

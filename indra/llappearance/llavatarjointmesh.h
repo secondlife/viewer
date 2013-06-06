@@ -82,7 +82,6 @@ public:
 	static BOOL					sPipelineRender;
 	//RN: this is here for testing purposes
 	static U32					sClothingMaskImageName;
-	static EAvatarRenderPass	sRenderPass;
 	static LLColor4				sClothingInnerColor;
 
 public:

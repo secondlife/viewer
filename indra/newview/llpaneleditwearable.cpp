@@ -30,6 +30,7 @@
 #include "llpanel.h"
 #include "llviewerwearable.h"
 #include "lluictrl.h"
+#include "lllocaltextureobject.h"
 #include "llscrollingpanellist.h"
 #include "llvisualparam.h"
 #include "lltoolmorph.h"

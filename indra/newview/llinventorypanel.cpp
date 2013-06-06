@@ -396,9 +396,10 @@ LLInventoryFilter::EFolderShow LLInventoryPanel::getShowFolderState()
 	return getFilter().getShowFolderState();
 }
 
+static LLFastTimer::DeclareTimer FTM_REFRESH("Inventory Refresh");
+
 void LLInventoryPanel::modelChanged(U32 mask)
 {
-	static LLFastTimer::DeclareTimer FTM_REFRESH("Inventory Refresh");
 	LLFastTimer t2(FTM_REFRESH);
 
 	if (!mViewsInitialized) return;
@@ -733,7 +734,7 @@ LLFolderViewItem * LLInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge
 	params.listener = bridge;
 	params.rect = LLRect (0, 0, 0, 0);
 	params.tool_tip = params.name;
-
+	
 	params.font_color = (bridge->isLibraryItem() ? sLibraryColor : (bridge->isLink() ? sLinkColor : sDefaultColor));
 	params.font_highlight_color = (bridge->isLibraryItem() ? sLibraryColor : (bridge->isLink() ? sLinkColor : sDefaultHighlightColor));
 	

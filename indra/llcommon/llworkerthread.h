@@ -26,10 +26,11 @@
 #ifndef LL_LLWORKERTHREAD_H
 #define LL_LLWORKERTHREAD_H
 
-#include <queue>
-#include <string>
+#include <list>
 #include <map>
+#include <queue>
 #include <set>
+#include <string>
 
 #include "llqueuedthread.h"
 #include "llapr.h"

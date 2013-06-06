@@ -38,7 +38,7 @@ class LLPanelPlaceProfile : public LLPanelPlaceInfo
 public:
 	LLPanelPlaceProfile();
 	/*virtual*/ ~LLPanelPlaceProfile();
-	
+
 	/*virtual*/ BOOL postBuild();
 
 	/*virtual*/ void resetLocation();
@@ -47,7 +47,7 @@ public:
 
 	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
 
-	/*virtual*/ void handleVisibilityChange(BOOL new_visibility);
+	/*virtual*/ void onVisibilityChange(BOOL new_visibility);
 
 	// Displays information about the currently selected parcel
 	// without sending a request to the server.

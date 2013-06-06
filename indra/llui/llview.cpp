@@ -30,7 +30,6 @@
 #define LLVIEW_CPP
 #include "llview.h"
 
-#include <cassert>
 #include <sstream>
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
@@ -70,6 +69,7 @@ LLView* LLView::sPreviewClickedElement = NULL;
 BOOL	LLView::sDrawPreviewHighlights = FALSE;
 S32		LLView::sLastLeftXML = S32_MIN;
 S32		LLView::sLastBottomXML = S32_MIN;
+LLTrace::MemStatHandle	LLView::sMemStat("LLView");
 std::vector<LLViewDrawContext*> LLViewDrawContext::sDrawContextStack;
 
 LLView::DrilldownFunc LLView::sDrilldown =
@@ -84,6 +84,16 @@ template class LLView* LLView::getChild<class LLView>(
 	const std::string& name, BOOL recurse) const;
 
 static LLDefaultChildRegistry::Register<LLView> r("view");
+
+namespace LLInitParam
+{
+	void TypeValues<LLView::EOrientation>::declareValues()
+	{
+		declare("horizontal", LLView::HORIZONTAL);
+		declare("vertical", LLView::VERTICAL);	
+	}
+}
+
 
 LLView::Follows::Follows()
 :   string(""),
@@ -633,21 +643,21 @@ void LLView::setVisible(BOOL visible)
 		{
 			// tell all children of this view that the visibility may have changed
 			dirtyRect();
-			handleVisibilityChange( visible );
+			onVisibilityChange( visible );
 		}
 		updateBoundingRect();
 	}
 }
 
 // virtual
-void LLView::handleVisibilityChange ( BOOL new_visibility )
+void LLView::onVisibilityChange ( BOOL new_visibility )
 {
 	BOOST_FOREACH(LLView* viewp, mChildList)
 	{
 		// only views that are themselves visible will have their overall visibility affected by their ancestors
 		if (viewp->getVisible())
 		{
-			viewp->handleVisibilityChange ( new_visibility );
+			viewp->onVisibilityChange ( new_visibility );
 		}
 	}
 }

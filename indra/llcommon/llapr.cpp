@@ -29,6 +29,7 @@
 #include "linden_common.h"
 #include "llapr.h"
 #include "apr_dso.h"
+#include "llthreadlocalstorage.h"
 
 apr_pool_t *gAPRPoolp = NULL; // Global APR memory pool
 LLVolatileAPRPool *LLAPRFile::sAPRFilePoolp = NULL ; //global volatile APR memory pool.
@@ -37,12 +38,15 @@ apr_thread_mutex_t *gCallStacksLogMutexp = NULL;
 
 const S32 FULL_VOLATILE_APR_POOL = 1024 ; //number of references to LLVolatileAPRPool
 
+bool gAPRInitialized = false;
+
 void ll_init_apr()
 {
+	// Initialize APR and create the global pool
+	apr_initialize();
+	
 	if (!gAPRPoolp)
 	{
-		// Initialize APR and create the global pool
-		apr_initialize();
 		apr_pool_create(&gAPRPoolp, NULL);
 		
 		// Initialize the logging mutex
@@ -52,13 +56,23 @@ void ll_init_apr()
 
 	if(!LLAPRFile::sAPRFilePoolp)
 	{
-		LLAPRFile::sAPRFilePoolp = new LLVolatileAPRPool(FALSE) ;
+		LLAPRFile::sAPRFilePoolp = new LLVolatileAPRPool(FALSE);
 	}
+
+	LLThreadLocalPointerBase::initAllThreadLocalStorage();
+	gAPRInitialized = true;
 }
 
 
+bool ll_apr_is_initialized()
+{
+	return gAPRInitialized;
+}
+
 void ll_cleanup_apr()
 {
+	gAPRInitialized = false;
+
 	LL_INFOS("APR") << "Cleaning up APR" << LL_ENDL;
 
 	if (gLogMutexp)
@@ -77,6 +91,9 @@ void ll_cleanup_apr()
 		apr_thread_mutex_destroy(gCallStacksLogMutexp);
 		gCallStacksLogMutexp = NULL;
 	}
+
+	LLThreadLocalPointerBase::destroyAllThreadLocalStorage();
+
 	if (gAPRPoolp)
 	{
 		apr_pool_destroy(gAPRPoolp);
@@ -84,7 +101,7 @@ void ll_cleanup_apr()
 	}
 	if (LLAPRFile::sAPRFilePoolp)
 	{
-		delete LLAPRFile::sAPRFilePoolp ;
+		delete LLAPRFile::sAPRFilePoolp ;	
 		LLAPRFile::sAPRFilePoolp = NULL ;
 	}
 	apr_terminate();

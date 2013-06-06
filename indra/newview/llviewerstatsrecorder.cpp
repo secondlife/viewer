@@ -224,15 +224,15 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 			}
 		}
 		else
-		{
-			llwarns << "Couldn't open " << STATS_FILE_NAME << " for logging." << llendl;
+	{
+			//llwarns << "Couldn't open " << STATS_FILE_NAME << " for logging." << llendl;
 			return;
 		}
 	}
 
-	std::ostringstream data_msg;
+		std::ostringstream data_msg;
 
-	data_msg << getTimeSinceStart()
+		data_msg << getTimeSinceStart()
 		<< "\t " << mObjectCacheHitCount
 		<< "\t" << mObjectCacheMissFullCount
 		<< "\t" << mObjectCacheMissCrcCount

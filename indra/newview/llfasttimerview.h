@@ -29,11 +29,14 @@
 
 #include "llfloater.h"
 #include "llfasttimer.h"
+#include "llunit.h"
+#include "lltracerecording.h"
 
 class LLFastTimerView : public LLFloater
 {
 public:
 	LLFastTimerView(const LLSD&);
+	~LLFastTimerView();
 	BOOL postBuild();
 
 	static BOOL sAnalyzePerformance;
@@ -46,7 +49,6 @@ private:
 	static LLSD analyzePerformanceLogDefault(std::istream& is) ;
 	static void exportCharts(const std::string& base, const std::string& target);
 	void onPause();
-	LLFastTimer::NamedTimer& getFrameTimer();
 
 public:
 
@@ -59,15 +61,47 @@ public:
 	virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual void draw();
 
-	LLFastTimer::NamedTimer* getLegendID(S32 y);
-	F64 getTime(const std::string& name);
+	LLTrace::TimeBlock* getLegendID(S32 y);
 
 protected:
 	virtual	void	onClickCloseBtn();
+
 private:	
-	typedef std::vector<std::vector<S32> > bar_positions_t;
-	bar_positions_t mBarStart;
-	bar_positions_t mBarEnd;
+	void drawTicks();
+	void drawLineGraph();
+	void drawLegend(S32 y);
+	S32 drawHelp(S32 y);
+	void drawBorders( S32 y, const S32 x_start, S32 barh, S32 dy);
+	void drawBars();
+
+	void printLineStats();
+	void generateUniqueColors();
+	void updateTotalTime();
+
+	struct TimerBar
+	{
+		TimerBar()
+		:	mWidth(0),
+			mSelfWidth(0),
+			mVisible(true),
+			mStartFraction(0.f),
+			mEndFraction(1.f)
+		{}
+		S32			mWidth;
+		S32			mSelfWidth;
+		LLRect		mVisibleRect,
+					mChildrenRect;
+		LLColor4	mColor;
+		bool		mVisible;
+		F32			mStartFraction,
+					mEndFraction;
+	};
+	S32 updateTimerBarWidths(LLTrace::TimeBlock* time_block, std::vector<TimerBar>& bars, S32 history_index, bool visible);
+	S32 updateTimerBarFractions(LLTrace::TimeBlock* time_block, S32 timer_bar_index, std::vector<TimerBar>& bars);
+	S32 drawBar(LLTrace::TimeBlock* time_block, LLRect bar_rect, std::vector<TimerBar>& bars, S32 bar_index, LLPointer<LLUIImage>& bar_image);
+	void setPauseState(bool pause_state);
+
+	std::vector<TimerBar>* mTimerBars;
 	S32 mDisplayMode;
 
 	typedef enum child_alignment
@@ -79,19 +113,21 @@ private:
 	} ChildAlignment;
 
 	ChildAlignment mDisplayCenter;
-	S32 mDisplayCalls;
-	S32 mDisplayHz;
-	U64 mAvgCountTotal;
-	U64 mMaxCountTotal;
+	bool                          mDisplayCalls,
+								  mDisplayHz;
+	LLUnit<LLUnits::Seconds, F64> mAllTimeMax,
+								  mTotalTimeDisplay;
 	LLRect mBarRect;
 	S32	mScrollIndex;
-	LLFastTimer::NamedTimer* mHoverID;
-	LLFastTimer::NamedTimer* mHoverTimer;
+	LLTrace::TimeBlock*           mHoverID;
+	LLTrace::TimeBlock*           mHoverTimer;
 	LLRect					mToolTipRect;
 	S32 mHoverBarIndex;
 	LLFrameTimer mHighlightTimer;
 	S32 mPrintStats;
 	LLRect mGraphRect;
+	LLTrace::PeriodicRecording*	  mRecording;
+	bool						  mPauseHistory;
 };
 
 #endif

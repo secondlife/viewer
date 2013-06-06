@@ -31,8 +31,8 @@
 #include <set>
 
 // common includes
-#include "llstat.h"
 #include "llstring.h"
+#include "lltrace.h"
 
 // project includes
 #include "llviewerobject.h"
@@ -40,6 +40,7 @@
 class LLCamera;
 class LLNetMap;
 class LLDebugBeacon;
+class LLVOCacheEntry;
 
 const U32 CLOSE_BIN_SIZE = 10;
 const U32 NUM_BINS = 128;
@@ -65,6 +66,7 @@ public:
 	
 	inline LLViewerObject *findObject(const LLUUID &id);
 	LLViewerObject *createObjectViewer(const LLPCode pcode, LLViewerRegion *regionp); // Create a viewer-side object
+	LLViewerObject *createObjectFromCache(const LLPCode pcode, LLViewerRegion *regionp, const LLUUID &uuid, const U32 local_id);
 	LLViewerObject *createObject(const LLPCode pcode, LLViewerRegion *regionp,
 								 const LLUUID &uuid, const U32 local_id, const LLHost &sender);
 
@@ -78,8 +80,10 @@ public:
 	void cleanDeadObjects(const BOOL use_timer = TRUE);	// Clean up the dead object list.
 
 	// Simulator and viewer side object updates...
-	void processUpdateCore(LLViewerObject* objectp, void** data, U32 block, const EObjectUpdateType update_type, LLDataPacker* dpp, BOOL justCreated);
-	void processObjectUpdate(LLMessageSystem *mesgsys, void **user_data, EObjectUpdateType update_type, bool cached=false, bool compressed=false);
+	void processUpdateCore(LLViewerObject* objectp, void** data, U32 block, const EObjectUpdateType update_type, 
+		                   LLDataPacker* dpp, bool justCreated, bool from_cache = false);
+	LLViewerObject* processObjectUpdateFromCache(LLVOCacheEntry* entry, LLViewerRegion* regionp);
+	void processObjectUpdate(LLMessageSystem *mesgsys, void **user_data, EObjectUpdateType update_type, bool compressed=false);
 	void processCompressedObjectUpdate(LLMessageSystem *mesgsys, void **user_data, EObjectUpdateType update_type);
 	void processCachedObjectUpdate(LLMessageSystem *mesgsys, void **user_data, EObjectUpdateType update_type);
 	void updateApparentAngles(LLAgent &agent);
@@ -188,14 +192,13 @@ public:
 
 	S32 mNumUnknownUpdates;
 	S32 mNumDeadObjectUpdates;
-	S32 mNumUnknownKills;
 	S32 mNumDeadObjects;
 protected:
 	std::vector<U64>	mOrphanParents;	// LocalID/ip,port of orphaned objects
 	std::vector<OrphanInfo> mOrphanChildren;	// UUID's of orphaned objects
 	S32 mNumOrphans;
 
-	static LLStat sCacheHitRate;
+	static LLTrace::SampleStatHandle<> sCacheHitRate;
 
 	typedef std::vector<LLPointer<LLViewerObject> > vobj_list_t;
 
@@ -234,20 +237,14 @@ protected:
 class LLDebugBeacon
 {
 public:
-	~LLDebugBeacon()
-	{
-		if (mHUDObject.notNull())
-		{
-			mHUDObject->markDead();
-		}
-	}
+	~LLDebugBeacon();
 
 	LLVector3 mPositionAgent;
 	std::string mString;
 	LLColor4 mColor;
 	LLColor4 mTextColor;
 	S32 mLineWidth;
-	LLPointer<LLHUDObject> mHUDObject;
+	LLPointer<class LLHUDObject> mHUDObject;
 };
 
 

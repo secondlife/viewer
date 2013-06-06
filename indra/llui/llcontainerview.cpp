@@ -49,7 +49,6 @@ LLContainerView::LLContainerView(const LLContainerView::Params& p)
 	mLabel(p.label),
 	mDisplayChildren(p.display_children)
 {
-	mCollapsible = TRUE;
 	mScrollContainer = NULL;
 }
 
@@ -75,6 +74,11 @@ bool LLContainerView::addChild(LLView* child, S32 tab_group)
 	return res;
 }
 
+BOOL LLContainerView::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	return handleMouseDown(x, y, mask);
+}
+
 BOOL LLContainerView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;
@@ -84,7 +88,7 @@ BOOL LLContainerView::handleMouseDown(S32 x, S32 y, MASK mask)
 	}
 	if (!handled)
 	{
-		if( mCollapsible && mShowLabel && (y >= getRect().getHeight() - 10) )
+		if( mShowLabel && (y >= getRect().getHeight() - 10) )
 		{
 			setDisplayChildren(!mDisplayChildren);
 			reshape(getRect().getWidth(), getRect().getHeight(), FALSE);

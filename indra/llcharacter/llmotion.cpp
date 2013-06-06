@@ -73,7 +73,7 @@ void LLMotion::fadeOut()
 {
 	if (mFadeWeight > 0.01f)
 	{
-		mFadeWeight = lerp(mFadeWeight, 0.f, LLCriticalDamp::getInterpolant(0.15f));
+		mFadeWeight = lerp(mFadeWeight, 0.f, LLSmoothInterpolation::getInterpolant(0.15f));
 	}
 	else
 	{
@@ -88,7 +88,7 @@ void LLMotion::fadeIn()
 {
 	if (mFadeWeight < 0.99f)
 	{
-		mFadeWeight = lerp(mFadeWeight, 1.f, LLCriticalDamp::getInterpolant(0.15f));
+		mFadeWeight = lerp(mFadeWeight, 1.f, LLSmoothInterpolation::getInterpolant(0.15f));
 	}
 	else
 	{

@@ -87,7 +87,7 @@ void LLPanelVolumePulldown::onMouseLeave(S32 x, S32 y, MASK mask)
 }
 
 /*virtual*/ 
-void LLPanelVolumePulldown::handleVisibilityChange ( BOOL new_visibility )
+void LLPanelVolumePulldown::onVisibilityChange ( BOOL new_visibility )
 {
 	if (new_visibility)	
 	{

@@ -32,13 +32,10 @@
 
 #include "llcallingcard.h"
 
-#include <vector>
 #include <algorithm>
-//#include <iterator>
 
 #include "indra_constants.h"
-#include "llavatarnamecache.h"
-#include "llcachename.h"
+//#include "llcachename.h"
 #include "llstl.h"
 #include "lltimer.h"
 #include "lluuid.h"
@@ -46,19 +43,14 @@
 
 #include "llagent.h"
 #include "llavatarnamecache.h"
-#include "llbutton.h"
 #include "llinventoryobserver.h"
 #include "llinventorymodel.h"
 #include "llnotifications.h"
-#include "llnotificationsutil.h"
-#include "llresmgr.h"
 #include "llslurl.h"
 #include "llimview.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
-#include "llviewernetwork.h"
 #include "llviewerobjectlist.h"
-#include "llviewerwindow.h"
 #include "llvoavatar.h"
 #include "llavataractions.h"
 
@@ -105,8 +97,6 @@ static void on_avatar_name_cache_notify(const LLUUID& agent_id,
 LLAvatarTracker::LLAvatarTracker() :
 	mTrackingData(NULL),
 	mTrackedAgentValid(false),
-	//mInventory(NULL),
-	//mInventoryObserver(NULL),
 	mModifyMask(0x0)	
 {
 }
@@ -641,11 +631,11 @@ void LLAvatarTracker::processChange(LLMessageSystem* msg)
 					payload["from_id"] = agent_id;
 					if(LLRelationship::GRANT_MODIFY_OBJECTS & new_rights)
 					{
-						LLNotificationsUtil::add("GrantedModifyRights",args, payload);
+						LLNotifications::instance().add("GrantedModifyRights",args, payload);
 					}
 					else
 					{
-						LLNotificationsUtil::add("RevokedModifyRights",args, payload);
+						LLNotifications::instance().add("RevokedModifyRights",args, payload);
 					}
 				}
 				(mBuddyInfo[agent_id])->setRightsFrom(new_rights);
@@ -729,7 +719,7 @@ static void on_avatar_name_cache_notify(const LLUUID& agent_id,
 	if (online)
 	{
 		notification =
-			LLNotificationsUtil::add("FriendOnlineOffline",
+			LLNotifications::instance().add("FriendOnlineOffline",
 									 args,
 									 payload.with("respond_on_mousedown", TRUE),
 									 boost::bind(&LLAvatarActions::startIM, agent_id));
@@ -737,7 +727,7 @@ static void on_avatar_name_cache_notify(const LLUUID& agent_id,
 	else
 	{
 		notification =
-			LLNotificationsUtil::add("FriendOnlineOffline", args, payload);
+			LLNotifications::instance().add("FriendOnlineOffline", args, payload);
 	}
 
 	// If there's an open IM session with this agent, send a notification there too.

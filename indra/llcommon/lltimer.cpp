@@ -31,11 +31,9 @@
 #include "u64.h"
 
 #if LL_WINDOWS
-#	define WIN32_LEAN_AND_MEAN
-#	include <winsock2.h>
-#	include <windows.h>
+#	include "llwin32headerslean.h"
 #elif LL_LINUX || LL_SOLARIS || LL_DARWIN
-#       include <errno.h>
+#   include <errno.h>
 #	include <sys/time.h>
 #else 
 #	error "architecture not supported"
@@ -287,14 +285,14 @@ LLTimer::~LLTimer()
 }
 
 // static
-U64 LLTimer::getTotalTime()
+LLUnitImplicit<LLUnits::Microseconds, U64> LLTimer::getTotalTime()
 {
 	// simply call into the implementation function.
 	return totalTime();
 }	
 
 // static
-F64 LLTimer::getTotalSeconds()
+LLUnitImplicit<LLUnits::Seconds, F64> LLTimer::getTotalSeconds()
 {
 	return U64_to_F64(getTotalTime()) * USEC_TO_SEC_F64;
 }
@@ -343,23 +341,23 @@ U64 getElapsedTimeAndUpdate(U64& lastClockCount)
 }
 
 
-F64 LLTimer::getElapsedTimeF64() const
+LLUnitImplicit<LLUnits::Seconds, F64> LLTimer::getElapsedTimeF64() const
 {
 	U64 last = mLastClockCount;
 	return (F64)getElapsedTimeAndUpdate(last) * gClockFrequencyInv;
 }
 
-F32 LLTimer::getElapsedTimeF32() const
+LLUnitImplicit<LLUnits::Seconds, F32> LLTimer::getElapsedTimeF32() const
 {
 	return (F32)getElapsedTimeF64();
 }
 
-F64 LLTimer::getElapsedTimeAndResetF64()
+LLUnitImplicit<LLUnits::Seconds, F64> LLTimer::getElapsedTimeAndResetF64()
 {
 	return (F64)getElapsedTimeAndUpdate(mLastClockCount) * gClockFrequencyInv;
 }
 
-F32 LLTimer::getElapsedTimeAndResetF32()
+LLUnitImplicit<LLUnits::Seconds, F32> LLTimer::getElapsedTimeAndResetF32()
 {
 	return (F32)getElapsedTimeAndResetF64();
 }
@@ -372,7 +370,7 @@ void  LLTimer::setTimerExpirySec(F32 expiration)
 		+ (U64)((F32)(expiration * gClockFrequency));
 }
 
-F32 LLTimer::getRemainingTimeF32() const
+LLUnitImplicit<LLUnits::Seconds, F32> LLTimer::getRemainingTimeF32() const
 {
 	U64 cur_ticks = get_clock_count();
 	if (cur_ticks > mExpirationTicks)

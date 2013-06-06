@@ -102,13 +102,13 @@ void LLParamSDParser::readSD(const LLSD& sd, LLInitParam::BaseBlock& block, bool
 	//readSDValues(sd, block);
 }
 
-void LLParamSDParser::writeSD(LLSD& sd, const LLInitParam::BaseBlock& block)
+void LLParamSDParser::writeSDImpl(LLSD& sd, const LLInitParam::BaseBlock& block, const LLInitParam::predicate_rule_t rules, const LLInitParam::BaseBlock* diff_block)
 {
 	mNameStack.clear();
 	mWriteRootSD = &sd;
 
 	name_stack_t name_stack;
-	block.serializeBlock(*this, name_stack);
+	block.serializeBlock(*this, name_stack, rules, diff_block);
 }
 
 /*virtual*/ std::string LLParamSDParser::getCurrentElementName()
@@ -299,6 +299,7 @@ void LLParamSDParserUtilities::readSDValues(read_sd_cb_t cb, const LLSD& sd)
 	LLInitParam::Parser::name_stack_t stack = LLInitParam::Parser::name_stack_t();
 	readSDValues(cb, sd, stack);
 }
+
 namespace LLInitParam
 {
 	// LLSD specialization
@@ -329,13 +330,14 @@ namespace LLInitParam
 		p.writeValue<LLSD::String>(sd.asString(), name_stack);
 	}
 
-	void ParamValue<LLSD, NOT_BLOCK>::serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block) const
+	bool ParamValue<LLSD, NOT_BLOCK>::serializeBlock(Parser& p, Parser::name_stack_t& name_stack_range, const predicate_rule_t predicate_rule, const BaseBlock* diff_block) const
 	{
 		// attempt to write LLSD out directly
-		if (!p.writeValue<LLSD>(mValue, name_stack))
+		if (!p.writeValue<LLSD>(mValue, name_stack_range))
 		{
 			// otherwise read from LLSD value and serialize out to parser (which could be LLSD, XUI, etc)
-			LLParamSDParserUtilities::readSDValues(boost::bind(&serializeElement, boost::ref(p), _1, _2), mValue, name_stack);
+			LLParamSDParserUtilities::readSDValues(boost::bind(&serializeElement, boost::ref(p), _1, _2), mValue, name_stack_range);
 		}
+		return true;
 	}
 }

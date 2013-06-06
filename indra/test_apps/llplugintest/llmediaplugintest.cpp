@@ -37,6 +37,12 @@
 
 #include "llmediaplugintest.h"
 
+
+#if LL_WINDOWS
+#pragma warning(disable: 4263)
+#pragma warning(disable: 4264)
+#endif
+
 #if __APPLE__
 	#include <GLUT/glut.h>
 	#include <CoreFoundation/CoreFoundation.h>
@@ -46,10 +52,6 @@
 	#define GLUI_FREEGLUT
 #endif
 
-#if LL_WINDOWS
-#pragma warning(disable: 4263)
-#pragma warning(disable: 4264)
-#endif
 #include "glui.h"
 
 

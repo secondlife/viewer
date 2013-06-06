@@ -48,6 +48,7 @@
 /* misc headers */
 #include "llscrolllistctrl.h"
 #include "llfilepicker.h"
+#include "lllocaltextureobject.h"
 #include "llviewertexturelist.h"
 #include "llviewerobjectlist.h"
 #include "llviewerobject.h"

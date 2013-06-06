@@ -29,11 +29,12 @@
 #ifdef INCLUDE_VLD
 #include "vld.h"
 #endif
+#include "llwin32headers.h"
+
+#include "llwindowwin32.h" // *FIX: for setting gIconResource.
 
 #include "llappviewerwin32.h"
 
-
-#include "llwindowwin32.h" // *FIX: for setting gIconResource.
 #include "llgl.h"
 #include "res/resource.h" // *FIX: for setting gIconResource.
 

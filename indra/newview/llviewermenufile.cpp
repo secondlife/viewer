@@ -1096,17 +1096,17 @@ void upload_new_resource(
 	
 	if( LLAssetType::AT_SOUND == asset_type )
 	{
-		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_UPLOAD_SOUND_COUNT );
+		add(LLStatViewer::UPLOAD_SOUND, 1);
 	}
 	else
 	if( LLAssetType::AT_TEXTURE == asset_type )
 	{
-		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_UPLOAD_TEXTURE_COUNT );
+		add(LLStatViewer::UPLOAD_TEXTURE, 1);
 	}
 	else
 	if( LLAssetType::AT_ANIMATION == asset_type)
 	{
-		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_UPLOAD_ANIM_COUNT );
+		add(LLStatViewer::ANIMATION_UPLOADS, 1);
 	}
 
 	if(LLInventoryType::IT_NONE == inv_type)
@@ -1231,18 +1231,15 @@ void increase_new_upload_stats(LLAssetType::EType asset_type)
 {
 	if ( LLAssetType::AT_SOUND == asset_type )
 	{
-		LLViewerStats::getInstance()->incStat(
-			LLViewerStats::ST_UPLOAD_SOUND_COUNT );
+		add(LLStatViewer::UPLOAD_SOUND, 1);
 	}
 	else if ( LLAssetType::AT_TEXTURE == asset_type )
 	{
-		LLViewerStats::getInstance()->incStat(
-			LLViewerStats::ST_UPLOAD_TEXTURE_COUNT );
+		add(LLStatViewer::UPLOAD_TEXTURE, 1);
 	}
 	else if ( LLAssetType::AT_ANIMATION == asset_type )
 	{
-		LLViewerStats::getInstance()->incStat(
-			LLViewerStats::ST_UPLOAD_ANIM_COUNT );
+		add(LLStatViewer::ANIMATION_UPLOADS, 1);
 	}
 }
 

@@ -162,7 +162,7 @@ BOOL LLSidepanelTaskInfo::postBuild()
 	return TRUE;
 }
 
-/*virtual*/ void LLSidepanelTaskInfo::handleVisibilityChange ( BOOL visible )
+/*virtual*/ void LLSidepanelTaskInfo::onVisibilityChange ( BOOL visible )
 {
 	if (visible)
 	{
@@ -945,7 +945,6 @@ static bool callback_deed_to_group(const LLSD& notification, const LLSD& respons
 		if (group_id.notNull() && groups_identical && (gAgent.hasPowerInGroup(group_id, GP_OBJECT_DEED)))
 		{
 			LLSelectMgr::getInstance()->sendOwner(LLUUID::null, group_id, FALSE);
-//			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_RELEASE_COUNT);
 		}
 	}
 	return FALSE;

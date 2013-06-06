@@ -2545,8 +2545,6 @@ void LLPanelEstateCovenant::onLoadComplete(LLVFS *vfs,
 		}
 		else
 		{
-			LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-
 			if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 				LL_ERR_FILE_EMPTY == status)
 			{
@@ -2921,7 +2919,7 @@ void LLPanelEnvironmentInfo::onOpen(const LLSD& key)
 }
 
 // virtual
-void LLPanelEnvironmentInfo::handleVisibilityChange(BOOL new_visibility)
+void LLPanelEnvironmentInfo::onVisibilityChange(BOOL new_visibility)
 {
 	// If hiding (user switched to another tab or closed the floater),
 	// display user's preferred environment.

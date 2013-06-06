@@ -529,11 +529,11 @@ void LLFloaterColorPicker::draw()
 	if (gFocusMgr.childHasMouseCapture(getDragHandle()))
 	{
 		mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), 
-                                        LLCriticalDamp::getInterpolant(mContextConeFadeTime));
+                                        LLSmoothInterpolation::getInterpolant(mContextConeFadeTime));
 	}
 	else
 	{
-		mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLCriticalDamp::getInterpolant(mContextConeFadeTime));
+		mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLSmoothInterpolation::getInterpolant(mContextConeFadeTime));
 	}
 
 	mPipetteBtn->setToggleState(LLToolMgr::getInstance()->getCurrentTool() == LLToolPipette::getInstance());

@@ -187,7 +187,7 @@ protected:
 	F32					mContextConeOpacity;
 	LLSaveFolderState	mSavedFolderState;
 	BOOL				mSelectedItemPinned;
-
+	
 	LLRadioGroup*		mModeSelector;
 	LLScrollListCtrl*	mLocalScrollCtrl;
 
@@ -550,11 +550,11 @@ void LLFloaterTexturePicker::draw()
 
 	if (gFocusMgr.childHasMouseCapture(getDragHandle()))
 	{
-		mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLCriticalDamp::getInterpolant(CONTEXT_FADE_TIME));
+		mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLSmoothInterpolation::getInterpolant(CONTEXT_FADE_TIME));
 	}
 	else
 	{
-		mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLCriticalDamp::getInterpolant(CONTEXT_FADE_TIME));
+		mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLSmoothInterpolation::getInterpolant(CONTEXT_FADE_TIME));
 	}
 
 	updateImageStats();
@@ -1311,7 +1311,7 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLUUID id)
 		// (i.e. op == TEXTURE_SELECT) or texture changes via DnD.
 		else if (mCommitOnSelection || op == TEXTURE_SELECT)
 			mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
-			
+
 		if(floaterp->isDirty() || id.notNull()) // mModelView->setDirty does not work.
 		{
 			setTentative( FALSE );
