@@ -75,7 +75,7 @@ template<
 class LLMaterialGetFunctor
 {
 public:
-	LLMaterialGetFunctor() : {}
+	LLMaterialGetFunctor() {}
 	virtual DataType get(LLMaterialPtr& material) { return (material->*(MaterialGetFunc)); }
 };
 
@@ -85,9 +85,8 @@ template<
 class LLTEGetFunctor
 {
 public:
-	LLTEGetFunctor() : _data(data) {}
+	LLTEGetFunctor() {}
 	virtual DataType get(LLTextureEntry* entry) { return (entry*(TEGetFunc)); }
-	DataType _data;
 };
 
 class LLPanelFace : public LLPanel
@@ -348,27 +347,27 @@ private:
 
 	// Accessors for selected TE material state
 	//
-	#define DEF_GET_MAT_STATE(DataType,ReturnType,MaterialMemberFunc)													\
-		static void MaterialMemberFunc(DataType& data, bool& identical)												\
-		{																																	\
-			getTEMaterialValue< DataType, ReturnType, &LLMaterial::##MaterialMemberFunc >(data, identical);	\
+	#define DEF_GET_MAT_STATE(DataType,ReturnType,MaterialMemberFunc)										\
+		static void MaterialMemberFunc(DataType& data, bool& identical)										\
+		{																									\
+			getTEMaterialValue< DataType, ReturnType, &LLMaterial::MaterialMemberFunc >(data, identical);	\
 		}
 
 	// Mutators for selected TE material
 	//
-	#define DEF_EDIT_MAT_STATE(DataType,ReturnType,MaterialMemberFunc)												\
-		static void MaterialMemberFunc(LLPanelFace* p,DataType data)													\
-		{																																	\
-			edit< DataType, ReturnType, &LLMaterial::##MaterialMemberFunc >(p,data);								\
+	#define DEF_EDIT_MAT_STATE(DataType,ReturnType,MaterialMemberFunc)										\
+		static void MaterialMemberFunc(LLPanelFace* p,DataType data)										\
+		{																									\
+			edit< DataType, ReturnType, &LLMaterial::MaterialMemberFunc >(p,data);							\
 		}
 
 
 	// Accessors for selected TE state proper (legacy settings etc)
 	//
-	#define DEF_GET_TE_STATE(DataType,ReturnType,TexEntryMemberFunc)													\
-		static void TexEntryMemberFunc(DataType& data, bool& identical)												\
-		{																																	\
-			getTEValue< DataType, ReturnType, &LLTextureEntry::##TexEntryMemberFunc >(data, identical);		\
+	#define DEF_GET_TE_STATE(DataType,ReturnType,TexEntryMemberFunc)										\
+		static void TexEntryMemberFunc(DataType& data, bool& identical)										\
+		{																									\
+			getTEValue< DataType, ReturnType, &LLTextureEntry::TexEntryMemberFunc >(data, identical);		\
 		}
 
 	class LLSelectedTEMaterial
