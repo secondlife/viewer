@@ -1402,76 +1402,6 @@ void LLPanelFace::refresh()
 	getState();
 }
 
-/*
-void LLPanelFace::updateMaterialParams(LLMaterialEditFunctorBase* edit_func)
-{
-	if (!edit_func)
-		return;
-
-	struct LLSelectedTEEditMaterial : public LLSelectedTEMaterialFunctor
-	{
-		LLSelectedTEEditMaterial(LLPanelFace* panel, LLMaterialEditFunctorBase* edit) : _panel(panel), _edit(edit) {};
-		virtual ~LLSelectedTEEditMaterial() {};
-		virtual LLMaterialPtr apply(LLViewerObject* object, S32 face, LLTextureEntry* tep, LLMaterialPtr& current_material)
-		{
-			if (_edit)
-			{
-				// Yesterday's news...
-				//
-				//U32		current_alpha_mode	= _panel->getCurrentDiffuseAlphaMode();
-				//LLUUID	old_normal_map_id		= _panel->getCurrentNormalMap();
-				//LLUUID	old_spec_map_id		= _panel->getCurrentSpecularMap();
-				//bool was_default_blend_mode	= (current_alpha_mode == (_panel->isAlpha() ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE));
-				//bool was_need_material			= !was_default_blend_mode || !old_normal_map_id.isNull() || !old_spec_map_id.isNull();
-
-				LLMaterialPtr new_material(!current_material.isNull() ? new LLMaterial(current_material->asLLSD()) : new LLMaterial());
-				llassert_always(new_material);
-
-				// Do "It"!
-				//
-				_edit->apply(new_material);
-
-				U32		new_alpha_mode			= new_material->getDiffuseAlphaMode();
-				LLUUID	new_normal_map_id		= new_material->getNormalID();
-				LLUUID	new_spec_map_id		= new_material->getSpecularID();
-
-				bool is_default_blend_mode		= (new_alpha_mode == (_panel->isAlpha() ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE));
-				bool is_need_material			= !is_default_blend_mode || !new_normal_map_id.isNull() || !new_spec_map_id.isNull();
-
-				if (!current_material.isNull() && !is_need_material)
-				{
-					LL_DEBUGS("Materials") << "Removing material from object " << object->getID() << " face " << face << LL_ENDL;
-					LLMaterialMgr::getInstance()->remove(object->getID(),face);	
-				}
-				else
-				{
-					// Replicate old init behavior
-					//
-					if (current_material.isNull())
-					{
-						U8	current_alpha_mode			= _panel->getCurrentDiffuseAlphaMode();
-						U8	current_alpha_mask_cutoff	= _panel->getCurrentAlphaMaskCutoff();
-
-						new_material->setDiffuseAlphaMode(current_alpha_mode);
-						new_material->setAlphaMaskCutoff(current_alpha_mask_cutoff);
-					}
-
-					LL_DEBUGS("Materials") << "Putting material on object " << object->getID() << " face " << face << ", material: " << new_material->asLLSD() << LL_ENDL;
-					LLMaterialMgr::getInstance()->put(object->getID(),face,*new_material);
-				}
-
-				object->setTEMaterialParams(face, new_material);
-				return new_material;
-			}
-			return NULL;
-		}
-		LLMaterialEditFunctorBase*	_edit;
-		LLPanelFace*					_panel;
-	} editor(this, edit_func);
-	LLSelectMgr::getInstance()->selectionSetMaterialParams(&editor);
-}
-*/
-
 //
 // Static functions
 //
@@ -1513,10 +1443,6 @@ void LLPanelFace::onSelectColor(const LLSD& data)
 void LLPanelFace::onCommitMaterialsMedia(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
-	LLUUID specmap = self->getCurrentSpecularMap();
-	LLUUID normmap = self->getCurrentNormalMap();
-	self->updateShinyControls(!specmap.isNull(), true);
-	self->updateBumpyControls(!normmap.isNull(), true);
 	self->updateUI();
 }
 

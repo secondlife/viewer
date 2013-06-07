@@ -287,7 +287,21 @@ private:
 	{
 			struct GetTEMaterialVal : public LLSelectedTEGetFunctor<DataType>
 			{
-				DataType get(LLViewerObject* object, S32 face) { return (object && object->getTE(face)) ? ((object->getTE(face)->getMaterialParams()->*(MaterialGetFunc))()) : DataType(); }
+				DataType get(LLViewerObject* object, S32 face)
+				{
+					DataType ret = DataType();
+					LLMaterialPtr material_ptr;
+					LLTextureEntry* tep = object ? object->getTE(face) : NULL;
+					if (tep)
+					{
+						material_ptr = object->getTE(face)->getMaterialParams();
+						if (!material_ptr.isNull())
+						{
+							ret = (material_ptr->*(MaterialGetFunc))();
+						}
+					}
+					return ret;
+				}
 			} GetFunc;
 			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &GetFunc, data_to_return);
 	}
