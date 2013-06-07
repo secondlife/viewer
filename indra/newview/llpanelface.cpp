@@ -690,15 +690,11 @@ void LLPanelFace::updateUI()
 		}
 
 		// Color transparency
-		{
-			getChildView("color trans")->setEnabled(editable);
-		}
+		getChildView("color trans")->setEnabled(editable);
 
 		F32 transparency = (1.f - color.mV[VALPHA]) * 100.f;
-		{
-			getChild<LLUICtrl>("ColorTrans")->setValue(editable ? transparency : 0);
-			getChildView("ColorTrans")->setEnabled(editable);
-		}
+		getChild<LLUICtrl>("ColorTrans")->setValue(editable ? transparency : 0);
+		getChildView("ColorTrans")->setEnabled(editable);
 
 		// Specular map
 		LLSelectedTEMaterial::getSpecularID(specmap_id, identical_spec);
@@ -707,38 +703,31 @@ void LLPanelFace::updateUI()
 		bool identical_shiny = false;
 
 		// Shiny
-		{			
-			LLSelectedTE::getShiny(shiny, identical_shiny);
-			identical = identical && identical_shiny;
+		LLSelectedTE::getShiny(shiny, identical_shiny);
+		identical = identical && identical_shiny;
 
-			shiny = specmap_id.isNull() ? shiny : SHINY_TEXTURE;
+		shiny = specmap_id.isNull() ? shiny : SHINY_TEXTURE;
 
-			LLCtrlSelectionInterface* combobox_shininess = childGetSelectionInterface("combobox shininess");
-			if (combobox_shininess)
-			{
-				combobox_shininess->selectNthItem((S32)shiny);
-			}
-			else
-			{
-				llwarns << "failed childGetSelectionInterface for 'combobox shininess'" << llendl;
-			}
-
-			
-			getChildView("label shininess")->setEnabled(editable);
-			getChildView("combobox shininess")->setEnabled(editable);
-
-			getChildView("label glossiness")->setEnabled(editable);			
-			getChildView("glossiness")->setEnabled(editable);
-
-			getChildView("label environment")->setEnabled(editable);
-			getChildView("environment")->setEnabled(editable);
-			getChildView("label shinycolor")->setEnabled(editable);
-
-			getChild<LLUICtrl>("combobox shininess")->setTentative(!identical);
-			getChild<LLUICtrl>("glossiness")->setTentative(!identical);
-			getChild<LLUICtrl>("environment")->setTentative(!identical);			
-			getChild<LLUICtrl>("shinycolorswatch")->setTentative(!identical);
+		LLCtrlSelectionInterface* combobox_shininess = childGetSelectionInterface("combobox shininess");
+		if (combobox_shininess)
+		{
+			combobox_shininess->selectNthItem((S32)shiny);
 		}
+
+		getChildView("label shininess")->setEnabled(editable);
+		getChildView("combobox shininess")->setEnabled(editable);
+
+		getChildView("label glossiness")->setEnabled(editable);			
+		getChildView("glossiness")->setEnabled(editable);
+
+		getChildView("label environment")->setEnabled(editable);
+		getChildView("environment")->setEnabled(editable);
+		getChildView("label shinycolor")->setEnabled(editable);
+
+		getChild<LLUICtrl>("combobox shininess")->setTentative(!identical_spec);
+		getChild<LLUICtrl>("glossiness")->setTentative(!identical_spec);
+		getChild<LLUICtrl>("environment")->setTentative(!identical_spec);			
+		getChild<LLUICtrl>("shinycolorswatch")->setTentative(!identical_spec);
 
 		LLColorSwatchCtrl*	mShinyColorSwatch = getChild<LLColorSwatchCtrl>("shinycolorswatch");
 		if(mShinyColorSwatch)
@@ -749,14 +738,12 @@ void LLPanelFace::updateUI()
 		}
 
 		U8 bumpy = 0;
-
 		// Bumpy
 		{		
-			U8 bumpy;
-			LLSelectedTE::getBumpmap(bumpy,identical);
+			bool identical_bumpy = false;
+			LLSelectedTE::getBumpmap(bumpy,identical_bumpy);
 
 			LLUUID norm_map_id = getCurrentNormalMap();
-
 			LLCtrlSelectionInterface* combobox_bumpiness = childGetSelectionInterface("combobox bumpiness");
 			if (combobox_bumpiness)
 			{				
@@ -767,7 +754,7 @@ void LLPanelFace::updateUI()
 				llwarns << "failed childGetSelectionInterface for 'combobox bumpiness'" << llendl;
 			}
 			getChildView("combobox bumpiness")->setEnabled(editable);
-			getChild<LLUICtrl>("combobox bumpiness")->setTentative(!identical);
+			getChild<LLUICtrl>("combobox bumpiness")->setTentative(!identical_bumpy);
 			getChildView("label bumpiness")->setEnabled(editable);
 		}
 
@@ -777,9 +764,10 @@ void LLPanelFace::updateUI()
 
 			// Normal map
 			LLSelectedTEMaterial::getNormalID(normmap_id, identical_norm);
-			
 			if (bumpy != BUMPY_TEXTURE)
+			{
 				normmap_id = LLUUID::null;
+			}
 
 			mIsAlpha = FALSE;
 			LLGLenum image_format;
@@ -1015,9 +1003,9 @@ void LLPanelFace::updateUI()
 			spec_scale_t = editable ? spec_scale_t : 1.0f;
 			spec_scale_t *= identical_planar_texgen ? 2.0f : 1.0f;
 
-			BOOL diff_scale_tentative = !(identical && identical_diff_scale_t);
-			BOOL norm_scale_tentative = !(identical && identical_norm_scale_t);
-			BOOL spec_scale_tentative = !(identical && identical_spec_scale_t);
+			BOOL diff_scale_tentative = !identical_diff_scale_t;
+			BOOL norm_scale_tentative = !identical_norm_scale_t;
+			BOOL spec_scale_tentative = !identical_spec_scale_t;
 
 			getChildView("TexScaleV")->setEnabled(editable);
 			getChildView("shinyScaleV")->setEnabled(editable && specmap_id.notNull());
@@ -1131,15 +1119,11 @@ void LLPanelFace::updateUI()
 		{
 			F32 glow = 0.f;
 			bool identical_glow = false;
-
 			LLSelectedTE::getGlow(glow,identical_glow);
-
-			identical = identical && identical_glow;
-
 			getChild<LLUICtrl>("glow")->setValue(glow);
+			getChild<LLUICtrl>("glow")->setTentative(!identical_glow);
 			getChildView("glow")->setEnabled(editable);
-			getChild<LLUICtrl>("glow")->setTentative(!identical);
-			getChildView("glow label")->setEnabled(editable);
+			getChildView("glow label")->setEnabled(editable);			
 		}
 
 		{			
@@ -1176,11 +1160,9 @@ void LLPanelFace::updateUI()
 			
 			LLSelectedTE::getFullbright(fullbright_flag,identical_fullbright);
 
-			identical = identical && identical_fullbright;
-
 			getChild<LLUICtrl>("checkbox fullbright")->setValue((S32)(fullbright_flag != 0));
 			getChildView("checkbox fullbright")->setEnabled(editable);
-			getChild<LLUICtrl>("checkbox fullbright")->setTentative(!identical);
+			getChild<LLUICtrl>("checkbox fullbright")->setTentative(!identical_fullbright);
 		}
 		
 		// Repeats per meter
@@ -1202,7 +1184,7 @@ void LLPanelFace::updateUI()
 			{
 				S32 index = mComboTexGen ? mComboTexGen->getCurrentIndex() : 0;
 				BOOL enabled = editable && (index != 1);
-				BOOL identical = true;
+				BOOL identical_repeats = true;
 				F32  repeats = 1.0f;
 
 				U32 material_type = (combobox_matmedia->getCurrentIndex() == MATMEDIA_MATERIAL) ? combobox_mattype->getCurrentIndex() : MATTYPE_DIFFUSE;
@@ -1212,7 +1194,7 @@ void LLPanelFace::updateUI()
 					case MATTYPE_DIFFUSE:
 					{
 						enabled = editable && !id.isNull();
-						identical = identical_diff_repeats;
+						identical_repeats = identical_diff_repeats;
 						repeats = repeats_diff;
 					}
 					break;
@@ -1220,7 +1202,7 @@ void LLPanelFace::updateUI()
 					case MATTYPE_SPECULAR:
 					{
 						enabled = (editable && ((shiny == SHINY_TEXTURE) && !specmap_id.isNull()));
-						identical = identical_spec_repeats;
+						identical_repeats = identical_spec_repeats;
 						repeats = repeats_spec;
 					}
 					break;
@@ -1228,15 +1210,17 @@ void LLPanelFace::updateUI()
 					case MATTYPE_NORMAL:
 					{
 						enabled = (editable && ((bumpy == BUMPY_TEXTURE) && !normmap_id.isNull()));
-						identical = identical_norm_repeats;
+						identical_repeats = identical_norm_repeats;
 						repeats = repeats_norm;
 					}
 					break;
 				}
 
+				BOOL repeats_tentative = !identical_repeats;
+
 				getChildView("rptctrl")->setEnabled(identical_planar_texgen ? FALSE : enabled);
 				getChild<LLUICtrl>("rptctrl")->setValue(editable ? repeats : 1.0f);
-				getChild<LLUICtrl>("rptctrl")->setTentative(!identical);
+				getChild<LLUICtrl>("rptctrl")->setTentative(LLSD(repeats_tentative));
 			}
 		}
 
