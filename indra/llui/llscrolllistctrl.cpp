@@ -1179,10 +1179,10 @@ LLScrollListItem* LLScrollListCtrl::addSeparator(EAddPosition pos)
 // Selects first enabled item of the given name.
 // Returns false if item not found.
 // Calls getItemByLabel in order to combine functionality
-BOOL LLScrollListCtrl::selectItemByLabel(const std::string& label, BOOL case_sensitive)
+BOOL LLScrollListCtrl::selectItemByLabel(const std::string& label, BOOL case_sensitive, S32 column/* = 0*/)
 {
 	deselectAllItems(TRUE); 	// ensure that no stale items are selected, even if we don't find a match
-	LLScrollListItem* item = getItemByLabel(label, case_sensitive);
+	LLScrollListItem* item = getItemByLabel(label, case_sensitive, column);
 
 	bool found = NULL != item;
 	if(found)

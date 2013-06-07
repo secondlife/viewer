@@ -299,7 +299,8 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 	if ("openconversations" == user_preferences
 		|| ON_TOP == conversations_floater_status
 		|| ("toast" == user_preferences && ON_TOP != conversations_floater_status)
-		|| ("flash" == user_preferences && CLOSED == conversations_floater_status)
+		|| ("flash" == user_preferences && (CLOSED == conversations_floater_status
+				 	 	 	 	 	 	|| NOT_ON_TOP == conversations_floater_status))
 		|| is_dnd_msg)
 	{
 		if(!LLMuteList::getInstance()->isMuted(participant_id))
@@ -3042,10 +3043,9 @@ void LLIMMgr::inviteToSession(
 	{
 		bool isRejectGroupCall = (gSavedSettings.getBOOL("VoiceCallsRejectGroup") && (notify_box_type == "VoiceInviteGroup"));
 		bool isRejectNonFriendCall = (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL));
-		bool isRejectDoNotDisturb = (gAgent.isDoNotDisturb() && !hasSession(session_id));
-		if	(isRejectGroupCall || isRejectNonFriendCall || isRejectDoNotDisturb)
+		if	(isRejectGroupCall || isRejectNonFriendCall || gAgent.isDoNotDisturb())
 		{
-			if (isRejectDoNotDisturb && !isRejectGroupCall && !isRejectNonFriendCall)
+			if (gAgent.isDoNotDisturb() && !isRejectGroupCall && !isRejectNonFriendCall)
 			{
 				LLSD args;
 				addSystemMessage(session_id, "you_auto_rejected_call", args);

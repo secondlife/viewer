@@ -11,13 +11,7 @@
      layout="topleft"
      name="close_conversation">
         <on_click function="Avatar.DoToSelected" parameter="close_conversation"/>
-	 </menu_item_call>
-	 <menu_item_call
-     label="Close All conversations"
-     layout="topleft"
-     name="close_all_conversations">
-        <on_click function="Avatar.DoToSelected" parameter="close_all_conversations"/>
-	 </menu_item_call>
+	 </menu_item_call>	 
      <menu_item_call
      label="Open voice conversation"
      layout="topleft"
@@ -31,6 +25,12 @@
         <on_click function="Avatar.DoToSelected" parameter="disconnect_from_voice"/>
     </menu_item_call>	
 	<menu_item_separator layout="topleft" name="separator_disconnect_from_voice"/>	
+	<menu_item_call
+     label="Close Selected"
+     layout="topleft"
+     name="close_selected_conversations">
+        <on_click function="Avatar.DoToSelected" parameter="close_selected_conversations"/>
+	 </menu_item_call>
     <menu_item_call
      label="View Profile"
      layout="topleft"

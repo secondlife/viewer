@@ -639,10 +639,7 @@ void LLFloaterIMNearbyChat::addMessage(const LLChat& chat,bool archive,const LLS
 
 void LLFloaterIMNearbyChat::onChatBoxCommit()
 {
-	if (mInputEditor->getText().length() > 0)
-	{
-		sendChat(CHAT_TYPE_NORMAL);
-	}
+	sendChat(CHAT_TYPE_NORMAL);
 
 	gAgent.stopTyping();
 }

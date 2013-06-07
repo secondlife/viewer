@@ -423,9 +423,18 @@ void LLNotificationWellWindow::onItemClick(LLSysWellItem* item)
 void LLNotificationWellWindow::onItemClose(LLSysWellItem* item)
 {
 	LLUUID id = item->getID();
-	removeItemByID(id);
+	
 	if(mChannel)
+	{
+		// removeItemByID() is invoked from killToastByNotificationID() and item will removed;
 		mChannel->killToastByNotificationID(id);
+	}
+	else
+	{
+		// removeItemByID() should be called one time for each item to remove it from notification well
+		removeItemByID(id);
+	}
+
 }
 
 void LLNotificationWellWindow::onAdd( LLNotificationPtr notify )

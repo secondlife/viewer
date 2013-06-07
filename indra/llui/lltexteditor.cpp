@@ -2767,10 +2767,8 @@ void LLTextEditor::updatePreedit(const LLWString &preedit_string,
 	}
     
 	segment_vec_t segments;
-    LLStyleConstSP sp(new LLStyle(getStyleParams()));
-	segments.push_back(new LLNormalTextSegment(sp, 0, mPreeditWString.length(), *this));
-    
-    insertStringNoUndo(insert_preedit_at, mPreeditWString, &segments); 
+	//pass empty segments to let "insertStringNoUndo" make new LLNormalTextSegment and insert it, if needed.
+	insertStringNoUndo(insert_preedit_at, mPreeditWString, &segments); 
 
 	mPreeditStandouts = preedit_standouts;
 

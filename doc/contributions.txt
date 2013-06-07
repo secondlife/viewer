@@ -176,6 +176,8 @@ Ansariel Hiller
 	STORM-1713
 	STORM-1899
 Aralara Rajal
+Arare Chantilly
+	CHUIBUG-191
 Ardy Lay
 	STORM-859
 	VWR-19499
@@ -900,6 +902,7 @@ Nicky Dasmijn
 	VWR-29228
 	MAINT-873
 	SUN-72
+	BUG-2432
 Nicky Perian
 	OPEN-1
 	STORM-1087
