@@ -1154,70 +1154,70 @@ void LLInventoryModel::changeCategoryParent(LLViewerInventoryCategory* cat,
 	notifyObservers();
 }
 
-void parse_llsd_uuid_array(const LLSD& content, const std::string& name, uuid_vec_t& ids)
+class AISUpdate
 {
-	ids.clear();
-	if (content.has(name))
-	{
-		for(LLSD::array_const_iterator it = content[name].beginArray(),
-				end = content[name].endArray();
-				it != end; ++it)
-		{
-			ids.push_back((*it).asUUID());
-		}
-	}
+public:
+	AISUpdate(const LLSD& update);
+	void parseUpdate(const LLSD& update);
+	void parseUUIDArray(const LLSD& content, const std::string& name, uuid_vec_t& ids);
+	void parseLink(const LLUUID& link_id, const LLSD& link_map);
+	void parseCreatedLinks(const LLSD& links);
+	void doUpdate();
+private:
+	typedef std::map<LLUUID,S32> uuid_int_map_t;
+	uuid_int_map_t mCatDeltas;
+	uuid_int_map_t mCatVersions;
+
+	typedef std::map<LLUUID,LLPointer<LLViewerInventoryItem> > deferred_item_map_t;
+	deferred_item_map_t mItemsCreated;
+	deferred_item_map_t mItemsUpdated;
+
+	std::set<LLUUID> mObjectsDeleted;
+	uuid_vec_t mItemsCreatedIds;
+};
+
+AISUpdate::AISUpdate(const LLSD& update)
+{
+	parseUpdate(update);
 }
 
-void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLSD& update)
+void AISUpdate::parseUpdate(const LLSD& update)
 {
-	if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
-	{
-		dump_sequential_xml(gAgentAvatarp->getFullname() + "_ais_update", update);
-	}
-
-	// Track changes to descendent counts for accounting.
-	std::map<LLUUID,S32> cat_deltas;
-	typedef std::map<LLUUID,LLPointer<LLViewerInventoryItem> > deferred_item_map_t;
-	deferred_item_map_t items_created;
-	deferred_item_map_t items_updated;
-	std::set<LLUUID> objects_deleted;
-
-	// parse _categories_removed -> objects_deleted
+	// parse _categories_removed -> mObjectsDeleted
 	uuid_vec_t cat_ids;
-	parse_llsd_uuid_array(update,"_categories_removed",cat_ids);
+	parseUUIDArray(update,"_categories_removed",cat_ids);
 	for (uuid_vec_t::const_iterator it = cat_ids.begin();
 		 it != cat_ids.end(); ++it)
 	{
-		LLViewerInventoryCategory *cat = getCategory(*it);
-		cat_deltas[cat->getParentUUID()]--;
-		objects_deleted.insert(*it);
+		LLViewerInventoryCategory *cat = gInventory.getCategory(*it);
+		mCatDeltas[cat->getParentUUID()]--;
+		mObjectsDeleted.insert(*it);
 	}
 
-	// parse _categories_items_removed -> objects_deleted
+	// parse _categories_items_removed -> mObjectsDeleted
 	uuid_vec_t item_ids;
-	parse_llsd_uuid_array(update,"_category_items_removed",item_ids);
+	parseUUIDArray(update,"_category_items_removed",item_ids);
 	for (uuid_vec_t::const_iterator it = item_ids.begin();
 		 it != item_ids.end(); ++it)
 	{
-		LLViewerInventoryItem *item = getItem(*it);
-		cat_deltas[item->getParentUUID()]--;
-		objects_deleted.insert(*it);
+		LLViewerInventoryItem *item = gInventory.getItem(*it);
+		mCatDeltas[item->getParentUUID()]--;
+		mObjectsDeleted.insert(*it);
 	}
 
-	// parse _broken_links_removed -> objects_deleted
+	// parse _broken_links_removed -> mObjectsDeleted
 	uuid_vec_t broken_link_ids;
-	parse_llsd_uuid_array(update,"_broken_links_removed",broken_link_ids);
+	parseUUIDArray(update,"_broken_links_removed",broken_link_ids);
 	for (uuid_vec_t::const_iterator it = broken_link_ids.begin();
 		 it != broken_link_ids.end(); ++it)
 	{
-		LLViewerInventoryItem *item = getItem(*it);
-		cat_deltas[item->getParentUUID()]--;
-		objects_deleted.insert(*it);
+		LLViewerInventoryItem *item = gInventory.getItem(*it);
+		mCatDeltas[item->getParentUUID()]--;
+		mObjectsDeleted.insert(*it);
 	}
 
 	// parse _created_items
-	uuid_vec_t created_item_ids;
-	parse_llsd_uuid_array(update,"_created_items",created_item_ids);
+	parseUUIDArray(update,"_created_items",mItemsCreatedIds);
 
 	if (update.has("_embedded"))
 	{
@@ -1227,48 +1227,13 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 				it != end; ++it)
 		{
 			const std::string& field = (*it).first;
-
+			
 			// parse created links
 			if (field == "link")
 			{
 				const LLSD& links = embedded["link"];
-				for(LLSD::map_const_iterator linkit = links.beginMap(),
-						linkend = links.endMap();
-					linkit != linkend; ++linkit)
-				{
-					const LLUUID link_id((*linkit).first);
-					const LLSD& link_map = (*linkit).second;
-					uuid_vec_t::const_iterator pos =
-						std::find(created_item_ids.begin(),
-								  created_item_ids.end(),link_id);
-					if (pos != created_item_ids.end())
-					{
-						LLPointer<LLViewerInventoryItem> new_link(new LLViewerInventoryItem);
-						BOOL rv = new_link->unpackMessage(link_map);
-						if (rv)
-						{
-							LLPermissions default_perms;
-							default_perms.init(gAgent.getID(),gAgent.getID(),LLUUID::null,LLUUID::null);
-							default_perms.initMasks(PERM_NONE,PERM_NONE,PERM_NONE,PERM_NONE,PERM_NONE);
-							new_link->setPermissions(default_perms);
-							LLSaleInfo default_sale_info;
-							new_link->setSaleInfo(default_sale_info);
-							//LL_DEBUGS("Inventory") << "creating link from llsd: " << ll_pretty_print_sd(link_map) << llendl;
-							items_created[link_id] = new_link;
-							const LLUUID& parent_id = new_link->getParentUUID();
-							cat_deltas[parent_id]++;
-						}
-						else
-						{
-							llwarns << "failed to unpack" << llendl;
-						}
-					}
-					else
-					{
-						LL_DEBUGS("Inventory") << "Ignoring link not in created items list " << link_id << llendl;
-					}
-				}
-		}
+				parseCreatedLinks(links);
+			}
 			else
 			{
 				llwarns << "unrecognized embedded field " << field << llendl;
@@ -1285,11 +1250,11 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 		BOOL rv = new_item->unpackMessage(update);
 		if (rv)
 		{
-			items_updated[item_id] = new_item;
+			mItemsUpdated[item_id] = new_item;
 			// This statement is here to cause a new entry with 0
 			// delta to be created if it does not already exist;
 			// otherwise has no effect.
-			cat_deltas[new_item->getParentUUID()];
+			mCatDeltas[new_item->getParentUUID()];
 		}
 		else
 		{
@@ -1297,10 +1262,86 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 		}
 	}
 
+	// Parse updated category versions.
+	const std::string& ucv = "_updated_category_versions";
+	if (update.has(ucv))
+	{
+		for(LLSD::map_const_iterator it = update[ucv].beginMap(),
+				end = update[ucv].endMap();
+			it != end; ++it)
+		{
+			const LLUUID id((*it).first);
+			S32 version = (*it).second.asInteger();
+			mCatVersions[id] = version;
+		}
+	}
+}
+
+void AISUpdate::parseUUIDArray(const LLSD& content, const std::string& name, uuid_vec_t& ids)
+{
+	ids.clear();
+	if (content.has(name))
+	{
+		for(LLSD::array_const_iterator it = content[name].beginArray(),
+				end = content[name].endArray();
+				it != end; ++it)
+		{
+			ids.push_back((*it).asUUID());
+		}
+	}
+}
+
+void AISUpdate::parseLink(const LLUUID& link_id, const LLSD& link_map)
+{
+	LLPointer<LLViewerInventoryItem> new_link(new LLViewerInventoryItem);
+	BOOL rv = new_link->unpackMessage(link_map);
+	if (rv)
+	{
+		LLPermissions default_perms;
+		default_perms.init(gAgent.getID(),gAgent.getID(),LLUUID::null,LLUUID::null);
+		default_perms.initMasks(PERM_NONE,PERM_NONE,PERM_NONE,PERM_NONE,PERM_NONE);
+		new_link->setPermissions(default_perms);
+		LLSaleInfo default_sale_info;
+		new_link->setSaleInfo(default_sale_info);
+		//LL_DEBUGS("Inventory") << "creating link from llsd: " << ll_pretty_print_sd(link_map) << llendl;
+		mItemsCreated[link_id] = new_link;
+		const LLUUID& parent_id = new_link->getParentUUID();
+		mCatDeltas[parent_id]++;
+	}
+	else
+	{
+		llwarns << "failed to parse" << llendl;
+	}
+}
+
+void AISUpdate::parseCreatedLinks(const LLSD& links)
+{
+	for(LLSD::map_const_iterator linkit = links.beginMap(),
+			linkend = links.endMap();
+		linkit != linkend; ++linkit)
+	{
+		const LLUUID link_id((*linkit).first);
+		const LLSD& link_map = (*linkit).second;
+		uuid_vec_t::const_iterator pos =
+			std::find(mItemsCreatedIds.begin(),
+					  mItemsCreatedIds.end(),link_id);
+		if (pos != mItemsCreatedIds.end())
+		{
+			parseLink(link_id,link_map);
+		}
+		else
+		{
+			LL_DEBUGS("Inventory") << "Ignoring link not in created items list " << link_id << llendl;
+		}
+	}
+}
+
+void AISUpdate::doUpdate()
+{
 	// Do descendent/version accounting.
 	// Can remove this if/when we use the version info directly.
-	for (std::map<LLUUID,S32>::const_iterator catit = cat_deltas.begin();
-		 catit != cat_deltas.end(); ++catit)
+	for (std::map<LLUUID,S32>::const_iterator catit = mCatDeltas.begin();
+		 catit != mCatDeltas.end(); ++catit)
 	{
 		const LLUUID cat_id(catit->first);
 		S32 delta = catit->second;
@@ -1311,27 +1352,22 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 	// TODO - how can we use this version info? Need to be sure all
 	// changes are going through AIS first, or at least through
 	// something with a reliable responder.
-	const std::string& ucv = "_updated_category_versions";
-	if (update.has(ucv))
+	for (uuid_int_map_t::iterator ucv_it = mCatVersions.begin();
+		 ucv_it != mCatVersions.end(); ++ucv_it)
 	{
-		for(LLSD::map_const_iterator it = update[ucv].beginMap(),
-				end = update[ucv].endMap();
-			it != end; ++it)
+		const LLUUID id = ucv_it->first;
+		S32 version = ucv_it->second;
+		LLViewerInventoryCategory *cat = gInventory.getCategory(id);
+		if (cat->getVersion() != version)
 		{
-			const LLUUID id((*it).first);
-			S32 version = (*it).second.asInteger();
-			LLViewerInventoryCategory *cat = gInventory.getCategory(id);
-			if (cat->getVersion() != version)
-			{
-				llwarns << "Possible version mismatch, viewer " << cat->getVersion()
-						<< " server " << version << llendl;
-			}
+			llwarns << "Possible version mismatch, viewer " << cat->getVersion()
+					<< " server " << version << llendl;
 		}
 	}
 
 	// CREATE ITEMS
-	for (deferred_item_map_t::const_iterator create_it = items_created.begin();
-		 create_it != items_created.end(); ++create_it)
+	for (deferred_item_map_t::const_iterator create_it = mItemsCreated.begin();
+		 create_it != mItemsCreated.end(); ++create_it)
 	{
 		LLUUID item_id(create_it->first);
 		LLPointer<LLViewerInventoryItem> new_item = create_it->second;
@@ -1344,8 +1380,8 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 	}
 	
 	// UPDATE ITEMS
-	for (deferred_item_map_t::const_iterator update_it = items_updated.begin();
-		 update_it != items_updated.end(); ++update_it)
+	for (deferred_item_map_t::const_iterator update_it = mItemsUpdated.begin();
+		 update_it != mItemsUpdated.end(); ++update_it)
 	{
 		LLUUID item_id(update_it->first);
 		LLPointer<LLViewerInventoryItem> new_item = update_it->second;
@@ -1357,13 +1393,23 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 	}
 
 	// DELETE OBJECTS
-	for (std::set<LLUUID>::const_iterator del_it = objects_deleted.begin();
-		 del_it != objects_deleted.end(); ++del_it)
+	for (std::set<LLUUID>::const_iterator del_it = mObjectsDeleted.begin();
+		 del_it != mObjectsDeleted.end(); ++del_it)
 	{
 		LL_DEBUGS("Inventory") << "deleted item " << *del_it << llendl;
-		onObjectDeletedFromServer(*del_it, false, false);
+		gInventory.onObjectDeletedFromServer(*del_it, false, false);
+	}
+}
+
+void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLSD& update)
+{
+	if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+	{
+		dump_sequential_xml(gAgentAvatarp->getFullname() + "_ais_update", update);
 	}
 
+	AISUpdate ais_update(update); // parse update llsd into stuff to do.
+	ais_update.doUpdate(); // execute the updates in the appropriate order.
 }
 
 void LLInventoryModel::onItemUpdated(const LLUUID& item_id, const LLSD& updates, bool update_parent_version)
