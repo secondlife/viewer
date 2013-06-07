@@ -31,6 +31,7 @@
 #include "llsdserialize.h"
 #include "message.h"
 
+#include "llaisapi.h"
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
@@ -258,6 +259,7 @@ public:
 };
 LLInventoryHandler gInventoryHandler;
 
+#if 0 // DELETE these when working in their new home
 
 ///----------------------------------------------------------------------------
 /// Classes for AISv3 support.
@@ -520,6 +522,7 @@ public:
 private:
 	LLSD mContents;
 };
+#endif
 
 ///----------------------------------------------------------------------------
 /// Class LLViewerInventoryItem

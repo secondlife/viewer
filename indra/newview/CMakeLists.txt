@@ -98,6 +98,7 @@ include_directories(SYSTEM
 set(viewer_SOURCE_FILES
     groupchatlistener.cpp
     llaccountingcostmanager.cpp
+    llaisapi.cpp
     llagent.cpp
     llagentaccess.cpp
     llagentcamera.cpp
@@ -679,6 +680,7 @@ set(viewer_HEADER_FILES
     ViewerInstall.cmake
     groupchatlistener.h
     llaccountingcostmanager.h
+    llaisapi.h
     llagent.h
     llagentaccess.h
     llagentcamera.h
