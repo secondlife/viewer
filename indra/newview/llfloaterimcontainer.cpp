@@ -2141,21 +2141,23 @@ void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 		closeAllConversations();
 		onClickCloseBtn();
 	}
-
-	// Check for currently active session
-	LLUUID session_id = getSelectedSession();
-	// If current session is Nearby Chat or there is only one session remaining, close the floater
-	if (mConversationsItems.size() == 1 || session_id == LLUUID() || app_quitting)
-	{
-		onClickCloseBtn();
-	}
 	else
 	{
-		// Otherwise, close current conversation
-		LLFloaterIMSessionTab* active_conversation = LLFloaterIMSessionTab::getConversation(session_id);
-		if (active_conversation)
+		// Check for currently active session
+		LLUUID session_id = getSelectedSession();
+		// If current session is Nearby Chat or there is only one session remaining, close the floater
+		if (mConversationsItems.size() == 1 || session_id == LLUUID() || app_quitting)
 		{
-			active_conversation->closeFloater();
+			onClickCloseBtn();
+		}
+		else
+		{
+			// Otherwise, close current conversation
+			LLFloaterIMSessionTab* active_conversation = LLFloaterIMSessionTab::getConversation(session_id);
+			if (active_conversation)
+			{
+				active_conversation->closeFloater();
+			}
 		}
 	}
 }
