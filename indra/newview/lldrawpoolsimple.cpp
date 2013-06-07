@@ -294,6 +294,7 @@ void LLDrawPoolAlphaMask::render(S32 pass)
 	}
 	else
 	{
+		LLGLEnable test(GL_ALPHA_TEST);
 		pushMaskBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask(), TRUE, FALSE);
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT); //OK
 	}
@@ -370,6 +371,7 @@ void LLDrawPoolFullbrightAlphaMask::render(S32 pass)
 	}
 	else
 	{
+		LLGLEnable test(GL_ALPHA_TEST);
 		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 		pushMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, getVertexDataMask(), TRUE, FALSE);
 		gPipeline.enableLightsDynamic();
