@@ -4268,8 +4268,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 bump_count = 0;
 	U32 simple_count = 0;
 	U32 alpha_count = 0;
-
-
 	
 	U32 useage = group->mSpatialPartition->mBufferUsage;
 
@@ -4709,15 +4707,15 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		bump_mask |= LLVertexBuffer::MAP_BINORMAL;
 		genDrawInfo(group, simple_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, simple_faces, simple_count, FALSE, TRUE);
 		genDrawInfo(group, fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, fullbright_faces, fullbright_count, FALSE, TRUE);
-		genDrawInfo(group, bump_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, bump_faces, bump_count, FALSE, FALSE);
+		genDrawInfo(group, bump_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, bump_faces, bump_count, FALSE, TRUE);
 		genDrawInfo(group, alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, alpha_faces, alpha_count, TRUE, TRUE);
 	}
 	else
 	{
-		genDrawInfo(group, simple_mask, simple_faces, simple_count);
-		genDrawInfo(group, fullbright_mask, fullbright_faces, fullbright_count);
+		genDrawInfo(group, simple_mask, simple_faces, simple_count, FALSE, FALSE);
+		genDrawInfo(group, fullbright_mask, fullbright_faces, fullbright_count, FALSE, FALSE);
 		genDrawInfo(group, bump_mask, bump_faces, bump_count,  FALSE, FALSE);
-		genDrawInfo(group, alpha_mask, alpha_faces, alpha_count, TRUE);
+		genDrawInfo(group, alpha_mask, alpha_faces, alpha_count, TRUE, FALSE);
 	}
 	
 
