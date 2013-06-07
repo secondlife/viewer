@@ -133,7 +133,13 @@ public:
 	virtual const LLUUID &getID() const { return mID; }
 	const LLColor4 &getColor() const { return mColor; }
 	void getScale(F32 *s, F32 *t) const { *s = mScaleS; *t = mScaleT; }
+	void getScaleS(F32 *s) const { *s = mScaleS; }
+	void getScaleT(F32 *t) const { *t = mScaleT; }
+
 	void getOffset(F32 *s, F32 *t) const { *s = mOffsetS; *t = mOffsetT; }
+	F32  getOffsetS() const { return mOffsetS; }
+	F32  getOffsetT() const { return mOffsetT; }
+
 	F32  getRotation() const { return mRotation; }
 	void getRotation(F32 *theta) const { *theta = mRotation; }
 
@@ -144,7 +150,7 @@ public:
  	U8	 getBumpShinyFullbright() const { return mBump; }
 
 	U8	 getMediaFlags() const { return mMediaFlags & TEM_MEDIA_MASK; }
-	U8	 getTexGen() const	{ return mMediaFlags & TEM_TEX_GEN_MASK; }
+	LLTextureEntry::e_texgen	 getTexGen() const	{ return LLTextureEntry::e_texgen(mMediaFlags & TEM_TEX_GEN_MASK); }
 	U8	 getMediaTexGen() const { return mMediaFlags; }
     F32  getGlow() const { return mGlow; }
 	const LLMaterialID& getMaterialID() const { return mMaterialID; };

@@ -89,6 +89,27 @@ const S32 SHINY_TEXTURE = 4;		// use supplied specular map
 //
 std::string USE_TEXTURE;
 
+// Things the UI provides...
+//
+LLUUID	LLPanelFace::getCurrentNormalMap()			{ return getChild<LLTextureCtrl>("bumpytexture control")->getImageAssetID();	}
+LLUUID	LLPanelFace::getCurrentSpecularMap()		{ return getChild<LLTextureCtrl>("shinytexture control")->getImageAssetID();	}
+U32		LLPanelFace::getCurrentShininess()			{ return getChild<LLComboBox>("combobox shininess")->getCurrentIndex();			}
+U32		LLPanelFace::getCurrentBumpiness()			{ return getChild<LLComboBox>("combobox bumpiness")->getCurrentIndex();			}
+U8			LLPanelFace::getCurrentDiffuseAlphaMode()	{ return (U8)getChild<LLComboBox>("combobox alphamode")->getCurrentIndex();	}
+U8			LLPanelFace::getCurrentAlphaMaskCutoff()	{ return (U8)getChild<LLUICtrl>("maskcutoff")->getValue().asInteger();			}
+U8			LLPanelFace::getCurrentEnvIntensity()		{ return (U8)getChild<LLUICtrl>("environment")->getValue().asInteger();			}
+U8			LLPanelFace::getCurrentGlossiness()			{ return (U8)getChild<LLUICtrl>("glossiness")->getValue().asInteger();			}
+F32		LLPanelFace::getCurrentBumpyRot()			{ return getChild<LLUICtrl>("bumpyRot")->getValue().asReal();						}
+F32		LLPanelFace::getCurrentBumpyScaleU()		{ return getChild<LLUICtrl>("bumpyScaleU")->getValue().asReal();					}
+F32		LLPanelFace::getCurrentBumpyScaleV()		{ return getChild<LLUICtrl>("bumpyScaleV")->getValue().asReal();					}
+F32		LLPanelFace::getCurrentBumpyOffsetU()		{ return getChild<LLUICtrl>("bumpyOffsetU")->getValue().asReal();					}
+F32		LLPanelFace::getCurrentBumpyOffsetV()		{ return getChild<LLUICtrl>("bumpyOffsetV")->getValue().asReal();					}
+F32		LLPanelFace::getCurrentShinyRot()			{ return getChild<LLUICtrl>("shinyRot")->getValue().asReal();						}
+F32		LLPanelFace::getCurrentShinyScaleU()		{ return getChild<LLUICtrl>("shinyScaleU")->getValue().asReal();					}
+F32		LLPanelFace::getCurrentShinyScaleV()		{ return getChild<LLUICtrl>("shinyScaleV")->getValue().asReal();					}
+F32		LLPanelFace::getCurrentShinyOffsetU()		{ return getChild<LLUICtrl>("shinyOffsetU")->getValue().asReal();					}
+F32		LLPanelFace::getCurrentShinyOffsetV()		{ return getChild<LLUICtrl>("shinyOffsetV")->getValue().asReal();					}
+
 //
 // Methods
 //
@@ -105,19 +126,21 @@ BOOL	LLPanelFace::postBuild()
 	childSetCommitCallback("checkbox planar align",&LLPanelFace::onCommitPlanarAlign, this);
 	childSetCommitCallback("TexOffsetU",LLPanelFace::onCommitTextureInfo, this);
 	childSetCommitCallback("TexOffsetV",LLPanelFace::onCommitTextureInfo, this);
-	childSetCommitCallback("bumpyScaleU",&LLPanelFace::onCommitMaterial, this);
-	childSetCommitCallback("bumpyScaleV",&LLPanelFace::onCommitMaterial, this);
-	childSetCommitCallback("bumpyRot",&LLPanelFace::onCommitMaterial, this);
-	childSetCommitCallback("bumpyOffsetU",&LLPanelFace::onCommitMaterial, this);
-	childSetCommitCallback("bumpyOffsetV",&LLPanelFace::onCommitMaterial, this);
-	childSetCommitCallback("shinyScaleU",&LLPanelFace::onCommitMaterial, this);
-	childSetCommitCallback("shinyScaleV",&LLPanelFace::onCommitMaterial, this);
-	childSetCommitCallback("shinyRot",&LLPanelFace::onCommitMaterial, this);
-	childSetCommitCallback("shinyOffsetU",&LLPanelFace::onCommitMaterial, this);
-	childSetCommitCallback("shinyOffsetV",&LLPanelFace::onCommitMaterial, this);
-	childSetCommitCallback("glossiness",&LLPanelFace::onCommitMaterial, this);
-	childSetCommitCallback("environment",&LLPanelFace::onCommitMaterial, this);
-	childSetCommitCallback("maskcutoff",&LLPanelFace::onCommitMaterial, this);
+
+	childSetCommitCallback("bumpyScaleU",&LLPanelFace::onCommitMaterialBumpyScaleX, this);
+	childSetCommitCallback("bumpyScaleV",&LLPanelFace::onCommitMaterialBumpyScaleY, this);
+	childSetCommitCallback("bumpyRot",&LLPanelFace::onCommitMaterialBumpyRot, this);
+	childSetCommitCallback("bumpyOffsetU",&LLPanelFace::onCommitMaterialBumpyOffsetX, this);
+	childSetCommitCallback("bumpyOffsetV",&LLPanelFace::onCommitMaterialBumpyOffsetY, this);
+	childSetCommitCallback("shinyScaleU",&LLPanelFace::onCommitMaterialShinyScaleX, this);
+	childSetCommitCallback("shinyScaleV",&LLPanelFace::onCommitMaterialShinyScaleY, this);
+	childSetCommitCallback("shinyRot",&LLPanelFace::onCommitMaterialShinyRot, this);
+	childSetCommitCallback("shinyOffsetU",&LLPanelFace::onCommitMaterialShinyOffsetX, this);
+	childSetCommitCallback("shinyOffsetV",&LLPanelFace::onCommitMaterialShinyOffsetY, this);
+	childSetCommitCallback("glossiness",&LLPanelFace::onCommitMaterialGloss, this);
+	childSetCommitCallback("environment",&LLPanelFace::onCommitMaterialEnv, this);
+	childSetCommitCallback("maskcutoff",&LLPanelFace::onCommitMaterialMaskCutoff, this);
+
 	childSetAction("button align",&LLPanelFace::onClickAutoFix,this);
 
 	LLTextureCtrl*	mTextureCtrl;
@@ -293,10 +316,11 @@ void LLPanelFace::sendTexture()
 
 void LLPanelFace::sendBump(U32 bumpiness)
 {	
+	LLTextureCtrl* bumpytexture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
+
 	if (bumpiness < BUMPY_TEXTURE)
 	{
-		LL_DEBUGS("Materials") << "clearing bumptexture control" << LL_ENDL;
-		LLTextureCtrl* bumpytexture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
+		LL_DEBUGS("Materials") << "clearing bumptexture control" << LL_ENDL;	
 		bumpytexture_ctrl->clear();
 		bumpytexture_ctrl->setImageAssetID(LLUUID());
 	}
@@ -305,7 +329,7 @@ void LLPanelFace::sendBump(U32 bumpiness)
 	LLSelectMgr::getInstance()->selectionSetBumpmap( bump );
 
 	updateBumpyControls(bumpiness == BUMPY_TEXTURE, true);
-	updateMaterial();
+	LLSelectedTEMaterial::setNormalID(this, bumpytexture_ctrl->getImageAssetID());
 }
 
 void LLPanelFace::sendTexGen()
@@ -328,9 +352,8 @@ void LLPanelFace::sendShiny(U32 shininess)
 		U8 shiny = (U8) shininess & TEM_SHINY_MASK;
 		LLSelectMgr::getInstance()->selectionSetShiny( shiny );
 	}
-
 	updateShinyControls(!texture_ctrl->getImageAssetID().isNull(), true);
-	updateMaterial();
+	LLSelectedTEMaterial::setSpecularID(this, texture_ctrl->getImageAssetID());
 }
 
 void LLPanelFace::sendFullbright()
@@ -568,16 +591,9 @@ void LLPanelFace::sendTextureInfo()
 {
 	if ((bool)childGetValue("checkbox planar align").asBoolean())
 	{
-		struct f1 : public LLSelectedTEGetFunctor<LLFace *>
-		{
-			LLFace* get(LLViewerObject* object, S32 te)
-			{
-				return (object->mDrawable) ? object->mDrawable->getFace(te): NULL;
-			}
-		} get_last_face_func;
-		LLFace* last_face;
-		LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_last_face_func, last_face);
-
+		LLFace* last_face = NULL;
+		bool identical_face =false;
+		LLSelectedTE::getFace(last_face, identical_face);		
 		LLPanelFaceSetAlignedTEFunctor setfunc(this, last_face);
 		LLSelectMgr::getInstance()->getSelection()->applyToTEs(&setfunc);
 	}
@@ -639,12 +655,12 @@ void LLPanelFace::updateUI()
 
 		updateVisibility();
 
-		bool identical;
-      bool identical_diffuse;
-      bool identical_norm;
-      bool identical_spec;
+		bool identical				= true;	// true because it is anded below
+      bool identical_diffuse	= false;
+      bool identical_norm		= false;
+      bool identical_spec		= false;
         
-		LLTextureCtrl*	texture_ctrl = getChild<LLTextureCtrl>("texture control");
+		LLTextureCtrl*	texture_ctrl		= getChild<LLTextureCtrl>("texture control");
 		LLTextureCtrl*	shinytexture_ctrl = getChild<LLTextureCtrl>("shinytexture control");
 		LLTextureCtrl*	bumpytexture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
 		
@@ -657,18 +673,14 @@ void LLPanelFace::updateUI()
 			getChildView("color label")->setEnabled(editable);
 		}
 		LLColorSwatchCtrl*	mColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
-		LLColor4 color = LLColor4::white;
+
+		LLColor4 color					= LLColor4::white;
+		bool		identical_color	= false;
+
 		if(mColorSwatch)
 		{
-			struct f7 : public LLSelectedTEGetFunctor<LLColor4>
-			{
-				LLColor4 get(LLViewerObject* object, S32 face)
-				{
-					return object->getTE(face)->getColor();
-				}
-			} func;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, color );
-			
+			LLSelectedTE::getColor(color, identical_color);
+
 			mColorSwatch->setOriginal(color);
 			mColorSwatch->set(color, TRUE);
 
@@ -689,42 +701,19 @@ void LLPanelFace::updateUI()
 		}
 
 		// Specular map
-		struct spec_get : public LLSelectedTEGetFunctor<LLUUID>
-		{
-			LLUUID get(LLViewerObject* object, S32 te_index)
-			{
-				LLUUID id;
-
-				LLMaterial* mat = object->getTE(te_index)->getMaterialParams().get();
-
-				if (mat)
-				{
-					id = mat->getSpecularID();
-				}
-
-				return id;
-			}
-		} spec_get_func;
-		identical_spec = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &spec_get_func, specmap_id );
-
+		LLSelectedTEMaterial::getSpecularID(specmap_id, identical_spec);
+		
 		U8 shiny = 0;
+		bool identical_shiny = false;
 
 		// Shiny
 		{			
-			struct f9 : public LLSelectedTEGetFunctor<U8>
-			{
-				U8 get(LLViewerObject* object, S32 face)
-				{
-					return (U8)(object->getTE(face)->getShiny());
-				}
-			} func;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, shiny );
-
-			LLCtrlSelectionInterface* combobox_shininess =
-				childGetSelectionInterface("combobox shininess");
+			LLSelectedTE::getShiny(shiny, identical_shiny);
+			identical = identical && identical_shiny;
 
 			shiny = specmap_id.isNull() ? shiny : SHINY_TEXTURE;
 
+			LLCtrlSelectionInterface* combobox_shininess = childGetSelectionInterface("combobox shininess");
 			if (combobox_shininess)
 			{
 				combobox_shininess->selectNthItem((S32)shiny);
@@ -733,17 +722,22 @@ void LLPanelFace::updateUI()
 			{
 				llwarns << "failed childGetSelectionInterface for 'combobox shininess'" << llendl;
 			}
-			getChildView("combobox shininess")->setEnabled(editable);
-			getChild<LLUICtrl>("combobox shininess")->setTentative(!identical);
+
+			
 			getChildView("label shininess")->setEnabled(editable);
+			getChildView("combobox shininess")->setEnabled(editable);
+
+			getChildView("label glossiness")->setEnabled(editable);			
 			getChildView("glossiness")->setEnabled(editable);
-			getChild<LLUICtrl>("glossiness")->setTentative(!identical);
-			getChildView("label glossiness")->setEnabled(editable);
-			getChildView("environment")->setEnabled(editable);
-			getChild<LLUICtrl>("environment")->setTentative(!identical);
+
 			getChildView("label environment")->setEnabled(editable);
-			getChild<LLUICtrl>("shinycolorswatch")->setTentative(!identical);
+			getChildView("environment")->setEnabled(editable);
 			getChildView("label shinycolor")->setEnabled(editable);
+
+			getChild<LLUICtrl>("combobox shininess")->setTentative(!identical);
+			getChild<LLUICtrl>("glossiness")->setTentative(!identical);
+			getChild<LLUICtrl>("environment")->setTentative(!identical);			
+			getChild<LLUICtrl>("shinycolorswatch")->setTentative(!identical);
 		}
 
 		LLColorSwatchCtrl*	mShinyColorSwatch = getChild<LLColorSwatchCtrl>("shinycolorswatch");
@@ -757,17 +751,11 @@ void LLPanelFace::updateUI()
 		U8 bumpy = 0;
 
 		// Bumpy
-		{			
-			struct f10 : public LLSelectedTEGetFunctor<U8>
-			{
-				U8 get(LLViewerObject* object, S32 face)
-				{
-					return object->getTE(face)->getBumpmap();
-				}
-			} func;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, bumpy );
+		{		
+			U8 bumpy;
+			LLSelectedTE::getBumpmap(bumpy,identical);
 
-			LLUUID norm_map_id = getChild<LLTextureCtrl>("bumpytexture control")->getImageAssetID();
+			LLUUID norm_map_id = getCurrentNormalMap();
 
 			LLCtrlSelectionInterface* combobox_bumpiness = childGetSelectionInterface("combobox bumpiness");
 			if (combobox_bumpiness)
@@ -785,72 +773,18 @@ void LLPanelFace::updateUI()
 
 		// Texture
 		{
-			struct f1 : public LLSelectedTEGetFunctor<LLUUID>
-			{
-				LLUUID get(LLViewerObject* object, S32 te_index)
-				{
-					LLUUID id;
-					
-					LLViewerTexture* image = object->getTEImage(te_index);
-					if (image) id = image->getID();
-					
-					if (!id.isNull() && LLViewerMedia::textureHasMedia(id))
-					{
-						LLTextureEntry *te = object->getTE(te_index);
-						if (te)
-						{
-							LLViewerTexture* tex = te->getID().notNull() ? gTextureList.findImage(te->getID()) : NULL ;
-							if(!tex)
-							{
-								tex = LLViewerFetchedTexture::sDefaultImagep;
-							}
-							if (tex)
-							{
-								id = tex->getID();
-							}
-						}
-					}
-					return id;
-				}
-			} func;
-			identical_diffuse = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, id );
+			LLSelectedTE::getTexId(id,identical_diffuse);
 
 			// Normal map
-			struct norm_get : public LLSelectedTEGetFunctor<LLUUID>
-			{
-				LLUUID get(LLViewerObject* object, S32 te_index)
-				{
-					LLUUID id;
-					
-					LLMaterial* mat = object->getTE(te_index)->getMaterialParams().get();
-
-					if (mat)
-					{
-						id = mat->getNormalID();
-					}
-									
-					return id;
-				}
-			} norm_get_func;
-			identical_norm = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &norm_get_func, normmap_id );
-
+			LLSelectedTEMaterial::getNormalID(normmap_id, identical_norm);
+			
 			if (bumpy != BUMPY_TEXTURE)
 				normmap_id = LLUUID::null;
 
 			mIsAlpha = FALSE;
 			LLGLenum image_format;
-			struct f2 : public LLSelectedTEGetFunctor<LLGLenum>
-			{
-				LLGLenum get(LLViewerObject* object, S32 te_index)
-				{
-					LLGLenum image_format = GL_RGB;
-					
-					LLViewerTexture* image = object->getTEImage(te_index);
-					if (image) image_format  = image->getPrimaryFormat();
-					return image_format;
-				}
-			} func2;
-			LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func2, image_format );
+			bool identical_image_format = false;
+			LLSelectedTE::getImageFormat(image_format, identical_image_format);
             
          mIsAlpha = FALSE;
          switch (image_format)
@@ -876,53 +810,27 @@ void LLPanelFace::updateUI()
 			}
 			
 			// Diffuse Alpha Mode
-			struct alpha_get : public LLSelectedTEGetFunctor<U8>
+			U8 alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
+			bool identical_alpha_mode = false;
+			LLSelectedTEMaterial::getDiffuseAlphaMode(alpha_mode, identical_alpha_mode);
+
+			LLCtrlSelectionInterface* combobox_alphamode = childGetSelectionInterface("combobox alphamode");
+			if (combobox_alphamode)
 			{
-				U8 get(LLViewerObject* object, S32 te_index)
-				{
-					U8 ret = 1;
-					
-					LLMaterial* mat = object->getTE(te_index)->getMaterialParams().get();
+				//it is invalid to have any alpha mode other than blend if transparency is greater than zero ... 
+				alpha_mode = (transparency > 0.f) ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : alpha_mode;
 
-					if (mat)
-					{
-						ret = mat->getDiffuseAlphaMode();
-					}
-									
-					return ret;
-				}
-			} alpha_get_func;
-			
-			U8 alpha_mode = 1;
-			LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &alpha_get_func, alpha_mode);
-			
-			{
-				LLCtrlSelectionInterface* combobox_alphamode =
-				      childGetSelectionInterface("combobox alphamode");
+				// ... unless there is no alpha channel in the texture, in which case alpha mode MUST ebe none
+				alpha_mode = mIsAlpha ? alpha_mode : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
 
-				if (combobox_alphamode)
-				{
-
-					if (transparency > 0.f)
-					{ //it is invalid to have any alpha mode other than blend if transparency is greater than zero ... 
-						alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
-					}
-
-					if (!mIsAlpha)
-					{ // ... unless there is no alpha channel in the texture, in which case alpha mode MUST ebe none
-						alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
-					}
-
-					
-					combobox_alphamode->selectNthItem(alpha_mode);
-				}
-				else
-				{
-					llwarns << "failed childGetSelectionInterface for 'combobox alphamode'" << llendl;
-				}
-
-				updateAlphaControls();
+				combobox_alphamode->selectNthItem(alpha_mode);
 			}
+			else
+			{
+				llwarns << "failed childGetSelectionInterface for 'combobox alphamode'" << llendl;
+			}
+
+			updateAlphaControls();
 			
 			if(texture_ctrl && !texture_ctrl->isPickerShown())
 			{
@@ -1010,34 +918,20 @@ void LLPanelFace::updateUI()
 		// planar align
 		bool align_planar = false;
 		bool identical_planar_aligned = false;
-		bool is_planar = false;
 		{
 			LLCheckBoxCtrl*	cb_planar_align = getChild<LLCheckBoxCtrl>("checkbox planar align");
 			align_planar = (cb_planar_align && cb_planar_align->get());
-			struct f1 : public LLSelectedTEGetFunctor<bool>
-			{
-				bool get(LLViewerObject* object, S32 face)
-				{
-					return (object->getTE(face)->getTexGen() == LLTextureEntry::TEX_GEN_PLANAR);
-				}
-			} func;
-
-			bool texgens_identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, is_planar );
-			bool enabled = (editable && texgens_identical && is_planar);
+			
+			bool enabled = (editable && isIdenticalPlanarTexgen());
 			childSetValue("checkbox planar align", align_planar && enabled);
 			childSetEnabled("checkbox planar align", enabled);
 
 			if (align_planar && enabled)
 			{
-				struct f2 : public LLSelectedTEGetFunctor<LLFace *>
-				{
-					LLFace* get(LLViewerObject* object, S32 te)
-					{
-						return (object->mDrawable) ? object->mDrawable->getFace(te): NULL;
-					}
-				} get_te_face_func;
-				LLFace* last_face;
-				LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_te_face_func, last_face);
+				LLFace* last_face = NULL;
+				bool identical_face = false;
+				LLSelectedTE::getFace(last_face, identical_face);
+
 				LLPanelFaceGetIsAlignedTEFunctor get_is_aligend_func(last_face);
 				// this will determine if the texture param controls are tentative:
 				identical_planar_aligned = LLSelectMgr::getInstance()->getSelection()->applyToTEs(&get_is_aligend_func);
@@ -1052,386 +946,214 @@ void LLPanelFace::updateUI()
 		bool identical_texgen = true;		
 		bool identical_planar_texgen = false;
 
-		{			
-			struct f11 : public LLSelectedTEGetFunctor<LLTextureEntry::e_texgen>
-			{
-				LLTextureEntry::e_texgen get(LLViewerObject* object, S32 face)
-				{
-					return (LLTextureEntry::e_texgen)(object->getTE(face)->getTexGen());
-				}
-			} func;
-			identical_texgen = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, selected_texgen );
+		{	
+			LLSelectedTE::getTexGen(selected_texgen, identical_texgen);
 			identical_planar_texgen = (identical_texgen && (selected_texgen == LLTextureEntry::TEX_GEN_PLANAR));
 		}
 
 		// Texture scale
 		{
-			F32 scale_s = 1.f;
-			struct f2 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					return object->getTE(face)->mScaleS;
-				}
-			} func;
+			bool identical_diff_scale_s = false;
+			bool identical_spec_scale_s = false;
+			bool identical_norm_scale_s = false;
 
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, scale_s );
 			identical = align_planar ? identical_planar_aligned : identical;
 
-			F32 scale_u = editable ? scale_s : 0;
-			scale_u *= identical_planar_texgen ? 2.0f : 1.0f;
+			F32 diff_scale_s = 1.f;			
+			F32 spec_scale_s = 1.f;
+			F32 norm_scale_s = 1.f;
 
-			getChild<LLUICtrl>("TexScaleU")->setValue(scale_u);
-			getChild<LLUICtrl>("TexScaleU")->setTentative(LLSD((BOOL)(!identical)));
+			LLSelectedTE::getOffsetS(						diff_scale_s, identical_diff_scale_s);			
+			LLSelectedTEMaterial::getSpecularRepeatX( spec_scale_s, identical_spec_scale_s);
+			LLSelectedTEMaterial::getNormalRepeatX(	norm_scale_s, identical_norm_scale_s);
+
+			diff_scale_s = editable ? diff_scale_s : 1.0f;
+			diff_scale_s *= identical_planar_texgen ? 2.0f : 1.0f;
+			
+			norm_scale_s = editable ? norm_scale_s : 1.0f;
+			norm_scale_s *= identical_planar_texgen ? 2.0f : 1.0f;
+
+			spec_scale_s = editable ? spec_scale_s : 1.0f;
+			spec_scale_s *= identical_planar_texgen ? 2.0f : 1.0f;
+
+			getChild<LLUICtrl>("TexScaleU")->setValue(diff_scale_s);
+			getChild<LLUICtrl>("shinyScaleU")->setValue(spec_scale_s);
+			getChild<LLUICtrl>("bumpyScaleU")->setValue(norm_scale_s);
+
 			getChildView("TexScaleU")->setEnabled(editable);
-		
-			scale_s = 1.f;
-			struct f3 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					F32 s = 1.f, t = 1.f;
-
-					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
-					if (mat)
-					{
-						mat->getSpecularRepeat(s, t);
-					}
-					return s;
-				}
-			} shiny_func;
-			
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &shiny_func, scale_s );
-			identical = align_planar ? identical_planar_aligned : identical;
-
-			F32 scale_s_value = editable ? scale_s : 0;
-			scale_s_value *= identical_planar_texgen ? 2.0f : 1.0f;
-
-			getChild<LLUICtrl>("shinyScaleU")->setValue(scale_s_value);
-			getChild<LLUICtrl>("shinyScaleU")->setTentative(LLSD((BOOL)(!identical)));
 			getChildView("shinyScaleU")->setEnabled(editable && specmap_id.notNull());
-
-			scale_s = 1.f;
-			struct f4 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					F32 s = 1.f, t = 1.f;
-
-					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
-					if (mat)
-					{
-						mat->getNormalRepeat(s, t);
-					}
-					return s;
-				}
-			} bump_func;
-			
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &bump_func, scale_s );
-			identical = align_planar ? identical_planar_aligned : identical;
-
-			scale_s_value = editable ? scale_s : 0;
-			scale_s_value *= identical_planar_texgen ? 2.0f : 1.0f;
-
-			getChild<LLUICtrl>("bumpyScaleU")->setValue(scale_s_value);
-			getChild<LLUICtrl>("bumpyScaleU")->setTentative(LLSD((BOOL)(!identical)));
 			getChildView("bumpyScaleU")->setEnabled(editable && normmap_id.notNull());
+
+			BOOL diff_scale_tentative = !(identical && identical_diff_scale_s);
+			BOOL norm_scale_tentative = !(identical && identical_norm_scale_s);
+			BOOL spec_scale_tentative = !(identical && identical_spec_scale_s);
+
+			getChild<LLUICtrl>("TexScaleU")->setTentative(  LLSD(diff_scale_tentative));			
+			getChild<LLUICtrl>("shinyScaleU")->setTentative(LLSD(spec_scale_tentative));			
+			getChild<LLUICtrl>("bumpyScaleU")->setTentative(LLSD(norm_scale_tentative));
 		}
 
 		{
-			F32 scale_t = 1.f;
-			struct f3 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					return object->getTE(face)->mScaleT;
-				}
-			} func;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, scale_t );
-			identical = align_planar ? identical_planar_aligned : identical;
+			bool identical_diff_scale_t = false;
+			bool identical_spec_scale_t = false;
+			bool identical_norm_scale_t = false;
 
-			F32 scale_t_value = editable ? scale_t : 0;
-			scale_t_value *= identical_planar_texgen ? 2.0f : 1.0f;
+			F32 diff_scale_t = 1.f;			
+			F32 spec_scale_t = 1.f;
+			F32 norm_scale_t = 1.f;
 
-			getChild<LLUICtrl>("TexScaleV")->setValue(scale_t_value);
-			getChild<LLUICtrl>("TexScaleV")->setTentative(LLSD((BOOL)(!identical)));
+			LLSelectedTE::getOffsetT(diff_scale_t, identical_diff_scale_t);
+			LLSelectedTEMaterial::getSpecularRepeatY(spec_scale_t, identical_spec_scale_t);
+			LLSelectedTEMaterial::getNormalRepeatY(norm_scale_t, identical_norm_scale_t);
+
+			diff_scale_t = editable ? diff_scale_t : 1.0f;
+			diff_scale_t *= identical_planar_texgen ? 2.0f : 1.0f;
+
+			norm_scale_t = editable ? norm_scale_t : 1.0f;
+			norm_scale_t *= identical_planar_texgen ? 2.0f : 1.0f;
+
+			spec_scale_t = editable ? spec_scale_t : 1.0f;
+			spec_scale_t *= identical_planar_texgen ? 2.0f : 1.0f;
+
+			BOOL diff_scale_tentative = !(identical && identical_diff_scale_t);
+			BOOL norm_scale_tentative = !(identical && identical_norm_scale_t);
+			BOOL spec_scale_tentative = !(identical && identical_spec_scale_t);
+
 			getChildView("TexScaleV")->setEnabled(editable);
-			
-			scale_t = 1.f;
-			struct f4 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					F32 s = 1.f, t = 1.f;
-
-					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
-					if (mat)
-					{
-						mat->getSpecularRepeat(s, t);
-					}
-					return t;
-				}
-			} shiny_func;
-			
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &shiny_func, scale_t );
-			identical = align_planar ? identical_planar_aligned : identical;
-
-			scale_t_value = editable ? scale_t : 0;
-			scale_t_value *= identical_planar_texgen ? 2.0f : 1.0f;
-
-			getChild<LLUICtrl>("shinyScaleV")->setValue(scale_t_value);
-			getChild<LLUICtrl>("shinyScaleV")->setTentative(LLSD((BOOL)(!identical)));
 			getChildView("shinyScaleV")->setEnabled(editable && specmap_id.notNull());
-
-			scale_t = 1.f;
-			struct f5 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					F32 s = 1.f, t = 1.f;
-
-					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
-					if (mat)
-					{
-						mat->getNormalRepeat(s, t);
-					}
-					return t;
-				}
-			} bump_func;
-			
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &bump_func, scale_t );
-			identical = align_planar ? identical_planar_aligned : identical;
-
-			scale_t_value = editable ? scale_t : 0.0f;
-			scale_t_value *= identical_planar_texgen ? 2.0f : 1.0f;
-
-			getChild<LLUICtrl>("bumpyScaleV")->setValue(scale_t_value);
-			getChild<LLUICtrl>("bumpyScaleV")->setTentative(LLSD((BOOL)(!identical)));
 			getChildView("bumpyScaleV")->setEnabled(editable && normmap_id.notNull());
-			
+
+			getChild<LLUICtrl>("TexScaleV")->setValue(diff_scale_t);
+			getChild<LLUICtrl>("shinyScaleV")->setValue(norm_scale_t);
+			getChild<LLUICtrl>("bumpyScaleV")->setValue(spec_scale_t);
+
+			getChild<LLUICtrl>("TexScaleV")->setTentative(LLSD(diff_scale_tentative));
+			getChild<LLUICtrl>("shinyScaleV")->setTentative(LLSD(norm_scale_tentative));
+			getChild<LLUICtrl>("bumpyScaleV")->setTentative(LLSD(spec_scale_tentative));
 		}
 
 		// Texture offset
 		{
-			getChildView("tex offset")->setEnabled(editable);
-			F32 offset_s = 0.f;
-			struct f4 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					return object->getTE(face)->mOffsetS;
-				}
-			} func;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, offset_s );
-			identical = align_planar ? identical_planar_aligned : identical;
-			getChild<LLUICtrl>("TexOffsetU")->setValue(editable ? offset_s : 0);
-			getChild<LLUICtrl>("TexOffsetU")->setTentative(!identical);
+			bool identical_diff_offset_s = false;
+			bool identical_norm_offset_s = false;
+			bool identical_spec_offset_s = false;
+
+			F32 diff_offset_s = 0.0f;
+			F32 norm_offset_s = 0.0f;
+			F32 spec_offset_s = 0.0f;
+
+			LLSelectedTE::getOffsetS(diff_offset_s, identical_diff_offset_s);
+			LLSelectedTEMaterial::getNormalOffsetX(norm_offset_s, identical_norm_offset_s);
+			LLSelectedTEMaterial::getSpecularOffsetX(spec_offset_s, identical_spec_offset_s);
+
+			BOOL diff_offset_u_tentative = !(align_planar ? identical_planar_aligned : identical_diff_offset_s);
+			BOOL norm_offset_u_tentative = !(align_planar ? identical_planar_aligned : identical_norm_offset_s);
+			BOOL spec_offset_u_tentative = !(align_planar ? identical_planar_aligned : identical_spec_offset_s);
+
+			getChild<LLUICtrl>("TexOffsetU")->setValue(  editable ? diff_offset_s : 0.0f);
+			getChild<LLUICtrl>("bumpyOffsetU")->setValue(editable ? norm_offset_s : 0.0f);
+			getChild<LLUICtrl>("shinyOffsetU")->setValue(editable ? spec_offset_s : 0.0f);
+
+			getChild<LLUICtrl>("TexOffsetU")->setTentative(LLSD(diff_offset_u_tentative));
+			getChild<LLUICtrl>("shinyOffsetU")->setTentative(LLSD(norm_offset_u_tentative));
+			getChild<LLUICtrl>("bumpyOffsetU")->setTentative(LLSD(spec_offset_u_tentative));
+
 			getChildView("TexOffsetU")->setEnabled(editable);
-
-			offset_s = 1.f;
-			struct f3 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					F32 s = 0.f, t = 0.f;
-
-					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
-					if (mat)
-					{
-						mat->getSpecularOffset(s, t);
-					}
-					return s;
-				}
-			} shiny_func;
-			
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &shiny_func, offset_s );
-			identical = align_planar ? identical_planar_aligned : identical;
-			getChild<LLUICtrl>("shinyOffsetU")->setValue(editable ? offset_s : 0);
-			getChild<LLUICtrl>("shinyOffsetU")->setTentative(LLSD((BOOL)(!identical)));
 			getChildView("shinyOffsetU")->setEnabled(editable && specmap_id.notNull());
-
-			offset_s = 1.f;
-			struct f5 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					F32 s = 0.f, t = 0.f;
-
-					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
-					if (mat)
-					{
-						mat->getNormalOffset(s, t);
-					}
-					return s;
-				}
-			} bump_func;
-			
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &bump_func, offset_s );
-			identical = align_planar ? identical_planar_aligned : identical;
-
-			getChild<LLUICtrl>("bumpyOffsetU")->setValue(editable ? offset_s : 0);
-			getChild<LLUICtrl>("bumpyOffsetU")->setTentative(LLSD((BOOL)(!identical)));
 			getChildView("bumpyOffsetU")->setEnabled(editable && normmap_id.notNull());
 		}
 
 		{
-			F32 offset_t = 0.f;
-			struct f5 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					return object->getTE(face)->mOffsetT;
-				}
-			} func;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, offset_t );
-			identical = align_planar ? identical_planar_aligned : identical;
-			getChild<LLUICtrl>("TexOffsetV")->setValue(editable ? offset_t : 0);
-			getChild<LLUICtrl>("TexOffsetV")->setTentative(!identical);
+			bool identical_diff_offset_t = false;
+			bool identical_norm_offset_t = false;
+			bool identical_spec_offset_t = false;
+
+			F32 diff_offset_t = 0.0f;
+			F32 norm_offset_t = 0.0f;
+			F32 spec_offset_t = 0.0f;
+
+			LLSelectedTE::getOffsetT(diff_offset_t, identical_diff_offset_t);
+			LLSelectedTEMaterial::getNormalOffsetY(norm_offset_t, identical_norm_offset_t);
+			LLSelectedTEMaterial::getSpecularOffsetY(spec_offset_t, identical_spec_offset_t);
+			
+			BOOL diff_offset_v_tentative = !(align_planar ? identical_planar_aligned : identical_diff_offset_t);
+			BOOL norm_offset_v_tentative = !(align_planar ? identical_planar_aligned : identical_norm_offset_t);
+			BOOL spec_offset_v_tentative = !(align_planar ? identical_planar_aligned : identical_spec_offset_t);
+
+			getChild<LLUICtrl>("TexOffsetV")->setValue(  editable ? diff_offset_t : 0.0f);
+			getChild<LLUICtrl>("bumpyOffsetV")->setValue(editable ? norm_offset_t : 0.0f);
+			getChild<LLUICtrl>("shinyOffsetV")->setValue(editable ? spec_offset_t : 0.0f);
+
+			getChild<LLUICtrl>("TexOffsetV")->setTentative(LLSD(diff_offset_v_tentative));
+			getChild<LLUICtrl>("shinyOffsetV")->setTentative(LLSD(norm_offset_v_tentative));
+			getChild<LLUICtrl>("bumpyOffsetV")->setTentative(LLSD(spec_offset_v_tentative));
+
 			getChildView("TexOffsetV")->setEnabled(editable);
-			
-			
-			offset_t = 1.f;
-			struct f3 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					F32 s = 0.f, t = 0.f;
-
-					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
-					if (mat)
-					{
-						mat->getSpecularOffset(s, t);
-					}
-					return t;
-				}
-			} shiny_func;
-			
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &shiny_func, offset_t );
-			identical = align_planar ? identical_planar_aligned : identical;
-			getChild<LLUICtrl>("shinyOffsetV")->setValue(editable ? offset_t : 0);
-			getChild<LLUICtrl>("shinyOffsetV")->setTentative(LLSD((BOOL)(!identical)));
 			getChildView("shinyOffsetV")->setEnabled(editable && specmap_id.notNull());
-
-			offset_t = 1.f;
-			struct f4 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					F32 s = 0.f, t = 0.f;
-
-					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
-					if (mat)
-					{
-						mat->getNormalOffset(s, t);
-					}
-					return t;
-				}
-			} bump_func;
-			
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &bump_func, offset_t );
-			identical = align_planar ? identical_planar_aligned : identical;
-
-			getChild<LLUICtrl>("bumpyOffsetV")->setValue(editable ? offset_t : 0);
-			getChild<LLUICtrl>("bumpyOffsetV")->setTentative(LLSD((BOOL)(!identical)));
 			getChildView("bumpyOffsetV")->setEnabled(editable && normmap_id.notNull());
 		}
 
 		// Texture rotation
 		{
-			F32 rotation = 0.f;
-			struct f6 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					return object->getTE(face)->mRotation;
-				}
-			} func;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, rotation );
-			identical = align_planar ? identical_planar_aligned : identical;
-			getChild<LLUICtrl>("TexRot")->setValue(editable ? rotation * RAD_TO_DEG : 0);
-			getChild<LLUICtrl>("TexRot")->setTentative(!identical);
+			bool identical_diff_rotation = false;
+			bool identical_norm_rotation = false;
+			bool identical_spec_rotation = false;
+
+			F32 diff_rotation = 0.f;
+			F32 norm_rotation = 0.f;
+			F32 spec_rotation = 0.f;
+
+			LLSelectedTE::getRotation(diff_rotation,identical_diff_rotation);
+			LLSelectedTEMaterial::getSpecularRotation(spec_rotation,identical_spec_rotation);
+			LLSelectedTEMaterial::getNormalRotation(norm_rotation,identical_norm_rotation);
+
+			BOOL diff_rot_tentative = !(align_planar ? identical_planar_aligned : identical_diff_rotation);
+			BOOL norm_rot_tentative = !(align_planar ? identical_planar_aligned : identical_norm_rotation);
+			BOOL spec_rot_tentative = !(align_planar ? identical_planar_aligned : identical_spec_rotation);
+
+			F32 diff_rot_deg = diff_rotation * RAD_TO_DEG;
+			F32 norm_rot_deg = norm_rotation * RAD_TO_DEG;
+			F32 spec_rot_deg = spec_rotation * RAD_TO_DEG;
+
 			getChildView("TexRot")->setEnabled(editable);
-
-
-			
-			rotation = 1.f;
-			struct f3 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					F32 ret = 0.f;
-
-					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
-					if (mat)
-					{
-						ret = mat->getSpecularRotation();
-					}
-					return ret;
-				}
-			} shiny_func;
-			
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &shiny_func, rotation );
-			identical = align_planar ? identical_planar_aligned : identical;
-			getChild<LLUICtrl>("shinyRot")->setValue(editable ? rotation * RAD_TO_DEG : 0);
-			getChild<LLUICtrl>("shinyRot")->setTentative(LLSD((BOOL)(!identical)));
 			getChildView("shinyRot")->setEnabled(editable && specmap_id.notNull());
-
-			rotation = 1.f;
-			struct f4 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					F32 ret = 0.f;
-
-					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
-					if (mat)
-					{
-						ret = mat->getNormalRotation();
-					}
-					return ret;
-				}
-			} bump_func;
-			
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &bump_func, rotation );
-			identical = align_planar ? identical_planar_aligned : identical;
-
-			F32 normal_rot_deg = rotation * RAD_TO_DEG;
-			getChild<LLUICtrl>("bumpyRot")->setValue(editable ? normal_rot_deg : 0.0f);
-			getChild<LLUICtrl>("bumpyRot")->setTentative(LLSD((BOOL)(!identical)));
 			getChildView("bumpyRot")->setEnabled(editable && normmap_id.notNull());
+
+			getChild<LLUICtrl>("TexRot")->setTentative(diff_rot_tentative);
+			getChild<LLUICtrl>("shinyRot")->setTentative(LLSD(norm_rot_tentative));
+			getChild<LLUICtrl>("bumpyRot")->setTentative(LLSD(spec_rot_tentative));
+
+			getChild<LLUICtrl>("TexRot")->setValue(  editable ? diff_rot_deg : 0.0f);			
+			getChild<LLUICtrl>("shinyRot")->setValue(editable ? spec_rot_deg : 0.0f);
+			getChild<LLUICtrl>("bumpyRot")->setValue(editable ? norm_rot_deg : 0.0f);
 		}
 
 		{
 			F32 glow = 0.f;
-			struct f8 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					return object->getTE(face)->getGlow();
-				}
-			} func;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, glow );
+			bool identical_glow = false;
+
+			LLSelectedTE::getGlow(glow,identical_glow);
+
+			identical = identical && identical_glow;
 
 			getChild<LLUICtrl>("glow")->setValue(glow);
 			getChildView("glow")->setEnabled(editable);
 			getChild<LLUICtrl>("glow")->setTentative(!identical);
 			getChildView("glow label")->setEnabled(editable);
-
 		}
 
-		
-
 		{			
-			LLCtrlSelectionInterface* combobox_texgen =
-			      childGetSelectionInterface("combobox texgen");
+			LLCtrlSelectionInterface* combobox_texgen = childGetSelectionInterface("combobox texgen");
 			if (combobox_texgen)
 			{
-				combobox_texgen->selectNthItem(((S32)selected_texgen) >> 1); // Maps from enum to combobox entry index
+				// Maps from enum to combobox entry index
+				combobox_texgen->selectNthItem(((S32)selected_texgen) >> 1);
 			}
 			else
 			{
 				llwarns << "failed childGetSelectionInterface for 'combobox texgen'" << llendl;
 			}
+
 			getChildView("combobox texgen")->setEnabled(editable);
 			getChild<LLUICtrl>("combobox texgen")->setTentative(!identical);
 			getChildView("tex gen")->setEnabled(editable);
@@ -1450,14 +1172,11 @@ void LLPanelFace::updateUI()
 
 		{
 			U8 fullbright_flag = 0;
-			struct f12 : public LLSelectedTEGetFunctor<U8>
-			{
-				U8 get(LLViewerObject* object, S32 face)
-				{
-					return object->getTE(face)->getFullbright();
-				}
-			} func;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, fullbright_flag );
+			bool identical_fullbright = false;
+			
+			LLSelectedTE::getFullbright(fullbright_flag,identical_fullbright);
+
+			identical = identical && identical_fullbright;
 
 			getChild<LLUICtrl>("checkbox fullbright")->setValue((S32)(fullbright_flag != 0));
 			getChildView("checkbox fullbright")->setEnabled(editable);
@@ -1470,65 +1189,13 @@ void LLPanelFace::updateUI()
 			F32 repeats_norm = 1.f;
 			F32 repeats_spec = 1.f;
 
-			struct f13 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					U32 s_axis = VX;
-					U32 t_axis = VY;
-					// BUG: Only repeats along S axis
-					// BUG: Only works for boxes.
-					LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
-					F32 repeats_s = object->getTE(face)->mScaleS / object->getScale().mV[s_axis];
-					F32 repeats_t = object->getTE(face)->mScaleT / object->getScale().mV[t_axis];
-					return llmax(repeats_s, repeats_t);
-				}
+			bool identical_diff_repeats = false;
+			bool identical_norm_repeats = false;
+			bool identical_spec_repeats = false;
 
-			} func_diff;
-			bool identical_diff_repeats = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func_diff, repeats_diff );
-			
-			struct f14 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
-					U32 s_axis = VX;
-					U32 t_axis = VY;
-					F32 repeats_s = 1.0f;
-					F32 repeats_t = 1.0f;
-					if (mat)
-					{
-						mat->getNormalRepeat(repeats_s, repeats_t);
-						repeats_s /= object->getScale().mV[s_axis];
-						repeats_t /= object->getScale().mV[t_axis];
-					}					
-					return llmax(repeats_s, repeats_t);
-				}
-
-			} func_norm;
-			BOOL identical_norm_repeats = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func_norm, repeats_norm );
-
-			struct f15 : public LLSelectedTEGetFunctor<F32>
-			{
-				F32 get(LLViewerObject* object, S32 face)
-				{
-					LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
-					U32 s_axis = VX;
-					U32 t_axis = VY;
-					F32 repeats_s = 1.0f;
-					F32 repeats_t = 1.0f;
-					if (mat)
-					{
-						mat->getSpecularRepeat(repeats_s, repeats_t);
-						repeats_s /= object->getScale().mV[s_axis];
-						repeats_t /= object->getScale().mV[t_axis];
-					}					
-					return llmax(repeats_s, repeats_t);
-				}
-
-			} func_spec;
-			BOOL identical_spec_repeats = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func_spec, repeats_spec );
-			
+			LLSelectedTE::getMaxDiffuseRepeats(repeats_spec, identical_spec_repeats);
+			LLSelectedTEMaterial::getMaxNormalRepeats(repeats_spec, identical_spec_repeats);
+			LLSelectedTEMaterial::getMaxSpecularRepeats(repeats_spec, identical_spec_repeats);			
 
 			LLComboBox*	mComboTexGen = getChild<LLComboBox>("combobox texgen");
 			if (mComboTexGen)
@@ -1575,16 +1242,8 @@ void LLPanelFace::updateUI()
 
 		// Materials
 		{
-			struct f1 : public LLSelectedTEGetFunctor<LLMaterialPtr>
-			{
-				LLMaterialPtr get(LLViewerObject* object, S32 te_index)
-				{
-					return object->getTE(te_index)->getMaterialParams();
-				}
-			} func;
-
 			LLMaterialPtr material;
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, material );
+			LLSelectedTEMaterial::getCurrent(material, identical);
 
 			if (material && editable)
 			{
@@ -1616,19 +1275,7 @@ void LLPanelFace::updateUI()
 				getChild<LLUICtrl>("maskcutoff")->setValue(material->getAlphaMaskCutoff());
 				updateAlphaControls();
 
-				LLTextureEntry::e_texgen selected_texgen = LLTextureEntry::TEX_GEN_DEFAULT;
-				bool identical_texgen = true;		
-				bool identical_planar_texgen = false;
-
-				struct f44 : public LLSelectedTEGetFunctor<LLTextureEntry::e_texgen>
-				{
-					LLTextureEntry::e_texgen get(LLViewerObject* object, S32 face)
-					{
-						return (LLTextureEntry::e_texgen)(object->getTE(face)->getTexGen());
-					}
-				} func;
-				identical_texgen = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, selected_texgen );
-				identical_planar_texgen = (identical_texgen && (selected_texgen == LLTextureEntry::TEX_GEN_PLANAR));
+				identical_planar_texgen = isIdenticalPlanarTexgen();
 
 				// Shiny (specular)
 				F32 offset_x, offset_y, repeat_x, repeat_y, rot;
@@ -1771,143 +1418,75 @@ void LLPanelFace::refresh()
 	getState();
 }
 
-void LLPanelFace::updateMaterial()
-{ // assign current state of UI to material definition for submit to sim
-	LL_DEBUGS("Materials") << "Entered." << LL_ENDL;
-	LLComboBox* comboAlphaMode = getChild<LLComboBox>("combobox alphamode");
-	LLComboBox* comboBumpiness = getChild<LLComboBox>("combobox bumpiness");
-	LLComboBox* comboShininess = getChild<LLComboBox>("combobox shininess");
-	if (!comboAlphaMode || !comboBumpiness || !comboShininess)
-	{
+/*
+void LLPanelFace::updateMaterialParams(LLMaterialEditFunctorBase* edit_func)
+{
+	if (!edit_func)
 		return;
-	}
-	U32 alpha_mode = comboAlphaMode->getCurrentIndex();
-	U32 bumpiness = comboBumpiness->getCurrentIndex();
-	U32 shininess = comboShininess->getCurrentIndex();
 
-	LLTextureEntry::e_texgen selected_texgen = LLTextureEntry::TEX_GEN_DEFAULT;
-	struct f45 : public LLSelectedTEGetFunctor<LLTextureEntry::e_texgen>
+	struct LLSelectedTEEditMaterial : public LLSelectedTEMaterialFunctor
 	{
-		LLTextureEntry::e_texgen get(LLViewerObject* object, S32 face)
+		LLSelectedTEEditMaterial(LLPanelFace* panel, LLMaterialEditFunctorBase* edit) : _panel(panel), _edit(edit) {};
+		virtual ~LLSelectedTEEditMaterial() {};
+		virtual LLMaterialPtr apply(LLViewerObject* object, S32 face, LLTextureEntry* tep, LLMaterialPtr& current_material)
 		{
-			return (LLTextureEntry::e_texgen)(object->getTE(face)->getTexGen());
-		}
-	} func;
-	bool identical_texgen = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, selected_texgen );
-	bool identical_planar_texgen = (identical_texgen && (selected_texgen == LLTextureEntry::TEX_GEN_PLANAR));
-
-	bool is_default_blend_mode = mIsAlpha ? (alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND)
-													  : (alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE);
-	
-	LLUUID norm_map_id = getChild<LLTextureCtrl>("bumpytexture control")->getImageAssetID();
-	LLUUID spec_map_id = getChild<LLTextureCtrl>("shinytexture control")->getImageAssetID();
-
-	if (  !is_default_blend_mode
-		|| !norm_map_id.isNull()
-		|| !spec_map_id.isNull())
-	{
-		// This should match getState()
-		struct f1 : public LLSelectedTEGetFunctor<LLMaterialPtr>
-		{
-			LLMaterialPtr get(LLViewerObject* object, S32 te_index)
+			if (_edit)
 			{
-				return object->getTE(te_index)->getMaterialParams();
+				// Yesterday's news...
+				//
+				//U32		current_alpha_mode	= _panel->getCurrentDiffuseAlphaMode();
+				//LLUUID	old_normal_map_id		= _panel->getCurrentNormalMap();
+				//LLUUID	old_spec_map_id		= _panel->getCurrentSpecularMap();
+				//bool was_default_blend_mode	= (current_alpha_mode == (_panel->isAlpha() ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE));
+				//bool was_need_material			= !was_default_blend_mode || !old_normal_map_id.isNull() || !old_spec_map_id.isNull();
+
+				LLMaterialPtr new_material(!current_material.isNull() ? new LLMaterial(current_material->asLLSD()) : new LLMaterial());
+				llassert_always(new_material);
+
+				// Do "It"!
+				//
+				_edit->apply(new_material);
+
+				U32		new_alpha_mode			= new_material->getDiffuseAlphaMode();
+				LLUUID	new_normal_map_id		= new_material->getNormalID();
+				LLUUID	new_spec_map_id		= new_material->getSpecularID();
+
+				bool is_default_blend_mode		= (new_alpha_mode == (_panel->isAlpha() ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE));
+				bool is_need_material			= !is_default_blend_mode || !new_normal_map_id.isNull() || !new_spec_map_id.isNull();
+
+				if (!current_material.isNull() && !is_need_material)
+				{
+					LL_DEBUGS("Materials") << "Removing material from object " << object->getID() << " face " << face << LL_ENDL;
+					LLMaterialMgr::getInstance()->remove(object->getID(),face);	
+				}
+				else
+				{
+					// Replicate old init behavior
+					//
+					if (current_material.isNull())
+					{
+						U8	current_alpha_mode			= _panel->getCurrentDiffuseAlphaMode();
+						U8	current_alpha_mask_cutoff	= _panel->getCurrentAlphaMaskCutoff();
+
+						new_material->setDiffuseAlphaMode(current_alpha_mode);
+						new_material->setAlphaMaskCutoff(current_alpha_mask_cutoff);
+					}
+
+					LL_DEBUGS("Materials") << "Putting material on object " << object->getID() << " face " << face << ", material: " << new_material->asLLSD() << LL_ENDL;
+					LLMaterialMgr::getInstance()->put(object->getID(),face,*new_material);
+				}
+
+				object->setTEMaterialParams(face, new_material);
+				return new_material;
 			}
-		} func;
-		LLMaterialPtr cur_material;
-		LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, cur_material);
-
-		bool new_material = cur_material.isNull();
-
-		LLMaterialPtr material( (!new_material) ? new LLMaterial(cur_material->asLLSD()) : new LLMaterial());
-		llassert_always(material);
-
-		material->setDiffuseAlphaMode(getChild<LLComboBox>("combobox alphamode")->getCurrentIndex());
-		material->setAlphaMaskCutoff((U8)(getChild<LLUICtrl>("maskcutoff")->getValue().asInteger()));
-
-		if (!norm_map_id.isNull() && (bumpiness == BUMPY_TEXTURE))
-		{
-			LL_DEBUGS("Materials") << "Setting bumpy texture, bumpiness = " << bumpiness  << LL_ENDL;
-			material->setNormalID(norm_map_id);
-
-			F32 bumpy_scale_u = getChild<LLUICtrl>("bumpyScaleU")->getValue().asReal();
-			F32 bumpy_scale_v = getChild<LLUICtrl>("bumpyScaleV")->getValue().asReal();
-
-			if (identical_planar_texgen)
-			{
-				bumpy_scale_u *= 0.5f;
-				bumpy_scale_v *= 0.5f;
-			}
-
-			material->setNormalOffset(getChild<LLUICtrl>("bumpyOffsetU")->getValue().asReal(),
-							getChild<LLUICtrl>("bumpyOffsetV")->getValue().asReal());
-			material->setNormalRepeat(bumpy_scale_u, bumpy_scale_v);
-			F32 normal_rot_rads = getChild<LLUICtrl>("bumpyRot")->getValue().asReal()*DEG_TO_RAD;
-			material->setNormalRotation(normal_rot_rads);
+			return NULL;
 		}
-		else
-		{
-			LL_DEBUGS("Materials") << "Removing bumpy texture, bumpiness = " << bumpiness  << LL_ENDL;
-			material->setNormalID(LLUUID());
-			material->setNormalOffset(0.0f,0.0f);
-			material->setNormalRepeat(1.0f,1.0f);
-			material->setNormalRotation(0.0f);
-		}
-        
-		
-
-		if (!spec_map_id.isNull() && (shininess == SHINY_TEXTURE))
-		{
-			LL_DEBUGS("Materials") << "Setting shiny texture, shininess = " << shininess  << LL_ENDL;
-			material->setSpecularID(spec_map_id);
-			material->setSpecularOffset(getChild<LLUICtrl>("shinyOffsetU")->getValue().asReal(),
-							getChild<LLUICtrl>("shinyOffsetV")->getValue().asReal());
-
-			F32 shiny_scale_u = getChild<LLUICtrl>("shinyScaleU")->getValue().asReal();
-			F32 shiny_scale_v = getChild<LLUICtrl>("shinyScaleV")->getValue().asReal();
-
-			if (identical_planar_texgen)
-			{
-				shiny_scale_u *= 0.5f;
-				shiny_scale_v *= 0.5f;
-			}
-
-			material->setSpecularRepeat(shiny_scale_u, shiny_scale_v);
-			material->setSpecularRotation(getChild<LLUICtrl>("shinyRot")->getValue().asReal()*DEG_TO_RAD);
-
-			//override shininess to 0.2f if this is a new material
-			if (!new_material)
-			{
-				material->setSpecularLightColor(getChild<LLColorSwatchCtrl>("shinycolorswatch")->get());
-				material->setSpecularLightExponent(getChild<LLUICtrl>("glossiness")->getValue().asInteger());
-				material->setEnvironmentIntensity(getChild<LLUICtrl>("environment")->getValue().asInteger());
-			}
-		}
-		else
-		{
-			LL_DEBUGS("Materials") << "Removing shiny texture, shininess = " << shininess << LL_ENDL;
-			material->setSpecularID(LLUUID());
-			material->setSpecularOffset(0.0f,0.0f);
-			material->setSpecularRepeat(1.0f,1.0f);
-			material->setSpecularRotation(0.0f);
-			material->setSpecularLightColor(LLMaterial::DEFAULT_SPECULAR_LIGHT_COLOR);
-			material->setSpecularLightExponent(LLMaterial::DEFAULT_SPECULAR_LIGHT_EXPONENT);
-			material->setEnvironmentIntensity(0);
-		}
-		
-		LL_DEBUGS("Materials") << "Updating material: " << material->asLLSD() << LL_ENDL;
-		
-		LLSelectMgr::getInstance()->selectionSetMaterial( material );
-	}
-	else
-	{
-		// The user has specified settings that don't need a material.
-		LL_DEBUGS("Materials") << "Resetting material entry" << LL_ENDL;
-
-		// Delete existing material entry...
-		LLSelectMgr::getInstance()->selectionRemoveMaterial();
-	}
+		LLMaterialEditFunctorBase*	_edit;
+		LLPanelFace*					_panel;
+	} editor(this, edit_func);
+	LLSelectMgr::getInstance()->selectionSetMaterialParams(&editor);
 }
+*/
 
 //
 // Static functions
@@ -1927,7 +1506,7 @@ void LLPanelFace::onCommitColor(const LLSD& data)
 
 void LLPanelFace::onCommitShinyColor(const LLSD& data)
 {
-	updateMaterial();
+	LLSelectedTEMaterial::setSpecularLightColor(this, getChild<LLColorSwatchCtrl>("shinycolorswatch")->get());
 }
 
 void LLPanelFace::onCommitAlpha(const LLSD& data)
@@ -2216,7 +1795,7 @@ void LLPanelFace::onCommitAlphaMode(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	self->updateAlphaControls();
-	self->updateMaterial();
+	LLSelectedTEMaterial::setDiffuseAlphaMode(self,self->getCurrentDiffuseAlphaMode());
 }
 
 // static
@@ -2268,18 +1847,8 @@ void LLPanelFace::onSelectTexture(const LLSD& data)
 	sendTexture();
 
 	LLGLenum image_format;
-	struct f2 : public LLSelectedTEGetFunctor<LLGLenum>
-	{
-		LLGLenum get(LLViewerObject* object, S32 te_index)
-		{
-			LLGLenum image_format = GL_RGB;
-					
-			LLViewerTexture* image = object->getTEImage(te_index);
-			if (image) image_format  = image->getPrimaryFormat();
-			return image_format;
-		}
-	} func2;
-	LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func2, image_format );
+	bool identical_image_format = false;
+	LLSelectedTE::getImageFormat(image_format, identical_image_format);
     
 	LLCtrlSelectionInterface* combobox_alphamode =
 		childGetSelectionInterface("combobox alphamode");
@@ -2306,8 +1875,7 @@ void LLPanelFace::onSelectTexture(const LLSD& data)
 
 		combobox_alphamode->selectNthItem(alpha_mode);
 	}
-
-	updateMaterial();
+	LLSelectedTEMaterial::setDiffuseAlphaMode(this, getCurrentDiffuseAlphaMode());
 }
 
 void LLPanelFace::onCommitSpecularTexture( const LLSD& data )
@@ -2324,17 +1892,9 @@ void LLPanelFace::onCommitNormalTexture( const LLSD& data )
 
 void LLPanelFace::onCancelSpecularTexture(const LLSD& data)
 {
-
-	U8 shiny = 0;		
-	struct get_shiny : public LLSelectedTEGetFunctor<U8>
-	{
-		U8 get(LLViewerObject* object, S32 face)
-		{
-			return (U8)(object->getTE(face)->getShiny());
-		}
-	} func;
-	LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, shiny );
-
+	U8 shiny = 0;
+	bool identical_shiny = false;
+	LLSelectedTE::getShiny(shiny, identical_shiny);
 	LLUUID spec_map_id = getChild<LLTextureCtrl>("shinytexture control")->getImageAssetID();
 	shiny = spec_map_id.isNull() ? shiny : SHINY_TEXTURE;
 	sendShiny(shiny);
@@ -2342,16 +1902,9 @@ void LLPanelFace::onCancelSpecularTexture(const LLSD& data)
 
 void LLPanelFace::onCancelNormalTexture(const LLSD& data)
 {
-	U8 bumpy = 0;		
-	struct get_bumpy : public LLSelectedTEGetFunctor<U8>
-	{
-		U8 get(LLViewerObject* object, S32 face)
-		{
-			return (U8)(object->getTE(face)->getBumpmap());
-		}
-
-	} func;
-	LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, bumpy );
+	U8 bumpy = 0;
+	bool identical_bumpy = false;
+	LLSelectedTE::getBumpmap(bumpy, identical_bumpy);
 	sendBump(bumpy);
 }
 
@@ -2368,10 +1921,126 @@ void LLPanelFace::onSelectNormalTexture(const LLSD& data)
 }
 
 //static
-void LLPanelFace::onCommitMaterial(LLUICtrl* ctrl, void* userdata)
+void LLPanelFace::onCommitMaterialBumpyOffsetX(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
-	self->updateMaterial();
+	llassert_always(self);
+	LLSelectedTEMaterial::setNormalOffsetX(self,self->getCurrentBumpyOffsetU());
+}
+
+//static
+void LLPanelFace::onCommitMaterialBumpyOffsetY(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelFace* self = (LLPanelFace*) userdata;
+	llassert_always(self);
+	LLSelectedTEMaterial::setNormalOffsetY(self,self->getCurrentBumpyOffsetV());
+}
+
+//static
+void LLPanelFace::onCommitMaterialShinyOffsetX(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelFace* self = (LLPanelFace*) userdata;
+	llassert_always(self);
+	LLSelectedTEMaterial::setSpecularOffsetX(self,self->getCurrentShinyOffsetU());
+}
+
+//static
+void LLPanelFace::onCommitMaterialShinyOffsetY(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelFace* self = (LLPanelFace*) userdata;
+	llassert_always(self);
+	LLSelectedTEMaterial::setSpecularOffsetY(self,self->getCurrentShinyOffsetV());
+}
+
+//static
+void LLPanelFace::onCommitMaterialBumpyScaleX(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelFace* self = (LLPanelFace*) userdata;
+	llassert_always(self);
+	F32 bumpy_scale_u = self->getCurrentBumpyScaleU();
+	if (self->isIdenticalPlanarTexgen())
+	{
+		bumpy_scale_u *= 0.5f;
+	}
+	LLSelectedTEMaterial::setNormalRepeatX(self,bumpy_scale_u);
+}
+
+//static
+void LLPanelFace::onCommitMaterialBumpyScaleY(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelFace* self = (LLPanelFace*) userdata;
+	llassert_always(self);
+	F32 bumpy_scale_v = self->getCurrentBumpyScaleV();
+	if (self->isIdenticalPlanarTexgen())
+	{
+		bumpy_scale_v *= 0.5f;
+	}
+	LLSelectedTEMaterial::setNormalRepeatY(self,bumpy_scale_v);
+}
+
+//static
+void LLPanelFace::onCommitMaterialShinyScaleX(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelFace* self = (LLPanelFace*) userdata;
+	llassert_always(self);
+	F32 shiny_scale_u = self->getCurrentShinyScaleU();
+	if (self->isIdenticalPlanarTexgen())
+	{
+		shiny_scale_u *= 0.5f;
+	}
+	LLSelectedTEMaterial::setSpecularRepeatX(self,shiny_scale_u);
+}
+
+//static
+void LLPanelFace::onCommitMaterialShinyScaleY(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelFace* self = (LLPanelFace*) userdata;
+	llassert_always(self);
+	F32 shiny_scale_v = self->getCurrentShinyScaleV();
+	if (self->isIdenticalPlanarTexgen())
+	{
+		shiny_scale_v *= 0.5f;
+	}
+	LLSelectedTEMaterial::setSpecularRepeatY(self,shiny_scale_v);
+}
+
+//static
+void LLPanelFace::onCommitMaterialBumpyRot(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelFace* self = (LLPanelFace*) userdata;
+	llassert_always(self);
+	LLSelectedTEMaterial::setNormalRotation(self,self->getCurrentBumpyRot());
+}
+
+//static
+void LLPanelFace::onCommitMaterialShinyRot(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelFace* self = (LLPanelFace*) userdata;
+	llassert_always(self);
+	LLSelectedTEMaterial::setSpecularRotation(self,self->getCurrentShinyRot());
+}
+
+//static
+void LLPanelFace::onCommitMaterialGloss(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelFace* self = (LLPanelFace*) userdata;
+	llassert_always(self);
+	LLSelectedTEMaterial::setSpecularLightExponent(self,self->getCurrentGlossiness());
+}
+
+//static
+void LLPanelFace::onCommitMaterialEnv(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelFace* self = (LLPanelFace*) userdata;
+	llassert_always(self);
+	LLSelectedTEMaterial::setEnvironmentIntensity(self,self->getCurrentEnvIntensity());
+}
+
+//static
+void LLPanelFace::onCommitMaterialMaskCutoff(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelFace* self = (LLPanelFace*) userdata;
+	LLSelectedTEMaterial::setAlphaMaskCutoff(self,self->getCurrentAlphaMaskCutoff());
 }
 
 // static
@@ -2387,44 +2056,21 @@ void LLPanelFace::onCommitRepeatsPerMeter(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	
-	LLUICtrl* repeats_ctrl = self->getChild<LLUICtrl>("rptctrl");
+	LLUICtrl*	repeats_ctrl	= self->getChild<LLUICtrl>("rptctrl");
+	LLComboBox* combo_mattype	= self->getChild<LLComboBox>("combobox mattype");
 
-	F32 repeats_per_meter = repeats_ctrl->getValue().asReal();
+	U32 material_type			= combo_mattype->getCurrentIndex();
+	F32 repeats_per_meter	= repeats_ctrl->getValue().asReal();
 	
-	LLComboBox* combo_mattype = self->getChild<LLComboBox>("combobox mattype");
-	
-    F32 obj_scale_s = 1.0f;
-    F32 obj_scale_t = 1.0f;
-    
-	U32 material_type = combo_mattype->getCurrentIndex();
+   F32 obj_scale_s = 1.0f;
+   F32 obj_scale_t = 1.0f;
 
-    struct f_objscale_s : public LLSelectedTEGetFunctor<F32>
-    {
-        F32 get(LLViewerObject* object, S32 face)
-        {
-            U32 s_axis = VX;
-            U32 t_axis = VY;
-            LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
-            return object->getScale().mV[s_axis];
-        }
+	bool identical_scale_s = false;
+	bool identical_scale_t = false;
 
-    } scale_s_func;
-    
-    struct f_objscale_t : public LLSelectedTEGetFunctor<F32>
-    {
-        F32 get(LLViewerObject* object, S32 face)
-        {
-            U32 s_axis = VX;
-            U32 t_axis = VY;
-            LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
-            return object->getScale().mV[t_axis];
-        }
-        
-    } scale_t_func;
-    
-    LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &scale_s_func, obj_scale_s );
-    LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &scale_t_func, obj_scale_t );
-    
+	LLSelectedTE::getObjectScaleS(obj_scale_s, identical_scale_s);
+	LLSelectedTE::getObjectScaleS(obj_scale_t, identical_scale_t);
+ 
 	switch (material_type)
 	{
 		case MATTYPE_DIFFUSE:
@@ -2437,9 +2083,12 @@ void LLPanelFace::onCommitRepeatsPerMeter(LLUICtrl* ctrl, void* userdata)
 		{
 			LLUICtrl* bumpy_scale_u = self->getChild<LLUICtrl>("bumpyScaleU");
 			LLUICtrl* bumpy_scale_v = self->getChild<LLUICtrl>("bumpyScaleV");
+			
 			bumpy_scale_u->setValue(obj_scale_s * repeats_per_meter);
 			bumpy_scale_v->setValue(obj_scale_t * repeats_per_meter);
-			self->updateMaterial();
+
+			LLSelectedTEMaterial::setNormalRepeatX(self,obj_scale_s * repeats_per_meter);
+			LLSelectedTEMaterial::setNormalRepeatY(self,obj_scale_t * repeats_per_meter);
 		}
 		break;
 
@@ -2447,9 +2096,12 @@ void LLPanelFace::onCommitRepeatsPerMeter(LLUICtrl* ctrl, void* userdata)
 		{
 			LLUICtrl* shiny_scale_u = self->getChild<LLUICtrl>("shinyScaleU");
 			LLUICtrl* shiny_scale_v = self->getChild<LLUICtrl>("shinyScaleV");
+			
 			shiny_scale_u->setValue(obj_scale_s * repeats_per_meter);
 			shiny_scale_v->setValue(obj_scale_t * repeats_per_meter);
-			self->updateMaterial();
+
+			LLSelectedTEMaterial::setSpecularRepeatX(self,obj_scale_s * repeats_per_meter);
+			LLSelectedTEMaterial::setSpecularRepeatY(self,obj_scale_t * repeats_per_meter);
 		}
 		break;
 
@@ -2580,3 +2232,180 @@ void LLPanelFace::onTextureSelectionChanged(LLInventoryItem* itemp)
 	}
 }
 
+bool LLPanelFace::isIdenticalPlanarTexgen()
+{
+	LLTextureEntry::e_texgen selected_texgen = LLTextureEntry::TEX_GEN_DEFAULT;
+	bool identical_texgen = false;
+	LLSelectedTE::getTexGen(selected_texgen, identical_texgen);
+	return (identical_texgen && (selected_texgen == LLTextureEntry::TEX_GEN_PLANAR));
+}
+
+void LLPanelFace::LLSelectedTE::getFace(LLFace*& face_to_return, bool& identical_face)
+{		
+	struct LLSelectedTEGetFace : public LLSelectedTEGetFunctor<LLFace *>
+	{
+		LLFace* get(LLViewerObject* object, S32 te)
+		{
+			return (object->mDrawable) ? object->mDrawable->getFace(te): NULL;
+		}
+	} get_te_face_func;
+	identical_face = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_te_face_func, face_to_return);
+}
+
+void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return, bool& identical_face)
+{		
+	struct LLSelectedTEGetImageFormat : public LLSelectedTEGetFunctor<LLGLenum>
+	{
+		LLGLenum get(LLViewerObject* object, S32 te_index)
+		{
+			LLViewerTexture* image = object->getTEImage(te_index);
+			return image ? image->getPrimaryFormat() : GL_RGB;
+		}
+	} get_glenum;
+	identical_face = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_glenum, image_format_to_return);
+}
+
+void LLPanelFace::LLSelectedTE::getTexId(LLUUID& id, bool& identical)
+{		
+	struct LLSelectedTEGetTexId : public LLSelectedTEGetFunctor<LLUUID>
+	{
+		LLUUID get(LLViewerObject* object, S32 te_index)
+		{
+			LLUUID id;
+			LLViewerTexture* image = object->getTEImage(te_index);
+			if (image)
+			{
+				id = image->getID();
+			}
+
+			if (!id.isNull() && LLViewerMedia::textureHasMedia(id))
+			{
+				LLTextureEntry *te = object->getTE(te_index);
+				if (te)
+				{
+					LLViewerTexture* tex = te->getID().notNull() ? gTextureList.findImage(te->getID()) : NULL;
+					if(!tex)
+					{
+						tex = LLViewerFetchedTexture::sDefaultImagep;
+					}
+					if (tex)
+					{
+						id = tex->getID();
+					}
+				}
+			}
+			return id;
+		}
+	} func;
+	identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, id );
+}
+
+void LLPanelFace::LLSelectedTEMaterial::getCurrent(LLMaterialPtr& material_ptr, bool& identical_material)
+{
+	struct MaterialFunctor : public LLSelectedTEGetFunctor<LLMaterialPtr>
+	{
+		LLMaterialPtr get(LLViewerObject* object, S32 te_index)
+		{
+			return object->getTE(te_index)->getMaterialParams();
+		}
+	} func;
+	identical_material = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, material_ptr);
+}
+
+void LLPanelFace::LLSelectedTEMaterial::getMaxSpecularRepeats(F32& repeats, bool& identical)
+{
+	struct LLSelectedTEGetMaxSpecRepeats : public LLSelectedTEGetFunctor<F32>
+	{
+		F32 get(LLViewerObject* object, S32 face)
+		{
+			LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
+			U32 s_axis = VX;
+			U32 t_axis = VY;
+			F32 repeats_s = 1.0f;
+			F32 repeats_t = 1.0f;
+			if (mat)
+			{
+				mat->getSpecularRepeat(repeats_s, repeats_t);
+				repeats_s /= object->getScale().mV[s_axis];
+				repeats_t /= object->getScale().mV[t_axis];
+			}					
+			return llmax(repeats_s, repeats_t);
+		}
+
+	} max_spec_repeats_func;
+	identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &max_spec_repeats_func, repeats);
+}
+
+void LLPanelFace::LLSelectedTEMaterial::getMaxNormalRepeats(F32& repeats, bool& identical)
+{
+	struct LLSelectedTEGetMaxNormRepeats : public LLSelectedTEGetFunctor<F32>
+	{
+		F32 get(LLViewerObject* object, S32 face)
+		{
+			LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
+			U32 s_axis = VX;
+			U32 t_axis = VY;
+			F32 repeats_s = 1.0f;
+			F32 repeats_t = 1.0f;
+			if (mat)
+			{
+				mat->getNormalRepeat(repeats_s, repeats_t);
+				repeats_s /= object->getScale().mV[s_axis];
+				repeats_t /= object->getScale().mV[t_axis];
+			}					
+			return llmax(repeats_s, repeats_t);
+		}
+
+	} max_norm_repeats_func;
+	identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &max_norm_repeats_func, repeats);
+}
+
+void LLPanelFace::LLSelectedTE::getObjectScaleS(F32& scale_s, bool& identical)
+{	
+	struct LLSelectedTEGetObjectScaleS : public LLSelectedTEGetFunctor<F32>
+	{
+		F32 get(LLViewerObject* object, S32 face)
+		{
+			U32 s_axis = VX;
+			U32 t_axis = VY;
+			LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
+			return object->getScale().mV[s_axis];
+		}
+
+	} scale_s_func;
+	identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &scale_s_func, scale_s );
+}
+
+void LLPanelFace::LLSelectedTE::getObjectScaleT(F32& scale_t, bool& identical)
+{	
+	struct LLSelectedTEGetObjectScaleS : public LLSelectedTEGetFunctor<F32>
+	{
+		F32 get(LLViewerObject* object, S32 face)
+		{
+			U32 s_axis = VX;
+			U32 t_axis = VY;
+			LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
+			return object->getScale().mV[t_axis];
+		}
+
+	} scale_t_func;
+	identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &scale_t_func, scale_t );
+}
+
+void LLPanelFace::LLSelectedTE::getMaxDiffuseRepeats(F32& repeats, bool& identical)
+{
+	struct LLSelectedTEGetMaxDiffuseRepeats : public LLSelectedTEGetFunctor<F32>
+	{
+		F32 get(LLViewerObject* object, S32 face)
+		{
+			U32 s_axis = VX;
+			U32 t_axis = VY;
+			LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
+			F32 repeats_s = object->getTE(face)->mScaleS / object->getScale().mV[s_axis];
+			F32 repeats_t = object->getTE(face)->mScaleT / object->getScale().mV[t_axis];
+			return llmax(repeats_s, repeats_t);
+		}
+
+	} max_diff_repeats_func;
+	identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &max_diff_repeats_func, repeats );
+}

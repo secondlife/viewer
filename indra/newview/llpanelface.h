@@ -30,6 +30,9 @@
 #include "v4color.h"
 #include "llpanel.h"
 #include "llmaterial.h"
+#include "llmaterialmgr.h"
+#include "lltextureentry.h"
+#include "llselectmgr.h"
 
 class LLButton;
 class LLCheckBoxCtrl;
@@ -44,6 +47,48 @@ class LLUICtrl;
 class LLViewerObject;
 class LLFloater;
 class LLMaterialID;
+
+// Represents an edit for use in replicating the op across one or more materials in the selection set.
+//
+// The apply function optionally performs the edit which it implements
+// as a functor taking Data that calls member func MaterialFunc taking SetValueType
+// on an instance of the LLMaterial class.
+//
+// boost who?
+//
+template<
+	typename DataType,
+	typename SetValueType,
+	void (LLMaterial::*MaterialEditFunc)(SetValueType data) >
+class LLMaterialEditFunctor
+{
+public:
+	LLMaterialEditFunctor(const DataType& data) : _data(data) {}
+	virtual ~LLMaterialEditFunctor() {}
+	virtual void apply(LLMaterialPtr& material) { (material->*(MaterialEditFunc))(_data); }
+	DataType _data;
+};
+
+template<
+	typename DataType,
+	DataType (LLMaterial::*MaterialGetFunc)() >
+class LLMaterialGetFunctor
+{
+public:
+	LLMaterialGetFunctor() : {}
+	virtual DataType get(LLMaterialPtr& material) { return (material->*(MaterialGetFunc)); }
+};
+
+template<
+	typename DataType,
+	DataType (LLTextureEntry::*TEGetFunc)() >
+class LLTEGetFunctor
+{
+public:
+	LLTEGetFunctor() : _data(data) {}
+	virtual DataType get(LLTextureEntry* entry) { return (entry*(TEGetFunc)); }
+	DataType _data;
+};
 
 class LLPanelFace : public LLPanel
 {
@@ -93,10 +138,31 @@ protected:
 	//
 	void updateUI();
 
+	// Convenience func to determine if all faces in selection have
+	// identical planar texgen settings during edits
+	// 
+	bool isIdenticalPlanarTexgen();
+
 	// Callback funcs for individual controls
 	//
 	static void		onCommitTextureInfo( 	LLUICtrl* ctrl, void* userdata);
-	static void		onCommitMaterial(			LLUICtrl* ctrl, void* userdata);
+
+	static void		onCommitMaterialBumpyScaleX(	LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterialBumpyScaleY(	LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterialBumpyRot(		LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterialBumpyOffsetX(	LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterialBumpyOffsetY(	LLUICtrl* ctrl, void* userdata);
+
+	static void		onCommitMaterialShinyScaleX(	LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterialShinyScaleY(	LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterialShinyRot(		LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterialShinyOffsetX(	LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterialShinyOffsetY(	LLUICtrl* ctrl, void* userdata);
+
+	static void		onCommitMaterialGloss(			LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterialEnv(				LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterialMaskCutoff(	LLUICtrl* ctrl, void* userdata);
+
 	static void		onCommitMaterialsMedia(	LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialType(	LLUICtrl* ctrl, void* userdata);
 	static void		onCommitBump(				LLUICtrl* ctrl, void* userdata);
@@ -113,6 +179,29 @@ protected:
 
 private:
 
+	bool		isAlpha() { return mIsAlpha; }
+
+	// Convenience funcs to keep the visual flack to a minimum
+	//
+	LLUUID	getCurrentNormalMap();
+	LLUUID	getCurrentSpecularMap();
+	U32		getCurrentShininess();
+	U32		getCurrentBumpiness();
+	U8			getCurrentDiffuseAlphaMode();
+	U8			getCurrentAlphaMaskCutoff();
+	U8			getCurrentEnvIntensity();
+	U8			getCurrentGlossiness();
+	F32		getCurrentBumpyRot();
+	F32		getCurrentBumpyScaleU();
+	F32		getCurrentBumpyScaleV();
+	F32		getCurrentBumpyOffsetU();
+	F32		getCurrentBumpyOffsetV();
+	F32		getCurrentShinyRot();
+	F32		getCurrentShinyScaleU();
+	F32		getCurrentShinyScaleV();
+	F32		getCurrentShinyOffsetU();
+	F32		getCurrentShinyOffsetV();
+
 	// Update visibility of controls to match current UI mode
 	// (e.g. materials vs media editing)
 	//
@@ -120,9 +209,105 @@ private:
 	//
 	void updateVisibility();
 
-	// Make material reflect current state of UI (apply edit)
+	// Make material(s) reflect current state of UI (apply edit)
 	//
 	void updateMaterial();
+
+	// Hey look everyone, a type-safe alternative to copy and paste! :)
+	//
+
+	// Update material parameters by applying 'edit_func' to selected TEs
+	//
+	template<
+		typename DataType,
+		typename SetValueType,
+		void (LLMaterial::*MaterialEditFunc)(SetValueType data) >
+	static void edit(LLPanelFace* p, DataType data)
+	{
+		LLMaterialEditFunctor< DataType, SetValueType, MaterialEditFunc > edit(data);
+		struct LLSelectedTEEditMaterial : public LLSelectedTEMaterialFunctor
+		{
+			LLSelectedTEEditMaterial(LLPanelFace* panel, LLMaterialEditFunctor< DataType, SetValueType, MaterialEditFunc >* editp) : _panel(panel), _edit(editp) {}
+			virtual ~LLSelectedTEEditMaterial() {};
+			virtual LLMaterialPtr apply(LLViewerObject* object, S32 face, LLTextureEntry* tep, LLMaterialPtr& current_material)
+			{
+				if (_edit)
+				{
+					LLMaterialPtr new_material(!current_material.isNull() ? new LLMaterial(current_material->asLLSD()) : new LLMaterial());
+					llassert_always(new_material);
+
+					// Do "It"!
+					//
+					_edit->apply(new_material);
+
+					U32		new_alpha_mode			= new_material->getDiffuseAlphaMode();
+					LLUUID	new_normal_map_id		= new_material->getNormalID();
+					LLUUID	new_spec_map_id		= new_material->getSpecularID();
+
+					bool is_default_blend_mode		= (new_alpha_mode == (_panel->isAlpha() ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE));
+					bool is_need_material			= !is_default_blend_mode || !new_normal_map_id.isNull() || !new_spec_map_id.isNull();
+
+					if (!current_material.isNull() && !is_need_material)
+					{
+						LL_DEBUGS("Materials") << "Removing material from object " << object->getID() << " face " << face << LL_ENDL;
+						LLMaterialMgr::getInstance()->remove(object->getID(),face);	
+					}
+					else
+					{
+						// Replicate old init behavior
+						//
+						if (current_material.isNull())
+						{
+							U8	current_alpha_mode			= _panel->getCurrentDiffuseAlphaMode();
+							U8	current_alpha_mask_cutoff	= _panel->getCurrentAlphaMaskCutoff();
+
+							new_material->setDiffuseAlphaMode(current_alpha_mode);
+							new_material->setAlphaMaskCutoff(current_alpha_mask_cutoff);
+						}
+
+						LL_DEBUGS("Materials") << "Putting material on object " << object->getID() << " face " << face << ", material: " << new_material->asLLSD() << LL_ENDL;
+						LLMaterialMgr::getInstance()->put(object->getID(),face,*new_material);
+					}
+
+					object->setTEMaterialParams(face, new_material);
+					return new_material;
+				}
+				return NULL;
+			}
+			LLMaterialEditFunctor< DataType, SetValueType, MaterialEditFunc >*	_edit;
+			LLPanelFace*																			_panel;
+		} editor(p, &edit);
+		LLSelectMgr::getInstance()->selectionSetMaterialParams(&editor);
+	}
+
+	template<
+		typename DataType,
+		typename ReturnType,
+		ReturnType (LLMaterial::* const MaterialGetFunc)() const  >
+	static void getTEMaterialValue(DataType& data_to_return, bool& identical)
+	{
+			struct GetTEMaterialVal : public LLSelectedTEGetFunctor<DataType>
+			{
+				DataType get(LLViewerObject* object, S32 face) { return (object && object->getTE(face)) ? ((object->getTE(face)->getMaterialParams()->*(MaterialGetFunc))()) : DataType(); }
+			} GetFunc;
+			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &GetFunc, data_to_return);
+	}
+
+	template<
+		typename DataType,
+		typename ReturnType, // some kids just have to different...
+		ReturnType (LLTextureEntry::* const TEGetFunc)() const >
+	static void getTEValue(DataType& data_to_return, bool& identical)
+	{
+		struct GetTEVal : public LLSelectedTEGetFunctor<DataType>
+		{
+			DataType get(LLViewerObject* object, S32 face) {
+				LLTextureEntry* tep = object ? object->getTE(face) : NULL;
+				return tep ? ((tep->*(TEGetFunc))()) : DataType();
+			}
+		} GetTEValFunc;
+		identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &GetTEValFunc, data_to_return );
+	}
 
 	// Update vis and enabling of specific subsets of controls based on material params
 	// (e.g. hide the spec controls if no spec texture is applied)
@@ -152,6 +337,107 @@ private:
 	 */
 	bool mUpdateInFlight;
 	bool mUpdatePending;
+
+	#if defined(DEF_GET_MAT_STATE)
+		#undef DEF_GET_MAT_STATE
+	#endif
+
+	#if defined(DEF_GET_TE_STATE)
+		#undef DEF_GET_TE_STATE
+	#endif
+
+	// Accessors for selected TE material state
+	//
+	#define DEF_GET_MAT_STATE(DataType,ReturnType,MaterialMemberFunc)													\
+		static void MaterialMemberFunc(DataType& data, bool& identical)												\
+		{																																	\
+			getTEMaterialValue< DataType, ReturnType, &LLMaterial::##MaterialMemberFunc >(data, identical);	\
+		}
+
+	// Mutators for selected TE material
+	//
+	#define DEF_EDIT_MAT_STATE(DataType,ReturnType,MaterialMemberFunc)												\
+		static void MaterialMemberFunc(LLPanelFace* p,DataType data)													\
+		{																																	\
+			edit< DataType, ReturnType, &LLMaterial::##MaterialMemberFunc >(p,data);								\
+		}
+
+
+	// Accessors for selected TE state proper (legacy settings etc)
+	//
+	#define DEF_GET_TE_STATE(DataType,ReturnType,TexEntryMemberFunc)													\
+		static void TexEntryMemberFunc(DataType& data, bool& identical)												\
+		{																																	\
+			getTEValue< DataType, ReturnType, &LLTextureEntry::##TexEntryMemberFunc >(data, identical);		\
+		}
+
+	class LLSelectedTEMaterial
+	{
+	public:
+		static void getCurrent(LLMaterialPtr& material_ptr, bool& identical_material);
+		static void getMaxSpecularRepeats(F32& repeats, bool& identical);
+		static void getMaxNormalRepeats(F32& repeats, bool& identical);
+
+		DEF_GET_MAT_STATE(LLUUID,const LLUUID&,getNormalID)
+		DEF_GET_MAT_STATE(LLUUID,const LLUUID&,getSpecularID)
+		DEF_GET_MAT_STATE(U8,U8,getDiffuseAlphaMode)
+
+		DEF_GET_MAT_STATE(F32,F32,getSpecularRepeatX)
+		DEF_GET_MAT_STATE(F32,F32,getSpecularRepeatY)
+		DEF_GET_MAT_STATE(F32,F32,getSpecularOffsetX)
+		DEF_GET_MAT_STATE(F32,F32,getSpecularOffsetY)
+		DEF_GET_MAT_STATE(F32,F32,getSpecularRotation)
+
+		DEF_GET_MAT_STATE(F32,F32,getNormalRepeatX)
+		DEF_GET_MAT_STATE(F32,F32,getNormalRepeatY)
+		DEF_GET_MAT_STATE(F32,F32,getNormalOffsetX)
+		DEF_GET_MAT_STATE(F32,F32,getNormalOffsetY)
+		DEF_GET_MAT_STATE(F32,F32,getNormalRotation)
+
+		DEF_EDIT_MAT_STATE(U8,U8,setDiffuseAlphaMode);
+		DEF_EDIT_MAT_STATE(U8,U8,setAlphaMaskCutoff);
+
+		DEF_EDIT_MAT_STATE(F32,F32,setNormalOffsetX);
+		DEF_EDIT_MAT_STATE(F32,F32,setNormalOffsetY);
+		DEF_EDIT_MAT_STATE(F32,F32,setNormalRepeatX);
+		DEF_EDIT_MAT_STATE(F32,F32,setNormalRepeatY);
+		DEF_EDIT_MAT_STATE(F32,F32,setNormalRotation);
+
+		DEF_EDIT_MAT_STATE(F32,F32,setSpecularOffsetX);
+		DEF_EDIT_MAT_STATE(F32,F32,setSpecularOffsetY);
+		DEF_EDIT_MAT_STATE(F32,F32,setSpecularRepeatX);
+		DEF_EDIT_MAT_STATE(F32,F32,setSpecularRepeatY);
+		DEF_EDIT_MAT_STATE(F32,F32,setSpecularRotation);
+
+		DEF_EDIT_MAT_STATE(U8,U8,setEnvironmentIntensity);
+		DEF_EDIT_MAT_STATE(U8,U8,setSpecularLightExponent);
+
+		DEF_EDIT_MAT_STATE(LLUUID,const LLUUID&,setNormalID);
+		DEF_EDIT_MAT_STATE(LLUUID,const LLUUID&,setSpecularID);
+		DEF_EDIT_MAT_STATE(LLColor4U,	const LLColor4U&,setSpecularLightColor);
+	};
+
+	class LLSelectedTE
+	{
+	public:
+
+		static void getFace(LLFace*& face_to_return, bool& identical_face);
+		static void getImageFormat(LLGLenum& image_format_to_return, bool& identical_face);
+		static void getTexId(LLUUID& id, bool& identical);
+		static void getObjectScaleS(F32& scale_s, bool& identical);
+		static void getObjectScaleT(F32& scale_t, bool& identical);
+		static void getMaxDiffuseRepeats(F32& repeats, bool& identical);
+
+		DEF_GET_TE_STATE(U8,U8,getBumpmap)
+		DEF_GET_TE_STATE(U8,U8,getShiny)
+		DEF_GET_TE_STATE(U8,U8,getFullbright)
+		DEF_GET_TE_STATE(F32,F32,getRotation)
+		DEF_GET_TE_STATE(F32,F32,getOffsetS)
+		DEF_GET_TE_STATE(F32,F32,getOffsetT)
+		DEF_GET_TE_STATE(F32,F32,getGlow)
+		DEF_GET_TE_STATE(LLTextureEntry::e_texgen,LLTextureEntry::e_texgen,getTexGen)
+		DEF_GET_TE_STATE(LLColor4,const LLColor4&,getColor)		
+	};
 };
 
 #endif

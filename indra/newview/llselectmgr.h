@@ -85,6 +85,12 @@ struct LLSelectedTEFunctor
 	virtual bool apply(LLViewerObject* object, S32 face) = 0;
 };
 
+struct LLSelectedTEMaterialFunctor
+{
+	virtual ~LLSelectedTEMaterialFunctor() {};
+	virtual LLMaterialPtr apply(LLViewerObject* object, S32 face, LLTextureEntry* tep, LLMaterialPtr& current_material) = 0;
+};
+
 template <typename T> struct LLSelectedTEGetFunctor
 {
 	virtual ~LLSelectedTEGetFunctor() {};
@@ -549,7 +555,7 @@ public:
 	void selectionSetClickAction(U8 action);
 	void selectionSetIncludeInSearch(bool include_in_search);
 	void selectionSetGlow(const F32 glow);
-	void selectionSetMaterial(LLMaterialPtr material);
+	void selectionSetMaterialParams(LLSelectedTEMaterialFunctor* material_func);
 	void selectionRemoveMaterial();
 
 	void selectionSetObjectPermissions(U8 perm_field, BOOL set, U32 perm_mask, BOOL override = FALSE);

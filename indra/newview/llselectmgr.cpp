@@ -2016,23 +2016,29 @@ void LLSelectMgr::selectionSetGlow(F32 glow)
 	mSelectedObjects->applyToObjects( &func2 );
 }
 
-void LLSelectMgr::selectionSetMaterial(LLMaterialPtr material)
+void LLSelectMgr::selectionSetMaterialParams(LLSelectedTEMaterialFunctor* material_func)
 {
 	struct f1 : public LLSelectedTEFunctor
 	{
 		LLMaterialPtr mMaterial;
-		f1(LLMaterialPtr material) : mMaterial(material) {};
+		f1(LLSelectedTEMaterialFunctor* material_func) : _material_func(material_func) {}
+
 		bool apply(LLViewerObject* object, S32 face)
 		{
-			if (object->permModify())
+			if (object && object->permModify() && _material_func)
 			{
-			        LL_DEBUGS("Materials") << "Putting material on object " << object->getID() << " face " << face << ", material: " << mMaterial->asLLSD() << LL_ENDL;
-				LLMaterialMgr::getInstance()->put(object->getID(),face,*mMaterial);
-				object->setTEMaterialParams(face,mMaterial);
+				LLTextureEntry* tep = object->getTE(face);
+				if (tep)
+				{
+					LLMaterialPtr current_material = tep->getMaterialParams();
+					_material_func->apply(object, face, tep, current_material);
+				}
 			}
 			return true;
 		}
-	} func1(material);
+
+		LLSelectedTEMaterialFunctor* _material_func;
+	} func1(material_func);
 	mSelectedObjects->applyToTEs( &func1 );
 
 	struct f2 : public LLSelectedObjectFunctor
@@ -2531,7 +2537,8 @@ void LLSelectMgr::adjustTexturesByScale(BOOL send_to_sim, BOOL stretch)
 						LLMaterialPtr p = new LLMaterial(orig->asLLSD());
 						p->setNormalRepeat(normal_scale_s, normal_scale_t);
 						p->setSpecularRepeat(specular_scale_s, specular_scale_t);
-						selectionSetMaterial( p );
+
+						LLMaterialMgr::getInstance()->put(object->getID(), te_num, *p);
 					}
 				}
 				else
@@ -2553,10 +2560,12 @@ void LLSelectMgr::adjustTexturesByScale(BOOL send_to_sim, BOOL stretch)
 					if (tep && !tep->getMaterialParams().isNull())
 					{
 						LLMaterialPtr orig = tep->getMaterialParams();
+
 						LLMaterialPtr p = new LLMaterial(orig->asLLSD());
 						p->setNormalRepeat(normal_scale_s, normal_scale_t);
 						p->setSpecularRepeat(specular_scale_s, specular_scale_t);
-						selectionSetMaterial( p );
+
+						LLMaterialMgr::getInstance()->put(object->getID(), te_num, *p);
 					}
 				}
 				send = send_to_sim;
