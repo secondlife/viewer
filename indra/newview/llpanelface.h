@@ -447,6 +447,8 @@ private:
 		DEF_GET_TE_STATE(F32,F32,getRotation)
 		DEF_GET_TE_STATE(F32,F32,getOffsetS)
 		DEF_GET_TE_STATE(F32,F32,getOffsetT)
+		DEF_GET_TE_STATE(F32,F32,getScaleS)
+		DEF_GET_TE_STATE(F32,F32,getScaleT)
 		DEF_GET_TE_STATE(F32,F32,getGlow)
 		DEF_GET_TE_STATE(LLTextureEntry::e_texgen,LLTextureEntry::e_texgen,getTexGen)
 		DEF_GET_TE_STATE(LLColor4,const LLColor4&,getColor)		

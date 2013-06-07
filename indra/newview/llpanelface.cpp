@@ -951,7 +951,7 @@ void LLPanelFace::updateUI()
 			F32 spec_scale_s = 1.f;
 			F32 norm_scale_s = 1.f;
 
-			LLSelectedTE::getOffsetS(						diff_scale_s, identical_diff_scale_s);			
+			LLSelectedTE::getScaleS(						diff_scale_s, identical_diff_scale_s);			
 			LLSelectedTEMaterial::getSpecularRepeatX( spec_scale_s, identical_spec_scale_s);
 			LLSelectedTEMaterial::getNormalRepeatX(	norm_scale_s, identical_norm_scale_s);
 
@@ -990,7 +990,7 @@ void LLPanelFace::updateUI()
 			F32 spec_scale_t = 1.f;
 			F32 norm_scale_t = 1.f;
 
-			LLSelectedTE::getOffsetT(diff_scale_t, identical_diff_scale_t);
+			LLSelectedTE::getScaleT(diff_scale_t, identical_diff_scale_t);
 			LLSelectedTEMaterial::getSpecularRepeatY(spec_scale_t, identical_spec_scale_t);
 			LLSelectedTEMaterial::getNormalRepeatY(norm_scale_t, identical_norm_scale_t);
 

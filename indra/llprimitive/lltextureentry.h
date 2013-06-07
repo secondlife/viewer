@@ -133,8 +133,8 @@ public:
 	virtual const LLUUID &getID() const { return mID; }
 	const LLColor4 &getColor() const { return mColor; }
 	void getScale(F32 *s, F32 *t) const { *s = mScaleS; *t = mScaleT; }
-	void getScaleS(F32 *s) const { *s = mScaleS; }
-	void getScaleT(F32 *t) const { *t = mScaleT; }
+	F32  getScaleS() const { return mScaleS; }
+	F32  getScaleT() const { return mScaleT; }
 
 	void getOffset(F32 *s, F32 *t) const { *s = mOffsetS; *t = mOffsetT; }
 	F32  getOffsetS() const { return mOffsetS; }
