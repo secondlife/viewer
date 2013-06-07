@@ -158,7 +158,7 @@ void LLChatEntry::onValueChange(S32 start, S32 end)
     resetLabel();
 }
 
-bool LLChatEntry::useLabel()
+bool LLChatEntry::useLabel() const
 {
     return !getLength() && !mLabel.empty();
 }

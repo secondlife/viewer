@@ -1854,7 +1854,17 @@ LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 
 	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
 
-	if (index > getLength()) { return mSegments.end(); }
+	S32 text_len = 0;
+	if (!useLabel())
+	{
+		text_len = getLength();
+	}
+	else
+	{
+		text_len = mLabel.getWString().length();
+	}
+
+	if (index > text_len) { return mSegments.end(); }
 
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
@@ -1870,7 +1880,17 @@ LLTextBase::segment_set_t::const_iterator LLTextBase::getSegIterContaining(S32 i
 {
 	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
 
-	if (index > getLength()) { return mSegments.end(); }
+	S32 text_len = 0;
+	if (!useLabel())
+	{
+		text_len = getLength();
+	}
+	else
+	{
+		text_len = mLabel.getWString().length();
+	}
+
+	if (index > text_len) { return mSegments.end(); }
 
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
@@ -2101,7 +2121,7 @@ void LLTextBase::resetLabel()
 	}
 }
 
-bool LLTextBase::useLabel()
+bool LLTextBase::useLabel() const
 {
     return !getLength() && !mLabel.empty() && !hasFocus();
 }

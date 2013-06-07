@@ -171,8 +171,7 @@ protected:
 	LLFolderView* mConversationsRoot;
 	LLScrollContainer* mScroller;
 
-    LLOutputMonitorCtrl* mSpeakingIndicator;
-	LLChatHistory* mChatHistory;
+    LLChatHistory* mChatHistory;
 	LLChatEntry* mInputEditor;
 	LLLayoutPanel * mChatLayoutPanel;
 	LLLayoutStack * mInputPanels;

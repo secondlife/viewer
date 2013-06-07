@@ -55,7 +55,6 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
   ,  mSessionID(session_id.asUUID())
   , mConversationsRoot(NULL)
   , mScroller(NULL)
-  , mSpeakingIndicator(NULL)
   , mChatHistory(NULL)
   , mInputEditor(NULL)
   , mInputEditorPad(0)
@@ -259,8 +258,6 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	scroller_params.rect(scroller_view_rect);
 	mScroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
 	mScroller->setFollowsAll();
-	
-    mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
 
 	// Insert that scroller into the panel widgets hierarchy
 	mParticipantListPanel->addChild(mScroller);	

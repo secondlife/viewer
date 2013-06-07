@@ -6499,7 +6499,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>noaction</string>
+      <string>toast</string>
     </map>  
     <key>NotificationToastLifeTime</key>
     <map>

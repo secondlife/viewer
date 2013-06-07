@@ -5954,9 +5954,7 @@ Your calling card was declined.
    icon="notifytip.tga"
    name="TeleportToPerson"
    type="notifytip">
-    To contact Residents like &apos;[NAME]&apos;, click on the &quot;People&quot; button , select a Resident from the window that opens, then click &apos;IM&apos; at the
-    bottom of the window.
-    (You can also double-click on their name in the list, or right-click and choose &apos;IM&apos;).
+    To open a private conversation with someone, right-click on their avatar and choose &apos;IM&apos; from the menu.
   </notification>
 
   <notification
