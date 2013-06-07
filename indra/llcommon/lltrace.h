@@ -169,7 +169,7 @@ public:
 	LL_FORCE_INLINE static ACCUMULATOR* getPrimaryStorage() 
 	{ 
 		ACCUMULATOR* accumulator = LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance();
-		return accumulator ? accumulator : sDefaultBuffer->mStorage;
+		return accumulator ? accumulator : getDefaultBuffer()->mStorage;
 	}
 
 	// NOTE: this is not thread-safe.  We assume that slots are reserved in the main thread before any child threads are spawned
