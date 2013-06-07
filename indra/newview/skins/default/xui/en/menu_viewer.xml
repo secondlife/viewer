@@ -20,6 +20,8 @@
         name="ConnectToFacebook">
         <menu_item_call.on_click
           function="Facebook.Connect" />
+        <menu_item_call.on_enable
+          function="Facebook.EnableConnect" />
       </menu_item_call>
       <menu_item_call
         label="Check in to Facebook..."

@@ -37,6 +37,7 @@
 #include "llcriticaldamp.h"
 #include "llfloaterperms.h"
 #include "llui.h"
+#include "llfacebookconnect.h"
 #include "llfocusmgr.h"
 #include "llbutton.h"
 #include "llcombobox.h"
@@ -2245,7 +2246,16 @@ void LLFloaterSnapshot::update()
 	{
 		changed |= LLSnapshotLivePreview::onIdle(*iter);
 	}
-	if(changed)
+    
+    // We need to pool on facebook connection as it might change any time
+    static bool s_facebook_connected = false;
+    if (LLFacebookConnect::instance().getConnected() != s_facebook_connected)
+    {
+        s_facebook_connected = LLFacebookConnect::instance().getConnected();
+        changed = true;
+    }
+    
+	if (changed)
 	{
 		lldebugs << "changed" << llendl;
 		inst->impl.updateControls(inst);
