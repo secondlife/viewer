@@ -1513,6 +1513,10 @@ void LLPanelFace::onSelectColor(const LLSD& data)
 void LLPanelFace::onCommitMaterialsMedia(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
+	LLUUID specmap = getCurrentSpecularMap();
+	LLUUID normmap = getCurrentNormalMap();
+	self->updateShinyControls(!specmap.isNull(), true);
+	self->updateBumpyControls(!normmap.isNull(), true);
 	self->updateUI();
 }
 
