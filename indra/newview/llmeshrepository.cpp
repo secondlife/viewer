@@ -97,7 +97,6 @@ U32 LLMeshRepository::sLODPending = 0;
 
 U32 LLMeshRepository::sCacheBytesRead = 0;
 U32 LLMeshRepository::sCacheBytesWritten = 0;
-U32 LLMeshRepository::sPeakKbps = 0;
 LLDeadmanTimer LLMeshRepository::sQuiescentTimer(15.0, true);	// true -> gather cpu metrics
 
 	
@@ -641,6 +640,7 @@ void LLMeshRepoThread::run()
 					{
 						mMutex->lock();
 						mLODReqQ.push(req) ; 
+						++LLMeshRepository::sLODProcessing;
 						mMutex->unlock();
 					}
 				}
@@ -882,7 +882,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 				{
 					handler->mHttpHandle = handle;
 					mHttpRequestSet.insert(handler);
-					LLMeshRepository::sHTTPRequestCount++;
+					++LLMeshRepository::sHTTPRequestCount;
 				}
 			}
 		}
@@ -978,7 +978,7 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 				{
 					handler->mHttpHandle = handle;
 					mHttpRequestSet.insert(handler);
-					LLMeshRepository::sHTTPRequestCount++;
+					++LLMeshRepository::sHTTPRequestCount;
 				}
 			}
 		}
@@ -1073,7 +1073,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 				{
 					handler->mHttpHandle = handle;
 					mHttpRequestSet.insert(handler);
-					LLMeshRepository::sHTTPRequestCount++;
+					++LLMeshRepository::sHTTPRequestCount;
 				}
 			}
 		}
@@ -1173,7 +1173,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, U32& c
 		{
 			handler->mHttpHandle = handle;
 			mHttpRequestSet.insert(handler);
-			LLMeshRepository::sHTTPRequestCount++;
+			++LLMeshRepository::sHTTPRequestCount;
 		}
 		count++;
 	}
@@ -1260,7 +1260,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 				{
 					handler->mHttpHandle = handle;
 					mHttpRequestSet.insert(handler);
-					LLMeshRepository::sHTTPRequestCount++;
+					++LLMeshRepository::sHTTPRequestCount;
 				}
 				count++;
 			}
@@ -2738,9 +2738,8 @@ void LLMeshRepository::notifySkinInfoReceived(LLMeshSkinInfo& info)
 				vobj->notifyMeshLoaded();
 			}
 		}
+		mLoadingSkins.erase(info.mMeshID);
 	}
-
-	mLoadingSkins.erase(info.mMeshID);
 }
 
 void LLMeshRepository::notifyDecompositionReceived(LLModel::Decomposition* decomp)
@@ -2749,14 +2748,14 @@ void LLMeshRepository::notifyDecompositionReceived(LLModel::Decomposition* decom
 	if (iter == mDecompositionMap.end())
 	{ //just insert decomp into map
 		mDecompositionMap[decomp->mMeshID] = decomp;
+		mLoadingDecompositions.erase(decomp->mMeshID);
 	}
 	else
 	{ //merge decomp with existing entry
 		iter->second->merge(decomp);
+		mLoadingDecompositions.erase(decomp->mMeshID);
 		delete decomp;
 	}
-
-	mLoadingDecompositions.erase(decomp->mMeshID);
 }
 
 void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVolume* volume)
@@ -3880,148 +3879,4 @@ bool is_retryable(LLCore::HttpStatus status)
 			 status == partial_file ||			// Data inconsistency in response
 			 status == inv_cont_range));		// Short data read disagrees with content-range
 }
-
-
-
-
-// ===========
-//
-// HTTP fragments I'll be needing
-//
-//
-#if 0
-
-	if (! status)
-	{
-		success = false;
-		std::string reason(status.toString());
-		setGetStatus(status, reason);
-		llwarns << "CURL GET FAILED, status: " << status.toHex()
-				<< " reason: " << reason << llendl;
-	}
-	else
-	{
-		// A warning about partial (HTTP 206) data.  Some grid services
-		// do *not* return a 'Content-Range' header in the response to
-		// Range requests with a 206 status.  We're forced to assume
-		// we get what we asked for in these cases until we can fix
-		// the services.
-		static const LLCore::HttpStatus par_status(HTTP_PARTIAL_CONTENT);
-
-		partial = (par_status == status);
-	}
-	
-	S32 data_size = callbackHttpGet(response, partial, success);
-			
-
-
-
-// Threads:  Ttf
-// Locks:  Mw
-S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
-										  bool partial, bool success)
-{
-	S32 data_size = 0 ;
-
-	if (mState != WAIT_HTTP_REQ)
-	{
-		llwarns << "callbackHttpGet for unrequested fetch worker: " << mID
-				<< " req=" << mSentRequest << " state= " << mState << llendl;
-		return data_size;
-	}
-	if (mLoaded)
-	{
-		llwarns << "Duplicate callback for " << mID.asString() << llendl;
-		return data_size ; // ignore duplicate callback
-	}
-	if (success)
-	{
-		// get length of stream:
-		LLCore::BufferArray * body(response->getBody());
-		data_size = body ? body->size() : 0;
-
-		LL_DEBUGS("Texture") << "HTTP RECEIVED: " << mID.asString() << " Bytes: " << data_size << LL_ENDL;
-		if (data_size > 0)
-		{
-			LLViewerStatsRecorder::instance().textureFetch(data_size);
-			// *TODO: set the formatted image data here directly to avoid the copy
-
-			// Hold on to body for later copy
-			llassert_always(NULL == mHttpBufferArray);
-			body->addRef();
-			mHttpBufferArray = body;
-
-			if (partial)
-			{
-				unsigned int offset(0), length(0), full_length(0);
-				response->getRange(&offset, &length, &full_length);
-				if (! offset && ! length)
-				{
-					// This is the case where we receive a 206 status but
-					// there wasn't a useful Content-Range header in the response.
-					// This could be because it was badly formatted but is more
-					// likely due to capabilities services which scrub headers
-					// from responses.  Assume we got what we asked for...
-					mHttpReplySize = data_size;
-					mHttpReplyOffset = mRequestedOffset;
-				}
-				else
-				{
-					mHttpReplySize = length;
-					mHttpReplyOffset = offset;
-				}
-			}
-
-			if (! partial)
-			{
-				// Response indicates this is the entire asset regardless
-				// of our asking for a byte range.  Mark it so and drop
-				// any partial data we might have so that the current
-				// response body becomes the entire dataset.
-				if (data_size <= mRequestedOffset)
-				{
-					LL_WARNS("Texture") << "Fetched entire texture " << mID
-										<< " when it was expected to be marked complete.  mImageSize:  "
-										<< mFileSize << " datasize:  " << mFormattedImage->getDataSize()
-										<< LL_ENDL;
-				}
-				mHaveAllData = TRUE;
-				llassert_always(mDecodeHandle == 0);
-				mFormattedImage = NULL; // discard any previous data we had
-			}
-			else if (data_size < mRequestedSize)
-			{
-				mHaveAllData = TRUE;
-			}
-			else if (data_size > mRequestedSize)
-			{
-				// *TODO: This shouldn't be happening any more  (REALLY don't expect this anymore)
-				llwarns << "data_size = " << data_size << " > requested: " << mRequestedSize << llendl;
-				mHaveAllData = TRUE;
-				llassert_always(mDecodeHandle == 0);
-				mFormattedImage = NULL; // discard any previous data we had
-			}
-		}
-		else
-		{
-			// We requested data but received none (and no error),
-			// so presumably we have all of it
-			mHaveAllData = TRUE;
-		}
-		mRequestedSize = data_size;
-	}
-	else
-	{
-		mRequestedSize = -1; // error
-	}
-	
-	mLoaded = TRUE;
-	setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
-
-	LLViewerStatsRecorder::instance().log(0.2f);
-	return data_size ;
-}
-
-#endif
-// ============
 

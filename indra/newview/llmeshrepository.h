@@ -469,7 +469,6 @@ public:
 	static U32 sLODProcessing;
 	static U32 sCacheBytesRead;
 	static U32 sCacheBytesWritten;
-	static U32 sPeakKbps;
 	static LLDeadmanTimer sQuiescentTimer;  // time-to-complete-mesh-downloads after significant events
 
 	static F32 getStreamingCost(LLSD& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
