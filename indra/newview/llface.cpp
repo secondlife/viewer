@@ -1655,8 +1655,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			if (mat && !do_bump)
 			{
-				do_bump  = mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1) ||
-					mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD2);
+				do_bump  = mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1)
+					     || mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD2);
 			}
 			
 			bool do_tex_mat = tex_mode && mTextureMatrix;
@@ -1780,7 +1780,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				
 				std::vector<LLVector2> bump_tc;
 
-				if (mat)
+				if (mat && !mat->getNormalID().isNull())
 				{ //writing out normal and specular texture coordinates, not bump offsets
 					do_bump = false;
 				}
