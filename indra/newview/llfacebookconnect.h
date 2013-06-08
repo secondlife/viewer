@@ -49,6 +49,7 @@ public:
 	void postCheckin(const std::string& location, const std::string& name, const std::string& description, const std::string& picture, const std::string& message);
     void postCheckinMessage(const std::string& message, const std::string& link, const std::string& name, const std::string& caption, const std::string& description, const std::string& picture);
 	void sharePhoto(const std::string& image_url, const std::string& caption);
+	void updateStatus(const std::string& message);
 
     void clearContent();
 	void storeContent(const LLSD& content);
@@ -69,7 +70,7 @@ private:
    
     bool mConnectedToFbc;
     LLSD mContent;
-    S32  mGeneration;  
+    S32  mGeneration;
 };
 
 #endif // LL_LLFACEBOOKCONNECT_H

@@ -24,11 +24,17 @@
           function="Facebook.EnableConnect" />
       </menu_item_call>
       <menu_item_call
-        label="Check in to Facebook"
+        label="Check in to Facebook..."
         name="CheckinToFacebook">
         <menu_item_call.on_click
           function="Facebook.Checkin" />
-      </menu_item_call>      
+      </menu_item_call>
+      <menu_item_call
+        label="Update status on Facebook..."
+        name="UpdateStatusOnFacebook">
+        <menu_item_call.on_click
+          function="Facebook.UpdateStatus" />
+      </menu_item_call>
       <menu_item_separator/>
       <menu_item_call
        label="Appearance..."

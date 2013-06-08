@@ -138,8 +138,11 @@ bool handle_go_to();
 // Facebook Connect
 void handle_facebook_connect();
 
-//Facebook Checkin
+// Facebook Checkin
 void handle_facebook_checkin();
+
+// Facebook Status Update
+void handle_facebook_status();
 
 // Export to XML or Collada
 void handle_export_selected( void * );

@@ -6005,6 +6005,23 @@ void handle_facebook_checkin()
 	LLFacebookConnect::instance().postCheckin(slurl_string, region_name, description, locationMap, "");
 }
 
+bool handle_facebook_status_callback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option == 0)
+	{
+		std::string message = response["message"].asString();
+		if (!message.empty())
+			LLFacebookConnect::instance().updateStatus(message);
+	}
+	return false;
+}
+
+void handle_facebook_status()
+{
+	LLNotificationsUtil::add("FacebookUpdateStatus", LLSD(), LLSD(), boost::bind(&handle_facebook_status_callback, _1, _2));
+}
+
 void handle_buy_currency()
 {
 	LLBuyCurrencyHTML::openCurrencyFloater();
@@ -8761,4 +8778,7 @@ void initialize_menus()
     
 	// Facebook Checkin
 	commit.add("Facebook.Checkin", boost::bind(&handle_facebook_checkin));
+    
+	// Facebook Status Update
+	commit.add("Facebook.UpdateStatus", boost::bind(&handle_facebook_status));
 }

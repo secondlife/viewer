@@ -352,6 +352,15 @@ void LLFacebookConnect::sharePhoto(const std::string& image_url, const std::stri
 	LLHTTPClient::post(getFacebookConnectURL("/share/photo"), body, new LLFacebookPostResponder());
 }
 
+void LLFacebookConnect::updateStatus(const std::string& message)
+{
+	LLSD body;
+	body["message"] = message;
+	
+    // Note: we can use that route for different publish action. We should be able to use the same responder.
+	LLHTTPClient::post(getFacebookConnectURL("/share/wall"), body, new LLFacebookPostResponder());
+}
+
 void LLFacebookConnect::storeContent(const LLSD& content)
 {
     mGeneration++;
