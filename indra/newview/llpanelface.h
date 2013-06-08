@@ -242,7 +242,7 @@ private:
 
 					// Default to matching expected state of UI
 					//
-					new_material->setDiffuseAlphaMode(default_alpha_mode);
+					new_material->setDiffuseAlphaMode(current_material.isNull() ? default_alpha_mode : current_material->getDiffuseAlphaMode());
 
 					// Do "It"!
 					//
@@ -262,16 +262,6 @@ private:
 					}
 					else
 					{
-						// Replicate old init behavior
-						//
-						if (current_material.isNull())
-						{
-							U8	current_alpha_mode			= _panel->getCurrentDiffuseAlphaMode();
-							U8	current_alpha_mask_cutoff	= _panel->getCurrentAlphaMaskCutoff();
-							new_material->setDiffuseAlphaMode(current_alpha_mode);
-							new_material->setAlphaMaskCutoff(current_alpha_mask_cutoff);
-						}
-
 						LL_DEBUGS("Materials") << "Putting material on object " << object->getID() << " face " << face << ", material: " << new_material->asLLSD() << LL_ENDL;
 						LLMaterialMgr::getInstance()->put(object->getID(),face,*new_material);
 					}

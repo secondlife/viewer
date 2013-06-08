@@ -317,6 +317,7 @@ void LLPanelFace::sendTexture()
 void LLPanelFace::sendBump(U32 bumpiness)
 {	
 	LLTextureCtrl* bumpytexture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
+	LLUUID current_normal_map = bumpytexture_ctrl->getImageAssetID();
 
 	if (bumpiness < BUMPY_TEXTURE)
 	{
@@ -329,7 +330,7 @@ void LLPanelFace::sendBump(U32 bumpiness)
 	LLSelectMgr::getInstance()->selectionSetBumpmap( bump );
 
 	updateBumpyControls(bumpiness == BUMPY_TEXTURE, true);
-	LLSelectedTEMaterial::setNormalID(this, bumpytexture_ctrl->getImageAssetID());
+	LLSelectedTEMaterial::setNormalID(this, current_normal_map);
 }
 
 void LLPanelFace::sendTexGen()
@@ -1443,6 +1444,11 @@ void LLPanelFace::onSelectColor(const LLSD& data)
 void LLPanelFace::onCommitMaterialsMedia(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
+	// Force to default states to side-step problems with menu contents
+	// and generally reflecting old state when switching tabs or objects
+	//
+	self->updateShinyControls(false,true);
+	self->updateBumpyControls(false,true);
 	self->updateUI();
 }
 
@@ -1530,10 +1536,11 @@ void LLPanelFace::updateVisibility()
 void LLPanelFace::onCommitMaterialType(LLUICtrl* ctrl, void* userdata)
 {
     LLPanelFace* self = (LLPanelFace*) userdata;
-    // This is here to insure that we properly update shared UI elements
-    // like the texture ctrls for diffuse/norm/spec so that they are correct
-    // when switching modes
-    //
+	 // Force to default states to side-step problems with menu contents
+	 // and generally reflecting old state when switching tabs or objects
+	 //
+	 self->updateShinyControls(false,true);
+	 self->updateBumpyControls(false,true);
     self->updateUI();
 }
 
@@ -1801,7 +1808,7 @@ void LLPanelFace::onCommitSpecularTexture( const LLSD& data )
 void LLPanelFace::onCommitNormalTexture( const LLSD& data )
 {
 	LL_DEBUGS("Materials") << data << LL_ENDL;
-	sendBump(BUMPY_TEXTURE);
+	sendBump(getCurrentNormalMap().isNull() ? 0 : BUMPY_TEXTURE);
 }
 
 void LLPanelFace::onCancelSpecularTexture(const LLSD& data)
