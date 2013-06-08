@@ -33,6 +33,7 @@
 #include "llcallingcard.h"			// for LLAvatarTracker
 #include "llcommandhandler.h"
 #include "llhttpclient.h"
+#include "llnotificationsutil.h"
 #include "llurlaction.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -80,6 +81,11 @@ public:
 		}
 		else
 		{
+            LLSD args(LLSD::emptyMap());
+            std::stringstream msg;
+            msg << reason << " (Code " << status << ")";
+            args["FAIL_REASON"] = msg.str();
+			LLNotificationsUtil::add("FacebookCannotConnect",args);
 			LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
 		}
 	}
@@ -109,6 +115,11 @@ public:
 		}
 		else
 		{
+            LLSD args(LLSD::emptyMap());
+            std::stringstream msg;
+            msg << reason << " (Code " << status << ")";
+            args["FAIL_REASON"] = msg.str();
+			LLNotificationsUtil::add("FacebookCannotConnect",args);
 			LL_WARNS("FacebookConnect") << "Failed to get a post response. reason: " << reason << " status: " << status << LL_ENDL;
 		}
 	}
@@ -142,6 +153,11 @@ public:
 		}
 		else
 		{
+            LLSD args(LLSD::emptyMap());
+            std::stringstream msg;
+            msg << reason << " (Code " << status << ")";
+            args["FAIL_REASON"] = msg.str();
+			LLNotificationsUtil::add("FacebookCannotConnect",args);
 			LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
 		}
 	}
@@ -175,6 +191,14 @@ public:
 			{
 				LLFacebookConnect::instance().connectToFacebook();
 			}
+            else
+            {
+                LLSD args(LLSD::emptyMap());
+                std::stringstream msg;
+                msg << reason << " (Code " << status << ")";
+                args["FAIL_REASON"] = msg.str();
+                LLNotificationsUtil::add("FacebookCannotConnect",args);
+            }
 		}
 	}
     
@@ -198,6 +222,11 @@ public:
 		}
 		else
 		{
+            LLSD args(LLSD::emptyMap());
+            std::stringstream msg;
+            msg << reason << " (Code " << status << ")";
+            args["FAIL_REASON"] = msg.str();
+			LLNotificationsUtil::add("FacebookCannotConnect",args);
 			LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
 		}
 	}
