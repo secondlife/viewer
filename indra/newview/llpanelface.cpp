@@ -1584,18 +1584,6 @@ void LLPanelFace::updateShinyControls(bool is_setting_texture, bool mess_with_sh
 			if (!comboShiny->itemExists(USE_TEXTURE))
 			{
 				comboShiny->add(USE_TEXTURE);
-				
-				// NORSPEC-94: Set default specular color to white
-				//
-				LLColorSwatchCtrl*	mShinyColorSwatch = getChild<LLColorSwatchCtrl>("shinycolorswatch");
-				if(mShinyColorSwatch)
-				{
-					LL_DEBUGS("Materials") << "Resetting specular color to default of white" << LL_ENDL;
-					mShinyColorSwatch->setOriginal(LLColor4::white);
-					mShinyColorSwatch->set(LLColor4::white, TRUE);
-				}
-				getChild<LLUICtrl>("glossiness")->setValue(LLMaterial::DEFAULT_SPECULAR_LIGHT_EXPONENT);
-				getChild<LLUICtrl>("environment")->setValue(0);
 			}
 			comboShiny->setSimple(USE_TEXTURE);
 		}
@@ -1603,8 +1591,6 @@ void LLPanelFace::updateShinyControls(bool is_setting_texture, bool mess_with_sh
 		{
 			if (comboShiny->itemExists(USE_TEXTURE))
 			{
-				// HACK: This depends on adding the "Use texture"
-				//	item at the end of a list of known length.
 				comboShiny->remove(SHINY_TEXTURE);
 			}
 		}
