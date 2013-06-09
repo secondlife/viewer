@@ -50,7 +50,7 @@
 #define SINGLE_FP_PERMUTATION(shader)					\
 	if (gGLManager.mIsMobileGF)							\
 	{																\
-		shader[i].addPermutation("SINGLE_FP_ONLY","1");		\
+		shader.addPermutation("SINGLE_FP_ONLY","1");		\
 	}
 
 
@@ -1304,7 +1304,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			bool has_skin = i & 0x10;
 			gDeferredMaterialProgram[i].addPermutation("HAS_SKIN",has_skin ? "1" : "0");
 
-			SINGLE_FP_PERMUTATION(gDeferredMaterialProgram);
+			SINGLE_FP_PERMUTATION(gDeferredMaterialProgram[i]);
 
 			if (has_skin)
 			{
