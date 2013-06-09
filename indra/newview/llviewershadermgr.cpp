@@ -1596,14 +1596,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 		gDeferredSoftenProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 
-#if LL_DARWIN
-		// include spec exp clamp to fix older mac rendering artifacts
-		//
-		if (gGLManager.mIsMobileGF)
-		{
-			gDeferredSoftenProgram[i].addPermutation("NO_SRGB","1");
-		}
-#endif
+		SINGLE_FP_PERMUTATION(gDeferredSoftenProgram);
 
 		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
 		{ //if using SSAO, take screen space light map into account as if shadows are enabled
