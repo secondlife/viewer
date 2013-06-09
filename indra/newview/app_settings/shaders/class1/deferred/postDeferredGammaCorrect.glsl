@@ -41,6 +41,6 @@ uniform float texture_gamma;
 void main() 
 {
 	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord);
-	frag_color = pow(diff, vec4(texture_gamma, texture_gamma, texture_gamma, 1.0));
+	frag_color = pow(diff, vec4(texture_gamma, texture_gamma, texture_gamma, 1.0f));
 }
 

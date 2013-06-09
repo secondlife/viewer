@@ -44,6 +44,18 @@
 
 #if LL_DARWIN
 #include "OpenGL/OpenGL.h"
+
+// include spec exp clamp to fix older mac rendering artifacts
+//
+#define SINGLE_FP_PERMUTATION(shader)					\
+	if (gGLManager.mIsMobileGF)							\
+	{																\
+		shader[i].addPermutation("SINGLE_FP_ONLY","1");		\
+	}
+
+
+#else
+#define SINGLE_FP_PERMUTATION(shader)
 #endif
 
 #ifdef LL_RELEASE_FOR_DOWNLOAD
@@ -1292,14 +1304,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			bool has_skin = i & 0x10;
 			gDeferredMaterialProgram[i].addPermutation("HAS_SKIN",has_skin ? "1" : "0");
 
-		#if LL_DARWIN
-			// include spec exp clamp to fix older mac rendering artifacts
-			//
-			if (gGLManager.mIsMobileGF)
-			{
-				gDeferredMaterialProgram[i].addPermutation("UGLY_MAC_HACK","1");
-			}
-		#endif
+			SINGLE_FP_PERMUTATION(gDeferredMaterialProgram);
 
 			if (has_skin)
 			{
@@ -1358,6 +1363,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+		SINGLE_FP_PERMUTATION(gDeferredLightProgram);
+
 		success = gDeferredLightProgram.createShader(NULL, NULL);
 	}
 
@@ -1368,6 +1376,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredMultiLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredMultiLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredMultiLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+		SINGLE_FP_PERMUTATION(gDeferredMultiLightProgram);
+
 		success = gDeferredMultiLightProgram.createShader(NULL, NULL);
 	}
 
@@ -1378,6 +1389,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/spotLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredSpotLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+		SINGLE_FP_PERMUTATION(gDeferredSpotLightProgram);
+
 		success = gDeferredSpotLightProgram.createShader(NULL, NULL);
 	}
 
@@ -1388,6 +1402,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/multiSpotLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredMultiSpotLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+		SINGLE_FP_PERMUTATION(gDeferredMultiSpotLightProgram);
+
 		success = gDeferredMultiSpotLightProgram.createShader(NULL, NULL);
 	}
 
@@ -1414,6 +1431,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSunProgram.mShaderFiles.push_back(make_pair(vertex, GL_VERTEX_SHADER_ARB));
 		gDeferredSunProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER_ARB));
 		gDeferredSunProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+		SINGLE_FP_PERMUTATION(gDeferredSunProgram);
+
 		success = gDeferredSunProgram.createShader(NULL, NULL);
 	}
 
@@ -1424,6 +1444,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredBlurLightProgram.mShaderFiles.push_back(make_pair("deferred/blurLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredBlurLightProgram.mShaderFiles.push_back(make_pair("deferred/blurLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredBlurLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+		SINGLE_FP_PERMUTATION(gDeferredBlurLightProgram);
+
 		success = gDeferredBlurLightProgram.createShader(NULL, NULL);
 	}
 
@@ -1454,6 +1477,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAlphaProgram.addPermutation("USE_VERTEX_COLOR", "1");
 		gDeferredAlphaProgram.addPermutation("HAS_SHADOW", mVertexShaderLevel[SHADER_DEFERRED] > 1 ? "1" : "0");
 		gDeferredAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+		SINGLE_FP_PERMUTATION(gDeferredAlphaProgram);
+
 		success = gDeferredAlphaProgram.createShader(NULL, NULL);
 
 		// Hack
@@ -1569,6 +1595,15 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 
 		gDeferredSoftenProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+#if LL_DARWIN
+		// include spec exp clamp to fix older mac rendering artifacts
+		//
+		if (gGLManager.mIsMobileGF)
+		{
+			gDeferredSoftenProgram[i].addPermutation("NO_SRGB","1");
+		}
+#endif
 
 		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
 		{ //if using SSAO, take screen space light map into account as if shadows are enabled

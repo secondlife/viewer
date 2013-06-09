@@ -23,9 +23,9 @@
  * $/LicenseInfo$
  */
  
-#define DIFFUSE_ALPHA_MODE_IGNORE 0
-#define DIFFUSE_ALPHA_MODE_BLEND 1
-#define DIFFUSE_ALPHA_MODE_MASK 2
+#define DIFFUSE_ALPHA_MODE_IGNORE	0
+#define DIFFUSE_ALPHA_MODE_BLEND	1
+#define DIFFUSE_ALPHA_MODE_MASK		2
 #define DIFFUSE_ALPHA_MODE_EMISSIVE 3
 
 uniform float emissive_brightness;
@@ -183,17 +183,6 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 
 	return max(col, vec3(0.0,0.0,0.0));	
 
-}
-
-vec3 decode_normal (vec2 enc)
-{
-    vec2 fenc = enc*4-2;
-    float f = dot(fenc,fenc);
-    float g = sqrt(1-f/4);
-    vec3 n;
-    n.xy = fenc*g;
-    n.z = 1-f/2;
-    return n;
 }
 
 vec4 getPosition_d(vec2 pos_screen, float depth)
@@ -437,11 +426,42 @@ VARYING vec3 vary_normal;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
+#ifdef SINGLE_FP_ONLY
+vec2 encode_normal(vec3 n)
+{
+	float f = sqrt(2 * n.z + 2);
+	return (n.xy / vec2(f)) + vec2(0.5f);
+}
+
+vec3 decode_normal (vec2 enc)
+{
+    vec2 fenc = enc - 0.5f;
+    float f = dot(fenc,fenc);
+    f = clamp(f,0.0f,1.0f);
+    float g = sqrt(1-f);
+    vec3 n;
+    n.xy = fenc*g;
+    n.z = 1.0f - (f * 0.5f);
+    return normalize(n);
+}
+#else
 vec2 encode_normal(vec3 n)
 {
 	float f = sqrt(8 * n.z + 8);
 	return n.xy / f + 0.5;
 }
+
+vec3 decode_normal (vec2 enc)
+{
+    vec2 fenc = enc*4-2;
+    float f = dot(fenc,fenc);
+    float g = sqrt(1-f/4);
+    vec3 n;
+    n.xy = fenc*g;
+    n.z = 1-f/2;
+    return n;
+}
+#endif
 
 void main() 
 {
@@ -575,13 +595,13 @@ void main()
 #endif
 
 	spec = final_specular;
-		vec4 diffuse = final_color;
-		float envIntensity = final_normal.z;
+	vec4 diffuse = final_color;
+	float envIntensity = final_normal.z;
 
     vec3 col = vec3(0.0f,0.0f,0.0f);
 
-		float bloom = 0.0;
-			calcAtmospherics(pos.xyz, 1.0);
+	float bloom = 0.0;
+	calcAtmospherics(pos.xyz, 1.0);
 	
 	vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
@@ -604,54 +624,54 @@ void main()
 	col.rgb *= diffuse.rgb;
 	
 
-			float glare = 0.0;
+	float glare = 0.0;
 
-			if (spec.a > 0.0) // specular reflection
-			{
-				// the old infinite-sky shiny reflection
-				//
+	if (spec.a > 0.0) // specular reflection
+	{
+		// the old infinite-sky shiny reflection
+		//
 				
-				float sa = dot(refnormpersp, sun_dir.xyz);
-				vec3 dumbshiny = vary_SunlitColor*shadow*(texture2D(lightFunc, vec2(sa, spec.a)).r);
+		float sa = dot(refnormpersp, sun_dir.xyz);
+		vec3 dumbshiny = vary_SunlitColor*shadow*(texture2D(lightFunc, vec2(sa, spec.a)).r);
 							
-				// add the two types of shiny together
-				vec3 spec_contrib = dumbshiny * spec.rgb;
-				bloom = dot(spec_contrib, spec_contrib) / 6;
+		// add the two types of shiny together
+		vec3 spec_contrib = dumbshiny * spec.rgb;
+		bloom = dot(spec_contrib, spec_contrib) / 6;
 
-				glare = max(spec_contrib.r, spec_contrib.g);
-				glare = max(glare, spec_contrib.b);
+		glare = max(spec_contrib.r, spec_contrib.g);
+		glare = max(glare, spec_contrib.b);
 
-				col += spec_contrib;
-			}
+		col += spec_contrib;
+	}
 
-			col = mix(col.rgb, old_diffcol.rgb, diffuse.a);
+	col = mix(col.rgb, old_diffcol.rgb, diffuse.a);
 
-			if (envIntensity > 0.0)
-			{
-				//add environmentmap
-				vec3 env_vec = env_mat * refnormpersp;
-				float exponent = mix(2.2, 1.0, diffuse.a);
+	if (envIntensity > 0.0)
+	{
+		//add environmentmap
+		vec3 env_vec = env_mat * refnormpersp;
+		float exponent = mix(2.2, 1.0, diffuse.a);
 
-				vec3 refcol = pow(textureCube(environmentMap, env_vec).rgb, vec3(exponent))*exponent;
+		vec3 refcol = pow(textureCube(environmentMap, env_vec).rgb, vec3(exponent))*exponent;
 
-				col = mix(col.rgb, refcol, 
-					envIntensity);  
+		col = mix(col.rgb, refcol, 
+			envIntensity);  
 
-				float cur_glare = max(refcol.r, refcol.g);
-				cur_glare = max(cur_glare, refcol.b);
-				cur_glare *= envIntensity*4.0;
-				glare += cur_glare;
-			}
+		float cur_glare = max(refcol.r, refcol.g);
+		cur_glare = max(cur_glare, refcol.b);
+		cur_glare *= envIntensity*4.0;
+		glare += cur_glare;
+	}
 
-			float exponent = mix(1.0, 2.2, diffuse.a);
-			col = pow(col, vec3(exponent));
+	float exponent = mix(1.0, 2.2, diffuse.a);
+	col = pow(col, vec3(exponent));
 				
 	
-			col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
-			col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
+	col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
+	col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
 
 			
-		vec3 npos = normalize(-pos.xyz);
+	vec3 npos = normalize(-pos.xyz);
 
  #define LIGHT_LOOP(i) col.rgb = col.rgb + calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare);
 
@@ -668,15 +688,15 @@ void main()
 
 	frag_color.rgb = col.rgb;
 	glare = min(glare, 1.0);
-	frag_color.a = max(diffcol.a*vertex_color.a, glare);
-#else
+	frag_color.a = max(diffcol.a,glare)*vertex_color.a;
 
+#else
 	frag_data[0] = final_color;
 
-#ifdef UGLY_MAC_HACK
-	// magic spec exp clamp fixes rendering artifacts on older mac GF drivers
+#ifdef SINGLE_FP_ONLY
+	// "Not so HD" range on older cards; make it fit!
 	//
-	final_specular = min(final_specular, vec4(1.0f, 1.0f, 1.0f, 0.125f));
+	final_specular = final_specular * vec4(0.25f);
 #endif
 
 	frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.

@@ -78,6 +78,19 @@ vec3 vary_AtmosAttenuation;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
+#ifdef SINGLE_FP_ONLY
+vec3 decode_normal (vec2 enc)
+{
+    vec2 fenc = enc - 0.5f;
+    float f = dot(fenc,fenc);
+    f = clamp(f,0.0f,1.0f);
+    float g = sqrt(1-f);
+    vec3 n;
+    n.xy = fenc*g;
+    n.z = 1-f/2;
+    return normalize(n);
+}
+#else
 vec3 decode_normal (vec2 enc)
 {
     vec2 fenc = enc*4-2;
@@ -88,6 +101,7 @@ vec3 decode_normal (vec2 enc)
     n.z = 1-f/2;
     return n;
 }
+#endif
 
 vec4 getPosition_d(vec2 pos_screen, float depth)
 {
@@ -343,7 +357,7 @@ void main()
 			bloom = dot(spec_contrib, spec_contrib) / 6;
 			col += spec_contrib;
 		}
-	
+		
 		
 		col = mix(col.rgb, pow(diffuse.rgb, vec3(1.0/2.2)), diffuse.a);
 		
