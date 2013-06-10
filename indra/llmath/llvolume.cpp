@@ -1392,7 +1392,7 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
 	pt->mScale.mV[VX] = hole_x * lerp(taper_x_begin, taper_x_end, t);
 	pt->mScale.mV[VY] = hole_y * lerp(taper_y_begin, taper_y_end, t);
 	pt->mTexT  = t;
-	
+
 	// Twist rotates the path along the x,y plane (I think) - DJS 04/05/02
 	twist.setQuat  (lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
 	// Rotate the point around the circle's center.
@@ -1446,7 +1446,7 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
 	pt->mScale.mV[VX] = hole_x * lerp(taper_x_begin, taper_x_end, t);
 	pt->mScale.mV[VY] = hole_y * lerp(taper_y_begin, taper_y_end, t);
 	pt->mTexT  = t;
-	
+
 	// Twist rotates the path along the x,y plane (I think) - DJS 04/05/02
 	twist.setQuat  (lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
 	// Rotate the point around the circle's center.
@@ -1594,7 +1594,7 @@ BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 			S32 sides = (S32)llfloor(llfloor((MIN_DETAIL_FACES * detail + twist_mag * 3.5f * (detail-0.5f))) * params.getRevolutions());
 
 			if (is_sculpted)
-				sides = sculpt_size;
+				sides = llmax(sculpt_size, 1);
 			
 			genNGon(params, sides);
 		}
@@ -1644,6 +1644,7 @@ BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 			mPath[i].mScale.mV[0] = lerp(1,params.getScale().mV[0],t);
 			mPath[i].mScale.mV[1] = lerp(1,params.getScale().mV[1],t);
 			mPath[i].mTexT  = t;
+
 			mPath[i].mRot.setQuat(F_PI * params.getTwist() * t,1,0,0);
 		}
 
@@ -2442,6 +2443,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			LLVector4a pos_range;
 			pos_range.setSub(max_pos, min_pos);
 			LLVector2 tc_range2 = max_tc - min_tc;
+
 			LLVector4a tc_range;
 			tc_range.set(tc_range2[0], tc_range2[1], tc_range2[0], tc_range2[1]);
 			LLVector4a min_tc4(min_tc[0], min_tc[1], min_tc[0], min_tc[1]);
@@ -6304,24 +6306,6 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 
 	cuv = (min_uv + max_uv)*0.5f;
 
-	LLVector4a normal;
-	LLVector4a d0, d1;
-	
-
-	d0.setSub(*mCenter, pos[0]);
-	d1.setSub(*mCenter, pos[1]);
-
-	if (mTypeMask & TOP_MASK)
-	{
-		normal.setCross3(d0, d1);
-	}
-	else
-	{
-		normal.setCross3(d1, d0);
-	}
-
-	normal.normalize3fast();
-
 	VertexData vd;
 	vd.setPosition(*mCenter);
 	vd.mTexCoord = cuv;
@@ -6330,14 +6314,10 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	{
 		pos[num_vertices] = *mCenter;
 		tc[num_vertices] = cuv;
+
 		num_vertices++;
 	}
 		
-	for (S32 i = 0; i < num_vertices; i++)
-	{
-		norm[i].load4a(normal.getF32ptr());
-	}
-
 	if (partial_build)
 	{
 		return TRUE;
@@ -6572,7 +6552,22 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 
 
 	}
-		
+
+	LLVector4a d0,d1;
+
+	d0.setSub(mPositions[mIndices[1]], mPositions[mIndices[0]]);
+	d1.setSub(mPositions[mIndices[2]], mPositions[mIndices[0]]);
+
+	LLVector4a normal;
+	normal.setCross3(d0,d1);
+
+	normal.normalize3fast();
+
+	for (S32 i = 0; i < num_vertices; i++)
+	{
+		norm[i].load4a(normal.getF32ptr());
+	}
+
 	return TRUE;
 }
 
@@ -6599,37 +6594,6 @@ void LLVolumeFace::createTangents()
 		binorm = mTangents;
 
 		CalculateTangentArray(mNumVertices, mPositions, mNormals, mTexCoords, mNumIndices/3, mIndices, mTangents);
-
-		/*for (U32 i = 0; i < mNumIndices/3; i++) 
-		{	//for each triangle
-			const U16& i0 = mIndices[i*3+0];
-			const U16& i1 = mIndices[i*3+1];
-			const U16& i2 = mIndices[i*3+2];
-						
-			//calculate tangent
-			LLVector4a tangent;
-			calc_tangent_from_triangle(tangent,
-										pos[i0], tc[i0],
-										pos[i1], tc[i1],
-										pos[i2], tc[i2]);
-
-
-			//add triangle normal to vertices
-			binorm[i0].add(tangent);
-			binorm[i1].add(tangent);
-			binorm[i2].add(tangent);
-
-			//even out quad contributions
-			if (i % 2 == 0) 
-			{
-				binorm[i2].add(tangent);
-			}
-			else 
-			{
-				binorm[i1].add(tangent);
-			}
-		}*/
-
 
 		//normalize tangents
 		for (U32 i = 0; i < mNumVertices; i++) 
@@ -6949,7 +6913,6 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 
 			if ((mTypeMask & INNER_MASK) && (mTypeMask & FLAT_MASK) && mNumS > 2 && s > 0)
 			{
-
 				pos[cur_vertex].load3(mesh[i].mPos.mV);
 				tc[cur_vertex] = LLVector2(ss,tt);
 			
@@ -6980,7 +6943,6 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 		}
 	}
 	
-
 	//get bounding box for this side
 	LLVector4a& face_min = mExtents[0];
 	LLVector4a& face_max = mExtents[1];
@@ -7265,26 +7227,36 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
         float t1 = w2.mV[1] - w1.mV[1];
         float t2 = w3.mV[1] - w1.mV[1];
         
-        float r = 1.0F / (s1 * t2 - s2 * t1);
-        LLVector4a sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r,
-                (t2 * z1 - t1 * z2) * r);
-        LLVector4a tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r,
-                (s1 * z2 - s2 * z1) * r);
+		F32 rd = s1*t2-s2*t1;
+
+		float r = rd*rd > 0.f ? 1.0F / rd : 1024.f; //some made up large ratio for division by zero
+
+		llassert(llfinite(r));
+		llassert(!llisnan(r));
+
+		LLVector4a sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r,
+				(t2 * z1 - t1 * z2) * r);
+		LLVector4a tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r,
+				(s1 * z2 - s2 * z1) * r);
         
-        tan1[i1].add(sdir);
-        tan1[i2].add(sdir);
-        tan1[i3].add(sdir);
+		tan1[i1].add(sdir);
+		tan1[i2].add(sdir);
+		tan1[i3].add(sdir);
         
-        tan2[i1].add(tdir);
-        tan2[i2].add(tdir);
-        tan2[i3].add(tdir);
+		tan2[i1].add(tdir);
+		tan2[i2].add(tdir);
+		tan2[i3].add(tdir);
     }
     
     for (U32 a = 0; a < vertexCount; a++)
     {
         LLVector4a n = normal[a];
-        const LLVector4a& t = tan1[a];
+
+		const LLVector4a& t = tan1[a];
         
+		llassert(tan1[a].getLength3().getF32() >= 0.f);
+		llassert(tan2[a].getLength3().getF32() >= 0.f);
+
 		LLVector4a ncrosst;
 		ncrosst.setCross3(n,t);
 
@@ -7294,14 +7266,23 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 		LLVector4a tsubn;
 		tsubn.setSub(t,n);
 
-		tsubn.normalize3fast();
+		if (tsubn.dot3(tsubn).getF32() > F_APPROXIMATELY_ZERO)
+		{
+			tsubn.normalize3fast();
 		
-        // Calculate handedness
-		F32 handedness = ncrosst.dot3(tan2[a]).getF32() < 0.f ? -1.f : 1.f;
+			// Calculate handedness
+			F32 handedness = ncrosst.dot3(tan2[a]).getF32() < 0.f ? -1.f : 1.f;
 		
-		tsubn.getF32ptr()[3] = handedness;
+			tsubn.getF32ptr()[3] = handedness;
 
-        tangent[a] = tsubn;
+			tangent[a] = tsubn;
+
+			llassert(tangent[a].getLength3().getF32() > 0.f);
+		}
+		else
+		{ //degenerate, make up a value
+			tangent[a].set(0,0,1,1);
+		}
     }
     
 	ll_aligned_free_16(tan1);
