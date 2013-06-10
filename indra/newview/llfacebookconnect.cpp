@@ -36,6 +36,21 @@
 #include "llnotificationsutil.h"
 #include "llurlaction.h"
 
+
+// Local function
+void prompt_user_for_error(U32 status, const std::string& reason)
+{
+    // Note: 302 (redirect) is *not* an error that warrants prompting the user
+    if (status != 302)
+    {
+        LLSD args(LLSD::emptyMap());
+        std::stringstream msg;
+        msg << reason << " (Code " << status << ")";
+        args["FAIL_REASON"] = msg.str();
+        LLNotificationsUtil::add("FacebookCannotConnect",args);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 
@@ -81,12 +96,8 @@ public:
 		}
 		else
 		{
-            LLSD args(LLSD::emptyMap());
-            std::stringstream msg;
-            msg << reason << " (Code " << status << ")";
-            args["FAIL_REASON"] = msg.str();
-			LLNotificationsUtil::add("FacebookCannotConnect",args);
-			LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
+            prompt_user_for_error(status,reason);
+            LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
 		}
 	}
     
@@ -115,12 +126,8 @@ public:
 		}
 		else
 		{
-            LLSD args(LLSD::emptyMap());
-            std::stringstream msg;
-            msg << reason << " (Code " << status << ")";
-            args["FAIL_REASON"] = msg.str();
-			LLNotificationsUtil::add("FacebookCannotConnect",args);
-			LL_WARNS("FacebookConnect") << "Failed to get a post response. reason: " << reason << " status: " << status << LL_ENDL;
+            prompt_user_for_error(status,reason);
+            LL_WARNS("FacebookConnect") << "Failed to get a post response. reason: " << reason << " status: " << status << LL_ENDL;
 		}
 	}
     
@@ -153,11 +160,7 @@ public:
 		}
 		else
 		{
-            LLSD args(LLSD::emptyMap());
-            std::stringstream msg;
-            msg << reason << " (Code " << status << ")";
-            args["FAIL_REASON"] = msg.str();
-			LLNotificationsUtil::add("FacebookCannotConnect",args);
+            prompt_user_for_error(status,reason);
 			LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
 		}
 	}
@@ -193,11 +196,7 @@ public:
 			}
             else
             {
-                LLSD args(LLSD::emptyMap());
-                std::stringstream msg;
-                msg << reason << " (Code " << status << ")";
-                args["FAIL_REASON"] = msg.str();
-                LLNotificationsUtil::add("FacebookCannotConnect",args);
+                prompt_user_for_error(status,reason);
             }
 		}
 	}
@@ -222,11 +221,7 @@ public:
 		}
 		else
 		{
-            LLSD args(LLSD::emptyMap());
-            std::stringstream msg;
-            msg << reason << " (Code " << status << ")";
-            args["FAIL_REASON"] = msg.str();
-			LLNotificationsUtil::add("FacebookCannotConnect",args);
+            prompt_user_for_error(status,reason);
 			LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
 		}
 	}
