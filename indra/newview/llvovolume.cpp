@@ -4105,7 +4105,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	//drawable->getVObj()->setDebugText(llformat("%d", drawable->isState(LLDrawable::ANIMATED_CHILD)));
 
 	U8 bump = (type == LLRenderPass::PASS_BUMP || type == LLRenderPass::PASS_POST_BUMP) ? facep->getTextureEntry()->getBumpmap() : 0;
-	
 	U8 shiny = facep->getTextureEntry()->getShiny();
 
 	LLViewerTexture* tex = facep->getTexture();
@@ -4114,6 +4113,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	
 	LLMaterial* mat = facep->getTextureEntry()->getMaterialParams().get(); 
 	LLMaterialID mat_id = facep->getTextureEntry()->getMaterialID();
+
+	mat = mat_id.isNull() ? NULL : mat;
 
 	bool batchable = false;
 
@@ -4200,6 +4201,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_info->mTextureMatrix = tex_mat;
 		draw_info->mModelMatrix = model_mat;
 		
+		draw_info->mBump  = bump;
 		draw_info->mShiny = shiny;
 
 		float alpha[4] =
@@ -4544,6 +4546,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 
 						LLMaterial* mat = te->getMaterialParams().get();
+						mat = te->getMaterialID().isNull() ? NULL : mat;
 
 						if (mat && LLPipeline::sRenderDeferred)
 						{
@@ -4755,7 +4758,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						if (gPipeline.canUseWindLightShadersOnObjects()
 							&& LLPipeline::sRenderBump)
 						{
-							if (LLPipeline::sRenderDeferred && te->getMaterialParams().notNull())
+							if (LLPipeline::sRenderDeferred && te->getMaterialParams().notNull() && !te->getMaterialID().isNull())
 							{
 								LLMaterial* mat = te->getMaterialParams().get();
 								if (mat->getNormalID().notNull())
@@ -5332,6 +5335,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		
 			LLMaterial* mat = te->getMaterialParams().get();
 
+			mat = te->getMaterialID().isNull() ? NULL : mat;
+
 			bool can_be_shiny = true;
 			if (mat)
 			{
@@ -5489,7 +5494,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 							registerFace(group, facep, LLRenderPass::PASS_POST_BUMP);
 						}
 					}
-					else if (te->getBumpmap() && !te->getMaterialParams())
+					else if (te->getBumpmap() && !mat)
 					{ //register in deferred bump pass
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
 					}
@@ -5531,7 +5536,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				}
 				else
 				{
-					if (LLPipeline::sRenderDeferred && LLPipeline::sRenderBump && (te->getBumpmap() && !te->getMaterialParams()))
+					if (LLPipeline::sRenderDeferred && LLPipeline::sRenderBump && (te->getBumpmap() && !mat))
 					{ //non-shiny or fullbright deferred bump
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
 					}

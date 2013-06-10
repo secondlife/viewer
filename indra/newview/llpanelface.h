@@ -258,7 +258,8 @@ private:
 					if (!is_need_material)
 					{
 						LL_DEBUGS("Materials") << "Removing material from object " << object->getID() << " face " << face << LL_ENDL;
-						LLMaterialMgr::getInstance()->remove(object->getID(),face);	
+						LLMaterialMgr::getInstance()->remove(object->getID(),face);
+						object->setTEMaterialID(face, LLMaterialID::null);
 					}
 					else
 					{
