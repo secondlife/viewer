@@ -429,20 +429,16 @@ VARYING vec2 vary_texcoord0;
 #ifdef SINGLE_FP_ONLY
 vec2 encode_normal(vec3 n)
 {
-	float f = sqrt(2 * n.z + 2);
-	return (n.xy / vec2(f)) + vec2(0.5f);
+	vec2 sn;
+	sn.xy = (n.xy * vec2(0.5f,0.5f)) + vec2(0.5f,0.5f);
 }
 
 vec3 decode_normal (vec2 enc)
 {
-    vec2 fenc = enc - 0.5f;
-    float f = dot(fenc,fenc);
-    f = clamp(f,0.0f,1.0f);
-    float g = sqrt(1-f);
-    vec3 n;
-    n.xy = fenc*g;
-    n.z = 1.0f - (f * 0.5f);
-    return normalize(n);
+	vec3 n;
+	n.xy = (enc.xy * vec2(2.0f,2.0f)) - vec2(1.0f,1.0f);
+	n.z = sqrt(1.0f - dot(n.xy,n.xy));
+	return n;
 }
 #else
 vec2 encode_normal(vec3 n)
@@ -692,13 +688,6 @@ void main()
 
 #else
 	frag_data[0] = final_color;
-
-#ifdef SINGLE_FP_ONLY
-	// "Not so HD" range on older cards; make it fit!
-	//
-	final_specular = final_specular * vec4(0.25f);
-#endif
-
 	frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.
 	frag_data[2] = final_normal; // XY = Normal.  Z = Env. intensity.
 #endif
