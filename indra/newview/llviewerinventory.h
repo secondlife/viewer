@@ -122,7 +122,7 @@ public:
 	virtual void updateServer(BOOL is_new) const;
 	void fetchFromServer(void) const;
 
-	//virtual void packMessage(LLMessageSystem* msg) const;
+	virtual void packMessage(LLMessageSystem* msg) const;
 	virtual BOOL unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
 	virtual BOOL unpackMessage(LLSD item);
 	virtual BOOL importFile(LLFILE* fp);
@@ -138,9 +138,6 @@ public:
 	void setComplete(BOOL complete) { mIsComplete = complete; }
 	//void updateAssetOnServer() const;
 
-	virtual void packMessage(LLMessageSystem* msg) const;
-	// Contents of updates will take precedence over fields of item where they differ.
-	void packUpdateMessage(LLMessageSystem* msg, const LLSD& updates) const;
 	virtual void setTransactionID(const LLTransactionID& transaction_id);
 	struct comparePointers
 	{
@@ -202,6 +199,8 @@ public:
 	virtual void updateParentOnServer(BOOL restamp_children) const;
 	virtual void updateServer(BOOL is_new) const;
 
+	virtual void packMessage(LLMessageSystem* msg) const;
+
 	const LLUUID& getOwnerID() const { return mOwnerID; }
 
 	// Version handling
@@ -225,8 +224,6 @@ public:
 	bool importFileLocal(LLFILE* fp);
 	void determineFolderType();
 	void changeType(LLFolderType::EType new_folder_type);
-
-	void packUpdateMessage(LLMessageSystem* msg, const LLSD& updates) const;
 
 private:
 	friend class LLInventoryModel;

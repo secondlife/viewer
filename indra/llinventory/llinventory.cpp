@@ -1049,11 +1049,16 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
 
 LLFastTimer::DeclareTimer FTM_INVENTORY_SD_DESERIALIZE("Inventory SD Deserialize");
 
-bool LLInventoryItem::fromLLSD(const LLSD& sd)
+bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
 {
 	LLFastTimer _(FTM_INVENTORY_SD_DESERIALIZE);
-	mInventoryType = LLInventoryType::IT_NONE;
-	mAssetUUID.setNull();
+	if (is_new)
+	{
+		// If we're adding LLSD to an existing object, need avoid
+		// clobbering these fields.
+		mInventoryType = LLInventoryType::IT_NONE;
+		mAssetUUID.setNull();
+	}
 	std::string w;
 
 	w = INV_ITEM_ID_LABEL;

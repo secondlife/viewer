@@ -210,7 +210,7 @@ public:
 	void unpackBinaryBucket(U8* bin_bucket, S32 bin_bucket_size);
 	LLSD asLLSD() const;
 	void asLLSD( LLSD& sd ) const;
-	bool fromLLSD(const LLSD& sd);
+	bool fromLLSD(const LLSD& sd, bool is_new = true);
 
 	//--------------------------------------------------------------------
 	// Member Variables

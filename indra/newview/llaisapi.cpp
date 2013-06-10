@@ -202,6 +202,7 @@ UpdateItemCommand::UpdateItemCommand(const LLUUID& item_id,
 	}
 	std::string url = cap + std::string("/item/") + item_id.asString();
 	LL_DEBUGS("Inventory") << "url: " << url << llendl;
+	LL_DEBUGS("Inventory") << "request: " << ll_pretty_print_sd(mUpdates) << llendl;
 	LLCurl::ResponderPtr responder = this;
 	LLSD headers;
 	headers["Content-Type"] = "application/llsd+xml";
