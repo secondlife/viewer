@@ -1176,7 +1176,7 @@ void LLPanelFace::updateUI()
 			bool identical_norm_repeats = false;
 			bool identical_spec_repeats = false;
 
-			LLSelectedTE::getMaxDiffuseRepeats(repeats_spec, identical_spec_repeats);
+			LLSelectedTE::getMaxDiffuseRepeats(repeats_diff, identical_diff_repeats);
 			LLSelectedTEMaterial::getMaxNormalRepeats(repeats_norm, identical_norm_repeats);
 			LLSelectedTEMaterial::getMaxSpecularRepeats(repeats_spec, identical_spec_repeats);			
 
