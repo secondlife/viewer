@@ -6561,8 +6561,23 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	LLVector4a normal;
 	normal.setCross3(d0,d1);
 
-	normal.normalize3fast();
+	if (normal.dot3(normal).getF32() > F_APPROXIMATELY_ZERO)
+	{
+		normal.normalize3fast();
+	}
+	else
+	{ //degenerate, make up a value
+		normal.set(0,0,1);
+	}
 
+	llassert(llfinite(normal.getF32ptr()[0]));
+	llassert(llfinite(normal.getF32ptr()[1]));
+	llassert(llfinite(normal.getF32ptr()[2]));
+
+	llassert(!llisnan(normal.getF32ptr()[0]));
+	llassert(!llisnan(normal.getF32ptr()[1]));
+	llassert(!llisnan(normal.getF32ptr()[2]));
+	
 	for (S32 i = 0; i < num_vertices; i++)
 	{
 		norm[i].load4a(normal.getF32ptr());
@@ -7048,6 +7063,14 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 		n[1]->add(c);
 		n[2]->add(c);
 		
+		llassert(llfinite(c.getF32ptr()[0]));
+		llassert(llfinite(c.getF32ptr()[1]));
+		llassert(llfinite(c.getF32ptr()[2]));
+
+		llassert(!llisnan(c.getF32ptr()[0]));
+		llassert(!llisnan(c.getF32ptr()[1]));
+		llassert(!llisnan(c.getF32ptr()[2]));
+
 		//even out quad contributions
 		n[i%2+1]->add(c);
 	}
@@ -7277,7 +7300,13 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 
 			tangent[a] = tsubn;
 
-			llassert(tangent[a].getLength3().getF32() > 0.f);
+			llassert(llfinite(tangent[a].getF32ptr()[0]));
+			llassert(llfinite(tangent[a].getF32ptr()[1]));
+			llassert(llfinite(tangent[a].getF32ptr()[2]));
+
+			llassert(!llisnan(tangent[a].getF32ptr()[0]));
+			llassert(!llisnan(tangent[a].getF32ptr()[1]));
+			llassert(!llisnan(tangent[a].getF32ptr()[2]));
 		}
 		else
 		{ //degenerate, make up a value
