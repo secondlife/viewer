@@ -71,6 +71,7 @@ vec2 encode_normal(vec3 n)
 {
 	vec2 sn;
 	sn.xy = (n.xy * vec2(0.5f,0.5f)) + vec2(0.5f,0.5f);
+	return sn;
 }
 
 vec3 decode_normal (vec2 enc)
