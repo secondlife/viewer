@@ -1964,9 +1964,13 @@ void LLPanelFace::onCommitRepeatsPerMeter(LLUICtrl* ctrl, void* userdata)
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	
 	LLUICtrl*	repeats_ctrl	= self->getChild<LLUICtrl>("rptctrl");
+	LLComboBox* combo_matmedia = self->getChild<LLComboBox>("combobox matmedia");
 	LLComboBox* combo_mattype	= self->getChild<LLComboBox>("combobox mattype");
+	
+	U32 materials_media = combo_matmedia->getCurrentIndex();
+	
 
-	U32 material_type			= combo_mattype->getCurrentIndex();
+	U32 material_type			= (materials_media == MATMEDIA_MATERIAL) ? combo_mattype->getCurrentIndex() : 0;
 	F32 repeats_per_meter	= repeats_ctrl->getValue().asReal();
 	
    F32 obj_scale_s = 1.0f;
