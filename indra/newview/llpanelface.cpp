@@ -1177,7 +1177,7 @@ void LLPanelFace::updateUI()
 			bool identical_spec_repeats = false;
 
 			LLSelectedTE::getMaxDiffuseRepeats(repeats_spec, identical_spec_repeats);
-			LLSelectedTEMaterial::getMaxNormalRepeats(repeats_spec, identical_spec_repeats);
+			LLSelectedTEMaterial::getMaxNormalRepeats(repeats_norm, identical_norm_repeats);
 			LLSelectedTEMaterial::getMaxSpecularRepeats(repeats_spec, identical_spec_repeats);			
 
 			LLComboBox*	mComboTexGen = getChild<LLComboBox>("combobox texgen");
