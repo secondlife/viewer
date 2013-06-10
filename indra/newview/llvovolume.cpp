@@ -4548,6 +4548,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						if (mat && LLPipeline::sRenderDeferred)
 						{
 							U8 alpha_mode = mat->getDiffuseAlphaMode();
+
 							bool is_alpha = type == LLDrawPool::POOL_ALPHA &&
 								(alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND ||
 								te->getColor().mV[3] < 0.999f);
@@ -4556,8 +4557,12 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							{ //this face needs alpha blending, override alpha mode
 								alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
 							}
-							U32 mask = mat->getShaderMask(alpha_mode);
-							pool->addRiggedFace(facep, mask);
+
+							if (!is_alpha || te->getColor().mV[3] > 0.f)  // //only add the face if it will actually be visible
+							{ 
+								U32 mask = mat->getShaderMask(alpha_mode);
+								pool->addRiggedFace(facep, mask);
+							}
 						}
 						else if (mat)
 						{
@@ -4573,7 +4578,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							}
 							else if (is_alpha || (te->getColor().mV[3] < 0.999f))
 							{
-								pool->addRiggedFace(facep, fullbright ? LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA : LLDrawPoolAvatar::RIGGED_ALPHA);
+								if (te->getColor().mV[3] > 0.f)
+								{
+									pool->addRiggedFace(facep, fullbright ? LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA : LLDrawPoolAvatar::RIGGED_ALPHA);
+								}
 							}
 							else if (gPipeline.canUseVertexShaders()
 								&& LLPipeline::sRenderBump 
