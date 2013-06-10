@@ -317,8 +317,6 @@ void LLPanelFace::sendTexture()
 void LLPanelFace::sendBump(U32 bumpiness)
 {	
 	LLTextureCtrl* bumpytexture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
-	LLUUID current_normal_map = bumpytexture_ctrl->getImageAssetID();
-
 	if (bumpiness < BUMPY_TEXTURE)
 	{
 		LL_DEBUGS("Materials") << "clearing bumptexture control" << LL_ENDL;	
@@ -330,6 +328,8 @@ void LLPanelFace::sendBump(U32 bumpiness)
 	LLSelectMgr::getInstance()->selectionSetBumpmap( bump );
 
 	updateBumpyControls(bumpiness == BUMPY_TEXTURE, true);
+
+	LLUUID current_normal_map = bumpytexture_ctrl->getImageAssetID();
 	LLSelectedTEMaterial::setNormalID(this, current_normal_map);
 }
 
