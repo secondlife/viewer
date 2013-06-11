@@ -336,7 +336,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 		{
 			if(!gAgent.isDoNotDisturb())
 			{
-				gToolBarView->flashCommand(LLCommandId("chat"), true);
+				gToolBarView->flashCommand(LLCommandId("chat"), true, im_box->isMinimized());
 			}
 			else
 			{

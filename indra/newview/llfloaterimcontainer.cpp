@@ -47,6 +47,7 @@
 #include "llfloaterpreference.h"
 #include "llimview.h"
 #include "llnotificationsutil.h"
+#include "lltoolbarview.h"
 #include "lltransientfloatermgr.h"
 #include "llviewercontrol.h"
 #include "llconversationview.h"
@@ -597,6 +598,7 @@ void LLFloaterIMContainer::setMinimized(BOOL b)
 	//Switching from minimized to un-minimized
 	if(was_minimized && !b)
 	{
+		gToolBarView->flashCommand(LLCommandId("chat"), false);
 		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(mSelectedSession);
 
 		if(session_floater && !session_floater->isTornOff())

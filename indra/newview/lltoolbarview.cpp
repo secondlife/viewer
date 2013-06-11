@@ -180,13 +180,13 @@ S32 LLToolBarView::stopCommandInProgress(const LLCommandId& commandId)
 	return command_location;
 }
 
-S32 LLToolBarView::flashCommand(const LLCommandId& commandId, bool flash)
+S32 LLToolBarView::flashCommand(const LLCommandId& commandId, bool flash, bool force_flashing/* = false */)
 {
 	S32 command_location = hasCommand(commandId);
 
 	if (command_location != TOOLBAR_NONE)
 	{
-		mToolbars[command_location]->flashCommand(commandId, flash);
+		mToolbars[command_location]->flashCommand(commandId, flash, force_flashing);
 	}
 
 	return command_location;
