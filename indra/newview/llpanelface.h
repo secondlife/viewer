@@ -284,29 +284,31 @@ private:
 		ReturnType (LLMaterial::* const MaterialGetFunc)() const  >
 	static void getTEMaterialValue(DataType& data_to_return, bool& identical,DataType default_value)
 	{
-			struct GetTEMaterialVal : public LLSelectedTEGetFunctor<DataType>
-			{
-				GetTEMaterialVal(DataType default_value) : _default(default_value) {}
-				virtual ~GetTEMaterialVal() {}
+		DataType data_value;
+		struct GetTEMaterialVal : public LLSelectedTEGetFunctor<DataType>
+		{
+			GetTEMaterialVal(DataType default_value) : _default(default_value) {}
+			virtual ~GetTEMaterialVal() {}
 
-				DataType get(LLViewerObject* object, S32 face)
+			DataType get(LLViewerObject* object, S32 face)
+			{
+				DataType ret = _default;
+				LLMaterialPtr material_ptr;
+				LLTextureEntry* tep = object ? object->getTE(face) : NULL;
+				if (tep)
 				{
-					DataType ret = _default;
-					LLMaterialPtr material_ptr;
-					LLTextureEntry* tep = object ? object->getTE(face) : NULL;
-					if (tep)
+					material_ptr = object->getTE(face)->getMaterialParams();
+					if (!material_ptr.isNull())
 					{
-						material_ptr = object->getTE(face)->getMaterialParams();
-						if (!material_ptr.isNull())
-						{
-							ret = (material_ptr->*(MaterialGetFunc))();
-						}
+						ret = (material_ptr->*(MaterialGetFunc))();
 					}
-					return ret;
 				}
-				DataType _default;
-			} GetFunc(default_value);
-			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &GetFunc, data_to_return);
+				return ret;
+			}
+			DataType _default;
+		} GetFunc(default_value);
+		identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &GetFunc, data_value);
+		data_to_return = data_value;
 	}
 
 	template<
@@ -315,6 +317,7 @@ private:
 		ReturnType (LLTextureEntry::* const TEGetFunc)() const >
 	static void getTEValue(DataType& data_to_return, bool& identical, DataType default_value)
 	{
+		DataType data_value;
 		struct GetTEVal : public LLSelectedTEGetFunctor<DataType>
 		{
 			GetTEVal(DataType default_value) : _default(default_value) {}
@@ -326,7 +329,8 @@ private:
 			}
 			DataType _default;
 		} GetTEValFunc(default_value);
-		identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &GetTEValFunc, data_to_return );
+		identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &GetTEValFunc, data_value );
+		data_to_return = data_value;
 	}
 
 	// Update vis and enabling of specific subsets of controls based on material params

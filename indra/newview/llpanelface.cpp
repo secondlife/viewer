@@ -771,7 +771,7 @@ void LLPanelFace::updateUI()
 			}
 
 			mIsAlpha = FALSE;
-			LLGLenum image_format;
+			LLGLenum image_format = GL_RGB;
 			bool identical_image_format = false;
 			LLSelectedTE::getImageFormat(image_format, identical_image_format);
             
@@ -799,17 +799,25 @@ void LLPanelFace::updateUI()
 			}
 			
 			// Diffuse Alpha Mode
-			U8 alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
+
+			// Init to the default that is appropriate for the alpha content of the asset
+			//
+			U8 alpha_mode = mIsAlpha ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
+
 			bool identical_alpha_mode = false;
+
+			// See if that's been overridden by a material setting for same...
+			//
 			LLSelectedTEMaterial::getDiffuseAlphaMode(alpha_mode, identical_alpha_mode);
 
 			LLCtrlSelectionInterface* combobox_alphamode = childGetSelectionInterface("combobox alphamode");
 			if (combobox_alphamode)
 			{
 				//it is invalid to have any alpha mode other than blend if transparency is greater than zero ... 
+				// Want masking? Want emissive? Tough! You get BLEND!
 				alpha_mode = (transparency > 0.f) ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : alpha_mode;
 
-				// ... unless there is no alpha channel in the texture, in which case alpha mode MUST ebe none
+				// ... unless there is no alpha channel in the texture, in which case alpha mode MUST be none
 				alpha_mode = mIsAlpha ? alpha_mode : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
 
 				combobox_alphamode->selectNthItem(alpha_mode);
@@ -2164,7 +2172,8 @@ void LLPanelFace::LLSelectedTE::getFace(LLFace*& face_to_return, bool& identical
 }
 
 void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return, bool& identical_face)
-{		
+{
+	LLGLenum image_format;
 	struct LLSelectedTEGetImageFormat : public LLSelectedTEGetFunctor<LLGLenum>
 	{
 		LLGLenum get(LLViewerObject* object, S32 te_index)
@@ -2173,7 +2182,8 @@ void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return,
 			return image ? image->getPrimaryFormat() : GL_RGB;
 		}
 	} get_glenum;
-	identical_face = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_glenum, image_format_to_return);
+	identical_face = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_glenum, image_format);
+	image_format_to_return = image_format;
 }
 
 void LLPanelFace::LLSelectedTE::getTexId(LLUUID& id, bool& identical)
