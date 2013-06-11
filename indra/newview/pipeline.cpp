@@ -1058,6 +1058,12 @@ void LLPipeline::updateRenderDeferred()
 	{ //must render glow when rendering deferred since post effect pass is needed to present any lighting at all
 		sRenderGlow = TRUE;
 	}
+
+	if (LLRenderTarget::sUseFBO && !sRenderDeferred)
+	{ //this case should never happen, but some odd startup state can cause it to
+		LLRenderTarget::sUseFBO = FALSE;
+	}
+		
 }
 
 //static
