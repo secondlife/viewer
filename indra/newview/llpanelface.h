@@ -297,8 +297,8 @@ private:
 				LLTextureEntry* tep = object ? object->getTE(face) : NULL;
 				if (tep)
 				{
-					material_ptr = object->getTE(face)->getMaterialParams();
-					if (!material_ptr.isNull())
+					material_ptr = tep->getMaterialParams();
+					if (!material_ptr.isNull() && !tep->getMaterialID().isNull())
 					{
 						ret = (material_ptr->*(MaterialGetFunc))();
 					}
@@ -404,11 +404,10 @@ private:
 		static void getCurrent(LLMaterialPtr& material_ptr, bool& identical_material);
 		static void getMaxSpecularRepeats(F32& repeats, bool& identical);
 		static void getMaxNormalRepeats(F32& repeats, bool& identical);
+		static void getCurrentDiffuseAlphaMode(U8& diffuse_alpha_mode, bool& identical, bool diffuse_texture_has_alpha);
 
 		DEF_GET_MAT_STATE(LLUUID,const LLUUID&,getNormalID,LLUUID::null)
 		DEF_GET_MAT_STATE(LLUUID,const LLUUID&,getSpecularID,LLUUID::null)
-		DEF_GET_MAT_STATE(U8,U8,getDiffuseAlphaMode,LLMaterial::DIFFUSE_ALPHA_MODE_NONE)
-
 		DEF_GET_MAT_STATE(F32,F32,getSpecularRepeatX,1.0f)
 		DEF_GET_MAT_STATE(F32,F32,getSpecularRepeatY,1.0f)
 		DEF_GET_MAT_STATE(F32,F32,getSpecularOffsetX,0.0f)

@@ -815,7 +815,7 @@ void LLPanelFace::updateUI()
 
 			// See if that's been overridden by a material setting for same...
 			//
-			LLSelectedTEMaterial::getDiffuseAlphaMode(alpha_mode, identical_alpha_mode);
+			LLSelectedTEMaterial::getCurrentDiffuseAlphaMode(alpha_mode, identical_alpha_mode, mIsAlpha);
 
 			LLCtrlSelectionInterface* combobox_alphamode = childGetSelectionInterface("combobox alphamode");
 			if (combobox_alphamode)
@@ -2287,6 +2287,38 @@ void LLPanelFace::LLSelectedTEMaterial::getMaxNormalRepeats(F32& repeats, bool& 
 	} max_norm_repeats_func;
 	identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &max_norm_repeats_func, repeats);
 }
+
+void LLPanelFace::LLSelectedTEMaterial::getCurrentDiffuseAlphaMode(U8& diffuse_alpha_mode, bool& identical, bool diffuse_texture_has_alpha)
+{
+	struct LLSelectedTEGetDiffuseAlphaMode : public LLSelectedTEGetFunctor<U8>
+	{
+		LLSelectedTEGetDiffuseAlphaMode() : _isAlpha(false) {}
+		LLSelectedTEGetDiffuseAlphaMode(bool diffuse_texture_has_alpha) : _isAlpha(diffuse_texture_has_alpha) {}
+		virtual ~LLSelectedTEGetDiffuseAlphaMode() {}
+
+		U8 get(LLViewerObject* object, S32 face)
+		{
+			U8 diffuse_mode = _isAlpha ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
+
+			LLTextureEntry* tep = object->getTE(face);
+			if (tep)
+			{
+				LLMaterial* mat = tep->getMaterialParams().get();
+				mat = (tep->getMaterialID().isNull() ? NULL : mat);
+				if (mat)
+				{
+					diffuse_mode = mat->getDiffuseAlphaMode();
+				}
+			}
+			
+			return diffuse_mode;
+		}
+		bool _isAlpha; // whether or not the diffuse texture selected contains alpha information
+	} get_diff_mode(diffuse_texture_has_alpha);
+	identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &get_diff_mode, diffuse_alpha_mode);
+}
+
+static void getCurrentDiffuseAlphaMode(U8& diffuse_alpha_mode, bool& identical);
 
 void LLPanelFace::LLSelectedTE::getObjectScaleS(F32& scale_s, bool& identical)
 {	
