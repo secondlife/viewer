@@ -772,10 +772,6 @@ void LLPanelFace::updateUI()
 
 			// Normal map
 			LLSelectedTEMaterial::getNormalID(normmap_id, identical_norm);
-			if (bumpy != BUMPY_TEXTURE)
-			{
-				normmap_id = LLUUID::null;
-			}
 
 			mIsAlpha = FALSE;
 			LLGLenum image_format = GL_RGB;
@@ -2317,8 +2313,6 @@ void LLPanelFace::LLSelectedTEMaterial::getCurrentDiffuseAlphaMode(U8& diffuse_a
 	} get_diff_mode(diffuse_texture_has_alpha);
 	identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &get_diff_mode, diffuse_alpha_mode);
 }
-
-static void getCurrentDiffuseAlphaMode(U8& diffuse_alpha_mode, bool& identical);
 
 void LLPanelFace::LLSelectedTE::getObjectScaleS(F32& scale_s, bool& identical)
 {	
