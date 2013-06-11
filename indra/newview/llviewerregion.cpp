@@ -953,6 +953,8 @@ void LLViewerRegion::addToVOCacheTree(LLVOCacheEntry* entry)
 	{
 		return;
 	}
+	
+	llassert_always(!entry->getParentID() && !entry->getEntry()->hasDrawable());
 
 	mImpl->mVOCachePartition->addEntry(entry->getEntry());
 }
@@ -993,6 +995,11 @@ void LLViewerRegion::addVisibleCacheEntry(LLVOCacheEntry* entry)
 
 F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 {
+	if(mDead)
+	{
+		return max_time;
+	}
+
 	if(mImpl->mVisibleGroups.empty() && mImpl->mVisibleEntries.empty())
 	{
 		return max_time;
@@ -1100,6 +1107,10 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 
 F32 LLViewerRegion::createVisibleObjects(F32 max_time)
 {
+	if(mDead)
+	{
+		return max_time;
+	}
 	if(mImpl->mWaitingList.empty())
 	{
 		return max_time;
@@ -1120,8 +1131,7 @@ F32 LLViewerRegion::createVisibleObjects(F32 max_time)
 				break;
 			}
 		}
-	}
-	mImpl->mWaitingList.clear();
+	}	
 
 	return max_time - update_timer.getElapsedTimeF32();
 }
@@ -1156,6 +1166,7 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 	max_update_time = updateVisibleEntries(max_update_time);
 	createVisibleObjects(max_update_time);
 
+	mImpl->mWaitingList.clear();
 	mImpl->mVisibleGroups.clear();
 
 	return did_update;

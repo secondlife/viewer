@@ -133,7 +133,9 @@ void LLDrawable::init(bool new_entry)
 			getRegion()->addVisibleCacheEntry(vo_entry); //to load all children.
 		}
 	
-		getRegion()->addActiveCacheEntry(vo_entry);		
+		getRegion()->addActiveCacheEntry(vo_entry);
+
+		llassert_always(!vo_entry->getGroup()); //not in the object cache octree.
 	}
 	
 	llassert(!vo_entry || vo_entry->getEntry() == mEntry);
