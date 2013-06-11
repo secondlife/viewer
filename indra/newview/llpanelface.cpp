@@ -747,8 +747,15 @@ void LLPanelFace::updateUI()
 			LLUUID norm_map_id = getCurrentNormalMap();
 			LLCtrlSelectionInterface* combobox_bumpiness = childGetSelectionInterface("combobox bumpiness");
 			if (combobox_bumpiness)
-			{				
-				combobox_bumpiness->selectNthItem((S32)bumpy);
+			{
+				if ((bumpy == BUMPY_TEXTURE) && !norm_map_id.isNull())
+				{
+					combobox_bumpiness->selectNthItem((S32)BUMPY_TEXTURE);
+				}
+				else
+				{
+					combobox_bumpiness->selectNthItem((S32)((bumpy < BUMPY_TEXTURE) ? bumpy : 0));
+				}
 			}
 			else
 			{
@@ -1600,6 +1607,7 @@ void LLPanelFace::updateShinyControls(bool is_setting_texture, bool mess_with_sh
 			if (comboShiny->itemExists(USE_TEXTURE))
 			{
 				comboShiny->remove(SHINY_TEXTURE);
+				comboShiny->selectFirstItem();
 			}
 		}
 	}
@@ -1650,9 +1658,8 @@ void LLPanelFace::updateBumpyControls(bool is_setting_texture, bool mess_with_co
 		{
 			if (comboBumpy->itemExists(USE_TEXTURE))
 			{
-				// HACK: This depends on adding the "Use texture"
-				//	item at the end of a list of known length.
 				comboBumpy->remove(BUMPY_TEXTURE);
+				comboBumpy->selectFirstItem();
 			}
 		}
 	}
