@@ -7252,7 +7252,7 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
         
 		F32 rd = s1*t2-s2*t1;
 
-		float r = rd*rd > 0.f ? 1.0F / rd : 1024.f; //some made up large ratio for division by zero
+		float r = ((rd*rd) > FLT_EPSILON) ? 1.0F / rd : 1024.f; //some made up large ratio for division by zero
 
 		llassert(llfinite(r));
 		llassert(!llisnan(r));
@@ -7276,7 +7276,7 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
         LLVector4a n = normal[a];
 
 		const LLVector4a& t = tan1[a];
-        
+
 		llassert(tan1[a].getLength3().getF32() >= 0.f);
 		llassert(tan2[a].getLength3().getF32() >= 0.f);
 
