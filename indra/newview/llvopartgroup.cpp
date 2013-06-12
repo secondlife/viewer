@@ -411,14 +411,21 @@ void LLVOPartGroup::getGeometry(S32 idx,
 	LLVector4a right;
 
 	right.setCross3(at, up);
+	// guard against NaNs in normalize below
+	llassert(right.dot3(right).getF32() > F_APPROXIMATELY_ZERO);
 	right.normalize3fast();
+
 	up.setCross3(right, at);
+	// guard against NaNs in normalize below
+	llassert(up.dot3(up).getF32() > F_APPROXIMATELY_ZERO);
 	up.normalize3fast();
 
 	if (part.mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK)
 	{
 		LLVector4a normvel;
 		normvel.load3(part.mVelocity.mV);
+		// guard against NaNs in normalize below
+		llassert(normvel.dot3(normvel).getF32() > F_APPROXIMATELY_ZERO);
 		normvel.normalize3fast();
 		LLVector2 up_fracs;
 		up_fracs.mV[0] = normvel.dot3(right).getF32();
@@ -443,6 +450,9 @@ void LLVOPartGroup::getGeometry(S32 idx,
 
 		up = new_up;
 		right = t;
+		// guard against NaNs in normalize below
+		llassert(up.dot3(up).getF32() > F_APPROXIMATELY_ZERO);
+		llassert(right.dot3(right).getF32() > F_APPROXIMATELY_ZERO);
 		up.normalize3fast();
 		right.normalize3fast();
 	}

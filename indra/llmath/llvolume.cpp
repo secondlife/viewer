@@ -4472,6 +4472,9 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 					continue; //skip degenerate face
 				}
 
+				LLVector4a default_norm;
+				default_norm.set(0,1,0,1);
+
 				//for each edge
 				for (S32 k = 0; k < 3; k++) {
 					S32 index = face.mEdge[j*3+k];
@@ -4493,14 +4496,14 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 
 						norm_mat.rotate(n[v1], t);
 
-						t.normalize3fast();
+						t.normalize3fast_checked(&default_norm);
 						normals.push_back(LLVector3(t[0], t[1], t[2]));
 
 						mat.affineTransform(v[v2], t);
 						vertices.push_back(LLVector3(t[0], t[1], t[2]));
 						
 						norm_mat.rotate(n[v2], t);
-						t.normalize3fast();
+						t.normalize3fast_checked(&default_norm);
 						normals.push_back(LLVector3(t[0], t[1], t[2]));
 					}
 				}		
@@ -6096,6 +6099,9 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 	{
 		VertexData	corners[4];
 		VertexData baseVert;
+		LLVector4a default_norm;
+		default_norm.set(0,1,0,1);
+
 		for(S32 t = 0; t < 4; t++)
 		{
 			corners[t].getPosition().load3( mesh[offset + (grid_size*t)].mPos.mV);
@@ -6108,8 +6114,8 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 			lhs.setSub(corners[1].getPosition(), corners[0].getPosition());
 			LLVector4a rhs;
 			rhs.setSub(corners[2].getPosition(), corners[1].getPosition());
-			baseVert.getNormal().setCross3(lhs, rhs); 
-			baseVert.getNormal().normalize3fast();
+			baseVert.getNormal().setCross3(lhs, rhs);
+			baseVert.getNormal().normalize3fast_checked(&default_norm);
 		}
 
 		if(!(mTypeMask & TOP_MASK))
@@ -6559,17 +6565,12 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	d1.setSub(mPositions[mIndices[2]], mPositions[mIndices[0]]);
 
 	LLVector4a normal;
+	LLVector4a default_norm;
+	default_norm.set(0,1,0,1);
+
 	normal.setCross3(d0,d1);
-
-	if (normal.dot3(normal).getF32() > F_APPROXIMATELY_ZERO)
-	{
-		normal.normalize3fast();
-	}
-	else
-	{ //degenerate, make up a value
-		normal.set(0,0,1);
-	}
-
+	normal.normalize3fast_checked(&default_norm);
+	
 	llassert(llfinite(normal.getF32ptr()[0]));
 	llassert(llfinite(normal.getF32ptr()[1]));
 	llassert(llfinite(normal.getF32ptr()[2]));
@@ -6611,11 +6612,13 @@ void LLVolumeFace::createTangents()
 		CalculateTangentArray(mNumVertices, mPositions, mNormals, mTexCoords, mNumIndices/3, mIndices, mTangents);
 
 		//normalize tangents
+		LLVector4a default_norm;
+		default_norm.set(0,1,0,1);
 		for (U32 i = 0; i < mNumVertices; i++) 
 		{
 			//binorm[i].normalize3fast();
 			//bump map/planar projection code requires normals to be normalized
-			mNormals[i].normalize3fast();
+			mNormals[i].normalize3fast_checked(&default_norm);
 		}
 	}
 }
@@ -6793,6 +6796,9 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 	mat.loadu(mat_in);
 	norm_mat.loadu(norm_mat_in);
 
+	LLVector4a default_norm;
+	default_norm.set(0,1,0,1);
+
 	for (U32 i = 0; i < face.mNumVertices; ++i)
 	{
 		//transform appended face position and store
@@ -6800,7 +6806,7 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 
 		//transform appended face normal and store
 		norm_mat.rotate(src_norm[i], dst_norm[i]);
-		dst_norm[i].normalize3fast();
+		dst_norm[i].normalize3fast_checked(&default_norm);
 
 		//copy appended face texture coordinate
 		dst_tc[i] = src_tc[i];
@@ -7209,7 +7215,7 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	return TRUE;
 }
 
-#define TANGENTIAL_PARANOIA_ASSERTS 1
+#define TANGENTIAL_PARANOIA_ASSERTS 0
 
 #if TANGENTIAL_PARANOIA_ASSERTS
 	#define tangential_paranoia(a) llassert(a)
@@ -7289,47 +7295,28 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 
 	// These appear to come out of the summing above distinctly non-unit-length
 	//
+	LLVector4a default_norm;
+	default_norm.set(0,1,0,1);
+
 	for (U32 a = 0; a < vertexCount; a++)
 	{
-		// Conditioning required by assets which don't necessarily reference every vert index
-		// (i.e. some of the tangents can end up uninitialized and therefore indeterminate/INF)
-		// and protection against zero length vectors which are not handled by normalize3fast.
-		//
-		if (!tan1[a].isFinite3() || tan1[a].equals3(LLVector4a::getZero()))
-		{
-			tan1[a].set(0,0,1,1);
-		}
-		else
-		{
-			tan1[a].normalize3fast();	
-		}
+		tan1[a].normalize3fast_checked(&default_norm);
+		tan2[a].normalize3fast_checked(&default_norm);
 
-		if (!tan2[a].isFinite3() || tan2[a].equals3(LLVector4a::getZero()))
-		{
-			tan2[a].set(0,0,1,1);
-		}
-		else
-		{
-			tan2[a].normalize3fast();
-		}		
-
-		const F32 cefgw = 0.03f;
 		tangential_paranoia(tan1[a].isFinite3());
 		tangential_paranoia(tan2[a].isFinite3());		
-		tangential_paranoia(tan1[a].isNormalized3(cefgw));
-		tangential_paranoia(tan2[a].isNormalized3(cefgw));	
+		tangential_paranoia(tan1[a].isNormalized3(0.03f));
+		tangential_paranoia(tan2[a].isNormalized3(0.03f));	
 	}
+
+	LLVector4a default_tangent;
+	default_tangent.set(0,0,1,1);
 
    for (U32 a = 0; a < vertexCount; a++)
 	{
 		LLVector4a n = normal[a];
-
-		if (!n.isFinite3() || n.equals3(LLVector4a::getZero()))
-		{
-			n.set(0,1,0,1);
-		}
-
-		n.normalize3fast();
+		
+		n.normalize3fast_checked(&default_norm);
 
 		const LLVector4a& t = tan1[a];
 
@@ -7353,34 +7340,27 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 
 		tangential_paranoia(tsubn.isFinite3());
 
-		if (tsubn.dot3(tsubn).getF32() > F_APPROXIMATELY_ZERO)
-		{
-			tsubn.normalize3fast();
+		tsubn.normalize3fast_checked(&default_tangent);
 		
-			// Calculate handedness
-			F32 handedness = ncrosst.dot3(tan2[a]).getF32() < 0.f ? -1.f : 1.f;
+		// Calculate handedness
+		F32 handedness = ncrosst.dot3(tan2[a]).getF32() < 0.f ? -1.f : 1.f;
 		
-			tsubn.getF32ptr()[3] = handedness;
+		tsubn.getF32ptr()[3] = handedness;
 
-			tangent[a] = tsubn;
+		tangent[a] = tsubn;
 
-			tangential_paranoia(tangent[a].isNormalized3(0.1f));
+		tangential_paranoia(tangent[a].isNormalized3(0.1f));
 
-			llassert(llfinite(tangent[a].getF32ptr()[0]));
-			llassert(llfinite(tangent[a].getF32ptr()[1]));
-			llassert(llfinite(tangent[a].getF32ptr()[2]));
+		llassert(llfinite(tangent[a].getF32ptr()[0]));
+		llassert(llfinite(tangent[a].getF32ptr()[1]));
+		llassert(llfinite(tangent[a].getF32ptr()[2]));
 
-			llassert(!llisnan(tangent[a].getF32ptr()[0]));
-			llassert(!llisnan(tangent[a].getF32ptr()[1]));
-			llassert(!llisnan(tangent[a].getF32ptr()[2]));
-		}
-		else
-		{ //degenerate, make up a value
-			tangent[a].set(0,0,1,1);
-		}
+		llassert(!llisnan(tangent[a].getF32ptr()[0]));
+		llassert(!llisnan(tangent[a].getF32ptr()[1]));
+		llassert(!llisnan(tangent[a].getF32ptr()[2]));
     }
     
-	ll_aligned_free_16(tan1);
+	 ll_aligned_free_16(tan1);
 }
 
 

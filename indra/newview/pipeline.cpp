@@ -10569,11 +10569,13 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		LLVector4a left;
 		left.load3(camera.getLeftAxis().mV);
 		left.mul(left);
+		llassert(left.dot3(left).getF32() > F_APPROXIMATELY_ZERO);
 		left.normalize3fast();
 
 		LLVector4a up;
 		up.load3(camera.getUpAxis().mV);
 		up.mul(up);
+		llassert(up.dot3(up).getF32() > F_APPROXIMATELY_ZERO);
 		up.normalize3fast();
 
 		tdim.mV[0] = fabsf(half_height.dot3(left).getF32());

@@ -3751,7 +3751,8 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 						{
 							*normal = n;
 						}
-
+						// guard against NaNs in normalize below
+						llassert(normal->dot3(*normal).getF32() > F_APPROXIMATELY_ZERO);
 						(*normal).normalize3fast();
 					}
 
@@ -3774,6 +3775,8 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 						{
 							*tangent = tn;
 						}
+						// guard against NaNs in normalize below
+						llassert(tangent->dot3(*tangent).getF32() > F_APPROXIMATELY_ZERO);
 						(*tangent).normalize3fast();
 					}
 

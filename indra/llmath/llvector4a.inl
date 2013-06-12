@@ -410,8 +410,26 @@ inline LLSimdScalar LLVector4a::normalize3withLength()
 // Note that this does not consider zero length vectors!
 inline void LLVector4a::normalize3fast()
 {
-	// find out about bad math before it takes two man-days to track down
-	llassert(isFinite3() && !equals3(getZero()));
+	LLVector4a lenSqrd; lenSqrd.setAllDot3( *this, *this );
+	const LLQuad approxRsqrt = _mm_rsqrt_ps(lenSqrd.mQ);
+	mQ = _mm_mul_ps( mQ, approxRsqrt );
+}
+
+// Normalize this vector with respect to the x, y, and z components only. Accurate only to 10-12 bits of precision. W component is destroyed
+// Note that this does not consider zero length vectors!
+inline void LLVector4a::normalize3fast_checked(LLVector4a* default)
+{
+	// handle bogus inputs before NaNs are generated below
+	//
+	if (!isFinite3() || (dot3(*this).getF32() < F_APPROXIMATELY_ZERO))
+	{
+		if (default)
+			*this = *default;
+		else
+			set(0,1,0,1);
+
+		return;
+	}
 
 	LLVector4a lenSqrd; lenSqrd.setAllDot3( *this, *this );
 	const LLQuad approxRsqrt = _mm_rsqrt_ps(lenSqrd.mQ);
