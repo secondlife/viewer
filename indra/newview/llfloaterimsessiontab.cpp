@@ -270,6 +270,7 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mInputPanels = getChild<LLLayoutStack>("input_panels");
 	
 	mInputEditor->setTextExpandedCallback(boost::bind(&LLFloaterIMSessionTab::reshapeChatLayoutPanel, this));
+	mInputEditor->setMouseUpCallback(boost::bind(&LLFloaterIMSessionTab::onInputEditorClicked, this));
 	mInputEditor->setCommitOnFocusLost( FALSE );
 	mInputEditor->setPassDelete(TRUE);
 	mInputEditor->setFont(LLViewerChat::getChatFont());
@@ -397,6 +398,15 @@ void LLFloaterIMSessionTab::onFocusLost()
 {
 	setBackgroundOpaque(false);
 	LLTransientDockableFloater::onFocusLost();
+}
+
+void LLFloaterIMSessionTab::onInputEditorClicked()
+{
+	LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
+	if (im_box)
+	{
+		im_box->flashConversationItemWidget(mSessionID,false);
+	}
 }
 
 std::string LLFloaterIMSessionTab::appendTime()
