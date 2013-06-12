@@ -323,12 +323,12 @@ BOOL	LLFloaterIMNearbyChatToastPanel::handleMouseUp	(S32 x, S32 y, MASK mask)
 			return TRUE;
 		else
 		{
-			(LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->showHistory();
+			LLFloaterReg::toggleInstanceOrBringToFront("nearby_chat");
 			return FALSE;
 		}
 	}
 
-	(LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->showHistory();
+	LLFloaterReg::toggleInstanceOrBringToFront("nearby_chat");
 	return LLPanel::handleMouseUp(x,y,mask);
 }
 
