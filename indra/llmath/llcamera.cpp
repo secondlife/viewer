@@ -620,7 +620,7 @@ void LLCamera::calcRegionFrustumPlanes(const LLVector3& shift)
 		if (mPlaneMask[i] != 0xff)
 		{
 			n.setVec(mAgentPlanes[i][0], mAgentPlanes[i][1], mAgentPlanes[i][2]);
-			d = mAgentPlanes[i][3] - n * shift;
+			d = mAgentPlanes[i][3] + n * shift;
 			mRegionPlanes[i].setVec(n, d);
 		}
 	}
