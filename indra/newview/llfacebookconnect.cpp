@@ -35,19 +35,23 @@
 #include "llhttpclient.h"
 #include "llnotificationsutil.h"
 #include "llurlaction.h"
+#include "llimagepng.h"
 
 
 // Local function
-void prompt_user_for_error(U32 status, const std::string& reason)
+void prompt_user_for_error(U32 status, const std::string& reason, const std::string& code, const std::string& description)
 {
     // Note: 302 (redirect) is *not* an error that warrants prompting the user
     if (status != 302)
     {
         LLSD args(LLSD::emptyMap());
         std::stringstream msg;
-        msg << reason << " (Code " << status << ")";
-        args["FAIL_REASON"] = msg.str();
-        LLNotificationsUtil::add("FacebookCannotConnect",args);
+        msg << status;
+        args["STATUS"] = msg.str();
+		args["REASON"] = reason;
+		args["CODE"] = code;
+		args["DESCRIPTION"] = description;
+        LLNotificationsUtil::add("FacebookCannotConnect", args);
     }
 }
 
@@ -96,7 +100,7 @@ public:
 		}
 		else
 		{
-            prompt_user_for_error(status,reason);
+            prompt_user_for_error(status, reason, content.get("error_code"), content.get("error_description"));
             LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
 		}
 	}
@@ -113,10 +117,13 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-class LLFacebookPostResponder : public LLHTTPClient::Responder
+class LLFacebookShareResponder : public LLHTTPClient::Responder
 {
-	LOG_CLASS(LLFacebookPostResponder);
+	LOG_CLASS(LLFacebookShareResponder);
 public:
+    
+	LLFacebookShareResponder() {}
+	LLFacebookShareResponder(LLFacebookConnect::share_callback_t cb) : mShareCallback(cb) {}
     
 	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
@@ -126,8 +133,13 @@ public:
 		}
 		else
 		{
-            prompt_user_for_error(status,reason);
+            prompt_user_for_error(status, reason, content.get("error_code"), content.get("error_description"));
             LL_WARNS("FacebookConnect") << "Failed to get a post response. reason: " << reason << " status: " << status << LL_ENDL;
+		}
+		
+		if (mShareCallback)
+		{
+			mShareCallback(isGoodStatus(status));
 		}
 	}
     
@@ -139,6 +151,8 @@ public:
         }
     }
     
+private:
+	LLFacebookConnect::share_callback_t mShareCallback;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -160,7 +174,7 @@ public:
 		}
 		else
 		{
-            prompt_user_for_error(status,reason);
+            prompt_user_for_error(status, reason, content.get("error_code"), content.get("error_description"));
 			LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
 		}
 	}
@@ -196,7 +210,7 @@ public:
 			}
             else
             {
-                prompt_user_for_error(status,reason);
+				prompt_user_for_error(status, reason, content.get("error_code"), content.get("error_description"));
             }
 		}
 	}
@@ -221,7 +235,7 @@ public:
 		}
 		else
 		{
-            prompt_user_for_error(status,reason);
+            prompt_user_for_error(status, reason, content.get("error_code"), content.get("error_description"));
 			LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
 		}
 	}
@@ -314,27 +328,7 @@ void LLFacebookConnect::postCheckin(const std::string& location, const std::stri
 		body["message"] = message;
 
 	// Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::post(getFacebookConnectURL("/share/checkin"), body, new LLFacebookPostResponder());
-}
-
-void LLFacebookConnect::postCheckinMessage(const std::string& message, const std::string& link, const std::string& name, const std::string& caption, const std::string& description, const std::string& picture)
-{
-    LLSD body;
-	if (!message.empty())
-		body["message"] = message;
-	if (!link.empty())
-		body["link"] = link;
-	if (!name.empty())
-		body["name"] = name;
-	if (!caption.empty())
-		body["caption"] = caption;
-	if (!description.empty())
-		body["description"] = description;
-	if (!picture.empty())
-		body["picture"] = picture;
-    
-    // Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::post(getFacebookConnectURL("/share/wall"), body, new LLFacebookPostResponder());
+	LLHTTPClient::post(getFacebookConnectURL("/share/checkin"), body, new LLFacebookShareResponder(mPostCheckinCallback));
 }
 
 void LLFacebookConnect::sharePhoto(const std::string& image_url, const std::string& caption)
@@ -344,7 +338,52 @@ void LLFacebookConnect::sharePhoto(const std::string& image_url, const std::stri
 	body["caption"] = caption;
 	
     // Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::post(getFacebookConnectURL("/share/photo"), body, new LLFacebookPostResponder());
+	LLHTTPClient::post(getFacebookConnectURL("/share/photo"), body, new LLFacebookShareResponder());
+}
+
+void LLFacebookConnect::sharePhoto(LLPointer<LLImageFormatted> image, const std::string& caption)
+{
+	// All this code is mostly copied from LLWebProfile::post()
+	if (dynamic_cast<LLImagePNG*>(image.get()) == 0)
+	{
+		llwarns << "Image to upload is not a PNG" << llendl;
+		llassert(dynamic_cast<LLImagePNG*>(image.get()) != 0);
+		return;
+	}
+
+	const std::string boundary = "----------------------------0123abcdefab";
+
+	LLSD headers;
+	headers["Content-Type"] = "multipart/form-data; boundary=" + boundary;
+
+	std::ostringstream body;
+
+	// *NOTE: The order seems to matter.
+	body	<< "--" << boundary << "\r\n"
+			<< "Content-Disposition: form-data; name=\"caption\"\r\n\r\n"
+			<< caption << "\r\n";
+
+	body	<< "--" << boundary << "\r\n"
+			<< "Content-Disposition: form-data; name=\"image\"; filename=\"snapshot.png\"\r\n"
+			<< "Content-Type: image/png\r\n\r\n";
+
+	// Insert the image data.
+	// *FIX: Treating this as a string will probably screw it up ...
+	U8* image_data = image->getData();
+	for (S32 i = 0; i < image->getDataSize(); ++i)
+	{
+		body << image_data[i];
+	}
+
+	body <<	"\r\n--" << boundary << "--\r\n";
+
+	// postRaw() takes ownership of the buffer and releases it later.
+	size_t size = body.str().size();
+	U8 *data = new U8[size];
+	memcpy(data, body.str().data(), size);
+	
+    // Note: we can use that route for different publish action. We should be able to use the same responder.
+	LLHTTPClient::postRaw(getFacebookConnectURL("/share/photo"), data, size, new LLFacebookShareResponder(mSharePhotoCallback), headers);
 }
 
 void LLFacebookConnect::updateStatus(const std::string& message)
@@ -353,7 +392,7 @@ void LLFacebookConnect::updateStatus(const std::string& message)
 	body["message"] = message;
 	
     // Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::post(getFacebookConnectURL("/share/wall"), body, new LLFacebookPostResponder());
+	LLHTTPClient::post(getFacebookConnectURL("/share/wall"), body, new LLFacebookShareResponder(mUpdateStatusCallback));
 }
 
 void LLFacebookConnect::storeContent(const LLSD& content)

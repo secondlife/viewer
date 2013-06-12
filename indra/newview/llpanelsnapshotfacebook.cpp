@@ -39,6 +39,8 @@
 #include "llwebprofile.h"
 
 #include "llfacebookconnect.h"
+#include "llslurl.h"
+#include "llagentui.h"
 
 /**
  * Posts a snapshot to the resident Facebook account.
@@ -113,12 +115,19 @@ void LLPanelSnapshotFacebook::onSend()
 {
 	std::string caption = getChild<LLUICtrl>("caption")->getValue().asString();
 	bool add_location = getChild<LLUICtrl>("add_location_cb")->getValue().asBoolean();
-
-	LLWebProfile::uploadImage(LLFloaterSnapshot::getImageData(), caption, add_location, boost::bind(&LLPanelSnapshotFacebook::onImageUploaded, this, caption, _1));
+	
+	if (add_location)
+	{
+		LLSLURL slurl;
+		LLAgentUI::buildSLURL(slurl);
+		if (caption.empty())
+			caption = slurl.getSLURLString();
+		else
+			caption = caption + " " + slurl.getSLURLString();
+	}
+	LLFacebookConnect::instance().sharePhoto(LLFloaterSnapshot::getImageData(), caption);
+	//LLWebProfile::uploadImage(LLFloaterSnapshot::getImageData(), caption, add_location, boost::bind(&LLPanelSnapshotFacebook::onImageUploaded, this, caption, _1));
 	LLFloaterSnapshot::postSave();
-
-	// test with a placeholder image, until we can figure out a way to grab the uploaded image url
-	LLFacebookConnect::instance().sharePhoto("http://fc02.deviantart.net/fs43/i/2009/125/a/9/Future_of_Frog_by_axcho.jpg", caption);
 }
 
 void LLPanelSnapshotFacebook::onImageUploaded(const std::string& caption, const std::string& image_url)

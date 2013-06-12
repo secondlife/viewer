@@ -29,6 +29,7 @@
 #define LL_LLFACEBOOKCONNECT_H
 
 #include "llsingleton.h"
+#include "llimage.h"
 
 /**
  * @class LLFacebookConnect
@@ -40,6 +41,8 @@ class LLFacebookConnect : public LLSingleton<LLFacebookConnect>
 {
 	LOG_CLASS(LLFacebookConnect);
 public:
+	typedef boost::function<void(bool ok)> share_callback_t;
+
 	void connectToFacebook(const std::string& auth_code = "");
 	void disconnectFromFacebook();
 	void tryToReconnectToFacebook();
@@ -47,9 +50,13 @@ public:
     
     void loadFacebookFriends();
 	void postCheckin(const std::string& location, const std::string& name, const std::string& description, const std::string& picture, const std::string& message);
-    void postCheckinMessage(const std::string& message, const std::string& link, const std::string& name, const std::string& caption, const std::string& description, const std::string& picture);
-	void sharePhoto(const std::string& image_url, const std::string& caption);
+    void sharePhoto(const std::string& image_url, const std::string& caption);
+	void sharePhoto(LLPointer<LLImageFormatted> image, const std::string& caption);
 	void updateStatus(const std::string& message);
+	
+	void setPostCheckinCallback(share_callback_t cb) { mPostCheckinCallback = cb; }
+	void setSharePhotoCallback(share_callback_t cb) { mSharePhotoCallback = cb; }
+	void setUpdateStatusCallback(share_callback_t cb) { mUpdateStatusCallback = cb; }
 
     void clearContent();
 	void storeContent(const LLSD& content);
@@ -60,6 +67,7 @@ public:
     S32  generation() { return mGeneration; }
     
     void openFacebookWeb(std::string url);
+
 private:
 
 	friend class LLSingleton<LLFacebookConnect>;
@@ -71,6 +79,10 @@ private:
     bool mConnectedToFbc;
     LLSD mContent;
     S32  mGeneration;
+	
+	share_callback_t mPostCheckinCallback;
+	share_callback_t mSharePhotoCallback;
+	share_callback_t mUpdateStatusCallback;
 };
 
 #endif // LL_LLFACEBOOKCONNECT_H

@@ -2038,7 +2038,8 @@ BOOL LLFloaterSnapshot::postBuild()
 
 	getChild<LLUICtrl>("auto_snapshot_check")->setValue(gSavedSettings.getBOOL("AutoSnapshot"));
 	childSetCommitCallback("auto_snapshot_check", Impl::onClickAutoSnap, this);
-
+	
+	LLFacebookConnect::instance().setSharePhotoCallback(boost::bind(&LLFloaterSnapshot::Impl::onSnapshotUploadFinished, _1));
 	LLWebProfile::setImageUploadResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSnapshotUploadFinished, _1));
 	LLPostCard::setPostResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSendingPostcardFinished, _1));
 

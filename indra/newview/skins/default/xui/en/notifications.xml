@@ -5444,7 +5444,7 @@ Sorry, the settings couldn't be applied to the region.  Leaving the region and t
    icon="alertmodal.tga"
    name="FacebookCannotConnect"
    type="alertmodal">
-Connection to Facebook failed. Reason: [FAIL_REASON].
+Connection to Facebook failed. Reason: [STATUS] [REASON] ([CODE] - [DESCRIPTION])
     <usetemplate
      name="okbutton"
      yestext="OK"/>
