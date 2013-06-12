@@ -1040,6 +1040,7 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 	mDragCallback(NULL),
 	mDropCallback(NULL),
 	mOnCancelCallback(NULL),
+	mOnCloseCallback(NULL),
 	mOnSelectCallback(NULL),
 	mBorderColor( p.border_color() ),
 	mAllowNoTexture( FALSE ),
@@ -1296,6 +1297,10 @@ void LLTextureCtrl::onFloaterClose()
 
 	if (floaterp)
 	{
+		if (mOnCloseCallback)
+		{
+			mOnCloseCallback(this,LLSD());
+		}
 		floaterp->setOwner(NULL);
 	}
 

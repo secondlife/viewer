@@ -132,6 +132,8 @@ protected:
 	void 	onCancelColor(const LLSD& data);
 	void 	onSelectColor(const LLSD& data);
 
+	void 	onCloseTexturePicker(const LLSD& data);
+
 	// Make UI reflect state of currently selected material (refresh)
 	// and UI mode (e.g. editing normal map v diffuse map)
 	//
@@ -298,7 +300,7 @@ private:
 				if (tep)
 				{
 					material_ptr = tep->getMaterialParams();
-					if (!material_ptr.isNull() && !tep->getMaterialID().isNull())
+					if (!material_ptr.isNull())
 					{
 						ret = (material_ptr->*(MaterialGetFunc))();
 					}

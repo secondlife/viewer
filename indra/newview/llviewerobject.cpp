@@ -4389,17 +4389,7 @@ S32 LLViewerObject::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID
 							 << ", material " << pMaterialID
 							 << LL_ENDL;
 		retval = LLPrimitive::setTEMaterialID(te, pMaterialID);
-		if (retval)
-		{
-			// Kitty would like to know if this is necessary?
-			// Since we should get a setTEMaterialParams that does it anyway?
-			//
-			setChanged(TEXTURE);
-			if (mDrawable.notNull())
-			{
-				gPipeline.markTextured(mDrawable);
-			}
-		}
+		refreshMaterials();
 	}
 	return retval;
 }
@@ -4414,23 +4404,28 @@ S32 LLViewerObject::setTEMaterialParams(const U8 te, const LLMaterialPtr pMateri
 		return 0;
 	}
 
-		retval = LLPrimitive::setTEMaterialParams(te, pMaterialParams);
-		LL_DEBUGS("Material") << "Changing material params for te " << (S32)te
-							  << ", object " << mID
-			                  << " (" << retval << ")"
-							  << LL_ENDL;
-		setTENormalMap(te, (pMaterialParams) ? pMaterialParams->getNormalID() : LLUUID::null);
-		setTESpecularMap(te, (pMaterialParams) ? pMaterialParams->getSpecularID() : LLUUID::null);
+	retval = LLPrimitive::setTEMaterialParams(te, pMaterialParams);
+	LL_DEBUGS("Material") << "Changing material params for te " << (S32)te
+							<< ", object " << mID
+			               << " (" << retval << ")"
+							<< LL_ENDL;
+	setTENormalMap(te, (pMaterialParams) ? pMaterialParams->getNormalID() : LLUUID::null);
+	setTESpecularMap(te, (pMaterialParams) ? pMaterialParams->getSpecularID() : LLUUID::null);
 
-		setChanged(TEXTURE);
-		if (mDrawable.notNull())
-		{
-			gPipeline.markTextured(mDrawable);
-		}
-
+	refreshMaterials();
 	return retval;
 }
 
+void LLViewerObject::refreshMaterials()
+{
+	setChanged(ALL_CHANGED);
+	if (mDrawable.notNull())
+	{
+		gPipeline.markTextured(mDrawable);
+		gPipeline.markRebuild(mDrawable,LLDrawable::REBUILD_ALL);
+		dirtySpatialGroup(TRUE);
+	}
+}
 
 S32 LLViewerObject::setTEScale(const U8 te, const F32 s, const F32 t)
 {

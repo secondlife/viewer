@@ -171,6 +171,8 @@ BOOL	LLPanelFace::postBuild()
 		mTextureCtrl->setOnSelectCallback( boost::bind(&LLPanelFace::onSelectTexture, this, _2) );
 		mTextureCtrl->setDragCallback(boost::bind(&LLPanelFace::onDragTexture, this, _2));
 		mTextureCtrl->setOnTextureSelectedCallback(boost::bind(&LLPanelFace::onTextureSelectionChanged, this, _1));
+		mTextureCtrl->setOnCloseCallback( boost::bind(&LLPanelFace::onCloseTexturePicker, this, _2) );
+
 		mTextureCtrl->setFollowsTop();
 		mTextureCtrl->setFollowsLeft();
 		mTextureCtrl->setImmediateFilterPermMask(PERM_NONE);
@@ -184,6 +186,8 @@ BOOL	LLPanelFace::postBuild()
 		mShinyTextureCtrl->setCommitCallback( boost::bind(&LLPanelFace::onCommitSpecularTexture, this, _2) );
 		mShinyTextureCtrl->setOnCancelCallback( boost::bind(&LLPanelFace::onCancelSpecularTexture, this, _2) );
 		mShinyTextureCtrl->setOnSelectCallback( boost::bind(&LLPanelFace::onSelectSpecularTexture, this, _2) );
+		mShinyTextureCtrl->setOnCloseCallback( boost::bind(&LLPanelFace::onCloseTexturePicker, this, _2) );
+		
 		mShinyTextureCtrl->setDragCallback(boost::bind(&LLPanelFace::onDragTexture, this, _2));
 		mShinyTextureCtrl->setOnTextureSelectedCallback(boost::bind(&LLPanelFace::onTextureSelectionChanged, this, _1));
 		mShinyTextureCtrl->setFollowsTop();
@@ -200,6 +204,8 @@ BOOL	LLPanelFace::postBuild()
 		mBumpyTextureCtrl->setCommitCallback( boost::bind(&LLPanelFace::onCommitNormalTexture, this, _2) );
 		mBumpyTextureCtrl->setOnCancelCallback( boost::bind(&LLPanelFace::onCancelNormalTexture, this, _2) );
 		mBumpyTextureCtrl->setOnSelectCallback( boost::bind(&LLPanelFace::onSelectNormalTexture, this, _2) );
+		mBumpyTextureCtrl->setOnCloseCallback( boost::bind(&LLPanelFace::onCloseTexturePicker, this, _2) );
+
 		mBumpyTextureCtrl->setDragCallback(boost::bind(&LLPanelFace::onDragTexture, this, _2));
 		mBumpyTextureCtrl->setOnTextureSelectedCallback(boost::bind(&LLPanelFace::onTextureSelectionChanged, this, _1));
 		mBumpyTextureCtrl->setFollowsTop();
@@ -832,7 +838,7 @@ void LLPanelFace::updateUI()
 
 			updateAlphaControls();
 			
-			if(texture_ctrl && !texture_ctrl->isPickerShown())
+			if(texture_ctrl)
 			{
 				if (identical_diffuse)
 				{
@@ -892,7 +898,7 @@ void LLPanelFace::updateUI()
 				}
          }
 
-         if (bumpytexture_ctrl && !bumpytexture_ctrl->isPickerShown())
+         if (bumpytexture_ctrl)
          {
 				if (identical_norm && (bumpy == BUMPY_TEXTURE))
 				{
@@ -1796,6 +1802,12 @@ void LLPanelFace::onSelectTexture(const LLSD& data)
 	LLSelectedTEMaterial::setDiffuseAlphaMode(this, getCurrentDiffuseAlphaMode());
 }
 
+void LLPanelFace::onCloseTexturePicker(const LLSD& data)
+{
+	LL_DEBUGS("Materials") << data << LL_ENDL;
+	updateUI();
+}
+
 void LLPanelFace::onCommitSpecularTexture( const LLSD& data )
 {
 	LL_DEBUGS("Materials") << data << LL_ENDL;
@@ -1805,7 +1817,7 @@ void LLPanelFace::onCommitSpecularTexture( const LLSD& data )
 void LLPanelFace::onCommitNormalTexture( const LLSD& data )
 {
 	LL_DEBUGS("Materials") << data << LL_ENDL;
-	sendBump(getCurrentNormalMap().isNull() ? 0 : BUMPY_TEXTURE);
+	sendBump(BUMPY_TEXTURE);
 }
 
 void LLPanelFace::onCancelSpecularTexture(const LLSD& data)

@@ -324,6 +324,12 @@ public:
 	/*virtual*/ S32     setTEGlow(const U8 te, const F32 glow);
 	/*virtual*/ S32     setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
 	/*virtual*/ S32		setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams);
+
+	// Used by Materials update functions to properly kick off rebuilds
+	// of VBs etc when materials updates require changes.
+	//
+	void refreshMaterials();
+
 	/*virtual*/	BOOL	setMaterial(const U8 material);
 	virtual		void	setTEImage(const U8 te, LLViewerTexture *imagep); // Not derived from LLPrimitive
 	virtual     void    changeTEImage(S32 index, LLViewerTexture* new_image)  ;

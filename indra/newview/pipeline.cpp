@@ -1724,10 +1724,10 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 	{
 		return LLDrawPool::POOL_ALPHA;
 	}
-	else if ((te->getBumpmap() || te->getShiny()) && te->getMaterialID().isNull())
+	else if ((te->getBumpmap() || te->getShiny()) && !te->getMaterialParams().isNull())
 	{
 		return LLDrawPool::POOL_BUMP;
-	} else if (!te->getMaterialID().isNull() && !alpha)
+	} else if (!te->getMaterialParams().isNull() && !alpha)
 	{
 		return LLDrawPool::POOL_MATERIALS;
 	}

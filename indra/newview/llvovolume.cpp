@@ -2002,10 +2002,11 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 	{
 		LLMaterialMgr::instance().getTE(getRegion()->getRegionID(), pMaterialID, te, boost::bind(&LLVOVolume::setTEMaterialParamsCallbackTE, getID(), _1, _2, _3));
 
-		setChanged(TEXTURE);
+		setChanged(ALL_CHANGED);
 		if (!mDrawable.isNull())
 		{
 			gPipeline.markTextured(mDrawable);
+			gPipeline.markRebuild(mDrawable,LLDrawable::REBUILD_ALL);
 		}
 		mFaceMappingChanged = TRUE;
 	}
@@ -2018,10 +2019,11 @@ S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialPa
 	LL_DEBUGS("MaterialTEs") << "te " << (S32)te << " material " << ((pMaterialParams) ? pMaterialParams->asLLSD() : LLSD("null")) << " res " << res
 							 << ( LLSelectMgr::getInstance()->getSelection()->contains(const_cast<LLVOVolume*>(this), te) ? " selected" : " not selected" )
 							 << LL_ENDL;
-	setChanged(TEXTURE);
+	setChanged(ALL_CHANGED);
 	if (!mDrawable.isNull())
 	{
 		gPipeline.markTextured(mDrawable);
+		gPipeline.markRebuild(mDrawable,LLDrawable::REBUILD_ALL);
 	}
 	mFaceMappingChanged = TRUE;
 	return TEM_CHANGE_TEXTURE;
@@ -4114,8 +4116,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	LLMaterial* mat = facep->getTextureEntry()->getMaterialParams().get(); 
 	LLMaterialID mat_id = facep->getTextureEntry()->getMaterialID();
 
-	mat = mat_id.isNull() ? NULL : mat;
-
 	bool batchable = false;
 
 	U32 shader_mask = 0xFFFFFFFF; //no shader
@@ -4546,7 +4546,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 
 						LLMaterial* mat = te->getMaterialParams().get();
-						mat = te->getMaterialID().isNull() ? NULL : mat;
 
 						if (mat && LLPipeline::sRenderDeferred)
 						{
@@ -4766,7 +4765,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						if (gPipeline.canUseWindLightShadersOnObjects()
 							&& LLPipeline::sRenderBump)
 						{
-							if (LLPipeline::sRenderDeferred && te->getMaterialParams().notNull() && !te->getMaterialID().isNull())
+							if (LLPipeline::sRenderDeferred && te->getMaterialParams().notNull())
 							{
 								LLMaterial* mat = te->getMaterialParams().get();
 								if (mat->getNormalID().notNull())
@@ -5342,8 +5341,6 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			BOOL is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) ? TRUE : FALSE;
 		
 			LLMaterial* mat = te->getMaterialParams().get();
-
-			mat = te->getMaterialID().isNull() ? NULL : mat;
 
 			bool can_be_shiny = true;
 			if (mat)

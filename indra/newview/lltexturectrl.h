@@ -178,7 +178,7 @@ public:
 	void setDropCallback(drag_n_drop_callback cb)	{ mDropCallback = cb; }
 	
 	void setOnCancelCallback(commit_callback_t cb)	{ mOnCancelCallback = cb; }
-	
+	void setOnCloseCallback(commit_callback_t cb)	{ mOnCloseCallback = cb; }
 	void setOnSelectCallback(commit_callback_t cb)	{ mOnSelectCallback = cb; }
 
 	/*
@@ -199,6 +199,7 @@ private:
 	drag_n_drop_callback	 	mDropCallback;
 	commit_callback_t		 	mOnCancelCallback;
 	commit_callback_t		 	mOnSelectCallback;
+	commit_callback_t		 	mOnCloseCallback;
 	texture_selected_callback	mOnTextureSelectedCallback;
 	LLPointer<LLViewerFetchedTexture> mTexturep;
 	LLUIColor				 	mBorderColor;
