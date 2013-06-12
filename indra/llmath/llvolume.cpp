@@ -7209,46 +7209,53 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	return TRUE;
 }
 
+#define TANGENTIAL_PARANOIA_ASSERTS 1
+
+#if TANGENTIAL_PARANOIA_ASSERTS
+	#define tangential_paranoia(a) llassert(a)
+#else
+	#define tangential_paranoia(a)
+#endif
+
 //adapted from Lengyel, Eric. “Computing Tangent Space Basis Vectors for an Arbitrary Mesh”. Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
 void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
         const LLVector2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent)
 {
-    //LLVector4a *tan1 = new LLVector4a[vertexCount * 2];
 	LLVector4a* tan1 = (LLVector4a*) ll_aligned_malloc_16(vertexCount*2*sizeof(LLVector4a));
 
-    LLVector4a* tan2 = tan1 + vertexCount;
+   LLVector4a* tan2 = tan1 + vertexCount;
 
 	memset(tan1, 0, vertexCount*2*sizeof(LLVector4a));
         
-    for (U32 a = 0; a < triangleCount; a++)
-    {
-        U32 i1 = *index_array++;
-        U32 i2 = *index_array++;
-        U32 i3 = *index_array++;
+   for (U32 a = 0; a < triangleCount; a++)
+   {
+      U32 i1 = *index_array++;
+      U32 i2 = *index_array++;
+      U32 i3 = *index_array++;
         
-        const LLVector4a& v1 = vertex[i1];
-        const LLVector4a& v2 = vertex[i2];
-        const LLVector4a& v3 = vertex[i3];
+      const LLVector4a& v1 = vertex[i1];
+      const LLVector4a& v2 = vertex[i2];
+      const LLVector4a& v3 = vertex[i3];
         
-        const LLVector2& w1 = texcoord[i1];
-        const LLVector2& w2 = texcoord[i2];
-        const LLVector2& w3 = texcoord[i3];
+      const LLVector2& w1 = texcoord[i1];
+      const LLVector2& w2 = texcoord[i2];
+      const LLVector2& w3 = texcoord[i3];
         
 		const F32* v1ptr = v1.getF32ptr();
 		const F32* v2ptr = v2.getF32ptr();
 		const F32* v3ptr = v3.getF32ptr();
 		
-        float x1 = v2ptr[0] - v1ptr[0];
-        float x2 = v3ptr[0] - v1ptr[0];
-        float y1 = v2ptr[1] - v1ptr[1];
-        float y2 = v3ptr[1] - v1ptr[1];
-        float z1 = v2ptr[2] - v1ptr[2];
-        float z2 = v3ptr[2] - v1ptr[2];
+      float x1 = v2ptr[0] - v1ptr[0];
+      float x2 = v3ptr[0] - v1ptr[0];
+      float y1 = v2ptr[1] - v1ptr[1];
+      float y2 = v3ptr[1] - v1ptr[1];
+      float z1 = v2ptr[2] - v1ptr[2];
+      float z2 = v3ptr[2] - v1ptr[2];
         
-        float s1 = w2.mV[0] - w1.mV[0];
-        float s2 = w3.mV[0] - w1.mV[0];
-        float t1 = w2.mV[1] - w1.mV[1];
-        float t2 = w3.mV[1] - w1.mV[1];
+      float s1 = w2.mV[0] - w1.mV[0];
+      float s2 = w3.mV[0] - w1.mV[0];
+      float t1 = w2.mV[1] - w1.mV[1];
+      float t2 = w3.mV[1] - w1.mV[1];
         
 		F32 rd = s1*t2-s2*t1;
 
@@ -7262,18 +7269,67 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 		LLVector4a tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r,
 				(s1 * z2 - s2 * z1) * r);
         
+		
 		tan1[i1].add(sdir);
 		tan1[i2].add(sdir);
 		tan1[i3].add(sdir);
-        
+      
+		tangential_paranoia(tan1[i1].isFinite3());
+		tangential_paranoia(tan1[i2].isFinite3());
+		tangential_paranoia(tan1[i3].isFinite3());
+
 		tan2[i1].add(tdir);
 		tan2[i2].add(tdir);
 		tan2[i3].add(tdir);
-    }
-    
-    for (U32 a = 0; a < vertexCount; a++)
-    {
-        LLVector4a n = normal[a];
+
+		tangential_paranoia(tan2[i1].isFinite3());
+		tangential_paranoia(tan2[i2].isFinite3());
+		tangential_paranoia(tan2[i3].isFinite3());
+   }
+
+	// These appear to come out of the summing above distinctly non-unit-length
+	//
+	for (U32 a = 0; a < vertexCount; a++)
+	{
+		// Conditioning required by assets which don't necessarily reference every vert index
+		// (i.e. some of the tangents can end up uninitialized and therefore indeterminate/INF)
+		// and protection against zero length vectors which are not handled by normalize3fast.
+		//
+		if (!tan1[a].isFinite3() || tan1[a].equals3(LLVector4a::getZero()))
+		{
+			tan1[a].set(0,0,1,1);
+		}
+		else
+		{
+			tan1[a].normalize3fast();	
+		}
+
+		if (!tan2[a].isFinite3() || tan2[a].equals3(LLVector4a::getZero()))
+		{
+			tan2[a].set(0,0,1,1);
+		}
+		else
+		{
+			tan2[a].normalize3fast();
+		}		
+
+		const F32 cefgw = 0.03f;
+		tangential_paranoia(tan1[a].isFinite3());
+		tangential_paranoia(tan2[a].isFinite3());		
+		tangential_paranoia(tan1[a].isNormalized3(cefgw));
+		tangential_paranoia(tan2[a].isNormalized3(cefgw));	
+	}
+
+   for (U32 a = 0; a < vertexCount; a++)
+	{
+		LLVector4a n = normal[a];
+
+		if (!n.isFinite3() || n.equals3(LLVector4a::getZero()))
+		{
+			n.set(0,1,0,1);
+		}
+
+		n.normalize3fast();
 
 		const LLVector4a& t = tan1[a];
 
@@ -7283,11 +7339,19 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 		LLVector4a ncrosst;
 		ncrosst.setCross3(n,t);
 
-        // Gram-Schmidt orthogonalize
-        n.mul(n.dot3(t).getF32());
+		F32 n_dot_t = n.dot3(t).getF32();
+
+		tangential_paranoia(llfinite(n_dot_t) && !llisnan(n_dot_t));
+
+		// Gram-Schmidt orthogonalize
+      n.mul(n_dot_t);
+
+		tangential_paranoia(n.isFinite3());
 
 		LLVector4a tsubn;
 		tsubn.setSub(t,n);
+
+		tangential_paranoia(tsubn.isFinite3());
 
 		if (tsubn.dot3(tsubn).getF32() > F_APPROXIMATELY_ZERO)
 		{
@@ -7299,6 +7363,8 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 			tsubn.getF32ptr()[3] = handedness;
 
 			tangent[a] = tsubn;
+
+			tangential_paranoia(tangent[a].isNormalized3(0.1f));
 
 			llassert(llfinite(tangent[a].getF32ptr()[0]));
 			llassert(llfinite(tangent[a].getF32ptr()[1]));
