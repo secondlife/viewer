@@ -331,9 +331,6 @@ inline LLSimdScalar LLVector4a::dot4(const LLVector4a& b) const
 // Note that this does not consider zero length vectors!
 inline void LLVector4a::normalize3()
 {
-	// find out about bad math before it takes two man-days to track down
-	llassert(isFinite3() && !equals3(getZero()));
-
 	// lenSqrd = a dot a
 	LLVector4a lenSqrd; lenSqrd.setAllDot3( *this, *this );
 	// rsqrt = approximate reciprocal square (i.e., { ~1/len(a)^2, ~1/len(a)^2, ~1/len(a)^2, ~1/len(a)^2 }
@@ -382,9 +379,6 @@ inline void LLVector4a::normalize4()
 // Note that this does not consider zero length vectors!
 inline LLSimdScalar LLVector4a::normalize3withLength()
 {
-	// find out about bad math before it takes two man-days to track down
-	llassert(isFinite3() && !equals3(getZero()));
-
 	// lenSqrd = a dot a
 	LLVector4a lenSqrd; lenSqrd.setAllDot3( *this, *this );
 	// rsqrt = approximate reciprocal square (i.e., { ~1/len(a)^2, ~1/len(a)^2, ~1/len(a)^2, ~1/len(a)^2 }
@@ -410,27 +404,6 @@ inline LLSimdScalar LLVector4a::normalize3withLength()
 // Note that this does not consider zero length vectors!
 inline void LLVector4a::normalize3fast()
 {
-	LLVector4a lenSqrd; lenSqrd.setAllDot3( *this, *this );
-	const LLQuad approxRsqrt = _mm_rsqrt_ps(lenSqrd.mQ);
-	mQ = _mm_mul_ps( mQ, approxRsqrt );
-}
-
-// Normalize this vector with respect to the x, y, and z components only. Accurate only to 10-12 bits of precision. W component is destroyed
-// Note that this does not consider zero length vectors!
-inline void LLVector4a::normalize3fast_checked(LLVector4a* default)
-{
-	// handle bogus inputs before NaNs are generated below
-	//
-	if (!isFinite3() || (dot3(*this).getF32() < F_APPROXIMATELY_ZERO))
-	{
-		if (default)
-			*this = *default;
-		else
-			set(0,1,0,1);
-
-		return;
-	}
-
 	LLVector4a lenSqrd; lenSqrd.setAllDot3( *this, *this );
 	const LLQuad approxRsqrt = _mm_rsqrt_ps(lenSqrd.mQ);
 	mQ = _mm_mul_ps( mQ, approxRsqrt );
