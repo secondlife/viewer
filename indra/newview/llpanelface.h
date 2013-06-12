@@ -300,7 +300,7 @@ private:
 				if (tep)
 				{
 					material_ptr = tep->getMaterialParams();
-					if (!material_ptr.isNull() && !tep->getMaterialID().isNull())
+					if (!material_ptr.isNull())
 					{
 						ret = (material_ptr->*(MaterialGetFunc))();
 					}

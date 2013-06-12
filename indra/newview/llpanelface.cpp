@@ -1817,7 +1817,8 @@ void LLPanelFace::onCommitSpecularTexture( const LLSD& data )
 void LLPanelFace::onCommitNormalTexture( const LLSD& data )
 {
 	LL_DEBUGS("Materials") << data << LL_ENDL;
-	sendBump(BUMPY_TEXTURE);
+	LLUUID nmap_id = getCurrentNormalMap();
+	sendBump(nmap_id.isNull() ? 0 : BUMPY_TEXTURE);
 }
 
 void LLPanelFace::onCancelSpecularTexture(const LLSD& data)
@@ -1847,7 +1848,8 @@ void LLPanelFace::onSelectSpecularTexture(const LLSD& data)
 void LLPanelFace::onSelectNormalTexture(const LLSD& data)
 {
 	LL_DEBUGS("Materials") << data << LL_ENDL;
-	sendBump(BUMPY_TEXTURE);
+	LLUUID nmap_id = getCurrentNormalMap();
+	sendBump(nmap_id.isNull() ? 0 : BUMPY_TEXTURE);
 }
 
 //static
