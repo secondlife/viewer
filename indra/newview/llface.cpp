@@ -942,9 +942,7 @@ LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, const LLVector4a& po
 		LLVector4a volume_normal;
 		LLVector3 v_normal(normal.getF32ptr());
 		volume_normal.load3(mDrawablep->getVOVolume()->agentDirectionToVolume(v_normal).mV);
-		LLVector4a default_norm;
-		default_norm.set(0,1,0,1);
-		volume_normal.normalize3fast_checked(&default_norm);
+		volume_normal.normalize3fast();
 		
 		if (texgen == LLTextureEntry::TEX_GEN_PLANAR)
 		{
@@ -1917,9 +1915,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							binormal.load3(t.mV);
 						}
 
-						LLVector4a default_binorm;
-						default_binorm.set(1,0,0,1);
-						binormal.normalize3fast_checked(&default_binorm);
+						binormal.normalize3fast();
 
 						LLVector2 tc = bump_tc[i];
 						tc += LLVector2( bump_s_primary_light_ray.dot3(tangent).getF32(), bump_t_primary_light_ray.dot3(binormal).getF32() );
@@ -2007,13 +2003,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			LLFastTimer t(FTM_FACE_GEOM_NORMAL);
 			mVertexBuffer->getNormalStrider(norm, mGeomIndex, mGeomCount, map_range);
 			F32* normals = (F32*) norm.get();
-			LLVector4a default_norm;
-			default_norm.set(0,1,0,1);
 			for (S32 i = 0; i < num_vertices; i++)
 			{	
 				LLVector4a normal;
 				mat_normal.rotate(vf.mNormals[i], normal);
-				normal.normalize3fast_checked(&default_norm);
+				normal.normalize3fast();
 				normal.store4a(normals);
 				normals += 4;
 			}
@@ -2036,14 +2030,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			mask.clear();
 			mask.setElement<3>();
 
-			LLVector4a default_tangent;
-			default_tangent.set(0,0,1,1);
-
 			for (S32 i = 0; i < num_vertices; i++)
 			{
 				LLVector4a tangent_out;
 				mat_normal.rotate(vf.mTangents[i], tangent_out);
-				tangent_out.normalize3fast_checked(&default_tangent);
+				tangent_out.normalize3fast();
 				tangent_out.setSelectWithMask(mask, vf.mTangents[i], tangent_out);
 				tangent_out.store4a(tangents);
 				
@@ -2258,10 +2249,7 @@ BOOL LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 		dist *= 16.f;
 	}
 
-	LLVector4a default_lookat;
-	default_lookat.set(0,0,1,1);
-
-	lookAt.normalize3fast_checked(&default_lookat);	
+	lookAt.normalize3fast();	
 
 	//get area of circle around node
 	F32 app_angle = atanf((F32) sqrt(size_squared) / dist);

@@ -568,12 +568,6 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 
 		F32 *maskWeightArray = (mVertMask) ? mVertMask->getMorphMaskWeights() : NULL;
 
-		LLVector4a default_norm;
-		LLVector4a default_binorm;
-
-		default_norm.set(0,1,0,1);
-		default_binorm.set(1,0,0,1);
-
 		for(U32 vert_index_morph = 0; vert_index_morph < mMorphData->mNumIndices; vert_index_morph++)
 		{
 			S32 vert_index_mesh = mMorphData->mVertexIndices[vert_index_morph];
@@ -606,7 +600,7 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 
 			// guard against degenerate input data before we create NaNs below!
 			//
-			norm.normalize3fast_checked(&default_norm);
+			norm.normalize3fast();
 			normals[vert_index_mesh] = norm;
 
 			// calculate new binormals
@@ -626,7 +620,7 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 			LLVector4a& normalized_binormal = binormals[vert_index_mesh];
 
 			normalized_binormal.setCross3(norm, tangent); 			
-			normalized_binormal.normalize3fast_checked(&default_binorm);
+			normalized_binormal.normalize3fast();
 
 			tex_coords[vert_index_mesh] += mMorphData->mTexCoords[vert_index_morph] * delta_weight * maskWeight;
 		}

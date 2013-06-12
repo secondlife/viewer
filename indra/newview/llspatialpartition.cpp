@@ -1259,15 +1259,12 @@ F32 LLSpatialPartition::calcDistance(LLSpatialGroup* group, LLCamera& camera)
 
 	F32 dist = 0.f;
 
-	LLVector4a default_eyevec;
-	default_eyevec.set(0,0,1,1);
-
 	if (group->mDrawMap.find(LLRenderPass::PASS_ALPHA) != group->mDrawMap.end())
 	{
 		LLVector4a v = eye;
 
 		dist = eye.getLength3().getF32();
-		eye.normalize3fast_checked(&default_eyevec);
+		eye.normalize3fast();
 
 		if (!group->isState(LLSpatialGroup::ALPHA_DIRTY))
 		{
