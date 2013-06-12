@@ -4115,6 +4115,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	LLMaterial* mat = facep->getTextureEntry()->getMaterialParams().get(); 
 	LLMaterialID mat_id = facep->getTextureEntry()->getMaterialID();
 
+	mat = mat_id.isNull() ? NULL : mat;
+
 	bool batchable = false;
 
 	U32 shader_mask = 0xFFFFFFFF; //no shader
@@ -4545,6 +4547,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 
 						LLMaterial* mat = te->getMaterialParams().get();
+						mat = te->getMaterialID().isNull() ? NULL : mat;
 
 						if (mat && LLPipeline::sRenderDeferred)
 						{
@@ -4764,7 +4767,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						if (gPipeline.canUseWindLightShadersOnObjects()
 							&& LLPipeline::sRenderBump)
 						{
-							if (LLPipeline::sRenderDeferred && te->getMaterialParams().notNull())
+							if (LLPipeline::sRenderDeferred && te->getMaterialParams().notNull()  && !te->getMaterialID().isNull())
 							{
 								LLMaterial* mat = te->getMaterialParams().get();
 								if (mat->getNormalID().notNull())
@@ -5340,6 +5343,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			BOOL is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) ? TRUE : FALSE;
 		
 			LLMaterial* mat = te->getMaterialParams().get();
+			mat = te->getMaterialID().isNull() ? NULL : mat;
 
 			bool can_be_shiny = true;
 			if (mat)
