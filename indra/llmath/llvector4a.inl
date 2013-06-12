@@ -417,14 +417,14 @@ inline void LLVector4a::normalize3fast()
 
 // Normalize this vector with respect to the x, y, and z components only. Accurate only to 10-12 bits of precision. W component is destroyed
 // Note that this does not consider zero length vectors!
-inline void LLVector4a::normalize3fast_checked(LLVector4a* default)
+inline void LLVector4a::normalize3fast_checked(LLVector4a* d)
 {
 	// handle bogus inputs before NaNs are generated below
 	//
 	if (!isFinite3() || (dot3(*this).getF32() < F_APPROXIMATELY_ZERO))
 	{
-		if (default)
-			*this = *default;
+		if (d)
+			*this = *d;
 		else
 			set(0,1,0,1);
 
