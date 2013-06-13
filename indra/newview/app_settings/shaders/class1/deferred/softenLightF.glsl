@@ -340,7 +340,7 @@ void main()
 		ambient *= ambient;
 		ambient = (1.0-ambient);
 
-		//col.rgb *= ambient;
+		col.rgb *= ambient;
 
 		col += atmosAffectDirectionalLight(max(min(da, 1.0) * 2.8, 0.0));
 	
