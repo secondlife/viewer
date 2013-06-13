@@ -7299,14 +7299,6 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 			tsubn.getF32ptr()[3] = handedness;
 
 			tangent[a] = tsubn;
-
-			llassert(llfinite(tangent[a].getF32ptr()[0]));
-			llassert(llfinite(tangent[a].getF32ptr()[1]));
-			llassert(llfinite(tangent[a].getF32ptr()[2]));
-
-			llassert(!llisnan(tangent[a].getF32ptr()[0]));
-			llassert(!llisnan(tangent[a].getF32ptr()[1]));
-			llassert(!llisnan(tangent[a].getF32ptr()[2]));
 		}
 		else
 		{ //degenerate, make up a value
