@@ -327,6 +327,7 @@ void main()
 	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
 
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
+	
 	vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
 	vec3 col;
 	float bloom = 0.0;
@@ -339,9 +340,9 @@ void main()
 		ambient *= ambient;
 		ambient = (1.0-ambient);
 
-		col.rgb *= ambient;
+		//col.rgb *= ambient;
 
-		col += atmosAffectDirectionalLight(max(min(da, 1.0) * 2.6, 0.0));
+		col += atmosAffectDirectionalLight(max(min(da, 1.0) * 2.8, 0.0));
 	
 		col *= diffuse.rgb;
 	
@@ -362,23 +363,20 @@ void main()
 		}
 		
 		
-		col = mix(col.rgb, pow(diffuse.rgb, vec3(1.0/2.2)), diffuse.a);
-		
-		
+		col = mix(col.rgb, diffuse.rgb, diffuse.a);
+				
 		if (envIntensity > 0.0)
 		{ //add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
 			
-			float exponent = mix(2.2, 1.0, diffuse.a);
-			vec3 refcol = pow(textureCube(environmentMap, env_vec).rgb, vec3(exponent))*exponent;
+			
+			vec3 refcol = textureCube(environmentMap, env_vec).rgb;
 
-			col = mix(col.rgb, refcol, 
+			col = mix(pow(col.rgb, vec3(1.0/2.2)), refcol, 
 				envIntensity);  
 
+			col = pow(col, vec3(2.2));
 		}
-
-		float exponent = mix(1.0, 2.2, diffuse.a);
-		col = pow(col, vec3(exponent));
 				
 		if (norm.w < 0.5)
 		{
@@ -389,7 +387,7 @@ void main()
 		//col = vec3(1,0,1);
 		//col.g = envIntensity;
 	}
-	
+
 	frag_color.rgb = col;
 
 	frag_color.a = bloom;
