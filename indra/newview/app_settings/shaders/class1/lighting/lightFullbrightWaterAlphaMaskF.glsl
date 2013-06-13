@@ -31,7 +31,7 @@ out vec4 frag_color;
 
 uniform float minimum_alpha;
 
-vec4 diffuseLookup(vec2 texcoord);
+/* vec4 diffuseLookup(vec2 texcoord); */
 
 vec3 fullbrightAtmosTransport(vec3 light);
 vec4 applyWaterFog(vec4 color);

@@ -39,6 +39,9 @@ sys.path.insert(0, os.path.join(mydir, os.pardir, os.pardir, "lib", "python"))
 from indra.util.fastest_elementtree import parse as xml_parse
 from indra.base import llsd
 from testrunner import freeport, run, debug, VERBOSE
+import time
+
+_storage=None
 
 class TestHTTPRequestHandler(BaseHTTPRequestHandler):
     """This subclass of BaseHTTPRequestHandler is to receive and echo
@@ -90,21 +93,14 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
         # Read the provided POST data.
         self.answer(self.read_xml())
 
+    def do_PUT(self):
+        # Read the provided PUT data.
+        self.answer(self.read_xml())
+
     def answer(self, data, withdata=True):
+        global _storage
         debug("%s.answer(%s): self.path = %r", self.__class__.__name__, data, self.path)
-        if "fail" not in self.path:
-            data = data.copy()          # we're going to modify
-            # Ensure there's a "reply" key in data, even if there wasn't before
-            data["reply"] = data.get("reply", llsd.LLSD("success"))
-            response = llsd.format_xml(data)
-            debug("success: %s", response)
-            self.send_response(200)
-            self.send_header("Content-type", "application/llsd+xml")
-            self.send_header("Content-Length", str(len(response)))
-            self.end_headers()
-            if withdata:
-                self.wfile.write(response)
-        else:                           # fail requested
+        if "fail" in self.path or "test/error" in self.path: # fail requested
             status = data.get("status", 500)
             # self.responses maps an int status to a (short, long) pair of
             # strings. We want the longer string. That's why we pass a string
@@ -117,6 +113,30 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
                                                    "without providing a reason" % status))[1])
             debug("fail requested: %s: %r", status, reason)
             self.send_error(status, reason)
+        else:
+            if "web/echo" in self.path:
+                pass
+            elif "test/timeout" in self.path:
+                time.sleep(5.0)
+                return
+            elif "test/storage" in self.path:
+                if "GET" == self.command:
+                    data = _storage
+                else:
+                    _storage = data
+                    data = "ok"
+            else:
+                data = data.copy()          # we're going to modify
+                # Ensure there's a "reply" key in data, even if there wasn't before
+                data["reply"] = data.get("reply", llsd.LLSD("success"))
+            response = llsd.format_xml(data)
+            debug("success: %s", response)
+            self.send_response(200)
+            self.send_header("Content-type", "application/llsd+xml")
+            self.send_header("Content-Length", str(len(response)))
+            self.end_headers()
+            if withdata:
+                self.wfile.write(response)
 
     if not VERBOSE:
         # When VERBOSE is set, skip both these overrides because they exist to

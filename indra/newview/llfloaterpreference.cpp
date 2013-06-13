@@ -558,7 +558,7 @@ void LLFloaterPreference::apply()
 	
 	LLViewerMedia::setCookiesEnabled(getChild<LLUICtrl>("cookies_enabled")->getValue());
 	
-	if (hasChild("web_proxy_enabled") &&hasChild("web_proxy_editor") && hasChild("web_proxy_port"))
+	if (hasChild("web_proxy_enabled", TRUE) &&hasChild("web_proxy_editor", TRUE) && hasChild("web_proxy_port", TRUE))
 	{
 		bool proxy_enable = getChild<LLUICtrl>("web_proxy_enabled")->getValue();
 		std::string proxy_address = getChild<LLUICtrl>("web_proxy_editor")->getValue();
@@ -1582,7 +1582,7 @@ void LLFloaterPreference::onUpdateSliderText(LLUICtrl* ctrl, const LLSD& name)
 {
 	std::string ctrl_name = name.asString();
 	
-	if ((ctrl_name =="" )|| !hasChild(ctrl_name, true))
+	if ((ctrl_name =="" )|| !hasChild(ctrl_name, TRUE))
 		return;
 	
 	LLTextBox* text_box = getChild<LLTextBox>(name.asString());
@@ -1819,7 +1819,7 @@ LLPanelPreference::LLPanelPreference()
 BOOL LLPanelPreference::postBuild()
 {
 	////////////////////// PanelGeneral ///////////////////
-	if (hasChild("display_names_check"))
+	if (hasChild("display_names_check", TRUE))
 	{
 		BOOL use_people_api = gSavedSettings.getBOOL("UsePeopleAPI");
 		LLCheckBoxCtrl* ctrl_display_name = getChild<LLCheckBoxCtrl>("display_names_check");
@@ -1831,7 +1831,7 @@ BOOL LLPanelPreference::postBuild()
 	}
 
 	////////////////////// PanelVoice ///////////////////
-	if (hasChild("voice_unavailable"))
+	if (hasChild("voice_unavailable", TRUE))
 	{
 		BOOL voice_disabled = gSavedSettings.getBOOL("CmdLineDisableVoice");
 		getChildView("voice_unavailable")->setVisible( voice_disabled);
@@ -1840,7 +1840,7 @@ BOOL LLPanelPreference::postBuild()
 	
 	//////////////////////PanelSkins ///////////////////
 	
-	if (hasChild("skin_selection"))
+	if (hasChild("skin_selection", TRUE))
 	{
 		LLFloaterPreference::refreshSkin(this);
 
@@ -1854,28 +1854,28 @@ BOOL LLPanelPreference::postBuild()
 	}
 
 	//////////////////////PanelPrivacy ///////////////////
-	if (hasChild("media_enabled"))
+	if (hasChild("media_enabled", TRUE))
 	{
 		bool media_enabled = gSavedSettings.getBOOL("AudioStreamingMedia");
 		
 		getChild<LLCheckBoxCtrl>("media_enabled")->set(media_enabled);
 		getChild<LLCheckBoxCtrl>("autoplay_enabled")->setEnabled(media_enabled);
 	}
-	if (hasChild("music_enabled"))
+	if (hasChild("music_enabled", TRUE))
 	{
 		getChild<LLCheckBoxCtrl>("music_enabled")->set(gSavedSettings.getBOOL("AudioStreamingMusic"));
 	}
-	if (hasChild("voice_call_friends_only_check"))
+	if (hasChild("voice_call_friends_only_check", TRUE))
 	{
 		getChild<LLCheckBoxCtrl>("voice_call_friends_only_check")->setCommitCallback(boost::bind(&showFriendsOnlyWarning, _1, _2));
 	}
-	if (hasChild("favorites_on_login_check"))
+	if (hasChild("favorites_on_login_check", TRUE))
 	{
 		getChild<LLCheckBoxCtrl>("favorites_on_login_check")->setCommitCallback(boost::bind(&showFavoritesOnLoginWarning, _1, _2));
 	}
 
 	//////////////////////PanelAdvanced ///////////////////
-	if (hasChild("modifier_combo"))
+	if (hasChild("modifier_combo", TRUE))
 	{
 		//localizing if push2talk button is set to middle mouse
 		if (MIDDLE_MOUSE_CV == getChild<LLUICtrl>("modifier_combo")->getValue().asString())
@@ -1885,7 +1885,7 @@ BOOL LLPanelPreference::postBuild()
 	}
 
 	//////////////////////PanelSetup ///////////////////
-	if (hasChild("max_bandwidth"))
+	if (hasChild("max_bandwidth"), TRUE)
 	{
 		mBandWidthUpdater = new LLPanelPreference::Updater(boost::bind(&handleBandwidthChanged, _1), BANDWIDTH_UPDATER_TIMEOUT);
 		gSavedSettings.getControl("ThrottleBandwidthKBPS")->getSignal()->connect(boost::bind(&LLPanelPreference::Updater::update, mBandWidthUpdater, _2));

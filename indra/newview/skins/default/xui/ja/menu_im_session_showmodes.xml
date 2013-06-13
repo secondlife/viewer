@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_modes">
+	<menu_item_check label="簡略表示" name="compact_view"/>
+	<menu_item_check label="詳細表示" name="expanded_view"/>
+	<menu_item_check label="時間を表示" name="IMShowTime"/>
+	<menu_item_check label="1対1の会話で名前を表示" name="IMShowNamesForP2PConv"/>
+</toggleable_menu>

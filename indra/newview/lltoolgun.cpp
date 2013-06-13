@@ -42,7 +42,7 @@
 #include "llhudmanager.h"
 #include "lltoolmgr.h"
 #include "lltoolgrab.h"
-
+#include "lluiimage.h"
 // Linden library includes
 #include "llwindow.h"			// setMouseClipping()
 

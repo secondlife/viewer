@@ -39,7 +39,12 @@
 #include "llerror.h"
 #include "stringize.h"
 
-LLCoros::LLCoros()
+LLCoros::LLCoros():
+    // MAINT-2724: default coroutine stack size too small on Windows.
+    // Previously we used
+    // boost::context::guarded_stack_allocator::default_stacksize();
+    // empirically this is 64KB on Windows and Linux. Try quadrupling.
+    mStackSize(256*1024)
 {
     // Register our cleanup() method for "mainloop" ticks
     LLEventPumps::instance().obtain("mainloop").listen(
@@ -115,7 +120,7 @@ std::string LLCoros::getNameByID(const void* self_id) const
     // passed to us comes.
     for (CoroMap::const_iterator mi(mCoros.begin()), mend(mCoros.end()); mi != mend; ++mi)
     {
-        namespace coro_private = boost::coroutines::detail;
+        namespace coro_private = boost::dcoroutines::detail;
         if (static_cast<void*>(coro_private::coroutine_accessor::get_impl(const_cast<coro&>(*mi->second)).get())
             == self_id)
         {
@@ -123,6 +128,12 @@ std::string LLCoros::getNameByID(const void* self_id) const
         }
     }
     return "";
+}
+
+void LLCoros::setStackSize(S32 stacksize)
+{
+    LL_INFOS("LLCoros") << "Setting coroutine stack size to " << stacksize << LL_ENDL;
+    mStackSize = stacksize;
 }
 
 /*****************************************************************************

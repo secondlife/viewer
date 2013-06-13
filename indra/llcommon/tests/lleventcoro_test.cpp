@@ -64,10 +64,10 @@
 // Boost.Coroutine #include is the *first* #include of the platform header.
 // That means that client code must generally #include Boost.Coroutine headers
 // before anything else.
-#include <boost/coroutine/coroutine.hpp>
+#include <boost/dcoroutine/coroutine.hpp>
 // Normally, lleventcoro.h obviates future.hpp. We only include this because
 // we implement a "by hand" test of future functionality.
-#include <boost/coroutine/future.hpp>
+#include <boost/dcoroutine/future.hpp>
 #include <boost/bind.hpp>
 #include <boost/range.hpp>
 
@@ -78,6 +78,7 @@
 
 #include "../test/lltut.h"
 #include "llsd.h"
+#include "llsdutil.h"
 #include "llevents.h"
 #include "tests/wrapllerrs.h"
 #include "stringize.h"
@@ -87,7 +88,7 @@
 /*****************************************************************************
 *   from the banana.cpp example program borrowed for test<1>()
 *****************************************************************************/
-namespace coroutines = boost::coroutines;
+namespace coroutines = boost::dcoroutines;
 using coroutines::coroutine;
 
 template<typename Iter>
@@ -108,7 +109,7 @@ match_substring(BidirectionalIterator begin,
 		BidirectionalIterator end, 
 		std::string xmatch,
 		BOOST_DEDUCED_TYPENAME coroutine<BidirectionalIterator(void)>::self& self) { 
-  BidirectionalIterator begin_ = begin;
+//BidirectionalIterator begin_ = begin;
   for(; begin != end; ++begin) 
     if(match(begin, end, xmatch)) {
       self.yield(begin);
@@ -122,7 +123,7 @@ typedef coroutine<std::string::iterator(void)> match_coroutine_type;
 *   Test helpers
 *****************************************************************************/
 // I suspect this will be typical of coroutines used in Linden software
-typedef boost::coroutines::coroutine<void()> coroutine_type;
+typedef boost::dcoroutines::coroutine<void()> coroutine_type;
 
 /// Simulate an event API whose response is immediate: sent on receipt of the
 /// initial request, rather than after some delay. This is the case that
@@ -173,10 +174,10 @@ namespace tut
                 // ... do whatever preliminary stuff must happen ...
 
                 // declare the future
-                boost::coroutines::future<LLSD> future(self);
+                boost::dcoroutines::future<LLSD> future(self);
                 // tell the future what to wait for
                 LLTempBoundListener connection(
-                    LLEventPumps::instance().obtain("source").listen("coro", voidlistener(boost::coroutines::make_callback(future))));
+                    LLEventPumps::instance().obtain("source").listen("coro", voidlistener(boost::dcoroutines::make_callback(future))));
                 ensure("Not yet", ! future);
                 // attempting to dereference ("resolve") the future causes the calling
                 // coroutine to wait for it
@@ -213,7 +214,7 @@ namespace tut
             BEGIN
             {
                 result = postAndWait(self,
-                                     LLSD().insert("value", 17), // request event
+                                     LLSDMap("value", 17),       // request event
                                      immediateAPI.getPump(),     // requestPump
                                      "reply1",                   // replyPump
                                      "reply");                   // request["reply"] = name
@@ -226,7 +227,7 @@ namespace tut
             BEGIN
             {
                 LLEventWithID pair = ::postAndWait2(self,
-                                                    LLSD().insert("value", 18),
+                                                    LLSDMap("value", 18),
                                                     immediateAPI.getPump(),
                                                     "reply2",
                                                     "error2",
@@ -244,7 +245,7 @@ namespace tut
             BEGIN
             {
                 LLEventWithID pair = ::postAndWait2(self,
-                                                    LLSD().insert("value", 18).insert("fail", LLSD()),
+                                                    LLSDMap("value", 18)("fail", LLSD()),
                                                     immediateAPI.getPump(),
                                                     "reply2",
                                                     "error2",
@@ -273,7 +274,7 @@ namespace tut
             BEGIN
             {
                 LLCoroEventPump waiter;
-                result = waiter.postAndWait(self, LLSD().insert("value", 17),
+                result = waiter.postAndWait(self, LLSDMap("value", 17),
                                             immediateAPI.getPump(), "reply");
             }
             END
@@ -365,7 +366,7 @@ namespace tut
             BEGIN
             {
                 LLCoroEventPumps waiter;
-                LLEventWithID pair(waiter.postAndWait(self, LLSD().insert("value", 23),
+                LLEventWithID pair(waiter.postAndWait(self, LLSDMap("value", 23),
                                                       immediateAPI.getPump(), "reply", "error"));
                 result = pair.first;
                 which  = pair.second;
@@ -379,7 +380,7 @@ namespace tut
             {
                 LLCoroEventPumps waiter;
                 LLEventWithID pair(
-                    waiter.postAndWait(self, LLSD().insert("value", 23).insert("fail", LLSD()),
+                    waiter.postAndWait(self, LLSDMap("value", 23)("fail", LLSD()),
                                        immediateAPI.getPump(), "reply", "error"));
                 result = pair.first;
                 which  = pair.second;
@@ -392,7 +393,7 @@ namespace tut
             BEGIN
             {
                 LLCoroEventPumps waiter;
-                result = waiter.postAndWaitWithException(self, LLSD().insert("value", 8),
+                result = waiter.postAndWaitWithException(self, LLSDMap("value", 8),
                                                          immediateAPI.getPump(), "reply", "error");
             }
             END
@@ -406,7 +407,7 @@ namespace tut
                 try
                 {
                     result = waiter.postAndWaitWithException(self,
-                        LLSD().insert("value", 9).insert("fail", LLSD()),
+                        LLSDMap("value", 9)("fail", LLSD()),
                         immediateAPI.getPump(), "reply", "error");
                     debug("no exception");
                 }
@@ -424,7 +425,7 @@ namespace tut
             BEGIN
             {
                 LLCoroEventPumps waiter;
-                result = waiter.postAndWaitWithLog(self, LLSD().insert("value", 30),
+                result = waiter.postAndWaitWithLog(self, LLSDMap("value", 30),
                                                    immediateAPI.getPump(), "reply", "error");
             }
             END
@@ -439,7 +440,7 @@ namespace tut
                 try
                 {
                     result = waiter.postAndWaitWithLog(self,
-                        LLSD().insert("value", 31).insert("fail", LLSD()),
+                        LLSDMap("value", 31)("fail", LLSD()),
                         immediateAPI.getPump(), "reply", "error");
                     debug("no exception");
                 }
@@ -796,4 +797,18 @@ namespace tut
         ensure("no result", result.isUndefined());
         ensure_contains("got error", threw, "32");
     }
+}
+
+/*==========================================================================*|
+#include <boost/context/guarded_stack_allocator.hpp>
+
+namespace tut
+{
+    template<> template<>
+    void object::test<23>()
+    {
+        set_test_name("stacksize");
+        std::cout << "default_stacksize: " << boost::context::guarded_stack_allocator::default_stacksize() << '\n';
+    }
 } // namespace tut
+|*==========================================================================*/
