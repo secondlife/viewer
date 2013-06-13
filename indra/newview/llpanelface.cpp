@@ -1941,7 +1941,7 @@ void LLPanelFace::onCommitMaterialBumpyRot(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	llassert_always(self);
-	LLSelectedTEMaterial::setNormalRotation(self,self->getCurrentBumpyRot());
+	LLSelectedTEMaterial::setNormalRotation(self,self->getCurrentBumpyRot() * DEG_TO_RAD);
 }
 
 //static
@@ -1949,7 +1949,7 @@ void LLPanelFace::onCommitMaterialShinyRot(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	llassert_always(self);
-	LLSelectedTEMaterial::setSpecularRotation(self,self->getCurrentShinyRot());
+	LLSelectedTEMaterial::setSpecularRotation(self,self->getCurrentShinyRot() * DEG_TO_RAD);
 }
 
 //static
