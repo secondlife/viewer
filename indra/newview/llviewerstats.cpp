@@ -290,13 +290,13 @@ F32		gAveLandCompression = 0.f,
 		gWorstLandCompression = 0.f, 
 		gWorstWaterCompression = 0.f;
 
-LLUnit<LLUnits::Bytes, U32>		gTotalWorldData = 0, 
+LLUnit<U32, LLUnits::Bytes>		gTotalWorldData = 0, 
 						gTotalObjectData = 0, 
 						gTotalTextureData = 0;
 U32						gSimPingCount = 0;
-LLUnit<LLUnits::Bits, U32>		gObjectData = 0;
+LLUnit<U32, LLUnits::Bits>		gObjectData = 0;
 F32		gAvgSimPing = 0.f;
-LLUnit<LLUnits::Bytes, U32>		gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY] = {0};
+LLUnit<U32, LLUnits::Bytes>		gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY] = {0};
 
 extern U32  gVisCompared;
 extern U32  gVisTested;
@@ -334,8 +334,8 @@ void update_statistics()
 
 	typedef LLInstanceTracker<LLTrace::TraceType<LLTrace::TimeBlockAccumulator>, std::string> trace_type_t;
 
-	LLUnit<LLUnits::Seconds, F64> idle_secs = last_frame_recording.getSum(*trace_type_t::getInstance("Idle"));
-	LLUnit<LLUnits::Seconds, F64> network_secs = last_frame_recording.getSum(*trace_type_t::getInstance("Network"));
+	LLUnit<F64, LLUnits::Seconds> idle_secs = last_frame_recording.getSum(*trace_type_t::getInstance("Idle"));
+	LLUnit<F64, LLUnits::Seconds> network_secs = last_frame_recording.getSum(*trace_type_t::getInstance("Network"));
 
 	record(LLStatViewer::FRAME_STACKTIME, last_frame_recording.getSum(*trace_type_t::getInstance("Frame")));
 	record(LLStatViewer::UPDATE_STACKTIME, idle_secs - network_secs);

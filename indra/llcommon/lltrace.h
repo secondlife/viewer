@@ -44,27 +44,27 @@ namespace LLTrace
 {
 class Recording;
 
-typedef LLUnit<LLUnits::Bytes, F64>			Bytes;
-typedef LLUnit<LLUnits::Kibibytes, F64>		Kibibytes;
-typedef LLUnit<LLUnits::Mibibytes, F64>		Mibibytes;
-typedef LLUnit<LLUnits::Gibibytes, F64>		Gibibytes;
-typedef LLUnit<LLUnits::Bits, F64>			Bits;
-typedef LLUnit<LLUnits::Kibibits, F64>		Kibibits;
-typedef LLUnit<LLUnits::Mibibits, F64>		Mibibits;
-typedef LLUnit<LLUnits::Gibibits, F64>		Gibibits;
+typedef LLUnit<F64, LLUnits::Bytes>			Bytes;
+typedef LLUnit<F64, LLUnits::Kibibytes>		Kibibytes;
+typedef LLUnit<F64, LLUnits::Mibibytes>		Mibibytes;
+typedef LLUnit<F64, LLUnits::Gibibytes>		Gibibytes;
+typedef LLUnit<F64, LLUnits::Bits>			Bits;
+typedef LLUnit<F64, LLUnits::Kibibits>		Kibibits;
+typedef LLUnit<F64, LLUnits::Mibibits>		Mibibits;
+typedef LLUnit<F64, LLUnits::Gibibits>		Gibibits;
 
-typedef LLUnit<LLUnits::Seconds, F64>		Seconds;
-typedef LLUnit<LLUnits::Milliseconds, F64>	Milliseconds;
-typedef LLUnit<LLUnits::Minutes, F64>		Minutes;
-typedef LLUnit<LLUnits::Hours, F64>			Hours;
-typedef LLUnit<LLUnits::Milliseconds, F64>	Milliseconds;
-typedef LLUnit<LLUnits::Microseconds, F64>	Microseconds;
-typedef LLUnit<LLUnits::Nanoseconds, F64>	Nanoseconds;
+typedef LLUnit<F64, LLUnits::Seconds>		Seconds;
+typedef LLUnit<F64, LLUnits::Milliseconds>	Milliseconds;
+typedef LLUnit<F64, LLUnits::Minutes>		Minutes;
+typedef LLUnit<F64, LLUnits::Hours>			Hours;
+typedef LLUnit<F64, LLUnits::Milliseconds>	Milliseconds;
+typedef LLUnit<F64, LLUnits::Microseconds>	Microseconds;
+typedef LLUnit<F64, LLUnits::Nanoseconds>	Nanoseconds;
 
-typedef LLUnit<LLUnits::Meters, F64>		Meters;
-typedef LLUnit<LLUnits::Kilometers, F64>	Kilometers;
-typedef LLUnit<LLUnits::Centimeters, F64>	Centimeters;
-typedef LLUnit<LLUnits::Millimeters, F64>	Millimeters;
+typedef LLUnit<F64, LLUnits::Meters>		Meters;
+typedef LLUnit<F64, LLUnits::Kilometers>	Kilometers;
+typedef LLUnit<F64, LLUnits::Centimeters>	Centimeters;
+typedef LLUnit<F64, LLUnits::Millimeters>	Millimeters;
 
 void init();
 void cleanup();
@@ -217,6 +217,11 @@ public:
 
 	size_t size() const
 	{
+		return getNumIndices();
+	}
+
+	static size_t getNumIndices() 
+	{
 		return sNextStorageSlot;
 	}
 
@@ -263,6 +268,7 @@ public:
 	}
 
 	size_t getIndex() const { return mAccumulatorIndex; }
+	static size_t getNumIndices() { return AccumulatorBuffer<ACCUMULATOR>::getNumIndices(); }
 
 	virtual const char* getUnitLabel() { return ""; }
 
@@ -408,8 +414,8 @@ public:
 
 	void sample(F64 value)
 	{
-		LLUnitImplicit<LLUnits::Seconds, F64> time_stamp = LLTimer::getTotalSeconds();
-		LLUnitImplicit<LLUnits::Seconds, F64> delta_time = time_stamp - mLastSampleTimeStamp;
+		LLUnitImplicit<F64, LLUnits::Seconds> time_stamp = LLTimer::getTotalSeconds();
+		LLUnitImplicit<F64, LLUnits::Seconds> delta_time = time_stamp - mLastSampleTimeStamp;
 		mLastSampleTimeStamp = time_stamp;
 
 		if (mHasValue)
@@ -498,8 +504,8 @@ public:
 
 	void flush()
 	{
-		LLUnitImplicit<LLUnits::Seconds, F64> time_stamp = LLTimer::getTotalSeconds();
-		LLUnitImplicit<LLUnits::Seconds, F64> delta_time = time_stamp - mLastSampleTimeStamp;
+		LLUnitImplicit<F64, LLUnits::Seconds> time_stamp = LLTimer::getTotalSeconds();
+		LLUnitImplicit<F64, LLUnits::Seconds> delta_time = time_stamp - mLastSampleTimeStamp;
 
 		if (mHasValue)
 		{
@@ -528,7 +534,7 @@ private:
 	F64	mMean,
 		mVarianceSum;
 
-	LLUnitImplicit<LLUnits::Seconds, F64>	mLastSampleTimeStamp,
+	LLUnitImplicit<F64, LLUnits::Seconds>	mLastSampleTimeStamp,
 											mTotalSamplingTime;
 
 	U32	mNumSamples;
@@ -578,8 +584,8 @@ private:
 class TimeBlockAccumulator
 {
 public:
-	typedef LLUnit<LLUnits::Seconds, F64> value_t;
-	typedef LLUnit<LLUnits::Seconds, F64> mean_t;
+	typedef LLUnit<F64, LLUnits::Seconds> value_t;
+	typedef LLUnit<F64, LLUnits::Seconds> mean_t;
 	typedef TimeBlockAccumulator self_t;
 
 	// fake classes that allows us to view different facets of underlying statistic
@@ -591,8 +597,8 @@ public:
 
 	struct SelfTimeFacet
 	{
-		typedef LLUnit<LLUnits::Seconds, F64> value_t;
-		typedef LLUnit<LLUnits::Seconds, F64> mean_t;
+		typedef LLUnit<F64, LLUnits::Seconds> value_t;
+		typedef LLUnit<F64, LLUnits::Seconds> mean_t;
 	};
 
 	TimeBlockAccumulator();
@@ -672,7 +678,7 @@ template<typename T, typename VALUE_T>
 void record(EventStatHandle<T>& measurement, VALUE_T value)
 {
 	T converted_value(value);
-	measurement.getPrimaryAccumulator()->record(LLUnits::rawValue(converted_value));
+	measurement.getPrimaryAccumulator()->record(LLUnits::storageValue(converted_value));
 }
 
 template <typename T = F64>
@@ -694,7 +700,7 @@ template<typename T, typename VALUE_T>
 void sample(SampleStatHandle<T>& measurement, VALUE_T value)
 {
 	T converted_value(value);
-	measurement.getPrimaryAccumulator()->sample(LLUnits::rawValue(converted_value));
+	measurement.getPrimaryAccumulator()->sample(LLUnits::storageValue(converted_value));
 }
 
 template <typename T = F64>
@@ -716,7 +722,7 @@ template<typename T, typename VALUE_T>
 void add(CountStatHandle<T>& count, VALUE_T value)
 {
 	T converted_value(value);
-	count.getPrimaryAccumulator()->add(LLUnits::rawValue(converted_value));
+	count.getPrimaryAccumulator()->add(LLUnits::storageValue(converted_value));
 }
 
 
@@ -739,8 +745,8 @@ struct MemStatAccumulator
 
 	struct ChildMemFacet
 	{
-		typedef LLUnit<LLUnits::Bytes, F64> value_t;
-		typedef LLUnit<LLUnits::Bytes, F64> mean_t;
+		typedef LLUnit<F64, LLUnits::Bytes> value_t;
+		typedef LLUnit<F64, LLUnits::Bytes> mean_t;
 	};
 
 	MemStatAccumulator()

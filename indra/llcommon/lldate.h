@@ -59,7 +59,7 @@ public:
 	 *
 	 * @param seconds_since_epoch The number of seconds since UTC epoch.
 	 */
-	LLDate(LLUnit<LLUnits::Seconds, F64> seconds_since_epoch);
+	LLDate(LLUnit<F64, LLUnits::Seconds> seconds_since_epoch);
 
 	/** 
 	 * @brief Construct a date from a string representation

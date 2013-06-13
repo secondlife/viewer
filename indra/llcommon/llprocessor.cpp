@@ -875,7 +875,7 @@ LLProcessorInfo::LLProcessorInfo() : mImpl(NULL)
 
 
 LLProcessorInfo::~LLProcessorInfo() {}
-LLUnitImplicit<LLUnits::Megahertz, F64> LLProcessorInfo::getCPUFrequency() const { return mImpl->getCPUFrequency(); }
+LLUnitImplicit<F64, LLUnits::Megahertz> LLProcessorInfo::getCPUFrequency() const { return mImpl->getCPUFrequency(); }
 bool LLProcessorInfo::hasSSE() const { return mImpl->hasSSE(); }
 bool LLProcessorInfo::hasSSE2() const { return mImpl->hasSSE2(); }
 bool LLProcessorInfo::hasAltivec() const { return mImpl->hasAltivec(); }

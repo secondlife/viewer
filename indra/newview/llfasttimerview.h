@@ -31,6 +31,7 @@
 #include "llfasttimer.h"
 #include "llunit.h"
 #include "lltracerecording.h"
+#include <deque>
 
 class LLFastTimerView : public LLFloater
 {
@@ -60,13 +61,11 @@ public:
 	virtual BOOL handleToolTip(S32 x, S32 y, MASK mask);
 	virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual void draw();
-
+	virtual void onOpen(const LLSD& key);
 	LLTrace::TimeBlock* getLegendID(S32 y);
 
-protected:
-	virtual	void	onClickCloseBtn();
-
 private:	
+	virtual	void	onClickCloseBtn();
 	void drawTicks();
 	void drawLineGraph();
 	void drawLegend(S32 y);
@@ -87,47 +86,53 @@ private:
 			mStartFraction(0.f),
 			mEndFraction(1.f)
 		{}
-		S32			mWidth;
-		S32			mSelfWidth;
-		LLRect		mVisibleRect,
-					mChildrenRect;
-		LLColor4	mColor;
-		bool		mVisible;
-		F32			mStartFraction,
-					mEndFraction;
+		S32					mWidth;
+		S32					mSelfWidth;
+		LLRect				mVisibleRect,
+							mChildrenRect;
+		LLTrace::TimeBlock* mTimeBlock;
+		bool				mVisible;
+		F32					mStartFraction,
+							mEndFraction;
 	};
-	S32 updateTimerBarWidths(LLTrace::TimeBlock* time_block, std::vector<TimerBar>& bars, S32 history_index, bool visible);
-	S32 updateTimerBarFractions(LLTrace::TimeBlock* time_block, S32 timer_bar_index, std::vector<TimerBar>& bars);
-	S32 drawBar(LLTrace::TimeBlock* time_block, LLRect bar_rect, std::vector<TimerBar>& bars, S32 bar_index, LLPointer<LLUIImage>& bar_image);
+
+	struct TimerBarRow
+	{
+		S32						mBottom;
+		std::vector<TimerBar>	mBars;
+	};
+
+	S32 updateTimerBarWidths(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 history_index, bool visible = true);
+	S32 updateTimerBarFractions(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 timer_bar_index = 0);
+	S32 drawBar(LLTrace::TimeBlock* time_block, LLRect bar_rect, TimerBarRow& row, S32 image_width, S32 image_height, bool hovered, S32 bar_index = 0);
 	void setPauseState(bool pause_state);
 
-	std::vector<TimerBar>* mTimerBars;
-	S32 mDisplayMode;
+	std::deque<TimerBarRow> mTimerBarRows;
+	TimerBarRow				mAverageTimerRow;
 
-	typedef enum child_alignment
+	enum ChildAlignment
 	{
 		ALIGN_LEFT,
 		ALIGN_CENTER,
 		ALIGN_RIGHT,
 		ALIGN_COUNT
-	} ChildAlignment;
-
-	ChildAlignment mDisplayCenter;
-	bool                          mDisplayCalls,
-								  mDisplayHz;
-	LLUnit<LLUnits::Seconds, F64> mAllTimeMax,
-								  mTotalTimeDisplay;
-	LLRect mBarRect;
-	S32	mScrollIndex;
-	LLTrace::TimeBlock*           mHoverID;
-	LLTrace::TimeBlock*           mHoverTimer;
-	LLRect					mToolTipRect;
-	S32 mHoverBarIndex;
-	LLFrameTimer mHighlightTimer;
-	S32 mPrintStats;
-	LLRect mGraphRect;
-	LLTrace::PeriodicRecording*	  mRecording;
-	bool						  mPauseHistory;
+	}								mDisplayCenter;
+	bool							mDisplayCalls,
+									mDisplayHz,
+									mPauseHistory;
+	LLUnit<F64, LLUnits::Seconds>	mAllTimeMax,
+									mTotalTimeDisplay;
+	S32								mScrollIndex,
+									mHoverBarIndex,
+									mStatsIndex;
+	S32								mDisplayMode;
+	LLTrace::TimeBlock*				mHoverID;
+	LLTrace::TimeBlock*				mHoverTimer;
+	LLRect							mToolTipRect,
+									mGraphRect,
+									mBarRect;
+	LLFrameTimer					mHighlightTimer;
+	LLTrace::PeriodicRecording		mRecording;
 };
 
 #endif

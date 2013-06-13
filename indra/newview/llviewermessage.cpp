@@ -4480,18 +4480,18 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 
 // *TODO: Remove this dependency, or figure out a better way to handle
 // this hack.
-extern LLUnit<LLUnits::Bits, U32> gObjectData;
+extern LLUnit<U32, LLUnits::Bits> gObjectData;
 
 void process_object_update(LLMessageSystem *mesgsys, void **user_data)
 {	
 	// Update the data counters
 	if (mesgsys->getReceiveCompressedSize())
 	{
-		gObjectData += (LLUnit<LLUnits::Bytes, U32>)mesgsys->getReceiveCompressedSize();
+		gObjectData += (LLUnit<U32, LLUnits::Bytes>)mesgsys->getReceiveCompressedSize();
 	}
 	else
 	{
-		gObjectData += (LLUnit<LLUnits::Bytes, U32>)mesgsys->getReceiveSize();
+		gObjectData += (LLUnit<U32, LLUnits::Bytes>)mesgsys->getReceiveSize();
 	}
 
 	// Update the object...
@@ -4503,11 +4503,11 @@ void process_compressed_object_update(LLMessageSystem *mesgsys, void **user_data
 	// Update the data counters
 	if (mesgsys->getReceiveCompressedSize())
 	{
-		gObjectData += (LLUnit<LLUnits::Bytes, U32>)mesgsys->getReceiveCompressedSize();
+		gObjectData += (LLUnit<U32, LLUnits::Bytes>)mesgsys->getReceiveCompressedSize();
 	}
 	else
 	{
-		gObjectData += (LLUnit<LLUnits::Bytes, U32>)mesgsys->getReceiveSize();
+		gObjectData += (LLUnit<U32, LLUnits::Bytes>)mesgsys->getReceiveSize();
 	}
 
 	// Update the object...
@@ -4519,11 +4519,11 @@ void process_cached_object_update(LLMessageSystem *mesgsys, void **user_data)
 	// Update the data counters
 	if (mesgsys->getReceiveCompressedSize())
 	{
-		gObjectData += (LLUnit<LLUnits::Bytes, U32>)mesgsys->getReceiveCompressedSize();
+		gObjectData += (LLUnit<U32, LLUnits::Bytes>)mesgsys->getReceiveCompressedSize();
 	}
 	else
 	{
-		gObjectData += (LLUnit<LLUnits::Bytes, U32>)mesgsys->getReceiveSize();
+		gObjectData += (LLUnit<U32, LLUnits::Bytes>)mesgsys->getReceiveSize();
 	}
 
 	// Update the object...
@@ -4535,11 +4535,11 @@ void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_
 {
 	if (mesgsys->getReceiveCompressedSize())
 	{
-		gObjectData += (LLUnit<LLUnits::Bytes, U32>)mesgsys->getReceiveCompressedSize();
+		gObjectData += (LLUnit<U32, LLUnits::Bytes>)mesgsys->getReceiveCompressedSize();
 	}
 	else
 	{
-		gObjectData += (LLUnit<LLUnits::Bytes, U32>)mesgsys->getReceiveSize();
+		gObjectData += (LLUnit<U32, LLUnits::Bytes>)mesgsys->getReceiveSize();
 	}
 
 	gObjectList.processCompressedObjectUpdate(mesgsys, user_data, OUT_TERSE_IMPROVED);

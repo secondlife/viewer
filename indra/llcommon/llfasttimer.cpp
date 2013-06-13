@@ -146,8 +146,8 @@ U64 TimeBlock::countsPerSecond()
 {
 #if LL_FASTTIMER_USE_RDTSC || !LL_WINDOWS
 	//getCPUFrequency returns MHz and sCPUClockFrequency wants to be in Hz
-	static LLUnit<LLUnits::Hertz, U64> sCPUClockFrequency = LLProcessorInfo().getCPUFrequency();
-
+	static LLUnit<U64, LLUnits::Hertz> sCPUClockFrequency = LLProcessorInfo().getCPUFrequency();
+	return sCPUClockFrequency.value();
 #else
 	// If we're not using RDTSC, each fasttimer tick is just a performance counter tick.
 	// Not redefining the clock frequency itself (in llprocessor.cpp/calculate_cpu_frequency())
@@ -159,8 +159,8 @@ U64 TimeBlock::countsPerSecond()
 		QueryPerformanceFrequency((LARGE_INTEGER*)&sCPUClockFrequency);
 		firstcall = false;
 	}
-#endif
 	return sCPUClockFrequency.value();
+#endif
 }
 #endif
 
@@ -318,11 +318,11 @@ void TimeBlock::logStats()
 			LL_DEBUGS("FastTimers") << "LLProcessorInfo().getCPUFrequency() " << LLProcessorInfo().getCPUFrequency() << LL_ENDL;
 			LL_DEBUGS("FastTimers") << "getCPUClockCount32() " << getCPUClockCount32() << LL_ENDL;
 			LL_DEBUGS("FastTimers") << "getCPUClockCount64() " << getCPUClockCount64() << LL_ENDL;
-			LL_DEBUGS("FastTimers") << "elapsed sec " << ((F64)getCPUClockCount64()) / (LLUnit<LLUnits::Hertz, F64>(LLProcessorInfo().getCPUFrequency())) << LL_ENDL;
+			LL_DEBUGS("FastTimers") << "elapsed sec " << ((F64)getCPUClockCount64()) / (LLUnit<F64, LLUnits::Hertz>(LLProcessorInfo().getCPUFrequency())) << LL_ENDL;
 		}
 		call_count++;
 
-		LLUnit<LLUnits::Seconds, F64> total_time(0);
+		LLUnit<F64, LLUnits::Seconds> total_time(0);
 		LLSD sd;
 
 		{
@@ -365,7 +365,7 @@ void TimeBlock::dumpCurTimes()
 		++it)
 	{
 		TimeBlock* timerp = (*it);
-		LLUnit<LLUnits::Seconds, F64> total_time_ms = last_frame_recording.getSum(*timerp);
+		LLUnit<F64, LLUnits::Seconds> total_time_ms = last_frame_recording.getSum(*timerp);
 		U32 num_calls = last_frame_recording.getSum(timerp->callCount());
 
 		// Don't bother with really brief times, keep output concise
@@ -449,7 +449,7 @@ void TimeBlockAccumulator::reset( const TimeBlockAccumulator* other )
 	}
 }
 
-LLUnit<LLUnits::Seconds, F64> BlockTimer::getElapsedTime()
+LLUnit<F64, LLUnits::Seconds> BlockTimer::getElapsedTime()
 {
 	U64 total_time = TimeBlock::getCPUClockCount64() - mStartTime;
 

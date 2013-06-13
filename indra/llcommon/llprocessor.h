@@ -37,7 +37,7 @@ public:
 	LLProcessorInfo(); 
  	~LLProcessorInfo();
 
-	LLUnitImplicit<LLUnits::Megahertz, F64> getCPUFrequency() const;
+	LLUnitImplicit<F64, LLUnits::Megahertz> getCPUFrequency() const;
 	bool hasSSE() const;
 	bool hasSSE2() const;
 	bool hasAltivec() const;
