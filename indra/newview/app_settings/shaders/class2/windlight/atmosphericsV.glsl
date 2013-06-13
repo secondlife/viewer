@@ -54,7 +54,6 @@ uniform float density_multiplier;
 uniform float distance_multiplier;
 uniform float max_y;
 uniform vec4 glow;
-uniform float global_gamma;
 
 void calcAtmospherics(vec3 inPositionEye) {
 
@@ -132,9 +131,9 @@ void calcAtmospherics(vec3 inPositionEye) {
 		  + tmpAmbient)));
 	
 	//brightness of surface both sunlight and ambient
-	setSunlitColor(pow(vec3(sunlight * .5), vec3(global_gamma)) * global_gamma);
-	setAmblitColor(pow(vec3(tmpAmbient * .25), vec3(global_gamma)) * global_gamma);
-	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(global_gamma)) * global_gamma);
+	setSunlitColor(vec3(sunlight * .5));
+	setAmblitColor(vec3(tmpAmbient * .25));
+	setAdditiveColor(getAdditiveColor() * vec3(1.0 - temp1));
 
 	// vary_SunlitColor = vec3(0);
 	// vary_AmblitColor = vec3(0);

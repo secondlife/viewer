@@ -1401,7 +1401,8 @@ void LLPipeline::createLUTBuffers()
 			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_R16F, lightResX, lightResY, GL_RED, GL_FLOAT, ls, false);
 			//LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_UNSIGNED_BYTE, lightResX, lightResY, GL_RED, GL_UNSIGNED_BYTE, ls, false);
 			gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
-			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_TRILINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			
 			delete [] ls;
 		}
@@ -5825,9 +5826,9 @@ void LLPipeline::setupAvatarLights(BOOL for_edit)
 
 		if (LLPipeline::sRenderDeferred)
 		{
-			diffuse.mV[0] = powf(diffuse.mV[0], 2.2f);
+			/*diffuse.mV[0] = powf(diffuse.mV[0], 2.2f);
 			diffuse.mV[1] = powf(diffuse.mV[1], 2.2f);
-			diffuse.mV[2] = powf(diffuse.mV[2], 2.2f);
+			diffuse.mV[2] = powf(diffuse.mV[2], 2.2f);*/
 		}
 
 		mHWLightColors[1] = diffuse;
@@ -5872,9 +5873,9 @@ void LLPipeline::setupAvatarLights(BOOL for_edit)
 
 		if (LLPipeline::sRenderDeferred)
 		{
-			backlight_diffuse.mV[0] = powf(backlight_diffuse.mV[0], 2.2f);
+			/*backlight_diffuse.mV[0] = powf(backlight_diffuse.mV[0], 2.2f);
 			backlight_diffuse.mV[1] = powf(backlight_diffuse.mV[1], 2.2f);
-			backlight_diffuse.mV[2] = powf(backlight_diffuse.mV[2], 2.2f);
+			backlight_diffuse.mV[2] = powf(backlight_diffuse.mV[2], 2.2f);*/
 		}
 
 		mHWLightColors[1] = backlight_diffuse;
@@ -6086,9 +6087,9 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 
 		if (LLPipeline::sRenderDeferred)
 		{
-			light_diffuse.mV[0] = powf(light_diffuse.mV[0], 2.2f);
+			/*light_diffuse.mV[0] = powf(light_diffuse.mV[0], 2.2f);
 			light_diffuse.mV[1] = powf(light_diffuse.mV[1], 2.2f);
-			light_diffuse.mV[2] = powf(light_diffuse.mV[2], 2.2f);
+			light_diffuse.mV[2] = powf(light_diffuse.mV[2], 2.2f);*/
 		}
 
 		mHWLightColors[0] = light_diffuse;
@@ -6161,9 +6162,9 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 
 			if (LLPipeline::sRenderDeferred)
 			{
-				light_color.mV[0] = powf(light_color.mV[0], 2.2f);
+				/*light_color.mV[0] = powf(light_color.mV[0], 2.2f);
 				light_color.mV[1] = powf(light_color.mV[1], 2.2f);
-				light_color.mV[2] = powf(light_color.mV[2], 2.2f);
+				light_color.mV[2] = powf(light_color.mV[2], 2.2f);*/
 			}
 
 			mHWLightColors[cur_light] = light_color;
@@ -6176,7 +6177,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			if (sRenderDeferred)
 			{
 				F32 size = light_radius*1.5f;
-				light_state->setLinearAttenuation(size*size);
+				light_state->setLinearAttenuation(size);
 				light_state->setQuadraticAttenuation(light->getLightFalloff()*0.5f+1.f);
 			}
 			else
@@ -6241,9 +6242,9 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 
 		if (LLPipeline::sRenderDeferred)
 		{
-			light_color.mV[0] = powf(light_color.mV[0], 2.2f);
+			/*light_color.mV[0] = powf(light_color.mV[0], 2.2f);
 			light_color.mV[1] = powf(light_color.mV[1], 2.2f);
-			light_color.mV[2] = powf(light_color.mV[2], 2.2f);
+			light_color.mV[2] = powf(light_color.mV[2], 2.2f);*/
 		}
 
 		mHWLightColors[2] = light_color;
@@ -8489,7 +8490,7 @@ void LLPipeline::renderDeferredLighting()
 							
 							LLFastTimer ftm(FTM_LOCAL_LIGHTS);
 							gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
-							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);
+							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
 							gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
 							gGL.syncMatrices();
@@ -8510,7 +8511,7 @@ void LLPipeline::renderDeferredLighting()
 						glh::vec3f tc(c);
 						mat.mult_matrix_vec(tc);
 					
-						fullscreen_lights.push_back(LLVector4(tc.v[0], tc.v[1], tc.v[2], s*s));
+						fullscreen_lights.push_back(LLVector4(tc.v[0], tc.v[1], tc.v[2], s));
 						light_colors.push_back(LLVector4(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f));
 					}
 				}
@@ -8543,12 +8544,12 @@ void LLPipeline::renderDeferredLighting()
 					setupSpotLight(gDeferredSpotLightProgram, drawablep);
 					
 					LLColor3 col = volume->getLightColor();
-					col.mV[0] = powf(col.mV[0], 2.2f);
+					/*col.mV[0] = powf(col.mV[0], 2.2f);
 					col.mV[1] = powf(col.mV[1], 2.2f);
-					col.mV[2] = powf(col.mV[2], 2.2f);
+					col.mV[2] = powf(col.mV[2], 2.2f);*/
 					
 					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
-					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);
+					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
 					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
 					gGL.syncMatrices();
@@ -8595,11 +8596,11 @@ void LLPipeline::renderDeferredLighting()
 					col[count] = light_colors.front();
 					light_colors.pop_front();
 					
-					col[count].mV[0] = powf(col[count].mV[0], 2.2f);
+					/*col[count].mV[0] = powf(col[count].mV[0], 2.2f);
 					col[count].mV[1] = powf(col[count].mV[1], 2.2f);
-					col[count].mV[2] = powf(col[count].mV[2], 2.2f);
+					col[count].mV[2] = powf(col[count].mV[2], 2.2f);*/
 					
-					far_z = llmin(light[count].mV[2]-sqrtf(light[count].mV[3]), far_z);
+					far_z = llmin(light[count].mV[2]-light[count].mV[3], far_z);
 					//col[count] = pow4fsrgb(col[count], 2.2f);
 					count++;
 					if (count == max_count || fullscreen_lights.empty())
@@ -8642,12 +8643,12 @@ void LLPipeline::renderDeferredLighting()
 
 					LLColor3 col = volume->getLightColor();
 					
-					col.mV[0] = powf(col.mV[0], 2.2f);
+					/*col.mV[0] = powf(col.mV[0], 2.2f);
 					col.mV[1] = powf(col.mV[1], 2.2f);
-					col.mV[2] = powf(col.mV[2], 2.2f);
+					col.mV[2] = powf(col.mV[2], 2.2f);*/
 					
 					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, tc.v);
-					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);
+					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
 					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
 					mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
