@@ -187,7 +187,10 @@ class LLFacebookConnectedResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLFacebookConnectedResponder);
 public:
     
-	LLFacebookConnectedResponder(bool show_login_if_not_connected) : mShowLoginIfNotConnected(show_login_if_not_connected) {}
+	LLFacebookConnectedResponder(bool show_login_if_not_connected, bool show_error_if_not_connected) 
+		: mShowLoginIfNotConnected(show_login_if_not_connected),
+			mShowErrorIfNotConnected(show_error_if_not_connected)
+		{}
     
 	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
@@ -208,7 +211,7 @@ public:
 			{
 				LLFacebookConnect::instance().connectToFacebook();
 			}
-            else
+            else if(mShowErrorIfNotConnected)
             {
 				prompt_user_for_error(status, reason, content.get("error_code"), content.get("error_description"));
             }
@@ -217,6 +220,7 @@ public:
     
 private:
 	bool mShowLoginIfNotConnected;
+	bool mShowErrorIfNotConnected;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -292,7 +296,7 @@ void LLFacebookConnect::tryToReconnectToFacebook()
 	{
 		const bool follow_redirects=false;
 		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
-		LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(false),
+		LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(false, false),
 						  LLSD(), timeout, follow_redirects);
 	}
 }
@@ -301,7 +305,7 @@ void LLFacebookConnect::getConnectionToFacebook()
 {
     const bool follow_redirects=false;
     const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
-    LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(true),
+    LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(true, true),
                   LLSD(), timeout, follow_redirects);
 }
 
