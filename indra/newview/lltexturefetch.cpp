@@ -1382,7 +1382,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			//recordTextureStart(false);
 			//setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 
-			LL_DEBUGS("Texture") << mID << " does this happen?" << llendl;
 			return false;
 		}
 	}
@@ -2656,7 +2655,7 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 		worker->unlockWorkMutex();										// -Mw
 	}
 	
- 	LL_DEBUGS("Texture") << "REQUESTED: " << id << " Discard: " << desired_discard << " size " << desired_size << llendl;
+ 	LL_DEBUGS("Texture") << "REQUESTED: " << id << " f_type " << fttype_to_string(f_type) << " Discard: " << desired_discard << " size " << desired_size << llendl;
 	return true;
 }
 

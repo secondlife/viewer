@@ -901,6 +901,27 @@ void LLViewerTexture::updateBindStatsForTester()
 //end of LLViewerTexture
 //----------------------------------------------------------------------------------------------
 
+const std::string& fttype_to_string(const FTType& fttype)
+{
+	static const std::string ftt_unknown("FTT_UNKNOWN");
+	static const std::string ftt_default("FTT_DEFAULT");
+	static const std::string ftt_server_bake("FTT_SERVER_BAKE");
+	static const std::string ftt_host_bake("FTT_HOST_BAKE");
+	static const std::string ftt_map_tile("FTT_MAP_TILE");
+	static const std::string ftt_local_file("FTT_LOCAL_FILE");
+	static const std::string ftt_error("FTT_ERROR");
+	switch(fttype)
+	{
+		case FTT_UNKNOWN: return ftt_unknown; break;
+		case FTT_DEFAULT: return ftt_default; break;
+		case FTT_SERVER_BAKE: return ftt_server_bake; break;
+		case FTT_HOST_BAKE: return ftt_host_bake; break;
+		case FTT_MAP_TILE: return ftt_map_tile; break;
+		case FTT_LOCAL_FILE: return ftt_local_file; break;
+	}
+	return ftt_error;
+}
+
 //----------------------------------------------------------------------------------------------
 //start of LLViewerFetchedTexture
 //----------------------------------------------------------------------------------------------

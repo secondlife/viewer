@@ -899,7 +899,7 @@ void LLIMModel::getMessagesSilently(const LLUUID& session_id, std::list<LLSD>& m
 	LLIMSession* session = findIMSession(session_id);
 	if (!session)
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return;
 	}
 
@@ -921,7 +921,7 @@ void LLIMModel::sendNoUnreadMessages(const LLUUID& session_id)
 	LLIMSession* session = findIMSession(session_id);
 	if (!session)
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return;
 	}
 
@@ -941,7 +941,7 @@ bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, 
 
 	if (!session) 
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return false;
 	}
 
@@ -1016,7 +1016,7 @@ LLIMModel::LLIMSession* LLIMModel::addMessageSilently(const LLUUID& session_id, 
 
 	if (!session)
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return NULL;
 	}
 
@@ -1053,7 +1053,7 @@ const std::string LLIMModel::getName(const LLUUID& session_id) const
 
 	if (!session)
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return LLTrans::getString("no_session_message");
 	}
 
@@ -1065,7 +1065,7 @@ const S32 LLIMModel::getNumUnread(const LLUUID& session_id) const
 	LLIMSession* session = findIMSession(session_id);
 	if (!session)
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return -1;
 	}
 
@@ -1089,7 +1089,7 @@ EInstantMessage LLIMModel::getType(const LLUUID& session_id) const
 	LLIMSession* session = findIMSession(session_id);
 	if (!session)
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return IM_COUNT;
 	}
 
@@ -1101,7 +1101,7 @@ LLVoiceChannel* LLIMModel::getVoiceChannel( const LLUUID& session_id ) const
 	LLIMSession* session = findIMSession(session_id);
 	if (!session)
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return NULL;
 	}
 

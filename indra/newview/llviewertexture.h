@@ -243,6 +243,8 @@ enum FTType
 	FTT_LOCAL_FILE // fetch directly from a local file.
 };
 
+const std::string& fttype_to_string(const FTType& fttype);
+
 //
 //textures are managed in gTextureList.
 //raw image data is fetched from remote or local cache

@@ -2625,7 +2625,7 @@ void LLAppearanceMgr::updateIsDirty()
 
 		if(outfit_items.count() != cof_items.count())
 		{
-			LL_DEBUGS("Avatar") << "item count different" << llendl;
+			LL_DEBUGS("Avatar") << "item count different - base " << outfit_items.count() << " cof " << cof_items.count() << llendl;
 			// Current outfit folder should have one more item than the outfit folder.
 			// this one item is the link back to the outfit folder itself.
 			mOutfitIsDirty = true;
@@ -2666,6 +2666,8 @@ void LLAppearanceMgr::updateIsDirty()
 			}
 		}
 	}
+	llassert(!mOutfitIsDirty);
+	LL_DEBUGS("Avatar") << "clean" << llendl;
 }
 
 // *HACK: Must match name in Library or agent inventory
