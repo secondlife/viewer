@@ -115,7 +115,8 @@ void render_disconnected_background();
 
 void display_startup()
 {
-	if (   !gViewerWindow->getActive()
+	if (   !gViewerWindow
+		|| !gViewerWindow->getActive()
 		|| !gViewerWindow->getWindow()->getVisible() 
 		|| gViewerWindow->getWindow()->getMinimized() )
 	{
@@ -126,7 +127,7 @@ void display_startup()
 
 	// Update images?
 	//gImageList.updateImages(0.01f);
-	LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
+	LLTexUnit::sWhiteTexture = !LLViewerFetchedTexture::sWhiteImagep.isNull() ? LLViewerFetchedTexture::sWhiteImagep->getTexName() : NULL;
 
 	LLGLSDefault gls_default;
 
@@ -148,10 +149,12 @@ void display_startup()
 	LLGLSUIDefault gls_ui;
 	gPipeline.disableLights();
 
+	if (gViewerWindow)
 	gViewerWindow->setup2DRender();
 	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
 	gGL.color4f(1,1,1,1);
+	if (gViewerWindow)
 	gViewerWindow->draw();
 	gGL.flush();
 
@@ -160,7 +163,9 @@ void display_startup()
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 
+	if (gViewerWindow && gViewerWindow->getWindow())
 	gViewerWindow->getWindow()->swapBuffers();
+
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
 
