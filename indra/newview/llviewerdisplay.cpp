@@ -127,7 +127,14 @@ void display_startup()
 
 	// Update images?
 	//gImageList.updateImages(0.01f);
-	LLTexUnit::sWhiteTexture = !LLViewerFetchedTexture::sWhiteImagep.isNull() ? LLViewerFetchedTexture::sWhiteImagep->getTexName() : NULL;
+	
+	// Written as branch to appease GCC which doesn't like different
+	// pointer types across ternary ops
+	//
+	if (!LLViewerFetchedTexture::sWhiteImagep.isNull())
+	{
+		LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
+	}
 
 	LLGLSDefault gls_default;
 
