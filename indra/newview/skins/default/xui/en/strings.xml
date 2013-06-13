@@ -209,7 +209,8 @@ Please try logging in again in a minute.</string>
 	<string name="SLappAgentIM">IM</string>
 	<string name="SLappAgentPay">Pay</string>
 	<string name="SLappAgentOfferTeleport">Offer Teleport to </string>
-	<string name="SLappAgentRequestFriend">Friend Request </string>
+	<string name="SLappAgentRequestFriend">Friend Request</string>
+  <string name="SLappAgentRemoveFriend">Friend Removal</string>
 
 	<!-- ButtonToolTips, llfloater.cpp -->
 	<string name="BUTTON_CLOSE_DARWIN">Close (&#8984;W)</string>

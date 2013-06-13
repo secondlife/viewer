@@ -137,6 +137,12 @@ public:
 			return true;
 		}
 
+		if (verb == "removefriend")
+		{
+			LLAvatarActions::removeFriendDialog(avatar_id);
+			return true;
+		}
+
 		if (verb == "mute")
 		{
 			if (! LLAvatarActions::isBlocked(avatar_id))

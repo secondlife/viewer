@@ -188,3 +188,11 @@ void LLUrlAction::addFriend(std::string url)
 	}
 }
 
+void LLUrlAction::removeFriend(std::string url)
+{
+	std::string id_str = getUserID(url);
+	if (LLUUID::validate(id_str))
+	{
+		executeSLURL("secondlife:///app/agent/" + id_str + "/removefriend");
+	}
+}

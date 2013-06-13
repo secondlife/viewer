@@ -180,6 +180,7 @@ LLTextBase::Params::Params()
 LLTextBase::LLTextBase(const LLTextBase::Params &p) 
 :	LLUICtrl(p, LLTextViewModelPtr(new LLTextViewModel)),
 	mURLClickSignal(NULL),
+	mIsFriendSignal(NULL),
 	mMaxTextByteLength( p.max_text_length ),
 	mFont(p.font),
 	mFontShadow(p.font_shadow),
@@ -1943,6 +1944,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	registrar.add("Url.Teleport", boost::bind(&LLUrlAction::teleportToLocation, url));
 	registrar.add("Url.ShowProfile", boost::bind(&LLUrlAction::showProfile, url));
 	registrar.add("Url.AddFriend", boost::bind(&LLUrlAction::addFriend, url));
+	registrar.add("Url.RemoveFriend", boost::bind(&LLUrlAction::removeFriend, url));
 	registrar.add("Url.SendIM", boost::bind(&LLUrlAction::sendIM, url));
 	registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
 	registrar.add("Url.CopyLabel", boost::bind(&LLUrlAction::copyLabelToClipboard, url));
@@ -1952,6 +1954,19 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	delete mPopupMenu;
 	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(xui_file, LLMenuGL::sMenuContainer,
 																		 LLMenuHolderGL::child_registry_t::instance());	
+	if (mIsFriendSignal)
+	{
+		bool isFriend = (*mIsFriendSignal)(LLUUID(LLUrlAction::getUserID(url)));
+		LLView* addFriendButton = mPopupMenu->getChild<LLView>("add_friend");
+		LLView* removeFriendButton = mPopupMenu->getChild<LLView>("remove_friend");
+
+		if (addFriendButton && removeFriendButton)
+		{
+			addFriendButton->setEnabled(!isFriend);
+			removeFriendButton->setEnabled(isFriend);
+		}
+	}
+	
 	if (mPopupMenu)
 	{
 		mPopupMenu->show(x, y);
@@ -2930,6 +2945,15 @@ boost::signals2::connection LLTextBase::setURLClickedCallback(const commit_signa
 		mURLClickSignal = new commit_signal_t();
 	}
 	return mURLClickSignal->connect(cb);
+}
+
+boost::signals2::connection LLTextBase::setIsFriendCallback(const is_friend_signal_t::slot_type& cb)
+{
+	if (!mIsFriendSignal)
+	{
+		mIsFriendSignal = new is_friend_signal_t();
+	}
+	return mIsFriendSignal->connect(cb);
 }
 
 //

@@ -504,6 +504,10 @@ std::string localize_slapp_label(const std::string& url, const std::string& full
 	{
 		return LLTrans::getString("SLappAgentRequestFriend") + " " + full_name;
 	}
+	if (LLStringUtil::endsWith(url, "/removefriend"))
+	{
+		return LLTrans::getString("SLappAgentRemoveFriend") + " " + full_name;
+	}
 	return full_name;
 }
 
