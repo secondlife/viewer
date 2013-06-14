@@ -4115,8 +4115,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	LLMaterial* mat = facep->getTextureEntry()->getMaterialParams().get(); 
 	LLMaterialID mat_id = facep->getTextureEntry()->getMaterialID();
 
-	mat = mat_id.isNull() ? NULL : mat;
-
 	bool batchable = false;
 
 	U32 shader_mask = 0xFFFFFFFF; //no shader
@@ -4547,7 +4545,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 
 						LLMaterial* mat = te->getMaterialParams().get();
-						mat = te->getMaterialID().isNull() ? NULL : mat;
 
 						if (mat && LLPipeline::sRenderDeferred)
 						{
@@ -5343,7 +5340,6 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			BOOL is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) ? TRUE : FALSE;
 		
 			LLMaterial* mat = te->getMaterialParams().get();
-			mat = te->getMaterialID().isNull() ? NULL : mat;
 
 			bool can_be_shiny = true;
 			if (mat)
@@ -5352,6 +5348,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				can_be_shiny = mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE ||
 								mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE;
 			}
+
+			bool use_legacy_bump = te->getBumpmap() && (!mat || mat->getNormalID().isNull());
 
 			if (mat && LLPipeline::sRenderDeferred && !hud_group)
 			{
@@ -5394,6 +5392,11 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				else if (te->getColor().mV[3] < 0.999f)
 				{
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
+				}
+				else if (use_legacy_bump)
+				{
+					// we have a material AND legacy bump settings, but no normal map
+					registerFace(group, facep, LLRenderPass::PASS_BUMP);
 				}
 				else
 				{
@@ -5502,7 +5505,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 							registerFace(group, facep, LLRenderPass::PASS_POST_BUMP);
 						}
 					}
-					else if (te->getBumpmap() && !mat)
+					else if (use_legacy_bump)
 					{ //register in deferred bump pass
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
 					}
@@ -5537,14 +5540,14 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					{
 						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
 					}
-					if (LLPipeline::sRenderDeferred && !hud_group && LLPipeline::sRenderBump && te->getBumpmap())
+					if (LLPipeline::sRenderDeferred && !hud_group && LLPipeline::sRenderBump && use_legacy_bump)
 					{ //if this is the deferred render and a bump map is present, register in post deferred bump
 						registerFace(group, facep, LLRenderPass::PASS_POST_BUMP);
 					}
 				}
 				else
 				{
-					if (LLPipeline::sRenderDeferred && LLPipeline::sRenderBump && (te->getBumpmap() && !mat))
+					if (LLPipeline::sRenderDeferred && LLPipeline::sRenderBump && use_legacy_bump)
 					{ //non-shiny or fullbright deferred bump
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
 					}
@@ -5578,7 +5581,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				llassert((mask & LLVertexBuffer::MAP_NORMAL) || fullbright);
 				facep->setPoolType((fullbright) ? LLDrawPool::POOL_FULLBRIGHT : LLDrawPool::POOL_SIMPLE);
 				
-				if (!force_simple && te->getBumpmap() && !mat && LLPipeline::sRenderBump)
+				if (!force_simple && LLPipeline::sRenderBump && use_legacy_bump)
 				{
 					registerFace(group, facep, LLRenderPass::PASS_BUMP);
 				}

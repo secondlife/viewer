@@ -4168,12 +4168,8 @@ void LLViewerObject::changeTENormalMap(S32 index, LLViewerTexture* new_image)
 	{
 		return ;
 	}
-	setChanged(TEXTURE);
-	if (mDrawable.notNull())
-	{
-		gPipeline.markTextured(mDrawable);
-	}
 	mTENormalMaps[index] = new_image ;
+	refreshMaterials();
 }
 
 void LLViewerObject::changeTESpecularMap(S32 index, LLViewerTexture* new_image)
@@ -4182,12 +4178,8 @@ void LLViewerObject::changeTESpecularMap(S32 index, LLViewerTexture* new_image)
 	{
 		return ;
 	}
-	setChanged(TEXTURE);
-	if (mDrawable.notNull())
-	{
-		gPipeline.markTextured(mDrawable);
-	}
 	mTESpecularMaps[index] = new_image ;
+	refreshMaterials();
 }
 
 S32 LLViewerObject::setTETexture(const U8 te, const LLUUID& uuid)

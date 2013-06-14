@@ -1696,6 +1696,8 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 		return 0;
 	}
 		
+	LLMaterial* mat = te->getMaterialParams().get();
+
 	bool color_alpha = te->getColor().mV[3] < 0.999f;
 	bool alpha = color_alpha;
 	if (imagep)
@@ -1703,9 +1705,9 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 		alpha = alpha || (imagep->getComponents() == 4 && imagep->getType() != LLViewerTexture::MEDIA_TEXTURE) || (imagep->getComponents() == 2);
 	}
 	
-	if (alpha && te->getMaterialParams())
+	if (alpha && mat)
 	{
-		switch (te->getMaterialParams()->getDiffuseAlphaMode())
+		switch (mat->getDiffuseAlphaMode())
 		{
 			case 1:
 				alpha = true; // Material's alpha mode is set to blend.  Toss it into the alpha draw pool.
@@ -1724,10 +1726,11 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 	{
 		return LLDrawPool::POOL_ALPHA;
 	}
-	else if ((te->getBumpmap() || te->getShiny()) && !te->getMaterialParams().isNull())
+	else if ((te->getBumpmap() || te->getShiny()) && (!mat || mat->getNormalID().isNull()))
 	{
 		return LLDrawPool::POOL_BUMP;
-	} else if (!te->getMaterialParams().isNull() && !alpha)
+	}
+	else if (mat && !alpha)
 	{
 		return LLDrawPool::POOL_MATERIALS;
 	}
