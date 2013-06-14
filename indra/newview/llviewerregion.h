@@ -367,7 +367,7 @@ private:
 	LLViewerObject* addNewObject(LLVOCacheEntry* entry);
 	void killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list);	
 	void removeFromVOCacheTree(LLVOCacheEntry* entry);
-	void replaceCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry* new_entry);
+	void replaceVisibleCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry* new_entry);
 	void killCacheEntry(LLVOCacheEntry* entry); //physically delete the cache entry	
 
 	F32 killInvisibleObjects(F32 max_time);

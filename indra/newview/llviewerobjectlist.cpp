@@ -340,7 +340,8 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 		}
 		else
 		{
-			return objectp; //already loaded.
+			//should fall through if already loaded because may need to update the object.
+			//return objectp; //already loaded.
 		}
 	}
 

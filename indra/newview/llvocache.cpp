@@ -102,8 +102,7 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	BOOL success;
 
 	mDP.assignBuffer(mBuffer, 0);
-	setOctreeEntry(NULL);
-
+	
 	success = check_read(apr_file, &mLocalID, sizeof(U32));
 	if(success)
 	{

@@ -135,7 +135,7 @@ void LLDrawable::init(bool new_entry)
 	
 		getRegion()->addActiveCacheEntry(vo_entry);
 
-		llassert_always(!vo_entry->getGroup()); //not in the object cache octree.
+		llassert(!vo_entry->getGroup()); //not in the object cache octree.
 	}
 	
 	llassert(!vo_entry || vo_entry->getEntry() == mEntry);
