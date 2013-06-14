@@ -116,8 +116,6 @@ public:
 	/*virtual*/ void	draw();	
 	/*virtual*/ BOOL	handleKeyHere( KEY key, MASK mask );
 	/*virtual*/ void 	handleVisibilityChange ( BOOL new_visibility );
-				void	handleCloseConfirmation( bool app_quitting );
-
 
 	// From LLFocusableElement
 	/*virtual*/ void	setFocus( BOOL b );
@@ -253,8 +251,6 @@ public:
 	std::string getXMLFilename() { return mXMLFilename; };
 	
 	boost::signals2::connection setVisibleCallback( const commit_signal_t::slot_type& cb );
-	boost::signals2::connection setCloseConfirmationCallback( const commit_signal_t::slot_type& cb );
-
 
 protected:
 	// Override to set not found list
@@ -264,7 +260,6 @@ protected:
 	EnableCallbackRegistry::ScopedRegistrar mEnableCallbackRegistrar;
 
 	commit_signal_t* mVisibleSignal;		// Called when visibility changes, passes new visibility as LLSD()
-	commit_signal_t* mCloseConfirmationSignal; 
 
 	std::string		mHelpTopic;         // the name of this panel's help topic to display in the Help Viewer
 	typedef std::deque<const LLCallbackMap::map_t*> factory_stack_t;
@@ -272,11 +267,7 @@ protected:
 
 	// for setting the xml filename when building panel in context dependent cases
 	std::string		mXMLFilename;
-	//Specific close-down logic in subclass
-	BOOL			mVerifyUponClose;
-public:	
-	BOOL			mForceCloseAfterVerify;
-
+	
 private:
 	BOOL			mBgVisible;				// any background at all?
 	BOOL			mBgOpaque;				// use opaque color or image

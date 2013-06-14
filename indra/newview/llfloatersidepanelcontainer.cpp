@@ -40,28 +40,12 @@
 const std::string LLFloaterSidePanelContainer::sMainPanelName("main_panel");
 
 LLFloaterSidePanelContainer::LLFloaterSidePanelContainer(const LLSD& key, const Params& params)
-: LLFloater(key, params)
-, mAppQuiting( false )
+:	LLFloater(key, params)
 {
 	// Prevent transient floaters (e.g. IM windows) from hiding
 	// when this floater is clicked.
 	LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::GLOBAL, this);
-	//We want this container to handle the shutdown logic of the sidepanelappearance.
-	mVerifyUponClose = TRUE;
 }
-
-BOOL LLFloaterSidePanelContainer::postBuild()
-{
-	setCloseConfirmationCallback( boost::bind(&LLFloaterSidePanelContainer::onConfirmationClose,this,_2));
-	return TRUE;
-}
-
-void  LLFloaterSidePanelContainer::onConfirmationClose( const LLSD &confirm )
-{
-	mAppQuiting = confirm.asBoolean();
-	onClickCloseBtn();
-}
-
 
 LLFloaterSidePanelContainer::~LLFloaterSidePanelContainer()
 {
@@ -71,34 +55,26 @@ LLFloaterSidePanelContainer::~LLFloaterSidePanelContainer()
 void LLFloaterSidePanelContainer::onOpen(const LLSD& key)
 {
 	getChild<LLPanel>(sMainPanelName)->onOpen(key);
-	mAppQuiting = false;
-}
-
-void LLFloaterSidePanelContainer::onClose( bool app_quitting )
-{
-	if (! mAppQuiting ) { mForceCloseAfterVerify = true; }
-	LLSidepanelAppearance* panel = getSidePanelAppearance();
-	if ( panel )
-	{		
-		panel->mRevertSet = true;
-		panel->onCloseFromAppearance( this );			
-	}
 }
 
 void LLFloaterSidePanelContainer::onClickCloseBtn()
 {
-	LLSidepanelAppearance* panel = getSidePanelAppearance();
-	if ( panel )
+	LLPanelOutfitEdit* panel_outfit_edit =
+		dynamic_cast<LLPanelOutfitEdit*>(LLFloaterSidePanelContainer::getPanel("appearance", "panel_outfit_edit"));
+	if (panel_outfit_edit)
 	{
-		panel->onClose( this );			
+		LLFloater *parent = gFloaterView->getParentFloater(panel_outfit_edit);
+		if (parent == this )
+		{
+			LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance*>(getPanel("appearance"));
+			if ( panel_appearance )
+			{
+				panel_appearance->getWearable()->onClose();
+				panel_appearance->showOutfitsInventoryPanel();
+			}
+		}
 	}
-	else
-	{
-		LLFloater::onClickCloseBtn();
-	}
-}
-void LLFloaterSidePanelContainer::close()
-{
+	
 	LLFloater::onClickCloseBtn();
 }
 
@@ -109,7 +85,7 @@ LLPanel* LLFloaterSidePanelContainer::openChildPanel(const std::string& panel_na
 
 	if (!getVisible())
 	{
-		openFloater();
+	openFloater();
 	}
 
 	LLPanel* panel = NULL;
@@ -130,30 +106,10 @@ LLPanel* LLFloaterSidePanelContainer::openChildPanel(const std::string& panel_na
 
 void LLFloaterSidePanelContainer::showPanel(const std::string& floater_name, const LLSD& key)
 {
-	//If we're already open then check whether anything is dirty	 
-	LLFloaterSidePanelContainer* floaterp = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>(floater_name);	
+	LLFloaterSidePanelContainer* floaterp = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>(floater_name);
 	if (floaterp)
 	{
-		if ( floaterp->getVisible() )
-		{
-			LLSidepanelAppearance* panel = floaterp->getSidePanelAppearance();
-			if ( panel )
-			{
-				if ( panel->checkForDirtyEdits() )
-				{
-					panel->onClickConfirmExitWithoutSaveIntoAppearance( floaterp );
-				}
-				else
-				{
-					//or a call into some new f() that just shows inv panel?
-					floaterp->openChildPanel(sMainPanelName, key);
-				}
-			}
-		}
-		else
-		{
-			floaterp->openChildPanel(sMainPanelName, key);
-		}
+		floaterp->openChildPanel(sMainPanelName, key);
 	}
 }
 
@@ -176,20 +132,4 @@ LLPanel* LLFloaterSidePanelContainer::getPanel(const std::string& floater_name, 
 	}
 
 	return NULL;
-}
-
-LLSidepanelAppearance* LLFloaterSidePanelContainer::getSidePanelAppearance()
-{
-	LLSidepanelAppearance* panel_appearance = NULL;
-	LLPanelOutfitEdit* panel_outfit_edit = dynamic_cast<LLPanelOutfitEdit*>(LLFloaterSidePanelContainer::getPanel("appearance", "panel_outfit_edit"));
-	if (panel_outfit_edit)
-	{
-		LLFloater *parent = gFloaterView->getParentFloater(panel_outfit_edit);
-		if (parent == this )
-		{
-			panel_appearance = dynamic_cast<LLSidepanelAppearance*>(getPanel("appearance"));
-		}
-	}
-	return panel_appearance;			
-
 }
