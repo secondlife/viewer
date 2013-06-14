@@ -416,7 +416,7 @@ public:
 
 	virtual S32 frustumCheck(const LLviewerOctreeGroup* group)
 	{
-#if 1
+#if 0
 		S32 res = AABBInRegionFrustumGroupBounds(group);
 #else	
 		S32 res = AABBInRegionFrustumNoFarClipGroupBounds(group);
@@ -430,7 +430,7 @@ public:
 
 	virtual S32 frustumCheckObjects(const LLviewerOctreeGroup* group)
 	{
-#if 1
+#if 0
 		S32 res = AABBInRegionFrustumObjectBounds(group);
 #else
 		S32 res = AABBInRegionFrustumNoFarClipObjectBounds(group);
