@@ -7300,13 +7300,15 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 
 			tangent[a] = tsubn;
 
+			/*
+			These are going off on invalid input and hindering other debugging.
 			llassert(llfinite(tangent[a].getF32ptr()[0]));
 			llassert(llfinite(tangent[a].getF32ptr()[1]));
 			llassert(llfinite(tangent[a].getF32ptr()[2]));
 
 			llassert(!llisnan(tangent[a].getF32ptr()[0]));
 			llassert(!llisnan(tangent[a].getF32ptr()[1]));
-			llassert(!llisnan(tangent[a].getF32ptr()[2]));
+			llassert(!llisnan(tangent[a].getF32ptr()[2]));*/
 		}
 		else
 		{ //degenerate, make up a value
