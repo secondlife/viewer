@@ -203,6 +203,8 @@ private:
 	 */
 	void reshapeChatLayoutPanel();
 
+	void onInputEditorClicked();
+
 	bool checkIfTornOff();
     bool mIsHostAttached;
     bool mHasVisibleBeenInitialized;
