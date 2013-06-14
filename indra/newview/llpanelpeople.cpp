@@ -81,7 +81,6 @@
 
 #define FRIEND_LIST_UPDATE_TIMEOUT	0.5
 #define NEARBY_LIST_UPDATE_INTERVAL 1
-#define FBCTEST_LIST_UPDATE_INTERVAL 0.25
 
 static const std::string NEARBY_TAB_NAME	= "nearby_panel";
 static const std::string FRIENDS_TAB_NAME	= "friends_panel";
@@ -506,45 +505,6 @@ public:
 	}
 };
 
-/**
- * Periodically updates the FBC test list after a login is initiated.
- * 
- * The period is defined by FBCTEST_LIST_UPDATE_INTERVAL constant.
- */
-class LLFbcTestListUpdater : public LLAvatarListUpdater
-{
-	LOG_CLASS(LLFbcTestListUpdater);
-
-public:
-	LLFbcTestListUpdater(callback_t cb)
-	:	LLAvatarListUpdater(cb, FBCTEST_LIST_UPDATE_INTERVAL)
-	{
-		setActive(false);
-	}
-
-	/*virtual*/ void setActive(bool val)
-	{
-		if (val)
-		{
-			// update immediately and start regular updates
-			update();
-			mEventTimer.start(); 
-		}
-		else
-		{
-			// stop regular updates
-			mEventTimer.stop();
-		}
-	}
-
-	/*virtual*/ BOOL tick()
-	{
-		update();
-		return FALSE;
-	}
-private:
-};
-
 //=============================================================================
 
 LLPanelPeople::LLPanelPeople()
@@ -563,7 +523,6 @@ LLPanelPeople::LLPanelPeople()
 	mFriendListUpdater = new LLFriendListUpdater(boost::bind(&LLPanelPeople::updateFriendList,	this));
 	mNearbyListUpdater = new LLNearbyListUpdater(boost::bind(&LLPanelPeople::updateNearbyList,	this));
 	mRecentListUpdater = new LLRecentListUpdater(boost::bind(&LLPanelPeople::updateRecentList,	this));
-	mFacebookListUpdater = new LLFbcTestListUpdater(boost::bind(&LLPanelPeople::updateFacebookList,	this));
 	mButtonsUpdater = new LLButtonsUpdater(boost::bind(&LLPanelPeople::updateButtons, this));
 
 	mCommitCallbackRegistrar.add("People.loginFBC", boost::bind(&LLPanelPeople::onLoginFbcButtonClicked, this));
@@ -598,7 +557,6 @@ LLPanelPeople::~LLPanelPeople()
 	delete mNearbyListUpdater;
 	delete mFriendListUpdater;
 	delete mRecentListUpdater;
-	delete mFacebookListUpdater;
 
 	if(LLVoiceClient::instanceExists())
 	{
@@ -651,7 +609,7 @@ BOOL LLPanelPeople::postBuild()
 	// updater is active only if panel is visible to user.
 	friends_tab->setVisibleCallback(boost::bind(&Updater::setActive, mFriendListUpdater, _2));
     friends_tab->setVisibleCallback(boost::bind(&LLPanelPeople::removePicker, this));
-	friends_tab->setVisibleCallback(boost::bind(&Updater::setActive, mFacebookListUpdater, _2));
+	friends_tab->setVisibleCallback(boost::bind(&LLPanelPeople::updateFacebookList, this, _2));
 
 	mOnlineFriendList = friends_tab->getChild<LLAvatarList>("avatars_online");
 	mAllFriendList = friends_tab->getChild<LLAvatarList>("avatars_all");
@@ -695,12 +653,12 @@ BOOL LLPanelPeople::postBuild()
 	LLPanel * social_tab = getChild<LLPanel>(FBCTEST_TAB_NAME);
 	mFacebookFriends = social_tab->getChild<LLSocialList>("facebook_friends");
     // Note: we use the same updater for both test lists (brute force but OK since it's temporary)
-	social_tab->setVisibleCallback(boost::bind(&Updater::setActive, mFacebookListUpdater, _2));
+	social_tab->setVisibleCallback(boost::bind(&LLPanelPeople::updateFacebookList, this, _2));
 
 	//===Test START========================================================================
 
 	LLPanel * socialtwo_tab = getChild<LLPanel>(FBCTESTTWO_TAB_NAME);
-	socialtwo_tab->setVisibleCallback(boost::bind(&Updater::setActive, mFacebookListUpdater, _2));
+	socialtwo_tab->setVisibleCallback(boost::bind(&LLPanelPeople::updateFacebookList, this, _2));
 
 	//Create folder view
 	LLPersonModelCommon* base_item = new LLPersonModelCommon(mPersonFolderViewModel);
@@ -903,31 +861,75 @@ void LLPanelPeople::updateFriendList()
 
 void LLPanelPeople::updateSuggestedFriendList()
 {
-	const LLAvatarTracker& av_tracker = LLAvatarTracker::instance();
-	uuid_vec_t& suggested_friends = mSuggestedFriends->getIDs();
-	suggested_friends.clear();
-
-	//Add suggested friends
-	LLSD friends = LLFacebookConnect::instance().getContent();
-	for (LLSD::map_const_iterator i = friends.beginMap(); i != friends.endMap(); ++i)
+	if (LLFacebookConnect::instance().generation() != mFacebookListGeneration)
 	{
-		std::string name = i->second["name"].asString();
-		LLUUID agent_id = i->second.has("agent_id") ? i->second["agent_id"].asUUID() : LLUUID(NULL);
-		bool second_life_buddy = agent_id.notNull() ? av_tracker.isBuddy(agent_id) : false;
+		mFacebookListGeneration = LLFacebookConnect::instance().generation();
 
-		if(!second_life_buddy)
+		const LLAvatarTracker& av_tracker = LLAvatarTracker::instance();
+		uuid_vec_t& suggested_friends = mSuggestedFriends->getIDs();
+		suggested_friends.clear();
+
+		//Add suggested friends
+		LLSD friends = LLFacebookConnect::instance().getContent();
+		for (LLSD::map_const_iterator i = friends.beginMap(); i != friends.endMap(); ++i)
 		{
-			//FB+SL but not SL friend
-			if (agent_id.notNull())
+			std::string name = i->second["name"].asString();
+			LLUUID agent_id = i->second.has("agent_id") ? i->second["agent_id"].asUUID() : LLUUID(NULL);
+			bool second_life_buddy = agent_id.notNull() ? av_tracker.isBuddy(agent_id) : false;
+
+			if(!second_life_buddy)
 			{
-				suggested_friends.push_back(agent_id);
+				//FB+SL but not SL friend
+				if (agent_id.notNull())
+				{
+					suggested_friends.push_back(agent_id);
+				}
 			}
 		}
-	}
 
-	//Force a refresh when there aren't any filter matches (prevent displaying content that shouldn't display)
-	mSuggestedFriends->setDirty(true, !mSuggestedFriends->filterHasMatches());
-	showFriendsAccordionsIfNeeded();
+		//Force a refresh when there aren't any filter matches (prevent displaying content that shouldn't display)
+		mSuggestedFriends->setDirty(true, !mSuggestedFriends->filterHasMatches());
+		showFriendsAccordionsIfNeeded();
+
+
+
+		//TODO Gilbert: Below code will eventually be deprecated
+		mFacebookFriends->clear();
+		LLPersonTabModel::tab_type tab_type;
+		LLAvatarTracker& avatar_tracker = LLAvatarTracker::instance();
+
+		for (LLSD::map_const_iterator i = friends.beginMap(); i != friends.endMap(); ++i)
+		{
+			std::string name = i->second["name"].asString();
+			LLUUID agent_id = i->second.has("agent_id") ? i->second["agent_id"].asUUID() : LLUUID(NULL);
+			bool second_life_buddy = agent_id.notNull() ? avatar_tracker.isBuddy(agent_id) : false;
+
+			//add to avatar list
+			mFacebookFriends->addNewItem(agent_id, name, false);
+
+			if(!second_life_buddy)
+			{
+				//FB+SL but not SL friend
+				if (agent_id.notNull())
+				{
+					tab_type = LLPersonTabModel::FB_SL_NON_SL_FRIEND;
+				}
+				//FB only friend
+				else
+				{
+					tab_type = LLPersonTabModel::FB_ONLY_FRIEND;
+				}
+
+				//Add to person tab model
+				LLPersonTabModel * person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(tab_type));
+				if (person_tab_model)
+				{
+					addParticipantToModel(person_tab_model, agent_id, name);
+				}
+			}
+		}
+
+	}
 }
 
 void LLPanelPeople::updateNearbyList()
@@ -953,63 +955,27 @@ void LLPanelPeople::updateRecentList()
 	mRecentList->setDirty();
 }
 
-void LLPanelPeople::updateFacebookList()
+void LLPanelPeople::updateFacebookList(bool visible)
 {
-	if (mTryToConnectToFbc)
-	{	
-		// try to reconnect to facebook!
-		LLFacebookConnect::instance().tryToReconnectToFacebook();
+	if(visible)
+	{
+		LLFacebookConnect::instance().setContentUpdatedCallback(boost::bind(&LLPanelPeople::updateSuggestedFriendList, this));
 
-		// don't try again
-		mTryToConnectToFbc = false;
-		
-		// stop updating
-		mFacebookListUpdater->setActive(false);
-	}
+		if (mTryToConnectToFbc)
+		{	
+			// try to reconnect to facebook!
+			LLFacebookConnect::instance().tryToReconnectToFacebook();
+
+			// don't try again
+			mTryToConnectToFbc = false;
+		}
     
-    if (LLFacebookConnect::instance().generation() != mFacebookListGeneration)
-    {
-        mFacebookListGeneration = LLFacebookConnect::instance().generation();
-        LLSD friends = LLFacebookConnect::instance().getContent();
-
-        mFacebookFriends->clear();
-        LLPersonTabModel::tab_type tab_type;
-        LLAvatarTracker& avatar_tracker = LLAvatarTracker::instance();
-        
-        for (LLSD::map_const_iterator i = friends.beginMap(); i != friends.endMap(); ++i)
-        {
-            std::string name = i->second["name"].asString();
-            LLUUID agent_id = i->second.has("agent_id") ? i->second["agent_id"].asUUID() : LLUUID(NULL);
-            bool second_life_buddy = agent_id.notNull() ? avatar_tracker.isBuddy(agent_id) : false;
-
-            //add to avatar list
-            mFacebookFriends->addNewItem(agent_id, name, false);
-            
-			if(!second_life_buddy)
-			{
-				//FB+SL but not SL friend
-				if (agent_id.notNull())
-				{
-					tab_type = LLPersonTabModel::FB_SL_NON_SL_FRIEND;
-				}
-				//FB only friend
-				else
-				{
-					tab_type = LLPersonTabModel::FB_ONLY_FRIEND;
-				}
-
-				//Add to person tab model
-				LLPersonTabModel * person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(tab_type));
-				if (person_tab_model)
-				{
-					addParticipantToModel(person_tab_model, agent_id, name);
-				}
-			}
-        }
-
 		updateSuggestedFriendList();
-		showFriendsAccordionsIfNeeded();
-    }
+	}
+	else
+	{
+		LLFacebookConnect::instance().setContentUpdatedCallback(NULL);
+	}
 }
 
 void LLPanelPeople::updateButtons()

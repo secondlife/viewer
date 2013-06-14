@@ -88,7 +88,7 @@ private:
 	void					updateSuggestedFriendList();
 	void					updateNearbyList();
 	void					updateRecentList();
-	void					updateFacebookList();
+	void					updateFacebookList(bool visible);
 
 	bool					isItemsFreeOfFriends(const uuid_vec_t& uuids);
 
