@@ -1925,9 +1925,12 @@ bool LLTextureCache::writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 dis
 	memcpy(mFastCachePadBuffer + sizeof(S32), &h, sizeof(S32));
 	memcpy(mFastCachePadBuffer + sizeof(S32) * 2, &c, sizeof(S32));
 	memcpy(mFastCachePadBuffer + sizeof(S32) * 3, &discardlevel, sizeof(S32));
-	if(w * h * c > 0) //valid
+
+	S32 copy_size = w * h * c;
+	if(copy_size > 0) //valid
 	{
-		memcpy(mFastCachePadBuffer + TEXTURE_FAST_CACHE_ENTRY_OVERHEAD, raw->getData(), w * h * c);
+		copy_size = llmin(copy_size, TEXTURE_FAST_CACHE_ENTRY_SIZE - TEXTURE_FAST_CACHE_ENTRY_OVERHEAD);
+		memcpy(mFastCachePadBuffer + TEXTURE_FAST_CACHE_ENTRY_OVERHEAD, raw->getData(), copy_size);
 	}
 	S32 offset = id * TEXTURE_FAST_CACHE_ENTRY_SIZE;
 
