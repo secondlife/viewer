@@ -50,6 +50,7 @@ public:
 	};
 
 	typedef boost::function<void(bool ok)> share_callback_t;
+	typedef boost::function<void()> content_updated_callback_t;
 
 	void connectToFacebook(const std::string& auth_code = "");  // Initiate the complete FB connection. Please use getConnectionToFacebook() in normal use.
 	void disconnectFromFacebook();                              // Disconnect from the FBC service.
@@ -64,6 +65,7 @@ public:
 	void setPostCheckinCallback(share_callback_t cb) { mPostCheckinCallback = cb; }
 	void setSharePhotoCallback(share_callback_t cb) { mSharePhotoCallback = cb; }
 	void setUpdateStatusCallback(share_callback_t cb) { mUpdateStatusCallback = cb; }
+	void setContentUpdatedCallback(content_updated_callback_t cb) { mContentUpdatedCallback = cb;}
 
     void clearContent();
 	void storeContent(const LLSD& content);
@@ -89,6 +91,7 @@ private:
 	share_callback_t mPostCheckinCallback;
 	share_callback_t mSharePhotoCallback;
 	share_callback_t mUpdateStatusCallback;
+	content_updated_callback_t mContentUpdatedCallback;
 };
 
 #endif // LL_LLFACEBOOKCONNECT_H

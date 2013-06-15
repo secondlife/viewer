@@ -398,6 +398,11 @@ void LLFacebookConnect::storeContent(const LLSD& content)
 {
     mGeneration++;
     mContent = content;
+
+	if(mContentUpdatedCallback)
+	{
+		mContentUpdatedCallback();
+	}
 }
 
 const LLSD& LLFacebookConnect::getContent() const
