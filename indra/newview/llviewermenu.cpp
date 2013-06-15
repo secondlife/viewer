@@ -5974,7 +5974,7 @@ void handle_report_abuse()
 
 void handle_facebook_connect()
 {
-	if (!LLFacebookConnect::instance().getConnected())
+	if (!LLFacebookConnect::instance().isConnected())
 	{
         LLFacebookConnect::instance().getConnectionToFacebook();
 	}
@@ -5983,7 +5983,7 @@ void handle_facebook_connect()
 bool enable_facebook_connect()
 {
     // The menu item will be disabled if we are already connected
-    return !LLFacebookConnect::instance().getConnected();
+    return !LLFacebookConnect::instance().isConnected();
 }
 
 void handle_facebook_checkin()
