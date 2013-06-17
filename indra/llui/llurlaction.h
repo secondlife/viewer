@@ -79,7 +79,7 @@ public:
 	static std::string getUserID(std::string url);
 	static void sendIM(std::string url);
 	static void addFriend(std::string url);
-	static void LLUrlAction::removeFriend(std::string url);
+	static void removeFriend(std::string url);
 
 	/// specify the callbacks to enable this class's functionality
 	typedef boost::function<void (const std::string&)> url_callback_t;
