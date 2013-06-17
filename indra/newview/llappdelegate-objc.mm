@@ -73,11 +73,7 @@
 
 - (void) showInputWindow:(bool)show withEvent:(NSEvent*)textEvent
 {
-	// How to add support for new languages with the input window:
-	// Simply append this array with the language code (ja for japanese, ko for korean, zh for chinese, etc.)
-	NSArray *authorizedLanguages = [[NSArray alloc] initWithObjects:@"ja", @"ko", @"zh-Hant", @"zh-Hans", nil];
-	
-	if ([authorizedLanguages containsObject:currentInputLanguage])
+	if (![self romanScript])
 	{
 		if (show)
 		{
@@ -85,6 +81,7 @@
 			[inputWindow makeKeyAndOrderFront:inputWindow];
             if (textEvent != nil)
             {
+                [[inputView inputContext] discardMarkedText];
                 [[inputView inputContext] handleEvent:textEvent];
             }
 		} else {
@@ -105,12 +102,25 @@
 	TISInputSourceRef currentInput = TISCopyCurrentKeyboardInputSource();
 	CFArrayRef languages = (CFArrayRef)TISGetInputSourceProperty(currentInput, kTISPropertyInputSourceLanguages);
 	
-#if 1 // In the event of ever needing to add new language sources, change this to 1 and watch the terminal for "languages:"
+#if 0 // In the event of ever needing to add new language sources, change this to 1 and watch the terminal for "languages:"
 	NSLog(@"languages: %@", TISGetInputSourceProperty(currentInput, kTISPropertyInputSourceLanguages));
 #endif
 	
 	// Typically the language we want is going to be the very first result in the array.
 	currentInputLanguage = (NSString*)CFArrayGetValueAtIndex(languages, 0);
+}
+
+- (bool) romanScript
+{
+	// How to add support for new languages with the input window:
+	// Simply append this array with the language code (ja for japanese, ko for korean, zh for chinese, etc.)
+	NSArray *nonRomanScript = [[NSArray alloc] initWithObjects:@"ja", @"ko", @"zh-Hant", @"zh-Hans", nil];
+	if ([nonRomanScript containsObject:currentInputLanguage])
+    {
+        return false;
+    }
+    
+    return true;
 }
 
 @end

@@ -317,15 +317,21 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	if (!mHasMarkedText)
 	{
 		uint keycode = [theEvent keyCode];
-		if (callKeyDown(keycode, mModifiers))
+        bool acceptsText = callKeyDown(keycode, mModifiers);
+        if (acceptsText &&
+            !mMarkedTextAllowed &&
+            ![(LLAppDelegate*)[NSApp delegate] romanScript] &&
+            [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSDeleteCharacter &&
+            [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSBackspaceCharacter)
         {
-            if (!mMarkedTextAllowed && [[theEvent characters] characterAtIndex:0] != NSBackspaceCharacter)
-            {
-                [(LLAppDelegate*)[NSApp delegate] showInputWindow:true withEvent:theEvent];
-            }
-            
+            [(LLAppDelegate*)[NSApp delegate] showInputWindow:true withEvent:theEvent];
+        } else
+        {
             [[self inputContext] handleEvent:theEvent];
-        } else if ([[theEvent charactersIgnoringModifiers] characterAtIndex:0] == 13 || [[theEvent charactersIgnoringModifiers] characterAtIndex:0] == 3)
+        }
+        
+        if ([[theEvent charactersIgnoringModifiers] characterAtIndex:0] == NSCarriageReturnCharacter ||
+            [[theEvent charactersIgnoringModifiers] characterAtIndex:0] == NSEnterCharacter)
         {
             // callKeyDown won't return the value we expect for enter or return.  Handle them as a separate case.
             [[self inputContext] handleEvent:theEvent];
@@ -438,7 +444,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
             mMarkedTextLength = [aString length];
             mMarkedText = (NSAttributedString*)[aString mutableString];
         } else {
-            if (mHasMarkedText)
+            if (mHasMarkedText || ![mMarkedText isEqual: @""])
             {
                 [self unmarkText];
             }

@@ -26,4 +26,5 @@
 - (void) mainLoop;
 - (void) showInputWindow:(bool)show withEvent:(NSEvent*)textEvent;
 - (void) languageUpdated;
+- (bool) romanScript;
 @end
