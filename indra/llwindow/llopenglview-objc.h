@@ -22,7 +22,6 @@
 	float mMousePos[2];
 	bool mHasMarkedText;
 	unsigned int mMarkedTextLength;
-	NSAttributedString *mMarkedText;
     bool mMarkedTextAllowed;
 }
 - (id) initWithSamples:(NSUInteger)samples;

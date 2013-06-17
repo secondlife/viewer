@@ -372,9 +372,9 @@ void commitCurrentPreedit(GLViewRef glView)
 	[(LLOpenGLView*)glView commitCurrentPreedit];
 }
 
-void allowDirectMarkedTextInput(bool allow)
+void allowDirectMarkedTextInput(bool allow, GLViewRef glView)
 {
-    
+    [(LLOpenGLView*)glView allowMarkedTextInput:allow];
 }
 
 NSWindowRef getMainAppWindow()

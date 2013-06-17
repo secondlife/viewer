@@ -126,6 +126,8 @@ public:
 	void getMouseDeltas(float* delta);
 	
 	void handleDragNDrop(std::string url, LLWindowCallbacks::DragNDropAction action);
+    
+    bool allowsLanguageInput() { return mLanguageTextInputAllowed; }
 
 protected:
 	LLWindowMacOSX(LLWindowCallbacks* callbacks,

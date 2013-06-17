@@ -314,37 +314,34 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) keyDown:(NSEvent *)theEvent
 {
-	if (!mHasMarkedText)
-	{
-		uint keycode = [theEvent keyCode];
-        bool acceptsText = callKeyDown(keycode, mModifiers);
-        if (acceptsText &&
-            !mMarkedTextAllowed &&
-            ![(LLAppDelegate*)[NSApp delegate] romanScript] &&
-            [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSDeleteCharacter &&
-            [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSBackspaceCharacter)
-        {
-            [(LLAppDelegate*)[NSApp delegate] showInputWindow:true withEvent:theEvent];
-        } else
-        {
-            [[self inputContext] handleEvent:theEvent];
-        }
-        
-        if ([[theEvent charactersIgnoringModifiers] characterAtIndex:0] == NSCarriageReturnCharacter ||
-            [[theEvent charactersIgnoringModifiers] characterAtIndex:0] == NSEnterCharacter)
-        {
-            // callKeyDown won't return the value we expect for enter or return.  Handle them as a separate case.
-            [[self inputContext] handleEvent:theEvent];
-        }
-        
-		// OS X intentionally does not send us key-up information on cmd-key combinations.
-		// This behaviour is not a bug, and only applies to cmd-combinations (no others).
-		// Since SL assumes we receive those, we fake it here.
-		if (mModifiers & NSCommandKeyMask)
-		{
-			callKeyUp([theEvent keyCode], mModifiers);
-		}
-	}
+    uint keycode = [theEvent keyCode];
+    bool acceptsText = callKeyDown(keycode, mModifiers);
+    if (acceptsText &&
+        !mMarkedTextAllowed &&
+        ![(LLAppDelegate*)[NSApp delegate] romanScript] &&
+        [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSDeleteCharacter &&
+        [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSBackspaceCharacter)
+    {
+        [(LLAppDelegate*)[NSApp delegate] showInputWindow:true withEvent:theEvent];
+    } else
+    {
+        [[self inputContext] handleEvent:theEvent];
+    }
+    
+    if ([[theEvent charactersIgnoringModifiers] characterAtIndex:0] == NSCarriageReturnCharacter ||
+        [[theEvent charactersIgnoringModifiers] characterAtIndex:0] == NSEnterCharacter)
+    {
+        // callKeyDown won't return the value we expect for enter or return.  Handle them as a separate case.
+        [[self inputContext] handleEvent:theEvent];
+    }
+    
+    // OS X intentionally does not send us key-up information on cmd-key combinations.
+    // This behaviour is not a bug, and only applies to cmd-combinations (no others).
+    // Since SL assumes we receive those, we fake it here.
+    if (mModifiers & NSCommandKeyMask)
+    {
+        callKeyUp([theEvent keyCode], mModifiers);
+    }
 }
 
 - (void)flagsChanged:(NSEvent *)theEvent {
@@ -425,7 +422,6 @@ attributedStringInfo getSegments(NSAttributedString *str)
     {
         if (mMarkedTextAllowed)
         {
-            
             unsigned int selected[2] = {
                 selectedRange.location,
                 selectedRange.length
@@ -442,9 +438,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
             setMarkedText(text, selected, replacement, [aString length], segments);
             mHasMarkedText = TRUE;
             mMarkedTextLength = [aString length];
-            mMarkedText = (NSAttributedString*)[aString mutableString];
         } else {
-            if (mHasMarkedText || ![mMarkedText isEqual: @""])
+            if (mHasMarkedText)
             {
                 [self unmarkText];
             }
@@ -454,17 +449,18 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void)commitCurrentPreedit
 {
-    if (mMarkedText)
+    if (mHasMarkedText)
     {
-        [self insertText:mMarkedText];
-        [[self inputContext] discardMarkedText];
+        if ([[self inputContext] respondsToSelector:@selector(commitEditing)])
+        {
+            [[self inputContext] commitEditing];
+        }
     }
 }
 
 - (void)unmarkText
 {
 	[[self inputContext] discardMarkedText];
-	[mMarkedText setValue:@""];
 	resetPreedit();
 	mHasMarkedText = FALSE;
 }
@@ -481,6 +477,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	return nil;
 }
 
+- (void)insertText:(id)insertString
+{
+    if (insertString != nil)
+    {
+        [self insertText:insertString replacementRange:NSMakeRange(0, [insertString length])];
+    }
+}
+
 - (void)insertText:(id)aString replacementRange:(NSRange)replacementRange
 {
 	if (!mHasMarkedText)
@@ -490,9 +494,9 @@ attributedStringInfo getSegments(NSAttributedString *str)
 			callUnicodeCallback([aString characterAtIndex:i], mModifiers);
 		}
 	} else {
+        resetPreedit();
 		// We may never get this point since unmarkText may be called before insertText ever gets called once we submit our text.
 		// But just in case...
-		resetPreedit();
 		
 		for (NSInteger i = 0; i < [aString length]; i++)
 		{
@@ -567,7 +571,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	[[self inputContext] discardMarkedText];
     [self setString:@""];
     [_window orderOut:_window];
-	[self insertText:insertString replacementRange:NSMakeRange(0, 0)];
+	[self insertText:insertString replacementRange:NSMakeRange(0, [insertString length])];
 }
 
 - (void) insertText:(id)aString replacementRange:(NSRange)replacementRange

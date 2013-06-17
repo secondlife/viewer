@@ -135,7 +135,7 @@ void resetPreedit();
 int wstring_length(const std::basic_string<wchar_t> & wstr, const int woffset, const int utf16_length, int *unaligned);
 void setMarkedText(unsigned short *text, unsigned int *selectedRange, unsigned int *replacementRange, long text_len, attributedStringInfo segments);
 void getPreeditLocation(float *location, unsigned int length);
-void allowDirectMarkedTextInput(bool allow);
+void allowDirectMarkedTextInput(bool allow, GLViewRef glView);
 
 NSWindowRef getMainAppWindow();
 GLViewRef getGLView();

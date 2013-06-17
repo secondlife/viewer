@@ -239,6 +239,11 @@ void callFocusLost()
 
 void callRightMouseDown(float *pos, MASK mask)
 {
+    if (gWindowImplementation->allowsLanguageInput())
+    {
+        gWindowImplementation->interruptLanguageTextInput();
+    }
+    
 	LLCoordGL		outCoords;
 	outCoords.mX = llround(pos[0]);
 	outCoords.mY = llround(pos[1]);
@@ -247,6 +252,11 @@ void callRightMouseDown(float *pos, MASK mask)
 
 void callRightMouseUp(float *pos, MASK mask)
 {
+    if (gWindowImplementation->allowsLanguageInput())
+    {
+        gWindowImplementation->interruptLanguageTextInput();
+    }
+    
 	LLCoordGL		outCoords;
 	outCoords.mX = llround(pos[0]);
 	outCoords.mY = llround(pos[1]);
@@ -255,6 +265,11 @@ void callRightMouseUp(float *pos, MASK mask)
 
 void callLeftMouseDown(float *pos, MASK mask)
 {
+    if (gWindowImplementation->allowsLanguageInput())
+    {
+        gWindowImplementation->interruptLanguageTextInput();
+    }
+    
 	LLCoordGL		outCoords;
 	outCoords.mX = llround(pos[0]);
 	outCoords.mY = llround(pos[1]);
@@ -263,6 +278,11 @@ void callLeftMouseDown(float *pos, MASK mask)
 
 void callLeftMouseUp(float *pos, MASK mask)
 {
+    if (gWindowImplementation->allowsLanguageInput())
+    {
+        gWindowImplementation->interruptLanguageTextInput();
+    }
+    
 	LLCoordGL		outCoords;
 	outCoords.mX = llround(pos[0]);
 	outCoords.mY = llround(pos[1]);
@@ -272,6 +292,11 @@ void callLeftMouseUp(float *pos, MASK mask)
 
 void callDoubleClick(float *pos, MASK mask)
 {
+    if (gWindowImplementation->allowsLanguageInput())
+    {
+        gWindowImplementation->interruptLanguageTextInput();
+    }
+    
 	LLCoordGL	outCoords;
 	outCoords.mX = llround(pos[0]);
 	outCoords.mY = llround(pos[1]);
@@ -434,7 +459,7 @@ void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigne
 	if (gWindowImplementation->getPreeditor())
 	{
 		LLPreeditor *preeditor = gWindowImplementation->getPreeditor();
-		
+		preeditor->resetPreedit();
 		// This should be a viable replacement for the kEventParamTextInputSendReplaceRange parameter.
 		if (replacementRange[0] < replacementRange[1])
 		{
@@ -443,8 +468,6 @@ void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigne
 			const S32 length = wstring_wstring_length_from_utf16_length(text, location, replacementRange[1]);
 			preeditor->markAsPreedit(location, length);
 		}
-		
-		preeditor->resetPreedit();
 		
 		LLWString fix_str = utf16str_to_wstring(llutf16string(unitext, text_len));
 		
@@ -1818,6 +1841,8 @@ static long getDictLong (CFDictionaryRef refDict, CFStringRef key)
 
 void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
 {
+    allowDirectMarkedTextInput(b, mGLView);
+	
 	if (preeditor != mPreeditor && !b)
 	{
 		// This condition may occur by a call to
@@ -1828,16 +1853,7 @@ void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
 		// is not disturbed.
 		return;
 	}
-	
-	if (preeditor == NULL) {
-        // If we don't have a pre editor, then we can't accept direct marked text input.
-        // We needs an input window (which is handled internally by LLOpenGLView)
-		allowDirectMarkedTextInput(false);
-	} else {
-        // If we have a preeditor, then accept direct marked text input.
-        allowDirectMarkedTextInput(true);
-    }
-	
+    
 	// Take care of old and new preeditors.
 	if (preeditor != mPreeditor || !b)
 	{
