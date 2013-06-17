@@ -315,7 +315,7 @@ void AISUpdate::parseUpdate(const LLSD& update)
 			}
 			else
 			{
-				llwarns << "unrecognized embedded field " << field << llendl;
+				//LL_DEBUGS("Inventory") << "unhandled embedded field " << field << llendl;
 			}
 		}
 		
@@ -439,8 +439,9 @@ void AISUpdate::doUpdate()
 		LLViewerInventoryCategory *cat = gInventory.getCategory(id);
 		if (cat->getVersion() != version)
 		{
-			llwarns << "Possible version mismatch, viewer " << cat->getVersion()
-					<< " server " << version << llendl;
+			llwarns << "Possible version mismatch for category " << cat->getName()
+					<< ", viewer version " << cat->getVersion()
+					<< " server version " << version << llendl;
 		}
 	}
 
