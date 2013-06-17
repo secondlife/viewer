@@ -24,6 +24,6 @@
 @property (retain) NSString *currentInputLanguage;
 
 - (void) mainLoop;
-- (void) showInputWindow:(bool)show;
+- (void) showInputWindow:(bool)show withText:(id)text;
 - (void) languageUpdated;
 @end

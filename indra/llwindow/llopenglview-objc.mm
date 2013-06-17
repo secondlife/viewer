@@ -404,10 +404,11 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void)setMarkedText:(id)aString selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange
 {
-    if (mMarkedTextAllowed)
+    if ([aString class] == NSClassFromString(@"NSConcreteMutableAttributedString"))
     {
-        if ([aString class] == NSClassFromString(@"NSConcreteMutableAttributedString"))
+        if (mMarkedTextAllowed)
         {
+            
             unsigned int selected[2] = {
                 selectedRange.location,
                 selectedRange.length
@@ -425,9 +426,13 @@ attributedStringInfo getSegments(NSAttributedString *str)
             mHasMarkedText = TRUE;
             mMarkedTextLength = [aString length];
             mMarkedText = (NSAttributedString*)[aString mutableString];
+        } else if ([[aString mutableString] characterAtIndex:0] != NSBackspaceCharacter) {
+            showInputWindow(true, aString);
+            if (mHasMarkedText)
+            {
+                [self unmarkText];
+            }
         }
-    } else {
-        showInputWindow(true);
     }
 }
 

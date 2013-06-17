@@ -71,7 +71,7 @@
 	}
 }
 
-- (void) showInputWindow:(bool)show
+- (void) showInputWindow:(bool)show withText:(id)text
 {
 	// How to add support for new languages with the input window:
 	// Simply append this array with the language code (ja for japanese, ko for korean, zh for chinese, etc.)
@@ -83,6 +83,7 @@
 		{
 			NSLog(@"Showing input window.");
 			[inputWindow makeKeyAndOrderFront:inputWindow];
+            [inputView setMarkedText:text selectedRange:NSMakeRange(0, 1)];
 		} else {
 			NSLog(@"Hiding input window.");
 			[inputWindow orderOut:inputWindow];

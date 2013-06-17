@@ -91,7 +91,7 @@ void closeWindow(NSWindowRef window);
 void removeGLView(GLViewRef view);
 void makeFirstResponder(NSWindowRef window, GLViewRef view);
 void setupInputWindow(NSWindowRef window, GLViewRef view);
-void showInputWindow(bool show);
+void showInputWindow(bool show, void* text);
 
 // These are all implemented in llwindowmacosx.cpp.
 // This is largely for easier interop between Obj-C and C++ (at least in the viewer's case due to the BOOL vs. BOOL conflict)

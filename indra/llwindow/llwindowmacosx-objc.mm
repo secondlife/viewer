@@ -367,9 +367,9 @@ void setupInputWindow(NSWindowRef window, GLViewRef glview)
 	[[(LLAppDelegate*)[NSApp delegate] inputView] setGLView:(LLOpenGLView*)glview];
 }
 
-void showInputWindow(bool show)
+void showInputWindow(bool show, void* text)
 {
-	[(LLAppDelegate*)[NSApp delegate] showInputWindow:show];
+	[(LLAppDelegate*)[NSApp delegate] showInputWindow:show withText:(id)text];
 }
 
 void commitCurrentPreedit(GLViewRef glView)
