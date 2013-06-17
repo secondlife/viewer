@@ -337,7 +337,7 @@ extern LLPumpIO* gServicePump;
 
 extern U64      gFrameTime;					// The timestamp of the most-recently-processed frame
 extern F32		gFrameTimeSeconds;			// Loses msec precision after ~4.5 hours...
-extern LLUnit<LLUnits::Seconds, F32>		gFrameIntervalSeconds;		// Elapsed time between current and previous gFrameTimeSeconds
+extern LLUnit<F32, LLUnits::Seconds>		gFrameIntervalSeconds;		// Elapsed time between current and previous gFrameTimeSeconds
 extern F32		gFPSClamped;				// Frames per second, smoothed, weighted toward last frame
 extern F32		gFrameDTClamped;
 extern U64		gStartTime;

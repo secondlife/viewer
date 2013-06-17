@@ -122,21 +122,26 @@ Recording::Recording()
 
 Recording::Recording( const Recording& other )
 {
+	*this = other;
+}
+
+Recording& Recording::operator = (const Recording& other)
+{
 	// this will allow us to seamlessly start without affecting any data we've acquired from other
 	setPlayState(PAUSED);
 
 	Recording& mutable_other = const_cast<Recording&>(other);
+	mutable_other.update();
 	EPlayState other_play_state = other.getPlayState();
-	mutable_other.pause();
 
-	mBuffers = other.mBuffers;
+	mBuffers = mutable_other.mBuffers;
 
 	LLStopWatchControlsMixin<Recording>::setPlayState(other_play_state);
-	mutable_other.setPlayState(other_play_state);
 
 	// above call will clear mElapsedSeconds as a side effect, so copy it here
 	mElapsedSeconds = other.mElapsedSeconds;
 	mSamplingTimer = other.mSamplingTimer;
+	return *this;
 }
 
 
@@ -186,26 +191,18 @@ void Recording::handleSplitTo(Recording& other)
 
 void Recording::appendRecording( const Recording& other )
 {
-	EPlayState play_state = getPlayState();
-	{
-		pause();
-		mBuffers.write()->append(*other.mBuffers);
-		mElapsedSeconds += other.mElapsedSeconds;
-	}
-	setPlayState(play_state);
+	update();
+	mBuffers.write()->append(*other.mBuffers);
+	mElapsedSeconds += other.mElapsedSeconds;
 }
 
 void Recording::mergeRecording( const Recording& other)
 {
-	EPlayState play_state = getPlayState();
-	{
-		pause();
-		mBuffers.write()->merge(*other.mBuffers);
-	}
-	setPlayState(play_state);
+	update();
+	mBuffers.write()->merge(*other.mBuffers);
 }
 
-LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumulator>& stat)
+LLUnit<F64, LLUnits::Seconds> Recording::getSum(const TraceType<TimeBlockAccumulator>& stat)
 {
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 	update();
@@ -213,7 +210,7 @@ LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumul
 				/ (F64)LLTrace::TimeBlock::countsPerSecond();
 }
 
-LLUnit<LLUnits::Seconds, F64> Recording::getSum(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat)
+LLUnit<F64, LLUnits::Seconds> Recording::getSum(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat)
 {
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 	update();
@@ -227,85 +224,85 @@ U32 Recording::getSum(const TraceType<TimeBlockAccumulator::CallCountFacet>& sta
 	return mBuffers->mStackTimers[stat.getIndex()].mCalls;
 }
 
-LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccumulator>& stat)
+LLUnit<F64, LLUnits::Seconds> Recording::getPerSec(const TraceType<TimeBlockAccumulator>& stat)
 {
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 
 	update();
 	return (F64)(accumulator.mTotalTimeCounter - accumulator.mStartTotalTimeCounter) 
-				/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds);
+				/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds.value());
 }
 
-LLUnit<LLUnits::Seconds, F64> Recording::getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat)
+LLUnit<F64, LLUnits::Seconds> Recording::getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat)
 {
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 
 	update();
 	return (F64)(accumulator.mSelfTimeCounter) 
-			/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds);
+			/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds.value());
 }
 
 F32 Recording::getPerSec(const TraceType<TimeBlockAccumulator::CallCountFacet>& stat)
 {
 	update();
-	return (F32)mBuffers->mStackTimers[stat.getIndex()].mCalls / mElapsedSeconds;
+	return (F32)mBuffers->mStackTimers[stat.getIndex()].mCalls / mElapsedSeconds.value();
 }
 
-LLUnit<LLUnits::Bytes, F64> Recording::getMin(const TraceType<MemStatAccumulator>& stat)
+LLUnit<F64, LLUnits::Bytes> Recording::getMin(const TraceType<MemStatAccumulator>& stat)
 {
 	update();
 	return mBuffers->mMemStats[stat.getIndex()].mSize.getMin();
 }
 
-LLUnit<LLUnits::Bytes, F64> Recording::getMean(const TraceType<MemStatAccumulator>& stat)
+LLUnit<F64, LLUnits::Bytes> Recording::getMean(const TraceType<MemStatAccumulator>& stat)
 {
 	update();
 	return mBuffers->mMemStats[stat.getIndex()].mSize.getMean();
 }
 
-LLUnit<LLUnits::Bytes, F64> Recording::getMax(const TraceType<MemStatAccumulator>& stat)
+LLUnit<F64, LLUnits::Bytes> Recording::getMax(const TraceType<MemStatAccumulator>& stat)
 {
 	update();
 	return mBuffers->mMemStats[stat.getIndex()].mSize.getMax();
 }
 
-LLUnit<LLUnits::Bytes, F64> Recording::getStandardDeviation(const TraceType<MemStatAccumulator>& stat)
+LLUnit<F64, LLUnits::Bytes> Recording::getStandardDeviation(const TraceType<MemStatAccumulator>& stat)
 {
 	update();
 	return mBuffers->mMemStats[stat.getIndex()].mSize.getStandardDeviation();
 }
 
-LLUnit<LLUnits::Bytes, F64> Recording::getLastValue(const TraceType<MemStatAccumulator>& stat)
+LLUnit<F64, LLUnits::Bytes> Recording::getLastValue(const TraceType<MemStatAccumulator>& stat)
 {
 	update();
 	return mBuffers->mMemStats[stat.getIndex()].mSize.getLastValue();
 }
 
-LLUnit<LLUnits::Bytes, F64> Recording::getMin(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+LLUnit<F64, LLUnits::Bytes> Recording::getMin(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
 {
 	update();
 	return mBuffers->mMemStats[stat.getIndex()].mChildSize.getMin();
 }
 
-LLUnit<LLUnits::Bytes, F64> Recording::getMean(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+LLUnit<F64, LLUnits::Bytes> Recording::getMean(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
 {
 	update();
 	return mBuffers->mMemStats[stat.getIndex()].mChildSize.getMean();
 }
 
-LLUnit<LLUnits::Bytes, F64> Recording::getMax(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+LLUnit<F64, LLUnits::Bytes> Recording::getMax(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
 {
 	update();
 	return mBuffers->mMemStats[stat.getIndex()].mChildSize.getMax();
 }
 
-LLUnit<LLUnits::Bytes, F64> Recording::getStandardDeviation(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+LLUnit<F64, LLUnits::Bytes> Recording::getStandardDeviation(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
 {
 	update();
 	return mBuffers->mMemStats[stat.getIndex()].mChildSize.getStandardDeviation();
 }
 
-LLUnit<LLUnits::Bytes, F64> Recording::getLastValue(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+LLUnit<F64, LLUnits::Bytes> Recording::getLastValue(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
 {
 	update();
 	return mBuffers->mMemStats[stat.getIndex()].mChildSize.getLastValue();
@@ -341,7 +338,7 @@ F64 Recording::getPerSec( const TraceType<CountAccumulator>& stat )
 	update();
 	F64 sum = mBuffers->mCounts[stat.getIndex()].getSum();
 	return  (sum != 0.0) 
-		? (sum / mElapsedSeconds)
+		? (sum / mElapsedSeconds.value())
 		: 0.0;
 }
 
@@ -430,6 +427,7 @@ U32 Recording::getSampleCount( const TraceType<EventAccumulator>& stat )
 PeriodicRecording::PeriodicRecording( U32 num_periods, EPlayState state) 
 :	mAutoResize(num_periods == 0),
 	mCurPeriod(0),
+	mNumPeriods(0),
 	mRecordingPeriods(num_periods ? num_periods : 1)
 {
 	setPlayState(state);
@@ -443,9 +441,16 @@ void PeriodicRecording::nextPeriod()
 	}
 
 	Recording& old_recording = getCurRecording();
-
 	mCurPeriod = (mCurPeriod + 1) % mRecordingPeriods.size();
 	old_recording.splitTo(getCurRecording());
+
+	mNumPeriods = llmin(mRecordingPeriods.size(), mNumPeriods + 1);
+}
+
+void PeriodicRecording::appendRecording(Recording& recording)
+{
+	getCurRecording().appendRecording(recording);
+	nextPeriod();
 }
 
 
@@ -453,77 +458,71 @@ void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 {
 	if (other.mRecordingPeriods.empty()) return;
 
-	EPlayState play_state = getPlayState();
-	pause();
+	getCurRecording().update();
+	other.getCurRecording().update();
 
-	EPlayState other_play_state = other.getPlayState();
-	other.pause();
-
-	U32 other_recording_count = other.mRecordingPeriods.size();
-
-	Recording& other_oldest_recording = other.mRecordingPeriods[(other.mCurPeriod + 1) % other.mRecordingPeriods.size()];
-
-	// if I have a recording of any length, then close it off and start a fresh one
-	if (getCurRecording().getDuration().value())
+	if (mAutoResize)
 	{
-		nextPeriod();
-	}
-	getCurRecording().appendRecording(other_oldest_recording);
+		S32 other_index = (other.mCurPeriod + 1) % other.mRecordingPeriods.size();
+		S32 end_index = (other.mCurPeriod) % other.mRecordingPeriods.size(); 
 
-	if (other_recording_count > 1)
-	{
-		if (mAutoResize)
+		do
 		{
-			for (S32 other_index = (other.mCurPeriod + 2) % other_recording_count,
-				end_index = (other.mCurPeriod + 1) % other_recording_count; 
-				other_index != end_index; 
-				other_index = (other_index + 1) % other_recording_count)
+			if (other.mRecordingPeriods[other_index].getDuration().value())
 			{
-				llassert(other.mRecordingPeriods[other_index].getDuration() != 0.f 
-							&& (mRecordingPeriods.empty() 
-								|| other.mRecordingPeriods[other_index].getDuration() != mRecordingPeriods.back().getDuration()));
 				mRecordingPeriods.push_back(other.mRecordingPeriods[other_index]);
 			}
-
-			mCurPeriod = mRecordingPeriods.size() - 1;
+			other_index = (other_index + 1) % other.mRecordingPeriods.size();
 		}
-		else
+		while(other_index != end_index);
+
+		mCurPeriod = mRecordingPeriods.size() - 1;
+		mNumPeriods = mRecordingPeriods.size();
+	}
+	else
+	{
+		//FIXME: get proper number of recordings from other...might not have used all its slots
+		size_t num_to_copy = llmin(	mRecordingPeriods.size(), other.getNumRecordedPeriods());
+		std::vector<Recording>::iterator src_it = other.mRecordingPeriods.begin() 
+													+ (	(other.mCurPeriod + 1									// oldest period
+															+ (other.mRecordingPeriods.size() - num_to_copy))	// minus room for copy
+														% other.mRecordingPeriods.size());
+		std::vector<Recording>::iterator dest_it = mRecordingPeriods.begin() + mCurPeriod;
+
+		for(size_t i = 0; i < num_to_copy; i++)
 		{
-			size_t num_to_copy = llmin(	mRecordingPeriods.size(), other.mRecordingPeriods.size() - 1);
-			std::vector<Recording>::iterator src_it = other.mRecordingPeriods.begin() 
-														+ (	(other.mCurPeriod + 1									// oldest period
-																+ (other.mRecordingPeriods.size() - num_to_copy))	// minus room for copy
-															% other.mRecordingPeriods.size());
-			std::vector<Recording>::iterator dest_it = mRecordingPeriods.begin() + ((mCurPeriod + 1) % mRecordingPeriods.size());
+			*dest_it = *src_it;
 
-			for(S32 i = 0; i < num_to_copy; i++)
+			if (++src_it == other.mRecordingPeriods.end())
 			{
-				*dest_it = *src_it;
-
-				if (++src_it == other.mRecordingPeriods.end())
-				{
-					src_it = other.mRecordingPeriods.begin();
-				}
-
-				if (++dest_it == mRecordingPeriods.end())
-				{
-					dest_it = mRecordingPeriods.begin();
-				}
+				src_it = other.mRecordingPeriods.begin();
 			}
-		
-			mCurPeriod = (mCurPeriod + num_to_copy) % mRecordingPeriods.size();
+
+			if (++dest_it == mRecordingPeriods.end())
+			{
+				dest_it = mRecordingPeriods.begin();
+			}
 		}
+		
+		// want argument to % to be positive, otherwise result could be negative and thus out of bounds
+		llassert(num_to_copy >= 1);
+		// advance to last recording period copied, so we can check if the last period had actually carried any data, in which case we'll advance below
+		// using nextPeriod() which retains continuity (mLastValue, etc)
+		mCurPeriod = (mCurPeriod + num_to_copy - 1) % mRecordingPeriods.size();
+		mNumPeriods = llmin(mRecordingPeriods.size(), mNumPeriods + num_to_copy);
 	}
 
-	nextPeriod();
-
-	setPlayState(play_state);
-	other.setPlayState(other_play_state);
+	if (getCurRecording().getDuration().value())
+	{
+		//call this to chain last period copied to new active period
+		nextPeriod();
+	}
+	getCurRecording().setPlayState(getPlayState());
 }
 
-LLUnit<LLUnits::Seconds, F64> PeriodicRecording::getDuration() const
+LLUnit<F64, LLUnits::Seconds> PeriodicRecording::getDuration() const
 {
-	LLUnit<LLUnits::Seconds, F64> duration;
+	LLUnit<F64, LLUnits::Seconds> duration;
 	size_t num_periods = mRecordingPeriods.size();
 	for (size_t i = 1; i <= num_periods; i++)
 	{
@@ -615,7 +614,7 @@ void PeriodicRecording::handleSplitTo(PeriodicRecording& other)
 F64 PeriodicRecording::getPeriodMean( const TraceType<EventAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
 {
 	size_t total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, total_periods);
+	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
 	F64 mean = 0;
 	if (num_periods <= 0) { return mean; }
@@ -643,7 +642,7 @@ F64 PeriodicRecording::getPeriodMean( const TraceType<EventAccumulator>& stat, s
 F64 PeriodicRecording::getPeriodMin( const TraceType<EventAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
 {
 	size_t total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, total_periods);
+	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
 	F64 min_val = std::numeric_limits<F64>::max();
 	for (S32 i = 1; i <= num_periods; i++)
@@ -657,7 +656,7 @@ F64 PeriodicRecording::getPeriodMin( const TraceType<EventAccumulator>& stat, si
 F64 PeriodicRecording::getPeriodMax( const TraceType<EventAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
 {
 	size_t total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, total_periods);
+	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
 	F64 max_val = std::numeric_limits<F64>::min();
 	for (S32 i = 1; i <= num_periods; i++)
@@ -671,7 +670,7 @@ F64 PeriodicRecording::getPeriodMax( const TraceType<EventAccumulator>& stat, si
 F64 PeriodicRecording::getPeriodMin( const TraceType<SampleAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
 {
 	size_t total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, total_periods);
+	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
 	F64 min_val = std::numeric_limits<F64>::max();
 	for (S32 i = 1; i <= num_periods; i++)
@@ -685,7 +684,7 @@ F64 PeriodicRecording::getPeriodMin( const TraceType<SampleAccumulator>& stat, s
 F64 PeriodicRecording::getPeriodMax(const TraceType<SampleAccumulator>& stat, size_t num_periods /*= U32_MAX*/)
 {
 	size_t total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, total_periods);
+	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
 	F64 max_val = std::numeric_limits<F64>::min();
 	for (S32 i = 1; i <= num_periods; i++)
@@ -700,9 +699,9 @@ F64 PeriodicRecording::getPeriodMax(const TraceType<SampleAccumulator>& stat, si
 F64 PeriodicRecording::getPeriodMean( const TraceType<SampleAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
 {
 	size_t total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, total_periods);
+	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
-	LLUnit<LLUnits::Seconds, F64> total_duration = 0.f;
+	LLUnit<F64, LLUnits::Seconds> total_duration = 0.f;
 
 	F64 mean = 0;
 	if (num_periods <= 0) { return mean; }
@@ -712,7 +711,7 @@ F64 PeriodicRecording::getPeriodMean( const TraceType<SampleAccumulator>& stat, 
 		S32 index = (mCurPeriod + total_periods - i) % total_periods;
 		if (mRecordingPeriods[index].getDuration() > 0.f)
 		{
-			LLUnit<LLUnits::Seconds, F64> recording_duration = mRecordingPeriods[index].getDuration();
+			LLUnit<F64, LLUnits::Seconds> recording_duration = mRecordingPeriods[index].getDuration();
 			mean += mRecordingPeriods[index].getMean(stat) * recording_duration.value();
 			total_duration += recording_duration;
 		}
@@ -734,13 +733,11 @@ F64 PeriodicRecording::getPeriodMean( const TraceType<SampleAccumulator>& stat, 
 void ExtendableRecording::extend()
 {
 	// stop recording to get latest data
-	mPotentialRecording.stop();
+	mPotentialRecording.update();
 	// push the data back to accepted recording
 	mAcceptedRecording.appendRecording(mPotentialRecording);
 	// flush data, so we can start from scratch
 	mPotentialRecording.reset();
-	// go back to play state we were in initially
-	mPotentialRecording.setPlayState(getPlayState());
 }
 
 void ExtendableRecording::handleStart()
@@ -777,15 +774,10 @@ ExtendablePeriodicRecording::ExtendablePeriodicRecording()
 
 void ExtendablePeriodicRecording::extend()
 {
-	llassert(mPotentialRecording.getPlayState() == getPlayState());
-	// stop recording to get latest data
-	mPotentialRecording.pause();
 	// push the data back to accepted recording
 	mAcceptedRecording.appendPeriodicRecording(mPotentialRecording);
 	// flush data, so we can start from scratch
 	mPotentialRecording.reset();
-	// go back to play state we were in initially
-	mPotentialRecording.setPlayState(getPlayState());
 }
 
 

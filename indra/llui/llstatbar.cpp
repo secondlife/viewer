@@ -284,7 +284,7 @@ void LLStatBar::draw()
 		// draw background bar.
 		gl_rect_2d(bar_left, bar_top, bar_right, bar_bottom, LLColor4(0.f, 0.f, 0.f, 0.25f));
 
-		if (frame_recording.getNumPeriods() == 0)
+		if (frame_recording.getNumRecordedPeriods() == 0)
 		{
 			// No data, don't draw anything...
 			return;
@@ -315,7 +315,7 @@ void LLStatBar::draw()
 
 		if (mDisplayHistory && (mCountFloatp || mEventFloatp || mSampleFloatp))
 		{
-			const S32 num_values = frame_recording.getNumPeriods() - 1;
+			const S32 num_values = frame_recording.getNumRecordedPeriods() - 1;
 			F32 begin = 0;
 			F32 end = 0;
 			S32 i;

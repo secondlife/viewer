@@ -66,8 +66,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // extern
-const LLUnit<LLUnits::Mibibytes, S32> gMinVideoRam = 32;
-const LLUnit<LLUnits::Mibibytes, S32> gMaxVideoRam = 512;
+const LLUnit<S32, LLUnits::Mibibytes> gMinVideoRam = 32;
+const LLUnit<S32, LLUnits::Mibibytes> gMaxVideoRam = 512;
 
 
 // statics
@@ -88,11 +88,11 @@ S32 LLViewerTexture::sAuxCount = 0;
 LLFrameTimer LLViewerTexture::sEvaluationTimer;
 F32 LLViewerTexture::sDesiredDiscardBias = 0.f;
 F32 LLViewerTexture::sDesiredDiscardScale = 1.1f;
-LLUnit<LLUnits::Bytes, S32> LLViewerTexture::sBoundTextureMemory = 0;
-LLUnit<LLUnits::Bytes, S32> LLViewerTexture::sTotalTextureMemory = 0;
-LLUnit<LLUnits::Mibibytes, S32> LLViewerTexture::sMaxBoundTextureMem = 0;
-LLUnit<LLUnits::Mibibytes, S32> LLViewerTexture::sMaxTotalTextureMem = 0;
-LLUnit<LLUnits::Bytes, S32> LLViewerTexture::sMaxDesiredTextureMem = 0 ;
+LLUnit<S32, LLUnits::Bytes> LLViewerTexture::sBoundTextureMemory = 0;
+LLUnit<S32, LLUnits::Bytes> LLViewerTexture::sTotalTextureMemory = 0;
+LLUnit<S32, LLUnits::Mibibytes> LLViewerTexture::sMaxBoundTextureMem = 0;
+LLUnit<S32, LLUnits::Mibibytes> LLViewerTexture::sMaxTotalTextureMem = 0;
+LLUnit<S32, LLUnits::Bytes> LLViewerTexture::sMaxDesiredTextureMem = 0 ;
 S8  LLViewerTexture::sCameraMovingDiscardBias = 0 ;
 F32 LLViewerTexture::sCameraMovingBias = 0.0f ;
 S32 LLViewerTexture::sMaxSculptRez = 128 ; //max sculpt image size
@@ -542,7 +542,7 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 		sTotalTextureMemory >= sMaxTotalTextureMem)
 	{
 		//when texture memory overflows, lower down the threshold to release the textures more aggressively.
-		sMaxDesiredTextureMem = llmin(sMaxDesiredTextureMem * 0.75f, LLUnit<LLUnits::Bytes, S32>(gMaxVideoRam));
+		sMaxDesiredTextureMem = llmin(sMaxDesiredTextureMem * 0.75f, LLUnit<S32, LLUnits::Bytes>(gMaxVideoRam));
 	
 		// If we are using more texture memory than we should,
 		// scale up the desired discard level
