@@ -8,6 +8,7 @@
 
 #import "llopenglview-objc.h"
 #include "llwindowmacosx-objc.h"
+#import "llappdelegate-objc.h"
 
 @implementation NSScreen (PointConversion)
 
@@ -318,6 +319,11 @@ attributedStringInfo getSegments(NSAttributedString *str)
 		uint keycode = [theEvent keyCode];
 		if (callKeyDown(keycode, mModifiers))
         {
+            if (!mMarkedTextAllowed && [[theEvent characters] characterAtIndex:0] != NSBackspaceCharacter)
+            {
+                showInputWindow(true, @"");
+                [[[(LLAppDelegate*)[NSApp delegate] inputView] inputContext] handleEvent:theEvent];
+            }
             [[self inputContext] handleEvent:theEvent];
         }
 		// OS X intentionally does not send us key-up information on cmd-key combinations.
@@ -426,8 +432,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
             mHasMarkedText = TRUE;
             mMarkedTextLength = [aString length];
             mMarkedText = (NSAttributedString*)[aString mutableString];
-        } else if ([[aString mutableString] characterAtIndex:0] != NSBackspaceCharacter) {
-            showInputWindow(true, aString);
+        } else {
             if (mHasMarkedText)
             {
                 [self unmarkText];

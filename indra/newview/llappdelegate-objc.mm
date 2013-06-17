@@ -8,7 +8,7 @@
 
 #import "llappdelegate-objc.h"
 #include "llwindowmacosx-objc.h"
-#include <Carbon/Carbon.h> // Used for Text Input Services ("Safe" API - it's well supported)
+#include <Carbon/Carbon.h> // Used for Text Input Services ("Safe" API - it's supported)
 
 @implementation LLAppDelegate
 

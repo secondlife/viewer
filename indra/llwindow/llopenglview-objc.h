@@ -6,6 +6,9 @@
 //
 //
 
+#ifndef LLOpenGLView_H
+#define LLOpenGLView_H
+
 #import <Cocoa/Cocoa.h>
 #import <IOKit/IOKitLib.h>
 #import <CoreFoundation/CFBase.h>
@@ -85,3 +88,5 @@
 - (NSPoint)flipPoint:(NSPoint)aPoint;
 
 @end
+
+#endif
