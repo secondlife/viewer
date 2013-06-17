@@ -313,12 +313,13 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) keyDown:(NSEvent *)theEvent
 {
-	[[self inputContext] handleEvent:theEvent];
 	if (!mHasMarkedText)
 	{
 		uint keycode = [theEvent keyCode];
-		callKeyDown(keycode, mModifiers);
-		
+		if (callKeyDown(keycode, mModifiers))
+        {
+            [[self inputContext] handleEvent:theEvent];
+        }
 		// OS X intentionally does not send us key-up information on cmd-key combinations.
 		// This behaviour is not a bug, and only applies to cmd-combinations (no others).
 		// Since SL assumes we receive those, we fake it here.
@@ -461,12 +462,11 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void)insertText:(id)aString replacementRange:(NSRange)replacementRange
 {
-    bool success = false;
 	if (!mHasMarkedText)
 	{
 		for (NSInteger i = 0; i < [aString length]; i++)
 		{
-			success = callUnicodeCallback([aString characterAtIndex:i], mModifiers);
+			callUnicodeCallback([aString characterAtIndex:i], mModifiers);
 		}
 	} else {
 		// We may never get this point since unmarkText may be called before insertText ever gets called once we submit our text.
@@ -475,12 +475,10 @@ attributedStringInfo getSegments(NSAttributedString *str)
 		
 		for (NSInteger i = 0; i < [aString length]; i++)
 		{
-			success = handleUnicodeCharacter([aString characterAtIndex:i]);
+			handleUnicodeCharacter([aString characterAtIndex:i]);
 		}
 		mHasMarkedText = FALSE;
 	}
-    
-    NSLog(@"Successful text input: %d", success);
 }
 
 - (void) insertNewline:(id)sender
