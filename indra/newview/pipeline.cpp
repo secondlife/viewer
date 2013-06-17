@@ -1190,7 +1190,14 @@ void LLPipeline::releaseLUTBuffers()
 {
 	if (mLightFunc)
 	{
-		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, GL_R16F, 0, 1, &mLightFunc);
+		U32 pix_format = GL_R16F;
+#if LL_DARWIN
+		if (gGLManager.mIsMobileGF)
+		{
+			pix_format = GL_R32F;
+		}
+#endif
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, pix_format, 0, 1, &mLightFunc);
 		mLightFunc = 0;
 	}
 }
@@ -1367,7 +1374,7 @@ void LLPipeline::createLUTBuffers()
 					// This is fine, given we only need to create our LUT once per buffer initialization.
 					spec *= (((n + 2) * (n + 4)) / (8 * F_PI * (powf(2, -n/2) + n)));
 
-					// Since we use R16F, we no longer have a dynamic range issue we need to work around here.
+					// Since we use R16/32F, we no longer have a dynamic range issue we need to work around here.
 					// Though some older drivers may not like this, newer drivers shouldn't have this problem.
 					ls[y*lightResX+x] = spec;
 
@@ -1390,9 +1397,16 @@ void LLPipeline::createLUTBuffers()
 				}
 			}
 			
-			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, GL_R16F, 1, &mLightFunc);
+			U32 pix_format = GL_R16F;
+#if LL_DARWIN
+			if (gGLManager.mIsMobileGF)
+			{
+				pix_format = GL_R32F;
+			}
+#endif
+			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, pix_format, 1, &mLightFunc);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
-			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_R16F, lightResX, lightResY, GL_RED, GL_FLOAT, ls, false);
+			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, pix_format, lightResX, lightResY, GL_RED, GL_FLOAT, ls, false);
 			//LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_UNSIGNED_BYTE, lightResX, lightResY, GL_RED, GL_UNSIGNED_BYTE, ls, false);
 			gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
