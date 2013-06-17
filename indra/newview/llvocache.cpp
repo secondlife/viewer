@@ -50,6 +50,14 @@ BOOL check_write(LLAPRFile* apr_file, void* src, S32 n_bytes)
 //---------------------------------------------------------------------------
 // LLVOCacheEntry
 //---------------------------------------------------------------------------
+//return number of frames invisible objects should stay in memory
+//static 
+U32 LLVOCacheEntry::getInvisibleObjectsLiveTime()
+{
+	static LLCachedControl<U32> inv_obj_time(gSavedSettings,"InvisibleObjectsInMemoryTime");
+
+	return inv_obj_time - 1; //make 0 to be the maximum 
+}
 
 LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &dp)
 	: LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY),
@@ -60,7 +68,6 @@ LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &
 	mDupeCount(0),
 	mCRCChangeCount(0),
 	mState(INACTIVE),
-	mMinFrameRange(64),
 	mSceneContrib(0.f),
 	mTouched(TRUE),
 	mParentID(0)
@@ -68,6 +75,7 @@ LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &
 	mBuffer = new U8[dp.getBufferSize()];
 	mDP.assignBuffer(mBuffer, dp.getBufferSize());
 	mDP = dp;
+	mMinFrameRange = getInvisibleObjectsLiveTime();
 }
 
 LLVOCacheEntry::LLVOCacheEntry()
@@ -80,12 +88,12 @@ LLVOCacheEntry::LLVOCacheEntry()
 	mCRCChangeCount(0),
 	mBuffer(NULL),
 	mState(INACTIVE),
-	mMinFrameRange(64),
 	mSceneContrib(0.f),
 	mTouched(TRUE),
 	mParentID(0)
 {
 	mDP.assignBuffer(mBuffer, 0);
+	mMinFrameRange = getInvisibleObjectsLiveTime();
 }
 
 LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
@@ -93,7 +101,6 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	mBuffer(NULL),
 	mUpdateFlags(-1),
 	mState(INACTIVE),
-	mMinFrameRange(64),
 	mSceneContrib(0.f),
 	mTouched(FALSE),
 	mParentID(0)
@@ -101,6 +108,7 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	S32 size = -1;
 	BOOL success;
 
+	mMinFrameRange = getInvisibleObjectsLiveTime();
 	mDP.assignBuffer(mBuffer, 0);
 	
 	success = check_read(apr_file, &mLocalID, sizeof(U32));
@@ -218,17 +226,17 @@ void LLVOCacheEntry::setState(U32 state)
 
 		if(getVisible() - last_visible < MIN_REAVTIVE_INTERVAL + mMinFrameRange)
 		{
-			mMinFrameRange = llmin(mMinFrameRange * 2, 2048);
+			mMinFrameRange = llmin(mMinFrameRange * 2, getInvisibleObjectsLiveTime() * 32);
 		}
 		else
 		{
-			mMinFrameRange = 64; //reset
+			mMinFrameRange = getInvisibleObjectsLiveTime(); //reset
 		}
 	}
 }
 
 //virtual 
-S32  LLVOCacheEntry::getMinFrameRange()const
+U32  LLVOCacheEntry::getMinFrameRange()const
 {
 	return mMinFrameRange;
 }
