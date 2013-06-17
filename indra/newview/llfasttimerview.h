@@ -80,31 +80,38 @@ private:
 	struct TimerBar
 	{
 		TimerBar()
-		:	mWidth(0),
-			mSelfWidth(0),
+		:	mTotalTime(0),
+			mSelfTime(0),
 			mVisible(true),
 			mStartFraction(0.f),
-			mEndFraction(1.f)
+			mEndFraction(1.f),
+			mFirstChild(false),
+			mLastChild(false)
 		{}
-		S32					mWidth;
-		S32					mSelfWidth;
-		LLRect				mVisibleRect,
-							mChildrenRect;
+		LLUnit<F32, LLUnits::Seconds>	mTotalTime,
+										mSelfTime,
+										mChildrenStart,
+										mChildrenEnd,
+										mSelfStart,
+										mSelfEnd;
 		LLTrace::TimeBlock* mTimeBlock;
-		bool				mVisible;
+		bool				mVisible,
+							mFirstChild,
+							mLastChild;
 		F32					mStartFraction,
 							mEndFraction;
 	};
 
 	struct TimerBarRow
 	{
-		S32						mBottom;
+		S32						mBottom,
+								mTop;
 		std::vector<TimerBar>	mBars;
 	};
 
-	S32 updateTimerBarWidths(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 history_index, bool visible = true);
-	S32 updateTimerBarFractions(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 timer_bar_index = 0);
-	S32 drawBar(LLTrace::TimeBlock* time_block, LLRect bar_rect, TimerBarRow& row, S32 image_width, S32 image_height, bool hovered, S32 bar_index = 0);
+	LLUnit<F32, LLUnits::Seconds> updateTimerBarWidths(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 history_index, bool visible = true);
+	S32 updateTimerBarOffsets(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 timer_bar_index = 0);
+	S32 drawBar(LLRect bar_rect, TimerBarRow& row, S32 image_width, S32 image_height, bool hovered = false, S32 bar_index = 0);
 	void setPauseState(bool pause_state);
 
 	std::deque<TimerBarRow> mTimerBarRows;

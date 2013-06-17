@@ -35,7 +35,7 @@ namespace LLUnits
 	// using powers of 2 to allow strict floating point equality
 	LL_DECLARE_BASE_UNIT(Quatloos, "Quat");
 	LL_DECLARE_DERIVED_UNIT(Latinum, "Lat", Quatloos, * 4);
-	LL_DECLARE_DERIVED_UNIT(Solari, "Sol", Quatloos, / 4);
+	LL_DECLARE_DERIVED_UNIT(Solari, "Sol", Latinum, / 16);
 }
 
 namespace tut
@@ -206,5 +206,11 @@ namespace tut
 
 		S32 int_val = quatloos_implicit;
 		ensure(int_val == 16);
+
+		// conversion of implicits
+		LLUnitImplicit<F32, Latinum> latinum_implicit(2);
+		ensure(latinum_implicit == 2);
+
+		ensure(latinum_implicit * 2 == quatloos_implicit);
 	}
 }

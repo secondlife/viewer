@@ -365,11 +365,11 @@ void TimeBlock::dumpCurTimes()
 		++it)
 	{
 		TimeBlock* timerp = (*it);
-		LLUnit<F64, LLUnits::Seconds> total_time_ms = last_frame_recording.getSum(*timerp);
+		LLUnit<F64, LLUnits::Seconds> total_time = last_frame_recording.getSum(*timerp);
 		U32 num_calls = last_frame_recording.getSum(timerp->callCount());
 
 		// Don't bother with really brief times, keep output concise
-		if (total_time_ms < 0.1) continue;
+		if (total_time < LLUnit<F32, LLUnits::Milliseconds>(0.1)) continue;
 
 		std::ostringstream out_str;
 		TimeBlock* parent_timerp = timerp;
@@ -380,7 +380,7 @@ void TimeBlock::dumpCurTimes()
 		}
 
 		out_str << timerp->getName() << " " 
-			<< std::setprecision(3) << total_time_ms.as<LLUnits::Milliseconds>().value() << " ms, "
+			<< std::setprecision(3) << total_time.getAs<LLUnits::Milliseconds>() << " ms, "
 			<< num_calls << " calls";
 
 		llinfos << out_str.str() << llendl;

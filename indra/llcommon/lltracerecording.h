@@ -135,6 +135,8 @@ namespace LLTrace
 		Recording(const Recording& other);
 		~Recording();
 
+		Recording& operator = (const Recording& other);
+
 		// accumulate data from subsequent, non-overlapping recording
 		void appendRecording(const Recording& other);
 

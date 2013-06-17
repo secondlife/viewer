@@ -66,6 +66,16 @@ typedef LLUnit<F64, LLUnits::Kilometers>	Kilometers;
 typedef LLUnit<F64, LLUnits::Centimeters>	Centimeters;
 typedef LLUnit<F64, LLUnits::Millimeters>	Millimeters;
 
+
+template<typename T>
+T storage_value(T val) { return val; }
+
+template<typename UNIT_TYPE, typename STORAGE_TYPE> 
+STORAGE_TYPE storage_value(LLUnit<STORAGE_TYPE, UNIT_TYPE> val) { return val.value(); }
+
+template<typename UNIT_TYPE, typename STORAGE_TYPE> 
+STORAGE_TYPE storage_value(LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> val) { return val.value(); }
+
 void init();
 void cleanup();
 bool isInitialized();
@@ -678,7 +688,7 @@ template<typename T, typename VALUE_T>
 void record(EventStatHandle<T>& measurement, VALUE_T value)
 {
 	T converted_value(value);
-	measurement.getPrimaryAccumulator()->record(LLUnits::storageValue(converted_value));
+	measurement.getPrimaryAccumulator()->record(storage_value(converted_value));
 }
 
 template <typename T = F64>
@@ -700,7 +710,7 @@ template<typename T, typename VALUE_T>
 void sample(SampleStatHandle<T>& measurement, VALUE_T value)
 {
 	T converted_value(value);
-	measurement.getPrimaryAccumulator()->sample(LLUnits::storageValue(converted_value));
+	measurement.getPrimaryAccumulator()->sample(storage_value(converted_value));
 }
 
 template <typename T = F64>
@@ -722,7 +732,7 @@ template<typename T, typename VALUE_T>
 void add(CountStatHandle<T>& count, VALUE_T value)
 {
 	T converted_value(value);
-	count.getPrimaryAccumulator()->add(LLUnits::storageValue(converted_value));
+	count.getPrimaryAccumulator()->add(storage_value(converted_value));
 }
 
 

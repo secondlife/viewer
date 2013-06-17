@@ -122,21 +122,26 @@ Recording::Recording()
 
 Recording::Recording( const Recording& other )
 {
+	*this = other;
+}
+
+Recording& Recording::operator = (const Recording& other)
+{
 	// this will allow us to seamlessly start without affecting any data we've acquired from other
 	setPlayState(PAUSED);
 
 	Recording& mutable_other = const_cast<Recording&>(other);
+	mutable_other.update();
 	EPlayState other_play_state = other.getPlayState();
-	mutable_other.pause();
 
-	mBuffers = other.mBuffers;
+	mBuffers = mutable_other.mBuffers;
 
 	LLStopWatchControlsMixin<Recording>::setPlayState(other_play_state);
-	mutable_other.setPlayState(other_play_state);
 
 	// above call will clear mElapsedSeconds as a side effect, so copy it here
 	mElapsedSeconds = other.mElapsedSeconds;
 	mSamplingTimer = other.mSamplingTimer;
+	return *this;
 }
 
 
@@ -444,12 +449,8 @@ void PeriodicRecording::nextPeriod()
 
 void PeriodicRecording::appendRecording(Recording& recording)
 {
-	// if I have a recording of any length, then close it off and start a fresh one
-	if (getCurRecording().getDuration().value())
-	{
-		nextPeriod();
-	}
 	getCurRecording().appendRecording(recording);
+	nextPeriod();
 }
 
 
@@ -459,12 +460,6 @@ void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 
 	getCurRecording().update();
 	other.getCurRecording().update();
-
-	// if I have a recording of any length, then close it off and start a fresh one
-	if (getCurRecording().getDuration().value())
-	{
-		nextPeriod();
-	}
 
 	if (mAutoResize)
 	{

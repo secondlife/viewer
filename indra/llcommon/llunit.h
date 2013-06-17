@@ -30,31 +30,7 @@
 #include "stdtypes.h"
 #include "llpreprocessor.h"
 #include "llerrorlegacy.h"
-
-namespace LLUnits
-{
-
-template<typename DERIVED_UNITS_TAG, typename BASE_UNITS_TAG, typename VALUE_TYPE>
-struct Convert
-{
-	static VALUE_TYPE get(VALUE_TYPE val)
-	{
-		// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
-		llstatic_assert_template(DERIVED_UNITS_TAG, false,  "Cannot convert between types.");
-        return val;
-	}
-};
-
-template<typename BASE_UNITS_TAG, typename VALUE_TYPE>
-struct Convert<BASE_UNITS_TAG, BASE_UNITS_TAG, VALUE_TYPE>
-{
-	static VALUE_TYPE get(VALUE_TYPE val)
-	{ 
-		return val; 
-	}
-};
-
-}
+#include <boost/type_traits/is_same.hpp>
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE>
 struct LLUnit
@@ -70,7 +46,7 @@ struct LLUnit
 	// unit initialization and conversion
 	template<typename OTHER_STORAGE, typename OTHER_UNIT>
 	LLUnit(LLUnit<OTHER_STORAGE, OTHER_UNIT> other)
-	:	mValue(convert(other))
+	:	mValue(convert(other).mValue)
 	{}
 	
 	bool operator == (const self_t& other)
@@ -89,7 +65,7 @@ struct LLUnit
 	template<typename OTHER_STORAGE, typename OTHER_UNIT>
 	self_t& operator = (LLUnit<OTHER_STORAGE, OTHER_UNIT> other)
 	{
-		mValue = convert(other);
+		mValue = convert(other).mValue;
 		return *this;
 	}
 
@@ -98,11 +74,17 @@ struct LLUnit
 		return mValue;
 	}
 
-	template<typename NEW_UNIT_TYPE> LLUnit<STORAGE_TYPE, NEW_UNIT_TYPE> as()
+	template<typename NEW_UNIT_TYPE> 
+	STORAGE_TYPE getAs()
 	{
-		return LLUnit<STORAGE_TYPE, NEW_UNIT_TYPE>(*this);
+		return LLUnit<STORAGE_TYPE, NEW_UNIT_TYPE>(*this).value();
 	}
 
+	template<typename NEW_UNIT_TYPE> 
+	STORAGE_TYPE setAs(STORAGE_TYPE val)
+	{
+		*this = LLUnit<STORAGE_TYPE, NEW_UNIT_TYPE>(val);
+	}
 
 	void operator += (storage_t value)
 	{
@@ -112,7 +94,7 @@ struct LLUnit
 	template<typename OTHER_STORAGE, typename OTHER_UNIT>
 	void operator += (LLUnit<OTHER_STORAGE, OTHER_UNIT> other)
 	{
-		mValue += convert(other);
+		mValue += convert(other).mValue;
 	}
 
 	void operator -= (storage_t value)
@@ -123,7 +105,7 @@ struct LLUnit
 	template<typename OTHER_STORAGE, typename OTHER_UNIT>
 	void operator -= (LLUnit<OTHER_STORAGE, OTHER_UNIT> other)
 	{
-		mValue -= convert(other);
+		mValue -= convert(other).mValue;
 	}
 
 	void operator *= (storage_t multiplicand)
@@ -151,18 +133,12 @@ struct LLUnit
 	}
 
 	template<typename SOURCE_STORAGE, typename SOURCE_UNITS>
-	static storage_t convert(LLUnit<SOURCE_STORAGE, SOURCE_UNITS> v) 
+	static self_t convert(LLUnit<SOURCE_STORAGE, SOURCE_UNITS> v) 
 	{ 
-		return (storage_t)LLUnits::Convert<typename UNIT_TYPE::base_unit_t, UNIT_TYPE, STORAGE_TYPE>::get((STORAGE_TYPE)
-							LLUnits::Convert<SOURCE_UNITS, typename UNIT_TYPE::base_unit_t, SOURCE_STORAGE>::get(v.value())); 
+		self_t result;
+		ll_convert_units(v, result);
+		return result;
 	}
-
-	template<typename SOURCE_STORAGE>
-	static storage_t convert(LLUnit<SOURCE_STORAGE, UNIT_TYPE> v) 
-	{ 
-		return (storage_t)(v.value());
-	}
-
 
 protected:
 	storage_t mValue;
@@ -191,6 +167,39 @@ struct LLUnitImplicit : public LLUnit<STORAGE_TYPE, UNIT_TYPE>
 		return base_t::value();
 	}
 };
+
+
+template<typename S1, typename T1, typename S2, typename T2>
+LL_FORCE_INLINE void ll_convert_units(LLUnit<S1, T1> in, LLUnit<S2, T2>& out, ...)
+{
+	static_assert(boost::is_same<T1, T2>::value 
+					|| !boost::is_same<T1, typename T1::base_unit_t>::value 
+					|| !boost::is_same<T2, typename T2::base_unit_t>::value, 
+				"invalid conversion");
+
+	if (boost::is_same<T1, typename T1::base_unit_t>::value)
+	{
+		if (boost::is_same<T2, typename T2::base_unit_t>::value)
+		{
+			// T1 and T2 fully reduced and equal...just copy
+			out = (S2)in.value();
+		}
+		else
+		{
+			// reduce T2
+			LLUnit<S2, typename T2::base_unit_t> new_out;
+			ll_convert_units(in, new_out);
+			ll_convert_units(new_out, out);
+		}
+	}
+	else
+	{
+		// reduce T1
+		LLUnit<S1, typename T1::base_unit_t> new_in;
+		ll_convert_units(in, new_in);
+		ll_convert_units(new_in, out);
+	}
+}
 
 //
 // operator +
@@ -415,17 +424,11 @@ struct LLGetUnitLabel<LLUnit<STORAGE_T, T> >
 	static const char* getUnitLabel() { return T::getUnitLabel(); }
 };
 
-//
-// Unit declarations
-//
-namespace LLUnits
-{
-
 template<typename VALUE_TYPE>
-struct LinearOps
+struct LLUnitLinearOps
 {
-	typedef LinearOps<VALUE_TYPE> self_t;
-	LinearOps(VALUE_TYPE val) : mValue (val) {}
+	typedef LLUnitLinearOps<VALUE_TYPE> self_t;
+	LLUnitLinearOps(VALUE_TYPE val) : mValue (val) {}
 
 	operator VALUE_TYPE() const { return mValue; }
 	VALUE_TYPE mValue;
@@ -456,11 +459,11 @@ struct LinearOps
 };
 
 template<typename VALUE_TYPE>
-struct InverseLinearOps
+struct LLUnitInverseLinearOps
 {
-	typedef InverseLinearOps<VALUE_TYPE> self_t;
+	typedef LLUnitInverseLinearOps<VALUE_TYPE> self_t;
 
-	InverseLinearOps(VALUE_TYPE val) : mValue (val) {}
+	LLUnitInverseLinearOps(VALUE_TYPE val) : mValue (val) {}
 	operator VALUE_TYPE() const { return mValue; }
 	VALUE_TYPE mValue;
 
@@ -488,16 +491,6 @@ struct InverseLinearOps
 		return mValue + other;
 	}
 };
-
-
-template<typename T>
-T storageValue(T val) { return val; }
-
-template<typename UNIT_TYPE, typename STORAGE_TYPE> 
-STORAGE_TYPE storageValue(LLUnit<STORAGE_TYPE, UNIT_TYPE> val) { return val.value(); }
-
-template<typename UNIT_TYPE, typename STORAGE_TYPE> 
-STORAGE_TYPE storageValue(LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> val) { return val.value(); }
 
 #define LL_DECLARE_BASE_UNIT(base_unit_name, unit_label) \
 struct base_unit_name { typedef base_unit_name base_unit_t; static const char* getUnitLabel() { return unit_label; }}
@@ -508,56 +501,57 @@ struct unit_name                                                                
 	typedef base_unit_name base_unit_t;                                                         \
 	static const char* getUnitLabel() { return unit_label; }									\
 };                                                                                              \
-template<typename STORAGE_TYPE>                                                                 \
-struct Convert<unit_name, base_unit_name, STORAGE_TYPE>                                         \
-{                                                                                               \
-	static STORAGE_TYPE get(STORAGE_TYPE val)                                                   \
-	{                                                                                           \
-		return (LinearOps<STORAGE_TYPE>(val) conversion_operation).mValue;                      \
-	}                                                                                           \
-};                                                                                              \
 	                                                                                            \
-template<typename STORAGE_TYPE>                                                                 \
-struct Convert<base_unit_name, unit_name, STORAGE_TYPE>						                    \
+template<typename S1, typename S2>                                                              \
+void ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)                \
 {                                                                                               \
-	static STORAGE_TYPE get(STORAGE_TYPE val)                                                   \
-	{                                                                                           \
-		return (InverseLinearOps<STORAGE_TYPE>(val) conversion_operation).mValue;               \
-	}                                                                                           \
-}
+	out = (S2)(LLUnitLinearOps<S1>(in.value()) conversion_operation).mValue;                    \
+}                                                                                               \
+                                                                                                \
+template<typename S1, typename S2>                                                              \
+void ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, unit_name>& out)                \
+{                                                                                               \
+	out = (S2)(LLUnitInverseLinearOps<S1>(in.value()) conversion_operation).mValue;             \
+}                                                                                               
 
+//
+// Unit declarations
+//
+
+namespace LLUnits
+{
 LL_DECLARE_BASE_UNIT(Bytes, "B");
 LL_DECLARE_DERIVED_UNIT(Kilobytes, "KB", Bytes, * 1000);
-LL_DECLARE_DERIVED_UNIT(Megabytes, "MB", Bytes, * 1000 * 1000);
-LL_DECLARE_DERIVED_UNIT(Gigabytes, "GB", Bytes, * 1000 * 1000 * 1000);
+LL_DECLARE_DERIVED_UNIT(Megabytes, "MB", Kilobytes, * 1000);
+LL_DECLARE_DERIVED_UNIT(Gigabytes, "GB", Megabytes, * 1000);
 LL_DECLARE_DERIVED_UNIT(Kibibytes, "KiB", Bytes, * 1024);
-LL_DECLARE_DERIVED_UNIT(Mibibytes, "MiB", Bytes, * 1024 * 1024);
-LL_DECLARE_DERIVED_UNIT(Gibibytes, "GiB", Bytes, * 1024 * 1024 * 1024);
+LL_DECLARE_DERIVED_UNIT(Mibibytes, "MiB", Kibibytes, * 1024);
+LL_DECLARE_DERIVED_UNIT(Gibibytes, "GiB", Mibibytes, * 1024);
 
 LL_DECLARE_DERIVED_UNIT(Bits, "b", Bytes, / 8);
-LL_DECLARE_DERIVED_UNIT(Kilobits, "Kb", Bytes, * (1000 / 8));
-LL_DECLARE_DERIVED_UNIT(Megabits, "Mb", Bytes, * (1000 / 8));
-LL_DECLARE_DERIVED_UNIT(Gigabits, "Gb", Bytes, * (1000 * 1000 * 1000 / 8));
-LL_DECLARE_DERIVED_UNIT(Kibibits, "Kib", Bytes, * (1024 / 8));
-LL_DECLARE_DERIVED_UNIT(Mibibits, "Mib", Bytes, * (1024 / 8));
-LL_DECLARE_DERIVED_UNIT(Gibibits, "Gib", Bytes, * (1024 * 1024 * 1024 / 8));
+LL_DECLARE_DERIVED_UNIT(Kilobits, "Kb", Bytes, * 1000 / 8);
+LL_DECLARE_DERIVED_UNIT(Megabits, "Mb", Kilobits, * 1000 / 8);
+LL_DECLARE_DERIVED_UNIT(Gigabits, "Gb", Megabits, * 1000 / 8);
+LL_DECLARE_DERIVED_UNIT(Kibibits, "Kib", Bytes, * 1024 / 8);
+LL_DECLARE_DERIVED_UNIT(Mibibits, "Mib", Kibibits, * 1024 / 8);
+LL_DECLARE_DERIVED_UNIT(Gibibits, "Gib", Mibibits, * 1024 / 8);
 
 LL_DECLARE_BASE_UNIT(Seconds, "s");
 LL_DECLARE_DERIVED_UNIT(Minutes, "min", Seconds, * 60);
 LL_DECLARE_DERIVED_UNIT(Hours, "h", Seconds, * 60 * 60);
 LL_DECLARE_DERIVED_UNIT(Milliseconds, "ms", Seconds, / 1000);
-LL_DECLARE_DERIVED_UNIT(Microseconds, "\x09\x3cs", Seconds, / 1000000);
-LL_DECLARE_DERIVED_UNIT(Nanoseconds, "ns", Seconds, / 1000000000);
+LL_DECLARE_DERIVED_UNIT(Microseconds, "\x09\x3cs", Milliseconds, / 1000);
+LL_DECLARE_DERIVED_UNIT(Nanoseconds, "ns", Microseconds, / 1000);
 
 LL_DECLARE_BASE_UNIT(Meters, "m");
 LL_DECLARE_DERIVED_UNIT(Kilometers, "km", Meters, * 1000);
-LL_DECLARE_DERIVED_UNIT(Centimeters, "cm", Meters, * 100);
-LL_DECLARE_DERIVED_UNIT(Millimeters, "mm", Meters, * 1000);
+LL_DECLARE_DERIVED_UNIT(Centimeters, "cm", Meters, / 100);
+LL_DECLARE_DERIVED_UNIT(Millimeters, "mm", Meters, / 1000);
 
 LL_DECLARE_BASE_UNIT(Hertz, "Hz");
 LL_DECLARE_DERIVED_UNIT(Kilohertz, "KHz", Hertz, * 1000);
-LL_DECLARE_DERIVED_UNIT(Megahertz, "MHz", Hertz, * 1000 * 1000);
-LL_DECLARE_DERIVED_UNIT(Gigahertz, "GHz", Hertz, * 1000 * 1000 * 1000);
+LL_DECLARE_DERIVED_UNIT(Megahertz, "MHz", Kilohertz, * 1000);
+LL_DECLARE_DERIVED_UNIT(Gigahertz, "GHz", Megahertz, * 1000);
 
 LL_DECLARE_BASE_UNIT(Radians, "rad");
 LL_DECLARE_DERIVED_UNIT(Degrees, "deg", Radians, * 0.01745329251994);
