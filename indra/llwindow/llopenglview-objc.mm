@@ -321,11 +321,16 @@ attributedStringInfo getSegments(NSAttributedString *str)
         {
             if (!mMarkedTextAllowed && [[theEvent characters] characterAtIndex:0] != NSBackspaceCharacter)
             {
-                showInputWindow(true, @"");
-                [[[(LLAppDelegate*)[NSApp delegate] inputView] inputContext] handleEvent:theEvent];
+                [(LLAppDelegate*)[NSApp delegate] showInputWindow:true withEvent:theEvent];
             }
+            
+            [[self inputContext] handleEvent:theEvent];
+        } else if ([[theEvent charactersIgnoringModifiers] characterAtIndex:0] == 13 || [[theEvent charactersIgnoringModifiers] characterAtIndex:0] == 3)
+        {
+            // callKeyDown won't return the value we expect for enter or return.  Handle them as a separate case.
             [[self inputContext] handleEvent:theEvent];
         }
+        
 		// OS X intentionally does not send us key-up information on cmd-key combinations.
 		// This behaviour is not a bug, and only applies to cmd-combinations (no others).
 		// Since SL assumes we receive those, we fake it here.
