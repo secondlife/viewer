@@ -117,6 +117,7 @@
 
 #include "llleap.h"
 #include "stringize.h"
+#include "llcoros.h"
 
 // Third party library includes
 #include <boost/bind.hpp>
@@ -760,6 +761,7 @@ bool LLAppViewer::init()
 
 	//set the max heap size.
 	initMaxHeapSize() ;
+	LLCoros::instance().setStackSize(gSavedSettings.getS32("CoroutineStackSize"));
 
 	LLPrivateMemoryPoolManager::initClass((BOOL)gSavedSettings.getBOOL("MemoryPrivatePoolEnabled"), (U32)gSavedSettings.getU32("MemoryPrivatePoolSize")*1024*1024) ;
 
@@ -2833,6 +2835,16 @@ bool LLAppViewer::initConfiguration()
 
 	loadColorSettings();
 
+	// Let anyone else who cares know that we've populated our settings
+	// variables.
+	for (LLControlGroup::key_iter ki(LLControlGroup::beginKeys()), kend(LLControlGroup::endKeys());
+		 ki != kend; ++ki)
+	{
+		// For each named instance of LLControlGroup, send an event saying
+		// we've initialized an LLControlGroup instance by that name.
+		LLEventPumps::instance().obtain("LLControlGroup").post(LLSDMap("init", *ki));
+	}
+
 	return true; // Config was successful.
 }
 
@@ -3466,11 +3478,10 @@ void LLAppViewer::handleViewerCrash()
 	//we're already in a crash situation	
 	if (gDirUtilp)
 	{
-		std::string crash_file_name = ( gLLErrorActivated )
-			? gDirUtilp->getExpandedFilename(LL_PATH_LOGS,LLERROR_MARKER_FILE_NAME)
-			: gDirUtilp->getExpandedFilename(LL_PATH_LOGS,ERROR_MARKER_FILE_NAME);
-		LL_INFOS("MarkerFile") << "Creating crash marker file " << crash_file_name << LL_ENDL;
-		
+		std::string crash_file_name = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
+																	 gLLErrorActivated
+																	 ? LLERROR_MARKER_FILE_NAME
+																	 : ERROR_MARKER_FILE_NAME);
 		LLAPRFile crash_file ;
 		crash_file.open(crash_file_name, LL_APR_W);
 		if (crash_file.getFileHandle())
@@ -3570,7 +3581,10 @@ void LLAppViewer::recordMarkerVersion(LLAPRFile& marker_file)
 	std::string marker_version(LLVersionInfo::getChannelAndVersion());
 	if ( marker_version.length() > MAX_MARKER_LENGTH )
 	{
-		LL_WARNS_ONCE("MarkerFile") << "Version length ("<< marker_version.length()<< ") greater than maximum: marker matching may be incorrect" << LL_ENDL;
+		LL_WARNS_ONCE("MarkerFile") << "Version length ("<< marker_version.length()<< ")"
+									<< " greater than maximum (" << MAX_MARKER_LENGTH << ")"
+									<< ": marker matching may be incorrect"
+									<< LL_ENDL;
 	}
 
 	// record the viewer version in the marker file
@@ -3590,15 +3604,16 @@ bool LLAppViewer::markerIsSameVersion(const std::string& marker_name) const
 	if (marker_file.getFileHandle())
 	{
 		marker_version_length = marker_file.read(marker_version, sizeof(marker_version));
-		LL_DEBUGS("MarkerFile") << "Compare markers: ";
 		std::string marker_string(marker_version, marker_version_length);
-		LL_CONT << "\n   mine '" << my_version    << "'"
-				<< "\n marker '" << marker_string << "'"
-				<< LL_ENDL;
 		if ( 0 == my_version.compare( 0, my_version.length(), marker_version, 0, marker_version_length ) )
 		{
 			sameVersion = true;
 		}
+		LL_DEBUGS("MarkerFile") << "Compare markers for '" << marker_name << "': "
+								<< "\n   mine '" << my_version    << "'"
+								<< "\n marker '" << marker_string << "'"
+								<< "\n " << ( sameVersion ? "same" : "different" ) << " version"
+								<< LL_ENDL;
 		marker_file.close();
 	}
 	return sameVersion;
@@ -3709,7 +3724,7 @@ void LLAppViewer::initMarkerFile()
 
 void LLAppViewer::removeMarkerFile(bool leave_logout_marker)
 {
-	LL_DEBUGS("MarkerFile") << "removeMarkerFile("<<leave_logout_marker<<")" << LL_ENDL;
+	LL_DEBUGS("MarkerFile") << "removeMarkerFile("<<(leave_logout_marker?"leave":"remove") <<" logout)" << LL_ENDL;
 	if (mMarkerFile.getFileHandle())
 	{
 		LL_DEBUGS("MarkerFile") << "removeMarkerFile marker '"<<mMarkerFileName<<"'"<< LL_ENDL;
@@ -3724,12 +3739,12 @@ void LLAppViewer::removeMarkerFile(bool leave_logout_marker)
 	{
 		if (mLogoutMarkerFile.getFileHandle())
 		{
-			LL_DEBUGS("MarkerFile") << "removeMarkerFile marker '"<<mLogoutMarkerFileName<<"'"<< LL_ENDL;
+			LL_DEBUGS("MarkerFile") << "removeMarkerFile logout marker '"<<mLogoutMarkerFileName<<"'"<< LL_ENDL;
 			mLogoutMarkerFile.close();
 		}
 		else
 		{
-			LL_WARNS("MarkerFile") << "removeMarkerFile marker '"<<mLogoutMarkerFileName<<"' not open"<< LL_ENDL;
+			LL_WARNS("MarkerFile") << "removeMarkerFile logout marker '"<<mLogoutMarkerFileName<<"' not open"<< LL_ENDL;
 		}
 		LLAPRFile::remove( mLogoutMarkerFileName );
 	}
