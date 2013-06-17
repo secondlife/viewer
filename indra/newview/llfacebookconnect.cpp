@@ -234,6 +234,7 @@ public:
 	{
 		if (isGoodStatus(status))
 		{
+			llinfos << "Facebook: Friends list received" << llendl;
 			LL_DEBUGS("FacebookConnect") << "Getting Facebook friends successful. content: " << content << LL_ENDL;
 			LLFacebookConnect::instance().storeContent(content);
 		}

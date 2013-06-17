@@ -863,6 +863,8 @@ void LLPanelPeople::updateSuggestedFriendList()
 {
 	if (LLFacebookConnect::instance().generation() != mFacebookListGeneration)
 	{
+		llinfos << "Facebook: Updating Suggested Friends List" << llendl;
+
 		mFacebookListGeneration = LLFacebookConnect::instance().generation();
 
 		const LLAvatarTracker& av_tracker = LLAvatarTracker::instance();
