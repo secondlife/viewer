@@ -334,7 +334,10 @@ public:
 		
 	// Update model after an item is confirmed as removed from
 	// server. Works for categories or items.
-	void onObjectDeletedFromServer(const LLUUID& item_id, bool fix_broken_links = true, bool update_parent_version = true);
+	void onObjectDeletedFromServer(const LLUUID& item_id,
+								   bool fix_broken_links = true,
+								   bool update_parent_version = true,
+								   bool do_notify_observers = true);
 
 	// Update model after all descendents removed from server.
 	void onDescendentsPurgedFromServer(const LLUUID& object_id, bool fix_broken_links = true);
@@ -349,7 +352,7 @@ public:
 	// object from the internal data structures, maintaining a
 	// consistent internal state. No cache accounting, observer
 	// notification, or server update is performed.
-	void deleteObject(const LLUUID& id, bool fix_broken_links = true);
+	void deleteObject(const LLUUID& id, bool fix_broken_links = true, bool do_notify_observers = true);
 	/// move Item item_id to Trash
 	void removeItem(const LLUUID& item_id);
 	/// move Category category_id to Trash
