@@ -315,7 +315,7 @@
 			<menu_item_call label="Texturinfo für ausgewähltes Objekt" name="Selected Texture Info Basis"/>
 			<menu_item_check label="Wireframe" name="Wireframe"/>
 			<menu_item_check label="Objekt-Objekt Okklusion" name="Object-Object Occlusion"/>
-			<menu_item_check label="Licht und Schatten" name="Lighting and Shadows"/>
+			<menu_item_check label="Uber Licht Modell" name="Advanced Lighting Model"/>
 			<menu_item_check label="Schatten von Sonne-/Mond-Projektoren" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAO und Schattenglättung" name="SSAO and Shadow Smoothing"/>
 			<menu_item_check label="Fehler in GL beseitigen" name="Debug GL"/>
@@ -393,14 +393,9 @@
 				<menu_item_call label="Weiblich testen" name="Test Female"/>
 				<menu_item_check label="Avatarauswahl zulassen" name="Allow Select Avatar"/>
 			</menu>
-			<menu label="Animationsgeschwindigkeit" name="Animation Speed">
-				<menu_item_call label="Alle Animationen 10 % schneller" name="All Animations 10 Faster"/>
-				<menu_item_call label="Alle Animationen 10 % langsamer" name="All Animations 10 Slower"/>
-				<menu_item_call label="Alle Animationsgeschwindigkeiten zurücksetzen" name="Reset All Animation Speed"/>
-				<menu_item_check label="Zeitlupen-Animationen" name="Slow Motion Animations"/>
-			</menu>
 			<menu_item_call label="Param auf Standard erzwingen" name="Force Params to Default"/>
 			<menu_item_check label="Animations-Info" name="Animation Info"/>
+			<menu_item_check label="Zeitlupen-Animationen" name="Slow Motion Animations"/>
 			<menu_item_check label="Kamerafokus anzeigen" name="Show Look At"/>
 			<menu_item_check label="Klickpunkt anzeigen??" name="Show Point At"/>
 			<menu_item_check label="Fehler in Landaktualisierung beseitigen" name="Debug Joint Updates"/>

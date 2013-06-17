@@ -50,7 +50,7 @@ VARYING vec3 vary_pointlight_col;
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
-
+VARYING vec3 vary_norm;
 
 uniform float near_clip;
 uniform float shadow_offset;
@@ -115,7 +115,8 @@ void main()
 	n.xyz = normalize(n.xyz-pos.xyz);
 	
 	vec3 norm = n.xyz;
-	
+	vary_norm = norm;
+
 	float dp_directional_light = max(0.0, dot(norm, light_position[0].xyz));
 	vary_position = pos.xyz + light_position[0].xyz * (1.0-dp_directional_light)*shadow_offset;
 			

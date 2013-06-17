@@ -31,9 +31,11 @@
 #include "lluuid.h"
 #include "v3color.h"
 #include "v4color.h"
+#include "llmaterial.h"
 
 
 class LLTextureEntry;
+class LLMaterialID;
 
 // this is a list of LLTextureEntry*'s because in practice the list's elements
 // are of some derived class: LLFooTextureEntry
@@ -102,6 +104,8 @@ public:
 	S32 setFullbright(const U8 index, const U8 t);
 	S32 setMediaFlags(const U8 index, const U8 media_flags);
 	S32 setGlow(const U8 index, const F32 glow);
+	S32 setMaterialID(const U8 index, const LLMaterialID& pMaterialID);
+	S32 setMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams);
 
 	S32 size() const;
 
