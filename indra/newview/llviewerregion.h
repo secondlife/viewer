@@ -49,6 +49,8 @@
 #define WATER 2
 const U32	MAX_OBJECT_CACHE_ENTRIES = 50000;
 
+// Region handshake flags
+const U32 REGION_HANDSHAKE_SUPPORTS_SELF_APPEARANCE = 1U << 2;
 
 class LLEventPoll;
 class LLVLComposition;
