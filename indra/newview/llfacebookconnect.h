@@ -41,13 +41,20 @@ class LLFacebookConnect : public LLSingleton<LLFacebookConnect>
 {
 	LOG_CLASS(LLFacebookConnect);
 public:
+    enum EConnectionState
+	{
+		FB_NOT_CONNECTED = 0,
+		FB_CONNECTION_IN_PROGRESS = 1,
+		FB_CONNECTED = 2,
+		FB_CONNECTION_FAILED = 3
+	};
+
 	typedef boost::function<void(bool ok)> share_callback_t;
 	typedef boost::function<void()> content_updated_callback_t;
 
-	void connectToFacebook(const std::string& auth_code = "");
-	void disconnectFromFacebook();
-	void tryToReconnectToFacebook();
-    void getConnectionToFacebook();
+	void connectToFacebook(const std::string& auth_code = "");  // Initiate the complete FB connection. Please use getConnectionToFacebook() in normal use.
+	void disconnectFromFacebook();                              // Disconnect from the FBC service.
+    void getConnectionToFacebook();                             // Check if an access token is available on the FBC service. If not, call connectToFacebook().
     
     void loadFacebookFriends();
 	void postCheckin(const std::string& location, const std::string& name, const std::string& description, const std::string& picture, const std::string& message);
@@ -64,21 +71,20 @@ public:
 	void storeContent(const LLSD& content);
     const LLSD& getContent() const;
     
-    void setConnected(bool connected) { mConnectedToFbc = connected; }
-    bool getConnected() { return mConnectedToFbc; }
+    void setConnectionState(EConnectionState connection_state) { mConnectionState = connection_state; }
+    bool isConnected() { return (mConnectionState == FB_CONNECTED); }
     S32  generation() { return mGeneration; }
     
     void openFacebookWeb(std::string url);
 
 private:
-
 	friend class LLSingleton<LLFacebookConnect>;
 
 	LLFacebookConnect();
 	~LLFacebookConnect() {};
  	std::string getFacebookConnectURL(const std::string& route = "");
    
-    bool mConnectedToFbc;
+    EConnectionState mConnectionState;
     LLSD mContent;
     S32  mGeneration;
 	

@@ -966,7 +966,7 @@ void LLPanelPeople::updateFacebookList(bool visible)
 		if (mTryToConnectToFbc)
 		{	
 			// try to reconnect to facebook!
-			LLFacebookConnect::instance().tryToReconnectToFacebook();
+			LLFacebookConnect::instance().getConnectionToFacebook();
 
 			// don't try again
 			mTryToConnectToFbc = false;
@@ -1717,7 +1717,7 @@ void LLPanelPeople::addParticipantToModel(LLPersonTabModel * person_folder_model
 
 void LLPanelPeople::onLoginFbcButtonClicked()
 {
-	if (LLFacebookConnect::instance().getConnected())
+	if (LLFacebookConnect::instance().isConnected())
 	{
 		LLFacebookConnect::instance().disconnectFromFacebook();
 	}

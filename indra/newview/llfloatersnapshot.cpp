@@ -2250,9 +2250,9 @@ void LLFloaterSnapshot::update()
     
     // We need to pool on facebook connection as it might change any time
     static bool s_facebook_connected = false;
-    if (LLFacebookConnect::instance().getConnected() != s_facebook_connected)
+    if (LLFacebookConnect::instance().isConnected() != s_facebook_connected)
     {
-        s_facebook_connected = LLFacebookConnect::instance().getConnected();
+        s_facebook_connected = LLFacebookConnect::instance().isConnected();
         changed = true;
     }
     

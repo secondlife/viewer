@@ -87,7 +87,7 @@ BOOL LLPanelSnapshotFacebook::postBuild()
 // virtual
 void LLPanelSnapshotFacebook::onOpen(const LLSD& key)
 {
-	if (!LLFacebookConnect::instance().getConnected())
+	if (!LLFacebookConnect::instance().isConnected())
 	{
         LLFacebookConnect::instance().getConnectionToFacebook();
 	}
@@ -99,7 +99,7 @@ void LLPanelSnapshotFacebook::onOpen(const LLSD& key)
 void LLPanelSnapshotFacebook::updateControls(const LLSD& info)
 {
 	const bool have_snapshot = info.has("have-snapshot") ? info["have-snapshot"].asBoolean() : true;
-    const bool is_connected = LLFacebookConnect::instance().getConnected();
+    const bool is_connected = LLFacebookConnect::instance().isConnected();
 	getChild<LLUICtrl>("post_btn")->setEnabled(have_snapshot && is_connected);
 }
 
@@ -107,7 +107,7 @@ void LLPanelSnapshotFacebook::updateControls(const LLSD& info)
 void LLPanelSnapshotFacebook::updateCustomResControls()
 {
     LLPanelSnapshot::updateCustomResControls();
-    const bool is_connected = LLFacebookConnect::instance().getConnected();
+    const bool is_connected = LLFacebookConnect::instance().isConnected();
 	getChild<LLUICtrl>("post_btn")->setEnabled(is_connected);
 }
 

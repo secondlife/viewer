@@ -57,7 +57,6 @@ void prompt_user_for_error(U32 status, const std::string& reason, const std::str
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-
 class LLFacebookConnectHandler : public LLCommandHandler
 {
 public:
@@ -87,6 +86,10 @@ class LLFacebookConnectResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLFacebookConnectResponder);
 public:
+    LLFacebookConnectResponder()
+    {
+        LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_IN_PROGRESS);
+    }
     
 	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
@@ -95,11 +98,12 @@ public:
 			LL_DEBUGS("FacebookConnect") << "Connect successful. content: " << content << LL_ENDL;
 			
 			// Grab some graph data now that we are connected
-            LLFacebookConnect::instance().setConnected(true);
+            LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTED);
 			LLFacebookConnect::instance().loadFacebookFriends();
 		}
 		else
 		{
+            LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_FAILED);
             prompt_user_for_error(status, reason, content.get("error_code"), content.get("error_description"));
             LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
 		}
@@ -169,7 +173,7 @@ public:
 			LL_DEBUGS("FacebookConnect") << "Disconnect successful. content: " << content << LL_ENDL;
 			
 			// Clear all facebook stuff
-            LLFacebookConnect::instance().setConnected(false);
+            LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_NOT_CONNECTED);
 			LLFacebookConnect::instance().clearContent();
 		}
 		else
@@ -187,10 +191,10 @@ class LLFacebookConnectedResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLFacebookConnectedResponder);
 public:
     
-	LLFacebookConnectedResponder(bool show_login_if_not_connected, bool show_error_if_not_connected) 
-		: mShowLoginIfNotConnected(show_login_if_not_connected),
-			mShowErrorIfNotConnected(show_error_if_not_connected)
-		{}
+	LLFacebookConnectedResponder()
+    {
+        LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_IN_PROGRESS);
+    }
     
 	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
@@ -199,7 +203,7 @@ public:
 			LL_DEBUGS("FacebookConnect") << "Connect successful. content: " << content << LL_ENDL;
             
 			// Grab some graph data if already connected
-            LLFacebookConnect::instance().setConnected(true);
+            LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTED);
 			LLFacebookConnect::instance().loadFacebookFriends();
 		}
 		else
@@ -207,20 +211,19 @@ public:
 			LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
             
 			// show the facebook login page if not connected yet
-			if ((status == 404) && mShowLoginIfNotConnected)
+			if (status == 404)
 			{
 				LLFacebookConnect::instance().connectToFacebook();
 			}
-            else if(mShowErrorIfNotConnected)
+            else
             {
+                LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_FAILED);
 				prompt_user_for_error(status, reason, content.get("error_code"), content.get("error_description"));
             }
 		}
 	}
     
 private:
-	bool mShowLoginIfNotConnected;
-	bool mShowErrorIfNotConnected;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -257,7 +260,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 //
 LLFacebookConnect::LLFacebookConnect()
-:	mConnectedToFbc(false),
+:	mConnectionState(FB_NOT_CONNECTED),
     mContent(),
     mGeneration(0)
 {
@@ -291,23 +294,15 @@ void LLFacebookConnect::disconnectFromFacebook()
 	LLHTTPClient::del(getFacebookConnectURL("/connection"), new LLFacebookDisconnectResponder());
 }
 
-void LLFacebookConnect::tryToReconnectToFacebook()
-{
-	if (!mConnectedToFbc)
-	{
-		const bool follow_redirects=false;
-		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
-		LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(false, false),
-						  LLSD(), timeout, follow_redirects);
-	}
-}
-
 void LLFacebookConnect::getConnectionToFacebook()
 {
-    const bool follow_redirects=false;
-    const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
-    LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(true, true),
-                  LLSD(), timeout, follow_redirects);
+    if ((mConnectionState == FB_NOT_CONNECTED) || (mConnectionState == FB_CONNECTION_FAILED))
+    {
+        const bool follow_redirects=false;
+        const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
+        LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(),
+                          LLSD(), timeout, follow_redirects);
+    }
 }
 
 void LLFacebookConnect::loadFacebookFriends()
