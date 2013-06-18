@@ -313,12 +313,7 @@ void AISUpdate::parseUpdate(const LLSD& update)
 				const LLSD& links = embedded["link"];
 				parseCreatedLinks(links);
 			}
-			else
-			{
-				llwarns << "unrecognized embedded field " << field << llendl;
-			}
 		}
-		
 	}
 
 	// Parse item update at the top level.
