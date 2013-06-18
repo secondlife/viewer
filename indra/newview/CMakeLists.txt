@@ -1251,8 +1251,12 @@ set(viewer_HEADER_FILES
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
 
+# the viewer_version.txt file created here is for passing to viewer_manifest
+# the summary.json file is created for the benefit of the TeamCity builds, where
+#   it is used to provide descriptive information to the build results page
 add_custom_target(generate_viewer_version ALL
-                  COMMAND echo "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}" > ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+                  COMMAND printf '${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}' > ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+                  COMMAND printf '{"Type":"viewer","Version":"${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}"}' > ${CMAKE_BINARY_DIR}/summary.json
                   COMMENT Generating viewer_version.txt for manifest processing
                   )
 
