@@ -270,6 +270,7 @@ set(viewer_SOURCE_FILES
     llfloatersettingsdebug.cpp
     llfloatersidepanelcontainer.cpp
     llfloatersnapshot.cpp
+    llfloatersocial.cpp
     llfloatersounddevices.cpp
     llfloaterspellchecksettings.cpp
     llfloatertelehub.cpp
@@ -509,7 +510,6 @@ set(viewer_SOURCE_FILES
     llsky.cpp
     llslurl.cpp
     llsociallist.cpp
-    llsocialpanel.cpp
     llspatialpartition.cpp
     llspeakers.cpp
     llspeakingindicatormanager.cpp
@@ -858,6 +858,7 @@ set(viewer_HEADER_FILES
     llfloatersettingsdebug.h
     llfloatersidepanelcontainer.h
     llfloatersnapshot.h
+    llfloatersocial.h
     llfloatersounddevices.h
     llfloaterspellchecksettings.h
     llfloatertelehub.h
@@ -1085,7 +1086,6 @@ set(viewer_HEADER_FILES
     llsky.h
     llslurl.h
     llsociallist.h
-    llsocialpanel.h
     llspatialpartition.h
     llspeakers.h
     llspeakingindicatormanager.h

@@ -1,6 +1,6 @@
 /** 
-* @file llsocialpanel.cpp
-* @brief Implementation of llsocialpanel
+* @file   llfloatersocial.h
+* @brief  Header file for llfloatersocial
 * @author Gilbert@lindenlab.com
 *
 * $LicenseInfo:firstyear=2013&license=viewerlgpl$
@@ -24,9 +24,17 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
+#ifndef LL_LLFLOATERSOCIAL_H
+#define LL_LLFLOATERSOCIAL_H
 
-#include "llviewerprecompiledheaders.h"
+#include "llfloater.h"
 
-#include "llsocialpanel.h"
 
+class LLFloaterSocial : public LLFloater
+{
+public:
+	LLFloaterSocial(const LLSD& key);
+};
+
+#endif // LL_LLFLOATERSOCIAL_H
 
