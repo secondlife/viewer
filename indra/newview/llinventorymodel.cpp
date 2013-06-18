@@ -1157,6 +1157,7 @@ void LLInventoryModel::changeCategoryParent(LLViewerInventoryCategory* cat,
 
 void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLSD& update)
 {
+	LLTimer timer;
 	if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
 	{
 		dump_sequential_xml(gAgentAvatarp->getFullname() + "_ais_update", update);
@@ -1164,6 +1165,7 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 
 	AISUpdate ais_update(update); // parse update llsd into stuff to do.
 	ais_update.doUpdate(); // execute the updates in the appropriate order.
+	llinfos << "elapsed: " << timer.getElapsedTimeF32() << llendl;
 }
 
 void LLInventoryModel::onItemUpdated(const LLUUID& item_id, const LLSD& updates, bool update_parent_version)
@@ -1316,7 +1318,7 @@ void LLInventoryModel::onDescendentsPurgedFromServer(const LLUUID& object_id, bo
 
 // Update model after an item is confirmed as removed from
 // server. Works for categories or items.
-void LLInventoryModel::onObjectDeletedFromServer(const LLUUID& object_id, bool fix_broken_links, bool update_parent_version)
+void LLInventoryModel::onObjectDeletedFromServer(const LLUUID& object_id, bool fix_broken_links, bool update_parent_version, bool do_notify_observers)
 {
 	LLPointer<LLInventoryObject> obj = getObject(object_id);
 	if(obj)
@@ -1337,13 +1339,13 @@ void LLInventoryModel::onObjectDeletedFromServer(const LLUUID& object_id, bool f
 
 		// From purgeObject()
 		LLPreview::hide(object_id);
-		deleteObject(object_id, fix_broken_links);
+		deleteObject(object_id, fix_broken_links, do_notify_observers);
 	}
 }
 
 
 // Delete a particular inventory object by ID.
-void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links)
+void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, bool do_notify_observers)
 {
 	lldebugs << "LLInventoryModel::deleteObject()" << llendl;
 	LLPointer<LLInventoryObject> obj = getObject(id);
@@ -1402,7 +1404,10 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links)
 	{
 		updateLinkedObjectsFromPurge(id);
 	}
-	notifyObservers();
+	if (do_notify_observers)
+	{
+		notifyObservers();
+	}
 }
 
 void LLInventoryModel::updateLinkedObjectsFromPurge(const LLUUID &baseobj_id)

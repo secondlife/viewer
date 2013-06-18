@@ -483,7 +483,9 @@ void AISUpdate::doUpdate()
 		 del_it != mObjectsDeleted.end(); ++del_it)
 	{
 		LL_DEBUGS("Inventory") << "deleted item " << *del_it << llendl;
-		gInventory.onObjectDeletedFromServer(*del_it, false, false);
+		gInventory.onObjectDeletedFromServer(*del_it, false, false, false);
 	}
+
+	gInventory.notifyObservers();
 }
 

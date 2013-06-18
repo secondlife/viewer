@@ -30,8 +30,6 @@
 
 #include "llfloater.h"
 
-class LLSidepanelAppearance;
-
 /**
  * Class LLFloaterSidePanelContainer
  *
@@ -44,8 +42,6 @@ class LLSidepanelAppearance;
  */
 class LLFloaterSidePanelContainer : public LLFloater
 {
-	friend class LLSidePanelAppearance;
-
 private:
 	static const std::string sMainPanelName;
 
@@ -54,14 +50,10 @@ public:
 	~LLFloaterSidePanelContainer();
 
 	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
+
 	/*virtual*/ void onClickCloseBtn();
-	/*virtual*/ BOOL postBuild();
-				void  onConfirmationClose( const LLSD &confirm );
 
 	LLPanel* openChildPanel(const std::string& panel_name, const LLSD& params);
-
-	void close();
 
 	static void showPanel(const std::string& floater_name, const LLSD& key);
 
@@ -86,12 +78,6 @@ public:
 		}
 		return panel;
 	}
-
-private:
-	LLSidepanelAppearance* getSidePanelAppearance();
-
-public: 
-	bool mAppQuiting;
 };
 
 #endif // LL_LLFLOATERSIDEPANELCONTAINER_H

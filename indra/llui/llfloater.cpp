@@ -704,29 +704,11 @@ void LLFloater::openFloater(const LLSD& key)
 	dirtyRect();
 }
 
-void LLFloater::verifyClose( bool app_quitting )
-{
-	LLPanel::handleCloseConfirmation( app_quitting );
-}
-
 void LLFloater::closeFloater(bool app_quitting)
 {
 	llinfos << "Closing floater " << getName() << llendl;
-	
-	if (!app_quitting)
-	{
-		if ( mVerifyUponClose && !mForceCloseAfterVerify )
-		{			
-			onClose( app_quitting );
-			if ( mForceCloseAfterVerify ) 
-			{
-				return;
-			}			
-		}
-	}	
-
 	if (app_quitting)
-	{		
+	{
 		LLFloater::sQuitting = true;
 	}
 	
@@ -799,7 +781,7 @@ void LLFloater::closeFloater(bool app_quitting)
 		dirtyRect();
 
 		// Close callbacks
-		onClose(app_quitting);	
+		onClose(app_quitting);
 		mCloseSignal(this, LLSD(app_quitting));
 		
 		// Hide or Destroy
@@ -1639,7 +1621,7 @@ void LLFloater::bringToFront( S32 x, S32 y )
 
 
 // virtual
-void LLFloater::setVisibleAndFrontmost(BOOL take_focus, const LLSD& key)
+void LLFloater::setVisibleAndFrontmost(BOOL take_focus,const LLSD& key)
 {
 	LLMultiFloater* hostp = getHost();
 	if (hostp)
@@ -1806,19 +1788,11 @@ void LLFloater::initRectControl()
 void LLFloater::closeFrontmostFloater()
 {
 	LLFloater* floater_to_close = gFloaterView->getFrontmostClosableFloater();
-	if( floater_to_close )
+	if(floater_to_close)
 	{
-		if ( floater_to_close->mVerifyUponClose )
-		{			
-			floater_to_close->verifyClose();
-			//Closing of the window handle in the subclass - so bug out here.
-			return;
-		}
-		else
-		{
-			floater_to_close->closeFloater();
-		}
+		floater_to_close->closeFloater();
 	}
+
 	// if nothing took focus after closing focused floater
 	// give it to next floater (to allow closing multiple windows via keyboard in rapid succession)
 	if (gFocusMgr.getKeyboardFocus() == NULL)
@@ -2657,14 +2631,7 @@ void LLFloaterView::closeAllChildren(bool app_quitting)
 		if (floaterp->canClose() && !floaterp->isDead() &&
 			(app_quitting || floaterp->getVisible()))
 		{
-			if ( floaterp->mVerifyUponClose )
-			{			
-				floaterp->verifyClose(app_quitting);
-			}
-			else
-			{
-				floaterp->closeFloater(app_quitting);
-			}
+			floaterp->closeFloater(app_quitting);
 		}
 	}
 }

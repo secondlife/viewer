@@ -225,7 +225,6 @@ public:
 
 	// If allowed, close the floater cleanly, releasing focus.
 	virtual void	closeFloater(bool app_quitting = false);
-	virtual void	verifyClose( bool app_quitting = false );
 
 	// Close the floater or its host. Use when hidding or toggling a floater instance.
 	virtual void	closeHostedFloater();
@@ -304,9 +303,9 @@ public:
 
 	/*virtual*/ void setVisible(BOOL visible); // do not override
 	/*virtual*/ void handleVisibilityChange ( BOOL new_visibility ); // do not override
-				void handleCloseConfirmation( );
+	
 	void			setFrontmost(BOOL take_focus = TRUE);
-    virtual void	setVisibleAndFrontmost(BOOL take_focus=TRUE, const LLSD& key = LLSD());    
+     virtual void	setVisibleAndFrontmost(BOOL take_focus=TRUE, const LLSD& key = LLSD());
 	
 	// Defaults to false.
 	virtual BOOL	canSaveAs() const { return FALSE; }
