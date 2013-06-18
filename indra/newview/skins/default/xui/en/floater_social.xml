@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+
+<floater
+  positioning="cascading"
+  can_close="true"
+  can_resize="true"
+  height="570"
+  help_topic="social floater"
+  min_height="220"
+  min_width="260"
+  layout="topleft"
+  name="floater_social"
+  save_rect="true"
+  single_instance="true"
+  reuse_instance="true"
+  title="FACEBOOK"
+  width="370">
+</floater>
