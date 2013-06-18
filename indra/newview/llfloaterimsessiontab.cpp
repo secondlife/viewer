@@ -407,6 +407,7 @@ void LLFloaterIMSessionTab::onInputEditorClicked()
 	{
 		im_box->flashConversationItemWidget(mSessionID,false);
 	}
+	gToolBarView->flashCommand(LLCommandId("chat"), false);
 }
 
 std::string LLFloaterIMSessionTab::appendTime()

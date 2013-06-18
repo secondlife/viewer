@@ -173,7 +173,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 	LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
 	LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
 	bool store_dnd_message = false; // flag storage of a dnd message
-
+	bool is_session_focused = session_floater->isTornOff() && session_floater->hasFocus();
 	if (!LLFloater::isVisible(im_box) || im_box->isMinimized())
 	{
 		conversations_floater_status = CLOSED;
@@ -329,6 +329,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 	if (("toast" == user_preferences || "flash" == user_preferences) &&
 		(CLOSED == conversations_floater_status
 		|| NOT_ON_TOP == conversations_floater_status)
+		&& !is_session_focused
 		&& !is_dnd_msg) //prevent flashing FUI button because the conversation floater will have already opened
 	{
 		if(!LLMuteList::getInstance()->isMuted(participant_id))
