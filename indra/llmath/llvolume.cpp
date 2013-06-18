@@ -7277,9 +7277,6 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 
 		const LLVector4a& t = tan1[a];
 
-		llassert(tan1[a].getLength3().getF32() >= 0.f);
-		llassert(tan2[a].getLength3().getF32() >= 0.f);
-
 		LLVector4a ncrosst;
 		ncrosst.setCross3(n,t);
 

@@ -279,7 +279,7 @@ std::string gPoolNames[] =
 	"POOL_ALPHA"
 };
 
-void drawBox(const LLVector3& c, const LLVector3& r);
+void drawBox(const LLVector4a& c, const LLVector4a& r);
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
 U32 nhpo2(U32 v);
 LLVertexBuffer* ll_create_cube_vb(U32 type_mask, U32 usage);
@@ -929,9 +929,12 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		S32 shadow_detail = RenderShadowDetail;
 		BOOL ssao = RenderDeferredSSAO;
 		
+		const U32 occlusion_divisor = 3;
+
 		//allocate deferred rendering color buffers
 		if (!mDeferredScreen.allocate(resX, resY, GL_SRGB8_ALPHA8, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		if (!mOcclusionDepth.allocate(resX/occlusion_divisor, resY/occlusion_divisor, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!addDeferredAttachments(mDeferredScreen)) return false;
 		
 		GLuint screenFormat = GL_RGBA16;
@@ -972,6 +975,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			for (U32 i = 0; i < 4; i++)
 			{
 				if (!mShadow[i].allocate(sun_shadow_map_width,U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE)) return false;
+				if (!mShadowOcclusion[i].allocate(mShadow[i].getWidth()/occlusion_divisor, mShadow[i].getHeight()/occlusion_divisor, 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE)) return false;
 			}
 		}
 		else
@@ -979,6 +983,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			for (U32 i = 0; i < 4; i++)
 			{
 				mShadow[i].release();
+				mShadowOcclusion[i].release();
 			}
 		}
 
@@ -991,6 +996,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			for (U32 i = 4; i < 6; i++)
 			{
 				if (!mShadow[i].allocate(spot_shadow_map_width, height, 0, TRUE, FALSE)) return false;
+				if (!mShadowOcclusion[i].allocate(mShadow[i].getWidth()/occlusion_divisor, mShadow[i].getHeight()/occlusion_divisor, 0, TRUE, FALSE)) return false;
 			}
 		}
 		else
@@ -998,6 +1004,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			for (U32 i = 4; i < 6; i++)
 			{
 				mShadow[i].release();
+				mShadowOcclusion[i].release();
 			}
 		}
 
@@ -1014,11 +1021,13 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		for (U32 i = 0; i < 6; i++)
 		{
 			mShadow[i].release();
+			mShadowOcclusion[i].release();
 		}
 		mFXAABuffer.release();
 		mScreen.release();
 		mDeferredScreen.release(); //make sure to release any render targets that share a depth buffer with mDeferredScreen first
 		mDeferredDepth.release();
+		mOcclusionDepth.release();
 						
 		if (!mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;		
 	}
@@ -2433,7 +2442,14 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 
 	if (to_texture)
 	{
-		mScreen.bindTarget();
+		if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
+		{
+			mOcclusionDepth.bindTarget();
+		}
+		else
+		{
+			mScreen.bindTarget();
+		}
 	}
 
 	if (sUseOcclusion > 1)
@@ -2571,7 +2587,14 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 
 	if (to_texture)
 	{
-		mScreen.flush();
+		if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
+		{
+			mOcclusionDepth.flush();
+		}
+		else
+		{
+			mScreen.flush();
+		}
 	}
 }
 
@@ -2637,6 +2660,75 @@ void LLPipeline::markOccluder(LLSpatialGroup* group)
 			}
 		}
 	}
+}
+
+void LLPipeline::downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space)
+{
+	LLGLSLShader* last_shader = LLGLSLShader::sCurBoundShaderPtr;
+
+	LLGLSLShader* shader = NULL;
+
+	if (scratch_space)
+	{
+		scratch_space->copyContents(source, 
+									0, 0, source.getWidth(), source.getHeight(), 
+									0, 0, scratch_space->getWidth(), scratch_space->getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+	}
+
+	dest.bindTarget();
+
+	
+	gDownsampleDepthProgram.bind();
+
+	LLStrider<LLVector3> vert; 
+	mDeferredVB->getVertexStrider(vert);
+	LLStrider<LLVector2> tc0;
+		
+	vert[0].set(-1,1,0);
+	vert[1].set(-1,-3,0);
+	vert[2].set(3,1,0);
+	
+	if (source.getUsage() == LLTexUnit::TT_RECT_TEXTURE)
+	{
+		shader = &gDownsampleDepthRectProgram;
+		shader->bind();
+		shader->uniform2f("delta", 1.f, 1.f);
+		shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, source.getWidth(), source.getHeight());
+	}
+	else
+	{
+		shader = &gDownsampleDepthProgram;
+		shader->bind();
+		shader->uniform2f("delta", 1.f/source.getWidth(), 1.f/source.getHeight());
+		shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, 1.f, 1.f);
+	}
+
+	gGL.getTexUnit(0)->bind(scratch_space ? scratch_space : &source, TRUE);
+
+	{
+		LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
+		mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+		mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+	}
+	
+	dest.flush();
+	
+	if (last_shader)
+	{
+		last_shader->bind();
+	}
+	else
+	{
+		gDownsampleDepthProgram.unbind();
+	}
+}
+
+void LLPipeline::doOcclusion(LLCamera& camera, LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space)
+{
+	downsampleDepthBuffer(source, dest, scratch_space);
+	dest.bindTarget();
+	doOcclusion(camera);
+	dest.flush();
 }
 
 void LLPipeline::doOcclusion(LLCamera& camera)
@@ -4551,7 +4643,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 	gGL.setColorMask(true, false);
 }
 
-void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
+void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 {
 	LLFastTimer t(FTM_POST_DEFERRED_POOLS);
 	U32 cur_type = 0;
@@ -4566,7 +4658,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 	gGL.setColorMask(true, false);
 
 	pool_set_t::iterator iter1 = mPools.begin();
-	BOOL occlude = LLPipeline::sUseOcclusion > 1;
+	BOOL occlude = LLPipeline::sUseOcclusion > 1 && do_occlusion;
 
 	while ( iter1 != mPools.end() )
 	{
@@ -4580,7 +4672,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 			gGLLastMatrix = NULL;
 			gGL.loadMatrix(gGLModelView);
 			LLGLSLShader::bindNoShader();
-			doOcclusion(camera);
+			doOcclusion(camera, mScreen, mOcclusionDepth, &mDeferredDepth);
 			gGL.setColorMask(true, false);
 		}
 
@@ -4798,6 +4890,7 @@ void LLPipeline::renderPhysicsDisplay()
 	mPhysicsDisplay.flush();
 }
 
+extern std::set<LLSpatialGroup*> visible_selected_groups;
 
 void LLPipeline::renderDebug()
 {
@@ -5207,6 +5300,27 @@ void LLPipeline::renderDebug()
 			gGL.popMatrix();
 		}
 	}
+
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION) && LLGLSLShader::sNoFixedFunction)
+	{ //render visible selected group occlusion geometry
+		gDebugProgram.bind();
+		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+		gGL.diffuseColor3f(1,0,1);
+		for (std::set<LLSpatialGroup*>::iterator iter = visible_selected_groups.begin(); iter != visible_selected_groups.end(); ++iter)
+		{
+			LLSpatialGroup* group = *iter;
+
+			LLVector4a fudge;
+			fudge.splat(0.25f); //SG_OCCLUSION_FUDGE
+
+			LLVector4a size;
+			size.setAdd(fudge, group->mBounds[1]);
+
+			drawBox(group->mBounds[0], size);
+		}
+	}
+
+	visible_selected_groups.clear();
 
 	if (LLGLSLShader::sNoFixedFunction)
 	{
@@ -8205,11 +8319,7 @@ void LLPipeline::renderDeferredLighting()
 
 		LLStrider<LLVector3> vert; 
 		mDeferredVB->getVertexStrider(vert);
-		LLStrider<LLVector2> tc0;
-		LLStrider<LLVector2> tc1;
-		mDeferredVB->getTexCoord0Strider(tc0);
-		mDeferredVB->getTexCoord1Strider(tc1);
-
+		
 		vert[0].set(-1,1,0);
 		vert[1].set(-1,-3,0);
 		vert[2].set(3,1,0);
@@ -8390,7 +8500,7 @@ void LLPipeline::renderDeferredLighting()
 										LLPipeline::END_RENDER_TYPES);
 								
 			
-			renderGeomPostDeferred(*LLViewerCamera::getInstance());
+			renderGeomPostDeferred(*LLViewerCamera::getInstance(), false);
 			gPipeline.popRenderTypeMask();
 		}
 
@@ -9324,8 +9434,14 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		gDeferredShadowCubeProgram.bind();
 	}
 
+	LLRenderTarget& occlusion_target = mShadowOcclusion[LLViewerCamera::sCurCameraID-1];
+
+	occlusion_target.bindTarget();
 	updateCull(shadow_cam, result);
+	occlusion_target.flush();
+
 	stateSort(shadow_cam, result);
+	
 	
 	//generate shadow map
 	gGL.matrixMode(LLRender::MM_PROJECTION);
@@ -9414,7 +9530,10 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	gDeferredShadowCubeProgram.bind();
 	gGLLastMatrix = NULL;
 	gGL.loadMatrix(gGLModelView);
-	doOcclusion(shadow_cam);
+
+	LLRenderTarget& occlusion_source = mShadow[LLViewerCamera::sCurCameraID-1];
+
+	doOcclusion(shadow_cam, occlusion_source, occlusion_target);
 
 	if (use_shader)
 	{
