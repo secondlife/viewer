@@ -3434,7 +3434,12 @@ bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_b
 	swap_item->setDescription(item->getActualDescription());
 	item->setDescription(tmp);
 
+	// LL_DEBUGS("Inventory") << "swap, item "
+	// 					   << ll_pretty_print_sd(item->asLLSD())
+	// 					   << " swap_item "
+	// 					   << ll_pretty_print_sd(swap_item->asLLSD()) << llendl;
 
+	// FIXME switch to use AISv3 where supported.
 	//items need to be updated on a dataserver
 	item->setComplete(TRUE);
 	item->updateServer(FALSE);

@@ -326,6 +326,12 @@ void AISUpdate::parseUpdate(const LLSD& update)
 	{
 		LLUUID item_id = update["item_id"].asUUID();
 		LLPointer<LLViewerInventoryItem> new_item(new LLViewerInventoryItem);
+		LLViewerInventoryItem *curr_item = gInventory.getItem(item_id);
+		if (curr_item)
+		{
+			// Default to current values where not provided.
+			new_item->copyViewerItem(curr_item);
+		}
 		BOOL rv = new_item->unpackMessage(update);
 		if (rv)
 		{
@@ -468,6 +474,7 @@ void AISUpdate::doUpdate()
 		// cases.  Maybe break out the update/create cases, in which
 		// case this is update.
 		LL_DEBUGS("Inventory") << "updated item " << item_id << llendl;
+		//LL_DEBUGS("Inventory") << ll_pretty_print_sd(new_item->asLLSD()) << llendl;
 		gInventory.updateItem(new_item);
 	}
 
