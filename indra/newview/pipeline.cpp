@@ -1192,10 +1192,9 @@ void LLPipeline::releaseLUTBuffers()
 	{
 		U32 pix_format = GL_R16F;
 #if LL_DARWIN
-		if (gGLManager.mIsMobileGF)
-		{
-			pix_format = GL_R32F;
-		}
+		// Need to work around limited precision with 10.6.8 and older drivers
+		//
+		pix_format = GL_R32F;
 #endif
 		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, pix_format, 0, 1, &mLightFunc);
 		mLightFunc = 0;
@@ -1399,10 +1398,9 @@ void LLPipeline::createLUTBuffers()
 			
 			U32 pix_format = GL_R16F;
 #if LL_DARWIN
-			if (gGLManager.mIsMobileGF)
-			{
-				pix_format = GL_R32F;
-			}
+			// Need to work around limited precision with 10.6.8 and older drivers
+			//
+			pix_format = GL_R32F;
 #endif
 			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, pix_format, 1, &mLightFunc);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
