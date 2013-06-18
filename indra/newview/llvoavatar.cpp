@@ -1881,13 +1881,17 @@ LLViewerFetchedTexture *LLVOAvatar::getBakedTextureImage(const U8 te, const LLUU
 		const std::string url = getImageURL(te,uuid);
 		if (!url.empty())
 		{
-			LL_DEBUGS("Avatar") << avString() << "from URL " << url << llendl;
+			LL_DEBUGS("Avatar") << avString() << "get server-bake image from URL " << url << llendl;
 			result = LLViewerTextureManager::getFetchedTextureFromUrl(
 				url, FTT_SERVER_BAKE, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, uuid);
+			if (result->isMissingAsset())
+			{
+				result->setIsMissingAsset(false);
+			}
 		}
 		else
 		{
-			LL_DEBUGS("Avatar") << avString() << "from host " << uuid << llendl;
+			LL_DEBUGS("Avatar") << avString() << "get old-bake image from host " << uuid << llendl;
 			LLHost host = getObjectHost();
 			result = LLViewerTextureManager::getFetchedTexture(
 				uuid, FTT_HOST_BAKE, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host);
@@ -2144,7 +2148,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 		{
 			LLVector3 tagPos = mRoot->getWorldPosition();
 			tagPos[VZ] -= mPelvisToFoot;
-			tagPos[VZ] += ( mBodySize[VZ] + 0.125f );
+			tagPos[VZ] += ( mBodySize[VZ] + 0.125f ); // does not need mAvatarOffset -Nyx
 			mVoiceVisualizer->setVoiceSourceWorldPosition( tagPos );
 		}
 	}//if ( voiceEnabled )
@@ -2885,6 +2889,8 @@ void LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
 	local_camera_up.normalize();
 	local_camera_up = local_camera_up * inv_root_rot;
 
+
+	// position is based on head position, does not require mAvatarOffset here. - Nyx
 	LLVector3 avatar_ellipsoid(mBodySize.mV[VX] * 0.4f,
 								mBodySize.mV[VY] * 0.4f,
 								mBodySize.mV[VZ] * NAMETAG_VERT_OFFSET_WEIGHT);
@@ -4408,7 +4414,7 @@ void LLVOAvatar::addLocalTextureStats( ETextureIndex idx, LLViewerFetchedTexture
 }
 
 const S32 MAX_TEXTURE_UPDATE_INTERVAL = 64 ; //need to call updateTextures() at least every 32 frames.	
-const S32 MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL = S32_MAX ; //frames
+const S32 MAX_TEXTURE_VIRTUAL_SIZE_RESET_INTERVAL = S32_MAX ; //frames
 void LLVOAvatar::checkTextureLoading()
 {
 	static const F32 MAX_INVISIBLE_WAITING_TIME = 15.f ; //seconds
@@ -4471,11 +4477,11 @@ const F32  ADDITIONAL_PRI = 0.5f;
 void LLVOAvatar::addBakedTextureStats( LLViewerFetchedTexture* imagep, F32 pixel_area, F32 texel_area_ratio, S32 boost_level)
 {
 	//Note:
-	//if this function is not called for the last MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL frames, 
+	//if this function is not called for the last MAX_TEXTURE_VIRTUAL_SIZE_RESET_INTERVAL frames, 
 	//the texture pipeline will stop fetching this texture.
 
 	imagep->resetTextureStats();
-	imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
+	imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTUAL_SIZE_RESET_INTERVAL);
 	imagep->resetMaxVirtualSizeResetCounter() ;
 
 	mMaxPixelArea = llmax(pixel_area, mMaxPixelArea);
@@ -5207,6 +5213,72 @@ void LLVOAvatar::updateVisualParams()
 	dirtyMesh();
 	updateHeadOffset();
 }
+
+/*virtual*/ 
+void LLVOAvatar::computeBodySize()
+{
+	LLAvatarAppearance::computeBodySize();
+
+	// Certain configurations of avatars can force the overall height (with offset) to go negative.
+	// Enforce a constraint to make sure we don't go below 1.1 meters (server-enforced limit)
+	// Camera positioning and other things start to break down when your avatar is "walking" while being fully underground
+	const LLViewerObject * last_object = NULL;
+	if (isSelf() && getWearableData() && isFullyLoaded() && !LLApp::isQuitting())
+	{
+		// Do not force a hover parameter change while we have pending attachments, which may be mesh-based with 
+		// joint offsets.
+		if (LLAppearanceMgr::instance().getNumAttachmentsInCOF() == getNumAttachments())
+		{
+			LLViewerWearable* shape = (LLViewerWearable*)getWearableData()->getWearable(LLWearableType::WT_SHAPE, 0);
+			BOOL loaded = TRUE;
+			for (attachment_map_t::const_iterator points_iter = mAttachmentPoints.begin();
+				 points_iter != mAttachmentPoints.end() && loaded;
+				 ++points_iter)
+			{
+				const LLViewerJointAttachment *attachment_pt = (*points_iter).second;
+				if (attachment_pt) 
+				{
+					for (LLViewerJointAttachment::attachedobjs_vec_t::const_iterator attach_iter = attachment_pt->mAttachedObjects.begin(); attach_iter != attachment_pt->mAttachedObjects.end(); attach_iter++) 
+					{
+						const LLViewerObject* object = (LLViewerObject*)*attach_iter;
+						if (object) 
+						{
+							last_object = object;
+							llwarns << "attachment at point: " << (*points_iter).first << " object exists: " << object->getAttachmentItemID() << llendl;
+							loaded &=!object->isDrawableState(LLDrawable::REBUILD_ALL);
+							if (!loaded && shape && !shape->getVolitile()) 
+							{
+								llwarns << "caught unloaded attachment! skipping enforcement" << llendl;
+							}
+						}
+					}
+				}
+			}
+
+			if (last_object) 
+			{
+				LL_DEBUGS("Avatar") << "scanned at least one object!"  << LL_ENDL;
+			}
+			if (loaded && shape && !shape->getVolitile()) 
+			{
+				F32 hover_value = shape->getVisualParamWeight(AVATAR_HOVER);
+				if (hover_value < 0.0f && (mBodySize.mV[VZ] + hover_value < 1.1f))
+				{
+					hover_value = -(mBodySize.mV[VZ] - 1.1f); // avoid floating point rounding making the above check continue to fail.
+					llassert(mBodySize.mV[VZ] + hover_value >= 1.1f);
+
+					hover_value =  llmin(hover_value, 0.0f); // don't force the hover value to be greater than 0.
+
+					LL_DEBUGS("Avatar") << "changed hover value to: " << hover_value << " from: " << mAvatarOffset.mV[VZ] << LL_ENDL;
+
+					mAvatarOffset.mV[VZ] = hover_value;
+					shape->setVisualParamWeight(AVATAR_HOVER,hover_value, FALSE);
+				}
+			}
+		}
+	}
+}
+
 
 //-----------------------------------------------------------------------------
 // isActive()
@@ -5977,9 +6049,12 @@ void LLVOAvatar::clearPhases()
 
 void LLVOAvatar::startPhase(const std::string& phase_name)
 {
-	F32 elapsed;
-	bool completed;
-	if (getPhases().getPhaseValues(phase_name, elapsed, completed))
+	F32 elapsed = 0.0;
+	bool completed = false;
+	bool found = getPhases().getPhaseValues(phase_name, elapsed, completed);
+	//LL_DEBUGS("Avatar") << avString() << " phase state " << phase_name
+	//					<< " found " << found << " elapsed " << elapsed << " completed " << completed << llendl;
+	if (found)
 	{
 		if (!completed)
 		{
@@ -5987,15 +6062,18 @@ void LLVOAvatar::startPhase(const std::string& phase_name)
 			return;
 		}
 	}
-	LL_DEBUGS("Avatar") << "started phase " << phase_name << llendl;
+	LL_DEBUGS("Avatar") << avString() << " started phase " << phase_name << llendl;
 	getPhases().startPhase(phase_name);
 }
 
 void LLVOAvatar::stopPhase(const std::string& phase_name, bool err_check)
 {
-	F32 elapsed;
-	bool completed;
-	if (getPhases().getPhaseValues(phase_name, elapsed, completed))
+	F32 elapsed = 0.0;
+	bool completed = false;
+	bool found = getPhases().getPhaseValues(phase_name, elapsed, completed);
+	//LL_DEBUGS("Avatar") << avString() << " phase state " << phase_name
+	//					<< " found " << found << " elapsed " << elapsed << " completed " << completed << llendl;
+	if (found)
 	{
 		if (!completed)
 		{
@@ -7015,8 +7093,14 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			&& mBakedTextureDatas[baked_index].mLastTextureID != IMG_DEFAULT
 			&& baked_index != BAKED_SKIRT)
 		{
+			LL_DEBUGS("Avatar") << avString() << "sb " << (S32) isUsingServerBakes() << " baked_index " << (S32) baked_index << " using mLastTextureID " << mBakedTextureDatas[baked_index].mLastTextureID << llendl;
 			setTEImage(mBakedTextureDatas[baked_index].mTextureIndex, 
 				LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[baked_index].mLastTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+		}
+		else
+		{
+			LL_DEBUGS("Avatar") << avString() << "sb " << (S32) isUsingServerBakes() << " baked_index " << (S32) baked_index << " using texture id "
+								<< getTE(mBakedTextureDatas[baked_index].mTextureIndex)->getID() << llendl;
 		}
 	}
 
@@ -7301,7 +7385,7 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 		LLViewerTexture* image_baked = getImage( mBakedTextureDatas[i].mTextureIndex, 0 );
 		if (id == image_baked->getID())
 		{
-			LL_DEBUGS("Avatar") << avString() << " i " << i << " id " << id << LL_ENDL;
+			//LL_DEBUGS("Avatar") << avString() << " i " << i << " id " << id << LL_ENDL;
 			mBakedTextureDatas[i].mIsLoaded = true;
 			mBakedTextureDatas[i].mLastTextureID = id;
 			mBakedTextureDatas[i].mIsUsed = true;
@@ -7372,6 +7456,15 @@ std::string get_sequential_numbered_file_name(const std::string& prefix,
 	std::string outfilename = prefix + " " + llformat("%04d",num) + ".xml";
 	std::replace(outfilename.begin(),outfilename.end(),' ','_');
 	return outfilename;
+}
+
+void dump_sequential_xml(const std::string outprefix, const LLSD& content)
+{
+	std::string outfilename = get_sequential_numbered_file_name(outprefix,".xml");
+	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
+	std::ofstream ofs(fullpath.c_str(), std::ios_base::out);
+	ofs << LLSDOStreamer<LLSDXMLFormatter>(content, LLSDFormatter::OPTIONS_PRETTY);
+	LL_DEBUGS("Avatar") << "results saved to: " << fullpath << LL_ENDL;
 }
 
 void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_wearables )

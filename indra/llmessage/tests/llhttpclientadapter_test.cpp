@@ -1,6 +1,6 @@
 /** 
- * @file 
- * @brief 
+ * @file llhttpclientadapter_test.cpp
+ * @brief Tests for LLHTTPClientAdapter
  *
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -33,8 +33,8 @@
 float const HTTP_REQUEST_EXPIRY_SECS = 1.0F;
 
 std::vector<std::string> get_urls;
-std::vector<boost::intrusive_ptr<LLCurl::Responder> > get_responders;
-void LLHTTPClient::get(const std::string& url, boost::intrusive_ptr<LLCurl::Responder> responder, const LLSD& headers, const F32 timeout)
+std::vector< LLCurl::ResponderPtr > get_responders;
+void LLHTTPClient::get(const std::string& url, LLCurl::ResponderPtr responder, const LLSD& headers, const F32 timeout)
 {
 	get_urls.push_back(url);
 	get_responders.push_back(responder);
@@ -42,16 +42,30 @@ void LLHTTPClient::get(const std::string& url, boost::intrusive_ptr<LLCurl::Resp
 
 std::vector<std::string> put_urls;
 std::vector<LLSD> put_body;
-std::vector<boost::intrusive_ptr<LLCurl::Responder> > put_responders;
+std::vector<LLSD> put_headers;
+std::vector<LLCurl::ResponderPtr> put_responders;
 
-void LLHTTPClient::put(const std::string& url, const LLSD& body, boost::intrusive_ptr<LLCurl::Responder> responder, const LLSD& headers, const F32 timeout)
+void LLHTTPClient::put(const std::string& url, const LLSD& body, LLCurl::ResponderPtr responder, const LLSD& headers, const F32 timeout)
 {
 	put_urls.push_back(url);
 	put_responders.push_back(responder);
 	put_body.push_back(body);
+	put_headers.push_back(headers);
 
 }
 
+std::vector<std::string> delete_urls;
+std::vector<LLCurl::ResponderPtr> delete_responders;
+
+void LLHTTPClient::del(
+	const std::string& url,
+	LLCurl::ResponderPtr responder,
+	const LLSD& headers,
+	const F32 timeout)
+{
+	delete_urls.push_back(url);
+	delete_responders.push_back(responder);
+}
 
 namespace tut
 {
@@ -64,6 +78,9 @@ namespace tut
 			put_urls.clear();
 			put_responders.clear();
 			put_body.clear();
+			put_headers.clear();
+			delete_urls.clear();
+			delete_responders.clear();
 		}
 	};
 
@@ -73,7 +90,7 @@ namespace tut
 
 namespace
 {
-	tut::factory tf("LLHTTPClientAdapterData test");
+	tut::factory tf("LLHTTPClientAdapterData");
 }
 
 namespace tut
@@ -91,7 +108,7 @@ namespace tut
 	{
 		LLHTTPClientAdapter adapter;
 
-		boost::intrusive_ptr<LLCurl::Responder> responder = new LLCurl::Responder();
+		LLCurl::ResponderPtr responder = new LLCurl::Responder();
 
 		adapter.get("Made up URL", responder);
 		ensure_equals(get_urls.size(), 1);
@@ -103,7 +120,7 @@ namespace tut
 	void object::test<3>()
 	{
 		LLHTTPClientAdapter adapter;
-		boost::intrusive_ptr<LLCurl::Responder> responder = new LLCurl::Responder();
+		LLCurl::ResponderPtr responder = new LLCurl::Responder();
 
 		adapter.get("Made up URL", responder);
 
@@ -117,7 +134,7 @@ namespace tut
 	{
 		LLHTTPClientAdapter adapter;
 
-		boost::intrusive_ptr<LLCurl::Responder> responder = new LLCurl::Responder();
+		LLCurl::ResponderPtr responder = new LLCurl::Responder();
 
 		LLSD body;
 		body["TestBody"] = "Foobar";
@@ -133,7 +150,7 @@ namespace tut
 	{
 		LLHTTPClientAdapter adapter;
 
-		boost::intrusive_ptr<LLCurl::Responder> responder = new LLCurl::Responder();
+		LLCurl::ResponderPtr responder = new LLCurl::Responder();
 
 		LLSD body;
 		body["TestBody"] = "Foobar";
@@ -150,7 +167,7 @@ namespace tut
 	{
 		LLHTTPClientAdapter adapter;
 
-		boost::intrusive_ptr<LLCurl::Responder> responder = new LLCurl::Responder();
+		LLCurl::ResponderPtr responder = new LLCurl::Responder();
 
 		LLSD body;
 		body["TestBody"] = "Foobar";
@@ -159,6 +176,46 @@ namespace tut
 
 		ensure_equals(put_body.size(), 1);
 		ensure_equals(put_body[0]["TestBody"].asString(), "Foobar");
+	}
+
+	// Ensure that headers are passed through put properly
+	template<> template<>
+	void object::test<7>()
+	{
+		LLHTTPClientAdapter adapter;
+
+		LLCurl::ResponderPtr responder = new LLCurl::Responder();
+
+		LLSD body = LLSD::emptyMap();
+		body["TestBody"] = "Foobar";
+
+		LLSD headers = LLSD::emptyMap();
+		headers["booger"] = "omg";
+
+		adapter.put("Made up URL", body, responder, headers);
+
+		ensure_equals("Header count", put_headers.size(), 1);
+		ensure_equals(
+			"First header",
+			put_headers[0]["booger"].asString(),
+			"omg");
+	}
+
+	// Ensure that del() passes appropriate arguments to the LLHTTPClient
+	template<> template<>
+	void object::test<8>()
+	{
+		LLHTTPClientAdapter adapter;
+
+		LLCurl::ResponderPtr responder = new LLCurl::Responder();
+
+		adapter.del("Made up URL", responder);
+
+		ensure_equals("URL count", delete_urls.size(), 1);
+		ensure_equals("Received URL", delete_urls[0], "Made up URL");
+
+		ensure_equals("Responder count", delete_responders.size(), 1);
+		//ensure_equals("Responder", delete_responders[0], responder);
 	}
 }
 

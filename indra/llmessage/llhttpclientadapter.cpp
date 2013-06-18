@@ -35,18 +35,18 @@ void LLHTTPClientAdapter::get(const std::string& url, LLCurl::ResponderPtr respo
 {
 	LLSD empty_pragma_header;
 	// Pragma is required to stop curl adding "no-cache"
-	// Space is required to stop llurlrequest from turnning off proxying
-	empty_pragma_header["Pragma"] = " "; 
+	// Space is required to stop llurlrequest from turning off proxying
+	empty_pragma_header[HTTP_OUT_HEADER_PRAGMA] = " "; 
 	LLHTTPClient::get(url, responder, empty_pragma_header);
 }
 
 void LLHTTPClientAdapter::get(const std::string& url, LLCurl::ResponderPtr responder, const LLSD& headers) 
 {
 	LLSD empty_pragma_header = headers;
-	if (!empty_pragma_header.has("Pragma"))
+	if (!empty_pragma_header.has(HTTP_OUT_HEADER_PRAGMA))
 	{
 		// as above
-		empty_pragma_header["Pragma"] = " ";
+		empty_pragma_header[HTTP_OUT_HEADER_PRAGMA] = " ";
 	}
 	LLHTTPClient::get(url, responder, empty_pragma_header);
 }
@@ -56,3 +56,18 @@ void LLHTTPClientAdapter::put(const std::string& url, const LLSD& body, LLCurl::
 	LLHTTPClient::put(url, body, responder);
 }
 
+void LLHTTPClientAdapter::put(
+		const std::string& url,
+		const LLSD& body,
+		LLCurl::ResponderPtr responder,
+		const LLSD& headers)
+{
+	LLHTTPClient::put(url, body, responder, headers);
+}
+
+void LLHTTPClientAdapter::del(
+	const std::string& url,
+	LLCurl::ResponderPtr responder)
+{
+	LLHTTPClient::del(url, responder);
+}

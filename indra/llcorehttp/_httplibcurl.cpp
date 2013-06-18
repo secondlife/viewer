@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,7 +31,7 @@
 #include "_httpoprequest.h"
 #include "_httppolicy.h"
 
-#include "llhttpstatuscodes.h"
+#include "llhttpconstants.h"
 
 
 namespace LLCore
@@ -359,12 +359,17 @@ int HttpLibcurl::getActiveCountInClass(int policy_class) const
 
 struct curl_slist * append_headers_to_slist(const HttpHeaders * headers, struct curl_slist * slist)
 {
-	for (HttpHeaders::container_t::const_iterator it(headers->mHeaders.begin());
-
-		headers->mHeaders.end() != it;
-		 ++it)
+	const HttpHeaders::const_iterator end(headers->end());
+	for (HttpHeaders::const_iterator it(headers->begin()); end != it; ++it)
 	{
-		slist = curl_slist_append(slist, (*it).c_str());
+		static const char sep[] = ": ";
+		std::string header;
+		header.reserve((*it).first.size() + (*it).second.size() + sizeof(sep));
+		header.append((*it).first);
+		header.append(sep);
+		header.append((*it).second);
+		
+		slist = curl_slist_append(slist, header.c_str());
 	}
 	return slist;
 }

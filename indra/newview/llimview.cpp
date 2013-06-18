@@ -899,7 +899,7 @@ void LLIMModel::getMessagesSilently(const LLUUID& session_id, std::list<LLSD>& m
 	LLIMSession* session = findIMSession(session_id);
 	if (!session)
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return;
 	}
 
@@ -921,7 +921,7 @@ void LLIMModel::sendNoUnreadMessages(const LLUUID& session_id)
 	LLIMSession* session = findIMSession(session_id);
 	if (!session)
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return;
 	}
 
@@ -941,7 +941,7 @@ bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, 
 
 	if (!session) 
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return false;
 	}
 
@@ -1016,7 +1016,7 @@ LLIMModel::LLIMSession* LLIMModel::addMessageSilently(const LLUUID& session_id, 
 
 	if (!session)
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return NULL;
 	}
 
@@ -1053,7 +1053,7 @@ const std::string LLIMModel::getName(const LLUUID& session_id) const
 
 	if (!session)
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return LLTrans::getString("no_session_message");
 	}
 
@@ -1065,7 +1065,7 @@ const S32 LLIMModel::getNumUnread(const LLUUID& session_id) const
 	LLIMSession* session = findIMSession(session_id);
 	if (!session)
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return -1;
 	}
 
@@ -1089,7 +1089,7 @@ EInstantMessage LLIMModel::getType(const LLUUID& session_id) const
 	LLIMSession* session = findIMSession(session_id);
 	if (!session)
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return IM_COUNT;
 	}
 
@@ -1101,7 +1101,7 @@ LLVoiceChannel* LLIMModel::getVoiceChannel( const LLUUID& session_id ) const
 	LLIMSession* session = findIMSession(session_id);
 	if (!session)
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return NULL;
 	}
 
@@ -1387,6 +1387,7 @@ void start_deprecated_conference_chat(
 
 class LLStartConferenceChatResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLStartConferenceChatResponder);
 public:
 	LLStartConferenceChatResponder(
 		const LLUUID& temp_session_id,
@@ -1400,10 +1401,12 @@ public:
 		mAgents = agents_to_invite;
 	}
 
-	virtual void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+protected:
+	virtual void httpFailure()
 	{
 		//try an "old school" way.
-		if ( statusNum == 400 )
+		// *TODO: What about other error status codes?  4xx 5xx?
+		if ( getStatus() == HTTP_BAD_REQUEST )
 		{
 			start_deprecated_conference_chat(
 				mTempSessionID,
@@ -1412,8 +1415,7 @@ public:
 				mAgents);
 		}
 
-		llwarns << "LLStartConferenceChatResponder error [status:"
-				<< statusNum << "]: " << content << llendl;
+		llwarns << dumpResponse() << llendl;
 
 		//else throw an error back to the client?
 		//in theory we should have just have these error strings
@@ -1505,6 +1507,7 @@ bool LLIMModel::sendStartSession(
 class LLViewerChatterBoxInvitationAcceptResponder :
 	public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLViewerChatterBoxInvitationAcceptResponder);
 public:
 	LLViewerChatterBoxInvitationAcceptResponder(
 		const LLUUID& session_id,
@@ -1514,8 +1517,15 @@ public:
 		mInvitiationType = invitation_type;
 	}
 
-	void result(const LLSD& content)
+private:
+	void httpSuccess()
 	{
+		const LLSD& content = getContent();
+		if (!content.isMap())
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
 		if ( gIMMgr)
 		{
 			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
@@ -1560,19 +1570,17 @@ public:
 		}
 	}
 
-	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+	void httpFailure()
 	{
-		llwarns << "LLViewerChatterBoxInvitationAcceptResponder error [status:"
-				<< statusNum << "]: " << content << llendl;
+		llwarns << dumpResponse() << llendl;
 		//throw something back to the viewer here?
 		if ( gIMMgr )
 		{
 			gIMMgr->clearPendingAgentListUpdates(mSessionID);
 			gIMMgr->clearPendingInvitation(mSessionID);
-			if ( 404 == statusNum )
+			if ( HTTP_NOT_FOUND == getStatus() )
 			{
-				std::string error_string;
-				error_string = "session_does_not_exist_error";
+				static const std::string error_string("session_does_not_exist_error");
 				gIMMgr->showSessionStartError(error_string, mSessionID);
 			}
 		}

@@ -81,11 +81,12 @@ public:
 
 	class fetchInventoryResponder : public LLHTTPClient::Responder
 	{
+		LOG_CLASS(fetchInventoryResponder);
 	public:
 		fetchInventoryResponder(const LLSD& request_sd) : mRequestSD(request_sd) {};
-		void result(const LLSD& content);			
-		void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 	protected:
+		virtual void httpSuccess();
+		virtual void httpFailure();
 		LLSD mRequestSD;
 	};
 
@@ -204,6 +205,9 @@ public:
 		EXCLUDE_TRASH = FALSE, 
 		INCLUDE_TRASH = TRUE 
 	};
+	// Simpler existence test if matches don't actually need to be collected.
+	bool hasMatchingDirectDescendent(const LLUUID& cat_id,
+									 LLInventoryCollectFunctor& filter);
 	void collectDescendents(const LLUUID& id,
 							cat_array_t& categories,
 							item_array_t& items,
@@ -212,8 +216,7 @@ public:
 							  cat_array_t& categories,
 							  item_array_t& items,
 							  BOOL include_trash,
-							  LLInventoryCollectFunctor& add,
-							  BOOL follow_folder_links = FALSE);
+							  LLInventoryCollectFunctor& add);
 
 	// Collect all items in inventory that are linked to item_id.
 	// Assumes item_id is itself not a linked item.
@@ -224,6 +227,9 @@ public:
 	// Check if one object has a parent chain up to the category specified by UUID.
 	BOOL isObjectDescendentOf(const LLUUID& obj_id, const LLUUID& cat_id) const;
 
+	// Follow parent chain to the top.
+	bool getObjectTopmostAncestor(const LLUUID& object_id, LLUUID& result) const;
+	
 	//--------------------------------------------------------------------
 	// Find
 	//--------------------------------------------------------------------
@@ -322,11 +328,31 @@ public:
 	// Delete
 	//--------------------------------------------------------------------
 public:
+
+	// Update model after an AISv3 update received for any operation.
+	void onAISUpdateReceived(const std::string& context, const LLSD& update);
+		
+	// Update model after an item is confirmed as removed from
+	// server. Works for categories or items.
+	void onObjectDeletedFromServer(const LLUUID& item_id,
+								   bool fix_broken_links = true,
+								   bool update_parent_version = true,
+								   bool do_notify_observers = true);
+
+	// Update model after all descendents removed from server.
+	void onDescendentsPurgedFromServer(const LLUUID& object_id, bool fix_broken_links = true);
+
+	// Update model after an existing item gets updated on server.
+	void onItemUpdated(const LLUUID& item_id, const LLSD& updates, bool update_parent_version);
+
+	// Update model after an existing category gets updated on server.
+	void onCategoryUpdated(const LLUUID& cat_id, const LLSD& updates);
+
 	// Delete a particular inventory object by ID. Will purge one
 	// object from the internal data structures, maintaining a
 	// consistent internal state. No cache accounting, observer
 	// notification, or server update is performed.
-	void deleteObject(const LLUUID& id);
+	void deleteObject(const LLUUID& id, bool fix_broken_links = true, bool do_notify_observers = true);
 	/// move Item item_id to Trash
 	void removeItem(const LLUUID& item_id);
 	/// move Category category_id to Trash
@@ -334,17 +360,6 @@ public:
 	/// removeItem() or removeCategory(), whichever is appropriate
 	void removeObject(const LLUUID& object_id);
 
-	// Delete a particular inventory object by ID, and delete it from
-	// the server. Also updates linked items.
-	void purgeObject(const LLUUID& id);
-
-	// Collects and purges the descendants of the id
-	// provided. If the category is not found, no action is
-	// taken. This method goes through the long winded process of
-	// removing server representation of folders and items while doing
-	// cache accounting in a fairly efficient manner. This method does
-	// not notify observers (though maybe it should...)
-	void purgeDescendentsOf(const LLUUID& id);
 protected:
 	void updateLinkedObjectsFromPurge(const LLUUID& baseobj_id);
 	
@@ -551,6 +566,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void dumpInventory() const;
+	bool validate() const;
 
 /**                    Miscellaneous
  **                                                                            **

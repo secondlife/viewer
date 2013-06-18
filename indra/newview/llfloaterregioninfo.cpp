@@ -756,12 +756,12 @@ bool LLPanelRegionGeneralInfo::onMessageCommit(const LLSD& notification, const L
 
 class ConsoleRequestResponder : public LLHTTPClient::Responder
 {
-public:
+	LOG_CLASS(ConsoleRequestResponder);
+protected:
 	/*virtual*/
-	void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	void httpFailure()
 	{
-		llwarns << "ConsoleRequestResponder error requesting mesh_rez_enabled [status:"
-				<< status << "]: " << content << llendl;
+		llwarns << "error requesting mesh_rez_enabled " << dumpResponse() << llendl;
 	}
 };
 
@@ -769,12 +769,12 @@ public:
 // called if this request times out.
 class ConsoleUpdateResponder : public LLHTTPClient::Responder
 {
-public:
+	LOG_CLASS(ConsoleUpdateResponder);
+protected:
 	/* virtual */
-	void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	void httpFailure()
 	{
-		llwarns << "ConsoleRequestResponder error updating mesh enabled region setting [status:"
-				<< status << "]: " << content << llendl;
+		llwarns << "error updating mesh enabled region setting " << dumpResponse() << llendl;
 	}
 };
 
@@ -2233,14 +2233,16 @@ void LLPanelEstateInfo::getEstateOwner()
 
 class LLEstateChangeInfoResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLEstateChangeInfoResponder);
 public:
 	LLEstateChangeInfoResponder(LLPanelEstateInfo* panel)
 	{
 		mpPanel = panel->getHandle();
 	}
 	
+protected:
 	// if we get a normal response, handle it here
-	virtual void result(const LLSD& content)
+	virtual void httpSuccess()
 	{
 		LL_INFOS("Windlight") << "Successfully committed estate info" << llendl;
 
@@ -2251,10 +2253,9 @@ public:
 	}
 	
 	// if we get an error response
-	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	virtual void httpFailure()
 	{
-		llinfos << "LLEstateChangeInfoResponder::error [status:"
-			<< status << "]: " << content << llendl;
+		LL_WARNS("Windlight") << dumpResponse() << LL_ENDL;
 	}
 private:
 	LLHandle<LLPanel> mpPanel;

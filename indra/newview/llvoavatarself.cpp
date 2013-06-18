@@ -234,6 +234,33 @@ void LLVOAvatarSelf::initInstance()
 	//doPeriodically(output_self_av_texture_diagnostics, 30.0);
 	doPeriodically(update_avatar_rez_metrics, 5.0);
 	doPeriodically(check_for_unsupported_baked_appearance, 120.0);
+	doPeriodically(boost::bind(&LLVOAvatarSelf::checkStuckAppearance, this), 30.0);
+}
+
+bool LLVOAvatarSelf::checkStuckAppearance()
+{
+	const F32 CONDITIONAL_UNSTICK_INTERVAL = 300.0;
+	const F32 UNCONDITIONAL_UNSTICK_INTERVAL = 600.0;
+	
+	if (gAgentWearables.isCOFChangeInProgress())
+	{
+		LL_DEBUGS("Avatar") << "checking for stuck appearance" << llendl;
+		F32 change_time = gAgentWearables.getCOFChangeTime();
+		LL_DEBUGS("Avatar") << "change in progress for " << change_time << " seconds" << llendl;
+		S32 active_hp = LLAppearanceMgr::instance().countActiveHoldingPatterns();
+		LL_DEBUGS("Avatar") << "active holding patterns " << active_hp << " seconds" << llendl;
+		S32 active_copies = LLAppearanceMgr::instance().getActiveCopyOperations();
+		LL_DEBUGS("Avatar") << "active copy operations " << active_copies << llendl;
+
+		if ((change_time > CONDITIONAL_UNSTICK_INTERVAL && active_copies == 0) ||
+			(change_time > UNCONDITIONAL_UNSTICK_INTERVAL))
+		{
+			gAgentWearables.notifyLoadingFinished();
+		}
+	}
+
+	// Return false to continue running check periodically.
+	return LLApp::isExiting();
 }
 
 // virtual
@@ -2241,6 +2268,7 @@ LLSD LLVOAvatarSelf::metricsData()
 
 class ViewerAppearanceChangeMetricsResponder: public LLCurl::Responder
 {
+	LOG_CLASS(ViewerAppearanceChangeMetricsResponder);
 public:
 	ViewerAppearanceChangeMetricsResponder( S32 expected_sequence,
 											volatile const S32 & live_sequence,
@@ -2251,30 +2279,23 @@ public:
 	{
 	}
 
-	virtual void completed(U32 status,
-						   const std::string& reason,
-						   const LLSD& content)
+private:
+	/* virtual */ void httpSuccess()
 	{
-		gPendingMetricsUploads--; // if we add retry, this should be moved to the isGoodStatus case.
-		if (isGoodStatus(status))
-		{
-			LL_DEBUGS("Avatar") << "OK" << LL_ENDL;
-			result(content);
-		}
-		else
-		{
-			LL_WARNS("Avatar") << "Failed " << status << " reason " << reason << LL_ENDL;
-			errorWithContent(status,reason,content);
-		}
-	}
+		LL_DEBUGS("Avatar") << "OK" << LL_ENDL;
 
-	// virtual
-	void result(const LLSD & content)
-	{
+		gPendingMetricsUploads--;
 		if (mLiveSequence == mExpectedSequence)
 		{
 			mReportingStarted = true;
 		}
+	}
+
+	/* virtual */ void httpFailure()
+	{
+		// if we add retry, this should be removed from the httpFailure case
+		LL_WARNS("Avatar") << dumpResponse() << LL_ENDL;
+		gPendingMetricsUploads--;
 	}
 
 private:
@@ -2359,7 +2380,6 @@ LLSD summarize_by_buckets(std::vector<LLSD> in_records,
 
 void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
 {
-	// gAgentAvatarp->stopAllPhases();
 	static volatile bool reporting_started(false);
 	static volatile S32 report_sequence(0);
 
@@ -2425,6 +2445,7 @@ void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
 
 class CheckAgentAppearanceServiceResponder: public LLHTTPClient::Responder
 {
+	LOG_CLASS(CheckAgentAppearanceServiceResponder);
 public:
 	CheckAgentAppearanceServiceResponder()
 	{
@@ -2434,22 +2455,24 @@ public:
 	{
 	}
 
-	/* virtual */ void result(const LLSD& content)
+private:
+	/* virtual */ void httpSuccess()
 	{
-		LL_DEBUGS("Avatar") << "status OK" << llendl;
+		LL_DEBUGS("Avatar") << "OK" << llendl;
 	}
 
 	// Error
-	/*virtual*/ void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	/*virtual*/ void httpFailure()
 	{
 		if (isAgentAvatarValid())
 		{
-			LL_DEBUGS("Avatar") << "failed, will rebake [status:"
-					<< status << "]: " << content << llendl;
+			LL_DEBUGS("Avatar") << "failed, will rebake "
+					<< dumpResponse() << LL_ENDL;
 			forceAppearanceUpdate();
 		}
-	}	
+	}
 
+public:
 	static void forceAppearanceUpdate()
 	{
 		// Trying to rebake immediately after crossing region boundary
@@ -2590,7 +2613,7 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 				imagep->setBoostLevel(getAvatarBoostLevel());
 				imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
 				imagep->resetTextureStats();
-				imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
+				imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTUAL_SIZE_RESET_INTERVAL);
 				imagep->addTextureStats( desired_pixels / texel_area_ratio );
 				imagep->forceUpdateBindStats() ;
 				if (imagep->getDiscardLevel() < 0)

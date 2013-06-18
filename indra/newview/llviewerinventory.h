@@ -118,12 +118,11 @@ public:
 	void cloneViewerItem(LLPointer<LLViewerInventoryItem>& newitem) const;
 
 	// virtual methods
-	virtual void removeFromServer( void );
 	virtual void updateParentOnServer(BOOL restamp) const;
 	virtual void updateServer(BOOL is_new) const;
 	void fetchFromServer(void) const;
 
-	//virtual void packMessage(LLMessageSystem* msg) const;
+	virtual void packMessage(LLMessageSystem* msg) const;
 	virtual BOOL unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
 	virtual BOOL unpackMessage(LLSD item);
 	virtual BOOL importFile(LLFILE* fp);
@@ -139,7 +138,6 @@ public:
 	void setComplete(BOOL complete) { mIsComplete = complete; }
 	//void updateAssetOnServer() const;
 
-	virtual void packMessage(LLMessageSystem* msg) const;
 	virtual void setTransactionID(const LLTransactionID& transaction_id);
 	struct comparePointers
 	{
@@ -198,9 +196,10 @@ public:
 	LLViewerInventoryCategory(const LLViewerInventoryCategory* other);
 	void copyViewerCategory(const LLViewerInventoryCategory* other);
 
-	virtual void removeFromServer();
 	virtual void updateParentOnServer(BOOL restamp_children) const;
 	virtual void updateServer(BOOL is_new) const;
+
+	virtual void packMessage(LLMessageSystem* msg) const;
 
 	const LLUUID& getOwnerID() const { return mOwnerID; }
 
@@ -274,7 +273,7 @@ class LLBoostFuncInventoryCallback: public LLInventoryCallback
 {
 public:
 
-	LLBoostFuncInventoryCallback(inventory_func_type fire_func,
+	LLBoostFuncInventoryCallback(inventory_func_type fire_func = no_op_inventory_func,
 								 nullary_func_type destroy_func = no_op):
 		mFireFunc(fire_func),
 		mDestroyFunc(destroy_func)
@@ -365,6 +364,32 @@ void move_inventory_item(
 	const std::string& new_name,
 	LLPointer<LLInventoryCallback> cb);
 
+void update_inventory_item(
+	const LLUUID& item_id,
+	const LLSD& updates,
+	LLPointer<LLInventoryCallback> cb);
+
+void update_inventory_category(
+	const LLUUID& cat_id,
+	const LLSD& updates,
+	LLPointer<LLInventoryCallback> cb);
+
+void remove_inventory_item(
+	const LLUUID& item_id,
+	LLPointer<LLInventoryCallback> cb);
+	
+void remove_inventory_category(
+	const LLUUID& cat_id,
+	LLPointer<LLInventoryCallback> cb);
+	
+void remove_inventory_object(
+	const LLUUID& object_id,
+	LLPointer<LLInventoryCallback> cb);
+
+void purge_descendents_of(
+	const LLUUID& cat_id,
+	LLPointer<LLInventoryCallback> cb);
+
 const LLUUID get_folder_by_itemtype(const LLInventoryItem *src);
 
 void copy_inventory_from_notecard(const LLUUID& destination_id,
@@ -378,5 +403,12 @@ void menu_create_inventory_item(LLInventoryPanel* root,
 								LLFolderBridge* bridge,
 								const LLSD& userdata,
 								const LLUUID& default_parent_uuid = LLUUID::null);
+
+void slam_inventory_folder(const LLUUID& folder_id,
+						   const LLSD& contents,
+						   LLPointer<LLInventoryCallback> cb);
+
+void remove_folder_contents(const LLUUID& folder_id, bool keep_outfit_links,
+							  LLPointer<LLInventoryCallback> cb);
 
 #endif // LL_LLVIEWERINVENTORY_H

@@ -42,9 +42,10 @@
 #include "llcurl.h"
 
 
-extern const std::string CONTEXT_REQUEST;
+/**
+ * External constants
+ */
 extern const std::string CONTEXT_DEST_URI_SD_LABEL;
-extern const std::string CONTEXT_RESPONSE;
 extern const std::string CONTEXT_TRANSFERED_BYTES;
 
 class LLURLRequestDetail;
@@ -68,42 +69,22 @@ class LLURLRequest : public LLIOPipe
 {
 	LOG_CLASS(LLURLRequest);
 public:
-
 	typedef int (* SSLCertVerifyCallback)(X509_STORE_CTX *ctx, void *param);
-	/** 
-	 * @brief This enumeration is for specifying the type of request.
-	 */
-	enum ERequestAction
-	{
-		INVALID,
-		HTTP_HEAD,
-		HTTP_GET,
-		HTTP_PUT,
-		HTTP_POST,
-		HTTP_DELETE,
-		HTTP_MOVE, // Caller will need to set 'Destination' header
-		REQUEST_ACTION_COUNT
-	};
-
-	/**
-	 * @brief Turn the requst action into an http verb.
-	 */
-	static std::string actionAsVerb(ERequestAction action);
 
 	/** 
 	 * @brief Constructor.
 	 *
-	 * @param action One of the ERequestAction enumerations.
+	 * @param action One of the EHTTPMethod enumerations.
 	 */
-	LLURLRequest(ERequestAction action);
+	LLURLRequest(EHTTPMethod action);
 
 	/** 
 	 * @brief Constructor.
 	 *
-	 * @param action One of the ERequestAction enumerations.
+	 * @param action One of the EHTTPMethod enumerations.
 	 * @param url The url of the request. It should already be encoded.
 	 */
-	LLURLRequest(ERequestAction action, const std::string& url);
+	LLURLRequest(EHTTPMethod action, const std::string& url);
 
 	/** 
 	 * @brief Destructor.
@@ -123,17 +104,17 @@ public:
 	 * 
 	 */
 	void setURL(const std::string& url);
-	std::string getURL() const;
+	const std::string& getURL() const;
 	/** 
 	 * @brief Add a header to the http post.
 	 *
-	 * The header must be correctly formatted for HTTP requests. This
-	 * provides a raw interface if you know what kind of request you
+	 * This provides a raw interface if you know what kind of request you
 	 * will be making during construction of this instance. All
 	 * required headers will be automatically constructed, so this is
 	 * usually useful for encoding parameters.
 	 */
-	void addHeader(const char* header);
+	void addHeader(const std::string& header, const std::string& value = "");
+	void addHeaderRaw(const char* header);
 
 	/**
 	 * @brief Check remote server certificate signed by a known root CA.
@@ -218,7 +199,7 @@ protected:
 		STATE_HAVE_RESPONSE,
 	};
 	EState mState;
-	ERequestAction mAction;
+	EHTTPMethod mAction;
 	LLURLRequestDetail* mDetail;
 	LLIOPipe::ptr_t mCompletionCallback;
 	 S32 mRequestTransferedBytes;
@@ -315,7 +296,7 @@ public:
 	// May be called more than once, particularly for redirects and proxy madness.
 	// Ex. a 200 for a connection to https through a proxy, followed by the "real" status
 	//     a 3xx for a redirect followed by a "real" status, or more redirects.
-	virtual void httpStatus(U32 status, const std::string& reason) { }
+	virtual void httpStatus(S32 status, const std::string& reason) { }
 
 	virtual void complete(
 		const LLChannelDescriptors& channels,
@@ -368,15 +349,8 @@ protected:
 	//@}
 
 	// value to note if we actually got the response. This value
-	// depends on correct useage from the LLURLRequest instance.
+	// depends on correct usage from the LLURLRequest instance.
 	EStatus mRequestStatus;
 };
-
-
-
-/**
- * External constants
- */
-extern const std::string CONTEXT_DEST_URI_SD_LABEL;
 
 #endif // LL_LLURLREQUEST_H

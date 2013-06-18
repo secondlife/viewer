@@ -200,6 +200,7 @@ const std::string& LLInvFVBridge::getDisplayName() const
 	{
 		buildDisplayName();
 	}
+
 	return mDisplayName;
 }
 
@@ -1159,17 +1160,10 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 
 void LLInvFVBridge::purgeItem(LLInventoryModel *model, const LLUUID &uuid)
 {
-	LLInventoryCategory* cat = model->getCategory(uuid);
-	if (cat)
-	{
-		model->purgeDescendentsOf(uuid);
-		model->notifyObservers();
-	}
 	LLInventoryObject* obj = model->getObject(uuid);
 	if (obj)
 	{
-		model->purgeObject(uuid);
-		model->notifyObservers();
+		remove_inventory_object(uuid, NULL);
 	}
 }
 
@@ -1573,18 +1567,18 @@ void LLItemBridge::buildDisplayName() const
 	else
 	{
 		mDisplayName.assign(LLStringUtil::null);
-}
-
+	}
+	
 	mSearchableName.assign(mDisplayName);
 	mSearchableName.append(getLabelSuffix());
 	LLStringUtil::toUpper(mSearchableName);
-
+	
     //Name set, so trigger a sort
     if(mParent)
-{
-        mParent->requestSort();
+	{
+		mParent->requestSort();
 	}
-	}
+}
 
 LLFontGL::StyleFlags LLItemBridge::getLabelStyle() const
 {
@@ -1698,13 +1692,9 @@ BOOL LLItemBridge::renameItem(const std::string& new_name)
 	LLViewerInventoryItem* item = getItem();
 	if(item && (item->getName() != new_name))
 	{
-		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-		new_item->rename(new_name);
-		new_item->updateServer(FALSE);
-		model->updateItem(new_item);
-
-		model->notifyObservers();
-		buildDisplayName();
+		LLSD updates;
+		updates["name"] = new_name;
+		update_inventory_item(item->getUUID(),updates, NULL);
 	}
 	// return FALSE because we either notified observers (& therefore
 	// rebuilt) or we didn't update.
@@ -1901,49 +1891,19 @@ void LLFolderBridge::buildDisplayName() const
 
 void LLFolderBridge::update()
 {
-	bool possibly_has_children = false;
-	bool up_to_date = isUpToDate();
-	if(!up_to_date && hasChildren()) // we know we have children but  haven't  fetched them (doesn't obey filter)
-	{
-		possibly_has_children = true;
-	}
-
-	bool loading = (possibly_has_children
-		&& !up_to_date );
+	// we know we have children but  haven't  fetched them (doesn't obey filter)
+	bool loading = !isUpToDate() && hasChildren() && mFolderViewItem->isOpen();
 
 	if (loading != mIsLoading)
 	{
-		if ( loading && !mIsLoading )
+		if ( loading )
 		{
 			// Measure how long we've been in the loading state
 			mTimeSinceRequestStart.reset();
 		}
+		mIsLoading = loading;
 
-		const BOOL in_inventory = gInventory.isObjectDescendentOf(getUUID(),   gInventory.getRootFolderID());
-		const BOOL in_library = gInventory.isObjectDescendentOf(getUUID(),   gInventory.getLibraryRootFolderID());
-
-		bool root_is_loading = false;
-		if (in_inventory)
-		{
-			root_is_loading =   LLInventoryModelBackgroundFetch::instance().inventoryFetchInProgress();
-		}
-		if (in_library)
-		{
-			root_is_loading =   LLInventoryModelBackgroundFetch::instance().libraryFetchInProgress();
-		}
-		if ((mIsLoading
-				&&	mTimeSinceRequestStart.getElapsedTimeF32() >=   gSavedSettings.getF32("FolderLoadingMessageWaitTime"))
-			||	(LLInventoryModelBackgroundFetch::instance().folderFetchActive()
-				&&	root_is_loading))
-		{
-			mDisplayName = LLInvFVBridge::getDisplayName() + " ( " +   LLTrans::getString("LoadingData") + " ) ";
-			mIsLoading = true;
-		}
-		else
-		{
-			mDisplayName = LLInvFVBridge::getDisplayName();
-			mIsLoading = false;
-		}
+		mFolderViewItem->refresh();
 	}
 }
 
@@ -3063,6 +3023,13 @@ LLUIImagePtr LLFolderBridge::getIconOverlay() const
 	return NULL;
 }
 
+std::string LLFolderBridge::getLabelSuffix() const
+{
+	static LLCachedControl<F32> folder_loading_message_delay(gSavedSettings, "FolderLoadingMessageWaitTime");
+	return mIsLoading && mTimeSinceRequestStart.getElapsedTimeF32() >= folder_loading_message_delay() 
+		? llformat(" ( %s ) ", LLTrans::getString("LoadingData").c_str())
+		: LLStringUtil::null;
+}
 
 BOOL LLFolderBridge::renameItem(const std::string& new_name)
 {
@@ -3585,6 +3552,10 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 		if (!LLAppearanceMgr::instance().getCanReplaceCOF(mUUID))
 		{
 			disabled_items.push_back(std::string("Replace Outfit"));
+		}
+		if (!LLAppearanceMgr::instance().getCanAddToCOF(mUUID))
+		{
+			disabled_items.push_back(std::string("Add To Outfit"));
 		}
 		items.push_back(std::string("Outfit Separator"));
 	}

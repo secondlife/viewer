@@ -54,6 +54,7 @@
 #include "llviewercamera.h"
 #include "llviewertexturelist.h"
 #include "llviewerobject.h"
+#include "llviewerwearable.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "pipeline.h"
@@ -147,13 +148,20 @@ BOOL LLVisualParamHint::needsRender()
 
 void LLVisualParamHint::preRender(BOOL clear_depth)
 {
+	LLViewerWearable* wearable = (LLViewerWearable*)mWearablePtr;
+	if (wearable)
+	{
+		wearable->setVolitile(TRUE);
+	}
 	mLastParamWeight = mVisualParam->getWeight();
 	mWearablePtr->setVisualParamWeight(mVisualParam->getID(), mVisualParamWeight, FALSE);
 	gAgentAvatarp->setVisualParamWeight(mVisualParam->getID(), mVisualParamWeight, FALSE);
 	gAgentAvatarp->setVisualParamWeight("Blink_Left", 0.f);
 	gAgentAvatarp->setVisualParamWeight("Blink_Right", 0.f);
 	gAgentAvatarp->updateComposites();
-	gAgentAvatarp->updateVisualParams();
+	// Calling LLCharacter version, as we don't want position/height changes to cause the avatar to jump
+	// up and down when we're doing preview renders. -Nyx
+	gAgentAvatarp->LLCharacter::updateVisualParams();
 	gAgentAvatarp->updateGeometry(gAgentAvatarp->mDrawable);
 	gAgentAvatarp->updateLOD();
 
@@ -239,6 +247,12 @@ BOOL LLVisualParamHint::render()
 	}
 	gAgentAvatarp->setVisualParamWeight(mVisualParam->getID(), mLastParamWeight);
 	mWearablePtr->setVisualParamWeight(mVisualParam->getID(), mLastParamWeight, FALSE);
+	LLViewerWearable* wearable = (LLViewerWearable*)mWearablePtr;
+	if (wearable)
+	{
+		wearable->setVolitile(FALSE);
+	}
+
 	gAgentAvatarp->updateVisualParams();
 	gGL.color4f(1,1,1,1);
 	mGLTexturep->setGLTextureCreated(true);

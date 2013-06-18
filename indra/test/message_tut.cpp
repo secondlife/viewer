@@ -46,6 +46,7 @@ namespace
 			mStatus = code;
 		}
 		virtual void extendedResult(S32 code, const std::string& message, const LLSD& headers) { }
+		virtual void extendedResult(S32 code, const LLSD& result, const LLSD& headers) { }
 		S32 mStatus;
 	};
 }
@@ -142,7 +143,7 @@ namespace tut
 		const LLSD message;
 		const LLPointer<Response> response = new Response();
 		gMessageSystem->dispatch(name, message, response);
-		ensure_equals(response->mStatus, 404);
+		ensure_equals(response->mStatus, HTTP_NOT_FOUND);
 	}
 }
 

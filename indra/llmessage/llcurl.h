@@ -39,6 +39,7 @@
 #include <curl/curl.h> // TODO: remove dependency
 
 #include "llbuffer.h"
+#include "llhttpconstants.h"
 #include "lliopipe.h"
 #include "llsd.h"
 #include "llthread.h"
@@ -77,59 +78,92 @@ public:
 		Responder();
 		virtual ~Responder();
 
+		virtual bool followRedir() 
+		{
+			return false;
+		}
+
 		/**
 		 * @brief return true if the status code indicates success.
 		 */
-		static bool isGoodStatus(U32 status)
-		{
-			return((200 <= status) && (status < 300));
-		}
-		
-		virtual void errorWithContent(
-			U32 status,
-			const std::string& reason,
-			const LLSD& content);
-			//< called by completed() on bad status 
+		bool isGoodStatus() const { return isHttpGoodStatus(mStatus); }
 
-		virtual void error(U32 status, const std::string& reason);
-			//< called by default error(status, reason, content)
-		
-		virtual void result(const LLSD& content);
-			//< called by completed for good status codes.
+		S32 getStatus() const { return mStatus; }
+		const std::string& getReason() const { return mReason; }
+		const LLSD& getContent() const { return mContent; }
+		bool hasResponseHeader(const std::string& header) const;
+		const std::string& getResponseHeader(const std::string& header) const;
+		const LLSD& getResponseHeaders() const { return mResponseHeaders; }
+		const std::string& getURL() const { return mURL; }
+		EHTTPMethod getHTTPMethod() const { return mHTTPMethod; }
 
+		// This formats response information for use in log spam.  Includes content spam.
+		std::string dumpResponse() const;
+
+		// Allows direct triggering of success/error with different results.
+		void completeResult(S32 status, const std::string& reason, const LLSD& content = LLSD());
+		void successResult(const LLSD& content);
+		void failureResult(S32 status, const std::string& reason, const LLSD& content = LLSD());
+
+		// The default implementation will try to parse body content as an LLSD, however
+		// it should not spam about parsing failures unless the server sent a
+		// Content-Type: application/llsd+xml header.
 		virtual void completedRaw(
-			U32 status,
-			const std::string& reason,
 			const LLChannelDescriptors& channels,
 			const LLIOPipe::buffer_ptr_t& buffer);
 			/**< Override point for clients that may want to use this
 			   class when the response is some other format besides LLSD
 			*/
-
-		virtual void completed(
-			U32 status,
-			const std::string& reason,
-			const LLSD& content);
-			/**< The default implemetnation calls
-				either:
-				* result(), or
-				* error() 
-			*/
 			
-			// Override to handle parsing of the header only.  Note: this is the only place where the contents
-			// of the header can be parsed.  In the ::completed call above only the body is contained in the LLSD.
-			virtual void completedHeader(U32 status, const std::string& reason, const LLSD& content);
 
-			// Used internally to set the url for debugging later.
-			void setURL(const std::string& url);
+		// The http* methods are not public since these should be triggered internally
+		// after status, reason, content, etc have been set.
+		// If you need to trigger a completion method, use the *Result methods, above.
+	protected:
+		// These methods are the preferred way to process final results.
+		// By default, when one of these is called the following information will be resolved:
+		// * HTTP status code - getStatus()
+		// * Reason string - getReason()
+		// * Content - getContent()
+		// * Response Headers - getResponseHeaders()
 
-			virtual bool followRedir() 
-			{
-				return false;
-			}
+		// By default, httpSuccess is triggered whenever httpCompleted is called with a 2xx status code.
+		virtual void httpSuccess();
+			//< called by completed for good status codes.
+
+		// By default, httpFailure is triggered whenever httpCompleted is called with a non-2xx status code.
+		virtual void httpFailure();
+			//< called by httpCompleted() on bad status 
+
+		// httpCompleted does not generally need to be overridden, unless
+		// you don't care about the status code (which determine httpFailure or httpSuccess)
+		// or if you want to re-interpret what a 'good' vs' bad' status code is.
+		virtual void httpCompleted();
+			/**< The default implementation calls
+				either:
+				* httpSuccess(), or
+				* httpFailure() 
+			*/
+
+	public:
+		void setHTTPMethod(EHTTPMethod method);
+		void setURL(const std::string& url);
+		void setResult(S32 status, const std::string& reason, const LLSD& content = LLSD());
+		void setResponseHeader(const std::string& header, const std::string& value);
 
 	private:
+		// These can be accessed by the get* methods.  Treated as 'read-only' during completion handlers.
+		EHTTPMethod mHTTPMethod;
 		std::string mURL;
+		LLSD mResponseHeaders;
+
+	protected:
+		// These should also generally be treated as 'read-only' during completion handlers
+		// and should be accessed by the get* methods.  The exception to this rule would
+		// be when overriding the completedRaw method in preparation for calling httpCompleted().
+		S32 mStatus;
+		std::string mReason;
+		LLSD mContent;
 	};
 	typedef LLPointer<Responder>	ResponderPtr;
 
@@ -225,10 +259,11 @@ public:
 	// Copies the string so that it is guaranteed to stick around
 	void setoptString(CURLoption option, const std::string& value);
 
+	void slist_append(const std::string& header, const std::string& value);
 	void slist_append(const char* str);
 	void setHeaders();
 
-	U32 report(CURLcode);
+	S32 report(CURLcode);
 	void getTransferInfo(LLCurl::TransferInfo* info);
 
 	void prepRequest(const std::string& url, const std::vector<std::string>& headers, LLCurl::ResponderPtr, S32 time_out = 0, bool post = false);
@@ -484,6 +519,7 @@ public:
 	void setWriteCallback(curl_write_callback callback, void* userdata);
 	void setReadCallback(curl_read_callback callback, void* userdata);
 	void setSSLCtxCallback(curl_ssl_ctx_callback callback, void* userdata);
+	void slist_append(const std::string& header, const std::string& value);
 	void slist_append(const char* str);
 	void sendRequest(const std::string& url);
 	void requestComplete();

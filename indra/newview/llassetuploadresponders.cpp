@@ -225,37 +225,41 @@ LLAssetUploadResponder::~LLAssetUploadResponder()
 }
 
 // virtual
-void LLAssetUploadResponder::errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+void LLAssetUploadResponder::httpFailure()
 {
-	llinfos << "LLAssetUploadResponder::error [status:" 
-			<< statusNum << "]: " << content << llendl;
+	// *TODO: Add adaptive retry policy?
+	llwarns << dumpResponse() << llendl;
 	LLSD args;
-	switch(statusNum)
+	if (isHttpClientErrorStatus(getStatus()))
 	{
-		case 400:
-			args["FILE"] = (mFileName.empty() ? mVFileID.asString() : mFileName);
-			args["REASON"] = "Error in upload request.  Please visit "
-				"http://secondlife.com/support for help fixing this problem.";
-			LLNotificationsUtil::add("CannotUploadReason", args);
-			break;
-		case 500:
-		default:
-			args["FILE"] = (mFileName.empty() ? mVFileID.asString() : mFileName);
-			args["REASON"] = "The server is experiencing unexpected "
-				"difficulties.";
-			LLNotificationsUtil::add("CannotUploadReason", args);
-			break;
+		args["FILE"] = (mFileName.empty() ? mVFileID.asString() : mFileName);
+		args["REASON"] = "Error in upload request.  Please visit "
+			"http://secondlife.com/support for help fixing this problem.";
+		LLNotificationsUtil::add("CannotUploadReason", args);
+	}
+	else
+	{
+		args["FILE"] = (mFileName.empty() ? mVFileID.asString() : mFileName);
+		args["REASON"] = "The server is experiencing unexpected "
+			"difficulties.";
+		LLNotificationsUtil::add("CannotUploadReason", args);
 	}
 	LLUploadDialog::modalUploadFinished();
 	LLFilePicker::instance().reset();  // unlock file picker when bulk upload fails
 }
 
 //virtual 
-void LLAssetUploadResponder::result(const LLSD& content)
+void LLAssetUploadResponder::httpSuccess()
 {
+	const LLSD& content = getContent();
+	if (!content.isMap())
+	{
+		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+		return;
+	}
 	lldebugs << "LLAssetUploadResponder::result from capabilities" << llendl;
 
-	std::string state = content["state"];
+	const std::string& state = content["state"].asStringRef();
 
 	if (state == "upload")
 	{
@@ -280,7 +284,7 @@ void LLAssetUploadResponder::result(const LLSD& content)
 
 void LLAssetUploadResponder::uploadUpload(const LLSD& content)
 {
-	std::string uploader = content["uploader"];
+	const std::string& uploader = content["uploader"].asStringRef();
 	if (mFileName.empty())
 	{
 		LLHTTPClient::postFile(uploader, mVFileID, mAssetType, this);
@@ -293,6 +297,7 @@ void LLAssetUploadResponder::uploadUpload(const LLSD& content)
 
 void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 {
+	llwarns << dumpResponse() << llendl;
 	// remove the "Uploading..." message
 	LLUploadDialog::modalUploadFinished();
 	LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");
@@ -301,7 +306,7 @@ void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 		floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", false).with("msg", "inventory")));
 	}
 	
-	std::string reason = content["state"];
+	const std::string& reason = content["state"].asStringRef();
 	// deal with L$ errors
 	if (reason == "insufficient funds")
 	{
@@ -340,9 +345,9 @@ LLNewAgentInventoryResponder::LLNewAgentInventoryResponder(
 }
 
 // virtual
-void LLNewAgentInventoryResponder::errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+void LLNewAgentInventoryResponder::httpFailure()
 {
-	LLAssetUploadResponder::errorWithContent(statusNum, reason, content);
+	LLAssetUploadResponder::httpFailure();
 	//LLImportColladaAssetCache::getInstance()->assetUploaded(mVFileID, LLUUID(), FALSE);
 }
 
@@ -487,10 +492,9 @@ void LLSendTexLayerResponder::uploadComplete(const LLSD& content)
 	}
 }
 
-void LLSendTexLayerResponder::errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+void LLSendTexLayerResponder::httpFailure()
 {
-	llinfos << "LLSendTexLayerResponder error [status:"
-			<< statusNum << "]: " << content << llendl;
+	llwarns << dumpResponse() << llendl;
 	
 	// Invoke the original callback with an error result
 	LLViewerTexLayerSetBuffer::onTextureUploadComplete(LLUUID(), (void*) mBakedUploadData, -1, LL_EXSTAT_NONE);
@@ -1009,19 +1013,14 @@ LLNewAgentInventoryVariablePriceResponder::~LLNewAgentInventoryVariablePriceResp
 	delete mImpl;
 }
 
-void LLNewAgentInventoryVariablePriceResponder::errorWithContent(
-	U32 statusNum,
-	const std::string& reason,
-	const LLSD& content)
+void LLNewAgentInventoryVariablePriceResponder::httpFailure()
 {
-	lldebugs 
-		<< "LLNewAgentInventoryVariablePrice::error " << statusNum 
-		<< " reason: " << reason << llendl;
+	const LLSD& content = getContent();
+	LL_WARNS("Upload") << dumpResponse() << LL_ENDL;
 
-	if ( content.has("error") )
+	static const std::string _ERROR = "error";
+	if ( content.has(_ERROR) )
 	{
-		static const std::string _ERROR = "error";
-
 		mImpl->onTransportError(content[_ERROR]);
 	}
 	else
@@ -1030,8 +1029,14 @@ void LLNewAgentInventoryVariablePriceResponder::errorWithContent(
 	}
 }
 
-void LLNewAgentInventoryVariablePriceResponder::result(const LLSD& content)
+void LLNewAgentInventoryVariablePriceResponder::httpSuccess()
 {
+	const LLSD& content = getContent();
+	if (!content.isMap())
+	{
+		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+		return;
+	}
 	// Parse out application level errors and the appropriate
 	// responses for them
 	static const std::string _ERROR = "error";
@@ -1047,6 +1052,7 @@ void LLNewAgentInventoryVariablePriceResponder::result(const LLSD& content)
 	// Check for application level errors
 	if ( content.has(_ERROR) )
 	{
+		LL_WARNS("Upload") << dumpResponse() << LL_ENDL;
 		onApplicationLevelError(content[_ERROR]);
 		return;
 	}
@@ -1090,6 +1096,7 @@ void LLNewAgentInventoryVariablePriceResponder::result(const LLSD& content)
 	}
 	else
 	{
+		LL_WARNS("Upload") << dumpResponse() << LL_ENDL;
 		onApplicationLevelError("");
 	}
 }

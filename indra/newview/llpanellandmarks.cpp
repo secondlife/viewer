@@ -527,7 +527,7 @@ void LLLandmarksPanel::setParcelID(const LLUUID& parcel_id)
 }
 
 // virtual
-void LLLandmarksPanel::setErrorStatus(U32 status, const std::string& reason)
+void LLLandmarksPanel::setErrorStatus(S32 status, const std::string& reason)
 {
 	llwarns << "Can't handle remote parcel request."<< " Http Status: "<< status << ". Reason : "<< reason<<llendl;
 }

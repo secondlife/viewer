@@ -1,6 +1,6 @@
 /** 
- * @file llinventorymodel.cpp
- * @brief Implementation of the inventory model used to track agent inventory.
+ * @file llinventorymodelbackgroundfetch.cpp
+ * @brief Implementation of background fetching of inventory.
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -172,8 +172,11 @@ void LLInventoryModelBackgroundFetch::setAllFoldersFetched()
 		mRecursiveLibraryFetchStarted)
 	{
 		mAllFoldersFetched = TRUE;
+		//llinfos << "All folders fetched, validating" << llendl;
+		//gInventory.validate();
 	}
 	mFolderFetchActive = false;
+	mBackgroundFetchActive = false;
 }
 
 void LLInventoryModelBackgroundFetch::backgroundFetchCB(void *)
@@ -363,35 +366,40 @@ void LLInventoryModelBackgroundFetch::incrFetchCount(S16 fetching)
 
 class LLInventoryModelFetchItemResponder : public LLInventoryModel::fetchInventoryResponder
 {
+	LOG_CLASS(LLInventoryModelFetchItemResponder);
 public:
-	LLInventoryModelFetchItemResponder(const LLSD& request_sd) : LLInventoryModel::fetchInventoryResponder(request_sd) {};
-	void result(const LLSD& content);			
-	void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
+	LLInventoryModelFetchItemResponder(const LLSD& request_sd) :
+		LLInventoryModel::fetchInventoryResponder(request_sd)
+	{
+		LLInventoryModelBackgroundFetch::instance().incrFetchCount(1);
+	}
+private:
+	/* virtual */ void httpCompleted()
+	{
+		LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
+		LLInventoryModel::fetchInventoryResponder::httpCompleted();
+	}
 };
-
-void LLInventoryModelFetchItemResponder::result( const LLSD& content )
-{
-	LLInventoryModel::fetchInventoryResponder::result(content);
-	LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
-}
-
-void LLInventoryModelFetchItemResponder::errorWithContent( U32 status, const std::string& reason, const LLSD& content )
-{
-	LLInventoryModel::fetchInventoryResponder::errorWithContent(status, reason, content);
-	LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
-}
-
 
 class LLInventoryModelFetchDescendentsResponder: public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLInventoryModelFetchDescendentsResponder);
 public:
 	LLInventoryModelFetchDescendentsResponder(const LLSD& request_sd, uuid_vec_t recursive_cats) : 
 		mRequestSD(request_sd),
 		mRecursiveCatUUIDs(recursive_cats)
-	{};
+	{
+		LLInventoryModelBackgroundFetch::instance().incrFetchCount(1);
+	}
 	//LLInventoryModelFetchDescendentsResponder() {};
-	void result(const LLSD& content);
-	void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
+private:
+	/* virtual */ void httpCompleted()
+	{
+		LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
+		LLHTTPClient::Responder::httpCompleted();
+	}
+	/* virtual */ void httpSuccess();
+	/* virtual */ void httpFailure();
 protected:
 	BOOL getIsRecursive(const LLUUID& cat_id) const;
 private:
@@ -400,8 +408,14 @@ private:
 };
 
 // If we get back a normal response, handle it here.
-void LLInventoryModelFetchDescendentsResponder::result(const LLSD& content)
+void LLInventoryModelFetchDescendentsResponder::httpSuccess()
 {
+	const LLSD& content = getContent();
+	if (!content.isMap())
+	{
+		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+		return;
+	}
 	LLInventoryModelBackgroundFetch *fetcher = LLInventoryModelBackgroundFetch::getInstance();
 	if (content.has("folders"))	
 	{
@@ -508,16 +522,15 @@ void LLInventoryModelFetchDescendentsResponder::result(const LLSD& content)
 		for(LLSD::array_const_iterator folder_it = content["bad_folders"].beginArray();
 			folder_it != content["bad_folders"].endArray();
 			++folder_it)
-		{	
+		{
+			// *TODO: Stop copying data
 			LLSD folder_sd = *folder_it;
 			
 			// These folders failed on the dataserver.  We probably don't want to retry them.
-			llinfos << "Folder " << folder_sd["folder_id"].asString() 
+			llwarns << "Folder " << folder_sd["folder_id"].asString() 
 					<< "Error: " << folder_sd["error"].asString() << llendl;
 		}
 	}
-
-	fetcher->incrFetchCount(-1);
 	
 	if (fetcher->isBulkFetchProcessingComplete())
 	{
@@ -529,21 +542,17 @@ void LLInventoryModelFetchDescendentsResponder::result(const LLSD& content)
 }
 
 // If we get back an error (not found, etc...), handle it here.
-void LLInventoryModelFetchDescendentsResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+void LLInventoryModelFetchDescendentsResponder::httpFailure()
 {
+	llwarns << dumpResponse() << llendl;
 	LLInventoryModelBackgroundFetch *fetcher = LLInventoryModelBackgroundFetch::getInstance();
 
-	llinfos << "LLInventoryModelFetchDescendentsResponder::error [status:"
-			<< status << "]: " << content << llendl;
-						
-	fetcher->incrFetchCount(-1);
-
-	if (status==499) // timed out
+	if (getStatus()==HTTP_INTERNAL_ERROR) // timed out or curl failure
 	{
 		for(LLSD::array_const_iterator folder_it = mRequestSD["folders"].beginArray();
 			folder_it != mRequestSD["folders"].endArray();
 			++folder_it)
-		{	
+		{
 			LLSD folder_sd = *folder_it;
 			LLUUID folder_id = folder_sd["folder_id"];
 			const BOOL recursive = getIsRecursive(folder_id);
@@ -586,7 +595,7 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 		(mFetchTimer.getElapsedTimeF32() < mMinTimeBetweenFetches))
 	{
 		return; // just bail if we are disconnected
-	}	
+	}
 
 	U32 item_count=0;
 	U32 folder_count=0;
@@ -689,7 +698,6 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 			std::string url = region->getCapability("FetchInventoryDescendents2");   			
 			if ( !url.empty() )
 			{
-				mFetchCount++;
 				if (folder_request_body["folders"].size())
 				{
 					LLInventoryModelFetchDescendentsResponder *fetcher = new LLInventoryModelFetchDescendentsResponder(folder_request_body, recursive_cats);
@@ -702,7 +710,7 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 					LLInventoryModelFetchDescendentsResponder *fetcher = new LLInventoryModelFetchDescendentsResponder(folder_request_body_lib, recursive_cats);
 					LLHTTPClient::post(url_lib, folder_request_body_lib, fetcher, 300.0);
 				}
-			}					
+			}
 		}
 		if (item_count)
 		{
@@ -710,39 +718,23 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 
 			if (item_request_body.size())
 			{
-				mFetchCount++;
 				url = region->getCapability("FetchInventory2");
 				if (!url.empty())
 				{
 					LLSD body;
-					body["agent_id"]	= gAgent.getID();
 					body["items"] = item_request_body;
 
 					LLHTTPClient::post(url, body, new LLInventoryModelFetchItemResponder(body));
 				}
-				//else
-				//{
-				//	LLMessageSystem* msg = gMessageSystem;
-				//	msg->newMessage("FetchInventory");
-				//	msg->nextBlock("AgentData");
-				//	msg->addUUID("AgentID", gAgent.getID());
-				//	msg->addUUID("SessionID", gAgent.getSessionID());
-				//	msg->nextBlock("InventoryData");
-				//	msg->addUUID("OwnerID", mPermissions.getOwner());
-				//	msg->addUUID("ItemID", mUUID);
-				//	gAgent.sendReliableMessage();
-				//}
 			}
 
 			if (item_request_body_lib.size())
 			{
-				mFetchCount++;
 
 				url = region->getCapability("FetchLib2");
 				if (!url.empty())
 				{
 					LLSD body;
-					body["agent_id"]	= gAgent.getID();
 					body["items"] = item_request_body_lib;
 
 					LLHTTPClient::post(url, body, new LLInventoryModelFetchItemResponder(body));

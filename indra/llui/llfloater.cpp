@@ -1621,7 +1621,7 @@ void LLFloater::bringToFront( S32 x, S32 y )
 
 
 // virtual
-void LLFloater::setVisibleAndFrontmost(BOOL take_focus, const LLSD& key)
+void LLFloater::setVisibleAndFrontmost(BOOL take_focus,const LLSD& key)
 {
 	LLMultiFloater* hostp = getHost();
 	if (hostp)

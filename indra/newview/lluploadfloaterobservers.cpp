@@ -1,6 +1,6 @@
 /**
  * @file lluploadfloaterobservers.cpp
- * @brief LLUploadModelPremissionsResponder definition
+ * @brief LLUploadModelPermissionsResponder definition
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -28,26 +28,31 @@
 
 #include "lluploadfloaterobservers.h"
 
-LLUploadModelPremissionsResponder::LLUploadModelPremissionsResponder(const LLHandle<LLUploadPermissionsObserver>& observer)
+LLUploadModelPermissionsResponder::LLUploadModelPermissionsResponder(const LLHandle<LLUploadPermissionsObserver>& observer)
 :mObserverHandle(observer)
 {
 }
 
-void LLUploadModelPremissionsResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+void LLUploadModelPermissionsResponder::httpFailure()
 {
-	llwarns << "LLUploadModelPremissionsResponder error [status:"
-			<< status << "]: " << content << llendl;
+	llwarns << dumpResponse() << llendl;
 
 	LLUploadPermissionsObserver* observer = mObserverHandle.get();
 
 	if (observer)
 	{
-		observer->setPermissonsErrorStatus(status, reason);
+		observer->setPermissonsErrorStatus(getStatus(), getReason());
 	}
 }
 
-void LLUploadModelPremissionsResponder::result(const LLSD& content)
+void LLUploadModelPermissionsResponder::httpSuccess()
 {
+	const LLSD& content = getContent();
+	if (!content.isMap())
+	{
+		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+		return;
+	}
 	LLUploadPermissionsObserver* observer = mObserverHandle.get();
 
 	if (observer)
@@ -55,3 +60,4 @@ void LLUploadModelPremissionsResponder::result(const LLSD& content)
 		observer->onPermissionsReceived(content);
 	}
 }
+

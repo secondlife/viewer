@@ -112,19 +112,19 @@ void LLEstateInfoModel::notifyCommit()
 
 class LLEstateChangeInfoResponder : public LLHTTPClient::Responder
 {
-public:
-
+	LOG_CLASS(LLEstateChangeInfoResponder);
+protected:
 	// if we get a normal response, handle it here
-	virtual void result(const LLSD& content)
+	virtual void httpSuccesss()
 	{
 		llinfos << "Committed estate info" << llendl;
 		LLEstateInfoModel::instance().notifyCommit();
 	}
 
 	// if we get an error response
-	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	virtual void httpFailure()
 	{
-		llwarns << "Failed to commit estate info [status:" << status << "]: " << content << llendl;
+		llwarns << "Failed to commit estate info " << dumpResponse() << llendl;
 	}
 };
 

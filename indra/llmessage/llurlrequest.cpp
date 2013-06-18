@@ -40,7 +40,6 @@
 #include "llstring.h"
 #include "apr_env.h"
 #include "llapr.h"
-static const U32 HTTP_STATUS_PIPE_ERROR = 499;
 
 /**
  * String constants
@@ -48,10 +47,11 @@ static const U32 HTTP_STATUS_PIPE_ERROR = 499;
 const std::string CONTEXT_DEST_URI_SD_LABEL("dest_uri");
 const std::string CONTEXT_TRANSFERED_BYTES("transfered_bytes");
 
+// These are defined in llhttpnode.h/llhttpnode.cpp
+extern const std::string CONTEXT_REQUEST;
+extern const std::string CONTEXT_RESPONSE;
 
 static size_t headerCallback(void* data, size_t size, size_t nmemb, void* user);
-
-
 
 /**
  * class LLURLRequestDetail
@@ -130,34 +130,15 @@ CURLcode LLURLRequest::_sslCtxCallback(CURL * curl, void *sslctx, void *param)
  * class LLURLRequest
  */
 
-// static
-std::string LLURLRequest::actionAsVerb(LLURLRequest::ERequestAction action)
-{
-	static const std::string VERBS[] =
-	{
-		"(invalid)",
-		"HEAD",
-		"GET",
-		"PUT",
-		"POST",
-		"DELETE",
-		"MOVE"
-	};
-	if(((S32)action <=0) || ((S32)action >= REQUEST_ACTION_COUNT))
-	{
-		return VERBS[0];
-	}
-	return VERBS[action];
-}
 
-LLURLRequest::LLURLRequest(LLURLRequest::ERequestAction action) :
+LLURLRequest::LLURLRequest(EHTTPMethod action) :
 	mAction(action)
 {
 	initialize();
 }
 
 LLURLRequest::LLURLRequest(
-	LLURLRequest::ERequestAction action,
+	EHTTPMethod action,
 	const std::string& url) :
 	mAction(action)
 {
@@ -180,12 +161,17 @@ void LLURLRequest::setURL(const std::string& url)
 	}
 }
 
-std::string LLURLRequest::getURL() const
+const std::string& LLURLRequest::getURL() const
 {
 	return mDetail->mURL;
 }
 
-void LLURLRequest::addHeader(const char* header)
+void LLURLRequest::addHeader(const std::string& header, const std::string& value /* = "" */)
+{
+	mDetail->mCurlRequest->slist_append(header, value);
+}
+
+void LLURLRequest::addHeaderRaw(const char* header)
 {
 	mDetail->mCurlRequest->slist_append(header);
 }
@@ -272,7 +258,7 @@ LLIOPipe::EStatus LLURLRequest::handleError(
 		LLURLRequestComplete* complete = NULL;
 		complete = (LLURLRequestComplete*)mCompletionCallback.get();
 		complete->httpStatus(
-			HTTP_STATUS_PIPE_ERROR,
+			HTTP_INTERNAL_ERROR,
 			LLIOPipe::lookupStatusString(status));
 		complete->responseStatus(status);
 		pump->respond(complete);
@@ -494,21 +480,32 @@ bool LLURLRequest::configure()
 	case HTTP_PUT:
 		// Disable the expect http 1.1 extension. POST and PUT default
 		// to turning this on, and I am not too sure what it means.
-		addHeader("Expect:");
+		addHeader(HTTP_OUT_HEADER_EXPECT);
 
 		mDetail->mCurlRequest->setopt(CURLOPT_UPLOAD, 1);
 		mDetail->mCurlRequest->setopt(CURLOPT_INFILESIZE, bytes);
 		rv = true;
 		break;
 
+	case HTTP_PATCH:
+		// Disable the expect http 1.1 extension. POST and PUT default
+		// to turning this on, and I am not too sure what it means.
+		addHeader(HTTP_OUT_HEADER_EXPECT);
+
+		mDetail->mCurlRequest->setopt(CURLOPT_UPLOAD, 1);
+		mDetail->mCurlRequest->setopt(CURLOPT_INFILESIZE, bytes);
+		mDetail->mCurlRequest->setoptString(CURLOPT_CUSTOMREQUEST, "PATCH");
+		rv = true;
+		break;
+
 	case HTTP_POST:
 		// Disable the expect http 1.1 extension. POST and PUT default
 		// to turning this on, and I am not too sure what it means.
-		addHeader("Expect:");
+		addHeader(HTTP_OUT_HEADER_EXPECT);
 
 		// Disable the content type http header.
 		// *FIX: what should it be?
-		addHeader("Content-Type:");
+		addHeader(HTTP_OUT_HEADER_CONTENT_TYPE);
 
 		// Set the handle for an http post
 		mDetail->mCurlRequest->setPost(NULL, bytes);
@@ -638,7 +635,7 @@ static size_t headerCallback(void* data, size_t size, size_t nmemb, void* user)
 		S32 status_code = atoi(status.c_str());
 		if (status_code > 0)
 		{
-			complete->httpStatus((U32)status_code, reason);
+			complete->httpStatus(status_code, reason);
 			return header_len;
 		}
 	}

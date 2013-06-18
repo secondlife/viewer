@@ -671,6 +671,7 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 
 class LLObjectCostResponder : public LLCurl::Responder
 {
+	LOG_CLASS(LLObjectCostResponder);
 public:
 	LLObjectCostResponder(const LLSD& object_ids)
 		: mObjectIDs(object_ids)
@@ -691,20 +692,19 @@ public:
 		}
 	}
 
-	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+private:
+	/* virtual */ void httpFailure()
 	{
-		llwarns
-			<< "Transport error requesting object cost "
-			<< "[status: " << statusNum << "]: "
-			<< content << llendl;
+		llwarns << dumpResponse() << llendl;
 
 		// TODO*: Error message to user
 		// For now just clear the request from the pending list
 		clear_object_list_pending_requests();
 	}
 
-	void result(const LLSD& content)
+	/* virtual */ void httpSuccess()
 	{
+		const LLSD& content = getContent();
 		if ( !content.isMap() || content.has("error") )
 		{
 			// Improper response or the request had an error,
@@ -760,6 +760,7 @@ private:
 
 class LLPhysicsFlagsResponder : public LLCurl::Responder
 {
+	LOG_CLASS(LLPhysicsFlagsResponder);
 public:
 	LLPhysicsFlagsResponder(const LLSD& object_ids)
 		: mObjectIDs(object_ids)
@@ -780,20 +781,19 @@ public:
 		}
 	}
 
-	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+private:
+	/* virtual */ void httpFailure()
 	{
-		llwarns
-			<< "Transport error requesting object physics flags "
-			<< "[status: " << statusNum << "]: "
-			<< content << llendl;
+		llwarns << dumpResponse() << llendl;
 
 		// TODO*: Error message to user
 		// For now just clear the request from the pending list
 		clear_object_list_pending_requests();
 	}
 
-	void result(const LLSD& content)
+	/* virtual void */ void httpSuccess()
 	{
+		const LLSD& content = getContent();
 		if ( !content.isMap() || content.has("error") )
 		{
 			// Improper response or the request had an error,

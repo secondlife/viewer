@@ -69,7 +69,7 @@ void wear_and_edit_cb(const LLUUID& inv_item)
 	gAgentWearables.requestEditingWearable(inv_item);
 	
 	// Wear it.
-	LLAppearanceMgr::instance().wearItemOnAvatar(inv_item);
+	LLAppearanceMgr::instance().wearItemOnAvatar(inv_item,true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -239,7 +239,7 @@ void LLAgentWearables::addWearableToAgentInventoryCallback::fire(const LLUUID& i
 	}
 	if (mTodo & CALL_RECOVERDONE)
 	{
-		LLAppearanceMgr::instance().addCOFItemLink(inv_item,false);
+		LLAppearanceMgr::instance().addCOFItemLink(inv_item);
 		gAgentWearables.recoverMissingWearableDone();
 	}
 	/*
@@ -247,7 +247,7 @@ void LLAgentWearables::addWearableToAgentInventoryCallback::fire(const LLUUID& i
 	 */
 	if (mTodo & CALL_CREATESTANDARDDONE)
 	{
-		LLAppearanceMgr::instance().addCOFItemLink(inv_item,false);
+		LLAppearanceMgr::instance().addCOFItemLink(inv_item);
 		gAgentWearables.createStandardWearablesDone(mType, mIndex);
 	}
 	if (mTodo & CALL_MAKENEWOUTFITDONE)
@@ -256,7 +256,8 @@ void LLAgentWearables::addWearableToAgentInventoryCallback::fire(const LLUUID& i
 	}
 	if (mTodo & CALL_WEARITEM)
 	{
-		LLAppearanceMgr::instance().addCOFItemLink(inv_item, true, NULL, mDescription);
+		LLAppearanceMgr::instance().addCOFItemLink(inv_item, 
+			new LLUpdateAppearanceAndEditWearableOnDestroy(inv_item), mDescription);
 	}
 }
 
@@ -1896,6 +1897,7 @@ bool LLAgentWearables::changeInProgress() const
 void LLAgentWearables::notifyLoadingStarted()
 {
 	mCOFChangeInProgress = true;
+	mCOFChangeTimer.reset();
 	mLoadingStartedSignal();
 }
 

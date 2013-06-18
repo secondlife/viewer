@@ -44,7 +44,7 @@ namespace tut
 			std::ostringstream pathOutput;
 			bool addSlash = false;
 			
-			LLSD& remainder = mContext["request"]["remainder"];
+			LLSD& remainder = mContext[CONTEXT_REQUEST]["remainder"];
 			for (LLSD::array_const_iterator i = remainder.beginArray();
 				i != remainder.endArray();
 				++i)
@@ -81,6 +81,7 @@ namespace tut
 			void result(const LLSD& result) { mResult = result; }
 			void status(S32 code, const std::string& message) { }
 			void extendedResult(S32 code, const std::string& message, const LLSD& headers) { }
+			void extendedResult(S32 code, const LLSD& result, const LLSD& headers) { }
 			
 		private:
 			Response() {;} // Must be accessed through LLPointer.

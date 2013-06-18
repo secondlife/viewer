@@ -52,6 +52,7 @@
 #include "llsdutil.h"
 #include "lllayoutstack.h"
 #include "lliconctrl.h"
+#include "llhttpconstants.h"
 #include "lltextbox.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
@@ -576,7 +577,7 @@ void LLMediaCtrl::navigateToLocalPage( const std::string& subdir, const std::str
 	{
 		mCurrentNavUrl = expanded_filename;
 		mMediaSource->setSize(mTextureWidth, mTextureHeight);
-		mMediaSource->navigateTo(expanded_filename, "text/html", false);
+		mMediaSource->navigateTo(expanded_filename, HTTP_CONTENT_TEXT_HTML, false);
 	}
 }
 
@@ -948,7 +949,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_ERROR_PAGE" << LL_ENDL;
 			if ( mErrorPageURL.length() > 0 )
 			{
-				navigateTo(mErrorPageURL, "text/html");
+				navigateTo(mErrorPageURL, HTTP_CONTENT_TEXT_HTML);
 			};
 		};
 		break;

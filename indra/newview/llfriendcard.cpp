@@ -86,7 +86,7 @@ const LLUUID& get_folder_uuid(const LLUUID& parentFolderUUID, LLInventoryCollect
 
 	if (cats_count > 1)
 	{
-		LL_WARNS("LLFriendCardsManager")
+		LL_WARNS_ONCE("LLFriendCardsManager")
 			<< "There is more than one Friend card folder."
 			<< "The first folder will be used."
 			<< LL_ENDL;

@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -95,7 +95,8 @@ public:
 
 	// Threads:  T*
 	bool getRequestFinished(const LLUUID& id, S32& discard_level,
-							LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux);
+							LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux,
+							LLCore::HttpStatus& last_http_get_status);
 
 	// Threads:  T*
 	bool updateRequestPriority(const LLUUID& id, F32 priority);
@@ -351,6 +352,7 @@ private:
 	// LLCurl interfaces used in the past.
 	LLCore::HttpRequest *				mHttpRequest;					// Ttf
 	LLCore::HttpOptions *				mHttpOptions;					// Ttf
+	LLCore::HttpOptions *				mHttpOptionsWithHeaders;		// Ttf
 	LLCore::HttpHeaders *				mHttpHeaders;					// Ttf
 	LLCore::HttpHeaders *				mHttpMetricsHeaders;			// Ttf
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;				// T*
@@ -395,6 +397,9 @@ private:
 	e_tex_source mFetchSource;
 	e_tex_source mOriginFetchSource;
 
+	// Retry logic
+	//LLAdaptiveRetryPolicy mFetchRetryPolicy;
+	
 public:
 	//debug use
 	LLTextureFetchDebugger* getFetchDebugger() { return mFetchDebugger;}

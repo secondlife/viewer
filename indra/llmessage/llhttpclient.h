@@ -74,6 +74,14 @@ public:
 		ResponderPtr,
 		const LLSD& headers = LLSD(),
 		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+
+	static void patch(
+		const std::string& url,
+		const LLSD& body,
+		ResponderPtr,
+		const LLSD& headers = LLSD(),
+		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+
 	static void getHeaderOnly(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void getHeaderOnly(const std::string& url, ResponderPtr, const LLSD& headers, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 

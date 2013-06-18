@@ -32,7 +32,7 @@
 #include "llagentui.h"
 #include "llbufferstream.h"
 #include "llhttpclient.h"
-#include "llhttpstatuscodes.h"
+#include "llhttpconstants.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
 #include "llurl.h"
@@ -45,36 +45,79 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-class LLWebSharingConfigResponder : public LLHTTPClient::Responder
+
+class LLWebSharingJSONResponder : public LLHTTPClient::Responder
 {
-	LOG_CLASS(LLWebSharingConfigResponder);
+	LOG_CLASS(LLWebSharingJSONResponder);
 public:
 	/// Overrides the default LLSD parsing behaviour, to allow parsing a JSON response.
-	virtual void completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
+	virtual void completedRaw(const LLChannelDescriptors& channels,
 							  const LLIOPipe::buffer_ptr_t& buffer)
 	{
-		LLSD content;
 		LLBufferStream istr(channels, buffer.get());
+		// *TODO: LLSD notation is not actually JSON.
 		LLPointer<LLSDParser> parser = new LLSDNotationParser();
 
-		if (parser->parse(istr, content, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
+		std::string debug_body("(empty)");
+		bool parsed=true;
+		if (EOF == istr.peek())
 		{
-			LL_WARNS("WebSharing") << "Failed to deserialize LLSD from JSON response. " << " [" << status << "]: " << reason << LL_ENDL;
+			parsed=false;
 		}
-		else
+		// Try to parse body as llsd, no matter what 'content-type' says.
+		else if (parser->parse(istr, mContent, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
 		{
-			completed(status, reason, content);
+			parsed=false;
+			char body[1025]; 
+			body[1024] = '\0';
+			istr.seekg(0, std::ios::beg);
+			istr.get(body,1024);
+			if (strlen(body) > 0)
+			{
+				mContent = body;
+				debug_body = body;
+			}
 		}
+
+		// Only emit a warning if we failed to parse when 'content-type' == 'application/json'
+		if (!parsed && (HTTP_CONTENT_JSON == getResponseHeader(HTTP_IN_HEADER_CONTENT_TYPE)))
+		{
+			llwarns << "Failed to deserialize LLSD from JSON response. " << getURL()
+				<< " [status:" << mStatus << "] " 
+				<< "(" << mReason << ") body: " << debug_body << llendl;
+		}
+
+		if (!parsed)
+		{
+			// *TODO: This isn't necessarily the server's fault.  Using a 5xx code
+			// isn't really appropriate here.
+			// Also, this hides the actual status returned by the server....
+			mStatus = HTTP_INTERNAL_ERROR;
+			mReason = "Failed to deserialize LLSD from JSON response.";
+		}
+
+		httpCompleted();
+	}
+};
+
+class LLWebSharingConfigResponder : public LLWebSharingJSONResponder
+{
+	LOG_CLASS(LLWebSharingConfigResponder);
+private:
+
+	virtual void httpFailure()
+	{
+		LL_WARNS("WebSharing") << dumpResponse() << LL_ENDL;
 	}
 
-	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	virtual void httpSuccess()
 	{
-		LL_WARNS("WebSharing") << "Error [status:" << status << "]: " << content << LL_ENDL;
-	}
-
-	virtual void result(const LLSD& content)
-	{
+		const LLSD& content = getContent();
+		if (!content.isMap())
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
 		LLWebSharing::instance().receiveConfig(content);
 	}
 };
@@ -87,39 +130,34 @@ class LLWebSharingOpenIDAuthResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLWebSharingOpenIDAuthResponder);
 public:
-	/* virtual */ void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-	{
-		completed(status, reason, content);
-	}
-
-	/* virtual */ void completedRaw(U32 status, const std::string& reason,
-									const LLChannelDescriptors& channels,
+	/* virtual */ void completedRaw(const LLChannelDescriptors& channels,
 									const LLIOPipe::buffer_ptr_t& buffer)
 	{
 		/// Left empty to override the default LLSD parsing behaviour.
+		httpCompleted();
 	}
 
-	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+private:
+	virtual void httpFailure()
 	{
-		if (HTTP_UNAUTHORIZED == status)
+		if (HTTP_UNAUTHORIZED == getStatus())
 		{
 			LL_WARNS("WebSharing") << "AU account not authenticated." << LL_ENDL;
 			// *TODO: No account found on AU, so start the account creation process here.
 		}
 		else
 		{
-			LL_WARNS("WebSharing") << "Error [status:" << status << "]: " << content << LL_ENDL;
+			LL_WARNS("WebSharing") << dumpResponse() << LL_ENDL;
 			LLWebSharing::instance().retryOpenIDAuth();
 		}
-
 	}
 
-	virtual void result(const LLSD& content)
+	virtual void httpSuccess()
 	{
-		if (content.has("set-cookie"))
+		if (hasResponseHeader(HTTP_IN_HEADER_SET_COOKIE))
 		{
 			// OpenID request succeeded and returned a session cookie.
-			LLWebSharing::instance().receiveSessionCookie(content["set-cookie"].asString());
+			LLWebSharing::instance().receiveSessionCookie(getResponseHeader(HTTP_IN_HEADER_SET_COOKIE));
 		}
 	}
 };
@@ -128,38 +166,19 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-class LLWebSharingSecurityTokenResponder : public LLHTTPClient::Responder
+class LLWebSharingSecurityTokenResponder : public LLWebSharingJSONResponder
 {
 	LOG_CLASS(LLWebSharingSecurityTokenResponder);
-public:
-	/// Overrides the default LLSD parsing behaviour, to allow parsing a JSON response.
-	virtual void completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
-							  const LLIOPipe::buffer_ptr_t& buffer)
+private:
+	virtual void httpFailure()
 	{
-		LLSD content;
-		LLBufferStream istr(channels, buffer.get());
-		LLPointer<LLSDParser> parser = new LLSDNotationParser();
-
-		if (parser->parse(istr, content, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
-		{
-			LL_WARNS("WebSharing") << "Failed to deserialize LLSD from JSON response. " << " [" << status << "]: " << reason << LL_ENDL;
-			LLWebSharing::instance().retryOpenIDAuth();
-		}
-		else
-		{
-			completed(status, reason, content);
-		}
-	}
-
-	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
-	{
-		LL_WARNS("WebSharing") << "Error [status:" << status << "]: " << content << LL_ENDL;
+		LL_WARNS("WebSharing") << dumpResponse() << LL_ENDL;
 		LLWebSharing::instance().retryOpenIDAuth();
 	}
 
-	virtual void result(const LLSD& content)
+	virtual void httpSuccess()
 	{
+		const LLSD& content = getContent();
 		if (content[0].has("st") && content[0].has("expires"))
 		{
 			const std::string& token   = content[0]["st"].asString();
@@ -172,7 +191,8 @@ public:
 		}
 		else
 		{
-			LL_WARNS("WebSharing") << "No security token received." << LL_ENDL;
+			failureResult(HTTP_INTERNAL_ERROR, "No security token received.", content);
+			return;
 		}
 
 		LLWebSharing::instance().retryOpenIDAuth();
@@ -183,51 +203,18 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-class LLWebSharingUploadResponder : public LLHTTPClient::Responder
+class LLWebSharingUploadResponder : public LLWebSharingJSONResponder
 {
 	LOG_CLASS(LLWebSharingUploadResponder);
-public:
-	/// Overrides the default LLSD parsing behaviour, to allow parsing a JSON response.
-	virtual void completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
-							  const LLIOPipe::buffer_ptr_t& buffer)
+private:
+	virtual void httpFailure()
 	{
-/*
-		 // Dump the body, for debugging.
-
-		 LLBufferStream istr1(channels, buffer.get());
-		 std::ostringstream ostr;
-		 std::string body;
-
-		 while (istr1.good())
-		 {
-			char buf[1024];
-			istr1.read(buf, sizeof(buf));
-			body.append(buf, istr1.gcount());
-		 }
-		 LL_DEBUGS("WebSharing") << body << LL_ENDL;
-*/
-		LLSD content;
-		LLBufferStream istr(channels, buffer.get());
-		LLPointer<LLSDParser> parser = new LLSDNotationParser();
-
-		if (parser->parse(istr, content, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
-		{
-			LL_WARNS("WebSharing") << "Failed to deserialize LLSD from JSON response. " << " [" << status << "]: " << reason << LL_ENDL;
-		}
-		else
-		{
-			completed(status, reason, content);
-		}
+		LL_WARNS("WebSharing") << dumpResponse() << LL_ENDL;
 	}
 
-	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	virtual void httpSuccess()
 	{
-		LL_WARNS("WebSharing") << "Error [status:" << status << "]: " << content << LL_ENDL;
-	}
-
-	virtual void result(const LLSD& content)
-	{
+		const LLSD& content = getContent();
 		if (content[0].has("result") && content[0].has("id") &&
 			content[0]["id"].asString() == "newMediaItem")
 		{
@@ -235,8 +222,8 @@ public:
 		}
 		else
 		{
-			LL_WARNS("WebSharing") << "Error [" << content[0]["code"].asString()
-								   << "]: " << content[0]["message"].asString() << LL_ENDL;
+			failureResult(HTTP_INTERNAL_ERROR, "Invalid response content", content);
+			return;
 		}
 	}
 };
@@ -333,7 +320,7 @@ void LLWebSharing::sendConfigRequest()
 	LL_DEBUGS("WebSharing") << "Requesting Snapshot Sharing config data from: " << config_url << LL_ENDL;
 
 	LLSD headers = LLSD::emptyMap();
-	headers["Accept"] = "application/json";
+	headers[HTTP_OUT_HEADER_ACCEPT] = HTTP_CONTENT_JSON;
 
 	LLHTTPClient::get(config_url, new LLWebSharingConfigResponder(), headers);
 }
@@ -344,8 +331,8 @@ void LLWebSharing::sendOpenIDAuthRequest()
 	LL_DEBUGS("WebSharing") << "Starting OpenID Auth: " << auth_url << LL_ENDL;
 
 	LLSD headers = LLSD::emptyMap();
-	headers["Cookie"] = mOpenIDCookie;
-	headers["Accept"] = "*/*";
+	headers[HTTP_OUT_HEADER_COOKIE] = mOpenIDCookie;
+	headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
 
 	// Send request, successful login will trigger fetching a security token.
 	LLHTTPClient::get(auth_url, new LLWebSharingOpenIDAuthResponder(), headers);
@@ -371,10 +358,10 @@ void LLWebSharing::sendSecurityTokenRequest()
 	LL_DEBUGS("WebSharing") << "Fetching security token from: " << token_url << LL_ENDL;
 
 	LLSD headers = LLSD::emptyMap();
-	headers["Cookie"] = mSessionCookie;
+	headers[HTTP_OUT_HEADER_COOKIE] = mSessionCookie;
 
-	headers["Accept"] = "application/json";
-	headers["Content-Type"] = "application/json";
+	headers[HTTP_OUT_HEADER_ACCEPT] = HTTP_CONTENT_JSON;
+	headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_JSON;
 
 	std::ostringstream body;
 	body << "{ \"gadgets\": [{ \"url\":\""
@@ -400,10 +387,10 @@ void LLWebSharing::sendUploadRequest()
 	static const std::string BOUNDARY("------------abcdef012345xyZ");
 
 	LLSD headers = LLSD::emptyMap();
-	headers["Cookie"] = mSessionCookie;
+	headers[HTTP_OUT_HEADER_COOKIE] = mSessionCookie;
 
-	headers["Accept"] = "application/json";
-	headers["Content-Type"] = "multipart/form-data; boundary=" + BOUNDARY;
+	headers[HTTP_OUT_HEADER_ACCEPT] = HTTP_CONTENT_JSON;
+	headers[HTTP_OUT_HEADER_CONTENT_TYPE] = "multipart/form-data; boundary=" + BOUNDARY;
 
 	std::ostringstream body;
 	body << "--" << BOUNDARY << "\r\n"

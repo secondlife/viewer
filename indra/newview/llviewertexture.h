@@ -34,6 +34,7 @@
 #include "llgltypes.h"
 #include "llrender.h"
 #include "llmetricperformancetester.h"
+#include "httpcommon.h"
 
 #include <map>
 #include <list>
@@ -120,7 +121,7 @@ public:
 	LLViewerTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps) ;
 
 	virtual S8 getType() const;
-	virtual BOOL isMissingAsset()const ;
+	virtual BOOL isMissingAsset() const ;
 	virtual void dump();	// debug info to llinfos
 	
 	/*virtual*/ bool bindDefaultImage(const S32 stage = 0) ;
@@ -242,6 +243,8 @@ enum FTType
 	FTT_LOCAL_FILE // fetch directly from a local file.
 };
 
+const std::string& fttype_to_string(const FTType& fttype);
+
 //
 //textures are managed in gTextureList.
 //raw image data is fetched from remote or local cache
@@ -338,8 +341,8 @@ public:
 	// more data.
 	/*virtual*/ void setKnownDrawSize(S32 width, S32 height);
 
-	void setIsMissingAsset();
-	/*virtual*/ BOOL isMissingAsset()	const		{ return mIsMissingAsset; }
+	void setIsMissingAsset(BOOL is_missing = true);
+	/*virtual*/ BOOL isMissingAsset() const { return mIsMissingAsset; }
 
 	// returns dimensions of original image for local files (before power of two scaling)
 	// and returns 0 for all asset system images
@@ -446,10 +449,11 @@ protected:
 	S8  mIsRawImageValid;
 	S8  mHasFetcher;				// We've made a fecth request
 	S8  mIsFetching;				// Fetch request is active
-	bool mCanUseHTTP ;              //This texture can be fetched through http if true.
+	bool mCanUseHTTP;              //This texture can be fetched through http if true.
+	LLCore::HttpStatus mLastHttpGetStatus; // Result of the most recently completed http request for this texture.
 
 	FTType mFTType; // What category of image is this - map tile, server bake, etc?
-	mutable S8 mIsMissingAsset;		// True if we know that there is no image asset with this image id in the database.		
+	mutable BOOL mIsMissingAsset;		// True if we know that there is no image asset with this image id in the database.		
 
 	typedef std::list<LLLoadedCallbackEntry*> callback_list_t;
 	S8              mLoadedCallbackDesiredDiscardLevel;

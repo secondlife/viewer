@@ -2526,17 +2526,19 @@ int LLAgent::convertTextToMaturity(char text)
 
 class LLMaturityPreferencesResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLMaturityPreferencesResponder);
 public:
 	LLMaturityPreferencesResponder(LLAgent *pAgent, U8 pPreferredMaturity, U8 pPreviousMaturity);
 	virtual ~LLMaturityPreferencesResponder();
 
-	virtual void result(const LLSD &pContent);
-	virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent);
+protected:
+	virtual void httpSuccess();
+	virtual void httpFailure();
 
 protected:
 
 private:
-	U8 parseMaturityFromServerResponse(const LLSD &pContent);
+	U8 parseMaturityFromServerResponse(const LLSD &pContent) const;
 
 	LLAgent                                  *mAgent;
 	U8                                       mPreferredMaturity;
@@ -2555,39 +2557,43 @@ LLMaturityPreferencesResponder::~LLMaturityPreferencesResponder()
 {
 }
 
-void LLMaturityPreferencesResponder::result(const LLSD &pContent)
+void LLMaturityPreferencesResponder::httpSuccess()
 {
-	U8 actualMaturity = parseMaturityFromServerResponse(pContent);
+	U8 actualMaturity = parseMaturityFromServerResponse(getContent());
 
 	if (actualMaturity != mPreferredMaturity)
 	{
-		llwarns << "while attempting to change maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
-			<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', the server responded with '"
-			<< LLViewerRegion::accessToString(actualMaturity) << "' [value:" << static_cast<U32>(actualMaturity) << ", llsd:"
-			<< pContent << "]" << llendl;
+		llwarns << "while attempting to change maturity preference from '"
+				<< LLViewerRegion::accessToString(mPreviousMaturity)
+				<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) 
+				<< "', the server responded with '"
+				<< LLViewerRegion::accessToString(actualMaturity) 
+				<< "' [value:" << static_cast<U32>(actualMaturity) 
+				<< "], " << dumpResponse() << llendl;
 	}
 	mAgent->handlePreferredMaturityResult(actualMaturity);
 }
 
-void LLMaturityPreferencesResponder::errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent)
+void LLMaturityPreferencesResponder::httpFailure()
 {
-	llwarns << "while attempting to change maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
-		<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', we got an error with [status:"
-		<< pStatus << "]: " << (pContent.isDefined() ? pContent : LLSD(pReason)) << llendl;
+	llwarns << "while attempting to change maturity preference from '" 
+			<< LLViewerRegion::accessToString(mPreviousMaturity)
+			<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) 
+			<< "', " << dumpResponse() << llendl;
 	mAgent->handlePreferredMaturityError();
 }
 
-U8 LLMaturityPreferencesResponder::parseMaturityFromServerResponse(const LLSD &pContent)
+U8 LLMaturityPreferencesResponder::parseMaturityFromServerResponse(const LLSD &pContent) const
 {
 	U8 maturity = SIM_ACCESS_MIN;
 
-	llassert(!pContent.isUndefined());
+	llassert(pContent.isDefined());
 	llassert(pContent.isMap());
 	llassert(pContent.has("access_prefs"));
 	llassert(pContent.get("access_prefs").isMap());
 	llassert(pContent.get("access_prefs").has("max"));
 	llassert(pContent.get("access_prefs").get("max").isString());
-	if (!pContent.isUndefined() && pContent.isMap() && pContent.has("access_prefs")
+	if (pContent.isDefined() && pContent.isMap() && pContent.has("access_prefs")
 		&& pContent.get("access_prefs").isMap() && pContent.get("access_prefs").has("max")
 		&& pContent.get("access_prefs").get("max").isString())
 	{
@@ -2733,7 +2739,7 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 		// If we don't have a region, report it as an error
 		if (getRegion() == NULL)
 		{
-			responderPtr->errorWithContent(0U, "region is not defined", LLSD());
+			responderPtr->failureResult(0U, "region is not defined", LLSD());
 		}
 		else
 		{
@@ -2743,7 +2749,7 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 			// If the capability is not defined, report it as an error
 			if (url.empty())
 			{
-				responderPtr->errorWithContent(0U, 
+				responderPtr->failureResult(0U, 
 							"capability 'UpdateAgentInformation' is not defined for region", LLSD());
 			}
 			else
@@ -3242,8 +3248,7 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 			!input.has("body") )
 		{
 			//what to do with badly formed message?
-			response->statusUnknownError(400);
-			response->result(LLSD("Invalid message parameters"));
+			response->extendedResult(HTTP_BAD_REQUEST, LLSD("Invalid message parameters"));
 		}
 
 		LLSD body = input["body"];
@@ -3312,8 +3317,7 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 		else
 		{
 			//what to do with badly formed message?
-			response->statusUnknownError(400);
-			response->result(LLSD("Invalid message parameters"));
+			response->extendedResult(HTTP_BAD_REQUEST, LLSD("Invalid message parameters"));
 		}
 	}
 };
@@ -4292,7 +4296,7 @@ void LLAgent::sendAgentSetAppearance()
 		return;
 	}
 
-	if (!isAgentAvatarValid() || (getRegion() && getRegion()->getCentralBakeVersion())) return;
+	if (!isAgentAvatarValid() || gAgentAvatarp->isEditingAppearance() || (getRegion() && getRegion()->getCentralBakeVersion())) return;
 
 	// At this point we have a complete appearance to send and are in a non-baking region.
 	// DRANO FIXME
@@ -4333,7 +4337,9 @@ void LLAgent::sendAgentSetAppearance()
 	// to compensate for the COLLISION_TOLERANCE ugliness we will have 
 	// to tweak this number again
 	const LLVector3 body_size = gAgentAvatarp->mBodySize + gAgentAvatarp->mAvatarOffset;
-	msg->addVector3Fast(_PREHASH_Size, body_size);	
+	msg->addVector3Fast(_PREHASH_Size, body_size);
+	
+	LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "Sent AgentSetAppearance with height: " << body_size.mV[VZ] << " base: " << gAgentAvatarp->mBodySize.mV[VZ] << " hover: " << gAgentAvatarp->mAvatarOffset.mV[VZ] << LL_ENDL;	
 
 	// To guard against out of order packets
 	// Note: always start by sending 1.  This resets the server's count. 0 on the server means "uninitialized"

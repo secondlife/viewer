@@ -11152,6 +11152,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>TextureFetchFakeFailureRate</key>
+  <map>
+    <key>Comment</key>
+    <string>Simulate HTTP fetch failures for some server bake textures.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <integer>0.0</integer>
+  </map>
     <key>TextureFetchSource</key>
     <map>
       <key>Comment</key>

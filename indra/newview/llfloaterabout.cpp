@@ -77,14 +77,9 @@ class LLServerReleaseNotesURLFetcher : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLServerReleaseNotesURLFetcher);
 public:
-
 	static void startFetch();
-	/*virtual*/ void completedHeader(U32 status, const std::string& reason, const LLSD& content);
-	/*virtual*/ void completedRaw(
-		U32 status,
-		const std::string& reason,
-		const LLChannelDescriptors& channels,
-		const LLIOPipe::buffer_ptr_t& buffer);
+private:
+	/* virtual */ void httpCompleted();
 };
 
 ///----------------------------------------------------------------------------
@@ -471,32 +466,26 @@ void LLServerReleaseNotesURLFetcher::startFetch()
 }
 
 // virtual
-void LLServerReleaseNotesURLFetcher::completedHeader(U32 status, const std::string& reason, const LLSD& content)
+void LLServerReleaseNotesURLFetcher::httpCompleted()
 {
-	lldebugs << "Status: " << status << llendl;
-	lldebugs << "Reason: " << reason << llendl;
-	lldebugs << "Headers: " << content << llendl;
+	LL_DEBUGS("ServerReleaseNotes") << dumpResponse() 
+		<< " [headers:" << getResponseHeaders() << "]" << LL_ENDL;
 
 	LLFloaterAbout* floater_about = LLFloaterReg::getTypedInstance<LLFloaterAbout>("sl_about");
 	if (floater_about)
 	{
-		std::string location = content["location"].asString();
+		const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
 		if (location.empty())
 		{
-			location = floater_about->getString("ErrorFetchingServerReleaseNotesURL");
+			LL_WARNS("ServerReleaseNotes") << "Missing Location header "
+				<< dumpResponse() << " [headers:" << getResponseHeaders() << "]" << LL_ENDL;
+			floater_about->updateServerReleaseNotesURL(
+						floater_about->getString("ErrorFetchingServerReleaseNotesURL"));
 		}
-		floater_about->updateServerReleaseNotesURL(location);
+		else
+		{
+			floater_about->updateServerReleaseNotesURL(location);
+		}
 	}
 }
 
-// virtual
-void LLServerReleaseNotesURLFetcher::completedRaw(
-	U32 status,
-	const std::string& reason,
-	const LLChannelDescriptors& channels,
-	const LLIOPipe::buffer_ptr_t& buffer)
-{
-	// Do nothing.
-	// We're overriding just because the base implementation tries to
-	// deserialize LLSD which triggers warnings.
-}

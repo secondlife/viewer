@@ -452,7 +452,7 @@ void LLSidepanelAppearance::editWearable(LLViewerWearable *wearable, LLView *dat
 	LLFloaterSidePanelContainer::showPanel("appearance", LLSD());
 	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(data);
 	if (panel)
-	{
+	{	
 		panel->showWearableEditPanel(wearable, disable_camera_switch);
 	}
 }

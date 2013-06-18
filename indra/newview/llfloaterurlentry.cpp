@@ -48,31 +48,30 @@ static LLFloaterURLEntry* sInstance = NULL;
 // on the Panel Land Media and to discover the MIME type
 class LLMediaTypeResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLMediaTypeResponder);
 public:
 	LLMediaTypeResponder( const LLHandle<LLFloater> parent ) :
-	  mParent( parent )
-	  {}
+		mParent( parent )
+	{}
 
-	  LLHandle<LLFloater> mParent;
+	LLHandle<LLFloater> mParent;
 
+private:
+	/* virtual */ void httpCompleted()
+	{
+		const std::string& media_type = getResponseHeader(HTTP_IN_HEADER_CONTENT_TYPE);
+		std::string::size_type idx1 = media_type.find_first_of(";");
+		std::string mime_type = media_type.substr(0, idx1);
 
-	  virtual void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-	  {
-		  std::string media_type = content["content-type"].asString();
-		  std::string::size_type idx1 = media_type.find_first_of(";");
-		  std::string mime_type = media_type.substr(0, idx1);
-		  completeAny(status, mime_type);
-	  }
-
-	  void completeAny(U32 status, const std::string& mime_type)
-	  {
-		  // Set empty type to none/none.  Empty string is reserved for legacy parcels
-		  // which have no mime type set.
-		  std::string resolved_mime_type = ! mime_type.empty() ? mime_type : LLMIMETypes::getDefaultMimeType();
-		  LLFloaterURLEntry* floater_url_entry = (LLFloaterURLEntry*)mParent.get();
-		  if ( floater_url_entry )
-			  floater_url_entry->headerFetchComplete( status, resolved_mime_type );
-	  }
+		// Set empty type to none/none.  Empty string is reserved for legacy parcels
+		// which have no mime type set.
+		std::string resolved_mime_type = ! mime_type.empty() ? mime_type : LLMIMETypes::getDefaultMimeType();
+		LLFloaterURLEntry* floater_url_entry = (LLFloaterURLEntry*)mParent.get();
+		if ( floater_url_entry )
+		{
+			floater_url_entry->headerFetchComplete( getStatus(), resolved_mime_type );
+		}
+	}
 };
 
 //-----------------------------------------------------------------------------
@@ -136,7 +135,7 @@ void LLFloaterURLEntry::buildURLHistory()
 	}
 }
 
-void LLFloaterURLEntry::headerFetchComplete(U32 status, const std::string& mime_type)
+void LLFloaterURLEntry::headerFetchComplete(S32 status, const std::string& mime_type)
 {
 	LLPanelLandMedia* panel_media = dynamic_cast<LLPanelLandMedia*>(mPanelLandMediaHandle.get());
 	if (panel_media)

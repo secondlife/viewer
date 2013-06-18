@@ -1240,9 +1240,9 @@ static std::string add_imageload_filter_to_gtkchooser(GtkWindow *picker)
 {
 	GtkFileFilter *gfilter = gtk_file_filter_new();
 	gtk_file_filter_add_pattern(gfilter, "*.tga");
-	gtk_file_filter_add_mime_type(gfilter, "image/jpeg");
-	gtk_file_filter_add_mime_type(gfilter, "image/png");
-	gtk_file_filter_add_mime_type(gfilter, "image/bmp");
+	gtk_file_filter_add_mime_type(gfilter, HTTP_CONTENT_IMAGE_JPEG.c_str());
+	gtk_file_filter_add_mime_type(gfilter, HTTP_CONTENT_IMAGE_PNG.c_str());
+	gtk_file_filter_add_mime_type(gfilter, HTTP_CONTENT_IMAGE_BMP.c_str());
 	std::string filtername = LLTrans::getString("image_files") + " (*.tga; *.bmp; *.jpg; *.png)";
 	add_common_filters_to_gtkchooser(gfilter, picker, filtername);
 	return filtername;
@@ -1250,13 +1250,13 @@ static std::string add_imageload_filter_to_gtkchooser(GtkWindow *picker)
  
 static std::string add_script_filter_to_gtkchooser(GtkWindow *picker)
 {
-	return add_simple_mime_filter_to_gtkchooser(picker,  "text/plain",
+	return add_simple_mime_filter_to_gtkchooser(picker,  HTTP_CONTENT_TEXT_PLAIN,
 							LLTrans::getString("script_files") + " (*.lsl)");
 }
 
 static std::string add_dictionary_filter_to_gtkchooser(GtkWindow *picker)
 {
-	return add_simple_mime_filter_to_gtkchooser(picker,  "text/plain",
+	return add_simple_mime_filter_to_gtkchooser(picker, HTTP_CONTENT_TEXT_PLAIN,
 							LLTrans::getString("dictionary_files") + " (*.dic; *.xcu)");
 }
 
@@ -1294,7 +1294,7 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 			break;
 		case FFSAVE_BMP:
 			caption += add_simple_mime_filter_to_gtkchooser
-				(picker, "image/bmp", LLTrans::getString("bitmap_image_files") + " (*.bmp)");
+				(picker, HTTP_CONTENT_IMAGE_BMP, LLTrans::getString("bitmap_image_files") + " (*.bmp)");
 			suggest_ext = ".bmp";
 			break;
 		case FFSAVE_AVI:
@@ -1319,6 +1319,7 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 			suggest_ext = ".raw";
 			break;
 		case FFSAVE_J2C:
+			// *TODO: Should this be 'image/j2c' ?
 			caption += add_simple_mime_filter_to_gtkchooser
 				(picker, "images/jp2",
 				 LLTrans::getString("compressed_image_files") + " (*.j2c)");
