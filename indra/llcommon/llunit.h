@@ -117,7 +117,7 @@ struct LLUnit
 	void operator *= (LLUnit<OTHER_STORAGE, OTHER_UNIT> multiplicand)
 	{
 		// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
-		llstatic_assert_template(OTHER_UNIT, false, "Multiplication of unit types not supported.");
+		LL_BAD_TEMPLATE_INSTANTIATION(OTHER_UNIT, "Multiplication of unit types not supported.");
 	}
 
 	void operator /= (storage_t divisor)
@@ -129,7 +129,7 @@ struct LLUnit
 	void operator /= (LLUnit<OTHER_STORAGE, OTHER_UNIT> divisor)
 	{
 		// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
-		llstatic_assert_template(OTHER_UNIT, false, "Illegal in-place division of unit types.");
+		LL_BAD_TEMPLATE_INSTANTIATION(OTHER_UNIT, "Illegal in-place division of unit types.");
 	}
 
 	template<typename SOURCE_STORAGE, typename SOURCE_UNITS>
@@ -172,10 +172,11 @@ struct LLUnitImplicit : public LLUnit<STORAGE_TYPE, UNIT_TYPE>
 template<typename S1, typename T1, typename S2, typename T2>
 LL_FORCE_INLINE void ll_convert_units(LLUnit<S1, T1> in, LLUnit<S2, T2>& out, ...)
 {
-	static_assert(boost::is_same<T1, T2>::value 
-					|| !boost::is_same<T1, typename T1::base_unit_t>::value 
-					|| !boost::is_same<T2, typename T2::base_unit_t>::value, 
-				"invalid conversion");
+	typedef boost::integral_constant<bool, 
+									boost::is_same<T1, T2>::value 
+										|| !boost::is_same<T1, typename T1::base_unit_t>::value 
+										|| !boost::is_same<T2, typename T2::base_unit_t>::value> conversion_valid_t;
+	LL_STATIC_ASSERT(conversion_valid_t::value, "invalid conversion");
 
 	if (boost::is_same<T1, typename T1::base_unit_t>::value)
 	{
@@ -322,7 +323,7 @@ template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, ty
 LLUnit<STORAGE_TYPE1, UNIT_TYPE1> operator * (LLUnit<STORAGE_TYPE1, UNIT_TYPE1>, LLUnit<STORAGE_TYPE2, UNIT_TYPE2>)
 {
 	// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
-	llstatic_assert_template(STORAGE_TYPE1, false, "Multiplication of unit types results in new unit type - not supported.");
+	LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE1, "Multiplication of unit types results in new unit type - not supported.");
 	return LLUnit<STORAGE_TYPE1, UNIT_TYPE1>();
 }
 
@@ -342,7 +343,7 @@ template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, ty
 LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> operator * (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1>, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2>)
 {
 	// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
-	llstatic_assert_template(STORAGE_TYPE1, false, "Multiplication of unit types results in new unit type - not supported.");
+	LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE1, "Multiplication of unit types results in new unit type - not supported.");
 	return LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1>();
 }
 
