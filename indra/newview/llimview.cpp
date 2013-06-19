@@ -252,7 +252,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 	// actions:
 
     // 0. nothing - exit
-    if (("none" == user_preferences ||
+    if (("noaction" == user_preferences ||
     		ON_TOP_AND_ITEM_IS_SELECTED == conversations_floater_status)
     	&& session_floater->isMessagePaneExpanded())
     {
