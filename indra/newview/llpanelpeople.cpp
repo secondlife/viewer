@@ -873,10 +873,9 @@ void LLPanelPeople::updateSuggestedFriendList()
 
 		//Add suggested friends
 		LLSD friends = LLFacebookConnect::instance().getContent();
-		for (LLSD::map_const_iterator i = friends.beginMap(); i != friends.endMap(); ++i)
+		for (LLSD::array_const_iterator i = friends.beginArray(); i != friends.endArray(); ++i)
 		{
-			std::string name = i->second["name"].asString();
-			LLUUID agent_id = i->second.has("agent_id") ? i->second["agent_id"].asUUID() : LLUUID(NULL);
+			LLUUID agent_id = (*i).asUUID();
 			bool second_life_buddy = agent_id.notNull() ? av_tracker.isBuddy(agent_id) : false;
 
 			if(!second_life_buddy)
@@ -892,45 +891,6 @@ void LLPanelPeople::updateSuggestedFriendList()
 		//Force a refresh when there aren't any filter matches (prevent displaying content that shouldn't display)
 		mSuggestedFriends->setDirty(true, !mSuggestedFriends->filterHasMatches());
 		showFriendsAccordionsIfNeeded();
-
-
-
-		//TODO Gilbert: Below code will eventually be deprecated
-		mFacebookFriends->clear();
-		LLPersonTabModel::tab_type tab_type;
-		LLAvatarTracker& avatar_tracker = LLAvatarTracker::instance();
-
-		for (LLSD::map_const_iterator i = friends.beginMap(); i != friends.endMap(); ++i)
-		{
-			std::string name = i->second["name"].asString();
-			LLUUID agent_id = i->second.has("agent_id") ? i->second["agent_id"].asUUID() : LLUUID(NULL);
-			bool second_life_buddy = agent_id.notNull() ? avatar_tracker.isBuddy(agent_id) : false;
-
-			//add to avatar list
-			mFacebookFriends->addNewItem(agent_id, name, false);
-
-			if(!second_life_buddy)
-			{
-				//FB+SL but not SL friend
-				if (agent_id.notNull())
-				{
-					tab_type = LLPersonTabModel::FB_SL_NON_SL_FRIEND;
-				}
-				//FB only friend
-				else
-				{
-					tab_type = LLPersonTabModel::FB_ONLY_FRIEND;
-				}
-
-				//Add to person tab model
-				LLPersonTabModel * person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(tab_type));
-				if (person_tab_model)
-				{
-					addParticipantToModel(person_tab_model, agent_id, name);
-				}
-			}
-		}
-
 	}
 }
 
