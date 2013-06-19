@@ -573,7 +573,7 @@ LLMeshRepoThread::LLMeshRepoThread()
 	mHttpLargeOptions = new LLCore::HttpOptions;
 	mHttpLargeOptions->setTransferTimeout(LARGE_MESH_XFER_TIMEOUT);
 	mHttpHeaders = new LLCore::HttpHeaders;
-	mHttpHeaders->mHeaders.push_back("Accept: application/vnd.ll.mesh");
+	mHttpHeaders->append("Accept", "application/vnd.ll.mesh");
 	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_MESH);
 	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_LARGE_MESH);
 }

@@ -2410,9 +2410,9 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	mHttpOptionsWithHeaders = new LLCore::HttpOptions;
 	mHttpOptionsWithHeaders->setWantHeaders(true);
 	mHttpHeaders = new LLCore::HttpHeaders;
-	mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_IMAGE_X_J2C);
+	mHttpHeaders->append("Accept", "image/x-j2c");
 	mHttpMetricsHeaders = new LLCore::HttpHeaders;
-	mHttpMetricsHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
+	mHttpMetricsHeaders->append("Content-Type", "application/llsd+xml");
 	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_TEXTURE);
 }
 
@@ -4050,7 +4050,7 @@ void LLTextureFetchDebugger::init()
 	if (! mHttpHeaders)
 	{
 		mHttpHeaders = new LLCore::HttpHeaders;
-		mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_IMAGE_X_J2C);
+		mHttpHeaders->append("Accept", "image/x-j2c");
 	}
 }
 
