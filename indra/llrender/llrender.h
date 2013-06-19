@@ -262,6 +262,14 @@ class LLRender
 	friend class LLTexUnit;
 public:
 
+	enum eTexIndex
+	{
+		DIFFUSE_MAP = 0,
+		NORMAL_MAP,
+		SPECULAR_MAP,
+		NUM_TEXTURE_CHANNELS,
+	};
+	
 	typedef enum {
 		TRIANGLES = 0,
 		TRIANGLE_STRIP,

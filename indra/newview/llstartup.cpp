@@ -646,7 +646,7 @@ bool idle_startup()
 				gAudiop = (LLAudioEngine *) new LLAudioEngine_OpenAL();
 			}
 #endif
-            
+
 			if (gAudiop)
 			{
 #if LL_WINDOWS

@@ -65,7 +65,9 @@ void LLVOPartGroup::initClass()
 //static
 void LLVOPartGroup::restoreGL()
 {
-	sVB = new LLVertexBuffer(VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
+
+	//TODO: optimize out binormal mask here.  Specular and normal coords as well.
+	sVB = new LLVertexBuffer(VERTEX_DATA_MASK | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2, GL_STREAM_DRAW_ARB);
 	U32 count = LL_MAX_PARTICLE_COUNT;
 	sVB->allocateBuffer(count*4, count*6, true);
 
@@ -410,6 +412,7 @@ void LLVOPartGroup::getGeometry(S32 idx,
 
 	right.setCross3(at, up);
 	right.normalize3fast();
+
 	up.setCross3(right, at);
 	up.normalize3fast();
 

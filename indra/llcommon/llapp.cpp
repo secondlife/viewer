@@ -986,9 +986,9 @@ bool windows_post_minidump_callback(const wchar_t* dump_path,
 	}
 
 	llinfos << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << llendl;
-    // *NOTE:Mani - this code is stolen from LLApp, where its never actually used.
+   // *NOTE:Mani - this code is stolen from LLApp, where its never actually used.
 	//OSMessageBox("Attach Debugger Now", "Error", OSMB_OK);
-    // *TODO: Translate the signals/exceptions into cross-platform stuff
+   // *TODO: Translate the signals/exceptions into cross-platform stuff
 	// Windows implementation
 	llinfos << "Entering Windows Exception Handler..." << llendl;
 
