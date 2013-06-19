@@ -56,12 +56,8 @@ U32 LLRenderTarget::sCurFBO = 0;
 
 extern S32 gGLViewport[4];
 
-//HEY DAVE HOOK THESE UP 
 U32 LLRenderTarget::sCurResX = 0;
 U32 LLRenderTarget::sCurResY = 0;
-
-
-/// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 LLRenderTarget::LLRenderTarget() :
 	mResX(0),

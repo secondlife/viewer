@@ -2676,9 +2676,7 @@ void LLPipeline::downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& d
 	}
 
 	dest.bindTarget();
-
-	
-	gDownsampleDepthProgram.bind();
+	dest.clear(GL_DEPTH_BUFFER_BIT);
 
 	LLStrider<LLVector3> vert; 
 	mDeferredVB->getVertexStrider(vert);
@@ -2719,7 +2717,7 @@ void LLPipeline::downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& d
 	}
 	else
 	{
-		gDownsampleDepthProgram.unbind();
+		shader->unbind();
 	}
 }
 
