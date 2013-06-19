@@ -184,7 +184,7 @@ public:
 	
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
-	virtual void initLogging(); // Initialize log files, logging system
+	virtual void initLoggingAndGetLastDuration(); // Initialize log files, logging system
 	virtual void initConsole() {}; // Initialize OS level debugging console.
 	virtual bool initHardwareTest() { return true; } // A false result indicates the app should quit.
 	virtual bool initSLURLHandler();
@@ -216,8 +216,7 @@ private:
 
 	void writeSystemInfo(); // Write system info to "debug_info.log"
 
-	bool anotherInstanceRunning(); 
-	void initMarkerFile(); 
+	void processMarkerFiles(); 
 	static void recordMarkerVersion(LLAPRFile& marker_file);
 	bool markerIsSameVersion(const std::string& marker_name) const;
 	
