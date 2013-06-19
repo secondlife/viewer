@@ -63,6 +63,9 @@ public:
 	static bool sUseFBO; 
 	static U32 sBytesAllocated;
 	static U32 sCurFBO;
+	static U32 sCurResX;
+	static U32 sCurResY;
+
 
 	LLRenderTarget();
 	~LLRenderTarget();
@@ -146,6 +149,9 @@ protected:
 	std::vector<U32> mInternalFormat;
 	U32 mFBO;
 	U32 mPreviousFBO;
+	U32 mPreviousResX;
+	U32 mPreviousResY;
+
 	U32 mDepth;
 	bool mStencil;
 	bool mUseDepth;
