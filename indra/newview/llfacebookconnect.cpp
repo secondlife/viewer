@@ -309,7 +309,7 @@ void LLFacebookConnect::loadFacebookFriends()
 {
 	const bool follow_redirects=false;
 	const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
-	LLHTTPClient::get(getFacebookConnectURL("/friend"), new LLFacebookFriendsResponder(),
+	LLHTTPClient::get(getFacebookConnectURL("/friends"), new LLFacebookFriendsResponder(),
 					  LLSD(), timeout, follow_redirects);
 }
 
