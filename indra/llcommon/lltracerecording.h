@@ -135,6 +135,8 @@ namespace LLTrace
 		Recording(const Recording& other);
 		~Recording();
 
+		Recording& operator = (const Recording& other);
+
 		// accumulate data from subsequent, non-overlapping recording
 		void appendRecording(const Recording& other);
 
@@ -148,26 +150,26 @@ namespace LLTrace
 		void makeUnique() { mBuffers.makeUnique(); }
 
 		// Timer accessors
-		LLUnit<LLUnits::Seconds, F64> getSum(const TraceType<TimeBlockAccumulator>& stat);
-		LLUnit<LLUnits::Seconds, F64> getSum(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat);
+		LLUnit<F64, LLUnits::Seconds> getSum(const TraceType<TimeBlockAccumulator>& stat);
+		LLUnit<F64, LLUnits::Seconds> getSum(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat);
 		U32 getSum(const TraceType<TimeBlockAccumulator::CallCountFacet>& stat);
 
-		LLUnit<LLUnits::Seconds, F64> getPerSec(const TraceType<TimeBlockAccumulator>& stat);
-		LLUnit<LLUnits::Seconds, F64> getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat);
+		LLUnit<F64, LLUnits::Seconds> getPerSec(const TraceType<TimeBlockAccumulator>& stat);
+		LLUnit<F64, LLUnits::Seconds> getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat);
 		F32 getPerSec(const TraceType<TimeBlockAccumulator::CallCountFacet>& stat);
 
 		// Memory accessors
-		LLUnit<LLUnits::Bytes, F64> getMin(const TraceType<MemStatAccumulator>& stat);
-		LLUnit<LLUnits::Bytes, F64> getMean(const TraceType<MemStatAccumulator>& stat);
-		LLUnit<LLUnits::Bytes, F64> getMax(const TraceType<MemStatAccumulator>& stat);
-		LLUnit<LLUnits::Bytes, F64> getStandardDeviation(const TraceType<MemStatAccumulator>& stat);
-		LLUnit<LLUnits::Bytes, F64> getLastValue(const TraceType<MemStatAccumulator>& stat);
+		LLUnit<F64, LLUnits::Bytes> getMin(const TraceType<MemStatAccumulator>& stat);
+		LLUnit<F64, LLUnits::Bytes> getMean(const TraceType<MemStatAccumulator>& stat);
+		LLUnit<F64, LLUnits::Bytes> getMax(const TraceType<MemStatAccumulator>& stat);
+		LLUnit<F64, LLUnits::Bytes> getStandardDeviation(const TraceType<MemStatAccumulator>& stat);
+		LLUnit<F64, LLUnits::Bytes> getLastValue(const TraceType<MemStatAccumulator>& stat);
 
-		LLUnit<LLUnits::Bytes, F64> getMin(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
-		LLUnit<LLUnits::Bytes, F64> getMean(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
-		LLUnit<LLUnits::Bytes, F64> getMax(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
-		LLUnit<LLUnits::Bytes, F64> getStandardDeviation(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
-		LLUnit<LLUnits::Bytes, F64> getLastValue(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
+		LLUnit<F64, LLUnits::Bytes> getMin(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
+		LLUnit<F64, LLUnits::Bytes> getMean(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
+		LLUnit<F64, LLUnits::Bytes> getMax(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
+		LLUnit<F64, LLUnits::Bytes> getStandardDeviation(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
+		LLUnit<F64, LLUnits::Bytes> getLastValue(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
 
 		U32 getSum(const TraceType<MemStatAccumulator::AllocationCountFacet>& stat);
 		U32 getSum(const TraceType<MemStatAccumulator::DeallocationCountFacet>& stat);
@@ -273,7 +275,7 @@ namespace LLTrace
 
 		U32 getSampleCount(const TraceType<EventAccumulator>& stat);
 
-		LLUnit<LLUnits::Seconds, F64> getDuration() const { return LLUnit<LLUnits::Seconds, F64>(mElapsedSeconds); }
+		LLUnit<F64, LLUnits::Seconds> getDuration() const { return mElapsedSeconds; }
 
 	protected:
 		friend class ThreadRecorder;
@@ -288,7 +290,7 @@ namespace LLTrace
 		class ThreadRecorder* getThreadRecorder(); 
 
 		LLTimer				mSamplingTimer;
-		F64					mElapsedSeconds;
+		LLUnit<F64, LLUnits::Seconds>			mElapsedSeconds;
 		LLCopyOnWritePointer<RecordingBuffers>	mBuffers;
 	};
 
@@ -299,11 +301,12 @@ namespace LLTrace
 		PeriodicRecording(U32 num_periods, EPlayState state = STOPPED);
 
 		void nextPeriod();
-		U32 getNumPeriods() { return mRecordingPeriods.size(); }
+		size_t getNumRecordedPeriods() { return mNumPeriods; }
 
-		LLUnit<LLUnits::Seconds, F64> getDuration() const;
+		LLUnit<F64, LLUnits::Seconds> getDuration() const;
 
 		void appendPeriodicRecording(PeriodicRecording& other);
+		void appendRecording(Recording& recording);
 		Recording& getLastRecording();
 		const Recording& getLastRecording() const;
 		Recording& getCurRecording();
@@ -317,7 +320,7 @@ namespace LLTrace
 		typename T::value_t getPeriodMin(const TraceType<T>& stat, size_t num_periods = U32_MAX)
 		{
 			size_t total_periods = mRecordingPeriods.size();
-			num_periods = llmin(num_periods, total_periods);
+			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
 			typename T::value_t min_val = std::numeric_limits<typename T::value_t>::max();
 			for (S32 i = 1; i <= num_periods; i++)
@@ -346,7 +349,7 @@ namespace LLTrace
 		F64 getPeriodMinPerSec(const TraceType<T>& stat, size_t num_periods = U32_MAX)
 		{
 			size_t total_periods = mRecordingPeriods.size();
-			num_periods = llmin(num_periods, total_periods);
+			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
 			F64 min_val = std::numeric_limits<F64>::max();
 			for (S32 i = 1; i <= num_periods; i++)
@@ -362,7 +365,7 @@ namespace LLTrace
 		typename T::value_t getPeriodMax(const TraceType<T>& stat, size_t num_periods = U32_MAX)
 		{
 			size_t total_periods = mRecordingPeriods.size();
-			num_periods = llmin(num_periods, total_periods);
+			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
 			typename T::value_t max_val = std::numeric_limits<typename T::value_t>::min();
 			for (S32 i = 1; i <= num_periods; i++)
@@ -391,7 +394,7 @@ namespace LLTrace
 		F64 getPeriodMaxPerSec(const TraceType<T>& stat, size_t num_periods = U32_MAX)
 		{
 			size_t total_periods = mRecordingPeriods.size();
-			num_periods = llmin(num_periods, total_periods);
+			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
 			F64 max_val = std::numeric_limits<F64>::min();
 			for (S32 i = 1; i <= num_periods; i++)
@@ -407,7 +410,7 @@ namespace LLTrace
 		typename T::mean_t getPeriodMean(const TraceType<T >& stat, size_t num_periods = U32_MAX)
 		{
 			size_t total_periods = mRecordingPeriods.size();
-			num_periods = llmin(num_periods, total_periods);
+			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
 			typename T::mean_t mean = 0;
 			if (num_periods <= 0) { return mean; }
@@ -442,7 +445,7 @@ namespace LLTrace
 		typename T::mean_t getPeriodMeanPerSec(const TraceType<T>& stat, size_t num_periods = U32_MAX)
 		{
 			size_t total_periods = mRecordingPeriods.size();
-			num_periods = llmin(num_periods, total_periods);
+			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
 			typename T::mean_t mean = 0;
 			if (num_periods <= 0) { return mean; }
@@ -468,8 +471,9 @@ namespace LLTrace
 
 	private:
 		std::vector<Recording>	mRecordingPeriods;
-		const bool	mAutoResize;
-		S32			mCurPeriod;
+		const bool				mAutoResize;
+		size_t					mCurPeriod;
+		size_t					mNumPeriods;
 	};
 
 	PeriodicRecording& get_frame_recording();

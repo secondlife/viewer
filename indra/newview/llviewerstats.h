@@ -331,7 +331,7 @@ void update_statistics();
 void send_stats();
 
 extern LLFrameTimer gTextureTimer;
-extern LLUnit<LLUnits::Bytes, U32>	gTotalTextureData;
-extern LLUnit<LLUnits::Bytes, U32>  gTotalObjectData;
-extern LLUnit<LLUnits::Bytes, U32>  gTotalTextureBytesPerBoostLevel[] ;
+extern LLUnit<U32, LLUnits::Bytes>	gTotalTextureData;
+extern LLUnit<U32, LLUnits::Bytes>  gTotalObjectData;
+extern LLUnit<U32, LLUnits::Bytes>  gTotalTextureBytesPerBoostLevel[] ;
 #endif // LL_LLVIEWERSTATS_H

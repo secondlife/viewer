@@ -34,8 +34,8 @@ namespace LLUnits
 {
 	// using powers of 2 to allow strict floating point equality
 	LL_DECLARE_BASE_UNIT(Quatloos, "Quat");
-	LL_DECLARE_DERIVED_UNIT(4, Quatloos, Latinum, "Lat");
-	LL_DECLARE_DERIVED_UNIT((1.0 / 4.0), Quatloos, Solari, "Sol");
+	LL_DECLARE_DERIVED_UNIT(Latinum, "Lat", Quatloos, * 4);
+	LL_DECLARE_DERIVED_UNIT(Solari, "Sol", Latinum, / 16);
 }
 
 namespace tut
@@ -53,105 +53,110 @@ namespace tut
 	template<> template<>
 	void units_object_t::test<1>()
 	{
-		LLUnit<Quatloos, F32> float_quatloos;
-		ensure(float_quatloos.value() == 0.f);
+		LLUnit<F32, Quatloos> float_quatloos;
+		ensure(float_quatloos == 0.f);
 
-		LLUnit<Quatloos, S32> int_quatloos;
-		ensure(int_quatloos.value() == 0);
+		LLUnit<F32, Quatloos> float_initialize_quatloos(1);
+		ensure(float_initialize_quatloos == 1.f);
+
+		LLUnit<S32, Quatloos> int_quatloos;
+		ensure(int_quatloos == 0);
 
 		int_quatloos = 42;
-		ensure(int_quatloos.value() == 42);
+		ensure(int_quatloos == 42);
 		float_quatloos = int_quatloos;
-		ensure(float_quatloos.value() == 42.f);
+		ensure(float_quatloos == 42.f);
 
 		int_quatloos = float_quatloos;
-		ensure(int_quatloos.value() == 42);
+		ensure(int_quatloos == 42);
 
 		float_quatloos = 42.1f;
-		ensure(float_quatloos.value() == 42.1f);
+		ensure(float_quatloos == 42.1f);
 		int_quatloos = float_quatloos;
-		ensure(int_quatloos.value() == 42);
-		LLUnit<Quatloos, U32> unsigned_int_quatloos(float_quatloos);
-		ensure(unsigned_int_quatloos.value() == 42);
+		ensure(int_quatloos == 42);
+		LLUnit<U32, Quatloos> unsigned_int_quatloos(float_quatloos);
+		ensure(unsigned_int_quatloos == 42);
 	}
 
 	// conversions to/from base unit
 	template<> template<>
 	void units_object_t::test<2>()
 	{
-		LLUnit<Quatloos, F32> quatloos(1.f);
-		ensure(quatloos.value() == 1.f);
-		LLUnit<Latinum, F32> latinum_bars(quatloos);
-		ensure(latinum_bars.value() == 1.f / 4.f);
+		LLUnit<F32, Quatloos> quatloos(1.f);
+		ensure(quatloos == 1.f);
+		LLUnit<F32, Latinum> latinum_bars(quatloos);
+		ensure(latinum_bars == 1.f / 4.f);
 
 		latinum_bars = 256;
 		quatloos = latinum_bars;
-		ensure(quatloos.value() == 1024);
+		ensure(quatloos == 1024);
 
-		LLUnit<Solari, F32> solari(quatloos);
-		ensure(solari.value() == 4096);
+		LLUnit<F32, Solari> solari(quatloos);
+		ensure(solari == 4096);
 	}
 
 	// conversions across non-base units
 	template<> template<>
 	void units_object_t::test<3>()
 	{
-		LLUnit<Solari, F32> solari = 4.f;
-		LLUnit<Latinum, F32> latinum_bars = solari;
-		ensure(latinum_bars.value() == 0.25f);
+		LLUnit<F32, Solari> solari = 4.f;
+		LLUnit<F32, Latinum> latinum_bars = solari;
+		ensure(latinum_bars == 0.25f);
 	}
 
 	// math operations
 	template<> template<>
 	void units_object_t::test<4>()
 	{
-		LLUnit<Quatloos, F32> quatloos = 1.f;
+		LLUnit<F32, Quatloos> quatloos = 1.f;
 		quatloos *= 4.f;
-		ensure(quatloos.value() == 4);
+		ensure(quatloos == 4);
 		quatloos = quatloos * 2;
-		ensure(quatloos.value() == 8);
+		ensure(quatloos == 8);
 		quatloos = 2.f * quatloos;
-		ensure(quatloos.value() == 16);
+		ensure(quatloos == 16);
 
 		quatloos += 4.f;
-		ensure(quatloos.value() == 20);
+		ensure(quatloos == 20);
 		quatloos += 4;
-		ensure(quatloos.value() == 24);
+		ensure(quatloos == 24);
 		quatloos = quatloos + 4;
-		ensure(quatloos.value() == 28);
+		ensure(quatloos == 28);
 		quatloos = 4 + quatloos;
-		ensure(quatloos.value() == 32);
+		ensure(quatloos == 32);
 		quatloos += quatloos * 3;
-		ensure(quatloos.value() == 128);
+		ensure(quatloos == 128);
 
 		quatloos -= quatloos / 4 * 3;
-		ensure(quatloos.value() == 32);
+		ensure(quatloos == 32);
 		quatloos = quatloos - 8;
-		ensure(quatloos.value() == 24);
+		ensure(quatloos == 24);
 		quatloos -= 4;
-		ensure(quatloos.value() == 20);
+		ensure(quatloos == 20);
 		quatloos -= 4.f;
-		ensure(quatloos.value() == 16);
+		ensure(quatloos == 16);
 
 		quatloos *= 2.f;
-		ensure(quatloos.value() == 32);
+		ensure(quatloos == 32);
 		quatloos = quatloos * 2.f;
-		ensure(quatloos.value() == 64);
+		ensure(quatloos == 64);
 		quatloos = 0.5f * quatloos;
-		ensure(quatloos.value() == 32);
+		ensure(quatloos == 32);
 
 		quatloos /= 2.f;
-		ensure(quatloos.value() == 16);
+		ensure(quatloos == 16);
 		quatloos = quatloos / 4;
-		ensure(quatloos.value() == 4);
+		ensure(quatloos == 4);
 
-		F32 ratio = quatloos / LLUnit<Quatloos, F32>(4.f);
+		F32 ratio = quatloos / LLUnit<F32, Quatloos>(4.f);
+		ensure(ratio == 1);
+		ratio = quatloos / LLUnit<F32, Solari>(16.f);
 		ensure(ratio == 1);
 
-		quatloos += LLUnit<Solari, F32>(4.f);
-		ensure(quatloos.value() == 5);
-		quatloos -= LLUnit<Latinum, F32>(1.f);
-		ensure(quatloos.value() == 1);
+		quatloos += LLUnit<F32, Solari>(4.f);
+		ensure(quatloos == 5);
+		quatloos -= LLUnit<F32, Latinum>(1.f);
+		ensure(quatloos == 1);
 	}
 
 	// implicit units
@@ -159,16 +164,16 @@ namespace tut
 	void units_object_t::test<5>()
 	{
 		// 0-initialized
-		LLUnit<Quatloos, F32> quatloos(0);
+		LLUnit<F32, Quatloos> quatloos(0);
 		// initialize implicit unit from explicit
-		LLUnitImplicit<Quatloos, F32> quatloos_implicit = quatloos + 1;
-		ensure(quatloos_implicit.value() == 1);
+		LLUnitImplicit<F32, Quatloos> quatloos_implicit = quatloos + 1;
+		ensure(quatloos_implicit == 1);
 
 		// assign implicit to explicit, or perform math operations
 		quatloos = quatloos_implicit;
-		ensure(quatloos.value() == 1);
+		ensure(quatloos == 1);
 		quatloos += quatloos_implicit;
-		ensure(quatloos.value() == 2);
+		ensure(quatloos == 2);
 
 		// math operations on implicits
 		quatloos_implicit = 1;
@@ -204,5 +209,11 @@ namespace tut
 
 		S32 int_val = quatloos_implicit;
 		ensure(int_val == 16);
+
+		// conversion of implicits
+		LLUnitImplicit<F32, Latinum> latinum_implicit(2);
+		ensure(latinum_implicit == 2);
+
+		ensure(latinum_implicit * 2 == quatloos_implicit);
 	}
 }

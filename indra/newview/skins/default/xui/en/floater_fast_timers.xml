@@ -16,6 +16,27 @@
  width="700">
   <string name="pause" >Pause</string>
   <string name="run">Run</string>
+  <combo_box name="time_scale_combo"
+             follows="left|top"
+             left="10"
+             top="5"
+             width="150"
+             height="20">
+    <item label="2x Average"/>
+    <item label="Max"/>
+    <item label="Recent Max"/>
+    <item label="100ms"/>
+  </combo_box>
+  <combo_box name="metric_combo"
+             follows="left|top"
+             left_pad="10"
+             top="5"
+             width="150"
+             height="20">
+    <item label="Time"/>
+    <item label="Number of Calls"/>
+    <item label="Hz"/>
+  </combo_box>
   <button follows="top|right" 
           name="pause_btn"
           left="-200"
@@ -24,4 +45,52 @@
           height="40"
           label="Pause"
           font="SansSerifHuge"/>
+  <layout_stack name="legend_stack"
+                orientation="horizontal"
+                left="0"
+                top="50"
+                right="695"
+                bottom="500"
+                follows="all">
+    <layout_panel name="legend_panel"
+                  auto_resize="false"
+                  user_resize="true"
+                  width="220"
+                  height="450"
+                  min_width="100">
+      <panel top="0"
+             left="0"
+             width="220"
+             height="440"
+             name="legend"
+             follows="all"/>
+    </layout_panel>
+    <layout_panel name="timers_panel"
+                  auto_resize="true"
+                  user_resize="true"
+                  height="450"
+                  width="475"
+                  min_width="100">
+      <layout_stack name="timer_bars_stack"
+                    orientation="vertical"
+                    left="0"
+                    top="0"
+                    width="475"
+                    height="445"
+                    follows="all">
+        <layout_panel name="bars_panel"
+                      auto_resize="true"
+                      user_resize="true"
+                      top="0"
+                      width="475"
+                      height="210"/>
+        <layout_panel name="lines_panel"
+                      auto_resize="false"
+                      user_resize="true"
+                      width="475"
+                      min_height="50"
+                      height="240"/>
+      </layout_stack>
+    </layout_panel>
+  </layout_stack>
 </floater>

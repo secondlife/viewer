@@ -71,7 +71,7 @@ public:
 	BlockTimer(TimeBlock& timer);
 	~BlockTimer();
 
-	LLUnit<LLUnits::Seconds, F64> getElapsedTime();
+	LLUnit<F64, LLUnits::Seconds> getElapsedTime();
 
 private:
 
@@ -115,6 +115,7 @@ public:
 	static void pushLog(LLSD sd);
 	static void setLogLock(LLMutex* mutex);
 	static void writeLog(std::ostream& os);
+	static void updateTimes();
 
 	// dumps current cumulative frame stats to log
 	// call nextFrame() to reset timers
@@ -261,6 +262,9 @@ public:
 	// updates cumulative times and hierarchy,
 	// can be called multiple times in a frame, at any point
 	static void processTimes();
+
+	static void bootstrapTimerTree();
+	static void incrementalUpdateTimerTree();
 
 	// call this once a frame to periodically log timers
 	static void logStats();
