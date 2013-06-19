@@ -131,7 +131,7 @@ LLDir_Win32::LLDir_Win32()
 		mAppRODataDir = mExecutableDir;
 	}
 
-	llinfos << "mAppRODataDir = " << mAppRODataDir << llendl;
+//	llinfos << "mAppRODataDir = " << mAppRODataDir << llendl;
 
 	mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
 

@@ -76,6 +76,7 @@ public:
 	LLViewerRegion*			getRegionFromPosGlobal(const LLVector3d &pos);
 	LLViewerRegion*			getRegionFromPosAgent(const LLVector3 &pos);
 	LLViewerRegion*			getRegionFromHandle(const U64 &handle);
+	LLViewerRegion*			getRegionFromID(const LLUUID& region_id);
 	BOOL					positionRegionValidGlobal(const LLVector3d& pos);			// true if position is in valid region
 	LLVector3d				clipToVisibleRegions(const LLVector3d &start_pos, const LLVector3d &end_pos);
 
@@ -149,6 +150,9 @@ public:
 	typedef std::list<LLViewerRegion*> region_list_t;
 	const region_list_t& getRegionList() const { return mActiveRegionList; }
 
+	typedef boost::signals2::signal<void(LLViewerRegion*)> region_remove_signal_t;
+	boost::signals2::connection setRegionRemovedCallback(const region_remove_signal_t::slot_type& cb);
+
 	// Returns lists of avatar IDs and their world-space positions within a given distance of a point.
 	// All arguments are optional. Given containers will be emptied and then filled.
 	// Not supplying origin or radius input returns data on all avatars in the known regions.
@@ -167,6 +171,8 @@ private:
 	region_list_t	mRegionList;
 	region_list_t	mVisibleRegionList;
 	region_list_t	mCulledRegionList;
+
+	region_remove_signal_t mRegionRemovedSignal;
 
 	// Number of points on edge
 	static const U32 mWidth;

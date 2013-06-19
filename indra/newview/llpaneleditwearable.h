@@ -95,7 +95,7 @@ private:
 	void				toggleTypeSpecificControls(LLWearableType::EType type);
 	void				updateTypeSpecificControls(LLWearableType::EType type);
 
-	// alpha mask checkboxes
+	//alpha mask checkboxes
 	void configureAlphaCheckbox(LLAvatarAppearanceDefines::ETextureIndex te, const std::string& name);
 	void onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LLAvatarAppearanceDefines::ETextureIndex te);
 	void updateAlphaCheckboxes();
@@ -155,7 +155,7 @@ private:
 	LLPanel *mPanelEyes;
 	LLPanel *mPanelHair;
 
-	// clothes
+	//clothes
 	LLPanel *mPanelShirt;
 	LLPanel *mPanelPants;
 	LLPanel *mPanelShoes;

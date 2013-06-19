@@ -2093,7 +2093,7 @@ void LLFloaterIMContainer::onClickCloseBtn()
 	{
 		LLMultiFloater::setMinimized(FALSE);
 	}
-	
+
 	LLFloater::closeFloater();
 }
 

@@ -202,7 +202,7 @@ void LLHUDIcon::render()
 	renderIcon(FALSE);
 }
 
-BOOL LLHUDIcon::lineSegmentIntersect(const LLVector3& start, const LLVector3& end, LLVector3* intersection)
+BOOL LLHUDIcon::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, LLVector4a* intersection)
 {
 	if (mHidden)
 		return FALSE;
@@ -275,23 +275,18 @@ BOOL LLHUDIcon::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 	LLVector4a upper_right;
 	upper_right.setAdd(lower_right, y_scalea);
 
-	LLVector4a enda;
-	enda.load3(end.mV);
-	LLVector4a starta;
-	starta.load3(start.mV);
 	LLVector4a dir;
-	dir.setSub(enda, starta);
+	dir.setSub(end, start);
 
 	F32 a,b,t;
 
-	if (LLTriangleRayIntersect(upper_right, upper_left, lower_right, starta, dir, a,b,t) ||
-		LLTriangleRayIntersect(upper_left, lower_left, lower_right, starta, dir, a,b,t))
+	if (LLTriangleRayIntersect(upper_right, upper_left, lower_right, start, dir, a,b,t) ||
+		LLTriangleRayIntersect(upper_left, lower_left, lower_right, start, dir, a,b,t))
 	{
 		if (intersection)
 		{
 			dir.mul(t);
-			starta.add(dir);
-			*intersection = LLVector3(starta.getF32ptr());
+			intersection->setAdd(start, dir);
 		}
 		return TRUE;
 	}
@@ -331,12 +326,12 @@ LLHUDIcon* LLHUDIcon::handlePick(S32 pick_id)
 }
 
 //static
-LLHUDIcon* LLHUDIcon::lineSegmentIntersectAll(const LLVector3& start, const LLVector3& end, LLVector3* intersection)
+LLHUDIcon* LLHUDIcon::lineSegmentIntersectAll(const LLVector4a& start, const LLVector4a& end, LLVector4a* intersection)
 {
 	icon_instance_t::iterator icon_it;
 
-	LLVector3 local_end = end;
-	LLVector3 position;
+	LLVector4a local_end = end;
+	LLVector4a position;
 
 	LLHUDIcon* ret = NULL;
 	for(icon_it = sIconInstances.begin(); icon_it != sIconInstances.end(); ++icon_it)

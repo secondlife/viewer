@@ -1091,8 +1091,9 @@ void LLFloaterPreference::refreshEnabledState()
 	ctrl_reflections->setEnabled(reflections);
 	
 	// Bump & Shiny	
+	LLCheckBoxCtrl* bumpshiny_ctrl = getChild<LLCheckBoxCtrl>("BumpShiny");
 	bool bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump");
-	getChild<LLCheckBoxCtrl>("BumpShiny")->setEnabled(bumpshiny ? TRUE : FALSE);
+	bumpshiny_ctrl->setEnabled(bumpshiny ? TRUE : FALSE);
 	
 	radio_reflection_detail->setEnabled(reflections);
 	
@@ -1150,7 +1151,8 @@ void LLFloaterPreference::refreshEnabledState()
 	//Deferred/SSAO/Shadows
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
 	
-	BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") && 
+	BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
+						((bumpshiny_ctrl && bumpshiny_ctrl->get()) ? TRUE : FALSE) &&
 						shaders && 
 						gGLManager.mHasFramebufferObject &&
 						gSavedSettings.getBOOL("RenderAvatarVP") &&
@@ -1163,7 +1165,9 @@ void LLFloaterPreference::refreshEnabledState()
 	LLComboBox* ctrl_shadow = getChild<LLComboBox>("ShadowDetail");
 
 	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO") && (ctrl_deferred->get() ? TRUE : FALSE);
-		
+	
+	ctrl_deferred->set(gSavedSettings.getBOOL("RenderDeferred"));
+
 	ctrl_ssao->setEnabled(enabled);
 	ctrl_dof->setEnabled(enabled);
 
@@ -2321,3 +2325,4 @@ void LLFloaterPreferenceProxy::onChangeSocksSettings()
 	}
 
 }
+

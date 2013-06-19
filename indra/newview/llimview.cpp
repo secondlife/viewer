@@ -251,22 +251,21 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 
 	// actions:
 
-	// 0. nothing - exit
-	if (("noaction" == user_preferences ||
-		ON_TOP_AND_ITEM_IS_SELECTED == conversations_floater_status)
-		&& session_floater->isMessagePaneExpanded())
-	{
-		return;
-	}
-	
-	// 1. open floater and [optional] surface it
-	if (("openconversations" == user_preferences &&
-		(CLOSED == conversations_floater_status
-		|| NOT_ON_TOP == conversations_floater_status))
-		|| is_dnd_msg )
-	{
-		if(!gAgent.isDoNotDisturb())
-		{
+    // 0. nothing - exit
+    if (("none" == user_preferences ||
+    		ON_TOP_AND_ITEM_IS_SELECTED == conversations_floater_status)
+    	&& session_floater->isMessagePaneExpanded())
+    {
+    	return;
+    }
+
+    // 1. open floater and [optional] surface it
+    if ("openconversations" == user_preferences &&
+    		(CLOSED == conversations_floater_status
+    				|| NOT_ON_TOP == conversations_floater_status))
+    {
+    	if(!gAgent.isDoNotDisturb())
+        {
 			// Open conversations floater
 			LLFloaterReg::showInstance("im_container");
 			im_box->collapseMessagesPane(false);
@@ -1634,7 +1633,7 @@ public:
 	}
 
 	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
-	{
+	{		
 		llwarns << "LLViewerChatterBoxInvitationAcceptResponder error [status:"
 				<< statusNum << "]: " << content << llendl;
 		//throw something back to the viewer here?
