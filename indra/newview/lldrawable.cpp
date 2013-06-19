@@ -1098,9 +1098,9 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 }
 
 //virtual
-S32 LLDrawable::getMinFrameRange() const
+U32 LLDrawable::getMinFrameRange() const
 {
-const S32 MIN_VIS_FRAME_RANGE = 2 ; //two frames:the current one and the last one.
+	const U32 MIN_VIS_FRAME_RANGE = 2 ; //two frames:the current one and the last one.
 
 	return MIN_VIS_FRAME_RANGE ;
 }
