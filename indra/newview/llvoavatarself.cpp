@@ -602,7 +602,7 @@ LLVOAvatarSelf::~LLVOAvatarSelf()
  **                                                                             **
  *********************************************************************************/
 
-// virtual
+//virtual
 BOOL LLVOAvatarSelf::updateCharacter(LLAgent &agent)
 {
 	// update screen joint size
@@ -866,9 +866,9 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 		updateMeshTextures();
 		if (getRegion() && !getRegion()->getCentralBakeVersion())
 		{
-			requestLayerSetUploads();
-		}
+		requestLayerSetUploads();
 	}
+}
 }
 
 //virtual
@@ -1310,7 +1310,7 @@ void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *sr
 			discard_level < local_tex_obj->getDiscard())
 		{
 			local_tex_obj->setDiscard(discard_level);
-			requestLayerSetUpdate(index);
+				requestLayerSetUpdate(index);
 			if (isEditingAppearance())
 			{
 				LLVisualParamHint::requestHintUpdates();
@@ -1799,10 +1799,10 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 					{
 						requestLayerSetUpdate(type);
 						if (isEditingAppearance())
-						{
-							LLVisualParamHint::requestHintUpdates();
-						}
+					{
+						LLVisualParamHint::requestHintUpdates();
 					}
+				}
 				}
 				else
 				{					
@@ -2580,24 +2580,24 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 	//if (!covered_by_baked)
 	{
 		if (imagep->getID() != IMG_DEFAULT_AVATAR)
-		{
+	{
 			imagep->setNoDelete();
 			if (imagep->getDiscardLevel() != 0)
-			{
-				F32 desired_pixels;
-				desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
-				
-				imagep->setBoostLevel(getAvatarBoostLevel());
+		{
+			F32 desired_pixels;
+			desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
+
+			imagep->setBoostLevel(getAvatarBoostLevel());
 				imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
-				imagep->resetTextureStats();
-				imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
-				imagep->addTextureStats( desired_pixels / texel_area_ratio );
-				imagep->forceUpdateBindStats() ;
-				if (imagep->getDiscardLevel() < 0)
-				{
-					mHasGrey = TRUE; // for statistics gathering
-				}
+			imagep->resetTextureStats();
+			imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
+			imagep->addTextureStats( desired_pixels / texel_area_ratio );
+			imagep->forceUpdateBindStats() ;
+			if (imagep->getDiscardLevel() < 0)
+			{
+				mHasGrey = TRUE; // for statistics gathering
 			}
+		}
 		}
 		else
 		{
@@ -2921,17 +2921,17 @@ void LLVOAvatarSelf::requestLayerSetUpdate(ETextureIndex index )
 
 LLViewerTexLayerSet* LLVOAvatarSelf::getLayerSet(ETextureIndex index) const
 {
-       /* switch(index)
-               case TEX_HEAD_BAKED:
-               case TEX_HEAD_BODYPAINT:
-                       return mHeadLayerSet; */
+	/* switch(index)
+		case TEX_HEAD_BAKED:
+		case TEX_HEAD_BODYPAINT:
+			return mHeadLayerSet; */
        const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture(index);
-       if (texture_dict->mIsUsedByBakedTexture)
-       {
-               const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
+	if (texture_dict->mIsUsedByBakedTexture)
+	{
+		const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
                return getLayerSet(baked_index);
-       }
-       return NULL;
+	}
+	return NULL;
 }
 
 LLViewerTexLayerSet* LLVOAvatarSelf::getLayerSet(EBakedTextureIndex baked_index) const
@@ -2959,7 +2959,7 @@ void LLVOAvatarSelf::onCustomizeStart(bool disable_camera_switch)
 		gAgentAvatarp->mUseLocalAppearance = true;
 
 		if (gSavedSettings.getBOOL("AppearanceCameraMovement") && !disable_camera_switch)
-		{
+{
 			gAgentCamera.changeCameraToCustomizeAvatar();
 		}
 
