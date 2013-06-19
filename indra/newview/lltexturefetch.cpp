@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -2410,7 +2410,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	mHttpHeaders->mHeaders.push_back("Accept: image/x-j2c");
 	mHttpMetricsHeaders = new LLCore::HttpHeaders;
 	mHttpMetricsHeaders->mHeaders.push_back("Content-Type: application/llsd+xml");
-	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicyDefault();
+	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_TEXTURE);
 }
 
 LLTextureFetch::~LLTextureFetch()

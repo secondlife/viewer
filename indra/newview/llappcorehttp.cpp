@@ -37,11 +37,13 @@ LLAppCoreHttp::LLAppCoreHttp()
 	: mRequest(NULL),
 	  mStopHandle(LLCORE_HTTP_HANDLE_INVALID),
 	  mStopRequested(0.0),
-	  mStopped(false),
-	  mPolicyDefault(-1),
-	  mPolicyTexture(-1),
-	  mPolicyMesh(-1)
-{}
+	  mStopped(false)
+{
+	for (int i(0); i < LL_ARRAY_SIZE(mPolicies); ++i)
+	{
+		mPolicies[i] = LLCore::HttpRequest::DEFAULT_POLICY_ID;
+	}
+}
 
 
 LLAppCoreHttp::~LLAppCoreHttp()
@@ -53,11 +55,43 @@ LLAppCoreHttp::~LLAppCoreHttp()
 
 void LLAppCoreHttp::init()
 {
+	static const struct
+	{
+		EAppPolicy		mPolicy;
+		U32				mDefault;
+		U32				mMin;
+		U32				mMax;
+		U32				mDivisor;
+		std::string		mKey;
+		const char *	mUsage;
+	} init_data[] =					//  Default and dynamic values for classes
+		  {
+			  {
+				  AP_TEXTURE,			8,		1,		12,		1,
+				  "TextureFetchConcurrency",
+				  "texture fetch"
+			  },
+			  {
+				  AP_MESH,				8,		1,		32,		4,
+				  "MeshMaxConcurrentRequests",
+				  "mesh fetch"
+			  },
+			  {
+				  AP_LARGE_MESH,		2,		1,		8,		1,
+				  "",
+				  "large mesh fetch"
+			  },
+			  {
+				  AP_UPLOADS,			2,		1,		8,		1,
+				  "",
+				  "asset upload"
+			  }
+		  };
+		
 	LLCore::HttpStatus status = LLCore::HttpRequest::createService();
 	if (! status)
 	{
-		LL_ERRS("Init") << "Failed to initialize HTTP services.  Reason:  "
-						<< status.toString()
+		LL_ERRS("Init") << "Failed to initialize HTTP services.  Reason:  " << status.toString()
 						<< LL_ENDL;
 	}
 
@@ -66,8 +100,7 @@ void LLAppCoreHttp::init()
 														gDirUtilp->getCAFile());
 	if (! status)
 	{
-		LL_ERRS("Init") << "Failed to set CA File for HTTP services.  Reason:  "
-						<< status.toString()
+		LL_ERRS("Init") << "Failed to set CA File for HTTP services.  Reason:  " << status.toString()
 						<< LL_ENDL;
 	}
 
@@ -77,8 +110,7 @@ void LLAppCoreHttp::init()
 	status = LLCore::HttpRequest::setPolicyGlobalOption(LLCore::HttpRequest::GP_LLPROXY, 1);
 	if (! status)
 	{
-		LL_ERRS("Init") << "Failed to set HTTP proxy for HTTP services.  Reason:  "
-						<< status.toString()
+		LL_ERRS("Init") << "Failed to set HTTP proxy for HTTP services.  Reason:  " << status.toString()
 						<< LL_ENDL;
 	}
 
@@ -96,71 +128,64 @@ void LLAppCoreHttp::init()
 	}
 	
 	// Setup default policy and constrain if directed to
-	mPolicyDefault = LLCore::HttpRequest::DEFAULT_POLICY_ID;
+	mPolicies[AP_DEFAULT] = LLCore::HttpRequest::DEFAULT_POLICY_ID;
 
-	// Texture policy will use default for now.
-	mPolicyTexture = mPolicyDefault;
-	static const std::string texture_concur("TextureFetchConcurrency");
-	if (gSavedSettings.controlExists(texture_concur))
+	// Setup additional policies based on table and some special rules
+	// *TODO:  Make these configurations dynamic later
+	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
 	{
-		U32 concur(llmin(gSavedSettings.getU32(texture_concur), U32(12)));
+		const EAppPolicy policy(init_data[i].mPolicy);
 
-		if (concur > 0)
+		// Create a policy class but use default for texture for now.
+		// This also has the side-effect of initializing the default
+		// class to desired values.
+		if (AP_TEXTURE == policy)
 		{
-			LLCore::HttpStatus status;
-			status = LLCore::HttpRequest::setPolicyClassOption(mPolicyTexture,
-															   LLCore::HttpRequest::CP_CONNECTION_LIMIT,
-															   concur);
-			if (! status)
+			mPolicies[policy] = mPolicies[AP_DEFAULT];
+		}
+		else
+		{
+			mPolicies[policy] = LLCore::HttpRequest::createPolicyClass();
+			if (! mPolicies[policy])
 			{
-				LL_WARNS("Init") << "Unable to set texture fetch concurrency.  Reason:  "
-								 << status.toString()
+				// Use default policy (but don't accidentally modify default)
+				LL_WARNS("Init") << "Failed to create HTTP policy class for " << init_data[i].mUsage
+								 << ".  Using default policy."
 								 << LL_ENDL;
-			}
-			else
-			{
-				LL_INFOS("Init") << "Application settings overriding default texture fetch concurrency.  New value:  "
-								 << concur
-								 << LL_ENDL;
+				mPolicies[policy] = mPolicies[AP_DEFAULT];
+				continue;
 			}
 		}
-	}
 
-	// Create the mesh class
-	mPolicyMesh = LLCore::HttpRequest::createPolicyClass();
-	if (! mPolicyMesh)
-	{
-		LL_WARNS("Init") << "Failed to create HTTP policy class for Mesh.  Using default policy."
-						 << LL_ENDL;
-		mPolicyMesh = mPolicyDefault;
-	}
-	else
-	{
-		static const std::string mesh_concur("MeshMaxConcurrentRequests");
-		if (gSavedSettings.controlExists(mesh_concur))
+		// Get target connection concurrency value
+		U32 setting(init_data[i].mDefault);
+		if (! init_data[i].mKey.empty() && gSavedSettings.controlExists(init_data[i].mKey))
 		{
-			U32 setting(llmin(gSavedSettings.getU32(mesh_concur), 256U) / 4U);
-			setting = llmax(setting, 2U);
-			
-			if (setting > 0)
+			U32 new_setting(gSavedSettings.getU32(init_data[i].mKey));
+			if (new_setting)
 			{
-				LLCore::HttpStatus status;
-				status = LLCore::HttpRequest::setPolicyClassOption(mPolicyMesh,
-																   LLCore::HttpRequest::CP_CONNECTION_LIMIT,
-																   setting);
-				if (! status)
-				{
-					LL_WARNS("Init") << "Unable to set mesh fetch concurrency.  Reason:  "
-									 << status.toString()
-								 << LL_ENDL;
-				}
-				else
-				{
-					LL_INFOS("Init") << "Application settings overriding default mesh fetch concurrency.  New value:  "
-									 << setting
-									 << LL_ENDL;
-				}
+				// Treat zero settings as an ask for default
+				setting = new_setting / init_data[i].mDivisor;
+				setting = llclamp(setting, init_data[i].mMin, init_data[i].mMax);
 			}
+		}
+
+		// Set it and report
+		LLCore::HttpStatus status;
+		status = LLCore::HttpRequest::setPolicyClassOption(mPolicies[policy],
+														   LLCore::HttpRequest::CP_CONNECTION_LIMIT,
+														   setting);
+		if (! status)
+		{
+			LL_WARNS("Init") << "Unable to set " << init_data[i].mUsage
+							 << " concurrency.  Reason:  " << status.toString()
+							 << LL_ENDL;
+		}
+		else if (setting != init_data[i].mDefault)
+		{
+			LL_INFOS("Init") << "Application settings overriding default " << init_data[i].mUsage
+							 << " concurrency.  New value:  " << setting
+							 << LL_ENDL;
 		}
 	}
 	
@@ -168,8 +193,7 @@ void LLAppCoreHttp::init()
 	status = LLCore::HttpRequest::startThread();
 	if (! status)
 	{
-		LL_ERRS("Init") << "Failed to start HTTP servicing thread.  Reason:  "
-						<< status.toString()
+		LL_ERRS("Init") << "Failed to start HTTP servicing thread.  Reason:  " << status.toString()
 						<< LL_ENDL;
 	}
 

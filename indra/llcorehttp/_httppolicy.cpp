@@ -140,6 +140,7 @@ void HttpPolicy::addOp(HttpOpRequest * op)
 	const int policy_class(op->mReqPolicy);
 	
 	op->mPolicyRetries = 0;
+	op->mPolicy503Retries = 0;
 	mState[policy_class].mReadyQueue.push(op);
 }
 
@@ -155,6 +156,7 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 			5000000				// ... to every 5.0 S.
 		};
 	static const int delta_max(int(LL_ARRAY_SIZE(retry_deltas)) - 1);
+	static const HttpStatus error_503(503);
 	
 	const HttpTime now(totalTime());
 	const int policy_class(op->mReqPolicy);
@@ -162,6 +164,10 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 	const HttpTime delta(retry_deltas[llclamp(op->mPolicyRetries, 0, delta_max)]);
 	op->mPolicyRetryAt = now + delta;
 	++op->mPolicyRetries;
+	if (error_503 == op->mStatus)
+	{
+		++op->mPolicy503Retries;
+	}
 	LL_WARNS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
 						 << " retry " << op->mPolicyRetries
 						 << " scheduled for +" << (delta / HttpTime(1000))

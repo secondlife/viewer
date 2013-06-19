@@ -41,6 +41,19 @@
 class LLAppCoreHttp : public LLCore::HttpHandler
 {
 public:
+	typedef LLCore::HttpRequest::policy_t policy_t;
+
+	enum EAppPolicy
+	{
+		AP_DEFAULT,
+		AP_TEXTURE,
+		AP_MESH,
+		AP_LARGE_MESH,
+		AP_UPLOADS,
+		AP_COUNT						// Must be last
+	};
+	
+public:
 	LLAppCoreHttp();
 	~LLAppCoreHttp();
 	
@@ -65,22 +78,11 @@ public:
 	// Notification when the stop request is complete.
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 
-	// Retrieve the policy class for default operations.
-	int getPolicyDefault() const
+	// Retrieve a policy class identifier for desired
+	// application function.
+	policy_t getPolicy(EAppPolicy policy) const
 		{
-			return mPolicyDefault;
-		}
-
-	// Get the texture fetch policy class.
-	int getPolicyTexture() const
-		{
-			return mPolicyTexture;
-		}
-
-	// Get the mesh fetch policy class.
-	int getPolicyMesh() const
-		{
-			return mPolicyMesh;
+			return mPolicies[policy];
 		}
 	
 private:
@@ -91,9 +93,7 @@ private:
 	LLCore::HttpHandle			mStopHandle;
 	F64							mStopRequested;
 	bool						mStopped;
-	int							mPolicyDefault;
-	int							mPolicyTexture;
-	int							mPolicyMesh;
+	policy_t					mPolicies[AP_COUNT];
 };
 
 

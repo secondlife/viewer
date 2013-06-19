@@ -224,13 +224,14 @@ public:
 	static S32 sActiveHeaderRequests;
 	static S32 sActiveLODRequests;
 	static U32 sMaxConcurrentRequests;
+	static S32 sRequestLowWater;
+	static S32 sRequestHighWater;
 
-	LLCurlRequest* mCurlRequest;
 	LLMutex*	mMutex;
 	LLMutex*	mHeaderMutex;
 	LLCondition* mSignal;
 
-	bool mWaiting;
+	volatile bool mWaiting;
 
 	//map of known mesh headers
 	typedef std::map<LLUUID, LLSD> mesh_header_map;
@@ -324,8 +325,11 @@ public:
 	// llcorehttp library interface objects.
 	LLCore::HttpRequest *				mHttpRequest;
 	LLCore::HttpOptions *				mHttpOptions;
+	LLCore::HttpOptions *				mHttpLargeOptions;
 	LLCore::HttpHeaders *				mHttpHeaders;
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;
+	LLCore::HttpRequest::policy_t		mHttpLargePolicyClass;
+	LLCore::HttpRequest::priority_t		mHttpPriority;
 
 	typedef std::set<LLCore::HttpHandler *> http_request_set;
 	http_request_set					mHttpRequestSet;			// Outstanding HTTP requests
@@ -373,6 +377,19 @@ public:
 	static void incActiveHeaderRequests();
 	static void decActiveHeaderRequests();
 
+private:
+	// Issue a GET request to a URL with 'Range' header using
+	// the correct policy class and other attributes.  If an invalid
+	// handle is returned, the request failed and caller must retry
+	// or dispose of handler.
+	//
+	// Threads:  Repo thread only
+	LLCore::HttpHandle getByteRange(const std::string & url, size_t offset, size_t len, 
+									LLCore::HttpHandler * handler);
+
+private:
+	U32 mHttpGetCount;
+	U32 mHttpLargeGetCount;
 };
 
 class LLMeshUploadThread : public LLThread 

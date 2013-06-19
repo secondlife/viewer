@@ -98,7 +98,7 @@ namespace LLCore
 
 // Maxium number of policy classes that can be defined.
 // *TODO:  Currently limited to the default class + 1, extend.
-const int HTTP_POLICY_CLASS_LIMIT = 2;
+const int HTTP_POLICY_CLASS_LIMIT = 4;
 
 // Debug/informational tracing.  Used both
 // as a global option and in per-request traces.
@@ -129,6 +129,7 @@ const int HTTP_REDIRECTS_DEFAULT = 10;
 // Retries and time-on-queue are not included and aren't
 // accounted for.
 const long HTTP_REQUEST_TIMEOUT_DEFAULT = 30L;
+const long HTTP_REQUEST_XFER_TIMEOUT_DEFAULT = 0L;
 const long HTTP_REQUEST_TIMEOUT_MIN = 0L;
 const long HTTP_REQUEST_TIMEOUT_MAX = 3600L;
 

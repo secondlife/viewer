@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -38,6 +38,7 @@ HttpOptions::HttpOptions()
 	  mWantHeaders(false),
 	  mTracing(HTTP_TRACE_OFF),
 	  mTimeout(HTTP_REQUEST_TIMEOUT_DEFAULT),
+	  mTransferTimeout(HTTP_REQUEST_XFER_TIMEOUT_DEFAULT),
 	  mRetries(HTTP_RETRY_COUNT_DEFAULT)
 {}
 
@@ -61,6 +62,12 @@ void HttpOptions::setTrace(long level)
 void HttpOptions::setTimeout(unsigned int timeout)
 {
 	mTimeout = timeout;
+}
+
+
+void HttpOptions::setTransferTimeout(unsigned int timeout)
+{
+	mTransferTimeout = timeout;
 }
 
 

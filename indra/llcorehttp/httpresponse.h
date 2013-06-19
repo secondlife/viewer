@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -144,6 +144,19 @@ public:
 			mContentType = con_type;
 		}
 
+	/// Get and set retry attempt information on the request.
+	void getRetries(unsigned int * retries, unsigned int * retries_503) const
+		{
+			*retries = mRetries;
+			*retries_503 = m503Retries;
+		}
+
+	void setRetries(unsigned int retries, unsigned int retries_503)
+		{
+			mRetries = retries;
+			m503Retries = retries_503;
+		}
+
 protected:
 	// Response data here
 	HttpStatus			mStatus;
@@ -153,6 +166,8 @@ protected:
 	BufferArray *		mBufferArray;
 	HttpHeaders *		mHeaders;
 	std::string			mContentType;
+	unsigned int		mRetries;
+	unsigned int		m503Retries;
 };
 
 

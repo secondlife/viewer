@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -187,6 +187,7 @@ public:
 
 	// Policy data
 	int					mPolicyRetries;
+	int					mPolicy503Retries;
 	HttpTime			mPolicyRetryAt;
 	int					mPolicyRetryLimit;
 };  // end class HttpOpRequest

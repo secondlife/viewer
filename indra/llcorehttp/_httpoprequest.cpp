@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -110,6 +110,7 @@ HttpOpRequest::HttpOpRequest()
 	  mReplyFullLength(0),
 	  mReplyHeaders(NULL),
 	  mPolicyRetries(0),
+	  mPolicy503Retries(0),
 	  mPolicyRetryAt(HttpTime(0)),
 	  mPolicyRetryLimit(HTTP_RETRY_COUNT_DEFAULT)
 {
@@ -224,6 +225,7 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 			response->setRange(mReplyOffset, mReplyLength, mReplyFullLength);
 		}
 		response->setContentType(mReplyConType);
+		response->setRetries(mPolicyRetries, mPolicy503Retries);
 		
 		mUserHandler->onCompleted(static_cast<HttpHandle>(this), response);
 
@@ -524,12 +526,19 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 
 	// Request options
 	long timeout(HTTP_REQUEST_TIMEOUT_DEFAULT);
+	long xfer_timeout(HTTP_REQUEST_XFER_TIMEOUT_DEFAULT);
 	if (mReqOptions)
-	{
+ 	{
 		timeout = mReqOptions->getTimeout();
 		timeout = llclamp(timeout, HTTP_REQUEST_TIMEOUT_MIN, HTTP_REQUEST_TIMEOUT_MAX);
+		xfer_timeout = mReqOptions->getTransferTimeout();
+		xfer_timeout = llclamp(xfer_timeout, HTTP_REQUEST_TIMEOUT_MIN, HTTP_REQUEST_TIMEOUT_MAX);
 	}
-	curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, timeout);
+	if (xfer_timeout == 0L)
+	{
+		xfer_timeout = timeout;
+	}
+	curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, xfer_timeout);
 	curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, timeout);
 
 	// Request headers
