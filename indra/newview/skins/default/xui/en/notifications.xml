@@ -3454,7 +3454,7 @@ or you can install it now.
    name="DownloadBackgroundTip"
    type="notify">
 We have downloaded an update to your [APP_NAME] installation.
-Version [VERSION] [[INFO_URL] Information about this update]
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -3467,7 +3467,7 @@ Version [VERSION] [[INFO_URL] Information about this update]
  name="DownloadBackgroundDialog"
  type="alertmodal">
 We have downloaded an update to your [APP_NAME] installation.
-Version [VERSION] [[INFO_URL] Information about this update]
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -6965,9 +6965,9 @@ Do not allow access if you do not fully understand why it wants access to your a
 [FOOTERTEXT]
     </footer>
   </notification>
-	
-	<notification
-	 icon="notify.tga"
+
+  <notification
+   icon="notify.tga"
 	 name="UnknownScriptQuestion"
 	 persist="false"
 	 type="notify">

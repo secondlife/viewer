@@ -48,11 +48,9 @@ void main()
 	mat = modelview_matrix * mat;
 	vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
 	
+	vertex_color = emissive;
+
 	calcAtmospherics(pos.xyz);
 
-	vertex_color = emissive;
-	
 	gl_Position = projection_matrix*vec4(pos, 1.0);
-		
-	
 }

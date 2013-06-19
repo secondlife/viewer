@@ -1,0 +1,164 @@
+diff -r fe4bab01522e indra/llprimitive/llrendermaterialtable.cpp
+--- a/indra/llprimitive/llrendermaterialtable.cpp	Wed May 15 17:57:21 2013 +0000
++++ b/indra/llprimitive/llrendermaterialtable.cpp	Wed May 22 14:23:04 2013 -0700
+@@ -184,6 +184,44 @@
+ 	}
+ }
+ 
++// 'v' is an integer value for 100ths of radians (don't ask...)
++//
++void LLRenderMaterialEntry::LLRenderMaterial::setSpecularMapRotation(S32 v) const
++{
++	// Store the fact that we're using the new rotation rep
++	//
++	m_flags |= kNewSpecularMapRotation;
++
++	// Store 'sign bit' in our m_flags
++	//
++	m_flags &= ~kSpecularMapRotationNegative;
++	m_flags |= (specularMapRotation < 0) ? kSpecularMapRotationNegative : 0;
++
++	specularRotation = abs(specularRotation);
++	specularRotation = llmin(specularRotation, MAX_MATERIAL_MAP_ROTATION);
++
++	m_specularRotation = (U16)(abs(specularMapRotation));
++}
++
++// 'v' is an integer value for 100ths of radians (don't ask...)
++//
++void LLRenderMaterialEntry::LLRenderMaterial::setNormalMapRotation(S32 v) const
++{
++
++	// Store the fact that we're using the new rep for this material
++	//
++	m_flags |= kNewNormalMapRotation;
++
++	// Store 'sign bit' in our m_flags
++	//
++	m_flags &= ~kNormalMapRotationNegative;
++	m_flags |= (normalMapRotation < 0) ? kNormalMapRotationNegative : 0;
++
++	normalRotation = abs(normalRotation);
++	normalRotation = llmin(normalRotation, MAX_MATERIAL_MAP_ROTATION);
++
++	m_normalRotation = (U16)(abs(normalMapRotation));
++}
+ 
+ void LLRenderMaterialEntry::LLRenderMaterial::asLLSD( LLSD& dest ) const
+ {
+@@ -193,20 +231,45 @@
+ 	dest["NormOffsetY"] = (S32)m_normalOffsetY;
+ 	dest["NormRepeatX"] = m_normalRepeatX;
+ 	dest["NormRepeatY"] = m_normalRepeatY;
+-	dest["NormRotation"] = (S32)m_normalRotation;
++
++	S32 value = (S32)m_normalMapRotation;
++
++	// If we don't have the flag for new rotations set,
++	// then we need to convert it now
++	if (!(m_flags & kNewNormalMapRotation))
++	{
++		F32 old_radians = ((F32)m_normalMapRotation / 10000.0f)
++		S32 new_val	    = (S32)(old_radians * 100.0f);
++		setNormalMapRotation(new_Val);
++	}
++
++	dest["NormRotation"] = (m_flags & kNormalMapRotationNegative) ? -(S32)m_normalRotation : (S32)m_normalRotation;
+ 
+ 	dest["SpecOffsetX"] = (S32)m_specularOffsetX;
+ 	dest["SpecOffsetY"] = (S32)m_specularOffsetY;
+ 	dest["SpecRepeatX"] = m_specularRepeatX;
+ 	dest["SpecRepeatY"] = m_specularRepeatY;
+-	dest["SpecRotation"] = (S32)m_specularRotation;
++
++
++	value = (S32)m_specularRotation;
++
++	// If we don't have the flag for new rotations set,
++	// then we need to convert it now
++	if (!(m_flags & kNewSpecularMapRotation))
++	{
++		F32 old_radians = ((F32)m_specularMapRotation / 10000.0f)
++		S32 new_val	    = (S32)(old_radians * 100.0f);
++		setSpecularMapRotation(new_Val);
++	}
++
++	dest["SpecRotation"] = (m_flags & kSpecularMapRotationNegative) ? -(S32)m_specularRotation : (S32)m_specularRotation;
+ 
+ 	dest["SpecMap"] = m_specularMap;
+ 	dest["SpecColor"] = m_specularLightColor.getValue();
+ 	dest["SpecExp"] = (S32)m_specularLightExponent;
+ 	dest["EnvIntensity"] = (S32)m_environmentIntensity;
+ 	dest["AlphaMaskCutoff"] = (S32)m_alphaMaskCutoff;
+-	dest["DiffuseAlphaMode"] = (S32)m_diffuseAlphaMode;
++	dest["DiffuseAlphaMode"] = (S32)(m_diffuseAlphaMode & 0xF);
+ 	
+ }
+ 
+@@ -217,7 +280,10 @@
+ 	m_normalOffsetY = (U16)materialDefinition["NormOffsetY"].asInteger();
+ 	m_normalRepeatX = materialDefinition["NormRepeatX"].asInteger();
+ 	m_normalRepeatY = materialDefinition["NormRepeatY"].asInteger();
+-	m_normalRotation = (U16)materialDefinition["NormRotation"].asInteger();
++
++	S32 normalRotation = materialDefinition["NormRotation"].asInteger();
++
++	setNormalMapRotation(normalRotation);
+ 
+ 	m_specularMap = materialDefinition["SpecMap"].asUUID();
+ 
+@@ -225,7 +291,10 @@
+ 	m_specularOffsetY = (U16)materialDefinition["SpecOffsetY"].asInteger();
+ 	m_specularRepeatX = materialDefinition["SpecRepeatX"].asInteger();
+ 	m_specularRepeatY = materialDefinition["SpecRepeatY"].asInteger();
+-	m_specularRotation = (U16)materialDefinition["SpecRotation"].asInteger();
++
++	S32 specularRotation = materialDefinition["SpecRotation"].asInteger();
++
++	setSpecularMapRotation(specularRotation);
+ 
+ 	m_specularLightColor.setValue( materialDefinition["SpecColor"] );
+ 	m_specularLightExponent = (U8)materialDefinition["SpecExp"].asInteger();
+diff -r fe4bab01522e indra/llprimitive/llrendermaterialtable.h
+--- a/indra/llprimitive/llrendermaterialtable.h	Wed May 15 17:57:21 2013 +0000
++++ b/indra/llprimitive/llrendermaterialtable.h	Wed May 22 14:23:04 2013 -0700
+@@ -89,11 +89,17 @@
+ 
+ 	void computeID();
+ 
++
+ 	struct LLRenderMaterial
+ 	{
+ 		void asLLSD( LLSD& dest ) const;
+ 		void setFromLLSD( const LLSD& materialDefinition );
+ 
++		void setNormalMapRotation(S32 v);
++		void setSpecularMapRotation(S32 v);
++
++		const S32 MAX_MATERIAL_MAP_ROTATION = 62800;
++
+ 		// 36 bytes
+ 		LLUUID m_normalMap;
+ 		LLUUID m_specularMap;
+@@ -119,7 +125,20 @@
+ 		U8 m_specularLightExponent;
+ 		U8 m_environmentIntensity;
+ 		U8 m_alphaMaskCutoff;
+-		U8 m_diffuseAlphaMode;
++		U8 m_diffuseAlphaMode : 4;
++		U8 m_flags            : 4;
++	};
++
++	// Flags stored in LLRenderMaterial::m_flags to differentiate 'old' rotation format
++	// which doesn't handle negative or large rotations correctly from new format.
++	// All ancient materials will have these flags unset as the values for diffuseAlphaMode
++	// from which the bits were stolen never used more than the bottom 2 bits.
++	//
++	enum RenderMaterialFlags {
++	 kNewNormalMapRotation 		= 0x1,
++	 kNewSpecularMapRotation 	= 0x2,
++	 kNormalMapRotationNegative 	= 0x4,
++	 kSpecularMapRotationNegative   = 0x8
+ 	};
+ 
+ 	friend struct eastl::hash<LLRenderMaterial>;
