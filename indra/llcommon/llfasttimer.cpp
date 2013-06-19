@@ -118,7 +118,7 @@ struct SortTimerByName
 
 TimeBlock& TimeBlock::getRootTimeBlock()
 	{
-	static TimeBlock root_timer("root", true, NULL);
+	static TimeBlock root_timer("root", NULL);
 	return root_timer;
 	}
 
@@ -164,11 +164,9 @@ U64 TimeBlock::countsPerSecond()
 }
 #endif
 
-TimeBlock::TimeBlock(const char* name, bool open, TimeBlock* parent)
-:	TraceType<TimeBlockAccumulator>(name),
-	mCollapsed(true)
+TimeBlock::TimeBlock(const char* name, TimeBlock* parent)
+:	TraceType<TimeBlockAccumulator>(name)
 {
-	setCollapsed(!open);
 }
 
 TimeBlockTreeNode& TimeBlock::getTreeNode() const

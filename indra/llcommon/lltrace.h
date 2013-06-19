@@ -663,6 +663,7 @@ public:
 	TimeBlock*					mBlock;
 	TimeBlock*					mParent;	
 	std::vector<TimeBlock*>		mChildren;
+	bool						mCollapsed;
 	bool						mNeedsSorting;
 };
 

@@ -86,7 +86,7 @@ class TimeBlock
 	public LLInstanceTracker<TimeBlock>
 {
 public:
-	TimeBlock(const char* name, bool open = false, TimeBlock* parent = &getRootTimeBlock());
+	TimeBlock(const char* name, TimeBlock* parent = &getRootTimeBlock());
 
 	TimeBlockTreeNode& getTreeNode() const;
 	TimeBlock* getParent() const { return getTreeNode().getParent(); }
@@ -97,9 +97,6 @@ public:
 	child_iter beginChildren();
 	child_iter endChildren();
 	std::vector<TimeBlock*>& getChildren();
-
-	void setCollapsed(bool collapsed)	{ mCollapsed = collapsed; }
-	bool getCollapsed() const			{ return mCollapsed; }
 
 	TraceType<TimeBlockAccumulator::CallCountFacet>& callCount() 
 	{

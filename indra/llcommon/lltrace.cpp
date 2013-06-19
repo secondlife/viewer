@@ -85,7 +85,8 @@ void set_thread_recorder(ThreadRecorder* recorder)
 TimeBlockTreeNode::TimeBlockTreeNode() 
 :	mBlock(NULL),
 	mParent(NULL),
-	mNeedsSorting(false)
+	mNeedsSorting(false),
+	mCollapsed(true)
 {}
 
 void TimeBlockTreeNode::setParent( TimeBlock* parent )

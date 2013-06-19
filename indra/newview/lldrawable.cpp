@@ -300,7 +300,7 @@ S32 LLDrawable::findReferences(LLDrawable *drawablep)
 	return count;
 }
 
-static LLFastTimer::DeclareTimer FTM_ALLOCATE_FACE("Allocate Face", true);
+static LLFastTimer::DeclareTimer FTM_ALLOCATE_FACE("Allocate Face");
 
 LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 {

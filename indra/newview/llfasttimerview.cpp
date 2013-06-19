@@ -152,13 +152,13 @@ BOOL LLFastTimerView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	if (mHoverTimer )
 	{
 		// right click collapses timers
-		if (!mHoverTimer->getCollapsed())
+		if (!mHoverTimer->getTreeNode().mCollapsed)
 		{
-			mHoverTimer->setCollapsed(true);
+			mHoverTimer->getTreeNode().mCollapsed = true;
 		}
 		else if (mHoverTimer->getParent())
 		{
-			mHoverTimer->getParent()->setCollapsed(true);
+			mHoverTimer->getParent()->getTreeNode().mCollapsed = true;
 		}
 		return TRUE;
 	}
@@ -190,7 +190,7 @@ BOOL LLFastTimerView::handleDoubleClick(S32 x, S32 y, MASK mask)
 		it != end_timer_tree();
 		++it)
 	{
-		(*it)->setCollapsed(false);
+		(*it)->getTreeNode().mCollapsed = false;
 	}
 	return TRUE;
 }
@@ -202,13 +202,13 @@ BOOL LLFastTimerView::handleMouseDown(S32 x, S32 y, MASK mask)
 		TimeBlock* idp = getLegendID(y);
 		if (idp)
 		{
-			idp->setCollapsed(!idp->getCollapsed());
+			idp->getTreeNode().mCollapsed = !idp->getTreeNode().mCollapsed;
 		}
 	}
 	else if (mHoverTimer)
 	{
 		//left click drills down by expanding timers
-		mHoverTimer->setCollapsed(false);
+		mHoverTimer->getTreeNode().mCollapsed = false;
 	}
 	else if (mGraphRect.pointInRect(x, y))
 	{
@@ -273,7 +273,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 			if (bar.mSelfEnd > mouse_time_offset)
 			{
 				hover_bar = &bar;
-				if (bar.mTimeBlock->getCollapsed())
+				if (bar.mTimeBlock->getTreeNode().mCollapsed)
 				{
 					// stop on first collapsed timeblock, since we can't select any children
 					break;
@@ -373,7 +373,7 @@ BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return TRUE;
 }
 
-static TimeBlock FTM_RENDER_TIMER("Timers", true);
+static TimeBlock FTM_RENDER_TIMER("Timers");
 static const S32 MARGIN = 10;
 static const S32 LEGEND_WIDTH = 220;
 
@@ -975,7 +975,7 @@ void LLFastTimerView::printLineStats()
 			first = false;
 			legend_stat += idp->getName();
 
-			if (idp->getCollapsed())
+			if (idp->getTreeNode().mCollapsed)
 			{
 				it.skipDescendants();
 			}
@@ -1009,7 +1009,7 @@ void LLFastTimerView::printLineStats()
 
 			timer_stat += llformat("%.1f",ms.value());
 
-			if (idp->getCollapsed())
+			if (idp->getTreeNode().mCollapsed)
 			{
 				it.skipDescendants();
 			}
@@ -1135,7 +1135,7 @@ void LLFastTimerView::drawLineGraph()
 			glLineWidth(1);
 		}
 
-		if (idp->getCollapsed())
+		if (idp->getTreeNode().mCollapsed)
 		{	
 			//skip hidden timers
 			it.skipDescendants();
@@ -1267,7 +1267,7 @@ void LLFastTimerView::drawLegend()
 				gl_line_2d(x + dx - 8, line_start_y, x + dx, line_start_y, color);
 				S32 line_x = x + (TEXT_HEIGHT + 4) + ((get_depth(idp) - 1) * 8);
 				gl_line_2d(line_x, line_start_y, line_x, line_end_y, color);
-				if (idp->getCollapsed() && !idp->getChildren().empty())
+				if (idp->getTreeNode().mCollapsed && !idp->getChildren().empty())
 				{
 					gl_line_2d(line_x+4, line_start_y-3, line_x+4, line_start_y+4, color);
 				}
@@ -1291,7 +1291,7 @@ void LLFastTimerView::drawLegend()
 
 			y -= (TEXT_HEIGHT + 2);
 
-			if (idp->getCollapsed()) 
+			if (idp->getTreeNode().mCollapsed) 
 			{
 				it.skipDescendants();
 			}
@@ -1645,7 +1645,7 @@ S32 LLFastTimerView::drawBar(LLRect bar_rect, TimerBarRow& row, S32 image_width,
 		children_rect.mBottom = bar_rect.mBottom;
 	}
 
-	bool children_visible = visible && !time_block->getCollapsed();
+	bool children_visible = visible && !time_block->getTreeNode().mCollapsed;
 
 	bar_index++;
 	const U32 num_bars = LLInstanceTracker<LLTrace::TimeBlock>::instanceCount();
