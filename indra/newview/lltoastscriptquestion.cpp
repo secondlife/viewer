@@ -66,8 +66,8 @@ void LLToastScriptQuestion::snapToMessageHeight()
 	if (mMessage->getVisible() && mFooter->getVisible())
 	{
 		S32 heightDelta = 0;
-		S32 maxTextHeight = (mMessage->getDefaultFont()->getLineHeight() * MAX_LINES_COUNT)
-						  + (mFooter->getDefaultFont()->getLineHeight() * MAX_LINES_COUNT);
+		S32 maxTextHeight = (mMessage->getFont()->getLineHeight() * MAX_LINES_COUNT)
+						  + (mFooter->getFont()->getLineHeight() * MAX_LINES_COUNT);
 
 		LLRect messageRect = mMessage->getRect();
 		LLRect footerRect  = mFooter->getRect();

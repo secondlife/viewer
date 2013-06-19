@@ -1801,6 +1801,9 @@ BOOL LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 			// (N.B. callbacks don't take const refs as id is local scope)
 			bool is_group = (mContextMenuType == MENU_GROUP);
 			LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+			registrar.add("Url.ShowProfile", boost::bind(&LLScrollListCtrl::showProfile, id, is_group));
+			registrar.add("Url.SendIM", boost::bind(&LLScrollListCtrl::sendIM, id));
+			registrar.add("Url.AddFriend", boost::bind(&LLScrollListCtrl::addFriend, id));
 			registrar.add("Url.Execute", boost::bind(&LLScrollListCtrl::showNameDetails, id, is_group));
 			registrar.add("Url.CopyLabel", boost::bind(&LLScrollListCtrl::copyNameToClipboard, id, is_group));
 			registrar.add("Url.CopyUrl", boost::bind(&LLScrollListCtrl::copySLURLToClipboard, id, is_group));
@@ -1821,9 +1824,31 @@ BOOL LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return FALSE;
 }
 
-void LLScrollListCtrl::showNameDetails(std::string id, bool is_group)
+void LLScrollListCtrl::showProfile(std::string id, bool is_group)
 {
 	// show the resident's profile or the group profile
+	std::string sltype = is_group ? "group" : "agent";
+	std::string slurl = "secondlife:///app/" + sltype + "/" + id + "/about";
+	LLUrlAction::showProfile(slurl);
+}
+
+void LLScrollListCtrl::sendIM(std::string id)
+{
+	// send im to the resident
+	std::string slurl = "secondlife:///app/agent/" + id + "/about";
+	LLUrlAction::sendIM(slurl);
+}
+
+void LLScrollListCtrl::addFriend(std::string id)
+{
+	// add resident to friends list
+	std::string slurl = "secondlife:///app/agent/" + id + "/about";
+	LLUrlAction::addFriend(slurl);
+}
+
+void LLScrollListCtrl::showNameDetails(std::string id, bool is_group)
+{
+	// open the resident's details or the group details
 	std::string sltype = is_group ? "group" : "agent";
 	std::string slurl = "secondlife:///app/" + sltype + "/" + id + "/about";
 	LLUrlAction::clickAction(slurl);
@@ -1841,7 +1866,7 @@ void LLScrollListCtrl::copyNameToClipboard(std::string id, bool is_group)
 	{
 		LLAvatarName av_name;
 		LLAvatarNameCache::get(LLUUID(id), &av_name);
-		name = av_name.getLegacyName();
+		name = av_name.getAccountName();
 	}
 	LLUrlAction::copyURLToClipboard(name);
 }

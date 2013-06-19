@@ -953,14 +953,14 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			llassert(objectp->isActive());
 			objectp->idleUpdate(agent, world, frame_time);
 
-		}
+			}
 
 		//update flexible objects
 		LLVolumeImplFlexible::updateClass();
 
 		//update animated textures
 		LLViewerTextureAnim::updateClass();
-	}
+			}
 
 
 

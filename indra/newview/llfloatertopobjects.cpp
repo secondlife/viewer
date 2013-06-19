@@ -199,17 +199,9 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		// Owner names can have trailing spaces sent from server
 		LLStringUtil::trim(owner_buf);
 		
-		if (LLAvatarNameCache::useDisplayNames())
-		{
-			// ...convert hard-coded name from server to a username
-			// *TODO: Send owner_id from server and look up display name
-			owner_buf = LLCacheName::buildUsername(owner_buf);
-		}
-		else
-		{
-			// ...just strip out legacy "Resident" name
-			owner_buf = LLCacheName::cleanFullName(owner_buf);
-		}
+		// *TODO: Send owner_id from server and look up display name
+		owner_buf = LLCacheName::buildUsername(owner_buf);
+
 		columns[column_num]["column"] = "owner";
 		columns[column_num]["value"] = owner_buf;
 		columns[column_num++]["font"] = "SANSSERIF";

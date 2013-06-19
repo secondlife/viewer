@@ -63,6 +63,7 @@ LLCommand::Params::Params()
 	, is_running_parameters("is_running_parameters")
 	, is_starting_function("is_starting_function")
 	, is_starting_parameters("is_starting_parameters")
+	, is_flashing_allowed("is_flashing_allowed", false)
 {
 }
 
@@ -83,6 +84,7 @@ LLCommand::LLCommand(const LLCommand::Params& p)
 	, mIsRunningParameters(p.is_running_parameters)
 	, mIsStartingFunction(p.is_starting_function)
 	, mIsStartingParameters(p.is_starting_parameters)
+	, mIsFlashingAllowed(p.is_flashing_allowed)
 {
 }
 

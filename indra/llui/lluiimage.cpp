@@ -112,6 +112,50 @@ void LLUIImage::drawBorder(S32 x, S32 y, S32 width, S32 height, const LLColor4& 
 	drawSolid(border_rect, color);
 }
 
+void LLUIImage::draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, const LLVector3& y_axis, 
+						const LLRect& rect, const LLColor4& color)
+{
+	F32 border_scale = 1.f;
+	F32 border_height = (1.f - mScaleRegion.getHeight()) * getHeight();
+	F32 border_width = (1.f - mScaleRegion.getWidth()) * getWidth();
+	if (rect.getHeight() < border_height || rect.getWidth() < border_width)
+	{
+		 if(border_height - rect.getHeight() > border_width - rect.getWidth())
+		 {
+			 border_scale = (F32)rect.getHeight() / border_height;
+		 }
+		 else
+		 {
+			border_scale = (F32)rect.getWidth() / border_width;
+		 }
+	}
+
+	LLUI::pushMatrix();
+	{ 
+		LLVector3 rect_origin = origin_agent + (rect.mLeft * x_axis) + (rect.mBottom * y_axis); 
+		LLUI::translate(rect_origin.mV[VX],
+						rect_origin.mV[VY], 
+						rect_origin.mV[VZ]);
+		gGL.getTexUnit(0)->bind(getImage());
+		gGL.color4fv(color.mV);
+
+		LLRectf center_uv_rect(mClipRegion.mLeft + mScaleRegion.mLeft * mClipRegion.getWidth(),
+							mClipRegion.mBottom + mScaleRegion.mTop * mClipRegion.getHeight(),
+							mClipRegion.mLeft + mScaleRegion.mRight * mClipRegion.getWidth(),
+							mClipRegion.mBottom + mScaleRegion.mBottom * mClipRegion.getHeight());
+		gl_segmented_rect_3d_tex(mClipRegion,
+								center_uv_rect,
+								LLRectf(border_width * border_scale * 0.5f / (F32)rect.getWidth(),
+										(rect.getHeight() - (border_height * border_scale * 0.5f)) / (F32)rect.getHeight(),
+										(rect.getWidth() - (border_width * border_scale * 0.5f)) / (F32)rect.getWidth(),
+										(border_height * border_scale * 0.5f) / (F32)rect.getHeight()),
+								rect.getWidth() * x_axis, 
+								rect.getHeight() * y_axis);
+		
+	} LLUI::popMatrix();
+}
+
+
 S32 LLUIImage::getWidth() const
 { 
 	// return clipped dimensions of actual image area
@@ -155,7 +199,7 @@ void LLUIImage::onImageLoaded()
 
 namespace LLInitParam
 {
-	void ParamValue<LLUIImage*, TypeValues<LLUIImage*> >::updateValueFromBlock()
+	void ParamValue<LLUIImage*>::updateValueFromBlock()
 	{
 		// The keyword "none" is specifically requesting a null image
 		// do not default to current value. Used to overwrite template images. 
@@ -172,7 +216,7 @@ namespace LLInitParam
 		}
 	}
 	
-	void ParamValue<LLUIImage*, TypeValues<LLUIImage*> >::updateBlockFromValue(bool make_block_authoritative)
+	void ParamValue<LLUIImage*>::updateBlockFromValue(bool make_block_authoritative)
 	{
 		if (getValue() == NULL)
 		{

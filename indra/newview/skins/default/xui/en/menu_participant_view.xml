@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ layout="topleft"
+ name="participant_manu_view">
+    <menu_item_check
+     label="Sort conversations by type"
+     layout="topleft"
+     name="sort_sessions_by_type">
+        <on_click
+         function="IMFloaterContainer.Action"
+         parameter="sort_sessions_by_type" />
+        <on_check
+         function="IMFloaterContainer.Check"
+         parameter="sort_sessions_by_type" />
+    </menu_item_check>
+    <menu_item_check
+     label="Sort conversations by name"
+     layout="topleft"
+     name="sort_sessions_by_name">
+        <on_click
+         function="IMFloaterContainer.Action"
+         parameter="sort_sessions_by_name" />
+        <on_check
+         function="IMFloaterContainer.Check"
+         parameter="sort_sessions_by_name" />
+    </menu_item_check>
+    <menu_item_check
+     label="Sort conversations by recent activity"
+     layout="topleft"
+     name="sort_sessions_by_recent">
+        <on_click
+         function="IMFloaterContainer.Action"
+         parameter="sort_sessions_by_recent" />
+        <on_check
+         function="IMFloaterContainer.Check"
+         parameter="sort_sessions_by_recent" />
+    </menu_item_check>
+    <menu_item_separator
+     layout="topleft" />
+    <menu_item_check
+     label="Sort participants by name"
+     layout="topleft"
+     name="sort_participants_by_name">
+        <on_click
+         function="IMFloaterContainer.Action"
+         parameter="sort_participants_by_name" />
+        <on_check
+         function="IMFloaterContainer.Check"
+         parameter="sort_participants_by_name" />
+    </menu_item_check>
+    <menu_item_check
+     label="Sort participants by recent activity"
+     layout="topleft"
+     name="sort_participants_by_recent">
+        <on_click
+         function="IMFloaterContainer.Action"
+         parameter="sort_participants_by_recent" />
+        <on_check
+         function="IMFloaterContainer.Check"
+         parameter="sort_participants_by_recent" />
+    </menu_item_check>
+    <menu_item_separator
+     layout="topleft" />
+    <menu_item_call
+         label="Chat preferences..."
+         name="chat_preferences">
+        <on_click
+         function="IMFloaterContainer.Action"
+         parameter="chat_preferences" />
+      </menu_item_call>
+    <menu_item_call
+         label="Privacy preferences..."
+         name="privacy_preferences">
+        <on_click
+         function="IMFloaterContainer.Action"
+         parameter="privacy_preferences" />
+    </menu_item_call>
+    <menu_item_check
+         label="Conversation log..."
+         name="Conversation"
+         visible="true">
+        <menu_item_check.on_check
+         function="Floater.Visible"
+         parameter="conversation" />
+        <menu_item_check.on_click
+         function="Floater.Toggle"
+         parameter="conversation" />
+        <menu_item_check.on_enable
+         function="Avatar.EnableItem"
+         parameter="conversation_log" />
+    </menu_item_check>
+    <menu_item_separator layout="topleft" />
+    <menu_item_check name="Translate_chat" label="Translate Nearby chat">
+        <menu_item_check.on_click
+         function="IMFloaterContainer.Action" 
+         parameter="Translating.Toggle" />
+        <menu_item_check.on_check
+         function="IMFloaterContainer.Check" 
+         parameter="Translating.On" />
+        <menu_item_check.on_enable
+         function="IMFloaterContainer.Check" 
+         parameter="Translating.Enabled" />
+    </menu_item_check>
+    <menu_item_check name="Translation_settings" label="Translation settings...">
+    <menu_item_check.on_check
+         function="Floater.Visible"
+         parameter="prefs_translation" />
+        <menu_item_check.on_click
+         function="Floater.Toggle"
+         parameter="prefs_translation" />
+    </menu_item_check>
+</toggleable_menu>

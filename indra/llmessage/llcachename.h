@@ -40,7 +40,7 @@ typedef boost::signals2::signal<void (const LLUUID& id,
                                       bool is_group)> LLCacheNameSignal;
 typedef LLCacheNameSignal::slot_type LLCacheNameCallback;
 
-// Old callback with user data for compatability
+// Old callback with user data for compatibility
 typedef void (*old_callback_t)(const LLUUID&, const std::string&, bool, void*);
 
 // Here's the theory:

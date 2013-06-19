@@ -171,7 +171,7 @@ LLFloaterIMPanel::LLFloaterIMPanel(const std::string& session_label,
 	// enable line history support for instant message bar
 	mInputEditor->setEnableLineHistory(TRUE);
 
-	//*TODO we probably need the same "awaiting message" thing in LLIMFloater
+	//*TODO we probably need the same "awaiting message" thing in LLFloaterIMSession
 	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(mSessionUUID);
 	if (!im_session)
 	{
