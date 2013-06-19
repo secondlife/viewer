@@ -111,6 +111,7 @@ ThreadRecorder::active_recording_list_t::reverse_iterator ThreadRecorder::bringU
 	if (mActiveRecordings.empty()) return mActiveRecordings.rend();
 
 	mActiveRecordings.back()->mPartialRecording.flush();
+	TimeBlock::updateTimes();
 
 	active_recording_list_t::reverse_iterator it, end_it;
 	for (it = mActiveRecordings.rbegin(), end_it = mActiveRecordings.rend();

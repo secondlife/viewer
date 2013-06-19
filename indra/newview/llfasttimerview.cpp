@@ -30,12 +30,14 @@
 
 #include "llviewerwindow.h"
 #include "llrect.h"
+#include "llcombobox.h"
 #include "llerror.h"
 #include "llgl.h"
 #include "llimagepng.h"
 #include "llrender.h"
 #include "llrendertarget.h"
 #include "lllocalcliprect.h"
+#include "lllayoutstack.h"
 #include "llmath.h"
 #include "llfontgl.h"
 #include "llsdserialize.h"
@@ -59,6 +61,8 @@ using namespace LLTrace;
 static const S32 MAX_VISIBLE_HISTORY = 12;
 static const S32 LINE_GRAPH_HEIGHT = 240;
 static const S32 MIN_BAR_HEIGHT = 3;
+static const S32 RUNNING_AVERAGE_WIDTH = 100;
+static const S32 NUM_FRAMES_HISTORY = 256;
 
 std::vector<TimeBlock*> ft_display_idx; // line of table entry for display purposes (for collapse)
 
@@ -95,17 +99,15 @@ LLFastTimerView::LLFastTimerView(const LLSD& key)
 :	LLFloater(key),
 	mHoverTimer(NULL),
 	mDisplayMode(0),
-	mDisplayCenter(ALIGN_CENTER),
-	mDisplayCalls(false),
-	mDisplayHz(false),
+	mDisplayType(TIME),
 	mScrollIndex(0),
 	mHoverID(NULL),
 	mHoverBarIndex(-1),
 	mStatsIndex(-1),
 	mPauseHistory(false),
-	mRecording(512)
+	mRecording(NUM_FRAMES_HISTORY)
 {
-	mTimerBarRows.resize(512);
+	mTimerBarRows.resize(NUM_FRAMES_HISTORY);
 }
 
 LLFastTimerView::~LLFastTimerView()
@@ -172,7 +174,7 @@ BOOL LLFastTimerView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 TimeBlock* LLFastTimerView::getLegendID(S32 y)
 {
-	S32 idx = (mBarRect.mTop - y) / (LLFontGL::getFontMonospace()->getLineHeight()+2) - 1;
+	S32 idx = (mLegendRect.mTop - y) / (LLFontGL::getFontMonospace()->getLineHeight() + 2);
 
 	if (idx >= 0 && idx < (S32)ft_display_idx.size())
 	{
@@ -208,26 +210,6 @@ BOOL LLFastTimerView::handleMouseDown(S32 x, S32 y, MASK mask)
 		//left click drills down by expanding timers
 		mHoverTimer->setCollapsed(false);
 	}
-	else if (mask & MASK_ALT)
-	{
-		if (mask & MASK_CONTROL)
-		{
-			mDisplayHz = !mDisplayHz;	
-		}
-		else
-		{
-			mDisplayCalls = !mDisplayCalls;
-		}
-	}
-	else if (mask & MASK_SHIFT)
-	{
-		if (++mDisplayMode > 3)
-			mDisplayMode = 0;
-	}
-	else if (mask & MASK_CONTROL)
-	{
-		mDisplayCenter = (ChildAlignment)((mDisplayCenter + 1) % ALIGN_COUNT);
-	}
 	else if (mGraphRect.pointInRect(x, y))
 	{
 		gFocusMgr.setMouseCapture(this);
@@ -260,7 +242,10 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 
 	if(mPauseHistory && mBarRect.pointInRect(x, y))
 	{
-		mHoverBarIndex = llmin((mBarRect.mTop - y) / (mBarRect.getHeight() / (MAX_VISIBLE_HISTORY + 2)) - 1,
+		//const S32 bars_top = mBarRect.mTop;
+		const S32 bars_top = mBarRect.mTop - ((S32)LLFontGL::getFontMonospace()->getLineHeight() + 4);
+
+		mHoverBarIndex = llmin((bars_top - y) / (mBarRect.getHeight() / (MAX_VISIBLE_HISTORY + 2)) - 1,
 								(S32)mRecording.getNumRecordedPeriods() - 1,
 								MAX_VISIBLE_HISTORY);
 		if (mHoverBarIndex == 0)
@@ -272,25 +257,33 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 			mHoverBarIndex = 0;
 		}
 
-		TimerBarRow& row = mHoverBarIndex == 0 ? mAverageTimerRow : mTimerBarRows[mHoverBarIndex - 1];
+		TimerBarRow& row = mHoverBarIndex == 0 ? mAverageTimerRow : mTimerBarRows[mScrollIndex + mHoverBarIndex - 1];
 
 		TimerBar* hover_bar = NULL;
 		LLUnit<F32, LLUnits::Seconds> mouse_time_offset = ((F32)(x - mBarRect.mLeft) / (F32)mBarRect.getWidth()) * mTotalTimeDisplay;
-		for (std::vector<TimerBar>::iterator it = row.mBars.begin(), end_it = row.mBars.end();
-			it != end_it;
-			++it)
+		for (int bar_index = 0, end_index = LLInstanceTracker<LLTrace::TimeBlock>::instanceCount(); 
+			bar_index < end_index; 
+			++bar_index)
 		{
-			if (it->mSelfStart > mouse_time_offset)
+			TimerBar& bar = row.mBars[bar_index];
+			if (bar.mSelfStart > mouse_time_offset)
 			{
 				break;
 			}
-			hover_bar = &(*it);
+			if (bar.mSelfEnd > mouse_time_offset)
+			{
+				hover_bar = &bar;
+				if (bar.mTimeBlock->getCollapsed())
+				{
+					// stop on first collapsed timeblock, since we can't select any children
+					break;
+				}
+			}
 		}
 
 		if (hover_bar)
 		{
 			mHoverID = hover_bar->mTimeBlock;
-			mHoverTimer = mHoverID;
 			if (mHoverTimer != mHoverID)
 			{
 				// could be that existing tooltip is for a parent and is thus
@@ -300,7 +293,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 				mHoverTimer = mHoverID;
 				mToolTipRect.set(mBarRect.mLeft + (hover_bar->mSelfStart / mTotalTimeDisplay) * mBarRect.getWidth(),
 								row.mTop,
-								mBarRect.mLeft + (hover_bar->mSelfStart / mTotalTimeDisplay) * mBarRect.getWidth(),
+								mBarRect.mLeft + (hover_bar->mSelfEnd / mTotalTimeDisplay) * mBarRect.getWidth(),
 								row.mBottom);
 			}
 		}
@@ -324,7 +317,7 @@ static std::string get_tooltip(TimeBlock& timer, S32 history_index, PeriodicReco
 	if (history_index == 0)
 	{
 		// by default, show average number of call
-		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)LLUnit<F64, LLUnits::Milliseconds>(frame_recording.getPeriodMean(timer)).value(), (S32)frame_recording.getPeriodMean(timer.callCount()));
+		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)LLUnit<F64, LLUnits::Milliseconds>(frame_recording.getPeriodMean (timer, RUNNING_AVERAGE_WIDTH)).value(), (S32)frame_recording.getPeriodMean(timer.callCount(), RUNNING_AVERAGE_WIDTH));
 	}
 	else
 	{
@@ -397,22 +390,34 @@ void LLFastTimerView::draw()
 		mTimerBarRows.push_front(TimerBarRow());
 	}
 
+	mDisplayMode = llclamp(getChild<LLComboBox>("time_scale_combo")->getCurrentIndex(), 0, 3);
+	mDisplayType = (EDisplayType)llclamp(getChild<LLComboBox>("metric_combo")->getCurrentIndex(), 0, 2);
+
 	generateUniqueColors();
+
+	LLView::drawChildren();
+	//getChild<LLLayoutStack>("timer_bars_stack")->updateLayout();
+	//getChild<LLLayoutStack>("legend_stack")->updateLayout();
+	LLView* bars_panel = getChildView("bars_panel");
+	bars_panel->localRectToOtherView(bars_panel->getLocalRect(), &mBarRect, this);
+
+	LLView* lines_panel = getChildView("lines_panel");
+	lines_panel->localRectToOtherView(lines_panel->getLocalRect(), &mGraphRect, this);
+
+	LLView* legend_panel = getChildView("legend");
+	legend_panel->localRectToOtherView(legend_panel->getLocalRect(), &mLegendRect, this);
 
 	// Draw the window background
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gl_rect_2d(getLocalRect(), LLColor4(0.f, 0.f, 0.f, 0.25f));
 	
-	S32 y = drawHelp(getRect().getHeight() - MARGIN);
-	drawLegend(y - ((S32)LLFontGL::getFontMonospace()->getLineHeight() + 2));
+	drawHelp(getRect().getHeight() - MARGIN);
+	drawLegend();
 
-	// update rectangle that includes timer bars
-	const S32 LEGEND_WIDTH = 220;
-
-	mBarRect.mLeft = MARGIN + LEGEND_WIDTH + 8;
-	mBarRect.mTop = y;
-	mBarRect.mRight = getRect().getWidth() - MARGIN;
-	mBarRect.mBottom = MARGIN + LINE_GRAPH_HEIGHT;
+	//mBarRect.mLeft = MARGIN + LEGEND_WIDTH + 8;
+	//mBarRect.mTop = y;
+	//mBarRect.mRight = getRect().getWidth() - MARGIN;
+	//mBarRect.mBottom = MARGIN + LINE_GRAPH_HEIGHT;
 
 	drawBars();
 	drawLineGraph();
@@ -433,7 +438,8 @@ void LLFastTimerView::onOpen(const LLSD& key)
 		it != end_it; 
 		++it)
 	{
-		it->mBars.clear();
+		delete []it->mBars;
+		it->mBars = NULL;
 	}
 }
 
@@ -993,7 +999,7 @@ void LLFastTimerView::printLineStats()
 			LLUnit<F32, LLUnits::Seconds> ticks;
 			if (mStatsIndex == 0)
 			{
-				ticks = mRecording.getPeriodMean(*idp);
+				ticks = mRecording.getPeriodMean(*idp, RUNNING_AVERAGE_WIDTH);
 			}
 			else
 			{
@@ -1019,8 +1025,6 @@ void LLFastTimerView::drawLineGraph()
 {
 	LLFastTimer _(FTM_DRAW_LINE_GRAPH);
 	//draw line graph history
-	S32 x = mBarRect.mLeft;
-	S32 y = LINE_GRAPH_HEIGHT;
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLLocalClipRect clip(mGraphRect);
 
@@ -1028,21 +1032,6 @@ void LLFastTimerView::drawLineGraph()
 	static LLUnit<F32, LLUnits::Seconds> max_time = 0.000001;
 	static U32 max_calls = 0;
 	static F32 alpha_interp = 0.f;
-
-	//display y-axis range
-	std::string axis_label;
-	if (mDisplayCalls)
-		axis_label = llformat("%d calls", (int)max_calls);
-	else if (mDisplayHz)
-		axis_label = llformat("%d Hz", (int)(1.f / max_time.value()));
-	else
-		axis_label = llformat("%4.2f ms", LLUnit<F32, LLUnits::Milliseconds>(max_time).value());
-
-	x = mGraphRect.mRight - LLFontGL::getFontMonospace()->getWidth(axis_label)-5;
-	y = mGraphRect.mTop - LLFontGL::getFontMonospace()->getLineHeight();
-
-	LLFontGL::getFontMonospace()->renderUTF8(axis_label, 0, x, y, LLColor4::white,
-		LLFontGL::LEFT, LLFontGL::TOP);
 
 	//highlight visible range
 	{
@@ -1059,7 +1048,7 @@ void LLFastTimerView::drawLineGraph()
 
 		if (mHoverBarIndex > 0)
 		{
-			S32 bar_frame = first_frame - mHoverBarIndex - 1;
+			S32 bar_frame = first_frame - (mScrollIndex + mHoverBarIndex) - 1;
 			F32 bar = (F32) mGraphRect.mLeft + frame_delta*bar_frame;
 
 			gGL.color4f(0.5f,0.5f,0.5f,1);
@@ -1090,6 +1079,7 @@ void LLFastTimerView::drawLineGraph()
 		const F32 * col = sTimerColors[idp->getIndex()].mV;// ft_display_table[idx].color->mV;
 
 		F32 alpha = 1.f;
+		bool is_hover_timer = true;
 
 		if (mHoverID != NULL &&
 			mHoverID != idp)
@@ -1097,11 +1087,15 @@ void LLFastTimerView::drawLineGraph()
 			if (idp->getParent() != mHoverID)
 			{
 				alpha = alpha_interp;
+				is_hover_timer = false;
 			}
 		}
 
 		gGL.color4f(col[0], col[1], col[2], alpha);				
 		gGL.begin(LLRender::TRIANGLE_STRIP);
+		F32 call_scale_factor = (F32)mGraphRect.getHeight() / (F32)max_calls;
+		F32 time_scale_factor = (F32)mGraphRect.getHeight() / max_time.value();
+		F32 hz_scale_factor = (F32) mGraphRect.getHeight() / (1.f / max_time.value());
 		for (U32 j = mRecording.getNumRecordedPeriods();
 			j > 0;
 			j--)
@@ -1110,16 +1104,26 @@ void LLFastTimerView::drawLineGraph()
 			LLUnit<F32, LLUnits::Seconds> time = llmax(recording.getSum(*idp), LLUnit<F64, LLUnits::Seconds>(0.000001));
 			U32 calls = recording.getSum(idp->callCount());
 
-			if (alpha == 1.f)
+			if (is_hover_timer)
 			{ 
 				//normalize to highlighted timer
 				cur_max = llmax(cur_max, time);
 				cur_max_calls = llmax(cur_max_calls, calls);
 			}
 			F32 x = mGraphRect.mRight - j * (F32)(mGraphRect.getWidth())/(mRecording.getNumRecordedPeriods()-1);
-			F32 y = mDisplayHz 
-				? mGraphRect.mBottom + (1.f / time.value()) * ((F32) mGraphRect.getHeight() / (1.f / max_time.value()))
-				: mGraphRect.mBottom + time / max_time * (F32)mGraphRect.getHeight();
+			F32 y;
+			switch(mDisplayType)
+			{
+			case TIME:
+				y = mGraphRect.mBottom + time.value() * time_scale_factor;
+				break;
+			case CALLS:
+				y = mGraphRect.mBottom + (F32)calls * call_scale_factor;
+				break;
+			case HZ:
+				y = mGraphRect.mBottom + (1.f / time.value()) * hz_scale_factor;
+				break;
+			}
 			gGL.vertex2f(x,y);
 			gGL.vertex2f(x,mGraphRect.mBottom);
 		}
@@ -1140,7 +1144,7 @@ void LLFastTimerView::drawLineGraph()
 	
 	//interpolate towards new maximum
 	max_time = lerp(max_time.value(), cur_max.value(), LLSmoothInterpolation::getInterpolant(0.1f));
-	if (max_time - cur_max <= 1 ||  cur_max - max_time  <= 1)
+	if (llabs((max_time - cur_max).value()) <= 1)
 	{
 		max_time = llmax(LLUnit<F32, LLUnits::Microseconds>(1), LLUnit<F32, LLUnits::Microseconds>(cur_max));
 	}
@@ -1159,8 +1163,8 @@ void LLFastTimerView::drawLineGraph()
 
 	if (mHoverID != NULL)
 	{
-		x = (mGraphRect.mRight + mGraphRect.mLeft)/2;
-		y = mGraphRect.mBottom + 8;
+		S32 x = (mGraphRect.mRight + mGraphRect.mLeft)/2;
+		S32 y = mGraphRect.mBottom + 8;
 
 		LLFontGL::getFontMonospace()->renderUTF8(
 			mHoverID->getName(), 
@@ -1168,18 +1172,40 @@ void LLFastTimerView::drawLineGraph()
 			x, y, 
 			LLColor4::white,
 			LLFontGL::LEFT, LLFontGL::BOTTOM);
-	}					
+	}
+
+	//display y-axis range
+	std::string axis_label;
+	switch(mDisplayType)
+	{
+	case TIME:
+		axis_label = llformat("%4.2f ms", LLUnit<F32, LLUnits::Milliseconds>(max_time).value());
+		break;
+	case CALLS:
+		axis_label = llformat("%d calls", (int)max_calls);
+		break;
+	case HZ:
+		axis_label = llformat("%4.2f Hz", max_time.value() ? 1.f / max_time.value() : 0.f);
+		break;
+	}
+
+	LLFontGL* font = LLFontGL::getFontMonospace();
+	S32 x = mGraphRect.mRight - font->getWidth(axis_label)-5;
+	S32 y = mGraphRect.mTop - font->getLineHeight();;
+
+	font->renderUTF8(axis_label, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
 }
 
-void LLFastTimerView::drawLegend( S32 y )
+void LLFastTimerView::drawLegend()
 {
 	// draw legend
 	S32 dx;
-	S32 x = MARGIN;
+	S32 x = mLegendRect.mLeft;
+	S32 y = mLegendRect.mTop;
 	const S32 TEXT_HEIGHT = (S32)LLFontGL::getFontMonospace()->getLineHeight();
 
 	{
-		LLLocalClipRect clip(LLRect(MARGIN, y, LEGEND_WIDTH, MARGIN));
+		LLLocalClipRect clip(mLegendRect);
 		S32 cur_line = 0;
 		ft_display_idx.clear();
 		std::map<TimeBlock*, S32> display_line;
@@ -1214,18 +1240,22 @@ void LLFastTimerView::drawLegend( S32 y )
 			}
 			else
 			{
-				ms = LLUnit<F64, LLUnits::Seconds>(mRecording.getPeriodMean(*idp));
-				calls = (S32)mRecording.getPeriodMean(idp->callCount());
+				ms = LLUnit<F64, LLUnits::Seconds>(mRecording.getPeriodMean(*idp, RUNNING_AVERAGE_WIDTH));
+				calls = (S32)mRecording.getPeriodMean(idp->callCount(), RUNNING_AVERAGE_WIDTH);
 			}
 
 			std::string timer_label;
-			if (mDisplayCalls)
+			switch(mDisplayType)
 			{
-				timer_label = llformat("%s (%d)",idp->getName().c_str(),calls);
-			}
-			else
-			{
+			case TIME:
 				timer_label = llformat("%s [%.1f]",idp->getName().c_str(),ms.value());
+				break;
+			case CALLS:
+				timer_label = llformat("%s (%d)",idp->getName().c_str(),calls);
+				break;
+			case HZ:
+				timer_label = llformat("%.1f", ms.value() ? (1.f / ms.value()) : 0.f);
+				break;
 			}
 			dx = (TEXT_HEIGHT+4) + get_depth(idp)*8;
 
@@ -1300,36 +1330,16 @@ void LLFastTimerView::generateUniqueColors()
 	}
 }
 
-S32 LLFastTimerView::drawHelp( S32 y )
+void LLFastTimerView::drawHelp( S32 y )
 {
 	// Draw some help
 	const S32 texth = (S32)LLFontGL::getFontMonospace()->getLineHeight();
 
-	char modedesc[][32] = {
-		"2 x Average ",
-		"Max         ",
-		"Recent Max  ",
-		"100 ms      "
-	};
-	char centerdesc[][32] = {
-		"Left      ",
-		"Centered  ",
-		"Ordered   "
-	};
-
-	std::string text;
-	text = llformat("Full bar = %s [Click to pause/reset] [SHIFT-Click to toggle]",modedesc[mDisplayMode]);
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, MARGIN, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
-
 	y -= (texth + 2);
-	text = llformat("Justification = %s [CTRL-Click to toggle]",centerdesc[mDisplayCenter]);
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, MARGIN, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
 	y -= (texth + 2);
 
-	LLFontGL::getFontMonospace()->renderUTF8(std::string("[Right-Click log selected] [ALT-Click toggle counts] [ALT-SHIFT-Click sub hidden]"),
+	LLFontGL::getFontMonospace()->renderUTF8(std::string("[Right-Click log selected] [ALT-Click toggle counts]"),
 		0, MARGIN, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
-	y -= (texth + 2);
-	return y;
 }
 
 void LLFastTimerView::drawTicks()
@@ -1392,7 +1402,7 @@ void LLFastTimerView::drawBorders( S32 y, const S32 x_start, S32 bar_height, S32
 		by = LINE_GRAPH_HEIGHT-dy;
 
 		//line graph
-		mGraphRect = LLRect(x_start-5, by, getRect().getWidth()-5, 5);
+		//mGraphRect = LLRect(x_start-5, by, getRect().getWidth()-5, 5);
 
 		gl_rect_2d(mGraphRect, FALSE);
 	}
@@ -1403,7 +1413,7 @@ void LLFastTimerView::updateTotalTime()
 	switch(mDisplayMode)
 	{
 	case 0:
-		mTotalTimeDisplay = mRecording.getPeriodMean(FTM_FRAME, 100)*2;
+		mTotalTimeDisplay = mRecording.getPeriodMean(FTM_FRAME, RUNNING_AVERAGE_WIDTH)*2;
 		break;
 	case 1:
 		mTotalTimeDisplay = mRecording.getPeriodMax(FTM_FRAME);
@@ -1447,18 +1457,27 @@ void LLFastTimerView::drawBars()
 		const S32 histmax = (S32)mRecording.getNumRecordedPeriods();
 
 		// update widths
-		updateTimerBarWidths(&FTM_FRAME, mAverageTimerRow, -1);
-		updateTimerBarOffsets(&FTM_FRAME, mAverageTimerRow);
-
-		for (S32 history_index = 1; history_index <= histmax; history_index++)
+		if (!mPauseHistory)
 		{
-			llassert(history_index <= mTimerBarRows.size());
-			TimerBarRow& row = mTimerBarRows[history_index - 1];
-			if (row.mBars.empty())
+			U32 bar_index = 0;
+			if (!mAverageTimerRow.mBars)
 			{
-				row.mBars.reserve(LLInstanceTracker<LLTrace::TimeBlock>::instanceCount());
-				updateTimerBarWidths(&FTM_FRAME, row, history_index);
-				updateTimerBarOffsets(&FTM_FRAME, row);
+				mAverageTimerRow.mBars = new TimerBar[LLInstanceTracker<LLTrace::TimeBlock>::instanceCount()];
+			}
+			updateTimerBarWidths(&FTM_FRAME, mAverageTimerRow, -1, bar_index);
+			updateTimerBarOffsets(&FTM_FRAME, mAverageTimerRow);
+
+			for (S32 history_index = 1; history_index <= histmax; history_index++)
+			{
+				llassert(history_index <= mTimerBarRows.size());
+				TimerBarRow& row = mTimerBarRows[history_index - 1];
+				bar_index = 0;
+				if (!row.mBars)
+				{
+					row.mBars = new TimerBar[LLInstanceTracker<LLTrace::TimeBlock>::instanceCount()];
+					updateTimerBarWidths(&FTM_FRAME, row, history_index, bar_index);
+					updateTimerBarOffsets(&FTM_FRAME, row);
+				}
 			}
 		}
 
@@ -1492,32 +1511,28 @@ void LLFastTimerView::drawBars()
 
 static LLFastTimer::DeclareTimer FTM_UPDATE_TIMER_BAR_WIDTHS("Update timer bar widths");
 
-LLUnit<F32, LLUnits::Seconds> LLFastTimerView::updateTimerBarWidths(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 history_index, bool visible)
+LLUnit<F32, LLUnits::Seconds> LLFastTimerView::updateTimerBarWidths(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 history_index, U32& bar_index)
 {
 	LLFastTimer _(FTM_UPDATE_TIMER_BAR_WIDTHS);
 	const LLUnit<F32, LLUnits::Seconds> self_time = history_index == -1
-										? mRecording.getPeriodMean(time_block->selfTime()) 
+										? mRecording.getPeriodMean(time_block->selfTime(), RUNNING_AVERAGE_WIDTH) 
 										: mRecording.getPrevRecording(history_index).getSum(time_block->selfTime());
 
 	LLUnit<F32, LLUnits::Seconds> full_time = self_time;
 
 	// reserve a spot for this bar to be rendered before its children
 	// even though we don't know its size yet
-	std::vector<TimerBar>& bars = row.mBars;
-	S32 bar_index = bars.size();
-	bars.push_back(TimerBar());
+	TimerBar& timer_bar = row.mBars[bar_index];
+	bar_index++;
 
-	const bool children_visible = visible && !time_block->getCollapsed();
 	for (TimeBlock::child_iter it = time_block->beginChildren(), end_it = time_block->endChildren(); it != end_it; ++it)
 	{
-		full_time += updateTimerBarWidths(*it, row, history_index, children_visible);
+		full_time += updateTimerBarWidths(*it, row, history_index, bar_index);
 	}
 
-	TimerBar& timer_bar = bars[bar_index];
 	timer_bar.mTotalTime  = full_time;
 	timer_bar.mSelfTime   = self_time;
 	timer_bar.mTimeBlock  = time_block;
-	timer_bar.mVisible    = visible;
 	
 	return full_time;
 }
@@ -1528,21 +1543,16 @@ S32 LLFastTimerView::updateTimerBarOffsets(LLTrace::TimeBlock* time_block, Timer
 {
 	LLFastTimer _(FTM_UPDATE_TIMER_BAR_FRACTIONS);
 
-	std::vector<TimerBar>& bars = row.mBars;
-	llassert(timer_bar_index < bars.size());
-	TimerBar& timer_bar = bars[timer_bar_index];
-	const LLUnit<F32, LLUnits::Seconds> child_time_width = timer_bar.mTotalTime - timer_bar.mSelfTime;
-	timer_bar.mChildrenStart = timer_bar.mSelfStart;
-
-	if (mDisplayCenter == ALIGN_CENTER)
-	{
-		timer_bar.mChildrenStart += timer_bar.mSelfTime / 2;
-	}
-	else if (mDisplayCenter == ALIGN_RIGHT)
-	{
-		timer_bar.mChildrenStart += timer_bar.mSelfTime;
-	}
+	TimerBar& timer_bar = row.mBars[timer_bar_index];
+	const LLUnit<F32, LLUnits::Seconds> bar_time = timer_bar.mTotalTime - timer_bar.mSelfTime;
+	timer_bar.mChildrenStart = timer_bar.mSelfStart + timer_bar.mSelfTime / 2;
 	timer_bar.mChildrenEnd = timer_bar.mChildrenStart + timer_bar.mTotalTime - timer_bar.mSelfTime;
+
+	if (timer_bar_index == 0)
+	{
+		timer_bar.mSelfStart = 0.f;
+		timer_bar.mSelfEnd = bar_time;
+	}
 
 	//now loop through children and figure out portion of bar image covered by each bar, now that we know the
 	//sum of all children
@@ -1556,8 +1566,7 @@ S32 LLFastTimerView::updateTimerBarOffsets(LLTrace::TimeBlock* time_block, Timer
 	{
 		timer_bar_index++;
 		
-		llassert(timer_bar_index < bars.size());
-		TimerBar& child_timer_bar = bars[timer_bar_index];
+		TimerBar& child_timer_bar = row.mBars[timer_bar_index];
 		TimeBlock* child_time_block = *it;
 
 		if (last_child_timer_bar)
@@ -1574,8 +1583,8 @@ S32 LLFastTimerView::updateTimerBarOffsets(LLTrace::TimeBlock* time_block, Timer
 		}
 
 		child_timer_bar.mStartFraction = bar_fraction_start;
-		child_timer_bar.mEndFraction = child_time_width > 0
-										? bar_fraction_start + child_timer_bar.mTotalTime / child_time_width
+		child_timer_bar.mEndFraction = bar_time > 0
+										? bar_fraction_start + child_timer_bar.mTotalTime / bar_time
 										: 1.f;
 		child_timer_bar.mSelfStart = timer_bar.mChildrenStart 
 									+ child_timer_bar.mStartFraction 
@@ -1591,16 +1600,15 @@ S32 LLFastTimerView::updateTimerBarOffsets(LLTrace::TimeBlock* time_block, Timer
 	return timer_bar_index;
 }
 
-S32 LLFastTimerView::drawBar(LLRect bar_rect, TimerBarRow& row, S32 image_width, S32 image_height, bool hovered, S32 bar_index)
+S32 LLFastTimerView::drawBar(LLRect bar_rect, TimerBarRow& row, S32 image_width, S32 image_height, bool hovered, bool visible, S32 bar_index)
 {
-	llassert(bar_index < row.mBars.size());	
 	TimerBar& timer_bar = row.mBars[bar_index];
 	LLTrace::TimeBlock* time_block = timer_bar.mTimeBlock;
 
 	hovered |= mHoverID == time_block;
 
 	// animate scale of bar when hovering over that particular timer
-	if ((F32)bar_rect.getWidth() * (timer_bar.mEndFraction - timer_bar.mStartFraction) > 2.f)
+	if (visible && (F32)bar_rect.getWidth() * (timer_bar.mEndFraction - timer_bar.mStartFraction) > 2.f)
 	{
 		LLRect render_rect(bar_rect);
 		S32 scale_offset = 0;
@@ -1637,15 +1645,17 @@ S32 LLFastTimerView::drawBar(LLRect bar_rect, TimerBarRow& row, S32 image_width,
 		children_rect.mBottom = bar_rect.mBottom;
 	}
 
+	bool children_visible = visible && !time_block->getCollapsed();
+
 	bar_index++;
-	const U32 num_bars = row.mBars.size();
+	const U32 num_bars = LLInstanceTracker<LLTrace::TimeBlock>::instanceCount();
 	if (bar_index < num_bars && row.mBars[bar_index].mFirstChild)
 	{
 		bool is_last = false;
 		do
 		{
 			is_last = row.mBars[bar_index].mLastChild;
-			bar_index = drawBar(children_rect, row, image_width, image_height, hovered, bar_index);
+			bar_index = drawBar(children_rect, row, image_width, image_height, hovered, children_visible, bar_index);
 		}
 		while(!is_last && bar_index < num_bars);
 	}

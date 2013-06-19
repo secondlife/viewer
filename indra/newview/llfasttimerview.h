@@ -68,8 +68,8 @@ private:
 	virtual	void	onClickCloseBtn();
 	void drawTicks();
 	void drawLineGraph();
-	void drawLegend(S32 y);
-	S32 drawHelp(S32 y);
+	void drawLegend();
+	void drawHelp(S32 y);
 	void drawBorders( S32 y, const S32 x_start, S32 barh, S32 dy);
 	void drawBars();
 
@@ -82,7 +82,6 @@ private:
 		TimerBar()
 		:	mTotalTime(0),
 			mSelfTime(0),
-			mVisible(true),
 			mStartFraction(0.f),
 			mEndFraction(1.f),
 			mFirstChild(false),
@@ -104,29 +103,26 @@ private:
 
 	struct TimerBarRow
 	{
-		S32						mBottom,
-								mTop;
-		std::vector<TimerBar>	mBars;
+		S32			mBottom,
+					mTop;
+		TimerBar*	mBars;
 	};
 
-	LLUnit<F32, LLUnits::Seconds> updateTimerBarWidths(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 history_index, bool visible = true);
+	LLUnit<F32, LLUnits::Seconds> updateTimerBarWidths(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 history_index, U32& bar_index);
 	S32 updateTimerBarOffsets(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 timer_bar_index = 0);
-	S32 drawBar(LLRect bar_rect, TimerBarRow& row, S32 image_width, S32 image_height, bool hovered = false, S32 bar_index = 0);
+	S32 drawBar(LLRect bar_rect, TimerBarRow& row, S32 image_width, S32 image_height, bool hovered = false, bool visible = true, S32 bar_index = 0);
 	void setPauseState(bool pause_state);
 
 	std::deque<TimerBarRow> mTimerBarRows;
 	TimerBarRow				mAverageTimerRow;
 
-	enum ChildAlignment
+	enum EDisplayType
 	{
-		ALIGN_LEFT,
-		ALIGN_CENTER,
-		ALIGN_RIGHT,
-		ALIGN_COUNT
-	}								mDisplayCenter;
-	bool							mDisplayCalls,
-									mDisplayHz,
-									mPauseHistory;
+		TIME,
+		CALLS,
+		HZ
+	}								mDisplayType;
+	bool							mPauseHistory;
 	LLUnit<F64, LLUnits::Seconds>	mAllTimeMax,
 									mTotalTimeDisplay;
 	S32								mScrollIndex,
@@ -137,7 +133,8 @@ private:
 	LLTrace::TimeBlock*				mHoverTimer;
 	LLRect							mToolTipRect,
 									mGraphRect,
-									mBarRect;
+									mBarRect,
+									mLegendRect;
 	LLFrameTimer					mHighlightTimer;
 	LLTrace::PeriodicRecording		mRecording;
 };

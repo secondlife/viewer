@@ -178,43 +178,38 @@ TimeBlockTreeNode& TimeBlock::getTreeNode() const
 	return *nodep;
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_TIMES("Process FastTimer Times");
 
-// not thread safe, so only call on main thread
-//static
-void TimeBlock::processTimes()
+void TimeBlock::bootstrapTimerTree()
 {
-	LLFastTimer _(FTM_PROCESS_TIMES);
-	get_clock_count(); // good place to calculate clock frequency
-	U64 cur_time = getCPUClockCount64();
-
-	// set up initial tree
 	for (LLInstanceTracker<TimeBlock>::instance_iter begin_it = LLInstanceTracker<TimeBlock>::beginInstances(), end_it = LLInstanceTracker<TimeBlock>::endInstances(), it = begin_it; 
 		it != end_it; 
 		++it)
 	{
 		TimeBlock& timer = *it;
 		if (&timer == &TimeBlock::getRootTimeBlock()) continue;
-			
+
 		// bootstrap tree construction by attaching to last timer to be on stack
 		// when this timer was called
 		if (timer.getParent() == &TimeBlock::getRootTimeBlock())
 		{
 			TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
-			
+
 			if (accumulator->mLastCaller)
 			{
 				timer.setParent(accumulator->mLastCaller);
 				accumulator->mParent = accumulator->mLastCaller;
 			}
-				// no need to push up tree on first use, flag can be set spuriously
+			// no need to push up tree on first use, flag can be set spuriously
 			accumulator->mMoveUpTree = false;
 		}
 	}
+}
 
-	// bump timers up tree if they have been flagged as being in the wrong place
-	// do this in a bottom up order to promote descendants first before promoting ancestors
-	// this preserves partial order derived from current frame's observations
+// bump timers up tree if they have been flagged as being in the wrong place
+// do this in a bottom up order to promote descendants first before promoting ancestors
+// this preserves partial order derived from current frame's observations
+void TimeBlock::incrementalUpdateTimerTree()
+{
 	for(timer_tree_bottom_up_iterator_t it = begin_timer_tree_bottom_up(TimeBlock::getRootTimeBlock());
 		it != end_timer_tree_bottom_up();
 		++it)
@@ -240,27 +235,35 @@ void TimeBlock::processTimes()
 				LL_DEBUGS("FastTimers") << "Moving " << timerp->getName() << " from child of " << timerp->getParent()->getName() <<
 					" to child of " << timerp->getParent()->getParent()->getName() << LL_ENDL;
 				timerp->setParent(timerp->getParent()->getParent());
-					accumulator->mParent = timerp->getParent();
-					accumulator->mMoveUpTree = false;
+				accumulator->mParent = timerp->getParent();
+				accumulator->mMoveUpTree = false;
 
 				// don't bubble up any ancestors until descendants are done bubbling up
-					// as ancestors may call this timer only on certain paths, so we want to resolve
-					// child-most block locations before their parents
+				// as ancestors may call this timer only on certain paths, so we want to resolve
+				// child-most block locations before their parents
 				it.skipAncestors();
 			}
 		}
 	}
+}
+
+
+void TimeBlock::updateTimes()
+{
+	U64 cur_time = getCPUClockCount64();
 
 	// walk up stack of active timers and accumulate current time while leaving timing structures active
-	BlockTimerStackRecord* stack_record			= ThreadTimerStack::getInstance();
-	BlockTimer* cur_timer						= stack_record->mActiveTimer;
-	TimeBlockAccumulator* accumulator = stack_record->mTimeBlock->getPrimaryAccumulator();
+	BlockTimerStackRecord* stack_record	= ThreadTimerStack::getInstance();
+	BlockTimer* cur_timer				= stack_record->mActiveTimer;
+	TimeBlockAccumulator* accumulator	= stack_record->mTimeBlock->getPrimaryAccumulator();
 
 	while(cur_timer 
 		&& cur_timer->mParentTimerData.mActiveTimer != cur_timer) // root defined by parent pointing to self
 	{
 		U64 cumulative_time_delta = cur_time - cur_timer->mStartTime;
-		accumulator->mTotalTimeCounter += cumulative_time_delta - (accumulator->mTotalTimeCounter - cur_timer->mBlockStartTotalTimeCounter);
+		accumulator->mTotalTimeCounter += cumulative_time_delta 
+			- (accumulator->mTotalTimeCounter 
+			- cur_timer->mBlockStartTotalTimeCounter);
 		accumulator->mSelfTimeCounter += cumulative_time_delta - stack_record->mChildTime;
 		stack_record->mChildTime = 0;
 
@@ -268,11 +271,28 @@ void TimeBlock::processTimes()
 		cur_timer->mBlockStartTotalTimeCounter = accumulator->mTotalTimeCounter;
 
 		stack_record = &cur_timer->mParentTimerData;
-		accumulator = stack_record->mTimeBlock->getPrimaryAccumulator();
-		cur_timer = stack_record->mActiveTimer;
+		accumulator  = stack_record->mTimeBlock->getPrimaryAccumulator();
+		cur_timer    = stack_record->mActiveTimer;
 
 		stack_record->mChildTime += cumulative_time_delta;
 	}
+}
+
+static LLFastTimer::DeclareTimer FTM_PROCESS_TIMES("Process FastTimer Times");
+
+// not thread safe, so only call on main thread
+//static
+void TimeBlock::processTimes()
+{
+	LLFastTimer _(FTM_PROCESS_TIMES);
+	get_clock_count(); // good place to calculate clock frequency
+
+	// set up initial tree
+	bootstrapTimerTree();
+
+	incrementalUpdateTimerTree();
+
+	updateTimes();
 
 	// reset for next frame
 	for (LLInstanceTracker<TimeBlock>::instance_iter it = LLInstanceTracker<TimeBlock>::beginInstances(),
@@ -288,14 +308,13 @@ void TimeBlock::processTimes()
 	}
 }
 
-
 std::vector<TimeBlock*>::iterator TimeBlock::beginChildren()
-		{
+{
 	return getTreeNode().mChildren.begin(); 
-		}
+}
 
 std::vector<TimeBlock*>::iterator TimeBlock::endChildren()
-		{
+{
 	return getTreeNode().mChildren.end();
 }
 

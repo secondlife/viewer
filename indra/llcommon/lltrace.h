@@ -157,12 +157,12 @@ public:
 		}
 	}
 
-	void flush()
+	void flush(LLUnitImplicit<F64, LLUnits::Seconds> time_stamp)
 	{
 		llassert(mStorageSize >= sNextStorageSlot);
 		for (size_t i = 0; i < sNextStorageSlot; i++)
 		{
-			mStorage[i].flush();
+			mStorage[i].flush(time_stamp);
 		}
 	}
 
@@ -380,7 +380,7 @@ public:
 		mLastValue = other ? other->mLastValue : 0;
 	}
 
-	void flush() {}
+	void flush(LLUnitImplicit<F64, LLUnits::Seconds>) {}
 
 	F64	getSum() const { return mSum; }
 	F64	getMin() const { return mMin; }
@@ -512,9 +512,8 @@ public:
 		mHasValue = other ? other->mHasValue : false;
 	}
 
-	void flush()
+	void flush(LLUnitImplicit<F64, LLUnits::Seconds> time_stamp)
 	{
-		LLUnitImplicit<F64, LLUnits::Seconds> time_stamp = LLTimer::getTotalSeconds();
 		LLUnitImplicit<F64, LLUnits::Seconds> delta_time = time_stamp - mLastSampleTimeStamp;
 
 		if (mHasValue)
@@ -579,7 +578,7 @@ public:
 		mSum = 0;
 	}
 
-	void flush() {}
+	void flush(LLUnitImplicit<F64, LLUnits::Seconds>) {}
 
 	F64	getSum() const { return mSum; }
 
@@ -614,7 +613,7 @@ public:
 	TimeBlockAccumulator();
 	void addSamples(const self_t& other, bool /*append*/);
 	void reset(const self_t* other);
-	void flush() {}
+	void flush(LLUnitImplicit<F64, LLUnits::Seconds>) {}
 
 	//
 	// members
@@ -780,10 +779,10 @@ struct MemStatAccumulator
 		mDeallocatedCount = 0;
 	}
 
-	void flush() 
+	void flush(LLUnitImplicit<F64, LLUnits::Seconds> time_stamp) 
 	{
-		mSize.flush();
-		mChildSize.flush();
+		mSize.flush(time_stamp);
+		mChildSize.flush(time_stamp);
 	}
 
 	SampleAccumulator	mSize,

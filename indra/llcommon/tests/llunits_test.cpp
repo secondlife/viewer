@@ -56,6 +56,9 @@ namespace tut
 		LLUnit<F32, Quatloos> float_quatloos;
 		ensure(float_quatloos == 0.f);
 
+		LLUnit<F32, Quatloos> float_initialize_quatloos(1);
+		ensure(float_initialize_quatloos == 1.f);
+
 		LLUnit<S32, Quatloos> int_quatloos;
 		ensure(int_quatloos == 0);
 
