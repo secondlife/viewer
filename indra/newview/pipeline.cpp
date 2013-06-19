@@ -8592,9 +8592,9 @@ void LLPipeline::renderDeferredLighting()
 								continue;
 							}
 							
-							col.mV[0] = powf(col.mV[0], 2.2f);
+							/*col.mV[0] = powf(col.mV[0], 2.2f);
 							col.mV[1] = powf(col.mV[1], 2.2f);
-							col.mV[2] = powf(col.mV[2], 2.2f);
+							col.mV[2] = powf(col.mV[2], 2.2f);*/
 							
 							LLFastTimer ftm(FTM_LOCAL_LIGHTS);
 							gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);

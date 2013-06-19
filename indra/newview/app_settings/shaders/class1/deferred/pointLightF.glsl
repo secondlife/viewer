@@ -135,7 +135,7 @@ void main()
 	float fa = falloff+1.0;
 	float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
 	dist_atten *= dist_atten;
-	dist_atten *= 1.4;
+	dist_atten *= 2.0;
 	
 	float lit = da * dist_atten * noise;
 
