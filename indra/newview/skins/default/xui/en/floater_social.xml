@@ -15,4 +15,62 @@
   reuse_instance="true"
   title="FACEBOOK"
   width="370">
+  <tab_container
+   bottom="-7"
+   follows="all"
+   layout="topleft"
+   left="4"
+   name="tabs"
+   tab_group="1"
+   tab_min_width="70"
+   tab_height="30"
+   tab_position="top"
+   top="4"
+   halign="center"
+   right="-5">
+    <panel
+     background_opaque="true"
+     background_visible="true"
+     bg_alpha_color="DkGray"
+     bg_opaque_color="DkGray"
+     bottom="0"
+     follows="all"
+     label="STATUS"
+     layout="topleft"
+     left="0"
+     help_topic="social_status_tab"
+     name="status_panel"
+     right="0"
+     top="0"/>
+    <panel
+      background_opaque="true"
+      background_visible="true"
+      bg_alpha_color="DkGray"
+      bg_opaque_color="DkGray"
+      bottom="0"
+      follows="all"
+      label="PHOTO"
+      layout="topleft"
+      left="0"
+      help_topic="social_photo_tab"
+      name="photo_panel"
+      right="0"
+      top="0"/>
+    <panel
+      background_opaque="true"
+      background_visible="true"
+      bg_alpha_color="DkGray"
+      bg_opaque_color="DkGray"
+      bottom="0"
+      follows="all"
+      label="PLACE"
+      layout="topleft"
+      left="0"
+      help_topic="social_place_tab"
+      name="place_panel"
+      right="0"
+      top="0"/>
+   </tab_container>
+  
+  
 </floater>
