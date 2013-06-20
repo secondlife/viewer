@@ -500,7 +500,7 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 
 	std::ofstream os(file_name.c_str());
 
-	os << std::setprecision(3);
+	os << std::setprecision(10);
 
 	PeriodicRecording& scene_load_recording = mSceneLoadRecording.getAcceptedRecording();
 	const U32 frame_count = scene_load_recording.getNumRecordedPeriods();
@@ -508,12 +508,12 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 	LLUnit<F64, LLUnits::Seconds> frame_time;
 
 	os << "Stat";
-	for (S32 frame = 0; frame < frame_count; frame++)
+	for (S32 frame = 1; frame <= frame_count; frame++)
 	{
 		frame_time += scene_load_recording.getPrevRecording(frame_count - frame).getDuration();
 		os << ", " << frame_time.value();
 	}
-	os << std::endl;
+	os << '\n';
 
 	typedef TraceType<CountAccumulator> trace_count;
 	for (trace_count::instance_iter it = trace_count::beginInstances(), end_it = trace_count::endInstances();
@@ -521,6 +521,8 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 		++it)
 	{
 		std::ostringstream row;
+		row << std::setprecision(10);
+
 		row << it->getName();
 
 		const char* unit_label = it->getUnitLabel();
@@ -531,13 +533,13 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 
 		S32 samples = 0;
 
-		for (S32 frame = 0; frame < frame_count; frame++)
+		for (S32 frame = 1; frame <= frame_count; frame++)
 		{
 			samples += scene_load_recording.getPrevRecording(frame_count - frame).getSampleCount(*it);
 			row << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getSum(*it);
 		}
 
-		row << std::endl;
+		row << '\n';
 
 		if (samples > 0)
 		{
@@ -552,6 +554,7 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 		++it)
 	{
 		std::ostringstream row;
+		row << std::setprecision(10);
 		row << it->getName();
 
 		const char* unit_label = it->getUnitLabel();
@@ -562,13 +565,13 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 
 		S32 samples = 0;
 
-		for (S32 frame = 0; frame < frame_count; frame++)
+		for (S32 frame = 1; frame <= frame_count; frame++)
 		{
 			samples += scene_load_recording.getPrevRecording(frame_count - frame).getSampleCount(*it);
 			row << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getMean(*it);
 		}
 
-		row << std::endl;
+		row << '\n';
 
 		if (samples > 0)
 		{
@@ -583,6 +586,7 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 		++it)
 	{
 		std::ostringstream row;
+		row << std::setprecision(10);
 		row << it->getName();
 
 		const char* unit_label = it->getUnitLabel();
@@ -593,13 +597,13 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 
 		S32 samples = 0;
 
-		for (S32 frame = 0; frame < frame_count; frame++)
+		for (S32 frame = 1; frame <= frame_count; frame++)
 		{
 			samples += scene_load_recording.getPrevRecording(frame_count - frame).getSampleCount(*it);
 			row << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getMean(*it);
 		}
 
-		row << std::endl;
+		row << '\n'; 
 
 		if (samples > 0)
 		{
@@ -614,12 +618,12 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 	{
 		os << it->getName() << "(KiB)";
 
-		for (S32 frame = 0; frame < frame_count; frame++)
+		for (S32 frame = 1; frame <= frame_count; frame++)
 		{
 			os << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getMax(*it).getAs<LLUnits::Kibibytes>();
 		}
 
-		os << std::endl;
+		os << '\n';
 	}
 
 	os.flush();

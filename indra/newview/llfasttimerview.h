@@ -103,6 +103,11 @@ private:
 
 	struct TimerBarRow
 	{
+		TimerBarRow() 
+		:	mBottom(0),
+			mTop(0),
+			mBars(NULL)
+		{}
 		S32			mBottom,
 					mTop;
 		TimerBar*	mBars;
@@ -118,9 +123,9 @@ private:
 
 	enum EDisplayType
 	{
-		TIME,
-		CALLS,
-		HZ
+		DISPLAY_TIME,
+		DISPLAY_CALLS,
+		DISPLAY_HZ
 	}								mDisplayType;
 	bool							mPauseHistory;
 	LLUnit<F64, LLUnits::Seconds>	mAllTimeMax,
