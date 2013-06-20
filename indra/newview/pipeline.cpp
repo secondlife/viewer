@@ -163,6 +163,7 @@ S32 LLPipeline::RenderGlowIterations;
 F32 LLPipeline::RenderGlowWidth;
 F32 LLPipeline::RenderGlowStrength;
 BOOL LLPipeline::RenderDepthOfField;
+BOOL LLPipeline::RenderDepthOfFieldInEditMode;
 F32 LLPipeline::CameraFocusTransitionTime;
 F32 LLPipeline::CameraFNumber;
 F32 LLPipeline::CameraFocalLength;
@@ -615,6 +616,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderGlowWidth");
 	connectRefreshCachedSettingsSafe("RenderGlowStrength");
 	connectRefreshCachedSettingsSafe("RenderDepthOfField");
+	connectRefreshCachedSettingsSafe("RenderDepthOfFieldInEditMode");
 	connectRefreshCachedSettingsSafe("CameraFocusTransitionTime");
 	connectRefreshCachedSettingsSafe("CameraFNumber");
 	connectRefreshCachedSettingsSafe("CameraFocalLength");
@@ -1116,6 +1118,7 @@ void LLPipeline::refreshCachedSettings()
 	RenderGlowWidth = gSavedSettings.getF32("RenderGlowWidth");
 	RenderGlowStrength = gSavedSettings.getF32("RenderGlowStrength");
 	RenderDepthOfField = gSavedSettings.getBOOL("RenderDepthOfField");
+	RenderDepthOfFieldInEditMode = gSavedSettings.getBOOL("RenderDepthOfFieldInEditMode");
 	CameraFocusTransitionTime = gSavedSettings.getF32("CameraFocusTransitionTime");
 	CameraFNumber = gSavedSettings.getF32("CameraFNumber");
 	CameraFocalLength = gSavedSettings.getF32("CameraFocalLength");
@@ -4772,18 +4775,6 @@ void LLPipeline::renderPhysicsDisplay()
 		}
 	}
 
-	for (LLCullResult::bridge_iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
-	{
-		LLSpatialBridge* bridge = *i;
-		if (!bridge->isDead() && hasRenderType(bridge->mDrawableType))
-		{
-			gGL.pushMatrix();
-			gGL.multMatrix((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
-			bridge->renderPhysicsShapes();
-			gGL.popMatrix();
-		}
-	}
-
 	gGL.flush();
 
 	if (LLGLSLShader::sNoFixedFunction)
@@ -5207,6 +5198,42 @@ void LLPipeline::renderDebug()
 	if (LLGLSLShader::sNoFixedFunction)
 	{
 		gUIProgram.bind();
+	}
+
+	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST) && !hud_only)
+	{ //draw crosshairs on particle intersection
+		if (gDebugRaycastParticle)
+		{
+			if (LLGLSLShader::sNoFixedFunction)
+			{ //this debug display requires shaders
+				gDebugProgram.bind();
+
+				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+				LLVector3 center = gDebugRaycastParticleIntersection;
+				LLVector3 size(0.1f, 0.1f, 0.1f);
+
+				LLVector3 p[6];
+
+				p[0] = center + size.scaledVec(LLVector3(1,0,0));
+				p[1] = center + size.scaledVec(LLVector3(-1,0,0));
+				p[2] = center + size.scaledVec(LLVector3(0,1,0));
+				p[3] = center + size.scaledVec(LLVector3(0,-1,0));
+				p[4] = center + size.scaledVec(LLVector3(0,0,1));
+				p[5] = center + size.scaledVec(LLVector3(0,0,-1));
+				
+				gGL.begin(LLRender::LINES);
+				gGL.diffuseColor3f(1.f, 1.f, 0.f);
+				for (U32 i = 0; i < 6; i++)
+				{
+					gGL.vertex3fv(p[i].mV);
+				}
+				gGL.end();
+				gGL.flush();
+
+				gDebugProgram.unbind();
+			}
+		}
 	}
 
 	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
@@ -6889,7 +6916,49 @@ void LLPipeline::setRenderHighlightTextureChannel(LLRender::eTexIndex channel)
 	sRenderHighlightTextureChannel = channel;
 }
 
-LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start, const LLVector4a& end,
+LLVOPartGroup* LLPipeline::lineSegmentIntersectParticle(const LLVector3& start, const LLVector3& end, LLVector3* intersection,
+														S32* face_hit)
+{
+	LLVector3 local_end = end;
+
+	LLVector3 position;
+
+	LLDrawable* drawable = NULL;
+
+	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+	{
+		LLViewerRegion* region = *iter;
+
+		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_PARTICLE);
+		if (part && hasRenderType(part->mDrawableType))
+		{
+			LLDrawable* hit = part->lineSegmentIntersect(start, local_end, TRUE, face_hit, &position, NULL, NULL, NULL);
+			if (hit)
+			{
+				drawable = hit;
+				local_end = position;						
+			}
+		}
+	}
+
+	LLVOPartGroup* ret = NULL;
+	if (drawable)
+	{
+		//make sure we're returning an LLVOPartGroup
+		llassert(drawable->getVObj()->getPCode() == LLViewerObject::LL_VO_PART_GROUP);
+		ret = (LLVOPartGroup*) drawable->getVObj().get();
+	}
+		
+	if (intersection)
+	{
+		*intersection = position;
+	}
+
+	return ret;
+}
+
+LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, const LLVector3& end,
 														BOOL pick_transparent,												
 														S32* face_hit,
 														LLVector4a* intersection,         // return the intersection point
@@ -7448,7 +7517,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	{
 
 		bool dof_enabled = !LLViewerCamera::getInstance()->cameraUnderWater() &&
-							!LLToolMgr::getInstance()->inBuildMode() &&
+			(RenderDepthOfFieldInEditMode || !LLToolMgr::getInstance()->inBuildMode()) &&
 							RenderDepthOfField;
 
 

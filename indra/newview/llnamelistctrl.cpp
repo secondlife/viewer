@@ -416,9 +416,9 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 }
 
 
-void LLNameListCtrl::updateColumns()
+void LLNameListCtrl::updateColumns(bool force_update)
 {
-	LLScrollListCtrl::updateColumns();
+	LLScrollListCtrl::updateColumns(force_update);
 
 	if (!mNameColumn.empty())
 	{

@@ -149,7 +149,7 @@ public:
 
 	void sortByName(BOOL ascending);
 
-	/*virtual*/ void updateColumns();
+	/*virtual*/ void updateColumns(bool force_update);
 
 	/*virtual*/ void	mouseOverHighlightNthItem( S32 index );
 private:
