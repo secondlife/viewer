@@ -88,7 +88,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
     {
         vram_bytes = (256 << 20);
     }
-	return (unsigned long)vram_bytes;
+    
+	return (unsigned long)vram_bytes / 1048576; // We need this in megabytes.
 }
 
 - (void)viewDidMoveToWindow
