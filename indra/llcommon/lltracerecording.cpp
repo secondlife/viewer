@@ -464,7 +464,7 @@ void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 	}
 	else
 	{
-		size_t num_to_copy = llmin(	mRecordingPeriods.size(), other_num_recordings);
+		size_t num_to_copy = llmin(	mRecordingPeriods.size(), (size_t)other_num_recordings);
 
 		std::vector<Recording>::iterator src_it = other.mRecordingPeriods.begin() + other_index ;
 		std::vector<Recording>::iterator dest_it = mRecordingPeriods.begin() + mCurPeriod;
