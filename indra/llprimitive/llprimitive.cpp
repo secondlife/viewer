@@ -39,6 +39,7 @@
 #include "llsdutil_math.h"
 #include "llprimtexturelist.h"
 #include "imageids.h"
+#include "llmaterialid.h"
 
 /**
  * exported constants
@@ -314,6 +315,15 @@ S32  LLPrimitive::setTERotation(const U8 index, const F32 r)
 	return mTextureList.setRotation(index, r);
 }
 
+S32 LLPrimitive::setTEMaterialID(const U8 index, const LLMaterialID& pMaterialID)
+{
+	return mTextureList.setMaterialID(index, pMaterialID);
+}
+
+S32 LLPrimitive::setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams)
+{
+	return mTextureList.setMaterialParams(index, pMaterialParams);
+}
 
 //===============================================================
 S32  LLPrimitive::setTEBumpShinyFullbright(const U8 index, const U8 bump)
@@ -364,6 +374,23 @@ S32 LLPrimitive::setTEGlow(const U8 index, const F32 glow)
 	return mTextureList.setGlow(index, glow);
 }
 
+void LLPrimitive::setAllTESelected(bool sel)
+{
+	for (int i = 0, cnt = getNumTEs(); i < cnt; i++)
+	{
+		setTESelected(i, sel);
+	}
+}
+	
+void LLPrimitive::setTESelected(const U8 te, bool sel)
+{
+	LLTextureEntry* tep = getTE(te);
+	if ( (tep) && (tep->setSelected(sel)) && (!sel) && (tep->hasPendingMaterialUpdate()) )
+	{
+		LLMaterialID material_id = tep->getMaterialID();
+		setTEMaterialID(te, material_id);
+	}
+}
 
 LLPCode LLPrimitive::legacyToPCode(const U8 legacy)
 {
@@ -1044,7 +1071,7 @@ S32 LLPrimitive::unpackTEField(U8 *cur_ptr, U8 *buffer_end, U8 *data_ptr, U8 dat
 	
 	while ((cur_ptr < buffer_end) && (*cur_ptr != 0))
 	{
-//		llinfos << "TE exception" << llendl;
+		LL_DEBUGS("TEFieldDecode") << "TE exception" << LL_ENDL;
 		i = 0;
 		while (*cur_ptr & 0x80)
 		{
@@ -1059,14 +1086,16 @@ S32 LLPrimitive::unpackTEField(U8 *cur_ptr, U8 *buffer_end, U8 *data_ptr, U8 dat
 			if (i & 0x01)
 			{
 				htonmemcpy(data_ptr+(j*data_size),cur_ptr,type,data_size);
-//				char foo[64];
-//				sprintf(foo,"%x %x",*(data_ptr+(j*data_size)), *(data_ptr+(j*data_size)+1));
-//				llinfos << "Assigning " << foo << " to face " << j << llendl;			
+				LL_DEBUGS("TEFieldDecode") << "Assigning " ;
+				char foo[64];
+				sprintf(foo,"%x %x",*(data_ptr+(j*data_size)), *(data_ptr+(j*data_size)+1));
+				LL_CONT << foo << " to face " << j << LL_ENDL;
 			}
 			i = i >> 1;
 		}
 		cur_ptr += data_size;		
 	}
+	llassert(cur_ptr <= buffer_end); // buffer underrun
 	return (S32)(cur_ptr - start_loc);
 }
 
@@ -1088,6 +1117,7 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 	U8	   bump[MAX_TES];
 	U8	   media_flags[MAX_TES];
     U8     glow[MAX_TES];
+	U8     material_data[MAX_TES*16];
 	
 	const U32 MAX_TE_BUFFER = 4096;
 	U8 packed_buffer[MAX_TE_BUFFER];
@@ -1125,6 +1155,9 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 			bump[face_index] = te->getBumpShinyFullbright();
 			media_flags[face_index] = te->getMediaTexGen();
 			glow[face_index] = (U8) llround((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
+
+			// Directly sending material_ids is not safe!
+			memcpy(&material_data[face_index*16],getTE(face_index)->getMaterialID().get(),16);	/* Flawfinder: ignore */ 
 		}
 
 		cur_ptr += packTEField(cur_ptr, (U8 *)image_ids, sizeof(LLUUID),last_face_index, MVT_LLUUID);
@@ -1146,6 +1179,8 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 		cur_ptr += packTEField(cur_ptr, (U8 *)media_flags, 1 ,last_face_index, MVT_U8);
 		*cur_ptr++ = 0;
 		cur_ptr += packTEField(cur_ptr, (U8 *)glow, 1 ,last_face_index, MVT_U8);
+		*cur_ptr++ = 0;
+		cur_ptr += packTEField(cur_ptr, (U8 *)material_data, 16, last_face_index, MVT_LLUUID);
 	}
    	mesgsys->addBinaryDataFast(_PREHASH_TextureEntry, packed_buffer, (S32)(cur_ptr - packed_buffer));
 
@@ -1167,6 +1202,7 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 	U8	   bump[MAX_TES];
 	U8	   media_flags[MAX_TES];
     U8     glow[MAX_TES];
+	U8     material_data[MAX_TES*16];
 	
 	const U32 MAX_TE_BUFFER = 4096;
 	U8 packed_buffer[MAX_TE_BUFFER];
@@ -1204,6 +1240,9 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 			bump[face_index] = te->getBumpShinyFullbright();
 			media_flags[face_index] = te->getMediaTexGen();
             glow[face_index] = (U8) llround((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
+
+			// Directly sending material_ids is not safe!
+			memcpy(&material_data[face_index*16],getTE(face_index)->getMaterialID().get(),16);	/* Flawfinder: ignore */ 
 		}
 
 		cur_ptr += packTEField(cur_ptr, (U8 *)image_ids, sizeof(LLUUID),last_face_index, MVT_LLUUID);
@@ -1225,6 +1264,8 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 		cur_ptr += packTEField(cur_ptr, (U8 *)media_flags, 1 ,last_face_index, MVT_U8);
 		*cur_ptr++ = 0;
 		cur_ptr += packTEField(cur_ptr, (U8 *)glow, 1 ,last_face_index, MVT_U8);
+		*cur_ptr++ = 0;
+		cur_ptr += packTEField(cur_ptr, (U8 *)material_data, 16, last_face_index, MVT_LLUUID);
 	}
 
 	dp.packBinaryData(packed_buffer, (S32)(cur_ptr - packed_buffer), "TextureEntry");
@@ -1234,6 +1275,9 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec)
 {
 	S32 retval = 0;
+   // temp buffer for material ID processing
+   // data will end up in tec.material_id[]	
+   U8 material_data[LLTEContents::MAX_TES*16];
 
 	if (block_num < 0)
 	{
@@ -1282,14 +1326,29 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
 	cur_ptr++;
 	cur_ptr += unpackTEField(cur_ptr, tec.packed_buffer+tec.size, (U8 *)tec.glow, 1, tec.face_count, MVT_U8);
 
+	if (cur_ptr < tec.packed_buffer + tec.size)
+	{
+		cur_ptr++;
+		cur_ptr += unpackTEField(cur_ptr, tec.packed_buffer+tec.size, (U8 *)material_data, 16, tec.face_count, MVT_LLUUID);
+	}
+	else
+	{
+		memset(material_data, 0, sizeof(material_data));
+	}
+	
+	for (U32 i = 0; i < tec.face_count; i++)
+	{
+		tec.material_ids[i].set(&material_data[i * 16]);
+	}
+	
 	retval = 1;
 	return retval;
-}
-
+	}
+	
 S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
 {
 	S32 retval = 0;
-
+	
 	LLColor4 color;
 	LLColor4U coloru;
 	for (U32 i = 0; i < tec.face_count; i++)
@@ -1302,6 +1361,9 @@ S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
 		retval |= setTEBumpShinyFullbright(i, tec.bump[i]);
 		retval |= setTEMediaTexGen(i, tec.media_flags[i]);
 		retval |= setTEGlow(i, (F32)tec.glow[i] / (F32)0xFF);
+		
+                retval |= setTEMaterialID(i, tec.material_ids[i]);
+		
 		coloru = LLColor4U(tec.colors + 4*i);
 
 		// Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)
@@ -1336,6 +1398,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 
 	// Avoid construction of 32 UUIDs per call
 	static LLUUID image_ids[MAX_TES];
+	static LLMaterialID material_ids[MAX_TES];
 
 	U8     image_data[MAX_TES*16];
 	U8	   colors[MAX_TES*4];
@@ -1347,6 +1410,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 	U8	   bump[MAX_TES];
 	U8	   media_flags[MAX_TES];
     U8     glow[MAX_TES];
+	U8     material_data[MAX_TES*16];
 
 	const U32 MAX_TE_BUFFER = 4096;
 	U8 packed_buffer[MAX_TE_BUFFER];
@@ -1389,10 +1453,20 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)media_flags, 1, face_count, MVT_U8);
 	cur_ptr++;
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)glow, 1, face_count, MVT_U8);
+	if (cur_ptr < packed_buffer + size)
+	{
+		cur_ptr++;
+		cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)material_data, 16, face_count, MVT_LLUUID);
+	}
+	else
+	{
+		memset(material_data, 0, sizeof(material_data));
+	}
 
 	for (i = 0; i < face_count; i++)
 	{
 		memcpy(image_ids[i].mData,&image_data[i*16],16);	/* Flawfinder: ignore */ 	
+		material_ids[i].set(&material_data[i * 16]);
 	}
 	
 	LLColor4 color;
@@ -1406,6 +1480,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 		retval |= setTEBumpShinyFullbright(i, bump[i]);
 		retval |= setTEMediaTexGen(i, media_flags[i]);
 		retval |= setTEGlow(i, (F32)glow[i] / (F32)0xFF);
+		retval |= setTEMaterialID(i, material_ids[i]);
 		coloru = LLColor4U(colors + 4*i);
 
 		// Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)
