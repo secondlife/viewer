@@ -111,6 +111,8 @@
 #include "llpathinglib.h"
 #include "llfloaterpathfindingconsole.h"
 #include "llfloaterpathfindingcharacters.h"
+#include "llfloatertools.h"
+#include "llpanelface.h"
 #include "llpathfindingpathtool.h"
 
 #ifdef _DEBUG
@@ -3962,7 +3964,7 @@ void LLPipeline::postSort(LLCamera& camera)
 	{
 		mSelectedFaces.clear();
 
-		LLPipeline::setRenderHighlightTextureChannel(LLSelectMgr::getInstance()->getTextureChannel());
+		LLPipeline::setRenderHighlightTextureChannel(gFloaterTools->getPanelFace()->getTextureChannelToEdit());
 
 		// Draw face highlights for selected faces.
 		if (LLSelectMgr::getInstance()->getTEMode())

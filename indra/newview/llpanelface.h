@@ -100,6 +100,19 @@ public:
 	void			setMediaURL(const std::string& url);
 	void			setMediaType(const std::string& mime_type);
 
+	LLMaterialPtr createDefaultMaterial(LLMaterialPtr current_material)
+	{
+		LLMaterialPtr new_material(!current_material.isNull() ? new LLMaterial(current_material->asLLSD()) : new LLMaterial());
+		llassert_always(new_material);
+
+		// Preserve old diffuse alpha mode or assert correct default blend mode as appropriate for the alpha channel content of the diffuse texture
+		//
+		new_material->setDiffuseAlphaMode(current_material.isNull() ? (isAlpha() ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE) : current_material->getDiffuseAlphaMode());
+		return new_material;
+	}
+
+	LLRender::eTexIndex getTextureChannelToEdit();
+
 protected:
 	void			getState();
 
@@ -178,6 +191,8 @@ protected:
 
 	static F32     valueGlow(LLViewerObject* object, S32 face);
 
+	
+
 private:
 
 	bool		isAlpha() { return mIsAlpha; }
@@ -234,17 +249,13 @@ private:
 			{
 				if (_edit)
 				{
-					LLMaterialPtr new_material(!current_material.isNull() ? new LLMaterial(current_material->asLLSD()) : new LLMaterial());
+					LLMaterialPtr new_material = _panel->createDefaultMaterial(current_material);
 					llassert_always(new_material);
 
 					// Determine correct alpha mode for current diffuse texture
 					// (i.e. does it have an alpha channel that makes alpha mode useful)
 					//
 					U8 default_alpha_mode = (_panel->isAlpha() ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE);
-
-					// Default to matching expected state of UI
-					//
-					new_material->setDiffuseAlphaMode(current_material.isNull() ? default_alpha_mode : current_material->getDiffuseAlphaMode());
 
 					// Do "It"!
 					//
