@@ -353,6 +353,10 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 			inv_camera_dist_squared = 1.f / camera_dist_squared;
 		else
 			inv_camera_dist_squared = 1.f;
+
+		llassert(llfinite(inv_camera_dist_squared));
+		llassert(!llisnan(inv_camera_dist_squared));
+
 		F32 area = part->mScale.mV[0] * part->mScale.mV[1] * inv_camera_dist_squared;
 		tot_area = llmax(tot_area, area);
  		
