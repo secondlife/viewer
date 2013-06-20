@@ -44,6 +44,7 @@ public:
 protected:
 	bool writeNotifications(const LLSD& pNotificationData) const;
 	bool readNotifications(LLSD& pNotificationData) const;
+	void setFileName(std::string pFileName) {mFileName = pFileName;}
 
 	LLNotificationResponderInterface* createResponder(const std::string& pNotificationName, const LLSD& pParams) const;
 
