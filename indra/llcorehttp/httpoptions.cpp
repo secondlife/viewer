@@ -39,7 +39,8 @@ HttpOptions::HttpOptions()
 	  mTracing(HTTP_TRACE_OFF),
 	  mTimeout(HTTP_REQUEST_TIMEOUT_DEFAULT),
 	  mTransferTimeout(HTTP_REQUEST_XFER_TIMEOUT_DEFAULT),
-	  mRetries(HTTP_RETRY_COUNT_DEFAULT)
+	  mRetries(HTTP_RETRY_COUNT_DEFAULT),
+	  mUseRetryAfter(HTTP_USE_RETRY_AFTER_DEFAULT)
 {}
 
 
@@ -74,6 +75,11 @@ void HttpOptions::setTransferTimeout(unsigned int timeout)
 void HttpOptions::setRetries(unsigned int retries)
 {
 	mRetries = retries;
+}
+
+void HttpOptions::setUseRetryAfter(bool use_retry)
+{
+	mUseRetryAfter = use_retry;
 }
 
 

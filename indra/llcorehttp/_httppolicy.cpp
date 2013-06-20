@@ -160,8 +160,12 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 	
 	const HttpTime now(totalTime());
 	const int policy_class(op->mReqPolicy);
-	
-	const HttpTime delta(retry_deltas[llclamp(op->mPolicyRetries, 0, delta_max)]);
+	HttpTime delta(retry_deltas[llclamp(op->mPolicyRetries, 0, delta_max)]);
+
+	if (op->mReplyRetryAfter > 0 && op->mReplyRetryAfter < 30)
+	{
+		delta = op->mReplyRetryAfter * U64L(1000000);
+	}
 	op->mPolicyRetryAt = now + delta;
 	++op->mPolicyRetries;
 	if (error_503 == op->mStatus)
@@ -170,10 +174,10 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 	}
 	LL_WARNS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
 						 << " retry " << op->mPolicyRetries
-						 << " scheduled for +" << (delta / HttpTime(1000))
+						 << " scheduled in " << (delta / HttpTime(1000))
 						 << " mS.  Status:  " << op->mStatus.toHex()
 						 << LL_ENDL;
-	if (op->mTracing > 0)
+	if (op->mTracing > HTTP_TRACE_OFF)
 	{
 		LL_INFOS("CoreHttp") << "TRACE, ToRetryQueue, Handle:  "
 							 << static_cast<HttpHandle>(op)

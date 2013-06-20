@@ -64,6 +64,15 @@ int parse_content_range_header(char * buffer,
 							   unsigned int * last,
 							   unsigned int * length);
 
+// Similar for Retry-After headers.  Only parses the delta form
+// of the header, HTTP time formats aren't interesting for client
+// purposes.
+//
+// @return		0 if successfully parsed and seconds time delta
+//				returned in time argument.
+//
+int parse_retry_after_header(char * buffer, int * time);
+
 
 // Take data from libcurl's CURLOPT_DEBUGFUNCTION callback and
 // escape and format it for a tracing line in logging.  Absolutely
@@ -74,14 +83,12 @@ void escape_libcurl_debug_data(char * buffer, size_t len, bool scrub,
 							   std::string & safe_line);
 
 
-// OS-neutral string comparisons of various types
-int os_strncasecmp(const char *s1, const char *s2, size_t n);
-int os_strcasecmp(const char *s1, const char *s2);
-char * os_strtok_r(char *str, const char *delim, char **saveptr);
-
-
-static const char * const hdr_whitespace(" \t");
-static const char * const hdr_separator(": \t");
+// OS-neutral string comparisons of various types.
+int os_strcasecmp(const char * s1, const char * s2);
+char * os_strtok_r(char * str, const char * delim, char ** saveptr);
+char * os_strtrim(char * str);
+char * os_strltrim(char * str);
+void os_strlower(char * str);
 
 } // end anonymous namespace
 
@@ -104,6 +111,8 @@ HttpOpRequest::HttpOpRequest()
 	  mCurlService(NULL),
 	  mCurlHeaders(NULL),
 	  mCurlBodyPos(0),
+	  mCurlTemp(NULL),
+	  mCurlTempLen(0),
 	  mReplyBody(NULL),
 	  mReplyOffset(0),
 	  mReplyLength(0),
@@ -154,6 +163,10 @@ HttpOpRequest::~HttpOpRequest()
 		mCurlHeaders = NULL;
 	}
 
+	delete [] mCurlTemp;
+	mCurlTemp = NULL;
+	mCurlTempLen = 0;
+	
 	if (mReplyBody)
 	{
 		mReplyBody->release();
@@ -207,6 +220,11 @@ void HttpOpRequest::stageFromActive(HttpService * service)
 		mCurlHeaders = NULL;
 	}
 
+	// Also not needed on the other side
+	delete [] mCurlTemp;
+	mCurlTemp = NULL;
+	mCurlTempLen = 0;
+	
 	addAsReply();
 }
 
@@ -334,6 +352,10 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 		if (options->getWantHeaders())
 		{
 			mProcFlags |= PF_SAVE_HEADERS;
+		}
+		if (options->getUseRetryAfter())
+		{
+			mProcFlags |= PF_USE_RETRY_AFTER;
 		}
 		mPolicyRetryLimit = options->getRetries();
 		mPolicyRetryLimit = llclamp(mPolicyRetryLimit, HTTP_RETRY_COUNT_MIN, HTTP_RETRY_COUNT_MAX);
@@ -549,7 +571,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	}
 	curl_easy_setopt(mCurlHandle, CURLOPT_HTTPHEADER, mCurlHeaders);
 
-	if (mProcFlags & (PF_SCAN_RANGE_HEADER | PF_SAVE_HEADERS))
+	if (mProcFlags & (PF_SCAN_RANGE_HEADER | PF_SAVE_HEADERS | PF_USE_RETRY_AFTER))
 	{
 		curl_easy_setopt(mCurlHandle, CURLOPT_HEADERFUNCTION, headerCallback);
 		curl_easy_setopt(mCurlHandle, CURLOPT_HEADERDATA, this);
@@ -610,10 +632,9 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 {
 	static const char status_line[] = "HTTP/";
 	static const size_t status_line_len = sizeof(status_line) - 1;
-
-	static const char con_ran_line[] = "content-range:";
-	static const size_t con_ran_line_len = sizeof(con_ran_line) - 1;
-
+	static const char con_ran_line[] = "content-range";
+	static const char con_retry_line[] = "retry-after";
+	
 	HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
 
 	const size_t hdr_size(size * nmemb);
@@ -627,6 +648,7 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 		op->mReplyOffset = 0;
 		op->mReplyLength = 0;
 		op->mReplyFullLength = 0;
+		op->mReplyRetryAfter = 0;
 		op->mStatus = HttpStatus();
 		if (op->mReplyHeaders)
 		{
@@ -645,6 +667,53 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 			--wanted_hdr_size;
 		}
 	}
+
+	// Copy and normalize header fragments for the following
+	// stages.  Would like to modify the data in-place but that
+	// may not be allowed and we need one byte extra for NUL.
+	// At the end of this we will have:
+	//
+	// If ':' present in header:
+	//   1.  name points to text to left of colon which
+	//       will be ascii lower-cased and left and right
+	//       trimmed of whitespace.
+	//   2.  value points to text to right of colon which
+	//       will be left trimmed of whitespace.
+	// Otherwise:
+	//   1.  name points to header which will be left
+	//       trimmed of whitespace.
+	//   2.  value is NULL
+	// Any non-NULL pointer may point to a zero-length string.
+	//
+	if (wanted_hdr_size >= op->mCurlTempLen)
+	{
+		delete [] op->mCurlTemp;
+		op->mCurlTempLen = 2 * wanted_hdr_size + 1;
+		op->mCurlTemp = new char [op->mCurlTempLen];
+	}
+	memcpy(op->mCurlTemp, hdr_data, wanted_hdr_size);
+	op->mCurlTemp[wanted_hdr_size] = '\0';
+	char * name(op->mCurlTemp);
+	char * value(strchr(name, ':'));
+	if (value)
+	{
+		*value++ = '\0';
+		os_strlower(name);
+		name = os_strtrim(name);
+		value = os_strltrim(value);
+	}
+	else
+	{
+		// Doesn't look well-formed, do minimal normalization on it
+		name = os_strltrim(name);
+	}
+
+	// Normalized, now reject headers with empty names.
+	if (! *name)
+	{
+		// No use continuing
+		return hdr_size;
+	}
 	
 	// Save header if caller wants them in the response
 	if (is_header && op->mProcFlags & PF_SAVE_HEADERS)
@@ -654,43 +723,53 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 		{
 			op->mReplyHeaders = new HttpHeaders;
 		}
-		op->mReplyHeaders->appendNormal(hdr_data, wanted_hdr_size);
+		op->mReplyHeaders->append(name, value ? value : "");
 	}
 
+	// From this point, header-specific processors are free to
+	// modify the header value.
+	
 	// Detect and parse 'Content-Range' headers
-	if (is_header && op->mProcFlags & PF_SCAN_RANGE_HEADER)
+	if (is_header
+		&& op->mProcFlags & PF_SCAN_RANGE_HEADER
+		&& value && *value
+		&& ! strcmp(name, con_ran_line))
 	{
-		char hdr_buffer[128];			// Enough for a reasonable header
-		size_t frag_size((std::min)(wanted_hdr_size, sizeof(hdr_buffer) - 1));
-		
-		memcpy(hdr_buffer, hdr_data, frag_size);
-		hdr_buffer[frag_size] = '\0';
-		if (frag_size > con_ran_line_len &&
-			! os_strncasecmp(hdr_buffer, con_ran_line, con_ran_line_len))
-		{
-			unsigned int first(0), last(0), length(0);
-			int status;
+		unsigned int first(0), last(0), length(0);
+		int status;
 
-			if (! (status = parse_content_range_header(hdr_buffer, &first, &last, &length)))
-			{
-				// Success, record the fragment position
-				op->mReplyOffset = first;
-				op->mReplyLength = last - first + 1;
-				op->mReplyFullLength = length;
-			}
-			else if (-1 == status)
-			{
-				// Response is badly formed and shouldn't be accepted
-				op->mStatus = HttpStatus(HttpStatus::LLCORE, HE_INV_CONTENT_RANGE_HDR);
-			}
-			else
-			{
-				// Ignore the unparsable.
-				LL_INFOS_ONCE("CoreHttp") << "Problem parsing odd Content-Range header:  '"
-										  << std::string(hdr_data, frag_size)
-										  << "'.  Ignoring."
-										  << LL_ENDL;
-			}
+		if (! (status = parse_content_range_header(value, &first, &last, &length)))
+		{
+			// Success, record the fragment position
+			op->mReplyOffset = first;
+			op->mReplyLength = last - first + 1;
+			op->mReplyFullLength = length;
+		}
+		else if (-1 == status)
+		{
+			// Response is badly formed and shouldn't be accepted
+			op->mStatus = HttpStatus(HttpStatus::LLCORE, HE_INV_CONTENT_RANGE_HDR);
+		}
+		else
+		{
+			// Ignore the unparsable.
+			LL_INFOS_ONCE("CoreHttp") << "Problem parsing odd Content-Range header:  '"
+									  << std::string(hdr_data, wanted_hdr_size)
+									  << "'.  Ignoring."
+									  << LL_ENDL;
+		}
+	}
+
+	// Detect and parse 'Retry-After' headers
+	if (is_header
+		&& op->mProcFlags & PF_USE_RETRY_AFTER
+		&& value && *value
+		&& ! strcmp(name, con_retry_line))
+	{
+		int time(0);
+		if (! parse_retry_after_header(value, &time))
+		{
+			op->mReplyRetryAfter = time;
 		}
 	}
 
@@ -805,14 +884,16 @@ int parse_content_range_header(char * buffer,
 							   unsigned int * last,
 							   unsigned int * length)
 {
+	static const char * const hdr_whitespace(" \t");
+
 	char * tok_state(NULL), * tok(NULL);
 	bool match(true);
 			
-	if (! os_strtok_r(buffer, hdr_separator, &tok_state))
+	if (! (tok = os_strtok_r(buffer, hdr_whitespace, &tok_state)))
 		match = false;
-	if (match && (tok = os_strtok_r(NULL, hdr_whitespace, &tok_state)))
-		match = 0 == os_strcasecmp("bytes", tok);
-	if (match && ! (tok = os_strtok_r(NULL, " \t", &tok_state)))
+	else
+		match = (0 == os_strcasecmp("bytes", tok));
+	if (match && ! (tok = os_strtok_r(NULL, hdr_whitespace, &tok_state)))
 		match = false;
 	if (match)
 	{
@@ -846,6 +927,25 @@ int parse_content_range_header(char * buffer,
 		}
 	}
 
+	// Header is there but badly/unexpectedly formed, try to ignore it.
+	return 1;
+}
+
+
+int parse_retry_after_header(char * buffer, int * time)
+{
+	char * endptr(buffer);
+	long lcl_time(strtol(buffer, &endptr, 10));
+	if (*endptr == '\0' && endptr != buffer && lcl_time > 0)
+	{
+		*time = lcl_time;
+		return 0;
+	}
+
+	// Could attempt to parse HTTP time here but we're not really
+	// interested in it.  Scheduling based on wallclock time on
+	// user hardware will lead to tears.
+	
 	// Header is there but badly/unexpectedly formed, try to ignore it.
 	return 1;
 }
@@ -887,15 +987,6 @@ void escape_libcurl_debug_data(char * buffer, size_t len, bool scrub, std::strin
 }
 
 
-int os_strncasecmp(const char *s1, const char *s2, size_t n)
-{
-#if LL_WINDOWS
-	return _strnicmp(s1, s2, n);
-#else
-	return strncasecmp(s1, s2, n);
-#endif	// LL_WINDOWS
-}
-
 
 int os_strcasecmp(const char *s1, const char *s2)
 {
@@ -914,6 +1005,45 @@ char * os_strtok_r(char *str, const char *delim, char ** savestate)
 #else
 	return strtok_r(str, delim, savestate);
 #endif
+}
+
+
+void os_strlower(char * str)
+{
+	for (char c(0); (c = *str); ++str)
+	{
+		*str = tolower(c);
+	}
+}
+
+
+char * os_strtrim(char * lstr)
+{
+	while (' ' == *lstr || '\t' == *lstr)
+	{
+		++lstr;
+	}
+	if (*lstr)
+	{
+		for (char * rstr(lstr + strlen(lstr)); *--rstr;)
+		{
+			if (' ' == *rstr || '\t' == *rstr)
+			{
+				*rstr = '\0';
+			}
+		}
+	}
+	return lstr;
+}
+
+
+char * os_strltrim(char * lstr)
+{
+	while (' ' == *lstr || '\t' == *lstr)
+	{
+		++lstr;
+	}
+	return lstr;
 }
 
 

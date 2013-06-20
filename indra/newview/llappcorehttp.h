@@ -47,7 +47,8 @@ public:
 	{
 		AP_DEFAULT,
 		AP_TEXTURE,
-		AP_MESH,
+		AP_MESH1,
+		AP_MESH2,
 		AP_LARGE_MESH,
 		AP_UPLOADS,
 		AP_COUNT						// Must be last

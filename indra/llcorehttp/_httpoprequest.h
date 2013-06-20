@@ -158,6 +158,7 @@ protected:
 	unsigned int		mProcFlags;
 	static const unsigned int	PF_SCAN_RANGE_HEADER = 0x00000001U;
 	static const unsigned int	PF_SAVE_HEADERS = 0x00000002U;
+	static const unsigned int	PF_USE_RETRY_AFTER = 0x00000004U;
 
 public:
 	// Request data
@@ -175,6 +176,8 @@ public:
 	HttpService *		mCurlService;
 	curl_slist *		mCurlHeaders;
 	size_t				mCurlBodyPos;
+	char *				mCurlTemp;				// Scratch buffer for header processing
+	size_t				mCurlTempLen;
 	
 	// Result data
 	HttpStatus			mStatus;
@@ -184,6 +187,7 @@ public:
 	size_t				mReplyFullLength;
 	HttpHeaders *		mReplyHeaders;
 	std::string			mReplyConType;
+	int					mReplyRetryAfter;
 
 	// Policy data
 	int					mPolicyRetries;

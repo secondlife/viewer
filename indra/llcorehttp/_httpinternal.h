@@ -98,7 +98,7 @@ namespace LLCore
 
 // Maxium number of policy classes that can be defined.
 // *TODO:  Currently limited to the default class + 1, extend.
-const int HTTP_POLICY_CLASS_LIMIT = 4;
+const int HTTP_POLICY_CLASS_LIMIT = 8;
 
 // Debug/informational tracing.  Used both
 // as a global option and in per-request traces.
@@ -137,6 +137,10 @@ const long HTTP_REQUEST_TIMEOUT_MAX = 3600L;
 const int HTTP_CONNECTION_LIMIT_DEFAULT = 8;
 const int HTTP_CONNECTION_LIMIT_MIN = 1;
 const int HTTP_CONNECTION_LIMIT_MAX = 256;
+
+// Miscellaneous defaults
+const long HTTP_PIPELINING_DEFAULT = 0L;
+const bool HTTP_USE_RETRY_AFTER_DEFAULT = true;
 
 // Tuning parameters
 

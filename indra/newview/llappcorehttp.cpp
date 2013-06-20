@@ -72,9 +72,15 @@ void LLAppCoreHttp::init()
 				  "texture fetch"
 			  },
 			  {
-				  AP_MESH,				8,		1,		32,		4,
+				  // *FIXME:  Should become 32, 1, 32, 1 before release
+				  AP_MESH1,				8,		1,		32,		4,
 				  "MeshMaxConcurrentRequests",
 				  "mesh fetch"
+			  },
+			  {
+				  AP_MESH2,				8,		1,		32,		4,
+				  "MeshMaxConcurrentRequests",
+				  "mesh2 fetch"
 			  },
 			  {
 				  AP_LARGE_MESH,		2,		1,		8,		1,
@@ -171,6 +177,8 @@ void LLAppCoreHttp::init()
 		}
 
 		// Set it and report
+		// *TODO:  These are intended to be per-host limits when we can
+		// support that in llcorehttp/libcurl.
 		LLCore::HttpStatus status;
 		status = LLCore::HttpRequest::setPolicyClassOption(mPolicies[policy],
 														   LLCore::HttpRequest::CP_CONNECTION_LIMIT,

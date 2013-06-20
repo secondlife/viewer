@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -37,7 +37,7 @@ HttpPolicyClass::HttpPolicyClass()
 	: mSetMask(0UL),
 	  mConnectionLimit(HTTP_CONNECTION_LIMIT_DEFAULT),
 	  mPerHostConnectionLimit(HTTP_CONNECTION_LIMIT_DEFAULT),
-	  mPipelining(0)
+	  mPipelining(HTTP_PIPELINING_DEFAULT)
 {}
 
 

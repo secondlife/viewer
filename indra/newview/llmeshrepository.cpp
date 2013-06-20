@@ -560,6 +560,7 @@ LLMeshRepoThread::LLMeshRepoThread()
   mHttpLargeOptions(NULL),
   mHttpHeaders(NULL),
   mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
+  mHttpLegacyPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
   mHttpLargePolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
   mHttpPriority(0),
   mHttpGetCount(0U),
@@ -574,8 +575,9 @@ LLMeshRepoThread::LLMeshRepoThread()
 	mHttpLargeOptions->setTransferTimeout(LARGE_MESH_XFER_TIMEOUT);
 	mHttpHeaders = new LLCore::HttpHeaders;
 	mHttpHeaders->append("Accept", "application/vnd.ll.mesh");
-	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_MESH);
-	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_LARGE_MESH);
+	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_MESH2);
+	mHttpLegacyPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_MESH1);
+	mHttpLargePolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_LARGE_MESH);
 }
 
 
@@ -795,13 +797,22 @@ void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 }
 
 //static 
-std::string LLMeshRepoThread::constructUrl(LLUUID mesh_id)
+std::string LLMeshRepoThread::constructUrl(LLUUID mesh_id, int * cap_version)
 {
+	int version(1);
 	std::string http_url;
 	
 	if (gAgent.getRegion())
 	{
-		http_url = gMeshRepo.mGetMeshCapability; 
+		if (! gMeshRepo.mGetMesh2Capability.empty())
+		{
+			version = 2;
+			http_url = gMeshRepo.mGetMesh2Capability;
+		}
+		else
+		{
+			http_url = gMeshRepo.mGetMeshCapability;
+		}
 	}
 
 	if (!http_url.empty())
@@ -814,20 +825,22 @@ std::string LLMeshRepoThread::constructUrl(LLUUID mesh_id)
 		llwarns << "Current region does not have GetMesh capability!  Cannot load " << mesh_id << ".mesh" << llendl;
 	}
 
+	*cap_version = version;
 	return http_url;
 }
 
 // May only be called by repo thread
-LLCore::HttpHandle LLMeshRepoThread::getByteRange(const std::string & url,
-												  size_t offset,
-												  size_t len,
+LLCore::HttpHandle LLMeshRepoThread::getByteRange(const std::string & url, int cap_version,
+												  size_t offset, size_t len,
 												  LLCore::HttpHandler * handler)
 {
 	LLCore::HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 	
 	if (len < LARGE_MESH_FETCH_THRESHOLD)
 	{
-		handle = mHttpRequest->requestGetByteRange(mHttpPolicyClass,
+		handle = mHttpRequest->requestGetByteRange((2 == cap_version
+													? mHttpPolicyClass
+													: mHttpLegacyPolicyClass),
 												   mHttpPriority,
 												   url,
 												   offset,
@@ -911,12 +924,13 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 			}
 
 			//reading from VFS failed for whatever reason, fetch from sim
-			std::string http_url = constructUrl(mesh_id);
+			int cap_version(1);
+			std::string http_url = constructUrl(mesh_id, &cap_version);
 			if (!http_url.empty())
 			{
 				LLMeshSkinInfoHandler * handler = new LLMeshSkinInfoHandler(mesh_id, offset, size);
 				// LL_WARNS("Mesh") << "MESH:  Issuing Skin Info Request" << LL_ENDL;
-				LLCore::HttpHandle handle = getByteRange(http_url, offset, size, handler);
+				LLCore::HttpHandle handle = getByteRange(http_url, cap_version, offset, size, handler);
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
 				{
 					// *TODO:  Better error message
@@ -1000,12 +1014,13 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 			}
 
 			//reading from VFS failed for whatever reason, fetch from sim
-			std::string http_url = constructUrl(mesh_id);
+			int cap_version(1);
+			std::string http_url = constructUrl(mesh_id, &cap_version);
 			if (!http_url.empty())
 			{
 				LLMeshDecompositionHandler * handler = new LLMeshDecompositionHandler(mesh_id, offset, size);
 				// LL_WARNS("Mesh") << "MESH:  Issuing Decomp Request" << LL_ENDL;
-				LLCore::HttpHandle handle = getByteRange(http_url, offset, size, handler);
+				LLCore::HttpHandle handle = getByteRange(http_url, cap_version, offset, size, handler);
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
 				{
 					// *TODO:  Better error message
@@ -1088,12 +1103,13 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 			}
 
 			//reading from VFS failed for whatever reason, fetch from sim
-			std::string http_url = constructUrl(mesh_id);
+			int cap_version(1);
+			std::string http_url = constructUrl(mesh_id, &cap_version);
 			if (!http_url.empty())
 			{
 				LLMeshPhysicsShapeHandler * handler = new LLMeshPhysicsShapeHandler(mesh_id, offset, size);
 				// LL_WARNS("Mesh") << "MESH:  Issuing Physics Shape Request" << LL_ENDL;
-				LLCore::HttpHandle handle = getByteRange(http_url, offset, size, handler);
+				LLCore::HttpHandle handle = getByteRange(http_url, cap_version, offset, size, handler);
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
 				{
 					// *TODO:  Better error message
@@ -1177,7 +1193,8 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, U32& c
 
 	//either cache entry doesn't exist or is corrupt, request header from simulator	
 	bool retval = true ;
-	std::string http_url = constructUrl(mesh_params.getSculptID());
+	int cap_version(1);
+	std::string http_url = constructUrl(mesh_params.getSculptID(), &cap_version);
 	if (!http_url.empty())
 	{
 		//grab first 4KB if we're going to bother with a fetch.  Cache will prevent future fetches if a full mesh fits
@@ -1186,7 +1203,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, U32& c
 
 		LLMeshHeaderHandler * handler = new LLMeshHeaderHandler(mesh_params);
 		// LL_WARNS("Mesh") << "MESH:  Issuing Request" << LL_ENDL;
-		LLCore::HttpHandle handle = getByteRange(http_url, 0, MESH_HEADER_SIZE, handler);
+		LLCore::HttpHandle handle = getByteRange(http_url, cap_version, 0, MESH_HEADER_SIZE, handler);
 		if (LLCORE_HTTP_HANDLE_INVALID == handle)
 		{
 			// *TODO:  Better error message
@@ -1261,12 +1278,13 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 			}
 
 			//reading from VFS failed for whatever reason, fetch from sim
-			std::string http_url = constructUrl(mesh_id);
+			int cap_version(1);
+			std::string http_url = constructUrl(mesh_id, &cap_version);
 			if (!http_url.empty())
 			{
 				LLMeshLODHandler * handler = new LLMeshLODHandler(mesh_params, lod, offset, size);
 				// LL_WARNS("Mesh") << "MESH:  Issuing LOD Request" << LL_ENDL;
-				LLCore::HttpHandle handle = getByteRange(http_url, offset, size, handler);
+				LLCore::HttpHandle handle = getByteRange(http_url, cap_version, offset, size, handler);
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
 				{
 					// *TODO:  Better error message
@@ -2653,6 +2671,7 @@ void LLMeshRepository::notifyLoadedMeshes()
 		{
 			region_name = gAgent.getRegion()->getName();
 			mGetMeshCapability = gAgent.getRegion()->getCapability("GetMesh");
+			mGetMesh2Capability = gAgent.getRegion()->getCapability("GetMesh2");
 		}
 	}
 

@@ -328,13 +328,14 @@ public:
 	LLCore::HttpOptions *				mHttpLargeOptions;
 	LLCore::HttpHeaders *				mHttpHeaders;
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;
+	LLCore::HttpRequest::policy_t		mHttpLegacyPolicyClass;
 	LLCore::HttpRequest::policy_t		mHttpLargePolicyClass;
 	LLCore::HttpRequest::priority_t		mHttpPriority;
 
 	typedef std::set<LLCore::HttpHandler *> http_request_set;
 	http_request_set					mHttpRequestSet;			// Outstanding HTTP requests
 
-	static std::string constructUrl(LLUUID mesh_id);
+	static std::string constructUrl(LLUUID mesh_id, int * cap_version);
 
 	LLMeshRepoThread();
 	~LLMeshRepoThread();
@@ -384,7 +385,8 @@ private:
 	// or dispose of handler.
 	//
 	// Threads:  Repo thread only
-	LLCore::HttpHandle getByteRange(const std::string & url, size_t offset, size_t len, 
+	LLCore::HttpHandle getByteRange(const std::string & url, int cap_version,
+									size_t offset, size_t len, 
 									LLCore::HttpHandler * handler);
 
 private:
@@ -595,7 +597,7 @@ public:
 	void updateInventory(inventory_data data);
 
 	std::string mGetMeshCapability;
-
+	std::string mGetMesh2Capability;
 };
 
 extern LLMeshRepository gMeshRepo;

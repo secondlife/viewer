@@ -98,13 +98,19 @@ public:
 			return mRetries;
 		}
 	
+	void				setUseRetryAfter(bool use_retry);
+	bool				getUseRetryAfter() const
+		{
+			return mUseRetryAfter;
+		}
+	
 protected:
 	bool				mWantHeaders;
 	int					mTracing;
 	unsigned int		mTimeout;
 	unsigned int		mTransferTimeout;
 	unsigned int		mRetries;
-	
+	bool				mUseRetryAfter;
 }; // end class HttpOptions
 
 

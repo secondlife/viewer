@@ -55,9 +55,6 @@ HttpService::HttpService()
 {
 	// Create the default policy class
 	HttpPolicyClass pol_class;
-	pol_class.set(HttpRequest::CP_CONNECTION_LIMIT, HTTP_CONNECTION_LIMIT_DEFAULT);
-	pol_class.set(HttpRequest::CP_PER_HOST_CONNECTION_LIMIT, HTTP_CONNECTION_LIMIT_DEFAULT);
-	pol_class.set(HttpRequest::CP_ENABLE_PIPELINING, 0L);
 	mPolicyClasses.push_back(pol_class);
 }
 
