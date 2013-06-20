@@ -1941,6 +1941,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	registrar.add("Url.OpenInternal", boost::bind(&LLUrlAction::openURLInternal, url));
 	registrar.add("Url.OpenExternal", boost::bind(&LLUrlAction::openURLExternal, url));
 	registrar.add("Url.Execute", boost::bind(&LLUrlAction::executeSLURL, url));
+	registrar.add("Url.Block", boost::bind(&LLUrlAction::blockObject, url));
 	registrar.add("Url.Teleport", boost::bind(&LLUrlAction::teleportToLocation, url));
 	registrar.add("Url.ShowProfile", boost::bind(&LLUrlAction::showProfile, url));
 	registrar.add("Url.AddFriend", boost::bind(&LLUrlAction::addFriend, url));
@@ -1956,7 +1957,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 																		 LLMenuHolderGL::child_registry_t::instance());	
 	if (mIsFriendSignal)
 	{
-		bool isFriend = (*mIsFriendSignal)(LLUUID(LLUrlAction::getUserID(url)));
+		bool isFriend = *(*mIsFriendSignal)(LLUUID(LLUrlAction::getUserID(url)));
 		LLView* addFriendButton = mPopupMenu->getChild<LLView>("add_friend");
 		LLView* removeFriendButton = mPopupMenu->getChild<LLView>("remove_friend");
 

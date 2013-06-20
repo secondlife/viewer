@@ -170,6 +170,30 @@ std::string LLUrlAction::getUserID(std::string url)
 	return id_str;
 }
 
+std::string LLUrlAction::getObjectId(std::string url)
+{
+	LLURI uri(url);
+	LLSD path_array = uri.pathArray();
+	std::string id_str;
+	if (path_array.size() >= 3)
+	{
+		id_str = path_array.get(2).asString();
+	}
+	return id_str;
+}
+
+std::string LLUrlAction::getObjectName(std::string url)
+{
+	LLURI uri(url);
+	LLSD query_map = uri.queryMap();
+	std::string name;
+	if (query_map.has("name"))
+	{
+		name = query_map["name"];
+	}
+	return name;
+}
+
 void LLUrlAction::sendIM(std::string url)
 {
 	std::string id_str = getUserID(url);
@@ -194,5 +218,15 @@ void LLUrlAction::removeFriend(std::string url)
 	if (LLUUID::validate(id_str))
 	{
 		executeSLURL("secondlife:///app/agent/" + id_str + "/removefriend");
+	}
+}
+
+void LLUrlAction::blockObject(std::string url)
+{
+	std::string object_id = getObjectId(url);
+	std::string object_name = getObjectName(url);
+	if (LLUUID::validate(object_id))
+	{
+		executeSLURL("secondlife:///app/agent/" + object_id + "/block/" + object_name);
 	}
 }
