@@ -34,8 +34,9 @@
 #include "llgl.h"
 #include "llfontgl.h"
 
-#include "llstat.h"
 #include "lluictrlfactory.h"
+#include "lltracerecording.h"
+#include "llcriticaldamp.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -45,68 +46,105 @@ LLStatBar::LLStatBar(const Params& p)
 	  mUnitLabel(p.unit_label),
 	  mMinBar(p.bar_min),
 	  mMaxBar(p.bar_max),
-	  mStatp(LLStat::getStat(p.stat)),
+	  mCurMaxBar(p.bar_max),
 	  mTickSpacing(p.tick_spacing),
-	  mLabelSpacing(p.label_spacing),
 	  mPrecision(p.precision),
 	  mUpdatesPerSec(p.update_rate),
+	  mUnitScale(p.unit_scale),
+	  mNumFrames(p.num_frames),
+	  mMaxHeight(p.max_height),
 	  mPerSec(p.show_per_sec),
 	  mDisplayBar(p.show_bar),
 	  mDisplayHistory(p.show_history),
-	  mDisplayMean(p.show_mean)
+	  mDisplayMean(p.show_mean),
+	  mOrientation(p.orientation),
+	  mScaleRange(p.scale_range)
 {
+	setStat(p.stat);
 }
 
 BOOL LLStatBar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (mDisplayBar)
+	BOOL handled = LLView::handleMouseDown(x, y, mask);
+	if (!handled)
 	{
-		if (mDisplayHistory)
+		if (mDisplayBar)
 		{
-			mDisplayBar = FALSE;
-			mDisplayHistory = FALSE;
+			if (mDisplayHistory || mOrientation == HORIZONTAL)
+			{
+				mDisplayBar = FALSE;
+				mDisplayHistory = FALSE;
+			}
+			else
+			{
+				mDisplayHistory = TRUE;
+			}
 		}
 		else
 		{
-			mDisplayHistory = TRUE;
+			mDisplayBar = TRUE;
+			if (mOrientation == HORIZONTAL)
+			{
+				mDisplayHistory = TRUE;
+			}
 		}
+		LLView* parent = getParent();
+		parent->reshape(parent->getRect().getWidth(), parent->getRect().getHeight(), FALSE);
 	}
-	else
-	{
-		mDisplayBar = TRUE;
-	}
-
-	LLView* parent = getParent();
-	parent->reshape(parent->getRect().getWidth(), parent->getRect().getHeight(), FALSE);
-
-	return FALSE;
+	return TRUE;
 }
 
 void LLStatBar::draw()
 {
-	if (!mStatp)
+	F32 current = 0.f, 
+		min     = 0.f, 
+		max     = 0.f,
+		mean    = 0.f;
+
+	LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
+
+	if (mCountFloatp)
 	{
-//		llinfos << "No stats for statistics bar!" << llendl;
-		return;
+		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording(); 
+
+		if (mPerSec)
+		{
+			current = last_frame_recording.getPerSec(*mCountFloatp);
+			min     = frame_recording.getPeriodMinPerSec(*mCountFloatp, mNumFrames);
+			max     = frame_recording.getPeriodMaxPerSec(*mCountFloatp, mNumFrames);
+			mean    = frame_recording.getPeriodMeanPerSec(*mCountFloatp, mNumFrames);
+		}
+		else
+		{
+			current = last_frame_recording.getSum(*mCountFloatp);
+			min     = frame_recording.getPeriodMin(*mCountFloatp, mNumFrames);
+			max     = frame_recording.getPeriodMax(*mCountFloatp, mNumFrames);
+			mean    = frame_recording.getPeriodMean(*mCountFloatp, mNumFrames);
+		}
+	}
+	else if (mEventFloatp)
+	{
+		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording();
+
+		current = last_frame_recording.getMean(*mEventFloatp);
+		min     = frame_recording.getPeriodMin(*mEventFloatp, mNumFrames);
+		max     = frame_recording.getPeriodMax(*mEventFloatp, mNumFrames);
+		mean    = frame_recording.getPeriodMean(*mEventFloatp, mNumFrames);
+	}
+	else if (mSampleFloatp)
+	{
+		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording();
+
+		current = last_frame_recording.getLastValue(*mSampleFloatp);
+		min     = frame_recording.getPeriodMin(*mSampleFloatp, mNumFrames);
+		max     = frame_recording.getPeriodMax(*mSampleFloatp, mNumFrames);
+		mean    = frame_recording.getPeriodMean(*mSampleFloatp, mNumFrames);
 	}
 
-	// Get the values.
-	F32 current, min, max, mean;
-	if (mPerSec)
-	{
-		current = mStatp->getCurrentPerSec();
-		min = mStatp->getMinPerSec();
-		max = mStatp->getMaxPerSec();
-		mean = mStatp->getMeanPerSec();
-	}
-	else
-	{
-		current = mStatp->getCurrent();
-		min = mStatp->getMin();
-		max = mStatp->getMax();
-		mean = mStatp->getMean();
-	}
-
+	current *= mUnitScale;
+	min     *= mUnitScale;
+	max     *= mUnitScale;
+	mean    *= mUnitScale;
 
 	if ((mUpdatesPerSec == 0.f) || (mUpdateTimer.getElapsedTimeF32() > 1.f/mUpdatesPerSec) || (mValue == 0.f))
 	{
@@ -121,15 +159,41 @@ void LLStatBar::draw()
 		mUpdateTimer.reset();
 	}
 
-	S32 width = getRect().getWidth() - 40;
-	S32 max_width = width;
-	S32 bar_top = getRect().getHeight() - 15; // 16 pixels from top.
-	S32 bar_height = bar_top - 20;
-	S32 tick_height = 4;
-	S32 tick_width = 1;
-	S32 left, top, right, bottom;
+	S32 bar_top, bar_left, bar_right, bar_bottom;
+	if (mOrientation == HORIZONTAL)
+	{
+		bar_top    = llmax(5, getRect().getHeight() - 15); 
+		bar_left   = 0;
+		bar_right  = getRect().getWidth() - 40;
+		bar_bottom = llmin(bar_top - 5, 0);
+	}
+	else // VERTICAL
+	{
+		bar_top    = llmax(5, getRect().getHeight() - 15); 
+		bar_left   = 0;
+		bar_right  = getRect().getWidth();
+		bar_bottom = llmin(bar_top - 5, 20);
+	}
+	const S32 tick_length = 4;
+	const S32 tick_width = 1;
 
-	F32 value_scale = max_width/(mMaxBar - mMinBar);
+	if (mScaleRange && min < max)
+	{
+		F32 cur_max = mTickSpacing;
+		while(max > cur_max && mMaxBar > cur_max)
+		{
+			cur_max += mTickSpacing;
+		}
+		mCurMaxBar = LLSmoothInterpolation::lerp(mCurMaxBar, cur_max, 0.05f);
+	}
+	else
+	{
+		mCurMaxBar = mMaxBar;
+	}
+
+	F32 value_scale = (mOrientation == HORIZONTAL) 
+					? (bar_top - bar_bottom)/(mCurMaxBar - mMinBar)
+					: (bar_right - bar_left)/(mCurMaxBar - mMinBar);
 
 	LLFontGL::getFontMonospace()->renderUTF8(mLabel, 0, 0, getRect().getHeight(), LLColor4(1.f, 1.f, 1.f, 1.f),
 											 LLFontGL::LEFT, LLFontGL::TOP);
@@ -148,120 +212,231 @@ void LLStatBar::draw()
 	}
 
 	// Draw the value.
-	LLFontGL::getFontMonospace()->renderUTF8(value_str, 0, width, getRect().getHeight(), 
-											 LLColor4(1.f, 1.f, 1.f, 0.5f),
-											 LLFontGL::RIGHT, LLFontGL::TOP);
+	if (mOrientation == HORIZONTAL)
+	{
+		LLFontGL::getFontMonospace()->renderUTF8(value_str, 0, bar_right, getRect().getHeight(), 
+			LLColor4(1.f, 1.f, 1.f, 0.5f),
+			LLFontGL::RIGHT, LLFontGL::TOP);
+	}
+	else
+	{
+		LLFontGL::getFontMonospace()->renderUTF8(value_str, 0, bar_right, getRect().getHeight(), 
+			LLColor4(1.f, 1.f, 1.f, 0.5f),
+			LLFontGL::RIGHT, LLFontGL::TOP);
+	}
 
 	value_format = llformat( "%%.%df", mPrecision);
-	if (mDisplayBar)
+	if (mDisplayBar && (mCountFloatp || mEventFloatp || mSampleFloatp))
 	{
 		std::string tick_label;
 
 		// Draw the tick marks.
-		F32 tick_value;
-		top = bar_top;
-		bottom = bar_top - bar_height - tick_height/2;
-
 		LLGLSUIDefault gls_ui;
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-		for (tick_value = mMinBar; tick_value <= mMaxBar; tick_value += mTickSpacing)
+		S32 last_tick = 0;
+		S32 last_label = 0;
+		const S32 MIN_TICK_SPACING  = mOrientation == HORIZONTAL ? 20 : 30;
+		const S32 MIN_LABEL_SPACING = mOrientation == HORIZONTAL ? 40 : 60;
+		for (F32 tick_value = mMinBar + mTickSpacing; tick_value <= mCurMaxBar; tick_value += mTickSpacing)
 		{
-			left = llfloor((tick_value - mMinBar)*value_scale);
-			right = left + tick_width;
-			gl_rect_2d(left, top, right, bottom, LLColor4(1.f, 1.f, 1.f, 0.1f));
-		}
-
-		// Draw the tick labels (and big ticks).
-		bottom = bar_top - bar_height - tick_height;
-		for (tick_value = mMinBar; tick_value <= mMaxBar; tick_value += mLabelSpacing)
-		{
-			left = llfloor((tick_value - mMinBar)*value_scale);
-			right = left + tick_width;
-			gl_rect_2d(left, top, right, bottom, LLColor4(1.f, 1.f, 1.f, 0.25f));
+			const S32 begin = llfloor((tick_value - mMinBar)*value_scale);
+			const S32 end = begin + tick_width;
+			if (begin - last_tick < MIN_TICK_SPACING)
+			{
+				continue;
+			}
+			last_tick = begin;
 
 			tick_label = llformat( value_format.c_str(), tick_value);
-			// draw labels for the tick marks
-			LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, left - 1, bar_top - bar_height - tick_height,
-													 LLColor4(1.f, 1.f, 1.f, 0.5f),
-													 LLFontGL::LEFT, LLFontGL::TOP);
+
+			if (mOrientation == HORIZONTAL)
+			{
+				if (begin - last_label > MIN_LABEL_SPACING)
+				{
+					gl_rect_2d(bar_left, end, bar_right - tick_length, begin, LLColor4(1.f, 1.f, 1.f, 0.25f));
+					LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, bar_right, begin,
+						LLColor4(1.f, 1.f, 1.f, 0.5f),
+						LLFontGL::LEFT, LLFontGL::VCENTER);
+					last_label = begin;
+				}
+				else
+				{
+					gl_rect_2d(bar_left, end, bar_right - tick_length/2, begin, LLColor4(1.f, 1.f, 1.f, 0.1f));
+				}
+			}
+			else
+			{
+				if (begin - last_label > MIN_LABEL_SPACING)
+				{
+					gl_rect_2d(begin, bar_top, end, bar_bottom - tick_length, LLColor4(1.f, 1.f, 1.f, 0.25f));
+					LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, begin - 1, bar_bottom - tick_length,
+						LLColor4(1.f, 1.f, 1.f, 0.5f),
+						LLFontGL::RIGHT, LLFontGL::TOP);
+					last_label = begin;
+				}
+				else
+				{
+					gl_rect_2d(begin, bar_top, end, bar_bottom - tick_length/2, LLColor4(1.f, 1.f, 1.f, 0.1f));
+				}
+			}
 		}
 
-		// Now, draw the bars
-		top = bar_top;
-		bottom = bar_top - bar_height;
-
 		// draw background bar.
-		left = 0;
-		right = width;
-		gl_rect_2d(left, top, right, bottom, LLColor4(0.f, 0.f, 0.f, 0.25f));
+		gl_rect_2d(bar_left, bar_top, bar_right, bar_bottom, LLColor4(0.f, 0.f, 0.f, 0.25f));
 
-		if (mStatp->getNumValues() == 0)
+		if (frame_recording.getNumRecordedPeriods() == 0)
 		{
 			// No data, don't draw anything...
 			return;
 		}
-		// draw min and max
-		left = (S32) ((min - mMinBar) * value_scale);
 
-		if (left < 0)
+		// draw min and max
+		S32 begin = (S32) ((min - mMinBar) * value_scale);
+
+		if (begin < 0)
 		{
-			left = 0;
+			begin = 0;
 			llwarns << "Min:" << min << llendl;
 		}
 
-		right = (S32) ((max - mMinBar) * value_scale);
-		gl_rect_2d(left, top, right, bottom, LLColor4(1.f, 0.f, 0.f, 0.25f));
-
-		S32 num_values = mStatp->getNumValues() - 1;
-		if (mDisplayHistory)
+		S32 end = (S32) ((max - mMinBar) * value_scale);
+		if (mOrientation == HORIZONTAL)
 		{
+			gl_rect_2d(bar_left, end, bar_right, begin, LLColor4(1.f, 0.f, 0.f, 0.25f));
+		}
+		else // VERTICAL
+		{
+			gl_rect_2d(begin, bar_top, end, bar_bottom, LLColor4(1.f, 0.f, 0.f, 0.25f));
+		}
+
+		F32 span = (mOrientation == HORIZONTAL)
+					? (bar_right - bar_left)
+					: (bar_top - bar_bottom);
+
+		if (mDisplayHistory && (mCountFloatp || mEventFloatp || mSampleFloatp))
+		{
+			const S32 num_values = frame_recording.getNumRecordedPeriods() - 1;
+			F32 begin = 0;
+			F32 end = 0;
 			S32 i;
-			for (i = 0; i < num_values; i++)
+			gGL.color4f( 1.f, 0.f, 0.f, 1.f );
+			gGL.begin( LLRender::QUADS );
+			const S32 max_frame = llmin(mNumFrames, num_values);
+			U32 num_samples = 0;
+			for (i = 1; i <= max_frame; i++)
 			{
-				if (i == mStatp->getNextBin())
-				{
-					continue;
-				}
+				F32 offset = ((F32)i / (F32)mNumFrames) * span;
+				LLTrace::Recording& recording = frame_recording.getPrevRecording(i);
 				if (mPerSec)
 				{
-					left = (S32)((mStatp->getPrevPerSec(i) - mMinBar) * value_scale);
-					right = (S32)((mStatp->getPrevPerSec(i) - mMinBar) * value_scale) + 1;
-					gl_rect_2d(left, bottom+i+1, right, bottom+i, LLColor4(1.f, 0.f, 0.f, 1.f));
+					if (mCountFloatp)
+					{
+						begin       = ((recording.getPerSec(*mCountFloatp)  - mMinBar) * value_scale);
+						end         = ((recording.getPerSec(*mCountFloatp)  - mMinBar) * value_scale) + 1;
+						num_samples = recording.getSampleCount(*mCountFloatp);
+					}
+					else if (mEventFloatp)
+					{
+						//rate isn't defined for measurement stats, so use mean
+						begin       = ((recording.getMean(*mEventFloatp)  - mMinBar) * value_scale);
+						end         = ((recording.getMean(*mEventFloatp)  - mMinBar) * value_scale) + 1;
+						num_samples = recording.getSampleCount(*mEventFloatp);
+					}
+					else if (mSampleFloatp)
+					{
+						//rate isn't defined for sample stats, so use mean
+						begin       = ((recording.getMean(*mEventFloatp)  - mMinBar) * value_scale);
+						end         = ((recording.getMean(*mEventFloatp)  - mMinBar) * value_scale) + 1;
+						num_samples = recording.getSampleCount(*mEventFloatp);
+					}
 				}
 				else
 				{
-					left = (S32)((mStatp->getPrev(i) - mMinBar) * value_scale);
-					right = (S32)((mStatp->getPrev(i) - mMinBar) * value_scale) + 1;
-					gl_rect_2d(left, bottom+i+1, right, bottom+i, LLColor4(1.f, 0.f, 0.f, 1.f));
+					if (mCountFloatp)
+					{
+						begin       = ((recording.getSum(*mCountFloatp)  - mMinBar) * value_scale);
+						end         = ((recording.getSum(*mCountFloatp)  - mMinBar) * value_scale) + 1;
+						num_samples = recording.getSampleCount(*mCountFloatp);
+					}
+					else if (mEventFloatp)
+					{
+						begin       = ((recording.getMean(*mEventFloatp)  - mMinBar) * value_scale);
+						end         = ((recording.getMean(*mEventFloatp)  - mMinBar) * value_scale) + 1;
+						num_samples = recording.getSampleCount(*mEventFloatp);
+					}
+					else if (mSampleFloatp)
+					{
+						begin       = ((recording.getMean(*mEventFloatp)  - mMinBar) * value_scale);
+						end         = ((recording.getMean(*mEventFloatp)  - mMinBar) * value_scale) + 1;
+						num_samples = recording.getSampleCount(*mEventFloatp);
+					}
+ 				}
+				
+				if (!num_samples) continue;
+
+				if (mOrientation == HORIZONTAL)
+				{
+					gGL.vertex2f((F32)bar_right - offset, end);
+					gGL.vertex2f((F32)bar_right - offset, begin);
+					gGL.vertex2f((F32)bar_right - offset - 1.f, begin);
+					gGL.vertex2f((F32)bar_right - offset - 1.f, end);
+				}
+				else
+				{
+					gGL.vertex2f(begin, (F32)bar_bottom+offset+1.f);
+					gGL.vertex2f(begin, (F32)bar_bottom+offset);
+					gGL.vertex2f(end, (F32)bar_bottom+offset);
+					gGL.vertex2f(end, (F32)bar_bottom+offset+1.f);
 				}
 			}
+			gGL.end();
 		}
 		else
 		{
+			S32 begin = (S32) ((current - mMinBar) * value_scale) - 1;
+			S32 end = (S32) ((current - mMinBar) * value_scale) + 1;
 			// draw current
-			left = (S32) ((current - mMinBar) * value_scale) - 1;
-			right = (S32) ((current - mMinBar) * value_scale) + 1;
-			gl_rect_2d(left, top, right, bottom, LLColor4(1.f, 0.f, 0.f, 1.f));
+			if (mOrientation == HORIZONTAL)
+			{
+				gl_rect_2d(bar_left, end, bar_right, begin, LLColor4(1.f, 0.f, 0.f, 1.f));
+			}
+			else
+			{
+				gl_rect_2d(begin, bar_top, end, bar_bottom, LLColor4(1.f, 0.f, 0.f, 1.f));
+			}
 		}
 
 		// draw mean bar
-		top = bar_top + 2;
-		bottom = bar_top - bar_height - 2;
-		left = (S32) ((mean - mMinBar) * value_scale) - 1;
-		right = (S32) ((mean - mMinBar) * value_scale) + 1;
-		gl_rect_2d(left, top, right, bottom, LLColor4(0.f, 1.f, 0.f, 1.f));
+		{
+			const S32 begin = (S32) ((mean - mMinBar) * value_scale) - 1;
+			const S32 end = (S32) ((mean - mMinBar) * value_scale) + 1;
+			if (mOrientation == HORIZONTAL)
+			{
+				gl_rect_2d(bar_left - 2, begin, bar_right + 2, end, LLColor4(0.f, 1.f, 0.f, 1.f));
+			}
+			else
+			{
+				gl_rect_2d(begin, bar_top + 2, end, bar_bottom - 2, LLColor4(0.f, 1.f, 0.f, 1.f));
+			}
+		}
 	}
 	
 	LLView::draw();
 }
 
-void LLStatBar::setRange(F32 bar_min, F32 bar_max, F32 tick_spacing, F32 label_spacing)
+void LLStatBar::setStat(const std::string& stat_name)
 {
-	mMinBar = bar_min;
-	mMaxBar = bar_max;
-	mTickSpacing = tick_spacing;
-	mLabelSpacing = label_spacing;
+	mCountFloatp	= LLTrace::TraceType<LLTrace::CountAccumulator>::getInstance(stat_name);
+	mEventFloatp	= LLTrace::TraceType<LLTrace::EventAccumulator>::getInstance(stat_name);
+	mSampleFloatp	= LLTrace::TraceType<LLTrace::SampleAccumulator>::getInstance(stat_name);
+}
+
+
+void LLStatBar::setRange(F32 bar_min, F32 bar_max, F32 tick_spacing)
+{
+	mMinBar			= bar_min;
+	mMaxBar			= bar_max;
+	mTickSpacing	= tick_spacing;
 }
 
 LLRect LLStatBar::getRequiredRect()
@@ -272,7 +447,7 @@ LLRect LLStatBar::getRequiredRect()
 	{
 		if (mDisplayHistory)
 		{
-			rect.mTop = 35 + mStatp->getNumBins();
+			rect.mTop = mMaxHeight;
 		}
 		else
 		{
@@ -285,3 +460,4 @@ LLRect LLStatBar::getRequiredRect()
 	}
 	return rect;
 }
+

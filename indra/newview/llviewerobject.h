@@ -30,8 +30,7 @@
 #include <map>
 
 #include "llassetstorage.h"
-#include "lldarrayptr.h"
-#include "llhudicon.h"
+//#include "llhudicon.h"
 #include "llinventory.h"
 #include "llrefcount.h"
 #include "llprimitive.h"
@@ -43,33 +42,30 @@
 #include "v3math.h"
 #include "llvertexbuffer.h"
 #include "llbbox.h"
-#include "llbbox.h"
 
 class LLAgent;			// TODO: Get rid of this.
 class LLAudioSource;
 class LLAudioSourceVO;
-class LLDataPacker;
 class LLColor4;
-class LLFrameTimer;
+class LLDataPacker;
+class LLDataPackerBinaryBuffer;
 class LLDrawable;
-class LLHost;
 class LLHUDText;
-class LLWorld;
-class LLNameValue;
-class LLNetMap;
+class LLHost;
 class LLMessageSystem;
+class LLNameValue;
 class LLPartSysData;
-class LLPrimitive;
 class LLPipeline;
 class LLTextureEntry;
-class LLViewerTexture;
+class LLVOAvatar;
+class LLVOInventoryListener;
 class LLViewerInventoryItem;
 class LLViewerObject;
+class LLViewerObjectMedia;
 class LLViewerPartSourceScript;
 class LLViewerRegion;
-class LLViewerObjectMedia;
-class LLVOInventoryListener;
-class LLVOAvatar;
+class LLViewerTexture;
+class LLWorld;
 
 typedef enum e_object_update_type
 {
@@ -107,7 +103,11 @@ struct PotentialReturnableObject
 
 //============================================================================
 
-class LLViewerObject : public LLPrimitive, public LLRefCount, public LLGLUpdate
+class LLViewerObject 
+:	public LLPrimitive, 
+	public LLRefCount, 
+	public LLGLUpdate,
+	public LLTrace::MemTrackable<LLViewerObject>
 {
 protected:
 	~LLViewerObject(); // use unref()
@@ -157,6 +157,7 @@ public:
         INVALID_UPDATE = 0x80000000
     };
 
+	static  U32     extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector3& pos, LLVector3& scale, LLQuaternion& rot);
 	virtual U32		processUpdateMessage(LLMessageSystem *mesgsys,
 										void **user_data,
 										U32 block_num,
@@ -303,7 +304,7 @@ public:
 	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid);
 	/*virtual*/ S32		setTENormalMap(const U8 te, const LLUUID &uuid);
 	/*virtual*/ S32		setTESpecularMap(const U8 te, const LLUUID &uuid);
-	S32 setTETextureCore(const U8 te, LLViewerTexture *image);
+	S32 				setTETextureCore(const U8 te, LLViewerTexture *image);
 	S32 setTENormalMapCore(const U8 te, LLViewerTexture *image);
 	S32 setTESpecularMapCore(const U8 te, LLViewerTexture *image);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor3 &color);
@@ -521,6 +522,7 @@ public:
 	virtual void	updateRegion(LLViewerRegion *regionp);
 
 	void updateFlags(BOOL physics_changed = FALSE);
+	void loadFlags(U32 flags); //load flags from cache or from message
 	BOOL setFlags(U32 flag, BOOL state);
 	BOOL setFlagsWithoutUpdate(U32 flag, BOOL state);
 	void setPhysicsShapeType(U8 type);
@@ -551,6 +553,13 @@ public:
 	friend class LLViewerMediaList;
 
 public:
+	static void unpackVector3(LLDataPackerBinaryBuffer* dp, LLVector3& value, std::string name);
+	static void unpackUUID(LLDataPackerBinaryBuffer* dp, LLUUID& value, std::string name);
+	static void unpackU32(LLDataPackerBinaryBuffer* dp, U32& value, std::string name);
+	static void unpackU8(LLDataPackerBinaryBuffer* dp, U8& value, std::string name);
+	static U32 unpackParentID(LLDataPackerBinaryBuffer* dp, U32& parent_id);
+
+public:
 	//counter-translation
 	void resetChildrenPosition(const LLVector3& offset, BOOL simplified = FALSE) ;
 	//counter-rotation
@@ -572,6 +581,8 @@ private:
 	
 	// Motion prediction between updates
 	void interpolateLinearMotion(const F64 & time, const F32 & dt);
+
+	static void initObjectDataMap();
 
 public:
 	//
@@ -623,6 +634,7 @@ private:
 	// Grabbed from UPDATE_FLAGS
 	U32				mFlags;
 
+	static std::map<std::string, U32> sObjectDataMap;
 public:
 	// Sent to sim in UPDATE_FLAGS, received in ObjectPhysicsProperties
 	U8              mPhysicsShapeType;
@@ -646,9 +658,10 @@ public:
 
 	// TODO: Make all this stuff private.  JC
 	LLPointer<LLHUDText> mText;
-	LLPointer<LLHUDIcon> mIcon;
+	LLPointer<class LLHUDIcon> mIcon;
 
 	static			BOOL		sUseSharedDrawables;
+	static	LLTrace::MemStatHandle	sMemStat;
 
 protected:
 	// delete an item in the inventory, but don't tell the
@@ -684,8 +697,6 @@ protected:
 	void deleteParticleSource();
 	void setParticleSource(const LLPartSysData& particle_parameters, const LLUUID& owner_id);
 	
-public:
-		
 private:
 	void setNameValueList(const std::string& list);		// clears nv pairs and then individually adds \n separated NV pairs from \0 terminated string
 	void deleteTEImages(); // correctly deletes list of images
@@ -763,6 +774,7 @@ protected:
 	static			BOOL		sPulseEnabled;
 
 	static			S32			sAxisArrowLength;
+
 
 	// These two caches are only correct for non-parented objects right now!
 	mutable LLVector3		mPositionRegion;

@@ -27,17 +27,20 @@
 #ifndef LL_LLDEPTHSTACK_H
 #define LL_LLDEPTHSTACK_H
 
-#include "linked_lists.h"
+#include "llstl.h"
 
 template <class DATA_TYPE> class LLDepthStack
 {
 private:
-	LLLinkedList<DATA_TYPE> mStack;
+	std::deque<DATA_TYPE*>	mStack;
 	U32						mCurrentDepth;
 	U32						mMaxDepth;
 
 public:
-	LLDepthStack() : mCurrentDepth(0), mMaxDepth(0) {}
+	LLDepthStack() 
+	:	mCurrentDepth(0), mMaxDepth(0) 
+	{}
+
 	~LLDepthStack()	{}
 
 	void setDepth(U32 depth)
@@ -54,24 +57,27 @@ public:
 	{ 
 		if (mCurrentDepth < mMaxDepth)
 		{
-			mStack.addData(data); 
+			mStack.push_back(data); 
 			mCurrentDepth++;
 		}
 		else
 		{
 			// the last item falls off stack and is deleted
-			mStack.getLastData();
-			mStack.deleteCurrentData();	
-			mStack.addData(data);
+			if (!mStack.empty())
+			{
+				mStack.pop_front();
+			}
+			mStack.push_back(data);
 		}
 	}
 	
 	DATA_TYPE *pop()
 	{ 
-		DATA_TYPE *tempp = mStack.getFirstData(); 
-		if (tempp)
+		DATA_TYPE *tempp = NULL;
+		if (!mStack.empty())
 		{
-			mStack.removeCurrentData(); 
+			tempp = mStack.back();
+			mStack.pop_back(); 
 			mCurrentDepth--;
 		}
 		return tempp; 
@@ -79,20 +85,20 @@ public:
 	
 	DATA_TYPE *check()
 	{ 
-		DATA_TYPE *tempp = mStack.getFirstData(); 
-		return tempp; 
+		return mStack.empty() ? NULL : mStack.back();
 	}
 	
 	void deleteAllData()
 	{ 
 		mCurrentDepth = 0;
-		mStack.deleteAllData(); 
+		std::for_each(mStack.begin(), mStack.end(), DeletePointer());
+		mStack.clear(); 
 	}
 	
 	void removeAllNodes()
 	{ 
 		mCurrentDepth = 0;
-		mStack.removeAllNodes(); 
+		mStack.clear(); 
 	}
 };
 

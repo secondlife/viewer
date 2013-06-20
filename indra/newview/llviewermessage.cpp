@@ -2628,7 +2628,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				LLSD args;
 				args["SUBJECT"] = subj;
 				args["MESSAGE"] = mes;
-				LLNotifications::instance().add(LLNotification::Params("GroupNotice").substitutions(args).payload(payload).time_stamp(timestamp));
+				LLNotifications::instance().add(LLNotification::Params("GroupNotice").substitutions(args).payload(payload).time_stamp(LLDate(timestamp)));
 			}
 
 			// Also send down the old path for now.
@@ -4129,7 +4129,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		{
 			LLTracker::stopTracking(NULL);
 		}
-		else if ( is_teleport && !gAgent.getTeleportKeepsLookAt() )
+		else if ( is_teleport && !gAgent.getTeleportKeepsLookAt() && look_at.isExactlyZero())
 		{
 			//look at the beacon
 			LLVector3 global_agent_pos = agent_pos;
@@ -4480,18 +4480,18 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 
 // *TODO: Remove this dependency, or figure out a better way to handle
 // this hack.
-extern U32 gObjectBits;
+extern LLUnit<U32, LLUnits::Bits> gObjectData;
 
 void process_object_update(LLMessageSystem *mesgsys, void **user_data)
 {	
 	// Update the data counters
 	if (mesgsys->getReceiveCompressedSize())
 	{
-		gObjectBits += mesgsys->getReceiveCompressedSize() * 8;
+		gObjectData += (LLUnit<U32, LLUnits::Bytes>)mesgsys->getReceiveCompressedSize();
 	}
 	else
 	{
-		gObjectBits += mesgsys->getReceiveSize() * 8;
+		gObjectData += (LLUnit<U32, LLUnits::Bytes>)mesgsys->getReceiveSize();
 	}
 
 	// Update the object...
@@ -4503,11 +4503,11 @@ void process_compressed_object_update(LLMessageSystem *mesgsys, void **user_data
 	// Update the data counters
 	if (mesgsys->getReceiveCompressedSize())
 	{
-		gObjectBits += mesgsys->getReceiveCompressedSize() * 8;
+		gObjectData += (LLUnit<U32, LLUnits::Bytes>)mesgsys->getReceiveCompressedSize();
 	}
 	else
 	{
-		gObjectBits += mesgsys->getReceiveSize() * 8;
+		gObjectData += (LLUnit<U32, LLUnits::Bytes>)mesgsys->getReceiveSize();
 	}
 
 	// Update the object...
@@ -4519,11 +4519,11 @@ void process_cached_object_update(LLMessageSystem *mesgsys, void **user_data)
 	// Update the data counters
 	if (mesgsys->getReceiveCompressedSize())
 	{
-		gObjectBits += mesgsys->getReceiveCompressedSize() * 8;
+		gObjectData += (LLUnit<U32, LLUnits::Bytes>)mesgsys->getReceiveCompressedSize();
 	}
 	else
 	{
-		gObjectBits += mesgsys->getReceiveSize() * 8;
+		gObjectData += (LLUnit<U32, LLUnits::Bytes>)mesgsys->getReceiveSize();
 	}
 
 	// Update the object...
@@ -4535,11 +4535,11 @@ void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_
 {
 	if (mesgsys->getReceiveCompressedSize())
 	{
-		gObjectBits += mesgsys->getReceiveCompressedSize() * 8;
+		gObjectData += (LLUnit<U32, LLUnits::Bytes>)mesgsys->getReceiveCompressedSize();
 	}
 	else
 	{
-		gObjectBits += mesgsys->getReceiveSize() * 8;
+		gObjectData += (LLUnit<U32, LLUnits::Bytes>)mesgsys->getReceiveSize();
 	}
 
 	gObjectList.processCompressedObjectUpdate(mesgsys, user_data, OUT_TERSE_IMPROVED);
@@ -4547,30 +4547,42 @@ void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_
 
 static LLFastTimer::DeclareTimer FTM_PROCESS_OBJECTS("Process Kill Objects");
 
+const U32 KILLOBJECT_DELETE_OPCODE = 0;
+
 
 void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 {
 	LLFastTimer t(FTM_PROCESS_OBJECTS);
 
 	LLUUID		id;
-	U32			local_id;
-	S32			i;
-	S32			num_objects;
 
-	num_objects = mesgsys->getNumberOfBlocksFast(_PREHASH_ObjectData);
-
-	for (i = 0; i < num_objects; i++)
+	U32 ip = mesgsys->getSenderIP();
+	U32 port = mesgsys->getSenderPort();
+	LLViewerRegion* regionp = NULL;
 	{
-		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
+		LLHost host(ip, port);
+		regionp = LLWorld::getInstance()->getRegion(host);
+	}
 
-		LLViewerObjectList::getUUIDFromLocal(id,
-											local_id,
-											gMessageSystem->getSenderIP(),
-											gMessageSystem->getSenderPort());
+	bool delete_object = false;
+	S32	num_objects = mesgsys->getNumberOfBlocksFast(_PREHASH_ObjectData);
+	for (S32 i = 0; i < num_objects; ++i)
+	{
+		U32	local_id;
+		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
+		if (local_id == KILLOBJECT_DELETE_OPCODE)
+		{
+			// This local_id is invalid, but was sent by the server to flag
+			// all subsequent local_id's as objects that were actually deleted
+			// rather than unsubscribed from interestlist.
+			delete_object = true;
+			continue;
+		}
+
+		LLViewerObjectList::getUUIDFromLocal(id, local_id, ip, port); 
 		if (id == LLUUID::null)
 		{
 			LL_DEBUGS("Messaging") << "Unknown kill for local " << local_id << LL_ENDL;
-			gObjectList.mNumUnknownKills++;
 			continue;
 		}
 		else
@@ -4578,9 +4590,12 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 			LL_DEBUGS("Messaging") << "Kill message for local " << local_id << LL_ENDL;
 		}
 
-		// ...don't kill the avatar
-		if (!(id == gAgentID))
+		if (id == gAgentID)
 		{
+			// never kill our avatar
+			continue;
+		}
+
 			LLViewerObject *objectp = gObjectList.findObject(id);
 			if (objectp)
 			{
@@ -4594,18 +4609,16 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 				// Do the kill
 				gObjectList.killObject(objectp);
 			}
-			else
+
+		if(delete_object)
 			{
-				LL_WARNS("Messaging") << "Object in UUID lookup, but not on object list in kill!" << LL_ENDL;
-				gObjectList.mNumUnknownKills++;
-			}
+			regionp->killCacheEntry(local_id);
 		}
 
 		// We should remove the object from selection after it is marked dead by gObjectList to make LLToolGrab,
         // which is using the object, release the mouse capture correctly when the object dies.
         // See LLToolGrab::handleHoverActive() and LLToolGrab::handleHoverNonPhysical().
 		LLSelectMgr::getInstance()->removeObjectFromSelections(id);
-
 	}
 }
 
@@ -4817,144 +4830,17 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 		F32 stat_value;
 		msg->getU32("Stat", "StatID", stat_id, i);
 		msg->getF32("Stat", "StatValue", stat_value, i);
-		switch (stat_id)
+		LLStatViewer::SimMeasurementSampler* measurementp = LLStatViewer::SimMeasurementSampler::getInstance((ESimStatID)stat_id);
+		
+		if (measurementp )
 		{
-		case LL_SIM_STAT_TIME_DILATION:
-			LLViewerStats::getInstance()->mSimTimeDilation.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_FPS:
-			LLViewerStats::getInstance()->mSimFPS.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_PHYSFPS:
-			LLViewerStats::getInstance()->mSimPhysicsFPS.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_AGENTUPS:
-			LLViewerStats::getInstance()->mSimAgentUPS.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_FRAMEMS:
-			LLViewerStats::getInstance()->mSimFrameMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_NETMS:
-			LLViewerStats::getInstance()->mSimNetMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMOTHERMS:
-			LLViewerStats::getInstance()->mSimSimOtherMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMPHYSICSMS:
-			LLViewerStats::getInstance()->mSimSimPhysicsMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_AGENTMS:
-			LLViewerStats::getInstance()->mSimAgentMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_IMAGESMS:
-			LLViewerStats::getInstance()->mSimImagesMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SCRIPTMS:
-			LLViewerStats::getInstance()->mSimScriptMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_NUMTASKS:
-			LLViewerStats::getInstance()->mSimObjects.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_NUMTASKSACTIVE:
-			LLViewerStats::getInstance()->mSimActiveObjects.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_NUMAGENTMAIN:
-			LLViewerStats::getInstance()->mSimMainAgents.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_NUMAGENTCHILD:
-			LLViewerStats::getInstance()->mSimChildAgents.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_NUMSCRIPTSACTIVE:
-			LLViewerStats::getInstance()->mSimActiveScripts.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SCRIPT_EPS:
-			LLViewerStats::getInstance()->mSimScriptEPS.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_INPPS:
-			LLViewerStats::getInstance()->mSimInPPS.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_OUTPPS:
-			LLViewerStats::getInstance()->mSimOutPPS.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_PENDING_DOWNLOADS:
-			LLViewerStats::getInstance()->mSimPendingDownloads.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_PENDING_UPLOADS:
-			LLViewerStats::getInstance()->mSimPendingUploads.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_PENDING_LOCAL_UPLOADS:
-			LLViewerStats::getInstance()->mSimPendingLocalUploads.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_TOTAL_UNACKED_BYTES:
-			LLViewerStats::getInstance()->mSimTotalUnackedBytes.addValue(stat_value / 1024.f);
-			break;
-		case LL_SIM_STAT_PHYSICS_PINNED_TASKS:
-			LLViewerStats::getInstance()->mPhysicsPinnedTasks.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_PHYSICS_LOD_TASKS:
-			LLViewerStats::getInstance()->mPhysicsLODTasks.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMPHYSICSSTEPMS:
-			LLViewerStats::getInstance()->mSimSimPhysicsStepMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMPHYSICSSHAPEMS:
-			LLViewerStats::getInstance()->mSimSimPhysicsShapeUpdateMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMPHYSICSOTHERMS:
-			LLViewerStats::getInstance()->mSimSimPhysicsOtherMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMPHYSICSMEMORY:
-			LLViewerStats::getInstance()->mPhysicsMemoryAllocated.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMSPARETIME:
-			LLViewerStats::getInstance()->mSimSpareMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMSLEEPTIME:
-			LLViewerStats::getInstance()->mSimSleepMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_IOPUMPTIME:
-			LLViewerStats::getInstance()->mSimPumpIOMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_PCTSCRIPTSRUN:
-			LLViewerStats::getInstance()->mSimPctScriptsRun.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMAISTEPTIMEMS:
-			LLViewerStats::getInstance()->mSimSimAIStepMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SKIPPEDAISILSTEPS_PS:
-			LLViewerStats::getInstance()->mSimSimSkippedSilhouetteSteps.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_PCTSTEPPEDCHARACTERS:
-			LLViewerStats::getInstance()->mSimSimPctSteppedCharacters.addValue(stat_value);
-			break;
-		default:
-			// Used to be a commented out warning.
- 			LL_DEBUGS("Messaging") << "Unknown stat id" << stat_id << LL_ENDL;
-		  break;
+			measurementp->sample(stat_value);
+		}
+		else
+		{
+			llwarns << "Unknown sim stat identifier: " << stat_id << llendl;
 		}
 	}
-
-	/*
-	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_PhysicsTimeDilation, time_dilation);
-	LLViewerStats::getInstance()->mSimTDStat.addValue(time_dilation);
-
-	// Process information
-	//	{	CpuUsage			F32				}
-	//	{	SimMemTotal			F32				}
-	//	{	SimMemRSS			F32				}
-	//	{	ProcessUptime		F32				}
-	F32 cpu_usage;
-	F32 sim_mem_total;
-	F32 sim_mem_rss;
-	F32 process_uptime;
-	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_CpuUsage, cpu_usage);
-	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_SimMemTotal, sim_mem_total);
-	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_SimMemRSS, sim_mem_rss);
-	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_ProcessUptime, process_uptime);
-	LLViewerStats::getInstance()->mSimCPUUsageStat.addValue(cpu_usage);
-	LLViewerStats::getInstance()->mSimMemTotalStat.addValue(sim_mem_total);
-	LLViewerStats::getInstance()->mSimMemRSSStat.addValue(sim_mem_rss);
-	*/
 
 	//
 	// Various hacks that aren't statistics, but are being handled here.
@@ -6010,7 +5896,7 @@ void process_alert_core(const std::string& message, BOOL modal)
 	// HACK -- handle callbacks for specific alerts. It also is localized in notifications.xml
 	if ( message == "You died and have been teleported to your home location")
 	{
-		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_KILLED_COUNT);
+		add(LLStatViewer::KILLED, 1);
 	}
 	else if( message == "Home position set." )
 	{
@@ -7471,8 +7357,6 @@ void onCovenantLoadComplete(LLVFS *vfs,
 	}
 	else
 	{
-		LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-		
 		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 		    LL_ERR_FILE_EMPTY == status)
 		{

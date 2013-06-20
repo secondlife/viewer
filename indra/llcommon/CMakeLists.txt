@@ -75,8 +75,10 @@ set(llcommon_SOURCE_FILES
     llmetrics.cpp
     llmetricperformancetester.cpp
     llmortician.cpp
+    llmutex.cpp
     lloptioninterface.cpp
     llptrto.cpp 
+    llpredicate.cpp
     llprocess.cpp
     llprocessor.cpp
     llqueuedthread.cpp
@@ -90,7 +92,6 @@ set(llcommon_SOURCE_FILES
     llsdutil.cpp
     llsecondlifeurls.cpp
     llsingleton.cpp
-    llstat.cpp
     llstacktrace.cpp
     llstreamqueue.cpp
     llstreamtools.cpp
@@ -98,14 +99,15 @@ set(llcommon_SOURCE_FILES
     llstringtable.cpp
     llsys.cpp
     llthread.cpp
+    llthreadlocalstorage.cpp
     llthreadsafequeue.cpp
     lltimer.cpp
+    lltrace.cpp
+    lltracerecording.cpp
+    lltracethreadrecorder.cpp
     lluri.cpp
     lluuid.cpp
     llworkerthread.cpp
-    metaclass.cpp
-    metaproperty.cpp
-    reflective.cpp
     timing.cpp
     u64.cpp
     )
@@ -115,7 +117,6 @@ set(llcommon_HEADER_FILES
 
     bitpack.h
     ctype_workaround.h
-    doublelinkedlist.h
     fix_macros.h
     imageids.h
     indra_constants.h
@@ -129,7 +130,6 @@ set(llcommon_HEADER_FILES
     llapp.h
     llapr.h
     llassettype.h
-    llassoclist.h
     llavatarconstants.h
     llbase32.h
     llbase64.h
@@ -143,18 +143,14 @@ set(llcommon_HEADER_FILES
     llcriticaldamp.h
     llcursortypes.h
     lldarray.h
-    lldarrayptr.h
     lldate.h
     lldefs.h
     lldependencies.h
     lldeleteutils.h
     lldepthstack.h
     lldictionary.h
-    lldlinked.h
     lldoubledispatch.h
-    lldqueueptr.h
     llendianswizzle.h
-    llenum.h
     llerror.h
     llerrorcontrol.h
     llerrorlegacy.h
@@ -178,18 +174,15 @@ set(llcommon_HEADER_FILES
     llhash.h
     llheartbeat.h
     llhttpstatuscodes.h
-    llindexedqueue.h
     llinitparam.h
     llinstancetracker.h
     llkeythrottle.h
-    lllazy.h
     llleap.h
     llleaplistener.h
     lllistenerwrapper.h
     lllinkedqueue.h
     llliveappconfig.h
     lllivefile.h
-    lllocalidhashmap.h
     lllog.h
     lllslconstants.h
     llmap.h
@@ -199,15 +192,15 @@ set(llcommon_HEADER_FILES
     llmetrics.h
     llmetricperformancetester.h
     llmortician.h
+    llmutex.h
     llnametable.h
     lloptioninterface.h
     llpointer.h
+    llpredicate.h
     llpreprocessor.h
     llpriqueuemap.h
     llprocess.h
     llprocessor.h
-    llptrskiplist.h
-    llptrskipmap.h
     llptrto.h
     llqueuedthread.h
     llrand.h
@@ -224,12 +217,7 @@ set(llcommon_HEADER_FILES
     llsecondlifeurls.h
     llsimplehash.h
     llsingleton.h
-    llskiplist.h
-    llskipmap.h
-    llsortedvector.h
-    llstack.h
     llstacktrace.h
-    llstat.h
     llstatenums.h
     llstl.h
     llstreamqueue.h
@@ -239,22 +227,21 @@ set(llcommon_HEADER_FILES
     llstringtable.h
     llsys.h
     llthread.h
+    llthreadlocalstorage.h
     llthreadsafequeue.h
     lltimer.h
+    lltrace.h
+    lltracerecording.h
+    lltracethreadrecorder.h
     lltreeiterators.h
-    lltypeinfolookup.h
+    llunit.h
     lluri.h
     lluuid.h
-    lluuidhashmap.h
     llversionserver.h
+	llwin32headers.h
+    llwin32headerslean.h
     llworkerthread.h
     ll_template_cast.h
-    metaclass.h
-    metaclasst.h
-    metaproperty.h
-    metapropertyt.h
-    reflective.h
-    reflectivet.h
     roles_constants.h
     stdenums.h
     stdtypes.h
@@ -326,7 +313,6 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llerror "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llframetimer "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llinstancetracker "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(lllazy "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llprocessor "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llrand "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llsdserialize "" "${test_libs}")
@@ -334,7 +320,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llstring "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lltreeiterators "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lluri "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(reflection "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llunits "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lleventdispatcher "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lleventcoro "" "${test_libs};${BOOST_CONTEXT_LIBRARY}")

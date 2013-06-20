@@ -97,24 +97,13 @@ public:
 
 	LLPointer<Type>& operator =(Type* ptr)                   
 	{ 
-		if( mPointer != ptr )
-		{
-			unref(); 
-			mPointer = ptr; 
-			ref();
-		}
-
+		assign(ptr);
 		return *this; 
 	}
 
 	LLPointer<Type>& operator =(const LLPointer<Type>& ptr)  
 	{ 
-		if( mPointer != ptr.mPointer )
-		{
-			unref(); 
-			mPointer = ptr.mPointer;
-			ref();
-		}
+		assign(ptr);
 		return *this; 
 	}
 
@@ -122,12 +111,7 @@ public:
 	template<typename Subclass>
 	LLPointer<Type>& operator =(const LLPointer<Subclass>& ptr)  
 	{ 
-		if( mPointer != ptr.get() )
-		{
-			unref(); 
-			mPointer = ptr.get();
-			ref();
-		}
+		assign(ptr.get());
 		return *this; 
 	}
 	
@@ -144,6 +128,16 @@ protected:
 	void ref();                             
 	void unref();
 #else
+
+	void assign(const LLPointer<Type>& ptr)
+	{
+		if( mPointer != ptr.mPointer )
+		{
+			unref(); 
+			mPointer = ptr.mPointer;
+			ref();
+		}
+	}
 	void ref()                             
 	{ 
 		if (mPointer)
@@ -156,9 +150,9 @@ protected:
 	{
 		if (mPointer)
 		{
-			Type *tempp = mPointer;
+			Type *temp = mPointer;
 			mPointer = NULL;
-			tempp->unref();
+			temp->unref();
 			if (mPointer != NULL)
 			{
 				llwarns << "Unreference did assignment to non-NULL because of destructor" << llendl;
@@ -169,6 +163,42 @@ protected:
 #endif
 protected:
 	Type*	mPointer;
+};
+
+template<typename Type>
+class LLCopyOnWritePointer : public LLPointer<Type>
+{
+public:
+	typedef LLCopyOnWritePointer<Type> self_t;
+    typedef LLPointer<Type> pointer_t;
+    
+	LLCopyOnWritePointer() 
+	{}
+
+	LLCopyOnWritePointer(Type* ptr) 
+	:	LLPointer<Type>(ptr)
+	{}
+
+	LLCopyOnWritePointer(LLPointer<Type>& ptr)
+	:	LLPointer<Type>(ptr)
+	{}
+
+	Type* write()
+	{
+		makeUnique();
+		return pointer_t::mPointer;
+	}
+
+	void makeUnique()
+	{
+		if (pointer_t::notNull() && pointer_t::mPointer->getNumRefs() > 1)
+		{
+			*(pointer_t* )(this) = new Type(*pointer_t::mPointer);
+		}
+	}
+
+	const Type*	operator->() const	{ return pointer_t::mPointer; }
+	const Type&	operator*() const	{ return *pointer_t::mPointer; }
 };
 
 #endif

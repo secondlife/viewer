@@ -35,6 +35,7 @@
 #include "llrect.h"
 #include "llgl.h"
 #include "lltexture.h"
+#include "llfasttimer.h"
 
 // Project includes
 #include "llrender2dutils.h"
@@ -353,6 +354,11 @@ void gl_draw_image( S32 x, S32 y, LLTexture* image, const LLColor4& color, const
 	gl_draw_scaled_rotated_image( x, y, image->getWidth(0), image->getHeight(0), 0.f, image, color, uv_rect );
 }
 
+void gl_draw_scaled_target(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* target, const LLColor4& color, const LLRectf& uv_rect)
+{
+	gl_draw_scaled_rotated_image(x, y, width, height, 0.f, NULL, color, uv_rect, target);
+}
+
 void gl_draw_scaled_image(S32 x, S32 y, S32 width, S32 height, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect)
 {
 	if (NULL == image)
@@ -639,9 +645,9 @@ void gl_draw_rotated_image(S32 x, S32 y, F32 degrees, LLTexture* image, const LL
 	gl_draw_scaled_rotated_image( x, y, image->getWidth(0), image->getHeight(0), degrees, image, color, uv_rect );
 }
 
-void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degrees, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect)
+void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degrees, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect, LLRenderTarget* target)
 {
-	if (NULL == image)
+	if (!image && !target)
 	{
 		llwarns << "image == NULL; aborting function" << llendl;
 		return;
@@ -649,8 +655,14 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 
 	LLGLSUIDefault gls_ui;
 
-
-	gGL.getTexUnit(0)->bind(image, true);
+	if(image != NULL)
+	{
+		gGL.getTexUnit(0)->bind(image, true);
+	}
+	else
+	{
+		gGL.getTexUnit(0)->bind(target);
+	}
 
 	gGL.color4fv(color.mV);
 
@@ -695,18 +707,25 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 	{
 		gGL.pushUIMatrix();
 		gGL.translateUI((F32)x, (F32)y, 0.f);
-	
+
 		F32 offset_x = F32(width/2);
 		F32 offset_y = F32(height/2);
 
 		gGL.translateUI(offset_x, offset_y, 0.f);
 
 		LLMatrix3 quat(0.f, 0.f, degrees*DEG_TO_RAD);
-		
-		gGL.getTexUnit(0)->bind(image, true);
+
+		if(image != NULL)
+		{
+			gGL.getTexUnit(0)->bind(image, true);
+		}
+		else
+		{
+			gGL.getTexUnit(0)->bind(target);
+		}
 
 		gGL.color4fv(color.mV);
-		
+
 		gGL.begin(LLRender::QUADS);
 		{
 			LLVector3 v;
@@ -731,7 +750,6 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 		gGL.popUIMatrix();
 	}
 }
-
 
 void gl_stippled_line_3d( const LLVector3& start, const LLVector3& end, const LLColor4& color, F32 phase )
 {
@@ -1044,6 +1062,8 @@ void gl_rect_2d_simple( S32 width, S32 height )
 	gGL.end();
 }
 
+static LLFastTimer::DeclareTimer FTM_RENDER_SEGMENTED_RECT ("Render segmented rectangle");
+
 void gl_segmented_rect_2d_tex(const S32 left, 
 							  const S32 top, 
 							  const S32 right, 
@@ -1053,6 +1073,8 @@ void gl_segmented_rect_2d_tex(const S32 left,
 							  const S32 border_size, 
 							  const U32 edges)
 {
+	LLFastTimer _(FTM_RENDER_SEGMENTED_RECT);
+
 	S32 width = llabs(right - left);
 	S32 height = llabs(top - bottom);
 
@@ -1202,18 +1224,19 @@ void gl_segmented_rect_2d_tex(const S32 left,
 	gGL.popUIMatrix();
 }
 
-//FIXME: rewrite to use scissor?
-void gl_segmented_rect_2d_fragment_tex(const S32 left, 
-									   const S32 top, 
-									   const S32 right, 
-									   const S32 bottom, 
-									   const S32 texture_width, 
-									   const S32 texture_height, 
-									   const S32 border_size, 
-									   const F32 start_fragment, 
-									   const F32 end_fragment, 
-									   const U32 edges)
+void gl_segmented_rect_2d_fragment_tex(const LLRect& rect, 
+	const S32 texture_width, 
+	const S32 texture_height, 
+	const S32 border_size, 
+	const F32 start_fragment, 
+	const F32 end_fragment, 
+	const U32 edges)
 {
+	LLFastTimer _(FTM_RENDER_SEGMENTED_RECT);
+	const S32 left = rect.mLeft;
+	const S32 right = rect.mRight;
+	const S32 top = rect.mTop;
+	const S32 bottom = rect.mBottom;
 	S32 width = llabs(right - left);
 	S32 height = llabs(top - bottom);
 
@@ -1251,9 +1274,9 @@ void gl_segmented_rect_2d_fragment_tex(const S32 left,
 	{
 		if (start_fragment < middle_start)
 		{
-			u_min = (start_fragment / middle_start) * border_uv_scale.mV[VX];
+			u_min = (start_fragment / middle_start)			* border_uv_scale.mV[VX];
 			u_max = llmin(end_fragment / middle_start, 1.f) * border_uv_scale.mV[VX];
-			x_min = (start_fragment / middle_start) * border_width_left;
+			x_min = (start_fragment / middle_start)			* border_width_left;
 			x_max = llmin(end_fragment / middle_start, 1.f) * border_width_left;
 
 			// draw bottom left
@@ -1281,7 +1304,7 @@ void gl_segmented_rect_2d_fragment_tex(const S32 left,
 
 			gGL.texCoord2f(u_min, 1.f - border_uv_scale.mV[VY]);
 			gGL.vertex2fv((x_min + height_vec - border_height_top).mV);
-			
+
 			// draw top left
 			gGL.texCoord2f(u_min, 1.f - border_uv_scale.mV[VY]);
 			gGL.vertex2fv((x_min + height_vec - border_height_top).mV);
@@ -1343,10 +1366,10 @@ void gl_segmented_rect_2d_fragment_tex(const S32 left,
 
 		if (end_fragment > middle_end)
 		{
-			u_min = (1.f - llmax(0.f, ((start_fragment - middle_end) / middle_start))) * border_uv_scale.mV[VX];
-			u_max = (1.f - ((end_fragment - middle_end) / middle_start)) * border_uv_scale.mV[VX];
-			x_min = width_vec - ((1.f - llmax(0.f, ((start_fragment - middle_end) / middle_start))) * border_width_right);
-			x_max = width_vec - ((1.f - ((end_fragment - middle_end) / middle_start)) * border_width_right);
+			u_min = 1.f			- ((1.f - llmax(0.f, (start_fragment - middle_end) / middle_start)) * border_uv_scale.mV[VX]);
+			u_max = 1.f			- ((1.f - ((end_fragment - middle_end) / middle_start)) * border_uv_scale.mV[VX]);
+			x_min = width_vec	- ((1.f - llmax(0.f, (start_fragment - middle_end) / middle_start)) * border_width_right);
+			x_max = width_vec	- ((1.f - ((end_fragment - middle_end) / middle_start)) * border_width_right);
 
 			// draw bottom right
 			gGL.texCoord2f(u_min, 0.f);
@@ -1396,6 +1419,8 @@ void gl_segmented_rect_2d_fragment_tex(const S32 left,
 void gl_segmented_rect_3d_tex(const LLRectf& clip_rect, const LLRectf& center_uv_rect, const LLRectf& center_draw_rect, 
 							 const LLVector3& width_vec, const LLVector3& height_vec)
 {
+	LLFastTimer _(FTM_RENDER_SEGMENTED_RECT);
+
 	gGL.begin(LLRender::QUADS);
 	{
 		// draw bottom left

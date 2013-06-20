@@ -69,12 +69,12 @@ public:
 protected:
 	void recordMetrics()
 		{
-			if (mMetricsStartTime)
+			if (mMetricsStartTime.value())
 			{
 				// Okay, it appears this request was used for useful things.  Record
 				// the expected dequeue and duration of request processing.
-				LLViewerAssetStatsFF::record_dequeue_main(mType, false, false);
-				LLViewerAssetStatsFF::record_response_main(mType, false, false,
+				LLViewerAssetStatsFF::record_dequeue(mType, false, false);
+				LLViewerAssetStatsFF::record_response(mType, false, false,
 														   (LLViewerAssetStatsFF::get_timestamp()
 															- mMetricsStartTime));
 				mMetricsStartTime = 0;
@@ -373,7 +373,7 @@ void LLViewerAssetStorage::_queueDataRequest(
 			LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(mUpstreamHost, LLTCT_ASSET);
 			ttcp->requestTransfer(spa, tpvf, 100.f + (is_priority ? 1.f : 0.f));
 
-			LLViewerAssetStatsFF::record_enqueue_main(atype, false, false);
+			LLViewerAssetStatsFF::record_enqueue(atype, false, false);
 		}
 	}
 	else

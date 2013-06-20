@@ -29,6 +29,7 @@
 
 #include "llmemory.h"
 #include "llthread.h"
+#include "lltrace.h"
 
 //static
 BOOL LLCommon::sAprInitialized = FALSE;
@@ -44,15 +45,13 @@ void LLCommon::initClass()
 	}
 	LLTimer::initClass();
 	LLThreadSafeRefCount::initThreadSafeRefCount();
-// 	LLWorkerThread::initClass();
-// 	LLFrameCallbackManager::initClass();
+	LLTrace::init();
 }
 
 //static
 void LLCommon::cleanupClass()
 {
-// 	LLFrameCallbackManager::cleanupClass();
-// 	LLWorkerThread::cleanupClass();
+	LLTrace::cleanup();
 	LLThreadSafeRefCount::cleanupThreadSafeRefCount();
 	LLTimer::cleanupClass();
 	if (sAprInitialized)

@@ -30,9 +30,10 @@
 
 #include "llerror.h"
 #include "llthread.h"
-#include "llstat.h"
-#include "llvfs.h"
+#include "lltimer.h"
+#include "llfasttimer.h"
 #include "llmemory.h"
+#include "llvfs.h"
 
 const S32 LLVFile::READ			= 0x00000001;
 const S32 LLVFile::WRITE		= 0x00000002;
@@ -135,7 +136,7 @@ U8* LLVFile::readFile(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type, S
 		data = NULL;
 	}
 	else
-	{
+	{		
 		data = (U8*) ll_aligned_malloc_16(file_size);
 		file.read(data, file_size);	/* Flawfinder: ignore */ 
 		

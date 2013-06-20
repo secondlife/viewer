@@ -28,7 +28,7 @@
 #ifndef LL_LLFONTREGISTRY_H
 #define LL_LLFONTREGISTRY_H
 
-#include "llxmlnode.h"
+#include "llpointer.h"
 
 class LLFontGL;
 
@@ -65,6 +65,7 @@ private:
 class LLFontRegistry
 {
 public:
+	friend bool init_from_xml(LLFontRegistry*, LLPointer<class LLXMLNode>);
 	// create_gl_textures - set to false for test apps with no OpenGL window,
 	// such as llui_libtest
 	LLFontRegistry(bool create_gl_textures);
@@ -72,7 +73,6 @@ public:
 
 	// Load standard font info from XML file(s).
 	bool parseFontInfo(const std::string& xml_filename); 
-	bool initFromXML(LLXMLNodePtr node);
 
 	// Clear cached glyphs for all fonts.
 	void reset();
@@ -94,6 +94,7 @@ public:
 	const string_vec_t& getUltimateFallbackList() const;
 
 private:
+	LLFontRegistry(const LLFontRegistry& other); // no-copy
 	LLFontGL *createFont(const LLFontDescriptor& desc);
 	typedef std::map<LLFontDescriptor,LLFontGL*> font_reg_map_t;
 	typedef std::map<std::string,F32> font_size_map_t;

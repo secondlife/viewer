@@ -40,7 +40,7 @@
 #include "llsceneview.h"
 #include "llviewertexture.h"
 #include "llfloaterreg.h"
-
+#include "llscenemonitor.h"
 //
 // Globals
 //
@@ -66,6 +66,7 @@ LLDebugView::~LLDebugView()
 	gDebugView = NULL;
 	gTextureView = NULL;
 	gSceneView = NULL;
+	gSceneMonitorView = NULL;
 }
 
 void LLDebugView::init()
@@ -98,6 +99,13 @@ void LLDebugView::init()
 	gSceneView->setVisible(FALSE);
 	addChild(gSceneView);
 	gSceneView->setRect(rect);
+	
+	gSceneMonitorView = new LLSceneMonitorView(r);
+	gSceneMonitorView->setFollowsTop();
+	gSceneMonitorView->setFollowsLeft();
+	gSceneMonitorView->setVisible(FALSE);
+	addChild(gSceneMonitorView);
+	gSceneMonitorView->setRect(rect);
 	
 	r.setLeftTopAndSize(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f), 
 									 (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));

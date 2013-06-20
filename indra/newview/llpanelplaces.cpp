@@ -998,9 +998,9 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 }
 
 // virtual
-void LLPanelPlaces::handleVisibilityChange(BOOL new_visibility)
+void LLPanelPlaces::onVisibilityChange(BOOL new_visibility)
 {
-	LLPanel::handleVisibilityChange(new_visibility);
+	LLPanel::onVisibilityChange(new_visibility);
 
 	if (!new_visibility && mPlaceInfoType == AGENT_INFO_TYPE)
 	{

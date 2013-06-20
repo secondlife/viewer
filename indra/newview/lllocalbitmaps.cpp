@@ -48,6 +48,7 @@
 /* misc headers */
 #include "llscrolllistctrl.h"
 #include "llfilepicker.h"
+#include "lllocaltextureobject.h"
 #include "llviewertexturelist.h"
 #include "llviewerobjectlist.h"
 #include "llviewerobject.h"
@@ -378,7 +379,7 @@ std::vector<LLViewerObject*> LLLocalBitmap::prepUpdateObjects(LLUUID old_id, U32
 {
 	std::vector<LLViewerObject*> obj_list;
 	LLViewerFetchedTexture* old_texture = gTextureList.findImage(old_id);
-	
+
 	for(U32 face_iterator = 0; face_iterator < old_texture->getNumFaces(channel); face_iterator++)
 	{
 		// getting an object from a face
@@ -451,7 +452,7 @@ void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id, U32 channel)
 						switch(channel)
 						{
 							case LLRender::DIFFUSE_MAP:
-							{
+					{
                                 object->setTETexture(face_iter, new_id);
                                 update_tex = true;
 								break;

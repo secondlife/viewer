@@ -49,11 +49,15 @@
 #include "llglheaders.h"
 #include "llquaternion.h"
 #include "llwindow.h"			// getPixelAspectRatio()
+#include "lltracerecording.h"
 
 // System includes
 #include <iomanip> // for setprecision
 
-U32 LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
+LLTrace::CountStatHandle<> LLViewerCamera::sVelocityStat("camera_velocity");
+LLTrace::CountStatHandle<> LLViewerCamera::sAngularVelocityStat("camera_angular_velocity");
+
+LLViewerCamera::eCameraID LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 
 //glu pick matrix implementation borrowed from Mesa3D
 glh::matrix4f gl_pick_matrix(GLfloat x, GLfloat y, GLfloat width, GLfloat height, GLint* viewport)
@@ -160,11 +164,11 @@ void LLViewerCamera::updateCameraLocation(const LLVector3 &center,
 	F32 drot;
 	rotation.getAngleAxis(&drot, &x, &y, &z);
 
-	mVelocityStat.addValue(dpos);
-	mAngularVelocityStat.addValue(drot);
+	add(sVelocityStat, dpos);
+	add(sAngularVelocityStat, drot);
 	
-	mAverageSpeed = mVelocityStat.getMeanPerSec() ;
-	mAverageAngularSpeed = mAngularVelocityStat.getMeanPerSec() ;
+	mAverageSpeed = LLTrace::get_frame_recording().getPeriodMeanPerSec(sVelocityStat, 50);
+	mAverageAngularSpeed = LLTrace::get_frame_recording().getPeriodMeanPerSec(sAngularVelocityStat);
 	mCosHalfCameraFOV = cosf(0.5f * getView() * llmax(1.0f, getAspect()));
 
 	// update pixel meter ratio using default fov, not modified one

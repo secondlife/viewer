@@ -68,6 +68,7 @@
 #include "llviewerparcelmgr.h"
 #include "llconversationlog.h"
 #include "message.h"
+#include "llviewerregion.h"
 
 
 const static std::string ADHOC_NAME_SUFFIX(" Conference");
@@ -228,7 +229,7 @@ void on_new_message(const LLSD& msg)
     // 0. nothing - exit
     if (("none" == user_preferences ||
     		ON_TOP_AND_ITEM_IS_SELECTED == conversations_floater_status)
-    	&& session_floater->isMessagePaneExpanded())
+    	    && session_floater->isMessagePaneExpanded())
     {
     	return;
     }
@@ -1561,7 +1562,7 @@ public:
 	}
 
 	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
-	{		
+	{
 		llwarns << "LLViewerChatterBoxInvitationAcceptResponder error [status:"
 				<< statusNum << "]: " << content << llendl;
 		//throw something back to the viewer here?

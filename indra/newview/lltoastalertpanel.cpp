@@ -42,7 +42,6 @@
 #include "lllineeditor.h"
 #include "lluictrlfactory.h"
 #include "llnotifications.h"
-#include "llfunctorregistry.h"
 #include "llrootview.h"
 #include "lltransientfloatermgr.h"
 #include "llviewercontrol.h" // for gSavedSettings

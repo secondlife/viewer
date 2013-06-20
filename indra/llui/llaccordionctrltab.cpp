@@ -444,9 +444,9 @@ void LLAccordionCtrlTab::changeOpenClose(bool is_open)
 	}
 }
 
-void LLAccordionCtrlTab::handleVisibilityChange(BOOL new_visibility)
+void LLAccordionCtrlTab::onVisibilityChange(BOOL new_visibility)
 {
-	LLUICtrl::handleVisibilityChange(new_visibility);
+	LLUICtrl::onVisibilityChange(new_visibility);
 
 	notifyParent(LLSD().with("child_visibility_change", new_visibility));
 }

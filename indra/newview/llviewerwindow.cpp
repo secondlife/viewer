@@ -40,6 +40,7 @@
 #include "llagentcamera.h"
 #include "llcommunicationchannel.h"
 #include "llfloaterreg.h"
+#include "llhudicon.h"
 #include "llmeshrepository.h"
 #include "llnotificationhandler.h"
 #include "llpanellogin.h"
@@ -81,7 +82,6 @@
 #include "llmediaentry.h"
 #include "llurldispatcher.h"
 #include "raytrace.h"
-#include "llstat.h"
 
 // newview includes
 #include "llagent.h"
@@ -230,10 +230,10 @@ BOOL			gShowOverlayTitle = FALSE;
 
 LLViewerObject*  gDebugRaycastObject = NULL;
 LLVector4a       gDebugRaycastIntersection;
-LLVector2        gDebugRaycastTexCoord;
+LLVector2       gDebugRaycastTexCoord;
 LLVector4a       gDebugRaycastNormal;
 LLVector4a       gDebugRaycastTangent;
-S32				 gDebugRaycastFaceHit;
+S32				gDebugRaycastFaceHit;
 LLVector4a		 gDebugRaycastStart;
 LLVector4a		 gDebugRaycastEnd;
 
@@ -252,6 +252,9 @@ std::string	LLViewerWindow::sSnapshotBaseName;
 std::string	LLViewerWindow::sSnapshotDir;
 
 std::string	LLViewerWindow::sMovieBaseName;
+
+LLTrace::SampleStatHandle<> LLViewerWindow::sMouseVelocityStat("Mouse Velocity");
+
 
 class RecordToChatConsole : public LLError::Recorder, public LLSingleton<RecordToChatConsole>
 {
@@ -457,6 +460,8 @@ public:
 		
 		if (gSavedSettings.getBOOL("DebugShowRenderInfo"))
 		{
+			LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
+
 			if (gPipeline.getUseVertexShaders() == 0)
 			{
 				addText(xpos, ypos, "Shaders Disabled");
@@ -562,7 +567,7 @@ public:
 			addText(xpos, ypos, llformat("%d Unique Textures", LLImageGL::sUniqueCount));
 			ypos += y_inc;
 
-			addText(xpos, ypos, llformat("%d Render Calls", gPipeline.mBatchCount));
+			addText(xpos, ypos, llformat("%d Render Calls", last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize)));
             ypos += y_inc;
 
 			addText(xpos, ypos, llformat("%d/%d Objects Active", gObjectList.getNumActiveObjects(), gObjectList.getNumObjects()));
@@ -577,14 +582,9 @@ public:
 			gPipeline.mTextureMatrixOps = 0;
 			gPipeline.mMatrixOpCount = 0;
 
-			if (gPipeline.mBatchCount > 0)
+ 			if (last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize) > 0)
 			{
-				addText(xpos, ypos, llformat("Batch min/max/mean: %d/%d/%d", gPipeline.mMinBatchSize, gPipeline.mMaxBatchSize, 
-					gPipeline.mTrianglesDrawn/gPipeline.mBatchCount));
-
-				gPipeline.mMinBatchSize = gPipeline.mMaxBatchSize;
-				gPipeline.mMaxBatchSize = 0;
-				gPipeline.mBatchCount = 0;
+ 				addText(xpos, ypos, llformat("Batch min/max/mean: %d/%d/%d", last_frame_recording.getMin(LLPipeline::sStatBatchSize), last_frame_recording.getMax(LLPipeline::sStatBatchSize), last_frame_recording.getMean(LLPipeline::sStatBatchSize)));
 			}
             ypos += y_inc;
 
@@ -596,9 +596,9 @@ public:
 			
 			ypos += y_inc;
 
-			if (!LLSpatialGroup::sPendingQueries.empty())
+			if (!LLOcclusionCullingGroup::sPendingQueries.empty())
 			{
-				addText(xpos,ypos, llformat("%d Queries pending", LLSpatialGroup::sPendingQueries.size()));
+				addText(xpos,ypos, llformat("%d Queries pending", LLOcclusionCullingGroup::sPendingQueries.size()));
 				ypos += y_inc;
 			}
 
@@ -738,7 +738,7 @@ public:
 			{
 				if(gTotalTextureBytesPerBoostLevel[i] > 0)
 				{
-					addText(xpos, ypos, llformat("Boost_Level %d:  %.3f MB", i, (F32)gTotalTextureBytesPerBoostLevel[i] / (1024 * 1024)));
+					addText(xpos, ypos, llformat("Boost_Level %d:  %.3f MB", i, LLUnit<F32, LLUnits::Mibibytes>(gTotalTextureBytesPerBoostLevel[i]).value()));
 					ypos += y_inc;
 				}
 			}
@@ -1409,10 +1409,11 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 		FillRect(hdc, &wnd_rect, CreateSolidBrush(RGB(255, 255, 255)));
 
 		std::string temp_str;
+		LLTrace::Recording& recording = LLViewerStats::instance().getRecording();
 		temp_str = llformat( "FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
-				LLViewerStats::getInstance()->mFPSStat.getMeanPerSec(),
-				LLViewerStats::getInstance()->mSimPhysicsFPS.getPrev(0),
-				LLViewerStats::getInstance()->mSimTimeDilation.getPrev(0));
+				recording.getPerSec(LLStatViewer::FPS), //mFPSStat.getMeanPerSec(),
+				recording.getLastValue(LLStatViewer::SIM_PHYSICS_FPS), 
+				recording.getLastValue(LLStatViewer::SIM_TIME_DILATION));
 		S32 len = temp_str.length();
 		TextOutA(hdc, 0, 0, temp_str.c_str(), len); 
 
@@ -1547,8 +1548,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	mResDirty(false),
 	mStatesDirty(false),
 	mCurrResolutionIndex(0),
-	mProgressView(NULL),
-	mMouseVelocityStat(new LLStat("Mouse Velocity"))
+	mProgressView(NULL)
 {
 	// gKeyboard is still NULL, so it doesn't do LLWindowListener any good to
 	// pass its value right now. Instead, pass it a nullary function that
@@ -2089,8 +2089,6 @@ LLViewerWindow::~LLViewerWindow()
 
 	delete mDebugText;
 	mDebugText = NULL;
-
-	delete mMouseVelocityStat;
 }
 
 
@@ -2201,8 +2199,8 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 			}
 		}
 
-		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_WIDTH, (F64)width);
-		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_HEIGHT, (F64)height);
+		sample(LLStatViewer::WINDOW_WIDTH, width);
+		sample(LLStatViewer::WINDOW_HEIGHT, height);
 
 		LLLayoutStack::updateClass();
 	}
@@ -2796,11 +2794,12 @@ void append_xui_tooltip(LLView* viewp, LLToolTip::Params& params)
 	}
 }
 
+static LLFastTimer::DeclareTimer ftm("Update UI");
+
 // Update UI based on stored mouse position from mouse-move
 // event processing.
 void LLViewerWindow::updateUI()
 {
-	static LLFastTimer::DeclareTimer ftm("Update UI");
 	LLFastTimer t(ftm);
 
 	static std::string last_handle_msg;
@@ -3268,8 +3267,8 @@ void LLViewerWindow::updateMouseDelta()
 		static F32 fdy = 0.f;
 
 		F32 amount = 16.f;
-		fdx = fdx + ((F32) dx - fdx) * llmin(gFrameIntervalSeconds*amount,1.f);
-		fdy = fdy + ((F32) dy - fdy) * llmin(gFrameIntervalSeconds*amount,1.f);
+		fdx = fdx + ((F32) dx - fdx) * llmin(gFrameIntervalSeconds.value()*amount,1.f);
+		fdy = fdy + ((F32) dy - fdy) * llmin(gFrameIntervalSeconds.value()*amount,1.f);
 
 		mCurrentMouseDelta.set(llround(fdx), llround(fdy));
 		mouse_vel.setVec(fdx,fdy);
@@ -3280,7 +3279,7 @@ void LLViewerWindow::updateMouseDelta()
 		mouse_vel.setVec((F32) dx, (F32) dy);
 	}
     
-	mMouseVelocityStat->addValue(mouse_vel.magVec());
+	sample(sMouseVelocityStat, mouse_vel.magVec());
 }
 
 void LLViewerWindow::updateKeyboardFocus()
@@ -3868,7 +3867,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 			}
 		}
 	}
-		
+
 	return found;
 }
 
@@ -4784,7 +4783,7 @@ void LLViewerWindow::stopGL(BOOL save_state)
 		gGLManager.mIsDisabled = TRUE;
 		stop_glerror();
 		
-		llinfos << "Remaining allocated texture memory: " << LLImageGL::sGlobalTextureMemoryInBytes << " bytes" << llendl;
+		llinfos << "Remaining allocated texture memory: " << LLImageGL::sGlobalTextureMemory.value() << " bytes" << llendl;
 	}
 }
 
@@ -5292,7 +5291,7 @@ void LLPickInfo::getSurfaceInfo()
 	tangent.clear();
 	normal.clear();
 	intersection.clear();
-
+	
 	LLViewerObject* objectp = getObject();
 
 	if (objectp)
@@ -5313,7 +5312,7 @@ void LLPickInfo::getSurfaceInfo()
 				if (facep)
 				{
 					mUVCoords = facep->surfaceToTexture(mSTCoords, intersection, normal);
-				}
+			}
 			}
 
 			mIntersection.set(intersection.getF32ptr());

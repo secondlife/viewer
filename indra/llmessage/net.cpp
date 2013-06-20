@@ -26,15 +26,13 @@
 
 #include "linden_common.h"
 
-#include "net.h"
+//#include "net.h"
 
 // system library includes
 #include <stdexcept>
 
 #if LL_WINDOWS
-	#define WIN32_LEAN_AND_MEAN
-	#include <winsock2.h>
-	#include <windows.h>
+#include "llwin32headerslean.h"
 #else
 	#include <sys/types.h>
 	#include <sys/socket.h>

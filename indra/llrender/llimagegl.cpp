@@ -32,6 +32,7 @@
 #include "llimagegl.h"
 
 #include "llerror.h"
+#include "llfasttimer.h"
 #include "llimage.h"
 
 #include "llmath.h"
@@ -50,9 +51,9 @@ U32 wpo2(U32 i);
 
 U32 LLImageGL::sUniqueCount				= 0;
 U32 LLImageGL::sBindCount				= 0;
-S32 LLImageGL::sGlobalTextureMemoryInBytes		= 0;
-S32 LLImageGL::sBoundTextureMemoryInBytes		= 0;
-S32 LLImageGL::sCurBoundTextureMemory	= 0;
+LLUnit<S32, LLUnits::Bytes> LLImageGL::sGlobalTextureMemory		= 0;
+LLUnit<S32, LLUnits::Bytes> LLImageGL::sBoundTextureMemory		= 0;
+LLUnit<S32, LLUnits::Bytes> LLImageGL::sCurBoundTextureMemory	= 0;
 S32 LLImageGL::sCount					= 0;
 LLImageGL::dead_texturelist_t LLImageGL::sDeadTextureList[LLTexUnit::TT_NONE];
 U32 LLImageGL::sCurTexName = 1;
@@ -247,7 +248,7 @@ void LLImageGL::updateStats(F32 current_time)
 {
 	LLFastTimer t(FTM_IMAGE_UPDATE_STATS);
 	sLastFrameTime = current_time;
-	sBoundTextureMemoryInBytes = sCurBoundTextureMemory;
+	sBoundTextureMemory = sCurBoundTextureMemory;
 	sCurBoundTextureMemory = 0;
 }
 
@@ -255,7 +256,7 @@ void LLImageGL::updateStats(F32 current_time)
 S32 LLImageGL::updateBoundTexMem(const S32 mem, const S32 ncomponents, S32 category)
 {
 	LLImageGL::sCurBoundTextureMemory += mem ;
-	return LLImageGL::sCurBoundTextureMemory;
+	return LLImageGL::sCurBoundTextureMemory.value();
 }
 
 //----------------------------------------------------------------------------
@@ -1131,30 +1132,30 @@ void LLImageGL::deleteTextures(LLTexUnit::eTextureType type, U32 format, S32 mip
 			default:
 			{
 				if (type == LLTexUnit::TT_CUBE_MAP || mip_levels == -1)
-		{ //unknown internal format or unknown number of mip levels, not safe to reuse
-			glDeleteTextures(numTextures, textures);
-		}
-		else
-		{
-			for (S32 i = 0; i < numTextures; ++i)
-			{ //remove texture from VRAM by setting its size to zero
-
-				for (S32 j = 0; j <= mip_levels; j++)
+				{ //unknown internal format or unknown number of mip levels, not safe to reuse
+					glDeleteTextures(numTextures, textures);
+				}
+				else
 				{
-					gGL.getTexUnit(0)->bindManual(type, textures[i]);
+					for (S32 i = 0; i < numTextures; ++i)
+					{ //remove texture from VRAM by setting its size to zero
+
+						for (S32 j = 0; j <= mip_levels; j++)
+						{
+							gGL.getTexUnit(0)->bindManual(type, textures[i]);
 							U32 internal_type = LLTexUnit::getInternalType(type);
 							glTexImage2D(internal_type, j, format, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 							stop_glerror();
-				}
+						}
 
-				llassert(std::find(sDeadTextureList[type][format].begin(),
-								   sDeadTextureList[type][format].end(), textures[i]) == 
-								   sDeadTextureList[type][format].end());
+						llassert(std::find(sDeadTextureList[type][format].begin(),
+							sDeadTextureList[type][format].end(), textures[i]) == 
+							sDeadTextureList[type][format].end());
 
-				sDeadTextureList[type][format].push_back(textures[i]);
-			}	
-		}
-	}
+						sDeadTextureList[type][format].push_back(textures[i]);
+					}	
+				}				
+			}
 			break;
 		}
 	}
@@ -1452,7 +1453,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 
 	if (old_name != 0)
 	{
-		sGlobalTextureMemoryInBytes -= mTextureMemory;
+		sGlobalTextureMemory -= mTextureMemory;
 
 		LLImageGL::deleteTextures(mBindTarget, mFormatInternal, mMipLevels, 1, &old_name);
 
@@ -1460,7 +1461,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 	}
 
 	mTextureMemory = getMipBytes(discard_level);
-	sGlobalTextureMemoryInBytes += mTextureMemory;
+	sGlobalTextureMemory += mTextureMemory;
 	mTexelsInGLTexture = getWidth() * getHeight() ;
 
 	// mark this as bound at this point, so we don't throw it out immediately
@@ -1619,7 +1620,7 @@ void LLImageGL::destroyGLTexture()
 	{
 		if(mTextureMemory)
 		{
-			sGlobalTextureMemoryInBytes -= mTextureMemory;
+			sGlobalTextureMemory -= mTextureMemory;
 			mTextureMemory = 0;
 		}
 		

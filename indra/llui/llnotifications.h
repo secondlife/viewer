@@ -92,6 +92,7 @@
 #include "llevents.h"
 #include "llfunctorregistry.h"
 #include "llinitparam.h"
+#include "llinstancetracker.h"
 #include "llmortician.h"
 #include "llnotificationptr.h"
 #include "llpointer.h"
@@ -845,7 +846,7 @@ public:
     Iterator begin();
     Iterator end();
 	size_t size();
-
+	
 	std::string summarize();
 
 private:

@@ -61,7 +61,6 @@ set(llui_SOURCE_FILES
     llfolderview.cpp
     llfolderviewitem.cpp
     llfolderviewmodel.cpp
-    llfunctorregistry.cpp
     lliconctrl.cpp
     llkeywords.cpp
     lllayoutstack.cpp

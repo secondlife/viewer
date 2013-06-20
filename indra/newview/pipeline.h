@@ -29,8 +29,6 @@
 
 #include "llcamera.h"
 #include "llerror.h"
-#include "lldarrayptr.h"
-#include "lldqueueptr.h"
 #include "lldrawpool.h"
 #include "llspatialpartition.h"
 #include "m4math.h"
@@ -43,26 +41,14 @@
 
 #include <stack>
 
-#include <stack>
-
-#include <stack>
-
 class LLViewerTexture;
-class LLEdge;
 class LLFace;
 class LLViewerObject;
-class LLAgent;
-class LLDisplayPrimitive;
 class LLTextureEntry;
-class LLRenderFunc;
-class LLCubeMap;
 class LLCullResult;
 class LLVOAvatar;
 class LLGLSLShader;
-class LLCurlRequest;
 class LLDrawPoolAlpha;
-
-class LLMeshResponder;
 
 typedef enum e_avatar_skinning_method
 {
@@ -542,22 +528,13 @@ public:
 	LLQuaternion			mFlyCamRotation;
 
 	BOOL					 mBackfaceCull;
-	S32						 mBatchCount;
 	S32						 mMatrixOpCount;
 	S32						 mTextureMatrixOps;
-	S32						 mMaxBatchSize;
-	S32						 mMinBatchSize;
-	S32						 mMeanBatchSize;
-	S32						 mTrianglesDrawn;
 	S32						 mNumVisibleNodes;
-	S32						 mVerticesRelit;
 
 	S32						 mDebugTextureUploadCost;
 	S32						 mDebugSculptUploadCost;
 	S32						 mDebugMeshUploadCost;
-
-	S32						 mLightingChanges;
-	S32						 mGeometryChanges;
 
 	S32						 mNumVisibleFaces;
 
@@ -590,8 +567,10 @@ public:
 	static BOOL				sRenderDeferred;
 	static BOOL             sMemAllocationThrottled;
 	static S32				sVisibleLightCount;
-	static F32				sMinRenderSize;
+	static F32				sMinRenderSize;	
 	static BOOL				sRenderingHUDs;
+
+	static LLTrace::EventStatHandle<S64> sStatBatchSize;
 
 	//screen texture
 	U32 					mScreenWidth;

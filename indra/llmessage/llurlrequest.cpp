@@ -33,6 +33,7 @@
 #include <openssl/x509_vfy.h>
 #include <openssl/ssl.h>
 #include "llcurl.h"
+#include "llfasttimer.h"
 #include "llioutil.h"
 #include "llproxy.h"
 #include "llpumpio.h"
@@ -284,6 +285,8 @@ LLIOPipe::EStatus LLURLRequest::handleError(
 static LLFastTimer::DeclareTimer FTM_PROCESS_URL_REQUEST("URL Request");
 static LLFastTimer::DeclareTimer FTM_PROCESS_URL_REQUEST_GET_RESULT("Get Result");
 static LLFastTimer::DeclareTimer FTM_URL_PERFORM("Perform");
+static LLFastTimer::DeclareTimer FTM_PROCESS_URL_PUMP_RESPOND("Pump Respond");
+static LLFastTimer::DeclareTimer FTM_URL_ADJUST_TIMEOUT("Adjust Timeout");
 
 // virtual
 LLIOPipe::EStatus LLURLRequest::process_impl(
@@ -303,7 +306,6 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 	const S32 MIN_ACCUMULATION = 100000;
 	if(pump && (mDetail->mByteAccumulator > MIN_ACCUMULATION))
 	{
-		static LLFastTimer::DeclareTimer FTM_URL_ADJUST_TIMEOUT("Adjust Timeout");
 		LLFastTimer t(FTM_URL_ADJUST_TIMEOUT);
 		 // This is a pretty sloppy calculation, but this
 		 // tries to make the gross assumption that if data
@@ -314,11 +316,11 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		 const F32 TIMEOUT_ADJUSTMENT = 2.0f;
 		 mDetail->mByteAccumulator = 0;
 		 pump->adjustTimeoutSeconds(TIMEOUT_ADJUSTMENT);
-		lldebugs << "LLURLRequest adjustTimeoutSeconds for request: " << mDetail->mURL << llendl;
-		if (mState == STATE_INITIALIZED)
-		{
-			llinfos << "LLURLRequest adjustTimeoutSeconds called during upload" << llendl;
-		}
+		 lldebugs << "LLURLRequest adjustTimeoutSeconds for request: " << mDetail->mURL << llendl;
+		 if (mState == STATE_INITIALIZED)
+		 {
+			  llinfos << "LLURLRequest adjustTimeoutSeconds called during upload" << llendl;
+		 }
 	}
 
 	switch(mState)
@@ -402,7 +404,6 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 						link.mChannels = LLBufferArray::makeChannelConsumer(
 							channels);
 						chain.push_back(link);
-						static LLFastTimer::DeclareTimer FTM_PROCESS_URL_PUMP_RESPOND("Pump Respond");
 						{
 							LLFastTimer t(FTM_PROCESS_URL_PUMP_RESPOND);
 							pump->respond(chain, buffer, context);

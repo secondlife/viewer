@@ -35,7 +35,6 @@
 #include "lscript_library.h"
 #include "lscript_heapruntime.h"
 #include "lscript_alloc.h"
-#include "llstat.h"
 
 
 // Static

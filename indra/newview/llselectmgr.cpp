@@ -1557,7 +1557,7 @@ void LLObjectSelection::applyNoCopyTextureToTEs(LLViewerInventoryItem* item)
 				}
 
 				// apply texture for the selected faces
-				LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
+				add(LLStatViewer::EDIT_TEXTURE, 1);
 				object->setTEImage(te, image);
 				dialog_refresh_all();
 
@@ -3541,9 +3541,7 @@ bool LLSelectMgr::confirmDelete(const LLSD& notification, const LLSD& response, 
 			gAgentCamera.setLookAt(LOOKAT_TARGET_CLEAR);
 
 			// Keep track of how many objects have been deleted.
-			F64 obj_delete_count = LLViewerStats::getInstance()->getStat(LLViewerStats::ST_OBJECT_DELETE_COUNT);
-			obj_delete_count += LLSelectMgr::getInstance()->mSelectedObjects->getObjectCount();
-			LLViewerStats::getInstance()->setStat(LLViewerStats::ST_OBJECT_DELETE_COUNT, obj_delete_count );
+			add(LLStatViewer::DELETE_OBJECT, LLSelectMgr::getInstance()->mSelectedObjects->getObjectCount());
 		}
 		break;
 	case 1:
@@ -5913,7 +5911,7 @@ void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
 			LLPrimitive::getTESTAxes(i, &s_axis, &t_axis);
 
 			tep->getScale(&diffuse_s,&diffuse_t);
-			
+
 			if (tep->getTexGen() == LLTextureEntry::TEX_GEN_PLANAR)
 			{
 				v.mV[s_axis] = diffuse_s*scale.mV[s_axis];
@@ -5925,7 +5923,7 @@ void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
 				v.mV[s_axis] = diffuse_s/scale.mV[s_axis];
 				v.mV[t_axis] = diffuse_t/scale.mV[t_axis];
 				mTextureScaleRatios.push_back(v);
-			}			
+			}
 		}
 	}
 }

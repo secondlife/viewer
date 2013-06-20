@@ -170,7 +170,7 @@ public:
 			LLXMLNodePtr root_node;
 
 			if (!LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
-			{
+				{							
 				llwarns << "Couldn't parse XUI file: " << instance().getCurFileName() << llendl;
 				goto fail;
 			}
@@ -259,10 +259,8 @@ private:
 			// We always want to output top-left coordinates
 			typename T::Params output_params(params);
 			T::setupParamsForExport(output_params, parent);
-			// Export only the differences between this any default params
-			typename T::Params default_params(getDefaultParams<T>());
 			copyName(node, output_node);
-			parser.writeXUI(output_node, output_params, &default_params);
+			parser.writeXUI(output_node, output_params, LLInitParam::default_parse_rules(), &getDefaultParams<T>());
 		}
 
 		// Apply layout transformations, usually munging rect

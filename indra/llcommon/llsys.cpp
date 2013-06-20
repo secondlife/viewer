@@ -42,6 +42,7 @@
 #include "llprocessor.h"
 #include "llerrorcontrol.h"
 #include "llevents.h"
+#include "llformat.h"
 #include "lltimer.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
@@ -58,9 +59,7 @@
 using namespace llsd;
 
 #if LL_WINDOWS
-#	define WIN32_LEAN_AND_MEAN
-#	include <winsock2.h>
-#	include <windows.h>
+#	include "llwin32headerslean.h"
 #   include <psapi.h>               // GetPerformanceInfo() et al.
 #elif LL_DARWIN
 #	include <errno.h>

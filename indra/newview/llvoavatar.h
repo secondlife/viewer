@@ -33,7 +33,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/signals2.hpp>
+#include <boost/signals2/trackable.hpp>
 
 #include "imageids.h"			// IMG_INVISIBLE
 #include "llavatarappearance.h"
@@ -74,6 +74,7 @@ struct LLVOAvatarChildJoint;
 //class LLViewerJoint;
 struct LLAppearanceMessageContents;
 struct LLVOAvatarSkeletonInfo;
+class LLViewerJointMesh;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
@@ -128,15 +129,15 @@ protected:
 public:
 	/*virtual*/ void			updateGL();
 	/*virtual*/ LLVOAvatar*		asAvatar();
-	virtual U32    	 	 	processUpdateMessage(LLMessageSystem *mesgsys,
+	virtual U32    	 	 		processUpdateMessage(LLMessageSystem *mesgsys,
 													 void **user_data,
 													 U32 block_num,
 													 const EObjectUpdateType update_type,
 													 LLDataPacker *dp);
-	virtual void   	 	 	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+	virtual void   	 	 		idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 	/*virtual*/ BOOL   	 	 	updateLOD();
-	BOOL  	 	 	 	 	updateJointLODs();
-	void					updateLODRiggedAttachments( void );
+	BOOL  	 	 	 	 		updateJointLODs();
+	void						updateLODRiggedAttachments( void );
 	/*virtual*/ BOOL   	 	 	isActive() const; // Whether this object needs to do an idleUpdate.
 	S32 						totalTextureMemForUUIDS(std::set<LLUUID>& ids);
 	bool 						allTexturesCompletelyDownloaded(std::set<LLUUID>& ids) const;
@@ -372,7 +373,7 @@ public:
 	bool		isVisuallyMuted() const;
 
 	U32 		renderRigid();
-	U32 		renderSkinned(EAvatarRenderPass pass);
+	U32 		renderSkinned();
 	F32			getLastSkinTime() { return mLastSkinTime; }
 	U32 		renderTransparent(BOOL first_pass);
 	void 		renderCollisionVolumes();

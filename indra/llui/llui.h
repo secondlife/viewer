@@ -29,9 +29,11 @@
 #define LL_LLUI_H
 
 #include "llrect.h"
+#include "llcoord.h"
 #include "llcontrol.h"
 #include "llcoord.h"
-#include "v2math.h"
+#include "llcontrol.h"
+#include "llglslshader.h"
 #include "llinitparam.h"
 #include "llregistry.h"
 #include "llrender2dutils.h"
@@ -40,8 +42,8 @@
 #include "lluicolortable.h"
 #include "lluiimage.h"
 #include <boost/signals2.hpp>
-#include "lllazyvalue.h"
 #include "llframetimer.h"
+#include "v2math.h"
 #include <limits>
 
 // for initparam specialization

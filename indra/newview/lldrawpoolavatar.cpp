@@ -463,7 +463,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	
 	if (pass == 0)
 	{
-		avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
+		avatarp->renderSkinned();
 	}
 	else
 	{
@@ -905,9 +905,9 @@ void LLDrawPoolAvatar::beginRiggedFullbright()
 			}
 			else
 			{
-				sVertexProgram = &gSkinnedObjectFullbrightProgram;
-			}
+			sVertexProgram = &gSkinnedObjectFullbrightProgram;
 		}
+	}
 	}
 	else
 	{
@@ -1006,9 +1006,9 @@ void LLDrawPoolAvatar::beginRiggedFullbrightShiny()
 			}
 			else
 			{
-				sVertexProgram = &gSkinnedObjectFullbrightShinyProgram;
-			}
+			sVertexProgram = &gSkinnedObjectFullbrightShinyProgram;
 		}
+	}
 	}
 	else
 	{
@@ -1381,7 +1381,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 			case 10: p = 5; break;
 			case 11: p = 9; break;
 			case 12: p = 13; break;
-			}
+	}
 
 			{
 				LLGLEnable blend(GL_BLEND);
@@ -1430,7 +1430,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 	if( !single_avatar || (avatarp == single_avatar) )
 	{
-		avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
+		avatarp->renderSkinned();
 	}
 }
 
@@ -1743,12 +1743,12 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			}
 			else
 			{
-				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture());
+			gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture());
 				sVertexProgram->setMinimumAlpha(0.f);
-				if (normal_channel > -1)
-				{
-					LLDrawPoolBump::bindBumpMap(face, normal_channel);
-				}
+			if (normal_channel > -1)
+			{
+				LLDrawPoolBump::bindBumpMap(face, normal_channel);
+			}
 			}
 
 			if (face->mTextureMatrix)

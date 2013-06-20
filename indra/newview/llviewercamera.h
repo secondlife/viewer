@@ -29,10 +29,10 @@
 
 #include "llcamera.h"
 #include "llsingleton.h"
-#include "llstat.h"
 #include "lltimer.h"
 #include "m4math.h"
 #include "llcoord.h"
+#include "lltrace.h"
 
 class LLViewerObject;
 
@@ -80,7 +80,7 @@ public:
 		NUM_CAMERAS
 	} eCameraID;
 
-	static U32 sCurCameraID;
+	static eCameraID sCurCameraID;
 
 	LLViewerCamera();
 
@@ -100,9 +100,9 @@ public:
 	BOOL projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoordGL &out_point, const BOOL clamp = TRUE) const;
 	BOOL projectPosAgentToScreenEdge(const LLVector3 &pos_agent, LLCoordGL &out_point) const;
 
-	const LLVector3* getVelocityDir() const {return &mVelocityDir;}
-	LLStat *getVelocityStat() { return &mVelocityStat; }
-	LLStat *getAngularVelocityStat() { return &mAngularVelocityStat; }
+	LLVector3 getVelocityDir() const {return mVelocityDir;}
+	static LLTrace::CountStatHandle<>* getVelocityStat()		   {return &sVelocityStat; }
+	static LLTrace::CountStatHandle<>* getAngularVelocityStat()  {return &sAngularVelocityStat; }
 	F32     getCosHalfFov() {return mCosHalfCameraFOV;}
 	F32     getAverageSpeed() {return mAverageSpeed ;}
 	F32     getAverageAngularSpeed() {return mAverageAngularSpeed;}
@@ -117,9 +117,9 @@ public:
 	F32 getDefaultFOV() { return mCameraFOVDefault; }
 
 	BOOL cameraUnderWater() const;
+	BOOL areVertsVisible(LLViewerObject* volumep, BOOL all_verts);
 
 	const LLVector3 &getPointOfInterest() { return mLastPointOfInterest; }
-	BOOL areVertsVisible(LLViewerObject* volumep, BOOL all_verts);
 	F32 getPixelMeterRatio() const				{ return mPixelMeterRatio; }
 	S32 getScreenPixelArea() const				{ return mScreenPixelArea; }
 
@@ -130,12 +130,12 @@ public:
 protected:
 	void calcProjection(const F32 far_distance) const;
 
-	LLStat mVelocityStat;
-	LLStat mAngularVelocityStat;
+	static LLTrace::CountStatHandle<> sVelocityStat;
+	static LLTrace::CountStatHandle<> sAngularVelocityStat;
+
 	LLVector3 mVelocityDir ;
 	F32       mAverageSpeed ;
 	F32       mAverageAngularSpeed ;
-
 	mutable LLMatrix4	mProjectionMatrix;	// Cache of perspective matrix
 	mutable LLMatrix4	mModelviewMatrix;
 	F32					mCameraFOVDefault;

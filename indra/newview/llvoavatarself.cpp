@@ -43,6 +43,7 @@
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llinventoryfunctions.h"
+#include "lllocaltextureobject.h"
 #include "llnotificationsutil.h"
 #include "llselectmgr.h"
 #include "lltoolgrab.h"	// for needsRenderBeam
@@ -602,7 +603,7 @@ LLVOAvatarSelf::~LLVOAvatarSelf()
  **                                                                             **
  *********************************************************************************/
 
-//virtual
+// virtual
 BOOL LLVOAvatarSelf::updateCharacter(LLAgent &agent)
 {
 	// update screen joint size
@@ -789,7 +790,10 @@ U32  LLVOAvatarSelf::processUpdateMessage(LLMessageSystem *mesgsys,
 		updateMeshTextures();
 
 		// unpack the texture UUIDs to the texture slots
+		if(mesgsys != NULL)
+		{
 		retval = unpackTEMessage(mesgsys, _PREHASH_ObjectData, (S32) block_num);
+		}
 
 		// need to trigger a few operations to get the avatar to use the new bakes
 		for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
@@ -866,9 +870,9 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 		updateMeshTextures();
 		if (getRegion() && !getRegion()->getCentralBakeVersion())
 		{
-		requestLayerSetUploads();
+			requestLayerSetUploads();
+		}
 	}
-}
 }
 
 //virtual
@@ -896,17 +900,11 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 		if (mLastRegionHandle != 0)
 		{
 			++mRegionCrossingCount;
-			F64 delta = (F64)mRegionCrossingTimer.getElapsedTimeF32();
-			F64 avg = (mRegionCrossingCount == 1) ? 0 : LLViewerStats::getInstance()->getStat(LLViewerStats::ST_CROSSING_AVG);
-			F64 delta_avg = (delta + avg*(mRegionCrossingCount-1)) / mRegionCrossingCount;
-			LLViewerStats::getInstance()->setStat(LLViewerStats::ST_CROSSING_AVG, delta_avg);
-			
-			F64 max = (mRegionCrossingCount == 1) ? 0 : LLViewerStats::getInstance()->getStat(LLViewerStats::ST_CROSSING_MAX);
-			max = llmax(delta, max);
-			LLViewerStats::getInstance()->setStat(LLViewerStats::ST_CROSSING_MAX, max);
+			LLTrace::Seconds delta = mRegionCrossingTimer.getElapsedTimeF32();
+			record(LLStatViewer::REGION_CROSSING_TIME, delta);
 
 			// Diagnostics
-			llinfos << "Region crossing took " << (F32)(delta * 1000.0) << " ms " << llendl;
+			llinfos << "Region crossing took " << (F32)(delta * 1000.0).value() << " ms " << llendl;
 		}
 		if (regionp)
 		{
@@ -1310,7 +1308,7 @@ void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *sr
 			discard_level < local_tex_obj->getDiscard())
 		{
 			local_tex_obj->setDiscard(discard_level);
-				requestLayerSetUpdate(index);
+			requestLayerSetUpdate(index);
 			if (isEditingAppearance())
 			{
 				LLVisualParamHint::requestHintUpdates();
@@ -1799,10 +1797,10 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 					{
 						requestLayerSetUpdate(type);
 						if (isEditingAppearance())
-					{
-						LLVisualParamHint::requestHintUpdates();
+						{
+							LLVisualParamHint::requestHintUpdates();
+						}
 					}
-				}
 				}
 				else
 				{					
@@ -2233,7 +2231,7 @@ LLSD LLVOAvatarSelf::metricsData()
 	result["timers"]["ruth"] = mRuthTimer.getElapsedTimeF32();
 	result["timers"]["invisible"] = mInvisibleTimer.getElapsedTimeF32();
 	result["timers"]["fully_loaded"] = mFullyLoadedTimer.getElapsedTimeF32();
-	result["startup"] = LLStartUp::getPhases().dumpPhases();
+	result["startup"] = LLStartUp::getPhases().asLLSD();
 	
 	return result;
 }
@@ -2351,7 +2349,7 @@ LLSD summarize_by_buckets(std::vector<LLSD> in_records,
 		 accum_it != accum.end(); ++accum_it)
 	{
 		LLSD out_record = accum_it->first;
-		out_record["stats"] = accum_it->second.getData();
+		out_record["stats"] = accum_it->second.asLLSD();
 		result.append(out_record);
 	}
 	return result;
@@ -2580,24 +2578,24 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 	//if (!covered_by_baked)
 	{
 		if (imagep->getID() != IMG_DEFAULT_AVATAR)
-	{
+		{
 			imagep->setNoDelete();
 			if (imagep->getDiscardLevel() != 0)
-		{
-			F32 desired_pixels;
-			desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
-
-			imagep->setBoostLevel(getAvatarBoostLevel());
-				imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
-			imagep->resetTextureStats();
-			imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
-			imagep->addTextureStats( desired_pixels / texel_area_ratio );
-			imagep->forceUpdateBindStats() ;
-			if (imagep->getDiscardLevel() < 0)
 			{
-				mHasGrey = TRUE; // for statistics gathering
+				F32 desired_pixels;
+				desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
+				
+				imagep->setBoostLevel(getAvatarBoostLevel());
+				imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
+				imagep->resetTextureStats();
+				imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
+				imagep->addTextureStats( desired_pixels / texel_area_ratio );
+				imagep->forceUpdateBindStats() ;
+				if (imagep->getDiscardLevel() < 0)
+				{
+					mHasGrey = TRUE; // for statistics gathering
+				}
 			}
-		}
 		}
 		else
 		{
@@ -2851,7 +2849,7 @@ void LLVOAvatarSelf::processRebakeAvatarTextures(LLMessageSystem* msg, void**)
 					llinfos << "TAT: rebake - matched entry " << (S32)index << llendl;
 					gAgentAvatarp->invalidateComposite(layer_set, TRUE);
 					found = TRUE;
-					LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_REBAKES);
+					add(LLStatViewer::TEX_REBAKES, 1);
 				}
 			}
 		}
@@ -2887,7 +2885,7 @@ void LLVOAvatarSelf::forceBakeAllTextures(bool slam_for_debug)
 			}
 
 			invalidateComposite(layer_set, TRUE);
-			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_REBAKES);
+			add(LLStatViewer::TEX_REBAKES, 1);
 		}
 		else
 		{
@@ -2921,17 +2919,17 @@ void LLVOAvatarSelf::requestLayerSetUpdate(ETextureIndex index )
 
 LLViewerTexLayerSet* LLVOAvatarSelf::getLayerSet(ETextureIndex index) const
 {
-	/* switch(index)
-		case TEX_HEAD_BAKED:
-		case TEX_HEAD_BODYPAINT:
-			return mHeadLayerSet; */
+       /* switch(index)
+               case TEX_HEAD_BAKED:
+               case TEX_HEAD_BODYPAINT:
+                       return mHeadLayerSet; */
        const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture(index);
-	if (texture_dict->mIsUsedByBakedTexture)
-	{
-		const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
+       if (texture_dict->mIsUsedByBakedTexture)
+       {
+               const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
                return getLayerSet(baked_index);
-	}
-	return NULL;
+       }
+       return NULL;
 }
 
 LLViewerTexLayerSet* LLVOAvatarSelf::getLayerSet(EBakedTextureIndex baked_index) const
@@ -2959,7 +2957,7 @@ void LLVOAvatarSelf::onCustomizeStart(bool disable_camera_switch)
 		gAgentAvatarp->mUseLocalAppearance = true;
 
 		if (gSavedSettings.getBOOL("AppearanceCameraMovement") && !disable_camera_switch)
-{
+		{
 			gAgentCamera.changeCameraToCustomizeAvatar();
 		}
 
@@ -3076,7 +3074,7 @@ void LLVOAvatarSelf::deleteScratchTextures()
 
 		sScratchTexNames.deleteAllData();
 		sScratchTexLastBindTime.deleteAllData();
-		LLImageGL::sGlobalTextureMemoryInBytes -= sScratchTexBytes;
+		LLImageGL::sGlobalTextureMemory -= sScratchTexBytes;
 		sScratchTexBytes = 0;
 	}
 }

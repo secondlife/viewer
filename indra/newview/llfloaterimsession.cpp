@@ -41,6 +41,7 @@
 #include "llchicletbar.h"
 #include "lldonotdisturbnotificationstorage.h"
 #include "llfloaterreg.h"
+#include "llhttpclient.h"
 #include "llfloateravatarpicker.h"
 #include "llfloaterimcontainer.h" // to replace separate IM Floaters with multifloater container
 #include "llinventoryfunctions.h"
@@ -52,6 +53,7 @@
 #include "lltrans.h"
 #include "llchathistory.h"
 #include "llnotifications.h"
+#include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "lltransientfloatermgr.h"
 #include "llinventorymodel.h"
@@ -170,7 +172,7 @@ void LLFloaterIMSession::newIMCallback(const LLSD& data)
 	}
 }
 
-void LLFloaterIMSession::onVisibilityChange(const LLSD& new_visibility)
+void LLFloaterIMSession::onVisibilityChanged(const LLSD& new_visibility)
 {
 	bool visible = new_visibility.asBoolean();
 

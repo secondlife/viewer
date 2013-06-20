@@ -209,7 +209,7 @@ void LLFace::destroy()
 	}
 	
 	setDrawInfo(NULL);
-			
+		
 	mDrawablep = NULL;
 	mVObjp = NULL;
 }
@@ -313,14 +313,14 @@ void LLFace::dirtyTexture()
 		for (U32 ch = 0; ch < LLRender::NUM_TEXTURE_CHANNELS; ++ch)
 		{
 			if (mTexture[ch].notNull() && mTexture[ch]->getComponents() == 4)
-			{ //dirty texture on an alpha object should be treated as an LoD update
-				LLVOVolume* vobj = drawablep->getVOVolume();
-				if (vobj)
-				{
-					vobj->mLODChanged = TRUE;
-				}
-				gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
-			}
+	{ //dirty texture on an alpha object should be treated as an LoD update
+		LLVOVolume* vobj = drawablep->getVOVolume();
+		if (vobj)
+		{
+			vobj->mLODChanged = TRUE;
+		}
+		gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
+	}		
 		}
 	}
 			
@@ -348,7 +348,7 @@ void LLFace::switchTexture(U32 ch, LLViewerTexture* new_texture)
 
 	if (ch == LLRender::DIFFUSE_MAP)
 	{
-		getViewerObject()->changeTEImage(mTEOffset, new_texture) ;
+	getViewerObject()->changeTEImage(mTEOffset, new_texture) ;
 	}
 
 	setTexture(ch, new_texture) ;	
@@ -947,7 +947,7 @@ LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, const LLVector4a& po
 		if (texgen == LLTextureEntry::TEX_GEN_PLANAR)
 		{
 			planarProjection(tc, volume_normal, center, volume_position);
-		}
+		}		
 	}
 
 	if (mTextureMatrix)	// if we have a texture matrix, use it
@@ -1288,7 +1288,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	{ //decide if shiny goes in alpha channel of color
 		if (tep && 
 			getPoolType() != LLDrawPool::POOL_ALPHA)  // <--- alpha channel MUST contain transparency, not shiny
-		{
+	{
 			LLMaterial* mat = tep->getMaterialParams().get();
 						
 			bool shiny_in_alpha = false;
@@ -1309,15 +1309,15 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			}
 
 			if (shiny_in_alpha)
-			{
+		{
 
-				GLfloat alpha[4] =
-				{
-					0.00f,
-					0.25f,
-					0.5f,
-					0.75f
-				};
+			GLfloat alpha[4] =
+			{
+				0.00f,
+				0.25f,
+				0.5f,
+				0.75f
+			};
 			
 				llassert(tep->getShiny() <= 3);
 				color.mV[3] = U8 (alpha[tep->getShiny()] * 255);
@@ -1621,8 +1621,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	
 			bool tex_anim = false;
 
-			LLVOVolume* vobj = (LLVOVolume*) (LLViewerObject*) mVObjp;	
-			tex_mode = vobj->mTexAnimMode;
+				LLVOVolume* vobj = (LLVOVolume*) (LLViewerObject*) mVObjp;	
+				tex_mode = vobj->mTexAnimMode;
 
 			if (vobj->mTextureAnimp)
 			{ //texture animation is in play, override specular and normal map tex coords with diffuse texcoords
@@ -1645,7 +1645,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 					do_xform = false;
 				}
-				
+
 				if (getVirtualSize() >= MIN_TEX_ANIM_SIZE)
 				{ //don't override texture transform during tc bake
 					tex_mode = 0;
@@ -1666,7 +1666,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			}
 			
 			bool do_tex_mat = tex_mode && mTextureMatrix;
-						
+
 			if (!do_bump)
 			{ //not bump mapped, might be able to do a cheap update
 				mVertexBuffer->getTexCoord0Strider(tex_coords0, mGeomIndex, mGeomCount);
@@ -1783,9 +1783,9 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			else
 			{ //bump mapped or has material, just do the whole expensive loop
 				LLFastTimer t(FTM_FACE_TEX_DEFAULT);
-				
-				std::vector<LLVector2> bump_tc;
 
+				std::vector<LLVector2> bump_tc;
+		
 				if (mat && !mat->getNormalID().isNull())
 				{ //writing out normal and specular texture coordinates, not bump offsets
 					do_bump = false;
@@ -1842,44 +1842,44 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					}
 					
 
-					for (S32 i = 0; i < num_vertices; i++)
-					{	
-						LLVector2 tc(vf.mTexCoords[i]);
+				for (S32 i = 0; i < num_vertices; i++)
+				{	
+					LLVector2 tc(vf.mTexCoords[i]);
 			
-						LLVector4a& norm = vf.mNormals[i];
+					LLVector4a& norm = vf.mNormals[i];
 				
-						LLVector4a& center = *(vf.mCenter);
+					LLVector4a& center = *(vf.mCenter);
 		   
-						if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
-						{
-							LLVector4a vec = vf.mPositions[i];
+					if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
+					{
+						LLVector4a vec = vf.mPositions[i];
 				
-							vec.mul(scalea);
+						vec.mul(scalea);
 
 							if (texgen == LLTextureEntry::TEX_GEN_PLANAR)
-							{
+						{
 								planarProjection(tc, norm, center, vec);
-							}
-						}
+						}		
+					}
 
-						if (tex_mode && mTextureMatrix)
-						{
-							LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
-							tmp = tmp * *mTextureMatrix;
-							tc.mV[0] = tmp.mV[0];
-							tc.mV[1] = tmp.mV[1];
-						}
-						else
-						{
-							xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
-						}
+					if (tex_mode && mTextureMatrix)
+					{
+						LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+						tmp = tmp * *mTextureMatrix;
+						tc.mV[0] = tmp.mV[0];
+						tc.mV[1] = tmp.mV[1];
+					}
+					else
+					{
+						xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
+					}
 
 						*dst++ = tc;
-						if (do_bump)
-						{
-							bump_tc.push_back(tc);
-						}
+					if (do_bump)
+					{
+						bump_tc.push_back(tc);
 					}
+				}
 				}
 
 				if (map_range)
@@ -1898,7 +1898,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 						LLVector4a binorm;
 						binorm.setCross3(vf.mNormals[i], tangent);
 						binorm.mul(tangent.getF32ptr()[3]);
-						
+
 						LLMatrix4a tangent_to_object;
 						tangent_to_object.setRows(tangent, binorm, vf.mNormals[i]);
 						LLVector4a t;
@@ -2029,9 +2029,9 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			LLVector4Logical mask;
 			mask.clear();
 			mask.setElement<3>();
-
+		
 			for (S32 i = 0; i < num_vertices; i++)
-			{
+			{	
 				LLVector4a tangent_out;
 				mat_normal.rotate(vf.mTangents[i], tangent_out);
 				tangent_out.normalize3fast();
@@ -2104,7 +2104,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			LLColor4U glow4u = LLColor4U(0,0,0,glow);
 
 			U32 glow32 = glow4u.mAll;
-			
+
 			U32 vec[4];
 			vec[0] = vec[1] = vec[2] = vec[3] = glow32;
 		
@@ -2249,7 +2249,7 @@ BOOL LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 		dist *= 16.f;
 	}
 
-	lookAt.normalize3fast();	
+	lookAt.normalize3fast() ;	
 
 	//get area of circle around node
 	F32 app_angle = atanf((F32) sqrt(size_squared) / dist);
@@ -2348,8 +2348,6 @@ F32 LLFace::calcImportanceToCamera(F32 cos_angle_to_view_dir, F32 dist)
 			//if camera moves or rotates too fast, ignore the importance factor
 			return 0.f ;
 		}
-		
-		//F32 camera_relative_speed = camera_moving_speed * (lookAt * LLViewerCamera::getInstance()->getVelocityDir()) ;
 		
 		S32 i = 0 ;
 		for(i = 0; i < FACE_IMPORTANCE_LEVEL && dist > FACE_IMPORTANCE_TO_CAMERA_OVER_DISTANCE[i][0]; ++i);

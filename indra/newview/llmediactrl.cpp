@@ -392,7 +392,7 @@ BOOL LLMediaCtrl::postBuild ()
 
 	mContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
 		"menu_media_ctrl.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
-	setVisibleCallback(boost::bind(&LLMediaCtrl::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLMediaCtrl::onVisibilityChanged, this, _2));
 
 	return TRUE;
 }
@@ -422,7 +422,7 @@ BOOL LLMediaCtrl::handleKeyHere( KEY key, MASK mask )
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LLMediaCtrl::handleVisibilityChange ( BOOL new_visibility )
+void LLMediaCtrl::onVisibilityChange ( BOOL new_visibility )
 {
 	llinfos << "visibility changed to " << (new_visibility?"true":"false") << llendl;
 	if(mMediaSource)
@@ -450,7 +450,7 @@ BOOL LLMediaCtrl::handleUnicodeCharHere(llwchar uni_char)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LLMediaCtrl::onVisibilityChange ( const LLSD& new_visibility )
+void LLMediaCtrl::onVisibilityChanged ( const LLSD& new_visibility )
 {
 	// set state of frequent updates automatically if visibility changes
 	if ( new_visibility.asBoolean() )

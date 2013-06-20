@@ -33,6 +33,8 @@
 class LLSurfacePatch;
 class LLDrawPool;
 class LLVector2;
+class LLFacePool;
+class LLFace;
 
 class LLVOSurfacePatch : public LLStaticViewerObject
 {

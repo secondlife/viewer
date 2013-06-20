@@ -34,7 +34,9 @@
 #include "llgroupmgr.h"
 #include "llsdutil.h"
 #include "lluicolortable.h"
+#include "llhttpclient.h"
 #include "llviewerobjectlist.h"
+#include "llviewerregion.h"
 #include "llvoavatar.h"
 #include "llworld.h"
 

@@ -145,6 +145,7 @@ public:
 	U64 getSpaceTimeUSec() const;
 
 	void getInfo(LLSD& info);
+	U32  getNumOfActiveCachedObjects() const {return mNumOfActiveCachedObjects;}
 
 public:
 	typedef std::list<LLViewerRegion*> region_list_t;
@@ -187,7 +188,7 @@ private:
 	S32 mLastPacketsIn;
 	S32 mLastPacketsOut;
 	S32 mLastPacketsLost;
-
+	U32 mNumOfActiveCachedObjects;
 	U64 mSpaceTimeUSec;
 
 	BOOL mClassicCloudsEnabled;

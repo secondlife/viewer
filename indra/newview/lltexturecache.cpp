@@ -571,9 +571,9 @@ bool LLTextureCacheRemoteWorker::doWrite()
 				// (almost always) write to the fast cache.
 				if (mRawImage->getDataSize())
 				{
-					llassert_always(mCache->writeToFastCache(idx, mRawImage, mRawDiscardLevel));
-				}
+				llassert_always(mCache->writeToFastCache(idx, mRawImage, mRawDiscardLevel));
 			}
+		}
 		}
 		else
 		{
@@ -922,7 +922,7 @@ void LLTextureCache::setDirNames(ELLPath location)
 	mFastCacheFileName =  gDirUtilp->getExpandedFilename(location, textures_dirname, fast_cache_filename);
 }
 
-void LLTextureCache::purgeCache(ELLPath location)
+void LLTextureCache::purgeCache(ELLPath location, bool remove_dir)
 {
 	LLMutexLock lock(&mHeaderMutex);
 
@@ -948,7 +948,7 @@ void LLTextureCache::purgeCache(ELLPath location)
 	}
 
 	//remove the current texture cache.
-	purgeAllTextures(true);
+	purgeAllTextures(remove_dir);
 }
 
 //is called in the main thread before initCache(...) is called.

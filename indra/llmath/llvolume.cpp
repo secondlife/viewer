@@ -1392,7 +1392,7 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
 	pt->mScale.mV[VX] = hole_x * lerp(taper_x_begin, taper_x_end, t);
 	pt->mScale.mV[VY] = hole_y * lerp(taper_y_begin, taper_y_end, t);
 	pt->mTexT  = t;
-
+	
 	// Twist rotates the path along the x,y plane (I think) - DJS 04/05/02
 	twist.setQuat  (lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
 	// Rotate the point around the circle's center.
@@ -1446,7 +1446,7 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
 	pt->mScale.mV[VX] = hole_x * lerp(taper_x_begin, taper_x_end, t);
 	pt->mScale.mV[VY] = hole_y * lerp(taper_y_begin, taper_y_end, t);
 	pt->mTexT  = t;
-
+	
 	// Twist rotates the path along the x,y plane (I think) - DJS 04/05/02
 	twist.setQuat  (lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
 	// Rotate the point around the circle's center.
@@ -4615,7 +4615,7 @@ S32 LLVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& en
 
 								n1.add(n2);
 								n1.add(n3);
-								
+
 								*normal		= n1; 
 							}
 
@@ -6130,7 +6130,7 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 
 		S32 size = (grid_size+1)*(grid_size+1);
 		resizeVertices(size);
-		
+
 		LLVector4a* pos = (LLVector4a*) mPositions;
 		LLVector4a* norm = (LLVector4a*) mNormals;
 		LLVector2* tc = (LLVector2*) mTexCoords;
@@ -6151,7 +6151,7 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 				*pos++ = newVert.getPosition();
 				*norm++ = baseVert.getNormal();
 				*tc++ = newVert.mTexCoord;
-				
+
 				if (gx == 0 && gy == 0)
 				{
 					min = newVert.getPosition();
@@ -6227,7 +6227,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	if (!(mTypeMask & HOLLOW_MASK) && !(mTypeMask & OPEN_MASK))
 	{
 		resizeVertices(num_vertices+1);
-		
+
 		if (!partial_build)
 		{
 			resizeIndices(num_indices+3);
@@ -6236,7 +6236,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	else
 	{
 		resizeVertices(num_vertices);
-		
+
 		if (!partial_build)
 		{
 			resizeIndices(num_indices);
@@ -6270,7 +6270,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	LLVector2* tc = (LLVector2*) mTexCoords;
 	LLVector4a* pos = (LLVector4a*) mPositions;
 	LLVector4a* norm = (LLVector4a*) mNormals;
-	
+
 	// Copy the vertices into the array
 	for (S32 i = 0; i < num_vertices; i++)
 	{
@@ -6552,7 +6552,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 
 
 	}
-
+		
 	LLVector4a d0,d1;
 
 	d0.setSub(mPositions[mIndices[1]], mPositions[mIndices[0]]);
@@ -6562,13 +6562,13 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	normal.setCross3(d0,d1);
 
 	if (normal.dot3(normal).getF32() > F_APPROXIMATELY_ZERO)
-	{
+		{
 		normal.normalize3fast();
 	}
 	else
 	{ //degenerate, make up a value
 		normal.set(0,0,1);
-	}
+		}
 
 	llassert(llfinite(normal.getF32ptr()[0]));
 	llassert(llfinite(normal.getF32ptr()[1]));
@@ -6577,7 +6577,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	llassert(!llisnan(normal.getF32ptr()[0]));
 	llassert(!llisnan(normal.getF32ptr()[1]));
 	llassert(!llisnan(normal.getF32ptr()[2]));
-	
+						
 	for (S32 i = 0; i < num_vertices; i++)
 	{
 		norm[i].load4a(normal.getF32ptr());
@@ -6592,7 +6592,7 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 void LLVolumeFace::createTangents()
 {
 	if (!mTangents)
-	{
+			{
 		allocateTangents(mNumVertices);
 
 		//generate tangents
@@ -6602,7 +6602,7 @@ void LLVolumeFace::createTangents()
 
 		LLVector4a* end = mTangents+mNumVertices;
 		while (binorm < end)
-		{
+			{
 			(*binorm++).clear();
 		}
 
@@ -7221,7 +7221,7 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 	memset(tan1, 0, vertexCount*2*sizeof(LLVector4a));
         
     for (U32 a = 0; a < triangleCount; a++)
-    {
+{
         U32 i1 = *index_array++;
         U32 i2 = *index_array++;
         U32 i3 = *index_array++;
@@ -7265,7 +7265,7 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 		tan1[i1].add(sdir);
 		tan1[i2].add(sdir);
 		tan1[i3].add(sdir);
-        
+	
 		tan2[i1].add(tdir);
 		tan2[i2].add(tdir);
 		tan2[i3].add(tdir);
@@ -7276,13 +7276,13 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
         LLVector4a n = normal[a];
 
 		const LLVector4a& t = tan1[a];
-
+	
 		llassert(tan1[a].getLength3().getF32() >= 0.f);
 		llassert(tan2[a].getLength3().getF32() >= 0.f);
 
 		LLVector4a ncrosst;
 		ncrosst.setCross3(n,t);
-
+		
         // Gram-Schmidt orthogonalize
         n.mul(n.dot3(t).getF32());
 
@@ -7290,7 +7290,7 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 		tsubn.setSub(t,n);
 
 		if (tsubn.dot3(tsubn).getF32() > F_APPROXIMATELY_ZERO)
-		{
+	{
 			tsubn.normalize3fast();
 		
 			// Calculate handedness
@@ -7309,12 +7309,12 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 			llassert(!llisnan(tangent[a].getF32ptr()[0]));
 			llassert(!llisnan(tangent[a].getF32ptr()[1]));
 			llassert(!llisnan(tangent[a].getF32ptr()[2]));*/
-		}
-		else
+	}
+	else
 		{ //degenerate, make up a value
 			tangent[a].set(0,0,1,1);
 		}
-    }
+	}
     
 	ll_aligned_free_16(tan1);
 }

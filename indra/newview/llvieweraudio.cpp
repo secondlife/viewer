@@ -37,6 +37,7 @@
 #include "llviewerwindow.h"
 #include "llvoiceclient.h"
 #include "llviewermedia.h"
+#include "llviewerregion.h"
 #include "llprogressview.h"
 #include "llcallbacklist.h"
 #include "llstartup.h"
@@ -400,7 +401,7 @@ void audio_update_volume(bool force_update)
 		gAudiop->setDopplerFactor(gSavedSettings.getF32("AudioLevelDoppler"));
 
 		if(!LLViewerCamera::getInstance()->cameraUnderWater())
-		gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelRolloff"));
+			gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelRolloff"));
 		else
 			gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelUnderwaterRolloff"));
 
@@ -494,18 +495,18 @@ void audio_update_wind(bool force_update)
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)
 	{
-        // Scale down the contribution of weather-simulation wind to the
-        // ambient wind noise.  Wind velocity averages 3.5 m/s, with gusts to 7 m/s
-        // whereas steady-state avatar walk velocity is only 3.2 m/s.
-        // Without this the world feels desolate on first login when you are
-        // standing still.
-        static LLUICachedControl<F32> wind_level("AudioLevelWind", 0.5f);
-        LLVector3 scaled_wind_vec = gWindVec * wind_level;
-        
-        // Mix in the avatar's motion, subtract because when you walk north,
-        // the apparent wind moves south.
-        LLVector3 final_wind_vec = scaled_wind_vec - gAgent.getVelocity();
-        
+		// Scale down the contribution of weather-simulation wind to the
+		// ambient wind noise.  Wind velocity averages 3.5 m/s, with gusts to 7 m/s
+		// whereas steady-state avatar walk velocity is only 3.2 m/s.
+		// Without this the world feels desolate on first login when you are
+		// standing still.
+		static LLUICachedControl<F32> wind_level("AudioLevelWind", 0.5f);
+		LLVector3 scaled_wind_vec = gWindVec * wind_level;
+
+		// Mix in the avatar's motion, subtract because when you walk north,
+		// the apparent wind moves south.
+		LLVector3 final_wind_vec = scaled_wind_vec - gAgent.getVelocity();
+
 		// rotate the wind vector to be listener (agent) relative
 		gRelativeWindVec = gAgent.getFrameAgent().rotateToLocal( final_wind_vec );
 

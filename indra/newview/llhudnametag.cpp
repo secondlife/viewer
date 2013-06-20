@@ -30,6 +30,7 @@
 #include "llhudnametag.h"
 
 #include "llrender.h"
+#include "lltracerecording.h"
 
 #include "llagent.h"
 #include "llviewercontrol.h"
@@ -745,8 +746,8 @@ void LLHUDNameTag::updateAll()
 		current_screen_area += (F32)(textp->mSoftScreenRect.getWidth() * textp->mSoftScreenRect.getHeight());
 	}
 
-	LLStat* camera_vel_stat = LLViewerCamera::getInstance()->getVelocityStat();
-	F32 camera_vel = camera_vel_stat->getCurrent();
+	LLTrace::CountStatHandle<>* camera_vel_stat = LLViewerCamera::getVelocityStat();
+	F32 camera_vel = LLTrace::get_frame_recording().getLastRecording().getPerSec(*camera_vel_stat);
 	if (camera_vel > MAX_STABLE_CAMERA_VELOCITY)
 	{
 		return;
@@ -814,7 +815,7 @@ void LLHUDNameTag::updateAll()
 	VisibleTextObjectIterator this_object_it;
 	for (this_object_it = sVisibleTextObjects.begin(); this_object_it != sVisibleTextObjects.end(); ++this_object_it)
 	{
-		(*this_object_it)->mPositionOffset = lerp((*this_object_it)->mPositionOffset, (*this_object_it)->mTargetPositionOffset, LLCriticalDamp::getInterpolant(POSITION_DAMPING_TC));
+		(*this_object_it)->mPositionOffset = lerp((*this_object_it)->mPositionOffset, (*this_object_it)->mTargetPositionOffset, LLSmoothInterpolation::getInterpolant(POSITION_DAMPING_TC));
 	}
 }
 

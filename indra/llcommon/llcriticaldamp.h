@@ -28,26 +28,46 @@
 #ifndef LL_LLCRITICALDAMP_H
 #define LL_LLCRITICALDAMP_H
 
-#include <map>
+#include <vector>
 
 #include "llframetimer.h"
+#include "llunit.h"
 
-class LL_COMMON_API LLCriticalDamp 
+class LL_COMMON_API LLSmoothInterpolation 
 {
 public:
-	LLCriticalDamp();
+	LLSmoothInterpolation();
 
 	// MANIPULATORS
 	static void updateInterpolants();
 
 	// ACCESSORS
-	static F32 getInterpolant(const F32 time_constant, BOOL use_cache = TRUE);
+	static F32 getInterpolant(LLUnit<F32, LLUnits::Seconds> time_constant, bool use_cache = true);
 
-protected:	
+	template<typename T> 
+	static T lerp(T a, T b, LLUnit<F32, LLUnits::Seconds> time_constant, bool use_cache = true)
+	{
+		F32 interpolant = getInterpolant(time_constant, use_cache);
+		return ((a * (1.f - interpolant)) 
+				+ (b * interpolant));
+	}
+
+protected:
+	static F32 calcInterpolant(F32 time_constant);
+
+	struct CompareTimeConstants;
 	static LLFrameTimer sInternalTimer;	// frame timer for calculating deltas
 
-	static std::map<F32, F32> 	sInterpolants;
+	struct Interpolant
+	{
+		F32 mTimeScale;
+		F32 mInterpolant;
+	};
+	typedef std::vector<Interpolant> interpolant_vec_t;
+	static interpolant_vec_t 	sInterpolants;
 	static F32					sTimeDelta;
 };
+
+typedef LLSmoothInterpolation LLCriticalDamp;
 
 #endif  // LL_LLCRITICALDAMP_H

@@ -52,6 +52,7 @@
 #include "llfloaterworldmap.h"
 #include "llviewergenericmessage.h"	// send_generic_message
 #include "llviewerregion.h"
+#include "llviewertexture.h"
 #include "lltrans.h"
 #include "llscrollcontainer.h"
 #include "llstatusbar.h"

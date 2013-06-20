@@ -100,6 +100,3 @@ private:
 };
 
 #endif  // LL_MULTI_FLOATER_H
-
-
-

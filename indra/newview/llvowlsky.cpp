@@ -394,7 +394,7 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 			segment->flush();
 		}
 	
-		llinfos << "completed in " << llformat("%.2f", timer.getElapsedTimeF32()) << "seconds" << llendl;
+		llinfos << "completed in " << llformat("%.2f", timer.getElapsedTimeF32().value()) << "seconds" << llendl;
 	}
 #else
 	mStripsVerts = new LLVertexBuffer(LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);

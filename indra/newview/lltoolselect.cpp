@@ -32,6 +32,7 @@
 #include "llagentcamera.h"
 #include "llviewercontrol.h"
 #include "lldrawable.h"
+#include "llhudicon.h"
 #include "llmanip.h"
 #include "llmenugl.h"
 #include "llselectmgr.h"

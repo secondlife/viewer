@@ -489,7 +489,7 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 	// No handler needed for focus lost since this class has no
 	// state that depends on it.
 	gFocusMgr.setMouseCapture( this );
-    
+
 	if (!mIsSelected)
 	{
 		if(mask & MASK_CONTROL)
@@ -706,7 +706,7 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
                 bg_color.mV[VALPHA] = clamp_rescale(fade_time, 0.f, 0.4f, 0.f, bg_color.mV[VALPHA]);
             }
         	gl_rect_2d(FOCUS_LEFT,
-					   focus_top,
+					   focus_top, 
 					   getRect().getWidth() - 2,
 					   focus_bottom,
 					   bg_color, hasKeyboardFocus);
@@ -860,7 +860,7 @@ void LLFolderViewItem::draw()
 						  LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
 						  S32_MAX, S32_MAX, &right_x, FALSE );
 	}
-    
+
 	//--------------------------------------------------------------------------------//
 	// Highlight string match
 	//
@@ -882,7 +882,7 @@ const LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void ) c
 {
 	return getRoot()->getFolderViewModel();
 }
-
+		
 LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void )
 {
 	return getRoot()->getFolderViewModel();
@@ -919,11 +919,11 @@ void LLFolderViewFolder::updateLabelRotation()
 	}
 	else if (isOpen())
 	{
-		mControlLabelRotation = lerp(mControlLabelRotation, -90.f, LLCriticalDamp::getInterpolant(0.04f));
+		mControlLabelRotation = lerp(mControlLabelRotation, -90.f, LLSmoothInterpolation::getInterpolant(0.04f));
 	}
 	else
 	{
-		mControlLabelRotation = lerp(mControlLabelRotation, 0.f, LLCriticalDamp::getInterpolant(0.025f));
+		mControlLabelRotation = lerp(mControlLabelRotation, 0.f, LLSmoothInterpolation::getInterpolant(0.025f));
 	}
 }
 
@@ -1056,7 +1056,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 	// animate current height towards target height
 	if (llabs(mCurHeight - mTargetHeight) > 1.f)
 	{
-		mCurHeight = lerp(mCurHeight, mTargetHeight, LLCriticalDamp::getInterpolant(isOpen() ? FOLDER_OPEN_TIME_CONSTANT : FOLDER_CLOSE_TIME_CONSTANT));
+		mCurHeight = lerp(mCurHeight, mTargetHeight, LLSmoothInterpolation::getInterpolant(isOpen() ? FOLDER_OPEN_TIME_CONSTANT : FOLDER_CLOSE_TIME_CONSTANT));
 
 		requestArrange();
 
@@ -1577,7 +1577,7 @@ void LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	item->setVisible(FALSE);
 	
 	addChild(item);
-
+	
 	// When the model is already hooked into a hierarchy (i.e. has a parent), do not reparent it
 	// Note: this happens when models are created before views or shared between views
 	if (!item->getViewModelItem()->hasParent())

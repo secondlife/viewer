@@ -258,7 +258,7 @@ BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 		// but this will cause the animation playback rate calculation below to 
 		// kick in too slowly and sometimes start playing the animation in reverse.
 
-		//mPelvisOffset -= PELVIS_COMPENSATION_WIEGHT * (foot_slip_vector * world_to_avatar_rot);//lerp(LLVector3::zero, -1.f * (foot_slip_vector * world_to_avatar_rot), LLCriticalDamp::getInterpolant(0.1f));
+		//mPelvisOffset -= PELVIS_COMPENSATION_WIEGHT * (foot_slip_vector * world_to_avatar_rot);//lerp(LLVector3::zero, -1.f * (foot_slip_vector * world_to_avatar_rot), LLSmoothInterpolation::getInterpolant(0.1f));
 
 		////F32 drift_comp_max = DRIFT_COMP_MAX_TOTAL * (llclamp(speed, 0.f, DRIFT_COMP_MAX_SPEED) / DRIFT_COMP_MAX_SPEED);
 		//F32 drift_comp_max = DRIFT_COMP_MAX_TOTAL;
@@ -287,7 +287,7 @@ BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 		F32 desired_speed_multiplier = llclamp(speed / foot_speed, min_speed_multiplier, ANIM_SPEED_MAX);
 
 		// blend towards new speed adjustment value
-		F32 new_speed_adjust = lerp(mAdjustedSpeed, desired_speed_multiplier, LLCriticalDamp::getInterpolant(SPEED_ADJUST_TIME_CONSTANT));
+		F32 new_speed_adjust = LLSmoothInterpolation::lerp(mAdjustedSpeed, desired_speed_multiplier, SPEED_ADJUST_TIME_CONSTANT);
 
 		// limit that rate at which the speed adjustment changes
 		F32 speedDelta = llclamp(new_speed_adjust - mAdjustedSpeed, -SPEED_ADJUST_MAX_SEC * delta_time, SPEED_ADJUST_MAX_SEC * delta_time);
@@ -305,8 +305,8 @@ BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 	{	// standing/turning
 
 		// damp out speed adjustment to 0
-		mAnimSpeed = lerp(mAnimSpeed, 1.f, LLCriticalDamp::getInterpolant(0.2f));
-		//mPelvisOffset = lerp(mPelvisOffset, LLVector3::zero, LLCriticalDamp::getInterpolant(0.2f));
+		mAnimSpeed = LLSmoothInterpolation::lerp(mAnimSpeed, 1.f, 0.2f);
+		//mPelvisOffset = lerp(mPelvisOffset, LLVector3::zero, LLSmoothInterpolation::getInterpolant(0.2f));
 	}
 
 	// broadcast walk speed change
@@ -383,7 +383,7 @@ BOOL LLFlyAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 	F32 target_roll = llclamp(ang_vel.mV[VZ], -4.f, 4.f) * roll_factor;
 
 	// roll is critically damped interpolation between current roll and angular velocity-derived target roll
-	mRoll = lerp(mRoll, target_roll, LLCriticalDamp::getInterpolant(0.1f));
+	mRoll = LLSmoothInterpolation::lerp(mRoll, target_roll, LLUnit<F32, LLUnits::Milliseconds>(100));
 
 	LLQuaternion roll(mRoll, LLVector3(0.f, 0.f, 1.f));
 	mPelvisState->setRotation(roll);

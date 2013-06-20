@@ -37,6 +37,7 @@
 #include "lluictrlfactory.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatarself.h"
+#include "lllocaltextureobject.h"
 
 using namespace LLAvatarAppearanceDefines;
 

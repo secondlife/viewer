@@ -148,7 +148,6 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 		{
 			LLFile::remove(std::string(filename));
 		}
-		LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
 
 		LL_WARNS("Wearable") << "Wearable download failed: " << LLAssetStorage::getErrorString( status ) << " " << uuid << LL_ENDL;
 		switch( status )

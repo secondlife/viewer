@@ -88,7 +88,7 @@ private:
 	LLFloaterLand(const LLSD& seed);
 	virtual ~LLFloaterLand();
 		
-	void onVisibilityChange(const LLSD& visible);
+	void onVisibilityChanged(const LLSD& visible);
 
 protected:
 

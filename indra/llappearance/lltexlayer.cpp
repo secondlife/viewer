@@ -38,11 +38,13 @@
 #include "llvfs.h"
 #include "lltexlayerparams.h"
 #include "lltexturemanagerbridge.h"
+#include "lllocaltextureobject.h"
 #include "../llui/llui.h"
 #include "llwearable.h"
 #include "llwearabledata.h"
 #include "llvertexbuffer.h"
 #include "llviewervisualparam.h"
+#include "llfasttimer.h"
 
 //#include "../tools/imdebug/imdebug.h"
 

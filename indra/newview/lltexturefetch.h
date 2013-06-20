@@ -37,15 +37,15 @@
 #include "lltextureinfo.h"
 #include "llapr.h"
 #include "llimageworker.h"
-#include "llstat.h"
 #include "llcurl.h"
-#include "llstat.h"
 #include "httprequest.h"
 #include "httpoptions.h"
 #include "httpheaders.h"
 #include "httphandler.h"
+#include "lltrace.h"
 #include "llviewertexture.h"
 
+class LLViewerTexture;
 class LLTextureFetchWorker;
 class LLImageDecodeThread;
 class LLHost;
@@ -309,8 +309,8 @@ private:
 	LLMutex mQueueMutex;        //to protect mRequestMap and mCommands only
 	LLMutex mNetworkQueueMutex; //to protect mNetworkQueue, mHTTPTextureQueue and mCancelQueue.
 
-	static LLStat sCacheHitRate;
-	static LLStat sCacheReadLatency;
+	static LLTrace::SampleStatHandle<> sCacheHitRate;
+	static LLTrace::SampleStatHandle<> sCacheReadLatency;
 
 	LLTextureCache* mTextureCache;
 	LLImageDecodeThread* mImageDecodeThread;
@@ -330,7 +330,7 @@ private:
 	LLTextureInfo mTextureInfo;
 
 	// XXX possible delete
-	U32 mHTTPTextureBits;												// Mfnq
+	LLUnit<U32, LLUnits::Bits> mHTTPTextureBits;												// Mfnq
 
 	// XXX possible delete
 	//debug use

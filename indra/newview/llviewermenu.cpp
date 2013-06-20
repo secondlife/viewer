@@ -7401,7 +7401,7 @@ void handle_dump_avatar_local_textures(void*)
 
 void handle_dump_timers()
 {
-	LLFastTimer::dumpCurTimes();
+	LLTrace::TimeBlock::dumpCurTimes();
 }
 
 void handle_debug_avatar_textures(void*)

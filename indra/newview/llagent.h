@@ -35,6 +35,7 @@
 #include "llcoordframe.h"			// for mFrameAgent
 #include "llavatarappearancedefines.h"
 #include "llpermissionsflags.h"
+#include "lldarray.h"
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
@@ -251,6 +252,7 @@ public:
 	
 	const LLVector3d &getLastPositionGlobal() const { return mLastPositionGlobal; }
 	void			setLastPositionGlobal(const LLVector3d &pos) { mLastPositionGlobal = pos; }
+
 private:
 	std::set<U64>	mRegionsVisited;		// Stat - what distinct regions has the avatar been to?
 	F64				mDistanceTraveled;		// Stat - how far has the avatar moved?

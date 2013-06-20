@@ -77,6 +77,7 @@
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llpostprocess.h"
+#include "llscenemonitor.h"
 
 extern LLPointer<LLViewerTexture> gStartTexture;
 extern bool gShiftFrame;
@@ -84,9 +85,6 @@ extern bool gShiftFrame;
 LLPointer<LLViewerTexture> gDisconnectedImagep = NULL;
 
 // used to toggle renderer back on after teleport
-const F32 TELEPORT_RENDER_DELAY = 20.f; // Max time a teleport is allowed to take before we raise the curtain
-const F32 TELEPORT_ARRIVAL_DELAY = 2.f; // Time to preload the world before raising the curtain after we've actually already arrived.
-const F32 TELEPORT_LOCAL_DELAY = 1.0f;  // Delay to prevent teleports after starting an in-sim teleport.
 BOOL		 gTeleportDisplay = FALSE;
 LLFrameTimer gTeleportDisplayTimer;
 LLFrameTimer gTeleportArrivalTimer;
@@ -133,7 +131,7 @@ void display_startup()
 	//
 	if (!LLViewerFetchedTexture::sWhiteImagep.isNull())
 	{
-		LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
+	LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
 	}
 
 	LLGLSDefault gls_default;
@@ -225,7 +223,7 @@ void display_stats()
 }
 
 static LLFastTimer::DeclareTimer FTM_PICK("Picking");
-static LLFastTimer::DeclareTimer FTM_RENDER("Render", true);
+static LLFastTimer::DeclareTimer FTM_RENDER("Render");
 static LLFastTimer::DeclareTimer FTM_UPDATE_SKY("Update Sky");
 static LLFastTimer::DeclareTimer FTM_UPDATE_TEXTURES("Update Textures");
 static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE("Update Images");
@@ -391,7 +389,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	{
 		LLFastTimer t(FTM_TELEPORT_DISPLAY);
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Teleport");
-		const F32 TELEPORT_ARRIVAL_DELAY = 2.f; // Time to preload the world before raising the curtain after we've actually already arrived.
+		static LLCachedControl<F32> teleport_arrival_delay(gSavedSettings, "TeleportArrivalDelay");
+		static LLCachedControl<F32> teleport_local_delay(gSavedSettings, "TeleportLocalDelay");
 
 		S32 attach_count = 0;
 		if (isAgentAvatarValid())
@@ -459,7 +458,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		case LLAgent::TELEPORT_ARRIVING:
 			// Make the user wait while content "pre-caches"
 			{
-				F32 arrival_fraction = (gTeleportArrivalTimer.getElapsedTimeF32() / TELEPORT_ARRIVAL_DELAY);
+				F32 arrival_fraction = (gTeleportArrivalTimer.getElapsedTimeF32() / teleport_arrival_delay());
 				if( arrival_fraction > 1.f )
 				{
 					arrival_fraction = 1.f;
@@ -476,7 +475,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			// Short delay when teleporting in the same sim (progress screen active but not shown - did not
 			// fall-through from TELEPORT_START)
 			{
-				if( gTeleportDisplayTimer.getElapsedTimeF32() > TELEPORT_LOCAL_DELAY )
+				if( gTeleportDisplayTimer.getElapsedTimeF32() > teleport_local_delay() )
 				{
 					//LLFirstUse::useTeleport();
 					gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
@@ -626,7 +625,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		{
 			LLFastTimer t(FTM_DISPLAY_UPDATE_GEOM);
-			const F32 max_geom_update_time = 0.005f*10.f*gFrameIntervalSeconds; // 50 ms/second update time
+			const F32 max_geom_update_time = 0.005f*10.f*gFrameIntervalSeconds.value(); // 50 ms/second update time
 			gPipeline.createObjects(max_geom_update_time);
 			gPipeline.processPartitionQ();
 			gPipeline.updateGeom(max_geom_update_time);
@@ -767,8 +766,10 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			
 			{
 				LLFastTimer t(FTM_IMAGE_UPDATE_CLASS);
-				LLViewerTexture::updateClass(LLViewerCamera::getInstance()->getVelocityStat()->getMean(),
-											LLViewerCamera::getInstance()->getAngularVelocityStat()->getMean());
+				LLTrace::CountStatHandle<>* velocity_stat = LLViewerCamera::getVelocityStat();
+				LLTrace::CountStatHandle<>* angular_velocity_stat = LLViewerCamera::getAngularVelocityStat();
+				LLViewerTexture::updateClass(LLTrace::get_frame_recording().getPeriodMeanPerSec(*velocity_stat),
+											LLTrace::get_frame_recording().getPeriodMeanPerSec(*angular_velocity_stat));
 			}
 
 			
@@ -779,7 +780,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 			{
 				LLFastTimer t(FTM_IMAGE_UPDATE_LIST);
-				F32 max_image_decode_time = 0.050f*gFrameIntervalSeconds; // 50 ms/second decode time
+				F32 max_image_decode_time = 0.050f*gFrameIntervalSeconds.value(); // 50 ms/second decode time
 				max_image_decode_time = llclamp(max_image_decode_time, 0.002f, 0.005f ); // min 2ms/frame, max 5ms/frame)
 				gTextureList.updateImages(max_image_decode_time);
 			}
@@ -821,6 +822,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			}
 		}
 
+		LLSceneMonitor::getInstance()->fetchQueryResult();
+		
 		LLGLState::checkStates();
 		LLGLState::checkClientArrays();
 
@@ -1008,6 +1011,11 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		LLPipeline::sUnderWaterRender = FALSE;
 
+		{
+			//capture the frame buffer.
+			LLSceneMonitor::getInstance()->capture();
+		}
+
 		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderUI");
 		if (!for_snapshot)
 		{
@@ -1058,7 +1066,7 @@ void render_hud_attachments()
 	// clamp target zoom level to reasonable values
 	gAgentCamera.mHUDTargetZoom = llclamp(gAgentCamera.mHUDTargetZoom, 0.1f, 1.f);
 	// smoothly interpolate current zoom level
-	gAgentCamera.mHUDCurZoom = lerp(gAgentCamera.mHUDCurZoom, gAgentCamera.mHUDTargetZoom, LLCriticalDamp::getInterpolant(0.03f));
+	gAgentCamera.mHUDCurZoom = lerp(gAgentCamera.mHUDCurZoom, gAgentCamera.mHUDTargetZoom, LLSmoothInterpolation::getInterpolant(0.03f));
 
 	if (LLPipeline::sShowHUDAttachments && !gDisconnected && setup_hud_matrices())
 	{
@@ -1251,6 +1259,15 @@ void render_ui(F32 zoom_factor, int subfield)
 		glh_set_current_modelview(glh_copy_matrix(gGLLastModelView));
 	}
 	
+	if(LLSceneMonitor::getInstance()->needsUpdate())
+	{
+		gGL.pushMatrix();
+		gViewerWindow->setup2DRender();
+		LLSceneMonitor::getInstance()->compare();
+		gViewerWindow->setup3DRender();
+		gGL.popMatrix();
+	}
+
 	{
 		BOOL to_texture = gPipeline.canUseVertexShaders() &&
 							LLPipeline::sRenderGlow;

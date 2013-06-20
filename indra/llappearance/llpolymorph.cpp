@@ -35,6 +35,7 @@
 #include "llxmltree.h"
 #include "llendianswizzle.h"
 #include "llpolymesh.h"
+#include "llfasttimer.h"
 
 //#include "../tools/imdebug/imdebug.h"
 
@@ -619,9 +620,9 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 			tangent.setCross3(scaled_binormals[vert_index_mesh], norm);
 			LLVector4a& normalized_binormal = binormals[vert_index_mesh];
 
-			normalized_binormal.setCross3(norm, tangent); 			
+			normalized_binormal.setCross3(norm, tangent); 
 			normalized_binormal.normalize3fast();
-
+			
 			tex_coords[vert_index_mesh] += mMorphData->mTexCoords[vert_index_morph] * delta_weight * maskWeight;
 		}
 

@@ -34,6 +34,7 @@
 #include "apr_poll.h"
 
 #include "llapr.h"
+#include "llfasttimer.h"
 #include "llstl.h"
 
 // These should not be enabled in production, but they can be

@@ -26,7 +26,7 @@
 
 #include "linden_common.h"
 
-#include <boost/static_assert.hpp>
+#include "llfasttimer.h"
 #include "llsys.h"
 #include "llvertexbuffer.h"
 // #include "llrender.h"
@@ -849,11 +849,11 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 
 	{
 		LLFastTimer t2(FTM_GL_DRAW_ARRAYS);
-	stop_glerror();
+		stop_glerror();
 	LLGLSLShader::startProfile();
-	glDrawArrays(sGLMode[mode], first, count);
+		glDrawArrays(sGLMode[mode], first, count);
 	LLGLSLShader::stopProfile(count, mode);
-        }
+	}
 
 	stop_glerror();
 	placeFence();

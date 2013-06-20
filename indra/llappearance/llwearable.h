@@ -32,12 +32,12 @@
 #include "llpermissions.h"
 #include "llsaleinfo.h"
 #include "llwearabletype.h"
-#include "lllocaltextureobject.h"
 
 class LLMD5;
 class LLVisualParam;
 class LLTexGlobalColorInfo;
 class LLTexGlobalColor;
+class LLLocalTextureObject;
 class LLAvatarAppearance;
 
 // Abstract class.

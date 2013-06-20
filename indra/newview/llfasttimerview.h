@@ -29,11 +29,15 @@
 
 #include "llfloater.h"
 #include "llfasttimer.h"
+#include "llunit.h"
+#include "lltracerecording.h"
+#include <deque>
 
 class LLFastTimerView : public LLFloater
 {
 public:
 	LLFastTimerView(const LLSD&);
+	~LLFastTimerView();
 	BOOL postBuild();
 
 	static BOOL sAnalyzePerformance;
@@ -46,7 +50,6 @@ private:
 	static LLSD analyzePerformanceLogDefault(std::istream& is) ;
 	static void exportCharts(const std::string& base, const std::string& target);
 	void onPause();
-	LLFastTimer::NamedTimer& getFrameTimer();
 
 public:
 
@@ -58,40 +61,87 @@ public:
 	virtual BOOL handleToolTip(S32 x, S32 y, MASK mask);
 	virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual void draw();
+	virtual void onOpen(const LLSD& key);
+	LLTrace::TimeBlock* getLegendID(S32 y);
 
-	LLFastTimer::NamedTimer* getLegendID(S32 y);
-	F64 getTime(const std::string& name);
-
-protected:
-	virtual	void	onClickCloseBtn();
 private:	
-	typedef std::vector<std::vector<S32> > bar_positions_t;
-	bar_positions_t mBarStart;
-	bar_positions_t mBarEnd;
-	S32 mDisplayMode;
+	virtual	void	onClickCloseBtn();
+	void drawTicks();
+	void drawLineGraph();
+	void drawLegend();
+	void drawHelp(S32 y);
+	void drawBorders( S32 y, const S32 x_start, S32 barh, S32 dy);
+	void drawBars();
 
-	typedef enum child_alignment
+	void printLineStats();
+	void generateUniqueColors();
+	void updateTotalTime();
+
+	struct TimerBar
 	{
-		ALIGN_LEFT,
-		ALIGN_CENTER,
-		ALIGN_RIGHT,
-		ALIGN_COUNT
-	} ChildAlignment;
+		TimerBar()
+		:	mTotalTime(0),
+			mSelfTime(0),
+			mStartFraction(0.f),
+			mEndFraction(1.f),
+			mFirstChild(false),
+			mLastChild(false)
+		{}
+		LLUnit<F32, LLUnits::Seconds>	mTotalTime,
+										mSelfTime,
+										mChildrenStart,
+										mChildrenEnd,
+										mSelfStart,
+										mSelfEnd;
+		LLTrace::TimeBlock* mTimeBlock;
+		bool				mVisible,
+							mFirstChild,
+							mLastChild;
+		F32					mStartFraction,
+							mEndFraction;
+	};
 
-	ChildAlignment mDisplayCenter;
-	S32 mDisplayCalls;
-	S32 mDisplayHz;
-	U64 mAvgCountTotal;
-	U64 mMaxCountTotal;
-	LLRect mBarRect;
-	S32	mScrollIndex;
-	LLFastTimer::NamedTimer* mHoverID;
-	LLFastTimer::NamedTimer* mHoverTimer;
-	LLRect					mToolTipRect;
-	S32 mHoverBarIndex;
-	LLFrameTimer mHighlightTimer;
-	S32 mPrintStats;
-	LLRect mGraphRect;
+	struct TimerBarRow
+	{
+		TimerBarRow() 
+		:	mBottom(0),
+			mTop(0),
+			mBars(NULL)
+		{}
+		S32			mBottom,
+					mTop;
+		TimerBar*	mBars;
+	};
+
+	LLUnit<F32, LLUnits::Seconds> updateTimerBarWidths(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 history_index, U32& bar_index);
+	S32 updateTimerBarOffsets(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 timer_bar_index = 0);
+	S32 drawBar(LLRect bar_rect, TimerBarRow& row, S32 image_width, S32 image_height, bool hovered = false, bool visible = true, S32 bar_index = 0);
+	void setPauseState(bool pause_state);
+
+	std::deque<TimerBarRow> mTimerBarRows;
+	TimerBarRow				mAverageTimerRow;
+
+	enum EDisplayType
+	{
+		DISPLAY_TIME,
+		DISPLAY_CALLS,
+		DISPLAY_HZ
+	}								mDisplayType;
+	bool							mPauseHistory;
+	LLUnit<F64, LLUnits::Seconds>	mAllTimeMax,
+									mTotalTimeDisplay;
+	S32								mScrollIndex,
+									mHoverBarIndex,
+									mStatsIndex;
+	S32								mDisplayMode;
+	LLTrace::TimeBlock*				mHoverID;
+	LLTrace::TimeBlock*				mHoverTimer;
+	LLRect							mToolTipRect,
+									mGraphRect,
+									mBarRect,
+									mLegendRect;
+	LLFrameTimer					mHighlightTimer;
+	LLTrace::PeriodicRecording		mRecording;
 };
 
 #endif

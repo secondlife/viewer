@@ -30,6 +30,7 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llfloatersidepanelcontainer.h"
+#include "lllocaltextureobject.h"
 #include "llnotificationsutil.h"
 #include "llsidepanelappearance.h"
 #include "lltextureentry.h"

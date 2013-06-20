@@ -31,6 +31,8 @@
 #include "../llimageworker.h"
 // For timer class
 #include "../llcommon/lltimer.h"
+// for lltrace class
+#include "../llcommon/lltrace.h"
 // Tut header
 #include "../test/lltut.h"
 
@@ -41,6 +43,9 @@
 // * Add as little as possible (let the link errors guide you)
 // * Do not make any assumption as to how those classes or methods work (i.e. don't copy/paste code)
 // * A simulator for a class can be implemented here. Please comment and document thoroughly.
+
+LLTrace::MemStatHandle	LLImageBase::sMemStat("LLImage");
+
 
 LLImageBase::LLImageBase() 
 : mData(NULL),
@@ -114,11 +119,13 @@ namespace tut
 		// Constructor and destructor of the test wrapper
 		imagedecodethread_test()
 		{
+			LLTrace::init();
 			mThread = NULL;
 		}
 		~imagedecodethread_test()
 		{
 			delete mThread;
+			LLTrace::cleanup();
 		}
 	};
 
@@ -136,6 +143,8 @@ namespace tut
 		imagerequest_test()
 		{
 			done = false;
+			LLTrace::init();
+
 			mRequest = new LLImageDecodeThread::ImageRequest(0, 0,
 											 LLQueuedThread::PRIORITY_NORMAL, 0, FALSE,
 											 new responder_test(&done));
@@ -145,6 +154,7 @@ namespace tut
 			// We should delete the object *but*, because its destructor is protected, that cannot be
 			// done from outside an LLImageDecodeThread instance... So we leak memory here... It's fine...
 			//delete mRequest;
+			LLTrace::cleanup();
 		}
 	};
 

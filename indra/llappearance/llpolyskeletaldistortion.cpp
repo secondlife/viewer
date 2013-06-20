@@ -29,18 +29,11 @@
 //-----------------------------------------------------------------------------
 #include "llpreprocessor.h"
 #include "llerrorlegacy.h"
-//#include "llcommon.h"
-//#include "llmemory.h"
 #include "llavatarappearance.h"
 #include "llavatarjoint.h"
 #include "llpolymorph.h"
-//#include "llviewercontrol.h"
-//#include "llxmltree.h"
-//#include "llvoavatar.h"
 #include "llwearable.h"
-//#include "lldir.h"
-//#include "llvolume.h"
-//#include "llendianswizzle.h"
+#include "llfasttimer.h"
 
 #include "llpolyskeletaldistortion.h"
 

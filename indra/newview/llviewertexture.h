@@ -34,13 +34,12 @@
 #include "llgltypes.h"
 #include "llrender.h"
 #include "llmetricperformancetester.h"
-#include "llface.h"
 
 #include <map>
 #include <list>
 
-#define MIN_VIDEO_RAM_IN_MEGA_BYTES    32
-#define MAX_VIDEO_RAM_IN_MEGA_BYTES    512 // 512MB max for performance reasons.
+extern const LLUnit<S32, LLUnits::Mibibytes> gMinVideoRam;
+extern const LLUnit<S32, LLUnits::Mibibytes> gMaxVideoRam;
 
 class LLImageGL ;
 class LLImageRaw;
@@ -101,7 +100,7 @@ public:
 		INVALID_TEXTURE_TYPE
 	};
 
-	typedef std::vector<LLFace*> ll_face_list_t;
+	typedef std::vector<class LLFace*> ll_face_list_t;
 	typedef std::vector<LLVOVolume*> ll_volume_list_t;
 
 
@@ -123,7 +122,9 @@ public:
 	virtual void dump();	// debug info to llinfos
 	
 	/*virtual*/ bool bindDefaultImage(const S32 stage = 0) ;
+	/*virtual*/ bool bindDebugImage(const S32 stage = 0) ;
 	/*virtual*/ void forceImmediateUpdate() ;
+	/*virtual*/ bool isActiveFetching();
 	
 	/*virtual*/ const LLUUID& getID() const { return mID; }
 	void setBoostLevel(S32 level);
@@ -204,11 +205,11 @@ public:
 	static LLFrameTimer sEvaluationTimer;
 	static F32 sDesiredDiscardBias;
 	static F32 sDesiredDiscardScale;
-	static S32 sBoundTextureMemoryInBytes;
-	static S32 sTotalTextureMemoryInBytes;
-	static S32 sMaxBoundTextureMemInMegaBytes;
-	static S32 sMaxTotalTextureMemInMegaBytes;
-	static S32 sMaxDesiredTextureMemInBytes ;
+	static LLUnit<S32, LLUnits::Bytes> sBoundTextureMemory;
+	static LLUnit<S32, LLUnits::Bytes> sTotalTextureMemory;
+	static LLUnit<S32, LLUnits::Mibibytes> sMaxBoundTextureMem;
+	static LLUnit<S32, LLUnits::Mibibytes> sMaxTotalTextureMem;
+	static LLUnit<S32, LLUnits::Bytes> sMaxDesiredTextureMem ;
 	static S8  sCameraMovingDiscardBias;
 	static F32 sCameraMovingBias;
 	static S32 sMaxSculptRez ;
@@ -216,7 +217,7 @@ public:
 	static S32 sMaxSmallImageSize ;
 	static BOOL sFreezeImageScalingDown ;//do not scale down image res if set.
 	static F32  sCurrentTime ;
-	
+
 	enum EDebugTexels
 	{
 		DEBUG_TEXELS_OFF,
@@ -396,12 +397,15 @@ public:
 	void        loadFromFastCache();
 	void        setInFastCacheList(bool in_list) { mInFastCacheList = in_list; }
 	bool        isInFastCacheList() { return mInFastCacheList; }
+
+	/*virtual*/bool  isActiveFetching(); //is actively in fetching by the fetching pipeline.
+
 protected:
 	/*virtual*/ void switchToCachedImage();
 	S32 getCurrentDiscardLevelForFetching() ;
 
 private:
-	void init(bool firstinit) ;
+	void init(bool firstinit) ;	
 	void cleanup() ;
 
 	void saveRawImage() ;
@@ -443,7 +447,7 @@ protected:
 	S8  mHasFetcher;				// We've made a fecth request
 	S8  mIsFetching;				// Fetch request is active
 	bool mCanUseHTTP ;              //This texture can be fetched through http if true.
-	
+
 	FTType mFTType; // What category of image is this - map tile, server bake, etc?
 	mutable S8 mIsMissingAsset;		// True if we know that there is no image asset with this image id in the database.		
 

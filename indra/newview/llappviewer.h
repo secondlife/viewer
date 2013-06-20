@@ -32,6 +32,7 @@
 #include "llsys.h"			// for LLOSInfo
 #include "lltimer.h"
 #include "llappcorehttp.h"
+#include "llunit.h"
 
 class LLCommandLineParser;
 class LLFrameTimer;
@@ -169,6 +170,8 @@ public:
 	void addOnIdleCallback(const boost::function<void()>& cb); // add a callback to fire (once) when idle
 
 	void purgeCache(); // Clear the local cache. 
+	void purgeCacheImmediate(); //clear local cache immediately.
+	S32  updateTextureThreads(F32 max_time);
 	
 	// mute/unmute the system's master audio
 	virtual void setMasterSystemAudioMute(bool mute);
@@ -333,7 +336,7 @@ extern LLPumpIO* gServicePump;
 
 extern U64      gFrameTime;					// The timestamp of the most-recently-processed frame
 extern F32		gFrameTimeSeconds;			// Loses msec precision after ~4.5 hours...
-extern F32		gFrameIntervalSeconds;		// Elapsed time between current and previous gFrameTimeSeconds
+extern LLUnit<F32, LLUnits::Seconds>		gFrameIntervalSeconds;		// Elapsed time between current and previous gFrameTimeSeconds
 extern F32		gFPSClamped;				// Frames per second, smoothed, weighted toward last frame
 extern F32		gFrameDTClamped;
 extern U64		gStartTime;

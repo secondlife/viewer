@@ -202,7 +202,7 @@ public:
 	virtual void draw();
 	virtual BOOL canClose();
 
-	void onVisibilityChange ( const LLSD& new_visibility );
+	void onVisibilityChanged ( const LLSD& new_visibility );
 	
 };
 
@@ -1008,7 +1008,7 @@ BOOL LLFloaterBuyLandUI::canClose()
 	return can_close;
 }
 
-void LLFloaterBuyLandUI::onVisibilityChange ( const LLSD& new_visibility )
+void LLFloaterBuyLandUI::onVisibilityChanged ( const LLSD& new_visibility )
 {
 	if (new_visibility.asBoolean())
 	{
