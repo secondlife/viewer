@@ -99,7 +99,7 @@ LLFastTimerView::LLFastTimerView(const LLSD& key)
 :	LLFloater(key),
 	mHoverTimer(NULL),
 	mDisplayMode(0),
-	mDisplayType(TIME),
+	mDisplayType(DISPLAY_TIME),
 	mScrollIndex(0),
 	mHoverID(NULL),
 	mHoverBarIndex(-1),
@@ -1114,13 +1114,13 @@ void LLFastTimerView::drawLineGraph()
 			F32 y;
 			switch(mDisplayType)
 			{
-			case TIME:
+			case DISPLAY_TIME:
 				y = mGraphRect.mBottom + time.value() * time_scale_factor;
 				break;
-			case CALLS:
+			case DISPLAY_CALLS:
 				y = mGraphRect.mBottom + (F32)calls * call_scale_factor;
 				break;
-			case HZ:
+			case DISPLAY_HZ:
 				y = mGraphRect.mBottom + (1.f / time.value()) * hz_scale_factor;
 				break;
 			}
@@ -1178,13 +1178,13 @@ void LLFastTimerView::drawLineGraph()
 	std::string axis_label;
 	switch(mDisplayType)
 	{
-	case TIME:
+	case DISPLAY_TIME:
 		axis_label = llformat("%4.2f ms", LLUnit<F32, LLUnits::Milliseconds>(max_time).value());
 		break;
-	case CALLS:
+	case DISPLAY_CALLS:
 		axis_label = llformat("%d calls", (int)max_calls);
 		break;
-	case HZ:
+	case DISPLAY_HZ:
 		axis_label = llformat("%4.2f Hz", max_time.value() ? 1.f / max_time.value() : 0.f);
 		break;
 	}
@@ -1247,13 +1247,13 @@ void LLFastTimerView::drawLegend()
 			std::string timer_label;
 			switch(mDisplayType)
 			{
-			case TIME:
+			case DISPLAY_TIME:
 				timer_label = llformat("%s [%.1f]",idp->getName().c_str(),ms.value());
 				break;
-			case CALLS:
+			case DISPLAY_CALLS:
 				timer_label = llformat("%s (%d)",idp->getName().c_str(),calls);
 				break;
-			case HZ:
+			case DISPLAY_HZ:
 				timer_label = llformat("%.1f", ms.value() ? (1.f / ms.value()) : 0.f);
 				break;
 			}
