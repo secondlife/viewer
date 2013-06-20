@@ -231,7 +231,7 @@ BOOL			gShowOverlayTitle = FALSE;
 LLViewerObject*  gDebugRaycastObject = NULL;
 LLVOPartGroup* gDebugRaycastParticle = NULL;
 LLVector4a       gDebugRaycastIntersection;
-LLVector3		gDebugRaycastParticleIntersection;
+LLVector4a		gDebugRaycastParticleIntersection;
 LLVector2        gDebugRaycastTexCoord;
 LLVector4a       gDebugRaycastNormal;
 LLVector4a       gDebugRaycastTangent;
@@ -5180,9 +5180,9 @@ void LLPickInfo::fetchResults()
 	LLVector4a origin;
 	origin.load3(LLViewerCamera::getInstance()->getOrigin().mV);
 	F32 icon_dist = 0.f;
-	LLVector3 start;
-	LLVector3 end;
-	LLVector3 particle_end;
+	LLVector4a start;
+	LLVector4a end;
+	LLVector4a particle_end;
 
 	if (hit_icon)
 	{

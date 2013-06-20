@@ -69,14 +69,14 @@ public:
 	virtual void updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);
 	virtual U32 getPartitionType() const;
 	
-	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+	/*virtual*/ BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 										  S32 face,
 										  BOOL pick_transparent,
 										  S32* face_hit,
-										  LLVector3* intersection,
+										  LLVector4a* intersection,
 										  LLVector2* tex_coord,
-										  LLVector3* normal,
-										  LLVector3* bi_normal);
+										  LLVector4a* normal,
+										  LLVector4a* tangent);
 
 	/*virtual*/ void setPixelAreaAndAngle(LLAgent &agent);
 	/*virtual*/ void updateTextures();

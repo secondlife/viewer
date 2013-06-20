@@ -5210,7 +5210,7 @@ void LLPipeline::renderDebug()
 
 				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-				LLVector3 center = gDebugRaycastParticleIntersection;
+				LLVector3 center(gDebugRaycastParticleIntersection.getF32ptr());
 				LLVector3 size(0.1f, 0.1f, 0.1f);
 
 				LLVector3 p[6];
@@ -6916,12 +6916,12 @@ void LLPipeline::setRenderHighlightTextureChannel(LLRender::eTexIndex channel)
 	sRenderHighlightTextureChannel = channel;
 }
 
-LLVOPartGroup* LLPipeline::lineSegmentIntersectParticle(const LLVector3& start, const LLVector3& end, LLVector3* intersection,
+LLVOPartGroup* LLPipeline::lineSegmentIntersectParticle(const LLVector4a& start, const LLVector4a& end, LLVector4a* intersection,
 														S32* face_hit)
 {
-	LLVector3 local_end = end;
+	LLVector4a local_end = end;
 
-	LLVector3 position;
+	LLVector4a position;
 
 	LLDrawable* drawable = NULL;
 
@@ -6958,7 +6958,7 @@ LLVOPartGroup* LLPipeline::lineSegmentIntersectParticle(const LLVector3& start, 
 	return ret;
 }
 
-LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, const LLVector3& end,
+LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start, const LLVector4a& end,
 														BOOL pick_transparent,												
 														S32* face_hit,
 														LLVector4a* intersection,         // return the intersection point

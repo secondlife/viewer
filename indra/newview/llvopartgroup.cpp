@@ -193,8 +193,14 @@ void LLVOPartGroup::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 	const LLVector3& pos_agent = getPositionAgent();
 	newMin.load3( (pos_agent - mScale).mV);
 	newMax.load3( (pos_agent + mScale).mV);
+
+	llassert(newMin.isFinite3());
+	llassert(newMax.isFinite3());
+
 	LLVector4a pos;
 	pos.load3(pos_agent.mV);
+
+	llassert(pos.isFinite3());
 	mDrawable->setPositionGroup(pos);
 }
 
@@ -419,21 +425,17 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 }
 
 
-BOOL LLVOPartGroup::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+BOOL LLVOPartGroup::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 										  S32 face,
 										  BOOL pick_transparent,
 										  S32* face_hit,
-										  LLVector3* intersection,
+										  LLVector4a* intersection,
 										  LLVector2* tex_coord,
-										  LLVector3* normal,
-										  LLVector3* bi_normal)
+										  LLVector4a* normal,
+										  LLVector4a* bi_normal)
 {
-	LLVector4a starta, enda;
-	starta.load3(start.mV);
-	enda.load3(end.mV);
-
 	LLVector4a dir;
-	dir.setSub(enda, starta);
+	dir.setSub(end, start);
 
 	F32 closest_t = 2.f;
 	BOOL ret = FALSE;
@@ -449,8 +451,8 @@ BOOL LLVOPartGroup::lineSegmentIntersect(const LLVector3& start, const LLVector3
 		getGeometry(part, verticesp);
 
 		F32 a,b,t;
-		if (LLTriangleRayIntersect(v[0], v[1], v[2], starta, dir, a,b,t) ||
-			LLTriangleRayIntersect(v[1], v[3], v[2], starta, dir, a,b,t))
+		if (LLTriangleRayIntersect(v[0], v[1], v[2], start, dir, a,b,t) ||
+			LLTriangleRayIntersect(v[1], v[3], v[2], start, dir, a,b,t))
 		{
 			if (t >= 0.f &&
 				t <= 1.f &&
@@ -467,8 +469,7 @@ BOOL LLVOPartGroup::lineSegmentIntersect(const LLVector3& start, const LLVector3
 				{
 					LLVector4a intersect = dir;
 					intersect.mul(closest_t);
-					intersect.add(starta);
-					intersection->set(intersect.getF32ptr());
+					intersection->setAdd(intersect, start);
 				}
 			}
 		}

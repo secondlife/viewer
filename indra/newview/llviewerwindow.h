@@ -507,7 +507,7 @@ extern LLFrameTimer		gAwayTriggerTimer;		// how long the avatar has been away
 extern LLViewerObject*  gDebugRaycastObject;
 extern LLVector4a       gDebugRaycastIntersection;
 extern LLVOPartGroup*	gDebugRaycastParticle;
-extern LLVector3		gDebugRaycastParticleIntersection;
+extern LLVector4a		gDebugRaycastParticleIntersection;
 extern LLVector2        gDebugRaycastTexCoord;
 extern LLVector4a       gDebugRaycastNormal;
 extern LLVector4a       gDebugRaycastTangent;

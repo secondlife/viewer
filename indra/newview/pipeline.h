@@ -199,11 +199,11 @@ public:
 		);
 
 	//get the closest particle to start between start and end, returns the LLVOPartGroup and particle index
-	LLVOPartGroup* lineSegmentIntersectParticle(const LLVector3& start, const LLVector3& end, LLVector3* intersection,
+	LLVOPartGroup* lineSegmentIntersectParticle(const LLVector4a& start, const LLVector4a& end, LLVector4a* intersection,
 														S32* face_hit);
 
 
-	LLViewerObject* lineSegmentIntersectInHUD(const LLVector3& start, const LLVector3& end,
+	LLViewerObject* lineSegmentIntersectInHUD(const LLVector4a& start, const LLVector4a& end,
 											  BOOL pick_transparent,
 											  S32* face_hit,                          // return the face hit
 											  LLVector4a* intersection = NULL,         // return the intersection point
