@@ -4408,15 +4408,19 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	static LLFace** fullbright_faces = (LLFace**) ll_aligned_malloc(MAX_FACE_COUNT*sizeof(LLFace*),64);
 	static LLFace** bump_faces = (LLFace**) ll_aligned_malloc(MAX_FACE_COUNT*sizeof(LLFace*),64);
 	static LLFace** simple_faces = (LLFace**) ll_aligned_malloc(MAX_FACE_COUNT*sizeof(LLFace*),64);
-	static LLFace** norm_faces = (LLFace*) ll_aligned_malloc(MAX_FACE_COUNT*sizeof(LLFace*), 64);
-	static LLFace** spec_faces = (LLFace*) ll_aligned_malloc(MAX_FACE_COUNT*sizeof(LLFace*), 64);
-	static LLFace** normspec_faces = (LLFace*) ll_aligned_malloc(MAX_FACE_COUNT*sizeof(LLFace*), 64);
+	static LLFace** norm_faces = (LLFace**) ll_aligned_malloc(MAX_FACE_COUNT*sizeof(LLFace*), 64);
+	static LLFace** spec_faces = (LLFace**) ll_aligned_malloc(MAX_FACE_COUNT*sizeof(LLFace*), 64);
+	static LLFace** normspec_faces = (LLFace**) ll_aligned_malloc(MAX_FACE_COUNT*sizeof(LLFace*), 64);
 	static LLFace** alpha_faces = (LLFace**) ll_aligned_malloc(MAX_FACE_COUNT*sizeof(LLFace*),64);
 	
 	U32 fullbright_count = 0;
 	U32 bump_count = 0;
 	U32 simple_count = 0;
 	U32 alpha_count = 0;
+	U32 norm_count = 0;
+	U32 spec_count = 0;
+	U32 normspec_count = 0;
+
 	
 	U32 useage = group->mSpatialPartition->mBufferUsage;
 
@@ -4822,24 +4826,40 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 								{
 									if (mat->getSpecularID().notNull())
 									{ //has normal and specular maps (needs texcoord1, texcoord2, and tangent)
-										normspec_faces.push_back(facep);
+										if (normspec_count < MAX_FACE_COUNT)
+										{
+											normspec_faces[normspec_count++] = facep;
+										}
 									}
 									else
 									{ //has normal map (needs texcoord1 and tangent)
-										norm_faces.push_back(facep);
+										if (norm_count < MAX_FACE_COUNT)
+										{
+											norm_faces[norm_count++] = facep;
+										}
 									}
 								}
 								else if (mat->getSpecularID().notNull())
 								{ //has specular map but no normal map, needs texcoord2
-									spec_faces.push_back(facep);
+									if (spec_count < MAX_FACE_COUNT)
+									{
+										spec_faces[spec_count++] = facep;
+									}
 								}
 								else
 								{ //has neither specular map nor normal map, only needs texcoord0
-									simple_faces.push_back(facep);
+									if (simple_count < MAX_FACE_COUNT)
+									{
+										simple_faces[simple_count++] = facep;
+									}
 								}									
 							}
 							else if (te->getBumpmap())
 							{ //needs normal + tangent
+								if (bump_count < MAX_FACE_COUNT)
+								{
+									bump_faces[bump_count++] = facep;
+								}
 							}
 							else if (te->getShiny() || !te->getFullbright())
 							{ //needs normal
@@ -4942,13 +4962,13 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		fullbright_mask = fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX;
 	}
 
-	genDrawInfo(group, simple_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, simple_faces, FALSE, batch_textures, FALSE);
-	genDrawInfo(group, fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, fullbright_faces, FALSE, batch_textures);
-	genDrawInfo(group, alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, alpha_faces, TRUE, batch_textures);
-	genDrawInfo(group, bump_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, bump_faces, FALSE, FALSE);
-	genDrawInfo(group, norm_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, norm_faces, FALSE, FALSE);
-	genDrawInfo(group, spec_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, spec_faces, FALSE, FALSE);
-	genDrawInfo(group, normspec_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, normspec_faces, FALSE, FALSE);
+	genDrawInfo(group, simple_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, simple_faces, simple_count, FALSE, batch_textures, FALSE);
+	genDrawInfo(group, fullbright_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, fullbright_faces, fullbright_count, FALSE, batch_textures);
+	genDrawInfo(group, alpha_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, alpha_faces, alpha_count, TRUE, batch_textures);
+	genDrawInfo(group, bump_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, bump_faces, bump_count, FALSE, FALSE);
+	genDrawInfo(group, norm_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, norm_faces, norm_count, FALSE, FALSE);
+	genDrawInfo(group, spec_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, spec_faces, spec_count, FALSE, FALSE);
+	genDrawInfo(group, normspec_mask | LLVertexBuffer::MAP_TEXTURE_INDEX, normspec_faces, normspec_count, FALSE, FALSE);
 
 	if (!LLPipeline::sDelayVBUpdate)
 	{

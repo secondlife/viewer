@@ -1492,7 +1492,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredFullbrightShinyProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		success = gDeferredFullbrightShinyProgram.createShader(NULL, &mShinyUniforms);
+		success = gDeferredFullbrightShinyProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -1522,7 +1522,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSkinnedFullbrightShinyProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinySkinnedV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSkinnedFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredSkinnedFullbrightShinyProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
-		success = gDeferredSkinnedFullbrightShinyProgram.createShader(NULL, &mShinyUniforms);
+		success = gDeferredSkinnedFullbrightShinyProgram.createShader(NULL, NULL);
 	}
 
 	if (success)

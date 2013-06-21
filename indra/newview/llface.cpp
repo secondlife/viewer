@@ -2053,17 +2053,18 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			mask.clear();
 			mask.setElement<3>();
 
-			LLVector4a* src = vf.mBinormals;
-			LLVector4a* end = vf.mBinormals+num_vertices;
+			LLVector4a* src = vf.mTangents;
+			LLVector4a* end = vf.mTangents+num_vertices;
 
 			while (src < end)
 			{
 				LLVector4a tangent_out;
-				mat_normal.rotate(vf.mTangents[i], tangent_out);
+				mat_normal.rotate(*src, tangent_out);
 				tangent_out.normalize3fast();
-				tangent_out.setSelectWithMask(mask, vf.mTangents[i], tangent_out);
+				tangent_out.setSelectWithMask(mask, *src, tangent_out);
 				tangent_out.store4a(tangents);
 				
+				src++;
 				tangents += 4;
 			}
 

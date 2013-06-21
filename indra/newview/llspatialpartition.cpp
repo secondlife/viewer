@@ -4687,7 +4687,7 @@ LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
 	mSpecColor(1.0f, 1.0f, 1.0f, 0.5f),
 	mBlendFuncSrc(LLRender::BF_SOURCE_ALPHA),
 	mBlendFuncDst(LLRender::BF_ONE_MINUS_SOURCE_ALPHA),
-	mHasGlow(FALSE)
+	mHasGlow(FALSE),
 	mEnvIntensity(0.0f),
 	mAlphaMaskCutoff(0.5f),
 	mDiffuseAlphaMode(0)
