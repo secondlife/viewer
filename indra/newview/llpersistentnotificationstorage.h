@@ -53,10 +53,13 @@ public:
 	void saveNotifications();
 	void loadNotifications();
 
+	void initialize();
+
 protected:
 
 private:
 	bool onPersistentChannelChanged(const LLSD& payload);
+	bool mLoaded;
 };
 
 #endif // LL_LLPERSISTENTNOTIFICATIONSTORAGE_H
