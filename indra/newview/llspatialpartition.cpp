@@ -2234,6 +2234,18 @@ void drawBox(const LLVector4a& c, const LLVector4a& r)
 
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size)
 {
+
+	llassert(pos.isFinite());
+	llassert(size.isFinite());
+
+	llassert(!llisnan(pos.mV[0]));
+	llassert(!llisnan(pos.mV[1]));
+	llassert(!llisnan(pos.mV[2]));
+
+	llassert(!llisnan(size.mV[0]));
+	llassert(!llisnan(size.mV[1]));
+	llassert(!llisnan(size.mV[2]));
+
 	LLVector3 v1 = size.scaledVec(LLVector3( 1, 1,1));
 	LLVector3 v2 = size.scaledVec(LLVector3(-1, 1,1));
 	LLVector3 v3 = size.scaledVec(LLVector3(-1,-1,1));
@@ -2966,20 +2978,23 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 	const LLVector4a* ext;
 	LLVector4a pos, size;
 
-	//render face bounding boxes
-	for (S32 i = 0; i < drawable->getNumFaces(); i++)
+	if (drawable->getVOVolume())
 	{
-		LLFace* facep = drawable->getFace(i);
-		if (facep)
+		//render face bounding boxes
+		for (S32 i = 0; i < drawable->getNumFaces(); i++)
 		{
-			ext = facep->mExtents;
+			LLFace* facep = drawable->getFace(i);
+			if (facep)
+			{
+				ext = facep->mExtents;
 
-			pos.setAdd(ext[0], ext[1]);
-			pos.mul(0.5f);
-			size.setSub(ext[1], ext[0]);
-			size.mul(0.5f);
+				pos.setAdd(ext[0], ext[1]);
+				pos.mul(0.5f);
+				size.setSub(ext[1], ext[0]);
+				size.mul(0.5f);
 		
-			drawBoxOutline(pos,size);
+				drawBoxOutline(pos,size);
+			}
 		}
 	}
 
@@ -4097,6 +4112,10 @@ public:
 			if (!group->isEmpty())
 			{
 				gGL.diffuseColor3f(0,0,1);
+
+				llassert(group->mObjectBounds[0].isFinite3());
+				llassert(group->mObjectBounds[1].isFinite3());
+
 				drawBoxOutline(group->mObjectBounds[0],
 								group->mObjectBounds[1]);
 			}
