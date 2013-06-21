@@ -251,7 +251,7 @@ struct LLAppearanceMessageContents
 	std::vector<F32> mParamWeights;
 	std::vector<LLVisualParam*> mParams;
 };
-	
+
 struct LLVOAvatarChildJoint : public LLInitParam::ChoiceBlock<LLVOAvatarChildJoint>
 	{
 	Alternative<Lazy<struct LLVOAvatarBoneInfo, IS_A_BLOCK> >	bone;
@@ -1202,7 +1202,7 @@ void LLVOAvatar::initInstance(void)
 		registerMotion( ANIM_AGENT_TARGET,					LLTargetingMotion::create );
 		registerMotion( ANIM_AGENT_WALK_ADJUST,				LLWalkAdjustMotion::create );
 	}
-	
+
 	LLAvatarAppearance::initInstance();
 	
 	// preload specific motions here
@@ -1394,19 +1394,20 @@ void LLVOAvatar::renderCollisionVolumes()
 
 	if (mNameText.notNull())
 	{
-		LLVector3 unused;
-		mNameText->lineSegmentIntersect(LLVector3(0,0,0), LLVector3(0,0,1), unused, TRUE);
+		LLVector4a unused;
+	
+		mNameText->lineSegmentIntersect(unused, unused, unused, TRUE);
 	}
 }
 
-BOOL LLVOAvatar::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+BOOL LLVOAvatar::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 									  S32 face,
 									  BOOL pick_transparent,
 									  S32* face_hit,
-									  LLVector3* intersection,
+									  LLVector4a* intersection,
 									  LLVector2* tex_coord,
-									  LLVector3* normal,
-									  LLVector3* bi_normal)
+									  LLVector4a* normal,
+									  LLVector4a* tangent)
 {
 	if ((isSelf() && !gAgent.needsRenderAvatar()) || !LLPipeline::sPickAvatar)
 	{
@@ -1423,8 +1424,8 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 			glh::matrix4f inverse = mat.inverse();
 			glh::matrix4f norm_mat = inverse.transpose();
 
-			glh::vec3f p1(start.mV);
-			glh::vec3f p2(end.mV);
+			glh::vec3f p1(start.getF32ptr());
+			glh::vec3f p2(end.getF32ptr());
 
 			inverse.mult_matrix_vec(p1);
 			inverse.mult_matrix_vec(p2);
@@ -1443,12 +1444,12 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 
 				if (intersection)
 				{
-					*intersection = LLVector3(res_pos.v);
+					intersection->load3(res_pos.v);
 				}
 
 				if (normal)
 				{
-					*normal = LLVector3(res_norm.v);
+					normal->load3(res_norm.v);
 				}
 
 				return TRUE;
@@ -1484,7 +1485,7 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 
 	
 	
-	LLVector3 position;
+	LLVector4a position;
 	if (mNameText.notNull() && mNameText->lineSegmentIntersect(start, end, position))
 	{
 		if (intersection)
@@ -1498,14 +1499,14 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 	return FALSE;
 }
 
-LLViewerObject* LLVOAvatar::lineSegmentIntersectRiggedAttachments(const LLVector3& start, const LLVector3& end,
+LLViewerObject* LLVOAvatar::lineSegmentIntersectRiggedAttachments(const LLVector4a& start, const LLVector4a& end,
 									  S32 face,
 									  BOOL pick_transparent,
 									  S32* face_hit,
-									  LLVector3* intersection,
+									  LLVector4a* intersection,
 									  LLVector2* tex_coord,
-									  LLVector3* normal,
-									  LLVector3* bi_normal)
+									  LLVector4a* normal,
+									  LLVector4a* tangent)
 {
 	if (isSelf() && !gAgent.needsRenderAvatar())
 	{
@@ -1516,8 +1517,8 @@ LLViewerObject* LLVOAvatar::lineSegmentIntersectRiggedAttachments(const LLVector
 
 	if (lineSegmentBoundingBox(start, end))
 	{
-		LLVector3 local_end = end;
-		LLVector3 local_intersection;
+		LLVector4a local_end = end;
+		LLVector4a local_intersection;
 
 		for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 			iter != mAttachmentPoints.end();
@@ -1531,7 +1532,7 @@ LLViewerObject* LLVOAvatar::lineSegmentIntersectRiggedAttachments(const LLVector
 			{
 				LLViewerObject* attached_object = (*attachment_iter);
 					
-				if (attached_object->lineSegmentIntersect(start, local_end, face, pick_transparent, face_hit, &local_intersection, tex_coord, normal, bi_normal))
+				if (attached_object->lineSegmentIntersect(start, local_end, face, pick_transparent, face_hit, &local_intersection, tex_coord, normal, tangent))
 				{
 					local_end = local_intersection;
 					if (intersection)
@@ -1548,7 +1549,7 @@ LLViewerObject* LLVOAvatar::lineSegmentIntersectRiggedAttachments(const LLVector
 	return hit;
 }
 
-
+	
 LLVOAvatar* LLVOAvatar::asAvatar()
 {
 	return this;
@@ -2547,7 +2548,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		mVisibleChat = visible_chat;
 		new_name = TRUE;
 	}
-		
+
 	if (sRenderGroupTitles != mRenderGroupTitles)
 	{
 		mRenderGroupTitles = sRenderGroupTitles;
@@ -2752,7 +2753,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameText->setFont(LLFontGL::getFontSansSerif());
 		mNameText->setTextAlignment(LLHUDNameTag::ALIGN_TEXT_LEFT);
 		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS * 2.f, 5.f);
-			
+
 		std::deque<LLChat>::iterator chat_iter = mChats.begin();
 		mNameText->clearString();
 
@@ -3875,61 +3876,61 @@ U32 LLVOAvatar::renderSkinned()
 	// render all geometry attached to the skeleton
 	//--------------------------------------------------------------------
 
-	bool should_alpha_mask = shouldAlphaMask();
-	LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
-	
-	if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
-	{
-		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
-	}
-	
-	BOOL first_pass = TRUE;
-	if (!LLDrawPoolAvatar::sSkipOpaque)
-	{
-		if (!isSelf() || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
+		bool should_alpha_mask = shouldAlphaMask();
+		LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
+		
+		if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
 		{
-			if (isTextureVisible(TEX_HEAD_BAKED) || mIsDummy)
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
+		}
+		
+		BOOL first_pass = TRUE;
+		if (!LLDrawPoolAvatar::sSkipOpaque)
+		{
+			if (!isSelf() || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
 			{
-				LLViewerJoint* head_mesh = getViewerJoint(MESH_ID_HEAD);
-				if (head_mesh)
+				if (isTextureVisible(TEX_HEAD_BAKED) || mIsDummy)
 				{
-					num_indices += head_mesh->render(mAdjustedPixelArea, TRUE, mIsDummy);
+					LLViewerJoint* head_mesh = getViewerJoint(MESH_ID_HEAD);
+					if (head_mesh)
+					{
+						num_indices += head_mesh->render(mAdjustedPixelArea, TRUE, mIsDummy);
+					}
+					first_pass = FALSE;
+				}
+			}
+			if (isTextureVisible(TEX_UPPER_BAKED) || mIsDummy)
+			{
+				LLViewerJoint* upper_mesh = getViewerJoint(MESH_ID_UPPER_BODY);
+				if (upper_mesh)
+				{
+					num_indices += upper_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
+				}
+				first_pass = FALSE;
+			}
+			
+			if (isTextureVisible(TEX_LOWER_BAKED) || mIsDummy)
+			{
+				LLViewerJoint* lower_mesh = getViewerJoint(MESH_ID_LOWER_BODY);
+				if (lower_mesh)
+				{
+					num_indices += lower_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
 				}
 				first_pass = FALSE;
 			}
 		}
-		if (isTextureVisible(TEX_UPPER_BAKED) || mIsDummy)
+
+		if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
 		{
-			LLViewerJoint* upper_mesh = getViewerJoint(MESH_ID_UPPER_BODY);
-			if (upper_mesh)
-			{
-				num_indices += upper_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
-			}
-			first_pass = FALSE;
+			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 		}
-		
-		if (isTextureVisible(TEX_LOWER_BAKED) || mIsDummy)
+
+		if (!LLDrawPoolAvatar::sSkipTransparent || LLPipeline::sImpostorRender)
 		{
-			LLViewerJoint* lower_mesh = getViewerJoint(MESH_ID_LOWER_BODY);
-			if (lower_mesh)
-			{
-				num_indices += lower_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
-			}
-			first_pass = FALSE;
+			LLGLState blend(GL_BLEND, !mIsDummy);
+			LLGLState test(GL_ALPHA_TEST, !mIsDummy);
+			num_indices += renderTransparent(first_pass);
 		}
-	}
-	
-	if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
-	{
-		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
-	}
-	
-	if (!LLDrawPoolAvatar::sSkipTransparent || LLPipeline::sImpostorRender)
-	{
-		LLGLState blend(GL_BLEND, !mIsDummy);
-		LLGLState test(GL_ALPHA_TEST, !mIsDummy);
-		num_indices += renderTransparent(first_pass);
-	}
 
 	return num_indices;
 }
@@ -5101,7 +5102,7 @@ BOOL LLVOAvatar::loadSkeletonNode ()
 	{
 		return FALSE;
 	}
-	
+
 	// ATTACHMENTS
 	{
 		LLAvatarXmlInfo::attachment_info_list_t::iterator iter;
@@ -5836,6 +5837,8 @@ BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 
 
 
+
+
 // virtual
 void LLVOAvatar::invalidateComposite( LLTexLayerSet* layerset, BOOL upload_result )
 {
@@ -6075,7 +6078,7 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 	record["grid_y"] = LLSD::Integer(grid_y);
 	record["is_using_server_bakes"] = ((bool) isUsingServerBakes());
 	record["is_self"] = isSelf();
-		
+	
 	if (isAgentAvatarValid())
 	{
 		gAgentAvatarp->addMetricsTimerRecord(record);
@@ -6283,11 +6286,11 @@ void LLVOAvatar::updateMeshTextures()
 										   use_lkg_baked_layer[i],
 										   last_id_string.c_str());
 	}
-
+	
 	for (U32 i=0; i < mBakedTextureDatas.size(); i++)
 	{
 		debugColorizeSubMeshes(i, LLColor4::white);
-	
+
 		LLViewerTexLayerSet* layerset = getTexLayerSet(i);
 		if (use_lkg_baked_layer[i] && !isUsingLocalAppearance() )
 		{
@@ -6467,6 +6470,7 @@ void LLVOAvatar::applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_com
 		}
 	}
 }
+
 
 
 // returns TRUE if morph masks are present and not valid for a given baked texture, FALSE otherwise
@@ -6747,7 +6751,7 @@ void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value)
 //					param_location_name(vparam->getParamLocation()).c_str()
 		);
 }
-	
+
 
 void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 	const LLAppearanceMessageContents& contents)
@@ -6814,7 +6818,7 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 		// For future use:
 		//mesgsys->getU32Fast(_PREHASH_AppearanceData, _PREHASH_Flags, appearance_flags, 0);
 	}
-	
+
 	// Parse visual params, if any.
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
 	bool drop_visual_params_debug = gSavedSettings.getBOOL("BlockSomeAvatarAppearanceVisualParams") && (ll_rand(2) == 0); // pretend that ~12% of AvatarAppearance messages arrived without a VisualParam block, for testing
@@ -7238,7 +7242,7 @@ void LLVOAvatar::onInitialBakedTextureLoaded( BOOL success, LLViewerFetchedTextu
 	
 	LLUUID *avatar_idp = (LLUUID *)userdata;
 	LLVOAvatar *selfp = (LLVOAvatar *)gObjectList.findObject(*avatar_idp);
-	
+
 	if (selfp)
 	{
 		LL_DEBUGS("Avatar") << selfp->avString() << "discard_level " << discard_level << " success " << success << " final " << final << LL_ENDL;
@@ -7376,6 +7380,10 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 	}
 	if (outprefix.empty())
 	{
+		outprefix = getFullname() + (isSelf()?"_s":"_o");
+	}
+	if (outprefix.empty())
+	{
 		outprefix = std::string("new_archetype");
 	}
 	std::string outfilename = get_sequential_numbered_file_name(outprefix,".xml");
@@ -7441,7 +7449,6 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 
 		for (U8 te = 0; te < TEX_NUM_INDICES; te++)
 		{
-			{
 				// MULTIPLE_WEARABLES: extend to multiple wearables?
 				LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
 				if( te_image )
@@ -7453,7 +7460,6 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 			}
 		}
 
-	}
 	apr_file_printf( file, "\t</archetype>\n" );
 	apr_file_printf( file, "\n</linden_genepool>\n" );
 
@@ -7612,7 +7618,7 @@ void LLVOAvatar::setIsUsingServerBakes(BOOL newval)
 
 // virtual
 void LLVOAvatar::removeMissingBakedTextures()
-{
+{	
 }
 
 //virtual

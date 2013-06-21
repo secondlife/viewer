@@ -86,7 +86,7 @@ public:
 		PARTITION_GRASS,
 		PARTITION_VOLUME,
 		PARTITION_BRIDGE,
-		PARTITION_HUD_PARTICLE,		
+		PARTITION_HUD_PARTICLE,
 		PARTITION_VO_CACHE,
 		PARTITION_NONE,
 		NUM_PARTITIONS
@@ -358,7 +358,7 @@ public:
 	void getNeighboringRegionsStatus( std::vector<S32>& regions );
 	const LLViewerRegionImpl * getRegionImpl() const { return mImpl; }
 	LLViewerRegionImpl * getRegionImplNC() { return mImpl; }
-	
+
 	void removeFromCreatedList(U32 local_id);
 	void addToCreatedList(U32 local_id);
 
@@ -457,16 +457,16 @@ private:
 	// Maps local ids to cache entries.
 	// Regions can have order 10,000 objects, so assume
 	// a structure of size 2^14 = 16,000
-	BOOL	mCacheLoaded;
-	BOOL    mCacheDirty;
+	BOOL									mCacheLoaded;
+	BOOL                                    mCacheDirty;
 	BOOL	mAlive;					// can become false if circuit disconnects
 	BOOL	mCapabilitiesReceived;
 	BOOL    mReleaseNotesRequested;
 	BOOL    mDead;  //if true, this region is in the process of deleting.
-	
+
 	typedef std::map<U32, std::vector<U32> > orphan_list_t;
 	orphan_list_t mOrphanMap;
-	
+
 	class CacheMissItem
 	{
 	public:
@@ -474,7 +474,7 @@ private:
 
 		U32                            mID;     //local object id
 		LLViewerRegion::eCacheMissType mType;   //cache miss type
-	
+
 		typedef std::list<CacheMissItem> cache_miss_list_t;
 	};
 	CacheMissItem::cache_miss_list_t   mCacheMissList;

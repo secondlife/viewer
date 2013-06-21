@@ -1052,7 +1052,7 @@ const std::string LLIMModel::getName(const LLUUID& session_id) const
 {
 	LLIMSession* session = findIMSession(session_id);
 
-	if (!session) 
+	if (!session)
 	{
 		llwarns << "session " << session_id << "does not exist " << llendl;
 		return LLTrans::getString("no_session_message");
@@ -1562,7 +1562,7 @@ public:
 	}
 
 	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
-	{		
+	{
 		llwarns << "LLViewerChatterBoxInvitationAcceptResponder error [status:"
 				<< statusNum << "]: " << content << llendl;
 		//throw something back to the viewer here?
@@ -2685,7 +2685,7 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 
 		LLChat chat(message);
 		chat.mSourceType = CHAT_SOURCE_SYSTEM;
-		
+
 		LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 		if (nearby_chat)
 		{

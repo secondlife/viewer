@@ -518,7 +518,7 @@ void LLGLTexMemBar::draw()
 	S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
 	LLUnit<F32, LLUnits::Bytes> total_texture_downloaded = gTotalTextureData;
 	LLUnit<F32, LLUnits::Bytes> total_object_downloaded = gTotalObjectData;
-	U32 total_http_requests = LLAppViewer::getTextureFetch()->getTotalNumHTTPRequests() ;
+	U32 total_http_requests = LLAppViewer::getTextureFetch()->getTotalNumHTTPRequests();
 	U32 total_active_cached_objects = LLWorld::getInstance()->getNumOfActiveCachedObjects();
 	U32 total_objects = gObjectList.getNumObjects();
 

@@ -792,7 +792,7 @@ U32  LLVOAvatarSelf::processUpdateMessage(LLMessageSystem *mesgsys,
 		// unpack the texture UUIDs to the texture slots
 		if(mesgsys != NULL)
 		{
-			retval = unpackTEMessage(mesgsys, _PREHASH_ObjectData, (S32) block_num);
+		retval = unpackTEMessage(mesgsys, _PREHASH_ObjectData, (S32) block_num);
 		}
 
 		// need to trigger a few operations to get the avatar to use the new bakes
@@ -2584,7 +2584,7 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 			{
 				F32 desired_pixels;
 				desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
-
+				
 				imagep->setBoostLevel(getAvatarBoostLevel());
 				imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
 				imagep->resetTextureStats();

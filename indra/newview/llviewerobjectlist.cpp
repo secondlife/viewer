@@ -263,7 +263,7 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	// so that the drawable parent is set properly
 	if(msg != NULL)
 	{
-		findOrphans(objectp, msg->getSenderIP(), msg->getSenderPort());
+	findOrphans(objectp, msg->getSenderIP(), msg->getSenderPort());
 	}
 	else
 	{
@@ -456,9 +456,9 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 
 		if (compressed)
 		{
-			S32	uncompressed_length = 2048;
-			compressed_dp.reset();			
-			
+			S32							uncompressed_length = 2048;
+			compressed_dp.reset();
+
 			uncompressed_length = mesgsys->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_Data);
 			mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compressed_dpbuffer, 0, i);
 			compressed_dp.assignBuffer(compressed_dpbuffer, uncompressed_length);
@@ -470,10 +470,10 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			
 				if(flags & FLAGS_TEMPORARY_ON_REZ)
 				{
-					compressed_dp.unpackUUID(fullid, "ID");
-					compressed_dp.unpackU32(local_id, "LocalID");
-					compressed_dp.unpackU8(pcode, "PCode");
-				}
+				compressed_dp.unpackUUID(fullid, "ID");
+				compressed_dp.unpackU32(local_id, "LocalID");
+				compressed_dp.unpackU8(pcode, "PCode");
+			}
 				else //send to object cache
 				{
 					regionp->cacheFullUpdate(compressed_dp, flags);
@@ -520,7 +520,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			// llinfos << "Full Update, obj " << local_id << ", global ID" << fullid << "from " << mesgsys->getSender() << llendl;
 		}
 		objectp = findObject(fullid);
-		
+
 		if(remove_from_cache)
 		{
 			objectp = regionp->forceToRemoveFromCache(local_id, objectp);
@@ -628,11 +628,11 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			
 				if(!(flags & FLAGS_TEMPORARY_ON_REZ))
 				{
-					bCached = true;
+				bCached = true;
 					LLViewerRegion::eCacheUpdateResult result = objectp->mRegionp->cacheFullUpdate(objectp, compressed_dp, flags);
-					recorder.cacheFullUpdate(local_id, update_type, result, objectp, msg_size);
-				}
+				recorder.cacheFullUpdate(local_id, update_type, result, objectp, msg_size);
 			}
+		}
 #endif
 		}
 		else
@@ -1025,10 +1025,10 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	static std::vector<LLViewerObject*> idle_list;
 
 	U32 idle_count = 0;
-		
+	
 	{
 		LLFastTimer t(FTM_IDLE_COPY);
-		
+
  		for (std::vector<LLPointer<LLViewerObject> >::iterator active_iter = mActiveObjects.begin();
 			active_iter != mActiveObjects.end(); active_iter++)
 		{
@@ -1037,9 +1037,9 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			{
 				if (idle_count >= idle_list.size())
 				{
-					idle_list.push_back( objectp );
-				}
-				else
+				idle_list.push_back( objectp );
+			}
+			else
 				{
 					idle_list[idle_count] = objectp;
 				}
@@ -1056,7 +1056,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	std::vector<LLViewerObject*>::iterator idle_end = idle_list.begin()+idle_count;
 
 	if (gSavedSettings.getBOOL("FreezeTime"))
-	{	
+	{
 		
 		for (std::vector<LLViewerObject*>::iterator iter = idle_list.begin();
 			iter != idle_end; iter++)
@@ -1077,14 +1077,14 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			llassert(objectp->isActive());
 			objectp->idleUpdate(agent, world, frame_time);
 
-		}
+			}
 
 		//update flexible objects
 		LLVolumeImplFlexible::updateClass();
 
 		//update animated textures
 		LLViewerTextureAnim::updateClass();
-	}
+			}
 
 
 
@@ -1521,10 +1521,10 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 			{
 				mActiveObjects.push_back(objectp);
 				objectp->setListIndex(mActiveObjects.size()-1);
-				objectp->setOnActiveList(TRUE);
-			}
-			else
-			{
+			objectp->setOnActiveList(TRUE);
+		}
+		else
+		{
 				llassert(idx < mActiveObjects.size());
 				llassert(mActiveObjects[idx] == objectp);
 
@@ -1653,13 +1653,13 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 
 	{
 		LLFastTimer t(FTM_PIPELINE_SHIFT);
-		gPipeline.shiftObjects(offset);
+	gPipeline.shiftObjects(offset);
 	}
 
 	{
 		LLFastTimer t(FTM_REGION_SHIFT);
-		LLWorld::getInstance()->shiftRegions(offset);
-	}
+	LLWorld::getInstance()->shiftRegions(offset);
+}
 }
 
 void LLViewerObjectList::repartitionObjects()

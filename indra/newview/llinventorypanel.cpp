@@ -734,7 +734,7 @@ LLFolderViewItem * LLInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge
 	params.listener = bridge;
 	params.rect = LLRect (0, 0, 0, 0);
 	params.tool_tip = params.name;
-	
+
 	params.font_color = (bridge->isLibraryItem() ? sLibraryColor : (bridge->isLink() ? sLinkColor : sDefaultColor));
 	params.font_highlight_color = (bridge->isLibraryItem() ? sLibraryColor : (bridge->isLink() ? sLinkColor : sDefaultHighlightColor));
 	

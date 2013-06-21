@@ -99,7 +99,7 @@ LLFastTimerView::LLFastTimerView(const LLSD& key)
 :	LLFloater(key),
 	mHoverTimer(NULL),
 	mDisplayMode(0),
-	mDisplayType(TIME),
+	mDisplayType(DISPLAY_TIME),
 	mScrollIndex(0),
 	mHoverID(NULL),
 	mHoverBarIndex(-1),
@@ -274,7 +274,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 			{
 				hover_bar = &bar;
 				if (bar.mTimeBlock->getTreeNode().mCollapsed)
-				{
+		{
 					// stop on first collapsed timeblock, since we can't select any children
 					break;
 				}
@@ -282,14 +282,14 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 		}
 
 		if (hover_bar)
-		{
+			{
 			mHoverID = hover_bar->mTimeBlock;
 			if (mHoverTimer != mHoverID)
-			{
-				// could be that existing tooltip is for a parent and is thus
-				// covering region for this new timer, go ahead and unblock 
-				// so we can create a new tooltip
-				LLToolTipMgr::instance().unblockToolTips();
+				{
+					// could be that existing tooltip is for a parent and is thus
+					// covering region for this new timer, go ahead and unblock 
+					// so we can create a new tooltip
+					LLToolTipMgr::instance().unblockToolTips();
 				mHoverTimer = mHoverID;
 				mToolTipRect.set(mBarRect.mLeft + (hover_bar->mSelfStart / mTotalTimeDisplay) * mBarRect.getWidth(),
 								row.mTop,
@@ -392,7 +392,7 @@ void LLFastTimerView::draw()
 
 	mDisplayMode = llclamp(getChild<LLComboBox>("time_scale_combo")->getCurrentIndex(), 0, 3);
 	mDisplayType = (EDisplayType)llclamp(getChild<LLComboBox>("metric_combo")->getCurrentIndex(), 0, 2);
-
+		
 	generateUniqueColors();
 
 	LLView::drawChildren();
@@ -408,12 +408,12 @@ void LLFastTimerView::draw()
 	legend_panel->localRectToOtherView(legend_panel->getLocalRect(), &mLegendRect, this);
 
 	// Draw the window background
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gl_rect_2d(getLocalRect(), LLColor4(0.f, 0.f, 0.f, 0.25f));
-	
+
 	drawHelp(getRect().getHeight() - MARGIN);
 	drawLegend();
-
+			
 	//mBarRect.mLeft = MARGIN + LEGEND_WIDTH + 8;
 	//mBarRect.mTop = y;
 	//mBarRect.mRight = getRect().getWidth() - MARGIN;
@@ -423,26 +423,26 @@ void LLFastTimerView::draw()
 	drawLineGraph();
 	printLineStats();
 	LLView::draw();
-		
+
 	mAllTimeMax = llmax(mAllTimeMax, mRecording.getLastRecording().getSum(FTM_FRAME));
 	mHoverID = NULL;
 	mHoverBarIndex = -1;
-}
+					}
 
 void LLFastTimerView::onOpen(const LLSD& key)
-{
+				{
 	setPauseState(false);
 	mRecording.reset();
 	mRecording.appendPeriodicRecording(LLTrace::get_frame_recording());
 	for(std::deque<TimerBarRow>::iterator it = mTimerBarRows.begin(), end_it = mTimerBarRows.end();
 		it != end_it; 
-		++it)
-	{
+				++it)
+			{
 		delete []it->mBars;
 		it->mBars = NULL;
-	}
-}
-
+					}
+					}
+										
 
 void saveChart(const std::string& label, const char* suffix, LLImageRaw* scratch)
 {
@@ -1113,20 +1113,20 @@ void LLFastTimerView::drawLineGraph()
 			F32 x = mGraphRect.mRight - j * (F32)(mGraphRect.getWidth())/(mRecording.getNumRecordedPeriods()-1);
 			F32 y;
 			switch(mDisplayType)
-			{
-			case TIME:
+{
+			case DISPLAY_TIME:
 				y = mGraphRect.mBottom + time.value() * time_scale_factor;
 				break;
-			case CALLS:
+			case DISPLAY_CALLS:
 				y = mGraphRect.mBottom + (F32)calls * call_scale_factor;
 				break;
-			case HZ:
+			case DISPLAY_HZ:
 				y = mGraphRect.mBottom + (1.f / time.value()) * hz_scale_factor;
 				break;
 			}
 			gGL.vertex2f(x,y);
 			gGL.vertex2f(x,mGraphRect.mBottom);
-		}
+}
 		gGL.end();
 
 		if (mHoverID == idp)
@@ -1178,13 +1178,13 @@ void LLFastTimerView::drawLineGraph()
 	std::string axis_label;
 	switch(mDisplayType)
 	{
-	case TIME:
+	case DISPLAY_TIME:
 		axis_label = llformat("%4.2f ms", LLUnit<F32, LLUnits::Milliseconds>(max_time).value());
 		break;
-	case CALLS:
+	case DISPLAY_CALLS:
 		axis_label = llformat("%d calls", (int)max_calls);
 		break;
-	case HZ:
+	case DISPLAY_HZ:
 		axis_label = llformat("%4.2f Hz", max_time.value() ? 1.f / max_time.value() : 0.f);
 		break;
 	}
@@ -1247,13 +1247,13 @@ void LLFastTimerView::drawLegend()
 			std::string timer_label;
 			switch(mDisplayType)
 			{
-			case TIME:
+			case DISPLAY_TIME:
 				timer_label = llformat("%s [%.1f]",idp->getName().c_str(),ms.value());
 				break;
-			case CALLS:
+			case DISPLAY_CALLS:
 				timer_label = llformat("%s (%d)",idp->getName().c_str(),calls);
 				break;
-			case HZ:
+			case DISPLAY_HZ:
 				timer_label = llformat("%.1f", ms.value() ? (1.f / ms.value()) : 0.f);
 				break;
 			}

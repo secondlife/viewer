@@ -339,10 +339,10 @@ void LLVolumeImplFlexible::doIdleUpdate()
 	if (drawablep)
 	{
 		//LLFastTimer ftm(FTM_FLEXIBLE_UPDATE);
-		
+
 		//ensure drawable is active
 		drawablep->makeActive();
-			
+
 		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))
 		{
 			bool visible = drawablep->isVisible();

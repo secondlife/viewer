@@ -522,9 +522,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-	      <string>0980cdf98a322a780ba739e324d0b955</string>
+	      <string>91752db72202807cffb33c1ec3fd90fc</string>
               <key>url</key>
-	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/274401/arch/CYGWIN/installer/fmodex-4.44-windows-20130419.tar.bz2</string>
+	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/276321/arch/CYGWIN/installer/fmodex-4.44-windows-20130521.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -747,7 +747,6 @@
           </map>
         </map>
       </map>
-
       <key>google_breakpad</key>
       <map>
         <key>license</key>
@@ -835,9 +834,45 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>98994d5b0b4b3d43be22aa6a5c36e6fa</string>
+              <string>d2542614df9dd99cbb5ff67e76d4a6c1</string>
               <key>url</key>
-		<string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-mock-graham/rev/272961/arch/CYGWIN/installer/gmock-1.6.0-windows-20130327.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-mock/rev/274899/arch/CYGWIN/installer/gmock-1.6.0-windows-20130426.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
+      <key>gperftools</key>
+      <map>
+        <key>license</key>
+        <string>bsd</string>
+        <key>license_file</key>
+        <string>LICENSES/gperftools.txt</string>
+        <key>name</key>
+        <string>gperftools</string>
+        <key>platforms</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>8aedfdcf670348c18a9991ae1b384a61</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/262672/arch/Linux/installer/gperftools-2.0-linux-20120727.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>f62841804acb91e1309603a84f3f0ce8</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/262672/arch/CYGWIN/installer/gperftools-2.0-windows-20120727.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1291,9 +1326,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d2404cd09a43fd17826d6eab358f2579</string>
+              <string>9e5461d203b8259d3b6eb7df8c18b8fa</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearanceutility-interesting-source/rev/277102/arch/Linux/installer/llappearanceutility_source-0.1-linux-20130606.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearanceutility-interesting-source/rev/277616/arch/Linux/installer/llappearanceutility_source-0.1-linux-20130620.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>

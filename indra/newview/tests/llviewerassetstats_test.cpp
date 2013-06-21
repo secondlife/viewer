@@ -380,7 +380,7 @@ namespace tut
 
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_BODYPART, false, false);
 		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_BODYPART, false, false);
-
+		
 		LLViewerAssetStatsFF::set_region(region2_handle);
 
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);

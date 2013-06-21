@@ -568,9 +568,12 @@ bool LLTextureCacheRemoteWorker::doWrite()
 			idx = mCache->setHeaderCacheEntry(mID, entry, mImageSize, mDataSize); // create the new entry.
 			if(idx >= 0)
 			{
-				//write to the fast cache.
+				// (almost always) write to the fast cache.
+				if (mRawImage->getDataSize())
+				{
 				llassert_always(mCache->writeToFastCache(idx, mRawImage, mRawDiscardLevel));
 			}
+		}
 		}
 		else
 		{
@@ -1895,10 +1898,17 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
 bool LLTextureCache::writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 discardlevel)
 {
 	//rescale image if needed
+	if (raw.isNull() || !raw->getData())
+	{
+		llerrs << "Attempted to write NULL raw image to fastcache" << llendl;
+		return false;
+	}
+
 	S32 w, h, c;
 	w = raw->getWidth();
 	h = raw->getHeight();
 	c = raw->getComponents();
+
 	S32 i = 0 ;
 	
 	while(((w >> i) * (h >> i) * c) > TEXTURE_FAST_CACHE_ENTRY_SIZE - TEXTURE_FAST_CACHE_ENTRY_OVERHEAD)

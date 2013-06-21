@@ -93,28 +93,28 @@ typedef std::map<std::string, std::string> CapabilityMap;
 class LLViewerRegionImpl {
 public:
 	LLViewerRegionImpl(LLViewerRegion * region, LLHost const & host)
-	:	mHost(host),
-		mCompositionp(NULL),
-		mEventPoll(NULL),
-		mSeedCapMaxAttempts(MAX_CAP_REQUEST_ATTEMPTS),
-		mSeedCapMaxAttemptsBeforeLogin(MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN),
-		mSeedCapAttempts(0),
-		mHttpResponderID(0),
+		:	mHost(host),
+			mCompositionp(NULL),
+			mEventPoll(NULL),
+			mSeedCapMaxAttempts(MAX_CAP_REQUEST_ATTEMPTS),
+			mSeedCapMaxAttemptsBeforeLogin(MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN),
+			mSeedCapAttempts(0),
+			mHttpResponderID(0),
 		mLastCameraUpdate(0),
 		mLastCameraOrigin(),
 		mVOCachePartition(NULL),
 		mLandp(NULL),
-		// I'd prefer to set the LLCapabilityListener name to match the region
-		// name -- it's disappointing that's not available at construction time.
-		// We could instead store an LLCapabilityListener*, making
-		// setRegionNameAndZone() replace the instance. Would that pose
-		// consistency problems? Can we even request a capability before calling
-		// setRegionNameAndZone()?
-		// For testability -- the new Michael Feathers paradigm --
-		// LLCapabilityListener binds all the globals it expects to need at
-		// construction time.
-		mCapabilityListener(host.getString(), gMessageSystem, *region,
-		                    gAgent.getID(), gAgent.getSessionID())
+		    // I'd prefer to set the LLCapabilityListener name to match the region
+		    // name -- it's disappointing that's not available at construction time.
+		    // We could instead store an LLCapabilityListener*, making
+		    // setRegionNameAndZone() replace the instance. Would that pose
+		    // consistency problems? Can we even request a capability before calling
+		    // setRegionNameAndZone()?
+		    // For testability -- the new Michael Feathers paradigm --
+		    // LLCapabilityListener binds all the globals it expects to need at
+		    // construction time.
+		    mCapabilityListener(host.getString(), gMessageSystem, *region,
+		                        gAgent.getID(), gAgent.getSessionID())
 	{}
 
 	void buildCapabilityNames(LLSD& capabilityNames);
@@ -157,7 +157,7 @@ public:
 
 	CapabilityMap mCapabilities;
 	CapabilityMap mSecondCapabilitiesTracker; 
-	
+
 	LLEventPoll* mEventPoll;
 
 	S32 mSeedCapMaxAttempts;
@@ -237,7 +237,7 @@ public:
 		}
     }
 
-    void result(const LLSD& content)
+   void result(const LLSD& content)
     {
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
 		if(!regionp) //region was removed
@@ -1168,8 +1168,8 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 	max_update_time -= update_timer.getElapsedTimeF32();
 	if(max_update_time < 0.f || mImpl->mCacheMap.empty())
 	{
-		return did_update;
-	}
+	return did_update;
+}
 
 	if(!sVOCacheCullingEnabled)
 	{
@@ -1905,7 +1905,7 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
 	LLViewerObject::unpackU32(&dp, crc, "CRC");
 
 	LLVOCacheEntry* entry = getCacheEntry(local_id);
-	
+
 	if (entry)
 	{
 		// we've seen this object before
@@ -1933,8 +1933,8 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
 				
 				mImpl->mCacheMap[local_id] = entry;
 				decodeBoundingInfo(entry);
-			}
-			
+		}
+
 			result = CACHE_UPDATE_CHANGED;
 		}
 	}
@@ -1952,7 +1952,7 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
 	entry->setUpdateFlags(flags);
 
 	return result;
-}
+	}
 
 LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp, U32 flags)
 {
@@ -1964,7 +1964,7 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 	{
 		return result;
 	}
-
+		
 	if(objectp->mDrawable.notNull() && !entry->getEntry())
 	{
 		entry->setOctreeEntry(objectp->mDrawable->getEntry());
@@ -2055,7 +2055,7 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 		{
 			// Record a hit
 			entry->recordHit();
-			cache_miss_type = CACHE_MISS_TYPE_NONE;
+		cache_miss_type = CACHE_MISS_TYPE_NONE;
 			entry->setUpdateFlags(flags);
 			
 			if(entry->isState(LLVOCacheEntry::ACTIVE))
@@ -2103,7 +2103,7 @@ void LLViewerRegion::requestCacheMisses()
 	LLMessageSystem* msg = gMessageSystem;
 	BOOL start_new_message = TRUE;
 	S32 blocks = 0;
-	
+
 	//send requests for all cache-missed objects
 	for (CacheMissItem::cache_miss_list_t::iterator iter = mCacheMissList.begin(); iter != mCacheMissList.end(); ++iter)
 	{
@@ -2133,7 +2133,7 @@ void LLViewerRegion::requestCacheMisses()
 	if (!start_new_message)
 	{
 		sendReliableMessage();
-	}	
+	}
 
 	mCacheDirty = TRUE ;
 	// llinfos << "KILLDEBUG Sent cache miss full " << full_count << " crc " << crc_count << llendl;
@@ -2349,7 +2349,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("EventQueueGet");
 
 	if (gSavedSettings.getBOOL("UseHTTPInventory"))
-	{
+	{	
 		capabilityNames.append("FetchLib2");
 		capabilityNames.append("FetchLibDescendents2");
 		capabilityNames.append("FetchInventory2");
@@ -2379,6 +2379,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("ProductInfoRequest");
 	capabilityNames.append("ProvisionVoiceAccountRequest");
 	capabilityNames.append("RemoteParcelRequest");
+	capabilityNames.append("RenderMaterials");
 	capabilityNames.append("RequestTextureDownload");
 	capabilityNames.append("ResourceCostSelected");
 	capabilityNames.append("RetrieveNavMeshSrc");
@@ -2416,8 +2417,8 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 void LLViewerRegion::setSeedCapability(const std::string& url)
 {
 	if (getCapability("Seed") == url)
-    {
-		// llwarns << "Ignoring duplicate seed capability" << llendl;
+    {	
+		//llwarns << "Ignoring duplicate seed capability" << llendl;
 		//Instead of just returning we build up a second set of seed caps and compare them 
 		//to the "original" seed cap received and determine why there is problem!
 		LLSD capabilityNames = LLSD::emptyArray();

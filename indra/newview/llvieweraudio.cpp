@@ -502,11 +502,11 @@ void audio_update_wind(bool force_update)
 		// standing still.
 		static LLUICachedControl<F32> wind_level("AudioLevelWind", 0.5f);
 		LLVector3 scaled_wind_vec = gWindVec * wind_level;
-        
+
 		// Mix in the avatar's motion, subtract because when you walk north,
 		// the apparent wind moves south.
 		LLVector3 final_wind_vec = scaled_wind_vec - gAgent.getVelocity();
-        
+
 		// rotate the wind vector to be listener (agent) relative
 		gRelativeWindVec = gAgent.getFrameAgent().rotateToLocal( final_wind_vec );
 

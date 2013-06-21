@@ -429,36 +429,49 @@ void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 
 	getCurRecording().update();
 	other.getCurRecording().update();
+	
+	const U32 other_recording_slots = other.mRecordingPeriods.size();
+	const U32 other_num_recordings = other.getNumRecordedPeriods();
+	const U32 other_current_recording_index = other.mCurPeriod;
+	const U32 other_oldest_recording_index = (other_current_recording_index + other_recording_slots - other_num_recordings + 1) % other_recording_slots;
+
+	// append first recording into our current slot
+	getCurRecording().appendRecording(other.mRecordingPeriods[other_oldest_recording_index]);
+
+	// from now on, add new recordings for everything after the first
+	U32 other_index = (other_oldest_recording_index + 1) % other_recording_slots;
 
 	if (mAutoResize)
 	{
-		S32 other_index = (other.mCurPeriod + 1) % other.mRecordingPeriods.size();
-		S32 end_index = (other.mCurPeriod) % other.mRecordingPeriods.size(); 
+		// append first recording into our current slot
+		getCurRecording().appendRecording(other.mRecordingPeriods[other_oldest_recording_index]);
 
-		do
+		// push back recordings for everything in the middle
+		U32 other_index = (other_oldest_recording_index + 1) % other_recording_slots;
+		while (other_index != other_current_recording_index)
 		{
-			if (other.mRecordingPeriods[other_index].getDuration().value())
-			{
-				mRecordingPeriods.push_back(other.mRecordingPeriods[other_index]);
-			}
-			other_index = (other_index + 1) % other.mRecordingPeriods.size();
+			mRecordingPeriods.push_back(other.mRecordingPeriods[other_index]);
+			other_index = (other_index + 1) % other_recording_slots;
 		}
-		while(other_index != end_index);
+
+		// add final recording, if it wasn't already added as the first
+		if (other_num_recordings > 1)
+		{
+			mRecordingPeriods.push_back(other.mRecordingPeriods[other_current_recording_index]);
+		}
 
 		mCurPeriod = mRecordingPeriods.size() - 1;
 		mNumPeriods = mRecordingPeriods.size();
 	}
 	else
 	{
-		//FIXME: get proper number of recordings from other...might not have used all its slots
-		size_t num_to_copy = llmin(	mRecordingPeriods.size(), other.getNumRecordedPeriods());
-		std::vector<Recording>::iterator src_it = other.mRecordingPeriods.begin() 
-													+ (	(other.mCurPeriod + 1									// oldest period
-															+ (other.mRecordingPeriods.size() - num_to_copy))	// minus room for copy
-														% other.mRecordingPeriods.size());
+		size_t num_to_copy = llmin(	mRecordingPeriods.size(), (size_t)other_num_recordings);
+
+		std::vector<Recording>::iterator src_it = other.mRecordingPeriods.begin() + other_index ;
 		std::vector<Recording>::iterator dest_it = mRecordingPeriods.begin() + mCurPeriod;
 
-		for(size_t i = 0; i < num_to_copy; i++)
+		// already consumed the first recording from other, so start counting at 1
+		for(size_t i = 1; i < num_to_copy; i++)
 		{
 			*dest_it = *src_it;
 
@@ -475,17 +488,14 @@ void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 		
 		// want argument to % to be positive, otherwise result could be negative and thus out of bounds
 		llassert(num_to_copy >= 1);
-		// advance to last recording period copied, so we can check if the last period had actually carried any data, in which case we'll advance below
-		// using nextPeriod() which retains continuity (mLastValue, etc)
+		// advance to last recording period copied, and make that our current period
 		mCurPeriod = (mCurPeriod + num_to_copy - 1) % mRecordingPeriods.size();
-		mNumPeriods = llmin(mRecordingPeriods.size(), mNumPeriods + num_to_copy);
+		mNumPeriods = llmin(mRecordingPeriods.size(), mNumPeriods + num_to_copy - 1);
 	}
 
-	if (getCurRecording().getDuration().value())
-	{
-		//call this to chain last period copied to new active period
-		nextPeriod();
-	}
+	// end with fresh period, otherwise next appendPeriodicRecording() will merge the first
+	// recording period with the last one appended here
+	nextPeriod();
 	getCurRecording().setPlayState(getPlayState());
 }
 

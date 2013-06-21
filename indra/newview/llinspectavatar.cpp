@@ -67,7 +67,7 @@ public:
 	// Inspector will be positioned relative to current mouse position
 	LLInspectAvatar(const LLSD& avatar_id);
 	virtual ~LLInspectAvatar();
-	
+
 	/*virtual*/ BOOL postBuild(void);
 	
 	// Because floater is single instance, need to re-parse data on each spawn
@@ -83,7 +83,7 @@ private:
 	// Make network requests for all the data to display in this view.
 	// Used on construction and if avatar id changes.
 	void requestUpdate();
-	
+
 	// Set the volume slider to this user's current client-side volume setting,
 	// hiding/disabling if the user is not nearby.
 	void updateVolumeSlider();
@@ -221,7 +221,7 @@ void LLInspectAvatar::onOpen(const LLSD& data)
 	requestUpdate();
 
 	updateVolumeSlider();
-}	
+}
 
 void LLInspectAvatar::requestUpdate()
 {

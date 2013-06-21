@@ -117,7 +117,7 @@ LLHUDNameTag::~LLHUDNameTag()
 }
 
 
-BOOL LLHUDNameTag::lineSegmentIntersect(const LLVector3& start, const LLVector3& end, LLVector3& intersection, BOOL debug_render)
+BOOL LLHUDNameTag::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, LLVector4a& intersection, BOOL debug_render)
 {
 	if (!mVisible || mHidden)
 	{
@@ -200,15 +200,23 @@ BOOL LLHUDNameTag::lineSegmentIntersect(const LLVector3& start, const LLVector3&
 		bg_pos + height_vec,
 	};
 
-	LLVector3 dir = end-start;
+	LLVector4a dir;
+	dir.setSub(end,start);
 	F32 a, b, t;
 
-	if (LLTriangleRayIntersect(v[0], v[1], v[2], start, dir, a, b, t, FALSE) ||
-		LLTriangleRayIntersect(v[2], v[3], v[0], start, dir, a, b, t, FALSE) )
+	LLVector4a v0,v1,v2,v3;
+	v0.load3(v[0].mV);
+	v1.load3(v[1].mV);
+	v2.load3(v[2].mV);
+	v3.load3(v[3].mV);
+
+	if (LLTriangleRayIntersect(v0, v1, v2, start, dir, a, b, t) ||
+		LLTriangleRayIntersect(v2, v3, v0, start, dir, a, b, t) )
 	{
 		if (t <= 1.f)
 		{
-			intersection = start + dir*t;
+			dir.mul(t);
+			intersection.setAdd(start, dir);
 			return TRUE;
 		}
 	}
@@ -311,7 +319,7 @@ void LLHUDNameTag::renderText(BOOL for_select)
 		label_top_rect.mBottom = label_top_rect.mTop - label_height;
 		LLColor4 label_top_color = text_color;
 		label_top_color.mV[VALPHA] = gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor;
-		
+
 		rect_top_image->draw3D(render_position, x_pixel_vec, y_pixel_vec, label_top_rect, label_top_color);
 	}
 

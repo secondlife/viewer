@@ -56,7 +56,7 @@ void ll_winmm_shim_initialize(){
 		// grab winmm.dll from system path, where it should live
 		wsprintf(dll_path, "%s\\winmm.dll", system_path);
 		HMODULE winmm_handle = ::LoadLibrary(dll_path);
-		
+
 		if (winmm_handle != NULL)
 		{	// we have a dll, let's get out pointers!
 			initialized = true;

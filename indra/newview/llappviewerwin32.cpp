@@ -491,7 +491,7 @@ bool LLAppViewerWin32::init()
 	// (Don't send our data to Microsoft--at least until we are Logo approved and have a way
 	// of getting the data back from them.)
 	//
-	llinfos << "Turning off Windows error reporting." << llendl;
+	// llinfos << "Turning off Windows error reporting." << llendl;
 	disableWinErrorReporting();
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -510,9 +510,9 @@ bool LLAppViewerWin32::cleanup()
 	return result;
 }
 
-void LLAppViewerWin32::initLogging()
+void LLAppViewerWin32::initLoggingAndGetLastDuration()
 {
-	LLAppViewer::initLogging();
+	LLAppViewer::initLoggingAndGetLastDuration();
 }
 
 void LLAppViewerWin32::initConsole()

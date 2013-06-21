@@ -336,7 +336,7 @@ LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep)
 
 	{
 		LLFastTimer t(FTM_ALLOCATE_FACE);
-	face = new LLFace(this, mVObjp);
+		face = new LLFace(this, mVObjp);
 	}
 
 	face->setTEOffset(mFaces.size());
@@ -352,6 +352,49 @@ LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep)
 
 	return face;
 
+}
+
+LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep, LLViewerTexture *normalp)
+{
+	LLFace *face;
+	face = new LLFace(this, mVObjp);
+	
+	face->setTEOffset(mFaces.size());
+	face->setTexture(texturep);
+	face->setNormalMap(normalp);
+	face->setPoolType(gPipeline.getPoolTypeFromTE(te, texturep));
+	
+	mFaces.push_back(face);
+	
+	if (isState(UNLIT))
+	{
+		face->setState(LLFace::FULLBRIGHT);
+	}
+	
+	return face;
+	
+}
+
+LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep, LLViewerTexture *normalp, LLViewerTexture *specularp)
+{
+	LLFace *face;
+	face = new LLFace(this, mVObjp);
+	
+	face->setTEOffset(mFaces.size());
+	face->setTexture(texturep);
+	face->setNormalMap(normalp);
+	face->setSpecularMap(specularp);
+	face->setPoolType(gPipeline.getPoolTypeFromTE(te, texturep));
+	
+	mFaces.push_back(face);
+	
+	if (isState(UNLIT))
+	{
+		face->setState(LLFace::FULLBRIGHT);
+	}
+	
+	return face;
+	
 }
 
 void LLDrawable::setNumFaces(const S32 newFaces, LLFacePool *poolp, LLViewerTexture *texturep)
@@ -507,7 +550,7 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 
 		//drawable became static with active parent, not acceptable
 		llassert(mParent.isNull() || !mParent->isActive() || !warning_enabled);
-		
+
 		LLViewerObject::const_child_list_t& child_list = mVObjp->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
 			 iter != child_list.end(); iter++)
@@ -699,7 +742,7 @@ BOOL LLDrawable::updateMove()
 	{
 		return FALSE;
 	}
-
+	
 	makeActive();
 
 	return isState(MOVE_UNDAMPED) ? updateMoveUndamped() : updateMoveDamped();
@@ -1098,9 +1141,9 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 }
 
 //virtual
-S32 LLDrawable::getMinFrameRange() const
+U32 LLDrawable::getMinFrameRange() const
 {
-const S32 MIN_VIS_FRAME_RANGE = 2 ; //two frames:the current one and the last one.
+	const U32 MIN_VIS_FRAME_RANGE = 2 ; //two frames:the current one and the last one.
 
 	return MIN_VIS_FRAME_RANGE ;
 }

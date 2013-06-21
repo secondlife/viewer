@@ -124,7 +124,6 @@
 #include "llwindow.h"
 #include "llpathfindingmanager.h"
 #include "boost/unordered_map.hpp"
-#include "llscenemonitor.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -148,6 +147,8 @@ void handle_test_load_url(void*);
 //extern BOOL gDebugAvatarRotation;
 extern BOOL gDebugClicks;
 extern BOOL gDebugWindowProc;
+extern BOOL gShaderProfileFrame;
+
 //extern BOOL gDebugTextEditorTips;
 //extern BOOL gDebugSelectMgr;
 
@@ -292,6 +293,7 @@ void request_friendship(const LLUUID& agent_id);
 
 // Tools menu
 void handle_selected_texture_info(void*);
+void handle_selected_material_info();
 
 void handle_dump_followcam(void*);
 void handle_viewer_enable_message_log(void*);
@@ -525,10 +527,7 @@ class LLAdvancedToggleConsole : public view_listener_t
 		{
 			toggle_visibility( (void*)gSceneView);
 		}
-		else if ("scene monitor" == console_type)
-		{
-			toggle_visibility( (void*)gSceneMonitorView);
-		}
+
 #if MEM_TRACK_MEM
 		else if ("memory view" == console_type)
 		{
@@ -556,9 +555,9 @@ class LLAdvancedCheckConsole : public view_listener_t
 		{
 			new_value = LLFloaterReg::instanceVisible("fast_timers");
 		}
-		else if ("scene monitor" == console_type)
+		else if ("scene view" == console_type)
 		{
-			new_value = get_visibility( (void*) gSceneMonitorView);
+			new_value = get_visibility( (void*) gSceneView);
 		}
 #if MEM_TRACK_MEM
 		else if ("memory view" == console_type)
@@ -1193,28 +1192,6 @@ class LLAdvancedCheckWireframe : public view_listener_t
 	}
 };
 	
-//////////////////////
-// TEXTURE ATLAS //
-//////////////////////
-
-class LLAdvancedToggleTextureAtlas : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLViewerTexture::sUseTextureAtlas = !LLViewerTexture::sUseTextureAtlas;
-		gSavedSettings.setBOOL("EnableTextureAtlas", LLViewerTexture::sUseTextureAtlas) ;
-		return true;
-	}
-};
-
-class LLAdvancedCheckTextureAtlas : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = LLViewerTexture::sUseTextureAtlas; // <-- make this using LLCacheControl
-		return new_value;
-	}
-};
 
 //////////////////////////
 // DUMP SCRIPTED CAMERA //
@@ -3967,24 +3944,24 @@ class LLViewToggleUI : public view_listener_t
 	{
 		if(gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
 		{
-		LLNotification::Params params("ConfirmHideUI");
-		params.functor.function(boost::bind(&LLViewToggleUI::confirm, this, _1, _2));
-		LLSD substitutions;
+			LLNotification::Params params("ConfirmHideUI");
+			params.functor.function(boost::bind(&LLViewToggleUI::confirm, this, _1, _2));
+			LLSD substitutions;
 #if LL_DARWIN
-		substitutions["SHORTCUT"] = "Cmd+Shift+U";
+			substitutions["SHORTCUT"] = "Cmd+Shift+U";
 #else
-		substitutions["SHORTCUT"] = "Ctrl+Shift+U";
+			substitutions["SHORTCUT"] = "Ctrl+Shift+U";
 #endif
-		params.substitutions = substitutions;
+			params.substitutions = substitutions;
 			if (!gSavedSettings.getBOOL("HideUIControls"))
-		{
-			// hiding, so show notification
-			LLNotifications::instance().add(params);
-		}
-		else
-		{
-			LLNotifications::instance().forceResponse(params, 0);
-		}
+			{
+				// hiding, so show notification
+				LLNotifications::instance().add(params);
+			}
+			else
+			{
+				LLNotifications::instance().forceResponse(params, 0);
+			}
 		}
 		return true;
 	}
@@ -4030,6 +4007,72 @@ void handle_duplicate_in_place(void*)
 	LLVector3 offset(0.f, 0.f, 0.f);
 	LLSelectMgr::getInstance()->selectDuplicate(offset, TRUE);
 }
+
+/* dead code 30-apr-2008
+void handle_deed_object_to_group(void*)
+{
+	LLUUID group_id;
+	
+	LLSelectMgr::getInstance()->selectGetGroup(group_id);
+	LLSelectMgr::getInstance()->sendOwner(LLUUID::null, group_id, FALSE);
+	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_RELEASE_COUNT);
+}
+
+BOOL enable_deed_object_to_group(void*)
+{
+	if(LLSelectMgr::getInstance()->getSelection()->isEmpty()) return FALSE;
+	LLPermissions perm;
+	LLUUID group_id;
+
+	if (LLSelectMgr::getInstance()->selectGetGroup(group_id) &&
+		gAgent.hasPowerInGroup(group_id, GP_OBJECT_DEED) &&
+		LLSelectMgr::getInstance()->selectGetPermissions(perm) &&
+		perm.deedToGroup(gAgent.getID(), group_id))
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
+*/
+
+
+/*
+ * No longer able to support viewer side manipulations in this way
+ *
+void god_force_inv_owner_permissive(LLViewerObject* object,
+									LLInventoryObject::object_list_t* inventory,
+									S32 serial_num,
+									void*)
+{
+	typedef std::vector<LLPointer<LLViewerInventoryItem> > item_array_t;
+	item_array_t items;
+
+	LLInventoryObject::object_list_t::const_iterator inv_it = inventory->begin();
+	LLInventoryObject::object_list_t::const_iterator inv_end = inventory->end();
+	for ( ; inv_it != inv_end; ++inv_it)
+	{
+		if(((*inv_it)->getType() != LLAssetType::AT_CATEGORY))
+		{
+			LLInventoryObject* obj = *inv_it;
+			LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem((LLViewerInventoryItem*)obj);
+			LLPermissions perm(new_item->getPermissions());
+			perm.setMaskBase(PERM_ALL);
+			perm.setMaskOwner(PERM_ALL);
+			new_item->setPermissions(perm);
+			items.push_back(new_item);
+		}
+	}
+	item_array_t::iterator end = items.end();
+	item_array_t::iterator it;
+	for(it = items.begin(); it != end; ++it)
+	{
+		// since we have the inventory item in the callback, it should not
+		// invalidate iteration through the selection manager.
+		object->updateInventory((*it), TASK_INVENTORY_ITEM_KEY, false);
+	}
+}
+*/
 
 void handle_object_owner_permissive(void*)
 {
@@ -6401,7 +6444,7 @@ class LLAttachmentDetachFromPoint : public view_listener_t
 				LLViewerObject *attached_object = (*iter);
 				ids_to_remove.push_back(attached_object->getAttachmentItemID());
 			}
-		}
+			}
 		if (!ids_to_remove.empty())
 		{
 			LLAppearanceMgr::instance().removeItemsFromAvatar(ids_to_remove);
@@ -6858,6 +6901,47 @@ void handle_selected_texture_info(void*)
 	}
 }
 
+void handle_selected_material_info()
+{
+	for (LLObjectSelection::valid_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_begin();
+		iter != LLSelectMgr::getInstance()->getSelection()->valid_end(); iter++)
+	{
+		LLSelectNode* node = *iter;
+		
+		std::string msg;
+		msg.assign("Material info for: \n");
+		msg.append(node->mName);
+		
+		U8 te_count = node->getObject()->getNumTEs();
+		// map from material ID to list of faces using it
+		typedef std::map<LLMaterialID, std::vector<U8> > map_t;
+		map_t faces_per_material;
+		for (U8 i = 0; i < te_count; i++)
+		{
+			if (!node->isTESelected(i)) continue;
+	
+			const LLMaterialID& material_id = node->getObject()->getTE(i)->getMaterialID();
+			faces_per_material[material_id].push_back(i);
+		}
+		// Per-material, dump which faces are using it.
+		map_t::iterator it;
+		for (it = faces_per_material.begin(); it != faces_per_material.end(); ++it)
+		{
+			const LLMaterialID& material_id = it->first;
+			msg += llformat("%s on face ", material_id.asString().c_str());
+			for (U8 i = 0; i < it->second.size(); ++i)
+			{
+				msg.append( llformat("%d ", (S32)(it->second[i])));
+			}
+			msg.append("\n");
+		}
+
+		LLSD args;
+		args["MESSAGE"] = msg;
+		LLNotificationsUtil::add("SystemMessage", args);
+	}
+}
+
 void handle_test_male(void*)
 {
 	LLAppearanceMgr::instance().wearOutfitByName("Male Shape & Outfit");
@@ -6956,6 +7040,15 @@ class LLAdvancedClickRenderShadowOption: public view_listener_t
 		{
 			gSavedSettings.setS32(control_name, 0);
 		}
+		return true;
+	}
+};
+
+class LLAdvancedClickRenderProfile: public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		gShaderProfileFrame = TRUE;
 		return true;
 	}
 };
@@ -7547,23 +7640,6 @@ void handle_web_browser_test(const LLSD& param)
 		url = "about:blank";
 	}
 	LLWeb::loadURLInternal(url);
-}
-
-bool callback_clear_cache_immediately(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if ( option == 0 ) // YES
-	{
-		//clear cache
-		LLAppViewer::instance()->purgeCacheImmediate();
-	}
-
-	return false;
-}
-
-void handle_cache_clear_immediately()
-{
-	LLNotificationsUtil::add("ConfirmClearCache", LLSD(), LLSD(), callback_clear_cache_immediately);
 }
 
 void handle_web_content_test(const LLSD& param)
@@ -8295,10 +8371,10 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLViewStatusAway(), "View.Status.CheckAway");
 	view_listener_t::addMenu(new LLViewStatusDoNotDisturb(), "View.Status.CheckDoNotDisturb");
 	view_listener_t::addMenu(new LLViewCheckHUDAttachments(), "View.CheckHUDAttachments");
-
+	
 	// Me > Movement
 	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
-	
+
 	// Communicate > Voice morphing > Subscribe...
 	commit.add("Communicate.VoiceMorphing.Subscribe", boost::bind(&handle_voice_morphing_subscribe));
 	LLVivoxVoiceClient * voice_clientp = LLVivoxVoiceClient::getInstance();
@@ -8306,7 +8382,7 @@ void initialize_menus()
 		, boost::bind(&LLVivoxVoiceClient::onCheckVoiceEffect, voice_clientp, "NoVoiceMorphing"));
 	commit.add("Communicate.VoiceMorphing.NoVoiceMorphing.Click"
 		, boost::bind(&LLVivoxVoiceClient::onClickVoiceEffect, voice_clientp, "NoVoiceMorphing"));
-	
+
 	// World menu
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
 	view_listener_t::addMenu(new LLWorldCreateLandmark(), "World.CreateLandmark");
@@ -8397,11 +8473,10 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleInfoDisplay(), "Advanced.ToggleInfoDisplay");
 	view_listener_t::addMenu(new LLAdvancedCheckInfoDisplay(), "Advanced.CheckInfoDisplay");
 	view_listener_t::addMenu(new LLAdvancedSelectedTextureInfo(), "Advanced.SelectedTextureInfo");
+	commit.add("Advanced.SelectedMaterialInfo", boost::bind(&handle_selected_material_info));
 	view_listener_t::addMenu(new LLAdvancedToggleWireframe(), "Advanced.ToggleWireframe");
 	view_listener_t::addMenu(new LLAdvancedCheckWireframe(), "Advanced.CheckWireframe");
 	// Develop > Render
-	view_listener_t::addMenu(new LLAdvancedToggleTextureAtlas(), "Advanced.ToggleTextureAtlas");
-	view_listener_t::addMenu(new LLAdvancedCheckTextureAtlas(), "Advanced.CheckTextureAtlas");
 	view_listener_t::addMenu(new LLAdvancedEnableObjectObjectOcclusion(), "Advanced.EnableObjectObjectOcclusion");
 	view_listener_t::addMenu(new LLAdvancedEnableRenderFBO(), "Advanced.EnableRenderFBO");
 	view_listener_t::addMenu(new LLAdvancedEnableRenderDeferred(), "Advanced.EnableRenderDeferred");
@@ -8415,7 +8490,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedHandleAttachedLightParticles(), "Advanced.HandleAttachedLightParticles");
 	view_listener_t::addMenu(new LLAdvancedCheckRenderShadowOption(), "Advanced.CheckRenderShadowOption");
 	view_listener_t::addMenu(new LLAdvancedClickRenderShadowOption(), "Advanced.ClickRenderShadowOption");
-	
+	view_listener_t::addMenu(new LLAdvancedClickRenderProfile(), "Advanced.ClickRenderProfile");
 
 	#ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 	view_listener_t::addMenu(new LLAdvancedHandleToggleHackedGodmode(), "Advanced.HandleToggleHackedGodmode");
@@ -8532,8 +8607,6 @@ void initialize_menus()
 	
 	//Develop (Texture Fetch Debug Console)
 	view_listener_t::addMenu(new LLDevelopTextureFetchDebugger(), "Develop.SetTexFetchDebugger");
-	//Develop (clear cache immediately)
-	commit.add("Develop.ClearCache", boost::bind(&handle_cache_clear_immediately) );
 
 	// Admin >Object
 	view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");

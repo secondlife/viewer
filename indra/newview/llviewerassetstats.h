@@ -105,7 +105,7 @@ public:
 	};
 
 	struct FPSStats : public LLInitParam::Block<FPSStats>
-	{
+			{
 		Mandatory<S32>	count;
 		Mandatory<F64>	min,
 						max,
@@ -114,7 +114,7 @@ public:
 	};
 
 	struct RegionStats : public LLInitParam::Block<RegionStats>
-	{
+				{
 		Optional<AssetRequestType>	get_texture_temp_http,
 									get_texture_temp_udp,
 									get_texture_non_temp_http,
@@ -130,7 +130,7 @@ public:
 
 		RegionStats();
 	};
-
+		
 	struct AssetStats : public LLInitParam::Block<AssetStats>
 	{
 		Multiple<RegionStats>	regions;

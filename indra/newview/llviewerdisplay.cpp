@@ -96,6 +96,7 @@ BOOL gDepthDirty = FALSE;
 BOOL gResizeScreenTexture = FALSE;
 BOOL gWindowResized = FALSE;
 BOOL gSnapshot = FALSE;
+BOOL gShaderProfileFrame = FALSE;
 
 U32 gRecentFrameCount = 0; // number of 'recent' frames
 LLFrameTimer gRecentFPSTime;
@@ -112,7 +113,8 @@ void render_disconnected_background();
 
 void display_startup()
 {
-	if (   !gViewerWindow->getActive()
+	if (   !gViewerWindow
+		|| !gViewerWindow->getActive()
 		|| !gViewerWindow->getWindow()->getVisible() 
 		|| gViewerWindow->getWindow()->getMinimized() )
 	{
@@ -123,7 +125,14 @@ void display_startup()
 
 	// Update images?
 	//gImageList.updateImages(0.01f);
+	
+	// Written as branch to appease GCC which doesn't like different
+	// pointer types across ternary ops
+	//
+	if (!LLViewerFetchedTexture::sWhiteImagep.isNull())
+	{
 	LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
+	}
 
 	LLGLSDefault gls_default;
 
@@ -145,10 +154,12 @@ void display_startup()
 	LLGLSUIDefault gls_ui;
 	gPipeline.disableLights();
 
+	if (gViewerWindow)
 	gViewerWindow->setup2DRender();
 	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
 	gGL.color4f(1,1,1,1);
+	if (gViewerWindow)
 	gViewerWindow->draw();
 	gGL.flush();
 
@@ -157,7 +168,9 @@ void display_startup()
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 
+	if (gViewerWindow && gViewerWindow->getWindow())
 	gViewerWindow->getWindow()->swapBuffers();
+
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
 
@@ -336,6 +349,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Startup");
 		display_startup();
 		return;
+	}
+
+
+	if (gShaderProfileFrame)
+	{
+		LLGLSLShader::initProfile();
 	}
 
 	//LLGLState::verify(FALSE);
@@ -1026,6 +1045,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	LLAppViewer::instance()->pingMainloopTimeout("Display:Done");
 
 	gShiftFrame = false;
+
+	if (gShaderProfileFrame)
+	{
+		gShaderProfileFrame = FALSE;
+		LLGLSLShader::finishProfile();
+	}
 }
 
 void render_hud_attachments()
@@ -1045,6 +1070,7 @@ void render_hud_attachments()
 
 	if (LLPipeline::sShowHUDAttachments && !gDisconnected && setup_hud_matrices())
 	{
+		LLPipeline::sRenderingHUDs = TRUE;
 		LLCamera hud_cam = *LLViewerCamera::getInstance();
 		hud_cam.setOrigin(-1.f,0,0);
 		hud_cam.setAxes(LLVector3(1,0,0), LLVector3(0,1,0), LLVector3(0,0,1));
@@ -1089,10 +1115,13 @@ void render_hud_attachments()
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_SIMPLE);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_VOLUME);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_ALPHA);
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_ALPHA_MASK);
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_FULLBRIGHT_ALPHA_MASK);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_FULLBRIGHT);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_ALPHA);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_ALPHA_MASK);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_BUMP);
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_MATERIAL);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_ALPHA_MASK);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_SHINY);
@@ -1117,6 +1146,7 @@ void render_hud_attachments()
 			gPipeline.toggleRenderDebugFeature((void*) LLPipeline::RENDER_DEBUG_FEATURE_UI);
 		}
 		LLPipeline::sUseOcclusion = use_occlusion;
+		LLPipeline::sRenderingHUDs = FALSE;
 	}
 	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.popMatrix();

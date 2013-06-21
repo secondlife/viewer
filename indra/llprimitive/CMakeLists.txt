@@ -24,6 +24,8 @@ include_directories(SYSTEM
     )
 
 set(llprimitive_SOURCE_FILES
+    llmaterialid.cpp
+    llmaterial.cpp
     llmaterialtable.cpp
     llmediaentry.cpp
     llmodel.cpp
@@ -40,6 +42,8 @@ set(llprimitive_HEADER_FILES
     CMakeLists.txt
 
     legacy_object_types.h
+    llmaterial.h
+    llmaterialid.h
     llmaterialtable.h
     llmediaentry.h
     llmodel.h

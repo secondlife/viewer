@@ -1181,7 +1181,7 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 		}
 	}
 }
-
+ 
 // Return "true" if we have a preview method for that asset type, "false" otherwise
 bool check_asset_previewable(const LLAssetType::EType asset_type)
 {
@@ -1529,7 +1529,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	from_string = chatHistory_string = mFromName;
 	
 	LLNotificationFormPtr modified_form(notification_ptr ? new LLNotificationForm(*notification_ptr->getForm()) : new LLNotificationForm());
-	
+
 	switch(button)
 	{
 	case IOR_SHOW:
@@ -1627,7 +1627,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			{
 				opener = discard_agent_offer;
 			}
-			
+
 			if (modified_form != NULL)
 			{
 				modified_form->setElementEnabled("Show", false);
@@ -2376,7 +2376,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	LLNotification::Params params;
 
 	switch(dialog)
-	{
+	{ 
 	case IM_CONSOLE_AND_CHAT_HISTORY:
 		args["MESSAGE"] = message;
 		payload["from_id"] = from_id;
@@ -3075,11 +3075,11 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				}
 				else
 				{
-					LLNotification::Params params("TeleportOffered");
-					params.substitutions = args;
-					params.payload = payload;
-					LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
-				}
+			    LLNotification::Params params("TeleportOffered");
+			    params.substitutions = args;
+			    params.payload = payload;
+			    LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
+			}
 
 			}
 		}
@@ -3170,10 +3170,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
-				// do not show a message box, because you're about to be
-				// teleported.
-				LLNotifications::instance().forceResponse(LLNotification::Params("TeleportOffered").payload(payload), 0);
-			}
+			// do not show a message box, because you're about to be
+			// teleported.
+			LLNotifications::instance().forceResponse(LLNotification::Params("TeleportOffered").payload(payload), 0);
+		}
 		}
 		break;
 
@@ -4340,7 +4340,7 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 		msg_number += 1;
 		if (head_rot_chg < THRESHOLD_HEAD_ROT_QDOT)
 		{
-			//LL_INFOS("Messaging") << " head rot " << head_rotation << LL_ENDL;
+			//LL_INFOS("Messaging") << "head rot " << head_rotation << LL_ENDL;
 			LL_INFOS("Messaging") << "msg " << msg_number << ", frame " << LLFrameTimer::getFrameCount() << ", head_rot_chg " << head_rot_chg << LL_ENDL;
 		}
 		if (cam_rot_chg.magVec() > ROTATION_THRESHOLD) 
@@ -4359,7 +4359,7 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 		{
 			LL_INFOS("Messaging") << "msg " << msg_number << ", frame " << LLFrameTimer::getFrameCount() << ", dcf = " << control_flag_change << LL_ENDL;
 		}
-		*/
+*/
 
 		duplicate_count = 0;
 	}
@@ -5750,7 +5750,7 @@ bool handle_teleport_access_blocked(LLSD& llsdBlock)
 			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
 			returnValue = true;
 		}
-	}
+		}
 
 	if ((maturityLevelNotification == NULL) || maturityLevelNotification->isIgnored())
 	{
@@ -5916,8 +5916,8 @@ void process_alert_core(const std::string& message, BOOL modal)
 		std::string alert_name(message.substr(ALERT_PREFIX.length()));
 		if (!handle_special_alerts(alert_name))
 		{
-			LLNotificationsUtil::add(alert_name);
-		}
+		LLNotificationsUtil::add(alert_name);
+	}
 	}
 	else if (message.find(NOTIFY_PREFIX) == 0)
 	{
@@ -6370,7 +6370,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 			args["DOWNLOADURL"] = LLTrans::getString("ViewerDownloadURL");
 			LLNotificationsUtil::add("UnknownScriptQuestion",args,payload);
 		}
-
+		
 		if (known_questions)
 		{
 			LLSD payload;

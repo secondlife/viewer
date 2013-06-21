@@ -113,11 +113,11 @@ const int LL_ERR_PRICE_MISMATCH = -23018;
 #endif
 
 #ifdef LL_WINDOWS
-#define llstatic_assert(func, msg) static_assert(func, msg)
-#define llstatic_assert_template(type, func, msg) static_assert(func, msg)
+#define LL_STATIC_ASSERT(func, msg) static_assert(func, msg)
+#define LL_BAD_TEMPLATE_INSTANTIATION(type, msg) static_assert(false, msg)
 #else
-#define llstatic_assert(func, msg) BOOST_STATIC_ASSERT(func)
-#define llstatic_assert_template(type, func, msg) BOOST_STATIC_ASSERT(sizeof(type) != 0 && func);
+#define LL_STATIC_ASSERT(func, msg) BOOST_STATIC_ASSERT(func)
+#define LL_BAD_TEMPLATE_INSTANTIATION(type, msg) BOOST_STATIC_ASSERT(sizeof(type) != 0 && false);
 #endif
 
 // handy compile-time assert - enforce those template parameters! 

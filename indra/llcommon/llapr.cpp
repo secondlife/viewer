@@ -56,7 +56,7 @@ void ll_init_apr()
 
 	if(!LLAPRFile::sAPRFilePoolp)
 	{
-		LLAPRFile::sAPRFilePoolp = new LLVolatileAPRPool(FALSE);
+		LLAPRFile::sAPRFilePoolp = new LLVolatileAPRPool(FALSE) ;
 	}
 
 	LLThreadLocalPointerBase::initAllThreadLocalStorage();
@@ -101,7 +101,7 @@ void ll_cleanup_apr()
 	}
 	if (LLAPRFile::sAPRFilePoolp)
 	{
-		delete LLAPRFile::sAPRFilePoolp ;	
+		delete LLAPRFile::sAPRFilePoolp ;
 		LLAPRFile::sAPRFilePoolp = NULL ;
 	}
 	apr_terminate();
@@ -243,9 +243,7 @@ void LLVolatileAPRPool::clearVolatileAPRPool()
 		llassert_always(mNumActiveRef > 0) ;
 	}
 
-	//paranoia check if the pool is jammed.
-	//will remove the check before going to release.
-	llassert_always(mNumTotalRef < (FULL_VOLATILE_APR_POOL << 2)) ;
+	llassert(mNumTotalRef < (FULL_VOLATILE_APR_POOL << 2)) ;
 }
 
 BOOL LLVolatileAPRPool::isFull()

@@ -645,7 +645,7 @@ bool idle_startup()
 				gAudiop = (LLAudioEngine *) new LLAudioEngine_OpenAL();
 			}
 #endif
-
+            
 			if (gAudiop)
 			{
 #if LL_WINDOWS
@@ -2293,7 +2293,7 @@ bool login_alert_status(const LLSD& notification, const LLSD& response)
       //      break;
         case 2:     // Teleport
             // Restart the login process, starting at our home locaton
-			LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
+	  LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
             LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
             break;
         default:

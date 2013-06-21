@@ -112,6 +112,9 @@ void LLViewerTextureList::doPreloadImages()
 	LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
 	LLUIImageList* image_list = LLUIImageList::getInstance();
 
+	// Set the default flat normal map
+	LLViewerFetchedTexture::sFlatNormalImagep = LLViewerTextureManager::getFetchedTextureFromFile("flatnormal.tga", FTT_LOCAL_FILE, MIPMAP_NO, LLViewerFetchedTexture::BOOST_BUMP);
+	
 	image_list->initFromFile();
 	
 	// turn off clamping and bilinear filtering for uv picking images
@@ -317,7 +320,7 @@ void LLViewerTextureList::restoreGL()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string& filename,												   
+LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string& filename,
 												   FTType f_type,
 												   BOOL usemipmaps,
 												   LLViewerTexture::EBoostLevel boost_priority,
@@ -369,7 +372,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 	}
 
 	LLPointer<LLViewerFetchedTexture> imagep = findImage(new_id);
-	
+
 	if (!imagep.isNull())
 	{
 		LLViewerFetchedTexture *texture = imagep.get();
@@ -425,7 +428,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 }
 
 
-LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,											       
+LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 												   FTType f_type,
 												   BOOL usemipmaps,
 												   LLViewerTexture::EBoostLevel boost_priority,
@@ -468,7 +471,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 		{
 			llwarns << "FTType mismatch: requested " << f_type << " image has " << imagep->getFTType() << llendl;
 		}
-	
+		
 	}
 	if (imagep.isNull())
 	{
@@ -481,7 +484,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 }
 
 //when this function is called, there is no such texture in the gTextureList with image_id.
-LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,											       
+LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 												   FTType f_type,
 												   BOOL usemipmaps,
 												   LLViewerTexture::EBoostLevel boost_priority,
@@ -761,7 +764,7 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			max_inactive_time = 20000.f;
 		}
         
-		static const S32 MAX_PRIO_UPDATES = gSavedSettings.getS32("TextureFetchUpdatePriorities");         // default: 32
+        static const S32 MAX_PRIO_UPDATES = gSavedSettings.getS32("TextureFetchUpdatePriorities");         // default: 32
 		const size_t max_update_count = llmin((S32) (MAX_PRIO_UPDATES*MAX_PRIO_UPDATES*gFrameIntervalSeconds.value()) + 1, MAX_PRIO_UPDATES);
 		S32 update_counter = llmin(max_update_count, mUUIDMap.size());
 		uuid_map_t::iterator iter = mUUIDMap.upper_bound(mLastUpdateUUID);

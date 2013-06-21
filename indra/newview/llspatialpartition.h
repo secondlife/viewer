@@ -105,6 +105,7 @@ public:
 	U32 mOffset;
 	BOOL mFullbright;
 	U8 mBump;
+	U8 mShiny;
 	BOOL mParticle;
 	F32 mPartSize;
 	F32 mVSize;
@@ -112,6 +113,18 @@ public:
 	LL_ALIGN_16(LLFace* mFace); //associated face
 	F32 mDistance;
 	U32 mDrawMode;
+	LLMaterialPtr mMaterial; // If this is null, the following parameters are unused.
+	LLMaterialID mMaterialID;
+	U32 mShaderMask;
+	LLPointer<LLViewerTexture> mSpecularMap;
+	const LLMatrix4* mSpecularMapMatrix;
+	LLPointer<LLViewerTexture> mNormalMap;
+	const LLMatrix4* mNormalMapMatrix;
+	LLVector4 mSpecColor; // XYZ = Specular RGB, W = Specular Exponent
+	F32  mEnvIntensity;
+	F32  mAlphaMaskCutoff;
+	U8   mDiffuseAlphaMode;
+
 
 	struct CompareTexture
 	{
@@ -184,7 +197,7 @@ public:
 	};
 };
 
-LL_ALIGN_PREFIX(16)
+LL_ALIGN_PREFIX(64)
 class LLSpatialGroup : public LLOcclusionCullingGroup
 {
 	friend class LLSpatialPartition;
@@ -258,11 +271,11 @@ public:
 		IN_BUILD_Q1				= (NEW_DRAWINFO << 1),
 		IN_BUILD_Q2				= (IN_BUILD_Q1 << 1),
 		STATE_MASK				= 0x0000FFFF,
-	} eSpatialState;	
+	} eSpatialState;
 
 	LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part);
 
-	BOOL isHUDGroup() ;	
+	BOOL isHUDGroup() ;
 	
 	void clearDrawMap();
 	void validate();
@@ -278,7 +291,7 @@ public:
 	BOOL removeObject(LLDrawable *drawablep, BOOL from_octree = FALSE);
 	BOOL updateInGroup(LLDrawable *drawablep, BOOL immediate = FALSE); // Update position if it's in the group
 	BOOL isRecentlyVisible() const;
-	void shift(const LLVector4a &offset);	
+	void shift(const LLVector4a &offset);
 	void destroyGL(bool keep_occlusion = false);
 	
 	void updateDistance(LLCamera& camera);
@@ -340,8 +353,8 @@ private:
 //-------------------
 
 protected:
-	virtual ~LLSpatialGroup();	
-	
+	virtual ~LLSpatialGroup();
+
 	static S32 sLODSeed;
 
 public:
@@ -351,9 +364,9 @@ public:
 	U32 mGeometryBytes; //used by volumes to track how many bytes of geometry data are in this node
 	F32 mSurfaceArea; //used by volumes to track estimated surface area of geometry in this node
 
-	F32 mBuilt;	
+	F32 mBuilt;
 	
-	LLPointer<LLVertexBuffer> mVertexBuffer;	
+	LLPointer<LLVertexBuffer> mVertexBuffer;
 
 	U32 mBufferUsage;
 	draw_map_t mDrawMap;
@@ -389,13 +402,13 @@ public:
 	LLSpatialGroup *put(LLDrawable *drawablep, BOOL was_visible = FALSE);
 	BOOL remove(LLDrawable *drawablep, LLSpatialGroup *curp);
 	
-	LLDrawable* lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+	LLDrawable* lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 									 BOOL pick_transparent, 
 									 S32* face_hit,                          // return the face hit
-									 LLVector3* intersection = NULL,         // return the intersection point
+									 LLVector4a* intersection = NULL,         // return the intersection point
 									 LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
-									 LLVector3* normal = NULL,               // return the surface normal at the intersection point
-									 LLVector3* bi_normal = NULL             // return the surface bi-normal at the intersection point
+									 LLVector4a* normal = NULL,               // return the surface normal at the intersection point
+									 LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
 		);
 	
 	
@@ -423,18 +436,18 @@ public:
 	void renderDebug();
 	void renderIntersectingBBoxes(LLCamera* camera);
 	void restoreGL();
-	void resetVertexBuffers();	
+	void resetVertexBuffers();
 
 	BOOL getVisibleExtents(LLCamera& camera, LLVector3& visMin, LLVector3& visMax);
 
 public:
 	LLSpatialBridge* mBridge; // NULL for non-LLSpatialBridge instances, otherwise, mBridge == this
 							// use a pointer instead of making "isBridge" and "asBridge" virtual so it's safe
-							// to call asBridge() from the destructor	
+							// to call asBridge() from the destructor
 	
 	BOOL mInfiniteFarClip; // if TRUE, frustum culling ignores far clip plane
-	U32 mBufferUsage;	
-	const BOOL mRenderByGroup;	
+	U32 mBufferUsage;
+	const BOOL mRenderByGroup;
 	U32 mVertexDataMask;
 	F32 mSlopRatio; //percentage distance must change before drawables receive LOD update (default is 0.25);
 	BOOL mDepthMask; //if TRUE, objects in this partition will be written to depth during alpha rendering
@@ -647,7 +660,7 @@ class LLVolumeGeometryManager: public LLGeometryManager
 	virtual void rebuildGeom(LLSpatialGroup* group);
 	virtual void rebuildMesh(LLSpatialGroup* group);
 	virtual void getGeometry(LLSpatialGroup* group);
-	void genDrawInfo(LLSpatialGroup* group, U32 mask, std::vector<LLFace*>& faces, BOOL distance_sort = FALSE, BOOL batch_textures = FALSE);
+	void genDrawInfo(LLSpatialGroup* group, U32 mask, std::vector<LLFace*>& faces, BOOL distance_sort = FALSE, BOOL batch_textures = FALSE, BOOL no_materials = FALSE);
 	void registerFace(LLSpatialGroup* group, LLFace* facep, U32 type);
 };
 

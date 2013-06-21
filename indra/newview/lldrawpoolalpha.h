@@ -50,11 +50,6 @@ public:
 	LLDrawPoolAlpha(U32 type = LLDrawPool::POOL_ALPHA);
 	/*virtual*/ ~LLDrawPoolAlpha();
 
-	/*virtual*/ S32 getNumDeferredPasses();
-	/*virtual*/ void beginDeferredPass(S32 pass);
-	/*virtual*/ void endDeferredPass(S32 pass);
-	/*virtual*/ void renderDeferred(S32 pass);
-
 	/*virtual*/ S32 getNumPostDeferredPasses();
 	/*virtual*/ void beginPostDeferredPass(S32 pass);
 	/*virtual*/ void endPostDeferredPass(S32 pass);
@@ -70,7 +65,7 @@ public:
 	void renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
 	void renderAlpha(U32 mask);
 	void renderAlphaHighlight(U32 mask);
-	
+		
 	static BOOL sShowDebugAlpha;
 
 private:

@@ -3223,7 +3223,7 @@ void LLFolderBridge::pasteFromClipboard()
 						LLViewerInventoryCategory* vicat = (LLViewerInventoryCategory *) model->getCategory(item_id);
 						llassert(vicat);
 						if (vicat)
-						{
+						{       
                             //changeCategoryParent() implicity calls dirtyFilter
 							changeCategoryParent(model, vicat, parent_id, FALSE);
 						}

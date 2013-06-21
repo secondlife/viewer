@@ -111,7 +111,7 @@ void LLFloaterIMSession::refresh()
 void LLFloaterIMSession::onTearOffClicked()
 {
     LLFloaterIMSessionTab::onTearOffClicked();
-	
+
     if(mIsP2PChat)
     {
         if(isTornOff())
@@ -333,7 +333,7 @@ void LLFloaterIMSession::initIMFloater()
 BOOL LLFloaterIMSession::postBuild()
 {
 	BOOL result = LLFloaterIMSessionTab::postBuild();
-	
+
 	mInputEditor->setMaxTextLength(1023);
 	mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2, _3, _4, _5));
 	mInputEditor->setFocusReceivedCallback( boost::bind(onInputEditorFocusReceived, _1, this) );
@@ -360,7 +360,7 @@ BOOL LLFloaterIMSession::postBuild()
 
 	return result;
 }
-	
+
 void LLFloaterIMSession::onAddButtonClicked()
 {
     LLView * button = findChild<LLView>("toolbar_panel")->findChild<LLButton>("add_btn");
@@ -373,7 +373,7 @@ void LLFloaterIMSession::onAddButtonClicked()
 
 	// Need to disable 'ok' button when selected users are already in conversation.
 	picker->setOkBtnEnableCb(boost::bind(&LLFloaterIMSession::canAddSelectedToChat, this, _1));
-
+	
 	if (root_floater)
 	{
 		root_floater->addDependentFloater(picker);
@@ -428,7 +428,7 @@ bool LLFloaterIMSession::canAddSelectedToChat(const uuid_vec_t& uuids)
 			}
 		}
 	}
-	
+
 	return true;
 }
 
@@ -602,7 +602,7 @@ LLFloaterIMSession* LLFloaterIMSession::findInstance(const LLUUID& session_id)
 
 	return conversation;
 }
-			
+
 LLFloaterIMSession* LLFloaterIMSession::getInstance(const LLUUID& session_id)
 {
 	LLFloaterIMSession* conversation =
@@ -782,7 +782,7 @@ void LLFloaterIMSession::sessionInitReplyReceived(const LLUUID& im_session_id)
 		initIMSession(im_session_id);
 		buildConversationViewParticipant();
 	}
-	
+
 	initIMFloater();
 	LLFloaterIMSessionTab::updateGearBtn();
 	//*TODO here we should remove "starting session..." warning message if we added it in postBuild() (IB)

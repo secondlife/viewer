@@ -153,29 +153,29 @@ namespace LLViewerAssetStatsFF
 		};
 
 		if (at < 0 || at >= LLViewerAssetType::AT_COUNT)
-		{
+{
 			return EVACOtherGet;
-		}
+}
 		EViewerAssetCategories ret(asset_to_bin_map[at]);
 		if (EVACTextureTempHTTPGet == ret)
 		{
 			// Indexed with [is_temp][with_http]
 			static const EViewerAssetCategories texture_bin_map[2][2] =
-			{
-				{
+{
+	{
 					EVACTextureNonTempUDPGet,
 						EVACTextureNonTempHTTPGet,
 				},
 				{
 					EVACTextureTempUDPGet,
 						EVACTextureTempHTTPGet,
-					}
+	}
 			};
-
+	
 			ret = texture_bin_map[is_temp][with_http];
 		}
 		return ret;
-	}
+}
 
 	static LLTrace::CountStatHandle<> sEnqueueAssetRequestsTempTextureHTTP   ("enqueuedassetrequeststemptexturehttp", 
 																	"Number of temporary texture asset http requests enqueued"),
@@ -204,7 +204,7 @@ namespace LLViewerAssetStatsFF
 		&sEnqueuedAssetRequestsGestureUdp,
 		&sEnqueuedAssetRequestsOther            
 	};
-
+	
 	static LLTrace::CountStatHandle<> sDequeueAssetRequestsTempTextureHTTP   ("dequeuedassetrequeststemptexturehttp", 
 																	"Number of temporary texture asset http requests dequeued"),
 							sDequeueAssetRequestsTempTextureUDP    ("dequeuedassetrequeststemptextureudp", 
@@ -314,9 +314,9 @@ void LLViewerAssetStats::handleStop()
 }
 
 void LLViewerAssetStats::handleReset()
-{
+	{
 	reset();
-}
+	}
 
 
 void LLViewerAssetStats::reset()
@@ -365,7 +365,7 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 	using namespace LLViewerAssetStatsFF;
 
 	stats.regions.setProvided();
-
+	
 	for (PerRegionRecordingContainer::iterator it = mRegionRecordings.begin(), end_it = mRegionRecordings.end();
 		it != end_it;
 		++it)
@@ -383,50 +383,50 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 									.resp_min(rec.getMin(*sResponse[EVACTextureTempHTTPGet]).value())
 									.resp_max(rec.getMax(*sResponse[EVACTextureTempHTTPGet]).value())
 									.resp_mean(rec.getMean(*sResponse[EVACTextureTempHTTPGet]).value());
-		}
+}
 		if (!compact_output
 			|| rec.getSum(*sEnqueued[EVACTextureTempUDPGet]) 
 			|| rec.getSum(*sDequeued[EVACTextureTempUDPGet])
 			|| rec.getSum(*sResponse[EVACTextureTempUDPGet]).value())
-		{
+{
 			r.get_texture_temp_udp	.enqueued((S32)rec.getSum(*sEnqueued[EVACTextureTempUDPGet]))
 									.dequeued((S32)rec.getSum(*sDequeued[EVACTextureTempUDPGet]))
 									.resp_count((S32)rec.getSum(*sResponse[EVACTextureTempUDPGet]).value())
 									.resp_min(rec.getMin(*sResponse[EVACTextureTempUDPGet]).value())
 									.resp_max(rec.getMax(*sResponse[EVACTextureTempUDPGet]).value())
 									.resp_mean(rec.getMean(*sResponse[EVACTextureTempUDPGet]).value());
-		}
+}
 		if (!compact_output
 			|| rec.getSum(*sEnqueued[EVACTextureNonTempHTTPGet]) 
 			|| rec.getSum(*sDequeued[EVACTextureNonTempHTTPGet])
 			|| rec.getSum(*sResponse[EVACTextureNonTempHTTPGet]).value())
-		{
+{
 			r.get_texture_non_temp_http	.enqueued((S32)rec.getSum(*sEnqueued[EVACTextureNonTempHTTPGet]))
 										.dequeued((S32)rec.getSum(*sDequeued[EVACTextureNonTempHTTPGet]))
 										.resp_count((S32)rec.getSum(*sResponse[EVACTextureNonTempHTTPGet]).value())
 										.resp_min(rec.getMin(*sResponse[EVACTextureNonTempHTTPGet]).value())
 										.resp_max(rec.getMax(*sResponse[EVACTextureNonTempHTTPGet]).value())
 										.resp_mean(rec.getMean(*sResponse[EVACTextureNonTempHTTPGet]).value());
-		}
+}
 
 		if (!compact_output
 			|| rec.getSum(*sEnqueued[EVACTextureNonTempUDPGet]) 
 			|| rec.getSum(*sDequeued[EVACTextureNonTempUDPGet])
 			|| rec.getSum(*sResponse[EVACTextureNonTempUDPGet]).value())
-		{
+{
 			r.get_texture_non_temp_udp	.enqueued((S32)rec.getSum(*sEnqueued[EVACTextureNonTempUDPGet]))
 										.dequeued((S32)rec.getSum(*sDequeued[EVACTextureNonTempUDPGet]))
 										.resp_count((S32)rec.getSum(*sResponse[EVACTextureNonTempUDPGet]).value())
 										.resp_min(rec.getMin(*sResponse[EVACTextureNonTempUDPGet]).value())
 										.resp_max(rec.getMax(*sResponse[EVACTextureNonTempUDPGet]).value())
 										.resp_mean(rec.getMean(*sResponse[EVACTextureNonTempUDPGet]).value());
-		}
+}
 
 		if (!compact_output
 			|| rec.getSum(*sEnqueued[EVACWearableUDPGet]) 
 			|| rec.getSum(*sDequeued[EVACWearableUDPGet])
 			|| rec.getSum(*sResponse[EVACWearableUDPGet]).value())
-		{
+{
 			r.get_wearable_udp	.enqueued((S32)rec.getSum(*sEnqueued[EVACWearableUDPGet]))
 								.dequeued((S32)rec.getSum(*sDequeued[EVACWearableUDPGet]))
 								.resp_count((S32)rec.getSum(*sResponse[EVACWearableUDPGet]).value())
@@ -460,12 +460,12 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 								.resp_max(rec.getMax(*sResponse[EVACGestureUDPGet]).value())
 								.resp_mean(rec.getMean(*sResponse[EVACGestureUDPGet]).value());
 		}
-
+			
 		if (!compact_output
 			|| rec.getSum(*sEnqueued[EVACOtherGet]) 
 			|| rec.getSum(*sDequeued[EVACOtherGet])
 			|| rec.getSum(*sResponse[EVACOtherGet]).value())
-		{
+			{
 			r.get_other	.enqueued((S32)rec.getSum(*sEnqueued[EVACOtherGet]))
 						.dequeued((S32)rec.getSum(*sDequeued[EVACOtherGet]))
 						.resp_count((S32)rec.getSum(*sResponse[EVACOtherGet]).value())
@@ -493,19 +493,19 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 }
 
 LLSD LLViewerAssetStats::asLLSD(bool compact_output)
-{
+		{
 	LLParamSDParser parser;
 	LLSD sd;
 	AssetStats stats;
 	getStats(stats, compact_output);
 	LLInitParam::predicate_rule_t rule = LLInitParam::default_parse_rules();
 	if (!compact_output)
-	{
+		{
 		rule.allow(LLInitParam::EMPTY);
-	}
+		}
 	parser.writeSD(sd, stats, rule);
 	return sd;
-}
+	}
 
 // ------------------------------------------------------
 // Global free-function definitions (LLViewerAssetStatsFF namespace)
@@ -570,7 +570,7 @@ LLViewerAssetStats::AssetRequestType::AssetRequestType()
 	resp_max("resp_max"),
 	resp_mean("resp_mean")
 {}
-
+	
 LLViewerAssetStats::FPSStats::FPSStats() 
 :	count("count"),
 	min("min"),

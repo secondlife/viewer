@@ -115,6 +115,7 @@ public:
 	LLVector2       mSTCoords;
 	LLCoordScreen	mXYCoords;
 	LLVector3		mNormal;
+	LLVector4		mTangent;
 	LLVector3		mBinormal;
 	BOOL			mPickTransparent;
 	void		    getSurfaceInfo();
@@ -357,19 +358,19 @@ public:
 	void			pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback)(const LLPickInfo& pick_info), BOOL pick_transparent = FALSE);
 	LLPickInfo		pickImmediate(S32 x, S32 y, BOOL pick_transparent);
 	LLHUDIcon* cursorIntersectIcon(S32 mouse_x, S32 mouse_y, F32 depth,
-										   LLVector3* intersection);
+										   LLVector4a* intersection);
 
 	LLViewerObject* cursorIntersect(S32 mouse_x = -1, S32 mouse_y = -1, F32 depth = 512.f,
 									LLViewerObject *this_object = NULL,
 									S32 this_face = -1,
 									BOOL pick_transparent = FALSE,
 									S32* face_hit = NULL,
-									LLVector3 *intersection = NULL,
+									LLVector4a *intersection = NULL,
 									LLVector2 *uv = NULL,
-									LLVector3 *normal = NULL,
-									LLVector3 *binormal = NULL,
-									LLVector3* start = NULL,
-									LLVector3* end = NULL);
+									LLVector4a *normal = NULL,
+									LLVector4a *tangent = NULL,
+									LLVector4a* start = NULL,
+									LLVector4a* end = NULL);
 	
 	
 	// Returns a pointer to the last object hit
@@ -500,13 +501,13 @@ extern LLFrameTimer		gAwayTimer;				// tracks time before setting the avatar awa
 extern LLFrameTimer		gAwayTriggerTimer;		// how long the avatar has been away
 
 extern LLViewerObject*  gDebugRaycastObject;
-extern LLVector3        gDebugRaycastIntersection;
+extern LLVector4a       gDebugRaycastIntersection;
 extern LLVector2        gDebugRaycastTexCoord;
-extern LLVector3        gDebugRaycastNormal;
-extern LLVector3        gDebugRaycastBinormal;
+extern LLVector4a       gDebugRaycastNormal;
+extern LLVector4a       gDebugRaycastTangent;
 extern S32				gDebugRaycastFaceHit;
-extern LLVector3		gDebugRaycastStart;
-extern LLVector3		gDebugRaycastEnd;
+extern LLVector4a		gDebugRaycastStart;
+extern LLVector4a		gDebugRaycastEnd;
 
 extern BOOL			gDisplayCameraPos;
 extern BOOL			gDisplayWindInfo;
