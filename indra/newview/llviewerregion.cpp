@@ -992,7 +992,7 @@ void LLViewerRegion::removeFromVOCacheTree(LLVOCacheEntry* entry)
 //add the visible entries
 void LLViewerRegion::addVisibleCacheEntry(LLVOCacheEntry* entry)
 {
-	if(mDead || !entry)
+	if(mDead || !entry || !entry->getEntry())
 	{
 		return; 
 	}

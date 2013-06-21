@@ -244,6 +244,13 @@ U32  LLVOCacheEntry::getMinFrameRange()const
 void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
 {
 	llassert(entry != NULL);
+	llassert(entry->getParentID() == mLocalID);
+	llassert(entry->getEntry() != NULL);
+
+	if(!entry || !entry->getEntry() || entry->getParentID() != mLocalID)
+	{
+		return;
+	}
 
 	mChildrenList.push_back(entry);
 }
