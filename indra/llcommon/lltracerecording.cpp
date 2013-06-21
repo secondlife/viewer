@@ -161,6 +161,7 @@ void Recording::update()
 	{
 		mBuffers.write()->flush();
 		LLTrace::get_thread_recorder()->bringUpToDate(this);
+		mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
 		mSamplingTimer.reset();
 	}
 }
