@@ -47,7 +47,7 @@
        name="stack1"
        top="8">
         <layout_panel
-         name="photo_panel"
+         name="photo_detail_panel"
          height="295">
           <panel
             top="0"
@@ -58,7 +58,7 @@
             background_opaque="true"
             background_visible="true"
             bg_opaque_color="DkGray2"
-            label="SNAPSHOT CONTAINER"
+            label="snapshot_panel"
             help_topic="snapshot_panel"
             name="snapshot_panel">
             <combo_box
@@ -250,7 +250,7 @@
             </panel>
         </layout_panel>
         <layout_panel
-          name="button_panel"
+          name="photo_button_panel"
           height="96">
           <panel
             height="96"
@@ -261,9 +261,9 @@
             background_opaque="true"
             background_visible="true"
             bg_opaque_color="DkGray"
-            label="SNAPSHOT CONTAINER"
-            help_topic="snapshot_container"
-            name="snapshot_container"/>
+            label="button_container"
+            help_topic="button_container"
+            name="button_container"/>
           <button
            follows="left|top"
            top="15"
