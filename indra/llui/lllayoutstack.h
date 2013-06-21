@@ -38,6 +38,7 @@ class LLLayoutPanel;
 class LLLayoutStack : public LLView, public LLInstanceTracker<LLLayoutStack>
 {
 public:
+
 	typedef enum e_layout_orientation
 	{
 		HORIZONTAL,

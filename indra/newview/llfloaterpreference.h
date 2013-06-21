@@ -154,8 +154,7 @@ public:
 	void onChangeQuality(const LLSD& data);
 	
 	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
-	void onUpdateSliderText(LLUICtrl* ctrl, const LLSD& name);
-//	void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator);
+	void refreshUI();
 
 	void onCommitParcelMediaAutoPlayEnable();
 	void onCommitMediaEnabled();

@@ -1648,9 +1648,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>facee34b8bd57ad602157e65a5af1a49</string>
+              <string>38ea083fe1204ee106b4d44d9811af19</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openssl-0.9.8q-darwin-20110211.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/249044/arch/Darwin/installer/openssl-1.0.0g-darwin-20120207.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1660,9 +1660,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3d40be8566fa4b9df9a38e2a0f9ea467</string>
+	      <string>7dc5191a3d95074a6ed3bd53f57420e5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/226882/arch/Linux/installer/openssl-1.0.0d-linux-20110418.tar.bz2</string>
+		   <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/249044/arch/Linux/installer/openssl-1.0.0g-linux-20120207.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1672,9 +1672,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>774c7f0a0312bee3054757a623e227bc</string>
+              <string>ed6cbaf9860a03bc99ac301277f1452a</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/220986/arch/CYGWIN/installer/openssl-0.9.8q-windows-20110211.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/249044/arch/CYGWIN/installer/openssl-1.0.0g-windows-20120207.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>

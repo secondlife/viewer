@@ -151,6 +151,7 @@
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
 #include "lltextureview.h"
+#include "lltoast.h"
 #include "lltool.h"
 #include "lltoolbarview.h"
 #include "lltoolcomp.h"
@@ -333,9 +334,10 @@ public:
 		mTextColor = LLColor4( 0.86f, 0.86f, 0.86f, 1.f );
 
 		// Draw stuff growing up from right lower corner of screen
-		U32 xpos = mWindow->getWorldViewWidthScaled() - 350;
-		U32 ypos = 64;
-		const U32 y_inc = 20;
+		S32 xpos = mWindow->getWorldViewWidthScaled() - 400;
+		xpos = llmax(xpos, 0);
+		S32 ypos = 64;
+		const S32 y_inc = 20;
 
 		clearText();
 		
@@ -634,6 +636,42 @@ public:
 			LLVertexBuffer::sBindCount = LLImageGL::sBindCount = 
 				LLVertexBuffer::sSetCount = LLImageGL::sUniqueCount = 
 				gPipeline.mNumVisibleNodes = LLPipeline::sVisibleLightCount = 0;
+		}
+		if (gSavedSettings.getBOOL("DebugShowAvatarRenderInfo"))
+		{
+			std::map<std::string, LLVOAvatar*> sorted_avs;
+			
+			std::vector<LLCharacter*>::iterator sort_iter = LLCharacter::sInstances.begin();
+			while (sort_iter != LLCharacter::sInstances.end())
+			{
+				LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*sort_iter);
+				if (avatar &&
+					!avatar->isDead())						// Not dead yet
+				{
+					// Stuff into a sorted map so the display is ordered
+					sorted_avs[avatar->getFullname()] = avatar;
+				}
+				sort_iter++;
+			}
+
+			std::string trunc_name;
+			std::map<std::string, LLVOAvatar*>::reverse_iterator av_iter = sorted_avs.rbegin();		// Put "A" at the top
+			while (av_iter != sorted_avs.rend())
+			{
+				LLVOAvatar* avatar = av_iter->second;
+
+				avatar->calculateUpdateRenderCost();			// Make sure the numbers are up-to-date
+
+				trunc_name = utf8str_truncate(avatar->getFullname(), 16);
+				addText(xpos, ypos, llformat("%s : rez %d, weight %d, bytes %d area %.2f",
+					trunc_name.c_str(),
+					avatar->getRezzedStatus(),
+					avatar->getVisualComplexity(),
+					avatar->getAttachmentGeometryBytes(),
+					avatar->getAttachmentSurfaceArea()));
+				ypos += y_inc;
+				av_iter++;
+			}
 		}
 		if (gSavedSettings.getBOOL("DebugShowRenderMatrices"))
 		{
@@ -1999,6 +2037,9 @@ void LLViewerWindow::shutdownViews()
 	}
 	llinfos << "Global views cleaned." << llendl ;
 	
+	LLNotificationsUI::LLToast::cleanupToasts();
+	llinfos << "Leftover toast cleaned up." << llendl;
+
 	// DEV-40930: Clear sModalStack. Otherwise, any LLModalDialog left open
 	// will crump with LL_ERRS.
 	LLModalDialog::shutdownModals();

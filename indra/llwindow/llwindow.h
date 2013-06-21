@@ -42,6 +42,7 @@ class LLWindowCallbacks;
 class LLWindow : public LLInstanceTracker<LLWindow>
 {
 public:
+
 	struct LLWindowResolution
 	{
 		S32 mWidth;

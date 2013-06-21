@@ -53,13 +53,11 @@ uniform vec3 specular;
 uniform float lightExp;
 uniform float refScale;
 uniform float kd;
-uniform vec2 screenRes;
 uniform vec3 normScale;
 uniform float fresnelScale;
 uniform float fresnelOffset;
 uniform float blurMultiplier;
-uniform vec2 screen_res;
-uniform mat4 norm_mat; //region space to screen space
+uniform mat3 normal_matrix;
 
 //bigWave is (refCoord.w, view.w);
 VARYING vec4 refCoord;
@@ -163,7 +161,7 @@ void main()
 
 	//wavef.z *= 0.1f;
 	//wavef = normalize(wavef);
-	vec3 screenspacewavef = (norm_mat*vec4(wavef, 1.0)).xyz;
+	vec3 screenspacewavef = normal_matrix*wavef;
 	
 	frag_data[0] = vec4(color.rgb, 0.5); // diffuse
 	frag_data[1] = vec4(0.5,0.5,0.5, 0.95); // speccolor*spec, spec

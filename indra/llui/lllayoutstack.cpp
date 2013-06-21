@@ -476,7 +476,6 @@ void LLLayoutStack::createResizeBar(LLLayoutPanel* panelp)
 		if (lp->mResizeBar == NULL)
 		{
 			LLResizeBar::Side side = (mOrientation == HORIZONTAL) ? LLResizeBar::RIGHT : LLResizeBar::BOTTOM;
-
 			LLResizeBar::Params resize_params;
 			resize_params.name("resize");
 			resize_params.resizing_view(lp);
@@ -864,3 +863,4 @@ void LLLayoutStack::updateResizeBarLimits()
 		previous_visible_panelp = visible_panelp;
 	}
 }
+

@@ -40,7 +40,7 @@ class LLModalDialog : public LLFloater
 {
 public:
 	LLModalDialog( const LLSD& key, BOOL modal = true );
-	/*virtual*/ ~LLModalDialog();
+	virtual		~LLModalDialog();
 	
 	/*virtual*/ BOOL 	postBuild();
 	

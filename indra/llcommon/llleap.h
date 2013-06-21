@@ -32,6 +32,7 @@
 class LL_COMMON_API LLLeap: public LLInstanceTracker<LLLeap>
 {
 public:
+
     /**
      * Pass a brief string description, mostly for logging purposes. The desc
      * need not be unique, but obviously the clearer we can make it, the

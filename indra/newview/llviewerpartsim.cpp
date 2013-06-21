@@ -80,12 +80,31 @@ LLViewerPart::LLViewerPart() :
 	mImagep(NULL)
 {
 	mPartSourcep = NULL;
-
+	mParent = NULL;
+	mChild = NULL;
 	++LLViewerPartSim::sParticleCount2 ;
 }
 
 LLViewerPart::~LLViewerPart()
 {
+	if (mPartSourcep.notNull() && mPartSourcep->mLastPart == this)
+	{
+		mPartSourcep->mLastPart = NULL;
+	}
+
+	//patch up holes in the ribbon
+	if (mParent)
+	{
+		llassert(mParent->mChild == this);
+		mParent->mChild = mChild;
+	}
+
+	if (mChild)
+	{
+		llassert (mChild->mParent == this);
+		mChild->mParent = mParent;
+	}
+
 	mPartSourcep = NULL;
 
 	--LLViewerPartSim::sParticleCount2 ;
@@ -367,6 +386,9 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 			part->mScale += frac*part->mEndScale;
 		}
 
+		// Do glow interpolation
+		part->mGlow.mV[3] = (U8) llround(lerp(part->mStartGlow, part->mEndGlow, frac)*255.f);
+
 		// Set the last update time to now.
 		part->mLastUpdateTime = cur_time;
 
@@ -622,6 +644,9 @@ static LLFastTimer::DeclareTimer FTM_SIMULATE_PARTICLES("Simulate Particles");
 void LLViewerPartSim::updateSimulation()
 {
 	static LLFrameTimer update_timer;
+
+	//reset VBO cursor
+	LLVOPartGroup::sVBSlotCursor = 0;
 
 	const F32 dt = llmin(update_timer.getElapsedTimeAndResetF32(), 0.1f);
 

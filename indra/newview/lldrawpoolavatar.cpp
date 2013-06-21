@@ -59,6 +59,7 @@ LLGLSLShader* LLDrawPoolAvatar::sVertexProgram = NULL;
 BOOL	LLDrawPoolAvatar::sSkipOpaque = FALSE;
 BOOL	LLDrawPoolAvatar::sSkipTransparent = FALSE;
 S32 LLDrawPoolAvatar::sDiffuseChannel = 0;
+F32 LLDrawPoolAvatar::sMinimumAlpha = 0.2f;
 
 
 static bool is_deferred_render = false;
@@ -282,7 +283,7 @@ void LLDrawPoolAvatar::beginPostDeferredAlpha()
 
 	gPipeline.bindDeferredShader(*sVertexProgram);
 
-	sVertexProgram->setMinimumAlpha(0.2f);
+	sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 }
@@ -660,7 +661,7 @@ void LLDrawPoolAvatar::beginRigid()
 		if (sVertexProgram != NULL)
 		{	//eyeballs render with the specular shader
 			sVertexProgram->bind();
-			sVertexProgram->setMinimumAlpha(0.2f);
+			sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 		}
 	}
 	else
@@ -711,7 +712,7 @@ void LLDrawPoolAvatar::beginDeferredRigid()
 	sVertexProgram = &gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram;
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	sVertexProgram->bind();
-	sVertexProgram->setMinimumAlpha(0.2f);
+	sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 }
 
 void LLDrawPoolAvatar::endDeferredRigid()
@@ -769,7 +770,7 @@ void LLDrawPoolAvatar::beginSkinned()
 
 	if (LLGLSLShader::sNoFixedFunction)
 	{
-		sVertexProgram->setMinimumAlpha(0.2f);
+		sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 	}
 }
 
@@ -1136,7 +1137,7 @@ void LLDrawPoolAvatar::beginDeferredSkinned()
 	sRenderingSkinned = TRUE;
 
 	sVertexProgram->bind();
-	sVertexProgram->setMinimumAlpha(0.2f);
+	sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 	
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	gGL.getTexUnit(0)->activate();
@@ -1247,7 +1248,10 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 		if (impostor)
 		{
-			if (LLPipeline::sRenderDeferred && !LLPipeline::sReflectionRender && avatarp->mImpostor.isComplete()) 
+			if (LLPipeline::sRenderDeferred && //rendering a deferred impostor
+				!LLPipeline::sReflectionRender && 
+				avatarp->mImpostor.isComplete() && //impostor has required data channels
+				avatarp->mImpostor.getNumTextures() >= 3) 
 			{
 				if (normal_channel > -1)
 				{
@@ -1705,7 +1709,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				
 				stop_glerror();
 
-				LLDrawPoolAvatar::sVertexProgram->uniformMatrix4fv("matrixPalette", 
+				LLDrawPoolAvatar::sVertexProgram->uniformMatrix4fv(LLViewerShaderMgr::AVATAR_MATRIX, 
 					count,
 					FALSE,
 					(GLfloat*) mat[0].mMatrix);
@@ -1782,7 +1786,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				}
 			}
 
-			if (face->mTextureMatrix)
+			if (face->mTextureMatrix && vobj->mTexAnimMode)
 			{
 				gGL.matrixMode(LLRender::MM_TEXTURE);
 				gGL.loadMatrix((F32*) face->mTextureMatrix->mMatrix);
@@ -1796,6 +1800,8 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				buff->setBuffer(data_mask);
 				buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);		
 			}
+
+			gPipeline.addTrianglesDrawn(count, LLRender::TRIANGLES);
 		}
 	}
 }

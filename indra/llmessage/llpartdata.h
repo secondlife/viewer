@@ -70,7 +70,12 @@ enum LLPSScriptFlags
 	LLPS_SRC_TARGET_UUID,
 	LLPS_SRC_OMEGA,
 	LLPS_SRC_ANGLE_BEGIN,
-	LLPS_SRC_ANGLE_END
+	LLPS_SRC_ANGLE_END,
+
+	LLPS_PART_BLEND_FUNC_SOURCE,
+	LLPS_PART_BLEND_FUNC_DEST,
+	LLPS_PART_START_GLOW,
+	LLPS_PART_END_GLOW
 };
 
 
@@ -83,11 +88,13 @@ public:
 		mParameter(0.f)
 	{
 	}
+	BOOL unpackLegacy(LLDataPacker &dp);
 	BOOL unpack(LLDataPacker &dp);
+
 	BOOL pack(LLDataPacker &dp);
-	LLSD asLLSD() const;
-	operator LLSD() const {return asLLSD(); }
-	bool fromLLSD(LLSD& sd);
+	
+	bool hasGlow() const;
+	bool hasBlendFunc() const;
 
 	// Masks for the different particle flags
 	enum
@@ -102,16 +109,38 @@ public:
 		LL_PART_TARGET_LINEAR_MASK =	0x80,		// Particle uses a direct linear interpolation
 		LL_PART_EMISSIVE_MASK =			0x100,		// Particle is "emissive", instead of being lit
 		LL_PART_BEAM_MASK =				0x200,		// Particle is a "beam" connecting source and target
+		LL_PART_RIBBON_MASK =			0x400,		// Particles are joined together into one continuous triangle strip
 
 		// Not implemented yet!
 		//LL_PART_RANDOM_ACCEL_MASK =		0x100,		// Particles have random acceleration
 		//LL_PART_RANDOM_VEL_MASK =		0x200,		// Particles have random velocity shifts"
 		//LL_PART_TRAIL_MASK =			0x400,		// Particles have historical "trails"
 
+		//sYSTEM SET FLAGS
+		LL_PART_DATA_GLOW =				0x10000,
+		LL_PART_DATA_BLEND =			0x20000,
+
 		// Viewer side use only!
 		LL_PART_HUD =					0x40000000,
 		LL_PART_DEAD_MASK =				0x80000000,
 	};
+
+	enum
+	{
+		LL_PART_BF_ONE = 0,
+		LL_PART_BF_ZERO = 1,
+		LL_PART_BF_DEST_COLOR = 2,
+		LL_PART_BF_SOURCE_COLOR = 3,
+		LL_PART_BF_ONE_MINUS_DEST_COLOR = 4,
+		LL_PART_BF_ONE_MINUS_SOURCE_COLOR = 5,
+		UNSUPPORTED_DEST_ALPHA = 6,
+		LL_PART_BF_SOURCE_ALPHA = 7,
+		UNSUPPORTED_ONE_MINUS_DEST_ALPHA = 8,
+		LL_PART_BF_ONE_MINUS_SOURCE_ALPHA = 9,
+		LL_PART_BF_COUNT = 10
+	};
+
+	static bool validBlendFunc(S32 func);
 
 	void setFlags(const U32 flags);
 	void setMaxAge(const F32 max_age);
@@ -126,6 +155,9 @@ public:
 	friend class LLPartSysData;
 	friend class LLViewerPartSourceScript;
 
+private:
+	S32 getSize() const;
+
 	// These are public because I'm really lazy...
 public:
 	U32					mFlags;						// Particle state/interpolators in effect
@@ -137,6 +169,12 @@ public:
 
 	LLVector3			mPosOffset;					// Offset from source if using FOLLOW_SOURCE
 	F32					mParameter;					// A single floating point parameter
+
+	F32					mStartGlow;
+	F32					mEndGlow;
+	
+	U8					mBlendFuncSource;
+	U8					mBlendFuncDest;
 };
 
 
@@ -146,14 +184,12 @@ public:
 	LLPartSysData();
 
 	BOOL unpack(LLDataPacker &dp);
-	BOOL pack(LLDataPacker &dp);
-
-	
+	BOOL unpackLegacy(LLDataPacker &dp);
 	BOOL unpackBlock(const S32 block_num);
-	BOOL packBlock();
-
-	static BOOL packNull();
+		
 	static BOOL isNullPS(const S32 block_num); // Returns FALSE if this is a "NULL" particle system (i.e. no system)
+
+	bool isLegacyCompatible() const;
 
 	// Different masks for effects on the source
 	enum
@@ -187,7 +223,12 @@ public:
 	void clampSourceParticleRate();
 	
 	friend std::ostream&	 operator<<(std::ostream& s, const LLPartSysData &data);		// Stream a
+
+	S32 getdataBlockSize() const;
 	
+private:
+	BOOL unpackSystem(LLDataPacker &dp);
+
 public:
 	// Public because I'm lazy....
 

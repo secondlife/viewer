@@ -47,6 +47,7 @@ class LL_COMMON_API LLEventAPI: public LLDispatchListener,
     typedef LLInstanceTracker<LLEventAPI, std::string> ibase;
 
 public:
+
     /**
      * @param name LLEventPump name on which this LLEventAPI will listen. This
      * also serves as the LLInstanceTracker instance key.

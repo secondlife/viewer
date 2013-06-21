@@ -112,8 +112,43 @@
          <menu_item_call.on_enable
           function="Object.EnableInspect" />
    </menu_item_call>
+
+   <menu_item_separator />
+    
+      <menu_item_check
+        name="Normal"
+        label="Normal">
+        <menu_item_check.on_check
+          function="Avatar.CheckImposterMode"
+          parameter="0" />
+	    <menu_item_check.on_click
+	      function="Avatar.SetImposterMode"
+	      parameter="0" />
+      </menu_item_check>
+      <menu_item_check
+        name="Always use imposter"
+        label="Always use imposter">
+        <menu_item_check.on_check
+          function="Avatar.CheckImposterMode"
+          parameter="1" />
+	    <menu_item_check.on_click
+	      function="Avatar.SetImposterMode"
+	      parameter="1" />
+      </menu_item_check>
+      <menu_item_check
+        name="Never use imposter"
+        label="Never use imposter">
+        <menu_item_check.on_check
+          function="Avatar.CheckImposterMode"
+          parameter="2" />
+	    <menu_item_check.on_click
+	      function="Avatar.SetImposterMode"
+	      parameter="2" />
+      </menu_item_check>
+
   <menu_item_separator
        layout="topleft" />
+
   <menu_item_call
      enabled="false"
      label="Mute Particle Owner"

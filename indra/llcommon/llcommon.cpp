@@ -44,6 +44,7 @@ void LLCommon::initClass()
 	}
 	LLTimer::initClass();
 	LLThreadSafeRefCount::initThreadSafeRefCount();
+	assert_main_thread();		// Make sure we record the main thread
 // 	LLWorkerThread::initClass();
 // 	LLFrameCallbackManager::initClass();
 }

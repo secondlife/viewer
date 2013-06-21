@@ -272,6 +272,7 @@ public:
 	static BOOL sSkipOpaque;
 	static BOOL sSkipTransparent;
 	static S32 sDiffuseChannel;
+	static F32 sMinimumAlpha;
 
 	static LLGLSLShader* sVertexProgram;
 };

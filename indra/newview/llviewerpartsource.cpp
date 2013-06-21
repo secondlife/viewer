@@ -52,6 +52,8 @@ LLViewerPartSource::LLViewerPartSource(const U32 type) :
 	static U32 id_seed = 0;
 	mID = ++id_seed;
 
+	mLastPart = NULL;
+
 	mDelay = 0 ;
 }
 
@@ -279,6 +281,22 @@ void LLViewerPartSourceScript::update(const F32 dt)
 			{
 				part->mFlags |= LLPartData::LL_PART_HUD;
 			}
+
+			if (part->mFlags & LLPartData::LL_PART_RIBBON_MASK && mLastPart)
+			{ //set previous particle's parent to this particle to chain ribbon together
+				mLastPart->mParent = part;
+				part->mChild = mLastPart;
+				part->mAxis = LLVector3(0,0,1);
+
+				if (mSourceObjectp.notNull())
+				{
+					LLQuaternion rot = mSourceObjectp->getRenderRotation();
+					part->mAxis *= rot;
+				}
+			}
+
+			mLastPart = part;
+
 			part->mMaxAge = mPartSysData.mPartData.mMaxAge;
 			part->mStartColor = mPartSysData.mPartData.mStartColor;
 			part->mEndColor = mPartSysData.mPartData.mEndColor;
@@ -290,6 +308,13 @@ void LLViewerPartSourceScript::update(const F32 dt)
 
 			part->mAccel = mPartSysData.mPartAccel;
 
+			part->mBlendFuncDest = mPartSysData.mPartData.mBlendFuncDest;
+			part->mBlendFuncSource = mPartSysData.mPartData.mBlendFuncSource;
+
+			part->mStartGlow = mPartSysData.mPartData.mStartGlow;
+			part->mEndGlow = mPartSysData.mPartData.mEndGlow;
+			part->mGlow = LLColor4U(0, 0, 0, (U8) llround(part->mStartGlow*255.f));
+			
 			if (mPartSysData.mPattern & LLPartSysData::LL_PART_SRC_PATTERN_DROP)
 			{
 				part->mPosAgent = mPosAgent;
@@ -430,28 +455,51 @@ LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewer
 }
 
 
-LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewerObject *source_objp, LLPointer<LLViewerPartSourceScript> pssp, LLDataPacker &dp)
+LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewerObject *source_objp, LLPointer<LLViewerPartSourceScript> pssp, LLDataPacker &dp, bool legacy)
 {
 	if (!pssp)
 	{
 		LLPointer<LLViewerPartSourceScript> new_pssp = new LLViewerPartSourceScript(source_objp);
-		if (!new_pssp->mPartSysData.unpack(dp))
+		if (legacy)
 		{
-			return NULL;
+			if (!new_pssp->mPartSysData.unpackLegacy(dp))
+			{
+				return NULL;
+			}
 		}
+		else
+		{
+			if (!new_pssp->mPartSysData.unpack(dp))
+			{
+				return NULL;
+			}
+		}
+		
 		if (new_pssp->mPartSysData.mTargetUUID.notNull())
 		{
 			LLViewerObject *target_objp = gObjectList.findObject(new_pssp->mPartSysData.mTargetUUID);
 			new_pssp->setTargetObject(target_objp);
 		}
+		
 		return new_pssp;
 	}
 	else
 	{
-		if (!pssp->mPartSysData.unpack(dp))
+		if (legacy)
 		{
-			return NULL;
+			if (!pssp->mPartSysData.unpackLegacy(dp))
+			{
+				return NULL;
+			}
 		}
+		else
+		{
+			if (!pssp->mPartSysData.unpack(dp))
+			{
+				return NULL;
+			}
+		}
+
 		if (pssp->mPartSysData.mTargetUUID.notNull())
 		{
 			LLViewerObject *target_objp = gObjectList.findObject(pssp->mPartSysData.mTargetUUID);
@@ -569,6 +617,11 @@ void LLViewerPartSourceSpiral::update(const F32 dt)
 		part->mScale.mV[0] = 0.25f;
 		part->mScale.mV[1] = 0.25f;
 		part->mParameter = ll_frand(F_TWO_PI);
+		part->mBlendFuncDest = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;
+		part->mBlendFuncSource = LLRender::BF_SOURCE_ALPHA;
+		part->mStartGlow = 0.f;
+		part->mEndGlow = 0.f;
+		part->mGlow = LLColor4U(0, 0, 0, 0);
 
 		LLViewerPartSim::getInstance()->addPart(part);
 	}
@@ -721,6 +774,12 @@ void LLViewerPartSourceBeam::update(const F32 dt)
 		part->mPosAgent = mPosAgent;
 		part->mVelocity = mTargetPosAgent - mPosAgent;
 
+		part->mBlendFuncDest = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;
+		part->mBlendFuncSource = LLRender::BF_SOURCE_ALPHA;
+		part->mStartGlow = 0.f;
+		part->mEndGlow = 0.f;
+		part->mGlow = LLColor4U(0, 0, 0, 0);
+
 		LLViewerPartSim::getInstance()->addPart(part);
 	}
 }
@@ -825,6 +884,12 @@ void LLViewerPartSourceChat::update(const F32 dt)
 		part->mScale.mV[0] = 0.25f;
 		part->mScale.mV[1] = 0.25f;
 		part->mParameter = ll_frand(F_TWO_PI);
+		part->mBlendFuncDest = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;
+		part->mBlendFuncSource = LLRender::BF_SOURCE_ALPHA;
+		part->mStartGlow = 0.f;
+		part->mEndGlow = 0.f;
+		part->mGlow = LLColor4U(0, 0, 0, 0);
+
 
 		LLViewerPartSim::getInstance()->addPart(part);
 	}

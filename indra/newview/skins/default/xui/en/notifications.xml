@@ -10073,7 +10073,7 @@ An internal error prevented us from properly updating your viewer.  The L$ balan
    <tag>fail</tag>
 Cannot create large prims that intersect other players.  Please re-try when other players have moved.
   </notification>
-
+  
   <notification
    icon="alertmodal.tga"
    name="PreferenceChatClearLog"

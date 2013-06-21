@@ -46,6 +46,7 @@ class LLMediaCtrl :
 {
 	LOG_CLASS(LLMediaCtrl);
 public:
+
 	struct Params : public LLInitParam::Block<Params, LLPanel::Params> 
 	{
 		Optional<std::string>	start_url;
