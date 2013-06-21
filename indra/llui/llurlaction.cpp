@@ -189,7 +189,7 @@ std::string LLUrlAction::getObjectName(std::string url)
 	std::string name;
 	if (query_map.has("name"))
 	{
-		name = query_map["name"];
+		name = query_map["name"].asString();
 	}
 	return name;
 }
