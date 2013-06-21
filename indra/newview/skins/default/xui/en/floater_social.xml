@@ -31,6 +31,7 @@
      help_topic="social_status_tab"
      name="status_panel"/>
     <panel
+      class="llsocialphotopanel"
       follows="all"
       height="430"
       background_visible="true"
@@ -38,7 +39,7 @@
       bg_opaque_color="DkGray"
       label="PHOTO"
       help_topic="social_photo_tab"
-      name="photo_panel">
+      name="social_photo_tab">
       <layout_stack
        border_size="0"
        height="422"
