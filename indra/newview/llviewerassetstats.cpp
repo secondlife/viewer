@@ -233,7 +233,7 @@ namespace LLViewerAssetStatsFF
 		&sDequeuedAssetRequestsOther            
 	};
 
-	static LLTrace::EventStatHandle<LLTrace::Seconds>	sResponseAssetRequestsTempTextureHTTP   ("assetresponsetimestemptexturehttp",
+	static LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Seconds> >	sResponseAssetRequestsTempTextureHTTP   ("assetresponsetimestemptexturehttp",
 																							"Time spent responding to temporary texture asset http requests"),
 													sResponseAssetRequestsTempTextureUDP    ("assetresponsetimestemptextureudp", 
 																							"Time spent responding to temporary texture asset udp requests"),
@@ -250,7 +250,7 @@ namespace LLViewerAssetStatsFF
 													sResponsedAssetRequestsOther            ("assetresponsetimesother", 
 																							"Time spent responding to other asset requests");
 
-	static LLTrace::EventStatHandle<LLTrace::Seconds>* sResponse[EVACCount] = {
+	static LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Seconds> >* sResponse[EVACCount] = {
 		&sResponseAssetRequestsTempTextureHTTP,   
 		&sResponseAssetRequestsTempTextureUDP,  
 		&sResponseAssetRequestsNonTempTextureHTTP,
@@ -539,7 +539,7 @@ void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, 
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	record(*sResponse[int(eac)], LLTrace::Microseconds(duration));
+	record(*sResponse[int(eac)], LLUnit<F64, LLUnits::Microseconds>(duration));
 }
 
 void init()

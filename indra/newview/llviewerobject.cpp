@@ -2262,7 +2262,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		// If we're snapping the position by more than 0.5m, update LLViewerStats::mAgentPositionSnaps
 		if ( asAvatar() && asAvatar()->isSelf() && (mag_sqr > 0.25f) )
 		{
-			record(LLStatViewer::AGENT_POSITION_SNAP, LLTrace::Meters(diff.length()));
+			record(LLStatViewer::AGENT_POSITION_SNAP, LLUnit<F64, LLUnits::Meters>(diff.length()));
 		}
 	}
 

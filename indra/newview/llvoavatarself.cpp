@@ -900,7 +900,7 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 		if (mLastRegionHandle != 0)
 		{
 			++mRegionCrossingCount;
-			LLTrace::Seconds delta = mRegionCrossingTimer.getElapsedTimeF32();
+			LLUnit<F64, LLUnits::Seconds> delta = mRegionCrossingTimer.getElapsedTimeF32();
 			record(LLStatViewer::REGION_CROSSING_TIME, delta);
 
 			// Diagnostics

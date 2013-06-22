@@ -44,29 +44,6 @@ namespace LLTrace
 {
 class Recording;
 
-typedef LLUnit<F64, LLUnits::Bytes>			Bytes;
-typedef LLUnit<F64, LLUnits::Kibibytes>		Kibibytes;
-typedef LLUnit<F64, LLUnits::Mibibytes>		Mibibytes;
-typedef LLUnit<F64, LLUnits::Gibibytes>		Gibibytes;
-typedef LLUnit<F64, LLUnits::Bits>			Bits;
-typedef LLUnit<F64, LLUnits::Kibibits>		Kibibits;
-typedef LLUnit<F64, LLUnits::Mibibits>		Mibibits;
-typedef LLUnit<F64, LLUnits::Gibibits>		Gibibits;
-
-typedef LLUnit<F64, LLUnits::Seconds>		Seconds;
-typedef LLUnit<F64, LLUnits::Milliseconds>	Milliseconds;
-typedef LLUnit<F64, LLUnits::Minutes>		Minutes;
-typedef LLUnit<F64, LLUnits::Hours>			Hours;
-typedef LLUnit<F64, LLUnits::Milliseconds>	Milliseconds;
-typedef LLUnit<F64, LLUnits::Microseconds>	Microseconds;
-typedef LLUnit<F64, LLUnits::Nanoseconds>	Nanoseconds;
-
-typedef LLUnit<F64, LLUnits::Meters>		Meters;
-typedef LLUnit<F64, LLUnits::Kilometers>	Kilometers;
-typedef LLUnit<F64, LLUnits::Centimeters>	Centimeters;
-typedef LLUnit<F64, LLUnits::Millimeters>	Millimeters;
-
-
 template<typename T>
 T storage_value(T val) { return val; }
 

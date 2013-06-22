@@ -94,17 +94,17 @@ extern LLTrace::CountStatHandle<>			FPS,
 											NUM_NEW_OBJECTS;
 
 
-extern LLTrace::CountStatHandle<LLTrace::Kibibits>	KBIT,
-											LAYERS_KBIT,
-											OBJECT_KBIT,
-											ASSET_KBIT,
-											TEXTURE_KBIT,
-											ACTUAL_IN_KBIT,
-											ACTUAL_OUT_KBIT;
+extern LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kibibits> >	KBIT,
+																	LAYERS_KBIT,
+																	OBJECT_KBIT,
+																	ASSET_KBIT,
+																	TEXTURE_KBIT,
+																	ACTUAL_IN_KBIT,
+																	ACTUAL_OUT_KBIT;
 
-extern LLTrace::CountStatHandle<LLTrace::Seconds>		SIM_20_FPS_TIME,
-														SIM_PHYSICS_20_FPS_TIME,
-														LOSS_5_PERCENT_TIME;
+extern LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Seconds> >		SIM_20_FPS_TIME,
+																	SIM_PHYSICS_20_FPS_TIME,
+																	LOSS_5_PERCENT_TIME;
 
 extern SimMeasurement<>						SIM_TIME_DILATION,
 											SIM_FPS,
@@ -144,41 +144,40 @@ extern LLTrace::SampleStatHandle<>		FPS_SAMPLE,
 										WINDOW_WIDTH,
 										WINDOW_HEIGHT;
 
-extern LLTrace::SampleStatHandle<LLTrace::Bytes>	DELTA_BANDWIDTH,
-													MAX_BANDWIDTH,
-													GL_TEX_MEM,
-													GL_BOUND_MEM,
-													RAW_MEM,
-													FORMATTED_MEM;
+extern LLTrace::SampleStatHandle<LLUnit<F64, LLUnits::Megabytes> >	GL_TEX_MEM,
+																	GL_BOUND_MEM,
+																	RAW_MEM,
+																	FORMATTED_MEM;
+extern LLTrace::SampleStatHandle<LLUnit<F64, LLUnits::Kibibytes> >	DELTA_BANDWIDTH,
+																	MAX_BANDWIDTH;
+extern SimMeasurement<LLUnit<F64, LLUnits::Milliseconds> >	SIM_FRAME_TIME,
+															SIM_NET_TIME,
+															SIM_OTHER_TIME,
+															SIM_PHYSICS_TIME,
+															SIM_PHYSICS_STEP_TIME,
+															SIM_PHYSICS_SHAPE_UPDATE_TIME,
+															SIM_PHYSICS_OTHER_TIME,
+															SIM_AI_TIME,
+															SIM_AGENTS_TIME,
+															SIM_IMAGES_TIME,
+															SIM_SCRIPTS_TIME,
+															SIM_SPARE_TIME,
+															SIM_SLEEP_TIME,
+															SIM_PUMP_IO_TIME;
 
-extern SimMeasurement<LLTrace::Milliseconds>	SIM_FRAME_TIME,
-												SIM_NET_TIME,
-												SIM_OTHER_TIME,
-												SIM_PHYSICS_TIME,
-												SIM_PHYSICS_STEP_TIME,
-												SIM_PHYSICS_SHAPE_UPDATE_TIME,
-												SIM_PHYSICS_OTHER_TIME,
-												SIM_AI_TIME,
-												SIM_AGENTS_TIME,
-												SIM_IMAGES_TIME,
-												SIM_SCRIPTS_TIME,
-												SIM_SPARE_TIME,
-												SIM_SLEEP_TIME,
-												SIM_PUMP_IO_TIME;
-
-extern SimMeasurement<LLTrace::Bytes>			SIM_UNACKED_BYTES,
-												SIM_PHYSICS_MEM;
+extern SimMeasurement<LLUnit<F64, LLUnits::Bytes> >	SIM_UNACKED_BYTES,
+													SIM_PHYSICS_MEM;
 
 
-extern LLTrace::SampleStatHandle<LLTrace::Milliseconds>	FRAMETIME_JITTER,
-														FRAMETIME_SLEW,
-														SIM_PING;
+extern LLTrace::SampleStatHandle<LLUnit<F64, LLUnits::Milliseconds> >	FRAMETIME_JITTER,
+																		FRAMETIME_SLEW,
+																		SIM_PING;
 
-extern LLTrace::EventStatHandle<LLTrace::Meters> AGENT_POSITION_SNAP;
+extern LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Meters> > AGENT_POSITION_SNAP;
 
 extern LLTrace::EventStatHandle<>	LOADING_WEARABLES_LONG_DELAY;
 
-extern LLTrace::EventStatHandle<LLTrace::Milliseconds>	REGION_CROSSING_TIME,
+extern LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Milliseconds> >	REGION_CROSSING_TIME,
 														FRAME_STACKTIME,
 														UPDATE_STACKTIME,
 														NETWORK_STACKTIME,
@@ -186,12 +185,12 @@ extern LLTrace::EventStatHandle<LLTrace::Milliseconds>	REGION_CROSSING_TIME,
 														REBUILD_STACKTIME,
 														RENDER_STACKTIME;
 
-extern LLTrace::EventStatHandle<LLTrace::Seconds>	AVATAR_EDIT_TIME,
-													TOOLBOX_TIME,
-													MOUSELOOK_TIME,
-													FPS_10_TIME,
-													FPS_8_TIME,
-													FPS_2_TIME;
+extern LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Seconds> >	AVATAR_EDIT_TIME,
+																TOOLBOX_TIME,
+																MOUSELOOK_TIME,
+																FPS_10_TIME,
+																FPS_8_TIME,
+																FPS_2_TIME;
 
 }
 
