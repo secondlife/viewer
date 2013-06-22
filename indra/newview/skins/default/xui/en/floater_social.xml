@@ -37,14 +37,14 @@
         height="16"
         left="9"
         name="caption_label"
-        top_pad="12"
+        top_pad="18"
         type="string">
         What's on your mind?
       </text>
       <text_editor
         follows="left|top"
-        height="47"
-        width="250"
+        height="80"
+        width="280"
         left="9"
         length="1"
         max_length="700"
@@ -57,7 +57,7 @@
         height="23"
         label="Post"
         name="post_btn"
-        top_pad="12"
+        top_pad="18"
         width="100">
         <button.commit_callback
           function="PostToFacebook.Send" />
