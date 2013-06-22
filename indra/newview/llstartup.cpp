@@ -2054,6 +2054,7 @@ bool idle_startup()
 		const F32 wearables_time = wearables_timer.getElapsedTimeF32();
 		static LLCachedControl<F32> max_wearables_time(gSavedSettings, "ClothingLoadingDelay");
 
+		display_startup();
 		if (!gAgent.isGenderChosen() && isAgentAvatarValid())
 		{
 			// No point in waiting for clothing, we don't even
@@ -2067,50 +2068,39 @@ bool idle_startup()
 			LLNotificationsUtil::add("WelcomeChooseSex", LLSD(), LLSD(),
 				callback_choose_gender);
 			LLStartUp::setStartupState( STATE_CLEANUP );
-			return TRUE;
 		}
-		
-		display_startup();
-
-		if (wearables_time > max_wearables_time())
+		else if (wearables_time >= max_wearables_time())
 		{
 			LLNotificationsUtil::add("ClothingLoading");
 			record(LLStatViewer::LOADING_WEARABLES_LONG_DELAY, wearables_time);
 			LLStartUp::setStartupState( STATE_CLEANUP );
-			return TRUE;
 		}
-
-		if (gAgent.isFirstLogin())
+		else if (gAgent.isFirstLogin()
+				&& isAgentAvatarValid()
+				&& gAgentAvatarp->isFullyLoaded())
 		{
 			// wait for avatar to be completely loaded
-			if (isAgentAvatarValid()
-				&& gAgentAvatarp->isFullyLoaded())
-			{
-				//llinfos << "avatar fully loaded" << llendl;
-				LLStartUp::setStartupState( STATE_CLEANUP );
-				return TRUE;
-			}
+			//llinfos << "avatar fully loaded" << llendl;
+			LLStartUp::setStartupState( STATE_CLEANUP );
+		}
+		// OK to just get the wearables
+		else if (!gAgent.isFirstLogin() && gAgentWearables.areWearablesLoaded() )
+		{
+			// We have our clothing, proceed.
+			//llinfos << "wearables loaded" << llendl;
+			LLStartUp::setStartupState( STATE_CLEANUP );
 		}
 		else
 		{
-			// OK to just get the wearables
-			if ( gAgentWearables.areWearablesLoaded() )
-			{
-				// We have our clothing, proceed.
-				//llinfos << "wearables loaded" << llendl;
-				LLStartUp::setStartupState( STATE_CLEANUP );
-				return TRUE;
-			}
+			display_startup();
+			update_texture_fetch();
+			display_startup();
+			set_startup_status(0.9f + 0.1f * wearables_time / max_wearables_time(),
+				LLTrans::getString("LoginDownloadingClothing").c_str(),
+				gAgent.mMOTD.c_str());
+			display_startup();
 		}
-
-		display_startup();
-		update_texture_fetch();
-		display_startup();
-		set_startup_status(0.9f + 0.1f * wearables_time / max_wearables_time(),
-						 LLTrans::getString("LoginDownloadingClothing").c_str(),
-						 gAgent.mMOTD.c_str());
-		display_startup();
-		return TRUE;
+		//fall through this frame to STATE_CLEANUP
 	}
 
 	if (STATE_CLEANUP == LLStartUp::getStartupState())

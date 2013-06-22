@@ -155,7 +155,7 @@ void LLViewerCamera::updateCameraLocation(const LLVector3 &center,
 
 	setOriginAndLookAt(origin, up_direction, point_of_interest);
 
-	mVelocityDir = center - last_position ; 
+	mVelocityDir = origin - last_position ; 
 	F32 dpos = mVelocityDir.normVec() ;
 	LLQuaternion rotation;
 	rotation.shortestArc(last_axis, getAtAxis());

@@ -33,85 +33,7 @@
 
 namespace LLTrace
 {
-
-
-///////////////////////////////////////////////////////////////////////
-// RecordingBuffers
-///////////////////////////////////////////////////////////////////////
-
-RecordingBuffers::RecordingBuffers() 
-{}
-
-void RecordingBuffers::handOffTo(RecordingBuffers& other)
-{
-	other.mCounts.reset(&mCounts);
-	other.mSamples.reset(&mSamples);
-	other.mEvents.reset(&mEvents);
-	other.mStackTimers.reset(&mStackTimers);
-	other.mMemStats.reset(&mMemStats);
-}
-
-void RecordingBuffers::makePrimary()
-{
-	mCounts.makePrimary();
-	mSamples.makePrimary();
-	mEvents.makePrimary();
-	mStackTimers.makePrimary();
-	mMemStats.makePrimary();
-
-	ThreadRecorder* thread_recorder = get_thread_recorder().get();
-	AccumulatorBuffer<TimeBlockAccumulator>& timer_accumulator_buffer = mStackTimers;
-	// update stacktimer parent pointers
-	for (S32 i = 0, end_i = mStackTimers.size(); i < end_i; i++)
-	{
-		TimeBlockTreeNode* tree_node = thread_recorder->getTimeBlockTreeNode(i);
-		if (tree_node)
-		{
-			timer_accumulator_buffer[i].mParent = tree_node->mParent;
-		}
-	}
-}
-
-bool RecordingBuffers::isPrimary() const
-{
-	return mCounts.isPrimary();
-}
-
-void RecordingBuffers::append( const RecordingBuffers& other )
-{
-	mCounts.addSamples(other.mCounts);
-	mSamples.addSamples(other.mSamples);
-	mEvents.addSamples(other.mEvents);
-	mMemStats.addSamples(other.mMemStats);
-	mStackTimers.addSamples(other.mStackTimers);
-}
-
-void RecordingBuffers::merge( const RecordingBuffers& other)
-{
-	mCounts.addSamples(other.mCounts, false);
-	mSamples.addSamples(other.mSamples, false);
-	mEvents.addSamples(other.mEvents, false);
-	mMemStats.addSamples(other.mMemStats, false);
-	// for now, hold out timers from merge, need to be displayed per thread
-	//mStackTimers.addSamples(other.mStackTimers, false);
-}
-
-void RecordingBuffers::reset(RecordingBuffers* other)
-{
-	mCounts.reset(other ? &other->mCounts : NULL);
-	mSamples.reset(other ? &other->mSamples : NULL);
-	mEvents.reset(other ? &other->mEvents : NULL);
-	mStackTimers.reset(other ? &other->mStackTimers : NULL);
-	mMemStats.reset(other ? &other->mMemStats : NULL);
-}
-
-void RecordingBuffers::flush()
-{
-	LLUnitImplicit<F64, LLUnits::Seconds> time_stamp = LLTimer::getTotalSeconds();
-
-	mSamples.flush(time_stamp);
-}
-
+	
 ///////////////////////////////////////////////////////////////////////
 // Recording
 ///////////////////////////////////////////////////////////////////////
@@ -119,7 +41,7 @@ void RecordingBuffers::flush()
 Recording::Recording() 
 :	mElapsedSeconds(0)
 {
-	mBuffers = new RecordingBuffers();
+	mBuffers = new AccumulatorBufferGroup();
 }
 
 Recording::Recording( const Recording& other )
@@ -132,11 +54,10 @@ Recording& Recording::operator = (const Recording& other)
 	// this will allow us to seamlessly start without affecting any data we've acquired from other
 	setPlayState(PAUSED);
 
-	Recording& mutable_other = const_cast<Recording&>(other);
-	mutable_other.update();
+	const_cast<Recording&>(other).update();
 	EPlayState other_play_state = other.getPlayState();
 
-	mBuffers = mutable_other.mBuffers;
+	mBuffers = other.mBuffers;
 
 	LLStopWatchControlsMixin<Recording>::setPlayState(other_play_state);
 
@@ -151,7 +72,7 @@ Recording::~Recording()
 {
 	if (isStarted() && LLTrace::get_thread_recorder().notNull())
 	{
-		LLTrace::get_thread_recorder()->deactivate(this);
+		LLTrace::get_thread_recorder()->deactivate(mBuffers.write());
 	}
 }
 
@@ -159,9 +80,11 @@ void Recording::update()
 {
 	if (isStarted())
 	{
-		mBuffers.write()->flush();
-		LLTrace::get_thread_recorder()->bringUpToDate(this);
 		mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
+		AccumulatorBufferGroup* buffers = mBuffers.write();
+		buffers->flush();
+		LLTrace::get_thread_recorder()->bringUpToDate(buffers);
+
 		mSamplingTimer.reset();
 	}
 }
@@ -177,14 +100,15 @@ void Recording::handleReset()
 void Recording::handleStart()
 {
 	mSamplingTimer.reset();
-	LLTrace::get_thread_recorder()->activate(this);
+	LLTrace::get_thread_recorder()->activate(mBuffers.write());
 }
 
 void Recording::handleStop()
 {
 	mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
-	mBuffers.write()->flush();
-	LLTrace::get_thread_recorder()->deactivate(this);
+	AccumulatorBufferGroup* buffers = mBuffers.write();
+	buffers->flush();
+	LLTrace::get_thread_recorder()->deactivate(buffers);
 }
 
 void Recording::handleSplitTo(Recording& other)
@@ -192,17 +116,12 @@ void Recording::handleSplitTo(Recording& other)
 	mBuffers.write()->handOffTo(*other.mBuffers.write());
 }
 
-void Recording::appendRecording( const Recording& other )
+void Recording::appendRecording( Recording& other )
 {
 	update();
+	other.update();
 	mBuffers.write()->append(*other.mBuffers);
 	mElapsedSeconds += other.mElapsedSeconds;
-}
-
-void Recording::mergeRecording( const Recording& other)
-{
-	update();
-	mBuffers.write()->merge(*other.mBuffers);
 }
 
 LLUnit<F64, LLUnits::Seconds> Recording::getSum(const TraceType<TimeBlockAccumulator>& stat)
@@ -711,8 +630,6 @@ F64 PeriodicRecording::getPeriodMean( const TraceType<SampleAccumulator>& stat, 
 
 void ExtendableRecording::extend()
 {
-	// stop recording to get latest data
-	mPotentialRecording.update();
 	// push the data back to accepted recording
 	mAcceptedRecording.appendRecording(mPotentialRecording);
 	// flush data, so we can start from scratch

@@ -145,7 +145,7 @@ public:
 #if LL_DARWIN
         pthread_setspecific(sInstanceKey, NULL);
 #else
-        sInstance = NULL;
+        sData.mInstance = NULL;
 #endif
 		setInitState(DELETED);
 	}
@@ -182,7 +182,7 @@ public:
                 llerrs << "Could not set thread local storage" << llendl;
             }
 #else
-			sInstance = instancep;
+			sData.mInstance = instancep;
 #endif
 			setInitState(INITIALIZING);
 			instancep->initSingleton();
@@ -197,7 +197,7 @@ public:
 #if LL_DARWIN
         return (DERIVED_TYPE*)pthread_getspecific(sInstanceKey);
 #else
-		return sInstance;
+		return sData.mInstance;
 #endif
 	}
 
@@ -247,7 +247,7 @@ private:
         createTLSInitState();
         return (EInitState)(int)pthread_getspecific(sInitStateKey);
 #else
-        return sInitState;
+        return sData.mInitState;
 #endif
     }
     
@@ -257,18 +257,21 @@ private:
         createTLSInitState();
         pthread_setspecific(sInitStateKey, (void*)state);
 #else
-        sInitState = state;
+        sData.mInitState = state;
 #endif
     }
 	LLThreadLocalSingleton(const LLThreadLocalSingleton& other);
 	virtual void initSingleton() {}
 
+	struct SingletonData
+	{
+		DERIVED_TYPE*	mInstance;
+		EInitState		mInitState;
+	};
 #ifdef LL_WINDOWS
-	static __declspec(thread) DERIVED_TYPE* sInstance;
-	static __declspec(thread) EInitState sInitState;
+	static __declspec(thread) SingletonData sData;
 #elif LL_LINUX
-	static __thread DERIVED_TYPE* sInstance;
-	static __thread EInitState sInitState;
+	static __thread SingletonData sData;
 #elif LL_DARWIN
     static pthread_key_t sInstanceKey;
     static pthread_key_t sInitStateKey;
@@ -277,16 +280,10 @@ private:
 
 #if LL_WINDOWS
 template<typename DERIVED_TYPE>
-__declspec(thread) DERIVED_TYPE* LLThreadLocalSingleton<DERIVED_TYPE>::sInstance = NULL;
-
-template<typename DERIVED_TYPE>
-__declspec(thread) typename LLThreadLocalSingleton<DERIVED_TYPE>::EInitState LLThreadLocalSingleton<DERIVED_TYPE>::sInitState = LLThreadLocalSingleton<DERIVED_TYPE>::UNINITIALIZED;
+__declspec(thread) typename LLThreadLocalSingleton<DERIVED_TYPE>::SingletonData LLThreadLocalSingleton<DERIVED_TYPE>::sData = {NULL, LLThreadLocalSingleton<DERIVED_TYPE>::UNINITIALIZED};
 #elif LL_LINUX
 template<typename DERIVED_TYPE>
-__thread DERIVED_TYPE* LLThreadLocalSingleton<DERIVED_TYPE>::sInstance = NULL;
-
-template<typename DERIVED_TYPE>
-__thread typename LLThreadLocalSingleton<DERIVED_TYPE>::EInitState LLThreadLocalSingleton<DERIVED_TYPE>::sInitState = LLThreadLocalSingleton<DERIVED_TYPE>::UNINITIALIZED;
+__thread typename LLThreadLocalSingleton<DERIVED_TYPE>::SingletonData LLThreadLocalSingleton<DERIVED_TYPE>::sData = {NULL, LLThreadLocalSingleton<DERIVED_TYPE>::UNINITIALIZED};
 #elif LL_DARWIN
 template<typename DERIVED_TYPE>
 pthread_key_t LLThreadLocalSingleton<DERIVED_TYPE>::sInstanceKey;

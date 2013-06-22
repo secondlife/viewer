@@ -103,6 +103,7 @@ set(llcommon_SOURCE_FILES
     llthreadsafequeue.cpp
     lltimer.cpp
     lltrace.cpp
+    lltraceaccumulators.cpp
     lltracerecording.cpp
     lltracethreadrecorder.cpp
     lluri.cpp
@@ -231,6 +232,7 @@ set(llcommon_HEADER_FILES
     llthreadsafequeue.h
     lltimer.h
     lltrace.h
+	lltraceaccumulators.h
     lltracerecording.h
     lltracethreadrecorder.h
     lltreeiterators.h
