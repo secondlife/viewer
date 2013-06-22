@@ -29,11 +29,18 @@
 
 #include "llfloater.h"
 
+class LLSocialPhotoPanel : public LLPanel
+{
+	public:
+		LLSocialPhotoPanel();
+		void onSend();
+};
 
 class LLFloaterSocial : public LLFloater
 {
 public:
 	LLFloaterSocial(const LLSD& key);
+	BOOL postBuild();
 	void onCancel();
 };
 

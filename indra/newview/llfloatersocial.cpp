@@ -29,6 +29,38 @@
 
 #include "llfloatersocial.h"
 
+#include "llagentui.h"
+#include "llfloaterreg.h"
+#include "llslurl.h"
+
+static LLRegisterPanelClassWrapper<LLSocialPhotoPanel> panel_class("llsocialphotopanel");
+
+LLSocialPhotoPanel::LLSocialPhotoPanel()
+{
+	mCommitCallbackRegistrar.add("PostToFacebook.Send", boost::bind(&LLSocialPhotoPanel::onSend, this));
+}
+
+void LLSocialPhotoPanel::onSend()
+{
+	std::string caption = getChild<LLUICtrl>("caption")->getValue().asString();
+	bool add_location = getChild<LLUICtrl>("add_location_cb")->getValue().asBoolean();
+
+	if (add_location)
+	{
+		LLSLURL slurl;
+		LLAgentUI::buildSLURL(slurl);
+		if (caption.empty())
+			caption = slurl.getSLURLString();
+		else
+			caption = caption + " " + slurl.getSLURLString();
+	}
+	//LLFacebookConnect::instance().sharePhoto(LLFloaterSnapshot::getImageData(), caption);
+	//LLWebProfile::uploadImage(LLFloaterSnapshot::getImageData(), caption, add_location, boost::bind(&LLPanelSnapshotFacebook::onImageUploaded, this, caption, _1));
+	//LLFloaterSnapshot::postSave();
+}
+
+
+
 LLFloaterSocial::LLFloaterSocial(const LLSD& key) : LLFloater(key)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.Cancel", boost::bind(&LLFloaterSocial::onCancel, this));
@@ -37,4 +69,9 @@ LLFloaterSocial::LLFloaterSocial(const LLSD& key) : LLFloater(key)
 void LLFloaterSocial::onCancel()
 {
     closeFloater();
+}
+
+BOOL LLFloaterSocial::postBuild()
+{
+	return LLFloater::postBuild();
 }
