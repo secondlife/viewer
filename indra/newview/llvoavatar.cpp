@@ -5223,7 +5223,7 @@ void LLVOAvatar::computeBodySize()
 	// Enforce a constraint to make sure we don't go below 1.1 meters (server-enforced limit)
 	// Camera positioning and other things start to break down when your avatar is "walking" while being fully underground
 	const LLViewerObject * last_object = NULL;
-	if (isSelf() && getWearableData() && isFullyLoaded() && !LLApp::isQuitting())
+	if (isSelf() && getWearableData() && !LLApp::isQuitting())
 	{
 		// Do not force a hover parameter change while we have pending attachments, which may be mesh-based with 
 		// joint offsets.
@@ -5246,7 +5246,7 @@ void LLVOAvatar::computeBodySize()
 							last_object = object;
 							llwarns << "attachment at point: " << (*points_iter).first << " object exists: " << object->getAttachmentItemID() << llendl;
 							loaded &=!object->isDrawableState(LLDrawable::REBUILD_ALL);
-							if (!loaded && shape && !shape->getVolitile()) 
+							if (!loaded && shape && !shape->getVolatile()) 
 							{
 								llwarns << "caught unloaded attachment! skipping enforcement" << llendl;
 							}
@@ -5259,7 +5259,7 @@ void LLVOAvatar::computeBodySize()
 			{
 				LL_DEBUGS("Avatar") << "scanned at least one object!"  << LL_ENDL;
 			}
-			if (loaded && shape && !shape->getVolitile()) 
+			if (loaded && shape && !shape->getVolatile()) 
 			{
 				F32 hover_value = shape->getVisualParamWeight(AVATAR_HOVER);
 				if (hover_value < 0.0f && (mBodySize.mV[VZ] + hover_value < 1.1f))
