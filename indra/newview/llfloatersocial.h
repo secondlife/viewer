@@ -34,6 +34,7 @@ class LLFloaterSocial : public LLFloater
 {
 public:
 	LLFloaterSocial(const LLSD& key);
+	void onCancel();
 };
 
 #endif // LL_LLFLOATERSOCIAL_H

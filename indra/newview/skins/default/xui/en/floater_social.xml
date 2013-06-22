@@ -283,18 +283,124 @@
                top_delta="0"
                width="100">
             <button.commit_callback
-             function="PostToFacebook.Cancel" />
+             function="SocialSharing.Cancel" />
           </button>          
         </layout_panel>        
       </layout_stack>
     </panel>
     <panel
-      background_opaque="true"
+      follows="all"
+      height="430"
       background_visible="true"
       bg_alpha_color="DkGray"
       bg_opaque_color="DkGray"
       label="PLACE"
       help_topic="social_place_tab"
-      name="place_panel"/>
+      name="place_panel">
+      <layout_stack
+        border_size="0"
+        height="422"
+        follows="all"
+        orientation="vertical"
+        name="stack_place"
+        top="8">
+        <layout_panel
+          name="place_detail_panel"
+          height="122">
+          <text
+            length="1"
+            follows="top|left|right"
+            font="SansSerif"
+            height="16"
+            left="9"
+            name="place_caption_label"
+            top_pad="12"
+            type="string">
+            Say something about where you are:
+          </text>
+          <text_editor
+            follows="top|left|right"
+            height="94"
+            right="-9"
+            left="9"
+            length="1"
+            max_length="700"
+            name="place_caption"
+            type="string"
+            word_wrap="true">
+           </text_editor>
+          </layout_panel>
+          <layout_panel
+            name="place_map_panel"
+            height="133">
+            <ui_ctrl
+             height="128"
+             width="128"
+             name="map_placeholder"
+             top_pad="5"
+             follows="left|top"
+             left="9">
+             <panel
+               background_visible="true"
+               border_image="Badge_Border"
+               border_color="BadgeBorderColor"
+               bg_alpha_color="0.9 1 0.9 1"
+               follows="left|top"
+               halign="center"
+               height="128"
+               width="128"
+               left="0"
+               top="0"
+               name="map_panel"
+               visible="true"/>
+              </ui_ctrl>
+              <check_box
+                follows="left|top"
+                initial_value="true"
+                top_delta="8"
+                width="8"
+                label=""
+                name="add_place_view_cb"
+                left_pad="5"/>
+              <text
+              follows="left|top"
+              font="SansSerif"
+              height="32"
+              width="130"
+              word_wrap="true"
+              left_pad="12"
+              top_delta="-8"
+              type="string">
+              Include overhead view of location
+              </text>
+            </layout_panel>
+            <layout_panel
+              name="place_button_panel"
+              height="96">
+              <button
+                follows="left|top"
+                top="5"
+                left="9"
+                height="23"
+                label="Post"
+                name="post_place_btn"
+                width="100">
+                <button.commit_callback
+                 function="Facebook.Checkin" />
+               </button>
+               <button
+                 follows="left|top"
+                 height="23"
+                 label="Cancel"
+                 name="cancel_btn"
+                 left_pad="15"
+                 top_delta="0"
+                 width="100">
+                 <button.commit_callback
+                  function="SocialSharing.Cancel" />
+               </button>
+            </layout_panel>
+        </layout_stack>
+    </panel>
   </tab_container>
 </floater>

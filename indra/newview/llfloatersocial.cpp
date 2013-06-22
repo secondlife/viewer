@@ -31,5 +31,10 @@
 
 LLFloaterSocial::LLFloaterSocial(const LLSD& key) : LLFloater(key)
 {
+	mCommitCallbackRegistrar.add("SocialSharing.Cancel", boost::bind(&LLFloaterSocial::onCancel, this));
+}
 
+void LLFloaterSocial::onCancel()
+{
+    closeFloater();
 }
