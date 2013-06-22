@@ -29,7 +29,51 @@
      bg_opaque_color="DkGray"
      label="STATUS"
      help_topic="social_status_tab"
-     name="status_panel"/>
+     name="status_panel">
+      <text
+        length="1"
+        follows="top|left|right"
+        font="SansSerif"
+        height="16"
+        left="9"
+        name="caption_label"
+        top_pad="12"
+        type="string">
+        What's on your mind?
+      </text>
+      <text_editor
+        follows="left|top"
+        height="47"
+        width="250"
+        left="9"
+        length="1"
+        max_length="700"
+        name="caption"
+        type="string"
+        word_wrap="true">
+      </text_editor>
+      <button
+        follows="left|top"
+        height="23"
+        label="Post"
+        name="post_btn"
+        top_pad="12"
+        width="100">
+        <button.commit_callback
+          function="PostToFacebook.Send" />
+      </button>
+      <button
+        follows="left|top"
+        height="23"
+        label="Cancel"
+        name="cancel_btn"
+        left_pad="15"
+        top_delta="0"
+        width="100">
+        <button.commit_callback
+          function="PostToFacebook.Cancel" />
+      </button>
+    </panel>
     <panel
       class="llsocialphotopanel"
       follows="all"
