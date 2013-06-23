@@ -71,7 +71,7 @@
         top_delta="0"
         width="100">
         <button.commit_callback
-          function="PostToFacebook.Cancel" />
+          function="SocialSharing.Cancel" />
       </button>
     </panel>
     <panel
@@ -334,6 +334,7 @@
       </layout_stack>
     </panel>
     <panel
+      class="llsocialcheckinpanel"
       follows="all"
       height="430"
       background_visible="true"
@@ -431,7 +432,7 @@
                 name="post_place_btn"
                 width="100">
                 <button.commit_callback
-                 function="Facebook.Checkin" />
+                 function="SocialSharing.SendCheckin" />
                </button>
                <button
                  follows="left|top"

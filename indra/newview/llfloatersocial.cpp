@@ -29,11 +29,25 @@
 
 #include "llfloatersocial.h"
 
+#include "llagent.h"
 #include "llagentui.h"
+#include "llfacebookconnect.h"
 #include "llfloaterreg.h"
 #include "llslurl.h"
+#include "llviewerregion.h"
+#include "llviewercontrol.h"
 
-static LLRegisterPanelClassWrapper<LLSocialPhotoPanel> panel_class("llsocialphotopanel");
+static LLRegisterPanelClassWrapper<LLSocialPhotoPanel> t_panel_photo("llsocialphotopanel");
+static LLRegisterPanelClassWrapper<LLSocialCheckinPanel> t_panel_checkin("llsocialcheckinpanel");
+
+std::string get_map_url()
+{
+    LLVector3d center_agent = gAgent.getRegion()->getCenterGlobal();
+    int x_pos = center_agent[0] / 256.0;
+    int y_pos = center_agent[1] / 256.0;
+    std::string map_url = gSavedSettings.getString("CurrentMapServerURL") + llformat("map-1-%d-%d-objects.jpg", x_pos, y_pos);
+    return map_url;
+}
 
 LLSocialPhotoPanel::LLSocialPhotoPanel()
 {
@@ -59,6 +73,55 @@ void LLSocialPhotoPanel::onSend()
 	//LLFloaterSnapshot::postSave();
 }
 
+
+LLSocialCheckinPanel::LLSocialCheckinPanel() :
+    mMapUrl("")
+{
+	mCommitCallbackRegistrar.add("SocialSharing.SendCheckin", boost::bind(&LLSocialCheckinPanel::onSend, this));
+}
+
+/*virtual*/
+void LLSocialCheckinPanel::setVisible(BOOL visible)
+{
+    if (visible)
+    {
+        mMapUrl = get_map_url();
+    }
+    LLPanel::setVisible(visible);
+}
+
+void LLSocialCheckinPanel::onSend()
+{
+	// Get the location SLURL
+	LLSLURL slurl;
+	LLAgentUI::buildSLURL(slurl);
+	std::string slurl_string = slurl.getSLURLString();
+    
+	// Get the region name
+	std::string region_name = gAgent.getRegion()->getName();
+    
+	// Get the region description
+	std::string description;
+	LLAgentUI::buildLocationString(description, LLAgentUI::LOCATION_FORMAT_NORMAL_COORDS, gAgent.getPositionAgent());
+    
+    
+	// Optionally add the region map view
+	bool add_map_view = getChild<LLUICtrl>("add_place_view_cb")->getValue().asBoolean();
+    std::string map_url = (add_map_view ? mMapUrl : "");
+    
+	// Get the caption
+	std::string caption = getChild<LLUICtrl>("place_caption")->getValue().asString();
+
+    // Post all that to Facebook
+	LLFacebookConnect::instance().postCheckin(slurl_string, region_name, description, map_url, caption);
+    
+    // Close the floater once "Post" has been pushed
+	LLFloater* floater = getParentByType<LLFloater>();
+    if (floater)
+    {
+        floater->closeFloater();
+    }
+}
 
 
 LLFloaterSocial::LLFloaterSocial(const LLSD& key) : LLFloater(key)

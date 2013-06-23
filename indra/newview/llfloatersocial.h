@@ -36,6 +36,16 @@ class LLSocialPhotoPanel : public LLPanel
 		void onSend();
 };
 
+class LLSocialCheckinPanel : public LLPanel
+{
+public:
+    LLSocialCheckinPanel();
+    void onSend();
+	/*virtual*/ void setVisible(BOOL visible);
+private:
+    std::string mMapUrl;
+};
+
 class LLFloaterSocial : public LLFloater
 {
 public:
