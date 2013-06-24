@@ -244,6 +244,13 @@ U32  LLVOCacheEntry::getMinFrameRange()const
 void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
 {
 	llassert(entry != NULL);
+	llassert(entry->getParentID() == mLocalID);
+	llassert(entry->getEntry() != NULL);
+
+	if(!entry || !entry->getEntry() || entry->getParentID() != mLocalID)
+	{
+		return;
+	}
 
 	mChildrenList.push_back(entry);
 }
@@ -392,9 +399,10 @@ void LLVOCachePartition::removeEntry(LLViewerOctreeEntry* entry)
 class LLVOCacheOctreeCull : public LLViewerOctreeCull
 {
 public:
-	LLVOCacheOctreeCull(LLCamera* camera, LLViewerRegion* regionp, const LLVector3& shift, bool use_object_cache_occlusion) 
+	LLVOCacheOctreeCull(LLCamera* camera, LLViewerRegion* regionp, const LLVector3& shift, bool use_object_cache_occlusion, LLVOCachePartition* part) 
 		: LLViewerOctreeCull(camera), 
-		  mRegionp(regionp)
+		  mRegionp(regionp),
+		  mPartition(part)
 	{
 		mLocalShift = shift;
 		mUseObjectCacheOcclusion = (use_object_cache_occlusion && LLPipeline::sUseOcclusion);
@@ -415,6 +423,7 @@ public:
 
 			if (group->isOcclusionState(LLSpatialGroup::OCCLUDED))
 			{
+				mPartition->addOccluders(group);
 				return true;
 			}
 		}
@@ -466,9 +475,10 @@ public:
 	}
 
 private:
-	LLViewerRegion* mRegionp;
-	LLVector3       mLocalShift; //shift vector from agent space to local region space.
-	bool            mUseObjectCacheOcclusion;
+	LLVOCachePartition* mPartition;
+	LLViewerRegion*     mRegionp;
+	LLVector3           mLocalShift; //shift vector from agent space to local region space.
+	bool                mUseObjectCacheOcclusion;
 };
 
 S32 LLVOCachePartition::cull(LLCamera &camera)
@@ -486,10 +496,46 @@ S32 LLVOCachePartition::cull(LLCamera &camera)
 	LLVector3 region_agent = mRegionp->getOriginAgent();
 	camera.calcRegionFrustumPlanes(region_agent);
 
-	LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent, use_object_cache_occlusion);
+	mOccludedGroups.clear();
+	
+	LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent, use_object_cache_occlusion, this);
 	culler.traverse(mOctree);
 
+	if(!mOccludedGroups.empty())
+	{
+		processOccluders(&camera);
+		mOccludedGroups.clear();
+	}
+
 	return 0;
+}
+
+void LLVOCachePartition::addOccluders(LLviewerOctreeGroup* gp)
+{
+	LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)gp;
+
+	const U32 MIN_WAIT_TIME = 16; //wait 16 frames to issue a new occlusion request
+	U32 last_issued_time = group->getLastOcclusionIssuedTime();
+	if(gFrameCount > last_issued_time && gFrameCount < last_issued_time + MIN_WAIT_TIME)
+	{
+		return;
+	}
+
+	if(group && !group->isOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION))
+	{
+		group->setOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION);
+		mOccludedGroups.insert(group);
+	}
+}
+
+void LLVOCachePartition::processOccluders(LLCamera* camera)
+{
+	for(std::set<LLOcclusionCullingGroup*>::iterator iter = mOccludedGroups.begin(); iter != mOccludedGroups.end(); ++iter)
+	{
+		LLOcclusionCullingGroup* group = *iter;
+		group->doOcclusion(camera);
+		group->clearOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION);
+	}
 }
 
 //-------------------------------------------------------------------

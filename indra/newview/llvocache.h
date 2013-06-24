@@ -156,8 +156,15 @@ public:
 	void addEntry(LLViewerOctreeEntry* entry);
 	void removeEntry(LLViewerOctreeEntry* entry);
 	/*virtual*/ S32 cull(LLCamera &camera);
+	void addOccluders(LLviewerOctreeGroup* gp);
 
 	static	LLTrace::MemStatHandle	sMemStat;
+
+private:	
+	void processOccluders(LLCamera* camera);
+
+private:
+	std::set<LLOcclusionCullingGroup*> mOccludedGroups;
 };
 
 //

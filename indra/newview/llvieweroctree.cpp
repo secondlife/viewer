@@ -1022,6 +1022,11 @@ BOOL LLOcclusionCullingGroup::earlyFail(LLCamera* camera)
 	return TRUE;
 }
 
+U32 LLOcclusionCullingGroup::getLastOcclusionIssuedTime()
+{
+	return mOcclusionIssued[LLViewerCamera::sCurCameraID];
+}
+
 void LLOcclusionCullingGroup::checkOcclusion()
 {
 	if (LLPipeline::sUseOcclusion > 1)
