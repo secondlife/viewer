@@ -320,6 +320,7 @@ public:
 	BOOL isOcclusionState(U32 state) const	{ return mOcclusionState[LLViewerCamera::sCurCameraID] & state ? TRUE : FALSE; }		
 	
 	BOOL needsUpdate();
+	U32  getLastOcclusionIssuedTime();
 
 	//virtual 
 	void handleChildAddition(const OctreeNode* parent, OctreeNode* child);
