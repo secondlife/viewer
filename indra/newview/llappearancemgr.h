@@ -186,7 +186,9 @@ public:
 	void removeItemFromAvatar(const LLUUID& item_id);
 
 
-	LLUUID makeNewOutfitLinks(const std::string& new_folder_name,bool show_panel = true);
+	void onOutfitFolderCreated(const LLSD& result, bool show_panel);
+	void onOutfitFolderCreatedAndClothingOrdered(const LLSD& result, bool show_panel);
+	void makeNewOutfitLinks(const std::string& new_folder_name, bool show_panel = true);
 
 	bool moveWearable(LLViewerInventoryItem* item, bool closer_to_body);
 

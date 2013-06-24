@@ -69,8 +69,9 @@
 #include "llclipboard.h"
 #include "llhttpretrypolicy.h"
 
-// Two do-nothing ops for use in callbacks.
+// do-nothing ops for use in callbacks.
 void no_op_inventory_func(const LLUUID&) {} 
+void no_op_llsd_func(const LLSD&) {}
 void no_op() {}
 
 ///----------------------------------------------------------------------------

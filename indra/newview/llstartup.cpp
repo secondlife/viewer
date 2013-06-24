@@ -2613,10 +2613,10 @@ void LLStartUp::saveInitialOutfit()
 	
 	if (sWearablesLoadedCon.connected())
 	{
-		lldebugs << "sWearablesLoadedCon is connected, disconnecting" << llendl;
+		LL_DEBUGS("Avatar") << "sWearablesLoadedCon is connected, disconnecting" << llendl;
 		sWearablesLoadedCon.disconnect();
 	}
-	lldebugs << "calling makeNewOutfitLinks( \"" << sInitialOutfit << "\" )" << llendl;
+	LL_DEBUGS("Avatar") << "calling makeNewOutfitLinks( \"" << sInitialOutfit << "\" )" << llendl;
 	LLAppearanceMgr::getInstance()->makeNewOutfitLinks(sInitialOutfit,false);
 }
 
