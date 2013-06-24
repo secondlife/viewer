@@ -125,7 +125,7 @@ public:
     template <typename CALLABLE>
     std::string launch(const std::string& prefix, const CALLABLE& callable)
     {
-        return launchImpl(prefix, new coro(callable));
+        return launchImpl(prefix, new coro(callable, mStackSize));
     }
 
     /**
@@ -152,6 +152,9 @@ public:
     /// getName() by self.get_id()
     std::string getNameByID(const void* self_id) const;
 
+    /// for delayed initialization
+    void setStackSize(S32 stacksize);
+
 private:
     friend class LLSingleton<LLCoros>;
     LLCoros();
@@ -159,6 +162,7 @@ private:
     std::string generateDistinctName(const std::string& prefix) const;
     bool cleanup(const LLSD&);
 
+    S32 mStackSize;
     typedef boost::ptr_map<std::string, coro> CoroMap;
     CoroMap mCoros;
 };

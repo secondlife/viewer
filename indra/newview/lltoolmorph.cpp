@@ -151,7 +151,7 @@ void LLVisualParamHint::preRender(BOOL clear_depth)
 	LLViewerWearable* wearable = (LLViewerWearable*)mWearablePtr;
 	if (wearable)
 	{
-		wearable->setVolitile(TRUE);
+		wearable->setVolatile(TRUE);
 	}
 	mLastParamWeight = mVisualParam->getWeight();
 	mWearablePtr->setVisualParamWeight(mVisualParam->getID(), mVisualParamWeight, FALSE);
@@ -250,7 +250,7 @@ BOOL LLVisualParamHint::render()
 	LLViewerWearable* wearable = (LLViewerWearable*)mWearablePtr;
 	if (wearable)
 	{
-		wearable->setVolitile(FALSE);
+		wearable->setVolatile(FALSE);
 	}
 
 	gAgentAvatarp->updateVisualParams();

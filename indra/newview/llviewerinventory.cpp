@@ -360,7 +360,8 @@ void LLViewerInventoryItem::updateServer(BOOL is_new) const
 	if(gAgent.getID() != mPermissions.getOwner())
 	{
 		// *FIX: deal with this better.
-		llwarns << "LLViewerInventoryItem::updateServer() - for unowned item"
+		llwarns << "LLViewerInventoryItem::updateServer() - for unowned item "
+			    << ll_pretty_print_sd(this->asLLSD())
 				<< llendl;
 		return;
 	}

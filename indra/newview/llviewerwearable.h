@@ -68,8 +68,8 @@ public:
 	
 	void				setParamsToDefaults();
 	void				setTexturesToDefaults();
-	void				setVolitile(BOOL volitle) { mVolitle = volitle; } // TRUE when doing preview renders, some updates will be suppressed.
-	BOOL				getVolitile() { return mVolitle; }
+	void				setVolatile(BOOL is_volatile) { mVolatile = is_volatile; } // TRUE when doing preview renders, some updates will be suppressed.
+	BOOL				getVolatile() { return mVolatile; }
 
 	/*virtual*/ LLUUID	getDefaultTextureImageID(LLAvatarAppearanceDefines::ETextureIndex index) const;
 
@@ -98,7 +98,7 @@ protected:
 	LLAssetID			mAssetID;
 	LLTransactionID		mTransactionID;
 
-	BOOL 				mVolitle; // True when rendering preview images. Can suppress some updates.
+	BOOL 				mVolatile; // True when rendering preview images. Can suppress some updates.
 
 	LLUUID				mItemID;  // ID of the inventory item in the agent's inventory	
 };

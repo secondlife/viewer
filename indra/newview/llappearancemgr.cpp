@@ -436,11 +436,14 @@ S32 LLCallAfterInventoryCopyMgr::sInstanceCount = 0;
 
 LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy(bool update_base_outfit_ordering,
 														 bool enforce_item_restrictions,
-														 bool enforce_ordering):
+														 bool enforce_ordering,
+														 nullary_func_t post_update_func 
+	):
 	mFireCount(0),
 	mUpdateBaseOrder(update_base_outfit_ordering),
 	mEnforceItemRestrictions(enforce_item_restrictions),
-	mEnforceOrdering(enforce_ordering)
+	mEnforceOrdering(enforce_ordering),
+	mPostUpdateFunc(post_update_func)
 {
 	selfStartPhase("update_appearance_on_destroy");
 }
@@ -464,7 +467,10 @@ LLUpdateAppearanceOnDestroy::~LLUpdateAppearanceOnDestroy()
 
 		selfStopPhase("update_appearance_on_destroy");
 
-		LLAppearanceMgr::instance().updateAppearanceFromCOF(mUpdateBaseOrder, mEnforceItemRestrictions, mEnforceOrdering);
+		LLAppearanceMgr::instance().updateAppearanceFromCOF(mUpdateBaseOrder,
+															mEnforceItemRestrictions,
+															mEnforceOrdering,
+															mPostUpdateFunc);
 	}
 }
 
@@ -473,26 +479,31 @@ LLUpdateAppearanceAndEditWearableOnDestroy::LLUpdateAppearanceAndEditWearableOnD
 {
 }
 
+void edit_wearable_and_customize_avatar(LLUUID item_id)
+{
+	// Start editing the item if previously requested.
+	gAgentWearables.editWearableIfRequested(item_id);
+	
+	// TODO: camera mode may not be changed if a debug setting is tweaked
+	if( gAgentCamera.cameraCustomizeAvatar() )
+	{
+		// If we're in appearance editing mode, the current tab may need to be refreshed
+		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(
+			LLFloaterSidePanelContainer::getPanel("appearance"));
+		if (panel)
+		{
+			panel->showDefaultSubpart();
+		}
+	}
+}
+
 LLUpdateAppearanceAndEditWearableOnDestroy::~LLUpdateAppearanceAndEditWearableOnDestroy()
 {
 	if (!LLApp::isExiting())
 	{
-		LLAppearanceMgr::instance().updateAppearanceFromCOF();
-		
-		// Start editing the item if previously requested.
-		gAgentWearables.editWearableIfRequested(mItemID);
-		
-		// TODO: camera mode may not be changed if a debug setting is tweaked
-		if( gAgentCamera.cameraCustomizeAvatar() )
-		{
-			// If we're in appearance editing mode, the current tab may need to be refreshed
-			LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(
-				LLFloaterSidePanelContainer::getPanel("appearance"));
-			if (panel)
-			{
-				panel->showDefaultSubpart();
-			}
-		}
+		LLAppearanceMgr::instance().updateAppearanceFromCOF(
+			false,true,true,
+			boost::bind(edit_wearable_and_customize_avatar, mItemID));
 	}
 }
 
@@ -1971,7 +1982,8 @@ void LLAppearanceMgr::enforceCOFItemRestrictions(LLPointer<LLInventoryCallback> 
 
 void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering,
 											  bool enforce_item_restrictions,
-											  bool enforce_ordering)
+											  bool enforce_ordering,
+											  nullary_func_t post_update_func)
 {
 	if (mIsInUpdateAppearanceFromCOF)
 	{
@@ -1989,7 +2001,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering,
 		// enforce_item_restrictions to false so we don't get
 		// caught in a perpetual loop.
 		LLPointer<LLInventoryCallback> cb(
-			new LLUpdateAppearanceOnDestroy(update_base_outfit_ordering, false, enforce_ordering));
+			new LLUpdateAppearanceOnDestroy(update_base_outfit_ordering, false, enforce_ordering, post_update_func));
 		enforceCOFItemRestrictions(cb);
 		return;
 	}
@@ -2003,7 +2015,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering,
 		// to wait for the update callbacks, then (finally!) call
 		// updateAppearanceFromCOF() with no additional COF munging needed.
 		LLPointer<LLInventoryCallback> cb(
-			new LLUpdateAppearanceOnDestroy(false, false, false));
+			new LLUpdateAppearanceOnDestroy(false, false, false, post_update_func));
 		updateClothingOrderingInfo(LLUUID::null, update_base_outfit_ordering, cb);
 		return;
 	}
@@ -2120,6 +2132,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering,
 	{
 		doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollFetchCompletion,holder));
 	}
+	post_update_func();
 }
 
 void LLAppearanceMgr::getDescendentsOfAssetType(const LLUUID& category,
@@ -3434,7 +3447,12 @@ bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_b
 	swap_item->setDescription(item->getActualDescription());
 	item->setDescription(tmp);
 
+	// LL_DEBUGS("Inventory") << "swap, item "
+	// 					   << ll_pretty_print_sd(item->asLLSD())
+	// 					   << " swap_item "
+	// 					   << ll_pretty_print_sd(swap_item->asLLSD()) << llendl;
 
+	// FIXME switch to use AISv3 where supported.
 	//items need to be updated on a dataserver
 	item->setComplete(TRUE);
 	item->updateServer(FALSE);

@@ -78,6 +78,7 @@
 
 #include "../test/lltut.h"
 #include "llsd.h"
+#include "llsdutil.h"
 #include "llevents.h"
 #include "tests/wrapllerrs.h"
 #include "stringize.h"
@@ -108,7 +109,7 @@ match_substring(BidirectionalIterator begin,
 		BidirectionalIterator end, 
 		std::string xmatch,
 		BOOST_DEDUCED_TYPENAME coroutine<BidirectionalIterator(void)>::self& self) { 
-  BidirectionalIterator begin_ = begin;
+//BidirectionalIterator begin_ = begin;
   for(; begin != end; ++begin) 
     if(match(begin, end, xmatch)) {
       self.yield(begin);
@@ -213,7 +214,7 @@ namespace tut
             BEGIN
             {
                 result = postAndWait(self,
-                                     LLSD().insert("value", 17), // request event
+                                     LLSDMap("value", 17),       // request event
                                      immediateAPI.getPump(),     // requestPump
                                      "reply1",                   // replyPump
                                      "reply");                   // request["reply"] = name
@@ -226,7 +227,7 @@ namespace tut
             BEGIN
             {
                 LLEventWithID pair = ::postAndWait2(self,
-                                                    LLSD().insert("value", 18),
+                                                    LLSDMap("value", 18),
                                                     immediateAPI.getPump(),
                                                     "reply2",
                                                     "error2",
@@ -244,7 +245,7 @@ namespace tut
             BEGIN
             {
                 LLEventWithID pair = ::postAndWait2(self,
-                                                    LLSD().insert("value", 18).insert("fail", LLSD()),
+                                                    LLSDMap("value", 18)("fail", LLSD()),
                                                     immediateAPI.getPump(),
                                                     "reply2",
                                                     "error2",
@@ -273,7 +274,7 @@ namespace tut
             BEGIN
             {
                 LLCoroEventPump waiter;
-                result = waiter.postAndWait(self, LLSD().insert("value", 17),
+                result = waiter.postAndWait(self, LLSDMap("value", 17),
                                             immediateAPI.getPump(), "reply");
             }
             END
@@ -365,7 +366,7 @@ namespace tut
             BEGIN
             {
                 LLCoroEventPumps waiter;
-                LLEventWithID pair(waiter.postAndWait(self, LLSD().insert("value", 23),
+                LLEventWithID pair(waiter.postAndWait(self, LLSDMap("value", 23),
                                                       immediateAPI.getPump(), "reply", "error"));
                 result = pair.first;
                 which  = pair.second;
@@ -379,7 +380,7 @@ namespace tut
             {
                 LLCoroEventPumps waiter;
                 LLEventWithID pair(
-                    waiter.postAndWait(self, LLSD().insert("value", 23).insert("fail", LLSD()),
+                    waiter.postAndWait(self, LLSDMap("value", 23)("fail", LLSD()),
                                        immediateAPI.getPump(), "reply", "error"));
                 result = pair.first;
                 which  = pair.second;
@@ -392,7 +393,7 @@ namespace tut
             BEGIN
             {
                 LLCoroEventPumps waiter;
-                result = waiter.postAndWaitWithException(self, LLSD().insert("value", 8),
+                result = waiter.postAndWaitWithException(self, LLSDMap("value", 8),
                                                          immediateAPI.getPump(), "reply", "error");
             }
             END
@@ -406,7 +407,7 @@ namespace tut
                 try
                 {
                     result = waiter.postAndWaitWithException(self,
-                        LLSD().insert("value", 9).insert("fail", LLSD()),
+                        LLSDMap("value", 9)("fail", LLSD()),
                         immediateAPI.getPump(), "reply", "error");
                     debug("no exception");
                 }
@@ -424,7 +425,7 @@ namespace tut
             BEGIN
             {
                 LLCoroEventPumps waiter;
-                result = waiter.postAndWaitWithLog(self, LLSD().insert("value", 30),
+                result = waiter.postAndWaitWithLog(self, LLSDMap("value", 30),
                                                    immediateAPI.getPump(), "reply", "error");
             }
             END
@@ -439,7 +440,7 @@ namespace tut
                 try
                 {
                     result = waiter.postAndWaitWithLog(self,
-                        LLSD().insert("value", 31).insert("fail", LLSD()),
+                        LLSDMap("value", 31)("fail", LLSD()),
                         immediateAPI.getPump(), "reply", "error");
                     debug("no exception");
                 }
@@ -796,4 +797,18 @@ namespace tut
         ensure("no result", result.isUndefined());
         ensure_contains("got error", threw, "32");
     }
+}
+
+/*==========================================================================*|
+#include <boost/context/guarded_stack_allocator.hpp>
+
+namespace tut
+{
+    template<> template<>
+    void object::test<23>()
+    {
+        set_test_name("stacksize");
+        std::cout << "default_stacksize: " << boost::context::guarded_stack_allocator::default_stacksize() << '\n';
+    }
 } // namespace tut
+|*==========================================================================*/

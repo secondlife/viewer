@@ -51,7 +51,8 @@ public:
 
 	void updateAppearanceFromCOF(bool update_base_outfit_ordering = false,
 								 bool enforce_item_restrictions = true,
-								 bool enforce_ordering = true);
+								 bool enforce_ordering = true,
+								 nullary_func_t post_update_func = no_op);
 	bool needToSaveCOF();
 	void updateCOF(const LLUUID& category, bool append = false);
 	void wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append);
@@ -272,7 +273,8 @@ class LLUpdateAppearanceOnDestroy: public LLInventoryCallback
 public:
 	LLUpdateAppearanceOnDestroy(bool update_base_outfit_ordering = false,
 								bool enforce_item_restrictions = true,
-								bool enforce_ordering = true);
+								bool enforce_ordering = true,
+								nullary_func_t post_update_func = no_op);
 	virtual ~LLUpdateAppearanceOnDestroy();
 	/* virtual */ void fire(const LLUUID& inv_item);
 
@@ -281,6 +283,7 @@ private:
 	bool mUpdateBaseOrder;
 	bool mEnforceItemRestrictions;
 	bool mEnforceOrdering;
+	nullary_func_t mPostUpdateFunc;
 };
 
 class LLUpdateAppearanceAndEditWearableOnDestroy: public LLInventoryCallback
