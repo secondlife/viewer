@@ -42,7 +42,11 @@ static LLRegisterPanelClassWrapper<LLSocialCheckinPanel> t_panel_checkin("llsoci
 
 std::string get_map_url()
 {
-    LLVector3d center_agent = gAgent.getRegion()->getCenterGlobal();
+    LLVector3d center_agent;
+    if (gAgent.getRegion())
+    {
+        center_agent = gAgent.getRegion()->getCenterGlobal();
+    }
     int x_pos = center_agent[0] / 256.0;
     int y_pos = center_agent[1] / 256.0;
     std::string map_url = gSavedSettings.getString("CurrentMapServerURL") + llformat("map-1-%d-%d-objects.jpg", x_pos, y_pos);
@@ -103,7 +107,6 @@ void LLSocialCheckinPanel::onSend()
 	// Get the region description
 	std::string description;
 	LLAgentUI::buildLocationString(description, LLAgentUI::LOCATION_FORMAT_NORMAL_COORDS, gAgent.getPositionAgent());
-    
     
 	// Optionally add the region map view
 	bool add_map_view = getChild<LLUICtrl>("add_place_view_cb")->getValue().asBoolean();

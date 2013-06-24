@@ -379,36 +379,25 @@
           <layout_panel
             name="place_map_panel"
             height="133">
-            <ui_ctrl
-             height="128"
-             width="128"
-             name="map_placeholder"
-             top_pad="5"
-             follows="left|top"
-             left="9">
-             <panel
-               background_visible="true"
-               border_image="Badge_Border"
-               border_color="BadgeBorderColor"
-               bg_alpha_color="0.9 1 0.9 1"
-               follows="left|top"
-               halign="center"
-               height="128"
-               width="128"
-               left="0"
-               top="0"
-               name="map_panel"
-               visible="true"/>
-              </ui_ctrl>
-              <check_box
-                follows="left|top"
-                initial_value="true"
-                top_delta="8"
-                width="8"
-                label=""
-                name="add_place_view_cb"
-                left_pad="5"/>
-              <text
+            <icon
+              follows="left|top"
+              height="128"
+              width="128"
+              image_name="Map_Placeholder_Icon"
+              layout="topleft"
+              top="5"
+              left="9"
+              name="map_placeholder">
+            </icon>
+            <check_box
+              follows="left|top"
+              initial_value="true"
+              top_delta="8"
+              width="8"
+              label=""
+              name="add_place_view_cb"
+              left_pad="5"/>
+            <text
               follows="left|top"
               font="SansSerif"
               height="32"
@@ -418,35 +407,35 @@
               top_delta="-8"
               type="string">
               Include overhead view of location
-              </text>
-            </layout_panel>
-            <layout_panel
-              name="place_button_panel"
-              height="96">
-              <button
-                follows="left|top"
-                top="5"
-                left="9"
-                height="23"
-                label="Post"
-                name="post_place_btn"
-                width="100">
-                <button.commit_callback
+            </text>
+          </layout_panel>
+          <layout_panel
+            name="place_button_panel"
+            height="96">
+            <button
+              follows="left|top"
+              top="5"
+              left="9"
+              height="23"
+              label="Post"
+              name="post_place_btn"
+              width="100">
+              <button.commit_callback
                  function="SocialSharing.SendCheckin" />
-               </button>
-               <button
-                 follows="left|top"
-                 height="23"
-                 label="Cancel"
-                 name="cancel_btn"
-                 left_pad="15"
-                 top_delta="0"
-                 width="100">
-                 <button.commit_callback
+            </button>
+            <button
+              follows="left|top"
+              height="23"
+              label="Cancel"
+              name="cancel_btn"
+              left_pad="15"
+              top_delta="0"
+              width="100">
+              <button.commit_callback
                   function="SocialSharing.Cancel" />
-               </button>
-            </layout_panel>
-        </layout_stack>
+            </button>
+        </layout_panel>
+     </layout_stack>
     </panel>
   </tab_container>
 </floater>
