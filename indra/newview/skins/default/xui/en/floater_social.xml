@@ -23,6 +23,7 @@
    height="430"
    halign="center">
     <panel
+     class="llsocialstatuspanel"
      background_opaque="true"
      background_visible="true"
      bg_alpha_color="DkGray"
@@ -48,7 +49,7 @@
         left="9"
         length="1"
         max_length="700"
-        name="caption"
+        name="message"
         type="string"
         word_wrap="true">
       </text_editor>
@@ -60,7 +61,7 @@
         top_pad="18"
         width="100">
         <button.commit_callback
-          function="PostToFacebook.Send" />
+          function="SocialSharing.SendStatus" />
       </button>
       <button
         follows="left|top"

@@ -29,6 +29,13 @@
 
 #include "llfloater.h"
 
+class LLSocialStatusPanel : public LLPanel
+{
+public:
+    LLSocialStatusPanel();
+    void onSend();
+};
+
 class LLSocialPhotoPanel : public LLPanel
 {
 	public:
