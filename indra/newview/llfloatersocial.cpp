@@ -138,6 +138,7 @@ BOOL LLSocialPhotoPanel::postBuild()
 	LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
 	mPreviewHandle = previewp->getHandle();	
 
+	previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
 	previewp->setThumbnailPlaceholderRect(getThumbnailPlaceholderRect());
 
 	return LLPanel::postBuild();
@@ -263,6 +264,7 @@ void LLSocialPhotoPanel::updateControls()
 	LLSnapshotLivePreview* previewp = getPreviewView();
 	BOOL got_bytes = previewp && previewp->getDataSize() > 0;
 	BOOL got_snap = previewp && previewp->getSnapshotUpToDate();
+	LLSnapshotLivePreview::ESnapshotType shot_type = previewp->getSnapshotType();
 
 	// *TODO: Separate maximum size for Web images from postcards
 	lldebugs << "Is snapshot up-to-date? " << got_snap << llendl;
@@ -277,7 +279,7 @@ void LLSocialPhotoPanel::updateControls()
 	//getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : getString("unknown"));
 	getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : "unknown");
 	getChild<LLUICtrl>("file_size_label")->setColor(
-		true 
+		shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD 
 		&& got_bytes
 		&& previewp->getDataSize() > MAX_POSTCARD_DATASIZE ? LLUIColor(LLColor4::red) : LLUIColorTable::instance().getColor( "LabelTextColor" ));
 
