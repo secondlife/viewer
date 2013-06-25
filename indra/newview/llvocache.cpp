@@ -414,9 +414,10 @@ public:
 			base_group->getOctreeNode()->getParent()) //never occlusion cull the root node
 		{
 			LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)base_group;
-			if(group->needsUpdate())
+			if(group->needsUpdate())//needs to issue new occlusion culling check.
 			{
-				return false; //needs to issue new occlusion culling check.
+				mPartition->addOccluders(group);
+				return true;
 			}
 
 			group->checkOcclusion();
@@ -461,16 +462,6 @@ public:
 
 	virtual void processGroup(LLviewerOctreeGroup* base_group)
 	{
-		if(mUseObjectCacheOcclusion && base_group->getOctreeNode()->getParent())
-		{
-			LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)base_group;
-			if (group->needsUpdate() || group->mVisible[LLViewerCamera::sCurCameraID] < LLDrawable::getCurrentFrame() - 1)
-			{
-				((LLOcclusionCullingGroup*)group)->doOcclusion(mCamera);
-				group->setVisible();
-				return; //wait for occlusion culling results
-			}
-		}
 		mRegionp->addVisibleGroup(base_group);
 	}
 
