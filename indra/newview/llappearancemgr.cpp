@@ -3370,20 +3370,19 @@ void show_created_outfit(LLUUID& folder_id, bool show_panel = true)
 	LLAppearanceMgr::getInstance()->createBaseOutfitLink(folder_id, cb);
 }
 
-void LLAppearanceMgr::onOutfitFolderCreated(const LLSD& result, bool show_panel)
+void LLAppearanceMgr::onOutfitFolderCreated(const LLUUID& folder_id, bool show_panel)
 {
-	LL_DEBUGS("Avatar") << ll_pretty_print_sd(result) << llendl;
-
-	LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(no_op_inventory_func,
-																		 boost::bind(&LLAppearanceMgr::onOutfitFolderCreatedAndClothingOrdered,this,result,show_panel));
+	LLPointer<LLInventoryCallback> cb =
+		new LLBoostFuncInventoryCallback(no_op_inventory_func,
+										 boost::bind(&LLAppearanceMgr::onOutfitFolderCreatedAndClothingOrdered,this,folder_id,show_panel));
 	updateClothingOrderingInfo(LLUUID::null, false, cb);
 }
 
-void LLAppearanceMgr::onOutfitFolderCreatedAndClothingOrdered(const LLSD& result, bool show_panel)
+void LLAppearanceMgr::onOutfitFolderCreatedAndClothingOrdered(const LLUUID& folder_id, bool show_panel)
 {
-	LLUUID folder_id = result["folder_id"].asUUID();
-	LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(no_op_inventory_func,
-																		 boost::bind(show_created_outfit,folder_id,show_panel));
+	LLPointer<LLInventoryCallback> cb =
+		new LLBoostFuncInventoryCallback(no_op_inventory_func,
+										 boost::bind(show_created_outfit,folder_id,show_panel));
 	shallowCopyCategoryContents(getCOF(),folder_id, cb);
 }
 
@@ -3397,12 +3396,12 @@ void LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, boo
 
 	// First, make a folder in the My Outfits directory.
 	const LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-	llsd_func_type func = boost::bind(&LLAppearanceMgr::onOutfitFolderCreated,this,_1,show_panel);
-	gInventory.createNewCategory(
+	//llsd_func_type func = boost::bind(&LLAppearanceMgr::onOutfitFolderCreated,this,_1,show_panel);
+	LLUUID folder_id = gInventory.createNewCategory(
 		parent_id,
 		LLFolderType::FT_OUTFIT,
-		new_folder_name,
-		func);
+		new_folder_name);
+	onOutfitFolderCreated(folder_id, show_panel);
 }
 
 void LLAppearanceMgr::wearBaseOutfit()
