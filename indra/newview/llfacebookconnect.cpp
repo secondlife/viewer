@@ -36,9 +36,10 @@
 #include "llnotificationsutil.h"
 #include "llurlaction.h"
 #include "llimagepng.h"
+#include "lltrans.h"
 
 
-// Local function
+// Local functions
 void prompt_user_for_error(U32 status, const std::string& reason, const std::string& code, const std::string& description)
 {
     // Note: 302 (redirect) is *not* an error that warrants prompting the user
@@ -53,6 +54,13 @@ void prompt_user_for_error(U32 status, const std::string& reason, const std::str
 		args["DESCRIPTION"] = description;
         LLNotificationsUtil::add("FacebookCannotConnect", args);
     }
+}
+
+void toast_user_for_success()
+{
+	LLSD args;
+    args["MESSAGE"] = LLTrans::getString("facebook_post_success");
+    LLNotificationsUtil::add("SystemMessage", args);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -133,6 +141,7 @@ public:
 	{
 		if (isGoodStatus(status))
 		{
+            toast_user_for_success();
 			LL_DEBUGS("FacebookConnect") << "Post successful. content: " << content << LL_ENDL;
 		}
 		else

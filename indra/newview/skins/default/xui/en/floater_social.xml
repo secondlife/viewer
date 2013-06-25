@@ -49,7 +49,7 @@
         left="9"
         length="1"
         max_length="700"
-        name="message"
+        name="status_message"
         type="string"
         word_wrap="true">
       </text_editor>
@@ -57,7 +57,7 @@
         follows="left|top"
         height="23"
         label="Post"
-        name="post_btn"
+        name="post_status_btn"
         top_pad="18"
         width="100">
         <button.commit_callback

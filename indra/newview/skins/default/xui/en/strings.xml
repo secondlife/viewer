@@ -3421,6 +3421,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     Drag items from inventory here
   </string>
 
+  <string name="facebook_post_success">
+    Posting to Facebook was successful.
+  </string>
 
   <string name="no_session_message">
     (IM Session Doesn't Exist)

@@ -36,7 +36,13 @@ class LLSocialStatusPanel : public LLPanel
 {
 public:
     LLSocialStatusPanel();
+	BOOL postBuild();
+	void draw();
     void onSend();
+
+private:
+	LLUICtrl* mMessageTextEditor;
+	LLUICtrl* mPostStatusButton;
 };
 
 class LLSocialPhotoPanel : public LLPanel
