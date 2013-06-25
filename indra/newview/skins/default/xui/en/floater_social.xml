@@ -149,12 +149,12 @@
               1,031 KB
             </text>
             <ui_ctrl
-              height="150"
-              width="250"
-              name="thumbnail_placeholder"
-              top_pad="5"
-              follows="left|top"
-              left="9">
+                height="150"
+                width="250"
+                name="thumbnail_placeholder"
+                top_pad="5"
+                follows="left|top"
+                left="9">
               <panel
                background_visible="true"
                bg_alpha_color="0.9 1 0.9 1"
@@ -168,7 +168,7 @@
                right="-1"
                top="0"
                type="string"
-               visible="true">
+               visible="false">
                 <text
                  follows="all"
                  font="SansSerif"
@@ -198,7 +198,7 @@
                right="-1"
                top="0"
                type="string"
-               visible="true">
+               visible="false">
                 <text
                  follows="all"
                  font="SansSerif"
@@ -221,7 +221,7 @@
                name="working_indicator"
                left="101"
                top="46"
-               visible="true"
+               visible="false"
                width="48" />
               <text
                follows="left|top|right"
@@ -235,7 +235,7 @@
                top="98"
                translate="false"
                type="string"
-               visible="true"
+               visible="false"
                width="130">
                 Working
               </text>
@@ -243,23 +243,25 @@
                follows="left|top"
                height="22"
                image_overlay="Refresh_Off"
-               left="6"
+               left="20"
                name="new_snapshot_btn"
-               bottom="-6"
-               visible="true"
+               bottom="-20"
+               visible="false"
                width="22" />
               <text
                follows="left|top"
                font="SansSerifBold"
+               halign="left"
                height="18"
-               left_pad="6"
+               left_pad="10"
                length="1"
                name="refresh_lbl"
+               right="-5"
                text_color="red"
-               top_delta="5"
+               top_delta="0"
                translate="false"
                type="string"
-               visible="true"
+               visible="false"
                width="130">
                 Refresh to save.
               </text>

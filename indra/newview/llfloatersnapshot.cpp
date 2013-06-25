@@ -38,6 +38,7 @@
 #include "llfloaterperms.h"
 #include "llui.h"
 #include "llfacebookconnect.h"
+#include "llfloatersocial.h"
 #include "llfocusmgr.h"
 #include "llbutton.h"
 #include "llcombobox.h"
@@ -1136,6 +1137,9 @@ BOOL LLFloaterSnapshot::postBuild()
 	impl.updateControls(this);
 	impl.updateLayout(this);
 	
+
+	previewp->setThumbnailPlaceholderRect(getThumbnailPlaceholderRect());
+
 	return TRUE;
 }
 
@@ -1301,7 +1305,9 @@ S32 LLFloaterSnapshot::notify(const LLSD& info)
 void LLFloaterSnapshot::update()
 {
 	LLFloaterSnapshot* inst = LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
-	if (!inst)
+	LLFloaterSocial* floater_social  = LLFloaterReg::findTypedInstance<LLFloaterSocial>("social"); 
+
+	if (!inst && !floater_social)
 		return;
 	
 	BOOL changed = FALSE;
@@ -1320,7 +1326,7 @@ void LLFloaterSnapshot::update()
         changed = true;
     }
     
-	if (changed)
+	if (inst && changed)
 	{
 		lldebugs << "changed" << llendl;
 		inst->impl.updateControls(inst);

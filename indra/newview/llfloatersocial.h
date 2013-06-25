@@ -29,11 +29,28 @@
 
 #include "llfloater.h"
 
+#include "llsnapshotlivepreview.h"
+
 class LLSocialPhotoPanel : public LLPanel
 {
-	public:
+
+public:
 		LLSocialPhotoPanel();
+		~LLSocialPhotoPanel();
+
+		BOOL postBuild();
+		void draw();
 		void onSend();
+
+		const LLRect& getThumbnailPlaceholderRect() { return mThumbnailPlaceholder->getRect(); }
+		void onClickNewSnapshot();
+
+		LLHandle<LLView> mPreviewHandle;
+
+private:
+		LLUICtrl *mRefreshBtn, *mRefreshLabel;
+		LLUICtrl *mSucceessLblPanel, *mFailureLblPanel;
+		LLUICtrl* mThumbnailPlaceholder;
 };
 
 class LLSocialCheckinPanel : public LLPanel
@@ -52,6 +69,11 @@ public:
 	LLFloaterSocial(const LLSD& key);
 	BOOL postBuild();
 	void onCancel();
+	void onOpen(const LLSD& key);
+
+private:
+
+	LLSocialPhotoPanel * mSocialPhotoPanel;
 };
 
 #endif // LL_LLFLOATERSOCIAL_H

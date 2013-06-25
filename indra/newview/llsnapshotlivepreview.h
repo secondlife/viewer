@@ -156,6 +156,7 @@ public:
 	LLPointer<LLImageRaw>		getEncodedImage() const { return mPreviewImageEncoded; }
 
 	/// Sets size of preview thumbnail image and thhe surrounding rect.
+	void setThumbnailPlaceholderRect(const LLRect& rect) {mThumbnailPlaceholderRect = rect; }
 	BOOL setThumbnailImageSize() ;
 	void generateThumbnailImage(BOOL force_update = FALSE) ;
 	void resetThumbnailImage() { mThumbnailImage = NULL ; }
@@ -183,6 +184,7 @@ private:
 	LLRect                      mPreviewRect ;
 	BOOL                        mThumbnailUpdateLock ;
 	BOOL                        mThumbnailUpToDate ;
+	LLRect                      mThumbnailPlaceholderRect;
 
 	S32							mCurImageIndex;
 	LLPointer<LLImageRaw>		mPreviewImage;

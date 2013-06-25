@@ -454,7 +454,7 @@ BOOL LLSnapshotLivePreview::setThumbnailImageSize()
 
 	// UI size for thumbnail
 	// *FIXME: the rect does not change, so maybe there's no need to recalculate max w/h.
-	const LLRect& thumbnail_rect = LLFloaterSnapshot::getThumbnailPlaceholderRect();
+	const LLRect& thumbnail_rect = mThumbnailPlaceholderRect;
 	S32 max_width = thumbnail_rect.getWidth();
 	S32 max_height = thumbnail_rect.getHeight();
 
