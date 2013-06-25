@@ -350,9 +350,11 @@ void LLSocialPhotoPanel::onSend()
 		else
 			caption = caption + " " + slurl.getSLURLString();
 	}
-	//LLFacebookConnect::instance().sharePhoto(LLFloaterSnapshot::getImageData(), caption);
-	//LLWebProfile::uploadImage(LLFloaterSnapshot::getImageData(), caption, add_location, boost::bind(&LLPanelSnapshotFacebook::onImageUploaded, this, caption, _1));
-	//LLFloaterSnapshot::postSave();
+
+	LLSnapshotLivePreview* previewp = getPreviewView();
+
+	LLFacebookConnect::instance().sharePhoto(previewp->getFormattedImage(), caption);
+	updateControls();
 }
 
 
