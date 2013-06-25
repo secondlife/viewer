@@ -390,7 +390,7 @@ public:
 	LLUUID createNewCategory(const LLUUID& parent_id,
 							 LLFolderType::EType preferred_type,
 							 const std::string& name,
-							 boost::optional<llsd_func_type> callback = boost::optional<llsd_func_type>());
+							 boost::optional<inventory_func_type> callback = boost::optional<inventory_func_type>());
 protected:
 	// Internal methods that add inventory and make sure that all of
 	// the internal data structures are consistent. These methods

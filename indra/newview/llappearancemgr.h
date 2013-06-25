@@ -73,6 +73,10 @@ public:
 	void enforceCOFItemRestrictions(LLPointer<LLInventoryCallback> cb);
 
 	S32 getActiveCopyOperations() const;
+
+	// Copy all links via the slam command (single inventory operation where supported)
+	void copyCategoryLinks(const LLUUID& src_id, const LLUUID& dst_id,
+						   bool include_folder_links, LLPointer<LLInventoryCallback> cb);
 	
 	// Copy all items and the src category itself.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,

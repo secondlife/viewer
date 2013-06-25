@@ -163,7 +163,7 @@ void LLFloaterOpenObject::moveToInventory(bool wear)
 		parent_category_id = gInventory.getRootFolderID();
 	}
 
-	llsd_func_type func = boost::bind(LLFloaterOpenObject::callbackCreateInventoryCategory,_1,object_id,wear);
+	inventory_func_type func = boost::bind(LLFloaterOpenObject::callbackCreateInventoryCategory,_1,object_id,wear);
 	LLUUID category_id = gInventory.createNewCategory(parent_category_id, 
 													  LLFolderType::FT_NONE, 
 													  name,
@@ -194,10 +194,9 @@ void LLFloaterOpenObject::moveToInventory(bool wear)
 }
 
 // static
-void LLFloaterOpenObject::callbackCreateInventoryCategory(const LLSD& result, LLUUID object_id, bool wear)
+void LLFloaterOpenObject::callbackCreateInventoryCategory(const LLUUID& category_id, LLUUID object_id, bool wear)
 {
 	LLCatAndWear* wear_data = new LLCatAndWear;
-	LLUUID category_id = result["folder_id"].asUUID();
 
 	wear_data->mCatID = category_id;
 	wear_data->mWear = wear;

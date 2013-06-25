@@ -63,7 +63,7 @@ protected:
 
 	void onClickMoveToInventory();
 	void onClickMoveAndWear();
-	static void callbackCreateInventoryCategory(const LLSD& result, LLUUID object_id, bool wear);
+	static void callbackCreateInventoryCategory(const LLUUID& category_id, LLUUID object_id, bool wear);
 	static void callbackMoveInventory(S32 result, void* data);
 
 private:

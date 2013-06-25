@@ -472,7 +472,7 @@ class LLCreateInventoryCategoryResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLCreateInventoryCategoryResponder);
 public:
 	LLCreateInventoryCategoryResponder(LLInventoryModel* model, 
-									   boost::optional<llsd_func_type> callback):
+									   boost::optional<inventory_func_type> callback):
 		mModel(model),
 		mCallback(callback) 
 	{
@@ -511,12 +511,12 @@ protected:
 
 		if (mCallback)
 		{
-			mCallback.get()(content);
+			mCallback.get()(category_id);
 		}
 	}
 	
 private:
-	boost::optional<llsd_func_type> mCallback;
+	boost::optional<inventory_func_type> mCallback;
 	LLInventoryModel* mModel;
 };
 
@@ -527,7 +527,7 @@ private:
 LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 										   LLFolderType::EType preferred_type,
 										   const std::string& pname,
-										   boost::optional<llsd_func_type> callback)
+										   boost::optional<inventory_func_type> callback)
 {
 	
 	LLUUID id;
