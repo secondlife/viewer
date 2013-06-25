@@ -380,6 +380,13 @@ void LLSocialPhotoPanel::onSend()
 
 	LLFacebookConnect::instance().sharePhoto(previewp->getFormattedImage(), caption);
 	updateControls();
+
+	// Close the floater once "Post" has been pushed
+	LLFloater* floater = getParentByType<LLFloater>();
+	if (floater)
+	{
+		floater->closeFloater();
+	}
 }
 
 
