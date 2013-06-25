@@ -4472,6 +4472,9 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 					continue; //skip degenerate face
 				}
 
+				LLVector4a default_norm;
+				default_norm.set(0,1,0,1);
+
 				//for each edge
 				for (S32 k = 0; k < 3; k++) {
 					S32 index = face.mEdge[j*3+k];
@@ -4493,14 +4496,14 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 
 						norm_mat.rotate(n[v1], t);
 
-						t.normalize3fast();
+						t.normalize3fast_checked(&default_norm);
 						normals.push_back(LLVector3(t[0], t[1], t[2]));
 
 						mat.affineTransform(v[v2], t);
 						vertices.push_back(LLVector3(t[0], t[1], t[2]));
 						
 						norm_mat.rotate(n[v2], t);
-						t.normalize3fast();
+						t.normalize3fast_checked(&default_norm);
 						normals.push_back(LLVector3(t[0], t[1], t[2]));
 					}
 				}		
@@ -6096,6 +6099,9 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 	{
 		VertexData	corners[4];
 		VertexData baseVert;
+		LLVector4a default_norm;
+		default_norm.set(0,1,0,1);
+
 		for(S32 t = 0; t < 4; t++)
 		{
 			corners[t].getPosition().load3( mesh[offset + (grid_size*t)].mPos.mV);
@@ -6108,8 +6114,8 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 			lhs.setSub(corners[1].getPosition(), corners[0].getPosition());
 			LLVector4a rhs;
 			rhs.setSub(corners[2].getPosition(), corners[1].getPosition());
-			baseVert.getNormal().setCross3(lhs, rhs); 
-			baseVert.getNormal().normalize3fast();
+			baseVert.getNormal().setCross3(lhs, rhs);
+			baseVert.getNormal().normalize3fast_checked(&default_norm);
 		}
 
 		if(!(mTypeMask & TOP_MASK))
@@ -6559,17 +6565,12 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	d1.setSub(mPositions[mIndices[2]], mPositions[mIndices[0]]);
 
 	LLVector4a normal;
+	LLVector4a default_norm;
+	default_norm.set(0,1,0,1);
+
 	normal.setCross3(d0,d1);
-
-	if (normal.dot3(normal).getF32() > F_APPROXIMATELY_ZERO)
-	{
-		normal.normalize3fast();
-	}
-	else
-	{ //degenerate, make up a value
-		normal.set(0,0,1);
-	}
-
+	normal.normalize3fast_checked(&default_norm);
+	
 	llassert(llfinite(normal.getF32ptr()[0]));
 	llassert(llfinite(normal.getF32ptr()[1]));
 	llassert(llfinite(normal.getF32ptr()[2]));
@@ -6611,11 +6612,13 @@ void LLVolumeFace::createTangents()
 		CalculateTangentArray(mNumVertices, mPositions, mNormals, mTexCoords, mNumIndices/3, mIndices, mTangents);
 
 		//normalize tangents
+		LLVector4a default_norm;
+		default_norm.set(0,1,0,1);
 		for (U32 i = 0; i < mNumVertices; i++) 
 		{
 			//binorm[i].normalize3fast();
 			//bump map/planar projection code requires normals to be normalized
-			mNormals[i].normalize3fast();
+			mNormals[i].normalize3fast_checked(&default_norm);
 		}
 	}
 }
@@ -6793,6 +6796,9 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 	mat.loadu(mat_in);
 	norm_mat.loadu(norm_mat_in);
 
+	LLVector4a default_norm;
+	default_norm.set(0,1,0,1);
+
 	for (U32 i = 0; i < face.mNumVertices; ++i)
 	{
 		//transform appended face position and store
@@ -6800,7 +6806,7 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 
 		//transform appended face normal and store
 		norm_mat.rotate(src_norm[i], dst_norm[i]);
-		dst_norm[i].normalize3fast();
+		dst_norm[i].normalize3fast_checked(&default_norm);
 
 		//copy appended face texture coordinate
 		dst_tc[i] = src_tc[i];
@@ -7213,42 +7219,41 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
         const LLVector2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent)
 {
-    //LLVector4a *tan1 = new LLVector4a[vertexCount * 2];
 	LLVector4a* tan1 = (LLVector4a*) ll_aligned_malloc_16(vertexCount*2*sizeof(LLVector4a));
 
-    LLVector4a* tan2 = tan1 + vertexCount;
+ LLVector4a* tan2 = tan1 + vertexCount;
 
 	memset(tan1, 0, vertexCount*2*sizeof(LLVector4a));
         
-    for (U32 a = 0; a < triangleCount; a++)
-    {
-        U32 i1 = *index_array++;
-        U32 i2 = *index_array++;
-        U32 i3 = *index_array++;
+   for (U32 a = 0; a < triangleCount; a++)
+   {
+      U32 i1 = *index_array++;
+      U32 i2 = *index_array++;
+      U32 i3 = *index_array++;
         
-        const LLVector4a& v1 = vertex[i1];
-        const LLVector4a& v2 = vertex[i2];
-        const LLVector4a& v3 = vertex[i3];
+      const LLVector4a& v1 = vertex[i1];
+      const LLVector4a& v2 = vertex[i2];
+      const LLVector4a& v3 = vertex[i3];
         
-        const LLVector2& w1 = texcoord[i1];
-        const LLVector2& w2 = texcoord[i2];
-        const LLVector2& w3 = texcoord[i3];
+      const LLVector2& w1 = texcoord[i1];
+      const LLVector2& w2 = texcoord[i2];
+      const LLVector2& w3 = texcoord[i3];
         
 		const F32* v1ptr = v1.getF32ptr();
 		const F32* v2ptr = v2.getF32ptr();
 		const F32* v3ptr = v3.getF32ptr();
 		
-        float x1 = v2ptr[0] - v1ptr[0];
-        float x2 = v3ptr[0] - v1ptr[0];
-        float y1 = v2ptr[1] - v1ptr[1];
-        float y2 = v3ptr[1] - v1ptr[1];
-        float z1 = v2ptr[2] - v1ptr[2];
-        float z2 = v3ptr[2] - v1ptr[2];
+      float x1 = v2ptr[0] - v1ptr[0];
+      float x2 = v3ptr[0] - v1ptr[0];
+      float y1 = v2ptr[1] - v1ptr[1];
+      float y2 = v3ptr[1] - v1ptr[1];
+      float z1 = v2ptr[2] - v1ptr[2];
+      float z2 = v3ptr[2] - v1ptr[2];
         
-        float s1 = w2.mV[0] - w1.mV[0];
-        float s2 = w3.mV[0] - w1.mV[0];
-        float t1 = w2.mV[1] - w1.mV[1];
-        float t2 = w3.mV[1] - w1.mV[1];
+      float s1 = w2.mV[0] - w1.mV[0];
+      float s2 = w3.mV[0] - w1.mV[0];
+      float t1 = w2.mV[1] - w1.mV[1];
+      float t2 = w3.mV[1] - w1.mV[1];
         
 		F32 rd = s1*t2-s2*t1;
 
