@@ -43,6 +43,7 @@ static LLRegisterPanelClassWrapper<LLSocialPhotoPanel> t_panel_photo("llsocialph
 static LLRegisterPanelClassWrapper<LLSocialCheckinPanel> t_panel_checkin("llsocialcheckinpanel");
 
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
+const std::string DEFAULT_CHECKIN_ICON_URL = "http://logok.org/wp-content/uploads/2010/07/podcastlogo1.jpg";
 
 std::string get_map_url()
 {
@@ -411,7 +412,7 @@ void LLSocialCheckinPanel::onSend()
     
 	// Optionally add the region map view
 	bool add_map_view = getChild<LLUICtrl>("add_place_view_cb")->getValue().asBoolean();
-    std::string map_url = (add_map_view ? get_map_url() : "");
+    std::string map_url = (add_map_view ? get_map_url() : DEFAULT_CHECKIN_ICON_URL);
     
 	// Get the caption
 	std::string caption = getChild<LLUICtrl>("place_caption")->getValue().asString();
