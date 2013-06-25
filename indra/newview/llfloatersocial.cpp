@@ -57,21 +57,48 @@ std::string get_map_url()
     return map_url;
 }
 
-LLSocialStatusPanel::LLSocialStatusPanel()
+LLSocialStatusPanel::LLSocialStatusPanel() :
+	mMessageTextEditor(NULL),
+	mPostStatusButton(NULL)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendStatus", boost::bind(&LLSocialStatusPanel::onSend, this));
 }
 
+BOOL LLSocialStatusPanel::postBuild()
+{
+	mMessageTextEditor = getChild<LLUICtrl>("status_message");
+	mPostStatusButton = getChild<LLUICtrl>("post_status_btn");
+
+	return LLPanel::postBuild();
+}
+
+void LLSocialStatusPanel::draw()
+{
+	if (mMessageTextEditor && mPostStatusButton)
+	{
+		std::string message = mMessageTextEditor->getValue().asString();
+		mPostStatusButton->setEnabled(!message.empty());
+	}
+
+	LLPanel::draw();
+}
+
 void LLSocialStatusPanel::onSend()
 {
-	std::string message = getChild<LLUICtrl>("message")->getValue().asString();
-	LLFacebookConnect::instance().updateStatus(message);
+	if (mMessageTextEditor)
+	{
+		std::string message = mMessageTextEditor->getValue().asString();
+		if (!message.empty())
+		{
+			LLFacebookConnect::instance().updateStatus(message);
 	
-	LLFloater* floater = getParentByType<LLFloater>();
-    if (floater)
-    {
-        floater->closeFloater();
-    }
+			LLFloater* floater = getParentByType<LLFloater>();
+			if (floater)
+			{
+				floater->closeFloater();
+			}
+		}
+	}
 }
 
 LLSocialPhotoPanel::LLSocialPhotoPanel() :
@@ -83,8 +110,6 @@ mThumbnailPlaceholder(NULL)
 {
 	mCommitCallbackRegistrar.add("PostToFacebook.Send", boost::bind(&LLSocialPhotoPanel::onSend, this));
 }
-
-
 
 LLSocialPhotoPanel::~LLSocialPhotoPanel()
 {
