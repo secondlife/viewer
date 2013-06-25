@@ -1026,11 +1026,6 @@ U32 LLViewerObject::extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector
 {
 	U32	parent_id = 0;
 	LLViewerObject::unpackParentID(dp, parent_id);
-	if(parent_id > 0)
-	{
-		//is a child, no need to decode further.
-		return parent_id;
-	}
 
 	LLViewerObject::unpackVector3(dp, scale, "Scale");
 	LLViewerObject::unpackVector3(dp, pos, "Pos");
