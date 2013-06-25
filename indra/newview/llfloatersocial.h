@@ -81,7 +81,17 @@ class LLSocialCheckinPanel : public LLPanel
 {
 public:
     LLSocialCheckinPanel();
+	BOOL postBuild();
+	void draw();
     void onSend();
+private:
+    std::string mMapUrl;
+    LLPointer<LLViewerFetchedTexture> mMapTexture;
+    LLUICtrl* mMapLoadingIndicator;
+    LLIconCtrl* mMapPlaceholder;
+    LLCheckBoxCtrl* mMapCheckBox;
+    bool mReloadingMapTexture;
+    bool mMapCheckBoxValue;
 };
 
 class LLFloaterSocial : public LLFloater
@@ -99,11 +109,6 @@ public:
 
 private:
 	LLSocialPhotoPanel * mSocialPhotoPanel;
-    std::string mMapUrl;
-    LLPointer<LLViewerFetchedTexture> mMapTexture;
-	LLPointer<LLUIImage> mMapPlaceholder;
-    bool mReloadingMapTexture;
-    bool mMapCheckBoxValue;
 };
 
 #endif // LL_LLFLOATERSOCIAL_H
