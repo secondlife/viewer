@@ -512,6 +512,7 @@ set(viewer_SOURCE_FILES
     llsidetraypanelcontainer.cpp
     llsky.cpp
     llslurl.cpp
+    llsnapshotlivepreview.cpp
     llsociallist.cpp
     llspatialpartition.cpp
     llspeakers.cpp
@@ -1090,6 +1091,7 @@ set(viewer_HEADER_FILES
     llsidetraypanelcontainer.h
     llsky.h
     llslurl.h
+    llsnapshotlivepreview.h
     llsociallist.h
     llspatialpartition.h
     llspeakers.h

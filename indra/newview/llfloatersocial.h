@@ -30,18 +30,51 @@
 #include "llfloater.h"
 #include "llviewertexture.h"
 
+#include "llsnapshotlivepreview.h"
+
 class LLSocialStatusPanel : public LLPanel
 {
 public:
     LLSocialStatusPanel();
+	BOOL postBuild();
+	void draw();
     void onSend();
+
+private:
+	LLUICtrl* mMessageTextEditor;
+	LLUICtrl* mPostStatusButton;
 };
 
 class LLSocialPhotoPanel : public LLPanel
 {
+
 	public:
 		LLSocialPhotoPanel();
+		~LLSocialPhotoPanel();
+
+		BOOL postBuild();
+		void draw();
 		void onSend();
+
+		const LLRect& getThumbnailPlaceholderRect() { return mThumbnailPlaceholder->getRect(); }
+		void onResolutionComboCommit();
+		void onClickNewSnapshot();
+
+		LLHandle<LLView> mPreviewHandle;
+
+		void updateResolution(LLUICtrl* ctrl, void* data, BOOL do_update = TRUE);
+		void setNeedRefresh(bool need);
+		void checkAspectRatio(LLFloaterSnapshot *view, S32 index);
+		LLSnapshotLivePreview* getPreviewView();
+
+		void updateControls();
+
+		LLUICtrl * mResolutionComboBox;
+		LLUICtrl *mRefreshBtn, *mRefreshLabel;
+		LLUICtrl *mSucceessLblPanel, *mFailureLblPanel;
+		LLUICtrl* mThumbnailPlaceholder;
+
+		bool mNeedRefresh;
 };
 
 class LLSocialCheckinPanel : public LLPanel
@@ -57,8 +90,15 @@ public:
 	LLFloaterSocial(const LLSD& key);
 	BOOL postBuild();
 	void onCancel();
+	void onOpen(const LLSD& key);
 	/*virtual*/ void draw();
+
+
+	static void preUpdate();
+	static void postUpdate();
+
 private:
+	LLSocialPhotoPanel * mSocialPhotoPanel;
     std::string mMapUrl;
     LLPointer<LLViewerFetchedTexture> mMapTexture;
 	LLPointer<LLUIImage> mMapPlaceholder;
