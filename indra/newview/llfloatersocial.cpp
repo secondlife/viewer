@@ -34,6 +34,7 @@
 #include "llfacebookconnect.h"
 #include "llfloaterreg.h"
 #include "lliconctrl.h"
+#include "llloadingindicator.h"
 #include "llslurl.h"
 #include "llviewerregion.h"
 #include "llviewercontrol.h"
@@ -453,8 +454,12 @@ void LLFloaterSocial::draw()
         mMapTexture->setBoostLevel(LLGLTexture::BOOST_MAP);
         mReloadingMapTexture = true;
         // In the meantime, put back the "loading" placeholder in the map widget
-        getChild<LLIconCtrl>("map_placeholder")->setImage(mMapPlaceholder);
-    }
+        getChild<LLLoadingIndicator>("map_loading_indicator")->setVisible(true);
+        getChild<LLIconCtrl>("map_placeholder")->setVisible(false);
+        mMapCheckBoxValue = getChild<LLCheckBoxCtrl>("add_place_view_cb")->get();
+        getChild<LLCheckBoxCtrl>("add_place_view_cb")->set(false);
+        getChild<LLCheckBoxCtrl>("add_place_view_cb")->setEnabled(false);
+   }
     // Are we done loading the map tile?
     if (mReloadingMapTexture && mMapTexture->isFullyLoaded())
     {
@@ -464,6 +469,11 @@ void LLFloaterSocial::draw()
         LLPointer<LLUIImage> ui_image = new LLUIImage(mMapUrl, mMapTexture);
         // Point map widget to correct map tile
         getChild<LLIconCtrl>("map_placeholder")->setImage(ui_image);
+        // Switch visibility
+        getChild<LLLoadingIndicator>("map_loading_indicator")->setVisible(false);
+        getChild<LLIconCtrl>("map_placeholder")->setVisible(true);
+        getChild<LLCheckBoxCtrl>("add_place_view_cb")->setEnabled(true);
+        getChild<LLCheckBoxCtrl>("add_place_view_cb")->set(mMapCheckBoxValue);
     }
     LLFloater::draw();
 }

@@ -103,6 +103,7 @@ private:
     LLPointer<LLViewerFetchedTexture> mMapTexture;
 	LLPointer<LLUIImage> mMapPlaceholder;
     bool mReloadingMapTexture;
+    bool mMapCheckBoxValue;
 };
 
 #endif // LL_LLFLOATERSOCIAL_H
