@@ -38,6 +38,7 @@
 #include "llviewerregion.h"
 #include "llviewercontrol.h"
 
+static LLRegisterPanelClassWrapper<LLSocialStatusPanel> t_panel_status("llsocialstatuspanel");
 static LLRegisterPanelClassWrapper<LLSocialPhotoPanel> t_panel_photo("llsocialphotopanel");
 static LLRegisterPanelClassWrapper<LLSocialCheckinPanel> t_panel_checkin("llsocialcheckinpanel");
 
@@ -52,6 +53,23 @@ std::string get_map_url()
     int y_pos = center_agent[1] / 256.0;
     std::string map_url = gSavedSettings.getString("CurrentMapServerURL") + llformat("map-1-%d-%d-objects.jpg", x_pos, y_pos);
     return map_url;
+}
+
+LLSocialStatusPanel::LLSocialStatusPanel()
+{
+	mCommitCallbackRegistrar.add("SocialSharing.SendStatus", boost::bind(&LLSocialStatusPanel::onSend, this));
+}
+
+void LLSocialStatusPanel::onSend()
+{
+	std::string message = getChild<LLUICtrl>("message")->getValue().asString();
+	LLFacebookConnect::instance().updateStatus(message);
+	
+	LLFloater* floater = getParentByType<LLFloater>();
+    if (floater)
+    {
+        floater->closeFloater();
+    }
 }
 
 LLSocialPhotoPanel::LLSocialPhotoPanel()
