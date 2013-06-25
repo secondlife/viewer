@@ -1201,7 +1201,15 @@ void LLPipeline::releaseLUTBuffers()
 {
 	if (mLightFunc)
 	{
-		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, GL_R16F, 0, 1, &mLightFunc);
+		U32 use_high_precision = gSavedSettings.getU32("RenderSpecularPrecision");
+
+		U32 pix_format = use_high_precision ? GL_R32F : GL_R16F;
+
+#if LL_DARWIN
+		pix_format = GL_R32F;
+#endif
+
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, pix_format, 0, 1, &mLightFunc);
 		mLightFunc = 0;
 	}
 }
@@ -1402,7 +1410,16 @@ void LLPipeline::createLUTBuffers()
 			}
 			// Need to work around limited precision with 10.6.8 and older drivers
 			//
-			U32 pix_format = GL_R32F;
+			U32 use_high_precision = gSavedSettings.getU32("RenderSpecularPrecision");
+				
+			U32 pix_format = use_high_precision ? GL_R32F : GL_R16F;
+
+#if LL_DARWIN
+			// Forced to work around 10.6.8. driver bugs on most every GPU
+			//
+			pix_format = GL_R32F;
+#endif
+
 			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, pix_format, 1, &mLightFunc);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
 			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, pix_format, lightResX, lightResY, GL_RED, GL_FLOAT, ls, false);
