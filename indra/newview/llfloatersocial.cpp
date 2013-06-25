@@ -42,6 +42,8 @@ static LLRegisterPanelClassWrapper<LLSocialStatusPanel> t_panel_status("llsocial
 static LLRegisterPanelClassWrapper<LLSocialPhotoPanel> t_panel_photo("llsocialphotopanel");
 static LLRegisterPanelClassWrapper<LLSocialCheckinPanel> t_panel_checkin("llsocialcheckinpanel");
 
+const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
+
 std::string get_map_url()
 {
     LLVector3d center_agent;
@@ -94,6 +96,8 @@ LLSocialPhotoPanel::~LLSocialPhotoPanel()
 
 BOOL LLSocialPhotoPanel::postBuild()
 {
+	mResolutionComboBox = getChild<LLUICtrl>("resolution_combobox");
+	mResolutionComboBox->setCommitCallback(boost::bind(&LLSocialPhotoPanel::onResolutionComboCommit, this));
 	mRefreshBtn = getChild<LLUICtrl>("new_snapshot_btn");
 	childSetAction("new_snapshot_btn", boost::bind(&LLSocialPhotoPanel::onClickNewSnapshot, this));
 	mRefreshLabel = getChild<LLUICtrl>("refresh_lbl");
@@ -112,6 +116,12 @@ BOOL LLSocialPhotoPanel::postBuild()
 	return LLPanel::postBuild();
 }
 
+void LLSocialPhotoPanel::onResolutionComboCommit()
+{
+	LLFloaterSocial* instance = LLFloaterReg::findTypedInstance<LLFloaterSocial>("social");
+	updateResolution(mResolutionComboBox, instance); 
+}
+
 void LLSocialPhotoPanel::onClickNewSnapshot()
 {
 	LLSnapshotLivePreview* previewp = static_cast<LLSnapshotLivePreview*>(mPreviewHandle.get());
@@ -122,6 +132,131 @@ void LLSocialPhotoPanel::onClickNewSnapshot()
 		lldebugs << "updating snapshot" << llendl;
 		previewp->updateSnapshot(TRUE);
 	}
+}
+
+void LLSocialPhotoPanel::updateResolution(LLUICtrl* ctrl, void* data, BOOL do_update)
+{
+	LLComboBox* combobox = (LLComboBox*)ctrl;
+	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
+
+	if (!view || !combobox)
+	{
+		llassert(view && combobox);
+		return;
+	}
+
+	std::string sdstring = combobox->getSelectedValue();
+	LLSD sdres;
+	std::stringstream sstream(sdstring);
+	LLSDSerialize::fromNotation(sdres, sstream, sdstring.size());
+
+	S32 width = sdres[0];
+	S32 height = sdres[1];
+
+	LLSnapshotLivePreview * previewp = static_cast<LLSnapshotLivePreview *>(mPreviewHandle.get());
+	if (previewp && combobox->getCurrentIndex() >= 0)
+	{
+		S32 original_width = 0 , original_height = 0 ;
+		previewp->getSize(original_width, original_height) ;
+
+		if (width == 0 || height == 0)
+		{
+			// take resolution from current window size
+			lldebugs << "Setting preview res from window: " << gViewerWindow->getWindowWidthRaw() << "x" << gViewerWindow->getWindowHeightRaw() << llendl;
+			previewp->setSize(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
+		}
+		else
+		{
+			// use the resolution from the selected pre-canned drop-down choice
+			lldebugs << "Setting preview res selected from combo: " << width << "x" << height << llendl;
+			previewp->setSize(width, height);
+		}
+
+		checkAspectRatio(view, width) ;
+
+		previewp->getSize(width, height);
+		
+		if(original_width != width || original_height != height)
+		{
+			previewp->setSize(width, height);
+
+			// hide old preview as the aspect ratio could be wrong
+			lldebugs << "updating thumbnail" << llendl;
+			
+			previewp->updateSnapshot(FALSE, TRUE);
+			if(do_update)
+			{
+				lldebugs << "Will update controls" << llendl;
+				updateControls();
+				setNeedRefresh(true);
+			}
+		}
+		
+	}
+}
+
+void LLSocialPhotoPanel::setNeedRefresh(bool need)
+{
+	mRefreshLabel->setVisible(need);
+	mNeedRefresh = need;
+}
+
+void LLSocialPhotoPanel::checkAspectRatio(LLFloaterSnapshot *view, S32 index)
+{
+	LLSnapshotLivePreview *previewp = getPreviewView() ;
+
+	BOOL keep_aspect = FALSE;
+
+	if (0 == index) // current window size
+	{
+		keep_aspect = TRUE;
+	}
+	else // predefined resolution
+	{
+		keep_aspect = FALSE;
+	}
+
+	if (previewp)
+	{
+		previewp->mKeepAspectRatio = keep_aspect;
+	}
+}
+
+LLSnapshotLivePreview* LLSocialPhotoPanel::getPreviewView()
+{
+	LLSnapshotLivePreview* previewp = (LLSnapshotLivePreview*)mPreviewHandle.get();
+	return previewp;
+}
+
+
+void LLSocialPhotoPanel::updateControls()
+{
+
+
+	LLSnapshotLivePreview* previewp = getPreviewView();
+	BOOL got_bytes = previewp && previewp->getDataSize() > 0;
+	BOOL got_snap = previewp && previewp->getSnapshotUpToDate();
+
+	// *TODO: Separate maximum size for Web images from postcards
+	lldebugs << "Is snapshot up-to-date? " << got_snap << llendl;
+
+	LLLocale locale(LLLocale::USER_LOCALE);
+	std::string bytes_string;
+	if (got_snap)
+	{
+		LLResMgr::getInstance()->getIntegerString(bytes_string, (previewp->getDataSize()) >> 10 );
+	}
+
+	//getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : getString("unknown"));
+	getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : "unknown");
+	getChild<LLUICtrl>("file_size_label")->setColor(
+		true 
+		&& got_bytes
+		&& previewp->getDataSize() > MAX_POSTCARD_DATASIZE ? LLUIColor(LLColor4::red) : LLUIColorTable::instance().getColor( "LabelTextColor" ));
+
+	LLComboBox* combo = getChild<LLComboBox>("resolution_combobox");
+	LLFloaterSocial* instance = LLFloaterReg::findTypedInstance<LLFloaterSocial>("social");
+	updateResolution(combo, instance, FALSE);
 }
 
 void LLSocialPhotoPanel::draw()
@@ -179,7 +314,7 @@ void LLSocialPhotoPanel::draw()
 		// Position the refresh button in the bottom left corner of the thumbnail.
 		mRefreshBtn->setOrigin(local_offset_x + PADDING, local_offset_y + PADDING);
 
-		if (/*impl.mNeedRefresh*/false)
+		if (mNeedRefresh)
 		{
 			// Place the refresh hint text to the right of the refresh button.
 			const LLRect& refresh_btn_rect = mRefreshBtn->getRect();
@@ -191,7 +326,11 @@ void LLSocialPhotoPanel::draw()
 		}
 
 		gGL.pushUIMatrix();
-		LLUI::translate((F32) thumbnail_rect.mLeft, (F32) thumbnail_rect.mBottom);
+		S32 x_pos;
+		S32 y_pos;
+		snapshot_panel->localPointToOtherView(thumbnail_rect.mLeft, thumbnail_rect.mBottom, &x_pos, &y_pos, gFloaterView->getParentFloater(this));
+		
+		LLUI::translate((F32) x_pos, (F32) y_pos);
 		mThumbnailPlaceholder->draw();
 		gGL.popUIMatrix();
 	}
@@ -311,5 +450,43 @@ void LLFloaterSocial::onOpen(const LLSD& key)
 	{
 		lldebugs << "opened, updating snapshot" << llendl;
 		preview->updateSnapshot(TRUE);
+	}
+}
+
+// static
+void LLFloaterSocial::preUpdate()
+{
+	// FIXME: duplicated code
+	LLFloaterSocial* instance = LLFloaterReg::findTypedInstance<LLFloaterSocial>("social");
+	if (instance)
+	{
+		// Disable the send/post/save buttons until snapshot is ready.
+		instance->mSocialPhotoPanel->updateControls();
+
+		// Force hiding the "Refresh to save" hint because we know we've just started refresh.
+		instance->mSocialPhotoPanel->setNeedRefresh(false);
+	}
+}
+
+// static
+void LLFloaterSocial::postUpdate()
+{
+	// FIXME: duplicated code
+	LLFloaterSocial* instance = LLFloaterReg::findTypedInstance<LLFloaterSocial>("social");
+	if (instance)
+	{
+		// Enable the send/post/save buttons.
+		instance->mSocialPhotoPanel->updateControls();
+
+		// We've just done refresh.
+		instance->mSocialPhotoPanel->setNeedRefresh(false);
+
+		// The refresh button is initially hidden. We show it after the first update,
+		// i.e. when preview appears.
+		if (!instance->mSocialPhotoPanel->mRefreshBtn->getVisible())
+		{
+			instance->mSocialPhotoPanel->mRefreshBtn->setVisible(true);
+		}
+		
 	}
 }

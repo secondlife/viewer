@@ -29,7 +29,7 @@
 
 #include "llsnapshotlivepreview.h"
 
-
+#include "llfloatersocial.h"
 
 const F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
 
@@ -186,6 +186,7 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
 		mSnapshotDelayTimer.start();
 		mSnapshotDelayTimer.setTimerExpirySec(delay);
 		LLFloaterSnapshot::preUpdate();
+		LLFloaterSocial::preUpdate();
 	}
 
 	// Update thumbnail if requested.
@@ -742,6 +743,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	}
 	lldebugs << "done creating snapshot" << llendl;
 	LLFloaterSnapshot::postUpdate();
+	LLFloaterSocial::postUpdate();
 
 	return TRUE;
 }

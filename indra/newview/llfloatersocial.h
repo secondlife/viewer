@@ -51,14 +51,24 @@ class LLSocialPhotoPanel : public LLPanel
 		void onSend();
 
 		const LLRect& getThumbnailPlaceholderRect() { return mThumbnailPlaceholder->getRect(); }
+		void onResolutionComboCommit();
 		void onClickNewSnapshot();
 
 		LLHandle<LLView> mPreviewHandle;
 
-private:
+		void updateResolution(LLUICtrl* ctrl, void* data, BOOL do_update = TRUE);
+		void setNeedRefresh(bool need);
+		void checkAspectRatio(LLFloaterSnapshot *view, S32 index);
+		LLSnapshotLivePreview* getPreviewView();
+
+		void updateControls();
+
+		LLUICtrl * mResolutionComboBox;
 		LLUICtrl *mRefreshBtn, *mRefreshLabel;
 		LLUICtrl *mSucceessLblPanel, *mFailureLblPanel;
 		LLUICtrl* mThumbnailPlaceholder;
+
+		bool mNeedRefresh;
 };
 
 class LLSocialCheckinPanel : public LLPanel
@@ -76,6 +86,11 @@ public:
 	void onCancel();
 	void onOpen(const LLSD& key);
 	/*virtual*/ void draw();
+
+
+	static void preUpdate();
+	static void postUpdate();
+
 private:
 	LLSocialPhotoPanel * mSocialPhotoPanel;
     std::string mMapUrl;

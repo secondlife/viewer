@@ -131,10 +131,6 @@
                label="1024x768"
                name="1024x768"
                value="[i1024,i768]" />
-              <combo_box.item
-               label="Custom"
-               name="Custom"
-               value="[i-1,i-1]" />
             </combo_box>
             <text
              follows="left|top"
@@ -147,7 +143,7 @@
              top="12"
              type="string"
              width="50">
-              1,031 KB
+              [SIZE] KB
             </text>
             <ui_ctrl
                 height="150"
