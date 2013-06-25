@@ -108,6 +108,7 @@
             help_topic="snapshot_panel"
             name="snapshot_panel">
             <combo_box
+             control_name="SocialPhotoResolution"
              follows="left|top"
              top="6"
              left="9"
