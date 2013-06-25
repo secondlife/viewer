@@ -33,20 +33,43 @@
 #include "llagentui.h"
 #include "llfacebookconnect.h"
 #include "llfloaterreg.h"
+#include "lliconctrl.h"
 #include "llslurl.h"
 #include "llviewerregion.h"
 #include "llviewercontrol.h"
 
+static LLRegisterPanelClassWrapper<LLSocialStatusPanel> t_panel_status("llsocialstatuspanel");
 static LLRegisterPanelClassWrapper<LLSocialPhotoPanel> t_panel_photo("llsocialphotopanel");
 static LLRegisterPanelClassWrapper<LLSocialCheckinPanel> t_panel_checkin("llsocialcheckinpanel");
 
 std::string get_map_url()
 {
-    LLVector3d center_agent = gAgent.getRegion()->getCenterGlobal();
+    LLVector3d center_agent;
+    if (gAgent.getRegion())
+    {
+        center_agent = gAgent.getRegion()->getCenterGlobal();
+    }
     int x_pos = center_agent[0] / 256.0;
     int y_pos = center_agent[1] / 256.0;
     std::string map_url = gSavedSettings.getString("CurrentMapServerURL") + llformat("map-1-%d-%d-objects.jpg", x_pos, y_pos);
     return map_url;
+}
+
+LLSocialStatusPanel::LLSocialStatusPanel()
+{
+	mCommitCallbackRegistrar.add("SocialSharing.SendStatus", boost::bind(&LLSocialStatusPanel::onSend, this));
+}
+
+void LLSocialStatusPanel::onSend()
+{
+	std::string message = getChild<LLUICtrl>("message")->getValue().asString();
+	LLFacebookConnect::instance().updateStatus(message);
+	
+	LLFloater* floater = getParentByType<LLFloater>();
+    if (floater)
+    {
+        floater->closeFloater();
+    }
 }
 
 LLSocialPhotoPanel::LLSocialPhotoPanel() :
@@ -194,20 +217,9 @@ void LLSocialPhotoPanel::onSend()
 }
 
 
-LLSocialCheckinPanel::LLSocialCheckinPanel() :
-    mMapUrl("")
+LLSocialCheckinPanel::LLSocialCheckinPanel()
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendCheckin", boost::bind(&LLSocialCheckinPanel::onSend, this));
-}
-
-/*virtual*/
-void LLSocialCheckinPanel::setVisible(BOOL visible)
-{
-    if (visible)
-    {
-        mMapUrl = get_map_url();
-    }
-    LLPanel::setVisible(visible);
 }
 
 void LLSocialCheckinPanel::onSend()
@@ -224,10 +236,9 @@ void LLSocialCheckinPanel::onSend()
 	std::string description;
 	LLAgentUI::buildLocationString(description, LLAgentUI::LOCATION_FORMAT_NORMAL_COORDS, gAgent.getPositionAgent());
     
-    
 	// Optionally add the region map view
 	bool add_map_view = getChild<LLUICtrl>("add_place_view_cb")->getValue().asBoolean();
-    std::string map_url = (add_map_view ? mMapUrl : "");
+    std::string map_url = (add_map_view ? get_map_url() : "");
     
 	// Get the caption
 	std::string caption = getChild<LLUICtrl>("place_caption")->getValue().asString();
@@ -244,9 +255,10 @@ void LLSocialCheckinPanel::onSend()
 }
 
 
-LLFloaterSocial::LLFloaterSocial(const LLSD& key) : 
-LLFloater(key),
-mSocialPhotoPanel(NULL)
+LLFloaterSocial::LLFloaterSocial(const LLSD& key) : LLFloater(key),
+    mMapUrl(""),
+    mReloadingMapTexture(false),
+    mSocialPhotoPanel(NULL)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.Cancel", boost::bind(&LLFloaterSocial::onCancel, this));
 }
@@ -259,8 +271,37 @@ void LLFloaterSocial::onCancel()
 BOOL LLFloaterSocial::postBuild()
 {
 	mSocialPhotoPanel = static_cast<LLSocialPhotoPanel*>(getChild<LLUICtrl>("social_photo_tab"));
-
+    // Keep a pointer to the map tile placeholder texture
+    mMapPlaceholder = getChild<LLIconCtrl>("map_placeholder")->getImage();
 	return LLFloater::postBuild();
+}
+
+/*virtual*/
+void LLFloaterSocial::draw()
+{
+    std::string map_url = get_map_url();
+    // Did we change location?
+    if (map_url != mMapUrl)
+    {
+        mMapUrl = map_url;
+        // Load the map tile
+        mMapTexture = LLViewerTextureManager::getFetchedTextureFromUrl(mMapUrl, FTT_MAP_TILE, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+        mMapTexture->setBoostLevel(LLGLTexture::BOOST_MAP);
+        mReloadingMapTexture = true;
+        // In the meantime, put back the "loading" placeholder in the map widget
+        getChild<LLIconCtrl>("map_placeholder")->setImage(mMapPlaceholder);
+    }
+    // Are we done loading the map tile?
+    if (mReloadingMapTexture && mMapTexture->isFullyLoaded())
+    {
+        // Don't do it again next time around
+        mReloadingMapTexture = false;
+        // Convert the map texture to the appropriate image object
+        LLPointer<LLUIImage> ui_image = new LLUIImage(mMapUrl, mMapTexture);
+        // Point map widget to correct map tile
+        getChild<LLIconCtrl>("map_placeholder")->setImage(ui_image);
+    }
+    LLFloater::draw();
 }
 
 void LLFloaterSocial::onOpen(const LLSD& key)

@@ -28,13 +28,21 @@
 #define LL_LLFLOATERSOCIAL_H
 
 #include "llfloater.h"
+#include "llviewertexture.h"
 
 #include "llsnapshotlivepreview.h"
+
+class LLSocialStatusPanel : public LLPanel
+{
+public:
+    LLSocialStatusPanel();
+    void onSend();
+};
 
 class LLSocialPhotoPanel : public LLPanel
 {
 
-public:
+	public:
 		LLSocialPhotoPanel();
 		~LLSocialPhotoPanel();
 
@@ -58,9 +66,6 @@ class LLSocialCheckinPanel : public LLPanel
 public:
     LLSocialCheckinPanel();
     void onSend();
-	/*virtual*/ void setVisible(BOOL visible);
-private:
-    std::string mMapUrl;
 };
 
 class LLFloaterSocial : public LLFloater
@@ -70,10 +75,13 @@ public:
 	BOOL postBuild();
 	void onCancel();
 	void onOpen(const LLSD& key);
-
+	/*virtual*/ void draw();
 private:
-
 	LLSocialPhotoPanel * mSocialPhotoPanel;
+    std::string mMapUrl;
+    LLPointer<LLViewerFetchedTexture> mMapTexture;
+	LLPointer<LLUIImage> mMapPlaceholder;
+    bool mReloadingMapTexture;
 };
 
 #endif // LL_LLFLOATERSOCIAL_H
