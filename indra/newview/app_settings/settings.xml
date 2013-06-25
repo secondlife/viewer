@@ -12757,6 +12757,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SocialPhotoResolution</key>
+    <map>
+      <key>Comment</key>
+      <string>Default resolution when sharing photo using the social floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>[i800,i600]</string>
+    </map>  
     <key>sourceid</key>
     <map>
       <key>Comment</key>
