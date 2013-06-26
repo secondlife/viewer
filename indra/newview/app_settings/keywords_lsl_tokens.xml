@@ -1187,6 +1187,24 @@
             <key>tooltip</key>
             <string>When the prim is clicked, touch events are triggered".</string>
          </map>
+         <key>CONTENT_TYPE_ATOM</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>4</integer>
+            <key>tooltip</key>
+            <string>"application/atom+xml"</string>
+         </map>
+         <key>CONTENT_TYPE_FORM</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>7</integer>
+            <key>tooltip</key>
+            <string>"application/x-www-form-urlencoded"</string>
+         </map>
          <key>CONTENT_TYPE_HTML</key>
          <map>
             <key>type</key>
@@ -1196,6 +1214,33 @@
             <key>tooltip</key>
             <string>"text/html", only valid for embedded browsers on content owned by the person viewing. Falls back to "text/plain" otherwise.</string>
          </map>
+         <key>CONTENT_TYPE_JSON</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>5</integer>
+            <key>tooltip</key>
+            <string>"application/json"</string>
+         </map>
+         <key>CONTENT_TYPE_LLSD</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>6</integer>
+            <key>tooltip</key>
+            <string>"application/llsd+xml"</string>
+         </map>
+         <key>CONTENT_TYPE_RSS</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>8</integer>
+            <key>tooltip</key>
+            <string>"application/rss+xml"</string>
+         </map>
          <key>CONTENT_TYPE_TEXT</key>
          <map>
             <key>type</key>
@@ -1204,6 +1249,24 @@
             <integer>0</integer>
             <key>tooltip</key>
             <string>"text/plain"</string>
+         </map>
+         <key>CONTENT_TYPE_XHTML</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>3</integer>
+            <key>tooltip</key>
+            <string>"application/xhtml+xml"</string>
+         </map>
+         <key>CONTENT_TYPE_XML</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>2</integer>
+            <key>tooltip</key>
+            <string>"application/xml"</string>
          </map>
          <key>CONTROL_BACK</key>
          <map>
@@ -1407,6 +1470,51 @@
             <string>string</string>
             <key>value</key>
             <string>\n\n\n</string>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>ERR_GENERIC</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>-1</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>ERR_MALFORMED_PARAMS</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>-3</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>ERR_PARCEL_PERMISSIONS</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>-2</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>ERR_RUNTIME_PERMISSIONS</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>-4</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>ERR_THROTTLED</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>-5</integer>
             <key>tooltip</key>
             <string/>
          </map>
@@ -1686,6 +1794,78 @@
             <string>integer</string>
             <key>value</key>
             <integer>0</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>JSON_ARRAY</key>
+         <map>
+            <key>type</key>
+            <string>string</string>
+            <key>value</key>
+            <string>U+FDD2</string>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>JSON_FALSE</key>
+         <map>
+            <key>type</key>
+            <string>string</string>
+            <key>value</key>
+            <string>U+FDD7</string>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>JSON_INVALID</key>
+         <map>
+            <key>type</key>
+            <string>string</string>
+            <key>value</key>
+            <string>U+FDD0</string>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>JSON_NULL</key>
+         <map>
+            <key>type</key>
+            <string>string</string>
+            <key>value</key>
+            <string>U+FDD5</string>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>JSON_NUMBER</key>
+         <map>
+            <key>type</key>
+            <string>string</string>
+            <key>value</key>
+            <string>U+FDD3</string>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>JSON_OBJECT</key>
+         <map>
+            <key>type</key>
+            <string>string</string>
+            <key>value</key>
+            <string>U+FDD1</string>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>JSON_STRING</key>
+         <map>
+            <key>type</key>
+            <string>string</string>
+            <key>value</key>
+            <string>U+FDD4</string>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>JSON_TRUE</key>
+         <map>
+            <key>type</key>
+            <string>string</string>
+            <key>value</key>
+            <string>U+FDD6</string>
             <key>tooltip</key>
             <string/>
          </map>
@@ -2903,6 +3083,15 @@
             <integer>0x2</integer>
             <key>tooltip</key>
             <string>If this permission is enabled, the object can successfully call llGiveMoney or llTransferLindenDollars to debit the owners account.</string>
+         </map>
+         <key>PERMISSION_OVERRIDE_ANIMATIONS</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>0x8000</integer>
+            <key>tooltip</key>
+            <string>Permission to override default animations.</string>
          </map>
          <key>PERMISSION_RELEASE_OWNERSHIP</key>
          <map>
@@ -8329,6 +8518,27 @@
             <key>tooltip</key>
             <string>Returns a list of keys of playing animations for an avatar.\nReturns a list of keys of all playing animations for the specified avatar ID.</string>
          </map>
+         <key>llGetAnimationOverride</key>
+         <map>
+            <key>energy</key>
+            <real>0</real>
+            <key>sleep</key>
+            <real>0</real>
+            <key>return</key>
+            <string>string</string>
+            <key>arguments</key>
+            <map>
+               <key>AnimationState</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>Returns a string that is the name of the animation that is used for the specified animation state\nTo use this function the script must obtain either the PERMISSION_OVERRIDE_ANIMATIONS or PERMISSION_TRIGGER_ANIMATION permission (automatically granted to attached objects).</string>
+         </map>
          <key>llGetAttached</key>
          <map>
             <key>energy</key>
@@ -10515,6 +10725,118 @@
             <key>tooltip</key>
             <string>Returns a string that is a Base64 big endian encode of Value.\nEncodes the Value as an 8-character Base64 string.</string>
          </map>
+         <key>llJson2List</key>
+         <map>
+            <key>energy</key>
+            <real>0.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>list</string>
+            <key>arguments</key>
+            <map>
+               <key>JSON</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>Converts the top level of the JSON string to a list.</string>
+         </map>
+         <key>llJsonGetValue</key>
+         <map>
+            <key>energy</key>
+            <real>0.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>string</string>
+            <key>arguments</key>
+            <map>
+               <key>JSON</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+               <key>Specifiers</key>
+               <map>
+                  <key>type</key>
+                  <string>list</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>Gets the value indicated by Specifiers from the JSON string.</string>
+         </map>
+         <key>llJsonSetValue</key>
+         <map>
+            <key>energy</key>
+            <real>0.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>string</string>
+            <key>arguments</key>
+            <map>
+               <key>JSON</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+               <key>Specifiers</key>
+               <map>
+                  <key>type</key>
+                  <string>list</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+               <key>Value</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>Returns a new JSON string that is the JSON given with the Value indicated by Specifiers set to Value.</string>
+         </map>
+         <key>llJsonValueType</key>
+         <map>
+            <key>energy</key>
+            <real>0.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>string</string>
+            <key>arguments</key>
+            <map>
+               <key>JSON</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+               <key>Specifiers</key>
+               <map>
+                  <key>type</key>
+                  <string>list</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>Returns the type constant (JSON_*) for the value in JSON indicated by Specifiers.</string>
+         </map>
          <key>llKey2Name</key>
          <map>
             <key>energy</key>
@@ -10676,6 +10998,34 @@
             </map>
             <key>tooltip</key>
             <string>Copies the integer at Index in the list.\nReturns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to an integer, then zero is returned.</string>
+         </map>
+         <key>llList2Json</key>
+         <map>
+            <key>energy</key>
+            <real>0</real>
+            <key>sleep</key>
+            <real>0</real>
+            <key>return</key>
+            <string>string</string>
+            <key>arguments</key>
+            <map>
+               <key>JsonType</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+               <key>Values</key>
+               <map>
+                  <key>type</key>
+                  <string>list</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>Converts either a strided list of key:value pairs to a JSON_OBJECT, or a list of values to a JSON_ARRAY.</string>
          </map>
          <key>llList2Key</key>
          <map>
@@ -12584,50 +12934,6 @@
 				You do not need to make this call if you don't change regions.\nDeprecated: Use HTTP functions/events instead.\n
 				Does not work! Use llOpenRemoteDataChannel instead.</string>
          </map>
-         <key>llRemoteLoadScript</key>
-         <map>
-            <key>deprecated</key>
-            <boolean>true</boolean>
-            <key>energy</key>
-            <real>10.0</real>
-            <key>sleep</key>
-            <real>3.0</real>
-            <key>return</key>
-            <string>void</string>
-            <key>arguments</key>
-            <map>
-               <key>TargetID</key>
-               <map>
-                  <key>type</key>
-                  <string>key</string>
-                  <key>tooltip</key>
-                  <string/>
-               </map>
-               <key>Name</key>
-               <map>
-                  <key>type</key>
-                  <string>string</string>
-                  <key>tooltip</key>
-                  <string/>
-               </map>
-               <key>Running</key>
-               <map>
-                  <key>type</key>
-                  <string>integer</string>
-                  <key>tooltip</key>
-                  <string/>
-               </map>
-               <key>StartParameter</key>
-               <map>
-                  <key>type</key>
-                  <string>integer</string>
-                  <key>tooltip</key>
-                  <string/>
-               </map>
-            </map>
-            <key>tooltip</key>
-            <string>Deprecated. Please use llRemoteLoadScriptPin instead.\nDeprecated: Use llRemoteLoadScriptPin instead.</string>
-         </map>
          <key>llRemoteLoadScriptPin</key>
          <map>
             <key>energy</key>
@@ -12675,8 +12981,7 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>If the owner of the object this script is attached to can modify ObjectID,
-				they are in the same region, and the matching PIN is used, copy ScriptName into target, if Running == TRUE, start the script with StartParameter.\nIf the owner of the object containing this script can modify the object identified by the specified object key, and if the PIN matches the PIN previously set using llSetRemoteScriptAccessPin (on the target prim), then the script will be copied into target.</string>
+            <string>If the owner of the object this script is attached to can modify ObjectID, they are in the same region, and the matching PIN is used, copy ScriptName into target, if Running == TRUE, start the script with StartParameter.\nIf the owner of the object containing this script can modify the object identified by the specified object key, and if the PIN matches the PIN previously set using llSetRemoteScriptAccessPin (on the target prim), then the script will be copied into target.</string>
          </map>
          <key>llRemoveFromLandBanList</key>
          <map>
@@ -12945,6 +13250,27 @@
             <key>tooltip</key>
             <string>Requests single-word user-name of an avatar. When data is available the dataserver event will be raised.\nRequests the user-name of the identified agent. When the user-name is available the dataserver event is raised.\nThe agent identified does not need to be in the same region or online at the time of the request.\nReturns a key that is used to identify the dataserver event when it is raised.</string>
          </map>
+         <key>llResetAnimationOverride</key>
+         <map>
+            <key>energy</key>
+            <real>0</real>
+            <key>sleep</key>
+            <real>0</real>
+            <key>return</key>
+            <string>void</string>
+            <key>arguments</key>
+            <map>
+               <key>AnimationState</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>Resets the animation of the specified animation state to the default value.\nIf animation state equals "ALL", then all animation states are reset.</string>
+         </map>
          <key>llResetLandBanList</key>
          <map>
             <key>energy</key>
@@ -13017,6 +13343,55 @@
             <undef/>
             <key>tooltip</key>
             <string>Sets the time to zero.\nSets the internal timer to zero.</string>
+         </map>
+         <key>llReturnObjectsByID</key>
+         <map>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>integer</string>
+            <key>arguments</key>
+            <map>
+               <key>lObjectIDs</key>
+               <map>
+                  <key>type</key>
+                  <string>list</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>Return objects using their UUIDs</string>
+         </map>
+         <key>llReturnObjectsByOwner</key>
+         <map>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>integer</string>
+            <key>arguments</key>
+            <map>
+               <key>kID</key>
+               <map>
+                  <key>type</key>
+                  <string>key</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+               <key>iScope</key>
+               <map>
+                  <key>type</key>
+                  <string>integer</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>Return objects based upon their owner and a scope of parcel, parcel owner, or region.</string>
          </map>
          <key>llRezAtRoot</key>
          <map>
@@ -13759,6 +14134,34 @@
             </map>
             <key>tooltip</key>
             <string>Sets an object's angular velocity, in local coordinates if local == TRUE (if the script is physical).\nApplies angular (rotational) velocity to a physical object. Has no effect on non-physical objects.</string>
+         </map>
+         <key>llSetAnimationOverride</key>
+         <map>
+            <key>energy</key>
+            <real>0</real>
+            <key>sleep</key>
+            <real>0</real>
+            <key>return</key>
+            <string>void</string>
+            <key>arguments</key>
+            <map>
+               <key>AnimationState</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+               <key>AnimationName</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>Sets the animation (in object inventory) that will play for the given animation state.\nTo use this function the script must obtain the PERMISSION_OVERRIDE_ANIMATIONS permission.</string>
          </map>
          <key>llSetBuoyancy</key>
          <map>
