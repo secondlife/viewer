@@ -45,9 +45,8 @@ uniform float sun_wash;
 
 uniform int light_count;
 
-#define MAX_LIGHT_COUNT		16
-uniform vec4 light[MAX_LIGHT_COUNT];
-uniform vec4 light_col[MAX_LIGHT_COUNT];
+uniform vec4 light[LIGHT_COUNT];
+uniform vec4 light_col[LIGHT_COUNT];
 
 VARYING vec4 vary_fragcoord;
 uniform vec2 screen_res;
@@ -122,71 +121,57 @@ void main()
 	vec3 npos = normalize(-pos);
 
 	// As of OSX 10.6.7 ATI Apple's crash when using a variable size loop
-	for (int i = 0; i < MAX_LIGHT_COUNT; ++i)
+	for (int i = 0; i < LIGHT_COUNT; ++i)
 	{
-		bool light_contrib = (i < light_count);
-		
 		vec3 lv = light[i].xyz-pos;
 		float dist = length(lv);
 		dist /= light[i].w;
-		if (dist > 1.0)
+		if (dist <= 1.0)
 		{
-			light_contrib = false;
-		}
-		
-		float da = dot(norm, lv);
-		if (da < 0.0)
-		{
-			light_contrib = false;
-		}
-		
-		if (light_contrib)
-		{
-			lv = normalize(lv);
-			da = dot(norm, lv);
-			
-			float fa = light_col[i].a+1.0;
-			float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
-			dist_atten *= dist_atten;
-			dist_atten *= 2.0;
-			
-			dist_atten *= noise;
-
-			float lit = da * dist_atten;
-						
-			vec3 col = light_col[i].rgb*lit*diff;
-			
-			//vec3 col = vec3(dist2, light_col[i].a, lit);
-			
-			if (spec.a > 0.0)
+			float da = dot(norm, lv);
+			if (da > 0.0)
 			{
-				lit = min(da*6.0, 1.0) * dist_atten;
-				//vec3 ref = dot(pos+lv, norm);
-				vec3 h = normalize(lv+npos);
-				float nh = dot(norm, h);
-				float nv = dot(norm, npos);
-				float vh = dot(npos, h);
-				float sa = nh;
-				float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
-
-				float gtdenom = 2 * nh;
-				float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
-								
-				if (nh > 0.0)
-				{
-					float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-					col += lit*scol*light_col[i].rgb*spec.rgb;
-					//col += spec.rgb;
-				}
-			}
+				lv = normalize(lv);
+				da = dot(norm, lv);
 			
-			out_col += col;
+				float fa = light_col[i].a+1.0;
+				float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
+				dist_atten *= dist_atten;
+				dist_atten *= 2.0;
+			
+				dist_atten *= noise;
+
+				float lit = da * dist_atten;
+						
+				vec3 col = light_col[i].rgb*lit*diff;
+			
+				//vec3 col = vec3(dist2, light_col[i].a, lit);
+			
+				if (spec.a > 0.0)
+				{
+					lit = min(da*6.0, 1.0) * dist_atten;
+					//vec3 ref = dot(pos+lv, norm);
+					vec3 h = normalize(lv+npos);
+					float nh = dot(norm, h);
+					float nv = dot(norm, npos);
+					float vh = dot(npos, h);
+					float sa = nh;
+					float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
+
+					float gtdenom = 2 * nh;
+					float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
+								
+					if (nh > 0.0)
+					{
+						float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
+						col += lit*scol*light_col[i].rgb*spec.rgb;
+						//col += spec.rgb;
+					}
+				}
+			
+				out_col += col;
+			}
 		}
-	}
-	
-	if (dot(out_col, out_col) <= 0.0)
-	{
-		discard;
 	}
 	
 	frag_color.rgb = out_col;
