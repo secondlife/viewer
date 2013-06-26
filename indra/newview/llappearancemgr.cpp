@@ -1450,7 +1450,7 @@ void LLAppearanceMgr::shallowCopyCategory(const LLUUID& src_id, const LLUUID& ds
 	gInventory.notifyObservers();
 }
 
-void LLAppearanceMgr::copyCategoryLinks(const LLUUID& src_id, const LLUUID& dst_id,
+void LLAppearanceMgr::slamCategoryLinks(const LLUUID& src_id, const LLUUID& dst_id,
 										bool include_folder_links, LLPointer<LLInventoryCallback> cb)
 {
 	LLInventoryModel::cat_array_t* cats;
@@ -2882,14 +2882,12 @@ bool LLAppearanceMgr::updateBaseOutfit()
 
 	updateClothingOrderingInfo();
 
-	// in a Base Outfit we do not remove items, only links
-	remove_folder_contents(base_outfit_id, false, NULL);
-
 	LLPointer<LLInventoryCallback> dirty_state_updater =
 		new LLBoostFuncInventoryCallback(no_op_inventory_func, appearance_mgr_update_dirty_state);
 
 	//COF contains only links so we copy to the Base Outfit only links
-	shallowCopyCategoryContents(getCOF(), base_outfit_id, dirty_state_updater);
+	bool copy_folder_links = false;
+	slamCategoryLinks(getCOF(), base_outfit_id, copy_folder_links, dirty_state_updater);
 
 	return true;
 }
@@ -2937,12 +2935,6 @@ struct WearablesOrderComparator
 
 	bool operator()(const LLInventoryItem* item1, const LLInventoryItem* item2)
 	{
-		if (!item1 || !item2)
-		{
-			llwarning("either item1 or item2 is NULL", 0);
-			return true;
-		}
-		
 		const std::string& desc1 = item1->getActualDescription();
 		const std::string& desc2 = item2->getActualDescription();
 		
@@ -3437,7 +3429,7 @@ void LLAppearanceMgr::onOutfitFolderCreatedAndClothingOrdered(const LLUUID& fold
 		new LLBoostFuncInventoryCallback(no_op_inventory_func,
 										 boost::bind(show_created_outfit,folder_id,show_panel));
 	bool copy_folder_links = false;
-	copyCategoryLinks(getCOF(), folder_id, copy_folder_links, cb);
+	slamCategoryLinks(getCOF(), folder_id, copy_folder_links, cb);
 }
 
 void LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, bool show_panel)

@@ -74,8 +74,9 @@ public:
 
 	S32 getActiveCopyOperations() const;
 
-	// Copy all links via the slam command (single inventory operation where supported)
-	void copyCategoryLinks(const LLUUID& src_id, const LLUUID& dst_id,
+	// Replace category contents with copied links via the slam_inventory_folder
+	// command (single inventory operation where supported)
+	void slamCategoryLinks(const LLUUID& src_id, const LLUUID& dst_id,
 						   bool include_folder_links, LLPointer<LLInventoryCallback> cb);
 	
 	// Copy all items and the src category itself.
