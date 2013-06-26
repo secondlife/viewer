@@ -435,13 +435,11 @@ private:
 
 S32 LLCallAfterInventoryCopyMgr::sInstanceCount = 0;
 
-LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy(bool update_base_outfit_ordering,
-														 bool enforce_item_restrictions,
+LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy(bool enforce_item_restrictions,
 														 bool enforce_ordering,
 														 nullary_func_t post_update_func 
 	):
 	mFireCount(0),
-	mUpdateBaseOrder(update_base_outfit_ordering),
 	mEnforceItemRestrictions(enforce_item_restrictions),
 	mEnforceOrdering(enforce_ordering),
 	mPostUpdateFunc(post_update_func)
@@ -468,8 +466,7 @@ LLUpdateAppearanceOnDestroy::~LLUpdateAppearanceOnDestroy()
 
 		selfStopPhase("update_appearance_on_destroy");
 
-		LLAppearanceMgr::instance().updateAppearanceFromCOF(mUpdateBaseOrder,
-															mEnforceItemRestrictions,
+		LLAppearanceMgr::instance().updateAppearanceFromCOF(mEnforceItemRestrictions,
 															mEnforceOrdering,
 															mPostUpdateFunc);
 	}
@@ -503,7 +500,7 @@ LLUpdateAppearanceAndEditWearableOnDestroy::~LLUpdateAppearanceAndEditWearableOn
 	if (!LLApp::isExiting())
 	{
 		LLAppearanceMgr::instance().updateAppearanceFromCOF(
-			false,true,true,
+			true,true,
 			boost::bind(edit_wearable_and_customize_avatar, mItemID));
 	}
 }
@@ -2015,8 +2012,7 @@ void LLAppearanceMgr::enforceCOFItemRestrictions(LLPointer<LLInventoryCallback> 
 	}
 }
 
-void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering,
-											  bool enforce_item_restrictions,
+void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
 											  bool enforce_ordering,
 											  nullary_func_t post_update_func)
 {
@@ -2036,7 +2032,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering,
 		// enforce_item_restrictions to false so we don't get
 		// caught in a perpetual loop.
 		LLPointer<LLInventoryCallback> cb(
-			new LLUpdateAppearanceOnDestroy(update_base_outfit_ordering, false, enforce_ordering, post_update_func));
+			new LLUpdateAppearanceOnDestroy(false, enforce_ordering, post_update_func));
 		enforceCOFItemRestrictions(cb);
 		return;
 	}
@@ -2050,8 +2046,8 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering,
 		// to wait for the update callbacks, then (finally!) call
 		// updateAppearanceFromCOF() with no additional COF munging needed.
 		LLPointer<LLInventoryCallback> cb(
-			new LLUpdateAppearanceOnDestroy(false, false, false, post_update_func));
-		updateClothingOrderingInfo(LLUUID::null, update_base_outfit_ordering, cb);
+			new LLUpdateAppearanceOnDestroy(false, false, post_update_func));
+		updateClothingOrderingInfo(LLUUID::null, cb);
 		return;
 	}
 
@@ -2938,20 +2934,11 @@ struct WearablesOrderComparator
 };
 
 void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id,
-												 bool update_base_outfit_ordering,
 												 LLPointer<LLInventoryCallback> cb)
 {
 	if (cat_id.isNull())
 	{
 		cat_id = getCOF();
-		if (update_base_outfit_ordering)
-		{
-			const LLUUID base_outfit_id = getBaseOutfitUUID();
-			if (base_outfit_id.notNull())
-			{
-				updateClothingOrderingInfo(base_outfit_id,false,cb);
-			}
-		}
 	}
 
 	// COF is processed if cat_id is not specified
@@ -3400,7 +3387,7 @@ void LLAppearanceMgr::onOutfitFolderCreated(const LLUUID& folder_id, bool show_p
 	LLPointer<LLInventoryCallback> cb =
 		new LLBoostFuncInventoryCallback(no_op_inventory_func,
 										 boost::bind(&LLAppearanceMgr::onOutfitFolderCreatedAndClothingOrdered,this,folder_id,show_panel));
-	updateClothingOrderingInfo(LLUUID::null, false, cb);
+	updateClothingOrderingInfo(LLUUID::null, cb);
 }
 
 void LLAppearanceMgr::onOutfitFolderCreatedAndClothingOrdered(const LLUUID& folder_id, bool show_panel)
