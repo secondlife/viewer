@@ -53,6 +53,7 @@
 #include "llsdutil.h"
 #include "llsdserialize.h"
 #include "llhttpretrypolicy.h"
+#include "llaisapi.h"
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -1449,6 +1450,58 @@ void LLAppearanceMgr::shallowCopyCategory(const LLUUID& src_id, const LLUUID& ds
 	gInventory.notifyObservers();
 }
 
+void LLAppearanceMgr::copyCategoryLinks(const LLUUID& src_id, const LLUUID& dst_id,
+										bool include_folder_links, LLPointer<LLInventoryCallback> cb)
+{
+	LLInventoryModel::cat_array_t* cats;
+	LLInventoryModel::item_array_t* items;
+	LLSD contents = LLSD::emptyArray();
+	gInventory.getDirectDescendentsOf(src_id, cats, items);
+	llinfos << "copying " << items->count() << " items" << llendl;
+	for (LLInventoryModel::item_array_t::const_iterator iter = items->begin();
+		 iter != items->end();
+		 ++iter)
+	{
+		const LLViewerInventoryItem* item = (*iter);
+		switch (item->getActualType())
+		{
+			case LLAssetType::AT_LINK:
+			{
+				LL_DEBUGS("Avatar") << "linking inventory item " << item->getName() << llendl;
+				//getActualDescription() is used for a new description 
+				//to propagate ordering information saved in descriptions of links
+				LLSD item_contents;
+				item_contents["name"] = item->getName();
+				item_contents["desc"] = item->getActualDescription();
+				item_contents["linked_id"] = item->getLinkedUUID();
+				item_contents["type"] = LLAssetType::AT_LINK; 
+				contents.append(item_contents);
+				break;
+			}
+			case LLAssetType::AT_LINK_FOLDER:
+			{
+				LLViewerInventoryCategory *catp = item->getLinkedCategory();
+				if (catp && include_folder_links)
+				{
+					LL_DEBUGS("Avatar") << "linking inventory folder " << item->getName() << llendl;
+					LLSD base_contents;
+					base_contents["name"] = catp->getName();
+					base_contents["desc"] = ""; // categories don't have descriptions.
+					base_contents["linked_id"] = catp->getLinkedUUID();
+					base_contents["type"] = LLAssetType::AT_LINK_FOLDER; 
+					contents.append(base_contents);
+				}
+				break;
+			}
+			default:
+			{
+				// Linux refuses to compile unless all possible enums are handled. Really, Linux?
+				break;
+			}
+		}
+	}
+	slam_inventory_folder(dst_id, contents, cb);
+}
 // Copy contents of src_id to dst_id.
 void LLAppearanceMgr::shallowCopyCategoryContents(const LLUUID& src_id, const LLUUID& dst_id,
 													  LLPointer<LLInventoryCallback> cb)
@@ -1466,6 +1519,7 @@ void LLAppearanceMgr::shallowCopyCategoryContents(const LLUUID& src_id, const LL
 		{
 			case LLAssetType::AT_LINK:
 			{
+				LL_DEBUGS("Avatar") << "linking inventory item " << item->getName() << llendl;
 				//getActualDescription() is used for a new description 
 				//to propagate ordering information saved in descriptions of links
 				link_inventory_item(gAgent.getID(),
@@ -1482,6 +1536,7 @@ void LLAppearanceMgr::shallowCopyCategoryContents(const LLUUID& src_id, const LL
 				// Skip copying outfit links.
 				if (catp && catp->getPreferredType() != LLFolderType::FT_OUTFIT)
 				{
+					LL_DEBUGS("Avatar") << "linking inventory folder " << item->getName() << llendl;
 					link_inventory_item(gAgent.getID(),
 										item->getLinkedUUID(),
 										dst_id,
@@ -1496,7 +1551,7 @@ void LLAppearanceMgr::shallowCopyCategoryContents(const LLUUID& src_id, const LL
 			case LLAssetType::AT_BODYPART:
 			case LLAssetType::AT_GESTURE:
 			{
-				llinfos << "copying inventory item " << item->getName() << llendl;
+				LL_DEBUGS("Avatar") << "copying inventory item " << item->getName() << llendl;
 				copy_inventory_item(gAgent.getID(),
 									item->getPermissions().getOwner(),
 									item->getUUID(),
@@ -2815,11 +2870,14 @@ bool LLAppearanceMgr::updateBaseOutfit()
 		llassert(!isOutfitLocked());
 		return false;
 	}
+
+
 	setOutfitLocked(true);
 
 	gAgentWearables.notifyLoadingStarted();
 
 	const LLUUID base_outfit_id = getBaseOutfitUUID();
+	LL_DEBUGS("Avatar") << "updating base outfit to " << base_outfit_id << llendl;
 	if (base_outfit_id.isNull()) return false;
 
 	updateClothingOrderingInfo();
@@ -3334,12 +3392,14 @@ void show_created_outfit(LLUUID& folder_id, bool show_panel = true)
 		return;
 	}
 	
+	LL_DEBUGS("Avatar") << "called" << llendl;
 	LLSD key;
 	
 	//EXT-7727. For new accounts inventory callback is created during login process
 	// and may be processed after login process is finished
 	if (show_panel)
 	{
+		LL_DEBUGS("Avatar") << "showing panel" << llendl;
 		LLFloaterSidePanelContainer::showPanel("appearance", "panel_outfits_inventory", key);
 		
 	}
@@ -3358,32 +3418,59 @@ void show_created_outfit(LLUUID& folder_id, bool show_panel = true)
 	// link, since, the COF version has changed. There is a race
 	// condition in initial outfit setup which can lead to rez
 	// failures - SH-3860.
+	LL_DEBUGS("Avatar") << "requesting appearance update after createBaseOutfitLink" << llendl;
 	LLPointer<LLInventoryCallback> cb = new LLUpdateAppearanceOnDestroy;
 	LLAppearanceMgr::getInstance()->createBaseOutfitLink(folder_id, cb);
 }
 
-LLUUID LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, bool show_panel)
+void LLAppearanceMgr::onOutfitFolderCreated(const LLUUID& folder_id, bool show_panel)
 {
-	if (!isAgentAvatarValid()) return LLUUID::null;
+	LLPointer<LLInventoryCallback> cb =
+		new LLBoostFuncInventoryCallback(no_op_inventory_func,
+										 boost::bind(&LLAppearanceMgr::onOutfitFolderCreatedAndClothingOrdered,this,folder_id,show_panel));
+	updateClothingOrderingInfo(LLUUID::null, false, cb);
+}
+
+void LLAppearanceMgr::onOutfitFolderCreatedAndClothingOrdered(const LLUUID& folder_id, bool show_panel)
+{
+	LLPointer<LLInventoryCallback> cb =
+		new LLBoostFuncInventoryCallback(no_op_inventory_func,
+										 boost::bind(show_created_outfit,folder_id,show_panel));
+	bool copy_folder_links = false;
+	copyCategoryLinks(getCOF(), folder_id, copy_folder_links, cb);
+}
+
+void LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, bool show_panel)
+{
+	if (!isAgentAvatarValid()) return;
+
+	LL_DEBUGS("Avatar") << "creating new outfit" << llendl;
 
 	gAgentWearables.notifyLoadingStarted();
 
 	// First, make a folder in the My Outfits directory.
 	const LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-	LLUUID folder_id = gInventory.createNewCategory(
-		parent_id,
-		LLFolderType::FT_OUTFIT,
-		new_folder_name);
-
-	updateClothingOrderingInfo();
-
-	LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(no_op_inventory_func,
-																		 boost::bind(show_created_outfit,folder_id,show_panel));
-	shallowCopyCategoryContents(getCOF(),folder_id, cb);
-
-	dumpCat(folder_id,"COF, new outfit");
-
-	return folder_id;
+	std::string cap;
+	if (AISCommand::getCap(cap))
+	{
+		// cap-based category creation was buggy until recently. use
+		// existence of AIS as an indicator the fix is present. Does
+		// not actually use AIS to create the category.
+		inventory_func_type func = boost::bind(&LLAppearanceMgr::onOutfitFolderCreated,this,_1,show_panel);
+		LLUUID folder_id = gInventory.createNewCategory(
+			parent_id,
+			LLFolderType::FT_OUTFIT,
+			new_folder_name,
+			func);
+	}
+	else
+	{		
+		LLUUID folder_id = gInventory.createNewCategory(
+			parent_id,
+			LLFolderType::FT_OUTFIT,
+			new_folder_name);
+		onOutfitFolderCreated(folder_id, show_panel);
+	}
 }
 
 void LLAppearanceMgr::wearBaseOutfit()

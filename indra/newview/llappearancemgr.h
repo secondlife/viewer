@@ -73,6 +73,10 @@ public:
 	void enforceCOFItemRestrictions(LLPointer<LLInventoryCallback> cb);
 
 	S32 getActiveCopyOperations() const;
+
+	// Copy all links via the slam command (single inventory operation where supported)
+	void copyCategoryLinks(const LLUUID& src_id, const LLUUID& dst_id,
+						   bool include_folder_links, LLPointer<LLInventoryCallback> cb);
 	
 	// Copy all items and the src category itself.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
@@ -186,7 +190,9 @@ public:
 	void removeItemFromAvatar(const LLUUID& item_id);
 
 
-	LLUUID makeNewOutfitLinks(const std::string& new_folder_name,bool show_panel = true);
+	void onOutfitFolderCreated(const LLUUID& folder_id, bool show_panel);
+	void onOutfitFolderCreatedAndClothingOrdered(const LLUUID& folder_id, bool show_panel);
+	void makeNewOutfitLinks(const std::string& new_folder_name, bool show_panel = true);
 
 	bool moveWearable(LLViewerInventoryItem* item, bool closer_to_body);
 

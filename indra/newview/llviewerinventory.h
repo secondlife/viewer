@@ -263,9 +263,11 @@ private:
 };
 
 typedef boost::function<void(const LLUUID&)> inventory_func_type;
-void no_op_inventory_func(const LLUUID&); // A do-nothing inventory_func
-
+typedef boost::function<void(const LLSD&)> llsd_func_type;
 typedef boost::function<void()> nullary_func_type;
+
+void no_op_inventory_func(const LLUUID&); // A do-nothing inventory_func
+void no_op_llsd_func(const LLSD&); // likewise for LLSD
 void no_op(); // A do-nothing nullary func.
 
 // Shim between inventory callback and boost function/callable

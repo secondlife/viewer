@@ -184,7 +184,7 @@ bool LLPanelOutfitsInventory::onSaveCommit(const LLSD& notification, const LLSD&
 		LLStringUtil::trim(outfit_name);
 		if( !outfit_name.empty() )
 		{
-			LLUUID outfit_folder = LLAppearanceMgr::getInstance()->makeNewOutfitLinks(outfit_name);
+			LLAppearanceMgr::getInstance()->makeNewOutfitLinks(outfit_name);
 
 			LLSidepanelAppearance* panel_appearance = getAppearanceSP();
 			if (panel_appearance)
