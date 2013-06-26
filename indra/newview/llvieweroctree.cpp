@@ -978,7 +978,7 @@ void LLOcclusionCullingGroup::clearOcclusionState(U32 state, S32 mode)
 static LLFastTimer::DeclareTimer FTM_OCCLUSION_READBACK("Readback Occlusion");
 static LLFastTimer::DeclareTimer FTM_OCCLUSION_WAIT("Occlusion Wait");
 
-BOOL LLOcclusionCullingGroup::earlyFail(LLCamera* camera)
+BOOL LLOcclusionCullingGroup::earlyFail(LLCamera* camera, const LLVector4a* bounds)
 {
 	if (camera->getOrigin().isExactlyZero())
 	{
@@ -989,7 +989,6 @@ BOOL LLOcclusionCullingGroup::earlyFail(LLCamera* camera)
 	LLVector4a fudge;
 	fudge.splat(vel);
 
-	const LLVector4a* bounds = getBounds();
 	const LLVector4a& c = bounds[0];
 	LLVector4a r;
 	r.setAdd(bounds[1], fudge);
@@ -1125,12 +1124,23 @@ static LLFastTimer::DeclareTimer FTM_OCCLUSION_SET_BUFFER("Set Buffer");
 static LLFastTimer::DeclareTimer FTM_OCCLUSION_DRAW_WATER("Draw Water");
 static LLFastTimer::DeclareTimer FTM_OCCLUSION_DRAW("Draw");
 
-void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera)
+void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector3* region_agent)
 {
 	if (mSpatialPartition->isOcclusionEnabled() && LLPipeline::sUseOcclusion > 1)
 	{
+		//move mBounds to the agent space if necessary
+		LLVector4a bounds[2];
+		bounds[0] = mBounds[0];
+		bounds[1] = mBounds[1];
+		if(region_agent != NULL)
+		{
+			LLVector4a shift((*region_agent)[0], (*region_agent)[1], (*region_agent)[2]);
+			bounds[0].sub(shift);
+			bounds[1].sub(shift);
+		}
+
 		// Don't cull hole/edge water, unless we have the GL_ARB_depth_clamp extension
-		if (earlyFail(camera))
+		if (earlyFail(camera, bounds))
 		{
 			LLFastTimer t(FTM_OCCLUSION_EARLY_FAIL);
 			setOcclusionState(LLOcclusionCullingGroup::DISCARD_QUERY);
@@ -1184,10 +1194,10 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera)
 						LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 						llassert(shader);
 
-						shader->uniform3fv(LLShaderMgr::BOX_CENTER, 1, mBounds[0].getF32ptr());
-						shader->uniform3f(LLShaderMgr::BOX_SIZE, mBounds[1][0]+SG_OCCLUSION_FUDGE, 
-																 mBounds[1][1]+SG_OCCLUSION_FUDGE, 
-																 mBounds[1][2]+SG_OCCLUSION_FUDGE);
+						shader->uniform3fv(LLShaderMgr::BOX_CENTER, 1, bounds[0].getF32ptr());
+						shader->uniform3f(LLShaderMgr::BOX_SIZE, bounds[1][0]+SG_OCCLUSION_FUDGE, 
+																 bounds[1][1]+SG_OCCLUSION_FUDGE, 
+																 bounds[1][2]+SG_OCCLUSION_FUDGE);
 
 						if (!use_depth_clamp && mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER)
 						{
@@ -1201,7 +1211,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera)
 							}
 							else
 							{
-								gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, mBounds[0]));
+								gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, bounds[0]));
 							}
 						}
 						else
@@ -1214,7 +1224,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera)
 							}
 							else
 							{
-								gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, mBounds[0]));
+								gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, bounds[0]));
 							}
 						}
 

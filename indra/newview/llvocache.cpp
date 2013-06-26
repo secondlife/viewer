@@ -494,7 +494,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera)
 
 	if(!mOccludedGroups.empty())
 	{
-		processOccluders(&camera);
+		processOccluders(&camera, &region_agent);
 		mOccludedGroups.clear();
 	}
 
@@ -505,26 +505,26 @@ void LLVOCachePartition::addOccluders(LLviewerOctreeGroup* gp)
 {
 	LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)gp;
 
-	const U32 MIN_WAIT_TIME = 16; //wait 16 frames to issue a new occlusion request
+	const U32 MIN_WAIT_TIME = 19; //wait 19 frames to issue a new occlusion request
 	U32 last_issued_time = group->getLastOcclusionIssuedTime();
-	if(gFrameCount > last_issued_time && gFrameCount < last_issued_time + MIN_WAIT_TIME)
+	if(!group->needsUpdate() && gFrameCount > last_issued_time && gFrameCount < last_issued_time + MIN_WAIT_TIME)
 	{
 		return;
 	}
 
-	if(group && !group->isOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION))
+	if(!group->isOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION))
 	{
 		group->setOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION);
 		mOccludedGroups.insert(group);
 	}
 }
 
-void LLVOCachePartition::processOccluders(LLCamera* camera)
+void LLVOCachePartition::processOccluders(LLCamera* camera, const LLVector3* region_agent)
 {
 	for(std::set<LLOcclusionCullingGroup*>::iterator iter = mOccludedGroups.begin(); iter != mOccludedGroups.end(); ++iter)
 	{
 		LLOcclusionCullingGroup* group = *iter;
-		group->doOcclusion(camera);
+		group->doOcclusion(camera, region_agent);
 		group->clearOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION);
 	}
 }

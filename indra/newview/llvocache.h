@@ -161,7 +161,7 @@ public:
 	static	LLTrace::MemStatHandle	sMemStat;
 
 private:	
-	void processOccluders(LLCamera* camera);
+	void processOccluders(LLCamera* camera, const LLVector3* region_agent);
 
 private:
 	std::set<LLOcclusionCullingGroup*> mOccludedGroups;
