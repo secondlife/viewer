@@ -111,6 +111,8 @@
 #include "llpathinglib.h"
 #include "llfloaterpathfindingconsole.h"
 #include "llfloaterpathfindingcharacters.h"
+#include "llfloatertools.h"
+#include "llpanelface.h"
 #include "llpathfindingpathtool.h"
 
 #ifdef _DEBUG
@@ -1399,9 +1401,15 @@ void LLPipeline::createLUTBuffers()
 				}
 			}
 			
-			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, GL_R16F, 1, &mLightFunc);
+			U32 pix_format = GL_R16F;
+#if LL_DARWIN
+			// Need to work around limited precision with 10.6.8 and older drivers
+			//
+			pix_format = GL_R32F;
+#endif
+			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, pix_format, 1, &mLightFunc);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
-			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_R16F, lightResX, lightResY, GL_RED, GL_FLOAT, ls, false);
+			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, pix_format, lightResX, lightResY, GL_RED, GL_FLOAT, ls, false);
 			//LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_UNSIGNED_BYTE, lightResX, lightResY, GL_RED, GL_UNSIGNED_BYTE, ls, false);
 			gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_TRILINEAR);
@@ -3956,7 +3964,7 @@ void LLPipeline::postSort(LLCamera& camera)
 	{
 		mSelectedFaces.clear();
 
-		LLPipeline::setRenderHighlightTextureChannel(LLSelectMgr::getInstance()->getTextureChannel());
+		LLPipeline::setRenderHighlightTextureChannel(gFloaterTools->getPanelFace()->getTextureChannelToEdit());
 
 		// Draw face highlights for selected faces.
 		if (LLSelectMgr::getInstance()->getTEMode())
@@ -8673,10 +8681,6 @@ void LLPipeline::renderDeferredLighting()
 			vert[2].set(3,1,0);
 
 			{
-				bindDeferredShader(gDeferredMultiLightProgram);
-			
-				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
-
 				LLGLDepthTest depth(GL_FALSE);
 
 				//full screen blit
@@ -8688,7 +8692,7 @@ void LLPipeline::renderDeferredLighting()
 
 				U32 count = 0;
 
-				const U32 max_count = 8;
+				const U32 max_count = LL_DEFERRED_MULTI_LIGHT_COUNT;
 				LLVector4 light[max_count];
 				LLVector4 col[max_count];
 
@@ -8711,17 +8715,20 @@ void LLPipeline::renderDeferredLighting()
 					count++;
 					if (count == max_count || fullscreen_lights.empty())
 					{
-						gDeferredMultiLightProgram.uniform1i(LLShaderMgr::MULTI_LIGHT_COUNT, count);
-						gDeferredMultiLightProgram.uniform4fv(LLShaderMgr::MULTI_LIGHT, count, (GLfloat*) light);
-						gDeferredMultiLightProgram.uniform4fv(LLShaderMgr::MULTI_LIGHT_COL, count, (GLfloat*) col);
-						gDeferredMultiLightProgram.uniform1f(LLShaderMgr::MULTI_LIGHT_FAR_Z, far_z);
+						U32 idx = count-1;
+						bindDeferredShader(gDeferredMultiLightProgram[idx]);
+						gDeferredMultiLightProgram[idx].uniform1i(LLShaderMgr::MULTI_LIGHT_COUNT, count);
+						gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT, count, (GLfloat*) light);
+						gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT_COL, count, (GLfloat*) col);
+						gDeferredMultiLightProgram[idx].uniform1f(LLShaderMgr::MULTI_LIGHT_FAR_Z, far_z);
 						far_z = 0.f;
 						count = 0; 
+						mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 						mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 					}
 				}
 				
-				unbindDeferredShader(gDeferredMultiLightProgram);
+				unbindDeferredShader(gDeferredMultiLightProgram[0]);
 
 				bindDeferredShader(gDeferredMultiSpotLightProgram);
 
