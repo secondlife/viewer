@@ -1493,6 +1493,11 @@ void LLAppearanceMgr::copyCategoryLinks(const LLUUID& src_id, const LLUUID& dst_
 				}
 				break;
 			}
+			default:
+			{
+				// Linux refuses to compile unless all possible enums are handled. Really, Linux?
+				break;
+			}
 		}
 	}
 	slam_inventory_folder(dst_id, contents, cb);
