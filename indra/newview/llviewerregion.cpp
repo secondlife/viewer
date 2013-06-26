@@ -1219,7 +1219,7 @@ void LLViewerRegion::getInfo(LLSD& info)
 	info["Region"]["Handle"]["y"] = (LLSD::Integer)y;
 }
 
-void LLViewerRegion::getSimulatorFeatures(LLSD& sim_features)
+void LLViewerRegion::getSimulatorFeatures(LLSD& sim_features) const
 {
 	sim_features = mSimulatorFeatures;
 

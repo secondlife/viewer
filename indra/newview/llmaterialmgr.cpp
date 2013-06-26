@@ -50,13 +50,12 @@
 #define MATERIALS_CAP_MATERIAL_FIELD              "Material"
 #define MATERIALS_CAP_OBJECT_ID_FIELD             "ID"
 #define MATERIALS_CAP_MATERIAL_ID_FIELD           "MaterialID"
+#define SIM_FEATURE_MAX_MATERIALS_PER_TRANSACTION "MaxMaterialsPerTransaction"
 
-#define MATERIALS_GET_MAX_ENTRIES                 50
+#define MATERIALS_DEFAULT_MAX_ENTRIES             50
 #define MATERIALS_GET_TIMEOUT                     (60.f * 20)
-#define MATERIALS_POST_MAX_ENTRIES                50
 #define MATERIALS_POST_TIMEOUT                    (60.f * 5)
 #define MATERIALS_PUT_THROTTLE_SECS               1.f
-#define MATERIALS_PUT_MAX_ENTRIES                 50
 
 /**
  * LLMaterialsResponder helper class
@@ -595,8 +594,9 @@ void LLMaterialMgr::processGetQueue()
 		LLSD materialsData = LLSD::emptyArray();
 
 		material_queue_t& materials = itRegionQueue->second;
-		material_queue_t::iterator loopMaterial = materials.begin();
-		while ( (materials.end() != loopMaterial) && (materialsData.size() <= MATERIALS_GET_MAX_ENTRIES) )
+		U32 max_entries = getMaxEntries(regionp);
+		material_queue_t::iterator loopMaterial = materials.begin();		
+		while ( (materials.end() != loopMaterial) && (materialsData.size() < max_entries) )
 		{
 			material_queue_t::iterator itMaterial = loopMaterial++;
 			materialsData.append((*itMaterial).asLLSD());
@@ -680,39 +680,43 @@ void LLMaterialMgr::processPutQueue()
 
 		const LLUUID& object_id = itQueue->first;
 		const LLViewerObject* objectp = gObjectList.findObject(object_id);
-		if ( (!objectp) || (!objectp->getRegion()) )
+		if ( !objectp )
 		{
-			LL_WARNS("Materials") << "Object or object region is NULL" << LL_ENDL;
-
+			LL_WARNS("Materials") << "Object is NULL" << LL_ENDL;
 			mPutQueue.erase(itQueue);
-			continue;
 		}
-
-		const LLViewerRegion* regionp = objectp->getRegion();
-		if (!regionp->capabilitiesReceived())
+		else
 		{
-			continue;
-		}
-
-		LLSD& facesData = requests[regionp];
-
-		facematerial_map_t& face_map = itQueue->second;
-		facematerial_map_t::iterator itFace = face_map.begin();
-		while ( (face_map.end() != itFace) && (facesData.size() < MATERIALS_GET_MAX_ENTRIES) )
-		{
-			LLSD faceData = LLSD::emptyMap();
-			faceData[MATERIALS_CAP_FACE_FIELD] = static_cast<LLSD::Integer>(itFace->first);
-			faceData[MATERIALS_CAP_OBJECT_ID_FIELD] = static_cast<LLSD::Integer>(objectp->getLocalID());
-			if (!itFace->second.isNull())
+			const LLViewerRegion* regionp = objectp->getRegion();
+			if ( !regionp )
 			{
-				faceData[MATERIALS_CAP_MATERIAL_FIELD] = itFace->second.asLLSD();
+				LL_WARNS("Materials") << "Object region is NULL" << LL_ENDL;
+				mPutQueue.erase(itQueue);
 			}
-			facesData.append(faceData);
-			face_map.erase(itFace++);
-		}
-		if (face_map.empty())
-		{
-			mPutQueue.erase(itQueue);
+			else if ( regionp->capabilitiesReceived())
+			{
+				LLSD& facesData = requests[regionp];
+
+				facematerial_map_t& face_map = itQueue->second;
+				U32 max_entries = getMaxEntries(regionp);
+				facematerial_map_t::iterator itFace = face_map.begin();
+				while ( (face_map.end() != itFace) && (facesData.size() < max_entries) )
+				{
+					LLSD faceData = LLSD::emptyMap();
+					faceData[MATERIALS_CAP_FACE_FIELD] = static_cast<LLSD::Integer>(itFace->first);
+					faceData[MATERIALS_CAP_OBJECT_ID_FIELD] = static_cast<LLSD::Integer>(objectp->getLocalID());
+					if (!itFace->second.isNull())
+					{
+						faceData[MATERIALS_CAP_MATERIAL_FIELD] = itFace->second.asLLSD();
+					}
+					facesData.append(faceData);
+					face_map.erase(itFace++);
+				}
+				if (face_map.empty())
+				{
+					mPutQueue.erase(itQueue);
+				}
+			}
 		}
 	}
 
@@ -773,10 +777,26 @@ void LLMaterialMgr::clearGetQueues(const LLUUID& region_id)
 	mGetAllPending.erase(region_id);
 	mGetAllCallbacks.erase(region_id);
 }
-
 void LLMaterialMgr::onRegionRemoved(LLViewerRegion* regionp)
 {
 	clearGetQueues(regionp->getRegionID());
 	// Put doesn't need clearing: objects that can't be found will clean up in processPutQueue()
+}
+
+U32 LLMaterialMgr::getMaxEntries(const LLViewerRegion* regionp)
+{
+	LLSD sim_features;
+	regionp->getSimulatorFeatures(sim_features);
+	U32 max_entries;
+	if (   sim_features.has( SIM_FEATURE_MAX_MATERIALS_PER_TRANSACTION )
+		&& sim_features[ SIM_FEATURE_MAX_MATERIALS_PER_TRANSACTION ].isInteger())
+	{
+		max_entries = sim_features[ SIM_FEATURE_MAX_MATERIALS_PER_TRANSACTION ].asInteger();
+	}
+	else
+	{
+		max_entries = MATERIALS_DEFAULT_MAX_ENTRIES;
+	}
+	return max_entries;
 }
 
