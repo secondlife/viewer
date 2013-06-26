@@ -2436,29 +2436,6 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 						LLAppearanceMgr::instance().linkAll(mUUID,items,NULL);
 					}
 				}
-				else
-				{
-#if SUPPORT_ENSEMBLES
-					// BAP - should skip if dup.
-					if (move_is_into_current_outfit)
-					{
-						LLAppearanceMgr::instance().addEnsembleLink(inv_cat);
-					}
-					else
-					{
-						LLPointer<LLInventoryCallback> cb = NULL;
-						const std::string empty_description = "";
-						link_inventory_item(
-							gAgent.getID(),
-							cat_id,
-							mUUID,
-							inv_cat->getName(),
-							empty_description,
-							LLAssetType::AT_LINK_FOLDER,
-							cb);
-					}
-#endif
-				}
 			}
 			else if (move_is_into_outbox && !move_is_from_outbox)
 			{
@@ -2850,17 +2827,6 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		modifyOutfit(FALSE);
 		return;
 	}
-#if SUPPORT_ENSEMBLES
-	else if ("wearasensemble" == action)
-	{
-		LLInventoryModel* model = getInventoryModel();
-		if(!model) return;
-		LLViewerInventoryCategory* cat = getCategory();
-		if(!cat) return;
-		LLAppearanceMgr::instance().addEnsembleLink(cat,true);
-		return;
-	}
-#endif
 	else if ("addtooutfit" == action)
 	{
 		modifyOutfit(TRUE);
@@ -3382,16 +3348,6 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 				items.push_back(std::string("New Clothes"));
 				items.push_back(std::string("New Body Parts"));
 			}
-#if SUPPORT_ENSEMBLES
-			// Changing folder types is an unfinished unsupported feature
-			// and can lead to unexpected behavior if enabled.
-			items.push_back(std::string("Change Type"));
-			const LLViewerInventoryCategory *cat = getCategory();
-			if (cat && LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
-			{
-				disabled_items.push_back(std::string("Change Type"));
-			}
-#endif
 			getClipboardEntries(false, items, disabled_items, flags);
 		}
 		else

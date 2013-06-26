@@ -1821,25 +1821,6 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 
 	// Will link all the above items.
 	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
-#if 0
-	linkAll(cof,all_items,link_waiter);
-
-	// Add link to outfit if category is an outfit. 
-	if (!append)
-	{
-		createBaseOutfitLink(category, link_waiter);
-	}
-
-	// Remove current COF contents.  Have to do this after creating
-	// the link_waiter so links can be followed for any items that get
-	// carried over (e.g. keeping old shape if the new outfit does not
-	// contain one)
-
-	// even in the non-append case, createBaseOutfitLink() already
-	// deletes the existing link, don't need to do it again here.
-	bool keep_outfit_links = true;
-	remove_folder_contents(cof, keep_outfit_links, link_waiter);
-#else
 	LLSD contents = LLSD::emptyArray();
 	for (LLInventoryModel::item_array_t::const_iterator it = all_items.begin();
 		 it != all_items.end(); ++it)
@@ -1868,7 +1849,6 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 		dump_sequential_xml(gAgentAvatarp->getFullname() + "_slam_request", contents);
 	}
 	slam_inventory_folder(getCOF(), contents, link_waiter);
-#endif
 
 	LL_DEBUGS("Avatar") << self_av_string() << "waiting for LLUpdateAppearanceOnDestroy" << LL_ENDL;
 }

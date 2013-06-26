@@ -73,11 +73,6 @@ public:
 	void enforceCOFItemRestrictions(LLPointer<LLInventoryCallback> cb);
 
 	S32 getActiveCopyOperations() const;
-
-	// Replace category contents with copied links via the slam_inventory_folder
-	// command (single inventory operation where supported)
-	void slamCategoryLinks(const LLUUID& src_id, const LLUUID& dst_id,
-						   bool include_folder_links, LLPointer<LLInventoryCallback> cb);
 	
 	// Copy all items and the src category itself.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
@@ -191,9 +186,7 @@ public:
 	void removeItemFromAvatar(const LLUUID& item_id);
 
 
-	void onOutfitFolderCreated(const LLUUID& folder_id, bool show_panel);
-	void onOutfitFolderCreatedAndClothingOrdered(const LLUUID& folder_id, bool show_panel);
-	void makeNewOutfitLinks(const std::string& new_folder_name, bool show_panel = true);
+	void makeNewOutfitLinks(const std::string& new_folder_name,bool show_panel = true);
 
 	bool moveWearable(LLViewerInventoryItem* item, bool closer_to_body);
 
@@ -305,10 +298,6 @@ public:
 private:
 	LLUUID mItemID;
 };
-
-class 
-
-#define SUPPORT_ENSEMBLES 0
 
 LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,const std::string& name);
 
