@@ -1816,16 +1816,35 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	all_items += obj_items;
 	all_items += gest_items;
 
+	// Find any wearables that need description set to enforce ordering.
+	desc_map_t desc_map;
+	getWearableOrderingDescUpdates(wear_items, desc_map);
+
 	// Will link all the above items.
 	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
 	LLSD contents = LLSD::emptyArray();
+
 	for (LLInventoryModel::item_array_t::const_iterator it = all_items.begin();
 		 it != all_items.end(); ++it)
 	{
 		LLSD item_contents;
 		LLInventoryItem *item = *it;
+
+		std::string desc;
+		desc_map_t::const_iterator desc_iter = desc_map.find(item->getUUID());
+		if (desc_iter != desc_map.end())
+		{
+			desc = desc_iter->second;
+			LL_DEBUGS("Avatar") << item->getName() << " overriding desc to: " << desc
+								<< " (was: " << item->getActualDescription() << ")" << llendl;
+		}
+		else
+		{
+			desc = item->getActualDescription();
+		}
+
 		item_contents["name"] = item->getName();
-		item_contents["desc"] = item->getActualDescription();
+		item_contents["desc"] = desc;
 		item_contents["linked_id"] = item->getLinkedUUID();
 		item_contents["type"] = LLAssetType::AT_LINK; 
 		contents.append(item_contents);
@@ -2933,44 +2952,65 @@ struct WearablesOrderComparator
 	U32 mControlSize;
 };
 
-void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id,
-												 LLPointer<LLInventoryCallback> cb)
+void LLAppearanceMgr::getWearableOrderingDescUpdates(LLInventoryModel::item_array_t& wear_items,
+													 desc_map_t& desc_map)
 {
-	if (cat_id.isNull())
-	{
-		cat_id = getCOF();
-	}
-
-	// COF is processed if cat_id is not specified
-	LLInventoryModel::item_array_t wear_items;
-	getDescendentsOfAssetType(cat_id, wear_items, LLAssetType::AT_CLOTHING);
-
 	wearables_by_type_t items_by_type(LLWearableType::WT_COUNT);
 	divvyWearablesByType(wear_items, items_by_type);
 
 	for (U32 type = LLWearableType::WT_SHIRT; type < LLWearableType::WT_COUNT; type++)
 	{
-		
 		U32 size = items_by_type[type].size();
 		if (!size) continue;
-
+		
 		//sinking down invalid items which need reordering
 		std::sort(items_by_type[type].begin(), items_by_type[type].end(), WearablesOrderComparator((LLWearableType::EType) type));
-
+		
 		//requesting updates only for those links which don't have "valid" descriptions
 		for (U32 i = 0; i < size; i++)
 		{
 			LLViewerInventoryItem* item = items_by_type[type][i];
 			if (!item) continue;
-
+			
 			std::string new_order_str = build_order_string((LLWearableType::EType)type, i);
 			if (new_order_str == item->getActualDescription()) continue;
+			
+			LL_DEBUGS("Avatar") << item->getName() << " need to update desc to: " << new_order_str
+								<< " (from: " << item->getActualDescription() << ")" << llendl;
 
-			LLSD updates;
-			updates["desc"] = new_order_str;
-			update_inventory_item(item->getUUID(),updates,cb);
+			desc_map[item->getUUID()] = new_order_str;
 		}
 	}
+}
+void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id,
+												 LLPointer<LLInventoryCallback> cb)
+{
+	// COF is processed if cat_id is not specified
+	if (cat_id.isNull())
+	{
+		cat_id = getCOF();
+	}
+
+	LLInventoryModel::item_array_t wear_items;
+	getDescendentsOfAssetType(cat_id, wear_items, LLAssetType::AT_CLOTHING);
+
+	// Identify items for which desc needs to change.
+	desc_map_t desc_map;
+	getWearableOrderingDescUpdates(wear_items, desc_map);
+
+	for (desc_map_t::const_iterator it = desc_map.begin();
+		 it != desc_map.end(); ++it)
+	{
+		LLSD updates;
+		const LLUUID& item_id = it->first;
+		const std::string& new_order_str = it->second;
+		LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		LL_DEBUGS("Avatar") << item->getName() << " updating desc to: " << new_order_str
+			<< " (was: " << item->getActualDescription() << ")" << llendl;
+		updates["desc"] = new_order_str;
+		update_inventory_item(item_id,updates,cb);
+	}
+		
 }
 
 class RequestAgentUpdateAppearanceResponder: public LLHTTPClient::Responder

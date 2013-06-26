@@ -202,6 +202,10 @@ public:
 	//Divvy items into arrays by wearable type
 	static void divvyWearablesByType(const LLInventoryModel::item_array_t& items, wearables_by_type_t& items_by_type);
 
+	typedef std::map<LLUUID,std::string> desc_map_t;
+
+	void getWearableOrderingDescUpdates(LLInventoryModel::item_array_t& wear_items, desc_map_t& desc_map);
+
 	//Check ordering information on wearables stored in links' descriptions and update if it is invalid
 	// COF is processed if cat_id is not specified
 	void updateClothingOrderingInfo(LLUUID cat_id = LLUUID::null,
