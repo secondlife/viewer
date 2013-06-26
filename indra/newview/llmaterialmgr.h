@@ -124,6 +124,8 @@ protected:
 	put_queue_t mPutQueue;
 
 	material_map_t mMaterials;
+
+	U32 getMaxEntries(const LLViewerRegion* regionp);
 };
 
 #endif // LL_LLMATERIALMGR_H
