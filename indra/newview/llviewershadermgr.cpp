@@ -1366,8 +1366,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			gDeferredMultiLightProgram[i].mShaderFiles.push_back(make_pair("deferred/multiPointLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 			gDeferredMultiLightProgram[i].mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 			gDeferredMultiLightProgram[i].addPermutation("LIGHT_COUNT", llformat("%d", i+1));
-
-			SINGLE_FP_PERMUTATION(gDeferredMultiLightProgram[i]);
 			success = gDeferredMultiLightProgram[i].createShader(NULL, NULL);
 		}
 	}
