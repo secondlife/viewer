@@ -350,10 +350,16 @@ bool LLFloaterIMNearbyChat::isChatVisible() const
 void LLFloaterIMNearbyChat::showHistory()
 {
 	openFloater();
+	LLFloaterIMContainer::getInstance()->selectConversation(LLUUID(NULL));
+
 	if(!isMessagePaneExpanded())
 	{
 		restoreFloater();
 		setFocus(true);
+	}
+	else
+	{
+		LLFloaterIMContainer::getInstance()->setFocus(TRUE);
 	}
 	setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
 }
