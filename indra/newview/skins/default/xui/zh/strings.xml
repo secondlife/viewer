@@ -614,8 +614,8 @@ http://secondlife.com/viewer-access-faq
 	<string name="AvatarAway">
 		離開
 	</string>
-	<string name="AvatarBusy">
-		忙碌
+	<string name="AvatarDoNotDisturb">
+		請勿打擾
 	</string>
 	<string name="AvatarMuted">
 		封鎖的
@@ -851,6 +851,12 @@ http://secondlife.com/viewer-access-faq
 	<string name="ST_NO_JOINT">
 		找不到 ROOT 或旋軸。
 	</string>
+	<string name="NearbyChatTitle">
+		附近的聊天中
+	</string>
+	<string name="NearbyChatLabel">
+		（附近的聊天）
+	</string>
 	<string name="whisper">
 		低語：
 	</string>
@@ -914,11 +920,14 @@ http://secondlife.com/viewer-access-faq
 	<string name="ControlYourCamera">
 		控制你的攝影機
 	</string>
-	<string name="TeleportYourAgent">
-		瞬間傳送你本人
-	</string>
 	<string name="NotConnected">
 		未聯接
+	</string>
+	<string name="AgentNameSubst">
+		（你）
+	</string>
+	<string name="TeleportYourAgent">
+		瞬間傳送你本人
 	</string>
 	<string name="SIM_ACCESS_PG">
 		一般普級
@@ -1000,18 +1009,6 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="dictionary_files">
 		字典
-	</string>
-	<string name="AvatarSetNotAway">
-		非離開
-	</string>
-	<string name="AvatarSetAway">
-		離開
-	</string>
-	<string name="AvatarSetNotBusy">
-		非忙碌
-	</string>
-	<string name="AvatarSetBusy">
-		忙碌
 	</string>
 	<string name="shape">
 		體形
@@ -1981,8 +1978,8 @@ http://secondlife.com/viewer-access-faq
 	<string name="PanelContentsNewScript">
 		新腳本
 	</string>
-	<string name="BusyModeResponseDefault">
-		你傳訊過去的居民目前處於忙碌狀態，這意味著他要求不被打擾。  你的訊息仍將留存並顯示於對���的 IM 面板上供稍後查閱。
+	<string name="DoNotDisturbModeResponseDefault">
+		這居民處於「請勿打擾」狀態，不會立即看到你的訊息。
 	</string>
 	<string name="MuteByName">
 		（按名稱）
@@ -2094,9 +2091,6 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="GroupMoneyDate">
 		[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]
-	</string>
-	<string name="ViewerObjectContents">
-		內容
 	</string>
 	<string name="AcquiredItems">
 		取得物品
@@ -3869,7 +3863,7 @@ http://secondlife.com/viewer-access-faq
 		一般普級地區
 	</string>
 	<string name="LocationCtrlSeeAVsTooltip">
-		可看到本地段外的化身，並與之交談
+		這地段外的其他化身，看不見也聽不到位於地段裡的化身
 	</string>
 	<string name="LocationCtrlPathfindingDirtyTooltip">
 		地區重新產出之前，可移動物件可能無法正常運作。
@@ -3946,6 +3940,12 @@ http://secondlife.com/viewer-access-faq
 	<string name="IM_unblock_only_groups_friends">
 		要察看這訊息，你必須到「偏好設定 / 隱私」，取消勾選「只有我的朋友和群組可以 IM 或與我通話」。
 	</string>
+	<string name="OnlineStatus">
+		上線
+	</string>
+	<string name="OfflineStatus">
+		離線
+	</string>
 	<string name="answered_call">
 		你的通話已經接通
 	</string>
@@ -3954,6 +3954,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="you_joined_call">
 		你發起了語音通話
+	</string>
+	<string name="you_auto_rejected_call-im">
+		因為處於「請勿打擾」模式，你已自動拒聽這通語音來電。
 	</string>
 	<string name="name_started_call">
 		[NAME] 發起了語音通話
@@ -3971,7 +3974,7 @@ http://secondlife.com/viewer-access-faq
 		聯接中...
 	</string>
 	<string name="conference-title">
-		臨時多方通話
+		多人聊天
 	</string>
 	<string name="conference-title-incoming">
 		和 [AGENT_NAME] 多方通話
@@ -4863,6 +4866,9 @@ http://secondlife.com/viewer-access-faq
 	<string name="Command_Chat_Label">
 		聊天
 	</string>
+	<string name="Command_Conversations_Label">
+		交談
+	</string>
 	<string name="Command_Compass_Label">
 		羅盤
 	</string>
@@ -4937,6 +4943,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="Command_Chat_Tooltip">
 		透過文字和附近人們聊天
+	</string>
+	<string name="Command_Conversations_Tooltip">
+		和所有人交談
 	</string>
 	<string name="Command_Compass_Tooltip">
 		指南針
@@ -5066,5 +5075,14 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="UserDictionary">
 		[User]
+	</string>
+	<string name="logging_calls_disabled_log_empty">
+		交談未留記錄。 若想開始留記錄，請到「偏好設定 &gt; 聊天」，選擇「儲存：只留歷史記錄」或「儲存：歷史記錄兼交談內容」。
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		將不再為交談留記錄。 若想恢復留存記錄，請到「偏好設定 &gt; 聊天」，選擇「儲存：只留歷史記錄」或「儲存：歷史記錄兼交談內容」。
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		目前沒有交談記錄。 在你聯絡某人或某人聯絡你之後，這裡將留存記錄。
 	</string>
 </strings>

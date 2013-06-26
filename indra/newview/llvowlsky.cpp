@@ -301,7 +301,7 @@ void LLVOWLSky::restoreGL()
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 }
 
-static LLFastTimer::DeclareTimer FTM_GEO_SKY("Sky Geometry");
+static LLFastTimer::DeclareTimer FTM_GEO_SKY("Windlight Sky Geometry");
 
 BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 {
@@ -724,8 +724,8 @@ void LLVOWLSky::updateStarColors()
 
 	const F32 var = 0.15f;
 	const F32 min = 0.5f; //0.75f;
-	const F32 sunclose_max = 0.6f;
-	const F32 sunclose_range = 1 - sunclose_max;
+	//const F32 sunclose_max = 0.6f;
+	//const F32 sunclose_range = 1 - sunclose_max;
 
 	//F32 below_horizon = - llmin(0.0f, gSky.mVOSkyp->getToSunLast().mV[2]);
 	//F32 brightness_factor = llmin(1.0f, below_horizon * 20);
@@ -739,14 +739,14 @@ void LLVOWLSky::updateStarColors()
 		U32 x;
 		for (x = 0; x < getStarsNumVerts(); ++x)
 		{
-			F32 sundir_factor = 1;
+			//F32 sundir_factor = 1;
 			LLVector3 tostar = *v_p;
 			tostar.normVec();
-			const F32 how_close_to_sun = tostar * gSky.mVOSkyp->getToSunLast();
-			if (how_close_to_sun > sunclose_max)
-			{
-				sundir_factor = (1 - how_close_to_sun) / sunclose_range;
-			}
+			//const F32 how_close_to_sun = tostar * gSky.mVOSkyp->getToSunLast();
+			//if (how_close_to_sun > sunclose_max)
+			//{
+			//	sundir_factor = (1 - how_close_to_sun) / sunclose_range;
+			//}
 			intensity = *(v_i);
 			F32 alpha = v_c->mV[VALPHA] + (ll_frand() - 0.5f) * var * intensity;
 			if (alpha < min * intensity)

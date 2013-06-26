@@ -16,10 +16,7 @@
 			<menu_item_call label="Parar minha animação" name="Stop Animating My Avatar"/>
 			<menu_item_call label="Andar/correr/voar..." name="Walk / run / fly"/>
 		</menu>
-		<menu label="Status" name="Status">
-			<menu_item_call label="Ausente" name="Set Away"/>
-			<menu_item_call label="Ocupado" name="Set Busy"/>
-		</menu>
+		<menu label="Status" name="Status"/>
 		<menu_item_call label="Comprar L$..." name="Buy and Sell L$"/>
 		<menu_item_call label="Caixa de saída do lojista..." name="MerchantOutbox"/>
 		<menu_item_call label="Painel da conta..." name="Manage My Account">
@@ -32,14 +29,18 @@
 		<menu_item_call label="Sair do [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Comunicar" name="Communicate">
-		<menu_item_check label="Bate-papo..." name="Nearby Chat"/>
+		<menu_item_check label="Conversas..." name="Conversations"/>
+		<menu_item_check label="Bate-papo local..." name="Nearby Chat"/>
 		<menu_item_check label="Falar" name="Speak"/>
-		<menu_item_check label="Configurações de voz..." name="Nearby Voice"/>
-		<menu_item_check label="Distorção de voz..." name="ShowVoice"/>
+		<menu label="Distorção de voz" name="VoiceMorphing">
+			<menu_item_check label="Não distorcer voz" name="NoVoiceMorphing"/>
+			<menu_item_check label="Visualizar..." name="Preview"/>
+			<menu_item_call label="Assinar..." name="Subscribe"/>
+		</menu>
 		<menu_item_check label="Gestos..." name="Gestures"/>
-		<menu_item_call label="Amigos" name="My Friends"/>
-		<menu_item_call label="Grupos" name="My Groups"/>
-		<menu_item_call label="Pessoas próximas" name="Active Speakers"/>
+		<menu_item_check label="Amigos" name="My Friends"/>
+		<menu_item_check label="Grupos" name="My Groups"/>
+		<menu_item_check label="Pessoas próximas" name="Active Speakers"/>
 		<menu_item_call label="Lista de bloqueados" name="Block List"/>
 	</menu>
 	<menu label="Mundo" name="World">
@@ -115,7 +116,6 @@
 			<menu_item_call label="Comprar" name="Menu Object Buy"/>
 			<menu_item_call label="Pegar" name="Menu Object Take"/>
 			<menu_item_call label="Pegar uma cópia" name="Take Copy"/>
-			<menu_item_call label="Salvar no meu inventário" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Salvar objeto de volta aos conteúdos do objeto" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="Devolver objeto" name="Return Object back to Owner"/>
 		</menu>
@@ -130,6 +130,7 @@
 			<menu_item_call label="Linksets..." name="pathfinding_linksets_menu_item"/>
 			<menu_item_call label="Personagens..." name="pathfinding_characters_menu_item"/>
 			<menu_item_call label="Visualização/teste..." name="pathfinding_console_menu_item"/>
+			<menu_item_call label="Recarregar região" name="pathfinding_rebake_navmesh_item"/>
 		</menu>
 		<menu label="Opções" name="Options">
 			<menu_item_check label="Mostrar permissões avançadas" name="DebugPermissions"/>
@@ -159,6 +160,13 @@
 	<menu label="Ajuda" name="Help">
 		<menu_item_call label="Como..." name="How To"/>
 		<menu_item_call label="[SECOND_LIFE] Ajuda" name="Second Life Help"/>
+		<menu_item_call label="Guia do usuário" name="User’s guide"/>
+		<menu_item_call label="Base de conhecimento" name="Knowledge Base"/>
+		<menu_item_call label="Wiki" name="Wiki"/>
+		<menu_item_call label="Fóruns da comunidade" name="Community Forums"/>
+		<menu_item_call label="Portal de suporte" name="Support portal"/>
+		<menu_item_call label="Notícias do [SECOND_LIFE]" name="Second Life News"/>
+		<menu_item_call label="Blogs do [SECOND_LIFE]" name="Second Life Blogs"/>
 		<menu_item_call label="Denunciar abuso" name="Report Abuse"/>
 		<menu_item_call label="Relatar bug" name="Report Bug"/>
 		<menu_item_call label="Sobre [APP_NAME]" name="About Second Life"/>
@@ -286,7 +294,7 @@
 		<menu label="Rendering" name="Rendering">
 			<menu_item_check label="Axes" name="Axes"/>
 			<menu_item_check label="Wireframe" name="Wireframe"/>
-			<menu_item_check label="Iluminação e sombras" name="Lighting and Shadows"/>
+			<menu_item_check label="Iluminação e sombras" name="Advanced Lighting Model"/>
 			<menu_item_check label="Sombras da projeção do sol/lua" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAO e sombra suave" name="SSAO and Shadow Smoothing"/>
 			<menu_item_check label="Máscaras alpha automáticas (adiadas)" name="Automatic Alpha Masks (deferred)"/>
@@ -336,9 +344,14 @@
 				<menu_item_call label="Toggle Character Geometry" name="Toggle Character Geometry"/>
 				<menu_item_check label="Allow Select Avatar" name="Allow Select Avatar"/>
 			</menu>
+			<menu label="Velocidade de animação" name="Animation Speed">
+				<menu_item_call label="Todas as animações 10% mais rápidas" name="All Animations 10 Faster"/>
+				<menu_item_call label="Todas as animações 10% mais lentas" name="All Animations 10 Slower"/>
+				<menu_item_call label="Redefinir todas as velocidades de animação" name="Reset All Animation Speed"/>
+				<menu_item_check label="Animações em câmera lenta" name="Slow Motion Animations"/>
+			</menu>
 			<menu_item_call label="Force Params to Default" name="Force Params to Default"/>
 			<menu_item_check label="Dados da animação" name="Animation Info"/>
-			<menu_item_check label="Mostrar animação de movimento" name="Slow Motion Animations"/>
 			<menu_item_check label="Disable Level Of Detail" name="Disable LOD"/>
 			<menu_item_check label="Show Collision Skeleton" name="Show Collision Skeleton"/>
 			<menu_item_check label="Display Agent Target" name="Display Agent Target"/>

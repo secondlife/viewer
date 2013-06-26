@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_group_plus">
+	<menu_item_check label="名前で並べ替え" name="sort_name"/>
+	<menu_item_check label="オンライン状況で並べ替え" name="sort_status"/>
+	<menu_item_check label="人のアイコン表示" name="view_icons"/>
+	<menu_item_check label="与えられた権限を表示" name="view_permissions"/>
+	<menu_item_check label="会話ログを表示..." name="view_conversation"/>
+</toggleable_menu>

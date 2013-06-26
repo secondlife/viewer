@@ -44,7 +44,6 @@
 #include "llmath.h"
 #include "m4math.h"
 #include "llstring.h"
-#include "llmemtype.h"
 #include "llstacktrace.h"
 
 #include "llglheaders.h"
@@ -216,6 +215,11 @@ PFNGLENDQUERYARBPROC glEndQueryARB = NULL;
 PFNGLGETQUERYIVARBPROC glGetQueryivARB = NULL;
 PFNGLGETQUERYOBJECTIVARBPROC glGetQueryObjectivARB = NULL;
 PFNGLGETQUERYOBJECTUIVARBPROC glGetQueryObjectuivARB = NULL;
+
+// GL_ARB_timer_query
+PFNGLQUERYCOUNTERPROC glQueryCounter = NULL;
+PFNGLGETQUERYOBJECTI64VPROC glGetQueryObjecti64v = NULL;
+PFNGLGETQUERYOBJECTUI64VPROC glGetQueryObjectui64v = NULL;
 
 // GL_ARB_point_parameters
 PFNGLPOINTPARAMETERFARBPROC glPointParameterfARB = NULL;
@@ -422,6 +426,7 @@ LLGLManager::LLGLManager() :
 	mHasFragmentShader(FALSE),
 	mNumTextureImageUnits(0),
 	mHasOcclusionQuery(FALSE),
+	mHasTimerQuery(FALSE),
 	mHasOcclusionQuery2(FALSE),
 	mHasPointParameters(FALSE),
 	mHasDrawBuffers(FALSE),
@@ -446,7 +451,9 @@ LLGLManager::LLGLManager() :
 	mIsGFFX(FALSE),
 	mATIOffsetVerticalLines(FALSE),
 	mATIOldDriver(FALSE),
-
+#if LL_DARWIN
+	mIsMobileGF(FALSE),
+#endif
 	mHasRequirements(TRUE),
 
 	mHasSeparateSpecularColor(FALSE),
@@ -598,11 +605,6 @@ bool LLGLManager::initGL()
 	if (mGLVendor.substr(0,4) == "ATI ")
 	{
 		mGLVendorShort = "ATI";
-		BOOL mobile = FALSE;
-		if (mGLRenderer.find("MOBILITY") != std::string::npos)
-		{
-			mobile = TRUE;
-		}
 		mIsATI = TRUE;
 
 #if LL_WINDOWS && !LL_MESA_HEADLESS
@@ -643,6 +645,13 @@ bool LLGLManager::initGL()
 		{
 			mIsGF3 = TRUE;
 		}
+#if LL_DARWIN
+		else if ((mGLRenderer.find("9400M") != std::string::npos)
+			  || (mGLRenderer.find("9600M") != std::string::npos))
+		{
+			mIsMobileGF = TRUE;
+		}
+#endif
 
 	}
 	else if (mGLVendor.find("INTEL") != std::string::npos
@@ -751,12 +760,13 @@ bool LLGLManager::initGL()
 	{ //using multisample textures on ATI results in black screen for some reason
 		mHasTextureMultisample = FALSE;
 	}
-#endif
+
 
 	if (mIsIntel && mGLVersion <= 3.f)
 	{ //never try to use framebuffer objects on older intel drivers (crashy)
 		mHasFramebufferObject = FALSE;
 	}
+#endif
 
 	if (mHasFramebufferObject)
 	{
@@ -953,13 +963,15 @@ void LLGLManager::initExtensions()
 	mHasARBEnvCombine = ExtensionExists("GL_ARB_texture_env_combine", gGLHExts.mSysExts);
 	mHasCompressedTextures = glh_init_extensions("GL_ARB_texture_compression");
 	mHasOcclusionQuery = ExtensionExists("GL_ARB_occlusion_query", gGLHExts.mSysExts);
+	mHasTimerQuery = ExtensionExists("GL_ARB_timer_query", gGLHExts.mSysExts);
 	mHasOcclusionQuery2 = ExtensionExists("GL_ARB_occlusion_query2", gGLHExts.mSysExts);
 	mHasVertexBufferObject = ExtensionExists("GL_ARB_vertex_buffer_object", gGLHExts.mSysExts);
 	mHasVertexArrayObject = ExtensionExists("GL_ARB_vertex_array_object", gGLHExts.mSysExts);
 	mHasSync = ExtensionExists("GL_ARB_sync", gGLHExts.mSysExts);
 	mHasMapBufferRange = ExtensionExists("GL_ARB_map_buffer_range", gGLHExts.mSysExts);
 	mHasFlushBufferRange = ExtensionExists("GL_APPLE_flush_buffer_range", gGLHExts.mSysExts);
-	mHasDepthClamp = ExtensionExists("GL_ARB_depth_clamp", gGLHExts.mSysExts) || ExtensionExists("GL_NV_depth_clamp", gGLHExts.mSysExts);
+	//mHasDepthClamp = ExtensionExists("GL_ARB_depth_clamp", gGLHExts.mSysExts) || ExtensionExists("GL_NV_depth_clamp", gGLHExts.mSysExts);
+	mHasDepthClamp = FALSE;
 	// mask out FBO support when packed_depth_stencil isn't there 'cause we need it for LLRenderTarget -Brad
 #ifdef GL_ARB_framebuffer_object
 	mHasFramebufferObject = ExtensionExists("GL_ARB_framebuffer_object", gGLHExts.mSysExts);
@@ -968,6 +980,15 @@ void LLGLManager::initExtensions()
 							ExtensionExists("GL_EXT_framebuffer_blit", gGLHExts.mSysExts) &&
 							ExtensionExists("GL_EXT_framebuffer_multisample", gGLHExts.mSysExts) &&
 							ExtensionExists("GL_EXT_packed_depth_stencil", gGLHExts.mSysExts);
+#endif
+#ifdef GL_EXT_texture_sRGB
+	mHassRGBTexture = ExtensionExists("GL_EXT_texture_sRGB", gGLHExts.mSysExts);
+#endif
+	
+#ifdef GL_ARB_framebuffer_sRGB
+	mHassRGBFramebuffer = ExtensionExists("GL_ARB_framebuffer_sRGB", gGLHExts.mSysExts);
+#else
+	mHassRGBFramebuffer = ExtensionExists("GL_EXT_framebuffer_sRGB", gGLHExts.mSysExts);
 #endif
 	
 	mHasMipMapGeneration = mHasFramebufferObject || mGLVersion >= 1.4f;
@@ -1259,6 +1280,13 @@ void LLGLManager::initExtensions()
 		glGetQueryObjectivARB = (PFNGLGETQUERYOBJECTIVARBPROC)GLH_EXT_GET_PROC_ADDRESS("glGetQueryObjectivARB");
 		glGetQueryObjectuivARB = (PFNGLGETQUERYOBJECTUIVARBPROC)GLH_EXT_GET_PROC_ADDRESS("glGetQueryObjectuivARB");
 	}
+	if (mHasTimerQuery)
+	{
+		llinfos << "initExtensions() TimerQuery-related procs..." << llendl;
+		glQueryCounter = (PFNGLQUERYCOUNTERPROC) GLH_EXT_GET_PROC_ADDRESS("glQueryCounter");
+		glGetQueryObjecti64v = (PFNGLGETQUERYOBJECTI64VPROC) GLH_EXT_GET_PROC_ADDRESS("glGetQueryObjecti64v");
+		glGetQueryObjectui64v = (PFNGLGETQUERYOBJECTUI64VPROC) GLH_EXT_GET_PROC_ADDRESS("glGetQueryObjectui64v");
+	}
 	if (mHasPointParameters)
 	{
 		llinfos << "initExtensions() PointParameters-related procs..." << llendl;
@@ -1490,9 +1518,8 @@ void assert_glerror()
 
 void clear_glerror()
 {
-	//  Create or update texture to be used with this data 
-	GLenum error;
-	error = glGetError();
+	glGetError();
+	glGetError();
 }
 
 ///////////////////////////////////////////////////////////////
@@ -2323,7 +2350,6 @@ void LLGLNamePool::release(GLuint name)
 //static
 void LLGLNamePool::upkeepPools()
 {
-	LLMemType mt(LLMemType::MTYPE_UPKEEP_POOLS);
 	for (tracker_t::instance_iter iter = beginInstances(); iter != endInstances(); ++iter)
 	{
 		LLGLNamePool & pool = *iter;

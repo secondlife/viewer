@@ -28,11 +28,14 @@
 #ifndef LL_LOCALBITMAPS_H
 #define LL_LOCALBITMAPS_H
 
+#include "llavatarappearancedefines.h"
 #include "lleventtimer.h"
+#include "llimage.h"
+#include "llpointer.h"
 #include "llwearabletype.h"
-#include "llvoavatardefines.h"
 
 class LLScrollListCtrl;
+class LLViewerObject;
 
 class LLLocalBitmap
 {
@@ -59,11 +62,11 @@ class LLLocalBitmap
 	private: /* self update private section */
 		bool decodeBitmap(LLPointer<LLImageRaw> raw);
 		void replaceIDs(LLUUID old_id, LLUUID new_id);
-		std::vector<LLViewerObject*> prepUpdateObjects(LLUUID old_id);
-		void updateUserPrims(LLUUID old_id, LLUUID new_id);
+		std::vector<LLViewerObject*> prepUpdateObjects(LLUUID old_id, U32 channel);
+		void updateUserPrims(LLUUID old_id, LLUUID new_id, U32 channel);
 		void updateUserSculpts(LLUUID old_id, LLUUID new_id);
 		void updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableType::EType type);
-		LLVOAvatarDefines::ETextureIndex getTexIndex(LLWearableType::EType type, LLVOAvatarDefines::EBakedTextureIndex baked_texind);
+		LLAvatarAppearanceDefines::ETextureIndex getTexIndex(LLWearableType::EType type, LLAvatarAppearanceDefines::EBakedTextureIndex baked_texind);
 
 	private: /* private enums */
 		enum ELinkStatus

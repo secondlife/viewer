@@ -218,6 +218,9 @@ add_library (llmessage ${llmessage_SOURCE_FILES})
 target_link_libraries(
   llmessage
   ${CURL_LIBRARIES}
+  ${LLCOMMON_LIBRARIES}
+  ${LLVFS_LIBRARES}
+  ${LLMATH_LIBRARIES}
   ${CARES_LIBRARIES}
   ${OPENSSL_LIBRARIES}
   ${CRYPTO_LIBRARIES}

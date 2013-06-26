@@ -56,6 +56,40 @@ uniform float far_z;
 
 uniform mat4 inv_proj;
 
+#ifdef SINGLE_FP_ONLY
+vec2 encode_normal(vec3 n)
+{
+	vec2 sn;
+	sn.xy = (n.xy * vec2(0.5f,0.5f)) + vec2(0.5f,0.5f);
+	return sn;
+}
+
+vec3 decode_normal (vec2 enc)
+{
+	vec3 n;
+	n.xy = (enc.xy * vec2(2.0f,2.0f)) - vec2(1.0f,1.0f);
+	n.z = sqrt(1.0f - dot(n.xy,n.xy));
+	return n;
+}
+#else
+vec2 encode_normal(vec3 n)
+{
+	float f = sqrt(8 * n.z + 8);
+	return n.xy / f + 0.5;
+}
+
+vec3 decode_normal (vec2 enc)
+{
+    vec2 fenc = enc*4-2;
+    float f = dot(fenc,fenc);
+    float g = sqrt(1-f/4);
+    vec3 n;
+    n.xy = fenc*g;
+    n.z = 1-f/2;
+    return n;
+}
+#endif
+
 vec4 getPosition(vec2 pos_screen)
 {
 	float depth = texture2DRect(depthMap, pos_screen.xy).r;
@@ -79,7 +113,7 @@ void main()
 	}
 	
 	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
-	norm = (norm.xyz-0.5)*2.0; // unpack norm
+	norm = decode_normal(norm.xy); // unpack norm
 	norm = normalize(norm);
 	vec4 spec = texture2DRect(specularRect, frag.xy);
 	vec3 diff = texture2DRect(diffuseRect, frag.xy).rgb;
@@ -110,27 +144,39 @@ void main()
 		{
 			lv = normalize(lv);
 			da = dot(norm, lv);
-					
+			
 			float fa = light_col[i].a+1.0;
 			float dist_atten = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
+			
+			dist_atten = pow(dist_atten, 2.2) * 2.2;
+
 			dist_atten *= noise;
 
 			float lit = da * dist_atten;
-			
+						
 			vec3 col = light_col[i].rgb*lit*diff;
+			
 			//vec3 col = vec3(dist2, light_col[i].a, lit);
 			
 			if (spec.a > 0.0)
 			{
+				lit = min(da*6.0, 1.0) * dist_atten;
 				//vec3 ref = dot(pos+lv, norm);
-				
-				float sa = dot(normalize(lv+npos),norm);
-				
-				if (sa > 0.0)
+				vec3 h = normalize(lv+npos);
+				float nh = dot(norm, h);
+				float nv = dot(norm, npos);
+				float vh = dot(npos, h);
+				float sa = nh;
+				float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
+
+				float gtdenom = 2 * nh;
+				float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
+								
+				if (nh > 0.0)
 				{
-					sa = 6 * texture2D(lightFunc, vec2(sa, spec.a)).r * min(dist_atten*4.0, 1.0);
-					sa *= noise;
-					col += da*sa*light_col[i].rgb*spec.rgb;
+					float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
+					col += lit*scol*light_col[i].rgb*spec.rgb;
+					//col += spec.rgb;
 				}
 			}
 			

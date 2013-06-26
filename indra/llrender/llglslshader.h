@@ -67,14 +67,29 @@ public:
 		SG_WATER
 	};
 	
+	static std::set<LLGLSLShader*> sInstances;
+	static bool sProfileEnabled;
+
 	LLGLSLShader();
+	~LLGLSLShader();
 
 	static GLhandleARB sCurBoundShader;
 	static LLGLSLShader* sCurBoundShaderPtr;
 	static S32 sIndexedTextureChannels;
 	static bool sNoFixedFunction;
 
+	static void initProfile();
+	static void finishProfile();
+
+	static void startProfile();
+	static void stopProfile(U32 count, U32 mode);
+
 	void unload();
+	void clearStats();
+	void dumpStats();
+	void placeProfileQuery();
+	void readProfileQuery(U32 count, U32 mode);
+
 	BOOL createShader(std::vector<std::string> * attributes,
 						std::vector<std::string> * uniforms,
 						U32 varying_count = 0,
@@ -123,12 +138,22 @@ public:
 	GLint getAttribLocation(U32 attrib);
 	GLint mapUniformTextureChannel(GLint location, GLenum type);
 	
+	void addPermutation(std::string name, std::string value);
+	void removePermutation(std::string name);
+	
 	//enable/disable texture channel for specified uniform
 	//if given texture uniform is active in the shader, 
 	//the corresponding channel will be active upon return
 	//returns channel texture is enabled in from [0-MAX)
 	S32 enableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
-	S32 disableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE); 
+	S32 disableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
+	
+	// bindTexture returns the texture unit we've bound the texture to.
+	// You can reuse the return value to unbind a texture when required.
+	S32 bindTexture(const std::string& uniform, LLTexture *texture, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
+	S32 bindTexture(S32 uniform, LLTexture *texture, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
+	S32 unbindTexture(const std::string& uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
+	S32 unbindTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
 	
     BOOL link(BOOL suppress_errors = FALSE);
 	void bind();
@@ -142,10 +167,12 @@ public:
 
 	GLhandleARB mProgramObject;
 	std::vector<GLint> mAttribute; //lookup table of attribute enum to attribute channel
+	U32 mAttributeMask;  //mask of which reserved attributes are set (lines up with LLVertexBuffer::getTypeMask())
 	std::vector<GLint> mUniform;   //lookup table of uniform enum to uniform location
 	std::map<std::string, GLint> mUniformMap;  //lookup map of uniform name to uniform location
 	std::map<GLint, LLVector4> mValue; //lookup map of uniform location to last known value
 	std::vector<GLint> mTexture;
+	S32 mTotalUniformSize;
 	S32 mActiveTextureChannels;
 	S32 mShaderLevel;
 	S32 mShaderGroup;
@@ -153,12 +180,26 @@ public:
 	LLShaderFeatures mFeatures;
 	std::vector< std::pair< std::string, GLenum > > mShaderFiles;
 	std::string mName;
+	boost::unordered_map<std::string, std::string> mDefines;
+
+	//statistcis for profiling shader performance
+	U32 mTimerQuery;
+	U64 mTimeElapsed;
+	static U64 sTotalTimeElapsed;
+	U32 mTrianglesDrawn;
+	static U32 sTotalTrianglesDrawn;
+	U64 mSamplesDrawn;
+	static U64 sTotalSamplesDrawn;
+	U32 mDrawCalls;
+	static U32 sTotalDrawCalls;
 };
 
 //UI shader (declared here so llui_libtest will link properly)
 extern LLGLSLShader			gUIProgram;
 //output vec4(color.rgb,color.a*tex0[tc0].a)
 extern LLGLSLShader			gSolidColorProgram;
+//Alpha mask shader (declared here so llappearance can access properly)
+extern LLGLSLShader			gAlphaMaskProgram;
 
 
 #endif

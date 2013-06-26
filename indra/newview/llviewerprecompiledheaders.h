@@ -33,8 +33,6 @@
 // in viewer.
 // It is used to precompile headers for improved build speed.
 
-#include <boost/coroutine/coroutine.hpp>
-
 #include "linden_common.h"
 
 // Work around stupid Microsoft STL warning
@@ -59,8 +57,6 @@
 #include "indra_constants.h"
 #include "llinitparam.h"
 
-//#include "linden_common.h"
-//#include "llpreprocessor.h"
 #include "llallocator.h"
 #include "llapp.h"
 #include "llcriticaldamp.h"
@@ -77,10 +73,8 @@
 #include "llprocessor.h"
 #include "llrefcount.h"
 #include "llsafehandle.h"
-//#include "llsecondlifeurls.h"
 #include "llsd.h"
 #include "llsingleton.h"
-#include "llstat.h"
 #include "llstl.h"
 #include "llstrider.h"
 #include "llstring.h"
@@ -88,11 +82,8 @@
 #include "llthread.h"
 #include "lltimer.h"
 #include "lluuidhashmap.h"
-//#include "processor.h"
 #include "stdenums.h"
 #include "stdtypes.h"
-//#include "string_table.h"
-//#include "timer.h"
 #include "timing.h"
 #include "u64.h"
 

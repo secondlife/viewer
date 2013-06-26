@@ -43,10 +43,12 @@
 #include "llpermissions.h"
 #include "llcontrol.h"
 #include "llviewerobject.h"	// LLObjectSelection::getSelectedTEValue template
+#include "llmaterial.h"
 
 #include <deque>
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/signals2.hpp>
+#include <boost/make_shared.hpp>	// boost::make_shared
 
 class LLMessageSystem;
 class LLViewerTexture;
@@ -81,6 +83,12 @@ struct LLSelectedTEFunctor
 {
 	virtual ~LLSelectedTEFunctor() {};
 	virtual bool apply(LLViewerObject* object, S32 face) = 0;
+};
+
+struct LLSelectedTEMaterialFunctor
+{
+	virtual ~LLSelectedTEMaterialFunctor() {};
+	virtual LLMaterialPtr apply(LLViewerObject* object, S32 face, LLTextureEntry* tep, LLMaterialPtr& current_material) = 0;
 };
 
 template <typename T> struct LLSelectedTEGetFunctor
@@ -121,6 +129,8 @@ typedef enum e_selection_type
 	SELECT_TYPE_HUD
 }ESelectType;
 
+const S32 TE_SELECT_MASK_ALL = 0xFFFFFFFF;
+
 // Contains information about a selected object, particularly which TEs are selected.
 class LLSelectNode
 {
@@ -143,7 +153,7 @@ public:
 	// *NOTE: invalidate stored textures and colors when # faces change
 	void saveColors();
 	void saveTextures(const uuid_vec_t& textures);
-	void saveTextureScaleRatios();
+	void saveTextureScaleRatios(LLRender::eTexIndex index_to_query);
 
 	BOOL allowOperationOnNode(PermissionBit op, U64 group_proxy_power) const;
 
@@ -343,6 +353,9 @@ typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
 extern template class LLSelectMgr* LLSingleton<class LLSelectMgr>::getInstance();
 #endif
 
+// For use with getFirstTest()
+struct LLSelectGetFirstTest;
+
 class LLSelectMgr : public LLEditMenuHandler, public LLSingleton<LLSelectMgr>
 {
 public:
@@ -507,6 +520,11 @@ public:
 	void saveSelectedObjectColors();
 	void saveSelectedObjectTextures();
 
+	// Sets which texture channel to query for scale and rot of display
+	// and depends on UI state of LLPanelFace when editing
+	void setTextureChannel(LLRender::eTexIndex texIndex) { mTextureChannel = texIndex; }
+	LLRender::eTexIndex getTextureChannel() { return mTextureChannel; }
+
 	void selectionUpdatePhysics(BOOL use_physics);
 	void selectionUpdateTemporary(BOOL is_temporary);
 	void selectionUpdatePhantom(BOOL is_ghost);
@@ -537,6 +555,8 @@ public:
 	void selectionSetClickAction(U8 action);
 	void selectionSetIncludeInSearch(bool include_in_search);
 	void selectionSetGlow(const F32 glow);
+	void selectionSetMaterialParams(LLSelectedTEMaterialFunctor* material_func);
+	void selectionRemoveMaterial();
 
 	void selectionSetObjectPermissions(U8 perm_field, BOOL set, U32 perm_mask, BOOL override = FALSE);
 	void selectionSetObjectName(const std::string& name);
@@ -745,6 +765,9 @@ private:
 	static void packGodlikeHead(void* user_data);
 	static bool confirmDelete(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle handle);
 
+	// Get the first ID that matches test and whether or not all ids are identical in selected objects.
+	void getFirst(LLSelectGetFirstTest* test);
+
 public:
 	// Observer/callback support for when object selection changes or
 	// properties are received/updated
@@ -763,10 +786,9 @@ private:
 	LLVector3				mGridOrigin;
 	LLVector3				mGridScale;
 	EGridMode				mGridMode;
-	BOOL					mGridValid;
-
 
 	BOOL					mTEMode;			// render te
+	LLRender::eTexIndex	mTextureChannel; // diff, norm, or spec, depending on UI editing mode
 	LLVector3d				mSelectionCenterGlobal;
 	LLBBox					mSelectionBBox;
 

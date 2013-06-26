@@ -30,7 +30,6 @@
 
 // library includes
 #include "llfasttimerview.h"
-#include "llmemoryview.h"
 #include "llconsole.h"
 #include "lltextureview.h"
 #include "llresmgr.h"
@@ -38,7 +37,6 @@
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
 #include "llappviewer.h"
-#include "llmemoryview.h"
 #include "llsceneview.h"
 #include "llviewertexture.h"
 #include "llfloaterreg.h"
@@ -103,13 +101,6 @@ void LLDebugView::init()
 	
 	r.setLeftTopAndSize(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f), 
 									 (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));
-	LLMemoryView::Params mp;
-	mp.name("memory");
-	mp.rect(r);
-	mp.follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT);
-	mp.visible(false);
-	mMemoryView = LLUICtrlFactory::create<LLMemoryView>(mp);
-	addChild(mMemoryView);
 
 	r.set(150, rect.getHeight() - 50, 820, 100);
 	LLTextureView::Params tvp;

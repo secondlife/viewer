@@ -127,8 +127,8 @@ public:
 	BOOL isNull();
 
 	BOOL deleteChild(LLXMLNode* child);
-    void addChild(LLXMLNodePtr new_child, LLXMLNodePtr after_child = LLXMLNodePtr(NULL)); 
-    void setParent(LLXMLNodePtr new_parent); // reparent if necessary
+    void addChild(LLXMLNodePtr& new_child); 
+    void setParent(LLXMLNodePtr& new_parent); // reparent if necessary
 
     // Serialization
 	static bool parseFile(
@@ -147,7 +147,6 @@ public:
 	static bool updateNode(
 		LLXMLNodePtr& node,
 		LLXMLNodePtr& update_node);
-	static LLXMLNodePtr replaceNode(LLXMLNodePtr node, LLXMLNodePtr replacement_node);
 	
 	static bool getLayeredXMLNode(LLXMLNodePtr& root, const std::vector<std::string>& paths);
 	

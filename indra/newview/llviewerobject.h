@@ -34,7 +34,6 @@
 #include "llhudicon.h"
 #include "llinventory.h"
 #include "llrefcount.h"
-#include "llmemtype.h"
 #include "llprimitive.h"
 #include "lluuid.h"
 #include "llvoinventorylistener.h"
@@ -128,7 +127,6 @@ public:
 	typedef const child_list_t const_child_list_t;
 
 	LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, BOOL is_global = FALSE);
-	MEM_TYPE_NEW(LLMemType::MTYPE_OBJECT);
 
 	virtual void markDead();				// Mark this object as dead, and clean up its references
 	BOOL isDead() const									{return mDead;}
@@ -213,7 +211,7 @@ public:
 	LLViewerRegion* getRegion() const				{ return mRegionp; }
 
 	BOOL isSelected() const							{ return mUserSelected; }
-	virtual void setSelected(BOOL sel)				{ mUserSelected = sel; resetRot();}
+	virtual void setSelected(BOOL sel);
 
 	const LLUUID &getID() const						{ return mID; }
 	U32 getLocalID() const							{ return mLocalID; }
@@ -260,17 +258,17 @@ public:
 
 	//detect if given line segment (in agent space) intersects with this viewer object.
 	//returns TRUE if intersection detected and returns information about intersection
-	virtual BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+	virtual BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 									  S32 face = -1,                          // which face to check, -1 = ALL_SIDES
 									  BOOL pick_transparent = FALSE,
 									  S32* face_hit = NULL,                   // which face was hit
-									  LLVector3* intersection = NULL,         // return the intersection point
+									  LLVector4a* intersection = NULL,         // return the intersection point
 									  LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
-									  LLVector3* normal = NULL,               // return the surface normal at the intersection point
-									  LLVector3* bi_normal = NULL             // return the surface bi-normal at the intersection point
+									  LLVector4a* normal = NULL,               // return the surface normal at the intersection point
+									  LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
 		);
 	
-	virtual BOOL lineSegmentBoundingBox(const LLVector3& start, const LLVector3& end);
+	virtual BOOL lineSegmentBoundingBox(const LLVector4a& start, const LLVector4a& end);
 
 	virtual const LLVector3d getPositionGlobal() const;
 	virtual const LLVector3 &getPositionRegion() const;
@@ -303,7 +301,11 @@ public:
 	/*virtual*/	void	setNumTEs(const U8 num_tes);
 	/*virtual*/	void	setTE(const U8 te, const LLTextureEntry &texture_entry);
 	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid);
-	S32 setTETextureCore(const U8 te, const LLUUID& uuid, LLHost host);
+	/*virtual*/ S32		setTENormalMap(const U8 te, const LLUUID &uuid);
+	/*virtual*/ S32		setTESpecularMap(const U8 te, const LLUUID &uuid);
+	S32 setTETextureCore(const U8 te, LLViewerTexture *image);
+	S32 setTENormalMapCore(const U8 te, LLViewerTexture *image);
+	S32 setTESpecularMapCore(const U8 te, LLViewerTexture *image);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor3 &color);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor4 &color);
 	/*virtual*/ S32		setTEScale(const U8 te, const F32 s, const F32 t);
@@ -320,10 +322,22 @@ public:
 	/*virtual*/	S32		setTEFullbright(const U8 te, const U8 fullbright );
 	/*virtual*/	S32		setTEMediaFlags(const U8 te, const U8 media_flags );
 	/*virtual*/ S32     setTEGlow(const U8 te, const F32 glow);
+	/*virtual*/ S32     setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
+	/*virtual*/ S32		setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams);
+
+	// Used by Materials update functions to properly kick off rebuilds
+	// of VBs etc when materials updates require changes.
+	//
+	void refreshMaterials();
+
 	/*virtual*/	BOOL	setMaterial(const U8 material);
 	virtual		void	setTEImage(const U8 te, LLViewerTexture *imagep); // Not derived from LLPrimitive
 	virtual     void    changeTEImage(S32 index, LLViewerTexture* new_image)  ;
+	virtual     void    changeTENormalMap(S32 index, LLViewerTexture* new_image)  ;
+	virtual     void    changeTESpecularMap(S32 index, LLViewerTexture* new_image)  ;
 	LLViewerTexture		*getTEImage(const U8 te) const;
+	LLViewerTexture		*getTENormalMap(const U8 te) const;
+	LLViewerTexture		*getTESpecularMap(const U8 te) const;
 	
 	void fitFaceTexture(const U8 face);
 	void sendTEUpdate() const;			// Sends packed representation of all texture entry information
@@ -598,6 +612,8 @@ public:
 	S32				mListIndex;
 
 	LLPointer<LLViewerTexture> *mTEImages;
+	LLPointer<LLViewerTexture> *mTENormalMaps;
+	LLPointer<LLViewerTexture> *mTESpecularMaps;
 
 	// Selection, picking and rendering variables
 	U32				mGLName;			// GL "name" used by selection code
@@ -658,7 +674,7 @@ protected:
 	//
 
 	static void processTaskInvFile(void** user_data, S32 error_code, LLExtStat ext_status);
-	void loadTaskInvFile(const std::string& filename);
+	BOOL loadTaskInvFile(const std::string& filename);
 	void doInventoryCallback();
 	
 	BOOL isOnMap();

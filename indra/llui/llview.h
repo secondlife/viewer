@@ -67,7 +67,6 @@ const BOOL	NOT_MOUSE_OPAQUE = FALSE;
 
 const U32 GL_NAME_UI_RESERVED = 2;
 
-
 // maintains render state during traversal of UI tree
 class LLViewDrawContext
 {

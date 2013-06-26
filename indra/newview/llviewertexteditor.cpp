@@ -1052,8 +1052,6 @@ void LLViewerTextEditor::findEmbeddedItemSegments(S32 start, S32 end)
 {
 	LLWString text = getWText();
 
-	LLColor4 text_color = ( mReadOnly ? mReadOnlyFgColor.get() : mFgColor.get()  );
-
 	// Start with i just after the first embedded item
 	for(S32 idx = start; idx < end; idx++ )
 	{
@@ -1144,6 +1142,14 @@ void LLViewerTextEditor::openEmbeddedTexture( LLInventoryItem* item, llwchar wc 
 	{
 		preview->setAuxItem( item );
 		preview->setNotecardInfo(mNotecardInventoryID, mObjectID);
+		if (preview->hasString("Title"))
+		{
+			LLStringUtil::format_map_t args;
+			args["[NAME]"] = item->getName();
+			LLUIString title = preview->getString("Title", args);
+			preview->setTitle(title.getString());
+		}
+		preview->getChild<LLUICtrl>("desc")->setValue(item->getDescription());
 	}
 }
 

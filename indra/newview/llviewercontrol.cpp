@@ -72,6 +72,8 @@
 #include "llpanellogin.h"
 #include "llpaneltopinfobar.h"
 #include "llspellcheck.h"
+#include "llslurl.h"
+#include "llstartup.h"
 #include "llupdaterservice.h"
 
 // Third party library includes
@@ -399,6 +401,25 @@ static bool handleRenderDeferredChanged(const LLSD& newvalue)
 	return true;
 }
 
+// This looks a great deal like handleRenderDeferredChanged because
+// Advanced Lighting (Materials) implies bumps and shiny so disabling
+// bumps should further disable that feature.
+//
+static bool handleRenderBumpChanged(const LLSD& newval)
+{
+	LLRenderTarget::sUseFBO = newval.asBoolean();
+	if (gPipeline.isInit())
+	{
+		gPipeline.updateRenderBump();
+		gPipeline.updateRenderDeferred();
+		gPipeline.releaseGLBuffers();
+		gPipeline.createGLBuffers();
+		gPipeline.resetVertexBuffers();
+		LLViewerShaderMgr::instance()->setShaders();
+	}
+	return true;
+}
+
 static bool handleRenderUseImpostorsChanged(const LLSD& newvalue)
 {
 	LLVOAvatar::sUseImpostors = newvalue.asBoolean();
@@ -493,6 +514,20 @@ bool handleVelocityInterpolate(const LLSD& newvalue)
 bool handleForceShowGrid(const LLSD& newvalue)
 {
 	LLPanelLogin::updateServer( );
+	return true;
+}
+
+bool handleLoginLocationChanged()
+{
+	/*
+	 * This connects the default preference setting to the state of the login
+	 * panel if it is displayed; if you open the preferences panel before
+	 * logging in, and change the default login location there, the login
+	 * panel immediately changes to match your new preference.
+	 */
+	std::string new_login_location = gSavedSettings.getString("LoginLocation");
+	LL_DEBUGS("AppInit")<<new_login_location<<LL_ENDL;
+	LLStartUp::setStartSLURL(LLSLURL(new_login_location));
 	return true;
 }
 
@@ -613,7 +648,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderDebugTextureBind")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderAutoMaskAlphaDeferred")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderAutoMaskAlphaNonDeferred")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
-	gSavedSettings.getControl("RenderObjectBump")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
+	gSavedSettings.getControl("RenderObjectBump")->getSignal()->connect(boost::bind(&handleRenderBumpChanged, _2));
 	gSavedSettings.getControl("RenderMaxVBOSize")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderDeferredNoise")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderUseImpostors")->getSignal()->connect(boost::bind(&handleRenderUseImpostorsChanged, _2));
@@ -639,6 +674,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("AudioLevelVoice")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("AudioLevelDoppler")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("AudioLevelRolloff")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
+	gSavedSettings.getControl("AudioLevelUnderwaterRolloff")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("MuteMusic")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("MuteMedia")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
@@ -721,6 +757,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderTransparentWater")->getSignal()->connect(boost::bind(&handleRenderTransparentWaterChanged, _2));
 	gSavedSettings.getControl("SpellCheck")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
 	gSavedSettings.getControl("SpellCheckDictionary")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
+	gSavedSettings.getControl("LoginLocation")->getSignal()->connect(boost::bind(&handleLoginLocationChanged));
 }
 
 #if TEST_CACHED_CONTROL

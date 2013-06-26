@@ -138,7 +138,6 @@ void LLWorld::destroyClass()
 
 LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 {
-	LLMemType mt(LLMemType::MTYPE_REGIONS);
 	llinfos << "Add region with handle: " << region_handle << " on host " << host << llendl;
 	LLViewerRegion *regionp = getRegionFromHandle(region_handle);
 	if (regionp)
@@ -275,7 +274,9 @@ void LLWorld::removeRegion(const LLHost &host)
 	mActiveRegionList.remove(regionp);
 	mCulledRegionList.remove(regionp);
 	mVisibleRegionList.remove(regionp);
-	
+
+	mRegionRemovedSignal(regionp);
+
 	delete regionp;
 
 	updateWaterObjects();
@@ -403,6 +404,19 @@ LLViewerRegion* LLWorld::getRegionFromHandle(const U64 &handle)
 	return NULL;
 }
 
+LLViewerRegion* LLWorld::getRegionFromID(const LLUUID& region_id)
+{
+	for (region_list_t::iterator iter = mRegionList.begin();
+		 iter != mRegionList.end(); ++iter)
+	{
+		LLViewerRegion* regionp = *iter;
+		if (regionp->getRegionID() == region_id)
+		{
+			return regionp;
+		}
+	}
+	return NULL;
+}
 
 void LLWorld::updateAgentOffset(const LLVector3d &offset_global)
 {
@@ -644,7 +658,6 @@ void LLWorld::updateVisibilities()
 
 void LLWorld::updateRegions(F32 max_update_time)
 {
-	LLMemType mt_ur(LLMemType::MTYPE_IDLE_UPDATE_REGIONS);
 	LLTimer update_timer;
 	BOOL did_one = FALSE;
 	
@@ -1194,7 +1207,7 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 	{
 		LLVOAvatar* pVOAvatar = (LLVOAvatar*) *iter;
 
-		if (!pVOAvatar->isDead() && !pVOAvatar->isSelf())
+		if (!pVOAvatar->isDead() && !pVOAvatar->mIsDummy)
 		{
 			LLVector3d pos_global = pVOAvatar->getPositionGlobal();
 			LLUUID uuid = pVOAvatar->getID();
@@ -1244,6 +1257,11 @@ bool LLWorld::isRegionListed(const LLViewerRegion* region) const
 {
 	region_list_t::const_iterator it = find(mRegionList.begin(), mRegionList.end(), region);
 	return it != mRegionList.end();
+}
+
+boost::signals2::connection LLWorld::setRegionRemovedCallback(const region_remove_signal_t::slot_type& cb)
+{
+	return mRegionRemovedSignal.connect(cb);
 }
 
 LLHTTPRegistration<LLEstablishAgentCommunication>

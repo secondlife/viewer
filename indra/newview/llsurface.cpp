@@ -62,8 +62,6 @@ LLColor4U MAX_WATER_COLOR(0, 48, 96, 240);
 
 
 S32 LLSurface::sTextureSize = 256;
-S32 LLSurface::sTexelsUpdated = 0;
-F32 LLSurface::sTextureUpdateTime = 0.f;
 
 // ---------------- LLSurface:: Public Members ---------------
 
@@ -647,7 +645,6 @@ void LLSurface::updatePatchVisibilities(LLAgent &agent)
 
 BOOL LLSurface::idleUpdate(F32 max_update_time)
 {
-	LLMemType mt_ius(LLMemType::MTYPE_IDLE_UPDATE_SURFACE);
 	if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_TERRAIN))
 	{
 		return FALSE;
@@ -1248,8 +1245,6 @@ BOOL LLSurface::generateWaterTexture(const F32 x, const F32 y,
 	{
 		y_end = tex_width;
 	}
-
-	LLVector3d origin_global = from_region_handle(getRegion()->getHandle());
 
 	// OK, for now, just have the composition value equal the height at the point.
 	LLVector3 location;

@@ -299,6 +299,7 @@ ChickyBabes Zuzu
 Christopher  Organiser
 Ciaran Laval
 Cinder Roxley
+    BUG-2326
     STORM-1703
 Clara Young
 Coaldust Numbers
@@ -403,6 +404,7 @@ Ganymedes Costagravas
 Geenz Spad
 	STORM-1823
 	STORM-1900
+	NORSPEC-229
 Gene Frostbite
 GeneJ Composer
 Geneko Nemeth
@@ -653,6 +655,7 @@ Jonathan Yap
 	STORM-1872
 	STORM-1858
 	STORM-1862
+	OPEN-161
 Kadah Coba
 	STORM-1060
     STORM-1843
@@ -751,10 +754,12 @@ Marc Claridge
 Marc2 Sands
 Marianne McCann
 Marine Kelley
+    CHUIBUG-134
     STORM-281
 MartinRJ Fayray
     STORM-1844
     STORM-1845
+    STORM-1934
 Matthew Anthony
 Matthew Dowd
 	VWR-1344
@@ -902,6 +907,9 @@ NickyD
 	MAINT-873
 Nicky Dasmijn
 	VWR-29228
+	MAINT-873
+	SUN-72
+	BUG-2432
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1024,6 +1032,7 @@ Ryozu Kojima
 	VWR-287
 Sachi Vixen
 Sahkolihaa Contepomi
+	MATBUG-102
 Saii Hallard
 SaintLEOlions Zimer
 Salahzar Stenvaag
@@ -1071,10 +1080,12 @@ Sheet Spotter
 Shnurui Troughton
 Shyotl Kuhr
 	MAINT-1138
+	MAINT-2334
 Siana Gearz
 	STORM-960
 	STORM-1088
 	MAINT-1138
+	MAINT-2334
 sicarius Thorne
 Sicarius Toxx
 SignpostMarv Martin
@@ -1092,6 +1103,8 @@ SLB Wirefly
 Slee Mayo
     SEC-1075
 snowy Sidran
+Sovereign Engineer
+    MAINT-2334
 SpacedOut Frye
 	VWR-34
 	VWR-45
@@ -1170,6 +1183,7 @@ Techwolf Lupindo
 	SNOW-746
 	VWR-12385
 	VWR-20893
+	OPEN-161
 Templar Merlin
 tenebrous pau
 	VWR-247
@@ -1237,6 +1251,7 @@ Vadim Bigbear
 	VWR-2681
 Vaalith Jinn
     STORM-64
+    MATBUG-8
 Vector Hastings
 	VWR-8726
 Veritas Raymaker
@@ -1257,6 +1272,7 @@ Whimsy Winx
 Whirly Fizzle
 	STORM-1895
 	MAINT-873
+	STORM-1930
 Whoops Babii
 	VWR-631
 	VWR-1640
@@ -1340,3 +1356,4 @@ Zipherius Turas
 	VWR-76
 	VWR-77
 Zoex Flanagan
+

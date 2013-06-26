@@ -55,7 +55,7 @@
 #include "llviewershadermgr.h"
 
 static LLFastTimer::DeclareTimer FTM_FRUSTUM_CULL("Frustum Culling");
-static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
+static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound Partition");
 
 const F32 SG_OCCLUSION_FUDGE = 0.25f;
 #define SG_DISCARD_TOLERANCE 0.01f
@@ -376,7 +376,6 @@ LLSpatialGroup::~LLSpatialGroup()
 		}
 	}
 
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	clearDrawMap();
 	clearAtlasList() ;
 }
@@ -615,8 +614,6 @@ void LLSpatialGroup::validateDrawMap()
 
 BOOL LLSpatialGroup::updateInGroup(LLDrawable *drawablep, BOOL immediate)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-		
 	drawablep->updateSpatialExtents();
 
 	OctreeNode* parent = mOctreeNode->getOctParent();
@@ -638,7 +635,6 @@ BOOL LLSpatialGroup::updateInGroup(LLDrawable *drawablep, BOOL immediate)
 
 BOOL LLSpatialGroup::addObject(LLDrawable *drawablep, BOOL add_all, BOOL from_octree)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	if (!from_octree)
 	{
 		mOctreeNode->insert(drawablep);
@@ -664,7 +660,6 @@ BOOL LLSpatialGroup::addObject(LLDrawable *drawablep, BOOL add_all, BOOL from_oc
 
 void LLSpatialGroup::rebuildGeom()
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	if (!isDead())
 	{
 		mSpatialPartition->rebuildGeom(this);
@@ -876,7 +871,6 @@ LLSpatialGroup* LLSpatialGroup::getParent()
 
 BOOL LLSpatialGroup::removeObject(LLDrawable *drawablep, BOOL from_octree)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	unbound();
 	if (mOctreeNode && !from_octree)
 	{
@@ -913,7 +907,6 @@ BOOL LLSpatialGroup::removeObject(LLDrawable *drawablep, BOOL from_octree)
 
 void LLSpatialGroup::shift(const LLVector4a &offset)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	LLVector4a t = mOctreeNode->getCenter();
 	t.add(offset);	
 	mOctreeNode->setCenter(t);
@@ -968,8 +961,6 @@ void LLSpatialGroup::setState(U32 state)
 
 void LLSpatialGroup::setState(U32 state, S32 mode) 
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-
 	llassert(state <= LLSpatialGroup::STATE_MASK);
 	
 	if (mode > STATE_MODE_SINGLE)
@@ -1026,8 +1017,6 @@ void LLSpatialGroup::clearState(U32 state, S32 mode)
 {
 	llassert(state <= LLSpatialGroup::STATE_MASK);
 
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-	
 	if (mode > STATE_MODE_SINGLE)
 	{
 		if (mode == STATE_MODE_DIFF)
@@ -1084,8 +1073,6 @@ public:
 
 void LLSpatialGroup::setOcclusionState(U32 state, S32 mode) 
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-	
 	if (mode > STATE_MODE_SINGLE)
 	{
 		if (mode == STATE_MODE_DIFF)
@@ -1150,8 +1137,6 @@ public:
 
 void LLSpatialGroup::clearOcclusionState(U32 state, S32 mode)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-	
 	if (mode > STATE_MODE_SINGLE)
 	{
 		if (mode == STATE_MODE_DIFF)
@@ -1203,7 +1188,6 @@ LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part) :
 	ll_assert_aligned(this,16);
 	
 	sNodeCount++;
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 
 	mViewAngle.splat(0.f);
 	mLastUpdateViewAngle.splat(-1.f);
@@ -1389,7 +1373,6 @@ BOOL LLSpatialGroup::changeLOD()
 
 void LLSpatialGroup::handleInsertion(const TreeNode* node, LLDrawable* drawablep)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	addObject(drawablep, FALSE, TRUE);
 	unbound();
 	setState(OBJECT_DIRTY);
@@ -1397,14 +1380,12 @@ void LLSpatialGroup::handleInsertion(const TreeNode* node, LLDrawable* drawablep
 
 void LLSpatialGroup::handleRemoval(const TreeNode* node, LLDrawable* drawable)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	removeObject(drawable, TRUE);
 	setState(OBJECT_DIRTY);
 }
 
 void LLSpatialGroup::handleDestruction(const TreeNode* node)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	setState(DEAD);
 	
 	for (element_iter i = getDataBegin(); i != getDataEnd(); ++i)
@@ -1446,7 +1427,6 @@ void LLSpatialGroup::handleStateChange(const TreeNode* node)
 
 void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* child) 
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	if (child->getListenerCount() == 0)
 	{
 		new LLSpatialGroup(child, mSpatialPartition);
@@ -1792,7 +1772,6 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 LLSpatialPartition::LLSpatialPartition(U32 data_mask, BOOL render_by_group, U32 buffer_usage)
 : mRenderByGroup(render_by_group), mBridge(NULL)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	mOcclusionEnabled = TRUE;
 	mDrawableType = 0;
 	mPartitionType = LLViewerRegion::PARTITION_NONE;
@@ -1816,8 +1795,6 @@ LLSpatialPartition::LLSpatialPartition(U32 data_mask, BOOL render_by_group, U32 
 
 LLSpatialPartition::~LLSpatialPartition()
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-	
 	delete mOctree;
 	mOctree = NULL;
 }
@@ -1825,8 +1802,6 @@ LLSpatialPartition::~LLSpatialPartition()
 
 LLSpatialGroup *LLSpatialPartition::put(LLDrawable *drawablep, BOOL was_visible)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-		
 	drawablep->updateSpatialExtents();
 
 	//keep drawable from being garbage collected
@@ -1848,8 +1823,6 @@ LLSpatialGroup *LLSpatialPartition::put(LLDrawable *drawablep, BOOL was_visible)
 
 BOOL LLSpatialPartition::remove(LLDrawable *drawablep, LLSpatialGroup *curp)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-	
 	if (!curp->removeObject(drawablep))
 	{
 		OCT_ERRS << "Failed to remove drawable from octree!" << llendl;
@@ -1868,8 +1841,6 @@ BOOL LLSpatialPartition::remove(LLDrawable *drawablep, LLSpatialGroup *curp)
 
 void LLSpatialPartition::move(LLDrawable *drawablep, LLSpatialGroup *curp, BOOL immediate)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-		
 	// sanity check submitted by open source user bushing Spatula
 	// who was seeing crashing here. (See VWR-424 reported by Bunny Mayne)
 	if (!drawablep)
@@ -1926,7 +1897,6 @@ public:
 
 void LLSpatialPartition::shift(const LLVector4a &offset)
 { //shift octree node bounding boxes by offset
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	LLSpatialShift shifter(offset);
 	shifter.traverse(mOctree);
 }
@@ -2340,7 +2310,6 @@ public:
 
 void LLSpatialPartition::restoreGL()
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 }
 
 void LLSpatialPartition::resetVertexBuffers()
@@ -2383,7 +2352,6 @@ BOOL LLSpatialPartition::visibleObjectsInFrustum(LLCamera& camera)
 
 S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* results, BOOL for_select)
 {
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 #if LL_OCTREE_PARANOIA_CHECK
 	((LLSpatialGroup*)mOctree->getListener(0))->checkStates();
 #endif
@@ -2778,7 +2746,7 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 
 void renderCrossHairs(LLVector3 position, F32 size, LLColor4 color)
 {
-	gGL.diffuseColor4fv(color.mV);
+	gGL.color4fv(color.mV);
 	gGL.begin(LLRender::LINES);
 	{
 		gGL.vertex3fv((position - LLVector3(size, 0.f, 0.f)).mV);
@@ -3071,9 +3039,9 @@ void renderNormals(LLDrawable* drawablep)
 				gGL.vertex3fv(face.mPositions[j].getF32ptr());
 				gGL.vertex3fv(p.getF32ptr());
 				
-				if (face.mBinormals)
+				if (face.mTangents)
 				{
-					n.setMul(face.mBinormals[j], scale);
+					n.setMul(face.mTangents[j], scale);
 					p.setAdd(face.mPositions[j], n);
 				
 					gGL.diffuseColor4f(0,1,1,1);
@@ -3576,9 +3544,9 @@ void renderTexturePriority(LLDrawable* drawable)
 		drawBox(center, size);
 		
 		/*S32 boost = imagep->getBoostLevel();
-		if (boost>LLViewerTexture::BOOST_NONE)
+		if (boost>LLGLTexture::BOOST_NONE)
 		{
-			F32 t = (F32) boost / (F32) (LLViewerTexture::BOOST_MAX_LEVEL-1);
+			F32 t = (F32) boost / (F32) (LLGLTexture::BOOST_MAX_LEVEL-1);
 			LLVector4 col = lerp(boost_cold, boost_hot, t);
 			LLGLEnable blend_on(GL_BLEND);
 			gGL.blendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -3920,11 +3888,17 @@ void renderRaycast(LLDrawable* drawablep)
 					gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);					
 					gGL.multMatrix((F32*) vobj->getRelativeXform().mMatrix);
 
-					LLVector3 start, end;
+					LLVector4a start, end;
 					if (transform)
 					{
-						start = vobj->agentPositionToVolume(gDebugRaycastStart);
-						end = vobj->agentPositionToVolume(gDebugRaycastEnd);
+						LLVector3 v_start(gDebugRaycastStart.getF32ptr());
+						LLVector3 v_end(gDebugRaycastEnd.getF32ptr());
+
+						v_start = vobj->agentPositionToVolume(v_start);
+						v_end = vobj->agentPositionToVolume(v_end);
+
+						start.load3(v_start.mV);
+						end.load3(v_end.mV);
 					}
 					else
 					{
@@ -3932,11 +3906,8 @@ void renderRaycast(LLDrawable* drawablep)
 						end = gDebugRaycastEnd;
 					}
 
-					LLVector4a starta, enda;
-					starta.load3(start.mV);
-					enda.load3(end.mV);
 					LLVector4a dir;
-					dir.setSub(enda, starta);
+					dir.setSub(end, start);
 
 					gGL.flush();
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);				
@@ -3959,7 +3930,7 @@ void renderRaycast(LLDrawable* drawablep)
 							((LLVolumeFace*) &face)->createOctree(); 
 						}
 
-						LLRenderOctreeRaycast render(starta, dir, &t);
+						LLRenderOctreeRaycast render(start, dir, &t);
 					
 						render.traverse(face.mOctree);
 					}
@@ -3984,10 +3955,18 @@ void renderRaycast(LLDrawable* drawablep)
 			// draw intersection point
 			gGL.pushMatrix();
 			gGL.loadMatrix(gGLModelView);
-			LLVector3 translate = gDebugRaycastIntersection;
+			LLVector3 translate(gDebugRaycastIntersection.getF32ptr());
 			gGL.translatef(translate.mV[0], translate.mV[1], translate.mV[2]);
 			LLCoordFrame orient;
-			orient.lookDir(gDebugRaycastNormal, gDebugRaycastBinormal);
+			LLVector4a debug_binormal;
+			
+			debug_binormal.setCross3(gDebugRaycastNormal, gDebugRaycastTangent);
+			debug_binormal.mul(gDebugRaycastTangent.getF32ptr()[3]);
+
+			LLVector3 normal(gDebugRaycastNormal.getF32ptr());
+			LLVector3 binormal(debug_binormal.getF32ptr());
+						
+			orient.lookDir(normal, binormal);
 			LLMatrix4 rotation;
 			orient.getRotMatrixToParent(rotation);
 			gGL.multMatrix((float*)rotation.mMatrix);
@@ -4029,8 +4008,8 @@ void renderAgentTarget(LLVOAvatar* avatar)
 	if (avatar->isSelf())
 	{
 		renderCrossHairs(avatar->getPositionAgent(), 0.2f, LLColor4(1, 0, 0, 0.8f));
-		renderCrossHairs(avatar->mDrawable->getPositionAgent(), 0.2f, LLColor4(1, 0, 0, 0.8f));
-		renderCrossHairs(avatar->mRoot.getWorldPosition(), 0.2f, LLColor4(1, 1, 1, 0.8f));
+		renderCrossHairs(avatar->mDrawable->getPositionAgent(), 0.2f, LLColor4(0, 1, 0, 0.8f));
+		renderCrossHairs(avatar->mRoot->getWorldPosition(), 0.2f, LLColor4(1, 1, 1, 0.8f));
 		renderCrossHairs(avatar->mPelvisp->getWorldPosition(), 0.2f, LLColor4(0, 0, 1, 0.8f));
 	}
 }
@@ -4093,9 +4072,6 @@ public:
 		{
 			return;
 		}
-
-		LLVector4a nodeCenter = group->mBounds[0];
-		LLVector4a octCenter = group->mOctreeNode->getCenter();
 
 		group->rebuildGeom();
 		group->rebuildMesh();
@@ -4441,8 +4417,6 @@ void LLSpatialPartition::renderDebug()
 		sCurMaxTexPriority = 0.f;
 	}
 
-	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
-	
 	LLGLDisable cullface(GL_CULL_FACE);
 	LLGLEnable blend(GL_BLEND);
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
@@ -4494,28 +4468,30 @@ BOOL LLSpatialPartition::isVisible(const LLVector3& v)
 	return TRUE;
 }
 
+LL_ALIGN_PREFIX(16)
 class LLOctreeIntersect : public LLSpatialGroup::OctreeTraveler
 {
 public:
-	LLVector3 mStart;
-	LLVector3 mEnd;
+	LL_ALIGN_16(LLVector4a mStart);
+	LL_ALIGN_16(LLVector4a mEnd);
+
 	S32       *mFaceHit;
-	LLVector3 *mIntersection;
+	LLVector4a *mIntersection;
 	LLVector2 *mTexCoord;
-	LLVector3 *mNormal;
-	LLVector3 *mBinormal;
+	LLVector4a *mNormal;
+	LLVector4a *mTangent;
 	LLDrawable* mHit;
 	BOOL mPickTransparent;
 
-	LLOctreeIntersect(LLVector3 start, LLVector3 end, BOOL pick_transparent,
-					  S32* face_hit, LLVector3* intersection, LLVector2* tex_coord, LLVector3* normal, LLVector3* binormal)
+	LLOctreeIntersect(const LLVector4a& start, const LLVector4a& end, BOOL pick_transparent,
+					  S32* face_hit, LLVector4a* intersection, LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 		: mStart(start),
 		  mEnd(end),
 		  mFaceHit(face_hit),
 		  mIntersection(intersection),
 		  mTexCoord(tex_coord),
 		  mNormal(normal),
-		  mBinormal(binormal),
+		  mTangent(tangent),
 		  mHit(NULL),
 		  mPickTransparent(pick_transparent)
 	{
@@ -4546,23 +4522,22 @@ public:
 			size = group->mBounds[1];
 			center = group->mBounds[0];
 			
-			LLVector3 local_start = mStart;
-			LLVector3 local_end   = mEnd;
+			LLVector4a local_start = mStart;
+			LLVector4a local_end   = mEnd;
 
 			if (group->mSpatialPartition->isBridge())
 			{
 				LLMatrix4 local_matrix = group->mSpatialPartition->asBridge()->mDrawable->getRenderMatrix();
 				local_matrix.invert();
-				
-				local_start = mStart * local_matrix;
-				local_end   = mEnd   * local_matrix;
+
+				LLMatrix4a local_matrix4a;
+				local_matrix4a.loadu(local_matrix);
+
+				local_matrix4a.affineTransform(mStart, local_start);
+				local_matrix4a.affineTransform(mEnd, local_end);
 			}
 
-			LLVector4a start, end;
-			start.load3(local_start.mV);
-			end.load3(local_end.mV);
-
-			if (LLLineSegmentBoxIntersect(start, end, center, size))
+			if (LLLineSegmentBoxIntersect(local_start, local_end, center, size))
 			{
 				check(child);
 			}
@@ -4573,9 +4548,6 @@ public:
 
 	virtual bool check(LLDrawable* drawable)
 	{	
-		LLVector3 local_start = mStart;
-		LLVector3 local_end = mEnd;
-
 		if (!drawable || !gPipeline.hasRenderType(drawable->getRenderType()) || !drawable->isVisible())
 		{
 			return false;
@@ -4596,14 +4568,14 @@ public:
 
 			if (vobj)
 			{
-				LLVector3 intersection;
+				LLVector4a intersection;
 				bool skip_check = false;
 				if (vobj->isAvatar())
 				{
 					LLVOAvatar* avatar = (LLVOAvatar*) vobj;
 					if (avatar->isSelf() && LLFloater::isVisible(gFloaterTools))
 					{
-						LLViewerObject* hit = avatar->lineSegmentIntersectRiggedAttachments(mStart, mEnd, -1, mPickTransparent, mFaceHit, &intersection, mTexCoord, mNormal, mBinormal);
+						LLViewerObject* hit = avatar->lineSegmentIntersectRiggedAttachments(mStart, mEnd, -1, mPickTransparent, mFaceHit, &intersection, mTexCoord, mNormal, mTangent);
 						if (hit)
 						{
 							mEnd = intersection;
@@ -4619,7 +4591,7 @@ public:
 					}
 				}
 
-				if (!skip_check && vobj->lineSegmentIntersect(mStart, mEnd, -1, mPickTransparent, mFaceHit, &intersection, mTexCoord, mNormal, mBinormal))
+				if (!skip_check && vobj->lineSegmentIntersect(mStart, mEnd, -1, mPickTransparent, mFaceHit, &intersection, mTexCoord, mNormal, mTangent))
 				{
 					mEnd = intersection;  // shorten ray so we only find CLOSER hits
 					if (mIntersection)
@@ -4634,19 +4606,19 @@ public:
 				
 		return false;
 	}
-};
+} LL_ALIGN_POSTFIX(16);
 
-LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 													 BOOL pick_transparent,													
 													 S32* face_hit,                   // return the face hit
-													 LLVector3* intersection,         // return the intersection point
+													 LLVector4a* intersection,         // return the intersection point
 													 LLVector2* tex_coord,            // return the texture coordinates of the intersection point
-													 LLVector3* normal,               // return the surface normal at the intersection point
-													 LLVector3* bi_normal             // return the surface bi-normal at the intersection point
+													 LLVector4a* normal,               // return the surface normal at the intersection point
+													 LLVector4a* tangent			// return the surface tangent at the intersection point
 	)
 
 {
-	LLOctreeIntersect intersect(start, end, pick_transparent, face_hit, intersection, tex_coord, normal, bi_normal);
+	LLOctreeIntersect intersect(start, end, pick_transparent, face_hit, intersection, tex_coord, normal, tangent);
 	LLDrawable* drawable = intersect.check(mOctree);
 
 	return drawable;
@@ -4672,7 +4644,13 @@ LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
 	mGroup(NULL),
 	mFace(NULL),
 	mDistance(0.f),
-	mDrawMode(LLRender::TRIANGLES)
+	mDrawMode(LLRender::TRIANGLES),
+	mMaterial(NULL),
+	mShaderMask(0),
+	mSpecColor(1.0f, 1.0f, 1.0f, 0.5f),
+	mEnvIntensity(0.0f),
+	mAlphaMaskCutoff(0.5f),
+	mDiffuseAlphaMode(0)
 {
 	mVertexBuffer->validateRange(mStart, mEnd, mCount, mOffset);
 	

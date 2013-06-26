@@ -35,7 +35,8 @@
 #include "llspatialpartition.h"
 #include "m4math.h"
 #include "llpointer.h"
-#include "lldrawpool.h"
+#include "lldrawpoolalpha.h"
+#include "lldrawpoolmaterials.h"
 #include "llgl.h"
 #include "lldrawable.h"
 #include "llrendertarget.h"
@@ -59,6 +60,7 @@ class LLCullResult;
 class LLVOAvatar;
 class LLGLSLShader;
 class LLCurlRequest;
+class LLDrawPoolAlpha;
 
 class LLMeshResponder;
 
@@ -95,6 +97,7 @@ extern LLFastTimer::DeclareTimer FTM_RENDER_WL_SKY;
 extern LLFastTimer::DeclareTimer FTM_RENDER_ALPHA;
 extern LLFastTimer::DeclareTimer FTM_RENDER_CHARACTERS;
 extern LLFastTimer::DeclareTimer FTM_RENDER_BUMP;
+extern LLFastTimer::DeclareTimer FTM_RENDER_MATERIALS;
 extern LLFastTimer::DeclareTimer FTM_RENDER_FULLBRIGHT;
 extern LLFastTimer::DeclareTimer FTM_RENDER_GLOW;
 extern LLFastTimer::DeclareTimer FTM_STATESORT;
@@ -185,21 +188,21 @@ public:
 	void		markMeshDirty(LLSpatialGroup* group);
 
 	//get the object between start and end that's closest to start.
-	LLViewerObject* lineSegmentIntersectInWorld(const LLVector3& start, const LLVector3& end,
+	LLViewerObject* lineSegmentIntersectInWorld(const LLVector4a& start, const LLVector4a& end,
 												BOOL pick_transparent,
 												S32* face_hit,                          // return the face hit
-												LLVector3* intersection = NULL,         // return the intersection point
+												LLVector4a* intersection = NULL,         // return the intersection point
 												LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
-												LLVector3* normal = NULL,               // return the surface normal at the intersection point
-												LLVector3* bi_normal = NULL             // return the surface bi-normal at the intersection point  
+												LLVector4a* normal = NULL,               // return the surface normal at the intersection point
+												LLVector4a* tangent = NULL             // return the surface tangent at the intersection point  
 		);
-	LLViewerObject* lineSegmentIntersectInHUD(const LLVector3& start, const LLVector3& end,
+	LLViewerObject* lineSegmentIntersectInHUD(const LLVector4a& start, const LLVector4a& end,
 											  BOOL pick_transparent,
 											  S32* face_hit,                          // return the face hit
-											  LLVector3* intersection = NULL,         // return the intersection point
+											  LLVector4a* intersection = NULL,         // return the intersection point
 											  LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
-											  LLVector3* normal = NULL,               // return the surface normal at the intersection point
-											  LLVector3* bi_normal = NULL             // return the surface bi-normal at the intersection point
+											  LLVector4a* normal = NULL,               // return the surface normal at the intersection point
+											  LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
 		);
 
 	// Something about these textures has changed.  Dirty them.
@@ -256,6 +259,8 @@ public:
 	void forAllVisibleDrawables(void (*func)(LLDrawable*));
 
 	void renderObjects(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_texture = FALSE);
+	void renderMaskedObjects(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_texture = FALSE);
+
 	void renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL texture);
 
 	void grabReferences(LLCullResult& result);
@@ -324,19 +329,27 @@ public:
 
 	BOOL hasRenderDebugFeatureMask(const U32 mask) const	{ return (mRenderDebugFeatureMask & mask) ? TRUE : FALSE; }
 	BOOL hasRenderDebugMask(const U32 mask) const			{ return (mRenderDebugMask & mask) ? TRUE : FALSE; }
-	
-
+	void setAllRenderDebugFeatures() { mRenderDebugFeatureMask = 0xffffffff; }
+	void clearAllRenderDebugFeatures() { mRenderDebugFeatureMask = 0x0; }
+	void setAllRenderDebugDisplays() { mRenderDebugMask = 0xffffffff; }
+	void clearAllRenderDebugDisplays() { mRenderDebugMask = 0x0; }
 
 	BOOL hasRenderType(const U32 type) const;
 	BOOL hasAnyRenderType(const U32 type, ...) const;
 
 	void setRenderTypeMask(U32 type, ...);
-	void orRenderTypeMask(U32 type, ...);
+	// This is equivalent to 'setRenderTypeMask'
+	//void orRenderTypeMask(U32 type, ...);
 	void andRenderTypeMask(U32 type, ...);
 	void clearRenderTypeMask(U32 type, ...);
+	void setAllRenderTypes();
+	void clearAllRenderTypes();
 	
 	void pushRenderTypeMask();
 	void popRenderTypeMask();
+
+	void pushRenderDebugFeatureMask();
+	void popRenderDebugFeatureMask();
 
 	static void toggleRenderType(U32 type);
 
@@ -381,11 +394,15 @@ public:
 	static void setRenderHighlights(BOOL val);
 	static void toggleRenderHighlights(void* data);
 	static BOOL getRenderHighlights(void* data);
+	static void setRenderHighlightTextureChannel(LLRender::eTexIndex channel); // sets which UV setup to display in highlight overlay
 
+	static void updateRenderBump();
 	static void updateRenderDeferred();
 	static void refreshCachedSettings();
 
 	static void throttleNewMemoryAllocation(BOOL disable);
+
+	
 
 	void addDebugBlip(const LLVector3& position, const LLColor4& color);
 
@@ -417,8 +434,11 @@ public:
 		RENDER_TYPE_TERRAIN						= LLDrawPool::POOL_TERRAIN,
 		RENDER_TYPE_SIMPLE						= LLDrawPool::POOL_SIMPLE,
 		RENDER_TYPE_GRASS						= LLDrawPool::POOL_GRASS,
+		RENDER_TYPE_ALPHA_MASK					= LLDrawPool::POOL_ALPHA_MASK,
+		RENDER_TYPE_FULLBRIGHT_ALPHA_MASK		= LLDrawPool::POOL_FULLBRIGHT_ALPHA_MASK,
 		RENDER_TYPE_FULLBRIGHT					= LLDrawPool::POOL_FULLBRIGHT,
 		RENDER_TYPE_BUMP						= LLDrawPool::POOL_BUMP,
+		RENDER_TYPE_MATERIALS					= LLDrawPool::POOL_MATERIALS,
 		RENDER_TYPE_AVATAR						= LLDrawPool::POOL_AVATAR,
 		RENDER_TYPE_TREE						= LLDrawPool::POOL_TREE,
 		RENDER_TYPE_INVISIBLE					= LLDrawPool::POOL_INVISIBLE,
@@ -439,6 +459,22 @@ public:
 		RENDER_TYPE_PASS_ALPHA					= LLRenderPass::PASS_ALPHA,
 		RENDER_TYPE_PASS_ALPHA_MASK				= LLRenderPass::PASS_ALPHA_MASK,
 		RENDER_TYPE_PASS_FULLBRIGHT_ALPHA_MASK	= LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK,
+		RENDER_TYPE_PASS_MATERIAL				= LLRenderPass::PASS_MATERIAL,
+		RENDER_TYPE_PASS_MATERIAL_ALPHA			= LLRenderPass::PASS_MATERIAL_ALPHA,
+		RENDER_TYPE_PASS_MATERIAL_ALPHA_MASK	= LLRenderPass::PASS_MATERIAL_ALPHA_MASK,
+		RENDER_TYPE_PASS_MATERIAL_ALPHA_EMISSIVE= LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE,
+		RENDER_TYPE_PASS_SPECMAP				= LLRenderPass::PASS_SPECMAP,
+		RENDER_TYPE_PASS_SPECMAP_BLEND			= LLRenderPass::PASS_SPECMAP_BLEND,
+		RENDER_TYPE_PASS_SPECMAP_MASK			= LLRenderPass::PASS_SPECMAP_MASK,
+		RENDER_TYPE_PASS_SPECMAP_EMISSIVE		= LLRenderPass::PASS_SPECMAP_EMISSIVE,
+		RENDER_TYPE_PASS_NORMMAP				= LLRenderPass::PASS_NORMMAP,
+		RENDER_TYPE_PASS_NORMMAP_BLEND			= LLRenderPass::PASS_NORMMAP_BLEND,
+		RENDER_TYPE_PASS_NORMMAP_MASK			= LLRenderPass::PASS_NORMMAP_MASK,
+		RENDER_TYPE_PASS_NORMMAP_EMISSIVE		= LLRenderPass::PASS_NORMMAP_EMISSIVE,
+		RENDER_TYPE_PASS_NORMSPEC				= LLRenderPass::PASS_NORMSPEC,
+		RENDER_TYPE_PASS_NORMSPEC_BLEND			= LLRenderPass::PASS_NORMSPEC_BLEND,
+		RENDER_TYPE_PASS_NORMSPEC_MASK			= LLRenderPass::PASS_NORMSPEC_MASK,
+		RENDER_TYPE_PASS_NORMSPEC_EMISSIVE		= LLRenderPass::PASS_NORMSPEC_EMISSIVE,
 		// Following are object types (only used in drawable mRenderType)
 		RENDER_TYPE_HUD = LLRenderPass::NUM_RENDER_TYPES,
 		RENDER_TYPE_VOLUME,
@@ -554,7 +590,8 @@ public:
 	static BOOL				sRenderDeferred;
 	static BOOL             sMemAllocationThrottled;
 	static S32				sVisibleLightCount;
-	static F32				sMinRenderSize;	
+	static F32				sMinRenderSize;
+	static BOOL				sRenderingHUDs;
 
 	//screen texture
 	U32 					mScreenWidth;
@@ -634,6 +671,7 @@ protected:
 
 	U32						mRenderDebugFeatureMask;
 	U32						mRenderDebugMask;
+	std::stack<U32>			mRenderDebugFeatureStack;
 
 	U32						mOldRenderDebugMask;
 	
@@ -764,17 +802,20 @@ protected:
 	// For quick-lookups into mPools (mapped by texture pointer)
 	std::map<uintptr_t, LLDrawPool*>	mTerrainPools;
 	std::map<uintptr_t, LLDrawPool*>	mTreePools;
-	LLDrawPool*					mAlphaPool;
+	LLDrawPoolAlpha*			mAlphaPool;
 	LLDrawPool*					mSkyPool;
 	LLDrawPool*					mTerrainPool;
 	LLDrawPool*					mWaterPool;
 	LLDrawPool*					mGroundPool;
 	LLRenderPass*				mSimplePool;
 	LLRenderPass*				mGrassPool;
+	LLRenderPass*				mAlphaMaskPool;
+	LLRenderPass*				mFullbrightAlphaMaskPool;
 	LLRenderPass*				mFullbrightPool;
 	LLDrawPool*					mInvisiblePool;
 	LLDrawPool*					mGlowPool;
 	LLDrawPool*					mBumpPool;
+	LLDrawPool*					mMaterialsPool;
 	LLDrawPool*					mWLSkyPool;
 	// Note: no need to keep an quick-lookup to avatar pools, since there's only one per avatar
 	
@@ -812,6 +853,10 @@ protected:
 public:
 	static BOOL				sRenderBeacons;
 	static BOOL				sRenderHighlight;
+
+	// Determines which set of UVs to use in highlight display
+	//
+	static LLRender::eTexIndex sRenderHighlightTextureChannel;
 
 	//debug use
 	static U32              sCurRenderPoolType ;

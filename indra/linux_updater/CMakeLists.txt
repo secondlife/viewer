@@ -8,6 +8,7 @@ include(CARes)
 include(OpenSSL)
 include(UI)
 include(LLCommon)
+include(LLMessage)
 include(LLVFS)
 include(LLXML)
 include(LLUI)
@@ -22,6 +23,10 @@ include_directories(
     ${CARES_INCLUDE_DIRS}
     ${OPENSSL_INCLUDE_DIRS}
     ${UI_INCLUDE_DIRS}
+    )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    ${LLXML_SYSTEM_INCLUDE_DIRS}
     )
 
 set(linux_updater_SOURCE_FILES linux_updater.cpp)
@@ -40,6 +45,7 @@ target_link_libraries(linux-updater
     ${CARES_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     ${CRYPTO_LIBRARIES}
+    ${LLMESSAGE_LIBRARIES}
     ${UI_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLUI_LIBRARIES}
