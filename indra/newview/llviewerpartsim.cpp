@@ -80,12 +80,31 @@ LLViewerPart::LLViewerPart() :
 	mImagep(NULL)
 {
 	mPartSourcep = NULL;
-
+	mParent = NULL;
+	mChild = NULL;
 	++LLViewerPartSim::sParticleCount2 ;
 }
 
 LLViewerPart::~LLViewerPart()
 {
+	if (mPartSourcep.notNull() && mPartSourcep->mLastPart == this)
+	{
+		mPartSourcep->mLastPart = NULL;
+	}
+
+	//patch up holes in the ribbon
+	if (mParent)
+	{
+		llassert(mParent->mChild == this);
+		mParent->mChild = mChild;
+	}
+
+	if (mChild)
+	{
+		llassert (mChild->mParent == this);
+		mChild->mParent = mParent;
+	}
+
 	mPartSourcep = NULL;
 
 	--LLViewerPartSim::sParticleCount2 ;
@@ -367,6 +386,9 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 			part->mScale += frac*part->mEndScale;
 		}
 
+		// Do glow interpolation
+		part->mGlow.mV[3] = (U8) llround(lerp(part->mStartGlow, part->mEndGlow, frac)*255.f);
+
 		// Set the last update time to now.
 		part->mLastUpdateTime = cur_time;
 
@@ -488,9 +510,13 @@ void LLViewerPartSim::destroyClass()
 //static
 BOOL LLViewerPartSim::shouldAddPart()
 {
+	if (sParticleCount >= MAX_PART_COUNT)
+	{
+		return FALSE;
+	}
+
 	if (sParticleCount > PART_THROTTLE_THRESHOLD*sMaxParticleCount)
 	{
-
 		F32 frac = (F32)sParticleCount/(F32)sMaxParticleCount;
 		frac -= PART_THROTTLE_THRESHOLD;
 		frac *= PART_THROTTLE_RESCALE;
@@ -500,7 +526,10 @@ BOOL LLViewerPartSim::shouldAddPart()
 			return FALSE;
 		}
 	}
-	if (sParticleCount >= MAX_PART_COUNT)
+
+	// Check frame rate, and don't add more if the viewer is really slow
+	const F32 MIN_FRAME_RATE_FOR_NEW_PARTICLES = 4.f;
+	if (gFPSClamped < MIN_FRAME_RATE_FOR_NEW_PARTICLES)
 	{
 		return FALSE;
 	}
@@ -615,6 +644,9 @@ static LLFastTimer::DeclareTimer FTM_SIMULATE_PARTICLES("Simulate Particles");
 void LLViewerPartSim::updateSimulation()
 {
 	static LLFrameTimer update_timer;
+
+	//reset VBO cursor
+	LLVOPartGroup::sVBSlotCursor = 0;
 
 	const F32 dt = llmin(update_timer.getElapsedTimeAndResetF32(), 0.1f);
 

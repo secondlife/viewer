@@ -250,6 +250,24 @@ public:
 	static void		invalidateNameTags();
 	void			addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font);
 	void 			idleUpdateRenderCost();
+	void			calculateUpdateRenderCost();
+	void			updateVisualComplexity() { mVisualComplexityStale = TRUE; }
+	
+	S32				getVisualComplexity()			{ return mVisualComplexity;				};		// Numbers calculated here by rendering AV
+	S32				getAttachmentGeometryBytes()	{ return mAttachmentGeometryBytes;		};		// number of bytes in attached geometry
+	F32				getAttachmentSurfaceArea()		{ return mAttachmentSurfaceArea;		};		// estimated surface area of attachments
+
+	S32				getReportedVisualComplexity()					{ return mReportedVisualComplexity;				};	// Numbers as reported by the SL server
+	void			setReportedVisualComplexity(S32 value)			{ mReportedVisualComplexity = value;			};
+	S32				getReportedAttachmentGeometryBytes()			{ return mReportedAttachmentGeometryBytes;		};	//number of bytes in attached geometry
+	void			setReportedAttachmentGeometryBytes(S32 value)	{ mReportedAttachmentGeometryBytes = value;		};
+	F32				getReportedAttachmentSurfaceArea()		{ return mReportedAttachmentSurfaceArea;				};		//estimated surface area of attachments
+	void			setReportedAttachmentSurfaceArea(F32 value)		{ mReportedAttachmentSurfaceArea = value;		};
+	
+	S32				getUpdatePeriod()				{ return mUpdatePeriod;			};
+	const LLColor4 &  getMutedAVColor()				{ return mMutedAVColor;			};
+
+
 	void 			idleUpdateBelowWater();
 
 	//--------------------------------------------------------------------
@@ -303,12 +321,15 @@ public:
 	static void 	logPendingPhasesAllAvatars();
 	void 			logMetricsTimerRecord(const std::string& phase_name, F32 elapsed, bool completed);
 
+	static LLColor4 calcMutedAVColor(F32 value, S32 range_low, S32 range_high);
+
 protected:
 	LLViewerStats::PhaseMap& getPhases() { return mPhases; }
 	BOOL			updateIsFullyLoaded();
 	BOOL			processFullyLoadedChange(bool loading);
 	void			updateRuthTimer(bool loading);
 	F32 			calcMorphAmount();
+
 private:
 	BOOL			mFirstFullyVisible;
 	BOOL			mFullyLoaded;
@@ -316,6 +337,8 @@ private:
 	BOOL			mFullyLoadedInitialized;
 	S32				mFullyLoadedFrameCounter;
 	S32				mVisualComplexity;
+	BOOL			mVisualComplexityStale;
+	LLColor4		mMutedAVColor;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
 
@@ -369,7 +392,16 @@ public:
 
 public:
 	U32 		renderImpostor(LLColor4U color = LLColor4U(255,255,255,255), S32 diffuse_channel = 0);
-	bool		isVisuallyMuted() const;
+	bool		isVisuallyMuted();
+
+	enum VisualMuteSettings
+	{
+		VISUAL_MUTE_NOT_SET = 0,
+		ALWAYS_VISUAL_MUTE  = 1,
+		NEVER_VISUAL_MUTE   = 2
+	};
+	void		setVisualMuteSettings(VisualMuteSettings set)		{ mVisuallyMuteSetting = set;	};
+	VisualMuteSettings  getVisualMuteSettings()						{ return mVisuallyMuteSetting;	};
 
 	U32 		renderRigid();
 	U32 		renderSkinned(EAvatarRenderPass pass);
@@ -380,8 +412,12 @@ public:
 	static void	destroyGL();
 	static void	restoreGL();
 	S32			mSpecialRenderMode; // special lighting
-	U32			mAttachmentGeometryBytes; //number of bytes in attached geometry
+	S32			mAttachmentGeometryBytes; //number of bytes in attached geometry
 	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
+
+	S32			mReportedVisualComplexity;			// Numbers as reported by the SL server
+	S32			mReportedAttachmentGeometryBytes;	//number of bytes in attached geometry
+	F32			mReportedAttachmentSurfaceArea;		//estimated surface area of attachments
 
 private:
 	bool		shouldAlphaMask();
@@ -391,6 +427,11 @@ private:
 
 	S32	 		mUpdatePeriod;
 	S32  		mNumInitFaces; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
+
+	bool		mCachedVisualMute;				// cached return value for isVisuallyMuted()
+	F64			mCachedVisualMuteUpdateTime;	// Time to update mCachedVisualMute
+
+	VisualMuteSettings		mVisuallyMuteSetting;			// Always or never visually mute this AV
 
 	//--------------------------------------------------------------------
 	// Morph masks
@@ -430,7 +471,7 @@ private:
 	// Impostors
 	//--------------------------------------------------------------------
 public:
-	BOOL 		isImpostor() const;
+	BOOL 		isImpostor();
 	BOOL 	    needsImpostorUpdate() const;
 	const LLVector3& getImpostorOffset() const;
 	const LLVector2& getImpostorDim() const;

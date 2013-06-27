@@ -65,15 +65,22 @@ public:
 
 	LLVPCallback		mVPCallback;				// Callback function for more complicated behaviors
 	LLPointer<LLViewerPartSource> mPartSourcep;		// Particle source used for this object
-	
+
+	LLViewerPart*		mParent;					// particle to connect to if this is part of a particle ribbon
+	LLViewerPart*		mChild;						// child particle for clean reference destruction
 
 	// Current particle state (possibly used for rendering)
 	LLPointer<LLViewerTexture>	mImagep;
 	LLVector3		mPosAgent;
 	LLVector3		mVelocity;
 	LLVector3		mAccel;
+	LLVector3		mAxis;
 	LLColor4		mColor;
 	LLVector2		mScale;
+	F32				mStartGlow;
+	F32				mEndGlow;
+	LLColor4U		mGlow;
+
 
 	static U32		sNextPartID;
 };

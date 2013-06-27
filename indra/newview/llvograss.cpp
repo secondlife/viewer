@@ -476,6 +476,7 @@ void LLVOGrass::getGeometry(S32 idx,
 								LLStrider<LLVector3>& normalsp, 
 								LLStrider<LLVector2>& texcoordsp,
 								LLStrider<LLColor4U>& colorsp, 
+								LLStrider<LLColor4U>& emissivep,
 								LLStrider<U16>& indicesp)
 {
 	if(!mNumBlades)//stop rendering grass
@@ -708,7 +709,11 @@ void LLGrassPartition::getGeometry(LLSpatialGroup* group)
 		facep->setIndicesIndex(index_count);
 		facep->setVertexBuffer(buffer);
 		facep->setPoolType(LLDrawPool::POOL_ALPHA);
-		object->getGeometry(facep->getTEOffset(), verticesp, normalsp, texcoordsp, colorsp, indicesp);
+
+		//dummy parameter (unused by this implementation)
+		LLStrider<LLColor4U> emissivep;
+
+		object->getGeometry(facep->getTEOffset(), verticesp, normalsp, texcoordsp, colorsp, emissivep, indicesp);
 		
 		vertex_count += facep->getGeomCount();
 		index_count += facep->getIndicesCount();

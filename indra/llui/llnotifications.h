@@ -138,6 +138,7 @@ typedef LLFunctorRegistration<LLNotificationResponder> LLNotificationFunctorRegi
 class LLNotificationContext : public LLInstanceTracker<LLNotificationContext, LLUUID>
 {
 public:
+
 	LLNotificationContext() : LLInstanceTracker<LLNotificationContext, LLUUID>(LLUUID::generateNewID())
 	{
 	}

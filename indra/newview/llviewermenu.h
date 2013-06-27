@@ -177,6 +177,7 @@ extern LLContextMenu		*gMenuObject;
 extern LLContextMenu		*gMenuAttachmentSelf;
 extern LLContextMenu		*gMenuAttachmentOther;
 extern LLContextMenu		*gMenuLand;
+extern LLContextMenu		*gMenuMuteParticle;
 
 // Needed to build menus when attachment site list available
 extern LLMenuGL* gAttachSubMenu;

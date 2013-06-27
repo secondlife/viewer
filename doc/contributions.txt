@@ -175,6 +175,7 @@ Ansariel Hiller
 	STORM-1685
 	STORM-1713
 	STORM-1899
+	MAINT-2368
 Aralara Rajal
 Ardy Lay
 	STORM-859
@@ -479,6 +480,7 @@ Hiro Sommambulist
 Hitomi Tiponi
 	STORM-1741
 	STORM-1862
+	BUG-1067
 Holger Gilruth
 Horatio Freund
 Hoze Menges
@@ -903,6 +905,9 @@ Nicky Dasmijn
 	MAINT-873
 	SUN-72
 	BUG-2432
+	STORM-1935
+	STORM-1936
+	STORM-1937
 Nicky Perian
 	OPEN-1
 	STORM-1087

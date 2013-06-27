@@ -43,13 +43,11 @@ uniform vec2 fbScale;
 uniform float refScale;
 uniform float znear;
 uniform float zfar;
-uniform float kd;
 uniform vec4 waterPlane;
 uniform vec3 eyeVec;
 uniform vec4 waterFogColor;
 uniform float waterFogDensity;
 uniform float waterFogKS;
-uniform vec2 screenRes;
 
 //bigWave is (refCoord.w, view.w);
 VARYING vec4 refCoord;

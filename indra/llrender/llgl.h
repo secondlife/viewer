@@ -155,6 +155,7 @@ public:
 	S32 mVRAM; // VRAM in MB
 	S32 mGLMaxVertexRange;
 	S32 mGLMaxIndexRange;
+	S32 mGLMaxTextureSize;
 	
 	void getPixelFormat(); // Get the best pixel format
 

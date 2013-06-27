@@ -70,12 +70,12 @@ protected:
 public:
 	void* operator new(size_t size)
 	{
-		return ll_aligned_malloc_16(size);
+		return ll_aligned_malloc(size,64);
 	}
 
 	void operator delete(void* ptr)
 	{
-		ll_aligned_free_16(ptr);
+		ll_aligned_free(ptr);
 	}
 
 
@@ -123,6 +123,9 @@ public:
 	LLMaterialPtr mMaterial; // If this is null, the following parameters are unused.
 	LLMaterialID mMaterialID;
 	U32 mShaderMask;
+	U32 mBlendFuncSrc;
+	U32 mBlendFuncDst;
+	BOOL mHasGlow;
 	LLPointer<LLViewerTexture> mSpecularMap;
 	const LLMatrix4* mSpecularMapMatrix;
 	LLPointer<LLViewerTexture> mNormalMap;
@@ -752,7 +755,7 @@ class LLVolumeGeometryManager: public LLGeometryManager
 	virtual void rebuildGeom(LLSpatialGroup* group);
 	virtual void rebuildMesh(LLSpatialGroup* group);
 	virtual void getGeometry(LLSpatialGroup* group);
-	void genDrawInfo(LLSpatialGroup* group, U32 mask, std::vector<LLFace*>& faces, BOOL distance_sort = FALSE, BOOL batch_textures = FALSE, BOOL no_materials = FALSE);
+	void genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, BOOL distance_sort = FALSE, BOOL batch_textures = FALSE, BOOL no_materials = FALSE);
 	void registerFace(LLSpatialGroup* group, LLFace* facep, U32 type);
 };
 

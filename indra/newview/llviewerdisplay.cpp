@@ -225,13 +225,13 @@ void display_stats()
 }
 
 static LLFastTimer::DeclareTimer FTM_PICK("Picking");
-static LLFastTimer::DeclareTimer FTM_RENDER("Render", true);
+static LLFastTimer::DeclareTimer FTM_RENDER("Render");
 static LLFastTimer::DeclareTimer FTM_UPDATE_SKY("Update Sky");
 static LLFastTimer::DeclareTimer FTM_UPDATE_TEXTURES("Update Textures");
 static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE("Update Images");
 static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE_CLASS("Class");
 static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE_BUMP("Image Update Bump");
-static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE_LIST("List");
+static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE_LIST("List", true);
 static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE_DELETE("Delete");
 static LLFastTimer::DeclareTimer FTM_RESIZE_WINDOW("Resize Window");
 static LLFastTimer::DeclareTimer FTM_HUD_UPDATE("HUD Update");

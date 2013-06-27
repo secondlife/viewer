@@ -48,6 +48,13 @@
 #define UNIFORM_ERRS LL_ERRS("Shader")
 #endif
 
+static LLStaticHashedString sTexture0("texture0");
+static LLStaticHashedString sTexture1("texture1");
+static LLStaticHashedString sTex0("tex0");
+static LLStaticHashedString sTex1("tex1");
+static LLStaticHashedString sGlowMap("glowMap");
+static LLStaticHashedString sScreenMap("screenMap");
+
 // Lots of STL stuff in here, using namespace std to keep things more readable
 using std::vector;
 using std::pair;
@@ -323,47 +330,6 @@ void LLViewerShaderMgr::initAttribsAndUniforms(void)
 	if (mReservedAttribs.empty())
 	{
 		LLShaderMgr::initAttribsAndUniforms();
-
-		mAvatarUniforms.push_back("matrixPalette");
-		mAvatarUniforms.push_back("gWindDir");
-		mAvatarUniforms.push_back("gSinWaveParams");
-		mAvatarUniforms.push_back("gGravity");
-
-		mWLUniforms.push_back("camPosLocal");
-
-		mTerrainUniforms.reserve(5);
-		mTerrainUniforms.push_back("detail_0");
-		mTerrainUniforms.push_back("detail_1");
-		mTerrainUniforms.push_back("detail_2");
-		mTerrainUniforms.push_back("detail_3");
-		mTerrainUniforms.push_back("alpha_ramp");
-
-		mGlowUniforms.push_back("glowDelta");
-		mGlowUniforms.push_back("glowStrength");
-
-		mGlowExtractUniforms.push_back("minLuminance");
-		mGlowExtractUniforms.push_back("maxExtractAlpha");
-		mGlowExtractUniforms.push_back("lumWeights");
-		mGlowExtractUniforms.push_back("warmthWeights");
-		mGlowExtractUniforms.push_back("warmthAmount");
-
-		mShinyUniforms.push_back("origin");
-
-		mWaterUniforms.reserve(12);
-		mWaterUniforms.push_back("screenTex");
-		mWaterUniforms.push_back("screenDepth");
-		mWaterUniforms.push_back("refTex");
-		mWaterUniforms.push_back("eyeVec");
-		mWaterUniforms.push_back("time");
-		mWaterUniforms.push_back("d1");
-		mWaterUniforms.push_back("d2");
-		mWaterUniforms.push_back("lightDir");
-		mWaterUniforms.push_back("specular");
-		mWaterUniforms.push_back("lightExp");
-		mWaterUniforms.push_back("fogCol");
-		mWaterUniforms.push_back("kd");
-		mWaterUniforms.push_back("refScale");
-		mWaterUniforms.push_back("waterHeight");
 	}	
 }
 	
@@ -950,7 +916,7 @@ BOOL LLViewerShaderMgr::loadShadersEnvironment()
 		gTerrainProgram.mShaderFiles.push_back(make_pair("environment/terrainV.glsl", GL_VERTEX_SHADER_ARB));
 		gTerrainProgram.mShaderFiles.push_back(make_pair("environment/terrainF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gTerrainProgram.mShaderLevel = mVertexShaderLevel[SHADER_ENVIRONMENT];
-		success = gTerrainProgram.createShader(NULL, &mTerrainUniforms);
+		success = gTerrainProgram.createShader(NULL, NULL);
 	}
 
 	if (!success)
@@ -988,7 +954,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER_ARB));
 		gWaterProgram.mShaderFiles.push_back(make_pair("environment/waterF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_WATER];
-		success = gWaterProgram.createShader(NULL, &mWaterUniforms);
+		success = gWaterProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -1002,7 +968,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gUnderWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_WATER];
 		gUnderWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
 		
-		success = gUnderWaterProgram.createShader(NULL, &mWaterUniforms);
+		success = gUnderWaterProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -1020,7 +986,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gTerrainWaterProgram.mShaderFiles.push_back(make_pair("environment/terrainWaterF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gTerrainWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_ENVIRONMENT];
 		gTerrainWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-		terrainWaterSuccess = gTerrainWaterProgram.createShader(NULL, &mTerrainUniforms);
+		terrainWaterSuccess = gTerrainWaterProgram.createShader(NULL, NULL);
 	}	
 
 	/// Keep track of water shader levels
@@ -1069,7 +1035,7 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 		gGlowProgram.mShaderFiles.push_back(make_pair("effects/glowV.glsl", GL_VERTEX_SHADER_ARB));
 		gGlowProgram.mShaderFiles.push_back(make_pair("effects/glowF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gGlowProgram.mShaderLevel = mVertexShaderLevel[SHADER_EFFECT];
-		success = gGlowProgram.createShader(NULL, &mGlowUniforms);
+		success = gGlowProgram.createShader(NULL, NULL);
 		if (!success)
 		{
 			LLPipeline::sRenderGlow = FALSE;
@@ -1083,7 +1049,7 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 		gGlowExtractProgram.mShaderFiles.push_back(make_pair("effects/glowExtractV.glsl", GL_VERTEX_SHADER_ARB));
 		gGlowExtractProgram.mShaderFiles.push_back(make_pair("effects/glowExtractF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gGlowExtractProgram.mShaderLevel = mVertexShaderLevel[SHADER_EFFECT];
-		success = gGlowExtractProgram.createShader(NULL, &mGlowExtractUniforms);
+		success = gGlowExtractProgram.createShader(NULL, NULL);
 		if (!success)
 		{
 			LLPipeline::sRenderGlow = FALSE;
@@ -1504,7 +1470,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredFullbrightShinyProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		success = gDeferredFullbrightShinyProgram.createShader(NULL, &mShinyUniforms);
+		success = gDeferredFullbrightShinyProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -1534,7 +1500,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSkinnedFullbrightShinyProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinySkinnedV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSkinnedFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredSkinnedFullbrightShinyProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
-		success = gDeferredSkinnedFullbrightShinyProgram.createShader(NULL, &mShinyUniforms);
+		success = gDeferredSkinnedFullbrightShinyProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -1562,7 +1528,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredWaterProgram.mShaderFiles.push_back(make_pair("deferred/waterV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredWaterProgram.mShaderFiles.push_back(make_pair("deferred/waterF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		success = gDeferredWaterProgram.createShader(NULL, &mWaterUniforms);
+		success = gDeferredWaterProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -1625,7 +1591,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarShadowProgram.mShaderFiles.push_back(make_pair("deferred/avatarShadowF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredAvatarShadowProgram.addPermutation("DEPTH_CLAMP", gGLManager.mHasDepthClamp ? "1" : "0");
 		gDeferredAvatarShadowProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		success = gDeferredAvatarShadowProgram.createShader(NULL, &mAvatarUniforms);
+		success = gDeferredAvatarShadowProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -1647,7 +1613,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredTerrainProgram.mShaderFiles.push_back(make_pair("deferred/terrainV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredTerrainProgram.mShaderFiles.push_back(make_pair("deferred/terrainF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredTerrainProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		success = gDeferredTerrainProgram.createShader(NULL, &mTerrainUniforms);
+		success = gDeferredTerrainProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -1658,7 +1624,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarProgram.mShaderFiles.push_back(make_pair("deferred/avatarV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredAvatarProgram.mShaderFiles.push_back(make_pair("deferred/avatarF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredAvatarProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		success = gDeferredAvatarProgram.createShader(NULL, &mAvatarUniforms);
+		success = gDeferredAvatarProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -1681,7 +1647,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarAlphaProgram.addPermutation("HAS_SHADOW", mVertexShaderLevel[SHADER_DEFERRED] > 1 ? "1" : "0");
 		gDeferredAvatarAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 
-		success = gDeferredAvatarAlphaProgram.createShader(NULL, &mAvatarUniforms);
+		success = gDeferredAvatarAlphaProgram.createShader(NULL, NULL);
 
 		gDeferredAvatarAlphaProgram.mFeatures.calculatesLighting = true;
 		gDeferredAvatarAlphaProgram.mFeatures.hasLighting = true;
@@ -1756,7 +1722,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredWLSkyProgram.mShaderFiles.push_back(make_pair("deferred/skyF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredWLSkyProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		gDeferredWLSkyProgram.mShaderGroup = LLGLSLShader::SG_SKY;
-		success = gDeferredWLSkyProgram.createShader(NULL, &mWLUniforms);
+		success = gDeferredWLSkyProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -1767,7 +1733,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredWLCloudProgram.mShaderFiles.push_back(make_pair("deferred/cloudsF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredWLCloudProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		gDeferredWLCloudProgram.mShaderGroup = LLGLSLShader::SG_SKY;
-		success = gDeferredWLCloudProgram.createShader(NULL, &mWLUniforms);
+		success = gDeferredWLCloudProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -1778,7 +1744,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredStarProgram.mShaderFiles.push_back(make_pair("deferred/starsF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredStarProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		gDeferredStarProgram.mShaderGroup = LLGLSLShader::SG_SKY;
-		success = gDeferredStarProgram.createShader(NULL, &mWLUniforms);
+		success = gDeferredStarProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -2129,7 +2095,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectShinyNonIndexedProgram.mShaderFiles.push_back(make_pair("objects/shinyV.glsl", GL_VERTEX_SHADER_ARB));
 		gObjectShinyNonIndexedProgram.mShaderFiles.push_back(make_pair("objects/shinyF.glsl", GL_FRAGMENT_SHADER_ARB));		
 		gObjectShinyNonIndexedProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
-		success = gObjectShinyNonIndexedProgram.createShader(NULL, &mShinyUniforms);
+		success = gObjectShinyNonIndexedProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -2146,7 +2112,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectShinyNonIndexedWaterProgram.mShaderFiles.push_back(make_pair("objects/shinyV.glsl", GL_VERTEX_SHADER_ARB));
 		gObjectShinyNonIndexedWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
 		gObjectShinyNonIndexedWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-		success = gObjectShinyNonIndexedWaterProgram.createShader(NULL, &mShinyUniforms);
+		success = gObjectShinyNonIndexedWaterProgram.createShader(NULL, NULL);
 	}
 	
 	if (success)
@@ -2162,7 +2128,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectFullbrightShinyNonIndexedProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinyV.glsl", GL_VERTEX_SHADER_ARB));
 		gObjectFullbrightShinyNonIndexedProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinyF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gObjectFullbrightShinyNonIndexedProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
-		success = gObjectFullbrightShinyNonIndexedProgram.createShader(NULL, &mShinyUniforms);
+		success = gObjectFullbrightShinyNonIndexedProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -2180,7 +2146,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectFullbrightShinyNonIndexedWaterProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinyWaterF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gObjectFullbrightShinyNonIndexedWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
 		gObjectFullbrightShinyNonIndexedWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-		success = gObjectFullbrightShinyNonIndexedWaterProgram.createShader(NULL, &mShinyUniforms);
+		success = gObjectFullbrightShinyNonIndexedWaterProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -2259,12 +2225,11 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectBumpProgram.mShaderFiles.push_back(make_pair("objects/bumpF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gObjectBumpProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
 		success = gObjectBumpProgram.createShader(NULL, NULL);
-
 		if (success)
 		{ //lldrawpoolbump assumes "texture0" has channel 0 and "texture1" has channel 1
 			gObjectBumpProgram.bind();
-			gObjectBumpProgram.uniform1i("texture0", 0);
-			gObjectBumpProgram.uniform1i("texture1", 1);
+			gObjectBumpProgram.uniform1i(sTexture0, 0);
+			gObjectBumpProgram.uniform1i(sTexture1, 1);
 			gObjectBumpProgram.unbind();
 		}
 	}
@@ -2413,7 +2378,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectShinyProgram.mShaderFiles.push_back(make_pair("objects/shinyV.glsl", GL_VERTEX_SHADER_ARB));
 		gObjectShinyProgram.mShaderFiles.push_back(make_pair("objects/shinyF.glsl", GL_FRAGMENT_SHADER_ARB));		
 		gObjectShinyProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
-		success = gObjectShinyProgram.createShader(NULL, &mShinyUniforms);
+		success = gObjectShinyProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -2430,7 +2395,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectShinyWaterProgram.mShaderFiles.push_back(make_pair("objects/shinyV.glsl", GL_VERTEX_SHADER_ARB));
 		gObjectShinyWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
 		gObjectShinyWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-		success = gObjectShinyWaterProgram.createShader(NULL, &mShinyUniforms);
+		success = gObjectShinyWaterProgram.createShader(NULL, NULL);
 	}
 	
 	if (success)
@@ -2446,7 +2411,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectFullbrightShinyProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinyV.glsl", GL_VERTEX_SHADER_ARB));
 		gObjectFullbrightShinyProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinyF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gObjectFullbrightShinyProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
-		success = gObjectFullbrightShinyProgram.createShader(NULL, &mShinyUniforms);
+		success = gObjectFullbrightShinyProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -2464,7 +2429,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectFullbrightShinyWaterProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinyWaterF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gObjectFullbrightShinyWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
 		gObjectFullbrightShinyWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-		success = gObjectFullbrightShinyWaterProgram.createShader(NULL, &mShinyUniforms);
+		success = gObjectFullbrightShinyWaterProgram.createShader(NULL, NULL);
 	}
 
 	if (mVertexShaderLevel[SHADER_AVATAR] > 0)
@@ -2552,7 +2517,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 			gSkinnedObjectFullbrightShinyProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinySkinnedV.glsl", GL_VERTEX_SHADER_ARB));
 			gSkinnedObjectFullbrightShinyProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinyF.glsl", GL_FRAGMENT_SHADER_ARB));
 			gSkinnedObjectFullbrightShinyProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
-			success = gSkinnedObjectFullbrightShinyProgram.createShader(NULL, &mShinyUniforms);
+			success = gSkinnedObjectFullbrightShinyProgram.createShader(NULL, NULL);
 		}
 
 		if (success)
@@ -2570,7 +2535,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 			gSkinnedObjectShinySimpleProgram.mShaderFiles.push_back(make_pair("objects/shinySimpleSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
 			gSkinnedObjectShinySimpleProgram.mShaderFiles.push_back(make_pair("objects/shinyF.glsl", GL_FRAGMENT_SHADER_ARB));
 			gSkinnedObjectShinySimpleProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
-			success = gSkinnedObjectShinySimpleProgram.createShader(NULL, &mShinyUniforms);
+			success = gSkinnedObjectShinySimpleProgram.createShader(NULL, NULL);
 		}
 
 		if (success)
@@ -2629,7 +2594,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 			gSkinnedObjectFullbrightShinyWaterProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinySkinnedV.glsl", GL_VERTEX_SHADER_ARB));
 			gSkinnedObjectFullbrightShinyWaterProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinyWaterF.glsl", GL_FRAGMENT_SHADER_ARB));
 			gSkinnedObjectFullbrightShinyWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
-			success = gSkinnedObjectFullbrightShinyWaterProgram.createShader(NULL, &mShinyUniforms);
+			success = gSkinnedObjectFullbrightShinyWaterProgram.createShader(NULL, NULL);
 		}
 
 		if (success)
@@ -2649,7 +2614,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 			gSkinnedObjectShinySimpleWaterProgram.mShaderFiles.push_back(make_pair("objects/shinySimpleSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
 			gSkinnedObjectShinySimpleWaterProgram.mShaderFiles.push_back(make_pair("objects/shinyWaterF.glsl", GL_FRAGMENT_SHADER_ARB));
 			gSkinnedObjectShinySimpleWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
-			success = gSkinnedObjectShinySimpleWaterProgram.createShader(NULL, &mShinyUniforms);
+			success = gSkinnedObjectShinySimpleWaterProgram.createShader(NULL, NULL);
 		}
 	}
 
@@ -2690,7 +2655,7 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
 		gAvatarProgram.mShaderFiles.push_back(make_pair("avatar/avatarV.glsl", GL_VERTEX_SHADER_ARB));
 		gAvatarProgram.mShaderFiles.push_back(make_pair("avatar/avatarF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gAvatarProgram.mShaderLevel = mVertexShaderLevel[SHADER_AVATAR];
-		success = gAvatarProgram.createShader(NULL, &mAvatarUniforms);
+		success = gAvatarProgram.createShader(NULL, NULL);
 			
 		if (success)
 		{
@@ -2709,7 +2674,7 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
 			// Note: no cloth under water:
 			gAvatarWaterProgram.mShaderLevel = llmin(mVertexShaderLevel[SHADER_AVATAR], 1);	
 			gAvatarWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;				
-			success = gAvatarWaterProgram.createShader(NULL, &mAvatarUniforms);
+			success = gAvatarWaterProgram.createShader(NULL, NULL);
 		}
 
 		/// Keep track of avatar levels
@@ -2728,7 +2693,7 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
 		gAvatarPickProgram.mShaderFiles.push_back(make_pair("avatar/pickAvatarV.glsl", GL_VERTEX_SHADER_ARB));
 		gAvatarPickProgram.mShaderFiles.push_back(make_pair("avatar/pickAvatarF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gAvatarPickProgram.mShaderLevel = mVertexShaderLevel[SHADER_AVATAR];
-		success = gAvatarPickProgram.createShader(NULL, &mAvatarUniforms);
+		success = gAvatarPickProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -2850,7 +2815,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		if (success)
 		{
 			gSplatTextureRectProgram.bind();
-			gSplatTextureRectProgram.uniform1i("screenMap", 0);
+			gSplatTextureRectProgram.uniform1i(sScreenMap, 0);
 			gSplatTextureRectProgram.unbind();
 		}
 	}
@@ -2866,8 +2831,8 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		if (success)
 		{
 			gGlowCombineProgram.bind();
-			gGlowCombineProgram.uniform1i("glowMap", 0);
-			gGlowCombineProgram.uniform1i("screenMap", 1);
+			gGlowCombineProgram.uniform1i(sGlowMap, 0);
+			gGlowCombineProgram.uniform1i(sScreenMap, 1);
 			gGlowCombineProgram.unbind();
 		}
 	}
@@ -2883,8 +2848,8 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		if (success)
 		{
 			gGlowCombineFXAAProgram.bind();
-			gGlowCombineFXAAProgram.uniform1i("glowMap", 0);
-			gGlowCombineFXAAProgram.uniform1i("screenMap", 1);
+			gGlowCombineFXAAProgram.uniform1i(sGlowMap, 0);
+			gGlowCombineFXAAProgram.uniform1i(sScreenMap, 1);
 			gGlowCombineFXAAProgram.unbind();
 		}
 	}
@@ -2901,8 +2866,8 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		if (success)
 		{
 			gTwoTextureAddProgram.bind();
-			gTwoTextureAddProgram.uniform1i("tex0", 0);
-			gTwoTextureAddProgram.uniform1i("tex1", 1);
+			gTwoTextureAddProgram.uniform1i(sTex0, 0);
+			gTwoTextureAddProgram.uniform1i(sTex1, 1);
 		}
 	}
 
@@ -2917,7 +2882,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		if (success)
 		{
 			gOneTextureNoColorProgram.bind();
-			gOneTextureNoColorProgram.uniform1i("tex0", 0);
+			gOneTextureNoColorProgram.uniform1i(sTex0, 0);
 		}
 	}
 
@@ -2932,7 +2897,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		if (success)
 		{
 			gSolidColorProgram.bind();
-			gSolidColorProgram.uniform1i("tex0", 0);
+			gSolidColorProgram.uniform1i(sTex0, 0);
 			gSolidColorProgram.unbind();
 		}
 	}
@@ -3036,7 +3001,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 		gWLSkyProgram.mShaderFiles.push_back(make_pair("windlight/skyF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gWLSkyProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];
 		gWLSkyProgram.mShaderGroup = LLGLSLShader::SG_SKY;
-		success = gWLSkyProgram.createShader(NULL, &mWLUniforms);
+		success = gWLSkyProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -3048,7 +3013,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 		gWLCloudProgram.mShaderFiles.push_back(make_pair("windlight/cloudsF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gWLCloudProgram.mShaderLevel = mVertexShaderLevel[SHADER_WINDLIGHT];
 		gWLCloudProgram.mShaderGroup = LLGLSLShader::SG_SKY;
-		success = gWLCloudProgram.createShader(NULL, &mWLUniforms);
+		success = gWLCloudProgram.createShader(NULL, NULL);
 	}
 
 	return success;

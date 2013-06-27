@@ -169,6 +169,7 @@ LLContextMenu	*gMenuObject = NULL;
 LLContextMenu	*gMenuAttachmentSelf = NULL;
 LLContextMenu	*gMenuAttachmentOther = NULL;
 LLContextMenu	*gMenuLand	= NULL;
+LLContextMenu	*gMenuMuteParticle = NULL;
 
 const std::string SAVE_INTO_TASK_INVENTORY("Save Object Back to Object Contents");
 
@@ -424,6 +425,9 @@ void init_menus()
 
 	gMenuLand = LLUICtrlFactory::createFromFile<LLContextMenu>(
 		"menu_land.xml", gMenuHolder, registry);
+
+	gMenuMuteParticle = LLUICtrlFactory::createFromFile<LLContextMenu>(
+		"menu_mute_particle.xml", gMenuHolder, registry);
 
 	///
 	/// set up the colors
@@ -2450,6 +2454,9 @@ void cleanup_menus()
 	delete gMenuLand;
 	gMenuLand = NULL;
 
+	delete gMenuMuteParticle;
+	gMenuMuteParticle = NULL;
+
 	delete gMenuBarView;
 	gMenuBarView = NULL;
 
@@ -2803,6 +2810,13 @@ bool enable_object_edit()
 	return enable;
 }
 
+bool enable_mute_particle()
+{
+	const LLPickInfo& pick = LLToolPie::getInstance()->getPick();
+
+	return pick.mParticleOwnerID != LLUUID::null && pick.mParticleOwnerID != gAgent.getID();
+}
+
 // mutually exclusive - show either edit option or build in menu
 bool enable_object_build()
 {
@@ -2915,6 +2929,63 @@ bool enable_object_unmute()
 			   LLMuteList::getInstance()->isMuted(object->getID());;
 	}
 }
+
+
+// 0 = normal, 1 = always, 2 = never
+class LLAvatarCheckImposterMode : public view_listener_t
+{	
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		if (!object) return false;
+
+		LLVOAvatar* avatar = find_avatar_from_object(object); 
+		if (!avatar) return false;
+		
+		U32 mode = userdata.asInteger();
+		switch (mode) 
+		{
+			case 0:
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::VISUAL_MUTE_NOT_SET);
+			case 1:
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::ALWAYS_VISUAL_MUTE);
+			case 2:
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::NEVER_VISUAL_MUTE);
+			default:
+				return false;
+		}
+	}	// handleEvent()
+};
+
+// 0 = normal, 1 = always, 2 = never
+class LLAvatarSetImposterMode : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		if (!object) return false;
+
+		LLVOAvatar* avatar = find_avatar_from_object(object); 
+		if (!avatar) return false;
+		
+		U32 mode = userdata.asInteger();
+		switch (mode) 
+		{
+			case 0:
+				avatar->setVisualMuteSettings(LLVOAvatar::VISUAL_MUTE_NOT_SET);
+				return true;
+			case 1:
+				avatar->setVisualMuteSettings(LLVOAvatar::ALWAYS_VISUAL_MUTE);
+				return true;
+			case 2:
+				avatar->setVisualMuteSettings(LLVOAvatar::NEVER_VISUAL_MUTE);
+				return true;
+			default:
+				return false;
+		}
+	}	// handleEvent()
+};
+
 
 class LLObjectMute : public view_listener_t
 {
@@ -6220,6 +6291,33 @@ class LLLandEdit : public view_listener_t
 	}
 };
 
+class LLMuteParticle : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLUUID id = LLToolPie::getInstance()->getPick().mParticleOwnerID;
+		
+		if (id.notNull())
+		{
+			std::string name;
+			gCacheName->getFullName(id, name);
+
+			LLMute mute(id, name, LLMute::AGENT);
+			if (LLMuteList::getInstance()->isMuted(mute.mID))
+			{
+				LLMuteList::getInstance()->remove(mute);
+			}
+			else
+			{
+				LLMuteList::getInstance()->add(mute);
+				LLPanelBlockedList::showPanelAndSelect(mute.mID);
+			}
+		}
+
+		return true;
+	}
+};
+
 class LLWorldEnableBuyLand : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -8640,6 +8738,8 @@ void initialize_menus()
 	view_listener_t::addMenu( new LLCheckPanelPeopleTab(), "SideTray.CheckPanelPeopleTab");
 
 	 // Avatar pie menu
+	view_listener_t::addMenu(new LLAvatarCheckImposterMode(), "Avatar.CheckImposterMode");
+	view_listener_t::addMenu(new LLAvatarSetImposterMode(), "Avatar.SetImposterMode");
 	view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");
 	view_listener_t::addMenu(new LLAvatarAddFriend(), "Avatar.AddFriend");
 	view_listener_t::addMenu(new LLAvatarAddContact(), "Avatar.AddContact");
@@ -8713,6 +8813,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLLandBuyPass(), "Land.BuyPass");
 	view_listener_t::addMenu(new LLLandEdit(), "Land.Edit");
 
+	// Particle muting
+	view_listener_t::addMenu(new LLMuteParticle(), "Particle.Mute");
+
 	view_listener_t::addMenu(new LLLandEnableBuyPass(), "Land.EnableBuyPass");
 	commit.add("Land.Buy", boost::bind(&handle_buy_land));
 
@@ -8735,6 +8838,7 @@ void initialize_menus()
 	enable.add("EnablePayObject", boost::bind(&enable_pay_object));
 	enable.add("EnablePayAvatar", boost::bind(&enable_pay_avatar));
 	enable.add("EnableEdit", boost::bind(&enable_object_edit));
+	enable.add("EnableMuteParticle", boost::bind(&enable_mute_particle));
 	enable.add("VisibleBuild", boost::bind(&enable_object_build));
 	commit.add("Pathfinding.Linksets.Select", boost::bind(&LLFloaterPathfindingLinksets::openLinksetsWithSelectedObjects));
 	enable.add("EnableSelectInPathfindingLinksets", boost::bind(&enable_object_select_in_pathfinding_linksets));
