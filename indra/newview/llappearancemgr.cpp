@@ -2839,6 +2839,22 @@ void appearance_mgr_update_dirty_state()
 	}
 }
 
+void update_base_outfit_after_ordering()
+{
+	LLAppearanceMgr& app_mgr = LLAppearanceMgr::instance();
+	
+	LLPointer<LLInventoryCallback> dirty_state_updater =
+		new LLBoostFuncInventoryCallback(no_op_inventory_func, appearance_mgr_update_dirty_state);
+
+	//COF contains only links so we copy to the Base Outfit only links
+	const LLUUID base_outfit_id = app_mgr.getBaseOutfitUUID();
+	bool copy_folder_links = false;
+	app_mgr.slamCategoryLinks(app_mgr.getCOF(), base_outfit_id, copy_folder_links, dirty_state_updater);
+
+}
+
+// Save COF changes - update the contents of the current base outfit
+// to match the current COF. Fails if no current base outfit is set.
 bool LLAppearanceMgr::updateBaseOutfit()
 {
 	if (isOutfitLocked())
@@ -2848,23 +2864,17 @@ bool LLAppearanceMgr::updateBaseOutfit()
 		return false;
 	}
 
-
 	setOutfitLocked(true);
 
 	gAgentWearables.notifyLoadingStarted();
 
 	const LLUUID base_outfit_id = getBaseOutfitUUID();
-	LL_DEBUGS("Avatar") << "updating base outfit to " << base_outfit_id << llendl;
 	if (base_outfit_id.isNull()) return false;
+	LL_DEBUGS("Avatar") << "saving cof to base outfit " << base_outfit_id << llendl;
 
-	updateClothingOrderingInfo();
-
-	LLPointer<LLInventoryCallback> dirty_state_updater =
-		new LLBoostFuncInventoryCallback(no_op_inventory_func, appearance_mgr_update_dirty_state);
-
-	//COF contains only links so we copy to the Base Outfit only links
-	bool copy_folder_links = false;
-	slamCategoryLinks(getCOF(), base_outfit_id, copy_folder_links, dirty_state_updater);
+	LLPointer<LLInventoryCallback> cb =
+		new LLBoostFuncInventoryCallback(no_op_inventory_func, update_base_outfit_after_ordering);
+	updateClothingOrderingInfo(LLUUID::null, cb);
 
 	return true;
 }

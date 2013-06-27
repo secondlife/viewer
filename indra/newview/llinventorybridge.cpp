@@ -2416,26 +2416,13 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 					}
 				}
 			}
-			// if target is an outfit or current outfit folder we use link
-			if (move_is_into_current_outfit || move_is_into_outfit)
+			// if target is current outfit folder we use link
+			if (move_is_into_current_outfit &&
+				inv_cat->getPreferredType() == LLFolderType::FT_NONE)
 			{
-				if (inv_cat->getPreferredType() == LLFolderType::FT_NONE)
-				{
-					if (move_is_into_current_outfit)
-					{
-						// traverse category and add all contents to currently worn.
-						BOOL append = true;
-						LLAppearanceMgr::instance().wearInventoryCategory(inv_cat, false, append);
-					}
-					else
-					{
-						// Recursively create links in target outfit.
-						LLInventoryModel::cat_array_t cats;
-						LLInventoryModel::item_array_t items;
-						model->collectDescendents(cat_id, cats, items, LLInventoryModel::EXCLUDE_TRASH);
-						LLAppearanceMgr::instance().linkAll(mUUID,items,NULL);
-					}
-				}
+				// traverse category and add all contents to currently worn.
+				BOOL append = true;
+				LLAppearanceMgr::instance().wearInventoryCategory(inv_cat, false, append);
 			}
 			else if (move_is_into_outbox && !move_is_from_outbox)
 			{
