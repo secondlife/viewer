@@ -138,19 +138,28 @@ BOOL LLFloaterIMNearbyChat::postBuild()
 // virtual
 void LLFloaterIMNearbyChat::closeHostedFloater()
 {
-	// Should check how many conversations are ongoing. Close all if 1 only (the Nearby Chat), select next one otherwise
+	// If detached from conversations window close anyway
+	if (!getHost())
+	{
+		setVisible(FALSE);
+	}
+
+	// Should check how many conversations are ongoing. Select next to "Nearby Chat" in case there are some other besides.
+	// Close conversations window in case "Nearby Chat" is attached and the only conversation
 	LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
 	if (floater_container->getConversationListItemSize() == 1)
 	{
-		floater_container->closeFloater();
+		if (getHost())
+		{
+			floater_container->closeFloater();
+		}
 	}
 	else
 	{
 		if (!getHost())
 		{
-			setVisible(FALSE);
+			floater_container->selectNextConversationByID(LLUUID());
 		}
-		floater_container->selectNextConversationByID(LLUUID());
 	}
 }
 
@@ -262,7 +271,7 @@ void LLFloaterIMNearbyChat::setVisibleAndFrontmost(BOOL take_focus, const LLSD& 
 {
 	LLFloaterIMSessionTab::setVisibleAndFrontmost(take_focus, key);
 
-	if(!isTornOff() && matchesKey(key))
+	if(matchesKey(key))
 	{
 		LLFloaterIMContainer::getInstance()->selectConversationPair(mSessionID, true, take_focus);
 	}
@@ -296,7 +305,6 @@ void LLFloaterIMNearbyChat::onClose(bool app_quitting)
 {
 	// Override LLFloaterIMSessionTab::onClose() so that Nearby Chat is not removed from the conversation floater
 	LLFloaterIMSessionTab::restoreFloater();
-	onClickCloseBtn();
 }
 
 // virtual
@@ -306,13 +314,7 @@ void LLFloaterIMNearbyChat::onClickCloseBtn()
 	{
 		return;
 	}
-	LLFloaterIMSessionTab::onTearOffClicked();
-	
-	LLFloaterIMContainer *im_box = LLFloaterIMContainer::findInstance();
-	if (im_box)
-	{
-		im_box->onNearbyChatClosed();
-	}
+	closeHostedFloater();
 }
 
 void LLFloaterIMNearbyChat::onChatFontChange(LLFontGL* fontp)

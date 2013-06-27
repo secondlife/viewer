@@ -267,7 +267,6 @@ BOOL LLFloaterIMContainer::postBuild()
 void LLFloaterIMContainer::onOpen(const LLSD& key)
 {
 	LLMultiFloater::onOpen(key);
-	openNearbyChat();
 	reSelectConversation();
 	assignResizeLimits();
 }
@@ -631,7 +630,6 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 			LLFloaterReg::toggleInstanceOrBringToFront(name);
             selectConversationPair(LLUUID(NULL), false, false);
 		}
-		openNearbyChat();
 		flashConversationItemWidget(mSelectedSession,false);
 
 		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(mSelectedSession);
@@ -661,7 +659,11 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
 		if (widget)
 		{
-		    widget->setVisibleIfDetached(visible);
+			LLFloater* session_floater = widget->getSessionFloater();
+			if (session_floater != nearby_chat)
+			{
+				widget->setVisibleIfDetached(visible);
+			}
 		}
 	}
 	
@@ -689,7 +691,12 @@ void LLFloaterIMContainer::getDetachedConversationFloaters(floater_list_t& float
 void LLFloaterIMContainer::setVisibleAndFrontmost(BOOL take_focus, const LLSD& key)
 {
 	LLMultiFloater::setVisibleAndFrontmost(take_focus, key);
-    selectConversationPair(getSelectedSession(), false, take_focus);
+	// Do not select "Nearby Chat" conversation, since it will bring its window to front
+	// Only select other sessions
+	if (!getSelectedSession().isNull())
+	{
+		selectConversationPair(getSelectedSession(), false, take_focus);
+	}
 	if (mInitialized && mIsFirstLaunch)
 	{
 		collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
@@ -1936,13 +1943,6 @@ void LLFloaterIMContainer::openNearbyChat()
 	}
 }
 
-void LLFloaterIMContainer::onNearbyChatClosed()
-{
-	// If nearby chat is the only remaining conversation and it is closed, close whole conversation floater as well
-	if (mConversationsItems.size() == 1)
-		closeFloater();
-}
-
 void LLFloaterIMContainer::reSelectConversation()
 {
 	LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(mSelectedSession);
@@ -2080,11 +2080,15 @@ void LLFloaterIMContainer::expandConversation()
 
 // By default, if torn off session is currently frontmost, LLFloater::isFrontmost() will return FALSE, which can lead to some bugs
 // So LLFloater::isFrontmost() is overriden here to check both selected session and the IM floater itself
+// Exclude "Nearby Chat" session from the check, as "Nearby Chat" window and "Conversations" floater can be brought
+// to front independently
 /*virtual*/
 BOOL LLFloaterIMContainer::isFrontmost()
 {
 	LLFloaterIMSessionTab* selected_session = LLFloaterIMSessionTab::getConversation(mSelectedSession);
-	return (selected_session && selected_session->isFrontmost()) || LLFloater::isFrontmost();
+	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
+	return (selected_session && selected_session->isFrontmost() && (selected_session != nearby_chat))
+		|| LLFloater::isFrontmost();
 }
 
 // For conversations, closeFloater() (linked to Ctrl-W) does not actually close the floater but the active conversation.

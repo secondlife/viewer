@@ -107,8 +107,6 @@ public:
 	LLConversationItem* getSessionModel(const LLUUID& session_id) { return get_ptr_in_map(mConversationsItems,session_id); }
 	LLConversationSort& getSortOrder() { return mConversationViewModel.getSorter(); }
 
-	void onNearbyChatClosed();
-
 	// Handling of lists of participants is public so to be common with llfloatersessiontab
 	// *TODO : Find a better place for this.
     bool checkContextMenuItem(const std::string& item, uuid_vec_t& selectedIDS);
