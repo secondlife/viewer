@@ -1567,11 +1567,15 @@ void slam_inventory_folder(const LLUUID& folder_id,
 	std::string cap;
 	if (AISCommand::getCap(cap))
 	{
+		LL_DEBUGS("Avatar") << "using AISv3 to slam folder, id " << folder_id
+							<< " new contents: " << ll_pretty_print_sd(contents) << llendl;
 		LLPointer<AISCommand> cmd_ptr = new SlamFolderCommand(folder_id, contents, cb);
 		cmd_ptr->run_command();
 	}
 	else // no cap
 	{
+		LL_DEBUGS("Avatar") << "using item-by-item calls to slam folder, id " << folder_id
+							<< " new contents: " << ll_pretty_print_sd(contents) << llendl;
 		for (LLSD::array_const_iterator it = contents.beginArray();
 			 it != contents.endArray();
 			 ++it)
