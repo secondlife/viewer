@@ -30,7 +30,9 @@
 #include "llfloater.h"
 #include "llviewertexture.h"
 
-#include "llsnapshotlivepreview.h"
+class LLIconCtrl;
+class LLCheckBoxCtrl;
+class LLSnapshotLivePreview;
 
 class LLSocialStatusPanel : public LLPanel
 {
@@ -64,7 +66,7 @@ class LLSocialPhotoPanel : public LLPanel
 
 		void updateResolution(LLUICtrl* ctrl, void* data, BOOL do_update = TRUE);
 		void setNeedRefresh(bool need);
-		void checkAspectRatio(LLFloaterSnapshot *view, S32 index);
+		void checkAspectRatio(S32 index);
 		LLSnapshotLivePreview* getPreviewView();
 
 		void updateControls();

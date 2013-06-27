@@ -35,6 +35,10 @@
 #include "llfloaterperms.h"
 #include "llfloaterreg.h"
 #include "llfloatersocial.h"
+#include "llimagebmp.h"
+#include "llimagej2c.h"
+#include "llimagejpeg.h"
+#include "llimagepng.h"
 #include "lllandmarkactions.h"
 #include "lllocalcliprect.h"
 #include "llnotificationsutil.h"
@@ -48,6 +52,7 @@
 #include "llvfs.h"
 #include "llwebsharing.h"
 #include "llwindow.h"
+#include "llworld.h"
 
 const F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
 
@@ -57,7 +62,6 @@ F32 SHINE_OPACITY = 0.3f;
 F32 FALL_TIME = 0.6f;
 S32 BORDER_WIDTH = 6;
 
-const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
 
 std::set<LLSnapshotLivePreview*> LLSnapshotLivePreview::sList;

@@ -28,27 +28,23 @@
 
 #include "llfloatersnapshot.h"
 
-#include "llfloaterreg.h"
-
-// Viewer includes
 #include "llagent.h"
 #include "llfacebookconnect.h"
+#include "llfloaterreg.h"
 #include "llfloatersocial.h"
-#include "llcombobox.h"
-#include "llsidetraypanelcontainer.h"
-#include "llspinctrl.h"
-#include "llviewercontrol.h"
 #include "llcheckboxctrl.h"
-#include "lltoolfocus.h"
-#include "lltoolmgr.h"
-#include "llwebsharing.h"
-//#include "llagentui.h"
-
-// Linden library includes
-#include "llsdserialize.h"
+#include "llcombobox.h"
 #include "llpostcard.h"
 #include "llresmgr.h"		// LLLocale
+#include "llsdserialize.h"
+#include "llsidetraypanelcontainer.h"
+#include "llsnapshotlivepreview.h"
+#include "llspinctrl.h"
+#include "llviewercontrol.h"
+#include "lltoolfocus.h"
+#include "lltoolmgr.h"
 #include "llwebprofile.h"
+#include "llwebsharing.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs

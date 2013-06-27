@@ -27,7 +27,6 @@
 #ifndef LL_LLFLOATERSNAPSHOT_H
 #define LL_LLFLOATERSNAPSHOT_H
 
-#include "llimage.h"
 #include "llfloater.h"
 
 class LLSpinCtrl;

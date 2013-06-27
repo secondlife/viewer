@@ -27,13 +27,10 @@
 #ifndef LL_LLSNAPSHOTLIVEPREVIEW_H
 #define LL_LLSNAPSHOTLIVEPREVIEW_H
 
-#include "llimagebmp.h"
-#include "llimagej2c.h"
-#include "llimagejpeg.h"
-#include "llimagepng.h"
 #include "llpanelsnapshot.h"
 #include "llviewerwindow.h"
-#include "llworld.h"
+
+class LLImageJPEG;
 
 ///----------------------------------------------------------------------------
 /// Class LLSnapshotLivePreview 

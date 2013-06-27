@@ -31,12 +31,16 @@
 
 #include "llagent.h"
 #include "llagentui.h"
+#include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llfacebookconnect.h"
 #include "llfloaterreg.h"
 #include "lliconctrl.h"
+#include "llresmgr.h"		// LLLocale
+#include "llsdserialize.h"
 #include "llloadingindicator.h"
 #include "llslurl.h"
+#include "llsnapshotlivepreview.h"
 #include "llviewerregion.h"
 #include "llviewercontrol.h"
 
@@ -201,7 +205,7 @@ void LLSocialPhotoPanel::updateResolution(LLUICtrl* ctrl, void* data, BOOL do_up
 			previewp->setSize(width, height);
 		}
 
-		checkAspectRatio(view, width) ;
+		checkAspectRatio(width);
 
 		previewp->getSize(width, height);
 		
@@ -230,7 +234,7 @@ void LLSocialPhotoPanel::setNeedRefresh(bool need)
 	mNeedRefresh = need;
 }
 
-void LLSocialPhotoPanel::checkAspectRatio(LLFloaterSnapshot *view, S32 index)
+void LLSocialPhotoPanel::checkAspectRatio(S32 index)
 {
 	LLSnapshotLivePreview *previewp = getPreviewView() ;
 
