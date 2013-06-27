@@ -34,8 +34,10 @@ import tarfile
 import time
 import random
 viewer_dir = os.path.dirname(__file__)
-# add indra/lib/python to our path so we don't have to muck with PYTHONPATH
-sys.path.append(os.path.join(viewer_dir, os.pardir, "lib", "python"))
+# Add indra/lib/python to our path so we don't have to muck with PYTHONPATH.
+# Put it FIRST because some of our build hosts have an ancient install of
+# indra.util.llmanifest under their system Python!
+sys.path.insert(0, os.path.join(viewer_dir, os.pardir, "lib", "python"))
 from indra.util.llmanifest import LLManifest, main, proper_windows_path, path_ancestors
 try:
     from llbase import llsd
