@@ -316,12 +316,16 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (void) keyDown:(NSEvent *)theEvent
 {
     uint keycode = [theEvent keyCode];
-    bool acceptsText = callKeyDown(keycode, mModifiers);
+    bool acceptsText = mHasMarkedText ? false : callKeyDown(keycode, mModifiers);
     if (acceptsText &&
         !mMarkedTextAllowed &&
         ![(LLAppDelegate*)[NSApp delegate] romanScript] &&
         [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSDeleteCharacter &&
-        [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSBackspaceCharacter)
+        [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSBackspaceCharacter &&
+        [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSDownArrowFunctionKey &&
+        [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSUpArrowFunctionKey &&
+        [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSLeftArrowFunctionKey &&
+        [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSRightArrowFunctionKey)
     {
         [(LLAppDelegate*)[NSApp delegate] showInputWindow:true withEvent:theEvent];
     } else
@@ -339,7 +343,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
     // OS X intentionally does not send us key-up information on cmd-key combinations.
     // This behaviour is not a bug, and only applies to cmd-combinations (no others).
     // Since SL assumes we receive those, we fake it here.
-    if (mModifiers & NSCommandKeyMask)
+    if (mModifiers & NSCommandKeyMask && !mHasMarkedText)
     {
         callKeyUp([theEvent keyCode], mModifiers);
     }
