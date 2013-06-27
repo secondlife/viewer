@@ -30,6 +30,7 @@
 
 #include "llstring.h"
 #include "v3color.h"
+#include "v4color.h"
 #include <map>
 #include <list>
 #include <deque>
@@ -69,7 +70,7 @@ public:
 		TT_TYPE								// WORD
 	};
 
-	LLKeywordToken( TOKEN_TYPE type, const LLColor3& color, const LLWString& token, const LLWString& tool_tip, const LLWString& delimiter  )
+	LLKeywordToken( TOKEN_TYPE type, const LLColor4& color, const LLWString& token, const LLWString& tool_tip, const LLWString& delimiter  )
 		:
 		mType( type ),
 		mToken( token ),
@@ -84,7 +85,7 @@ public:
 	BOOL				isHead(const llwchar* s) const;
 	BOOL				isTail(const llwchar* s) const;
 	const LLWString&	getToken() const		{ return mToken; }
-	const LLColor3&		getColor() const		{ return mColor; }
+	const LLColor4&		getColor() const		{ return mColor; }
 	TOKEN_TYPE			getType()  const		{ return mType; }
 	const LLWString&	getToolTip() const		{ return mToolTip; }
 	const LLWString&	getDelimiter() const	{ return mDelimiter; }
@@ -96,7 +97,7 @@ public:
 private:
 	TOKEN_TYPE	mType;
 	LLWString	mToken;
-	LLColor3	mColor;
+	LLColor4	mColor;
 	LLWString	mToolTip;
 	LLWString	mDelimiter;
 };
@@ -107,12 +108,11 @@ public:
 	LLKeywords();
 	~LLKeywords();
 
-	void		addColorGroup(const std::string key_in, const LLColor3 color);
-	LLColor3	getColorGroup(const std::string key_in);
+	void		addColorGroup(const std::string key_in, const LLColor4 color);
+	LLColor4	getColorGroup(const std::string key_in);
 	BOOL		loadFromFile();
 	BOOL		loadFromFile(const std::string& filename);
 	BOOL		isLoaded() const	{ return mLoaded; }
-	void		setFilenameColors(const std::string filename) { mFilenameColors = filename; }
 	void		setFilenameSyntax(const std::string filename) { mFilenameSyntax = filename; }
 
 	void		findSegments(std::vector<LLTextSegmentPtr> *seg_list, const LLWString& text, const LLColor4 &defaultColor, class LLTextEditor& editor );
@@ -124,7 +124,7 @@ public:
 	// Add the token as described
 	void addToken(LLKeywordToken::TOKEN_TYPE type,
 					const std::string& key,
-					const LLColor3& color,
+					const LLColor4& color,
 					const std::string& tool_tip = LLStringUtil::null,
 					const std::string& delimiter = LLStringUtil::null);
 
@@ -153,7 +153,7 @@ public:
 		bool mOwner;
 
 
-		LLColor3			mColor;
+		LLColor4			mColor;
 	};
 
 	typedef std::map<WStringMapIndex, LLKeywordToken*> word_token_map_t;
@@ -161,7 +161,7 @@ public:
 	keyword_iterator_t begin() const { return mWordTokenMap.begin(); }
 	keyword_iterator_t end() const { return mWordTokenMap.end(); }
 
-	typedef std::map<WStringMapIndex, LLColor3> group_color_map_t;
+	typedef std::map<WStringMapIndex, LLColor4> group_color_map_t;
 	typedef group_color_map_t::const_iterator color_iterator_t;
 	group_color_map_t	mColorGroupMap;
 
@@ -171,8 +171,8 @@ public:
 
 protected:
 	void		processTokensGroup(LLSD& Tokens, const std::string Group);
-	LLColor3	readColor(const std::string& s);
-	LLColor3	readColor(LLSD& sd);
+	LLColor4	readColor(const std::string& s);
+	LLColor4	readColor(LLSD& sd);
 	void		insertSegment(std::vector<LLTextSegmentPtr>& seg_list, LLTextSegmentPtr new_segment, S32 text_len, const LLColor4 &defaultColor, class LLTextEditor& editor);
 	void		insertSegments(const LLWString& wtext, std::vector<LLTextSegmentPtr>& seg_list, LLKeywordToken* token, S32 text_len, S32 seg_start, S32 seg_end, const LLColor4 &defaultColor, LLTextEditor& editor);
 	BOOL		loadIntoLLSD( const std::string& filename, LLSD& data );
@@ -195,7 +195,6 @@ protected:
 private:
 	BOOL		ready() { return mReady; };
 	BOOL		mReady;
-	std::string	mFilenameColors;
 	std::string	mFilenameSyntax;
 };
 

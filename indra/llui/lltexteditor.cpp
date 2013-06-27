@@ -2488,7 +2488,7 @@ static LLFastTimer::DeclareTimer FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
 void LLTextEditor::loadKeywords(const std::string& filename,
 								const std::vector<std::string>& funcs,
 								const std::vector<std::string>& tooltips,
-								const LLColor3& color)
+								const LLColor4& color)
 {
 	LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
 	if(mKeywords.loadFromFile())

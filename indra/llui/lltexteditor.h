@@ -190,7 +190,7 @@ public:
 	void			loadKeywords(const std::string& filename,
 								 const std::vector<std::string>& funcs,
 								 const std::vector<std::string>& tooltips,
-								 const LLColor3& func_color);
+								 const LLColor4& func_color);
 	LLKeywords::keyword_iterator_t keywordsBegin()	{ return mKeywords.begin(); }
 	LLKeywords::keyword_iterator_t keywordsEnd()	{ return mKeywords.end(); }
 

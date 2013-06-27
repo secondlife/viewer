@@ -71,7 +71,6 @@ inline BOOL LLKeywordToken::isTail(const llwchar* s) const
 
 LLKeywords::LLKeywords() : mLoaded(FALSE)
 {
-	setFilenameColors( gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"keywords_lsl_colors.xml") );
 	setFilenameSyntax( gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"keywords_lsl_tokens.xml") );
 }
 
@@ -84,7 +83,7 @@ LLKeywords::~LLKeywords()
 
 
 
-void LLKeywords::addColorGroup(const std::string key_in, const LLColor3 color)
+void LLKeywords::addColorGroup(const std::string key_in, const LLColor4 color)
 {
 	WStringMapIndex key ( utf8str_to_wstring(key_in) );
 	mColorGroupMap[key] = color;
@@ -93,7 +92,7 @@ void LLKeywords::addColorGroup(const std::string key_in, const LLColor3 color)
 // Add the token as described
 void LLKeywords::addToken(LLKeywordToken::TOKEN_TYPE type,
 						  const std::string& key_in,
-						  const LLColor3& color,
+						  const LLColor4& color,
 						  const std::string& tool_tip_in,
 						  const std::string& delimiter_in)
 {
@@ -165,49 +164,53 @@ std::string LLKeywords::getAttribute(const std::string& key)
 	return (it != mAttributes.end()) ? it->second : "";
 }
 
-LLColor3 LLKeywords::getColorGroup(const std::string key_in)
+LLColor4 LLKeywords::getColorGroup(const std::string key_in)
 {
-	// LLColor3 initialises to Black (0,0,0)
-	LLColor3 Colour;
-	WStringMapIndex key ( utf8str_to_wstring(key_in) );
-	group_color_map_t::iterator it = mColorGroupMap.find(key);
-	if (it == mColorGroupMap.end())
-	{
-		LL_WARNS("Colour lookup") << "'" << key_in << "' not found!" << LL_ENDL;
-	}
-	else
-	{
-		Colour = it->second;
+	std::string ColourGroup = "Black";
+	if (key_in == "constants-float") {
+		ColourGroup = "SyntaxLslConstantFloat";
+	} else if (key_in == "constants-integer") {
+		ColourGroup = "SyntaxLslConstantInteger";
+	} else if (key_in == "constants-key") {
+		ColourGroup = "SyntaxLslConstantKey";
+	} else if (key_in == "constants-string") {
+		ColourGroup = "SyntaxLslConstantRotation";
+	} else if (key_in == "constants-string") {
+		ColourGroup = "SyntaxLslConstantString";
+	} else if (key_in == "constants-vector") {
+		ColourGroup = "SyntaxLslConstantVector";
+	} else if (key_in == "controls") {
+		ColourGroup = "SyntaxLslControlFlow";
+	} else if (key_in == "events") {
+		ColourGroup = "SyntaxLslEvent";
+	} else if (key_in == "functions") {
+		ColourGroup = "SyntaxLslFunction";
+	} else if (key_in == "types") {
+		ColourGroup = "SyntaxLslDataType";
+	} else if (key_in == "sections") {
+		ColourGroup = "SyntaxLslSection";
+	} else if (key_in == "misc-double_quotation_marks") {
+		ColourGroup = "SyntaxLslStringLiteral";
+	} else if (key_in == "misc-comments_1_sided") {
+		ColourGroup = "SyntaxLslComment1Sided";
+	} else if (key_in == "misc-comments_2_sided") {
+		ColourGroup = "SyntaxLslComment2Sided";	
 	}
 
-	return Colour;
+	return LLUIColorTable::instance().getColor(ColourGroup);
 }
 
 BOOL LLKeywords::initialise()
 {
 	mReady = false;
 
-	if (! loadIntoLLSD(mFilenameColors, mColors) )
-	{
-		LL_ERRS("") << "Failed to load color data, cannot continue!" << LL_ENDL;
-	}
-	else if (! loadIntoLLSD(mFilenameSyntax, mSyntax) )
+	if (! loadIntoLLSD(mFilenameSyntax, mSyntax) )
 	{
 		LL_ERRS("") << "Failed to load syntax data from '" << mFilenameSyntax << "', cannot continue!" << LL_ENDL;
 	}
 	else
 	{
 		mReady = true;
-	}
-
-	if (ready())
-	{
-		processColors();
-	}
-	else
-	{
-		LL_ERRS("") << LL_ENDL;
-		LL_ERRS("") << "Failed to load one or both data files, cannot continue!" << LL_ENDL;
 	}
 	return mReady;
 }
@@ -251,7 +254,7 @@ BOOL LLKeywords::loadIntoLLSD(const std::string& filename, LLSD& data)
 /**
  * @brief Start processing the colour LLSD from its beginning.
  *
- */
+ * /
 std::string LLKeywords::processColors()
 {
 	return processColors(mColors, "");
@@ -261,7 +264,7 @@ std::string LLKeywords::processColors()
  * @brief	Recursively process the colour LLSD from an arbitrary level.
  * @desc	Process the supplied LLSD for colour data. The strPrefix is a string
  *			of hyphen separated keys from previous levels.
- */
+ * /
 std::string LLKeywords::processColors(LLSD &settings, const std::string strPrefix)
 {
 	if (settings.isMap() || (! settings.isMap() && strPrefix != "") )
@@ -299,12 +302,13 @@ std::string LLKeywords::processColors(LLSD &settings, const std::string strPrefi
 	}
 	return strPrefix;
 }
+*/
 
 void LLKeywords::processTokens()
 {
 	// Add 'standard' stuff: Quotes, Comments, Strings, Labels, etc. before processing the LLSD
 	std::string delimiter;
-	addToken(LLKeywordToken::TT_LABEL, "@", getColorGroup("label"), "Label\nTarget for jump statement", delimiter );
+	addToken(LLKeywordToken::TT_LABEL, "@", getColorGroup("misc-flow-label"), "Label\nTarget for jump statement", delimiter );
 	addToken(LLKeywordToken::TT_ONE_SIDED_DELIMITER, "//", getColorGroup("misc-comments_1_sided"), "Comment (single-line)\nNon-functional commentary or disabled code", delimiter );
 	addToken(LLKeywordToken::TT_TWO_SIDED_DELIMITER, "/*", getColorGroup("misc-comments_2_sided"), "Comment (multi-line)\nNon-functional commentary or disabled code", "*/" );
 	addToken(LLKeywordToken::TT_DOUBLE_QUOTATION_MARKS, "\"", getColorGroup("misc-double_quotation_marks"), "String literal", "\"" );
@@ -344,7 +348,7 @@ void LLKeywords::processTokens()
 
 void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 {
-	LLColor3 Color = getColorGroup(Group);
+	LLColor4 Color;
 	LL_INFOS("Tokens") << "Group: '" << Group << "', using colour: '" << Color << "'" << LL_ENDL;
 
 	LLKeywordToken::TOKEN_TYPE token_type = LLKeywordToken::TT_UNKNOWN;
@@ -534,7 +538,7 @@ bool LLKeywords::WStringMapIndex::operator<(const LLKeywords::WStringMapIndex &o
 	return result;
 }
 
-LLColor3 LLKeywords::readColor( const std::string& s )
+LLColor4 LLKeywords::readColor( const std::string& s )
 {
 	F32 r, g, b;
 	r = g = b = 0.0f;
@@ -543,22 +547,22 @@ LLColor3 LLKeywords::readColor( const std::string& s )
 	{
 		llinfos << " poorly formed color in keyword file" << llendl;
 	}
-	return LLColor3( r, g, b );
+	return LLColor4( r, g, b, 1.f);
 }
 
-LLColor3 LLKeywords::readColor(LLSD& sd)
+LLColor4 LLKeywords::readColor(LLSD& sd)
 {
 	if (sd.isArray())
 	{
-		return LLColor3 (sd);
+		return LLColor4 (sd, 1.f);
 	}
 	else if (sd.isMap())
 	{
-		return LLColor3 ( sd.get("x").asReal(), sd.get("y").asReal(), sd.get("z").asReal() );
+		return LLColor4 ( sd.get("x").asReal(), sd.get("y").asReal(), sd.get("z").asReal(), 1.f );
 	}
 	else
 	{
-		return LLColor3::black;
+		return LLColor4::black;
 	}
 }
 
