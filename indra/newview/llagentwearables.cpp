@@ -1861,24 +1861,6 @@ void LLAgentWearables::updateServer()
 	gAgent.sendAgentSetAppearance();
 }
 
-void LLAgentWearables::populateMyOutfitsFolder(void)
-{	
-	llinfos << "starting outfit population" << llendl;
-
-	const LLUUID& my_outfits_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-	LLLibraryOutfitsFetch* outfits = new LLLibraryOutfitsFetch(my_outfits_id);
-	outfits->mMyOutfitsID = my_outfits_id;
-	
-	// Get the complete information on the items in the inventory and 
-	// setup an observer that will wait for that to happen.
-	gInventory.addObserver(outfits);
-	outfits->startFetch();
-	if (outfits->isFinished())
-	{
-		outfits->done();
-	}
-}
-
 boost::signals2::connection LLAgentWearables::addLoadingStartedCallback(loading_started_callback_t cb)
 {
 	return mLoadingStartedSignal.connect(cb);

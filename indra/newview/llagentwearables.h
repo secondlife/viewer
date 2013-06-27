@@ -171,12 +171,6 @@ protected:
 	//--------------------------------------------------------------------
 	// Outfits
 	//--------------------------------------------------------------------
-public:
-	
-	// Should only be called if we *know* we've never done so before, since users may
-	// not want the Library outfits to stay in their quick outfit selector and can delete them.
-	void			populateMyOutfitsFolder();
-
 private:
 	void			makeNewOutfitDone(S32 type, U32 index); 
 

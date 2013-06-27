@@ -2815,33 +2815,12 @@ void LLAppearanceMgr::copyLibraryGestures()
 	}
 }
 
-void LLAppearanceMgr::autopopulateOutfits()
-{
-	// If this is the very first time the user has logged into viewer2+ (from a legacy viewer, or new account)
-	// then auto-populate outfits from the library into the My Outfits folder.
-
-	LL_INFOS("Avatar") << self_av_string() << "avatar fully visible" << LL_ENDL;
-
-	static bool check_populate_my_outfits = true;
-	if (check_populate_my_outfits && 
-		(LLInventoryModel::getIsFirstTimeInViewer2() 
-		 || gSavedSettings.getBOOL("MyOutfitsAutofill")))
-	{
-		gAgentWearables.populateMyOutfitsFolder();
-	}
-	check_populate_my_outfits = false;
-}
-
 // Handler for anything that's deferred until avatar de-clouds.
 void LLAppearanceMgr::onFirstFullyVisible()
 {
 	gAgentAvatarp->outputRezTiming("Avatar fully loaded");
 	gAgentAvatarp->reportAvatarRezTime();
 	gAgentAvatarp->debugAvatarVisible();
-
-	// The auto-populate is failing at the point of generating outfits
-	// folders, so don't do the library copy until that is resolved.
-	// autopopulateOutfits();
 
 	// If this is the first time we've ever logged in,
 	// then copy default gestures from the library.
