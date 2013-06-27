@@ -87,7 +87,7 @@ ThreadRecorder::~ThreadRecorder()
 	delete[] mTimeBlockTreeNodes;
 }
 
-TimeBlockTreeNode* ThreadRecorder::getTimeBlockTreeNode(S32 index)
+TimeBlockTreeNode* ThreadRecorder::getTimeBlockTreeNode( S32 index )
 {
 	if (0 <= index && index < mNumTimeBlockTreeNodes)
 	{
@@ -99,10 +99,20 @@ TimeBlockTreeNode* ThreadRecorder::getTimeBlockTreeNode(S32 index)
 
 void ThreadRecorder::activate( AccumulatorBufferGroup* recording )
 {
+	active_recording_list_t::reverse_iterator it, end_it;
+	for (it = mActiveRecordings.rbegin(), end_it = mActiveRecordings.rend();
+		it != end_it;
+		++it)
+	{
+		llassert((*it)->mTargetRecording != recording);
+	}
+
 	ActiveRecording* active_recording = new ActiveRecording(recording);
 	if (!mActiveRecordings.empty())
 	{
-		mActiveRecordings.back()->mPartialRecording.handOffTo(active_recording->mPartialRecording);
+		AccumulatorBufferGroup& prev_active_recording = mActiveRecordings.back()->mPartialRecording;
+		prev_active_recording.sync();
+		prev_active_recording.handOffTo(active_recording->mPartialRecording);
 	}
 	mActiveRecordings.push_back(active_recording);
 
@@ -113,7 +123,7 @@ ThreadRecorder::active_recording_list_t::reverse_iterator ThreadRecorder::bringU
 {
 	if (mActiveRecordings.empty()) return mActiveRecordings.rend();
 
-	mActiveRecordings.back()->mPartialRecording.flush();
+	mActiveRecordings.back()->mPartialRecording.sync();
 	TimeBlock::updateTimes();
 
 	active_recording_list_t::reverse_iterator it, end_it;
@@ -156,18 +166,22 @@ void ThreadRecorder::deactivate( AccumulatorBufferGroup* recording )
 	active_recording_list_t::reverse_iterator it = bringUpToDate(recording);
 	if (it != mActiveRecordings.rend())
 	{
-		// and if we've found the recording we wanted to update
-		active_recording_list_t::reverse_iterator next_it = it;
-		++next_it;
-		if (next_it != mActiveRecordings.rend())
-		{
-			(*next_it)->mPartialRecording.makePrimary();
-		}
-
 		active_recording_list_t::iterator recording_to_remove = (++it).base();
+		bool was_primary = (*recording_to_remove)->mPartialRecording.isPrimary();
 		llassert((*recording_to_remove)->mTargetRecording == recording);
 		delete *recording_to_remove;
 		mActiveRecordings.erase(recording_to_remove);
+		if (was_primary)
+		{
+			if (mActiveRecordings.empty())
+			{
+				AccumulatorBufferGroup::clearPrimary();
+			}
+			else
+			{
+				mActiveRecordings.back()->mPartialRecording.makePrimary();
+			}
+		}
 	}
 }
 
@@ -202,7 +216,6 @@ SlaveThreadRecorder::~SlaveThreadRecorder()
 void SlaveThreadRecorder::pushToMaster()
 { 
 	{ LLMutexLock lock(&mSharedRecordingMutex);	
-		mThreadRecordingBuffers.flush();
 		LLTrace::get_thread_recorder()->bringUpToDate(&mThreadRecordingBuffers);
 		mSharedRecordingBuffers.append(mThreadRecordingBuffers);
 	}
@@ -213,23 +226,25 @@ void SlaveThreadRecorder::pushToMaster()
 ///////////////////////////////////////////////////////////////////////
 
 static LLFastTimer::DeclareTimer FTM_PULL_TRACE_DATA_FROM_SLAVES("Pull slave trace data");
+
 void MasterThreadRecorder::pullFromSlaveThreads()
 {
-	LLFastTimer _(FTM_PULL_TRACE_DATA_FROM_SLAVES);
+	/*LLFastTimer _(FTM_PULL_TRACE_DATA_FROM_SLAVES);
 	if (mActiveRecordings.empty()) return;
 
 	{ LLMutexLock lock(&mSlaveListMutex);
 
-		AccumulatorBufferGroup& target_recording_buffers = mActiveRecordings.back()->mPartialRecording;
-		for (slave_thread_recorder_list_t::iterator it = mSlaveThreadRecorders.begin(), end_it = mSlaveThreadRecorders.end();
-			it != end_it;
-			++it)
-		{ LLMutexLock lock(&(*it)->mSharedRecordingMutex);
+	AccumulatorBufferGroup& target_recording_buffers = mActiveRecordings.back()->mPartialRecording;
+	target_recording_buffers.sync();
+	for (slave_thread_recorder_list_t::iterator it = mSlaveThreadRecorders.begin(), end_it = mSlaveThreadRecorders.end();
+	it != end_it;
+	++it)
+	{ LLMutexLock lock(&(*it)->mSharedRecordingMutex);
 
-			target_recording_buffers.merge((*it)->mSharedRecordingBuffers);
-			(*it)->mSharedRecordingBuffers.reset();
-		}
+	target_recording_buffers.merge((*it)->mSharedRecordingBuffers);
+	(*it)->mSharedRecordingBuffers.reset();
 	}
+	}*/
 }
 
 // called by slave thread

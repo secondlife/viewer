@@ -69,6 +69,16 @@ void AccumulatorBufferGroup::makePrimary()
 	}
 }
 
+//static
+void AccumulatorBufferGroup::clearPrimary()
+{
+	AccumulatorBuffer<CountAccumulator>::clearPrimary();	
+	AccumulatorBuffer<SampleAccumulator>::clearPrimary();
+	AccumulatorBuffer<EventAccumulator>::clearPrimary();
+	AccumulatorBuffer<TimeBlockAccumulator>::clearPrimary();
+	AccumulatorBuffer<MemStatAccumulator>::clearPrimary();
+}
+
 bool AccumulatorBufferGroup::isPrimary() const
 {
 	return mCounts.isPrimary();
@@ -102,11 +112,12 @@ void AccumulatorBufferGroup::reset(AccumulatorBufferGroup* other)
 	mMemStats.reset(other ? &other->mMemStats : NULL);
 }
 
-void AccumulatorBufferGroup::flush()
+void AccumulatorBufferGroup::sync()
 {
 	LLUnitImplicit<F64, LLUnits::Seconds> time_stamp = LLTimer::getTotalSeconds();
 
-	mSamples.flush(time_stamp);
+	mSamples.sync(time_stamp);
+	mMemStats.sync(time_stamp);
 }
 
 }

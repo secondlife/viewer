@@ -1294,6 +1294,8 @@ bool LLAppViewer::mainLoop()
 	{
 		LLFastTimer _(FTM_FRAME);
 		LLTrace::TimeBlock::processTimes();
+		llassert((LLTrace::get_frame_recording().getCurRecording().update(), 
+				LLTrace::get_frame_recording().getCurRecording().getSampleCount(LLStatViewer::FPS) <= 1));
 		LLTrace::get_frame_recording().nextPeriod();
 		LLTrace::TimeBlock::logStats();
 
@@ -5617,6 +5619,6 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 	// Reset even if we can't report.  Rather than gather up a huge chunk of
 	// data, we'll keep to our sampling interval and retain the data
 	// resolution in time.
-	gViewerAssetStats->reset();
+	gViewerAssetStats->restart();
 }
 

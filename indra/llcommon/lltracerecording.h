@@ -81,6 +81,7 @@ class LLStopWatchControlsMixin
 :	public LLStopWatchControlsMixinCommon
 {
 public:
+
 	typedef LLStopWatchControlsMixin<DERIVED> self_t;
 	virtual void splitTo(DERIVED& other)
 	{
@@ -98,6 +99,11 @@ public:
 		static_cast<self_t&>(other).handleSplitTo(*static_cast<DERIVED*>(this));
 	}
 private:
+	self_t& operator = (const self_t& other)
+	{
+		// don't do anything, derived class must implement logic
+	}
+
 	// atomically stop this object while starting the other
 	// no data can be missed in between stop and start
 	virtual void handleSplitTo(DERIVED& other) {};

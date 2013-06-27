@@ -71,6 +71,7 @@ namespace LLTrace
 		class BlockTimer*			mRootTimer;
 		TimeBlockTreeNode*			mTimeBlockTreeNodes;
 		size_t						mNumTimeBlockTreeNodes;
+		BlockTimerStackRecord		mBlockTimerStackRecord;
 	};
 
 	class LL_COMMON_API MasterThreadRecorder : public ThreadRecorder
@@ -105,7 +106,6 @@ namespace LLTrace
 
 	private:
 		friend class MasterThreadRecorder;
-		MasterThreadRecorder* 	mMaster;
 		LLMutex					mSharedRecordingMutex;
 		AccumulatorBufferGroup	mSharedRecordingBuffers;
 		MasterThreadRecorder&	mMasterRecorder;

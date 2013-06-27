@@ -109,12 +109,12 @@ namespace LLTrace
 			}
 		}
 
-		void flush(LLUnitImplicit<F64, LLUnits::Seconds> time_stamp)
+		void sync(LLUnitImplicit<F64, LLUnits::Seconds> time_stamp)
 		{
 			llassert(mStorageSize >= sNextStorageSlot);
 			for (size_t i = 0; i < sNextStorageSlot; i++)
 			{
-				mStorage[i].flush(time_stamp);
+				mStorage[i].sync(time_stamp);
 			}
 		}
 
@@ -126,6 +126,11 @@ namespace LLTrace
 		bool isPrimary() const
 		{
 			return LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance() == mStorage;
+		}
+
+		static void clearPrimary()
+		{
+			LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(NULL);
 		}
 
 		LL_FORCE_INLINE static ACCUMULATOR* getPrimaryStorage() 
@@ -302,7 +307,7 @@ namespace LLTrace
 			mLastValue = other ? other->mLastValue : 0;
 		}
 
-		void flush(LLUnitImplicit<F64, LLUnits::Seconds>) {}
+		void sync(LLUnitImplicit<F64, LLUnits::Seconds>) {}
 
 		F64	getSum() const { return mSum; }
 		F64	getMin() const { return mMin; }
@@ -434,7 +439,7 @@ namespace LLTrace
 			mHasValue = other ? other->mHasValue : false;
 		}
 
-		void flush(LLUnitImplicit<F64, LLUnits::Seconds> time_stamp)
+		void sync(LLUnitImplicit<F64, LLUnits::Seconds> time_stamp)
 		{
 			LLUnitImplicit<F64, LLUnits::Seconds> delta_time = time_stamp - mLastSampleTimeStamp;
 
@@ -500,7 +505,7 @@ namespace LLTrace
 			mSum = 0;
 		}
 
-		void flush(LLUnitImplicit<F64, LLUnits::Seconds>) {}
+		void sync(LLUnitImplicit<F64, LLUnits::Seconds>) {}
 
 		F64	getSum() const { return mSum; }
 
@@ -535,7 +540,7 @@ namespace LLTrace
 		TimeBlockAccumulator();
 		void addSamples(const self_t& other, bool /*append*/);
 		void reset(const self_t* other);
-		void flush(LLUnitImplicit<F64, LLUnits::Seconds>) {}
+		void sync(LLUnitImplicit<F64, LLUnits::Seconds>) {}
 
 		//
 		// members
@@ -565,6 +570,13 @@ namespace LLTrace
 		std::vector<TimeBlock*>		mChildren;
 		bool						mCollapsed;
 		bool						mNeedsSorting;
+	};
+	
+	struct BlockTimerStackRecord
+	{
+		class BlockTimer*	mActiveTimer;
+		class TimeBlock*	mTimeBlock;
+		U64					mChildTime;
 	};
 
 	struct MemStatAccumulator
@@ -611,16 +623,16 @@ namespace LLTrace
 			mDeallocatedCount = 0;
 		}
 
-		void flush(LLUnitImplicit<F64, LLUnits::Seconds> time_stamp) 
+		void sync(LLUnitImplicit<F64, LLUnits::Seconds> time_stamp) 
 		{
-			mSize.flush(time_stamp);
-			mChildSize.flush(time_stamp);
+			mSize.sync(time_stamp);
+			mChildSize.sync(time_stamp);
 		}
 
 		SampleAccumulator	mSize,
-			mChildSize;
+							mChildSize;
 		int					mAllocatedCount,
-			mDeallocatedCount;
+							mDeallocatedCount;
 	};
 
 	struct AccumulatorBufferGroup : public LLRefCount
@@ -630,11 +642,12 @@ namespace LLTrace
 		void handOffTo(AccumulatorBufferGroup& other);
 		void makePrimary();
 		bool isPrimary() const;
+		static void clearPrimary();
 
 		void append(const AccumulatorBufferGroup& other);
 		void merge(const AccumulatorBufferGroup& other);
 		void reset(AccumulatorBufferGroup* other = NULL);
-		void flush();
+		void sync();
 
 		AccumulatorBuffer<CountAccumulator>	 			mCounts;
 		AccumulatorBuffer<SampleAccumulator>			mSamples;

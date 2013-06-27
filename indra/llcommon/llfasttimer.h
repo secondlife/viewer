@@ -38,13 +38,6 @@ class LLMutex;
 namespace LLTrace
 {
 
-struct BlockTimerStackRecord
-{
-	class BlockTimer*	mActiveTimer;
-	class TimeBlock*	mTimeBlock;
-	U64					mChildTime;
-};
-
 class ThreadTimerStack 
 :	public BlockTimerStackRecord, 
 	public LLThreadLocalSingleton<ThreadTimerStack>

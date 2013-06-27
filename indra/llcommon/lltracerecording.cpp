@@ -59,11 +59,12 @@ Recording& Recording::operator = (const Recording& other)
 
 	mBuffers = other.mBuffers;
 
-	LLStopWatchControlsMixin<Recording>::setPlayState(other_play_state);
-
 	// above call will clear mElapsedSeconds as a side effect, so copy it here
 	mElapsedSeconds = other.mElapsedSeconds;
 	mSamplingTimer = other.mSamplingTimer;
+
+	setPlayState(other_play_state);
+
 	return *this;
 }
 
@@ -82,7 +83,6 @@ void Recording::update()
 	{
 		mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
 		AccumulatorBufferGroup* buffers = mBuffers.write();
-		buffers->flush();
 		LLTrace::get_thread_recorder()->bringUpToDate(buffers);
 
 		mSamplingTimer.reset();
@@ -107,7 +107,6 @@ void Recording::handleStop()
 {
 	mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
 	AccumulatorBufferGroup* buffers = mBuffers.write();
-	buffers->flush();
 	LLTrace::get_thread_recorder()->deactivate(buffers);
 }
 
