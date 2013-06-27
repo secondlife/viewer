@@ -75,6 +75,9 @@ class LLSocialPhotoPanel : public LLPanel
 		LLUICtrl* mThumbnailPlaceholder;
 
 		bool mNeedRefresh;
+
+private:
+	LLUICtrl* mPostButton;
 };
 
 class LLSocialCheckinPanel : public LLPanel
@@ -87,6 +90,7 @@ public:
 private:
     std::string mMapUrl;
     LLPointer<LLViewerFetchedTexture> mMapTexture;
+	LLUICtrl* mPostButton;
     LLUICtrl* mMapLoadingIndicator;
     LLIconCtrl* mMapPlaceholder;
     LLCheckBoxCtrl* mMapCheckBox;
