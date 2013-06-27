@@ -76,7 +76,6 @@
 #include "llviewershadermgr.h"
 #include "llvoavatar.h"
 #include "llvocache.h"
-#include "llappearancemgr.h"
 
 const S32 MIN_QUIET_FRAMES_COALESCE = 30;
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
@@ -4240,8 +4239,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	{
 		LLFastTimer t(FTM_REBUILD_VOLUME_FACE_LIST);
 
-		bool requiredAppearanceUpdate = false;
-
 		//get all the faces into a list
 		for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 		{
@@ -4340,7 +4337,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 								const int jointCnt = pSkinData->mJointNames.size();
 								const F32 pelvisZOffset = pSkinData->mPelvisOffset;
 								bool fullRig = (jointCnt>=20) ? true : false;
-								requiredAppearanceUpdate = true;
 								if ( fullRig )
 								{
 									for ( int i=0; i<jointCnt; ++i )
@@ -4365,14 +4361,12 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 													pelvisGotSet = true;											
 												}										
 											}										
-										}									
+										}
 									}
 								}							
 							}
 						}
-					}					
-					
-
+					}
 					//If we've set the pelvis to a new position we need to also rebuild some information that the
 					//viewer does at launch (e.g. body size etc.)
 					if ( pelvisGotSet )
@@ -4611,11 +4605,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			{
 				drawablep->clearState(LLDrawable::RIGGED);
 			}
-		}
-
-		if ( requiredAppearanceUpdate && gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion() ) 
-		{ 
-			LLAppearanceMgr::instance().requestServerAppearanceUpdate();
 		}
 	}
 

@@ -3685,7 +3685,8 @@ void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 		   // we have to pass do_update = true to call LLAppearanceMgr::updateAppearanceFromCOF.
 		   // it will trigger gAgentWariables.notifyLoadingFinished()
 		   // But it is not acceptable solution. See EXT-7777
-		   LLAppearanceMgr::addCOFItemLink(item_id);  // Add COF link for item.
+		   LLPointer<LLInventoryCallback> cb = new LLUpdateAppearanceOnDestroy();
+		   LLAppearanceMgr::addCOFItemLink(item_id, cb);  // Add COF link for item.
 	   }
 	   else
 	   {
