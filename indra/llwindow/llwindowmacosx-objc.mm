@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llwindowmacosx-objc.mm
  * @brief Definition of functions shared between llwindowmacosx.cpp
  * and llwindowmacosx-objc.mm.
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -52,10 +52,10 @@ void setupCocoa()
 		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 		
 		// The following prevents the Cocoa command line parser from trying to open 'unknown' arguements as documents.
-		// ie. running './secondlife -set Language fr' would cause a pop-up saying can't open document 'fr' 
-		// when init'ing the Cocoa App window.		
+		// ie. running './secondlife -set Language fr' would cause a pop-up saying can't open document 'fr'
+		// when init'ing the Cocoa App window.
 		[[NSUserDefaults standardUserDefaults] setObject:@"NO" forKey:@"NSTreatUnknownArgumentsAsOpen"];
-
+		
 		[pool release];
 		
 		inited = true;
@@ -100,17 +100,17 @@ const unsigned short *copyFromPBoard()
 CursorRef createImageCursor(const char *fullpath, int hotspotX, int hotspotY)
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
+	
 	// extra retain on the NSCursor since we want it to live for the lifetime of the app.
 	NSCursor *cursor =
-		[[[NSCursor alloc] 
-				initWithImage:
-					[[[NSImage alloc] initWithContentsOfFile:
-						[NSString stringWithFormat:@"%s", fullpath]
-					]autorelease] 
-				hotSpot:NSMakePoint(hotspotX, hotspotY)
-		]retain];	
-		
+	[[[NSCursor alloc]
+	  initWithImage:
+	  [[[NSImage alloc] initWithContentsOfFile:
+		[NSString stringWithFormat:@"%s", fullpath]
+		]autorelease]
+	  hotSpot:NSMakePoint(hotspotX, hotspotY)
+	  ]retain];
+	
 	[pool release];
 	
 	return (CursorRef)cursor;
@@ -209,7 +209,7 @@ OSErr setImageCursor(CursorRef ref)
 NSWindowRef createNSWindow(int x, int y, int width, int height)
 {
 	LLNSWindow *window = [[LLNSWindow alloc]initWithContentRect:NSMakeRect(x, y, width, height)
-						styleMask:NSTitledWindowMask | NSResizableWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSTexturedBackgroundWindowMask backing:NSBackingStoreBuffered defer:NO];
+													  styleMask:NSTitledWindowMask | NSResizableWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSTexturedBackgroundWindowMask backing:NSBackingStoreBuffered defer:NO];
 	[window makeKeyAndOrderFront:nil];
 	[window setAcceptsMouseMovedEvents:TRUE];
 	return window;
@@ -391,13 +391,13 @@ void makeFirstResponder(NSWindowRef window, GLViewRef view)
 }
 
 /*
-GLViewRef getGLView()
-{
-	return [(LLAppDelegate*)[[NSApplication sharedApplication] delegate] glview];
-}
-*/
+ GLViewRef getGLView()
+ {
+ return [(LLAppDelegate*)[[NSApplication sharedApplication] delegate] glview];
+ }
+ */
 
 unsigned int getModifiers()
-{	
+{
 	return [NSEvent modifierFlags];
 }
