@@ -35,8 +35,7 @@
 #include "llfacebookconnect.h"
 #include "llfloaterreg.h"
 #include "lliconctrl.h"
-#include "llresmgr.h"		// LLLocale
-#include "llsdserialize.h"
+#include "llloadingindicator.h"
 #include "llslurl.h"
 #include "llviewerregion.h"
 #include "llviewercontrol.h"
@@ -396,9 +395,59 @@ void LLSocialPhotoPanel::onSend()
 }
 
 
-LLSocialCheckinPanel::LLSocialCheckinPanel()
+LLSocialCheckinPanel::LLSocialCheckinPanel() :
+    mMapUrl(""),
+    mReloadingMapTexture(false)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendCheckin", boost::bind(&LLSocialCheckinPanel::onSend, this));
+}
+
+BOOL LLSocialCheckinPanel::postBuild()
+{
+    // Keep pointers to widgets so we don't traverse the UI hierarchy too often
+    mMapLoadingIndicator = getChild<LLUICtrl>("map_loading_indicator");
+    mMapPlaceholder = getChild<LLIconCtrl>("map_placeholder");
+    mMapCheckBox = getChild<LLCheckBoxCtrl>("add_place_view_cb");
+    mMapCheckBoxValue = mMapCheckBox->get();
+    
+	return LLPanel::postBuild();
+}
+
+void LLSocialCheckinPanel::draw()
+{
+    std::string map_url = get_map_url();
+    // Did we change location?
+    if (map_url != mMapUrl)
+    {
+        mMapUrl = map_url;
+        // Load the map tile
+        mMapTexture = LLViewerTextureManager::getFetchedTextureFromUrl(mMapUrl, FTT_MAP_TILE, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+        mMapTexture->setBoostLevel(LLGLTexture::BOOST_MAP);
+        mReloadingMapTexture = true;
+        // In the meantime, put the "loading" indicator on, hide the tile map and disable the checkbox
+        mMapLoadingIndicator->setVisible(true);
+        mMapPlaceholder->setVisible(false);
+        mMapCheckBoxValue = mMapCheckBox->get();
+        mMapCheckBox->set(false);
+        mMapCheckBox->setEnabled(false);
+    }
+    // Are we done loading the map tile?
+    if (mReloadingMapTexture && mMapTexture->isFullyLoaded())
+    {
+        // Don't do it again next time around
+        mReloadingMapTexture = false;
+        // Convert the map texture to the appropriate image object
+        LLPointer<LLUIImage> ui_image = new LLUIImage(mMapUrl, mMapTexture);
+        // Load the map widget with the correct map tile image
+        mMapPlaceholder->setImage(ui_image);
+        // Now hide the loading indicator, bring the tile in view and reenable the checkbox with its previous value
+        mMapLoadingIndicator->setVisible(false);
+        mMapPlaceholder->setVisible(true);
+        mMapCheckBox->setEnabled(true);
+        mMapCheckBox->set(mMapCheckBoxValue);
+    }
+    
+	LLPanel::draw();
 }
 
 void LLSocialCheckinPanel::onSend()
@@ -435,8 +484,6 @@ void LLSocialCheckinPanel::onSend()
 
 
 LLFloaterSocial::LLFloaterSocial(const LLSD& key) : LLFloater(key),
-    mMapUrl(""),
-    mReloadingMapTexture(false),
     mSocialPhotoPanel(NULL)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.Cancel", boost::bind(&LLFloaterSocial::onCancel, this));
@@ -450,36 +497,12 @@ void LLFloaterSocial::onCancel()
 BOOL LLFloaterSocial::postBuild()
 {
 	mSocialPhotoPanel = static_cast<LLSocialPhotoPanel*>(getChild<LLUICtrl>("social_photo_tab"));
-    // Keep a pointer to the map tile placeholder texture
-    mMapPlaceholder = getChild<LLIconCtrl>("map_placeholder")->getImage();
 	return LLFloater::postBuild();
 }
 
 /*virtual*/
 void LLFloaterSocial::draw()
 {
-    std::string map_url = get_map_url();
-    // Did we change location?
-    if (map_url != mMapUrl)
-    {
-        mMapUrl = map_url;
-        // Load the map tile
-        mMapTexture = LLViewerTextureManager::getFetchedTextureFromUrl(mMapUrl, FTT_MAP_TILE, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-        mMapTexture->setBoostLevel(LLGLTexture::BOOST_MAP);
-        mReloadingMapTexture = true;
-        // In the meantime, put back the "loading" placeholder in the map widget
-        getChild<LLIconCtrl>("map_placeholder")->setImage(mMapPlaceholder);
-    }
-    // Are we done loading the map tile?
-    if (mReloadingMapTexture && mMapTexture->isFullyLoaded())
-    {
-        // Don't do it again next time around
-        mReloadingMapTexture = false;
-        // Convert the map texture to the appropriate image object
-        LLPointer<LLUIImage> ui_image = new LLUIImage(mMapUrl, mMapTexture);
-        // Point map widget to correct map tile
-        getChild<LLIconCtrl>("map_placeholder")->setImage(ui_image);
-    }
     LLFloater::draw();
 }
 

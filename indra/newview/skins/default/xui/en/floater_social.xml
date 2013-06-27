@@ -379,16 +379,25 @@
           <layout_panel
             name="place_map_panel"
             height="133">
-            <icon
+              <loading_indicator
               follows="left|top"
-              height="128"
-              width="128"
-              image_name="Map_Placeholder_Icon"
-              layout="topleft"
-              top="5"
-              left="9"
-              name="map_placeholder">
-            </icon>
+              height="24"
+              width="24"
+              name="map_loading_indicator"
+              top="57"
+              left="61"
+              visible="true"/>
+              <icon
+                follows="left|top"
+                height="128"
+                width="128"
+                image_name="Map_Placeholder_Icon"
+                layout="topleft"
+                top="5"
+                left="9"
+                visible="false"
+                name="map_placeholder">
+              </icon>
             <check_box
               follows="left|top"
               initial_value="true"
