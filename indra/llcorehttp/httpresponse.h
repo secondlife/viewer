@@ -147,8 +147,14 @@ public:
 	/// Get and set retry attempt information on the request.
 	void getRetries(unsigned int * retries, unsigned int * retries_503) const
 		{
-			*retries = mRetries;
-			*retries_503 = m503Retries;
+			if (retries)
+			{
+				*retries = mRetries;
+			}
+			if (retries_503)
+			{
+				*retries_503 = m503Retries;
+			}
 		}
 
 	void setRetries(unsigned int retries, unsigned int retries_503)

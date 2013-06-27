@@ -221,8 +221,8 @@ class LLMeshRepoThread : public LLThread
 {
 public:
 
-	static S32 sActiveHeaderRequests;
-	static S32 sActiveLODRequests;
+	volatile static S32 sActiveHeaderRequests;
+	volatile static S32 sActiveLODRequests;
 	static U32 sMaxConcurrentRequests;
 	static S32 sRequestLowWater;
 	static S32 sRequestHighWater;
@@ -323,6 +323,8 @@ public:
 	pending_lod_map mPendingLOD;
 
 	// llcorehttp library interface objects.
+	LLCore::HttpStatus					mHttpStatus;
+	unsigned int						mHttpRetries;
 	LLCore::HttpRequest *				mHttpRequest;
 	LLCore::HttpOptions *				mHttpOptions;
 	LLCore::HttpOptions *				mHttpLargeOptions;
