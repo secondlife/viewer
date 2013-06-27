@@ -84,7 +84,7 @@ void LLSocialStatusPanel::draw()
 	if (mMessageTextEditor && mPostStatusButton)
 	{
 		std::string message = mMessageTextEditor->getValue().asString();
-		mPostStatusButton->setEnabled(!message.empty());
+		mPostStatusButton->setEnabled(!message.empty() && LLFacebookConnect::instance().isConnected());
 	}
 
 	LLPanel::draw();
@@ -128,6 +128,7 @@ LLSocialPhotoPanel::~LLSocialPhotoPanel()
 
 BOOL LLSocialPhotoPanel::postBuild()
 {
+	mPostButton = getChild<LLUICtrl>("post_btn");
 	mResolutionComboBox = getChild<LLUICtrl>("resolution_combobox");
 	mResolutionComboBox->setCommitCallback(boost::bind(&LLSocialPhotoPanel::onResolutionComboCommit, this));
 	mRefreshBtn = getChild<LLUICtrl>("new_snapshot_btn");
@@ -261,11 +262,8 @@ LLSnapshotLivePreview* LLSocialPhotoPanel::getPreviewView()
 	return previewp;
 }
 
-
 void LLSocialPhotoPanel::updateControls()
 {
-
-
 	LLSnapshotLivePreview* previewp = getPreviewView();
 	BOOL got_bytes = previewp && previewp->getDataSize() > 0;
 	BOOL got_snap = previewp && previewp->getSnapshotUpToDate();
@@ -368,6 +366,8 @@ void LLSocialPhotoPanel::draw()
 		mThumbnailPlaceholder->draw();
 		gGL.popUIMatrix();
 	}
+
+    mPostButton->setEnabled(LLFacebookConnect::instance().isConnected());
 }
 
 void LLSocialPhotoPanel::onSend()
@@ -409,6 +409,7 @@ LLSocialCheckinPanel::LLSocialCheckinPanel() :
 BOOL LLSocialCheckinPanel::postBuild()
 {
     // Keep pointers to widgets so we don't traverse the UI hierarchy too often
+	mPostButton = getChild<LLUICtrl>("post_place_btn");
     mMapLoadingIndicator = getChild<LLUICtrl>("map_loading_indicator");
     mMapPlaceholder = getChild<LLIconCtrl>("map_placeholder");
     mMapCheckBox = getChild<LLCheckBoxCtrl>("add_place_view_cb");
@@ -450,6 +451,7 @@ void LLSocialCheckinPanel::draw()
         mMapCheckBox->setEnabled(true);
         mMapCheckBox->set(mMapCheckBoxValue);
     }
+    mPostButton->setEnabled(LLFacebookConnect::instance().isConnected());
     
 	LLPanel::draw();
 }
@@ -500,6 +502,9 @@ void LLFloaterSocial::onCancel()
 
 BOOL LLFloaterSocial::postBuild()
 {
+    // Initiate a connection to Facebook (getConnectionToFacebook() handles the already connected state)
+    LLFacebookConnect::instance().getConnectionToFacebook();
+    // Keep tab of the Photo Panel
 	mSocialPhotoPanel = static_cast<LLSocialPhotoPanel*>(getChild<LLUICtrl>("social_photo_tab"));
 	return LLFloater::postBuild();
 }
