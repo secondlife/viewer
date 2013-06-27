@@ -32,7 +32,7 @@
 #define MAX_PATH MAXPATHLEN
 #endif
 
-// these numbers *may* get serialized (really??), so we need to be explicit
+// these numbers are read from settings_files.xml, so we need to be explicit
 typedef enum ELLPath
 {
 	LL_PATH_NONE = 0,
