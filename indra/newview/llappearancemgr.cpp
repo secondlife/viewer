@@ -2874,6 +2874,8 @@ bool LLAppearanceMgr::updateBaseOutfit()
 
 	LLPointer<LLInventoryCallback> cb =
 		new LLBoostFuncInventoryCallback(no_op_inventory_func, update_base_outfit_after_ordering);
+	// Really shouldn't be needed unless there's a race condition -
+	// updateAppearanceFromCOF() already calls updateClothingOrderingInfo.
 	updateClothingOrderingInfo(LLUUID::null, cb);
 
 	return true;
