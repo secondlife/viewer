@@ -27,62 +27,13 @@
 #ifndef LL_LLSNAPSHOTLIVEPREVIEW_H
 #define LL_LLSNAPSHOTLIVEPREVIEW_H
 
-#include "llfloaterreg.h"
-
-// Viewer includes
-#include "llagent.h"
-#include "llagentcamera.h"
-#include "llcallbacklist.h"
-#include "llcriticaldamp.h"
-#include "llfloaterperms.h"
-#include "llui.h"
-#include "llfacebookconnect.h"
-#include "llfocusmgr.h"
-#include "llbutton.h"
-#include "llcombobox.h"
-#include "lleconomy.h"
-#include "lllandmarkactions.h"
-#include "llpanelsnapshot.h"
-#include "llsidetraypanelcontainer.h"
-#include "llsliderctrl.h"
-#include "llspinctrl.h"
-#include "llviewercontrol.h"
-#include "lluictrlfactory.h"
-#include "llviewerstats.h"
-#include "llviewercamera.h"
-#include "llviewerwindow.h"
-#include "llviewermenufile.h"	// upload_new_resource()
-#include "llcheckboxctrl.h"
-#include "llslurl.h"
-#include "lltoolfocus.h"
-#include "lltoolmgr.h"
-#include "llwebsharing.h"
-#include "llworld.h"
-#include "llagentui.h"
-
-// Linden library includes
-#include "llfontgl.h"
-#include "llsys.h"
-#include "llrender.h"
-#include "v3dmath.h"
-#include "llmath.h"
-#include "lldir.h"
-#include "llsdserialize.h"
-#include "llgl.h"
-#include "llglheaders.h"
-#include "llimagejpeg.h"
-#include "llimagepng.h"
 #include "llimagebmp.h"
 #include "llimagej2c.h"
-#include "lllocalcliprect.h"
-#include "llnotificationsutil.h"
-#include "llpostcard.h"
-#include "llresmgr.h"		// LLLocale
-#include "llvfile.h"
-#include "llvfs.h"
-#include "llwebprofile.h"
-#include "llwindow.h"
-
+#include "llimagejpeg.h"
+#include "llimagepng.h"
+#include "llpanelsnapshot.h"
+#include "llviewerwindow.h"
+#include "llworld.h"
 
 ///----------------------------------------------------------------------------
 /// Class LLSnapshotLivePreview 

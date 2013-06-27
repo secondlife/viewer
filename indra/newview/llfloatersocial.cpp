@@ -31,9 +31,12 @@
 
 #include "llagent.h"
 #include "llagentui.h"
+#include "llcombobox.h"
 #include "llfacebookconnect.h"
 #include "llfloaterreg.h"
 #include "lliconctrl.h"
+#include "llresmgr.h"		// LLLocale
+#include "llsdserialize.h"
 #include "llslurl.h"
 #include "llviewerregion.h"
 #include "llviewercontrol.h"

@@ -27,9 +27,27 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llsnapshotlivepreview.h"
-
+#include "llagent.h"
+#include "llagentcamera.h"
+#include "llagentui.h"
+#include "llcombobox.h"
+#include "lleconomy.h"
+#include "llfloaterperms.h"
+#include "llfloaterreg.h"
 #include "llfloatersocial.h"
+#include "lllandmarkactions.h"
+#include "lllocalcliprect.h"
+#include "llnotificationsutil.h"
+#include "llslurl.h"
+#include "llsnapshotlivepreview.h"
+#include "lltoolfocus.h"
+#include "llviewercontrol.h"
+#include "llviewermenufile.h"	// upload_new_resource()
+#include "llviewerstats.h"
+#include "llvfile.h"
+#include "llvfs.h"
+#include "llwebsharing.h"
+#include "llwindow.h"
 
 const F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
 
