@@ -128,6 +128,8 @@ LLSocialPhotoPanel::~LLSocialPhotoPanel()
 
 BOOL LLSocialPhotoPanel::postBuild()
 {
+	setVisibleCallback(boost::bind(&LLSocialPhotoPanel::onVisibilityChange, this, _2));
+
 	mPostButton = getChild<LLUICtrl>("post_btn");
 	mResolutionComboBox = getChild<LLUICtrl>("resolution_combobox");
 	mResolutionComboBox->setCommitCallback(boost::bind(&LLSocialPhotoPanel::onResolutionComboCommit, this));
@@ -137,17 +139,6 @@ BOOL LLSocialPhotoPanel::postBuild()
 	mSucceessLblPanel = getChild<LLUICtrl>("succeeded_panel");
 	mFailureLblPanel = getChild<LLUICtrl>("failed_panel");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
-	
-	LLRect full_screen_rect = getRootView()->getRect();
-	LLSnapshotLivePreview::Params p;
-	p.rect(full_screen_rect);
-	LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
-	mPreviewHandle = previewp->getHandle();	
-
-	previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
-	previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
-	//previewp->setSnapshotQuality(98);
-	previewp->setThumbnailPlaceholderRect(getThumbnailPlaceholderRect());
 	
 	return LLPanel::postBuild();
 }
@@ -291,6 +282,26 @@ void LLSocialPhotoPanel::updateControls()
 	LLComboBox* combo = getChild<LLComboBox>("resolution_combobox");
 	LLFloaterSocial* instance = LLFloaterReg::findTypedInstance<LLFloaterSocial>("social");
 	updateResolution(combo, instance, FALSE);
+}
+
+void LLSocialPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
+{
+	bool visible = new_visibility.asBoolean();
+	if (visible && !mPreviewHandle.get())
+	{
+		LLRect full_screen_rect = getRootView()->getRect();
+		LLSnapshotLivePreview::Params p;
+		p.rect(full_screen_rect);
+		LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
+		mPreviewHandle = previewp->getHandle();	
+
+		previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
+		previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
+		//previewp->setSnapshotQuality(98);
+		previewp->setThumbnailPlaceholderRect(getThumbnailPlaceholderRect());
+
+		updateControls();
+	}
 }
 
 void LLSocialPhotoPanel::draw()

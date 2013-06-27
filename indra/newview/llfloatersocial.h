@@ -70,6 +70,7 @@ class LLSocialPhotoPanel : public LLPanel
 		LLSnapshotLivePreview* getPreviewView();
 
 		void updateControls();
+		void onVisibilityChange(const LLSD& new_visibility);
 
 		LLUICtrl * mResolutionComboBox;
 		LLUICtrl *mRefreshBtn, *mRefreshLabel;
