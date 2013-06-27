@@ -31,7 +31,8 @@
 #include "llpreprocessor.h"
 
 #include "llmutex.h"
-#include "lltracerecording.h"
+#include "lltraceaccumulators.h"
+#include "llthreadlocalstorage.h"
 
 namespace LLTrace
 {
@@ -45,9 +46,9 @@ namespace LLTrace
 
 		virtual ~ThreadRecorder();
 
-		void activate(Recording* recording);
-		void deactivate(Recording* recording);
-		active_recording_list_t::reverse_iterator bringUpToDate(Recording* recording);
+		void activate(AccumulatorBufferGroup* recording);
+		void deactivate(AccumulatorBufferGroup* recording);
+		active_recording_list_t::reverse_iterator bringUpToDate(AccumulatorBufferGroup* recording);
 
 		virtual void pushToMaster() = 0;
 
@@ -56,20 +57,21 @@ namespace LLTrace
 	protected:
 		struct ActiveRecording
 		{
-			ActiveRecording(Recording* target);
+			ActiveRecording(AccumulatorBufferGroup* target);
 
-			Recording*			mTargetRecording;
-			RecordingBuffers	mPartialRecording;
+			AccumulatorBufferGroup*	mTargetRecording;
+			AccumulatorBufferGroup	mPartialRecording;
 
 			void movePartialToTarget();
 		};
-		Recording					mThreadRecording;
+		AccumulatorBufferGroup			mThreadRecordingBuffers;
 
 		active_recording_list_t		mActiveRecordings;
 
 		class BlockTimer*			mRootTimer;
 		TimeBlockTreeNode*			mTimeBlockTreeNodes;
 		size_t						mNumTimeBlockTreeNodes;
+		BlockTimerStackRecord		mBlockTimerStackRecord;
 	};
 
 	class LL_COMMON_API MasterThreadRecorder : public ThreadRecorder
@@ -84,9 +86,6 @@ namespace LLTrace
 
 		// call this periodically to gather stats data from slave threads
 		void pullFromSlaveThreads();
-
-		LLMutex* getSlaveListMutex() { return &mSlaveListMutex; }
-
 
 	private:
 
@@ -105,22 +104,20 @@ namespace LLTrace
 		// call this periodically to gather stats data for master thread to consume
 		/*virtual*/ void pushToMaster();
 
-		MasterThreadRecorder* 	mMaster;
-
-		class SharedData : public Recording
-		{
-		public:
-			void appendFrom(const Recording& source);
-			void appendTo(Recording& sink);
-			void mergeFrom(const RecordingBuffers& source);
-			void mergeTo(RecordingBuffers& sink);
-			void reset();
-		private:
-			LLMutex		mRecordingMutex;
-		};
-		SharedData				mSharedData;
+	private:
+		friend class MasterThreadRecorder;
+		LLMutex					mSharedRecordingMutex;
+		AccumulatorBufferGroup	mSharedRecordingBuffers;
 		MasterThreadRecorder&	mMasterRecorder;
 	};
+
+	//FIXME: let user code set up thread recorder topology
+	extern MasterThreadRecorder* gUIThreadRecorder ;
+
+	const LLThreadLocalPointer<class ThreadRecorder>& get_thread_recorder();
+	void set_thread_recorder(class ThreadRecorder*);
+	class MasterThreadRecorder& getUIThreadRecorder();
+
 }
 
 #endif // LL_LLTRACETHREADRECORDER_H

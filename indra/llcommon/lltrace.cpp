@@ -35,8 +35,6 @@ static S32 sInitializationCount = 0;
 namespace LLTrace
 {
 
-static MasterThreadRecorder* gUIThreadRecorder = NULL;
-
 void init()
 {
 	if (sInitializationCount++ == 0)
@@ -57,28 +55,6 @@ void cleanup()
 		delete gUIThreadRecorder;
 		gUIThreadRecorder = NULL;
 	}
-}
-
-MasterThreadRecorder& getUIThreadRecorder()
-{
-	llassert(gUIThreadRecorder != NULL);
-	return *gUIThreadRecorder;
-}
-
-LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder_ptr()
-{
-	static LLThreadLocalPointer<ThreadRecorder> s_thread_recorder;
-	return s_thread_recorder;
-}
-
-const LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder()
-{
-	return get_thread_recorder_ptr();
-}
-
-void set_thread_recorder(ThreadRecorder* recorder)
-{
-	get_thread_recorder_ptr() = recorder;
 }
 
 

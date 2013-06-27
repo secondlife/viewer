@@ -314,9 +314,9 @@ void LLViewerAssetStats::handleStop()
 }
 
 void LLViewerAssetStats::handleReset()
-	{
+{
 	reset();
-	}
+}
 
 
 void LLViewerAssetStats::reset()
@@ -328,6 +328,7 @@ void LLViewerAssetStats::reset()
 	if (mRegionHandle)
 	{
 		mCurRecording = &mRegionRecordings[mRegionHandle];
+		mCurRecording->setPlayState(getPlayState());
 	}
 }
 
@@ -346,7 +347,7 @@ void LLViewerAssetStats::setRegion(region_handle_t region_handle)
 	if (region_handle)
 	{
 		mCurRecording = &mRegionRecordings[region_handle];
-		mCurRecording->start();
+		mCurRecording->setPlayState(getPlayState());
 	}
 
 	mRegionHandle = region_handle;
@@ -493,19 +494,19 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 }
 
 LLSD LLViewerAssetStats::asLLSD(bool compact_output)
-		{
+{
 	LLParamSDParser parser;
 	LLSD sd;
 	AssetStats stats;
 	getStats(stats, compact_output);
 	LLInitParam::predicate_rule_t rule = LLInitParam::default_parse_rules();
 	if (!compact_output)
-		{
+	{
 		rule.allow(LLInitParam::EMPTY);
-		}
+	}
 	parser.writeSD(sd, stats, rule);
 	return sd;
-	}
+}
 
 // ------------------------------------------------------
 // Global free-function definitions (LLViewerAssetStatsFF namespace)

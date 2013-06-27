@@ -260,14 +260,7 @@ void LLSceneMonitor::capture()
 	static LLCachedControl<bool> monitor_enabled(gSavedSettings, "SceneLoadingMonitorEnabled");
 	static LLCachedControl<F32>  scene_load_sample_time(gSavedSettings, "SceneLoadingMonitorSampleTime");
 	static LLFrameTimer timer;	
-
-	if (mEnabled 
-		&&	(mMonitorRecording.getSum(*LLViewerCamera::getVelocityStat()) > 0.1f
-			|| mMonitorRecording.getSum(*LLViewerCamera::getAngularVelocityStat()) > 0.05f))
-	{
-		reset();
-		freezeScene();
-	}
+	static bool force_capture = true;
 
 	bool enabled = monitor_enabled || mDebugViewerVisible;
 	if(mEnabled != enabled)
@@ -275,6 +268,7 @@ void LLSceneMonitor::capture()
 		if(mEnabled)
 		{
 			unfreezeScene();
+			force_capture = true;
 		}
 		else
 		{
@@ -285,11 +279,23 @@ void LLSceneMonitor::capture()
 		mEnabled = enabled;
 	}
 
-	if(timer.getElapsedTimeF32() > scene_load_sample_time()
+	if (mEnabled 
+		&&	(mMonitorRecording.getSum(*LLViewerCamera::getVelocityStat()) > 0.1f
+		|| mMonitorRecording.getSum(*LLViewerCamera::getAngularVelocityStat()) > 0.05f))
+	{
+		reset();
+		freezeScene();
+		force_capture = true;
+	}
+
+	if((timer.getElapsedTimeF32() > scene_load_sample_time() 
+			|| force_capture)
 		&& mEnabled
 		&& LLGLSLShader::sNoFixedFunction
 		&& last_capture_time != gFrameCount)
 	{
+		force_capture = false;
+
 		mSceneLoadRecording.resume();
 		mMonitorRecording.resume();
 
@@ -479,12 +485,10 @@ void LLSceneMonitor::fetchQueryResult()
 			if(mDiffResult > diff_threshold())
 			{
 				mSceneLoadRecording.extend();
-				llassert(mSceneLoadRecording.getAcceptedRecording().getLastRecording().getSum(LLStatViewer::FPS));
 			}
 			else
 			{
 				mSceneLoadRecording.getPotentialRecording().nextPeriod();
-				llassert(mSceneLoadRecording.getPotentialRecording().getLastRecording().getSum(LLStatViewer::FPS));
 			}
 		}
 	}

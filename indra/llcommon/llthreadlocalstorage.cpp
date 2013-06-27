@@ -88,6 +88,7 @@ void LLThreadLocalPointerBase::destroyStorage()
 	}
 }
 
+//static
 void LLThreadLocalPointerBase::initAllThreadLocalStorage()
 {
 	if (!sInitialized)
@@ -102,6 +103,7 @@ void LLThreadLocalPointerBase::initAllThreadLocalStorage()
 	}
 }
 
+//static
 void LLThreadLocalPointerBase::destroyAllThreadLocalStorage()
 {
 	if (sInitialized)

@@ -106,6 +106,7 @@ LLFrameTimer gRecentMemoryTime;
 void pre_show_depth_buffer();
 void post_show_depth_buffer();
 void render_ui(F32 zoom_factor = 1.f, int subfield = 0);
+void swap();
 void render_hud_attachments();
 void render_ui_3d();
 void render_ui_2d();
@@ -344,7 +345,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	// Bail out if we're in the startup state and don't want to try to
 	// render the world.
 	//
-	if (LLStartUp::getStartupState() < STATE_STARTED)
+	if (LLStartUp::getStartupState() < STATE_WEARABLES_WAIT)
 	{
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Startup");
 		display_startup();
@@ -553,6 +554,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	{
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Disconnected");
 		render_ui();
+		swap();
 	}
 	
 	//////////////////////////
@@ -1021,6 +1023,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		{
 			LLFastTimer t(FTM_RENDER_UI);
 			render_ui();
+			swap();
 		}
 
 		
@@ -1244,8 +1247,6 @@ BOOL setup_hud_matrices(const LLRect& screen_region)
 	return TRUE;
 }
 
-static LLFastTimer::DeclareTimer FTM_SWAP("Swap");
-
 void render_ui(F32 zoom_factor, int subfield)
 {
 	LLGLState::checkStates();
@@ -1322,10 +1323,16 @@ void render_ui(F32 zoom_factor, int subfield)
 		glh_set_current_modelview(saved_view);
 		gGL.popMatrix();
 	}
+}
+
+static LLFastTimer::DeclareTimer FTM_SWAP("Swap");
+
+void swap()
+{
+	LLFastTimer t(FTM_SWAP);
 
 	if (gDisplaySwapBuffers)
 	{
-		LLFastTimer t(FTM_SWAP);
 		gViewerWindow->getWindow()->swapBuffers();
 	}
 	gDisplaySwapBuffers = TRUE;

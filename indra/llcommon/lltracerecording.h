@@ -32,7 +32,7 @@
 
 #include "llpointer.h"
 #include "lltimer.h"
-#include "lltrace.h"
+#include "lltraceaccumulators.h"
 
 class LLStopWatchControlsMixinCommon
 {
@@ -81,6 +81,7 @@ class LLStopWatchControlsMixin
 :	public LLStopWatchControlsMixinCommon
 {
 public:
+
 	typedef LLStopWatchControlsMixin<DERIVED> self_t;
 	virtual void splitTo(DERIVED& other)
 	{
@@ -98,6 +99,11 @@ public:
 		static_cast<self_t&>(other).handleSplitTo(*static_cast<DERIVED*>(this));
 	}
 private:
+	self_t& operator = (const self_t& other)
+	{
+		// don't do anything, derived class must implement logic
+	}
+
 	// atomically stop this object while starting the other
 	// no data can be missed in between stop and start
 	virtual void handleSplitTo(DERIVED& other) {};
@@ -106,26 +112,6 @@ private:
 
 namespace LLTrace
 {
-	struct RecordingBuffers : public LLRefCount
-	{
-		RecordingBuffers();
-
-		void handOffTo(RecordingBuffers& other);
-		void makePrimary();
-		bool isPrimary() const;
-
-		void append(const RecordingBuffers& other);
-		void merge(const RecordingBuffers& other);
-		void reset(RecordingBuffers* other = NULL);
-		void flush();
-
-		AccumulatorBuffer<CountAccumulator>	 			mCounts;
-		AccumulatorBuffer<SampleAccumulator>			mSamples;
-		AccumulatorBuffer<EventAccumulator>				mEvents;
-		AccumulatorBuffer<TimeBlockAccumulator> 		mStackTimers;
-		AccumulatorBuffer<MemStatAccumulator> 			mMemStats;
-	};
-
 	class Recording 
 	:	public LLStopWatchControlsMixin<Recording>
 	{
@@ -138,10 +124,7 @@ namespace LLTrace
 		Recording& operator = (const Recording& other);
 
 		// accumulate data from subsequent, non-overlapping recording
-		void appendRecording(const Recording& other);
-
-		// gather data from recording, ignoring time relationship (for example, pulling data from slave threads)
-		void mergeRecording(const Recording& other);
+		void appendRecording(Recording& other);
 
 		// grab latest recorded data
 		void update();
@@ -291,7 +274,7 @@ namespace LLTrace
 
 		LLTimer				mSamplingTimer;
 		LLUnit<F64, LLUnits::Seconds>			mElapsedSeconds;
-		LLCopyOnWritePointer<RecordingBuffers>	mBuffers;
+		LLCopyOnWritePointer<AccumulatorBufferGroup>	mBuffers;
 	};
 
 	class LL_COMMON_API PeriodicRecording
