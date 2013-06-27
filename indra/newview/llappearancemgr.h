@@ -208,6 +208,8 @@ public:
 
 	//Check ordering information on wearables stored in links' descriptions and update if it is invalid
 	// COF is processed if cat_id is not specified
+	bool validateClothingOrderingInfo(LLUUID cat_id = LLUUID::null);
+	
 	void updateClothingOrderingInfo(LLUUID cat_id = LLUUID::null,
 									LLPointer<LLInventoryCallback> cb = NULL);
 

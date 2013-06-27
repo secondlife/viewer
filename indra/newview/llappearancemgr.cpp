@@ -1821,7 +1821,8 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	getWearableOrderingDescUpdates(wear_items, desc_map);
 
 	// Will link all the above items.
-	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
+	// link_waiter enforce flags are false because we've already fixed everything up in updateCOF().
+	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy(false,false);
 	LLSD contents = LLSD::emptyArray();
 
 	for (LLInventoryModel::item_array_t::const_iterator it = all_items.begin();
@@ -2069,6 +2070,8 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
 		updateClothingOrderingInfo(LLUUID::null, cb);
 		return;
 	}
+
+	llassert(validateClothingOrderingInfo());
 
 	BoolSetter setIsInUpdateAppearanceFromCOF(mIsInUpdateAppearanceFromCOF);
 	selfStartPhase("update_appearance_from_cof");
@@ -2975,13 +2978,40 @@ void LLAppearanceMgr::getWearableOrderingDescUpdates(LLInventoryModel::item_arra
 			std::string new_order_str = build_order_string((LLWearableType::EType)type, i);
 			if (new_order_str == item->getActualDescription()) continue;
 			
-			LL_DEBUGS("Avatar") << item->getName() << " need to update desc to: " << new_order_str
-								<< " (from: " << item->getActualDescription() << ")" << llendl;
-
 			desc_map[item->getUUID()] = new_order_str;
 		}
 	}
 }
+
+bool LLAppearanceMgr::validateClothingOrderingInfo(LLUUID cat_id)
+{
+	// COF is processed if cat_id is not specified
+	if (cat_id.isNull())
+	{
+		cat_id = getCOF();
+	}
+
+	LLInventoryModel::item_array_t wear_items;
+	getDescendentsOfAssetType(cat_id, wear_items, LLAssetType::AT_CLOTHING);
+
+	// Identify items for which desc needs to change.
+	desc_map_t desc_map;
+	getWearableOrderingDescUpdates(wear_items, desc_map);
+
+	for (desc_map_t::const_iterator it = desc_map.begin();
+		 it != desc_map.end(); ++it)
+	{
+		const LLUUID& item_id = it->first;
+		const std::string& new_order_str = it->second;
+		LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		llwarns << "Order validation fails: " << item->getName()
+				<< " needs to update desc to: " << new_order_str
+				<< " (from: " << item->getActualDescription() << ")" << llendl;
+	}
+	
+	return desc_map.size() == 0;
+}
+
 void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id,
 												 LLPointer<LLInventoryCallback> cb)
 {
