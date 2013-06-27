@@ -137,7 +137,7 @@ BOOL LLSocialPhotoPanel::postBuild()
 	mSucceessLblPanel = getChild<LLUICtrl>("succeeded_panel");
 	mFailureLblPanel = getChild<LLUICtrl>("failed_panel");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
-
+	
 	LLRect full_screen_rect = getRootView()->getRect();
 	LLSnapshotLivePreview::Params p;
 	p.rect(full_screen_rect);
@@ -145,8 +145,10 @@ BOOL LLSocialPhotoPanel::postBuild()
 	mPreviewHandle = previewp->getHandle();	
 
 	previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
+	previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
+	//previewp->setSnapshotQuality(98);
 	previewp->setThumbnailPlaceholderRect(getThumbnailPlaceholderRect());
-
+	
 	return LLPanel::postBuild();
 }
 

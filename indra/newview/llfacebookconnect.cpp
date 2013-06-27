@@ -36,6 +36,7 @@
 #include "llnotificationsutil.h"
 #include "llurlaction.h"
 #include "llimagepng.h"
+#include "llimagejpeg.h"
 #include "lltrans.h"
 
 
@@ -352,14 +353,22 @@ void LLFacebookConnect::sharePhoto(const std::string& image_url, const std::stri
 
 void LLFacebookConnect::sharePhoto(LLPointer<LLImageFormatted> image, const std::string& caption)
 {
-	// All this code is mostly copied from LLWebProfile::post()
-	if (dynamic_cast<LLImagePNG*>(image.get()) == 0)
+	std::string imageFormat;
+	if (dynamic_cast<LLImagePNG*>(image.get()))
 	{
-		llwarns << "Image to upload is not a PNG" << llendl;
-		llassert(dynamic_cast<LLImagePNG*>(image.get()) != 0);
+		imageFormat = "png";
+	}
+	else if (dynamic_cast<LLImageJPEG*>(image.get()))
+	{
+		imageFormat = "jpg";
+	}
+	else
+	{
+		llwarns << "Image to upload is not a PNG or JPEG" << llendl;
 		return;
 	}
-
+	
+	// All this code is mostly copied from LLWebProfile::post()
 	const std::string boundary = "----------------------------0123abcdefab";
 
 	LLSD headers;
@@ -373,8 +382,8 @@ void LLFacebookConnect::sharePhoto(LLPointer<LLImageFormatted> image, const std:
 			<< caption << "\r\n";
 
 	body	<< "--" << boundary << "\r\n"
-			<< "Content-Disposition: form-data; name=\"image\"; filename=\"snapshot.png\"\r\n"
-			<< "Content-Type: image/png\r\n\r\n";
+			<< "Content-Disposition: form-data; name=\"image\"; filename=\"snapshot." << imageFormat << "\"\r\n"
+			<< "Content-Type: image/" << imageFormat << "\r\n\r\n";
 
 	// Insert the image data.
 	// *FIX: Treating this as a string will probably screw it up ...
