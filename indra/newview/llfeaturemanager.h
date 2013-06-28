@@ -134,8 +134,18 @@ public:
 	// skipFeatures forces skipping of mostly hardware settings
 	// that we don't want to change when we change graphics
 	// settings
-	void setGraphicsLevel(S32 level, bool skipFeatures);
-	
+	void setGraphicsLevel(U32 level, bool skipFeatures);
+
+	// What 'level' values are valid to pass to setGraphicsLevel()?
+	// 0 is the low end...
+	U32 getMaxGraphicsLevel() const;
+	bool isValidGraphicsLevel(U32 level) const;
+
+	// setGraphicsLevel() levels have names.
+	std::string getNameForGraphicsLevel(U32 level) const;
+	// returns -1 for unrecognized name (hence S32 rather than U32)
+	S32 getGraphicsLevelForName(const std::string& name) const;
+
 	void applyBaseMasks();
 	void applyRecommendedSettings();
 

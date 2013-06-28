@@ -2311,13 +2311,6 @@ bool LLAppViewer::initConfiguration()
 {	
 	//Load settings files list
 	std::string settings_file_list = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "settings_files.xml");
-	//LLControlGroup settings_control("SettingsFiles");
-	//llinfos << "Loading settings file list " << settings_file_list << llendl;
-	//if (0 == settings_control.loadFromFile(settings_file_list))
-	//{
- //       llerrs << "Cannot load default configuration file " << settings_file_list << llendl;
-	//}
-
 	LLXMLNodePtr root;
 	BOOL success  = LLXMLNode::parseFile(settings_file_list, root, NULL);
 	if (!success)
@@ -2376,9 +2369,7 @@ bool LLAppViewer::initConfiguration()
 	{
 		c->setValue(true, false);
 	}
-#endif
 
-#ifndef	LL_RELEASE_FOR_DOWNLOAD
 	gSavedSettings.setBOOL("QAMode", TRUE );
 	gSavedSettings.setS32("WatchdogEnabled", 0);
 #endif
@@ -2582,36 +2573,10 @@ bool LLAppViewer::initConfiguration()
 
 	if (clp.hasOption("graphicslevel"))
 	{
-		const LLCommandLineParser::token_vector_t& value = clp.getOption("graphicslevel");
-        if(value.size() != 1)
-        {
-			llwarns << "Usage: -graphicslevel <0-3>" << llendl;
-        }
-        else
-        {
-			std::string detail = value.front();
-			mForceGraphicsDetail = TRUE;
-			
-			switch (detail.c_str()[0])
-			{
-				case '0': 
-					gSavedSettings.setU32("RenderQualityPerformance", 0);		
-					break;
-				case '1': 
-					gSavedSettings.setU32("RenderQualityPerformance", 1);		
-					break;
-				case '2': 
-					gSavedSettings.setU32("RenderQualityPerformance", 2);		
-					break;
-				case '3': 
-					gSavedSettings.setU32("RenderQualityPerformance", 3);		
-					break;
-				default:
-					mForceGraphicsDetail = FALSE;
-					llwarns << "Usage: -graphicslevel <0-3>" << llendl;
-					break;
-			}
-        }
+		// User explicitly requested --graphicslevel on the command line.
+		// We expect this switch has already set RenderQualityPerformance.
+		mForceGraphicsDetail =
+			LLFeatureManager::instance().isValidGraphicsLevel(gSavedSettings.getU32("RenderQualityPerformance"));
 	}
 
 	if (clp.hasOption("analyzeperformance"))

@@ -96,6 +96,8 @@
 0 - low, 1 - medium, 2 - high, 3 - ultra</string>
       <key>count</key>
       <integer>1</integer>
+      <key>map-to</key>
+      <string>RenderQualityPerformance</string>
     </map>
 
     <key>grid</key>
