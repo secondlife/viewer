@@ -53,11 +53,19 @@ void check_framebuffer_status()
 bool LLRenderTarget::sUseFBO = false;
 U32 LLRenderTarget::sCurFBO = 0;
 
+
+extern S32 gGLViewport[4];
+
+U32 LLRenderTarget::sCurResX = 0;
+U32 LLRenderTarget::sCurResY = 0;
+
 LLRenderTarget::LLRenderTarget() :
 	mResX(0),
 	mResY(0),
 	mFBO(0),
 	mPreviousFBO(0),
+	mPreviousResX(0),
+	mPreviousResY(0),
 	mDepth(0),
 	mStencil(0),
 	mUseDepth(false),
@@ -390,13 +398,12 @@ void LLRenderTarget::bindTarget()
 {
 	if (mFBO)
 	{
-		mPreviousFBO = sCurFBO;
-
 		stop_glerror();
 		
+		mPreviousFBO = sCurFBO;
 		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 		sCurFBO = mFBO;
-
+		
 		stop_glerror();
 		if (gGLManager.mHasDrawBuffers)
 		{ //setup multiple render targets
@@ -418,7 +425,12 @@ void LLRenderTarget::bindTarget()
 		stop_glerror();
 	}
 
+	mPreviousResX = sCurResX;
+	mPreviousResY = sCurResY;
 	glViewport(0, 0, mResX, mResY);
+	sCurResX = mResX;
+	sCurResY = mResY;
+
 	sBoundTarget = this;
 }
 
@@ -489,6 +501,20 @@ void LLRenderTarget::flush(bool fetch_depth)
 		stop_glerror();
 		glBindFramebuffer(GL_FRAMEBUFFER, mPreviousFBO);
 		sCurFBO = mPreviousFBO;
+
+		if (mPreviousFBO)
+		{
+			glViewport(0, 0, mPreviousResX, mPreviousResY);
+			sCurResX = mPreviousResX;
+			sCurResY = mPreviousResY;
+		}
+		else
+		{
+			glViewport(gGLViewport[0],gGLViewport[1],gGLViewport[2],gGLViewport[3]);
+			sCurResX = gGLViewport[2];
+			sCurResY = gGLViewport[3];
+		}
+						
 		stop_glerror();
 	}
 }

@@ -3523,7 +3523,12 @@ F32 LLVOVolume::getBinRadius()
 	}
 	else if (mDrawable->isStatic())
 	{
-		radius = llmax((S32) mDrawable->getRadius(), 1)*size_factor;
+		F32 szf = size_factor;
+
+		radius = llmax(mDrawable->getRadius(), szf);
+		
+		radius = powf(radius, 1.f+szf/radius);
+
 		radius *= 1.f + mDrawable->mDistanceWRTCamera * distance_factor[1];
 		radius += mDrawable->mDistanceWRTCamera * distance_factor[0];
 	}

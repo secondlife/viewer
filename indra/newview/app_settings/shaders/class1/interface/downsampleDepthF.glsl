@@ -1,9 +1,9 @@
 /** 
- * @file pointLightF.glsl
+ * @file debugF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,23 +23,45 @@
  * $/LicenseInfo$
  */
 
-uniform mat4 modelview_projection_matrix;
-uniform mat4 modelview_matrix;
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
+#endif
 
-ATTRIBUTE vec3 position;
+uniform sampler2D depthMap;
 
-uniform vec3 center;
-uniform float size;
+uniform float delta;
 
-VARYING vec4 vary_fragcoord;
-VARYING vec3 trans_center;
+VARYING vec2 tc0;
+VARYING vec2 tc1;
+VARYING vec2 tc2;
+VARYING vec2 tc3;
+VARYING vec2 tc4;
+VARYING vec2 tc5;
+VARYING vec2 tc6;
+VARYING vec2 tc7;
+VARYING vec2 tc8;
 
-void main()
+void main() 
 {
-	//transform vertex
-	vec3 p = position*size+center;
-	vec4 pos = modelview_projection_matrix * vec4(p.xyz, 1.0);
-	vary_fragcoord = pos;
-	trans_center = (modelview_matrix*vec4(center.xyz, 1.0)).xyz;
-	gl_Position = pos;
+	vec4 depth1 = 
+		vec4(texture2D(depthMap, tc0).r,
+			texture2D(depthMap, tc1).r,
+			texture2D(depthMap, tc2).r,
+			texture2D(depthMap, tc3).r);
+
+	vec4 depth2 = 
+		vec4(texture2D(depthMap, tc4).r,
+			texture2D(depthMap, tc5).r,
+			texture2D(depthMap, tc6).r,
+			texture2D(depthMap, tc7).r);
+
+	depth1 = min(depth1, depth2);
+	float depth = min(depth1.x, depth1.y);
+	depth = min(depth, depth1.z);
+	depth = min(depth, depth1.w);
+	depth = min(depth, texture2D(depthMap, tc8).r);
+
+	gl_FragDepth = depth;
 }
