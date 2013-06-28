@@ -64,6 +64,10 @@ std::string get_map_url()
     return map_url;
 }
 
+///////////////////////////
+//LLSocialStatusPanel//////
+///////////////////////////
+
 LLSocialStatusPanel::LLSocialStatusPanel() :
 	mMessageTextEditor(NULL),
 	mPostStatusButton(NULL)
@@ -108,12 +112,21 @@ void LLSocialStatusPanel::onSend()
 	}
 }
 
+///////////////////////////
+//LLSocialPhotoPanel///////
+///////////////////////////
+
 LLSocialPhotoPanel::LLSocialPhotoPanel() :
+mSnapshotPanel(NULL),
+mResolutionComboBox(NULL),
 mRefreshBtn(NULL),
 mRefreshLabel(NULL),
 mSucceessLblPanel(NULL),
 mFailureLblPanel(NULL),
-mThumbnailPlaceholder(NULL)
+mThumbnailPlaceholder(NULL),
+mCaptionTextBox(NULL),
+mLocationCheckbox(NULL),
+mPostButton(NULL)
 {
 	mCommitCallbackRegistrar.add("PostToFacebook.Send", boost::bind(&LLSocialPhotoPanel::onSend, this));
 }
@@ -129,48 +142,195 @@ LLSocialPhotoPanel::~LLSocialPhotoPanel()
 BOOL LLSocialPhotoPanel::postBuild()
 {
 	setVisibleCallback(boost::bind(&LLSocialPhotoPanel::onVisibilityChange, this, _2));
-
-	mPostButton = getChild<LLUICtrl>("post_btn");
+	
+	mSnapshotPanel = getChild<LLUICtrl>("snapshot_panel");
 	mResolutionComboBox = getChild<LLUICtrl>("resolution_combobox");
-	mResolutionComboBox->setCommitCallback(boost::bind(&LLSocialPhotoPanel::onResolutionComboCommit, this));
+	mResolutionComboBox->setCommitCallback(boost::bind(&LLSocialPhotoPanel::updateResolution, this, TRUE));
 	mRefreshBtn = getChild<LLUICtrl>("new_snapshot_btn");
 	childSetAction("new_snapshot_btn", boost::bind(&LLSocialPhotoPanel::onClickNewSnapshot, this));
 	mRefreshLabel = getChild<LLUICtrl>("refresh_lbl");
 	mSucceessLblPanel = getChild<LLUICtrl>("succeeded_panel");
 	mFailureLblPanel = getChild<LLUICtrl>("failed_panel");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
-	
+	mCaptionTextBox = getChild<LLUICtrl>("caption");
+	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
+	mPostButton = getChild<LLUICtrl>("post_btn");
+
 	return LLPanel::postBuild();
 }
 
-void LLSocialPhotoPanel::onResolutionComboCommit()
+void LLSocialPhotoPanel::draw()
+{ 
+	LLSnapshotLivePreview * previewp = static_cast<LLSnapshotLivePreview *>(mPreviewHandle.get());
+
+	LLPanel::draw();
+
+	if(previewp && previewp->getThumbnailImage())
+	{
+		bool working = false; //impl.getStatus() == Impl::STATUS_WORKING;
+		const LLRect& thumbnail_rect = mThumbnailPlaceholder->getRect();
+		const S32 thumbnail_w = previewp->getThumbnailWidth();
+		const S32 thumbnail_h = previewp->getThumbnailHeight();
+
+		// calc preview offset within the preview rect
+		const S32 local_offset_x = (thumbnail_rect.getWidth() - thumbnail_w) / 2 ;
+		const S32 local_offset_y = (thumbnail_rect.getHeight() - thumbnail_h) / 2 ; // preview y pos within the preview rect
+
+		// calc preview offset within the floater rect
+		S32 offset_x = thumbnail_rect.mLeft + local_offset_x;
+		S32 offset_y = thumbnail_rect.mBottom + local_offset_y;
+
+		mSnapshotPanel->localPointToOtherView(offset_x, offset_y, &offset_x, &offset_y, getParentByType<LLFloater>());
+
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
+		// Apply floater transparency to the texture unless the floater is focused.
+		F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+		LLColor4 color = working ? LLColor4::grey4 : LLColor4::white;
+		gl_draw_scaled_image(offset_x, offset_y, 
+			thumbnail_w, thumbnail_h,
+			previewp->getThumbnailImage(), color % alpha);
+
+		previewp->drawPreviewRect(offset_x, offset_y) ;
+
+		// Draw some controls on top of the preview thumbnail.
+		static const S32 PADDING = 5;
+		static const S32 REFRESH_LBL_BG_HEIGHT = 32;
+
+		// Reshape and position the posting result message panels at the top of the thumbnail.
+		// Do this regardless of current posting status (finished or not) to avoid flicker
+		// when the result message is displayed for the first time.
+		// if (impl.getStatus() == Impl::STATUS_FINISHED)
+		{
+			LLRect result_lbl_rect = mSucceessLblPanel->getRect();
+			const S32 result_lbl_h = result_lbl_rect.getHeight();
+			result_lbl_rect.setLeftTopAndSize(local_offset_x, local_offset_y + thumbnail_h, thumbnail_w - 1, result_lbl_h);
+			mSucceessLblPanel->reshape(result_lbl_rect.getWidth(), result_lbl_h);
+			mSucceessLblPanel->setRect(result_lbl_rect);
+			mFailureLblPanel->reshape(result_lbl_rect.getWidth(), result_lbl_h);
+			mFailureLblPanel->setRect(result_lbl_rect);
+		}
+
+		// Position the refresh button in the bottom left corner of the thumbnail.
+		mRefreshBtn->setOrigin(local_offset_x + PADDING, local_offset_y + PADDING);
+
+		if (mNeedRefresh)
+		{
+			// Place the refresh hint text to the right of the refresh button.
+			const LLRect& refresh_btn_rect = mRefreshBtn->getRect();
+			mRefreshLabel->setOrigin(refresh_btn_rect.mLeft + refresh_btn_rect.getWidth() + PADDING, refresh_btn_rect.mBottom);
+
+			// Draw the refresh hint background.
+			LLRect refresh_label_bg_rect(offset_x, offset_y + REFRESH_LBL_BG_HEIGHT, offset_x + thumbnail_w - 1, offset_y);
+			gl_rect_2d(refresh_label_bg_rect, LLColor4::white % 0.9f, TRUE);
+		}
+
+		gGL.pushUIMatrix();
+		S32 x_pos;
+		S32 y_pos;
+		mSnapshotPanel->localPointToOtherView(thumbnail_rect.mLeft, thumbnail_rect.mBottom, &x_pos, &y_pos, getParentByType<LLFloater>());
+
+		LLUI::translate((F32) x_pos, (F32) y_pos);
+		mThumbnailPlaceholder->draw();
+		gGL.popUIMatrix();
+	}
+
+	mPostButton->setEnabled(LLFacebookConnect::instance().isConnected());
+}
+
+LLSnapshotLivePreview* LLSocialPhotoPanel::getPreviewView()
 {
-	LLFloaterSocial* instance = LLFloaterReg::findTypedInstance<LLFloaterSocial>("social");
-	updateResolution(mResolutionComboBox, instance); 
+	LLSnapshotLivePreview* previewp = (LLSnapshotLivePreview*)mPreviewHandle.get();
+	return previewp;
+}
+
+void LLSocialPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
+{
+	bool visible = new_visibility.asBoolean();
+	if (visible && !mPreviewHandle.get())
+	{
+		LLRect full_screen_rect = getRootView()->getRect();
+		LLSnapshotLivePreview::Params p;
+		p.rect(full_screen_rect);
+		LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
+		mPreviewHandle = previewp->getHandle();	
+
+		previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
+		previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
+		//previewp->setSnapshotQuality(98);
+		previewp->setThumbnailPlaceholderRect(mThumbnailPlaceholder->getRect());
+
+		updateControls();
+	}
 }
 
 void LLSocialPhotoPanel::onClickNewSnapshot()
 {
-	LLSnapshotLivePreview* previewp = static_cast<LLSnapshotLivePreview*>(mPreviewHandle.get());
-	//LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
-	if (previewp /*&& view*/)
+	LLSnapshotLivePreview* previewp = getPreviewView();
+	if (previewp)
 	{
-		//view->impl.setStatus(Impl::STATUS_READY);
+		//setStatus(Impl::STATUS_READY);
 		lldebugs << "updating snapshot" << llendl;
 		previewp->updateSnapshot(TRUE);
 	}
 }
 
-void LLSocialPhotoPanel::updateResolution(LLUICtrl* ctrl, void* data, BOOL do_update)
+void LLSocialPhotoPanel::onSend()
 {
-	LLComboBox* combobox = (LLComboBox*)ctrl;
-	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
+	std::string caption = mCaptionTextBox->getValue().asString();
+	bool add_location = mLocationCheckbox->getValue().asBoolean();
 
-	if (!view || !combobox)
+	if (add_location)
 	{
-		llassert(view && combobox);
-		return;
+		LLSLURL slurl;
+		LLAgentUI::buildSLURL(slurl);
+		if (caption.empty())
+			caption = slurl.getSLURLString();
+		else
+			caption = caption + " " + slurl.getSLURLString();
 	}
+
+	LLSnapshotLivePreview* previewp = getPreviewView();
+	LLFacebookConnect::instance().sharePhoto(previewp->getFormattedImage(), caption);
+	updateControls();
+
+	// Close the floater once "Post" has been pushed
+	LLFloater* floater = getParentByType<LLFloater>();
+	if (floater)
+	{
+		floater->closeFloater();
+	}
+}
+
+void LLSocialPhotoPanel::updateControls()
+{
+	LLSnapshotLivePreview* previewp = getPreviewView();
+	BOOL got_bytes = previewp && previewp->getDataSize() > 0;
+	BOOL got_snap = previewp && previewp->getSnapshotUpToDate();
+	LLSnapshotLivePreview::ESnapshotType shot_type = previewp->getSnapshotType();
+
+	// *TODO: Separate maximum size for Web images from postcards
+	lldebugs << "Is snapshot up-to-date? " << got_snap << llendl;
+
+	LLLocale locale(LLLocale::USER_LOCALE);
+	std::string bytes_string;
+	if (got_snap)
+	{
+		LLResMgr::getInstance()->getIntegerString(bytes_string, (previewp->getDataSize()) >> 10 );
+	}
+
+	//getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : getString("unknown")); <---uses localized string
+	getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : "unknown");
+	getChild<LLUICtrl>("file_size_label")->setColor(
+		shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD 
+		&& got_bytes
+		&& previewp->getDataSize() > MAX_POSTCARD_DATASIZE ? LLUIColor(LLColor4::red) : LLUIColorTable::instance().getColor( "LabelTextColor" ));
+
+	updateResolution(FALSE);
+}
+
+void LLSocialPhotoPanel::updateResolution(BOOL do_update)
+{
+	LLComboBox* combobox = static_cast<LLComboBox *>(mResolutionComboBox);
 
 	std::string sdstring = combobox->getSelectedValue();
 	LLSD sdres;
@@ -222,12 +382,6 @@ void LLSocialPhotoPanel::updateResolution(LLUICtrl* ctrl, void* data, BOOL do_up
 	}
 }
 
-void LLSocialPhotoPanel::setNeedRefresh(bool need)
-{
-	mRefreshLabel->setVisible(need);
-	mNeedRefresh = need;
-}
-
 void LLSocialPhotoPanel::checkAspectRatio(S32 index)
 {
 	LLSnapshotLivePreview *previewp = getPreviewView() ;
@@ -249,168 +403,20 @@ void LLSocialPhotoPanel::checkAspectRatio(S32 index)
 	}
 }
 
-LLSnapshotLivePreview* LLSocialPhotoPanel::getPreviewView()
+void LLSocialPhotoPanel::setNeedRefresh(bool need)
 {
-	LLSnapshotLivePreview* previewp = (LLSnapshotLivePreview*)mPreviewHandle.get();
-	return previewp;
+	mRefreshLabel->setVisible(need);
+	mNeedRefresh = need;
 }
 
-void LLSocialPhotoPanel::updateControls()
+LLUICtrl* LLSocialPhotoPanel::getRefreshBtn()
 {
-	LLSnapshotLivePreview* previewp = getPreviewView();
-	BOOL got_bytes = previewp && previewp->getDataSize() > 0;
-	BOOL got_snap = previewp && previewp->getSnapshotUpToDate();
-	LLSnapshotLivePreview::ESnapshotType shot_type = previewp->getSnapshotType();
-
-	// *TODO: Separate maximum size for Web images from postcards
-	lldebugs << "Is snapshot up-to-date? " << got_snap << llendl;
-
-	LLLocale locale(LLLocale::USER_LOCALE);
-	std::string bytes_string;
-	if (got_snap)
-	{
-		LLResMgr::getInstance()->getIntegerString(bytes_string, (previewp->getDataSize()) >> 10 );
-	}
-
-	//getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : getString("unknown"));
-	getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : "unknown");
-	getChild<LLUICtrl>("file_size_label")->setColor(
-		shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD 
-		&& got_bytes
-		&& previewp->getDataSize() > MAX_POSTCARD_DATASIZE ? LLUIColor(LLColor4::red) : LLUIColorTable::instance().getColor( "LabelTextColor" ));
-
-	LLComboBox* combo = getChild<LLComboBox>("resolution_combobox");
-	LLFloaterSocial* instance = LLFloaterReg::findTypedInstance<LLFloaterSocial>("social");
-	updateResolution(combo, instance, FALSE);
+	return mRefreshBtn;
 }
 
-void LLSocialPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
-{
-	bool visible = new_visibility.asBoolean();
-	if (visible && !mPreviewHandle.get())
-	{
-		LLRect full_screen_rect = getRootView()->getRect();
-		LLSnapshotLivePreview::Params p;
-		p.rect(full_screen_rect);
-		LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
-		mPreviewHandle = previewp->getHandle();	
-
-		previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
-		previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
-		//previewp->setSnapshotQuality(98);
-		previewp->setThumbnailPlaceholderRect(getThumbnailPlaceholderRect());
-
-		updateControls();
-	}
-}
-
-void LLSocialPhotoPanel::draw()
-{ 
-	LLSnapshotLivePreview * previewp = static_cast<LLSnapshotLivePreview *>(mPreviewHandle.get());
-
-	LLPanel::draw();
-
-	if(previewp && previewp->getThumbnailImage())
-	{
-		bool working = false; //impl.getStatus() == Impl::STATUS_WORKING;
-		const LLRect& thumbnail_rect = getThumbnailPlaceholderRect();
-		const S32 thumbnail_w = previewp->getThumbnailWidth();
-		const S32 thumbnail_h = previewp->getThumbnailHeight();
-
-		// calc preview offset within the preview rect
-		const S32 local_offset_x = (thumbnail_rect.getWidth() - thumbnail_w) / 2 ;
-		const S32 local_offset_y = (thumbnail_rect.getHeight() - thumbnail_h) / 2 ; // preview y pos within the preview rect
-
-		// calc preview offset within the floater rect
-		S32 offset_x = thumbnail_rect.mLeft + local_offset_x;
-		S32 offset_y = thumbnail_rect.mBottom + local_offset_y;
-
-		LLUICtrl * snapshot_panel = getChild<LLUICtrl>("snapshot_panel");
-		snapshot_panel->localPointToOtherView(offset_x, offset_y, &offset_x, &offset_y, gFloaterView->getParentFloater(this));
-
-		gGL.matrixMode(LLRender::MM_MODELVIEW);
-		// Apply floater transparency to the texture unless the floater is focused.
-		F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
-		LLColor4 color = working ? LLColor4::grey4 : LLColor4::white;
-		gl_draw_scaled_image(offset_x, offset_y, 
-			thumbnail_w, thumbnail_h,
-			previewp->getThumbnailImage(), color % alpha);
-
-		previewp->drawPreviewRect(offset_x, offset_y) ;
-
-		// Draw some controls on top of the preview thumbnail.
-		static const S32 PADDING = 5;
-		static const S32 REFRESH_LBL_BG_HEIGHT = 32;
-
-		// Reshape and position the posting result message panels at the top of the thumbnail.
-		// Do this regardless of current posting status (finished or not) to avoid flicker
-		// when the result message is displayed for the first time.
-		// if (impl.getStatus() == Impl::STATUS_FINISHED)
-		{
-			LLRect result_lbl_rect = mSucceessLblPanel->getRect();
-			const S32 result_lbl_h = result_lbl_rect.getHeight();
-			result_lbl_rect.setLeftTopAndSize(local_offset_x, local_offset_y + thumbnail_h, thumbnail_w - 1, result_lbl_h);
-			mSucceessLblPanel->reshape(result_lbl_rect.getWidth(), result_lbl_h);
-			mSucceessLblPanel->setRect(result_lbl_rect);
-			mFailureLblPanel->reshape(result_lbl_rect.getWidth(), result_lbl_h);
-			mFailureLblPanel->setRect(result_lbl_rect);
-		}
-
-		// Position the refresh button in the bottom left corner of the thumbnail.
-		mRefreshBtn->setOrigin(local_offset_x + PADDING, local_offset_y + PADDING);
-
-		if (mNeedRefresh)
-		{
-			// Place the refresh hint text to the right of the refresh button.
-			const LLRect& refresh_btn_rect = mRefreshBtn->getRect();
-			mRefreshLabel->setOrigin(refresh_btn_rect.mLeft + refresh_btn_rect.getWidth() + PADDING, refresh_btn_rect.mBottom);
-
-			// Draw the refresh hint background.
-			LLRect refresh_label_bg_rect(offset_x, offset_y + REFRESH_LBL_BG_HEIGHT, offset_x + thumbnail_w - 1, offset_y);
-			gl_rect_2d(refresh_label_bg_rect, LLColor4::white % 0.9f, TRUE);
-		}
-
-		gGL.pushUIMatrix();
-		S32 x_pos;
-		S32 y_pos;
-		snapshot_panel->localPointToOtherView(thumbnail_rect.mLeft, thumbnail_rect.mBottom, &x_pos, &y_pos, gFloaterView->getParentFloater(this));
-		
-		LLUI::translate((F32) x_pos, (F32) y_pos);
-		mThumbnailPlaceholder->draw();
-		gGL.popUIMatrix();
-	}
-
-    mPostButton->setEnabled(LLFacebookConnect::instance().isConnected());
-}
-
-void LLSocialPhotoPanel::onSend()
-{
-	std::string caption = getChild<LLUICtrl>("caption")->getValue().asString();
-	bool add_location = getChild<LLUICtrl>("add_location_cb")->getValue().asBoolean();
-
-	if (add_location)
-	{
-		LLSLURL slurl;
-		LLAgentUI::buildSLURL(slurl);
-		if (caption.empty())
-			caption = slurl.getSLURLString();
-		else
-			caption = caption + " " + slurl.getSLURLString();
-	}
-
-	LLSnapshotLivePreview* previewp = getPreviewView();
-
-	LLFacebookConnect::instance().sharePhoto(previewp->getFormattedImage(), caption);
-	updateControls();
-
-	// Close the floater once "Post" has been pushed
-	LLFloater* floater = getParentByType<LLFloater>();
-	if (floater)
-	{
-		floater->closeFloater();
-	}
-}
-
+////////////////////////
+//LLSocialCheckinPanel//
+////////////////////////
 
 LLSocialCheckinPanel::LLSocialCheckinPanel() :
     mMapUrl(""),
@@ -501,6 +507,9 @@ void LLSocialCheckinPanel::onSend()
     }
 }
 
+////////////////////////
+//LLFloaterSocial///////
+////////////////////////
 
 LLFloaterSocial::LLFloaterSocial(const LLSD& key) : LLFloater(key),
     mSocialPhotoPanel(NULL)
@@ -522,15 +531,9 @@ BOOL LLFloaterSocial::postBuild()
 	return LLFloater::postBuild();
 }
 
-/*virtual*/
-void LLFloaterSocial::draw()
-{
-    LLFloater::draw();
-}
-
 void LLFloaterSocial::onOpen(const LLSD& key)
 {
-	LLSnapshotLivePreview* preview = static_cast<LLSnapshotLivePreview *>(mSocialPhotoPanel->mPreviewHandle.get());
+	LLSnapshotLivePreview* preview = mSocialPhotoPanel->getPreviewView();
 	if(preview)
 	{
 		lldebugs << "opened, updating snapshot" << llendl;
@@ -541,14 +544,13 @@ void LLFloaterSocial::onOpen(const LLSD& key)
 // static
 void LLFloaterSocial::preUpdate()
 {
-	// FIXME: duplicated code
 	LLFloaterSocial* instance = LLFloaterReg::findTypedInstance<LLFloaterSocial>("social");
 	if (instance)
 	{
-		// Disable the send/post/save buttons until snapshot is ready.
+		//Will set file size text to 'unknown'
 		instance->mSocialPhotoPanel->updateControls();
 
-		// Force hiding the "Refresh to save" hint because we know we've just started refresh.
+		//Hides the refresh text
 		instance->mSocialPhotoPanel->setNeedRefresh(false);
 	}
 }
@@ -556,21 +558,22 @@ void LLFloaterSocial::preUpdate()
 // static
 void LLFloaterSocial::postUpdate()
 {
-	// FIXME: duplicated code
 	LLFloaterSocial* instance = LLFloaterReg::findTypedInstance<LLFloaterSocial>("social");
 	if (instance)
 	{
-		// Enable the send/post/save buttons.
+		//Will set the file size text
 		instance->mSocialPhotoPanel->updateControls();
 
-		// We've just done refresh.
+		//Hides the refresh text
 		instance->mSocialPhotoPanel->setNeedRefresh(false);
 
 		// The refresh button is initially hidden. We show it after the first update,
-		// i.e. when preview appears.
-		if (!instance->mSocialPhotoPanel->mRefreshBtn->getVisible())
+		// i.e. after snapshot is taken
+		LLUICtrl * refresh_button = instance->mSocialPhotoPanel->getRefreshBtn();
+
+		if (!refresh_button->getVisible())
 		{
-			instance->mSocialPhotoPanel->mRefreshBtn->setVisible(true);
+			refresh_button->setVisible(true);
 		}
 		
 	}

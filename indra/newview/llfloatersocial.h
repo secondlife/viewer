@@ -50,37 +50,40 @@ private:
 class LLSocialPhotoPanel : public LLPanel
 {
 
-	public:
+public:
 		LLSocialPhotoPanel();
 		~LLSocialPhotoPanel();
 
 		BOOL postBuild();
 		void draw();
+
+		LLSnapshotLivePreview* getPreviewView();
+		void onVisibilityChange(const LLSD& new_visibility);
+		void onClickNewSnapshot();
 		void onSend();
 
-		const LLRect& getThumbnailPlaceholderRect() { return mThumbnailPlaceholder->getRect(); }
-		void onResolutionComboCommit();
-		void onClickNewSnapshot();
+		void updateControls();
+		void updateResolution(BOOL do_update);
+		void checkAspectRatio(S32 index);
+		void setNeedRefresh(bool need);
+		LLUICtrl* getRefreshBtn();
+
+private:
 
 		LLHandle<LLView> mPreviewHandle;
 
-		void updateResolution(LLUICtrl* ctrl, void* data, BOOL do_update = TRUE);
-		void setNeedRefresh(bool need);
-		void checkAspectRatio(S32 index);
-		LLSnapshotLivePreview* getPreviewView();
-
-		void updateControls();
-		void onVisibilityChange(const LLSD& new_visibility);
-
+		LLUICtrl * mSnapshotPanel;
 		LLUICtrl * mResolutionComboBox;
-		LLUICtrl *mRefreshBtn, *mRefreshLabel;
-		LLUICtrl *mSucceessLblPanel, *mFailureLblPanel;
-		LLUICtrl* mThumbnailPlaceholder;
+		LLUICtrl * mRefreshBtn;
+		LLUICtrl * mRefreshLabel;
+		LLUICtrl * mSucceessLblPanel;
+		LLUICtrl * mFailureLblPanel;
+		LLUICtrl * mThumbnailPlaceholder;
+		LLUICtrl * mCaptionTextBox;
+		LLUICtrl * mLocationCheckbox;
+		LLUICtrl * mPostButton;
 
 		bool mNeedRefresh;
-
-private:
-	LLUICtrl* mPostButton;
 };
 
 class LLSocialCheckinPanel : public LLPanel
@@ -108,8 +111,6 @@ public:
 	BOOL postBuild();
 	void onCancel();
 	void onOpen(const LLSD& key);
-	/*virtual*/ void draw();
-
 
 	static void preUpdate();
 	static void postUpdate();
