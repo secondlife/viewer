@@ -1976,3 +1976,15 @@ void LLViewerRegion::resetMaterialsCapThrottle()
 	mMaterialsCapThrottleTimer.resetWithExpiry( 1.0f / requests_per_sec );
 }
 
+U32 LLViewerRegion::getMaxMaterialsPerTransaction() const
+{
+	U32 max_entries = 50; // original hard coded default
+	if (   mSimulatorFeatures.has( "MaxMaterialsPerTransaction" )
+		&& mSimulatorFeatures[ "MaxMaterialsPerTransaction" ].isInteger())
+	{
+		max_entries = mSimulatorFeatures[ "MaxMaterialsPerTransaction" ].asInteger();
+	}
+	return max_entries;
+}
+
+

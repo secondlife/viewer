@@ -348,6 +348,7 @@ public:
 	bool materialsCapThrottled() const { return !mMaterialsCapThrottleTimer.hasExpired(); }
 	void resetMaterialsCapThrottle();
 	
+	U32 getMaxMaterialsPerTransaction() const;
 public:
 	struct CompareDistance
 	{
