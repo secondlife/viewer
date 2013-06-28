@@ -61,6 +61,7 @@ VARYING vec3 vary_directional;
 VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
+VARYING vec3 vary_pointlight_col_linear;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
 
@@ -82,7 +83,7 @@ vec3 calcDirectionalLight(vec3 n, vec3 l)
 	return vec3(a,a,a);
 }
 
-vec3 calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
+float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
 {
 	//get light vector
 	vec3 lv = lp.xyz-v;
@@ -92,14 +93,14 @@ vec3 calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float
 	
 	float da = 0.0;
 
-	if (d > 0.0 && la > 0.0 && fa > 0.0)
+//	if (d > 0.0 && la > 0.0 && fa > 0.0)
 	{
 		//normalize light vector
-		lv = normalize(lv);
+		lv /= d;
 	
 		//distance attenuation
-		float dist = d/la;
-		da = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
+		float dist = d*la;
+		da = clamp(1.0-(dist+fa-1.0)/fa, 0.0, 1.0);
 		da *= da;
 		da *= 2.0;
 	
@@ -112,7 +113,7 @@ vec3 calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float
 		da *= max(dot(n, lv), 0.0);		
 	}
 
-	return vec3(da,da,da);	
+	return da;	
 }
 
 #if HAS_SHADOW
@@ -138,6 +139,25 @@ float pcfShadow(sampler2DShadow shadowMap, vec4 stc)
 
 void main() 
 {
+#ifdef USE_INDEXED_TEX
+	vec4 diff = diffuseLookup(vary_texcoord0.xy);
+#else
+	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
+#endif
+
+#ifdef USE_VERTEX_COLOR
+	float vertex_color_alpha = vertex_color.a;	
+#else
+	float vertex_color_alpha = 1.0;
+#endif
+
+	float alpha = vertex_color_alpha*diff.a;
+
+	vec4 gamma_diff = diff;
+
+	diff.rgb = pow(diff.rgb, vec3(2.2f, 2.2f, 2.2f));
+
+
 	vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
 	frag *= screen_res;
 	
@@ -210,21 +230,6 @@ void main()
 	}
 #endif
 
-#ifdef USE_INDEXED_TEX
-	vec4 diff = diffuseLookup(vary_texcoord0.xy);
-#else
-	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
-#endif
-	vec4 gamma_diff = diff;
-
-	diff.rgb = pow(diff.rgb, vec3(2.2f, 2.2f, 2.2f));
-
-#ifdef USE_VERTEX_COLOR
-	float vertex_color_alpha = vertex_color.a;	
-#else
-	float vertex_color_alpha = 1.0;
-#endif
-	
 	vec3 normal = vary_norm; 
 	
 	vec3 l = light_position[0].xyz;
@@ -243,6 +248,7 @@ void main()
 
 	color.rgb = scaleSoftClip(color.rgb);
 
+	//convert to linear space
 	color.rgb = pow(color.rgb, vec3(2.2));
 	col = vec4(0,0,0,0);
 
@@ -257,8 +263,9 @@ void main()
 	LIGHT_LOOP(6)
 	LIGHT_LOOP(7)
 
-	color.rgb += diff.rgb * pow(vary_pointlight_col, vec3(2.2)) * col.rgb;
+	color.rgb += diff.rgb * vary_pointlight_col_linear * col.rgb;
 
+	//convert to gamma space
 	color.rgb = pow(color.rgb, vec3(1.0/2.2));
 
 	frag_color = color;

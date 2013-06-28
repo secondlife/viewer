@@ -45,7 +45,7 @@ float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, floa
 	lv *= 1.0/d;
 	
 	//distance attenuation
-	float da = clamp(1.0/(la * d), 0.0, 1.0);
+	float da = clamp(1.0/(1.f/la * d), 0.0, 1.0);
 	
 	// spotlight coefficient.
 	float spot = max(dot(-ln, lv), is_pointlight);

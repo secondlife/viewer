@@ -2710,14 +2710,14 @@ void LLPipeline::downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& d
 	{
 		shader = &gDownsampleDepthRectProgram;
 		shader->bind();
-		shader->uniform2f("delta", 1.f, 1.f);
+		shader->uniform2f(sDelta, 1.f, 1.f);
 		shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, source.getWidth(), source.getHeight());
 	}
 	else
 	{
 		shader = &gDownsampleDepthProgram;
 		shader->bind();
-		shader->uniform2f("delta", 1.f/source.getWidth(), 1.f/source.getHeight());
+		shader->uniform2f(sDelta, 1.f/source.getWidth(), 1.f/source.getHeight());
 		shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, 1.f, 1.f);
 	}
 

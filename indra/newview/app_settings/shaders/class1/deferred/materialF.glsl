@@ -133,14 +133,14 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 
 	vec3 col = vec3(0,0,0);
 
-	if (d > 0.0 && la > 0.0 && fa > 0.0)
+	//if (d > 0.0 && la > 0.0 && fa > 0.0)
 	{
 		//normalize light vector
-		lv = normalize(lv);
+		lv /= d;
 	
 		//distance attenuation
-		float dist = d/la;
-		float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
+		float dist = d*la;
+		float dist_atten = clamp(1.0-(dist-1.0+fa)/fa, 0.0, 1.0);
 		dist_atten *= dist_atten;
 		dist_atten *= 2.0;
 

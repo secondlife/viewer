@@ -1150,7 +1150,7 @@ void LLRender::syncLightState()
 
 			position[i] = light->mPosition;
 			direction[i] = light->mSpotDirection;
-			attenuation[i].set(light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[3]);
+			attenuation[i].set(1.f/light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[3]);
 			diffuse[i].set(light->mDiffuse.mV);
 		}
 
