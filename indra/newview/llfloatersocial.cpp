@@ -516,7 +516,7 @@ void LLFloaterSocial::onCancel()
 BOOL LLFloaterSocial::postBuild()
 {
     // Initiate a connection to Facebook (getConnectionToFacebook() handles the already connected state)
-    LLFacebookConnect::instance().getConnectionToFacebook();
+    LLFacebookConnect::instance().getConnectionToFacebook(true);
     // Keep tab of the Photo Panel
 	mSocialPhotoPanel = static_cast<LLSocialPhotoPanel*>(getChild<LLUICtrl>("panel_social_photo"));
 	return LLFloater::postBuild();

@@ -5957,7 +5957,7 @@ void handle_facebook_connect()
 {
 	if (!LLFacebookConnect::instance().isConnected())
 	{
-        LLFacebookConnect::instance().getConnectionToFacebook();
+        LLFacebookConnect::instance().getConnectionToFacebook(true);
 	}
 }
 

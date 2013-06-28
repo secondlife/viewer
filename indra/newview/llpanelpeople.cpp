@@ -1683,7 +1683,7 @@ void LLPanelPeople::onLoginFbcButtonClicked()
 	}
 	else
 	{
-        LLFacebookConnect::instance().getConnectionToFacebook();
+        LLFacebookConnect::instance().getConnectionToFacebook(true);
 	}
 }
 

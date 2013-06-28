@@ -201,9 +201,9 @@ class LLFacebookConnectedResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLFacebookConnectedResponder);
 public:
     
-	LLFacebookConnectedResponder()
+	LLFacebookConnectedResponder(bool auto_connect) : mAutoConnect(auto_connect)
     {
-        LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_IN_PROGRESS);
+		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_IN_PROGRESS);
     }
     
 	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
@@ -223,7 +223,14 @@ public:
 			// show the facebook login page if not connected yet
 			if (status == 404)
 			{
-				LLFacebookConnect::instance().connectToFacebook();
+				if (mAutoConnect)
+				{
+					LLFacebookConnect::instance().connectToFacebook();
+				}
+				else
+				{
+					LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_NOT_CONNECTED);
+				}
 			}
             else
             {
@@ -234,6 +241,7 @@ public:
 	}
     
 private:
+	bool mAutoConnect;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -304,13 +312,13 @@ void LLFacebookConnect::disconnectFromFacebook()
 	LLHTTPClient::del(getFacebookConnectURL("/connection"), new LLFacebookDisconnectResponder());
 }
 
-void LLFacebookConnect::getConnectionToFacebook()
+void LLFacebookConnect::getConnectionToFacebook(bool auto_connect)
 {
     if ((mConnectionState == FB_NOT_CONNECTED) || (mConnectionState == FB_CONNECTION_FAILED))
     {
         const bool follow_redirects=false;
         const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
-        LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(),
+        LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(auto_connect),
                           LLSD(), timeout, follow_redirects);
     }
 }

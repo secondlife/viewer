@@ -89,7 +89,7 @@ void LLPanelSnapshotFacebook::onOpen(const LLSD& key)
 {
 	if (!LLFacebookConnect::instance().isConnected())
 	{
-        LLFacebookConnect::instance().getConnectionToFacebook();
+        LLFacebookConnect::instance().getConnectionToFacebook(true);
 	}
 	updateControls(key);
 	LLPanelSnapshot::onOpen(key);

@@ -54,7 +54,7 @@ public:
 
 	void connectToFacebook(const std::string& auth_code = "");  // Initiate the complete FB connection. Please use getConnectionToFacebook() in normal use.
 	void disconnectFromFacebook();                              // Disconnect from the FBC service.
-    void getConnectionToFacebook();                             // Check if an access token is available on the FBC service. If not, call connectToFacebook().
+    void getConnectionToFacebook(bool auto_connect = false);     // Check if an access token is available on the FBC service. If not, call connectToFacebook().
     
     void loadFacebookFriends();
 	void postCheckin(const std::string& location, const std::string& name, const std::string& description, const std::string& picture, const std::string& message);
