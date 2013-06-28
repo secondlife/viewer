@@ -1944,3 +1944,35 @@ bool LLViewerRegion::dynamicPathfindingEnabled() const
 			 mSimulatorFeatures["DynamicPathfindingEnabled"].asBoolean());
 }
 
+void LLViewerRegion::resetMaterialsCapThrottle()
+{
+	F32 requests_per_sec = 	1.0f; // original default;
+	if (   mSimulatorFeatures.has("RenderMaterialsCapability")
+		&& mSimulatorFeatures["RenderMaterialsCapability"].isReal() )
+	{
+		requests_per_sec = mSimulatorFeatures["RenderMaterialsCapability"].asReal();
+		if ( requests_per_sec != 0.0f )
+		{
+			requests_per_sec = 1.0f;
+			LL_WARNS("Materials")
+				<< "region '" << getName()
+				<< "' returned zero for RenderMaterialsCapability; using default "
+				<< requests_per_sec << " per second"
+				<< LL_ENDL;
+		}
+		LL_DEBUGS_ONCE("Materials") << "region '" << getName()
+									<< "' RenderMaterialsCapability " << requests_per_sec
+									<< LL_ENDL;
+	}
+	else
+	{
+		LL_DEBUGS("Materials")
+			<< "region '" << getName()
+			<< "' did not return RenderMaterialsCapability, using default "
+			<< requests_per_sec << " per second"
+			<< LL_ENDL;
+	}
+	
+	mMaterialsCapThrottleTimer.resetWithExpiry( 1.0f / requests_per_sec );
+}
+

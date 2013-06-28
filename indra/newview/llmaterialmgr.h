@@ -126,6 +126,9 @@ protected:
 	material_map_t mMaterials;
 
 	U32 getMaxEntries(const LLViewerRegion* regionp);
+
+	LLFrameTimer mCapThrottleTimer;
+	F32 getThrottleIntervalSecs(const LLUUID& region_id);
 };
 
 #endif // LL_LLMATERIALMGR_H
