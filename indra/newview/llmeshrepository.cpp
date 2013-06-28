@@ -76,9 +76,140 @@
 
 #include <queue>
 
+
+// [ Disclaimer:  this documentation isn't by one of the original authors
+//   but by someone coming through later and extracting intent and function.
+//   Some of this will be wrong so use judgement. ]
+//
+// Purpose
+//
+//   The purpose of this module is to provide access between the viewer
+//   and the asset system as regards to mesh objects.
+//
+//   * High-throughput download of mesh assets from servers while
+//     following best industry practices for network profile.
+//   * Reliable expensing and upload of new mesh assets.
+//   * Recovery and retry from errors when appropriate.
+//   * Decomposition of mesh assets for preview and uploads.
+//   * And most important:  all of the above without exposing the
+//     main thread to stalls due to deep processing or thread
+//     locking actions.  In particular, the following operations
+//     on LLMeshRepository are very averse to any stalls:
+//     * loadMesh
+//     * getMeshHeader (For structural details, see:
+//       http://wiki.secondlife.com/wiki/Mesh/Mesh_Asset_Format)
+//     * notifyLoadedMeshes
+//
+// Threads
+//
+//   main     Main rendering thread, very sensitive to locking and other stalls
+//   repo     Overseeing worker thread associated with the LLMeshRepoThread class
+//   decom    Worker thread for mesh decomposition requests
+//   core     HTTP worker thread:  does the work but doesn't intrude here
+//   uploadN  0-N temporary mesh upload threads
+//
+// Mutexes
+//
+//   LLMeshRepository::mMeshMutex
+//   LLMeshRepoThread::mMutex
+//   LLMeshRepoThread::mHeaderMutex
+//   LLMeshRepoThread::mSignal (LLCondition)
+//   LLPhysicsDecomp::mSignal (LLCondition)
+//   LLPhysicsDecomp::mMutex
+//   LLMeshUploadThread::mMutex
+//
+// Mutex Order Rules
+//
+//   1.  LLMeshRepoThread::mMutex before LLMeshRepoThread::mHeaderMutex
+//   2.  LLMeshRepository::mMeshMutex before LLMeshRepoThread::mMutex
+//   (There are more rules, haven't been extracted.)
+//
+// Data Member Access/Locking
+//
+//   Description of how shared access to static and instance data
+//   members is performed.  Each member is followed by the name of
+//   the mutex, if any, covering the data and then a list of data
+//   access models each of which is a triplet of the following form:
+//
+//     {ro, wo, rw}.{main, repo, any}.{mutex, none}
+//     Type of access:  read-only, write-only, read-write.
+//     Accessing thread or 'any'
+//     Relevant mutex held during access (several may be held) or 'none'
+//
+//   A careful eye will notice some unsafe operations.  Many of these
+//   have an alibi of some form.  Several types of alibi are identified
+//   and listed here:
+//
+//     [0]  No alibi.  Probably unsafe.
+//     [1]  Single-writer, self-consistent readers.  Old data must
+//          be tolerated by any reader but data will come true eventually.
+//     [2]  Like [1] but provides a hint about thread state.  These
+//          may be unsafe.
+//     [3]  empty() check outside of lock.  Can me made safish when
+//          done in double-check lock style.  But this depends on
+//          std:: implementation and memory model.
+//     [4]  Appears to be covered by a mutex but doesn't need one.
+//     [5]  Read of a double-checked lock.
+//
+//   So, in addition to documentation, take this as a to-do/review
+//   list and see if you can improve things.
+//
+//   LLMeshRepository:
+//
+//     sBytesReceived
+//     sHTTPRequestCount
+//     sHTTPRetryCount
+//     sLODPending
+//     sLODProcessing
+//     sCacheBytesRead
+//     sCacheBytesWritten
+//     mLoadingMeshes                  none            rw.main.none, rw.main.mMeshMutex [4]
+//     mSkinMap                        none            rw.main.none
+//     mDecompositionMap               none            rw.main.none
+//     mPendingRequests                mMeshMutex [4]  rw.main.mMeshMutex
+//     mLoadingSkins                   mMeshMutex [4]  rw.main.mMeshMutex
+//     mPendingSkinRequests            mMeshMutex [4]  rw.main.mMeshMutex
+//     mLoadingDecompositions          mMeshMutex [4]  rw.main.mMeshMutex
+//     mPendingDecompositionRequests   mMeshMutex [4]  rw.main.mMeshMutex
+//     mLoadingPhysicsShapes           mMeshMutex [4]  rw.main.mMeshMutex
+//     mPendingPhysicsShapeRequests    mMeshMutex [4]  rw.main.mMeshMutex
+//     mUploads                        none            rw.main.none (upload thread accessing objects)
+//     mUploadWaitList                 none            rw.main.none (upload thread accessing objects)
+//     mInventoryQ                     mMeshMutex [4]  rw.main.mMeshMutex, ro.main.none [5]
+//     mUploadErrorQ                   mMeshMutex      rw.main.mMeshMutex, rw.any.mMeshMutex
+//     mGetMeshCapability              none            rw.main.none [0], ro.any.none
+//     mGetMesh2Capability             none            rw.main.none [0], ro.any.none
+//
+//   LLMeshRepoThread:
+//
+//     sActiveHeaderRequests    mMutex        rw.any.mMutex, ro.repo.none [1]
+//     sActiveLODRequests       mMutex        rw.any.mMutex, ro.repo.none [1]
+//     sMaxConcurrentRequests   mMutex        wo.main.none, ro.repo.none, ro.main.mMutex
+//     mWaiting                 mMutex        rw.repo.none, ro.main.none [2] (race - hint)
+//     mMeshHeader              mHeaderMutex  rw.repo.mHeaderMutex, ro.main.mHeaderMutex, ro.main.none [0]
+//     mMeshHeaderSize          mHeaderMutex  rw.repo.mHeaderMutex
+//     mSkinRequests            none          rw.repo.none, rw.main.none [0]
+//     mSkinInfoQ               none          rw.repo.none, rw.main.none [0]
+//     mDecompositionRequests   none          rw.repo.none, rw.main.none [0]
+//     mPhysicsShapeRequests    none          rw.repo.none, rw.main.none [0]
+//     mDecompositionQ          none          rw.repo.none, rw.main.none [0]
+//     mHeaderReqQ              mMutex        ro.repo.none [3], rw.repo.mMutex, rw.any.mMutex
+//     mLODReqQ                 mMutex        ro.repo.none [3], rw.repo.mMutex, rw.any.mMutex
+//     mUnavailableQ            mMutex        rw.repo.none [0], ro.main.none [3], rw.main.mMutex
+//     mLoadedQ                 mMutex        rw.repo.mMutex, ro.main.none [3], rw.main.mMutex
+//     mPendingLOD              mMutex        rw.repo.mMutex, rw.any.mMutex
+//
+//   LLPhysicsDecomp:
+//    
+//     mRequestQ
+//     mCurRequest
+//     mCompletedQ
+//
+
+
 LLMeshRepository gMeshRepo;
 
-const S32 MESH_HEADER_SIZE = 4096;						// Important:  assumption is that headers fit in this space
+const S32 MESH_HEADER_SIZE = 4096;                      // Important:  assumption is that headers fit in this space
 const U32 MAX_MESH_REQUESTS_PER_SECOND = 100;
 const S32 REQUEST_HIGH_WATER_MIN = 32;
 const S32 REQUEST_HIGH_WATER_MAX = 80;
@@ -727,12 +858,21 @@ void LLMeshRepoThread::run()
 				}
 			}
 
-			{ //mSkinRequests is protected by mSignal
+			// For the final three request lists, if we scan any part of one
+			// list, we scan the entire thing.  This gets us through any requests
+			// which can be resolved in the cache.  It also keeps the request
+			// set somewhat fresher otherwise items at the end of the set
+			// order will lose.  Keep to the throttle enforcement and pay
+			// attention to the highwater level (enforced in each fetchXXX()
+			// method).
+			if (! mSkinRequests.empty() && count < MAX_MESH_REQUESTS_PER_SECOND && mHttpRequestSet.size() < sRequestHighWater)
+			{
+				// *FIXME:  this really does need a lock as do the following ones
 				std::set<LLUUID> incomplete;
 				for (std::set<LLUUID>::iterator iter = mSkinRequests.begin(); iter != mSkinRequests.end(); ++iter)
 				{
 					LLUUID mesh_id = *iter;
-					if (!fetchMeshSkinInfo(mesh_id))
+					if (!fetchMeshSkinInfo(mesh_id, count))
 					{
 						incomplete.insert(mesh_id);
 					}
@@ -740,12 +880,13 @@ void LLMeshRepoThread::run()
 				mSkinRequests.swap(incomplete);
 			}
 
-			{ //mDecompositionRequests is protected by mSignal
+			if (! mDecompositionRequests.empty() && count < MAX_MESH_REQUESTS_PER_SECOND && mHttpRequestSet.size() < sRequestHighWater)
+			{
 				std::set<LLUUID> incomplete;
 				for (std::set<LLUUID>::iterator iter = mDecompositionRequests.begin(); iter != mDecompositionRequests.end(); ++iter)
 				{
 					LLUUID mesh_id = *iter;
-					if (!fetchMeshDecomposition(mesh_id))
+					if (!fetchMeshDecomposition(mesh_id, count))
 					{
 						incomplete.insert(mesh_id);
 					}
@@ -753,18 +894,23 @@ void LLMeshRepoThread::run()
 				mDecompositionRequests.swap(incomplete);
 			}
 
-			{ //mPhysicsShapeRequests is protected by mSignal
+			if (! mPhysicsShapeRequests.empty() && count < MAX_MESH_REQUESTS_PER_SECOND && mHttpRequestSet.size() < sRequestHighWater)
+			{
 				std::set<LLUUID> incomplete;
 				for (std::set<LLUUID>::iterator iter = mPhysicsShapeRequests.begin(); iter != mPhysicsShapeRequests.end(); ++iter)
 				{
 					LLUUID mesh_id = *iter;
-					if (!fetchMeshPhysicsShape(mesh_id))
+					if (!fetchMeshPhysicsShape(mesh_id, count))
 					{
 						incomplete.insert(mesh_id);
 					}
 				}
 				mPhysicsShapeRequests.swap(incomplete);
 			}
+
+			// For dev purposes, a dynamic change could make this false
+			// and that shouldn't assert.
+			// llassert_always(mHttpRequestSet.size() <= sRequestHighWater);
 		}
 	}
 	
@@ -927,8 +1073,8 @@ LLCore::HttpHandle LLMeshRepoThread::getByteRange(const std::string & url, int c
 }
 
 
-bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
-{ //protected by mMutex
+bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id, U32& count)
+{
 	
 	if (!mHeaderMutex)
 	{
@@ -985,6 +1131,10 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 			}
 
 			//reading from VFS failed for whatever reason, fetch from sim
+			if (count >= MAX_MESH_REQUESTS_PER_SECOND || mHttpRequestSet.size() >= sRequestHighWater)
+			{
+				return false;
+			}
 			int cap_version(1);
 			std::string http_url = constructUrl(mesh_id, &cap_version);
 			if (!http_url.empty())
@@ -1018,8 +1168,8 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 	return ret;
 }
 
-bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
-{ //protected by mMutex
+bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id, U32& count)
+{
 	if (!mHeaderMutex)
 	{
 		return false;
@@ -1076,6 +1226,10 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 			}
 
 			//reading from VFS failed for whatever reason, fetch from sim
+			if (count >= MAX_MESH_REQUESTS_PER_SECOND || mHttpRequestSet.size() >= sRequestHighWater)
+			{
+				return false;
+			}
 			int cap_version(1);
 			std::string http_url = constructUrl(mesh_id, &cap_version);
 			if (!http_url.empty())
@@ -1109,8 +1263,8 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 	return ret;
 }
 
-bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
-{ //protected by mMutex
+bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id, U32& count)
+{
 	if (!mHeaderMutex)
 	{
 		return false;
@@ -1166,6 +1320,10 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 			}
 
 			//reading from VFS failed for whatever reason, fetch from sim
+			if (count >= MAX_MESH_REQUESTS_PER_SECOND || mHttpRequestSet.size() >= sRequestHighWater)
+			{
+				return false;
+			}
 			int cap_version(1);
 			std::string http_url = constructUrl(mesh_id, &cap_version);
 			if (!http_url.empty())
@@ -1290,7 +1448,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, U32& c
 
 //return false if failed to get mesh lod.
 bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, U32& count)
-{ //protected by mMutex
+{
 	if (!mHeaderMutex)
 	{
 		return false;
@@ -2249,7 +2407,7 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * body, U8 * data, S32
 			for (U32 i = 0; i < LLModel::LOD_PHYSICS; ++i)
 			{
 				// figure out how many bytes we'll need to reserve in the file
-				std::string lod_name = header_lod[i];
+				const std::string & lod_name = header_lod[i];
 				lod_bytes = llmax(lod_bytes, header[lod_name]["offset"].asInteger()+header[lod_name]["size"].asInteger());
 			}
 		
@@ -3047,6 +3205,7 @@ void LLMeshRepository::fetchPhysicsShape(const LLUUID& mesh_id)
 			std::set<LLUUID>::iterator iter = mLoadingPhysicsShapes.find(mesh_id);
 			if (iter == mLoadingPhysicsShapes.end())
 			{ //no request pending for this skin info
+				// *FIXME:  Nothing ever deletes entries, can't be right
 				mLoadingPhysicsShapes.insert(mesh_id);
 				mPendingPhysicsShapeRequests.push(mesh_id);
 			}

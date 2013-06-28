@@ -365,15 +365,15 @@ public:
 
 	//send request for skin info, returns true if header info exists 
 	//  (should hold onto mesh_id and try again later if header info does not exist)
-	bool fetchMeshSkinInfo(const LLUUID& mesh_id);
+	bool fetchMeshSkinInfo(const LLUUID& mesh_id, U32& count);
 
 	//send request for decomposition, returns true if header info exists 
 	//  (should hold onto mesh_id and try again later if header info does not exist)
-	bool fetchMeshDecomposition(const LLUUID& mesh_id);
+	bool fetchMeshDecomposition(const LLUUID& mesh_id, U32& count);
 
 	//send request for PhysicsShape, returns true if header info exists 
 	//  (should hold onto mesh_id and try again later if header info does not exist)
-	bool fetchMeshPhysicsShape(const LLUUID& mesh_id);
+	bool fetchMeshPhysicsShape(const LLUUID& mesh_id, U32& count);
 
 	static void incActiveLODRequests();
 	static void decActiveLODRequests();
