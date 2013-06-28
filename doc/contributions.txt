@@ -405,6 +405,7 @@ Ganymedes Costagravas
 Geenz Spad
 	STORM-1823
 	STORM-1900
+	NORSPEC-229
 Gene Frostbite
 GeneJ Composer
 Geneko Nemeth
@@ -648,6 +649,7 @@ Jonathan Yap
 	STORM-1872
 	STORM-1858
 	STORM-1862
+	OPEN-161
 Kadah Coba
 	STORM-1060
     STORM-1843
@@ -1024,6 +1026,7 @@ Ryozu Kojima
 	VWR-287
 Sachi Vixen
 Sahkolihaa Contepomi
+	MATBUG-102
 Saii Hallard
 SaintLEOlions Zimer
 Salahzar Stenvaag
@@ -1174,6 +1177,7 @@ Techwolf Lupindo
 	SNOW-746
 	VWR-12385
 	VWR-20893
+	OPEN-161
 Templar Merlin
 tenebrous pau
 	VWR-247
@@ -1241,6 +1245,7 @@ Vadim Bigbear
 	VWR-2681
 Vaalith Jinn
     STORM-64
+    MATBUG-8
 Vector Hastings
 	VWR-8726
 Veritas Raymaker
