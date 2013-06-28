@@ -5442,17 +5442,6 @@ Sorry, the settings couldn't be applied to the region.  Leaving the region and t
   <notification
    functor="GenericAcknowledge"
    icon="alertmodal.tga"
-   name="FacebookCannotConnect"
-   type="alertmodal">
-Connection to Facebook failed. Reason: [STATUS] [REASON] ([CODE] - [DESCRIPTION])
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
-  </notification>
-    
-  <notification
-   functor="GenericAcknowledge"
-   icon="alertmodal.tga"
    name="EnvCannotDeleteLastDayCycleKey"
    type="alertmodal">
 Unable to delete the last key in this day cycle because you cannot have an empty day cycle.  You should modify the last remaining key instead of attempting to delete it and then to create a new one.

@@ -41,19 +41,12 @@
 
 
 // Local functions
-void prompt_user_for_error(U32 status, const std::string& reason, const std::string& code, const std::string& description)
+void log_facebook_connect_error(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
 {
-    // Note: 302 (redirect) is *not* an error that warrants prompting the user
+    // Note: 302 (redirect) is *not* an error that warrants logging
     if (status != 302)
     {
-        LLSD args(LLSD::emptyMap());
-        std::stringstream msg;
-        msg << status;
-        args["STATUS"] = msg.str();
-		args["REASON"] = reason;
-		args["CODE"] = code;
-		args["DESCRIPTION"] = description;
-        LLNotificationsUtil::add("FacebookCannotConnect", args);
+		LL_WARNS("FacebookConnect") << request << " request failed with a " << status << " " << reason << ". Reason: " << code << "(" << description << ")" << LL_ENDL;
     }
 }
 
@@ -113,8 +106,7 @@ public:
 		else
 		{
             LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_FAILED);
-            prompt_user_for_error(status, reason, content.get("error_code"), content.get("error_description"));
-            LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
+            log_facebook_connect_error("Connect", status, reason, content.get("error_code"), content.get("error_description"));
 		}
 	}
     
@@ -147,8 +139,7 @@ public:
 		}
 		else
 		{
-            prompt_user_for_error(status, reason, content.get("error_code"), content.get("error_description"));
-            LL_WARNS("FacebookConnect") << "Failed to get a post response. reason: " << reason << " status: " << status << LL_ENDL;
+            log_facebook_connect_error("Share", status, reason, content.get("error_code"), content.get("error_description"));
 		}
 		
 		if (mShareCallback)
@@ -188,8 +179,7 @@ public:
 		}
 		else
 		{
-            prompt_user_for_error(status, reason, content.get("error_code"), content.get("error_description"));
-			LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
+            log_facebook_connect_error("Disconnect", status, reason, content.get("error_code"), content.get("error_description"));
 		}
 	}
 };
@@ -218,8 +208,6 @@ public:
 		}
 		else
 		{
-			LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
-            
 			// show the facebook login page if not connected yet
 			if (status == 404)
 			{
@@ -235,7 +223,7 @@ public:
             else
             {
                 LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_FAILED);
-				prompt_user_for_error(status, reason, content.get("error_code"), content.get("error_description"));
+				log_facebook_connect_error("Connected", status, reason, content.get("error_code"), content.get("error_description"));
             }
 		}
 	}
@@ -261,8 +249,7 @@ public:
 		}
 		else
 		{
-            prompt_user_for_error(status, reason, content.get("error_code"), content.get("error_description"));
-			LL_WARNS("FacebookConnect") << "Failed to get a response. reason: " << reason << " status: " << status << LL_ENDL;
+            log_facebook_connect_error("Friends", status, reason, content.get("error_code"), content.get("error_description"));
 		}
 	}
 
