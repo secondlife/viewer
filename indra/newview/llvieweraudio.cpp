@@ -44,6 +44,8 @@
 #include "llparcel.h"
 #include "llviewermessage.h"
 
+#include "llstreamingaudio.h"
+
 /////////////////////////////////////////////////////////
 
 LLViewerAudio::LLViewerAudio() :
@@ -102,6 +104,11 @@ void LLViewerAudio::startInternetStreamWithAutoFade(std::string streamURI)
 		else
 		{
 			mFadeState = FADE_IN;
+
+			LLStreamingAudioInterface *stream = gAudiop->getStreamingAudioImpl();
+			if(stream && stream->supportsAdjustableBufferSizes())
+				stream->setBufferSizes(gSavedSettings.getU32("FMODExStreamBufferSize"),gSavedSettings.getU32("FMODExDecodeBufferSize"));
+
 			gAudiop->startInternetStream(mNextStreamURI);
 			startFading();
 			registerIdleListener();
@@ -157,6 +164,11 @@ bool LLViewerAudio::onIdleUpdate()
 			if (!mNextStreamURI.empty())
 			{
 				mFadeState = FADE_IN;
+
+				LLStreamingAudioInterface *stream = gAudiop->getStreamingAudioImpl();
+				if(stream && stream->supportsAdjustableBufferSizes())
+					stream->setBufferSizes(gSavedSettings.getU32("FMODExStreamBufferSize"),gSavedSettings.getU32("FMODExDecodeBufferSize"));
+
 				gAudiop->startInternetStream(mNextStreamURI);
 				startFading();
 			}
@@ -386,7 +398,12 @@ void audio_update_volume(bool force_update)
 		gAudiop->setMasterGain ( master_volume );
 
 		gAudiop->setDopplerFactor(gSavedSettings.getF32("AudioLevelDoppler"));
+
+		if(!LLViewerCamera::getInstance()->cameraUnderWater())
 		gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelRolloff"));
+		else
+			gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelUnderwaterRolloff"));
+
 		gAudiop->setMuted(mute_audio || progress_view_visible);
 		
 		//Play any deferred sounds when unmuted
@@ -473,32 +490,10 @@ void audio_update_listener()
 void audio_update_wind(bool force_update)
 {
 #ifdef kAUDIO_ENABLE_WIND
-	//
-	//  Extract height above water to modulate filter by whether above/below water 
-	// 
+
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)
 	{
-		static F32 last_camera_water_height = -1000.f;
-		LLVector3 camera_pos = gAgentCamera.getCameraPositionAgent();
-		F32 camera_water_height = camera_pos.mV[VZ] - region->getWaterHeight();
-		
-		//
-		//  Don't update rolloff factor unless water surface has been crossed
-		//
-		if (force_update || (last_camera_water_height * camera_water_height) < 0.f)
-		{
-            static LLUICachedControl<F32> rolloff("AudioLevelRolloff", 1.0f);
-			if (camera_water_height < 0.f)
-			{
-				gAudiop->setRolloffFactor(rolloff * LL_ROLLOFF_MULTIPLIER_UNDER_WATER);
-			}
-			else 
-			{
-				gAudiop->setRolloffFactor(rolloff);
-			}
-		}
-        
         // Scale down the contribution of weather-simulation wind to the
         // ambient wind noise.  Wind velocity averages 3.5 m/s, with gusts to 7 m/s
         // whereas steady-state avatar walk velocity is only 3.2 m/s.
@@ -543,8 +538,7 @@ void audio_update_wind(bool force_update)
 			gAudiop->mMaxWindGain = llmax(gAudiop->mMaxWindGain - volume_delta, 0.f);
 		}
 		
-		last_camera_water_height = camera_water_height;
-		gAudiop->updateWind(gRelativeWindVec, camera_water_height);
+		gAudiop->updateWind(gRelativeWindVec, gAgentCamera.getCameraPositionAgent()[VZ] - gAgent.getRegion()->getWaterHeight());
 	}
 #endif
 }

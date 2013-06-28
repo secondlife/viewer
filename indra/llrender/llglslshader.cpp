@@ -53,6 +53,12 @@ GLhandleARB LLGLSLShader::sCurBoundShader = 0;
 LLGLSLShader* LLGLSLShader::sCurBoundShaderPtr = NULL;
 S32 LLGLSLShader::sIndexedTextureChannels = 0;
 bool LLGLSLShader::sNoFixedFunction = false;
+bool LLGLSLShader::sProfileEnabled = false;
+std::set<LLGLSLShader*> LLGLSLShader::sInstances;
+U64 LLGLSLShader::sTotalTimeElapsed = 0;
+U32 LLGLSLShader::sTotalTrianglesDrawn = 0;
+U64 LLGLSLShader::sTotalSamplesDrawn = 0;
+U32 LLGLSLShader::sTotalDrawCalls = 0;
 
 //UI shader -- declared here so llui_libtest will link properly
 LLGLSLShader	gUIProgram;
@@ -87,19 +93,240 @@ LLShaderFeatures::LLShaderFeatures()
 //===============================
 // LLGLSL Shader implementation
 //===============================
-LLGLSLShader::LLGLSLShader()
-	: mProgramObject(0), mActiveTextureChannels(0), mShaderLevel(0), mShaderGroup(SG_DEFAULT), mUniformsDirty(FALSE)
-{
 
+//static
+void LLGLSLShader::initProfile()
+{
+	sProfileEnabled = true;
+	sTotalTimeElapsed = 0;
+	sTotalTrianglesDrawn = 0;
+	sTotalSamplesDrawn = 0;
+	sTotalDrawCalls = 0;
+
+	for (std::set<LLGLSLShader*>::iterator iter = sInstances.begin(); iter != sInstances.end(); ++iter)
+	{
+		(*iter)->clearStats();
+	}
+}
+
+
+struct LLGLSLShaderCompareTimeElapsed
+{
+		bool operator()(const LLGLSLShader* const& lhs, const LLGLSLShader* const& rhs)
+		{
+			return lhs->mTimeElapsed < rhs->mTimeElapsed;
+		}
+};
+
+//static
+void LLGLSLShader::finishProfile()
+{
+	sProfileEnabled = false;
+
+	std::vector<LLGLSLShader*> sorted;
+
+	for (std::set<LLGLSLShader*>::iterator iter = sInstances.begin(); iter != sInstances.end(); ++iter)
+	{
+		sorted.push_back(*iter);
+	}
+
+	std::sort(sorted.begin(), sorted.end(), LLGLSLShaderCompareTimeElapsed());
+
+	for (std::vector<LLGLSLShader*>::iterator iter = sorted.begin(); iter != sorted.end(); ++iter)
+	{
+		(*iter)->dumpStats();
+	}
+
+	llinfos << "-----------------------------------" << llendl;
+	llinfos << "Total rendering time: " << llformat("%.4f ms", sTotalTimeElapsed/1000000.f) << llendl;
+	llinfos << "Total samples drawn: " << llformat("%.4f million", sTotalSamplesDrawn/1000000.f) << llendl;
+	llinfos << "Total triangles drawn: " << llformat("%.3f million", sTotalTrianglesDrawn/1000000.f) << llendl;
+}
+
+void LLGLSLShader::clearStats()
+{
+	mTrianglesDrawn = 0;
+	mTimeElapsed = 0;
+	mSamplesDrawn = 0;
+	mDrawCalls = 0;
+	mTextureStateFetched = false;
+	mTextureMagFilter.clear();
+	mTextureMinFilter.clear();
+}
+
+void LLGLSLShader::dumpStats()
+{
+	if (mDrawCalls > 0)
+	{
+		llinfos << "=============================================" << llendl;
+		llinfos << mName << llendl;
+		for (U32 i = 0; i < mShaderFiles.size(); ++i)
+		{
+			llinfos << mShaderFiles[i].first << llendl;
+		}
+		for (U32 i = 0; i < mTexture.size(); ++i)
+		{
+			GLint idx = mTexture[i];
+			
+			if (idx >= 0)
+			{
+				GLint uniform_idx = getUniformLocation(i);
+				llinfos << mUniformNameMap[uniform_idx] << " - " << std::hex << mTextureMagFilter[i] << "/" << mTextureMinFilter[i] << std::dec << llendl;
+			}
+		}
+		llinfos << "=============================================" << llendl;
+
+		F32 ms = mTimeElapsed/1000000.f;
+		F32 seconds = ms/1000.f;
+
+		F32 pct_tris = (F32) mTrianglesDrawn/(F32)sTotalTrianglesDrawn*100.f;
+		F32 tris_sec = (F32) (mTrianglesDrawn/1000000.0);
+		tris_sec /= seconds;
+
+		F32 pct_samples = (F32) ((F64)mSamplesDrawn/(F64)sTotalSamplesDrawn)*100.f;
+		F32 samples_sec = (F32) mSamplesDrawn/1000000000.0;
+		samples_sec /= seconds;
+
+		F32 pct_calls = (F32) mDrawCalls/(F32)sTotalDrawCalls*100.f;
+		U32 avg_batch = mTrianglesDrawn/mDrawCalls;
+
+		llinfos << "Triangles Drawn: " << mTrianglesDrawn <<  " " << llformat("(%.2f pct of total, %.3f million/sec)", pct_tris, tris_sec ) << llendl;
+		llinfos << "Draw Calls: " << mDrawCalls << " " << llformat("(%.2f pct of total, avg %d tris/call)", pct_calls, avg_batch) << llendl;
+		llinfos << "SamplesDrawn: " << mSamplesDrawn << " " << llformat("(%.2f pct of total, %.3f billion/sec)", pct_samples, samples_sec) << llendl;
+		llinfos << "Time Elapsed: " << mTimeElapsed << " " << llformat("(%.2f pct of total, %.5f ms)\n", (F32) ((F64)mTimeElapsed/(F64)sTotalTimeElapsed)*100.f, ms) << llendl;
+	}
+}
+
+//static
+void LLGLSLShader::startProfile()
+{
+	if (sProfileEnabled && sCurBoundShaderPtr)
+	{
+		sCurBoundShaderPtr->placeProfileQuery();
+	}
+
+}
+
+//static
+void LLGLSLShader::stopProfile(U32 count, U32 mode)
+{
+	if (sProfileEnabled)
+	{
+		sCurBoundShaderPtr->readProfileQuery(count, mode);
+	}
+}
+
+void LLGLSLShader::placeProfileQuery()
+{
+#if !LL_DARWIN
+	if (mTimerQuery == 0)
+	{
+		glGenQueriesARB(1, &mTimerQuery);
+	}
+
+	if (!mTextureStateFetched)
+	{
+		mTextureStateFetched = true;
+		mTextureMagFilter.resize(mTexture.size());
+		mTextureMinFilter.resize(mTexture.size());
+
+		U32 cur_active = gGL.getCurrentTexUnitIndex();
+
+		for (U32 i = 0; i < mTexture.size(); ++i)
+		{
+			GLint idx = mTexture[i];
+
+			if (idx >= 0)
+			{
+				gGL.getTexUnit(idx)->activate();
+
+				U32 mag = 0xFFFFFFFF;
+				U32 min = 0xFFFFFFFF;
+
+				U32 type = LLTexUnit::getInternalType(gGL.getTexUnit(idx)->getCurrType());
+
+				glGetTexParameteriv(type, GL_TEXTURE_MAG_FILTER, (GLint*) &mag);
+				glGetTexParameteriv(type, GL_TEXTURE_MIN_FILTER, (GLint*) &min);
+
+				mTextureMagFilter[i] = mag;
+				mTextureMinFilter[i] = min;
+			}
+		}
+
+		gGL.getTexUnit(cur_active)->activate();
+	}
+
+
+	glBeginQueryARB(GL_SAMPLES_PASSED, 1);
+	glBeginQueryARB(GL_TIME_ELAPSED, mTimerQuery);
+#endif
+}
+
+void LLGLSLShader::readProfileQuery(U32 count, U32 mode)
+{
+#if !LL_DARWIN
+	glEndQueryARB(GL_TIME_ELAPSED);
+	glEndQueryARB(GL_SAMPLES_PASSED);
+	
+	U64 time_elapsed = 0;
+	glGetQueryObjectui64v(mTimerQuery, GL_QUERY_RESULT, &time_elapsed);
+
+	U64 samples_passed = 0;
+	glGetQueryObjectui64v(1, GL_QUERY_RESULT, &samples_passed);
+
+	sTotalTimeElapsed += time_elapsed;
+	mTimeElapsed += time_elapsed;
+
+	sTotalSamplesDrawn += samples_passed;
+	mSamplesDrawn += samples_passed;
+
+	U32 tri_count = 0;
+	switch (mode)
+	{
+		case LLRender::TRIANGLES: tri_count = count/3; break;
+		case LLRender::TRIANGLE_FAN: tri_count = count-2; break;
+		case LLRender::TRIANGLE_STRIP: tri_count = count-2; break;
+		default: tri_count = count; break; //points lines etc just use primitive count
+	}
+
+	mTrianglesDrawn += tri_count;
+	sTotalTrianglesDrawn += tri_count;
+
+	sTotalDrawCalls++;
+	mDrawCalls++;
+#endif
+}
+
+
+
+LLGLSLShader::LLGLSLShader()
+	: mProgramObject(0), 
+	  mAttributeMask(0),
+	  mTotalUniformSize(0),
+	  mActiveTextureChannels(0), 
+	  mShaderLevel(0), 
+	  mShaderGroup(SG_DEFAULT), 
+	  mUniformsDirty(FALSE),
+	  mTimerQuery(0)
+{
+	
+}
+
+LLGLSLShader::~LLGLSLShader()
+{
+	
 }
 
 void LLGLSLShader::unload()
 {
+	sInstances.erase(this);
+
 	stop_glerror();
 	mAttribute.clear();
 	mTexture.clear();
 	mUniform.clear();
 	mShaderFiles.clear();
+	mDefines.clear();
 
 	if (mProgramObject)
 	{
@@ -133,6 +360,8 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 								U32 varying_count,
 								const char** varyings)
 {
+	sInstances.insert(this);
+
 	//reloading, reset matrix hash values
 	for (U32 i = 0; i < LLRender::NUM_MATRIX_MODES; ++i)
 	{
@@ -150,7 +379,7 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 	vector< pair<string,GLenum> >::iterator fileIter = mShaderFiles.begin();
 	for ( ; fileIter != mShaderFiles.end(); fileIter++ )
 	{
-		GLhandleARB shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, mFeatures.mIndexedTextureChannels);
+		GLhandleARB shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, &mDefines, mFeatures.mIndexedTextureChannels);
 		LL_DEBUGS("ShaderLoading") << "SHADER FILE: " << (*fileIter).first << " mShaderLevel=" << mShaderLevel << LL_ENDL;
 		if (shaderhandle > 0)
 		{
@@ -285,6 +514,8 @@ BOOL LLGLSLShader::mapAttributes(const vector<string> * attributes)
 	if (res)
 	{ //read back channel locations
 
+		mAttributeMask = 0;
+
 		//read back reserved channels first
 		for (U32 i = 0; i < LLShaderMgr::instance()->mReservedAttribs.size(); i++)
 		{
@@ -293,6 +524,7 @@ BOOL LLGLSLShader::mapAttributes(const vector<string> * attributes)
 			if (index != -1)
 			{
 				mAttribute[i] = index;
+				mAttributeMask |= 1 << i;
 				LL_DEBUGS("ShaderLoading") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
 			}
 		}
@@ -325,11 +557,56 @@ void LLGLSLShader::mapUniform(GLint index, const vector<string> * uniforms)
 
 	GLenum type;
 	GLsizei length;
-	GLint size;
+	GLint size = -1;
 	char name[1024];		/* Flawfinder: ignore */
 	name[0] = 0;
 
+
 	glGetActiveUniformARB(mProgramObject, index, 1024, &length, &size, &type, (GLcharARB *)name);
+#if !LL_DARWIN
+	if (size > 0)
+	{
+		switch(type)
+		{
+			case GL_FLOAT_VEC2: size *= 2; break;
+			case GL_FLOAT_VEC3: size *= 3; break;
+			case GL_FLOAT_VEC4: size *= 4; break;
+			case GL_DOUBLE: size *= 2; break;
+			case GL_DOUBLE_VEC2: size *= 2; break;
+			case GL_DOUBLE_VEC3: size *= 6; break;
+			case GL_DOUBLE_VEC4: size *= 8; break;
+			case GL_INT_VEC2: size *= 2; break;
+			case GL_INT_VEC3: size *= 3; break;
+			case GL_INT_VEC4: size *= 4; break;
+			case GL_UNSIGNED_INT_VEC2: size *= 2; break;
+			case GL_UNSIGNED_INT_VEC3: size *= 3; break;
+			case GL_UNSIGNED_INT_VEC4: size *= 4; break;
+			case GL_BOOL_VEC2: size *= 2; break;
+			case GL_BOOL_VEC3: size *= 3; break;
+			case GL_BOOL_VEC4: size *= 4; break;
+			case GL_FLOAT_MAT2: size *= 4; break;
+			case GL_FLOAT_MAT3: size *= 9; break;
+			case GL_FLOAT_MAT4: size *= 16; break;
+			case GL_FLOAT_MAT2x3: size *= 6; break;
+			case GL_FLOAT_MAT2x4: size *= 8; break;
+			case GL_FLOAT_MAT3x2: size *= 6; break;
+			case GL_FLOAT_MAT3x4: size *= 12; break;
+			case GL_FLOAT_MAT4x2: size *= 8; break;
+			case GL_FLOAT_MAT4x3: size *= 12; break;
+			case GL_DOUBLE_MAT2: size *= 8; break;
+			case GL_DOUBLE_MAT3: size *= 18; break;
+			case GL_DOUBLE_MAT4: size *= 32; break;
+			case GL_DOUBLE_MAT2x3: size *= 12; break;
+			case GL_DOUBLE_MAT2x4: size *= 16; break;
+			case GL_DOUBLE_MAT3x2: size *= 12; break;
+			case GL_DOUBLE_MAT3x4: size *= 24; break;
+			case GL_DOUBLE_MAT4x2: size *= 16; break;
+			case GL_DOUBLE_MAT4x3: size *= 24; break;
+		}
+		mTotalUniformSize += size;
+	}
+#endif
+
 	S32 location = glGetUniformLocationARB(mProgramObject, name);
 	if (location != -1)
 	{
@@ -342,6 +619,7 @@ void LLGLSLShader::mapUniform(GLint index, const vector<string> * uniforms)
 		}
 
 		mUniformMap[name] = location;
+		mUniformNameMap[location] = name;
 		LL_DEBUGS("ShaderLoading") << "Uniform " << name << " is at location " << location << LL_ENDL;
 	
 		//find the index of this uniform
@@ -372,11 +650,21 @@ void LLGLSLShader::mapUniform(GLint index, const vector<string> * uniforms)
 			}
 		}
 	}
- }
+}
+
+void LLGLSLShader::addPermutation(std::string name, std::string value)
+{
+	mDefines[name] = value;
+}
+
+void LLGLSLShader::removePermutation(std::string name)
+{
+	mDefines[name].erase();
+}
 
 GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
 {
-	if (type >= GL_SAMPLER_1D_ARB && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB ||
+	if ((type >= GL_SAMPLER_1D_ARB && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB) ||
 		type == GL_SAMPLER_2D_MULTISAMPLE)
 	{	//this here is a texture
 		glUniform1iARB(location, mActiveTextureChannels);
@@ -390,9 +678,11 @@ BOOL LLGLSLShader::mapUniforms(const vector<string> * uniforms)
 {
 	BOOL res = TRUE;
 	
+	mTotalUniformSize = 0;
 	mActiveTextureChannels = 0;
 	mUniform.clear();
 	mUniformMap.clear();
+	mUniformNameMap.clear();
 	mTexture.clear();
 	mValue.clear();
 	//initialize arrays
@@ -413,6 +703,7 @@ BOOL LLGLSLShader::mapUniforms(const vector<string> * uniforms)
 
 	unbind();
 
+	LL_DEBUGS("ShaderLoading") << "Total Uniform Size: " << mTotalUniformSize << llendl;
 	return res;
 }
 
@@ -469,6 +760,58 @@ void LLGLSLShader::bindNoShader(void)
 		sCurBoundShader = 0;
 		sCurBoundShaderPtr = NULL;
 	}
+}
+
+S32 LLGLSLShader::bindTexture(const std::string &uniform, LLTexture *texture, LLTexUnit::eTextureType mode)
+{
+	S32 channel = 0;
+	channel = getUniformLocation(uniform);
+	
+	return bindTexture(channel, texture, mode);
+}
+
+S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture *texture, LLTexUnit::eTextureType mode)
+{
+	if (uniform < 0 || uniform >= (S32)mTexture.size())
+	{
+		UNIFORM_ERRS << "Uniform out of range: " << uniform << LL_ENDL;
+		return -1;
+	}
+	
+	uniform = mTexture[uniform];
+	
+	if (uniform > -1)
+	{
+		gGL.getTexUnit(uniform)->bind(texture, mode);
+	}
+	
+	return uniform;
+}
+
+S32 LLGLSLShader::unbindTexture(const std::string &uniform, LLTexUnit::eTextureType mode)
+{
+	S32 channel = 0;
+	channel = getUniformLocation(uniform);
+	
+	return unbindTexture(channel);
+}
+
+S32 LLGLSLShader::unbindTexture(S32 uniform, LLTexUnit::eTextureType mode)
+{
+	if (uniform < 0 || uniform >= (S32)mTexture.size())
+	{
+		UNIFORM_ERRS << "Uniform out of range: " << uniform << LL_ENDL;
+		return -1;
+	}
+	
+	uniform = mTexture[uniform];
+	
+	if (uniform > -1)
+	{
+		gGL.getTexUnit(uniform)->unbind(mode);
+	}
+	
+	return uniform;
 }
 
 S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode)
@@ -856,6 +1199,23 @@ void LLGLSLShader::uniform1i(const string& uniform, GLint v)
 		}
 	}
 }
+
+void LLGLSLShader::uniform2i(const string& uniform, GLint i, GLint j)
+{
+	GLint location = getUniformLocation(uniform);
+				
+	if (location >= 0)
+	{
+		std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
+		LLVector4 vec(i,j,0.f,0.f);
+		if (iter == mValue.end() || shouldChange(iter->second,vec))
+		{
+			glUniform2iARB(location, i, j);
+			mValue[location] = vec;
+		}
+	}
+}
+
 
 void LLGLSLShader::uniform1f(const string& uniform, GLfloat v)
 {

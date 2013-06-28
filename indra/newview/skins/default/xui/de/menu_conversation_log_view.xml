@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_conversation_view">
+	<menu_item_check label="Nach Namen sortieren" name="sort_by_name"/>
+	<menu_item_check label="Nach Datum sortieren" name="sort_by_date"/>
+	<menu_item_check label="Freunde oben anzeigen" name="sort_by_friends"/>
+	<menu_item_call label="Verlaufsliste für „Chat in der Nähe“ anzeigen..." name="view_nearby_chat_history"/>
+</toggleable_menu>

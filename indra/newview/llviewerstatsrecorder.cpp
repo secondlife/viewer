@@ -166,6 +166,7 @@ void LLViewerStatsRecorder::recordRequestCacheMissesEvent(S32 count)
 
 void LLViewerStatsRecorder::writeToLog( F32 interval )
 {
+	size_t data_size = 0;
 	F64 delta_time = LLTimer::getTotalSeconds() - mLastSnapshotTime;
 	S32 total_objects = mObjectCacheHitCount + mObjectCacheMissCrcCount + mObjectCacheMissFullCount + mObjectFullUpdates + mObjectTerseUpdates + mObjectCacheMissRequests + mObjectCacheMissResponses + mObjectCacheUpdateDupes + mObjectCacheUpdateChanges + mObjectCacheUpdateAdds + mObjectCacheUpdateReplacements + mObjectUpdateFailures;
 
@@ -216,7 +217,11 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 				<< "Texture Fetch bps\t"
 				<< "\n";
 
-			fwrite(data_msg.str().c_str(), 1, data_msg.str().size(), mObjectCacheFile );
+			data_size = data_msg.str().size();
+			if (fwrite(data_msg.str().c_str(), 1, data_size, mObjectCacheFile ) != data_size)
+			{
+				llwarns << "failed to write full headers to " << STATS_FILE_NAME << llendl;
+			}
 		}
 		else
 		{
@@ -249,7 +254,12 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 		<< "\t" << (mTextureFetchSize * 8 / delta_time)
 		<< "\n";
 
-	fwrite(data_msg.str().c_str(), 1, data_msg.str().size(), mObjectCacheFile );
+	data_size = data_msg.str().size();
+	if ( data_size != fwrite(data_msg.str().c_str(), 1, data_size, mObjectCacheFile ))
+	{
+				llwarns << "Unable to write complete column data to " << STATS_FILE_NAME << llendl;
+	}
+
 	clearStats();
 }
 

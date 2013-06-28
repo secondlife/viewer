@@ -51,7 +51,7 @@ void fullbright_shiny_lighting()
 
 	color.rgb = fullbrightScaleSoftClip(color.rgb);
 
-	color.a = max(color.a, vertex_color.a);
+	color.a = 1.0;
 
 	frag_color = color;
 }

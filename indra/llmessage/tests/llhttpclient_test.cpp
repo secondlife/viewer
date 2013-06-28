@@ -241,7 +241,7 @@ namespace tut
 		ensureStatusOK();
 		ensure_equals("echoed result matches", getResult(), sd);
 	}
-		
+
 	template<> template<>
 		void HTTPClientTestObject::test<4>()
 	{

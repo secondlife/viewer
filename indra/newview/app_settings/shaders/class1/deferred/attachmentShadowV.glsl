@@ -39,7 +39,12 @@ void main()
 	mat = modelview_matrix * mat;
 	vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
 	
+
 	vec4 p = projection_matrix * vec4(pos, 1.0);
+#if !DEPTH_CLAMP
 	p.z = max(p.z, -p.w+0.01);
 	gl_Position = p;
+#else
+	gl_Position = p;
+#endif
 }

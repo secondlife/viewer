@@ -47,6 +47,7 @@ VARYING vec3 vary_directional;
 VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_pointlight_col;
 VARYING vec2 vary_texcoord0;
+VARYING vec3 vary_norm;
 
 
 uniform float near_clip;
@@ -112,6 +113,7 @@ void main()
 	norm.y = dot(trans[1].xyz, normal);
 	norm.z = dot(trans[2].xyz, normal);
 	norm = normalize(norm);
+	vary_norm = norm;
 		
 	vec4 frag_pos = projection_matrix * pos;
 	gl_Position = frag_pos;
