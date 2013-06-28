@@ -111,6 +111,19 @@ public:
 	void uniform2fv(U32 index, U32 count, const GLfloat* v);
 	void uniform3fv(U32 index, U32 count, const GLfloat* v);
 	void uniform4fv(U32 index, U32 count, const GLfloat* v);
+
+	void uniform1i(const std::string& uniform, GLint i);
+	void uniform2i(const std::string& uniform, GLint i, GLint j);
+	void uniform1f(const std::string& uniform, GLfloat v);
+	void uniform2f(const std::string& uniform, GLfloat x, GLfloat y);
+	void uniform3f(const std::string& uniform, GLfloat x, GLfloat y, GLfloat z);
+	void uniform4f(const std::string& uniform, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
+	void uniform1iv(const std::string& uniform, U32 count, const GLint* i);
+	void uniform1fv(const std::string& uniform, U32 count, const GLfloat* v);
+	void uniform2fv(const std::string& uniform, U32 count, const GLfloat* v);
+	void uniform3fv(const std::string& uniform, U32 count, const GLfloat* v);
+	void uniform4fv(const std::string& uniform, U32 count, const GLfloat* v);
+
 	void uniformMatrix2fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v);
 	void uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v);
 	void uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v);
@@ -190,6 +203,11 @@ public:
 	static U64 sTotalSamplesDrawn;
 	U32 mDrawCalls;
 	static U32 sTotalDrawCalls;
+
+	bool mTextureStateFetched;
+	std::vector<U32> mTextureMagFilter;
+	std::vector<U32> mTextureMinFilter;
+	
 };
 
 //UI shader (declared here so llui_libtest will link properly)

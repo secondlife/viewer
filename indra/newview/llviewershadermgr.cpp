@@ -100,6 +100,8 @@ LLGLSLShader	gTwoTextureAddProgram;
 LLGLSLShader	gOneTextureNoColorProgram;
 LLGLSLShader	gDebugProgram;
 LLGLSLShader	gClipProgram;
+LLGLSLShader	gDownsampleDepthProgram;
+LLGLSLShader	gDownsampleDepthRectProgram;
 LLGLSLShader	gAlphaMaskProgram;
 
 //object shaders
@@ -668,6 +670,8 @@ void LLViewerShaderMgr::unloadShaders()
 	gOcclusionCubeProgram.unload();
 	gDebugProgram.unload();
 	gClipProgram.unload();
+	gDownsampleDepthProgram.unload();
+	gDownsampleDepthRectProgram.unload();
 	gAlphaMaskProgram.unload();
 	gUIProgram.unload();
 	gPathfindingProgram.unload();
@@ -2964,6 +2968,26 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		gClipProgram.mShaderFiles.push_back(make_pair("interface/clipF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gClipProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
 		success = gClipProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gDownsampleDepthProgram.mName = "DownsampleDepth Shader";
+		gDownsampleDepthProgram.mShaderFiles.clear();
+		gDownsampleDepthProgram.mShaderFiles.push_back(make_pair("interface/downsampleDepthV.glsl", GL_VERTEX_SHADER_ARB));
+		gDownsampleDepthProgram.mShaderFiles.push_back(make_pair("interface/downsampleDepthF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDownsampleDepthProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
+		success = gDownsampleDepthProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gDownsampleDepthRectProgram.mName = "DownsampleDepthRect Shader";
+		gDownsampleDepthRectProgram.mShaderFiles.clear();
+		gDownsampleDepthRectProgram.mShaderFiles.push_back(make_pair("interface/downsampleDepthV.glsl", GL_VERTEX_SHADER_ARB));
+		gDownsampleDepthRectProgram.mShaderFiles.push_back(make_pair("interface/downsampleDepthRectF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDownsampleDepthRectProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
+		success = gDownsampleDepthRectProgram.createShader(NULL, NULL);
 	}
 
 	if (success)

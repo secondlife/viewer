@@ -26,28 +26,23 @@
 
 ATTRIBUTE vec4 weight4;  
 
-uniform mat4 matrixPalette[64];
+uniform mat4 matrixPalette[32];
 
 mat4 getObjectSkinnedTransform()
 {
+	int i; 
 	
-	float w0 = fract(weight4.x);
-	float w1 = fract(weight4.y);
-	float w2 = fract(weight4.z);
-	float w3 = fract(weight4.w);
-			
-	int i0 = int(floor(weight4.x));
-	int i1 = int(floor(weight4.y));
-	int i2 = int(floor(weight4.z));
-	int i3 = int(floor(weight4.w));
-
-	//float scale = 1.0/(w.x+w.y+w.z+w.w);
-	//w *= scale;
+	vec4 w = fract(weight4);
+	vec4 index = floor(weight4);
 	
-	mat4 mat = matrixPalette[i0]*w0;
-	mat += matrixPalette[i1]*w1;
-	mat += matrixPalette[i2]*w2;
-	mat += matrixPalette[i3]*w3;
+	float scale = 1.0/(w.x+w.y+w.z+w.w);
+	w *= scale;
+	
+	mat4 mat = matrixPalette[int(index.x)]*w.x;
+	mat += matrixPalette[int(index.y)]*w.y;
+	mat += matrixPalette[int(index.z)]*w.z;
+	mat += matrixPalette[int(index.w)]*w.w;
 		
 	return mat;
 }
+

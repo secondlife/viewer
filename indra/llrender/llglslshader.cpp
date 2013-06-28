@@ -149,6 +149,9 @@ void LLGLSLShader::clearStats()
 	mTimeElapsed = 0;
 	mSamplesDrawn = 0;
 	mDrawCalls = 0;
+	mTextureStateFetched = false;
+	mTextureMagFilter.clear();
+	mTextureMinFilter.clear();
 }
 
 void LLGLSLShader::dumpStats()
@@ -160,6 +163,16 @@ void LLGLSLShader::dumpStats()
 		for (U32 i = 0; i < mShaderFiles.size(); ++i)
 		{
 			llinfos << mShaderFiles[i].first << llendl;
+		}
+		for (U32 i = 0; i < mTexture.size(); ++i)
+		{
+			GLint idx = mTexture[i];
+			
+			if (idx >= 0)
+			{
+				GLint uniform_idx = getUniformLocation(i);
+				llinfos << std::hex << mTextureMagFilter[i] << "/" << mTextureMinFilter[i] << std::dec << llendl;
+			}
 		}
 		llinfos << "=============================================" << llendl;
 
@@ -210,6 +223,39 @@ void LLGLSLShader::placeProfileQuery()
 	{
 		glGenQueriesARB(1, &mTimerQuery);
 	}
+
+	if (!mTextureStateFetched)
+	{
+		mTextureStateFetched = true;
+		mTextureMagFilter.resize(mTexture.size());
+		mTextureMinFilter.resize(mTexture.size());
+
+		U32 cur_active = gGL.getCurrentTexUnitIndex();
+
+		for (U32 i = 0; i < mTexture.size(); ++i)
+		{
+			GLint idx = mTexture[i];
+
+			if (idx >= 0)
+			{
+				gGL.getTexUnit(idx)->activate();
+
+				U32 mag = 0xFFFFFFFF;
+				U32 min = 0xFFFFFFFF;
+
+				U32 type = LLTexUnit::getInternalType(gGL.getTexUnit(idx)->getCurrType());
+
+				glGetTexParameteriv(type, GL_TEXTURE_MAG_FILTER, (GLint*) &mag);
+				glGetTexParameteriv(type, GL_TEXTURE_MIN_FILTER, (GLint*) &min);
+
+				mTextureMagFilter[i] = mag;
+				mTextureMinFilter[i] = min;
+			}
+		}
+
+		gGL.getTexUnit(cur_active)->activate();
+	}
+
 
 	glBeginQueryARB(GL_SAMPLES_PASSED, 1);
 	glBeginQueryARB(GL_TIME_ELAPSED, mTimerQuery);
@@ -575,6 +621,7 @@ void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * 
 
 		LLStaticHashedString hashedName(name);
 		mUniformMap[hashedName] = location;
+
 		LL_DEBUGS("ShaderLoading") << "Uniform " << name << " is at location " << location << LL_ENDL;
 	
 		//find the index of this uniform
@@ -1149,6 +1196,22 @@ void LLGLSLShader::uniform1i(const LLStaticHashedString& uniform, GLint v)
 		if (iter == mValue.end() || shouldChange(iter->second,vec))
 		{
 			glUniform1iARB(location, v);
+			mValue[location] = vec;
+		}
+	}
+}
+
+void LLGLSLShader::uniform2i(const string& uniform, GLint i, GLint j)
+{
+	GLint location = getUniformLocation(uniform);
+				
+	if (location >= 0)
+	{
+		std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
+		LLVector4 vec(i,j,0.f,0.f);
+		if (iter == mValue.end() || shouldChange(iter->second,vec))
+		{
+			glUniform2iARB(location, i, j);
 			mValue[location] = vec;
 		}
 	}
