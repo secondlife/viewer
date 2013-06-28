@@ -513,7 +513,6 @@ set(viewer_SOURCE_FILES
     llsky.cpp
     llslurl.cpp
     llsnapshotlivepreview.cpp
-    llsociallist.cpp
     llspatialpartition.cpp
     llspeakers.cpp
     llspeakingindicatormanager.cpp
@@ -1092,7 +1091,6 @@ set(viewer_HEADER_FILES
     llsky.h
     llslurl.h
     llsnapshotlivepreview.h
-    llsociallist.h
     llspatialpartition.h
     llspeakers.h
     llspeakingindicatormanager.h

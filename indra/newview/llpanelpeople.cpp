@@ -72,7 +72,6 @@
 #include "llviewermenu.h"			// for gMenuHolder
 #include "llvoiceclient.h"
 #include "llworld.h"
-#include "llsociallist.h"
 #include "llspeakers.h"
 #include "llfloaterwebcontent.h"
 
@@ -87,7 +86,6 @@ static const std::string FRIENDS_TAB_NAME	= "friends_panel";
 static const std::string GROUP_TAB_NAME		= "groups_panel";
 static const std::string RECENT_TAB_NAME	= "recent_panel";
 static const std::string BLOCKED_TAB_NAME	= "blocked_panel"; // blocked avatars
-static const std::string FBCTEST_TAB_NAME	= "fbctest_panel";
 static const std::string FBCTESTTWO_TAB_NAME	= "fbctesttwo_panel";
 static const std::string COLLAPSED_BY_USER  = "collapsed_by_user";
 
@@ -528,7 +526,6 @@ LLPanelPeople::LLPanelPeople()
 	mCommitCallbackRegistrar.add("People.loginFBC", boost::bind(&LLPanelPeople::onLoginFbcButtonClicked, this));
 	mCommitCallbackRegistrar.add("People.requestFBC", boost::bind(&LLPanelPeople::onFacebookAppRequestClicked, this));
 	mCommitCallbackRegistrar.add("People.sendFBC", boost::bind(&LLPanelPeople::onFacebookAppSendClicked, this));
-	mCommitCallbackRegistrar.add("People.testaddFBC", boost::bind(&LLPanelPeople::onFacebookTestAddClicked, this));
 	mCommitCallbackRegistrar.add("People.testaddFBCFolderView", boost::bind(&LLPanelPeople::addTestParticipant, this));
 
 	mCommitCallbackRegistrar.add("People.AddFriend", boost::bind(&LLPanelPeople::onAddFriendButtonClicked, this));
@@ -647,13 +644,6 @@ BOOL LLPanelPeople::postBuild()
 	mAllFriendList->setContextMenu(&LLPanelPeopleMenus::gPeopleContextMenu);
 	mOnlineFriendList->setContextMenu(&LLPanelPeopleMenus::gPeopleContextMenu);
 	mSuggestedFriends->setContextMenu(&LLPanelPeopleMenus::gSuggestedFriendsContextMenu);
-
-    //===Temporary ========================================================================
-
-	LLPanel * social_tab = getChild<LLPanel>(FBCTEST_TAB_NAME);
-	mFacebookFriends = social_tab->getChild<LLSocialList>("facebook_friends");
-    // Note: we use the same updater for both test lists (brute force but OK since it's temporary)
-	social_tab->setVisibleCallback(boost::bind(&LLPanelPeople::updateFacebookList, this, _2));
 
 	//===Test START========================================================================
 
@@ -1025,8 +1015,6 @@ LLUUID LLPanelPeople::getCurrentItemID() const
 	if (cur_tab == BLOCKED_TAB_NAME)
 		return LLUUID::null; // FIXME?
 	
-	if (cur_tab == FBCTEST_TAB_NAME)
-		return LLUUID::null;
 
 	if (cur_tab == FBCTESTTWO_TAB_NAME)
 		return LLUUID::null;
@@ -1054,8 +1042,6 @@ void LLPanelPeople::getCurrentItemIDs(uuid_vec_t& selected_uuids) const
 		mGroupList->getSelectedUUIDs(selected_uuids);
 	else if (cur_tab == BLOCKED_TAB_NAME)
 		selected_uuids.clear(); // FIXME?
-	else if (cur_tab == FBCTEST_TAB_NAME)
-		return;
 	else if (cur_tab == FBCTESTTWO_TAB_NAME)
 		return;
 	else
@@ -1693,24 +1679,6 @@ void LLPanelPeople::onFacebookAppRequestClicked()
 
 void LLPanelPeople::onFacebookAppSendClicked()
 {
-}
-
-static LLFastTimer::DeclareTimer FTM_AVATAR_LIST_TEST("avatar list test");
-
-void LLPanelPeople::onFacebookTestAddClicked()
-{
-	LLFastTimer _(FTM_AVATAR_LIST_TEST);
-
-	mFacebookFriends->clear();
-
-	LL_INFOS("LLPanelPeople") << "start adding 300 users" << LL_ENDL;
-
-	for(int i = 0; i < 300; ++i)
-	{
-		mFacebookFriends->addNewItem(LLUUID(), "Test", false);
-	}
-
-	LL_INFOS("LLPanelPeople") << "finished adding 300 users" << LL_ENDL;
 }
 
 // EOF

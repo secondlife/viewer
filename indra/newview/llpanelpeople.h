@@ -35,7 +35,6 @@
 #include "llvoiceclient.h"
 
 class LLAvatarList;
-class LLAvatarListSocial;
 class LLAvatarName;
 class LLFilterEditor;
 class LLGroupList;
@@ -123,7 +122,6 @@ private:
 	void					onLoginFbcButtonClicked();
 	void					onFacebookAppRequestClicked();
 	void					onFacebookAppSendClicked();
-	void					onFacebookTestAddClicked();
 
 	bool					onFriendsViewSortMenuItemCheck(const LLSD& userdata);
 	bool					onRecentViewSortMenuItemCheck(const LLSD& userdata);
