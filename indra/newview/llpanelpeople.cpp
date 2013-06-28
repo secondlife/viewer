@@ -63,9 +63,6 @@
 #include "llnetmap.h"
 #include "llpanelpeoplemenus.h"
 #include "llparticipantlist.h"
-#include "llpersonfolderview.h"
-#include "llpersonmodelcommon.h"
-#include "llpersontabview.h"
 #include "llsidetraypanelcontainer.h"
 #include "llrecentpeople.h"
 #include "llviewercontrol.h"		// for gSavedSettings
@@ -86,7 +83,6 @@ static const std::string FRIENDS_TAB_NAME	= "friends_panel";
 static const std::string GROUP_TAB_NAME		= "groups_panel";
 static const std::string RECENT_TAB_NAME	= "recent_panel";
 static const std::string BLOCKED_TAB_NAME	= "blocked_panel"; // blocked avatars
-static const std::string FBCTESTTWO_TAB_NAME	= "fbctesttwo_panel";
 static const std::string COLLAPSED_BY_USER  = "collapsed_by_user";
 
 
@@ -507,7 +503,6 @@ public:
 
 LLPanelPeople::LLPanelPeople()
 	:	LLPanel(),
-		mPersonFolderView(NULL),
 		mTryToConnectToFbc(true),
 		mTabContainer(NULL),
 		mOnlineFriendList(NULL),
@@ -526,7 +521,6 @@ LLPanelPeople::LLPanelPeople()
 	mCommitCallbackRegistrar.add("People.loginFBC", boost::bind(&LLPanelPeople::onLoginFbcButtonClicked, this));
 	mCommitCallbackRegistrar.add("People.requestFBC", boost::bind(&LLPanelPeople::onFacebookAppRequestClicked, this));
 	mCommitCallbackRegistrar.add("People.sendFBC", boost::bind(&LLPanelPeople::onFacebookAppSendClicked, this));
-	mCommitCallbackRegistrar.add("People.testaddFBCFolderView", boost::bind(&LLPanelPeople::addTestParticipant, this));
 
 	mCommitCallbackRegistrar.add("People.AddFriend", boost::bind(&LLPanelPeople::onAddFriendButtonClicked, this));
 	mCommitCallbackRegistrar.add("People.AddFriendWizard",	boost::bind(&LLPanelPeople::onAddFriendWizButtonClicked,	this));
@@ -645,47 +639,6 @@ BOOL LLPanelPeople::postBuild()
 	mOnlineFriendList->setContextMenu(&LLPanelPeopleMenus::gPeopleContextMenu);
 	mSuggestedFriends->setContextMenu(&LLPanelPeopleMenus::gSuggestedFriendsContextMenu);
 
-	//===Test START========================================================================
-
-	LLPanel * socialtwo_tab = getChild<LLPanel>(FBCTESTTWO_TAB_NAME);
-	socialtwo_tab->setVisibleCallback(boost::bind(&LLPanelPeople::updateFacebookList, this, _2));
-
-	//Create folder view
-	LLPersonModelCommon* base_item = new LLPersonModelCommon(mPersonFolderViewModel);
-
-	LLPersonFolderView::Params folder_view_params(LLUICtrlFactory::getDefaultParams<LLPersonFolderView>());
-    
-	folder_view_params.parent_panel = socialtwo_tab;
-	folder_view_params.listener = base_item;
-	folder_view_params.view_model = &mPersonFolderViewModel;
-	folder_view_params.root = NULL;
-	folder_view_params.use_ellipses = true;
-	folder_view_params.use_label_suffix = true;
-	folder_view_params.options_menu = "menu_conversation.xml";
-	folder_view_params.name = "fbcfolderview";
-	mPersonFolderView = LLUICtrlFactory::create<LLPersonFolderView>(folder_view_params);
-
-	//Create scroller
-	LLRect scroller_view_rect = socialtwo_tab->getRect();
-	scroller_view_rect.mTop -= 2+27; // 27 is the height of the top toolbar
-	scroller_view_rect.mRight -= 4;
-	scroller_view_rect.mLeft += 2;
-	LLScrollContainer::Params scroller_params(LLUICtrlFactory::getDefaultParams<LLFolderViewScrollContainer>());
-	scroller_params.rect(scroller_view_rect);
-
-	LLScrollContainer* scroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
-	socialtwo_tab->addChildInBack(scroller);
-	scroller->addChild(mPersonFolderView);
-	scroller->setFollowsAll();
-	mPersonFolderView->setScrollContainer(scroller);
-	mPersonFolderView->setFollowsAll();
-	
-	gIdleCallbacks.addFunction(idle, this);
-
-	//===Test END========================================================================
-
-
-
 	setSortOrder(mRecentList,		(ESortOrder)gSavedSettings.getU32("RecentPeopleSortOrder"),	false);
 	setSortOrder(mAllFriendList,	(ESortOrder)gSavedSettings.getU32("FriendsSortOrder"),		false);
 	setSortOrder(mNearbyList,		(ESortOrder)gSavedSettings.getU32("NearbyPeopleSortOrder"),	false);
@@ -763,12 +716,6 @@ void LLPanelPeople::onChange(EStatusType status, const std::string &channelURI, 
 	}
 	
 	updateButtons();
-}
-
-void LLPanelPeople::idle(void * user_data)
-{
-	LLPanelPeople * self = static_cast<LLPanelPeople *>(user_data);
-	self->mPersonFolderView->update();
 }
 
 void LLPanelPeople::updateFriendListHelpText()
@@ -1014,11 +961,6 @@ LLUUID LLPanelPeople::getCurrentItemID() const
 
 	if (cur_tab == BLOCKED_TAB_NAME)
 		return LLUUID::null; // FIXME?
-	
-
-	if (cur_tab == FBCTESTTWO_TAB_NAME)
-		return LLUUID::null;
-
 
 	llassert(0 && "unknown tab selected");
 	return LLUUID::null;
@@ -1042,8 +984,6 @@ void LLPanelPeople::getCurrentItemIDs(uuid_vec_t& selected_uuids) const
 		mGroupList->getSelectedUUIDs(selected_uuids);
 	else if (cur_tab == BLOCKED_TAB_NAME)
 		selected_uuids.clear(); // FIXME?
-	else if (cur_tab == FBCTESTTWO_TAB_NAME)
-		return;
 	else
 		llassert(0 && "unknown tab selected");
 
@@ -1167,11 +1107,6 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
 	{
 		mRecentList->setNameFilter(filter);
 	}
-    else if (cur_tab == FBCTESTTWO_TAB_NAME)
-    {
-        mPersonFolderViewModel.getFilter().setFilterSubString(filter);
-        mPersonFolderView->requestArrange();
-    }
 }
 
 void LLPanelPeople::onTabSelected(const LLSD& param)
@@ -1603,62 +1538,6 @@ bool LLPanelPeople::isAccordionCollapsedByUser(LLUICtrl* acc_tab)
 bool LLPanelPeople::isAccordionCollapsedByUser(const std::string& name)
 {
 	return isAccordionCollapsedByUser(getChild<LLUICtrl>(name));
-}
-
-void LLPanelPeople::addTestParticipant()
-{
-    std::string suffix("Aa");
-    std::string prefix("FB Name");
-	LLPersonTabModel * person_tab_model;
-	LLUUID agentID;
-	std::string name;
-	LLPersonTabModel::tab_type tab_type;
-
-	for(int i = 0; i < 300; ++i)
-	{
-		//Adds FB+SL people that aren't yet SL friends
-		if(i < 10)
-		{
-			tab_type = LLPersonTabModel::FB_SL_NON_SL_FRIEND;	
-			agentID = gAgent.getID();
-		}
-		//Adds FB only friends
-		else
-		{
-			tab_type = LLPersonTabModel::FB_ONLY_FRIEND;
-			agentID = LLUUID(NULL);
-		}
-
-		person_tab_model = dynamic_cast<LLPersonTabModel *>(mPersonFolderView->getPersonTabModelByIndex(tab_type));
-        name = prefix + " " + suffix;
-		addParticipantToModel(person_tab_model, agentID, name);
-        // Next suffix : Aa, Ab, Ac ... Az, Ba, Bb, Bc ... Bz, Ca, Cb ...
-        suffix[1]+=1;
-        if (suffix[1]=='{')
-        {
-            suffix[1]='a';
-            suffix[0]+=1;
-            if (suffix[0]=='[')
-                suffix[0]='A';
-        }
-	}
-}
-
-void LLPanelPeople::addParticipantToModel(LLPersonTabModel * person_folder_model, const LLUUID& agent_id, const std::string& name)
-{
-	LLPersonModel* person_model = NULL;
-
-	LLAvatarName avatar_name;
-	bool has_name = agent_id.notNull() ? LLAvatarNameCache::get(agent_id, &avatar_name) : false;
-	std::string avatar_name_string;
-	
-	if(has_name)
-	{
-		avatar_name_string = avatar_name.getDisplayName();
-	}
-
-	person_model = new LLPersonModel(agent_id, avatar_name_string, name, mPersonFolderViewModel);
-	person_folder_model->addParticipant(person_model);
 }
 
 void LLPanelPeople::onLoginFbcButtonClicked()

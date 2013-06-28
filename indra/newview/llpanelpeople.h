@@ -30,7 +30,6 @@
 #include <llpanel.h>
 
 #include "llcallingcard.h" // for avatar tracker
-#include "llpersonmodelcommon.h"
 #include "llfloaterwebcontent.h"
 #include "llvoiceclient.h"
 
@@ -38,8 +37,6 @@ class LLAvatarList;
 class LLAvatarName;
 class LLFilterEditor;
 class LLGroupList;
-class LLPersonFolderView;
-class LLSocialList;
 class LLMenuButton;
 class LLTabContainer;
 
@@ -59,11 +56,6 @@ public:
 	// when voice is available
 	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
 
-	static void idle(void * user_data);
-
-	void addTestParticipant();
-	void addParticipantToModel(LLPersonTabModel * session_model, const LLUUID& agent_id, const std::string& name);
-	
     bool mTryToConnectToFbc;
 
 	// internals
@@ -165,9 +157,6 @@ private:
 	Updater*				mButtonsUpdater;
 	LLMenuButton*			mFBCGearButton;
     LLHandle< LLFloater >	mPicker;
-
-	LLPersonFolderViewModel mPersonFolderViewModel;
-	LLPersonFolderView* mPersonFolderView;
 };
 
 #endif //LL_LLPANELPEOPLE_H

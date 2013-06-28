@@ -467,9 +467,6 @@ set(viewer_SOURCE_FILES
     llpathfindingobjectlist.cpp
     llpathfindingpathtool.cpp
     llpersistentnotificationstorage.cpp
-    llpersonfolderview.cpp
-    llpersonmodelcommon.cpp
-    llpersontabview.cpp
     llphysicsmotion.cpp
     llphysicsshapebuilderutil.cpp
     llpipelinelistener.cpp
@@ -1044,9 +1041,6 @@ set(viewer_HEADER_FILES
     llpathfindingobjectlist.h
     llpathfindingpathtool.h
     llpersistentnotificationstorage.h
-    llpersonfolderview.h
-    llpersonmodelcommon.h
-    llpersontabview.h
     llphysicsmotion.h
     llphysicsshapebuilderutil.h
     llpipelinelistener.h
