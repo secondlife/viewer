@@ -110,7 +110,6 @@ public:
 	LLFloaterSocial(const LLSD& key);
 	BOOL postBuild();
 	void onCancel();
-	void onOpen(const LLSD& key);
 
 	static void preUpdate();
 	static void postUpdate();

@@ -246,20 +246,32 @@ LLSnapshotLivePreview* LLSocialPhotoPanel::getPreviewView()
 void LLSocialPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
 {
 	bool visible = new_visibility.asBoolean();
-	if (visible && !mPreviewHandle.get())
+	if (visible)
 	{
-		LLRect full_screen_rect = getRootView()->getRect();
-		LLSnapshotLivePreview::Params p;
-		p.rect(full_screen_rect);
-		LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
-		mPreviewHandle = previewp->getHandle();	
+		if (mPreviewHandle.get())
+		{
+			LLSnapshotLivePreview* preview = getPreviewView();
+			if(preview)
+			{
+				lldebugs << "opened, updating snapshot" << llendl;
+				preview->updateSnapshot(TRUE);
+			}
+		}
+		else
+		{
+			LLRect full_screen_rect = getRootView()->getRect();
+			LLSnapshotLivePreview::Params p;
+			p.rect(full_screen_rect);
+			LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
+			mPreviewHandle = previewp->getHandle();	
 
-		previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
-		previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
-		//previewp->setSnapshotQuality(98);
-		previewp->setThumbnailPlaceholderRect(mThumbnailPlaceholder->getRect());
+			previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
+			previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
+			//previewp->setSnapshotQuality(98);
+			previewp->setThumbnailPlaceholderRect(mThumbnailPlaceholder->getRect());
 
-		updateControls();
+			updateControls();
+		}
 	}
 }
 
@@ -529,16 +541,6 @@ BOOL LLFloaterSocial::postBuild()
     // Keep tab of the Photo Panel
 	mSocialPhotoPanel = static_cast<LLSocialPhotoPanel*>(getChild<LLUICtrl>("panel_social_photo"));
 	return LLFloater::postBuild();
-}
-
-void LLFloaterSocial::onOpen(const LLSD& key)
-{
-	LLSnapshotLivePreview* preview = mSocialPhotoPanel->getPreviewView();
-	if(preview)
-	{
-		lldebugs << "opened, updating snapshot" << llendl;
-		preview->updateSnapshot(TRUE);
-	}
 }
 
 // static

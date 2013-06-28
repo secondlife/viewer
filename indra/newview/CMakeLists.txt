@@ -438,7 +438,6 @@ set(viewer_SOURCE_FILES
     llpanelprimmediacontrols.cpp
     llpanelprofile.cpp
     llpanelsnapshot.cpp
-    llpanelsnapshotfacebook.cpp
     llpanelsnapshotinventory.cpp
     llpanelsnapshotlocal.cpp
     llpanelsnapshotoptions.cpp

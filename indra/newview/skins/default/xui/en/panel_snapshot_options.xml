@@ -5,25 +5,6 @@
  layout="topleft"
  name="panel_snapshot_options"
  width="490">
- <button
-  follows="left|top|right"
-  font="SansSerif"
-  halign="left"
-  height="38"
-  image_overlay="Snapshot_Facebook"
-  image_overlay_alignment="left"
-  image_top_pad="-2"
-  imgoverlay_label_space="10"
-  label="Post to my Facebook timeline"
-  layout="topleft"
-  left="10"
-  name="save_to_facebook_btn"
-  pad_left="10"
-  right="-10"
-  top="5">
-  <button.commit_callback
-   function="Snapshot.SaveToFacebook" />
-  </button>
   <button
    follows="left|top|right"
    font="SansSerif"
