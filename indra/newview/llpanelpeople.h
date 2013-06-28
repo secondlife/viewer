@@ -150,7 +150,6 @@ private:
 	LLAvatarList*			mNearbyList;
 	LLAvatarList*			mRecentList;
 	LLGroupList*			mGroupList;
-	LLSocialList*			mFacebookFriends;
     S32                     mFacebookListGeneration;
 	LLNetMap*				mMiniMap;
 
