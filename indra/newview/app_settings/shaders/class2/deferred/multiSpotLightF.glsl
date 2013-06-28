@@ -318,6 +318,10 @@ void main()
 		}
 	}
 	
+
+	//not sure why, but this line prevents MATBUG-194
+	col = max(col, vec3(0.0));
+
 	frag_color.rgb = col;	
 	frag_color.a = 0.0;
 }
