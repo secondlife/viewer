@@ -49,6 +49,40 @@ VARYING vec2 vary_fragcoord;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
+#ifdef SINGLE_FP_ONLY
+vec2 encode_normal(vec3 n)
+{
+	vec2 sn;
+	sn.xy = (n.xy * vec2(0.5f,0.5f)) + vec2(0.5f,0.5f);
+	return sn;
+}
+
+vec3 decode_normal (vec2 enc)
+{
+	vec3 n;
+	n.xy = (enc.xy * vec2(2.0f,2.0f)) - vec2(1.0f,1.0f);
+	n.z = sqrt(1.0f - dot(n.xy,n.xy));
+	return n;
+}
+#else
+vec2 encode_normal(vec3 n)
+{
+	float f = sqrt(8 * n.z + 8);
+	return n.xy / f + 0.5;
+}
+
+vec3 decode_normal (vec2 enc)
+{
+    vec2 fenc = enc*4-2;
+    float f = dot(fenc,fenc);
+    float g = sqrt(1-f/4);
+    vec3 n;
+    n.xy = fenc*g;
+    n.z = 1-f/2;
+    return n;
+}
+#endif
+
 vec4 getPosition(vec2 pos_screen)
 {
 	float depth = texture2DRect(depthMap, pos_screen.xy).r;
@@ -123,7 +157,7 @@ void main()
 	vec4 pos = getPosition(pos_screen);
 	
 	vec3 norm = texture2DRect(normalMap, pos_screen).xyz;
-	norm = (norm.xyz-0.5)*2.0; // unpack norm
+	norm = decode_normal(norm.xy);
 		
 	frag_color[0] = 1.0;
 	frag_color[1] = calcAmbientOcclusion(pos, norm);

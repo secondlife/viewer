@@ -357,7 +357,7 @@ then
     else
       upload_item installer "$package" binary/octet-stream
       upload_item quicklink "$package" binary/octet-stream
-      [ -f summary.json ] && upload_item installer summary.json text/plain
+      [ -f $build_dir/summary.json ] && upload_item installer $build_dir/summary.json text/plain
 
       case "$last_built_variant" in
       Release)

@@ -521,7 +521,7 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns)
 	}
  }
 
-GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, S32 texture_index_channels)
+GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, boost::unordered_map<std::string, std::string>* defines, S32 texture_index_channels)
 {
 	GLenum error = GL_NO_ERROR;
 	if (gDebugGL)
@@ -650,12 +650,14 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			text[count++] = strdup("#define shadow2DRect(a,b) vec2(texture(a,b))\n");
 		}
 	}
-
-	//copy preprocessor definitions into buffer
-	for (std::map<std::string,std::string>::iterator iter = mDefinitions.begin(); iter != mDefinitions.end(); ++iter)
+	
+	if (defines)
+	{
+		for (boost::unordered_map<std::string,std::string>::iterator iter = defines->begin(); iter != defines->end(); ++iter)
 	{
 		std::string define = "#define " + iter->first + " " + iter->second + "\n";
 		text[count++] = (GLcharARB *) strdup(define.c_str());
+	}
 	}
 
 	if (texture_index_channels > 0 && type == GL_FRAGMENT_SHADER_ARB)
@@ -692,6 +694,8 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			return ret;
 		}
 		*/
+
+		text[count++] = strdup("#define HAS_DIFFUSE_LOOKUP 1\n");
 
 		//uniform declartion
 		for (S32 i = 0; i < texture_index_channels; ++i)
@@ -750,6 +754,10 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			llerrs << "Indexed texture rendering requires GLSL 1.30 or later." << llendl;
 		}
 	}
+	else
+	{
+		text[count++] = strdup("#define HAS_DIFFUSE_LOOKUP 0\n");
+	}
 
 	//copy file into memory
 	while( fgets((char *)buff, 1024, file) != NULL && count < LL_ARRAY_SIZE(text) ) 
@@ -806,7 +814,6 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 				//an error occured, print log
 				LL_WARNS("ShaderLoading") << "GLSL Compilation Error: (" << error << ") in " << filename << LL_ENDL;
 				dumpObjectLog(ret);
-
 #if LL_WINDOWS
 				std::stringstream ostr;
 				//dump shader source for debugging
@@ -824,8 +831,20 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 				}
 
 				LL_WARNS("ShaderLoading") << "\n" << ostr.str() << llendl;
-#endif // LL_WINDOWS
-
+#else
+				std::string str;
+				
+				for (GLuint i = 0; i < count; i++) {
+					str.append(text[i]);
+					
+					if (i % 128 == 0)
+					{
+						LL_WARNS("ShaderLoading") << str << llendl;
+						str = "";
+					}
+				}
+#endif
+				
 				ret = 0;
 			}
 		}
@@ -854,7 +873,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		if (shader_level > 1)
 		{
 			shader_level--;
-			return loadShaderFile(filename,shader_level,type,texture_index_channels);
+			return loadShaderFile(filename,shader_level,type, defines, texture_index_channels);
 		}
 		LL_WARNS("ShaderLoading") << "Failed to load " << filename << LL_ENDL;	
 	}
@@ -958,7 +977,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedAttribs.push_back("texcoord3");
 	mReservedAttribs.push_back("diffuse_color");
 	mReservedAttribs.push_back("emissive");
-	mReservedAttribs.push_back("binormal");
+	mReservedAttribs.push_back("tangent");
 	mReservedAttribs.push_back("weight");
 	mReservedAttribs.push_back("weight4");
 	mReservedAttribs.push_back("clothing");
@@ -1055,6 +1074,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 
 
 	mReservedUniforms.push_back("minimum_alpha");
+	mReservedUniforms.push_back("emissive_brightness");
 
 	mReservedUniforms.push_back("shadow_matrix");
 	mReservedUniforms.push_back("env_mat");
@@ -1115,6 +1135,12 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("lightMap");
 	mReservedUniforms.push_back("bloomMap");
 	mReservedUniforms.push_back("projectionMap");
+	
+	mReservedUniforms.push_back("global_gamma");
+	mReservedUniforms.push_back("texture_gamma");
+	
+	mReservedUniforms.push_back("specular_color");
+	mReservedUniforms.push_back("env_intensity");
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

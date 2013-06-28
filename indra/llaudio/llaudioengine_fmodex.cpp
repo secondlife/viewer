@@ -67,7 +67,7 @@ inline bool Check_FMOD_Error(FMOD_RESULT result, const char *string)
 {
 	if(result == FMOD_OK)
 		return false;
-	llwarns << string << " Error: " << FMOD_ErrorString(result) << llendl;
+	lldebugs << string << " Error: " << FMOD_ErrorString(result) << llendl;
 	return true;
 }
 
@@ -103,6 +103,9 @@ bool LLAudioEngine_FMODEX::init(const S32 num_channels, void* userdata)
 	//result = FMOD::Memory_Initialize(NULL, 0, &decode_alloc, &decode_realloc, &decode_dealloc, FMOD_MEMORY_STREAM_DECODE | FMOD_MEMORY_STREAM_FILE);
 	//if(Check_FMOD_Error(result, "FMOD::Memory_Initialize"))
 	//	return false;
+
+	// turn off non-error log spam to fmod.log (TODO: why do we even have an fmod.log if we don't link against log lib?)
+	FMOD::Debug_SetLevel(FMOD_DEBUG_LEVEL_ERROR);
 
 	result = FMOD::System_Create(&mSystem);
 	if(Check_FMOD_Error(result, "FMOD::System_Create"))
@@ -255,18 +258,28 @@ bool LLAudioEngine_FMODEX::init(const S32 num_channels, void* userdata)
 
 	int r_numbuffers, r_samplerate, r_channels, r_bits;
 	unsigned int r_bufferlength;
-	char r_name[256];
 	mSystem->getDSPBufferSize(&r_bufferlength, &r_numbuffers);
-	mSystem->getSoftwareFormat(&r_samplerate, NULL, &r_channels, NULL, NULL, &r_bits);
-	mSystem->getDriverInfo(0, r_name, 255, 0);
-	r_name[255] = '\0';
-	int latency = (int)(1000.0f * r_bufferlength * r_numbuffers / r_samplerate);
+	LL_INFOS("AppInit") << "LLAudioEngine_FMODEX::init(): r_bufferlength=" << r_bufferlength << " bytes" << LL_ENDL;
+	LL_INFOS("AppInit") << "LLAudioEngine_FMODEX::init(): r_numbuffers=" << r_numbuffers << LL_ENDL;
 
-	LL_INFOS("AppInit") << "FMOD device: "<< r_name << "\n"
-		<< "FMOD Ex parameters: " << r_samplerate << " Hz * " << r_channels << " * " <<r_bits <<" bit\n"
-		<< "\tbuffer " << r_bufferlength << " * " << r_numbuffers << " (" << latency <<"ms)" << LL_ENDL;
+	mSystem->getSoftwareFormat(&r_samplerate, NULL, &r_channels, NULL, NULL, &r_bits);
+	LL_INFOS("AppInit") << "LLAudioEngine_FMODEX::init(): r_samplerate=" << r_samplerate << "Hz" << LL_ENDL;
+	LL_INFOS("AppInit") << "LLAudioEngine_FMODEX::init(): r_channels=" << r_channels << LL_ENDL;
+	LL_INFOS("AppInit") << "LLAudioEngine_FMODEX::init(): r_bits =" << r_bits << LL_ENDL;
+
+	char r_name[512];
+	mSystem->getDriverInfo(0, r_name, 511, 0);
+	r_name[511] = '\0';
+	LL_INFOS("AppInit") << "LLAudioEngine_FMODEX::init(): r_name=\"" << r_name << "\"" <<  LL_ENDL;
+
+	int latency = 100; // optimistic default - i suspect if sample rate is 0, everything breaks. 
+	if ( r_samplerate != 0 )
+		latency = (int)(1000.0f * r_bufferlength * r_numbuffers / r_samplerate);
+	LL_INFOS("AppInit") << "LLAudioEngine_FMODEX::init(): latency=" << latency << "ms" << LL_ENDL;
 
 	mInited = true;
+
+	LL_INFOS("AppInit") << "LLAudioEngine_FMODEX::init(): initialization complete." << LL_ENDL;
 
 	return true;
 }
@@ -307,8 +320,8 @@ void LLAudioEngine_FMODEX::shutdown()
 	llinfos << "LLAudioEngine_FMODEX::shutdown() closing FMOD Ex" << llendl;
 	if ( mSystem ) // speculative fix for MAINT-2657
 	{
-		mSystem->close();
-		mSystem->release();
+	mSystem->close();
+	mSystem->release();
 	}
 	llinfos << "LLAudioEngine_FMODEX::shutdown() done closing FMOD Ex" << llendl;
 
