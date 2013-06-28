@@ -128,7 +128,7 @@ mCaptionTextBox(NULL),
 mLocationCheckbox(NULL),
 mPostButton(NULL)
 {
-	mCommitCallbackRegistrar.add("PostToFacebook.Send", boost::bind(&LLSocialPhotoPanel::onSend, this));
+	mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLSocialPhotoPanel::onSend, this));
 }
 
 LLSocialPhotoPanel::~LLSocialPhotoPanel()
