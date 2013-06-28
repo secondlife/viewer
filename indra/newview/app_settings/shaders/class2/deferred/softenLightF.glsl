@@ -254,9 +254,13 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 		  + tmpAmbient)));
 
 	//brightness of surface both sunlight and ambient
-	setSunlitColor(pow(vec3(sunlight * .5), vec3(global_gamma)) * global_gamma);
+	/*setSunlitColor(pow(vec3(sunlight * .5), vec3(global_gamma)) * global_gamma);
 	setAmblitColor(pow(vec3(tmpAmbient * .25), vec3(global_gamma)) * global_gamma);
-	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(global_gamma)) * global_gamma);
+	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(global_gamma)) * global_gamma);*/
+
+	setSunlitColor(vec3(sunlight * .5));
+	setAmblitColor(vec3(tmpAmbient * .25));
+	setAdditiveColor(getAdditiveColor() * vec3(1.0 - temp1));
 }
 
 vec3 atmosLighting(vec3 light)
@@ -332,7 +336,14 @@ void main()
 		
 	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
 
+	float light_gamma = 1.0/1.3;
+	da = pow(da, light_gamma);
+
+
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
+
+	//convert to gamma space
+	diffuse.rgb = pow(diffuse.rgb, vec3(1.0/2.2));
 	
 	vec3 col;
 	float bloom = 0.0;
@@ -340,7 +351,12 @@ void main()
 		vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
 		
 		vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
+		scol_ambocc = pow(scol_ambocc, vec2(light_gamma));
+
 		float scol = max(scol_ambocc.r, diffuse.a); 
+
+		
+
 		float ambocc = scol_ambocc.g;
 	
 		calcAtmospherics(pos.xyz, ambocc);
@@ -353,7 +369,7 @@ void main()
 
 		col.rgb *= ambient;
 
-		col += atmosAffectDirectionalLight(max(min(da, scol) * 2.6, 0.0));
+		col += atmosAffectDirectionalLight(max(min(da, scol), 0.0));
 	
 		col *= diffuse.rgb;
 	
@@ -374,29 +390,26 @@ void main()
 		}
 	
 		
-		col = mix(col.rgb, pow(diffuse.rgb, vec3(1.0/2.2)), diffuse.a);
-		
-		
+		col = mix(col, diffuse.rgb, diffuse.a);
+
 		if (envIntensity > 0.0)
 		{ //add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
 			
-			float exponent = mix(2.2, 1.0, diffuse.a);
-			vec3 refcol = pow(textureCube(environmentMap, env_vec).rgb, vec3(exponent))*exponent;
+			vec3 refcol = textureCube(environmentMap, env_vec).rgb;
 
 			col = mix(col.rgb, refcol, 
 				envIntensity);  
 
 		}
-
-		float exponent = mix(1.0, 2.2, diffuse.a);
-		col = pow(col, vec3(exponent));
-				
+						
 		if (norm.w < 0.5)
 		{
 			col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
 			col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
 		}
+
+		col = pow(col, vec3(2.2));
 
 		//col = vec3(1,0,1);
 		//col.g = envIntensity;
