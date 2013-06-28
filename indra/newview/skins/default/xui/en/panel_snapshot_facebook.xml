@@ -182,7 +182,7 @@
      top="350"
      width="100">
       <button.commit_callback
-       function="PostToFacebook.Cancel" />
+       function="SocialSharing.Cancel" />
     </button>
     <button
      follows="right|bottom"
@@ -194,6 +194,6 @@
      top_delta="0"
      width="100">
       <button.commit_callback
-       function="PostToFacebook.Send" />
+       function="SocialSharing.SendPhoto" />
     </button>
 </panel>

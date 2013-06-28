@@ -5953,56 +5953,6 @@ void handle_report_abuse()
 	LLFloaterReporter::showFromMenu(COMPLAINT_REPORT);
 }
 
-void handle_facebook_connect()
-{
-	if (!LLFacebookConnect::instance().isConnected())
-	{
-        LLFacebookConnect::instance().getConnectionToFacebook(true);
-	}
-}
-
-bool enable_facebook_connect()
-{
-    // The menu item will be disabled if we are already connected
-    return !LLFacebookConnect::instance().isConnected();
-}
-
-void handle_facebook_checkin()
-{
-
-	// Get the location SLURL 
-	LLSLURL slurl;
-	LLAgentUI::buildSLURL(slurl);
-	std::string slurl_string = slurl.getSLURLString();
-
-	std::string region_name = gAgent.getRegion()->getName();
-	std::string description;
-	LLAgentUI::buildLocationString(description, LLAgentUI::LOCATION_FORMAT_NORMAL_COORDS, gAgent.getPositionAgent());
-	LLVector3d center_agent = gAgent.getRegion()->getCenterGlobal();
-	int x_pos = center_agent[0] / 256.0;
-	int y_pos = center_agent[1] / 256.0;
-	std::string locationMap = llformat("http://map.secondlife.com/map-1-%d-%d-objects.jpg", x_pos, y_pos);
-
-	LLFacebookConnect::instance().postCheckin(slurl_string, region_name, description, locationMap, "");
-}
-
-bool handle_facebook_status_callback(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (option == 0)
-	{
-		std::string message = response["message"].asString();
-		if (!message.empty())
-			LLFacebookConnect::instance().updateStatus(message);
-	}
-	return false;
-}
-
-void handle_facebook_status()
-{
-	LLNotificationsUtil::add("FacebookUpdateStatus", LLSD(), LLSD(), boost::bind(&handle_facebook_status_callback, _1, _2));
-}
-
 void handle_buy_currency()
 {
 	LLBuyCurrencyHTML::openCurrencyFloater();
@@ -8801,14 +8751,4 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");
 	view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
 	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
-    
-    // Facebook Connect
-	commit.add("Facebook.Connect", boost::bind(&handle_facebook_connect));
-	enable.add("Facebook.EnableConnect", boost::bind(&enable_facebook_connect));
-    
-	// Facebook Checkin
-	commit.add("Facebook.Checkin", boost::bind(&handle_facebook_checkin));
-    
-	// Facebook Status Update
-	commit.add("Facebook.UpdateStatus", boost::bind(&handle_facebook_status));
 }

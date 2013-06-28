@@ -16,26 +16,6 @@
          parameter="agent" />
       </menu_item_call>
       <menu_item_call
-        label="Connect to Facebook..."
-        name="ConnectToFacebook">
-        <menu_item_call.on_click
-          function="Facebook.Connect" />
-        <menu_item_call.on_enable
-          function="Facebook.EnableConnect" />
-      </menu_item_call>
-      <menu_item_call
-        label="Check in to Facebook..."
-        name="CheckinToFacebook">
-        <menu_item_call.on_click
-          function="Facebook.Checkin" />
-      </menu_item_call>
-      <menu_item_call
-        label="Update status on Facebook..."
-        name="UpdateStatusOnFacebook">
-        <menu_item_call.on_click
-          function="Facebook.UpdateStatus" />
-      </menu_item_call>
-      <menu_item_call
         label="Post to Facebook..."
         name="PostToFacebook">
         <menu_item_call.on_click

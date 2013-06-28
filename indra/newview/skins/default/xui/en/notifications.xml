@@ -10135,25 +10135,4 @@ Cannot create large prims that intersect other players.  Please re-try when othe
      yestext="OK"/>
   </notification>
   
-  <notification
-   icon="alertmodal.tga"
-   name="FacebookUpdateStatus"
-   type="alertmodal">
-    What's on your mind? (asks Facebook)
-    <tag>confirm</tag>
-    <form name="form">
-      <input name="message" type="text">
-      </input>
-      <button
-       default="true"
-       index="0"
-       name="OK"
-       text="OK"/>
-      <button
-       index="1"
-       name="Cancel"
-       text="Cancel"/>
-    </form>
-  </notification>
-  
 </notifications>
