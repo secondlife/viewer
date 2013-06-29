@@ -71,7 +71,6 @@ static const struct
 	}
 };
 
-static void teleport_started();
 static void setting_changed();
 
 
