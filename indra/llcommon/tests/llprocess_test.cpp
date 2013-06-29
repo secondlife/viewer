@@ -619,7 +619,7 @@ namespace tut
     template<> template<>
     void object::test<6>()
     {
-        set_test_name("syntax_error:");
+        set_test_name("syntax_error");
         PythonProcessLauncher py(get_test_name(),
                                  "syntax_error:\n");
         py.mParams.files.add(LLProcess::FileParam()); // inherit stdin
