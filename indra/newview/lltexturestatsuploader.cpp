@@ -30,14 +30,8 @@
 
 #include "llhttpclient.h"
 
-LLTextureStatsUploader::LLTextureStatsUploader()
-{
-}
 
-LLTextureStatsUploader::~LLTextureStatsUploader()
-{
-}
-
+// static
 void LLTextureStatsUploader::uploadStatsToSimulator(const std::string texture_cap_url, const LLSD &texture_stats)
 {
 	if ( texture_cap_url != "" )

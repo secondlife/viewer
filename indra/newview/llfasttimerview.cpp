@@ -1101,7 +1101,7 @@ void LLFastTimerView::drawLineGraph()
 			j--)
 		{
 			LLTrace::Recording& recording = mRecording.getPrevRecording(j);
-			LLUnit<F32, LLUnits::Seconds> time = llmax(recording.getSum(*idp), LLUnit<F64, LLUnits::Seconds>(0.000001));
+			LLUnit<F32, LLUnits::Seconds> time = llmax(recording.getSum(*idp), LLUnits::Seconds::fromValue(0.000001));
 			U32 calls = recording.getSum(idp->callCount());
 
 			if (is_hover_timer)
@@ -1126,7 +1126,7 @@ void LLFastTimerView::drawLineGraph()
 			}
 			gGL.vertex2f(x,y);
 			gGL.vertex2f(x,mGraphRect.mBottom);
-}
+		}
 		gGL.end();
 
 		if (mHoverID == idp)
@@ -1146,7 +1146,7 @@ void LLFastTimerView::drawLineGraph()
 	max_time = lerp(max_time.value(), cur_max.value(), LLSmoothInterpolation::getInterpolant(0.1f));
 	if (llabs((max_time - cur_max).value()) <= 1)
 	{
-		max_time = llmax(LLUnit<F32, LLUnits::Microseconds>(1), LLUnit<F32, LLUnits::Microseconds>(cur_max));
+		max_time = llmax(LLUnits::Microseconds::fromValue(1.f), LLUnits::Microseconds::fromValue(cur_max));
 	}
 
 	max_calls = llround(lerp((F32)max_calls, (F32) cur_max_calls, LLSmoothInterpolation::getInterpolant(0.1f)));
@@ -1423,11 +1423,11 @@ void LLFastTimerView::updateTotalTime()
 		mTotalTimeDisplay = mRecording.getPeriodMax(FTM_FRAME, 20);
 		break;
 	default:
-		mTotalTimeDisplay = LLUnit<F32, LLUnits::Milliseconds>(100);
+		mTotalTimeDisplay = LLUnits::Milliseconds::fromValue(100);
 		break;
 	}
 
-	mTotalTimeDisplay = LLUnit<F32, LLUnits::Milliseconds>(llceil(mTotalTimeDisplay.getAs<LLUnits::Milliseconds>() / 20.f) * 20.f);
+	mTotalTimeDisplay = LLUnits::Milliseconds::fromValue(llceil(mTotalTimeDisplay.valueAs<LLUnits::Milliseconds>() / 20.f) * 20.f);
 }
 
 void LLFastTimerView::drawBars()

@@ -75,15 +75,9 @@ struct LLUnit
 	}
 
 	template<typename NEW_UNIT_TYPE> 
-	STORAGE_TYPE getAs()
+	STORAGE_TYPE valueAs()
 	{
 		return LLUnit<STORAGE_TYPE, NEW_UNIT_TYPE>(*this).value();
-	}
-
-	template<typename NEW_UNIT_TYPE> 
-	STORAGE_TYPE setAs(STORAGE_TYPE val)
-	{
-		*this = LLUnit<STORAGE_TYPE, NEW_UNIT_TYPE>(val);
 	}
 
 	void operator += (storage_t value)
@@ -181,6 +175,7 @@ LL_FORCE_INLINE void ll_convert_units(LLUnit<S1, T1> in, LLUnit<S2, T2>& out, ..
 	if (boost::is_same<T1, typename T1::base_unit_t>::value)
 	{
 		if (boost::is_same<T2, typename T2::base_unit_t>::value)
+
 		{
 			// T1 and T2 fully reduced and equal...just copy
 			out = (S2)in.value();
@@ -493,26 +488,45 @@ struct LLUnitInverseLinearOps
 	}
 };
 
-#define LL_DECLARE_BASE_UNIT(base_unit_name, unit_label) \
-struct base_unit_name { typedef base_unit_name base_unit_t; static const char* getUnitLabel() { return unit_label; }}
+#define LL_DECLARE_BASE_UNIT(base_unit_name, unit_label)                                             \
+struct base_unit_name                                                                                \
+{                                                                                                    \
+	typedef base_unit_name base_unit_t;                                                              \
+	static const char* getUnitLabel() { return unit_label; }                                         \
+	template<typename T>                                                                             \
+	static LLUnit<T, base_unit_name> fromValue(T value) { return LLUnit<T, base_unit_name>(value); } \
+	template<typename STORAGE_T, typename UNIT_T>                                                    \
+	static LLUnit<STORAGE_T, base_unit_name> fromValue(LLUnit<STORAGE_T, UNIT_T> value)              \
+	{ return LLUnit<STORAGE_T, base_unit_name>(value); }                                             \
+};                                                                                                   \
+template<typename T> std::ostream& operator<<(std::ostream& s, const LLUnit<T, base_unit_name>& val) \
+{ s << val.value() << base_unit_name::getUnitLabel; return s; }
 
-#define LL_DECLARE_DERIVED_UNIT(unit_name, unit_label, base_unit_name, conversion_operation)	\
-struct unit_name                                                                                \
-{                                                                                               \
-	typedef base_unit_name base_unit_t;                                                         \
-	static const char* getUnitLabel() { return unit_label; }									\
-};                                                                                              \
-	                                                                                            \
-template<typename S1, typename S2>                                                              \
-void ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)                \
-{                                                                                               \
-	out = (S2)(LLUnitLinearOps<S1>(in.value()) conversion_operation).mValue;                    \
-}                                                                                               \
-                                                                                                \
-template<typename S1, typename S2>                                                              \
-void ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, unit_name>& out)                \
-{                                                                                               \
-	out = (S2)(LLUnitInverseLinearOps<S1>(in.value()) conversion_operation).mValue;             \
+
+#define LL_DECLARE_DERIVED_UNIT(unit_name, unit_label, base_unit_name, conversion_operation)	 \
+struct unit_name                                                                                 \
+{                                                                                                \
+	typedef base_unit_name base_unit_t;                                                          \
+	static const char* getUnitLabel() { return unit_label; }									 \
+	template<typename T>                                                                         \
+	static LLUnit<T, unit_name> fromValue(T value) { return LLUnit<T, unit_name>(value); }		 \
+	template<typename STORAGE_T, typename UNIT_T>                                                \
+	static LLUnit<STORAGE_T, unit_name> fromValue(LLUnit<STORAGE_T, UNIT_T> value)				 \
+	{ return LLUnit<STORAGE_T, unit_name>(value); }												 \
+};                                                                                               \
+template<typename T> std::ostream& operator<<(std::ostream& s, const LLUnit<T, unit_name>& val)  \
+{ s << val.value() << unit_name::getUnitLabel; return s; }                                       \
+	                                                                                             \
+template<typename S1, typename S2>                                                               \
+void ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)                 \
+{                                                                                                \
+	out = (S2)(LLUnitLinearOps<S1>(in.value()) conversion_operation).mValue;                     \
+}                                                                                                \
+                                                                                                 \
+template<typename S1, typename S2>                                                               \
+void ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, unit_name>& out)                 \
+{                                                                                                \
+	out = (S2)(LLUnitInverseLinearOps<S1>(in.value()) conversion_operation).mValue;              \
 }                                                                                               
 
 //

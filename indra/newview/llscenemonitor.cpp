@@ -624,7 +624,7 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 
 		for (S32 frame = 1; frame <= frame_count; frame++)
 		{
-			os << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getMax(*it).getAs<LLUnits::Kibibytes>();
+			os << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getMax(*it).valueAs<LLUnits::Kibibytes>();
 		}
 
 		os << '\n';

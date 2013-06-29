@@ -504,81 +504,85 @@ private:
 	static const char* sStateDescs[];
 	e_state mState;
 	void setState(e_state new_state);
-	e_write_to_cache_state mWriteToCacheState;
-	LLTextureFetch* mFetcher;
+
+	e_write_to_cache_state		mWriteToCacheState;
+	LLTextureFetch*             mFetcher;
 	LLPointer<LLImageFormatted> mFormattedImage;
-	LLPointer<LLImageRaw> mRawImage;
-	LLPointer<LLImageRaw> mAuxImage;
-	FTType mFTType;
-	LLUUID mID;
-	LLHost mHost;
-	std::string mUrl;
-	U8 mType;
-	F32 mImagePriority;
-	U32 mWorkPriority;
-	F32 mRequestedPriority;
-	S32 mDesiredDiscard;
-	S32 mSimRequestedDiscard;
-	S32 mRequestedDiscard;
-	S32 mLoadedDiscard;
-	S32 mDecodedDiscard;
-	LLFrameTimer mRequestedTimer;
-	LLFrameTimer mFetchTimer;
-	LLTimer			mCacheReadTimer;
-	F32				mCacheReadTime;
-	LLTextureCache::handle_t mCacheReadHandle;
-	LLTextureCache::handle_t mCacheWriteHandle;
-	S32 mRequestedSize;
-	S32 mRequestedOffset;
-	S32 mDesiredSize;
-	S32 mFileSize;
-	S32 mCachedSize;	
-	e_request_state mSentRequest;
-	handle_t mDecodeHandle;
-	BOOL mLoaded;
-	BOOL mDecoded;
-	BOOL mWritten;
-	BOOL mNeedsAux;
-	BOOL mHaveAllData;
-	BOOL mInLocalCache;
-	BOOL mInCache;
-	bool mCanUseHTTP ;
-	bool mCanUseNET ; //can get from asset server.
-	S32 mRetryAttempt;
-	S32 mActiveCount;
-	LLCore::HttpStatus mGetStatus;
-	std::string mGetReason;
+	LLPointer<LLImageRaw>       mRawImage,
+								mAuxImage;
+	FTType                      mFTType;
+	LLUUID                      mID;
+	LLHost                      mHost;
+	std::string                 mUrl;
+	U8                          mType;
+	F32                         mImagePriority;
+	U32                         mWorkPriority;
+	F32                         mRequestedPriority;
+	S32                         mDesiredDiscard,
+								mSimRequestedDiscard,
+								mRequestedDiscard,
+								mLoadedDiscard,
+								mDecodedDiscard;
+	LLFrameTimer                mRequestedTimer,
+								mFetchTimer;
+	LLTimer						mCacheReadTimer;
+	F32							mCacheReadTime;
+	LLTextureCache::handle_t    mCacheReadHandle,
+								mCacheWriteHandle;
+	S32                         mRequestedSize,
+								mRequestedOffset,
+								mDesiredSize,
+								mFileSize,
+								mCachedSize;
+	e_request_state             mSentRequest;
+	handle_t                    mDecodeHandle;
+	BOOL                        mLoaded;
+	BOOL                        mDecoded;
+	BOOL                        mWritten;
+	BOOL                        mNeedsAux;
+	BOOL                        mHaveAllData;
+	BOOL                        mInLocalCache;
+	BOOL                        mInCache;
+	bool                        mCanUseHTTP,
+								mCanUseNET ; //can get from asset server.
+	S32                         mRetryAttempt;
+	S32                         mActiveCount;
+	LLCore::HttpStatus          mGetStatus;
+	std::string                 mGetReason;
 	
 	// Work Data
-	LLMutex mWorkMutex;
+	LLMutex						mWorkMutex;
 	struct PacketData
 	{
-		PacketData(U8* data, S32 size) { mData = data; mSize = size; }
+		PacketData(U8* data, S32 size) 
+		:	mData(data), mSize(size) 
+		{}
 		~PacketData() { clearData(); }
 		void clearData() { delete[] mData; mData = NULL; }
-		U8* mData;
-		U32 mSize;
+
+		U8*		mData;
+		U32		mSize;
 	};
-	std::vector<PacketData*> mPackets;
-	S32 mFirstPacket;
-	S32 mLastPacket;
-	U16 mTotalPackets;
-	U8 mImageCodec;
+	std::vector<PacketData*>	mPackets;
+	S32							mFirstPacket;
+	S32							mLastPacket;
+	U16							mTotalPackets;
+	U8							mImageCodec;
 
 	LLViewerAssetStats::duration_t mMetricsStartTime;
 
-	LLCore::HttpHandle		mHttpHandle;				// Handle of any active request
-	LLCore::BufferArray	*	mHttpBufferArray;			// Refcounted pointer to response data 
-	int						mHttpPolicyClass;
-	bool					mHttpActive;				// Active request to http library
-	unsigned int			mHttpReplySize;				// Actual received data size
-	unsigned int			mHttpReplyOffset;			// Actual received data offset
-	bool					mHttpHasResource;			// Counts against Fetcher's mHttpSemaphore
+	LLCore::HttpHandle			mHttpHandle;				// Handle of any active request
+	LLCore::BufferArray	*		mHttpBufferArray;			// Refcounted pointer to response data 
+	S32							mHttpPolicyClass;
+	bool						mHttpActive;				// Active request to http library
+	U32							mHttpReplySize,				// Actual received data size
+								mHttpReplyOffset;			// Actual received data offset
+	bool						mHttpHasResource;			// Counts against Fetcher's mHttpSemaphore
 
 	// State history
-	U32						mCacheReadCount;
-	U32						mCacheWriteCount;
-	U32						mResourceWaitCount;			// Requests entering WAIT_HTTP_RESOURCE2
+	U32							mCacheReadCount,
+								mCacheWriteCount,
+								mResourceWaitCount;			// Requests entering WAIT_HTTP_RESOURCE2
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2390,7 +2394,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mFetcherLocked(FALSE)
 {
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
-	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), gSavedSettings.getU32("TextureLoggingThreshold"));
+	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), LLUnits::Bytes::fromValue(gSavedSettings.getU32("TextureLoggingThreshold")));
 
 	LLTextureFetchDebugger::sDebuggerEnabled = gSavedSettings.getBOOL("TextureFetchDebuggerEnabled");
 	if(LLTextureFetchDebugger::isEnabled())
@@ -3369,7 +3373,7 @@ bool LLTextureFetch::receiveImagePacket(const LLHost& host, const LLUUID& id, U1
 
 		if (log_to_viewer_log || log_to_sim)
 		{
-			U64 timeNow = LLTimer::getTotalTime();
+			LLUnit<U64, LLUnits::Microseconds> timeNow = LLTimer::getTotalTime();
 			mTextureInfo.setRequestSize(id, worker->mFileSize);
 			mTextureInfo.setRequestCompleteTimeAndLog(id, timeNow);
 		}

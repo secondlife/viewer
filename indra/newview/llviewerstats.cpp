@@ -291,9 +291,9 @@ F32		gAveLandCompression = 0.f,
 		gWorstWaterCompression = 0.f;
 
 LLUnit<U32, LLUnits::Bytes>		gTotalWorldData = 0, 
-						gTotalObjectData = 0, 
-						gTotalTextureData = 0;
-U32						gSimPingCount = 0;
+								gTotalObjectData = 0, 
+								gTotalTextureData = 0;
+U32								gSimPingCount = 0;
 LLUnit<U32, LLUnits::Bits>		gObjectData = 0;
 F32		gAvgSimPing = 0.f;
 LLUnit<U32, LLUnits::Bytes>		gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY] = {0};
@@ -353,7 +353,7 @@ void update_statistics()
 	}
 	else
 	{
-		sample(LLStatViewer::SIM_PING, LLUnit<F64, LLUnits::Seconds>(10));
+		sample(LLStatViewer::SIM_PING, LLUnits::Seconds::fromValue(10));
 	}
 
 	if (LLViewerStats::instance().getRecording().getSum(LLStatViewer::FPS))
@@ -403,7 +403,7 @@ void update_statistics()
 		static LLFrameTimer texture_stats_timer;
 		if (texture_stats_timer.getElapsedTimeF32() >= texture_stats_freq)
 		{
-			gTotalTextureData = LLUnit<F64, LLUnits::Bytes>(LLViewerStats::instance().getRecording().getSum(LLStatViewer::TEXTURE_KBIT));
+			gTotalTextureData = LLViewerStats::instance().getRecording().getSum(LLStatViewer::TEXTURE_KBIT);
 			texture_stats_timer.reset();
 		}
 	}

@@ -173,15 +173,23 @@ public:
     typedef LLPointer<Type> pointer_t;
     
 	LLCopyOnWritePointer() 
+	:	mStayUnique(false)
 	{}
 
 	LLCopyOnWritePointer(Type* ptr) 
-	:	LLPointer<Type>(ptr)
+	:	LLPointer<Type>(ptr),
+		mStayUnique(false)
 	{}
 
 	LLCopyOnWritePointer(LLPointer<Type>& ptr)
-	:	LLPointer<Type>(ptr)
-	{}
+	:	LLPointer<Type>(ptr),
+		mStayUnique(false)
+	{
+		if (ptr.mForceUnique)
+		{
+			makeUnique();
+		}
+	}
 
 	Type* write()
 	{
@@ -199,6 +207,10 @@ public:
 
 	const Type*	operator->() const	{ return pointer_t::mPointer; }
 	const Type&	operator*() const	{ return *pointer_t::mPointer; }
+
+	void setStayUnique(bool stay) { makeUnique(); mStayUnique = stay; }
+private:
+	bool mStayUnique;
 };
 
 #endif

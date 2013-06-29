@@ -100,14 +100,15 @@ void Recording::handleReset()
 void Recording::handleStart()
 {
 	mSamplingTimer.reset();
+	mBuffers.setStayUnique(true);
 	LLTrace::get_thread_recorder()->activate(mBuffers.write());
 }
 
 void Recording::handleStop()
 {
 	mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
-	AccumulatorBufferGroup* buffers = mBuffers.write();
-	LLTrace::get_thread_recorder()->deactivate(buffers);
+	LLTrace::get_thread_recorder()->deactivate(mBuffers.write());
+	mBuffers.setStayUnique(false);
 }
 
 void Recording::handleSplitTo(Recording& other)

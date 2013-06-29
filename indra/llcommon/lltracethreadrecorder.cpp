@@ -99,14 +99,6 @@ TimeBlockTreeNode* ThreadRecorder::getTimeBlockTreeNode( S32 index )
 
 void ThreadRecorder::activate( AccumulatorBufferGroup* recording )
 {
-	active_recording_list_t::reverse_iterator it, end_it;
-	for (it = mActiveRecordings.rbegin(), end_it = mActiveRecordings.rend();
-		it != end_it;
-		++it)
-	{
-		llassert((*it)->mTargetRecording != recording);
-	}
-
 	ActiveRecording* active_recording = new ActiveRecording(recording);
 	if (!mActiveRecordings.empty())
 	{

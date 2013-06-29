@@ -1294,8 +1294,6 @@ bool LLAppViewer::mainLoop()
 	{
 		LLFastTimer _(FTM_FRAME);
 		LLTrace::TimeBlock::processTimes();
-		llassert((LLTrace::get_frame_recording().getCurRecording().update(), 
-				LLTrace::get_frame_recording().getCurRecording().getSampleCount(LLStatViewer::FPS) <= 1));
 		LLTrace::get_frame_recording().nextPeriod();
 		LLTrace::TimeBlock::logStats();
 
