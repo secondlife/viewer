@@ -85,16 +85,21 @@ public:
 		{
 			return mPolicies[policy];
 		}
+
+	// Apply initial or new settings from the environment.
+	void refreshSettings(bool initial);
 	
 private:
 	static const F64			MAX_THREAD_WAIT_TIME;
 	
 private:
-	LLCore::HttpRequest *		mRequest;
+	LLCore::HttpRequest *		mRequest;						// Request queue to issue shutdowns
 	LLCore::HttpHandle			mStopHandle;
 	F64							mStopRequested;
 	bool						mStopped;
-	policy_t					mPolicies[AP_COUNT];
+	policy_t					mPolicies[AP_COUNT];			// Policy class id for each connection set
+	U32							mSettings[AP_COUNT];
+	boost::signals2::connection mSettingsSignal[AP_COUNT];		// Signals to global settings that affect us
 };
 
 

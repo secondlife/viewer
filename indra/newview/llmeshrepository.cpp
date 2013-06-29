@@ -259,10 +259,9 @@ const char * const LOG_MESH = "Mesh";
 
 // Static data and functions to measure mesh load
 // time metrics for a new region scene.
-static bool metrics_inited(false);
-static boost::signals2::connection metrics_teleport_connection;
 static unsigned int metrics_teleport_start_count(0);
-static void metrics_teleport_started();
+boost::signals2::connection metrics_teleport_started_signal;
+static void teleport_started();
 static bool is_retryable(LLCore::HttpStatus status);
 
 //get the number of bytes resident in memory for given volume
@@ -2667,29 +2666,18 @@ void LLMeshRepository::init()
 		apr_sleep(100);
 	}
 
-	
+	metrics_teleport_started_signal = LLViewerMessage::getInstance()->setTeleportStartedCallback(teleport_started);
 	
 	mThread = new LLMeshRepoThread();
 	mThread->start();
 
-	if (! metrics_inited)
-	{
-		// Get teleport started signals to restart timings.
-		metrics_teleport_connection = LLViewerMessage::getInstance()->
-			setTeleportStartedCallback(metrics_teleport_started);
-		metrics_inited = true;
-	}
 }
 
 void LLMeshRepository::shutdown()
 {
 	llinfos << "Shutting down mesh repository." << llendl;
 
-	if (metrics_inited)
-	{
-		metrics_teleport_connection.disconnect();
-		metrics_inited = false;
-	}
+	metrics_teleport_started_signal.disconnect();
 
 	for (U32 i = 0; i < mUploads.size(); ++i)
 	{
@@ -4109,6 +4097,7 @@ bool LLMeshRepository::meshRezEnabled()
 // static
 void LLMeshRepository::metricsStart()
 {
+	++metrics_teleport_start_count;
 	sQuiescentTimer.start(0);
 }
 
@@ -4127,7 +4116,6 @@ void LLMeshRepository::metricsProgress(unsigned int this_count)
 
 	if (first_start)
 	{
-		++metrics_teleport_start_count;
 		metricsStart();
 		first_start = false;
 	}
@@ -4157,18 +4145,12 @@ void LLMeshRepository::metricsUpdate()
 	}
 }
 
-// Will use a request to start a teleport as a signal to
-// restart a timing sequence.  We don't get one of these
-// for login so initial start is done above.
-//
 // Threading:  main thread only
 // static
-void metrics_teleport_started()
+void teleport_started()
 {
 	LLMeshRepository::metricsStart();
-	++metrics_teleport_start_count;
 }
-
 
 // This comes from an edit in viewer-cat.  Unify this once that's
 // available everywhere.

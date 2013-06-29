@@ -28,10 +28,52 @@
 
 #include "llappcorehttp.h"
 
+#include "llappviewer.h"
 #include "llviewercontrol.h"
 
 
 const F64 LLAppCoreHttp::MAX_THREAD_WAIT_TIME(10.0);
+static const struct
+{
+	LLAppCoreHttp::EAppPolicy	mPolicy;
+	U32							mDefault;
+	U32							mMin;
+	U32							mMax;
+	U32							mDivisor;
+	std::string					mKey;
+	const char *				mUsage;
+} init_data[] =					//  Default and dynamic values for classes
+{
+	{
+		LLAppCoreHttp::AP_TEXTURE,			8,		1,		12,		1,
+		"TextureFetchConcurrency",
+		"texture fetch"
+	},
+	{
+		LLAppCoreHttp::AP_MESH1,			32,		1,		128,	1,
+		"MeshMaxConcurrentRequests",
+		"mesh fetch"
+	},
+	{
+		LLAppCoreHttp::AP_MESH2,			8,		1,		32,		4,
+		"MeshMaxConcurrentRequests",
+		"mesh2 fetch"
+	},
+	{
+		LLAppCoreHttp::AP_LARGE_MESH,		2,		1,		8,		1,
+		"",
+		"large mesh fetch"
+	},
+	{
+		LLAppCoreHttp::AP_UPLOADS,			2,		1,		8,		1,
+		"",
+		"asset upload"
+	}
+};
+
+static void teleport_started();
+static void setting_changed();
+
 
 LLAppCoreHttp::LLAppCoreHttp()
 	: mRequest(NULL),
@@ -42,6 +84,7 @@ LLAppCoreHttp::LLAppCoreHttp()
 	for (int i(0); i < LL_ARRAY_SIZE(mPolicies); ++i)
 	{
 		mPolicies[i] = LLCore::HttpRequest::DEFAULT_POLICY_ID;
+		mSettings[i] = 0U;
 	}
 }
 
@@ -55,45 +98,6 @@ LLAppCoreHttp::~LLAppCoreHttp()
 
 void LLAppCoreHttp::init()
 {
-	static const struct
-	{
-		EAppPolicy		mPolicy;
-		U32				mDefault;
-		U32				mMin;
-		U32				mMax;
-		U32				mDivisor;
-		std::string		mKey;
-		const char *	mUsage;
-	} init_data[] =					//  Default and dynamic values for classes
-		  {
-			  {
-				  AP_TEXTURE,			8,		1,		12,		1,
-				  "TextureFetchConcurrency",
-				  "texture fetch"
-			  },
-			  {
-				  // *FIXME:  Should become 32, 1, 32, 1 before release
-				  AP_MESH1,				8,		1,		32,		4,
-				  "MeshMaxConcurrentRequests",
-				  "mesh fetch"
-			  },
-			  {
-				  AP_MESH2,				8,		1,		32,		4,
-				  "MeshMaxConcurrentRequests",
-				  "mesh2 fetch"
-			  },
-			  {
-				  AP_LARGE_MESH,		2,		1,		8,		1,
-				  "",
-				  "large mesh fetch"
-			  },
-			  {
-				  AP_UPLOADS,			2,		1,		8,		1,
-				  "",
-				  "asset upload"
-			  }
-		  };
-		
 	LLCore::HttpStatus status = LLCore::HttpRequest::createService();
 	if (! status)
 	{
@@ -110,14 +114,12 @@ void LLAppCoreHttp::init()
 						<< LL_ENDL;
 	}
 
-	// Establish HTTP Proxy.  "LLProxy" is a special string which directs
-	// the code to use LLProxy::applyProxySettings() to establish any
-	// HTTP or SOCKS proxy for http operations.
+	// Establish HTTP Proxy, if desired.
 	status = LLCore::HttpRequest::setPolicyGlobalOption(LLCore::HttpRequest::GP_LLPROXY, 1);
 	if (! status)
 	{
-		LL_ERRS("Init") << "Failed to set HTTP proxy for HTTP services.  Reason:  " << status.toString()
-						<< LL_ENDL;
+		LL_WARNS("Init") << "Failed to set HTTP proxy for HTTP services.  Reason:  " << status.toString()
+						 << LL_ENDL;
 	}
 
 	// Tracing levels for library & libcurl (note that 2 & 3 are beyond spammy):
@@ -137,7 +139,6 @@ void LLAppCoreHttp::init()
 	mPolicies[AP_DEFAULT] = LLCore::HttpRequest::DEFAULT_POLICY_ID;
 
 	// Setup additional policies based on table and some special rules
-	// *TODO:  Make these configurations dynamic later
 	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
 	{
 		const EAppPolicy policy(init_data[i].mPolicy);
@@ -162,40 +163,10 @@ void LLAppCoreHttp::init()
 				continue;
 			}
 		}
-
-		// Get target connection concurrency value
-		U32 setting(init_data[i].mDefault);
-		if (! init_data[i].mKey.empty() && gSavedSettings.controlExists(init_data[i].mKey))
-		{
-			U32 new_setting(gSavedSettings.getU32(init_data[i].mKey));
-			if (new_setting)
-			{
-				// Treat zero settings as an ask for default
-				setting = new_setting / init_data[i].mDivisor;
-				setting = llclamp(setting, init_data[i].mMin, init_data[i].mMax);
-			}
-		}
-
-		// Set it and report
-		// *TODO:  These are intended to be per-host limits when we can
-		// support that in llcorehttp/libcurl.
-		LLCore::HttpStatus status;
-		status = LLCore::HttpRequest::setPolicyClassOption(mPolicies[policy],
-														   LLCore::HttpRequest::CP_CONNECTION_LIMIT,
-														   setting);
-		if (! status)
-		{
-			LL_WARNS("Init") << "Unable to set " << init_data[i].mUsage
-							 << " concurrency.  Reason:  " << status.toString()
-							 << LL_ENDL;
-		}
-		else if (setting != init_data[i].mDefault)
-		{
-			LL_INFOS("Init") << "Application settings overriding default " << init_data[i].mUsage
-							 << " concurrency.  New value:  " << setting
-							 << LL_ENDL;
-		}
 	}
+
+	// Apply initial settings
+	refreshSettings(true);
 	
 	// Kick the thread
 	status = LLCore::HttpRequest::startThread();
@@ -206,6 +177,30 @@ void LLAppCoreHttp::init()
 	}
 
 	mRequest = new LLCore::HttpRequest;
+
+	// Register signals for settings and state changes
+	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
+	{
+		if (! init_data[i].mKey.empty() && gSavedSettings.controlExists(init_data[i].mKey))
+		{
+			LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl(init_data[i].mKey);
+			if (cntrl_ptr.isNull())
+			{
+				LL_WARNS("Init") << "Unable to set signal on global setting '" << init_data[i].mKey
+								 << "'" << LL_ENDL;
+			}
+			else
+			{
+				mSettingsSignal[i] = cntrl_ptr->getCommitSignal()->connect(boost::bind(&setting_changed));
+			}
+		}
+	}
+}
+
+
+void setting_changed()
+{
+	LLAppViewer::instance()->getAppCoreHttp().refreshSettings(false);
 }
 
 
@@ -248,6 +243,11 @@ void LLAppCoreHttp::cleanup()
 		}
 	}
 
+	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
+	{
+		mSettingsSignal[i].disconnect();
+	}
+	
 	delete mRequest;
 	mRequest = NULL;
 
@@ -257,6 +257,60 @@ void LLAppCoreHttp::cleanup()
 		LL_WARNS("Cleanup") << "Failed to shutdown HTTP services, continuing.  Reason:  "
 							<< status.toString()
 							<< LL_ENDL;
+	}
+}
+
+void LLAppCoreHttp::refreshSettings(bool initial)
+{
+	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
+	{
+		const EAppPolicy policy(init_data[i].mPolicy);
+
+		// Get target connection concurrency value
+		U32 setting(init_data[i].mDefault);
+		if (! init_data[i].mKey.empty() && gSavedSettings.controlExists(init_data[i].mKey))
+		{
+			U32 new_setting(gSavedSettings.getU32(init_data[i].mKey));
+			if (new_setting)
+			{
+				// Treat zero settings as an ask for default
+				setting = new_setting / init_data[i].mDivisor;
+				setting = llclamp(setting, init_data[i].mMin, init_data[i].mMax);
+			}
+		}
+
+		if (! initial && setting == mSettings[policy])
+		{
+			// Unchanged, try next setting
+			continue;
+		}
+		
+		// Set it and report
+		// *TODO:  These are intended to be per-host limits when we can
+		// support that in llcorehttp/libcurl.
+		LLCore::HttpStatus status;
+		status = LLCore::HttpRequest::setPolicyClassOption(mPolicies[policy],
+														   LLCore::HttpRequest::CP_CONNECTION_LIMIT,
+														   setting);
+		if (! status)
+		{
+			LL_WARNS("Init") << "Unable to set " << init_data[i].mUsage
+							 << " concurrency.  Reason:  " << status.toString()
+							 << LL_ENDL;
+		}
+		else
+		{
+			LL_DEBUGS("Init") << "Changed " << init_data[i].mUsage
+							  << " concurrency.  New value:  " << setting
+							  << LL_ENDL;
+			mSettings[policy] = setting;
+			if (initial && setting != init_data[i].mDefault)
+			{
+				LL_INFOS("Init") << "Application settings overriding default " << init_data[i].mUsage
+								 << " concurrency.  New value:  " << setting
+								 << LL_ENDL;
+			}
+		}
 	}
 }
 
