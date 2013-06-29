@@ -236,7 +236,7 @@
            name="post_btn"
            width="100">
             <button.commit_callback
-             function="PostToFacebook.Send" />
+             function="SocialSharing.SendPhoto" />
           </button>
           <button
                follows="left|top"
