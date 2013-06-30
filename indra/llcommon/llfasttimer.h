@@ -38,22 +38,6 @@ class LLMutex;
 namespace LLTrace
 {
 
-class ThreadTimerStack 
-:	public BlockTimerStackRecord, 
-	public LLThreadLocalSingleton<ThreadTimerStack>
-{
-	friend class LLThreadLocalSingleton<ThreadTimerStack>;
-	ThreadTimerStack() 
-	{}
-
-public:
-	ThreadTimerStack& operator=(const BlockTimerStackRecord& other)
-	{
-		BlockTimerStackRecord::operator=(other);
-		return *this;
-	}
-};
-
 class BlockTimer
 {
 public:
@@ -271,7 +255,8 @@ public:
 LL_FORCE_INLINE BlockTimer::BlockTimer(TimeBlock& timer)
 {
 #if FAST_TIMER_ON
-	BlockTimerStackRecord* cur_timer_data = ThreadTimerStack::getIfExists();
+	BlockTimerStackRecord* cur_timer_data = LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
+	if (!cur_timer_data) return;
 	TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
 	accumulator->mActiveCount++;
 	mBlockStartTotalTimeCounter = accumulator->mTotalTimeCounter;
@@ -293,7 +278,9 @@ LL_FORCE_INLINE BlockTimer::~BlockTimer()
 {
 #if FAST_TIMER_ON
 	U64 total_time = TimeBlock::getCPUClockCount64() - mStartTime;
-	BlockTimerStackRecord* cur_timer_data = ThreadTimerStack::getIfExists();
+	BlockTimerStackRecord* cur_timer_data = LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
+	if (!cur_timer_data) return;
+
 	TimeBlockAccumulator* accumulator = cur_timer_data->mTimeBlock->getPrimaryAccumulator();
 
 	accumulator->mCalls++;

@@ -93,7 +93,7 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 {
 	LLThread *threadp = (LLThread *)datap;
 
-	LLTrace::SlaveThreadRecorder thread_recorder(LLTrace::getUIThreadRecorder());
+	LLTrace::ThreadRecorder thread_recorder(LLTrace::getUIThreadRecorder());
 
 #if !LL_DARWIN
 	sThreadID = threadp->mID;

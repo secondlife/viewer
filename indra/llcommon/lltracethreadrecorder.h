@@ -43,16 +43,25 @@ namespace LLTrace
 		typedef std::vector<ActiveRecording*> active_recording_list_t;
 	public:
 		ThreadRecorder();
+		explicit ThreadRecorder(ThreadRecorder& master);
 
-		virtual ~ThreadRecorder();
+		~ThreadRecorder();
 
 		void activate(AccumulatorBufferGroup* recording);
 		void deactivate(AccumulatorBufferGroup* recording);
 		active_recording_list_t::reverse_iterator bringUpToDate(AccumulatorBufferGroup* recording);
 
-		virtual void pushToMaster() = 0;
+		void addChildRecorder(class ThreadRecorder* child);
+		void removeChildRecorder(class ThreadRecorder* child);
+
+		// call this periodically to gather stats data from child threads
+		void pullFromChildren();
+		void pushToParent();
 
 		TimeBlockTreeNode* getTimeBlockTreeNode(S32 index);
+
+	protected:
+		void init();
 
 	protected:
 		struct ActiveRecording
@@ -64,59 +73,31 @@ namespace LLTrace
 
 			void movePartialToTarget();
 		};
+
 		AccumulatorBufferGroup			mThreadRecordingBuffers;
 
-		active_recording_list_t		mActiveRecordings;
+		BlockTimerStackRecord			mBlockTimerStackRecord;
+		active_recording_list_t			mActiveRecordings;
 
-		class BlockTimer*			mRootTimer;
-		TimeBlockTreeNode*			mTimeBlockTreeNodes;
-		size_t						mNumTimeBlockTreeNodes;
-		BlockTimerStackRecord		mBlockTimerStackRecord;
-	};
+		class BlockTimer*				mRootTimer;
+		TimeBlockTreeNode*				mTimeBlockTreeNodes;
+		size_t							mNumTimeBlockTreeNodes;
+		typedef std::list<class ThreadRecorder*> child_thread_recorder_list_t;
 
-	class LL_COMMON_API MasterThreadRecorder : public ThreadRecorder
-	{
-	public:
-		MasterThreadRecorder();
+		child_thread_recorder_list_t	mChildThreadRecorders;	// list of child thread recorders associated with this master
+		LLMutex							mChildListMutex;		// protects access to child list
+		LLMutex							mSharedRecordingMutex;
+		AccumulatorBufferGroup			mSharedRecordingBuffers;
+		ThreadRecorder*					mMasterRecorder;
 
-		void addSlaveThread(class SlaveThreadRecorder* child);
-		void removeSlaveThread(class SlaveThreadRecorder* child);
-
-		/*virtual */ void pushToMaster();
-
-		// call this periodically to gather stats data from slave threads
-		void pullFromSlaveThreads();
-
-	private:
-
-		typedef std::list<class SlaveThreadRecorder*> slave_thread_recorder_list_t;
-
-		slave_thread_recorder_list_t	mSlaveThreadRecorders;	// list of slave thread recorders associated with this master
-		LLMutex							mSlaveListMutex;		// protects access to slave list
-	};
-
-	class LL_COMMON_API SlaveThreadRecorder : public ThreadRecorder
-	{
-	public:
-		SlaveThreadRecorder(MasterThreadRecorder& master);
-		~SlaveThreadRecorder();
-
-		// call this periodically to gather stats data for master thread to consume
-		/*virtual*/ void pushToMaster();
-
-	private:
-		friend class MasterThreadRecorder;
-		LLMutex					mSharedRecordingMutex;
-		AccumulatorBufferGroup	mSharedRecordingBuffers;
-		MasterThreadRecorder&	mMasterRecorder;
 	};
 
 	//FIXME: let user code set up thread recorder topology
-	extern MasterThreadRecorder* gUIThreadRecorder ;
+	extern ThreadRecorder* gUIThreadRecorder ;
 
 	const LLThreadLocalPointer<class ThreadRecorder>& get_thread_recorder();
 	void set_thread_recorder(class ThreadRecorder*);
-	class MasterThreadRecorder& getUIThreadRecorder();
+	ThreadRecorder& getUIThreadRecorder();
 
 }
 

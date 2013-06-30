@@ -31,7 +31,7 @@
 namespace LLTrace
 {
 
-MasterThreadRecorder* gUIThreadRecorder = NULL;
+ThreadRecorder* gUIThreadRecorder = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 // ThreadRecorder
@@ -39,11 +39,17 @@ MasterThreadRecorder* gUIThreadRecorder = NULL;
 
 ThreadRecorder::ThreadRecorder()
 {
+	init();
+}
+
+void ThreadRecorder::init()
+{
+	LLThreadLocalSingletonPointer<BlockTimerStackRecord>::setInstance(&mBlockTimerStackRecord);
 	//NB: the ordering of initialization in this function is very fragile due to a large number of implicit dependencies
 	set_thread_recorder(this);
 	TimeBlock& root_time_block = TimeBlock::getRootTimeBlock();
 
-	ThreadTimerStack* timer_stack = ThreadTimerStack::getInstance();
+	BlockTimerStackRecord* timer_stack = LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
 	timer_stack->mTimeBlock = &root_time_block;
 	timer_stack->mActiveTimer = NULL;
 
@@ -71,8 +77,19 @@ ThreadRecorder::ThreadRecorder()
 	TimeBlock::getRootTimeBlock().getPrimaryAccumulator()->mActiveCount = 1;
 }
 
+
+ThreadRecorder::ThreadRecorder(ThreadRecorder& master)
+:	mMasterRecorder(&master)
+{
+	init();
+	mMasterRecorder->addChildRecorder(this);
+}
+
+
 ThreadRecorder::~ThreadRecorder()
 {
+	LLThreadLocalSingletonPointer<BlockTimerStackRecord>::setInstance(NULL);
+
 	deactivate(&mThreadRecordingBuffers);
 
 	delete mRootTimer;
@@ -85,6 +102,11 @@ ThreadRecorder::~ThreadRecorder()
 
 	set_thread_recorder(NULL);
 	delete[] mTimeBlockTreeNodes;
+
+	if (mMasterRecorder)
+	{
+		mMasterRecorder->removeChildRecorder(this);
+	}
 }
 
 TimeBlockTreeNode* ThreadRecorder::getTimeBlockTreeNode( S32 index )
@@ -190,86 +212,63 @@ void ThreadRecorder::ActiveRecording::movePartialToTarget()
 }
 
 
-///////////////////////////////////////////////////////////////////////
-// SlaveThreadRecorder
-///////////////////////////////////////////////////////////////////////
-
-SlaveThreadRecorder::SlaveThreadRecorder(MasterThreadRecorder& master)
-:	mMasterRecorder(master)
-{
-	mMasterRecorder.addSlaveThread(this);
+// called by child thread
+void ThreadRecorder::addChildRecorder( class ThreadRecorder* child )
+{ LLMutexLock lock(&mChildListMutex);
+	mChildThreadRecorders.push_back(child);
 }
 
-SlaveThreadRecorder::~SlaveThreadRecorder()
+// called by child thread
+void ThreadRecorder::removeChildRecorder( class ThreadRecorder* child )
+{ LLMutexLock lock(&mChildListMutex);
+
+for (child_thread_recorder_list_t::iterator it = mChildThreadRecorders.begin(), end_it = mChildThreadRecorders.end();
+	it != end_it;
+	++it)
 {
-	mMasterRecorder.removeSlaveThread(this);
+	if ((*it) == child)
+	{
+		mChildThreadRecorders.erase(it);
+		break;
+	}
+}
 }
 
-void SlaveThreadRecorder::pushToMaster()
-{ 
+void ThreadRecorder::pushToParent()
+{
 	{ LLMutexLock lock(&mSharedRecordingMutex);	
 		LLTrace::get_thread_recorder()->bringUpToDate(&mThreadRecordingBuffers);
 		mSharedRecordingBuffers.append(mThreadRecordingBuffers);
 	}
 }
+	
 
-///////////////////////////////////////////////////////////////////////
-// MasterThreadRecorder
-///////////////////////////////////////////////////////////////////////
 
-static LLFastTimer::DeclareTimer FTM_PULL_TRACE_DATA_FROM_SLAVES("Pull slave trace data");
 
-void MasterThreadRecorder::pullFromSlaveThreads()
+static LLFastTimer::DeclareTimer FTM_PULL_TRACE_DATA_FROM_CHILDREN("Pull child thread trace data");
+
+void ThreadRecorder::pullFromChildren()
 {
-	/*LLFastTimer _(FTM_PULL_TRACE_DATA_FROM_SLAVES);
+	LLFastTimer _(FTM_PULL_TRACE_DATA_FROM_CHILDREN);
 	if (mActiveRecordings.empty()) return;
 
-	{ LLMutexLock lock(&mSlaveListMutex);
+	{ LLMutexLock lock(&mChildListMutex);
 
-	AccumulatorBufferGroup& target_recording_buffers = mActiveRecordings.back()->mPartialRecording;
-	target_recording_buffers.sync();
-	for (slave_thread_recorder_list_t::iterator it = mSlaveThreadRecorders.begin(), end_it = mSlaveThreadRecorders.end();
-	it != end_it;
-	++it)
-	{ LLMutexLock lock(&(*it)->mSharedRecordingMutex);
+		AccumulatorBufferGroup& target_recording_buffers = mActiveRecordings.back()->mPartialRecording;
+		target_recording_buffers.sync();
+		for (child_thread_recorder_list_t::iterator it = mChildThreadRecorders.begin(), end_it = mChildThreadRecorders.end();
+			it != end_it;
+			++it)
+		{ LLMutexLock lock(&(*it)->mSharedRecordingMutex);
 
-	target_recording_buffers.merge((*it)->mSharedRecordingBuffers);
-	(*it)->mSharedRecordingBuffers.reset();
-	}
-	}*/
-}
-
-// called by slave thread
-void MasterThreadRecorder::addSlaveThread( class SlaveThreadRecorder* child )
-{ LLMutexLock lock(&mSlaveListMutex);
-
-	mSlaveThreadRecorders.push_back(child);
-}
-
-// called by slave thread
-void MasterThreadRecorder::removeSlaveThread( class SlaveThreadRecorder* child )
-{ LLMutexLock lock(&mSlaveListMutex);
-
-	for (slave_thread_recorder_list_t::iterator it = mSlaveThreadRecorders.begin(), end_it = mSlaveThreadRecorders.end();
-		it != end_it;
-		++it)
-	{
-		if ((*it) == child)
-		{
-			mSlaveThreadRecorders.erase(it);
-			break;
+			target_recording_buffers.merge((*it)->mSharedRecordingBuffers);
+			(*it)->mSharedRecordingBuffers.reset();
 		}
 	}
 }
 
-void MasterThreadRecorder::pushToMaster()
-{}
 
-MasterThreadRecorder::MasterThreadRecorder()
-{}
-
-
-MasterThreadRecorder& getUIThreadRecorder()
+ThreadRecorder& getUIThreadRecorder()
 {
 	llassert(gUIThreadRecorder != NULL);
 	return *gUIThreadRecorder;

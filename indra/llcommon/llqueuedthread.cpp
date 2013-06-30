@@ -470,7 +470,7 @@ S32 LLQueuedThread::processNextRequest()
 			}
 		}
 		
-		LLTrace::get_thread_recorder()->pushToMaster();
+		LLTrace::get_thread_recorder()->pushToParent();
 	}
 
 	S32 pending = getPending();
@@ -502,7 +502,7 @@ void LLQueuedThread::run()
 		
 		if (isQuitting())
 		{
-			LLTrace::get_thread_recorder()->pushToMaster();
+			LLTrace::get_thread_recorder()->pushToParent();
 			endThread();
 			break;
 		}

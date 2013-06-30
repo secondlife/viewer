@@ -39,7 +39,7 @@ void init()
 {
 	if (sInitializationCount++ == 0)
 	{
-		gUIThreadRecorder = new MasterThreadRecorder();
+		gUIThreadRecorder = new ThreadRecorder();
 	}
 }
 

@@ -247,17 +247,18 @@ void TimeBlock::incrementalUpdateTimerTree()
 
 
 void TimeBlock::updateTimes()
-	{
-	U64 cur_time = getCPUClockCount64();
-
+{
 	// walk up stack of active timers and accumulate current time while leaving timing structures active
-	BlockTimerStackRecord* stack_record	= ThreadTimerStack::getInstance();
+	BlockTimerStackRecord* stack_record	= LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
+	if (stack_record) return;
+
+	U64 cur_time = getCPUClockCount64();
 	BlockTimer* cur_timer				= stack_record->mActiveTimer;
 	TimeBlockAccumulator* accumulator	= stack_record->mTimeBlock->getPrimaryAccumulator();
 
 	while(cur_timer 
 		&& cur_timer->mParentTimerData.mActiveTimer != cur_timer) // root defined by parent pointing to self
-		{
+	{
 		U64 cumulative_time_delta = cur_time - cur_timer->mStartTime;
 		accumulator->mTotalTimeCounter += cumulative_time_delta 
 			- (accumulator->mTotalTimeCounter 
