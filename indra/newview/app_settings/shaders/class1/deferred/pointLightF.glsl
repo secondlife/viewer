@@ -102,11 +102,10 @@ void main()
 	{
 		vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
 		norm = decode_normal(norm.xy); // unpack norm
-		float da = dot(norm, lv);
-	
+			
 		norm = normalize(norm);
 		lv = normalize(lv);
-		da = max(dot(norm, lv), 0.0);
+		float da = max(dot(norm, lv), 0.0);
 	
 		//float noise = texture2D(noiseMap, frag.xy/128.0).b;
 	
@@ -116,7 +115,7 @@ void main()
 		dist_atten *= dist_atten;
 		dist_atten *= 2.0;
 	
-		float lit = da * dist_atten; // * noise;
+		float lit = da * dist_atten;
 
 		col = color.rgb*lit*col;
 
@@ -135,11 +134,8 @@ void main()
 			float gtdenom = 2 * nh;
 			float gt = max(0,(min(gtdenom * nv / vh, gtdenom * da / vh)));
 
-			if (nh > 0.0)
-			{
-				float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-				col += lit*scol*color.rgb*spec.rgb;
-			}
+			float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
+			col += max(lit*scol*color.rgb*spec.rgb, vec3(0.0));
 		}
 	}
 	

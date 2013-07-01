@@ -832,8 +832,8 @@ LLLightState::LLLightState(S32 index)
 : mIndex(index),
   mEnabled(false),
   mConstantAtten(1.f),
-  mLinearAtten(0.f),
-  mQuadraticAtten(0.f),
+  mLinearAtten(1.f),
+  mQuadraticAtten(1.f),
   mSpotExponent(0.f),
   mSpotCutoff(180.f)
 {

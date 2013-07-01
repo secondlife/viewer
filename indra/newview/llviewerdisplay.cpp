@@ -675,6 +675,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 		LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater() ? TRUE : FALSE;
 		gPipeline.updateCull(*LLViewerCamera::getInstance(), result, water_clip);
+		LLPipeline::sUnderWaterRender = FALSE;
 		stop_glerror();
 
 		LLGLState::checkStates();

@@ -36,7 +36,6 @@ uniform sampler2DRect diffuseRect;
 uniform sampler2DRect specularRect;
 uniform sampler2DRect normalMap;
 uniform samplerCube environmentMap;
-uniform sampler2D noiseMap;
 uniform sampler2D lightFunc;
 
 
@@ -99,7 +98,6 @@ void main()
 	norm = normalize(norm);
 	vec4 spec = texture2DRect(specularRect, frag.xy);
 	vec3 diff = texture2DRect(diffuseRect, frag.xy).rgb;
-	float noise = texture2D(noiseMap, frag.xy/128.0).b;
 	vec3 out_col = vec3(0,0,0);
 	vec3 npos = normalize(-pos);
 
@@ -122,13 +120,9 @@ void main()
 				dist_atten *= dist_atten;
 				dist_atten *= 2.0;
 			
-				dist_atten *= noise;
-
 				float lit = da * dist_atten;
 						
 				vec3 col = light_col[i].rgb*lit*diff;
-			
-				//vec3 col = vec3(dist2, light_col[i].a, lit);
 			
 				if (spec.a > 0.0)
 				{
@@ -144,12 +138,8 @@ void main()
 					float gtdenom = 2 * nh;
 					float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
 								
-					if (nh > 0.0)
-					{
-						float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-						col += lit*scol*light_col[i].rgb*spec.rgb;
-						//col += spec.rgb;
-					}
+					float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
+					col += max(lit*scol*light_col[i].rgb*spec.rgb, vec3(0.0));
 				}
 			
 				out_col += col;

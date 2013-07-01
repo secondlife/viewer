@@ -93,7 +93,7 @@ float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, floa
 	
 	float da = 0.0;
 
-//	if (d > 0.0 && la > 0.0 && fa > 0.0)
+	//if (d > 0.0 && la > 0.0 && fa > 0.0)
 	{
 		//normalize light vector
 		lv /= d;
@@ -230,7 +230,6 @@ void main()
 	}
 #endif
 
-	vec4 gamma_diff = diff;
 	vec3 normal = vary_norm; 
 	
 	vec3 l = light_position[0].xyz;

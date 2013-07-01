@@ -1203,23 +1203,7 @@ void LLGLSLShader::uniform1i(const LLStaticHashedString& uniform, GLint v)
 	}
 }
 
-void LLGLSLShader::uniform2i(const string& uniform, GLint i, GLint j)
-{
-	GLint location = getUniformLocation(uniform);
-				
-	if (location >= 0)
-	{
-		std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
-		LLVector4 vec(i,j,0.f,0.f);
-		if (iter == mValue.end() || shouldChange(iter->second,vec))
-		{
-			glUniform2iARB(location, i, j);
-			mValue[location] = vec;
-		}
-	}
-}
-
-void LLGLSLShader::uniform2i(const string& uniform, GLint i, GLint j)
+void LLGLSLShader::uniform2i(const LLStaticHashedString& uniform, GLint i, GLint j)
 {
 	GLint location = getUniformLocation(uniform);
 				

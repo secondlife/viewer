@@ -6316,13 +6316,6 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			F32 x = (3.f * (1.f + light->getLightFalloff())); // why this magic?  probably trying to match a historic behavior.
 			float linatten = x / (light_radius); // % of brightness at radius
 
-			if (LLPipeline::sRenderDeferred)
-			{
-				/*light_color.mV[0] = powf(light_color.mV[0], 2.2f);
-				light_color.mV[1] = powf(light_color.mV[1], 2.2f);
-				light_color.mV[2] = powf(light_color.mV[2], 2.2f);*/
-			}
-
 			mHWLightColors[cur_light] = light_color;
 			LLLightState* light_state = gGL.getLight(cur_light);
 			
@@ -6381,6 +6374,8 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		light->setDiffuse(LLColor4::black);
 		light->setAmbient(LLColor4::black);
 		light->setSpecular(LLColor4::black);
+		light->setQuadraticAttenuation(1.f);
+		light->setLinearAttenuation(1.f);
 	}
 	if (gAgentAvatarp &&
 		gAgentAvatarp->mSpecialRenderMode == 3)
