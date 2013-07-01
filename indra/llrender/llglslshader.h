@@ -111,19 +111,7 @@ public:
 	void uniform2fv(U32 index, U32 count, const GLfloat* v);
 	void uniform3fv(U32 index, U32 count, const GLfloat* v);
 	void uniform4fv(U32 index, U32 count, const GLfloat* v);
-
-	void uniform1i(const std::string& uniform, GLint i);
-	void uniform2i(const std::string& uniform, GLint i, GLint j);
-	void uniform1f(const std::string& uniform, GLfloat v);
-	void uniform2f(const std::string& uniform, GLfloat x, GLfloat y);
-	void uniform3f(const std::string& uniform, GLfloat x, GLfloat y, GLfloat z);
-	void uniform4f(const std::string& uniform, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
-	void uniform1iv(const std::string& uniform, U32 count, const GLint* i);
-	void uniform1fv(const std::string& uniform, U32 count, const GLfloat* v);
-	void uniform2fv(const std::string& uniform, U32 count, const GLfloat* v);
-	void uniform3fv(const std::string& uniform, U32 count, const GLfloat* v);
-	void uniform4fv(const std::string& uniform, U32 count, const GLfloat* v);
-
+	void uniform2i(const LLStaticHashedString& uniform, GLint i, GLint j);
 	void uniformMatrix2fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v);
 	void uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v);
 	void uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v);
@@ -181,6 +169,7 @@ public:
 	U32 mAttributeMask;  //mask of which reserved attributes are set (lines up with LLVertexBuffer::getTypeMask())
 	std::vector<GLint> mUniform;   //lookup table of uniform enum to uniform location
 	LLStaticStringTable<GLint> mUniformMap; //lookup map of uniform name to uniform location
+	std::map<GLint, std::string> mUniformNameMap; //lookup map of uniform location to uniform name
 	std::map<GLint, LLVector4> mValue; //lookup map of uniform location to last known value
 	std::vector<GLint> mTexture;
 	S32 mTotalUniformSize;

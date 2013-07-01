@@ -545,7 +545,7 @@ S32 LLTextureEntry::setMaterialID(const LLMaterialID& pMaterialID)
 		{
 			mMaterialUpdatePending = true;
 			mMaterialID = pMaterialID;
-			return TEM_CHANGE_NONE;
+			return TEM_CHANGE_TEXTURE;
 		}
 
 		mMaterialUpdatePending = false;

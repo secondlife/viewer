@@ -1150,7 +1150,7 @@ void LLRender::syncLightState()
 
 			position[i] = light->mPosition;
 			direction[i] = light->mSpotDirection;
-			attenuation[i].set(light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[3]);
+			attenuation[i].set(1.f/light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[3]);
 			diffuse[i].set(light->mDiffuse.mV);
 		}
 
@@ -1869,35 +1869,36 @@ void LLRender::flush()
 			sUIVerts += mCount;
 		}
 		
-		if (gDebugGL)
+		//store mCount in a local variable to avoid re-entrance (drawArrays may call flush)
+		U32 count = mCount;
+
+		if (mMode == LLRender::QUADS && !sGLCoreProfile)
 		{
-			if (mMode == LLRender::QUADS && !sGLCoreProfile)
+			if (mCount%4 != 0)
 			{
-				if (mCount%4 != 0)
-				{
-					llerrs << "Incomplete quad rendered." << llendl;
-				}
-			}
-			
-			if (mMode == LLRender::TRIANGLES)
-			{
-				if (mCount%3 != 0)
-				{
-					llerrs << "Incomplete triangle rendered." << llendl;
-				}
-			}
-			
-			if (mMode == LLRender::LINES)
-			{
-				if (mCount%2 != 0)
-				{
-					llerrs << "Incomplete line rendered." << llendl;
-				}
+				count -= (mCount % 4);
+				llwarns << "Incomplete quad requested." << llendl;
 			}
 		}
 
-		//store mCount in a local variable to avoid re-entrance (drawArrays may call flush)
-		U32 count = mCount;
+		if (mMode == LLRender::TRIANGLES)
+		{
+			if (mCount%3 != 0)
+			{
+				count -= (mCount % 3);
+				llwarns << "Incomplete triangle requested." << llendl;
+			}
+		}
+
+		if (mMode == LLRender::LINES)
+		{
+			if (mCount%2 != 0)
+			{
+				count -= (mCount % 2);
+				llwarns << "Incomplete line requested." << llendl;
+			}
+		}
+		
 		mCount = 0;
 
 		if (mBuffer->useVBOs() && !mBuffer->isLocked())

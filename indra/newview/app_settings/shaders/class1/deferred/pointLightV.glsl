@@ -37,7 +37,7 @@ VARYING vec3 trans_center;
 void main()
 {
 	//transform vertex
-	vec3 p = position*size+center;
+	vec3 p = position*1.f/size+center;
 	vec4 pos = modelview_projection_matrix * vec4(p.xyz, 1.0);
 	vary_fragcoord = pos;
 	trans_center = (modelview_matrix*vec4(center.xyz, 1.0)).xyz;

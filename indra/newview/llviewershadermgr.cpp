@@ -42,22 +42,6 @@
 #include "llvosky.h"
 #include "llrender.h"
 
-#if LL_DARWIN
-#include "OpenGL/OpenGL.h"
-
-// include spec exp clamp to fix older mac rendering artifacts
-//
-#define SINGLE_FP_PERMUTATION(shader)					\
-	if (gGLManager.mIsMobileGF)							\
-	{																\
-		shader.addPermutation("SINGLE_FP_ONLY","1");		\
-	}
-
-
-#else
-#define SINGLE_FP_PERMUTATION(shader)
-#endif
-
 #ifdef LL_RELEASE_FOR_DOWNLOAD
 #define UNIFORM_ERRS LL_WARNS_ONCE("Shader")
 #else
@@ -206,7 +190,7 @@ LLGLSLShader			gDeferredTreeShadowProgram;
 LLGLSLShader			gDeferredAvatarProgram;
 LLGLSLShader			gDeferredAvatarAlphaProgram;
 LLGLSLShader			gDeferredLightProgram;
-LLGLSLShader			gDeferredMultiLightProgram;
+LLGLSLShader			gDeferredMultiLightProgram[16];
 LLGLSLShader			gDeferredSpotLightProgram;
 LLGLSLShader			gDeferredMultiSpotLightProgram;
 LLGLSLShader			gDeferredSunProgram;
@@ -1094,7 +1078,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredImpostorProgram.unload();
 		gDeferredTerrainProgram.unload();
 		gDeferredLightProgram.unload();
-		gDeferredMultiLightProgram.unload();
+		for (U32 i = 0; i < LL_DEFERRED_MULTI_LIGHT_COUNT; ++i)
+		{
+			gDeferredMultiLightProgram[i].unload();
+		}
 		gDeferredSpotLightProgram.unload();
 		gDeferredMultiSpotLightProgram.unload();
 		gDeferredSunProgram.unload();
@@ -1274,8 +1261,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			bool has_skin = i & 0x10;
 			gDeferredMaterialProgram[i].addPermutation("HAS_SKIN",has_skin ? "1" : "0");
 
-			SINGLE_FP_PERMUTATION(gDeferredMaterialProgram[i]);
-
 			if (has_skin)
 			{
 				gDeferredMaterialProgram[i].mFeatures.hasObjectSkinning = true;
@@ -1334,22 +1319,21 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 
-		SINGLE_FP_PERMUTATION(gDeferredLightProgram);
-
 		success = gDeferredLightProgram.createShader(NULL, NULL);
 	}
 
-	if (success)
+	for (U32 i = 0; i < LL_DEFERRED_MULTI_LIGHT_COUNT; i++)
 	{
-		gDeferredMultiLightProgram.mName = "Deferred MultiLight Shader";
-		gDeferredMultiLightProgram.mShaderFiles.clear();
-		gDeferredMultiLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredMultiLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredMultiLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
-		SINGLE_FP_PERMUTATION(gDeferredMultiLightProgram);
-
-		success = gDeferredMultiLightProgram.createShader(NULL, NULL);
+		if (success)
+		{
+			gDeferredMultiLightProgram[i].mName = llformat("Deferred MultiLight Shader %d", i);
+			gDeferredMultiLightProgram[i].mShaderFiles.clear();
+			gDeferredMultiLightProgram[i].mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER_ARB));
+			gDeferredMultiLightProgram[i].mShaderFiles.push_back(make_pair("deferred/multiPointLightF.glsl", GL_FRAGMENT_SHADER_ARB));
+			gDeferredMultiLightProgram[i].mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+			gDeferredMultiLightProgram[i].addPermutation("LIGHT_COUNT", llformat("%d", i+1));
+			success = gDeferredMultiLightProgram[i].createShader(NULL, NULL);
+		}
 	}
 
 	if (success)
@@ -1359,8 +1343,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/spotLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredSpotLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
-		SINGLE_FP_PERMUTATION(gDeferredSpotLightProgram);
 
 		success = gDeferredSpotLightProgram.createShader(NULL, NULL);
 	}
@@ -1372,8 +1354,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/multiSpotLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredMultiSpotLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
-		SINGLE_FP_PERMUTATION(gDeferredMultiSpotLightProgram);
 
 		success = gDeferredMultiSpotLightProgram.createShader(NULL, NULL);
 	}
@@ -1402,8 +1382,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSunProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER_ARB));
 		gDeferredSunProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 
-		SINGLE_FP_PERMUTATION(gDeferredSunProgram);
-
 		success = gDeferredSunProgram.createShader(NULL, NULL);
 	}
 
@@ -1414,8 +1392,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredBlurLightProgram.mShaderFiles.push_back(make_pair("deferred/blurLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredBlurLightProgram.mShaderFiles.push_back(make_pair("deferred/blurLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredBlurLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
-		SINGLE_FP_PERMUTATION(gDeferredBlurLightProgram);
 
 		success = gDeferredBlurLightProgram.createShader(NULL, NULL);
 	}
@@ -1447,8 +1423,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAlphaProgram.addPermutation("USE_VERTEX_COLOR", "1");
 		gDeferredAlphaProgram.addPermutation("HAS_SHADOW", mVertexShaderLevel[SHADER_DEFERRED] > 1 ? "1" : "0");
 		gDeferredAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
-		SINGLE_FP_PERMUTATION(gDeferredAlphaProgram);
 
 		success = gDeferredAlphaProgram.createShader(NULL, NULL);
 
@@ -1565,8 +1539,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 
 		gDeferredSoftenProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
-		SINGLE_FP_PERMUTATION(gDeferredSoftenProgram);
 
 		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
 		{ //if using SSAO, take screen space light map into account as if shadows are enabled

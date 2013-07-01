@@ -5488,7 +5488,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 								mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE;
 			}
 
-			bool use_legacy_bump = te->getBumpmap() && (!mat || mat->getNormalID().isNull());
+			bool use_legacy_bump = te->getBumpmap() && (te->getBumpmap() < 18) && (!mat || mat->getNormalID().isNull());
 
 			if (mat && LLPipeline::sRenderDeferred && !hud_group)
 			{

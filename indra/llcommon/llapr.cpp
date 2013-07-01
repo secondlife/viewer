@@ -226,7 +226,7 @@ void LLVolatileAPRPool::clearVolatileAPRPool()
 		llassert_always(mNumActiveRef > 0) ;
 	}
 
-	llassert(mNumTotalRef < (FULL_VOLATILE_APR_POOL << 2)) ;
+	llassert(mNumTotalRef <= (FULL_VOLATILE_APR_POOL << 2)) ;
 }
 
 BOOL LLVolatileAPRPool::isFull()

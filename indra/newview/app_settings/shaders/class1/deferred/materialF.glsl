@@ -133,16 +133,16 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 
 	vec3 col = vec3(0,0,0);
 
-	if (d > 0.0 && la > 0.0 && fa > 0.0)
+	//if (d > 0.0 && la > 0.0 && fa > 0.0)
 	{
 		//normalize light vector
-		lv = normalize(lv);
+		lv /= d;
 	
 		//distance attenuation
-		float dist = d/la;
-		float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
+		float dist = d*la;
+		float dist_atten = clamp(1.0-(dist-1.0+fa)/fa, 0.0, 1.0);
 		dist_atten *= dist_atten;
-		dist_atten *= 1.4;
+		dist_atten *= 2.0;
 
 		// spotlight coefficient.
 		float spot = max(dot(-ln, lv), is_pointlight);
@@ -428,22 +428,6 @@ VARYING vec3 vary_normal;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
-#ifdef SINGLE_FP_ONLY
-vec2 encode_normal(vec3 n)
-{
-	vec2 sn;
-	sn.xy = (n.xy * vec2(0.5f,0.5f)) + vec2(0.5f,0.5f);
-	return sn;
-}
-
-vec3 decode_normal (vec2 enc)
-{
-	vec3 n;
-	n.xy = (enc.xy * vec2(2.0f,2.0f)) - vec2(1.0f,1.0f);
-	n.z = sqrt(1.0f - dot(n.xy,n.xy));
-	return n;
-}
-#else
 vec2 encode_normal(vec3 n)
 {
 	float f = sqrt(8 * n.z + 8);
@@ -460,7 +444,6 @@ vec3 decode_normal (vec2 enc)
     n.z = 1-f/2;
     return n;
 }
-#endif
 
 void main() 
 {

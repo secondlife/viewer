@@ -30,6 +30,8 @@
 #include "llshadermgr.h"
 #include "llmaterial.h"
 
+#define LL_DEFERRED_MULTI_LIGHT_COUNT 16
+
 class LLViewerShaderMgr: public LLShaderMgr
 {
 public:
@@ -275,7 +277,7 @@ extern LLGLSLShader			gDeferredTerrainProgram;
 extern LLGLSLShader			gDeferredTreeProgram;
 extern LLGLSLShader			gDeferredTreeShadowProgram;
 extern LLGLSLShader			gDeferredLightProgram;
-extern LLGLSLShader			gDeferredMultiLightProgram;
+extern LLGLSLShader			gDeferredMultiLightProgram[LL_DEFERRED_MULTI_LIGHT_COUNT];
 extern LLGLSLShader			gDeferredSpotLightProgram;
 extern LLGLSLShader			gDeferredMultiSpotLightProgram;
 extern LLGLSLShader			gDeferredSunProgram;

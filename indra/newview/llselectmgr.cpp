@@ -91,7 +91,7 @@
 #include "llvovolume.h"
 #include "pipeline.h"
 #include "llviewershadermgr.h"
-
+#include "llpanelface.h"
 #include "llglheaders.h"
 
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
@@ -2534,7 +2534,7 @@ void LLSelectMgr::adjustTexturesByScale(BOOL send_to_sim, BOOL stretch)
 					if (tep && !tep->getMaterialParams().isNull())
 					{
 						LLMaterialPtr orig = tep->getMaterialParams();
-						LLMaterialPtr p = new LLMaterial(orig->asLLSD());
+						LLMaterialPtr p = gFloaterTools->getPanelFace()->createDefaultMaterial(orig);
 						p->setNormalRepeat(normal_scale_s, normal_scale_t);
 						p->setSpecularRepeat(specular_scale_s, specular_scale_t);
 
@@ -2560,8 +2560,8 @@ void LLSelectMgr::adjustTexturesByScale(BOOL send_to_sim, BOOL stretch)
 					if (tep && !tep->getMaterialParams().isNull())
 					{
 						LLMaterialPtr orig = tep->getMaterialParams();
+						LLMaterialPtr p = gFloaterTools->getPanelFace()->createDefaultMaterial(orig);
 
-						LLMaterialPtr p = new LLMaterial(orig->asLLSD());
 						p->setNormalRepeat(normal_scale_s, normal_scale_t);
 						p->setSpecularRepeat(specular_scale_s, specular_scale_t);
 
