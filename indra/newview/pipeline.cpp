@@ -8680,7 +8680,7 @@ void LLPipeline::renderDeferredLighting()
 							
 							LLFastTimer ftm(FTM_LOCAL_LIGHTS);
 							gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
-							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
+							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, 1.f/s);
 							gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
 							gGL.syncMatrices();
@@ -8701,7 +8701,7 @@ void LLPipeline::renderDeferredLighting()
 						glh::vec3f tc(c);
 						mat.mult_matrix_vec(tc);
 					
-						fullscreen_lights.push_back(LLVector4(tc.v[0], tc.v[1], tc.v[2], s));
+						fullscreen_lights.push_back(LLVector4(tc.v[0], tc.v[1], tc.v[2], 1.f/s));
 						light_colors.push_back(LLVector4(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f));
 					}
 				}
@@ -8786,7 +8786,7 @@ void LLPipeline::renderDeferredLighting()
 					col[count].mV[1] = powf(col[count].mV[1], 2.2f);
 					col[count].mV[2] = powf(col[count].mV[2], 2.2f);*/
 					
-					far_z = llmin(light[count].mV[2]-light[count].mV[3], far_z);
+					far_z = llmin(light[count].mV[2]-1.f/light[count].mV[3], far_z);
 					//col[count] = pow4fsrgb(col[count], 2.2f);
 					count++;
 					if (count == max_count || fullscreen_lights.empty())

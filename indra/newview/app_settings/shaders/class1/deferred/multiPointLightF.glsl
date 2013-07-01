@@ -107,14 +107,14 @@ void main()
 	for (int i = 0; i < LIGHT_COUNT; ++i)
 	{
 		vec3 lv = light[i].xyz-pos;
-		float dist = length(lv);
-		dist /= light[i].w;
+		float d = length(lv);
+		float dist = d * light[i].w;
 		if (dist <= 1.0)
 		{
 			float da = dot(norm, lv);
 			if (da > 0.0)
 			{
-				lv = normalize(lv);
+				lv /= d;
 				da = dot(norm, lv);
 			
 				float fa = light_col[i].a+1.0;
