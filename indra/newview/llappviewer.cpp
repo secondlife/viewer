@@ -2463,7 +2463,7 @@ bool LLAppViewer::initConfiguration()
 	// Register the core crash option as soon as we can
 	// if we want gdb post-mortem on cores we need to be up and running
 	// ASAP or we might miss init issue etc.
-	if(clp.hasOption("disablecrashlogger"))
+	if(gSavedSettings.getBOOL("DisableCrashLogger"))
 	{
 		llwarns << "Crashes will be handled by system, stack trace logs and crash logger are both disabled" << llendl;
 		LLAppViewer::instance()->disableCrashlogger();
@@ -2542,59 +2542,37 @@ bool LLAppViewer::initConfiguration()
 	}
 
 	// If we have specified crash on startup, set the global so we'll trigger the crash at the right time
-	if(clp.hasOption("crashonstartup"))
-	{
-		gCrashOnStartup = TRUE;
-	}
+	gCrashOnStartup = gSavedSettings.getBOOL("CrashOnStartup");
 
-	if (clp.hasOption("logperformance"))
+	if (gSavedSettings.getBOOL("LogPerformance"))
 	{
 		LLFastTimer::sLog = TRUE;
 		LLFastTimer::sLogName = std::string("performance");		
 	}
-	
-	if (clp.hasOption("logmetrics"))
- 	{
- 		LLFastTimer::sMetricLog = TRUE ;
-		// '--logmetrics' can be specified with a named test metric argument so the data gathering is done only on that test
-		// In the absence of argument, every metric is gathered (makes for a rather slow run and hard to decipher report...)
-		std::string test_name = clp.getOption("logmetrics")[0];
+
+	std::string test_name(gSavedSettings.getString("LogMetrics"));
+	if (! test_name.empty())
+	{
+		LLFastTimer::sMetricLog = TRUE ;
+		// '--logmetrics' is specified with a named test metric argument so the data gathering is done only on that test
+		// In the absence of argument, every metric would be gathered (makes for a rather slow run and hard to decipher report...)
 		llinfos << "'--logmetrics' argument : " << test_name << llendl;
-		if (test_name == "")
-		{
-			llwarns << "No '--logmetrics' argument given, will output all metrics to " << DEFAULT_METRIC_NAME << llendl;
-			LLFastTimer::sLogName = DEFAULT_METRIC_NAME;
-		}
-		else
-		{
-			LLFastTimer::sLogName = test_name;
-		}
+		LLFastTimer::sLogName = test_name;
  	}
 
 	if (clp.hasOption("graphicslevel"))
 	{
 		// User explicitly requested --graphicslevel on the command line.
 		// We expect this switch has already set RenderQualityPerformance.
+		// Check that value for validity; if valid, we'll engage it later.
 		mForceGraphicsDetail =
 			LLFeatureManager::instance().isValidGraphicsLevel(gSavedSettings.getU32("RenderQualityPerformance"));
 	}
 
-	if (clp.hasOption("analyzeperformance"))
-	{
-		LLFastTimerView::sAnalyzePerformance = TRUE;
-	}
+	LLFastTimerView::sAnalyzePerformance = gSavedSettings.getBOOL("AnalyzePerformance");
+	gAgentPilot.setReplaySession(gSavedSettings.getBOOL("ReplaySession"));
 
-	if (clp.hasOption("replaysession"))
-	{
-		gAgentPilot.setReplaySession(TRUE);
-	}
-
-	if (clp.hasOption("nonotifications"))
-	{
-		gSavedSettings.getControl("IgnoreAllNotifications")->setValue(true, false);
-	}
-	
-	if (clp.hasOption("debugsession"))
+	if (gSavedSettings.getBOOL("DebugSession"))
 	{
 		gDebugSession = TRUE;
 		gDebugGL = TRUE;
