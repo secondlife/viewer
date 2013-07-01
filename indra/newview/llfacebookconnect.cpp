@@ -101,7 +101,6 @@ public:
 			
 			// Grab some graph data now that we are connected
             LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTED);
-			LLFacebookConnect::instance().loadFacebookFriends();
 		}
 		else
 		{
@@ -204,7 +203,6 @@ public:
             
 			// Grab some graph data if already connected
             LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTED);
-			LLFacebookConnect::instance().loadFacebookFriends();
 		}
 		else
 		{

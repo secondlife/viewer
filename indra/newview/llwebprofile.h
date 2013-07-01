@@ -48,9 +48,8 @@ class LLWebProfile
 
 public:
 	typedef boost::function<void(bool ok)> status_callback_t;
-	typedef boost::function<void(const std::string& image_url)> image_url_callback_t;
 
-	static void uploadImage(LLPointer<LLImageFormatted> image, const std::string& caption, bool add_location, image_url_callback_t cb = image_url_callback_t());
+	static void uploadImage(LLPointer<LLImageFormatted> image, const std::string& caption, bool add_location);
 	static void setAuthCookie(const std::string& cookie);
 	static void setImageUploadResultCallback(status_callback_t cb) { mStatusCallback = cb; }
 
@@ -59,7 +58,7 @@ private:
 	friend class LLWebProfileResponders::PostImageResponder;
 	friend class LLWebProfileResponders::PostImageRedirectResponder;
 
-	static void post(LLPointer<LLImageFormatted> image, const LLSD& config, const std::string& url, image_url_callback_t cb);
+	static void post(LLPointer<LLImageFormatted> image, const LLSD& config, const std::string& url);
 	static void reportImageUploadStatus(bool ok);
 	static std::string getAuthCookie();
 
