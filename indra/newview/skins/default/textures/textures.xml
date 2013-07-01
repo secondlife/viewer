@@ -148,6 +148,7 @@ with the same filename but different name
   <texture name="Command_Preferences_Icon"  file_name="toolbar_icons/preferences.png"  preload="true" />
   <texture name="Command_Profile_Icon"      file_name="toolbar_icons/profile.png"      preload="true" />
   <texture name="Command_Search_Icon"       file_name="toolbar_icons/search.png"       preload="true" />
+  <texture name="Command_Social_Icon"       file_name="toolbar_icons/facebook.png"     preload="true" />
   <texture name="Command_Snapshot_Icon"     file_name="toolbar_icons/snapshot.png"     preload="true" />
   <texture name="Command_Speak_Icon"        file_name="toolbar_icons/speak.png"        preload="true" />
   <texture name="Command_View_Icon"         file_name="toolbar_icons/view.png"         preload="true" />
