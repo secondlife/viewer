@@ -35,7 +35,6 @@
 
 //---------------------------------------------------------------------------
 // Cache entries
-class LLVOCacheEntry;
 class LLCamera;
 
 class LLVOCacheEntry : public LLViewerOctreeEntryData
@@ -157,8 +156,6 @@ public:
 	void removeEntry(LLViewerOctreeEntry* entry);
 	/*virtual*/ S32 cull(LLCamera &camera);
 	void addOccluders(LLviewerOctreeGroup* gp);
-
-	static	LLTrace::MemStatHandle	sMemStat;
 
 private:	
 	void processOccluders(LLCamera* camera, const LLVector3* region_agent);

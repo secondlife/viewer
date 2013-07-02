@@ -30,33 +30,25 @@
 #include "lltracethreadrecorder.h"
 #include "llfasttimer.h"
 
-static S32 sInitializationCount = 0;
-
 namespace LLTrace
 {
 
-void init()
+TraceBase::TraceBase( const char* name, const char* description ) 
+:	mName(name),
+	mDescription(description ? description : "")
 {
-	if (sInitializationCount++ == 0)
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	if (LLTrace::get_master_thread_recorder() != NULL)
 	{
-		gUIThreadRecorder = new ThreadRecorder();
+		llerrs << "Attempting to declare trace object after program initialization.  Trace objects should be statically initialized." << llendl;
 	}
+#endif
 }
 
-bool isInitialized()
+const char* TraceBase::getUnitLabel()
 {
-	return sInitializationCount > 0; 
+	return "";
 }
-
-void cleanup()
-{
-	if (--sInitializationCount == 0)
-	{
-		delete gUIThreadRecorder;
-		gUIThreadRecorder = NULL;
-	}
-}
-
 
 TimeBlockTreeNode::TimeBlockTreeNode() 
 :	mBlock(NULL),

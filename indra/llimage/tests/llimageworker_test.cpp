@@ -44,9 +44,6 @@
 // * Do not make any assumption as to how those classes or methods work (i.e. don't copy/paste code)
 // * A simulator for a class can be implemented here. Please comment and document thoroughly.
 
-LLTrace::MemStatHandle	LLImageBase::sMemStat("LLImage");
-
-
 LLImageBase::LLImageBase() 
 : mData(NULL),
 mDataSize(0),
@@ -115,17 +112,14 @@ namespace tut
 	{
 		// Instance to be tested
 		LLImageDecodeThread* mThread;
-
 		// Constructor and destructor of the test wrapper
 		imagedecodethread_test()
 		{
-			LLTrace::init();
 			mThread = NULL;
 		}
 		~imagedecodethread_test()
 		{
 			delete mThread;
-			LLTrace::cleanup();
 		}
 	};
 
@@ -143,7 +137,6 @@ namespace tut
 		imagerequest_test()
 		{
 			done = false;
-			LLTrace::init();
 
 			mRequest = new LLImageDecodeThread::ImageRequest(0, 0,
 											 LLQueuedThread::PRIORITY_NORMAL, 0, FALSE,
@@ -154,7 +147,6 @@ namespace tut
 			// We should delete the object *but*, because its destructor is protected, that cannot be
 			// done from outside an LLImageDecodeThread instance... So we leak memory here... It's fine...
 			//delete mRequest;
-			LLTrace::cleanup();
 		}
 	};
 

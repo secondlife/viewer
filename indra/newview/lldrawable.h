@@ -293,7 +293,6 @@ public:
 	F32				mDistanceWRTCamera;
 
 	static F32 sCurPixelAngle; //current pixels per radian
-	static LLTrace::MemStatHandle sMemStat;
 
 private:
 	typedef std::vector<LLFace*> face_list_t;

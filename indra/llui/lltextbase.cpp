@@ -48,8 +48,6 @@ const F32	CURSOR_FLASH_DELAY = 1.0f;  // in seconds
 const S32	CURSOR_THICKNESS = 2;
 const F32	TRIPLE_CLICK_INTERVAL = 0.3f;	// delay between double and triple click.
 
-LLTrace::MemStatHandle	LLTextSegment::sMemStat("LLTextSegment");
-
 LLTextBase::line_info::line_info(S32 index_start, S32 index_end, LLRect rect, S32 line_num) 
 :	mDocIndexStart(index_start), 
 	mDocIndexEnd(index_end),

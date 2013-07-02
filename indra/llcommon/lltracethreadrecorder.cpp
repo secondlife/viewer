@@ -31,13 +31,14 @@
 namespace LLTrace
 {
 
-ThreadRecorder* gUIThreadRecorder = NULL;
+static ThreadRecorder* sMasterThreadRecorder = NULL;
 
 ///////////////////////////////////////////////////////////////////////
 // ThreadRecorder
 ///////////////////////////////////////////////////////////////////////
 
 ThreadRecorder::ThreadRecorder()
+:	mMasterRecorder(NULL)
 {
 	init();
 }
@@ -268,10 +269,15 @@ void ThreadRecorder::pullFromChildren()
 }
 
 
-ThreadRecorder& getUIThreadRecorder()
+void set_master_thread_recorder(ThreadRecorder* recorder)
 {
-	llassert(gUIThreadRecorder != NULL);
-	return *gUIThreadRecorder;
+	sMasterThreadRecorder = recorder;
+}
+
+
+ThreadRecorder* get_master_thread_recorder()
+{
+	return sMasterThreadRecorder;
 }
 
 LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder_ptr()

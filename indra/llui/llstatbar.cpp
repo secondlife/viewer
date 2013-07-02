@@ -345,9 +345,9 @@ void LLStatBar::draw()
 					else if (mSampleFloatp)
 					{
 						//rate isn't defined for sample stats, so use mean
-						begin       = ((recording.getMean(*mEventFloatp)  - mMinBar) * value_scale);
-						end         = ((recording.getMean(*mEventFloatp)  - mMinBar) * value_scale) + 1;
-						num_samples = recording.getSampleCount(*mEventFloatp);
+						begin       = ((recording.getMean(*mSampleFloatp)  - mMinBar) * value_scale);
+						end         = ((recording.getMean(*mSampleFloatp)  - mMinBar) * value_scale) + 1;
+						num_samples = recording.getSampleCount(*mSampleFloatp);
 					}
 				}
 				else
@@ -366,9 +366,9 @@ void LLStatBar::draw()
 					}
 					else if (mSampleFloatp)
 					{
-						begin       = ((recording.getMean(*mEventFloatp)  - mMinBar) * value_scale);
-						end         = ((recording.getMean(*mEventFloatp)  - mMinBar) * value_scale) + 1;
-						num_samples = recording.getSampleCount(*mEventFloatp);
+						begin       = ((recording.getMean(*mSampleFloatp)  - mMinBar) * value_scale);
+						end         = ((recording.getMean(*mSampleFloatp)  - mMinBar) * value_scale) + 1;
+						num_samples = recording.getSampleCount(*mSampleFloatp);
 					}
  				}
 				

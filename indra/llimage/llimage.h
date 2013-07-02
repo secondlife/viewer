@@ -165,8 +165,6 @@ public:
 	static void destroyPrivatePool() ;
 	static LLPrivateMemoryPool* getPrivatePool() {return sPrivatePoolp;}
 
-	static LLTrace::MemStatHandle sMemStat;
-
 private:
 	U8 *mData;
 	S32 mDataSize;

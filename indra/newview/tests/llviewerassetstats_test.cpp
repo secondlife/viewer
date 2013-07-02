@@ -35,6 +35,7 @@
 #include "lluuid.h"
 #include "llsdutil.h"
 #include "llregionhandle.h"
+#include "lltracethreadrecorder.h"
 #include "../llvoavatar.h"
 
 namespace LLStatViewer
@@ -231,14 +232,15 @@ namespace tut
 	{
 		tst_viewerassetstats_index()
 		{
-			LLTrace::init();
+			LLTrace::set_master_thread_recorder(&mThreadRecorder);
 		}
 
 		~tst_viewerassetstats_index()
 		{
-			LLTrace::cleanup();
+			LLTrace::set_master_thread_recorder(NULL);
 		}
 
+		LLTrace::ThreadRecorder mThreadRecorder;
 	};
 	typedef test_group<tst_viewerassetstats_index> tst_viewerassetstats_index_t;
 	typedef tst_viewerassetstats_index_t::object tst_viewerassetstats_index_object_t;

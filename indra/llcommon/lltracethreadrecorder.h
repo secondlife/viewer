@@ -92,13 +92,11 @@ namespace LLTrace
 
 	};
 
-	//FIXME: let user code set up thread recorder topology
-	extern ThreadRecorder* gUIThreadRecorder ;
+	const LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder();
+	void set_thread_recorder(ThreadRecorder*);
 
-	const LLThreadLocalPointer<class ThreadRecorder>& get_thread_recorder();
-	void set_thread_recorder(class ThreadRecorder*);
-	ThreadRecorder& getUIThreadRecorder();
-
+	void set_master_thread_recorder(ThreadRecorder*);
+	ThreadRecorder* get_master_thread_recorder();
 }
 
 #endif // LL_LLTRACETHREADRECORDER_H

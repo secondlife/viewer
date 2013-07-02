@@ -34,8 +34,6 @@
 #include "llviewerregion.h"
 #include "pipeline.h"
 
-LLTrace::MemStatHandle	LLVOCachePartition::sMemStat("LLVOCachePartition");
-
 BOOL check_read(LLAPRFile* apr_file, void* src, S32 n_bytes) 
 {
 	return apr_file->read(src, n_bytes) == n_bytes ;

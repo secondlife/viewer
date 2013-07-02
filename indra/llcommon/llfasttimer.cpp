@@ -250,7 +250,7 @@ void TimeBlock::updateTimes()
 {
 	// walk up stack of active timers and accumulate current time while leaving timing structures active
 	BlockTimerStackRecord* stack_record	= LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
-	if (stack_record) return;
+	if (!stack_record) return;
 
 	U64 cur_time = getCPUClockCount64();
 	BlockTimer* cur_timer				= stack_record->mActiveTimer;

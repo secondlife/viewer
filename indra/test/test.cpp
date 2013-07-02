@@ -41,6 +41,7 @@
 #include "stringize.h"
 #include "namedtempfile.h"
 #include "lltrace.h"
+#include "lltracethreadrecorder.h"
 
 #include "apr_pools.h"
 #include "apr_getopt.h"
@@ -483,6 +484,8 @@ void wouldHaveCrashed(const std::string& message)
 	tut::fail("llerrs message: " + message);
 }
 
+static LLTrace::ThreadRecorder* sMasterThreadRecorder = NULL;
+
 int main(int argc, char **argv)
 {
 	// The following line must be executed to initialize Google Mock
@@ -515,7 +518,11 @@ int main(int argc, char **argv)
 
 	ll_init_apr();
 	
-	LLTrace::init();
+	if (!sMasterThreadRecorder)
+	{
+		sMasterThreadRecorder = new LLTrace::ThreadRecorder();
+		LLTrace::set_master_thread_recorder(sMasterThreadRecorder);
+	}
 	apr_getopt_t* os = NULL;
 	if(APR_SUCCESS != apr_getopt_init(&os, gAPRPoolp, argc, argv))
 	{

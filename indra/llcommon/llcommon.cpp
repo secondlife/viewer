@@ -30,9 +30,12 @@
 #include "llmemory.h"
 #include "llthread.h"
 #include "lltrace.h"
+#include "lltracethreadrecorder.h"
 
 //static
 BOOL LLCommon::sAprInitialized = FALSE;
+
+static LLTrace::ThreadRecorder* sMasterThreadRecorder = NULL;
 
 //static
 void LLCommon::initClass()
@@ -45,13 +48,20 @@ void LLCommon::initClass()
 	}
 	LLTimer::initClass();
 	LLThreadSafeRefCount::initThreadSafeRefCount();
-	LLTrace::init();
+
+	if (!sMasterThreadRecorder)
+	{
+		sMasterThreadRecorder = new LLTrace::ThreadRecorder();
+		LLTrace::set_master_thread_recorder(sMasterThreadRecorder);
+	}
 }
 
 //static
 void LLCommon::cleanupClass()
 {
-	LLTrace::cleanup();
+	delete sMasterThreadRecorder;
+	sMasterThreadRecorder = NULL;
+	LLTrace::set_master_thread_recorder(NULL);
 	LLThreadSafeRefCount::cleanupThreadSafeRefCount();
 	LLTimer::cleanupClass();
 	if (sAprInitialized)
