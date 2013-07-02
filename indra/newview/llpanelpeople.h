@@ -111,10 +111,6 @@ private:
 	void					onGroupsViewSortMenuItemClicked(const LLSD& userdata);
 	void					onRecentViewSortMenuItemClicked(const LLSD& userdata);
 
-	void					onLoginFbcButtonClicked();
-	void					onFacebookAppRequestClicked();
-	void					onFacebookAppSendClicked();
-
 	bool					onFriendsViewSortMenuItemCheck(const LLSD& userdata);
 	bool					onRecentViewSortMenuItemCheck(const LLSD& userdata);
 	bool					onNearbyViewSortMenuItemCheck(const LLSD& userdata);
@@ -147,15 +143,12 @@ private:
 
 	std::vector<std::string> mSavedOriginalFilters;
 	std::vector<std::string> mSavedFilters;
-	LLHandle<LLView>		mFBCMenuHandle;
-	LLHandle<LLFloater>		mFbcTestBrowserHandle;
 
 	Updater*				mFriendListUpdater;
 	Updater*				mNearbyListUpdater;
 	Updater*				mRecentListUpdater;
 	Updater*				mFacebookListUpdater;
 	Updater*				mButtonsUpdater;
-	LLMenuButton*			mFBCGearButton;
     LLHandle< LLFloater >	mPicker;
 };
 

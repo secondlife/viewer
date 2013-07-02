@@ -518,10 +518,6 @@ LLPanelPeople::LLPanelPeople()
 	mRecentListUpdater = new LLRecentListUpdater(boost::bind(&LLPanelPeople::updateRecentList,	this));
 	mButtonsUpdater = new LLButtonsUpdater(boost::bind(&LLPanelPeople::updateButtons, this));
 
-	mCommitCallbackRegistrar.add("People.loginFBC", boost::bind(&LLPanelPeople::onLoginFbcButtonClicked, this));
-	mCommitCallbackRegistrar.add("People.requestFBC", boost::bind(&LLPanelPeople::onFacebookAppRequestClicked, this));
-	mCommitCallbackRegistrar.add("People.sendFBC", boost::bind(&LLPanelPeople::onFacebookAppSendClicked, this));
-
 	mCommitCallbackRegistrar.add("People.AddFriend", boost::bind(&LLPanelPeople::onAddFriendButtonClicked, this));
 	mCommitCallbackRegistrar.add("People.AddFriendWizard",	boost::bind(&LLPanelPeople::onAddFriendWizButtonClicked,	this));
 	mCommitCallbackRegistrar.add("People.DelFriend",		boost::bind(&LLPanelPeople::onDeleteFriendButtonClicked,	this));
@@ -553,8 +549,6 @@ LLPanelPeople::~LLPanelPeople()
 	{
 		LLVoiceClient::getInstance()->removeObserver(this);
 	}
-
-	if (mFbcTestBrowserHandle.get()) mFbcTestBrowserHandle.get()->die();
 }
 
 void LLPanelPeople::onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LLSD& param, LLAvatarList* avatar_list)
@@ -686,15 +680,6 @@ BOOL LLPanelPeople::postBuild()
 
 	// Must go after setting commit callback and initializing all pointers to children.
 	mTabContainer->selectTabByName(NEARBY_TAB_NAME);
-
-	mFBCGearButton = getChild<LLMenuButton>("fbc_options_btn");
-
-	LLToggleableMenu* fbc_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_gear_fbc.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	if(fbc_menu)
-	{
-		mFBCMenuHandle = fbc_menu->getHandle();
-		mFBCGearButton->setMenu(fbc_menu);
-	}
 
 	LLVoiceClient::getInstance()->addObserver(this);
 
@@ -1540,24 +1525,5 @@ bool LLPanelPeople::isAccordionCollapsedByUser(const std::string& name)
 	return isAccordionCollapsedByUser(getChild<LLUICtrl>(name));
 }
 
-void LLPanelPeople::onLoginFbcButtonClicked()
-{
-	if (LLFacebookConnect::instance().isConnected())
-	{
-		LLFacebookConnect::instance().disconnectFromFacebook();
-	}
-	else
-	{
-        LLFacebookConnect::instance().getConnectionToFacebook(true);
-	}
-}
-
-void LLPanelPeople::onFacebookAppRequestClicked()
-{
-}
-
-void LLPanelPeople::onFacebookAppSendClicked()
-{
-}
 
 // EOF
