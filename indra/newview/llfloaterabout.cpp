@@ -250,8 +250,9 @@ LLSD LLFloaterAbout::getInfo()
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)
 	{
-		const LLVector3d &pos = gAgent.getPositionGlobal();
+		LLVector3d pos = gAgent.getPositionGlobal();
 		info["POSITION"] = ll_sd_from_vector3d(pos);
+		info["POSITION_LOCAL"] = ll_sd_from_vector3(gAgent.getPosAgentFromGlobal(pos));
 		info["REGION"] = gAgent.getRegion()->getName();
 		info["HOSTNAME"] = gAgent.getRegion()->getHost().getHostName();
 		info["HOSTIP"] = gAgent.getRegion()->getHost().getString();
