@@ -515,7 +515,17 @@ int yyerror(const char *fmt, ...);
 "PRIM_BUMP_SHINY"		{ count(); yylval.ival = LSL_PRIM_BUMP_SHINY; return(INTEGER_CONSTANT); }
 "PRIM_FULLBRIGHT"		{ count(); yylval.ival = LSL_PRIM_FULLBRIGHT; return(INTEGER_CONSTANT); }
 "PRIM_TEXGEN"			{ count(); yylval.ival = LSL_PRIM_TEXGEN; return(INTEGER_CONSTANT); }
-"PRIM_GLOW"	     		{ count(); yylval.ival = LSL_PRIM_GLOW; return(INTEGER_CONSTANT); }
+"PRIM_GLOW"				{ count(); yylval.ival = LSL_PRIM_GLOW; return(INTEGER_CONSTANT); }
+"PRIM_TEXT"				{ count(); yylval.ival = LSL_PRIM_TEXT; return(INTEGER_CONSTANT); }
+"PRIM_NAME"				{ count(); yylval.ival = LSL_PRIM_NAME; return(INTEGER_CONSTANT); }
+"PRIM_DESC"				{ count(); yylval.ival = LSL_PRIM_DESC; return(INTEGER_CONSTANT); }
+"PRIM_OMEGA"			{ count(); yylval.ival = LSL_PRIM_OMEGA; return(INTEGER_CONSTANT); }
+"PRIM_LINK_TARGET"		{ count(); yylval.ival = LSL_PRIM_LINK_TARGET; return(INTEGER_CONSTANT); }
+"PRIM_SLICE"			{ count(); yylval.ival = LSL_PRIM_SLICE; return(INTEGER_CONSTANT); }
+
+"PRIM_PHYSICS_SHAPE_PRIM"	{ count(); yylval.ival = LSL_PRIM_PHYSICS_SHAPE_PRIM; return(INTEGER_CONSTANT); }
+"PRIM_PHYSICS_SHAPE_NONE"	{ count(); yylval.ival = LSL_PRIM_PHYSICS_SHAPE_NONE; return(INTEGER_CONSTANT); }
+"PRIM_PHYSICS_SHAPE_CONVEX"	{ count(); yylval.ival = LSL_PRIM_PHYSICS_SHAPE_CONVEX; return(INTEGER_CONSTANT); }
 
 "PRIM_TYPE_BOX"			{ count(); yylval.ival = LSL_PRIM_TYPE_BOX; return(INTEGER_CONSTANT); }
 "PRIM_TYPE_CYLINDER"	{ count(); yylval.ival = LSL_PRIM_TYPE_CYLINDER; return(INTEGER_CONSTANT); }
