@@ -863,7 +863,7 @@ void LLPanelPeople::updateFacebookList(bool visible)
 		if (mTryToConnectToFbc)
 		{	
 			// try to reconnect to facebook!
-			LLFacebookConnect::instance().getConnectionToFacebook();
+			LLFacebookConnect::instance().getConnectionToFacebook(false, boost::bind(&LLFacebookConnect::loadFacebookFriends, &LLFacebookConnect::instance()));
 
 			// don't try again
 			mTryToConnectToFbc = false;
