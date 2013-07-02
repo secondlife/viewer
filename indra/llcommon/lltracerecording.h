@@ -112,6 +112,9 @@ private:
 
 namespace LLTrace
 {
+	template<typename T>
+	class TraceType;
+
 	class Recording 
 	:	public LLStopWatchControlsMixin<Recording>
 	{
