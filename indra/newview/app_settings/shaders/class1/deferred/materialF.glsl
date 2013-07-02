@@ -30,6 +30,28 @@
 
 uniform float emissive_brightness;
 
+
+vec3 srgb_to_linear(vec3 cs)
+{
+	
+/*        {  cs / 12.92,                 cs <= 0.04045
+    cl = {
+        {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
+
+	return pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
+}
+
+vec3 linear_to_srgb(vec3 cl)
+{
+	    /*{  0.0,                          0         <= cl
+            {  12.92 * c,                    0         <  cl < 0.0031308
+    cs = {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
+            {  1.0,                                       cl >= 1*/
+
+	return 1.055 * pow(cl, vec3(0.41666)) - 0.055;
+}
+
+
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 
 #ifdef DEFINE_GL_FRAGCOLOR
@@ -459,7 +481,7 @@ void main()
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 	vec3 old_diffcol = diffcol.rgb;
-	diffcol.rgb = pow(diffcol.rgb, vec3(2.2));
+	diffcol.rgb = srgb_to_linear(diffcol.rgb);
 #endif
 
 #if HAS_SPECULAR_MAP
@@ -648,7 +670,7 @@ void main()
 	col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
 
 	//convert to linear space before adding local lights
-	col = pow(col, vec3(2.2));
+	col = srgb_to_linear(col);
 
 			
 	vec3 npos = normalize(-pos.xyz);
@@ -665,7 +687,7 @@ void main()
 
 
 	//convert to gamma space for display on screen
-	col.rgb = pow(col.rgb, vec3(1.0/2.2));
+	col.rgb = linear_to_srgb(col.rgb);
 
 	frag_color.rgb = col.rgb;
 	glare = min(glare, 1.0);
