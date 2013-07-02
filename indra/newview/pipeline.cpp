@@ -9208,12 +9208,13 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			water_clip = 1;
 		}
 
+		S32 occlusion = LLPipeline::sUseOcclusion;
+		LLPipeline::sUseOcclusion = 0;
+
 		if (!LLViewerCamera::getInstance()->cameraUnderWater())
 		{	//generate planar reflection map
 
 			//disable occlusion culling for reflection map for now
-			S32 occlusion = LLPipeline::sUseOcclusion;
-			LLPipeline::sUseOcclusion = 0;
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			glClearColor(0,0,0,0);
 			mWaterRef.bindTarget();
@@ -9317,7 +9318,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			gGL.popMatrix();
 			mWaterRef.flush();
 			glh_set_current_modelview(current);
-			LLPipeline::sUseOcclusion = occlusion;
 		}
 
 		camera.setOrigin(camera_in.getOrigin());
@@ -9373,6 +9373,8 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			LLPipeline::sUnderWaterRender = FALSE;
 			mWaterDis.flush();
 		}
+
+		LLPipeline::sUseOcclusion = occlusion;
 		last_update = LLDrawPoolWater::sNeedsReflectionUpdate && LLDrawPoolWater::sNeedsDistortionUpdate;
 
 		LLPipeline::sReflectionRender = FALSE;
