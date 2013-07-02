@@ -83,6 +83,8 @@ public:
 	// 
     void setDirty() { mDirty = true; }
 
+	static LLTrace::MemStatHandle sMemStat;
+
 protected:
     LLSD mValue;
     bool mDirty;

@@ -336,7 +336,7 @@ public:
 
 	void* operator new(size_t size) 
 	{
-		MemStatAccumulator* accumulator = mem_trackable_t::sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 		if (accumulator)
 		{
 			accumulator->mSize.sample(accumulator->mSize.getLastValue() + (F64)size);
@@ -348,7 +348,7 @@ public:
 
 	void operator delete(void* ptr, size_t size)
 	{
-		MemStatAccumulator* accumulator = mem_trackable_t::sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 		if (accumulator)
 		{
 			accumulator->mSize.sample(accumulator->mSize.getLastValue() - (F64)size);
@@ -360,7 +360,7 @@ public:
 
 	void *operator new [](size_t size)
 	{
-		MemStatAccumulator* accumulator = mem_trackable_t::sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 		if (accumulator)
 		{
 			accumulator->mSize.sample(accumulator->mSize.getLastValue() + (F64)size);
@@ -372,7 +372,7 @@ public:
 
 	void operator delete[](void* ptr, size_t size)
 	{
-		MemStatAccumulator* accumulator = mem_trackable_t::sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 		if (accumulator)
 		{
 			accumulator->mSize.sample(accumulator->mSize.getLastValue() - (F64)size);
@@ -438,15 +438,13 @@ public:
 
 private:
 	size_t mMemFootprint;
-	static MemStatHandle sMemStat;
-
 
 	template<typename TRACKED, typename TRACKED_IS_TRACKER = void>
 	struct TrackMemImpl
 	{
 		static void claim(mem_trackable_t& tracker, const TRACKED& tracked)
 		{
-			MemStatAccumulator* accumulator = sMemStat.getPrimaryAccumulator();
+			MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 			if (accumulator)
 			{
 				size_t footprint = MemFootprint<TRACKED>::measure(tracked);
@@ -457,7 +455,7 @@ private:
 
 		static void disclaim(mem_trackable_t& tracker, const TRACKED& tracked)
 		{
-			MemStatAccumulator* accumulator = sMemStat.getPrimaryAccumulator();
+			MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 			if (accumulator)
 			{
 				size_t footprint = MemFootprint<TRACKED>::measure(tracked);
@@ -472,7 +470,7 @@ private:
 	{
 		static void claim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			MemStatAccumulator* accumulator = sMemStat.getPrimaryAccumulator();
+			MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 			if (accumulator)
 			{
 				accumulator->mChildSize.sample(accumulator->mChildSize.getLastValue() + (F64)MemFootprint<TRACKED>::measure(tracked));
@@ -481,7 +479,7 @@ private:
 
 		static void disclaim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			MemStatAccumulator* accumulator = sMemStat.getPrimaryAccumulator();
+			MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 			if (accumulator)
 			{
 				accumulator->mChildSize.sample(accumulator->mChildSize.getLastValue() - (F64)MemFootprint<TRACKED>::measure(tracked));
@@ -489,10 +487,6 @@ private:
 		}
 	};
 };
-
-template<typename DERIVED, size_t ALIGNMENT>
-MemStatHandle MemTrackable<DERIVED, ALIGNMENT>::sMemStat(typeid(DERIVED).name());
-
 
 }
 #endif // LL_LLTRACE_H

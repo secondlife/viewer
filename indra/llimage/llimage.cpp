@@ -50,6 +50,7 @@ LLMutex* LLImage::sMutex = NULL;
 bool LLImage::sUseNewByteRange = false;
 S32  LLImage::sMinimalReverseByteRangePercent = 75;
 LLPrivateMemoryPool* LLImageBase::sPrivatePoolp = NULL ;
+LLTrace::MemStatHandle	LLImageBase::sMemStat("LLImage");
 
 //static
 void LLImage::initClass(bool use_new_byte_range, S32 minimal_reverse_byte_range_percent)

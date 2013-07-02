@@ -157,6 +157,8 @@ public:
 	/*virtual*/ S32 cull(LLCamera &camera);
 	void addOccluders(LLviewerOctreeGroup* gp);
 
+	static	LLTrace::MemStatHandle	sMemStat;
+
 private:	
 	void processOccluders(LLCamera* camera, const LLVector3* region_agent);
 

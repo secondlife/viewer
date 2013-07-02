@@ -44,6 +44,8 @@
 // End Stubbing
 // -------------------------------------------------------------------------------------------
 // Stub the LL Image Classes
+LLTrace::MemStatHandle	LLImageBase::sMemStat("LLImage");
+
 LLImageRaw::LLImageRaw() { }
 LLImageRaw::~LLImageRaw() { }
 U8* LLImageRaw::allocateData(S32 ) { return NULL; }
