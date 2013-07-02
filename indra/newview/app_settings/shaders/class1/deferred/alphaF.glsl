@@ -101,7 +101,7 @@ vec3 calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float
 		float dist = d/la;
 		da = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
 		da *= da;
-		da *= 1.4;
+		da *= 2.0;
 	
 
 		// spotlight coefficient.

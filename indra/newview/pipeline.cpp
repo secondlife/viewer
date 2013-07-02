@@ -1201,15 +1201,7 @@ void LLPipeline::releaseLUTBuffers()
 {
 	if (mLightFunc)
 	{
-		U32 use_high_precision = gSavedSettings.getU32("RenderSpecularPrecision");
-
-		U32 pix_format = use_high_precision ? GL_R32F : GL_R16F;
-
-#if LL_DARWIN
-		pix_format = GL_R32F;
-#endif
-
-		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, pix_format, 0, 1, &mLightFunc);
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, GL_R16F, 0, 1, &mLightFunc);
 		mLightFunc = 0;
 	}
 }
@@ -1408,18 +1400,13 @@ void LLPipeline::createLUTBuffers()
 					ls[y*lightResX+x] = k;*/
 				}
 			}
-			// Need to work around limited precision with 10.6.8 and older drivers
-			//
-			U32 use_high_precision = gSavedSettings.getU32("RenderSpecularPrecision");
-				
-			U32 pix_format = use_high_precision ? GL_R32F : GL_R16F;
-
+			
+			U32 pix_format = GL_R16F;
 #if LL_DARWIN
-			// Forced to work around 10.6.8. driver bugs on most every GPU
+			// Need to work around limited precision with 10.6.8 and older drivers
 			//
 			pix_format = GL_R32F;
 #endif
-
 			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, pix_format, 1, &mLightFunc);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
 			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, pix_format, lightResX, lightResY, GL_RED, GL_FLOAT, ls, false);
@@ -8694,10 +8681,6 @@ void LLPipeline::renderDeferredLighting()
 			vert[2].set(3,1,0);
 
 			{
-				bindDeferredShader(gDeferredMultiLightProgram);
-			
-				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
-
 				LLGLDepthTest depth(GL_FALSE);
 
 				//full screen blit
@@ -8709,7 +8692,7 @@ void LLPipeline::renderDeferredLighting()
 
 				U32 count = 0;
 
-				const U32 max_count = 8;
+				const U32 max_count = LL_DEFERRED_MULTI_LIGHT_COUNT;
 				LLVector4 light[max_count];
 				LLVector4 col[max_count];
 
@@ -8732,17 +8715,20 @@ void LLPipeline::renderDeferredLighting()
 					count++;
 					if (count == max_count || fullscreen_lights.empty())
 					{
-						gDeferredMultiLightProgram.uniform1i(LLShaderMgr::MULTI_LIGHT_COUNT, count);
-						gDeferredMultiLightProgram.uniform4fv(LLShaderMgr::MULTI_LIGHT, count, (GLfloat*) light);
-						gDeferredMultiLightProgram.uniform4fv(LLShaderMgr::MULTI_LIGHT_COL, count, (GLfloat*) col);
-						gDeferredMultiLightProgram.uniform1f(LLShaderMgr::MULTI_LIGHT_FAR_Z, far_z);
+						U32 idx = count-1;
+						bindDeferredShader(gDeferredMultiLightProgram[idx]);
+						gDeferredMultiLightProgram[idx].uniform1i(LLShaderMgr::MULTI_LIGHT_COUNT, count);
+						gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT, count, (GLfloat*) light);
+						gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT_COL, count, (GLfloat*) col);
+						gDeferredMultiLightProgram[idx].uniform1f(LLShaderMgr::MULTI_LIGHT_FAR_Z, far_z);
 						far_z = 0.f;
 						count = 0; 
+						mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 						mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 					}
 				}
 				
-				unbindDeferredShader(gDeferredMultiLightProgram);
+				unbindDeferredShader(gDeferredMultiLightProgram[0]);
 
 				bindDeferredShader(gDeferredMultiSpotLightProgram);
 

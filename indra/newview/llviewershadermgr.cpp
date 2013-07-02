@@ -183,7 +183,7 @@ LLGLSLShader			gDeferredTreeShadowProgram;
 LLGLSLShader			gDeferredAvatarProgram;
 LLGLSLShader			gDeferredAvatarAlphaProgram;
 LLGLSLShader			gDeferredLightProgram;
-LLGLSLShader			gDeferredMultiLightProgram;
+LLGLSLShader			gDeferredMultiLightProgram[16];
 LLGLSLShader			gDeferredSpotLightProgram;
 LLGLSLShader			gDeferredMultiSpotLightProgram;
 LLGLSLShader			gDeferredSunProgram;
@@ -1112,7 +1112,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredImpostorProgram.unload();
 		gDeferredTerrainProgram.unload();
 		gDeferredLightProgram.unload();
-		gDeferredMultiLightProgram.unload();
+		for (U32 i = 0; i < LL_DEFERRED_MULTI_LIGHT_COUNT; ++i)
+		{
+			gDeferredMultiLightProgram[i].unload();
+		}
 		gDeferredSpotLightProgram.unload();
 		gDeferredMultiSpotLightProgram.unload();
 		gDeferredSunProgram.unload();
@@ -1353,15 +1356,18 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		success = gDeferredLightProgram.createShader(NULL, NULL);
 	}
 
-	if (success)
+	for (U32 i = 0; i < LL_DEFERRED_MULTI_LIGHT_COUNT; i++)
 	{
-		gDeferredMultiLightProgram.mName = "Deferred MultiLight Shader";
-		gDeferredMultiLightProgram.mShaderFiles.clear();
-		gDeferredMultiLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredMultiLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredMultiLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
-		success = gDeferredMultiLightProgram.createShader(NULL, NULL);
+		if (success)
+		{
+			gDeferredMultiLightProgram[i].mName = llformat("Deferred MultiLight Shader %d", i);
+			gDeferredMultiLightProgram[i].mShaderFiles.clear();
+			gDeferredMultiLightProgram[i].mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER_ARB));
+			gDeferredMultiLightProgram[i].mShaderFiles.push_back(make_pair("deferred/multiPointLightF.glsl", GL_FRAGMENT_SHADER_ARB));
+			gDeferredMultiLightProgram[i].mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+			gDeferredMultiLightProgram[i].addPermutation("LIGHT_COUNT", llformat("%d", i+1));
+			success = gDeferredMultiLightProgram[i].createShader(NULL, NULL);
+		}
 	}
 
 	if (success)

@@ -142,7 +142,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 		float dist = d/la;
 		float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
 		dist_atten *= dist_atten;
-		dist_atten *= 1.4;
+		dist_atten *= 2.0;
 
 		// spotlight coefficient.
 		float spot = max(dot(-ln, lv), is_pointlight);
