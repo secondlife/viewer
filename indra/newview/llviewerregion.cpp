@@ -910,19 +910,19 @@ void LLViewerRegion::removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* d
 		return;
 	}
 
-	bool is_orphan = false;
-	LLVOCacheEntry* parent = NULL;
 	if(entry->getParentID() > 0) //is a child
 	{
-		parent = getCacheEntry(entry->getParentID());
-		if(!parent)
+		LLVOCacheEntry* parent = getCacheEntry(entry->getParentID());
+		if(parent)
 		{
-			is_orphan = true;
+			parent->addChild(entry);
+		}
+		else //parent not in cache.
+		{
 			mOrphanMap[entry->getParentID()].push_back(entry->getLocalID());
 		}
 	}
-	
-	if(!is_orphan)//insert to vo cache tree.
+	else //insert to vo cache tree.
 	{
 		//shift to the local regional space from agent space
 		const LLVector3 pos = drawablep->getVObj()->getPositionRegion();
@@ -931,11 +931,6 @@ void LLViewerRegion::removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* d
 		shift.setSub(vec, entry->getPositionGroup());
 		entry->shift(shift);
 		
-		if(parent) //is a child
-		{
-			entry->shift(parent->getPositionGroup());
-			parent->addChild(entry);
-		}
 		addToVOCacheTree(entry);
 	}
 
@@ -969,6 +964,10 @@ void LLViewerRegion::addToVOCacheTree(LLVOCacheEntry* entry)
 	if(entry->getGroup()) //already in octree.
 	{
 		return;
+	}
+	if(entry->getParentID() > 0)
+	{
+		return; //no child prim in cache octree.
 	}
 
 	llassert(!entry->getEntry()->hasDrawable());
@@ -1103,8 +1102,7 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 
 				if(vo_entry->getParentID() > 0) //is a child
 				{
-					//child visibility depends on its parent, force its parent to be visible
-					addVisibleCacheEntry(getCacheEntry(vo_entry->getParentID()));
+					//child visibility depends on its parent.
 					continue;
 				}
 
@@ -1834,22 +1832,21 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 		//1, find the parent in cache
 		LLVOCacheEntry* parent = getCacheEntry(parent_id);
 		
-		//2, parent is not in the cache or not probed, put into the orphan list.
-		if(!parent || !parent->getEntry())
+		//2, parent is not in the cache, put into the orphan list.
+		if(!parent)
 		{
 			//check if parent is non-cacheable and already created
-			if(!parent && isNonCacheableObjectCreated(parent_id))
+			if(isNonCacheableObjectCreated(parent_id))
 			{
 				//parent is visible, so is the child.
 				addVisibleCacheEntry(entry);
 			}
 			else
 			{
-				entry->setBoundingInfo(pos, scale);
-			    mOrphanMap[parent_id].push_back(entry->getLocalID());
+				mOrphanMap[parent_id].push_back(entry->getLocalID());
 		    }
 		}
-		else //parent in cache octree or probed
+		else //parent in cache.
 		{
 			if(!parent->isState(LLVOCacheEntry::INACTIVE)) 
 			{
@@ -1858,9 +1855,6 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 			}
 			else
 			{
-				entry->setBoundingInfo(pos, scale);
-				entry->shift(parent->getPositionGroup());
-				addToVOCacheTree(entry);
 				parent->addChild(entry);
 			}
 		}
@@ -1890,8 +1884,6 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 				LLVOCacheEntry* child = getCacheEntry((*orphans)[i]);
 				if(child)
 				{
-					child->shift(entry->getPositionGroup());
-					addToVOCacheTree(child);
 					entry->addChild(child);
 				}
 			}
