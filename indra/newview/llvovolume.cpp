@@ -2590,6 +2590,7 @@ void LLVOVolume::setLightTextureID(LLUUID id)
 		if (hasLightTexture())
 		{
 			setParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE, FALSE, true);
+			parameterChanged(LLNetworkData::PARAMS_LIGHT_IMAGE, true);
 			mLightTexture = NULL;
 		}
 	}		
@@ -2607,7 +2608,8 @@ void LLVOVolume::setSpotLightParams(LLVector3 params)
 		
 void LLVOVolume::setIsLight(BOOL is_light)
 {
-	if (is_light != getIsLight())
+	BOOL was_light = getIsLight();
+	if (is_light != was_light)
 	{
 		if (is_light)
 		{
@@ -2792,7 +2794,7 @@ void LLVOVolume::updateSpotLightPriority()
 bool LLVOVolume::isLightSpotlight() const
 {
 	LLLightImageParams* params = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
-	if (params)
+	if (params && getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE))
 	{
 		return params->isLightSpotlight();
 	}
