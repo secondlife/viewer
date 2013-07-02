@@ -260,11 +260,11 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
 				{
 					info[KEY_WEIGHT] = avatar->getVisualComplexity();
 				}
-				if (avatar->getAttachmentGeometryBytes() > 0)
+				if (avatar->getAttachmentGeometryBytes() >= 0)
 				{
 					info[KEY_GEOMETRY] = (S32) avatar->getAttachmentGeometryBytes();
 				}
-				if (avatar->getAttachmentSurfaceArea() > 0.f)
+				if (avatar->getAttachmentSurfaceArea() >= 0.f)
 				{
 					info[KEY_SURFACE] = avatar->getAttachmentSurfaceArea();
 				}
