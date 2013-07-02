@@ -22,7 +22,8 @@
     <map>
       <key>count</key>
       <integer>1</integer>
-      <!-- Special case. Not mapped to a setting. -->
+      <key>map-to</key>
+      <string>CmdLineChannel</string>
     </map>
 
     <key>console</key>
