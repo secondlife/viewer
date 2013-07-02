@@ -723,7 +723,6 @@ void LLPanelVolume::onLightCancelTexture(const LLSD& data)
 		// NORSPEC-292
 		//
 		volobjp->setLightTextureID(LLUUID::null);
-		volobjp->setIsLight(TRUE,TRUE);
 	}
 }
 
