@@ -1064,7 +1064,6 @@ BOOL LLFloaterSnapshot::postBuild()
 	getChild<LLUICtrl>("auto_snapshot_check")->setValue(gSavedSettings.getBOOL("AutoSnapshot"));
 	childSetCommitCallback("auto_snapshot_check", Impl::onClickAutoSnap, this);
 	
-	LLFacebookConnect::instance().setSharePhotoCallback(boost::bind(&LLFloaterSnapshot::Impl::onSnapshotUploadFinished, _1));
 	LLWebProfile::setImageUploadResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSnapshotUploadFinished, _1));
 	LLPostCard::setPostResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSendingPostcardFinished, _1));
 
@@ -1277,14 +1276,6 @@ void LLFloaterSnapshot::update()
 	{
 		changed |= LLSnapshotLivePreview::onIdle(*iter);
 	}
-    
-    // We need to pool on facebook connection as it might change any time
-    static bool s_facebook_connected = false;
-    if (LLFacebookConnect::instance().isConnected() != s_facebook_connected)
-    {
-        s_facebook_connected = LLFacebookConnect::instance().isConnected();
-        changed = true;
-    }
     
 	if (inst && changed)
 	{
