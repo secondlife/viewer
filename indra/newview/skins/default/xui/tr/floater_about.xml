@@ -8,7 +8,7 @@
 		[COMPILER] [COMPILER_VERSION] sürümü ile oluşturuldu
 	</floater.string>
 	<floater.string name="AboutPosition">
-		&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP]) üzerinde bulunan [REGION] içerisinde [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] konumundasınız
+		&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP]) üzerinde bulunan [REGION] içerisinde [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] konumundasınız
 [SERVER_VERSION]
 [SERVER_RELEASE_NOTES_URL]
 	</floater.string>
