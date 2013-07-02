@@ -111,10 +111,10 @@ public:
 	LLVOCacheEntry* getChild(S32 i) {return mChildrenList[i];}
 	S32  getNumOfChildren()         {return mChildrenList.size();}
 	void clearChildrenList()        {mChildrenList.clear();}
-
-	//called from processing object update message
-	void setBoundingInfo(const LLVector3& pos, const LLVector3& scale);
 	
+	void setBoundingInfo(const LLVector3& pos, const LLVector3& scale); //called from processing object update message	
+	void updateParentBoundingInfo();
+
 	void setTouched(BOOL touched = TRUE) {mTouched = touched;}
 	BOOL isTouched() const {return mTouched;}
 
@@ -123,6 +123,8 @@ public:
 
 private:
 	static U32  getInvisibleObjectsLiveTime();
+
+	void updateParentBoundingInfo(const LLVOCacheEntry* child);	
 
 public:
 	typedef std::map<U32, LLPointer<LLVOCacheEntry> >	   vocache_entry_map_t;

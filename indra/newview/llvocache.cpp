@@ -253,6 +253,12 @@ void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
 	}
 
 	mChildrenList.push_back(entry);
+
+	//update parent bbox
+	if(getEntry() != NULL && isState(INACTIVE))
+	{
+		updateParentBoundingInfo(entry);
+	}
 }
 	
 LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP(U32 crc)
@@ -367,9 +373,69 @@ void LLVOCacheEntry::setBoundingInfo(const LLVector3& pos, const LLVector3& scal
 	
 	setPositionGroup(center);
 	setSpatialExtents(newMin, newMax);
-	setBinRadius(llmin(size.getLength3().getF32() * 4.f, 256.f));
+
+	if(getNumOfChildren() > 0) //has children
+	{
+		updateParentBoundingInfo();
+	}
+	else
+	{
+		setBinRadius(llmin(size.getLength3().getF32() * 4.f, 256.f));
+	}
 }
 
+//make the parent bounding box to include all children
+void LLVOCacheEntry::updateParentBoundingInfo()
+{
+	if(mChildrenList.empty())
+	{
+		return;
+	}
+
+	for(S32 i = 0; i < mChildrenList.size(); i++)
+	{
+		updateParentBoundingInfo(mChildrenList[i]);
+	}
+}
+
+//make the parent bounding box to include this child
+void LLVOCacheEntry::updateParentBoundingInfo(const LLVOCacheEntry* child)
+{
+	const LLVector4a* child_exts = child->getSpatialExtents();
+	LLVector4a newMin, newMax;
+	newMin = child_exts[0];
+	newMax = child_exts[1];
+	
+	//move to regional space.
+	{
+		const LLVector4a& parent_pos = getPositionGroup();
+		newMin.add(parent_pos);
+		newMax.add(parent_pos);
+	}
+
+	//update parent's bbox(min, max)
+	const LLVector4a* parent_exts = getSpatialExtents();
+	update_min_max(newMin, newMax, parent_exts[0]);
+	update_min_max(newMin, newMax, parent_exts[1]);
+	for(S32 i = 0; i < 4; i++)
+	{
+		llclamp(newMin[i], 0.f, 256.f);
+		llclamp(newMax[i], 0.f, 256.f);
+	}
+	setSpatialExtents(newMin, newMax);
+
+	//update parent's bbox center
+	LLVector4a center;
+	center.setAdd(newMin, newMax);
+	center.mul(0.5f);
+	setPositionGroup(center);	
+
+	//update parent's bbox size vector
+	LLVector4a size;
+	size.setSub(newMax, newMin);
+	size.mul(0.5f);
+	setBinRadius(llmin(size.getLength3().getF32() * 4.f, 256.f));
+}
 //-------------------------------------------------------------------
 //LLVOCachePartition
 //-------------------------------------------------------------------

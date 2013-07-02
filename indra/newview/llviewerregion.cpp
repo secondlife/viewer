@@ -905,9 +905,19 @@ void LLViewerRegion::addActiveCacheEntry(LLVOCacheEntry* entry)
 
 void LLViewerRegion::removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* drawablep)
 {
-	if(mDead)
+	if(mDead || !entry)
 	{
 		return;
+	}
+
+	//shift to the local regional space from agent space
+	if(drawablep != NULL && drawablep->getVObj().notNull())
+	{
+		const LLVector3& pos = drawablep->getVObj()->getPositionRegion();
+		LLVector4a shift;
+		shift.load3(pos.mV);
+		shift.sub(entry->getPositionGroup());
+		entry->shift(shift);
 	}
 
 	if(entry->getParentID() > 0) //is a child
@@ -919,18 +929,13 @@ void LLViewerRegion::removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* d
 		}
 		else //parent not in cache.
 		{
+			//this happens only when parent is not cacheable.
 			mOrphanMap[entry->getParentID()].push_back(entry->getLocalID());
 		}
 	}
 	else //insert to vo cache tree.
-	{
-		//shift to the local regional space from agent space
-		const LLVector3 pos = drawablep->getVObj()->getPositionRegion();
-		LLVector4a vec(pos[0], pos[1], pos[2]);
-		LLVector4a shift; 
-		shift.setSub(vec, entry->getPositionGroup());
-		entry->shift(shift);
-		
+	{		
+		entry->updateParentBoundingInfo();
 		addToVOCacheTree(entry);
 	}
 
@@ -1843,6 +1848,7 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 			}
 			else
 			{
+				entry->setBoundingInfo(pos, scale);
 				mOrphanMap[parent_id].push_back(entry->getLocalID());
 		    }
 		}
@@ -1855,6 +1861,7 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 			}
 			else
 			{
+				entry->setBoundingInfo(pos, scale);
 				parent->addChild(entry);
 			}
 		}
@@ -2055,7 +2062,7 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 		{
 			// Record a hit
 			entry->recordHit();
-		cache_miss_type = CACHE_MISS_TYPE_NONE;
+			cache_miss_type = CACHE_MISS_TYPE_NONE;
 			entry->setUpdateFlags(flags);
 			
 			if(entry->isState(LLVOCacheEntry::ACTIVE))
@@ -2064,7 +2071,11 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 				return true;
 			}
 
-			if(entry->getGroup() || !entry->isState(LLVOCacheEntry::INACTIVE))
+			if(entry->getGroup() || !entry->isState(LLVOCacheEntry::INACTIVE)) //already probed
+			{
+				return true;
+			}
+			if(entry->getParentID() > 0) //already probed
 			{
 				return true;
 			}
