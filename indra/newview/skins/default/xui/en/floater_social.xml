@@ -20,7 +20,7 @@
    tab_height="30"
    tab_position="top"
    top="7"
-   height="430"
+   height="395"
    halign="center">
     <panel
      filename="panel_social_status.xml"
@@ -53,4 +53,31 @@
       help_topic="panel_social_place"
       name="panel_social_place"/>
   </tab_container>
+  <panel
+   name="connection_status_panel"
+   follows="left|top"
+   height="26">
+   <loading_indicator
+     follows="left|top"
+     height="24"
+     width="24"
+     name="connection_loading_indicator"
+     top="0"
+     left="9"
+     visible="true"/>
+   <text
+     name="connection_status_text"
+     type="string"
+     follows="left|top"
+     top="3"
+     left_pad="5"
+     width="250"
+     height="20"
+     wrap="true"
+     halign="left"
+     valign="center"
+     font="SansSerif">
+      Test text
+   </text>
+  </panel>
 </floater>
