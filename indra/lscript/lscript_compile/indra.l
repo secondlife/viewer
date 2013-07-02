@@ -161,6 +161,7 @@ int yyerror(const char *fmt, ...);
 "STATUS_DIE_AT_EDGE"	{ count(); yylval.ival = 0x80; return(INTEGER_CONSTANT); }
 "STATUS_RETURN_AT_EDGE"	{ count(); yylval.ival = 0x100; return(INTEGER_CONSTANT); }
 "STATUS_CAST_SHADOWS"	{ count(); yylval.ival = 0x200; return(INTEGER_CONSTANT); }
+"STATUS_BLOCK_GRAB_OBJECT"	{ count(); yylval.ival = 0x400; return(INTEGER_CONSTANT); }
 
 "AGENT_FLYING"			{ count(); yylval.ival = AGENT_FLYING; return(INTEGER_CONSTANT); }
 "AGENT_ATTACHMENTS"		{ count(); yylval.ival = AGENT_ATTACHMENTS; return(INTEGER_CONSTANT); }
