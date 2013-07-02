@@ -115,6 +115,15 @@ namespace LLTrace
 	template<typename T>
 	class TraceType;
 
+	template<typename T>
+	class CountStatHandle;
+
+	template<typename T>
+	class SampleStatHandle;
+
+	template<typename T>
+	class EventStatHandle;
+
 	class Recording 
 	:	public LLStopWatchControlsMixin<Recording>
 	{
