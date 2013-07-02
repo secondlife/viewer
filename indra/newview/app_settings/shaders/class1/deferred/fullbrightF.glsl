@@ -45,19 +45,21 @@ vec3 fullbrightScaleSoftClip(vec3 light);
 void main() 
 {
 #if HAS_DIFFUSE_LOOKUP
-	vec4 color = diffuseLookup(vary_texcoord0.xy)*vertex_color;
+	vec4 color = diffuseLookup(vary_texcoord0.xy);
 #else
-	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy)*vertex_color;
+	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
 #endif
 
 	color.rgb = pow(color.rgb,vec3(2.2f,2.2f,2.2f));
-	
-	color.rgb = fullbrightAtmosTransport(color.rgb);
+	color.rgb *= vertex_color.rgb;
 
+	color.rgb = fullbrightAtmosTransport(color.rgb);
 	color.rgb = fullbrightScaleSoftClip(color.rgb);
 
-	color.rgb = pow(color.rgb, vec3(1.0/2.2));
+	// NORSPEC-293
+	//color.rgb = pow(color.rgb, vec3(1.0/2.2));
 
-	frag_color = color;
+	frag_color.rgb = color.rgb;
+	frag_color.a   = color.a;
 }
 
