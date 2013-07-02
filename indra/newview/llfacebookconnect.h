@@ -31,6 +31,8 @@
 #include "llsingleton.h"
 #include "llimage.h"
 
+class LLEventPump;
+
 /**
  * @class LLFacebookConnect
  *
@@ -49,13 +51,12 @@ public:
 		FB_CONNECTION_FAILED = 3
 	};
 	
-	typedef boost::function<void()> connect_callback_t;
 	typedef boost::function<void(bool ok)> share_callback_t;
 	typedef boost::function<void()> content_updated_callback_t;
 
-	void connectToFacebook(const std::string& auth_code = "", connect_callback_t cb = connect_callback_t());	// Initiate the complete FB connection. Please use getConnectionToFacebook() in normal use.
-	void disconnectFromFacebook();																				// Disconnect from the FBC service.
-    void getConnectionToFacebook(bool auto_connect = false, connect_callback_t cb = connect_callback_t());		// Check if an access token is available on the FBC service. If not, call connectToFacebook().
+	void connectToFacebook(const std::string& auth_code = "");	// Initiate the complete FB connection. Please use checkConnectionToFacebook() in normal use.
+	void disconnectFromFacebook();								// Disconnect from the FBC service.
+    void checkConnectionToFacebook(bool auto_connect = false);	// Check if an access token is available on the FBC service. If not, call connectToFacebook().
     
     void loadFacebookFriends();
 	void postCheckin(const std::string& location, const std::string& name, const std::string& description, const std::string& picture, const std::string& message);
@@ -72,8 +73,8 @@ public:
 	void storeContent(const LLSD& content);
     const LLSD& getContent() const;
     
-    void setConnectionState(EConnectionState connection_state) { mConnectionState = connection_state; }
-    bool isConnected() { return (mConnectionState == FB_CONNECTED); }
+    void setConnectionState(EConnectionState connection_state);
+	bool isConnected() { return (mConnectionState == FB_CONNECTED); }
     S32  generation() { return mGeneration; }
     
     void openFacebookWeb(std::string url);
@@ -93,6 +94,8 @@ private:
 	share_callback_t mSharePhotoCallback;
 	share_callback_t mUpdateStatusCallback;
 	content_updated_callback_t mContentUpdatedCallback;
+
+	static boost::scoped_ptr<LLEventPump> sStateWatcher;
 };
 
 #endif // LL_LLFACEBOOKCONNECT_H

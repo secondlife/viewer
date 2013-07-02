@@ -38,7 +38,9 @@
 #include "llimagepng.h"
 #include "llimagejpeg.h"
 #include "lltrans.h"
+#include "llevents.h"
 
+boost::scoped_ptr<LLEventPump> LLFacebookConnect::sStateWatcher(new LLEventStream("FacebookConnectState"));
 
 // Local functions
 void log_facebook_connect_error(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
@@ -93,11 +95,6 @@ public:
     {
         LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_IN_PROGRESS);
     }
-	
-    LLFacebookConnectResponder(LLFacebookConnect::connect_callback_t cb) : mConnectCallback(cb)
-    {
-        LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_IN_PROGRESS);
-    }
     
 	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
@@ -107,11 +104,6 @@ public:
 			
 			// Grab some graph data now that we are connected
             LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTED);
-		
-			if (mConnectCallback)
-			{
-				mConnectCallback();
-			}
 		}
 		else
 		{
@@ -127,9 +119,6 @@ public:
             LLFacebookConnect::instance().openFacebookWeb(content["location"]);
         }
     }
-    
-private:
-	LLFacebookConnect::connect_callback_t mConnectCallback;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -208,11 +197,6 @@ public:
 		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_IN_PROGRESS);
     }
     
-	LLFacebookConnectedResponder(bool auto_connect, LLFacebookConnect::connect_callback_t cb) : mAutoConnect(auto_connect), mConnectCallback(cb)
-    {
-		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_IN_PROGRESS);
-    }
-    
 	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
 		if (isGoodStatus(status))
@@ -220,11 +204,6 @@ public:
 			LL_DEBUGS("FacebookConnect") << "Connect successful. content: " << content << LL_ENDL;
             
             LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTED);
-			
-			if (mConnectCallback)
-			{
-				mConnectCallback();
-			}
 		}
 		else
 		{
@@ -250,7 +229,6 @@ public:
     
 private:
 	bool mAutoConnect;
-	LLFacebookConnect::connect_callback_t mConnectCallback;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -306,13 +284,13 @@ std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route)
 	return url;
 }
 
-void LLFacebookConnect::connectToFacebook(const std::string& auth_code, connect_callback_t cb)
+void LLFacebookConnect::connectToFacebook(const std::string& auth_code)
 {
 	LLSD body;
 	if (!auth_code.empty())
 		body["code"] = auth_code;
     
-	LLHTTPClient::put(getFacebookConnectURL("/connection"), body, new LLFacebookConnectResponder(cb));
+	LLHTTPClient::put(getFacebookConnectURL("/connection"), body, new LLFacebookConnectResponder());
 }
 
 void LLFacebookConnect::disconnectFromFacebook()
@@ -320,21 +298,21 @@ void LLFacebookConnect::disconnectFromFacebook()
 	LLHTTPClient::del(getFacebookConnectURL("/connection"), new LLFacebookDisconnectResponder());
 }
 
-void LLFacebookConnect::getConnectionToFacebook(bool auto_connect, connect_callback_t cb)
+void LLFacebookConnect::checkConnectionToFacebook(bool auto_connect)
 {
     if ((mConnectionState == FB_NOT_CONNECTED) || (mConnectionState == FB_CONNECTION_FAILED))
     {
         const bool follow_redirects = false;
-        const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
-        LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(auto_connect, cb),
+        const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
+        LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(auto_connect),
                           LLSD(), timeout, follow_redirects);
     }
 }
 
 void LLFacebookConnect::loadFacebookFriends()
 {
-	const bool follow_redirects=false;
-	const F32 timeout=HTTP_REQUEST_EXPIRY_SECS;
+	const bool follow_redirects = false;
+	const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
 	LLHTTPClient::get(getFacebookConnectURL("/friends"), new LLFacebookFriendsResponder(),
 					  LLSD(), timeout, follow_redirects);
 }
@@ -450,6 +428,19 @@ void LLFacebookConnect::clearContent()
     mGeneration++;
     mContent = LLSD();
 }
+
+void LLFacebookConnect::setConnectionState(LLFacebookConnect::EConnectionState connection_state)
+{
+	if (mConnectionState != connection_state)
+	{
+		LLSD state_info;
+		state_info["enum"] = connection_state;
+		sStateWatcher->post(state_info);
+	}
+	
+	mConnectionState = connection_state;
+}
+    
 
 
 
