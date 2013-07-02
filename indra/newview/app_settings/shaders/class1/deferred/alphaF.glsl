@@ -78,6 +78,7 @@ uniform vec2 screen_res;
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
 	float a = max(dot(n,l),0.0);
+	a = pow(a, 1.0/1.3);
 	return vec3(a,a,a);
 }
 
@@ -87,7 +88,7 @@ vec3 calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float
 	vec3 lv = lp.xyz-v;
 	
 	//get distance
-	float d = dot(lv,lv);
+	float d = length(lv);
 	
 	float da = 0.0;
 
@@ -97,9 +98,11 @@ vec3 calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float
 		lv = normalize(lv);
 	
 		//distance attenuation
-		float dist2 = d/la;
-		da = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
-		da = pow(da, 2.2) * 2.2;
+		float dist = d/la;
+		da = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
+		da *= da;
+		da *= 1.4;
+	
 
 		// spotlight coefficient.
 		float spot = max(dot(-ln, lv), is_pointlight);
@@ -212,6 +215,7 @@ void main()
 #else
 	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
+	vec4 gamma_diff = diff;
 
 	diff.rgb = pow(diff.rgb, vec3(2.2f, 2.2f, 2.2f));
 
@@ -224,7 +228,7 @@ void main()
 	vec3 normal = vary_norm; 
 	
 	vec3 l = light_position[0].xyz;
-	vec3 dlight = calcDirectionalLight(normal, l) * 2.6;
+	vec3 dlight = calcDirectionalLight(normal, l);
 	dlight = dlight * vary_directional.rgb * vary_pointlight_col;
 
 #if HAS_SHADOW
@@ -233,13 +237,16 @@ void main()
 	vec4 col = vec4(vary_ambient + dlight, vertex_color_alpha);
 #endif
 
-	vec4 color = diff * col;
+	vec4 color = gamma_diff * col;
 	
 	color.rgb = atmosLighting(color.rgb);
 
 	color.rgb = scaleSoftClip(color.rgb);
+
+	color.rgb = pow(color.rgb, vec3(2.2));
 	col = vec4(0,0,0,0);
 
+	
    #define LIGHT_LOOP(i) col.rgb += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
 
 	LIGHT_LOOP(1)
@@ -250,7 +257,7 @@ void main()
 	LIGHT_LOOP(6)
 	LIGHT_LOOP(7)
 
-	color.rgb += diff.rgb * vary_pointlight_col * col.rgb;
+	color.rgb += diff.rgb * pow(vary_pointlight_col, vec3(2.2)) * col.rgb;
 
 	color.rgb = pow(color.rgb, vec3(1.0/2.2));
 

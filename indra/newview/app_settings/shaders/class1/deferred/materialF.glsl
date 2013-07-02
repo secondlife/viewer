@@ -127,7 +127,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 	vec3 lv = lp.xyz-v;
 	
 	//get distance
-	float d = dot(lv,lv);
+	float d = length(lv);
 	
 	float da = 1.0;
 
@@ -139,8 +139,10 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 		lv = normalize(lv);
 	
 		//distance attenuation
-		float dist2 = d/la;
-		float dist_atten = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
+		float dist = d/la;
+		float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
+		dist_atten *= dist_atten;
+		dist_atten *= 1.4;
 
 		// spotlight coefficient.
 		float spot = max(dot(-ln, lv), is_pointlight);
@@ -321,9 +323,9 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 		  + tmpAmbient)));
 
 	//brightness of surface both sunlight and ambient
-	setSunlitColor(pow(vec3(sunlight * .5), vec3(2.2)) * 2.2);
-	setAmblitColor(pow(vec3(tmpAmbient * .25), vec3(2.2)) * 2.2);
-	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(2.2)) * 2.2);
+	setSunlitColor(vec3(sunlight * .5));
+	setAmblitColor(vec3(tmpAmbient * .25));
+	setAdditiveColor(getAdditiveColor() * vec3(1.0 - temp1));
 }
 
 vec3 atmosLighting(vec3 light)
@@ -617,8 +619,8 @@ void main()
 
 	col.rgb *= ambient;
 
-	col.rgb = col.rgb + atmosAffectDirectionalLight(final_da * 2.6);
-	col.rgb *= diffuse.rgb;
+	col.rgb = col.rgb + atmosAffectDirectionalLight(pow(final_da, 1.0/1.3));
+	col.rgb *= old_diffcol.rgb;
 	
 
 	float glare = 0.0;
@@ -647,9 +649,8 @@ void main()
 	{
 		//add environmentmap
 		vec3 env_vec = env_mat * refnormpersp;
-		float exponent = mix(2.2, 1.0, diffuse.a);
-
-		vec3 refcol = pow(textureCube(environmentMap, env_vec).rgb, vec3(exponent))*exponent;
+		
+		vec3 refcol = textureCube(environmentMap, env_vec).rgb;
 
 		col = mix(col.rgb, refcol, 
 			envIntensity);  
@@ -660,12 +661,11 @@ void main()
 		glare += cur_glare;
 	}
 
-	float exponent = mix(1.0, 2.2, diffuse.a);
-	col = pow(col, vec3(exponent));
-				
-	
 	col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
 	col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
+
+	//convert to linear space before adding local lights
+	col = pow(col, vec3(2.2));
 
 			
 	vec3 npos = normalize(-pos.xyz);
@@ -681,6 +681,7 @@ void main()
 		LIGHT_LOOP(7)
 
 
+	//convert to gamma space for display on screen
 	col.rgb = pow(col.rgb, vec3(1.0/2.2));
 
 	frag_color.rgb = col.rgb;
