@@ -1951,7 +1951,7 @@ void LLViewerRegion::resetMaterialsCapThrottle()
 		&& mSimulatorFeatures["RenderMaterialsCapability"].isReal() )
 	{
 		requests_per_sec = mSimulatorFeatures["RenderMaterialsCapability"].asReal();
-		if ( requests_per_sec != 0.0f )
+		if ( requests_per_sec == 0.0f )
 		{
 			requests_per_sec = 1.0f;
 			LL_WARNS("Materials")
@@ -1960,9 +1960,9 @@ void LLViewerRegion::resetMaterialsCapThrottle()
 				<< requests_per_sec << " per second"
 				<< LL_ENDL;
 		}
-		LL_DEBUGS_ONCE("Materials") << "region '" << getName()
-									<< "' RenderMaterialsCapability " << requests_per_sec
-									<< LL_ENDL;
+		LL_DEBUGS("Materials") << "region '" << getName()
+							   << "' RenderMaterialsCapability " << requests_per_sec
+							   << LL_ENDL;
 	}
 	else
 	{
