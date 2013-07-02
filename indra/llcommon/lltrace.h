@@ -401,7 +401,7 @@ public:
 	template<typename AMOUNT_T>
 	AMOUNT_T& memClaimAmount(AMOUNT_T& size)
 	{
-		MemStatAccumulator* accumulator = sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 		mMemFootprint += (size_t)size;
 		if (accumulator)
 		{
@@ -428,7 +428,7 @@ public:
 	template<typename AMOUNT_T>
 	AMOUNT_T& memDisclaimAmount(AMOUNT_T& size)
 	{
-		MemStatAccumulator* accumulator = sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator* accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
 		if (accumulator)
 		{
 			accumulator->mSize.sample(accumulator->mSize.getLastValue() - (F64)size);
