@@ -2836,6 +2836,8 @@ void appearance_mgr_update_dirty_state()
 	if (LLAppearanceMgr::instanceExists())
 	{
 		LLAppearanceMgr::getInstance()->updateIsDirty();
+		LLAppearanceMgr::getInstance()->setOutfitLocked(false);
+		gAgentWearables.notifyLoadingFinished();
 	}
 }
 

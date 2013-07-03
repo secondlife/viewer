@@ -171,6 +171,8 @@ public:
 	// should only be necessary to do on initial login.
 	void updateIsDirty();
 
+	void setOutfitLocked(bool locked);
+
 	// Called when self avatar is first fully visible.
 	void onFirstFullyVisible();
 
@@ -249,8 +251,6 @@ private:
 								   LLInventoryModel::item_array_t& gest_items);
 
 	static void onOutfitRename(const LLSD& notification, const LLSD& response);
-
-	void setOutfitLocked(bool locked);
 
 	bool mAttachmentInvLinkEnabled;
 	bool mOutfitIsDirty;
