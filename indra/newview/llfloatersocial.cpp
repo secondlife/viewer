@@ -103,6 +103,7 @@ void LLSocialStatusPanel::onSend()
 	}
 	else
 	{
+		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialStatusPanel"); // just in case it is already listening
 		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialStatusPanel", boost::bind(&LLSocialStatusPanel::onFacebookConnectStateChange, this, _1));
 		LLFacebookConnect::instance().checkConnectionToFacebook(true);
 	}
@@ -310,6 +311,7 @@ void LLSocialPhotoPanel::onSend()
 	}
 	else
 	{
+		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialPhotoPanel"); // just in case it is already listening
 		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialPhotoPanel", boost::bind(&LLSocialPhotoPanel::onFacebookConnectStateChange, this, _1));
 		LLFacebookConnect::instance().checkConnectionToFacebook(true);
 	}
@@ -535,6 +537,7 @@ void LLSocialCheckinPanel::onSend()
 	}
 	else
 	{
+		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialCheckinPanel"); // just in case it is already listening
 		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialCheckinPanel", boost::bind(&LLSocialCheckinPanel::onFacebookConnectStateChange, this, _1));
 		LLFacebookConnect::instance().checkConnectionToFacebook(true);
 	}
