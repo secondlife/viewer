@@ -135,6 +135,26 @@ float pcfShadow(sampler2DShadow shadowMap, vec4 stc)
 }
 #endif
 
+vec3 srgb_to_linear(vec3 cs)
+{
+	
+/*        {  cs / 12.92,                 cs <= 0.04045
+    cl = {
+        {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
+
+	return pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
+}
+
+vec3 linear_to_srgb(vec3 cl)
+{
+	    /*{  0.0,                          0         <= cl
+            {  12.92 * c,                    0         <  cl < 0.0031308
+    cs = {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
+            {  1.0,                                       cl >= 1*/
+
+	return 1.055 * pow(cl, vec3(0.41666)) - 0.055;
+}
+
 
 void main() 
 {
@@ -217,7 +237,7 @@ void main()
 #endif
 	vec4 gamma_diff = diff;
 
-	diff.rgb = pow(diff.rgb, vec3(2.2f, 2.2f, 2.2f));
+	diff.rgb = srgb_to_linear(diff.rgb);
 
 #ifdef USE_VERTEX_COLOR
 	float vertex_color_alpha = vertex_color.a;	
@@ -243,9 +263,8 @@ void main()
 
 	color.rgb = scaleSoftClip(color.rgb);
 
-	color.rgb = pow(color.rgb, vec3(2.2));
+	color.rgb = srgb_to_linear(color.rgb);
 	col = vec4(0,0,0,0);
-
 	
    #define LIGHT_LOOP(i) col.rgb += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
 
@@ -257,9 +276,9 @@ void main()
 	LIGHT_LOOP(6)
 	LIGHT_LOOP(7)
 
-	color.rgb += diff.rgb * pow(vary_pointlight_col, vec3(2.2)) * col.rgb;
+	color.rgb += diff.rgb * srgb_to_linear(vary_pointlight_col) * col.rgb;
 
-	color.rgb = pow(color.rgb, vec3(1.0/2.2));
+	color.rgb = linear_to_srgb(color.rgb);
 
 	frag_color = color;
 }
