@@ -45,6 +45,11 @@ void LLAdaptiveRetryPolicy::init()
 	mShouldRetry = true;
 }
 
+void LLAdaptiveRetryPolicy::reset()
+{
+	init();
+}
+
 bool LLAdaptiveRetryPolicy::getRetryAfter(const LLSD& headers, F32& retry_header_time)
 {
 	return (headers.has(HTTP_IN_HEADER_RETRY_AFTER)

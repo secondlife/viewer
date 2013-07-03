@@ -38,6 +38,7 @@
 class LLWearableHoldingPattern;
 class LLInventoryCallback;
 class LLOutfitUnLockTimer;
+class RequestAgentUpdateAppearanceResponder;
 
 class LLAppearanceMgr: public LLSingleton<LLAppearanceMgr>
 {
@@ -214,7 +215,7 @@ public:
 
 	bool isInUpdateAppearanceFromCOF() { return mIsInUpdateAppearanceFromCOF; }
 
-	void requestServerAppearanceUpdate(LLCurl::ResponderPtr responder_ptr = NULL);
+	void requestServerAppearanceUpdate();
 
 	void incrementCofVersion(LLHTTPClient::ResponderPtr responder_ptr = NULL);
 
@@ -254,6 +255,8 @@ private:
 	bool mAttachmentInvLinkEnabled;
 	bool mOutfitIsDirty;
 	bool mIsInUpdateAppearanceFromCOF; // to detect recursive calls.
+
+	LLPointer<RequestAgentUpdateAppearanceResponder> mAppearanceResponder;
 
 	/**
 	 * Lock for blocking operations on outfit until server reply or timeout exceed

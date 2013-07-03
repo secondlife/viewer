@@ -53,6 +53,8 @@ public:
 	virtual void onFailure(const LLCore::HttpResponse *response) = 0;
 
 	virtual bool shouldRetry(F32& seconds_to_wait) const = 0;
+
+	virtual void reset() = 0;
 };
 
 // Very general policy with geometric back-off after failures,
@@ -64,6 +66,8 @@ public:
 
 	// virtual
 	void onSuccess();
+
+	void reset();
 	
 	// virtual
 	void onFailure(S32 status, const LLSD& headers);

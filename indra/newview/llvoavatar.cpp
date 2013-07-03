@@ -7014,7 +7014,15 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		return;
 	}
 
-	mLastUpdateReceivedCOFVersion = this_update_cof_version;
+	// No backsies zone - if we get here, the message should be valid and usable.
+	if (appearance_version > 0)
+	{
+		// Note:
+		// RequestAgentUpdateAppearanceResponder::onRequestRequested()
+		// assumes that cof version is only updated with server-bake
+		// appearance messages.
+		mLastUpdateReceivedCOFVersion = this_update_cof_version;
+	}
 		
 	setIsUsingServerBakes(appearance_version > 0);
 
@@ -7061,6 +7069,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		LL_DEBUGS("Avatar") << avString() << " handle visual params, num_params " << num_params << LL_ENDL;
 		BOOL params_changed = FALSE;
 		BOOL interp_params = FALSE;
+		S32 params_changed_count = 0;
 		
 		for( S32 i = 0; i < num_params; i++ )
 		{
@@ -7070,12 +7079,15 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			if (is_first_appearance_message || (param->getWeight() != newWeight))
 			{
 				params_changed = TRUE;
+				params_changed_count++;
 				if(is_first_appearance_message)
 				{
+					//LL_DEBUGS("Avatar") << "param slam " << i << " " << newWeight << llendl;
 					param->setWeight(newWeight, FALSE);
 				}
 				else
 				{
+					//LL_DEBUGS("Avatar") << std::setprecision(5) << " param target " << i << " " << param->getWeight() << " -> " << newWeight << llendl;
 					interp_params = TRUE;
 					param->setAnimationTarget(newWeight, FALSE);
 				}
@@ -7087,6 +7099,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			LL_DEBUGS("Avatar") << "Number of params in AvatarAppearance msg (" << num_params << ") does not match number of tweakable params in avatar xml file (" << expected_tweakable_count << ").  Processing what we can.  object: " << getID() << llendl;
 		}
 
+		LL_DEBUGS("Avatar") << "Changed " << params_changed_count << " params" << llendl;
 		if (params_changed)
 		{
 			if (interp_params)
