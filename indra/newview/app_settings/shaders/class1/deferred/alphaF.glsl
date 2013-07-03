@@ -61,6 +61,7 @@ VARYING vec3 vary_directional;
 VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
+VARYING vec3 vary_pointlight_col_linear;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
 
@@ -228,6 +229,7 @@ void main()
 	{
 		shadow = 1.0;
 	}
+
 #endif
 
 #ifdef USE_INDEXED_TEX
@@ -276,7 +278,7 @@ void main()
 	LIGHT_LOOP(6)
 	LIGHT_LOOP(7)
 
-	color.rgb += diff.rgb * srgb_to_linear(vary_pointlight_col) * col.rgb;
+	color.rgb += diff.rgb * vary_pointlight_col_linear * col.rgb;
 
 	color.rgb = linear_to_srgb(color.rgb);
 
