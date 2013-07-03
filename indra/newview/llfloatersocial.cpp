@@ -111,13 +111,6 @@ void LLSocialStatusPanel::onSend()
 				LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialStatusPanel", boost::bind(&LLSocialStatusPanel::onConnectedToFacebook, this, _1, message));
 				LLFacebookConnect::instance().checkConnectionToFacebook(true);
 			}
-			
-			// Close the floater once "Post" has been pushed
-			LLFloater* floater = getParentByType<LLFloater>();
-			if (floater)
-			{
-				floater->closeFloater();
-			}
 		}
 	}
 }
@@ -335,13 +328,6 @@ void LLSocialPhotoPanel::onSend()
 	}
 
 	updateControls();
-
-	// Close the floater once "Post" has been pushed
-	LLFloater* floater = getParentByType<LLFloater>();
-	if (floater)
-	{
-		floater->closeFloater();
-	}
 }
 
 bool LLSocialPhotoPanel::onConnectedToFacebook(const LLSD& data, LLPointer<LLImageFormatted> image, const std::string& caption)
@@ -560,13 +546,6 @@ void LLSocialCheckinPanel::onSend()
 		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialCheckinPanel", boost::bind(&LLSocialCheckinPanel::onConnectedToFacebook, this, _1, slurl_string, region_name, description, map_url, caption));
 		LLFacebookConnect::instance().checkConnectionToFacebook(true);
 	}
-    
-    // Close the floater once "Post" has been pushed
-	LLFloater* floater = getParentByType<LLFloater>();
-    if (floater)
-    {
-        floater->closeFloater();
-    }
 }
 
 bool LLSocialCheckinPanel::onConnectedToFacebook(const LLSD& data, const std::string& location, const std::string& name, const std::string& description, const std::string& picture, const std::string& message)
