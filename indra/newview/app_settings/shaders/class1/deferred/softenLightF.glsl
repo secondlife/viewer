@@ -78,6 +78,28 @@ vec3 vary_AtmosAttenuation;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
+
+vec3 srgb_to_linear(vec3 cs)
+{
+	
+/*        {  cs / 12.92,                 cs <= 0.04045
+    cl = {
+        {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
+
+	return pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
+}
+
+vec3 linear_to_srgb(vec3 cl)
+{
+	    /*{  0.0,                          0         <= cl
+            {  12.92 * c,                    0         <  cl < 0.0031308
+    cs = {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
+            {  1.0,                                       cl >= 1*/
+
+	return 1.055 * pow(cl, vec3(0.41666)) - 0.055;
+}
+
+
 vec3 decode_normal (vec2 enc)
 {
     vec2 fenc = enc*4-2;
@@ -313,7 +335,7 @@ void main()
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
 
 	//convert to gamma space
-	diffuse.rgb = pow(diffuse.rgb, vec3(1.0/2.2));
+	diffuse.rgb = linear_to_srgb(diffuse.rgb);
 
 	vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
 	vec3 col;
@@ -369,7 +391,7 @@ void main()
 			col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
 		}
 
-		col = pow(col, vec3(2.2));
+		col = srgb_to_linear(col);
 
 		//col = vec3(1,0,1);
 		//col.g = envIntensity;

@@ -99,6 +99,7 @@ void main()
 	norm = normalize(norm);
 	vec4 spec = texture2DRect(specularRect, frag.xy);
 	vec3 diff = texture2DRect(diffuseRect, frag.xy).rgb;
+	
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
 	vec3 out_col = vec3(0,0,0);
 	vec3 npos = normalize(-pos);
@@ -157,6 +158,7 @@ void main()
 		}
 	}
 	
+
 	frag_color.rgb = out_col;
 	frag_color.a = 0.0;
 }

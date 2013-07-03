@@ -527,6 +527,8 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 		}
 		updatePartition();
 	}
+
+	llassert(isAvatar() || isRoot() || mParent->isStatic());
 }
 
 // Returns "distance" between target destination and resulting xfrom
