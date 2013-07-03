@@ -126,6 +126,8 @@ private:
 
 	void					onFriendListRefreshComplete(LLUICtrl*ctrl, const LLSD& param);
 
+	bool					onConnectedToFacebook(const LLSD& data);
+
 	void					setAccordionCollapsedByUser(LLUICtrl* acc_tab, bool collapsed);
 	void					setAccordionCollapsedByUser(const std::string& name, bool collapsed);
 	bool					isAccordionCollapsedByUser(LLUICtrl* acc_tab);

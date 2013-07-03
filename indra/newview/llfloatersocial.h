@@ -42,6 +42,7 @@ public:
 	BOOL postBuild();
 	void draw();
     void onSend();
+	bool onConnectedToFacebook(const LLSD& data, const std::string& message);
 
 private:
 	LLUICtrl* mMessageTextEditor;
@@ -50,41 +51,40 @@ private:
 
 class LLSocialPhotoPanel : public LLPanel
 {
-
 public:
-		LLSocialPhotoPanel();
-		~LLSocialPhotoPanel();
+	LLSocialPhotoPanel();
+	~LLSocialPhotoPanel();
 
-		BOOL postBuild();
-		void draw();
+	BOOL postBuild();
+	void draw();
 
-		LLSnapshotLivePreview* getPreviewView();
-		void onVisibilityChange(const LLSD& new_visibility);
-		void onClickNewSnapshot();
-		void onSend();
+	LLSnapshotLivePreview* getPreviewView();
+	void onVisibilityChange(const LLSD& new_visibility);
+	void onClickNewSnapshot();
+	void onSend();
+	bool onConnectedToFacebook(const LLSD& data, LLPointer<LLImageFormatted> image, const std::string& caption);
 
-		void updateControls();
-		void updateResolution(BOOL do_update);
-		void checkAspectRatio(S32 index);
-		void setNeedRefresh(bool need);
-		LLUICtrl* getRefreshBtn();
+	void updateControls();
+	void updateResolution(BOOL do_update);
+	void checkAspectRatio(S32 index);
+	void setNeedRefresh(bool need);
+	LLUICtrl* getRefreshBtn();
 
 private:
+	LLHandle<LLView> mPreviewHandle;
 
-		LLHandle<LLView> mPreviewHandle;
+	LLUICtrl * mSnapshotPanel;
+	LLUICtrl * mResolutionComboBox;
+	LLUICtrl * mRefreshBtn;
+	LLUICtrl * mRefreshLabel;
+	LLUICtrl * mSucceessLblPanel;
+	LLUICtrl * mFailureLblPanel;
+	LLUICtrl * mThumbnailPlaceholder;
+	LLUICtrl * mCaptionTextBox;
+	LLUICtrl * mLocationCheckbox;
+	LLUICtrl * mPostButton;
 
-		LLUICtrl * mSnapshotPanel;
-		LLUICtrl * mResolutionComboBox;
-		LLUICtrl * mRefreshBtn;
-		LLUICtrl * mRefreshLabel;
-		LLUICtrl * mSucceessLblPanel;
-		LLUICtrl * mFailureLblPanel;
-		LLUICtrl * mThumbnailPlaceholder;
-		LLUICtrl * mCaptionTextBox;
-		LLUICtrl * mLocationCheckbox;
-		LLUICtrl * mPostButton;
-
-		bool mNeedRefresh;
+	bool mNeedRefresh;
 };
 
 class LLSocialCheckinPanel : public LLPanel
@@ -94,6 +94,8 @@ public:
 	BOOL postBuild();
 	void draw();
     void onSend();
+	bool onConnectedToFacebook(const LLSD& data, const std::string& location, const std::string& name, const std::string& description, const std::string& picture, const std::string& message);
+
 private:
     std::string mMapUrl;
     LLPointer<LLViewerFetchedTexture> mMapTexture;

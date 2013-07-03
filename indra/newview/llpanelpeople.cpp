@@ -839,16 +839,36 @@ void LLPanelPeople::updateRecentList()
 	mRecentList->setDirty();
 }
 
+bool LLPanelPeople::onConnectedToFacebook(const LLSD& data)
+{
+	if (data.get("enum").asInteger() == LLFacebookConnect::FB_CONNECTED)
+	{
+		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLPanelPeople");
+
+		LLFacebookConnect::instance().loadFacebookFriends();
+	}
+
+	return false;
+}
+
 void LLPanelPeople::updateFacebookList(bool visible)
 {
-	if(visible)
+	if (visible)
 	{
 		LLFacebookConnect::instance().setContentUpdatedCallback(boost::bind(&LLPanelPeople::updateSuggestedFriendList, this));
 
 		if (mTryToConnectToFbc)
-		{	
+		{
 			// try to reconnect to facebook!
-			LLFacebookConnect::instance().getConnectionToFacebook(false, boost::bind(&LLFacebookConnect::loadFacebookFriends, &LLFacebookConnect::instance()));
+			if (LLFacebookConnect::instance().isConnected())
+			{
+				LLFacebookConnect::instance().loadFacebookFriends();
+			}
+			else
+			{
+				LLEventPumps::instance().obtain("FacebookConnectState").listen("LLPanelPeople", boost::bind(&LLPanelPeople::onConnectedToFacebook, this, _1));
+				LLFacebookConnect::instance().checkConnectionToFacebook();
+			}
 
 			// don't try again
 			mTryToConnectToFbc = false;
