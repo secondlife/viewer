@@ -1,42 +1,57 @@
     <panel
-	 height="430"
+	 height="395"
 	 width="304"
+	 layout="topleft"
      name="panel_social_status">
-      <text
+     <layout_stack
+      layout="topleft"
+      border_size="0"
+      height="395"
+      follows="all"
+      orientation="vertical"
+      name="stack_status"
+      top="8">
+      <layout_panel
+       name="status_detail_panel"
+       height="255">
+       <text
         length="1"
         follows="top|left|right"
         font="SansSerif"
         height="16"
         left="9"
-        name="caption_label"
-        top_pad="18"
+        name="status_caption_label"
+        top="1"
         type="string">
         What's on your mind?
-      </text>
-      <text_editor
-        follows="left|top"
+       </text>
+       <text_editor
+        follows="left|top|right"
         height="80"
-        width="280"
+        right="-9"
         left="9"
         length="1"
         max_length="700"
         name="status_message"
         type="string"
         word_wrap="true">
-      </text_editor>
-      <button
-	    layout="topleft"
+       </text_editor>
+      </layout_panel>
+      <layout_panel
+       name="status_button_panel"
+       height="96">
+       <button
         follows="left|top"
+        top="5"
+        left="9"
         height="23"
         label="Post"
         name="post_status_btn"
-        top_pad="18"
         width="100">
         <button.commit_callback
           function="SocialSharing.SendStatus" />
-      </button>
-      <button
-	    layout="topleft"
+       </button>
+       <button
         follows="left|top"
         height="23"
         label="Cancel"
@@ -46,5 +61,7 @@
         width="100">
         <button.commit_callback
           function="SocialSharing.Cancel" />
-      </button>
+       </button>
+      </layout_panel>
+     </layout_stack>
     </panel>

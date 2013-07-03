@@ -25,7 +25,7 @@
     <panel
      filename="panel_social_status.xml"
      class="llsocialstatuspanel"
-     background_opaque="true"
+     follows="all"
      background_visible="true"
      bg_alpha_color="DkGray"
      bg_opaque_color="DkGray"

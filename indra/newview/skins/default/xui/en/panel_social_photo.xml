@@ -1,11 +1,11 @@
     <panel
-      height="430"
+      height="395"
       width="304"
       name="panel_social_photo">
       <layout_stack
 	   layout="topleft"
        border_size="0"
-       height="422"
+       height="395"
 	   width="304"
        follows="all"
        orientation="vertical"
@@ -20,9 +20,6 @@
             height="295"
             width="286"
             left="7"
-            background_opaque="true"
-            background_visible="true"
-            bg_opaque_color="DkGray2"
             label="snapshot_panel"
             help_topic="snapshot_panel"
             name="snapshot_panel">
@@ -216,21 +213,10 @@
         <layout_panel
           name="photo_button_panel"
           height="96">
-          <panel
-            height="96"
-            top="0"
-            follows="all"
-            left="7"
-            right="-10"
-            background_opaque="true"
-            background_visible="true"
-            bg_opaque_color="DkGray"
-            label="button_container"
-            help_topic="button_container"
-            name="button_container"/>
           <button
            follows="left|top"
            top="15"
+           left="9"
            height="23"
            label="Post"
            name="post_btn"
