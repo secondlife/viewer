@@ -73,6 +73,7 @@ public:
     const LLSD& getContent() const;
     
     void setConnectionState(EConnectionState connection_state) { mConnectionState = connection_state; }
+    EConnectionState getConnectionState() { return mConnectionState; }
     bool isConnected() { return (mConnectionState == FB_CONNECTED); }
     S32  generation() { return mGeneration; }
     

@@ -28,6 +28,7 @@
 #define LL_LLFLOATERSOCIAL_H
 
 #include "llfloater.h"
+#include "lltextbox.h"
 #include "llviewertexture.h"
 
 class LLIconCtrl;
@@ -109,13 +110,17 @@ class LLFloaterSocial : public LLFloater
 public:
 	LLFloaterSocial(const LLSD& key);
 	BOOL postBuild();
+	void draw();
 	void onCancel();
 
 	static void preUpdate();
 	static void postUpdate();
 
 private:
-	LLSocialPhotoPanel * mSocialPhotoPanel;
+	LLSocialPhotoPanel* mSocialPhotoPanel;
+    LLTextBox* mStatusErrorText;
+    LLTextBox* mStatusLoadingText;
+    LLUICtrl* mStatusLoadingIndicator;
 };
 
 #endif // LL_LLFLOATERSOCIAL_H

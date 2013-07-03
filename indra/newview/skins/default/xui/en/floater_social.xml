@@ -57,6 +57,21 @@
    name="connection_status_panel"
    follows="left|top"
    height="26">
+   <text
+     name="connection_error_text"
+     type="string"
+     follows="left|top"
+     top="3"
+     left="12"
+     width="250"
+     height="20"
+     wrap="true"
+     halign="left"
+     valign="center"
+     text_color="Yellow"
+     font="SansSerif">
+     Problem Connecting to Facebook 
+   </text>
    <loading_indicator
      follows="left|top"
      height="24"
@@ -66,7 +81,7 @@
      left="9"
      visible="true"/>
    <text
-     name="connection_status_text"
+     name="connection_loading_text"
      type="string"
      follows="left|top"
      top="3"
@@ -77,7 +92,7 @@
      halign="left"
      valign="center"
      font="SansSerif">
-      Test text
+      Connecting to Facebook...
    </text>
   </panel>
 </floater>

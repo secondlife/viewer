@@ -524,7 +524,10 @@ void LLSocialCheckinPanel::onSend()
 ////////////////////////
 
 LLFloaterSocial::LLFloaterSocial(const LLSD& key) : LLFloater(key),
-    mSocialPhotoPanel(NULL)
+    mSocialPhotoPanel(NULL),
+    mStatusErrorText(NULL),
+    mStatusLoadingText(NULL),
+    mStatusLoadingIndicator(NULL)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.Cancel", boost::bind(&LLFloaterSocial::onCancel, this));
 }
@@ -540,6 +543,10 @@ BOOL LLFloaterSocial::postBuild()
     LLFacebookConnect::instance().getConnectionToFacebook(true);
     // Keep tab of the Photo Panel
 	mSocialPhotoPanel = static_cast<LLSocialPhotoPanel*>(getChild<LLUICtrl>("panel_social_photo"));
+    // Connection status widgets
+    mStatusErrorText = getChild<LLTextBox>("connection_error_text");
+    mStatusLoadingText = getChild<LLTextBox>("connection_loading_text");
+    mStatusLoadingIndicator = getChild<LLUICtrl>("connection_loading_indicator");
 	return LLFloater::postBuild();
 }
 
@@ -580,3 +587,30 @@ void LLFloaterSocial::postUpdate()
 		
 	}
 }
+
+void LLFloaterSocial::draw()
+{
+    if (mStatusErrorText && mStatusLoadingText && mStatusLoadingIndicator)
+    {
+        mStatusErrorText->setVisible(false);
+        mStatusLoadingText->setVisible(false);
+        mStatusLoadingIndicator->setVisible(false);
+        LLFacebookConnect::EConnectionState connection_state = LLFacebookConnect::instance().getConnectionState();
+        switch (connection_state)
+        {
+        case LLFacebookConnect::FB_NOT_CONNECTED:
+            break;
+        case LLFacebookConnect::FB_CONNECTION_IN_PROGRESS:
+            mStatusLoadingText->setVisible(true);
+            mStatusLoadingIndicator->setVisible(true);
+            break;
+        case LLFacebookConnect::FB_CONNECTED:
+            break;
+        case LLFacebookConnect::FB_CONNECTION_FAILED:
+            mStatusErrorText->setVisible(true);
+            break;
+        }
+    }
+	LLFloater::draw();
+}
+
