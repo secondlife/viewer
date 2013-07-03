@@ -68,6 +68,7 @@ VARYING vec3 vary_directional;
 VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
+VARYING vec3 vary_pointlight_col_linear;
 
 #ifdef USE_VERTEX_COLOR
 VARYING vec4 vertex_color;
@@ -85,6 +86,16 @@ uniform vec3 light_attenuation[8];
 uniform vec3 light_diffuse[8];
 
 uniform vec3 sun_dir;
+
+vec3 srgb_to_linear(vec3 cs)
+{
+	
+/*        {  cs / 12.92,                 cs <= 0.04045
+    cl = {
+        {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
+
+	return pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
+}
 
 vec3 calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
 {
@@ -178,10 +189,8 @@ void main()
 	
 	vec3 diff = diffuse_color.rgb;
 
-	
-
 	vary_pointlight_col = diff;
-
+	vary_pointlight_col_linear = srgb_to_linear(diff);
 	
 	col.rgb = vec3(0,0,0);
 
