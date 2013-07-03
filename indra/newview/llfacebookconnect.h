@@ -48,7 +48,9 @@ public:
 		FB_NOT_CONNECTED = 0,
 		FB_CONNECTION_IN_PROGRESS = 1,
 		FB_CONNECTED = 2,
-		FB_CONNECTION_FAILED = 3
+		FB_CONNECTION_FAILED = 3,
+		FB_POSTING = 4,
+		FB_POST_FAILED = 5
 	};
 	
 	typedef boost::function<void(bool ok)> share_callback_t;
@@ -74,7 +76,7 @@ public:
     const LLSD& getContent() const;
     
     void setConnectionState(EConnectionState connection_state);
-	bool isConnected() { return (mConnectionState == FB_CONNECTED); }
+	bool isConnected() { return ((mConnectionState == FB_CONNECTED) || (mConnectionState == FB_POSTING)); }
     S32  generation() { return mGeneration; }
     
     void openFacebookWeb(std::string url);

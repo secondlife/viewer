@@ -128,8 +128,15 @@ class LLFacebookShareResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLFacebookShareResponder);
 public:
     
-	LLFacebookShareResponder() {}
-	LLFacebookShareResponder(LLFacebookConnect::share_callback_t cb) : mShareCallback(cb) {}
+	LLFacebookShareResponder()
+	{
+		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_POSTING);
+	}
+	
+	LLFacebookShareResponder(LLFacebookConnect::share_callback_t cb) : mShareCallback(cb)
+	{
+		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_POSTING);
+	}
     
 	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
@@ -137,9 +144,12 @@ public:
 		{
             toast_user_for_success();
 			LL_DEBUGS("FacebookConnect") << "Post successful. content: " << content << LL_ENDL;
+			
+			LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTED);
 		}
 		else
 		{
+            LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_POST_FAILED);
             log_facebook_connect_error("Share", status, reason, content.get("error_code"), content.get("error_description"));
 		}
 		
@@ -300,7 +310,7 @@ void LLFacebookConnect::disconnectFromFacebook()
 
 void LLFacebookConnect::checkConnectionToFacebook(bool auto_connect)
 {
-    if ((mConnectionState == FB_NOT_CONNECTED) || (mConnectionState == FB_CONNECTION_FAILED))
+    if ((mConnectionState == FB_NOT_CONNECTED) || (mConnectionState == FB_CONNECTION_FAILED) || (mConnectionState == FB_POST_FAILED))
     {
         const bool follow_redirects = false;
         const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
