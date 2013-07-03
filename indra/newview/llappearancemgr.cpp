@@ -3156,7 +3156,7 @@ void RequestAgentUpdateAppearanceResponder::sendRequest()
 	LL_DEBUGS("Avatar") << "request url " << url << " my_cof_version " << cof_version << llendl;
 
 	mInFlightCounter++;
-	mInFlightTimer.setTimerExpirySec(30.0);
+	mInFlightTimer.setTimerExpirySec(60.0);
 	LLHTTPClient::post(url, body, this);
 	llassert(cof_version >= gAgentAvatarp->mLastUpdateRequestCOFVersion);
 	gAgentAvatarp->mLastUpdateRequestCOFVersion = cof_version;
@@ -3254,7 +3254,7 @@ void RequestAgentUpdateAppearanceResponder::debugCOF(const LLSD& content)
 	}
 	if (content["success"].asBoolean())
 	{
-		//LL_DEBUGS("Avatar") << dumpResponse() << LL_ENDL;
+		LL_DEBUGS("Avatar") << "succeeded" << llendl;
 		if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
 		{
 			dump_sequential_xml(gAgentAvatarp->getFullname() + "_appearance_request_ok", content);
