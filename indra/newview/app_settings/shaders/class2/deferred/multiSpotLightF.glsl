@@ -85,9 +85,19 @@ vec3 decode_normal (vec2 enc)
     return n;
 }
 
+vec3 srgb_to_linear(vec3 cs)
+{
+	
+/*        {  cs / 12.92,                 cs <= 0.04045
+    cl = {
+        {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
+
+	return pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
+}
+
 vec4 correctWithGamma(vec4 col)
 {
-	return vec4(pow(col.rgb, vec3(2.2)), col.a);
+	return vec4(srgb_to_linear(col.rgb), col.a);
 }
 
 

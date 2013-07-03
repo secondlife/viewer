@@ -82,9 +82,29 @@ vec3 decode_normal (vec2 enc)
     return n;
 }
 
+vec3 srgb_to_linear(vec3 cs)
+{
+	
+/*        {  cs / 12.92,                 cs <= 0.04045
+    cl = {
+        {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
+
+	return pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
+}
+
+vec3 linear_to_srgb(vec3 cl)
+{
+	    /*{  0.0,                          0         <= cl
+            {  12.92 * c,                    0         <  cl < 0.0031308
+    cs = {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
+            {  1.0,                                       cl >= 1*/
+
+	return 1.055 * pow(cl, vec3(0.41666)) - 0.055;
+}
+
 vec4 correctWithGamma(vec4 col)
 {
-	return vec4(pow(col.rgb, vec3(2.2)), col.a);
+	return vec4(srgb_to_linear(col.rgb), col.a);
 }
 
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)

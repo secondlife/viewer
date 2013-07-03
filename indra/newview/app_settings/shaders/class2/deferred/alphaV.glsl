@@ -85,6 +85,26 @@ uniform vec3 light_diffuse[8];
 
 uniform vec3 sun_dir;
 
+vec3 srgb_to_linear(vec3 cs)
+{
+	
+/*        {  cs / 12.92,                 cs <= 0.04045
+    cl = {
+        {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
+
+	return pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
+}
+
+vec3 linear_to_srgb(vec3 cl)
+{
+	    /*{  0.0,                          0         <= cl
+            {  12.92 * c,                    0         <  cl < 0.0031308
+    cs = {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
+            {  1.0,                                       cl >= 1*/
+
+	return 1.055 * pow(cl, vec3(0.41666)) - 0.055;
+}
+
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
         float a = max(dot(n,l),0.0);
@@ -183,7 +203,7 @@ void main()
 	//vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.));
 	vec4 col = vec4(0.0, 0.0, 0.0, diffuse_color.a);
 
-	vec3 dff = pow(diffuse_color.rgb, vec3(2.2f,2.2f,2.2f));
+	vec3 dff = srgb_to_linear(diffuse_color.rgb);
 
 	vary_pointlight_col = dff;
 
