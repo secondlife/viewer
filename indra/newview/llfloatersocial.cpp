@@ -96,35 +96,55 @@ void LLSocialStatusPanel::draw()
 
 void LLSocialStatusPanel::onSend()
 {
-	if (mMessageTextEditor)
+	LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialStatusPanel"); // just in case it is already listening
+	LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialStatusPanel", boost::bind(&LLSocialStatusPanel::onFacebookConnectStateChange, this, _1));
+		
+	// Connect to Facebook if necessary and then post
+	if (LLFacebookConnect::instance().isConnected())
 	{
-		std::string message = mMessageTextEditor->getValue().asString();
-		if (!message.empty())
-		{
-			// Connect to Facebook if necessary and then post
-			if (LLFacebookConnect::instance().isConnected())
-			{
-				LLFacebookConnect::instance().updateStatus(message);
-			}
-			else
-			{
-				LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialStatusPanel", boost::bind(&LLSocialStatusPanel::onConnectedToFacebook, this, _1, message));
-				LLFacebookConnect::instance().checkConnectionToFacebook(true);
-			}
-		}
+		sendStatus();
+	}
+	else
+	{
+		LLFacebookConnect::instance().checkConnectionToFacebook(true);
 	}
 }
 
-bool LLSocialStatusPanel::onConnectedToFacebook(const LLSD& data, const std::string& message)
+bool LLSocialStatusPanel::onFacebookConnectStateChange(const LLSD& data)
 {
-	if (data.get("enum").asInteger() == LLFacebookConnect::FB_CONNECTED)
+	switch (data.get("enum").asInteger())
 	{
-		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialStatusPanel");
-		
-		LLFacebookConnect::instance().updateStatus(message);
+		case LLFacebookConnect::FB_CONNECTED:
+			sendStatus();
+			break;
+
+		case LLFacebookConnect::FB_POSTED:
+			LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialStatusPanel");
+			clearAndClose();
+			break;
 	}
 
 	return false;
+}
+
+void LLSocialStatusPanel::sendStatus()
+{
+	std::string message = mMessageTextEditor->getValue().asString();
+	if (!message.empty())
+	{
+		LLFacebookConnect::instance().updateStatus(message);
+	}
+}
+
+void LLSocialStatusPanel::clearAndClose()
+{
+	mMessageTextEditor->setValue("");
+
+	LLFloater* floater = getParentByType<LLFloater>();
+	if (floater)
+	{
+		floater->closeFloater();
+	}
 }
 
 ///////////////////////////
@@ -258,9 +278,44 @@ void LLSocialPhotoPanel::onClickNewSnapshot()
 
 void LLSocialPhotoPanel::onSend()
 {
-	std::string caption = mCaptionTextBox->getValue().asString();
-	bool add_location = mLocationCheckbox->getValue().asBoolean();
+	LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialPhotoPanel"); // just in case it is already listening
+	LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialPhotoPanel", boost::bind(&LLSocialPhotoPanel::onFacebookConnectStateChange, this, _1));
+	
+	// Connect to Facebook if necessary and then post
+	if (LLFacebookConnect::instance().isConnected())
+	{
+		sendPhoto();
+	}
+	else
+	{
+		LLFacebookConnect::instance().checkConnectionToFacebook(true);
+	}
+}
 
+bool LLSocialPhotoPanel::onFacebookConnectStateChange(const LLSD& data)
+{
+	switch (data.get("enum").asInteger())
+	{
+		case LLFacebookConnect::FB_CONNECTED:
+			sendPhoto();
+			break;
+
+		case LLFacebookConnect::FB_POSTED:
+			LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialPhotoPanel");
+			clearAndClose();
+			break;
+	}
+
+	return false;
+}
+
+void LLSocialPhotoPanel::sendPhoto()
+{
+	// Get the caption
+	std::string caption = mCaptionTextBox->getValue().asString();
+
+	// Add the location if required
+	bool add_location = mLocationCheckbox->getValue().asBoolean();
 	if (add_location)
 	{
 		LLSLURL slurl;
@@ -271,32 +326,24 @@ void LLSocialPhotoPanel::onSend()
 			caption = caption + " " + slurl.getSLURLString();
 	}
 
+	// Get the image
 	LLSnapshotLivePreview* previewp = getPreviewView();
 	
-	// Connect to Facebook if necessary and then post
-	if (LLFacebookConnect::instance().isConnected())
-	{
-		LLFacebookConnect::instance().sharePhoto(previewp->getFormattedImage(), caption);
-	}
-	else
-	{
-		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialPhotoPanel", boost::bind(&LLSocialPhotoPanel::onConnectedToFacebook, this, _1, previewp->getFormattedImage(), caption));
-		LLFacebookConnect::instance().checkConnectionToFacebook(true);
-	}
+	// Post to Facebook
+	LLFacebookConnect::instance().sharePhoto(previewp->getFormattedImage(), caption);
 
 	updateControls();
 }
 
-bool LLSocialPhotoPanel::onConnectedToFacebook(const LLSD& data, LLPointer<LLImageFormatted> image, const std::string& caption)
+void LLSocialPhotoPanel::clearAndClose()
 {
-	if (data.get("enum").asInteger() == LLFacebookConnect::FB_CONNECTED)
-	{
-		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialPhotoPanel");
-		
-		LLFacebookConnect::instance().sharePhoto(image, caption);
-	}
+	mCaptionTextBox->setValue("");
 
-	return false;
+	LLFloater* floater = getParentByType<LLFloater>();
+	if (floater)
+	{
+		floater->closeFloater();
+	}
 }
 
 void LLSocialPhotoPanel::updateControls()
@@ -474,6 +521,39 @@ void LLSocialCheckinPanel::draw()
 
 void LLSocialCheckinPanel::onSend()
 {
+	LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialCheckinPanel"); // just in case it is already listening
+	LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialCheckinPanel", boost::bind(&LLSocialCheckinPanel::onFacebookConnectStateChange, this, _1));
+	
+	// Connect to Facebook if necessary and then post
+	if (LLFacebookConnect::instance().isConnected())
+	{
+		sendCheckin();
+	}
+	else
+	{
+		LLFacebookConnect::instance().checkConnectionToFacebook(true);
+	}
+}
+
+bool LLSocialCheckinPanel::onFacebookConnectStateChange(const LLSD& data)
+{
+	switch (data.get("enum").asInteger())
+	{
+		case LLFacebookConnect::FB_CONNECTED:
+			sendCheckin();
+			break;
+
+		case LLFacebookConnect::FB_POSTED:
+			LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialCheckinPanel");
+			clearAndClose();
+			break;
+	}
+
+	return false;
+}
+
+void LLSocialCheckinPanel::sendCheckin()
+{
 	// Get the location SLURL
 	LLSLURL slurl;
 	LLAgentUI::buildSLURL(slurl);
@@ -493,28 +573,19 @@ void LLSocialCheckinPanel::onSend()
 	// Get the caption
 	std::string caption = getChild<LLUICtrl>("place_caption")->getValue().asString();
 
-	// Connect to Facebook if necessary and then post
-	if (LLFacebookConnect::instance().isConnected())
-	{
-		LLFacebookConnect::instance().postCheckin(slurl_string, region_name, description, map_url, caption);
-	}
-	else
-	{
-		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialCheckinPanel", boost::bind(&LLSocialCheckinPanel::onConnectedToFacebook, this, _1, slurl_string, region_name, description, map_url, caption));
-		LLFacebookConnect::instance().checkConnectionToFacebook(true);
-	}
+	// Post to Facebook
+	LLFacebookConnect::instance().postCheckin(slurl_string, region_name, description, map_url, caption);
 }
 
-bool LLSocialCheckinPanel::onConnectedToFacebook(const LLSD& data, const std::string& location, const std::string& name, const std::string& description, const std::string& picture, const std::string& message)
+void LLSocialCheckinPanel::clearAndClose()
 {
-	if (data.get("enum").asInteger() == LLFacebookConnect::FB_CONNECTED)
-	{
-		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialCheckinPanel");
-		
-		LLFacebookConnect::instance().postCheckin(location, name, description, picture, message);
-	}
+	getChild<LLUICtrl>("place_caption")->setValue("");
 
-	return false;
+	LLFloater* floater = getParentByType<LLFloater>();
+	if (floater)
+	{
+		floater->closeFloater();
+	}
 }
 
 ////////////////////////
@@ -602,6 +673,8 @@ void LLFloaterSocial::draw()
             mStatusLoadingIndicator->setVisible(true);
             break;
         case LLFacebookConnect::FB_CONNECTED:
+			break;
+        case LLFacebookConnect::FB_POSTED:
             break;
         case LLFacebookConnect::FB_CONNECTION_FAILED:
         case LLFacebookConnect::FB_POST_FAILED:

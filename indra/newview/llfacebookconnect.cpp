@@ -41,6 +41,7 @@
 #include "llevents.h"
 
 boost::scoped_ptr<LLEventPump> LLFacebookConnect::sStateWatcher(new LLEventStream("FacebookConnectState"));
+boost::scoped_ptr<LLEventPump> LLFacebookConnect::sContentWatcher(new LLEventStream("FacebookConnectContent"));
 
 // Local functions
 void log_facebook_connect_error(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
@@ -133,11 +134,6 @@ public:
 		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_POSTING);
 	}
 	
-	LLFacebookShareResponder(LLFacebookConnect::share_callback_t cb) : mShareCallback(cb)
-	{
-		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_POSTING);
-	}
-    
 	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
 		if (isGoodStatus(status))
@@ -145,17 +141,16 @@ public:
             toast_user_for_success();
 			LL_DEBUGS("FacebookConnect") << "Post successful. content: " << content << LL_ENDL;
 			
-			LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTED);
+			LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_POSTED);
+		}
+		else if (status == 404)
+		{
+			LLFacebookConnect::instance().connectToFacebook();
 		}
 		else
 		{
             LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_POST_FAILED);
             log_facebook_connect_error("Share", status, reason, content.get("error_code"), content.get("error_description"));
-		}
-		
-		if (mShareCallback)
-		{
-			mShareCallback(isGoodStatus(status));
 		}
 	}
     
@@ -166,9 +161,6 @@ public:
             LLFacebookConnect::instance().openFacebookWeb(content["location"]);
         }
     }
-    
-private:
-	LLFacebookConnect::share_callback_t mShareCallback;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -342,7 +334,7 @@ void LLFacebookConnect::postCheckin(const std::string& location, const std::stri
 		body["message"] = message;
 
 	// Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::post(getFacebookConnectURL("/share/checkin"), body, new LLFacebookShareResponder(mPostCheckinCallback));
+	LLHTTPClient::post(getFacebookConnectURL("/share/checkin"), body, new LLFacebookShareResponder());
 }
 
 void LLFacebookConnect::sharePhoto(const std::string& image_url, const std::string& caption)
@@ -405,7 +397,7 @@ void LLFacebookConnect::sharePhoto(LLPointer<LLImageFormatted> image, const std:
 	memcpy(data, body.str().data(), size);
 	
     // Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::postRaw(getFacebookConnectURL("/share/photo"), data, size, new LLFacebookShareResponder(mSharePhotoCallback), headers);
+	LLHTTPClient::postRaw(getFacebookConnectURL("/share/photo"), data, size, new LLFacebookShareResponder(), headers);
 }
 
 void LLFacebookConnect::updateStatus(const std::string& message)
@@ -414,7 +406,7 @@ void LLFacebookConnect::updateStatus(const std::string& message)
 	body["message"] = message;
 	
     // Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::post(getFacebookConnectURL("/share/wall"), body, new LLFacebookShareResponder(mUpdateStatusCallback));
+	LLHTTPClient::post(getFacebookConnectURL("/share/wall"), body, new LLFacebookShareResponder());
 }
 
 void LLFacebookConnect::storeContent(const LLSD& content)
@@ -422,10 +414,7 @@ void LLFacebookConnect::storeContent(const LLSD& content)
     mGeneration++;
     mContent = content;
 
-	if(mContentUpdatedCallback)
-	{
-		mContentUpdatedCallback();
-	}
+	sContentWatcher->post(content);
 }
 
 const LLSD& LLFacebookConnect::getContent() const
@@ -450,12 +439,3 @@ void LLFacebookConnect::setConnectionState(LLFacebookConnect::EConnectionState c
 	
 	mConnectionState = connection_state;
 }
-    
-
-
-
-
-
-
-
-

@@ -42,7 +42,10 @@ public:
 	BOOL postBuild();
 	void draw();
     void onSend();
-	bool onConnectedToFacebook(const LLSD& data, const std::string& message);
+	bool onFacebookConnectStateChange(const LLSD& data);
+
+	void sendStatus();
+	void clearAndClose();
 
 private:
 	LLUICtrl* mMessageTextEditor;
@@ -62,7 +65,10 @@ public:
 	void onVisibilityChange(const LLSD& new_visibility);
 	void onClickNewSnapshot();
 	void onSend();
-	bool onConnectedToFacebook(const LLSD& data, LLPointer<LLImageFormatted> image, const std::string& caption);
+	bool onFacebookConnectStateChange(const LLSD& data);
+
+	void sendPhoto();
+	void clearAndClose();
 
 	void updateControls();
 	void updateResolution(BOOL do_update);
@@ -94,7 +100,10 @@ public:
 	BOOL postBuild();
 	void draw();
     void onSend();
-	bool onConnectedToFacebook(const LLSD& data, const std::string& location, const std::string& name, const std::string& description, const std::string& picture, const std::string& message);
+	bool onFacebookConnectStateChange(const LLSD& data);
+
+	void sendCheckin();
+	void clearAndClose();
 
 private:
     std::string mMapUrl;

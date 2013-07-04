@@ -76,7 +76,7 @@ private:
 	// methods indirectly called by the updaters
 	void					updateFriendListHelpText();
 	void					updateFriendList();
-	void					updateSuggestedFriendList();
+	bool					updateSuggestedFriendList();
 	void					updateNearbyList();
 	void					updateRecentList();
 	void					updateFacebookList(bool visible);
