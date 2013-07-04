@@ -36,9 +36,6 @@
       filename="panel_social_photo.xml"
       class="llsocialphotopanel"
       follows="all"
-      background_visible="true"
-      bg_alpha_color="DkGray"
-      bg_opaque_color="DkGray"
       label="PHOTO"
       help_topic="panel_social_photo"
       name="panel_social_photo"/>

@@ -1,15 +1,15 @@
     <panel
       height="395"
       width="304"
+      layout="topleft"
       name="panel_social_photo">
       <layout_stack
 	   layout="topleft"
        border_size="0"
        height="395"
-	   width="304"
-       follows="all"
+       follows="top|left|right"
        orientation="vertical"
-       name="stack1"
+       name="stack_photo"
        top="8">
         <layout_panel	
          name="photo_detail_panel"
@@ -57,31 +57,28 @@
              length="1"
              halign="right"
              name="file_size_label"
-             top="12"
+             top="9"
              type="string"
              width="50">
               [SIZE] KB
             </text>
-            <ui_ctrl
+            <panel
                 height="150"
                 width="250"
+                visible="true"
                 name="thumbnail_placeholder"
-                top_pad="5"
+                top="33"
                 follows="left|top"
                 left="9">
               <panel
                background_visible="true"
                bg_alpha_color="0.9 1 0.9 1"
                follows="left|top"
-               font="SansSerifLarge"
-               halign="center"
                height="20"
-               left="0"
-               length="1"
-               name="succeeded_panel"
-               right="-1"
+               width="250"
                top="0"
-               type="string"
+               left="0"
+               name="succeeded_panel"
                visible="false">
                 <text
                  follows="all"
@@ -103,15 +100,11 @@
                background_visible="true"
                bg_alpha_color="1 0.9 0.9 1"
                follows="left|top"
-               font="SansSerifLarge"
-               halign="center"
                height="20"
-               left_delta="0"
-               length="1"
-               name="failed_panel"
-               right="-1"
+               width="250"
                top="0"
-               type="string"
+               left="0"
+               name="failed_panel"
                visible="false">
                 <text
                  follows="all"
@@ -131,12 +124,12 @@
               </panel>
               <loading_indicator
                follows="left|top"
-               height="48"
+               height="24"
                name="working_indicator"
-               left="101"
-               top="46"
+               left="113"
+               top="59"
                visible="false"
-               width="48" />
+               width="24" />
               <text
                follows="left|top|right"
                font="SansSerifBold"
@@ -149,17 +142,16 @@
                top="98"
                translate="false"
                type="string"
-               visible="false"
-               width="130">
+               visible="false">
                 Working
               </text>
               <button
                follows="left|top"
                height="22"
                image_overlay="Refresh_Off"
-               left="20"
+               left="10"
                name="new_snapshot_btn"
-               bottom="-20"
+               bottom="-10"
                visible="false"
                width="22" />
               <text
@@ -170,16 +162,15 @@
                left_pad="10"
                length="1"
                name="refresh_lbl"
-               right="-5"
                text_color="red"
-               top_delta="0"
+               top_delta="4"
                translate="false"
                type="string"
                visible="false"
                width="130">
-                Refresh to save.
+                Refresh to save
               </text>
-            </ui_ctrl>
+            </panel>
             <text
              length="1"
              follows="top|left|right"
