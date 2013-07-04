@@ -54,7 +54,6 @@ public:
 		FB_POST_FAILED = 6
 	};
 	
-	typedef boost::function<void(bool ok)> share_callback_t;
 	typedef boost::function<void()> content_updated_callback_t;
 
 	void connectToFacebook(const std::string& auth_code = "");	// Initiate the complete FB connection. Please use checkConnectionToFacebook() in normal use.
@@ -67,9 +66,6 @@ public:
 	void sharePhoto(LLPointer<LLImageFormatted> image, const std::string& caption);
 	void updateStatus(const std::string& message);
 	
-	void setPostCheckinCallback(share_callback_t cb) { mPostCheckinCallback = cb; }
-	void setSharePhotoCallback(share_callback_t cb) { mSharePhotoCallback = cb; }
-	void setUpdateStatusCallback(share_callback_t cb) { mUpdateStatusCallback = cb; }
 	void setContentUpdatedCallback(content_updated_callback_t cb) { mContentUpdatedCallback = cb;}
 
     void clearContent();
@@ -94,9 +90,6 @@ private:
     LLSD mContent;
     S32  mGeneration;
 	
-	share_callback_t mPostCheckinCallback;
-	share_callback_t mSharePhotoCallback;
-	share_callback_t mUpdateStatusCallback;
 	content_updated_callback_t mContentUpdatedCallback;
 
 	static boost::scoped_ptr<LLEventPump> sStateWatcher;
