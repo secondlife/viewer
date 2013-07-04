@@ -41,6 +41,7 @@
 #include "llevents.h"
 
 boost::scoped_ptr<LLEventPump> LLFacebookConnect::sStateWatcher(new LLEventStream("FacebookConnectState"));
+boost::scoped_ptr<LLEventPump> LLFacebookConnect::sContentWatcher(new LLEventStream("FacebookConnectContent"));
 
 // Local functions
 void log_facebook_connect_error(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
@@ -413,10 +414,7 @@ void LLFacebookConnect::storeContent(const LLSD& content)
     mGeneration++;
     mContent = content;
 
-	if(mContentUpdatedCallback)
-	{
-		mContentUpdatedCallback();
-	}
+	sContentWatcher->post(content);
 }
 
 const LLSD& LLFacebookConnect::getContent() const
@@ -441,12 +439,3 @@ void LLFacebookConnect::setConnectionState(LLFacebookConnect::EConnectionState c
 	
 	mConnectionState = connection_state;
 }
-    
-
-
-
-
-
-
-
-

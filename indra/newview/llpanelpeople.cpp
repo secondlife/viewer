@@ -781,7 +781,7 @@ void LLPanelPeople::updateFriendList()
 	showFriendsAccordionsIfNeeded();
 }
 
-void LLPanelPeople::updateSuggestedFriendList()
+bool LLPanelPeople::updateSuggestedFriendList()
 {
 	if (LLFacebookConnect::instance().generation() != mFacebookListGeneration)
 	{
@@ -814,6 +814,8 @@ void LLPanelPeople::updateSuggestedFriendList()
 		mSuggestedFriends->setDirty(true, !mSuggestedFriends->filterHasMatches());
 		showFriendsAccordionsIfNeeded();
 	}
+
+	return false;
 }
 
 void LLPanelPeople::updateNearbyList()
@@ -855,7 +857,8 @@ void LLPanelPeople::updateFacebookList(bool visible)
 {
 	if (visible)
 	{
-		LLFacebookConnect::instance().setContentUpdatedCallback(boost::bind(&LLPanelPeople::updateSuggestedFriendList, this));
+		LLEventPumps::instance().obtain("FacebookConnectContent").stopListening("LLPanelPeople"); // just in case it is already listening
+		LLEventPumps::instance().obtain("FacebookConnectContent").listen("LLPanelPeople", boost::bind(&LLPanelPeople::updateSuggestedFriendList, this));
 
 		if (mTryToConnectToFbc)
 		{
@@ -866,6 +869,7 @@ void LLPanelPeople::updateFacebookList(bool visible)
 			}
 			else
 			{
+				LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLPanelPeople"); // just in case it is already listening
 				LLEventPumps::instance().obtain("FacebookConnectState").listen("LLPanelPeople", boost::bind(&LLPanelPeople::onConnectedToFacebook, this, _1));
 				LLFacebookConnect::instance().checkConnectionToFacebook();
 			}
@@ -878,7 +882,7 @@ void LLPanelPeople::updateFacebookList(bool visible)
 	}
 	else
 	{
-		LLFacebookConnect::instance().setContentUpdatedCallback(NULL);
+		LLEventPumps::instance().obtain("FacebookConnectContent").stopListening("LLPanelPeople");
 	}
 }
 
