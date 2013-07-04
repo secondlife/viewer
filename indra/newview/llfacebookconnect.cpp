@@ -145,7 +145,11 @@ public:
             toast_user_for_success();
 			LL_DEBUGS("FacebookConnect") << "Post successful. content: " << content << LL_ENDL;
 			
-			LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTED);
+			LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_POSTED);
+		}
+		else if (status == 404)
+		{
+			LLFacebookConnect::instance().connectToFacebook();
 		}
 		else
 		{

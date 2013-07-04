@@ -96,6 +96,9 @@ void LLSocialStatusPanel::draw()
 
 void LLSocialStatusPanel::onSend()
 {
+	LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialStatusPanel"); // just in case it is already listening
+	LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialStatusPanel", boost::bind(&LLSocialStatusPanel::onFacebookConnectStateChange, this, _1));
+		
 	// Connect to Facebook if necessary and then post
 	if (LLFacebookConnect::instance().isConnected())
 	{
@@ -103,19 +106,21 @@ void LLSocialStatusPanel::onSend()
 	}
 	else
 	{
-		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialStatusPanel"); // just in case it is already listening
-		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialStatusPanel", boost::bind(&LLSocialStatusPanel::onFacebookConnectStateChange, this, _1));
 		LLFacebookConnect::instance().checkConnectionToFacebook(true);
 	}
 }
 
 bool LLSocialStatusPanel::onFacebookConnectStateChange(const LLSD& data)
 {
-	if (data.get("enum").asInteger() == LLFacebookConnect::FB_CONNECTED)
+	switch (data.get("enum").asInteger())
 	{
-		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialStatusPanel");
-		
-		sendStatus();
+		case LLFacebookConnect::FB_CONNECTED:
+			sendStatus();
+			break;
+
+		case LLFacebookConnect::FB_POSTED:
+			LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialStatusPanel");
+			break;
 	}
 
 	return false;
@@ -304,6 +309,9 @@ void LLSocialPhotoPanel::onClickNewSnapshot()
 
 void LLSocialPhotoPanel::onSend()
 {
+	LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialPhotoPanel"); // just in case it is already listening
+	LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialPhotoPanel", boost::bind(&LLSocialPhotoPanel::onFacebookConnectStateChange, this, _1));
+	
 	// Connect to Facebook if necessary and then post
 	if (LLFacebookConnect::instance().isConnected())
 	{
@@ -311,19 +319,21 @@ void LLSocialPhotoPanel::onSend()
 	}
 	else
 	{
-		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialPhotoPanel"); // just in case it is already listening
-		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialPhotoPanel", boost::bind(&LLSocialPhotoPanel::onFacebookConnectStateChange, this, _1));
 		LLFacebookConnect::instance().checkConnectionToFacebook(true);
 	}
 }
 
 bool LLSocialPhotoPanel::onFacebookConnectStateChange(const LLSD& data)
 {
-	if (data.get("enum").asInteger() == LLFacebookConnect::FB_CONNECTED)
+	switch (data.get("enum").asInteger())
 	{
-		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialPhotoPanel");
-		
-		sendPhoto();
+		case LLFacebookConnect::FB_CONNECTED:
+			sendPhoto();
+			break;
+
+		case LLFacebookConnect::FB_POSTED:
+			LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialPhotoPanel");
+			break;
 	}
 
 	return false;
@@ -530,6 +540,9 @@ void LLSocialCheckinPanel::draw()
 
 void LLSocialCheckinPanel::onSend()
 {
+	LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialCheckinPanel"); // just in case it is already listening
+	LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialCheckinPanel", boost::bind(&LLSocialCheckinPanel::onFacebookConnectStateChange, this, _1));
+	
 	// Connect to Facebook if necessary and then post
 	if (LLFacebookConnect::instance().isConnected())
 	{
@@ -537,19 +550,21 @@ void LLSocialCheckinPanel::onSend()
 	}
 	else
 	{
-		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialCheckinPanel"); // just in case it is already listening
-		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialCheckinPanel", boost::bind(&LLSocialCheckinPanel::onFacebookConnectStateChange, this, _1));
 		LLFacebookConnect::instance().checkConnectionToFacebook(true);
 	}
 }
 
 bool LLSocialCheckinPanel::onFacebookConnectStateChange(const LLSD& data)
 {
-	if (data.get("enum").asInteger() == LLFacebookConnect::FB_CONNECTED)
+	switch (data.get("enum").asInteger())
 	{
-		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialCheckinPanel");
-		
-		sendCheckin();
+		case LLFacebookConnect::FB_CONNECTED:
+			sendCheckin();
+			break;
+
+		case LLFacebookConnect::FB_POSTED:
+			LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialCheckinPanel");
+			break;
 	}
 
 	return false;

@@ -50,7 +50,8 @@ public:
 		FB_CONNECTED = 2,
 		FB_CONNECTION_FAILED = 3,
 		FB_POSTING = 4,
-		FB_POST_FAILED = 5
+		FB_POSTED = 5,
+		FB_POST_FAILED = 6
 	};
 	
 	typedef boost::function<void(bool ok)> share_callback_t;
@@ -76,7 +77,7 @@ public:
     const LLSD& getContent() const;
     
     void setConnectionState(EConnectionState connection_state);
-	bool isConnected() { return ((mConnectionState == FB_CONNECTED) || (mConnectionState == FB_POSTING)); }
+	bool isConnected() { return ((mConnectionState == FB_CONNECTED) || (mConnectionState == FB_POSTING) || (mConnectionState == FB_POSTED)); }
     EConnectionState getConnectionState() { return mConnectionState; }
     S32  generation() { return mGeneration; }
     
