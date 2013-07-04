@@ -120,6 +120,7 @@ bool LLSocialStatusPanel::onFacebookConnectStateChange(const LLSD& data)
 
 		case LLFacebookConnect::FB_POSTED:
 			LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialStatusPanel");
+			clearAndClose();
 			break;
 	}
 
@@ -132,6 +133,17 @@ void LLSocialStatusPanel::sendStatus()
 	if (!message.empty())
 	{
 		LLFacebookConnect::instance().updateStatus(message);
+	}
+}
+
+void LLSocialStatusPanel::clearAndClose()
+{
+	mMessageTextEditor->setValue("");
+
+	LLFloater* floater = getParentByType<LLFloater>();
+	if (floater)
+	{
+		floater->closeFloater();
 	}
 }
 
@@ -333,6 +345,7 @@ bool LLSocialPhotoPanel::onFacebookConnectStateChange(const LLSD& data)
 
 		case LLFacebookConnect::FB_POSTED:
 			LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialPhotoPanel");
+			clearAndClose();
 			break;
 	}
 
@@ -363,6 +376,17 @@ void LLSocialPhotoPanel::sendPhoto()
 	LLFacebookConnect::instance().sharePhoto(previewp->getFormattedImage(), caption);
 
 	updateControls();
+}
+
+void LLSocialPhotoPanel::clearAndClose()
+{
+	mCaptionTextBox->setValue("");
+
+	LLFloater* floater = getParentByType<LLFloater>();
+	if (floater)
+	{
+		floater->closeFloater();
+	}
 }
 
 void LLSocialPhotoPanel::updateControls()
@@ -564,6 +588,7 @@ bool LLSocialCheckinPanel::onFacebookConnectStateChange(const LLSD& data)
 
 		case LLFacebookConnect::FB_POSTED:
 			LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialCheckinPanel");
+			clearAndClose();
 			break;
 	}
 
@@ -593,6 +618,17 @@ void LLSocialCheckinPanel::sendCheckin()
 
 	// Post to Facebook
 	LLFacebookConnect::instance().postCheckin(slurl_string, region_name, description, map_url, caption);
+}
+
+void LLSocialCheckinPanel::clearAndClose()
+{
+	getChild<LLUICtrl>("place_caption")->setValue("");
+
+	LLFloater* floater = getParentByType<LLFloater>();
+	if (floater)
+	{
+		floater->closeFloater();
+	}
 }
 
 ////////////////////////
@@ -680,6 +716,8 @@ void LLFloaterSocial::draw()
             mStatusLoadingIndicator->setVisible(true);
             break;
         case LLFacebookConnect::FB_CONNECTED:
+			break;
+        case LLFacebookConnect::FB_POSTED:
             break;
         case LLFacebookConnect::FB_CONNECTION_FAILED:
         case LLFacebookConnect::FB_POST_FAILED:

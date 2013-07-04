@@ -45,6 +45,7 @@ public:
 	bool onFacebookConnectStateChange(const LLSD& data);
 
 	void sendStatus();
+	void clearAndClose();
 
 private:
 	LLUICtrl* mMessageTextEditor;
@@ -67,6 +68,7 @@ public:
 	bool onFacebookConnectStateChange(const LLSD& data);
 
 	void sendPhoto();
+	void clearAndClose();
 
 	void updateControls();
 	void updateResolution(BOOL do_update);
@@ -101,6 +103,7 @@ public:
 	bool onFacebookConnectStateChange(const LLSD& data);
 
 	void sendCheckin();
+	void clearAndClose();
 
 private:
     std::string mMapUrl;
