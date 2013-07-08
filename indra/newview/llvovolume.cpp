@@ -3724,8 +3724,30 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 			{
 				LLFace* face = mDrawable->getFace(face_hit);				
 
+				bool ignore_alpha = false;
+
+				const LLTextureEntry* te = face->getTextureEntry();
+				if (te)
+				{
+					LLMaterial* mat = te->getMaterialParams();
+					if (mat)
+					{
+						U8 mode = mat->getDiffuseAlphaMode();
+
+						if (mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE ||
+							mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE)
+						{
+							ignore_alpha = true;
+						}
+					}
+				}
+
 				if (face &&
-					(pick_transparent || !face->getTexture() || !face->getTexture()->hasGLTexture() || face->getTexture()->getMask(face->surfaceToTexture(tc, p, n))))
+					(ignore_alpha ||
+					pick_transparent || 
+					!face->getTexture() || 
+					!face->getTexture()->hasGLTexture() || 
+					face->getTexture()->getMask(face->surfaceToTexture(tc, p, n))))
 				{
 					local_end = p;
 					if (face_hitp != NULL)
