@@ -1109,8 +1109,8 @@ void LLPanelGroupMembersSubTab::handleEjectMembers()
 	if (selection_count == 1)
 	{
 		LLSD args;
-		std::string fullname;
-		gCacheName->getFullName(mMembersList->getValue(), fullname);
+		LLUUID selected_avatar = mMembersList->getValue().asUUID();
+		std::string fullname = LLSLURL("agent", selected_avatar, "inspect").getSLURLString();
 		args["AVATAR_NAME"] = fullname;
 		LLSD payload;
 		LLNotificationsUtil::add("EjectGroupMemberWarning",
