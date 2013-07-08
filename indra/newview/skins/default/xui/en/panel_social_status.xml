@@ -13,7 +13,7 @@
       top="8">
       <layout_panel
        name="status_detail_panel"
-       height="255">
+       height="40">
        <text
         length="1"
         follows="top|left|right"
