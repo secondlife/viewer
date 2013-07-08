@@ -1025,13 +1025,15 @@ char * os_strtrim(char * lstr)
 	}
 	if (*lstr)
 	{
-		for (char * rstr(lstr + strlen(lstr)); *--rstr;)
+		char * rstr(lstr + strlen(lstr));
+		while (lstr < rstr && *--rstr)
 		{
 			if (' ' == *rstr || '\t' == *rstr)
 			{
 				*rstr = '\0';
 			}
 		}
+		llassert(lstr <= rstr);
 	}
 	return lstr;
 }
