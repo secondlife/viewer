@@ -125,8 +125,10 @@ public:
 private:
 	LLSocialPhotoPanel* mSocialPhotoPanel;
     LLTextBox* mStatusErrorText;
+    LLTextBox* mStatusPostingErrorText;
     LLTextBox* mStatusLoadingText;
-    LLUICtrl* mStatusLoadingIndicator;
+    LLTextBox* mStatusPostingText;
+    LLUICtrl*  mStatusLoadingIndicator;
 };
 
 #endif // LL_LLFLOATERSOCIAL_H

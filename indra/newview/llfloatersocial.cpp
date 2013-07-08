@@ -591,7 +591,9 @@ void LLSocialCheckinPanel::clearAndClose()
 LLFloaterSocial::LLFloaterSocial(const LLSD& key) : LLFloater(key),
     mSocialPhotoPanel(NULL),
     mStatusErrorText(NULL),
+    mStatusPostingErrorText(NULL),
     mStatusLoadingText(NULL),
+    mStatusPostingText(NULL),
     mStatusLoadingIndicator(NULL)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.Cancel", boost::bind(&LLFloaterSocial::onCancel, this));
@@ -608,7 +610,9 @@ BOOL LLFloaterSocial::postBuild()
 	mSocialPhotoPanel = static_cast<LLSocialPhotoPanel*>(getChild<LLUICtrl>("panel_social_photo"));
     // Connection status widgets
     mStatusErrorText = getChild<LLTextBox>("connection_error_text");
+    mStatusPostingErrorText = getChild<LLTextBox>("connection_error_posting_text");
     mStatusLoadingText = getChild<LLTextBox>("connection_loading_text");
+    mStatusPostingText = getChild<LLTextBox>("connection_posting_text");
     mStatusLoadingIndicator = getChild<LLUICtrl>("connection_loading_indicator");
 	return LLFloater::postBuild();
 }
@@ -647,28 +651,42 @@ void LLFloaterSocial::postUpdate()
 
 void LLFloaterSocial::draw()
 {
-    if (mStatusErrorText && mStatusLoadingText && mStatusLoadingIndicator)
+    if (mStatusErrorText && mStatusPostingErrorText && mStatusLoadingText && mStatusPostingText && mStatusLoadingIndicator)
     {
         mStatusErrorText->setVisible(false);
+        mStatusPostingErrorText->setVisible(false);
         mStatusLoadingText->setVisible(false);
+        mStatusPostingText->setVisible(false);
         mStatusLoadingIndicator->setVisible(false);
         LLFacebookConnect::EConnectionState connection_state = LLFacebookConnect::instance().getConnectionState();
         switch (connection_state)
         {
         case LLFacebookConnect::FB_NOT_CONNECTED:
+            // No status displayed when first opening the panel and no connection done
             break;
         case LLFacebookConnect::FB_CONNECTION_IN_PROGRESS:
-        case LLFacebookConnect::FB_POSTING:
+            // Connection loading indicator
             mStatusLoadingText->setVisible(true);
             mStatusLoadingIndicator->setVisible(true);
             break;
+        case LLFacebookConnect::FB_POSTING:
+            // Posting indicator
+            mStatusPostingText->setVisible(true);
+            mStatusLoadingIndicator->setVisible(true);
+            break;
         case LLFacebookConnect::FB_CONNECTED:
+            // When successfully connected, no message is displayed
 			break;
         case LLFacebookConnect::FB_POSTED:
+            // No success message to show since we actually close the floater after successful posting completion
             break;
         case LLFacebookConnect::FB_CONNECTION_FAILED:
-        case LLFacebookConnect::FB_POST_FAILED:
+            // Error connecting to the service
             mStatusErrorText->setVisible(true);
+            break;
+        case LLFacebookConnect::FB_POST_FAILED:
+            // Error posting to the service
+            mStatusPostingErrorText->setVisible(true);
             break;
         }
     }
