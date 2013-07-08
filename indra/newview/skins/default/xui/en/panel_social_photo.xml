@@ -70,14 +70,6 @@
                 top="33"
                 follows="left|top"
                 left="9">
-              <loading_indicator
-               follows="left|top"
-               height="24"
-               name="working_indicator"
-               left="113"
-               top="59"
-               visible="false"
-               width="24" />
               <text
                follows="left|top|right"
                font="SansSerifBold"
@@ -91,33 +83,18 @@
                translate="false"
                type="string"
                visible="false">
-                Working
+                Refreshing...
               </text>
               <button
                follows="left|top"
                height="22"
                image_overlay="Refresh_Off"
-               left="10"
+               left="20"
                name="new_snapshot_btn"
+               tool_tip="Click to refresh"
                bottom="-10"
                visible="false"
                width="22" />
-              <text
-               follows="left|top"
-               font="SansSerifBold"
-               halign="left"
-               height="18"
-               left_pad="10"
-               length="1"
-               name="refresh_lbl"
-               text_color="red"
-               top_delta="4"
-               translate="false"
-               type="string"
-               visible="false"
-               width="130">
-                Refresh to save
-              </text>
             </panel>
             <text
              length="1"

@@ -155,8 +155,6 @@ LLSocialPhotoPanel::LLSocialPhotoPanel() :
 mSnapshotPanel(NULL),
 mResolutionComboBox(NULL),
 mRefreshBtn(NULL),
-mRefreshLabel(NULL),
-mWorkingIndicator(NULL),
 mWorkingLabel(NULL),
 mThumbnailPlaceholder(NULL),
 mCaptionTextBox(NULL),
@@ -183,8 +181,6 @@ BOOL LLSocialPhotoPanel::postBuild()
 	mResolutionComboBox->setCommitCallback(boost::bind(&LLSocialPhotoPanel::updateResolution, this, TRUE));
 	mRefreshBtn = getChild<LLUICtrl>("new_snapshot_btn");
 	childSetAction("new_snapshot_btn", boost::bind(&LLSocialPhotoPanel::onClickNewSnapshot, this));
-	mRefreshLabel = getChild<LLUICtrl>("refresh_lbl");
-    mWorkingIndicator = getChild<LLLoadingIndicator>("working_indicator");
     mWorkingLabel = getChild<LLUICtrl>("working_lbl");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 	mCaptionTextBox = getChild<LLUICtrl>("caption");
@@ -226,23 +222,10 @@ void LLSocialPhotoPanel::draw()
 		previewp->drawPreviewRect(offset_x, offset_y) ;
 	}
 
-    // Update the visibility of the working (computing preview) indicators
-	if (previewp && previewp->getSnapshotUpToDate())
-	{
-        if (mWorkingIndicator->getVisible())
-        {
-            mWorkingIndicator->setVisible(false);
-            mWorkingIndicator->stop();
-            mWorkingLabel->setVisible(false);
-        }
-    }
-    else if (!mWorkingIndicator->getVisible())
-    {
-        mWorkingIndicator->setVisible(true);
-        mWorkingIndicator->start();
-        mWorkingLabel->setVisible(true);
-    }
+    // Update the visibility of the working (computing preview) label
+    mWorkingLabel->setVisible(!(previewp && previewp->getSnapshotUpToDate()));
     
+    // Draw the rest of the panel on top of it
 	LLPanel::draw();
 }
 
@@ -439,7 +422,7 @@ void LLSocialPhotoPanel::updateResolution(BOOL do_update)
 			{
 				lldebugs << "Will update controls" << llendl;
 				updateControls();
-				setNeedRefresh(true);
+                LLSocialPhotoPanel::onClickNewSnapshot();
 			}
 		}
 		
@@ -465,12 +448,6 @@ void LLSocialPhotoPanel::checkAspectRatio(S32 index)
 	{
 		previewp->mKeepAspectRatio = keep_aspect;
 	}
-}
-
-void LLSocialPhotoPanel::setNeedRefresh(bool need)
-{
-	mRefreshLabel->setVisible(need);
-	mNeedRefresh = need;
 }
 
 LLUICtrl* LLSocialPhotoPanel::getRefreshBtn()
@@ -644,9 +621,6 @@ void LLFloaterSocial::preUpdate()
 	{
 		//Will set file size text to 'unknown'
 		instance->mSocialPhotoPanel->updateControls();
-
-		//Hides the refresh text
-		instance->mSocialPhotoPanel->setNeedRefresh(false);
 	}
 }
 
@@ -658,9 +632,6 @@ void LLFloaterSocial::postUpdate()
 	{
 		//Will set the file size text
 		instance->mSocialPhotoPanel->updateControls();
-
-		//Hides the refresh text
-		instance->mSocialPhotoPanel->setNeedRefresh(false);
 
 		// The refresh button is initially hidden. We show it after the first update,
 		// i.e. after snapshot is taken

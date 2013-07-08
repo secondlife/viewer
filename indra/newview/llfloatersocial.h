@@ -28,7 +28,6 @@
 #define LL_LLFLOATERSOCIAL_H
 
 #include "llfloater.h"
-#include "llloadingindicator.h"
 #include "lltextbox.h"
 #include "llviewertexture.h"
 
@@ -74,7 +73,6 @@ public:
 	void updateControls();
 	void updateResolution(BOOL do_update);
 	void checkAspectRatio(S32 index);
-	void setNeedRefresh(bool need);
 	LLUICtrl* getRefreshBtn();
 
 private:
@@ -83,15 +81,11 @@ private:
 	LLUICtrl * mSnapshotPanel;
 	LLUICtrl * mResolutionComboBox;
 	LLUICtrl * mRefreshBtn;
-	LLUICtrl * mRefreshLabel;
-	LLLoadingIndicator * mWorkingIndicator;
 	LLUICtrl * mWorkingLabel;
 	LLUICtrl * mThumbnailPlaceholder;
 	LLUICtrl * mCaptionTextBox;
 	LLUICtrl * mLocationCheckbox;
 	LLUICtrl * mPostButton;
-
-	bool mNeedRefresh;
 };
 
 class LLSocialCheckinPanel : public LLPanel
