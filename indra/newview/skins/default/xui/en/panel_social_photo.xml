@@ -154,7 +154,7 @@
           height="96">
           <button
            follows="left|top"
-           top="15"
+           top="32"
            left="9"
            height="23"
            label="Post"

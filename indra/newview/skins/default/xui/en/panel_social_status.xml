@@ -42,7 +42,7 @@
        height="96">
        <button
         follows="left|top"
-        top="5"
+        top="213"
         left="9"
         height="23"
         label="Post"
