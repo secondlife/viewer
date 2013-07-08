@@ -70,10 +70,10 @@ void main()
 #endif
 
 	color.rgb = srgb_to_linear(color.rgb);
-	color.rgb *= vertex_color.rgb;
 
 	color.rgb = fullbrightAtmosTransport(color.rgb);
 	color.rgb = fullbrightScaleSoftClip(color.rgb);
+	color.rgb *= vertex_color.rgb;
 
 	color.rgb = linear_to_srgb(color.rgb);
 
