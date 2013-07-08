@@ -95,12 +95,10 @@ extern LLPipeline	gPipeline;
 U32						LLViewerObjectList::sSimulatorMachineIndex = 1; // Not zero deliberately, to speed up index check.
 std::map<U64, U32>		LLViewerObjectList::sIPAndPortToIndex;
 std::map<U64, LLUUID>	LLViewerObjectList::sIndexAndLocalIDToUUID;
-LLTrace::SampleStatHandle<>	LLViewerObjectList::sCacheHitRate("object_cache_hits");
+LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >	LLViewerObjectList::sCacheHitRate("object_cache_hits");
 
 LLViewerObjectList::LLViewerObjectList()
 {
-	mNumVisCulled = 0;
-	mNumSizeCulled = 0;
 	mCurLazyUpdateIndex = 0;
 	mCurBin = 0;
 	mNumDeadObjects = 0;
@@ -358,7 +356,7 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 		}
 		justCreated = true;
 		mNumNewObjects++;
-		sample(sCacheHitRate, 100.f);
+		sample(sCacheHitRate, LLUnits::Percent::fromValue(100.f));
 	}
 
 	if (objectp->isDead())
@@ -1091,9 +1089,6 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	fetchObjectCosts();
 	fetchPhysicsFlags();
 
-	mNumSizeCulled = 0;
-	mNumVisCulled = 0;
-
 	// update max computed render cost
 	LLVOVolume::updateRenderComplexity();
 
@@ -1155,8 +1150,6 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 
 	sample(LLStatViewer::NUM_OBJECTS, mObjects.size());
 	sample(LLStatViewer::NUM_ACTIVE_OBJECTS, idle_count);
-	sample(LLStatViewer::NUM_SIZE_CULLED, mNumSizeCulled);
-	sample(LLStatViewer::NUM_VIS_CULLED, mNumVisCulled);
 }
 
 void LLViewerObjectList::fetchObjectCosts()

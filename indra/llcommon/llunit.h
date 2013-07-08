@@ -571,6 +571,11 @@ LL_DECLARE_DERIVED_UNIT(Gigahertz, "GHz", Megahertz, * 1000);
 LL_DECLARE_BASE_UNIT(Radians, "rad");
 LL_DECLARE_DERIVED_UNIT(Degrees, "deg", Radians, * 0.01745329251994);
 
+LL_DECLARE_BASE_UNIT(Percent, "%");
+LL_DECLARE_DERIVED_UNIT(Ratio, "x", Percent, / 100);
+
+LL_DECLARE_BASE_UNIT(Triangles, "tris");
+LL_DECLARE_DERIVED_UNIT(Kilotriangles, "ktris", Triangles, * 1000);
 
 } // namespace LLUnits
 

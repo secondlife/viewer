@@ -711,7 +711,7 @@ void LLWorld::renderPropertyLines()
 
 void LLWorld::updateNetStats()
 {
-	F32 bits = 0.f;
+	LLUnit<F64, LLUnits::Bits> bits = 0.f;
 	U32 packets = 0;
 
 	for (region_list_t::iterator iter = mActiveRegionList.begin();
@@ -729,19 +729,18 @@ void LLWorld::updateNetStats()
 	S32 packets_out = gMessageSystem->mPacketsOut - mLastPacketsOut;
 	S32 packets_lost = gMessageSystem->mDroppedPackets - mLastPacketsLost;
 
-	S32 actual_in_bits = gMessageSystem->mPacketRing.getAndResetActualInBits();
-	S32 actual_out_bits = gMessageSystem->mPacketRing.getAndResetActualOutBits();
+	LLUnit<F64, LLUnits::Bits> actual_in_bits = gMessageSystem->mPacketRing.getAndResetActualInBits();
+	LLUnit<F64, LLUnits::Bits> actual_out_bits = gMessageSystem->mPacketRing.getAndResetActualOutBits();
 
-	add(LLStatViewer::ACTUAL_IN_KBIT, LLUnit<F64, LLUnits::Bits>(actual_in_bits));
-	add(LLStatViewer::ACTUAL_OUT_KBIT, LLUnit<F64, LLUnits::Bits>(actual_out_bits));
-	add(LLStatViewer::KBIT, LLUnit<F64, LLUnits::Bits>(bits));
+	add(LLStatViewer::ACTUAL_IN_KBIT, actual_in_bits);
+	add(LLStatViewer::ACTUAL_OUT_KBIT, actual_out_bits);
+	add(LLStatViewer::KBIT, bits);
 	add(LLStatViewer::PACKETS_IN, packets_in);
 	add(LLStatViewer::PACKETS_OUT, packets_out);
 	add(LLStatViewer::PACKETS_LOST, packets_lost);
 	if (packets_in)
 	{
-		F32 packet_loss = 100.f * ((F32)packets_lost/(F32)packets_in);
-		sample(LLStatViewer::PACKETS_LOST_PERCENT, packet_loss);
+		sample(LLStatViewer::PACKETS_LOST_PERCENT, LLUnits::Ratio::fromValue((F32)packets_lost/(F32)packets_in));
 	}
 
 	mLastPacketsIn = gMessageSystem->mPacketsIn;

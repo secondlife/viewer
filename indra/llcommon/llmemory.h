@@ -184,51 +184,6 @@ private:
 	static BOOL sEnableMemoryFailurePrevention;
 };
 
-//----------------------------------------------------------------------------
-#if MEM_TRACK_MEM
-class LLMutex ;
-class LL_COMMON_API LLMemTracker
-{
-private:
-	LLMemTracker() ;
-	~LLMemTracker() ;
-
-public:
-	static void release() ;
-	static LLMemTracker* getInstance() ;
-
-	void track(const char* function, const int line) ;
-	void preDraw(BOOL pause) ;
-	void postDraw() ;
-	const char* getNextLine() ;
-
-private:
-	static LLMemTracker* sInstance ;
-	
-	char**     mStringBuffer ;
-	S32        mCapacity ;
-	U32        mLastAllocatedMem ;
-	S32        mCurIndex ;
-	S32        mCounter;
-	S32        mDrawnIndex;
-	S32        mNumOfDrawn;
-	BOOL       mPaused;
-	LLMutex*   mMutexp ;
-};
-
-#define MEM_TRACK_RELEASE LLMemTracker::release() ;
-#define MEM_TRACK         LLMemTracker::getInstance()->track(__FUNCTION__, __LINE__) ;
-
-#else // MEM_TRACK_MEM
-
-#define MEM_TRACK_RELEASE
-#define MEM_TRACK
-
-#endif // MEM_TRACK_MEM
-
-//----------------------------------------------------------------------------
-
-
 //
 //class LLPrivateMemoryPool defines a private memory pool for an application to use, so the application does not
 //need to access the heap directly fro each memory allocation. Throught this, the allocation speed is faster, 

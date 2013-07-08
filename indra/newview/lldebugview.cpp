@@ -55,7 +55,6 @@ static LLDefaultChildRegistry::Register<LLDebugView> r("debug_view");
 LLDebugView::LLDebugView(const LLDebugView::Params& p)
 :	LLView(p),
 	mFastTimerView(NULL),
-	mMemoryView(NULL),
 	mDebugConsolep(NULL),
 	mFloaterSnapRegion(NULL)
 {}

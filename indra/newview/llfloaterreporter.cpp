@@ -784,7 +784,7 @@ void LLFloaterReporter::takeScreenshot()
 	image_in_list->createGLTexture(0, raw, 0, TRUE, LLGLTexture::OTHER);
 	
 	// the texture picker then uses that texture
-	LLTexturePicker* texture = getChild<LLTextureCtrl>("screenshot");
+	LLTextureCtrl* texture = getChild<LLTextureCtrl>("screenshot");
 	if (texture)
 	{
 		texture->setImageAssetID(mResourceDatap->mAssetInfo.mUuid);

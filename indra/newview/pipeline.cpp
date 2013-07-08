@@ -4686,7 +4686,7 @@ void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_type)
 	}
 
 	record(sStatBatchSize, count);
-	add(LLStatViewer::TRIANGLES_DRAWN, count);
+	add(LLStatViewer::TRIANGLES_DRAWN, LLUnits::Triangles::fromValue(count));
 
 	if (LLPipeline::sRenderFrameTest)
 	{
