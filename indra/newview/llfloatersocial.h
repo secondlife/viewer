@@ -28,6 +28,7 @@
 #define LL_LLFLOATERSOCIAL_H
 
 #include "llfloater.h"
+#include "llloadingindicator.h"
 #include "lltextbox.h"
 #include "llviewertexture.h"
 
@@ -83,8 +84,8 @@ private:
 	LLUICtrl * mResolutionComboBox;
 	LLUICtrl * mRefreshBtn;
 	LLUICtrl * mRefreshLabel;
-	LLUICtrl * mSucceessLblPanel;
-	LLUICtrl * mFailureLblPanel;
+	LLLoadingIndicator * mWorkingIndicator;
+	LLUICtrl * mWorkingLabel;
 	LLUICtrl * mThumbnailPlaceholder;
 	LLUICtrl * mCaptionTextBox;
 	LLUICtrl * mLocationCheckbox;

@@ -156,8 +156,8 @@ mSnapshotPanel(NULL),
 mResolutionComboBox(NULL),
 mRefreshBtn(NULL),
 mRefreshLabel(NULL),
-mSucceessLblPanel(NULL),
-mFailureLblPanel(NULL),
+mWorkingIndicator(NULL),
+mWorkingLabel(NULL),
 mThumbnailPlaceholder(NULL),
 mCaptionTextBox(NULL),
 mLocationCheckbox(NULL),
@@ -184,8 +184,8 @@ BOOL LLSocialPhotoPanel::postBuild()
 	mRefreshBtn = getChild<LLUICtrl>("new_snapshot_btn");
 	childSetAction("new_snapshot_btn", boost::bind(&LLSocialPhotoPanel::onClickNewSnapshot, this));
 	mRefreshLabel = getChild<LLUICtrl>("refresh_lbl");
-	mSucceessLblPanel = getChild<LLUICtrl>("succeeded_panel");
-	mFailureLblPanel = getChild<LLUICtrl>("failed_panel");
+    mWorkingIndicator = getChild<LLLoadingIndicator>("working_indicator");
+    mWorkingLabel = getChild<LLUICtrl>("working_lbl");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 	mCaptionTextBox = getChild<LLUICtrl>("caption");
 	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
@@ -198,6 +198,7 @@ void LLSocialPhotoPanel::draw()
 { 
 	LLSnapshotLivePreview * previewp = static_cast<LLSnapshotLivePreview *>(mPreviewHandle.get());
 
+    // Display the preview if one is available
 	if (previewp && previewp->getThumbnailImage())
 	{
 		const LLRect& thumbnail_rect = mThumbnailPlaceholder->getRect();
@@ -224,6 +225,24 @@ void LLSocialPhotoPanel::draw()
 
 		previewp->drawPreviewRect(offset_x, offset_y) ;
 	}
+
+    // Update the visibility of the working (computing preview) indicators
+	if (previewp && previewp->getSnapshotUpToDate())
+	{
+        if (mWorkingIndicator->getVisible())
+        {
+            mWorkingIndicator->setVisible(false);
+            mWorkingIndicator->stop();
+            mWorkingLabel->setVisible(false);
+        }
+    }
+    else if (!mWorkingIndicator->getVisible())
+    {
+        mWorkingIndicator->setVisible(true);
+        mWorkingIndicator->start();
+        mWorkingLabel->setVisible(true);
+    }
+    
 	LLPanel::draw();
 }
 
