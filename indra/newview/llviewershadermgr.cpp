@@ -197,6 +197,7 @@ LLGLSLShader			gDeferredAttachmentShadowProgram;
 LLGLSLShader			gDeferredAlphaProgram;
 LLGLSLShader			gDeferredAvatarEyesProgram;
 LLGLSLShader			gDeferredFullbrightProgram;
+LLGLSLShader			gDeferredFullbrightAlphaMaskProgram;
 LLGLSLShader			gDeferredEmissiveProgram;
 LLGLSLShader			gDeferredPostProgram;
 LLGLSLShader			gDeferredCoFProgram;
@@ -290,6 +291,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gDeferredAlphaProgram);
 	mShaderList.push_back(&gDeferredSkinnedAlphaProgram);
 	mShaderList.push_back(&gDeferredFullbrightProgram);
+	mShaderList.push_back(&gDeferredFullbrightAlphaMaskProgram);	
 	mShaderList.push_back(&gDeferredFullbrightShinyProgram);
 	mShaderList.push_back(&gDeferredSkinnedFullbrightShinyProgram);
 	mShaderList.push_back(&gDeferredSkinnedFullbrightProgram);
@@ -1130,6 +1132,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarAlphaProgram.unload();
 		gDeferredAlphaProgram.unload();
 		gDeferredFullbrightProgram.unload();
+		gDeferredFullbrightAlphaMaskProgram.unload();
 		gDeferredEmissiveProgram.unload();
 		gDeferredAvatarEyesProgram.unload();
 		gDeferredPostProgram.unload();		
@@ -1491,6 +1494,20 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredFullbrightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredFullbrightProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gDeferredFullbrightAlphaMaskProgram.mName = "Deferred Fullbright Alpha Mask Shader";
+		gDeferredFullbrightAlphaMaskProgram.mFeatures.calculatesAtmospherics = true;
+		gDeferredFullbrightAlphaMaskProgram.mFeatures.hasGamma = true;
+		gDeferredFullbrightAlphaMaskProgram.mFeatures.hasTransport = true;
+		gDeferredFullbrightAlphaMaskProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
+		gDeferredFullbrightAlphaMaskProgram.mShaderFiles.clear();
+		gDeferredFullbrightAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredFullbrightAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightAlphaMaskF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredFullbrightAlphaMaskProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		success = gDeferredFullbrightAlphaMaskProgram.createShader(NULL, NULL);
 	}
 
 	if (success)

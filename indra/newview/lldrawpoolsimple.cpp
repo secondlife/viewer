@@ -625,14 +625,16 @@ S32 LLDrawPoolFullbright::getNumPasses()
 
 void LLDrawPoolFullbrightAlphaMask::beginPostDeferredPass(S32 pass)
 {
-	gObjectFullbrightAlphaMaskProgram.bind();
+	
 	if (LLPipeline::sRenderingHUDs || !LLPipeline::sRenderDeferred)
 	{
+		gObjectFullbrightAlphaMaskProgram.bind();
 		gObjectFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.0f);
 	} 
 	else 
 	{
-		gObjectFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+		gDeferredFullbrightAlphaMaskProgram.bind();
+		gDeferredFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
 	}
 }
 
@@ -646,7 +648,14 @@ void LLDrawPoolFullbrightAlphaMask::renderPostDeferred(S32 pass)
 
 void LLDrawPoolFullbrightAlphaMask::endPostDeferredPass(S32 pass)
 {
-	gObjectFullbrightAlphaMaskProgram.unbind();
+	if (LLPipeline::sRenderingHUDs || !LLPipeline::sRenderDeferred)
+	{
+		gObjectFullbrightAlphaMaskProgram.unbind();
+	}
+	else
+	{
+		gDeferredFullbrightAlphaMaskProgram.unbind();
+	}
 	LLRenderPass::endRenderPass(pass);
 }
 

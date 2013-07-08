@@ -41,23 +41,43 @@ VARYING vec2 vary_texcoord0;
 vec3 fullbrightAtmosTransport(vec3 light);
 vec3 fullbrightScaleSoftClip(vec3 light);
 
+vec3 srgb_to_linear(vec3 cs)
+{
+	
+/*        {  cs / 12.92,                 cs <= 0.04045
+    cl = {
+        {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
+
+	return pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
+}
+
+vec3 linear_to_srgb(vec3 cl)
+{
+	    /*{  0.0,                          0         <= cl
+            {  12.92 * c,                    0         <  cl < 0.0031308
+    cs = {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
+            {  1.0,                                       cl >= 1*/
+
+	return 1.055 * pow(cl, vec3(0.41666)) - 0.055;
+}
 
 void main() 
 {
 #if HAS_DIFFUSE_LOOKUP
-	vec4 color = diffuseLookup(vary_texcoord0.xy)*vertex_color;
+	vec4 color = diffuseLookup(vary_texcoord0.xy);
 #else
-	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy)*vertex_color;
+	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
 #endif
 
-	color.rgb = pow(color.rgb,vec3(2.2f,2.2f,2.2f));
-	
-	color.rgb = fullbrightAtmosTransport(color.rgb);
+	color.rgb = srgb_to_linear(color.rgb);
+	color.rgb *= vertex_color.rgb;
 
+	color.rgb = fullbrightAtmosTransport(color.rgb);
 	color.rgb = fullbrightScaleSoftClip(color.rgb);
 
-	color.rgb = pow(color.rgb, vec3(1.0/2.2));
+	color.rgb = linear_to_srgb(color.rgb);
 
-	frag_color = color;
+	frag_color.rgb = color.rgb;
+	frag_color.a   = color.a;
 }
 
