@@ -67,22 +67,7 @@
      valign="center"
      text_color="DrYellow"
      font="SansSerif">
-     Problem connecting to Facebook
-   </text>
-   <text
-     name="connection_error_posting_text"
-     type="string"
-     follows="left|top"
-     top="3"
-     left="12"
-     width="250"
-     height="20"
-     wrap="true"
-     halign="left"
-     valign="center"
-     text_color="DrYellow"
-     font="SansSerif">
-     Problem posting to Facebook
+     Error
    </text>
    <loading_indicator
      follows="left|top"
@@ -105,22 +90,7 @@
      valign="center"
      text_color="EmphasisColor"
      font="SansSerif">
-     Connecting to Facebook...
-   </text>
-   <text
-     name="connection_posting_text"
-     type="string"
-     follows="left|top"
-     top="3"
-     left="38"
-     width="250"
-     height="20"
-     wrap="true"
-     halign="left"
-     valign="center"
-     text_color="EmphasisColor"
-     font="SansSerif">
-     Posting...
+     Loading...
    </text>
   </panel>
 </floater>

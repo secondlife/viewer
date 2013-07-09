@@ -125,9 +125,7 @@ public:
 private:
 	LLSocialPhotoPanel* mSocialPhotoPanel;
     LLTextBox* mStatusErrorText;
-    LLTextBox* mStatusPostingErrorText;
     LLTextBox* mStatusLoadingText;
-    LLTextBox* mStatusPostingText;
     LLUICtrl*  mStatusLoadingIndicator;
 };
 

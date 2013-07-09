@@ -148,6 +148,12 @@ Please try logging in again in a minute.</string>
 	<string name="SentToInvalidRegion">You were sent to an invalid region.</string>
 	<string name="TestingDisconnect">Testing viewer disconnect</string>
 
+	<!-- Facebook Connect and, eventually, other Social Network -->
+	<string name="SocialFacebookConnecting">Connecting to Facebook...</string>
+	<string name="SocialFacebookPosting">Posting...</string>
+	<string name="SocialFacebookErrorConnecting">Problem connecting to Facebook</string>
+	<string name="SocialFacebookErrorPosting">Problem posting to Facebook</string>
+    
 	<!-- Tooltip -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">(no name)</string> <!-- No name on an object -->

@@ -40,6 +40,7 @@
 #include "llsdserialize.h"
 #include "llloadingindicator.h"
 #include "llslurl.h"
+#include "lltrans.h"
 #include "llsnapshotlivepreview.h"
 #include "llviewerregion.h"
 #include "llviewercontrol.h"
@@ -591,9 +592,7 @@ void LLSocialCheckinPanel::clearAndClose()
 LLFloaterSocial::LLFloaterSocial(const LLSD& key) : LLFloater(key),
     mSocialPhotoPanel(NULL),
     mStatusErrorText(NULL),
-    mStatusPostingErrorText(NULL),
     mStatusLoadingText(NULL),
-    mStatusPostingText(NULL),
     mStatusLoadingIndicator(NULL)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.Cancel", boost::bind(&LLFloaterSocial::onCancel, this));
@@ -610,9 +609,7 @@ BOOL LLFloaterSocial::postBuild()
 	mSocialPhotoPanel = static_cast<LLSocialPhotoPanel*>(getChild<LLUICtrl>("panel_social_photo"));
     // Connection status widgets
     mStatusErrorText = getChild<LLTextBox>("connection_error_text");
-    mStatusPostingErrorText = getChild<LLTextBox>("connection_error_posting_text");
     mStatusLoadingText = getChild<LLTextBox>("connection_loading_text");
-    mStatusPostingText = getChild<LLTextBox>("connection_posting_text");
     mStatusLoadingIndicator = getChild<LLUICtrl>("connection_loading_indicator");
 	return LLFloater::postBuild();
 }
@@ -651,42 +648,48 @@ void LLFloaterSocial::postUpdate()
 
 void LLFloaterSocial::draw()
 {
-    if (mStatusErrorText && mStatusPostingErrorText && mStatusLoadingText && mStatusPostingText && mStatusLoadingIndicator)
+    if (mStatusErrorText && mStatusLoadingText && mStatusLoadingIndicator)
     {
         mStatusErrorText->setVisible(false);
-        mStatusPostingErrorText->setVisible(false);
         mStatusLoadingText->setVisible(false);
-        mStatusPostingText->setVisible(false);
         mStatusLoadingIndicator->setVisible(false);
         LLFacebookConnect::EConnectionState connection_state = LLFacebookConnect::instance().getConnectionState();
+        std::string status_text;
+        
         switch (connection_state)
         {
         case LLFacebookConnect::FB_NOT_CONNECTED:
             // No status displayed when first opening the panel and no connection done
+        case LLFacebookConnect::FB_CONNECTED:
+            // When successfully connected, no message is displayed
+        case LLFacebookConnect::FB_POSTED:
+            // No success message to show since we actually close the floater after successful posting completion
             break;
         case LLFacebookConnect::FB_CONNECTION_IN_PROGRESS:
             // Connection loading indicator
             mStatusLoadingText->setVisible(true);
+            status_text = LLTrans::getString("SocialFacebookConnecting");
+            mStatusLoadingText->setValue(status_text);
             mStatusLoadingIndicator->setVisible(true);
             break;
         case LLFacebookConnect::FB_POSTING:
             // Posting indicator
-            mStatusPostingText->setVisible(true);
+            mStatusLoadingText->setVisible(true);
+            status_text = LLTrans::getString("SocialFacebookPosting");
+            mStatusLoadingText->setValue(status_text);
             mStatusLoadingIndicator->setVisible(true);
-            break;
-        case LLFacebookConnect::FB_CONNECTED:
-            // When successfully connected, no message is displayed
 			break;
-        case LLFacebookConnect::FB_POSTED:
-            // No success message to show since we actually close the floater after successful posting completion
-            break;
         case LLFacebookConnect::FB_CONNECTION_FAILED:
             // Error connecting to the service
             mStatusErrorText->setVisible(true);
+            status_text = LLTrans::getString("SocialFacebookErrorConnecting");
+            mStatusErrorText->setValue(status_text);
             break;
         case LLFacebookConnect::FB_POST_FAILED:
             // Error posting to the service
-            mStatusPostingErrorText->setVisible(true);
+            mStatusErrorText->setVisible(true);
+            status_text = LLTrans::getString("SocialFacebookErrorPosting");
+            mStatusErrorText->setValue(status_text);
             break;
         }
     }
