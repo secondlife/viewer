@@ -50,6 +50,7 @@ LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_i
 BOOL LLFloaterConversationPreview::postBuild()
 {
 	mChatHistory = getChild<LLChatHistory>("chat_history");
+	LLLoadHistoryThread::setLoadEndSignal(boost::bind(&LLFloaterConversationPreview::SetPages, this, _1, _2));
 
 	const LLConversation* conv = LLConversationLog::instance().getConversation(mSessionID);
 	std::string name;
@@ -70,7 +71,7 @@ BOOL LLFloaterConversationPreview::postBuild()
 		name = LLTrans::getString("NearbyChatTitle");
 		file = "chat";
 	}
-
+	mChatHistoryFileName = file;
 	LLStringUtil::format_map_t args;
 	args["[NAME]"] = name;
 	std::string title = getString("Title", args);
@@ -80,23 +81,46 @@ BOOL LLFloaterConversationPreview::postBuild()
 	load_params["load_all_history"] = true;
 	load_params["cut_off_todays_date"] = false;
 
-	LLLogChat::loadChatHistory(file, mMessages, load_params);
-	mCurrentPage = mMessages.size() / mPageSize;
 
+	LLSD loading;
+	loading[LL_IM_TEXT] = LLTrans::getString("loading_chat_logs");
+	mMessages.push_back(loading);
 	mPageSpinner = getChild<LLSpinCtrl>("history_page_spin");
 	mPageSpinner->setCommitCallback(boost::bind(&LLFloaterConversationPreview::onMoreHistoryBtnClick, this));
 	mPageSpinner->setMinValue(1);
-	mPageSpinner->setMaxValue(mCurrentPage + 1);
-	mPageSpinner->set(mCurrentPage + 1);
-
-	std::string total_page_num = llformat("/ %d", mCurrentPage + 1);
-	getChild<LLTextBox>("page_num_label")->setValue(total_page_num);
-
+	mPageSpinner->set(1);
+	mPageSpinner->setEnabled(false);
+	mChatHistoryLoaded = false;
+	LLLogChat::startChatHistoryThread(file, load_params);
 	return LLFloater::postBuild();
 }
 
+void LLFloaterConversationPreview::SetPages(std::list<LLSD>& messages, const std::string& file_name)
+{
+	if(file_name == mChatHistoryFileName)
+	{
+		mMessages = messages;
+
+
+		mCurrentPage = mMessages.size() / mPageSize;
+		mPageSpinner->setEnabled(true);
+		mPageSpinner->setMaxValue(mCurrentPage+1);
+		mPageSpinner->set(mCurrentPage+1);
+
+		std::string total_page_num = llformat("/ %d", mCurrentPage+1);
+		getChild<LLTextBox>("page_num_label")->setValue(total_page_num);
+		mChatHistoryLoaded = true;
+
+	}
+
+}
 void LLFloaterConversationPreview::draw()
 {
+	if(mChatHistoryLoaded)
+	{
+		showHistory();
+		mChatHistoryLoaded = false;
+	}
 	LLFloater::draw();
 }
 

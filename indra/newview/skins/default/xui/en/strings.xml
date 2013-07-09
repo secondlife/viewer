@@ -3928,5 +3928,8 @@ Try enclosing path to the editor with double quotes.
   <string name="logging_calls_enabled_log_empty">
     There are no logged conversations. After you contact someone, or someone contacts you, a log entry will be shown here.
   </string>
+  <string name="loading_chat_logs">
+    Loading...
+  </string>
   
   </strings>
