@@ -288,7 +288,8 @@ public:
 
 	void unbindDeferredShader(LLGLSLShader& shader);
 	void renderDeferredLighting();
-	
+	void renderDeferredLightingToRenderTarget(LLRenderTarget* render_target);
+
 	void generateWaterReflection(LLCamera& camera);
 	void generateSunShadow(LLCamera& camera);
 	void generateHighlight(LLCamera& camera);

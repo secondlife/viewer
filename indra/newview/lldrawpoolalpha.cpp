@@ -113,6 +113,15 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 		gObjectFullbrightAlphaMaskProgram.setMinimumAlpha(0.33f);
 	}
 
+	if (LLPipeline::sUnderWaterRender)
+	{
+		emissive_shader = &gObjectEmissiveWaterProgram;
+	}
+	else
+	{
+		emissive_shader = &gObjectEmissiveProgram;
+	}
+
 	deferred_render = TRUE;
 	if (mVertexShaderLevel > 0)
 	{
@@ -352,7 +361,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 				
 				LLMaterial* mat = NULL;
 
-				if (deferred_render && !LLPipeline::sUnderWaterRender)
+				if (deferred_render)
 				{
 					mat = params.mMaterial;
 				}
