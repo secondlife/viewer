@@ -135,6 +135,7 @@ void LLGridManager::addSystemGrid(const std::string& label,
 								  const std::string& login, 
 								  const std::string& helper,
 								  const std::string& login_page,
+								  const std::string& update_url_base,
 								  const std::string& login_id)
 {
 }
@@ -208,9 +209,7 @@ std::string const & LLUpdaterService::pumpName(void)
 	return wakka;
 }
 bool LLUpdaterService::updateReadyToInstall(void) { return false; }
-void LLUpdaterService::initialize(const std::string& url, 
-								  const std::string& path,
-								  const std::string& channel,
+void LLUpdaterService::initialize(const std::string& channel,
 								  const std::string& version,
 								  const std::string& platform,
 								  const std::string& platform_version,

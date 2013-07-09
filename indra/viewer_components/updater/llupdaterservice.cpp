@@ -38,6 +38,7 @@
 #include "lldir.h"
 #include "llsdserialize.h"
 #include "llfile.h"
+#include "llviewernetwork.h"
 
 #if LL_WINDOWS
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
@@ -93,8 +94,6 @@ class LLUpdaterServiceImpl :
 	static const std::string sListenerName;
 	
 	std::string   mProtocolVersion;
-	std::string   mUrl;
-	std::string   mPath;
 	std::string   mChannel;
 	std::string   mVersion;
 	std::string   mPlatform;
@@ -120,9 +119,7 @@ public:
 	LLUpdaterServiceImpl();
 	virtual ~LLUpdaterServiceImpl();
 
-	void initialize(const std::string& 	url, 
-					const std::string& 	path,
-					const std::string& 	channel,
+	void initialize(const std::string& 	channel,
 					const std::string& 	version,
 					const std::string&  platform,
 					const std::string&  platform_version,
@@ -183,9 +180,7 @@ LLUpdaterServiceImpl::~LLUpdaterServiceImpl()
 	LLEventPumps::instance().obtain("mainloop").stopListening(sListenerName);
 }
 
-void LLUpdaterServiceImpl::initialize(const std::string&  url, 
-									  const std::string&  path,
-									  const std::string&  channel,
+void LLUpdaterServiceImpl::initialize(const std::string&  channel,
 									  const std::string&  version,
 									  const std::string&  platform,
 									  const std::string&  platform_version,
@@ -198,8 +193,6 @@ void LLUpdaterServiceImpl::initialize(const std::string&  url,
 										   "while updater is running.");
 	}
 		
-	mUrl = url;
-	mPath = path;
 	mChannel = channel;
 	mVersion = version;
 	mPlatform = platform;
@@ -207,8 +200,6 @@ void LLUpdaterServiceImpl::initialize(const std::string&  url,
 	memcpy(mUniqueId, uniqueid, MD5HEX_STR_SIZE);
 	mWillingToTest = willing_to_test;
 	LL_DEBUGS("UpdaterService")
-		<< "\n  url: " << mUrl
-		<< "\n  path: " << mPath
 		<< "\n  channel: " << mChannel
 		<< "\n  version: " << mVersion
 		<< "\n  uniqueid: " << mUniqueId
@@ -228,7 +219,7 @@ void LLUpdaterServiceImpl::setBandwidthLimit(U64 bytesPerSecond)
 
 void LLUpdaterServiceImpl::startChecking(bool install_if_ready)
 {
-	if(mUrl.empty() || mChannel.empty() || mVersion.empty())
+	if(mChannel.empty() || mVersion.empty())
 	{
 		throw LLUpdaterService::UsageError("Set params before call to "
 			"LLUpdaterService::startCheck().");
@@ -565,8 +556,22 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 		}
 		else
 		{
-			mUpdateChecker.checkVersion(mUrl, mPath, mChannel, mVersion, mPlatform, mPlatformVersion, mUniqueId, mWillingToTest);
-			setState(LLUpdaterService::CHECKING_FOR_UPDATE);
+			std::string query_url = LLGridManager::getInstance()->getUpdateServiceURL();
+			if ( !query_url.empty() )
+			{
+				mUpdateChecker.checkVersion(query_url, mChannel, mVersion,
+											mPlatform, mPlatformVersion, mUniqueId,
+											mWillingToTest);
+				setState(LLUpdaterService::CHECKING_FOR_UPDATE);
+			}
+			else
+			{
+				LL_WARNS("UpdaterService")
+					<< "No updater service defined for grid '" << LLGridManager::getInstance()->getGrid()
+					<< "' will check again in " << mCheckPeriod << " seconds"
+					<< LL_ENDL;
+				restartTimer(mCheckPeriod);
+			}
 		}
 	} 
 	else 
@@ -610,9 +615,7 @@ LLUpdaterService::~LLUpdaterService()
 {
 }
 
-void LLUpdaterService::initialize(const std::string& url, 
-								  const std::string& path,
-								  const std::string& channel,
+void LLUpdaterService::initialize(const std::string& channel,
 								  const std::string& version,
 								  const std::string& platform,
 								  const std::string& platform_version,
@@ -620,7 +623,7 @@ void LLUpdaterService::initialize(const std::string& url,
 								  const bool&         willing_to_test
 )
 {
-	mImpl->initialize(url, path, channel, version, platform, platform_version, uniqueid, willing_to_test);
+	mImpl->initialize(channel, version, platform, platform_version, uniqueid, willing_to_test);
 }
 
 void LLUpdaterService::setCheckPeriod(unsigned int seconds)

@@ -44,8 +44,7 @@
 *****************************************************************************/
 LLUpdateChecker::LLUpdateChecker(LLUpdateChecker::Client & client)
 {}
-void LLUpdateChecker::checkVersion(std::string const & hostUrl, 
-								   std::string const & servicePath,
+void LLUpdateChecker::checkVersion(std::string const & urlBase, 
 								   std::string const & channel,
 								   std::string const & version,
 								   std::string const & platform,
@@ -90,6 +89,21 @@ std::string LLDir::getLanguage() const { return "en"; }
 bool LLDir::setCacheDir(const std::string &path){ return true; }
 void LLDir::dumpCurrentDirectories() {}
 void LLDir::updatePerAccountChatLogsDir() {}
+
+#include "llviewernetwork.h"
+LLGridManager::LLGridManager() :
+	mGrid("test.grid.lindenlab.com"),
+	mIsInProductionGrid(false)
+{
+}
+std::string LLGridManager::getUpdateServiceURL()
+{
+	return "https://update.secondlife.com/update";
+}
+LLGridManager::~LLGridManager()
+{
+}
+
 
 std::string LLDir::getExpandedFilename(ELLPath location, 
 									   const std::string &filename) const 
@@ -179,10 +193,10 @@ namespace tut
 		try
 		{
 			unsigned char id1[MD5HEX_STR_SIZE] = "11111111111111111111111111111111";
-			updater.initialize(test_url, "update" ,test_channel, test_version, "win", "1.2.3", id1, true);
+			updater.initialize(test_channel, test_version, "win", "1.2.3", id1, true);
 			updater.startChecking();
 			unsigned char id2[MD5HEX_STR_SIZE] = "22222222222222222222222222222222";
-			updater.initialize("other_url", "update", test_channel, test_version, "win", "4.5.6", id2, true);
+			updater.initialize(test_channel, test_version, "win", "4.5.6", id2, true);
 		}
 		catch(LLUpdaterService::UsageError)
 		{
@@ -197,7 +211,7 @@ namespace tut
         DEBUG;
 		LLUpdaterService updater;
 		unsigned char id[MD5HEX_STR_SIZE] = "33333333333333333333333333333333";
-		updater.initialize(test_url, "update", test_channel, test_version, "win", "7.8.9", id, true);
+		updater.initialize(test_channel, test_version, "win", "7.8.9", id, true);
 		updater.startChecking();
 		ensure(updater.isChecking());
 		updater.stopChecking();
