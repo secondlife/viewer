@@ -20,7 +20,7 @@
    tab_height="30"
    tab_position="top"
    top="7"
-   height="430"
+   height="395"
    halign="center">
     <panel
      filename="panel_social_status.xml"
@@ -36,9 +36,6 @@
       filename="panel_social_photo.xml"
       class="llsocialphotopanel"
       follows="all"
-      background_visible="true"
-      bg_alpha_color="DkGray"
-      bg_opaque_color="DkGray"
       label="PHOTO"
       help_topic="panel_social_photo"
       name="panel_social_photo"/>
