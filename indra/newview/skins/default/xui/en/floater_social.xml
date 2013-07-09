@@ -53,8 +53,7 @@
   <panel
    name="connection_status_panel"
    follows="left|top"
-   height="26"
-   top_pad="-30">
+   height="26">
    <text
      name="connection_error_text"
      type="string"
