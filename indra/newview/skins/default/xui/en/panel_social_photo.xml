@@ -1,28 +1,20 @@
     <panel
-      height="395"
+      height="393"
       width="304"
       layout="topleft"
       name="panel_social_photo">
       <layout_stack
 	   layout="topleft"
        border_size="0"
-       height="395"
+       height="385"
        follows="top|left|right"
        orientation="vertical"
        name="stack_photo"
        top="8">
         <layout_panel	
-         name="photo_detail_panel"
-         height="295">
-          <panel
-            top="0"
-            follows="all"
-            height="295"
-            width="286"
-            left="7"
-            label="snapshot_panel"
-            help_topic="snapshot_panel"
-            name="snapshot_panel">
+         name="snapshot_panel"
+         top="0"
+         height="360">
             <combo_box
              control_name="SocialPhotoResolution"
              follows="left|top"
@@ -103,13 +95,13 @@
              height="16"
              left="9"
              name="caption_label"
-             top_pad="12"
+             top_pad="5"
              type="string">
               Comment (optional):
             </text>
             <text_editor
              follows="left|top"
-             height="47"
+             height="87"
              width="250"
              left="9"
              length="1"
@@ -123,15 +115,16 @@
              initial_value="true"
              label="Include location in posting"
              name="add_location_cb"
-             top_pad="19"/>            
-            </panel>
+              left="6"
+              height="16"
+             top_pad="5"/>
         </layout_panel>
         <layout_panel
           name="photo_button_panel"
-          height="96">
+          height="25">
           <button
            follows="left|top"
-           top="32"
+           top="0"
            left="9"
            height="23"
            label="Post"

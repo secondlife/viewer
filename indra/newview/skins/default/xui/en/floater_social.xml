@@ -11,7 +11,7 @@
   single_instance="true"
   reuse_instance="true"
   title="FACEBOOK"
-  height="437"
+  height="450"
   width="304">
   <tab_container
    name="tabs"
@@ -19,16 +19,16 @@
    tab_min_width="70"
    tab_height="30"
    tab_position="top"
+   background_visible="true"
+   bg_alpha_color="DkGray"
+   bg_opaque_color="DkGray"
    top="7"
-   height="395"
+   height="430"
    halign="center">
     <panel
      filename="panel_social_status.xml"
      class="llsocialstatuspanel"
      follows="all"
-     background_visible="true"
-     bg_alpha_color="DkGray"
-     bg_opaque_color="DkGray"
      label="STATUS"
      help_topic="panel_social_status"
      name="panel_social_status"/>
@@ -43,9 +43,6 @@
       filename="panel_social_place.xml"
       class="llsocialcheckinpanel"
       follows="all"
-      background_visible="true"
-      bg_alpha_color="DkGray"
-      bg_opaque_color="DkGray"
       label="PLACE"
       help_topic="panel_social_place"
       name="panel_social_place"/>
@@ -53,8 +50,10 @@
   <panel
    name="connection_status_panel"
    follows="left|top"
-   height="26"
-   top_pad="-30">
+   background_visible="true"
+   bg_alpha_color="DkGray"
+   bg_opaque_color="DkGray"
+   height="24">
    <text
      name="connection_error_text"
      type="string"

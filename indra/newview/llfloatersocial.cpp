@@ -199,7 +199,6 @@ void LLSocialPhotoPanel::draw()
 	if (previewp && previewp->getThumbnailImage())
 	{
 		const LLRect& thumbnail_rect = mThumbnailPlaceholder->getRect();
-		const LLRect& snapshot_rect = mSnapshotPanel->getRect();
 		const S32 thumbnail_w = previewp->getThumbnailWidth();
 		const S32 thumbnail_h = previewp->getThumbnailHeight();
 
@@ -208,7 +207,8 @@ void LLSocialPhotoPanel::draw()
 
 		// calc preview offset within the floater rect
 		S32 offset_x = thumbnail_rect.mLeft + local_offset_x;
-		S32 offset_y = thumbnail_rect.mBottom - (snapshot_rect.mTop - thumbnail_rect.mTop);
+        // Hack : "15" is to compensate for "top=8" of "stack_photo" and "top=7" of "tabs"
+		S32 offset_y = thumbnail_rect.mBottom - 15;
 
 		mSnapshotPanel->localPointToOtherView(offset_x, offset_y, &offset_x, &offset_y, getParentByType<LLFloater>());
 

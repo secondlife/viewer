@@ -1,19 +1,19 @@
     <panel
-      height="395"
+      height="393"
       width="304"
 	  layout="topleft"
       name="panel_social_place">
       <layout_stack
 	    layout="topleft"
         border_size="0"
-        height="395"
+        height="385"
         follows="all"
         orientation="vertical"
         name="stack_place"
         top="8">
         <layout_panel
           name="place_detail_panel"
-          height="122">
+          height="127">
           <text
             length="1"
             follows="top|left|right"
@@ -39,7 +39,7 @@
           </layout_panel>
           <layout_panel
             name="place_map_panel"
-            height="133">
+            height="233">
               <loading_indicator
               follows="left|top"
               height="24"
@@ -81,10 +81,10 @@
           </layout_panel>
           <layout_panel
             name="place_button_panel"
-            height="96">
+            height="25">
             <button
               follows="left|top"
-              top="40"
+              top="0"
               left="9"
               height="23"
               label="Post"
