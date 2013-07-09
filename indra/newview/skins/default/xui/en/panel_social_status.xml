@@ -13,7 +13,7 @@
       top="8">
       <layout_panel
        name="status_detail_panel"
-       height="255">
+       height="40">
        <text
         length="1"
         follows="top|left|right"
@@ -42,7 +42,7 @@
        height="96">
        <button
         follows="left|top"
-        top="5"
+        top="213"
         left="9"
         height="23"
         label="Post"

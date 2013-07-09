@@ -20,7 +20,7 @@
    tab_height="30"
    tab_position="top"
    top="7"
-   height="395"
+   height="430"
    halign="center">
     <panel
      filename="panel_social_status.xml"
@@ -36,6 +36,9 @@
       filename="panel_social_photo.xml"
       class="llsocialphotopanel"
       follows="all"
+      background_visible="true"
+      bg_alpha_color="DkGray"
+      bg_opaque_color="DkGray"
       label="PHOTO"
       help_topic="panel_social_photo"
       name="panel_social_photo"/>
@@ -53,7 +56,8 @@
   <panel
    name="connection_status_panel"
    follows="left|top"
-   height="26">
+   height="26"
+   top_pad="-30">
    <text
      name="connection_error_text"
      type="string"
