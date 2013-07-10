@@ -7,13 +7,12 @@
 	   layout="topleft"
        border_size="0"
        height="385"
-       follows="top|left|right"
+       follows="all"
        orientation="vertical"
        name="stack_photo"
        top="8">
         <layout_panel	
          name="snapshot_panel"
-         top="0"
          height="360">
             <combo_box
              control_name="SocialPhotoResolution"
