@@ -71,7 +71,15 @@ void LLDrawPoolMaterials::beginDeferredPass(S32 pass)
 		15, //LLRenderPass::PASS_NORMSPEC_GLOW,
 	};
 	
-	mShader = &(gDeferredMaterialProgram[shader_idx[pass]]);
+	if (LLPipeline::sUnderWaterRender)
+	{
+		mShader = &(gDeferredMaterialWaterProgram[shader_idx[pass]]);
+	}
+	else
+	{
+		mShader = &(gDeferredMaterialProgram[shader_idx[pass]]);
+	}
+	
 	mShader->bind();
 
 	diffuse_channel = mShader->enableTexture(LLShaderMgr::DIFFUSE_MAP);

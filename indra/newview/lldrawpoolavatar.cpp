@@ -297,7 +297,14 @@ void LLDrawPoolAvatar::beginDeferredRiggedMaterialAlpha(S32 pass)
 
 	pass += LLMaterial::SHADER_COUNT;
 
-	sVertexProgram = &gDeferredMaterialProgram[pass];
+	if (LLPipeline::sUnderWaterRender)
+	{
+		sVertexProgram = &(gDeferredMaterialWaterProgram[pass]);
+	}
+	else
+	{
+		sVertexProgram = &(gDeferredMaterialProgram[pass]);
+	}
 
 	gPipeline.bindDeferredShader(*sVertexProgram);
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
@@ -1092,7 +1099,14 @@ void LLDrawPoolAvatar::beginDeferredRiggedMaterial(S32 pass)
 	{ //skip alpha passes
 		return;
 	}
-	sVertexProgram = &gDeferredMaterialProgram[pass+LLMaterial::SHADER_COUNT];
+	if (LLPipeline::sUnderWaterRender)
+	{
+		sVertexProgram = &gDeferredMaterialWaterProgram[pass+LLMaterial::SHADER_COUNT];
+	}
+	else
+	{
+		sVertexProgram = &gDeferredMaterialProgram[pass+LLMaterial::SHADER_COUNT];
+	}
 	sVertexProgram->bind();
 	normal_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::BUMP_MAP);
 	specular_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::SPECULAR_MAP);

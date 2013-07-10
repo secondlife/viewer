@@ -51,7 +51,6 @@ vec3 linear_to_srgb(vec3 cl)
 	return 1.055 * pow(cl, vec3(0.41666)) - 0.055;
 }
 
-
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 
 #ifdef DEFINE_GL_FRAGCOLOR
@@ -135,6 +134,57 @@ uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
+
+#ifdef WATER_FOG
+vec3 getPositionEye()
+{
+	return vary_PositionEye;
+}
+
+uniform vec4 waterPlane;
+uniform vec4 waterFogColor;
+uniform float waterFogDensity;
+uniform float waterFogKS;
+
+vec4 applyWaterFogDeferred(vec4 color)
+{
+	//normalize view vector
+	vec3 view = normalize(getPositionEye());
+	float es = -(dot(view, waterPlane.xyz));
+
+	//find intersection point with water plane and eye vector
+	
+	//get eye depth
+	float e0 = max(-waterPlane.w, 0.0);
+	
+	vec3 int_v = waterPlane.w > 0.0 ? view * waterPlane.w/es : vec3(0.0, 0.0, 0.0);
+	
+	//get object depth
+	float depth = length(getPositionEye() - int_v);
+		
+	//get "thickness" of water
+	float l = max(depth, 0.1);
+
+	float kd = waterFogDensity;
+	float ks = waterFogKS;
+	vec4 kc = waterFogColor;
+	
+	float F = 0.98;
+	
+	float t1 = -kd * pow(F, ks * e0);
+	float t2 = kd + ks * es;
+	float t3 = pow(F, t2*l) - 1.0;
+	
+	float L = min(t1/t2*t3, 1.0);
+	
+	float D = pow(0.98, l*kd);
+	
+	color.rgb = color.rgb * D + kc.rgb * L;
+	color.a = kc.a + color.a;
+	
+	return color;
+}
+#endif
 
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
@@ -221,10 +271,6 @@ vec4 getPosition_d(vec2 pos_screen, float depth)
 	return pos;
 }
 
-vec3 getPositionEye()
-{
-	return vary_PositionEye;
-}
 vec3 getSunlitColor()
 {
 	return vary_SunlitColor;
@@ -417,6 +463,21 @@ out vec4 frag_data[3];
 #else
 #define frag_data gl_FragData
 #endif
+
+VARYING vec3 vary_position;
+
+#ifdef WATER_FOG
+vec3 vary_PositionEye;
+vec3 getPositionEye()
+{
+	return vary_PositionEye;
+}
+void setPositionEye(vec3 e)
+{
+	vary_PositionEye = e;
+}
+#endif
+
 #endif
 
 uniform sampler2D diffuseMap;
@@ -672,7 +733,6 @@ void main()
 	//convert to linear space before adding local lights
 	col = srgb_to_linear(col);
 
-			
 	vec3 npos = normalize(-pos.xyz);
 
  #define LIGHT_LOOP(i) col.rgb = col.rgb + calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare);
@@ -685,17 +745,19 @@ void main()
 		LIGHT_LOOP(6)
 		LIGHT_LOOP(7)
 
-
-	//convert to gamma space for display on screen
-	col.rgb = linear_to_srgb(col.rgb);
-
-	frag_color.rgb = col.rgb;
 	glare = min(glare, 1.0);
-	frag_color.a = max(diffcol.a,glare)*vertex_color.a;
+	float al = max(diffcol.a,glare)*vertex_color.a;
+
+#ifdef WATER_FOG
+	frag_color = applyWaterFogDeferred(vec4(col.rgb, al));
+#else
+	frag_color.rgb = col.rgb;
+	frag_color.a   = al;
+#endif
 
 #else
 	frag_data[0] = final_color;
 	frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.
 	frag_data[2] = final_normal; // XY = Normal.  Z = Env. intensity.
-#endif
+#endif%
 }

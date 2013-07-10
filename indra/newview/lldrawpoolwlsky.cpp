@@ -99,12 +99,12 @@ LLViewerTexture *LLDrawPoolWLSky::getDebugTexture()
 void LLDrawPoolWLSky::beginRenderPass( S32 pass )
 {
 	sky_shader =
-		LLPipeline::sUnderWaterRender ?
+		(LLPipeline::sUnderWaterRender /*&& !LLPipeline::sRenderDeferred*/) ?
 			&gObjectFullbrightNoColorWaterProgram :
 			&gWLSkyProgram;
 
 	cloud_shader =
-			LLPipeline::sUnderWaterRender ?
+			(LLPipeline::sUnderWaterRender /*&& !LLPipeline::sRenderDeferred*/) ?
 				&gObjectFullbrightNoColorWaterProgram :
 				&gWLCloudProgram;
 }

@@ -43,9 +43,9 @@ uniform mat4 modelview_projection_matrix;
 uniform mat4 modelview_matrix;
 #endif
 
-VARYING vec3 vary_position;
-
 #endif
+
+VARYING vec3 vary_position;
 
 uniform mat4 texture_matrix0;
 
@@ -84,15 +84,14 @@ void main()
 	mat = modelview_matrix * mat;
 
 	vec3 pos = (mat*vec4(position.xyz,1.0)).xyz;
-
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 	vary_position = pos;
-#endif
+
 
 	gl_Position = projection_matrix*vec4(pos,1.0);
 
 #else
 	//transform vertex
+	vary_position = (modelview_projection_matrix * vec4(position.xyz, 1.0)).xyz;
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
 
 #endif
