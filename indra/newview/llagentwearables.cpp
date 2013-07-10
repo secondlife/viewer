@@ -1443,6 +1443,7 @@ void LLAgentWearables::queryWearableCache()
 	{
 		return;
 	}
+	gAgentAvatarp->setIsUsingServerBakes(false);
 
 	// Look up affected baked textures.
 	// If they exist:
