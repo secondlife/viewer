@@ -277,8 +277,13 @@ BOOL LLConversationViewSession::handleMouseUp( S32 x, S32 y, MASK mask )
 {
 	BOOL result = LLFolderViewFolder::handleMouseUp(x, y, mask);
 
-	if(result && getRoot())
-    {
+	LLFloater* volume_floater = LLFloaterReg::findInstance("floater_voice_volume");
+	LLFloater* chat_volume_floater = LLFloaterReg::findInstance("chat_voice");
+	if (result 
+		&& getRoot()
+		&& !(volume_floater && volume_floater->isShown() && volume_floater->hasFocus())
+		&& !(chat_volume_floater && chat_volume_floater->isShown() && chat_volume_floater->hasFocus()))
+	{
 		LLConversationItem* item = dynamic_cast<LLConversationItem *>(getViewModelItem());
 		LLUUID session_id = item? item->getUUID() : LLUUID();
 		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
