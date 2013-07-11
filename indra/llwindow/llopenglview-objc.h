@@ -41,6 +41,7 @@
 	bool mHasMarkedText;
 	unsigned int mMarkedTextLength;
     bool mMarkedTextAllowed;
+    bool mSimulatedRightClick;
 }
 - (id) initWithSamples:(NSUInteger)samples;
 - (id) initWithSamples:(NSUInteger)samples andVsync:(BOOL)vsync;

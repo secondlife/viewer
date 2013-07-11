@@ -246,6 +246,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
     if ([theEvent modifierFlags] & NSControlKeyMask)
     {
         callRightMouseDown(mMousePos, mModifiers);
+        mSimulatedRightClick = true;
     } else {
         if ([theEvent clickCount] >= 2)
         {
@@ -258,7 +259,13 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) mouseUp:(NSEvent *)theEvent
 {
-	callLeftMouseUp(mMousePos, mModifiers);
+    if (mSimulatedRightClick)
+    {
+        callRightMouseUp(mMousePos, mModifiers);
+        mSimulatedRightClick = false;
+    } else {
+        callLeftMouseUp(mMousePos, mModifiers);
+    }
 }
 
 - (void) rightMouseDown:(NSEvent *)theEvent
