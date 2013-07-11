@@ -149,10 +149,6 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 	mFSAASamples = fsaa_samples;
 	mForceRebuild = FALSE;
 
-	// For reasons that aren't clear to me, LLTimers seem to be created in the "started" state.
-	// Since the started state of this one is used to track whether the NMRec has been installed, it wants to start out in the "stopped" state.
-	mBounceTimer.stop();
-
 	// Get the original aspect ratio of the main device.
 	mOriginalAspectRatio = (double)CGDisplayPixelsWide(mDisplay) / (double)CGDisplayPixelsHigh(mDisplay);
 
@@ -763,12 +759,6 @@ BOOL LLWindowMacOSX::getFullscreen()
 
 void LLWindowMacOSX::gatherInput()
 {
-	// stop bouncing icon after fixed period of time
-	if (mBounceTimer.getStarted() && mBounceTimer.getElapsedTimeF32() > mBounceTime)
-	{
-		stopDockTileBounce();
-	}
-	
 	updateCursor();
 }
 
@@ -1161,22 +1151,9 @@ void LLWindowMacOSX::afterDialog()
 
 void LLWindowMacOSX::flashIcon(F32 seconds)
 {
-	// Don't do this if we're already started, since this would try to install the NMRec twice.
-	if(!mBounceTimer.getStarted())
-	{
-		S32 err = 0;
-		// TODO: Implement icon bouncing
-		mBounceTime = seconds;
-		if(err == 0)
-		{
-			mBounceTimer.start();
-		}
-		else
-		{
-			// This is very not-fatal (only problem is the icon will not bounce), but we'd like to find out about it somehow...
-			llinfos << "NMInstall failed with error code " << err << llendl;
-		}
-	}
+	// For consistency with OS X conventions, the number of seconds given is ignored and
+	// left up to the OS (which will actually bounce it for one second).
+	requestUserAttention();
 }
 
 BOOL LLWindowMacOSX::isClipboardTextAvailable()
@@ -1807,11 +1784,6 @@ void *LLWindowMacOSX::getPlatformWindow()
 {
 	// NOTE: this will be NULL in fullscreen mode.  Plan accordingly.
 	return (void*)mWindow;
-}
-
-void LLWindowMacOSX::stopDockTileBounce()
-{
-	mBounceTimer.stop();
 }
 
 // get a double value from a dictionary

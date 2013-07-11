@@ -68,6 +68,7 @@ void setNotAllowedCursor();
 void hideNSCursor();
 void showNSCursor();
 void hideNSCursorTillMove(bool hide);
+void requestUserAttention();
 
 NSWindowRef createNSWindow(int x, int y, int width, int height);
 

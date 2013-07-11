@@ -390,6 +390,11 @@ void makeFirstResponder(NSWindowRef window, GLViewRef view)
 	[(LLNSWindow*)window makeFirstResponder:(LLOpenGLView*)view];
 }
 
+void requestUserAttention()
+{
+	[[NSApplication sharedApplication] requestUserAttention:NSInformationalRequest];
+}
+
 /*
  GLViewRef getGLView()
  {

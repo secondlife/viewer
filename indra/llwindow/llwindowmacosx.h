@@ -164,7 +164,6 @@ protected:
 	void destroyContext();
 	void setupFailure(const std::string& text, const std::string& caption, U32 type);
 	void adjustCursorDecouple(bool warpingMouse = false);
-	void stopDockTileBounce();
 	static MASK modifiersToMask(S16 modifiers);
 	
 #if LL_OS_DRAGDROP_ENABLED
@@ -206,10 +205,6 @@ protected:
 	BOOL		mForceRebuild;
 	
 	S32	mDragOverrideCursor;
-	
-	F32			mBounceTime;
-	//NMRec		mBounceRec;
-	LLTimer		mBounceTimer;
 
 	// Input method management through Text Service Manager.
 	BOOL		mLanguageTextInputAllowed;
