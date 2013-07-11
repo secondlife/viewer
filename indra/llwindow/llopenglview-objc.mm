@@ -242,12 +242,18 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) mouseDown:(NSEvent *)theEvent
 {
-	if ([theEvent clickCount] >= 2)
-	{
-		callDoubleClick(mMousePos, mModifiers);
-	} else if ([theEvent clickCount] == 1) {
-		callLeftMouseDown(mMousePos, mModifiers);
-	}
+    // Apparently people still use this?
+    if ([theEvent modifierFlags] & NSControlKeyMask)
+    {
+        callRightMouseDown(mMousePos, mModifiers);
+    } else {
+        if ([theEvent clickCount] >= 2)
+        {
+            callDoubleClick(mMousePos, mModifiers);
+        } else if ([theEvent clickCount] == 1) {
+            callLeftMouseDown(mMousePos, mModifiers);
+        }
+    }
 }
 
 - (void) mouseUp:(NSEvent *)theEvent
