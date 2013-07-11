@@ -106,8 +106,8 @@ std::string* doSaveDialog(const std::string* file,
 {
     NSSavePanel *panel = [NSSavePanel savePanel]; 
     
-    NSString *typens = [NSString stringWithCString:type->c_str() encoding:[NSString defaultCStringEncoding]];
-    NSArray *fileType = [[NSArray alloc] initWithObjects:typens,nil];
+    NSString *extensionns = [NSString stringWithCString:extension->c_str() encoding:[NSString defaultCStringEncoding]];
+    NSArray *fileType = [[NSArray alloc] initWithObjects:extensionns,nil];
     
     //[panel setMessage:@"Save Image File"]; 
     [panel setTreatsFilePackagesAsDirectories: ( flags & F_NAV_SUPPORT ) ];
