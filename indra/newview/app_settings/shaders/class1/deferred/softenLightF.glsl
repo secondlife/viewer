@@ -249,9 +249,9 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 		  + tmpAmbient)));
 
 	//brightness of surface both sunlight and ambient
-	setSunlitColor(pow(vec3(sunlight * .5), vec3(global_gamma)) * global_gamma);
-	setAmblitColor(pow(vec3(tmpAmbient * .25), vec3(global_gamma)) * global_gamma);
-	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(global_gamma)) * global_gamma);
+	setSunlitColor(vec3(sunlight * .5));
+	setAmblitColor(vec3(tmpAmbient * .25));
+	setAdditiveColor(getAdditiveColor() * vec3(1.0 - temp1));
 }
 
 vec3 atmosLighting(vec3 light)
@@ -326,8 +326,13 @@ void main()
 	norm.xyz = decode_normal(norm.xy); // unpack norm
 		
 	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
+	da = pow(da, 1.0/1.3);
 
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
+
+	//convert to gamma space
+	diffuse.rgb = pow(diffuse.rgb, vec3(1.0/2.2));
+
 	vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
 	vec3 col;
 	float bloom = 0.0;
@@ -342,7 +347,7 @@ void main()
 
 		col.rgb *= ambient;
 
-		col += atmosAffectDirectionalLight(max(min(da, 1.0) * 2.6, 0.0));
+		col += atmosAffectDirectionalLight(max(min(da, 1.0), 0.0));
 	
 		col *= diffuse.rgb;
 	
@@ -363,23 +368,18 @@ void main()
 		}
 		
 		
-		col = mix(col.rgb, pow(diffuse.rgb, vec3(1.0/2.2)), diffuse.a);
-		
-		
+		col = mix(col.rgb, diffuse.rgb, diffuse.a);
+				
 		if (envIntensity > 0.0)
 		{ //add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
 			
-			float exponent = mix(2.2, 1.0, diffuse.a);
-			vec3 refcol = pow(textureCube(environmentMap, env_vec).rgb, vec3(exponent))*exponent;
+			
+			vec3 refcol = textureCube(environmentMap, env_vec).rgb;
 
 			col = mix(col.rgb, refcol, 
 				envIntensity);  
-
 		}
-
-		float exponent = mix(1.0, 2.2, diffuse.a);
-		col = pow(col, vec3(exponent));
 				
 		if (norm.w < 0.5)
 		{
@@ -387,10 +387,12 @@ void main()
 			col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
 		}
 
+		col = pow(col, vec3(2.2));
+
 		//col = vec3(1,0,1);
 		//col.g = envIntensity;
 	}
-	
+
 	frag_color.rgb = col;
 
 	frag_color.a = bloom;

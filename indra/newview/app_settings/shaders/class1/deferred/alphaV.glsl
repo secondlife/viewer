@@ -58,8 +58,6 @@ mat4 getSkinnedTransform();
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 void calcAtmospherics(vec3 inPositionEye);
 
-vec3 calcDirectionalLight(vec3 n, vec3 l);
-
 vec3 atmosAmbient(vec3 light);
 vec3 atmosAffectDirectionalLight(float lightIntensity);
 vec3 scaleDownLight(vec3 light);
@@ -87,12 +85,6 @@ uniform vec3 light_attenuation[8];
 uniform vec3 light_diffuse[8];
 
 uniform vec3 sun_dir;
-
-vec3 calcDirectionalLight(vec3 n, vec3 l)
-{
-        float a = max(dot(n,l),0.0);
-        return vec3(a,a,a);
-}
 
 vec3 calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
 {
@@ -184,7 +176,7 @@ void main()
 	//vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.));
 	vec4 col = vec4(0.0, 0.0, 0.0, diffuse_color.a);
 	
-	vec3 diff = pow(diffuse_color.rgb, vec3(2.2));
+	vec3 diff = diffuse_color.rgb;
 
 	
 
