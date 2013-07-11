@@ -1749,6 +1749,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>CmdLineChannel</key>
+    <map>
+      <key>Comment</key>
+      <string>Command line specified channel name</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
     <key>CmdLineDisableVoice</key>
     <map>
       <key>Comment</key>
@@ -1794,6 +1805,17 @@
       <array>
         <string />
       </array>
+    </map>
+    <key>CmdLineLoginLocation</key>
+    <map>
+      <key>Comment</key>
+      <string>Startup destination requested on command line</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string/>
     </map>
     <key>ConnectAsGod</key>
     <map>

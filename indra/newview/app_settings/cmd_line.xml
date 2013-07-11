@@ -22,7 +22,8 @@
     <map>
       <key>count</key>
       <integer>1</integer>
-      <!-- Special case. Not mapped to a setting. -->
+      <key>map-to</key>
+      <string>CmdLineChannel</string>
     </map>
 
     <key>console</key>
@@ -372,7 +373,8 @@
       <boolean>true</boolean>
       <key>last_option</key>
       <boolean>true</boolean>
-      <!-- Special case. Not mapped to a setting. -->
+      <key>map-to</key>
+      <string>CmdLineLoginLocation</string>
     </map>
 
     <key>url</key>
@@ -383,7 +385,8 @@
       <integer>1</integer>
       <key>last_option</key>
       <boolean>true</boolean>
-      <!-- Special case. Not mapped to a setting. -->
+      <key>map-to</key>
+      <string>CmdLineLoginLocation</string>
     </map>
 
     <key>usersessionsettings</key>
