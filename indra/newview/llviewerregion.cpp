@@ -30,6 +30,7 @@
 
 // linden libraries
 #include "indra_constants.h"
+#include "llaisapi.h"
 #include "llavatarnamecache.h"		// name lookup cap url
 #include "llfloaterreg.h"
 #include "llmath.h"
@@ -1645,7 +1646,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 		capabilityNames.append("FetchInventory2");
 		capabilityNames.append("FetchInventoryDescendents2");
 		capabilityNames.append("IncrementCOFVersion");
-		capabilityNames.append("InventoryAPIv3");
+		AISCommand::getCapabilityNames(capabilityNames);
 	}
 
 	capabilityNames.append("GetDisplayNames");
@@ -1891,6 +1892,22 @@ std::string LLViewerRegion::getCapability(const std::string& name) const
 	}
 
 	return iter->second;
+}
+
+bool LLViewerRegion::isCapabilityAvailable(const std::string& name) const
+{
+	if (!capabilitiesReceived() && (name!=std::string("Seed")) && (name!=std::string("ObjectMedia")))
+	{
+		llwarns << "isCapabilityAvailable called before caps received for " << name << llendl;
+	}
+	
+	CapabilityMap::const_iterator iter = mImpl->mCapabilities.find(name);
+	if(iter == mImpl->mCapabilities.end())
+	{
+		return false;
+	}
+
+	return true;
 }
 
 bool LLViewerRegion::capabilitiesReceived() const

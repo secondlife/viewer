@@ -119,7 +119,7 @@ public:
 		const LLSD& headers = LLSD(),
 		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 		///< sends a DELETE method, but we can't call it delete in c++
-	
+
 	/**
 	 * @brief Send a MOVE webdav method
 	 *
@@ -130,6 +130,22 @@ public:
 	 * @param timeout The number of seconds to give the server to respond.
 	 */
 	static void move(
+		const std::string& url,
+		const std::string& destination,
+		ResponderPtr responder,
+		const LLSD& headers = LLSD(),
+		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+
+	/**
+	 * @brief Send a COPY webdav method
+	 *
+	 * @param url The complete serialized (and escaped) url to get.
+	 * @param destination The complete serialized destination url.
+	 * @param responder The responder that will handle the result.
+	 * @param headers A map of key:value headers to pass to the request
+	 * @param timeout The number of seconds to give the server to respond.
+	 */
+	static void copy(
 		const std::string& url,
 		const std::string& destination,
 		ResponderPtr responder,

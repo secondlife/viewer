@@ -435,6 +435,50 @@ private:
 
 S32 LLCallAfterInventoryCopyMgr::sInstanceCount = 0;
 
+class LLWearCategoryAfterCopy: public LLInventoryCallback
+{
+public:
+	LLWearCategoryAfterCopy(bool append):
+		mAppend(append)
+	{}
+
+	// virtual
+	void fire(const LLUUID& id)
+	{
+		// Wear the inventory category.
+		LLInventoryCategory* cat = gInventory.getCategory(id);
+		LLAppearanceMgr::instance().wearInventoryCategoryOnAvatar(cat, mAppend);
+	}
+
+private:
+	bool mAppend;
+};
+
+class LLTrackPhaseWrapper : public LLInventoryCallback
+{
+public:
+	LLTrackPhaseWrapper(const std::string& phase_name, LLPointer<LLInventoryCallback> cb = NULL):
+		mTrackingPhase(phase_name),
+		mCB(cb)
+	{
+		selfStartPhase(mTrackingPhase);
+	}
+
+	// virtual
+	void fire(const LLUUID& id)
+	{
+		selfStopPhase(mTrackingPhase);
+		if (mCB)
+		{
+			mCB->fire(id);
+		}
+	}
+
+protected:
+	std::string mTrackingPhase;
+	LLPointer<LLInventoryCallback> mCB;
+};
+
 LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy(bool enforce_item_restrictions,
 														 bool enforce_ordering,
 														 nullary_func_t post_update_func 
@@ -2244,10 +2288,31 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 	LL_INFOS("Avatar") << self_av_string() << "wearInventoryCategory( " << category->getName()
 			 << " )" << LL_ENDL;
 
-	selfStartPhase("wear_inventory_category_fetch");
-	callAfterCategoryFetch(category->getUUID(),boost::bind(&LLAppearanceMgr::wearCategoryFinal,
-														   &LLAppearanceMgr::instance(),
-														   category->getUUID(), copy, append));
+	// If we are copying from library, attempt to use AIS to copy the category.
+	bool ais_ran=false;
+	if (copy && AISCommand::isAPIAvailable())
+	{
+		LLUUID parent_id;
+		parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
+		if (parent_id.isNull())
+		{
+			parent_id = gInventory.getRootFolderID();
+		}
+
+		LLPointer<LLInventoryCallback> copy_cb = new LLWearCategoryAfterCopy(append);
+		LLPointer<LLInventoryCallback> track_cb = new LLTrackPhaseWrapper(
+													std::string("wear_inventory_category_callback"), copy_cb);
+		LLPointer<AISCommand> cmd_ptr = new CopyLibraryCategoryCommand(category->getUUID(), parent_id, track_cb);
+		ais_ran=cmd_ptr->run_command();
+	}
+
+	if (!ais_ran)
+	{
+		selfStartPhase("wear_inventory_category_fetch");
+		callAfterCategoryFetch(category->getUUID(),boost::bind(&LLAppearanceMgr::wearCategoryFinal,
+															   &LLAppearanceMgr::instance(),
+															   category->getUUID(), copy, append));
+	}
 }
 
 S32 LLAppearanceMgr::getActiveCopyOperations() const
@@ -3544,8 +3609,7 @@ void LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, boo
 
 	// First, make a folder in the My Outfits directory.
 	const LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-	std::string cap;
-	if (AISCommand::getCap(cap))
+	if (AISCommand::isAPIAvailable())
 	{
 		// cap-based category creation was buggy until recently. use
 		// existence of AIS as an indicator the fix is present. Does

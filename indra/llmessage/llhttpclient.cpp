@@ -631,6 +631,19 @@ void LLHTTPClient::move(
 	request(url, HTTP_MOVE, NULL, responder, timeout, headers);
 }
 
+// static
+void LLHTTPClient::copy(
+	const std::string& url,
+	const std::string& destination,
+	ResponderPtr responder,
+	const LLSD& hdrs,
+	const F32 timeout)
+{
+	LLSD headers = hdrs;
+	headers[HTTP_OUT_HEADER_DESTINATION] = destination;
+	request(url, HTTP_COPY, NULL, responder, timeout, headers);
+}
+
 
 void LLHTTPClient::setPump(LLPumpIO& pump)
 {

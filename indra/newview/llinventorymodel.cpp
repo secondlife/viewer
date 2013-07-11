@@ -1718,7 +1718,6 @@ void LLInventoryModel::accountForUpdate(const LLCategoryUpdate& update) const
 	LLViewerInventoryCategory* cat = getCategory(update.mCategoryID);
 	if(cat)
 	{
-		bool accounted = false;
 		S32 version = cat->getVersion();
 		if(version != LLViewerInventoryCategory::VERSION_UNKNOWN)
 		{
@@ -1733,22 +1732,27 @@ void LLInventoryModel::accountForUpdate(const LLCategoryUpdate& update) const
 			}
 			if(descendents_server == descendents_actual)
 			{
-				accounted = true;
 				descendents_actual += update.mDescendentDelta;
 				cat->setDescendentCount(descendents_actual);
 				cat->setVersion(++version);
-				lldebugs << "accounted: '" << cat->getName() << "' "
+				LL_DEBUGS("Inventory") << "accounted: '" << cat->getName() << "' "
 						 << version << " with " << descendents_actual
-						 << " descendents." << llendl;
+						 << " descendents." << LL_ENDL;
+			}
+			else
+			{
+				// Error condition, this means that the category did not register that
+				// it got new descendents (perhaps because it is still being loaded)
+				// which means its descendent count will be wrong.
+				llwarns << "Accounting failed for '" << cat->getName() << "' version:"
+						 << version << " due to mismatched descendent count:  server == "
+						 << descendents_server << ", viewer == " << descendents_actual << llendl;
 			}
 		}
-		if(!accounted)
+		else
 		{
-			// Error condition, this means that the category did not register that
-			// it got new descendents (perhaps because it is still being loaded)
-			// which means its descendent count will be wrong.
-			llwarns << "Accounting failed for '" << cat->getName() << "' version:"
-					 << version << llendl;
+			llwarns << "Accounting failed for '" << cat->getName() << "' version: unknown (" 
+					<< version << ")" << llendl;
 		}
 	}
 	else

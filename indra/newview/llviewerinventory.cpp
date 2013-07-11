@@ -430,7 +430,7 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 }
 
 // virtual
-BOOL LLViewerInventoryItem::unpackMessage(LLSD item)
+BOOL LLViewerInventoryItem::unpackMessage(const LLSD& item)
 {
 	BOOL rv = LLInventoryItem::fromLLSD(item);
 
@@ -866,6 +866,21 @@ void LLViewerInventoryCategory::localizeName()
 	LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
 }
 
+// virtual
+BOOL LLViewerInventoryCategory::unpackMessage(const LLSD& category)
+{
+	BOOL rv = LLInventoryCategory::fromLLSD(category);
+	localizeName();
+	return rv;
+}
+
+// virtual
+void LLViewerInventoryCategory::unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num)
+{
+	LLInventoryCategory::unpackMessage(msg, block, block_num);
+	localizeName();
+}
+
 ///----------------------------------------------------------------------------
 /// Local function definitions
 ///----------------------------------------------------------------------------
@@ -1159,24 +1174,22 @@ void update_inventory_item(
 	const LLSD& updates,
 	LLPointer<LLInventoryCallback> cb)
 {
-	LLPointer<LLViewerInventoryItem> obj = gInventory.getItem(item_id);
-	LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << (obj ? obj->getName() : "(NOT FOUND)") << llendl;
-	if(obj)
+	bool ais_ran = false;
+	if (AISCommand::isAPIAvailable())
 	{
-		LLPointer<LLViewerInventoryItem> new_item(new LLViewerInventoryItem);
-		new_item->copyViewerItem(obj);	
-		new_item->fromLLSD(updates,false);
-		
-		std::string cap;
-		if (AISCommand::getCap(cap))
+		LLPointer<AISCommand> cmd_ptr = new UpdateItemCommand(item_id, updates, cb);
+		ais_ran = cmd_ptr->run_command();
+	}
+	if (!ais_ran)
+	{
+		LLPointer<LLViewerInventoryItem> obj = gInventory.getItem(item_id);
+		LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << (obj ? obj->getName() : "(NOT FOUND)") << llendl;
+		if(obj)
 		{
-			LLSD new_llsd;
-			new_item->asLLSD(new_llsd);
-			LLPointer<AISCommand> cmd_ptr = new UpdateItemCommand(item_id, new_llsd, cb);
-			cmd_ptr->run_command();
-		}
-		else // no cap
-		{
+			LLPointer<LLViewerInventoryItem> new_item(new LLViewerInventoryItem);
+			new_item->copyViewerItem(obj);
+			new_item->fromLLSD(updates,false);
+
 			LLMessageSystem* msg = gMessageSystem;
 			msg->newMessageFast(_PREHASH_UpdateInventoryItem);
 			msg->nextBlockFast(_PREHASH_AgentData);
@@ -1216,9 +1229,8 @@ void update_inventory_category(
 
 		LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(obj);
 		new_cat->fromLLSD(updates);
-		//std::string cap;
 		// FIXME - restore this once the back-end work has been done.
-		if (0) // if (AISCommand::getCap(cap))
+		if (0) // if (AISCommand::isAPIAvailable())
 		{
 			LLSD new_llsd = new_cat->asLLSD();
 			LLPointer<AISCommand> cmd_ptr = new UpdateCategoryCommand(cat_id, new_llsd, cb);
@@ -1254,8 +1266,7 @@ void remove_inventory_item(
 	LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << (obj ? obj->getName() : "(NOT FOUND)") << llendl;
 	if(obj)
 	{
-		std::string cap;
-		if (AISCommand::getCap(cap))
+		if (AISCommand::isAPIAvailable())
 		{
 			LLPointer<AISCommand> cmd_ptr = new RemoveItemCommand(item_id, cb);
 			cmd_ptr->run_command();
@@ -1325,8 +1336,7 @@ void remove_inventory_category(
 			LLNotificationsUtil::add("CannotRemoveProtectedCategories");
 			return;
 		}
-		std::string cap;
-		if (AISCommand::getCap(cap))
+		if (AISCommand::isAPIAvailable())
 		{
 			LLPointer<AISCommand> cmd_ptr = new RemoveCategoryCommand(cat_id, cb);
 			cmd_ptr->run_command();
@@ -1429,8 +1439,7 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 		}
 		else
 		{
-			std::string cap;
-			if (AISCommand::getCap(cap))
+			if (AISCommand::isAPIAvailable())
 			{
 				LLPointer<AISCommand> cmd_ptr = new PurgeDescendentsCommand(id, cb);
 				cmd_ptr->run_command();
@@ -1564,8 +1573,7 @@ void slam_inventory_folder(const LLUUID& folder_id,
 						   const LLSD& contents,
 						   LLPointer<LLInventoryCallback> cb)
 {
-	std::string cap;
-	if (AISCommand::getCap(cap))
+	if (AISCommand::isAPIAvailable())
 	{
 		LL_DEBUGS("Avatar") << "using AISv3 to slam folder, id " << folder_id
 							<< " new contents: " << ll_pretty_print_sd(contents) << llendl;

@@ -133,6 +133,8 @@ const std::string HTTP_VERB_POST("POST");
 const std::string HTTP_VERB_DELETE("DELETE");
 const std::string HTTP_VERB_MOVE("MOVE");
 const std::string HTTP_VERB_OPTIONS("OPTIONS");
+const std::string HTTP_VERB_PATCH("PATCH");
+const std::string HTTP_VERB_COPY("COPY");
 
 const std::string& httpMethodAsVerb(EHTTPMethod method)
 {
@@ -145,7 +147,9 @@ const std::string& httpMethodAsVerb(EHTTPMethod method)
 		HTTP_VERB_POST,
 		HTTP_VERB_DELETE,
 		HTTP_VERB_MOVE,
-		HTTP_VERB_OPTIONS
+		HTTP_VERB_OPTIONS,
+		HTTP_VERB_PATCH,
+		HTTP_VERB_COPY
 	};
 	if(((S32)method <=0) || ((S32)method >= HTTP_METHOD_COUNT))
 	{

@@ -124,7 +124,7 @@ public:
 
 	virtual void packMessage(LLMessageSystem* msg) const;
 	virtual BOOL unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
-	virtual BOOL unpackMessage(LLSD item);
+	virtual BOOL unpackMessage(const LLSD& item);
 	virtual BOOL importFile(LLFILE* fp);
 	virtual BOOL importLegacyStream(std::istream& input_stream);
 
@@ -224,6 +224,8 @@ public:
 	bool importFileLocal(LLFILE* fp);
 	void determineFolderType();
 	void changeType(LLFolderType::EType new_folder_type);
+	virtual void unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
+	virtual BOOL unpackMessage(const LLSD& category);
 
 private:
 	friend class LLInventoryModel;

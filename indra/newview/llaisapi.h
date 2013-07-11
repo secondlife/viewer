@@ -31,7 +31,6 @@
 #include <map>
 #include <set>
 #include <string>
-#include <vector>
 #include "llcurl.h"
 #include "llhttpclient.h"
 #include "llhttpretrypolicy.h"
@@ -46,7 +45,7 @@ public:
 
 	virtual ~AISCommand() {}
 
-	void run_command();
+	bool run_command();
 
 	void setCommandFunc(command_func_type command_func);
 	
@@ -54,13 +53,17 @@ public:
 	// LLInventoryCallback::fire().  May or may not need to bother,
 	// since most LLInventoryCallbacks do their work in the
 	// destructor.
-	virtual bool getResponseUUID(const LLSD& content, LLUUID& id);
 	
 	/* virtual */ void httpSuccess();
+	/* virtual */ void httpFailure();
 
-	/*virtual*/ void httpFailure();
+	static bool isAPIAvailable();
+	static bool getInvCap(std::string& cap);
+	static bool getLibCap(std::string& cap);
+	static void getCapabilityNames(LLSD& capabilityNames);
 
-	static bool getCap(std::string& cap);
+protected:
+	virtual bool getResponseUUID(const LLSD& content, LLUUID& id);
 
 private:
 	command_func_type mCommandFunc;
@@ -118,26 +121,52 @@ private:
 	LLSD mContents;
 };
 
+class CopyLibraryCategoryCommand: public AISCommand
+{
+public:
+	CopyLibraryCategoryCommand(const LLUUID& source_id, const LLUUID& dest_id, LLPointer<LLInventoryCallback> callback);
+
+protected:
+	/* virtual */ bool getResponseUUID(const LLSD& content, LLUUID& id);
+};
+
 class AISUpdate
 {
 public:
 	AISUpdate(const LLSD& update);
 	void parseUpdate(const LLSD& update);
-	void parseUUIDArray(const LLSD& content, const std::string& name, uuid_vec_t& ids);
-	void parseLink(const LLUUID& link_id, const LLSD& link_map);
-	void parseCreatedLinks(const LLSD& links);
+	void parseMeta(const LLSD& update);
+	void parseContent(const LLSD& update);
+	void parseUUIDArray(const LLSD& content, const std::string& name, uuid_list_t& ids);
+	void parseLink(const LLSD& link_map);
+	void parseItem(const LLSD& link_map);
+	void parseCategory(const LLSD& link_map);
+	void parseDescendentCount(const LLUUID& category_id, const LLSD& embedded);
+	void parseEmbedded(const LLSD& embedded);
+	void parseEmbeddedLinks(const LLSD& links);
+	void parseEmbeddedItems(const LLSD& links);
+	void parseEmbeddedCategories(const LLSD& links);
 	void doUpdate();
 private:
+	void clearParseResults();
+
 	typedef std::map<LLUUID,S32> uuid_int_map_t;
-	uuid_int_map_t mCatDeltas;
-	uuid_int_map_t mCatVersions;
+	uuid_int_map_t mCatDescendentDeltas;
+	uuid_int_map_t mCatDescendentsKnown;
+	uuid_int_map_t mCatVersionsUpdated;
 
 	typedef std::map<LLUUID,LLPointer<LLViewerInventoryItem> > deferred_item_map_t;
 	deferred_item_map_t mItemsCreated;
 	deferred_item_map_t mItemsUpdated;
+	typedef std::map<LLUUID,LLPointer<LLViewerInventoryCategory> > deferred_category_map_t;
+	deferred_category_map_t mCategoriesCreated;
+	deferred_category_map_t mCategoriesUpdated;
 
-	std::set<LLUUID> mObjectsDeleted;
-	uuid_vec_t mItemsCreatedIds;
+	// These keep track of uuid's mentioned in meta values.
+	// Useful for filtering out which content we are interested in.
+	uuid_list_t mObjectsDeletedIds;
+	uuid_list_t mItemIds;
+	uuid_list_t mCategoryIds;
 };
 
 #endif

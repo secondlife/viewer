@@ -244,6 +244,7 @@ public:
 	S32 getNumSeedCapRetries();
 	void setCapability(const std::string& name, const std::string& url);
 	void setCapabilityDebug(const std::string& name, const std::string& url);
+	bool isCapabilityAvailable(const std::string& name) const;
 	// implements LLCapabilityProvider
     virtual std::string getCapability(const std::string& name) const;
 

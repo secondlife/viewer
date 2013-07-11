@@ -112,6 +112,7 @@ enum EHTTPMethod
 	HTTP_MOVE, // Caller will need to set 'Destination' header
 	HTTP_OPTIONS,
 	HTTP_PATCH,
+	HTTP_COPY,
 	HTTP_METHOD_COUNT
 };
 

@@ -40,14 +40,25 @@
 
 // AISCommand - base class for retry-able HTTP requests using the AISv3 cap.
 AISCommand::AISCommand(LLPointer<LLInventoryCallback> callback):
+	mCommandFunc(NULL),
 	mCallback(callback)
 {
 	mRetryPolicy = new LLAdaptiveRetryPolicy(1.0, 32.0, 2.0, 10);
 }
 
-void AISCommand::run_command()
+bool AISCommand::run_command()
 {
-	mCommandFunc();
+	if (NULL == mCommandFunc)
+	{
+		// This may happen if a command failed to initiate itself.
+		LL_WARNS("Inventory") << "AIS command attempted with null command function" << LL_ENDL;
+		return false;
+	}
+	else
+	{
+		mCommandFunc();
+		return true;
+	}
 }
 
 void AISCommand::setCommandFunc(command_func_type command_func)
@@ -80,9 +91,9 @@ void AISCommand::httpSuccess()
 
 	if (mCallback)
 	{
-		LLUUID item_id; // will default to null if parse fails.
-		getResponseUUID(content,item_id);
-		mCallback->fire(item_id);
+		LLUUID id; // will default to null if parse fails.
+		getResponseUUID(content,id);
+		mCallback->fire(id);
 	}
 }
 
@@ -96,12 +107,12 @@ void AISCommand::httpFailure()
 	if (!content.isMap())
 	{
 		LL_DEBUGS("Inventory") << "Malformed response contents " << content
-							   << " status " << status << " reason " << reason << llendl;
+							   << " status " << status << " reason " << reason << LL_ENDL;
 	}
 	else
 	{
 		LL_DEBUGS("Inventory") << "failed with content: " << ll_pretty_print_sd(content)
-							   << " status " << status << " reason " << reason << llendl;
+							   << " status " << status << " reason " << reason << LL_ENDL;
 	}
 	mRetryPolicy->onFailure(status, headers);
 	F32 seconds_to_wait;
@@ -113,12 +124,23 @@ void AISCommand::httpFailure()
 	{
 		// Command func holds a reference to self, need to release it
 		// after a success or final failure.
+		// *TODO: Notify user?  This seems bad.
 		setCommandFunc(no_op);
 	}
 }
 
 //static
-bool AISCommand::getCap(std::string& cap)
+bool AISCommand::isAPIAvailable()
+{
+	if (gAgent.getRegion())
+	{
+		return gAgent.getRegion()->isCapabilityAvailable("InventoryAPIv3");
+	}
+	return false;
+}
+
+//static
+bool AISCommand::getInvCap(std::string& cap)
 {
 	if (gAgent.getRegion())
 	{
@@ -131,18 +153,39 @@ bool AISCommand::getCap(std::string& cap)
 	return false;
 }
 
+//static
+bool AISCommand::getLibCap(std::string& cap)
+{
+	if (gAgent.getRegion())
+	{
+		cap = gAgent.getRegion()->getCapability("LibraryAPIv3");
+	}
+	if (!cap.empty())
+	{
+		return true;
+	}
+	return false;
+}
+
+//static
+void AISCommand::getCapabilityNames(LLSD& capabilityNames)
+{
+	capabilityNames.append("InventoryAPIv3");
+	capabilityNames.append("LibraryAPIv3");
+}
+
 RemoveItemCommand::RemoveItemCommand(const LLUUID& item_id,
 									 LLPointer<LLInventoryCallback> callback):
 	AISCommand(callback)
 {
 	std::string cap;
-	if (!getCap(cap))
+	if (!getInvCap(cap))
 	{
 		llwarns << "No cap found" << llendl;
 		return;
 	}
 	std::string url = cap + std::string("/item/") + item_id.asString();
-	LL_DEBUGS("Inventory") << "url: " << url << llendl;
+	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
 	LLHTTPClient::ResponderPtr responder = this;
 	LLSD headers;
 	F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
@@ -155,13 +198,13 @@ RemoveCategoryCommand::RemoveCategoryCommand(const LLUUID& item_id,
 	AISCommand(callback)
 {
 	std::string cap;
-	if (!getCap(cap))
+	if (!getInvCap(cap))
 	{
 		llwarns << "No cap found" << llendl;
 		return;
 	}
 	std::string url = cap + std::string("/category/") + item_id.asString();
-	LL_DEBUGS("Inventory") << "url: " << url << llendl;
+	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
 	LLHTTPClient::ResponderPtr responder = this;
 	LLSD headers;
 	F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
@@ -174,13 +217,13 @@ PurgeDescendentsCommand::PurgeDescendentsCommand(const LLUUID& item_id,
 	AISCommand(callback)
 {
 	std::string cap;
-	if (!getCap(cap))
+	if (!getInvCap(cap))
 	{
 		llwarns << "No cap found" << llendl;
 		return;
 	}
 	std::string url = cap + std::string("/category/") + item_id.asString() + "/children";
-	LL_DEBUGS("Inventory") << "url: " << url << llendl;
+	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
 	LLCurl::ResponderPtr responder = this;
 	LLSD headers;
 	F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
@@ -195,14 +238,14 @@ UpdateItemCommand::UpdateItemCommand(const LLUUID& item_id,
 	AISCommand(callback)
 {
 	std::string cap;
-	if (!getCap(cap))
+	if (!getInvCap(cap))
 	{
 		llwarns << "No cap found" << llendl;
 		return;
 	}
 	std::string url = cap + std::string("/item/") + item_id.asString();
-	LL_DEBUGS("Inventory") << "url: " << url << llendl;
-	LL_DEBUGS("Inventory") << "request: " << ll_pretty_print_sd(mUpdates) << llendl;
+	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
+	LL_DEBUGS("Inventory") << "request: " << ll_pretty_print_sd(mUpdates) << LL_ENDL;
 	LLCurl::ResponderPtr responder = this;
 	LLSD headers;
 	headers["Content-Type"] = "application/llsd+xml";
@@ -218,13 +261,13 @@ UpdateCategoryCommand::UpdateCategoryCommand(const LLUUID& item_id,
 	AISCommand(callback)
 {
 	std::string cap;
-	if (!getCap(cap))
+	if (!getInvCap(cap))
 	{
 		llwarns << "No cap found" << llendl;
 		return;
 	}
 	std::string url = cap + std::string("/category/") + item_id.asString();
-	LL_DEBUGS("Inventory") << "url: " << url << llendl;
+	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
 	LLCurl::ResponderPtr responder = this;
 	LLSD headers;
 	headers["Content-Type"] = "application/llsd+xml";
@@ -238,7 +281,7 @@ SlamFolderCommand::SlamFolderCommand(const LLUUID& folder_id, const LLSD& conten
 	AISCommand(callback)
 {
 	std::string cap;
-	if (!getCap(cap))
+	if (!getInvCap(cap))
 	{
 		llwarns << "No cap found" << llendl;
 		return;
@@ -255,92 +298,106 @@ SlamFolderCommand::SlamFolderCommand(const LLUUID& folder_id, const LLSD& conten
 	setCommandFunc(cmd);
 }
 
+CopyLibraryCategoryCommand::CopyLibraryCategoryCommand(const LLUUID& source_id,
+													   const LLUUID& dest_id,
+													   LLPointer<LLInventoryCallback> callback):
+	AISCommand(callback)
+{
+	std::string cap;
+	if (!getLibCap(cap))
+	{
+		llwarns << "No cap found" << llendl;
+		return;
+	}
+	LL_DEBUGS("Inventory") << "Copying library category: " << source_id << " => " << dest_id << LL_ENDL;
+	LLUUID tid;
+	tid.generate();
+	std::string url = cap + std::string("/category/") + source_id.asString() + "?tid=" + tid.asString();
+	llinfos << url << llendl;
+	LLCurl::ResponderPtr responder = this;
+	LLSD headers;
+	F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
+	command_func_type cmd = boost::bind(&LLHTTPClient::copy, url, dest_id.asString(), responder, headers, timeout);
+	setCommandFunc(cmd);
+}
+
+bool CopyLibraryCategoryCommand::getResponseUUID(const LLSD& content, LLUUID& id)
+{
+	if (content.has("category_id"))
+	{
+		id = content["category_id"];
+		return true;
+	}
+	return false;
+}
+
 AISUpdate::AISUpdate(const LLSD& update)
 {
 	parseUpdate(update);
 }
 
+void AISUpdate::clearParseResults()
+{
+	mCatDescendentDeltas.clear();
+	mCatDescendentsKnown.clear();
+	mCatVersionsUpdated.clear();
+	mItemsCreated.clear();
+	mItemsUpdated.clear();
+	mCategoriesCreated.clear();
+	mCategoriesUpdated.clear();
+	mObjectsDeletedIds.clear();
+	mItemIds.clear();
+	mCategoryIds.clear();
+}
+
 void AISUpdate::parseUpdate(const LLSD& update)
 {
-	// parse _categories_removed -> mObjectsDeleted
-	uuid_vec_t cat_ids;
+	clearParseResults();
+	parseMeta(update);
+	parseContent(update);
+}
+
+void AISUpdate::parseMeta(const LLSD& update)
+{
+	// parse _categories_removed -> mObjectsDeletedIds
+	uuid_list_t cat_ids;
 	parseUUIDArray(update,"_categories_removed",cat_ids);
-	for (uuid_vec_t::const_iterator it = cat_ids.begin();
+	for (uuid_list_t::const_iterator it = cat_ids.begin();
 		 it != cat_ids.end(); ++it)
 	{
 		LLViewerInventoryCategory *cat = gInventory.getCategory(*it);
-		mCatDeltas[cat->getParentUUID()]--;
-		mObjectsDeleted.insert(*it);
+		mCatDescendentDeltas[cat->getParentUUID()]--;
+		mObjectsDeletedIds.insert(*it);
 	}
 
-	// parse _categories_items_removed -> mObjectsDeleted
-	uuid_vec_t item_ids;
+	// parse _categories_items_removed -> mObjectsDeletedIds
+	uuid_list_t item_ids;
 	parseUUIDArray(update,"_category_items_removed",item_ids);
-	for (uuid_vec_t::const_iterator it = item_ids.begin();
+	parseUUIDArray(update,"_removed_items",item_ids);
+	for (uuid_list_t::const_iterator it = item_ids.begin();
 		 it != item_ids.end(); ++it)
 	{
 		LLViewerInventoryItem *item = gInventory.getItem(*it);
-		mCatDeltas[item->getParentUUID()]--;
-		mObjectsDeleted.insert(*it);
+		mCatDescendentDeltas[item->getParentUUID()]--;
+		mObjectsDeletedIds.insert(*it);
 	}
 
-	// parse _broken_links_removed -> mObjectsDeleted
-	uuid_vec_t broken_link_ids;
+	// parse _broken_links_removed -> mObjectsDeletedIds
+	uuid_list_t broken_link_ids;
 	parseUUIDArray(update,"_broken_links_removed",broken_link_ids);
-	for (uuid_vec_t::const_iterator it = broken_link_ids.begin();
+	for (uuid_list_t::const_iterator it = broken_link_ids.begin();
 		 it != broken_link_ids.end(); ++it)
 	{
 		LLViewerInventoryItem *item = gInventory.getItem(*it);
-		mCatDeltas[item->getParentUUID()]--;
-		mObjectsDeleted.insert(*it);
+		mCatDescendentDeltas[item->getParentUUID()]--;
+		mObjectsDeletedIds.insert(*it);
 	}
 
 	// parse _created_items
-	parseUUIDArray(update,"_created_items",mItemsCreatedIds);
+	parseUUIDArray(update,"_created_items",mItemIds);
 
-	if (update.has("_embedded"))
-	{
-		const LLSD& embedded = update["_embedded"];
-		for(LLSD::map_const_iterator it = embedded.beginMap(),
-				end = embedded.endMap();
-				it != end; ++it)
-		{
-			const std::string& field = (*it).first;
-			
-			// parse created links
-			if (field == "link")
-			{
-				const LLSD& links = embedded["link"];
-				parseCreatedLinks(links);
-			}
-		}
-	}
-
-	// Parse item update at the top level.
-	if (update.has("item_id"))
-	{
-		LLUUID item_id = update["item_id"].asUUID();
-		LLPointer<LLViewerInventoryItem> new_item(new LLViewerInventoryItem);
-		LLViewerInventoryItem *curr_item = gInventory.getItem(item_id);
-		if (curr_item)
-		{
-			// Default to current values where not provided.
-			new_item->copyViewerItem(curr_item);
-		}
-		BOOL rv = new_item->unpackMessage(update);
-		if (rv)
-		{
-			mItemsUpdated[item_id] = new_item;
-			// This statement is here to cause a new entry with 0
-			// delta to be created if it does not already exist;
-			// otherwise has no effect.
-			mCatDeltas[new_item->getParentUUID()];
-		}
-		else
-		{
-			llerrs << "unpack failed" << llendl;
-		}
-	}
+	// parse _created_categories
+	parseUUIDArray(update,"_created_categories",mCategoryIds);
 
 	// Parse updated category versions.
 	const std::string& ucv = "_updated_category_versions";
@@ -352,49 +409,224 @@ void AISUpdate::parseUpdate(const LLSD& update)
 		{
 			const LLUUID id((*it).first);
 			S32 version = (*it).second.asInteger();
-			mCatVersions[id] = version;
+			mCatVersionsUpdated[id] = version;
 		}
 	}
 }
 
-void AISUpdate::parseUUIDArray(const LLSD& content, const std::string& name, uuid_vec_t& ids)
+void AISUpdate::parseContent(const LLSD& update)
 {
-	ids.clear();
+	if (update.has("linked_id"))
+	{
+		parseLink(update);
+	}
+	else if (update.has("item_id"))
+	{
+		parseItem(update);
+	}
+
+	if (update.has("category_id"))
+	{
+		parseCategory(update);
+	}
+	else
+	{
+		if (update.has("_embedded"))
+		{
+			parseEmbedded(update["_embedded"]);
+		}
+	}
+}
+
+void AISUpdate::parseItem(const LLSD& item_map)
+{
+	LLUUID item_id = item_map["item_id"].asUUID();
+	LLPointer<LLViewerInventoryItem> new_item(new LLViewerInventoryItem);
+	LLViewerInventoryItem *curr_item = gInventory.getItem(item_id);
+	if (curr_item)
+	{
+		// Default to current values where not provided.
+		new_item->copyViewerItem(curr_item);
+	}
+	BOOL rv = new_item->unpackMessage(item_map);
+	if (rv)
+	{
+		if (curr_item)
+		{
+			mItemsUpdated[item_id] = new_item;
+			// This statement is here to cause a new entry with 0
+			// delta to be created if it does not already exist;
+			// otherwise has no effect.
+			mCatDescendentDeltas[new_item->getParentUUID()];
+		}
+		else
+		{
+			mItemsCreated[item_id] = new_item;
+			mCatDescendentDeltas[new_item->getParentUUID()]++;
+		}
+	}
+	else
+	{
+		// *TODO: Wow, harsh.  Should we just complain and get out?
+		llerrs << "unpack failed" << llendl;
+	}
+}
+
+void AISUpdate::parseLink(const LLSD& link_map)
+{
+	LLUUID item_id = link_map["item_id"].asUUID();
+	LLPointer<LLViewerInventoryItem> new_link(new LLViewerInventoryItem);
+	LLViewerInventoryItem *curr_link = gInventory.getItem(item_id);
+	if (curr_link)
+	{
+		// Default to current values where not provided.
+		new_link->copyViewerItem(curr_link);
+	}
+	BOOL rv = new_link->unpackMessage(link_map);
+	if (rv)
+	{
+		const LLUUID& parent_id = new_link->getParentUUID();
+		if (curr_link)
+		{
+			mItemsUpdated[item_id] = new_link;
+			// This statement is here to cause a new entry with 0
+			// delta to be created if it does not already exist;
+			// otherwise has no effect.
+			mCatDescendentDeltas[parent_id];
+		}
+		else
+		{
+			LLPermissions default_perms;
+			default_perms.init(gAgent.getID(),gAgent.getID(),LLUUID::null,LLUUID::null);
+			default_perms.initMasks(PERM_NONE,PERM_NONE,PERM_NONE,PERM_NONE,PERM_NONE);
+			new_link->setPermissions(default_perms);
+			LLSaleInfo default_sale_info;
+			new_link->setSaleInfo(default_sale_info);
+			//LL_DEBUGS("Inventory") << "creating link from llsd: " << ll_pretty_print_sd(link_map) << LL_ENDL;
+			mItemsCreated[item_id] = new_link;
+			mCatDescendentDeltas[parent_id]++;
+		}
+	}
+	else
+	{
+		// *TODO: Wow, harsh.  Should we just complain and get out?
+		llerrs << "unpack failed" << llendl;
+	}
+}
+
+
+void AISUpdate::parseCategory(const LLSD& category_map)
+{
+	LLUUID category_id = category_map["category_id"].asUUID();
+
+	// Check descendent count first, as it may be needed
+	// to populate newly created categories
+	if (category_map.has("_embedded"))
+	{
+		parseDescendentCount(category_id, category_map["_embedded"]);
+	}
+
+	LLPointer<LLViewerInventoryCategory> new_cat(new LLViewerInventoryCategory(category_id));
+	LLViewerInventoryCategory *curr_cat = gInventory.getCategory(category_id);
+	if (curr_cat)
+	{
+		// Default to current values where not provided.
+		new_cat->copyViewerCategory(curr_cat);
+	}
+	BOOL rv = new_cat->unpackMessage(category_map);
+	// *NOTE: unpackMessage does not unpack version or descendent count.
+	//if (category_map.has("version"))
+	//{
+	//	mCatVersionsUpdated[category_id] = category_map["version"].asInteger();
+	//}
+	if (rv)
+	{
+		if (curr_cat)
+		{
+			mCategoriesUpdated[category_id] = new_cat;
+			// This statement is here to cause a new entry with 0
+			// delta to be created if it does not already exist;
+			// otherwise has no effect.
+			mCatDescendentDeltas[new_cat->getParentUUID()];
+		}
+		else
+		{
+			// Set version/descendents for newly created categories.
+			if (category_map.has("version"))
+			{
+				S32 version = category_map["version"].asInteger();
+				LL_DEBUGS("Inventory") << "Setting version to " << version
+									   << " for new category " << category_id << LL_ENDL;
+				new_cat->setVersion(version);
+			}
+			uuid_int_map_t::const_iterator lookup_it = mCatDescendentsKnown.find(category_id);
+			if (mCatDescendentsKnown.end() != lookup_it)
+			{
+				S32 descendent_count = lookup_it->second;
+				LL_DEBUGS("Inventory") << "Setting descendents count to " << descendent_count 
+									   << " for new category " << category_id << LL_ENDL;
+				new_cat->setDescendentCount(descendent_count);
+			}
+			mCategoriesCreated[category_id] = new_cat;
+			mCatDescendentDeltas[new_cat->getParentUUID()]++;
+		}
+	}
+	else
+	{
+		// *TODO: Wow, harsh.  Should we just complain and get out?
+		llerrs << "unpack failed" << llendl;
+	}
+
+	// Check for more embedded content.
+	if (category_map.has("_embedded"))
+	{
+		parseEmbedded(category_map["_embedded"]);
+	}
+}
+
+void AISUpdate::parseDescendentCount(const LLUUID& category_id, const LLSD& embedded)
+{
+	// We can only determine true descendent count if this contains all descendent types.
+	if (embedded.has("category") &&
+		embedded.has("link") &&
+		embedded.has("item"))
+	{
+		mCatDescendentsKnown[category_id]  = embedded["category"].size();
+		mCatDescendentsKnown[category_id] += embedded["link"].size();
+		mCatDescendentsKnown[category_id] += embedded["item"].size();
+	}
+}
+
+void AISUpdate::parseEmbedded(const LLSD& embedded)
+{
+	if (embedded.has("link"))
+	{
+		parseEmbeddedLinks(embedded["link"]);
+	}
+	if (embedded.has("item"))
+	{
+		parseEmbeddedItems(embedded["item"]);
+	}
+	if (embedded.has("category"))
+	{
+		parseEmbeddedCategories(embedded["category"]);
+	}
+}
+
+void AISUpdate::parseUUIDArray(const LLSD& content, const std::string& name, uuid_list_t& ids)
+{
 	if (content.has(name))
 	{
 		for(LLSD::array_const_iterator it = content[name].beginArray(),
 				end = content[name].endArray();
 				it != end; ++it)
 		{
-			ids.push_back((*it).asUUID());
+			ids.insert((*it).asUUID());
 		}
 	}
 }
 
-void AISUpdate::parseLink(const LLUUID& link_id, const LLSD& link_map)
-{
-	LLPointer<LLViewerInventoryItem> new_link(new LLViewerInventoryItem);
-	BOOL rv = new_link->unpackMessage(link_map);
-	if (rv)
-	{
-		LLPermissions default_perms;
-		default_perms.init(gAgent.getID(),gAgent.getID(),LLUUID::null,LLUUID::null);
-		default_perms.initMasks(PERM_NONE,PERM_NONE,PERM_NONE,PERM_NONE,PERM_NONE);
-		new_link->setPermissions(default_perms);
-		LLSaleInfo default_sale_info;
-		new_link->setSaleInfo(default_sale_info);
-		//LL_DEBUGS("Inventory") << "creating link from llsd: " << ll_pretty_print_sd(link_map) << llendl;
-		mItemsCreated[link_id] = new_link;
-		const LLUUID& parent_id = new_link->getParentUUID();
-		mCatDeltas[parent_id]++;
-	}
-	else
-	{
-		llwarns << "failed to parse" << llendl;
-	}
-}
-
-void AISUpdate::parseCreatedLinks(const LLSD& links)
+void AISUpdate::parseEmbeddedLinks(const LLSD& links)
 {
 	for(LLSD::map_const_iterator linkit = links.beginMap(),
 			linkend = links.endMap();
@@ -402,47 +634,134 @@ void AISUpdate::parseCreatedLinks(const LLSD& links)
 	{
 		const LLUUID link_id((*linkit).first);
 		const LLSD& link_map = (*linkit).second;
-		uuid_vec_t::const_iterator pos =
-			std::find(mItemsCreatedIds.begin(),
-					  mItemsCreatedIds.end(),link_id);
-		if (pos != mItemsCreatedIds.end())
+		if (mItemIds.end() == mItemIds.find(link_id))
 		{
-			parseLink(link_id,link_map);
+			LL_DEBUGS("Inventory") << "Ignoring link not in items list " << link_id << LL_ENDL;
 		}
 		else
 		{
-			LL_DEBUGS("Inventory") << "Ignoring link not in created items list " << link_id << llendl;
+			parseLink(link_map);
+		}
+	}
+}
+
+void AISUpdate::parseEmbeddedItems(const LLSD& items)
+{
+	// Special case: this may be a single item (_embedded in a link)
+	if (items.has("item_id"))
+	{
+		if (mItemIds.end() != mItemIds.find(items["item_id"].asUUID()))
+		{
+			parseContent(items);
+		}
+		return;
+	}
+
+	for(LLSD::map_const_iterator itemit = items.beginMap(),
+			itemend = items.endMap();
+		itemit != itemend; ++itemit)
+	{
+		const LLUUID item_id((*itemit).first);
+		const LLSD& item_map = (*itemit).second;
+		if (mItemIds.end() == mItemIds.find(item_id))
+		{
+			LL_DEBUGS("Inventory") << "Ignoring item not in items list " << item_id << LL_ENDL;
+		}
+		else
+		{
+			parseItem(item_map);
+		}
+	}
+}
+
+void AISUpdate::parseEmbeddedCategories(const LLSD& categories)
+{
+	for(LLSD::map_const_iterator categoryit = categories.beginMap(),
+			categoryend = categories.endMap();
+		categoryit != categoryend; ++categoryit)
+	{
+		const LLUUID category_id((*categoryit).first);
+		const LLSD& category_map = (*categoryit).second;
+		if (mCategoryIds.end() == mCategoryIds.find(category_id))
+		{
+			LL_DEBUGS("Inventory") << "Ignoring category not in categories list " << category_id << LL_ENDL;
+		}
+		else
+		{
+			parseCategory(category_map);
 		}
 	}
 }
 
 void AISUpdate::doUpdate()
 {
-	// Do descendent/version accounting.
-	// Can remove this if/when we use the version info directly.
-	for (std::map<LLUUID,S32>::const_iterator catit = mCatDeltas.begin();
-		 catit != mCatDeltas.end(); ++catit)
+	// Do version/descendent accounting.
+	for (std::map<LLUUID,S32>::const_iterator catit = mCatDescendentDeltas.begin();
+		 catit != mCatDescendentDeltas.end(); ++catit)
 	{
 		const LLUUID cat_id(catit->first);
-		S32 delta = catit->second;
-		LLInventoryModel::LLCategoryUpdate up(cat_id, delta);
-		gInventory.accountForUpdate(up);
-	}
-	
-	// TODO - how can we use this version info? Need to be sure all
-	// changes are going through AIS first, or at least through
-	// something with a reliable responder.
-	for (uuid_int_map_t::iterator ucv_it = mCatVersions.begin();
-		 ucv_it != mCatVersions.end(); ++ucv_it)
-	{
-		const LLUUID id = ucv_it->first;
-		S32 version = ucv_it->second;
-		LLViewerInventoryCategory *cat = gInventory.getCategory(id);
-		if (cat->getVersion() != version)
+		// Don't account for update if we just created this category.
+		if (mCategoriesCreated.find(cat_id) != mCategoriesCreated.end())
 		{
-			llwarns << "Possible version mismatch for category " << cat->getName()
-					<< ", viewer version " << cat->getVersion()
-					<< " server version " << version << llendl;
+			LL_DEBUGS("Inventory") << "Skipping version increment for new category " << cat_id << LL_ENDL;
+			continue;
+		}
+
+		// Don't account for update unless AIS told us it updated that category.
+		if (mCatVersionsUpdated.find(cat_id) == mCatVersionsUpdated.end())
+		{
+			LL_DEBUGS("Inventory") << "Skipping version increment for non-updated category " << cat_id << LL_ENDL;
+			continue;
+		}
+
+		// If we have a known descendent count, set that now.
+		LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+		if (cat)
+		{
+			S32 descendent_delta = catit->second;
+			S32 old_count = cat->getDescendentCount();
+			LL_DEBUGS("Inventory") << "Updating descendent count for " << cat_id
+								   << " with delta " << descendent_delta << " from "
+								   << old_count << " to " << (old_count+descendent_delta) << LL_ENDL;
+			LLInventoryModel::LLCategoryUpdate up(cat_id, descendent_delta);
+			gInventory.accountForUpdate(up);
+		}
+		else
+		{
+			LL_DEBUGS("Inventory") << "Skipping version accounting for unknown category " << cat_id << LL_ENDL;
+		}
+	}
+
+	// CREATE CATEGORIES
+	for (deferred_category_map_t::const_iterator create_it = mCategoriesCreated.begin();
+		 create_it != mCategoriesCreated.end(); ++create_it)
+	{
+		LLUUID category_id(create_it->first);
+		LLPointer<LLViewerInventoryCategory> new_category = create_it->second;
+
+		gInventory.updateCategory(new_category);
+		LL_DEBUGS("Inventory") << "created category " << category_id << LL_ENDL;
+	}
+
+	// UPDATE CATEGORIES
+	for (deferred_category_map_t::const_iterator update_it = mCategoriesUpdated.begin();
+		 update_it != mCategoriesUpdated.end(); ++update_it)
+	{
+		LLUUID category_id(update_it->first);
+		LLPointer<LLViewerInventoryCategory> new_category = update_it->second;
+		// Since this is a copy of the category *before* the accounting update, above,
+		// we need to transfer back the updated version/descendent count.
+		LLViewerInventoryCategory* curr_cat = gInventory.getCategory(new_category->getUUID());
+		if (NULL == curr_cat)
+		{
+			LL_WARNS("Inventory") << "Failed to update unknown category " << new_category->getUUID() << LL_ENDL;
+		}
+		else
+		{
+			new_category->setVersion(curr_cat->getVersion());
+			new_category->setDescendentCount(curr_cat->getDescendentCount());
+			gInventory.updateCategory(new_category);
+			LL_DEBUGS("Inventory") << "updated category " << category_id << LL_ENDL;
 		}
 	}
 
@@ -456,7 +775,7 @@ void AISUpdate::doUpdate()
 		// FIXME risky function since it calls updateServer() in some
 		// cases.  Maybe break out the update/create cases, in which
 		// case this is create.
-		LL_DEBUGS("Inventory") << "created item " << item_id << llendl;
+		LL_DEBUGS("Inventory") << "created item " << item_id << LL_ENDL;
 		gInventory.updateItem(new_item);
 	}
 	
@@ -469,17 +788,34 @@ void AISUpdate::doUpdate()
 		// FIXME risky function since it calls updateServer() in some
 		// cases.  Maybe break out the update/create cases, in which
 		// case this is update.
-		LL_DEBUGS("Inventory") << "updated item " << item_id << llendl;
-		//LL_DEBUGS("Inventory") << ll_pretty_print_sd(new_item->asLLSD()) << llendl;
+		LL_DEBUGS("Inventory") << "updated item " << item_id << LL_ENDL;
+		//LL_DEBUGS("Inventory") << ll_pretty_print_sd(new_item->asLLSD()) << LL_ENDL;
 		gInventory.updateItem(new_item);
 	}
 
 	// DELETE OBJECTS
-	for (std::set<LLUUID>::const_iterator del_it = mObjectsDeleted.begin();
-		 del_it != mObjectsDeleted.end(); ++del_it)
+	for (std::set<LLUUID>::const_iterator del_it = mObjectsDeletedIds.begin();
+		 del_it != mObjectsDeletedIds.end(); ++del_it)
 	{
-		LL_DEBUGS("Inventory") << "deleted item " << *del_it << llendl;
+		LL_DEBUGS("Inventory") << "deleted item " << *del_it << LL_ENDL;
 		gInventory.onObjectDeletedFromServer(*del_it, false, false, false);
+	}
+
+	// TODO - how can we use this version info? Need to be sure all
+	// changes are going through AIS first, or at least through
+	// something with a reliable responder.
+	for (uuid_int_map_t::iterator ucv_it = mCatVersionsUpdated.begin();
+		 ucv_it != mCatVersionsUpdated.end(); ++ucv_it)
+	{
+		const LLUUID id = ucv_it->first;
+		S32 version = ucv_it->second;
+		LLViewerInventoryCategory *cat = gInventory.getCategory(id);
+		if (cat->getVersion() != version)
+		{
+			llwarns << "Possible version mismatch for category " << cat->getName()
+					<< ", viewer version " << cat->getVersion()
+					<< " server version " << version << llendl;
+		}
 	}
 
 	gInventory.notifyObservers();

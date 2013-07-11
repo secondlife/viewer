@@ -516,13 +516,19 @@ bool LLURLRequest::configure()
 		break;
 
 	case HTTP_DELETE:
-		// Set the handle for an http post
+		// Set the handle for an http delete
 		mDetail->mCurlRequest->setoptString(CURLOPT_CUSTOMREQUEST, "DELETE");
 		rv = true;
 		break;
 
+	case HTTP_COPY:
+		// Set the handle for an http copy
+		mDetail->mCurlRequest->setoptString(CURLOPT_CUSTOMREQUEST, "COPY");
+		rv = true;
+		break;
+
 	case HTTP_MOVE:
-		// Set the handle for an http post
+		// Set the handle for an http move
 		mDetail->mCurlRequest->setoptString(CURLOPT_CUSTOMREQUEST, "MOVE");
 		// *NOTE: should we check for the Destination header?
 		rv = true;
