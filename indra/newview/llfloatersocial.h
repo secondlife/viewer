@@ -49,7 +49,8 @@ public:
 
 private:
 	LLUICtrl* mMessageTextEditor;
-	LLUICtrl* mPostStatusButton;
+	LLUICtrl* mPostButton;
+	LLUICtrl* mCancelButton;
 };
 
 class LLSocialPhotoPanel : public LLPanel
@@ -86,6 +87,7 @@ private:
 	LLUICtrl * mCaptionTextBox;
 	LLUICtrl * mLocationCheckbox;
 	LLUICtrl * mPostButton;
+	LLUICtrl* mCancelButton;
 };
 
 class LLSocialCheckinPanel : public LLPanel
@@ -104,6 +106,8 @@ private:
     std::string mMapUrl;
     LLPointer<LLViewerFetchedTexture> mMapTexture;
 	LLUICtrl* mPostButton;
+	LLUICtrl* mCancelButton;
+	LLUICtrl* mMessageTextEditor;
     LLUICtrl* mMapLoadingIndicator;
     LLIconCtrl* mMapPlaceholder;
     LLCheckBoxCtrl* mMapCheckBox;

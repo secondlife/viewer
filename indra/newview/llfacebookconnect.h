@@ -70,6 +70,7 @@ public:
     
     void setConnectionState(EConnectionState connection_state);
 	bool isConnected() { return ((mConnectionState == FB_CONNECTED) || (mConnectionState == FB_POSTING) || (mConnectionState == FB_POSTED)); }
+	bool isTransactionOngoing() { return ((mConnectionState == FB_CONNECTION_IN_PROGRESS) || (mConnectionState == FB_POSTING)); }
     EConnectionState getConnectionState() { return mConnectionState; }
     S32  generation() { return mGeneration; }
     

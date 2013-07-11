@@ -105,7 +105,7 @@
              left="9"
              length="1"
              max_length="700"
-             name="caption"
+             name="photo_caption"
              type="string"
              word_wrap="true">
             </text_editor>
@@ -127,7 +127,7 @@
            left="9"
            height="23"
            label="Post"
-           name="post_btn"
+           name="post_photo_btn"
            width="100">
             <button.commit_callback
              function="SocialSharing.SendPhoto" />
@@ -136,7 +136,7 @@
                follows="left|top"
                height="23"
                label="Cancel"
-               name="cancel_btn"
+               name="cancel_photo_btn"
                left_pad="15"
                top_delta="0"
                width="100">

@@ -71,7 +71,8 @@ std::string get_map_url()
 
 LLSocialStatusPanel::LLSocialStatusPanel() :
 	mMessageTextEditor(NULL),
-	mPostStatusButton(NULL)
+	mPostButton(NULL),
+    mCancelButton(NULL)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendStatus", boost::bind(&LLSocialStatusPanel::onSend, this));
 }
@@ -79,18 +80,22 @@ LLSocialStatusPanel::LLSocialStatusPanel() :
 BOOL LLSocialStatusPanel::postBuild()
 {
 	mMessageTextEditor = getChild<LLUICtrl>("status_message");
-	mPostStatusButton = getChild<LLUICtrl>("post_status_btn");
+	mPostButton = getChild<LLUICtrl>("post_status_btn");
+	mCancelButton = getChild<LLUICtrl>("cancel_status_btn");
 
 	return LLPanel::postBuild();
 }
 
 void LLSocialStatusPanel::draw()
 {
-	if (mMessageTextEditor && mPostStatusButton)
+    if (mMessageTextEditor && mPostButton && mCancelButton)
 	{
-		std::string message = mMessageTextEditor->getValue().asString();
-		mPostStatusButton->setEnabled(!message.empty());
-	}
+        bool no_ongoing_connection = !(LLFacebookConnect::instance().isTransactionOngoing());
+        std::string message = mMessageTextEditor->getValue().asString();
+        mMessageTextEditor->setEnabled(no_ongoing_connection);
+        mCancelButton->setEnabled(no_ongoing_connection);
+        mPostButton->setEnabled(no_ongoing_connection && !message.empty());
+    }
 
 	LLPanel::draw();
 }
@@ -184,9 +189,10 @@ BOOL LLSocialPhotoPanel::postBuild()
 	childSetAction("new_snapshot_btn", boost::bind(&LLSocialPhotoPanel::onClickNewSnapshot, this));
     mWorkingLabel = getChild<LLUICtrl>("working_lbl");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
-	mCaptionTextBox = getChild<LLUICtrl>("caption");
+	mCaptionTextBox = getChild<LLUICtrl>("photo_caption");
 	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
-	mPostButton = getChild<LLUICtrl>("post_btn");
+	mPostButton = getChild<LLUICtrl>("post_photo_btn");
+	mCancelButton = getChild<LLUICtrl>("cancel_photo_btn");
 
 	return LLPanel::postBuild();
 }
@@ -195,6 +201,14 @@ void LLSocialPhotoPanel::draw()
 { 
 	LLSnapshotLivePreview * previewp = static_cast<LLSnapshotLivePreview *>(mPreviewHandle.get());
 
+    bool no_ongoing_connection = !(LLFacebookConnect::instance().isTransactionOngoing());
+    mPostButton->setEnabled(no_ongoing_connection);
+    mCancelButton->setEnabled(no_ongoing_connection);
+    mCaptionTextBox->setEnabled(no_ongoing_connection);
+    mResolutionComboBox->setEnabled(no_ongoing_connection);
+    mRefreshBtn->setEnabled(no_ongoing_connection);
+    mLocationCheckbox->setEnabled(no_ongoing_connection);
+    
     // Display the preview if one is available
 	if (previewp && previewp->getThumbnailImage())
 	{
@@ -471,6 +485,8 @@ BOOL LLSocialCheckinPanel::postBuild()
 {
     // Keep pointers to widgets so we don't traverse the UI hierarchy too often
 	mPostButton = getChild<LLUICtrl>("post_place_btn");
+	mCancelButton = getChild<LLUICtrl>("cancel_place_btn");
+	mMessageTextEditor = getChild<LLUICtrl>("place_caption");
     mMapLoadingIndicator = getChild<LLUICtrl>("map_loading_indicator");
     mMapPlaceholder = getChild<LLIconCtrl>("map_placeholder");
     mMapCheckBox = getChild<LLCheckBoxCtrl>("add_place_view_cb");
@@ -481,6 +497,11 @@ BOOL LLSocialCheckinPanel::postBuild()
 
 void LLSocialCheckinPanel::draw()
 {
+    bool no_ongoing_connection = !(LLFacebookConnect::instance().isTransactionOngoing());
+    mPostButton->setEnabled(no_ongoing_connection);
+    mCancelButton->setEnabled(no_ongoing_connection);
+    mMessageTextEditor->setEnabled(no_ongoing_connection);
+
     std::string map_url = get_map_url();
     // Did we change location?
     if (map_url != mMapUrl)
@@ -509,7 +530,7 @@ void LLSocialCheckinPanel::draw()
         // Now hide the loading indicator, bring the tile in view and reenable the checkbox with its previous value
         mMapLoadingIndicator->setVisible(false);
         mMapPlaceholder->setVisible(true);
-        mMapCheckBox->setEnabled(true);
+        mMapCheckBox->setEnabled(no_ongoing_connection);
         mMapCheckBox->set(mMapCheckBoxValue);
     }
 
@@ -564,11 +585,11 @@ void LLSocialCheckinPanel::sendCheckin()
 	LLAgentUI::buildLocationString(description, LLAgentUI::LOCATION_FORMAT_NORMAL_COORDS, gAgent.getPositionAgent());
     
 	// Optionally add the region map view
-	bool add_map_view = getChild<LLUICtrl>("add_place_view_cb")->getValue().asBoolean();
+	bool add_map_view = mMapCheckBox->getValue().asBoolean();
     std::string map_url = (add_map_view ? get_map_url() : DEFAULT_CHECKIN_ICON_URL);
     
 	// Get the caption
-	std::string caption = getChild<LLUICtrl>("place_caption")->getValue().asString();
+	std::string caption = mMessageTextEditor->getValue().asString();
 
 	// Post to Facebook
 	LLFacebookConnect::instance().postCheckin(slurl_string, region_name, description, map_url, caption);
@@ -576,7 +597,7 @@ void LLSocialCheckinPanel::sendCheckin()
 
 void LLSocialCheckinPanel::clearAndClose()
 {
-	getChild<LLUICtrl>("place_caption")->setValue("");
+	mMessageTextEditor->setValue("");
 
 	LLFloater* floater = getParentByType<LLFloater>();
 	if (floater)
