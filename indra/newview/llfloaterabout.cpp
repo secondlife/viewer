@@ -33,8 +33,10 @@
 
 // Viewer includes
 #include "llagent.h"
+#include "llagentui.h"
 #include "llappviewer.h" 
 #include "llsecondlifeurls.h"
+#include "llslurl.h"
 #include "llvoiceclient.h"
 #include "lluictrlfactory.h"
 #include "llviewertexteditor.h"
@@ -257,6 +259,9 @@ LLSD LLFloaterAbout::getInfo()
 		info["HOSTNAME"] = gAgent.getRegion()->getHost().getHostName();
 		info["HOSTIP"] = gAgent.getRegion()->getHost().getString();
 		info["SERVER_VERSION"] = gLastVersionChannel;
+		LLSLURL slurl;
+		LLAgentUI::buildSLURL(slurl);
+		info["SLURL"] = slurl.getSLURLString();
 	}
 
 	// CPU
