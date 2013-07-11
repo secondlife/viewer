@@ -863,26 +863,11 @@ BOOL LLWindowMacOSX::setSizeImpl(const LLCoordScreen size)
 
 BOOL LLWindowMacOSX::setSizeImpl(const LLCoordWindow size)
 {
-	float client_rect[4];
 	if (mWindow)
 	{
-		S32 err = noErr;
-		getContentViewBounds(mWindow, client_rect);
-		if (err == noErr)
-		{
-			client_rect[2] += size.mX;
-			client_rect[3] += size.mY;
-			setWindowSize(mWindow, client_rect[2], client_rect[3]);
-		}
-		if (err == noErr)
-		{
-			return TRUE;
-		}
-		else
-		{
-			llinfos << "Error setting size" << err << llendl;
-			return FALSE;
-		}
+		LLCoordScreen screen_size;
+		convertCoords(size, &screen_size);
+		return setSizeImpl(screen_size);
 	}
 	return FALSE;
 }
