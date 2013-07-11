@@ -405,6 +405,11 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 					llassert(mask < LLMaterial::SHADER_COUNT);
 					target_shader = &(gDeferredMaterialProgram[mask]);
 
+					if (LLPipeline::sUnderWaterRender)
+					{
+						target_shader = &(gDeferredMaterialWaterProgram[mask]);
+					}
+
 					if (current_shader != target_shader)
 					{
 						gPipeline.bindDeferredShader(*target_shader);
@@ -554,3 +559,4 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 		gPipeline.enableLightsDynamic();
 	}
 }
+

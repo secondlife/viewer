@@ -99,12 +99,12 @@ LLViewerTexture *LLDrawPoolWLSky::getDebugTexture()
 void LLDrawPoolWLSky::beginRenderPass( S32 pass )
 {
 	sky_shader =
-		(LLPipeline::sUnderWaterRender /*&& !LLPipeline::sRenderDeferred*/) ?
+		LLPipeline::sUnderWaterRender ?
 			&gObjectFullbrightNoColorWaterProgram :
 			&gWLSkyProgram;
 
 	cloud_shader =
-			(LLPipeline::sUnderWaterRender /*&& !LLPipeline::sRenderDeferred*/) ?
+			LLPipeline::sUnderWaterRender ?
 				&gObjectFullbrightNoColorWaterProgram :
 				&gWLCloudProgram;
 }
@@ -420,3 +420,4 @@ void LLDrawPoolWLSky::restoreGL()
 		sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
 	}
 }
+

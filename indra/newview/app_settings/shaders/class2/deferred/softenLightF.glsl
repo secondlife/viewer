@@ -133,6 +133,13 @@ vec4 getPosition(vec2 pos_screen)
 	return getPosition_d(pos_screen, depth);
 }
 
+#ifdef WATER_FOG
+vec3 getPositionEye();
+vec3 getSunlitColor();
+vec3 getAmblitColor();
+vec3 getAdditiveColor();
+vec3 getAtmosAttenuation();
+#else
 vec3 getPositionEye()
 {
 	return vary_PositionEye;
@@ -153,6 +160,7 @@ vec3 getAtmosAttenuation()
 {
 	return vary_AtmosAttenuation;
 }
+#endif
 
 void setPositionEye(vec3 v)
 {
@@ -421,3 +429,4 @@ void main()
 	frag_color.rgb = col;
 	frag_color.a = bloom;
 }
+

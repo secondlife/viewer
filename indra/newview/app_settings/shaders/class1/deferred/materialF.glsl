@@ -136,20 +136,15 @@ uniform vec3 light_attenuation[8];
 uniform vec3 light_diffuse[8];
 
 #ifdef WATER_FOG
-vec3 getPositionEye()
-{
-	return vary_PositionEye;
-}
-
 uniform vec4 waterPlane;
 uniform vec4 waterFogColor;
 uniform float waterFogDensity;
 uniform float waterFogKS;
 
-vec4 applyWaterFogDeferred(vec4 color)
+vec4 applyWaterFogDeferred(vec3 pos, vec4 color)
 {
 	//normalize view vector
-	vec3 view = normalize(getPositionEye());
+	vec3 view = normalize(pos);
 	float es = -(dot(view, waterPlane.xyz));
 
 	//find intersection point with water plane and eye vector
@@ -160,7 +155,7 @@ vec4 applyWaterFogDeferred(vec4 color)
 	vec3 int_v = waterPlane.w > 0.0 ? view * waterPlane.w/es : vec3(0.0, 0.0, 0.0);
 	
 	//get object depth
-	float depth = length(getPositionEye() - int_v);
+	float depth = length(pos - int_v);
 		
 	//get "thickness" of water
 	float l = max(depth, 0.1);
@@ -463,21 +458,6 @@ out vec4 frag_data[3];
 #else
 #define frag_data gl_FragData
 #endif
-
-VARYING vec3 vary_position;
-
-#ifdef WATER_FOG
-vec3 vary_PositionEye;
-vec3 getPositionEye()
-{
-	return vary_PositionEye;
-}
-void setPositionEye(vec3 e)
-{
-	vary_PositionEye = e;
-}
-#endif
-
 #endif
 
 uniform sampler2D diffuseMap;
@@ -749,15 +729,18 @@ void main()
 	float al = max(diffcol.a,glare)*vertex_color.a;
 
 #ifdef WATER_FOG
-	frag_color = applyWaterFogDeferred(vec4(col.rgb, al));
-#else
+	vec4 temp = applyWaterFogDeferred(pos, vec4(col.rgb, al));
+	col.rgb = temp.rgb;
+	al = temp.a;
+#endif
+
 	frag_color.rgb = col.rgb;
 	frag_color.a   = al;
-#endif
 
 #else
 	frag_data[0] = final_color;
 	frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.
 	frag_data[2] = final_normal; // XY = Normal.  Z = Env. intensity.
-#endif%
+#endif
 }
+

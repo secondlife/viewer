@@ -133,6 +133,7 @@ vec3 getPositionEye()
 {
 	return vary_PositionEye;
 }
+
 vec3 getSunlitColor()
 {
 	return vary_SunlitColor;
@@ -182,10 +183,10 @@ uniform vec4 waterFogColor;
 uniform float waterFogDensity;
 uniform float waterFogKS;
 
-vec4 applyWaterFogDeferred(vec4 color)
+vec4 applyWaterFogDeferred(vec3 pos, vec4 color)
 {
 	//normalize view vector
-	vec3 view = normalize(getPositionEye());
+	vec3 view = normalize(pos);
 	float es = -(dot(view, waterPlane.xyz));
 
 	//find intersection point with water plane and eye vector
@@ -196,7 +197,7 @@ vec4 applyWaterFogDeferred(vec4 color)
 	vec3 int_v = waterPlane.w > 0.0 ? view * waterPlane.w/es : vec3(0.0, 0.0, 0.0);
 	
 	//get object depth
-	float depth = length(getPositionEye() - int_v);
+	float depth = length(pos - int_v);
 		
 	//get "thickness" of water
 	float l = max(depth, 0.1);
@@ -435,13 +436,14 @@ void main()
 		if (norm.w < 0.5)
 		{
 			col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
-			col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
 
 			#ifdef WATER_FOG
-				vec4 fogged = applyWaterFogDeferred(vec4(col, bloom));
+				vec4 fogged = applyWaterFogDeferred(pos,vec4(col, bloom));
 				col = fogged.rgb;
 				bloom = fogged.a;
 			#endif
+
+			col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);			
 		}
 
 		col = srgb_to_linear(col);
@@ -450,6 +452,7 @@ void main()
 		//col.g = envIntensity;
 	}
 
-	frag_color.rgb = col;
+	frag_color.rgb = col.rgb;
 	frag_color.a = bloom;
 }
+

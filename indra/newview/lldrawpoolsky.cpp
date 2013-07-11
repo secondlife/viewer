@@ -77,7 +77,7 @@ void LLDrawPoolSky::render(S32 pass)
 	}
 	
 	// don't render sky under water (background just gets cleared to fog color)
-	if(mVertexShaderLevel > 0 /*&& !LLPipeline::sRenderDeferred*/ && LLPipeline::sUnderWaterRender)
+	if(mVertexShaderLevel > 0 && LLPipeline::sUnderWaterRender)
 	{
 		return;
 	}
@@ -155,3 +155,4 @@ void LLDrawPoolSky::renderSkyCubeFace(U8 side)
 void LLDrawPoolSky::endRenderPass( S32 pass )
 {
 }
+

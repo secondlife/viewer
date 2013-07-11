@@ -8725,8 +8725,6 @@ void LLPipeline::renderDeferredLighting()
 						count = 0; 
 						mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 						mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-// seems like this should be done here...
-						//unbindDeferredShader(gDeferredMultiLightProgram[idx]);
 					}
 				}
 				

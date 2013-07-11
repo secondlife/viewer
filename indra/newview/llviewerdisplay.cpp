@@ -893,15 +893,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			if (LLPipeline::sRenderDeferred)
 			{
 				gPipeline.mDeferredScreen.bindTarget();
-				if (LLPipeline::sUnderWaterRender)
-				{
-					const LLColor4 &col = LLDrawPoolWater::sWaterFogColor;
-					glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
-				}
-				else
-				{
-					glClearColor(1,0,1,1);
-				}				
+				glClearColor(1,0,1,1);
 				gPipeline.mDeferredScreen.clear();
 			}
 			else
@@ -1631,3 +1623,4 @@ void display_cleanup()
 {
 	gDisconnectedImagep = NULL;
 }
+
