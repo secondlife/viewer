@@ -75,7 +75,7 @@ public:
 			{
 				if (query_map.has("code"))
 				{
-                    LLFacebookConnect::instance().connectToFacebook(query_map["code"]);
+                    LLFacebookConnect::instance().connectToFacebook(query_map["code"], query_map.get("state"));
 				}
 				return true;
 			}
@@ -286,11 +286,13 @@ std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route)
 	return url;
 }
 
-void LLFacebookConnect::connectToFacebook(const std::string& auth_code)
+void LLFacebookConnect::connectToFacebook(const std::string& auth_code, const std::string& auth_state)
 {
 	LLSD body;
 	if (!auth_code.empty())
 		body["code"] = auth_code;
+	if (!auth_state.empty())
+		body["state"] = auth_state;
     
 	LLHTTPClient::put(getFacebookConnectURL("/connection"), body, new LLFacebookConnectResponder());
 }
