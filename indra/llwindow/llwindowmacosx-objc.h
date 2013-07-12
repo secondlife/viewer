@@ -69,6 +69,7 @@ void hideNSCursor();
 void showNSCursor();
 void hideNSCursorTillMove(bool hide);
 void requestUserAttention();
+long showAlert(std::string title, std::string text, int type);
 
 NSWindowRef createNSWindow(int x, int y, int width, int height);
 

@@ -395,6 +395,41 @@ void requestUserAttention()
 	[[NSApplication sharedApplication] requestUserAttention:NSInformationalRequest];
 }
 
+long showAlert(std::string text, std::string title, int type)
+{
+    NSAlert *alert = [[NSAlert alloc] init];
+    
+    [alert setMessageText:[NSString stringWithCString:title.c_str() encoding:[NSString defaultCStringEncoding]]];
+    [alert setInformativeText:[NSString stringWithCString:text.c_str() encoding:[NSString defaultCStringEncoding]]];
+    if (type == 0)
+    {
+        [alert addButtonWithTitle:@"Okay"];
+    } else if (type == 1)
+    {
+        [alert addButtonWithTitle:@"Okay"];
+        [alert addButtonWithTitle:@"Cancel"];
+    } else if (type == 2)
+    {
+        [alert addButtonWithTitle:@"Yes"];
+        [alert addButtonWithTitle:@"No"];
+    }
+    long ret = [alert runModal];
+    [alert dealloc];
+    
+    if (ret == NSAlertFirstButtonReturn)
+    {
+        ret = 0;
+    } else if (ret == NSAlertSecondButtonReturn)
+    {
+        ret = 1;
+    } else if (ret == NSAlertThirdButtonReturn)
+    {
+        ret = 2;
+    }
+    
+    return ret;
+}
+
 /*
  GLViewRef getGLView()
  {

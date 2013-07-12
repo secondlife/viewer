@@ -1597,24 +1597,6 @@ LLSplashScreenMacOSX::~LLSplashScreenMacOSX()
 void LLSplashScreenMacOSX::showImpl()
 {
 	// This code _could_ be used to display a spash screen...
-#if 0
-	IBNibRef nib = NULL;
-	S32 err;
-
-	err = CreateNibReference(CFSTR("SecondLife"), &nib);
-
-	if(err == noErr)
-	{
-		CreateWindowFromNib(nib, CFSTR("Splash Screen"), &mWindow);
-
-		DisposeNibReference(nib);
-	}
-
-	if(mWindow != NULL)
-	{
-		ShowWindow(mWindow);
-	}
-#endif
 }
 
 void LLSplashScreenMacOSX::updateImpl(const std::string& mesg)
@@ -1636,12 +1618,9 @@ void LLSplashScreenMacOSX::hideImpl()
 	}
 }
 
-
-
 S32 OSMessageBoxMacOSX(const std::string& text, const std::string& caption, U32 type)
 {
-	// TODO: Implement a native NSAlert function that replicates all of this.
-	return 0;
+	return showAlert(text, caption, type);
 }
 
 // Open a URL with the user's default web browser.

@@ -668,7 +668,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (BOOL) resignFirstResponder
 {
-	callFocus();
+	callFocusLost();
 	return true;
 }
 
