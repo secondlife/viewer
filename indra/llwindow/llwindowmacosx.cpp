@@ -164,7 +164,6 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 	// Stash an object pointer for OSMessageBox()
 	gWindowImplementation = this;
 	// Create the GL context and set it up for windowed or fullscreen, as appropriate.
-	LL_INFOS("Window") << "Creating context..." << LL_ENDL;
 	if(createContext(x, y, width, height, 32, fullscreen, disable_vsync))
 	{
 		if(mWindow != NULL)
@@ -526,13 +525,11 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 	
 	if (mWindow == NULL)
 	{
-		LL_INFOS("Window") << "Creating window..." << LL_ENDL;
 		mWindow = getMainAppWindow();
 	}
 
 	if(mContext == NULL)
 	{
-		LL_INFOS("Window") << "Creating GL view..." << LL_ENDL;
 		// Our OpenGL view is already defined within SecondLife.xib.
 		// Get the view instead.
 		mGLView = createOpenGLView(mWindow, mFSAASamples, !disable_vsync);
@@ -565,12 +562,10 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 	GLint frames_per_swap = 0;
 	if (disable_vsync)
 	{
-		LL_DEBUGS("GLInit") << "Disabling vertical sync" << LL_ENDL;
 		frames_per_swap = 0;
 	}
 	else
 	{
-		LL_DEBUGS("GLinit") << "Keeping vertical sync" << LL_ENDL;
 		frames_per_swap = 1;
 	}
 	
@@ -593,9 +588,8 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 			LL_DEBUGS("GLInit") << "Multi-threaded OpenGL enabled." << LL_ENDL;
 		}
 	}
-	LL_INFOS("Window") << "Completed context creation." << LL_ENDL;
 	makeFirstResponder(mWindow, mGLView);
-	// Don't need to get the current gamma, since there's a call that restores it to the system defaults.
+    
 	return TRUE;
 }
 

@@ -418,13 +418,22 @@ long showAlert(std::string text, std::string title, int type)
     
     if (ret == NSAlertFirstButtonReturn)
     {
-        ret = 0;
+        if (type == 1)
+        {
+            ret = 3;
+        } else if (type == 2)
+        {
+            ret = 0;
+        }
     } else if (ret == NSAlertSecondButtonReturn)
     {
-        ret = 1;
-    } else if (ret == NSAlertThirdButtonReturn)
-    {
-        ret = 2;
+        if (type == 0 || type == 1)
+        {
+            ret = 2;
+        } else if (type == 2)
+        {
+            ret = 1;
+        }
     }
     
     return ret;
