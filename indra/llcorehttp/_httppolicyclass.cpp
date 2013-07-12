@@ -34,8 +34,7 @@ namespace LLCore
 
 
 HttpPolicyClass::HttpPolicyClass()
-	: mSetMask(0UL),
-	  mConnectionLimit(HTTP_CONNECTION_LIMIT_DEFAULT),
+	: mConnectionLimit(HTTP_CONNECTION_LIMIT_DEFAULT),
 	  mPerHostConnectionLimit(HTTP_CONNECTION_LIMIT_DEFAULT),
 	  mPipelining(HTTP_PIPELINING_DEFAULT)
 {}
@@ -49,7 +48,6 @@ HttpPolicyClass & HttpPolicyClass::operator=(const HttpPolicyClass & other)
 {
 	if (this != &other)
 	{
-		mSetMask = other.mSetMask;
 		mConnectionLimit = other.mConnectionLimit;
 		mPerHostConnectionLimit = other.mPerHostConnectionLimit;
 		mPipelining = other.mPipelining;
@@ -59,26 +57,25 @@ HttpPolicyClass & HttpPolicyClass::operator=(const HttpPolicyClass & other)
 
 
 HttpPolicyClass::HttpPolicyClass(const HttpPolicyClass & other)
-	: mSetMask(other.mSetMask),
-	  mConnectionLimit(other.mConnectionLimit),
+	: mConnectionLimit(other.mConnectionLimit),
 	  mPerHostConnectionLimit(other.mPerHostConnectionLimit),
 	  mPipelining(other.mPipelining)
 {}
 
 
-HttpStatus HttpPolicyClass::set(HttpRequest::EClassPolicy opt, long value)
+HttpStatus HttpPolicyClass::set(HttpRequest::EPolicyOption opt, long value)
 {
 	switch (opt)
 	{
-	case HttpRequest::CP_CONNECTION_LIMIT:
+	case HttpRequest::PO_CONNECTION_LIMIT:
 		mConnectionLimit = llclamp(value, long(HTTP_CONNECTION_LIMIT_MIN), long(HTTP_CONNECTION_LIMIT_MAX));
 		break;
 
-	case HttpRequest::CP_PER_HOST_CONNECTION_LIMIT:
+	case HttpRequest::PO_PER_HOST_CONNECTION_LIMIT:
 		mPerHostConnectionLimit = llclamp(value, long(HTTP_CONNECTION_LIMIT_MIN), mConnectionLimit);
 		break;
 
-	case HttpRequest::CP_ENABLE_PIPELINING:
+	case HttpRequest::PO_ENABLE_PIPELINING:
 		mPipelining = llclamp(value, 0L, 1L);
 		break;
 
@@ -86,38 +83,30 @@ HttpStatus HttpPolicyClass::set(HttpRequest::EClassPolicy opt, long value)
 		return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
 	}
 
-	mSetMask |= 1UL << int(opt);
 	return HttpStatus();
 }
 
 
-HttpStatus HttpPolicyClass::get(HttpRequest::EClassPolicy opt, long * value)
+HttpStatus HttpPolicyClass::get(HttpRequest::EPolicyOption opt, long * value) const
 {
-	static const HttpStatus not_set(HttpStatus::LLCORE, HE_OPT_NOT_SET);
-	long * src(NULL);
-	
 	switch (opt)
 	{
-	case HttpRequest::CP_CONNECTION_LIMIT:
-		src = &mConnectionLimit;
+	case HttpRequest::PO_CONNECTION_LIMIT:
+		*value = mConnectionLimit;
 		break;
 
-	case HttpRequest::CP_PER_HOST_CONNECTION_LIMIT:
-		src = &mPerHostConnectionLimit;
+	case HttpRequest::PO_PER_HOST_CONNECTION_LIMIT:
+		*value = mPerHostConnectionLimit;
 		break;
 
-	case HttpRequest::CP_ENABLE_PIPELINING:
-		src = &mPipelining;
+	case HttpRequest::PO_ENABLE_PIPELINING:
+		*value = mPipelining;
 		break;
 
 	default:
 		return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
 	}
 
-	if (! (mSetMask & (1UL << int(opt))))
-		return not_set;
-
-	*value = *src;
 	return HttpStatus();
 }
 

@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -43,6 +43,17 @@
 namespace LLCore
 {
 
+const HttpService::OptionDescriptor HttpService::sOptionDesc[] =
+{ //    isLong     isDynamic  isGlobal    isClass
+	{	true,		true,		true,		true	},		// PO_CONNECTION_LIMIT
+	{	true,		true,		false,		true	},		// PO_PER_HOST_CONNECTION_LIMIT
+	{	false,		false,		true,		false	},		// PO_CA_PATH
+	{	false,		false,		true,		false	},		// PO_CA_FILE
+	{	false,		true,		true,		false	},		// PO_HTTP_PROXY
+	{	true,		true,		true,		false	},		// PO_LLPROXY
+	{	true,		true,		true,		false	},		// PO_TRACE
+	{	true,		true,		false,		true	}		// PO_ENABLE_PIPELINING
+};
 HttpService * HttpService::sInstance(NULL);
 volatile HttpService::EState HttpService::sState(NOT_INITIALIZED);
 
@@ -51,12 +62,9 @@ HttpService::HttpService()
 	  mExitRequested(0U),
 	  mThread(NULL),
 	  mPolicy(NULL),
-	  mTransport(NULL)
-{
-	// Create the default policy class
-	HttpPolicyClass pol_class;
-	mPolicyClasses.push_back(pol_class);
-}
+	  mTransport(NULL),
+	  mLastPolicy(0)
+{}
 
 
 HttpService::~HttpService()
@@ -146,13 +154,8 @@ void HttpService::term()
 
 HttpRequest::policy_t HttpService::createPolicyClass()
 {
-	const HttpRequest::policy_t policy_class(mPolicyClasses.size());
-	if (policy_class >= HTTP_POLICY_CLASS_LIMIT)
-	{
-		return 0;
-	}
-	mPolicyClasses.push_back(HttpPolicyClass());
-	return policy_class;
+	mLastPolicy = mPolicy->createPolicyClass();
+	return mLastPolicy;
 }
 
 
@@ -185,8 +188,8 @@ void HttpService::startThread()
 	}
 
 	// Push current policy definitions, enable policy & transport components
-	mPolicy->start(mPolicyGlobal, mPolicyClasses);
-	mTransport->start(mPolicyClasses.size());
+	mPolicy->start();
+	mTransport->start(mLastPolicy + 1);
 
 	mThread = new LLCoreInt::HttpThread(boost::bind(&HttpService::threadRun, this, _1));
 	sState = RUNNING;
@@ -319,7 +322,7 @@ HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 		{
 			// Setup for subsequent tracing
 			long tracing(HTTP_TRACE_OFF);
-			mPolicy->getGlobalOptions().get(HttpRequest::GP_TRACE, &tracing);
+			mPolicy->getGlobalOptions().get(HttpRequest::PO_TRACE, &tracing);
 			op->mTracing = (std::max)(op->mTracing, int(tracing));
 
 			if (op->mTracing > HTTP_TRACE_OFF)
@@ -341,5 +344,138 @@ HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 	return REQUEST_SLEEP;
 }
 
+
+HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass,
+										long * ret_value)
+{
+	if (opt < HttpRequest::PO_CONNECTION_LIMIT											// option must be in range
+		|| opt >= HttpRequest::PO_LAST													// ditto
+		|| (! sOptionDesc[opt].mIsLong)													// datatype is long
+		|| (pclass != HttpRequest::GLOBAL_POLICY_ID && pclass > mLastPolicy)			// pclass in valid range
+		|| (pclass == HttpRequest::GLOBAL_POLICY_ID && ! sOptionDesc[opt].mIsGlobal)	// global setting permitted
+		|| (pclass != HttpRequest::GLOBAL_POLICY_ID && ! sOptionDesc[opt].mIsClass))	// class setting permitted
+																						// can always get, no dynamic check
+	{
+		return HttpStatus(HttpStatus::LLCORE, LLCore::HE_INVALID_ARG);
+	}
+
+	HttpStatus status;
+	if (pclass == HttpRequest::GLOBAL_POLICY_ID)
+	{
+		HttpPolicyGlobal & opts(mPolicy->getGlobalOptions());
+		
+		status = opts.get(opt, ret_value);
+	}
+	else
+	{
+		HttpPolicyClass & opts(mPolicy->getClassOptions(pclass));
+
+		status = opts.get(opt, ret_value);
+	}
+
+	return status;
+}
+
+
+HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass,
+										std::string * ret_value)
+{
+	HttpStatus status(HttpStatus::LLCORE, LLCore::HE_INVALID_ARG);
+
+	if (opt < HttpRequest::PO_CONNECTION_LIMIT											// option must be in range
+		|| opt >= HttpRequest::PO_LAST													// ditto
+		|| (sOptionDesc[opt].mIsLong)													// datatype is string
+		|| (pclass != HttpRequest::GLOBAL_POLICY_ID && pclass > mLastPolicy)			// pclass in valid range
+		|| (pclass == HttpRequest::GLOBAL_POLICY_ID && ! sOptionDesc[opt].mIsGlobal)	// global setting permitted
+		|| (pclass != HttpRequest::GLOBAL_POLICY_ID && ! sOptionDesc[opt].mIsClass))	// class setting permitted
+																						// can always get, no dynamic check
+	{
+		return status;
+	}
+
+	// Only global has string values
+	if (pclass == HttpRequest::GLOBAL_POLICY_ID)
+	{
+		HttpPolicyGlobal & opts(mPolicy->getGlobalOptions());
+
+		status = opts.get(opt, ret_value);
+	}
+
+	return status;
+}
+
+
+HttpStatus HttpService::setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass,
+										long value, long * ret_value)
+{
+	HttpStatus status(HttpStatus::LLCORE, LLCore::HE_INVALID_ARG);
+	
+	if (opt < HttpRequest::PO_CONNECTION_LIMIT											// option must be in range
+		|| opt >= HttpRequest::PO_LAST													// ditto
+		|| (! sOptionDesc[opt].mIsLong)													// datatype is long
+		|| (pclass != HttpRequest::GLOBAL_POLICY_ID && pclass > mLastPolicy)			// pclass in valid range
+		|| (pclass == HttpRequest::GLOBAL_POLICY_ID && ! sOptionDesc[opt].mIsGlobal)	// global setting permitted
+		|| (pclass != HttpRequest::GLOBAL_POLICY_ID && ! sOptionDesc[opt].mIsClass)		// class setting permitted
+		|| (RUNNING == sState && ! sOptionDesc[opt].mIsDynamic))						// dynamic setting permitted
+	{
+		return status;
+	}
+
+	if (pclass == HttpRequest::GLOBAL_POLICY_ID)
+	{
+		HttpPolicyGlobal & opts(mPolicy->getGlobalOptions());
+		
+		status = opts.set(opt, value);
+		if (status && ret_value)
+		{
+			status = opts.get(opt, ret_value);
+		}
+	}
+	else
+	{
+		HttpPolicyClass & opts(mPolicy->getClassOptions(pclass));
+
+		status = opts.set(opt, value);
+		if (status && ret_value)
+		{
+			status = opts.get(opt, ret_value);
+		}
+	}
+
+	return status;
+}
+
+
+HttpStatus HttpService::setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass,
+										const std::string & value, std::string * ret_value)
+{
+	HttpStatus status(HttpStatus::LLCORE, LLCore::HE_INVALID_ARG);
+	
+	if (opt < HttpRequest::PO_CONNECTION_LIMIT											// option must be in range
+		|| opt >= HttpRequest::PO_LAST													// ditto
+		|| (sOptionDesc[opt].mIsLong)													// datatype is string
+		|| (pclass != HttpRequest::GLOBAL_POLICY_ID && pclass > mLastPolicy)			// pclass in valid range
+		|| (pclass == HttpRequest::GLOBAL_POLICY_ID && ! sOptionDesc[opt].mIsGlobal)	// global setting permitted
+		|| (pclass != HttpRequest::GLOBAL_POLICY_ID && ! sOptionDesc[opt].mIsClass)		// class setting permitted
+		|| (RUNNING == sState && ! sOptionDesc[opt].mIsDynamic))						// dynamic setting permitted
+	{
+		return status;
+	}
+
+	// Only string values are global at this time
+	if (pclass == HttpRequest::GLOBAL_POLICY_ID)
+	{
+		HttpPolicyGlobal & opts(mPolicy->getGlobalOptions());
+		
+		status = opts.set(opt, value);
+		if (status && ret_value)
+		{
+			status = opts.get(opt, ret_value);
+		}
+	}
+
+	return status;
+}
+	
 
 }  // end namespace LLCore

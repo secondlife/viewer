@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,6 +27,7 @@
 #include "_httpopsetget.h"
 
 #include "httpcommon.h"
+#include "httprequest.h"
 
 #include "_httpservice.h"
 #include "_httppolicy.h"
@@ -43,10 +44,11 @@ namespace LLCore
 
 HttpOpSetGet::HttpOpSetGet()
 	: HttpOperation(),
-	  mIsGlobal(false),
-	  mDoSet(false),
-	  mSetting(-1),				// Nothing requested
-	  mLongValue(0L)
+	  mReqOption(HttpRequest::PO_CONNECTION_LIMIT),
+	  mReqClass(HttpRequest::INVALID_POLICY_ID),
+	  mReqDoSet(false),
+	  mReqLongValue(0L),
+	  mReplyLongValue(0L)
 {}
 
 
@@ -54,37 +56,84 @@ HttpOpSetGet::~HttpOpSetGet()
 {}
 
 
-void HttpOpSetGet::setupGet(HttpRequest::EGlobalPolicy setting)
+HttpStatus HttpOpSetGet::setupGet(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass)
 {
-	mIsGlobal = true;
-	mSetting = setting;
+	HttpStatus status;
+	
+	mReqOption = opt;
+	mReqClass = pclass;
+	return status;
 }
 
 
-void HttpOpSetGet::setupSet(HttpRequest::EGlobalPolicy setting, const std::string & value)
+HttpStatus HttpOpSetGet::setupSet(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass, long value)
 {
-	mIsGlobal = true;
-	mDoSet = true;
-	mSetting = setting;
-	mStrValue = value;
+	HttpStatus status;
+
+	if (! HttpService::sOptionDesc[opt].mIsLong)
+	{
+		return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
+	}
+	if (! HttpService::sOptionDesc[opt].mIsDynamic)
+	{
+		return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+	}
+	
+	mReqOption = opt;
+	mReqClass = pclass;
+	mReqDoSet = true;
+	mReqLongValue = value;
+	
+	return status;
+}
+
+
+HttpStatus HttpOpSetGet::setupSet(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass, const std::string & value)
+{
+	HttpStatus status;
+
+	if (HttpService::sOptionDesc[opt].mIsLong)
+	{
+		return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
+	}
+	if (! HttpService::sOptionDesc[opt].mIsDynamic)
+	{
+		return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+	}
+
+	mReqOption = opt;
+	mReqClass = pclass;
+	mReqDoSet = true;
+	mReqStrValue = value;
+	
+	return status;
 }
 
 
 void HttpOpSetGet::stageFromRequest(HttpService * service)
 {
-	HttpPolicyGlobal & pol_opt(service->getPolicy().getGlobalOptions());
-	HttpRequest::EGlobalPolicy setting(static_cast<HttpRequest::EGlobalPolicy>(mSetting));
-	
-	if (mDoSet)
+	if (mReqDoSet)
 	{
-		mStatus = pol_opt.set(setting, mStrValue);
-	}
-	if (mStatus)
-	{
-		const std::string * value(NULL);
-		if ((mStatus = pol_opt.get(setting, &value)))
+		if (HttpService::sOptionDesc[mReqOption].mIsLong)
 		{
-			mStrValue = *value;
+			mStatus = service->setPolicyOption(mReqOption, mReqClass,
+											   mReqLongValue, &mReplyLongValue);
+		}
+		else
+		{
+			mStatus = service->setPolicyOption(mReqOption, mReqClass,
+											   mReqStrValue, &mReplyStrValue);
+		}
+	}
+	else
+	{
+		if (HttpService::sOptionDesc[mReqOption].mIsLong)
+		{
+			mStatus = service->getPolicyOption(mReqOption, mReqClass, &mReplyLongValue);
+		}
+		else
+		{
+			mStatus = service->getPolicyOption(mReqOption, mReqClass, &mReplyStrValue);
 		}
 	}
 	

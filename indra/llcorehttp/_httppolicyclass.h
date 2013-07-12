@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -34,6 +34,18 @@
 namespace LLCore
 {
 
+/// Options struct for per-class policy options.
+///
+/// Combines both raw blob data access with semantics-enforcing
+/// set/get interfaces.  For internal operations by the worker
+/// thread, just grab the setting directly from instance and test/use
+/// as needed.  When attached to external APIs (the public API
+/// options interfaces) the set/get methods are available to
+/// enforce correct ranges, data types, contexts, etc. and suitable
+/// status values are returned.
+///
+/// Threading:  Single-threaded.  In practice, init thread before
+/// worker starts, worker thread after.
 class HttpPolicyClass
 {
 public:
@@ -44,11 +56,10 @@ public:
 	HttpPolicyClass(const HttpPolicyClass &);			// Not defined
 
 public:
-	HttpStatus set(HttpRequest::EClassPolicy opt, long value);
-	HttpStatus get(HttpRequest::EClassPolicy opt, long * value);
+	HttpStatus set(HttpRequest::EPolicyOption opt, long value);
+	HttpStatus get(HttpRequest::EPolicyOption opt, long * value) const;
 	
 public:
-	unsigned long				mSetMask;
 	long						mConnectionLimit;
 	long						mPerHostConnectionLimit;
 	long						mPipelining;

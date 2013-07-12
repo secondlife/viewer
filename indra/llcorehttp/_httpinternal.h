@@ -36,7 +36,8 @@
 // General library to-do list
 //
 // - Implement policy classes.  Structure is mostly there just didn't
-//   need it for the first consumer.
+//   need it for the first consumer.  [Classes are there.  More
+//   advanced features, like borrowing, aren't there yet.]
 // - Consider Removing 'priority' from the request interface.  Its use
 //   in an always active class can lead to starvation of low-priority
 //   requests.  Requires coodination of priority values across all
@@ -46,6 +47,7 @@
 //   may not really need it.
 // - Set/get for global policy and policy classes is clumsy.  Rework
 //   it heading in a direction that allows for more dynamic behavior.
+//   [Mostly fixed]
 // - Move HttpOpRequest::prepareRequest() to HttpLibcurl for the
 //   pedantic.
 // - Update downloader and other long-duration services are going to
@@ -73,7 +75,7 @@
 //   the main source file.
 // - Expand areas of usage eventually leading to the removal of LLCurl.
 //   Rough order of expansion:
-//   .  Mesh fetch
+//   .  Mesh fetch [Underway]
 //   .  Avatar names
 //   .  Group membership lists
 //   .  Caps access in general

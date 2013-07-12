@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -71,16 +71,22 @@ public:
 	///
 	/// @return			Indication of how long this method is
 	///					willing to wait for next service call.
+	///
+	/// Threading:  called by worker thread.
 	HttpService::ELoopSpeed processTransport();
 
 	/// Add request to the active list.  Caller is expected to have
 	/// provided us with a reference count on the op to hold the
 	/// request.  (No additional references will be added.)
+	///
+	/// Threading:  called by worker thread.
 	void addOp(HttpOpRequest * op);
 
 	/// One-time call to set the number of policy classes to be
 	/// serviced and to create the resources for each.  Value
 	/// must agree with HttpPolicy::setPolicies() call.
+	///
+	/// Threading:  called by init thread.
 	void start(int policy_count);
 
 	/// Synchronously stop libcurl operations.  All active requests
@@ -91,9 +97,13 @@ public:
 	/// respective reply queues.
 	///
 	/// Can be restarted with a start() call.
+	///
+	/// Threading:  called by worker thread.
 	void shutdown();
 
 	/// Return global and per-class counts of active requests.
+	///
+	/// Threading:  called by worker thread.
 	int getActiveCount() const;
 	int getActiveCountInClass(int policy_class) const;
 
@@ -103,6 +113,7 @@ public:
 	///
 	/// @return			True if handle was found and operation canceled.
 	///
+	/// Threading:  called by worker thread.
 	bool cancel(HttpHandle handle);
 
 protected:
@@ -121,7 +132,7 @@ protected:
 	HttpService *		mService;				// Simple reference, not owner
 	active_set_t		mActiveOps;
 	int					mPolicyCount;
-	CURLM **			mMultiHandles;
+	CURLM **			mMultiHandles;			// One handle per policy class
 }; // end class HttpLibcurl
 
 }  // end namespace LLCore

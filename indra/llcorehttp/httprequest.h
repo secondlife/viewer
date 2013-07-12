@@ -56,6 +56,9 @@ class BufferArray;
 /// The class supports the current HTTP request operations:
 ///
 /// - requestGetByteRange:  GET with Range header for a single range of bytes
+/// - requestGet:
+/// - requestPost:
+/// - requestPut:
 ///
 /// Policy Classes
 ///
@@ -100,61 +103,9 @@ public:
 
 	/// Represents a default, catch-all policy class that guarantees
 	/// eventual service for any HTTP request.
-	static const int DEFAULT_POLICY_ID = 0;
-
-	enum EGlobalPolicy
-	{
-		/// Maximum number of connections the library will use to
-		/// perform operations.  This is somewhat soft as the underlying
-		/// transport will cache some connections (up to 5).
-
-		/// A long value setting the maximum number of connections
-		/// allowed over all policy classes.  Note that this will be
-		/// a somewhat soft value.  There may be an additional five
-		/// connections per policy class depending upon runtime
-		/// behavior.
-		GP_CONNECTION_LIMIT,
-
-		/// String containing a system-appropriate directory name
-		/// where SSL certs are stored.
-		GP_CA_PATH,
-
-		/// String giving a full path to a file containing SSL certs.
-		GP_CA_FILE,
-
-		/// String of host/port to use as simple HTTP proxy.  This is
-		/// going to change in the future into something more elaborate
-		/// that may support richer schemes.
-		GP_HTTP_PROXY,
-
-		/// Long value that if non-zero enables the use of the
-		/// traditional LLProxy code for http/socks5 support.  If
-		/// enabled, has priority over GP_HTTP_PROXY.
-		GP_LLPROXY,
-
-		/// Long value setting the logging trace level for the
-		/// library.  Possible values are:
-		/// 0 - No tracing (default)
-		/// 1 - Basic tracing of request start, stop and major events.
-		/// 2 - Connection, header and payload size information from
-		///     HTTP transactions.
-		/// 3 - Partial logging of payload itself.
-		///
-		/// These values are also used in the trace modes for
-		/// individual requests in HttpOptions.  Also be aware that
-		/// tracing tends to impact performance of the viewer.
-		GP_TRACE
-	};
-
-	/// Set a parameter on a global policy option.  Calls
-	/// made after the start of the servicing thread are
-	/// not honored and return an error status.
-	///
-	/// @param opt		Enum of option to be set.
-	/// @param value	Desired value of option.
-	/// @return			Standard status code.
-	static HttpStatus setPolicyGlobalOption(EGlobalPolicy opt, long value);
-	static HttpStatus setPolicyGlobalOption(EGlobalPolicy opt, const std::string & value);
+	static const policy_t DEFAULT_POLICY_ID = 0;
+	static const policy_t INVALID_POLICY_ID = 0xFFFFFFFFU;
+	static const policy_t GLOBAL_POLICY_ID = 0xFFFFFFFEU;
 
 	/// Create a new policy class into which requests can be made.
 	///
@@ -171,29 +122,93 @@ public:
 	///
 	static policy_t createPolicyClass();
 
-	enum EClassPolicy
+	enum EPolicyOption
 	{
-		/// Limits the number of connections used for the class.
-		CP_CONNECTION_LIMIT,
+		/// Maximum number of connections the library will use to
+		/// perform operations.  This is somewhat soft as the underlying
+		/// transport will cache some connections (up to 5).
+
+		/// A long value setting the maximum number of connections
+		/// allowed over all policy classes.  Note that this will be
+		/// a somewhat soft value.  There may be an additional five
+		/// connections per policy class depending upon runtime
+		/// behavior.
+		///
+		/// Both global and per-class
+		PO_CONNECTION_LIMIT,
 
 		/// Limits the number of connections used for a single
 		/// literal address/port pair within the class.
-		CP_PER_HOST_CONNECTION_LIMIT,
+		PO_PER_HOST_CONNECTION_LIMIT,
+
+		/// String containing a system-appropriate directory name
+		/// where SSL certs are stored.
+		PO_CA_PATH,
+
+		/// String giving a full path to a file containing SSL certs.
+		PO_CA_FILE,
+
+		/// String of host/port to use as simple HTTP proxy.  This is
+		/// going to change in the future into something more elaborate
+		/// that may support richer schemes.
+		PO_HTTP_PROXY,
+
+		/// Long value that if non-zero enables the use of the
+		/// traditional LLProxy code for http/socks5 support.  If
+		// enabled, has priority over GP_HTTP_PROXY.
+		PO_LLPROXY,
+
+		/// Long value setting the logging trace level for the
+		/// library.  Possible values are:
+		/// 0 - No tracing (default)
+		/// 1 - Basic tracing of request start, stop and major events.
+		/// 2 - Connection, header and payload size information from
+		///     HTTP transactions.
+		/// 3 - Partial logging of payload itself.
+		///
+		/// These values are also used in the trace modes for
+		/// individual requests in HttpOptions.  Also be aware that
+		/// tracing tends to impact performance of the viewer.
+		PO_TRACE,
 
 		/// Suitable requests are allowed to pipeline on their
 		/// connections when they ask for it.
-		CP_ENABLE_PIPELINING
+		PO_ENABLE_PIPELINING,
+
+		PO_LAST  // Always at end
 	};
-	
+
+	/// Set a policy option for a global or class parameter at
+	/// startup time (prior to thread start).
+	///
+	/// @param opt			Enum of option to be set.
+	/// @param pclass		For class-based options, the policy class ID to
+	///					    be changed.  For globals, specify GLOBAL_POLICY_ID.
+	/// @param value		Desired value of option.
+	/// @param ret_value	Pointer to receive effective set value
+	///						if successful.  May be NULL if effective
+	///						value not wanted.
+	/// @return				Standard status code.
+	static HttpStatus setStaticPolicyOption(EPolicyOption opt, policy_t pclass,
+											long value, long * ret_value);
+	static HttpStatus setStaticPolicyOption(EPolicyOption opt, policy_t pclass,
+											const std::string & value, std::string * ret_value);
+
 	/// Set a parameter on a class-based policy option.  Calls
 	/// made after the start of the servicing thread are
 	/// not honored and return an error status.
 	///
-	/// @param policy_id		ID of class as returned by @see createPolicyClass().
-	/// @param opt				Enum of option to be set.
-	/// @param value			Desired value of option.
-	/// @return					Standard status code.
-	static HttpStatus setPolicyClassOption(policy_t policy_id, EClassPolicy opt, long value);
+	/// @param opt			Enum of option to be set.
+	/// @param pclass		For class-based options, the policy class ID to
+	///					    be changed.  Ignored for globals but recommend
+	///					    using INVALID_POLICY_ID in this case.
+	/// @param value		Desired value of option.
+	/// @return				Handle of dynamic request.  Use @see getStatus() if
+	///						the returned handle is invalid.
+	HttpHandle setPolicyOption(EPolicyOption opt, policy_t pclass, long value,
+							   HttpHandler * handler);
+	HttpHandle setPolicyOption(EPolicyOption opt, policy_t pclass, const std::string & value,
+							   HttpHandler * handler);
 
 	/// @}
 
@@ -495,16 +510,6 @@ public:
 
 	/// @}
 	
-	/// @name DynamicPolicyMethods
-	///
-	/// @{
-
-	/// Request that a running transport pick up a new proxy setting.
-	/// An empty string will indicate no proxy is to be used.
-	HttpHandle requestSetHttpProxy(const std::string & proxy, HttpHandler * handler);
-
-    /// @}
-
 protected:
 	void generateNotification(HttpOperation * op);
 
@@ -526,7 +531,6 @@ private:
 	/// Must be established before any threading is allowed to
 	/// start.
 	///
-	static policy_t		sNextPolicyID;
 	
 	/// @}
 	// End Global State

@@ -236,9 +236,10 @@ int main(int argc, char** argv)
 	// Initialization
 	init_curl();
 	LLCore::HttpRequest::createService();
-	LLCore::HttpRequest::setPolicyClassOption(LLCore::HttpRequest::DEFAULT_POLICY_ID,
-											  LLCore::HttpRequest::CP_CONNECTION_LIMIT,
-											  concurrency_limit);
+	LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CONNECTION_LIMIT,
+											   LLCore::HttpRequest::DEFAULT_POLICY_ID,
+											   concurrency_limit,
+											   NULL);
 	LLCore::HttpRequest::startThread();
 	
 	// Get service point

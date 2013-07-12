@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -41,57 +41,64 @@ namespace LLCore
 
 
 // Per-policy-class data for a running system.
-// Collection of queues, parameters, history, metrics, etc.
+// Collection of queues, options and other data
 // for a single policy class.
 //
 // Threading:  accessed only by worker thread
-struct HttpPolicy::State
+struct HttpPolicy::ClassState
 {
 public:
-	State()
-		: mConnMax(HTTP_CONNECTION_LIMIT_DEFAULT),
-		  mConnAt(HTTP_CONNECTION_LIMIT_DEFAULT),
-		  mConnMin(1),
-		  mNextSample(0),
-		  mErrorCount(0),
-		  mErrorFactor(0)
+	ClassState()
 		{}
 	
 	HttpReadyQueue		mReadyQueue;
 	HttpRetryQueue		mRetryQueue;
 
 	HttpPolicyClass		mOptions;
-
-	long				mConnMax;
-	long				mConnAt;
-	long				mConnMin;
-
-	HttpTime			mNextSample;
-	unsigned long		mErrorCount;
-	unsigned long		mErrorFactor;
 };
 
 
 HttpPolicy::HttpPolicy(HttpService * service)
-	: mActiveClasses(0),
-	  mState(NULL),
-	  mService(service)
-{}
+	: mService(service)
+{
+	// Create default class
+	mClasses.push_back(new ClassState());
+}
 
 
 HttpPolicy::~HttpPolicy()
 {
 	shutdown();
+
+	for (class_list_t::iterator it(mClasses.begin()); it != mClasses.end(); ++it)
+	{
+		delete (*it);
+	}
+	mClasses.clear();
 	
 	mService = NULL;
 }
 
 
+HttpRequest::policy_t HttpPolicy::createPolicyClass()
+{
+	const HttpRequest::policy_t policy_class(mClasses.size());
+	if (policy_class >= HTTP_POLICY_CLASS_LIMIT)
+	{
+		return HttpRequest::INVALID_POLICY_ID;
+	}
+	mClasses.push_back(new ClassState());
+	return policy_class;
+}
+
+
 void HttpPolicy::shutdown()
 {
-	for (int policy_class(0); policy_class < mActiveClasses; ++policy_class)
+	for (int policy_class(0); policy_class < mClasses.size(); ++policy_class)
 	{
-		HttpRetryQueue & retryq(mState[policy_class].mRetryQueue);
+		ClassState & state(*mClasses[policy_class]);
+		
+		HttpRetryQueue & retryq(state.mRetryQueue);
 		while (! retryq.empty())
 		{
 			HttpOpRequest * op(retryq.top());
@@ -101,7 +108,7 @@ void HttpPolicy::shutdown()
 			op->release();
 		}
 
-		HttpReadyQueue & readyq(mState[policy_class].mReadyQueue);
+		HttpReadyQueue & readyq(state.mReadyQueue);
 		while (! readyq.empty())
 		{
 			HttpOpRequest * op(readyq.top());
@@ -111,28 +118,11 @@ void HttpPolicy::shutdown()
 			op->release();
 		}
 	}
-	delete [] mState;
-	mState = NULL;
-	mActiveClasses = 0;
 }
 
 
-void HttpPolicy::start(const HttpPolicyGlobal & global,
-					   const std::vector<HttpPolicyClass> & classes)
-{
-	llassert_always(! mState);
-
-	mGlobalOptions = global;
-	mActiveClasses = classes.size();
-	mState = new State [mActiveClasses];
-	for (int i(0); i < mActiveClasses; ++i)
-	{
-		mState[i].mOptions = classes[i];
-		mState[i].mConnMax = classes[i].mConnectionLimit;
-		mState[i].mConnAt = mState[i].mConnMax;
-		mState[i].mConnMin = 2;
-	}
-}
+void HttpPolicy::start()
+{}
 
 
 void HttpPolicy::addOp(HttpOpRequest * op)
@@ -141,7 +131,7 @@ void HttpPolicy::addOp(HttpOpRequest * op)
 	
 	op->mPolicyRetries = 0;
 	op->mPolicy503Retries = 0;
-	mState[policy_class].mReadyQueue.push(op);
+	mClasses[policy_class]->mReadyQueue.push(op);
 }
 
 
@@ -183,7 +173,7 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 							 << static_cast<HttpHandle>(op)
 							 << LL_ENDL;
 	}
-	mState[policy_class].mRetryQueue.push(op);
+	mClasses[policy_class]->mRetryQueue.push(op);
 }
 
 
@@ -204,11 +194,11 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 	HttpService::ELoopSpeed result(HttpService::REQUEST_SLEEP);
 	HttpLibcurl & transport(mService->getTransport());
 	
-	for (int policy_class(0); policy_class < mActiveClasses; ++policy_class)
+	for (int policy_class(0); policy_class < mClasses.size(); ++policy_class)
 	{
-		State & state(mState[policy_class]);
+		ClassState & state(*mClasses[policy_class]);
 		int active(transport.getActiveCountInClass(policy_class));
-		int needed(state.mConnAt - active);		// Expect negatives here
+		int needed(state.mOptions.mConnectionLimit - active);		// Expect negatives here
 
 		HttpRetryQueue & retryq(state.mRetryQueue);
 		HttpReadyQueue & readyq(state.mReadyQueue);
@@ -256,9 +246,9 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 
 bool HttpPolicy::changePriority(HttpHandle handle, HttpRequest::priority_t priority)
 {
-	for (int policy_class(0); policy_class < mActiveClasses; ++policy_class)
+	for (int policy_class(0); policy_class < mClasses.size(); ++policy_class)
 	{
-		State & state(mState[policy_class]);
+		ClassState & state(*mClasses[policy_class]);
 		// We don't scan retry queue because a priority change there
 		// is meaningless.  The request will be issued based on retry
 		// intervals not priority value, which is now moot.
@@ -286,9 +276,9 @@ bool HttpPolicy::changePriority(HttpHandle handle, HttpRequest::priority_t prior
 
 bool HttpPolicy::cancel(HttpHandle handle)
 {
-	for (int policy_class(0); policy_class < mActiveClasses; ++policy_class)
+	for (int policy_class(0); policy_class < mClasses.size(); ++policy_class)
 	{
-		State & state(mState[policy_class]);
+		ClassState & state(*mClasses[policy_class]);
 
 		// Scan retry queue
 		HttpRetryQueue::container_type & c1(state.mRetryQueue.get_container());
@@ -382,13 +372,21 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 	return false;						// not active
 }
 
+	
+HttpPolicyClass & HttpPolicy::getClassOptions(HttpRequest::policy_t pclass)
+{
+	llassert_always(pclass >= 0 && pclass < mClasses.size());
+	
+	return mClasses[pclass]->mOptions;
+}
+
 
 int HttpPolicy::getReadyCount(HttpRequest::policy_t policy_class) const
 {
-	if (policy_class < mActiveClasses)
+	if (policy_class < mClasses.size())
 	{
-		return (mState[policy_class].mReadyQueue.size()
-				+ mState[policy_class].mRetryQueue.size());
+		return (mClasses[policy_class]->mReadyQueue.size()
+				+ mClasses[policy_class]->mRetryQueue.size());
 	}
 	return 0;
 }

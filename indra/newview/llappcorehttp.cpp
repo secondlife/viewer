@@ -105,8 +105,9 @@ void LLAppCoreHttp::init()
 	}
 
 	// Point to our certs or SSH/https: will fail on connect
-	status = LLCore::HttpRequest::setPolicyGlobalOption(LLCore::HttpRequest::GP_CA_FILE,
-														gDirUtilp->getCAFile());
+	status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
+														LLCore::HttpRequest::GLOBAL_POLICY_ID,
+														gDirUtilp->getCAFile(), NULL);
 	if (! status)
 	{
 		LL_ERRS("Init") << "Failed to set CA File for HTTP services.  Reason:  " << status.toString()
@@ -114,7 +115,9 @@ void LLAppCoreHttp::init()
 	}
 
 	// Establish HTTP Proxy, if desired.
-	status = LLCore::HttpRequest::setPolicyGlobalOption(LLCore::HttpRequest::GP_LLPROXY, 1);
+	status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_LLPROXY,
+														LLCore::HttpRequest::GLOBAL_POLICY_ID,
+														1, NULL);
 	if (! status)
 	{
 		LL_WARNS("Init") << "Failed to set HTTP proxy for HTTP services.  Reason:  " << status.toString()
@@ -131,7 +134,9 @@ void LLAppCoreHttp::init()
 	{
 		long trace_level(0L);
 		trace_level = long(gSavedSettings.getU32(http_trace));
-		status = LLCore::HttpRequest::setPolicyGlobalOption(LLCore::HttpRequest::GP_TRACE, trace_level);
+		status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_TRACE,
+															LLCore::HttpRequest::GLOBAL_POLICY_ID,
+															trace_level, NULL);
 	}
 	
 	// Setup default policy and constrain if directed to
@@ -164,6 +169,9 @@ void LLAppCoreHttp::init()
 		}
 	}
 
+	// Need a request object to handle dynamic options before setting them
+	mRequest = new LLCore::HttpRequest;
+
 	// Apply initial settings
 	refreshSettings(true);
 	
@@ -174,8 +182,6 @@ void LLAppCoreHttp::init()
 		LL_ERRS("Init") << "Failed to start HTTP servicing thread.  Reason:  " << status.toString()
 						<< LL_ENDL;
 	}
-
-	mRequest = new LLCore::HttpRequest;
 
 	// Register signals for settings and state changes
 	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
@@ -287,12 +293,13 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 		// Set it and report
 		// *TODO:  These are intended to be per-host limits when we can
 		// support that in llcorehttp/libcurl.
-		LLCore::HttpStatus status;
-		status = LLCore::HttpRequest::setPolicyClassOption(mPolicies[policy],
-														   LLCore::HttpRequest::CP_CONNECTION_LIMIT,
-														   setting);
-		if (! status)
+		LLCore::HttpHandle handle;
+		handle = mRequest->setPolicyOption(LLCore::HttpRequest::PO_CONNECTION_LIMIT,
+										   mPolicies[policy],
+										   setting, NULL);
+		if (LLCORE_HTTP_HANDLE_INVALID == handle)
 		{
+			LLCore::HttpStatus status(mRequest->getStatus());
 			LL_WARNS("Init") << "Unable to set " << init_data[i].mUsage
 							 << " concurrency.  Reason:  " << status.toString()
 							 << LL_ENDL;

@@ -402,7 +402,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	// *FIXME:  better error handling later
 	HttpStatus status;
 
-	// Get policy options
+	// Get global policy options
 	HttpPolicyGlobal & policy(service->getPolicy().getGlobalOptions());
 	
 	mCurlHandle = curl_easy_init();
@@ -441,30 +441,27 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYPEER, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, 0);
 
-	const std::string * opt_value(NULL);
-	long opt_long(0L);
-	policy.get(HttpRequest::GP_LLPROXY, &opt_long);
-	if (opt_long)
+	if (policy.mUseLLProxy)
 	{
 		// Use the viewer-based thread-safe API which has a
 		// fast/safe check for proxy enable.  Would like to
 		// encapsulate this someway...
 		LLProxy::getInstance()->applyProxySettings(mCurlHandle);
 	}
-	else if (policy.get(HttpRequest::GP_HTTP_PROXY, &opt_value))
+	else if (policy.mHttpProxy.size())
 	{
 		// *TODO:  This is fine for now but get fuller socks5/
 		// authentication thing going later....
-		curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, opt_value->c_str());
+		curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, policy.mHttpProxy.c_str());
 		curl_easy_setopt(mCurlHandle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
 	}
-	if (policy.get(HttpRequest::GP_CA_PATH, &opt_value))
+	if (policy.mCAPath.size())
 	{
-		curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, opt_value->c_str());
+		curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, policy.mCAPath.c_str());
 	}
-	if (policy.get(HttpRequest::GP_CA_FILE, &opt_value))
+	if (policy.mCAFile.size())
 	{
-		curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, opt_value->c_str());
+		curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, policy.mCAFile.c_str());
 	}
 	
 	switch (mReqMethod)
