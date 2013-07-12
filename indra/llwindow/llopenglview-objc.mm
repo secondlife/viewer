@@ -243,7 +243,13 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (void) mouseDown:(NSEvent *)theEvent
 {
     // Apparently people still use this?
-    if ([theEvent modifierFlags] & NSControlKeyMask)
+    if ([theEvent modifierFlags] & NSCommandKeyMask &&
+        !([theEvent modifierFlags] & NSControlKeyMask) &&
+        !([theEvent modifierFlags] & NSShiftKeyMask) &&
+        !([theEvent modifierFlags] & NSAlternateKeyMask) &&
+        !([theEvent modifierFlags] & NSAlphaShiftKeyMask) &&
+        !([theEvent modifierFlags] & NSFunctionKeyMask) &&
+        !([theEvent modifierFlags] & NSHelpKeyMask))
     {
         callRightMouseDown(mMousePos, mModifiers);
         mSimulatedRightClick = true;
