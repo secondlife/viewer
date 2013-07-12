@@ -49,7 +49,6 @@ public:
 		Optional<bool>			show_per_sec,
 								show_bar,
 								show_history,
-								show_mean,
 								scale_range;
 
 		Optional<S32>			num_frames,
@@ -60,14 +59,13 @@ public:
 		Params()
 		:	label("label"),
 			unit_label("unit_label"),
-			bar_min("bar_min", 0.0f),
-			bar_max("bar_max", 0.0f),
-			tick_spacing("tick_spacing", 10.0f),
+			bar_min("bar_min", 0.f),
+			bar_max("bar_max", 0.f),
+			tick_spacing("tick_spacing", 0.f),
 			decimal_digits("decimal_digits", 3),
 			show_per_sec("show_per_sec", true),
 			show_bar("show_bar", false),
 			show_history("show_history", false),
-			show_mean("show_mean", true),
 			scale_range("scale_range", true),
 			num_frames("num_frames", 200),
 			max_height("max_height", 100),
@@ -103,9 +101,8 @@ private:
 	bool         mPerSec,				// Use the per sec stats.
 				 mDisplayBar,			// Display the bar graph.
 				 mDisplayHistory,
-				 mDisplayMean,			// If true, display mean, if false, display current value
-				 mScaleMax,
-				 mScaleMin;
+				 mAutoScaleMax,
+				 mAutoScaleMin;
 	EOrientation mOrientation;
 
 	LLTrace::TraceType<LLTrace::CountAccumulator>*		mCountFloatp;
