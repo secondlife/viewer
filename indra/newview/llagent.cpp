@@ -90,6 +90,7 @@
 #include "llwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
+#include "lscript_byteformat.h"
 #include "stringize.h"
 
 using namespace LLAvatarAppearanceDefines;
@@ -3072,6 +3073,31 @@ void LLAgent::sendAnimationStateReset()
 	sendReliableMessage();
 }
 
+
+// Send a message to the region to revoke sepecified permissions on ALL scripts in the region
+// If the target is an object in the region, permissions in scripts on that object are cleared.
+// If it is the region ID, all scripts clear the permissions for this agent
+void LLAgent::sendRevokePermissions(const LLUUID & target, U32 permissions)
+{
+	// Currently only the bits for SCRIPT_PERMISSION_TRIGGER_ANIMATION and SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS
+	// are supported by the server.  Sending any other bits will cause the message to be dropped without changing permissions
+
+	if (gAgentID.notNull() && gMessageSystem)
+	{
+		LLMessageSystem* msg = gMessageSystem;
+		msg->newMessageFast(_PREHASH_RevokePermissions);
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID, getID());		// Must be our ID
+		msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
+
+		msg->nextBlockFast(_PREHASH_Data);
+		msg->addUUIDFast(_PREHASH_ObjectID, target);		// Must be in the region
+		msg->addS32Fast(_PREHASH_ObjectPermissions, (S32) permissions);
+
+		sendReliableMessage();
+	}
+}
+
 void LLAgent::sendWalkRun(bool running)
 {
 	LLMessageSystem* msgsys = gMessageSystem;
@@ -4175,8 +4201,20 @@ void LLAgent::stopCurrentAnimations()
 
 		sendAnimationRequests(anim_ids, ANIM_REQUEST_STOP);
 
-		// Tell the region to clear any animation state overrides.
+		// Tell the region to clear any animation state overrides
 		sendAnimationStateReset();
+
+		// Revoke all animation permissions
+		if (mRegionp &&
+			gSavedSettings.getBOOL("RevokePermsOnStopAnimation"))
+		{
+			U32 permissions = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_TRIGGER_ANIMATION] | LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS];
+			sendRevokePermissions(mRegionp->getRegionID(), permissions);
+			if (gAgentAvatarp->isSitting())
+			{	// Also stand up, since auto-granted sit animation permission has been revoked
+				gAgent.standUp();
+			}
+		}
 
 		// re-assert at least the default standing animation, because
 		// viewers get confused by avs with no associated anims.
