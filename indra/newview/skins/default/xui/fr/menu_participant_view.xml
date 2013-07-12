@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="participant_manu_view">
+	<menu_item_check label="Trier les conversations par type" name="sort_sessions_by_type"/>
+	<menu_item_check label="Trier les conversations par nom" name="sort_sessions_by_name"/>
+	<menu_item_check label="Trier les conversations par activité récente" name="sort_sessions_by_recent"/>
+	<menu_item_check label="Trier les participants par nom" name="sort_participants_by_name"/>
+	<menu_item_check label="Trier les participants par activité récente" name="sort_participants_by_recent"/>
+	<menu_item_call label="Préférences pour le chat..." name="chat_preferences"/>
+	<menu_item_call label="Préférences pour la confidentialité" name="privacy_preferences"/>
+	<menu_item_check label="Journal des conversations..." name="Conversation"/>
+	<menu_item_check label="Traduire le Chat près de moi" name="Translate_chat"/>
+	<menu_item_check label="Paramètres de traduction" name="Translation_settings"/>
+</toggleable_menu>

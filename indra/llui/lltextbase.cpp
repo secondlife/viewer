@@ -3206,14 +3206,14 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 	LLWString offsetString(text.c_str() + segment_offset + mStart);
 
 	if(getLength() < segment_offset + mStart)
-	{
-		llerrs << "getLength() < segment_offset + mStart\t getLength()\t" << getLength() << "\tsegment_offset:\t" 
+	{ 
+		llinfos << "getLength() < segment_offset + mStart\t getLength()\t" << getLength() << "\tsegment_offset:\t" 
 						<< segment_offset << "\tmStart:\t" << mStart << "\tsegments\t" << mEditor.mSegments.size() << "\tmax_chars\t" << max_chars << llendl;
 	}
 
 	if(offsetString.length() + 1 < max_chars)
 	{
-		llerrs << "offsetString.length() + 1 < max_chars\t max_chars:\t" << max_chars << "\toffsetString.length():\t" << offsetString.length()
+		llinfos << "offsetString.length() + 1 < max_chars\t max_chars:\t" << max_chars << "\toffsetString.length():\t" << offsetString.length() << " getLength() : "
 			<< getLength() << "\tsegment_offset:\t" << segment_offset << "\tmStart:\t" << mStart << "\tsegments\t" << mEditor.mSegments.size() << llendl;
 	}
 	

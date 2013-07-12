@@ -49,6 +49,8 @@ public:
 	const std::string& getOSString() const;
 	const std::string& getOSStringSimple() const;
 
+	const std::string& getOSVersionString() const;
+	
 	S32 mMajorVer;
 	S32 mMinorVer;
 	S32 mBuild;
@@ -62,6 +64,7 @@ public:
 private:
 	std::string mOSString;
 	std::string mOSStringSimple;
+	std::string mOSVersionString;
 };
 
 

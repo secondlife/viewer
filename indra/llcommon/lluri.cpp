@@ -129,11 +129,30 @@ std::string LLURI::unescape(const std::string& str)
 		{
 			++it;
 			if(it == end) break;
-			U8 c = hex_as_nybble(*it++);
-			c = c << 4;
-			if (it == end) break;
-			c |= hex_as_nybble(*it);
-			ostr.put((char)c);
+
+			if(is_char_hex(*it))
+			{
+				U8 c = hex_as_nybble(*it++);
+
+				c = c << 4;
+				if (it == end) break;
+
+				if(is_char_hex(*it))
+				{
+					c |= hex_as_nybble(*it);
+					ostr.put((char)c);
+				}
+				else
+				{
+					ostr.put((char)c);
+					ostr.put(*it);
+				}
+			}
+			else
+			{
+				ostr.put('%');
+				ostr.put(*it);
+			}
 		}
 		else
 		{

@@ -61,6 +61,7 @@
 	<string name="Quit">Quit</string>
 	<string name="create_account_url">http://join.secondlife.com/?sourceid=[sourceid]</string>
 
+	<string name="ViewerDownloadURL">http://secondlife.com/download</string>
 	<string name="LoginFailedViewerNotPermitted">
 The viewer you are using can no longer access Second Life. Please visit the following page to download a new viewer:
 http://secondlife.com/download
@@ -372,6 +373,8 @@ Please try logging in again in a minute.</string>
 	<!-- build floater -->
 	<string name="multiple_textures">Multiple</string>
 
+<string name="use_texture">Use texture</string>
+
 	<!-- world map -->
 	<string name="texture_loading">Loading...</string>
 	<string name="worldmap_offline">Offline</string>
@@ -410,6 +413,11 @@ Please try logging in again in a minute.</string>
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
   <string name="TeleportYourAgent">Teleport you</string>
+	<string name="JoinAnExperience">Join an experience</string> <!-- not used -->
+	<string name="SilentlyManageEstateAccess">Suppress alerts when managing estate access lists</string>
+	<string name="OverrideYourAnimations">Replace your default animations</string>
+	<string name="ScriptReturnObjects">Return objects on your behalf</string>
+	<string name="UnknownScriptPermission">(unknown)!</string>
 
 	<!-- Sim Access labels -->
 	<string name="SIM_ACCESS_PG">General</string>

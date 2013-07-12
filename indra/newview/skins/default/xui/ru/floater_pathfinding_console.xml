@@ -71,7 +71,7 @@
 			<text name="show_label">
 				Показать:
 			</text>
-			<check_box label="Мир" name="show_world"/>
+			<check_box label="Тест" name="show_world"/>
 			<check_box label="Только перемещаемые предметы" name="show_world_movables_only"/>
 			<check_box label="Навигационная сетка" name="show_navmesh"/>
 			<text name="show_walkability_label">

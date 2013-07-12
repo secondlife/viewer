@@ -44,11 +44,17 @@
 *****************************************************************************/
 LLUpdateChecker::LLUpdateChecker(LLUpdateChecker::Client & client)
 {}
-void LLUpdateChecker::checkVersion(std::string const & protocolVersion, std::string const & hostUrl, 
-								  std::string const & servicePath, std::string channel, std::string version)
+void LLUpdateChecker::checkVersion(std::string const & hostUrl, 
+								   std::string const & servicePath,
+								   std::string const & channel,
+								   std::string const & version,
+								   std::string const & platform,
+								   std::string const & platform_version,
+								   unsigned char       uniqueid[MD5HEX_STR_SIZE],
+								   bool                willing_to_test)
 {}
 LLUpdateDownloader::LLUpdateDownloader(Client & ) {}
-void LLUpdateDownloader::download(LLURI const & , std::string const &, std::string const &, bool){}
+void LLUpdateDownloader::download(LLURI const & , std::string const &, std::string const &, std::string const &, std::string const &, bool){}
 
 class LLDir_Mock : public LLDir
 {
@@ -172,9 +178,11 @@ namespace tut
 		bool got_usage_error = false;
 		try
 		{
-			updater.initialize("1.0",test_url, "update" ,test_channel, test_version);
+			unsigned char id1[MD5HEX_STR_SIZE] = "11111111111111111111111111111111";
+			updater.initialize(test_url, "update" ,test_channel, test_version, "win", "1.2.3", id1, true);
 			updater.startChecking();
-			updater.initialize("1.0", "other_url", "update", test_channel, test_version);
+			unsigned char id2[MD5HEX_STR_SIZE] = "22222222222222222222222222222222";
+			updater.initialize("other_url", "update", test_channel, test_version, "win", "4.5.6", id2, true);
 		}
 		catch(LLUpdaterService::UsageError)
 		{
@@ -188,7 +196,8 @@ namespace tut
     {
         DEBUG;
 		LLUpdaterService updater;
-		updater.initialize("1.0", test_url, "update", test_channel, test_version);
+		unsigned char id[MD5HEX_STR_SIZE] = "33333333333333333333333333333333";
+		updater.initialize(test_url, "update", test_channel, test_version, "win", "7.8.9", id, true);
 		updater.startChecking();
 		ensure(updater.isChecking());
 		updater.stopChecking();

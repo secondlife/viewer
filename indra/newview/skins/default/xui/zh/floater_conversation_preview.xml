@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview_conversation" title="交談：">
+	<floater.string name="Title">
+		交談：[NAME]
+	</floater.string>
+	<text name="page_label" value="頁"/>
+</floater>

@@ -25,12 +25,12 @@
 
 uniform mat3 normal_matrix;
 
-ATTRIBUTE vec3 binormal;
+ATTRIBUTE vec4 tangent;
 
-VARYING vec4 binormal_out;
+VARYING vec4 tangent_out;
 
 void main()
 {
-	binormal_out = vec4(normal_matrix * binormal, 0.0);
+	tangent_out = vec4(normal_matrix * tangent.xyz), tangent.w);
 }
 

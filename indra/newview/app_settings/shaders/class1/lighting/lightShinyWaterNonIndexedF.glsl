@@ -48,7 +48,7 @@ void shiny_lighting_water()
 	color.rgb = mix(color.rgb, envColor.rgb, vertex_color.a);
 
 	color.rgb = atmosLighting(color.rgb);
-	color.a = max(color.a, vertex_color.a);
+	color.a = 1.0;
 	frag_color = applyWaterFog(color);
 }
 

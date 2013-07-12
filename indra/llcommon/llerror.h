@@ -34,7 +34,6 @@
 #include "llerrorlegacy.h"
 #include "stdtypes.h"
 
-
 /** Error Logging Facility
 
 	Information for most users:
@@ -199,7 +198,19 @@ namespace LLError
        static void clear() ;
 	   static void end(std::ostringstream* _out) ;
    }; 
+
+#if LL_WINDOWS
+	void LLOutputDebugUTF8(const std::string& s);
+#endif
+
 }
+
+#if LL_WINDOWS
+	// Macro accepting a std::string for display in windows debugging console
+	#define LL_WINDOWS_OUTPUT_DEBUG(a) LLError::LLOutputDebugUTF8(a)
+#else
+	#define LL_WINDOWS_OUTPUT_DEBUG(a)
+#endif
 
 //this is cheaper than llcallstacks if no need to output other variables to call stacks. 
 #define llpushcallstacks LLError::LLCallStacks::push(__FUNCTION__, __LINE__)

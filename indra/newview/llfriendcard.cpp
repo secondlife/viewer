@@ -521,7 +521,7 @@ public:
 	void fire(const LLUUID& inv_item_id)
 	{
 		LLViewerInventoryItem* item = gInventory.getItem(inv_item_id);
-		
+
 		if (item)
 			LLFriendCardsManager::instance().extractAvatarID(item->getCreatorUUID());
 	}

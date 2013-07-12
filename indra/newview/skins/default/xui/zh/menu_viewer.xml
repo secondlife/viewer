@@ -16,10 +16,7 @@
 			<menu_item_call label="停止我身上的動作" name="Stop Animating My Avatar"/>
 			<menu_item_call label="行走 / 跑步 / 飛行…" name="Walk / run / fly"/>
 		</menu>
-		<menu label="狀態" name="Status">
-			<menu_item_call label="離開" name="Set Away"/>
-			<menu_item_call label="忙碌" name="Set Busy"/>
-		</menu>
+		<menu label="狀態" name="Status"/>
 		<menu_item_call label="購買 L$…" name="Buy and Sell L$"/>
 		<menu_item_call label="商家發件匣…" name="MerchantOutbox"/>
 		<menu_item_call label="帳戶主控臺…" name="Manage My Account"/>
@@ -30,14 +27,18 @@
 		<menu_item_call label="退出 [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="溝通" name="Communicate">
-		<menu_item_check label="聊天…" name="Nearby Chat"/>
+		<menu_item_check label="交談……" name="Conversations"/>
+		<menu_item_check label="附近的聊天……" name="Nearby Chat"/>
 		<menu_item_check label="說話" name="Speak"/>
-		<menu_item_check label="語音設定…" name="Nearby Voice"/>
-		<menu_item_check label="語音變聲…" name="ShowVoice"/>
+		<menu label="語音變聲" name="VoiceMorphing">
+			<menu_item_check label="沒有變聲效果" name="NoVoiceMorphing"/>
+			<menu_item_check label="預覽……" name="Preview"/>
+			<menu_item_call label="訂閱……" name="Subscribe"/>
+		</menu>
 		<menu_item_check label="姿勢…" name="Gestures"/>
-		<menu_item_call label="朋友" name="My Friends"/>
-		<menu_item_call label="群組" name="My Groups"/>
-		<menu_item_call label="附近的人群" name="Active Speakers"/>
+		<menu_item_check label="朋友" name="My Friends"/>
+		<menu_item_check label="群組" name="My Groups"/>
+		<menu_item_check label="附近的人群" name="Active Speakers"/>
 		<menu_item_call label="封鎖清單" name="Block List"/>
 	</menu>
 	<menu label="世界" name="World">
@@ -113,7 +114,6 @@
 			<menu_item_call label="購買" name="Menu Object Buy"/>
 			<menu_item_call label="取得" name="Menu Object Take"/>
 			<menu_item_call label="取得副本" name="Take Copy"/>
-			<menu_item_call label="回存到我的收納區" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="回存到物件內容" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="退回物件" name="Return Object back to Owner"/>
 		</menu>
@@ -128,6 +128,7 @@
 			<menu_item_call label="聯結集…" name="pathfinding_linksets_menu_item"/>
 			<menu_item_call label="角色…" name="pathfinding_characters_menu_item"/>
 			<menu_item_call label="察看 / 測試…" name="pathfinding_console_menu_item"/>
+			<menu_item_call label="重新產出地區" name="pathfinding_rebake_navmesh_item"/>
 		</menu>
 		<menu label="選項" name="Options">
 			<menu_item_check label="顯示進階權限" name="DebugPermissions"/>
@@ -157,6 +158,13 @@
 	<menu label="幫助" name="Help">
 		<menu_item_call label="簡易教學…" name="How To"/>
 		<menu_item_call label="[SECOND_LIFE] 幫助" name="Second Life Help"/>
+		<menu_item_call label="使用者指南" name="User’s guide"/>
+		<menu_item_call label="知識庫" name="Knowledge Base"/>
+		<menu_item_call label="維基" name="Wiki"/>
+		<menu_item_call label="社群論壇" name="Community Forums"/>
+		<menu_item_call label="支援入口" name="Support portal"/>
+		<menu_item_call label="[SECOND_LIFE] 最新消息" name="Second Life News"/>
+		<menu_item_call label="[SECOND_LIFE] 部落格" name="Second Life Blogs"/>
 		<menu_item_call label="違規舉報" name="Report Abuse"/>
 		<menu_item_call label="回報臭蟲" name="Report Bug"/>
 		<menu_item_call label="關於 [APP_NAME]" name="About Second Life"/>
@@ -305,7 +313,7 @@
 			<menu_item_call label="已選取材質資訊基礎" name="Selected Texture Info Basis"/>
 			<menu_item_check label="線框" name="Wireframe"/>
 			<menu_item_check label="物件導向的遮蔽" name="Object-Object Occlusion"/>
-			<menu_item_check label="光線和陰影" name="Lighting and Shadows"/>
+			<menu_item_check label="光線和陰影" name="Advanced Lighting Model"/>
 			<menu_item_check label="來自日/月/投影物的陰影" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="屏幕空間環境光遮蔽和陰影平滑技術" name="SSAO and Shadow Smoothing"/>
 			<menu_item_check label="GL 除錯" name="Debug GL"/>
@@ -383,9 +391,14 @@
 				<menu_item_call label="女性測試" name="Test Female"/>
 				<menu_item_check label="允許選擇化身" name="Allow Select Avatar"/>
 			</menu>
+			<menu label="動作速度" name="Animation Speed">
+				<menu_item_call label="所有動作加快 10%" name="All Animations 10 Faster"/>
+				<menu_item_call label="所有動作放慢 10%" name="All Animations 10 Slower"/>
+				<menu_item_call label="將所有動作恢復原速" name="Reset All Animation Speed"/>
+				<menu_item_check label="慢動作" name="Slow Motion Animations"/>
+			</menu>
 			<menu_item_call label="強制參數為預設值" name="Force Params to Default"/>
 			<menu_item_check label="動作資訊" name="Animation Info"/>
-			<menu_item_check label="慢動作" name="Slow Motion Animations"/>
 			<menu_item_check label="顯示注視在" name="Show Look At"/>
 			<menu_item_check label="顯示指向在" name="Show Point At"/>
 			<menu_item_check label="除錯旋軸的更新" name="Debug Joint Updates"/>

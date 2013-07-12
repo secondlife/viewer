@@ -66,6 +66,8 @@ public:
 	void setSkipOptionalUpdate(bool state) { mSkipOptionalUpdate = state; }
 	void setSerialNumber(const std::string& sn) { mSerialNumber = sn; }
 	void setLastExecEvent(int lee) { mLastExecEvent = lee; }
+	void setLastExecDuration(S32 duration) { mLastExecDuration = duration; }
+	void setPlatformInfo(const std::string platform, const std::string platform_version);
 
 	void setNotificationsInterface(LLNotificationsInterface* ni) { mNotifications = ni; }
 
@@ -99,6 +101,9 @@ private:
 	F64 mTransferRate;
 	std::string mSerialNumber;
 	int mLastExecEvent;
+	S32 mLastExecDuration;
+	std::string mPlatform;
+	std::string mPlatformVersion;
 	UpdaterLauncherCallback mUpdaterLauncher;
 	LLEventDispatcher mDispatcher;
 	LLUpdaterService * mUpdaterService;	
