@@ -1,19 +1,19 @@
     <panel
-	 height="393"
+	 height="400"
 	 width="304"
 	 layout="topleft"
      name="panel_social_status">
      <layout_stack
       layout="topleft"
       border_size="0"
-      height="385"
+      height="392"
       follows="all"
       orientation="vertical"
       name="stack_status"
       top="8">
       <layout_panel
        name="status_detail_panel"
-       height="360">
+       height="367">
        <text
         length="1"
         follows="top|left|right"
@@ -21,14 +21,14 @@
         height="16"
         left="9"
         name="status_caption_label"
-        top="1"
+        top="13"
         type="string">
         What's on your mind?
        </text>
        <text_editor
-        follows="left|top|right"
-        height="80"
-        right="-9"
+        follows="left|top"
+        height="150"
+        width="250"
         left="9"
         length="1"
         max_length="700"

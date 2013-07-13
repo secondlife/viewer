@@ -11,10 +11,10 @@
   single_instance="true"
   reuse_instance="true"
   title="FACEBOOK"
-  height="465"
+  height="482"
   width="304">
   <panel
-   height="465"
+   height="482"
    width="304"
    visible="true"
    name="background"
@@ -34,7 +34,7 @@
      bg_opaque_color="DkGray"
      bg_alpha_color="DkGray_66"
      top="7"
-     height="430"
+     height="437"
      halign="center">
      <panel
        filename="panel_social_status.xml"
@@ -69,8 +69,8 @@
       name="connection_error_text"
       type="string"
       follows="left|bottom|right"
-      top="3"
-      left="12"
+      top="5"
+      left="9"
       width="250"
       height="20"
       wrap="true"
@@ -85,14 +85,14 @@
       height="24"
       width="24"
       name="connection_loading_indicator"
-      top="0"
+      top="2"
       left="9"
       visible="true"/>
      <text
       name="connection_loading_text"
       type="string"
       follows="left|bottom|right"
-      top="3"
+      top="5"
       left_pad="5"
       width="250"
       height="20"

@@ -168,6 +168,7 @@ mLocationCheckbox(NULL),
 mPostButton(NULL)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLSocialPhotoPanel::onSend, this));
+	mCommitCallbackRegistrar.add("SocialSharing.RefreshPhoto", boost::bind(&LLSocialPhotoPanel::onClickNewSnapshot, this));
 }
 
 LLSocialPhotoPanel::~LLSocialPhotoPanel()
@@ -186,7 +187,6 @@ BOOL LLSocialPhotoPanel::postBuild()
 	mResolutionComboBox = getChild<LLUICtrl>("resolution_combobox");
 	mResolutionComboBox->setCommitCallback(boost::bind(&LLSocialPhotoPanel::updateResolution, this, TRUE));
 	mRefreshBtn = getChild<LLUICtrl>("new_snapshot_btn");
-	childSetAction("new_snapshot_btn", boost::bind(&LLSocialPhotoPanel::onClickNewSnapshot, this));
     mWorkingLabel = getChild<LLUICtrl>("working_lbl");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 	mCaptionTextBox = getChild<LLUICtrl>("photo_caption");
@@ -217,15 +217,18 @@ void LLSocialPhotoPanel::draw()
 		const S32 thumbnail_h = previewp->getThumbnailHeight();
 
 		// calc preview offset within the preview rect
-		const S32 local_offset_x = (thumbnail_rect.getWidth() - thumbnail_w) / 2 ;
+		const S32 local_offset_x = (thumbnail_rect.getWidth()  - thumbnail_w) / 2 ;
+		const S32 local_offset_y = (thumbnail_rect.getHeight() - thumbnail_h) / 2 ;
 
 		// calc preview offset within the floater rect
-		S32 offset_x = thumbnail_rect.mLeft + local_offset_x;
-        // Hack : "15" is to compensate for "top=8" of "stack_photo" and "top=7" of "tabs"
-		S32 offset_y = thumbnail_rect.mBottom - 15;
-
+        // Hack : To get the full offset, we need to take into account each and every offset of each widgets up to the floater.
+        // This is almost as arbitrary as using a fixed offset so that's what we do here for the sake of simplicity.
+        // *TODO : Get the offset looking through the hierarchy of widgets, should be done in postBuild() so to avoid traversing the hierarchy each time.
+		S32 offset_x = thumbnail_rect.mLeft + local_offset_x - 1;
+		S32 offset_y = thumbnail_rect.mBottom + local_offset_y - 39;
+        
 		mSnapshotPanel->localPointToOtherView(offset_x, offset_y, &offset_x, &offset_y, getParentByType<LLFloater>());
-
+        
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		// Apply floater transparency to the texture unless the floater is focused.
 		F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();

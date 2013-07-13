@@ -1,19 +1,19 @@
     <panel
-      height="393"
+      height="400"
       width="304"
       layout="topleft"
       name="panel_social_photo">
       <layout_stack
 	   layout="topleft"
        border_size="0"
-       height="385"
+       height="392"
        follows="all"
        orientation="vertical"
        name="stack_photo"
        top="8">
         <layout_panel	
          name="snapshot_panel"
-         height="360">
+         height="367">
             <combo_box
              control_name="SocialPhotoResolution"
              follows="left|top"
@@ -61,32 +61,36 @@
                 top="33"
                 follows="left|top"
                 left="9">
-              <text
-               follows="left|top|right"
-               font="SansSerifBold"
-               height="14"
-               left="5"
-               length="1"
-               halign="center"
-               name="working_lbl"
-               right="-5"
-               top="98"
-               translate="false"
-               type="string"
-               visible="false">
-                Refreshing...
-              </text>
-              <button
-               follows="left|top"
-               height="22"
-               image_overlay="Refresh_Off"
-               left="20"
-               name="new_snapshot_btn"
-               tool_tip="Click to refresh"
-               bottom="-10"
-               visible="false"
-               width="22" />
             </panel>
+            <button
+             follows="left|top"
+             height="23"
+             label="Refresh"
+             left="9"
+             top_pad="5"
+             name="new_snapshot_btn"
+             tool_tip="Click to refresh"
+             visible="true"
+             width="100" >
+             <button.commit_callback
+               function="SocialSharing.RefreshPhoto" />
+            </button>
+            <text
+                follows="left|top"
+                font="SansSerif"
+                text_color="EmphasisColor"
+                height="14"
+                top_pad="-19"
+                left_pad="-20"
+                length="1"
+                halign="center"
+                name="working_lbl"
+                translate="false"
+                type="string"
+                visible="true"
+                width="150">
+                Refreshing...
+            </text>
             <text
              length="1"
              follows="top|left|right"
@@ -94,7 +98,7 @@
              height="16"
              left="9"
              name="caption_label"
-             top_pad="5"
+             top_pad="20"
              type="string">
               Comment (optional):
             </text>
@@ -114,9 +118,9 @@
              initial_value="true"
              label="Include location in posting"
              name="add_location_cb"
-              left="6"
+              left="9"
               height="16"
-             top_pad="5"/>
+             top_pad="8"/>
         </layout_panel>
         <layout_panel
           name="photo_button_panel"
