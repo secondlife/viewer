@@ -547,11 +547,25 @@ std::string LLGridManager::getGridLoginID()
 
 std::string LLGridManager::getUpdateServiceURL()
 {
-	std::string update_url_base;
-	if ( mGridList[mGrid].has(GRID_UPDATE_SERVICE_URL) )
+	std::string update_url_base = gSavedSettings.getString("CmdLineUpdateService");;
+	if ( !update_url_base.empty() )
+	{
+		LL_INFOS2("UpdaterService","GridManager")
+			<< "Update URL base overridden from command line: " << update_url_base
+			<< LL_ENDL;
+	}
+	else if ( mGridList[mGrid].has(GRID_UPDATE_SERVICE_URL) )
 	{
 		update_url_base = mGridList[mGrid][GRID_UPDATE_SERVICE_URL].asString();
 	}
+	else
+	{
+		LL_WARNS2("UpdaterService","GridManager")
+			<< "The grid property '" << GRID_UPDATE_SERVICE_URL
+			<< "' is not defined for the grid '" << mGrid << "'"
+			<< LL_ENDL;
+	}
+			
 	return update_url_base;
 }
 

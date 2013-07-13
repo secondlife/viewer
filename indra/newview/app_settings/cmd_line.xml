@@ -108,6 +108,16 @@
       <string>CmdLineGridChoice</string>
     </map>
 
+    <key>update-service</key>
+    <map>
+      <key>desc</key>
+      <string>Override the url base for the update query.</string>
+      <key>count</key>
+      <integer>1</integer>
+      <key>map-to</key>
+      <string>CmdLineUpdateService</string>
+    </map>
+
     <key>help</key>
     <map>
       <key>desc</key>
