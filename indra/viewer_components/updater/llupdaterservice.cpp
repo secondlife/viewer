@@ -406,7 +406,7 @@ void LLUpdaterServiceImpl::response(LLSD const & content)
 	
 		setState(LLUpdaterService::UP_TO_DATE);
 	}
-	else
+	else if ( content.isMap() && content.has("url") )
 	{
 		// there is an update available...
 		stopTimer();
@@ -429,6 +429,12 @@ void LLUpdaterServiceImpl::response(LLSD const & content)
 			<< " more info '" << more_info << "'"
 			<< LL_ENDL;
 		mUpdateDownloader.download(url, content["hash"].asString(), mNewChannel, mNewVersion, more_info, required);
+	}
+	else
+	{
+		LL_WARNS("UpdaterService") << "Invalid update query response ignored; retry in "
+								   << mCheckPeriod << " seconds" << LL_ENDL;
+		restartTimer(mCheckPeriod);
 	}
 }
 
@@ -570,6 +576,10 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 					<< "No updater service defined for grid '" << LLGridManager::getInstance()->getGrid()
 					<< "' will check again in " << mCheckPeriod << " seconds"
 					<< LL_ENDL;
+				// Because the grid can be changed after the viewer is started (when the first check takes place)
+				// but before the user logs in, the next check may be on a different grid, so set the retry timer
+				// even though this check did not happen.  The default time is once an hour, and if we're not
+				// doing the check anyway the performance impact is completely insignificant.
 				restartTimer(mCheckPeriod);
 			}
 		}
