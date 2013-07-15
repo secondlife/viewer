@@ -9621,6 +9621,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>RenderWaterMaterials</key>
+    <map>
+      <key>Comment</key>
+      <string>Water planar reflections include materials rendering.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RenderWaterMipNormal</key>
     <map>
       <key>Comment</key>
