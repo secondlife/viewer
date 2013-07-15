@@ -38,10 +38,13 @@ namespace LLTrace
 // Recording
 ///////////////////////////////////////////////////////////////////////
 
-Recording::Recording() 
-:	mElapsedSeconds(0)
+Recording::Recording(EPlayState state) 
+:	mElapsedSeconds(0),
+	mInHandOff(false)
+
 {
 	mBuffers = new AccumulatorBufferGroup();
+	setPlayState(state);
 }
 
 Recording::Recording( const Recording& other )
@@ -101,7 +104,8 @@ void Recording::handleStart()
 {
 	mSamplingTimer.reset();
 	mBuffers.setStayUnique(true);
-	LLTrace::get_thread_recorder()->activate(mBuffers.write());
+	LLTrace::get_thread_recorder()->activate(mBuffers.write(), mInHandOff);
+	mInHandOff = false;
 }
 
 void Recording::handleStop()
@@ -113,6 +117,7 @@ void Recording::handleStop()
 
 void Recording::handleSplitTo(Recording& other)
 {
+	other.mInHandOff = true;
 	mBuffers.write()->handOffTo(*other.mBuffers.write());
 }
 
@@ -485,6 +490,8 @@ void PeriodicRecording::handleStop()
 
 void PeriodicRecording::handleReset()
 {
+	getCurRecording().stop();
+
 	if (mAutoResize)
 	{
 		mRecordingPeriods.clear();
@@ -500,6 +507,7 @@ void PeriodicRecording::handleReset()
 		}
 	}
 	mCurPeriod = 0;
+	mNumPeriods = 0;
 	getCurRecording().setPlayState(getPlayState());
 }
 
@@ -719,7 +727,6 @@ void LLStopWatchControlsMixinCommon::start()
 		handleStart();
 		break;
 	case STARTED:
-		handleReset();
 		break;
 	default:
 		llassert(false);

@@ -72,7 +72,6 @@ extern LLTrace::CountStatHandle<>			FPS,
 											PACKETS_LOST,
 											PACKETS_OUT,
 											TEXTURE_PACKETS,
-											TRIANGLES_DRAWN,
 											CHAT_COUNT,
 											IM_COUNT,
 											OBJECT_CREATE,
@@ -93,14 +92,15 @@ extern LLTrace::CountStatHandle<>			FPS,
 											TEX_REBAKES,
 											NUM_NEW_OBJECTS;
 
+extern LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kilotriangles> > TRIANGLES_DRAWN;
 
-extern LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kibibits> >	KBIT,
-																	LAYERS_KBIT,
-																	OBJECT_KBIT,
-																	ASSET_KBIT,
-																	TEXTURE_KBIT,
-																	ACTUAL_IN_KBIT,
-																	ACTUAL_OUT_KBIT;
+extern LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kibibytes> >	ACTIVE_MESSAGE_DATA_RECEIVED,
+																	LAYERS_NETWORK_DATA_RECEIVED,
+																	OBJECT_NETWORK_DATA_RECEIVED,
+																	ASSET_UDP_DATA_RECEIVED,
+																	TEXTURE_NETWORK_DATA_RECEIVED,
+																	MESSAGE_SYSTEM_DATA_IN,
+																	MESSAGE_SYSTEM_DATA_OUT;
 
 extern LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Seconds> >		SIM_20_FPS_TIME,
 																	SIM_PHYSICS_20_FPS_TIME,
@@ -112,13 +112,11 @@ extern SimMeasurement<>						SIM_TIME_DILATION,
 											SIM_AGENT_UPS,
 											SIM_SCRIPT_EPS,
 											SIM_SKIPPED_SILHOUETTE,
-											SIM_SKIPPED_CHARACTERS_PERCENTAGE,
 											SIM_MAIN_AGENTS,
 											SIM_CHILD_AGENTS,
 											SIM_OBJECTS,
 											SIM_ACTIVE_OBJECTS,
 											SIM_ACTIVE_SCRIPTS,
-											SIM_PERCENTAGE_SCRIPTS_RUN,
 											SIM_IN_PACKETS_PER_SEC,
 											SIM_OUT_PACKETS_PER_SEC,
 											SIM_PENDING_DOWNLOADS,
@@ -127,22 +125,24 @@ extern SimMeasurement<>						SIM_TIME_DILATION,
 											SIM_PHYSICS_PINNED_TASKS,
 											SIM_PHYSICS_LOD_TASKS;
 
+extern SimMeasurement<LLUnit<F64, LLUnits::Percent> >	SIM_PERCENTAGE_SCRIPTS_RUN,
+														SIM_SKIPPED_CHARACTERS_PERCENTAGE;
+
 extern LLTrace::SampleStatHandle<>		FPS_SAMPLE,
 										NUM_IMAGES,
 										NUM_RAW_IMAGES,
 										NUM_OBJECTS,
 										NUM_ACTIVE_OBJECTS,
-										NUM_SIZE_CULLED,
-										NUM_VIS_CULLED,
 										ENABLE_VBO,
 										LIGHTING_DETAIL,
 										VISIBLE_AVATARS,
 										SHADER_OBJECTS,
 										DRAW_DISTANCE,
 										PENDING_VFS_OPERATIONS,
-										PACKETS_LOST_PERCENT,
 										WINDOW_WIDTH,
 										WINDOW_HEIGHT;
+
+extern LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> > PACKETS_LOST_PERCENT;
 
 extern LLTrace::SampleStatHandle<LLUnit<F64, LLUnits::Megabytes> >	GL_TEX_MEM,
 																	GL_BOUND_MEM,
@@ -165,8 +165,8 @@ extern SimMeasurement<LLUnit<F64, LLUnits::Milliseconds> >	SIM_FRAME_TIME,
 															SIM_SLEEP_TIME,
 															SIM_PUMP_IO_TIME;
 
-extern SimMeasurement<LLUnit<F64, LLUnits::Bytes> >	SIM_UNACKED_BYTES,
-													SIM_PHYSICS_MEM;
+extern SimMeasurement<LLUnit<F64, LLUnits::Kilobytes> >	SIM_UNACKED_BYTES;
+extern SimMeasurement<LLUnit<F64, LLUnits::Megabytes> >	SIM_PHYSICS_MEM;
 
 
 extern LLTrace::SampleStatHandle<LLUnit<F64, LLUnits::Milliseconds> >	FRAMETIME_JITTER,

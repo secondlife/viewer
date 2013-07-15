@@ -42,16 +42,13 @@ public:
 
 		Optional<F32>			bar_min,
 								bar_max,
-								tick_spacing,
-								update_rate,
-								unit_scale;
+								tick_spacing;
 
-		Optional<U32>			precision;
+		Optional<U32>			decimal_digits;
 
 		Optional<bool>			show_per_sec,
 								show_bar,
 								show_history,
-								show_mean,
 								scale_range;
 
 		Optional<S32>			num_frames,
@@ -60,23 +57,20 @@ public:
 		Optional<EOrientation>	orientation;
 
 		Params()
-			: label("label"),
-			  unit_label("unit_label"),
-			  bar_min("bar_min", 0.0f),
-			  bar_max("bar_max", 50.0f),
-			  tick_spacing("tick_spacing", 10.0f),
-			  precision("precision", 0),
-			  update_rate("update_rate", 5.0f),
-			  unit_scale("unit_scale", 1.f),
-			  show_per_sec("show_per_sec", true),
-			  show_bar("show_bar", true),
-			  show_history("show_history", false),
-			  show_mean("show_mean", true),
-			  scale_range("scale_range", true),
-			  num_frames("num_frames", 300),
-			  max_height("max_height", 200),
-			  stat("stat"),
-			  orientation("orientation", VERTICAL)
+		:	label("label"),
+			unit_label("unit_label"),
+			bar_min("bar_min", 0.f),
+			bar_max("bar_max", 0.f),
+			tick_spacing("tick_spacing", 0.f),
+			decimal_digits("decimal_digits", 3),
+			show_per_sec("show_per_sec", true),
+			show_bar("show_bar", false),
+			show_history("show_history", false),
+			scale_range("scale_range", true),
+			num_frames("num_frames", 200),
+			max_height("max_height", 100),
+			stat("stat"),
+			orientation("orientation", VERTICAL)
 		{
 			changeDefault(follows.flags, FOLLOWS_TOP | FOLLOWS_LEFT);
 		}
@@ -85,40 +79,38 @@ public:
 
 	virtual void draw();
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
 
 	void setStat(const std::string& stat_name);
 
-	void setRange(F32 bar_min, F32 bar_max, F32 tick_spacing);
+	void setRange(F32 bar_min, F32 bar_max);
 	void getRange(F32& bar_min, F32& bar_max) { bar_min = mMinBar; bar_max = mMaxBar; }
 	
 	/*virtual*/ LLRect getRequiredRect();	// Return the height of this object, given the set options.
 
 private:
-	F32          mMinBar;
-	F32          mMaxBar;
-	F32			 mCurMaxBar;
-	F32          mTickSpacing;
-	F32          mLabelSpacing;
-	U32          mPrecision;
-	F32          mUpdatesPerSec;
-	F32          mUnitScale;
+	F32          mMinBar,
+				 mMaxBar,
+				 mCurMaxBar,
+				 mCurMinBar,
+				 mLabelSpacing;
+	F32			 mTickValue;
+	U32          mDecimalDigits;
 	S32			 mNumFrames;
 	S32			 mMaxHeight;
-	bool         mPerSec;				// Use the per sec stats.
-	bool         mDisplayBar;			// Display the bar graph.
-	bool         mDisplayHistory;
-	bool         mDisplayMean;			// If true, display mean, if false, display current value
-	bool		 mScaleRange;
+	bool         mPerSec,				// Use the per sec stats.
+				 mDisplayBar,			// Display the bar graph.
+				 mDisplayHistory,
+				 mAutoScaleMax,
+				 mAutoScaleMin;
 	EOrientation mOrientation;
 
-	LLTrace::TraceType<LLTrace::CountAccumulator>*			mCountFloatp;
-	LLTrace::TraceType<LLTrace::EventAccumulator>*			mEventFloatp;
-	LLTrace::TraceType<LLTrace::SampleAccumulator>*			mSampleFloatp;
+	LLTrace::TraceType<LLTrace::CountAccumulator>*		mCountFloatp;
+	LLTrace::TraceType<LLTrace::EventAccumulator>*		mEventFloatp;
+	LLTrace::TraceType<LLTrace::SampleAccumulator>*		mSampleFloatp;
 
-	LLFrameTimer mUpdateTimer;
 	LLUIString   mLabel;
 	std::string  mUnitLabel;
-	F32          mValue;
 };
 
 #endif

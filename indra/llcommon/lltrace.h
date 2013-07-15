@@ -61,6 +61,7 @@ public:
 	virtual const char* getUnitLabel();
 
 	const std::string& getName() const { return mName; }
+	const std::string& getDescription() const { return mDescription; }
 
 protected:
 	const std::string	mName;
@@ -169,7 +170,7 @@ public:
 	typedef TraceType<CountAccumulator> trace_t;
 
 	CountStatHandle(const char* name, const char* description = NULL) 
-	:	trace_t(name)
+	:	trace_t(name, description)
 	{}
 
 	/*virtual*/ const char* getUnitLabel() { return LLGetUnitLabel<T>::getUnitLabel(); }

@@ -64,15 +64,14 @@
 namespace LLStatViewer
 {
 
-LLTrace::CountStatHandle<>	FPS("framesrendered"),
-							PACKETS_IN("packetsinstat"),
-							PACKETS_LOST("packetsloststat"),
-							PACKETS_OUT("packetsoutstat"),
-							TEXTURE_PACKETS("texturepacketsstat"),
-							TRIANGLES_DRAWN("trianglesdrawnstat"),
+LLTrace::CountStatHandle<>	FPS("FPS", "Frames rendered"),
+							PACKETS_IN("Packets In", "Packets received"),
+							PACKETS_LOST("packetsloststat", "Packets lost"),
+							PACKETS_OUT("packetsoutstat", "Packets sent"),
+							TEXTURE_PACKETS("texturepacketsstat", "Texture data packets received"),
 							CHAT_COUNT("chatcount", "Chat messages sent"),
 							IM_COUNT("imcount", "IMs sent"),
-							OBJECT_CREATE("objectcreate"),
+							OBJECT_CREATE("objectcreate", "Number of objects created"),
 							OBJECT_REZ("objectrez", "Object rez count"),
 							LOGIN_TIMEOUTS("logintimeouts", "Number of login attempts that timed out"),
 							LSL_SAVES("lslsaves", "Number of times user has saved a script"),
@@ -86,34 +85,38 @@ LLTrace::CountStatHandle<>	FPS("framesrendered"),
 							EDIT_TEXTURE("edittexture", "Changes to textures on objects"),
 							KILLED("killed", "Number of times killed"),
 							FRAMETIME_DOUBLED("frametimedoubled", "Ratio of frames 2x longer than previous"),
-							TEX_BAKES("texbakes"),
-							TEX_REBAKES("texrebakes"),
-							NUM_NEW_OBJECTS("numnewobjectsstat");
-LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kibibits> >	KBIT("kbitstat"),
-															LAYERS_KBIT("layerskbitstat"),
-															OBJECT_KBIT("objectkbitstat"),
-															ASSET_KBIT("assetkbitstat"),
-															TEXTURE_KBIT("texturekbitstat"),
-															ACTUAL_IN_KBIT("actualinkbitstat"),
-															ACTUAL_OUT_KBIT("actualoutkbitstat");
+							TEX_BAKES("texbakes", "Number of times avatar textures have been baked"),
+							TEX_REBAKES("texrebakes", "Number of times avatar textures have been forced to rebake"),
+							NUM_NEW_OBJECTS("numnewobjectsstat", "Number of objects in scene that were not previously in cache");
 
-LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Seconds> >	SIM_20_FPS_TIME("sim20fpstime", "Seconds with sim FPS below 20"),
-															SIM_PHYSICS_20_FPS_TIME("simphysics20fpstime", "Seconds with physics FPS below 20"),
-															LOSS_5_PERCENT_TIME("loss5percenttime", "Seconds with packet loss > 5%");
+LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kilotriangles> > 
+							TRIANGLES_DRAWN("trianglesdrawnstat");
 
-SimMeasurement<>			SIM_TIME_DILATION("simtimedilation", "", LL_SIM_STAT_TIME_DILATION),
-							SIM_FPS("simfps", "", LL_SIM_STAT_FPS),
-							SIM_PHYSICS_FPS("simphysicsfps", "", LL_SIM_STAT_PHYSFPS),
+LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kibibytes> >	
+							ACTIVE_MESSAGE_DATA_RECEIVED("activemessagedatareceived", "Message system data received on all active regions"),
+							LAYERS_NETWORK_DATA_RECEIVED("layersdatareceived", "Network data received for layer data (terrain)"),
+							OBJECT_NETWORK_DATA_RECEIVED("objectdatareceived", "Network data received for objects"),
+							ASSET_UDP_DATA_RECEIVED("assetudpdatareceived", "Network data received for assets (animations, sounds) over UDP message system"),
+							TEXTURE_NETWORK_DATA_RECEIVED("texturedatareceived", "Network data received for textures"),
+							MESSAGE_SYSTEM_DATA_IN("messagedatain", "Incoming message system network data"),
+							MESSAGE_SYSTEM_DATA_OUT("messagedataout", "Outgoing message system network data");
+
+LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Seconds> >	
+							SIM_20_FPS_TIME("sim20fpstime", "Seconds with sim FPS below 20"),
+							SIM_PHYSICS_20_FPS_TIME("simphysics20fpstime", "Seconds with physics FPS below 20"),
+							LOSS_5_PERCENT_TIME("loss5percenttime", "Seconds with packet loss > 5%");
+
+SimMeasurement<>			SIM_TIME_DILATION("simtimedilation", "Simulator time scale", LL_SIM_STAT_TIME_DILATION),
+							SIM_FPS("simfps", "Simulator framerate", LL_SIM_STAT_FPS),
+							SIM_PHYSICS_FPS("simphysicsfps", "Simulator physics framerate", LL_SIM_STAT_PHYSFPS),
 							SIM_AGENT_UPS("simagentups", "", LL_SIM_STAT_AGENTUPS),
 							SIM_SCRIPT_EPS("simscripteps", "", LL_SIM_STAT_SCRIPT_EPS),
 							SIM_SKIPPED_SILHOUETTE("simsimskippedsilhouettesteps", "", LL_SIM_STAT_SKIPPEDAISILSTEPS_PS),
-							SIM_SKIPPED_CHARACTERS_PERCENTAGE("simsimpctsteppedcharacters", "", LL_SIM_STAT_PCTSTEPPEDCHARACTERS),
-							SIM_MAIN_AGENTS("simmainagents", "", LL_SIM_STAT_NUMAGENTMAIN),
-							SIM_CHILD_AGENTS("simchildagents", "", LL_SIM_STAT_NUMAGENTCHILD),
+							SIM_MAIN_AGENTS("simmainagents", "Number of avatars in current region", LL_SIM_STAT_NUMAGENTMAIN),
+							SIM_CHILD_AGENTS("simchildagents", "Number of avatars in neighboring regions", LL_SIM_STAT_NUMAGENTCHILD),
 							SIM_OBJECTS("simobjects", "", LL_SIM_STAT_NUMTASKS),
-							SIM_ACTIVE_OBJECTS("simactiveobjects", "", LL_SIM_STAT_NUMTASKSACTIVE),
-							SIM_ACTIVE_SCRIPTS("simactivescripts", "", LL_SIM_STAT_NUMSCRIPTSACTIVE),
-							SIM_PERCENTAGE_SCRIPTS_RUN("simpctscriptsrun", "", LL_SIM_STAT_PCTSCRIPTSRUN),
+							SIM_ACTIVE_OBJECTS("simactiveobjects", "Number of scripted and/or mocing objects", LL_SIM_STAT_NUMTASKSACTIVE),
+							SIM_ACTIVE_SCRIPTS("simactivescripts", "Number of scripted objects", LL_SIM_STAT_NUMSCRIPTSACTIVE),
 							SIM_IN_PACKETS_PER_SEC("siminpps", "", LL_SIM_STAT_INPPS),
 							SIM_OUT_PACKETS_PER_SEC("simoutpps", "", LL_SIM_STAT_OUTPPS),
 							SIM_PENDING_DOWNLOADS("simpendingdownloads", "", LL_SIM_STAT_PENDING_DOWNLOADS),
@@ -122,24 +125,29 @@ SimMeasurement<>			SIM_TIME_DILATION("simtimedilation", "", LL_SIM_STAT_TIME_DIL
 							SIM_PHYSICS_PINNED_TASKS("physicspinnedtasks", "", LL_SIM_STAT_PHYSICS_PINNED_TASKS),
 							SIM_PHYSICS_LOD_TASKS("physicslodtasks", "", LL_SIM_STAT_PHYSICS_LOD_TASKS);
 
+SimMeasurement<LLUnit<F64, LLUnits::Percent> >	
+							SIM_PERCENTAGE_SCRIPTS_RUN("simpctscriptsrun", "", LL_SIM_STAT_PCTSCRIPTSRUN),
+							SIM_SKIPPED_CHARACTERS_PERCENTAGE("simsimpctsteppedcharacters", "", LL_SIM_STAT_PCTSTEPPEDCHARACTERS);
+
 LLTrace::SampleStatHandle<>	FPS_SAMPLE("fpssample"),
 							NUM_IMAGES("numimagesstat"),
 							NUM_RAW_IMAGES("numrawimagesstat"),
 							NUM_OBJECTS("numobjectsstat"),
 							NUM_ACTIVE_OBJECTS("numactiveobjectsstat"),
-							NUM_SIZE_CULLED("numsizeculledstat"),
-							NUM_VIS_CULLED("numvisculledstat"),
 							ENABLE_VBO("enablevbo", "Vertex Buffers Enabled"),
 							LIGHTING_DETAIL("lightingdetail", "Lighting Detail"),
 							VISIBLE_AVATARS("visibleavatars", "Visible Avatars"),
 							SHADER_OBJECTS("shaderobjects", "Object Shaders"),
 							DRAW_DISTANCE("drawdistance", "Draw Distance"),
 							PENDING_VFS_OPERATIONS("vfspendingoperations"),
-							PACKETS_LOST_PERCENT("packetslostpercentstat"),
 							WINDOW_WIDTH("windowwidth", "Window width"),
 							WINDOW_HEIGHT("windowheight", "Window height");
-	
-static LLTrace::SampleStatHandle<S64> CHAT_BUBBLES("chatbubbles", "Chat Bubbles Enabled");
+
+LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> > 
+							PACKETS_LOST_PERCENT("packetslostpercentstat");
+
+static LLTrace::SampleStatHandle<bool> 
+							CHAT_BUBBLES("chatbubbles", "Chat Bubbles Enabled");
 
 LLTrace::SampleStatHandle<LLUnit<F64, LLUnits::Megabytes> >	GL_TEX_MEM("gltexmemstat"),
 															GL_BOUND_MEM("glboundmemstat"),
@@ -150,38 +158,38 @@ LLTrace::SampleStatHandle<LLUnit<F64, LLUnits::Kibibytes> >	DELTA_BANDWIDTH("del
 
 	
 SimMeasurement<LLUnit<F64, LLUnits::Milliseconds> >	SIM_FRAME_TIME("simframemsec", "", LL_SIM_STAT_FRAMEMS),
-										SIM_NET_TIME("simnetmsec", "", LL_SIM_STAT_NETMS),
-										SIM_OTHER_TIME("simsimothermsec", "", LL_SIM_STAT_SIMOTHERMS),
-										SIM_PHYSICS_TIME("simsimphysicsmsec", "", LL_SIM_STAT_SIMPHYSICSMS),
-										SIM_PHYSICS_STEP_TIME("simsimphysicsstepmsec", "", LL_SIM_STAT_SIMPHYSICSSTEPMS),
-										SIM_PHYSICS_SHAPE_UPDATE_TIME("simsimphysicsshapeupdatemsec", "", LL_SIM_STAT_SIMPHYSICSSHAPEMS),
-										SIM_PHYSICS_OTHER_TIME("simsimphysicsothermsec", "", LL_SIM_STAT_SIMPHYSICSOTHERMS),
-										SIM_AI_TIME("simsimaistepmsec", "", LL_SIM_STAT_SIMAISTEPTIMEMS),
-										SIM_AGENTS_TIME("simagentmsec", "", LL_SIM_STAT_AGENTMS),
-										SIM_IMAGES_TIME("simimagesmsec", "", LL_SIM_STAT_IMAGESMS),
-										SIM_SCRIPTS_TIME("simscriptmsec", "", LL_SIM_STAT_SCRIPTMS),
-										SIM_SPARE_TIME("simsparemsec", "", LL_SIM_STAT_SIMSPARETIME),
-										SIM_SLEEP_TIME("simsleepmsec", "", LL_SIM_STAT_SIMSLEEPTIME),
-										SIM_PUMP_IO_TIME("simpumpiomsec", "", LL_SIM_STAT_IOPUMPTIME);
+													SIM_NET_TIME("simnetmsec", "", LL_SIM_STAT_NETMS),
+													SIM_OTHER_TIME("simsimothermsec", "", LL_SIM_STAT_SIMOTHERMS),
+													SIM_PHYSICS_TIME("simsimphysicsmsec", "", LL_SIM_STAT_SIMPHYSICSMS),
+													SIM_PHYSICS_STEP_TIME("simsimphysicsstepmsec", "", LL_SIM_STAT_SIMPHYSICSSTEPMS),
+													SIM_PHYSICS_SHAPE_UPDATE_TIME("simsimphysicsshapeupdatemsec", "", LL_SIM_STAT_SIMPHYSICSSHAPEMS),
+													SIM_PHYSICS_OTHER_TIME("simsimphysicsothermsec", "", LL_SIM_STAT_SIMPHYSICSOTHERMS),
+													SIM_AI_TIME("simsimaistepmsec", "", LL_SIM_STAT_SIMAISTEPTIMEMS),
+													SIM_AGENTS_TIME("simagentmsec", "", LL_SIM_STAT_AGENTMS),
+													SIM_IMAGES_TIME("simimagesmsec", "", LL_SIM_STAT_IMAGESMS),
+													SIM_SCRIPTS_TIME("simscriptmsec", "", LL_SIM_STAT_SCRIPTMS),
+													SIM_SPARE_TIME("simsparemsec", "", LL_SIM_STAT_SIMSPARETIME),
+													SIM_SLEEP_TIME("simsleepmsec", "", LL_SIM_STAT_SIMSLEEPTIME),
+													SIM_PUMP_IO_TIME("simpumpiomsec", "", LL_SIM_STAT_IOPUMPTIME);
 	
-SimMeasurement<LLUnit<F64, LLUnits::Bytes> >	SIM_UNACKED_BYTES("simtotalunackedbytes", "", LL_SIM_STAT_TOTAL_UNACKED_BYTES),
-												SIM_PHYSICS_MEM("physicsmemoryallocated", "", LL_SIM_STAT_SIMPHYSICSMEMORY);
+SimMeasurement<LLUnit<F64, LLUnits::Kilobytes> >	SIM_UNACKED_BYTES("simtotalunackedbytes", "", LL_SIM_STAT_TOTAL_UNACKED_BYTES);
+SimMeasurement<LLUnit<F64, LLUnits::Megabytes> >	SIM_PHYSICS_MEM("physicsmemoryallocated", "", LL_SIM_STAT_SIMPHYSICSMEMORY);
 
 LLTrace::SampleStatHandle<LLUnit<F64, LLUnits::Milliseconds> >	FRAMETIME_JITTER("frametimejitter", "Average delta between successive frame times"),
-													FRAMETIME_SLEW("frametimeslew", "Average delta between frame time and mean"),
-													SIM_PING("simpingstat");
+																FRAMETIME_SLEW("frametimeslew", "Average delta between frame time and mean"),
+																SIM_PING("simpingstat");
 
 LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Meters> > AGENT_POSITION_SNAP("agentpositionsnap", "agent position corrections");
 
 LLTrace::EventStatHandle<>	LOADING_WEARABLES_LONG_DELAY("loadingwearableslongdelay", "Wearables took too long to load");
 	
 LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Milliseconds> >	REGION_CROSSING_TIME("regioncrossingtime", "CROSSING_AVG"),
-												FRAME_STACKTIME("framestacktime", "FRAME_SECS"),
-												UPDATE_STACKTIME("updatestacktime", "UPDATE_SECS"),
-												NETWORK_STACKTIME("networkstacktime", "NETWORK_SECS"),
-												IMAGE_STACKTIME("imagestacktime", "IMAGE_SECS"),
-												REBUILD_STACKTIME("rebuildstacktime", "REBUILD_SECS"),
-												RENDER_STACKTIME("renderstacktime", "RENDER_SECS");
+																FRAME_STACKTIME("framestacktime", "FRAME_SECS"),
+																UPDATE_STACKTIME("updatestacktime", "UPDATE_SECS"),
+																NETWORK_STACKTIME("networkstacktime", "NETWORK_SECS"),
+																IMAGE_STACKTIME("imagestacktime", "IMAGE_SECS"),
+																REBUILD_STACKTIME("rebuildstacktime", "REBUILD_SECS"),
+																RENDER_STACKTIME("renderstacktime", "RENDER_SECS");
 	
 LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Seconds> >	AVATAR_EDIT_TIME("avataredittime", "Seconds in Edit Appearance"),
 															TOOLBOX_TIME("toolboxtime", "Seconds using Toolbox"),
@@ -189,20 +197,16 @@ LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Seconds> >	AVATAR_EDIT_TIME("avata
 															FPS_10_TIME("fps10time", "Seconds below 10 FPS"),
 															FPS_8_TIME("fps8time", "Seconds below 8 FPS"),
 															FPS_2_TIME("fps2time", "Seconds below 2 FPS");
-
-
 }
 
 LLViewerStats::LLViewerStats() 
 :	mLastTimeDiff(0.0)
 {
 	mRecording.start();
-	LLTrace::get_frame_recording().start();
 }
 
 LLViewerStats::~LLViewerStats()
-{
-}
+{}
 
 void LLViewerStats::resetStats()
 {
@@ -363,10 +367,10 @@ void update_statistics()
 	add(LLStatViewer::FPS, 1);
 
 	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
-	add(LLStatViewer::LAYERS_KBIT, LLUnit<F64, LLUnits::Bits>(layer_bits));
-	add(LLStatViewer::OBJECT_KBIT, gObjectData);
+	add(LLStatViewer::LAYERS_NETWORK_DATA_RECEIVED, LLUnit<F64, LLUnits::Bits>(layer_bits));
+	add(LLStatViewer::OBJECT_NETWORK_DATA_RECEIVED, gObjectData);
 	sample(LLStatViewer::PENDING_VFS_OPERATIONS, LLVFile::getVFSThread()->getPending());
-	add(LLStatViewer::ASSET_KBIT, LLUnit<F64, LLUnits::Bits>(gTransferManager.getTransferBitsIn(LLTCT_ASSET)));
+	add(LLStatViewer::ASSET_UDP_DATA_RECEIVED, LLUnit<F64, LLUnits::Bits>(gTransferManager.getTransferBitsIn(LLTCT_ASSET)));
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
 
 	if (LLAppViewer::getTextureFetch()->getNumRequests() == 0)
@@ -378,17 +382,7 @@ void update_statistics()
 		gTextureTimer.unpause();
 	}
 	
-	{
-		static F32 visible_avatar_frames = 0.f;
-		static F32 avg_visible_avatars = 0;
-		F32 visible_avatars = (F32)LLVOAvatar::sNumVisibleAvatars;
-		if (visible_avatars > 0.f)
-		{
-			visible_avatar_frames = 1.f;
-			avg_visible_avatars = (avg_visible_avatars * (F32)(visible_avatar_frames - 1.f) + visible_avatars) / visible_avatar_frames;
-		}
-		sample(LLStatViewer::VISIBLE_AVATARS, (F64)avg_visible_avatars);
-	}
+	sample(LLStatViewer::VISIBLE_AVATARS, LLVOAvatar::sNumVisibleAvatars);
 	LLWorld::getInstance()->updateNetStats();
 	LLWorld::getInstance()->requestCacheMisses();
 	
@@ -403,7 +397,7 @@ void update_statistics()
 		static LLFrameTimer texture_stats_timer;
 		if (texture_stats_timer.getElapsedTimeF32() >= texture_stats_freq)
 		{
-			gTotalTextureData = LLViewerStats::instance().getRecording().getSum(LLStatViewer::TEXTURE_KBIT);
+			gTotalTextureData = LLViewerStats::instance().getRecording().getSum(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED);
 			texture_stats_timer.reset();
 		}
 	}

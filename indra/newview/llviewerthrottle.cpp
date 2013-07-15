@@ -48,8 +48,8 @@ const F32 MIN_FRACTIONAL = 0.2f;
 const F32 MIN_BANDWIDTH = 50.f;
 const F32 MAX_BANDWIDTH = 3000.f;
 const F32 STEP_FRACTIONAL = 0.1f;
-const F32 TIGHTEN_THROTTLE_THRESHOLD = 3.0f; // packet loss % per s
-const F32 EASE_THROTTLE_THRESHOLD = 0.5f; // packet loss % per s
+const LLUnit<F32, LLUnits::Percent> TIGHTEN_THROTTLE_THRESHOLD = 3.0f; // packet loss % per s
+const LLUnit<F32, LLUnits::Percent> EASE_THROTTLE_THRESHOLD = 0.5f; // packet loss % per s
 const F32 DYNAMIC_UPDATE_DURATION = 5.0f; // seconds
 
 LLViewerThrottle gViewerThrottle;
@@ -304,7 +304,7 @@ void LLViewerThrottle::updateDynamicThrottle()
 	}
 	mUpdateTimer.reset();
 
-	F32 mean_packets_lost = LLViewerStats::instance().getRecording().getMean(LLStatViewer::PACKETS_LOST_PERCENT);
+	LLUnit<F32, LLUnits::Percent> mean_packets_lost = LLViewerStats::instance().getRecording().getMean(LLStatViewer::PACKETS_LOST_PERCENT);
 	if (mean_packets_lost > TIGHTEN_THROTTLE_THRESHOLD)
 	{
 		if (mThrottleFrac <= MIN_FRACTIONAL || mCurrentBandwidth / 1024.0f <= MIN_BANDWIDTH)

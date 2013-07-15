@@ -85,7 +85,7 @@ void LLFloaterJoystick::draw()
 			if (llabs(value) > maxbar)
 			{
 				F32 range = llabs(value);
-				mAxisStatsBar[i]->setRange(-range, range, range * 0.25f);
+				mAxisStatsBar[i]->setRange(-range, range);
 			}
 		}
 	}
@@ -106,7 +106,7 @@ BOOL LLFloaterJoystick::postBuild()
 		if (mAxisStatsBar[i])
 		{
 			mAxisStatsBar[i]->setStat(stat_name);
-			mAxisStatsBar[i]->setRange(-range, range, range * 0.25f);
+			mAxisStatsBar[i]->setRange(-range, range);
 		}
 	}
 	

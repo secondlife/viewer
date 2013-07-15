@@ -1294,6 +1294,7 @@ bool LLAppViewer::mainLoop()
 	{
 		LLFastTimer _(FTM_FRAME);
 		LLTrace::TimeBlock::processTimes();
+		llassert(LLStatViewer::FPS.getPrimaryAccumulator()->getSampleCount() <= 1);
 		LLTrace::get_frame_recording().nextPeriod();
 		LLTrace::TimeBlock::logStats();
 
@@ -2070,8 +2071,6 @@ bool LLAppViewer::cleanup()
 
 	ll_close_fail_log();
 
-	MEM_TRACK_RELEASE
-
     llinfos << "Goodbye!" << llendflush;
 
 	// return 0;
@@ -2099,11 +2098,7 @@ void watchdog_killer_callback()
 
 bool LLAppViewer::initThreads()
 {
-#if MEM_TRACK_MEM
-	static const bool enable_threads = false;
-#else
 	static const bool enable_threads = true;
-#endif
 
 	LLImage::initClass(gSavedSettings.getBOOL("TextureNewByteRange"),gSavedSettings.getS32("TextureReverseByteRange"));
 

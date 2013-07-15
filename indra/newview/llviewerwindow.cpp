@@ -215,6 +215,7 @@
 // Globals
 //
 void render_ui(F32 zoom_factor = 1.f, int subfield = 0);
+void swap();
 
 extern BOOL gDebugClicks;
 extern BOOL gDisplaySwapBuffers;
@@ -4405,6 +4406,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 					// Required for showing the GUI in snapshots and performing bloom composite overlay
 					// Call even if show_ui is FALSE
 					render_ui(scale_factor, subfield);
+					swap();
 				}
 				
 				for (U32 out_y = 0; out_y < read_height ; out_y++)

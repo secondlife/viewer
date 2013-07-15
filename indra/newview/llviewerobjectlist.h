@@ -170,8 +170,6 @@ public:
 
 	// Statistics data (see also LLViewerStats)
 	S32 mNumNewObjects;
-	S32 mNumSizeCulled;
-	S32 mNumVisCulled;
 
 	// if we paused in the last frame
 	// used to discount stats from this frame
@@ -198,7 +196,7 @@ protected:
 	std::vector<OrphanInfo> mOrphanChildren;	// UUID's of orphaned objects
 	S32 mNumOrphans;
 
-	static LLTrace::SampleStatHandle<> sCacheHitRate;
+	static LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> > sCacheHitRate;
 
 	typedef std::vector<LLPointer<LLViewerObject> > vobj_list_t;
 

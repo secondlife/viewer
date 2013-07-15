@@ -37,7 +37,6 @@
 
 namespace LLTrace
 {
-
 	template<typename ACCUMULATOR>
 	class AccumulatorBuffer : public LLRefCount
 	{

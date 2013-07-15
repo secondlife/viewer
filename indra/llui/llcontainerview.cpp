@@ -167,7 +167,7 @@ void LLContainerView::arrange(S32 width, S32 height, BOOL called_from_parent)
 	//LLView *childp;
 
 	// These will be used for the children
-	left = 4;
+	left = 10;
 	top = getRect().getHeight() - 4;
 	right = width - 2;
 	bottom = top;

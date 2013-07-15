@@ -64,9 +64,9 @@
 #include "bufferarray.h"
 #include "bufferstream.h"
 
-bool LLTextureFetchDebugger::sDebuggerEnabled = false ;
-LLTrace::SampleStatHandle<> LLTextureFetch::sCacheHitRate("texture_cache_hits");
-LLTrace::SampleStatHandle<> LLTextureFetch::sCacheReadLatency("texture_cache_read_latency");
+bool LLTextureFetchDebugger::sDebuggerEnabled = false;
+LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > LLTextureFetch::sCacheHitRate("texture_cache_hits");
+LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Milliseconds> > LLTextureFetch::sCacheReadLatency("texture_cache_read_latency");
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1251,7 +1251,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			LL_DEBUGS("Texture") << mID << ": Cached. Bytes: " << mFormattedImage->getDataSize()
 								 << " Size: " << llformat("%dx%d",mFormattedImage->getWidth(),mFormattedImage->getHeight())
 								 << " Desired Discard: " << mDesiredDiscard << " Desired Size: " << mDesiredSize << LL_ENDL;
-			sample(LLTextureFetch::sCacheHitRate, 100.f);
+			record(LLTextureFetch::sCacheHitRate, LLUnits::Ratio::fromValue(1));
 		}
 		else
 		{
@@ -1269,7 +1269,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 			
 			// fall through
-			sample(LLTextureFetch::sCacheHitRate, 0.f);
+			record(LLTextureFetch::sCacheHitRate, LLUnits::Ratio::fromValue(0));
 		}
 	}
 
@@ -1483,7 +1483,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mGetReason.clear();
 			LL_DEBUGS("Texture") << "HTTP GET: " << mID << " Offset: " << mRequestedOffset
 								 << " Bytes: " << mRequestedSize
-								 << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth() << "/" << mFetcher->mMaxBandwidth
+								 << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth().value() << "/" << mFetcher->mMaxBandwidth
 								 << LL_ENDL;
 
 			// Will call callbackHttpGet when curl request completes
@@ -2762,10 +2762,10 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 			discard_level = worker->mDecodedDiscard;
 			raw = worker->mRawImage;
 			aux = worker->mAuxImage;
-			F32 cache_read_time = worker->mCacheReadTime;
+			LLUnit<F32, LLUnits::Seconds> cache_read_time = worker->mCacheReadTime;
 			if (cache_read_time != 0.f)
 			{
-				sample(sCacheReadLatency, cache_read_time * 1000.f);
+				record(sCacheReadLatency, cache_read_time);
 			}
 			res = true;
 			LL_DEBUGS("Texture") << id << ": Request Finished. State: " << worker->mState << " Discard: " << discard_level << LL_ENDL;
@@ -2891,7 +2891,7 @@ S32 LLTextureFetch::update(F32 max_time_ms)
 		mNetworkQueueMutex.lock();										// +Mfnq
 		mMaxBandwidth = band_width;
 
-		add(LLStatViewer::TEXTURE_KBIT, mHTTPTextureBits);
+		add(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED, mHTTPTextureBits);
 		mHTTPTextureBits = 0;
 
 		mNetworkQueueMutex.unlock();									// -Mfnq

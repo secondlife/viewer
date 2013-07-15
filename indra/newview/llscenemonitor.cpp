@@ -256,7 +256,7 @@ void LLSceneMonitor::unfreezeScene()
 
 void LLSceneMonitor::capture()
 {
-	static U32 last_capture_time = 0;
+	static U32 last_capture_frame = 0;
 	static LLCachedControl<bool> monitor_enabled(gSavedSettings, "SceneLoadingMonitorEnabled");
 	static LLCachedControl<F32>  scene_load_sample_time(gSavedSettings, "SceneLoadingMonitorSampleTime");
 	static LLFrameTimer timer;	
@@ -268,11 +268,11 @@ void LLSceneMonitor::capture()
 		if(mEnabled)
 		{
 			unfreezeScene();
+			reset();
 			force_capture = true;
 		}
 		else
 		{
-			reset();
 			freezeScene();
 		}
 
@@ -280,8 +280,8 @@ void LLSceneMonitor::capture()
 	}
 
 	if (mEnabled 
-		&&	(mMonitorRecording.getSum(*LLViewerCamera::getVelocityStat()) > 0.1f
-		|| mMonitorRecording.getSum(*LLViewerCamera::getAngularVelocityStat()) > 0.05f))
+		&& (mMonitorRecording.getSum(*LLViewerCamera::getVelocityStat()) > 0.1f
+			|| mMonitorRecording.getSum(*LLViewerCamera::getAngularVelocityStat()) > 0.05f))
 	{
 		reset();
 		freezeScene();
@@ -290,9 +290,10 @@ void LLSceneMonitor::capture()
 
 	if((timer.getElapsedTimeF32() > scene_load_sample_time() 
 			|| force_capture)
+		&& mDiffState == WAITING_FOR_NEXT_DIFF
 		&& mEnabled
 		&& LLGLSLShader::sNoFixedFunction
-		&& last_capture_time != gFrameCount)
+		&& last_capture_frame != gFrameCount)
 	{
 		force_capture = false;
 
@@ -301,7 +302,7 @@ void LLSceneMonitor::capture()
 
 		timer.reset();
 
-		last_capture_time = gFrameCount;
+		last_capture_frame = gFrameCount;
 
 		LLRenderTarget& cur_target = getCaptureTarget();
 
@@ -465,7 +466,11 @@ void LLSceneMonitor::fetchQueryResult()
 {
 	LLFastTimer _(FTM_SCENE_LOAD_IMAGE_DIFF);
 
-	if(mDiffState == WAIT_ON_RESULT)
+	// also throttle timing here, to avoid going below sample time due to phasing with frame capture
+	static LLCachedControl<F32>  scene_load_sample_time(gSavedSettings, "SceneLoadingMonitorSampleTime");
+	static LLFrameTimer timer;	
+
+	if(mDiffState == WAIT_ON_RESULT && timer.getElapsedTimeF32() > scene_load_sample_time)
 	{
 		mDiffState = WAITING_FOR_NEXT_DIFF;
 
@@ -479,7 +484,7 @@ void LLSceneMonitor::fetchQueryResult()
 			mDiffResult = count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * mDiffPixelRatio * mDiffPixelRatio); //0.5 -> (front face + back face)
 
 			LL_DEBUGS("SceneMonitor") << "Frame difference: " << std::setprecision(4) << mDiffResult << LL_ENDL;
-			record(sFramePixelDiff, mDiffResult);
+			record(sFramePixelDiff, sqrtf(mDiffResult));
 
 			static LLCachedControl<F32> diff_threshold(gSavedSettings,"SceneLoadingPixelDiffThreshold");
 			if(mDiffResult > diff_threshold())
@@ -488,7 +493,7 @@ void LLSceneMonitor::fetchQueryResult()
 			}
 			else
 			{
-				mSceneLoadRecording.getPotentialRecording().nextPeriod();
+				mSceneLoadRecording.nextPeriod();
 			}
 		}
 	}
@@ -506,7 +511,7 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 
 	os << std::setprecision(10);
 
-	PeriodicRecording& scene_load_recording = mSceneLoadRecording.getAcceptedRecording();
+	PeriodicRecording& scene_load_recording = mSceneLoadRecording.getResults();
 	const U32 frame_count = scene_load_recording.getNumRecordedPeriods();
 
 	LLUnit<F64, LLUnits::Seconds> frame_time;
@@ -518,6 +523,15 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 		os << ", " << frame_time.value();
 	}
 	os << '\n';
+
+	os << "Sample period(s)";
+	for (S32 frame = 1; frame <= frame_count; frame++)
+	{
+		frame_time = scene_load_recording.getPrevRecording(frame_count - frame).getDuration();
+		os << ", " << frame_time.value();
+	}
+	os << '\n';
+
 
 	typedef TraceType<CountAccumulator> trace_count;
 	for (trace_count::instance_iter it = trace_count::beginInstances(), end_it = trace_count::endInstances();
@@ -697,7 +711,7 @@ void LLSceneMonitorView::draw()
 	LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::LEFT, LLFontGL::TOP);
 	lines++;
 
-	num_str = llformat("Scene Loading time: %.3f seconds", (F32)LLSceneMonitor::getInstance()->getRecording()->getAcceptedRecording().getDuration().value());
+	num_str = llformat("Scene Loading time: %.3f seconds", (F32)LLSceneMonitor::getInstance()->getRecording()->getResults().getDuration().value());
 	LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::LEFT, LLFontGL::TOP);
 	lines++;
 

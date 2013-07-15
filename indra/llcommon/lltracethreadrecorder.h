@@ -47,7 +47,7 @@ namespace LLTrace
 
 		~ThreadRecorder();
 
-		void activate(AccumulatorBufferGroup* recording);
+		void activate(AccumulatorBufferGroup* recording, bool from_handoff = false);
 		void deactivate(AccumulatorBufferGroup* recording);
 		active_recording_list_t::reverse_iterator bringUpToDate(AccumulatorBufferGroup* recording);
 

@@ -475,14 +475,12 @@ void init_menus()
 	gAttachSubMenu = gMenuBarView->findChildMenuByName("Attach Object", TRUE);
 	gDetachSubMenu = gMenuBarView->findChildMenuByName("Detach Object", TRUE);
 
-#if !MEM_TRACK_MEM
 	// Don't display the Memory console menu if the feature is turned off
 	LLMenuItemCheckGL *memoryMenu = gMenuBarView->getChild<LLMenuItemCheckGL>("Memory", TRUE);
 	if (memoryMenu)
 	{
 		memoryMenu->setVisible(FALSE);
 	}
-#endif
 
 	gMenuBarView->createJumpKeys();
 
@@ -528,12 +526,6 @@ class LLAdvancedToggleConsole : public view_listener_t
 			toggle_visibility( (void*)gSceneView);
 		}
 
-#if MEM_TRACK_MEM
-		else if ("memory view" == console_type)
-		{
-			toggle_visibility( (void*)gDebugView->mMemoryView );
-		}
-#endif
 		return true;
 	}
 };
@@ -559,12 +551,6 @@ class LLAdvancedCheckConsole : public view_listener_t
 		{
 			new_value = get_visibility( (void*) gSceneView);
 		}
-#if MEM_TRACK_MEM
-		else if ("memory view" == console_type)
-		{
-			new_value = get_visibility( (void*)gDebugView->mMemoryView );
-		}
-#endif
 		
 		return new_value;
 	}
