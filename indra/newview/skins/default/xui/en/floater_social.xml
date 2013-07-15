@@ -57,6 +57,12 @@
        label="PLACE"
        help_topic="panel_social_place"
        name="panel_social_place"/>
+     <panel
+       filename="panel_social_account.xml"
+       follows="all"
+       label="ACCOUNT"
+       help_topic="panel_social_account"
+       name="panel_social_account"/>     
     </tab_container>
     <panel
      name="connection_status_panel"
