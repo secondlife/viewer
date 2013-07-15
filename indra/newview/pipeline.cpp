@@ -124,7 +124,7 @@
 
 // Expensive and currently broken...
 //
-#define MATERIALS_IN_REFLECTIONS 0
+#define MATERIALS_IN_REFLECTIONS 1
 
 bool gShiftFrame = false;
 
@@ -1239,8 +1239,23 @@ void LLPipeline::createGLBuffers()
 	if (LLPipeline::sWaterReflections)
 	{ //water reflection texture
 		U32 res = (U32) llmax(gSavedSettings.getS32("RenderWaterRefResolution"), 512);
-			
-		mWaterRef.allocate(res,res,GL_RGBA,TRUE,FALSE);
+		
+#if MATERIALS_IN_REFLECTIONS
+		if (LLPipeline::sRenderDeferred)
+		{
+			mWaterRef.allocate(res,res,GL_SRGB8_ALPHA8,TRUE,FALSE);
+		}
+		else
+#endif
+			mWaterRef.allocate(res,res,GL_RGBA,TRUE,FALSE);
+
+#if MATERIALS_IN_REFLECTIONS
+		if (LLPipeline::sRenderDeferred)
+		{
+			mWaterDis.allocate(res,res,GL_SRGB8_ALPHA8,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
+		}
+		else
+#endif
 		//always use FBO for mWaterDis so it can be used for avatar texture bakes
 		mWaterDis.allocate(res,res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
 	}
@@ -8152,7 +8167,8 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, LLRen
 {
 	LLFastTimer t(FTM_BIND_DEFERRED);
 
-	LLRenderTarget* render_target = alternative_target ? alternative_target : &mScreen;
+	(void)alternative_target;
+	//LLRenderTarget* render_target = alternative_target ? alternative_target : &mScreen;
 
 	if (noise_map == 0xFFFFFFFF)
 	{
@@ -8221,11 +8237,11 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, LLRen
 	channel = shader.enableTexture(LLShaderMgr::DEFERRED_LIGHT, mDeferredLight.getUsage());
 	if (channel > -1)
 	{
-		if (light_index > 0)
+		/*if (light_index > 0)
 		{
 			render_target->bindTexture(0, channel);
 		}
-		else
+		else*/
 		{
 			mDeferredLight.bindTexture(0, channel);
 		}
@@ -9112,8 +9128,8 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 		target->bindTarget();
 
 		//clear color buffer here - zeroing alpha (glow) is important or it will accumulate against sky
-		//glClearColor(0,1,0,0);
-		//target->clear(GL_COLOR_BUFFER_BIT);
+		glClearColor(0,0,0,0);
+		target->clear(GL_COLOR_BUFFER_BIT);
 		
 		if (RenderDeferredAtmospheric)
 		{ //apply sunlight contribution 
@@ -9431,7 +9447,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 		gGL.setColorMask(true, true);
 	}
 
-	target->flush();
+	/*target->flush();
 
 	//gamma correct lighting
 	gGL.matrixMode(LLRender::MM_PROJECTION);
@@ -9488,7 +9504,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.popMatrix();	
 
-	target->bindTarget();
+	target->bindTarget();*/
 
 	{ //render non-deferred geometry (alpha, fullbright, glow)
 		LLGLDisable blend(GL_BLEND);
@@ -9522,7 +9538,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 		popRenderTypeMask();
 	}
 
-	target->flush();				
+	//target->flush();				
 }
 
 void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
@@ -9833,12 +9849,14 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 #if MATERIALS_IN_REFLECTIONS
 					if (LLPipeline::sRenderDeferred)
 					{
-						gGL.setColorMask(true, true);
+						mWaterRef.flush();
+
+						gPipeline.grabReferences(result);
 						gPipeline.mDeferredScreen.bindTarget();
+						gGL.setColorMask(true, true);						
 						glClearColor(0,0,0,0);
 						gPipeline.mDeferredScreen.clear();
 
-						LLGLDepthTest d(GL_FALSE,GL_FALSE);
 						renderGeomDeferred(camera);						
 					}
 					else
@@ -9891,8 +9909,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 #if MATERIALS_IN_REFLECTIONS
 						if (LLPipeline::sRenderDeferred)
-						{
-							LLGLDepthTest d(GL_FALSE,GL_FALSE);
+						{							
 							renderGeomDeferred(camera);
 						}
 						else
@@ -9907,11 +9924,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 				if (LLPipeline::sRenderDeferred)
 				{
 					gPipeline.mDeferredScreen.flush();
-					gPipeline.mWaterRef.copyContents(gPipeline.mDeferredScreen,
-						0, 0, gPipeline.mDeferredScreen.getWidth(), gPipeline.mDeferredScreen.getHeight(),
-						0, 0, gPipeline.mWaterRef.getWidth(),		  gPipeline.mWaterRef.getHeight(), 
-						0, GL_NEAREST);
-					mWaterRef.flush();
 					renderDeferredLightingToRT(&mWaterRef);
 				}
 #endif
@@ -9971,26 +9983,20 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			
 				gGL.setColorMask(true, true);
 				mWaterDis.clear();
+				
+
 				gGL.setColorMask(true, false);
 
 #if MATERIALS_IN_REFLECTIONS
+				mWaterDis.flush();
 				if (LLPipeline::sRenderDeferred)
-				{					
-					
+				{										
 					gPipeline.mDeferredScreen.bindTarget();
 					gGL.setColorMask(true, true);
-					glClearColor(1,0,1,0);
+					glClearColor(0,0,0,0);
 					gPipeline.mDeferredScreen.clear();
-
-					renderGeomDeferred(camera);
-
-					gPipeline.mDeferredScreen.flush();
-
-					mWaterDis.copyContents(gPipeline.mDeferredScreen,
-							0, 0, gPipeline.mDeferredScreen.getWidth(), gPipeline.mDeferredScreen.getHeight(),
-							0, 0, gPipeline.mWaterDis.getWidth(), gPipeline.mWaterDis.getHeight(), 
-							0, GL_NEAREST);
-					mWaterDis.flush();					
+					gPipeline.grabReferences(result);
+					renderGeomDeferred(camera);					
 				}
 				else
 #endif
@@ -10000,7 +10006,8 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 				
 #if MATERIALS_IN_REFLECTIONS
 				if (LLPipeline::sRenderDeferred)
-				{	
+				{
+					gPipeline.mDeferredScreen.flush();
 					renderDeferredLightingToRT(&mWaterDis);
 				}
 #endif
