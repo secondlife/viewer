@@ -127,9 +127,9 @@ void main()
 		bool light_contrib = (i < light_count);
 		
 		vec3 lv = light[i].xyz-pos;
-		float dist2 = dot(lv,lv);
-		dist2 /= light[i].w;
-		if (dist2 > 1.0)
+		float dist = length(lv);
+		dist /= light[i].w;
+		if (dist > 1.0)
 		{
 			light_contrib = false;
 		}
@@ -146,10 +146,10 @@ void main()
 			da = dot(norm, lv);
 			
 			float fa = light_col[i].a+1.0;
-			float dist_atten = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
+			float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
+			dist_atten *= dist_atten;
+			dist_atten *= 2.0;
 			
-			dist_atten = pow(dist_atten, 2.2) * 2.2;
-
 			dist_atten *= noise;
 
 			float lit = da * dist_atten;

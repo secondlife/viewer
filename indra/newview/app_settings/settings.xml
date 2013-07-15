@@ -7743,7 +7743,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>4</integer>
+    <integer>3</integer>
   </map>
 
   <key>OctreeAlphaDistanceFactor</key>
@@ -8515,7 +8515,6 @@
     <key>Value</key>
     <real>1.0</real>
   </map>
-
   <key>RenderDeferredTreeShadowBias</key>
   <map>
     <key>Comment</key>
