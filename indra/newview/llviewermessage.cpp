@@ -6895,7 +6895,7 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 				std::string target_name;
 				gCacheName->getFullName(target_id, target_name);  // for im log filenames
 				LLSD args;
-				args["TO_NAME"] = LLSLURL("agent", target_id, "displayname").getSLURLString();;
+				args["TO_NAME"] = LLSLURL("agent", target_id, "displayname").getSLURLString();
 	
 				LLSD payload;
 				
