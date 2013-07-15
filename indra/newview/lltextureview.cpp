@@ -590,7 +590,7 @@ void LLGLTexMemBar::draw()
 	LLUnit<F32, LLUnits::Kibibits> max_bandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
 	color = bandwidth > max_bandwidth ? LLColor4::red : bandwidth > max_bandwidth*.75f ? LLColor4::yellow : text_color;
 	color[VALPHA] = text_color[VALPHA];
-	text = llformat("BW:%.0f/%.0f",bandwidth, max_bandwidth);
+	text = llformat("BW:%.0f/%.0f",bandwidth.value(), max_bandwidth.value());
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left, v_offset + line_height*2,
 											 color, LLFontGL::LEFT, LLFontGL::TOP);
 	
