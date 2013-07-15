@@ -80,12 +80,12 @@ void calc_auto_scale_range(F32& min, F32& max, F32& tick)
 	const F32 RANGES[] = {0.f, 1.f,   1.5f, 2.f, 3.f, 5.f, 10.f};
 	const F32 TICKS[]  = {0.f, 0.25f, 0.5f, 1.f, 1.f, 1.f, 2.f };
 
-	const S32 num_digits_max = is_approx_equal(fabs(max), 0.f)
+	const S32 num_digits_max = is_approx_equal(llabs(max), 0.f)
 							? S32_MIN + 1
-							: llceil(logf(fabs(max)) * OO_LN10);
-	const S32 num_digits_min = is_approx_equal(fabs(min), 0.f)
+							: llceil(logf(llabs(max)) * OO_LN10);
+	const S32 num_digits_min = is_approx_equal(llabs(min), 0.f)
 							? S32_MIN + 1
-							: llceil(logf(fabs(min)) * OO_LN10);
+							: llceil(logf(llabs(min)) * OO_LN10);
 
 	const S32 num_digits = llmax(num_digits_max, num_digits_min);
 	const F32 power_of_10 = pow(10.0, num_digits - 1);
