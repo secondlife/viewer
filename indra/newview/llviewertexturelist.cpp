@@ -663,7 +663,7 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	}
 	cleared = FALSE;
 
-	LLAppViewer::getTextureFetch()->setTextureBandwidth(LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::TEXTURE_KBIT));
+	LLAppViewer::getTextureFetch()->setTextureBandwidth(LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED));
 
 	{
 		using namespace LLStatViewer;
@@ -1374,7 +1374,7 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 	{
 		received_size = msg->getReceiveSize() ;		
 	}
-	add(LLStatViewer::TEXTURE_KBIT, LLUnit<F64, LLUnits::Bytes>(received_size));
+	add(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED, LLUnit<F64, LLUnits::Bytes>(received_size));
 	add(LLStatViewer::TEXTURE_PACKETS, 1);
 	
 	U8 codec;
@@ -1448,7 +1448,7 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 		received_size = msg->getReceiveSize() ;		
 	}
 
-	add(LLStatViewer::TEXTURE_KBIT, LLUnit<F64, LLUnits::Bytes>(received_size));
+	add(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED, LLUnit<F64, LLUnits::Bytes>(received_size));
 	add(LLStatViewer::TEXTURE_PACKETS, 1);
 	
 	//llprintline("Start decode, image header...");

@@ -1483,7 +1483,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mGetReason.clear();
 			LL_DEBUGS("Texture") << "HTTP GET: " << mID << " Offset: " << mRequestedOffset
 								 << " Bytes: " << mRequestedSize
-								 << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth() << "/" << mFetcher->mMaxBandwidth
+								 << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth().value() << "/" << mFetcher->mMaxBandwidth
 								 << LL_ENDL;
 
 			// Will call callbackHttpGet when curl request completes
@@ -2891,7 +2891,7 @@ S32 LLTextureFetch::update(F32 max_time_ms)
 		mNetworkQueueMutex.lock();										// +Mfnq
 		mMaxBandwidth = band_width;
 
-		add(LLStatViewer::TEXTURE_KBIT, mHTTPTextureBits);
+		add(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED, mHTTPTextureBits);
 		mHTTPTextureBits = 0;
 
 		mNetworkQueueMutex.unlock();									// -Mfnq

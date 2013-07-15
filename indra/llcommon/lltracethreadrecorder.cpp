@@ -120,13 +120,17 @@ TimeBlockTreeNode* ThreadRecorder::getTimeBlockTreeNode( S32 index )
 }
 
 
-void ThreadRecorder::activate( AccumulatorBufferGroup* recording )
+void ThreadRecorder::activate( AccumulatorBufferGroup* recording, bool from_handoff )
 {
 	ActiveRecording* active_recording = new ActiveRecording(recording);
 	if (!mActiveRecordings.empty())
 	{
 		AccumulatorBufferGroup& prev_active_recording = mActiveRecordings.back()->mPartialRecording;
 		prev_active_recording.sync();
+		if (!from_handoff)
+		{
+			TimeBlock::updateTimes();
+		}
 		prev_active_recording.handOffTo(active_recording->mPartialRecording);
 	}
 	mActiveRecordings.push_back(active_recording);
@@ -240,6 +244,7 @@ void ThreadRecorder::pushToParent()
 	{ LLMutexLock lock(&mSharedRecordingMutex);	
 		LLTrace::get_thread_recorder()->bringUpToDate(&mThreadRecordingBuffers);
 		mSharedRecordingBuffers.append(mThreadRecordingBuffers);
+		mThreadRecordingBuffers.reset();
 	}
 }
 	

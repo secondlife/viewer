@@ -37,9 +37,9 @@
                   decimal_digits="1"
                   show_bar="true"
                   show_history="true"/>
-       <!-- <stat_bar name="bandwidth"
-                  label="Bandwidth"
-                  stat="Bandwidth"
+       <stat_bar name="bandwidth"
+                  label="UDP Data Received"
+                  stat="activemessagedatareceived"
                   show_bar="true"/>
         <stat_bar name="packet_loss"
                   label="Packet Loss"
@@ -135,29 +135,29 @@
                     label="Packets Out"
                     stat="packetsoutstat"
                     decimal_digits="1"/>
-          <stat_bar name="objectkbitstat"
+          <stat_bar name="objectdatareceived"
                     label="Objects"
-                    stat="objectkbitstat"
+                    stat="objectdatareceived"
                     decimal_digits="1"/>
-          <stat_bar name="texturekbitstat"
+          <stat_bar name="texturedatareceived"
                     label="Texture"
-                    stat="texturekbitstat"
+                    stat="texturedatareceived"
                     decimal_digits="1"/>
-          <stat_bar name="assetkbitstat"
+          <stat_bar name="assetudpdatareceived"
                     label="Asset"
-                    stat="assetkbitstat"
+                    stat="assetudpdatareceived"
                     decimal_digits="1"/>
-          <stat_bar name="layerskbitstat"
+          <stat_bar name="layersdatareceived"
                     label="Layers"
-                    stat="layerskbitstat"
+                    stat="layersdatareceived"
                     decimal_digits="1"/>
-          <stat_bar name="actualinkbitstat"
+          <stat_bar name="messagedatain"
                     label="Actual In"
-                    stat="actualinkbitstat"
+                    stat="messagedatain"
                     decimal_digits="1"/>
-          <stat_bar name="actualoutkbitstat"
+          <stat_bar name="messagedataout"
                     label="Actual Out"
-                    stat="actualoutkbitstat"
+                    stat="messagedataout"
                     decimal_digits="1"
                     show_history="false"/>
           <stat_bar name="vfspendingoperations"
@@ -336,7 +336,7 @@
                       stat="simpumpiomsec"
                       decimal_digits="3"/>
           </stat_view>
-        </stat_view>-->
+        </stat_view>
       </stat_view>
     </container_view>
   </scroll_container>

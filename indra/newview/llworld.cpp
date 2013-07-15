@@ -732,9 +732,9 @@ void LLWorld::updateNetStats()
 	LLUnit<F64, LLUnits::Bits> actual_in_bits = gMessageSystem->mPacketRing.getAndResetActualInBits();
 	LLUnit<F64, LLUnits::Bits> actual_out_bits = gMessageSystem->mPacketRing.getAndResetActualOutBits();
 
-	add(LLStatViewer::ACTUAL_IN_KBIT, actual_in_bits);
-	add(LLStatViewer::ACTUAL_OUT_KBIT, actual_out_bits);
-	add(LLStatViewer::KBIT, bits);
+	add(LLStatViewer::MESSAGE_SYSTEM_DATA_IN, actual_in_bits);
+	add(LLStatViewer::MESSAGE_SYSTEM_DATA_OUT, actual_out_bits);
+	add(LLStatViewer::ACTIVE_MESSAGE_DATA_RECEIVED, bits);
 	add(LLStatViewer::PACKETS_IN, packets_in);
 	add(LLStatViewer::PACKETS_OUT, packets_out);
 	add(LLStatViewer::PACKETS_LOST, packets_lost);
@@ -743,8 +743,8 @@ void LLWorld::updateNetStats()
 		sample(LLStatViewer::PACKETS_LOST_PERCENT, LLUnits::Ratio::fromValue((F32)packets_lost/(F32)packets_in));
 	}
 
-	mLastPacketsIn = gMessageSystem->mPacketsIn;
-	mLastPacketsOut = gMessageSystem->mPacketsOut;
+	mLastPacketsIn   = gMessageSystem->mPacketsIn;
+	mLastPacketsOut  = gMessageSystem->mPacketsOut;
 	mLastPacketsLost = gMessageSystem->mDroppedPackets;
 }
 

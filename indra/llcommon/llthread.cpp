@@ -39,6 +39,39 @@
 #include <sched.h>
 #endif
 
+
+#ifdef LL_WINDOWS
+const DWORD MS_VC_EXCEPTION=0x406D1388;
+
+#pragma pack(push,8)
+typedef struct tagTHREADNAME_INFO
+{
+	DWORD dwType; // Must be 0x1000.
+	const char* szName; // Pointer to name (in user addr space).
+	DWORD dwThreadID; // Thread ID (-1=caller thread).
+	DWORD dwFlags; // Reserved for future use, must be zero.
+} THREADNAME_INFO;
+#pragma pack(pop)
+
+void SetThreadName( DWORD dwThreadID, const char* threadName)
+{
+	THREADNAME_INFO info;
+	info.dwType = 0x1000;
+	info.szName = threadName;
+	info.dwThreadID = dwThreadID;
+	info.dwFlags = 0;
+
+	__try
+	{
+		RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(DWORD), (DWORD*)&info );
+	}
+	__except(EXCEPTION_CONTINUE_EXECUTION)
+	{
+	}
+}
+#endif
+
+
 //----------------------------------------------------------------------------
 // Usage:
 // void run_func(LLThread* thread)
@@ -92,6 +125,11 @@ void LLThread::registerThreadID()
 void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap)
 {
 	LLThread *threadp = (LLThread *)datap;
+
+#ifdef LL_WINDOWS
+	SetThreadName(-1, threadp->mName.c_str());
+#endif
+
 
 	LLTrace::ThreadRecorder thread_recorder(*LLTrace::get_master_thread_recorder());
 
@@ -224,6 +262,7 @@ void LLThread::start()
 		llwarns << "failed to start thread " << mName << llendl;
 		ll_apr_warn_status(status);
 	}
+
 }
 
 //============================================================================

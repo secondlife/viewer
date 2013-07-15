@@ -94,13 +94,13 @@ extern LLTrace::CountStatHandle<>			FPS,
 
 extern LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kilotriangles> > TRIANGLES_DRAWN;
 
-extern LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kibibits> >	KBIT,
-																	LAYERS_KBIT,
-																	OBJECT_KBIT,
-																	ASSET_KBIT,
-																	TEXTURE_KBIT,
-																	ACTUAL_IN_KBIT,
-																	ACTUAL_OUT_KBIT;
+extern LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kibibytes> >	ACTIVE_MESSAGE_DATA_RECEIVED,
+																	LAYERS_NETWORK_DATA_RECEIVED,
+																	OBJECT_NETWORK_DATA_RECEIVED,
+																	ASSET_UDP_DATA_RECEIVED,
+																	TEXTURE_NETWORK_DATA_RECEIVED,
+																	MESSAGE_SYSTEM_DATA_IN,
+																	MESSAGE_SYSTEM_DATA_OUT;
 
 extern LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Seconds> >		SIM_20_FPS_TIME,
 																	SIM_PHYSICS_20_FPS_TIME,

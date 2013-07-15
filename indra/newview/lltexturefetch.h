@@ -107,10 +107,10 @@ public:
 	bool receiveImagePacket(const LLHost& host, const LLUUID& id, U16 packet_num, U16 data_size, U8* data);
 
     // Threads:  T* (but not safe)
-	void setTextureBandwidth(F32 bandwidth) { mTextureBandwidth = bandwidth; }
+	void setTextureBandwidth(LLUnit<F32, LLUnits::Kibibits> bandwidth) { mTextureBandwidth = bandwidth; }
 	
     // Threads:  T* (but not safe)
-	F32 getTextureBandwidth() { return mTextureBandwidth; }
+	LLUnit<F32, LLUnits::Kibibits> getTextureBandwidth() { return mTextureBandwidth; }
 	
     // Threads:  T*
 	BOOL isFromLocalCache(const LLUUID& id);
@@ -325,8 +325,8 @@ private:
 	queue_t mHTTPTextureQueue;											// Mfnq
 	typedef std::map<LLHost,std::set<LLUUID> > cancel_queue_t;
 	cancel_queue_t mCancelQueue;										// Mfnq
-	F32 mTextureBandwidth;												// <none>
-	F32 mMaxBandwidth;													// Mfnq
+	LLUnit<F32, LLUnits::Kibibits> mTextureBandwidth;					// <none>
+	LLUnit<F32, LLUnits::Kibibits> mMaxBandwidth;						// Mfnq
 	LLTextureInfo mTextureInfo;
 
 	// XXX possible delete
