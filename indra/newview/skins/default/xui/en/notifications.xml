@@ -506,6 +506,33 @@ Add this Ability to &apos;[ROLE_NAME]&apos;?
      notext="No"
      yestext="Yes"/>
   </notification>
+  
+  <notification
+    icon="alertmodal.tga"
+    name="EjectGroupMemberWarning"
+    type="alertmodal">
+     You are about to eject [AVATAR_NAME] from the group.
+     <tag>group</tag>
+     <tag>confirm</tag>
+     <usetemplate
+      ignoretext="Confirm ejecting a participant from group"
+      name="okcancelignore"
+      notext="Cancel"
+      yestext="Eject"/>
+  </notification>
+  <notification
+    icon="alertmodal.tga"
+    name="EjectGroupMembersWarning"
+    type="alertmodal">
+     You are about to eject [COUNT] members from the group.
+     <tag>group</tag>
+     <tag>confirm</tag>
+     <usetemplate
+      ignoretext="Confirm ejecting multiple members from group"
+      name="okcancelignore"
+      notext="Cancel"
+      yestext="Eject"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
