@@ -67,6 +67,26 @@ VARYING vec4 littleWave;
 VARYING vec4 view;
 VARYING vec4 vary_position;
 
+vec3 srgb_to_linear(vec3 cs)
+{
+	
+/*        {  cs / 12.92,                 cs <= 0.04045
+    cl = {
+        {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
+
+	return pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
+}
+
+vec3 linear_to_srgb(vec3 cl)
+{
+	    /*{  0.0,                          0         <= cl
+            {  12.92 * c,                    0         <  cl < 0.0031308
+    cs = {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
+            {  1.0,                                       cl >= 1*/
+
+	return 1.055 * pow(cl, vec3(0.41666)) - 0.055;
+}
+
 vec2 encode_normal(vec3 n)
 {
 	float f = sqrt(8 * n.z + 8);
@@ -116,6 +136,10 @@ void main()
 	vec2 refvec3 = distort+refdistort3/dmod_scale;
 	vec4 refcol3 = texture2D(refTex, refvec3);
 
+	refcol1.rgb = srgb_to_linear(refcol1.rgb);
+	refcol2.rgb = srgb_to_linear(refcol2.rgb);
+	refcol3.rgb = srgb_to_linear(refcol3.rgb);
+
 	vec4 refcol = refcol1 + refcol2 + refcol3;
 	float df1 = df.x + df.y + df.z;
 	refcol *= df1 * 0.333;
@@ -131,6 +155,9 @@ void main()
 	vec2 refvec4 = distort+refdistort4/dmod;
 	float dweight = min(dist2*blurMultiplier, 1.0);
 	vec4 baseCol = texture2D(refTex, refvec4);
+
+	baseCol.rgb = srgb_to_linear(baseCol.rgb);
+
 	refcol = mix(baseCol*df2, refcol, dweight);
 
 	//get specular component
@@ -165,7 +192,7 @@ void main()
 	//wavef = normalize(wavef);
 	vec3 screenspacewavef = (norm_mat*vec4(wavef, 1.0)).xyz;
 	
-	frag_data[0] = vec4(color.rgb, 0.5); // diffuse
+	frag_data[0] = vec4(linear_to_srgb(color.rgb), 0.5); // diffuse
 	frag_data[1] = vec4(0.5,0.5,0.5, 0.95); // speccolor*spec, spec
 	frag_data[2] = vec4(encode_normal(screenspacewavef), 0.0, 0.0); // normalxyz, displace
 }
