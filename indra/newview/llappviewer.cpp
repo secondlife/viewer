@@ -3048,13 +3048,19 @@ namespace {
 void LLAppViewer::initUpdater()
 {
 	// Initialize the updater service.
-	// Generate URL to the udpater service
 	// Get Channel
 	// Get Version
-	std::string url = gSavedSettings.getString("UpdaterServiceURL");
+
+	/*****************************************************************
+	 * Previously, the url was derived from the settings 
+	 *    UpdaterServiceURL
+	 *    UpdaterServicePath
+	 * it is now obtained from the grid manager.  The settings above
+	 * are no longer used.
+	 *****************************************************************/
 	std::string channel = LLVersionInfo::getChannel();
 	std::string version = LLVersionInfo::getVersion();
-	std::string service_path = gSavedSettings.getString("UpdaterServicePath");
+
 	U32 check_period = gSavedSettings.getU32("UpdaterServiceCheckPeriod");
 	bool willing_to_test;
 	LL_DEBUGS("UpdaterService") << "channel " << channel << LL_ENDL;
@@ -3079,9 +3085,7 @@ void LLAppViewer::initUpdater()
 	}
 
 	mUpdater->setAppExitCallback(boost::bind(&LLAppViewer::forceQuit, this));
-	mUpdater->initialize(url, 
-						 service_path, 
-						 channel, 
+	mUpdater->initialize(channel, 
 						 version,
 						 gPlatform,
 						 getOSInfo().getOSVersionString(),
