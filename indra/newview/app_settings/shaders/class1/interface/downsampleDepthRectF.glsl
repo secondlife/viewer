@@ -1,9 +1,9 @@
 /** 
- * @file diffuseIndexedF.glsl
+ * @file debugF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,32 +23,47 @@
  * $/LicenseInfo$
  */
 
+#extension GL_ARB_texture_rectangle : enable
+
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
+out vec4 frag_color;
 #else
-#define frag_data gl_FragData
+#define frag_color gl_FragColor
 #endif
 
-VARYING vec3 vary_normal;
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+uniform sampler2DRect depthMap;
 
-vec2 encode_normal(vec3 n)
-{
-	float f = sqrt(8 * n.z + 8);
-	return n.xy / f + 0.5;
-}
+uniform float delta;
 
+VARYING vec2 tc0;
+VARYING vec2 tc1;
+VARYING vec2 tc2;
+VARYING vec2 tc3;
+VARYING vec2 tc4;
+VARYING vec2 tc5;
+VARYING vec2 tc6;
+VARYING vec2 tc7;
+VARYING vec2 tc8;
 
 void main() 
 {
-	vec3 col = vertex_color.rgb * diffuseLookup(vary_texcoord0.xy).rgb;
-	
-	vec3 spec;
-	spec.rgb = vec3(vertex_color.a);
+	vec4 depth1 = 
+		vec4(texture2DRect(depthMap, tc0).r,
+			texture2DRect(depthMap, tc1).r,
+			texture2DRect(depthMap, tc2).r,
+			texture2DRect(depthMap, tc3).r);
 
-	frag_data[0] = vec4(col, 0.0);
-	frag_data[1] = vec4(spec, vertex_color.a); // spec
-	vec3 nvn = normalize(vary_normal);
-	frag_data[2] = vec4(encode_normal(nvn.xyz), vertex_color.a, 0.0);
+	vec4 depth2 = 
+		vec4(texture2DRect(depthMap, tc4).r,
+			texture2DRect(depthMap, tc5).r,
+			texture2DRect(depthMap, tc6).r,
+			texture2DRect(depthMap, tc7).r);
+
+	depth1 = min(depth1, depth2);
+	float depth = min(depth1.x, depth1.y);
+	depth = min(depth, depth1.z);
+	depth = min(depth, depth1.w);
+	depth = min(depth, texture2DRect(depthMap, tc8).r);
+
+	gl_FragDepth = depth;
 }
