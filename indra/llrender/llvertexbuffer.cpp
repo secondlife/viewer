@@ -2239,7 +2239,32 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 
 			if ((data_mask & required_mask) != required_mask)
 			{
-				llwarns << "Shader consumption mismatches data provision." << llendl;
+				
+				U32 unsatisfied_mask = (required_mask & ~data_mask);
+				U32 i = 0;
+
+				while (i < 15)
+				{
+					switch ((unsatisfied_mask & (1 << i)))
+					{
+						case MAP_VERTEX: llinfos << "Missing vert pos" << llendl; break;
+						case MAP_NORMAL: llinfos << "Missing normals" << llendl; break;
+						case MAP_TEXCOORD0: llinfos << "Missing TC 0" << llendl; break;
+						case MAP_TEXCOORD1: llinfos << "Missing TC 1" << llendl; break;
+						case MAP_TEXCOORD2: llinfos << "Missing TC 2" << llendl; break;
+						case MAP_TEXCOORD3: llinfos << "Missing TC 3" << llendl; break;
+						case MAP_COLOR: llinfos << "Missing vert color" << llendl; break;
+						case MAP_EMISSIVE: llinfos << "Missing emissive" << llendl; break;
+						case MAP_TANGENT: llinfos << "Missing tangent" << llendl; break;
+						case MAP_WEIGHT: llinfos << "Missing weight" << llendl; break;
+						case MAP_WEIGHT4: llinfos << "Missing weightx4" << llendl; break;
+						case MAP_CLOTHWEIGHT: llinfos << "Missing clothweight" << llendl; break;
+						case MAP_TEXTURE_INDEX: llinfos << "Missing tex index" << llendl; break;
+						default: llinfos << "Missing who effin knows" << llendl;
+					}					
+				}
+
+				llerrs << "Shader consumption mismatches data provision." << llendl;
 			}
 		}
 	}
