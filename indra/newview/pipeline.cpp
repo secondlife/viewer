@@ -11254,7 +11254,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	
 	S32 occlusion = sUseOcclusion;
 	sUseOcclusion = 0;
-	sReflectionRender = sRenderDeferred ? FALSE : TRUE;
+	//sReflectionRender = sRenderDeferred ? FALSE : TRUE;
 	sShadowRender = TRUE;
 	sImpostorRender = TRUE;
 
@@ -11351,25 +11351,27 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 			LLFastTimer t(FTM_IMPOSTOR_ALLOCATE);
 			avatar->mImpostor.allocate(resX,resY,GL_RGBA,TRUE,FALSE);
 
+#if DEFERRED_IMPOSTORS
 			if (LLPipeline::sRenderDeferred)
 			{
 				addDeferredAttachments(avatar->mImpostor);
 			}
-		
+#endif
+			
 			gGL.getTexUnit(0)->bind(&avatar->mImpostor);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		}
-		else if(resX != avatar->mImpostor.getWidth() ||
-			resY != avatar->mImpostor.getHeight())
+		else if(resX != avatar->mImpostor.getWidth() || resY != avatar->mImpostor.getHeight())
 		{
 			LLFastTimer t(FTM_IMPOSTOR_RESIZE);
 			avatar->mImpostor.resize(resX,resY,GL_RGBA);
 		}
 
-		avatar->mImpostor.bindTarget();
+		avatar->mImpostor.bindTarget();		
 	}
 
+#if DEFERRED_IMPOSTORS
 	if (LLPipeline::sRenderDeferred)
 	{
 		avatar->mImpostor.clear();
@@ -11377,20 +11379,24 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		renderGeomPostDeferred(camera);
 	}
 	else
-	{
+#endif
+	{		
 		LLGLEnable scissor(GL_SCISSOR_TEST);
-		glScissor(0, 0, resX, resY);
+		glScissor(0, 0, resX, resY);	
 		avatar->mImpostor.clear();
 		renderGeom(camera);
 	}
 	
 	{ //create alpha mask based on depth buffer (grey out if muted)
 		LLFastTimer t(FTM_IMPOSTOR_BACKGROUND);
+
+#if DEFERRED_IMPOSTORS
 		if (LLPipeline::sRenderDeferred)
 		{
 			GLuint buff = GL_COLOR_ATTACHMENT0;
 			glDrawBuffersARB(1, &buff);
 		}
+#endif
 
 		LLGLDisable blend(GL_BLEND);
 
