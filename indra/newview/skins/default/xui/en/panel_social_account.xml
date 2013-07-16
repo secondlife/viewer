@@ -4,7 +4,64 @@
 	 layout="topleft"
    name="panel_social_account">
 
-  
+  <text
+   layout="topleft"
+   length="1"
+   follows="top|left"
+   font="SansSerif"
+   height="16"
+   left="9"
+   name="account_caption_label"
+   top="21"
+   type="string">
+    You are connected to Facebook as:
+  </text>
+  <text
+   layout="topleft"
+   top_pad="2"
+   length="1"
+   follows="top|left"
+   font="SansSerif"
+   height="16"
+   left="9"
+   name="account_name_label"
+   type="string">
+    [secondlife:/// Philippe Bossut]
+  </text>
+  <button
+   layout="topleft"
+   follows="left|top"
+   top_pad="9"
+   left="9"
+   visible="false"
+   height="0"
+   label="Connect..."
+   name="connect_btn"
+   width="210">
 
+  </button>
 
+  <button
+   layout="topleft"
+   follows="left|top"
+   top_pad="9"
+   left="9"
+   height="23"
+   label="Use another account..."
+   name="use_another_account_btn"
+   width="210">
+    
+  </button>
+
+  <button
+   layout="topleft"
+   follows="left|top"
+   top_pad="11"
+   left="9"
+   height="23"
+   label="Disconnect"
+   name="disconnect_btn"
+   width="210">
+
+  </button>
 </panel>
