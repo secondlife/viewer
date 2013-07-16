@@ -30,6 +30,7 @@
 #include "llpanelgroupinvite.h"
 #include "lltrans.h"
 #include "lldraghandle.h"
+#include "llgroupmgr.h"
 
 class LLFloaterGroupInvite::impl
 {
@@ -123,6 +124,11 @@ void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id, uuid_vec_t *agen
 	LLFloaterGroupInvite *fgi = get_if_there(impl::sInstances,
 											 group_id,
 											 (LLFloaterGroupInvite*)NULL);
+
+	// refresh group information
+	LLGroupMgr::getInstance()->clearGroupData(group_id);
+
+
 	if (!fgi)
 	{
 		fgi = new LLFloaterGroupInvite(group_id);
