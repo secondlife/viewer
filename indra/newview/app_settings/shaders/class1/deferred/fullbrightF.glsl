@@ -69,8 +69,8 @@ void main()
 	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
 #endif
 
-	color.rgb = srgb_to_linear(color.rgb);
 	color.rgb *= vertex_color.rgb;
+	color.rgb = srgb_to_linear(color.rgb);
 
 	color.rgb = fullbrightAtmosTransport(color.rgb);
 	color.rgb = fullbrightScaleSoftClip(color.rgb);
