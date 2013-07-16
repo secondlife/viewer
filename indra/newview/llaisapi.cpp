@@ -794,7 +794,7 @@ void AISUpdate::doUpdate()
 	}
 
 	// DELETE OBJECTS
-	for (std::set<LLUUID>::const_iterator del_it = mObjectsDeletedIds.begin();
+	for (uuid_list_t::const_iterator del_it = mObjectsDeletedIds.begin();
 		 del_it != mObjectsDeletedIds.end(); ++del_it)
 	{
 		LL_DEBUGS("Inventory") << "deleted item " << *del_it << LL_ENDL;

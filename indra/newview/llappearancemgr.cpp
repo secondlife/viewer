@@ -2115,7 +2115,10 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
 		return;
 	}
 
-	llassert(validateClothingOrderingInfo());
+	if (!validateClothingOrderingInfo())
+	{
+		llwarns << "Clothing ordering error" << llendl;
+	}
 
 	BoolSetter setIsInUpdateAppearanceFromCOF(mIsInUpdateAppearanceFromCOF);
 	selfStartPhase("update_appearance_from_cof");
