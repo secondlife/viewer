@@ -4604,7 +4604,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							
 							if (mode == LLMaterial::DIFFUSE_ALPHA_MODE_MASK && te->getColor().mV[3] >= 0.999f)
 							{
-								pool->addRiggedFace(facep, fullbright ? LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA_MASK : LLDrawPoolAvatar::RIGGED_ALPHA_MASK);
+								pool->addRiggedFace(facep, fullbright ? LLDrawPoolAvatar::RIGGED_FULLBRIGHT : LLDrawPoolAvatar::RIGGED_SIMPLE);
 							}
 							else if (is_alpha || (te->getColor().mV[3] < 0.999f))
 							{
