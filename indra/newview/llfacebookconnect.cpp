@@ -40,6 +40,9 @@
 #include "lltrans.h"
 #include "llevents.h"
 
+#include "llfloaterwebcontent.h"
+#include "llfloaterreg.h"
+
 boost::scoped_ptr<LLEventPump> LLFacebookConnect::sStateWatcher(new LLEventStream("FacebookConnectState"));
 boost::scoped_ptr<LLEventPump> LLFacebookConnect::sContentWatcher(new LLEventStream("FacebookConnectContent"));
 
@@ -274,7 +277,12 @@ LLFacebookConnect::LLFacebookConnect()
 
 void LLFacebookConnect::openFacebookWeb(std::string url)
 {
-	LLUrlAction::openURLExternal(url);
+	// Open the URL in an internal browser window without navigation UI
+	LLFloaterWebContent::Params p;
+	p.url(url).show_chrome(false);
+	LLFloaterReg::showInstance("web_content", p);
+
+	//LLUrlAction::openURLExternal(url);
 }
 
 std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route)
