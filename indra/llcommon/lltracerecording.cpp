@@ -367,9 +367,6 @@ void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 
 	if (mAutoResize)
 	{
-		// append first recording into our current slot
-		getCurRecording().appendRecording(other.mRecordingPeriods[other_oldest_recording_index]);
-
 		// push back recordings for everything in the middle
 		U32 other_index = (other_oldest_recording_index + 1) % other_recording_slots;
 		while (other_index != other_current_recording_index)

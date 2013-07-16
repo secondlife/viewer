@@ -526,7 +526,6 @@ void record_enqueue(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
 	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	llinfos << "enqueue " << int(eac) << llendl;
 	add(*sEnqueued[int(eac)], 1);
 }
 

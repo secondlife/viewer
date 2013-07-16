@@ -9844,13 +9844,13 @@
     <key>SceneLoadingPixelDiffThreshold</key>
     <map>
       <key>Comment</key>
-      <string>Amount of pixels changed required to consider the scene as still loading (fraction of pixels on screen)</string>
+      <string>Amount of pixels changed required to consider the scene as still loading (square root of fraction of pixels on screen)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.0003</real>
+      <real>0.02</real>
     </map>
     <key>ScriptHelpFollowsCursor</key>
     <map>

@@ -290,7 +290,6 @@ void LLSceneMonitor::capture()
 
 	if((timer.getElapsedTimeF32() > scene_load_sample_time() 
 			|| force_capture)
-		&& mDiffState == WAITING_FOR_NEXT_DIFF
 		&& mEnabled
 		&& LLGLSLShader::sNoFixedFunction
 		&& last_capture_frame != gFrameCount)
@@ -470,7 +469,8 @@ void LLSceneMonitor::fetchQueryResult()
 	static LLCachedControl<F32>  scene_load_sample_time(gSavedSettings, "SceneLoadingMonitorSampleTime");
 	static LLFrameTimer timer;	
 
-	if(mDiffState == WAIT_ON_RESULT && timer.getElapsedTimeF32() > scene_load_sample_time)
+	F32 elapsed_time = timer.getElapsedTimeF32();
+	if(mDiffState == WAIT_ON_RESULT && elapsed_time > scene_load_sample_time)
 	{
 		mDiffState = WAITING_FOR_NEXT_DIFF;
 
@@ -481,21 +481,24 @@ void LLSceneMonitor::fetchQueryResult()
 			GLuint count = 0;
 			glGetQueryObjectuivARB(mQueryObject, GL_QUERY_RESULT_ARB, &count);
 	
-			mDiffResult = count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * mDiffPixelRatio * mDiffPixelRatio); //0.5 -> (front face + back face)
+			mDiffResult = sqrtf(count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * mDiffPixelRatio * mDiffPixelRatio)); //0.5 -> (front face + back face)
 
 			LL_DEBUGS("SceneMonitor") << "Frame difference: " << std::setprecision(4) << mDiffResult << LL_ENDL;
-			record(sFramePixelDiff, sqrtf(mDiffResult));
+			record(sFramePixelDiff, mDiffResult);
 
 			static LLCachedControl<F32> diff_threshold(gSavedSettings,"SceneLoadingPixelDiffThreshold");
 			if(mDiffResult > diff_threshold())
 			{
 				mSceneLoadRecording.extend();
+				llassert(mSceneLoadRecording.getResults().getLastRecording().getDuration() > scene_load_sample_time);
 			}
 			else
 			{
 				mSceneLoadRecording.nextPeriod();
 			}
 		}
+
+		timer.reset();
 	}
 }
 
