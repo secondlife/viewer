@@ -408,6 +408,7 @@ Ganymedes Costagravas
 Geenz Spad
 	STORM-1823
 	STORM-1900
+	STORM-1905
 	NORSPEC-229
 Gene Frostbite
 GeneJ Composer
@@ -696,6 +697,7 @@ Kitty Barnett
 	STORM-800
 	STORM-1001
 	STORM-1175
+	STORM-1905
     VWR-24217
 	STORM-1804
 Kolor Fall
@@ -1227,6 +1229,8 @@ Tofu Buzzard
 	STORM-1684
 	STORM-1819
 Tony Kembia
+Tonya Souther
+	STORM-1905
 Torben Trautman
 TouchaHoney Perhaps
 TraductoresAnonimos Alter
