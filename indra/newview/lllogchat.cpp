@@ -470,6 +470,13 @@ void LLLogChat::findTranscriptFiles(std::string pattern, std::vector<std::string
 		LLFILE * filep = LLFile::fopen(fullname, "rb");
 		if (NULL != filep)
 		{
+			if(makeLogFileName("chat")== fullname)
+			{
+				//Add Nearby chat history to the list of transcriptions
+				list_of_transcriptions.push_back(gDirUtilp->add(dirname, filename));
+				LLFile::close(filep);
+				return;
+			}
 			char buffer[LOG_RECALL_SIZE];
 
 			fseek(filep, 0, SEEK_END);			// seek to end of file
