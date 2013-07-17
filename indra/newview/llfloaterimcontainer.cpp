@@ -116,6 +116,10 @@ void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::str
 
 void LLFloaterIMContainer::sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
+	if(!isInVisibleChain())
+	{
+		setVisibleAndFrontmost(false);
+	}
 	selectConversationPair(session_id, true);
 	collapseMessagesPane(false);
 }
