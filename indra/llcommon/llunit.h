@@ -139,6 +139,13 @@ protected:
 };
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE>
+std::ostream& operator <<(std::ostream& s, const LLUnit<STORAGE_TYPE, UNIT_TYPE>& unit)
+{
+	s << unit.value() << UNIT_TYPE::getUnitLabel();
+	return s;
+}
+
+template<typename STORAGE_TYPE, typename UNIT_TYPE>
 struct LLUnitImplicit : public LLUnit<STORAGE_TYPE, UNIT_TYPE>
 {
 	typedef LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> self_t;
@@ -162,6 +169,12 @@ struct LLUnitImplicit : public LLUnit<STORAGE_TYPE, UNIT_TYPE>
 	}
 };
 
+template<typename STORAGE_TYPE, typename UNIT_TYPE>
+std::ostream& operator <<(std::ostream& s, const LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE>& unit)
+{
+	s << unit.value() << UNIT_TYPE::getUnitLabel();
+	return s;
+}
 
 template<typename S1, typename T1, typename S2, typename T2>
 LL_FORCE_INLINE void ll_convert_units(LLUnit<S1, T1> in, LLUnit<S2, T2>& out, ...)

@@ -469,8 +469,8 @@ void LLSceneMonitor::fetchQueryResult()
 	static LLCachedControl<F32>  scene_load_sample_time(gSavedSettings, "SceneLoadingMonitorSampleTime");
 	static LLFrameTimer timer;	
 
-	F32 elapsed_time = timer.getElapsedTimeF32();
-	if(mDiffState == WAIT_ON_RESULT && elapsed_time > scene_load_sample_time)
+	if(mDiffState == WAIT_ON_RESULT 
+		&& !LLAppViewer::instance()->quitRequested())
 	{
 		mDiffState = WAITING_FOR_NEXT_DIFF;
 
@@ -487,14 +487,20 @@ void LLSceneMonitor::fetchQueryResult()
 			record(sFramePixelDiff, mDiffResult);
 
 			static LLCachedControl<F32> diff_threshold(gSavedSettings,"SceneLoadingPixelDiffThreshold");
-			if(mDiffResult > diff_threshold())
+			F32 elapsed_time = timer.getElapsedTimeF32();
+
+			if (elapsed_time > scene_load_sample_time)
 			{
-				mSceneLoadRecording.extend();
-				llassert(mSceneLoadRecording.getResults().getLastRecording().getDuration() > scene_load_sample_time);
-			}
-			else
-			{
-				mSceneLoadRecording.nextPeriod();
+				if(mDiffResult > diff_threshold())
+				{
+					mSceneLoadRecording.extend();
+					llinfos << mSceneLoadRecording.getResults().getLastRecording().getDuration() << llendl;
+					llassert_always(mSceneLoadRecording.getResults().getLastRecording().getDuration() > scene_load_sample_time);
+				}
+				else
+				{
+					mSceneLoadRecording.nextPeriod();
+				}
 			}
 		}
 
