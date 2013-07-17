@@ -136,10 +136,10 @@ LLControlVariable::LLControlVariable(const std::string& name, eControlType type,
 	: mName(name),
 	  mComment(comment),
 	  mType(type),
-	  mPersist(persist),
+	  mPersist(persist? PERSIST_YES : PERSIST_NO),
 	  mHideFromSettingsEditor(hidefromsettingseditor)
 {
-	if (mPersist && mComment.empty())
+	if (persist && mComment.empty())
 	{
 		llerrs << "Must supply a comment for control " << mName << llendl;
 	}
@@ -262,7 +262,12 @@ void LLControlVariable::setDefaultValue(const LLSD& value)
 
 void LLControlVariable::setPersist(bool state)
 {
-	mPersist = state;
+	mPersist = state? PERSIST_YES : PERSIST_NO;
+}
+
+void LLControlVariable::forcePersist()
+{
+	mPersist = PERSIST_ALWAYS;
 }
 
 void LLControlVariable::setHiddenFromSettingsEditor(bool hide)
@@ -292,10 +297,29 @@ void LLControlVariable::resetToDefault(bool fire_signal)
 	}
 }
 
-bool LLControlVariable::isSaveValueDefault()
-{ 
-    return (mValues.size() ==  1) 
-        || ((mValues.size() > 1) && llsd_compare(mValues[1], mValues[0]));
+bool LLControlVariable::shouldSave(bool nondefault_only)
+{
+	// This method is used to decide whether we should save a given
+	// variable. Two of the three values of mPersist are easy.
+	if (mPersist == PERSIST_NO)
+		return false;
+
+	if (mPersist == PERSIST_ALWAYS)
+		return true;
+
+	// PERSIST_YES
+	// If caller doesn't need us to filter, just save.
+	if (! nondefault_only)
+		return true;
+
+	// PERSIST_YES, but caller only wants us to save this variable if its
+	// value differs from default.
+	if (isDefault())                // never been altered
+		return false;
+
+	// We've set at least one other value: compare it to default. Save only if
+	// they differ.
+	return ! llsd_compare(getSaveValue(), getDefault());
 }
 
 LLSD LLControlVariable::getSaveValue() const
@@ -805,21 +829,12 @@ U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only
 		{
 			llwarns << "Tried to save invalid control: " << iter->first << llendl;
 		}
-
-		if( control && control->isPersisted() )
+		else if( control->shouldSave(nondefault_only) )
 		{
-			if (!(nondefault_only && (control->isSaveValueDefault())))
-			{
-				settings[iter->first]["Type"] = typeEnumToString(control->type());
-				settings[iter->first]["Comment"] = control->getComment();
-				settings[iter->first]["Value"] = control->getSaveValue();
-				++num_saved;
-			}
-			else
-			{
-				// Debug spam
-				// llinfos << "Skipping " << control->getName() << llendl;
-			}
+			settings[iter->first]["Type"] = typeEnumToString(control->type());
+			settings[iter->first]["Comment"] = control->getComment();
+			settings[iter->first]["Value"] = control->getSaveValue();
+			++num_saved;
 		}
 	}
 	llofstream file;
@@ -920,15 +935,35 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 		}
 		else
 		{
-			declareControl(name, 
+			// We've never seen this control before. Either we're loading up
+			// the initial set of default settings files (set_default_values)
+			// -- or we're loading user settings last saved by a viewer that
+			// supports a superset of the variables we know.
+			LLControlVariable* control = declareControl(name, 
 						   typeStringToEnum(control_map["Type"].asString()), 
 						   control_map["Value"], 
 						   control_map["Comment"].asString(), 
 						   persist,
 						   hidefromsettingseditor
 						   );
+			// CHOP-962: if we're loading an unrecognized user setting, make
+			// sure we save it later. If you try an experimental viewer, tweak
+			// a new setting, briefly revert to an old viewer, then return to
+			// the new one, we don't want the old viewer to discard the
+			// setting you changed.
+			if (! set_default_values)
+			{
+				// Using forcePersist() insists that saveToFile() (which calls
+				// LLControlVariable::shouldSave()) must save this control
+				// variable regardless of its value. We can safely set this
+				// LLControlVariable persistent because the 'persistent' flag
+				// is not itself persisted!
+				control->forcePersist();
+				LL_INFOS("LLControlGroup") << "preserving unrecognized user settings variable "
+										   << name << LL_ENDL;
+			}
 		}
-		
+
 		++validitems;
 	}
 

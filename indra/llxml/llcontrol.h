@@ -101,13 +101,19 @@ public:
 	typedef boost::signals2::signal<void(LLControlVariable* control, const LLSD&, const LLSD&)> commit_signal_t;
 
 private:
+	enum
+	{
+		PERSIST_NO,                 // don't save this var
+		PERSIST_YES,                // save this var if differs from default
+		PERSIST_ALWAYS              // save this var even if has default value
+	} mPersist;
+
 	std::string		mName;
 	std::string		mComment;
 	eControlType	mType;
-	bool			mPersist;
 	bool			mHideFromSettingsEditor;
 	std::vector<LLSD> mValues;
-	
+
 	commit_signal_t mCommitSignal;
 	validate_signal_t mValidateSignal;
 	
@@ -131,8 +137,8 @@ public:
 	validate_signal_t* getValidateSignal() { return &mValidateSignal; }
 
 	bool isDefault() { return (mValues.size() == 1); }
-	bool isSaveValueDefault();
-	bool isPersisted() { return mPersist; }
+	bool shouldSave(bool nondefault_only);
+	bool isPersisted() { return mPersist != PERSIST_NO; }
 	bool isHiddenFromSettingsEditor() { return mHideFromSettingsEditor; }
 	LLSD get()			const	{ return getValue(); }
 	LLSD getValue()		const	{ return mValues.back(); }
@@ -142,7 +148,8 @@ public:
 	void set(const LLSD& val)	{ setValue(val); }
 	void setValue(const LLSD& value, bool saved_value = TRUE);
 	void setDefaultValue(const LLSD& value);
-	void setPersist(bool state);
+	void setPersist(bool state);    // persist or not depending on value
+	void forcePersist();            // always persist regardless of value
 	void setHiddenFromSettingsEditor(bool hide);
 	void setComment(const std::string& comment);
 
