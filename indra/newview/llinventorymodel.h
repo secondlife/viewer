@@ -230,7 +230,7 @@ public:
 	// Find
 	//--------------------------------------------------------------------
 public:
-	const LLUUID LLInventoryModel::findCategoryUUIDForTypeInRoot(
+	const LLUUID findCategoryUUIDForTypeInRoot(
 		LLFolderType::EType preferred_type,
 		bool create_folder,
 		const LLUUID& root_id);
