@@ -388,16 +388,13 @@ void LLInventoryModel::unlockDirectDescendentArrays(const LLUUID& cat_id)
 	mItemLock[cat_id] = false;
 }
 
-// findCategoryUUIDForType() returns the uuid of the category that
-// specifies 'type' as what it defaults to containing. The category is
-// not necessarily only for that type. *NOTE: This will create a new
-// inventory category on the fly if one does not exist.
-const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder/*, 
-					  bool find_in_library*/)
+const LLUUID LLInventoryModel::findCategoryUUIDForTypeInRoot(
+	LLFolderType::EType preferred_type,
+	bool create_folder,
+	const LLUUID& root_id)
 {
 	LLUUID rv = LLUUID::null;
 	
-	const LLUUID &root_id = /*(find_in_library) ? gInventory.getLibraryRootFolderID() :*/ gInventory.getRootFolderID();
 	if(LLFolderType::FT_ROOT_INVENTORY == preferred_type)
 	{
 		rv = root_id;
@@ -413,14 +410,17 @@ const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType prefe
 			{
 				if(cats->get(i)->getPreferredType() == preferred_type)
 				{
-					rv = cats->get(i)->getUUID();
-					break;
+					const LLUUID& folder_id = cats->get(i)->getUUID();
+					if (rv.isNull() || folder_id < rv)
+					{
+						rv = folder_id;
+					}
 				}
 			}
 		}
 	}
 	
-	if(rv.isNull() && isInventoryUsable() && (create_folder && true/*!find_in_library*/))
+	if(rv.isNull() && isInventoryUsable() && create_folder)
 	{
 		if(root_id.notNull())
 		{
@@ -430,41 +430,18 @@ const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType prefe
 	return rv;
 }
 
+// findCategoryUUIDForType() returns the uuid of the category that
+// specifies 'type' as what it defaults to containing. The category is
+// not necessarily only for that type. *NOTE: This will create a new
+// inventory category on the fly if one does not exist.
+const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder)
+{
+	return findCategoryUUIDForTypeInRoot(preferred_type, create_folder, gInventory.getRootFolderID());
+}
+
 const LLUUID LLInventoryModel::findLibraryCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder)
 {
-	LLUUID rv = LLUUID::null;
-
-	const LLUUID &root_id = gInventory.getLibraryRootFolderID();
-	if(LLFolderType::FT_ROOT_INVENTORY == preferred_type)
-	{
-		rv = root_id;
-	}
-	else if (root_id.notNull())
-	{
-		cat_array_t* cats = NULL;
-		cats = get_ptr_in_map(mParentChildCategoryTree, root_id);
-		if(cats)
-		{
-			S32 count = cats->count();
-			for(S32 i = 0; i < count; ++i)
-			{
-				if(cats->get(i)->getPreferredType() == preferred_type)
-				{
-					rv = cats->get(i)->getUUID();
-					break;
-				}
-			}
-		}
-	}
-
-	if(rv.isNull() && isInventoryUsable() && (create_folder && true/*!find_in_library*/))
-	{
-		if(root_id.notNull())
-		{
-			return createNewCategory(root_id, preferred_type, LLStringUtil::null);
-		}
-	}
-	return rv;
+	return findCategoryUUIDForTypeInRoot(preferred_type, create_folder, gInventory.getLibraryRootFolderID());
 }
 
 class LLCreateInventoryCategoryResponder : public LLHTTPClient::Responder
