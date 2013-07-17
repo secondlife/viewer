@@ -355,7 +355,7 @@ std::string LLControlGroup::typeEnumToString(eControlType typeenum)
 	return mTypeString[typeenum];
 }
 
-BOOL LLControlGroup::declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, BOOL persist, BOOL hidefromsettingseditor)
+LLControlVariable* LLControlGroup::declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, BOOL persist, BOOL hidefromsettingseditor)
 {
 	LLControlVariable* existing_control = getControl(name);
 	if (existing_control)
@@ -374,66 +374,66 @@ BOOL LLControlGroup::declareControl(const std::string& name, eControlType type, 
 		{
 			llwarns << "Control named " << name << " already exists, ignoring new declaration." << llendl;
 		}
- 		return TRUE;
+ 		return existing_control;
 	}
 
 	// if not, create the control and add it to the name table
 	LLControlVariable* control = new LLControlVariable(name, type, initial_val, comment, persist, hidefromsettingseditor);
 	mNameTable[name] = control;	
-	return TRUE;
+	return control;
 }
 
-BOOL LLControlGroup::declareU32(const std::string& name, const U32 initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareU32(const std::string& name, const U32 initial_val, const std::string& comment, BOOL persist)
 {
 	return declareControl(name, TYPE_U32, (LLSD::Integer) initial_val, comment, persist);
 }
 
-BOOL LLControlGroup::declareS32(const std::string& name, const S32 initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareS32(const std::string& name, const S32 initial_val, const std::string& comment, BOOL persist)
 {
 	return declareControl(name, TYPE_S32, initial_val, comment, persist);
 }
 
-BOOL LLControlGroup::declareF32(const std::string& name, const F32 initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareF32(const std::string& name, const F32 initial_val, const std::string& comment, BOOL persist)
 {
 	return declareControl(name, TYPE_F32, initial_val, comment, persist);
 }
 
-BOOL LLControlGroup::declareBOOL(const std::string& name, const BOOL initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareBOOL(const std::string& name, const BOOL initial_val, const std::string& comment, BOOL persist)
 {
 	return declareControl(name, TYPE_BOOLEAN, initial_val, comment, persist);
 }
 
-BOOL LLControlGroup::declareString(const std::string& name, const std::string& initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareString(const std::string& name, const std::string& initial_val, const std::string& comment, BOOL persist)
 {
 	return declareControl(name, TYPE_STRING, initial_val, comment, persist);
 }
 
-BOOL LLControlGroup::declareVec3(const std::string& name, const LLVector3 &initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareVec3(const std::string& name, const LLVector3 &initial_val, const std::string& comment, BOOL persist)
 {
 	return declareControl(name, TYPE_VEC3, initial_val.getValue(), comment, persist);
 }
 
-BOOL LLControlGroup::declareVec3d(const std::string& name, const LLVector3d &initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareVec3d(const std::string& name, const LLVector3d &initial_val, const std::string& comment, BOOL persist)
 {
 	return declareControl(name, TYPE_VEC3D, initial_val.getValue(), comment, persist);
 }
 
-BOOL LLControlGroup::declareRect(const std::string& name, const LLRect &initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareRect(const std::string& name, const LLRect &initial_val, const std::string& comment, BOOL persist)
 {
 	return declareControl(name, TYPE_RECT, initial_val.getValue(), comment, persist);
 }
 
-BOOL LLControlGroup::declareColor4(const std::string& name, const LLColor4 &initial_val, const std::string& comment, BOOL persist )
+LLControlVariable* LLControlGroup::declareColor4(const std::string& name, const LLColor4 &initial_val, const std::string& comment, BOOL persist )
 {
 	return declareControl(name, TYPE_COL4, initial_val.getValue(), comment, persist);
 }
 
-BOOL LLControlGroup::declareColor3(const std::string& name, const LLColor3 &initial_val, const std::string& comment, BOOL persist )
+LLControlVariable* LLControlGroup::declareColor3(const std::string& name, const LLColor3 &initial_val, const std::string& comment, BOOL persist )
 {
 	return declareControl(name, TYPE_COL3, initial_val.getValue(), comment, persist);
 }
 
-BOOL LLControlGroup::declareLLSD(const std::string& name, const LLSD &initial_val, const std::string& comment, BOOL persist )
+LLControlVariable* LLControlGroup::declareLLSD(const std::string& name, const LLSD &initial_val, const std::string& comment, BOOL persist )
 {
 	return declareControl(name, TYPE_LLSD, initial_val, comment, persist);
 }
@@ -887,6 +887,8 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 		LLControlVariable* existing_control = getControl(name);
 		if(existing_control)
 		{
+			// set_default_values is true when we're loading the initial,
+			// immutable files from app_settings, e.g. settings.xml.
 			if(set_default_values)
 			{
 				// Override all previously set properties of this control.
@@ -908,6 +910,9 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 			}
 			else if(existing_control->isPersisted())
 			{
+				// save_values is specifically false for (e.g.)
+				// SessionSettingsFile and UserSessionSettingsFile -- in other
+				// words, for a file that's supposed to be transient.
 				existing_control->setValue(control_map["Value"], save_values);
 			}
 			// *NOTE: If not persisted and not setting defaults, 

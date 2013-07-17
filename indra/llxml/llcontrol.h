@@ -207,19 +207,19 @@ public:
 		virtual void apply(const std::string& name, LLControlVariable* control) = 0;
 	};
 	void applyToAll(ApplyFunctor* func);
-	
-	BOOL declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, BOOL persist, BOOL hidefromsettingseditor = FALSE);
-	BOOL declareU32(const std::string& name, U32 initial_val, const std::string& comment, BOOL persist = TRUE);
-	BOOL declareS32(const std::string& name, S32 initial_val, const std::string& comment, BOOL persist = TRUE);
-	BOOL declareF32(const std::string& name, F32 initial_val, const std::string& comment, BOOL persist = TRUE);
-	BOOL declareBOOL(const std::string& name, BOOL initial_val, const std::string& comment, BOOL persist = TRUE);
-	BOOL declareString(const std::string& name, const std::string &initial_val, const std::string& comment, BOOL persist = TRUE);
-	BOOL declareVec3(const std::string& name, const LLVector3 &initial_val,const std::string& comment,  BOOL persist = TRUE);
-	BOOL declareVec3d(const std::string& name, const LLVector3d &initial_val, const std::string& comment, BOOL persist = TRUE);
-	BOOL declareRect(const std::string& name, const LLRect &initial_val, const std::string& comment, BOOL persist = TRUE);
-	BOOL declareColor4(const std::string& name, const LLColor4 &initial_val, const std::string& comment, BOOL persist = TRUE);
-	BOOL declareColor3(const std::string& name, const LLColor3 &initial_val, const std::string& comment, BOOL persist = TRUE);
-	BOOL declareLLSD(const std::string& name, const LLSD &initial_val, const std::string& comment, BOOL persist = TRUE);
+
+	LLControlVariable* declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, BOOL persist, BOOL hidefromsettingseditor = FALSE);
+	LLControlVariable* declareU32(const std::string& name, U32 initial_val, const std::string& comment, BOOL persist = TRUE);
+	LLControlVariable* declareS32(const std::string& name, S32 initial_val, const std::string& comment, BOOL persist = TRUE);
+	LLControlVariable* declareF32(const std::string& name, F32 initial_val, const std::string& comment, BOOL persist = TRUE);
+	LLControlVariable* declareBOOL(const std::string& name, BOOL initial_val, const std::string& comment, BOOL persist = TRUE);
+	LLControlVariable* declareString(const std::string& name, const std::string &initial_val, const std::string& comment, BOOL persist = TRUE);
+	LLControlVariable* declareVec3(const std::string& name, const LLVector3 &initial_val,const std::string& comment,  BOOL persist = TRUE);
+	LLControlVariable* declareVec3d(const std::string& name, const LLVector3d &initial_val, const std::string& comment, BOOL persist = TRUE);
+	LLControlVariable* declareRect(const std::string& name, const LLRect &initial_val, const std::string& comment, BOOL persist = TRUE);
+	LLControlVariable* declareColor4(const std::string& name, const LLColor4 &initial_val, const std::string& comment, BOOL persist = TRUE);
+	LLControlVariable* declareColor3(const std::string& name, const LLColor3 &initial_val, const std::string& comment, BOOL persist = TRUE);
+	LLControlVariable* declareLLSD(const std::string& name, const LLSD &initial_val, const std::string& comment, BOOL persist = TRUE);
 
 	std::string getString(const std::string& name);
 	std::string getText(const std::string& name);

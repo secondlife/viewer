@@ -49,10 +49,10 @@ static std::string gOS;
 LLControlGroup::LLControlGroup(const std::string& name)
 	: LLInstanceTracker<LLControlGroup, std::string>(name) {}
 LLControlGroup::~LLControlGroup() {}
-BOOL LLControlGroup::declareString(const std::string& name,
+LLControlVariable* LLControlGroup::declareString(const std::string& name,
 				   const std::string& initial_val,
 				   const std::string& comment,
-				   BOOL persist) {return TRUE;}
+				   BOOL persist) {return NULL;}
 void LLControlGroup::setString(const std::string& name, const std::string& val){}
 std::string LLControlGroup::getString(const std::string& name)
 {

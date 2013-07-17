@@ -175,8 +175,8 @@ F32 LLControlGroup::getF32(const std::string& name) { return 0.0f; }
 U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only) { return 1; }
 void LLControlGroup::setString(const std::string& name, const std::string& val) {}
 std::string LLControlGroup::getString(const std::string& name) { return "test_string"; }
-BOOL LLControlGroup::declareBOOL(const std::string& name, BOOL initial_val, const std::string& comment, BOOL persist) { return TRUE; }
-BOOL LLControlGroup::declareString(const std::string& name, const std::string &initial_val, const std::string& comment, BOOL persist) { return TRUE; }
+LLControlVariable* LLControlGroup::declareBOOL(const std::string& name, BOOL initial_val, const std::string& comment, BOOL persist) { return NULL; }
+LLControlVariable* LLControlGroup::declareString(const std::string& name, const std::string &initial_val, const std::string& comment, BOOL persist) { return NULL; }
 
 #include "lluicolortable.h"
 void LLUIColorTable::saveUserSettings(void)const {}
