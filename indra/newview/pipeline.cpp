@@ -122,9 +122,9 @@
 //#define DEBUG_INDICES
 #endif
 
-// Expensive
+// Expensive and currently broken
 //
-#define MATERIALS_IN_REFLECTIONS 1
+#define MATERIALS_IN_REFLECTIONS 0
 
 bool gShiftFrame = false;
 
@@ -1236,7 +1236,11 @@ void LLPipeline::createGLBuffers()
 
 	updateRenderDeferred();
 
-	bool materials_in_water = gSavedSettings.getS32("RenderWaterMaterials");
+	bool materials_in_water = false;
+
+#if MATERIALS_IN_REFLECTIONS
+	materials_in_water = gSavedSettings.getS32("RenderWaterMaterials");
+#endif
 
 	if (LLPipeline::sWaterReflections)
 	{ //water reflection texture
@@ -9685,7 +9689,11 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			water_clip = 1;
 		}
 
-		bool materials_in_water = gSavedSettings.getS32("RenderWaterMaterials");
+		bool materials_in_water = false;
+
+#if MATERIALS_IN_REFLECTIONS
+		materials_in_water = gSavedSettings.getS32("RenderWaterMaterials");
+#endif
 
 		if (!LLViewerCamera::getInstance()->cameraUnderWater())
 		{	//generate planar reflection map
