@@ -7564,7 +7564,7 @@ render_pass="bump">
 
       <param
        id="868"
-       group="0"
+       group="3"
        wearable="shirt"
        edit_group="shirt"
        edit_group_order="8"
@@ -8687,7 +8687,7 @@ render_pass="bump">
 
       <param
        id="869"
-       group="0"
+       group="3"
        wearable="pants"
        edit_group="pants"
        edit_group_order="6"
@@ -9608,7 +9608,7 @@ render_pass="bump">
 
     <param
      id="163"
-     group="0"
+     group="3"
      wearable="skin"
      edit_group="skin_facedetail"
      edit_group_order="3"
@@ -11667,7 +11667,7 @@ render_pass="bump">
 
     <param
      id="877"
-     group="0"
+     group="3"
      name="Jacket Wrinkles"
      label="Jacket Wrinkles"
      wearable="jacket"
