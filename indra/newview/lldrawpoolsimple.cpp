@@ -633,8 +633,15 @@ void LLDrawPoolFullbrightAlphaMask::beginPostDeferredPass(S32 pass)
 	} 
 	else 
 	{
+#if LL_DARWIN
+		// the OS X 10.6.8 GeForce driver is a real POS
+		// this is a work-around for NORSPEC-314
+		gObjectFullbrightAlphaMaskProgram.bind();
+		gObjectFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+#else
 		gDeferredFullbrightAlphaMaskProgram.bind();
 		gDeferredFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+#endif
 	}
 }
 
@@ -654,7 +661,11 @@ void LLDrawPoolFullbrightAlphaMask::endPostDeferredPass(S32 pass)
 	}
 	else
 	{
+#if LL_DARWIN
+		gObjectFullbrightAlphaMaskProgram.unbind();
+#else
 		gDeferredFullbrightAlphaMaskProgram.unbind();
+#endif
 	}
 	LLRenderPass::endRenderPass(pass);
 }
