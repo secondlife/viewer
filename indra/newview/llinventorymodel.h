@@ -230,6 +230,11 @@ public:
 	// Find
 	//--------------------------------------------------------------------
 public:
+	const LLUUID findCategoryUUIDForTypeInRoot(
+		LLFolderType::EType preferred_type,
+		bool create_folder,
+		const LLUUID& root_id);
+
 	// Returns the uuid of the category that specifies 'type' as what it 
 	// defaults to containing. The category is not necessarily only for that type. 
 	//    NOTE: If create_folder is true, this will create a new inventory category 

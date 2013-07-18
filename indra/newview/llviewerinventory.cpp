@@ -1230,7 +1230,7 @@ void update_inventory_category(
 		LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(obj);
 		new_cat->fromLLSD(updates);
 		// FIXME - restore this once the back-end work has been done.
-		if (0) // if (AISCommand::isAPIAvailable())
+		if (AISCommand::isAPIAvailable())
 		{
 			LLSD new_llsd = new_cat->asLLSD();
 			LLPointer<AISCommand> cmd_ptr = new UpdateCategoryCommand(cat_id, new_llsd, cb);
