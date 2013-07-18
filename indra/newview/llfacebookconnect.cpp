@@ -40,6 +40,9 @@
 #include "lltrans.h"
 #include "llevents.h"
 
+#include "llfloaterwebcontent.h"
+#include "llfloaterreg.h"
+
 boost::scoped_ptr<LLEventPump> LLFacebookConnect::sStateWatcher(new LLEventStream("FacebookConnectState"));
 boost::scoped_ptr<LLEventPump> LLFacebookConnect::sContentWatcher(new LLEventStream("FacebookConnectContent"));
 
@@ -49,7 +52,7 @@ void log_facebook_connect_error(const std::string& request, U32 status, const st
     // Note: 302 (redirect) is *not* an error that warrants logging
     if (status != 302)
     {
-		LL_WARNS("FacebookConnect") << request << " request failed with a " << status << " " << reason << ". Reason: " << code << "(" << description << ")" << LL_ENDL;
+		LL_WARNS("FacebookConnect") << request << " request failed with a " << status << " " << reason << ". Reason: " << code << " (" << description << ")" << LL_ENDL;
     }
 }
 
@@ -73,9 +76,17 @@ public:
 		{
 			if (tokens[0].asString() == "connect")
 			{
+				// connect to facebook
 				if (query_map.has("code"))
 				{
                     LLFacebookConnect::instance().connectToFacebook(query_map["code"], query_map.get("state"));
+				}
+
+				// this command probably came from the fbc_web browser, so close it
+				LLFloater* fbc_web = LLFloaterReg::getInstance("fbc_web");
+				if (fbc_web)
+				{
+					fbc_web->closeFloater();
 				}
 				return true;
 			}
@@ -274,7 +285,12 @@ LLFacebookConnect::LLFacebookConnect()
 
 void LLFacebookConnect::openFacebookWeb(std::string url)
 {
-	LLUrlAction::openURLExternal(url);
+	// Open the URL in an internal browser window without navigation UI
+	LLFloaterWebContent::Params p;
+	p.url(url).show_chrome(false);
+	LLFloaterReg::showInstance("fbc_web", p);
+
+	//LLUrlAction::openURLExternal(url);
 }
 
 std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route)
