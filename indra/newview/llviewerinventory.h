@@ -256,7 +256,7 @@ class AddFavoriteLandmarkCallback : public LLInventoryCallback
 public:
 	AddFavoriteLandmarkCallback() : mTargetLandmarkId(LLUUID::null) {}
 	void setTargetLandmarkId(const LLUUID& target_uuid) { mTargetLandmarkId = target_uuid; }
-
+	
 private:
 	void fire(const LLUUID& inv_item);
 
@@ -283,13 +283,13 @@ public:
 
 	// virtual
 	void fire(const LLUUID& item_id)
-	{
+{
 		mFireFunc(item_id);
 	}
 
 	// virtual
 	~LLBoostFuncInventoryCallback()
-	{
+{
 		mDestroyFunc();
 	}
 	

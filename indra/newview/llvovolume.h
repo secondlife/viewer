@@ -31,12 +31,14 @@
 #include "llviewertexture.h"
 #include "llviewermedia.h"
 #include "llframetimer.h"
+#include "lllocalbitmaps.h"
 #include "m3math.h"		// LLMatrix3
 #include "m4math.h"		// LLMatrix4
 #include <map>
 
 class LLViewerTextureAnim;
 class LLDrawPool;
+class LLMaterialID;
 class LLSelectNode;
 class LLObjectMediaDataClient;
 class LLObjectMediaNavigateClient;
@@ -135,14 +137,14 @@ public:
 
 	/*virtual*/ U32		getTriangleCount(S32* vcount = NULL) const;
 	/*virtual*/ U32		getHighLODTriangleCount();
-	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, 
+	/*virtual*/ BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, 
 										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
 										  BOOL pick_transparent = FALSE,
 										  S32* face_hit = NULL,                 // which face was hit
-										  LLVector3* intersection = NULL,       // return the intersection point
+										  LLVector4a* intersection = NULL,       // return the intersection point
 										  LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point
-										  LLVector3* normal = NULL,             // return the surface normal at the intersection point
-										  LLVector3* bi_normal = NULL           // return the surface bi-normal at the intersection point
+										  LLVector4a* normal = NULL,             // return the surface normal at the intersection point
+										  LLVector4a* tangent = NULL           // return the surface tangent at the intersection point
 		);
 	
 				LLVector3 agentPositionToVolume(const LLVector3& pos) const;
@@ -157,6 +159,7 @@ public:
 				const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const;
 
 				void	markForUpdate(BOOL priority)			{ LLViewerObject::markForUpdate(priority); mVolumeChanged = TRUE; }
+				void    faceMappingChanged()                    { mFaceMappingChanged=TRUE; };
 
 	/*virtual*/ void	onShift(const LLVector4a &shift_vector); // Called when the drawable shifts
 
@@ -185,6 +188,11 @@ public:
 	/*virtual*/ S32		setTEBumpShinyFullbright(const U8 te, const U8 bump);
 	/*virtual*/ S32		setTEMediaFlags(const U8 te, const U8 media_flags);
 	/*virtual*/ S32		setTEGlow(const U8 te, const F32 glow);
+	/*virtual*/ S32		setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
+	
+	static void	setTEMaterialParamsCallbackTE(const LLUUID& objectID, const LLMaterialID& pMaterialID, const LLMaterialPtr pMaterialParams, U32 te);
+
+	/*virtual*/ S32		setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams);
 	/*virtual*/ S32		setTEScale(const U8 te, const F32 s, const F32 t);
 	/*virtual*/ S32		setTEScaleS(const U8 te, const F32 s);
 	/*virtual*/ S32		setTEScaleT(const U8 te, const F32 t);
@@ -378,3 +386,4 @@ protected:
 };
 
 #endif // LL_LLVOVOLUME_H
+

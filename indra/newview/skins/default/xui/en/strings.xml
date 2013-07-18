@@ -373,6 +373,8 @@ Please try logging in again in a minute.</string>
 	<!-- build floater -->
 	<string name="multiple_textures">Multiple</string>
 
+<string name="use_texture">Use texture</string>
+
 	<!-- world map -->
 	<string name="texture_loading">Loading...</string>
 	<string name="worldmap_offline">Offline</string>
@@ -416,7 +418,7 @@ Please try logging in again in a minute.</string>
 	<string name="OverrideYourAnimations">Replace your default animations</string>
 	<string name="ScriptReturnObjects">Return objects on your behalf</string>
 	<string name="UnknownScriptPermission">(unknown)!</string>
-	
+
 	<!-- Sim Access labels -->
 	<string name="SIM_ACCESS_PG">General</string>
 	<string name="SIM_ACCESS_MATURE">Moderate</string>

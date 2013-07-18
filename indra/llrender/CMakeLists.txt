@@ -92,7 +92,7 @@ if (BUILD_HEADLESS)
 
   set_property(TARGET llrenderheadless
     PROPERTY COMPILE_DEFINITIONS LL_MESA=1 LL_MESA_HEADLESS=1
-    )
+      )
 
   target_link_libraries(llrenderheadless
     ${LLCOMMON_LIBRARIES}

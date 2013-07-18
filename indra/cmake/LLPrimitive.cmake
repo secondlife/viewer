@@ -2,6 +2,8 @@
 
 # these should be moved to their own cmake file
 include(Prebuilt)
+include(Boost)
+
 use_prebuilt_binary(colladadom)
 use_prebuilt_binary(pcre)
 use_prebuilt_binary(libxml)
@@ -15,10 +17,7 @@ if (WINDOWS)
         optimized llprimitive
         debug libcollada14dom22-d
         optimized libcollada14dom22
-        debug libboost_filesystem-mt-gd
-        optimized libboost_filesystem-mt
-        debug libboost_system-mt-gd
-        optimized libboost_system-mt
+        ${BOOST_SYSTEM_LIBRARIES}
         )
 else (WINDOWS)
     set(LLPRIMITIVE_LIBRARIES 

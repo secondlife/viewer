@@ -166,6 +166,7 @@ void LLViewerStatsRecorder::recordRequestCacheMissesEvent(S32 count)
 
 void LLViewerStatsRecorder::writeToLog( F32 interval )
 {
+	size_t data_size = 0;
 	F64 delta_time = LLTimer::getTotalSeconds() - mLastSnapshotTime;
 	S32 total_objects = mObjectCacheHitCount + mObjectCacheMissCrcCount + mObjectCacheMissFullCount + mObjectFullUpdates + mObjectTerseUpdates + mObjectCacheMissRequests + mObjectCacheMissResponses + mObjectCacheUpdateDupes + mObjectCacheUpdateChanges + mObjectCacheUpdateAdds + mObjectCacheUpdateReplacements + mObjectUpdateFailures;
 
@@ -187,7 +188,6 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 		<< mObjectUpdateFailures << " update failures"
 		<< llendl;
 
-	U32 data_size;
 	if (mObjectCacheFile == NULL)
 	{
 		mStartTime = LLTimer::getTotalSeconds();
@@ -255,9 +255,9 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 		<< "\n";
 
 	data_size = data_msg.str().size();
-	if (fwrite(data_msg.str().c_str(), 1, data_size, mObjectCacheFile ) != data_size)
+	if ( data_size != fwrite(data_msg.str().c_str(), 1, data_size, mObjectCacheFile ))
 	{
-		llwarns << "failed to write full stats to " << STATS_FILE_NAME << llendl;
+				llwarns << "Unable to write complete column data to " << STATS_FILE_NAME << llendl;
 	}
 
 	clearStats();

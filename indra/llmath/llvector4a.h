@@ -46,6 +46,7 @@ class LLRotation;
 // of this writing, July 08, 2010) about getting it implemented before you resort to
 // LLVector3/LLVector4. 
 /////////////////////////////////
+class LLVector4a;
 
 LL_ALIGN_PREFIX(16)
 class LLVector4a
@@ -235,6 +236,11 @@ public:
 	// Normalize this vector with respect to the x, y, and z components only. Accurate only to 10-12 bits of precision. W component is destroyed
 	// Note that this does not consider zero length vectors!
 	inline void normalize3fast();
+
+	// Normalize this vector with respect to the x, y, and z components only. Accurate only to 10-12 bits of precision. W component is destroyed
+	// Same as above except substitutes default vector contents if the vector is non-finite or degenerate due to zero length.
+	//
+	inline void normalize3fast_checked(LLVector4a* d = 0);
 
 	// Return true if this vector is normalized with respect to x,y,z up to tolerance
 	inline LLBool32 isNormalized3( F32 tolerance = 1e-3 ) const;

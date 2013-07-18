@@ -145,6 +145,8 @@ public:
 	//void                removeFace(const S32 i); // SJB: Avoid using this, it's slow
 	LLFace*				addFace(LLFacePool *poolp, LLViewerTexture *texturep);
 	LLFace*				addFace(const LLTextureEntry *te, LLViewerTexture *texturep);
+	LLFace*				addFace(const LLTextureEntry *te, LLViewerTexture *texturep, LLViewerTexture *normalp);
+	LLFace*				addFace(const LLTextureEntry *te, LLViewerTexture *texturep, LLViewerTexture *normalp, LLViewerTexture *specularp);
 	void				deleteFaces(S32 offset, S32 count);
 	void                setNumFaces(const S32 numFaces, LLFacePool *poolp, LLViewerTexture *texturep);
 	void                setNumFacesFast(const S32 numFaces, LLFacePool *poolp, LLViewerTexture *texturep);

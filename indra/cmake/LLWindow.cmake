@@ -33,10 +33,10 @@ set(LLWINDOW_INCLUDE_DIRS
 
 if (BUILD_HEADLESS)
   set(LLWINDOW_HEADLESS_LIBRARIES
-    llwindowheadless
-    )
+      llwindowheadless
+      )
 endif (BUILD_HEADLESS)
 
-set(LLWINDOW_LIBRARIES
-    llwindow
-    )
+  set(LLWINDOW_LIBRARIES
+      llwindow
+      )

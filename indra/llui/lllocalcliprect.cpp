@@ -33,7 +33,7 @@
 
 
 LLScreenClipRect::LLScreenClipRect(const LLRect& rect, BOOL enabled)
-	:	mScissorState(GL_SCISSOR_TEST),
+:	mScissorState(GL_SCISSOR_TEST),
 	mEnabled(enabled)
 {
 	if (mEnabled)
@@ -100,10 +100,10 @@ void LLScreenClipRect::updateScissorRegion()
 // LLLocalClipRect
 //---------------------------------------------------------------------------
 LLLocalClipRect::LLLocalClipRect(const LLRect& rect, BOOL enabled /* = TRUE */)
-	:	LLScreenClipRect(LLRect(rect.mLeft + LLFontGL::sCurOrigin.mX, 
-	rect.mTop + LLFontGL::sCurOrigin.mY, 
-	rect.mRight + LLFontGL::sCurOrigin.mX, 
-	rect.mBottom + LLFontGL::sCurOrigin.mY), enabled)
+:	LLScreenClipRect(LLRect(rect.mLeft + LLFontGL::sCurOrigin.mX, 
+					rect.mTop + LLFontGL::sCurOrigin.mY, 
+					rect.mRight + LLFontGL::sCurOrigin.mX, 
+					rect.mBottom + LLFontGL::sCurOrigin.mY), enabled)
 {}
 
 LLLocalClipRect::~LLLocalClipRect()
