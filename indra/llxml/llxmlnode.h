@@ -39,7 +39,6 @@
 
 #include "indra_constants.h"
 #include "llpointer.h"
-#include "llthread.h"		// LLThreadSafeRefCount
 #include "llstring.h"
 #include "llstringtable.h"
 #include "llfile.h"

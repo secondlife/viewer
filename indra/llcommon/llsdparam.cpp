@@ -30,6 +30,7 @@
 // Project includes
 #include "llsdparam.h"
 #include "llsdutil.h"
+#include "boost/bind.hpp"
 
 static 	LLInitParam::Parser::parser_read_func_map_t sReadFuncs;
 static 	LLInitParam::Parser::parser_write_func_map_t sWriteFuncs;

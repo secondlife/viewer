@@ -32,9 +32,6 @@
 #include <typeinfo>
 
 #include "string_table.h"
-#include <boost/utility.hpp>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 

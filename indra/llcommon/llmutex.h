@@ -27,12 +27,15 @@
 #ifndef LL_LLMUTEX_H
 #define LL_LLMUTEX_H
 
-#include "llapr.h"
-#include "apr_thread_cond.h"
+#include "stdtypes.h"
 
 //============================================================================
 
 #define MUTEX_DEBUG (LL_DEBUG || LL_RELEASE_WITH_DEBUG_INFO)
+
+struct apr_thread_mutex_t;
+struct apr_pool_t;
+struct apr_thread_cond_t;
 
 class LL_COMMON_API LLMutex
 {
@@ -45,18 +48,18 @@ public:
 	LLMutex(apr_pool_t *apr_poolp = NULL); // NULL pool constructs a new pool for the mutex
 	virtual ~LLMutex();
 	
-	void lock();		// blocks
+	void lock();		       // blocks
 	void unlock();
-	bool isLocked(); 	// non-blocking, but does do a lock/unlock so not free
-	bool isSelfLocked(); //return true if locked in a same thread
+	bool isLocked(); 	       // non-blocking, but does do a lock/unlock so not free
+	bool isSelfLocked();       //return true if locked in a same thread
 	U32 lockingThread() const; //get ID of locking thread
 	
 protected:
-	apr_thread_mutex_t *mAPRMutexp;
+	apr_thread_mutex_t*	mAPRMutexp;
 	mutable U32			mCount;
 	mutable U32			mLockingThread;
 	
-	apr_pool_t			*mAPRPoolp;
+	apr_pool_t*			mAPRPoolp;
 	BOOL				mIsLocalPool;
 	
 #if MUTEX_DEBUG
@@ -68,7 +71,7 @@ protected:
 class LL_COMMON_API LLCondition : public LLMutex
 {
 public:
-	LLCondition(apr_pool_t *apr_poolp); // Defaults to global pool, could use the thread pool as well.
+	LLCondition(apr_pool_t* apr_poolp); // Defaults to global pool, could use the thread pool as well.
 	~LLCondition();
 	
 	void wait();		// blocks
@@ -76,7 +79,7 @@ public:
 	void broadcast();
 	
 protected:
-	apr_thread_cond_t *mAPRCondp;
+	apr_thread_cond_t* mAPRCondp;
 };
 
 class LLMutexLock

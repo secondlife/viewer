@@ -30,7 +30,6 @@
 
 #include "llsd.h"
 #include "llpointer.h"
-#include "llthread.h"
 
 namespace LLOldEvents
 {

@@ -123,6 +123,7 @@ class EventStatHandle
 public:
 	typedef F64 storage_t;
 	typedef TraceType<EventAccumulator> trace_t;
+	typedef EventStatHandle<T> self_t;
 
 	EventStatHandle(const char* name, const char* description = NULL)
 	:	trace_t(name, description)
@@ -146,6 +147,7 @@ class SampleStatHandle
 public:
 	typedef F64 storage_t;
 	typedef TraceType<SampleAccumulator> trace_t;
+	typedef SampleStatHandle<T> self_t;
 
 	SampleStatHandle(const char* name, const char* description = NULL)
 	:	trace_t(name, description)
@@ -168,6 +170,7 @@ class CountStatHandle
 public:
 	typedef F64 storage_t;
 	typedef TraceType<CountAccumulator> trace_t;
+	typedef CountStatHandle<T> self_t;
 
 	CountStatHandle(const char* name, const char* description = NULL) 
 	:	trace_t(name, description)

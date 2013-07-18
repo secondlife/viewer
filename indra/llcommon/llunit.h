@@ -30,12 +30,12 @@
 #include "stdtypes.h"
 #include "llpreprocessor.h"
 #include "llerrorlegacy.h"
-#include <boost/type_traits/is_same.hpp>
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE>
 struct LLUnit
 {
 	typedef LLUnit<STORAGE_TYPE, UNIT_TYPE> self_t;
+
 	typedef STORAGE_TYPE storage_t;
 
 	// value initialization
@@ -163,18 +163,28 @@ struct LLUnitImplicit : public LLUnit<STORAGE_TYPE, UNIT_TYPE>
 };
 
 
+template<typename S, typename T> 
+struct LLIsSameType
+{
+	static const bool value = false;
+};
+
+template<typename T>
+struct LLIsSameType<T, T>
+{
+	static const bool value = true;
+};
+
 template<typename S1, typename T1, typename S2, typename T2>
 LL_FORCE_INLINE void ll_convert_units(LLUnit<S1, T1> in, LLUnit<S2, T2>& out, ...)
 {
-	typedef boost::integral_constant<bool, 
-									boost::is_same<T1, T2>::value 
-										|| !boost::is_same<T1, typename T1::base_unit_t>::value 
-										|| !boost::is_same<T2, typename T2::base_unit_t>::value> conversion_valid_t;
-	LL_STATIC_ASSERT(conversion_valid_t::value, "invalid conversion");
+	LL_STATIC_ASSERT((LLIsSameType<T1, T2>::value 
+		|| !LLIsSameType<T1, typename T1::base_unit_t>::value 
+		|| !LLIsSameType<T2, typename T2::base_unit_t>::value), "invalid conversion");
 
-	if (boost::is_same<T1, typename T1::base_unit_t>::value)
+	if (LLIsSameType<T1, typename T1::base_unit_t>::value)
 	{
-		if (boost::is_same<T2, typename T2::base_unit_t>::value)
+		if (LLIsSameType<T2, typename T2::base_unit_t>::value)
 
 		{
 			// T1 and T2 fully reduced and equal...just copy

@@ -24,6 +24,7 @@
  */
 #include "linden_common.h"
 
+#include "llapr.h"
 #include "lldir.h"
 #include "llimagej2c.h"
 #include "lltimer.h"

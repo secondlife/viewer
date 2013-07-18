@@ -33,6 +33,7 @@
 #include "llvisualparam.h"
 #include "llavatarappearancedefines.h"
 #include "llwearable.h"
+#include "boost/bind.hpp"
 
 using namespace LLAvatarAppearanceDefines;
 

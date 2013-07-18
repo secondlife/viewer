@@ -26,6 +26,7 @@
 
 #include "linden_common.h"
 
+#include "llimageworker.h"
 #include "llimage.h"
 
 #include "llmath.h"
@@ -37,7 +38,6 @@
 #include "llimagejpeg.h"
 #include "llimagepng.h"
 #include "llimagedxt.h"
-#include "llimageworker.h"
 #include "llmemory.h"
 
 //---------------------------------------------------------------------------
