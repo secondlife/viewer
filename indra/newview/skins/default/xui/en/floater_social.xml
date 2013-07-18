@@ -59,6 +59,7 @@
        name="panel_social_place"/>
      <panel
        filename="panel_social_account.xml"
+       class="llsocialaccountpanel"
        follows="all"
        label="ACCOUNT"
        help_topic="panel_social_account"

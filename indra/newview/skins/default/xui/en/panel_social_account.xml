@@ -28,40 +28,44 @@
    type="string">
     [secondlife:/// Philippe Bossut]
   </text>
+
+  <panel
+    layout="topleft"
+    name="panel_buttons"
+    height="345"
+    left="9">
   <button
    layout="topleft"
    follows="left|top"
    top_pad="9"
-   left="9"
-   visible="false"
-   height="0"
+   visible="true"
+   height="23"
    label="Connect..."
    name="connect_btn"
    width="210">
-
+    <commit_callback function="SocialSharing.Connect"/>
   </button>
 
   <button
    layout="topleft"
    follows="left|top"
    top_pad="9"
-   left="9"
    height="23"
    label="Use another account..."
    name="use_another_account_btn"
    width="210">
-    
+    <commit_callback function="SocialSharing.UseAnotherAccount"/>
   </button>
 
   <button
    layout="topleft"
    follows="left|top"
    top_pad="11"
-   left="9"
    height="23"
    label="Disconnect"
    name="disconnect_btn"
    width="210">
-
+    <commit_callback function="SocialSharing.Disconnect"/>
   </button>
+  </panel>
 </panel>

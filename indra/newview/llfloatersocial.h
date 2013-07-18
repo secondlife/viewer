@@ -115,6 +115,29 @@ private:
     bool mMapCheckBoxValue;
 };
 
+class LLSocialAccountPanel : public LLPanel
+{
+public:
+	LLSocialAccountPanel();
+	BOOL postBuild();
+
+private:
+	void onConnect();
+	void onUseAnotherAccount();
+	void onDisconnect();
+
+	void showConnectButton();
+	void hideConnectButton();
+
+	LLTextBox * mAccountCaptionLabel;
+	LLTextBox * mAccountNameLabel;
+	LLUICtrl * mPanelButtons;
+	LLUICtrl * mConnectButton;
+	LLUICtrl * mUseAnotherAccountButton;
+	LLUICtrl * mDisconnectButton;
+};
+
+
 class LLFloaterSocial : public LLFloater
 {
 public:

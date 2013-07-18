@@ -48,6 +48,7 @@
 static LLRegisterPanelClassWrapper<LLSocialStatusPanel> t_panel_status("llsocialstatuspanel");
 static LLRegisterPanelClassWrapper<LLSocialPhotoPanel> t_panel_photo("llsocialphotopanel");
 static LLRegisterPanelClassWrapper<LLSocialCheckinPanel> t_panel_checkin("llsocialcheckinpanel");
+static LLRegisterPanelClassWrapper<LLSocialAccountPanel> t_panel_account("llsocialaccountpanel");
 
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const std::string DEFAULT_CHECKIN_ICON_URL = "http://logok.org/wp-content/uploads/2010/07/podcastlogo1.jpg";
@@ -607,6 +608,82 @@ void LLSocialCheckinPanel::clearAndClose()
 	{
 		floater->closeFloater();
 	}
+}
+
+///////////////////////////
+//LLSocialAccountPanel//////
+///////////////////////////
+
+LLSocialAccountPanel::LLSocialAccountPanel() : 
+mAccountCaptionLabel(NULL),
+mAccountNameLabel(NULL),
+mPanelButtons(NULL),
+mConnectButton(NULL),
+mUseAnotherAccountButton(NULL),
+mDisconnectButton(NULL)
+{
+	mCommitCallbackRegistrar.add("SocialSharing.Connect", boost::bind(&LLSocialAccountPanel::onConnect, this));
+	mCommitCallbackRegistrar.add("SocialSharing.UseAnotherAccount", boost::bind(&LLSocialAccountPanel::onUseAnotherAccount, this));
+	mCommitCallbackRegistrar.add("SocialSharing.Disconnect", boost::bind(&LLSocialAccountPanel::onDisconnect, this));
+}
+
+BOOL LLSocialAccountPanel::postBuild()
+{
+	mAccountCaptionLabel = getChild<LLTextBox>("account_caption_label");
+	mAccountNameLabel = getChild<LLTextBox>("account_name_label");
+	mPanelButtons = getChild<LLUICtrl>("panel_buttons");
+	mConnectButton = getChild<LLUICtrl>("connect_btn");
+	mUseAnotherAccountButton = getChild<LLUICtrl>("use_another_account_btn");
+	mDisconnectButton = getChild<LLUICtrl>("disconnect_btn");
+
+	hideConnectButton();
+
+	return LLPanel::postBuild();
+}
+
+void LLSocialAccountPanel::showConnectButton()
+{
+	if(!mConnectButton->getVisible())
+	{
+		mConnectButton->setVisible(TRUE);
+		LLRect mLayoutStackRect = mPanelButtons->getRect();
+		F32 deltaTopPadding =  mConnectButton->getRect().mBottom - mUseAnotherAccountButton->getRect().mTop;
+		mLayoutStackRect.translate(0, -(mConnectButton->getRect().getHeight() + deltaTopPadding));
+		mPanelButtons->setRect(mLayoutStackRect);
+
+		mUseAnotherAccountButton->setVisible(FALSE);
+		mDisconnectButton->setVisible(FALSE);
+	}
+}
+
+void LLSocialAccountPanel::hideConnectButton()
+{
+	if(mConnectButton->getVisible())
+	{
+		mConnectButton->setVisible(FALSE);
+		LLRect mLayoutStackRect = mPanelButtons->getRect();
+		F32 deltaTopPadding =  mConnectButton->getRect().mBottom - mUseAnotherAccountButton->getRect().mTop;
+		mLayoutStackRect.translate(0, mConnectButton->getRect().getHeight() + deltaTopPadding);
+		mPanelButtons->setRect(mLayoutStackRect);
+
+		mUseAnotherAccountButton->setVisible(TRUE);
+		mDisconnectButton->setVisible(TRUE);
+	}
+}
+
+void LLSocialAccountPanel::onConnect()
+{
+	hideConnectButton();
+}
+
+void LLSocialAccountPanel::onUseAnotherAccount()
+{
+
+}
+
+void LLSocialAccountPanel::onDisconnect()
+{
+	showConnectButton();
 }
 
 ////////////////////////
