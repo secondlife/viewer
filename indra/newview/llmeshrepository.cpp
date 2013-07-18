@@ -152,7 +152,11 @@
 //     [5]  Read of a double-checked lock.
 //
 //   So, in addition to documentation, take this as a to-do/review
-//   list and see if you can improve things.
+//   list and see if you can improve things.  For porters to non-x86
+//   architectures, including amd64, the weaker memory models will
+//   make these platforms probabilistically more susceptible to hitting
+//   race conditions.  True here and in other multi-thread code such
+//   as texture fetching.
 //
 //   LLMeshRepository:
 //
@@ -237,8 +241,6 @@ U32 LLMeshRepository::sCacheBytesWritten = 0;
 LLDeadmanTimer LLMeshRepository::sQuiescentTimer(15.0, true);	// true -> gather cpu metrics
 
 	
-const U32 MAX_TEXTURE_UPLOAD_RETRIES = 5;
-
 static S32 dump_num = 0;
 std::string make_dump_name(std::string prefix, S32 num)
 {
@@ -797,7 +799,6 @@ void LLMeshRepoThread::run()
 		}
 
 		mWaiting = true;
-		ms_sleep(5);
 		mSignal->wait();
 		mWaiting = false;
 		
@@ -982,20 +983,17 @@ void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 }
 
 // Constructs a Cap URL for the mesh.  Prefers a GetMesh2 cap
-// over a GetMesh cap and returns what it finds to the caller
-// as an int ([1..2]).
+// over a GetMesh cap.
 //
 //static 
-std::string LLMeshRepoThread::constructUrl(LLUUID mesh_id, int * cap_version)
+std::string LLMeshRepoThread::constructUrl(LLUUID mesh_id)
 {
-	int version(1);
 	std::string http_url;
 	
 	if (gAgent.getRegion())
 	{
 		if (! gMeshRepo.mGetMesh2Capability.empty())
 		{
-			version = 2;
 			http_url = gMeshRepo.mGetMesh2Capability;
 		}
 		else
@@ -1015,7 +1013,6 @@ std::string LLMeshRepoThread::constructUrl(LLUUID mesh_id, int * cap_version)
 								<< mesh_id << ".mesh" << LL_ENDL;
 	}
 
-	*cap_version = version;
 	return http_url;
 }
 
@@ -1134,8 +1131,8 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id, U32& count)
 			{
 				return false;
 			}
-			int cap_version(1);
-			std::string http_url = constructUrl(mesh_id, &cap_version);
+			int cap_version(gMeshRepo.mGetMeshVersion);
+			std::string http_url = constructUrl(mesh_id);
 			if (!http_url.empty())
 			{
 				LLMeshSkinInfoHandler * handler = new LLMeshSkinInfoHandler(mesh_id, offset, size);
@@ -1229,8 +1226,8 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id, U32& count)
 			{
 				return false;
 			}
-			int cap_version(1);
-			std::string http_url = constructUrl(mesh_id, &cap_version);
+			int cap_version(gMeshRepo.mGetMeshVersion);
+			std::string http_url = constructUrl(mesh_id);
 			if (!http_url.empty())
 			{
 				LLMeshDecompositionHandler * handler = new LLMeshDecompositionHandler(mesh_id, offset, size);
@@ -1323,8 +1320,8 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id, U32& count)
 			{
 				return false;
 			}
-			int cap_version(1);
-			std::string http_url = constructUrl(mesh_id, &cap_version);
+			int cap_version(gMeshRepo.mGetMeshVersion);
+			std::string http_url = constructUrl(mesh_id);
 			if (!http_url.empty())
 			{
 				LLMeshPhysicsShapeHandler * handler = new LLMeshPhysicsShapeHandler(mesh_id, offset, size);
@@ -1414,8 +1411,8 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, U32& c
 
 	//either cache entry doesn't exist or is corrupt, request header from simulator	
 	bool retval = true;
-	int cap_version(1);
-	std::string http_url = constructUrl(mesh_params.getSculptID(), &cap_version);
+	int cap_version(gMeshRepo.mGetMeshVersion);
+	std::string http_url = constructUrl(mesh_params.getSculptID());
 	if (!http_url.empty())
 	{
 		//grab first 4KB if we're going to bother with a fetch.  Cache will prevent future fetches if a full mesh fits
@@ -1500,8 +1497,8 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 			}
 
 			//reading from VFS failed for whatever reason, fetch from sim
-			int cap_version(1);
-			std::string http_url = constructUrl(mesh_id, &cap_version);
+			int cap_version(gMeshRepo.mGetMeshVersion);
+			std::string http_url = constructUrl(mesh_id);
 			if (!http_url.empty())
 			{
 				LLMeshLODHandler * handler = new LLMeshLODHandler(mesh_params, lod, offset, size);
@@ -2647,7 +2644,8 @@ void LLMeshPhysicsShapeHandler::processData(LLCore::BufferArray * body, U8 * dat
 LLMeshRepository::LLMeshRepository()
 : mMeshMutex(NULL),
   mMeshThreadCount(0),
-  mThread(NULL)
+  mThread(NULL),
+  mGetMeshVersion(2)
 {
 
 }
@@ -2827,13 +2825,24 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 
 void LLMeshRepository::notifyLoadedMeshes()
 { //called from main thread
-	// *FIXME:  Scaling down the setting by a factor of 4 for now to reflect
-	// target goal.  May want to rename the setting before release.  Also
-	// want/need to get these in a coordinated fashion from llappcorehttp.
-	LLMeshRepoThread::sMaxConcurrentRequests = gSavedSettings.getU32("MeshMaxConcurrentRequests") / 4;
-	LLMeshRepoThread::sRequestHighWater = llclamp(10 * S32(LLMeshRepoThread::sMaxConcurrentRequests),
-												  REQUEST_HIGH_WATER_MIN,
-												  REQUEST_HIGH_WATER_MAX);
+	if (1 == mGetMeshVersion)
+	{
+		// Legacy GetMesh operation with high connection concurrency
+		LLMeshRepoThread::sMaxConcurrentRequests = gSavedSettings.getU32("MeshMaxConcurrentRequests");
+		LLMeshRepoThread::sRequestHighWater = llclamp(2 * S32(LLMeshRepoThread::sMaxConcurrentRequests),
+													  REQUEST_HIGH_WATER_MIN,
+													  REQUEST_HIGH_WATER_MAX);
+	}
+	else
+	{
+		// GetMesh2 operation with keepalives, etc.
+		// *TODO:  Logic here is replicated from llappcorehttp.cpp, should really
+		// unify this and keep it in one place only.
+		LLMeshRepoThread::sMaxConcurrentRequests = gSavedSettings.getU32("MeshMaxConcurrentRequests") / 4;
+		LLMeshRepoThread::sRequestHighWater = llclamp(5 * S32(LLMeshRepoThread::sMaxConcurrentRequests),
+													  REQUEST_HIGH_WATER_MIN,
+													  REQUEST_HIGH_WATER_MAX);
+	}
 	LLMeshRepoThread::sRequestLowWater = llclamp(LLMeshRepoThread::sRequestHighWater / 2,
 												 REQUEST_LOW_WATER_MIN,
 												 REQUEST_LOW_WATER_MAX);
@@ -2929,6 +2938,7 @@ void LLMeshRepository::notifyLoadedMeshes()
 			region_name = gAgent.getRegion()->getName();
 			mGetMeshCapability = gAgent.getRegion()->getCapability("GetMesh");
 			mGetMesh2Capability = gAgent.getRegion()->getCapability("GetMesh2");
+			mGetMeshVersion = mGetMesh2Capability.empty() ? 1 : 2;
 			LL_DEBUGS(LOG_MESH) << "Retrieving caps for region '" << region_name
 								<< "', GetMesh2:  " << mGetMesh2Capability
 								<< ", GetMesh:  " << mGetMeshCapability
@@ -4152,7 +4162,7 @@ void teleport_started()
 	LLMeshRepository::metricsStart();
 }
 
-// This comes from an edit in viewer-cat.  Unify this once that's
+// *TODO:  This comes from an edit in viewer-cat.  Unify this once that's
 // available everywhere.
 bool is_retryable(LLCore::HttpStatus status)
 {

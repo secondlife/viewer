@@ -337,7 +337,7 @@ public:
 	typedef std::set<LLCore::HttpHandler *> http_request_set;
 	http_request_set					mHttpRequestSet;			// Outstanding HTTP requests
 
-	static std::string constructUrl(LLUUID mesh_id, int * cap_version);
+	static std::string constructUrl(LLUUID mesh_id);
 
 	LLMeshRepoThread();
 	~LLMeshRepoThread();
@@ -600,6 +600,7 @@ public:
 
 	std::string mGetMeshCapability;
 	std::string mGetMesh2Capability;
+	int mGetMeshVersion;
 };
 
 extern LLMeshRepository gMeshRepo;
