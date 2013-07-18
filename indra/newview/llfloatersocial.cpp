@@ -625,6 +625,8 @@ mDisconnectButton(NULL)
 	mCommitCallbackRegistrar.add("SocialSharing.Connect", boost::bind(&LLSocialAccountPanel::onConnect, this));
 	mCommitCallbackRegistrar.add("SocialSharing.UseAnotherAccount", boost::bind(&LLSocialAccountPanel::onUseAnotherAccount, this));
 	mCommitCallbackRegistrar.add("SocialSharing.Disconnect", boost::bind(&LLSocialAccountPanel::onDisconnect, this));
+
+	setVisibleCallback(boost::bind(&LLSocialAccountPanel::onVisibilityChange, this, _2));
 }
 
 BOOL LLSocialAccountPanel::postBuild()
@@ -636,9 +638,61 @@ BOOL LLSocialAccountPanel::postBuild()
 	mUseAnotherAccountButton = getChild<LLUICtrl>("use_another_account_btn");
 	mDisconnectButton = getChild<LLUICtrl>("disconnect_btn");
 
-	hideConnectButton();
-
 	return LLPanel::postBuild();
+}
+
+void LLSocialAccountPanel::onVisibilityChange(const LLSD& new_visibility)
+{
+	bool visible = new_visibility.asBoolean();
+
+	if(visible)
+	{
+		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialAccountPanel");
+		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialAccountPanel", boost::bind(&LLSocialAccountPanel::onFacebookConnectStateChange, this, _1));
+
+		if(LLFacebookConnect::instance().isConnected())
+		{
+	hideConnectButton();
+			mAccountCaptionLabel->setText(getString("facebook_connected"));
+			mAccountNameLabel->setText(std::string("[secondlife:/// Philippe Bossut]"));
+
+		}
+		else
+		{
+			mAccountCaptionLabel->setText(getString("facebook_disconnected"));
+			mAccountNameLabel->setText(std::string(""));
+			LLFacebookConnect::instance().checkConnectionToFacebook();
+		}
+	}
+	else
+	{
+		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialAccountPanel");
+	}
+}
+
+bool LLSocialAccountPanel::onFacebookConnectStateChange(const LLSD& data)
+{
+
+	switch (data.get("enum").asInteger())
+	{
+		case LLFacebookConnect::FB_CONNECTED:
+		case LLFacebookConnect::FB_POSTING:
+		case LLFacebookConnect::FB_POSTED:
+		case LLFacebookConnect::FB_POST_FAILED:
+			mAccountCaptionLabel->setText(getString("facebook_connected"));
+			mAccountNameLabel->setText(std::string("[secondlife:/// Philippe Bossut]"));
+			hideConnectButton();
+			break;
+		case LLFacebookConnect::FB_NOT_CONNECTED:
+		case LLFacebookConnect::FB_CONNECTION_IN_PROGRESS:
+		case LLFacebookConnect::FB_CONNECTION_FAILED:
+			mAccountCaptionLabel->setText(getString("facebook_disconnected"));
+			mAccountNameLabel->setText(std::string(""));
+			showConnectButton();
+			break;
+	}
+
+	return false;
 }
 
 void LLSocialAccountPanel::showConnectButton()
@@ -673,7 +727,7 @@ void LLSocialAccountPanel::hideConnectButton()
 
 void LLSocialAccountPanel::onConnect()
 {
-	hideConnectButton();
+	LLFacebookConnect::instance().checkConnectionToFacebook(true);
 }
 
 void LLSocialAccountPanel::onUseAnotherAccount()
@@ -683,7 +737,7 @@ void LLSocialAccountPanel::onUseAnotherAccount()
 
 void LLSocialAccountPanel::onDisconnect()
 {
-	showConnectButton();
+	LLFacebookConnect::instance().disconnectFromFacebook();
 }
 
 ////////////////////////

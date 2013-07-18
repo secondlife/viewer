@@ -122,6 +122,8 @@ public:
 	BOOL postBuild();
 
 private:
+	void onVisibilityChange(const LLSD& new_visibility);
+	bool onFacebookConnectStateChange(const LLSD& data);
 	void onConnect();
 	void onUseAnotherAccount();
 	void onDisconnect();
