@@ -652,15 +652,11 @@ void LLSocialAccountPanel::onVisibilityChange(const LLSD& new_visibility)
 
 		if(LLFacebookConnect::instance().isConnected())
 		{
-	hideConnectButton();
-			mAccountCaptionLabel->setText(getString("facebook_connected"));
-			mAccountNameLabel->setText(std::string("[secondlife:/// Philippe Bossut]"));
-
+			showConnectedLayout();
 		}
 		else
 		{
-			mAccountCaptionLabel->setText(getString("facebook_disconnected"));
-			mAccountNameLabel->setText(std::string(""));
+			showDisconnectedLayout();
 			LLFacebookConnect::instance().checkConnectionToFacebook();
 		}
 	}
@@ -679,16 +675,12 @@ bool LLSocialAccountPanel::onFacebookConnectStateChange(const LLSD& data)
 		case LLFacebookConnect::FB_POSTING:
 		case LLFacebookConnect::FB_POSTED:
 		case LLFacebookConnect::FB_POST_FAILED:
-			mAccountCaptionLabel->setText(getString("facebook_connected"));
-			mAccountNameLabel->setText(std::string("[secondlife:/// Philippe Bossut]"));
-			hideConnectButton();
+			showConnectedLayout();
 			break;
 		case LLFacebookConnect::FB_NOT_CONNECTED:
 		case LLFacebookConnect::FB_CONNECTION_IN_PROGRESS:
 		case LLFacebookConnect::FB_CONNECTION_FAILED:
-			mAccountCaptionLabel->setText(getString("facebook_disconnected"));
-			mAccountNameLabel->setText(std::string(""));
-			showConnectButton();
+			showDisconnectedLayout();
 			break;
 	}
 
@@ -723,6 +715,20 @@ void LLSocialAccountPanel::hideConnectButton()
 		mUseAnotherAccountButton->setVisible(TRUE);
 		mDisconnectButton->setVisible(TRUE);
 	}
+}
+
+void LLSocialAccountPanel::showDisconnectedLayout()
+{
+	mAccountCaptionLabel->setText(getString("facebook_disconnected"));
+	mAccountNameLabel->setText(std::string(""));
+	showConnectButton();
+}
+
+void LLSocialAccountPanel::showConnectedLayout()
+{
+	mAccountCaptionLabel->setText(getString("facebook_connected"));
+	mAccountNameLabel->setText(std::string("[secondlife:/// Philippe Bossut]"));
+	hideConnectButton();
 }
 
 void LLSocialAccountPanel::onConnect()

@@ -130,6 +130,8 @@ private:
 
 	void showConnectButton();
 	void hideConnectButton();
+	void showDisconnectedLayout();
+	void showConnectedLayout();
 
 	LLTextBox * mAccountCaptionLabel;
 	LLTextBox * mAccountNameLabel;
