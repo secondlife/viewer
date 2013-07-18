@@ -32,6 +32,8 @@ out vec4 frag_color;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
+uniform float texture_gamma;
+
 vec3 fullbrightAtmosTransport(vec3 light);
 vec3 fullbrightScaleSoftClip(vec3 light);
 
@@ -39,9 +41,13 @@ void fullbright_lighting()
 {
 	vec4 color = diffuseLookup(vary_texcoord0.xy) * vertex_color;
 	
+	color.rgb = pow(color.rgb, vec3(texture_gamma));
+
 	color.rgb = fullbrightAtmosTransport(color.rgb);
 	
 	color.rgb = fullbrightScaleSoftClip(color.rgb);
+
+	color.rgb = pow(color.rgb, vec3(1.0/texture_gamma));
 
 	frag_color = color;
 }

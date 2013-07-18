@@ -2873,6 +2873,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>DefaultBlankNormalTexture</key>
+  <map>
+    <key>Comment</key>
+    <string>Texture used as 'Blank' in texture picker for normal maps. (UUID texture reference)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>5b53359e-59dd-d8a2-04c3-9e65134da47a</string>
+  </map>
 	<key>DefaultFemaleAvatar</key>
 	<map>
 	  <key>Comment</key>
@@ -2895,8 +2906,29 @@
 	  <key>Value</key>
 	  <string>Male Shape &amp; Outfit</string>
 	</map>
-
-    <key>DefaultObjectTexture</key>
+  <key>DefaultObjectNormalTexture</key>
+  <map>
+    <key>Comment</key>
+    <string>Texture used as 'Default' in texture picker for normal map. (UUID texture reference)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>85f28839-7a1c-b4e3-d71d-967792970a7b</string>
+  </map>
+  <key>DefaultObjectSpecularTexture</key>
+  <map>
+    <key>Comment</key>
+    <string>Texture used as 'Default' in texture picker for specular map. (UUID texture reference)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>87e0e8f7-8729-1ea8-cfc9-8915773009db</string>
+  </map>
+  <key>DefaultObjectTexture</key>
     <map>
       <key>Comment</key>
       <string>Texture used as 'Default' in texture picker. (UUID texture reference)</string>
@@ -3346,17 +3378,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>EnableTextureAtlas</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether to use texture atlas or not</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>EnableUIHints</key>
     <map>
@@ -7711,7 +7732,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>4</integer>
+    <integer>3</integer>
   </map>
 
   <key>OctreeAlphaDistanceFactor</key>
@@ -8440,7 +8461,7 @@
   <key>RenderSpotLightsInNondeferred</key>
   <map>
     <key>Comment</key>
-    <string>Whether to support projectors as spotlights when Lighting and Shadows is disabled</string>
+    <string>Whether to support projectors as spotlights when Advanced Lighting Model is disabled</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -8483,7 +8504,6 @@
     <key>Value</key>
     <real>1.0</real>
   </map>
-
   <key>RenderDeferredTreeShadowBias</key>
   <map>
     <key>Comment</key>
@@ -8581,7 +8601,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <real>512</real>
+    <real>1024</real>
   </map>
 
   <key>RenderSpecularResY</key>
@@ -8593,7 +8613,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <real>128</real>
+    <real>256</real>
   </map>
 
   <key>RenderSpecularExponent</key>
@@ -8611,7 +8631,7 @@
   <key>RenderDeferred</key>
   <map>
     <key>Comment</key>
-    <string>Use deferred rendering pipeline.</string>
+    <string>Use deferred rendering pipeline (Advanced Lighting Model).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -8799,7 +8819,7 @@
     <key>RenderAutoMaskAlphaNonDeferred</key>
     <map>
       <key>Comment</key>
-      <string>Use alpha masks where appropriate, in the non-deferred (non-'Lighting and Shadows') graphics mode</string>
+      <string>Use alpha masks where appropriate when not using the Advanced Lighting Model</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8810,7 +8830,7 @@
     <key>RenderAutoMaskAlphaDeferred</key>
     <map>
       <key>Comment</key>
-      <string>Use alpha masks where appropriate, in the deferred ('Lighting and Shadows') graphics mode</string>
+      <string>Use alpha masks where appropriate in the Advanced Lighting Model</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12461,17 +12481,6 @@
       <key>Value</key>
       <integer>3</integer>
     </map>
-    <key>UpdaterWillingToTest</key>
-    <map>
-      <key>Comment</key>
-      <string>Allow upgrades to release candidate viewers with new features and fixes.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>UpdaterServiceCheckPeriod</key>
     <map>
       <key>Comment</key>
@@ -12855,7 +12864,6 @@
       <key>Type</key>
       <string>LLSD</string>
       <key>Value</key>
-      <string/>
     </map>
     <key>VFSOldSize</key>
     <map>
@@ -14523,6 +14531,17 @@
     <string>U32</string>
     <key>Value</key>
     <integer>7000</integer>
+  </map>
+  <key>DisablePrecacheDelayAfterTeleporting</key>
+  <map>
+    <key>Comment</key>
+    <string>Disables the artificial delay in the viewer that precaches some incoming assets</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
   </map>
 </map>
 </llsd>

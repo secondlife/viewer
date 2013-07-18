@@ -135,7 +135,7 @@ U8* LLVFile::readFile(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type, S
 		data = NULL;
 	}
 	else
-	{		
+	{
 		data = (U8*) ll_aligned_malloc_16(file_size);
 		file.read(data, file_size);	/* Flawfinder: ignore */ 
 		

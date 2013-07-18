@@ -137,7 +137,7 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
 	//{
 	//	printable_params["params"]["passwd"] = "*******";
 	//}
-    LL_DEBUGS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName(self)
+	LL_DEBUGS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName(self)
                         << " with uri '" << uri << "', parameters " << printable_params << LL_ENDL;
 
 	// Arriving in SRVRequest state
@@ -146,23 +146,23 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
 
     LLSD rewrittenURIs;
     {
-        LLEventTimeout filter(replyPump);
-        sendProgressEvent("offline", "srvrequest");
+		LLEventTimeout filter(replyPump);
+		sendProgressEvent("offline", "srvrequest");
 
-        // Request SRV record.
-        LL_DEBUGS("LLLogin") << "Requesting SRV record from " << uri << LL_ENDL;
+      // Request SRV record.
+		LL_DEBUGS("LLLogin") << "Requesting SRV record from " << uri << LL_ENDL;
 
-        // *NOTE:Mani - Completely arbitrary default timeout value for SRV request.
+      // *NOTE:Mani - Completely arbitrary default timeout value for SRV request.
 		F32 seconds_to_timeout = 5.0f;
 		if(login_params.has("cfg_srv_timeout"))
 		{
 			seconds_to_timeout = login_params["cfg_srv_timeout"].asReal();
 		}
 
-        // If the SRV request times out (e.g. EXT-3934), simulate response: an
-        // array containing our original URI.
-        LLSD fakeResponse(LLSD::emptyArray());
-        fakeResponse.append(uri);
+		// If the SRV request times out (e.g. EXT-3934), simulate response: an
+		// array containing our original URI.
+		LLSD fakeResponse(LLSD::emptyArray());
+		fakeResponse.append(uri);
 		filter.eventAfter(seconds_to_timeout, fakeResponse);
 
 		std::string srv_pump_name = "LLAres";
@@ -172,13 +172,13 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
 		}
 
 		// Make request
-        LLSD request;
-        request["op"] = "rewriteURI";
-        request["uri"] = uri;
-        request["reply"] = replyPump.getName();
-        rewrittenURIs = postAndWait(self, request, srv_pump_name, filter);
-        // EXP-772: If rewrittenURIs fail, try original URI as a fallback.
-        rewrittenURIs.append(uri);
+		LLSD request;
+		request["op"] = "rewriteURI";
+		request["uri"] = uri;
+		request["reply"] = replyPump.getName();
+		rewrittenURIs = postAndWait(self, request, srv_pump_name, filter);
+		// EXP-772: If rewrittenURIs fail, try original URI as a fallback.
+		rewrittenURIs.append(uri);
     } // we no longer need the filter
 
     LLEventPump& xmlrpcPump(LLEventPumps::instance().obtain("LLXMLRPCTransaction"));
@@ -230,7 +230,7 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
                 // Still Downloading -- send progress update.
                 sendProgressEvent("offline", "downloading");
             }
-				 
+	
 			LL_DEBUGS("LLLogin") << "Auth Response: " << mAuthResponse << LL_ENDL;
             status = mAuthResponse["status"].asString();
 
