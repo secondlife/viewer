@@ -30,10 +30,8 @@
    height="16"
    left="9"
    name="account_name_label"
-   type="string">
-    [secondlife:/// Philippe Bossut]
-  </text>
-
+   parse_urls="true"
+   type="string"/>
   <panel
     layout="topleft"
     name="panel_buttons"

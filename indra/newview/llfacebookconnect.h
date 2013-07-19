@@ -58,12 +58,15 @@ public:
 	void disconnectFromFacebook();																	// Disconnect from the FBC service.
     void checkConnectionToFacebook(bool auto_connect = false);										// Check if an access token is available on the FBC service. If not, call connectToFacebook().
     
+	void loadFacebookInfo();
     void loadFacebookFriends();
 	void postCheckin(const std::string& location, const std::string& name, const std::string& description, const std::string& picture, const std::string& message);
     void sharePhoto(const std::string& image_url, const std::string& caption);
 	void sharePhoto(LLPointer<LLImageFormatted> image, const std::string& caption);
 	void updateStatus(const std::string& message);
 	
+	void storeInfo(const LLSD& info);
+	const LLSD& getInfo() const;
     void clearContent();
 	void storeContent(const LLSD& content);
     const LLSD& getContent() const;
@@ -84,10 +87,12 @@ private:
  	std::string getFacebookConnectURL(const std::string& route = "");
    
     EConnectionState mConnectionState;
+	LLSD mInfo;
     LLSD mContent;
     S32  mGeneration;
 	
 	static boost::scoped_ptr<LLEventPump> sStateWatcher;
+	static boost::scoped_ptr<LLEventPump> sInfoWatcher;
 	static boost::scoped_ptr<LLEventPump> sContentWatcher;
 };
 

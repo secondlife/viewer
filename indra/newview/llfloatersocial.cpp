@@ -650,6 +650,11 @@ void LLSocialAccountPanel::onVisibilityChange(const LLSD& new_visibility)
 		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialAccountPanel");
 		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialAccountPanel", boost::bind(&LLSocialAccountPanel::onFacebookConnectStateChange, this, _1));
 
+		LLFacebookConnect::instance().loadFacebookInfo();
+
+		LLEventPumps::instance().obtain("FacebookConnectInfo").stopListening("LLSocialAccountPanel");
+		LLEventPumps::instance().obtain("FacebookConnectInfo").listen("LLSocialAccountPanel", boost::bind(&LLSocialAccountPanel::onFacebookConnectInfoChange, this));
+
 		if(LLFacebookConnect::instance().isConnected())
 		{
 			showConnectedLayout();
@@ -663,6 +668,7 @@ void LLSocialAccountPanel::onVisibilityChange(const LLSD& new_visibility)
 	else
 	{
 		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialAccountPanel");
+		LLEventPumps::instance().obtain("FacebookConnectInfo").stopListening("LLSocialAccountPanel");
 	}
 }
 
@@ -683,6 +689,21 @@ bool LLSocialAccountPanel::onFacebookConnectStateChange(const LLSD& data)
 			showDisconnectedLayout();
 			break;
 	}
+
+	return false;
+}
+
+bool LLSocialAccountPanel::onFacebookConnectInfoChange()
+{
+	LLSD info = LLFacebookConnect::instance().getInfo();
+	std::string clickable_name;
+
+	if(info.has("link") && info.has("name"))
+	{
+		clickable_name = "[" + info["link"].asString() + " " + info["name"].asString() + "]";
+	}
+
+	mAccountNameLabel->setText(clickable_name);
 
 	return false;
 }
@@ -726,8 +747,9 @@ void LLSocialAccountPanel::showDisconnectedLayout()
 
 void LLSocialAccountPanel::showConnectedLayout()
 {
+	LLFacebookConnect::instance().loadFacebookInfo();
+
 	mAccountCaptionLabel->setText(getString("facebook_connected"));
-	mAccountNameLabel->setText(std::string("[secondlife:/// Philippe Bossut]"));
 	hideConnectButton();
 }
 
