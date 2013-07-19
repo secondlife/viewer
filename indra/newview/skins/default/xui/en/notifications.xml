@@ -6273,12 +6273,21 @@ You can only claim public land in the Region you&apos;re in.
   <notification
    icon="notify.tga"
    name="RegionTPAccessBlocked"
-   persist="true"
+   persist="false"
    type="notify">
    <tag>fail</tag>
     The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
   </notification>
 
+  <notification
+   icon="notify.tga"
+   name="RegionAboutToShutdown"
+   persist="false"
+   type="notify">
+    <tag>fail</tag>
+    The region you're trying to enter is about to shut down.
+  </notification>
+  
   <notification
 	icon="notify.tga"
 	name="URBannedFromRegion"
