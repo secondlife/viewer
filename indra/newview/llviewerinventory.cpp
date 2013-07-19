@@ -1166,6 +1166,49 @@ void move_inventory_item(
 	gAgent.sendReliableMessage();
 }
 
+// Should call this with an update_item that's been copied and
+// modified from an original source item, rather than modifying the
+// source item directly.
+void update_inventory_item(
+	LLViewerInventoryItem *update_item,
+	LLPointer<LLInventoryCallback> cb)
+{
+	const LLUUID& item_id = update_item->getUUID();
+	bool ais_ran = false;
+	if (AISCommand::isAPIAvailable())
+	{
+		LLSD updates = update_item->asLLSD();
+		LLPointer<AISCommand> cmd_ptr = new UpdateItemCommand(item_id, updates, cb);
+		ais_ran = cmd_ptr->run_command();
+	}
+	if (!ais_ran)
+	{
+		LLPointer<LLViewerInventoryItem> obj = gInventory.getItem(item_id);
+		LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << (update_item ? update_item->getName() : "(NOT FOUND)") << llendl;
+		if(obj)
+		{
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessageFast(_PREHASH_UpdateInventoryItem);
+			msg->nextBlockFast(_PREHASH_AgentData);
+			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			msg->addUUIDFast(_PREHASH_TransactionID, update_item->getTransactionID());
+			msg->nextBlockFast(_PREHASH_InventoryData);
+			msg->addU32Fast(_PREHASH_CallbackID, 0);
+			update_item->packMessage(msg);
+			gAgent.sendReliableMessage();
+
+			LLInventoryModel::LLCategoryUpdate up(update_item->getParentUUID(), 0);
+			gInventory.accountForUpdate(up);
+			gInventory.updateItem(update_item);
+			if (cb)
+			{
+				cb->fire(item_id);
+			}
+		}
+	}
+}
+
 // Note this only supports updating an existing item. Goes through AISv3
 // code path where available. Not all uses of item->updateServer() can
 // easily be switched to this paradigm.

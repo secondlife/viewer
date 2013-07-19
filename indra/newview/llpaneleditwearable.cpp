@@ -1079,13 +1079,8 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
 
         if (force_save_as)
         {
-			// FIXME race condition if removeCOFItemLinks does not
-			// complete immediately.  Looks like we're counting on the
-			// fact that updateAppearanceFromCOF will get called after
-			// we exit customize mode.
-
 			// the name of the wearable has changed, re-save wearable with new name
-			LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID());
+			LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID(),gAgentAvatarp->mEndCustomizeCallback);
 			gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, new_name, description, FALSE);
 			mNameEditor->setText(mWearableItem->getName());
         }
@@ -1096,24 +1091,19 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
 			// version so texture baking service knows appearance has changed.
 			if (link_item)
 			{
-				// FIXME - two link-modifying calls here plus one
-				// inventory change request, none of which use a
-				// callback. When does a new appearance request go out
-				// and how is it synced with these changes?  As above,
-				// we seem to be implicitly depending on
-				// updateAppearanceFromCOF() to be called when we
-				// exit customize mode.
-
 				// Create new link
+				LL_DEBUGS("Avatar") << "link refresh, creating new link to " << link_item->getLinkedUUID()
+									<< " removing old link at " << link_item->getUUID()
+									<< " wearable item id " << mWearablePtr->getItemID() << llendl;
 				link_inventory_item( gAgent.getID(),
 									 link_item->getLinkedUUID(),
 									 LLAppearanceMgr::instance().getCOF(),
 									 link_item->getName(),
 									 description,
 									 LLAssetType::AT_LINK,
-									 NULL);
+									 gAgentAvatarp->mEndCustomizeCallback);
 				// Remove old link
-				remove_inventory_item(link_item->getUUID(), NULL);
+				remove_inventory_item(link_item->getUUID(), gAgentAvatarp->mEndCustomizeCallback);
 			}
 			gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
         }

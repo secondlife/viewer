@@ -209,7 +209,7 @@ LLAgentWearables::sendAgentWearablesUpdateCallback::~sendAgentWearablesUpdateCal
  * @param wearable The wearable data.
  * @param todo Bitmask of actions to take on completion.
  */
-LLAgentWearables::addWearableToAgentInventoryCallback::addWearableToAgentInventoryCallback(
+LLAgentWearables::AddWearableToAgentInventoryCallback::AddWearableToAgentInventoryCallback(
 	LLPointer<LLRefCount> cb, LLWearableType::EType type, U32 index, LLViewerWearable* wearable, U32 todo, const std::string description) :
 	mType(type),
 	mIndex(index),	
@@ -221,7 +221,7 @@ LLAgentWearables::addWearableToAgentInventoryCallback::addWearableToAgentInvento
 	llinfos << "constructor" << llendl;
 }
 
-void LLAgentWearables::addWearableToAgentInventoryCallback::fire(const LLUUID& inv_item)
+void LLAgentWearables::AddWearableToAgentInventoryCallback::fire(const LLUUID& inv_item)
 {
 	if (mTodo & CALL_CREATESTANDARDDONE)
 	{
@@ -317,12 +317,12 @@ void LLAgentWearables::sendAgentWearablesUpdate()
 				if (wearable->getItemID().isNull())
 				{
 					LLPointer<LLInventoryCallback> cb =
-						new addWearableToAgentInventoryCallback(
+						new AddWearableToAgentInventoryCallback(
 							LLPointer<LLRefCount>(NULL),
 							(LLWearableType::EType)type,
 							index,
 							wearable,
-							addWearableToAgentInventoryCallback::CALL_NONE);
+							AddWearableToAgentInventoryCallback::CALL_NONE);
 					addWearableToAgentInventory(cb, wearable);
 				}
 				else
@@ -419,23 +419,18 @@ void LLAgentWearables::saveWearable(const LLWearableType::EType type, const U32 
 										  item->getFlags(),
 										  item->getCreationDate());
 			template_item->setTransactionID(new_wearable->getTransactionID());
-			template_item->updateServer(FALSE);
-			gInventory.updateItem(template_item);
-			if (name_changed)
-			{
-				gInventory.notifyObservers();
-			}
+			update_inventory_item(template_item, gAgentAvatarp->mEndCustomizeCallback);
 		}
 		else
 		{
 			// Add a new inventory item (shouldn't ever happen here)
-			U32 todo = addWearableToAgentInventoryCallback::CALL_NONE;
+			U32 todo = AddWearableToAgentInventoryCallback::CALL_NONE;
 			if (send_update)
 			{
-				todo |= addWearableToAgentInventoryCallback::CALL_UPDATE;
+				todo |= AddWearableToAgentInventoryCallback::CALL_UPDATE;
 			}
 			LLPointer<LLInventoryCallback> cb =
-				new addWearableToAgentInventoryCallback(
+				new AddWearableToAgentInventoryCallback(
 					LLPointer<LLRefCount>(NULL),
 					type,
 					index,
@@ -484,12 +479,12 @@ void LLAgentWearables::saveWearableAs(const LLWearableType::EType type,
 		old_wearable,
 		trunc_name);
 	LLPointer<LLInventoryCallback> cb =
-		new addWearableToAgentInventoryCallback(
+		new AddWearableToAgentInventoryCallback(
 			LLPointer<LLRefCount>(NULL),
 			type,
 			index,
 			new_wearable,
-			addWearableToAgentInventoryCallback::CALL_WEARITEM,
+			AddWearableToAgentInventoryCallback::CALL_WEARITEM,
 			description
 			);
 	LLUUID category_id;
@@ -909,12 +904,12 @@ void LLAgentWearables::recoverMissingWearable(const LLWearableType::EType type, 
 	// destory content.) JC
 	const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
 	LLPointer<LLInventoryCallback> cb =
-		new addWearableToAgentInventoryCallback(
+		new AddWearableToAgentInventoryCallback(
 			LLPointer<LLRefCount>(NULL),
 			type,
 			index,
 			new_wearable,
-			addWearableToAgentInventoryCallback::CALL_RECOVERDONE);
+			AddWearableToAgentInventoryCallback::CALL_RECOVERDONE);
 	addWearableToAgentInventory(cb, new_wearable, lost_and_found_id, TRUE);
 }
 

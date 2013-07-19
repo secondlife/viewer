@@ -2978,6 +2978,11 @@ void LLVOAvatarSelf::onCustomizeStart(bool disable_camera_switch)
 {
 	if (isAgentAvatarValid())
 	{
+		if (!gAgentAvatarp->mEndCustomizeCallback.get())
+		{
+			gAgentAvatarp->mEndCustomizeCallback = new LLUpdateAppearanceOnDestroy;
+		}
+		
 		gAgentAvatarp->mIsEditingAppearance = true;
 		gAgentAvatarp->mUseLocalAppearance = true;
 
@@ -3017,8 +3022,11 @@ void LLVOAvatarSelf::onCustomizeEnd(bool disable_camera_switch)
 			gAgentCamera.changeCameraToDefault();
 			gAgentCamera.resetView();
 		}
-	
-		LLAppearanceMgr::instance().updateAppearanceFromCOF();	
+
+		// Dereferencing the previous callback will cause
+		// updateAppearanceFromCOF to be called, whenever all refs
+		// have resolved.
+		gAgentAvatarp->mEndCustomizeCallback = NULL;
 	}
 }
 

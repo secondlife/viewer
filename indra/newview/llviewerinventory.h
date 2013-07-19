@@ -369,6 +369,10 @@ void move_inventory_item(
 	LLPointer<LLInventoryCallback> cb);
 
 void update_inventory_item(
+	LLViewerInventoryItem *update_item,
+	LLPointer<LLInventoryCallback> cb);
+
+void update_inventory_item(
 	const LLUUID& item_id,
 	const LLSD& updates,
 	LLPointer<LLInventoryCallback> cb);

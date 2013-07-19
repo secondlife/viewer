@@ -32,6 +32,7 @@
 #include "llvoavatar.h"
 
 struct LocalTextureData;
+class LLInventoryCallback;
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -342,6 +343,7 @@ private:
 public:
 	static void		onCustomizeStart(bool disable_camera_switch = false);
 	static void		onCustomizeEnd(bool disable_camera_switch = false);
+	LLPointer<LLInventoryCallback> mEndCustomizeCallback;
 
 	//--------------------------------------------------------------------
 	// Visibility

@@ -249,7 +249,7 @@ private:
 		~sendAgentWearablesUpdateCallback();
 	};
 
-	class addWearableToAgentInventoryCallback : public LLInventoryCallback
+	class AddWearableToAgentInventoryCallback : public LLInventoryCallback
 	{
 	public:
 		enum ETodo
@@ -262,7 +262,7 @@ private:
 			CALL_WEARITEM = 16
 		};
 
-		addWearableToAgentInventoryCallback(LLPointer<LLRefCount> cb,
+		AddWearableToAgentInventoryCallback(LLPointer<LLRefCount> cb,
 											LLWearableType::EType type,
 											U32 index,
 											LLViewerWearable* wearable,
