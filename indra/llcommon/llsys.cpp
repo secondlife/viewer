@@ -1396,13 +1396,13 @@ public:
                     << " seconds ";
         }
 
-		S32 precision = LL_CONT.precision();
+	S32 precision = LL_CONT.precision();
 
         LL_CONT << std::fixed << std::setprecision(1) << framerate << '\n'
                 << LLMemoryInfo();
 
-		LL_CONT.precision(precision);
-		LL_CONT << LL_ENDL;
+	LL_CONT.precision(precision);
+	LL_CONT << LL_ENDL;
         return false;
     }
 

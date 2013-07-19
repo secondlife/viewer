@@ -72,8 +72,8 @@ private:
 	void generateDitheringTexture(S32 width, S32 height);
 
 private:
-	bool mEnabled;
-	bool mDebugViewerVisible;
+	bool									mEnabled,
+											mDebugViewerVisible;
 
 	enum EDiffState
 	{
@@ -82,27 +82,27 @@ private:
 		EXECUTE_DIFF,
 		WAIT_ON_RESULT,
 		VIEWER_QUITTING
-	}	mDiffState;
+	}										mDiffState;
 
-	LLRenderTarget* mFrames[2];
-	LLRenderTarget* mDiff;
+	LLRenderTarget*							mFrames[2];
+	LLRenderTarget*							mDiff;
 
-	GLuint  mQueryObject; //used for glQuery
-	F32     mDiffResult;  //aggregate results of mDiff.
-	F32     mDiffTolerance; //pixels are filtered out when R+G+B < mDiffTolerance
+	GLuint									mQueryObject; //used for glQuery
+	F32										mDiffResult,  //aggregate results of mDiff.
+											mDiffTolerance, //pixels are filtered out when R+G+B < mDiffTolerance
+											mDiffPixelRatio; //ratio of pixels used for comparison against the original mDiff size along one dimension
 
-	F32     mDiffPixelRatio; //ratio of pixels used for comparison against the original mDiff size along one dimension
+	LLPointer<LLViewerTexture>				mDitheringTexture;
+	S32										mDitherMatrixWidth;
+	F32										mDitherScale,
+											mDitherScaleS,
+											mDitherScaleT;
 
-	LLPointer<LLViewerTexture> mDitheringTexture;
-	S32                        mDitherMatrixWidth;
-	F32                        mDitherScale;
-	F32                        mDitherScaleS;
-	F32                        mDitherScaleT;
+	std::vector<LLAnimPauseRequest>			mAvatarPauseHandles;
 
-	std::vector<LLAnimPauseRequest> mAvatarPauseHandles;
-
-	LLTrace::ExtendablePeriodicRecording mSceneLoadRecording;
-	LLTrace::Recording					 mMonitorRecording;
+	LLFrameTimer							mRecordingTimer;
+	LLTrace::ExtendablePeriodicRecording	mSceneLoadRecording;
+	LLTrace::Recording						mMonitorRecording;
 };
 
 class LLSceneMonitorView : public LLFloater

@@ -51,9 +51,9 @@ U32 wpo2(U32 i);
 
 U32 LLImageGL::sUniqueCount				= 0;
 U32 LLImageGL::sBindCount				= 0;
-LLUnit<S32, LLUnits::Bytes> LLImageGL::sGlobalTextureMemory		= 0;
-LLUnit<S32, LLUnits::Bytes> LLImageGL::sBoundTextureMemory		= 0;
-LLUnit<S32, LLUnits::Bytes> LLImageGL::sCurBoundTextureMemory	= 0;
+LLUnit<S32, LLUnits::Bytes> LLImageGL::sGlobalTextureMemory(0);
+LLUnit<S32, LLUnits::Bytes> LLImageGL::sBoundTextureMemory(0);
+LLUnit<S32, LLUnits::Bytes> LLImageGL::sCurBoundTextureMemory(0);
 S32 LLImageGL::sCount					= 0;
 LLImageGL::dead_texturelist_t LLImageGL::sDeadTextureList[LLTexUnit::TT_NONE];
 U32 LLImageGL::sCurTexName = 1;
@@ -249,7 +249,7 @@ void LLImageGL::updateStats(F32 current_time)
 	LLFastTimer t(FTM_IMAGE_UPDATE_STATS);
 	sLastFrameTime = current_time;
 	sBoundTextureMemory = sCurBoundTextureMemory;
-	sCurBoundTextureMemory = 0;
+	sCurBoundTextureMemory = LLUnits::Bytes::fromValue(0);
 }
 
 //static

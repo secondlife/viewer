@@ -111,9 +111,9 @@ static timer_tree_dfs_iterator_t end_timer_tree()
 struct SortTimerByName
 {
 	bool operator()(const TimeBlock* i1, const TimeBlock* i2)
-	{
+        {
 		return i1->getName() < i2->getName();
-	}
+        }
 };
 
 TimeBlock& TimeBlock::getRootTimeBlock()
@@ -227,17 +227,17 @@ void TimeBlock::incrementalUpdateTimerTree()
 
 			if (accumulator->mMoveUpTree)
 			{
-					// since ancestors have already been visited, re-parenting won't affect tree traversal
+				// since ancestors have already been visited, re-parenting won't affect tree traversal
 				//step up tree, bringing our descendants with us
 				LL_DEBUGS("FastTimers") << "Moving " << timerp->getName() << " from child of " << timerp->getParent()->getName() <<
 					" to child of " << timerp->getParent()->getParent()->getName() << LL_ENDL;
 				timerp->setParent(timerp->getParent()->getParent());
-					accumulator->mParent = timerp->getParent();
-					accumulator->mMoveUpTree = false;
+				accumulator->mParent = timerp->getParent();
+				accumulator->mMoveUpTree = false;
 
 				// don't bubble up any ancestors until descendants are done bubbling up
-					// as ancestors may call this timer only on certain paths, so we want to resolve
-					// child-most block locations before their parents
+				// as ancestors may call this timer only on certain paths, so we want to resolve
+				// child-most block locations before their parents
 				it.skipAncestors();
 			}
 		}
@@ -357,7 +357,7 @@ void TimeBlock::logStats()
 				// doesn't work correctly on the first frame
 				total_time += frame_recording.getLastRecording().getSum(timer);
 			}
-		}
+}
 
 		sd["Total"]["Time"] = (LLSD::Real) total_time.value();
 		sd["Total"]["Calls"] = (LLSD::Integer) 1;
@@ -366,7 +366,7 @@ void TimeBlock::logStats()
 			LLMutexLock lock(sLogLock);
 			sLogQueue.push(sd);
 		}
-	}
+}
 
 }
 
@@ -413,7 +413,7 @@ void TimeBlock::writeLog(std::ostream& os)
 		LLSDSerialize::toXML(sd, os);
 		LLMutexLock lock(sLogLock);
 		sLogQueue.pop();
-	}
+			}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -470,7 +470,7 @@ LLUnit<F64, LLUnits::Seconds> BlockTimer::getElapsedTime()
 {
 	U64 total_time = TimeBlock::getCPUClockCount64() - mStartTime;
 
-	return (F64)total_time / (F64)TimeBlock::countsPerSecond();
+	return LLUnits::Seconds::fromValue((F64)total_time / (F64)TimeBlock::countsPerSecond());
 }
 
 

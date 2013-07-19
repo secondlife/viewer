@@ -34,6 +34,7 @@
 #include "lltimer.h"
 #include "llrefcount.h"
 #include "llthreadlocalstorage.h"
+#include <limits>
 
 namespace LLTrace
 {

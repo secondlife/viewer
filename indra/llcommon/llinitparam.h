@@ -38,6 +38,7 @@
 #include "llerror.h"
 #include "llstl.h"
 #include "llpredicate.h"
+#include "llsd.h"
 
 namespace LLTypeTags
 {

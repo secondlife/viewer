@@ -42,12 +42,11 @@
 #include "llstring.h"
 #include "llstringtable.h"
 #include "llfile.h"
-
+#include "lluuid.h"
 
 class LLVector3;
 class LLVector3d;
 class LLQuaternion;
-class LLUUID;
 class LLColor4;
 class LLColor4U;
 

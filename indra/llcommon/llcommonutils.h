@@ -27,6 +27,8 @@
 #ifndef LL_LLCOMMONUTILS_H
 #define LL_LLCOMMONUTILS_H
 
+#include "lluuid.h"
+
 namespace LLCommonUtils
 {
 	/**

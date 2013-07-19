@@ -141,8 +141,17 @@ protected:
 template<typename STORAGE_TYPE, typename UNIT_TYPE>
 std::ostream& operator <<(std::ostream& s, const LLUnit<STORAGE_TYPE, UNIT_TYPE>& unit)
 {
-	s << unit.value() << UNIT_TYPE::getUnitLabel();
-	return s;
+        s << unit.value() << UNIT_TYPE::getUnitLabel();
+        return s;
+}
+
+template<typename STORAGE_TYPE, typename UNIT_TYPE>
+std::istream& operator >>(std::istream& s, LLUnit<STORAGE_TYPE, UNIT_TYPE>& unit)
+{
+        STORAGE_TYPE val;
+        s >> val;
+        unit = val;
+        return s;
 }
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE>
@@ -172,8 +181,17 @@ struct LLUnitImplicit : public LLUnit<STORAGE_TYPE, UNIT_TYPE>
 template<typename STORAGE_TYPE, typename UNIT_TYPE>
 std::ostream& operator <<(std::ostream& s, const LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE>& unit)
 {
-	s << unit.value() << UNIT_TYPE::getUnitLabel();
-	return s;
+        s << unit.value() << UNIT_TYPE::getUnitLabel();
+        return s;
+}
+
+template<typename STORAGE_TYPE, typename UNIT_TYPE>
+std::istream& operator >>(std::istream& s, LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE>& unit)
+{
+        STORAGE_TYPE val;
+        s >> val;
+        unit = val;
+        return s;
 }
 
 template<typename S, typename T> 
@@ -201,7 +219,7 @@ LL_FORCE_INLINE void ll_convert_units(LLUnit<S1, T1> in, LLUnit<S2, T2>& out, ..
 
 		{
 			// T1 and T2 fully reduced and equal...just copy
-			out = (S2)in.value();
+			out = LLUnit<S2, T2>((S2)in.value());
 		}
 		else
 		{
@@ -447,33 +465,33 @@ template<typename VALUE_TYPE>
 struct LLUnitLinearOps
 {
 	typedef LLUnitLinearOps<VALUE_TYPE> self_t;
-	LLUnitLinearOps(VALUE_TYPE val) : mValue (val) {}
+	LLUnitLinearOps(VALUE_TYPE val) : mResult (val) {}
 
-	operator VALUE_TYPE() const { return mValue; }
-	VALUE_TYPE mValue;
+	operator VALUE_TYPE() const { return mResult; }
+	VALUE_TYPE mResult;
 
 	template<typename T>
 	self_t operator * (T other)
 	{
-		return mValue * other;
+		return mResult * other;
 	}
 
 	template<typename T>
 	self_t operator / (T other)
 	{
-		return mValue / other;
+		return mResult / other;
 	}
 
 	template<typename T>
 	self_t operator + (T other)
 	{
-		return mValue + other;
+		return mResult + other;
 	}
 
 	template<typename T>
 	self_t operator - (T other)
 	{
-		return mValue - other;
+		return mResult - other;
 	}
 };
 
@@ -482,32 +500,32 @@ struct LLUnitInverseLinearOps
 {
 	typedef LLUnitInverseLinearOps<VALUE_TYPE> self_t;
 
-	LLUnitInverseLinearOps(VALUE_TYPE val) : mValue (val) {}
-	operator VALUE_TYPE() const { return mValue; }
-	VALUE_TYPE mValue;
+	LLUnitInverseLinearOps(VALUE_TYPE val) : mResult (val) {}
+	operator VALUE_TYPE() const { return mResult; }
+	VALUE_TYPE mResult;
 
 	template<typename T>
 	self_t operator * (T other)
 	{
-		return mValue / other;
+		return mResult / other;
 	}
 
 	template<typename T>
 	self_t operator / (T other)
 	{
-		return mValue * other;
+		return mResult * other;
 	}
 
 	template<typename T>
 	self_t operator + (T other)
 	{
-		return mValue - other;
+		return mResult - other;
 	}
 
 	template<typename T>
 	self_t operator - (T other)
 	{
-		return mValue + other;
+		return mResult + other;
 	}
 };
 
@@ -521,35 +539,31 @@ struct base_unit_name                                                           
 	template<typename STORAGE_T, typename UNIT_T>                                                    \
 	static LLUnit<STORAGE_T, base_unit_name> fromValue(LLUnit<STORAGE_T, UNIT_T> value)              \
 	{ return LLUnit<STORAGE_T, base_unit_name>(value); }                                             \
-};                                                                                                   \
-template<typename T> std::ostream& operator<<(std::ostream& s, const LLUnit<T, base_unit_name>& val) \
-{ s << val.value() << base_unit_name::getUnitLabel; return s; }
+}
 
 
-#define LL_DECLARE_DERIVED_UNIT(unit_name, unit_label, base_unit_name, conversion_operation)	 \
-struct unit_name                                                                                 \
-{                                                                                                \
-	typedef base_unit_name base_unit_t;                                                          \
-	static const char* getUnitLabel() { return unit_label; }									 \
-	template<typename T>                                                                         \
-	static LLUnit<T, unit_name> fromValue(T value) { return LLUnit<T, unit_name>(value); }		 \
-	template<typename STORAGE_T, typename UNIT_T>                                                \
-	static LLUnit<STORAGE_T, unit_name> fromValue(LLUnit<STORAGE_T, UNIT_T> value)				 \
-	{ return LLUnit<STORAGE_T, unit_name>(value); }												 \
-};                                                                                               \
-template<typename T> std::ostream& operator<<(std::ostream& s, const LLUnit<T, unit_name>& val)  \
-{ s << val.value() << unit_name::getUnitLabel; return s; }                                       \
-	                                                                                             \
-template<typename S1, typename S2>                                                               \
-void ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)                 \
-{                                                                                                \
-	out = (S2)(LLUnitLinearOps<S1>(in.value()) conversion_operation).mValue;                     \
-}                                                                                                \
-                                                                                                 \
-template<typename S1, typename S2>                                                               \
-void ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, unit_name>& out)                 \
-{                                                                                                \
-	out = (S2)(LLUnitInverseLinearOps<S1>(in.value()) conversion_operation).mValue;              \
+#define LL_DECLARE_DERIVED_UNIT(unit_name, unit_label, base_unit_name, conversion_operation)	    \
+struct unit_name                                                                                    \
+{                                                                                                   \
+	typedef base_unit_name base_unit_t;                                                             \
+	static const char* getUnitLabel() { return unit_label; }									    \
+	template<typename T>                                                                            \
+	static LLUnit<T, unit_name> fromValue(T value) { return LLUnit<T, unit_name>(value); }		    \
+	template<typename STORAGE_T, typename UNIT_T>                                                   \
+	static LLUnit<STORAGE_T, unit_name> fromValue(LLUnit<STORAGE_T, UNIT_T> value)				    \
+	{ return LLUnit<STORAGE_T, unit_name>(value); }												    \
+};                                                                                                  \
+	                                                                                                \
+template<typename S1, typename S2>                                                                  \
+void ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)                    \
+{                                                                                                   \
+	out = LLUnit<S2, base_unit_name>((S2)(LLUnitLinearOps<S1>(in.value()) conversion_operation));   \
+}                                                                                                   \
+                                                                                                    \
+template<typename S1, typename S2>                                                                  \
+void ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, unit_name>& out)                    \
+{                                                                                                   \
+	out = LLUnit<S2, unit_name>((S2)(LLUnitInverseLinearOps<S1>(in.value()) conversion_operation)); \
 }                                                                                               
 
 //

@@ -89,6 +89,7 @@ void LLSceneMonitor::reset()
 
 	mMonitorRecording.reset();
 	mSceneLoadRecording.reset();
+	mRecordingTimer.reset();
 
 	unfreezeScene();
 
@@ -259,7 +260,6 @@ void LLSceneMonitor::capture()
 	static U32 last_capture_frame = 0;
 	static LLCachedControl<bool> monitor_enabled(gSavedSettings, "SceneLoadingMonitorEnabled");
 	static LLCachedControl<F32>  scene_load_sample_time(gSavedSettings, "SceneLoadingMonitorSampleTime");
-	static LLFrameTimer timer;	
 	static bool force_capture = true;
 
 	bool enabled = monitor_enabled || mDebugViewerVisible;
@@ -288,7 +288,7 @@ void LLSceneMonitor::capture()
 		force_capture = true;
 	}
 
-	if((timer.getElapsedTimeF32() > scene_load_sample_time() 
+	if((mRecordingTimer.getElapsedTimeF32() > scene_load_sample_time() 
 			|| force_capture)
 		&& mEnabled
 		&& LLGLSLShader::sNoFixedFunction
@@ -298,8 +298,6 @@ void LLSceneMonitor::capture()
 
 		mSceneLoadRecording.resume();
 		mMonitorRecording.resume();
-
-		timer.reset();
 
 		last_capture_frame = gFrameCount;
 
@@ -467,7 +465,6 @@ void LLSceneMonitor::fetchQueryResult()
 
 	// also throttle timing here, to avoid going below sample time due to phasing with frame capture
 	static LLCachedControl<F32>  scene_load_sample_time(gSavedSettings, "SceneLoadingMonitorSampleTime");
-	static LLFrameTimer timer;	
 
 	if(mDiffState == WAIT_ON_RESULT 
 		&& !LLAppViewer::instance()->quitRequested())
@@ -483,11 +480,11 @@ void LLSceneMonitor::fetchQueryResult()
 	
 			mDiffResult = sqrtf(count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * mDiffPixelRatio * mDiffPixelRatio)); //0.5 -> (front face + back face)
 
-			LL_DEBUGS("SceneMonitor") << "Frame difference: " << std::setprecision(4) << mDiffResult << LL_ENDL;
+			LL_DEBUGS("SceneMonitor") << "Frame difference: " << mDiffResult << LL_ENDL;
 			record(sFramePixelDiff, mDiffResult);
 
 			static LLCachedControl<F32> diff_threshold(gSavedSettings,"SceneLoadingPixelDiffThreshold");
-			F32 elapsed_time = timer.getElapsedTimeF32();
+			F32 elapsed_time = mRecordingTimer.getElapsedTimeF32();
 
 			if (elapsed_time > scene_load_sample_time)
 			{
@@ -501,10 +498,9 @@ void LLSceneMonitor::fetchQueryResult()
 				{
 					mSceneLoadRecording.nextPeriod();
 				}
+				mRecordingTimer.reset();
 			}
 		}
-
-		timer.reset();
 	}
 }
 
