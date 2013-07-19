@@ -125,14 +125,30 @@
       <icon
         name="media_secure_lock_flag"
         height="16"
-        follows="top|right"
+        follows="top|left"
         image_name="Lock2"
         layout="topleft"
-        left_delta="620"
+        left_delta="2"
         top_delta="2"
         visible="false" 
         tool_tip="Secured Browsing"
         width="16" />
+      <text
+         type="string"
+         length="1"
+         follows="left|top"
+         font="SansSerif"
+         font.size="Small"
+         height="16"
+         layout="topleft"
+         left_delta="18"
+         name="secured_prefix"
+         top_delta="3"
+         text_color="EmphasisColor"
+         visible="false"
+         width="100">
+        https
+      </text>
       <button
         image_overlay="ExternalBrowser_Off"
 		    image_disabled="PushButton_Disabled"

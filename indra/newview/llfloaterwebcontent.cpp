@@ -46,7 +46,9 @@ LLFloaterWebContent::_Params::_Params()
 	id("id"),
 	window_class("window_class", "web_content"),
 	show_chrome("show_chrome", true),
-	allow_address_entry("allow_address_entry", true),
+    allow_address_entry("allow_address_entry", true),
+    allow_back_forward_navigation("allow_back_forward_navigation", true),
+    save_url_history("save_url_history", true),
 	preferred_media_size("preferred_media_size"),
 	trusted_content("trusted_content", false),
 	show_page_title("show_page_title", true)
@@ -58,6 +60,7 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 	mWebBrowser(NULL),
 	mAddressCombo(NULL),
 	mSecureLockIcon(NULL),
+    mSecurePrefix(NULL),
 	mStatusBarText(NULL),
 	mStatusBarProgress(NULL),
 	mBtnBack(NULL),
@@ -65,7 +68,9 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 	mBtnReload(NULL),
 	mBtnStop(NULL),
 	mUUID(params.id()),
-	mShowPageTitle(params.show_page_title)
+	mShowPageTitle(params.show_page_title),
+    mAllowNavigation(true),
+    mSaveURLHistory(true)
 {
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
@@ -97,7 +102,8 @@ BOOL LLFloaterWebContent::postBuild()
 
 	// cache image for secure browsing
 	mSecureLockIcon = getChild< LLIconCtrl >("media_secure_lock_flag");
-
+	mSecurePrefix   = getChild< LLTextBox >( "secured_prefix" );
+    
 	// initialize the URL history using the system URL History manager
 	initializeURLHistory();
 
@@ -243,6 +249,8 @@ void LLFloaterWebContent::open_media(const Params& p)
 	getChild<LLLayoutPanel>("status_bar")->setVisible(p.show_chrome);
 	getChild<LLLayoutPanel>("nav_controls")->setVisible(p.show_chrome);
 	bool address_entry_enabled = p.allow_address_entry && !p.trusted_content;
+    mAllowNavigation = p.allow_back_forward_navigation;
+    mSaveURLHistory = p.save_url_history;
 	getChildView("address")->setEnabled(address_entry_enabled);
 	getChildView("popexternal")->setEnabled(address_entry_enabled);
 
@@ -295,8 +303,8 @@ void LLFloaterWebContent::onClose(bool app_quitting)
 void LLFloaterWebContent::draw()
 {
 	// this is asynchronous so we need to keep checking
-	mBtnBack->setEnabled( mWebBrowser->canNavigateBack() );
-	mBtnForward->setEnabled( mWebBrowser->canNavigateForward() );
+	mBtnBack->setEnabled( mWebBrowser->canNavigateBack() && mAllowNavigation);
+	mBtnForward->setEnabled( mWebBrowser->canNavigateForward() && mAllowNavigation);
 
 	LLFloater::draw();
 }
@@ -344,16 +352,28 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		mStatusBarText->setText( end_str );
 
 		// decide if secure browsing icon should be displayed
-		std::string prefix =  std::string("https://");
+		std::string prefix = std::string("https://");
 		std::string test_prefix = mCurrentURL.substr(0, prefix.length());
 		LLStringUtil::toLower(test_prefix);
-		if(test_prefix == prefix)
+		if (test_prefix == prefix)
 		{
 			mSecureLockIcon->setVisible(true);
+            mSecurePrefix->setVisible(true);
+            // Hack : we suppress the "https" prefix and move the text a bit
+            // to make space for the lock icon and the green "https" text.
+            // However, so not to confuse the list management, we're not adding
+            // that hacked url to the history. The full url is already in there.
+            std::string url = mCurrentURL;
+            url.replace(0,5,"");
+            url = "               " + url;
+            mAddressCombo->remove( url );
+            mAddressCombo->add( url );
+            mAddressCombo->selectByValue( url );
 		}
 		else
 		{
 			mSecureLockIcon->setVisible(false);
+            mSecurePrefix->setVisible(false);
 		}
 	}
 	else if(event == MEDIA_EVENT_CLOSE_REQUEST)
@@ -399,9 +419,12 @@ void LLFloaterWebContent::set_current_url(const std::string& url)
 {
 	mCurrentURL = url;
 
-	// serialize url history into the system URL History manager
-	LLURLHistory::removeURL("browser", mCurrentURL);
-	LLURLHistory::addURL("browser", mCurrentURL);
+    LLURLHistory::removeURL("browser", mCurrentURL);
+    if (mSaveURLHistory)
+    {
+        // serialize url history into the system URL History manager
+        LLURLHistory::addURL("browser", mCurrentURL);
+    }
 
 	mAddressCombo->remove( mCurrentURL );
 	mAddressCombo->add( mCurrentURL );

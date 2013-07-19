@@ -54,6 +54,8 @@ public:
 								id;
 		Optional<bool>			show_chrome,
 								allow_address_entry,
+                                allow_back_forward_navigation,
+                                save_url_history,
 								trusted_content,
 								show_page_title;
 		Optional<LLRect>		preferred_media_size;
@@ -97,6 +99,7 @@ protected:
 	LLMediaCtrl*	mWebBrowser;
 	LLComboBox*		mAddressCombo;
 	LLIconCtrl*		mSecureLockIcon;
+    LLTextBox*		mSecurePrefix;
 	LLTextBox*		mStatusBarText;
 	LLProgressBar*	mStatusBarProgress;
 
@@ -108,6 +111,8 @@ protected:
 	std::string		mCurrentURL;
 	std::string		mUUID;
 	bool			mShowPageTitle;
+    bool            mAllowNavigation;
+    bool            mSaveURLHistory;
 };
 
 #endif  // LL_LLFLOATERWEBCONTENT_H
