@@ -41,7 +41,6 @@ namespace LLTrace
 Recording::Recording(EPlayState state) 
 :	mElapsedSeconds(0),
 	mInHandOff(false)
-
 {
 	mBuffers = new AccumulatorBufferGroup();
 	setPlayState(state);
