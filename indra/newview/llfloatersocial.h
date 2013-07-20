@@ -122,12 +122,17 @@ public:
 	BOOL postBuild();
 
 private:
+	void onVisibilityChange(const LLSD& new_visibility);
+	bool onFacebookConnectStateChange(const LLSD& data);
+	bool onFacebookConnectInfoChange();
 	void onConnect();
 	void onUseAnotherAccount();
 	void onDisconnect();
 
 	void showConnectButton();
 	void hideConnectButton();
+	void showDisconnectedLayout();
+	void showConnectedLayout();
 
 	LLTextBox * mAccountCaptionLabel;
 	LLTextBox * mAccountNameLabel;

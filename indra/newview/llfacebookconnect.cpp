@@ -44,6 +44,7 @@
 #include "llfloaterreg.h"
 
 boost::scoped_ptr<LLEventPump> LLFacebookConnect::sStateWatcher(new LLEventStream("FacebookConnectState"));
+boost::scoped_ptr<LLEventPump> LLFacebookConnect::sInfoWatcher(new LLEventStream("FacebookConnectInfo"));
 boost::scoped_ptr<LLEventPump> LLFacebookConnect::sContentWatcher(new LLEventStream("FacebookConnectContent"));
 
 // Local functions
@@ -246,6 +247,36 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+class LLFacebookInfoResponder : public LLHTTPClient::Responder
+{
+	LOG_CLASS(LLFacebookInfoResponder);
+public:
+
+	virtual void completed(U32 status, const std::string& reason, const LLSD& info)
+	{
+		if (isGoodStatus(status))
+		{
+			llinfos << "Facebook: Info received" << llendl;
+			LL_DEBUGS("FacebookConnect") << "Getting Facebook info successful. info: " << info << LL_ENDL;
+			LLFacebookConnect::instance().storeInfo(info);
+		}
+		else
+		{
+			log_facebook_connect_error("Info", status, reason, info.get("error_code"), info.get("error_description"));
+		}
+	}
+
+	void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+	{
+		if (status == 302)
+		{
+			LLFacebookConnect::instance().openFacebookWeb(content["location"]);
+		}
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
 class LLFacebookFriendsResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLFacebookFriendsResponder);
@@ -331,6 +362,14 @@ void LLFacebookConnect::checkConnectionToFacebook(bool auto_connect)
         LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(auto_connect),
                           LLSD(), timeout, follow_redirects);
     }
+}
+
+void LLFacebookConnect::loadFacebookInfo()
+{
+	const bool follow_redirects = false;
+	const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
+	LLHTTPClient::get(getFacebookConnectURL("/info"), new LLFacebookInfoResponder(),
+		LLSD(), timeout, follow_redirects);
 }
 
 void LLFacebookConnect::loadFacebookFriends()
@@ -429,6 +468,17 @@ void LLFacebookConnect::updateStatus(const std::string& message)
 	
     // Note: we can use that route for different publish action. We should be able to use the same responder.
 	LLHTTPClient::post(getFacebookConnectURL("/share/wall"), body, new LLFacebookShareResponder());
+}
+
+void LLFacebookConnect::storeInfo(const LLSD& info)
+{
+	mInfo = info;
+	sInfoWatcher->post(info);
+}
+
+const LLSD& LLFacebookConnect::getInfo() const
+{
+	return mInfo;
 }
 
 void LLFacebookConnect::storeContent(const LLSD& content)
