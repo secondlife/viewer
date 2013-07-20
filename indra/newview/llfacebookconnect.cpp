@@ -321,7 +321,6 @@ void LLFacebookConnect::openFacebookWeb(std::string url)
     p.url(url).show_chrome(true);
     p.url(url).allow_address_entry(false);
     p.url(url).allow_back_forward_navigation(false);
-    p.url(url).save_url_history(false);
     p.url(url).trusted_content(true);
 	LLFloaterReg::showInstance("fbc_web", p);
 

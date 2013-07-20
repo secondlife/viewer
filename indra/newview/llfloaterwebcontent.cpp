@@ -48,7 +48,6 @@ LLFloaterWebContent::_Params::_Params()
 	show_chrome("show_chrome", true),
     allow_address_entry("allow_address_entry", true),
     allow_back_forward_navigation("allow_back_forward_navigation", true),
-    save_url_history("save_url_history", true),
 	preferred_media_size("preferred_media_size"),
 	trusted_content("trusted_content", false),
 	show_page_title("show_page_title", true)
@@ -69,7 +68,6 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 	mUUID(params.id()),
 	mShowPageTitle(params.show_page_title),
     mAllowNavigation(true),
-    mSaveURLHistory(true),
     mDisplayURL("")
 {
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
@@ -250,7 +248,6 @@ void LLFloaterWebContent::open_media(const Params& p)
 	getChild<LLLayoutPanel>("nav_controls")->setVisible(p.show_chrome);
 	bool address_entry_enabled = p.allow_address_entry && !p.trusted_content;
     mAllowNavigation = p.allow_back_forward_navigation;
-    mSaveURLHistory = p.save_url_history;
 	getChildView("address")->setEnabled(address_entry_enabled);
 	getChildView("popexternal")->setEnabled(address_entry_enabled);
 
@@ -421,11 +418,8 @@ void LLFloaterWebContent::set_current_url(const std::string& url)
     LLStringUtil::trim(mCurrentURL);
 
     LLURLHistory::removeURL("browser", mCurrentURL);
-    if (mSaveURLHistory)
-    {
-        // serialize url history into the system URL History manager
-        LLURLHistory::addURL("browser", mCurrentURL);
-    }
+    // serialize url history into the system URL History manager
+    LLURLHistory::addURL("browser", mCurrentURL);
 
     if (!mDisplayURL.empty())
     {
