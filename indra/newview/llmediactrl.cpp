@@ -604,7 +604,6 @@ void LLMediaCtrl::setHomePageUrl( const std::string& urlIn, const std::string& m
 
 void LLMediaCtrl::setTarget(const std::string& target)
 {
-    LLViewerMedia::setLogURL(true);     // Always log, unless this is turned off at navigation time
 	mTarget = target;
 	if (mMediaSource)
 	{
