@@ -241,7 +241,6 @@ void LLFloaterWebContent::open_media(const Params& p)
 	LLViewerMedia::proxyWindowOpened(p.target(), p.id());
 	mWebBrowser->setHomePageUrl(p.url, "text/html");
 	mWebBrowser->setTarget(p.target);
-    LLViewerMedia::setLogURL(p.save_url_history);   // Turn logging on/off as requested (flag default is true)
 	mWebBrowser->navigateTo(p.url, "text/html");
 	
     mSecureLockIcon->setVisible(false);

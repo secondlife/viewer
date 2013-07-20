@@ -361,7 +361,6 @@ static bool sAnyMediaShowing = false;
 static boost::signals2::connection sTeleportFinishConnection;
 static std::string sUpdatedCookies;
 static const char *PLUGIN_COOKIE_FILE_NAME = "plugin_cookies.txt";
-static bool sLogURL = true;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 static void add_media_impl(LLViewerMediaImpl* media)
@@ -1624,13 +1623,6 @@ void LLViewerMedia::setOnlyAudibleMediaTextureID(const LLUUID& texture_id)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// static
-void LLViewerMedia::setLogURL(bool do_log)
-{
-	sLogURL = do_log;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
 // LLViewerMediaImpl
 //////////////////////////////////////////////////////////////////////////////////////////
 LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id, 
@@ -2008,9 +2000,10 @@ void LLViewerMediaImpl::loadURI()
 										"<>#%"
 										";/?:@&=",
 										false);
-        if (sLogURL)
         {
-            llinfos << "Asking media source to load URI: " << uri << llendl;
+            // Do not log the query parts
+            LLURI u(uri);
+            llinfos << "Asking media source to load URI: " << u.scheme() << "://" << u.authority() << u.path() << llendl;
         }
 		
 		mMediaSource->loadURI( uri );
@@ -2578,9 +2571,10 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 	if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
 	{
 		// Helpful to have media urls in log file. Shouldn't be spammy.
-        if (sLogURL)
         {
-            llinfos << "NOT LOADING media id= " << mTextureId << " url=" << url << " mime_type=" << mime_type << llendl;
+            // Do not log the query parts
+            LLURI u(url);
+            llinfos << "NOT LOADING media id= " << mTextureId << " url=" << u.scheme() << "://" << u.authority() << u.path() << " mime_type=" << mime_type << llendl;
         }
 
 		// This impl should not be loaded at this time.
@@ -2596,9 +2590,10 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 void LLViewerMediaImpl::navigateInternal()
 {
 	// Helpful to have media urls in log file. Shouldn't be spammy.
-    if (sLogURL)
     {
-        llinfos << "media id= " << mTextureId << " url=" << mMediaURL << " mime_type=" << mMimeType << llendl;
+        // Do not log the query parts
+        LLURI u(mMediaURL);
+        llinfos << "media id= " << mTextureId << " url=" << u.scheme() << "://" << u.authority() << u.path() << " mime_type=" << mMimeType << llendl;
     }
 
 	if(mNavigateSuspended)
