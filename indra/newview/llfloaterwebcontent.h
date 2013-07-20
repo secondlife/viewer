@@ -99,7 +99,6 @@ protected:
 	LLMediaCtrl*	mWebBrowser;
 	LLComboBox*		mAddressCombo;
 	LLIconCtrl*		mSecureLockIcon;
-    LLTextBox*		mSecurePrefix;
 	LLTextBox*		mStatusBarText;
 	LLProgressBar*	mStatusBarProgress;
 
@@ -109,6 +108,7 @@ protected:
 	LLView*			mBtnStop;
 
 	std::string		mCurrentURL;
+	std::string		mDisplayURL;
 	std::string		mUUID;
 	bool			mShowPageTitle;
     bool            mAllowNavigation;

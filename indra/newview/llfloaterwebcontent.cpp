@@ -60,7 +60,6 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 	mWebBrowser(NULL),
 	mAddressCombo(NULL),
 	mSecureLockIcon(NULL),
-    mSecurePrefix(NULL),
 	mStatusBarText(NULL),
 	mStatusBarProgress(NULL),
 	mBtnBack(NULL),
@@ -70,7 +69,8 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 	mUUID(params.id()),
 	mShowPageTitle(params.show_page_title),
     mAllowNavigation(true),
-    mSaveURLHistory(true)
+    mSaveURLHistory(true),
+    mDisplayURL("")
 {
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
@@ -102,7 +102,6 @@ BOOL LLFloaterWebContent::postBuild()
 
 	// cache image for secure browsing
 	mSecureLockIcon = getChild< LLIconCtrl >("media_secure_lock_flag");
-	mSecurePrefix   = getChild< LLTextBox >( "secured_prefix" );
     
 	// initialize the URL history using the system URL History manager
 	initializeURLHistory();
@@ -242,8 +241,10 @@ void LLFloaterWebContent::open_media(const Params& p)
 	LLViewerMedia::proxyWindowOpened(p.target(), p.id());
 	mWebBrowser->setHomePageUrl(p.url, "text/html");
 	mWebBrowser->setTarget(p.target);
+    LLViewerMedia::setLogURL(p.save_url_history);   // Turn logging on/off as requested (flag default is true)
 	mWebBrowser->navigateTo(p.url, "text/html");
 	
+    mSecureLockIcon->setVisible(false);
 	set_current_url(p.url);
 
 	getChild<LLLayoutPanel>("status_bar")->setVisible(p.show_chrome);
@@ -319,6 +320,7 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		if ( url.length() )
 			mStatusBarText->setText( url );
 
+        mSecureLockIcon->setVisible(false);
 		set_current_url( url );
 	}
 	else if(event == MEDIA_EVENT_NAVIGATE_BEGIN)
@@ -358,23 +360,22 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		if (test_prefix == prefix)
 		{
 			mSecureLockIcon->setVisible(true);
-            mSecurePrefix->setVisible(true);
-            // Hack : we suppress the "https" prefix and move the text a bit
-            // to make space for the lock icon and the green "https" text.
-            // However, so not to confuse the list management, we're not adding
-            // that hacked url to the history. The full url is already in there.
-            std::string url = mCurrentURL;
-            url.replace(0,5,"");
-            url = "               " + url;
-            mAddressCombo->remove( url );
-            mAddressCombo->add( url );
-            mAddressCombo->selectByValue( url );
+            if (!mDisplayURL.empty())
+            {
+                // Clear temporary entry if any
+                mAddressCombo->remove( mDisplayURL );
+                mDisplayURL = "";
+            }
+            // Hack : we move the text a bit to make space for the lock icon.
+            // That entry in the list will be deleted on the next add.
+            mDisplayURL = "      " + mCurrentURL;
+            mAddressCombo->add( mDisplayURL );
+            mAddressCombo->selectByValue( mDisplayURL );
 		}
-		else
-		{
-			mSecureLockIcon->setVisible(false);
-            mSecurePrefix->setVisible(false);
-		}
+        else
+        {
+            mSecureLockIcon->setVisible(false);
+        }
 	}
 	else if(event == MEDIA_EVENT_CLOSE_REQUEST)
 	{
@@ -418,6 +419,7 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 void LLFloaterWebContent::set_current_url(const std::string& url)
 {
 	mCurrentURL = url;
+    LLStringUtil::trim(mCurrentURL);
 
     LLURLHistory::removeURL("browser", mCurrentURL);
     if (mSaveURLHistory)
@@ -426,6 +428,12 @@ void LLFloaterWebContent::set_current_url(const std::string& url)
         LLURLHistory::addURL("browser", mCurrentURL);
     }
 
+    if (!mDisplayURL.empty())
+    {
+        // Clear temporary entry if any
+        mAddressCombo->remove( mDisplayURL );
+        mDisplayURL = "";
+    }
 	mAddressCombo->remove( mCurrentURL );
 	mAddressCombo->add( mCurrentURL );
 	mAddressCombo->selectByValue( mCurrentURL );
@@ -472,6 +480,7 @@ void LLFloaterWebContent::onEnterAddress()
 	// make sure there is at least something there.
 	// (perhaps this test should be for minimum length of a URL)
 	std::string url = mAddressCombo->getValue().asString();
+    LLStringUtil::trim(url);
 	if ( url.length() > 0 )
 	{
 		mWebBrowser->navigateTo( url, "text/html");
@@ -483,6 +492,7 @@ void LLFloaterWebContent::onPopExternal()
 	// make sure there is at least something there.
 	// (perhaps this test should be for minimum length of a URL)
 	std::string url = mAddressCombo->getValue().asString();
+    LLStringUtil::trim(url);
 	if ( url.length() > 0 )
 	{
 		LLWeb::loadURLExternal( url );

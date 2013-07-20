@@ -160,6 +160,8 @@ public:
 
 	static void setOnlyAudibleMediaTextureID(const LLUUID& texture_id);
 
+    static void setLogURL(bool do_log);
+
 	static LLSD getHeaders();
 	
 private:
