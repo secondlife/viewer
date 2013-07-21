@@ -192,7 +192,10 @@ void main()
 	//wavef = normalize(wavef);
 	vec3 screenspacewavef = (norm_mat*vec4(wavef, 1.0)).xyz;
 	
-	frag_data[0] = vec4(linear_to_srgb(color.rgb), 0.5); // diffuse
+	// this is needed for materials in reflections, but not otherwise
+	//
+	//frag_data[0] = vec4(linear_to_srgb(color.rgb), 0.5); // diffuse
+	frag_data[0] = vec4(color.rgb, 0.5); // diffuse
 	frag_data[1] = vec4(0.5,0.5,0.5, 0.95); // speccolor*spec, spec
 	frag_data[2] = vec4(encode_normal(screenspacewavef), 0.0, 0.0); // normalxyz, displace
 }

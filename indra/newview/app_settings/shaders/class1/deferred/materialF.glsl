@@ -266,6 +266,13 @@ vec4 getPosition_d(vec2 pos_screen, float depth)
 	return pos;
 }
 
+#ifndef WATER_FOG
+vec3 getPositionEye()
+{
+	return vary_PositionEye;
+}
+#endif
+
 vec3 getSunlitColor()
 {
 	return vary_SunlitColor;
@@ -728,6 +735,10 @@ void main()
 	glare = min(glare, 1.0);
 	float al = max(diffcol.a,glare)*vertex_color.a;
 
+
+	//convert to gamma space for display on screen
+	col.rgb = linear_to_srgb(col.rgb);
+
 #ifdef WATER_FOG
 	vec4 temp = applyWaterFogDeferred(pos, vec4(col.rgb, al));
 	col.rgb = temp.rgb;
@@ -738,6 +749,7 @@ void main()
 	frag_color.a   = al;
 
 #else
+	//final_color.rgb = vec3(1,0,1);
 	frag_data[0] = final_color;
 	frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.
 	frag_data[2] = final_normal; // XY = Normal.  Z = Env. intensity.

@@ -5379,6 +5379,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			}
 
 			bool use_legacy_bump = te->getBumpmap() && (te->getBumpmap() < 18) && (!mat || mat->getNormalID().isNull());
+			bool opaque = te->getColor().mV[3] >= 0.999f;
 
 			if (mat && LLPipeline::sRenderDeferred && !hud_group)
 			{
@@ -5388,7 +5389,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				{
 					if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
 					{
-						if (te->getColor().mV[3] >= 0.999f)
+						if (opaque)
 						{
 							registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK);
 						}

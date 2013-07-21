@@ -11262,7 +11262,9 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	
 	S32 occlusion = sUseOcclusion;
 	sUseOcclusion = 0;
-	//sReflectionRender = sRenderDeferred ? FALSE : TRUE;
+
+	sReflectionRender = sRenderDeferred ? FALSE : TRUE;
+
 	sShadowRender = TRUE;
 	sImpostorRender = TRUE;
 

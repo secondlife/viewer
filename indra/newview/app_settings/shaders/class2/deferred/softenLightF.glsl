@@ -455,23 +455,21 @@ void main()
 		if (norm.w < 0.5)
 		{
 			col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
-
-			#ifdef WATER_FOG
-				vec4 fogged = applyWaterFogDeferred(pos,vec4(col, bloom));
-				col = fogged.rgb;
-				bloom = fogged.a;
-			#endif
-
 			col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
 		}
+
+		#ifdef WATER_FOG
+			vec4 fogged = applyWaterFogDeferred(pos,vec4(col, bloom));
+			col = fogged.rgb;
+			bloom = fogged.a;
+		#endif
 
 		col = srgb_to_linear(col);
 
 		//col = vec3(1,0,1);
 		//col.g = envIntensity;
 	}
-	
+
 	frag_color.rgb = col;
 	frag_color.a = bloom;
 }
-

@@ -281,7 +281,7 @@ void main()
 	color.rgb += diff.rgb * vary_pointlight_col_linear * col.rgb;
 
 	color.rgb = linear_to_srgb(color.rgb);
-
+	//color.rgb = vec3(1,0,1);
 	frag_color = color;
 }
 

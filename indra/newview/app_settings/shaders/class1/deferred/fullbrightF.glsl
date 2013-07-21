@@ -69,14 +69,15 @@ void main()
 	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
 #endif
 
-	color.rgb *= vertex_color.rgb;
+
 	color.rgb = srgb_to_linear(color.rgb);
+	color.rgb *= vertex_color.rgb;
 
 	color.rgb = fullbrightAtmosTransport(color.rgb);
 	color.rgb = fullbrightScaleSoftClip(color.rgb);
 
 	color.rgb = linear_to_srgb(color.rgb);
-
+	//color.rgb = vec3(1,0,1);
 	frag_color.rgb = color.rgb;
 	frag_color.a   = color.a;
 }

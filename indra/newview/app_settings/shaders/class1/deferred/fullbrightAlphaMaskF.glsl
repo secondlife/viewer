@@ -71,7 +71,8 @@ void main()
 	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
 #endif
 
-	if (color.a < minimum_alpha)
+	float final_alpha = color.a * vertex_color.a;
+	if (final_alpha < minimum_alpha)
 	{
 		discard;
 	}
@@ -83,8 +84,8 @@ void main()
 	color.rgb = fullbrightScaleSoftClip(color.rgb);
 
 	color.rgb = linear_to_srgb(color.rgb);
-
+	//color.rgb = vec3(1,0,1);
 	frag_color.rgb = color.rgb;
-	frag_color.a   = color.a;
+	frag_color.a   = final_alpha;
 }
 
