@@ -8831,9 +8831,9 @@ void LLPipeline::renderDeferredLighting()
 		
 		gDeferredPostGammaCorrectProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mScreen.getWidth(), mScreen.getHeight());
 		
-		F32 gamma = 1.0/2.2;
+		F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
 
-		gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, gamma);
+		gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
 		
 		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
@@ -9380,9 +9380,9 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 		
 		gDeferredPostGammaCorrectProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, target->getWidth(), target->getHeight());
 		
-		F32 gamma = 1.0/2.2;
+		F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
 
-		gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, gamma);
+		gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
 		
 		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);

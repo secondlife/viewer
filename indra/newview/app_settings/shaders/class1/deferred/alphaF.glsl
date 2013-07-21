@@ -136,6 +136,52 @@ float pcfShadow(sampler2DShadow shadowMap, vec4 stc)
 }
 #endif
 
+#if WATER_FOG
+uniform vec4 waterPlane;
+uniform vec4 waterFogColor;
+uniform float waterFogDensity;
+uniform float waterFogKS;
+
+vec4 applyWaterFogDeferred(vec3 pos, vec4 color)
+{
+	//normalize view vector
+	vec3 view = normalize(pos);
+	float es = -(dot(view, waterPlane.xyz));
+
+	//find intersection point with water plane and eye vector
+	
+	//get eye depth
+	float e0 = max(-waterPlane.w, 0.0);
+	
+	vec3 int_v = waterPlane.w > 0.0 ? view * waterPlane.w/es : vec3(0.0, 0.0, 0.0);
+	
+	//get object depth
+	float depth = length(pos - int_v);
+		
+	//get "thickness" of water
+	float l = max(depth, 0.1);
+
+	float kd = waterFogDensity;
+	float ks = waterFogKS;
+	vec4 kc = waterFogColor;
+	
+	float F = 0.98;
+	
+	float t1 = -kd * pow(F, ks * e0);
+	float t2 = kd + ks * es;
+	float t3 = pow(F, t2*l) - 1.0;
+	
+	float L = min(t1/t2*t3, 1.0);
+	
+	float D = pow(0.98, l*kd);
+	
+	color.rgb = color.rgb * D + kc.rgb * L;
+	color.a = kc.a + color.a;
+	
+	return color;
+}
+#endif
+
 vec3 srgb_to_linear(vec3 cs)
 {
 	
@@ -240,8 +286,9 @@ void main()
 	vec4 gamma_diff = diff;
 
 	diff.rgb = srgb_to_linear(diff.rgb);
-
+	
 #ifdef USE_VERTEX_COLOR
+	diff.rgb *= vertex_color.rgb;
 	float vertex_color_alpha = vertex_color.a;	
 #else
 	float vertex_color_alpha = 1.0;
@@ -266,6 +313,7 @@ void main()
 	color.rgb = scaleSoftClip(color.rgb);
 
 	color.rgb = srgb_to_linear(color.rgb);
+	
 	col = vec4(0,0,0,0);
 	
    #define LIGHT_LOOP(i) col.rgb += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
@@ -281,7 +329,11 @@ void main()
 	color.rgb += diff.rgb * vary_pointlight_col_linear * col.rgb;
 
 	color.rgb = linear_to_srgb(color.rgb);
-	//color.rgb = vec3(1,0,1);
+
+#if WATER_FOG
+	color = applyWaterFogDeferred(pos.xyz, color);
+#endif
+
 	frag_color = color;
 }
 

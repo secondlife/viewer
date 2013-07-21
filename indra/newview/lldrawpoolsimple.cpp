@@ -111,7 +111,14 @@ void LLDrawPoolGlow::render(S32 pass)
 	
 	LLGLSLShader* shader = LLPipeline::sUnderWaterRender ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
 	shader->bind();
-	shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.f);
+	if (LLPipeline::sRenderDeferred)
+	{
+		shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+	}
+	else
+	{
+		shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.f);
+	}	
 
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 	gGL.setColorMask(false, true);
@@ -536,7 +543,15 @@ void LLDrawPoolFullbright::prerender()
 
 void LLDrawPoolFullbright::beginPostDeferredPass(S32 pass)
 {
-	gDeferredFullbrightProgram.bind();
+	if (LLPipeline::sUnderWaterRender)
+	{
+		gDeferredFullbrightWaterProgram.bind();
+	}
+	else
+	{
+		gDeferredFullbrightProgram.bind();
+	}
+	
 }
 
 void LLDrawPoolFullbright::renderPostDeferred(S32 pass)
@@ -550,7 +565,14 @@ void LLDrawPoolFullbright::renderPostDeferred(S32 pass)
 
 void LLDrawPoolFullbright::endPostDeferredPass(S32 pass)
 {
-	gDeferredFullbrightProgram.unbind();
+	if (LLPipeline::sUnderWaterRender)
+	{
+		gDeferredFullbrightWaterProgram.unbind();
+	}
+	else
+	{
+		gDeferredFullbrightProgram.unbind();
+	}
 	LLRenderPass::endRenderPass(pass);
 }
 
@@ -633,15 +655,17 @@ void LLDrawPoolFullbrightAlphaMask::beginPostDeferredPass(S32 pass)
 	} 
 	else 
 	{
-#if LL_DARWIN
-		// the OS X 10.6.8 GeForce driver is a real POS
-		// this is a work-around for NORSPEC-314
-		gObjectFullbrightAlphaMaskProgram.bind();
-		gObjectFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
-#else
-		gDeferredFullbrightAlphaMaskProgram.bind();
-		gDeferredFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
-#endif
+		if (LLPipeline::sUnderWaterRender)
+		{
+			gDeferredFullbrightAlphaMaskWaterProgram.bind();
+			gDeferredFullbrightAlphaMaskWaterProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+		}
+		else
+		{
+			gDeferredFullbrightAlphaMaskProgram.bind();
+			gDeferredFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+		}
+		
 	}
 }
 

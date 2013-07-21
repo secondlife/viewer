@@ -93,11 +93,21 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 
 	if (pass == 0)
 	{
-		simple_shader = &gDeferredAlphaProgram;
-		fullbright_shader = &gObjectFullbrightProgram;
+		if (LLPipeline::sUnderWaterRender)
+		{
+			simple_shader = &gDeferredAlphaWaterProgram;
+			fullbright_shader = &gDeferredFullbrightWaterProgram;
+		}
+		else
+		{
+			simple_shader = &gDeferredAlphaProgram;
+			fullbright_shader = &gDeferredFullbrightProgram;
+		}
+
 		fullbright_shader->bind();
 		fullbright_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f); 
 		fullbright_shader->unbind();
+
 		//prime simple shader (loads shadow relevant uniforms)
 		gPipeline.bindDeferredShader(*simple_shader);
 	}

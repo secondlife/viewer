@@ -8894,6 +8894,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+  <key>RenderDeferredDisplayGamma</key>
+  <map>
+    <key>Comment</key>
+    <string>Gamma ramp exponent for final correction before display gamma.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.8</real>
+  </map>
     <key>RenderGLCoreProfile</key>
     <map>
       <key>Comment</key>

@@ -40,6 +40,9 @@ vec3 atmosAffectDirectionalLight(float lightIntensity);
 vec3 scaleDownLight(vec3 light);
 vec3 scaleUpLight(vec3 light);
 
+#if WATER_FOG
+VARYING vec3 vary_position;
+#endif
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
@@ -53,7 +56,11 @@ void main()
 	passTextureIndex();
 
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
-	
+
+#if WATER_FOG
+	vary_position = pos.xyz;
+#endif
+
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	
 	calcAtmospherics(pos.xyz);
