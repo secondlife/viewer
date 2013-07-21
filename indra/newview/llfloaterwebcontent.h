@@ -106,8 +106,8 @@ protected:
 	LLView*			mBtnReload;
 	LLView*			mBtnStop;
 
-	std::string		mCurrentURL;
-	std::string		mDisplayURL;
+	std::string		mCurrentURL;    // Current URL
+	std::string		mDisplayURL;    // URL being displayed in the address bar (can differ by trailing / leading space)
 	std::string		mUUID;
 	bool			mShowPageTitle;
     bool            mAllowNavigation;

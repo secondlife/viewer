@@ -68,6 +68,7 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 	mUUID(params.id()),
 	mShowPageTitle(params.show_page_title),
     mAllowNavigation(true),
+    mCurrentURL(""),
     mDisplayURL("")
 {
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
@@ -356,17 +357,8 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		if (test_prefix == prefix)
 		{
 			mSecureLockIcon->setVisible(true);
-            if (!mDisplayURL.empty())
-            {
-                // Clear temporary entry if any
-                mAddressCombo->remove( mDisplayURL );
-                mDisplayURL = "";
-            }
             // Hack : we move the text a bit to make space for the lock icon.
-            // That entry in the list will be deleted on the next add.
-            mDisplayURL = "      " + mCurrentURL;
-            mAddressCombo->add( mDisplayURL );
-            mAddressCombo->selectByValue( mDisplayURL );
+            set_current_url("      " + mCurrentURL);
 		}
         else
         {
@@ -414,22 +406,26 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 
 void LLFloaterWebContent::set_current_url(const std::string& url)
 {
+    if (!mCurrentURL.empty())
+    {
+        // Clean up the current browsing list to show true URL
+        mAddressCombo->remove(mDisplayURL);
+        mAddressCombo->add(mCurrentURL);
+    }
+
+    // Update current URLs
+	mDisplayURL = url;
 	mCurrentURL = url;
     LLStringUtil::trim(mCurrentURL);
 
+    // Serialize url history into the system URL History manager
     LLURLHistory::removeURL("browser", mCurrentURL);
-    // serialize url history into the system URL History manager
     LLURLHistory::addURL("browser", mCurrentURL);
 
-    if (!mDisplayURL.empty())
-    {
-        // Clear temporary entry if any
-        mAddressCombo->remove( mDisplayURL );
-        mDisplayURL = "";
-    }
-	mAddressCombo->remove( mCurrentURL );
-	mAddressCombo->add( mCurrentURL );
-	mAddressCombo->selectByValue( mCurrentURL );
+    // Clean up browsing list (prevent dupes) and add/select new URL to it
+	mAddressCombo->remove(mCurrentURL);
+	mAddressCombo->add(mDisplayURL);
+	mAddressCombo->selectByValue(mDisplayURL);
 }
 
 void LLFloaterWebContent::onClickForward()
