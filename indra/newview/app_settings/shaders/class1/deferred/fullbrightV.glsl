@@ -40,7 +40,7 @@ vec3 atmosAffectDirectionalLight(float lightIntensity);
 vec3 scaleDownLight(vec3 light);
 vec3 scaleUpLight(vec3 light);
 
-#if WATER_FOG
+#ifdef WATER_FOG
 VARYING vec3 vary_position;
 #endif
 
@@ -57,7 +57,7 @@ void main()
 
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 
-#if WATER_FOG
+#ifdef WATER_FOG
 	vary_position = pos.xyz;
 #endif
 

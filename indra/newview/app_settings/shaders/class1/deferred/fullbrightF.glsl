@@ -42,7 +42,7 @@ VARYING vec2 vary_texcoord0;
 vec3 fullbrightAtmosTransport(vec3 light);
 vec3 fullbrightScaleSoftClip(vec3 light);
 
-#if HAS_ALPHA_MASK
+#ifdef HAS_ALPHA_MASK
 uniform float minimum_alpha;
 #endif
 
@@ -122,7 +122,7 @@ void main()
 
 	float final_alpha = color.a * vertex_color.a;
 
-#if HAS_ALPHA_MASK
+#ifdef HAS_ALPHA_MASK
 	if (color.a < minimum_alpha)
 	{
 		discard;

@@ -136,7 +136,7 @@ float pcfShadow(sampler2DShadow shadowMap, vec4 stc)
 }
 #endif
 
-#if WATER_FOG
+#ifdef WATER_FOG
 uniform vec4 waterPlane;
 uniform vec4 waterFogColor;
 uniform float waterFogDensity;
@@ -330,7 +330,7 @@ void main()
 
 	color.rgb = linear_to_srgb(color.rgb);
 
-#if WATER_FOG
+#ifdef WATER_FOG
 	color = applyWaterFogDeferred(pos.xyz, color);
 #endif
 
