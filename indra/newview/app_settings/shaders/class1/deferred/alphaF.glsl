@@ -288,8 +288,7 @@ void main()
 	diff.rgb = srgb_to_linear(diff.rgb);
 	
 #ifdef USE_VERTEX_COLOR
-	diff.rgb *= vertex_color.rgb;
-	float vertex_color_alpha = vertex_color.a;	
+	float vertex_color_alpha = diff.a * vertex_color.a;	
 #else
 	float vertex_color_alpha = 1.0;
 #endif
@@ -306,8 +305,9 @@ void main()
 	vec4 col = vec4(vary_ambient + dlight, vertex_color_alpha);
 #endif
 
-	vec4 color = gamma_diff * col;
-	
+	vec4 color = col;
+	color.rgb *= gamma_diff.rgb;
+
 	color.rgb = atmosLighting(color.rgb);
 
 	color.rgb = scaleSoftClip(color.rgb);

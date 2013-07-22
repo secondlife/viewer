@@ -186,16 +186,13 @@ void main()
 	
 	color.rgb = atmosTransport(color.rgb);
 	color.rgb = scaleSoftClip(color.rgb);
-	//color.a = spec * sunAngle2;
+	color.a = sunAngle2;
 
 	//wavef.z *= 0.1f;
 	//wavef = normalize(wavef);
 	vec3 screenspacewavef = (norm_mat*vec4(wavef, 1.0)).xyz;
 	
-	// this is needed for materials in reflections, but not otherwise
-	//
-	//frag_data[0] = vec4(linear_to_srgb(color.rgb), 0.5); // diffuse
-	frag_data[0] = vec4(color.rgb, 0.5); // diffuse
+	frag_data[0] = vec4(color.rgb, color.a); // diffuse
 	frag_data[1] = vec4(0.5,0.5,0.5, 0.95); // speccolor*spec, spec
-	frag_data[2] = vec4(encode_normal(screenspacewavef), 0.0, 0.0); // normalxyz, displace
+	frag_data[2] = vec4(encode_normal(screenspacewavef.xyz*0.5+0.5), screenspacewavef.z * 0.16, 0.0);// normalxyz, env intensity
 }
