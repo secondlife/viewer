@@ -4419,7 +4419,8 @@ void LLAgent::sendAgentSetAppearance()
 		 param;
 		 param = (LLViewerVisualParam*)gAgentAvatarp->getNextVisualParam())
 	{
-		if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE) // do not transmit params of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
+		if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE ||
+			param->getGroup() == VISUAL_PARAM_GROUP_TRANSMIT_NOT_TWEAKABLE) // do not transmit params of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
 		{
 			msg->nextBlockFast(_PREHASH_VisualParam );
 			
