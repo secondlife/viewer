@@ -143,6 +143,8 @@ void main()
 	vec4 fogged = applyWaterFogDeferred(pos, vec4(color.rgb, final_alpha));
 	color.rgb = fogged.rgb;
 	color.a   = fogged.a;
+#else
+	color.a   = final_alpha;
 #endif
 
 	frag_color.rgb = color.rgb;
