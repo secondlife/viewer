@@ -2000,7 +2000,11 @@ void LLViewerMediaImpl::loadURI()
 										"<>#%"
 										";/?:@&=",
 										false);
-		llinfos << "Asking media source to load URI: " << uri << llendl;
+        {
+            // Do not log the query parts
+            LLURI u(uri);
+            llinfos << "Asking media source to load URI: " << u.scheme() << "://" << u.authority() << u.path() << llendl;
+        }
 		
 		mMediaSource->loadURI( uri );
 		
@@ -2567,7 +2571,11 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 	if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
 	{
 		// Helpful to have media urls in log file. Shouldn't be spammy.
-		llinfos << "NOT LOADING media id= " << mTextureId << " url=" << url << " mime_type=" << mime_type << llendl;
+        {
+            // Do not log the query parts
+            LLURI u(url);
+            llinfos << "NOT LOADING media id= " << mTextureId << " url=" << u.scheme() << "://" << u.authority() << u.path() << " mime_type=" << mime_type << llendl;
+        }
 
 		// This impl should not be loaded at this time.
 		LL_DEBUGS("PluginPriority") << this << "Not loading (PRIORITY_UNLOADED)" << LL_ENDL;
@@ -2582,7 +2590,11 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 void LLViewerMediaImpl::navigateInternal()
 {
 	// Helpful to have media urls in log file. Shouldn't be spammy.
-	llinfos << "media id= " << mTextureId << " url=" << mMediaURL << " mime_type=" << mMimeType << llendl;
+    {
+        // Do not log the query parts
+        LLURI u(mMediaURL);
+        llinfos << "media id= " << mTextureId << " url=" << u.scheme() << "://" << u.authority() << u.path() << " mime_type=" << mMimeType << llendl;
+    }
 
 	if(mNavigateSuspended)
 	{

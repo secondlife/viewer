@@ -46,7 +46,8 @@ LLFloaterWebContent::_Params::_Params()
 	id("id"),
 	window_class("window_class", "web_content"),
 	show_chrome("show_chrome", true),
-	allow_address_entry("allow_address_entry", true),
+    allow_address_entry("allow_address_entry", true),
+    allow_back_forward_navigation("allow_back_forward_navigation", true),
 	preferred_media_size("preferred_media_size"),
 	trusted_content("trusted_content", false),
 	show_page_title("show_page_title", true)
@@ -65,7 +66,10 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 	mBtnReload(NULL),
 	mBtnStop(NULL),
 	mUUID(params.id()),
-	mShowPageTitle(params.show_page_title)
+	mShowPageTitle(params.show_page_title),
+    mAllowNavigation(true),
+    mCurrentURL(""),
+    mDisplayURL("")
 {
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
@@ -97,7 +101,7 @@ BOOL LLFloaterWebContent::postBuild()
 
 	// cache image for secure browsing
 	mSecureLockIcon = getChild< LLIconCtrl >("media_secure_lock_flag");
-
+    
 	// initialize the URL history using the system URL History manager
 	initializeURLHistory();
 
@@ -238,11 +242,13 @@ void LLFloaterWebContent::open_media(const Params& p)
 	mWebBrowser->setTarget(p.target);
 	mWebBrowser->navigateTo(p.url, "text/html");
 	
+    mSecureLockIcon->setVisible(false);
 	set_current_url(p.url);
 
 	getChild<LLLayoutPanel>("status_bar")->setVisible(p.show_chrome);
 	getChild<LLLayoutPanel>("nav_controls")->setVisible(p.show_chrome);
 	bool address_entry_enabled = p.allow_address_entry && !p.trusted_content;
+    mAllowNavigation = p.allow_back_forward_navigation;
 	getChildView("address")->setEnabled(address_entry_enabled);
 	getChildView("popexternal")->setEnabled(address_entry_enabled);
 
@@ -295,8 +301,8 @@ void LLFloaterWebContent::onClose(bool app_quitting)
 void LLFloaterWebContent::draw()
 {
 	// this is asynchronous so we need to keep checking
-	mBtnBack->setEnabled( mWebBrowser->canNavigateBack() );
-	mBtnForward->setEnabled( mWebBrowser->canNavigateForward() );
+	mBtnBack->setEnabled( mWebBrowser->canNavigateBack() && mAllowNavigation);
+	mBtnForward->setEnabled( mWebBrowser->canNavigateForward() && mAllowNavigation);
 
 	LLFloater::draw();
 }
@@ -311,6 +317,7 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		if ( url.length() )
 			mStatusBarText->setText( url );
 
+        mSecureLockIcon->setVisible(false);
 		set_current_url( url );
 	}
 	else if(event == MEDIA_EVENT_NAVIGATE_BEGIN)
@@ -344,17 +351,19 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		mStatusBarText->setText( end_str );
 
 		// decide if secure browsing icon should be displayed
-		std::string prefix =  std::string("https://");
+		std::string prefix = std::string("https://");
 		std::string test_prefix = mCurrentURL.substr(0, prefix.length());
 		LLStringUtil::toLower(test_prefix);
-		if(test_prefix == prefix)
+		if (test_prefix == prefix)
 		{
 			mSecureLockIcon->setVisible(true);
+            // Hack : we move the text a bit to make space for the lock icon.
+            set_current_url("      " + mCurrentURL);
 		}
-		else
-		{
-			mSecureLockIcon->setVisible(false);
-		}
+        else
+        {
+            mSecureLockIcon->setVisible(false);
+        }
 	}
 	else if(event == MEDIA_EVENT_CLOSE_REQUEST)
 	{
@@ -397,15 +406,26 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 
 void LLFloaterWebContent::set_current_url(const std::string& url)
 {
+    if (!mCurrentURL.empty())
+    {
+        // Clean up the current browsing list to show true URL
+        mAddressCombo->remove(mDisplayURL);
+        mAddressCombo->add(mCurrentURL);
+    }
+
+    // Update current URLs
+	mDisplayURL = url;
 	mCurrentURL = url;
+    LLStringUtil::trim(mCurrentURL);
 
-	// serialize url history into the system URL History manager
-	LLURLHistory::removeURL("browser", mCurrentURL);
-	LLURLHistory::addURL("browser", mCurrentURL);
+    // Serialize url history into the system URL History manager
+    LLURLHistory::removeURL("browser", mCurrentURL);
+    LLURLHistory::addURL("browser", mCurrentURL);
 
-	mAddressCombo->remove( mCurrentURL );
-	mAddressCombo->add( mCurrentURL );
-	mAddressCombo->selectByValue( mCurrentURL );
+    // Clean up browsing list (prevent dupes) and add/select new URL to it
+	mAddressCombo->remove(mCurrentURL);
+	mAddressCombo->add(mDisplayURL);
+	mAddressCombo->selectByValue(mDisplayURL);
 }
 
 void LLFloaterWebContent::onClickForward()
@@ -449,6 +469,7 @@ void LLFloaterWebContent::onEnterAddress()
 	// make sure there is at least something there.
 	// (perhaps this test should be for minimum length of a URL)
 	std::string url = mAddressCombo->getValue().asString();
+    LLStringUtil::trim(url);
 	if ( url.length() > 0 )
 	{
 		mWebBrowser->navigateTo( url, "text/html");
@@ -460,6 +481,7 @@ void LLFloaterWebContent::onPopExternal()
 	// make sure there is at least something there.
 	// (perhaps this test should be for minimum length of a URL)
 	std::string url = mAddressCombo->getValue().asString();
+    LLStringUtil::trim(url);
 	if ( url.length() > 0 )
 	{
 		LLWeb::loadURLExternal( url );
