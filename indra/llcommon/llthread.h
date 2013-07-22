@@ -32,7 +32,7 @@
 #include "apr_thread_cond.h"
 #include "boost/intrusive_ptr.hpp"
 #include "llmutex.h"
-#include "llpointer.h"
+#include "llrefcount.h"
 
 LL_COMMON_API void assert_main_thread();
 

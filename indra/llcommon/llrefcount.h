@@ -28,6 +28,7 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/intrusive_ptr.hpp>
+#include "llmutex.h"
 
 #define LL_REF_COUNT_DEBUG 0
 #if LL_REF_COUNT_DEBUG
@@ -87,22 +88,100 @@ private:
 #endif
 };
 
+
+//============================================================================
+
+// see llmemory.h for LLPointer<> definition
+
+class LL_COMMON_API LLThreadSafeRefCount
+{
+public:
+	static void initThreadSafeRefCount(); // creates sMutex
+	static void cleanupThreadSafeRefCount(); // destroys sMutex
+
+private:
+	static LLMutex* sMutex;
+
+protected:
+	virtual ~LLThreadSafeRefCount(); // use unref()
+
+public:
+	LLThreadSafeRefCount();
+	LLThreadSafeRefCount(const LLThreadSafeRefCount&);
+	LLThreadSafeRefCount& operator=(const LLThreadSafeRefCount& ref) 
+	{
+		if (sMutex)
+		{
+			sMutex->lock();
+		}
+		mRef = 0;
+		if (sMutex)
+		{
+			sMutex->unlock();
+		}
+		return *this;
+	}
+
+	void ref()
+	{
+		if (sMutex) sMutex->lock();
+		mRef++; 
+		if (sMutex) sMutex->unlock();
+	} 
+
+	S32 unref()
+	{
+		llassert(mRef >= 1);
+		if (sMutex) sMutex->lock();
+		S32 res = --mRef;
+		if (sMutex) sMutex->unlock();
+		if (0 == res) 
+		{
+			delete this; 
+			return 0;
+		}
+		return res;
+	}	
+	S32 getNumRefs() const
+	{
+		return mRef;
+	}
+
+private: 
+	S32	mRef; 
+};
+
 /**
  * intrusive pointer support
  * this allows you to use boost::intrusive_ptr with any LLRefCount-derived type
  */
+/**
+ * intrusive pointer support for LLThreadSafeRefCount
+ * this allows you to use boost::intrusive_ptr with any LLThreadSafeRefCount-derived type
+ */
 namespace boost
 {
-	inline void intrusive_ptr_add_ref(LLRefCount* p)
+	inline void intrusive_ptr_add_ref(LLThreadSafeRefCount* p) 
 	{
 		p->ref();
 	}
 
-	inline void intrusive_ptr_release(LLRefCount* p)
+	inline void intrusive_ptr_release(LLThreadSafeRefCount* p) 
 	{
-		p->unref();
+		p->unref(); 
+	}
+
+	inline void intrusive_ptr_add_ref(LLRefCount* p) 
+	{
+		p->ref();
+	}
+
+	inline void intrusive_ptr_release(LLRefCount* p) 
+	{
+		p->unref(); 
 	}
 };
+
 
 
 #endif

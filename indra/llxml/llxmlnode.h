@@ -38,6 +38,7 @@
 #include <map>
 
 #include "indra_constants.h"
+#include "llrefcount.h"
 #include "llpointer.h"
 #include "llstring.h"
 #include "llstringtable.h"
