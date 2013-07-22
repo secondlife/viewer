@@ -785,7 +785,7 @@ bool less_than_max_mag(const LLVector4a& vec)
 }
 
 BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
-								const LLMatrix4& mat_vert_in, BOOL global_volume)
+								const LLMatrix4& mat_vert_in, const LLMatrix3& mat_normal_in, BOOL global_volume)
 {
 	//get bounding box
 	if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED))
@@ -794,8 +794,12 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		LLMatrix4a mat_vert;
 		mat_vert.loadu(mat_vert_in);
 
+		LLMatrix4a mat_normal;
+		mat_normal.loadu(mat_normal_in);
+
+		//VECTORIZE THIS
 		LLVector4a min,max;
-	
+
 		if (f >= volume.getNumVolumeFaces())
 		{
 			llwarns << "Generating bounding box for invalid face index!" << llendl;
@@ -805,70 +809,109 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		const LLVolumeFace &face = volume.getVolumeFace(f);
 		min = face.mExtents[0];
 		max = face.mExtents[1];
-		
+
 		llassert(less_than_max_mag(min));
 		llassert(less_than_max_mag(max));
 
 		//min, max are in volume space, convert to drawable render space
+		LLVector4a center;
+		LLVector4a t;
+		t.setAdd(min, max);
+		t.mul(0.5f);
+		mat_vert.affineTransform(t, center);
+		LLVector4a size;
+		size.setSub(max, min);
+		size.mul(0.5f);
 
-		//get 8 corners of bounding box
-		LLVector4Logical mask[6];
+		llassert(less_than_max_mag(min));
+		llassert(less_than_max_mag(max));
 
-		for (U32 i = 0; i < 6; ++i)
+		if (!global_volume)
 		{
-			mask[i].clear();
+			//VECTORIZE THIS
+			LLVector4a scale;
+			scale.load3(mDrawablep->getVObj()->getScale().mV);
+			size.mul(scale);
 		}
 
-		mask[0].setElement<2>(); //001
-		mask[1].setElement<1>(); //010
-		mask[2].setElement<1>(); //011
-		mask[2].setElement<2>();
-		mask[3].setElement<0>(); //100
-		mask[4].setElement<0>(); //101
-		mask[4].setElement<2>();
-		mask[5].setElement<0>(); //110
-		mask[5].setElement<1>();
-		
-		LLVector4a v[8];
+		// Catch potential badness from normalization before it happens
+		//
+		llassert(mat_normal.mMatrix[0].isFinite3() && (mat_normal.mMatrix[0].dot3(mat_normal.mMatrix[0]).getF32() > F_APPROXIMATELY_ZERO));
+		llassert(mat_normal.mMatrix[1].isFinite3() && (mat_normal.mMatrix[1].dot3(mat_normal.mMatrix[1]).getF32() > F_APPROXIMATELY_ZERO));
+		llassert(mat_normal.mMatrix[2].isFinite3() && (mat_normal.mMatrix[2].dot3(mat_normal.mMatrix[2]).getF32() > F_APPROXIMATELY_ZERO));
 
-		v[6] = min;
-		v[7] = max;
+		mat_normal.mMatrix[0].normalize3fast();
+		mat_normal.mMatrix[1].normalize3fast();
+		mat_normal.mMatrix[2].normalize3fast();
 
-		for (U32 i = 0; i < 6; ++i)
-		{
-			v[i].setSelectWithMask(mask[i], min, max);
-		}
+		LLVector4a v[4];
 
-		LLVector4a tv[8];
+		//get 4 corners of bounding box
+		mat_normal.rotate(size,v[0]);
 
-		//transform bounding box into drawable space
-		for (U32 i = 0; i < 8; ++i)
-		{
-			mat_vert.affineTransform(v[i], tv[i]);
-		}
-	
-		//find bounding box
+		//VECTORIZE THIS
+		LLVector4a scale;
+
+		scale.set(-1.f, -1.f, 1.f);
+		scale.mul(size);
+		mat_normal.rotate(scale, v[1]);
+
+		scale.set(1.f, -1.f, -1.f);
+		scale.mul(size);
+		mat_normal.rotate(scale, v[2]);
+
+		scale.set(-1.f, 1.f, -1.f);
+		scale.mul(size);
+		mat_normal.rotate(scale, v[3]);
+
 		LLVector4a& newMin = mExtents[0];
 		LLVector4a& newMax = mExtents[1];
 
-		newMin = newMax = tv[0];
+		newMin = newMax = center;
 
-		for (U32 i = 1; i < 8; ++i)
+		llassert(less_than_max_mag(center));
+
+		for (U32 i = 0; i < 4; i++)
 		{
-			newMin.setMin(newMin, tv[i]);
-			newMax.setMax(newMax, tv[i]);
+			LLVector4a delta;
+			delta.setAbs(v[i]);
+			LLVector4a min;
+			min.setSub(center, delta);
+			LLVector4a max;
+			max.setAdd(center, delta);
+
+			newMin.setMin(newMin,min);
+			newMax.setMax(newMax,max);
+
+			llassert(less_than_max_mag(newMin));
+			llassert(less_than_max_mag(newMax));
 		}
 
-		LLVector4a t;
-		t.setAdd(newMin,newMax);
+		if (!mDrawablep->isActive())
+		{
+			LLVector4a offset;
+			offset.load3(mDrawablep->getRegion()->getOriginAgent().mV);
+			newMin.add(offset);
+			newMax.add(offset);
+
+			llassert(less_than_max_mag(newMin));
+			llassert(less_than_max_mag(newMax));
+		}
+
+		t.setAdd(newMin, newMax);
 		t.mul(0.5f);
 
+		llassert(less_than_max_mag(t));
+
+		//VECTORIZE THIS
 		mCenterLocal.set(t.getF32ptr());
+
+		llassert(less_than_max_mag(newMin));
+		llassert(less_than_max_mag(newMax));
 
 		t.setSub(newMax,newMin);
 		mBoundingSphereRadius = t.getLength3().getF32()*0.5f;
 
-	
 		updateCenterAgent();
 	}
 
