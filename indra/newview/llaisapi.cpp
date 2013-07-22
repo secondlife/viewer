@@ -548,6 +548,8 @@ void AISUpdate::parseCategory(const LLSD& category_map)
 			// delta to be created if it does not already exist;
 			// otherwise has no effect.
 			mCatDescendentDeltas[new_cat->getParentUUID()];
+			// Capture update for the category itself as well.
+			mCatDescendentDeltas[category_id];
 		}
 		else
 		{
@@ -699,6 +701,8 @@ void AISUpdate::doUpdate()
 	for (std::map<LLUUID,S32>::const_iterator catit = mCatDescendentDeltas.begin();
 		 catit != mCatDescendentDeltas.end(); ++catit)
 	{
+		LL_DEBUGS("Inventory") << "descendent accounting for " << catit->first << llendl;
+
 		const LLUUID cat_id(catit->first);
 		// Don't account for update if we just created this category.
 		if (mCategoriesCreated.find(cat_id) != mCategoriesCreated.end())
@@ -720,7 +724,8 @@ void AISUpdate::doUpdate()
 		{
 			S32 descendent_delta = catit->second;
 			S32 old_count = cat->getDescendentCount();
-			LL_DEBUGS("Inventory") << "Updating descendent count for " << cat_id
+			LL_DEBUGS("Inventory") << "Updating descendent count for "
+								   << cat->getName() << " " << cat_id
 								   << " with delta " << descendent_delta << " from "
 								   << old_count << " to " << (old_count+descendent_delta) << LL_ENDL;
 			LLInventoryModel::LLCategoryUpdate up(cat_id, descendent_delta);
@@ -761,7 +766,7 @@ void AISUpdate::doUpdate()
 			new_category->setVersion(curr_cat->getVersion());
 			new_category->setDescendentCount(curr_cat->getDescendentCount());
 			gInventory.updateCategory(new_category);
-			LL_DEBUGS("Inventory") << "updated category " << category_id << LL_ENDL;
+			LL_DEBUGS("Inventory") << "updated category " << new_category->getName() << " " << category_id << LL_ENDL;
 		}
 	}
 
