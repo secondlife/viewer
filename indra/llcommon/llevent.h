@@ -29,6 +29,7 @@
 #define LL_EVENT_H
 
 #include "llsd.h"
+#include "llrefcount.h"
 #include "llpointer.h"
 
 namespace LLOldEvents
