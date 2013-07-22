@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <errno.h>
+#include <set>
 
 #include "linden_common.h"
 #include "llerrorcontrol.h"
