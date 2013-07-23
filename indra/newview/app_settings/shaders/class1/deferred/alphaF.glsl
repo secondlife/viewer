@@ -79,7 +79,7 @@ uniform vec2 screen_res;
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
 	float a = max(dot(n,l),0.0);
-	a = pow(a, 1.0/1.3);
+	//a = pow(a, 1.0/1.3);
 	return vec3(a,a,a);
 }
 

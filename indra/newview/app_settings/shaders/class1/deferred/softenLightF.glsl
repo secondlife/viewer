@@ -378,7 +378,7 @@ void main()
 	norm.xyz = decode_normal(norm.xy); // unpack norm
 		
 	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
-	da = pow(da, 1.0/1.3);
+	//da = pow(da, 1.0/1.3);
 
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
 

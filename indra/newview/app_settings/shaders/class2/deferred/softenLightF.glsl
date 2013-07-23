@@ -385,8 +385,8 @@ void main()
 		
 	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
 
-	float light_gamma = 1.0/1.3;
-	da = pow(da, light_gamma);
+	//float light_gamma = 1.0/1.3;
+	//da = pow(da, light_gamma);
 
 
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
@@ -400,11 +400,9 @@ void main()
 		vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
 		
 		vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
-		scol_ambocc = pow(scol_ambocc, vec2(light_gamma));
+		//scol_ambocc = pow(scol_ambocc, vec2(light_gamma));
 
 		float scol = max(scol_ambocc.r, diffuse.a); 
-
-		
 
 		float ambocc = scol_ambocc.g;
 	

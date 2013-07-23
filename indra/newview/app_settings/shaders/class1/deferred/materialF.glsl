@@ -672,7 +672,7 @@ void main()
 
 	col.rgb *= ambient;
 
-	col.rgb = col.rgb + atmosAffectDirectionalLight(pow(final_da, 1.0/1.3));
+	col.rgb = col.rgb + atmosAffectDirectionalLight(final_da); //pow(final_da, 1.0/1.3));
 	col.rgb *= old_diffcol.rgb;
 	
 
