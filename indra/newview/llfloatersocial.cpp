@@ -750,7 +750,7 @@ void LLSocialAccountPanel::onConnect()
 
 void LLSocialAccountPanel::onUseAnotherAccount()
 {
-
+	LLFacebookConnect::instance().disconnectThenConnectToFacebook();
 }
 
 void LLSocialAccountPanel::onDisconnect()
