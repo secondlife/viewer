@@ -89,7 +89,7 @@ std::vector<std::string>* doLoadDialog(const std::vector<std::string>* allowed_t
         }
         
         for (i=0; i<count; i++) {
-            NSString *aFile = [filesToOpen objectAtIndex:i];
+            NSString *aFile = [[filesToOpen objectAtIndex:i] path];
             std::string *afilestr = new std::string([aFile UTF8String]);
             outfiles->push_back(*afilestr);
         }
