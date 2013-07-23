@@ -711,11 +711,6 @@ void LLSocialAccountPanel::showConnectButton()
 	if(!mConnectButton->getVisible())
 	{
 		mConnectButton->setVisible(TRUE);
-		LLRect mLayoutStackRect = mPanelButtons->getRect();
-		F32 deltaTopPadding =  mConnectButton->getRect().mBottom - mUseAnotherAccountButton->getRect().mTop;
-		mLayoutStackRect.translate(0, -(mConnectButton->getRect().getHeight() + deltaTopPadding));
-		mPanelButtons->setRect(mLayoutStackRect);
-
 		mUseAnotherAccountButton->setVisible(FALSE);
 		mDisconnectButton->setVisible(FALSE);
 	}
@@ -726,11 +721,6 @@ void LLSocialAccountPanel::hideConnectButton()
 	if(mConnectButton->getVisible())
 	{
 		mConnectButton->setVisible(FALSE);
-		LLRect mLayoutStackRect = mPanelButtons->getRect();
-		F32 deltaTopPadding =  mConnectButton->getRect().mBottom - mUseAnotherAccountButton->getRect().mTop;
-		mLayoutStackRect.translate(0, mConnectButton->getRect().getHeight() + deltaTopPadding);
-		mPanelButtons->setRect(mLayoutStackRect);
-
 		mUseAnotherAccountButton->setVisible(TRUE);
 		mDisconnectButton->setVisible(TRUE);
 	}

@@ -52,7 +52,7 @@
   <button
    layout="topleft"
    follows="left|top"
-   top_pad="9"
+   top_delta="0"
    height="23"
    label="Use another account..."
    name="use_another_account_btn"
