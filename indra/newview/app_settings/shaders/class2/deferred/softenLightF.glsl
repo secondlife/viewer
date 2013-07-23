@@ -85,6 +85,11 @@ vec3 srgb_to_linear(vec3 cs)
     cl = {
         {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
 
+	vec3 low_range = cs / vec3(12.92);
+
+	if (((cs.r + cs.g + cs.b) / 3) <= 0.04045)
+		return low_range;
+
 	return pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
 }
 
@@ -420,6 +425,7 @@ void main()
 	
 		col *= diffuse.rgb;
 	
+
 		vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
 		if (spec.a > 0.0) // specular reflection
@@ -445,11 +451,10 @@ void main()
 			
 			vec3 refcol = textureCube(environmentMap, env_vec).rgb;
 
-			col = mix(col.rgb, refcol, 
-				envIntensity);  
+			col = mix(col.rgb, refcol, envIntensity);  
 
 		}
-						
+	
 		if (norm.w < 0.5)
 		{
 			col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
@@ -461,6 +466,8 @@ void main()
 			col = fogged.rgb;
 			bloom = fogged.a;
 		#endif
+
+
 
 		col = srgb_to_linear(col);
 

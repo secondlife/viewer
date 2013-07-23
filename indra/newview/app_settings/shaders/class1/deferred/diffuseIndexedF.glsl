@@ -39,34 +39,15 @@ vec2 encode_normal(vec3 n)
 	return n.xy / f + 0.5;
 }
 
-vec3 srgb_to_linear(vec3 cs)
-{
-	
-/*        {  cs / 12.92,                 cs <= 0.04045
-    cl = {
-        {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
-
-	return pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
-}
-
-vec3 linear_to_srgb(vec3 cl)
-{
-	    /*{  0.0,                          0         <= cl
-            {  12.92 * c,                    0         <  cl < 0.0031308
-    cs = {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
-            {  1.0,                                       cl >= 1*/
-
-	return 1.055 * pow(cl, vec3(0.41666)) - 0.055;
-}
-
 void main() 
 {
-	vec3 col = vertex_color.rgb * diffuseLookup(vary_texcoord0.xy).rgb;
+	vec4 diff = diffuseLookup(vary_texcoord0.xy);
+	vec3 col  = vertex_color.rgb * diff.rgb;
 	
 	vec3 spec;
 	spec.rgb = vec3(vertex_color.a);
 
-	frag_data[0] = vec4(col, 0.0);
+	frag_data[0] = vec4(col, 0);
 	frag_data[1] = vec4(spec, vertex_color.a); // spec
 	vec3 nvn = normalize(vary_normal);
 	frag_data[2] = vec4(encode_normal(nvn.xyz), vertex_color.a, 0.0);
