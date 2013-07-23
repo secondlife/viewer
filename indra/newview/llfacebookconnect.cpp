@@ -181,7 +181,12 @@ class LLFacebookDisconnectResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLFacebookDisconnectResponder);
 public:
-    
+ 
+	LLFacebookDisconnectResponder()
+	{
+		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_DISCONNECTING);
+	}
+
 	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
 		if (isGoodStatus(status))
@@ -251,6 +256,11 @@ class LLFacebookDisconnectThenConnectResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLFacebookDisconnectThenConnectResponder);
 public:
+
+	LLFacebookDisconnectThenConnectResponder()
+	{
+		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_DISCONNECTING);
+	}
 
 	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
 	{

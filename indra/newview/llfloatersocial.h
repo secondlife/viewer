@@ -120,6 +120,7 @@ class LLSocialAccountPanel : public LLPanel
 public:
 	LLSocialAccountPanel();
 	BOOL postBuild();
+	void draw();
 
 private:
 	void onVisibilityChange(const LLSD& new_visibility);
