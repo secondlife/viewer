@@ -2311,13 +2311,6 @@ bool LLAppViewer::initConfiguration()
 {	
 	//Load settings files list
 	std::string settings_file_list = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "settings_files.xml");
-	//LLControlGroup settings_control("SettingsFiles");
-	//llinfos << "Loading settings file list " << settings_file_list << llendl;
-	//if (0 == settings_control.loadFromFile(settings_file_list))
-	//{
- //       llerrs << "Cannot load default configuration file " << settings_file_list << llendl;
-	//}
-
 	LLXMLNodePtr root;
 	BOOL success  = LLXMLNode::parseFile(settings_file_list, root, NULL);
 	if (!success)
@@ -2376,9 +2369,7 @@ bool LLAppViewer::initConfiguration()
 	{
 		c->setValue(true, false);
 	}
-#endif
 
-#ifndef	LL_RELEASE_FOR_DOWNLOAD
 	gSavedSettings.setBOOL("QAMode", TRUE );
 	gSavedSettings.setS32("WatchdogEnabled", 0);
 #endif
@@ -2472,7 +2463,7 @@ bool LLAppViewer::initConfiguration()
 	// Register the core crash option as soon as we can
 	// if we want gdb post-mortem on cores we need to be up and running
 	// ASAP or we might miss init issue etc.
-	if(clp.hasOption("disablecrashlogger"))
+	if(gSavedSettings.getBOOL("DisableCrashLogger"))
 	{
 		llwarns << "Crashes will be handled by system, stack trace logs and crash logger are both disabled" << llendl;
 		LLAppViewer::instance()->disableCrashlogger();
@@ -2545,91 +2536,44 @@ bool LLAppViewer::initConfiguration()
         }
     }
 
-    if(clp.hasOption("channel"))
-    {
-		LLVersionInfo::resetChannel(clp.getOption("channel")[0]);
+	std::string CmdLineChannel(gSavedSettings.getString("CmdLineChannel"));
+	if(! CmdLineChannel.empty())
+	{
+		LLVersionInfo::resetChannel(CmdLineChannel);
 	}
 
 	// If we have specified crash on startup, set the global so we'll trigger the crash at the right time
-	if(clp.hasOption("crashonstartup"))
-	{
-		gCrashOnStartup = TRUE;
-	}
+	gCrashOnStartup = gSavedSettings.getBOOL("CrashOnStartup");
 
-	if (clp.hasOption("logperformance"))
+	if (gSavedSettings.getBOOL("LogPerformance"))
 	{
 		LLFastTimer::sLog = TRUE;
 		LLFastTimer::sLogName = std::string("performance");		
 	}
-	
-	if (clp.hasOption("logmetrics"))
- 	{
- 		LLFastTimer::sMetricLog = TRUE ;
-		// '--logmetrics' can be specified with a named test metric argument so the data gathering is done only on that test
-		// In the absence of argument, every metric is gathered (makes for a rather slow run and hard to decipher report...)
-		std::string test_name = clp.getOption("logmetrics")[0];
+
+	std::string test_name(gSavedSettings.getString("LogMetrics"));
+	if (! test_name.empty())
+	{
+		LLFastTimer::sMetricLog = TRUE ;
+		// '--logmetrics' is specified with a named test metric argument so the data gathering is done only on that test
+		// In the absence of argument, every metric would be gathered (makes for a rather slow run and hard to decipher report...)
 		llinfos << "'--logmetrics' argument : " << test_name << llendl;
-		if (test_name == "")
-		{
-			llwarns << "No '--logmetrics' argument given, will output all metrics to " << DEFAULT_METRIC_NAME << llendl;
-			LLFastTimer::sLogName = DEFAULT_METRIC_NAME;
-		}
-		else
-		{
-			LLFastTimer::sLogName = test_name;
-		}
+		LLFastTimer::sLogName = test_name;
  	}
 
 	if (clp.hasOption("graphicslevel"))
 	{
-		const LLCommandLineParser::token_vector_t& value = clp.getOption("graphicslevel");
-        if(value.size() != 1)
-        {
-			llwarns << "Usage: -graphicslevel <0-3>" << llendl;
-        }
-        else
-        {
-			std::string detail = value.front();
-			mForceGraphicsDetail = TRUE;
-			
-			switch (detail.c_str()[0])
-			{
-				case '0': 
-					gSavedSettings.setU32("RenderQualityPerformance", 0);		
-					break;
-				case '1': 
-					gSavedSettings.setU32("RenderQualityPerformance", 1);		
-					break;
-				case '2': 
-					gSavedSettings.setU32("RenderQualityPerformance", 2);		
-					break;
-				case '3': 
-					gSavedSettings.setU32("RenderQualityPerformance", 3);		
-					break;
-				default:
-					mForceGraphicsDetail = FALSE;
-					llwarns << "Usage: -graphicslevel <0-3>" << llendl;
-					break;
-			}
-        }
+		// User explicitly requested --graphicslevel on the command line.
+		// We expect this switch has already set RenderQualityPerformance.
+		// Check that value for validity; if valid, we'll engage it later.
+		mForceGraphicsDetail =
+			LLFeatureManager::instance().isValidGraphicsLevel(gSavedSettings.getU32("RenderQualityPerformance"));
 	}
 
-	if (clp.hasOption("analyzeperformance"))
-	{
-		LLFastTimerView::sAnalyzePerformance = TRUE;
-	}
+	LLFastTimerView::sAnalyzePerformance = gSavedSettings.getBOOL("AnalyzePerformance");
+	gAgentPilot.setReplaySession(gSavedSettings.getBOOL("ReplaySession"));
 
-	if (clp.hasOption("replaysession"))
-	{
-		gAgentPilot.setReplaySession(TRUE);
-	}
-
-	if (clp.hasOption("nonotifications"))
-	{
-		gSavedSettings.getControl("IgnoreAllNotifications")->setValue(true, false);
-	}
-	
-	if (clp.hasOption("debugsession"))
+	if (gSavedSettings.getBOOL("DebugSession"))
 	{
 		gDebugSession = TRUE;
 		gDebugGL = TRUE;
@@ -2654,20 +2598,16 @@ bool LLAppViewer::initConfiguration()
     // What can happen is that someone can use IE (or potentially 
     // other browsers) and do the rough equivalent of command 
     // injection and steal passwords. Phoenix. SL-55321
-    if(clp.hasOption("url"))
-    {
-		LLStartUp::setStartSLURL(LLSLURL(clp.getOption("url")[0]));
-		if(LLStartUp::getStartSLURL().getType() == LLSLURL::LOCATION) 
-		{  
-			LLGridManager::getInstance()->setGridChoice(LLStartUp::getStartSLURL().getGrid());
-			
-		}  
-    }
-    else if(clp.hasOption("slurl"))
-    {
-		LLSLURL start_slurl(clp.getOption("slurl")[0]);
+	std::string CmdLineLoginLocation(gSavedSettings.getString("CmdLineLoginLocation"));
+	if(! CmdLineLoginLocation.empty())
+	{
+		LLSLURL start_slurl(CmdLineLoginLocation);
 		LLStartUp::setStartSLURL(start_slurl);
-    }
+		if(start_slurl.getType() == LLSLURL::LOCATION) 
+		{  
+			LLGridManager::getInstance()->setGridChoice(start_slurl.getGrid());
+		}
+	}
 
 	const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
 	if(skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
@@ -2810,9 +2750,8 @@ bool LLAppViewer::initConfiguration()
 		LL_DEBUGS("AppInit")<<"set start from NextLoginLocation: "<<nextLoginLocation<<LL_ENDL;
 		LLStartUp::setStartSLURL(LLSLURL(nextLoginLocation));
 	}
-	else if (   (   clp.hasOption("login") || clp.hasOption("autologin"))
-			 && !clp.hasOption("url")
-			 && !clp.hasOption("slurl"))
+	else if ((clp.hasOption("login") || clp.hasOption("autologin"))
+			 && gSavedSettings.getString("CmdLineLoginLocation").empty())
 	{
 		// If automatic login from command line with --login switch
 		// init StartSLURL location.

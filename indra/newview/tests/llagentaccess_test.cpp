@@ -49,10 +49,10 @@ LLControlGroup::~LLControlGroup()
 }
 
 // Implementation of just the LLControlGroup methods we requre
-BOOL LLControlGroup::declareU32(const std::string& name, U32 initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareU32(const std::string& name, U32 initial_val, const std::string& comment, BOOL persist)
 {
 	test_preferred_maturity = initial_val;
-	return true;
+	return NULL;
 }
 
 void LLControlGroup::setU32(const std::string& name, U32 val)
