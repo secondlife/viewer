@@ -316,7 +316,7 @@ void callMouseMoved(float *pos, MASK mask)
 	outCoords.mX += deltas[0];
 	outCoords.mY += deltas[1];
 	gWindowImplementation->getCallbacks()->handleMouseMove(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
-	gWindowImplementation->getCallbacks()->handleScrollWheel(gWindowImplementation, 0);
+	//gWindowImplementation->getCallbacks()->handleScrollWheel(gWindowImplementation, 0);
 }
 
 void callScrollMoved(float delta)
@@ -849,20 +849,24 @@ BOOL LLWindowMacOSX::setSizeImpl(const LLCoordScreen size)
 {
 	if(mWindow)
 	{
-		setWindowSize(mWindow, size.mX, size.mY);
+        LLCoordWindow to;
+        convertCoords(size, &to);
+		setWindowSize(mWindow, to.mX, to.mY);
+        return TRUE;
 	}
 
-	return TRUE;
+	return FALSE;
 }
 
 BOOL LLWindowMacOSX::setSizeImpl(const LLCoordWindow size)
 {
 	if (mWindow)
 	{
-		LLCoordScreen screen_size;
-		convertCoords(size, &screen_size);
-		return setSizeImpl(screen_size);
+        const int titlePadding = 22;
+        setWindowSize(mWindow, size.mX, size.mY + titlePadding);
+        return TRUE;
 	}
+    
 	return FALSE;
 }
 
