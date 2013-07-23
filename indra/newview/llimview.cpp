@@ -2669,6 +2669,13 @@ void LLIMMgr::addMessage(
 		fixed_session_name = session_name;
 		name_is_setted = true;
 	}
+	bool skip_message = false;
+	if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly"))
+	{
+		// Evaluate if we need to skip this message when that setting is true (default is false)
+		skip_message = (LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL);	// Skip non friends...
+		skip_message &= !(other_participant_id == gAgentID);	// You are your best friend... Don't skip yourself
+	}
 
 	bool new_session = !hasSession(new_session_id);
 	if (new_session)
@@ -2680,6 +2687,12 @@ void LLIMMgr::addMessage(
 		}
 		LLIMModel::getInstance()->newSession(new_session_id, fixed_session_name, dialog, other_participant_id, false, is_offline_msg);
 
+		LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(new_session_id);
+		skip_message &= !session->isGroupSessionType();			// Do not skip group chats...
+		if(skip_message)
+		{
+			gIMMgr->leaveSession(new_session_id);
+		}
 		// When we get a new IM, and if you are a god, display a bit
 		// of information about the source. This is to help liaisons
 		// when answering questions.
@@ -2720,23 +2733,13 @@ void LLIMMgr::addMessage(
         }
 	}
 
-	bool skip_message = false;
-	if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly"))
-	{
-		// Evaluate if we need to skip this message when that setting is true (default is false)
-		LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(new_session_id);
-		skip_message = (LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL);	// Skip non friends...
-		skip_message &= !session->isGroupSessionType();			// Do not skip group chats...
-		skip_message &= !(other_participant_id == gAgentID);	// You are your best friend... Don't skip yourself
-	}
-
 	if (!LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !skip_message)
 	{
 		LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg);
 	}
 
 	// Open conversation floater if offline messages are present
-	if (is_offline_msg)
+	if (is_offline_msg && !skip_message)
     {
         LLFloaterReg::showInstance("im_container");
 	    LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container")->
