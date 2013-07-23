@@ -69,7 +69,8 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 	mShowPageTitle(params.show_page_title),
     mAllowNavigation(true),
     mCurrentURL(""),
-    mDisplayURL("")
+    mDisplayURL(""),
+    mSecureURL(false)
 {
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
@@ -242,7 +243,6 @@ void LLFloaterWebContent::open_media(const Params& p)
 	mWebBrowser->setTarget(p.target);
 	mWebBrowser->navigateTo(p.url, "text/html");
 	
-    mSecureLockIcon->setVisible(false);
 	set_current_url(p.url);
 
 	getChild<LLLayoutPanel>("status_bar")->setVisible(p.show_chrome);
@@ -304,6 +304,9 @@ void LLFloaterWebContent::draw()
 	mBtnBack->setEnabled( mWebBrowser->canNavigateBack() && mAllowNavigation);
 	mBtnForward->setEnabled( mWebBrowser->canNavigateForward() && mAllowNavigation);
 
+    // Show/hide the lock icon
+    mSecureLockIcon->setVisible(mSecureURL && !mAddressCombo->hasFocus());
+
 	LLFloater::draw();
 }
 
@@ -317,7 +320,6 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		if ( url.length() )
 			mStatusBarText->setText( url );
 
-        mSecureLockIcon->setVisible(false);
 		set_current_url( url );
 	}
 	else if(event == MEDIA_EVENT_NAVIGATE_BEGIN)
@@ -349,23 +351,6 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		// we populate the status bar with URLs as they change so clear it now we're done
 		const std::string end_str = "";
 		mStatusBarText->setText( end_str );
-
-		// decide if secure browsing icon should be displayed
-		std::string prefix = std::string("https://");
-		std::string test_prefix = mCurrentURL.substr(0, prefix.length());
-		LLStringUtil::toLower(test_prefix);
-		if (test_prefix == prefix)
-		{
-			mSecureLockIcon->setVisible(true);
-            // Hack : we move the text a bit to make space for the lock icon.
-            BOOL browser_has_focus = mWebBrowser->hasFocus();
-            set_current_url("      " + mCurrentURL);
-            mWebBrowser->setFocus(browser_has_focus);
-		}
-        else
-        {
-            mSecureLockIcon->setVisible(false);
-        }
 	}
 	else if(event == MEDIA_EVENT_CLOSE_REQUEST)
 	{
@@ -417,8 +402,7 @@ void LLFloaterWebContent::set_current_url(const std::string& url)
             mAddressCombo->add(mCurrentURL);
         }
 
-        // Update current URLs
-        mDisplayURL = url;
+        // Update current URL
         mCurrentURL = url;
         LLStringUtil::trim(mCurrentURL);
 
@@ -426,10 +410,22 @@ void LLFloaterWebContent::set_current_url(const std::string& url)
         LLURLHistory::removeURL("browser", mCurrentURL);
         LLURLHistory::addURL("browser", mCurrentURL);
 
-        // Clean up browsing list (prevent dupes) and add/select new URL to it
+		// Check if this is a secure URL
+		static const std::string secure_prefix = std::string("https://");
+		std::string prefix = mCurrentURL.substr(0, secure_prefix.length());
+		LLStringUtil::toLower(prefix);
+        mSecureURL = (prefix == secure_prefix);
+        
+        // Hack : we move the text a bit to make space for the lock icon in the secure URL case
+		mDisplayURL = (mSecureURL ? "      " + mCurrentURL : mCurrentURL);
+
+        // Clean up browsing list (prevent dupes) and add/select the new URL to it
         mAddressCombo->remove(mCurrentURL);
         mAddressCombo->add(mDisplayURL);
         mAddressCombo->selectByValue(mDisplayURL);
+
+        // Set the focus back to the web page. When setting the url, there's no point to leave the focus anywhere else.
+		mWebBrowser->setFocus(TRUE);
     }
 }
 
