@@ -650,8 +650,6 @@ void LLSocialAccountPanel::onVisibilityChange(const LLSD& new_visibility)
 		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialAccountPanel");
 		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialAccountPanel", boost::bind(&LLSocialAccountPanel::onFacebookConnectStateChange, this, _1));
 
-		LLFacebookConnect::instance().loadFacebookInfo();
-
 		LLEventPumps::instance().obtain("FacebookConnectInfo").stopListening("LLSocialAccountPanel");
 		LLEventPumps::instance().obtain("FacebookConnectInfo").listen("LLSocialAccountPanel", boost::bind(&LLSocialAccountPanel::onFacebookConnectInfoChange, this));
 

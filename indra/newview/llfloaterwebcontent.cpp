@@ -358,7 +358,9 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		{
 			mSecureLockIcon->setVisible(true);
             // Hack : we move the text a bit to make space for the lock icon.
+            BOOL browser_has_focus = mWebBrowser->hasFocus();
             set_current_url("      " + mCurrentURL);
+            mWebBrowser->setFocus(browser_has_focus);
 		}
         else
         {
@@ -406,26 +408,29 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 
 void LLFloaterWebContent::set_current_url(const std::string& url)
 {
-    if (!mCurrentURL.empty())
+    if (!url.empty())
     {
-        // Clean up the current browsing list to show true URL
-        mAddressCombo->remove(mDisplayURL);
-        mAddressCombo->add(mCurrentURL);
+        if (!mCurrentURL.empty())
+        {
+            // Clean up the current browsing list to show true URL
+            mAddressCombo->remove(mDisplayURL);
+            mAddressCombo->add(mCurrentURL);
+        }
+
+        // Update current URLs
+        mDisplayURL = url;
+        mCurrentURL = url;
+        LLStringUtil::trim(mCurrentURL);
+
+        // Serialize url history into the system URL History manager
+        LLURLHistory::removeURL("browser", mCurrentURL);
+        LLURLHistory::addURL("browser", mCurrentURL);
+
+        // Clean up browsing list (prevent dupes) and add/select new URL to it
+        mAddressCombo->remove(mCurrentURL);
+        mAddressCombo->add(mDisplayURL);
+        mAddressCombo->selectByValue(mDisplayURL);
     }
-
-    // Update current URLs
-	mDisplayURL = url;
-	mCurrentURL = url;
-    LLStringUtil::trim(mCurrentURL);
-
-    // Serialize url history into the system URL History manager
-    LLURLHistory::removeURL("browser", mCurrentURL);
-    LLURLHistory::addURL("browser", mCurrentURL);
-
-    // Clean up browsing list (prevent dupes) and add/select new URL to it
-	mAddressCombo->remove(mCurrentURL);
-	mAddressCombo->add(mDisplayURL);
-	mAddressCombo->selectByValue(mDisplayURL);
 }
 
 void LLFloaterWebContent::onClickForward()
