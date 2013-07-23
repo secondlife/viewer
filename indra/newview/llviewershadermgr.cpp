@@ -1611,9 +1611,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightAlphaMaskProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 		gDeferredFullbrightAlphaMaskProgram.mShaderFiles.clear();
 		gDeferredFullbrightAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredFullbrightAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredFullbrightAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightAlphaMaskF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredFullbrightAlphaMaskProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		gDeferredFullbrightAlphaMaskProgram.addPermutation("HAS_ALPHA_MASK","1");
 		success = gDeferredFullbrightAlphaMaskProgram.createShader(NULL, NULL);
 	}
 
@@ -1642,10 +1641,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightAlphaMaskWaterProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 		gDeferredFullbrightAlphaMaskWaterProgram.mShaderFiles.clear();
 		gDeferredFullbrightAlphaMaskWaterProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredFullbrightAlphaMaskWaterProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredFullbrightAlphaMaskWaterProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightAlphaMaskF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredFullbrightAlphaMaskWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		gDeferredFullbrightAlphaMaskWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-		gDeferredFullbrightAlphaMaskWaterProgram.addPermutation("HAS_ALPHA_MASK","1");
 		gDeferredFullbrightAlphaMaskWaterProgram.addPermutation("WATER_FOG","1");
 		success = gDeferredFullbrightAlphaMaskWaterProgram.createShader(NULL, NULL);
 	}
