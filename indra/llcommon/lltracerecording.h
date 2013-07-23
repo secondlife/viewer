@@ -333,6 +333,21 @@ namespace LLTrace
 		const Recording& getPrevRecording(U32 offset) const;
 		Recording snapshotCurRecording() const;
 
+		template <typename T>
+		size_t getSampleCount(const TraceType<T>& stat, size_t num_periods = U32_MAX)
+        {
+			size_t total_periods = mNumPeriods;
+			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+
+            size_t num_samples = 0;
+			for (S32 i = 1; i <= num_periods; i++)
+			{
+				S32 index = (mCurPeriod + total_periods - i) % total_periods;
+				num_samples += mRecordingPeriods[index].getSampleCount(stat);
+			}
+			return num_samples;
+        }
+        
 		//
 		// PERIODIC MIN
 		//

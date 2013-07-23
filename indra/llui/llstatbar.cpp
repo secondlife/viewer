@@ -225,6 +225,9 @@ void LLStatBar::draw()
 		max     = 0,
 		mean    = 0;
 
+    
+    S32 num_samples = 0;
+    
 	LLLocalClipRect _(getLocalRect());
 	LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
 
@@ -236,6 +239,7 @@ void LLStatBar::draw()
 		if (mPerSec)
 		{
 			unit_label += "/s";
+            num_samples = frame_recording.getSampleCount(*mCountFloatp, mNumFrames);
 			current = last_frame_recording.getPerSec(*mCountFloatp);
 			min     = frame_recording.getPeriodMinPerSec(*mCountFloatp, mNumFrames);
 			max     = frame_recording.getPeriodMaxPerSec(*mCountFloatp, mNumFrames);
@@ -243,6 +247,7 @@ void LLStatBar::draw()
 		}
 		else
 		{
+            num_samples = frame_recording.getSampleCount(*mCountFloatp, mNumFrames);
 			current = last_frame_recording.getSum(*mCountFloatp);
 			min     = frame_recording.getPeriodMin(*mCountFloatp, mNumFrames);
 			max     = frame_recording.getPeriodMax(*mCountFloatp, mNumFrames);
@@ -254,6 +259,7 @@ void LLStatBar::draw()
 		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording();
 		unit_label = mUnitLabel.empty() ? mEventFloatp->getUnitLabel() : mUnitLabel;
 
+        num_samples = frame_recording.getSampleCount(*mEventFloatp, mNumFrames);
 		current = last_frame_recording.getMean(*mEventFloatp);
 		min     = frame_recording.getPeriodMin(*mEventFloatp, mNumFrames);
 		max     = frame_recording.getPeriodMax(*mEventFloatp, mNumFrames);
@@ -264,6 +270,7 @@ void LLStatBar::draw()
 		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording();
 		unit_label = mUnitLabel.empty() ? mSampleFloatp->getUnitLabel() : mUnitLabel;
 
+        num_samples = frame_recording.getSampleCount(*mSampleFloatp, mNumFrames);
 		current = last_frame_recording.getMean(*mSampleFloatp);
 		min     = frame_recording.getPeriodMin(*mSampleFloatp, mNumFrames);
 		max     = frame_recording.getPeriodMax(*mSampleFloatp, mNumFrames);
@@ -329,7 +336,9 @@ void LLStatBar::draw()
 	{
 		decimal_digits = 0;
 	}
-	std::string value_str = llformat("%10.*f %s", decimal_digits, mean, unit_label.c_str());
+	std::string value_str = num_samples
+                            ? llformat("%10.*f %s", decimal_digits, mean, unit_label.c_str())
+                            : "n/a";
 
 	// Draw the current value.
 	if (mOrientation == HORIZONTAL)
@@ -345,7 +354,8 @@ void LLStatBar::draw()
 			LLFontGL::RIGHT, LLFontGL::TOP);
 	}
 
-	if (mDisplayBar && (mCountFloatp || mEventFloatp || mSampleFloatp))
+	if (mDisplayBar
+        && (mCountFloatp || mEventFloatp || mSampleFloatp))
 	{
 		// Draw the tick marks.
 		LLGLSUIDefault gls_ui;
@@ -431,7 +441,6 @@ void LLStatBar::draw()
 		if (begin < 0)
 		{
 			begin = 0;
-			llwarns << "Min:" << min << llendl;
 		}
 
 		S32 end = (S32) ((max - mCurMinBar) * value_scale);
@@ -444,90 +453,93 @@ void LLStatBar::draw()
 			gl_rect_2d(begin, bar_top, end, bar_bottom, LLColor4(1.f, 0.f, 0.f, 0.25f));
 		}
 
-		F32 span = (mOrientation == HORIZONTAL)
+        if (num_samples)
+        {
+            F32 span = (mOrientation == HORIZONTAL)
 					? (bar_right - bar_left)
 					: (bar_top - bar_bottom);
 
-		if (mDisplayHistory && (mCountFloatp || mEventFloatp || mSampleFloatp))
-		{
-			const S32 num_values = frame_recording.getNumRecordedPeriods() - 1;
-			F32 value = 0;
-			S32 i;
-			gGL.color4f( 1.f, 0.f, 0.f, 1.f );
-			gGL.begin( LLRender::QUADS );
-			const S32 max_frame = llmin(mNumFrames, num_values);
-			U32 num_samples = 0;
-			for (i = 1; i <= max_frame; i++)
-			{
-				F32 offset = ((F32)i / (F32)mNumFrames) * span;
-				LLTrace::Recording& recording = frame_recording.getPrevRecording(i);
+            if (mDisplayHistory && (mCountFloatp || mEventFloatp || mSampleFloatp))
+            {
+                const S32 num_values = frame_recording.getNumRecordedPeriods() - 1;
+                F32 value = 0;
+                S32 i;
+                gGL.color4f( 1.f, 0.f, 0.f, 1.f );
+                gGL.begin( LLRender::QUADS );
+                const S32 max_frame = llmin(mNumFrames, num_values);
+                U32 num_samples = 0;
+                for (i = 1; i <= max_frame; i++)
+                {
+                    F32 offset = ((F32)i / (F32)mNumFrames) * span;
+                    LLTrace::Recording& recording = frame_recording.getPrevRecording(i);
 
-				if (mCountFloatp)
-				{
-					value       = mPerSec 
-									? recording.getPerSec(*mCountFloatp) 
-									: recording.getSum(*mCountFloatp);
-					num_samples = recording.getSampleCount(*mCountFloatp);
-				}
-				else if (mEventFloatp)
-				{
-					value       = recording.getMean(*mEventFloatp);
-					num_samples = recording.getSampleCount(*mEventFloatp);
-				}
-				else if (mSampleFloatp)
-				{
-					value       = recording.getMean(*mSampleFloatp);
-					num_samples = recording.getSampleCount(*mSampleFloatp);
-				}
-				
-				if (!num_samples) continue;
+                    if (mCountFloatp)
+                    {
+                        value       = mPerSec 
+                                        ? recording.getPerSec(*mCountFloatp) 
+                                        : recording.getSum(*mCountFloatp);
+                        num_samples = recording.getSampleCount(*mCountFloatp);
+                    }
+                    else if (mEventFloatp)
+                    {
+                        value       = recording.getMean(*mEventFloatp);
+                        num_samples = recording.getSampleCount(*mEventFloatp);
+                    }
+                    else if (mSampleFloatp)
+                    {
+                        value       = recording.getMean(*mSampleFloatp);
+                        num_samples = recording.getSampleCount(*mSampleFloatp);
+                    }
+                    
+                    if (!num_samples) continue;
 
-				F32 begin = (value  - mCurMinBar) * value_scale;
-				if (mOrientation == HORIZONTAL)
-				{
-					gGL.vertex2f((F32)bar_right - offset, begin + 1);
-					gGL.vertex2f((F32)bar_right - offset, begin);
-					gGL.vertex2f((F32)bar_right - offset - 1, begin);
-					gGL.vertex2f((F32)bar_right - offset - 1, begin + 1);
-				}
-				else
-				{
-					gGL.vertex2f(begin, (F32)bar_bottom + offset + 1);
-					gGL.vertex2f(begin, (F32)bar_bottom + offset);
-					gGL.vertex2f(begin + 1, (F32)bar_bottom + offset);
-					gGL.vertex2f(begin + 1, (F32)bar_bottom + offset + 1 );
-				}
-			}
-			gGL.end();
-		}
-		else
-		{
-			S32 begin = (S32) ((current - mCurMinBar) * value_scale) - 1;
-			S32 end = (S32) ((current - mCurMinBar) * value_scale) + 1;
-			// draw current
-			if (mOrientation == HORIZONTAL)
-			{
-				gl_rect_2d(bar_left, end, bar_right, begin, LLColor4(1.f, 0.f, 0.f, 1.f));
-			}
-			else
-			{
-				gl_rect_2d(begin, bar_top, end, bar_bottom, LLColor4(1.f, 0.f, 0.f, 1.f));
-			}
-		}
+                    F32 begin = (value  - mCurMinBar) * value_scale;
+                    if (mOrientation == HORIZONTAL)
+                    {
+                        gGL.vertex2f((F32)bar_right - offset, begin + 1);
+                        gGL.vertex2f((F32)bar_right - offset, begin);
+                        gGL.vertex2f((F32)bar_right - offset - 1, begin);
+                        gGL.vertex2f((F32)bar_right - offset - 1, begin + 1);
+                    }
+                    else
+                    {
+                        gGL.vertex2f(begin, (F32)bar_bottom + offset + 1);
+                        gGL.vertex2f(begin, (F32)bar_bottom + offset);
+                        gGL.vertex2f(begin + 1, (F32)bar_bottom + offset);
+                        gGL.vertex2f(begin + 1, (F32)bar_bottom + offset + 1 );
+                    }
+                }
+                gGL.end();
+            }
+            else
+            {
+                S32 begin = (S32) ((current - mCurMinBar) * value_scale) - 1;
+                S32 end = (S32) ((current - mCurMinBar) * value_scale) + 1;
+                // draw current
+                if (mOrientation == HORIZONTAL)
+                {
+                    gl_rect_2d(bar_left, end, bar_right, begin, LLColor4(1.f, 0.f, 0.f, 1.f));
+                }
+                else
+                {
+                    gl_rect_2d(begin, bar_top, end, bar_bottom, LLColor4(1.f, 0.f, 0.f, 1.f));
+                }
+            }
 
-		// draw mean bar
-		{
-			const S32 begin = (S32) ((mean - mCurMinBar) * value_scale) - 1;
-			const S32 end = (S32) ((mean - mCurMinBar) * value_scale) + 1;
-			if (mOrientation == HORIZONTAL)
-			{
-				gl_rect_2d(bar_left - 2, begin, bar_right + 2, end, LLColor4(0.f, 1.f, 0.f, 1.f));
-			}
-			else
-			{
-				gl_rect_2d(begin, bar_top + 2, end, bar_bottom - 2, LLColor4(0.f, 1.f, 0.f, 1.f));
-			}
-		}
+            // draw mean bar
+            {
+                const S32 begin = (S32) ((mean - mCurMinBar) * value_scale) - 1;
+                const S32 end = (S32) ((mean - mCurMinBar) * value_scale) + 1;
+                if (mOrientation == HORIZONTAL)
+                {
+                    gl_rect_2d(bar_left - 2, begin, bar_right + 2, end, LLColor4(0.f, 1.f, 0.f, 1.f));
+                }
+                else
+                {
+                    gl_rect_2d(begin, bar_top + 2, end, bar_bottom - 2, LLColor4(0.f, 1.f, 0.f, 1.f));
+                }
+            }
+        }
 	}
 	
 	LLView::draw();
