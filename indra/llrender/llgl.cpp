@@ -647,7 +647,8 @@ bool LLGLManager::initGL()
 		}
 #if LL_DARWIN
 		else if ((mGLRenderer.find("9400M") != std::string::npos)
-			  || (mGLRenderer.find("9600M") != std::string::npos))
+			  || (mGLRenderer.find("9600M") != std::string::npos)
+			  || (mGLRenderer.find("9800M") != std::string::npos))
 		{
 			mIsMobileGF = TRUE;
 		}

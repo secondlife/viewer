@@ -37,6 +37,7 @@
 #include "llviewershadermgr.h"
 #include "llrender.h"
 
+#define GE_FORCE_WORKAROUND LL_DARWIN
 
 static LLGLSLShader* simple_shader = NULL;
 static LLGLSLShader* fullbright_shader = NULL;
@@ -654,7 +655,20 @@ void LLDrawPoolFullbrightAlphaMask::beginPostDeferredPass(S32 pass)
 		gObjectFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.0f);
 	} 
 	else 
-	{
+	{	
+
+#if GE_FORCE_WORKAROUND
+		// Work-around until we can figure out why the right shader causes
+		// the GeForce driver to go tango uniform on OS X 10.6.8 only
+		//
+		if (gGLManager.mIsMobileGF)
+		{
+			gObjectFullbrightAlphaMaskProgram.bind();
+			gObjectFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+			return;
+		}
+#endif
+
 		if (LLPipeline::sUnderWaterRender)
 		{
 			gDeferredFullbrightAlphaMaskWaterProgram.bind();
@@ -665,7 +679,6 @@ void LLDrawPoolFullbrightAlphaMask::beginPostDeferredPass(S32 pass)
 			gDeferredFullbrightAlphaMaskProgram.bind();
 			gDeferredFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
 		}
-		
 	}
 }
 
@@ -685,11 +698,26 @@ void LLDrawPoolFullbrightAlphaMask::endPostDeferredPass(S32 pass)
 	}
 	else
 	{
-#if LL_DARWIN
-		gObjectFullbrightAlphaMaskProgram.unbind();
-#else
-		gDeferredFullbrightAlphaMaskProgram.unbind();
+
+#if GE_FORCE_WORKAROUND
+		// Work-around until we can figure out why the right shader causes
+		// the GeForce driver to go tango uniform on OS X 10.6.8 only
+		//
+		if (gGLManager.mIsMobileGF)
+		{
+			gObjectFullbrightAlphaMaskProgram.unbind();
+		}
+		else
 #endif
+		if (LLPipeline::sUnderWaterRender)
+		{
+			gDeferredFullbrightAlphaMaskWaterProgram.unbind();
+		}
+		else
+		{
+			gDeferredFullbrightAlphaMaskProgram.unbind();
+		}
+
 	}
 	LLRenderPass::endRenderPass(pass);
 }
