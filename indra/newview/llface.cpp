@@ -819,14 +819,14 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 
 		// Catch potential badness from normalization before it happens
 		//
-		llassert(mat_normal.mMatrix[0].isFinite3() && (mat_normal.mMatrix[0].dot3(mat_normal.mMatrix[0]).getF32() > F_APPROXIMATELY_ZERO));
-		llassert(mat_normal.mMatrix[1].isFinite3() && (mat_normal.mMatrix[1].dot3(mat_normal.mMatrix[1]).getF32() > F_APPROXIMATELY_ZERO));
-		llassert(mat_normal.mMatrix[2].isFinite3() && (mat_normal.mMatrix[2].dot3(mat_normal.mMatrix[2]).getF32() > F_APPROXIMATELY_ZERO));
-
 		mat_normal.mMatrix[0].normalize3fast();
 		mat_normal.mMatrix[1].normalize3fast();
 		mat_normal.mMatrix[2].normalize3fast();
-		
+
+		llassert(mat_normal.mMatrix[0].isFinite3());
+		llassert(mat_normal.mMatrix[1].isFinite3());
+		llassert(mat_normal.mMatrix[2].isFinite3());
+
 		LLVector4a v[4];
 
 		//get 4 corners of bounding box

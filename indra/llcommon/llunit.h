@@ -542,28 +542,28 @@ struct base_unit_name                                                           
 }
 
 
-#define LL_DECLARE_DERIVED_UNIT(unit_name, unit_label, base_unit_name, conversion_operation)	    \
-struct unit_name                                                                                    \
-{                                                                                                   \
-	typedef base_unit_name base_unit_t;                                                             \
-	static const char* getUnitLabel() { return unit_label; }									    \
-	template<typename T>                                                                            \
-	static LLUnit<T, unit_name> fromValue(T value) { return LLUnit<T, unit_name>(value); }		    \
-	template<typename STORAGE_T, typename UNIT_T>                                                   \
-	static LLUnit<STORAGE_T, unit_name> fromValue(LLUnit<STORAGE_T, UNIT_T> value)				    \
-	{ return LLUnit<STORAGE_T, unit_name>(value); }												    \
-};                                                                                                  \
-	                                                                                                \
-template<typename S1, typename S2>                                                                  \
-void ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)                    \
-{                                                                                                   \
-	out = LLUnit<S2, base_unit_name>((S2)(LLUnitLinearOps<S1>(in.value()) conversion_operation));   \
-}                                                                                                   \
-                                                                                                    \
-template<typename S1, typename S2>                                                                  \
-void ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, unit_name>& out)                    \
-{                                                                                                   \
-	out = LLUnit<S2, unit_name>((S2)(LLUnitInverseLinearOps<S1>(in.value()) conversion_operation)); \
+#define LL_DECLARE_DERIVED_UNIT(base_unit_name, conversion_operation, unit_name, unit_label)	        \
+struct unit_name                                                                                        \
+{                                                                                                       \
+	typedef base_unit_name base_unit_t;                                                                 \
+	static const char* getUnitLabel() { return unit_label; }									        \
+	template<typename T>                                                                                \
+	static LLUnit<T, unit_name> fromValue(T value) { return LLUnit<T, unit_name>(value); }		        \
+	template<typename STORAGE_T, typename UNIT_T>                                                       \
+	static LLUnit<STORAGE_T, unit_name> fromValue(LLUnit<STORAGE_T, UNIT_T> value)				        \
+	{ return LLUnit<STORAGE_T, unit_name>(value); }												        \
+};                                                                                                      \
+	                                                                                                    \
+template<typename S1, typename S2>                                                                      \
+void ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)                        \
+{                                                                                                       \
+	out = LLUnit<S2, base_unit_name>((S2)(LLUnitLinearOps<S1>(in.value()) conversion_operation));		\
+}                                                                                                       \
+                                                                                                        \
+template<typename S1, typename S2>                                                                      \
+void ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, unit_name>& out)                        \
+{                                                                                                       \
+	out = LLUnit<S2, unit_name>((S2)(LLUnitInverseLinearOps<S1>(in.value()) conversion_operation));     \
 }                                                                                               
 
 //
@@ -573,46 +573,46 @@ void ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, unit_name>& out)
 namespace LLUnits
 {
 LL_DECLARE_BASE_UNIT(Bytes, "B");
-LL_DECLARE_DERIVED_UNIT(Kilobytes, "KB", Bytes, * 1000);
-LL_DECLARE_DERIVED_UNIT(Megabytes, "MB", Kilobytes, * 1000);
-LL_DECLARE_DERIVED_UNIT(Gigabytes, "GB", Megabytes, * 1000);
-LL_DECLARE_DERIVED_UNIT(Kibibytes, "KiB", Bytes, * 1024);
-LL_DECLARE_DERIVED_UNIT(Mibibytes, "MiB", Kibibytes, * 1024);
-LL_DECLARE_DERIVED_UNIT(Gibibytes, "GiB", Mibibytes, * 1024);
+LL_DECLARE_DERIVED_UNIT(Bytes, * 1000,			Kilobytes, "KB");
+LL_DECLARE_DERIVED_UNIT(Kilobytes, * 1000,		Megabytes, "MB");
+LL_DECLARE_DERIVED_UNIT(Megabytes, * 1000,		Gigabytes, "GB");
+LL_DECLARE_DERIVED_UNIT(Bytes, * 1024,			Kibibytes, "KiB");
+LL_DECLARE_DERIVED_UNIT(Kibibytes, * 1024,		Mibibytes, "MiB");
+LL_DECLARE_DERIVED_UNIT(Mibibytes, * 1024,		Gibibytes, "GiB");
 
-LL_DECLARE_DERIVED_UNIT(Bits, "b", Bytes, / 8);
-LL_DECLARE_DERIVED_UNIT(Kilobits, "Kb", Bytes, * 1000 / 8);
-LL_DECLARE_DERIVED_UNIT(Megabits, "Mb", Kilobits, * 1000 / 8);
-LL_DECLARE_DERIVED_UNIT(Gigabits, "Gb", Megabits, * 1000 / 8);
-LL_DECLARE_DERIVED_UNIT(Kibibits, "Kib", Bytes, * 1024 / 8);
-LL_DECLARE_DERIVED_UNIT(Mibibits, "Mib", Kibibits, * 1024 / 8);
-LL_DECLARE_DERIVED_UNIT(Gibibits, "Gib", Mibibits, * 1024 / 8);
+LL_DECLARE_DERIVED_UNIT(Bytes, / 8,				Bits, "b");
+LL_DECLARE_DERIVED_UNIT(Bits, * 1000,			Kilobits, "Kb");
+LL_DECLARE_DERIVED_UNIT(Kilobits, * 1000,		Megabits, "Mb");
+LL_DECLARE_DERIVED_UNIT(Megabits, * 1000,		Gigabits, "Gb");
+LL_DECLARE_DERIVED_UNIT(Bits, * 1024,			Kibibits, "Kib");
+LL_DECLARE_DERIVED_UNIT(Kibibits, * 1024,		Mibibits, "Mib");  
+LL_DECLARE_DERIVED_UNIT(Mibibits, * 1024,		Gibibits, "Gib");
 
 LL_DECLARE_BASE_UNIT(Seconds, "s");
-LL_DECLARE_DERIVED_UNIT(Minutes, "min", Seconds, * 60);
-LL_DECLARE_DERIVED_UNIT(Hours, "h", Seconds, * 60 * 60);
-LL_DECLARE_DERIVED_UNIT(Milliseconds, "ms", Seconds, / 1000);
-LL_DECLARE_DERIVED_UNIT(Microseconds, "\x09\x3cs", Milliseconds, / 1000);
-LL_DECLARE_DERIVED_UNIT(Nanoseconds, "ns", Microseconds, / 1000);
+LL_DECLARE_DERIVED_UNIT(Seconds, * 60,			Minutes, "min");
+LL_DECLARE_DERIVED_UNIT(Minutes, * 60,			Hours, "h");
+LL_DECLARE_DERIVED_UNIT(Seconds, / 1000,		Milliseconds, "ms");
+LL_DECLARE_DERIVED_UNIT(Milliseconds, / 1000,	Microseconds, "\x09\x3cs");
+LL_DECLARE_DERIVED_UNIT(Microseconds, / 1000,	Nanoseconds, "ns");
 
 LL_DECLARE_BASE_UNIT(Meters, "m");
-LL_DECLARE_DERIVED_UNIT(Kilometers, "km", Meters, * 1000);
-LL_DECLARE_DERIVED_UNIT(Centimeters, "cm", Meters, / 100);
-LL_DECLARE_DERIVED_UNIT(Millimeters, "mm", Meters, / 1000);
+LL_DECLARE_DERIVED_UNIT(Meters, * 1000,			Kilometers, "km");
+LL_DECLARE_DERIVED_UNIT(Meters, / 100,			Centimeters, "cm");
+LL_DECLARE_DERIVED_UNIT(Meters, / 1000,			Millimeters, "mm");
 
 LL_DECLARE_BASE_UNIT(Hertz, "Hz");
-LL_DECLARE_DERIVED_UNIT(Kilohertz, "KHz", Hertz, * 1000);
-LL_DECLARE_DERIVED_UNIT(Megahertz, "MHz", Kilohertz, * 1000);
-LL_DECLARE_DERIVED_UNIT(Gigahertz, "GHz", Megahertz, * 1000);
+LL_DECLARE_DERIVED_UNIT(Hertz, * 1000,			Kilohertz, "KHz");
+LL_DECLARE_DERIVED_UNIT(Kilohertz, * 1000,		Megahertz, "MHz");
+LL_DECLARE_DERIVED_UNIT(Megahertz, * 1000,		Gigahertz, "GHz");
 
 LL_DECLARE_BASE_UNIT(Radians, "rad");
-LL_DECLARE_DERIVED_UNIT(Degrees, "deg", Radians, * 0.01745329251994);
+LL_DECLARE_DERIVED_UNIT(Radians, / 57.29578f,	Degrees, "deg");
 
 LL_DECLARE_BASE_UNIT(Percent, "%");
-LL_DECLARE_DERIVED_UNIT(Ratio, "x", Percent, / 100);
+LL_DECLARE_DERIVED_UNIT(Percent, * 100,			Ratio, "x");
 
 LL_DECLARE_BASE_UNIT(Triangles, "tris");
-LL_DECLARE_DERIVED_UNIT(Kilotriangles, "ktris", Triangles, * 1000);
+LL_DECLARE_DERIVED_UNIT(Triangles, * 1000,		Kilotriangles, "ktris");
 
 } // namespace LLUnits
 

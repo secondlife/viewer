@@ -1338,7 +1338,7 @@ void LLFastTimerView::drawHelp( S32 y )
 	y -= (texth + 2);
 	y -= (texth + 2);
 
-	LLFontGL::getFontMonospace()->renderUTF8(std::string("[Right-Click log selected] [ALT-Click toggle counts]"),
+	LLFontGL::getFontMonospace()->renderUTF8(std::string("[Right-Click log selected]"),
 		0, MARGIN, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
 }
 

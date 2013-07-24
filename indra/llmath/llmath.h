@@ -113,6 +113,12 @@ inline bool is_approx_zero( F32 f ) { return (-F_APPROXIMATELY_ZERO < f) && (f <
 // WARNING: Infinity is comparable with F32_MAX and negative 
 // infinity is comparable with F32_MIN
 
+// handles negative and positive zeros
+inline bool is_zero(F32 x)
+{
+	return (*(U32*)(&x) & 0x7fffffff) == 0;
+}
+
 inline bool is_approx_equal(F32 x, F32 y)
 {
 	const S32 COMPARE_MANTISSA_UP_TO_BIT = 0x02;

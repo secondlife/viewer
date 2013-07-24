@@ -223,7 +223,7 @@ namespace LLTrace
 			mMin((std::numeric_limits<F64>::max)()),
 			mMax((std::numeric_limits<F64>::min)()),
 			mMean(0),
-			mVarianceSum(0),
+			mSumOfSquares(0),
 			mNumSamples(0),
 			mLastValue(0)
 		{}
@@ -243,7 +243,7 @@ namespace LLTrace
 			}
 			F64 old_mean = mMean;
 			mMean += (value - old_mean) / (F64)mNumSamples;
-			mVarianceSum += (value - old_mean) * (value - mMean);
+			mSumOfSquares += (value - old_mean) * (value - mMean);
 			mLastValue = value;
 		}
 
@@ -263,20 +263,20 @@ namespace LLTrace
 					n_2 = (F64)other.mNumSamples;
 				F64 m_1 = mMean,
 					m_2 = other.mMean;
-				F64 v_1 = mVarianceSum / mNumSamples,
-					v_2 = other.mVarianceSum / other.mNumSamples;
+				F64 v_1 = mSumOfSquares / mNumSamples,
+					v_2 = other.mSumOfSquares / other.mNumSamples;
 				if (n_1 == 0)
 				{
-					mVarianceSum = other.mVarianceSum;
+					mSumOfSquares = other.mSumOfSquares;
 				}
 				else if (n_2 == 0)
 				{
 					// don't touch variance
-					// mVarianceSum = mVarianceSum;
+					// mSumOfSquares = mSumOfSquares;
 				}
 				else
 				{
-					mVarianceSum = (F64)mNumSamples
+					mSumOfSquares = (F64)mNumSamples
 						* ((((n_1 - 1.f) * v_1)
 						+ ((n_2 - 1.f) * v_2)
 						+ (((n_1 * n_2) / (n_1 + n_2))
@@ -298,7 +298,7 @@ namespace LLTrace
 			mMin = std::numeric_limits<F64>::max();
 			mMax = std::numeric_limits<F64>::min();
 			mMean = 0;
-			mVarianceSum = 0;
+			mSumOfSquares = 0;
 			mLastValue = other ? other->mLastValue : 0;
 		}
 
@@ -309,7 +309,7 @@ namespace LLTrace
 		F64	getMax() const { return mMax; }
 		F64	getLastValue() const { return mLastValue; }
 		F64	getMean() const { return mMean; }
-		F64 getStandardDeviation() const { return sqrtf(mVarianceSum / mNumSamples); }
+		F64 getStandardDeviation() const { return sqrtf(mSumOfSquares / mNumSamples); }
 		U32 getSampleCount() const { return mNumSamples; }
 
 	private:
@@ -319,7 +319,7 @@ namespace LLTrace
 			mLastValue;
 
 		F64	mMean,
-			mVarianceSum;
+			mSumOfSquares;
 
 		U32	mNumSamples;
 	};
@@ -336,7 +336,7 @@ namespace LLTrace
 			mMin((std::numeric_limits<F64>::max)()),
 			mMax((std::numeric_limits<F64>::min)()),
 			mMean(0),
-			mVarianceSum(0),
+			mSumOfSquares(0),
 			mLastSampleTimeStamp(LLTimer::getTotalSeconds()),
 			mTotalSamplingTime(0),
 			mNumSamples(0),
@@ -361,7 +361,7 @@ namespace LLTrace
 
 				F64 old_mean = mMean;
 				mMean += (delta_time / mTotalSamplingTime) * (mLastValue - old_mean);
-				mVarianceSum += delta_time * (mLastValue - old_mean) * (mLastValue - mMean);
+				mSumOfSquares += delta_time * (mLastValue - old_mean) * (mLastValue - mMean);
 			}
 
 			mLastValue = value;
@@ -385,20 +385,20 @@ namespace LLTrace
 					n_2 = other.mTotalSamplingTime;
 				F64 m_1 = mMean,
 					m_2 = other.mMean;
-				F64 v_1 = mVarianceSum / mTotalSamplingTime,
-					v_2 = other.mVarianceSum / other.mTotalSamplingTime;
+				F64 v_1 = mSumOfSquares / mTotalSamplingTime,
+					v_2 = other.mSumOfSquares / other.mTotalSamplingTime;
 				if (n_1 == 0)
 				{
-					mVarianceSum = other.mVarianceSum;
+					mSumOfSquares = other.mSumOfSquares;
 				}
 				else if (n_2 == 0)
 				{
 					// variance is unchanged
-					// mVarianceSum = mVarianceSum;
+					// mSumOfSquares = mSumOfSquares;
 				}
 				else
 				{
-					mVarianceSum =	mTotalSamplingTime
+					mSumOfSquares =	mTotalSamplingTime
 						* ((((n_1 - 1.f) * v_1)
 						+ ((n_2 - 1.f) * v_2)
 						+ (((n_1 * n_2) / (n_1 + n_2))
@@ -427,7 +427,7 @@ namespace LLTrace
 			mMin = std::numeric_limits<F64>::max();
 			mMax = std::numeric_limits<F64>::min();
 			mMean = other ? other->mLastValue : 0;
-			mVarianceSum = 0;
+			mSumOfSquares = 0;
 			mLastSampleTimeStamp = LLTimer::getTotalSeconds();
 			mTotalSamplingTime = 0;
 			mLastValue = other ? other->mLastValue : 0;
@@ -451,7 +451,7 @@ namespace LLTrace
 		F64	getMax() const { return mMax; }
 		F64	getLastValue() const { return mLastValue; }
 		F64	getMean() const { return mMean; }
-		F64 getStandardDeviation() const { return sqrtf(mVarianceSum / mTotalSamplingTime); }
+		F64 getStandardDeviation() const { return sqrtf(mSumOfSquares / mTotalSamplingTime); }
 		U32 getSampleCount() const { return mNumSamples; }
 
 	private:
@@ -463,7 +463,7 @@ namespace LLTrace
 		bool mHasValue;
 
 		F64	mMean,
-			mVarianceSum;
+			mSumOfSquares;
 
 		LLUnitImplicit<F64, LLUnits::Seconds>	mLastSampleTimeStamp,
 			mTotalSamplingTime;
