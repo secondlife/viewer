@@ -204,7 +204,7 @@ void main()
 	
 	proj_tc.xyz /= proj_tc.w;
 	
-	float fa = falloff+1.0;
+	float fa = falloff;
 	float dist_atten = min(1.0-(dist-1.0*(1.0-fa))/fa, 1.0);
 	dist_atten *= dist_atten;
 	dist_atten *= 2.0;

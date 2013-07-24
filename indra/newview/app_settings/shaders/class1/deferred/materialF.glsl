@@ -538,7 +538,7 @@ void main()
 #endif
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-	vec3 old_diffcol = diffcol.rgb;
+	vec3 gamma_diff = diffcol.rgb;
 	diffcol.rgb = srgb_to_linear(diffcol.rgb);
 #endif
 
@@ -558,7 +558,7 @@ void main()
 			  dot(norm.xyz,vary_mat1),
 			  dot(norm.xyz,vary_mat2));
 #else
-	vec4 norm = vec4(0,0,0,1.0);
+	vec4 norm = vec4(0,1,0,1.0);
 	vec3 tnorm = vary_normal;
 #endif
 
@@ -683,8 +683,7 @@ void main()
 	col.rgb *= ambient;
 
 	col.rgb = col.rgb + atmosAffectDirectionalLight(final_da); //pow(final_da, 1.0/1.3));
-	col.rgb *= old_diffcol.rgb;
-	
+	col.rgb *= gamma_diff.rgb;
 
 	float glare = 0.0;
 
@@ -745,7 +744,6 @@ void main()
 	glare = min(glare, 1.0);
 	float al = max(diffcol.a,glare)*vertex_color.a;
 
-
 	//convert to gamma space for display on screen
 	col.rgb = linear_to_srgb(col.rgb);
 
@@ -759,7 +757,6 @@ void main()
 	frag_color.a   = al;
 
 #else
-	//final_color.rgb = old_diffcol.rgb;
 	frag_data[0] = final_color;
 	frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.
 	frag_data[2] = final_normal; // XY = Normal.  Z = Env. intensity.

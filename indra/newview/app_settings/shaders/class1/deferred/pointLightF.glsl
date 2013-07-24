@@ -115,7 +115,7 @@ void main()
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
 	
 	vec3 col = texture2DRect(diffuseRect, frag.xy).rgb;
-	float fa = falloff+1.0;
+	float fa = falloff;
 	float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
 	dist_atten *= dist_atten;
 	dist_atten *= 2.0;

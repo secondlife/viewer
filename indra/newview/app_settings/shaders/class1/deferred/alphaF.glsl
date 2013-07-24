@@ -36,6 +36,24 @@ out vec4 frag_color;
 #endif
 
 uniform float display_gamma;
+uniform vec4 gamma;
+uniform vec4 lightnorm;
+uniform vec4 sunlight_color;
+uniform vec4 ambient;
+uniform vec4 blue_horizon;
+uniform vec4 blue_density;
+uniform float haze_horizon;
+uniform float haze_density;
+uniform float cloud_shadow;
+uniform float density_multiplier;
+uniform float distance_multiplier;
+uniform float max_y;
+uniform vec4 glow;
+uniform float scene_light_strength;
+uniform mat3 env_mat;
+uniform mat3 ssao_effect_mat;
+
+uniform vec3 sun_dir;
 
 #if HAS_SHADOW
 uniform sampler2DShadow shadowMap0;
@@ -55,28 +73,25 @@ uniform float shadow_bias;
 uniform sampler2D diffuseMap;
 #endif
 
-vec3 atmosLighting(vec3 light);
-vec3 scaleSoftClip(vec3 light);
-
-VARYING vec3 vary_ambient;
-VARYING vec3 vary_directional;
 VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
-VARYING vec3 vary_pointlight_col;
-VARYING vec3 vary_pointlight_col_linear;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
-
-#ifdef USE_VERTEX_COLOR
 VARYING vec4 vertex_color;
-#endif
+
+vec3 vary_PositionEye;
+vec3 vary_SunlitColor;
+vec3 vary_AmblitColor;
+vec3 vary_AdditiveColor;
+vec3 vary_AtmosAttenuation;
+
+uniform mat4 inv_proj;
+uniform vec2 screen_res;
 
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
-
-uniform vec2 screen_res;
 
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
@@ -191,6 +206,192 @@ vec4 applyWaterFogDeferred(vec3 pos, vec4 color)
 }
 #endif
 
+vec3 getSunlitColor()
+{
+	return vary_SunlitColor;
+}
+vec3 getAmblitColor()
+{
+	return vary_AmblitColor;
+}
+vec3 getAdditiveColor()
+{
+	return vary_AdditiveColor;
+}
+vec3 getAtmosAttenuation()
+{
+	return vary_AtmosAttenuation;
+}
+
+void setPositionEye(vec3 v)
+{
+	vary_PositionEye = v;
+}
+
+void setSunlitColor(vec3 v)
+{
+	vary_SunlitColor = v;
+}
+
+void setAmblitColor(vec3 v)
+{
+	vary_AmblitColor = v;
+}
+
+void setAdditiveColor(vec3 v)
+{
+	vary_AdditiveColor = v;
+}
+
+void setAtmosAttenuation(vec3 v)
+{
+	vary_AtmosAttenuation = v;
+}
+
+void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
+
+	vec3 P = inPositionEye;
+	setPositionEye(P);
+	
+	vec3 tmpLightnorm = lightnorm.xyz;
+
+	vec3 Pn = normalize(P);
+	float Plen = length(P);
+
+	vec4 temp1 = vec4(0);
+	vec3 temp2 = vec3(0);
+	vec4 blue_weight;
+	vec4 haze_weight;
+	vec4 sunlight = sunlight_color;
+	vec4 light_atten;
+
+	//sunlight attenuation effect (hue and brightness) due to atmosphere
+	//this is used later for sunlight modulation at various altitudes
+	light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
+		//I had thought blue_density and haze_density should have equal weighting,
+		//but attenuation due to haze_density tends to seem too strong
+
+	temp1 = blue_density + vec4(haze_density);
+	blue_weight = blue_density / temp1;
+	haze_weight = vec4(haze_density) / temp1;
+
+	//(TERRAIN) compute sunlight from lightnorm only (for short rays like terrain)
+	temp2.y = max(0.0, tmpLightnorm.y);
+	temp2.y = 1. / temp2.y;
+	sunlight *= exp( - light_atten * temp2.y);
+
+	// main atmospheric scattering line integral
+	temp2.z = Plen * density_multiplier;
+
+	// Transparency (-> temp1)
+	// ATI Bugfix -- can't store temp1*temp2.z*distance_multiplier in a variable because the ati
+	// compiler gets confused.
+	temp1 = exp(-temp1 * temp2.z * distance_multiplier);
+
+	//final atmosphere attenuation factor
+	setAtmosAttenuation(temp1.rgb);
+	
+	//compute haze glow
+	//(can use temp2.x as temp because we haven't used it yet)
+	temp2.x = dot(Pn, tmpLightnorm.xyz);
+	temp2.x = 1. - temp2.x;
+		//temp2.x is 0 at the sun and increases away from sun
+	temp2.x = max(temp2.x, .03);	//was glow.y
+		//set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
+	temp2.x *= glow.x;
+		//higher glow.x gives dimmer glow (because next step is 1 / "angle")
+	temp2.x = pow(temp2.x, glow.z);
+		//glow.z should be negative, so we're doing a sort of (1 / "angle") function
+
+	//add "minimum anti-solar illumination"
+	temp2.x += .25;
+	
+	//increase ambient when there are more clouds
+	vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow * 0.5;
+	
+	/*  decrease value and saturation (that in HSV, not HSL) for occluded areas
+	 * // for HSV color/geometry used here, see http://gimp-savvy.com/BOOK/index.html?node52.html
+	 * // The following line of code performs the equivalent of:
+	 * float ambAlpha = tmpAmbient.a;
+	 * float ambValue = dot(vec3(tmpAmbient), vec3(0.577)); // projection onto <1/rt(3), 1/rt(3), 1/rt(3)>, the neutral white-black axis
+	 * vec3 ambHueSat = vec3(tmpAmbient) - vec3(ambValue);
+	 * tmpAmbient = vec4(RenderSSAOEffect.valueFactor * vec3(ambValue) + RenderSSAOEffect.saturationFactor *(1.0 - ambFactor) * ambHueSat, ambAlpha);
+	 */
+	tmpAmbient = vec4(mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor), tmpAmbient.a);
+
+	//haze color
+	setAdditiveColor(
+		vec3(blue_horizon * blue_weight * (sunlight*(1.-cloud_shadow) + tmpAmbient)
+	  + (haze_horizon * haze_weight) * (sunlight*(1.-cloud_shadow) * temp2.x
+		  + tmpAmbient)));
+
+	//brightness of surface both sunlight and ambient
+	setSunlitColor(vec3(sunlight * .5));
+	setAmblitColor(vec3(tmpAmbient * .25));
+	setAdditiveColor(getAdditiveColor() * vec3(1.0 - temp1));
+}
+
+vec3 atmosLighting(vec3 light)
+{
+	light *= getAtmosAttenuation().r;
+	light += getAdditiveColor();
+	return (2.0 * light);
+}
+
+vec3 atmosTransport(vec3 light) {
+	light *= getAtmosAttenuation().r;
+	light += getAdditiveColor() * 2.0;
+	return light;
+}
+vec3 atmosGetDiffuseSunlightColor()
+{
+	return getSunlitColor();
+}
+
+vec3 scaleDownLight(vec3 light)
+{
+	return (light / vec3(scene_light_strength, scene_light_strength, scene_light_strength));
+}
+
+vec3 scaleUpLight(vec3 light)
+{
+	return (light * vec3(scene_light_strength, scene_light_strength, scene_light_strength));
+}
+
+vec3 atmosAmbient(vec3 light)
+{
+	return getAmblitColor() + (light * vec3(0.5f, 0.5f, 0.5f));
+}
+
+vec3 atmosAffectDirectionalLight(float lightIntensity)
+{
+	return getSunlitColor() * vec3(lightIntensity, lightIntensity, lightIntensity);
+}
+
+vec3 scaleSoftClip(vec3 light)
+{
+	//soft clip effect:
+    vec3 zeroes = vec3(0.0f, 0.0f, 0.0f);
+    vec3 ones   = vec3(1.0f, 1.0f, 1.0f);
+
+	light = ones - clamp(light, zeroes, ones);
+	light = ones - pow(light, gamma.xxx);
+
+	return light;
+}
+
+vec3 fullbrightAtmosTransport(vec3 light) {
+	float brightness = dot(light.rgb, vec3(0.33333));
+
+	return mix(atmosTransport(light.rgb), light.rgb + getAdditiveColor().rgb, brightness * brightness);
+}
+
+vec3 fullbrightScaleSoftClip(vec3 light)
+{
+	//soft clip effect:
+	return light;
+}
+
 vec3 srgb_to_linear(vec3 cs)
 {
 	
@@ -229,13 +430,15 @@ void main()
 	
 	vec4 pos = vec4(vary_position, 1.0);
 	
+	float shadow = 1.0;
 
-#if HAS_SHADOW
-	float shadow = 0.0;
+#if HAS_SHADOW	
 	vec4 spos = pos;
 		
 	if (spos.z > -shadow_clip.w)
 	{	
+		shadow = 0.0;
+
 		vec4 lpos;
 		
 		vec4 near_split = shadow_clip*-0.75;
@@ -294,7 +497,6 @@ void main()
 	{
 		shadow = 1.0;
 	}
-
 #endif
 
 #ifdef USE_INDEXED_TEX
@@ -303,36 +505,43 @@ void main()
 	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
 	vec4 gamma_diff = diff;
-
+	
 	diff.rgb = srgb_to_linear(diff.rgb);
-	
-#ifdef USE_VERTEX_COLOR
-	float vertex_color_alpha = diff.a * vertex_color.a;	
-#else
-	float vertex_color_alpha = diff.a;
-#endif
-	
-	vec3 normal = vary_norm; 
-	
-	vec3 l = light_position[0].xyz;
-	vec3 dlight = calcDirectionalLight(normal, l);
-	dlight = dlight * vary_directional.rgb * vary_pointlight_col;
+	diff.rgb *= vertex_color.rgb;
 
-#if HAS_SHADOW
-	vec4 col = vec4(vary_ambient + dlight * shadow, vertex_color_alpha);
-#else
-	vec4 col = vec4(vary_ambient + dlight, vertex_color_alpha);
-#endif
+	float final_alpha = diff.a * vertex_color.a;	
+	
+	vec3 norm = vary_norm; 
 
-	vec4 color = col;
+	calcAtmospherics(pos.xyz, 1.0);
+	
+	float da =dot(norm.xyz, sun_dir.xyz);
+    float final_da = da;
+          final_da = min(final_da, shadow);
+          final_da = max(final_da, final_alpha);
+          final_da = max(final_da, 0.0f);
+
+	vec4 color = vec4(0,0,0,0);
+
+	color.rgb = atmosAmbient(color.rgb);
+	color.a   = final_alpha;
+
+	float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
+	ambient *= 0.5;
+	ambient *= ambient;
+	ambient = (1.0-ambient);
+
+	color.rgb *= ambient;
+
+	color.rgb += atmosAffectDirectionalLight(final_da);
 	color.rgb *= gamma_diff.rgb;
 
-	color.rgb = atmosLighting(color.rgb);
-	color.rgb = scaleSoftClip(color.rgb);
+	color.rgb = mix(atmosLighting(color.rgb), fullbrightAtmosTransport(color.rgb), diff.a);
+	color.rgb = mix(scaleSoftClip(color.rgb), fullbrightScaleSoftClip(color.rgb),  diff.a);
+
+	vec4 light = vec4(0,0,0,0);
 	
-	col = vec4(0,0,0,0);
-	
-   #define LIGHT_LOOP(i) col.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diff.rgb, pos.xyz, normal, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+   #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diff.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
    
 	LIGHT_LOOP(1)
 	LIGHT_LOOP(2)
@@ -344,7 +553,7 @@ void main()
 
 	// keep it linear
 	//
-	color.rgb = srgb_to_linear(color.rgb) + col.rgb;
+	color.rgb = srgb_to_linear(color.rgb) + light.rgb;
 
 	// ramp directly to display gamma as we're POST-deferred
 	//
