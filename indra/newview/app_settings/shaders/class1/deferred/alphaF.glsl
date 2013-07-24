@@ -85,7 +85,7 @@ vec3 calcDirectionalLight(vec3 n, vec3 l)
 	return vec3(a,a,a);
 }
 
-vec3 calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
+vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
 {
 	//get light vector
 	vec3 lv = lp.xyz-v;
@@ -93,7 +93,9 @@ vec3 calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float
 	//get distance
 	float d = length(lv);
 	
-	float da = 0.0;
+	float da = 1.0;
+
+	vec3 col = vec3(0);
 
 	if (d > 0.0 && la > 0.0 && fa > 0.0)
 	{
@@ -102,20 +104,25 @@ vec3 calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float
 	
 		//distance attenuation
 		float dist = d/la;
-		da = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
-		da *= da;
-		da *= 2.0;
-	
+		float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
+		dist_atten *= dist_atten;
+		dist_atten *= 2.0;
 
 		// spotlight coefficient.
 		float spot = max(dot(-ln, lv), is_pointlight);
 		da *= spot*spot; // GL_SPOT_EXPONENT=2
 
 		//angular attenuation
-		da *= max(dot(n, lv), 0.0);		
+		da *= max(dot(n, lv), 0.0);
+
+		float lit = max(da * dist_atten,0.0);
+
+		col = light_col * lit * diffuse;
+
+		// no spec for alpha shader...
 	}
 
-	return vec3(da,da,da);	
+	return max(col, vec3(0.0,0.0,0.0));
 }
 
 #if HAS_SHADOW
@@ -321,15 +328,12 @@ void main()
 	color.rgb *= gamma_diff.rgb;
 
 	color.rgb = atmosLighting(color.rgb);
-
 	color.rgb = scaleSoftClip(color.rgb);
-
-	color.rgb = srgb_to_linear(color.rgb);
 	
 	col = vec4(0,0,0,0);
 	
-   #define LIGHT_LOOP(i) col.rgb += light_diffuse[i].rgb * calcPointLightOrSpotLight(pos.xyz, normal, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
-
+   #define LIGHT_LOOP(i) col.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diff.rgb, pos.xyz, normal, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
+   
 	LIGHT_LOOP(1)
 	LIGHT_LOOP(2)
 	LIGHT_LOOP(3)
@@ -338,8 +342,12 @@ void main()
 	LIGHT_LOOP(6)
 	LIGHT_LOOP(7)
 
-	color.rgb += diff.rgb * vary_pointlight_col_linear * col.rgb;
+	// keep it linear
+	//
+	color.rgb = srgb_to_linear(color.rgb) + col.rgb;
 
+	// ramp directly to display gamma as we're POST-deferred
+	//
 	color.rgb = pow(color.rgb,vec3(display_gamma));
 
 #ifdef WATER_FOG
