@@ -34,8 +34,8 @@ namespace LLUnits
 {
 	// using powers of 2 to allow strict floating point equality
 	LL_DECLARE_BASE_UNIT(Quatloos, "Quat");
-	LL_DECLARE_DERIVED_UNIT(Latinum, "Lat", Quatloos, * 4);
-	LL_DECLARE_DERIVED_UNIT(Solari, "Sol", Latinum, / 16);
+	LL_DECLARE_DERIVED_UNIT(Quatloos, * 4, Latinum, "Lat");
+	LL_DECLARE_DERIVED_UNIT(Latinum, / 16, Solari, "Sol");
 }
 
 namespace tut
