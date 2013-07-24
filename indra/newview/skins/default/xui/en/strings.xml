@@ -153,6 +153,7 @@ Please try logging in again in a minute.</string>
 	<string name="SocialFacebookPosting">Posting...</string>
 	<string name="SocialFacebookErrorConnecting">Problem connecting to Facebook</string>
 	<string name="SocialFacebookErrorPosting">Problem posting to Facebook</string>
+	<string name="SocialFacebookDisconnecting">Disconnecting from Facebook...</string>
     
 	<!-- Tooltip -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->

@@ -641,6 +641,22 @@ BOOL LLSocialAccountPanel::postBuild()
 	return LLPanel::postBuild();
 }
 
+void LLSocialAccountPanel::draw()
+{
+	LLFacebookConnect::EConnectionState connection_state = LLFacebookConnect::instance().getConnectionState();
+
+	//Disable the 'disconnect' button and the 'use another account' button when disconnecting in progress
+	bool disconnecting = connection_state == LLFacebookConnect::FB_DISCONNECTING;
+	mDisconnectButton->setEnabled(!disconnecting);
+	mUseAnotherAccountButton->setEnabled(!disconnecting);
+
+	//Disable the 'connect' button when a connection is in progress
+	bool connecting = connection_state == LLFacebookConnect::FB_CONNECTION_IN_PROGRESS;
+	mConnectButton->setEnabled(!connecting);
+
+	LLPanel::draw();
+}
+
 void LLSocialAccountPanel::onVisibilityChange(const LLSD& new_visibility)
 {
 	bool visible = new_visibility.asBoolean();
@@ -748,7 +764,7 @@ void LLSocialAccountPanel::onConnect()
 
 void LLSocialAccountPanel::onUseAnotherAccount()
 {
-
+	LLFacebookConnect::instance().disconnectThenConnectToFacebook();
 }
 
 void LLSocialAccountPanel::onDisconnect()
@@ -862,6 +878,13 @@ void LLFloaterSocial::draw()
             status_text = LLTrans::getString("SocialFacebookErrorPosting");
             mStatusErrorText->setValue(status_text);
             break;
+		case LLFacebookConnect::FB_DISCONNECTING:
+			// Disconnecting loading indicator
+			mStatusLoadingText->setVisible(true);
+			status_text = LLTrans::getString("SocialFacebookDisconnecting");
+			mStatusLoadingText->setValue(status_text);
+			mStatusLoadingIndicator->setVisible(true);
+			break;
         }
     }
 	LLFloater::draw();

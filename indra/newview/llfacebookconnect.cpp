@@ -181,7 +181,12 @@ class LLFacebookDisconnectResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLFacebookDisconnectResponder);
 public:
-    
+ 
+	LLFacebookDisconnectResponder()
+	{
+		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_DISCONNECTING);
+	}
+
 	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
 		if (isGoodStatus(status))
@@ -243,6 +248,40 @@ public:
     
 private:
 	bool mAutoConnect;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+class LLFacebookDisconnectThenConnectResponder : public LLHTTPClient::Responder
+{
+	LOG_CLASS(LLFacebookDisconnectThenConnectResponder);
+public:
+
+	LLFacebookDisconnectThenConnectResponder()
+	{
+		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_DISCONNECTING);
+	}
+
+	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+	{
+		if (isGoodStatus(status))
+		{
+			LL_DEBUGS("FacebookConnect") << "Disconnect successful. content: " << content << LL_ENDL;
+
+			// Clear all facebook stuff
+			LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_NOT_CONNECTED);
+			LLFacebookConnect::instance().clearContent();
+
+			LLViewerMedia::clearAllCookies();
+
+			//Now attempt to reconnect
+			LLFacebookConnect::instance().checkConnectionToFacebook(true);
+		}
+		else
+		{
+			log_facebook_connect_error("Disconnect", status, reason, content.get("error_code"), content.get("error_description"));
+		}
+	}
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -361,6 +400,11 @@ void LLFacebookConnect::checkConnectionToFacebook(bool auto_connect)
         LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(auto_connect),
                           LLSD(), timeout, follow_redirects);
     }
+}
+
+void LLFacebookConnect::disconnectThenConnectToFacebook()
+{
+	LLHTTPClient::del(getFacebookConnectURL("/connection"), new LLFacebookDisconnectThenConnectResponder());
 }
 
 void LLFacebookConnect::loadFacebookInfo()

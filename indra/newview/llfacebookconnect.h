@@ -51,12 +51,14 @@ public:
 		FB_CONNECTION_FAILED = 3,
 		FB_POSTING = 4,
 		FB_POSTED = 5,
-		FB_POST_FAILED = 6
+		FB_POST_FAILED = 6,
+		FB_DISCONNECTING = 7
 	};
 	
 	void connectToFacebook(const std::string& auth_code = "", const std::string& auth_state = "");	// Initiate the complete FB connection. Please use checkConnectionToFacebook() in normal use.
 	void disconnectFromFacebook();																	// Disconnect from the FBC service.
     void checkConnectionToFacebook(bool auto_connect = false);										// Check if an access token is available on the FBC service. If not, call connectToFacebook().
+	void disconnectThenConnectToFacebook();																// Disconnects and then connects (for switching FB accounts)
     
 	void loadFacebookInfo();
     void loadFacebookFriends();
@@ -72,7 +74,7 @@ public:
     const LLSD& getContent() const;
     
     void setConnectionState(EConnectionState connection_state);
-	bool isConnected() { return ((mConnectionState == FB_CONNECTED) || (mConnectionState == FB_POSTING) || (mConnectionState == FB_POSTED)); }
+	bool isConnected() { return ((mConnectionState == FB_CONNECTED) || (mConnectionState == FB_DISCONNECTING) || (mConnectionState == FB_POSTING) || (mConnectionState == FB_POSTED)); }
 	bool isTransactionOngoing() { return ((mConnectionState == FB_CONNECTION_IN_PROGRESS) || (mConnectionState == FB_POSTING)); }
     EConnectionState getConnectionState() { return mConnectionState; }
     S32  generation() { return mGeneration; }
