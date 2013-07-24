@@ -150,6 +150,7 @@ LLStatBar::LLStatBar(const Params& p)
 	mMinBar(llmin(p.bar_min, p.bar_max)),
 	mMaxBar(llmax(p.bar_max, p.bar_min)),
 	mCurMaxBar(p.bar_max),
+    mCurMinBar(0),
 	mDecimalDigits(p.decimal_digits),
 	mNumFrames(p.num_frames),
 	mMaxHeight(p.max_height),
