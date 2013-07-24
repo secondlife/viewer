@@ -671,11 +671,6 @@ LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
 	}
 	return LLVOAvatar::getJoint(name);
 }
-//virtual
-void LLVOAvatarSelf::resetJointPositions( void )
-{
-	return LLVOAvatar::resetJointPositions();
-}
 // virtual
 BOOL LLVOAvatarSelf::setVisualParamWeight(const LLVisualParam *which_param, F32 weight, BOOL upload_bake )
 {

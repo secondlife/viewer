@@ -106,7 +106,7 @@ extern F32 SPEED_ADJUST_MAX;
 extern F32 SPEED_ADJUST_MAX_SEC;
 extern F32 ANIM_SPEED_MAX;
 extern F32 ANIM_SPEED_MIN;
-
+extern U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG;
 
 // #define OUTPUT_BREAST_DATA
 
@@ -1234,6 +1234,7 @@ LLTexLayerSet* LLVOAvatar::createTexLayerSet()
 
 const LLVector3 LLVOAvatar::getRenderPosition() const
 {
+
 	if (mDrawable.isNull() || mDrawable->getGeneration() < 0)
 	{
 		return getPositionAgent();
@@ -1256,6 +1257,8 @@ const LLVector3 LLVOAvatar::getRenderPosition() const
 	{
 		return getPosition() * mDrawable->getParent()->getRenderMatrix();
 	}
+	
+	
 }
 
 void LLVOAvatar::updateDrawable(BOOL force_damped)
@@ -2992,7 +2995,7 @@ bool LLVOAvatar::isVisuallyMuted() const
 // called on both your avatar and other avatars
 //------------------------------------------------------------------------
 BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
-{
+{	
 	// clear debug text
 	mDebugText.clear();
 
@@ -3540,9 +3543,9 @@ void LLVOAvatar::setPelvisOffset( bool hasOffset, const LLVector3& offsetAmount,
 {
 	mHasPelvisOffset = hasOffset;
 	if ( mHasPelvisOffset )
-	{
+	{	
 		//Store off last pelvis to foot value
-		mLastPelvisToFoot = mPelvisToFoot;
+		mLastPelvisToFoot = mPelvisToFoot;		
 		mPelvisOffset	  = offsetAmount;
 		mLastPelvisFixup  = mPelvisFixup;
 		mPelvisFixup	  = pelvisFixup;
@@ -3552,18 +3555,16 @@ void LLVOAvatar::setPelvisOffset( bool hasOffset, const LLVector3& offsetAmount,
 // postPelvisSetRecalc
 //------------------------------------------------------------------------
 void LLVOAvatar::postPelvisSetRecalc( void )
-{	
-	computeBodySize(); 
-	mRoot->touch();
-	mRoot->updateWorldMatrixChildren();	
-	dirtyMesh();
-	updateHeadOffset();
+{		
+	mRoot->updateWorldMatrixChildren();			
+	computeBodySize();
+	dirtyMesh(2);
 }
 //------------------------------------------------------------------------
-// pelisPoke
+// setPelvisOffset
 //------------------------------------------------------------------------
 void LLVOAvatar::setPelvisOffset( F32 pelvisFixupAmount )
-{	
+{		
 	mHasPelvisOffset  = true;
 	mLastPelvisFixup  = mPelvisFixup;	
 	mPelvisFixup	  = pelvisFixupAmount;	
@@ -4925,22 +4926,6 @@ LLJoint *LLVOAvatar::getJoint( const std::string &name )
 
 	return jointp;
 }
-
-//-----------------------------------------------------------------------------
-// resetJointPositions
-//-----------------------------------------------------------------------------
-void LLVOAvatar::resetJointPositions( void )
-{
-	avatar_joint_list_t::iterator iter = mSkeleton.begin();
-	avatar_joint_list_t::iterator end  = mSkeleton.end();
-	for (; iter != end; ++iter)
-	{
-		(*iter)->restoreOldXform();
-		(*iter)->setId( LLUUID::null );
-	}
-	mHasPelvisOffset = false;
-	mPelvisFixup	 = mLastPelvisFixup;
-}
 //-----------------------------------------------------------------------------
 // resetSpecificJointPosition
 //-----------------------------------------------------------------------------
@@ -4967,28 +4952,25 @@ void LLVOAvatar::resetSpecificJointPosition( const std::string& name )
 // resetJointPositionsToDefault
 //-----------------------------------------------------------------------------
 void LLVOAvatar::resetJointPositionsToDefault( void )
-{
+{	
 	//Subsequent joints are relative to pelvis
 	avatar_joint_list_t::iterator iter = mSkeleton.begin();
 	avatar_joint_list_t::iterator end  = mSkeleton.end();
 	for (; iter != end; ++iter)
 	{
 		LLJoint* pJoint = (*iter);
-		if ( pJoint->doesJointNeedToBeReset() )
-		{
+		if ( pJoint && pJoint->doesJointNeedToBeReset() )
+		{			
 			pJoint->setId( LLUUID::null );
-			//restore joints to default positions, however skip over the pelvis
-			// *TODO: How does this pointer check skip over pelvis?
-			if ( pJoint )
-			{
-				pJoint->restoreOldXform();
-			}
-		}
+			pJoint->restoreOldXform();
+		}		
 	}
+
 	//make sure we don't apply the joint offset
 	mHasPelvisOffset = false;
 	mPelvisFixup	 = mLastPelvisFixup;
-	postPelvisSetRecalc();
+
+	postPelvisSetRecalc();	
 }
 //-----------------------------------------------------------------------------
 // getCharacterPosition()
@@ -5604,10 +5586,10 @@ void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
 		{
 			const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID(), pVObj );
 			if (pSkinData 
-				&& pSkinData->mJointNames.size() > 20				// full rig
-				&& pSkinData->mAlternateBindMatrix.size() > 0)
-					{
-						LLVOAvatar::resetJointPositionsToDefault();
+				&& pSkinData->mJointNames.size() > JOINT_COUNT_REQUIRED_FOR_FULLRIG	// full rig
+				&& pSkinData->mAlternateBindMatrix.size() > 0 )
+					{				
+						LLVOAvatar::resetJointPositionsToDefault();							
 						//Need to handle the repositioning of the cam, updating rig data etc during outfit editing 
 						//This handles the case where we detach a replacement rig.
 						if ( gAgentCamera.cameraCustomizeAvatar() )
@@ -5625,6 +5607,7 @@ void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 {
+
 	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 		 iter != mAttachmentPoints.end();
 		 ++iter)
@@ -5633,7 +5616,9 @@ BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 		
 		if (attachment->isObjectAttached(viewer_object))
 		{
+		
 			cleanupAttachedMesh( viewer_object );
+		
 			attachment->removeObject(viewer_object);
 			lldebugs << "Detaching object " << viewer_object->mID << " from " << attachment->getName() << llendl;
 			return TRUE;
@@ -6942,7 +6927,7 @@ bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32
 void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 {
 	LL_DEBUGS("Avatar") << "starts" << llendl;
-	
+
 	bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
 	std::string dump_prefix = getFullname() + "_" + (isSelf()?"s":"o") + "_";
 	if (gSavedSettings.getBOOL("BlockAvatarAppearanceMessages"))
@@ -7153,7 +7138,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	}
 
 	updateMeshTextures();
-
 	//if (enable_verbose_dumps) dumpArchetypeXML(dump_prefix + "process_end");
 }
 

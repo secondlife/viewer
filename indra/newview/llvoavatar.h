@@ -199,7 +199,6 @@ public:
 
 	virtual LLJoint*		getJoint(const std::string &name);
 	
-	void					resetJointPositions( void );
 	void					resetJointPositionsToDefault( void );
 	void					resetSpecificJointPosition( const std::string& name );
 	
