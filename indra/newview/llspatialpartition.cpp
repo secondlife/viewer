@@ -1588,7 +1588,7 @@ void pushBufferVerts(LLVertexBuffer* buffer, U32 mask)
 	}
 }
 
-void pushBufferVerts(LLSpatialGroup* group, U32 mask)
+void pushBufferVerts(LLSpatialGroup* group, U32 mask, bool push_alpha = true)
 {
 	if (group->getSpatialPartition()->mRenderByGroup)
 	{
@@ -1597,7 +1597,10 @@ void pushBufferVerts(LLSpatialGroup* group, U32 mask)
 			LLDrawInfo* params = *(group->mDrawMap.begin()->second.begin());
 			LLRenderPass::applyModelMatrix(*params);
 		
-			pushBufferVerts(group->mVertexBuffer, mask);
+			if (push_alpha)
+			{
+				pushBufferVerts(group->mVertexBuffer, mask);
+			}
 
 			for (LLSpatialGroup::buffer_map_t::iterator i = group->mBufferMap.begin(); i != group->mBufferMap.end(); ++i)
 			{
@@ -1611,11 +1614,11 @@ void pushBufferVerts(LLSpatialGroup* group, U32 mask)
 			}
 		}
 	}
-	else
+	/*else
 	{
-		const LLVector4a* bounds = group->getBounds();
-		drawBox(bounds[0], bounds[1]);
-	}
+		//const LLVector4a* bounds = group->getBounds();
+		//drawBox(bounds[0], bounds[1]);
+	}*/
 }
 
 void pushVertsColorCoded(LLSpatialGroup* group, U32 mask)
@@ -1797,17 +1800,53 @@ void renderOctree(LLSpatialGroup* group)
 //	drawBoxOutline(LLVector3(node->getCenter()), LLVector3(node->getSize()));
 }
 
+std::set<LLSpatialGroup*> visible_selected_groups;
+
 void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 {
-	LLGLEnable blend(GL_BLEND);
+	/*LLGLEnable blend(GL_BLEND);
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	LLGLEnable cull(GL_CULL_FACE);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);*/
 
-	BOOL render_objects = (!LLPipeline::sUseOcclusion || !group->isOcclusionState(LLSpatialGroup::OCCLUDED)) && group->isVisible() &&
+	/*BOOL render_objects = (!LLPipeline::sUseOcclusion || !group->isOcclusionState(LLSpatialGroup::OCCLUDED)) && group->isVisible() &&
 							!group->isEmpty();
 
+
 	if (render_objects)
+	{
+		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+
+		LLGLDisable blend(GL_BLEND);
+		gGL.diffuseColor4f(0.f, 0.75f, 0.f,0.5f);
+		pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX, false);
+		
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glLineWidth(4.f);
+		gGL.diffuseColor4f(0.f, 0.5f, 0.f, 1.f);
+		pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX, false);
+		glLineWidth(1.f);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		bool selected = false;
+		
+		for (LLSpatialGroup::element_iter iter = group->getDataBegin(); iter != group->getDataEnd(); ++iter)
+		{
+			LLDrawable* drawable = *iter;
+			if (drawable->getVObj().notNull() && drawable->getVObj()->isSelected())
+			{
+				selected = true;
+				break;
+			}
+		}
+		
+		if (selected)
+		{ //store for rendering occlusion volume as overlay
+			visible_selected_groups.insert(group);
+		}
+	}*/		
+
+	/*if (render_objects)
 	{
 		LLGLDepthTest depth_under(GL_TRUE, GL_FALSE, GL_GREATER);
 		gGL.diffuseColor4f(0, 0.5f, 0, 0.5f);
@@ -1832,6 +1871,59 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 			gGL.diffuseColor4f(0.f, 0.75f, 0.f,0.5f);
 			gGL.diffuseColor4f(0.f, 0.75f, 0.f, 0.5f);
 			pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX);
+		
+			bool selected = false;
+		
+			for (LLSpatialGroup::element_iter iter = group->getDataBegin(); iter != group->getDataEnd(); ++iter)
+			{
+				LLDrawable* drawable = *iter;
+				if (drawable->getVObj().notNull() && drawable->getVObj()->isSelected())
+				{
+					selected = true;
+					break;
+				}
+			}
+		
+			if (selected)
+			{ //store for rendering occlusion volume as overlay
+				visible_selected_groups.insert(group);
+			}
+		}		
+	}*/
+}
+
+void renderXRay(LLSpatialGroup* group, LLCamera* camera)
+{
+	BOOL render_objects = (!LLPipeline::sUseOcclusion || !group->isOcclusionState(LLSpatialGroup::OCCLUDED)) && group->isVisible() &&
+							!group->isEmpty();
+	
+	if (render_objects)
+	{
+		pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX, false);
+
+		bool selected = false;
+
+		for (LLSpatialGroup::element_iter iter = group->getDataBegin(); iter != group->getDataEnd(); ++iter)
+		{
+			LLDrawable* drawable = (LLDrawable*)(*iter)->getDrawable();
+			if (drawable->getVObj().notNull() && drawable->getVObj()->isSelected())
+			{
+				selected = true;
+				break;
+			}
+		}
+
+		if (selected)
+		{ //store for rendering occlusion volume as overlay
+
+			if (!group->getSpatialPartition()->isBridge())
+			{
+				visible_selected_groups.insert(group);
+			}
+			else
+			{
+				visible_selected_groups.insert(group->getSpatialPartition()->asBridge()->getSpatialGroup());
+			}
 		}
 	}
 }
@@ -3312,6 +3404,49 @@ public:
 	}
 };
 
+class LLOctreeRenderXRay : public OctreeTraveler
+{
+public:
+	LLCamera* mCamera;
+	LLOctreeRenderXRay(LLCamera* camera): mCamera(camera) {}
+	
+	virtual void traverse(const OctreeNode* node)
+	{
+		LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
+		
+		const LLVector4a* bounds = group->getBounds();
+		if (!mCamera || mCamera->AABBInFrustumNoFarClip(bounds[0], bounds[1]))
+		{
+			node->accept(this);
+			stop_glerror();
+
+			for (U32 i = 0; i < node->getChildCount(); i++)
+			{
+				traverse(node->getChild(i));
+				stop_glerror();
+			}
+			
+			//render visibility wireframe
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION))
+			{
+				group->rebuildGeom();
+				group->rebuildMesh();
+
+				gGL.flush();
+				gGL.pushMatrix();
+				gGLLastMatrix = NULL;
+				gGL.loadMatrix(gGLModelView);
+				renderXRay(group, mCamera);
+				stop_glerror();
+				gGLLastMatrix = NULL;
+				gGL.popMatrix();
+			}
+		}
+	}
+
+	virtual void visit(const OctreeNode* node) {}
+
+};
 
 class LLOctreeRenderPhysicsShapes : public OctreeTraveler
 {
@@ -3545,6 +3680,26 @@ void LLSpatialPartition::renderDebug()
 	LLOctreeRenderNonOccluded render_debug(camera);
 	render_debug.traverse(mOctree);
 
+
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION))
+	{
+		{
+			LLGLEnable cull(GL_CULL_FACE);
+			
+			LLGLEnable blend(GL_BLEND);
+			LLGLDepthTest depth_under(GL_TRUE, GL_FALSE, GL_GREATER);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			gGL.diffuseColor4f(0.5f, 0.0f, 0, 0.25f);
+
+			LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
+			glPolygonOffset(-1.f, -1.f);
+
+			LLOctreeRenderXRay xray(camera);
+			xray.traverse(mOctree);
+
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
+	}
 	if (LLGLSLShader::sNoFixedFunction)
 	{
 		gDebugProgram.unbind();
