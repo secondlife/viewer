@@ -53,6 +53,11 @@ vec3 linear_to_srgb(vec3 cl)
     cs = {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
             {  1.0,                                       cl >= 1*/
 
+	cl = clamp(cl, vec3(0), vec3(1));
+
+	if ((cl.r+cl.g+cl.b) < 0.0031308)
+		return 12.92 * cl;
+
 	return 1.055 * pow(cl, vec3(0.41666)) - 0.055;
 }
 
@@ -701,7 +706,7 @@ void main()
 		col += spec_contrib;
 	}
 
-	col = mix(col.rgb, old_diffcol.rgb, diffuse.a);
+	col = mix(col.rgb, diffcol.rgb, diffuse.a);
 
 	if (envIntensity > 0.0)
 	{
@@ -754,7 +759,7 @@ void main()
 	frag_color.a   = al;
 
 #else
-	//final_color.rgb = vec3(1,0,1);
+	//final_color.rgb = old_diffcol.rgb;
 	frag_data[0] = final_color;
 	frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.
 	frag_data[2] = final_normal; // XY = Normal.  Z = Env. intensity.

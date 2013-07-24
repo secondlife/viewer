@@ -35,6 +35,8 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
+uniform float display_gamma;
+
 #if HAS_SHADOW
 uniform sampler2DShadow shadowMap0;
 uniform sampler2DShadow shadowMap1;
@@ -204,6 +206,11 @@ vec3 linear_to_srgb(vec3 cl)
     cs = {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
             {  1.0,                                       cl >= 1*/
 
+	cl = clamp(cl, vec3(0), vec3(1));
+
+	if ((cl.r+cl.g+cl.b) < 0.0031308)
+		return 12.92 * cl;
+
 	return 1.055 * pow(cl, vec3(0.41666)) - 0.055;
 }
 
@@ -295,7 +302,7 @@ void main()
 #ifdef USE_VERTEX_COLOR
 	float vertex_color_alpha = diff.a * vertex_color.a;	
 #else
-	float vertex_color_alpha = 1.0;
+	float vertex_color_alpha = diff.a;
 #endif
 	
 	vec3 normal = vary_norm; 
@@ -333,7 +340,7 @@ void main()
 
 	color.rgb += diff.rgb * vary_pointlight_col_linear * col.rgb;
 
-	color.rgb = linear_to_srgb(color.rgb);
+	color.rgb = pow(color.rgb,vec3(display_gamma));
 
 #ifdef WATER_FOG
 	color = applyWaterFogDeferred(pos.xyz, color);

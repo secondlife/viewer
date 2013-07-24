@@ -36,7 +36,7 @@ uniform sampler2DRect diffuseRect;
 uniform vec2 screen_res;
 VARYING vec2 vary_fragcoord;
 
-uniform float texture_gamma;
+uniform float display_gamma;
 
 vec3 linear_to_srgb(vec3 cl)
 {
@@ -45,13 +45,17 @@ vec3 linear_to_srgb(vec3 cl)
     cs = {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
             {  1.0,                                       cl >= 1*/
 
+	cl = clamp(cl, vec3(0), vec3(1));
+
+	if ((cl.r+cl.g+cl.b) < 0.0031308)
+		return 12.92 * cl;
 	return 1.055 * pow(cl, vec3(0.41666)) - 0.055;
 }
 
 void main() 
 {
 	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord);
-	diff.rgb = pow(diff.rgb,vec3(texture_gamma));
+	diff.rgb = pow(diff.rgb,vec3(display_gamma));
 	frag_color = diff;
 }
 

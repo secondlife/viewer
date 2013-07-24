@@ -8833,7 +8833,7 @@ void LLPipeline::renderDeferredLighting()
 		
 		F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
 
-		gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
+		gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
 		
 		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
@@ -9382,7 +9382,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 		
 		F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
 
-		gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
+		gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
 		
 		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
