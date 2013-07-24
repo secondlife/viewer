@@ -152,7 +152,7 @@
       </text>
       <check_box
           height="19"
-          label="Test"
+          label="World"
           layout="topleft"
           name="show_world"
           top_pad="4"

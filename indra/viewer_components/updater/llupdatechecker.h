@@ -29,6 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "llmd5.h"
 #include "llhttpclient.h"
 
 //
@@ -37,15 +38,19 @@
 class LLUpdateChecker {
 public:
 	class Client;
-	class Implementation:
-
-	public LLHTTPClient::Responder
+	class Implementation: public LLHTTPClient::Responder
 	{
 	public:
 		Implementation(Client & client);
 		~Implementation();
-		void checkVersion(std::string const & protocolVersion, std::string const & hostUrl, 
-				   std::string const & servicePath, std::string channel, std::string version);
+		void checkVersion(std::string const & urlBase, 
+						  std::string const & channel,
+						  std::string const & version,
+						  std::string const & platform,
+						  std::string const & platform_version,
+						  unsigned char       uniqueid[MD5HEX_STR_SIZE],
+						  bool                willing_to_test
+						  );
 	
 		// Responder:
 		virtual void completed(U32 status,
@@ -54,15 +59,28 @@ public:
 		virtual void error(U32 status, const std::string & reason);
 	
 	private:	
+		static const char * sLegacyProtocolVersion;
 		static const char * sProtocolVersion;
-	
+		const char* mProtocol;
+		
 		Client & mClient;
 		LLHTTPClient mHttpClient;
-		bool mInProgress;
-		std::string mVersion;
-	
-		std::string buildUrl(std::string const & protocolVersion, std::string const & hostUrl, 
-							 std::string const & servicePath, std::string channel, std::string version);
+		bool         mInProgress;
+		std::string   mVersion;
+		std::string   mUrlBase;
+		std::string   mChannel;
+		std::string   mPlatform;
+		std::string   mPlatformVersion;
+		unsigned char mUniqueId[MD5HEX_STR_SIZE];
+		bool          mWillingToTest;
+		
+		std::string buildUrl(std::string const & urlBase, 
+							 std::string const & channel,
+							 std::string const & version,
+							 std::string const & platform,
+							 std::string const & platform_version,
+							 unsigned char       uniqueid[MD5HEX_STR_SIZE],
+							 bool                willing_to_test);
 
 		LOG_CLASS(LLUpdateChecker::Implementation);
 	};
@@ -74,8 +92,13 @@ public:
 	LLUpdateChecker(Client & client);
 	
 	// Check status of current app on the given host for the channel and version provided.
-	void checkVersion(std::string const & protocolVersion, std::string const & hostUrl, 
-			   std::string const & servicePath, std::string channel, std::string version);
+	void checkVersion(std::string const & urlBase, 
+					  std::string const & channel,
+					  std::string const & version,
+					  std::string const & platform,
+					  std::string const & platform_version,
+					  unsigned char       uniqueid[MD5HEX_STR_SIZE],
+					  bool                willing_to_test);
 	
 private:
 	LLPointer<Implementation> mImplementation;
@@ -94,18 +117,8 @@ public:
 	// An error occurred while checking for an update.
 	virtual void error(std::string const & message) = 0;
 	
-	// A newer version is available, but the current version may still be used.
-	virtual void optionalUpdate(std::string const & newVersion,
-								LLURI const & uri,
-								std::string const & hash) = 0;
-	
-	// A newer version is available, and the current version is no longer valid. 
-	virtual void requiredUpdate(std::string const & newVersion,
-								LLURI const & uri,
-								std::string const & hash) = 0;
-	
-	// The checked version is up to date; no newer version exists.
-	virtual void upToDate(void) = 0;
+	// A successful response was received from the viewer version manager
+	virtual void response(LLSD const & content) = 0;
 };
 
 

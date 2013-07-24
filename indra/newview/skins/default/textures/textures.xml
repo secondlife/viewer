@@ -724,9 +724,6 @@ with the same filename but different name
   <texture name="icon_for_sale.tga" file_name="icons/Icon_For_Sale.png" />
   <texture name="icon_top_pick.tga" />
 
-  <texture name="inv_folder_mesh.tga"/>
-  <texture name="inv_item_mesh.tga"/>
-
   <texture name="lag_status_critical.tga" />
   <texture name="lag_status_good.tga" />
   <texture name="lag_status_warning.tga" />
@@ -746,6 +743,7 @@ with the same filename but different name
   <texture name="default_land_picture.j2c" />
   <texture name="default_profile_picture.j2c" />
   <texture name="locked_image.j2c" />
+  <texture name="materials_ui_x_24.png" />
 
   <texture name="Progress_1" file_name="icons/Progress_1.png" preload="true" />
   <texture name="Progress_2" file_name="icons/Progress_2.png" preload="true" />

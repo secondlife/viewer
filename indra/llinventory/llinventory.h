@@ -160,6 +160,7 @@ public:
 	virtual const LLUUID& getCreatorUUID() const;
 	virtual const LLUUID& getAssetUUID() const;
 	virtual const std::string& getDescription() const;
+	virtual const std::string& getActualDescription() const; // Does not follow links
 	virtual const LLSaleInfo& getSaleInfo() const;
 	virtual LLInventoryType::EType getInventoryType() const;
 	virtual U32 getFlags() const;

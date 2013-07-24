@@ -39,6 +39,7 @@
 #include "llchannelmanager.h"
 #include "llchiclet.h"
 #include "llchicletbar.h"
+#include "lldonotdisturbnotificationstorage.h"
 #include "llfloaterreg.h"
 #include "llfloateravatarpicker.h"
 #include "llfloaterimcontainer.h" // to replace separate IM Floaters with multifloater container
@@ -618,6 +619,8 @@ void LLFloaterIMSession::onClose(bool app_quitting)
 	// Last change:
 	// EXT-3516 X Button should end IM session, _ button should hide
 	gIMMgr->leaveSession(mSessionID);
+    // *TODO: Study why we need to restore the floater before we close it.
+    // Might be because we want to save some state data in some clean open state.
 	LLFloaterIMSessionTab::restoreFloater();
 	// Clean up the conversation *after* the session has been ended
 	LLFloaterIMSessionTab::onClose(app_quitting);
@@ -640,6 +643,23 @@ void LLFloaterIMSession::setDocked(bool docked, bool pop_on_undock)
 	{
 		channel->updateShowToastsState();
 		channel->redrawToasts();
+	}
+}
+
+void LLFloaterIMSession::setMinimized(BOOL b)
+{
+	bool wasMinimized = isMinimized();
+	LLFloaterIMSessionTab::setMinimized(b);
+
+	//Switching from minimized state to un-minimized state
+	if(wasMinimized && !b)
+	{
+		//When in DND mode, remove stored IM notifications
+		//Nearby chat (Null) IMs are not stored while in DND mode, so can ignore removal
+		if(gAgent.isDoNotDisturb())
+		{
+			LLDoNotDisturbNotificationStorage::getInstance()->removeNotification(LLDoNotDisturbNotificationStorage::toastName, mSessionID);
+		}
 	}
 }
 
@@ -709,6 +729,18 @@ BOOL LLFloaterIMSession::getVisible()
 	}
 
 	return visible;
+}
+
+void LLFloaterIMSession::setFocus(BOOL focus)
+{
+	LLFloaterIMSessionTab::setFocus(focus);
+
+	//When in DND mode, remove stored IM notifications
+	//Nearby chat (Null) IMs are not stored while in DND mode, so can ignore removal
+	if(focus && gAgent.isDoNotDisturb())
+	{
+		LLDoNotDisturbNotificationStorage::getInstance()->removeNotification(LLDoNotDisturbNotificationStorage::toastName, mSessionID);
+	}
 }
 
 //static
@@ -1123,9 +1155,10 @@ public:
 		mSessionID = session_id;
 	}
 
-	void error(U32 statusNum, const std::string& reason)
+	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
 	{
-		llinfos << "Error inviting all agents to session" << llendl;
+		llwarns << "Error inviting all agents to session [status:" 
+				<< statusNum << "]: " << content << llendl;
 		//throw something back to the viewer here?
 	}
 

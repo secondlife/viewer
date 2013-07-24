@@ -142,7 +142,7 @@ public:
 	BOOL getHasGLTexture() const { return mTexName != 0; }
 	LLGLuint getTexName() const { return mTexName; }
 
-	BOOL getIsAlphaMask() const { return mIsMask; }
+	BOOL getIsAlphaMask() const;
 
 	BOOL getIsResident(BOOL test_now = FALSE); // not const
 
@@ -262,11 +262,12 @@ public:
 #endif
 
 public:
-	static void initClass(S32 num_catagories) ;
+	static void initClass(S32 num_catagories, BOOL skip_analyze_alpha = false); 
 	static void cleanupClass() ;
 
 private:
 	static S32 sMaxCategories;
+	static BOOL sSkipAnalyzeAlpha;
 	
 	//the flag to allow to call readBackRaw(...).
 	//can be removed if we do not use that function at all.

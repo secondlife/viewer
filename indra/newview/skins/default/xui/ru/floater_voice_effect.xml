@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="Места" name="voice_effects" title="ИЗМЕНЕНИЕ ГОЛОСА">
+<floater label="Места" name="voice_effects" title="ПРОСМОТР ИЗМЕНЕНИЯ ГОЛОСА">
 	<string name="no_voice_effect">
 		(Нет изменения голоса)
 	</string>

@@ -33,6 +33,7 @@
 #include "llbutton.h"
 #include "lliconctrl.h"
 #include "llinventoryfunctions.h"
+#include "llinventoryicon.h"
 #include "llnotifications.h"
 #include "llviewertexteditor.h"
 

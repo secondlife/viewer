@@ -35,6 +35,7 @@
 #include "message.h"
 
 #include "llagent.h"
+#include "llassetstorage.h"
 #include "llassetuploadresponders.h"
 
 ///////////////////////////////////////////////////////////////////////////////

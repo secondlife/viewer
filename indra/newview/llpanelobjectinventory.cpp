@@ -47,6 +47,7 @@
 #include "llfolderview.h"
 #include "llinventorybridge.h"
 #include "llinventorydefines.h"
+#include "llinventoryicon.h"
 #include "llinventoryfilter.h"
 #include "llinventoryfunctions.h"
 #include "llpreviewanim.h"

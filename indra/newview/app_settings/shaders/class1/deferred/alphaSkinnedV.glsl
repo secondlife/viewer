@@ -46,6 +46,7 @@ VARYING vec3 vary_pointlight_col;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
+VARYING vec3 vary_norm;
 
 uniform float near_clip;
 
@@ -104,7 +105,7 @@ void main()
 	
 	norm = position.xyz + normal.xyz;
 	norm = normalize(( trans*vec4(norm, 1.0) ).xyz-pos.xyz);
-	
+	vary_norm = norm;
 	vec4 frag_pos = projection_matrix * pos;
 	gl_Position = frag_pos;
 	
@@ -112,27 +113,18 @@ void main()
 		
 	calcAtmospherics(pos.xyz);
 
+	//vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.));
 	vec4 col = vec4(0.0, 0.0, 0.0, diffuse_color.a);
-
-	// Collect normal lights
-	col.rgb += light_diffuse[2].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[2], light_direction[2], light_attenuation[2].x, light_attenuation[2].y, light_attenuation[2].z);
-	col.rgb += light_diffuse[3].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[3], light_direction[3], light_attenuation[3].x, light_attenuation[3].y, light_attenuation[3].z);
-	col.rgb += light_diffuse[4].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[4], light_direction[4], light_attenuation[4].x, light_attenuation[4].y, light_attenuation[4].z);
-	col.rgb += light_diffuse[5].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[5], light_direction[5], light_attenuation[5].x, light_attenuation[5].y, light_attenuation[5].z);
-	col.rgb += light_diffuse[6].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[6], light_direction[6], light_attenuation[6].x, light_attenuation[6].y, light_attenuation[6].z);
-	col.rgb += light_diffuse[7].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[7], light_direction[7], light_attenuation[7].x, light_attenuation[7].y, light_attenuation[7].z);
-
-	vary_pointlight_col = col.rgb*diffuse_color.rgb;
-
+	vary_pointlight_col = diffuse_color.rgb;
 	col.rgb = vec3(0,0,0);
 
 	// Add windlight lights
 	col.rgb = atmosAmbient(vec3(0.));
 	
 	vary_ambient = col.rgb*diffuse_color.rgb;
-	vary_directional = diffuse_color.rgb*atmosAffectDirectionalLight(max(calcDirectionalLight(norm, light_position[0].xyz), (1.0-diffuse_color.a)*(1.0-diffuse_color.a)));
+	vary_directional.rgb = atmosAffectDirectionalLight(1);
 	
-	col.rgb = min(col.rgb*diffuse_color.rgb, 1.0);
+	col.rgb = col.rgb*diffuse_color.rgb;
 	
 	vertex_color = col;
 

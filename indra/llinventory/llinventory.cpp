@@ -288,7 +288,15 @@ void LLInventoryObject::setCreationDate(time_t creation_date_utc)
 }
 
 
+const std::string& LLInventoryItem::getDescription() const
+{
+	return mDescription;
+}
 
+const std::string& LLInventoryItem::getActualDescription() const
+{
+	return mDescription;
+}
 
 ///----------------------------------------------------------------------------
 /// Class LLInventoryItem
@@ -388,11 +396,6 @@ void LLInventoryItem::setAssetUUID(const LLUUID& asset_id)
 	mAssetUUID = asset_id;
 }
 
-
-const std::string& LLInventoryItem::getDescription() const
-{
-	return mDescription;
-}
 
 U32 LLInventoryItem::getCRC32() const
 {

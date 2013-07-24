@@ -657,7 +657,7 @@ bool LLToolBrushLand::canTerraform(LLViewerRegion* regionp) const
 {
 	if (!regionp) return false;
 	if (regionp->canManageEstate()) return true;
-	return !(regionp->getRegionFlags() & REGION_FLAGS_BLOCK_TERRAFORM);
+	return !regionp->getRegionFlag(REGION_FLAGS_BLOCK_TERRAFORM);
 }
 
 // static

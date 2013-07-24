@@ -112,8 +112,6 @@ void LLURLHistory::addURL(const std::string& collection, const std::string& url)
 // static
 void LLURLHistory::removeURL(const std::string& collection, const std::string& url)
 {
-	LLSD::array_iterator iter = sHistorySD[collection].beginArray();
-	LLSD::array_iterator end = sHistorySD[collection].endArray();
 	for(int index = 0; index < sHistorySD[collection].size(); index++)
 	{
 		if(sHistorySD[collection].get(index).asString() == url)

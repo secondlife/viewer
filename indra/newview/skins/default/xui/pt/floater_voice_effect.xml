@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="Lugares" name="voice_effects" title="EFEITOS DE VOZ">
+<floater label="Lugares" name="voice_effects" title="AMOSTRA DE DISTORÇÃO DE VOZ">
 	<string name="no_voice_effect">
 		(Não distorcer voz)
 	</string>

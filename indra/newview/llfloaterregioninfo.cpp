@@ -318,7 +318,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	// extract message
 	std::string sim_name;
 	std::string sim_type = LLTrans::getString("land_type_unknown");
-	U32 region_flags;
+	U64 region_flags;
 	U8 agent_limit;
 	F32 object_bonus_factor;
 	U8 sim_access;
@@ -328,7 +328,6 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	BOOL use_estate_sun;
 	F32 sun_hour;
 	msg->getString("RegionInfo", "SimName", sim_name);
-	msg->getU32("RegionInfo", "RegionFlags", region_flags);
 	msg->getU8("RegionInfo", "MaxAgents", agent_limit);
 	msg->getF32("RegionInfo", "ObjectBonusFactor", object_bonus_factor);
 	msg->getU8("RegionInfo", "SimAccess", sim_access);
@@ -345,6 +344,17 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	{
 		msg->getString("RegionInfo2", "ProductName", sim_type);
 		LLTrans::findString(sim_type, sim_type); // try localizing sim product name
+	}
+
+	if (msg->has(_PREHASH_RegionInfo3))
+	{
+		msg->getU64("RegionInfo3", "RegionFlagsExtended", region_flags);
+	}
+	else
+	{
+		U32 flags = 0;
+		msg->getU32("RegionInfo", "RegionFlags", flags);
+		region_flags = flags;
 	}
 
 	// GENERAL PANEL
@@ -378,9 +388,9 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	panel = tab->getChild<LLPanel>("Debug");
 
 	panel->getChild<LLUICtrl>("region_text")->setValue(LLSD(sim_name) );
-	panel->getChild<LLUICtrl>("disable_scripts_check")->setValue(LLSD((BOOL)(region_flags & REGION_FLAGS_SKIP_SCRIPTS)) );
-	panel->getChild<LLUICtrl>("disable_collisions_check")->setValue(LLSD((BOOL)(region_flags & REGION_FLAGS_SKIP_COLLISIONS)) );
-	panel->getChild<LLUICtrl>("disable_physics_check")->setValue(LLSD((BOOL)(region_flags & REGION_FLAGS_SKIP_PHYSICS)) );
+	panel->getChild<LLUICtrl>("disable_scripts_check")->setValue(LLSD((BOOL)((region_flags & REGION_FLAGS_SKIP_SCRIPTS) ? TRUE : FALSE )) );
+	panel->getChild<LLUICtrl>("disable_collisions_check")->setValue(LLSD((BOOL)((region_flags & REGION_FLAGS_SKIP_COLLISIONS) ? TRUE : FALSE )) );
+	panel->getChild<LLUICtrl>("disable_physics_check")->setValue(LLSD((BOOL)((region_flags & REGION_FLAGS_SKIP_PHYSICS) ? TRUE : FALSE )) );
 	panel->setCtrlsEnabled(allow_modify);
 
 	// TERRAIN PANEL
@@ -748,9 +758,10 @@ class ConsoleRequestResponder : public LLHTTPClient::Responder
 {
 public:
 	/*virtual*/
-	void error(U32 status, const std::string& reason)
+	void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
-		llwarns << "requesting mesh_rez_enabled failed" << llendl;
+		llwarns << "ConsoleRequestResponder error requesting mesh_rez_enabled [status:"
+				<< status << "]: " << content << llendl;
 	}
 };
 
@@ -760,9 +771,10 @@ class ConsoleUpdateResponder : public LLHTTPClient::Responder
 {
 public:
 	/* virtual */
-	void error(U32 status, const std::string& reason)
+	void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
-		llwarns << "Updating mesh enabled region setting failed" << llendl;
+		llwarns << "ConsoleRequestResponder error updating mesh enabled region setting [status:"
+				<< status << "]: " << content << llendl;
 	}
 };
 
@@ -2239,10 +2251,10 @@ public:
 	}
 	
 	// if we get an error response
-	virtual void error(U32 status, const std::string& reason)
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
-		llinfos << "LLEstateChangeInfoResponder::error "
-			<< status << ": " << reason << llendl;
+		llinfos << "LLEstateChangeInfoResponder::error [status:"
+			<< status << "]: " << content << llendl;
 	}
 private:
 	LLHandle<LLPanel> mpPanel;
@@ -2318,7 +2330,7 @@ bool LLPanelEstateCovenant::refreshFromRegion(LLViewerRegion* region)
 	LLTextBox* resellable_clause = getChild<LLTextBox>("resellable_clause");
 	if (resellable_clause)
 	{
-		if (region->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL)
+		if (region->getRegionFlag(REGION_FLAGS_BLOCK_LAND_RESELL))
 		{
 			resellable_clause->setText(getString("can_not_resell"));
 		}
@@ -2331,7 +2343,7 @@ bool LLPanelEstateCovenant::refreshFromRegion(LLViewerRegion* region)
 	LLTextBox* changeable_clause = getChild<LLTextBox>("changeable_clause");
 	if (changeable_clause)
 	{
-		if (region->getRegionFlags() & REGION_FLAGS_ALLOW_PARCEL_CHANGES)
+		if (region->getRegionFlag(REGION_FLAGS_ALLOW_PARCEL_CHANGES))
 		{
 			changeable_clause->setText(getString("can_change"));
 		}

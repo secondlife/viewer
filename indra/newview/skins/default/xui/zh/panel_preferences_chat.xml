@@ -1,34 +1,86 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="文字聊天" name="chat">
-	<text name="font_size">
-		字型尺寸：
-	</text>
-	<radio_group name="chat_font_size">
-		<radio_item label="小" name="radio" value="0"/>
-		<radio_item label="中" name="radio2" value="1"/>
-		<radio_item label="大" name="radio3" value="2"/>
-	</radio_group>
-	<check_box initial_value="true" label="聊天時播放打字動作" name="play_typing_animation"/>
-	<check_box label="當我離線時將收到的 IM 訊息郵寄給我" name="send_im_to_email"/>
-	<check_box label="啟用純本文 IM 與聊天歷史紀錄" name="plain_text_chat_history"/>
-	<check_box label="聊天泡泡" name="bubble_text_chat"/>
-	<text name="show_ims_in_label">
-		顯示 IMs 於：
-	</text>
-	<text name="requires_restart_label">
-		（須重新啟動）
-	</text>
-	<radio_group name="chat_window" tool_tip="顯示你的即時訊息在分開的浮動視窗，或是使用很多頁籤的單一浮動視窗（須重新啟動）">
-		<radio_item label="分開視窗" name="radio" value="0"/>
-		<radio_item label="頁籤" name="radio2" value="1"/>
-	</radio_group>
-	<text name="disable_toast_label">
-		啟用傳入聊天的突顯示視窗：
-	</text>
-	<check_box label="群組聊天" name="EnableGroupChatPopups" tool_tip="當群組聊天訊息抵達時查看突顯式視窗"/>
-	<check_box label="IM 聊天" name="EnableIMChatPopups" tool_tip="當即時訊息抵達時查看突顯式視窗"/>
-	<spinner label="附近聊天內容提示框停駐時間：" name="nearby_toasts_lifetime"/>
-	<spinner label="附近聊天內容提示框消退時間：" name="nearby_toasts_fadingtime"/>
+	<panel>
+		<check_box initial_value="true" label="聊天時播放打字動作" name="play_typing_animation"/>
+		<check_box label="當我離線時將收到的 IM 訊息郵寄給我" name="send_im_to_email"/>
+		<check_box label="只有我的朋友和群組可以 IM 或與我通話。" name="voice_call_friends_only_check"/>
+		<text name="font_size">
+			字型尺寸：
+		</text>
+		<combo_box name="chat_font_size">
+			<item label="小" name="Small" value="0"/>
+			<item label="中" name="Medium" value="1"/>
+			<item label="大" name="Large" value="2"/>
+		</combo_box>
+		<check_box label="聊天泡泡" name="bubble_text_chat"/>
+	</panel>
+	<panel>
+		<text name="notifications">
+			通知
+		</text>
+		<text name="friend_ims">
+			朋友 IM：
+		</text>
+		<combo_box name="FriendIMOptions">
+			<item label="開啟交談視窗" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="以突顯式視窗顯示訊息" name="PopUpMessage" value="toast"/>
+			<item label="Flash 工具列按鈕" name="FlashToolbarButton" value="flash"/>
+			<item label="無" name="None" value="無"/>
+		</combo_box>
+		<text name="non_friend_ims">
+			非朋友 IM：
+		</text>
+		<combo_box name="NonFriendIMOptions">
+			<item label="開啟交談視窗" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="以突顯式視窗顯示訊息" name="PopUpMessage" value="toast"/>
+			<item label="Flash 工具列按鈕" name="FlashToolbarButton" value="flash"/>
+			<item label="無" name="None" value="無"/>
+		</combo_box>
+		<text name="conference_ims">
+			多方交談 IM：
+		</text>
+		<combo_box name="ConferenceIMOptions">
+			<item label="開啟交談視窗" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="以突顯式視窗顯示訊息" name="PopUpMessage" value="toast"/>
+			<item label="Flash 工具列按鈕" name="FlashToolbarButton" value="flash"/>
+			<item label="無" name="None" value="無"/>
+		</combo_box>
+		<text name="group_chat">
+			群組聊天：
+		</text>
+		<combo_box name="GroupChatOptions">
+			<item label="開啟交談視窗" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="以突顯式視窗顯示訊息" name="PopUpMessage" value="toast"/>
+			<item label="Flash 工具列按鈕" name="FlashToolbarButton" value="flash"/>
+			<item label="無" name="None" value="無"/>
+		</combo_box>
+		<text name="nearby_chat">
+			附近的聊天：
+		</text>
+		<combo_box name="NearbyChatOptions">
+			<item label="開啟交談視窗" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="以突顯式視窗顯示訊息" name="PopUpMessage" value="toast"/>
+			<item label="Flash 工具列按鈕" name="FlashToolBarButton" value="flash"/>
+			<item label="無" name="None" value="無"/>
+		</combo_box>
+		<text name="notifications_alert">
+			若要暫時停止所有通知，請設定「溝通 &gt; 請勿打擾」。
+		</text>
+	</panel>
+	<panel>
+		<text name="play_sound">
+			播放聲音：
+		</text>
+		<check_box label="新交談" name="new_conversation"/>
+		<check_box label="語音通話來電" name="incoming_voice_call"/>
+		<check_box label="瞬間傳送邀請" name="teleport_offer"/>
+		<check_box label="收納物品贈送" name="inventory_offer"/>
+	</panel>
+	<panel>
+		<button label="清空記錄……" name="clear_log"/>
+		<button label="刪除交談內容記錄……" name="delete_transcripts"/>
+		<button label="瀏覽…" label_selected="瀏覽" name="log_path_button"/>
+	</panel>
 	<button label="翻譯…" name="ok_btn"/>
 	<button label="自動取代…" name="autoreplace_showgui"/>
 	<button label="拼字檢查…" name="spellcheck_showgui"/>

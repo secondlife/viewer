@@ -93,13 +93,6 @@ public:
 	// get the height & normal of the ground under a point
 	virtual void getGround(const LLVector3 &inPos, LLVector3 &outPos, LLVector3 &outNorm) = 0;
 
-	// allocate an array of joints for the character skeleton
-	// this must be overloaded to support joint subclasses,
-	// and is called implicitly from buildSkeleton().
-	// Note this must handle reallocation as it will be called
-	// each time buildSkeleton() is called.
-	virtual BOOL allocateCharacterJoints( U32 num ) = 0;
-
 	// skeleton joint accessor to support joint subclasses
 	virtual LLJoint *getCharacterJoint( U32 i ) = 0;
 
@@ -197,7 +190,7 @@ public:
 	void addVisualParam(LLVisualParam *param);
 	void addSharedVisualParam(LLVisualParam *param);
 
-	virtual BOOL setVisualParamWeight(LLVisualParam *which_param, F32 weight, BOOL upload_bake = FALSE );
+	virtual BOOL setVisualParamWeight(const LLVisualParam *which_param, F32 weight, BOOL upload_bake = FALSE );
 	virtual BOOL setVisualParamWeight(const char* param_name, F32 weight, BOOL upload_bake = FALSE );
 	virtual BOOL setVisualParamWeight(S32 index, F32 weight, BOOL upload_bake = FALSE );
 

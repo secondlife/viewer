@@ -59,7 +59,9 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void draw();
+	/*virtual*/ void setMinimized(BOOL b);
 	/*virtual*/ void setVisible(BOOL visible);
+	/*virtual*/ void setVisibleAndFrontmost(BOOL take_focus=TRUE, const LLSD& key = LLSD());
 	/*virtual*/ void updateResizeLimits();
 	void onCloseFloater(LLUUID& id);
 

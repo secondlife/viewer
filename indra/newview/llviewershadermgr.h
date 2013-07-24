@@ -28,6 +28,7 @@
 #define LL_VIEWER_SHADER_MGR_H
 
 #include "llshadermgr.h"
+#include "llmaterial.h"
 
 class LLViewerShaderMgr: public LLShaderMgr
 {
@@ -216,7 +217,7 @@ extern LLGLSLShader			gTransformPositionProgram;
 extern LLGLSLShader			gTransformTexCoordProgram;
 extern LLGLSLShader			gTransformNormalProgram;
 extern LLGLSLShader			gTransformColorProgram;
-extern LLGLSLShader			gTransformBinormalProgram;
+extern LLGLSLShader			gTransformTangentProgram;
 
 
 
@@ -229,7 +230,8 @@ extern LLGLSLShader			gSplatTextureRectProgram;
 extern LLGLSLShader			gGlowCombineFXAAProgram;
 extern LLGLSLShader			gDebugProgram;
 extern LLGLSLShader			gClipProgram;
-extern LLGLSLShader			gAlphaMaskProgram;
+extern LLGLSLShader			gDownsampleDepthProgram;
+extern LLGLSLShader			gDownsampleDepthRectProgram;
 
 //output tex0[tc0] + tex1[tc1]
 extern LLGLSLShader			gTwoTextureAddProgram;
@@ -301,6 +303,9 @@ extern LLGLSLShader			gGlowExtractProgram;
 
 //interface shaders
 extern LLGLSLShader			gHighlightProgram;
+extern LLGLSLShader			gHighlightNormalProgram;
+extern LLGLSLShader			gHighlightSpecularProgram;
+
 extern LLGLSLShader			gPathfindingProgram;
 extern LLGLSLShader			gPathfindingNoNormalsProgram;
 
@@ -318,6 +323,7 @@ extern LLGLSLShader			gWLCloudProgram;
 // Post Process Shaders
 extern LLGLSLShader			gPostColorFilterProgram;
 extern LLGLSLShader			gPostNightVisionProgram;
+
 
 // Deferred rendering shaders
 extern LLGLSLShader			gDeferredImpostorProgram;
@@ -350,6 +356,7 @@ extern LLGLSLShader			gDeferredCoFProgram;
 extern LLGLSLShader			gDeferredDoFCombineProgram;
 extern LLGLSLShader			gFXAAProgram;
 extern LLGLSLShader			gDeferredPostNoDoFProgram;
+extern LLGLSLShader			gDeferredPostGammaCorrectProgram;
 extern LLGLSLShader			gDeferredAvatarShadowProgram;
 extern LLGLSLShader			gDeferredAttachmentShadowProgram;
 extern LLGLSLShader			gDeferredAlphaProgram;
@@ -360,6 +367,12 @@ extern LLGLSLShader			gDeferredAvatarAlphaProgram;
 extern LLGLSLShader			gDeferredWLSkyProgram;
 extern LLGLSLShader			gDeferredWLCloudProgram;
 extern LLGLSLShader			gDeferredStarProgram;
+extern LLGLSLShader			gDeferredFullbrightShinyProgram;
+extern LLGLSLShader			gDeferredSkinnedFullbrightShinyProgram;
+extern LLGLSLShader			gDeferredSkinnedFullbrightProgram;
 extern LLGLSLShader			gNormalMapGenProgram;
+
+// Deferred materials shaders
+extern LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
 
 #endif

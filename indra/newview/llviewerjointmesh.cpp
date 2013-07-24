@@ -42,7 +42,7 @@
 #include "llface.h"
 #include "llgldbg.h"
 #include "llglheaders.h"
-#include "lltexlayer.h"
+#include "llviewertexlayer.h"
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
 #include "llviewertexturelist.h"
@@ -67,101 +67,20 @@ static const U32 sRenderMask = LLVertexBuffer::MAP_VERTEX |
 							   LLVertexBuffer::MAP_NORMAL |
 							   LLVertexBuffer::MAP_TEXCOORD0;
 
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-// LLViewerJointMesh::LLSkinJoint
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
-// LLSkinJoint
-//-----------------------------------------------------------------------------
-LLSkinJoint::LLSkinJoint()
-{
-	mJoint       = NULL;
-}
-
-//-----------------------------------------------------------------------------
-// ~LLSkinJoint
-//-----------------------------------------------------------------------------
-LLSkinJoint::~LLSkinJoint()
-{
-	mJoint = NULL;
-}
-
-
-//-----------------------------------------------------------------------------
-// LLSkinJoint::setupSkinJoint()
-//-----------------------------------------------------------------------------
-BOOL LLSkinJoint::setupSkinJoint( LLViewerJoint *joint)
-{
-	// find the named joint
-	mJoint = joint;
-	if ( !mJoint )
-	{
-		llinfos << "Can't find joint" << llendl;
-	}
-
-	// compute the inverse root skin matrix
-	mRootToJointSkinOffset.clearVec();
-
-	LLVector3 rootSkinOffset;
-	while (joint)
-	{
-		rootSkinOffset += joint->getSkinOffset();
-		joint = (LLViewerJoint*)joint->getParent();
-	}
-
-	mRootToJointSkinOffset = -rootSkinOffset;
-	mRootToParentJointSkinOffset = mRootToJointSkinOffset;
-	mRootToParentJointSkinOffset += mJoint->getSkinOffset();
-
-	return TRUE;
-}
-
-
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 // LLViewerJointMesh
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-BOOL LLViewerJointMesh::sPipelineRender = FALSE;
-EAvatarRenderPass LLViewerJointMesh::sRenderPass = AVATAR_RENDER_PASS_SINGLE;
-U32 LLViewerJointMesh::sClothingMaskImageName = 0;
-LLColor4 LLViewerJointMesh::sClothingInnerColor;
 
 //-----------------------------------------------------------------------------
 // LLViewerJointMesh()
 //-----------------------------------------------------------------------------
 LLViewerJointMesh::LLViewerJointMesh()
 	:
-	mTexture( NULL ),
-	mLayerSet( NULL ),
-	mTestImageName( 0 ),
-	mFaceIndexCount(0),
-	mIsTransparent(FALSE)
+	LLAvatarJointMesh()
 {
-
-	mColor[0] = 1.0f;
-	mColor[1] = 1.0f;
-	mColor[2] = 1.0f;
-	mColor[3] = 1.0f;
-	mShiny = 0.0f;
-	mCullBackFaces = TRUE;
-
-	mMesh = NULL;
-
-	mNumSkinJoints = 0;
-	mSkinJoints = NULL;
-
-	mFace = NULL;
-
-	mMeshID = 0;
-	mUpdateXform = FALSE;
-
-	mValid = FALSE;
 }
 
 
@@ -171,199 +90,6 @@ LLViewerJointMesh::LLViewerJointMesh()
 //-----------------------------------------------------------------------------
 LLViewerJointMesh::~LLViewerJointMesh()
 {
-	mMesh = NULL;
-	mTexture = NULL;
-	freeSkinData();
-}
-
-
-//-----------------------------------------------------------------------------
-// LLViewerJointMesh::allocateSkinData()
-//-----------------------------------------------------------------------------
-BOOL LLViewerJointMesh::allocateSkinData( U32 numSkinJoints )
-{
-	mSkinJoints = new LLSkinJoint[ numSkinJoints ];
-	mNumSkinJoints = numSkinJoints;
-	return TRUE;
-}
-
-//-----------------------------------------------------------------------------
-// LLViewerJointMesh::freeSkinData()
-//-----------------------------------------------------------------------------
-void LLViewerJointMesh::freeSkinData()
-{
-	mNumSkinJoints = 0;
-	delete [] mSkinJoints;
-	mSkinJoints = NULL;
-}
-
-//--------------------------------------------------------------------
-// LLViewerJointMesh::getColor()
-//--------------------------------------------------------------------
-void LLViewerJointMesh::getColor( F32 *red, F32 *green, F32 *blue, F32 *alpha )
-{
-	*red   = mColor[0];
-	*green = mColor[1];
-	*blue  = mColor[2];
-	*alpha = mColor[3];
-}
-
-//--------------------------------------------------------------------
-// LLViewerJointMesh::setColor()
-//--------------------------------------------------------------------
-void LLViewerJointMesh::setColor( F32 red, F32 green, F32 blue, F32 alpha )
-{
-	mColor[0] = red;
-	mColor[1] = green;
-	mColor[2] = blue;
-	mColor[3] = alpha;
-}
-
-
-//--------------------------------------------------------------------
-// LLViewerJointMesh::getTexture()
-//--------------------------------------------------------------------
-//LLViewerTexture *LLViewerJointMesh::getTexture()
-//{
-//	return mTexture;
-//}
-
-//--------------------------------------------------------------------
-// LLViewerJointMesh::setTexture()
-//--------------------------------------------------------------------
-void LLViewerJointMesh::setTexture( LLViewerTexture *texture )
-{
-	mTexture = texture;
-
-	// texture and dynamic_texture are mutually exclusive
-	if( texture )
-	{
-		mLayerSet = NULL;
-		//texture->bindTexture(0);
-		//texture->setClamp(TRUE, TRUE);
-	}
-}
-
-//--------------------------------------------------------------------
-// LLViewerJointMesh::setLayerSet()
-// Sets the shape texture (takes precedence over normal texture)
-//--------------------------------------------------------------------
-void LLViewerJointMesh::setLayerSet( LLTexLayerSet* layer_set )
-{
-	mLayerSet = layer_set;
-	
-	// texture and dynamic_texture are mutually exclusive
-	if( layer_set )
-	{
-		mTexture = NULL;
-	}
-}
-
-
-
-//--------------------------------------------------------------------
-// LLViewerJointMesh::getMesh()
-//--------------------------------------------------------------------
-LLPolyMesh *LLViewerJointMesh::getMesh()
-{
-	return mMesh;
-}
-
-//-----------------------------------------------------------------------------
-// LLViewerJointMesh::setMesh()
-//-----------------------------------------------------------------------------
-void LLViewerJointMesh::setMesh( LLPolyMesh *mesh )
-{
-	// set the mesh pointer
-	mMesh = mesh;
-
-	// release any existing skin joints
-	freeSkinData();
-
-	if ( mMesh == NULL )
-	{
-		return;
-	}
-
-	// acquire the transform from the mesh object
-	setPosition( mMesh->getPosition() );
-	setRotation( mMesh->getRotation() );
-	setScale( mMesh->getScale() );
-
-	// create skin joints if necessary
-	if ( mMesh->hasWeights() && !mMesh->isLOD())
-	{
-		U32 numJointNames = mMesh->getNumJointNames();
-		
-		allocateSkinData( numJointNames );
-		std::string *jointNames = mMesh->getJointNames();
-
-		U32 jn;
-		for (jn = 0; jn < numJointNames; jn++)
-		{
-			//llinfos << "Setting up joint " << jointNames[jn] << llendl;
-			LLViewerJoint* joint = (LLViewerJoint*)(getRoot()->findJoint(jointNames[jn]) );
-			mSkinJoints[jn].setupSkinJoint( joint );
-		}
-	}
-
-	// setup joint array
-	if (!mMesh->isLOD())
-	{
-		setupJoint((LLViewerJoint*)getRoot());
-	}
-
-//	llinfos << "joint render entries: " << mMesh->mJointRenderData.count() << llendl;
-}
-
-//-----------------------------------------------------------------------------
-// setupJoint()
-//-----------------------------------------------------------------------------
-void LLViewerJointMesh::setupJoint(LLViewerJoint* current_joint)
-{
-//	llinfos << "Mesh: " << getName() << llendl;
-
-//	S32 joint_count = 0;
-	U32 sj;
-	for (sj=0; sj<mNumSkinJoints; sj++)
-	{
-		LLSkinJoint &js = mSkinJoints[sj];
-
-		if (js.mJoint != current_joint)
-		{
-			continue;
-		}
-
-		// we've found a skinjoint for this joint..
-
-		// is the last joint in the array our parent?
-		if(mMesh->mJointRenderData.count() && mMesh->mJointRenderData[mMesh->mJointRenderData.count() - 1]->mWorldMatrix == &current_joint->getParent()->getWorldMatrix())
-		{
-			// ...then just add ourselves
-			LLViewerJoint* jointp = js.mJoint;
-			mMesh->mJointRenderData.put(new LLJointRenderData(&jointp->getWorldMatrix(), &js));
-//			llinfos << "joint " << joint_count << js.mJoint->getName() << llendl;
-//			joint_count++;
-		}
-		// otherwise add our parent and ourselves
-		else
-		{
-			mMesh->mJointRenderData.put(new LLJointRenderData(&current_joint->getParent()->getWorldMatrix(), NULL));
-//			llinfos << "joint " << joint_count << current_joint->getParent()->getName() << llendl;
-//			joint_count++;
-			mMesh->mJointRenderData.put(new LLJointRenderData(&current_joint->getWorldMatrix(), &js));
-//			llinfos << "joint " << joint_count << current_joint->getName() << llendl;
-//			joint_count++;
-		}
-	}
-
-	// depth-first traversal
-	for (LLJoint::child_list_t::iterator iter = current_joint->mChildren.begin();
-		 iter != current_joint->mChildren.end(); ++iter)
-	{
-		LLViewerJoint* child_joint = (LLViewerJoint*)(*iter);
-		setupJoint(child_joint);
-	}
 }
 
 const S32 NUM_AXES = 3;
@@ -475,21 +201,6 @@ void LLViewerJointMesh::uploadJointMatrices()
 }
 
 //--------------------------------------------------------------------
-// LLViewerJointMesh::drawBone()
-//--------------------------------------------------------------------
-void LLViewerJointMesh::drawBone()
-{
-}
-
-//--------------------------------------------------------------------
-// LLViewerJointMesh::isTransparent()
-//--------------------------------------------------------------------
-BOOL LLViewerJointMesh::isTransparent()
-{
-	return mIsTransparent;
-}
-
-//--------------------------------------------------------------------
 // DrawElementsBLEND and utility code
 //--------------------------------------------------------------------
 
@@ -544,6 +255,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	llassert( !(mTexture.notNull() && mLayerSet) );  // mutually exclusive
 
 	LLTexUnit::eTextureAddressMode old_mode = LLTexUnit::TAM_WRAP;
+	LLViewerTexLayerSet *layerset = dynamic_cast<LLViewerTexLayerSet*>(mLayerSet);
 	if (mTestImageName)
 	{
 		gGL.getTexUnit(diffuse_channel)->bindManual(LLTexUnit::TT_TEXTURE, mTestImageName);
@@ -558,11 +270,11 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 			gGL.getTexUnit(diffuse_channel)->setTextureColorBlend(LLTexUnit::TBO_LERP_TEX_ALPHA, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
 		}
 	}
-	else if( !is_dummy && mLayerSet )
+	else if( !is_dummy && layerset )
 	{
-		if(	mLayerSet->hasComposite() )
+		if(	layerset->hasComposite() )
 		{
-			gGL.getTexUnit(diffuse_channel)->bind(mLayerSet->getComposite());
+			gGL.getTexUnit(diffuse_channel)->bind(layerset->getViewerComposite());
 		}
 		else
 		{

@@ -243,7 +243,6 @@ void LLConsole::draw()
 void LLConsole::Paragraph::makeParagraphColorSegments (const LLColor4 &color) 
 {
 	LLSD paragraph_color_segments;
-	LLColor4 lcolor=color;
 	
 	paragraph_color_segments[0]["text"] =wstring_to_utf8str(mParagraphText);
 	LLSD color_sd = color.getValue();

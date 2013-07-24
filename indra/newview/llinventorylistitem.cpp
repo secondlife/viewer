@@ -37,6 +37,7 @@
 #include "lltextutil.h"
 
 // newview
+#include "llinventoryicon.h"
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
 
@@ -230,7 +231,7 @@ const std::string& LLPanelInventoryListItemBase::getDescription() const
 	{
 		return LLStringUtil::null;
 	}
-	return inv_item->getDescription();
+	return inv_item->getActualDescription();
 }
 
 time_t LLPanelInventoryListItemBase::getCreationDate() const

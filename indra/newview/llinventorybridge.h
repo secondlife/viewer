@@ -34,7 +34,7 @@
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llviewercontrol.h"
-#include "llwearable.h"
+#include "llviewerwearable.h"
 #include "lltooldraganddrop.h"
 
 class LLInventoryFilter;
@@ -509,10 +509,10 @@ public:
 
 	static void		onWearOnAvatar( void* userdata );	// Access to wearOnAvatar() from menu
 	static BOOL		canWearOnAvatar( void* userdata );
-	static void		onWearOnAvatarArrived( LLWearable* wearable, void* userdata );
+	static void		onWearOnAvatarArrived( LLViewerWearable* wearable, void* userdata );
 	void			wearOnAvatar();
 
-	static void		onWearAddOnAvatarArrived( LLWearable* wearable, void* userdata );
+	static void		onWearAddOnAvatarArrived( LLViewerWearable* wearable, void* userdata );
 	void			wearAddOnAvatar();
 
 	static BOOL		canEditOnAvatar( void* userdata );	// Access to editOnAvatar() from menu
@@ -520,9 +520,6 @@ public:
 	void			editOnAvatar();
 
 	static BOOL		canRemoveFromAvatar( void* userdata );
-	static void		onRemoveFromAvatar( void* userdata );
-	static void		onRemoveFromAvatarArrived( LLWearable* wearable, 	void* userdata );
-	static void 	removeItemFromAvatar(LLViewerInventoryItem *item);
 	static void 	removeAllClothesFromAvatar();
 	void			removeFromAvatar();
 protected:

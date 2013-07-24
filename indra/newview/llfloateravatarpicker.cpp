@@ -483,8 +483,7 @@ public:
 		}
 		else
 		{
-			llinfos << "avatar picker failed " << status
-					<< " reason " << reason << llendl;
+			llwarns << "avatar picker failed [status:" << status << "]: " << content << llendl;
 			
 		}
 	}
@@ -819,7 +818,14 @@ bool LLFloaterAvatarPicker::isSelectBtnEnabled()
 			uuid_vec_t avatar_ids;
 			std::vector<LLAvatarName> avatar_names;
 			getSelectedAvatarData(list, avatar_ids, avatar_names);
-			return mOkButtonValidateSignal(avatar_ids);
+			if (avatar_ids.size() >= 1) 
+			{
+				ret_val = mOkButtonValidateSignal(avatar_ids);
+			}
+			else
+			{
+				ret_val = false;
+			}
 		}
 	}
 

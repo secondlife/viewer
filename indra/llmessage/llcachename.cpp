@@ -308,8 +308,10 @@ boost::signals2::connection LLCacheName::addObserver(const LLCacheNameCallback& 
 bool LLCacheName::importFile(std::istream& istr)
 {
 	LLSD data;
-	if(LLSDSerialize::fromXMLDocument(data, istr) < 1)
+	if(LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXMLDocument(data, istr))
+	{
 		return false;
+	}
 
 	// We'll expire entries more than a week old
 	U32 now = (U32)time(NULL);

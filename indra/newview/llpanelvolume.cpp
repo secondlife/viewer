@@ -252,10 +252,9 @@ void LLPanelVolume::getState( )
 		return;
 	}
 
-	BOOL owners_identical;
 	LLUUID owner_id;
 	std::string owner_name;
-	owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
+	LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
 
 	// BUG? Check for all objects being editable?
 	BOOL editable = root_objectp->permModify() && !root_objectp->isPermanentEnforced();

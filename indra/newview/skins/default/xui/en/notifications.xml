@@ -352,7 +352,7 @@ Save all changes to clothing/body parts?
    icon="alertmodal.tga"
    name="FriendsAndGroupsOnly"
    type="alertmodal">
-    Non-friends won't know that you've choosen to ignore their calls and instant messages.
+    Non-friends won't know that you've chosen to ignore their calls and instant messages.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -505,6 +505,33 @@ Add this Ability to &apos;[ROLE_NAME]&apos;?
      name="okcancelbuttons"
      notext="No"
      yestext="Yes"/>
+  </notification>
+  
+  <notification
+    icon="alertmodal.tga"
+    name="EjectGroupMemberWarning"
+    type="alertmodal">
+     You are about to eject [AVATAR_NAME] from the group.
+     <tag>group</tag>
+     <tag>confirm</tag>
+     <usetemplate
+      ignoretext="Confirm ejecting a participant from group"
+      name="okcancelignore"
+      notext="Cancel"
+      yestext="Eject"/>
+  </notification>
+  <notification
+    icon="alertmodal.tga"
+    name="EjectGroupMembersWarning"
+    type="alertmodal">
+     You are about to eject [COUNT] members from the group.
+     <tag>group</tag>
+     <tag>confirm</tag>
+     <usetemplate
+      ignoretext="Confirm ejecting multiple members from group"
+      name="okcancelignore"
+      notext="Cancel"
+      yestext="Eject"/>
   </notification>
 
   <notification
@@ -2682,7 +2709,7 @@ Please enter a higher price.
    icon="alertmodal.tga"
    name="ConfirmItemDeleteHasLinks"
    type="alertmodal">
-At least one of the items you has link items that point to it.  If you delete this item, its links will permanently stop working.  It is strongly advised to delete the links first.
+At least one of the items has links that point to it.  If you delete this item, its links will permanently stop working.  It is strongly advised to delete the links first.
 
 Are you sure you want to delete these items?
     <tag>confirm</tag>
@@ -2724,7 +2751,7 @@ Are you sure you want to delete these items?
    icon="alertmodal.tga"
    name="ConfirmObjectDeleteNoOwn"
    type="alertmodal">
-You do not own least one of the items you have selected.
+You do not own at least one of the items you have selected.
 
 Are you sure you want to delete these items?
     <tag>confirm</tag>
@@ -2754,7 +2781,7 @@ Are you sure you want to delete these items?
    name="ConfirmObjectDeleteLockNoOwn"
    type="alertmodal">
 At least one object is locked.
-You do not own least one object.
+You do not own at least one object.
 
 Are you sure you want to delete these items?
     <tag>confirm</tag>
@@ -2769,7 +2796,7 @@ Are you sure you want to delete these items?
    name="ConfirmObjectDeleteNoCopyNoOwn"
    type="alertmodal">
 At least one object is not copyable.
-You do not own least one object.
+You do not own at least one object.
 
 Are you sure you want to delete these items?
     <tag>confirm</tag>
@@ -2785,13 +2812,13 @@ Are you sure you want to delete these items?
    type="alertmodal">
 At least one object is locked.
 At least one object is not copyable.
-You do not own least one object.
+You do not own at least one object.
 
 Are you sure you want to delete these items?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
-     notext="cancel"
+     notext="Cancel"
      yestext="OK"/>
   </notification>
 
@@ -3480,7 +3507,7 @@ Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
  name="RequiredUpdateDownloadedVerboseDialog"
  type="alertmodal">
 We have downloaded a required software update.
-Version [VERSION]
+Version [VERSION] [[INFO_URL] Information about this update]
 
 We must restart [APP_NAME] to install the update.
     <tag>confirm</tag>
@@ -3494,6 +3521,66 @@ We must restart [APP_NAME] to install the update.
  name="RequiredUpdateDownloadedDialog"
  type="alertmodal">
 We must restart [APP_NAME] to install the update.
+[[INFO_URL] Information about this update]
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="OtherChannelDownloadBackgroundTip"
+   type="notify">
+We have downloaded an update to your [APP_NAME] installation.
+Version [VERSION] 
+This experimental viewer has been replaced by a [NEW_CHANNEL] viewer;
+see [[INFO_URL] for details about this update]
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Later..."
+     yestext="Install now and restart [APP_NAME]"/>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="OtherChannelDownloadBackgroundDialog"
+ type="alertmodal">
+We have downloaded an update to your [APP_NAME] installation.
+Version [VERSION]
+This experimental viewer has been replaced by a [NEW_CHANNEL] viewer;
+see [[INFO_URL] Information about this update]
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Later..."
+     yestext="Install now and restart [APP_NAME]"/>
+  </notification>
+  
+  <notification
+ icon="alertmodal.tga"
+ name="OtherChannelRequiredUpdateDownloadedVerboseDialog"
+ type="alertmodal">
+We have downloaded a required software update.
+Version [VERSION]
+This experimental viewer has been replaced by a [NEW_CHANNEL] viewer;
+see [[INFO_URL] Information about this update]
+
+We must restart [APP_NAME] to install the update.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+ icon="alertmodal.tga"
+ name="OtherChannelRequiredUpdateDownloadedDialog"
+ type="alertmodal">
+We must restart [APP_NAME] to install the update.
+This experimental viewer has been replaced by a [NEW_CHANNEL] viewer;
+see [[INFO_URL] Information about this update]
     <tag>confirm</tag>
     <usetemplate
      name="okbutton"
@@ -6865,6 +6952,28 @@ Do not allow access if you do not fully understand why it wants access to your a
   </notification>
 
   <notification
+   icon="notify.tga"
+	 name="UnknownScriptQuestion"
+	 persist="false"
+	 type="notify">
+The runtime script permission requested by &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, an object owned by &apos;[NAME]&apos;, isn&apos;t recognized by the viewer and can&apos;t be granted.
+
+To grant this permission please update your viewer to the latest version from [DOWNLOADURL].
+		<tag>confirm</tag>
+		<form name="form">
+			<button
+			 default="true"
+			 index="1"
+			 name="Deny"
+			 text="Ok"/>
+			<button
+			 index="2"
+			 name="Mute"
+			 text="Block"/>
+		</form>
+	</notification>
+
+	<notification
    icon="notify.tga"
    name="ScriptDialog"
    show_toast="false"

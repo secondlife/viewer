@@ -2,7 +2,7 @@
 <menu name="menu_group_plus">
 	<menu_item_call label="Информация" name="View Info"/>
 	<menu_item_call label="Чат" name="Chat"/>
-	<menu_item_call label="Звонок" name="Call"/>
+	<menu_item_call label="Голосовой вызов" name="Call"/>
 	<menu_item_call label="Активация" name="Activate"/>
 	<menu_item_call label="Покинуть" name="Leave"/>
 </menu>

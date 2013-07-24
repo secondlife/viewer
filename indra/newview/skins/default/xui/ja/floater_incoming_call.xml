@@ -10,7 +10,7 @@
 		匿名ユーザー
 	</floater.string>
 	<floater.string name="VoiceInviteP2P">
-		がコールしています。
+		からコールを受けています。
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
 		がコンファレンスチャットで、ボイスチャットに参加しました。
@@ -25,9 +25,9 @@
 		[CURRENT_CHAT]を退席して、このボイスチャットに参加しますか？
 	</floater.string>
 	<text name="question">
-		[CURRENT_CHAT] を退席して、このボイスチャットに参加しますか？
+		コールに応答すると、現在のボイスチャットから切断されます。
 	</text>
-	<button label="はい" label_selected="はい" name="Accept"/>
-	<button label="いいえ" label_selected="いいえ" name="Reject"/>
-	<button label="IM" name="Start IM"/>
+	<button label="取る" label_selected="取る" name="Accept"/>
+	<button label="無視" label_selected="無視" name="Reject"/>
+	<button label="代わりに IM を開く" name="Start IM"/>
 </floater>

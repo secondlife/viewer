@@ -1,0 +1,18 @@
+secondlife-viewer (0.3) unstable; urgency=low
+
+  * Initial debian configuration
+
+ -- Don Kjer <don@lindenlab.com>  Wed, 04 Jul 2012 00:43:03 +0000
+
+secondlife-viewer (0.2) unstable; urgency=low
+
+  * Adding default LSB headers for squeeze
+
+ -- Tyler Kohler <tyler@lindenlab.com>  Thu, 24 Mar 2011 09:43:36 -0700
+
+secondlife-viewer (0.1) unstable; urgency=low
+
+  * Cloned from debian package skeleton.
+
+ -- Lex Linden <lex@lindenlab.com>  Mon, 20 Sep 2010 08:01:59 -0700
+

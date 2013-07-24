@@ -64,6 +64,11 @@
 #include "llavatarnamecache.h"
 #include "llavataractions.h"
 #include "lllogininstance.h"
+#include "llfavoritesbar.h"
+
+// Two do-nothing ops for use in callbacks.
+void no_op_inventory_func(const LLUUID&) {} 
+void no_op() {}
 
 ///----------------------------------------------------------------------------
 /// Helper class to store special inventory item names and their localized values.
@@ -588,7 +593,7 @@ void LLViewerInventoryCategory::copyViewerCategory(const LLViewerInventoryCatego
 {
 	copyCategory(other);
 	mOwnerID = other->mOwnerID;
-	mVersion = other->mVersion;
+	setVersion(other->getVersion());
 	mDescendentCount = other->mDescendentCount;
 	mDescendentsRequested = other->mDescendentsRequested;
 }
@@ -656,9 +661,19 @@ void LLViewerInventoryCategory::removeFromServer( void )
 	gAgent.sendReliableMessage();
 }
 
+S32 LLViewerInventoryCategory::getVersion() const
+{
+	return mVersion;
+}
+
+void LLViewerInventoryCategory::setVersion(S32 version)
+{
+	mVersion = version;
+}
+
 bool LLViewerInventoryCategory::fetch()
 {
-	if((VERSION_UNKNOWN == mVersion)
+	if((VERSION_UNKNOWN == getVersion())
 	   && mDescendentsRequested.hasExpired())	//Expired check prevents multiple downloads.
 	{
 		LL_DEBUGS("InventoryFetch") << "Fetching category children: " << mName << ", UUID: " << mUUID << LL_ENDL;
@@ -949,7 +964,7 @@ void LLInventoryCallbackManager::fire(U32 callback_id, const LLUUID& item_id)
 	}
 }
 
-void WearOnAvatarCallback::fire(const LLUUID& inv_item)
+void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachmentp)
 {
 	if (inv_item.isNull())
 		return;
@@ -957,50 +972,11 @@ void WearOnAvatarCallback::fire(const LLUUID& inv_item)
 	LLViewerInventoryItem *item = gInventory.getItem(inv_item);
 	if (item)
 	{
-		LLAppearanceMgr::instance().wearItemOnAvatar(inv_item, true, mReplace);
+		rez_attachment(item, attachmentp);
 	}
 }
 
-void ModifiedCOFCallback::fire(const LLUUID& inv_item)
-{
-	LLAppearanceMgr::instance().updateAppearanceFromCOF();
-
-	// Start editing the item if previously requested.
-	gAgentWearables.editWearableIfRequested(inv_item);
-
-	// TODO: camera mode may not be changed if a debug setting is tweaked
-	if( gAgentCamera.cameraCustomizeAvatar() )
-	{
-		// If we're in appearance editing mode, the current tab may need to be refreshed
-		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
-		if (panel)
-		{
-			panel->showDefaultSubpart();
-		}
-	}
-}
-
-RezAttachmentCallback::RezAttachmentCallback(LLViewerJointAttachment *attachmentp)
-{
-	mAttach = attachmentp;
-}
-RezAttachmentCallback::~RezAttachmentCallback()
-{
-}
-
-void RezAttachmentCallback::fire(const LLUUID& inv_item)
-{
-	if (inv_item.isNull())
-		return;
-
-	LLViewerInventoryItem *item = gInventory.getItem(inv_item);
-	if (item)
-	{
-		rez_attachment(item, mAttach);
-	}
-}
-
-void ActivateGestureCallback::fire(const LLUUID& inv_item)
+void activate_gesture_cb(const LLUUID& inv_item)
 {
 	if (inv_item.isNull())
 		return;
@@ -1013,7 +989,7 @@ void ActivateGestureCallback::fire(const LLUUID& inv_item)
 	LLGestureMgr::instance().activateGesture(inv_item);
 }
 
-void CreateGestureCallback::fire(const LLUUID& inv_item)
+void create_gesture_cb(const LLUUID& inv_item)
 {
 	if (inv_item.isNull())
 		return;
@@ -1029,7 +1005,6 @@ void CreateGestureCallback::fire(const LLUUID& inv_item)
 	// Force to be entirely onscreen.
 	gFloaterView->adjustToFitScreen(preview, FALSE);
 }
-
 
 
 LLInventoryCallbackManager gInventoryCallbacks;
@@ -1157,6 +1132,11 @@ void link_inventory_item(
 		}
 	}
 
+#if 1 // debugging stuff
+	LLViewerInventoryCategory* cat = gInventory.getCategory(parent_id);
+	lldebugs << "cat: " << cat << llendl;
+	
+#endif
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_LinkInventoryItem);
 	msg->nextBlock(_PREHASH_AgentData);
@@ -1283,7 +1263,7 @@ void create_new_item(const std::string& name,
 	
 	if (inv_type == LLInventoryType::IT_GESTURE)
 	{
-		LLPointer<LLInventoryCallback> cb = new CreateGestureCallback();
+		LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(create_gesture_cb);
 		create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
 							  parent_id, LLTransactionID::tnull, name, desc, asset_type, inv_type,
 							  NOT_WEARABLE, next_owner_perm, cb);
@@ -1444,6 +1424,28 @@ const std::string& LLViewerInventoryItem::getName() const
 	return  LLInventoryItem::getName();
 }
 
+S32 LLViewerInventoryItem::getSortField() const
+{
+	return LLFavoritesOrderStorage::instance().getSortIndex(mUUID);
+}
+
+//void LLViewerInventoryItem::setSortField(S32 sortField)
+//{
+//	LLFavoritesOrderStorage::instance().setSortIndex(mUUID, sortField);
+//	getSLURL();
+//}
+
+void LLViewerInventoryItem::getSLURL()
+{
+	LLFavoritesOrderStorage::instance().getSLURL(mAssetUUID);
+}
+
+const LLPermissions& LLViewerInventoryItem::getPermissions() const
+{
+	// Use the actual permissions of the symlink, not its parent.
+	return LLInventoryItem::getPermissions();	
+}
+
 const LLUUID& LLViewerInventoryItem::getCreatorUUID() const
 {
 	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
@@ -1512,6 +1514,17 @@ LLWearableType::EType LLViewerInventoryItem::getWearableType() const
 		return LLWearableType::WT_INVALID;
 	}
 	return LLWearableType::EType(getFlags() & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
+}
+
+
+time_t LLViewerInventoryItem::getCreationDate() const
+{
+	return LLInventoryItem::getCreationDate();
+}
+
+U32 LLViewerInventoryItem::getCRC32() const
+{
+	return LLInventoryItem::getCRC32();	
 }
 
 // *TODO: mantipov: should be removed with LMSortPrefix patch in llinventorymodel.cpp, EXT-3985

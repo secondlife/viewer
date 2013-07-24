@@ -270,9 +270,6 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
 	mSection[0].mVelocity.setVec(0,0,0);
 	mSection[0].mAxisRotation.setQuat(begin_rot,0,0,1);
 
-	LLVector3 parentSectionPosition = mSection[0].mPosition;
-	LLVector3 last_direction = mSection[0].mDirection;
-
 	remapSections(mSection, mInitializedRes, mSection, mSimulateRes);
 	mInitializedRes = mSimulateRes;
 

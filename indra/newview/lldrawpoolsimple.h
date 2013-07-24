@@ -84,6 +84,59 @@ public:
 	/*virtual*/ void prerender();
 };
 
+class LLDrawPoolAlphaMask : public LLRenderPass
+{
+public:
+	enum
+	{
+		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
+							LLVertexBuffer::MAP_NORMAL |
+							LLVertexBuffer::MAP_TEXCOORD0 |
+							LLVertexBuffer::MAP_COLOR
+	};
+	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+
+	LLDrawPoolAlphaMask();
+
+	/*virtual*/ S32 getNumDeferredPasses() { return 1; }
+	/*virtual*/ void beginDeferredPass(S32 pass);
+	/*virtual*/ void endDeferredPass(S32 pass);
+	/*virtual*/ void renderDeferred(S32 pass);
+
+	/*virtual*/ S32	 getNumPasses() { return 1; }
+	/*virtual*/ void beginRenderPass(S32 pass);
+	/*virtual*/ void endRenderPass(S32 pass);
+	/*virtual*/ void render(S32 pass = 0);
+	/*virtual*/ void prerender();
+
+};
+
+class LLDrawPoolFullbrightAlphaMask : public LLRenderPass
+{
+public:
+	enum
+	{
+		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
+							LLVertexBuffer::MAP_TEXCOORD0 |
+							LLVertexBuffer::MAP_COLOR
+	};
+	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+
+	LLDrawPoolFullbrightAlphaMask();
+	
+	/*virtual*/ S32 getNumPostDeferredPasses() { return 1; }
+	/*virtual*/ void beginPostDeferredPass(S32 pass);
+	/*virtual*/ void endPostDeferredPass(S32 pass);
+	/*virtual*/ void renderPostDeferred(S32 pass);
+
+	/*virtual*/ S32	 getNumPasses() { return 1; }
+	/*virtual*/ void beginRenderPass(S32 pass);
+	/*virtual*/ void endRenderPass(S32 pass);
+	/*virtual*/ void render(S32 pass = 0);
+	/*virtual*/ void prerender();
+};
+
+
 class LLDrawPoolFullbright : public LLRenderPass
 {
 public:

@@ -62,10 +62,10 @@ void LLRemoteParcelRequestResponder::result(const LLSD& content)
 
 //If we get back an error (not found, etc...), handle it here
 //virtual
-void LLRemoteParcelRequestResponder::error(U32 status, const std::string& reason)
+void LLRemoteParcelRequestResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	llinfos << "LLRemoteParcelRequest::error("
-		<< status << ": " << reason << ")" << llendl;
+	llwarns << "LLRemoteParcelRequest error [status:"
+			<< status << "]: " << content << llendl;
 
 	// Panel inspecting the information may be closed and destroyed
 	// before this response is received.

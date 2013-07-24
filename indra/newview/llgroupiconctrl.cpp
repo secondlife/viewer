@@ -29,6 +29,7 @@
 #include "llgroupiconctrl.h"
 
 #include "llagent.h"
+#include "llviewertexture.h"
 /*
 #include "llavatarconstants.h"
 #include "llcallingcard.h" // for LLAvatarTracker

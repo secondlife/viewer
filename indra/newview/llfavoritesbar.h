@@ -161,7 +161,7 @@ private:
 
 	boost::signals2::connection mEndDragConnection;
 };
-
+/*
 class AddFavoriteLandmarkCallback : public LLInventoryCallback
 {
 public:
@@ -173,7 +173,7 @@ private:
 
 	LLUUID mTargetLandmarkId;
 };
-
+*/
 /**
  * Class to store sorting order of favorites landmarks in a local file. EXT-3985.
  * It replaced previously implemented solution to store sort index in landmark's name as a "<N>@" prefix.
@@ -272,5 +272,4 @@ private:
 	};
 
 };
-
 #endif // LL_LLFAVORITESBARCTRL_H

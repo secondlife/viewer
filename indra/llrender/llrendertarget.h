@@ -28,7 +28,6 @@
 #define LL_LLRENDERTARGET_H
 
 // LLRenderTarget is unavailible on the mapserver since it uses FBOs.
-#if !LL_MESA_HEADLESS
 
 #include "llgl.h"
 #include "llrender.h"
@@ -64,6 +63,9 @@ public:
 	static bool sUseFBO; 
 	static U32 sBytesAllocated;
 	static U32 sCurFBO;
+	static U32 sCurResX;
+	static U32 sCurResY;
+
 
 	LLRenderTarget();
 	~LLRenderTarget();
@@ -147,6 +149,9 @@ protected:
 	std::vector<U32> mInternalFormat;
 	U32 mFBO;
 	U32 mPreviousFBO;
+	U32 mPreviousResX;
+	U32 mPreviousResY;
+
 	U32 mDepth;
 	bool mStencil;
 	bool mUseDepth;
@@ -155,8 +160,6 @@ protected:
 	
 	static LLRenderTarget* sBoundTarget;
 };
-
-#endif //!LL_MESA_HEADLESS
 
 #endif
 

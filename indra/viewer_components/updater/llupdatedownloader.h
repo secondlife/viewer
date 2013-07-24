@@ -54,7 +54,9 @@ public:
 	// Start a new download.
 	void download(LLURI const & uri,
 				  std::string const & hash, 
+				  std::string const & updateChannel,
 				  std::string const & updateVersion,
+				  std::string const & info_url,
 				  bool required=false);
 	
 	// Returns true if a download is in progress.

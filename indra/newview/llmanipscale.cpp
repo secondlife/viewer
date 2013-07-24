@@ -1191,9 +1191,6 @@ void LLManipScale::dragFace( S32 x, S32 y )
 		mInSnapRegime = FALSE;
 	}
 
-	BOOL send_scale_update = FALSE;
-	BOOL send_position_update = FALSE;
-
 	LLVector3 dir_agent;
 	if( part_dir_local.mV[VX] )
 	{
@@ -1210,8 +1207,6 @@ void LLManipScale::dragFace( S32 x, S32 y )
 	stretchFace( 
 		projected_vec(drag_start_dir_f, dir_agent) + drag_start_center_agent,
 		projected_vec(drag_delta, dir_agent));
-	send_position_update = TRUE;
-	send_scale_update = TRUE;
 
 	mDragPointGlobal = drag_point_global;
 }

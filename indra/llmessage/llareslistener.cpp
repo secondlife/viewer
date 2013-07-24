@@ -93,5 +93,12 @@ private:
 
 void LLAresListener::rewriteURI(const LLSD& data)
 {
-    mAres->rewriteURI(data["uri"], new UriRewriteResponder(data));
+	if (mAres)
+	{
+		mAres->rewriteURI(data["uri"], new UriRewriteResponder(data));
+	}
+	else
+	{
+		llinfos << "LLAresListener::rewriteURI requested without Ares present. Ignoring: " << data << llendl;
+	}
 }

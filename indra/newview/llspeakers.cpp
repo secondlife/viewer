@@ -853,7 +853,10 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 		}
 	}
 }
-
+/*prep#
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+		llwarns << "ModerationResponder error [status:" << status << "]: " << content << llendl;
+		*/
 void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
 {
 	LLPointer<LLSpeaker> speakerp = findSpeaker(speaker_id);

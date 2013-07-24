@@ -12,6 +12,9 @@ include_directories(
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
 )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    )
 
 if (DARWIN)
     include(CMakeFindFrameworks)

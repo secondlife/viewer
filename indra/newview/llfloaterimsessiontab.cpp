@@ -64,6 +64,8 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
   , mHasVisibleBeenInitialized(false)
   , mIsParticipantListExpanded(true)
   , mChatLayoutPanel(NULL)
+  , mInputPanels(NULL)
+  , mChatLayoutPanelHeight(0)
 {
     setAutoFocus(FALSE);
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
@@ -132,6 +134,12 @@ void LLFloaterIMSessionTab::setVisible(BOOL visible)
 			LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container")->setVisible(true);
 		}
 		LLFloaterIMSessionTab::addToHost(mSessionID);
+		LLFloaterIMSessionTab* conversp = LLFloaterIMSessionTab::getConversation(mSessionID);
+
+		if (conversp && conversp->isNearbyChat() && gSavedPerAccountSettings.getBOOL("NearbyChatIsNotCollapsed"))
+		{
+			onCollapseToLine(this);
+		}
 		mInputButtonPanel->setVisible(isTornOff());
 	}
 
@@ -259,13 +267,15 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mInputEditor = getChild<LLChatEntry>("chat_editor");
 
 	mChatLayoutPanel = getChild<LLLayoutPanel>("chat_layout_panel");
+	mInputPanels = getChild<LLLayoutStack>("input_panels");
 	
 	mInputEditor->setTextExpandedCallback(boost::bind(&LLFloaterIMSessionTab::reshapeChatLayoutPanel, this));
 	mInputEditor->setCommitOnFocusLost( FALSE );
 	mInputEditor->setPassDelete(TRUE);
 	mInputEditor->setFont(LLViewerChat::getChatFont());
 
-	mInputEditorPad = mChatLayoutPanel->getRect().getHeight() - mInputEditor->getRect().getHeight();
+	mChatLayoutPanelHeight = mChatLayoutPanel->getRect().getHeight();
+	mInputEditorPad = mChatLayoutPanelHeight - mInputEditor->getRect().getHeight();
 
 	setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
 
@@ -356,7 +366,7 @@ void LLFloaterIMSessionTab::draw()
 		// Restart the refresh timer
 		mRefreshTimer->setTimerExpirySec(REFRESH_INTERVAL);
 	}
-	
+
 	LLTransientDockableFloater::draw();
 }
 
@@ -698,10 +708,12 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 			&& !mIsP2PChat;
 
 	mParticipantListAndHistoryStack->collapsePanel(mParticipantListPanel, !is_participant_list_visible);
+    mParticipantListPanel->setVisible(is_participant_list_visible);
 
 	// Display collapse image (<<) if the floater is hosted
 	// or if it is torn off but has an open control panel.
 	bool is_expanded = is_not_torn_off || is_participant_list_visible;
+    
 	mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
 	mExpandCollapseBtn->setToolTip(
 			is_not_torn_off?
@@ -741,9 +753,7 @@ void LLFloaterIMSessionTab::forceReshape()
 
 void LLFloaterIMSessionTab::reshapeChatLayoutPanel()
 {
-	LLRect chat_layout_panel_rect = mChatLayoutPanel->getRect();
-	LLRect input_rect = mInputEditor->getRect();
-	mChatLayoutPanel->reshape(chat_layout_panel_rect.getWidth(), input_rect.getHeight() + mInputEditorPad, FALSE);
+	mChatLayoutPanel->reshape(mChatLayoutPanel->getRect().getWidth(), mInputEditor->getRect().getHeight() + mInputEditorPad, FALSE);
 }
 
 void LLFloaterIMSessionTab::showTranslationCheckbox(BOOL show)
@@ -818,14 +828,15 @@ void LLFloaterIMSessionTab::onSlide(LLFloaterIMSessionTab* self)
 	{
 		if (!self->mIsP2PChat)
 		{
+            // The state must toggle the collapsed state of the panel
             bool should_be_expanded = self->mParticipantListPanel->isCollapsed();
 
-			// Expand/collapse the participant list panel
-            self->mParticipantListAndHistoryStack->collapsePanel(self->mParticipantListPanel, !should_be_expanded);
-            self->mParticipantListPanel->setVisible(should_be_expanded);
+			// Update the expand/collapse flag of the participant list panel and save it
             gSavedSettings.setBOOL("IMShowControlPanel", should_be_expanded);
             self->mIsParticipantListExpanded = should_be_expanded;
-			self->mExpandCollapseBtn->setImageOverlay(self->getString(should_be_expanded ? "collapse_icon" : "expand_icon"));
+            
+            // Refresh for immediate feedback
+            self->refreshConversation();
 		}
 	}
 
@@ -841,6 +852,7 @@ void LLFloaterIMSessionTab::onCollapseToLine(LLFloaterIMSessionTab* self)
 		self->mExpandCollapseLineBtn->setImageOverlay(self->getString(expand ? "collapseline_icon" : "expandline_icon"));
 		self->mContentPanel->setVisible(!expand);
 		self->mToolbarPanel->setVisible(!expand);
+		self->mInputEditor->enableSingleLineMode(expand);
 		self->reshapeFloater(expand);
 		self->setMessagePaneExpanded(!expand);
 	}
@@ -853,20 +865,20 @@ void LLFloaterIMSessionTab::reshapeFloater(bool collapse)
 	if(collapse)
 	{
 		mFloaterHeight = floater_rect.getHeight();
-		S32 height = mContentPanel->getRect().getHeight() + mToolbarPanel->getRect().getHeight();
+		S32 height = mContentPanel->getRect().getHeight() + mToolbarPanel->getRect().getHeight()
+			+ mChatLayoutPanel->getRect().getHeight() - mChatLayoutPanelHeight + 2;
 		floater_rect.mTop -= height;
-		enableResizeCtrls(true, true, false);
 	}
 	else
 	{
 		floater_rect.mTop = floater_rect.mBottom + mFloaterHeight;
-		enableResizeCtrls(true, true, true);
-
 	}
 
+	enableResizeCtrls(true, true, !collapse);
+
+	saveCollapsedState();
 	setShape(floater_rect, true);
 	mBodyStack->updateLayout();
-
 }
 
 void LLFloaterIMSessionTab::restoreFloater()
@@ -885,6 +897,7 @@ void LLFloaterIMSessionTab::restoreFloater()
 		mBodyStack->updateLayout();
 		mExpandCollapseLineBtn->setImageOverlay(getString("expandline_icon"));
 		setMessagePaneExpanded(true);
+		saveCollapsedState();
 		enableResizeCtrls(true, true, true);
 	}
 }
@@ -1060,6 +1073,14 @@ LLConversationItem* LLFloaterIMSessionTab::getCurSelectedViewModelItem()
 	return conversationItem;
 }
 
+void LLFloaterIMSessionTab::saveCollapsedState()
+{
+	LLFloaterIMSessionTab* conversp = LLFloaterIMSessionTab::getConversation(mSessionID);
+	if(conversp->isNearbyChat())
+	{
+		gSavedPerAccountSettings.setBOOL("NearbyChatIsNotCollapsed", isMessagePaneExpanded());
+	}
+}
 BOOL LLFloaterIMSessionTab::handleKeyHere(KEY key, MASK mask )
 {
 	if(mask == MASK_ALT)

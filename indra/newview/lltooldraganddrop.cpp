@@ -1247,7 +1247,7 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	if (!item || !item->isFinished()) return;
 	
 	//if (regionp
-	//	&& (regionp->getRegionFlags() & REGION_FLAGS_SANDBOX))
+	//	&& (regionp->getRegionFlag(REGION_FLAGS_SANDBOX)))
 	//{
 	//	LLFirstUse::useSandbox();
 	//}
@@ -1741,7 +1741,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezAttachmentFromInv(
 	{
 		if(mSource == SOURCE_LIBRARY)
 		{
-			LLPointer<LLInventoryCallback> cb = new RezAttachmentCallback(0);
+			LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)0));
 			copy_inventory_item(
 				gAgent.getID(),
 				item->getPermissions().getOwner(),
@@ -2094,7 +2094,7 @@ EAcceptance LLToolDragAndDrop::dad3dActivateGesture(
 			{
 				// create item based on that one, and put it on if that
 				// was a success.
-				LLPointer<LLInventoryCallback> cb = new ActivateGestureCallback();
+				LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(activate_gesture_cb);
 				copy_inventory_item(
 					gAgent.getID(),
 					item->getPermissions().getOwner(),

@@ -71,7 +71,7 @@
 			<text name="show_label">
 				表示：
 			</text>
-			<check_box label="世界" name="show_world"/>
+			<check_box label="テスト" name="show_world"/>
 			<check_box label="可動物のみ" name="show_world_movables_only"/>
 			<check_box label="ナビメッシュ" name="show_navmesh"/>
 			<text name="show_walkability_label">

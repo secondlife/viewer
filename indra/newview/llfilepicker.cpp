@@ -1103,6 +1103,7 @@ void LLFilePicker::chooser_responder(GtkWidget *widget, gint response, gpointer 
 
 GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder, std::string context)
 {
+#ifndef LL_MESA_HEADLESS
 	if (LLWindowSDL::ll_try_gtk_init())
 	{
 		GtkWidget *win = NULL;
@@ -1174,6 +1175,9 @@ GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder, std::stri
 	{
 		return NULL;
 	}
+#else
+	return NULL;
+#endif //LL_MESA_HEADLESS
 }
 
 static void add_common_filters_to_gtkchooser(GtkFileFilter *gfilter,
@@ -1473,7 +1477,7 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 	return FALSE;
 }
 
-BOOL LLFilePicker::getOpenFile( ELoadFilter filter )
+BOOL LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 {
 	// if local file browsing is turned off, return without opening dialog
 	// (Even though this is a stub, I think we still should not return anything at all)
@@ -1494,7 +1498,7 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter )
 	default: break;
 	}
 	mFiles.push_back(filename);
-	llinfos << "getOpenFile: Will try to open file: " << hackyfilename << llendl;
+	llinfos << "getOpenFile: Will try to open file: " << filename << llendl;
 	return TRUE;
 }
 

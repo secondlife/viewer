@@ -619,7 +619,7 @@ namespace tut
     template<> template<>
     void object::test<6>()
     {
-        set_test_name("syntax_error:");
+        set_test_name("syntax_error");
         PythonProcessLauncher py(get_test_name(),
                                  "syntax_error:\n");
         py.mParams.files.add(LLProcess::FileParam()); // inherit stdin
@@ -957,10 +957,7 @@ namespace tut
                       childout.getline(), "ok");
         // important to get the implicit flush from std::endl
         py.mPy->getWritePipe().get_ostream() << "go" << std::endl;
-        for (i = 0; i < timeout && py.mPy->isRunning() && ! childout.contains("\n"); ++i)
-        {
-            yield();
-        }
+        waitfor(*py.mPy);
         ensure("script never replied", childout.contains("\n"));
         ensure_equals("child didn't ack", childout.getline(), "ack");
         ensure_equals("bad child termination", py.mPy->getStatus().mState, LLProcess::EXITED);

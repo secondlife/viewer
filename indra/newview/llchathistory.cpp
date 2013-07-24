@@ -408,16 +408,7 @@ public:
 		S32 user_name_width = user_name_rect.getWidth();
 		S32 time_box_width = time_box->getRect().getWidth();
 
-		if (time_box->getVisible() && user_name_width <= mMinUserNameWidth)
-		{
-			time_box->setVisible(FALSE);
-
-			user_name_rect.mRight += time_box_width;
-			user_name->reshape(user_name_rect.getWidth(), user_name_rect.getHeight());
-			user_name->setRect(user_name_rect);
-		}
-
-		if (!time_box->getVisible() && user_name_width > mMinUserNameWidth + time_box_width)
+		if (!time_box->getVisible() && user_name_width > mMinUserNameWidth)
 		{
 			user_name_rect.mRight -= time_box_width;
 			user_name->reshape(user_name_rect.getWidth(), user_name_rect.getHeight());

@@ -471,7 +471,7 @@ BOOL LLToolCompCreate::handleMouseDown(S32 x, S32 y, MASK mask)
 	
 	mObjectPlacedOnMouseDown = TRUE;
 
-	return TRUE;
+	return handled;
 }
 
 void LLToolCompCreate::pickCallback(const LLPickInfo& pick_info)

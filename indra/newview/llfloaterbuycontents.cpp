@@ -40,6 +40,7 @@
 #include "llcheckboxctrl.h"
 #include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
+#include "llinventoryicon.h"
 #include "llinventorymodel.h"	// for gInventory
 #include "llfirstuse.h"
 #include "llfloaterreg.h"

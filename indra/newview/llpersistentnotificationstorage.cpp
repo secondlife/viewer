@@ -87,6 +87,8 @@ void LLPersistentNotificationStorage::loadNotifications()
 {
 	LLFastTimer _(FTM_LOAD_NOTIFICATIONS);
 
+	LL_INFOS("LLPersistentNotificationStorage") << "start loading notifications" << LL_ENDL;
+
 	LLNotifications::instance().getChannel("Persistent")->
 		connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
 
@@ -129,6 +131,8 @@ void LLPersistentNotificationStorage::loadNotifications()
 			notification_channel->hideToast(notification->getID());
 		}
 	}
+
+	LL_INFOS("LLPersistentNotificationStorage") << "finished loading notifications" << LL_ENDL;
 }
 
 bool LLPersistentNotificationStorage::onPersistentChannelChanged(const LLSD& payload)

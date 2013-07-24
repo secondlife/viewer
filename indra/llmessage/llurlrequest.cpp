@@ -174,6 +174,10 @@ LLURLRequest::~LLURLRequest()
 void LLURLRequest::setURL(const std::string& url)
 {
 	mDetail->mURL = url;
+	if (url.empty())
+	{
+		llwarns << "empty URL specified" << llendl;
+	}
 }
 
 std::string LLURLRequest::getURL() const
@@ -310,11 +314,11 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		 const F32 TIMEOUT_ADJUSTMENT = 2.0f;
 		 mDetail->mByteAccumulator = 0;
 		 pump->adjustTimeoutSeconds(TIMEOUT_ADJUSTMENT);
-		 lldebugs << "LLURLRequest adjustTimeoutSeconds for request: " << mDetail->mURL << llendl;
-		 if (mState == STATE_INITIALIZED)
-		 {
-			  llinfos << "LLURLRequest adjustTimeoutSeconds called during upload" << llendl;
-		 }
+		lldebugs << "LLURLRequest adjustTimeoutSeconds for request: " << mDetail->mURL << llendl;
+		if (mState == STATE_INITIALIZED)
+		{
+			llinfos << "LLURLRequest adjustTimeoutSeconds called during upload" << llendl;
+		}
 	}
 
 	switch(mState)

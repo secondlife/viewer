@@ -28,10 +28,13 @@
 
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
+#include "llpaneleditwearable.h"
 
 // newview includes
 #include "llsidetraypanelcontainer.h"
 #include "lltransientfloatermgr.h"
+#include "llpaneloutfitedit.h"
+#include "llsidepanelappearance.h"
 
 //static
 const std::string LLFloaterSidePanelContainer::sMainPanelName("main_panel");
@@ -52,6 +55,27 @@ LLFloaterSidePanelContainer::~LLFloaterSidePanelContainer()
 void LLFloaterSidePanelContainer::onOpen(const LLSD& key)
 {
 	getChild<LLPanel>(sMainPanelName)->onOpen(key);
+}
+
+void LLFloaterSidePanelContainer::onClickCloseBtn()
+{
+	LLPanelOutfitEdit* panel_outfit_edit =
+		dynamic_cast<LLPanelOutfitEdit*>(LLFloaterSidePanelContainer::getPanel("appearance", "panel_outfit_edit"));
+	if (panel_outfit_edit)
+	{
+		LLFloater *parent = gFloaterView->getParentFloater(panel_outfit_edit);
+		if (parent == this )
+		{
+			LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance*>(getPanel("appearance"));
+			if ( panel_appearance )
+			{
+				panel_appearance->getWearable()->onClose();
+				panel_appearance->showOutfitsInventoryPanel();
+			}
+		}
+	}
+	
+	LLFloater::onClickCloseBtn();
 }
 
 LLPanel* LLFloaterSidePanelContainer::openChildPanel(const std::string& panel_name, const LLSD& params)

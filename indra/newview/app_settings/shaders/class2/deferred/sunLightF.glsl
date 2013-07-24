@@ -65,6 +65,40 @@ uniform float shadow_offset;
 uniform float spot_shadow_bias;
 uniform float spot_shadow_offset;
 
+#ifdef SINGLE_FP_ONLY
+vec2 encode_normal(vec3 n)
+{
+	vec2 sn;
+	sn.xy = (n.xy * vec2(0.5f,0.5f)) + vec2(0.5f,0.5f);
+	return sn;
+}
+
+vec3 decode_normal (vec2 enc)
+{
+	vec3 n;
+	n.xy = (enc.xy * vec2(2.0f,2.0f)) - vec2(1.0f,1.0f);
+	n.z = sqrt(1.0f - dot(n.xy,n.xy));
+	return n;
+}
+#else
+vec2 encode_normal(vec3 n)
+{
+	float f = sqrt(8 * n.z + 8);
+	return n.xy / f + 0.5;
+}
+
+vec3 decode_normal (vec2 enc)
+{
+    vec2 fenc = enc*4-2;
+    float f = dot(fenc,fenc);
+    float g = sqrt(1-f/4);
+    vec3 n;
+    n.xy = fenc*g;
+    n.z = 1-f/2;
+    return n;
+}
+#endif
+
 vec4 getPosition(vec2 pos_screen)
 {
 	float depth = texture2DRect(depthMap, pos_screen.xy).r;
@@ -125,11 +159,9 @@ void main()
 	
 	vec4 pos = getPosition(pos_screen);
 	
-	vec4 nmap4 = texture2DRect(normalMap, pos_screen);
-	nmap4 = vec4((nmap4.xyz-0.5)*2.0,nmap4.w); // unpack norm
-	float displace = nmap4.w;
-	vec3 norm = nmap4.xyz;
-	
+	vec3 norm = texture2DRect(normalMap, pos_screen).xyz;
+	norm = decode_normal(norm.xy); // unpack norm
+		
 	/*if (pos.z == 0.0) // do nothing for sky *FIX: REMOVE THIS IF/WHEN THE POSITION MAP IS BEING USED AS A STENCIL
 	{
 		frag_color = vec4(0.0); // doesn't matter
@@ -138,8 +170,8 @@ void main()
 	
 	float shadow = 0.0;
 	float dp_directional_light = max(0.0, dot(norm, sun_dir.xyz));
-
-	vec3 shadow_pos = pos.xyz + displace*norm;
+	
+	vec3 shadow_pos = pos.xyz;
 	vec3 offset = sun_dir.xyz * (1.0-dp_directional_light);
 	
 	vec4 spos = vec4(shadow_pos+offset*shadow_offset, 1.0);

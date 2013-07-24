@@ -50,7 +50,7 @@ const std::string VIEWERLOGIN_GRIDLABEL("viewerlogin_grid");
 const std::string APPVIEWER_SERIALNUMBER("appviewer_serialno");
 
 const std::string VIEWERLOGIN_CHANNEL("invalid_channel");
-const std::string VIEWERLOGIN_VERSION_CHANNEL("invalid_version");
+const std::string VIEWERLOGIN_VERSION("invalid_version");
 
 // Link seams.
 
@@ -73,7 +73,7 @@ void LLViewerWindow::setShowProgress(BOOL show) {}
 LLProgressView * LLViewerWindow::getProgressView(void) const { return 0; }
 
 LLViewerWindow* gViewerWindow;
-
+	
 class LLLogin::Impl
 {
 };
@@ -135,6 +135,7 @@ void LLGridManager::addSystemGrid(const std::string& label,
 								  const std::string& login, 
 								  const std::string& helper,
 								  const std::string& login_page,
+								  const std::string& update_url_base,
 								  const std::string& login_id)
 {
 }
@@ -183,7 +184,7 @@ void LLUIColorTable::saveUserSettings(void)const {}
 
 //-----------------------------------------------------------------------------
 #include "../llversioninfo.h"
-const std::string &LLVersionInfo::getChannelAndVersion() { return VIEWERLOGIN_VERSION_CHANNEL; }
+const std::string &LLVersionInfo::getVersion() { return VIEWERLOGIN_VERSION; }
 const std::string &LLVersionInfo::getChannel() { return VIEWERLOGIN_CHANNEL; }
 
 //-----------------------------------------------------------------------------
@@ -208,11 +209,13 @@ std::string const & LLUpdaterService::pumpName(void)
 	return wakka;
 }
 bool LLUpdaterService::updateReadyToInstall(void) { return false; }
-void LLUpdaterService::initialize(const std::string& protocol_version,
-				const std::string& url, 
-				const std::string& path,
-				const std::string& channel,
-								  const std::string& version) {}
+void LLUpdaterService::initialize(const std::string& channel,
+								  const std::string& version,
+								  const std::string& platform,
+								  const std::string& platform_version,
+								  const unsigned char uniqueid[MD5HEX_STR_SIZE],
+								  const bool&         willing_to_test
+								  ) {}
 
 void LLUpdaterService::setCheckPeriod(unsigned int seconds) {}
 void LLUpdaterService::startChecking(bool install_if_ready) {}
@@ -220,6 +223,12 @@ void LLUpdaterService::stopChecking() {}
 bool LLUpdaterService::isChecking() { return false; }
 LLUpdaterService::eUpdaterState LLUpdaterService::getState() { return INITIAL; }
 std::string LLUpdaterService::updatedVersion() { return ""; }
+
+bool llHashedUniqueID(unsigned char* id) 
+{
+	memcpy( id, "66666666666666666666666666666666", MD5HEX_STR_SIZE );
+	return true;
+}
 
 //-----------------------------------------------------------------------------
 #include "llnotifications.h"
@@ -360,6 +369,7 @@ namespace tut
 			accountCredential->setCredentialData(identifier, authenticator);			
 
 			logininstance->setNotificationsInterface(&notifications);
+			logininstance->setPlatformInfo("win", "1.3.5");
 		}
 
 		LLLoginInstance* logininstance;

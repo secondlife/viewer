@@ -97,7 +97,7 @@ void LLHomeLocationResponder::result( const LLSD& content )
   }
 }
 
-void LLHomeLocationResponder::error( U32 status, const std::string& reason )
+void LLHomeLocationResponder::errorWithContent( U32 status, const std::string& reason, const LLSD& content )
 {
-  llinfos << "received error(" << reason  << ")" << llendl;
+	llwarns << "LLHomeLocationResponder error [status:" << status << "]: " << content << llendl;
 }

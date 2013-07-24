@@ -2,7 +2,7 @@
 project(llplugintest)
 
 include(00-Common)
-include(FindOpenGL)
+include(OpenGL)
 include(LLCommon)
 include(LLPlugin)
 include(Linking)
@@ -25,6 +25,9 @@ include_directories(
     ${LLRENDER_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
 )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    )
 
 if (DARWIN)
     include(CMakeFindFrameworks)

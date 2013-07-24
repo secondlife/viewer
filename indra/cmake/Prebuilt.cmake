@@ -1,5 +1,8 @@
 # -*- cmake -*-
 
+if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
+set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
+
 include(FindAutobuild)
 if(INSTALL_PROPRIETARY)
   include(FindSCP)
@@ -51,3 +54,5 @@ macro (use_prebuilt_binary _binary)
     endif (NOT ${_binary}_installed EQUAL 0)
   endif (NOT STANDALONE_${_binary})
 endmacro (use_prebuilt_binary _binary)
+
+endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)

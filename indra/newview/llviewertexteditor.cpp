@@ -1052,8 +1052,6 @@ void LLViewerTextEditor::findEmbeddedItemSegments(S32 start, S32 end)
 {
 	LLWString text = getWText();
 
-	LLColor4 text_color = ( mReadOnly ? mReadOnlyFgColor.get() : mFgColor.get()  );
-
 	// Start with i just after the first embedded item
 	for(S32 idx = start; idx < end; idx++ )
 	{

@@ -1102,12 +1102,12 @@ BOOL	LLPreviewAnimation::render()
 
 	gGL.flush();
 
-	LLVector3 target_pos = avatarp->mRoot.getWorldPosition();
+	LLVector3 target_pos = avatarp->mRoot->getWorldPosition();
 
 	LLQuaternion camera_rot = LLQuaternion(mCameraPitch, LLVector3::y_axis) * 
 		LLQuaternion(mCameraYaw, LLVector3::z_axis);
 
-	LLQuaternion av_rot = avatarp->mRoot.getWorldRotation() * camera_rot;
+	LLQuaternion av_rot = avatarp->mRoot->getWorldRotation() * camera_rot;
 	LLViewerCamera::getInstance()->setOriginAndLookAt(
 		target_pos + ((LLVector3(mCameraDistance, 0.f, 0.f) + mCameraOffset) * av_rot),		// camera
 		LLVector3::z_axis,																	// up

@@ -286,7 +286,7 @@ void LLCharacter::removeAnimationData(std::string name)
 //-----------------------------------------------------------------------------
 // setVisualParamWeight()
 //-----------------------------------------------------------------------------
-BOOL LLCharacter::setVisualParamWeight(LLVisualParam* which_param, F32 weight, BOOL upload_bake)
+BOOL LLCharacter::setVisualParamWeight(const LLVisualParam* which_param, F32 weight, BOOL upload_bake)
 {
 	S32 index = which_param->getID();
 	visual_param_index_map_t::iterator index_iter = mVisualParamIndexMap.find(index);

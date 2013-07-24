@@ -35,12 +35,7 @@
 #include "llvoavatarself.h"
 
 
-class LLOrderMyOutfitsOnDestroy: public LLInventoryCallback
-{
-public:
-	LLOrderMyOutfitsOnDestroy() {};
-
-	virtual ~LLOrderMyOutfitsOnDestroy()
+void order_my_outfits_cb()
 	{
 		if (!LLApp::isRunning())
 		{
@@ -80,16 +75,12 @@ public:
 		llinfos << "Finished updating My Outfits with wearables ordering information" << llendl;
 	}
 
-	/* virtual */ void fire(const LLUUID& inv_item) {};
-};
-
-
 LLInitialWearablesFetch::LLInitialWearablesFetch(const LLUUID& cof_id) :
 	LLInventoryFetchDescendentsObserver(cof_id)
 {
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatarp->getPhases().startPhase("initial_wearables_fetch");
+		gAgentAvatarp->startPhase("initial_wearables_fetch");
 		gAgentAvatarp->outputRezTiming("Initial wearables fetch started");
 	}
 }
@@ -108,7 +99,7 @@ void LLInitialWearablesFetch::done()
 	doOnIdleOneTime(boost::bind(&LLInitialWearablesFetch::processContents,this));
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatarp->getPhases().stopPhase("initial_wearables_fetch");
+		gAgentAvatarp->stopPhase("initial_wearables_fetch");
 		gAgentAvatarp->outputRezTiming("Initial wearables fetch done");
 	}
 }
@@ -563,7 +554,7 @@ void LLLibraryOutfitsFetch::contentsDone()
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
 	
-	LLPointer<LLOrderMyOutfitsOnDestroy> order_myoutfits_on_destroy = new LLOrderMyOutfitsOnDestroy;
+	LLPointer<LLInventoryCallback> order_myoutfits_on_destroy = new LLBoostFuncInventoryCallback(no_op_inventory_func, order_my_outfits_cb);
 
 	for (uuid_vec_t::const_iterator folder_iter = mImportedClothingFolders.begin();
 		 folder_iter != mImportedClothingFolders.end();

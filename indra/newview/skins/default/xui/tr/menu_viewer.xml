@@ -16,10 +16,7 @@
 			<menu_item_call label="Beni Anime Etmeyi Durdur" name="Stop Animating My Avatar"/>
 			<menu_item_call label="Yürü / koş / uç..." name="Walk / run / fly"/>
 		</menu>
-		<menu label="Durum" name="Status">
-			<menu_item_call label="Uzakta" name="Set Away"/>
-			<menu_item_call label="Meşgul" name="Set Busy"/>
-		</menu>
+		<menu label="Durum" name="Status"/>
 		<menu_item_call label="L$ Satın Al..." name="Buy and Sell L$"/>
 		<menu_item_call label="Satıcı Giden Kutusu..." name="MerchantOutbox"/>
 		<menu_item_call label="Hesap kontrol paneli..." name="Manage My Account"/>
@@ -30,14 +27,18 @@
 		<menu_item_call label="[APP_NAME]&apos;den Çık" name="Quit"/>
 	</menu>
 	<menu label="İletişim Kur" name="Communicate">
-		<menu_item_check label="Sohbet..." name="Nearby Chat"/>
+		<menu_item_check label="Sohbetler..." name="Conversations"/>
+		<menu_item_check label="Yakındaki Sohbet..." name="Nearby Chat"/>
 		<menu_item_check label="Konuş" name="Speak"/>
-		<menu_item_check label="Ses ayarları..." name="Nearby Voice"/>
-		<menu_item_check label="Ses şekillendirme..." name="ShowVoice"/>
+		<menu label="Ses şekillendirme" name="VoiceMorphing">
+			<menu_item_check label="Ses şekillendirme yok" name="NoVoiceMorphing"/>
+			<menu_item_check label="Önizleme..." name="Preview"/>
+			<menu_item_call label="Abone ol..." name="Subscribe"/>
+		</menu>
 		<menu_item_check label="Mimikler..." name="Gestures"/>
-		<menu_item_call label="Arkadaşlar" name="My Friends"/>
-		<menu_item_call label="Gruplar" name="My Groups"/>
-		<menu_item_call label="Yakındaki kişiler" name="Active Speakers"/>
+		<menu_item_check label="Arkadaşlar" name="My Friends"/>
+		<menu_item_check label="Gruplar" name="My Groups"/>
+		<menu_item_check label="Yakındaki kişiler" name="Active Speakers"/>
 		<menu_item_call label="Engelleme Listesi" name="Block List"/>
 	</menu>
 	<menu label="Dünya" name="World">
@@ -113,7 +114,6 @@
 			<menu_item_call label="Satın Al" name="Menu Object Buy"/>
 			<menu_item_call label="Al" name="Menu Object Take"/>
 			<menu_item_call label="Kopya Al" name="Take Copy"/>
-			<menu_item_call label="Envanterime Geri Kaydet" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Nesne İçeriklerine Geri Kaydet" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="Nesneyi İade Et" name="Return Object back to Owner"/>
 		</menu>
@@ -128,6 +128,7 @@
 			<menu_item_call label="Bağlantı kümeleri..." name="pathfinding_linksets_menu_item"/>
 			<menu_item_call label="Karakterler..." name="pathfinding_characters_menu_item"/>
 			<menu_item_call label="Görüntüleme / test..." name="pathfinding_console_menu_item"/>
+			<menu_item_call label="Bölgeyi tekrar kaydet" name="pathfinding_rebake_navmesh_item"/>
 		</menu>
 		<menu label="Seçenklr." name="Options">
 			<menu_item_check label="Gelişmiş İzinleri Göster" name="DebugPermissions"/>
@@ -157,6 +158,13 @@
 	<menu label="Yardım" name="Help">
 		<menu_item_call label="Nasıl yapılır..." name="How To"/>
 		<menu_item_call label="[SECOND_LIFE] Yardımı" name="Second Life Help"/>
+		<menu_item_call label="Kullanıcı kılavuzu" name="User’s guide"/>
+		<menu_item_call label="Bilgi Bankası" name="Knowledge Base"/>
+		<menu_item_call label="Wiki" name="Wiki"/>
+		<menu_item_call label="Topluluk Forumları" name="Community Forums"/>
+		<menu_item_call label="Destek portalı" name="Support portal"/>
+		<menu_item_call label="[SECOND_LIFE] Haberleri" name="Second Life News"/>
+		<menu_item_call label="[SECOND_LIFE] Blogları" name="Second Life Blogs"/>
 		<menu_item_call label="Kötüye Kullanımı Bildir" name="Report Abuse"/>
 		<menu_item_call label="Hata Bildir" name="Report Bug"/>
 		<menu_item_call label="[APP_NAME] Hakkında" name="About Second Life"/>
@@ -305,7 +313,7 @@
 			<menu_item_call label="Seçilen Doku Bilgi Temeli" name="Selected Texture Info Basis"/>
 			<menu_item_check label="Telkafes" name="Wireframe"/>
 			<menu_item_check label="Görünen Nesneler İçin Gölgeleme" name="Object-Object Occlusion"/>
-			<menu_item_check label="Işıklandırma ve Gölgeler" name="Lighting and Shadows"/>
+			<menu_item_check label="Işıklandırma ve Gölgeler" name="Advanced Lighting Model"/>
 			<menu_item_check label="Güneş/Ay/Projektörlerden Gelen Gölgeler" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAO ve Gölge Yumuşatma" name="SSAO and Shadow Smoothing"/>
 			<menu_item_check label="GL Hata Ayıklama" name="Debug GL"/>
@@ -383,9 +391,14 @@
 				<menu_item_call label="Test Dişisi" name="Test Female"/>
 				<menu_item_check label="Avatar Seçimine İzin Ver" name="Allow Select Avatar"/>
 			</menu>
+			<menu label="Animasyon Hızı" name="Animation Speed">
+				<menu_item_call label="Tüm Animasyonlar %10 Daha Hızlı" name="All Animations 10 Faster"/>
+				<menu_item_call label="Tüm Animasyonlar %10 Daha Yavaş" name="All Animations 10 Slower"/>
+				<menu_item_call label="Tüm Animasyon Hızlarını Sıfırla" name="Reset All Animation Speed"/>
+				<menu_item_check label="Yavaş Hareket Animasyonları" name="Slow Motion Animations"/>
+			</menu>
 			<menu_item_call label="Parametreleri Varsayılana Zorla" name="Force Params to Default"/>
 			<menu_item_check label="Animasyon Bilgisi" name="Animation Info"/>
-			<menu_item_check label="Yavaş Hareket Animasyonları" name="Slow Motion Animations"/>
 			<menu_item_check label="Şuraya Bak&apos;ı Göster" name="Show Look At"/>
 			<menu_item_check label="Şuraya İşaret Et&apos;i Göster" name="Show Point At"/>
 			<menu_item_check label="Eklem Güncelleştirmeleri İçin Hata Ayıklama" name="Debug Joint Updates"/>

@@ -71,7 +71,7 @@
 			<text name="show_label">
 				Mostrar:
 			</text>
-			<check_box label="Mundo virtual" name="show_world"/>
+			<check_box label="Prueba" name="show_world"/>
 			<check_box label="Solamente los objetos movibles" name="show_world_movables_only"/>
 			<check_box label="Navmesh" name="show_navmesh"/>
 			<text name="show_walkability_label">
