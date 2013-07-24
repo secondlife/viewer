@@ -504,10 +504,10 @@ void main()
 #else
 	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
-	vec4 gamma_diff = diff;
-	
-	diff.rgb = srgb_to_linear(diff.rgb);
 	diff.rgb *= vertex_color.rgb;
+
+	vec4 gamma_diff = diff;	
+	diff.rgb = srgb_to_linear(diff.rgb);
 
 	float final_alpha = diff.a * vertex_color.a;	
 	
