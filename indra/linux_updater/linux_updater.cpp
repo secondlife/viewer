@@ -29,6 +29,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <set>
+#include <iostream>
 
 #include "linden_common.h"
 #include "llerrorcontrol.h"
