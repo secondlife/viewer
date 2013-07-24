@@ -111,6 +111,7 @@ public:
 	void uniform3fv(U32 index, U32 count, const GLfloat* v);
 	void uniform4fv(U32 index, U32 count, const GLfloat* v);
 	void uniform1i(const std::string& uniform, GLint i);
+	void uniform2i(const std::string& uniform, GLint i, GLint j);
 	void uniform1f(const std::string& uniform, GLfloat v);
 	void uniform2f(const std::string& uniform, GLfloat x, GLfloat y);
 	void uniform3f(const std::string& uniform, GLfloat x, GLfloat y, GLfloat z);
@@ -170,6 +171,7 @@ public:
 	U32 mAttributeMask;  //mask of which reserved attributes are set (lines up with LLVertexBuffer::getTypeMask())
 	std::vector<GLint> mUniform;   //lookup table of uniform enum to uniform location
 	std::map<std::string, GLint> mUniformMap;  //lookup map of uniform name to uniform location
+	std::map<GLint, std::string> mUniformNameMap; //lookup map of uniform location to uniform name
 	std::map<GLint, LLVector4> mValue; //lookup map of uniform location to last known value
 	std::vector<GLint> mTexture;
 	S32 mTotalUniformSize;
@@ -192,6 +194,11 @@ public:
 	static U64 sTotalSamplesDrawn;
 	U32 mDrawCalls;
 	static U32 sTotalDrawCalls;
+
+	bool mTextureStateFetched;
+	std::vector<U32> mTextureMagFilter;
+	std::vector<U32> mTextureMinFilter;
+	
 };
 
 //UI shader (declared here so llui_libtest will link properly)
