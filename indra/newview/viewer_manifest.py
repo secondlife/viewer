@@ -113,12 +113,14 @@ class ViewerManifest(LLManifest):
                     # no sourceid, no settings_install.xml file
                     pass
                 else:
-                    # Single-entry subset of the LLSD content of settings.xml
-                    content = dict(sourceid=dict(Comment='Identify referring agency to Linden web servers',
-                                                 Persist=1,
-                                                 Type='String',
-                                                 Value=sourceid))
-                    self.put_in_file(llsd.format_pretty_xml(content), "settings_install.xml")
+                    if len(sourceid) > 0:
+                        print "Using sourceid: " + sourceid
+                        # Single-entry subset of the LLSD content of settings.xml
+                        content = dict(sourceid=dict(Comment='Identify referring agency to Linden web servers',
+                                                     Persist=1,
+                                                     Type='String',
+                                                     Value=sourceid))
+                        self.put_in_file(llsd.format_pretty_xml(content), "settings_install.xml")
 
                 self.end_prefix("app_settings")
 
