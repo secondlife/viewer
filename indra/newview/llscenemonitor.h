@@ -100,7 +100,7 @@ private:
 
 	std::vector<LLAnimPauseRequest>			mAvatarPauseHandles;
 
-	LLFrameTimer							mRecordingTimer;
+	LLTimer									mRecordingTimer;
 	LLTrace::ExtendablePeriodicRecording	mSceneLoadRecording;
 	LLTrace::Recording						mMonitorRecording;
 };

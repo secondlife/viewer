@@ -491,7 +491,6 @@ void LLSceneMonitor::fetchQueryResult()
 				if(mDiffResult > diff_threshold())
 				{
 					mSceneLoadRecording.extend();
-					llinfos << mSceneLoadRecording.getResults().getLastRecording().getDuration() << llendl;
 					llassert_always(mSceneLoadRecording.getResults().getLastRecording().getDuration() > scene_load_sample_time);
 				}
 				else

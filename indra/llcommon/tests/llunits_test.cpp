@@ -164,7 +164,7 @@ namespace tut
 	void units_object_t::test<5>()
 	{
 		// 0-initialized
-		LLUnit<F32, Quatloos> quatloos(0);
+		LLUnit<F32, Quatloos> quatloos;
 		// initialize implicit unit from explicit
 		LLUnitImplicit<F32, Quatloos> quatloos_implicit = quatloos + 1;
 		ensure(quatloos_implicit == 1);

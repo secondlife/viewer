@@ -1185,6 +1185,7 @@ bool idle_startup()
 				// create the default proximal channel
 				LLVoiceChannel::initClass();
 				LLStartUp::setStartupState( STATE_WORLD_INIT);
+				LLTrace::get_frame_recording().reset();
 			}
 			else
 			{
