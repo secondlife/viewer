@@ -49,6 +49,7 @@
 #include "llappviewer.h"
 #include "llrendersphere.h"
 #include "llviewerpartsim.h"
+#include "llviewercontrol.h" // for gSavedSettings
 
 static U32 sDataMask = LLDrawPoolAvatar::VERTEX_DATA_MASK;
 static U32 sBufferUsage = GL_STREAM_DRAW_ARB;
@@ -281,6 +282,11 @@ void LLDrawPoolAvatar::beginDeferredRiggedAlpha()
 {
 	sVertexProgram = &gDeferredSkinnedAlphaProgram;
 	gPipeline.bindDeferredShader(*sVertexProgram);
+
+	sVertexProgram->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+	F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
+	sVertexProgram->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
+
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	gPipeline.enableLightsDynamic();
 }
@@ -890,6 +896,8 @@ void LLDrawPoolAvatar::beginRiggedGlow()
 		sVertexProgram->bind();
 
 		sVertexProgram->uniform1f(LLShaderMgr::TEXTURE_GAMMA, LLPipeline::sRenderDeferred ? 2.2f : 1.1f);
+		F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
+		sVertexProgram->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
 	}
 }
 
@@ -942,6 +950,9 @@ void LLDrawPoolAvatar::beginRiggedFullbright()
 		else 
 		{
 			sVertexProgram->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+
+			F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
+			sVertexProgram->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
 		}
 	}
 }
@@ -1043,6 +1054,8 @@ void LLDrawPoolAvatar::beginRiggedFullbrightShiny()
 		else 
 		{
 			sVertexProgram->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+			F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
+			sVertexProgram->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
 		}
 	}
 }
