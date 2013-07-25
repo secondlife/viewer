@@ -226,8 +226,7 @@ void LLStatBar::draw()
 		max     = 0,
 		mean    = 0;
 
-    
-    S32 num_samples = 0;
+    bool show_data = false;
     
 	LLLocalClipRect _(getLocalRect());
 	LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
@@ -240,7 +239,6 @@ void LLStatBar::draw()
 		if (mPerSec)
 		{
 			unit_label += "/s";
-            num_samples = frame_recording.getSampleCount(*mCountFloatp, mNumFrames);
 			current = last_frame_recording.getPerSec(*mCountFloatp);
 			min     = frame_recording.getPeriodMinPerSec(*mCountFloatp, mNumFrames);
 			max     = frame_recording.getPeriodMaxPerSec(*mCountFloatp, mNumFrames);
@@ -248,34 +246,41 @@ void LLStatBar::draw()
 		}
 		else
 		{
-            num_samples = frame_recording.getSampleCount(*mCountFloatp, mNumFrames);
 			current = last_frame_recording.getSum(*mCountFloatp);
 			min     = frame_recording.getPeriodMin(*mCountFloatp, mNumFrames);
 			max     = frame_recording.getPeriodMax(*mCountFloatp, mNumFrames);
 			mean    = frame_recording.getPeriodMean(*mCountFloatp, mNumFrames);
 		}
+
+		// always show count-style data
+		show_data = true;
 	}
 	else if (mEventFloatp)
 	{
 		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording();
 		unit_label = mUnitLabel.empty() ? mEventFloatp->getUnitLabel() : mUnitLabel;
 
-        num_samples = frame_recording.getSampleCount(*mEventFloatp, mNumFrames);
+		// only show data if there is an event in the relevant time period
 		current = last_frame_recording.getMean(*mEventFloatp);
 		min     = frame_recording.getPeriodMin(*mEventFloatp, mNumFrames);
 		max     = frame_recording.getPeriodMax(*mEventFloatp, mNumFrames);
 		mean    = frame_recording.getPeriodMean(*mEventFloatp, mNumFrames);
+		
+		show_data = frame_recording.getSampleCount(*mEventFloatp, mNumFrames) != 0;
 	}
 	else if (mSampleFloatp)
 	{
+
 		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording();
 		unit_label = mUnitLabel.empty() ? mSampleFloatp->getUnitLabel() : mUnitLabel;
 
-        num_samples = frame_recording.getSampleCount(*mSampleFloatp, mNumFrames);
 		current = last_frame_recording.getMean(*mSampleFloatp);
 		min     = frame_recording.getPeriodMin(*mSampleFloatp, mNumFrames);
 		max     = frame_recording.getPeriodMax(*mSampleFloatp, mNumFrames);
 		mean    = frame_recording.getPeriodMean(*mSampleFloatp, mNumFrames);
+
+		// always show sample data if we've ever grabbed any samples
+		show_data = mSampleFloatp->getPrimaryAccumulator()->hasValue();
 	}
 
 	S32 bar_top, bar_left, bar_right, bar_bottom;
@@ -337,7 +342,7 @@ void LLStatBar::draw()
 	{
 		decimal_digits = 0;
 	}
-	std::string value_str = num_samples
+	std::string value_str = show_data 
                             ? llformat("%10.*f %s", decimal_digits, mean, unit_label.c_str())
                             : "n/a";
 
@@ -454,7 +459,7 @@ void LLStatBar::draw()
 			gl_rect_2d(begin, bar_top, end, bar_bottom, LLColor4(1.f, 0.f, 0.f, 0.25f));
 		}
 
-        if (num_samples)
+        if (show_data)
         {
             F32 span = (mOrientation == HORIZONTAL)
 					? (bar_right - bar_left)

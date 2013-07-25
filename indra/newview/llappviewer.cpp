@@ -660,8 +660,13 @@ LLTextureCache* LLAppViewer::sTextureCache = NULL;
 LLImageDecodeThread* LLAppViewer::sImageDecodeThread = NULL; 
 LLTextureFetch* LLAppViewer::sTextureFetch = NULL; 
 
-LLAppViewer::LLAppViewer() : 
-	mMarkerFile(),
+std::string getRuntime()
+{
+	return llformat("%g", LLTimer::getElapsedSeconds());
+}
+
+LLAppViewer::LLAppViewer() 
+:	mMarkerFile(),
 	mLogoutMarkerFile(),
 	mReportedCrash(false),
 	mNumSessions(0),
@@ -1300,7 +1305,7 @@ bool LLAppViewer::mainLoop()
 		LLTrace::get_master_thread_recorder()->pullFromChildren();
 
 		//clear call stack records
-		llclearcallstacks;
+		LL_CLEAR_CALLSTACKS();
 
 		//check memory availability information
 		checkMemory() ;

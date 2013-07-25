@@ -155,12 +155,12 @@ namespace LLError
 		// these describe the call site and never change
 		const ELevel			mLevel;
 		const char* const		mFile;
-		const int			mLine;
-		const std::type_info&   	mClassInfo;
+		const int				mLine;
+		const std::type_info&   mClassInfo;
 		const char* const		mFunction;
 		const char* const		mBroadTag;
 		const char* const		mNarrowTag;
-		const bool			mPrintOnce;
+		const bool				mPrintOnce;
 		
 		// these implement a cache of the call to shouldLog()
 		bool mCached;
@@ -213,7 +213,7 @@ namespace LLError
 #endif
 
 //this is cheaper than llcallstacks if no need to output other variables to call stacks. 
-#define llpushcallstacks LLError::LLCallStacks::push(__FUNCTION__, __LINE__)
+#define LL_PUSH_CALLSTACKS() LLError::LLCallStacks::push(__FUNCTION__, __LINE__)
 #define llcallstacks \
 	{\
        std::ostringstream* _out = LLError::LLCallStacks::insert(__FUNCTION__, __LINE__) ; \
@@ -222,8 +222,8 @@ namespace LLError
 		LLError::End(); \
 		LLError::LLCallStacks::end(_out) ; \
 	}
-#define llclearcallstacks LLError::LLCallStacks::clear()
-#define llprintcallstacks LLError::LLCallStacks::print() 
+#define LL_CLEAR_CALLSTACKS() LLError::LLCallStacks::clear()
+#define LL_PRINT_CALLSTACKS() LLError::LLCallStacks::print() 
 
 /*
 	Class type information for logging

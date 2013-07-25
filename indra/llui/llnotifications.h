@@ -1056,15 +1056,13 @@ class LLPersistentNotificationChannel : public LLNotificationChannel
 public:
 	LLPersistentNotificationChannel() 
 		:	LLNotificationChannel("Persistent", "Visible", &notificationFilter)
-	{
-	}
+	{}
 
 	typedef std::vector<LLNotificationPtr> history_list_t;
 	history_list_t::iterator beginHistory() { sortHistory(); return mHistory.begin(); }
 	history_list_t::iterator endHistory() { return mHistory.end(); }
 
 private:
-
 	struct sortByTime
 	{
 		S32 operator ()(const LLNotificationPtr& a, const LLNotificationPtr& b)
@@ -1077,7 +1075,6 @@ private:
 	{
 		std::sort(mHistory.begin(), mHistory.end(), sortByTime());
 	}
-
 
 	// The channel gets all persistent notifications except those that have been canceled
 	static bool notificationFilter(LLNotificationPtr pNotification)

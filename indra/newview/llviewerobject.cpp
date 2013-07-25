@@ -1043,6 +1043,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					 const EObjectUpdateType update_type,
 					 LLDataPacker *dp)
 {
+	LL_DEBUGS_ONCE("SceneLoadTiming") << "Received viewer object data" << LL_ENDL;
+
 	U32 retval = 0x0;
 	
 	// If region is removed from the list it is also deleted.

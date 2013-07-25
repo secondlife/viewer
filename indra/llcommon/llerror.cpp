@@ -158,14 +158,20 @@ namespace {
 		}
 	
 	private:
-		bool mTimestamp;
-		enum ANSIState {ANSI_PROBE, ANSI_YES, ANSI_NO};
-		ANSIState mUseANSI;
+		bool				mTimestamp;
+		enum ANSIState 
+		{
+			ANSI_PROBE, 
+			ANSI_YES, 
+			ANSI_NO
+		}					mUseANSI;
+
 		void colorANSI(const std::string color)
 		{
 			// ANSI color code escape sequence
 			fprintf(stderr, "\033[%sm", color.c_str() );
 		};
+
 		bool checkANSI(void)
 		{
 #if LL_LINUX || LL_DARWIN
@@ -727,13 +733,13 @@ namespace LLError
 namespace LLError
 {
 	Recorder::~Recorder()
-		{ }
+	{}
 
 	// virtual
 	bool Recorder::wantsTime()
-		{ return false; }
-
-
+	{ 
+		return false; 
+	}
 
 	void addRecorder(Recorder* recorder)
 	{
@@ -752,9 +758,8 @@ namespace LLError
 			return;
 		}
 		Settings& s = Settings::get();
-		s.recorders.erase(
-			std::remove(s.recorders.begin(), s.recorders.end(), recorder),
-			s.recorders.end());
+		s.recorders.erase(std::remove(s.recorders.begin(), s.recorders.end(), recorder),
+							s.recorders.end());
 	}
 }
 

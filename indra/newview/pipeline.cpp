@@ -3757,7 +3757,7 @@ void LLPipeline::postSort(LLCamera& camera)
 
 	assertInitialized();
 
-	llpushcallstacks ;
+	LL_PUSH_CALLSTACKS();
 	//rebuild drawable geometry
 	for (LLCullResult::sg_iterator i = sCull->beginDrawableGroups(); i != sCull->endDrawableGroups(); ++i)
 	{
@@ -3768,12 +3768,12 @@ void LLPipeline::postSort(LLCamera& camera)
 			group->rebuildGeom();
 		}
 	}
-	llpushcallstacks ;
+	LL_PUSH_CALLSTACKS();
 	//rebuild groups
 	sCull->assertDrawMapsEmpty();
 
 	rebuildPriorityGroups();
-	llpushcallstacks ;
+	LL_PUSH_CALLSTACKS();
 
 	
 	//build render map
@@ -3884,7 +3884,7 @@ void LLPipeline::postSort(LLCamera& camera)
 		std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
 	}
 
-	llpushcallstacks ;
+	LL_PUSH_CALLSTACKS();
 	// only render if the flag is set. The flag is only set if we are in edit mode or the toggle is set in the menus
 	if (LLFloaterReg::instanceVisible("beacons") && !sShadowRender)
 	{
@@ -3937,7 +3937,7 @@ void LLPipeline::postSort(LLCamera& camera)
 			forAllVisibleDrawables(renderSoundHighlights);
 		}
 	}
-	llpushcallstacks ;
+	LL_PUSH_CALLSTACKS();
 	// If managing your telehub, draw beacons at telehub and currently selected spawnpoint.
 	if (LLFloaterTelehub::renderBeacons())
 	{
@@ -3973,7 +3973,7 @@ void LLPipeline::postSort(LLCamera& camera)
 	}
 
 	//LLSpatialGroup::sNoDelete = FALSE;
-	llpushcallstacks ;
+	LL_PUSH_CALLSTACKS();
 }
 
 

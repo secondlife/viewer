@@ -453,6 +453,7 @@ namespace LLTrace
 		F64	getMean() const { return mMean; }
 		F64 getStandardDeviation() const { return sqrtf(mSumOfSquares / mTotalSamplingTime); }
 		U32 getSampleCount() const { return mNumSamples; }
+		bool hasValue() const { return mHasValue; }
 
 	private:
 		F64	mSum,

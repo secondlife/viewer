@@ -358,13 +358,15 @@ void process_logout_reply(LLMessageSystem* msg, void**)
 		{
 			LL_INFOS("Messaging") << "process_logout_reply item not found: " << item_id << LL_ENDL;
 		}
-	}
+	}	
     LLAppViewer::instance()->forceQuit();
 }
 
 void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
 {
 	LLViewerRegion *regionp = LLWorld::getInstance()->getRegion(mesgsys->getSender());
+
+	LL_DEBUGS_ONCE("SceneLoadTiming") << "Received layer data" << LL_ENDL;
 
 	if(!regionp)
 	{
