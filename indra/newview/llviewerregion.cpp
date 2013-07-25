@@ -232,6 +232,7 @@ public:
 		if( mID != regionp->getHttpResponderID() ) // region is no longer referring to this responder
 		{
 			LL_WARNS2("AppInit", "Capabilities") << "Received results for a stale http responder!" << LL_ENDL;
+			regionp->failedSeedCapability();
 			return ;
 		}
 
