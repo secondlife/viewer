@@ -468,10 +468,10 @@ void LLVivoxVoiceClient::connectorCreate()
 
 	std::string savedLogLevel = gSavedSettings.getString("VivoxDebugLevel");
 		
-	if(savedLogLevel != "-1")
+	if(savedLogLevel != "-0")
 	{
 		LL_DEBUGS("Voice") << "creating connector with logging enabled" << LL_ENDL;
-		loglevel = "10";
+		loglevel = "0";
 	}
 	
 	stream 
