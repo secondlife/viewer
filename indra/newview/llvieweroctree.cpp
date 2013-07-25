@@ -464,15 +464,16 @@ bool LLviewerOctreeGroup::removeFromGroup(LLViewerOctreeEntry* entry)
 	llassert(!entry->getGroup());
 
 	unbound();
+	setState(OBJECT_DIRTY);
+
 	if (mOctreeNode)
 	{
-		if (!mOctreeNode->remove(entry))
+		if (!mOctreeNode->remove(entry)) //this could cause *this* pointer to be destroyed, so no more function calls after this.
 		{
 			OCT_ERRS << "Could not remove LLVOCacheEntry from LLVOCacheOctreeGroup" << llendl;
 			return false;
 		}
-	}
-	setState(OBJECT_DIRTY);
+	}	
 
 	return true;
 }
@@ -580,9 +581,10 @@ void LLviewerOctreeGroup::handleInsertion(const TreeNode* node, LLViewerOctreeEn
 //virtual 
 void LLviewerOctreeGroup::handleRemoval(const TreeNode* node, LLViewerOctreeEntry* obj)
 {
-	obj->setGroup(NULL);
 	unbound();
 	setState(OBJECT_DIRTY);
+
+	obj->setGroup(NULL); //this could cause *this* pointer to be destroyed. So no more function calls after this.	
 }
 	
 //virtual 
