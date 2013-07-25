@@ -69,7 +69,14 @@ public:
 	// this application instance.
 	static LLUnitImplicit<F64, LLUnits::Seconds> getElapsedSeconds()
 	{
-		return sTimer ? sTimer->getElapsedTimeF64() : 0.0;
+		if (sTimer) 
+		{
+			return sTimer->getElapsedTimeF64();
+		}
+		else
+		{
+			return 0;
+		}
 	}
 
 	// Return a high precision usec since epoch
