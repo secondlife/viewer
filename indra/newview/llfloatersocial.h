@@ -139,7 +139,6 @@ private:
 	LLTextBox * mAccountNameLabel;
 	LLUICtrl * mPanelButtons;
 	LLUICtrl * mConnectButton;
-	LLUICtrl * mUseAnotherAccountButton;
 	LLUICtrl * mDisconnectButton;
 };
 

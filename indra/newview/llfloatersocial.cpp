@@ -44,6 +44,7 @@
 #include "llsnapshotlivepreview.h"
 #include "llviewerregion.h"
 #include "llviewercontrol.h"
+#include "llviewermedia.h"
 
 static LLRegisterPanelClassWrapper<LLSocialStatusPanel> t_panel_status("llsocialstatuspanel");
 static LLRegisterPanelClassWrapper<LLSocialPhotoPanel> t_panel_photo("llsocialphotopanel");
@@ -619,11 +620,9 @@ mAccountCaptionLabel(NULL),
 mAccountNameLabel(NULL),
 mPanelButtons(NULL),
 mConnectButton(NULL),
-mUseAnotherAccountButton(NULL),
 mDisconnectButton(NULL)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.Connect", boost::bind(&LLSocialAccountPanel::onConnect, this));
-	mCommitCallbackRegistrar.add("SocialSharing.UseAnotherAccount", boost::bind(&LLSocialAccountPanel::onUseAnotherAccount, this));
 	mCommitCallbackRegistrar.add("SocialSharing.Disconnect", boost::bind(&LLSocialAccountPanel::onDisconnect, this));
 
 	setVisibleCallback(boost::bind(&LLSocialAccountPanel::onVisibilityChange, this, _2));
@@ -635,7 +634,6 @@ BOOL LLSocialAccountPanel::postBuild()
 	mAccountNameLabel = getChild<LLTextBox>("account_name_label");
 	mPanelButtons = getChild<LLUICtrl>("panel_buttons");
 	mConnectButton = getChild<LLUICtrl>("connect_btn");
-	mUseAnotherAccountButton = getChild<LLUICtrl>("use_another_account_btn");
 	mDisconnectButton = getChild<LLUICtrl>("disconnect_btn");
 
 	return LLPanel::postBuild();
@@ -648,7 +646,6 @@ void LLSocialAccountPanel::draw()
 	//Disable the 'disconnect' button and the 'use another account' button when disconnecting in progress
 	bool disconnecting = connection_state == LLFacebookConnect::FB_DISCONNECTING;
 	mDisconnectButton->setEnabled(!disconnecting);
-	mUseAnotherAccountButton->setEnabled(!disconnecting);
 
 	//Disable the 'connect' button when a connection is in progress
 	bool connecting = connection_state == LLFacebookConnect::FB_CONNECTION_IN_PROGRESS;
@@ -669,10 +666,12 @@ void LLSocialAccountPanel::onVisibilityChange(const LLSD& new_visibility)
 		LLEventPumps::instance().obtain("FacebookConnectInfo").stopListening("LLSocialAccountPanel");
 		LLEventPumps::instance().obtain("FacebookConnectInfo").listen("LLSocialAccountPanel", boost::bind(&LLSocialAccountPanel::onFacebookConnectInfoChange, this));
 
+		//Connected
 		if(LLFacebookConnect::instance().isConnected())
 		{
 			showConnectedLayout();
 		}
+		//Check if connected (show disconnected layout in meantime)
 		else
 		{
 			showDisconnectedLayout();
@@ -712,6 +711,7 @@ bool LLSocialAccountPanel::onFacebookConnectInfoChange()
 	LLSD info = LLFacebookConnect::instance().getInfo();
 	std::string clickable_name;
 
+	//Strings of format [http://www.somewebsite.com Click Me] become clickable text
 	if(info.has("link") && info.has("name"))
 	{
 		clickable_name = "[" + info["link"].asString() + " " + info["name"].asString() + "]";
@@ -727,7 +727,6 @@ void LLSocialAccountPanel::showConnectButton()
 	if(!mConnectButton->getVisible())
 	{
 		mConnectButton->setVisible(TRUE);
-		mUseAnotherAccountButton->setVisible(FALSE);
 		mDisconnectButton->setVisible(FALSE);
 	}
 }
@@ -737,7 +736,6 @@ void LLSocialAccountPanel::hideConnectButton()
 	if(mConnectButton->getVisible())
 	{
 		mConnectButton->setVisible(FALSE);
-		mUseAnotherAccountButton->setVisible(TRUE);
 		mDisconnectButton->setVisible(TRUE);
 	}
 }
@@ -760,11 +758,9 @@ void LLSocialAccountPanel::showConnectedLayout()
 void LLSocialAccountPanel::onConnect()
 {
 	LLFacebookConnect::instance().checkConnectionToFacebook(true);
-}
 
-void LLSocialAccountPanel::onUseAnotherAccount()
-{
-	LLFacebookConnect::instance().disconnectThenConnectToFacebook();
+	//Clears browser cookies so that the user must enter their FB creds when connecting/re-connecting
+	LLViewerMedia::clearAllCookies();
 }
 
 void LLSocialAccountPanel::onDisconnect()
