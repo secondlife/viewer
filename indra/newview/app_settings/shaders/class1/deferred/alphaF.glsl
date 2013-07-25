@@ -77,7 +77,10 @@ VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
+
+#ifdef USE_VERTEX_COLOR
 VARYING vec4 vertex_color;
+#endif
 
 vec3 vary_PositionEye;
 vec3 vary_SunlitColor;
@@ -476,13 +479,17 @@ void main()
 #else
 	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
+
+#ifdef USE_VERTEX_COLOR
+	float final_alpha = diff.a * vertex_color.a;
 	diff.rgb *= vertex_color.rgb;
+#else
+	float final_alpha = diff.a;
+#endif
 
 	vec4 gamma_diff = diff;	
 	diff.rgb = srgb_to_linear(diff.rgb);
 
-	float final_alpha = diff.a * vertex_color.a;	
-	
 	vec3 norm = vary_norm; 
 
 	calcAtmospherics(pos.xyz, 1.0);

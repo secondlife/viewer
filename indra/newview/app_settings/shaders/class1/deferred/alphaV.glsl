@@ -41,7 +41,10 @@ void passTextureIndex();
 
 ATTRIBUTE vec3 normal;
 
+#ifdef USE_VERTEX_COLOR
 ATTRIBUTE vec4 diffuse_color;
+#endif
+
 ATTRIBUTE vec2 texcoord0;
 
 #ifdef HAS_SKIN
@@ -54,7 +57,11 @@ mat4 getSkinnedTransform();
 
 VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
+
+#ifdef USE_VERTEX_COLOR
 VARYING vec4 vertex_color;
+#endif
+
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
 
@@ -112,8 +119,10 @@ void main()
 	vary_norm = norm;
 	vary_position = pos.xyz;
 
+#ifdef USE_VERTEX_COLOR
 	vertex_color = diffuse_color;
-	
+#endif
+
 #ifdef HAS_SKIN
 	vary_fragcoord.xyz = frag_pos.xyz + vec3(0,0,near_clip);
 #else
