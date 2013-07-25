@@ -1261,7 +1261,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	if (success)
 	{
 		gDeferredSkinnedAlphaProgram.mName = "Deferred Skinned Alpha Shader";
-		gDeferredSkinnedAlphaProgram.mFeatures.atmosphericHelpers = true;
 		gDeferredSkinnedAlphaProgram.mFeatures.hasObjectSkinning = true;
 		gDeferredSkinnedAlphaProgram.mFeatures.calculatesLighting = false;
 		gDeferredSkinnedAlphaProgram.mFeatures.hasLighting = false;
@@ -1502,7 +1501,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	if (success)
 	{
 		gDeferredAlphaProgram.mName = "Deferred Alpha Shader";
-		gDeferredAlphaProgram.mFeatures.atmosphericHelpers = true;
+
 		gDeferredAlphaProgram.mFeatures.calculatesLighting = false;
 		gDeferredAlphaProgram.mFeatures.hasLighting = false;
 		gDeferredAlphaProgram.mFeatures.isAlphaLighting = true;
@@ -1533,7 +1532,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	if (success)
 	{
 		gDeferredAlphaWaterProgram.mName = "Deferred Alpha Underwater Shader";
-		gDeferredAlphaWaterProgram.mFeatures.atmosphericHelpers = true;
 		gDeferredAlphaWaterProgram.mFeatures.calculatesLighting = false;
 		gDeferredAlphaWaterProgram.mFeatures.hasLighting = false;
 		gDeferredAlphaWaterProgram.mFeatures.isAlphaLighting = true;
@@ -1843,7 +1841,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	if (success)
 	{
 		gDeferredAvatarAlphaProgram.mName = "Avatar Alpha Shader";
-		gDeferredAvatarAlphaProgram.mFeatures.atmosphericHelpers = true;
 		gDeferredAvatarAlphaProgram.mFeatures.hasSkinning = true;
 		gDeferredAvatarAlphaProgram.mFeatures.calculatesLighting = false;
 		gDeferredAvatarAlphaProgram.mFeatures.hasLighting = false;
