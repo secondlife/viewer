@@ -45,8 +45,6 @@
 #include "lluploadfloaterobservers.h"
 
 class LLVOVolume;
-class LLMeshResponder;
-class LLCurlRequest;
 class LLMutex;
 class LLCondition;
 class LLVFS;
@@ -396,7 +394,14 @@ private:
 	U32 mHttpLargeGetCount;
 };
 
-class LLMeshUploadThread : public LLThread 
+
+// Class whose instances represent a single upload-type request for
+// meshes:  one fee query or one actual upload attempt.  Yes, it creates
+// a unique thread for that single request.  As it is 1:1, it can also
+// trivially serve as the HttpHandler object for request completion
+// notifications.
+
+class LLMeshUploadThread : public LLThread, public LLCore::HttpHandler 
 {
 private:
 	S32 mMeshUploadTimeOut ; //maximum time in seconds to execute an uploading request.
@@ -417,44 +422,41 @@ public:
 	};
 
 	LLPointer<DecompRequest> mFinalDecomp;
-	bool mPhysicsComplete;
+	volatile bool	mPhysicsComplete;
 
 	typedef std::map<LLPointer<LLModel>, std::vector<LLVector3> > hull_map;
-	hull_map mHullMap;
+	hull_map		mHullMap;
 
 	typedef std::vector<LLModelInstance> instance_list;
-	instance_list mInstanceList;
+	instance_list	mInstanceList;
 
 	typedef std::map<LLPointer<LLModel>, instance_list> instance_map;
-	instance_map mInstance;
+	instance_map	mInstance;
 
-	LLMutex*					mMutex;
-	LLCurlRequest* mCurlRequest;
+	LLMutex*		mMutex;
 	S32				mPendingUploads;
 	LLVector3		mOrigin;
 	bool			mFinished;	
 	bool			mUploadTextures;
 	bool			mUploadSkin;
 	bool			mUploadJoints;
-	BOOL            mDiscarded ;
+	BOOL            mDiscarded;
 
 	LLHost			mHost;
 	std::string		mWholeModelFeeCapability;
 	std::string		mWholeModelUploadURL;
 
 	LLMeshUploadThread(instance_list& data, LLVector3& scale, bool upload_textures,
-			bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload = true,
-					   LLHandle<LLWholeModelFeeObserver> fee_observer= (LLHandle<LLWholeModelFeeObserver>()), LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
+					   bool upload_skin, bool upload_joints, const std::string & upload_url, bool do_upload = true,
+					   LLHandle<LLWholeModelFeeObserver> fee_observer = (LLHandle<LLWholeModelFeeObserver>()),
+					   LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
 	~LLMeshUploadThread();
 
-	void startRequest() { ++mPendingUploads; }
-	void stopRequest() { --mPendingUploads; }
-		
-	bool finished() { return mFinished; }
+	bool finished() const { return mFinished; }
 	virtual void run();
 	void preStart();
 	void discard() ;
-	BOOL isDiscarded();
+	BOOL isDiscarded() const;
 
 	void generateHulls();
 
@@ -471,11 +473,23 @@ public:
 	void setFeeObserverHandle(LLHandle<LLWholeModelFeeObserver> observer_handle) { mFeeObserverHandle = observer_handle; }
 	void setUploadObserverHandle(LLHandle<LLWholeModelUploadObserver> observer_handle) { mUploadObserverHandle = observer_handle; }
 
+	// Inherited from LLCore::HttpHandler
+	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+
 private:
 	LLHandle<LLWholeModelFeeObserver> mFeeObserverHandle;
 	LLHandle<LLWholeModelUploadObserver> mUploadObserverHandle;
 
 	bool mDoUpload; // if FALSE only model data will be requested, otherwise the model will be uploaded
+	LLSD mModelData;
+	
+	// llcorehttp library interface objects.
+	LLCore::HttpStatus					mHttpStatus;
+	LLCore::HttpRequest *				mHttpRequest;
+	LLCore::HttpOptions *				mHttpOptions;
+	LLCore::HttpHeaders *				mHttpHeaders;
+	LLCore::HttpRequest::policy_t		mHttpPolicyClass;
+	LLCore::HttpRequest::priority_t		mHttpPriority;
 };
 
 class LLMeshRepository

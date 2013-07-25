@@ -68,6 +68,7 @@
 #include "llviewerparcelmgr.h"
 #include "lluploadfloaterobservers.h"
 #include "bufferarray.h"
+#include "bufferstream.h"
 
 #include "boost/lexical_cast.hpp"
 
@@ -203,6 +204,7 @@
 //     mUnavailableQ            mMutex        rw.repo.none [0], ro.main.none [3], rw.main.mMutex
 //     mLoadedQ                 mMutex        rw.repo.mMutex, ro.main.none [3], rw.main.mMutex
 //     mPendingLOD              mMutex        rw.repo.mMutex, rw.any.mMutex
+//     mHttp*                   none          rw.repo.none
 //
 //   LLPhysicsDecomp:
 //    
@@ -210,7 +212,19 @@
 //     mCurRequest
 //     mCompletedQ
 //
-
+//
+// QA/Development Testing
+//
+//   Debug variable 'MeshUploadFakeErrors' takes a mask of bits that will
+//   simulate an error on fee query or upload.  Defined bits are:
+//
+//   0x01            Simulate application error on fee check reading
+//                   response body from file "fake_upload_error.xml"
+//   0x02            Same as 0x01 but for actual upload attempt.
+//   0x04            Simulate a transport problem on fee check with a
+//                   locally-generated 500 status.
+//   0x08            As with 0x04 but for the upload operation.
+//
 
 LLMeshRepository gMeshRepo;
 
@@ -362,6 +376,14 @@ S32 LLMeshRepoThread::sRequestHighWater = REQUEST_HIGH_WATER_MIN;
 // processFailure() methods to customize handling and
 // error messages.
 //
+// LLCore::HttpHandler
+//   LLMeshHandlerBase
+//     LLMeshHeaderHandler
+//     LLMeshLODHandler
+//     LLMeshSkinInfoHandler
+//     LLMeshDecompositionHandler
+//     LLMeshPhysicsShapeHandler
+
 class LLMeshHandlerBase : public LLCore::HttpHandler
 {
 public:
@@ -534,28 +556,31 @@ public:
 };
 
 
-void log_upload_error(S32 status, const LLSD& content, std::string stage, std::string model_name)
+void log_upload_error(LLCore::HttpStatus status, const LLSD& content,
+					  const char * const stage, const std::string & model_name)
 {
 	// Add notification popup.
 	LLSD args;
-	std::string message = content["error"]["message"];
-	std::string identifier = content["error"]["identifier"];
+	std::string message = content["error"]["message"].asString();
+	std::string identifier = content["error"]["identifier"].asString();
 	args["MESSAGE"] = message;
 	args["IDENTIFIER"] = identifier;
 	args["LABEL"] = model_name;
 	gMeshRepo.uploadError(args);
 
 	// Log details.
-	llwarns << "stage: " << stage << " http status: " << status << llendl;
+	LL_WARNS(LOG_MESH) << "Error in stage:  " << stage
+					   << ", Reason:  " << status.toString()
+					   << " (" << status.toHex() << ")" << LL_ENDL;
 	if (content.has("error"))
 	{
 		const LLSD& err = content["error"];
-		llwarns << "err: " << err << llendl;
-		llwarns << "mesh upload failed, stage '" << stage
-				<< "' error '" << err["error"].asString()
-				<< "', message '" << err["message"].asString()
-				<< "', id '" << err["identifier"].asString()
-				<< "'" << llendl;
+		LL_WARNS(LOG_MESH) << "error: " << err << LL_ENDL;
+		LL_WARNS(LOG_MESH) << "  mesh upload failed, stage '" << stage
+						   << "', error '" << err["error"].asString()
+						   << "', message '" << err["message"].asString()
+						   << "', id '" << err["identifier"].asString()
+						   << "'" << LL_ENDL;
 		if (err.has("errors"))
 		{
 			S32 error_num = 0;
@@ -565,13 +590,13 @@ void log_upload_error(S32 status, const LLSD& content, std::string stage, std::s
 				 ++it)
 			{
 				const LLSD& err_entry = *it;
-				llwarns << "error[" << error_num << "]:" << llendl;
+				LL_WARNS(LOG_MESH) << "  error[" << error_num << "]:" << LL_ENDL;
 				for (LLSD::map_const_iterator map_it = err_entry.beginMap();
 					 map_it != err_entry.endMap();
 					 ++map_it)
 				{
-					llwarns << "\t" << map_it->first << ": "
-							<< map_it->second << llendl;
+					LL_WARNS(LOG_MESH) << "    " << map_it->first << ":  "
+									   << map_it->second << LL_ENDL;
 				}
 				error_num++;
 			}
@@ -579,141 +604,10 @@ void log_upload_error(S32 status, const LLSD& content, std::string stage, std::s
 	}
 	else
 	{
-		llwarns << "bad mesh, no error information available" << llendl;
+		LL_WARNS(LOG_MESH) << "Bad response to mesh request, no additional error information available." << LL_ENDL;
 	}
 }
 
-class LLWholeModelFeeResponder: public LLCurl::Responder
-{
-	LLMeshUploadThread* mThread;
-	LLSD mModelData;
-	LLHandle<LLWholeModelFeeObserver> mObserverHandle;
-public:
-	LLWholeModelFeeResponder(LLMeshUploadThread* thread, LLSD& model_data, LLHandle<LLWholeModelFeeObserver> observer_handle):
-		mThread(thread),
-		mModelData(model_data),
-		mObserverHandle(observer_handle)
-	{
-		if (mThread)
-		{
-			mThread->startRequest();
-		}
-	}
-
-	~LLWholeModelFeeResponder()
-	{
-		if (mThread)
-		{
-			mThread->stopRequest();
-		}
-	}
-
-	virtual void completed(U32 status,
-						   const std::string& reason,
-						   const LLSD& content)
-	{
-		LLSD cc = content;
-		if (gSavedSettings.getS32("MeshUploadFakeErrors")&1)
-		{
-			cc = llsd_from_file("fake_upload_error.xml");
-		}
-			
-		dump_llsd_to_file(cc,make_dump_name("whole_model_fee_response_",dump_num));
-
-		LLWholeModelFeeObserver* observer = mObserverHandle.get();
-
-		if (isGoodStatus(status) &&
-			cc["state"].asString() == "upload")
-		{
-			mThread->mWholeModelUploadURL = cc["uploader"].asString();
-
-			if (observer)
-			{
-				cc["data"]["upload_price"] = cc["upload_price"];
-				observer->onModelPhysicsFeeReceived(cc["data"], mThread->mWholeModelUploadURL);
-			}
-		}
-		else
-		{
-			llwarns << "fee request failed" << llendl;
-			log_upload_error(status,cc,"fee",mModelData["name"]);
-			mThread->mWholeModelUploadURL = "";
-
-			if (observer)
-			{
-				observer->setModelPhysicsFeeErrorStatus(status, reason);
-			}
-		}
-	}
-
-};
-
-class LLWholeModelUploadResponder: public LLCurl::Responder
-{
-	LLMeshUploadThread* mThread;
-	LLSD mModelData;
-	LLHandle<LLWholeModelUploadObserver> mObserverHandle;
-	
-public:
-	LLWholeModelUploadResponder(LLMeshUploadThread* thread, LLSD& model_data, LLHandle<LLWholeModelUploadObserver> observer_handle):
-		mThread(thread),
-		mModelData(model_data),
-		mObserverHandle(observer_handle)
-	{
-		if (mThread)
-		{
-			mThread->startRequest();
-		}
-	}
-
-	~LLWholeModelUploadResponder()
-	{
-		if (mThread)
-		{
-			mThread->stopRequest();
-		}
-	}
-
-	virtual void completed(U32 status,
-						   const std::string& reason,
-						   const LLSD& content)
-	{
-		LLSD cc = content;
-		if (gSavedSettings.getS32("MeshUploadFakeErrors")&2)
-		{
-			cc = llsd_from_file("fake_upload_error.xml");
-		}
-
-		dump_llsd_to_file(cc,make_dump_name("whole_model_upload_response_",dump_num));
-		
-		LLWholeModelUploadObserver* observer = mObserverHandle.get();
-
-		// requested "mesh" asset type isn't actually the type
-		// of the resultant object, fix it up here.
-		if (isGoodStatus(status) &&
-			cc["state"].asString() == "complete")
-		{
-			mModelData["asset_type"] = "object";
-			gMeshRepo.updateInventory(LLMeshRepository::inventory_data(mModelData,cc));
-
-			if (observer)
-			{
-				doOnIdleOneTime(boost::bind(&LLWholeModelUploadObserver::onModelUploadSuccess, observer));
-			}
-		}
-		else
-		{
-			llwarns << "upload failed" << llendl;
-			std::string model_name = mModelData["name"].asString();
-			log_upload_error(status,cc,"upload",model_name);
-
-			if (observer)
-			{
-				doOnIdleOneTime(boost::bind(&LLWholeModelUploadObserver::onModelUploadFailure, observer));
-			}
-		}
-	}
-};
 
 LLMeshRepoThread::LLMeshRepoThread()
 : LLThread("mesh repo"),
@@ -788,7 +682,7 @@ void LLMeshRepoThread::run()
 	LLCDResult res = LLConvexDecomposition::initThread();
 	if (res != LLCD_OK)
 	{
-		llwarns << "convex decomposition unable to be loaded" << llendl;
+		LL_WARNS(LOG_MESH) << "Convex decomposition unable to be loaded.  Expect severe problems." << LL_ENDL;
 	}
 
 	while (!LLApp::isQuitting())
@@ -923,7 +817,7 @@ void LLMeshRepoThread::run()
 	res = LLConvexDecomposition::quitThread();
 	if (res != LLCD_OK)
 	{
-		llwarns << "convex decomposition unable to be quit" << llendl;
+		LL_WARNS(LOG_MESH) << "Convex decomposition unable to be quit." << LL_ENDL;
 	}
 }
 
@@ -949,7 +843,6 @@ void LLMeshRepoThread::lockAndLoadMeshLOD(const LLVolumeParams& mesh_params, S32
 		loadMeshLOD(mesh_params, lod);
 	}
 }
-
 
 
 void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
@@ -1648,7 +1541,7 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 		LLMeshSkinInfo info(skin);
 		info.mMeshID = mesh_id;
 
-		//llinfos<<"info pelvis offset"<<info.mPelvisOffset<<llendl;
+		// LL_DEBUGS(LOG_MESH) << "info pelvis offset" << info.mPelvisOffset << LL_ENDL;
 		mSkinInfoQ.push(info);
 	}
 
@@ -1739,10 +1632,13 @@ bool LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32
 	return true;
 }
 
+
 LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, LLVector3& scale, bool upload_textures,
-										bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload,
-					   LLHandle<LLWholeModelFeeObserver> fee_observer, LLHandle<LLWholeModelUploadObserver> upload_observer)
-: LLThread("mesh upload"),
+									   bool upload_skin, bool upload_joints, const std::string & upload_url, bool do_upload,
+									   LLHandle<LLWholeModelFeeObserver> fee_observer,
+									   LLHandle<LLWholeModelUploadObserver> upload_observer)
+  : LLThread("mesh upload"),
+	LLCore::HttpHandler(),
 	mDiscarded(FALSE),
 	mDoUpload(do_upload),
 	mWholeModelUploadURL(upload_url),
@@ -1754,7 +1650,6 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 	mUploadSkin = upload_skin;
 	mUploadJoints = upload_joints;
 	mMutex = new LLMutex(NULL);
-	mCurlRequest = NULL;
 	mPendingUploads = 0;
 	mFinished = false;
 	mOrigin = gAgent.getPositionAgent();
@@ -1764,12 +1659,31 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 
 	mOrigin += gAgent.getAtAxis() * scale.magVec();
 
-	mMeshUploadTimeOut = gSavedSettings.getS32("MeshUploadTimeOut") ;
+	mMeshUploadTimeOut = gSavedSettings.getS32("MeshUploadTimeOut");
+
+	mHttpRequest = new LLCore::HttpRequest;
+	mHttpOptions = new LLCore::HttpOptions;
+	mHttpOptions->setTransferTimeout(mMeshUploadTimeOut);
+	mHttpHeaders = new LLCore::HttpHeaders;
+	mHttpHeaders->append("Content-Type", "application/llsd+xml");
+	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_UPLOADS);
+	mHttpPriority = 0;
 }
 
 LLMeshUploadThread::~LLMeshUploadThread()
 {
-
+	if (mHttpHeaders)
+	{
+		mHttpHeaders->release();
+		mHttpHeaders = NULL;
+	}
+	if (mHttpOptions)
+	{
+		mHttpOptions->release();
+		mHttpOptions = NULL;
+	}
+	delete mHttpRequest;
+	mHttpRequest = NULL;
 }
 
 LLMeshUploadThread::DecompRequest::DecompRequest(LLModel* mdl, LLModel* base_model, LLMeshUploadThread* thread)
@@ -1811,14 +1725,14 @@ void LLMeshUploadThread::preStart()
 
 void LLMeshUploadThread::discard()
 {
-	LLMutexLock lock(mMutex) ;
-	mDiscarded = TRUE ;
+	LLMutexLock lock(mMutex);
+	mDiscarded = TRUE;
 }
 
-BOOL LLMeshUploadThread::isDiscarded()
+BOOL LLMeshUploadThread::isDiscarded() const
 {
-	LLMutexLock lock(mMutex) ;
-	return mDiscarded ;
+	LLMutexLock lock(mMutex);
+	return mDiscarded;
 }
 
 void LLMeshUploadThread::run()
@@ -2069,7 +1983,7 @@ void LLMeshUploadThread::generateHulls()
 		}
 	}
 		
-	if(has_valid_requests)
+	if (has_valid_requests)
 	{
 		while (!mPhysicsComplete)
 		{
@@ -2080,7 +1994,7 @@ void LLMeshUploadThread::generateHulls()
 
 void LLMeshUploadThread::doWholeModelUpload()
 {
-	mCurlRequest = new LLCurlRequest();
+	LL_DEBUGS(LOG_MESH) << "Starting model upload.  Instances:  " << mInstance.size() << LL_ENDL;
 
 	if (mWholeModelUploadURL.empty())
 	{
@@ -2090,74 +2004,239 @@ void LLMeshUploadThread::doWholeModelUpload()
 	else
 	{
 		generateHulls();
+		LL_DEBUGS(LOG_MESH) << "Hull generation completed." << LL_ENDL;
 
-		LLSD full_model_data;
-		wholeModelToLLSD(full_model_data, true);
-		LLSD body = full_model_data["asset_resources"];
-		dump_llsd_to_file(body,make_dump_name("whole_model_body_",dump_num));
-		LLCurlRequest::headers_t headers;
+		mModelData = LLSD::emptyMap();
+		wholeModelToLLSD(mModelData, true);
+		LLSD body = mModelData["asset_resources"];
+		dump_llsd_to_file(body, make_dump_name("whole_model_body_", dump_num));
 
+		LLCore::BufferArray * ba = new LLCore::BufferArray;
+		LLCore::BufferArrayStream bas(ba);
+		LLSDSerialize::toXML(body, bas);
+		// LLSDSerialize::toXML(mModelData, bas);		// <- This will generate a convenient upload error
+		LLCore::HttpHandle handle = mHttpRequest->requestPost(mHttpPolicyClass,
+															  mHttpPriority,
+															  mWholeModelUploadURL,
+															  ba,
+															  mHttpOptions,
+															  mHttpHeaders,
+															  this);
+		ba->release();
+		
+		if (LLCORE_HTTP_HANDLE_INVALID == handle)
 		{
-			LLCurl::ResponderPtr responder = new LLWholeModelUploadResponder(this, full_model_data, mUploadObserverHandle) ;
-
-			while(!mCurlRequest->post(mWholeModelUploadURL, headers, body, responder, mMeshUploadTimeOut))
-			{
-				//sleep for 10ms to prevent eating a whole core
-				apr_sleep(10000);
-			}
+			mHttpStatus = mHttpRequest->getStatus();
+		
+			LL_WARNS(LOG_MESH) << "Couldn't issue request for full model upload.  Reason:  " << mHttpStatus.toString()
+							   << " (" << mHttpStatus.toHex() << ")"
+							   << LL_ENDL;
 		}
-
-		do
+		else
 		{
-			mCurlRequest->process();
-			//sleep for 10ms to prevent eating a whole core
-			apr_sleep(10000);
-		} while (!LLAppViewer::isQuitting() && mPendingUploads > 0);
+			U32 sleep_time(10);
+		
+			LL_DEBUGS(LOG_MESH) << "POST request issued." << LL_ENDL;
+			
+			mHttpRequest->update(0);
+			while (! LLApp::isQuitting() && ! mFinished)
+			{
+				ms_sleep(sleep_time);
+				sleep_time = llmin(250U, sleep_time + sleep_time);
+				mHttpRequest->update(0);
+			}
+			LL_DEBUGS(LOG_MESH) << "Mesh upload operation completed." << LL_ENDL;
+		}
 	}
-
-	delete mCurlRequest;
-	mCurlRequest = NULL;
-
-	// Currently a no-op.
-	mFinished = true;
 }
 
 void LLMeshUploadThread::requestWholeModelFee()
 {
 	dump_num++;
 
-	mCurlRequest = new LLCurlRequest();
-
 	generateHulls();
 
-	LLSD model_data;
-	wholeModelToLLSD(model_data,false);
-	dump_llsd_to_file(model_data,make_dump_name("whole_model_fee_request_",dump_num));
+	mModelData = LLSD::emptyMap();
+	wholeModelToLLSD(mModelData, false);
+	dump_llsd_to_file(mModelData, make_dump_name("whole_model_fee_request_", dump_num));
 
-	LLCurlRequest::headers_t headers;
-
+	LLCore::BufferArray * ba = new LLCore::BufferArray;
+	LLCore::BufferArrayStream bas(ba);
+	LLSDSerialize::toXML(mModelData, bas);
+		
+	LLCore::HttpHandle handle = mHttpRequest->requestPost(mHttpPolicyClass,
+														  mHttpPriority,
+														  mWholeModelFeeCapability,
+														  ba,
+														  mHttpOptions,
+														  mHttpHeaders,
+														  this);
+	ba->release();
+	if (LLCORE_HTTP_HANDLE_INVALID == handle)
 	{
-		LLCurl::ResponderPtr responder = new LLWholeModelFeeResponder(this,model_data, mFeeObserverHandle) ;
-		while(!mCurlRequest->post(mWholeModelFeeCapability, headers, model_data, responder, mMeshUploadTimeOut))
+		mHttpStatus = mHttpRequest->getStatus();
+		
+		LL_WARNS(LOG_MESH) << "Couldn't issue request for model fee.  Reason:  " << mHttpStatus.toString()
+						   << " (" << mHttpStatus.toHex() << ")"
+						   << LL_ENDL;
+	}
+	else
+	{
+		U32 sleep_time(10);
+		
+		mHttpRequest->update(0);
+		while (! LLApp::isQuitting() && ! mFinished)
 		{
-			//sleep for 10ms to prevent eating a whole core
-			apr_sleep(10000);
+			ms_sleep(sleep_time);
+			sleep_time = llmin(250U, sleep_time + sleep_time);
+			mHttpRequest->update(0);
 		}
 	}
-
-	do
-	{
-		mCurlRequest->process();
-		//sleep for 10ms to prevent eating a whole core
-		apr_sleep(10000);
-	} while (!LLApp::isQuitting() && mPendingUploads > 0);
-
-	delete mCurlRequest;
-	mCurlRequest = NULL;
-
-	// Currently a no-op.
-	mFinished = true;
 }
+
+
+// Does completion duty for both fee queries and actual uploads.
+void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
+{
+	// QA/Devel:  0x2 to enable fake error import on upload, 0x1 on fee check
+	const S32 fake_error(gSavedSettings.getS32("MeshUploadFakeErrors") & (mDoUpload ? 0xa : 0x5));
+	LLCore::HttpStatus status(response->getStatus());
+	if (fake_error)
+	{
+		status = (fake_error & 0x0c) ? LLCore::HttpStatus(500) : LLCore::HttpStatus(200);
+	}
+	std::string reason(status.toString());
+	LLSD body;
+
+	mFinished = true;
+
+	if (mDoUpload)
+	{
+		// model upload case
+		LLWholeModelUploadObserver * observer(mUploadObserverHandle.get());
+
+		if (! status)
+		{
+			LL_WARNS(LOG_MESH) << "Upload failed.  Reason:  " << reason
+							   << " (" << status.toHex() << ")"
+							   << LL_ENDL;
+
+			// Build a fake body for the alert generator
+			body["error"] = LLSD::emptyMap();
+			body["error"]["message"] = reason;
+			body["error"]["identifier"] = "NetworkError";		// from asset-upload/upload_util.py
+			log_upload_error(status, body, "upload", mModelData["name"].asString());
+
+			if (observer)
+			{
+				doOnIdleOneTime(boost::bind(&LLWholeModelUploadObserver::onModelUploadFailure, observer));
+			}
+		}
+		else
+		{
+			if (fake_error & 0x2)
+			{
+				body = llsd_from_file("fake_upload_error.xml");
+			}
+			else
+			{
+				LLCore::BufferArray * ba(response->getBody());
+				if (ba && ba->size())
+				{
+					LLCore::BufferArrayStream bas(ba);
+					LLSDSerialize::fromXML(body, bas);
+				}
+			}
+			dump_llsd_to_file(body, make_dump_name("whole_model_upload_response_", dump_num));
+
+			if (body["state"].asString() == "complete")
+			{
+				// requested "mesh" asset type isn't actually the type
+				// of the resultant object, fix it up here.
+				mModelData["asset_type"] = "object";
+				gMeshRepo.updateInventory(LLMeshRepository::inventory_data(mModelData, body));
+
+				if (observer)
+				{
+					doOnIdleOneTime(boost::bind(&LLWholeModelUploadObserver::onModelUploadSuccess, observer));
+				}
+			}
+			else
+			{
+				LL_WARNS(LOG_MESH) << "Upload failed.  Not in expected 'complete' state." << LL_ENDL;
+				log_upload_error(status, body, "upload", mModelData["name"].asString());
+
+				if (observer)
+				{
+					doOnIdleOneTime(boost::bind(&LLWholeModelUploadObserver::onModelUploadFailure, observer));
+				}
+			}
+		}
+	}
+	else
+	{
+		// model fee case
+		LLWholeModelFeeObserver* observer(mFeeObserverHandle.get());
+		mWholeModelUploadURL.clear();
+		
+		if (! status)
+		{
+			LL_WARNS(LOG_MESH) << "Fee request failed.  Reason:  " << reason
+							   << " (" << status.toHex() << ")"
+							   << LL_ENDL;
+
+			// Build a fake body for the alert generator
+			body["error"] = LLSD::emptyMap();
+			body["error"]["message"] = reason;
+			body["error"]["identifier"] = "NetworkError";		// from asset-upload/upload_util.py
+			log_upload_error(status, body, "fee", mModelData["name"].asString());
+
+			if (observer)
+			{
+				observer->setModelPhysicsFeeErrorStatus(status.toULong(), reason);
+			}
+		}
+		else
+		{
+			if (fake_error & 0x1)
+			{
+				body = llsd_from_file("fake_upload_error.xml");
+			}
+			else
+			{
+				LLCore::BufferArray * ba(response->getBody());
+				if (ba && ba->size())
+				{
+					LLCore::BufferArrayStream bas(ba);
+					LLSDSerialize::fromXML(body, bas);
+				}
+			}
+			dump_llsd_to_file(body, make_dump_name("whole_model_fee_response_", dump_num));
+		
+			if (body["state"].asString() == "upload")
+			{
+				mWholeModelUploadURL = body["uploader"].asString();
+
+				if (observer)
+				{
+					body["data"]["upload_price"] = body["upload_price"];
+					observer->onModelPhysicsFeeReceived(body["data"], mWholeModelUploadURL);
+				}
+			}
+			else
+			{
+				LL_WARNS(LOG_MESH) << "Fee request failed.  Not in expected 'upload' state." << LL_ENDL;
+				log_upload_error(status, body, "fee", mModelData["name"].asString());
+
+				if (observer)
+				{
+					observer->setModelPhysicsFeeErrorStatus(status.toULong(), reason);
+				}
+			}
+		}
+	}
+}
+
 
 void LLMeshRepoThread::notifyLoadedMeshes()
 {
@@ -2674,13 +2753,13 @@ void LLMeshRepository::init()
 
 void LLMeshRepository::shutdown()
 {
-	llinfos << "Shutting down mesh repository." << llendl;
+	LL_INFOS(LOG_MESH) << "Shutting down mesh repository." << LL_ENDL;
 
 	metrics_teleport_started_signal.disconnect();
 
 	for (U32 i = 0; i < mUploads.size(); ++i)
 	{
-		llinfos << "Discard the pending mesh uploads " << llendl;
+		LL_INFOS(LOG_MESH) << "Discard the pending mesh uploads." << LL_ENDL;
 		mUploads[i]->discard() ; //discard the uploading requests.
 	}
 
@@ -2695,7 +2774,7 @@ void LLMeshRepository::shutdown()
 
 	for (U32 i = 0; i < mUploads.size(); ++i)
 	{
-		llinfos << "Waiting for pending mesh upload " << i << "/" << mUploads.size() << llendl;
+		LL_INFOS(LOG_MESH) << "Waiting for pending mesh upload " << i << "/" << mUploads.size() << LL_ENDL;
 		while (!mUploads[i]->isStopped())
 		{
 			apr_sleep(10);
@@ -2708,7 +2787,7 @@ void LLMeshRepository::shutdown()
 	delete mMeshMutex;
 	mMeshMutex = NULL;
 
-	llinfos << "Shutting down decomposition system." << llendl;
+	LL_INFOS(LOG_MESH) << "Shutting down decomposition system." << LL_ENDL;
 
 	if (mDecompThread)
 	{
@@ -3591,7 +3670,7 @@ void LLPhysicsDecomp::setMeshData(LLCDMeshData& mesh, bool vertex_based)
 
 		if (ret)
 		{
-			llerrs << "Convex Decomposition thread valid but could not set mesh data" << llendl;
+			LL_ERRS(LOG_MESH) << "Convex Decomposition thread valid but could not set mesh data." << LL_ENDL;
 		}
 	}
 }
@@ -3667,7 +3746,8 @@ void LLPhysicsDecomp::doDecomposition()
 
 	if (ret)
 	{
-		llwarns << "Convex Decomposition thread valid but could not execute stage " << stage << llendl;
+		LL_WARNS(LOG_MESH) << "Convex Decomposition thread valid but could not execute stage " << stage << "."
+						   << LL_ENDL;
 		LLMutexLock lock(mMutex);
 
 		mCurRequest->mHull.clear();
@@ -3796,9 +3876,9 @@ void LLPhysicsDecomp::doDecompositionSingleHull()
 	setMeshData(mesh, true);
 
 	LLCDResult ret = decomp->buildSingleHull() ;
-	if(ret)
+	if (ret)
 	{
-		llwarns << "Could not execute decomposition stage when attempting to create single hull." << llendl;
+		LL_WARNS(LOG_MESH) << "Could not execute decomposition stage when attempting to create single hull." << LL_ENDL;
 		make_box(mCurRequest);
 	}
 	else
@@ -4152,7 +4232,7 @@ void LLMeshRepository::metricsUpdate()
 		metrics["teleports"] = LLSD::Integer(metrics_teleport_start_count);
 		metrics["user_cpu"] = double(user_cpu) / 1.0e6;
 		metrics["sys_cpu"] = double(sys_cpu) / 1.0e6;
-		llinfos << "EventMarker " << metrics << llendl;
+		LL_INFOS(LOG_MESH) << "EventMarker " << metrics << LL_ENDL;
 	}
 }
 
