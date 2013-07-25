@@ -85,15 +85,8 @@ vec3 decode_normal (vec2 enc)
     return n;
 }
 
-vec3 srgb_to_linear(vec3 cs)
-{
-	
-/*        {  cs / 12.92,                 cs <= 0.04045
-    cl = {
-        {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
-
-	return pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
-}
+vec3 srgb_to_linear(vec3 cs);
+vec3 linear_to_srgb(vec3 cl);
 
 vec4 correctWithGamma(vec4 col)
 {
@@ -204,7 +197,7 @@ void main()
 	
 	proj_tc.xyz /= proj_tc.w;
 	
-	float fa = falloff;
+	float fa = falloff+1.0;
 	float dist_atten = min(1.0-(dist-1.0*(1.0-fa))/fa, 1.0);
 	dist_atten *= dist_atten;
 	dist_atten *= 2.0;

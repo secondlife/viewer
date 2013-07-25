@@ -39,6 +39,9 @@ VARYING vec3 vary_position;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
+vec3 srgb_to_linear(vec3 cs);
+vec3 linear_to_srgb(vec3 cl);
+
 vec3 fullbrightAtmosTransportDeferred(vec3 light)
 {
 	return light;
@@ -99,31 +102,6 @@ vec4 applyWaterFogDeferred(vec3 pos, vec4 color)
 	return color;
 }
 #endif
-
-vec3 srgb_to_linear(vec3 cs)
-{
-	
-/*        {  cs / 12.92,                 cs <= 0.04045
-    cl = {
-        {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
-
-	return pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
-}
-
-vec3 linear_to_srgb(vec3 cl)
-{
-	    /*{  0.0,                          0         <= cl
-            {  12.92 * c,                    0         <  cl < 0.0031308
-    cs = {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
-            {  1.0,                                       cl >= 1*/
-
-	cl = clamp(cl, vec3(0), vec3(1));
-
-	if ((cl.r+cl.g+cl.b) < 0.0031308)
-		return 12.92 * cl;
-
-	return 1.055 * pow(cl, vec3(0.41666)) - 0.055;
-}
 
 void main() 
 {

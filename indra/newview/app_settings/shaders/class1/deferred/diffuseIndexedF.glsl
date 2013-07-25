@@ -39,15 +39,15 @@ vec2 encode_normal(vec3 n)
 	return n.xy / f + 0.5;
 }
 
+
 void main() 
 {
-	vec4 diff = diffuseLookup(vary_texcoord0.xy);
-	vec3 col  = vertex_color.rgb * diff.rgb;
+	vec3 col = vertex_color.rgb * diffuseLookup(vary_texcoord0.xy).rgb;
 	
 	vec3 spec;
 	spec.rgb = vec3(vertex_color.a);
 
-	frag_data[0] = vec4(col, 0);
+	frag_data[0] = vec4(col, 0.0);
 	frag_data[1] = vec4(spec, vertex_color.a); // spec
 	vec3 nvn = normalize(vary_normal);
 	frag_data[2] = vec4(encode_normal(nvn.xyz), vertex_color.a, 0.0);

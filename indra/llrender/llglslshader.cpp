@@ -87,6 +87,7 @@ LLShaderFeatures::LLShaderFeatures()
 	, mIndexedTextureChannels(0)
 	, disableTextureIndex(false)
 	, hasAlphaMask(false)
+	, hasSRGB(false)
 {
 }
 

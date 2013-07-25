@@ -30,37 +30,6 @@
 
 uniform float emissive_brightness;
 
-
-vec3 srgb_to_linear(vec3 cs)
-{
-	
-/*        {  cs / 12.92,                 cs <= 0.04045
-    cl = {
-        {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
-
-	vec3 low_range = cs / vec3(12.92);
-
-	if (((cs.r + cs.g + cs.b) / 3) <= 0.04045)
-		return low_range;
-
-	return pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
-}
-
-vec3 linear_to_srgb(vec3 cl)
-{
-	    /*{  0.0,                          0         <= cl
-            {  12.92 * c,                    0         <  cl < 0.0031308
-    cs = {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
-            {  1.0,                                       cl >= 1*/
-
-	cl = clamp(cl, vec3(0), vec3(1));
-
-	if ((cl.r+cl.g+cl.b) < 0.0031308)
-		return 12.92 * cl;
-
-	return 1.055 * pow(cl, vec3(0.41666)) - 0.055;
-}
-
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 
 #ifdef DEFINE_GL_FRAGCOLOR
@@ -144,6 +113,9 @@ uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
+
+vec3 srgb_to_linear(vec3 cs);
+vec3 linear_to_srgb(vec3 cl);
 
 #ifdef WATER_FOG
 uniform vec4 waterPlane;
@@ -558,7 +530,7 @@ void main()
 			  dot(norm.xyz,vary_mat1),
 			  dot(norm.xyz,vary_mat2));
 #else
-	vec4 norm = vec4(0,1,0,1.0);
+	vec4 norm = vec4(0,0,0,1.0);
 	vec3 tnorm = vary_normal;
 #endif
 
@@ -682,7 +654,7 @@ void main()
 
 	col.rgb *= ambient;
 
-	col.rgb = col.rgb + atmosAffectDirectionalLight(final_da); //pow(final_da, 1.0/1.3));
+	col.rgb = col.rgb + atmosAffectDirectionalLight(pow(final_da, 1.0/1.3));
 	col.rgb *= gamma_diff.rgb;
 
 	float glare = 0.0;
@@ -705,7 +677,7 @@ void main()
 		col += spec_contrib;
 	}
 
-	col = mix(col.rgb, diffcol.rgb, diffuse.a);
+	col = mix(col.rgb, gamma_diff.rgb, diffuse.a);
 
 	if (envIntensity > 0.0)
 	{
@@ -724,11 +696,11 @@ void main()
 	}
 
 	col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
-	col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
+	col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col),  diffuse.a);
 
 	//convert to linear space before adding local lights
 	col = srgb_to_linear(col);
-
+			
 	vec3 npos = normalize(-pos.xyz);
 
  #define LIGHT_LOOP(i) col.rgb = col.rgb + calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare);
@@ -746,6 +718,7 @@ void main()
 
 	//convert to gamma space for display on screen
 	col.rgb = linear_to_srgb(col.rgb);
+
 
 #ifdef WATER_FOG
 	vec4 temp = applyWaterFogDeferred(pos, vec4(col.rgb, al));

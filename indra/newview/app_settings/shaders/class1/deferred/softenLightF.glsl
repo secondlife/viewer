@@ -78,37 +78,8 @@ vec3 vary_AtmosAttenuation;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
-
-vec3 srgb_to_linear(vec3 cs)
-{
-	
-/*        {  cs / 12.92,                 cs <= 0.04045
-    cl = {
-        {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
-
-	vec3 low_range = cs / vec3(12.92);
-
-	if (((cs.r + cs.g + cs.b) / 3) <= 0.04045)
-		return low_range;
-
-	return pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
-}
-
-vec3 linear_to_srgb(vec3 cl)
-{
-	    /*{  0.0,                          0         <= cl
-            {  12.92 * c,                    0         <  cl < 0.0031308
-    cs = {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
-            {  1.0,                                       cl >= 1*/
-
-	cl = clamp(cl, vec3(0), vec3(1));
-
-	if ((cl.r+cl.g+cl.b) < 0.0031308)
-		return 12.92 * cl;
-
-	return 1.055 * pow(cl, vec3(0.41666)) - 0.055;
-}
-
+vec3 srgb_to_linear(vec3 cs);
+vec3 linear_to_srgb(vec3 cl);
 
 vec3 decode_normal (vec2 enc)
 {
@@ -143,7 +114,6 @@ vec3 getPositionEye()
 {
 	return vary_PositionEye;
 }
-
 vec3 getSunlitColor()
 {
 	return vary_SunlitColor;
@@ -388,7 +358,7 @@ void main()
 	norm.xyz = decode_normal(norm.xy); // unpack norm
 		
 	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
-	//da = pow(da, 1.0/1.3);
+	da = pow(da, 1.0/1.3);
 
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
 
@@ -408,7 +378,9 @@ void main()
 		ambient = (1.0-ambient);
 
 		col.rgb *= ambient;
+
 		col += atmosAffectDirectionalLight(max(min(da, 1.0), 0.0));	
+	
 		col *= diffuse.rgb;
 	
 		vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));

@@ -93,10 +93,13 @@ uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
+vec3 srgb_to_linear(vec3 cs);
+vec3 linear_to_srgb(vec3 cl);
+
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
 	float a = max(dot(n,l),0.0);
-	//a = pow(a, 1.0/1.3);
+	a = pow(a, 1.0/1.3);
 	return vec3(a,a,a);
 }
 
@@ -392,37 +395,6 @@ vec3 fullbrightScaleSoftClip(vec3 light)
 	return light;
 }
 
-vec3 srgb_to_linear(vec3 cs)
-{
-	
-/*        {  cs / 12.92,                 cs <= 0.04045
-    cl = {
-        {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
-
-	vec3 low_range = cs / vec3(12.92);
-
-	if (((cs.r + cs.g + cs.b) / 3) <= 0.04045)
-		return low_range;
-
-	return pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
-}
-
-vec3 linear_to_srgb(vec3 cl)
-{
-	    /*{  0.0,                          0         <= cl
-            {  12.92 * c,                    0         <  cl < 0.0031308
-    cs = {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
-            {  1.0,                                       cl >= 1*/
-
-	cl = clamp(cl, vec3(0), vec3(1));
-
-	if ((cl.r+cl.g+cl.b) < 0.0031308)
-		return 12.92 * cl;
-
-	return 1.055 * pow(cl, vec3(0.41666)) - 0.055;
-}
-
-
 void main() 
 {
 	vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
@@ -533,7 +505,7 @@ void main()
 
 	color.rgb *= ambient;
 
-	color.rgb += atmosAffectDirectionalLight(final_da);
+	color.rgb += atmosAffectDirectionalLight(pow(final_da, 1.0/1.3));
 	color.rgb *= gamma_diff.rgb;
 
 	color.rgb = mix(atmosLighting(color.rgb), fullbrightAtmosTransport(color.rgb), diff.a);

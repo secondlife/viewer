@@ -50,6 +50,7 @@ public:
 	S32 mIndexedTextureChannels;
 	bool disableTextureIndex;
 	bool hasAlphaMask;
+	bool hasSRGB;
 
 	// char numLights;
 	

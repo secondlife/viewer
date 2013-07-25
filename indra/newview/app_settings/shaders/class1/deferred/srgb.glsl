@@ -1,5 +1,5 @@
 /** 
- * @file postDeferredGammaCorrect.glsl
+ * @file srgb.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,28 +22,28 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-#extension GL_ARB_texture_rectangle : enable
 
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
-
-uniform sampler2DRect diffuseRect;
-
-uniform vec2 screen_res;
-VARYING vec2 vary_fragcoord;
-
-uniform float display_gamma;
-
-vec3 linear_to_srgb(vec3 cl);
-
-void main() 
+vec3 srgb_to_linear(vec3 cs)
 {
-	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord);
-	diff.rgb = pow(diff.rgb,vec3(display_gamma));
-	frag_color = diff;
+	
+/*       {  cs / 12.92,                 cs <= 0.04045
+    cl = {
+         {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045*/
+
+	vec3 low_range = cs / vec3(12.92);
+	vec3 high_range = pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
+	return mix(high_range, low_range, lessThanEqual(cs,vec3(0.04045)));
 }
 
+vec3 linear_to_srgb(vec3 cl)
+{
+	    /*  {  0.0,                          0         <= cl
+            {  12.92 * c,                    0         <  cl < 0.0031308
+    cs =    {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
+            {  1.0,                                       cl >= 1*/
+
+	cl = clamp(cl, vec3(0), vec3(1));
+	vec3 low_range  = cl * 12.92;
+	vec3 high_range = 1.055 * pow(cl, vec3(0.41666)) - 0.055;
+	return mix(high_range, low_range, lessThan(cl,vec3(0.0031308)));
+}
