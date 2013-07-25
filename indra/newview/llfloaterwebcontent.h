@@ -111,6 +111,7 @@ protected:
 	std::string		mUUID;
 	bool			mShowPageTitle;
     bool            mAllowNavigation;
+    bool            mSecureURL;     // true when the current url is prefixed "https://"
 };
 
 #endif  // LL_LLFLOATERWEBCONTENT_H
