@@ -72,8 +72,6 @@ class LLVector3d;
 class LLColor4;
 class LLColor3;
 
-const BOOL NO_PERSIST = FALSE;
-
 typedef enum e_control_type
 {
 	TYPE_U32 = 0,
@@ -100,17 +98,18 @@ public:
 	typedef boost::signals2::signal<bool(LLControlVariable* control, const LLSD&), boost_boolean_combiner> validate_signal_t;
 	typedef boost::signals2::signal<void(LLControlVariable* control, const LLSD&, const LLSD&)> commit_signal_t;
 
-private:
-	enum
+	enum ePersist
 	{
 		PERSIST_NO,                 // don't save this var
-		PERSIST_YES,                // save this var if differs from default
+		PERSIST_NONDFT,             // save this var if differs from default
 		PERSIST_ALWAYS              // save this var even if has default value
-	} mPersist;
+	};
 
+private:
 	std::string		mName;
 	std::string		mComment;
 	eControlType	mType;
+	ePersist		mPersist;
 	bool			mHideFromSettingsEditor;
 	std::vector<LLSD> mValues;
 
@@ -120,7 +119,7 @@ private:
 public:
 	LLControlVariable(const std::string& name, eControlType type,
 					  LLSD initial, const std::string& comment,
-					  bool persist = true, bool hidefromsettingseditor = false);
+					  ePersist persist = PERSIST_NONDFT, bool hidefromsettingseditor = false);
 
 	virtual ~LLControlVariable();
 	
@@ -148,8 +147,7 @@ public:
 	void set(const LLSD& val)	{ setValue(val); }
 	void setValue(const LLSD& value, bool saved_value = TRUE);
 	void setDefaultValue(const LLSD& value);
-	void setPersist(bool state);    // persist or not depending on value
-	void forcePersist();            // always persist regardless of value
+	void setPersist(ePersist);
 	void setHiddenFromSettingsEditor(bool hide);
 	void setComment(const std::string& comment);
 
@@ -215,18 +213,18 @@ public:
 	};
 	void applyToAll(ApplyFunctor* func);
 
-	LLControlVariable* declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, BOOL persist, BOOL hidefromsettingseditor = FALSE);
-	LLControlVariable* declareU32(const std::string& name, U32 initial_val, const std::string& comment, BOOL persist = TRUE);
-	LLControlVariable* declareS32(const std::string& name, S32 initial_val, const std::string& comment, BOOL persist = TRUE);
-	LLControlVariable* declareF32(const std::string& name, F32 initial_val, const std::string& comment, BOOL persist = TRUE);
-	LLControlVariable* declareBOOL(const std::string& name, BOOL initial_val, const std::string& comment, BOOL persist = TRUE);
-	LLControlVariable* declareString(const std::string& name, const std::string &initial_val, const std::string& comment, BOOL persist = TRUE);
-	LLControlVariable* declareVec3(const std::string& name, const LLVector3 &initial_val,const std::string& comment,  BOOL persist = TRUE);
-	LLControlVariable* declareVec3d(const std::string& name, const LLVector3d &initial_val, const std::string& comment, BOOL persist = TRUE);
-	LLControlVariable* declareRect(const std::string& name, const LLRect &initial_val, const std::string& comment, BOOL persist = TRUE);
-	LLControlVariable* declareColor4(const std::string& name, const LLColor4 &initial_val, const std::string& comment, BOOL persist = TRUE);
-	LLControlVariable* declareColor3(const std::string& name, const LLColor3 &initial_val, const std::string& comment, BOOL persist = TRUE);
-	LLControlVariable* declareLLSD(const std::string& name, const LLSD &initial_val, const std::string& comment, BOOL persist = TRUE);
+	LLControlVariable* declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, LLControlVariable::ePersist persist, BOOL hidefromsettingseditor = FALSE);
+	LLControlVariable* declareU32(const std::string& name, U32 initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
+	LLControlVariable* declareS32(const std::string& name, S32 initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
+	LLControlVariable* declareF32(const std::string& name, F32 initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
+	LLControlVariable* declareBOOL(const std::string& name, BOOL initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
+	LLControlVariable* declareString(const std::string& name, const std::string &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
+	LLControlVariable* declareVec3(const std::string& name, const LLVector3 &initial_val,const std::string& comment,  LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
+	LLControlVariable* declareVec3d(const std::string& name, const LLVector3d &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
+	LLControlVariable* declareRect(const std::string& name, const LLRect &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
+	LLControlVariable* declareColor4(const std::string& name, const LLColor4 &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
+	LLControlVariable* declareColor3(const std::string& name, const LLColor3 &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
+	LLControlVariable* declareLLSD(const std::string& name, const LLSD &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
 
 	std::string getString(const std::string& name);
 	std::string getText(const std::string& name);
@@ -375,7 +373,7 @@ private:
 		init_value = convert_to_llsd(default_value);
 		if(type < TYPE_COUNT)
 		{
-			group.declareControl(name, type, init_value, comment, FALSE);
+			group.declareControl(name, type, init_value, comment, LLControlVariable::PERSIST_NO);
 			return true;
 		}
 		return false;
