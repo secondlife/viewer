@@ -4842,6 +4842,16 @@
       <key>Value</key>
       <array />
     </map>
+    <key>LeapPlaybackEventsCommand</key>
+    <map>
+      <key>Comment</key>
+      <string>Command line to use leap to launch playback of event recordings</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+    </map>
     <key>LSLFindCaseInsensitivity</key>
         <map>
         <key>Comment</key>
@@ -10100,6 +10110,17 @@
       <string>Shows folders that do not have any visible contents when applying a filter to inventory</string>
       <key>Persist</key>
       <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowEventRecorderMenuItems</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not Event Recorder menu choices - Start / Stop event recording should appear in the (currently) Develop menu</string>
+      <key>Persist</key>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>

@@ -222,6 +222,10 @@
 #include "llmachineid.h"
 #include "llmainlooprepeater.h"
 
+
+#include "llviewereventrecorder.h"
+
+
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
 // this app, or another 'component' of the viewer. App globals should be 
@@ -696,6 +700,7 @@ LLAppViewer::LLAppViewer() :
 LLAppViewer::~LLAppViewer()
 {
 	delete mSettingsLocationList;
+	LLViewerEventRecorder::instance().~LLViewerEventRecorder();
 
 	LLLoginInstance::instance().setUpdaterService(0);
 	
@@ -2543,6 +2548,10 @@ bool LLAppViewer::initConfiguration()
                 }
             }
         }
+    }
+
+    if  (clp.hasOption("logevents")) {
+	LLViewerEventRecorder::instance().setEventLoggingOn();
     }
 
     if(clp.hasOption("channel"))

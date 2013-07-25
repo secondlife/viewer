@@ -128,6 +128,7 @@ set(llui_SOURCE_FILES
     llviewmodel.cpp
     llview.cpp
     llviewquery.cpp
+    llviewereventrecorder.cpp
     llwindowshade.cpp
     llxuiparser.cpp
     )
@@ -240,6 +241,7 @@ set(llui_HEADER_FILES
     llviewinject.h
     llviewmodel.h
     llview.h
+    llviewereventrecorder.h
     llviewquery.h
     llwindowshade.h
     llxuiparser.h

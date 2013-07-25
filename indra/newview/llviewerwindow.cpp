@@ -197,6 +197,8 @@
 #include "llagentui.h"
 #include "llwearablelist.h"
 
+#include "llviewereventrecorder.h"
+
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llnotificationmanager.h"
@@ -914,27 +916,18 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 			{
 				llinfos << buttonname << " Mouse " << buttonstatestr << " handled by captor " << mouse_captor->getName() << llendl;
 			}
-			return mouse_captor->handleAnyMouseClick(local_x, local_y, mask, clicktype, down);
-		}
 
-		// Topmost view gets a chance before the hierarchy
-		//LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
-		//if (top_ctrl)
-		//{
-		//	S32 local_x, local_y;
-		//	top_ctrl->screenPointToLocal( x, y, &local_x, &local_y );
-		//		if (top_ctrl->pointInView(local_x, local_y))
-		//		{
-		//			return top_ctrl->handleAnyMouseClick(local_x, local_y, mask, clicktype, down)	;
-		//		}
-		//		else
-		//		{
-		//		if (down)
-		//		{
-		//			gFocusMgr.setTopCtrl(NULL);
-		//		}
-		//	}
-		//}
+			BOOL r = mouse_captor->handleAnyMouseClick(local_x, local_y, mask, clicktype, down); 
+			if (r) {
+
+				lldebugs << "LLViewerWindow::handleAnyMouseClick viewer with mousecaptor calling updatemouseeventinfo - local_x|global x  "<< local_x << " " << x  << "local/global y " << local_y << " " << y << llendl;
+
+				LLViewerEventRecorder::instance().setMouseGlobalCoords(x,y);
+				LLViewerEventRecorder::instance().logMouseEvent(std::string(buttonstatestr),std::string(buttonname)); 
+
+			}
+			return r;
+		}
 
 		// Mark the click as handled and return if we aren't within the root view to avoid spurious bugs
 		if( !mRootView->pointInView(x, y) )
@@ -942,27 +935,44 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 			return TRUE;
 		}
 		// Give the UI views a chance to process the click
-		if( mRootView->handleAnyMouseClick(x, y, mask, clicktype, down) )
+
+		BOOL r= mRootView->handleAnyMouseClick(x, y, mask, clicktype, down) ;
+		if (r) 
 		{
+
+			lldebugs << "LLViewerWindow::handleAnyMouseClick calling updatemouseeventinfo - global x  "<< " " << x	<< "global y " << y	 << "buttonstate: " << buttonstatestr << " buttonname " << buttonname << llendl;
+
+			LLViewerEventRecorder::instance().setMouseGlobalCoords(x,y);
+
+			// Clear local coords - this was a click on root window so these are not needed
+			// By not including them, this allows the test skeleton generation tool to be smarter when generating code
+			// the code generator can be smarter because when local coords are present it can try the xui path with local coords
+			// and fallback to global coordinates only if needed. 
+			// The drawback to this approach is sometimes a valid xui path will appear to work fine, but NOT interact with the UI element
+			// (VITA support not implemented yet or not visible to VITA due to widget further up xui path not being visible to VITA)
+			// For this reason it's best to provide hints where possible here by leaving out local coordinates
+			LLViewerEventRecorder::instance().setMouseLocalCoords(-1,-1);
+			LLViewerEventRecorder::instance().logMouseEvent(buttonstatestr,buttonname); 
+
 			if (LLView::sDebugMouseHandling)
 			{
-				llinfos << buttonname << " Mouse " << buttonstatestr << " " << LLView::sMouseHandlerMessage << llendl;
-			}
+				llinfos << buttonname << " Mouse " << buttonstatestr << " " << LLViewerEventRecorder::instance().get_xui()	<< llendl;
+			} 
 			return TRUE;
-		}
-		else if (LLView::sDebugMouseHandling)
-		{
-			llinfos << buttonname << " Mouse " << buttonstatestr << " not handled by view" << llendl;
-		}
+		} else if (LLView::sDebugMouseHandling)
+			{
+				llinfos << buttonname << " Mouse " << buttonstatestr << " not handled by view" << llendl;
+			}
 	}
 
 	// Do not allow tool manager to handle mouseclicks if we have disconnected	
 	if(!gDisconnected && LLToolMgr::getInstance()->getCurrentTool()->handleAnyMouseClick( x, y, mask, clicktype, down ) )
 	{
+		LLViewerEventRecorder::instance().clear_xui(); 
 		return TRUE;
 	}
-	
 
+	
 	// If we got this far on a down-click, it wasn't handled.
 	// Up-clicks, though, are always handled as far as the OS is concerned.
 	BOOL default_rtn = !down;
@@ -1333,7 +1343,8 @@ BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
 void LLViewerWindow::handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level)
 {
 	LLViewerJoystick::getInstance()->setCameraNeedsUpdate(true);
-	return gViewerKeyboard.scanKey(key, key_down, key_up, key_level);
+	gViewerKeyboard.scanKey(key, key_down, key_up, key_level);
+	return; // Be clear this function returns nothing
 }
 
 
@@ -2477,6 +2488,8 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		||(gLoginMenuBarView && gLoginMenuBarView->handleKey(key, mask, TRUE))
 		||(gMenuHolder && gMenuHolder->handleKey(key, mask, TRUE)))
 	{
+		lldebugs << "LLviewerWindow::handleKey handle nav keys for nav" << llendl;
+		LLViewerEventRecorder::instance().logKeyEvent(key,mask);
 		return TRUE;
 	}
 
@@ -2491,12 +2504,14 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 			&& keyboard_focus 
 			&& keyboard_focus->handleKey(key,mask,FALSE))
 		{
+			LLViewerEventRecorder::instance().logKeyEvent(key,mask);
 			return TRUE;
 		}
 
 		if ((gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
 			||(gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask)))
 		{
+			LLViewerEventRecorder::instance().logKeyEvent(key,mask);
 			return TRUE;
 		}
 	}
@@ -2506,6 +2521,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// if nothing has focus, go to first or last UI element as appropriate
 	if (key == KEY_TAB && (mask & MASK_CONTROL || gFocusMgr.getKeyboardFocus() == NULL))
 	{
+		llwarns << "LLviewerWindow::handleKey give floaters first chance at tab key " << llendl;
 		if (gMenuHolder) gMenuHolder->hideMenus();
 
 		// if CTRL-tabbing (and not just TAB with no focus), go into window cycle mode
@@ -2520,11 +2536,13 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		{
 			mRootView->focusNextRoot();
 		}
+		LLViewerEventRecorder::instance().logKeyEvent(key,mask);
 		return TRUE;
 	}
 	// hidden edit menu for cut/copy/paste
 	if (gEditMenu && gEditMenu->handleAcceleratorKey(key, mask))
 	{
+		LLViewerEventRecorder::instance().logKeyEvent(key,mask);
 		return TRUE;
 	}
 
@@ -2564,18 +2582,27 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 
 		if (keyboard_focus->handleKey(key, mask, FALSE))
 		{
+
+			lldebugs << "LLviewerWindow::handleKey - in 'traverse up' - no loops seen... just called keyboard_focus->handleKey an it returned true" << llendl;
+			LLViewerEventRecorder::instance().logKeyEvent(key,mask); 
 			return TRUE;
+		} else {
+			lldebugs << "LLviewerWindow::handleKey - in 'traverse up' - no loops seen... just called keyboard_focus->handleKey an it returned FALSE" << llendl;
 		}
 	}
 
 	if( LLToolMgr::getInstance()->getCurrentTool()->handleKey(key, mask) )
 	{
+		lldebugs << "LLviewerWindow::handleKey toolbar handling?" << llendl;
+		LLViewerEventRecorder::instance().logKeyEvent(key,mask);
 		return TRUE;
 	}
 
 	// Try for a new-format gesture
 	if (LLGestureMgr::instance().triggerGesture(key, mask))
 	{
+		lldebugs << "LLviewerWindow::handleKey new gesture feature" << llendl;
+		LLViewerEventRecorder::instance().logKeyEvent(key,mask);
 		return TRUE;
 	}
 
@@ -2583,6 +2610,8 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// don't pass it down to the menus.
 	if (gGestureList.trigger(key, mask))
 	{
+		lldebugs << "LLviewerWindow::handleKey check gesture trigger" << llendl;
+		LLViewerEventRecorder::instance().logKeyEvent(key,mask);
 		return TRUE;
 	}
 
@@ -2631,7 +2660,7 @@ BOOL LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
 	// HACK: Numeric keypad <enter> on Mac is Unicode 3
 	// HACK: Control-M on Windows is Unicode 13
 	if ((uni_char == 13 && mask != MASK_CONTROL)
-		|| (uni_char == 3 && mask == MASK_NONE))
+	    || (uni_char == 3 && mask == MASK_NONE) )
 	{
 		if (mask != MASK_ALT)
 		{
@@ -2654,14 +2683,7 @@ BOOL LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
 			return TRUE;
 		}
 
-		//// Topmost view gets a chance before the hierarchy
-		//LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
-		//if (top_ctrl && top_ctrl->handleUnicodeChar( uni_char, FALSE ) )
-		//{
-		//	return TRUE;
-		//}
-
-		return TRUE;
+        return TRUE;
 	}
 
 	return FALSE;
@@ -2670,8 +2692,6 @@ BOOL LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
 
 void LLViewerWindow::handleScrollWheel(S32 clicks)
 {
-	LLView::sMouseHandlerMessage.clear();
-
 	LLUI::resetMouseIdleTimer();
 	
 	LLMouseHandler* mouse_captor = gFocusMgr.getMouseCapture();
