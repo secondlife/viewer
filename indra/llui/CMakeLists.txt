@@ -75,6 +75,7 @@ set(llui_SOURCE_FILES
     llmultislider.cpp
     llmultisliderctrl.cpp
     llnotifications.cpp
+    llnotificationslistener.cpp
     llnotificationsutil.cpp
     llpanel.cpp
     llprogressbar.cpp
@@ -184,6 +185,7 @@ set(llui_HEADER_FILES
     llmultislider.h
     llnotificationptr.h
     llnotifications.h
+    llnotificationslistener.h
     llnotificationsutil.h
     llnotificationtemplate.h
     llnotificationvisibilityrule.h
