@@ -662,7 +662,7 @@ LLTextureFetch* LLAppViewer::sTextureFetch = NULL;
 
 std::string getRuntime()
 {
-	return llformat("%g", LLTimer::getElapsedSeconds());
+	return llformat("%g", LLTimer::getElapsedSeconds().value());
 }
 
 LLAppViewer::LLAppViewer() 

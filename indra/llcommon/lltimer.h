@@ -62,14 +62,14 @@ public:
 	LLTimer();
 	~LLTimer();
 
-	static void initClass() { if (!sTimer) sTimer = new LLTimer; }
-	static void cleanupClass() { delete sTimer; sTimer = NULL; }
+	static void initClass();
+	static void cleanupClass();
 
 	// Return a high precision number of seconds since the start of
 	// this application instance.
 	static LLUnitImplicit<F64, LLUnits::Seconds> getElapsedSeconds()
 	{
-		return sTimer->getElapsedTimeF64();
+		return sTimer ? sTimer->getElapsedTimeF64() : 0.0;
 	}
 
 	// Return a high precision usec since epoch

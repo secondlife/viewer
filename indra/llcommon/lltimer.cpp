@@ -281,7 +281,18 @@ LLTimer::LLTimer()
 }
 
 LLTimer::~LLTimer()
+{}
+
+// static
+void LLTimer::initClass()
 {
+	if (!sTimer) sTimer = new LLTimer;
+}
+
+// static
+void LLTimer::cleanupClass()
+{
+	delete sTimer; sTimer = NULL;
 }
 
 // static
