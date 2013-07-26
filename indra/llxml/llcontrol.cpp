@@ -132,14 +132,14 @@ bool LLControlVariable::llsd_compare(const LLSD& a, const LLSD & b)
 
 LLControlVariable::LLControlVariable(const std::string& name, eControlType type,
 							 LLSD initial, const std::string& comment,
-							 bool persist, bool hidefromsettingseditor)
+							 ePersist persist, bool hidefromsettingseditor)
 	: mName(name),
 	  mComment(comment),
 	  mType(type),
-	  mPersist(persist? PERSIST_YES : PERSIST_NO),
+	  mPersist(persist),
 	  mHideFromSettingsEditor(hidefromsettingseditor)
 {
-	if (persist && mComment.empty())
+	if ((persist != PERSIST_NO) && mComment.empty())
 	{
 		llerrs << "Must supply a comment for control " << mName << llendl;
 	}
@@ -260,14 +260,9 @@ void LLControlVariable::setDefaultValue(const LLSD& value)
 	}
 }
 
-void LLControlVariable::setPersist(bool state)
+void LLControlVariable::setPersist(ePersist state)
 {
-	mPersist = state? PERSIST_YES : PERSIST_NO;
-}
-
-void LLControlVariable::forcePersist()
-{
-	mPersist = PERSIST_ALWAYS;
+	mPersist = state;
 }
 
 void LLControlVariable::setHiddenFromSettingsEditor(bool hide)
@@ -307,13 +302,13 @@ bool LLControlVariable::shouldSave(bool nondefault_only)
 	if (mPersist == PERSIST_ALWAYS)
 		return true;
 
-	// PERSIST_YES
+	// PERSIST_NONDFT
 	// If caller doesn't need us to filter, just save.
 	if (! nondefault_only)
 		return true;
 
-	// PERSIST_YES, but caller only wants us to save this variable if its
-	// value differs from default.
+	// PERSIST_NONDFT: caller only wants us to save this variable if its value
+	// differs from default.
 	if (isDefault())                // never been altered
 		return false;
 
@@ -379,12 +374,12 @@ std::string LLControlGroup::typeEnumToString(eControlType typeenum)
 	return mTypeString[typeenum];
 }
 
-LLControlVariable* LLControlGroup::declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, BOOL persist, BOOL hidefromsettingseditor)
+LLControlVariable* LLControlGroup::declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, LLControlVariable::ePersist persist, BOOL hidefromsettingseditor)
 {
 	LLControlVariable* existing_control = getControl(name);
 	if (existing_control)
  	{
-		if (persist && existing_control->isType(type))
+		if ((persist != LLControlVariable::PERSIST_NO) && existing_control->isType(type))
 		{
 			if (!existing_control->llsd_compare(existing_control->getDefault(), initial_val))
 			{
@@ -407,57 +402,57 @@ LLControlVariable* LLControlGroup::declareControl(const std::string& name, eCont
 	return control;
 }
 
-LLControlVariable* LLControlGroup::declareU32(const std::string& name, const U32 initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareU32(const std::string& name, const U32 initial_val, const std::string& comment, LLControlVariable::ePersist persist)
 {
 	return declareControl(name, TYPE_U32, (LLSD::Integer) initial_val, comment, persist);
 }
 
-LLControlVariable* LLControlGroup::declareS32(const std::string& name, const S32 initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareS32(const std::string& name, const S32 initial_val, const std::string& comment, LLControlVariable::ePersist persist)
 {
 	return declareControl(name, TYPE_S32, initial_val, comment, persist);
 }
 
-LLControlVariable* LLControlGroup::declareF32(const std::string& name, const F32 initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareF32(const std::string& name, const F32 initial_val, const std::string& comment, LLControlVariable::ePersist persist)
 {
 	return declareControl(name, TYPE_F32, initial_val, comment, persist);
 }
 
-LLControlVariable* LLControlGroup::declareBOOL(const std::string& name, const BOOL initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareBOOL(const std::string& name, const BOOL initial_val, const std::string& comment, LLControlVariable::ePersist persist)
 {
 	return declareControl(name, TYPE_BOOLEAN, initial_val, comment, persist);
 }
 
-LLControlVariable* LLControlGroup::declareString(const std::string& name, const std::string& initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareString(const std::string& name, const std::string& initial_val, const std::string& comment, LLControlVariable::ePersist persist)
 {
 	return declareControl(name, TYPE_STRING, initial_val, comment, persist);
 }
 
-LLControlVariable* LLControlGroup::declareVec3(const std::string& name, const LLVector3 &initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareVec3(const std::string& name, const LLVector3 &initial_val, const std::string& comment, LLControlVariable::ePersist persist)
 {
 	return declareControl(name, TYPE_VEC3, initial_val.getValue(), comment, persist);
 }
 
-LLControlVariable* LLControlGroup::declareVec3d(const std::string& name, const LLVector3d &initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareVec3d(const std::string& name, const LLVector3d &initial_val, const std::string& comment, LLControlVariable::ePersist persist)
 {
 	return declareControl(name, TYPE_VEC3D, initial_val.getValue(), comment, persist);
 }
 
-LLControlVariable* LLControlGroup::declareRect(const std::string& name, const LLRect &initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareRect(const std::string& name, const LLRect &initial_val, const std::string& comment, LLControlVariable::ePersist persist)
 {
 	return declareControl(name, TYPE_RECT, initial_val.getValue(), comment, persist);
 }
 
-LLControlVariable* LLControlGroup::declareColor4(const std::string& name, const LLColor4 &initial_val, const std::string& comment, BOOL persist )
+LLControlVariable* LLControlGroup::declareColor4(const std::string& name, const LLColor4 &initial_val, const std::string& comment, LLControlVariable::ePersist persist )
 {
 	return declareControl(name, TYPE_COL4, initial_val.getValue(), comment, persist);
 }
 
-LLControlVariable* LLControlGroup::declareColor3(const std::string& name, const LLColor3 &initial_val, const std::string& comment, BOOL persist )
+LLControlVariable* LLControlGroup::declareColor3(const std::string& name, const LLColor3 &initial_val, const std::string& comment, LLControlVariable::ePersist persist )
 {
 	return declareControl(name, TYPE_COL3, initial_val.getValue(), comment, persist);
 }
 
-LLControlVariable* LLControlGroup::declareLLSD(const std::string& name, const LLSD &initial_val, const std::string& comment, BOOL persist )
+LLControlVariable* LLControlGroup::declareLLSD(const std::string& name, const LLSD &initial_val, const std::string& comment, LLControlVariable::ePersist persist )
 {
 	return declareControl(name, TYPE_LLSD, initial_val, comment, persist);
 }
@@ -688,11 +683,11 @@ U32 LLControlGroup::loadFromFileLegacy(const std::string& filename, BOOL require
 			switch(declare_as)
 			{
 			case TYPE_COL4:
-				declareColor4(name, LLColor4::white, LLStringUtil::null, NO_PERSIST);
+				declareColor4(name, LLColor4::white, LLStringUtil::null, LLControlVariable::PERSIST_NO);
 				break;
 			case TYPE_STRING:
 			default:
-				declareString(name, LLStringUtil::null, LLStringUtil::null, NO_PERSIST);
+				declareString(name, LLStringUtil::null, LLStringUtil::null, LLControlVariable::PERSIST_NO);
 				break;
 			}
 		}
@@ -877,13 +872,14 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 	
 	for(LLSD::map_const_iterator itr = settings.beginMap(); itr != settings.endMap(); ++itr)
 	{
-		bool persist = true;
+		LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT;
 		std::string const & name = itr->first;
 		LLSD const & control_map = itr->second;
 		
 		if(control_map.has("Persist")) 
 		{
-			persist = control_map["Persist"].asInteger();
+			persist = control_map["Persist"].asInteger()?
+					  LLControlVariable::PERSIST_NONDFT : LLControlVariable::PERSIST_NO;
 		}
 		
 		// Sometimes we want to use the settings system to provide cheap persistence, but we
@@ -939,13 +935,6 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 			// the initial set of default settings files (set_default_values)
 			// -- or we're loading user settings last saved by a viewer that
 			// supports a superset of the variables we know.
-			LLControlVariable* control = declareControl(name, 
-						   typeStringToEnum(control_map["Type"].asString()), 
-						   control_map["Value"], 
-						   control_map["Comment"].asString(), 
-						   persist,
-						   hidefromsettingseditor
-						   );
 			// CHOP-962: if we're loading an unrecognized user setting, make
 			// sure we save it later. If you try an experimental viewer, tweak
 			// a new setting, briefly revert to an old viewer, then return to
@@ -953,12 +942,12 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 			// setting you changed.
 			if (! set_default_values)
 			{
-				// Using forcePersist() insists that saveToFile() (which calls
+				// Using PERSIST_ALWAYS insists that saveToFile() (which calls
 				// LLControlVariable::shouldSave()) must save this control
 				// variable regardless of its value. We can safely set this
 				// LLControlVariable persistent because the 'persistent' flag
 				// is not itself persisted!
-				control->forcePersist();
+				persist = LLControlVariable::PERSIST_ALWAYS;
 				// We want to mention unrecognized user settings variables
 				// (e.g. from a newer version of the viewer) in the log. But
 				// we also arrive here for Boolean variables generated by
@@ -974,6 +963,14 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 											   << " settings variable " << name << LL_ENDL;
 				}
 			}
+
+			declareControl(name, 
+						   typeStringToEnum(control_map["Type"].asString()), 
+						   control_map["Value"], 
+						   control_map["Comment"].asString(), 
+						   persist,
+						   hidefromsettingseditor
+						   );
 		}
 
 		++validitems;

@@ -49,7 +49,7 @@ LLControlGroup::~LLControlGroup()
 }
 
 // Implementation of just the LLControlGroup methods we requre
-LLControlVariable* LLControlGroup::declareU32(const std::string& name, U32 initial_val, const std::string& comment, BOOL persist)
+LLControlVariable* LLControlGroup::declareU32(const std::string& name, U32 initial_val, const std::string& comment, LLControlVariable::ePersist persist)
 {
 	test_preferred_maturity = initial_val;
 	return NULL;
@@ -80,7 +80,7 @@ namespace tut
 	void agentaccess_object_t::test<1>()
 	{
 		LLControlGroup cgr("test");
-		cgr.declareU32("PreferredMaturity", SIM_ACCESS_PG, "declared_for_test", FALSE);
+		cgr.declareU32("PreferredMaturity", SIM_ACCESS_PG, "declared_for_test", LLControlVariable::PERSIST_NO);
 		LLAgentAccess aa(cgr);
 		
 		cgr.setU32("PreferredMaturity", SIM_ACCESS_PG);
@@ -109,7 +109,7 @@ namespace tut
 	void agentaccess_object_t::test<2>()
 	{
 		LLControlGroup cgr("test");
-		cgr.declareU32("PreferredMaturity", SIM_ACCESS_PG, "declared_for_test", FALSE);
+		cgr.declareU32("PreferredMaturity", SIM_ACCESS_PG, "declared_for_test", LLControlVariable::PERSIST_NO);
 		LLAgentAccess aa(cgr);
 		
 		// make sure default is PG
@@ -157,7 +157,7 @@ namespace tut
 	void agentaccess_object_t::test<3>()
 	{
 		LLControlGroup cgr("test");
-		cgr.declareU32("PreferredMaturity", SIM_ACCESS_PG, "declared_for_test", FALSE);
+		cgr.declareU32("PreferredMaturity", SIM_ACCESS_PG, "declared_for_test", LLControlVariable::PERSIST_NO);
 		LLAgentAccess aa(cgr);
 		
 #ifndef HACKED_GODLIKE_VIEWER
@@ -195,7 +195,7 @@ namespace tut
 	void agentaccess_object_t::test<4>()
 	{
 		LLControlGroup cgr("test");
-		cgr.declareU32("PreferredMaturity", SIM_ACCESS_PG, "declared_for_test", FALSE);
+		cgr.declareU32("PreferredMaturity", SIM_ACCESS_PG, "declared_for_test", LLControlVariable::PERSIST_NO);
 		LLAgentAccess aa(cgr);
 		
 #ifndef HACKED_GODLIKE_VIEWER
@@ -272,7 +272,7 @@ namespace tut
 	void agentaccess_object_t::test<5>()
 	{
 		LLControlGroup cgr("test");
-		cgr.declareU32("PreferredMaturity", SIM_ACCESS_PG, "declared_for_test", FALSE);
+		cgr.declareU32("PreferredMaturity", SIM_ACCESS_PG, "declared_for_test", LLControlVariable::PERSIST_NO);
 		LLAgentAccess aa(cgr);
 		
 		cgr.setU32("PreferredMaturity", SIM_ACCESS_ADULT);
