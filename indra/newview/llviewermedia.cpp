@@ -2003,7 +2003,8 @@ void LLViewerMediaImpl::loadURI()
         {
             // Do not log the query parts
             LLURI u(uri);
-            llinfos << "Asking media source to load URI: " << u.scheme() << "://" << u.authority() << u.path() << llendl;
+            std::string sanitized_uri = (u.query().empty() ? uri : u.scheme() + "://" + u.authority() + u.path());
+            llinfos << "Asking media source to load URI: " << sanitized_uri << llendl;
         }
 		
 		mMediaSource->loadURI( uri );
@@ -2574,7 +2575,8 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
         {
             // Do not log the query parts
             LLURI u(url);
-            llinfos << "NOT LOADING media id= " << mTextureId << " url=" << u.scheme() << "://" << u.authority() << u.path() << " mime_type=" << mime_type << llendl;
+            std::string sanitized_url = (u.query().empty() ? url : u.scheme() + "://" + u.authority() + u.path());
+            llinfos << "NOT LOADING media id= " << mTextureId << " url=" << sanitized_url << ", mime_type=" << mime_type << llendl;
         }
 
 		// This impl should not be loaded at this time.
@@ -2593,7 +2595,8 @@ void LLViewerMediaImpl::navigateInternal()
     {
         // Do not log the query parts
         LLURI u(mMediaURL);
-        llinfos << "media id= " << mTextureId << " url=" << u.scheme() << "://" << u.authority() << u.path() << " mime_type=" << mMimeType << llendl;
+        std::string sanitized_url = (u.query().empty() ? mMediaURL : u.scheme() + "://" + u.authority() + u.path());
+        llinfos << "media id= " << mTextureId << " url=" << sanitized_url << ", mime_type=" << mMimeType << llendl;
     }
 
 	if(mNavigateSuspended)
