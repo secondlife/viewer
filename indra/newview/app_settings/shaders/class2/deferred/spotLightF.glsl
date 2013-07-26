@@ -178,9 +178,9 @@ void main()
 	
 	vec3 pos = getPosition(frag.xy).xyz;
 	vec3 lv = trans_center.xyz-pos.xyz;
-	float dist2 = dot(lv,lv);
-	dist2 /= size;
-	if (dist2 > 1.0)
+	float dist = length(lv);
+	dist /= size;
+	if (dist > 1.0)
 	{
 		discard;
 	}
@@ -212,8 +212,10 @@ void main()
 	proj_tc.xyz /= proj_tc.w;
 	
 	float fa = falloff+1.0;
-	float dist_atten = min(1.0-(dist2-1.0*(1.0-fa))/fa, 1.0);
-	dist_atten = pow(dist_atten, 2.2) * 2.2;
+	float dist_atten = min(1.0-(dist-1.0*(1.0-fa))/fa, 1.0);
+	dist_atten *= dist_atten;
+	dist_atten *= 2.0;
+
 	if (dist_atten <= 0.0)
 	{
 		discard;
