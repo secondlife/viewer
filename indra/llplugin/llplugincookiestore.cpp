@@ -87,6 +87,16 @@ std::string LLPluginCookieStore::Cookie::getKey() const
 	return result;
 }
 
+std::string LLPluginCookieStore::Cookie::getDomain() const
+{
+	std::string result;
+	if(mDomainEnd > mDomainStart)
+	{
+		result += mCookie.substr(mDomainStart, mDomainEnd - mDomainStart);
+	}
+	return result;
+}
+
 bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 {
 	bool first_field = true;
@@ -662,3 +672,19 @@ void LLPluginCookieStore::removeCookie(const std::string &key)
 	}
 }
 
+void LLPluginCookieStore::removeCookiesByDomain(const std::string &domain)
+{
+	cookie_map_t::iterator iter = mCookies.begin();
+	while(iter != mCookies.end())
+	{ 
+		if(iter->second->getDomain() == domain)
+		{
+			delete iter->second;
+			iter = mCookies.erase(iter);
+		}
+		else
+		{
+			++iter;
+		}
+	}
+}

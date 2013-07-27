@@ -39,6 +39,7 @@
 #include "llresmgr.h"		// LLLocale
 #include "llsdserialize.h"
 #include "llloadingindicator.h"
+#include "llplugincookiestore.h"
 #include "llslurl.h"
 #include "lltrans.h"
 #include "llsnapshotlivepreview.h"
@@ -759,8 +760,8 @@ void LLSocialAccountPanel::onConnect()
 {
 	LLFacebookConnect::instance().checkConnectionToFacebook(true);
 
-	//Clears browser cookies so that the user must enter their FB creds when connecting/re-connecting
-	LLViewerMedia::clearAllCookies();
+	//Clear only the facebook browser cookies so that the facebook login screen appears
+	LLViewerMedia::getCookieStore()->removeCookiesByDomain(".facebook.com"); 
 }
 
 void LLSocialAccountPanel::onDisconnect()
