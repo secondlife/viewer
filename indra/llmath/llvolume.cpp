@@ -94,6 +94,16 @@ const S32 SCULPT_MIN_AREA_DETAIL = 1;
 
 extern BOOL gDebugGL;
 
+void calc_tangent_from_triangle(
+	LLVector4a&			normal,
+	LLVector4a&			tangent_out,
+	const LLVector4a& v1,
+	const LLVector2&  w1,
+	const LLVector4a& v2,
+	const LLVector2&  w2,
+	const LLVector4a& v3,
+	const LLVector2&  w3);
+
 BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
 {    
 	LLVector3 test = (pt2-pt1)%(pt3-pt2);
@@ -1594,7 +1604,7 @@ BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 			S32 sides = (S32)llfloor(llfloor((MIN_DETAIL_FACES * detail + twist_mag * 3.5f * (detail-0.5f))) * params.getRevolutions());
 
 			if (is_sculpted)
-				sides = llmax(sculpt_size, 1);
+				sides = llmax(sculpt_size,1);
 			
 			genNGon(params, sides);
 		}
@@ -2062,7 +2072,7 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 
 	generate();
 	
-	if (mParams.getSculptID().isNull() && mParams.getSculptType() == LL_SCULPT_TYPE_NONE || mParams.getSculptType() == LL_SCULPT_TYPE_MESH)
+	if (mParams.getSculptID().isNull() && ((mParams.getSculptType() == LL_SCULPT_TYPE_NONE) || (mParams.getSculptType() == LL_SCULPT_TYPE_MESH)))
 	{
 		createVolumeFaces();
 	}
@@ -4472,9 +4482,6 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 					continue; //skip degenerate face
 				}
 
-				LLVector4a default_norm;
-				default_norm.set(0,1,0,1);
-
 				//for each edge
 				for (S32 k = 0; k < 3; k++) {
 					S32 index = face.mEdge[j*3+k];
@@ -4496,14 +4503,14 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 
 						norm_mat.rotate(n[v1], t);
 
-						t.normalize3fast_checked(&default_norm);
+						t.normalize3fast();
 						normals.push_back(LLVector3(t[0], t[1], t[2]));
 
 						mat.affineTransform(v[v2], t);
 						vertices.push_back(LLVector3(t[0], t[1], t[2]));
 						
 						norm_mat.rotate(n[v2], t);
-						t.normalize3fast_checked(&default_norm);
+						t.normalize3fast();
 						normals.push_back(LLVector3(t[0], t[1], t[2]));
 					}
 				}		
@@ -5282,6 +5289,7 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 		if (src.mTangents)
 		{
 			allocateTangents(src.mNumVertices);
+			llassert(mTangents);
 			LLVector4a::memcpyNonAliased16((F32*) mTangents, (F32*) src.mTangents, vert_size);
 		}
 		else
@@ -5293,6 +5301,7 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 		if (src.mWeights)
 		{
 			allocateWeights(src.mNumVertices);
+			llassert(mWeights);
 			LLVector4a::memcpyNonAliased16((F32*) mWeights, (F32*) src.mWeights, vert_size);
 		}
 		else
@@ -5308,14 +5317,14 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 		
 		LLVector4a::memcpyNonAliased16((F32*) mIndices, (F32*) src.mIndices, idx_size);
 	}
-	
+
 	//delete 
 	return *this;
 }
 
 LLVolumeFace::~LLVolumeFace()
 {
-	ll_aligned_free_16(mExtents);
+		ll_aligned_free_16(mExtents);
 	mExtents = NULL;
 
 	freeData();
@@ -5325,7 +5334,7 @@ void LLVolumeFace::freeData()
 {
 	ll_aligned_free_16(mPositions);
 	mPositions = NULL;
-	ll_aligned_free_16( mNormals);
+	ll_aligned_free_16(mNormals);
 	mNormals = NULL;
 	ll_aligned_free_16(mTexCoords);
 	mTexCoords = NULL;
@@ -5911,10 +5920,10 @@ void LLVolumeFace::cacheOptimize()
 		wght = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 	}
 
-	LLVector4a* binorm = NULL;
+	LLVector4a* tangent = NULL;
 	if (mTangents)
 	{
-		binorm = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
+		tangent = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 	}
 
 	//allocate mapping of old indices to new indices
@@ -5939,7 +5948,7 @@ void LLVolumeFace::cacheOptimize()
 			}
 			if (mTangents)
 			{
-				binorm[cur_idx] = mTangents[idx];
+				tangent[cur_idx] = mTangents[idx];
 			}
 
 			cur_idx++;
@@ -5961,7 +5970,7 @@ void LLVolumeFace::cacheOptimize()
 	mNormals = norm;
 	mTexCoords = tc;
 	mWeights = wght;
-	mTangents = binorm;
+	mTangents = tangent;
 
 	//std::string result = llformat("ACMR pre/post: %.3f/%.3f  --  %d triangles %d breaks", pre_acmr, post_acmr, mNumIndices/3, breaks);
 	//llinfos << result << llendl;
@@ -6099,9 +6108,6 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 	{
 		VertexData	corners[4];
 		VertexData baseVert;
-		LLVector4a default_norm;
-		default_norm.set(0,1,0,1);
-
 		for(S32 t = 0; t < 4; t++)
 		{
 			corners[t].getPosition().load3( mesh[offset + (grid_size*t)].mPos.mV);
@@ -6115,7 +6121,7 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 			LLVector4a rhs;
 			rhs.setSub(corners[2].getPosition(), corners[1].getPosition());
 			baseVert.getNormal().setCross3(lhs, rhs);
-			baseVert.getNormal().normalize3fast_checked(&default_norm);
+			baseVert.getNormal().normalize3fast();
 		}
 
 		if(!(mTypeMask & TOP_MASK))
@@ -6312,6 +6318,43 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 
 	cuv = (min_uv + max_uv)*0.5f;
 
+
+	LLVector4a tangent;
+	calc_tangent_from_triangle(
+			*norm,
+			tangent,
+			*mCenter, cuv,
+			pos[0], tc[0],
+			pos[1], tc[1]);
+
+	if (tangent.getLength3() < 0.01)
+	{
+		tangent.set(1,0,0,1);
+	}
+	else
+	{
+		LLVector4a default_tangent;
+		default_tangent.set(1,0,0,1);
+		tangent.normalize3fast_checked(&default_tangent);
+	}
+
+	LLVector4a normal;
+	LLVector4a d0, d1;
+
+	d0.setSub(*mCenter, pos[0]);
+	d1.setSub(*mCenter, pos[1]);
+	
+	if (mTypeMask & TOP_MASK)
+	{
+		normal.setCross3(d0, d1);
+	}
+	else
+	{
+		normal.setCross3(d1, d0);
+	}
+
+	normal.normalize3fast_checked();
+
 	VertexData vd;
 	vd.setPosition(*mCenter);
 	vd.mTexCoord = cuv;
@@ -6323,7 +6366,15 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 
 		num_vertices++;
 	}
-		
+
+	allocateTangents(num_vertices);		
+
+	for (S32 i = 0; i < num_vertices; i++)
+	{
+		mTangents[i].load4a(tangent.getF32ptr());
+		norm[i].load4a(normal.getF32ptr());
+	}	
+
 	if (partial_build)
 	{
 		return TRUE;
@@ -6559,31 +6610,6 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 
 	}
 
-	LLVector4a d0,d1;
-
-	d0.setSub(mPositions[mIndices[1]], mPositions[mIndices[0]]);
-	d1.setSub(mPositions[mIndices[2]], mPositions[mIndices[0]]);
-
-	LLVector4a normal;
-	LLVector4a default_norm;
-	default_norm.set(0,1,0,1);
-
-	normal.setCross3(d0,d1);
-	normal.normalize3fast_checked(&default_norm);
-	
-	llassert(llfinite(normal.getF32ptr()[0]));
-	llassert(llfinite(normal.getF32ptr()[1]));
-	llassert(llfinite(normal.getF32ptr()[2]));
-
-	llassert(!llisnan(normal.getF32ptr()[0]));
-	llassert(!llisnan(normal.getF32ptr()[1]));
-	llassert(!llisnan(normal.getF32ptr()[2]));
-	
-	for (S32 i = 0; i < num_vertices; i++)
-	{
-		norm[i].load4a(normal.getF32ptr());
-	}
-
 	return TRUE;
 }
 
@@ -6616,9 +6642,9 @@ void LLVolumeFace::createTangents()
 		default_norm.set(0,1,0,1);
 		for (U32 i = 0; i < mNumVertices; i++) 
 		{
-			//binorm[i].normalize3fast();
+			//tangent[i].normalize3fast();
 			//bump map/planar projection code requires normals to be normalized
-			mNormals[i].normalize3fast_checked(&default_norm);
+			mNormals[i].normalize3fast_checked();
 		}
 	}
 }
@@ -6693,7 +6719,7 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 
 void LLVolumeFace::allocateTangents(S32 num_verts)
 {
-	ll_aligned_free_16(mTangents);
+		ll_aligned_free_16(mTangents);
 	mTangents = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 }
 
@@ -6796,9 +6822,6 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 	mat.loadu(mat_in);
 	norm_mat.loadu(norm_mat_in);
 
-	LLVector4a default_norm;
-	default_norm.set(0,1,0,1);
-
 	for (U32 i = 0; i < face.mNumVertices; ++i)
 	{
 		//transform appended face position and store
@@ -6806,7 +6829,7 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 
 		//transform appended face normal and store
 		norm_mat.rotate(src_norm[i], dst_norm[i]);
-		dst_norm[i].normalize3fast_checked(&default_norm);
+		dst_norm[i].normalize3fast_checked();
 
 		//copy appended face texture coordinate
 		dst_tc[i] = src_tc[i];
@@ -7213,6 +7236,134 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	}
 
 	return TRUE;
+}
+
+// Finds binormal based on three vertices with texture coordinates.
+// Fills in dummy values if the triangle has degenerate texture coordinates.
+void calc_binormal_from_triangle(LLVector4a& binormal,
+
+	const LLVector4a& pos0,
+	const LLVector2& tex0,
+	const LLVector4a& pos1,
+	const LLVector2& tex1,
+	const LLVector4a& pos2,
+	const LLVector2& tex2)
+{
+	LLVector4a rx0( pos0[VX], tex0.mV[VX], tex0.mV[VY] );
+	LLVector4a rx1( pos1[VX], tex1.mV[VX], tex1.mV[VY] );
+	LLVector4a rx2( pos2[VX], tex2.mV[VX], tex2.mV[VY] );
+	
+	LLVector4a ry0( pos0[VY], tex0.mV[VX], tex0.mV[VY] );
+	LLVector4a ry1( pos1[VY], tex1.mV[VX], tex1.mV[VY] );
+	LLVector4a ry2( pos2[VY], tex2.mV[VX], tex2.mV[VY] );
+
+	LLVector4a rz0( pos0[VZ], tex0.mV[VX], tex0.mV[VY] );
+	LLVector4a rz1( pos1[VZ], tex1.mV[VX], tex1.mV[VY] );
+	LLVector4a rz2( pos2[VZ], tex2.mV[VX], tex2.mV[VY] );
+	
+	LLVector4a lhs, rhs;
+
+	LLVector4a r0; 
+	lhs.setSub(rx0, rx1); rhs.setSub(rx0, rx2);
+	r0.setCross3(lhs, rhs);
+		
+	LLVector4a r1;
+	lhs.setSub(ry0, ry1); rhs.setSub(ry0, ry2);
+	r1.setCross3(lhs, rhs);
+
+	LLVector4a r2;
+	lhs.setSub(rz0, rz1); rhs.setSub(rz0, rz2);
+	r2.setCross3(lhs, rhs);
+
+	if( r0[VX] && r1[VX] && r2[VX] )
+	{
+		binormal.set(
+				-r0[VZ] / r0[VX],
+				-r1[VZ] / r1[VX],
+				-r2[VZ] / r2[VX]);
+		// binormal.normVec();
+	}
+	else
+	{
+		binormal.set( 0, 1 , 0 );
+	}
+}
+
+// Finds binormal based on three vertices with texture coordinates.
+// Fills in dummy values if the triangle has degenerate texture coordinates.
+void calc_tangent_from_triangle(
+	LLVector4a&			normal,
+	LLVector4a&			tangent_out,
+	const LLVector4a& v1,
+	const LLVector2&  w1,
+	const LLVector4a& v2,
+	const LLVector2&  w2,
+	const LLVector4a& v3,
+	const LLVector2&  w3)
+{
+	const F32* v1ptr = v1.getF32ptr();
+	const F32* v2ptr = v2.getF32ptr();
+	const F32* v3ptr = v3.getF32ptr();
+
+	float x1 = v2ptr[0] - v1ptr[0];
+	float x2 = v3ptr[0] - v1ptr[0];
+	float y1 = v2ptr[1] - v1ptr[1];
+	float y2 = v3ptr[1] - v1ptr[1];
+	float z1 = v2ptr[2] - v1ptr[2];
+	float z2 = v3ptr[2] - v1ptr[2];
+
+	float s1 = w2.mV[0] - w1.mV[0];
+	float s2 = w3.mV[0] - w1.mV[0];
+	float t1 = w2.mV[1] - w1.mV[1];
+	float t2 = w3.mV[1] - w1.mV[1];
+
+	F32 rd = s1*t2-s2*t1;
+
+	float r = ((rd*rd) > FLT_EPSILON) ? 1.0F / rd : 1024.f; //some made up large ratio for division by zero
+
+	llassert(llfinite(r));
+	llassert(!llisnan(r));
+
+	LLVector4a sdir(
+		(t2 * x1 - t1 * x2) * r,
+		(t2 * y1 - t1 * y2) * r,
+		(t2 * z1 - t1 * z2) * r);
+
+	LLVector4a tdir(
+		(s1 * x2 - s2 * x1) * r,
+		(s1 * y2 - s2 * y1) * r,
+		(s1 * z2 - s2 * z1) * r);
+
+	LLVector4a	n = normal;
+	LLVector4a	t = sdir;
+
+	LLVector4a ncrosst;
+	ncrosst.setCross3(n,t);
+
+	// Gram-Schmidt orthogonalize
+	n.mul(n.dot3(t).getF32());
+
+	LLVector4a tsubn;
+	tsubn.setSub(t,n);
+
+	if (tsubn.dot3(tsubn).getF32() > F_APPROXIMATELY_ZERO)
+	{
+		tsubn.normalize3fast_checked();
+
+		// Calculate handedness
+		F32 handedness = ncrosst.dot3(tdir).getF32() < 0.f ? -1.f : 1.f;
+
+		tsubn.getF32ptr()[3] = handedness;
+
+		tangent_out = tsubn;
+	}
+	else
+	{
+		// degenerate, make up a value
+		//
+		tangent_out.set(0,0,1,1);
+	}
+
 }
 
 //adapted from Lengyel, Eric. “Computing Tangent Space Basis Vectors for an Arbitrary Mesh”. Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
