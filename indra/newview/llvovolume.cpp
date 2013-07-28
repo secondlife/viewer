@@ -5385,7 +5385,11 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			{
 				bool material_pass = false;
 
-				if (fullbright)
+				// do NOT use 'fullbright' for this logic or you risk sending
+				// things without normals down the materials pipeline and will
+				// render poorly if not crash NORSPEC-240,314
+				//
+				if (te->getFullbright())
 				{
 					if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
 					{
