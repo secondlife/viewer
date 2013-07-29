@@ -2656,6 +2656,8 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 			break;
 
 		case kEventWindowClose:
+			// Note on event recording - QUIT is a known special case and we are choosing NOT to record it for the record and playback feature 
+			// it is handled at a very low-level
 			if(mCallbacks->handleCloseRequest(this))
 			{
 				// Get the app to initiate cleanup.
