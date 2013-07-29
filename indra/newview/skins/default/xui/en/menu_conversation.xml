@@ -47,6 +47,13 @@
         <on_enable function="Avatar.EnableItem" parameter="can_offer_teleport"/>
     </menu_item_call>
     <menu_item_call
+     label="Request teleport"
+     layout="topleft"
+     name="request_teleport">
+        <on_click function="Avatar.DoToSelected" parameter="request_teleport"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_offer_teleport"/>
+    </menu_item_call>
+    <menu_item_call
      label="Voice call"
      layout="topleft"
      name="voice_call">

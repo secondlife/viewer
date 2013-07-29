@@ -73,6 +73,8 @@
 #include "llcallingcard.h"
 #include "llslurl.h"			// IDEVO
 #include "llsidepanelinventory.h"
+#include "llavatarname.h"
+#include "llagentui.h"
 
 // static
 void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::string& name)
@@ -389,6 +391,65 @@ void LLAvatarActions::pay(const LLUUID& id)
 	{
 		LLNotifications::instance().forceResponse(params, 1);
 	}
+}
+
+void LLAvatarActions::teleport_request_callback(const LLSD& notification, const LLSD& response)
+{
+	S32 option;
+	if (response.isInteger()) 
+	{
+		option = response.asInteger();
+	}
+	else
+	{
+		option = LLNotificationsUtil::getSelectedOption(notification, response);
+	}
+
+	if (0 == option)
+	{
+		LLMessageSystem* msg = gMessageSystem;
+
+		msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+
+		msg->nextBlockFast(_PREHASH_MessageBlock);
+		msg->addBOOLFast(_PREHASH_FromGroup, FALSE);
+		msg->addUUIDFast(_PREHASH_ToAgentID, notification["substitutions"]["uuid"] );
+		msg->addU8Fast(_PREHASH_Offline, IM_ONLINE);
+		msg->addU8Fast(_PREHASH_Dialog, IM_TELEPORT_REQUEST);
+		msg->addUUIDFast(_PREHASH_ID, LLUUID::null);
+		msg->addU32Fast(_PREHASH_Timestamp, NO_TIMESTAMP); // no timestamp necessary
+
+		std::string name;
+		LLAgentUI::buildFullname(name);
+
+		msg->addStringFast(_PREHASH_FromAgentName, name);
+		msg->addStringFast(_PREHASH_Message, response["message"]);
+		msg->addU32Fast(_PREHASH_ParentEstateID, 0);
+		msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
+		msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
+
+		gMessageSystem->addBinaryDataFast(
+				_PREHASH_BinaryBucket,
+				EMPTY_BINARY_BUCKET,
+				EMPTY_BINARY_BUCKET_SIZE);
+
+		gAgent.sendReliableMessage();
+	}
+}
+
+// static
+void LLAvatarActions::teleportRequest(const LLUUID& id)
+{
+	LLSD notification;
+	notification["uuid"] = id;
+	notification["NAME_SLURL"] =  LLSLURL("agent", id, "about").getSLURLString();
+
+	LLSD payload;
+
+	LLNotificationsUtil::add("TeleportRequestPrompt", notification, payload, teleport_request_callback);
 }
 
 // static
