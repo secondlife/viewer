@@ -29,8 +29,12 @@ vec3 srgb_to_linear(vec3 cs)
 	vec3 high_range = pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
 
 	bvec3 lte = lessThanEqual(cs,vec3(0.04045));
-	return mix(high_range, low_range, lte);
 
+	vec3 result;
+	result.r = lte.r ? low_range.r : high_range.r;
+	result.g = lte.g ? low_range.g : high_range.g;
+	result.b = lte.b ? low_range.b : high_range.b;
+    return result;
 }
 
 vec3 linear_to_srgb(vec3 cl)
@@ -40,7 +44,11 @@ vec3 linear_to_srgb(vec3 cl)
 	vec3 high_range = 1.055 * pow(cl, vec3(0.41666)) - 0.055;
 
 	bvec3 lt = lessThan(cl,vec3(0.0031308));
-	return mix(high_range, low_range, lt);
 
+	vec3 result;
+	result.r = lt.r ? low_range.r : high_range.r;
+	result.g = lt.g ? low_range.g : high_range.g;
+	result.b = lt.b ? low_range.b : high_range.b;
+	return result;
 }
 

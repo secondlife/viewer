@@ -936,12 +936,14 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	index_channels.push_back(ch);	 shaders.push_back( make_pair( "lighting/lightShinyWaterF.glsl",			mVertexShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(ch);	 shaders.push_back( make_pair( "lighting/lightFullbrightShinyWaterF.glsl", mVertexShaderLevel[SHADER_LIGHTING] ) );
 
-	index_channels.push_back(-1);	 shaders.push_back( make_pair( "deferred/srgb.glsl",				mVertexShaderLevel[SHADER_DEFERRED] ) );
 
 // work-around for missing mix(vec3,vec3,bvec3) on decrepit GLSLs
 //
 #if LL_DARWIN
-    attribs["OLD_SELECT"] = "1";
+        attribs["OLD_SELECT"] = "1";
+	index_channels.push_back(-1);	 shaders.push_back( make_pair( "deferred/srgb_mac.glsl",	mVertexShaderLevel[SHADER_DEFERRED] ) );
+#else
+	index_channels.push_back(-1);	 shaders.push_back( make_pair( "deferred/srgb.glsl",		mVertexShaderLevel[SHADER_DEFERRED] ) );
 #endif
 
 	for (U32 i = 0; i < shaders.size(); i++)
