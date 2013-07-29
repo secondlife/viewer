@@ -443,13 +443,9 @@ void LLAvatarActions::teleport_request_callback(const LLSD& notification, const 
 // static
 void LLAvatarActions::teleportRequest(const LLUUID& id)
 {
-	std::string name;
-	gCacheName->getFullName(id, name);
-	gCacheName->cleanFullName(name);
-
 	LLSD notification;
 	notification["uuid"] = id;
-	notification["NAME"] = name + "'s";
+	notification["NAME_SLURL"] =  LLSLURL("agent", id, "about").getSLURLString();
 
 	LLSD payload;
 
