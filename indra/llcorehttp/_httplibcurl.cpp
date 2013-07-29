@@ -132,12 +132,10 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 				CURL * handle(msg->easy_handle);
 				CURLcode result(msg->data.result);
 
-				if (completeRequest(mMultiHandles[policy_class], handle, result))
-				{
-					// Request is still active, don't get too sleepy
-					ret = HttpService::NORMAL;
-				}
-				handle = NULL;			// No longer valid on return
+				completeRequest(mMultiHandles[policy_class], handle, result);
+				handle = NULL;					// No longer valid on return
+				ret = HttpService::NORMAL;		// If anything completes, we may have a free slot.
+												// Turning around quickly reduces connection gap by 7-10mS.
 			}
 			else if (CURLMSG_NONE == msg->msg)
 			{
