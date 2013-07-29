@@ -235,7 +235,8 @@ const S32 REQUEST_HIGH_WATER_MAX = 80;
 const S32 REQUEST_LOW_WATER_MIN = 16;
 const S32 REQUEST_LOW_WATER_MAX = 40;
 const U32 LARGE_MESH_FETCH_THRESHOLD = 1U << 21;		// Size at which requests goes to narrow/slow queue
-const long LARGE_MESH_XFER_TIMEOUT = 240L;				// Seconds to complete xfer
+const long SMALL_MESH_XFER_TIMEOUT = 60L;				// Seconds to complete xfer, small mesh downloads
+const long LARGE_MESH_XFER_TIMEOUT = 600L;				// Seconds to complete xfer, large downloads
 
 // Maximum mesh version to support.  Three least significant digits are reserved for the minor version, 
 // with major version changes indicating a format change that is not backwards compatible and should not
@@ -629,6 +630,7 @@ LLMeshRepoThread::LLMeshRepoThread()
 	mSignal = new LLCondition(NULL);
 	mHttpRequest = new LLCore::HttpRequest;
 	mHttpOptions = new LLCore::HttpOptions;
+	mHttpOptions->setTransferTimeout(SMALL_MESH_XFER_TIMEOUT);
 	mHttpLargeOptions = new LLCore::HttpOptions;
 	mHttpLargeOptions->setTransferTimeout(LARGE_MESH_XFER_TIMEOUT);
 	mHttpHeaders = new LLCore::HttpHeaders;

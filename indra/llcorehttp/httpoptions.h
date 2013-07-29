@@ -68,36 +68,42 @@ protected:
 	void operator=(const HttpOptions &);		// Not defined
 
 public:
+	// Default:   false
 	void				setWantHeaders(bool wanted);
 	bool				getWantHeaders() const
 		{
 			return mWantHeaders;
 		}
-	
+
+	// Default:  0
 	void				setTrace(int long);
 	int					getTrace() const
 		{
 			return mTracing;
 		}
 
+	// Default:  30
 	void				setTimeout(unsigned int timeout);
 	unsigned int		getTimeout() const
 		{
 			return mTimeout;
 		}
 
+	// Default:  0
 	void				setTransferTimeout(unsigned int timeout);
 	unsigned int		getTransferTimeout() const
 		{
 			return mTransferTimeout;
 		}
 
+	// Default:  8
 	void				setRetries(unsigned int retries);
 	unsigned int		getRetries() const
 		{
 			return mRetries;
 		}
-	
+
+	// Default:  false
 	void				setUseRetryAfter(bool use_retry);
 	bool				getUseRetryAfter() const
 		{
