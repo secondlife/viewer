@@ -161,6 +161,22 @@ size_t LLCamera::readFrustumFromBuffer(const char *buffer)
 
 // ---------------- test methods  ---------------- 
 
+bool LLCamera::isChanged()
+{
+	bool changed = false;
+	for (U32 i = 0; i < mPlaneCount; i++)
+	{
+		U8 mask = mPlaneMask[i];
+		if (mask != 0xff && !changed)
+		{
+			changed = !mAgentPlanes[i].equal(mLastAgentPlanes[i]);
+		}
+		mLastAgentPlanes[i].set(mAgentPlanes[i]);
+	}
+
+	return changed;
+}
+
 S32 LLCamera::AABBInFrustum(const LLVector4a &center, const LLVector4a& radius, const LLPlane* planes) 
 {
 	static const LLVector4a scaler[] = {

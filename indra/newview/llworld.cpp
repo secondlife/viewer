@@ -666,6 +666,11 @@ void LLWorld::updateRegions(F32 max_update_time)
 	LLTimer update_timer;
 	BOOL did_one = FALSE;
 	
+	if(LLViewerCamera::getInstance()->isChanged())
+	{
+		LLViewerRegion::sLastCameraUpdated = LLViewerOctreeEntryData::getCurrentFrame();
+	}
+
 	// Perform idle time updates for the regions (and associated surfaces)
 	for (region_list_t::iterator iter = mRegionList.begin();
 		 iter != mRegionList.end(); ++iter)

@@ -93,7 +93,13 @@ public:
 	{ 
 		return mV.greaterEqual(LLVector4a::getZero()).getGatheredBits() & LLVector4Logical::MASK_XYZ;
 	}
-		
+	
+	//check if two planes are nearly same
+	bool equal(const LLPlane& p) const
+	{
+		return mV.equals4(p.mV);
+	}
+
 private:
 	LLVector4a mV;
 } LL_ALIGN_POSTFIX(16);

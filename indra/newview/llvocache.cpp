@@ -219,18 +219,14 @@ void LLVOCacheEntry::setState(U32 state)
 
 	if(getState() == ACTIVE)
 	{
-		const S32 MIN_REAVTIVE_INTERVAL = 32;
+		const S32 MIN_REAVTIVE_INTERVAL = 128;
 		U32 last_visible = getVisible();
 		
 		setVisible();
 
-		if(getVisible() - last_visible < MIN_REAVTIVE_INTERVAL + mMinFrameRange)
+		if(getVisible() - last_visible > MIN_REAVTIVE_INTERVAL + mMinFrameRange)
 		{
-			mMinFrameRange = llmin(mMinFrameRange * 2, getInvisibleObjectsLiveTime() * 32);
-		}
-		else
-		{
-			mMinFrameRange = getInvisibleObjectsLiveTime(); //reset
+			mLastCameraUpdated = 0; //reset
 		}
 	}
 }

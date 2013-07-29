@@ -87,6 +87,7 @@ const F32 CAP_REQUEST_TIMEOUT = 18;
 const S32 MAX_CAP_REQUEST_ATTEMPTS = 30;
 
 BOOL LLViewerRegion::sVOCacheCullingEnabled = FALSE;
+S32  LLViewerRegion::sLastCameraUpdated = 0;
 
 typedef std::map<std::string, std::string> CapabilityMap;
 
@@ -992,6 +993,7 @@ void LLViewerRegion::removeFromVOCacheTree(LLVOCacheEntry* entry)
 	}
 
 	mImpl->mVOCachePartition->removeEntry(entry->getEntry());
+	entry->mLastCameraUpdated = sLastCameraUpdated;
 }
 
 //add the visible entries
@@ -1219,7 +1221,7 @@ F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 			iter = mImpl->mActiveSet.begin();
 		}
 
-		if(!(*iter)->isRecentlyVisible())
+		if(!(*iter)->isRecentlyVisible() && (*iter)->mLastCameraUpdated != sLastCameraUpdated)
 		{
 			killObject((*iter), delete_list);
 		}

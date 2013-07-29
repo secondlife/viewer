@@ -110,6 +110,7 @@ public:
 private:
 	LL_ALIGN_16(LLPlane mAgentPlanes[7]);  //frustum planes in agent space a la gluUnproject (I'm a bastard, I know) - DaveP
 	LL_ALIGN_16(LLPlane mRegionPlanes[7]);  //frustum planes in a local region space, derived from mAgentPlanes
+	LL_ALIGN_16(LLPlane mLastAgentPlanes[7]);
 	U8 mPlaneMask[8];         // 8 for alignment	
 	
 	F32 mView;					// angle between top and bottom frustum planes in radians.
@@ -138,6 +139,7 @@ public:
 	LLCamera(F32 vertical_fov_rads, F32 aspect_ratio, S32 view_height_in_pixels, F32 near_plane, F32 far_plane);
 	virtual ~LLCamera();
 	
+	bool isChanged(); //check if mAgentPlanes changed since last frame.
 
 	void setUserClipPlane(LLPlane& plane);
 	void disableUserClipPlane();

@@ -411,6 +411,7 @@ public:
 	LLDynamicArray<LLUUID> mMapAvatarIDs;
 
 	static BOOL sVOCacheCullingEnabled; //vo cache culling enabled or not.
+	static S32  sLastCameraUpdated;
 private:
 	LLViewerRegionImpl * mImpl;
 	LLFrameTimer         mRegionTimer;

@@ -130,6 +130,7 @@ public:
 	typedef std::set<LLVOCacheEntry*>                      vocache_entry_set_t;
 	typedef std::set<LLVOCacheEntry*, CompareVOCacheEntry> vocache_entry_priority_list_t;	
 
+	S32                         mLastCameraUpdated;
 protected:
 	U32							mLocalID;
 	U32                         mParentID;
