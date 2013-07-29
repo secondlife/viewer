@@ -679,12 +679,14 @@ void LLPluginCookieStore::removeCookiesByDomain(const std::string &domain)
 	{ 
 		if(iter->second->getDomain() == domain)
 		{
-			delete iter->second;
-			iter = mCookies.erase(iter);
+            cookie_map_t::iterator doErase = iter;
+            iter++;
+			delete doErase->second;
+			mCookies.erase(doErase);
 		}
-		else
-		{
-			++iter;
-		}
+        else
+        {
+            iter++;
+        }
 	}
 }
