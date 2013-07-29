@@ -162,15 +162,17 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 	{
 		++op->mPolicy503Retries;
 	}
-	LL_WARNS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
-						 << " retry " << op->mPolicyRetries
-						 << " scheduled in " << (delta / HttpTime(1000))
-						 << " mS.  Status:  " << op->mStatus.toHex()
-						 << LL_ENDL;
+	LL_DEBUGS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
+						  << " retry " << op->mPolicyRetries
+						  << " scheduled in " << (delta / HttpTime(1000))
+						  << " mS.  Status:  " << op->mStatus.toHex()
+						  << LL_ENDL;
 	if (op->mTracing > HTTP_TRACE_OFF)
 	{
 		LL_INFOS("CoreHttp") << "TRACE, ToRetryQueue, Handle:  "
 							 << static_cast<HttpHandle>(op)
+							 << ", Delta:  " << (delta / HttpTime(1000))
+							 << ", Retries:  " << op->mPolicyRetries
 							 << LL_ENDL;
 	}
 	mClasses[policy_class]->mRetryQueue.push(op);
@@ -362,9 +364,9 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 	}
 	else if (op->mPolicyRetries)
 	{
-		LL_WARNS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
-							 << " succeeded on retry " << op->mPolicyRetries << "."
-							 << LL_ENDL;
+		LL_DEBUGS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
+							  << " succeeded on retry " << op->mPolicyRetries << "."
+							  << LL_ENDL;
 	}
 
 	op->stageFromActive(mService);
