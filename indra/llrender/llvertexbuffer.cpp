@@ -2230,9 +2230,16 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 
 	if((getTypeMask() & data_mask) != data_mask)
 	{
-		llinfos << "Missing VB stream components." << llendl;
-		DumpComponents(data_mask & ~getTypeMask());
-		data_mask &= getTypeMask();
+		if (gDebugGL)
+		{			
+			// Dump info about what was missing
+			//
+			DumpComponents(data_mask & ~getTypeMask());
+			llwarns << "Missing VB stream components. ^^" << llendl;
+		}
+		// Make sure we don't write checks we can't cash below...
+		//
+		data_mask = (data_mask & getTypeMask());
 	}
 	
 	//set up pointers if the data mask is different ...
@@ -2257,27 +2264,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 					required_mask |= required;
 				}
 			}
-
-            static bool done_done_it = false;
-            
-            if (!done_done_it)
-            {
-                done_done_it = true;
-            
-            llinfos <<
-             "MAP_VERTEX: " << MAP_VERTEX <<
-             "MAP_VERTEX: " << MAP_NORMAL <<
-             "MAP_VERTEX: " << MAP_TEXCOORD0 <<
-             "MAP_VERTEX: " << MAP_TEXCOORD1 <<
-             "MAP_VERTEX: " << MAP_TEXCOORD2 <<
-             "MAP_VERTEX: " << MAP_TEXCOORD3 <<
-             "MAP_VERTEX: " << MAP_COLOR <<
-             "MAP_VERTEX: " << MAP_EMISSIVE <<
-             "MAP_VERTEX: " << MAP_TANGENT << llendl;
-            
-            
-            }
-                
+        
 			if ((data_mask & required_mask) != required_mask)
 			{
 				
@@ -2302,14 +2289,14 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 						case MAP_WEIGHT4: llinfos << "Missing weightx4" << llendl; break;
 						case MAP_CLOTHWEIGHT: llinfos << "Missing clothweight" << llendl; break;
 						case MAP_TEXTURE_INDEX: llinfos << "Missing tex index" << llendl; break;
-						default: llinfos << "Missing who effin knows" << llendl;
+						default: llinfos << "Missing who effin knows: " << unsatisfied_flag << llendl;
 					}					
 				}
 
-                if (unsatisfied_mask & (1 << TYPE_INDEX))
-                {
-                    llinfos << "Missing indices" << llendl;
-                }
+            if (unsatisfied_mask & (1 << TYPE_INDEX))
+            {
+               llinfos << "Missing indices" << llendl;
+            }
 
 				llerrs << "Shader consumption mismatches data provision." << llendl;
 			}
