@@ -139,23 +139,33 @@ public:
 
 		/// Limits the number of connections used for a single
 		/// literal address/port pair within the class.
+		///
+		/// Per-class only
 		PO_PER_HOST_CONNECTION_LIMIT,
 
 		/// String containing a system-appropriate directory name
 		/// where SSL certs are stored.
+		///
+		/// Global only
 		PO_CA_PATH,
 
 		/// String giving a full path to a file containing SSL certs.
+		///
+		/// Global only
 		PO_CA_FILE,
 
 		/// String of host/port to use as simple HTTP proxy.  This is
 		/// going to change in the future into something more elaborate
 		/// that may support richer schemes.
+		///
+		/// Global only
 		PO_HTTP_PROXY,
 
 		/// Long value that if non-zero enables the use of the
 		/// traditional LLProxy code for http/socks5 support.  If
 		// enabled, has priority over GP_HTTP_PROXY.
+		///
+		/// Global only
 		PO_LLPROXY,
 
 		/// Long value setting the logging trace level for the
@@ -169,12 +179,25 @@ public:
 		/// These values are also used in the trace modes for
 		/// individual requests in HttpOptions.  Also be aware that
 		/// tracing tends to impact performance of the viewer.
+		///
+		/// Global only
 		PO_TRACE,
 
 		/// Suitable requests are allowed to pipeline on their
 		/// connections when they ask for it.
+		///
+		/// Per-class only
 		PO_ENABLE_PIPELINING,
 
+		/// Controls whether client-side throttling should be
+		/// performed on this policy class.  Positive values
+		/// enable throttling and specify the request rate
+		/// (requests per second) that should be targetted.
+		/// A value of zero, the default, specifies no throttling.
+		///
+		/// Per-class only
+		PO_THROTTLE_RATE,
+		
 		PO_LAST  // Always at end
 	};
 

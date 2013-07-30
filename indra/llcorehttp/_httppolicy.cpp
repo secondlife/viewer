@@ -49,12 +49,18 @@ struct HttpPolicy::ClassState
 {
 public:
 	ClassState()
+		: mThrottleEnd(0),
+		  mThrottleLeft(0L),
+		  mRequestCount(0L)
 		{}
 	
 	HttpReadyQueue		mReadyQueue;
 	HttpRetryQueue		mRetryQueue;
 
 	HttpPolicyClass		mOptions;
+	HttpTime			mThrottleEnd;
+	long				mThrottleLeft;
+	long				mRequestCount;
 };
 
 
@@ -190,6 +196,13 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 // the worker thread may sleep hard otherwise will ask for
 // normal polling frequency.
 //
+// Implements a client-side request rate throttle as well.
+// This is intended to mimic and predict throttling behavior
+// of grid services but that is difficult to do with different
+// time bases.  This also represents a rigid coupling between
+// viewer and server that makes it hard to change parameters
+// and I hope we can make this go away with pipelining.
+//
 HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 {
 	const HttpTime now(totalTime());
@@ -199,12 +212,22 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 	for (int policy_class(0); policy_class < mClasses.size(); ++policy_class)
 	{
 		ClassState & state(*mClasses[policy_class]);
+		const bool throttle_enabled(state.mOptions.mThrottleRate > 0L);
+		const bool throttle_current(throttle_enabled && now < state.mThrottleEnd);
+
+		if (throttle_current && state.mThrottleLeft <= 0)
+		{
+			// Throttled condition, don't serve this class but don't sleep hard.
+			result = HttpService::NORMAL;
+			continue;
+		}
+
 		int active(transport.getActiveCountInClass(policy_class));
 		int needed(state.mOptions.mConnectionLimit - active);		// Expect negatives here
 
 		HttpRetryQueue & retryq(state.mRetryQueue);
 		HttpReadyQueue & readyq(state.mReadyQueue);
-		
+
 		if (needed > 0)
 		{
 			// First see if we have any retries...
@@ -218,10 +241,27 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 				
 				op->stageFromReady(mService);
 				op->release();
-					
+
+				++state.mRequestCount;
 				--needed;
+				if (throttle_enabled)
+				{
+					if (now >= state.mThrottleEnd)
+					{
+						// Throttle expired, move to next window
+						LL_DEBUGS("CoreHttp") << "Throttle expired with " << state.mThrottleLeft
+											  << " requests to go and " << state.mRequestCount
+											  << " requests issued." << LL_ENDL;
+						state.mThrottleLeft = state.mOptions.mThrottleRate;
+						state.mThrottleEnd = now + HttpTime(1000000);
+					}
+					if (--state.mThrottleLeft <= 0)
+					{
+						goto throttle_on;
+					}
+				}
 			}
-		
+			
 			// Now go on to the new requests...
 			while (needed > 0 && ! readyq.empty())
 			{
@@ -231,10 +271,29 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 				op->stageFromReady(mService);
 				op->release();
 					
+				++state.mRequestCount;
 				--needed;
+				if (throttle_enabled)
+				{
+					if (now >= state.mThrottleEnd)
+					{
+						// Throttle expired, move to next window
+						LL_DEBUGS("CoreHttp") << "Throttle expired with " << state.mThrottleLeft
+											  << " requests to go and " << state.mRequestCount
+											  << " requests issued." << LL_ENDL;
+						state.mThrottleLeft = state.mOptions.mThrottleRate;
+						state.mThrottleEnd = now + HttpTime(1000000);
+					}
+					if (--state.mThrottleLeft <= 0)
+					{
+						goto throttle_on;
+					}
+				}
 			}
 		}
-				
+
+	throttle_on:
+		
 		if (! readyq.empty() || ! retryq.empty())
 		{
 			// If anything is ready, continue looping...

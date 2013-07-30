@@ -40,32 +40,33 @@ static const struct
 	U32							mMin;
 	U32							mMax;
 	U32							mDivisor;
+	U32							mRate;
 	std::string					mKey;
 	const char *				mUsage;
 } init_data[] =					//  Default and dynamic values for classes
 {
 	{
-		LLAppCoreHttp::AP_TEXTURE,			8,		1,		12,		1,
+		LLAppCoreHttp::AP_TEXTURE,			8,		1,		12,		1,		0,
 		"TextureFetchConcurrency",
 		"texture fetch"
 	},
 	{
-		LLAppCoreHttp::AP_MESH1,			32,		1,		128,	1,
+		LLAppCoreHttp::AP_MESH1,			32,		1,		128,	1,		100,
 		"MeshMaxConcurrentRequests",
 		"mesh fetch"
 	},
 	{
-		LLAppCoreHttp::AP_MESH2,			8,		1,		32,		4,
+		LLAppCoreHttp::AP_MESH2,			8,		1,		32,		4,		100,
 		"MeshMaxConcurrentRequests",
 		"mesh2 fetch"
 	},
 	{
-		LLAppCoreHttp::AP_LARGE_MESH,		2,		1,		8,		1,
+		LLAppCoreHttp::AP_LARGE_MESH,		2,		1,		8,		1,		0,
 		"",
 		"large mesh fetch"
 	},
 	{
-		LLAppCoreHttp::AP_UPLOADS,			2,		1,		8,		1,
+		LLAppCoreHttp::AP_UPLOADS,			2,		1,		8,		1,		0,
 		"",
 		"asset upload"
 	}
@@ -267,9 +268,27 @@ void LLAppCoreHttp::cleanup()
 
 void LLAppCoreHttp::refreshSettings(bool initial)
 {
+	LLCore::HttpStatus status;
+	
 	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
 	{
 		const EAppPolicy policy(init_data[i].mPolicy);
+
+		// Set any desired throttle
+		if (initial && init_data[i].mRate)
+		{
+			// Init-time only, can use the static setters here
+			status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_THROTTLE_RATE,
+																mPolicies[policy],
+																init_data[i].mRate,
+																NULL);
+			if (! status)
+			{
+				LL_WARNS("Init") << "Unable to set " << init_data[i].mUsage
+								 << " throttle rate.  Reason:  " << status.toString()
+								 << LL_ENDL;
+			}
+		}
 
 		// Get target connection concurrency value
 		U32 setting(init_data[i].mDefault);
@@ -299,7 +318,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 										   setting, NULL);
 		if (LLCORE_HTTP_HANDLE_INVALID == handle)
 		{
-			LLCore::HttpStatus status(mRequest->getStatus());
+			status = mRequest->getStatus();
 			LL_WARNS("Init") << "Unable to set " << init_data[i].mUsage
 							 << " concurrency.  Reason:  " << status.toString()
 							 << LL_ENDL;
