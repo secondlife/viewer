@@ -80,7 +80,6 @@ void LLUpdateChecker::checkVersion(std::string const & hostUrl,
 //-----------------------------------------------------------------------------
 
 
-const char * LLUpdateChecker::Implementation::sLegacyProtocolVersion = "v1.0";
 const char * LLUpdateChecker::Implementation::sProtocolVersion = "v1.1";
 
 
@@ -153,40 +152,11 @@ void LLUpdateChecker::Implementation::completed(U32 status,
 			server_error += content["error_text"].asString();
 		}
 
-		if (status == 404)
-		{
-			if (mProtocol == sProtocolVersion)
-			{
-				mProtocol = sLegacyProtocolVersion;
-				std::string retryUrl = buildUrl(mHostUrl, mServicePath, mChannel, mVersion, mPlatform, mPlatformVersion, mUniqueId, mWillingToTest);
-
-				LL_WARNS("UpdaterService")
-					<< "update response using " << sProtocolVersion
-					<< " was HTTP 404 (" << server_error
-					<< "); retry with legacy protocol " << mProtocol
-					<< "\n at " << retryUrl
-					<< LL_ENDL;
-	
-				mHttpClient.get(retryUrl, this);
-			}
-			else
-			{
-				LL_WARNS("UpdaterService")
-					<< "update response using " << sLegacyProtocolVersion
-					<< " was 404 (" << server_error
-					<< "); request failed"
-					<< LL_ENDL;
-				mClient.error(reason);
-			}
-		}
-		else
-		{
-			LL_WARNS("UpdaterService") << "response error " << status
-									   << " " << reason
-									   << " (" << server_error << ")"
-									   << LL_ENDL;
-			mClient.error(reason);
-		}
+		LL_WARNS("UpdaterService") << "response error " << status
+								   << " " << reason
+								   << " (" << server_error << ")"
+								   << LL_ENDL;
+		mClient.error(reason);
 	}
 	else
 	{
@@ -218,11 +188,8 @@ std::string LLUpdateChecker::Implementation::buildUrl(std::string const & hostUr
 	path.append(channel);
 	path.append(version);
 	path.append(platform);
-	if (mProtocol != sLegacyProtocolVersion)
-	{
-		path.append(platform_version);
-		path.append(willing_to_test ? "testok" : "testno");
-		path.append((char*)uniqueid);
-	}
+	path.append(platform_version);
+	path.append(willing_to_test ? "testok" : "testno");
+	path.append((char*)uniqueid);
 	return LLURI::buildHTTP(hostUrl, path).asString();
 }
