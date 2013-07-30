@@ -936,16 +936,6 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	index_channels.push_back(ch);	 shaders.push_back( make_pair( "lighting/lightShinyWaterF.glsl",			mVertexShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(ch);	 shaders.push_back( make_pair( "lighting/lightFullbrightShinyWaterF.glsl", mVertexShaderLevel[SHADER_LIGHTING] ) );
 
-
-// work-around for missing mix(vec3,vec3,bvec3) on decrepit GLSLs
-//
-#if LL_DARWIN
-        attribs["OLD_SELECT"] = "1";
-	index_channels.push_back(-1);	 shaders.push_back( make_pair( "deferred/srgb_mac.glsl",	mVertexShaderLevel[SHADER_DEFERRED] ) );
-#else
-	index_channels.push_back(-1);	 shaders.push_back( make_pair( "deferred/srgb.glsl",		mVertexShaderLevel[SHADER_DEFERRED] ) );
-#endif
-
 	for (U32 i = 0; i < shaders.size(); i++)
 	{
 		// Note usage of GL_FRAGMENT_SHADER_ARB
@@ -1271,7 +1261,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	if (success)
 	{
 		gDeferredSkinnedAlphaProgram.mName = "Deferred Skinned Alpha Shader";
-		gDeferredSkinnedAlphaProgram.mFeatures.hasSRGB = true;
 		gDeferredSkinnedAlphaProgram.mFeatures.hasObjectSkinning = true;
 		gDeferredSkinnedAlphaProgram.mFeatures.calculatesLighting = false;
 		gDeferredSkinnedAlphaProgram.mFeatures.hasLighting = false;
@@ -1329,7 +1318,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			U32 alpha_mode = i & 0x3;
 
 			gDeferredMaterialProgram[i].mShaderFiles.clear();
-			gDeferredMaterialProgram[i].mFeatures.hasSRGB = true;
 			gDeferredMaterialProgram[i].mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER_ARB));
 			gDeferredMaterialProgram[i].mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER_ARB));
 			gDeferredMaterialProgram[i].mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
@@ -1355,7 +1343,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			U32 alpha_mode = i & 0x3;
 
 			gDeferredMaterialWaterProgram[i].mShaderFiles.clear();
-			gDeferredMaterialWaterProgram[i].mFeatures.hasSRGB = true;
 			gDeferredMaterialWaterProgram[i].mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER_ARB));
 			gDeferredMaterialWaterProgram[i].mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER_ARB));
 			gDeferredMaterialWaterProgram[i].mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
@@ -1456,7 +1443,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredSpotLightProgram.mName = "Deferred SpotLight Shader";
 		gDeferredSpotLightProgram.mShaderFiles.clear();
-		gDeferredSpotLightProgram.mFeatures.hasSRGB = true;
 		gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/spotLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredSpotLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
@@ -1468,7 +1454,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredMultiSpotLightProgram.mName = "Deferred MultiSpotLight Shader";
 		gDeferredMultiSpotLightProgram.mShaderFiles.clear();
-		gDeferredMultiSpotLightProgram.mFeatures.hasSRGB = true;
 		gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/multiSpotLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredMultiSpotLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
@@ -1518,7 +1503,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredAlphaProgram.mName = "Deferred Alpha Shader";
 
-		gDeferredAlphaProgram.mFeatures.hasSRGB = true;
 		gDeferredAlphaProgram.mFeatures.calculatesLighting = false;
 		gDeferredAlphaProgram.mFeatures.hasLighting = false;
 		gDeferredAlphaProgram.mFeatures.isAlphaLighting = true;
@@ -1550,7 +1534,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	if (success)
 	{
 		gDeferredAlphaWaterProgram.mName = "Deferred Alpha Underwater Shader";
-		gDeferredAlphaWaterProgram.mFeatures.hasSRGB = true;
 		gDeferredAlphaWaterProgram.mFeatures.calculatesLighting = false;
 		gDeferredAlphaWaterProgram.mFeatures.hasLighting = false;
 		gDeferredAlphaWaterProgram.mFeatures.isAlphaLighting = true;
@@ -1597,7 +1580,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	if (success)
 	{
 		gDeferredFullbrightProgram.mName = "Deferred Fullbright Shader";
-		gDeferredFullbrightProgram.mFeatures.hasSRGB = true;
 		gDeferredFullbrightProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredFullbrightProgram.mFeatures.hasGamma = true;
 		gDeferredFullbrightProgram.mFeatures.hasTransport = true;
@@ -1612,7 +1594,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	if (success)
 	{
 		gDeferredFullbrightAlphaMaskProgram.mName = "Deferred Fullbright Alpha Masking Shader";
-		gDeferredFullbrightAlphaMaskProgram.mFeatures.hasSRGB = true;
 		gDeferredFullbrightAlphaMaskProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredFullbrightAlphaMaskProgram.mFeatures.hasGamma = true;
 		gDeferredFullbrightAlphaMaskProgram.mFeatures.hasTransport = true;
@@ -1628,7 +1609,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	if (success)
 	{
 		gDeferredFullbrightWaterProgram.mName = "Deferred Fullbright Underwater Shader";
-		gDeferredFullbrightWaterProgram.mFeatures.hasSRGB = true;
 		gDeferredFullbrightWaterProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredFullbrightWaterProgram.mFeatures.hasGamma = true;
 		gDeferredFullbrightWaterProgram.mFeatures.hasTransport = true;
@@ -1645,7 +1625,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	if (success)
 	{
 		gDeferredFullbrightAlphaMaskWaterProgram.mName = "Deferred Fullbright Underwater Alpha Masking Shader";
-		gDeferredFullbrightAlphaMaskWaterProgram.mFeatures.hasSRGB = true;
 		gDeferredFullbrightAlphaMaskWaterProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredFullbrightAlphaMaskWaterProgram.mFeatures.hasGamma = true;
 		gDeferredFullbrightAlphaMaskWaterProgram.mFeatures.hasTransport = true;
@@ -1677,7 +1656,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	if (success)
 	{
 		gDeferredSkinnedFullbrightProgram.mName = "Skinned Fullbright Shader";
-		gDeferredSkinnedFullbrightProgram.mFeatures.hasSRGB = true;
 		gDeferredSkinnedFullbrightProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredSkinnedFullbrightProgram.mFeatures.hasGamma = true;
 		gDeferredSkinnedFullbrightProgram.mFeatures.hasTransport = true;
@@ -1723,7 +1701,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		// load water shader
 		gDeferredWaterProgram.mName = "Deferred Water Shader";
-		gDeferredWaterProgram.mFeatures.hasSRGB = true;
 		gDeferredWaterProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredWaterProgram.mFeatures.hasGamma = true;
 		gDeferredWaterProgram.mFeatures.hasTransport = true;
@@ -1738,7 +1715,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		// load water shader
 		gDeferredUnderWaterProgram.mName = "Deferred Under Water Shader";
-		gDeferredUnderWaterProgram.mFeatures.hasSRGB = true;
 		gDeferredUnderWaterProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredUnderWaterProgram.mFeatures.hasGamma = true;
 		gDeferredUnderWaterProgram.mFeatures.hasTransport = true;
@@ -1753,7 +1729,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredSoftenProgram.mName = "Deferred Soften Shader";
 		gDeferredSoftenProgram.mShaderFiles.clear();
-		gDeferredSoftenProgram.mFeatures.hasSRGB = true;
 		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 
@@ -1771,7 +1746,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredSoftenWaterProgram.mName = "Deferred Soften Underwater Shader";
 		gDeferredSoftenWaterProgram.mShaderFiles.clear();
-		gDeferredSoftenWaterProgram.mFeatures.hasSRGB = true;
 		gDeferredSoftenWaterProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSoftenWaterProgram.mShaderFiles.push_back(make_pair("deferred/softenLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 
@@ -1869,7 +1843,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	if (success)
 	{
 		gDeferredAvatarAlphaProgram.mName = "Avatar Alpha Shader";
-		gDeferredAvatarAlphaProgram.mFeatures.hasSRGB = true;
 		gDeferredAvatarAlphaProgram.mFeatures.hasSkinning = true;
 		gDeferredAvatarAlphaProgram.mFeatures.calculatesLighting = false;
 		gDeferredAvatarAlphaProgram.mFeatures.hasLighting = false;
@@ -1893,7 +1866,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredPostGammaCorrectProgram.mName = "Deferred Gamma Correction Post Process";
 		gDeferredPostGammaCorrectProgram.mShaderFiles.clear();
-		gDeferredPostGammaCorrectProgram.mFeatures.hasSRGB = true;
 		gDeferredPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredGammaCorrect.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredPostGammaCorrectProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];

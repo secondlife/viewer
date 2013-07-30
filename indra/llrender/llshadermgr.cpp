@@ -175,19 +175,6 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	// Attach Fragment Shader Features Next
 	///////////////////////////////////////
 
-	if (features->hasSRGB)
-	{
-#if LL_DARWIN
-		if (!shader->attachObject("deferred/srgb_mac.glsl"))
-
-#else
-		if (!shader->attachObject("deferred/srgb.glsl"))
-#endif
-		{
-			return FALSE;
-		}
-	}
-
 	if(features->calculatesAtmospherics)
 	{
 		if (features->hasWaterFog)
