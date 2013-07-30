@@ -8695,12 +8695,6 @@ void LLPipeline::renderDeferredLighting()
 				unbindDeferredShader(gDeferredSpotLightProgram);
 			}
 
-			//reset mDeferredVB to fullscreen triangle
-			mDeferredVB->getVertexStrider(vert);
-			vert[0].set(-1,1,0);
-			vert[1].set(-1,-3,0);
-			vert[2].set(3,1,0);
-
 			{
 				LLGLDepthTest depth(GL_FALSE);
 
@@ -8719,6 +8713,10 @@ void LLPipeline::renderDeferredLighting()
 
 				F32 far_z = 0.f;
 
+				bindDeferredShader(gDeferredMultiLightProgram[0]);
+
+				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+				
 				while (!fullscreen_lights.empty())
 				{
 					LLFastTimer ftm(FTM_FULLSCREEN_LIGHTS);
@@ -8743,14 +8741,15 @@ void LLPipeline::renderDeferredLighting()
 						gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT_COL, count, (GLfloat*) col);
 						gDeferredMultiLightProgram[idx].uniform1f(LLShaderMgr::MULTI_LIGHT_FAR_Z, far_z);
 						far_z = 0.f;
-						count = 0; 
-						mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+						count = 0;
+                        mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 						mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+						unbindDeferredShader(gDeferredMultiLightProgram[idx]);
 					}
 				}
-				
-				unbindDeferredShader(gDeferredMultiLightProgram[0]);
 
+				unbindDeferredShader(gDeferredMultiLightProgram[0]);
+				
 				bindDeferredShader(gDeferredMultiSpotLightProgram);
 
 				gDeferredMultiSpotLightProgram.enableTexture(LLShaderMgr::DEFERRED_PROJECTION);

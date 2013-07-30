@@ -1444,7 +1444,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		{
 			gDeferredMultiLightProgram[i].mName = llformat("Deferred MultiLight Shader %d", i);
 			gDeferredMultiLightProgram[i].mShaderFiles.clear();
-			gDeferredMultiLightProgram[i].mFeatures.hasSRGB = true;
 			gDeferredMultiLightProgram[i].mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER_ARB));
 			gDeferredMultiLightProgram[i].mShaderFiles.push_back(make_pair("deferred/multiPointLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 			gDeferredMultiLightProgram[i].mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];

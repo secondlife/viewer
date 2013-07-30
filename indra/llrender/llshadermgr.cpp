@@ -177,7 +177,12 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 
 	if (features->hasSRGB)
 	{
+#if LL_DARWIN
+		if (!shader->attachObject("deferred/srgb_mac.glsl"))
+
+#else
 		if (!shader->attachObject("deferred/srgb.glsl"))
+#endif
 		{
 			return FALSE;
 		}

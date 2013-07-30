@@ -529,7 +529,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 					}
 				}
 
-				params.mVertexBuffer->setBuffer(mask);
+				params.mVertexBuffer->setBuffer(mask & ~(params.mFullbright ? (LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2) : 0));
+                
 				params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
 				
