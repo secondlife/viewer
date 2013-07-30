@@ -334,7 +334,8 @@ void LLFacebookConnect::openFacebookWeb(std::string url)
 std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route)
 {
 	//static std::string sFacebookConnectUrl = gAgent.getRegion()->getCapability("FacebookConnect");
-	static std::string sFacebookConnectUrl = "https://pdp15.lindenlab.com/fbc/agent/" + gAgentID.asString(); // TEMPORARY HACK FOR FB DEMO - Cho
+	static std::string sFacebookConnectUrl = "http://int.fbc.aditi.lindenlab.com/agent/" + gAgentID.asString(); // TEMPORARY HACK FOR FB DEMO - Cho
+    
 	std::string url = sFacebookConnectUrl + route;
 	llinfos << url << llendl;
 	return url;
