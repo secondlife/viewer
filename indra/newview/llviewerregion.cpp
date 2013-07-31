@@ -71,6 +71,7 @@
 #include "llviewercontrol.h"
 #include "llsdserialize.h"
 #include "llvieweroctree.h"
+#include "llviewerdisplay.h"
 
 #ifdef LL_WINDOWS
 	#pragma warning(disable:4355)
@@ -992,8 +993,7 @@ void LLViewerRegion::removeFromVOCacheTree(LLVOCacheEntry* entry)
 		return;
 	}
 
-	mImpl->mVOCachePartition->removeEntry(entry->getEntry());
-	entry->mLastCameraUpdated = sLastCameraUpdated;
+	mImpl->mVOCachePartition->removeEntry(entry->getEntry());	
 }
 
 //add the visible entries
@@ -1128,7 +1128,7 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 	return 2.0f * max_time - update_timer.getElapsedTimeF32();
 }
 
-F32 LLViewerRegion::createVisibleObjects(F32 max_time)
+F32 LLViewerRegion::createVisibleObjects(F32 max_time, S32 throttle)
 {
 	if(mDead)
 	{
@@ -1139,8 +1139,7 @@ F32 LLViewerRegion::createVisibleObjects(F32 max_time)
 		return max_time;
 	}
 
-	LLTimer update_timer;
-	S32 max_num_objects = 64; //minimum number of new objects to be added
+	LLTimer update_timer;	
 	for(LLVOCacheEntry::vocache_entry_priority_list_t::iterator iter = mImpl->mWaitingList.begin();
 		iter != mImpl->mWaitingList.end(); ++iter)
 	{
@@ -1149,7 +1148,7 @@ F32 LLViewerRegion::createVisibleObjects(F32 max_time)
 		if(vo_entry->getState() < LLVOCacheEntry::WAITING)
 		{
 			addNewObject(vo_entry);
-			if(max_num_objects-- < 0 && update_timer.getElapsedTimeF32() > max_time)
+			if(throttle > 0 && !(--throttle) && update_timer.getElapsedTimeF32() > max_time)
 			{
 				break;
 			}
@@ -1161,6 +1160,8 @@ F32 LLViewerRegion::createVisibleObjects(F32 max_time)
 
 BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 {
+	static LLCachedControl<S32> new_object_creation_throttle(gSavedSettings,"NewObjectCreationThrottle");
+
 	LLTimer update_timer;
 
 	// did_update returns TRUE if we did at least one significant update
@@ -1171,23 +1172,54 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 		// Hopefully not a significant time sink...
 		mParcelOverlay->idleUpdate();
 	}
-
-	max_update_time -= update_timer.getElapsedTimeF32();
-	if(max_update_time < 0.f || mImpl->mCacheMap.empty())
-	{
-	return did_update;
-}
-
+	
 	if(!sVOCacheCullingEnabled)
+	{
+		return did_update;
+	}
+	if(mImpl->mCacheMap.empty())
+	{
+		return did_update;
+	}
+
+	max_update_time -= update_timer.getElapsedTimeF32();	
+
+	//update the throttling number
+	static S32 throttle = new_object_creation_throttle;
+	if(LLStartUp::getStartupState() < STATE_STARTED || gTeleportDisplay)
+	{
+		throttle = -1; //cancel the throttling
+
+		S32 occlusion = LLPipeline::sUseOcclusion;
+		LLPipeline::sUseOcclusion = 0; //disable occlusion
+		
+		//apply octree cullings here to pick up visible objects because rendering pipeline stops view culling at this moment
+		mImpl->mVOCachePartition->cull(*LLViewerCamera::getInstance());
+		
+		LLPipeline::sUseOcclusion = occlusion;
+	}	
+	else if(throttle < 0) //just recoved from the login/teleport screen
+	{
+		if(new_object_creation_throttle > 0)
+		{
+			throttle = 4096; //a big number
+		}
+	}
+	else
+	{
+		throttle = llmax((S32)new_object_creation_throttle, (S32)(throttle >> 1));
+	}
+
+	if(max_update_time < 0.f && throttle > 0 && throttle < new_object_creation_throttle * 2)
 	{
 		return did_update;
 	}
 
 	//kill invisible objects
-	max_update_time = killInvisibleObjects(max_update_time);	
+	max_update_time = killInvisibleObjects(max_update_time, throttle);	
 	
 	max_update_time = updateVisibleEntries(max_update_time);
-	createVisibleObjects(max_update_time);
+	createVisibleObjects(max_update_time, throttle);
 
 	mImpl->mWaitingList.clear();
 	mImpl->mVisibleGroups.clear();
@@ -1195,7 +1227,7 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 	return did_update;
 }
 
-F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
+F32 LLViewerRegion::killInvisibleObjects(F32 max_time, S32 throttle)
 {
 #if 1
 	if(!sVOCacheCullingEnabled)
@@ -1209,7 +1241,7 @@ F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 
 	static LLVOCacheEntry* last_visited_entry = NULL;
 
-	const size_t MAX_UPDATE = 32; 
+	const size_t MAX_UPDATE = throttle < 0 ? mImpl->mActiveSet.size() : 64; 
 	std::vector<LLDrawable*> delete_list;
 	S32 update_counter = llmin(MAX_UPDATE, mImpl->mActiveSet.size());
 	LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mActiveSet.upper_bound(last_visited_entry);	
@@ -1823,7 +1855,7 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 	else if(entry->getGroup() != NULL)
 	{
 		return; //already in octree, no post processing.
-	}
+	}	
 
 	LLVector3 pos;
 	LLVector3 scale;
