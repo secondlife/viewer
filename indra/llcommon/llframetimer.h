@@ -52,7 +52,7 @@ public:
 	// Return a low precision usec since epoch
 	static U64 getTotalTime()
 	{
-		return sTotalTime ? sTotalTime : totalTime();
+		return sTotalTime ? LLUnitImplicit<U64, LLUnits::Microseconds>(sTotalTime) : totalTime();
 	}
 
 	// Return a low precision seconds since epoch

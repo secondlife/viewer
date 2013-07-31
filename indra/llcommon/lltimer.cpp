@@ -203,8 +203,6 @@ F64 calc_clock_frequency(unsigned int uiMeasureMSecs)
 	return 1000000.0; // microseconds, so 1 MHz.
 }
 
-const U64 SEC_TO_MICROSEC_U64 = 1000000;
-
 U64 get_clock_count()
 {
 	// Linux clocks are in microseconds

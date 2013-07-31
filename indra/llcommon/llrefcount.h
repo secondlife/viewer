@@ -62,7 +62,7 @@ public:
 	inline S32 unref() const
 	{
 		llassert(mRef >= 1);
-		if (0 == --mRef) 
+		if (0 == --mRef)
 		{
 			delete this; 
 			return 0;
