@@ -28,7 +28,6 @@
 
 #include "llviewerjointattachment.h"
 
-#include "llagentconstants.h"
 #include "llviewercontrol.h"
 #include "lldrawable.h"
 #include "llgl.h"
@@ -46,6 +45,7 @@
 #include "llglheaders.h"
 
 extern LLPipeline gPipeline;
+const F32 MAX_ATTACHMENT_DIST = 3.5f; // meters?
 
 //-----------------------------------------------------------------------------
 // LLViewerJointAttachment()

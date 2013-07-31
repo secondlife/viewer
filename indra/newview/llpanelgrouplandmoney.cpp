@@ -131,7 +131,7 @@ public:
 
 
 
-	static LLMap<LLUUID, LLGroupMoneyTabEventHandler*> sInstanceIDs;
+	static std::map<LLUUID, LLGroupMoneyTabEventHandler*> sInstanceIDs;
 	static std::map<LLPanel*, LLGroupMoneyTabEventHandler*> sTabsToHandlers;
 protected:
 	LLGroupMoneyTabEventHandlerImpl* mImplementationp;
@@ -534,7 +534,7 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 
 
 //static
-LLMap<LLUUID, LLPanelGroupLandMoney*> LLPanelGroupLandMoney::sGroupIDs;
+std::map<LLUUID, LLPanelGroupLandMoney*> LLPanelGroupLandMoney::sGroupIDs;
 
 LLPanelGroupLandMoney::LLPanelGroupLandMoney() :
 	LLPanelGroupTab() 
@@ -547,13 +547,13 @@ LLPanelGroupLandMoney::LLPanelGroupLandMoney() :
 	//will then only be working for the last panel for a given group id :(
 
 	//FIXME - add to setGroupID()
-	//LLPanelGroupLandMoney::sGroupIDs.addData(group_id, this);
+	//LLPanelGroupLandMoney::sGroupIDs.insert(group_id, this);
 }
 
 LLPanelGroupLandMoney::~LLPanelGroupLandMoney()
 {
 	delete mImplementationp;
-	LLPanelGroupLandMoney::sGroupIDs.removeData(mGroupID);
+	LLPanelGroupLandMoney::sGroupIDs.erase(mGroupID);
 }
 
 void LLPanelGroupLandMoney::activate()
@@ -821,15 +821,15 @@ void LLPanelGroupLandMoney::processPlacesReply(LLMessageSystem* msg, void**)
 	LLUUID group_id;
 	msg->getUUID("AgentData", "QueryID", group_id);
 
-	LLPanelGroupLandMoney* selfp = sGroupIDs.getIfThere(group_id);
-	if(!selfp)
+	group_id_map_t::iterator found_it = sGroupIDs.find(group_id);
+	if(found_it == sGroupIDs.end())
 	{
 		llinfos << "Group Panel Land L$ " << group_id << " no longer in existence."
 				<< llendl;
 		return;
 	}
 
-	selfp->mImplementationp->processGroupLand(msg);
+	found_it->second->mImplementationp->processGroupLand(msg);
 }
 
 
@@ -885,7 +885,7 @@ void LLGroupMoneyTabEventHandlerImpl::updateButtons()
 //** LLGroupMoneyTabEventHandler Functions **
 //*******************************************
 
-LLMap<LLUUID, LLGroupMoneyTabEventHandler*> LLGroupMoneyTabEventHandler::sInstanceIDs;
+std::map<LLUUID, LLGroupMoneyTabEventHandler*> LLGroupMoneyTabEventHandler::sInstanceIDs;
 std::map<LLPanel*, LLGroupMoneyTabEventHandler*> LLGroupMoneyTabEventHandler::sTabsToHandlers;
 
 LLGroupMoneyTabEventHandler::LLGroupMoneyTabEventHandler(LLButton* earlier_buttonp,
@@ -922,13 +922,13 @@ LLGroupMoneyTabEventHandler::LLGroupMoneyTabEventHandler(LLButton* earlier_butto
 		tab_containerp->setCommitCallback(boost::bind(&LLGroupMoneyTabEventHandler::onClickTab, this));
 	}
 
-	sInstanceIDs.addData(mImplementationp->mPanelID, this);
+	sInstanceIDs.insert(std::make_pair(mImplementationp->mPanelID, this));
 	sTabsToHandlers[panelp] = this;
 }
 
 LLGroupMoneyTabEventHandler::~LLGroupMoneyTabEventHandler()
 {
-	sInstanceIDs.removeData(mImplementationp->mPanelID);
+	sInstanceIDs.erase(mImplementationp->mPanelID);
 	sTabsToHandlers.erase(mImplementationp->mTabPanelp);
 
 	delete mImplementationp;
@@ -1122,10 +1122,10 @@ void LLPanelGroupLandMoney::processGroupAccountDetailsReply(LLMessageSystem* msg
 
 	LLUUID request_id;
 	msg->getUUIDFast(_PREHASH_MoneyData, _PREHASH_RequestID, request_id );
-	LLGroupMoneyTabEventHandler* selfp = LLGroupMoneyTabEventHandler::sInstanceIDs.getIfThere(request_id);
+	LLGroupMoneyTabEventHandler* selfp = get_ptr_in_map(LLGroupMoneyTabEventHandler::sInstanceIDs, request_id);
 	if (!selfp)
 	{
-		llwarns << "GroupAccountDetails recieved for non-existent group panel." << llendl;
+		llwarns << "GroupAccountDetails received for non-existent group panel." << llendl;
 		return;
 	}
 
@@ -1302,7 +1302,7 @@ void LLPanelGroupLandMoney::processGroupAccountTransactionsReply(LLMessageSystem
 
 	LLGroupMoneyTabEventHandler* self;
 
-	self = LLGroupMoneyTabEventHandler::sInstanceIDs.getIfThere(request_id);
+	self = get_ptr_in_map(LLGroupMoneyTabEventHandler::sInstanceIDs, request_id);
 	if (!self)
 	{
 		llwarns << "GroupAccountTransactions recieved for non-existent group panel." << llendl;
@@ -1482,7 +1482,7 @@ void LLPanelGroupLandMoney::processGroupAccountSummaryReply(LLMessageSystem* msg
 
 	LLGroupMoneyTabEventHandler* self;
 
-	self = LLGroupMoneyTabEventHandler::sInstanceIDs.getIfThere(request_id);
+	self = get_ptr_in_map(LLGroupMoneyTabEventHandler::sInstanceIDs, request_id);
 	if (!self)
 	{
 		llwarns << "GroupAccountSummary recieved for non-existent group L$ planning tab." << llendl;
@@ -1494,9 +1494,9 @@ void LLPanelGroupLandMoney::processGroupAccountSummaryReply(LLMessageSystem* msg
 
 void LLPanelGroupLandMoney::setGroupID(const LLUUID& id)
 {
-	LLPanelGroupLandMoney::sGroupIDs.removeData(mGroupID);
+	LLPanelGroupLandMoney::sGroupIDs.erase(mGroupID);
 	LLPanelGroupTab::setGroupID(id);
-	LLPanelGroupLandMoney::sGroupIDs.addData(mGroupID, this);
+	LLPanelGroupLandMoney::sGroupIDs.insert(std::make_pair(mGroupID, this));
 
 
 	bool can_view = gAgent.isInGroup(mGroupID);

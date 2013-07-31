@@ -519,12 +519,12 @@ BOOL LLManipRotate::handleHover(S32 x, S32 y, MASK mask)
 			drag(x, y);
 		}
 
-		lldebugst(LLERR_USER_INPUT) << "hover handled by LLManipRotate (active)" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by LLManipRotate (active)" << llendl;		
 	}
 	else
 	{
 		highlightManipulators(x, y);
-		lldebugst(LLERR_USER_INPUT) << "hover handled by LLManipRotate (inactive)" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by LLManipRotate (inactive)" << llendl;		
 	}
 
 	gViewerWindow->setCursor(UI_CURSOR_TOOLROTATE);

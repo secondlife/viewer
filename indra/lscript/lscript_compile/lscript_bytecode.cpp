@@ -40,8 +40,8 @@ LLScriptJumpTable::LLScriptJumpTable()
 
 LLScriptJumpTable::~LLScriptJumpTable()
 {
-	mLabelMap.deleteAllData();
-	mJumpMap.deleteAllData();
+	delete_and_clear(mLabelMap);
+	delete_and_clear(mJumpMap);
 }
 
 void LLScriptJumpTable::addLabel(char *name, S32 offset)
@@ -203,17 +203,14 @@ void LLScriptByteCodeChunk::addJump(char *name)
 
 void LLScriptByteCodeChunk::connectJumps()
 {
-	char *jump;
-	S32 offset, jumppos;
-
 	if (mJumpTable)
 	{
-		for (jump = mJumpTable->mJumpMap.getFirstKey();
-			 jump;
-			 jump = mJumpTable->mJumpMap.getNextKey())
+		for(std::map<char *, S32 *>::iterator it = mJumpTable->mJumpMap.begin(), end_it = mJumpTable->mJumpMap.end();
+			it != end_it;
+			++it)
 		{
-			jumppos = *mJumpTable->mJumpMap[jump];
-			offset = *mJumpTable->mLabelMap[jump] - jumppos;
+			S32 jumppos = *it->second;
+			S32 offset = *mJumpTable->mLabelMap[it->first] - jumppos;
 			jumppos = jumppos - 4;
 			integer2bytestream(mCodeChunk, jumppos, offset);
 		}

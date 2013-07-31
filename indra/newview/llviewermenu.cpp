@@ -123,6 +123,7 @@
 #include "lltoolgrab.h"
 #include "llwindow.h"
 #include "llpathfindingmanager.h"
+#include "llstartup.h"
 #include "boost/unordered_map.hpp"
 
 using namespace LLAvatarAppearanceDefines;
@@ -4159,13 +4160,16 @@ static bool get_derezzable_objects(
 	EDeRezDestination dest,
 	std::string& error,
 	LLViewerRegion*& first_region,
-	LLDynamicArray<LLViewerObjectPtr>* derez_objectsp,
+	std::vector<LLViewerObjectPtr>* derez_objectsp,
 	bool only_check = false)
 {
 	bool found = false;
 
 	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
-	
+
+	if (derez_objectsp)
+		derez_objectsp->reserve(selection->getRootObjectCount());
+
 	// Check conditions that we can't deal with, building a list of
 	// everything that we'll actually be derezzing.
 	for (LLObjectSelection::valid_root_iterator iter = selection->valid_root_begin();
@@ -4244,7 +4248,7 @@ static bool get_derezzable_objects(
 				break;
 
 			if (derez_objectsp)
-				derez_objectsp->put(object);
+				derez_objectsp->push_back(object);
 
 		}
 	}
@@ -4264,9 +4268,9 @@ static void derez_objects(
 	const LLUUID& dest_id,
 	LLViewerRegion*& first_region,
 	std::string& error,
-	LLDynamicArray<LLViewerObjectPtr>* objectsp)
+	std::vector<LLViewerObjectPtr>* objectsp)
 {
-	LLDynamicArray<LLViewerObjectPtr> derez_objects;
+	std::vector<LLViewerObjectPtr> derez_objects;
 
 	if (!objectsp) // if objects to derez not specified
 	{
@@ -4293,13 +4297,13 @@ static void derez_objects(
 	// satisfy anybody.
 	const S32 MAX_ROOTS_PER_PACKET = 250;
 	const S32 MAX_PACKET_COUNT = 254;
-	F32 packets = ceil((F32)objectsp->count() / (F32)MAX_ROOTS_PER_PACKET);
+	F32 packets = ceil((F32)objectsp->size() / (F32)MAX_ROOTS_PER_PACKET);
 	if(packets > (F32)MAX_PACKET_COUNT)
 	{
 		error = "AcquireErrorTooManyObjects";
 	}
 
-	if(error.empty() && objectsp->count() > 0)
+	if(error.empty() && objectsp->size() > 0)
 	{
 		U8 d = (U8)dest;
 		LLUUID tid;
@@ -4324,11 +4328,11 @@ static void derez_objects(
 			msg->addU8Fast(_PREHASH_PacketCount, packet_count);
 			msg->addU8Fast(_PREHASH_PacketNumber, packet_number);
 			objects_in_packet = 0;
-			while((object_index < objectsp->count())
+			while((object_index < objectsp->size())
 				  && (objects_in_packet++ < MAX_ROOTS_PER_PACKET))
 
 			{
-				LLViewerObject* object = objectsp->get(object_index++);
+				LLViewerObject* object = objectsp->at(object_index++);
 				msg->nextBlockFast(_PREHASH_ObjectData);
 				msg->addU32Fast(_PREHASH_ObjectLocalID, object->getLocalID());
 				// VEFFECT: DerezObject
@@ -4408,7 +4412,7 @@ private:
 
 	LLObjectSelectionHandle mObjectSelection;
 
-	LLDynamicArray<LLViewerObjectPtr> mReturnableObjects;
+	std::vector<LLViewerObjectPtr> mReturnableObjects;
 	std::string mError;
 	LLViewerRegion* mFirstRegion;
 };
@@ -5280,7 +5284,7 @@ public:
 	};
 
 	LLObjectSelectionHandle mObjectSelection;
-	LLDynamicArray<LLViewerObjectPtr> mReturnableObjects;
+	std::vector<LLViewerObjectPtr> mReturnableObjects;
 	std::string mError;
 	LLViewerRegion *mFirstRegion;
 };

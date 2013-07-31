@@ -31,7 +31,7 @@
 #include "v3math.h"
 #include "patch_dct.h"
 #include "patch_code.h"
-#include "bitpack.h"
+#include "llbitpack.h"
 
 U32 gPatchSize, gWordBits;
 

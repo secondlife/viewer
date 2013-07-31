@@ -520,7 +520,7 @@ void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
 
 	if (!item_pair->first) 
 	{
-		llwarning("Attempt to selet an item pair containing null panel item", 0);
+		LL_WARNS() << "Attempt to selet an item pair containing null panel item" << LL_ENDL;
 		return;
 	}
 

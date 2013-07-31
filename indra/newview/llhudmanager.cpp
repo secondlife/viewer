@@ -60,7 +60,7 @@ void LLHUDManager::updateEffects()
 {
 	LLFastTimer ftm(FTM_HUD_EFFECTS);
 	S32 i;
-	for (i = 0; i < mHUDEffects.count(); i++)
+	for (i = 0; i < mHUDEffects.size(); i++)
 	{
 		LLHUDEffect *hep = mHUDEffects[i];
 		if (hep->isDead())
@@ -74,7 +74,7 @@ void LLHUDManager::updateEffects()
 void LLHUDManager::sendEffects()
 {
 	S32 i;
-	for (i = 0; i < mHUDEffects.count(); i++)
+	for (i = 0; i < mHUDEffects.size(); i++)
 	{
 		LLHUDEffect *hep = mHUDEffects[i];
 		if (hep->isDead())
@@ -105,18 +105,18 @@ void LLHUDManager::sendEffects()
 //static
 void LLHUDManager::shutdownClass()
 {
-	getInstance()->mHUDEffects.reset();
+	getInstance()->mHUDEffects.clear();
 }
 
 void LLHUDManager::cleanupEffects()
 {
 	S32 i = 0;
 
-	while (i < mHUDEffects.count())
+	while (i < mHUDEffects.size())
 	{
 		if (mHUDEffects[i]->isDead())
 		{
-			mHUDEffects.remove(i);
+			mHUDEffects.erase(mHUDEffects.begin() + i);
 		}
 		else
 		{
@@ -140,7 +140,7 @@ LLHUDEffect *LLHUDManager::createViewerEffect(const U8 type, BOOL send_to_sim, B
 	hep->setNeedsSendToSim(send_to_sim);
 	hep->setOriginatedHere(originated_here);
 
-	mHUDEffects.put(hep);
+	mHUDEffects.push_back(hep);
 	return hep;
 }
 
@@ -159,20 +159,20 @@ void LLHUDManager::processViewerEffect(LLMessageSystem *mesgsys, void **user_dat
 		effectp = NULL;
 		LLHUDEffect::getIDType(mesgsys, k, effect_id, effect_type);
 		S32 i;
-		for (i = 0; i < LLHUDManager::getInstance()->mHUDEffects.count(); i++)
+		for (i = 0; i < LLHUDManager::getInstance()->mHUDEffects.size(); i++)
 		{
 			LLHUDEffect *cur_effectp = LLHUDManager::getInstance()->mHUDEffects[i];
 			if (!cur_effectp)
 			{
 				llwarns << "Null effect in effect manager, skipping" << llendl;
-				LLHUDManager::getInstance()->mHUDEffects.remove(i);
+				LLHUDManager::getInstance()->mHUDEffects.erase(LLHUDManager::getInstance()->mHUDEffects.begin() + i);
 				i--;
 				continue;
 			}
 			if (cur_effectp->isDead())
 			{
 	//			llwarns << "Dead effect in effect manager, removing" << llendl;
-				LLHUDManager::getInstance()->mHUDEffects.remove(i);
+				LLHUDManager::getInstance()->mHUDEffects.erase(LLHUDManager::getInstance()->mHUDEffects.begin() + i);
 				i--;
 				continue;
 			}

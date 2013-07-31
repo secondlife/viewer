@@ -148,11 +148,11 @@ LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id, const std::string
 									item_array,
 									LLInventoryModel::EXCLUDE_TRASH,
 									has_name);
-	if (0 == cat_array.count())
+	if (0 == cat_array.size())
 		return LLUUID();
 	else
 	{
-		LLViewerInventoryCategory *cat = cat_array.get(0);
+		LLViewerInventoryCategory *cat = cat_array.at(0);
 		if (cat)
 			return cat->getUUID();
 		else
@@ -754,9 +754,9 @@ void LLWearableHoldingPattern::onAllComplete()
 	}
 
 	// Activate all gestures in this folder
-	if (mGestItems.count() > 0)
+	if (mGestItems.size() > 0)
 	{
-		LL_DEBUGS("Avatar") << self_av_string() << "Activating " << mGestItems.count() << " gestures" << LL_ENDL;
+		LL_DEBUGS("Avatar") << self_av_string() << "Activating " << mGestItems.size() << " gestures" << LL_ENDL;
 		
 		LLGestureMgr::instance().activateGestures(mGestItems);
 		
@@ -779,7 +779,7 @@ void LLWearableHoldingPattern::onAllComplete()
 	// Update attachments to match those requested.
 	if (isAgentAvatarValid())
 	{
-		LL_DEBUGS("Avatar") << self_av_string() << "Updating " << mObjItems.count() << " attachments" << LL_ENDL;
+		LL_DEBUGS("Avatar") << self_av_string() << "Updating " << mObjItems.size() << " attachments" << LL_ENDL;
 		LLAgentWearables::userUpdateAttachments(mObjItems);
 	}
 
@@ -1155,9 +1155,9 @@ static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
 	// encountered, so we actually keep the *last* of each duplicate
 	// item.  This is needed to give the right priority when adding
 	// duplicate items to an existing outfit.
-	for (S32 i=items.count()-1; i>=0; i--)
+	for (S32 i=items.size()-1; i>=0; i--)
 	{
-		LLViewerInventoryItem *item = items.get(i);
+		LLViewerInventoryItem *item = items.at(i);
 		LLUUID item_id = item->getLinkedUUID();
 		if (items_seen.find(item_id)!=items_seen.end())
 			continue;
@@ -1168,7 +1168,7 @@ static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
 		 it != tmp_list.end();
 		 ++it)
 	{
-		new_items.put(*it);
+		new_items.push_back(*it);
 	}
 	items = new_items;
 }
@@ -1464,7 +1464,7 @@ void LLAppearanceMgr::shallowCopyCategoryContents(const LLUUID& src_id, const LL
 	LLInventoryModel::cat_array_t* cats;
 	LLInventoryModel::item_array_t* items;
 	gInventory.getDirectDescendentsOf(src_id, cats, items);
-	llinfos << "copying " << items->count() << " items" << llendl;
+	llinfos << "copying " << items->size() << " items" << llendl;
 	for (LLInventoryModel::item_array_t::const_iterator iter = items->begin();
 		 iter != items->end();
 		 ++iter)
@@ -1644,9 +1644,9 @@ void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category)
 	LLInventoryModel::item_array_t items;
 	gInventory.collectDescendents(category, cats, items,
 								  LLInventoryModel::EXCLUDE_TRASH);
-	for (S32 i = 0; i < items.count(); ++i)
+	for (S32 i = 0; i < items.size(); ++i)
 	{
-		LLViewerInventoryItem *item = items.get(i);
+		LLViewerInventoryItem *item = items.at(i);
 		if (item->getActualType() != LLAssetType::AT_LINK_FOLDER)
 			continue;
 		if (item->getIsLinkType())
@@ -1666,9 +1666,9 @@ void LLAppearanceMgr::purgeCategory(const LLUUID& category, bool keep_outfit_lin
 	LLInventoryModel::item_array_t items;
 	gInventory.collectDescendents(category, cats, items,
 								  LLInventoryModel::EXCLUDE_TRASH);
-	for (S32 i = 0; i < items.count(); ++i)
+	for (S32 i = 0; i < items.size(); ++i)
 	{
-		LLViewerInventoryItem *item = items.get(i);
+		LLViewerInventoryItem *item = items.at(i);
 		if (keep_outfit_links && (item->getActualType() == LLAssetType::AT_LINK_FOLDER))
 			continue;
 		if (item->getIsLinkType())
@@ -1718,9 +1718,9 @@ void LLAppearanceMgr::linkAll(const LLUUID& cat_uuid,
 							  LLInventoryModel::item_array_t& items,
 							  LLPointer<LLInventoryCallback> cb)
 {
-	for (S32 i=0; i<items.count(); i++)
+	for (S32 i=0; i<items.size(); i++)
 	{
-		const LLInventoryItem* item = items.get(i).get();
+		const LLInventoryItem* item = items.at(i).get();
 		link_inventory_item(gAgent.getID(),
 							item->getLinkedUUID(),
 							cat_uuid,
@@ -1749,9 +1749,9 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	{
 		LLInventoryModel::item_array_t gest_items;
 		getDescendentsOfAssetType(cof, gest_items, LLAssetType::AT_GESTURE, false);
-		for(S32 i = 0; i  < gest_items.count(); ++i)
+		for(S32 i = 0; i  < gest_items.size(); ++i)
 		{
-			LLViewerInventoryItem *gest_item = gest_items.get(i);
+			LLViewerInventoryItem *gest_item = gest_items.at(i);
 			if ( LLGestureMgr::instance().isGestureActive( gest_item->getLinkedUUID()) )
 			{
 				LLGestureMgr::instance().deactivateGesture( gest_item->getLinkedUUID() );
@@ -1798,10 +1798,10 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	
 	// Create links to new COF contents.
 	LLInventoryModel::item_array_t all_items;
-	all_items += body_items;
-	all_items += wear_items;
-	all_items += obj_items;
-	all_items += gest_items;
+	std::copy(body_items.begin(), body_items.end(), std::back_inserter(all_items));
+	std::copy(wear_items.begin(), wear_items.end(), std::back_inserter(all_items));
+	std::copy(obj_items.begin(), obj_items.end(), std::back_inserter(all_items));
+	std::copy(gest_items.begin(), gest_items.end(), std::back_inserter(all_items));
 
 	// Will link all the above items.
 	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
@@ -1856,7 +1856,8 @@ void LLAppearanceMgr::updateAgentWearables(LLWearableHoldingPattern* holder, boo
 {
 	lldebugs << "updateAgentWearables()" << llendl;
 	LLInventoryItem::item_array_t items;
-	LLDynamicArray< LLViewerWearable* > wearables;
+	std::vector< LLViewerWearable* > wearables;
+	wearables.reserve(32);
 
 	// For each wearable type, find the wearables of that type.
 	for( S32 i = 0; i < LLWearableType::WT_COUNT; i++ )
@@ -1871,14 +1872,14 @@ void LLAppearanceMgr::updateAgentWearables(LLWearableHoldingPattern* holder, boo
 				LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(data.mItemID);
 				if( item && (item->getAssetUUID() == wearable->getAssetID()) )
 				{
-					items.put(item);
-					wearables.put(wearable);
+					items.push_back(item);
+					wearables.push_back(wearable);
 				}
 			}
 		}
 	}
 
-	if(wearables.count() > 0)
+	if(wearables.size() > 0)
 	{
 		gAgentWearables.setWearableOutfit(items, wearables, !append);
 	}
@@ -1905,7 +1906,7 @@ bool sort_by_actual_description(const LLInventoryItem* item1, const LLInventoryI
 {
 	if (!item1 || !item2) 
 	{
-		llwarning("either item1 or item2 is NULL", 0);
+		LL_WARNS() << "either item1 or item2 is NULL" << LL_ENDL;
 		return true;
 	}
 
@@ -1922,7 +1923,7 @@ void item_array_diff(LLInventoryModel::item_array_t& full_list,
 		 ++it)
 	{
 		LLViewerInventoryItem *item = *it;
-		if (keep_list.find(item) < 0) // Why on earth does LLDynamicArray need to redefine find()?
+		if (std::find(keep_list.begin(), keep_list.end(), item) == keep_list.end())
 		{
 			kill_list.push_back(item);
 		}
@@ -2036,7 +2037,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 	dumpItemArray(wear_items,"asset_dump: wear_item");
 	dumpItemArray(obj_items,"asset_dump: obj_item");
 
-	if(!wear_items.count())
+	if(!wear_items.size())
 	{
 		LLNotificationsUtil::add("CouldNotPutOnOutfit");
 		return;
@@ -2056,9 +2057,9 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 	// callback will be called (and this object deleted)
 	// before the final getNextData().
 
-	for(S32 i = 0; i  < wear_items.count(); ++i)
+	for(S32 i = 0; i  < wear_items.size(); ++i)
 	{
-		LLViewerInventoryItem *item = wear_items.get(i);
+		LLViewerInventoryItem *item = wear_items.at(i);
 		LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : NULL;
 
 		// Fault injection: use debug setting to test asset 
@@ -2301,10 +2302,10 @@ void LLAppearanceMgr::wearOutfitByName(const std::string& name)
 									has_name);
 	bool copy_items = false;
 	LLInventoryCategory* cat = NULL;
-	if (cat_array.count() > 0)
+	if (cat_array.size() > 0)
 	{
 		// Just wear the first one that matches
-		cat = cat_array.get(0);
+		cat = cat_array.at(0);
 	}
 	else
 	{
@@ -2313,9 +2314,9 @@ void LLAppearanceMgr::wearOutfitByName(const std::string& name)
 										item_array,
 										LLInventoryModel::EXCLUDE_TRASH,
 										has_name);
-		if(cat_array.count() > 0)
+		if(cat_array.size() > 0)
 		{
-			cat = cat_array.get(0);
+			cat = cat_array.at(0);
 			copy_items = true;
 		}
 	}
@@ -2426,10 +2427,10 @@ void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item, bool do_update
 								  LLInventoryModel::EXCLUDE_TRASH);
 	bool linked_already = false;
 	U32 count = 0;
-	for (S32 i=0; i<item_array.count(); i++)
+	for (S32 i=0; i<item_array.size(); i++)
 	{
 		// Are these links to the same object?
-		const LLViewerInventoryItem* inv_item = item_array.get(i).get();
+		const LLViewerInventoryItem* inv_item = item_array.at(i).get();
 		const LLWearableType::EType wearable_type = inv_item->getWearableType();
 
 		const bool is_body_part =    (wearable_type == LLWearableType::WT_SHAPE) 
@@ -2502,12 +2503,12 @@ LLInventoryModel::item_array_t LLAppearanceMgr::findCOFItemLinks(const LLUUID& i
 									  cat_array,
 									  item_array,
 									  LLInventoryModel::EXCLUDE_TRASH);
-		for (S32 i=0; i<item_array.count(); i++)
+		for (S32 i=0; i<item_array.size(); i++)
 		{
-			const LLViewerInventoryItem* inv_item = item_array.get(i).get();
+			const LLViewerInventoryItem* inv_item = item_array.at(i).get();
 			if (inv_item->getLinkedUUID() == vitem->getLinkedUUID())
 			{
-				result.put(item_array.get(i));
+				result.push_back(item_array.at(i));
 			}
 		}
 	}
@@ -2579,9 +2580,9 @@ void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id)
 								  cat_array,
 								  item_array,
 								  LLInventoryModel::EXCLUDE_TRASH);
-	for (S32 i=0; i<item_array.count(); i++)
+	for (S32 i=0; i<item_array.size(); i++)
 	{
-		const LLInventoryItem* item = item_array.get(i).get();
+		const LLInventoryItem* item = item_array.at(i).get();
 		if (item->getIsLinkType() && item->getLinkedUUID() == item_id)
 		{
 			gInventory.purgeObject(item->getUUID());
@@ -2611,7 +2612,7 @@ bool sort_by_linked_uuid(const LLViewerInventoryItem* item1, const LLViewerInven
 {
 	if (!item1 || !item2)
 	{
-		llwarning("item1, item2 cannot be null, something is very wrong", 0);
+		LL_WARNS() << "item1, item2 cannot be null, something is very wrong" << LL_ENDL;
 		return true;
 	}
 
@@ -2653,7 +2654,7 @@ void LLAppearanceMgr::updateIsDirty()
 		gInventory.collectDescendentsIf(base_outfit, outfit_cats, outfit_items,
 									  LLInventoryModel::EXCLUDE_TRASH, collector);
 
-		if(outfit_items.count() != cof_items.count())
+		if(outfit_items.size() != cof_items.size())
 		{
 			// Current outfit folder should have one more item than the outfit folder.
 			// this one item is the link back to the outfit folder itself.
@@ -2667,8 +2668,8 @@ void LLAppearanceMgr::updateIsDirty()
 
 		for (U32 i = 0; i < cof_items.size(); ++i)
 		{
-			LLViewerInventoryItem *item1 = cof_items.get(i);
-			LLViewerInventoryItem *item2 = outfit_items.get(i);
+			LLViewerInventoryItem *item1 = cof_items.at(i);
+			LLViewerInventoryItem *item2 = outfit_items.at(i);
 
 			if (item1->getLinkedUUID() != item2->getLinkedUUID() || 
 				item1->getName() != item2->getName() ||
@@ -2839,9 +2840,9 @@ void LLAppearanceMgr::divvyWearablesByType(const LLInventoryModel::item_array_t&
 	items_by_type.resize(LLWearableType::WT_COUNT);
 	if (items.empty()) return;
 
-	for (S32 i=0; i<items.count(); i++)
+	for (S32 i=0; i<items.size(); i++)
 	{
-		LLViewerInventoryItem *item = items.get(i);
+		LLViewerInventoryItem *item = items.at(i);
 		if (!item)
 		{
 			LL_WARNS("Appearance") << "NULL item found" << llendl;
@@ -2879,7 +2880,7 @@ struct WearablesOrderComparator
 	{
 		if (!item1 || !item2)
 		{
-			llwarning("either item1 or item2 is NULL", 0);
+			LL_WARNS() << "either item1 or item2 is NULL" << LL_ENDL;
 			return true;
 		}
 		
@@ -3122,9 +3123,9 @@ public:
 		LLInventoryModel::item_array_t item_array;
 		gInventory.collectDescendents(LLAppearanceMgr::instance().getCOF(),
 									  cat_array,item_array,LLInventoryModel::EXCLUDE_TRASH);
-		for (S32 i=0; i<item_array.count(); i++)
+		for (S32 i=0; i<item_array.size(); i++)
 		{
-			const LLViewerInventoryItem* inv_item = item_array.get(i).get();
+			const LLViewerInventoryItem* inv_item = item_array.at(i).get();
 			local_items.insert(inv_item->getUUID());
 			LL_DEBUGS("Avatar") << "item_id: " << inv_item->getUUID()
 								<< " linked_item_id: " << inv_item->getLinkedUUID()
@@ -3159,9 +3160,9 @@ LLSD LLAppearanceMgr::dumpCOF() const
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
 	gInventory.collectDescendents(getCOF(),cat_array,item_array,LLInventoryModel::EXCLUDE_TRASH);
-	for (S32 i=0; i<item_array.count(); i++)
+	for (S32 i=0; i<item_array.size(); i++)
 	{
-		const LLViewerInventoryItem* inv_item = item_array.get(i).get();
+		const LLViewerInventoryItem* inv_item = item_array.at(i).get();
 		LLSD item;
 		LLUUID item_id(inv_item->getUUID());
 		md5.update((unsigned char*)item_id.mData, 16);
@@ -3505,7 +3506,7 @@ void LLAppearanceMgr::dumpCat(const LLUUID& cat_id, const std::string& msg)
 	llinfos << llendl;
 	llinfos << str << llendl;
 	S32 hitcount = 0;
-	for(S32 i=0; i<items.count(); i++)
+	for(S32 i=0; i<items.size(); i++)
 	{
 		LLViewerInventoryItem *item = items.get(i);
 		if (item)
@@ -3513,15 +3514,15 @@ void LLAppearanceMgr::dumpCat(const LLUUID& cat_id, const std::string& msg)
 		llinfos << i <<" "<< item->getName() <<llendl;
 	}
 #endif
-	llinfos << msg << " count " << items.count() << llendl;
+	llinfos << msg << " count " << items.size() << llendl;
 }
 
 void LLAppearanceMgr::dumpItemArray(const LLInventoryModel::item_array_t& items,
 									const std::string& msg)
 {
-	for (S32 i=0; i<items.count(); i++)
+	for (S32 i=0; i<items.size(); i++)
 	{
-		LLViewerInventoryItem *item = items.get(i);
+		LLViewerInventoryItem *item = items.at(i);
 		LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : NULL;
 		LLUUID asset_id;
 		if (linked_item)
@@ -3703,7 +3704,7 @@ public:
 									  cat_array,
 									  item_array,
 									  LLInventoryModel::EXCLUDE_TRASH);
-		S32 count = item_array.count();
+		S32 count = item_array.size();
 		if(!count)
 		{
 			llwarns << "Nothing fetched in category " << mComplete.front()
@@ -3715,11 +3716,11 @@ public:
 			return;
 		}
 
-		llinfos << "stage1 got " << item_array.count() << " items, passing to stage2 " << llendl;
+		llinfos << "stage1 got " << item_array.size() << " items, passing to stage2 " << llendl;
 		uuid_vec_t ids;
 		for(S32 i = 0; i < count; ++i)
 		{
-			ids.push_back(item_array.get(i)->getUUID());
+			ids.push_back(item_array.at(i)->getUUID());
 		}
 		
 		gInventory.removeObserver(this);

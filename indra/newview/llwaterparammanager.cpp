@@ -89,7 +89,7 @@ void LLWaterParamManager::loadAllPresets()
 
 void LLWaterParamManager::loadPresetsFromDir(const std::string& dir)
 {
-	LL_INFOS2("AppInit", "Shaders") << "Loading water presets from " << dir << LL_ENDL;
+	LL_INFOS("AppInit", "Shaders") << "Loading water presets from " << dir << LL_ENDL;
 
 	LLDirIterator dir_iter(dir, "*.xml");
 	while (1)
@@ -119,7 +119,7 @@ bool LLWaterParamManager::loadPreset(const std::string& path)
 		return false;
 	}
 
-	LL_DEBUGS2("AppInit", "Shaders") << "Loading water " << name << LL_ENDL;
+	LL_DEBUGS("AppInit", "Shaders") << "Loading water " << name << LL_ENDL;
 
 	LLSD params_data;
 	LLPointer<LLSDParser> parser = new LLSDXMLParser();

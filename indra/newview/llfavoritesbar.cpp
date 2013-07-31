@@ -727,7 +727,7 @@ void LLFavoritesBarCtrl::updateButtons()
 	int first_changed_item_index = 0;
 	int rightest_point = getRect().mRight - mMoreTextBox->getRect().getWidth();
 	//lets find first changed button
-	while (child_it != childs->end() && first_changed_item_index < mItems.count())
+	while (child_it != childs->end() && first_changed_item_index < mItems.size())
 	{
 		LLFavoriteLandmarkButton* button = dynamic_cast<LLFavoriteLandmarkButton*> (*child_it);
 		if (button)
@@ -749,7 +749,7 @@ void LLFavoritesBarCtrl::updateButtons()
 	}
 	// now first_changed_item_index should contains a number of button that need to change
 
-	if (first_changed_item_index <= mItems.count())
+	if (first_changed_item_index <= mItems.size())
 	{
 		// Rebuild the buttons only
 		// child_list_t is a linked list, so safe to erase from the middle if we pre-increment the iterator
@@ -787,7 +787,7 @@ void LLFavoritesBarCtrl::updateButtons()
 		//last_right_edge is saving coordinates
 		LLButton* last_new_button = NULL;
 		int j = first_changed_item_index;
-		for (; j < mItems.count(); j++)
+		for (; j < mItems.size(); j++)
 		{
 			last_new_button = createButton(mItems[j], button_params, last_right_edge);
 			if (!last_new_button)
@@ -801,7 +801,7 @@ void LLFavoritesBarCtrl::updateButtons()
 		}
 		mFirstDropDownItem = j;
 		// Chevron button
-		if (mFirstDropDownItem < mItems.count())
+		if (mFirstDropDownItem < mItems.size())
 		{
 			// if updateButton had been called it means:
 			//or there are some new favorites, or width had been changed
@@ -963,9 +963,9 @@ void LLFavoritesBarCtrl::updateMenuItems(LLToggleableMenu* menu)
 
 	U32 widest_item = 0;
 
-	for (S32 i = mFirstDropDownItem; i < mItems.count(); i++)
+	for (S32 i = mFirstDropDownItem; i < mItems.size(); i++)
 	{
-		LLViewerInventoryItem* item = mItems.get(i);
+		LLViewerInventoryItem* item = mItems.at(i);
 		const std::string& item_name = item->getName();
 
 		LLFavoriteLandmarkMenuItem::Params item_params;
@@ -1221,12 +1221,12 @@ BOOL LLFavoritesBarCtrl::isClipboardPasteable() const
 		return FALSE;
 	}
 
-	LLDynamicArray<LLUUID> objects;
+	std::vector<LLUUID> objects;
 	LLClipboard::instance().pasteFromClipboard(objects);
-	S32 count = objects.count();
+	S32 count = objects.size();
 	for(S32 i = 0; i < count; i++)
 	{
-		const LLUUID &item_id = objects.get(i);
+		const LLUUID &item_id = objects.at(i);
 
 		// Can't paste folders
 		const LLInventoryCategory *cat = gInventory.getCategory(item_id);
@@ -1250,13 +1250,13 @@ void LLFavoritesBarCtrl::pasteFromClipboard() const
 	if(model && isClipboardPasteable())
 	{
 		LLInventoryItem* item = NULL;
-		LLDynamicArray<LLUUID> objects;
+		std::vector<LLUUID> objects;
 		LLClipboard::instance().pasteFromClipboard(objects);
-		S32 count = objects.count();
+		S32 count = objects.size();
 		LLUUID parent_id(mFavoriteFolderId);
 		for(S32 i = 0; i < count; i++)
 		{
-			item = model->getItem(objects.get(i));
+			item = model->getItem(objects.at(i));
 			if (item)
 			{
 				copy_inventory_item(

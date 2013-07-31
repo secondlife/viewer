@@ -1,8 +1,8 @@
 /** 
- * @file lloptioninterface.cpp
- * @brief 
+ * @file bitpack.cpp
+ * @brief LLBitPack class implementation
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -24,10 +24,7 @@
  * $/LicenseInfo$
  */
 
-#include "lloptioninterface.h"
+#include "linden_common.h"
 
-
-LLOptionInterface::~LLOptionInterface()
-{
-
-}
+// implementation is all in the header, this include dep ensures the unit test is rerun if the implementation changes.
+#include "llbitpack.h"

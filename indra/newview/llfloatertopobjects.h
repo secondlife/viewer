@@ -31,6 +31,22 @@
 
 class LLUICtrl;
 
+// Bits for simulator performance query flags
+enum LAND_STAT_FLAGS
+{
+	STAT_FILTER_BY_PARCEL	= 0x00000001,
+	STAT_FILTER_BY_OWNER	= 0x00000002,
+	STAT_FILTER_BY_OBJECT	= 0x00000004,
+	STAT_FILTER_BY_PARCEL_NAME	= 0x00000008,
+	STAT_REQUEST_LAST_ENTRY	= 0x80000000,
+};
+
+enum LAND_STAT_REPORT_TYPE
+{
+	STAT_REPORT_TOP_SCRIPTS = 0,
+	STAT_REPORT_TOP_COLLIDERS
+};
+
 class LLFloaterTopObjects : public LLFloater
 {
 	friend class LLFloaterReg;

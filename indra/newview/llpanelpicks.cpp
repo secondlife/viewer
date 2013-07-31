@@ -30,7 +30,6 @@
 
 #include "llagent.h"
 #include "llagentpicksinfo.h"
-#include "llavatarconstants.h"
 #include "llcommandhandler.h"
 #include "lldispatcher.h"
 #include "llflatlistview.h"

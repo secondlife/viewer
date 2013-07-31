@@ -292,7 +292,7 @@ void LLLogChat::saveHistory(const std::string& filename,
 	if (tmp_filename.empty())
 	{
 		std::string warn = "Chat history filename [" + filename + "] is empty!";
-		llwarning(warn, 666);
+		LL_WARNS() << warn << LL_ENDL;
 		llassert(tmp_filename.size());
 		return;
 	}
@@ -662,7 +662,7 @@ void LLChatLogFormatter::format(const LLSD& im, std::ostream& ostr) const
 {
 	if (!im.isMap())
 	{
-		llwarning("invalid LLSD type of an instant message", 0);
+		LL_WARNS() << "invalid LLSD type of an instant message" << LL_ENDL;
 		return;
 	}
 

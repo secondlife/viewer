@@ -149,6 +149,11 @@ LLFrameTimer gThrottleTimer;
 const U32 OFFER_THROTTLE_MAX_COUNT=5; //number of items per time period
 const F32 OFFER_THROTTLE_TIME=10.f; //time period in seconds
 
+// Agent Update Flags (U8)
+const U8 AU_FLAGS_NONE      		= 0x00;
+const U8 AU_FLAGS_HIDETITLE      	= 0x01;
+const U8 AU_FLAGS_CLIENT_AUTOPILOT	= 0x02;
+
 //script permissions
 const std::string SCRIPT_QUESTIONS[SCRIPT_PERMISSION_EOF] = 
 	{ 
@@ -665,7 +670,7 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 		S32 max_groups = gMaxAgentGroups;
 		if(gAgent.isInGroup(group_id)) ++max_groups;
 
-		if(gAgent.mGroups.count() < max_groups)
+		if(gAgent.mGroups.size() < max_groups)
 		{
 			accept_invite = true;
 		}
@@ -3799,15 +3804,15 @@ public:
 				is_card);
 		}
 		LLSD args;
-		if ( land_items.count() > 0 )
+		if ( land_items.size() > 0 )
 		{	// Show notification that they can now teleport to landmarks.  Use a random landmark from the inventory
-			S32 random_land = ll_rand( land_items.count() - 1 );
+			S32 random_land = ll_rand( land_items.size() - 1 );
 			args["NAME"] = land_items[random_land]->getName();
 			LLNotificationsUtil::add("TeleportToLandmark",args);
 		}
-		if ( card_items.count() > 0 )
+		if ( card_items.size() > 0 )
 		{	// Show notification that they can now contact people.  Use a random calling card from the inventory
-			S32 random_card = ll_rand( card_items.count() - 1 );
+			S32 random_card = ll_rand( card_items.size() - 1 );
 			args["NAME"] = card_items[random_card]->getName();
 			LLNotificationsUtil::add("TeleportToPerson",args);
 		}
@@ -6803,7 +6808,7 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 
 void handle_lure(const LLUUID& invitee)
 {
-	LLDynamicArray<LLUUID> ids;
+	std::vector<LLUUID> ids;
 	ids.push_back(invitee);
 	handle_lure(ids);
 }
@@ -6819,7 +6824,7 @@ void handle_lure(const uuid_vec_t& ids)
 	edit_args["REGION"] = gAgent.getRegion()->getName();
 
 	LLSD payload;
-	for (LLDynamicArray<LLUUID>::const_iterator it = ids.begin();
+	for (std::vector<LLUUID>::const_iterator it = ids.begin();
 		it != ids.end();
 		++it)
 	{

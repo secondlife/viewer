@@ -32,6 +32,10 @@
 #include "llextendedstatus.h"
 
 const S32 LL_XFER_LARGE_PAYLOAD = 7680;
+const S32 LL_ERR_FILE_EMPTY     = -44;
+const int LL_ERR_FILE_NOT_FOUND = -43;
+const int LL_ERR_CANNOT_OPEN_FILE = -42;
+const int LL_ERR_EOF = -39;
 
 typedef enum ELLXferStatus {
 	e_LL_XFER_UNINITIALIZED,

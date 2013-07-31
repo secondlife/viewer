@@ -30,6 +30,7 @@
 
 #include "llviewertexture.h"
 #include "llvoavatar.h"
+#include <map>
 
 struct LocalTextureData;
 
@@ -276,8 +277,7 @@ public:
 	static void		deleteScratchTextures();
 private:
 	static S32 		sScratchTexBytes;
-	static LLMap< LLGLenum, LLGLuint*> sScratchTexNames;
-	static LLMap< LLGLenum, F32*> sScratchTexLastBindTime;
+	static std::map< LLGLenum, LLGLuint*> sScratchTexNames;
 
 /**                    Textures
  **                                                                            **

@@ -29,7 +29,6 @@
 #include "llviewerobjectlist.h"
 
 #include "message.h"
-#include "timing.h"
 #include "llfasttimer.h"
 #include "llrender.h"
 #include "llwindow.h"		// decBusyCount()
@@ -997,14 +996,14 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 
 	// update global timer
 	F32 last_time = gFrameTimeSeconds;
-	U64 time = totalTime();				 // this will become the new gFrameTime when the update is done
+	LLUnit<U64, LLUnits::Microseconds> time = totalTime();				 // this will become the new gFrameTime when the update is done
 	// Time _can_ go backwards, for example if the user changes the system clock.
 	// It doesn't cause any fatal problems (just some oddness with stats), so we shouldn't assert here.
 //	llassert(time > gFrameTime);
-	F64 time_diff = U64_to_F64(time - gFrameTime)/(F64)SEC_TO_MICROSEC;
+	LLUnit<F64, LLUnits::Seconds> time_diff = time - gFrameTime;
 	gFrameTime	= time;
-	F64 time_since_start = U64_to_F64(gFrameTime - gStartTime)/(F64)SEC_TO_MICROSEC;
-	gFrameTimeSeconds = (F32)time_since_start;
+	LLUnit<F64, LLUnits::Seconds> time_since_start = gFrameTime - gStartTime;
+	gFrameTimeSeconds = time_since_start;
 
 	gFrameIntervalSeconds = gFrameTimeSeconds - last_time;
 	if (gFrameIntervalSeconds < 0.f)
@@ -1102,7 +1101,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	/*
 	// Debugging code for viewing orphans, and orphaned parents
 	LLUUID id;
-	for (i = 0; i < mOrphanParents.count(); i++)
+	for (i = 0; i < mOrphanParents.size(); i++)
 	{
 		id = sIndexAndLocalIDToUUID[mOrphanParents[i]];
 		LLViewerObject *objectp = findObject(id);
@@ -1119,7 +1118,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	}
 
 	LLColor4 text_color;
-	for (i = 0; i < mOrphanChildren.count(); i++)
+	for (i = 0; i < mOrphanChildren.size(); i++)
 	{
 		OrphanInfo oi = mOrphanChildren[i];
 		LLViewerObject *objectp = findObject(oi.mChildInfo);

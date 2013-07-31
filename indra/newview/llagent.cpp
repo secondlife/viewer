@@ -2991,7 +2991,7 @@ LLQuaternion LLAgent::getHeadRotation()
 	return rot;
 }
 
-void LLAgent::sendAnimationRequests(LLDynamicArray<LLUUID> &anim_ids, EAnimRequest request)
+void LLAgent::sendAnimationRequests(const std::vector<LLUUID> &anim_ids, EAnimRequest request)
 {
 	if (gAgentID.isNull())
 	{
@@ -3006,7 +3006,7 @@ void LLAgent::sendAnimationRequests(LLDynamicArray<LLUUID> &anim_ids, EAnimReque
 	msg->addUUIDFast(_PREHASH_AgentID, getID());
 	msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
 
-	for (S32 i = 0; i < anim_ids.count(); i++)
+	for (S32 i = 0; i < anim_ids.size(); i++)
 	{
 		if (anim_ids[i].isNull())
 		{
@@ -3204,10 +3204,10 @@ void LLAgent::processAgentDropGroup(LLMessageSystem *msg, void **)
 	// Remove the group if it already exists remove it and add the new data to pick up changes.
 	LLGroupData gd;
 	gd.mID = group_id;
-	S32 index = gAgent.mGroups.find(gd);
-	if (index != -1)
+	std::vector<LLGroupData>::iterator found_it = std::find(gAgent.mGroups.begin(), gAgent.mGroups.end(), gd);
+	if (found_it != gAgent.mGroups.end())
 	{
-		gAgent.mGroups.remove(index);
+		gAgent.mGroups.erase(found_it);
 		if (gAgent.getGroupID() == group_id)
 		{
 			gAgent.mGroupID.setNull();
@@ -3281,10 +3281,10 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 			// and add the new data to pick up changes.
 			LLGroupData gd;
 			gd.mID = group_id;
-			S32 index = gAgent.mGroups.find(gd);
-			if (index != -1)
+			std::vector<LLGroupData>::iterator found_it = std::find(gAgent.mGroups.begin(), gAgent.mGroups.end(), gd);
+			if (found_it != gAgent.mGroups.end())
 			{
-				gAgent.mGroups.remove(index);
+				gAgent.mGroups.erase(found_it);
 				if (gAgent.getGroupID() == group_id)
 				{
 					gAgent.mGroupID.setNull();
@@ -3337,7 +3337,6 @@ void LLAgent::processAgentGroupDataUpdate(LLMessageSystem *msg, void **)
 	
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_GroupData);
 	LLGroupData group;
-	S32 index = -1;
 	bool need_floater_update = false;
 	for(S32 i = 0; i < count; ++i)
 	{
@@ -3352,12 +3351,12 @@ void LLAgent::processAgentGroupDataUpdate(LLMessageSystem *msg, void **)
 		{
 			need_floater_update = true;
 			// Remove the group if it already exists remove it and add the new data to pick up changes.
-			index = gAgent.mGroups.find(group);
-			if (index != -1)
+			std::vector<LLGroupData>::iterator found_it = std::find(gAgent.mGroups.begin(), gAgent.mGroups.end(), group);
+			if (found_it != gAgent.mGroups.end())
 			{
-				gAgent.mGroups.remove(index);
+				gAgent.mGroups.erase(found_it);
 			}
-			gAgent.mGroups.put(group);
+			gAgent.mGroups.push_back(group);
 		}
 		if (need_floater_update)
 		{
@@ -3396,7 +3395,6 @@ class LLAgentGroupDataUpdateViewerNode : public LLHTTPNode
 		{
 
 			LLGroupData group;
-			S32 index = -1;
 			bool need_floater_update = false;
 
 			group.mID = (*iter_group)["GroupID"].asUUID();
@@ -3413,12 +3411,12 @@ class LLAgentGroupDataUpdateViewerNode : public LLHTTPNode
 			{
 				need_floater_update = true;
 				// Remove the group if it already exists remove it and add the new data to pick up changes.
-				index = gAgent.mGroups.find(group);
-				if (index != -1)
+				std::vector<LLGroupData>::iterator found_it = std::find(gAgent.mGroups.begin(), gAgent.mGroups.end(), group);
+				if (found_it != gAgent.mGroups.end())
 				{
-					gAgent.mGroups.remove(index);
+					gAgent.mGroups.erase(found_it);
 				}
-				gAgent.mGroups.put(group);
+				gAgent.mGroups.push_back(group);
 			}
 			if (need_floater_update)
 			{
@@ -4203,11 +4201,12 @@ void LLAgent::fidget()
 
 void LLAgent::stopFidget()
 {
-	LLDynamicArray<LLUUID> anims;
-	anims.put(ANIM_AGENT_STAND_1);
-	anims.put(ANIM_AGENT_STAND_2);
-	anims.put(ANIM_AGENT_STAND_3);
-	anims.put(ANIM_AGENT_STAND_4);
+	std::vector<LLUUID> anims;
+	anims.reserve(4);
+	anims.push_back(ANIM_AGENT_STAND_1);
+	anims.push_back(ANIM_AGENT_STAND_2);
+	anims.push_back(ANIM_AGENT_STAND_3);
+	anims.push_back(ANIM_AGENT_STAND_4);
 
 	gAgent.sendAnimationRequests(anims, ANIM_REQUEST_STOP);
 }

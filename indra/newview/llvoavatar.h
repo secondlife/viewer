@@ -35,7 +35,6 @@
 
 #include <boost/signals2/trackable.hpp>
 
-#include "imageids.h"			// IMG_INVISIBLE
 #include "llavatarappearance.h"
 #include "llchat.h"
 #include "lldrawpoolalpha.h"
@@ -853,8 +852,8 @@ public:
 	std::string		getFullname() const; // Returns "FirstName LastName"
 	std::string		avString() const; // Frequently used string in log messages "Avatar '<full name'"
 protected:
-	static void		getAnimLabels(LLDynamicArray<std::string>* labels);
-	static void		getAnimNames(LLDynamicArray<std::string>* names);	
+	static void		getAnimLabels(std::vector<std::string>* labels);
+	static void		getAnimNames(std::vector<std::string>* names);	
 private:
     bool            mNameIsSet;
 	std::string  	mTitle;

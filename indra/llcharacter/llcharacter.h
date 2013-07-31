@@ -35,7 +35,7 @@
 #include "lljoint.h"
 #include "llmotioncontroller.h"
 #include "llvisualparam.h"
-#include "string_table.h"
+#include "llstringtable.h"
 #include "llpointer.h"
 #include "llthread.h"
 

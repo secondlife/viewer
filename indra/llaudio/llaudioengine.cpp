@@ -187,7 +187,7 @@ void LLAudioEngine::stopInternetStream()
 }
 
 // virtual
-void LLAudioEngine::pauseInternetStream(int pause)
+void LLAudioEngine::pauseInternetStream(S32 pause)
 {
 	if (mStreamingAudioImpl)
 		mStreamingAudioImpl->pause(pause);

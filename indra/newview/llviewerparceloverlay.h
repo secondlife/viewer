@@ -31,7 +31,6 @@
 // One of these structures per region.
 
 #include "llbbox.h"
-#include "lldarray.h"
 #include "llframetimer.h"
 #include "lluuid.h"
 #include "llviewertexture.h"
@@ -88,9 +87,9 @@ private:
 	U8		ownership(S32 row, S32 col) const	
 				{ return 0x7 & mOwnership[row * mParcelGridsPerEdge + col]; }
 
-	void	addPropertyLine(LLDynamicArray<LLVector3, 256>& vertex_array,
-				LLDynamicArray<LLColor4U, 256>& color_array,
-				LLDynamicArray<LLVector2, 256>& coord_array,
+	void	addPropertyLine(std::vector<LLVector3>& vertex_array,
+				std::vector<LLColor4U>& color_array,
+				std::vector<LLVector2>& coord_array,
 				const F32 start_x, const F32 start_y, 
 				const U32 edge, 
 				const LLColor4U& color);

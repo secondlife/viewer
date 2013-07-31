@@ -97,11 +97,12 @@ void LLAgentPilot::loadTxt(const std::string& filename)
 		llinfos << "Opening pilot file " << filename << llendl;
 	}
 
-	mActions.reset();
+	mActions.clear();
 	S32 num_actions;
 
 	file >> num_actions;
 
+	mActions.reserve(num_actions);
 	for (S32 i = 0; i < num_actions; i++)
 	{
 		S32 action_type;
@@ -109,7 +110,7 @@ void LLAgentPilot::loadTxt(const std::string& filename)
 		file >> new_action.mTime >> action_type;
 		file >> new_action.mTarget.mdV[VX] >> new_action.mTarget.mdV[VY] >> new_action.mTarget.mdV[VZ];
 		new_action.mType = (EActionType)action_type;
-		mActions.put(new_action);
+		mActions.push_back(new_action);
 	}
 
 	mOverrideCamera = false;
@@ -137,7 +138,7 @@ void LLAgentPilot::loadXML(const std::string& filename)
 		llinfos << "Opening pilot file " << filename << llendl;
 	}
 
-	mActions.reset();
+	mActions.clear();
 	LLSD record;
 	while (!file.eof() && LLSDParser::PARSE_FAILURE != LLSDSerialize::fromXML(record, file))
 	{
@@ -150,7 +151,7 @@ void LLAgentPilot::loadXML(const std::string& filename)
 		action.mCameraXAxis = ll_vector3_from_sd(record["camera_xaxis"]);
 		action.mCameraYAxis = ll_vector3_from_sd(record["camera_yaxis"]);
 		action.mCameraZAxis = ll_vector3_from_sd(record["camera_zaxis"]);
-		mActions.put(action);
+		mActions.push_back(action);
 	}
 	mOverrideCamera = true;
 	file.close();
@@ -174,10 +175,10 @@ void LLAgentPilot::saveTxt(const std::string& filename)
 		llinfos << "Couldn't open " << filename << ", aborting agentpilot save!" << llendl;
 	}
 
-	file << mActions.count() << '\n';
+	file << mActions.size() << '\n';
 
 	S32 i;
-	for (i = 0; i < mActions.count(); i++)
+	for (i = 0; i < mActions.size(); i++)
 	{
 		file << mActions[i].mTime << "\t" << mActions[i].mType << "\t";
 		file << std::setprecision(32) << mActions[i].mTarget.mdV[VX] << "\t" << mActions[i].mTarget.mdV[VY] << "\t" << mActions[i].mTarget.mdV[VZ];
@@ -198,7 +199,7 @@ void LLAgentPilot::saveXML(const std::string& filename)
 	}
 
 	S32 i;
-	for (i = 0; i < mActions.count(); i++)
+	for (i = 0; i < mActions.size(); i++)
 	{
 		Action& action = mActions[i];
 		LLSD record;
@@ -217,7 +218,7 @@ void LLAgentPilot::saveXML(const std::string& filename)
 
 void LLAgentPilot::startRecord()
 {
-	mActions.reset();
+	mActions.clear();
 	mTimer.reset();
 	addAction(STRAIGHT);
 	mRecording = TRUE;
@@ -244,7 +245,7 @@ void LLAgentPilot::addAction(enum EActionType action_type)
 	action.mCameraYAxis = cam->getYAxis();
 	action.mCameraZAxis = cam->getZAxis();
 	mLastRecordTime = (F32)action.mTime;
-	mActions.put(action);
+	mActions.push_back(action);
 }
 
 void LLAgentPilot::startPlayback()
@@ -255,7 +256,7 @@ void LLAgentPilot::startPlayback()
 		mCurrentAction = 0;
 		mTimer.reset();
 
-		if (mActions.count())
+		if (mActions.size())
 		{
 			llinfos << "Starting playback, moving to waypoint 0" << llendl;
 			gAgent.startAutoPilotGlobal(mActions[0].mTarget);
@@ -291,7 +292,7 @@ void LLAgentPilot::moveCamera()
 	if (!getOverrideCamera())
 		return;
 
-	if (mCurrentAction<mActions.count())
+	if (mCurrentAction<mActions.size())
 	{
 		S32 start_index = llmax(mCurrentAction-1,0);
 		S32 end_index = mCurrentAction;
@@ -331,7 +332,7 @@ void LLAgentPilot::updateTarget()
 {
 	if (mPlaying)
 	{
-		if (mCurrentAction < mActions.count())
+		if (mCurrentAction < mActions.size())
 		{
 			if (0 == mCurrentAction)
 			{
@@ -355,7 +356,7 @@ void LLAgentPilot::updateTarget()
 				//gAgent.stopAutoPilot();
 				mCurrentAction++;
 
-				if (mCurrentAction < mActions.count())
+				if (mCurrentAction < mActions.size())
 				{
 					gAgent.startAutoPilotGlobal(mActions[mCurrentAction].mTarget);
 					moveCamera();

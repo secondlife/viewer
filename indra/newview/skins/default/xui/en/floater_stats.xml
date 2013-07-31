@@ -65,8 +65,7 @@
           <stat_bar name="ktrisframe"
                     label="KTris per Frame"
                     unit_label="ktris/fr"
-                    stat="trianglesdrawnstat"
-                    show_per_sec="false"/>
+                    stat="trianglesdrawnperframestat"/>
           <stat_bar name="ktrissec"
                     label="KTris per Sec"
                     stat="trianglesdrawnstat"/>

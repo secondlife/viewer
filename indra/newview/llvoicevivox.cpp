@@ -6547,8 +6547,8 @@ void LLVivoxVoiceClient::expireVoiceFonts()
 	// Give a warning notification if any voice fonts are due to expire.
 	if (will_expire)
 	{
-		S32 seconds = gSavedSettings.getS32("VoiceEffectExpiryWarningTime");
-		args["INTERVAL"] = llformat("%d", seconds / SEC_PER_DAY);
+		LLUnit<S32, LLUnits::Seconds> seconds = gSavedSettings.getS32("VoiceEffectExpiryWarningTime");
+		args["INTERVAL"] = llformat("%d", LLUnit<S32, LLUnits::Days>(seconds).value());
 
 		LLNotificationsUtil::add("VoiceEffectsWillExpire", args);
 	}

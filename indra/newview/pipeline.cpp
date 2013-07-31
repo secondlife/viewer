@@ -30,7 +30,6 @@
 
 // library includes
 #include "llaudioengine.h" // For debugging.
-#include "imageids.h"
 #include "llerror.h"
 #include "llviewercontrol.h"
 #include "llfasttimer.h"
@@ -40,7 +39,6 @@
 #include "llprimitive.h"
 #include "llvolume.h"
 #include "material_codes.h"
-#include "timing.h"
 #include "v3color.h"
 #include "llui.h" 
 #include "llglheaders.h"

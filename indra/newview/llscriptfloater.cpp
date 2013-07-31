@@ -234,7 +234,7 @@ void LLScriptFloater::onMouseDown()
 			// Remove new message icon
 			if (NULL == chicletp)
 			{
-				llerror("Dock chiclet for LLScriptFloater doesn't exist", 0);
+				LL_ERRS() << "Dock chiclet for LLScriptFloater doesn't exist" << LL_ENDL;
 			}
 			else
 			{

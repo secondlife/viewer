@@ -38,7 +38,6 @@
 #include "lldatapacker.h"
 #include "llsdutil_math.h"
 #include "llprimtexturelist.h"
-#include "imageids.h"
 #include "llmaterialid.h"
 
 /**

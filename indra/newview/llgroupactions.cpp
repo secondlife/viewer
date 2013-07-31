@@ -210,17 +210,17 @@ void LLGroupActions::leave(const LLUUID& group_id)
 	if (group_id.isNull())
 		return;
 
-	S32 count = gAgent.mGroups.count();
+	S32 count = gAgent.mGroups.size();
 	S32 i;
 	for (i = 0; i < count; ++i)
 	{
-		if(gAgent.mGroups.get(i).mID == group_id)
+		if(gAgent.mGroups.at(i).mID == group_id)
 			break;
 	}
 	if (i < count)
 	{
 		LLSD args;
-		args["GROUP"] = gAgent.mGroups.get(i).mName;
+		args["GROUP"] = gAgent.mGroups.at(i).mName;
 		LLSD payload;
 		payload["group_id"] = group_id;
 		LLNotificationsUtil::add("GroupLeaveConfirmMember", args, payload, onLeaveGroup);

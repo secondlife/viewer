@@ -33,7 +33,6 @@
 #include "llpointer.h"
 #include "llcolorswatch.h"
 #include "llspinctrl.h"
-#include "lltextureentry.h"
 
 class LLButton;
 class LLLineEditor;
@@ -121,7 +120,7 @@ class LLFloaterColorPicker
 			   void onClickPipette ( );
 		static void onTextCommit ( LLUICtrl* ctrl, void* data );
 		static void onImmediateCheck ( LLUICtrl* ctrl, void* data );
-			   void onColorSelect( const LLTextureEntry& te );
+			   void onColorSelect( const class LLTextureEntry& te );
 	private:
 		// draws color selection palette
 		void drawPalette ();
@@ -171,7 +170,7 @@ class LLFloaterColorPicker
 		const S32 mPaletteRegionHeight;
 
 		// image used to compose color grid
-		LLPointer<LLViewerTexture> mRGBImage;
+		LLPointer<class LLViewerTexture> mRGBImage;
 
 		// current swatch in use
 		LLColorSwatchCtrl* mSwatch;

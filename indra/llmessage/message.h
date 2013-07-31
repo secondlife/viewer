@@ -45,7 +45,7 @@
 
 #include "llerror.h"
 #include "net.h"
-#include "string_table.h"
+#include "llstringtable.h"
 #include "llcircuit.h"
 #include "lltimer.h"
 #include "llpacketring.h"

@@ -28,7 +28,6 @@
 
 // library includes
 #include "llcoord.h"
-#include "lldarray.h"
 #include "llfontgl.h"
 #include "llgl.h"
 #include "llrender.h"

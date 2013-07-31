@@ -85,6 +85,7 @@ const S32 MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN = 3;
 const F32 CAP_REQUEST_TIMEOUT = 18;
 // Even though we gave up on login, keep trying for caps after we are logged in:
 const S32 MAX_CAP_REQUEST_ATTEMPTS = 30;
+const U32 DEFAULT_MAX_REGION_WIDE_PRIM_COUNT = 15000;
 
 BOOL LLViewerRegion::sVOCacheCullingEnabled = FALSE;
 S32  LLViewerRegion::sLastCameraUpdated = 0;
@@ -230,7 +231,7 @@ public:
 
     void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
     {
-		LL_WARNS2("AppInit", "Capabilities") << "[status:" << statusNum << ":] " << content << LL_ENDL;
+		LL_WARNS("AppInit", "Capabilities") << "[status:" << statusNum << ":] " << content << LL_ENDL;
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
 		if (regionp)
 		{
@@ -243,12 +244,12 @@ public:
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
 		if(!regionp) //region was removed
 		{
-			LL_WARNS2("AppInit", "Capabilities") << "Received results for region that no longer exists!" << LL_ENDL;
+			LL_WARNS("AppInit", "Capabilities") << "Received results for region that no longer exists!" << LL_ENDL;
 			return ;
 		}
 		if( mID != regionp->getHttpResponderID() ) // region is no longer referring to this responder
 		{
-			LL_WARNS2("AppInit", "Capabilities") << "Received results for a stale http responder!" << LL_ENDL;
+			LL_WARNS("AppInit", "Capabilities") << "Received results for a stale http responder!" << LL_ENDL;
 			return ;
 		}
 
@@ -257,8 +258,7 @@ public:
 		{
 			regionp->setCapability(iter->first, iter->second);
 			
-			LL_DEBUGS2("AppInit", "Capabilities") << "got capability for " 
-				<< iter->first << LL_ENDL;
+			LL_DEBUGS("AppInit", "Capabilities") << "got capability for " << iter->first << LL_ENDL;
 
 			/* HACK we're waiting for the ServerReleaseNotes */
 			if (iter->first == "ServerReleaseNotes" && regionp->getReleaseNotesRequested())
@@ -1618,10 +1618,10 @@ public:
 		S32 target_index = input["body"]["Index"][0]["Prey"].asInteger();
 		S32 you_index    = input["body"]["Index"][0]["You" ].asInteger();
 
-		LLDynamicArray<U32>* avatar_locs = &region->mMapAvatars;
-		LLDynamicArray<LLUUID>* avatar_ids = &region->mMapAvatarIDs;
-		avatar_locs->reset();
-		avatar_ids->reset();
+		std::vector<U32>* avatar_locs = &region->mMapAvatars;
+		std::vector<LLUUID>* avatar_ids = &region->mMapAvatarIDs;
+		avatar_locs->clear();
+		avatar_ids->clear();
 
 		//llinfos << "coarse locations agent[0] " << input["body"]["AgentData"][0]["AgentID"].asUUID() << llendl;
 		//llinfos << "my agent id = " << gAgent.getID() << llendl;
@@ -1661,13 +1661,13 @@ public:
 				pos |= y;
 				pos <<= 8;
 				pos |= z;
-				avatar_locs->put(pos);
+				avatar_locs->push_back(pos);
 				//llinfos << "next pos: " << x << "," << y << "," << z << ": " << pos << llendl;
 				if(has_agent_data) // for backwards compatibility with old message format
 				{
 					LLUUID agent_id(agents_it->get("AgentID").asUUID());
 					//llinfos << "next agent: " << agent_id.asString() << llendl;
-					avatar_ids->put(agent_id);
+					avatar_ids->push_back(agent_id);
 				}
 			}
 			if (has_agent_data)
@@ -1688,8 +1688,8 @@ LLHTTPRegistration<CoarseLocationUpdate>
 void LLViewerRegion::updateCoarseLocations(LLMessageSystem* msg)
 {
 	//llinfos << "CoarseLocationUpdate" << llendl;
-	mMapAvatars.reset();
-	mMapAvatarIDs.reset(); // only matters in a rare case but it's good to be safe.
+	mMapAvatars.clear();
+	mMapAvatarIDs.clear(); // only matters in a rare case but it's good to be safe.
 
 	U8 x_pos = 0;
 	U8 y_pos = 0;
@@ -1738,10 +1738,10 @@ void LLViewerRegion::updateCoarseLocations(LLMessageSystem* msg)
 			pos |= y_pos;
 			pos <<= 8;
 			pos |= z_pos;
-			mMapAvatars.put(pos);
+			mMapAvatars.push_back(pos);
 			if(has_agent_data)
 			{
-				mMapAvatarIDs.put(agent_id);
+				mMapAvatarIDs.push_back(agent_id);
 			}
 		}
 	}
@@ -2470,7 +2470,7 @@ void LLViewerRegion::failedSeedCapability()
 	std::string url = getCapability("Seed");
 	if ( url.empty() )
 	{
-		LL_WARNS2("AppInit", "Capabilities") << "Failed to get seed capabilities, and can not determine url for retries!" << LL_ENDL;
+		LL_WARNS("AppInit", "Capabilities") << "Failed to get seed capabilities, and can not determine url for retries!" << LL_ENDL;
 		return;
 	}
 	// After a few attempts, continue login.  We will keep trying once in-world:
@@ -2496,7 +2496,7 @@ void LLViewerRegion::failedSeedCapability()
 	else
 	{
 		// *TODO: Give a user pop-up about this error?
-		LL_WARNS2("AppInit", "Capabilities") << "Failed to get seed capabilities from '" << url << "' after " << mImpl->mSeedCapAttempts << " attempts.  Giving up!" << LL_ENDL;
+		LL_WARNS("AppInit", "Capabilities") << "Failed to get seed capabilities from '" << url << "' after " << mImpl->mSeedCapAttempts << " attempts.  Giving up!" << LL_ENDL;
 	}
 }
 
@@ -2512,7 +2512,7 @@ public:
 	
     void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
     {
-		LL_WARNS2("AppInit", "SimulatorFeatures") << "[status:" << statusNum << "]: " << content << LL_ENDL;
+		LL_WARNS("AppInit", "SimulatorFeatures") << "[status:" << statusNum << "]: " << content << LL_ENDL;
 		retry();
     }
 
@@ -2521,7 +2521,7 @@ public:
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
 		if(!regionp) //region is removed or responder is not created.
 		{
-			LL_WARNS2("AppInit", "SimulatorFeatures") << "Received results for region that no longer exists!" << LL_ENDL;
+			LL_WARNS("AppInit", "SimulatorFeatures") << "Received results for region that no longer exists!" << LL_ENDL;
 			return ;
 		}
 		
@@ -2534,7 +2534,7 @@ private:
 		if (mAttempt < mMaxAttempts)
 		{
 			mAttempt++;
-			LL_WARNS2("AppInit", "SimulatorFeatures") << "Re-trying '" << mRetryURL << "'.  Retry #" << mAttempt << LL_ENDL;
+			LL_WARNS("AppInit", "SimulatorFeatures") << "Re-trying '" << mRetryURL << "'.  Retry #" << mAttempt << LL_ENDL;
 			LLHTTPClient::get(mRetryURL, new SimulatorFeaturesReceived(*this), LLSD(), CAP_REQUEST_TIMEOUT);
 		}
 	}

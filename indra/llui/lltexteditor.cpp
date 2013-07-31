@@ -781,7 +781,7 @@ BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 			setCursorAtLocalPos( clamped_x, clamped_y, true );
 			mSelectionEnd = mCursorPos;
 		}
-		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (active)" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (active)" << llendl;		
 		getWindow()->setCursor(UI_CURSOR_IBEAM);
 		handled = TRUE;
 	}

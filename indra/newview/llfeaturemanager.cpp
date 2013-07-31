@@ -36,7 +36,6 @@
 
 #include "llsys.h"
 #include "llgl.h"
-#include "llsecondlifeurls.h"
 
 #include "llappviewer.h"
 #include "llhttpclient.h"

@@ -28,7 +28,7 @@
 // Header Files
 //-----------------------------------------------------------------------------
 #include "llpreprocessor.h"
-#include "llerrorlegacy.h"
+#include "llerror.h"
 #include "llavatarappearance.h"
 #include "llavatarjoint.h"
 #include "llpolymorph.h"

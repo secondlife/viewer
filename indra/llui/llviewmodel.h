@@ -37,9 +37,9 @@
 #include "llpointer.h"
 #include "llsd.h"
 #include "llrefcount.h"
-#include "stdenums.h"
 #include "llstring.h"
 #include "lltrace.h"
+#include "llui.h"
 #include <string>
 
 class LLScrollListItem;

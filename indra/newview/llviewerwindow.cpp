@@ -76,7 +76,6 @@
 #include "message.h"
 #include "object_flags.h"
 #include "lltimer.h"
-#include "timing.h"
 #include "llviewermenu.h"
 #include "lltooltip.h"
 #include "llmediaentry.h"
@@ -3025,7 +3024,7 @@ void LLViewerWindow::updateUI()
 
 			if( !handled )
 			{
-				lldebugst(LLERR_USER_INPUT) << "hover not handled by mouse captor" << llendl;
+				LL_DEBUGS("UserInput") << "hover not handled by mouse captor" << llendl;
 			}
 		}
 		else

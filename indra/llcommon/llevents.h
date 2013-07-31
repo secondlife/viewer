@@ -61,7 +61,7 @@
 #include "llsd.h"
 #include "llsingleton.h"
 #include "lldependencies.h"
-#include "ll_template_cast.h"
+#include "llstl.h"
 
 /*==========================================================================*|
 // override this to allow binding free functions with more parameters

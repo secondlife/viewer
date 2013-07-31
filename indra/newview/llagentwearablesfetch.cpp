@@ -54,7 +54,7 @@ void order_my_outfits_cb()
 		//My Outfits should at least contain saved initial outfit and one another outfit
 		if (cats->size() < 2)
 		{
-			llwarning("My Outfits category was not populated properly", 0);
+			LL_WARNS() << "My Outfits category was not populated properly" << LL_ENDL;
 			return;
 		}
 
@@ -127,7 +127,7 @@ void LLInitialWearablesFetch::processContents()
 									LLInventoryModel::EXCLUDE_TRASH, is_wearable);
 
 	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
-	if (wearable_array.count() > 0)
+	if (wearable_array.size() > 0)
 	{
 		gAgentWearables.notifyLoadingStarted();
 		LLAppearanceMgr::instance().updateAppearanceFromCOF();
@@ -326,7 +326,7 @@ void LLLibraryOutfitsFetch::folderDone()
 	
 	// Early out if we already have items in My Outfits
 	// except the case when My Outfits contains just initial outfit
-	if (cat_array.count() > 1)
+	if (cat_array.size() > 1)
 	{
 		mOutfitsPopulated = true;
 		return;
@@ -342,9 +342,9 @@ void LLLibraryOutfitsFetch::folderDone()
 									cat_array, wearable_array, 
 									LLInventoryModel::EXCLUDE_TRASH,
 									matchFolderFunctor);
-	if (cat_array.count() > 0)
+	if (cat_array.size() > 0)
 	{
-		const LLViewerInventoryCategory *cat = cat_array.get(0);
+		const LLViewerInventoryCategory *cat = cat_array.at(0);
 		mLibraryClothingID = cat->getUUID();
 	}
 
@@ -374,7 +374,7 @@ void LLLibraryOutfitsFetch::outfitsDone()
 	gInventory.collectDescendents(mLibraryClothingID, cat_array, wearable_array, 
 								  LLInventoryModel::EXCLUDE_TRASH);
 	
-	llassert(cat_array.count() > 0);
+	llassert(cat_array.size() > 0);
 	for (LLInventoryModel::cat_array_t::const_iterator iter = cat_array.begin();
 		 iter != cat_array.end();
 		 ++iter)
@@ -401,7 +401,7 @@ void LLLibraryOutfitsFetch::outfitsDone()
 									matchFolderFunctor);
 	if (cat_array.size() > 0)
 	{
-		const LLViewerInventoryCategory *cat = cat_array.get(0);
+		const LLViewerInventoryCategory *cat = cat_array.at(0);
 		mImportedClothingID = cat->getUUID();
 	}
 	

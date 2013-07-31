@@ -28,8 +28,10 @@
 #include "llagentpicksinfo.h"
 
 #include "llagent.h"
-#include "llavatarconstants.h"
 #include "llavatarpropertiesprocessor.h"
+
+const S32 MAX_AVATAR_PICKS = 10;
+
 
 class LLAgentPicksInfo::LLAgentPicksObserver : public LLAvatarPropertiesObserver
 {

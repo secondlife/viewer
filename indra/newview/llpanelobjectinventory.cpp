@@ -1753,7 +1753,7 @@ void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_li
 	LLUIColor item_color = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
 
 	// Find all in the first pass
-	LLDynamicArray<obj_folder_pair*> child_categories;
+	std::vector<obj_folder_pair*> child_categories;
 	LLTaskInvFVBridge* bridge;
 	LLFolderViewItem* view;
 
@@ -1780,7 +1780,7 @@ void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_li
 				p.font_color = item_color;
 				p.font_highlight_color = item_color;
 				view = LLUICtrlFactory::create<LLFolderViewFolder>(p);
-				child_categories.put(new obj_folder_pair(obj,
+				child_categories.push_back(new obj_folder_pair(obj,
 														 (LLFolderViewFolder*)view));
 			}
 			else
@@ -1802,7 +1802,7 @@ void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_li
 	}
 
 	// now, for each category, do the second pass
-	for(S32 i = 0; i < child_categories.count(); i++)
+	for(S32 i = 0; i < child_categories.size(); i++)
 	{
 		createViewsForCategory(inventory, child_categories[i]->first,
 							   child_categories[i]->second );

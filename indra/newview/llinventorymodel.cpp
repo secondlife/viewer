@@ -112,7 +112,7 @@ bool LLCanCache::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 			S32 descendents_actual = 0;
 			if(cats && items)
 			{
-				descendents_actual = cats->count() + items->count();
+				descendents_actual = cats->size() + items->size();
 			}
 			if(descendents_server == descendents_actual)
 			{
@@ -389,12 +389,12 @@ const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType prefe
 		cats = get_ptr_in_map(mParentChildCategoryTree, root_id);
 		if(cats)
 		{
-			S32 count = cats->count();
+			S32 count = cats->size();
 			for(S32 i = 0; i < count; ++i)
 			{
-				if(cats->get(i)->getPreferredType() == preferred_type)
+				if(cats->at(i)->getPreferredType() == preferred_type)
 				{
-					rv = cats->get(i)->getUUID();
+					rv = cats->at(i)->getUUID();
 					break;
 				}
 			}
@@ -426,12 +426,12 @@ const LLUUID LLInventoryModel::findLibraryCategoryUUIDForType(LLFolderType::ETyp
 		cats = get_ptr_in_map(mParentChildCategoryTree, root_id);
 		if(cats)
 		{
-			S32 count = cats->count();
+			S32 count = cats->size();
 			for(S32 i = 0; i < count; ++i)
 			{
-				if(cats->get(i)->getPreferredType() == preferred_type)
+				if(cats->at(i)->getPreferredType() == preferred_type)
 				{
-					rv = cats->get(i)->getUUID();
+					rv = cats->at(i)->getUUID();
 					break;
 				}
 			}
@@ -631,13 +631,13 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 	cat_array_t* cat_array = get_ptr_in_map(mParentChildCategoryTree, id);
 	if(cat_array)
 	{
-		S32 count = cat_array->count();
+		S32 count = cat_array->size();
 		for(S32 i = 0; i < count; ++i)
 		{
-			LLViewerInventoryCategory* cat = cat_array->get(i);
+			LLViewerInventoryCategory* cat = cat_array->at(i);
 			if(add(cat,NULL))
 			{
-				cats.put(cat);
+				cats.push_back(cat);
 			}
 			collectDescendentsIf(cat->getUUID(), cats, items, include_trash, add);
 		}
@@ -651,10 +651,10 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 	// Note: if making it fully recursive, need more checking against infinite loops.
 	if (follow_folder_links && item_array)
 	{
-		S32 count = item_array->count();
+		S32 count = item_array->size();
 		for(S32 i = 0; i < count; ++i)
 		{
-			item = item_array->get(i);
+			item = item_array->at(i);
 			if (item && item->getActualType() == LLAssetType::AT_LINK_FOLDER)
 			{
 				LLViewerInventoryCategory *linked_cat = item->getLinkedCategory();
@@ -668,7 +668,7 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 						// BAP should this be added here?  May not
 						// matter if it's only being used in current
 						// outfit traversal.
-						cats.put(LLPointer<LLViewerInventoryCategory>(linked_cat));
+						cats.push_back(LLPointer<LLViewerInventoryCategory>(linked_cat));
 					}
 					collectDescendentsIf(linked_cat->getUUID(), cats, items, include_trash, add, FALSE);
 				}
@@ -679,13 +679,13 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 	// Move onto items
 	if(item_array)
 	{
-		S32 count = item_array->count();
+		S32 count = item_array->size();
 		for(S32 i = 0; i < count; ++i)
 		{
-			item = item_array->get(i);
+			item = item_array->at(i);
 			if(add(NULL, item))
 			{
-				items.put(item);
+				items.push_back(item);
 			}
 		}
 	}
@@ -793,7 +793,7 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 	}
 #endif
 
-	LLViewerInventoryItem* old_item = getItem(item->getUUID());
+	LLPointer<LLViewerInventoryItem> old_item = getItem(item->getUUID());
 	LLPointer<LLViewerInventoryItem> new_item;
 	if(old_item)
 	{
@@ -809,12 +809,12 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 			item_array = get_ptr_in_map(mParentChildItemTree, old_parent_id);
 			if(item_array)
 			{
-				item_array->removeObj(old_item);
+				vector_replace_with_last(*item_array, old_item);
 			}
 			item_array = get_ptr_in_map(mParentChildItemTree, new_parent_id);
 			if(item_array)
 			{
-				item_array->put(old_item);
+				item_array->push_back(old_item);
 			}
 			mask |= LLInventoryObserver::STRUCTURE;
 		}
@@ -840,7 +840,7 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 			{
 				// *FIX: bit of a hack to call update server from here...
 				new_item->updateServer(TRUE);
-				item_array->put(new_item);
+				item_array->push_back(new_item);
 			}
 			else
 			{
@@ -868,7 +868,7 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 			item_array_t* item_array = get_ptr_in_map(mParentChildItemTree, parent_id);
 			if(item_array)
 			{
-				item_array->put(new_item);
+				item_array->push_back(new_item);
 			}
 			else
 			{
@@ -883,7 +883,7 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 					// *FIX: bit of a hack to call update server from
 					// here...
 					new_item->updateServer(TRUE);
-					item_array->put(new_item);
+					item_array->push_back(new_item);
 				}
 				else
 				{
@@ -965,7 +965,7 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
 		return;
 	}
 
-	LLViewerInventoryCategory* old_cat = getCategory(cat->getUUID());
+	LLPointer<LLViewerInventoryCategory> old_cat = getCategory(cat->getUUID());
 	if(old_cat)
 	{
 		// We already have an old category, modify it's values
@@ -979,12 +979,12 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
 			cat_array = getUnlockedCatArray(old_parent_id);
 			if(cat_array)
 			{
-				cat_array->removeObj(old_cat);
+				vector_replace_with_last(*cat_array, old_cat);
 			}
 			cat_array = getUnlockedCatArray(new_parent_id);
 			if(cat_array)
 			{
-				cat_array->put(old_cat);
+				cat_array->push_back(old_cat);
 			}
 			mask |= LLInventoryObserver::STRUCTURE;
             mask |= LLInventoryObserver::INTERNAL;
@@ -1008,7 +1008,7 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
 		cat_array = getUnlockedCatArray(cat->getParentUUID());
 		if(cat_array)
 		{
-			cat_array->put(new_cat);
+			cat_array->push_back(new_cat);
 		}
 
 		// make space in the tree for this category's children.
@@ -1037,27 +1037,27 @@ void LLInventoryModel::moveObject(const LLUUID& object_id, const LLUUID& cat_id)
 				<< cat_id << llendl;
 		return;
 	}
-	LLViewerInventoryCategory* cat = getCategory(object_id);
+	LLPointer<LLViewerInventoryCategory> cat = getCategory(object_id);
 	if(cat && (cat->getParentUUID() != cat_id))
 	{
 		cat_array_t* cat_array;
 		cat_array = getUnlockedCatArray(cat->getParentUUID());
-		if(cat_array) cat_array->removeObj(cat);
+		if(cat_array) vector_replace_with_last(*cat_array, cat);
 		cat_array = getUnlockedCatArray(cat_id);
 		cat->setParent(cat_id);
-		if(cat_array) cat_array->put(cat);
+		if(cat_array) cat_array->push_back(cat);
 		addChangedMask(LLInventoryObserver::STRUCTURE, object_id);
 		return;
 	}
-	LLViewerInventoryItem* item = getItem(object_id);
+	LLPointer<LLViewerInventoryItem> item = getItem(object_id);
 	if(item && (item->getParentUUID() != cat_id))
 	{
 		item_array_t* item_array;
 		item_array = getUnlockedItemArray(item->getParentUUID());
-		if(item_array) item_array->removeObj(item);
+		if(item_array) vector_replace_with_last(*item_array, item);
 		item_array = getUnlockedItemArray(cat_id);
 		item->setParent(cat_id);
-		if(item_array) item_array->put(item);
+		if(item_array) item_array->push_back(item);
 		addChangedMask(LLInventoryObserver::STRUCTURE, object_id);
 		return;
 	}
@@ -1143,14 +1143,14 @@ void LLInventoryModel::deleteObject(const LLUUID& id)
 	item_array_t* item_list = getUnlockedItemArray(parent_id);
 	if(item_list)
 	{
-		LLViewerInventoryItem* item = (LLViewerInventoryItem*)((LLInventoryObject*)obj);
-		item_list->removeObj(item);
+		LLPointer<LLViewerInventoryItem> item = (LLViewerInventoryItem*)((LLInventoryObject*)obj);
+		vector_replace_with_last(*item_list, item);
 	}
 	cat_array_t* cat_list = getUnlockedCatArray(parent_id);
 	if(cat_list)
 	{
-		LLViewerInventoryCategory* cat = (LLViewerInventoryCategory*)((LLInventoryObject*)obj);
-		cat_list->removeObj(cat);
+		LLPointer<LLViewerInventoryCategory> cat = (LLViewerInventoryCategory*)((LLInventoryObject*)obj);
+		vector_replace_with_last(*cat_list, cat);
 	}
 	item_list = getUnlockedItemArray(id);
 	if(item_list)
@@ -1282,7 +1282,7 @@ void LLInventoryModel::purgeDescendentsOf(const LLUUID& id)
 							   categories,
 							   items,
 							   INCLUDE_TRASH);
-			S32 count = items.count();
+			S32 count = items.size();
 
 			item_map_t::iterator item_map_end = mItemMap.end();
 			cat_map_t::iterator cat_map_end = mCategoryMap.end();
@@ -1290,7 +1290,7 @@ void LLInventoryModel::purgeDescendentsOf(const LLUUID& id)
 
 			for(S32 i = 0; i < count; ++i)
 			{
-				uu_id = items.get(i)->getUUID();
+				uu_id = items.at(i)->getUUID();
 
 				// This check prevents the deletion of a previously deleted item.
 				// This is necessary because deletion is not done in a hierarchical
@@ -1302,10 +1302,10 @@ void LLInventoryModel::purgeDescendentsOf(const LLUUID& id)
 				}
 			}
 
-			count = categories.count();
+			count = categories.size();
 			for(S32 i = 0; i < count; ++i)
 			{
-				uu_id = categories.get(i)->getUUID();
+				uu_id = categories.at(i)->getUUID();
 				if (mCategoryMap.find(uu_id) != cat_map_end)
 				{
 					deleteObject(uu_id);
@@ -1481,11 +1481,11 @@ bool LLInventoryModel::fetchDescendentsOf(const LLUUID& folder_id) const
 	//item_array_t* items = get_ptr_in_map(mParentChildItemTree, folder_id);
 	//if(categories)
 	//{
-	//	known_descendents += categories->count();
+	//	known_descendents += categories->size();
 	//}
 	//if(items)
 	//{
-	//	known_descendents += items->count();
+	//	known_descendents += items->size();
 	//}
 	return cat->fetch();
 }
@@ -1499,7 +1499,7 @@ void LLInventoryModel::cache(
 	LLViewerInventoryCategory* root_cat = getCategory(parent_folder_id);
 	if(!root_cat) return;
 	cat_array_t categories;
-	categories.put(root_cat);
+	categories.push_back(root_cat);
 	item_array_t items;
 
 	LLCanCache can_cache(this);
@@ -1612,7 +1612,7 @@ void LLInventoryModel::accountForUpdate(const LLCategoryUpdate& update) const
 			S32 descendents_actual = 0;
 			if(cats && items)
 			{
-				descendents_actual = cats->count() + items->count();
+				descendents_actual = cats->size() + items->size();
 			}
 			if(descendents_server == descendents_actual)
 			{
@@ -1727,12 +1727,12 @@ LLInventoryModel::EHasChildren LLInventoryModel::categoryHasChildren(
 
 	// Shouldn't have to run this, but who knows.
 	parent_cat_map_t::const_iterator cat_it = mParentChildCategoryTree.find(cat->getUUID());
-	if (cat_it != mParentChildCategoryTree.end() && cat_it->second->count() > 0)
+	if (cat_it != mParentChildCategoryTree.end() && cat_it->second->size() > 0)
 	{
 		return CHILDREN_YES;
 	}
 	parent_item_map_t::const_iterator item_it = mParentChildItemTree.find(cat->getUUID());
-	if (item_it != mParentChildItemTree.end() && item_it->second->count() > 0)
+	if (item_it != mParentChildItemTree.end() && item_it->second->size() > 0)
 	{
 		return CHILDREN_YES;
 	}
@@ -1752,7 +1752,7 @@ bool LLInventoryModel::isCategoryComplete(const LLUUID& cat_id) const
 		S32 descendents_actual = 0;
 		if(cats && items)
 		{
-			descendents_actual = cats->count() + items->count();
+			descendents_actual = cats->size() + items->size();
 		}
 		if(descendents_server == descendents_actual)
 		{
@@ -1850,7 +1850,7 @@ bool LLInventoryModel::loadSkeleton(
 			// found to generate a set of categories we should add. We
 			// will go through each category loaded and if the version
 			// does not match, invalidate the version.
-			S32 count = categories.count();
+			S32 count = categories.size();
 			cat_set_t::iterator not_cached = temp_cats.end();
 			std::set<LLUUID> cached_ids;
 			for(S32 i = 0; i < count; ++i)
@@ -2060,7 +2060,7 @@ void LLInventoryModel::buildParentChildMap()
 	for(cat_map_t::iterator cit = mCategoryMap.begin(); cit != mCategoryMap.end(); ++cit)
 	{
 		LLViewerInventoryCategory* cat = cit->second;
-		cats.put(cat);
+		cats.push_back(cat);
 		if (mParentChildCategoryTree.count(cat->getUUID()) == 0)
 		{
 			llassert_always(mCategoryLock[cat->getUUID()] == false);
@@ -2088,16 +2088,16 @@ void LLInventoryModel::buildParentChildMap()
 	// Now we have a structure with all of the categories that we can
 	// iterate over and insert into the correct place in the child
 	// category tree. 
-	S32 count = cats.count();
+	S32 count = cats.size();
 	S32 i;
 	S32 lost = 0;
 	for(i = 0; i < count; ++i)
 	{
-		LLViewerInventoryCategory* cat = cats.get(i);
+		LLViewerInventoryCategory* cat = cats.at(i);
 		catsp = getUnlockedCatArray(cat->getParentUUID());
 		if(catsp)
 		{
-			catsp->put(cat);
+			catsp->push_back(cat);
 		}
 		else
 		{
@@ -2130,7 +2130,7 @@ void LLInventoryModel::buildParentChildMap()
 			catsp = getUnlockedCatArray(cat->getParentUUID());
 			if(catsp)
 			{
-				catsp->put(cat);
+				catsp->push_back(cat);
 			}
 			else
 			{		
@@ -2157,20 +2157,20 @@ void LLInventoryModel::buildParentChildMap()
 		for(item_map_t::iterator iit = mItemMap.begin(); iit != mItemMap.end(); ++iit)
 		{
 			item = (*iit).second;
-			items.put(item);
+			items.push_back(item);
 		}
 	}
-	count = items.count();
+	count = items.size();
 	lost = 0;
 	uuid_vec_t lost_item_ids;
 	for(i = 0; i < count; ++i)
 	{
 		LLPointer<LLViewerInventoryItem> item;
-		item = items.get(i);
+		item = items.at(i);
 		itemsp = getUnlockedItemArray(item->getParentUUID());
 		if(itemsp)
 		{
-			itemsp->put(item);
+			itemsp->push_back(item);
 		}
 		else
 		{
@@ -2187,7 +2187,7 @@ void LLInventoryModel::buildParentChildMap()
 			itemsp = getUnlockedItemArray(item->getParentUUID());
 			if(itemsp)
 			{
-				itemsp->put(item);
+				itemsp->push_back(item);
 			}
 			else
 			{
@@ -2355,7 +2355,7 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 			LLPointer<LLViewerInventoryCategory> inv_cat = new LLViewerInventoryCategory(LLUUID::null);
 			if(inv_cat->importFileLocal(file))
 			{
-				categories.put(inv_cat);
+				categories.push_back(inv_cat);
 			}
 			else
 			{
@@ -2383,7 +2383,7 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 				}
 				else
 				{
-					items.put(inv_item);
+					items.push_back(inv_item);
 				}
 			}
 			else
@@ -2423,7 +2423,7 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
 	}
 
 	fprintf(file, "\tinv_cache_version\t%d\n",sCurrentInvCacheVersion);
-	S32 count = categories.count();
+	S32 count = categories.size();
 	S32 i;
 	for(i = 0; i < count; ++i)
 	{
@@ -2434,7 +2434,7 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
 		}
 	}
 
-	count = items.count();
+	count = items.size();
 	for(i = 0; i < count; ++i)
 	{
 		items[i]->exportFile(file);

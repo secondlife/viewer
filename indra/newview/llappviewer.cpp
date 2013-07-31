@@ -93,7 +93,6 @@
 #include "llvocache.h"
 #include "llvopartgroup.h"
 #include "llweb.h"
-#include "llsecondlifeurls.h"
 #include "llupdaterservice.h"
 #include "llfloatertexturefetchdebugger.h"
 #include "llspellcheck.h"
@@ -294,12 +293,12 @@ U32	gFrameCount = 0;
 U32 gForegroundFrameCount = 0; // number of frames that app window was in foreground
 LLPumpIO* gServicePump = NULL;
 
-U64 gFrameTime = 0;
-F32 gFrameTimeSeconds = 0.f;
-LLUnit<F32, LLUnits::Seconds> gFrameIntervalSeconds = 0.f;
+LLUnitImplicit<U64, LLUnits::Microseconds> gFrameTime = 0;
+LLUnitImplicit<F32, LLUnits::Seconds> gFrameTimeSeconds = 0.f;
+LLUnitImplicit<F32, LLUnits::Seconds> gFrameIntervalSeconds = 0.f;
 F32 gFPSClamped = 10.f;						// Pretend we start at target rate.
 F32 gFrameDTClamped = 0.f;					// Time between adjacent checks to network for packets
-U64	gStartTime = 0; // gStartTime is "private", used only to calculate gFrameTimeSeconds
+LLUnitImplicit<U64, LLUnits::Microseconds>	gStartTime = 0; // gStartTime is "private", used only to calculate gFrameTimeSeconds
 U32 gFrameStalls = 0;
 const F64 FRAME_STALL_THRESHOLD = 1.0;
 
@@ -662,7 +661,7 @@ LLTextureFetch* LLAppViewer::sTextureFetch = NULL;
 
 std::string getRuntime()
 {
-	return llformat("%g", LLTimer::getElapsedSeconds().value());
+	return llformat("%.4f", (F32)LLTimer::getElapsedSeconds().value());
 }
 
 LLAppViewer::LLAppViewer() 
@@ -1260,7 +1259,7 @@ LLFastTimer::DeclareTimer FTM_FRAME("Frame");
 
 bool LLAppViewer::mainLoop()
 {
-	llinfos << "***********************Entering main_loop***********************" << llendflush;
+	llinfos << "***********************Entering main_loop***********************" << LL_ENDL;
 
 	mMainloopTimeout = new LLWatchdogTimeout();
 	
@@ -1465,7 +1464,7 @@ bool LLAppViewer::mainLoop()
 					ms_sleep(500);
 				}
 
-				const F64 max_idle_time = llmin(.005*10.0*gFrameTimeSeconds, 0.005); // 5 ms a second
+				const F64 max_idle_time = llmin(.005*10.0*gFrameTimeSeconds, LLUnitImplicit<F32, LLUnits::Seconds>(0.005f)); // 5 ms a second
 				idleTimer.reset();
 				S32 total_work_pending = 0;
 				S32 total_io_pending = 0;	
@@ -1588,7 +1587,7 @@ bool LLAppViewer::mainLoop()
 
 	destroyMainloopTimeout();
 
-	llinfos << "***********************Exiting main_loop***********************" << llendflush;
+	llinfos << "***********************Exiting main_loop***********************" << LL_ENDL;
 
 	return true;
 }
@@ -1621,7 +1620,7 @@ void LLAppViewer::flushVFSIO()
 		{
 			break;
 		}
-		llinfos << "Waiting for pending IO to finish: " << pending << llendflush;
+		llinfos << "Waiting for pending IO to finish: " << pending << LL_ENDL;
 		ms_sleep(100);
 	}
 }
@@ -1685,7 +1684,7 @@ bool LLAppViewer::cleanup()
 	
 	disconnectViewer();
 
-	llinfos << "Viewer disconnected" << llendflush;
+	llinfos << "Viewer disconnected" << LL_ENDL;
 
 	display_cleanup(); 
 
@@ -1693,7 +1692,7 @@ bool LLAppViewer::cleanup()
 
 	LLError::logToFixedBuffer(NULL);
 
-	llinfos << "Cleaning Up" << llendflush;
+	llinfos << "Cleaning Up" << LL_ENDL;
 
 	// shut down mesh streamer
 	gMeshRepo.shutdown();
@@ -1708,7 +1707,7 @@ bool LLAppViewer::cleanup()
 		LLHUDObject::updateAll();
 		LLHUDManager::getInstance()->cleanupEffects();
 		LLHUDObject::cleanupHUDObjects();
-		llinfos << "HUD Objects cleaned up" << llendflush;
+		llinfos << "HUD Objects cleaned up" << LL_ENDL;
 	}
 
 	LLKeyframeDataCache::clear();
@@ -1739,7 +1738,7 @@ bool LLAppViewer::cleanup()
 
 	LLCalc::cleanUp();
 
-	llinfos << "Global stuff deleted" << llendflush;
+	llinfos << "Global stuff deleted" << LL_ENDL;
 
 	if (gAudiop)
 	{
@@ -1763,7 +1762,7 @@ bool LLAppViewer::cleanup()
 	// such that we can suck rectangle information out of
 	// it.
 	cleanupSavedSettings();
-	llinfos << "Settings patched up" << llendflush;
+	llinfos << "Settings patched up" << LL_ENDL;
 
 	// delete some of the files left around in the cache.
 	removeCacheFiles("*.wav");
@@ -1774,29 +1773,29 @@ bool LLAppViewer::cleanup()
 	removeCacheFiles("*.bodypart");
 	removeCacheFiles("*.clothing");
 
-	llinfos << "Cache files removed" << llendflush;
+	llinfos << "Cache files removed" << LL_ENDL;
 
 	// Wait for any pending VFS IO
 	flushVFSIO();
-	llinfos << "Shutting down Views" << llendflush;
+	llinfos << "Shutting down Views" << LL_ENDL;
 
 	// Destroy the UI
 	if( gViewerWindow)
 		gViewerWindow->shutdownViews();
 
-	llinfos << "Cleaning up Inventory" << llendflush;
+	llinfos << "Cleaning up Inventory" << LL_ENDL;
 	
 	// Cleanup Inventory after the UI since it will delete any remaining observers
 	// (Deleted observers should have already removed themselves)
 	gInventory.cleanupInventory();
 
-	llinfos << "Cleaning up Selections" << llendflush;
+	llinfos << "Cleaning up Selections" << LL_ENDL;
 	
 	// Clean up selection managers after UI is destroyed, as UI may be observing them.
 	// Clean up before GL is shut down because we might be holding on to objects with texture references
 	LLSelectMgr::cleanupGlobals();
 	
-	llinfos << "Shutting down OpenGL" << llendflush;
+	llinfos << "Shutting down OpenGL" << LL_ENDL;
 
 	// Shut down OpenGL
 	if( gViewerWindow)
@@ -1808,10 +1807,10 @@ bool LLAppViewer::cleanup()
 		// Therefore must do this before destroying the message system.
 		delete gViewerWindow;
 		gViewerWindow = NULL;
-		llinfos << "ViewerWindow deleted" << llendflush;
+		llinfos << "ViewerWindow deleted" << LL_ENDL;
 	}
 
-	llinfos << "Cleaning up Keyboard & Joystick" << llendflush;
+	llinfos << "Cleaning up Keyboard & Joystick" << LL_ENDL;
 	
 	// viewer UI relies on keyboard so keep it aound until viewer UI isa gone
 	delete gKeyboard;
@@ -1820,7 +1819,7 @@ bool LLAppViewer::cleanup()
 	// Turn off Space Navigator and similar devices
 	LLViewerJoystick::getInstance()->terminate();
 	
-	llinfos << "Cleaning up Objects" << llendflush;
+	llinfos << "Cleaning up Objects" << LL_ENDL;
 	
 	LLViewerObject::cleanupVOClasses();
 
@@ -1842,11 +1841,11 @@ bool LLAppViewer::cleanup()
 	LLVolumeMgr* volume_manager = LLPrimitive::getVolumeManager();
 	if (!volume_manager->cleanup())
 	{
-		llwarns << "Remaining references in the volume manager!" << llendflush;
+		llwarns << "Remaining references in the volume manager!" << LL_ENDL;
 	}
 	LLPrimitive::cleanupVolumeManager();
 
-	llinfos << "Additional Cleanup..." << llendflush;	
+	llinfos << "Additional Cleanup..." << LL_ENDL;	
 	
 	LLViewerParcelMgr::cleanupGlobals();
 
@@ -1867,10 +1866,10 @@ bool LLAppViewer::cleanup()
 	// Also after shutting down the messaging system since it has VFS dependencies
 
 	//
-	llinfos << "Cleaning up VFS" << llendflush;
+	llinfos << "Cleaning up VFS" << LL_ENDL;
 	LLVFile::cleanupClass();
 
-	llinfos << "Saving Data" << llendflush;
+	llinfos << "Saving Data" << LL_ENDL;
 	
 	// Store the time of our current logoff
 	gSavedPerAccountSettings.setU32("LastLogoff", time_corrected());
@@ -1897,7 +1896,7 @@ bool LLAppViewer::cleanup()
 	else
 	{
 		gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
-		llinfos << "Saved settings" << llendflush;
+		llinfos << "Saved settings" << LL_ENDL;
 	}
 
 	std::string warnings_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Warnings"));
@@ -1914,7 +1913,7 @@ bool LLAppViewer::cleanup()
 
 	if (mPurgeOnExit)
 	{
-		llinfos << "Purging all cache files on exit" << llendflush;
+		llinfos << "Purging all cache files on exit" << LL_ENDL;
 		gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""), "*.*");
 	}
 
@@ -1931,7 +1930,7 @@ bool LLAppViewer::cleanup()
 	// Stop the plugin read thread if it's running.
 	LLPluginProcessParent::setUseReadThread(false);
 
-	llinfos << "Shutting down Threads" << llendflush;
+	llinfos << "Shutting down Threads" << LL_ENDL;
 
 	// Let threads finish
 	LLTimer idleTimer;
@@ -1969,7 +1968,7 @@ bool LLAppViewer::cleanup()
 	sTextureFetch->shutDownTextureCacheThread() ;
 	sTextureFetch->shutDownImageDecodeThread() ;
 
-	llinfos << "Shutting down message system" << llendflush;
+	llinfos << "Shutting down message system" << LL_ENDL;
 	end_messaging_system();
 
 	// *NOTE:Mani - The following call is not thread safe. 
@@ -2008,7 +2007,7 @@ bool LLAppViewer::cleanup()
 
 	LLMetricPerformanceTesterBasic::cleanClass() ;
 
-	llinfos << "Cleaning up Media and Textures" << llendflush;
+	llinfos << "Cleaning up Media and Textures" << LL_ENDL;
 
 	//Note:
 	//LLViewerMedia::cleanupClass() has to be put before gTextureList.shutdown()
@@ -2031,7 +2030,7 @@ bool LLAppViewer::cleanup()
 	}
 #endif
 
-	llinfos << "Misc Cleanup" << llendflush;
+	llinfos << "Misc Cleanup" << LL_ENDL;
 	
 	// For safety, the LLVFS has to be deleted *after* LLVFSThread. This should be cleaned up.
 	// (LLVFS doesn't know about LLVFSThread so can't kill pending requests) -Steve
@@ -2051,7 +2050,7 @@ bool LLAppViewer::cleanup()
 	// is at the right resolution before we launch IE.
 	if (!gLaunchFileOnQuit.empty())
 	{
-		llinfos << "Launch file on quit." << llendflush;
+		llinfos << "Launch file on quit." << LL_ENDL;
 #if LL_WINDOWS
 		// Indicate an application is starting.
 		SetCursor(LoadCursor(NULL, IDC_WAIT));
@@ -2061,7 +2060,7 @@ bool LLAppViewer::cleanup()
 		ms_sleep(1000);
 
 		LLWeb::loadURLExternal( gLaunchFileOnQuit, false );
-		llinfos << "File launched." << llendflush;
+		llinfos << "File launched." << LL_ENDL;
 	}
 	llinfos << "Cleaning up LLProxy." << llendl;
 	LLProxy::cleanupClass();
@@ -2075,7 +2074,7 @@ bool LLAppViewer::cleanup()
 
 	ll_close_fail_log();
 
-    llinfos << "Goodbye!" << llendflush;
+    llinfos << "Goodbye!" << LL_ENDL;
 
 	// return 0;
 	return true;
@@ -4559,7 +4558,7 @@ void LLAppViewer::idle()
 	{
 		LLFastTimer t(FTM_NETWORK);
 		// Update spaceserver timeinfo
-	    LLWorld::getInstance()->setSpaceTimeUSec(LLWorld::getInstance()->getSpaceTimeUSec() + (U32)(dt_raw * SEC_TO_MICROSEC));
+	    LLWorld::getInstance()->setSpaceTimeUSec(LLWorld::getInstance()->getSpaceTimeUSec() + LLUnits::Seconds::fromValue(dt_raw));
     
     
 	    //////////////////////////////////////

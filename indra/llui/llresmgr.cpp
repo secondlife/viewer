@@ -45,33 +45,6 @@ LLResMgr::LLResMgr()
 void LLResMgr::setLocale( LLLOCALE_ID locale_id )
 {
 	mLocale = locale_id;
-
-	//RN: for now, use normal 'C' locale for everything but specific UI input/output routines
-//	switch( locale_id )
-//	{
-//	case LLLOCALE_USA: 
-//#if LL_WINDOWS
-//		// Windows doesn't use ISO country codes.
-//		llinfos << "Setting locale to " << setlocale( LC_ALL, "english-usa" ) << llendl;
-//#else	
-//		// posix version should work everywhere else.
-//		llinfos << "Setting locale to " << setlocale( LC_ALL, "en_US" ) << llendl;
-//#endif
-//		break;
-//	case LLLOCALE_UK:
-//#if LL_WINDOWS
-//		// Windows doesn't use ISO country codes.
-//		llinfos << "Setting locale to " << setlocale( LC_ALL, "english-uk" ) << llendl;
-//#else
-//		// posix version should work everywhere else.
-//		llinfos << "Setting locale to " << setlocale( LC_ALL, "en_GB" ) << llendl;
-//#endif
-//		break;
-//	default:
-//		llassert(0);
-//		setLocale(LLLOCALE_USA);
-//		break;
-//	}
 }
 
 char LLResMgr::getDecimalPoint() const					

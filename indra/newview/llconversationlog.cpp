@@ -37,21 +37,16 @@
 
 const int CONVERSATION_LIFETIME = 30; // lifetime of LLConversation is 30 days by spec
 
-struct ConversationParams
+struct ConversationParams : public LLInitParam::Block<ConversationParams>
 {
-	ConversationParams(time_t time)
-	:	mTime(time),
-		mTimestamp(LLConversation::createTimestamp(time))
-	{}
-
-	time_t		mTime;
-	std::string	mTimestamp;
-	SessionType	mConversationType;
-	std::string	mConversationName;
-	std::string	mHistoryFileName;
-	LLUUID		mSessionID;
-	LLUUID		mParticipantID;
-	bool		mHasOfflineIMs;
+	Mandatory<LLUnit<U64, LLUnits::Seconds> >	time;
+	Mandatory<std::string>						timestamp;
+	Mandatory<SessionType>						conversation_type;
+	Mandatory<std::string>						conversation_name,
+												history_filename;
+	Mandatory<LLUUID>							session_id,
+												participant_id;
+	Mandatory<bool>								has_offline_ims;
 };
 
 /************************************************************************/
@@ -59,14 +54,14 @@ struct ConversationParams
 /************************************************************************/
 
 LLConversation::LLConversation(const ConversationParams& params)
-:	mTime(params.mTime),
-	mTimestamp(params.mTimestamp),
-	mConversationType(params.mConversationType),
-	mConversationName(params.mConversationName),
-	mHistoryFileName(params.mHistoryFileName),
-	mSessionID(params.mSessionID),
-	mParticipantID(params.mParticipantID),
-	mHasOfflineIMs(params.mHasOfflineIMs)
+:	mTime(params.time),
+	mTimestamp(params.timestamp),
+	mConversationType(params.conversation_type),
+	mConversationName(params.conversation_name),
+	mHistoryFileName(params.history_filename),
+	mSessionID(params.session_id),
+	mParticipantID(params.participant_id),
+	mHasOfflineIMs(params.has_offline_ims)
 {
 	setListenIMFloaterOpened();
 }
@@ -118,11 +113,11 @@ void LLConversation::onIMFloaterShown(const LLUUID& session_id)
 }
 
 // static
-const std::string LLConversation::createTimestamp(const time_t& utc_time)
+const std::string LLConversation::createTimestamp(const LLUnit<U64, LLUnits::Seconds>& utc_time)
 {
 	std::string timeStr;
 	LLSD substitution;
-	substitution["datetime"] = (S32) utc_time;
+	substitution["datetime"] = (S32)utc_time.value();
 
 	timeStr = "["+LLTrans::getString ("TimeMonth")+"]/["
 				 +LLTrans::getString ("TimeDay")+"]/["
@@ -137,8 +132,8 @@ const std::string LLConversation::createTimestamp(const time_t& utc_time)
 
 bool LLConversation::isOlderThan(U32 days) const
 {
-	time_t now = time_corrected();
-	U32 age = (U32)((now - mTime) / SEC_PER_DAY); // age of conversation in days
+	LLUnit<U64, LLUnits::Seconds> now = time_corrected();
+	LLUnit<U32, LLUnits::Days> age = now - mTime;
 
 	return age > days;
 }
@@ -485,7 +480,7 @@ bool LLConversationLog::saveToFile(const std::string& filename)
 		// [1343222639] 2 0 0 Ad-hoc Conference| c3g67c89-c479-4c97-b21d-32869bcfe8rc 68f1c33e-4135-3e3e-a897-8c9b23115c09 Ad-hoc Conference hash597394a0-9982-766d-27b8-c75560213b9a|
 
 		fprintf(fp, "[%lld] %d %d %d %s| %s %s %s|\n",
-				(S64)conv_it->getTime(),
+				(S64)conv_it->getTime().value(),
 				(S32)conv_it->getConversationType(),
 				(S32)0,
 				(S32)conv_it->hasOfflineMessages(),
@@ -539,13 +534,14 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 				conv_id_buffer,
 				history_file_name);
 
-		ConversationParams params((time_t)time);
-		params.mConversationType = (SessionType)stype;
-		params.mHasOfflineIMs = has_offline_ims;
-		params.mConversationName = std::string(conv_name_buffer);
-		params.mParticipantID = LLUUID(part_id_buffer);
-		params.mSessionID = LLUUID(conv_id_buffer);
-		params.mHistoryFileName = std::string(history_file_name);
+		ConversationParams params;
+		params.time(time)
+			.conversation_type((SessionType)stype)
+			.has_offline_ims(has_offline_ims)
+			.conversation_name(conv_name_buffer)
+			.participant_id(LLUUID(part_id_buffer))
+			.session_id(LLUUID(conv_id_buffer))
+			.history_filename(history_file_name);
 
 		LLConversation conversation(params);
 

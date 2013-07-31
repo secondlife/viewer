@@ -33,7 +33,6 @@
 #include "llsurface.h"
 #include "pipeline.h"
 #include "llagent.h"
-#include "timing.h"
 #include "llsky.h"
 #include "llviewercamera.h"
 
@@ -44,11 +43,11 @@
 #include "noise.h"
 
 extern bool gShiftFrame;
-extern U64 gFrameTime;
+extern LLUnitImplicit<U64, LLUnits::Microseconds> gFrameTime;
 extern LLPipeline gPipeline;
 
-LLSurfacePatch::LLSurfacePatch() :
-	mHasReceivedData(FALSE),
+LLSurfacePatch::LLSurfacePatch() 
+:	mHasReceivedData(FALSE),
 	mSTexUpdate(FALSE),
 	mDirty(FALSE),
 	mDirtyZStats(TRUE),

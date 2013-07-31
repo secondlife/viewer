@@ -96,7 +96,7 @@ namespace {
 			mFile.open(filename, llofstream::out | llofstream::app);
 			if (!mFile)
 			{
-				llinfos << "Error setting log file to " << filename << llendl;
+				LL_INFOS() << "Error setting log file to " << filename << LL_ENDL;
 			}
 		}
 		
@@ -113,8 +113,6 @@ namespace {
 									const std::string& message)
 		{
 			mFile << message << std::endl;
-			// mFile.flush();
-				// *FIX: should we do this? 
 		}
 	
 	private:
@@ -331,7 +329,7 @@ namespace
 		}
 		
 		LLError::configure(configuration);
-		llinfos << "logging reconfigured from " << filename() << llendl;
+		LL_INFOS() << "logging reconfigured from " << filename() << LL_ENDL;
 		return true;
 	}
 
@@ -495,14 +493,44 @@ namespace LLError
 					int line,
 					const std::type_info& class_info, 
 					const char* function, 
+					bool printOnce,
 					const char* broadTag, 
-					const char* narrowTag,
-					bool printOnce)
-		: mLevel(level), mFile(file), mLine(line),
-		  mClassInfo(class_info), mFunction(function),
-		  mCached(false), mShouldLog(false), 
-		  mBroadTag(broadTag), mNarrowTag(narrowTag), mPrintOnce(printOnce)
-		{ }
+					const char* narrowTag)
+	:	mLevel(level), 
+		mFile(file), 
+		mLine(line),
+		mClassInfo(class_info), 
+		mFunction(function),
+		mCached(false), 
+		mShouldLog(false), 
+		mPrintOnce(printOnce),
+		mBroadTag(broadTag), 
+		mNarrowTag(narrowTag)
+	{}
+
+	CallSite::CallSite(ELevel level,
+		const char* file,
+		int line,
+		const std::type_info& class_info, 
+		const char* function, 
+		bool printOnce,
+		const char* broadTag, 
+		const char* narrowTag,
+		const char*,
+		...)
+	:	mLevel(level), 
+		mFile(file), 
+		mLine(line),
+		mClassInfo(class_info), 
+		mFunction(function),
+		mCached(false), 
+		mShouldLog(false), 
+		mPrintOnce(printOnce),
+		mBroadTag(broadTag), 
+		mNarrowTag(narrowTag)
+	{
+		LL_ERRS() << "No support for more than 2 logging tags" << LL_ENDL;
+	}
 
 
 	void CallSite::invalidate()
@@ -677,7 +705,7 @@ namespace LLError
 		LevelMap::const_iterator i = level_names.find(name);
 		if (i == level_names.end())
 		{
-			llwarns << "unrecognized logging level: '" << name << "'" << llendl;
+			LL_WARNS() << "unrecognized logging level: '" << name << "'" << LL_ENDL;
 			return LLError::LEVEL_INFO;
 		}
 		
@@ -739,6 +767,12 @@ namespace LLError
 	bool Recorder::wantsTime()
 	{ 
 		return false; 
+	}
+
+	// virtual
+	bool Recorder::wantsTags()
+	{
+		return false;
 	}
 
 	void addRecorder(Recorder* recorder)
@@ -817,11 +851,14 @@ namespace LLError
 
 namespace
 {
-	void writeToRecorders(LLError::ELevel level, const std::string& message)
+	void writeToRecorders(const LLError::CallSite& site, const std::string& message)
 	{
+		LLError::ELevel level = site.mLevel;
 		LLError::Settings& s = LLError::Settings::get();
 	
 		std::string messageWithTime;
+		std::string messageWithTags;
+		std::string messageWithTagsAndTime;
 		
 		for (Recorders::const_iterator i = s.recorders.begin();
 			i != s.recorders.end();
@@ -829,18 +866,47 @@ namespace
 		{
 			LLError::Recorder* r = *i;
 			
-			if (r->wantsTime()  &&  s.timeFunction != NULL)
+			if (r->wantsTime() && s.timeFunction != NULL)
 			{
-				if (messageWithTime.empty())
+				if (r->wantsTags())
 				{
-					messageWithTime = s.timeFunction() + " " + message;
+					if (messageWithTagsAndTime.empty())
+					{
+						messageWithTagsAndTime = s.timeFunction() + " " 
+												+ (site.mBroadTag ? (std::string("#") + std::string(site.mBroadTag) + " ") : std::string())  
+												+ (site.mNarrowTag ? (std::string("#") + std::string(site.mNarrowTag) + " ") : std::string()) 
+												+ message;
+					}
+
+					r->recordMessage(level, messageWithTagsAndTime);
 				}
-				
-				r->recordMessage(level, messageWithTime);
+				else
+				{
+					if (messageWithTime.empty())
+					{
+						messageWithTime = s.timeFunction() + " " + message;
+					}
+
+					r->recordMessage(level, messageWithTime);
+				}
 			}
 			else
 			{
-				r->recordMessage(level, message);
+				if (r->wantsTags())
+				{
+					if (messageWithTags.empty())
+					{
+						messageWithTags = (site.mBroadTag ? (std::string("#") + std::string(site.mBroadTag) + " ") : std::string())  
+										+ (site.mNarrowTag ? (std::string("#") + std::string(site.mNarrowTag) + " ") : std::string()) 
+										+ message;
+					}
+
+					r->recordMessage(level, messageWithTags);
+				}
+				else
+				{
+					r->recordMessage(level, message);				
+				}
 			}
 		}
 	}
@@ -1017,10 +1083,11 @@ namespace LLError
 	   else
 	   {
 		   strncpy(message, out->str().c_str(), 127);
-		   message[127] = '\0' ;
+		   message[127] = '\0';
 	   }
 	   
 	   Globals& g = Globals::get();
+
        if (out == &g.messageStream)
        {
            g.messageStream.clear();
@@ -1031,7 +1098,7 @@ namespace LLError
        {
            delete out;
        }
-	   return ;
+	   return;
     }
 
 	void Log::flush(std::ostringstream* out, const CallSite& site)
@@ -1063,7 +1130,7 @@ namespace LLError
 			fatalMessage << abbreviateFile(site.mFile)
 						<< "(" << site.mLine << ") : error";
 			
-			writeToRecorders(site.mLevel, fatalMessage.str());
+			writeToRecorders(site, fatalMessage.str());
 		}
 		
 		
@@ -1125,7 +1192,7 @@ namespace LLError
 		prefix << message;
 		message = prefix.str();
 		
-		writeToRecorders(site.mLevel, message);
+		writeToRecorders(site, message);
 		
 		if (site.mLevel == LEVEL_ERROR  &&  s.crashFunction)
 		{
@@ -1164,7 +1231,7 @@ namespace LLError
 	{
 		std::string::size_type i = 0;
 		std::string::size_type len = s.length();
-		for ( ; i < len; i++ )
+		for (; i < len; i++ )
 		{
 			if (s[i] == old)
 			{
@@ -1235,8 +1302,8 @@ namespace LLError
 
 namespace LLError
 {     
-	char** LLCallStacks::sBuffer = NULL ;
-	S32    LLCallStacks::sIndex  = 0 ;
+	char** LLCallStacks::sBuffer = NULL;
+	S32    LLCallStacks::sIndex  = 0;
 
 #define SINGLE_THREADED 1
 
@@ -1312,34 +1379,34 @@ namespace LLError
 
 	   if(!sBuffer)
 	   {
-		   sBuffer = new char*[512] ;
-		   sBuffer[0] = new char[512 * 128] ;
-		   for(S32 i = 1 ; i < 512 ; i++)
+		   sBuffer = new char*[512];
+		   sBuffer[0] = new char[512 * 128];
+		   for(S32 i = 1; i < 512; i++)
 		   {
-			   sBuffer[i] = sBuffer[i-1] + 128 ;
+			   sBuffer[i] = sBuffer[i-1] + 128;
 		   }
-		   sIndex = 0 ;
+		   sIndex = 0;
 	   }
 
 	   if(sIndex > 511)
 	   {
-		   clear() ;
+		   clear();
 	   }
 
-	   strcpy(sBuffer[sIndex], function) ;
-	   sprintf(sBuffer[sIndex] + strlen(function), " line: %d ", line) ;
-	   sIndex++ ;
+	   strcpy(sBuffer[sIndex], function);
+	   sprintf(sBuffer[sIndex] + strlen(function), " line: %d ", line);
+	   sIndex++;
 
-	   return ;
+	   return;
    }
 
 	//static
    std::ostringstream* LLCallStacks::insert(const char* function, const int line)
    {
        std::ostringstream* _out = LLError::Log::out();
-	   *_out << function << " line " << line << " " ;
+	   *_out << function << " line " << line << " ";
              
-	   return _out ;
+	   return _out;
    }
 
    //static
@@ -1353,21 +1420,21 @@ namespace LLError
 
 	   if(!sBuffer)
 	   {
-		   sBuffer = new char*[512] ;
-		   sBuffer[0] = new char[512 * 128] ;
-		   for(S32 i = 1 ; i < 512 ; i++)
+		   sBuffer = new char*[512];
+		   sBuffer[0] = new char[512 * 128];
+		   for(S32 i = 1; i < 512; i++)
 		   {
-			   sBuffer[i] = sBuffer[i-1] + 128 ;
+			   sBuffer[i] = sBuffer[i-1] + 128;
 		   }
-		   sIndex = 0 ;
+		   sIndex = 0;
 	   }
 
 	   if(sIndex > 511)
 	   {
-		   clear() ;
+		   clear();
 	   }
 
-	   LLError::Log::flush(_out, sBuffer[sIndex++]) ;	   
+	   LLError::Log::flush(_out, sBuffer[sIndex++]);
    }
 
    //static
@@ -1381,27 +1448,27 @@ namespace LLError
 
        if(sIndex > 0)
        {
-           llinfos << " ************* PRINT OUT LL CALL STACKS ************* " << llendl ;
+           LL_INFOS() << " ************* PRINT OUT LL CALL STACKS ************* " << LL_ENDL;
            while(sIndex > 0)
            {                  
-			   sIndex-- ;
-               llinfos << sBuffer[sIndex] << llendl ;
+			   sIndex--;
+               LL_INFOS() << sBuffer[sIndex] << LL_ENDL;
            }
-           llinfos << " *************** END OF LL CALL STACKS *************** " << llendl ;
+           LL_INFOS() << " *************** END OF LL CALL STACKS *************** " << LL_ENDL;
        }
 
 	   if(sBuffer)
 	   {
-		   delete[] sBuffer[0] ;
-		   delete[] sBuffer ;
-		   sBuffer = NULL ;
+		   delete[] sBuffer[0];
+		   delete[] sBuffer;
+		   sBuffer = NULL;
 	   }
    }
 
    //static
    void LLCallStacks::clear()
    {
-       sIndex = 0 ;
+       sIndex = 0;
    }
 
 #if LL_WINDOWS

@@ -29,7 +29,6 @@
 #include "llviewertexture.h"
 
 // Library includes
-#include "imageids.h"
 #include "llmath.h"
 #include "llerror.h"
 #include "llgl.h"

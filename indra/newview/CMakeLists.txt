@@ -682,6 +682,7 @@ set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
     groupchatlistener.h
+    llaccountingcost.h
     llaccountingcostmanager.h
     llagent.h
     llagentaccess.h
@@ -1221,7 +1222,6 @@ set(viewer_HEADER_FILES
     llvosky.h
     llvosurfacepatch.h
     llvotree.h
-    llvotreenew.h
     llvovolume.h
     llvowater.h
     llvowlsky.h
@@ -1250,6 +1250,7 @@ set(viewer_HEADER_FILES
     macmain.h
     noise.h
     pipeline.h
+    roles_constants.h
     VertexCache.h
     VorbisFramework.h
     )

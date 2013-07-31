@@ -958,7 +958,7 @@ public:
 	{
 		llinfos << "One item created " << inv_item.asString() << llendl;
 		LLViewerInventoryItem *item = gInventory.getItem(inv_item);
-		mItemsToLink.put(item);
+		mItemsToLink.push_back(item);
 		updatePendingWearable(inv_item);
 	}
 	~OnWearableItemCreatedCB()
@@ -1235,7 +1235,7 @@ void LLAgentWearables::removeWearableFinal(const LLWearableType::EType type, boo
 
 // Assumes existing wearables are not dirty.
 void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& items,
-										 const LLDynamicArray< LLViewerWearable* >& wearables,
+										 const std::vector< LLViewerWearable* >& wearables,
 										 BOOL remove)
 {
 	llinfos << "setWearableOutfit() start" << llendl;
@@ -1254,8 +1254,8 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 		}
 	}
 
-	S32 count = wearables.count();
-	llassert(items.count() == count);
+	S32 count = wearables.size();
+	llassert(items.size() == count);
 
 	S32 i;
 	for (i = 0; i < count; i++)
@@ -1538,7 +1538,7 @@ void LLAgentWearables::userUpdateAttachments(LLInventoryModel::item_array_t& obj
 
 	std::set<LLUUID> requested_item_ids;
 	std::set<LLUUID> current_item_ids;
-	for (S32 i=0; i<obj_item_array.count(); i++)
+	for (S32 i=0; i<obj_item_array.size(); i++)
 		requested_item_ids.insert(obj_item_array[i].get()->getLinkedUUID());
 
 	// Build up list of objects to be removed and items currently attached.
@@ -1624,7 +1624,7 @@ void LLAgentWearables::userRemoveMultipleAttachments(llvo_vec_t& objects_to_remo
 void LLAgentWearables::userAttachMultipleAttachments(LLInventoryModel::item_array_t& obj_item_array)
 {
 	// Build a compound message to send all the objects that need to be rezzed.
-	S32 obj_count = obj_item_array.count();
+	S32 obj_count = obj_item_array.size();
 
 	// Limit number of packets to send
 	const S32 MAX_PACKETS_TO_SEND = 10;
@@ -1655,7 +1655,7 @@ void LLAgentWearables::userAttachMultipleAttachments(LLInventoryModel::item_arra
 			msg->addBOOLFast(_PREHASH_FirstDetachAll, false );
 		}
 
-		const LLInventoryItem* item = obj_item_array.get(i).get();
+		const LLInventoryItem* item = obj_item_array.at(i).get();
 		msg->nextBlockFast(_PREHASH_ObjectData );
 		msg->addUUIDFast(_PREHASH_ItemID, item->getLinkedUUID());
 		msg->addUUIDFast(_PREHASH_OwnerID, item->getPermissions().getOwner());

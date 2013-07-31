@@ -707,7 +707,7 @@ void LLToolGrab::handleHoverActive(S32 x, S32 y, MASK mask)
 	// HACK to avoid assert: error checking system makes sure that the cursor is set during every handleHover.  This is actually a no-op since the cursor is hidden.
 	gViewerWindow->setCursor(UI_CURSOR_ARROW);  
 
-	lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolGrab (active) [cursor hidden]" << llendl;		
+	LL_DEBUGS("UserInput") << "hover handled by LLToolGrab (active) [cursor hidden]" << llendl;		
 }
  
 
@@ -871,7 +871,7 @@ void LLToolGrab::handleHoverNonPhysical(S32 x, S32 y, MASK mask)
 void LLToolGrab::handleHoverInactive(S32 x, S32 y, MASK mask)
 {
 	// JC - TODO - change cursor based on gGrabBtnVertical, gGrabBtnSpin
-	lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolGrab (inactive-not over editable object)" << llendl;		
+	LL_DEBUGS("UserInput") << "hover handled by LLToolGrab (inactive-not over editable object)" << llendl;		
 	gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);
 }
 
@@ -881,7 +881,7 @@ void LLToolGrab::handleHoverFailed(S32 x, S32 y, MASK mask)
 	if( GRAB_NOOBJECT == mMode )
 	{
 		gViewerWindow->setCursor(UI_CURSOR_NO);
-		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolGrab (not on object)" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by LLToolGrab (not on object)" << llendl;		
 	}
 	else
 	{
@@ -894,13 +894,13 @@ void LLToolGrab::handleHoverFailed(S32 x, S32 y, MASK mask)
 			{
 			case GRAB_LOCKED:
 				gViewerWindow->setCursor(UI_CURSOR_GRABLOCKED);
-				lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolGrab (grab failed, no move permission)" << llendl;		
+				LL_DEBUGS("UserInput") << "hover handled by LLToolGrab (grab failed, no move permission)" << llendl;		
 				break;
 
 //  Non physical now handled by handleHoverActive - CRO				
 //			case GRAB_NONPHYSICAL:
 //				gViewerWindow->setCursor(UI_CURSOR_ARROW);
-//				lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolGrab (grab failed, nonphysical)" << llendl;		
+//				LL_DEBUGS("UserInput") << "hover handled by LLToolGrab (grab failed, nonphysical)" << llendl;		
 //				break;
 			default:
 				llassert(0);
@@ -909,7 +909,7 @@ void LLToolGrab::handleHoverFailed(S32 x, S32 y, MASK mask)
 		else
 		{
 			gViewerWindow->setCursor(UI_CURSOR_ARROW);
-			lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolGrab (grab failed but within slop)" << llendl;		
+			LL_DEBUGS("UserInput") << "hover handled by LLToolGrab (grab failed but within slop)" << llendl;		
 		}
 	}
 }

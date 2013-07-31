@@ -31,7 +31,7 @@
 #include <map>
 #include <typeinfo>
 
-#include "string_table.h"
+#include "llstringtable.h"
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 

@@ -477,7 +477,7 @@ void LLCOFWearables::populateAttachmentsAndBodypartsLists(const LLInventoryModel
 {
 	for (U32 i = 0; i < cof_items.size(); ++i)
 	{
-		LLViewerInventoryItem* item = cof_items.get(i);
+		LLViewerInventoryItem* item = cof_items.at(i);
 		if (!item) continue;
 
 		const LLAssetType::EType item_type = item->getType();

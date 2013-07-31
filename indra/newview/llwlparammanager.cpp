@@ -272,7 +272,7 @@ void LLWLParamManager::loadAllPresets()
 
 void LLWLParamManager::loadPresetsFromDir(const std::string& dir)
 {
-	LL_INFOS2("AppInit", "Shaders") << "Loading sky presets from " << dir << LL_ENDL;
+	LL_INFOS("AppInit", "Shaders") << "Loading sky presets from " << dir << LL_ENDL;
 
 	LLDirIterator dir_iter(dir, "*.xml");
 	while (1)
@@ -302,7 +302,7 @@ bool LLWLParamManager::loadPreset(const std::string& path)
 		return false;
 	}
 
-	LL_DEBUGS2("AppInit", "Shaders") << "Loading sky " << name << LL_ENDL;
+	LL_DEBUGS("AppInit", "Shaders") << "Loading sky " << name << LL_ENDL;
 
 	LLSD params_data;
 	LLPointer<LLSDParser> parser = new LLSDXMLParser();

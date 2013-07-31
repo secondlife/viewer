@@ -144,6 +144,10 @@ namespace LLError
 		virtual bool wantsTime(); // default returns false
 			// override and return true if the recorder wants the time string
 			// included in the text of the message
+
+		virtual bool wantsTags(); // default returns false
+			// override ands return true if the recorder wants the tags included
+			// in the text of the message
 	};
 
 	/**

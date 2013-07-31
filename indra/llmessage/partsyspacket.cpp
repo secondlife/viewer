@@ -28,7 +28,7 @@
 #include "linden_common.h"
 
 #include "partsyspacket.h"
-#include "imageids.h"
+#include "indra_constants.h"
 
 // this function is global
 void gSetInitDataDefaults(LLPartInitData *setMe)

@@ -42,7 +42,6 @@ class LLVolumeFace;
 class LLVolume;
 class LLVolumeTriangle;
 
-#include "lldarray.h"
 #include "lluuid.h"
 #include "v4color.h"
 //#include "vmath.h"

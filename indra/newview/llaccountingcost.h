@@ -1,12 +1,10 @@
-/**
- * @file lllog.h
- * @author Don
- * @date 2007-11-27
- * @brief  Class to log messages to syslog for streambase to process.
+/** 
+ * @file llaccountingcost.h
+ * @
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,27 +24,32 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLOG_H
-#define LL_LLLOG_H
+#ifndef LL_ACCOUNTINGQUOTA_H
+#define LL_ACCOUNTINGQUOTA_H
 
-#include <string>
-
-class LLLogImpl;
-class LLApp;
-class LLSD;
-
-class LL_COMMON_API LLLog
+//SelectionQuota atm does not require a id
+struct SelectionCost
 {
-public:
-	LLLog(LLApp* app);
-	virtual ~LLLog();
-
-	virtual void log(const std::string &message, LLSD& info);
-	virtual bool useLegacyLogMessage(const std::string &message);
-
-private:
-	LLLogImpl* mImpl;
+	SelectionCost( /*LLTransactionID transactionId, */ F32 physicsCost, F32 networkCost, F32 simulationCost )
+	//: mTransactionId( transactionId)
+	: mPhysicsCost( physicsCost )
+	, mNetworkCost( networkCost )
+	, mSimulationCost( simulationCost )
+	{
+	}
+	SelectionCost()
+	: mPhysicsCost( 0.0f )
+	, mNetworkCost( 0.0f )
+	, mSimulationCost( 0.0f )
+	{}
+	
+	F32 mPhysicsCost, mNetworkCost, mSimulationCost;	
+	//LLTransactionID mTransactionId;
 };
 
-#endif /* LL_LLLOG_H */
+typedef enum { Roots = 0 , Prims } eSelectionType;
+
+#endif
+
+
 

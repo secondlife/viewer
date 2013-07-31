@@ -94,7 +94,7 @@ BOOL LLKeywords::loadFromFile( const std::string& filename )
 	file.open(filename);	/* Flawfinder: ignore */
 	if( file.fail() )
 	{
-		llinfos << "LLKeywords::loadFromFile()  Unable to open file: " << filename << llendl;
+		LL_INFOS() << "LLKeywords::loadFromFile()  Unable to open file: " << filename << LL_ENDL;
 		return mLoaded;
 	}
 
@@ -102,7 +102,7 @@ BOOL LLKeywords::loadFromFile( const std::string& filename )
 	file >> buffer;
 	if( strcmp( buffer, "llkeywords" ) )
 	{
-		llinfos << filename << " does not appear to be a keyword file" << llendl;
+		LL_INFOS() << filename << " does not appear to be a keyword file" << LL_ENDL;
 		return mLoaded;
 	}
 
@@ -112,7 +112,7 @@ BOOL LLKeywords::loadFromFile( const std::string& filename )
 	file >> version_num;
 	if( strcmp(buffer, "version") || version_num != (U32)KEYWORD_FILE_CURRENT_VERSION )
 	{
-		llinfos << filename << " does not appear to be a version " << KEYWORD_FILE_CURRENT_VERSION << " keyword file" << llendl;
+		LL_INFOS() << filename << " does not appear to be a version " << KEYWORD_FILE_CURRENT_VERSION << " keyword file" << LL_ENDL;
 		return mLoaded;
 	}
 
@@ -342,7 +342,7 @@ LLColor3 LLKeywords::readColor( const std::string& s )
 	S32 values_read = sscanf(s.c_str(), "%f, %f, %f]", &r, &g, &b );
 	if( values_read != 3 )
 	{
-		llinfos << " poorly formed color in keyword file" << llendl;
+		LL_INFOS() << " poorly formed color in keyword file" << LL_ENDL;
 	}
 	return LLColor3( r, g, b );
 }
@@ -553,7 +553,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 						S32 seg_start = cur - base;
 						S32 seg_end = seg_start + seg_len;
 
-						// llinfos << "Seg: [" << word.c_str() << "]" << llendl;
+						// LL_INFOS() << "Seg: [" << word.c_str() << "]" << LL_ENDL;
 
 						insertSegments(wtext, *seg_list,cur_token, text_len, seg_start, seg_end, defaultColor, editor);
 					}
@@ -620,10 +620,10 @@ void LLKeywords::insertSegment(std::vector<LLTextSegmentPtr>& seg_list, LLTextSe
 #ifdef _DEBUG
 void LLKeywords::dump()
 {
-	llinfos << "LLKeywords" << llendl;
+	LL_INFOS() << "LLKeywords" << LL_ENDL;
 
 
-	llinfos << "LLKeywords::sWordTokenMap" << llendl;
+	LL_INFOS() << "LLKeywords::sWordTokenMap" << LL_ENDL;
 	word_token_map_t::iterator word_token_iter = mWordTokenMap.begin();
 	while( word_token_iter != mWordTokenMap.end() )
 	{
@@ -632,7 +632,7 @@ void LLKeywords::dump()
 		++word_token_iter;
 	}
 
-	llinfos << "LLKeywords::sLineTokenList" << llendl;
+	LL_INFOS() << "LLKeywords::sLineTokenList" << LL_ENDL;
 	for (token_list_t::iterator iter = mLineTokenList.begin();
 		 iter != mLineTokenList.end(); ++iter)
 	{
@@ -641,7 +641,7 @@ void LLKeywords::dump()
 	}
 
 
-	llinfos << "LLKeywords::sDelimiterTokenList" << llendl;
+	LL_INFOS() << "LLKeywords::sDelimiterTokenList" << LL_ENDL;
 	for (token_list_t::iterator iter = mDelimiterTokenList.begin();
 		 iter != mDelimiterTokenList.end(); ++iter)
 	{
@@ -652,12 +652,12 @@ void LLKeywords::dump()
 
 void LLKeywordToken::dump()
 {
-	llinfos << "[" << 
+	LL_INFOS() << "[" << 
 		mColor.mV[VX] << ", " <<
 		mColor.mV[VY] << ", " <<
 		mColor.mV[VZ] << "] [" <<
 		wstring_to_utf8str(mToken) << "]" <<
-		llendl;
+		LL_ENDL;
 }
 
 #endif  // DEBUG
