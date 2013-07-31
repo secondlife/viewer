@@ -302,13 +302,13 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 // See top of file for common usage.	
 /////////////////////////////////
 
-#define lllog(level, once, ...)																	   \
-	do {                                                                                           \
-		static LLError::CallSite _site(                                                            \
-			level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG), __FUNCTION__, once, __VA_ARGS__ );\
-		if (LL_UNLIKELY(_site.shouldLog()))			                                               \
-		{                                                                                          \
-			std::ostringstream* _out = LLError::Log::out();                                        \
+#define lllog(level, once, ...)																	     \
+	do {                                                                                             \
+		static LLError::CallSite _site(                                                              \
+		    level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG), __FUNCTION__, once, ##__VA_ARGS__ );\
+		if (LL_UNLIKELY(_site.shouldLog()))			                                                 \
+		{                                                                                            \
+			std::ostringstream* _out = LLError::Log::out();                                          \
 			(*_out)
 
 //Use this construct if you need to do computation in the middle of a
@@ -337,16 +337,16 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 // NEW Macros for debugging, allow the passing of a string tag
 
 // Pass comma separated list of tags (currently only supports up to 0, 1, or 2)
-#define LL_DEBUGS(...)	lllog(LLError::LEVEL_DEBUG, false, __VA_ARGS__)
-#define LL_INFOS(...)	lllog(LLError::LEVEL_INFO, false, __VA_ARGS__)
-#define LL_WARNS(...)	lllog(LLError::LEVEL_WARN, false, __VA_ARGS__)
-#define LL_ERRS(...)	lllog(LLError::LEVEL_ERROR, false, __VA_ARGS__)
+#define LL_DEBUGS(...)	lllog(LLError::LEVEL_DEBUG, false, ##__VA_ARGS__)
+#define LL_INFOS(...)	lllog(LLError::LEVEL_INFO, false, ##__VA_ARGS__)
+#define LL_WARNS(...)	lllog(LLError::LEVEL_WARN, false, ##__VA_ARGS__)
+#define LL_ERRS(...)	lllog(LLError::LEVEL_ERROR, false, ##__VA_ARGS__)
 
 // Only print the log message once (good for warnings or infos that would otherwise
 // spam the log file over and over, such as tighter loops).
-#define LL_DEBUGS_ONCE(...)	lllog(LLError::LEVEL_DEBUG, true, __VA_ARGS__)
-#define LL_INFOS_ONCE(...)	lllog(LLError::LEVEL_INFO, true, __VA_ARGS__)
-#define LL_WARNS_ONCE(...)	lllog(LLError::LEVEL_WARN, true, __VA_ARGS__)
+#define LL_DEBUGS_ONCE(...)	lllog(LLError::LEVEL_DEBUG, true, ##__VA_ARGS__)
+#define LL_INFOS_ONCE(...)	lllog(LLError::LEVEL_INFO, true, ##__VA_ARGS__)
+#define LL_WARNS_ONCE(...)	lllog(LLError::LEVEL_WARN, true, ##__VA_ARGS__)
 
 
 // DEPRECATED: Use the new macros that allow tags and *look* like macros.
