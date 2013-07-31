@@ -93,7 +93,6 @@
 #include "llvocache.h"
 #include "llvopartgroup.h"
 #include "llweb.h"
-#include "llsecondlifeurls.h"
 #include "llupdaterservice.h"
 #include "llfloatertexturefetchdebugger.h"
 #include "llspellcheck.h"

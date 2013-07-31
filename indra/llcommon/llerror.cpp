@@ -113,8 +113,6 @@ namespace {
 									const std::string& message)
 		{
 			mFile << message << std::endl;
-			// mFile.flush();
-				// *FIX: should we do this? 
 		}
 	
 	private:
