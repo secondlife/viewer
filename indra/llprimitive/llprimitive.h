@@ -649,7 +649,7 @@ void LLPrimitive::addVelocity(const LLVector3& vel)
 	}
 	else
 	{
-		LL_ERRS() << Non Finite in LLPrimitive::addVelocity" << LL_ENDL;
+		LL_ERRS() << "Non Finite in LLPrimitive::addVelocity" << LL_ENDL;
 	}
 }
 
