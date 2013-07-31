@@ -369,8 +369,8 @@ private:
 	void replaceVisibleCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry* new_entry);
 	void killCacheEntry(LLVOCacheEntry* entry); //physically delete the cache entry	
 
-	F32 killInvisibleObjects(F32 max_time);
-	F32 createVisibleObjects(F32 max_time);
+	F32 killInvisibleObjects(F32 max_time, S32 throttle);
+	F32 createVisibleObjects(F32 max_time, S32 throttle);
 	F32 updateVisibleEntries(F32 max_time); //update visible entries
 
 	void addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type);

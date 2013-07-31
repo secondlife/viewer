@@ -219,14 +219,20 @@ void LLVOCacheEntry::setState(U32 state)
 
 	if(getState() == ACTIVE)
 	{
-		const S32 MIN_REAVTIVE_INTERVAL = 128;
+		const S32 MIN_INTERVAL = 64 + mMinFrameRange;
 		U32 last_visible = getVisible();
 		
 		setVisible();
 
-		if(getVisible() - last_visible > MIN_REAVTIVE_INTERVAL + mMinFrameRange)
+		U32 cur_visible = getVisible();
+		if(cur_visible - last_visible > MIN_INTERVAL ||
+			cur_visible < MIN_INTERVAL)
 		{
 			mLastCameraUpdated = 0; //reset
+		}
+		else
+		{
+			mLastCameraUpdated = LLViewerRegion::sLastCameraUpdated;
 		}
 	}
 }

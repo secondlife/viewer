@@ -6295,6 +6295,17 @@
       <key>Value</key>
       <integer>130</integer>
     </map>
+    <key>NewObjectCreationThrottle</key>
+    <map>
+      <key>Comment</key>
+      <string>maximum number of new objects created per frame, -1 to disable this throttle</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>64</integer>
+    </map>
     <key>NextOwnerCopy</key>
     <map>
       <key>Comment</key>
