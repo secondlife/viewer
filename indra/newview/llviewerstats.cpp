@@ -593,7 +593,7 @@ void send_stats()
 	S32 window_height = gViewerWindow->getWindowHeightRaw();
 	S32 window_size = (window_width * window_height) / 1024;
 	misc["string_1"] = llformat("%d", window_size);
-	misc["string_2"] = llformat("Texture Time: %.2f, Total Time: %.2f", gTextureTimer.getElapsedTimeF32(), gFrameTimeSeconds);
+	misc["string_2"] = llformat("Texture Time: %.2f, Total Time: %.2f", gTextureTimer.getElapsedTimeF32(), gFrameTimeSeconds.value());
 
 // 	misc["int_1"] = LLSD::Integer(gSavedSettings.getU32("RenderQualityPerformance")); // Steve: 1.21
 // 	misc["int_2"] = LLSD::Integer(gFrameStalls); // Steve: 1.21
