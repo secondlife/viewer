@@ -38,7 +38,6 @@
 #include "llfontgl.h"
 #include <set>
 #include <vector>
-#include "lldarray.h"
 
 // Renders a 2D icon billboard floating at the location specified.
 class LLViewerTexture;

@@ -36,7 +36,6 @@
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
-#include "lscript_rt_interface.h"
 #include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewerobject.h"
@@ -75,17 +74,17 @@ void LLFloaterBulkPermission::doApply()
 	class ModifiableGatherer : public LLSelectedNodeFunctor
 	{
 	public:
-		ModifiableGatherer(LLDynamicArray<LLUUID>& q) : mQueue(q) {}
+		ModifiableGatherer(std::vector<LLUUID>& q) : mQueue(q) { mQueue.reserve(32); }
 		virtual bool apply(LLSelectNode* node)
 		{
 			if( node->allowOperationOnNode(PERM_MODIFY, GP_OBJECT_MANIPULATE) )
 			{
-				mQueue.put(node->getObject()->getID());
+				mQueue.push_back(node->getObject()->getID());
 			}
 			return true;
 		}
 	private:
-		LLDynamicArray<LLUUID>& mQueue;
+		std::vector<LLUUID>& mQueue;
 	};
 	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("queue output");
 	list->deleteAllItems();
@@ -169,7 +168,7 @@ void LLFloaterBulkPermission::onCommitCopy()
 
 BOOL LLFloaterBulkPermission::start()
 {
-	// note: number of top-level objects to modify is mObjectIDs.count().
+	// note: number of top-level objects to modify is mObjectIDs.size().
 	getChild<LLScrollListCtrl>("queue output")->setCommentText(getString("start_text"));
 	return nextObject();
 }
@@ -181,7 +180,7 @@ BOOL LLFloaterBulkPermission::nextObject()
 	BOOL successful_start = FALSE;
 	do
 	{
-		count = mObjectIDs.count();
+		count = mObjectIDs.size();
 		//llinfos << "Objects left to process = " << count << llendl;
 		mCurrentObjectID.setNull();
 		if(count > 0)
@@ -189,7 +188,7 @@ BOOL LLFloaterBulkPermission::nextObject()
 			successful_start = popNext();
 			//llinfos << (successful_start ? "successful" : "unsuccessful") << llendl; 
 		}
-	} while((mObjectIDs.count() > 0) && !successful_start);
+	} while((mObjectIDs.size() > 0) && !successful_start);
 
 	if(isDone() && !mDone)
 	{
@@ -205,12 +204,12 @@ BOOL LLFloaterBulkPermission::popNext()
 {
 	// get the head element from the container, and attempt to get its inventory.
 	BOOL rv = FALSE;
-	S32 count = mObjectIDs.count();
+	S32 count = mObjectIDs.size();
 	if(mCurrentObjectID.isNull() && (count > 0))
 	{
-		mCurrentObjectID = mObjectIDs.get(0);
+		mCurrentObjectID = mObjectIDs.at(0);
 		//llinfos << "mCurrentID: " << mCurrentObjectID << llendl;
-		mObjectIDs.remove(0);
+		mObjectIDs.erase(mObjectIDs.begin());
 		LLViewerObject* obj = gObjectList.findObject(mCurrentObjectID);
 		if(obj)
 		{

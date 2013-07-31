@@ -26,22 +26,20 @@ include_directories(
 #     ${LLCOMMON_LIBRARIES})
 
 set(llcommon_SOURCE_FILES
-    imageids.cpp
     indra_constants.cpp
     llallocator.cpp
     llallocator_heap_profile.cpp
     llapp.cpp
     llapr.cpp
     llassettype.cpp
-    llavatarname.cpp
     llbase32.cpp
     llbase64.cpp
+	llbitpack.cpp
     llcommon.cpp
     llcommonutils.cpp
     llcoros.cpp
     llcrc.cpp
     llcriticaldamp.cpp
-    llcursortypes.cpp
     lldate.cpp
     lldependencies.cpp
     lldictionary.cpp
@@ -58,7 +56,6 @@ set(llcommon_SOURCE_FILES
     llfile.cpp
     llfindlocale.cpp
     llfixedbuffer.cpp
-    llfoldertype.cpp
     llformat.cpp
     llframetimer.cpp
     llheartbeat.cpp
@@ -68,7 +65,6 @@ set(llcommon_SOURCE_FILES
     llleaplistener.cpp
     llliveappconfig.cpp
     lllivefile.cpp
-    lllog.cpp
     llmd5.cpp
     llmemory.cpp
     llmemorystream.cpp
@@ -76,7 +72,6 @@ set(llcommon_SOURCE_FILES
     llmetricperformancetester.cpp
     llmortician.cpp
     llmutex.cpp
-    lloptioninterface.cpp
     llptrto.cpp 
     llpredicate.cpp
     llprocess.cpp
@@ -90,7 +85,6 @@ set(llcommon_SOURCE_FILES
     llsdserialize.cpp
     llsdserialize_xml.cpp
     llsdutil.cpp
-    llsecondlifeurls.cpp
     llsingleton.cpp
     llstacktrace.cpp
     llstreamqueue.cpp
@@ -116,45 +110,33 @@ set(llcommon_SOURCE_FILES
 set(llcommon_HEADER_FILES
     CMakeLists.txt
 
-    bitpack.h
     ctype_workaround.h
     fix_macros.h
-    imageids.h
     indra_constants.h
     linden_common.h
-    linked_lists.h
-    llaccountingcost.h
     llallocator.h
     llallocator_heap_profile.h
-    llagentconstants.h
-    llavatarname.h
     llapp.h
     llapr.h
     llassettype.h
-    llavatarconstants.h
     llbase32.h
     llbase64.h
+    llbitpack.h
     llboost.h
-    llchat.h
-    llclickaction.h
     llcommon.h
     llcommonutils.h
     llcoros.h
     llcrc.h
     llcriticaldamp.h
-    llcursortypes.h
-    lldarray.h
     lldate.h
     lldefs.h
     lldependencies.h
-    lldeleteutils.h
     lldepthstack.h
     lldictionary.h
     lldoubledispatch.h
     llendianswizzle.h
     llerror.h
     llerrorcontrol.h
-    llerrorlegacy.h
     llerrorthread.h
     llevent.h
     lleventapi.h
@@ -163,30 +145,25 @@ set(llcommon_HEADER_FILES
     lleventfilter.h
     llevents.h
     lleventemitter.h
-    llextendedstatus.h
     llfasttimer.h
     llfile.h
     llfindlocale.h
     llfixedbuffer.h
-    llfoldertype.h
     llformat.h
     llframetimer.h
     llhandle.h
     llhash.h
     llheartbeat.h
     llhttpstatuscodes.h
+    llindexedvector.h
     llinitparam.h
     llinstancetracker.h
     llkeythrottle.h
     llleap.h
     llleaplistener.h
     lllistenerwrapper.h
-    lllinkedqueue.h
     llliveappconfig.h
     lllivefile.h
-    lllog.h
-    lllslconstants.h
-    llmap.h
     llmd5.h
     llmemory.h
     llmemorystream.h
@@ -194,8 +171,6 @@ set(llcommon_HEADER_FILES
     llmetricperformancetester.h
     llmortician.h
     llmutex.h
-    llnametable.h
-    lloptioninterface.h
     llpointer.h
     llpredicate.h
     llpreprocessor.h
@@ -215,11 +190,9 @@ set(llcommon_HEADER_FILES
     llsdserialize.h
     llsdserialize_xml.h
     llsdutil.h
-    llsecondlifeurls.h
     llsimplehash.h
     llsingleton.h
     llstacktrace.h
-    llstatenums.h
     llstl.h
     llstreamqueue.h
     llstreamtools.h
@@ -239,18 +212,12 @@ set(llcommon_HEADER_FILES
     llunit.h
     lluri.h
     lluuid.h
-    llversionserver.h
 	llwin32headers.h
     llwin32headerslean.h
     llworkerthread.h
-    ll_template_cast.h
-    roles_constants.h
-    stdenums.h
     stdtypes.h
-    string_table.h
     stringize.h
     timer.h
-    timing.h
     u64.h
     )
 

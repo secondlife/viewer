@@ -32,7 +32,6 @@
 #include <string>
 #include <boost/signals2.hpp>
 
-#include "lldarray.h"
 #include "llwind.h"
 #include "v3dmath.h"
 #include "llstring.h"
@@ -407,8 +406,8 @@ public:
 	// messaging system in which the previous message only sends and parses the 
 	// positions stored in the first array so they're maintained separately until 
 	// we stop supporting the old CoarseLocationUpdate message.
-	LLDynamicArray<U32> mMapAvatars;
-	LLDynamicArray<LLUUID> mMapAvatarIDs;
+	std::vector<U32> mMapAvatars;
+	std::vector<LLUUID> mMapAvatarIDs;
 
 	static BOOL sVOCacheCullingEnabled; //vo cache culling enabled or not.
 private:

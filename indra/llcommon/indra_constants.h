@@ -31,122 +31,28 @@
 
 class LLUUID;
 
-// At 45 Hz collisions seem stable and objects seem
-// to settle down at a reasonable rate.
-// JC 3/18/2003
-
-// const F32 PHYSICS_TIMESTEP = 1.f / 45.f;
-// This must be a #define due to anal retentive restrictions on const expressions
-// CG 2008-06-05
-#define PHYSICS_TIMESTEP (1.f / 45.f)
-
-const F32 COLLISION_TOLERANCE = 0.1f;
-const F32 HALF_COLLISION_TOLERANCE = 0.05f;
-
-// Time constants
-const U32 HOURS_PER_LINDEN_DAY		= 4;	
-const U32 DAYS_PER_LINDEN_YEAR		= 11;
-
-const U32 SEC_PER_LINDEN_DAY		= HOURS_PER_LINDEN_DAY * 60 * 60;
-const U32 SEC_PER_LINDEN_YEAR		= DAYS_PER_LINDEN_YEAR * SEC_PER_LINDEN_DAY;
-
 static const F32 REGION_WIDTH_METERS = 256.f;
 static const S32 REGION_WIDTH_UNITS = 256;
 static const U32 REGION_WIDTH_U32 = 256;
 
 const F32 REGION_HEIGHT_METERS = 4096.f;
 
-// Bits for simulator performance query flags
-enum LAND_STAT_FLAGS
-{
-	STAT_FILTER_BY_PARCEL	= 0x00000001,
-	STAT_FILTER_BY_OWNER	= 0x00000002,
-	STAT_FILTER_BY_OBJECT	= 0x00000004,
-	STAT_FILTER_BY_PARCEL_NAME	= 0x00000008,
-	STAT_REQUEST_LAST_ENTRY	= 0x80000000,
-};
-
-enum LAND_STAT_REPORT_TYPE
-{
-	STAT_REPORT_TOP_SCRIPTS = 0,
-	STAT_REPORT_TOP_COLLIDERS
-};
-
-const U32 STAT_FILTER_MASK	= 0x1FFFFFFF;
-
-// Region absolute limits
-static const S32		REGION_AGENT_COUNT_MIN = 1;
-static const S32		REGION_AGENT_COUNT_MAX = 200;			// Must fit in U8 for the moment (RegionInfo msg)
-static const S32		REGION_PRIM_COUNT_MIN = 0;
-static const S32		REGION_PRIM_COUNT_MAX = 40000;
-static const F32		REGION_PRIM_BONUS_MIN = 1.0;
-static const F32		REGION_PRIM_BONUS_MAX = 10.0;
-
-// Default maximum number of tasks/prims per region.
-const U32 DEFAULT_MAX_REGION_WIDE_PRIM_COUNT = 15000;
-
-const 	F32 	MIN_AGENT_DEPTH			= 0.30f;
 const 	F32 	DEFAULT_AGENT_DEPTH 	= 0.45f;
-const 	F32 	MAX_AGENT_DEPTH			= 0.60f;
-
-const 	F32 	MIN_AGENT_WIDTH 		= 0.40f;
 const 	F32 	DEFAULT_AGENT_WIDTH 	= 0.60f;
-const 	F32 	MAX_AGENT_WIDTH 		= 0.80f;
-
-const 	F32 	MIN_AGENT_HEIGHT		= 1.1f;
 const 	F32 	DEFAULT_AGENT_HEIGHT	= 1.9f;
-const 	F32 	MAX_AGENT_HEIGHT		= 2.45f;
 
-// For linked sets
-const S32 MAX_CHILDREN_PER_TASK = 255;
-const S32 MAX_CHILDREN_PER_PHYSICAL_TASK = 32;
-
-const S32 MAX_JOINTS_PER_OBJECT = 1;	// limiting to 1 until Havok 2.x
-
-const	char* const	DEFAULT_DMZ_SPACE_SERVER	= "192.168.0.140";
-const	char* const	DEFAULT_DMZ_USER_SERVER		= "192.168.0.140";
-const	char* const	DEFAULT_DMZ_DATA_SERVER		= "192.168.0.140";
-const	char* const	DEFAULT_DMZ_ASSET_SERVER	= "http://asset.dmz.lindenlab.com:80";
-
-const	char* const	DEFAULT_AGNI_SPACE_SERVER	= "63.211.139.100";
-const	char* const	DEFAULT_AGNI_USER_SERVER	= "63.211.139.100";
-const	char* const	DEFAULT_AGNI_DATA_SERVER	= "63.211.139.100";
-const	char* const	DEFAULT_AGNI_ASSET_SERVER	= "http://asset.agni.lindenlab.com:80";
-
-// Information about what ports are for what services is in the wiki Name Space Ports page
-// https://wiki.lindenlab.com/wiki/Name_Space_Ports
-const	char* const DEFAULT_LOCAL_ASSET_SERVER	= "http://localhost:12041/asset/tmp";
-const	char* const	LOCAL_ASSET_URL_FORMAT		= "http://%s:12041/asset";
-
-const	U32		DEFAULT_LAUNCHER_PORT			= 12029;
-//const	U32		DEFAULT_BIGBOARD_PORT			= 12030; // Deprecated
-//const	U32		DEFAULT_QUERYSIM_PORT			= 12031; // Deprecated
-const	U32		DEFAULT_DATA_SERVER_PORT		= 12032;
-const	U32		DEFAULT_SPACE_SERVER_PORT		= 12033;
-const	U32		DEFAULT_VIEWER_PORT				= 12034;
-const	U32		DEFAULT_SIMULATOR_PORT			= 12035;
-const	U32		DEFAULT_USER_SERVER_PORT		= 12036;
-const	U32		DEFAULT_RPC_SERVER_PORT			= 12037;
-const	U32		DEFAULT_LOG_DATA_SERVER_PORT	= 12039;
-const	U32		DEFAULT_BACKBONE_PORT			= 12040;
-const   U32		DEFAULT_LOCAL_ASSET_PORT		= 12041;
-//const   U32		DEFAULT_BACKBONE_CAP_PORT		= 12042; // Deprecated
-const   U32		DEFAULT_CAP_PROXY_PORT			= 12043;
-const   U32		DEFAULT_INV_DATA_SERVER_PORT	= 12044;
-const	U32		DEFAULT_CGI_SERVICES_PORT		= 12045;
-
-// Mapserver uses ports 12124 - 12139 to allow multiple mapservers to run
-// on a single host for map tile generation. JC
-const	U32		DEFAULT_MAPSERVER_PORT			= 12124;
-
-// For automatic port discovery when running multiple viewers on one host
-const	U32		PORT_DISCOVERY_RANGE_MIN		= 13000;
-const	U32		PORT_DISCOVERY_RANGE_MAX		= PORT_DISCOVERY_RANGE_MIN + 50;
-
-const	char	LAND_LAYER_CODE					= 'L';
-const	char	WATER_LAYER_CODE				= 'W';
-const	char	WIND_LAYER_CODE					= '7';
-const	char	CLOUD_LAYER_CODE				= '8';
+enum ETerrainBrushType
+{
+	// the valid brush numbers cannot be reordered, because they 
+	// are used in the binary LSL format as arguments to llModifyLand()
+	E_LANDBRUSH_LEVEL	= 0,
+	E_LANDBRUSH_RAISE	= 1,
+	E_LANDBRUSH_LOWER	= 2,
+	E_LANDBRUSH_SMOOTH 	= 3,
+	E_LANDBRUSH_NOISE	= 4,
+	E_LANDBRUSH_REVERT 	= 5,
+	E_LANDBRUSH_INVALID = 6
+};
 
 // keys
 // Bit masks for various keyboard modifier keys.
@@ -265,89 +171,43 @@ LL_COMMON_API extern const LLUUID LL_UUID_ALL_AGENTS;
 LL_COMMON_API extern const LLUUID ALEXANDRIA_LINDEN_ID;
 
 LL_COMMON_API extern const LLUUID GOVERNOR_LINDEN_ID;
-LL_COMMON_API extern const LLUUID REALESTATE_LINDEN_ID;
 // Maintenance's group id.
 LL_COMMON_API extern const LLUUID MAINTENANCE_GROUP_ID;
 
-// Flags for kick message
-const U32 KICK_FLAGS_DEFAULT	= 0x0;
-const U32 KICK_FLAGS_FREEZE		= 1 << 0;
-const U32 KICK_FLAGS_UNFREEZE	= 1 << 1;
+// image ids
+LL_COMMON_API extern const LLUUID IMG_SMOKE;
 
-const U8 UPD_NONE      		= 0x00;
-const U8 UPD_POSITION  		= 0x01;
-const U8 UPD_ROTATION  		= 0x02;
-const U8 UPD_SCALE     		= 0x04;
-const U8 UPD_LINKED_SETS 	= 0x08;
-const U8 UPD_UNIFORM 		= 0x10;	// used with UPD_SCALE
+LL_COMMON_API extern const LLUUID IMG_DEFAULT;
 
-// Agent Update Flags (U8)
-const U8 AU_FLAGS_NONE      		= 0x00;
-const U8 AU_FLAGS_HIDETITLE      	= 0x01;
-const U8 AU_FLAGS_CLIENT_AUTOPILOT	= 0x02;
+LL_COMMON_API extern const LLUUID IMG_SUN;
+LL_COMMON_API extern const LLUUID IMG_MOON;
+LL_COMMON_API extern const LLUUID IMG_SHOT;
+LL_COMMON_API extern const LLUUID IMG_SPARK;
+LL_COMMON_API extern const LLUUID IMG_FIRE;
+LL_COMMON_API extern const LLUUID IMG_FACE_SELECT;
+LL_COMMON_API extern const LLUUID IMG_DEFAULT_AVATAR;
+LL_COMMON_API extern const LLUUID IMG_INVISIBLE;
 
-// start location constants
-const U32 START_LOCATION_ID_LAST 		= 0;
-const U32 START_LOCATION_ID_HOME 		= 1;
-const U32 START_LOCATION_ID_DIRECT	 	= 2;	// for direct teleport
-const U32 START_LOCATION_ID_PARCEL	 	= 3;	// for teleports to a parcel
-const U32 START_LOCATION_ID_TELEHUB 	= 4;	// for teleports to a spawnpoint
-const U32 START_LOCATION_ID_URL			= 5;
-const U32 START_LOCATION_ID_COUNT 		= 6;
+LL_COMMON_API extern const LLUUID IMG_EXPLOSION;
+LL_COMMON_API extern const LLUUID IMG_EXPLOSION_2;
+LL_COMMON_API extern const LLUUID IMG_EXPLOSION_3;
+LL_COMMON_API extern const LLUUID IMG_EXPLOSION_4;
+LL_COMMON_API extern const LLUUID IMG_SMOKE_POOF;
 
-// group constants
-const U32 GROUP_MIN_SIZE = 2;
+LL_COMMON_API extern const LLUUID IMG_BIG_EXPLOSION_1;
+LL_COMMON_API extern const LLUUID IMG_BIG_EXPLOSION_2;
 
-// gMaxAgentGroups is now sent by login.cgi, which
-// looks it up from globals.xml.
-//
-// For now we need an old default value however,
-// so the viewer can be deployed ahead of login.cgi.
-//
-const S32 DEFAULT_MAX_AGENT_GROUPS = 25;
+LL_COMMON_API extern const LLUUID IMG_BLOOM1;
+LL_COMMON_API extern const LLUUID TERRAIN_DIRT_DETAIL;
+LL_COMMON_API extern const LLUUID TERRAIN_GRASS_DETAIL;
+LL_COMMON_API extern const LLUUID TERRAIN_MOUNTAIN_DETAIL;
+LL_COMMON_API extern const LLUUID TERRAIN_ROCK_DETAIL;
+
+LL_COMMON_API extern const LLUUID DEFAULT_WATER_NORMAL;
+
 
 // radius within which a chat message is fully audible
-const F32 CHAT_WHISPER_RADIUS = 10.f;
 const F32 CHAT_NORMAL_RADIUS = 20.f;
-const F32 CHAT_SHOUT_RADIUS = 100.f;
-const F32 CHAT_MAX_RADIUS = CHAT_SHOUT_RADIUS;
-const F32 CHAT_MAX_RADIUS_BY_TWO = CHAT_MAX_RADIUS / 2.f;
-
-// squared editions of the above for distance checks
-const F32 CHAT_WHISPER_RADIUS_SQUARED = CHAT_WHISPER_RADIUS * CHAT_WHISPER_RADIUS;
-const F32 CHAT_NORMAL_RADIUS_SQUARED = CHAT_NORMAL_RADIUS * CHAT_NORMAL_RADIUS;
-const F32 CHAT_SHOUT_RADIUS_SQUARED = CHAT_SHOUT_RADIUS * CHAT_SHOUT_RADIUS;
-const F32 CHAT_MAX_RADIUS_SQUARED = CHAT_SHOUT_RADIUS_SQUARED;
-const F32 CHAT_MAX_RADIUS_BY_TWO_SQUARED = CHAT_MAX_RADIUS_BY_TWO * CHAT_MAX_RADIUS_BY_TWO;
-
-
-// this times above gives barely audible radius
-const F32 CHAT_BARELY_AUDIBLE_FACTOR = 2.0f;
-
-// distance in front of speaking agent the sphere is centered
-const F32 CHAT_WHISPER_OFFSET = 5.f;
-const F32 CHAT_NORMAL_OFFSET = 10.f;
-const F32 CHAT_SHOUT_OFFSET = 50.f;
-
-// first clean starts at 3 AM
-const S32 SANDBOX_FIRST_CLEAN_HOUR = 3;
-// clean every <n> hours
-const S32 SANDBOX_CLEAN_FREQ = 12;
-
-const F32 WIND_SCALE_HACK		= 2.0f;	// hack to make wind speeds more realistic
-
-enum ETerrainBrushType
-{
-	// the valid brush numbers cannot be reordered, because they 
-	// are used in the binary LSL format as arguments to llModifyLand()
-	E_LANDBRUSH_LEVEL	= 0,
-	E_LANDBRUSH_RAISE	= 1,
-	E_LANDBRUSH_LOWER	= 2,
-	E_LANDBRUSH_SMOOTH 	= 3,
-	E_LANDBRUSH_NOISE	= 4,
-	E_LANDBRUSH_REVERT 	= 5,
-	E_LANDBRUSH_INVALID = 6
-};
 
 // media commands
 const U32 PARCEL_MEDIA_COMMAND_STOP  = 0;
@@ -365,51 +225,101 @@ const U32 PARCEL_MEDIA_COMMAND_SIZE = 11;
 const U32 PARCEL_MEDIA_COMMAND_DESC = 12;
 const U32 PARCEL_MEDIA_COMMAND_LOOP_SET = 13;
 
-// map item types
-const U32 MAP_ITEM_TELEHUB = 0x01;
-const U32 MAP_ITEM_PG_EVENT = 0x02;
-const U32 MAP_ITEM_MATURE_EVENT = 0x03;
-//const U32 MAP_ITEM_POPULAR = 0x04;		// No longer supported, 2009-03-02 KLW
-//const U32 MAP_ITEM_AGENT_COUNT = 0x05;
-const U32 MAP_ITEM_AGENT_LOCATIONS = 0x06;
-const U32 MAP_ITEM_LAND_FOR_SALE = 0x07;
-const U32 MAP_ITEM_CLASSIFIED = 0x08;
-const U32 MAP_ITEM_ADULT_EVENT = 0x09;
-const U32 MAP_ITEM_LAND_FOR_SALE_ADULT = 0x0a;
-
-// Region map layer numbers
-const S32 MAP_SIM_OBJECTS = 0;	
-const S32 MAP_SIM_TERRAIN = 1;
-const S32 MAP_SIM_LAND_FOR_SALE = 2;			// Transparent alpha overlay of land for sale
-const S32 MAP_SIM_IMAGE_TYPES = 3;				// Number of map layers
-const S32 MAP_SIM_INFO_MASK  		= 0x00FFFFFF;		// Agent access may be stuffed into upper byte
-const S32 MAP_SIM_LAYER_MASK 		= 0x0000FFFF;		// Layer info is in lower 16 bits
-const S32 MAP_SIM_RETURN_NULL_SIMS 	= 0x00010000;
-const S32 MAP_SIM_PRELUDE 			= 0x00020000;
-
-// Crash reporter behavior
-const S32 CRASH_BEHAVIOR_ASK = 0;
-const S32 CRASH_BEHAVIOR_ALWAYS_SEND = 1;
-const S32 CRASH_BEHAVIOR_NEVER_SEND = 2;
-
-// Export/Import return values
-const S32 EXPORT_SUCCESS = 0;
-const S32 EXPORT_ERROR_PERMISSIONS = -1;
-const S32 EXPORT_ERROR_UNKNOWN = -2;
-
-// This is how long the sim will try to teleport you before giving up.
-const F32 TELEPORT_EXPIRY = 15.0f;
-// Additional time (in seconds) to wait per attachment
-const F32 TELEPORT_EXPIRY_PER_ATTACHMENT = 3.f;
-
-// The maximum size of an object extra parameters binary (packed) block
-#define MAX_OBJECT_PARAMS_SIZE 1024
-
 const S32 CHAT_CHANNEL_DEBUG = S32_MAX;
 
-// PLEASE don't add constants here.  Every dev will have to do
-// a complete rebuild.  Try to find another shared header file,
-// like llregionflags.h, lllslconstants.h, llagentconstants.h,
-// or create a new one.  JC
+// agent constants
+const U32 CONTROL_AT_POS_INDEX				= 0;
+const U32 CONTROL_AT_NEG_INDEX				= 1;
+const U32 CONTROL_LEFT_POS_INDEX			= 2;
+const U32 CONTROL_LEFT_NEG_INDEX			= 3;
+const U32 CONTROL_UP_POS_INDEX				= 4;
+const U32 CONTROL_UP_NEG_INDEX				= 5;
+const U32 CONTROL_PITCH_POS_INDEX			= 6;
+const U32 CONTROL_PITCH_NEG_INDEX			= 7;
+const U32 CONTROL_YAW_POS_INDEX				= 8;
+const U32 CONTROL_YAW_NEG_INDEX				= 9;
+const U32 CONTROL_FAST_AT_INDEX				= 10;
+const U32 CONTROL_FAST_LEFT_INDEX			= 11;
+const U32 CONTROL_FAST_UP_INDEX				= 12;
+const U32 CONTROL_FLY_INDEX					= 13;
+const U32 CONTROL_STOP_INDEX				= 14;
+const U32 CONTROL_FINISH_ANIM_INDEX			= 15;
+const U32 CONTROL_STAND_UP_INDEX			= 16;
+const U32 CONTROL_SIT_ON_GROUND_INDEX		= 17;
+const U32 CONTROL_MOUSELOOK_INDEX			= 18;
+const U32 CONTROL_NUDGE_AT_POS_INDEX		= 19;
+const U32 CONTROL_NUDGE_AT_NEG_INDEX		= 20;
+const U32 CONTROL_NUDGE_LEFT_POS_INDEX		= 21;
+const U32 CONTROL_NUDGE_LEFT_NEG_INDEX		= 22;
+const U32 CONTROL_NUDGE_UP_POS_INDEX		= 23;
+const U32 CONTROL_NUDGE_UP_NEG_INDEX		= 24;
+const U32 CONTROL_TURN_LEFT_INDEX			= 25;
+const U32 CONTROL_TURN_RIGHT_INDEX			= 26;
+const U32 CONTROL_AWAY_INDEX				= 27;
+const U32 CONTROL_LBUTTON_DOWN_INDEX		= 28;
+const U32 CONTROL_LBUTTON_UP_INDEX			= 29;
+const U32 CONTROL_ML_LBUTTON_DOWN_INDEX		= 30;
+const U32 CONTROL_ML_LBUTTON_UP_INDEX		= 31;
+const U32 TOTAL_CONTROLS					= 32;
+
+const U32 AGENT_CONTROL_AT_POS              = 0x1 << CONTROL_AT_POS_INDEX;			// 0x00000001
+const U32 AGENT_CONTROL_AT_NEG              = 0x1 << CONTROL_AT_NEG_INDEX;			// 0x00000002
+const U32 AGENT_CONTROL_LEFT_POS            = 0x1 << CONTROL_LEFT_POS_INDEX;		// 0x00000004
+const U32 AGENT_CONTROL_LEFT_NEG            = 0x1 << CONTROL_LEFT_NEG_INDEX;		// 0x00000008
+const U32 AGENT_CONTROL_UP_POS              = 0x1 << CONTROL_UP_POS_INDEX;			// 0x00000010
+const U32 AGENT_CONTROL_UP_NEG              = 0x1 << CONTROL_UP_NEG_INDEX;			// 0x00000020
+const U32 AGENT_CONTROL_PITCH_POS           = 0x1 << CONTROL_PITCH_POS_INDEX;		// 0x00000040
+const U32 AGENT_CONTROL_PITCH_NEG           = 0x1 << CONTROL_PITCH_NEG_INDEX;		// 0x00000080
+const U32 AGENT_CONTROL_YAW_POS             = 0x1 << CONTROL_YAW_POS_INDEX;			// 0x00000100
+const U32 AGENT_CONTROL_YAW_NEG             = 0x1 << CONTROL_YAW_NEG_INDEX;			// 0x00000200
+
+const U32 AGENT_CONTROL_FAST_AT             = 0x1 << CONTROL_FAST_AT_INDEX;			// 0x00000400
+const U32 AGENT_CONTROL_FAST_LEFT           = 0x1 << CONTROL_FAST_LEFT_INDEX;		// 0x00000800
+const U32 AGENT_CONTROL_FAST_UP             = 0x1 << CONTROL_FAST_UP_INDEX;			// 0x00001000
+
+const U32 AGENT_CONTROL_FLY					= 0x1 << CONTROL_FLY_INDEX;				// 0x00002000
+const U32 AGENT_CONTROL_STOP				= 0x1 << CONTROL_STOP_INDEX;			// 0x00004000
+const U32 AGENT_CONTROL_FINISH_ANIM			= 0x1 << CONTROL_FINISH_ANIM_INDEX;		// 0x00008000
+const U32 AGENT_CONTROL_STAND_UP			= 0x1 << CONTROL_STAND_UP_INDEX;		// 0x00010000
+const U32 AGENT_CONTROL_SIT_ON_GROUND		= 0x1 << CONTROL_SIT_ON_GROUND_INDEX;	// 0x00020000
+const U32 AGENT_CONTROL_MOUSELOOK			= 0x1 << CONTROL_MOUSELOOK_INDEX;		// 0x00040000
+
+const U32 AGENT_CONTROL_NUDGE_AT_POS        = 0x1 << CONTROL_NUDGE_AT_POS_INDEX;	// 0x00080000
+const U32 AGENT_CONTROL_NUDGE_AT_NEG        = 0x1 << CONTROL_NUDGE_AT_NEG_INDEX;	// 0x00100000
+const U32 AGENT_CONTROL_NUDGE_LEFT_POS      = 0x1 << CONTROL_NUDGE_LEFT_POS_INDEX;	// 0x00200000
+const U32 AGENT_CONTROL_NUDGE_LEFT_NEG      = 0x1 << CONTROL_NUDGE_LEFT_NEG_INDEX;	// 0x00400000
+const U32 AGENT_CONTROL_NUDGE_UP_POS        = 0x1 << CONTROL_NUDGE_UP_POS_INDEX;	// 0x00800000
+const U32 AGENT_CONTROL_NUDGE_UP_NEG        = 0x1 << CONTROL_NUDGE_UP_NEG_INDEX;	// 0x01000000
+const U32 AGENT_CONTROL_TURN_LEFT	        = 0x1 << CONTROL_TURN_LEFT_INDEX;		// 0x02000000
+const U32 AGENT_CONTROL_TURN_RIGHT	        = 0x1 << CONTROL_TURN_RIGHT_INDEX;		// 0x04000000
+
+const U32 AGENT_CONTROL_AWAY				= 0x1 << CONTROL_AWAY_INDEX;			// 0x08000000
+
+const U32 AGENT_CONTROL_LBUTTON_DOWN		= 0x1 << CONTROL_LBUTTON_DOWN_INDEX;	// 0x10000000
+const U32 AGENT_CONTROL_LBUTTON_UP			= 0x1 << CONTROL_LBUTTON_UP_INDEX;		// 0x20000000
+const U32 AGENT_CONTROL_ML_LBUTTON_DOWN		= 0x1 << CONTROL_ML_LBUTTON_DOWN_INDEX;	// 0x40000000
+const U32 AGENT_CONTROL_ML_LBUTTON_UP		= ((U32)0x1) << CONTROL_ML_LBUTTON_UP_INDEX;	// 0x80000000
+
+// move these up so that we can hide them in "State" for object updates 
+// (for now)
+const U32 AGENT_ATTACH_OFFSET				= 4;
+const U32 AGENT_ATTACH_MASK					= 0xf << AGENT_ATTACH_OFFSET;
+
+// RN: this method swaps the upper and lower nibbles to maintain backward 
+// compatibility with old objects that only used the upper nibble
+#define ATTACHMENT_ID_FROM_STATE(state) ((S32)((((U8)state & AGENT_ATTACH_MASK) >> 4) | (((U8)state & ~AGENT_ATTACH_MASK) << 4)))
+
+// DO NOT CHANGE THE SEQUENCE OF THIS LIST!!
+const U8 CLICK_ACTION_NONE = 0;
+const U8 CLICK_ACTION_TOUCH = 0;
+const U8 CLICK_ACTION_SIT = 1;
+const U8 CLICK_ACTION_BUY = 2;
+const U8 CLICK_ACTION_PAY = 3;
+const U8 CLICK_ACTION_OPEN = 4;
+const U8 CLICK_ACTION_PLAY = 5;
+const U8 CLICK_ACTION_OPEN_MEDIA = 6;
+const U8 CLICK_ACTION_ZOOM = 7;
+// DO NOT CHANGE THE SEQUENCE OF THIS LIST!!
+
 
 #endif

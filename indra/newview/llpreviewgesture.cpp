@@ -546,10 +546,10 @@ void LLPreviewGesture::addAnimations()
 	// Copy into something we can sort
 	std::vector<LLInventoryItem*> animations;
 
-	S32 count = items.count();
+	S32 count = items.size();
 	for(i = 0; i < count; ++i)
 	{
-		animations.push_back( items.get(i) );
+		animations.push_back( items.at(i) );
 	}
 
 	// Do the sort
@@ -592,10 +592,10 @@ void LLPreviewGesture::addSounds()
 	std::vector<LLInventoryItem*> sounds;
 
 	S32 i;
-	S32 count = items.count();
+	S32 count = items.size();
 	for(i = 0; i < count; ++i)
 	{
-		sounds.push_back( items.get(i) );
+		sounds.push_back( items.at(i) );
 	}
 
 	// Do the sort

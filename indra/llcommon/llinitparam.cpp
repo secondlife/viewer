@@ -100,13 +100,13 @@ namespace LLInitParam
 	void Parser::parserWarning(const std::string& message)
 	{
 		if (mParseSilently) return;
-		llwarns << message << llendl;
+		LL_WARNS() << message << LL_ENDL;
 	}
 	
 	void Parser::parserError(const std::string& message)
 	{
 		if (mParseSilently) return;
-		llerrs << message << llendl;
+		LL_ERRS() << message << LL_ENDL;
 	}
 
 
@@ -131,7 +131,7 @@ namespace LLInitParam
 		std::string name(char_name);
 		if ((size_t)param->mParamHandle > mMaxParamOffset)
 		{
-			llerrs << "Attempted to register param with block defined for parent class, make sure to derive from LLInitParam::Block<YOUR_CLASS, PARAM_BLOCK_BASE_CLASS>" << llendl;
+			LL_ERRS() << "Attempted to register param with block defined for parent class, make sure to derive from LLInitParam::Block<YOUR_CLASS, PARAM_BLOCK_BASE_CLASS>" << LL_ENDL;
 		}
 
 		if (name.empty())
@@ -214,7 +214,7 @@ namespace LLInitParam
 			{
 				if (emit_errors)
 				{
-					llwarns << "Invalid param \"" << getParamName(block_data, param) << "\"" << llendl;
+					LL_WARNS() << "Invalid param \"" << getParamName(block_data, param) << "\"" << LL_ENDL;
 				}
 				return false;
 			}
@@ -417,7 +417,7 @@ namespace LLInitParam
 			// Block<T, Base_Class>
 			if ((size_t)handle > block_data.mMaxParamOffset)
 			{
-				llerrs << "Attempted to register param with block defined for parent class, make sure to derive from LLInitParam::Block<YOUR_CLASS, PARAM_BLOCK_BASE_CLASS>" << llendl;
+				LL_ERRS() << "Attempted to register param with block defined for parent class, make sure to derive from LLInitParam::Block<YOUR_CLASS, PARAM_BLOCK_BASE_CLASS>" << LL_ENDL;
 			}
 
 			ParamDescriptorPtr param_descriptor = findParamDescriptor(param);

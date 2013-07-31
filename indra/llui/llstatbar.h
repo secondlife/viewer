@@ -46,12 +46,12 @@ public:
 
 		Optional<U32>			decimal_digits;
 
-		Optional<bool>			show_per_sec,
-								show_bar,
+		Optional<bool>			show_bar,
 								show_history,
 								scale_range;
 
 		Optional<S32>			num_frames,
+								num_frames_short,
 								max_height;
 		Optional<std::string>	stat;
 		Optional<EOrientation>	orientation;
@@ -63,11 +63,11 @@ public:
 			bar_max("bar_max", 0.f),
 			tick_spacing("tick_spacing", 0.f),
 			decimal_digits("decimal_digits", 3),
-			show_per_sec("show_per_sec", true),
 			show_bar("show_bar", false),
 			show_history("show_history", false),
 			scale_range("scale_range", true),
 			num_frames("num_frames", 200),
+			num_frames_short("num_frames_short", 20),
 			max_height("max_height", 100),
 			stat("stat"),
 			orientation("orientation", VERTICAL)
@@ -96,10 +96,10 @@ private:
 				 mLabelSpacing;
 	F32			 mTickValue;
 	U32          mDecimalDigits;
-	S32			 mNumFrames;
+	S32			 mNumHistoryFrames,
+				 mNumShortHistoryFrames;
 	S32			 mMaxHeight;
-	bool         mPerSec,				// Use the per sec stats.
-				 mDisplayBar,			// Display the bar graph.
+	bool         mDisplayBar,			// Display the bar graph.
 				 mDisplayHistory,
 				 mAutoScaleMax,
 				 mAutoScaleMin;

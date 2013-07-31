@@ -29,7 +29,7 @@
 #include "llpacketbuffer.h"
 
 #include "net.h"
-#include "timing.h"
+#include "lltimer.h"
 #include "llhost.h"
 
 ///////////////////////////////////////////////////////////

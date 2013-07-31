@@ -34,7 +34,6 @@
 // Viewer includes
 #include "llagent.h"
 #include "llappviewer.h" 
-#include "llsecondlifeurls.h"
 #include "llvoiceclient.h"
 #include "lluictrlfactory.h"
 #include "llviewertexteditor.h"

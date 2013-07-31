@@ -32,7 +32,7 @@
 #include <list>
 #include "llstring.h"
 #include "llxmlparser.h"
-#include "string_table.h"
+#include "llstringtable.h"
 
 class LLColor4;
 class LLColor4U;

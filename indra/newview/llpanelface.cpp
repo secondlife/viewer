@@ -1323,7 +1323,7 @@ void LLPanelFace::updateUI()
 				// to avoid getting overwritten with the default on some UI state changes.
 				//
 				if (!material->getSpecularID().isNull())
-		{
+				{
 					getChild<LLColorSwatchCtrl>("shinycolorswatch")->setOriginal(material->getSpecularLightColor());
 					getChild<LLColorSwatchCtrl>("shinycolorswatch")->set(material->getSpecularLightColor(),TRUE);
 				}
@@ -1334,9 +1334,9 @@ void LLPanelFace::updateUI()
 		
 				if ( ((channel_to_edit == LLRender::NORMAL_MAP) && material->getNormalID().isNull())
 					||((channel_to_edit == LLRender::SPECULAR_MAP) && material->getSpecularID().isNull()))
-		{
+				{
 					channel_to_edit = LLRender::DIFFUSE_MAP;
-		}
+				}
 
 				LLSelectMgr::getInstance()->setTextureChannel(channel_to_edit);
 
@@ -1345,15 +1345,15 @@ void LLPanelFace::updateUI()
 				texture_ctrl->setImageAssetID(material->getNormalID());
 
 				if (!material->getNormalID().isNull())
-		{
+				{
 					material->getNormalOffset(offset_x,offset_y);
 					material->getNormalRepeat(repeat_x,repeat_y);
 
 					if (identical_planar_texgen)
-				{
+					{
 						repeat_x *= 2.0f;
 						repeat_y *= 2.0f;
-				}
+					}
 			
 					rot = material->getNormalRotation();
 					getChild<LLUICtrl>("bumpyScaleU")->setValue(repeat_x);
@@ -1398,7 +1398,7 @@ void LLPanelFace::updateUI()
 		if(mColorSwatch)
 		{
 			mColorSwatch->setEnabled( FALSE );			
-			mColorSwatch->setFallbackImageName("locked_image.j2c" );
+			mColorSwatch->setFallbackImage(LLUI::getUIImage("locked_image.j2c") );
 			mColorSwatch->setValid(FALSE);
 		}
 		getChildView("color trans")->setEnabled(FALSE);

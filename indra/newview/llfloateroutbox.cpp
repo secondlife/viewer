@@ -281,7 +281,7 @@ void LLFloaterOutbox::setStatusString(const std::string& statusString)
 
 void LLFloaterOutbox::updateFolderCount()
 {
-	S32 item_count = 0;
+	U32 item_count = 0;
 
 	if (mOutboxId.notNull())
 	{
@@ -289,7 +289,7 @@ void LLFloaterOutbox::updateFolderCount()
 		LLInventoryModel::item_array_t * items;
 		gInventory.getDirectDescendentsOf(mOutboxId, cats, items);
 
-		item_count = cats->count() + items->count();
+		item_count = cats->size() + items->size();
 	}
 	
 	mOutboxItemCount = item_count;

@@ -677,7 +677,7 @@ void LLXferManager::processReceiveData (LLMessageSystem *mesgsys, void ** /*user
 		ack_info.mID = id;
 		ack_info.mPacketNum = decodePacketNum(packetnum);
 		ack_info.mRemoteHost = mesgsys->getSender();
-		mXferAckQueue.push(ack_info);
+		mXferAckQueue.push_back(ack_info);
 	}
 
 	if (isLastPacket(packetnum))
@@ -1088,15 +1088,15 @@ void LLXferManager::retransmitUnackedPackets ()
 	// so we don't blow through bandwidth.
 	//
 
-	while (mXferAckQueue.getLength())
+	while (mXferAckQueue.size())
 	{
 		if (mAckThrottle.checkOverflow(1000.0f*8.0f))
 		{
 			break;
 		}
-		//llinfos << "Confirm packet queue length:" << mXferAckQueue.getLength() << llendl;
-		LLXferAckInfo ack_info;
-		mXferAckQueue.pop(ack_info);
+		//llinfos << "Confirm packet queue length:" << mXferAckQueue.size() << llendl;
+		LLXferAckInfo ack_info = mXferAckQueue.front();
+		mXferAckQueue.pop_front();
 		//llinfos << "Sending confirm packet" << llendl;
 		sendConfirmPacket(gMessageSystem, ack_info.mID, ack_info.mPacketNum, ack_info.mRemoteHost);
 		mAckThrottle.throttleOverflow(1000.f*8.f); // Assume 1000 bytes/packet

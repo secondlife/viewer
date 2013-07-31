@@ -72,7 +72,6 @@
 #include "lltrans.h"
 
 // library includes
-#include "imageids.h"
 #include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llrect.h"

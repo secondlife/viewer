@@ -55,6 +55,52 @@ class LLWindow;
 class LLView;
 class LLHelp;
 
+
+// this enum is used by the llview.h (viewer) and the llassetstorage.h (viewer and sim) 
+enum EDragAndDropType
+{
+	DAD_NONE			= 0,
+	DAD_TEXTURE			= 1,
+	DAD_SOUND			= 2,
+	DAD_CALLINGCARD		= 3,
+	DAD_LANDMARK		= 4,
+	DAD_SCRIPT			= 5,
+	DAD_CLOTHING 		= 6,
+	DAD_OBJECT			= 7,
+	DAD_NOTECARD		= 8,
+	DAD_CATEGORY		= 9,
+	DAD_ROOT_CATEGORY 	= 10,
+	DAD_BODYPART		= 11,
+	DAD_ANIMATION		= 12,
+	DAD_GESTURE			= 13,
+	DAD_LINK			= 14,
+	DAD_MESH            = 15,
+	DAD_WIDGET          = 16,
+	DAD_PERSON          = 17,
+	DAD_COUNT           = 18,   // number of types in this enum
+};
+
+// Reasons for drags to be denied.
+// ordered by priority for multi-drag
+enum EAcceptance
+{
+	ACCEPT_POSTPONED,	// we are asynchronously determining acceptance
+	ACCEPT_NO,			// Uninformative, general purpose denial.
+	ACCEPT_NO_LOCKED,	// Operation would be valid, but permissions are set to disallow it.
+	ACCEPT_YES_COPY_SINGLE,	// We'll take a copy of a single item
+	ACCEPT_YES_SINGLE,		// Accepted. OK to drag and drop single item here.
+	ACCEPT_YES_COPY_MULTI,	// We'll take a copy of multiple items
+	ACCEPT_YES_MULTI		// Accepted. OK to drag and drop multiple items here.
+};
+
+enum EAddPosition
+{
+	ADD_TOP,
+	ADD_BOTTOM,
+	ADD_DEFAULT
+};
+
+
 void make_ui_sound(const char* name);
 void make_ui_sound_deferred(const char * name);
 

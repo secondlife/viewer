@@ -33,7 +33,7 @@
 
 #include "u64.h"
 #include "llstring.h"
-#include "string_table.h"
+#include "llstringtable.h"
 
 // Anonymous enumeration to provide constants in this file.
 // *NOTE: These values may be used in sscanf statements below as their

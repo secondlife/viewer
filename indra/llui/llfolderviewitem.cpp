@@ -636,7 +636,7 @@ BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	}
 	if (handled)
 	{
-		lldebugst(LLERR_USER_INPUT) << "dragAndDrop handled by LLFolderViewItem" << llendl;
+		LL_DEBUGS("UserInput") << "dragAndDrop handled by LLFolderViewItem" << llendl;
 	}
 
 	return handled;
@@ -1753,7 +1753,7 @@ BOOL LLFolderViewFolder::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	{
 		handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 
-		lldebugst(LLERR_USER_INPUT) << "dragAndDrop handled by LLFolderViewFolder" << llendl;
+		LL_DEBUGS("UserInput") << "dragAndDrop handled by LLFolderViewFolder" << llendl;
 	}
 
 	return TRUE;

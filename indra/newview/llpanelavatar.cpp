@@ -29,7 +29,6 @@
 
 #include "llagent.h"
 #include "llavataractions.h"
-#include "llavatarconstants.h"	// AVATAR_ONLINE
 #include "llcallingcard.h"
 #include "llcombobox.h"
 #include "lldateutil.h"			// ageFromDate()

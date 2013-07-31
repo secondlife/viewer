@@ -67,10 +67,10 @@ inline const std::string get_friend_all_subfolder_name()
 
 void move_from_to_arrays(LLInventoryModel::cat_array_t& from, LLInventoryModel::cat_array_t& to)
 {
-	while (from.count() > 0)
+	while (from.size() > 0)
 	{
-		to.put(from.get(0));
-		from.remove(0);
+		to.push_back(from.at(0));
+		from.erase(from.begin());
 	}
 }
 
@@ -82,7 +82,7 @@ const LLUUID& get_folder_uuid(const LLUUID& parentFolderUUID, LLInventoryCollect
 	gInventory.collectDescendentsIf(parentFolderUUID, cats, items,
 		LLInventoryModel::EXCLUDE_TRASH, matchFunctor);
 
-	S32 cats_count = cats.count();
+	S32 cats_count = cats.size();
 
 	if (cats_count > 1)
 	{
@@ -92,7 +92,7 @@ const LLUUID& get_folder_uuid(const LLUUID& parentFolderUUID, LLInventoryCollect
 			<< LL_ENDL;
 	}
 
-	return (cats_count >= 1) ? cats.get(0)->getUUID() : LLUUID::null;
+	return (cats_count >= 1) ? cats.at(0)->getUUID() : LLUUID::null;
 }
 
 /**
@@ -207,7 +207,7 @@ bool LLFriendCardsManager::isItemInAnyFriendsList(const LLViewerInventoryItem* i
 	LLInventoryModel::item_array_t items;
 	findMatchedFriendCards(item->getCreatorUUID(), items);
 
-	return items.count() > 0;
+	return items.size() > 0;
 }
 
 
@@ -242,9 +242,9 @@ bool LLFriendCardsManager::isObjDirectDescendentOfCategory(const LLInventoryObje
 			{
 				LLUUID creator_id = item->getCreatorUUID();
 				LLViewerInventoryItem* cur_item = NULL;
-				for ( S32 i = items->count() - 1; i >= 0; --i )
+				for ( S32 i = items->size() - 1; i >= 0; --i )
 				{
-					cur_item = items->get(i);
+					cur_item = items->at(i);
 					if ( creator_id == cur_item->getCreatorUUID() )
 					{
 						result = true;
@@ -259,9 +259,9 @@ bool LLFriendCardsManager::isObjDirectDescendentOfCategory(const LLInventoryObje
 			// Note: UUID's of compared items also may be not equal.
 			std::string obj_name = obj->getName();
 			LLViewerInventoryItem* cur_item = NULL;
-			for ( S32 i = items->count() - 1; i >= 0; --i )
+			for ( S32 i = items->size() - 1; i >= 0; --i )
 			{
-				cur_item = items->get(i);
+				cur_item = items->at(i);
 				if ( obj->getType() != cur_item->getType() )
 					continue;
 				if ( obj_name == cur_item->getName() )
@@ -279,9 +279,9 @@ bool LLFriendCardsManager::isObjDirectDescendentOfCategory(const LLInventoryObje
 		// then return true. Note: UUID's of compared items also may be not equal.
 		std::string obj_name = obj->getName();
 		LLViewerInventoryCategory* cur_cat = NULL;
-		for ( S32 i = cats->count() - 1; i >= 0; --i )
+		for ( S32 i = cats->size() - 1; i >= 0; --i )
 		{
-			cur_cat = cats->get(i);
+			cur_cat = cats->at(i);
 			if ( obj->getType() != cur_cat->getType() )
 				continue;
 			if ( obj_name == cur_cat->getName() )
@@ -381,10 +381,10 @@ void LLFriendCardsManager::findMatchedFriendCards(const LLUUID& avatarID, LLInve
 	LLInventoryModel::cat_array_t subFolders;
 	subFolders.push_back(friendFolder);
 
-	while (subFolders.count() > 0)
+	while (subFolders.size() > 0)
 	{
-		LLViewerInventoryCategory* cat = subFolders.get(0);
-		subFolders.remove(0);
+		LLViewerInventoryCategory* cat = subFolders.at(0);
+		subFolders.erase(subFolders.begin());
 
 		gInventory.collectDescendentsIf(cat->getUUID(), cats, items, 
 			LLInventoryModel::EXCLUDE_TRASH, matchFunctor);

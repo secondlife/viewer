@@ -1,5 +1,5 @@
 /** 
- * @file bitpack.h
+ * @file llbitpack.h
  * @brief Convert data to packed bit stream
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
@@ -79,7 +79,7 @@ public:
 					*(mBuffer + mBufferSize++) = mLoad;
 					if (mBufferSize > mMaxSize)
 					{
-						llerror("mBufferSize exceeding mMaxSize!", 0);
+						LL_ERRS() << "mBufferSize exceeding mMaxSize!" << LL_ENDL;
 					}
 					mLoadSize = 0;
 					mLoad = 0x00;
@@ -122,7 +122,7 @@ public:
 					*(mBuffer + mBufferSize++) = mLoad;
 					if (mBufferSize > mMaxSize)
 					{
-						llerror("mBufferSize exceeding mMaxSize!", 0);
+						LL_ERRS() << "mBufferSize exceeding mMaxSize!" << LL_ENDL;
 					}
 					mLoadSize = 0;
 					mLoad = 0x00;
@@ -190,7 +190,7 @@ public:
 			*(mBuffer + mBufferSize++) = mLoad;
 			if (mBufferSize > mMaxSize)
 			{
-				llerror("mBufferSize exceeding mMaxSize!", 0);
+				LL_ERRS() << "mBufferSize exceeding mMaxSize!" << LL_ENDL;
 			}
 			mLoadSize = 0;
 		}

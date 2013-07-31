@@ -36,12 +36,15 @@
 #include "llproxy.h"
 #include "llvfile.h"
 #include "llvfs.h"
+#include "llxfer.h"
 
 #ifdef LL_STANDALONE
 # include <zlib.h>
 #else
 # include "zlib/zlib.h"
 #endif
+
+const	char* const	LOCAL_ASSET_URL_FORMAT		= "http://%s:12041/asset";
 
 const U32 MAX_RUNNING_REQUESTS = 1;
 const F32 MAX_PROCESSING_TIME = 0.005f;

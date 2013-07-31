@@ -27,7 +27,6 @@
 #ifndef LL_LLINVENTORY_H
 #define LL_LLINVENTORY_H
 
-#include "lldarray.h"
 #include "llfoldertype.h"
 #include "llinventorytype.h"
 #include "llpermissions.h"
@@ -124,7 +123,7 @@ protected:
 class LLInventoryItem : public LLInventoryObject
 {
 public:
-	typedef LLDynamicArray<LLPointer<LLInventoryItem> > item_array_t;
+	typedef std::vector<LLPointer<LLInventoryItem> > item_array_t;
 
 	//--------------------------------------------------------------------
 	// Initialization
@@ -235,7 +234,7 @@ protected:
 class LLInventoryCategory : public LLInventoryObject
 {
 public:
-	typedef LLDynamicArray<LLPointer<LLInventoryCategory> > cat_array_t;
+	typedef std::vector<LLPointer<LLInventoryCategory> > cat_array_t;
 
 	//--------------------------------------------------------------------
 	// Initialization

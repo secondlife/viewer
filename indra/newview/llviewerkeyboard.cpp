@@ -676,7 +676,7 @@ BOOL LLViewerKeyboard::handleKey(KEY translated_key,  MASK translated_mask, BOOL
 		return FALSE;
 	}
 
-	lldebugst(LLERR_USER_INPUT) << "keydown -" << translated_key << "-" << llendl;
+	LL_DEBUGS("UserInput") << "keydown -" << translated_key << "-" << llendl;
 	// skip skipped keys
 	if(mKeysSkippedByUI.find(translated_key) != mKeysSkippedByUI.end()) 
 	{
@@ -729,7 +729,7 @@ BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, c
 
 	if (!function)
 	{
-		llerrs << "Can't bind key to function " << function_name << ", no function with this name found" << llendl;
+		LL_ERRS() << "Can't bind key to function " << function_name << ", no function with this name found" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -742,13 +742,13 @@ BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, c
 
 	if (index >= MAX_KEY_BINDINGS)
 	{
-		llerrs << "LLKeyboard::bindKey() - too many keys for mode " << mode << llendl;
+		LL_ERRS() << "LLKeyboard::bindKey() - too many keys for mode " << mode << LL_ENDL;
 		return FALSE;
 	}
 
 	if (mode >= MODE_COUNT)
 	{
-		llerror("LLKeyboard::bindKey() - unknown mode passed", mode);
+		LL_ERRS() << "LLKeyboard::bindKey() - unknown mode passed" << mode << LL_ENDL;
 		return FALSE;
 	}
 

@@ -32,7 +32,6 @@
 
 // viewer includes
 #include "llagent.h"
-#include "llavatarconstants.h"
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llavataractions.h"
 #include "llmenugl.h"

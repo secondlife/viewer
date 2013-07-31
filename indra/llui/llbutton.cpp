@@ -591,7 +591,7 @@ BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 
 		// We only handle the click if the click both started and ended within us
 		getWindow()->setCursor(UI_CURSOR_ARROW);
-		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << llendl;
+		LL_DEBUGS("UserInput") << "hover handled by " << getName() << llendl;
 	}
 	return TRUE;
 }

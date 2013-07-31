@@ -125,7 +125,7 @@ BOOL LLNameListCtrl::handleDragAndDrop(
 	}
 
 	handled = TRUE;
-	lldebugst(LLERR_USER_INPUT) << "dragAndDrop handled by LLNameListCtrl " << getName() << llendl;
+	LL_DEBUGS("UserInput") << "dragAndDrop handled by LLNameListCtrl " << getName() << llendl;
 
 	return handled;
 }

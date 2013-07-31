@@ -88,7 +88,7 @@ public:
 	
 	enum LLAudioPlayState
 	{
-		// isInternetStreamPlaying() returns an *int*, with
+		// isInternetStreamPlaying() returns an *S32*, with
 		// 0 = stopped, 1 = playing, 2 = paused.
 		AUDIO_STOPPED = 0,
 		AUDIO_PLAYING = 1,
@@ -160,7 +160,7 @@ public:
 	// Internet stream methods - these will call down into the *mStreamingAudioImpl if it exists
 	void startInternetStream(const std::string& url);
 	void stopInternetStream();
-	void pauseInternetStream(int pause);
+	void pauseInternetStream(S32 pause);
 	void updateInternetStream(); // expected to be called often
 	LLAudioPlayState isInternetStreamPlaying();
 	// use a value from 0.0 to 1.0, inclusive

@@ -33,7 +33,6 @@
 
 #include "lllogchat.h"
 #include "llvoicechannel.h"
-#include "lldarray.h"
 
 class LLAvatarName;
 class LLFriendObserver;
@@ -354,7 +353,7 @@ public:
 	LLUUID addSession(const std::string& name,
 					  EInstantMessage dialog,
 					  const LLUUID& other_participant_id,
-					  const LLDynamicArray<LLUUID>& ids, bool voice = false,
+					  const std::vector<LLUUID>& ids, bool voice = false,
 					  const LLUUID& floater_id = LLUUID::null);
 
 	/**
@@ -457,8 +456,8 @@ private:
 	// prints a simple message if they are not online. Used to help
 	// reduce 'hello' messages to the linden employees unlucky enough
 	// to have their calling card in the default inventory.
-	void noteOfflineUsers(const LLUUID& session_id, const LLDynamicArray<LLUUID>& ids);
-	void noteMutedUsers(const LLUUID& session_id, const LLDynamicArray<LLUUID>& ids);
+	void noteOfflineUsers(const LLUUID& session_id, const std::vector<LLUUID>& ids);
+	void noteMutedUsers(const LLUUID& session_id, const std::vector<LLUUID>& ids);
 
 	void processIMTypingCore(const LLIMInfo* im_info, BOOL typing);
 

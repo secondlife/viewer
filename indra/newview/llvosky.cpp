@@ -28,11 +28,9 @@
 
 #include "llvosky.h"
 
-#include "imageids.h"
 #include "llfeaturemanager.h"
 #include "llviewercontrol.h"
 #include "llframetimer.h"
-#include "timing.h"
 
 #include "llagent.h"
 #include "llagentcamera.h"

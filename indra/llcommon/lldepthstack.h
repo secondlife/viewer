@@ -41,8 +41,6 @@ public:
 	:	mCurrentDepth(0), mMaxDepth(0) 
 	{}
 
-	~LLDepthStack()	{}
-
 	void setDepth(U32 depth)
 	{
 		mMaxDepth = depth;
@@ -87,14 +85,7 @@ public:
 	{ 
 		return mStack.empty() ? NULL : mStack.back();
 	}
-	
-	void deleteAllData()
-	{ 
-		mCurrentDepth = 0;
-		std::for_each(mStack.begin(), mStack.end(), DeletePointer());
-		mStack.clear(); 
-	}
-	
+
 	void removeAllNodes()
 	{ 
 		mCurrentDepth = 0;

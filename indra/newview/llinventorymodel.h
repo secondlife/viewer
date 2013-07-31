@@ -29,7 +29,6 @@
 
 #include "llassettype.h"
 #include "llfoldertype.h"
-#include "lldarray.h"
 #include "llframetimer.h"
 #include "llcurl.h"
 #include "lluuid.h"
@@ -75,8 +74,8 @@ public:
 		CHILDREN_MAYBE
 	};
 
-	typedef LLDynamicArray<LLPointer<LLViewerInventoryCategory> > cat_array_t;
-	typedef LLDynamicArray<LLPointer<LLViewerInventoryItem> > item_array_t;
+	typedef std::vector<LLPointer<LLViewerInventoryCategory> > cat_array_t;
+	typedef std::vector<LLPointer<LLViewerInventoryItem> > item_array_t;
 	typedef std::set<LLUUID> changed_items_t;
 
 	class fetchInventoryResponder : public LLCurl::Responder

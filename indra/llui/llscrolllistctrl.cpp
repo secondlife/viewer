@@ -1464,8 +1464,6 @@ void LLScrollListCtrl::drawItems()
 				mLineHeight );
 			item->setRect(item_rect);
 
-			//llinfos << item_rect.getWidth() << llendl;
-
 			max_columns = llmax(max_columns, item->getNumColumns());
 
 			LLColor4 fg_color;

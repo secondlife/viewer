@@ -560,7 +560,7 @@ void LLJoint::clampRotation(LLQuaternion old_rot, LLQuaternion new_rot)
 //	LLVector3 old_axis = main_axis * old_rot;
 //	LLVector3 new_axis = main_axis * new_rot;
 
-//	for (S32 i = 0; i < mConstraintSilhouette.count() - 1; i++)
+//	for (S32 i = 0; i < mConstraintSilhouette.size() - 1; i++)
 //	{
 //		LLVector3 vert1 = mConstraintSilhouette[i];
 //		LLVector3 vert2 = mConstraintSilhouette[i + 1];

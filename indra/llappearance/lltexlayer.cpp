@@ -30,7 +30,6 @@
 
 #include "llavatarappearance.h"
 #include "llcrc.h"
-#include "imageids.h"
 #include "llimagej2c.h"
 #include "llimagetga.h"
 #include "lldir.h"

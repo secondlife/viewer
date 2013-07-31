@@ -28,7 +28,6 @@
 #define LL_LLWEARABLE_H
 
 #include "llavatarappearancedefines.h"
-#include "llextendedstatus.h"
 #include "llpermissions.h"
 #include "llsaleinfo.h"
 #include "llwearabletype.h"

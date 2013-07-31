@@ -35,7 +35,6 @@
  */
 
 #include "lltimer.h"
-#include "timing.h"
 
 class LL_COMMON_API LLFrameTimer 
 {

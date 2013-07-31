@@ -143,8 +143,7 @@ struct LocalTextureData
 // Static Data
 //-----------------------------------------------------------------------------
 S32 LLVOAvatarSelf::sScratchTexBytes = 0;
-LLMap< LLGLenum, LLGLuint*> LLVOAvatarSelf::sScratchTexNames;
-LLMap< LLGLenum, F32*> LLVOAvatarSelf::sScratchTexLastBindTime;
+std::map< LLGLenum, LLGLuint*> LLVOAvatarSelf::sScratchTexNames;
 
 
 /*********************************************************************************
@@ -2543,11 +2542,11 @@ BOOL LLVOAvatarSelf::canGrabBakedTexture(EBakedTextureIndex baked_index) const
 													asset_id_matches);
 
 					BOOL can_grab = FALSE;
-					lldebugs << "item count for asset " << texture_id << ": " << items.count() << llendl;
-					if (items.count())
+					lldebugs << "item count for asset " << texture_id << ": " << items.size() << llendl;
+					if (items.size())
 					{
 						// search for full permissions version
-						for (S32 i = 0; i < items.count(); i++)
+						for (S32 i = 0; i < items.size(); i++)
 						{
 							LLViewerInventoryItem* itemp = items[i];
 												if (itemp->getIsFullPerm())
@@ -3060,11 +3059,11 @@ BOOL LLVOAvatarSelf::needsRenderBeam()
 // static
 void LLVOAvatarSelf::deleteScratchTextures()
 {
-	for( LLGLuint* namep = sScratchTexNames.getFirstData(); 
-		 namep; 
-		 namep = sScratchTexNames.getNextData() )
+	for(std::map< LLGLenum, LLGLuint*>::iterator it = sScratchTexNames.begin(), end_it = sScratchTexNames.end();
+		it != end_it;
+		++it)
 	{
-		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 0, -1, 1, (U32 *)namep );
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 0, -1, 1, (U32 *)it->second );
 		stop_glerror();
 	}
 
@@ -3072,8 +3071,7 @@ void LLVOAvatarSelf::deleteScratchTextures()
 	{
 		lldebugs << "Clearing Scratch Textures " << (sScratchTexBytes/1024) << "KB" << llendl;
 
-		sScratchTexNames.deleteAllData();
-		sScratchTexLastBindTime.deleteAllData();
+		delete_and_clear(sScratchTexNames);
 		LLImageGL::sGlobalTextureMemory -= sScratchTexBytes;
 		sScratchTexBytes = 0;
 	}

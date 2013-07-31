@@ -33,7 +33,6 @@
 #include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llmd5.h"
-#include "llsecondlifeurls.h"
 #include "v4color.h"
 
 #include "llappviewer.h"
@@ -545,13 +544,13 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 	LLStringUtil::trim(username);
 	std::string password = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
 
-	LL_INFOS2("Credentials", "Authentication") << "retrieving username:" << username << LL_ENDL;
+	LL_INFOS("Credentials", "Authentication") << "retrieving username:" << username << LL_ENDL;
 	// determine if the username is a first/last form or not.
 	size_t separator_index = username.find_first_of(' ');
 	if (separator_index == username.npos
 		&& !LLGridManager::getInstance()->isSystemGrid())
 	{
-		LL_INFOS2("Credentials", "Authentication") << "account: " << username << LL_ENDL;
+		LL_INFOS("Credentials", "Authentication") << "account: " << username << LL_ENDL;
 		// single username, so this is a 'clear' identifier
 		identifier["type"] = CRED_IDENTIFIER_TYPE_ACCOUNT;
 		identifier["account_name"] = username;
@@ -586,7 +585,7 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 		
 		if (last.find_first_of(' ') == last.npos)
 		{
-			LL_INFOS2("Credentials", "Authentication") << "agent: " << username << LL_ENDL;
+			LL_INFOS("Credentials", "Authentication") << "agent: " << username << LL_ENDL;
 			// traditional firstname / lastname
 			identifier["type"] = CRED_IDENTIFIER_TYPE_AGENT;
 			identifier["first_name"] = first;

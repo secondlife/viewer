@@ -152,9 +152,9 @@ LLStatBar::LLStatBar(const Params& p)
 	mCurMaxBar(p.bar_max),
     mCurMinBar(0),
 	mDecimalDigits(p.decimal_digits),
-	mNumFrames(p.num_frames),
+	mNumHistoryFrames(p.num_frames),
+	mNumShortHistoryFrames(p.num_frames_short),
 	mMaxHeight(p.max_height),
-	mPerSec(p.show_per_sec),
 	mDisplayBar(p.show_bar),
 	mDisplayHistory(p.show_history),
 	mOrientation(p.orientation),
@@ -221,36 +221,28 @@ BOOL LLStatBar::handleMouseDown(S32 x, S32 y, MASK mask)
 
 void LLStatBar::draw()
 {
-	F32 current = 0, 
-		min     = 0, 
-		max     = 0,
-		mean    = 0;
+	F32 current		= 0, 
+		min			= 0, 
+		max			= 0,
+		mean		= 0;
 
     bool show_data = false;
     
 	LLLocalClipRect _(getLocalRect());
 	LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
 
+	S32 num_frames = mDisplayHistory ? mNumHistoryFrames : mNumShortHistoryFrames;
+
 	std::string unit_label;
 	if (mCountFloatp)
 	{
 		LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording(); 
 		unit_label = mUnitLabel.empty() ? mCountFloatp->getUnitLabel() : mUnitLabel;
-		if (mPerSec)
-		{
-			unit_label += "/s";
-			current = last_frame_recording.getPerSec(*mCountFloatp);
-			min     = frame_recording.getPeriodMinPerSec(*mCountFloatp, mNumFrames);
-			max     = frame_recording.getPeriodMaxPerSec(*mCountFloatp, mNumFrames);
-			mean    = frame_recording.getPeriodMeanPerSec(*mCountFloatp, mNumFrames);
-		}
-		else
-		{
-			current = last_frame_recording.getSum(*mCountFloatp);
-			min     = frame_recording.getPeriodMin(*mCountFloatp, mNumFrames);
-			max     = frame_recording.getPeriodMax(*mCountFloatp, mNumFrames);
-			mean    = frame_recording.getPeriodMean(*mCountFloatp, mNumFrames);
-		}
+		unit_label += "/s";
+		current = last_frame_recording.getPerSec(*mCountFloatp);
+		min     = frame_recording.getPeriodMinPerSec(*mCountFloatp, num_frames);
+		max     = frame_recording.getPeriodMaxPerSec(*mCountFloatp, num_frames);
+		mean    = frame_recording.getPeriodMeanPerSec(*mCountFloatp, num_frames);
 
 		// always show count-style data
 		show_data = true;
@@ -262,11 +254,11 @@ void LLStatBar::draw()
 
 		// only show data if there is an event in the relevant time period
 		current = last_frame_recording.getMean(*mEventFloatp);
-		min     = frame_recording.getPeriodMin(*mEventFloatp, mNumFrames);
-		max     = frame_recording.getPeriodMax(*mEventFloatp, mNumFrames);
-		mean    = frame_recording.getPeriodMean(*mEventFloatp, mNumFrames);
-		
-		show_data = frame_recording.getSampleCount(*mEventFloatp, mNumFrames) != 0;
+		min     = frame_recording.getPeriodMin(*mEventFloatp, num_frames);
+		max     = frame_recording.getPeriodMax(*mEventFloatp, num_frames);
+		mean    = frame_recording.getPeriodMean(*mEventFloatp, num_frames);
+
+		show_data = frame_recording.getSampleCount(*mEventFloatp, num_frames) != 0;
 	}
 	else if (mSampleFloatp)
 	{
@@ -275,9 +267,9 @@ void LLStatBar::draw()
 		unit_label = mUnitLabel.empty() ? mSampleFloatp->getUnitLabel() : mUnitLabel;
 
 		current = last_frame_recording.getMean(*mSampleFloatp);
-		min     = frame_recording.getPeriodMin(*mSampleFloatp, mNumFrames);
-		max     = frame_recording.getPeriodMax(*mSampleFloatp, mNumFrames);
-		mean    = frame_recording.getPeriodMean(*mSampleFloatp, mNumFrames);
+		min     = frame_recording.getPeriodMin(*mSampleFloatp, num_frames);
+		max     = frame_recording.getPeriodMax(*mSampleFloatp, num_frames);
+		mean    = frame_recording.getPeriodMean(*mSampleFloatp, num_frames);
 
 		// always show sample data if we've ever grabbed any samples
 		show_data = mSampleFloatp->getPrimaryAccumulator()->hasValue();
@@ -472,18 +464,16 @@ void LLStatBar::draw()
                 S32 i;
                 gGL.color4f( 1.f, 0.f, 0.f, 1.f );
                 gGL.begin( LLRender::QUADS );
-                const S32 max_frame = llmin(mNumFrames, num_values);
+                const S32 max_frame = llmin(num_frames, num_values);
                 U32 num_samples = 0;
                 for (i = 1; i <= max_frame; i++)
                 {
-                    F32 offset = ((F32)i / (F32)mNumFrames) * span;
+                    F32 offset = ((F32)i / (F32)num_frames) * span;
                     LLTrace::Recording& recording = frame_recording.getPrevRecording(i);
 
                     if (mCountFloatp)
                     {
-                        value       = mPerSec 
-                                        ? recording.getPerSec(*mCountFloatp) 
-                                        : recording.getSum(*mCountFloatp);
+                        value       = recording.getPerSec(*mCountFloatp);
                         num_samples = recording.getSampleCount(*mCountFloatp);
                     }
                     else if (mEventFloatp)

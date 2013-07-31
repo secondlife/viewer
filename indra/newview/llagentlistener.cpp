@@ -504,7 +504,7 @@ void LLAgentListener::lookAt(LLSD const & event_data) const
 void LLAgentListener::getGroups(const LLSD& event) const
 {
     LLSD reply(LLSD::emptyArray());
-    for (LLDynamicArray<LLGroupData>::const_iterator
+    for (std::vector<LLGroupData>::const_iterator
              gi(mAgent.mGroups.begin()), gend(mAgent.mGroups.end());
          gi != gend; ++gi)
     {

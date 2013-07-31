@@ -155,7 +155,6 @@ LLScrollContainer::~LLScrollContainer( void )
 // virtual
 void LLScrollContainer::scrollHorizontal( S32 new_pos )
 {
-	//llinfos << "LLScrollContainer::scrollHorizontal()" << llendl;
 	if( mScrolledView )
 	{
 		LLRect doc_rect = mScrolledView->getRect();
@@ -167,7 +166,6 @@ void LLScrollContainer::scrollHorizontal( S32 new_pos )
 // virtual
 void LLScrollContainer::scrollVertical( S32 new_pos )
 {
-	// llinfos << "LLScrollContainer::scrollVertical() " << new_pos << llendl;
 	if( mScrolledView )
 	{
 		LLRect doc_rect = mScrolledView->getRect();

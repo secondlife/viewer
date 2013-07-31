@@ -79,7 +79,7 @@ LLTrace::MemStatHandle	LLDrawable::sMemStat("LLDrawable");
 // static
 U32 LLDrawable::sNumZombieDrawables = 0;
 F32 LLDrawable::sCurPixelAngle = 0;
-LLDynamicArray<LLPointer<LLDrawable>, 32 > LLDrawable::sDeadList;
+std::vector<LLPointer<LLDrawable> > LLDrawable::sDeadList;
 
 #define FORCE_INVISIBLE_AREA 16.f
 
@@ -196,7 +196,7 @@ void LLDrawable::markDead()
 
 	// We're dead.  Free up all of our references to other objects
 	cleanupReferences();
-//	sDeadList.put(this);
+//	sDeadList.push_back(this);
 }
 
 LLVOVolume* LLDrawable::getVOVolume() const
@@ -277,7 +277,7 @@ void LLDrawable::cleanupDeadDrawables()
 {
 	/*
 	S32 i;
-	for (i = 0; i < sDeadList.count(); i++)
+	for (i = 0; i < sDeadList.size(); i++)
 	{
 		if (sDeadList[i]->getNumRefs() > 1)
 		{
@@ -286,7 +286,7 @@ void LLDrawable::cleanupDeadDrawables()
 		}
 	}
 	*/
-	sDeadList.reset();
+	sDeadList.clear();
 }
 
 S32 LLDrawable::findReferences(LLDrawable *drawablep)

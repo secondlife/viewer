@@ -401,7 +401,7 @@ BOOL LLToolBrushLand::handleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLToolBrushLand::handleHover( S32 x, S32 y, MASK mask )
 {
-	lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolBrushLand ("
+	LL_DEBUGS("UserInput") << "hover handled by LLToolBrushLand ("
 								<< (hasMouseCapture() ? "active":"inactive")
 								<< ")" << llendl;
 	mMouseX = x;

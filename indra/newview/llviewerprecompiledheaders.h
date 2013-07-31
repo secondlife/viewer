@@ -51,8 +51,6 @@
 #endif
 
 // Library headers from llcommon project:
-#include "bitpack.h"
-#include "imageids.h"
 #include "indra_constants.h"
 #include "llinitparam.h"
 #include "llallocator.h"
@@ -74,9 +72,7 @@
 #include "llstring.h"
 #include "llsys.h"
 #include "lltimer.h"
-#include "stdenums.h"
 #include "stdtypes.h"
-#include "timing.h"
 #include "u64.h"
 
 // Library includes from llmath project

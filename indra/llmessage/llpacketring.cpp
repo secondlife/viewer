@@ -41,7 +41,6 @@
 #include "llproxy.h"
 #include "llrand.h"
 #include "message.h"
-#include "timing.h"
 #include "u64.h"
 
 ///////////////////////////////////////////////////////////

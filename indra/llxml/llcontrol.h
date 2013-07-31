@@ -29,8 +29,6 @@
 
 #include "llboost.h"
 #include "llevent.h"
-#include "llnametable.h"
-#include "llmap.h"
 #include "llstring.h"
 #include "llrect.h"
 #include "llrefcount.h"

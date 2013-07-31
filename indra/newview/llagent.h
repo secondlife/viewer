@@ -29,13 +29,11 @@
 
 #include "indra_constants.h"
 #include "llevent.h" 				// LLObservable base class
-#include "llagentconstants.h"
 #include "llagentdata.h" 			// gAgentID, gAgentSessionID
 #include "llcharacter.h"
 #include "llcoordframe.h"			// for mFrameAgent
 #include "llavatarappearancedefines.h"
 #include "llpermissionsflags.h"
-#include "lldarray.h"
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
@@ -431,7 +429,7 @@ public:
 	void            stopCurrentAnimations();
 	void			requestStopMotion(LLMotion* motion);
 	void			onAnimStop(const LLUUID& id);
-	void			sendAnimationRequests(LLDynamicArray<LLUUID> &anim_ids, EAnimRequest request);
+	void			sendAnimationRequests(const std::vector<LLUUID> &anim_ids, EAnimRequest request);
 	void			sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request);
 	void			endAnimationUpdateUI();
 	void			unpauseAnimation() { mPauseRequest = NULL; }
@@ -800,7 +798,7 @@ protected:
 	// Only used for building titles.
 	BOOL			isGroupMember() const 		{ return !mGroupID.isNull(); } 
 public:
-	LLDynamicArray<LLGroupData> mGroups;
+	std::vector<LLGroupData> mGroups;
 
 	//--------------------------------------------------------------------
 	// Group Title

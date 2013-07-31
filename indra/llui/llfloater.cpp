@@ -653,7 +653,7 @@ void LLFloater::onVisibilityChange ( BOOL new_visibility )
 
 void LLFloater::openFloater(const LLSD& key)
 {
-	llinfos << "Opening floater " << getName() << llendl;
+	LL_INFOS() << "Opening floater " << getName() << LL_ENDL;
 	mKey = key; // in case we need to open ourselves again
 	
 	if (getSoundFlags() != SILENT 
@@ -706,7 +706,7 @@ void LLFloater::openFloater(const LLSD& key)
 
 void LLFloater::closeFloater(bool app_quitting)
 {
-	llinfos << "Closing floater " << getName() << llendl;
+	LL_INFOS() << "Closing floater " << getName() << LL_ENDL;
 	if (app_quitting)
 	{
 		LLFloater::sQuitting = true;

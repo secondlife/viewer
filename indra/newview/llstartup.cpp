@@ -82,7 +82,6 @@
 #include "llvfs.h"
 #include "llxorcipher.h"	// saved password, MAC address
 #include "llwindow.h"
-#include "imageids.h"
 #include "message.h"
 #include "v3math.h"
 
@@ -241,6 +240,7 @@ static LLVector3 gAgentStartLookAt(1.0f, 0.f, 0.f);
 static std::string gAgentStartLocation = "safe";
 static bool mLoginStatePastUI = false;
 
+const S32 DEFAULT_MAX_AGENT_GROUPS = 25;
 
 boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
 boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
@@ -1431,8 +1431,8 @@ bool idle_startup()
 
 		LL_DEBUGS("AppInit") << "Initializing camera..." << LL_ENDL;
 		gFrameTime    = totalTime();
-		F32 last_time = gFrameTimeSeconds;
-		gFrameTimeSeconds = (S64)(gFrameTime - gStartTime)/SEC_TO_MICROSEC;
+		LLUnit<F32, LLUnits::Seconds> last_time = gFrameTimeSeconds;
+		gFrameTimeSeconds = (gFrameTime - gStartTime);
 
 		gFrameIntervalSeconds = gFrameTimeSeconds - last_time;
 		if (gFrameIntervalSeconds < 0.f)
@@ -1933,6 +1933,7 @@ bool idle_startup()
 
 		LL_DEBUGS("AppInit") << "Initialization complete" << LL_ENDL;
 
+		LL_DEBUGS("SceneLoadTiming", "Start") << "Scene Load Started " << LL_ENDL;
 		gRenderStartTime.reset();
 		gForegroundTime.reset();
 

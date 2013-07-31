@@ -31,7 +31,6 @@
 #ifndef LL_V4COLOR_H
 #include "v4color.h"
 #endif
-#include "stdenums.h"
 #include "llcoord.h"
 #include "llscrollbar.h"
 

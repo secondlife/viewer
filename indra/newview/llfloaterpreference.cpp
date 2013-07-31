@@ -37,7 +37,6 @@
 #include "message.h"
 #include "llfloaterautoreplacesettings.h"
 #include "llagent.h"
-#include "llavatarconstants.h"
 #include "llcheckboxctrl.h"
 #include "llcolorswatch.h"
 #include "llcombobox.h"
@@ -113,6 +112,10 @@
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
 const F32 BANDWIDTH_UPDATER_TIMEOUT = 0.5f;
+char const* const VISIBILITY_DEFAULT = "default";
+char const* const VISIBILITY_HIDDEN = "hidden";
+char const* const VISIBILITY_VISIBLE = "visible";
+char const* const VISIBILITY_INVISIBLE = "invisible";
 
 //control value for middle mouse as talk2push button
 const static std::string MIDDLE_MOUSE_CV = "MiddleMouse";

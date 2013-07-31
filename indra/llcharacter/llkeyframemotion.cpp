@@ -1263,7 +1263,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 
 	if (mJointMotionList->mBasePriority >= LLJoint::ADDITIVE_PRIORITY)
 	{
-		mJointMotionList->mBasePriority = (LLJoint::JointPriority)((int)LLJoint::ADDITIVE_PRIORITY-1);
+		mJointMotionList->mBasePriority = (LLJoint::JointPriority)((S32)LLJoint::ADDITIVE_PRIORITY-1);
 		mJointMotionList->mMaxPriority = mJointMotionList->mBasePriority;
 	}
 	else if (mJointMotionList->mBasePriority < LLJoint::USE_MOTION_PRIORITY)
@@ -2288,8 +2288,7 @@ LLKeyframeMotion::JointConstraint::JointConstraint(JointConstraintSharedData* sh
 	mTargetVolume = NULL;
 	mFixupDistanceRMS = 0.f;
 
-	int i;
-	for (i=0; i<MAX_CHAIN_LENGTH; ++i)
+	for (S32 i=0; i<MAX_CHAIN_LENGTH; ++i)
 	{
 		mJointLengths[i] = 0.f;
 		mJointLengthFractions[i] = 0.f;

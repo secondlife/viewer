@@ -36,7 +36,6 @@
 #include "llstartup.h"
 
 // Linden library includes
-#include "llavatarconstants.h"	// AVATAR_TRANSACTED, etc.
 #include "lldate.h"
 #include "lltrans.h"
 #include "llui.h"				// LLUI::getLanguage()

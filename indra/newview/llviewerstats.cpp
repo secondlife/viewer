@@ -92,6 +92,9 @@ LLTrace::CountStatHandle<>	FPS("FPS", "Frames rendered"),
 LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kilotriangles> > 
 							TRIANGLES_DRAWN("trianglesdrawnstat");
 
+LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Kilotriangles> >
+							TRIANGLES_DRAWN_PER_FRAME("trianglesdrawnperframestat");
+
 LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kibibytes> >	
 							ACTIVE_MESSAGE_DATA_RECEIVED("activemessagedatareceived", "Message system data received on all active regions"),
 							LAYERS_NETWORK_DATA_RECEIVED("layersdatareceived", "Network data received for layer data (terrain)"),
@@ -213,38 +216,37 @@ void LLViewerStats::resetStats()
 	LLViewerStats::instance().mRecording.reset();
 }
 
-void LLViewerStats::updateFrameStats(const F64 time_diff)
+void LLViewerStats::updateFrameStats(const LLUnit<F64, LLUnits::Seconds> time_diff)
 {
-	LLUnit<F64, LLUnits::Seconds> time_diff_seconds(time_diff);
 	if (getRecording().getLastValue(LLStatViewer::PACKETS_LOST_PERCENT) > 5.0)
 	{
-		add(LLStatViewer::LOSS_5_PERCENT_TIME, time_diff_seconds);
+		add(LLStatViewer::LOSS_5_PERCENT_TIME, time_diff);
 	}
 	
 	F32 sim_fps = getRecording().getLastValue(LLStatViewer::SIM_FPS);
 	if (0.f < sim_fps && sim_fps < 20.f)
 	{
-		add(LLStatViewer::SIM_20_FPS_TIME, time_diff_seconds);
+		add(LLStatViewer::SIM_20_FPS_TIME, time_diff);
 	}
 	
 	F32 sim_physics_fps = getRecording().getLastValue(LLStatViewer::SIM_PHYSICS_FPS);
 
 	if (0.f < sim_physics_fps && sim_physics_fps < 20.f)
 	{
-		add(LLStatViewer::SIM_PHYSICS_20_FPS_TIME, time_diff_seconds);
+		add(LLStatViewer::SIM_PHYSICS_20_FPS_TIME, time_diff);
 	}
 		
 	if (time_diff >= 0.5)
 	{
-		record(LLStatViewer::FPS_2_TIME, time_diff_seconds);
+		record(LLStatViewer::FPS_2_TIME, time_diff);
 	}
 	if (time_diff >= 0.125)
 	{
-		record(LLStatViewer::FPS_8_TIME, time_diff_seconds);
+		record(LLStatViewer::FPS_8_TIME, time_diff);
 	}
 	if (time_diff >= 0.1)
 	{
-		record(LLStatViewer::FPS_10_TIME, time_diff_seconds);
+		record(LLStatViewer::FPS_10_TIME, time_diff);
 	}
 
 	if (gFrameCount && mLastTimeDiff > 0.0)
@@ -330,6 +332,8 @@ void update_statistics()
 	}
 
 	LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
+
+	record(LLStatViewer::TRIANGLES_DRAWN_PER_FRAME, last_frame_recording.getSum(LLStatViewer::TRIANGLES_DRAWN));
 
 	sample(LLStatViewer::ENABLE_VBO,      (F64)gSavedSettings.getBOOL("RenderVBOEnable"));
 	sample(LLStatViewer::LIGHTING_DETAIL, (F64)gPipeline.getLightingDetail());

@@ -1,9 +1,8 @@
 /** 
- * @file llclickaction.h
- * @author James Cook
- * @brief Constants for single-click actions on objects
+ * @file bitpack.cpp
+ * @brief LLBitPack class implementation
  *
- * $LicenseInfo:firstyear=2006&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -25,17 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCLICKACTION_H
-#define LL_LLCLICKACTION_H
-// DO NOT CHANGE THE SEQUENCE OF THIS LIST!!
-const U8 CLICK_ACTION_NONE = 0;
-const U8 CLICK_ACTION_TOUCH = 0;
-const U8 CLICK_ACTION_SIT = 1;
-const U8 CLICK_ACTION_BUY = 2;
-const U8 CLICK_ACTION_PAY = 3;
-const U8 CLICK_ACTION_OPEN = 4;
-const U8 CLICK_ACTION_PLAY = 5;
-const U8 CLICK_ACTION_OPEN_MEDIA = 6;
-const U8 CLICK_ACTION_ZOOM = 7;
-// DO NOT CHANGE THE SEQUENCE OF THIS LIST!!
-#endif
+#include "linden_common.h"
+
+// implementation is all in the header, this include dep ensures the unit test is rerun if the implementation changes.
+#include "llbitpack.h"

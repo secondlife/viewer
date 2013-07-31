@@ -47,7 +47,6 @@
 #include "message.h"
 #include "llpluginclassmedia.h" // for code in the mediaEvent handler
 #include "object_flags.h"
-#include "llagentconstants.h"
 #include "lldrawable.h"
 #include "lldrawpoolavatar.h"
 #include "lldrawpoolbump.h"

@@ -27,10 +27,10 @@
 #include "linden_common.h"
 
 #include "llmaterialtable.h"
+#include "indra_constants.h"
 #include "llstl.h"
 #include "material_codes.h"
 #include "sound_ids.h"
-#include "imageids.h"
 
 LLMaterialTable LLMaterialTable::basic(1);
 

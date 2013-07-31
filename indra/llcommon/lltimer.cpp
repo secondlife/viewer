@@ -43,7 +43,6 @@
 //
 // Locally used constants
 //
-const U32 SEC_PER_DAY = 86400;
 const F64 SEC_TO_MICROSEC = 1000000.f;
 const U64 SEC_TO_MICROSEC_U64 = 1000000;
 const F64 USEC_TO_SEC_F64 = 0.000001;
@@ -204,6 +203,8 @@ F64 calc_clock_frequency(unsigned int uiMeasureMSecs)
 	return 1000000.0; // microseconds, so 1 MHz.
 }
 
+const U64 SEC_TO_MICROSEC_U64 = 1000000;
+
 U64 get_clock_count()
 {
 	// Linux clocks are in microseconds
@@ -226,7 +227,7 @@ void update_clock_frequencies()
 
 // returns a U64 number that represents the number of 
 // microseconds since the unix epoch - Jan 1, 1970
-U64 totalTime()
+LLUnitImplicit<U64, LLUnits::Microseconds> totalTime()
 {
 	U64 current_clock_count = get_clock_count();
 	if (!gTotalTimeClockCount)
@@ -263,7 +264,7 @@ U64 totalTime()
 	}
 
 	// Return the total clock tick count in microseconds.
-	return (U64)(gTotalTimeClockCount*gClocksToMicroseconds);
+	return LLUnits::Microseconds::fromValue(gTotalTimeClockCount*gClocksToMicroseconds);
 }
 
 
@@ -375,7 +376,7 @@ LLUnitImplicit<F32, LLUnits::Seconds> LLTimer::getElapsedTimeAndResetF32()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void  LLTimer::setTimerExpirySec(F32 expiration)
+void  LLTimer::setTimerExpirySec(LLUnitImplicit<F32, LLUnits::Seconds> expiration)
 {
 	mExpirationTicks = get_clock_count()
 		+ (U64)((F32)(expiration * gClockFrequency));

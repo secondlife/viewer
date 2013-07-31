@@ -53,7 +53,6 @@
 #include <stdlib.h>
 
 #include "llweb.h"
-#include "llsecondlifeurls.h"
 
 #include "llviewernetwork.h"
 #include "llmd5.h"
@@ -307,14 +306,14 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		// app cleanup if there was a problem.
 		//
 #if WINDOWS_CRT_MEM_CHECKS
-    llinfos << "CRT Checking memory:" << llendflush;
+    llinfos << "CRT Checking memory:" << LL_ENDL;
 	if (!_CrtCheckMemory())
 	{
-		llwarns << "_CrtCheckMemory() failed at prior to cleanup!" << llendflush;
+		llwarns << "_CrtCheckMemory() failed at prior to cleanup!" << LL_ENDL;
 	}
 	else
 	{
-		llinfos << " No corruption detected." << llendflush;
+		llinfos << " No corruption detected." << LL_ENDL;
 	}
 #endif
 	
@@ -323,14 +322,14 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	viewer_app_ptr->cleanup();
 	
 #if WINDOWS_CRT_MEM_CHECKS
-    llinfos << "CRT Checking memory:" << llendflush;
+    llinfos << "CRT Checking memory:" << LL_ENDL;
 	if (!_CrtCheckMemory())
 	{
-		llwarns << "_CrtCheckMemory() failed after cleanup!" << llendflush;
+		llwarns << "_CrtCheckMemory() failed after cleanup!" << LL_ENDL;
 	}
 	else
 	{
-		llinfos << " No corruption detected." << llendflush;
+		llinfos << " No corruption detected." << LL_ENDL;
 	}
 #endif
 	 
@@ -568,7 +567,7 @@ bool LLAppViewerWin32::initHardwareTest()
 			if (OSBTN_NO== button)
 			{
 				LL_INFOS("AppInit") << "User quitting after failed DirectX 9 detection" << LL_ENDL;
-				LLWeb::loadURLExternal(DIRECTX_9_URL, false);
+				LLWeb::loadURLExternal("http://secondlife.com/support/, false);
 				return false;
 			}
 			gWarningSettings.setBOOL("AboutDirectX9", FALSE);

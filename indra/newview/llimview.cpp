@@ -2397,7 +2397,7 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 					llinfos << "Corrected session name is " << correct_session_name << llendl; 
 					break;
 				default: 
-					llwarning("Received an empty session name from a server and failed to generate a new proper session name", 0);
+					LL_WARNS() << "Received an empty session name from a server and failed to generate a new proper session name" << LL_ENDL;
 					break;
 				}
 			}
@@ -2782,8 +2782,8 @@ LLUUID LLIMMgr::addSession(
 	EInstantMessage dialog,
 	const LLUUID& other_participant_id, bool voice)
 {
-	LLDynamicArray<LLUUID> ids;
-	ids.put(other_participant_id);
+	std::vector<LLUUID> ids;
+	ids.push_back(other_participant_id);
 	LLUUID session_id = addSession(name, dialog, other_participant_id, ids, voice);
 	return session_id;
 }
@@ -2794,17 +2794,17 @@ LLUUID LLIMMgr::addSession(
 	const std::string& name,
 	EInstantMessage dialog,
 	const LLUUID& other_participant_id,
-	const LLDynamicArray<LLUUID>& ids, bool voice,
+	const std::vector<LLUUID>& ids, bool voice,
 	const LLUUID& floater_id)
 {
-	if (0 == ids.getLength())
+	if (ids.empty())
 	{
 		return LLUUID::null;
 	}
 
 	if (name.empty())
 	{
-		llwarning("Session name cannot be null!", 0);
+		LL_WARNS() << "Session name cannot be null!" << LL_ENDL;
 		return LLUUID::null;
 	}
 
@@ -3245,9 +3245,9 @@ bool LLIMMgr::isNonFriendSessionNotified(const LLUUID& session_id)
 
 void LLIMMgr::noteOfflineUsers(
 	const LLUUID& session_id,
-	const LLDynamicArray<LLUUID>& ids)
+	const std::vector<LLUUID>& ids)
 {
-	S32 count = ids.count();
+	S32 count = ids.size();
 	if(count == 0)
 	{
 		const std::string& only_user = LLTrans::getString("only_user_message");
@@ -3260,11 +3260,11 @@ void LLIMMgr::noteOfflineUsers(
 		LLIMModel& im_model = LLIMModel::instance();
 		for(S32 i = 0; i < count; ++i)
 		{
-			info = at.getBuddyInfo(ids.get(i));
+			info = at.getBuddyInfo(ids.at(i));
 			LLAvatarName av_name;
 			if (info
 				&& !info->isOnline()
-				&& LLAvatarNameCache::get(ids.get(i), &av_name))
+				&& LLAvatarNameCache::get(ids.at(i), &av_name))
 			{
 				LLUIString offline = LLTrans::getString("offline_message");
 				// Use display name only because this user is your friend
@@ -3276,7 +3276,7 @@ void LLIMMgr::noteOfflineUsers(
 }
 
 void LLIMMgr::noteMutedUsers(const LLUUID& session_id,
-								  const LLDynamicArray<LLUUID>& ids)
+								  const std::vector<LLUUID>& ids)
 {
 	// Don't do this if we don't have a mute list.
 	LLMuteList *ml = LLMuteList::getInstance();
@@ -3285,14 +3285,14 @@ void LLIMMgr::noteMutedUsers(const LLUUID& session_id,
 		return;
 	}
 
-	S32 count = ids.count();
+	S32 count = ids.size();
 	if(count > 0)
 	{
 		LLIMModel* im_model = LLIMModel::getInstance();
 		
 		for(S32 i = 0; i < count; ++i)
 		{
-			if( ml->isMuted(ids.get(i)) )
+			if( ml->isMuted(ids.at(i)) )
 			{
 				LLUIString muted = LLTrans::getString("muted_message");
 

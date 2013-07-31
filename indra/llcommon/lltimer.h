@@ -91,7 +91,7 @@ public:
 	void stop() { mStarted = FALSE; }
 	void reset();								// Resets the timer
 	void setLastClockCount(U64 current_count);		// Sets the timer so that the next elapsed call will be relative to this time
-	void setTimerExpirySec(F32 expiration);
+	void setTimerExpirySec(LLUnitImplicit<F32, LLUnits::Seconds> expiration);
 	BOOL checkExpirationAndReset(F32 expiration);
 	BOOL hasExpired() const;
 	LLUnitImplicit<F32, LLUnits::Seconds> getElapsedTimeAndResetF32();	// Returns elapsed time in seconds with reset
@@ -171,6 +171,6 @@ LL_COMMON_API struct tm* utc_to_pacific_time(time_t utc_time, BOOL pacific_dayli
 LL_COMMON_API void microsecondsToTimecodeString(U64 current_time, std::string& tcstring);
 LL_COMMON_API void secondsToTimecodeString(F32 current_time, std::string& tcstring);
 
-U64 LL_COMMON_API totalTime();					// Returns current system time in microseconds
+LLUnitImplicit<U64, LLUnits::Microseconds> LL_COMMON_API totalTime();					// Returns current system time in microseconds
 
 #endif

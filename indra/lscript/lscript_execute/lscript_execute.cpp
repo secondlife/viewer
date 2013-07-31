@@ -417,10 +417,13 @@ void LLScriptExecuteLSL2::callEventHandler(LSCRIPTStateEventType event, const LL
 void LLScriptExecuteLSL2::callQueuedEventHandler(LSCRIPTStateEventType event, const LLUUID &id, F32 time_slice)
 {
 	S32 major_version = getMajorVersion();
-	LLScriptDataCollection* eventdata;
 
-	for (eventdata = mEventData.mEventDataList.getFirstData(); eventdata; eventdata = mEventData.mEventDataList.getNextData())
+	for (std::list<LLScriptDataCollection*>::iterator it = mEventData.mEventDataList.begin(), end_it = mEventData.mEventDataList.end();
+		it != end_it;
+		++it)
 	{
+		LLScriptDataCollection* eventdata = *it;
+
 		if (eventdata->mType == event)
 		{
 			// push a zero to be popped
@@ -458,7 +461,8 @@ void LLScriptExecuteLSL2::callQueuedEventHandler(LSCRIPTStateEventType event, co
 			S32			opcode_start = get_state_event_opcoode_start(mBuffer, current_state, event);
 			set_ip(mBuffer, opcode_start);
 
-			mEventData.mEventDataList.deleteCurrentData();
+			delete *it;
+			mEventData.mEventDataList.erase(it);
 			break;
 		}
 	}

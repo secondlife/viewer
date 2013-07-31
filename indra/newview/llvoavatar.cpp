@@ -66,6 +66,7 @@
 #include "llmutelist.h"
 #include "llmoveview.h"
 #include "llnotificationsutil.h"
+#include "llphysicsshapebuilderutil.h"
 #include "llquantize.h"
 #include "llrand.h"
 #include "llregionhandle.h"
@@ -116,16 +117,16 @@ using namespace LLAvatarAppearanceDefines;
 //-----------------------------------------------------------------------------
 // Global constants
 //-----------------------------------------------------------------------------
-const LLUUID ANIM_AGENT_BODY_NOISE = LLUUID("9aa8b0a6-0c6f-9518-c7c3-4f41f2c001ad"); //"body_noise"
-const LLUUID ANIM_AGENT_BREATHE_ROT	= LLUUID("4c5a103e-b830-2f1c-16bc-224aa0ad5bc8");  //"breathe_rot"
-const LLUUID ANIM_AGENT_EDITING	= LLUUID("2a8eba1d-a7f8-5596-d44a-b4977bf8c8bb");  //"editing"
-const LLUUID ANIM_AGENT_EYE	= LLUUID("5c780ea8-1cd1-c463-a128-48c023f6fbea");  //"eye"
-const LLUUID ANIM_AGENT_FLY_ADJUST = LLUUID("db95561f-f1b0-9f9a-7224-b12f71af126e");  //"fly_adjust"
-const LLUUID ANIM_AGENT_HAND_MOTION	= LLUUID("ce986325-0ba7-6e6e-cc24-b17c4b795578");  //"hand_motion"
-const LLUUID ANIM_AGENT_HEAD_ROT = LLUUID("e6e8d1dd-e643-fff7-b238-c6b4b056a68d");  //"head_rot"
-const LLUUID ANIM_AGENT_PELVIS_FIX = LLUUID("0c5dd2a2-514d-8893-d44d-05beffad208b");  //"pelvis_fix"
-const LLUUID ANIM_AGENT_TARGET = LLUUID("0e4896cb-fba4-926c-f355-8720189d5b55");  //"target"
-const LLUUID ANIM_AGENT_WALK_ADJUST	= LLUUID("829bc85b-02fc-ec41-be2e-74cc6dd7215d");  //"walk_adjust"
+const LLUUID ANIM_AGENT_BODY_NOISE     = LLUUID("9aa8b0a6-0c6f-9518-c7c3-4f41f2c001ad"); //"body_noise"
+const LLUUID ANIM_AGENT_BREATHE_ROT	   = LLUUID("4c5a103e-b830-2f1c-16bc-224aa0ad5bc8");  //"breathe_rot"
+const LLUUID ANIM_AGENT_EDITING	       = LLUUID("2a8eba1d-a7f8-5596-d44a-b4977bf8c8bb");  //"editing"
+const LLUUID ANIM_AGENT_EYE	           = LLUUID("5c780ea8-1cd1-c463-a128-48c023f6fbea");  //"eye"
+const LLUUID ANIM_AGENT_FLY_ADJUST     = LLUUID("db95561f-f1b0-9f9a-7224-b12f71af126e");  //"fly_adjust"
+const LLUUID ANIM_AGENT_HAND_MOTION	   = LLUUID("ce986325-0ba7-6e6e-cc24-b17c4b795578");  //"hand_motion"
+const LLUUID ANIM_AGENT_HEAD_ROT       = LLUUID("e6e8d1dd-e643-fff7-b238-c6b4b056a68d");  //"head_rot"
+const LLUUID ANIM_AGENT_PELVIS_FIX     = LLUUID("0c5dd2a2-514d-8893-d44d-05beffad208b");  //"pelvis_fix"
+const LLUUID ANIM_AGENT_TARGET         = LLUUID("0e4896cb-fba4-926c-f355-8720189d5b55");  //"target"
+const LLUUID ANIM_AGENT_WALK_ADJUST	   = LLUUID("829bc85b-02fc-ec41-be2e-74cc6dd7215d");  //"walk_adjust"
 const LLUUID ANIM_AGENT_PHYSICS_MOTION = LLUUID("7360e029-3cb8-ebc4-863e-212df440d987");  //"physics_motion"
 
 
@@ -1313,7 +1314,7 @@ void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 	for (polymesh_map_t::iterator i = mPolyMeshes.begin(); i != mPolyMeshes.end(); ++i)
 	{
 		LLPolyMesh* mesh = i->second;
-		for (S32 joint_num = 0; joint_num < mesh->mJointRenderData.count(); joint_num++)
+		for (S32 joint_num = 0; joint_num < mesh->mJointRenderData.size(); joint_num++)
 		{
 			LLVector4a trans;
 			trans.load3( mesh->mJointRenderData[joint_num]->mWorldMatrix->getTranslation().mV);
@@ -1638,7 +1639,7 @@ void LLVOAvatar::releaseMeshData()
 		return;
 	}
 
-	//llinfos << "Releasing" << llendl;
+	LL_DEBUGS() << "Releasing mesh data" << LL_ENDL;
 
 	// cleanup mesh data
 	for (avatar_joint_list_t::iterator iter = mMeshLOD.begin();
@@ -7120,30 +7121,32 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 }
 
 // static
-void LLVOAvatar::getAnimLabels( LLDynamicArray<std::string>* labels )
+void LLVOAvatar::getAnimLabels( std::vector<std::string>* labels )
 {
 	S32 i;
+	labels->reserve(gUserAnimStatesCount);
 	for( i = 0; i < gUserAnimStatesCount; i++ )
 	{
-		labels->put( LLAnimStateLabels::getStateLabel( gUserAnimStates[i].mName ) );
+		labels->push_back( LLAnimStateLabels::getStateLabel( gUserAnimStates[i].mName ) );
 	}
 
 	// Special case to trigger away (AFK) state
-	labels->put( "Away From Keyboard" );
+	labels->push_back( "Away From Keyboard" );
 }
 
 // static 
-void LLVOAvatar::getAnimNames( LLDynamicArray<std::string>* names )
+void LLVOAvatar::getAnimNames( std::vector<std::string>* names )
 {
 	S32 i;
 
+	names->reserve(gUserAnimStatesCount);
 	for( i = 0; i < gUserAnimStatesCount; i++ )
 	{
-		names->put( std::string(gUserAnimStates[i].mName) );
+		names->push_back( std::string(gUserAnimStates[i].mName) );
 	}
 
 	// Special case to trigger away (AFK) state
-	names->put( "enter_away_from_keyboard_state" );
+	names->push_back( "enter_away_from_keyboard_state" );
 }
 
 // static

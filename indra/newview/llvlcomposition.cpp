@@ -28,7 +28,6 @@
 
 #include "llvlcomposition.h"
 
-#include "imageids.h"
 #include "llerror.h"
 #include "v3math.h"
 #include "llsurface.h"

@@ -39,7 +39,6 @@
 
 #include "lluictrl.h"
 #include "v4color.h"
-#include "stdenums.h"
 #include "lldepthstack.h"
 #include "lleditmenuhandler.h"
 #include "llfontgl.h"
