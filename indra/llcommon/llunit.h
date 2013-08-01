@@ -74,10 +74,21 @@ struct LLUnit
 		return mValue;
 	}
 
-	template<typename NEW_UNIT_TYPE> 
-	STORAGE_TYPE valueAs()
+	void value(storage_t value)
 	{
-		return LLUnit<STORAGE_TYPE, NEW_UNIT_TYPE>(*this).value();
+		mValue = value;
+	}
+
+	template<typename NEW_UNIT_TYPE> 
+	storage_t valueInUnits()
+	{
+		return LLUnit<storage_t, NEW_UNIT_TYPE>(*this).value();
+	}
+
+	template<typename NEW_UNIT_TYPE> 
+	void valueInUnits(storage_t value)
+	{
+		*this = LLUnit<storage_t, NEW_UNIT_TYPE>(value);
 	}
 
 	void operator += (storage_t value)

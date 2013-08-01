@@ -397,7 +397,7 @@ void TimeBlock::dumpCurTimes()
 		}
 
 		out_str << timerp->getName() << " " 
-			<< std::setprecision(3) << total_time.valueAs<LLUnits::Milliseconds>() << " ms, "
+			<< std::setprecision(3) << total_time.valueInUnits<LLUnits::Milliseconds>() << " ms, "
 			<< num_calls << " calls";
 
 		llinfos << out_str.str() << llendl;

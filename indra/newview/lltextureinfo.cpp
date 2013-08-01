@@ -200,11 +200,11 @@ LLSD LLTextureInfo::getAverages()
 	}
 	else
 	{
-		averageDownloadRate = mRecording.getSum(sTextureDataDownloaded).valueAs<LLUnits::Bits>() / download_time.valueAs<LLUnits::Seconds>();
+		averageDownloadRate = mRecording.getSum(sTextureDataDownloaded).valueInUnits<LLUnits::Bits>() / download_time.valueInUnits<LLUnits::Seconds>();
 	}
 
 	averagedTextureData["bits_per_second"]             = averageDownloadRate;
-	averagedTextureData["bytes_downloaded"]            = mRecording.getSum(sTextureDataDownloaded).valueAs<LLUnits::Bytes>();
+	averagedTextureData["bytes_downloaded"]            = mRecording.getSum(sTextureDataDownloaded).valueInUnits<LLUnits::Bytes>();
 	averagedTextureData["texture_downloads_started"]   = mRecording.getSum(sTextureDownloadsStarted);
 	averagedTextureData["texture_downloads_completed"] = mRecording.getSum(sTextureDownloadsCompleted);
 	averagedTextureData["transport"]                   = mTextureDownloadProtocol;
