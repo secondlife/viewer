@@ -764,6 +764,8 @@ void LLSocialAccountPanel::onConnect()
 void LLSocialAccountPanel::onDisconnect()
 {
 	LLFacebookConnect::instance().disconnectFromFacebook();
+
+	LLViewerMedia::getCookieStore()->removeCookiesByDomain(".facebook.com"); 
 }
 
 ////////////////////////
