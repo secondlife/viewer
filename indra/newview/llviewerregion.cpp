@@ -1303,6 +1303,16 @@ void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>&
 
 LLViewerObject* LLViewerRegion::addNewObject(LLVOCacheEntry* entry)
 {
+	if(!entry || !entry->getEntry())
+	{
+		if(entry)
+		{
+			mImpl->mVisibleEntries.erase(entry);
+			entry->setState(LLVOCacheEntry::INACTIVE);
+		}
+		return NULL;
+	}
+
 	LLViewerObject* obj = NULL;
 	if(!entry->getEntry()->hasDrawable()) //not added to the rendering pipeline yet
 	{
