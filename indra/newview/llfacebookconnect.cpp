@@ -199,6 +199,7 @@ public:
 		}
 		else
 		{
+			LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_DISCONNECT_FAILED);
             log_facebook_connect_error("Disconnect", status, reason, content.get("error_code"), content.get("error_description"));
 		}
 	}
@@ -313,6 +314,8 @@ public:
 //
 LLFacebookConnect::LLFacebookConnect()
 :	mConnectionState(FB_NOT_CONNECTED),
+	mConnected(false),
+	mInfo(),
     mContent(),
     mGeneration(0)
 {
@@ -334,8 +337,7 @@ void LLFacebookConnect::openFacebookWeb(std::string url)
 std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route)
 {
 	//static std::string sFacebookConnectUrl = gAgent.getRegion()->getCapability("FacebookConnect");
-	//static std::string sFacebookConnectUrl = "http://int.fbc.aditi.lindenlab.com/agent/" + gAgentID.asString(); // TEMPORARY HACK FOR FB DEMO - Cho
-    static std::string sFacebookConnectUrl = "http://pdp15.lindenlab.com/fbc/agent/" + gAgentID.asString(); // ANOTHER HACK SO WE POINT TO PDP15
+	static std::string sFacebookConnectUrl = "http://int.fbc.aditi.lindenlab.com/fbc/agent/" + gAgentID.asString(); // TEMPORARY HACK FOR FB DEMO - Cho
 
 	std::string url = sFacebookConnectUrl + route;
 	llinfos << url << llendl;
@@ -360,13 +362,10 @@ void LLFacebookConnect::disconnectFromFacebook()
 
 void LLFacebookConnect::checkConnectionToFacebook(bool auto_connect)
 {
-    if ((mConnectionState == FB_NOT_CONNECTED) || (mConnectionState == FB_CONNECTION_FAILED) || (mConnectionState == FB_POST_FAILED))
-    {
         const bool follow_redirects = false;
         const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
         LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(auto_connect),
                           LLSD(), timeout, follow_redirects);
-    }
 }
 
 void LLFacebookConnect::loadFacebookInfo()
@@ -507,6 +506,15 @@ void LLFacebookConnect::clearContent()
 
 void LLFacebookConnect::setConnectionState(LLFacebookConnect::EConnectionState connection_state)
 {
+	if(connection_state == FB_CONNECTED)
+	{
+		setConnected(true);
+	}
+	else if(connection_state == FB_NOT_CONNECTED)
+	{
+		setConnected(false);
+	}
+
 	if (mConnectionState != connection_state)
 	{
 		LLSD state_info;
@@ -515,4 +523,9 @@ void LLFacebookConnect::setConnectionState(LLFacebookConnect::EConnectionState c
 	}
 	
 	mConnectionState = connection_state;
+}
+
+void LLFacebookConnect::setConnected(bool connected)
+{
+	mConnected = connected;
 }

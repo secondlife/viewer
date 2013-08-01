@@ -688,20 +688,17 @@ void LLSocialAccountPanel::onVisibilityChange(const LLSD& new_visibility)
 
 bool LLSocialAccountPanel::onFacebookConnectStateChange(const LLSD& data)
 {
-
-	switch (data.get("enum").asInteger())
+	if(LLFacebookConnect::instance().isConnected())
 	{
-		case LLFacebookConnect::FB_CONNECTED:
-		case LLFacebookConnect::FB_POSTING:
-		case LLFacebookConnect::FB_POSTED:
-		case LLFacebookConnect::FB_POST_FAILED:
+		//In process of disconnecting so leave the layout as is
+		if(data.get("enum").asInteger() != LLFacebookConnect::FB_DISCONNECTING)
+		{
 			showConnectedLayout();
-			break;
-		case LLFacebookConnect::FB_NOT_CONNECTED:
-		case LLFacebookConnect::FB_CONNECTION_IN_PROGRESS:
-		case LLFacebookConnect::FB_CONNECTION_FAILED:
-			showDisconnectedLayout();
-			break;
+		}
+	}
+	else
+	{
+		showDisconnectedLayout();
 	}
 
 	return false;
@@ -881,6 +878,12 @@ void LLFloaterSocial::draw()
 			status_text = LLTrans::getString("SocialFacebookDisconnecting");
 			mStatusLoadingText->setValue(status_text);
 			mStatusLoadingIndicator->setVisible(true);
+			break;
+		case LLFacebookConnect::FB_DISCONNECT_FAILED:
+			// Error disconnecting from the service
+			mStatusErrorText->setVisible(true);
+			status_text = LLTrans::getString("SocialFacebookErrorDisconnecting");
+			mStatusErrorText->setValue(status_text);
 			break;
         }
     }

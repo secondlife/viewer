@@ -52,7 +52,8 @@ public:
 		FB_POSTING = 4,
 		FB_POSTED = 5,
 		FB_POST_FAILED = 6,
-		FB_DISCONNECTING = 7
+		FB_DISCONNECTING = 7,
+		FB_DISCONNECT_FAILED = 8
 	};
 	
 	void connectToFacebook(const std::string& auth_code = "", const std::string& auth_state = "");	// Initiate the complete FB connection. Please use checkConnectionToFacebook() in normal use.
@@ -73,8 +74,9 @@ public:
     const LLSD& getContent() const;
     
     void setConnectionState(EConnectionState connection_state);
-	bool isConnected() { return ((mConnectionState == FB_CONNECTED) || (mConnectionState == FB_DISCONNECTING) || (mConnectionState == FB_POSTING) || (mConnectionState == FB_POSTED)); }
-	bool isTransactionOngoing() { return ((mConnectionState == FB_CONNECTION_IN_PROGRESS) || (mConnectionState == FB_POSTING)); }
+	void setConnected(bool connected);
+	bool isConnected() { return mConnected; }
+	bool isTransactionOngoing() { return ((mConnectionState == FB_CONNECTION_IN_PROGRESS) || (mConnectionState == FB_POSTING) || (mConnectionState == FB_DISCONNECTING)); }
     EConnectionState getConnectionState() { return mConnectionState; }
     S32  generation() { return mGeneration; }
     
@@ -88,6 +90,7 @@ private:
  	std::string getFacebookConnectURL(const std::string& route = "");
    
     EConnectionState mConnectionState;
+	BOOL mConnected;
 	LLSD mInfo;
     LLSD mContent;
     S32  mGeneration;
