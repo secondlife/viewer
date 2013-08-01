@@ -859,6 +859,14 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 			newMax.setMax(newMax, tv[i]);
 		}
 
+		if (!mDrawablep->isActive())
+		{	// Shift position for region
+			LLVector4a offset;
+			offset.load3(mDrawablep->getRegion()->getOriginAgent().mV);
+			newMin.add(offset);
+			newMax.add(offset);
+		}
+
 		LLVector4a t;
 		t.setAdd(newMin,newMax);
 		t.mul(0.5f);
@@ -868,7 +876,6 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		t.setSub(newMax,newMin);
 		mBoundingSphereRadius = t.getLength3().getF32()*0.5f;
 
-	
 		updateCenterAgent();
 	}
 
