@@ -272,7 +272,7 @@ void LLStatBar::draw()
 		mean    = frame_recording.getPeriodMean(*mSampleFloatp, num_frames);
 
 		// always show sample data if we've ever grabbed any samples
-		show_data = mSampleFloatp->getPrimaryAccumulator()->hasValue();
+		show_data = last_frame_recording.hasValue(*mSampleFloatp);
 	}
 
 	S32 bar_top, bar_left, bar_right, bar_bottom;

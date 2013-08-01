@@ -209,6 +209,7 @@ namespace LLTrace
 
 
 		// SampleStatHandle accessors
+		bool hasValue(const TraceType<SampleAccumulator>& stat);
 		F64 getMin(const TraceType<SampleAccumulator>& stat);
 		template <typename T>
 		T getMin(const SampleStatHandle<T>& stat)
