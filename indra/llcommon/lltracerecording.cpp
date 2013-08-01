@@ -252,6 +252,11 @@ U32 Recording::getSampleCount( const TraceType<CountAccumulator>& stat )
 	return mBuffers->mCounts[stat.getIndex()].getSampleCount();
 }
 
+bool Recording::hasValue(const TraceType<SampleAccumulator>& stat)
+{
+	return mBuffers->mSamples[stat.getIndex()].hasValue();
+}
+
 F64 Recording::getMin( const TraceType<SampleAccumulator>& stat )
 {
 	return mBuffers->mSamples[stat.getIndex()].getMin();
@@ -578,7 +583,10 @@ F64 PeriodicRecording::getPeriodMin( const TraceType<SampleAccumulator>& stat, s
 	for (S32 i = 1; i <= num_periods; i++)
 	{
 		S32 index = (mCurPeriod + total_periods - i) % total_periods;
-		min_val = llmin(min_val, mRecordingPeriods[index].getMin(stat));
+		if (mRecordingPeriods[index].hasValue(stat))
+		{
+			min_val = llmin(min_val, mRecordingPeriods[index].getMin(stat));
+		}
 	}
 	return min_val;
 }
@@ -592,7 +600,10 @@ F64 PeriodicRecording::getPeriodMax(const TraceType<SampleAccumulator>& stat, si
 	for (S32 i = 1; i <= num_periods; i++)
 	{
 		S32 index = (mCurPeriod + total_periods - i) % total_periods;
-		max_val = llmax(max_val, mRecordingPeriods[index].getMax(stat));
+		if (mRecordingPeriods[index].hasValue(stat))
+		{
+			max_val = llmax(max_val, mRecordingPeriods[index].getMax(stat));
+		}
 	}
 	return max_val;
 }
@@ -611,7 +622,7 @@ F64 PeriodicRecording::getPeriodMean( const TraceType<SampleAccumulator>& stat, 
 	for (S32 i = 1; i <= num_periods; i++)
 	{
 		S32 index = (mCurPeriod + total_periods - i) % total_periods;
-		if (mRecordingPeriods[index].getDuration() > 0.f)
+		if (mRecordingPeriods[index].getDuration() > 0.f && mRecordingPeriods[index].hasValue(stat))
 		{
 			LLUnit<F64, LLUnits::Seconds> recording_duration = mRecordingPeriods[index].getDuration();
 			mean += mRecordingPeriods[index].getMean(stat) * recording_duration.value();
