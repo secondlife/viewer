@@ -211,11 +211,19 @@ LLRenderTarget& LLSceneMonitor::getCaptureTarget()
 
 void LLSceneMonitor::freezeAvatar(LLCharacter* avatarp)
 {
-	mAvatarPauseHandles.push_back(avatarp->requestPause());
+	if(mEnabled)
+	{
+		mAvatarPauseHandles.push_back(avatarp->requestPause());
+	}
 }
 
 void LLSceneMonitor::freezeScene()
 {
+	if(!mEnabled)
+	{
+		return;
+	}
+
 	//freeze all avatars
 	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
 		iter != LLCharacter::sInstances.end(); ++iter)
@@ -262,7 +270,7 @@ void LLSceneMonitor::capture()
 	static LLCachedControl<F32>  scene_load_sample_time(gSavedSettings, "SceneLoadingMonitorSampleTime");
 	static bool force_capture = true;
 
-	bool enabled = monitor_enabled || mDebugViewerVisible;
+	bool enabled = LLGLSLShader::sNoFixedFunction && (monitor_enabled || mDebugViewerVisible);
 	if(mEnabled != enabled)
 	{
 		if(mEnabled)
@@ -288,10 +296,9 @@ void LLSceneMonitor::capture()
 		force_capture = true;
 	}
 
-	if((mRecordingTimer.getElapsedTimeF32() > scene_load_sample_time() 
+	if(mEnabled
+		&& (mRecordingTimer.getElapsedTimeF32() > scene_load_sample_time() 
 			|| force_capture)
-		&& mEnabled
-		&& LLGLSLShader::sNoFixedFunction
 		&& last_capture_frame != gFrameCount)
 	{
 		force_capture = false;
