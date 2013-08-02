@@ -374,7 +374,7 @@ void LLSocialPhotoPanel::updateControls()
 	LLSnapshotLivePreview* previewp = getPreviewView();
 	BOOL got_bytes = previewp && previewp->getDataSize() > 0;
 	BOOL got_snap = previewp && previewp->getSnapshotUpToDate();
-	LLSnapshotLivePreview::ESnapshotType shot_type = previewp->getSnapshotType();
+	LLSnapshotLivePreview::ESnapshotType shot_type = (previewp ? previewp->getSnapshotType() : LLSnapshotLivePreview::SNAPSHOT_POSTCARD);
 
 	// *TODO: Separate maximum size for Web images from postcards
 	lldebugs << "Is snapshot up-to-date? " << got_snap << llendl;
