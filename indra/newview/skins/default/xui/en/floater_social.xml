@@ -54,7 +54,7 @@
        filename="panel_social_place.xml"
        class="llsocialcheckinpanel"
        follows="all"
-       label="PLACE"
+       label="CHECK IN"
        help_topic="panel_social_place"
        name="panel_social_place"/>
      <panel
