@@ -61,7 +61,7 @@ void toast_user_for_success()
 {
 	LLSD args;
     args["MESSAGE"] = LLTrans::getString("facebook_post_success");
-    LLNotificationsUtil::add("SystemMessage", args);
+    LLNotificationsUtil::add("FacebookConnect", args);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
