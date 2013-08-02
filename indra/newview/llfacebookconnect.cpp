@@ -40,6 +40,7 @@
 #include "llimagejpeg.h"
 #include "lltrans.h"
 #include "llevents.h"
+#include "llviewerregion.h"
 
 #include "llfloaterwebcontent.h"
 #include "llfloaterreg.h"
@@ -339,13 +340,21 @@ void LLFacebookConnect::openFacebookWeb(std::string url)
 
 std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route)
 {
-	//TODO GIL : Remove this code along with extern and llcontrol.h header
+	static std::string sFacebookConnectUrl = gAgent.getRegion()->getCapability("FacebookConnect");
+    
+	//*TODO : Remove this code along with extern and llcontrol.h header
 	std::string host = gSavedSettings.getString("SLShareHost");
-	//static std::string sFacebookConnectUrl = gAgent.getRegion()->getCapability("FacebookConnect");
-	static std::string sFacebookConnectUrl = host + "/fbc/agent/" + gAgentID.asString(); // TEMPORARY HACK FOR FB DEMO - Cho
+    if (!host.empty())
+    {
+        sFacebookConnectUrl = host + "/fbc/agent/" + gAgentID.asString(); // TEMPORARY HACK FOR FB DEMO - Cho
+    }
+    else
+    {
+        sFacebookConnectUrl = gAgent.getRegion()->getCapability("FacebookConnect");
+    }
+    //End removable part
 
 	std::string url = sFacebookConnectUrl + route;
-	llinfos << url << llendl;
 	return url;
 }
 
