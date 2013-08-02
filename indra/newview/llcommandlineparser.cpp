@@ -39,13 +39,17 @@
 
 #include <boost/program_options.hpp>
 #include <boost/bind.hpp>
-#include<boost/tokenizer.hpp>
+#include <boost/tokenizer.hpp>
+#include <boost/assign/list_of.hpp>
 
 #if _MSC_VER
 #   pragma warning(pop)
 #endif
 
 #include "llsdserialize.h"
+#include "llerror.h"
+#include <string>
+#include <set>
 #include <iostream>
 #include <sstream>
 
@@ -63,6 +67,18 @@ namespace po = boost::program_options;
 // This could be good or bad, and probably won't matter for most use cases.
 namespace 
 {
+    // List of command-line switches that can't map-to settings variables.
+    // Going forward, we want every new command-line switch to map-to some
+    // settings variable. This list is used to validate that.
+    const std::set<std::string> unmapped_options = boost::assign::list_of
+        ("help")
+        ("set")
+        ("setdefault")
+        ("settings")
+        ("sessionsettings")
+        ("usersessionsettings")
+    ;
+
     po::options_description gOptionsDesc;
     po::positional_options_description gPositionalOptions;
 	po::variables_map gVariableMap;
@@ -561,9 +577,35 @@ void LLControlGroupCLP::configure(const std::string& config_filename, LLControlG
             }
 
             boost::function1<void, const token_vector_t&> callback;
-            if(option_params.has("map-to") && (NULL != controlGroup))
+            if (! option_params.has("map-to"))
+            {
+                // If this option isn't mapped to a settings variable, is it
+                // one of the ones for which that's unreasonable, or did
+                // someone carelessly add a new option? (Make all these
+                // configuration errors fatal so a maintainer will catch them
+                // right away.)
+                std::set<std::string>::const_iterator found = unmapped_options.find(long_name);
+                if (found == unmapped_options.end())
+                {
+                    llerrs << "New command-line option " << long_name
+                           << " should map-to a variable in settings.xml" << llendl;
+                }
+            }
+            else                    // option specifies map-to
             {
                 std::string controlName = option_params["map-to"].asString();
+                if (! controlGroup)
+                {
+                    llerrs << "Must pass gSavedSettings to LLControlGroupCLP::configure() for "
+                           << long_name << " (map-to " << controlName << ")" << llendl;
+                }
+
+                if (! controlGroup->getControl(controlName))
+                {
+                    llerrs << "Option " << long_name << " specifies map-to " << controlName
+                           << " which does not exist" << llendl;
+                }
+
                 callback = boost::bind(setControlValueCB, _1, 
                                        controlName, controlGroup);
             }

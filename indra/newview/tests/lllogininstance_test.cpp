@@ -175,8 +175,8 @@ F32 LLControlGroup::getF32(const std::string& name) { return 0.0f; }
 U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only) { return 1; }
 void LLControlGroup::setString(const std::string& name, const std::string& val) {}
 std::string LLControlGroup::getString(const std::string& name) { return "test_string"; }
-BOOL LLControlGroup::declareBOOL(const std::string& name, BOOL initial_val, const std::string& comment, BOOL persist) { return TRUE; }
-BOOL LLControlGroup::declareString(const std::string& name, const std::string &initial_val, const std::string& comment, BOOL persist) { return TRUE; }
+LLControlVariable* LLControlGroup::declareBOOL(const std::string& name, BOOL initial_val, const std::string& comment, LLControlVariable::ePersist persist) { return NULL; }
+LLControlVariable* LLControlGroup::declareString(const std::string& name, const std::string &initial_val, const std::string& comment, LLControlVariable::ePersist persist) { return NULL; }
 
 #include "lluicolortable.h"
 void LLUIColorTable::saveUserSettings(void)const {}
@@ -344,13 +344,13 @@ namespace tut
 			gTOSReplyPump = 0; // clear the callback.
 
 
-			gSavedSettings.declareBOOL("NoInventoryLibrary", FALSE, "", FALSE);
-			gSavedSettings.declareBOOL("ConnectAsGod", FALSE, "", FALSE);
-			gSavedSettings.declareBOOL("UseDebugMenus", FALSE, "", FALSE);
-			gSavedSettings.declareBOOL("ForceMandatoryUpdate", FALSE, "", FALSE);
-			gSavedSettings.declareString("ClientSettingsFile", "test_settings.xml", "", FALSE);
-			gSavedSettings.declareString("NextLoginLocation", "", "", FALSE);
-			gSavedSettings.declareBOOL("LoginLastLocation", FALSE, "", FALSE);
+			gSavedSettings.declareBOOL("NoInventoryLibrary", FALSE, "", LLControlVariable::PERSIST_NO);
+			gSavedSettings.declareBOOL("ConnectAsGod", FALSE, "", LLControlVariable::PERSIST_NO);
+			gSavedSettings.declareBOOL("UseDebugMenus", FALSE, "", LLControlVariable::PERSIST_NO);
+			gSavedSettings.declareBOOL("ForceMandatoryUpdate", FALSE, "", LLControlVariable::PERSIST_NO);
+			gSavedSettings.declareString("ClientSettingsFile", "test_settings.xml", "", LLControlVariable::PERSIST_NO);
+			gSavedSettings.declareString("NextLoginLocation", "", "", LLControlVariable::PERSIST_NO);
+			gSavedSettings.declareBOOL("LoginLastLocation", FALSE, "", LLControlVariable::PERSIST_NO);
 
 			LLSD authenticator = LLSD::emptyMap();
 			LLSD identifier = LLSD::emptyMap();

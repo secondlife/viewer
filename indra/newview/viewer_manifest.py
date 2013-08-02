@@ -71,13 +71,13 @@ class ViewerManifest(LLManifest):
                 # include the entire shaders directory recursively
                 self.path("shaders")
                 # include the extracted list of contributors
-                contributor_names = self.extract_names("../../doc/contributions.txt")
-                self.put_in_file(contributor_names, "contributors.txt")
-                self.file_list.append(["../../doc/contributions.txt",self.dst_path_of("contributors.txt")])
+                contributions_path = "../../doc/contributions.txt"
+                contributor_names = self.extract_names(contributions_path)
+                self.put_in_file(contributor_names, "contributors.txt", src=contributions_path)
                 # include the extracted list of translators
-                translator_names = self.extract_names("../../doc/translations.txt")
-                self.put_in_file(translator_names, "translators.txt")
-                self.file_list.append(["../../doc/translations.txt",self.dst_path_of("translators.txt")])
+                translations_path = "../../doc/translations.txt"
+                translator_names = self.extract_names(translations_path)
+                self.put_in_file(translator_names, "translators.txt", src=translations_path)
                 # include the list of Lindens (if any)
                 #   see https://wiki.lindenlab.com/wiki/Generated_Linden_Credits
                 linden_names_path = os.getenv("LINDEN_CREDITS")
@@ -91,10 +91,9 @@ class ViewerManifest(LLManifest):
                     else:
                          # all names should be one line, but the join below also converts to a string
                         linden_names = ', '.join(linden_file.readlines())
-                        self.put_in_file(linden_names, "lindens.txt")
+                        self.put_in_file(linden_names, "lindens.txt", src=linden_names_path)
                         linden_file.close()
                         print "Linden names extracted from '%s'" % linden_names_path
-                        self.file_list.append([linden_names_path,self.dst_path_of("lindens.txt")])
 
                 # ... and the entire windlight directory
                 self.path("windlight")
@@ -113,12 +112,18 @@ class ViewerManifest(LLManifest):
                     # no sourceid, no settings_install.xml file
                     pass
                 else:
-                    # Single-entry subset of the LLSD content of settings.xml
-                    content = dict(sourceid=dict(Comment='Identify referring agency to Linden web servers',
-                                                 Persist=1,
-                                                 Type='String',
-                                                 Value=sourceid))
-                    self.put_in_file(llsd.format_pretty_xml(content), "settings_install.xml")
+                    if sourceid:
+                        # Single-entry subset of the LLSD content of settings.xml
+                        content = dict(sourceid=dict(Comment='Identify referring agency to Linden web servers',
+                                                     Persist=1,
+                                                     Type='String',
+                                                     Value=sourceid))
+                        # put_in_file(src=) need not be an actual pathname; it
+                        # only needs to be non-empty
+                        settings_install = self.put_in_file(llsd.format_pretty_xml(content),
+                                                            "settings_install.xml",
+                                                            src="environment")
+                        print "Put sourceid '%s' in %s" % (sourceid, settings_install)
 
                 self.end_prefix("app_settings")
 
@@ -193,7 +198,7 @@ class ViewerManifest(LLManifest):
     def app_name(self):
         app_suffix='Test'
         channel_type=self.channel_lowerword()
-        if channel_type == 'release' :
+        if channel_type.startswith('release') :
             app_suffix='Viewer'
         elif re.match('^(beta|project).*',channel_type) :
             app_suffix=self.channel_unique()
@@ -203,8 +208,8 @@ class ViewerManifest(LLManifest):
         icon_path="icons/"
         channel_type=self.channel_lowerword()
         print "Icon channel type '%s'" % channel_type
-        if channel_type == 'release' :
-            icon_path += channel_type
+        if channel_type.startswith('release') :
+            icon_path += 'release'
         elif re.match('^beta.*',channel_type) :
             icon_path += 'beta'
         elif re.match('^project.*',channel_type) :
@@ -265,7 +270,7 @@ class WindowsManifest(ViewerManifest):
     def final_exe(self):
         app_suffix="Test"
         channel_type=self.channel_lowerword()
-        if channel_type == 'release' :
+        if channel_type.startswith('release') :
             app_suffix=''
         elif re.match('^(beta|project).*',channel_type) :
             app_suffix=''.join(self.channel_unique().split())

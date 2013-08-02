@@ -392,11 +392,21 @@ class LLManifest(object):
             raise ManifestError, "Should be something at path " + path
         self.created_paths.append(path)
 
-    def put_in_file(self, contents, dst):
+    def put_in_file(self, contents, dst, src=None):
         # write contents as dst
-        f = open(self.dst_path_of(dst), "wb")
-        f.write(contents)
-        f.close()
+        dst_path = self.dst_path_of(dst)
+        f = open(dst_path, "wb")
+        try:
+            f.write(contents)
+        finally:
+            f.close()
+
+        # Why would we create a file in the destination tree if not to include
+        # it in the installer? The default src=None (plus the fact that the
+        # src param is last) is to preserve backwards compatibility.
+        if src:
+            self.file_list.append([src, dst_path])
+        return dst_path
 
     def replace_in(self, src, dst=None, searchdict={}):
         if dst == None:
