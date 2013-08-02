@@ -32,6 +32,7 @@
 #include "llagent.h"
 #include "llcallingcard.h"			// for LLAvatarTracker
 #include "llcommandhandler.h"
+#include "llcontrol.h"
 #include "llhttpclient.h"
 #include "llnotificationsutil.h"
 #include "llurlaction.h"
@@ -46,6 +47,8 @@
 boost::scoped_ptr<LLEventPump> LLFacebookConnect::sStateWatcher(new LLEventStream("FacebookConnectState"));
 boost::scoped_ptr<LLEventPump> LLFacebookConnect::sInfoWatcher(new LLEventStream("FacebookConnectInfo"));
 boost::scoped_ptr<LLEventPump> LLFacebookConnect::sContentWatcher(new LLEventStream("FacebookConnectContent"));
+
+extern LLControlGroup gSavedSettings;
 
 // Local functions
 void log_facebook_connect_error(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
@@ -336,8 +339,10 @@ void LLFacebookConnect::openFacebookWeb(std::string url)
 
 std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route)
 {
+	//TODO GIL : Remove this code along with extern and llcontrol.h header
+	std::string host = gSavedSettings.getString("SLShareHost");
 	//static std::string sFacebookConnectUrl = gAgent.getRegion()->getCapability("FacebookConnect");
-	static std::string sFacebookConnectUrl = "http://int.fbc.aditi.lindenlab.com/fbc/agent/" + gAgentID.asString(); // TEMPORARY HACK FOR FB DEMO - Cho
+	static std::string sFacebookConnectUrl = host + "/fbc/agent/" + gAgentID.asString(); // TEMPORARY HACK FOR FB DEMO - Cho
 
 	std::string url = sFacebookConnectUrl + route;
 	llinfos << url << llendl;
