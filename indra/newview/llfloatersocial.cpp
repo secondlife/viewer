@@ -53,6 +53,7 @@ static LLRegisterPanelClassWrapper<LLSocialCheckinPanel> t_panel_checkin("llsoci
 static LLRegisterPanelClassWrapper<LLSocialAccountPanel> t_panel_account("llsocialaccountpanel");
 
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
+const std::string DEFAULT_CHECKIN_LOCATION_URL = "http://maps.secondlife.com/";
 const std::string DEFAULT_CHECKIN_ICON_URL = "http://logok.org/wp-content/uploads/2010/07/podcastlogo1.jpg";
 
 std::string get_map_url()
@@ -582,6 +583,13 @@ void LLSocialCheckinPanel::sendCheckin()
 	LLSLURL slurl;
 	LLAgentUI::buildSLURL(slurl);
 	std::string slurl_string = slurl.getSLURLString();
+
+	// Use a valid http:// URL if the scheme is secondlife:// 
+	LLURI slurl_uri(slurl_string);
+	if (slurl_uri.scheme() == LLSLURL::SLURL_SECONDLIFE_SCHEME)
+	{
+		slurl_string = DEFAULT_CHECKIN_LOCATION_URL;
+	}
     
 	// Get the region name
 	std::string region_name = gAgent.getRegion()->getName();
