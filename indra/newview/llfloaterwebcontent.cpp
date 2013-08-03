@@ -29,6 +29,7 @@
 #include "llcombobox.h"
 #include "lliconctrl.h"
 #include "llfloaterreg.h"
+#include "llfacebookconnect.h"
 #include "lllayoutstack.h"
 #include "llpluginclassmedia.h"
 #include "llprogressbar.h"
@@ -293,6 +294,16 @@ void LLFloaterWebContent::onOpen(const LLSD& key)
 //virtual
 void LLFloaterWebContent::onClose(bool app_quitting)
 {
+    // If we close the web browsing window showing the facebook login, we need to signal to this object that the connection will not happen
+    LLFloater* fbc_web = LLFloaterReg::getInstance("fbc_web");
+    if (fbc_web == this)
+    {
+        if (!LLFacebookConnect::instance().isConnected())
+        {
+            LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_FAILED);
+        }
+    }
+    
 	LLViewerMedia::proxyWindowClosed(mUUID);
 	destroy();
 }

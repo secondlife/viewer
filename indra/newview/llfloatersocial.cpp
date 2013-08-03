@@ -684,8 +684,12 @@ void LLSocialAccountPanel::onVisibilityChange(const LLSD& new_visibility)
 		else
 		{
 			showDisconnectedLayout();
-			LLFacebookConnect::instance().checkConnectionToFacebook();
 		}
+        if ((LLFacebookConnect::instance().getConnectionState() == LLFacebookConnect::FB_NOT_CONNECTED) ||
+            (LLFacebookConnect::instance().getConnectionState() == LLFacebookConnect::FB_CONNECTION_FAILED))
+        {
+            LLFacebookConnect::instance().checkConnectionToFacebook();
+        }
 	}
 	else
 	{

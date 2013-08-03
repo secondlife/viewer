@@ -122,7 +122,7 @@ public:
 			// Grab some graph data now that we are connected
             LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTED);
 		}
-		else
+		else if (status != 302)
 		{
             LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_FAILED);
             log_facebook_connect_error("Connect", status, reason, content.get("error_code"), content.get("error_description"));
