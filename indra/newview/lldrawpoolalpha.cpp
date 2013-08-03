@@ -545,10 +545,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 
 					emissive_shader->bind();
 					
-					U32 final_mask = params.mFullbright ? (mask | LLVertexBuffer::MAP_EMISSIVE)
-																	: ((mask & ~LLVertexBuffer::MAP_COLOR) | LLVertexBuffer::MAP_EMISSIVE);
-
-					params.mVertexBuffer->setBuffer(final_mask);
+					params.mVertexBuffer->setBuffer((mask & ~LLVertexBuffer::MAP_COLOR) | LLVertexBuffer::MAP_EMISSIVE);
 					
 					// do the actual drawing, again
 					params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);

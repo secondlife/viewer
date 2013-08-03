@@ -4881,7 +4881,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	if (emissive)
 	{ //emissive faces are present, include emissive byte to preserve batching
 		simple_mask = simple_mask | LLVertexBuffer::MAP_EMISSIVE;
-		alpha_mask = alpha_mask | LLVertexBuffer::MAP_EMISSIVE;
+		
+		// doing this seems to cause NORSPEC-304
+		//alpha_mask = alpha_mask | LLVertexBuffer::MAP_EMISSIVE;
+
 		bump_mask = bump_mask | LLVertexBuffer::MAP_EMISSIVE;
 		fullbright_mask = fullbright_mask | LLVertexBuffer::MAP_EMISSIVE;
 		norm_mask = norm_mask | LLVertexBuffer::MAP_EMISSIVE;
