@@ -333,7 +333,9 @@ void LLFacebookConnect::openFacebookWeb(std::string url)
     p.url(url).allow_address_entry(false);
     p.url(url).allow_back_forward_navigation(false);
     p.url(url).trusted_content(true);
-	LLFloaterReg::showInstance("fbc_web", p);
+	LLFloater *floater = LLFloaterReg::showInstance("fbc_web", p);
+	//TODO Gil: Hack to give the focus to the web browser to show cursor, will fix
+	gFocusMgr.setKeyboardFocus( floater );
 
 	//LLUrlAction::openURLExternal(url);
 }
