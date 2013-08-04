@@ -4410,12 +4410,10 @@ S32 LLViewerObject::setTEMaterialParams(const U8 te, const LLMaterialPtr pMateri
 
 void LLViewerObject::refreshMaterials()
 {
-	setChanged(ALL_CHANGED);
+	setChanged(TEXTURE);
 	if (mDrawable.notNull())
 	{
 		gPipeline.markTextured(mDrawable);
-		gPipeline.markRebuild(mDrawable,LLDrawable::REBUILD_ALL);
-		dirtySpatialGroup(TRUE);
 	}
 }
 
