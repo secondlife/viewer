@@ -224,6 +224,7 @@ public:
 	static U32 sMaxConcurrentRequests;
 	static S32 sRequestLowWater;
 	static S32 sRequestHighWater;
+	static S32 sRequestWaterLevel;			// Stats-use only, may read outside of thread
 
 	LLMutex*	mMutex;
 	LLMutex*	mHeaderMutex;
@@ -387,10 +388,6 @@ private:
 	LLCore::HttpHandle getByteRange(const std::string & url, int cap_version,
 									size_t offset, size_t len, 
 									LLCore::HttpHandler * handler);
-
-private:
-	U32 mHttpGetCount;
-	U32 mHttpLargeGetCount;
 };
 
 
@@ -497,12 +494,18 @@ public:
 
 	//metrics
 	static U32 sBytesReceived;
+	static U32 sMeshRequestCount;
 	static U32 sHTTPRequestCount;
+	static U32 sHTTPLargeRequestCount;
 	static U32 sHTTPRetryCount;
+	static U32 sHTTPErrorCount;
 	static U32 sLODPending;
 	static U32 sLODProcessing;
 	static U32 sCacheBytesRead;
 	static U32 sCacheBytesWritten;
+	static U32 sCacheReads;
+	static U32 sCacheWrites;
+	
 	static LLDeadmanTimer sQuiescentTimer;  // time-to-complete-mesh-downloads after significant events
 
 	static F32 getStreamingCost(LLSD& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
