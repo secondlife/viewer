@@ -2306,6 +2306,20 @@ void LLAppViewer::loadColorSettings()
 	LLUIColorTable::instance().loadFromSettings();
 }
 
+namespace
+{
+    void handleCommandLineError(LLControlGroupCLP& clp)
+    {
+		llwarns << "Error parsing command line options. Command Line options ignored."  << llendl;
+
+		llinfos << "Command line usage:\n" << clp << llendl;
+
+		OSMessageBox(STRINGIZE(LLTrans::getString("MBCmdLineError") << clp.getErrorMessage()),
+					 LLStringUtil::null,
+					 OSMB_OK);
+    }
+} // anonymous namespace
+
 bool LLAppViewer::initConfiguration()
 {	
 	//Load settings files list
@@ -2404,13 +2418,7 @@ bool LLAppViewer::initConfiguration()
 
 	if(!initParseCommandLine(clp))
 	{
-		llwarns	<< "Error parsing command line options.	Command	Line options ignored."  << llendl;
-		
-		llinfos	<< "Command	line usage:\n" << clp << llendl;
-
-		std::ostringstream msg;
-		msg << LLTrans::getString("MBCmdLineError") << clp.getErrorMessage();
-		OSMessageBox(msg.str(),LLStringUtil::null,OSMB_OK);
+		handleCommandLineError(clp);
 		return false;
 	}
 	
@@ -2457,7 +2465,11 @@ bool LLAppViewer::initConfiguration()
 	loadSettingsFromDirectory("UserSession");
 
 	// - apply command line settings 
-	clp.notify(); 
+	if (! clp.notify())
+	{
+		handleCommandLineError(clp);
+		return false;
+	}
 
 	// Register the core crash option as soon as we can
 	// if we want gdb post-mortem on cores we need to be up and running
