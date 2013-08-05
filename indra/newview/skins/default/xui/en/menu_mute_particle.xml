@@ -5,7 +5,7 @@
  name="Mute Particle Pie">
   <menu_item_call
      enabled="false"
-     label="Mute Particle Owner"
+     label="Block Particle Owner"
      name="Mute Particle">
     <menu_item_call.on_click
      function="Particle.Mute" />

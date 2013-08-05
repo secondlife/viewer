@@ -115,7 +115,7 @@ void LLCocoaPlugin::setupGroup()
     
 }
 
-void LLCocoaPlugin::updateWindows()  //SPATTERS give this a better name.
+void LLCocoaPlugin::updateWindows()  
 {
 //    NSArray* window_list = [NSApp orderedWindows];
 //    NSWindow* current_window = [window_list objectAtIndex:0];
