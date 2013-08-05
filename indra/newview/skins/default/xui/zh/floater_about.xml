@@ -8,7 +8,7 @@
 		以 [COMPILER_VERSION] 版本 [COMPILER] 建置
 	</floater.string>
 	<floater.string name="AboutPosition">
-		你的方位是 [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1]，地區名：[REGION]，主機：&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+		你的方位是 [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1]，地區名：[REGION]，主機：&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 [SERVER_VERSION]
 [SERVER_RELEASE_NOTES_URL]
 	</floater.string>
