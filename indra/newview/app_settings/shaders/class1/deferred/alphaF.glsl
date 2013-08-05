@@ -133,6 +133,23 @@ vec3 linear_to_srgb(vec3 cl)
 
 }
 
+vec2 encode_normal(vec3 n)
+{
+	float f = sqrt(8 * n.z + 8);
+	return n.xy / f + 0.5;
+}
+
+vec3 decode_normal (vec2 enc)
+{
+    vec2 fenc = enc*4-2;
+    float f = dot(fenc,fenc);
+    float g = sqrt(1-f/4);
+    vec3 n;
+    n.xy = fenc*g;
+    n.z = 1-f/2;
+    return n;
+}
+
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
 	float a = max(dot(n,l),0.0);
@@ -527,33 +544,42 @@ void main()
 	vec3 norm = vary_norm; 
 
 	calcAtmospherics(pos.xyz, 1.0);
-	
-	float da =dot(norm.xyz, sun_dir.xyz);
+
+	vec2 abnormal	= encode_normal(norm.xyz);
+		 norm.xyz   = decode_normal(abnormal.xy);
+
+	float da = dot(norm.xyz, sun_dir.xyz);
+
     float final_da = da;
           final_da = min(final_da, shadow);
-          final_da = max(final_da, final_alpha);
           final_da = max(final_da, 0.0f);
+		  final_da = min(final_da, 1.0f);
+		  final_da = pow(final_da, 1.0/1.3);
 
 	vec4 color = vec4(0,0,0,0);
 
 	color.rgb = atmosAmbient(color.rgb);
 	color.a   = final_alpha;
 
-	float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
+	float ambient = abs(da);
 	ambient *= 0.5;
 	ambient *= ambient;
 	ambient = (1.0-ambient);
 
 	color.rgb *= ambient;
 
-	color.rgb += atmosAffectDirectionalLight(pow(final_da, 1.0/1.3));
+	color.rgb += atmosAffectDirectionalLight(final_da);
 	color.rgb *= gamma_diff.rgb;
 
-	color.rgb = mix(atmosLighting(color.rgb), fullbrightAtmosTransport(color.rgb), diff.a);
-	color.rgb = mix(scaleSoftClip(color.rgb), fullbrightScaleSoftClip(color.rgb),  diff.a);
+	color.rgb = mix(diff.rgb, color.rgb, final_alpha);
+
+	color.rgb = atmosLighting(color.rgb);
+	color.rgb = scaleSoftClip(color.rgb);
 
 	vec4 light = vec4(0,0,0,0);
-	
+
+	color.rgb = srgb_to_linear(color.rgb);
+
    #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diff.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
    
 	LIGHT_LOOP(1)
@@ -566,11 +592,11 @@ void main()
 
 	// keep it linear
 	//
-	color.rgb = srgb_to_linear(color.rgb) + light.rgb;
+	color.rgb += light.rgb;
 
-	// ramp directly to display gamma as we're POST-deferred
+	// straight to display gamma, we're post-deferred
 	//
-	color.rgb = pow(color.rgb,vec3(display_gamma));
+	color.rgb = linear_to_srgb(color.rgb);
 
 #ifdef WATER_FOG
 	color = applyWaterFogDeferred(pos.xyz, color);

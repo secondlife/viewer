@@ -98,7 +98,6 @@ vec3 srgb_to_linear(vec3 cs)
 
 vec3 linear_to_srgb(vec3 cl)
 {
-	cl = clamp(cl, vec3(0), vec3(1));
 	vec3 low_range  = cl * 12.92;
 	vec3 high_range = 1.055 * pow(cl, vec3(0.41666)) - 0.055;
 	bvec3 lt = lessThan(cl,vec3(0.0031308));
@@ -392,8 +391,11 @@ void main()
 	float envIntensity = norm.z;
 	norm.xyz = decode_normal(norm.xy); // unpack norm
 		
-	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
-	da = pow(da, 1.0/1.3);
+	float da = dot(norm.xyz, sun_dir.xyz);
+
+	float final_da = max(0.0,da);
+          final_da = min(final_da, 1.0f);
+	      final_da = pow(final_da, 1.0/1.3);
 
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
 
@@ -414,7 +416,7 @@ void main()
 
 		col.rgb *= ambient;
 
-		col += atmosAffectDirectionalLight(max(min(da, 1.0), 0.0));	
+		col += atmosAffectDirectionalLight(final_da);	
 	
 		col *= diffuse.rgb;
 	
