@@ -1990,9 +1990,9 @@ if (DARWIN)
   set_target_properties(
     ${VIEWER_BINARY_NAME}
     PROPERTIES
-	OUTPUT_NAME "${product}"
-	MACOSX_BUNDLE_INFO_PLIST
-	"${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
+    OUTPUT_NAME "${product}"
+    MACOSX_BUNDLE_INFO_PLIST
+    "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
     )
 
   configure_file(
