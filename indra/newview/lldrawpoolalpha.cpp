@@ -128,14 +128,22 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 		gObjectFullbrightAlphaMaskProgram.setMinimumAlpha(0.33f);
 	}
 
-	if (LLPipeline::sUnderWaterRender)
-	{
-		emissive_shader = &gObjectEmissiveWaterProgram;
-	}
-	else
-	{
-		emissive_shader = &gObjectEmissiveProgram;
-	}
+
+    if (LLPipeline::sRenderDeferred)
+    {
+		emissive_shader = &gDeferredEmissiveProgram;
+    }
+    else
+    {
+		if (LLPipeline::sUnderWaterRender)
+		{
+			emissive_shader = &gObjectEmissiveWaterProgram;
+		}
+		else
+		{
+			emissive_shader = &gObjectEmissiveProgram;
+		}
+    }
 
 	deferred_render = TRUE;
 	if (mVertexShaderLevel > 0)
