@@ -65,11 +65,11 @@
       length="1"
       follows="top|left"
       height="16"
-      left="3"
+      left="0"
       name="account_learn_more_label"
-      top_pad="5"
+      top_pad="20"
       type="string">
-      [https://support.secondlife.com/ Learn more.]
+      [https://support.secondlife.com/ Learn about posting to Facebook]
     </text>
   </panel>
 </panel>
