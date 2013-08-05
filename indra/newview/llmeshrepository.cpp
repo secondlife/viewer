@@ -2897,9 +2897,7 @@ void LLMeshRepository::notifyLoadedMeshes()
 	else
 	{
 		// GetMesh2 operation with keepalives, etc.
-		// *TODO:  Logic here is replicated from llappcorehttp.cpp, should really
-		// unify this and keep it in one place only.
-		LLMeshRepoThread::sMaxConcurrentRequests = gSavedSettings.getU32("MeshMaxConcurrentRequests") / 4;
+		LLMeshRepoThread::sMaxConcurrentRequests = gSavedSettings.getU32("Mesh2MaxConcurrentRequests");
 		LLMeshRepoThread::sRequestHighWater = llclamp(5 * S32(LLMeshRepoThread::sMaxConcurrentRequests),
 													  REQUEST_HIGH_WATER_MIN,
 													  REQUEST_HIGH_WATER_MAX);

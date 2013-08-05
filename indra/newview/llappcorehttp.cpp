@@ -32,6 +32,13 @@
 #include "llviewercontrol.h"
 
 
+// Here is where we begin to get our connection usage under control.
+// This establishes llcorehttp policy classes that, among other
+// things, limit the maximum number of connections to outside
+// services.  Each of the entries below maps to a policy class and
+// has a limit, sometimes configurable, of how many connections can
+// be open at a time.
+
 const F64 LLAppCoreHttp::MAX_THREAD_WAIT_TIME(10.0);
 static const struct
 {
@@ -39,34 +46,33 @@ static const struct
 	U32							mDefault;
 	U32							mMin;
 	U32							mMax;
-	U32							mDivisor;
 	U32							mRate;
 	std::string					mKey;
 	const char *				mUsage;
 } init_data[] =					//  Default and dynamic values for classes
 {
 	{
-		LLAppCoreHttp::AP_TEXTURE,			8,		1,		12,		1,		0,
+		LLAppCoreHttp::AP_TEXTURE,			8,		1,		12,		0,
 		"TextureFetchConcurrency",
 		"texture fetch"
 	},
 	{
-		LLAppCoreHttp::AP_MESH1,			32,		1,		128,	1,		100,
+		LLAppCoreHttp::AP_MESH1,			32,		1,		128,	100,
 		"MeshMaxConcurrentRequests",
 		"mesh fetch"
 	},
 	{
-		LLAppCoreHttp::AP_MESH2,			8,		1,		32,		4,		100,
-		"MeshMaxConcurrentRequests",
+		LLAppCoreHttp::AP_MESH2,			8,		1,		32,		100,
+		"Mesh2MaxConcurrentRequests",
 		"mesh2 fetch"
 	},
 	{
-		LLAppCoreHttp::AP_LARGE_MESH,		2,		1,		8,		1,		0,
+		LLAppCoreHttp::AP_LARGE_MESH,		2,		1,		8,		0,
 		"",
 		"large mesh fetch"
 	},
 	{
-		LLAppCoreHttp::AP_UPLOADS,			2,		1,		8,		1,		0,
+		LLAppCoreHttp::AP_UPLOADS,			2,		1,		8,		0,
 		"",
 		"asset upload"
 	}
@@ -298,8 +304,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 			if (new_setting)
 			{
 				// Treat zero settings as an ask for default
-				setting = new_setting / init_data[i].mDivisor;
-				setting = llclamp(setting, init_data[i].mMin, init_data[i].mMax);
+				setting = llclamp(new_setting, init_data[i].mMin, init_data[i].mMax);
 			}
 		}
 
