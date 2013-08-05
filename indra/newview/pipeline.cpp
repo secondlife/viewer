@@ -2719,7 +2719,7 @@ void LLPipeline::doOcclusion(LLCamera& camera, LLRenderTarget& source, LLRenderT
 
 void LLPipeline::doOcclusion(LLCamera& camera)
 {
-	if (LLPipeline::sUseOcclusion > 1 && sCull->hasOcclusionGroups())
+	if (LLPipeline::sUseOcclusion > 1)
 	{
 		LLVertexBuffer::unbind();
 
@@ -2765,6 +2765,17 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 			group->clearOcclusionState(LLSpatialGroup::ACTIVE_OCCLUSION);
 		}
 	
+		//apply occlusion culling to object cache tree
+		for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+		{
+			LLVOCachePartition* vo_part = (*iter)->getVOCachePartition();
+			if(vo_part)
+			{
+				vo_part->processOccluders(&camera);
+			}
+		}
+
 		if (bind_shader)
 		{
 			if (LLPipeline::sShadowRender)

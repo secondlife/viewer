@@ -853,6 +853,12 @@ BOOL LLOcclusionCullingGroup::needsUpdate()
 	return (LLDrawable::getCurrentFrame() % mSpatialPartition->mLODPeriod == mLODHash) ? TRUE : FALSE;
 }
 
+BOOL LLOcclusionCullingGroup::isRecentlyVisible() const
+{
+	const S32 MIN_VIS_FRAME_RANGE = 2;
+	return (LLDrawable::getCurrentFrame() - mVisible[LLViewerCamera::sCurCameraID]) < MIN_VIS_FRAME_RANGE ;
+}
+
 //virtual 
 void LLOcclusionCullingGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* child)
 {

@@ -265,12 +265,6 @@ BOOL LLSpatialGroup::isHUDGroup()
 	return getSpatialPartition() && getSpatialPartition()->isHUDPartition() ; 
 }
 
-BOOL LLSpatialGroup::isRecentlyVisible() const
-{
-	const S32 MIN_VIS_FRAME_RANGE = 2;
-	return (LLDrawable::getCurrentFrame() - mVisible[LLViewerCamera::sCurCameraID]) < MIN_VIS_FRAME_RANGE ;
-}
-
 void LLSpatialGroup::validate()
 {
 	ll_assert_aligned(this,64);

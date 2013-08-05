@@ -1183,6 +1183,9 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 	}
 
 	max_update_time -= update_timer.getElapsedTimeF32();	
+	
+	//reset all occluders
+	mImpl->mVOCachePartition->resetOccluders();
 
 	//update the throttling number
 	static S32 throttle = new_object_creation_throttle;

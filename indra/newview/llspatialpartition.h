@@ -290,7 +290,6 @@ public:
 	BOOL addObject(LLDrawable *drawablep);
 	BOOL removeObject(LLDrawable *drawablep, BOOL from_octree = FALSE);
 	BOOL updateInGroup(LLDrawable *drawablep, BOOL immediate = FALSE); // Update position if it's in the group
-	BOOL isRecentlyVisible() const;
 	void shift(const LLVector4a &offset);
 	void destroyGL(bool keep_occlusion = false);
 	

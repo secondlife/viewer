@@ -490,9 +490,8 @@ public:
 
 			group->checkOcclusion();
 
-			if (group->isOcclusionState(LLSpatialGroup::OCCLUDED))
+			if (group->isOcclusionState(LLOcclusionCullingGroup::OCCLUDED))
 			{
-				mPartition->addOccluders(group);
 				return true;
 			}
 		}
@@ -530,7 +529,24 @@ public:
 
 	virtual void processGroup(LLviewerOctreeGroup* base_group)
 	{
-		mRegionp->addVisibleGroup(base_group);
+		LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)base_group;
+		if(!group->isRecentlyVisible())//needs to issue new occlusion culling check.
+		{
+			mPartition->addOccluders(group);
+			group->setVisible();
+			return ; //wait for occlusion culling result
+		}
+
+		if(group->isOcclusionState(LLOcclusionCullingGroup::QUERY_PENDING) || 
+			group->isOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION))
+		{
+			//keep waiting
+			group->setVisible();
+		}
+		else
+		{
+			mRegionp->addVisibleGroup(base_group);
+		}
 	}
 
 private:
@@ -555,16 +571,8 @@ S32 LLVOCachePartition::cull(LLCamera &camera)
 	LLVector3 region_agent = mRegionp->getOriginAgent();
 	camera.calcRegionFrustumPlanes(region_agent);
 
-	mOccludedGroups.clear();
-	
 	LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent, use_object_cache_occlusion, this);
 	culler.traverse(mOctree);
-
-	if(!mOccludedGroups.empty())
-	{
-		processOccluders(&camera, &region_agent);
-		mOccludedGroups.clear();
-	}
 
 	return 0;
 }
@@ -573,13 +581,6 @@ void LLVOCachePartition::addOccluders(LLviewerOctreeGroup* gp)
 {
 	LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)gp;
 
-	const U32 MIN_WAIT_TIME = 19; //wait 19 frames to issue a new occlusion request
-	U32 last_issued_time = group->getLastOcclusionIssuedTime();
-	if(!group->needsUpdate() && gFrameCount > last_issued_time && gFrameCount < last_issued_time + MIN_WAIT_TIME)
-	{
-		return;
-	}
-
 	if(!group->isOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION))
 	{
 		group->setOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION);
@@ -587,14 +588,34 @@ void LLVOCachePartition::addOccluders(LLviewerOctreeGroup* gp)
 	}
 }
 
-void LLVOCachePartition::processOccluders(LLCamera* camera, const LLVector3* region_agent)
+void LLVOCachePartition::processOccluders(LLCamera* camera)
 {
+	if(mOccludedGroups.empty())
+	{
+		return;
+	}
+
+	LLVector3 region_agent = mRegionp->getOriginAgent();
 	for(std::set<LLOcclusionCullingGroup*>::iterator iter = mOccludedGroups.begin(); iter != mOccludedGroups.end(); ++iter)
 	{
 		LLOcclusionCullingGroup* group = *iter;
-		group->doOcclusion(camera, region_agent);
-		group->clearOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION);
+		group->doOcclusion(camera, &region_agent);
+	}	
+}
+
+void LLVOCachePartition::resetOccluders()
+{
+	if(mOccludedGroups.empty())
+	{
+		return;
 	}
+
+	for(std::set<LLOcclusionCullingGroup*>::iterator iter = mOccludedGroups.begin(); iter != mOccludedGroups.end(); ++iter)
+	{
+		LLOcclusionCullingGroup* group = *iter;
+		group->clearOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION);
+	}	
+	mOccludedGroups.clear();
 }
 
 //-------------------------------------------------------------------
