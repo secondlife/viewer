@@ -522,9 +522,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-	      <string>91752db72202807cffb33c1ec3fd90fc</string>
+              <string>91752db72202807cffb33c1ec3fd90fc</string>
               <key>url</key>
-	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/276321/arch/CYGWIN/installer/fmodex-4.44-windows-20130521.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/276321/arch/CYGWIN/installer/fmodex-4.44-windows-20130521.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -761,9 +761,9 @@
           <map>
             <key>archive</key>
             <map>
-           <key>hash</key>
-	      <string>aff5566e04003de0383941981198e04e</string>
-          <key>url</key>
+              <key>hash</key>
+              <string>aff5566e04003de0383941981198e04e</string>
+              <key>url</key>
               <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273073/arch/Darwin/installer/google_breakpad-0.0.0-rev1099-darwin-20130329.tar.bz2</string>
             </map>
             <key>name</key>
@@ -773,9 +773,9 @@
           <map>
             <key>archive</key>
             <map>
-             <key>hash</key>
-	         <string>52257e5eb166a0b69c9c0c38f6e1920e</string>
-             <key>url</key>
+              <key>hash</key>
+              <string>52257e5eb166a0b69c9c0c38f6e1920e</string>
+              <key>url</key>
               <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273079/arch/Linux/installer/google_breakpad-0.0.0-rev1099-linux-20130329.tar.bz2</string>
             </map>
             <key>name</key>
@@ -786,7 +786,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-	      <string>d812a6dfcabe6528198a3191068dac09</string>
+              <string>d812a6dfcabe6528198a3191068dac09</string>
               <key>url</key>
               <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273073/arch/CYGWIN/installer/google_breakpad-0.0.0-rev1099-windows-20130329.tar.bz2</string>
             </map>
@@ -837,42 +837,6 @@
               <string>d2542614df9dd99cbb5ff67e76d4a6c1</string>
               <key>url</key>
               <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-mock/rev/274899/arch/CYGWIN/installer/gmock-1.6.0-windows-20130426.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
-      <key>gperftools</key>
-      <map>
-        <key>license</key>
-        <string>bsd</string>
-        <key>license_file</key>
-        <string>LICENSES/gperftools.txt</string>
-        <key>name</key>
-        <string>gperftools</string>
-        <key>platforms</key>
-        <map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>8aedfdcf670348c18a9991ae1b384a61</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/262672/arch/Linux/installer/gperftools-2.0-linux-20120727.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>f62841804acb91e1309603a84f3f0ce8</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/262672/arch/CYGWIN/installer/gperftools-2.0-windows-20120727.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2567,7 +2531,7 @@
                   <string>"Visual Studio 10"</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DUSE_KDU=FALSE</string>
-                  </array>
+                </array>
               </map>
               <key>name</key>
               <string>DebugOS</string>
@@ -2655,7 +2619,7 @@
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
-                  </array>
+                </array>
               </map>
               <key>name</key>
               <string>RelWithDebInfoOS</string>
@@ -2742,7 +2706,7 @@
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
-                  </array>
+                </array>
               </map>
               <key>name</key>
               <string>ReleaseOS</string>
