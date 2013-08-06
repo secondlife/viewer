@@ -8707,11 +8707,11 @@ You are no longer allowed here and have [EJECT_TIME] seconds to leave.
 
   <notification
    icon="alertmodal.tga"
-   name="NoEnterServerFull"
+   name="NoEnterRegionMaybeFull"
    type="notify">
    <tag>fail</tag>
-You can't enter this region because 
-the server is full.
+You can't enter region "[NAME]".
+It may be full or restarting soon.
   </notification>
 
   <notification

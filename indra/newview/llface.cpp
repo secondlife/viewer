@@ -898,6 +898,14 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 			llassert(less_than_max_mag(newMax));
 		}
 
+		if (!mDrawablep->isActive())
+		{	// Shift position for region
+			LLVector4a offset;
+			offset.load3(mDrawablep->getRegion()->getOriginAgent().mV);
+			newMin.add(offset);
+			newMax.add(offset);
+		}
+
 		t.setAdd(newMin, newMax);
 		t.mul(0.5f);
 
