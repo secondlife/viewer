@@ -1294,6 +1294,8 @@ void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 		mImpostorOffset = LLVector3(pos_group.getF32ptr())-getRenderPosition();
 		mDrawable->setPositionGroup(pos_group);
 	}
+	
+	
 }
 
 void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
@@ -3510,6 +3512,9 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	//mesh vertices need to be reskinned
 	mNeedsSkin = TRUE;
 
+
+		
+	
 	return TRUE;
 }
 //-----------------------------------------------------------------------------
@@ -4927,28 +4932,6 @@ LLJoint *LLVOAvatar::getJoint( const std::string &name )
 	return jointp;
 }
 //-----------------------------------------------------------------------------
-// resetSpecificJointPosition
-//-----------------------------------------------------------------------------
-void LLVOAvatar::resetSpecificJointPosition( const std::string& name )
-{
-	LLJoint* pJoint = mRoot->findJoint( name );
-	
-	if ( pJoint  && pJoint->doesJointNeedToBeReset() )
-	{
-		pJoint->restoreOldXform();
-		pJoint->setId( LLUUID::null );
-		//If we're reseting the pelvis position make sure not to apply offset
-		if ( name == "mPelvis" )
-		{
-			mHasPelvisOffset = false;
-		}
-	}
-	else
-	{
-		llinfos<<"Did not find "<< name.c_str()<<llendl;
-	}
-}
-//-----------------------------------------------------------------------------
 // resetJointPositionsToDefault
 //-----------------------------------------------------------------------------
 void LLVOAvatar::resetJointPositionsToDefault( void )
@@ -4956,20 +4939,30 @@ void LLVOAvatar::resetJointPositionsToDefault( void )
 	//Subsequent joints are relative to pelvis
 	avatar_joint_list_t::iterator iter = mSkeleton.begin();
 	avatar_joint_list_t::iterator end  = mSkeleton.end();
+
+	LLJoint* pJointPelvis = getJoint("mPelvis");
+	
 	for (; iter != end; ++iter)
 	{
 		LLJoint* pJoint = (*iter);
-		if ( pJoint && pJoint->doesJointNeedToBeReset() )
+		//Reset joints except for pelvis
+		if ( pJoint && pJoint != pJointPelvis && pJoint->doesJointNeedToBeReset() )
 		{			
 			pJoint->setId( LLUUID::null );
 			pJoint->restoreOldXform();
 		}		
-	}
-
+		else
+		if ( pJoint && pJoint == pJointPelvis && pJoint->doesJointNeedToBeReset() )
+		{
+			pJoint->setId( LLUUID::null );
+			pJoint->setPosition( LLVector3( 0.0f, 0.0f, 0.0f) );
+			pJoint->setJointResetFlag( false );
+		}		
+	}	
+		
 	//make sure we don't apply the joint offset
 	mHasPelvisOffset = false;
 	mPelvisFixup	 = mLastPelvisFixup;
-
 	postPelvisSetRecalc();	
 }
 //-----------------------------------------------------------------------------
@@ -5125,7 +5118,7 @@ BOOL LLVOAvatar::loadSkeletonNode ()
 			{
 				attachment->setOriginalPosition(info->mPosition);
 			}
-
+			
 			if (info->mHasRotation)
 			{
 				LLQuaternion rotation;
@@ -5195,7 +5188,6 @@ void LLVOAvatar::updateVisualParams()
 	dirtyMesh();
 	updateHeadOffset();
 }
-
 //-----------------------------------------------------------------------------
 // isActive()
 //-----------------------------------------------------------------------------
@@ -5534,6 +5526,7 @@ void LLVOAvatar::lazyAttach()
 
 void LLVOAvatar::resetHUDAttachments()
 {
+
 	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 		 iter != mAttachmentPoints.end();
 		 ++iter)

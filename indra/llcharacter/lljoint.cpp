@@ -248,20 +248,18 @@ void LLJoint::setPosition( const LLVector3& pos )
 // setPosition()
 //--------------------------------------------------------------------
 void LLJoint::setDefaultFromCurrentXform( void )
-{	
+{		
 	mDefaultXform = mXform;
-	touch(ALL_DIRTY);	
 }
 
 //--------------------------------------------------------------------
 // storeCurrentXform()
 //--------------------------------------------------------------------
 void LLJoint::storeCurrentXform( const LLVector3& pos )
-{
+{	
 	mOldXform = mXform;
 	mResetAfterRestoreOldXform = true;	
 	setPosition( pos );
-
 	touch(ALL_DIRTY);	
 }
 
@@ -277,10 +275,9 @@ void LLJoint::storeScaleForReset( const LLVector3& scale )
 //--------------------------------------------------------------------
 void LLJoint::restoreOldXform( void )
 {	
-	mXform = mOldXform;
-	mXform.setScaleChildOffset( mOldXform.getScaleChildOffset() );
+	mXform = mDefaultXform;
 	mResetAfterRestoreOldXform = false;
-	mDirtyFlags = ALL_DIRTY;
+	mDirtyFlags = ALL_DIRTY;	
 }
 //--------------------------------------------------------------------
 // getWorldPosition()
@@ -298,8 +295,6 @@ LLVector3 LLJoint::getLastWorldPosition()
 {
 	return mXform.getWorldPosition();
 }
-
-
 //--------------------------------------------------------------------
 // setWorldPosition()
 //--------------------------------------------------------------------

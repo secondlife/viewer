@@ -196,6 +196,7 @@ public:
 
 	//If the old transform flag has been set, then the reset logic in avatar needs to be aware(test) of it
 	const BOOL doesJointNeedToBeReset( void ) const { return mResetAfterRestoreOldXform; }
+	void setJointResetFlag( bool val ) { mResetAfterRestoreOldXform = val; }
 	
 };
 #endif // LL_LLJOINT_H

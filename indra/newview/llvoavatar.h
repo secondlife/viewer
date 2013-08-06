@@ -200,7 +200,6 @@ public:
 	virtual LLJoint*		getJoint(const std::string &name);
 	
 	void					resetJointPositionsToDefault( void );
-	void					resetSpecificJointPosition( const std::string& name );
 	
 	/*virtual*/ const LLUUID&	getID() const;
 	/*virtual*/ void			addDebugText(const std::string& text);
@@ -209,7 +208,7 @@ public:
 	/*virtual*/ F32				getPixelArea() const;
 	/*virtual*/ LLVector3d		getPosGlobalFromAgent(const LLVector3 &position);
 	/*virtual*/ LLVector3		getPosAgentFromGlobal(const LLVector3d &position);
-	virtual void			updateVisualParams();
+	virtual void				updateVisualParams();
 
 
 /**                    Inherited
