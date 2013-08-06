@@ -197,7 +197,6 @@
 //     sActiveHeaderRequests    mMutex        rw.any.mMutex, ro.repo.none [1]
 //     sActiveLODRequests       mMutex        rw.any.mMutex, ro.repo.none [1]
 //     sMaxConcurrentRequests   mMutex        wo.main.none, ro.repo.none, ro.main.mMutex
-//     mWaiting                 mMutex        rw.repo.none, ro.main.none [2] (race - hint)
 //     mMeshHeader              mHeaderMutex  rw.repo.mHeaderMutex, ro.main.mHeaderMutex, ro.main.none [0]
 //     mMeshHeaderSize          mHeaderMutex  rw.repo.mHeaderMutex
 //     mSkinRequests            none          rw.repo.none, rw.main.none [0]
@@ -264,6 +263,7 @@ U32 LLMeshRepository::sCacheBytesRead = 0;
 U32 LLMeshRepository::sCacheBytesWritten = 0;
 U32 LLMeshRepository::sCacheReads = 0;
 U32 LLMeshRepository::sCacheWrites = 0;
+U32 LLMeshRepository::sMaxLockHoldoffs = 0;
 
 LLDeadmanTimer LLMeshRepository::sQuiescentTimer(15.0, true);	// true -> gather cpu metrics
 
@@ -288,7 +288,7 @@ const char * const LOG_MESH = "Mesh";
 
 // Static data and functions to measure mesh load
 // time metrics for a new region scene.
-static unsigned int metrics_teleport_start_count(0);
+static unsigned int metrics_teleport_start_count = 0;
 boost::signals2::connection metrics_teleport_started_signal;
 static void teleport_started();
 static bool is_retryable(LLCore::HttpStatus status);
@@ -396,6 +396,7 @@ S32 LLMeshRepoThread::sRequestWaterLevel = 0;
 //     LLMeshSkinInfoHandler
 //     LLMeshDecompositionHandler
 //     LLMeshPhysicsShapeHandler
+//   LLMeshUploadThread
 
 class LLMeshHandlerBase : public LLCore::HttpHandler
 {
@@ -624,7 +625,6 @@ void log_upload_error(LLCore::HttpStatus status, const LLSD& content,
 
 LLMeshRepoThread::LLMeshRepoThread()
 : LLThread("mesh repo"),
-  mWaiting(false),
   mHttpRequest(NULL),
   mHttpOptions(NULL),
   mHttpLargeOptions(NULL),
@@ -654,6 +654,7 @@ LLMeshRepoThread::~LLMeshRepoThread()
 {
 	LL_INFOS(LOG_MESH) << "Small GETs issued:  " << LLMeshRepository::sHTTPRequestCount
 					   << ", Large GETs issued:  " << LLMeshRepository::sHTTPLargeRequestCount
+					   << ", Max Lock Holdoffs:  " << LLMeshRepository::sMaxLockHoldoffs
 					   << LL_ENDL;
 
 	for (http_request_set::iterator iter(mHttpRequestSet.begin());
@@ -698,138 +699,171 @@ void LLMeshRepoThread::run()
 
 	while (!LLApp::isQuitting())
 	{
+		// *TODO:  Revise sleep/wake strategy and try to move away'
+		// from polling operations in this thread.  We can sleep
+		// this thread hard when:
+		// * All Http requests are serviced
+		// * LOD request queue empty
+		// * Header request queue empty
+		// * Skin info request queue empty
+		// * Decomposition request queue empty
+		// * Physics shape request queue empty
+		// We wake the thread when any of the above become untrue.
+		// Will likely need a correctly-implemented condition variable to do this.
+
+		mSignal->wait();
+
+		if (LLApp::isQuitting())
+		{
+			break;
+		}
+		
 		if (! mHttpRequestSet.empty())
 		{
 			// Dispatch all HttpHandler notifications
 			mHttpRequest->update(0L);
 		}
+		sRequestWaterLevel = mHttpRequestSet.size();			// Stats data update
+			
+		// NOTE: order of queue processing intentionally favors LOD requests over header requests
 
-		mWaiting = true;
-		mSignal->wait();
-		mWaiting = false;
-		
-		if (! LLApp::isQuitting())
+		while (!mLODReqQ.empty() && mHttpRequestSet.size() < sRequestHighWater)
 		{
-			// NOTE: order of queue processing intentionally favors LOD requests over header requests
-
-			sRequestWaterLevel = mHttpRequestSet.size();
-			while (!mLODReqQ.empty() && mHttpRequestSet.size() < sRequestHighWater)
+			if (! mMutex)
 			{
-				if (! mMutex)
-				{
-					break;
-				}
-				mMutex->lock();
-				LODRequest req = mLODReqQ.front();
-				mLODReqQ.pop();
-				LLMeshRepository::sLODProcessing--;
-				mMutex->unlock();
-				if (!fetchMeshLOD(req.mMeshParams, req.mLOD))//failed, resubmit
-				{
-					mMutex->lock();
-					mLODReqQ.push(req) ; 
-					++LLMeshRepository::sLODProcessing;
-					mMutex->unlock();
-				}
+				break;
 			}
-
-			while (!mHeaderReqQ.empty() && mHttpRequestSet.size() < sRequestHighWater)
+			mMutex->lock();
+			LODRequest req = mLODReqQ.front();
+			mLODReqQ.pop();
+			LLMeshRepository::sLODProcessing--;
+			mMutex->unlock();
+			if (!fetchMeshLOD(req.mMeshParams, req.mLOD))//failed, resubmit
 			{
-				if (! mMutex)
-				{
-					break;
-				}
 				mMutex->lock();
-				HeaderRequest req = mHeaderReqQ.front();
-				mHeaderReqQ.pop();
+				mLODReqQ.push(req) ; 
+				++LLMeshRepository::sLODProcessing;
 				mMutex->unlock();
-				if (!fetchMeshHeader(req.mMeshParams))//failed, resubmit
-				{
-					mMutex->lock();
-					mHeaderReqQ.push(req) ;
-					mMutex->unlock();
-				}
 			}
+		}
 
-			// For the final three request lists, if we scan any part of one
-			// list, we scan the entire thing.  This gets us through any requests
-			// which can be resolved in the cache.  It also keeps the request
-			// set somewhat fresher otherwise items at the end of the set
-			// order will lose.
+		while (!mHeaderReqQ.empty() && mHttpRequestSet.size() < sRequestHighWater)
+		{
+			if (! mMutex)
+			{
+				break;
+			}
+			mMutex->lock();
+			HeaderRequest req = mHeaderReqQ.front();
+			mHeaderReqQ.pop();
+			mMutex->unlock();
+			if (!fetchMeshHeader(req.mMeshParams))//failed, resubmit
+			{
+				mMutex->lock();
+				mHeaderReqQ.push(req) ;
+				mMutex->unlock();
+			}
+		}
+
+		// For the final three request lists, similar goal to above but
+		// slightly different queue structures.  Stay off the mutex when
+		// performing long-duration actions.
+
+		if (mHttpRequestSet.size() < sRequestHighWater
+			&& (! mSkinRequests.empty()
+				|| ! mDecompositionRequests.empty()
+				|| ! mPhysicsShapeRequests.empty()))
+		{
+			// Something to do probably, lock and double-check.  We don't want
+			// to hold the lock long here.  That will stall main thread activities
+			// so we bounce it.
+
+			mMutex->lock();
 			if (! mSkinRequests.empty() && mHttpRequestSet.size() < sRequestHighWater)
 			{
-				// *FIXME:  this really does need a lock as do the following ones
 				std::set<LLUUID> incomplete;
-				for (std::set<LLUUID>::iterator iter = mSkinRequests.begin(); iter != mSkinRequests.end(); ++iter)
+				std::set<LLUUID>::iterator iter(mSkinRequests.begin());
+				while (iter != mSkinRequests.end() && mHttpRequestSet.size() < sRequestHighWater)
 				{
-					if (mHttpRequestSet.size() < sRequestHighWater)
+					LLUUID mesh_id = *iter;
+					mSkinRequests.erase(iter);
+					mMutex->unlock();
+
+					if (! fetchMeshSkinInfo(mesh_id))
 					{
-						LLUUID mesh_id = *iter;
-						if (!fetchMeshSkinInfo(mesh_id))
-						{
-							incomplete.insert(mesh_id);
-						}
+						incomplete.insert(mesh_id);
 					}
-					else
-					{
-						// Hit high-water mark, copy remaining to incomplete.
-						incomplete.insert(iter, mSkinRequests.end());
-						break;
-					}
+
+					mMutex->lock();
+					iter = mSkinRequests.begin();
 				}
-				mSkinRequests.swap(incomplete);
+
+				if (! incomplete.empty())
+				{
+					mSkinRequests.insert(incomplete.begin(), incomplete.end());
+				}
 			}
 
+			// holding lock, try next list
+			// *TODO:  For UI/debug-oriented lists, we might drop the fine-
+			// grained locking as there's lowered expectations of smoothness
+			// in these cases.
 			if (! mDecompositionRequests.empty() && mHttpRequestSet.size() < sRequestHighWater)
 			{
 				std::set<LLUUID> incomplete;
-				for (std::set<LLUUID>::iterator iter = mDecompositionRequests.begin(); iter != mDecompositionRequests.end(); ++iter)
+				std::set<LLUUID>::iterator iter(mDecompositionRequests.begin());
+				while (iter != mDecompositionRequests.end() && mHttpRequestSet.size() < sRequestHighWater)
 				{
-					if (mHttpRequestSet.size() < sRequestHighWater)
+					LLUUID mesh_id = *iter;
+					mDecompositionRequests.erase(iter);
+					mMutex->unlock();
+					
+					if (! fetchMeshDecomposition(mesh_id))
 					{
-						LLUUID mesh_id = *iter;
-						if (!fetchMeshDecomposition(mesh_id))
-						{
-							incomplete.insert(mesh_id);
-						}
+						incomplete.insert(mesh_id);
 					}
-					else
-					{
-						// Hit high-water mark, copy remaining to incomplete.
-						incomplete.insert(iter, mDecompositionRequests.end());
-						break;
-					}
+
+					mMutex->lock();
+					iter = mDecompositionRequests.begin();
 				}
-				mDecompositionRequests.swap(incomplete);
+
+				if (! incomplete.empty())
+				{
+					mDecompositionRequests.insert(incomplete.begin(), incomplete.end());
+				}
 			}
 
+			// holding lock, final list
 			if (! mPhysicsShapeRequests.empty() && mHttpRequestSet.size() < sRequestHighWater)
 			{
 				std::set<LLUUID> incomplete;
-				for (std::set<LLUUID>::iterator iter = mPhysicsShapeRequests.begin(); iter != mPhysicsShapeRequests.end(); ++iter)
+				std::set<LLUUID>::iterator iter(mPhysicsShapeRequests.begin());
+				while (iter != mPhysicsShapeRequests.end() && mHttpRequestSet.size() < sRequestHighWater)
 				{
-					if (mHttpRequestSet.size() < sRequestHighWater)
+					LLUUID mesh_id = *iter;
+					mPhysicsShapeRequests.erase(iter);
+					mMutex->unlock();
+					
+					if (! fetchMeshPhysicsShape(mesh_id))
 					{
-						LLUUID mesh_id = *iter;
-						if (!fetchMeshPhysicsShape(mesh_id))
-						{
-							incomplete.insert(mesh_id);
-						}
+						incomplete.insert(mesh_id);
 					}
-					else
-					{
-						// Hit high-water mark, copy remaining to incomplete.
-						incomplete.insert(iter, mPhysicsShapeRequests.end());
-						break;
-					}
-				}
-				mPhysicsShapeRequests.swap(incomplete);
-			}
 
-			// For dev purposes, a dynamic change could make this false
-			// and that shouldn't assert.
-			// llassert_always(mHttpRequestSet.size() <= sRequestHighWater);
+					mMutex->lock();
+					iter = mPhysicsShapeRequests.begin();
+				}
+
+				if (! incomplete.empty())
+				{
+					mPhysicsShapeRequests.insert(incomplete.begin(), incomplete.end());
+				}
+			}
+			mMutex->unlock();
 		}
+
+		// For dev purposes only.  A dynamic change could make this false
+		// and that shouldn't assert.
+		// llassert_always(mHttpRequestSet.size() <= sRequestHighWater);
 	}
 	
 	if (mSignal->isLocked())
@@ -844,18 +878,21 @@ void LLMeshRepoThread::run()
 	}
 }
 
+// Mutex:  LLMeshRepoThread::mMutex must be held on entry
 void LLMeshRepoThread::loadMeshSkinInfo(const LLUUID& mesh_id)
-{ //protected by mSignal, no locking needed here
+{
 	mSkinRequests.insert(mesh_id);
 }
 
+// Mutex:  LLMeshRepoThread::mMutex must be held on entry
 void LLMeshRepoThread::loadMeshDecomposition(const LLUUID& mesh_id)
-{ //protected by mSignal, no locking needed here
+{
 	mDecompositionRequests.insert(mesh_id);
 }
 
+// Mutex:  LLMeshRepoThread::mMutex must be held on entry
 void LLMeshRepoThread::loadMeshPhysicsShape(const LLUUID& mesh_id)
-{ //protected by mSignal, no locking needed here
+{
 	mPhysicsShapeRequests.insert(mesh_id);
 }
 
@@ -2406,13 +2443,18 @@ void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespo
 	}
 	else
 	{
-		// From texture fetch code and applies here:
+		// From texture fetch code and may apply here:
 		//
 		// A warning about partial (HTTP 206) data.  Some grid services
 		// do *not* return a 'Content-Range' header in the response to
 		// Range requests with a 206 status.  We're forced to assume
 		// we get what we asked for in these cases until we can fix
 		// the services.
+		//
+		// May also need to deal with 200 status (full asset returned
+		// rather than partial) and 416 (request completely unsatisfyable).
+		// Always been exposed to these but are less likely here where
+		// speculative loads aren't done.
 		static const LLCore::HttpStatus par_status(HTTP_PARTIAL_CONTENT);
 
 		LLCore::BufferArray * body(response->getBody());
@@ -2422,7 +2464,9 @@ void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespo
 		if (data_size > 0)
 		{
 			// *TODO: Try to get rid of data copying and add interfaces
-			// that support BufferArray directly.
+			// that support BufferArray directly.  Introduce a two-phase
+			// handler, optional first that takes a body, fallback second
+			// that requires a temporary allocation and data copy.
 			data = new U8[data_size];
 			body->read(0, (char *) data, data_size);
 			LLMeshRepository::sBytesReceived += data_size;
@@ -2459,6 +2503,10 @@ void LLMeshHeaderHandler::processFailure(LLCore::HttpStatus status)
 {
 	if (is_retryable(status))
 	{
+		// *TODO:  This and the other processFailure() methods should
+		// probably just fail hard (as llcorehttp has done the retries).
+		// Or we could implement a slow/forever retry class.
+		
 		LL_WARNS(LOG_MESH) << "Error during mesh header handling.  Reason:  " << status.toString()
 						   << " (" << status.toHex() << ").  Retrying."
 						   << LL_ENDL;
@@ -3026,32 +3074,40 @@ void LLMeshRepository::notifyLoadedMeshes()
 
 	//call completed callbacks on finished decompositions
 	mDecompThread->notifyCompleted();
-	
-	if (!mThread->mWaiting && mPendingRequests.empty())
-	{ //curl thread is churning, wait for it to go idle
-		return;
-	}
 
-	static std::string region_name("never name a region this");
-
-	if (gAgent.getRegion())
-	{ //update capability url 
-		if (gAgent.getRegion()->getName() != region_name && gAgent.getRegion()->capabilitiesReceived())
-		{
-			region_name = gAgent.getRegion()->getName();
-			mGetMeshCapability = gAgent.getRegion()->getCapability("GetMesh");
-			mGetMesh2Capability = gAgent.getRegion()->getCapability("GetMesh2");
-			mGetMeshVersion = mGetMesh2Capability.empty() ? 1 : 2;
-			LL_DEBUGS(LOG_MESH) << "Retrieving caps for region '" << region_name
-								<< "', GetMesh2:  " << mGetMesh2Capability
-								<< ", GetMesh:  " << mGetMeshCapability
-								<< LL_ENDL;
-		}
-	}
-
+	// For major operations, attempt to get the required locks
+	// without blocking and punt if they're not available.
 	{
-		LLMutexLock lock1(mMeshMutex);
-		LLMutexLock lock2(mThread->mMutex);
+		LLMutexTrylock lock1(mMeshMutex);
+		LLMutexTrylock lock2(mThread->mMutex);
+
+		static U32 hold_offs(0);
+		if (! lock1.isLocked() || ! lock2.isLocked())
+		{
+			// If we can't get the locks, skip and pick this up later.
+			++hold_offs;
+			sMaxLockHoldoffs = llmax(sMaxLockHoldoffs, hold_offs);
+			return;
+		}
+		hold_offs = 0;
+		
+		if (gAgent.getRegion())
+		{
+			// Update capability urls
+			static std::string region_name("never name a region this");
+			
+			if (gAgent.getRegion()->getName() != region_name && gAgent.getRegion()->capabilitiesReceived())
+			{
+				region_name = gAgent.getRegion()->getName();
+				mGetMeshCapability = gAgent.getRegion()->getCapability("GetMesh");
+				mGetMesh2Capability = gAgent.getRegion()->getCapability("GetMesh2");
+				mGetMeshVersion = mGetMesh2Capability.empty() ? 1 : 2;
+				LL_DEBUGS(LOG_MESH) << "Retrieving caps for region '" << region_name
+									<< "', GetMesh2:  " << mGetMesh2Capability
+									<< ", GetMesh:  " << mGetMeshCapability
+									<< LL_ENDL;
+			}
+		}
 		
 		//popup queued error messages from background threads
 		while (!mUploadErrorQ.empty())

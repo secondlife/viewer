@@ -230,8 +230,6 @@ public:
 	LLMutex*	mHeaderMutex;
 	LLCondition* mSignal;
 
-	volatile bool mWaiting;
-
 	//map of known mesh headers
 	typedef std::map<LLUUID, LLSD> mesh_header_map;
 	mesh_header_map mMeshHeader;
@@ -494,19 +492,20 @@ public:
 
 	//metrics
 	static U32 sBytesReceived;
-	static U32 sMeshRequestCount;
-	static U32 sHTTPRequestCount;
-	static U32 sHTTPLargeRequestCount;
-	static U32 sHTTPRetryCount;
-	static U32 sHTTPErrorCount;
+	static U32 sMeshRequestCount;				// Total request count, http or cached, all component types
+	static U32 sHTTPRequestCount;				// Http GETs issued (not large)
+	static U32 sHTTPLargeRequestCount;			// Http GETs issued for large requests
+	static U32 sHTTPRetryCount;					// Total request retries whether successful or failed
+	static U32 sHTTPErrorCount;					// Requests ending in error
 	static U32 sLODPending;
 	static U32 sLODProcessing;
 	static U32 sCacheBytesRead;
 	static U32 sCacheBytesWritten;
-	static U32 sCacheReads;
+	static U32 sCacheReads;						
 	static U32 sCacheWrites;
+	static U32 sMaxLockHoldoffs;				// Maximum sequential locking failures
 	
-	static LLDeadmanTimer sQuiescentTimer;  // time-to-complete-mesh-downloads after significant events
+	static LLDeadmanTimer sQuiescentTimer;		// Time-to-complete-mesh-downloads after significant events
 
 	static F32 getStreamingCost(LLSD& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
 
