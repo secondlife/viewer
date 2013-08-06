@@ -505,7 +505,7 @@ S32 LLDrawPoolAvatar::getNumDeferredPasses()
 {
 	if (LLPipeline::sImpostorRender)
 	{
-		return 3;
+		return 19;
 	}
 	else
 	{
@@ -690,28 +690,15 @@ void LLDrawPoolAvatar::beginDeferredImpostor()
 		LLVOAvatar::sNumVisibleAvatars = 0;
 	}
 
-#if DEFERRED_IMPOSTORS
 	sVertexProgram = &gDeferredImpostorProgram;
-
-	specular_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::SPECULAR_MAP);
-	normal_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
-	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-#else
-	sVertexProgram = &gImpostorProgram;
-	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-#endif
-	sVertexProgram->bind();
+	gPipeline.bindDeferredShader(*sVertexProgram);
 	sVertexProgram->setMinimumAlpha(0.01f);
 }
 
 void LLDrawPoolAvatar::endDeferredImpostor()
 {
 	sShaderLevel = mVertexShaderLevel;
-	sVertexProgram->disableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
-	sVertexProgram->disableTexture(LLViewerShaderMgr::SPECULAR_MAP);
-	sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-	sVertexProgram->unbind();
-	gGL.getTexUnit(0)->activate();
+	gPipeline.unbindDeferredShader(*sVertexProgram);
 }
 
 void LLDrawPoolAvatar::beginDeferredRigid()
@@ -1268,7 +1255,6 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 		if (impostor)
 		{
-#if DEFERRED_IMPOSTORS
 			if (LLPipeline::sRenderDeferred && !LLPipeline::sReflectionRender && avatarp->mImpostor.isComplete()) 
 			{
 				if (normal_channel > -1)
@@ -1280,7 +1266,6 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 					avatarp->mImpostor.bindTexture(1, specular_channel);
 				}
 			}
-#endif
 			avatarp->renderImpostor(LLColor4U(255,255,255,255), sDiffuseChannel);
 		}
 		return;

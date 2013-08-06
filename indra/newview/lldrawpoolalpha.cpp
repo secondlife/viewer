@@ -224,8 +224,13 @@ void LLDrawPoolAlpha::render(S32 pass)
 		gGL.setColorMask(true, true);
 	}
 	
-	LLGLDepthTest depth(GL_TRUE, LLDrawPoolWater::sSkipScreenCopy || 
-				(deferred_render && pass == 1) ? GL_TRUE : GL_FALSE);
+	bool write_depth = LLDrawPoolWater::sSkipScreenCopy
+						 || (deferred_render && pass == 1)
+						 // we want depth written so that rendered alpha will
+						 // contribute to the alpha mask used for impostors
+						 || LLPipeline::sImpostorRender;
+
+	LLGLDepthTest depth(GL_TRUE, write_depth ? GL_TRUE : GL_FALSE);
 
 	if (deferred_render && pass == 1)
 	{
