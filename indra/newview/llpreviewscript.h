@@ -100,7 +100,9 @@ public:
 	static void		onBtnInsertSample(void*);
 	static void		onBtnInsertFunction(LLUICtrl*, void*);
 	static void		onBtnLoadFromFile(void*);
-	static void		onBtnSaveToFile(void*);
+    static void		onBtnSaveToFile(void*);
+    static void     onToggleExperience(LLUICtrl *ui, void* userdata);
+    static void onToggleExperienceDetails(void* userdata);
 
 	static bool		enableSaveToFileMenu(void* userdata);
 	static bool		enableLoadFromFileMenu(void* userdata);
@@ -108,7 +110,8 @@ public:
 	virtual bool	hasAccelerators() const { return true; }
 	void			addExperienceInfo( const LLSD& experience );
 	void			clearExperiences();
-    LLUUID 			getSelectedExperience()const;
+    LLUUID 			getAssociatedExperience()const;
+
     void            setAssociatedExperience( const LLUUID& experience_id );
 
 private:
@@ -125,7 +128,8 @@ private:
 	void enableSave(BOOL b) {mEnableSave = b;}
 
 	void requestExperiences();
-	void experienceChanged();
+    void experienceChanged();
+    void addAssociatedExperience(const LLSD& experience);
 
 protected:
 	void deleteBridges();
@@ -142,7 +146,10 @@ private:
 	void			(*mSearchReplaceCallback) (void* userdata);
     void*			mUserdata;
 	LLComboBox		*mFunctions;
-	LLComboBox		*mExperiences;
+	LLComboBox     	*mExperiences;
+    LLCheckBoxCtrl  *mExperienceEnabled;
+    LLUICtrl        *mExperienceDetails;
+    LLButton        *mExpandExperience;
 	BOOL			mForceClose;
 	LLPanel*		mCodePanel;
 	LLScrollListCtrl* mErrorList;
