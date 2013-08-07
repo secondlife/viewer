@@ -551,6 +551,14 @@ public:
 
 	virtual void processGroup(LLviewerOctreeGroup* base_group)
 	{
+		if( !mUseObjectCacheOcclusion ||
+			!base_group->getOctreeNode()->getParent())
+		{ 
+			//no occlusion check
+			mRegionp->addVisibleGroup(base_group);
+			return;
+		}
+
 		LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)base_group;
 		if(!group->isRecentlyVisible())//needs to issue new occlusion culling check.
 		{
