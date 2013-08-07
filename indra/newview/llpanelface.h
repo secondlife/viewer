@@ -255,7 +255,20 @@ private:
 					// Determine correct alpha mode for current diffuse texture
 					// (i.e. does it have an alpha channel that makes alpha mode useful)
 					//
-					U8 default_alpha_mode = (_panel->isAlpha() ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE);
+					// _panel->isAlpha() "lies" when one face has alpha and the rest do not (NORSPEC-329)
+					// need to get per-face answer to this question for sane alpha mode retention on updates.
+					//					
+					U8 default_alpha_mode = object->isImageAlphaBlended(face) ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
+					
+					if (!current_material.isNull())
+					{
+						default_alpha_mode = current_material->getDiffuseAlphaMode();
+					}
+
+					// Insure we don't inherit the default of blend by accident...
+					// this will be stomped by a legit request to change the alpha mode by the apply() below
+					//
+					new_material->setDiffuseAlphaMode(default_alpha_mode);
 
 					// Do "It"!
 					//

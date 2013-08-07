@@ -4517,6 +4517,30 @@ LLViewerTexture *LLViewerObject::getTEImage(const U8 face) const
 }
 
 
+bool LLViewerObject::isImageAlphaBlended(const U8 te) const
+{
+	LLViewerTexture* image = getTEImage(te);
+	LLGLenum format = image ? image->getPrimaryFormat() : GL_RGB;
+	switch (format)
+	{
+		case GL_RGBA:
+		case GL_ALPHA:
+		{
+			return true;
+		}
+		break;
+
+		case GL_RGB: break;
+		default:
+		{
+			llwarns << "Unexpected tex format in LLViewerObject::isImageAlphaBlended...returning no alpha." << llendl;
+		}
+		break;
+	}
+
+	return false;
+}
+
 LLViewerTexture *LLViewerObject::getTENormalMap(const U8 face) const
 {
 	//	llassert(mTEImages);
