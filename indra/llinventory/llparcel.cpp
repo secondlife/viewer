@@ -521,6 +521,11 @@ S32 LLParcel::blockAccess(const LLUUID& agent_id, const LLUUID& group_id,
         return BA_ALLOWED;
     }
     
+    if(getParcelFlag(PF_DENY_ANONYMOUS) && is_agent_identified && is_agent_transacted)
+    {
+    	return BA_ALLOWED;
+    }
+
     return BA_NOT_IN_GROUP;
     
 }
