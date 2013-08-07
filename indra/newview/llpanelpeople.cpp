@@ -510,8 +510,7 @@ LLPanelPeople::LLPanelPeople()
 		mNearbyList(NULL),
 		mRecentList(NULL),
 		mGroupList(NULL),
-		mMiniMap(NULL),
-        mFacebookListGeneration(0)
+		mMiniMap(NULL)
 {
 	mFriendListUpdater = new LLFriendListUpdater(boost::bind(&LLPanelPeople::updateFriendList,	this));
 	mNearbyListUpdater = new LLNearbyListUpdater(boost::bind(&LLPanelPeople::updateNearbyList,	this));
@@ -783,35 +782,30 @@ void LLPanelPeople::updateFriendList()
 
 bool LLPanelPeople::updateSuggestedFriendList()
 {
-	if (LLFacebookConnect::instance().generation() != mFacebookListGeneration)
+	const LLAvatarTracker& av_tracker = LLAvatarTracker::instance();
+	uuid_vec_t& suggested_friends = mSuggestedFriends->getIDs();
+	suggested_friends.clear();
+
+	//Add suggested friends
+	LLSD friends = LLFacebookConnect::instance().getContent();
+	for (LLSD::array_const_iterator i = friends.beginArray(); i != friends.endArray(); ++i)
 	{
-		mFacebookListGeneration = LLFacebookConnect::instance().generation();
+		LLUUID agent_id = (*i).asUUID();
+		bool second_life_buddy = agent_id.notNull() ? av_tracker.isBuddy(agent_id) : false;
 
-		const LLAvatarTracker& av_tracker = LLAvatarTracker::instance();
-		uuid_vec_t& suggested_friends = mSuggestedFriends->getIDs();
-		suggested_friends.clear();
-
-		//Add suggested friends
-		LLSD friends = LLFacebookConnect::instance().getContent();
-		for (LLSD::array_const_iterator i = friends.beginArray(); i != friends.endArray(); ++i)
+		if(!second_life_buddy)
 		{
-			LLUUID agent_id = (*i).asUUID();
-			bool second_life_buddy = agent_id.notNull() ? av_tracker.isBuddy(agent_id) : false;
-
-			if(!second_life_buddy)
+			//FB+SL but not SL friend
+			if (agent_id.notNull())
 			{
-				//FB+SL but not SL friend
-				if (agent_id.notNull())
-				{
-					suggested_friends.push_back(agent_id);
-				}
+				suggested_friends.push_back(agent_id);
 			}
 		}
-
-		//Force a refresh when there aren't any filter matches (prevent displaying content that shouldn't display)
-		mSuggestedFriends->setDirty(true, !mSuggestedFriends->filterHasMatches());
-		showFriendsAccordionsIfNeeded();
 	}
+
+	//Force a refresh when there aren't any filter matches (prevent displaying content that shouldn't display)
+	mSuggestedFriends->setDirty(true, !mSuggestedFriends->filterHasMatches());
+	showFriendsAccordionsIfNeeded();
 
 	return false;
 }

@@ -140,7 +140,6 @@ private:
 	LLAvatarList*			mNearbyList;
 	LLAvatarList*			mRecentList;
 	LLGroupList*			mGroupList;
-    S32                     mFacebookListGeneration;
 	LLNetMap*				mMiniMap;
 
 	std::vector<std::string> mSavedOriginalFilters;

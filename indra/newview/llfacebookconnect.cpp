@@ -320,8 +320,7 @@ LLFacebookConnect::LLFacebookConnect()
 :	mConnectionState(FB_NOT_CONNECTED),
 	mConnected(false),
 	mInfo(),
-    mContent(),
-    mGeneration(0)
+    mContent()
 {
 }
 
@@ -506,7 +505,6 @@ const LLSD& LLFacebookConnect::getInfo() const
 
 void LLFacebookConnect::storeContent(const LLSD& content)
 {
-    mGeneration++;
     mContent = content;
 
 	sContentWatcher->post(content);
@@ -519,7 +517,6 @@ const LLSD& LLFacebookConnect::getContent() const
 
 void LLFacebookConnect::clearContent()
 {
-    mGeneration++;
     mContent = LLSD();
 }
 

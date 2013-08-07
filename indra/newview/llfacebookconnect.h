@@ -78,7 +78,6 @@ public:
 	bool isConnected() { return mConnected; }
 	bool isTransactionOngoing() { return ((mConnectionState == FB_CONNECTION_IN_PROGRESS) || (mConnectionState == FB_POSTING) || (mConnectionState == FB_DISCONNECTING)); }
     EConnectionState getConnectionState() { return mConnectionState; }
-    S32  generation() { return mGeneration; }
     
     void openFacebookWeb(std::string url);
 
@@ -93,7 +92,6 @@ private:
 	BOOL mConnected;
 	LLSD mInfo;
     LLSD mContent;
-    S32  mGeneration;
 	
 	static boost::scoped_ptr<LLEventPump> sStateWatcher;
 	static boost::scoped_ptr<LLEventPump> sInfoWatcher;
