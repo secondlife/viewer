@@ -175,6 +175,7 @@ my %RecognizedBy;
 while (<>) 
 {
     chomp;
+    $_ = substr($_,0,100);
     my $lcInput = lc $_;  # the real gpu table parser lowercases the input string
     my $recognizer;
     $RecognizedBy{$_} = $NoMatch;
