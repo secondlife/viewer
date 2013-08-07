@@ -379,6 +379,7 @@ BOOL	LLPipeline::sWaterReflections = FALSE;
 BOOL	LLPipeline::sRenderGlow = FALSE;
 BOOL	LLPipeline::sReflectionRender = FALSE;
 BOOL	LLPipeline::sImpostorRender = FALSE;
+BOOL	LLPipeline::sImpostorRenderAlphaDepthPass = FALSE;
 BOOL	LLPipeline::sUnderWaterRender = FALSE;
 BOOL	LLPipeline::sTextureBindTest = FALSE;
 BOOL	LLPipeline::sRenderFrameTest = FALSE;
@@ -11387,13 +11388,39 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	{
 		avatar->mImpostor.clear();		
 		renderGeomDeferred(camera);
+
+		renderGeomPostDeferred(camera);		
+
+		// Shameless hack time: render it all again,
+		// this time writing the depth
+		// values we need to generate the alpha mask below
+		// while preserving the alpha-sorted color rendering
+		// from the previous pass
+		//
+		sImpostorRenderAlphaDepthPass = true;
+		// depth-only here...
+		//
+		gGL.setColorMask(false,false);
 		renderGeomPostDeferred(camera);
+		sImpostorRenderAlphaDepthPass = false;
 	}
 	else
-	{		
+	{
 		LLGLEnable scissor(GL_SCISSOR_TEST);
 		glScissor(0, 0, resX, resY);	
 		avatar->mImpostor.clear();
+		renderGeom(camera);
+
+		// Shameless hack time: render it all again,
+		// this time writing the depth
+		// values we need to generate the alpha mask below
+		// while preserving the alpha-sorted color rendering
+		// from the previous pass
+		//
+		sImpostorRenderAlphaDepthPass = true;
+		// depth-only here...
+		//
+		gGL.setColorMask(false,false);
 		renderGeom(camera);
 	}
 

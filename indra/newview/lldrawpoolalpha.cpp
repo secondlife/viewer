@@ -228,7 +228,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 						 || (deferred_render && pass == 1)
 						 // we want depth written so that rendered alpha will
 						 // contribute to the alpha mask used for impostors
-						 || LLPipeline::sImpostorRender;
+						 || LLPipeline::sImpostorRenderAlphaDepthPass;
 
 	LLGLDepthTest depth(GL_TRUE, write_depth ? GL_TRUE : GL_FALSE);
 
