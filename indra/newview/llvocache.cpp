@@ -263,6 +263,28 @@ void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
 	}
 }
 	
+void LLVOCacheEntry::removeChild(LLVOCacheEntry* entry)
+{
+	for(S32 i = 0; i < mChildrenList.size(); i++)
+	{
+		if(mChildrenList[i] == entry)
+		{
+			entry->setParentID(0);
+			mChildrenList[i] = mChildrenList[mChildrenList.size() - 1];
+			mChildrenList.pop_back();
+		}
+	}
+}
+
+void LLVOCacheEntry::removeAllChildren()
+{
+	for(S32 i = 0; i < mChildrenList.size(); i++)
+	{
+		mChildrenList[i]->setParentID(0);
+	}
+	mChildrenList.clear();
+}
+
 LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP(U32 crc)
 {
 	if (  (mCRC != crc)

@@ -107,6 +107,8 @@ public:
 	U32  getParentID() const {return mParentID;}
 
 	void addChild(LLVOCacheEntry* entry);
+	void removeChild(LLVOCacheEntry* entry);
+	void removeAllChildren();
 	LLVOCacheEntry* getChild(S32 i) {return mChildrenList[i];}
 	S32  getNumOfChildren()         {return mChildrenList.size();}
 	void clearChildrenList()        {mChildrenList.clear();}

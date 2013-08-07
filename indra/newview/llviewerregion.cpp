@@ -866,8 +866,19 @@ void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry)
 	//remove from the forced visible list
 	mImpl->mVisibleEntries.erase(entry);
 
-	//kill LLViewerObject if exists
-	//this should be done by the rendering pipeline automatically.
+	//disconnect from parent if it is a child
+	if(entry->getParentID() > 0)
+	{
+		LLVOCacheEntry* parent = getCacheEntry(entry->getParentID());
+		if(parent)
+		{
+			parent->removeChild(entry);
+		}
+	}
+	else if(entry->getNumOfChildren() > 0)//disconnect children if has any
+	{
+		entry->removeAllChildren();
+	}
 	
 	entry->setState(LLVOCacheEntry::INACTIVE);
 	
