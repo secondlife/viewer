@@ -125,7 +125,7 @@ BOOL LLFloaterIMNearbyChat::postBuild()
 	setTitle(LLTrans::getString("NearbyChatTitle"));
 
 	// obsolete, but may be needed for backward compatibility?
-	gSavedSettings.declareS32("nearbychat_showicons_and_names", 2, "NearByChat header settings", true);
+	gSavedSettings.declareS32("nearbychat_showicons_and_names", 2, "NearByChat header settings", LLControlVariable::PERSIST_NONDFT);
 
 	if (gSavedPerAccountSettings.getBOOL("LogShowHistory"))
 	{

@@ -126,6 +126,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>AnalyzePerformance</key>
+    <map>
+      <key>Comment</key>
+      <string>Request performance analysis for a particular viewer run</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>AnimateTextures</key>
     <map>
       <key>Comment</key>
@@ -1738,6 +1749,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>CmdLineChannel</key>
+    <map>
+      <key>Comment</key>
+      <string>Command line specified channel name</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
     <key>CmdLineDisableVoice</key>
     <map>
       <key>Comment</key>
@@ -1794,6 +1816,17 @@
       <array>
         <string />
       </array>
+    </map>
+    <key>CmdLineLoginLocation</key>
+    <map>
+      <key>Comment</key>
+      <string>Startup destination requested on command line</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string/>
     </map>
     <key>ConnectAsGod</key>
     <map>
@@ -1926,6 +1959,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>262144</integer>
+    </map>
+    <key>CrashOnStartup</key>
+    <map>
+      <key>Comment</key>
+      <string>User-requested crash on viewer startup</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>CreateToolCopyCenters</key>
     <map>
@@ -2164,6 +2208,17 @@
       <string>Disable the code which watches for plugins that are crashed or hung</string>
       <key>Persist</key>
       <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>DebugSession</key>
+    <map>
+      <key>Comment</key>
+      <string>Request debugging for a particular viewer session</string>
+      <key>Persist</key>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -2978,6 +3033,17 @@
       <string>Disable the normal bounds put on the camera by avatar position</string>
       <key>Persist</key>
       <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>DisableCrashLogger</key>
+    <map>
+      <key>Comment</key>
+      <string>Do not send crash report to Linden server</string>
+      <key>Persist</key>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -5228,6 +5294,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>LogMetrics</key>
+    <map>
+      <key>Comment</key>
+      <string>Log viewer metrics</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string/>
+    </map>
+    <key>LogPerformance</key>
+    <map>
+      <key>Comment</key>
+      <string>Log performance analysis for a particular viewer run</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>LogTextureNetworkTraffic</key>
     <map>
       <key>Comment</key>
@@ -6400,6 +6488,17 @@
       <string>Disable sound and image preload.</string>
       <key>Persist</key>
       <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>NoQuickTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Disable QuickTime for a particular viewer run</string>
+      <key>Persist</key>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -9664,6 +9763,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ReplaySession</key>
+    <map>
+      <key>Comment</key>
+      <string>Request replay of previously-recorded pilot file</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RotateRight</key>
     <map>
       <key>Comment</key>
@@ -12880,12 +12990,13 @@
     <key>UserLoginInfo</key>
     <map>
       <key>Comment</key>
-      <string>Users loging data.</string>
+      <string>User login data.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>LLSD</string>
       <key>Value</key>
+      <string/>
     </map>
     <key>VFSOldSize</key>
     <map>
