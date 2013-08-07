@@ -201,16 +201,16 @@ $_, $Supported{$RecognizedBy{$_}},$Class{$RecognizedBy{$_}},$StatsBased{$Recogni
 my $ReportLineTemplate = "A102xxxA12xxxA2xxxxA2xxxxA5A*"; # MUST match the format STDOUT above
 
 format DIFF_TOP =
-                                                                                                         ------------- OLD -------------  ----------- NEW ---------------
-GPU String                                                                                               Supported?  Class Stats OpenGL   Supported?  Class Stats OpenGL
-------------------------------------------------------------------------------------------------------   ----------- ----- ----- ------   ----------- ----- ----- ------
+                                                                                                         ------------- OLD -------------  ----------- NEW --------------------
+GPU String                                                                                               Supported?  Class Stats OpenGL   Supported?  Class Stats OpenGL  Line
+------------------------------------------------------------------------------------------------------   ----------- ----- ----- ------   ----------- ----- ----- ------ -----
 .                                                                                                                                             
 
 my ( $oldSupported, $oldClass, $newSupported, $newClass );
 
 format DIFF =                                                                                                                                 
-@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...   @<<<<<<<<<<   @>    @>  @<<<<    @<<<<<<<<<<    @>   @>  @<<<<  
-$_,                                                    $oldSupported, $oldClass, $oldStatsBased, $oldExpectedOpenGL, $newSupported, $newClass, $newStatsBased, $newExpectedOpenGL
+@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...   @<<<<<<<<<<   @>    @>  @<<<<    @<<<<<<<<<<    @>   @>  @<<<<  @>>>>
+$_,                                    $oldSupported, $oldClass, $oldStatsBased, $oldExpectedOpenGL, $newSupported, $newClass, $newStatsBased, $newExpectedOpenGL, $newRecognizedLine
 .
 
 if ( ! $Diff )
@@ -255,6 +255,7 @@ else
         $newClass     = $Class{$RecognizedBy{$_}};
         $newStatsBased     = $StatsBased{$RecognizedBy{$_}};
         $newExpectedOpenGL = $ExpectedOpenGL{$RecognizedBy{$_}};
+        $newRecognizedLine = $RecognizerLine{$RecognizedBy{$_}};
 
         if ( ! defined $OldSupported{$_} )
         {
