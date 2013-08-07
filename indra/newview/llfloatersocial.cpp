@@ -205,8 +205,8 @@ void LLSocialPhotoPanel::draw()
 { 
 	LLSnapshotLivePreview * previewp = static_cast<LLSnapshotLivePreview *>(mPreviewHandle.get());
 
+    // Enable interaction only if no transaction with the service is on-going (prevent duplicated posts)
     bool no_ongoing_connection = !(LLFacebookConnect::instance().isTransactionOngoing());
-    mPostButton->setEnabled(no_ongoing_connection);
     mCancelButton->setEnabled(no_ongoing_connection);
     mCaptionTextBox->setEnabled(no_ongoing_connection);
     mResolutionComboBox->setEnabled(no_ongoing_connection);
@@ -246,6 +246,9 @@ void LLSocialPhotoPanel::draw()
 
     // Update the visibility of the working (computing preview) label
     mWorkingLabel->setVisible(!(previewp && previewp->getSnapshotUpToDate()));
+    
+    // Enable Post if we have a preview to send and no on going connection being processed
+    mPostButton->setEnabled(no_ongoing_connection && (previewp && previewp->getSnapshotUpToDate()));
     
     // Draw the rest of the panel on top of it
 	LLPanel::draw();
