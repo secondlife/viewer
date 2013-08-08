@@ -119,6 +119,57 @@ static bool have_script_upload_cap(LLUUID& object_id)
 	return object && (! object->getRegion()->getCapability("UpdateScriptTask").empty());
 }
 
+class ExperienceAssociationResponder : public LLHTTPClient::Responder
+{
+public:
+    ExperienceAssociationResponder(const LLUUID& parent):mParent(parent)
+    {
+    }
+
+    LLUUID mParent;
+
+    virtual void result(const LLSD& content)
+    {
+
+        LLLiveLSLEditor* scriptCore = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", mParent);
+
+        if(!scriptCore)
+            return;
+
+        LLUUID id;
+        if(content.has("experience"))
+        {
+            id=content["experience"].asUUID();
+        }
+        scriptCore->setAssociatedExperience(id);
+    }
+
+    virtual void error(U32 status, const std::string& reason)
+    {
+        llinfos << "Failed to look up associated script: " << status << ": " << reason << llendl;
+    }
+
+};
+
+class ExperienceResponder : public LLHTTPClient::Responder
+{
+public:
+    ExperienceResponder(const LLHandle<LLScriptEdCore>& parent):mParent(parent)
+    {
+    }
+
+    LLHandle<LLScriptEdCore> mParent;
+
+    virtual void result(const LLSD& content)
+    {
+        LLScriptEdCore* scriptCore = mParent.get();
+        if(!scriptCore)
+            return;
+
+        scriptCore->setExperienceIds(content["experience_ids"]);		
+    }
+};
+
 /// ---------------------------------------------------------------------------
 /// LLLiveLSLFile
 /// ---------------------------------------------------------------------------
@@ -377,43 +428,33 @@ LLScriptEdCore::~LLScriptEdCore()
 
 void LLScriptEdCore::experienceChanged()
 {
-	enableSave(TRUE);
-	getChildView("Save_btn")->setEnabled(TRUE);
-    mAssociatedExperience = mExperiences->getSelectedValue().asUUID();
+    if(mAssociatedExperience != mExperiences->getSelectedValue().asUUID())
+    {
+        enableSave(TRUE);
+        getChildView("Save_btn")->setEnabled(TRUE);
+        mAssociatedExperience = mExperiences->getSelectedValue().asUUID();
+    }
 }
 
 void LLScriptEdCore::onToggleExperience( LLUICtrl *ui, void* userdata )
 {
     LLScriptEdCore* self = (LLScriptEdCore*)userdata;
-    BOOL checked = self->mExperienceEnabled->get();
-    BOOL expand = checked && self->mAssociatedExperience.isNull();
-    self->mExpandExperience->setToggleState(expand);
-    self->mExpandExperience->setEnabled(checked);
-    self->mExperienceDetails->setVisible(expand);
-    if(!checked)
+
+    LLUUID id;
+    if(self->mExperienceEnabled->get())
     {
-        if(self->mAssociatedExperience.notNull())
+        if(self->mAssociatedExperience.isNull())
         {
-            self->enableSave(TRUE);
+            id=self->mExperienceIds.beginArray()->asUUID();
         }
-        self->setAssociatedExperience(LLUUID::null);
     }
-    else if (expand)
+
+    if(id != self->mAssociatedExperience)
     {
-        self->mExperiences->selectFirstItem();
-        self->setAssociatedExperience(self->mExperiences->getSelectedValue().asUUID());
         self->enableSave(TRUE);
     }
+    self->setAssociatedExperience(id);
 }
-
-void LLScriptEdCore::onToggleExperienceDetails( void* userdata )
-{
-    LLScriptEdCore* self = (LLScriptEdCore*)userdata;
-    BOOL checked = self->mExperienceEnabled->get();
-    BOOL expanded = self->mExpandExperience->getToggleState();
-    self->mExperienceDetails->setVisible(checked && expanded);
-}
-
 
 BOOL LLScriptEdCore::postBuild()
 {
@@ -425,9 +466,6 @@ BOOL LLScriptEdCore::postBuild()
 	mExperiences->setCommitCallback(boost::bind(&LLScriptEdCore::experienceChanged, this));
 
     mExperienceEnabled = getChild<LLCheckBoxCtrl>("enable_xp");
-    mExpandExperience = getChild<LLButton>("Expand Experience");
-    mExperienceDetails = getChild<LLUICtrl>("Experience Details");
-    mExpandExperience->setClickedCallback(boost::bind(&LLScriptEdCore::onToggleExperienceDetails, this));
  
     childSetCommitCallback("enable_xp", onToggleExperience, this);
 
@@ -1247,149 +1285,104 @@ bool LLScriptEdCore::enableLoadFromFileMenu(void* userdata)
 	return (self && self->mEditor) ? self->mEditor->canLoadOrSaveToFile() : FALSE;
 }
 
-
-void AddExperienceResult(LLHandle<LLScriptEdCore> panel, const LLSD& experience)
-{
-	LLScriptEdCore* scriptCore = panel.get();
-	if(scriptCore)
-	{
-		scriptCore->addExperienceInfo(experience);
-	}
-}
-
-
-class ExperienceResponder : public LLHTTPClient::Responder
-{
-public:
-	ExperienceResponder(const LLHandle<LLScriptEdCore>& parent):mParent(parent)
-	{
-	}
-
-	LLHandle<LLScriptEdCore> mParent;
-
-	virtual void result(const LLSD& content)
-	{
-		LLScriptEdCore* scriptCore = mParent.get();
-		if(!scriptCore)
-			return;
-
-		scriptCore->clearExperiences();
-
-		LLSD experiences = content["experience_ids"];
-		LLSD::array_const_iterator it = experiences.beginArray();
-		for( /**/ ; it != experiences.endArray(); ++it)
-		{
-			LLUUID public_key = it->asUUID();
-
-			LLExperienceCache::get(public_key, boost::bind(AddExperienceResult, mParent, _1));
-		}
-	}
-};
-
-class ExperienceAssociationResponder : public LLHTTPClient::Responder
-{
-public:
-    ExperienceAssociationResponder(const LLUUID& parent):mParent(parent)
-    {
-    }
-
-    LLUUID mParent;
-
-    virtual void result(const LLSD& content)
-    {
-
-        LLLiveLSLEditor* scriptCore = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", mParent);
-
-        if(!scriptCore)
-            return;
-
-        LLUUID id;
-        if(content.has("experience"))
-        {
-            id=content["experience"].asUUID();
-        }
-        scriptCore->setAssociatedExperience(id);
-    }
-
-    virtual void error(U32 status, const std::string& reason)
-    {
-        llinfos << "Failed to look up associated script: " << status << ": " << reason << llendl;
-    }
-
-};
-
-void LLScriptEdCore::requestExperiences()
-{
-	mExperiences->setEnabled(FALSE);
-
-	LLViewerRegion* region = gAgent.getRegion();
-	if (region)
-	{
-		std::string lookup_url=region->getCapability("GetCreatorExperiences"); 
-		if(!lookup_url.empty())
-		{
-			LLHTTPClient::get(lookup_url, new ExperienceResponder(getDerivedHandle<LLScriptEdCore>()));
-		}
-	}
-}
-
-void LLScriptEdCore::addExperienceInfo( const LLSD& experience )
-{
-	mExperiences->setEnabled(TRUE);
-	mExperiences->add(experience[LLExperienceCache::NAME], experience[LLExperienceCache::EXPERIENCE_ID].asUUID());
-    if(mAssociatedExperience == experience[LLExperienceCache::EXPERIENCE_ID].asUUID())
-    {
-        setAssociatedExperience(mAssociatedExperience);
-    }
-    LLUICtrl* no_experiences=getChild<LLUICtrl>("No Experiences");
-    if(no_experiences)
-    {
-        no_experiences->setVisible(FALSE);
-    }
-}
-
-void LLScriptEdCore::clearExperiences()
-{
-	mExperiences->removeall();
-    mExperiences->setEnabled(FALSE);
-    LLUICtrl* no_experiences=getChild<LLUICtrl>("No Experiences");
-    if(no_experiences)
-    {
-        no_experiences->setVisible(TRUE);
-    }
-}
-
 LLUUID LLScriptEdCore::getAssociatedExperience()const
 {
-	return mAssociatedExperience;
+    return mAssociatedExperience;
 }
 
-void LLScriptEdCore::setAssociatedExperience( const LLUUID& experience_id )
+void LLScriptEdCore::setExperienceIds( const LLSD& experience_ids )
 {
-    mExperienceEnabled->setEnabled(TRUE);
-    mAssociatedExperience = experience_id;
-    if(experience_id.notNull())
-    {
-        LLExperienceCache::get(experience_id, boost::bind(&LLScriptEdCore::addAssociatedExperience, this, _1));       
-    }
+    mExperienceIds=experience_ids;
+    updateExperiencePanel();
 }
 
-void LLScriptEdCore::addAssociatedExperience(const LLSD& experience)
-{
 
-    if(mExperiences->setSelectedByValue(mAssociatedExperience, TRUE))
+void LLScriptEdCore::updateExperiencePanel()
+{
+    BOOL editable = mEditor->getEnabled();
+
+    if(mAssociatedExperience.isNull())
     {
-        mExperienceEnabled->set(TRUE);
-        mExpandExperience->setEnabled(TRUE);
+        mExperienceEnabled->set(FALSE);
+        mExperiences->setVisible(FALSE);
+        if(mExperienceIds.size()>0)
+        {
+            mExperienceEnabled->setEnabled(TRUE);
+            mExperienceEnabled->setToolTip(getString("add_experiences"));
+        }
+        else
+        {
+            mExperienceEnabled->setEnabled(FALSE);
+            mExperienceEnabled->setToolTip(getString("no_experiences"));
+        }
+        getChild<LLButton>("view_profile")->setVisible(FALSE);
     }
     else
     {
-        mExperiences->add(experience[LLExperienceCache::NAME], experience[LLExperienceCache::EXPERIENCE_ID].asUUID(), ADD_TOP, FALSE);
-        mExperienceEnabled->set(FALSE);
+        mExperienceEnabled->setToolTip(getString("experience_enabled"));
+        mExperienceEnabled->setEnabled(editable);
+        mExperienceEnabled->set(TRUE);
+        mExperiences->setVisible(TRUE);
+        getChild<LLButton>("view_profile")->setVisible(TRUE);
+        buildExperienceList();
     }
 }
 
+void LLScriptEdCore::addExperienceInfo(const LLSD& experience, BOOL enabled)
+{  
+    LLUUID id = experience[LLExperienceCache::EXPERIENCE_ID].asUUID();
+    EAddPosition position = (id == mAssociatedExperience)?ADD_TOP:ADD_BOTTOM;
+    LLScrollListItem* item=mExperiences->add(experience[LLExperienceCache::NAME], id, position );
+    if(!enabled)
+    {
+        item->setEnabled(FALSE);
+    }
+}
 
+void LLScriptEdCore::buildExperienceList()
+{
+    mExperiences->clear();
+    bool foundAssociated=false;
+    for(LLSD::array_const_iterator it = mExperienceIds.beginArray(); it != mExperienceIds.endArray(); ++it)
+    {
+        LLUUID id = it->asUUID();
+        foundAssociated |= (id == mAssociatedExperience);
+        LLExperienceCache::get(id, boost::bind(&LLScriptEdCore::addExperienceInfo, this, _1, TRUE));  
+    }
+
+    if(!foundAssociated )
+    {
+        LLExperienceCache::get(mAssociatedExperience, boost::bind(&LLScriptEdCore::addExperienceInfo, this, _1, FALSE));  
+    }
+
+}
+
+
+void LLScriptEdCore::setAssociatedExperience( const LLUUID& experience_id )
+{
+    mAssociatedExperience = experience_id;
+    updateExperiencePanel();
+}
+
+
+
+void LLScriptEdCore::requestExperiences()
+{
+    if (!mEditor->getEnabled())
+    {
+        return;
+    }
+
+    LLViewerRegion* region = gAgent.getRegion();
+    if (region)
+    {
+        std::string lookup_url=region->getCapability("GetCreatorExperiences"); 
+        if(!lookup_url.empty())
+        {
+            LLHTTPClient::get(lookup_url, new ExperienceResponder(getDerivedHandle<LLScriptEdCore>()));
+        }
+    }
+}
 
 
 

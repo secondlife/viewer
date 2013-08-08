@@ -3,7 +3,7 @@
   bevel_style="none"
   border_style="line"
   follows="left|top|right|bottom"
-  height="730"
+  height="515"
   layout="topleft"
   left="0"
   name="script panel"
@@ -31,6 +31,18 @@
   <panel.string
     name="external_editor_not_set">
     Select an editor by setting the environment variable LL_SCRIPT_EDITOR or the ExternalEditor setting.
+  </panel.string>
+  <panel.string
+    name="experience_enabled">
+    Uncheck to remove the current experience
+  </panel.string>
+  <panel.string
+    name="no_experiences">
+    You are not authorized for any experiences
+  </panel.string>
+  <panel.string
+    name="add_experiences">
+    Select to add an experience
   </panel.string>
   <menu_bar
     bg_visible="false"
@@ -144,160 +156,93 @@
         name="Keyword Help..." />
     </menu>
   </menu_bar>
-  <layout_stack width="497"
-                height="700"
-                orientation="vertical"
-                follows="all">
-    <layout_panel auto_resize="true"
-                  height="350"
-                  follows="all"  >
-      <text_editor
-        left="3"
-        type="string"
-        length="1"
-        follows="left|top|right|bottom"
-        font="Monospace"
-        height="376"
-        ignore_tab="false"
-        layout="topleft"
-        max_length="65536"
-        name="Script Editor"
-        text_readonly_color="DkGray"
-        width="482"
-        show_line_numbers="true"
-        enable_tooltip_paste="true"
-        word_wrap="true">
-        Loading...
-      </text_editor>
-    </layout_panel>
-    <layout_panel auto_resize="false"
-                  height="115">
-      <scroll_list
-        top_pad="10"
-        left="3"
-        follows="left|right|bottom"
-        height="60"
-        layout="topleft"
-        name="lsl errors"
-        width="482" />
-      <text
-        follows="left|bottom"
-        height="12"
-        layout="topleft"
-        left="11"
-        name="line_col"
-        width="128" />
-      <combo_box
-        follows="left|bottom"
-        height="23"
-        label="Insert..."
-        layout="topleft"
-        name="Insert..."
-        width="128"
-        left="3"/>
-      <button
-        follows="right|bottom"
-        height="23"
-        label="Save"
-        label_selected="Save"
-        layout="topleft"
-        top_pad="-35"
-        right="485"
-        name="Save_btn"
-        width="81" />
-      <button
-        enabled="false"
-        follows="right|bottom"
-        height="23"
-        label="Edit..."
-        layout="topleft"
-        top_pad="-23"
-        right="400"
-        name="Edit_btn"
-        width="81" />
-    </layout_panel>
-    <layout_panel auto_resize="false"
-                  height="45" width="497">
-      <layout_stack height="45"
-                    width="497"
-                    orientation="horizontal" follows="left|top|right">
-        <layout_panel auto_resize="true"
-                      width="197"
-                      height="45"
-                      follows="let|top|right" left="0">
-          <button name="Expand Experience" 
-                  width="197"
-                  height="35"
-                  is_toggle="true"
-                  tab_stop="false"
-                  pad_left="35"
-                  left="0"
-                  label="Experience"
-                  halign="left"
-                  enabled="false"
-                  handle_right_mouse="false"
-                  follows="top|left|right"
-                  image_unselected="MarketplaceBtn_Off"
-                  image_selected="MarketplaceBtn_Selected">
-          </button>
-        </layout_panel>
-        <layout_panel auto_resize="false" width="150" left="203" follows="top|right">
-          <check_box
-            follows="top|right"
-            height="25"
-            enabled="false"
-            label="Use Experience:"
-            name="enable_xp"/>
-        </layout_panel>
-      </layout_stack>
-    </layout_panel>
-    <layout_panel  visible="false"
-                   auto_resize="false"
-                   height="65"
-                   name="Experience Details">
-      <layout_stack
-        follows="top|left|right"
-    
-        width="480"
-        height="65"
-        name="xp_details"
-        left="4"
-        top="0"
-        orientation="horizontal"
-        layout="topleft"
-        visible="true">
-        <layout_panel  width="157"
-                       height="65"
-                       auto_resize="false">
-          <text bottom_delta="25">
-            Associate with:
-          </text>
-        </layout_panel>
+  <text_editor
+    left="0"
+    type="string"
+    length="1"
+    follows="left|top|right|bottom"
+    font="Monospace"
+    height="346"
+    ignore_tab="false"
+    layout="topleft"
+    max_length="65536"
+    name="Script Editor"
+    text_readonly_color="DkGray"
+    width="482"
+    show_line_numbers="true"
+    enable_tooltip_paste="true"
+    word_wrap="true">
+    Loading...
+  </text_editor>
+  <scroll_list
+    top_pad="10"
+    left="0"
+    follows="left|right|bottom"
+    height="60"
+    layout="topleft"
+    name="lsl errors"
+    width="482" />
+  <text
+    follows="left|bottom"
+    height="12"
+    layout="topleft"
+    left="11"
+    name="line_col"
+    width="128" />
+  <combo_box
+    follows="left|bottom"
+    height="23"
+    label="Insert..."
+    layout="topleft"
+    name="Insert..."
+    width="128"
+    left="0"/>
+  <button
+    follows="right|bottom"
+    height="23"
+    label="Save"
+    label_selected="Save"
+    layout="topleft"
+    top_pad="-35"
+    right="482"
+    name="Save_btn"
+    width="81" />
+  <button
+    enabled="false"
+    follows="right|bottom"
+    height="23"
+    label="Edit..."
+    layout="topleft"
+    top_pad="-23"
+    right="396"
+    name="Edit_btn"
+    width="81" />
+  <check_box width="130"
+             height="21"
+             enabled="false"
+             left="0"
+             top="490"
+             layout="topleft"
+             follows="bottom|left"
+             label="Use Experience:"
+             name="enable_xp"/>
+  <combo_box
+    label=""
+    top_pad="-23"
+    left="135"
+    right="454"
+    layout="topleft"
+    follows="left|bottom|right"
+    visible="false"
+    name="Experiences..."/>
+  <button label="&gt;"
+          name="view_profile"
+          height="23"
+          width="23"
+          right="482"
+          layout="topleft"
+          top_pad="-23"
+          follows="right"
+          visible="false"/>
 
-        <layout_panel width="330"
-                      height="65"
-                      auto_resize="true">
-          <combo_box left="0" 
-                     bottom_delta="33"
-                     label="Choose Experience..."
-                     name="Experiences..."
-                     follows="top|left|right"
-        />
-        </layout_panel>
-      </layout_stack>
-      <text
-        follows="top|left|right"
-        width="497"
-        height="15"
-        bottom_delta="-12"
-        left="0"
-        halign="center"
-        name="No Experiences"
-        visible="true"
-        text_color="AlertCautionTextColor">
-        You are not a contributor to any experiences.
-      </text>
-
-    </layout_panel>
-  </layout_stack>
 </panel>

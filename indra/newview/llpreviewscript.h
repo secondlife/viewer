@@ -102,17 +102,18 @@ public:
 	static void		onBtnLoadFromFile(void*);
     static void		onBtnSaveToFile(void*);
     static void     onToggleExperience(LLUICtrl *ui, void* userdata);
-    static void onToggleExperienceDetails(void* userdata);
 
 	static bool		enableSaveToFileMenu(void* userdata);
 	static bool		enableLoadFromFileMenu(void* userdata);
 
 	virtual bool	hasAccelerators() const { return true; }
-	void			addExperienceInfo( const LLSD& experience );
-	void			clearExperiences();
+	void			addExperienceInfo( const LLSD& experience, BOOL enabled );
+    void            setExperienceIds(const LLSD& experience_ids);
+    void            buildExperienceList();
     LLUUID 			getAssociatedExperience()const;
 
     void            setAssociatedExperience( const LLUUID& experience_id );
+    void            updateExperiencePanel();
 
 private:
 	void		onBtnHelp();
@@ -148,8 +149,6 @@ private:
 	LLComboBox		*mFunctions;
 	LLComboBox     	*mExperiences;
     LLCheckBoxCtrl  *mExperienceEnabled;
-    LLUICtrl        *mExperienceDetails;
-    LLButton        *mExpandExperience;
 	BOOL			mForceClose;
 	LLPanel*		mCodePanel;
 	LLScrollListCtrl* mErrorList;
@@ -162,6 +161,7 @@ private:
 	BOOL			mHasScriptData;
 	LLLiveLSLFile*	mLiveFile;
     LLUUID          mAssociatedExperience;
+    LLSD            mExperienceIds;
 
 	LLScriptEdContainer* mContainer; // parent view
 };
