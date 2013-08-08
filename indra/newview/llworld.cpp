@@ -668,8 +668,9 @@ void LLWorld::updateRegions(F32 max_update_time)
 	
 	if(LLViewerCamera::getInstance()->isChanged())
 	{
-		LLViewerRegion::sLastCameraUpdated = LLViewerOctreeEntryData::getCurrentFrame();
+		LLViewerRegion::sLastCameraUpdated = LLViewerOctreeEntryData::getCurrentFrame() + 1;
 	}
+	LLViewerRegion::calcNewObjectCreationThrottle();
 
 	// Perform idle time updates for the regions (and associated surfaces)
 	for (region_list_t::iterator iter = mRegionList.begin();

@@ -220,6 +220,10 @@ public:
 	// can process the message.
 	static void processRegionInfo(LLMessageSystem* msg, void**);
 
+	//check if the viewer camera is static
+	static BOOL isViewerCameraStatic();
+	static void calcNewObjectCreationThrottle();
+
 	void setCacheID(const LLUUID& id);
 
 	F32	getWidth() const						{ return mWidth; }
@@ -345,6 +349,7 @@ public:
     virtual std::string getDescription() const;
 	std::string getHttpUrl() const { return mHttpUrl ;}
 
+	U32 getNumOfVisibleGroups() const;
 	U32 getNumOfActiveCachedObjects() const;
 	LLSpatialPartition* getSpatialPartition(U32 type);
 	LLVOCachePartition* getVOCachePartition();
@@ -359,7 +364,7 @@ public:
 	LLViewerRegionImpl * getRegionImplNC() { return mImpl; }
 
 	void removeFromCreatedList(U32 local_id);
-	void addToCreatedList(U32 local_id);
+	void addToCreatedList(U32 local_id);	
 
 private:
 	void addToVOCacheTree(LLVOCacheEntry* entry);
@@ -369,8 +374,8 @@ private:
 	void replaceVisibleCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry* new_entry);
 	void killCacheEntry(LLVOCacheEntry* entry); //physically delete the cache entry	
 
-	F32 killInvisibleObjects(F32 max_time, S32 throttle);
-	F32 createVisibleObjects(F32 max_time, S32 throttle);
+	F32 killInvisibleObjects(F32 max_time);
+	F32 createVisibleObjects(F32 max_time);
 	F32 updateVisibleEntries(F32 max_time); //update visible entries
 
 	void addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type);
@@ -411,6 +416,10 @@ public:
 
 	static BOOL sVOCacheCullingEnabled; //vo cache culling enabled or not.
 	static S32  sLastCameraUpdated;
+
+private:
+	static S32  sNewObjectCreationThrottle;
+
 private:
 	LLViewerRegionImpl * mImpl;
 	LLFrameTimer         mRegionTimer;
@@ -445,6 +454,9 @@ private:
 	F32		mCameraDistanceSquared;	// updated once per frame
 	U8		mCentralBakeVersion;
 	
+	LLVOCacheEntry* mLastVisitedEntry;
+	U32				mInvisibilityCheckHistory;	
+
 	// Information for Homestead / CR-53
 	S32 mClassID;
 	S32 mCPURatio;

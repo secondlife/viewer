@@ -2724,7 +2724,7 @@ void LLPipeline::doOcclusion(LLCamera& camera, LLRenderTarget& source, LLRenderT
 
 void LLPipeline::doOcclusion(LLCamera& camera)
 {
-	if (LLPipeline::sUseOcclusion > 1)
+	if (LLPipeline::sUseOcclusion > 1 && (sCull->hasOcclusionGroups() || LLVOCachePartition::sNeedsOcclusionCheck))
 	{
 		LLVertexBuffer::unbind();
 

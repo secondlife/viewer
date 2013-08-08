@@ -34,6 +34,7 @@
 #include "llviewerregion.h"
 #include "pipeline.h"
 
+BOOL LLVOCachePartition::sNeedsOcclusionCheck = FALSE;
 LLTrace::MemStatHandle	LLVOCachePartition::sMemStat("LLVOCachePartition");
 
 BOOL check_read(LLAPRFile* apr_file, void* src, S32 n_bytes) 
@@ -467,8 +468,14 @@ LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
 {
 	mLODPeriod = 16;
 	mRegionp = regionp;
-	mPartitionType = LLViewerRegion::PARTITION_VO_CACHE;
-	
+	mPartitionType = LLViewerRegion::PARTITION_VO_CACHE;	
+	mDirty = FALSE;
+
+	for(S32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
+	{
+		mCulledTime[i] = 0;
+		mCullHistory[i] = -1;
+	}
 	new LLOcclusionCullingGroup(mOctree, this);
 }
 
@@ -477,6 +484,7 @@ void LLVOCachePartition::addEntry(LLViewerOctreeEntry* entry)
 	llassert(entry->hasVOCacheEntry());
 
 	mOctree->insert(entry);
+	mDirty = TRUE;
 }
 	
 void LLVOCachePartition::removeEntry(LLViewerOctreeEntry* entry)
@@ -595,7 +603,19 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 		return 0;
 	}
 
+	if(mCulledTime[LLViewerCamera::sCurCameraID] == LLViewerOctreeEntryData::getCurrentFrame())
+	{
+		return 0; //already culled
+	}
+	mCulledTime[LLViewerCamera::sCurCameraID] = LLViewerOctreeEntryData::getCurrentFrame();
+
+	if(!mDirty && !mCullHistory[LLViewerCamera::sCurCameraID] && LLViewerRegion::isViewerCameraStatic())
+	{
+		return 0; //nothing changed, skip culling
+	}
+
 	((LLviewerOctreeGroup*)mOctree->getListener(0))->rebound();
+	mCullHistory[LLViewerCamera::sCurCameraID] <<= 2;
 
 	//localize the camera
 	LLVector3 region_agent = mRegionp->getOriginAgent();
@@ -604,7 +624,16 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 	LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent, do_occlusion && use_object_cache_occlusion, this);
 	culler.traverse(mOctree);
 
-	return 0;
+	if(mRegionp->getNumOfVisibleGroups() > 0)
+	{
+		mCullHistory[LLViewerCamera::sCurCameraID] |= 1;
+	}
+
+	if(!sNeedsOcclusionCheck)
+	{
+		sNeedsOcclusionCheck = !mOccludedGroups.empty();
+	}
+	return 1;
 }
 
 void LLVOCachePartition::addOccluders(LLviewerOctreeGroup* gp)
@@ -646,6 +675,8 @@ void LLVOCachePartition::resetOccluders()
 		group->clearOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION);
 	}	
 	mOccludedGroups.clear();
+	mDirty = FALSE;
+	sNeedsOcclusionCheck = FALSE;
 }
 
 //-------------------------------------------------------------------
