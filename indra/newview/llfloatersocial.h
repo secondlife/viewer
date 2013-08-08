@@ -110,9 +110,9 @@ private:
 	LLUICtrl* mMessageTextEditor;
     LLUICtrl* mMapLoadingIndicator;
     LLIconCtrl* mMapPlaceholder;
+    LLIconCtrl* mMapDefault;
     LLCheckBoxCtrl* mMapCheckBox;
     bool mReloadingMapTexture;
-    bool mMapCheckBoxValue;
 };
 
 class LLSocialAccountPanel : public LLPanel

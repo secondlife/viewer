@@ -71,9 +71,20 @@
                 visible="true"
                 name="map_placeholder">
               </icon>
+              <icon
+                  follows="left|top"
+                  height="128"
+                  width="128"
+                  image_name="Map_Placeholder_Icon"
+                  layout="topleft"
+                  top="20"
+                  left="9"
+                  visible="true"
+                  name="map_default">
+              </icon>
             <check_box
               follows="left|top"
-              initial_value="true"
+              initial_value="false"
               top_delta="8"
               width="8"
               label=""

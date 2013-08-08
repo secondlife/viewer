@@ -499,8 +499,8 @@ BOOL LLSocialCheckinPanel::postBuild()
 	mMessageTextEditor = getChild<LLUICtrl>("place_caption");
     mMapLoadingIndicator = getChild<LLUICtrl>("map_loading_indicator");
     mMapPlaceholder = getChild<LLIconCtrl>("map_placeholder");
+    mMapDefault = getChild<LLIconCtrl>("map_default");
     mMapCheckBox = getChild<LLCheckBoxCtrl>("add_place_view_cb");
-    mMapCheckBoxValue = mMapCheckBox->get();
     
 	return LLPanel::postBuild();
 }
@@ -511,6 +511,7 @@ void LLSocialCheckinPanel::draw()
     mPostButton->setEnabled(no_ongoing_connection);
     mCancelButton->setEnabled(no_ongoing_connection);
     mMessageTextEditor->setEnabled(no_ongoing_connection);
+    mMapCheckBox->setEnabled(no_ongoing_connection);
 
     std::string map_url = get_map_url();
     // Did we change location?
@@ -524,9 +525,6 @@ void LLSocialCheckinPanel::draw()
         // In the meantime, put the "loading" indicator on, hide the tile map and disable the checkbox
         mMapLoadingIndicator->setVisible(true);
         mMapPlaceholder->setVisible(false);
-        mMapCheckBoxValue = mMapCheckBox->get();
-        mMapCheckBox->set(false);
-        mMapCheckBox->setEnabled(false);
     }
     // Are we done loading the map tile?
     if (mReloadingMapTexture && mMapTexture->isFullyLoaded())
@@ -540,9 +538,10 @@ void LLSocialCheckinPanel::draw()
         // Now hide the loading indicator, bring the tile in view and reenable the checkbox with its previous value
         mMapLoadingIndicator->setVisible(false);
         mMapPlaceholder->setVisible(true);
-        mMapCheckBox->setEnabled(no_ongoing_connection);
-        mMapCheckBox->set(mMapCheckBoxValue);
     }
+    // Show the default icon if that's the checkbox value (the real one...)
+    // This will hide/show the loading indicator and/or tile underneath
+    mMapDefault->setVisible(!(mMapCheckBox->get()));
 
 	LLPanel::draw();
 }
