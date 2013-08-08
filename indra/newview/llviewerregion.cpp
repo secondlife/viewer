@@ -76,6 +76,11 @@
 	#pragma warning(disable:4355)
 #endif
 
+// When we receive a base grant of capabilities that has a different number of 
+// capabilities than the original base grant received for the region, print 
+// out the two lists of capabilities for analysis.
+//#define DEBUG_CAPS_GRANTS
+
 const F32 WATER_TEXTURE_SCALE = 8.f;			//  Number of times to repeat the water texture across a region
 const S16 MAX_MAP_DIST = 10;
 // The server only keeps our pending agent info for 60 seconds.
@@ -328,25 +333,18 @@ private:
 				<< "mCapabilities == " << regionp->getRegionImpl()->mCapabilities.size()
 				<< " mSecondCapabilitiesTracker == " << regionp->getRegionImpl()->mSecondCapabilitiesTracker.size()
 				<< LL_ENDL;
+#ifdef DEBUG_CAPS_GRANTS
+			LL_WARNS2("AppInit", "Capabilities")
+				<< "Initial Base capabilities: " << LL_ENDL;
 
-			//LL_WARNS2("AppInit", "Capabilities")
-			//	<< "Initial Base capabilities: " << LL_ENDL;
+			log_capabilities(regionp->getRegionImpl()->mCapabilities);
 
-			//log_capabilities(regionp->getRegionImpl()->mCapabilities);
+			LL_WARNS2("AppInit", "Capabilities")
+							<< "Latest base capabilities: " << LL_ENDL;
 
-			//LL_WARNS2("AppInit", "Capabilities")
-			//				<< "Latest base capabilities: " << LL_ENDL;
+			log_capabilities(regionp->getRegionImpl()->mSecondCapabilitiesTracker);
 
-			//log_capabilities(regionp->getRegionImpl()->mSecondCapabilitiesTracker);
-
-			// *TODO 
-			//add cap debug versus original check?
-			//CapabilityMap::const_iterator iter = regionp->getRegionImpl()->mCapabilities.begin();
-			//while (iter!=regionp->getRegionImpl()->mCapabilities.end() )
-			//{
-			//	llinfos<<"BaseCapabilitiesCompleteTracker Original "<<iter->first<<" "<< iter->second<<llendl;
-			//	++iter;
-			//}
+#endif
 
 			if (regionp->getRegionImpl()->mSecondCapabilitiesTracker.size() > regionp->getRegionImpl()->mCapabilities.size() )
 			{
