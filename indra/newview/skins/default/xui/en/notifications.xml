@@ -3454,7 +3454,7 @@ or you can install it now.
    name="DownloadBackgroundTip"
    type="notify">
 We have downloaded an update to your [APP_NAME] installation.
-Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+Version [VERSION] [[INFO_URL] Information about this update]
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -3466,8 +3466,8 @@ Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
  icon="alertmodal.tga"
  name="DownloadBackgroundDialog"
  type="alertmodal">
-We have downloaded an update to your [APP_NAME] installation.
-Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+    We have downloaded an update to your [APP_NAME] installation.
+    Version [VERSION] [[INFO_URL] Information about this update]
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
