@@ -357,7 +357,7 @@ public:
 	virtual ~LLViewerOctreePartition();
 
 	// Cull on arbitrary frustum
-	virtual S32 cull(LLCamera &camera) = 0;
+	virtual S32 cull(LLCamera &camera, bool do_occlusion) = 0;
 	BOOL isOcclusionEnabled();
 
 public:	

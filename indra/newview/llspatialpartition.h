@@ -422,7 +422,7 @@ public:
 	virtual void rebuildMesh(LLSpatialGroup* group);
 
 	BOOL visibleObjectsInFrustum(LLCamera& camera);
-	/*virtual*/ S32 cull(LLCamera &camera); // Cull on arbitrary frustum
+	/*virtual*/ S32 cull(LLCamera &camera, bool do_occlusion=false); // Cull on arbitrary frustum
 	S32 cull(LLCamera &camera, std::vector<LLDrawable *>* results, BOOL for_select); // Cull on arbitrary frustum
 	
 	BOOL isVisible(const LLVector3& v);

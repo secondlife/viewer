@@ -159,7 +159,7 @@ public:
 
 	void addEntry(LLViewerOctreeEntry* entry);
 	void removeEntry(LLViewerOctreeEntry* entry);
-	/*virtual*/ S32 cull(LLCamera &camera);
+	/*virtual*/ S32 cull(LLCamera &camera, bool do_occlusion);
 	void addOccluders(LLviewerOctreeGroup* gp);
 	void resetOccluders();
 

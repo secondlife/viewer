@@ -495,7 +495,7 @@ public:
 		  mPartition(part)
 	{
 		mLocalShift = shift;
-		mUseObjectCacheOcclusion = (use_object_cache_occlusion && LLPipeline::sUseOcclusion);
+		mUseObjectCacheOcclusion = use_object_cache_occlusion;
 	}
 
 	virtual bool earlyFail(LLviewerOctreeGroup* base_group)
@@ -586,10 +586,10 @@ private:
 	bool                mUseObjectCacheOcclusion;
 };
 
-S32 LLVOCachePartition::cull(LLCamera &camera)
+S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 {
 	static LLCachedControl<bool> use_object_cache_occlusion(gSavedSettings,"UseObjectCacheOcclusion");
-
+	
 	if(!LLViewerRegion::sVOCacheCullingEnabled)
 	{
 		return 0;
@@ -601,7 +601,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera)
 	LLVector3 region_agent = mRegionp->getOriginAgent();
 	camera.calcRegionFrustumPlanes(region_agent);
 
-	LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent, use_object_cache_occlusion, this);
+	LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent, do_occlusion && use_object_cache_occlusion, this);
 	culler.traverse(mOctree);
 
 	return 0;

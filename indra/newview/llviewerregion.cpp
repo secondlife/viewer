@@ -1204,13 +1204,8 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 	{
 		throttle = -1; //cancel the throttling
 
-		S32 occlusion = LLPipeline::sUseOcclusion;
-		LLPipeline::sUseOcclusion = 0; //disable occlusion
-		
 		//apply octree cullings here to pick up visible objects because rendering pipeline stops view culling at this moment
-		mImpl->mVOCachePartition->cull(*LLViewerCamera::getInstance());
-		
-		LLPipeline::sUseOcclusion = occlusion;
+		mImpl->mVOCachePartition->cull(*LLViewerCamera::getInstance(), false);
 	}	
 	else if(throttle < 0) //just recoved from the login/teleport screen
 	{

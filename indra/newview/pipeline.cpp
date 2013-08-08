@@ -2408,6 +2408,11 @@ static LLFastTimer::DeclareTimer FTM_CULL("Object Culling");
 
 void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip, LLPlane* planep)
 {
+	static LLCachedControl<bool> use_occlusion(gSavedSettings,"UseOcclusion");
+	static bool can_use_occlusion = LLGLSLShader::sNoFixedFunction
+									&& LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion") 
+									&& gGLManager.mHasOcclusionQuery;
+
 	LLFastTimer t(FTM_CULL);
 
 	grabReferences(result);
@@ -2530,7 +2535,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 		LLVOCachePartition* vo_part = region->getVOCachePartition();
 		if(vo_part)
 		{
-			vo_part->cull(camera);
+			vo_part->cull(camera, can_use_occlusion && use_occlusion && !gUseWireframe);
 		}
 	}
 

@@ -1476,7 +1476,7 @@ S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* result
 	return 0;
 	}
 	
-S32 LLSpatialPartition::cull(LLCamera &camera)
+S32 LLSpatialPartition::cull(LLCamera &camera, bool do_occlusion)
 {
 #if LL_OCTREE_PARANOIA_CHECK
 	((LLSpatialGroup*)mOctree->getListener(0))->checkStates();
