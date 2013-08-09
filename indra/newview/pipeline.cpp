@@ -6135,6 +6135,13 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 			}
 		}
 		
+		//mark nearby lights not-removable.
+		for (light_set_t::iterator iter = mNearbyLights.begin();
+			 iter != mNearbyLights.end(); iter++)
+		{
+			const Light* light = &(*iter);
+			((LLViewerOctreeEntryData*) light->drawable)->setVisible();
+		}
 	}
 }
 
