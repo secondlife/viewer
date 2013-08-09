@@ -94,7 +94,6 @@ extern LLPipeline	gPipeline;
 U32						LLViewerObjectList::sSimulatorMachineIndex = 1; // Not zero deliberately, to speed up index check.
 std::map<U64, U32>		LLViewerObjectList::sIPAndPortToIndex;
 std::map<U64, LLUUID>	LLViewerObjectList::sIndexAndLocalIDToUUID;
-LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >	LLViewerObjectList::sCacheHitRate("object_cache_hits");
 
 LLViewerObjectList::LLViewerObjectList()
 {
@@ -308,6 +307,8 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 	LLViewerStatsRecorder& recorder = LLViewerStatsRecorder::instance();
 
 	// Cache Hit.
+	record(LLStatViewer::OBJECT_CACHE_HIT_RATE, LLUnits::Ratio::fromValue(1));
+
 	cached_dpp->reset();
 	cached_dpp->unpackUUID(fullid, "ID");
 	cached_dpp->unpackU32(local_id, "LocalID");
@@ -355,7 +356,6 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 		}
 		justCreated = true;
 		mNumNewObjects++;
-		sample(sCacheHitRate, LLUnits::Ratio::fromValue(1));
 	}
 
 	if (objectp->isDead())
@@ -697,7 +697,6 @@ void LLViewerObjectList::processCachedObjectUpdate(LLMessageSystem *mesgsys,
 
 			continue; // no data packer, skip this object
 		}
-		//sample(sCacheHitRate, LLUnits::Ratio::fromValue(0));
 	}
 
 	return;

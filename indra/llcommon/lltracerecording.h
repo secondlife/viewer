@@ -248,6 +248,8 @@ namespace LLTrace
 		U32 getSampleCount(const TraceType<SampleAccumulator>& stat);
 
 		// EventStatHandle accessors
+		bool hasValue(const TraceType<EventAccumulator>& stat);
+
 		F64 getSum(const TraceType<EventAccumulator>& stat);
 		template <typename T>
 		typename RelatedTypes<T>::sum_t getSum(const EventStatHandle<T>& stat)

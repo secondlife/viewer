@@ -200,6 +200,9 @@ LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Seconds> >	AVATAR_EDIT_TIME("avata
 															FPS_10_TIME("fps10time", "Seconds below 10 FPS"),
 															FPS_8_TIME("fps8time", "Seconds below 8 FPS"),
 															FPS_2_TIME("fps2time", "Seconds below 2 FPS");
+
+LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > OBJECT_CACHE_HIT_RATE("object_cache_hits");
+
 }
 
 LLViewerStats::LLViewerStats() 

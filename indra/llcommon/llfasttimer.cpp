@@ -431,11 +431,11 @@ TimeBlockAccumulator::TimeBlockAccumulator()
 	mParent(NULL)
 {}
 
-void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other, bool append )
+void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other, EBufferAppendType append_type )
 {
 	// we can't merge two unrelated time block samples, as that will screw with the nested timings
 	// due to the call hierarchy of each thread
-	llassert(append);
+	llassert(append_type == SEQUENTIAL);
 	mTotalTimeCounter += other.mTotalTimeCounter - other.mStartTotalTimeCounter;
 	mSelfTimeCounter += other.mSelfTimeCounter;
 	mCalls += other.mCalls;

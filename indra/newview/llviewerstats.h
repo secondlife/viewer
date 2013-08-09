@@ -240,6 +240,8 @@ extern LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Seconds> >	AVATAR_EDIT_TIME
 																FPS_8_TIME,
 																FPS_2_TIME;
 
+extern LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > OBJECT_CACHE_HIT_RATE;
+
 }
 
 class LLViewerStats : public LLSingleton<LLViewerStats>
