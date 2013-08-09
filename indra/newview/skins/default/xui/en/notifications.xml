@@ -5995,7 +5995,6 @@ Please select at least one type of content to search (General, Moderate, or Adul
  <notification
   icon="notify.tga"
   name="FacebookConnect"
-  persist="true"
   type="notifytip">
 [MESSAGE]
  </notification>
