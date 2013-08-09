@@ -1095,13 +1095,14 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
 				LL_DEBUGS("Avatar") << "link refresh, creating new link to " << link_item->getLinkedUUID()
 									<< " removing old link at " << link_item->getUUID()
 									<< " wearable item id " << mWearablePtr->getItemID() << llendl;
-				link_inventory_item( gAgent.getID(),
-									 link_item->getLinkedUUID(),
-									 LLAppearanceMgr::instance().getCOF(),
-									 link_item->getName(),
-									 description,
-									 LLAssetType::AT_LINK,
-									 gAgentAvatarp->mEndCustomizeCallback);
+
+				LLInventoryObject::const_object_list_t obj_array;
+				obj_array.push_back(LLConstPointer<LLInventoryObject>(link_item));
+				const bool resolve_links = true;
+				link_inventory_array(LLAppearanceMgr::instance().getCOF(),
+									 obj_array, 
+									 gAgentAvatarp->mEndCustomizeCallback,
+									 resolve_links);
 				// Remove old link
 				remove_inventory_item(link_item->getUUID(), gAgentAvatarp->mEndCustomizeCallback);
 			}

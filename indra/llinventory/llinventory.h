@@ -48,6 +48,7 @@ class LLInventoryObject : public LLRefCount
 {
 public:
 	typedef std::list<LLPointer<LLInventoryObject> > object_list_t;
+	typedef std::list<LLConstPointer<LLInventoryObject> > const_object_list_t;
 
 	//--------------------------------------------------------------------
 	// Initialization

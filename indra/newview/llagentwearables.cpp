@@ -952,15 +952,15 @@ public:
 	/* virtual */ void fire(const LLUUID& inv_item)
 	{
 		llinfos << "One item created " << inv_item.asString() << llendl;
-		LLViewerInventoryItem *item = gInventory.getItem(inv_item);
-		mItemsToLink.put(item);
+		LLConstPointer<LLInventoryObject> item = gInventory.getItem(inv_item);
+		mItemsToLink.push_back(item);
 		updatePendingWearable(inv_item);
 	}
 	~OnWearableItemCreatedCB()
 	{
 		llinfos << "All items created" << llendl;
 		LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
-		LLAppearanceMgr::instance().linkAll(LLAppearanceMgr::instance().getCOF(),
+		link_inventory_array(LLAppearanceMgr::instance().getCOF(),
 											mItemsToLink,
 											link_waiter);
 	}
@@ -1011,7 +1011,7 @@ public:
 	}
 	
 private:
-	LLInventoryModel::item_array_t mItemsToLink;
+	LLInventoryObject::const_object_list_t mItemsToLink;
 	std::vector<LLViewerWearable*> mWearablesAwaitingItems;
 };
 

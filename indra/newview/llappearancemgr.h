@@ -67,9 +67,9 @@ public:
 	S32 findExcessOrDuplicateItems(const LLUUID& cat_id,
 								   LLAssetType::EType type,
 								   S32 max_items,
-								   LLInventoryModel::item_array_t& items_to_kill);
+								   LLInventoryObject::object_list_t& items_to_kill);
 	void findAllExcessOrDuplicateItems(const LLUUID& cat_id,
-									  LLInventoryModel::item_array_t& items_to_kill);
+									  LLInventoryObject::object_list_t& items_to_kill);
 	void enforceCOFItemRestrictions(LLPointer<LLInventoryCallback> cb);
 
 	S32 getActiveCopyOperations() const;
@@ -138,15 +138,6 @@ public:
 	void unregisterAttachment(const LLUUID& item_id);
 	void registerAttachment(const LLUUID& item_id);
 	void setAttachmentInvLinkEnable(bool val);
-
-	// utility function for bulk linking.
-	void linkAll(const LLUUID& category,
-				 LLInventoryModel::item_array_t& items,
-				 LLPointer<LLInventoryCallback> cb);
-
-	// And bulk removal.
-	void removeAll(LLInventoryModel::item_array_t& items,
-				   LLPointer<LLInventoryCallback> cb);
 
 	// Add COF link to individual item.
 	void addCOFItemLink(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb = NULL, const std::string description = "");

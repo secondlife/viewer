@@ -117,26 +117,21 @@ public:
 
 		// Link to all fetched items in COF.
 		LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
+		LLInventoryObject::const_object_list_t item_array;
 		for (uuid_vec_t::iterator it = mIDs.begin();
 			 it != mIDs.end();
 			 ++it)
 		{
 			LLUUID id = *it;
-			LLViewerInventoryItem *item = gInventory.getItem(*it);
+			LLConstPointer<LLInventoryObject> item = gInventory.getItem(*it);
 			if (!item)
 			{
-				llwarns << "fetch failed!" << llendl;
+				llwarns << "fetch failed for item " << (*it) << "!" << llendl;
 				continue;
 			}
-
-			link_inventory_item(gAgent.getID(),
-								item->getLinkedUUID(),
-								LLAppearanceMgr::instance().getCOF(),
-								item->getName(),
-								item->getDescription(),
-								LLAssetType::AT_LINK,
-								link_waiter);
+			item_array.push_back(item);
 		}
+		link_inventory_array(LLAppearanceMgr::instance().getCOF(), item_array, link_waiter);
 	}
 };
 
