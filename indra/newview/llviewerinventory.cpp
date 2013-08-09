@@ -1110,6 +1110,7 @@ void link_inventory_array(const LLUUID& category,
 #endif
 	LLInventoryObject::const_object_list_t::const_iterator it = baseobj_array.begin();
 	LLInventoryObject::const_object_list_t::const_iterator end = baseobj_array.end();
+	LLSD links = LLSD::emptyArray();
 	for (; it != end; ++it)
 	{
 		const LLInventoryObject* baseobj = *it;
@@ -1133,7 +1134,6 @@ void link_inventory_array(const LLUUID& category,
 			continue;
 		}
 		
-		LLUUID transaction_id;
 		LLInventoryType::EType inv_type = LLInventoryType::IT_NONE;
 		LLAssetType::EType asset_type = LLAssetType::AT_NONE;
 		std::string new_desc;
@@ -1171,31 +1171,56 @@ void link_inventory_array(const LLUUID& category,
 			}
 		}
 
-		LLMessageSystem* msg = gMessageSystem;
-		msg->newMessageFast(_PREHASH_LinkInventoryItem);
-		msg->nextBlock(_PREHASH_AgentData);
-		{
-			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		}
-		msg->nextBlock(_PREHASH_InventoryBlock);
-		{
-			msg->addU32Fast(_PREHASH_CallbackID, gInventoryCallbacks.registerCB(cb));
-			msg->addUUIDFast(_PREHASH_FolderID, category);
-			msg->addUUIDFast(_PREHASH_TransactionID, transaction_id);
-			msg->addUUIDFast(_PREHASH_OldItemID, linkee_id);
-			msg->addS8Fast(_PREHASH_Type, (S8)asset_type);
-			msg->addS8Fast(_PREHASH_InvType, (S8)inv_type);
-			msg->addStringFast(_PREHASH_Name, baseobj->getName());
-			msg->addStringFast(_PREHASH_Description, new_desc);
-		}
-		gAgent.sendReliableMessage();
+		LLSD link = LLSD::emptyMap();
+		link["linked_id"] = linkee_id;
+		link["type"] = (S8)asset_type;
+		link["inv_type"] = (S8)inv_type;
+		link["name"] = baseobj->getName();
+		link["desc"] = new_desc;
+		links.append(link);
+
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 		LL_DEBUGS("Inventory") << "Linking Object [ name:" << baseobj->getName() 
 							   << " UUID:" << baseobj->getUUID() 
 							   << " ] into Category [ name:" << cat_name 
 							   << " UUID:" << category << " ] " << LL_ENDL;
 #endif
+	}
+
+	bool ais_ran = false;
+	if (AISCommand::isAPIAvailable())
+	{
+		LLSD new_inventory = LLSD::emptyMap();
+		new_inventory["links"] = links;
+		LLPointer<AISCommand> cmd_ptr = new CreateInventoryCommand(category, new_inventory, cb);
+		ais_ran = cmd_ptr->run_command();
+	}
+
+	if (!ais_ran)
+	{
+		LLMessageSystem* msg = gMessageSystem;
+		for (LLSD::array_iterator iter = links.beginArray(); iter != links.endArray(); ++iter )
+		{
+			msg->newMessageFast(_PREHASH_LinkInventoryItem);
+			msg->nextBlock(_PREHASH_AgentData);
+			{
+				msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+				msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			}
+			msg->nextBlock(_PREHASH_InventoryBlock);
+			{
+				LLSD link = (*iter);
+				msg->addU32Fast(_PREHASH_CallbackID, gInventoryCallbacks.registerCB(cb));
+				msg->addUUIDFast(_PREHASH_FolderID, category);
+				msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null);
+				msg->addUUIDFast(_PREHASH_OldItemID, link["linked_id"].asUUID());
+				msg->addS8Fast(_PREHASH_Type, link["type"].asInteger());
+				msg->addS8Fast(_PREHASH_InvType, link["inv_type"].asInteger());
+				msg->addStringFast(_PREHASH_Name, link["name"].asString());
+				msg->addStringFast(_PREHASH_Description, link["desc"].asString());
+			}
+			gAgent.sendReliableMessage();
+		}
 	}
 }
 
