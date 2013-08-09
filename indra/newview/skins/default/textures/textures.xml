@@ -326,7 +326,7 @@ with the same filename but different name
 
   <texture name="Locked_Icon" file_name="icons/Locked_Icon.png" preload="false" />
 
-  <texture name="Map_Placeholder_Icon" file_name="icons/map_placeholder.jpg" preload="true" />
+  <texture name="Map_Placeholder_Icon" file_name="icons/map_placeholder.png" preload="true" />
     
   <texture name="MarketplaceBtn_Off" file_name="widgets/MarketplaceBtn_Off.png" preload="true" scale.left="30" scale.top="19" scale.right="35" scale.bottom="4" />
   <texture name="MarketplaceBtn_Selected" file_name="widgets/MarketplaceBtn_Selected.png" preload="true" scale.left="30" scale.top="19" scale.right="35" scale.bottom="4" />
