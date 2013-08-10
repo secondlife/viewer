@@ -192,7 +192,7 @@ bool LLGiveInventory::doGiveInventoryItem(const LLUUID& to_agent,
 
 {
 	bool res = true;
-	llinfos << "LLGiveInventory::giveInventory()" << llendl;
+	LL_INFOS() << "LLGiveInventory::giveInventory()" << LL_ENDL;
 	if (!isInventoryGiveAcceptable(item))
 	{
 		return false;
@@ -230,8 +230,8 @@ bool LLGiveInventory::doGiveInventoryCategory(const LLUUID& to_agent,
 	{
 		return false;
 	}
-	llinfos << "LLGiveInventory::giveInventoryCategory() - "
-		<< cat->getUUID() << llendl;
+	LL_INFOS() << "LLGiveInventory::giveInventoryCategory() - "
+		<< cat->getUUID() << LL_ENDL;
 
 	if (!isAgentAvatarValid())
 	{
@@ -484,8 +484,8 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 	{
 		return false;
 	}
-	llinfos << "LLGiveInventory::commitGiveInventoryCategory() - "
-		<< cat->getUUID() << llendl;
+	LL_INFOS() << "LLGiveInventory::commitGiveInventoryCategory() - "
+		<< cat->getUUID() << LL_ENDL;
 
 	// add buddy to recent people list
 	LLRecentPeople::instance().add(to_agent);

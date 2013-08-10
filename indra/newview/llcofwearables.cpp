@@ -382,14 +382,14 @@ void LLCOFWearables::refresh()
 	const LLUUID cof_id = LLAppearanceMgr::instance().getCOF();
 	if (cof_id.isNull())
 	{
-		llwarns << "COF ID cannot be NULL" << llendl;
+		LL_WARNS() << "COF ID cannot be NULL" << LL_ENDL;
 		return;
 	}
 
 	LLViewerInventoryCategory* catp = gInventory.getCategory(cof_id);
 	if (!catp)
 	{
-		llwarns << "COF category cannot be NULL" << llendl;
+		LL_WARNS() << "COF category cannot be NULL" << LL_ENDL;
 		return;
 	}
 

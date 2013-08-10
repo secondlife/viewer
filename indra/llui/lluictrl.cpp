@@ -212,7 +212,7 @@ LLUICtrl::~LLUICtrl()
 
 	if( gFocusMgr.getTopCtrl() == this )
 	{
-		llwarns << "UI Control holding top ctrl deleted: " << getName() << ".  Top view removed." << llendl;
+		LL_WARNS() << "UI Control holding top ctrl deleted: " << getName() << ".  Top view removed." << LL_ENDL;
 		gFocusMgr.removeTopCtrlWithoutCallback( this );
 	}
 
@@ -258,7 +258,7 @@ LLUICtrl::commit_signal_t::slot_type LLUICtrl::initCommitCallback(const CommitCa
 		}
 		else if (!function_name.empty())
 		{
-			llwarns << "No callback found for: '" << function_name << "' in control: " << getName() << llendl;
+			LL_WARNS() << "No callback found for: '" << function_name << "' in control: " << getName() << LL_ENDL;
 		}			
 	}
 	return default_commit_handler;
@@ -452,7 +452,7 @@ void LLUICtrl::setControlVariable(LLControlVariable* control)
 	if (mControlVariable)
 	{
 		//RN: this will happen in practice, should we try to avoid it?
-		//llwarns << "setControlName called twice on same control!" << llendl;
+		//LL_WARNS() << "setControlName called twice on same control!" << LL_ENDL;
 		mControlConnection.disconnect(); // disconnect current signal
 		mControlVariable = NULL;
 	}

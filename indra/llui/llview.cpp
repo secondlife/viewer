@@ -159,10 +159,10 @@ LLView::LLView(const LLView::Params& p)
 LLView::~LLView()
 {
 	dirtyRect();
-	//llinfos << "Deleting view " << mName << ":" << (void*) this << llendl;
+	//LL_INFOS() << "Deleting view " << mName << ":" << (void*) this << LL_ENDL;
 	if (LLView::sIsDrawing)
 	{
-		lldebugs << "Deleting view " << mName << " during UI draw() phase" << llendl;
+		LL_DEBUGS() << "Deleting view " << mName << " during UI draw() phase" << LL_ENDL;
 	}
 // 	llassert(LLView::sIsDrawing == FALSE);
 	
@@ -170,7 +170,7 @@ LLView::~LLView()
 	
 	if( hasMouseCapture() )
 	{
-		//llwarns << "View holding mouse capture deleted: " << getName() << ".  Mouse capture removed." << llendl;
+		//LL_WARNS() << "View holding mouse capture deleted: " << getName() << ".  Mouse capture removed." << LL_ENDL;
 		gFocusMgr.removeMouseCaptureWithoutCallback( this );
 	}
 
@@ -300,7 +300,7 @@ bool LLView::addChild(LLView* child, S32 tab_group)
 	}
 	if (mParentView == child) 
 	{
-		llerrs << "Adding view " << child->getName() << " as child of itself" << llendl;
+		LL_ERRS() << "Adding view " << child->getName() << " as child of itself" << LL_ENDL;
 	}
 
 	// remove from current parent
@@ -361,7 +361,7 @@ void LLView::removeChild(LLView* child)
 	}
 	else
 	{
-		llwarns << "\"" << child->getName() << "\" is not a child of " << getName() << llendl;
+		LL_WARNS() << "\"" << child->getName() << "\" is not a child of " << getName() << LL_ENDL;
 	}
 	updateBoundingRect();
 }
@@ -687,12 +687,12 @@ BOOL LLView::handleHover(S32 x, S32 y, MASK mask)
 
 void LLView::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	//llinfos << "Mouse entered " << getName() << llendl;
+	//LL_INFOS() << "Mouse entered " << getName() << LL_ENDL;
 }
 
 void LLView::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	//llinfos << "Mouse left " << getName() << llendl;
+	//LL_INFOS() << "Mouse left " << getName() << LL_ENDL;
 }
 
 bool LLView::visibleAndContains(S32 local_x, S32 local_y)
@@ -727,7 +727,7 @@ LLView* LLView::childrenHandleCharEvent(const std::string& desc, const METHOD& m
 			{
 				if (LLView::sDebugKeys)
 				{
-					llinfos << desc << " handled by " << viewp->getName() << llendl;
+					LL_INFOS() << desc << " handled by " << viewp->getName() << LL_ENDL;
 				}
 				return viewp;
 			}
@@ -920,7 +920,7 @@ BOOL LLView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 			handled = handleKeyHere( key, mask );
 			if (handled && LLView::sDebugKeys)
 			{
-				llinfos << "Key handled by " << getName() << llendl;
+				LL_INFOS() << "Key handled by " << getName() << LL_ENDL;
 			}
 		}
 	}
@@ -957,7 +957,7 @@ BOOL LLView::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 			handled = handleUnicodeCharHere(uni_char);
 			if (handled && LLView::sDebugKeys)
 			{
-				llinfos << "Unicode key handled by " << getName() << llendl;
+				LL_INFOS() << "Unicode key handled by " << getName() << LL_ENDL;
 			}
 		}
 	}
@@ -1130,7 +1130,7 @@ void LLView::drawChildren()
 							// Check for bogus rectangle
 							if (!getRect().isValid())
 							{
-								llwarns << "Bogus rectangle for " << getName() << " with " << mRect << llendl;
+								LL_WARNS() << "Bogus rectangle for " << getName() << " with " << mRect << LL_ENDL;
 							}
 						}
 					}
@@ -2000,7 +2000,7 @@ LLView*	LLView::findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESna
 			}
 			break;
 		default:
-			llerrs << "Invalid snap edge" << llendl;
+			LL_ERRS() << "Invalid snap edge" << LL_ENDL;
 		}
 	}
 
@@ -2102,7 +2102,7 @@ LLView*	LLView::findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESna
 				}
 				break;
 			default:
-				llerrs << "Invalid snap edge" << llendl;
+				LL_ERRS() << "Invalid snap edge" << LL_ENDL;
 			}
 		}
 	}
@@ -2429,7 +2429,7 @@ static S32 invert_vertical(S32 y, LLView* parent)
 	}
 	else
 	{
-		llwarns << "Attempting to convert layout to top-left with no parent" << llendl;
+		LL_WARNS() << "Attempting to convert layout to top-left with no parent" << LL_ENDL;
 		return y;
 	}
 }

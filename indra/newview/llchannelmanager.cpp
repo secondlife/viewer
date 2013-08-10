@@ -50,7 +50,7 @@ LLChannelManager::LLChannelManager()
 	
 	if(!gViewerWindow)
 	{
-		llerrs << "LLChannelManager::LLChannelManager() - viwer window is not initialized yet" << llendl;
+		LL_ERRS() << "LLChannelManager::LLChannelManager() - viwer window is not initialized yet" << LL_ENDL;
 	}
 }
 
@@ -249,7 +249,7 @@ LLNotificationsUI::LLScreenChannel* LLChannelManager::getNotificationScreenChann
 
 	if (channel == NULL)
 	{
-		llwarns << "Can't find screen channel by NotificationChannelUUID" << llendl;
+		LL_WARNS() << "Can't find screen channel by NotificationChannelUUID" << LL_ENDL;
 		llassert(!"Can't find screen channel by NotificationChannelUUID");
 	}
 

@@ -81,7 +81,7 @@ void LLQueuedThread::shutdown()
 		}
 		if (timeout == 0)
 		{
-			llwarns << "~LLQueuedThread (" << mName << ") timed out!" << llendl;
+			LL_WARNS() << "~LLQueuedThread (" << mName << ") timed out!" << LL_ENDL;
 		}
 	}
 	else
@@ -102,7 +102,7 @@ void LLQueuedThread::shutdown()
 	}
 	if (active_count)
 	{
-		llwarns << "~LLQueuedThread() called with active requests: " << active_count << llendl;
+		LL_WARNS() << "~LLQueuedThread() called with active requests: " << active_count << LL_ENDL;
 	}
 }
 
@@ -199,11 +199,11 @@ void LLQueuedThread::printQueueStats()
 	if (!mRequestQueue.empty())
 	{
 		QueuedRequest *req = *mRequestQueue.begin();
-		llinfos << llformat("Pending Requests:%d Current status:%d", mRequestQueue.size(), req->getStatus()) << llendl;
+		LL_INFOS() << llformat("Pending Requests:%d Current status:%d", mRequestQueue.size(), req->getStatus()) << LL_ENDL;
 	}
 	else
 	{
-		llinfos << "Queued Thread Idle" << llendl;
+		LL_INFOS() << "Queued Thread Idle" << LL_ENDL;
 	}
 	unlockData();
 }
@@ -234,7 +234,7 @@ bool LLQueuedThread::addRequest(QueuedRequest* req)
 	mRequestQueue.insert(req);
 	mRequestHash.insert(req);
 #if _DEBUG
-// 	llinfos << llformat("LLQueuedThread::Added req [%08d]",handle) << llendl;
+// 	LL_INFOS() << llformat("LLQueuedThread::Added req [%08d]",handle) << LL_ENDL;
 #endif
 	unlockData();
 
@@ -365,7 +365,7 @@ bool LLQueuedThread::completeRequest(handle_t handle)
 		llassert_always(req->getStatus() != STATUS_QUEUED);
 		llassert_always(req->getStatus() != STATUS_INPROGRESS);
 #if _DEBUG
-// 		llinfos << llformat("LLQueuedThread::Completed req [%08d]",handle) << llendl;
+// 		LL_INFOS() << llformat("LLQueuedThread::Completed req [%08d]",handle) << LL_ENDL;
 #endif
 		mRequestHash.erase(handle);
 		req->deleteRequest();
@@ -386,7 +386,7 @@ bool LLQueuedThread::check()
 		{
 			if (entry->getHashKey() > mNextHandle)
 			{
-				llerrs << "Hash Error" << llendl;
+				LL_ERRS() << "Hash Error" << LL_ENDL;
 				return false;
 			}
 			entry = entry->getNextEntry();
@@ -520,7 +520,7 @@ void LLQueuedThread::run()
 		}
 		//LLThread::yield(); // thread should yield after each request		
 	}
-	llinfos << "LLQueuedThread " << mName << " EXITING." << llendl;
+	LL_INFOS() << "LLQueuedThread " << mName << " EXITING." << LL_ENDL;
 }
 
 // virtual

@@ -76,7 +76,7 @@ LLScriptExecuteLSL2::LLScriptExecuteLSL2(LLFILE *fp)
 	S32 pos = 0;
 	if (fread(&sizearray, 1, 4, fp) != 4)
 	{
-		llwarns << "Short read" << llendl;
+		LL_WARNS() << "Short read" << LL_ENDL;
 		filesize = 0;
 	} else {
 		filesize = bytestream2integer(sizearray, pos);
@@ -85,7 +85,7 @@ LLScriptExecuteLSL2::LLScriptExecuteLSL2(LLFILE *fp)
 	fseek(fp, 0, SEEK_SET);
 	if (fread(mBuffer, 1, filesize, fp) != filesize)
 	{
-		llwarns << "Short read" << llendl;
+		LL_WARNS() << "Short read" << LL_ENDL;
 	}
 	fclose(fp);
 
@@ -289,7 +289,7 @@ void LLScriptExecuteLSL2::init()
 void LLScriptExecuteLSL2::recordBoundaryError( const LLUUID &id )
 {
 	set_fault(mBuffer, LSRF_BOUND_CHECK_ERROR);
-	llwarns << "Script boundary error for ID " << id << llendl;
+	LL_WARNS() << "Script boundary error for ID " << id << LL_ENDL;
 }
 
 
@@ -517,7 +517,7 @@ void LLScriptExecuteLSL2::callNextQueuedEventHandler(U64 event_register, const L
 		}
 		else
 		{
-			llwarns << "Somehow got an event that we're not registered for!" << llendl;
+			LL_WARNS() << "Somehow got an event that we're not registered for!" << LL_ENDL;
 		}
 		delete eventdata;
 	}
@@ -625,7 +625,7 @@ S32 LLScriptExecuteLSL2::writeState(U8 **dest, U32 header_size, U32 footer_size)
 	// registers
 	integer2bytestream(*dest, dest_offset, registers_size);
 
-	// llinfos << "Writing CE: " << getCurrentEvents() << llendl;
+	// LL_INFOS() << "Writing CE: " << getCurrentEvents() << LL_ENDL;
 	bytestream2bytestream(*dest, dest_offset, mBuffer, src_offset, registers_size);
 
 	// heap
@@ -677,11 +677,11 @@ S32 LLScriptExecuteLSL2::readState(U8 *src)
 
 	// copy data into register area
 	bytestream2bytestream(mBuffer, dest_offset, src, src_offset, size);
-//	llinfos << "Read CE: " << getCurrentEvents() << llendl;
+//	LL_INFOS() << "Read CE: " << getCurrentEvents() << LL_ENDL;
 	if (get_register(mBuffer, LREG_TM) != TOP_OF_MEMORY)
 	{
-		llwarns << "Invalid state. Top of memory register does not match"
-				<< " constant." << llendl;
+		LL_WARNS() << "Invalid state. Top of memory register does not match"
+				<< " constant." << LL_ENDL;
 		reset_hp_to_safe_spot(mBuffer);
 		return -1;
 	}
@@ -4024,7 +4024,7 @@ void lscript_run(const std::string& filename, BOOL b_debug)
 
 	if (filename.empty())
 	{
-		llerrs << "filename is NULL" << llendl;
+		LL_ERRS() << "filename is NULL" << LL_ENDL;
 		// Just reporting error is likely not enough. Need
 		// to check how to abort or error out gracefully
 		// from this function. XXXTBD
@@ -4049,8 +4049,8 @@ void lscript_run(const std::string& filename, BOOL b_debug)
 
 		F32 time = timer.getElapsedTimeF32();
 		F32 ips = execute->mInstructionCount / time;
-		llinfos << execute->mInstructionCount << " instructions in " << time << " seconds" << llendl;
-		llinfos << ips/1000 << "K instructions per second" << llendl;
+		LL_INFOS() << execute->mInstructionCount << " instructions in " << time << " seconds" << LL_ENDL;
+		LL_INFOS() << ips/1000 << "K instructions per second" << LL_ENDL;
 		printf("ip: 0x%X\n", get_register(execute->mBuffer, LREG_IP));
 		printf("sp: 0x%X\n", get_register(execute->mBuffer, LREG_SP));
 		printf("bp: 0x%X\n", get_register(execute->mBuffer, LREG_BP));

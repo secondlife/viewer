@@ -551,7 +551,7 @@ void LLViewerJointMesh::dump()
 {
 	if (mValid)
 	{
-		llinfos << "Usable LOD " << mName << llendl;
+		LL_INFOS() << "Usable LOD " << mName << LL_ENDL;
 	}
 }
 

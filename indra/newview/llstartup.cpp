@@ -1675,7 +1675,7 @@ bool idle_startup()
 		LLSD inv_basic = response["inventory-basic"];
  		if(inv_basic.isDefined())
  		{
-			llinfos << "Basic inventory root folder id is " << inv_basic["folder_id"] << llendl;
+			LL_INFOS() << "Basic inventory root folder id is " << inv_basic["folder_id"] << LL_ENDL;
  		}
 
 		LLSD buddy_list = response["buddy-list"];
@@ -1770,30 +1770,30 @@ bool idle_startup()
 		gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE,true);
 
 		// set up callbacks
-		llinfos << "Registering Callbacks" << llendl;
+		LL_INFOS() << "Registering Callbacks" << LL_ENDL;
 		LLMessageSystem* msg = gMessageSystem;
-		llinfos << " Inventory" << llendl;
+		LL_INFOS() << " Inventory" << LL_ENDL;
 		LLInventoryModel::registerCallbacks(msg);
-		llinfos << " AvatarTracker" << llendl;
+		LL_INFOS() << " AvatarTracker" << LL_ENDL;
 		LLAvatarTracker::instance().registerCallbacks(msg);
-		llinfos << " Landmark" << llendl;
+		LL_INFOS() << " Landmark" << LL_ENDL;
 		LLLandmark::registerCallbacks(msg);
 		display_startup();
 
 		// request mute list
-		llinfos << "Requesting Mute List" << llendl;
+		LL_INFOS() << "Requesting Mute List" << LL_ENDL;
 		LLMuteList::getInstance()->requestFromServer(gAgent.getID());
 		display_startup();
 		// Get L$ and ownership credit information
-		llinfos << "Requesting Money Balance" << llendl;
+		LL_INFOS() << "Requesting Money Balance" << LL_ENDL;
 		LLStatusBar::sendMoneyBalanceRequest();
 		display_startup();
 		// request all group information
-		llinfos << "Requesting Agent Data" << llendl;
+		LL_INFOS() << "Requesting Agent Data" << LL_ENDL;
 		gAgent.sendAgentDataUpdateRequest();
 		display_startup();
 		// Create the inventory views
-		llinfos << "Creating Inventory Views" << llendl;
+		LL_INFOS() << "Creating Inventory Views" << LL_ENDL;
 		LLFloaterReg::getInstance("inventory");
 		display_startup();
 		LLStartUp::setStartupState( STATE_MISC );
@@ -1948,7 +1948,7 @@ bool idle_startup()
 		// thus, do not show this alert.
 		if (!gAgent.isFirstLogin())
 		{
-			llinfos << "gAgentStartLocation : " << gAgentStartLocation << llendl;
+			LL_INFOS() << "gAgentStartLocation : " << gAgentStartLocation << LL_ENDL;
 			LLSLURL start_slurl = LLStartUp::getStartSLURL();
 			LL_DEBUGS("AppInit") << "start slurl "<<start_slurl.asString()<<LL_ENDL;
 			
@@ -2080,14 +2080,14 @@ bool idle_startup()
 				&& gAgentAvatarp->isFullyLoaded())
 		{
 			// wait for avatar to be completely loaded
-			//llinfos << "avatar fully loaded" << llendl;
+			//LL_INFOS() << "avatar fully loaded" << LL_ENDL;
 			LLStartUp::setStartupState( STATE_CLEANUP );
 		}
 		// OK to just get the wearables
 		else if (!gAgent.isFirstLogin() && gAgentWearables.areWearablesLoaded() )
 		{
 			// We have our clothing, proceed.
-			//llinfos << "wearables loaded" << llendl;
+			//LL_INFOS() << "wearables loaded" << LL_ENDL;
 			LLStartUp::setStartupState( STATE_CLEANUP );
 		}
 		else
@@ -2162,7 +2162,7 @@ bool idle_startup()
 
 		// Unmute audio if desired and setup volumes.
 		// This is a not-uncommon crash site, so surround it with
-		// llinfos output to aid diagnosis.
+		// LL_INFOS() output to aid diagnosis.
 		LL_INFOS("AppInit") << "Doing first audio_update_volume..." << LL_ENDL;
 		audio_update_volume();
 		LL_INFOS("AppInit") << "Done first audio_update_volume." << LL_ENDL;
@@ -2530,7 +2530,7 @@ bool callback_choose_gender(const LLSD& notification, const LLSD& response)
 void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name )
 {
-	lldebugs << "starting" << llendl;
+	LL_DEBUGS() << "starting" << LL_ENDL;
 
 	// Not going through the processAgentInitialWearables path, so need to set this here.
 	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
@@ -2540,18 +2540,18 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	ESex gender;
 	if (gender_name == "male")
 	{
-		lldebugs << "male" << llendl;
+		LL_DEBUGS() << "male" << LL_ENDL;
 		gender = SEX_MALE;
 	}
 	else
 	{
-		lldebugs << "female" << llendl;
+		LL_DEBUGS() << "female" << LL_ENDL;
 		gender = SEX_FEMALE;
 	}
 
 	if (!isAgentAvatarValid())
 	{
-		llwarns << "Trying to load an initial outfit for an invalid agent avatar" << llendl;
+		LL_WARNS() << "Trying to load an initial outfit for an invalid agent avatar" << LL_ENDL;
 		return;
 	}
 
@@ -2564,7 +2564,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 		outfit_folder_name);
 	if (cat_id.isNull())
 	{
-		lldebugs << "standard wearables" << llendl;
+		LL_DEBUGS() << "standard wearables" << LL_ENDL;
 		gAgentWearables.createStandardWearables();
 	}
 	else
@@ -2580,7 +2580,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 		// Need to fetch cof contents before we can wear.
 		callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(),
 							   boost::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
-		lldebugs << "initial outfit category id: " << cat_id << llendl;
+		LL_DEBUGS() << "initial outfit category id: " << cat_id << LL_ENDL;
 	}
 
 	// This is really misnamed -- it means we have started loading
@@ -2592,16 +2592,16 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 void LLStartUp::saveInitialOutfit()
 {
 	if (sInitialOutfit.empty()) {
-		lldebugs << "sInitialOutfit is empty" << llendl;
+		LL_DEBUGS() << "sInitialOutfit is empty" << LL_ENDL;
 		return;
 	}
 	
 	if (sWearablesLoadedCon.connected())
 	{
-		lldebugs << "sWearablesLoadedCon is connected, disconnecting" << llendl;
+		LL_DEBUGS() << "sWearablesLoadedCon is connected, disconnecting" << LL_ENDL;
 		sWearablesLoadedCon.disconnect();
 	}
-	lldebugs << "calling makeNewOutfitLinks( \"" << sInitialOutfit << "\" )" << llendl;
+	LL_DEBUGS() << "calling makeNewOutfitLinks( \"" << sInitialOutfit << "\" )" << LL_ENDL;
 	LLAppearanceMgr::getInstance()->makeNewOutfitLinks(sInitialOutfit,false);
 }
 
@@ -3140,7 +3140,7 @@ void apply_udp_blacklist(const std::string& csv)
 		}
 		std::string item(csv, start, comma-start);
 
-		lldebugs << "udp_blacklist " << item << llendl;
+		LL_DEBUGS() << "udp_blacklist " << item << LL_ENDL;
 		gMessageSystem->banUdpMessage(item);
 		
 		start = comma + 1;

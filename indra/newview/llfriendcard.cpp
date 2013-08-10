@@ -172,14 +172,14 @@ LLFriendCardsManager::~LLFriendCardsManager()
 
 void LLFriendCardsManager::putAvatarData(const LLUUID& avatarID)
 {
-	llinfos << "Store avatar data, avatarID: " << avatarID << llendl;
+	LL_INFOS() << "Store avatar data, avatarID: " << avatarID << LL_ENDL;
 	std::pair< avatar_uuid_set_t::iterator, bool > pr;
 	pr = mBuddyIDSet.insert(avatarID);
 	if (pr.second == false)
 	{
-		llwarns << "Trying to add avatar UUID for the stored avatar: " 
+		LL_WARNS() << "Trying to add avatar UUID for the stored avatar: " 
 			<< avatarID
-			<< llendl;
+			<< LL_ENDL;
 	}
 }
 
@@ -189,7 +189,7 @@ const LLUUID LLFriendCardsManager::extractAvatarID(const LLUUID& avatarID)
 	avatar_uuid_set_t::iterator it = mBuddyIDSet.find(avatarID);
 	if (mBuddyIDSet.end() == it)
 	{
-		llwarns << "Call method for non-existent avatar name in the map: " << avatarID << llendl;
+		LL_WARNS() << "Call method for non-existent avatar name in the map: " << avatarID << LL_ENDL;
 	}
 	else
 	{
@@ -431,7 +431,7 @@ void LLFriendCardsManager::ensureFriendsFolderExists()
 		{
 			LLViewerInventoryCategory* cat = gInventory.getCategory(calling_cards_folder_ID);
 			std::string cat_name = cat ? cat->getName() : "unknown";
-			llwarns << "Failed to find \"" << cat_name << "\" category descendents in Category Tree." << llendl;
+			LL_WARNS() << "Failed to find \"" << cat_name << "\" category descendents in Category Tree." << LL_ENDL;
 		}
 
 		friends_folder_ID = gInventory.createNewCategory(calling_cards_folder_ID,
@@ -462,7 +462,7 @@ void LLFriendCardsManager::ensureFriendsAllFolderExists()
 		{
 			LLViewerInventoryCategory* cat = gInventory.getCategory(friends_folder_ID);
 			std::string cat_name = cat ? cat->getName() : "unknown";
-			llwarns << "Failed to find \"" << cat_name << "\" category descendents in Category Tree." << llendl;
+			LL_WARNS() << "Failed to find \"" << cat_name << "\" category descendents in Category Tree." << LL_ENDL;
 		}
 
 		friends_all_folder_ID = gInventory.createNewCategory(friends_folder_ID,
@@ -507,7 +507,7 @@ void LLFriendCardsManager::syncFriendsFolder()
 
 	// 2. Add missing Friend Cards for friends
 	LLAvatarTracker::buddy_map_t::const_iterator buddy_it = all_buddies.begin();
-	llinfos << "try to build friends, count: " << all_buddies.size() << llendl;
+	LL_INFOS() << "try to build friends, count: " << all_buddies.size() << LL_ENDL;
 	for(; buddy_it != all_buddies.end(); ++buddy_it)
 	{
 		const LLUUID& buddy_id = (*buddy_it).first;
@@ -535,26 +535,26 @@ void LLFriendCardsManager::addFriendCardToInventory(const LLUUID& avatarID)
 	LLAvatarNameCache::get(avatarID, &av_name);
 	const std::string& name = av_name.getAccountName();
 
-	lldebugs << "Processing buddy name: " << name 
+	LL_DEBUGS() << "Processing buddy name: " << name 
 		<< ", id: " << avatarID
-		<< llendl; 
+		<< LL_ENDL; 
 
 	if (shouldBeAdded && findFriendCardInventoryUUIDImpl(avatarID).notNull())
 	{
 		shouldBeAdded = false;
-		lldebugs << "is found in Inventory: " << name << llendl; 
+		LL_DEBUGS() << "is found in Inventory: " << name << LL_ENDL; 
 	}
 
 	if (shouldBeAdded && isAvatarDataStored(avatarID))
 	{
 		shouldBeAdded = false;
-		lldebugs << "is found in sentRequests: " << name << llendl; 
+		LL_DEBUGS() << "is found in sentRequests: " << name << LL_ENDL; 
 	}
 
 	if (shouldBeAdded)
 	{
 		putAvatarData(avatarID);
-		lldebugs << "Sent create_inventory_item for " << avatarID << ", " << name << llendl;
+		LL_DEBUGS() << "Sent create_inventory_item for " << avatarID << ", " << name << LL_ENDL;
 
 		// TODO: mantipov: Is CreateFriendCardCallback really needed? Probably not
 		LLPointer<LLInventoryCallback> cb = new CreateFriendCardCallback;

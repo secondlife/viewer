@@ -1364,7 +1364,7 @@ void LLVivoxVoiceClient::stateMachine()
 		    {
 				// Notify observers to let them know there is problem with voice
 				notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED);
-				llwarns << "There seems to be problem with connection to voice server. Disabling voice chat abilities." << llendl;
+				LL_WARNS() << "There seems to be problem with connection to voice server. Disabling voice chat abilities." << LL_ENDL;
 		    }
 			
 			// Increase mSpatialJoiningNum only for spatial sessions- it's normal to reach this case for

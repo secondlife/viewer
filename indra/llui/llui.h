@@ -171,7 +171,7 @@ public:
 		{
 			if (mMin > mMax)
 			{
-				llwarns << "Bad interval range (" << mMin << ", " << mMax << ")" << llendl;
+				LL_WARNS() << "Bad interval range (" << mMin << ", " << mMax << ")" << LL_ENDL;
 				// since max is usually the most dangerous one to ignore (buffer overflow, etc), prefer it
 				// in the case of a malformed range
 				mMin = mMax;
@@ -410,7 +410,7 @@ private:
 
 	static void initClass()
 	{
-		llerrs << "No static initClass() method defined for " << typeid(T).name() << llendl;
+		LL_ERRS() << "No static initClass() method defined for " << typeid(T).name() << LL_ENDL;
 	}
 };
 
@@ -425,7 +425,7 @@ private:
 
 	static void destroyClass()
 	{
-		llerrs << "No static destroyClass() method defined for " << typeid(T).name() << llendl;
+		LL_ERRS() << "No static destroyClass() method defined for " << typeid(T).name() << LL_ENDL;
 	}
 };
 

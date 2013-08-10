@@ -455,14 +455,14 @@ bool LLConversationLog::saveToFile(const std::string& filename)
 {
 	if (!filename.size())
 	{
-		llwarns << "Call log list filename is empty!" << llendl;
+		LL_WARNS() << "Call log list filename is empty!" << LL_ENDL;
 		return false;
 	}
 
 	LLFILE* fp = LLFile::fopen(filename, "wb");
 	if (!fp)
 	{
-		llwarns << "Couldn't open call log list" << filename << llendl;
+		LL_WARNS() << "Couldn't open call log list" << filename << LL_ENDL;
 		return false;
 	}
 
@@ -496,14 +496,14 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 {
 	if(!filename.size())
 	{
-		llwarns << "Call log list filename is empty!" << llendl;
+		LL_WARNS() << "Call log list filename is empty!" << LL_ENDL;
 		return false;
 	}
 
 	LLFILE* fp = LLFile::fopen(filename, "rb");
 	if (!fp)
 	{
-		llwarns << "Couldn't open call log list" << filename << llendl;
+		LL_WARNS() << "Couldn't open call log list" << filename << LL_ENDL;
 		return false;
 	}
 

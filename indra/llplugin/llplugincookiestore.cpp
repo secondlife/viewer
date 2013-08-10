@@ -395,7 +395,7 @@ void LLPluginCookieStore::writeChangedCookies(std::ostream& s, bool clear_change
 {
 	if(mHasChangedCookies)
 	{
-		lldebugs << "returning changed cookies: " << llendl;
+		LL_DEBUGS() << "returning changed cookies: " << LL_ENDL;
 		cookie_map_t::iterator iter;
 		for(iter = mCookies.begin(); iter != mCookies.end(); )
 		{
@@ -407,7 +407,7 @@ void LLPluginCookieStore::writeChangedCookies(std::ostream& s, bool clear_change
 			{
 				s << iter->second->getCookie() << "\n";
 
-				lldebugs << "    " << iter->second->getCookie() << llendl;
+				LL_DEBUGS() << "    " << iter->second->getCookie() << LL_ENDL;
 
 				// If requested, clear the changed mark
 				if(clear_changed)

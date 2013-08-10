@@ -873,7 +873,7 @@ void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
 			}
 			else
 			{
-				llwarns << "Unable to load gesture" << llendl;
+				LL_WARNS() << "Unable to load gesture" << LL_ENDL;
 			}
 
 			delete gesture;
@@ -893,7 +893,7 @@ void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
 				LLDelayedGestureError::gestureFailedToLoad( *item_idp );
 			}
 
-			llwarns << "Problem loading gesture: " << status << llendl;
+			LL_WARNS() << "Problem loading gesture: " << status << LL_ENDL;
 			self->mAssetStatus = PREVIEW_ASSET_ERROR;
 		}
 	}
@@ -1019,7 +1019,7 @@ void LLPreviewGesture::saveIfNeeded()
 {
 	if (!gAssetStorage)
 	{
-		llwarns << "Can't save gesture, no asset storage system." << llendl;
+		LL_WARNS() << "Can't save gesture, no asset storage system." << LL_ENDL;
 		return;
 	}
 
@@ -1166,8 +1166,8 @@ void LLPreviewGesture::onSaveComplete(const LLUUID& asset_uuid, void* user_data,
 			}
 			else
 			{
-				llwarns << "Inventory item for gesture " << info->mItemUUID
-						<< " is no longer in agent inventory." << llendl;
+				LL_WARNS() << "Inventory item for gesture " << info->mItemUUID
+						<< " is no longer in agent inventory." << LL_ENDL;
 			}
 		}
 		else
@@ -1202,7 +1202,7 @@ void LLPreviewGesture::onSaveComplete(const LLUUID& asset_uuid, void* user_data,
 	}
 	else
 	{
-		llwarns << "Problem saving gesture: " << status << llendl;
+		LL_WARNS() << "Problem saving gesture: " << status << LL_ENDL;
 		LLSD args;
 		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
 		LLNotificationsUtil::add("GestureSaveFailedReason", args);
@@ -1533,7 +1533,7 @@ void LLPreviewGesture::onClickAdd(void* data)
 
 	if( library_item_index >= STEP_EOF )
 	{
-		llerrs << "Unknown step type: " << library_text << llendl;
+		LL_ERRS() << "Unknown step type: " << library_text << LL_ENDL;
 		return;
 	}
 
@@ -1563,7 +1563,7 @@ LLScrollListItem* LLPreviewGesture::addStep( const EStepType step_type )
 			step = new LLGestureStepWait();			
 			break;
 		default:
-			llerrs << "Unknown step type: " << (S32)step_type << llendl;
+			LL_ERRS() << "Unknown step type: " << (S32)step_type << LL_ENDL;
 			return NULL;
 	}
 

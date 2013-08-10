@@ -104,49 +104,49 @@ LLMotion::LLMotionInitStatus LLHeadRotMotion::onInitialize(LLCharacter *characte
 	mPelvisJoint = character->getJoint("mPelvis");
 	if ( ! mPelvisJoint )
 	{
-		llinfos << getName() << ": Can't get pelvis joint." << llendl;
+		LL_INFOS() << getName() << ": Can't get pelvis joint." << LL_ENDL;
 		return STATUS_FAILURE;
 	}
 
 	mRootJoint = character->getJoint("mRoot");
 	if ( ! mRootJoint )
 	{
-		llinfos << getName() << ": Can't get root joint." << llendl;
+		LL_INFOS() << getName() << ": Can't get root joint." << LL_ENDL;
 		return STATUS_FAILURE;
 	}
 
 	mTorsoJoint = character->getJoint("mTorso");
 	if ( ! mTorsoJoint )
 	{
-		llinfos << getName() << ": Can't get torso joint." << llendl;
+		LL_INFOS() << getName() << ": Can't get torso joint." << LL_ENDL;
 		return STATUS_FAILURE;
 	}
 
 	mHeadJoint = character->getJoint("mHead");
 	if ( ! mHeadJoint )
 	{
-		llinfos << getName() << ": Can't get head joint." << llendl;
+		LL_INFOS() << getName() << ": Can't get head joint." << LL_ENDL;
 		return STATUS_FAILURE;
 	}
 
 	mTorsoState->setJoint( character->getJoint("mTorso") );
 	if ( ! mTorsoState->getJoint() )
 	{
-		llinfos << getName() << ": Can't get torso joint." << llendl;
+		LL_INFOS() << getName() << ": Can't get torso joint." << LL_ENDL;
 		return STATUS_FAILURE;
 	}
 
 	mNeckState->setJoint( character->getJoint("mNeck") );
 	if ( ! mNeckState->getJoint() )
 	{
-		llinfos << getName() << ": Can't get neck joint." << llendl;
+		LL_INFOS() << getName() << ": Can't get neck joint." << LL_ENDL;
 		return STATUS_FAILURE;
 	}
 
 	mHeadState->setJoint( character->getJoint("mHead") );
 	if ( ! mHeadState->getJoint() )
 	{
-		llinfos << getName() << ": Can't get head joint." << llendl;
+		LL_INFOS() << getName() << ": Can't get head joint." << LL_ENDL;
 		return STATUS_FAILURE;
 	}
 
@@ -191,7 +191,7 @@ BOOL LLHeadRotMotion::onUpdate(F32 time, U8* joint_mask)
 	{
 		LLVector3 headLookAt = *targetPos;
 
-//		llinfos << "Look At: " << headLookAt + mHeadJoint->getWorldPosition() << llendl;
+//		LL_INFOS() << "Look At: " << headLookAt + mHeadJoint->getWorldPosition() << LL_ENDL;
 
 		F32 lookatDistance = headLookAt.normVec();
 
@@ -310,21 +310,21 @@ LLMotion::LLMotionInitStatus LLEyeMotion::onInitialize(LLCharacter *character)
 	mHeadJoint = character->getJoint("mHead");
 	if ( ! mHeadJoint )
 	{
-		llinfos << getName() << ": Can't get head joint." << llendl;
+		LL_INFOS() << getName() << ": Can't get head joint." << LL_ENDL;
 		return STATUS_FAILURE;
 	}
 
 	mLeftEyeState->setJoint( character->getJoint("mEyeLeft") );
 	if ( ! mLeftEyeState->getJoint() )
 	{
-		llinfos << getName() << ": Can't get left eyeball joint." << llendl;
+		LL_INFOS() << getName() << ": Can't get left eyeball joint." << LL_ENDL;
 		return STATUS_FAILURE;
 	}
 
 	mRightEyeState->setJoint( character->getJoint("mEyeRight") );
 	if ( ! mRightEyeState->getJoint() )
 	{
-		llinfos << getName() << ": Can't get Right eyeball joint." << llendl;
+		LL_INFOS() << getName() << ": Can't get Right eyeball joint." << LL_ENDL;
 		return STATUS_FAILURE;
 	}
 

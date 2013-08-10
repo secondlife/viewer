@@ -119,7 +119,7 @@ void LLAgentPicksInfo::onServerRespond(LLAvatarPicks* picks)
 {
 	if(!picks)
 	{
-		llerrs << "Unexpected value" << llendl;
+		LL_ERRS() << "Unexpected value" << LL_ENDL;
 		return;
 	}
 

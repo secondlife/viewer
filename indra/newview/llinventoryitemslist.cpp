@@ -208,7 +208,7 @@ void LLInventoryItemsList::addNewItem(LLViewerInventoryItem* item, bool rearrang
 {
 	if (!item)
 	{
-		llwarns << "No inventory item. Couldn't create flat list item." << llendl;
+		LL_WARNS() << "No inventory item. Couldn't create flat list item." << LL_ENDL;
 		llassert(item != NULL);
 	}
 
@@ -219,7 +219,7 @@ void LLInventoryItemsList::addNewItem(LLViewerInventoryItem* item, bool rearrang
 	bool is_item_added = addItem(list_item, item->getUUID(), ADD_BOTTOM, rearrange);
 	if (!is_item_added)
 	{
-		llwarns << "Couldn't add flat list item." << llendl;
+		LL_WARNS() << "Couldn't add flat list item." << LL_ENDL;
 		llassert(is_item_added);
 	}
 }

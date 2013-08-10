@@ -155,14 +155,14 @@ void LLTextureInfo::setRequestCompleteTimeAndLog(const LLUUID& id, LLUnit<U64, L
 
 	if (mLogTextureDownloadsToViewerLog)
 	{
-		llinfos << "texture="   << id 
+		LL_INFOS() << "texture="   << id 
 			    << " start="    << details.mStartTime 
 			    << " end="      << details.mCompleteTime
 			    << " size="     << details.mSize
 			    << " offset="   << details.mOffset
 			    << " length="   << LLUnit<U32, LLUnits::Milliseconds>(details.mCompleteTime - details.mStartTime)
 			    << " protocol=" << protocol
-			    << llendl;
+			    << LL_ENDL;
 	}
 
 	if(mLogTextureDownloadsToSimulator)

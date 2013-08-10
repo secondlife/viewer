@@ -72,7 +72,7 @@ void LLAgentPilot::load()
 	}
 	else
 	{
-		lldebugs << "no autopilot file found" << llendl;
+		LL_DEBUGS() << "no autopilot file found" << LL_ENDL;
 		return;
 	}
 }
@@ -88,13 +88,13 @@ void LLAgentPilot::loadTxt(const std::string& filename)
 
 	if (!file)
 	{
-		lldebugs << "Couldn't open " << filename
-			<< ", aborting agentpilot load!" << llendl;
+		LL_DEBUGS() << "Couldn't open " << filename
+			<< ", aborting agentpilot load!" << LL_ENDL;
 		return;
 	}
 	else
 	{
-		llinfos << "Opening pilot file " << filename << llendl;
+		LL_INFOS() << "Opening pilot file " << filename << LL_ENDL;
 	}
 
 	mActions.clear();
@@ -129,13 +129,13 @@ void LLAgentPilot::loadXML(const std::string& filename)
 
 	if (!file)
 	{
-		lldebugs << "Couldn't open " << filename
-			<< ", aborting agentpilot load!" << llendl;
+		LL_DEBUGS() << "Couldn't open " << filename
+			<< ", aborting agentpilot load!" << LL_ENDL;
 		return;
 	}
 	else
 	{
-		llinfos << "Opening pilot file " << filename << llendl;
+		LL_INFOS() << "Opening pilot file " << filename << LL_ENDL;
 	}
 
 	mActions.clear();
@@ -172,7 +172,7 @@ void LLAgentPilot::saveTxt(const std::string& filename)
 
 	if (!file)
 	{
-		llinfos << "Couldn't open " << filename << ", aborting agentpilot save!" << llendl;
+		LL_INFOS() << "Couldn't open " << filename << ", aborting agentpilot save!" << LL_ENDL;
 	}
 
 	file << mActions.size() << '\n';
@@ -195,7 +195,7 @@ void LLAgentPilot::saveXML(const std::string& filename)
 
 	if (!file)
 	{
-		llinfos << "Couldn't open " << filename << ", aborting agentpilot save!" << llendl;
+		LL_INFOS() << "Couldn't open " << filename << ", aborting agentpilot save!" << LL_ENDL;
 	}
 
 	S32 i;
@@ -233,7 +233,7 @@ void LLAgentPilot::stopRecord()
 
 void LLAgentPilot::addAction(enum EActionType action_type)
 {
-	llinfos << "Adding waypoint: " << gAgent.getPositionGlobal() << llendl;
+	LL_INFOS() << "Adding waypoint: " << gAgent.getPositionGlobal() << LL_ENDL;
 	Action action;
 	action.mType = action_type;
 	action.mTarget = gAgent.getPositionGlobal();
@@ -258,14 +258,14 @@ void LLAgentPilot::startPlayback()
 
 		if (mActions.size())
 		{
-			llinfos << "Starting playback, moving to waypoint 0" << llendl;
+			LL_INFOS() << "Starting playback, moving to waypoint 0" << LL_ENDL;
 			gAgent.startAutoPilotGlobal(mActions[0].mTarget);
 			moveCamera();
 			mStarted = FALSE;
 		}
 		else
 		{
-			llinfos << "No autopilot data, cancelling!" << llendl;
+			LL_INFOS() << "No autopilot data, cancelling!" << LL_ENDL;
 			mPlaying = FALSE;
 		}
 	}
@@ -306,7 +306,7 @@ void LLAgentPilot::moveCamera()
 
 		if ((t<0.0)||(t>1.0))
 		{
-			llwarns << "mCurrentAction is invalid, t = " << t << llendl;
+			LL_WARNS() << "mCurrentAction is invalid, t = " << t << LL_ENDL;
 			return;
 		}
 		
@@ -345,7 +345,7 @@ void LLAgentPilot::updateTarget()
 				{
 					if (!mStarted)
 					{
-						llinfos << "At start, beginning playback" << llendl;
+						LL_INFOS() << "At start, beginning playback" << LL_ENDL;
 						mTimer.reset();
 						mStarted = TRUE;
 					}
@@ -369,17 +369,17 @@ void LLAgentPilot::updateTarget()
 					{
 						if ((mNumRuns < 0) || (mNumRuns > 0))
 						{
-							llinfos << "Looping, restarting playback" << llendl;
+							LL_INFOS() << "Looping, restarting playback" << LL_ENDL;
 							startPlayback();
 						}
 						else if (mQuitAfterRuns)
 						{
-							llinfos << "Done with all runs, quitting viewer!" << llendl;
+							LL_INFOS() << "Done with all runs, quitting viewer!" << LL_ENDL;
 							LLAppViewer::instance()->forceQuit();
 						}
 						else
 						{
-							llinfos << "Done with all runs, disabling pilot" << llendl;
+							LL_INFOS() << "Done with all runs, disabling pilot" << LL_ENDL;
 							stopPlayback();
 						}
 					}

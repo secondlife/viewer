@@ -195,7 +195,7 @@ S32 LLPacketRing::receivePacket (S32 socket, char *datap)
 				if (mInBufferLength + packetp->getSize() > mMaxBufferLength)
 				{
 					// Toss it.
-					llwarns << "Throwing away packet, overflowing buffer" << llendl;
+					LL_WARNS() << "Throwing away packet, overflowing buffer" << LL_ENDL;
 					delete packetp;
 					packetp = NULL;
 				}
@@ -323,7 +323,7 @@ BOOL LLPacketRing::sendPacket(int h_socket, char * send_buffer, S32 buf_size, LL
 		{
 			// Nuke this packet, we overflowed the buffer.
 			// Toss it.
-			llwarns << "Throwing away outbound packet, overflowing buffer" << llendl;
+			LL_WARNS() << "Throwing away outbound packet, overflowing buffer" << LL_ENDL;
 		}
 		else
 		{
@@ -331,7 +331,7 @@ BOOL LLPacketRing::sendPacket(int h_socket, char * send_buffer, S32 buf_size, LL
 			if ((mOutBufferLength > 4192) && queue_timer.getElapsedTimeF32() > 1.f)
 			{
 				// Add it to the queue
-				llinfos << "Outbound packet queue " << mOutBufferLength << " bytes" << llendl;
+				LL_INFOS() << "Outbound packet queue " << mOutBufferLength << " bytes" << LL_ENDL;
 				queue_timer.reset();
 			}
 			packetp = new LLPacketBuffer(host, send_buffer, buf_size);

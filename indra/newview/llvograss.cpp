@@ -97,7 +97,7 @@ void LLVOGrass::updateSpecies()
 	
 	if (!sSpeciesTable.count(mSpecies))
 	{
-		llinfos << "Unknown grass type, substituting grass type." << llendl;
+		LL_INFOS() << "Unknown grass type, substituting grass type." << LL_ENDL;
 		SpeciesMap::const_iterator it = sSpeciesTable.begin();
 		mSpecies = (*it).first;
 	}
@@ -119,7 +119,7 @@ void LLVOGrass::initClass()
 
 	if (!grass_def_grass.parseFile(xml_filename))
 	{
-		llerrs << "Failed to parse grass file." << llendl;
+		LL_ERRS() << "Failed to parse grass file." << LL_ENDL;
 		return;
 	}
 
@@ -131,7 +131,7 @@ void LLVOGrass::initClass()
 	{
 		if (!grass_def->hasName("grass"))
 		{
-			llwarns << "Invalid grass definition node " << grass_def->getName() << llendl;
+			LL_WARNS() << "Invalid grass definition node " << grass_def->getName() << LL_ENDL;
 			continue;
 		}
 		F32 F32_val;
@@ -143,13 +143,13 @@ void LLVOGrass::initClass()
 		static LLStdStringHandle species_id_string = LLXmlTree::addAttributeString("species_id");
 		if (!grass_def->getFastAttributeS32(species_id_string, species))
 		{
-			llwarns << "No species id defined" << llendl;
+			LL_WARNS() << "No species id defined" << LL_ENDL;
 			continue;
 		}
 
 		if (species < 0)
 		{
-			llwarns << "Invalid species id " << species << llendl;
+			LL_WARNS() << "Invalid species id " << species << LL_ENDL;
 			continue;
 		}
 
@@ -170,7 +170,7 @@ void LLVOGrass::initClass()
 
 		if (sSpeciesTable.count(species))
 		{
-			llinfos << "Grass species " << species << " already defined! Duplicate discarded." << llendl;
+			LL_INFOS() << "Grass species " << species << " already defined! Duplicate discarded." << LL_ENDL;
 			delete newGrass;
 			continue;
 		}
@@ -186,7 +186,7 @@ void LLVOGrass::initClass()
 			std::string name;
 			static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
 			grass_def->getFastAttributeString(name_string, name);
-			llwarns << "Incomplete definition of grass " << name << llendl;
+			LL_WARNS() << "Incomplete definition of grass " << name << LL_ENDL;
 		}
 	}
 
@@ -257,7 +257,7 @@ U32 LLVOGrass::processUpdateMessage(LLMessageSystem *mesgsys,
 		||(getAcceleration().lengthSquared() > 0.f)
 		||(getAngularVelocity().lengthSquared() > 0.f))
 	{
-		llinfos << "ACK! Moving grass!" << llendl;
+		LL_INFOS() << "ACK! Moving grass!" << LL_ENDL;
 		setVelocity(LLVector3::zero);
 		setAcceleration(LLVector3::zero);
 		setAngularVelocity(LLVector3::zero);
@@ -444,7 +444,7 @@ void LLVOGrass::plantBlades()
 	// This is bad, but not the end of the world.
 	if (!sSpeciesTable.count(mSpecies))
 	{
-		llinfos << "Unknown grass species " << mSpecies << llendl;
+		LL_INFOS() << "Unknown grass species " << mSpecies << LL_ENDL;
 		return;
 	}
 	

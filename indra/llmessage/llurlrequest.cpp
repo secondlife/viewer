@@ -177,7 +177,7 @@ void LLURLRequest::setURL(const std::string& url)
 	mDetail->mURL = url;
 	if (url.empty())
 	{
-		llwarns << "empty URL specified" << llendl;
+		LL_WARNS() << "empty URL specified" << LL_ENDL;
 	}
 }
 
@@ -230,7 +230,7 @@ void LLURLRequest::useProxy(bool use_proxy)
     }
 
 
-    lldebugs << "use_proxy = " << (use_proxy?'Y':'N') << ", env_proxy = " << (env_proxy ? env_proxy : "(null)") << llendl;
+    LL_DEBUGS() << "use_proxy = " << (use_proxy?'Y':'N') << ", env_proxy = " << (env_proxy ? env_proxy : "(null)") << LL_ENDL;
 
     if (env_proxy && use_proxy)
     {
@@ -298,7 +298,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 {
 	LLFastTimer t(FTM_PROCESS_URL_REQUEST);
 	PUMP_DEBUG;
-	//llinfos << "LLURLRequest::process_impl()" << llendl;
+	//LL_INFOS() << "LLURLRequest::process_impl()" << LL_ENDL;
 	if (!buffer) return STATUS_ERROR;
 	
 	// we're still waiting or prcessing, check how many
@@ -316,10 +316,10 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		 const F32 TIMEOUT_ADJUSTMENT = 2.0f;
 		 mDetail->mByteAccumulator = 0;
 		 pump->adjustTimeoutSeconds(TIMEOUT_ADJUSTMENT);
-		 lldebugs << "LLURLRequest adjustTimeoutSeconds for request: " << mDetail->mURL << llendl;
+		 LL_DEBUGS() << "LLURLRequest adjustTimeoutSeconds for request: " << mDetail->mURL << LL_ENDL;
 		 if (mState == STATE_INITIALIZED)
 		 {
-			  llinfos << "LLURLRequest adjustTimeoutSeconds called during upload" << llendl;
+			  LL_INFOS() << "LLURLRequest adjustTimeoutSeconds called during upload" << LL_ENDL;
 		 }
 	}
 
@@ -383,7 +383,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 			mState = STATE_HAVE_RESPONSE;
 			context[CONTEXT_REQUEST][CONTEXT_TRANSFERED_BYTES] = mRequestTransferedBytes;
 			context[CONTEXT_RESPONSE][CONTEXT_TRANSFERED_BYTES] = mResponseTransferedBytes;
-			lldebugs << this << "Setting context to " << context << llendl;
+			LL_DEBUGS() << this << "Setting context to " << context << LL_ENDL;
 			switch(result)
 			{
 				case CURLE_OK:
@@ -417,12 +417,12 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 					keep_looping = false;
 					break;
 				default:			// CURLE_URL_MALFORMAT
-					llwarns << "URLRequest Error: " << result
+					LL_WARNS() << "URLRequest Error: " << result
 							<< ", "
 							<< LLCurl::strerror(result)
 							<< ", "
 							<< (mDetail->mURL.empty() ? "<EMPTY URL>" : mDetail->mURL)
-							<< llendl;
+							<< LL_ENDL;
 					status = STATUS_ERROR;
 					keep_looping = false;
 					break;
@@ -437,14 +437,14 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		eos = true;
 		context[CONTEXT_REQUEST][CONTEXT_TRANSFERED_BYTES] = mRequestTransferedBytes;
 		context[CONTEXT_RESPONSE][CONTEXT_TRANSFERED_BYTES] = mResponseTransferedBytes;
-		lldebugs << this << "Setting context to " << context << llendl;
+		LL_DEBUGS() << this << "Setting context to " << context << LL_ENDL;
 		return STATUS_DONE;
 
 	default:
 		PUMP_DEBUG;
 		context[CONTEXT_REQUEST][CONTEXT_TRANSFERED_BYTES] = mRequestTransferedBytes;
 		context[CONTEXT_RESPONSE][CONTEXT_TRANSFERED_BYTES] = mResponseTransferedBytes;
-		lldebugs << this << "Setting context to " << context << llendl;
+		LL_DEBUGS() << this << "Setting context to " << context << LL_ENDL;
 		return STATUS_ERROR;
 	}
 }
@@ -533,7 +533,7 @@ bool LLURLRequest::configure()
 		break;
 
 	default:
-		llwarns << "Unhandled URLRequest action: " << mAction << llendl;
+		LL_WARNS() << "Unhandled URLRequest action: " << mAction << LL_ENDL;
 		break;
 	}
 	if(rv)
@@ -661,7 +661,7 @@ static size_t headerCallback(void* data, size_t size, size_t nmemb, void* user)
 		LLStringUtil::trim(header);
 		if (!header.empty())
 		{
-			llwarns << "Unable to parse header: " << header << llendl;
+			LL_WARNS() << "Unable to parse header: " << header << LL_ENDL;
 		}
 	}
 
@@ -739,15 +739,15 @@ void LLURLRequestComplete::complete(const LLChannelDescriptors& channels,
 void LLURLRequestComplete::response(const LLChannelDescriptors& channels,
 		const buffer_ptr_t& buffer)
 {
-	llwarns << "LLURLRequestComplete::response default implementation called"
-		<< llendl;
+	LL_WARNS() << "LLURLRequestComplete::response default implementation called"
+		<< LL_ENDL;
 }
 
 //virtual 
 void LLURLRequestComplete::noResponse()
 {
-	llwarns << "LLURLRequestComplete::noResponse default implementation called"
-		<< llendl;
+	LL_WARNS() << "LLURLRequestComplete::noResponse default implementation called"
+		<< LL_ENDL;
 }
 
 void LLURLRequestComplete::responseStatus(LLIOPipe::EStatus status)

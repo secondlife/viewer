@@ -89,7 +89,7 @@ LLMotion::LLMotionInitStatus LLEditingMotion::onInitialize(LLCharacter *characte
 		!mCharacter->getJoint("mElbowLeft") ||
 		!mCharacter->getJoint("mWristLeft"))
 	{
-		llwarns << "Invalid skeleton for editing motion!" << llendl;
+		LL_WARNS() << "Invalid skeleton for editing motion!" << LL_ENDL;
 		return STATUS_FAILURE;
 	}
 
@@ -102,7 +102,7 @@ LLMotion::LLMotionInitStatus LLEditingMotion::onInitialize(LLCharacter *characte
 
 	if ( ! mParentState->getJoint() )
 	{
-		llinfos << getName() << ": Can't get parent joint." << llendl;
+		LL_INFOS() << getName() << ": Can't get parent joint." << LL_ENDL;
 		return STATUS_FAILURE;
 	}
 
@@ -215,14 +215,14 @@ BOOL LLEditingMotion::onUpdate(F32 time, U8* joint_mask)
 	if (!target.isFinite())
 	{
 		// Don't error out here, set a fail-safe target vector
-		llwarns << "Non finite target in editing motion with target distance of " << target_dist << 
-			" and focus point " << focus_pt << llendl;
+		LL_WARNS() << "Non finite target in editing motion with target distance of " << target_dist << 
+			" and focus point " << focus_pt << LL_ENDL;
 		target.setVec(1.f, 1.f, 1.f);
 	}
 	
 	mTarget.setPosition( target + mParentJoint.getPosition());
 
-//	llinfos << "Point At: " << mTarget.getPosition() << llendl;
+//	LL_INFOS() << "Point At: " << mTarget.getPosition() << LL_ENDL;
 
 	// update the ikSolver
 	if (!mTarget.getPosition().isExactlyZero())

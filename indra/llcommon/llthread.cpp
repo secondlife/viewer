@@ -108,7 +108,7 @@ LL_COMMON_API void assert_main_thread()
 	static U32 s_thread_id = LLThread::currentID();
 	if (LLThread::currentID() != s_thread_id)
 	{
-		llerrs << "Illegal execution outside main thread." << llendl;
+		LL_ERRS() << "Illegal execution outside main thread." << LL_ENDL;
 	}
 }
 
@@ -140,7 +140,7 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 	// Run the user supplied function
 	threadp->run();
 
-	//llinfos << "LLThread::staticRun() Exiting: " << threadp->mName << llendl;
+	//LL_INFOS() << "LLThread::staticRun() Exiting: " << threadp->mName << LL_ENDL;
 	
 	// We're done with the run function, this thread is done executing now.
 	threadp->mStatus = STOPPED;
@@ -197,7 +197,7 @@ void LLThread::shutdown()
 			// First, set the flag that indicates that we're ready to die
 			setQuitting();
 
-			//llinfos << "LLThread::~LLThread() Killing thread " << mName << " Status: " << mStatus << llendl;
+			//LL_INFOS() << "LLThread::~LLThread() Killing thread " << mName << " Status: " << mStatus << LL_ENDL;
 			// Now wait a bit for the thread to exit
 			// It's unclear whether I should even bother doing this - this destructor
 			// should never get called unless we're already stopped, really...
@@ -219,7 +219,7 @@ void LLThread::shutdown()
 		if (!isStopped())
 		{
 			// This thread just wouldn't stop, even though we gave it time
-			//llwarns << "LLThread::~LLThread() exiting thread before clean exit!" << llendl;
+			//LL_WARNS() << "LLThread::~LLThread() exiting thread before clean exit!" << LL_ENDL;
 			// Put a stake in its heart.
 			apr_thread_exit(mAPRThreadp, -1);
 			return;
@@ -259,7 +259,7 @@ void LLThread::start()
 	else
 	{
 		mStatus = STOPPED;
-		llwarns << "failed to start thread " << mName << llendl;
+		LL_WARNS() << "failed to start thread " << mName << LL_ENDL;
 		ll_apr_warn_status(status);
 	}
 
@@ -416,7 +416,7 @@ LLThreadSafeRefCount::~LLThreadSafeRefCount()
 { 
 	if (mRef != 0)
 	{
-		llerrs << "deleting non-zero reference" << llendl;
+		LL_ERRS() << "deleting non-zero reference" << LL_ENDL;
 	}
 }
 

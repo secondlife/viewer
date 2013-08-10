@@ -272,7 +272,7 @@ inline LLViewerObject *LLViewerObjectList::getObject(const S32 index)
 	objectp = mObjects[index];
 	if (objectp->isDead())
 	{
-		//llwarns << "Dead object " << objectp->mID << " in getObject" << llendl;
+		//LL_WARNS() << "Dead object " << objectp->mID << " in getObject" << LL_ENDL;
 		return NULL;
 	}
 	return objectp;

@@ -836,7 +836,7 @@ void LLFastTimerView::doAnalysisDefault(std::string baseline, std::string target
 	std::ifstream target_is(target.c_str());
 	if (!base_is.is_open() || !target_is.is_open())
 	{
-		llwarns << "'-analyzeperformance' error : baseline or current target file inexistent" << llendl;
+		LL_WARNS() << "'-analyzeperformance' error : baseline or current target file inexistent" << LL_ENDL;
 		base_is.close();
 		target_is.close();
 		return;
@@ -980,7 +980,7 @@ void LLFastTimerView::printLineStats()
 				it.skipDescendants();
 			}
 		}
-		llinfos << legend_stat << llendl;
+		LL_INFOS() << legend_stat << LL_ENDL;
 
 		std::string timer_stat;
 		first = true;
@@ -1014,7 +1014,7 @@ void LLFastTimerView::printLineStats()
 				it.skipDescendants();
 			}
 		}
-		llinfos << timer_stat << llendl;
+		LL_INFOS() << timer_stat << LL_ENDL;
 		mStatsIndex = -1;
 	}
 }

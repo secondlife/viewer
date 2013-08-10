@@ -643,7 +643,7 @@ void LLScrollContainer::scrollToShowRect(const LLRect& rect, const LLRect& const
 {
 	if (!mScrolledView)
 	{
-		llwarns << "LLScrollContainer::scrollToShowRect with no view!" << llendl;
+		LL_WARNS() << "LLScrollContainer::scrollToShowRect with no view!" << LL_ENDL;
 		return;
 	}
 

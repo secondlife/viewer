@@ -281,8 +281,8 @@ void LLViewerStats::addToMessage(LLSD &body)
 	misc["Vertex Buffers Enabled"] = getRecording().getMean(LLStatViewer::ENABLE_VBO);
 	
 	body["AgentPositionSnaps"] = getRecording().getSum(LLStatViewer::AGENT_POSITION_SNAP).value(); //mAgentPositionSnaps.asLLSD();
-	llinfos << "STAT: AgentPositionSnaps: Mean = " << getRecording().getMean(LLStatViewer::AGENT_POSITION_SNAP).value() << "; StdDev = " << getRecording().getStandardDeviation(LLStatViewer::AGENT_POSITION_SNAP).value() 
-			<< "; Count = " << getRecording().getSampleCount(LLStatViewer::AGENT_POSITION_SNAP) << llendl;
+	LL_INFOS() << "STAT: AgentPositionSnaps: Mean = " << getRecording().getMean(LLStatViewer::AGENT_POSITION_SNAP).value() << "; StdDev = " << getRecording().getStandardDeviation(LLStatViewer::AGENT_POSITION_SNAP).value() 
+			<< "; Count = " << getRecording().getSampleCount(LLStatViewer::AGENT_POSITION_SNAP) << LL_ENDL;
 }
 
 // *NOTE:Mani The following methods used to exist in viewer.cpp
@@ -417,13 +417,13 @@ public:
 
     void error(U32 statusNum, const std::string& reason)
     {
-		llinfos << "ViewerStatsResponder::error " << statusNum << " "
-				<< reason << llendl;
+		LL_INFOS() << "ViewerStatsResponder::error " << statusNum << " "
+				<< reason << LL_ENDL;
     }
 
     void result(const LLSD& content)
     {
-		llinfos << "ViewerStatsResponder::result" << llendl;
+		LL_INFOS() << "ViewerStatsResponder::result" << LL_ENDL;
 	}
 };
 
@@ -453,7 +453,7 @@ void send_stats()
 	std::string url = gAgent.getRegion()->getCapability("ViewerStats");
 
 	if (url.empty()) {
-		llwarns << "Could not get ViewerStats capability" << llendl;
+		LL_WARNS() << "Could not get ViewerStats capability" << LL_ENDL;
 		return;
 	}
 	
@@ -606,8 +606,8 @@ void send_stats()
 	F32 grey_time = LLVOAvatar::sGreyTime * 1000.f / gFrameTimeSeconds;
 	misc["int_2"] = LLSD::Integer(grey_time); // Steve: 1.22
 
-	llinfos << "Misc Stats: int_1: " << misc["int_1"] << " int_2: " << misc["int_2"] << llendl;
-	llinfos << "Misc Stats: string_1: " << misc["string_1"] << " string_2: " << misc["string_2"] << llendl;
+	LL_INFOS() << "Misc Stats: int_1: " << misc["int_1"] << " int_2: " << misc["int_2"] << LL_ENDL;
+	LL_INFOS() << "Misc Stats: string_1: " << misc["string_1"] << " string_2: " << misc["string_2"] << LL_ENDL;
 
 	body["DisplayNamesEnabled"] = gSavedSettings.getBOOL("UseDisplayNames");
 	body["DisplayNamesShowUsername"] = gSavedSettings.getBOOL("NameTagShowUsernames");
@@ -633,7 +633,7 @@ LLFrameTimer& LLViewerStats::PhaseMap::getPhaseTimer(const std::string& phase_na
 void LLViewerStats::PhaseMap::startPhase(const std::string& phase_name)
 {
 	LLFrameTimer& timer = getPhaseTimer(phase_name);
-	lldebugs << "startPhase " << phase_name << llendl;
+	LL_DEBUGS() << "startPhase " << phase_name << LL_ENDL;
 	timer.unpause();
 }
 
@@ -648,14 +648,14 @@ void LLViewerStats::PhaseMap::stopAllPhases()
 			// Going from started to paused state - record stats.
 			recordPhaseStat(phase_name,iter->second.getElapsedTimeF32());
 		}
-		lldebugs << "stopPhase (all) " << phase_name << llendl;
+		LL_DEBUGS() << "stopPhase (all) " << phase_name << LL_ENDL;
 		iter->second.pause();
 	}
 }
 
 void LLViewerStats::PhaseMap::clearPhases()
 {
-	lldebugs << "clearPhases" << llendl;
+	LL_DEBUGS() << "clearPhases" << LL_ENDL;
 
 	mPhaseMap.clear();
 }

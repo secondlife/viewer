@@ -71,7 +71,7 @@ public:
 
 	const LLDrawable& operator=(const LLDrawable& rhs)
 	{
-		llerrs << "Illegal operation!" << llendl;
+		LL_ERRS() << "Illegal operation!" << LL_ENDL;
 		return *this;
 	}
 
@@ -315,19 +315,19 @@ private:
 
 inline LLFace* LLDrawable::getFace(const S32 i) const
 {
-	//switch these asserts to llerrs -- davep
+	//switch these asserts to LL_ERRS() -- davep
 	//llassert((U32)i < mFaces.size());
 	//llassert(mFaces[i]);
 
 	if ((U32) i >= mFaces.size())
 	{
-		llwarns << "Invalid face index." << llendl;
+		LL_WARNS() << "Invalid face index." << LL_ENDL;
 		return NULL;
 	}
 
 	if (!mFaces[i])
 	{
-		llwarns << "Null face found." << llendl;
+		LL_WARNS() << "Null face found." << LL_ENDL;
 		return NULL;
 	}
 	

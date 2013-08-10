@@ -181,8 +181,8 @@ bool LLHeapBuffer::reclaimSegment(const LLSegment& segment)
 		}
 		else if(mReclaimedBytes > mSize)
 		{
-			llwarns << "LLHeapBuffer reclaimed more memory than allocated."
-				<< " This is probably programmer error." << llendl;
+			LL_WARNS() << "LLHeapBuffer reclaimed more memory than allocated."
+				<< " This is probably programmer error." << LL_ENDL;
 		}
 		return true;
 	}

@@ -301,7 +301,7 @@ bool LLMultiSlider::findUnusedValue(F32& initVal)
 
 		// stop if it's filled
 		if(initVal == mInitialValue && !firstTry) {
-			llwarns << "Whoa! Too many multi slider elements to add one to" << llendl;
+			LL_WARNS() << "Whoa! Too many multi slider elements to add one to" << LL_ENDL;
 			return false;
 		}
 
@@ -356,12 +356,12 @@ BOOL LLMultiSlider::handleHover(S32 x, S32 y, MASK mask)
 		onCommit();
 
 		getWindow()->setCursor(UI_CURSOR_ARROW);
-		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (active)" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (active)" << LL_ENDL;		
 	}
 	else
 	{
 		getWindow()->setCursor(UI_CURSOR_ARROW);
-		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (inactive)" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (inactive)" << LL_ENDL;		
 	}
 	return TRUE;
 }

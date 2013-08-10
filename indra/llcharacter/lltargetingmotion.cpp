@@ -80,7 +80,7 @@ LLMotion::LLMotionInitStatus LLTargetingMotion::onInitialize(LLCharacter *charac
 		!mTorsoJoint ||
 		!mRightHandJoint)
 	{
-		llwarns << "Invalid skeleton for targeting motion!" << llendl;
+		LL_WARNS() << "Invalid skeleton for targeting motion!" << LL_ENDL;
 		return STATUS_FAILURE;
 	}
 

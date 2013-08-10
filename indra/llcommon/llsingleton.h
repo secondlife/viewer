@@ -143,7 +143,7 @@ public:
 			llassert(false);
 			return NULL;
 		case CONSTRUCTING:
-			llerrs << "Tried to access singleton " << typeid(DERIVED_TYPE).name() << " from singleton constructor!" << llendl;
+			LL_ERRS() << "Tried to access singleton " << typeid(DERIVED_TYPE).name() << " from singleton constructor!" << LL_ENDL;
 			return NULL;
 		case INITIALIZING:
 			// go ahead and flag ourselves as initialized so we can be reentrant during initialization
@@ -155,7 +155,7 @@ public:
 		case INITIALIZED:
 			return sData.mInstance;
 		case DELETED:
-			llwarns << "Trying to access deleted singleton " << typeid(DERIVED_TYPE).name() << " creating new instance" << llendl;
+			LL_WARNS() << "Trying to access deleted singleton " << typeid(DERIVED_TYPE).name() << " creating new instance" << LL_ENDL;
 			SingletonLifetimeManager::construct();
 			// same as first time construction
 			sData.mInitState = INITIALIZED;	

@@ -1272,7 +1272,7 @@ BOOL LLPartSysCompressedPacket::fromUnsignedBytes(U8 *in, U32 bytesUsed)
 	}
 	else
 	{
-		llerrs << "NULL input data or number of bytes exceed mData size" << llendl;
+		LL_ERRS() << "NULL input data or number of bytes exceed mData size" << LL_ENDL;
 		return FALSE;
 	}
 }		

@@ -315,7 +315,7 @@ LLLocale::LLLocale(const std::string& locale_string)
 	}
 	//else
 	//{
-	//	llinfos << "Set locale to " << new_locale_string << llendl;
+	//	LL_INFOS() << "Set locale to " << new_locale_string << LL_ENDL;
 	//}
 }
 

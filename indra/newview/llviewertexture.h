@@ -119,7 +119,7 @@ public:
 
 	virtual S8 getType() const;
 	virtual BOOL isMissingAsset()const ;
-	virtual void dump();	// debug info to llinfos
+	virtual void dump();	// debug info to LL_INFOS()
 	
 	/*virtual*/ bool bindDefaultImage(const S32 stage = 0) ;
 	/*virtual*/ bool bindDebugImage(const S32 stage = 0) ;

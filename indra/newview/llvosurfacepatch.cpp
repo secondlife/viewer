@@ -72,7 +72,7 @@ public:
 
 		if ((data_mask & type_mask) != data_mask)
 		{
-			llerrs << "LLVertexBuffer::setupVertexBuffer missing required components for supplied data mask." << llendl;
+			LL_ERRS() << "LLVertexBuffer::setupVertexBuffer missing required components for supplied data mask." << LL_ENDL;
 		}
 
 		if (data_mask & MAP_NORMAL)
@@ -291,7 +291,7 @@ void LLVOSurfacePatch::updateFaceSize(S32 idx)
 {
 	if (idx != 0)
 	{
-		llwarns << "Terrain partition requested invalid face!!!" << llendl;
+		LL_WARNS() << "Terrain partition requested invalid face!!!" << LL_ENDL;
 		return;
 	}
 

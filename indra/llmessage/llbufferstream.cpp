@@ -53,7 +53,7 @@ LLBufferStreamBuf::~LLBufferStreamBuf()
 // virtual
 int LLBufferStreamBuf::underflow()
 {
-	//lldebugs << "LLBufferStreamBuf::underflow()" << llendl;
+	//LL_DEBUGS() << "LLBufferStreamBuf::underflow()" << LL_ENDL;
 	if(!mBuffer)
 	{
 		return EOF;

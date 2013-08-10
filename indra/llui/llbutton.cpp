@@ -252,7 +252,7 @@ LLButton::LLButton(const LLButton::Params& p)
 	
 	if (mImageUnselected.isNull())
 	{
-		llwarns << "Button: " << getName() << " with no image!" << llendl;
+		LL_WARNS() << "Button: " << getName() << " with no image!" << LL_ENDL;
 	}
 	
 	if (p.click_callback.isProvided())
@@ -591,7 +591,7 @@ BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 
 		// We only handle the click if the click both started and ended within us
 		getWindow()->setCursor(UI_CURSOR_ARROW);
-		LL_DEBUGS("UserInput") << "hover handled by " << getName() << llendl;
+		LL_DEBUGS("UserInput") << "hover handled by " << getName() << LL_ENDL;
 	}
 	return TRUE;
 }
@@ -816,7 +816,7 @@ void LLButton::draw()
 	else
 	{
 		// no image
-		lldebugs << "No image for button " << getName() << llendl;
+		LL_DEBUGS() << "No image for button " << getName() << LL_ENDL;
 		// draw it in pink so we can find it
 		gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4::pink1 % alpha, FALSE);
 	}
@@ -1039,7 +1039,7 @@ void LLButton::setImageUnselected(LLPointer<LLUIImage> image)
 	mImageUnselected = image;
 	if (mImageUnselected.isNull())
 	{
-		llwarns << "Setting default button image for: " << getName() << " to NULL" << llendl;
+		LL_WARNS() << "Setting default button image for: " << getName() << " to NULL" << LL_ENDL;
 	}
 }
 

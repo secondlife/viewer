@@ -144,11 +144,11 @@ BOOL LLToolSelectRect::handleHover(S32 x, S32 y, MASK mask)
 			return LLToolSelect::handleHover(x, y, mask);
 		}
 
-		LL_DEBUGS("UserInput") << "hover handled by LLToolSelectRect (active)" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by LLToolSelectRect (active)" << LL_ENDL;		
 	}
 	else
 	{
-		LL_DEBUGS("UserInput") << "hover handled by LLToolSelectRect (inactive)" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by LLToolSelectRect (inactive)" << LL_ENDL;		
 	}
 
 	gViewerWindow->setCursor(UI_CURSOR_ARROW);

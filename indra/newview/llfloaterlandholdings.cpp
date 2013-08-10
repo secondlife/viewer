@@ -194,7 +194,7 @@ void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 		if ( msg->getSizeFast(_PREHASH_QueryData, i, _PREHASH_ProductSKU) > 0 )
 		{
 			msg->getStringFast(	_PREHASH_QueryData, _PREHASH_ProductSKU, land_sku, i);
-			llinfos << "Land sku: " << land_sku << llendl;
+			LL_INFOS() << "Land sku: " << land_sku << LL_ENDL;
 			land_type = LLProductInfoRequestManager::instance().getDescriptionForSku(land_sku);
 		}
 		else

@@ -305,7 +305,7 @@ void LLScriptScriptCodeChunk::build(LLFILE *efp, LLFILE *bcfp)
 
 		if (fwrite(mCompleteCode, 1, mTotalSize, bcfp) != (size_t)mTotalSize)
 		{
-			llwarns << "Short write" << llendl;
+			LL_WARNS() << "Short write" << LL_ENDL;
 		}
 	}
 	else

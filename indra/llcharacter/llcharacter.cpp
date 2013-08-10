@@ -106,7 +106,7 @@ LLJoint *LLCharacter::getJoint( const std::string &name )
 
 	if (!joint)
 	{
-		llwarns << "Failed to find joint." << llendl;
+		LL_WARNS() << "Failed to find joint." << LL_ENDL;
 	}
 	return joint;
 }
@@ -181,7 +181,7 @@ BOOL LLCharacter::isMotionActive(const LLUUID& id)
 //-----------------------------------------------------------------------------
 void LLCharacter::requestStopMotion( LLMotion* motion)
 {
-//	llinfos << "DEBUG: Char::onDeactivateMotion( " << motionName << " )" << llendl;
+//	LL_INFOS() << "DEBUG: Char::onDeactivateMotion( " << motionName << " )" << LL_ENDL;
 }
 
 
@@ -242,14 +242,14 @@ void LLCharacter::dumpCharacter( LLJoint* joint )
 	// handle top level entry into recursion
 	if (joint == NULL)
 	{
-		llinfos << "DEBUG: Dumping Character @" << this << llendl;
+		LL_INFOS() << "DEBUG: Dumping Character @" << this << LL_ENDL;
 		dumpCharacter( getRootJoint() );
-		llinfos << "DEBUG: Done." << llendl;
+		LL_INFOS() << "DEBUG: Done." << LL_ENDL;
 		return;
 	}
 
 	// print joint info
-	llinfos << "DEBUG: " << joint->getName() << " (" << (joint->getParent()?joint->getParent()->getName():std::string("ROOT")) << ")" << llendl;
+	LL_INFOS() << "DEBUG: " << joint->getName() << " (" << (joint->getParent()?joint->getParent()->getName():std::string("ROOT")) << ")" << LL_ENDL;
 
 	// recurse
 	for (LLJoint::child_list_t::iterator iter = joint->mChildren.begin();
@@ -313,7 +313,7 @@ BOOL LLCharacter::setVisualParamWeight(const char* param_name, F32 weight, BOOL 
 		name_iter->second->setWeight(weight, upload_bake);
 		return TRUE;
 	}
-	llwarns << "LLCharacter::setVisualParamWeight() Invalid visual parameter: " << param_name << llendl;
+	LL_WARNS() << "LLCharacter::setVisualParamWeight() Invalid visual parameter: " << param_name << LL_ENDL;
 	return FALSE;
 }
 
@@ -328,7 +328,7 @@ BOOL LLCharacter::setVisualParamWeight(S32 index, F32 weight, BOOL upload_bake)
 		index_iter->second->setWeight(weight, upload_bake);
 		return TRUE;
 	}
-	llwarns << "LLCharacter::setVisualParamWeight() Invalid visual parameter index: " << index << llendl;
+	LL_WARNS() << "LLCharacter::setVisualParamWeight() Invalid visual parameter index: " << index << LL_ENDL;
 	return FALSE;
 }
 
@@ -345,7 +345,7 @@ F32 LLCharacter::getVisualParamWeight(LLVisualParam *which_param)
 	}
 	else
 	{
-		llwarns << "LLCharacter::getVisualParamWeight() Invalid visual parameter*, index= " << index << llendl;
+		LL_WARNS() << "LLCharacter::getVisualParamWeight() Invalid visual parameter*, index= " << index << LL_ENDL;
 		return 0.f;
 	}
 }
@@ -363,7 +363,7 @@ F32 LLCharacter::getVisualParamWeight(const char* param_name)
 	{
 		return name_iter->second->getWeight();
 	}
-	llwarns << "LLCharacter::getVisualParamWeight() Invalid visual parameter: " << param_name << llendl;
+	LL_WARNS() << "LLCharacter::getVisualParamWeight() Invalid visual parameter: " << param_name << LL_ENDL;
 	return 0.f;
 }
 
@@ -379,7 +379,7 @@ F32 LLCharacter::getVisualParamWeight(S32 index)
 	}
 	else
 	{
-		llwarns << "LLCharacter::getVisualParamWeight() Invalid visual parameter index: " << index << llendl;
+		LL_WARNS() << "LLCharacter::getVisualParamWeight() Invalid visual parameter index: " << index << LL_ENDL;
 		return 0.f;
 	}
 }
@@ -413,7 +413,7 @@ LLVisualParam*	LLCharacter::getVisualParam(const char *param_name)
 	{
 		return name_iter->second;
 	}
-	llwarns << "LLCharacter::getVisualParam() Invalid visual parameter: " << param_name << llendl;
+	LL_WARNS() << "LLCharacter::getVisualParam() Invalid visual parameter: " << param_name << LL_ENDL;
 	return NULL;
 }
 
@@ -438,8 +438,8 @@ void LLCharacter::addSharedVisualParam(LLVisualParam *param)
 	}
 	else
 	{
-		llwarns << "Shared visual parameter " << param->getName() << " does not already exist with ID " << 
-			param->getID() << llendl;
+		LL_WARNS() << "Shared visual parameter " << param->getName() << " does not already exist with ID " << 
+			param->getID() << LL_ENDL;
 	}
 }
 
@@ -454,8 +454,8 @@ void LLCharacter::addVisualParam(LLVisualParam *param)
 	idxres = mVisualParamIndexMap.insert(visual_param_index_map_t::value_type(index, param));
 	if (!idxres.second)
 	{
-		llwarns << "Visual parameter " << param->getName() << " already exists with same ID as " << 
-			param->getName() << llendl;
+		LL_WARNS() << "Visual parameter " << param->getName() << " already exists with same ID as " << 
+			param->getName() << LL_ENDL;
 		visual_param_index_map_t::iterator index_iter = idxres.first;
 		index_iter->second = param;
 	}
@@ -475,7 +475,7 @@ void LLCharacter::addVisualParam(LLVisualParam *param)
 			name_iter->second = param;
 		}
 	}
-	//llinfos << "Adding Visual Param '" << param->getName() << "' ( " << index << " )" << llendl;
+	//LL_INFOS() << "Adding Visual Param '" << param->getName() << "' ( " << index << " )" << LL_ENDL;
 }
 
 //-----------------------------------------------------------------------------

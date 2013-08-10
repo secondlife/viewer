@@ -717,7 +717,7 @@ void LLTeleportHistoryPanel::refresh()
 											  mCurrentItem,
 											  filter_string);
 			if ( !curr_flat_view->addItem(item, LLUUID::null, ADD_BOTTOM, false) )
-				llerrs << "Couldn't add flat item to teleport history." << llendl;
+				LL_ERRS() << "Couldn't add flat item to teleport history." << LL_ENDL;
 			if (mLastSelectedItemIndex == mCurrentItem)
 				curr_flat_view->selectItem(item, true);
 		}

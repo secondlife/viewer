@@ -133,7 +133,7 @@ bool LLFloater::KeyCompare::compare(const LLSD& a, const LLSD& b)
 {
 	if (a.type() != b.type())
 	{
-		//llerrs << "Mismatched LLSD types: (" << a << ") mismatches (" << b << ")" << llendl;
+		//LL_ERRS() << "Mismatched LLSD types: (" << a << ") mismatches (" << b << ")" << LL_ENDL;
 		return false;
 	}
 	else if (a.isUndefined())
@@ -1102,7 +1102,7 @@ BOOL LLFloater::canSnapTo(const LLView* other_view)
 {
 	if (NULL == other_view)
 	{
-		llwarns << "other_view is NULL" << llendl;
+		LL_WARNS() << "other_view is NULL" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -3158,7 +3158,7 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 		LLFastTimer _(FTM_EXTERNAL_FLOATER_LOAD);
 		if (!LLUICtrlFactory::getLayeredXMLNode(xml_filename, referenced_xml))
 		{
-			llwarns << "Couldn't parse panel from: " << xml_filename << llendl;
+			LL_WARNS() << "Couldn't parse panel from: " << xml_filename << LL_ENDL;
 
 			return FALSE;
 		}
@@ -3239,7 +3239,7 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 
 	if (!result)
 	{
-		llerrs << "Failed to construct floater " << getName() << llendl;
+		LL_ERRS() << "Failed to construct floater " << getName() << LL_ENDL;
 	}
 
 	applyRectControl(); // If we have a saved rect control, apply it
@@ -3284,20 +3284,20 @@ bool LLFloater::buildFromFile(const std::string& filename)
 
 	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
 	{
-		llwarns << "Couldn't find (or parse) floater from: " << filename << llendl;
+		LL_WARNS() << "Couldn't find (or parse) floater from: " << filename << LL_ENDL;
 		return false;
 	}
 	
 	// root must be called floater
 	if( !(root->hasName("floater") || root->hasName("multi_floater")) )
 	{
-		llwarns << "Root node should be named floater in: " << filename << llendl;
+		LL_WARNS() << "Root node should be named floater in: " << filename << LL_ENDL;
 		return false;
 	}
 	
 	bool res = true;
 	
-	lldebugs << "Building floater " << filename << llendl;
+	LL_DEBUGS() << "Building floater " << filename << LL_ENDL;
 	LLUICtrlFactory::instance().pushFileName(filename);
 	{
 		if (!getFactoryMap().empty())

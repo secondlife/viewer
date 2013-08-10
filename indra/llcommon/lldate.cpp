@@ -63,8 +63,8 @@ LLDate::LLDate(const std::string& iso8601_date)
 {
 	if(!fromString(iso8601_date))
 	{
-		llwarns << "date " << iso8601_date << " failed to parse; "
-			<< "ZEROING IT OUT" << llendl;
+		LL_WARNS() << "date " << iso8601_date << " failed to parse; "
+			<< "ZEROING IT OUT" << LL_ENDL;
 		mSecondsSinceEpoch = DATE_EPOCH;
 	}
 }

@@ -456,7 +456,7 @@ BOOL LLTimer::knownBadTimer()
 			{
 				if (!wcscmp(pci_id, bad_pci_list[check]))
 				{
-//					llwarns << "unreliable PCI chipset found!! " << pci_id << endl;
+//					LL_WARNS() << "unreliable PCI chipset found!! " << pci_id << endl;
 					failed = TRUE;
 					break;
 				}

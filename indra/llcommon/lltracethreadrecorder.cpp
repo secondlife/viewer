@@ -174,7 +174,7 @@ ThreadRecorder::active_recording_list_t::reverse_iterator ThreadRecorder::bringU
 
 	if (it == end_it)
 	{
-		llwarns << "Recording not active on this thread" << llendl;
+		LL_WARNS() << "Recording not active on this thread" << LL_ENDL;
 	}
 
 	return it;

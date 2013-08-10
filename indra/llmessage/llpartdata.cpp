@@ -266,7 +266,7 @@ BOOL LLPartSysData::isNullPS(const S32 block_num)
 	}
 	else if (size != PS_DATA_BLOCK_SIZE)
 	{
-		llwarns << "PSBlock is wrong size for particle system data - got " << size << ", expecting " << PS_DATA_BLOCK_SIZE << llendl;
+		LL_WARNS() << "PSBlock is wrong size for particle system data - got " << size << ", expecting " << PS_DATA_BLOCK_SIZE << LL_ENDL;
 		return TRUE;
 	}
 	gMessageSystem->getBinaryData("ObjectData", "PSBlock", ps_data_block, PS_DATA_BLOCK_SIZE, block_num, PS_DATA_BLOCK_SIZE);
@@ -314,7 +314,7 @@ BOOL LLPartSysData::unpackBlock(const S32 block_num)
 
 	if (size != PS_DATA_BLOCK_SIZE)
 	{
-		llwarns << "PSBlock is wrong size for particle system data - got " << size << ", expecting " << PS_DATA_BLOCK_SIZE << llendl;
+		LL_WARNS() << "PSBlock is wrong size for particle system data - got " << size << ", expecting " << PS_DATA_BLOCK_SIZE << LL_ENDL;
 		return FALSE;
 	}
 

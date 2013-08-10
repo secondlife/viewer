@@ -446,7 +446,7 @@ S32 LLAPRFile::read(void *buf, S32 nbytes)
 {
 	if(!mFile) 
 	{
-		llwarns << "apr mFile is removed by somebody else. Can not read." << llendl ;
+		LL_WARNS() << "apr mFile is removed by somebody else. Can not read." << LL_ENDL ;
 		return 0;
 	}
 	
@@ -468,7 +468,7 @@ S32 LLAPRFile::write(const void *buf, S32 nbytes)
 {
 	if(!mFile) 
 	{
-		llwarns << "apr mFile is removed by somebody else. Can not write." << llendl ;
+		LL_WARNS() << "apr mFile is removed by somebody else. Can not write." << LL_ENDL ;
 		return 0;
 	}
 	

@@ -44,7 +44,7 @@ LLExternalEditor::EErrorCode LLExternalEditor::setCommand(const std::string& env
 	std::string cmd = findCommand(env_var, override);
 	if (cmd.empty())
 	{
-		llwarns << "Editor command is empty or not set" << llendl;
+		LL_WARNS() << "Editor command is empty or not set" << LL_ENDL;
 		return EC_NOT_SPECIFIED;
 	}
 
@@ -55,7 +55,7 @@ LLExternalEditor::EErrorCode LLExternalEditor::setCommand(const std::string& env
 	std::string bin_path = tokens[0];
 	if (!LLFile::isfile(bin_path))
 	{
-		llwarns << "Editor binary [" << bin_path << "] not found" << llendl;
+		LL_WARNS() << "Editor binary [" << bin_path << "] not found" << LL_ENDL;
 		return EC_BINARY_NOT_FOUND;
 	}
 
@@ -71,10 +71,10 @@ LLExternalEditor::EErrorCode LLExternalEditor::setCommand(const std::string& env
 	if (cmd.find(sFilenameMarker) == std::string::npos)
 	{
 		mProcessParams.args.add(sFilenameMarker);
-		llinfos << "Adding the filename marker (" << sFilenameMarker << ")" << llendl;
+		LL_INFOS() << "Adding the filename marker (" << sFilenameMarker << ")" << LL_ENDL;
 	}
 
-	llinfos << "Setting command [" << mProcessParams << "]" << llendl;
+	LL_INFOS() << "Setting command [" << mProcessParams << "]" << LL_ENDL;
 
 	return EC_SUCCESS;
 }
@@ -83,7 +83,7 @@ LLExternalEditor::EErrorCode LLExternalEditor::run(const std::string& file_path)
 {
 	if (std::string(mProcessParams.executable).empty() || mProcessParams.args.empty())
 	{
-		llwarns << "Editor command not set" << llendl;
+		LL_WARNS() << "Editor command not set" << LL_ENDL;
 		return EC_NOT_SPECIFIED;
 	}
 
@@ -181,12 +181,12 @@ std::string LLExternalEditor::findCommand(
 	if (!override.empty())	// try the supplied override first
 	{
 		cmd = override;
-		llinfos << "Using override" << llendl;
+		LL_INFOS() << "Using override" << LL_ENDL;
 	}
 	else if (!LLUI::sSettingGroups["config"]->getString(sSetting).empty())
 	{
 		cmd = LLUI::sSettingGroups["config"]->getString(sSetting);
-		llinfos << "Using setting" << llendl;
+		LL_INFOS() << "Using setting" << LL_ENDL;
 	}
 	else					// otherwise use the path specified by the environment variable
 	{
@@ -194,10 +194,10 @@ std::string LLExternalEditor::findCommand(
 		if (env_var_val)
 		{
 			cmd = env_var_val;
-			llinfos << "Using env var " << env_var << llendl;
+			LL_INFOS() << "Using env var " << env_var << LL_ENDL;
 		}
 	}
 
-	llinfos << "Found command [" << cmd << "]" << llendl;
+	LL_INFOS() << "Found command [" << cmd << "]" << LL_ENDL;
 	return cmd;
 }

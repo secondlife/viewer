@@ -165,8 +165,8 @@ public:
 #ifdef _DEBUG
 					if (mBufferSize > mMaxSize)
 					{
-						llerrs << "mBufferSize exceeding mMaxSize" << llendl;
-						llerrs << mBufferSize << " > " << mMaxSize << llendl;
+						LL_ERRS() << "mBufferSize exceeding mMaxSize" << LL_ENDL;
+						LL_ERRS() << mBufferSize << " > " << mMaxSize << LL_ENDL;
 					}
 #endif
 					mLoad = *(mBuffer + mBufferSize++);

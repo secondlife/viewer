@@ -100,7 +100,7 @@ public:
 			if (item_ptr.isNull())
 			{
 				// check to prevent a crash. See EXT-8459.
-				llwarns << "Passed handle contains a dead inventory item. Most likely notecard has been closed and embedded item was destroyed." << llendl;
+				LL_WARNS() << "Passed handle contains a dead inventory item. Most likely notecard has been closed and embedded item was destroyed." << LL_ENDL;
 			}
 			else
 			{
@@ -143,7 +143,7 @@ public:
 		LLInventoryItem* item = gInventory.getItem(inv_item);
 		if(!item)
 		{
-			llwarns << "Item add reported, but not found in inventory!: " << inv_item << llendl;
+			LL_WARNS() << "Item add reported, but not found in inventory!: " << inv_item << LL_ENDL;
 		}
 		else
 		{
@@ -438,7 +438,7 @@ llwchar	LLEmbeddedItems::getEmbeddedCharFromIndex(S32 index)
 {
 	if (index >= (S32)mEmbeddedIndexedChars.size())
 	{
-		llwarns << "No item for embedded char " << index << " using LL_UNKNOWN_CHAR" << llendl;
+		LL_WARNS() << "No item for embedded char " << index << " using LL_UNKNOWN_CHAR" << LL_ENDL;
 		return LL_UNKNOWN_CHAR;
 	}
 	return mEmbeddedIndexedChars[index];
@@ -494,7 +494,7 @@ S32 LLEmbeddedItems::getIndexFromEmbeddedChar(llwchar wch)
 	}
 	else
 	{
-		llwarns << "Embedded char " << wch << " not found, using 0" << llendl;
+		LL_WARNS() << "Embedded char " << wch << " not found, using 0" << LL_ENDL;
 		return 0;
 	}
 }
@@ -920,7 +920,7 @@ BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	}
 
 	handled = TRUE;
-	LL_DEBUGS("UserInput") << "dragAndDrop handled by LLViewerTextEditor " << getName() << llendl;
+	LL_DEBUGS("UserInput") << "dragAndDrop handled by LLViewerTextEditor " << getName() << LL_ENDL;
 
 	return handled;
 }

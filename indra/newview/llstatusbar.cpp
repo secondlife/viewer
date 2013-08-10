@@ -391,7 +391,7 @@ void LLStatusBar::sendMoneyBalanceRequest()
 
 void LLStatusBar::setHealth(S32 health)
 {
-	//llinfos << "Setting health to: " << buffer << llendl;
+	//LL_INFOS() << "Setting health to: " << buffer << LL_ENDL;
 	if( mHealth > health )
 	{
 		if (mHealth > (health + gSavedSettings.getF32("UISndHealthReductionThreshold")))

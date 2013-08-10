@@ -104,7 +104,7 @@ void LLStandardBumpmap::addstandard()
 	// can't assert; we destroyGL and restoreGL a lot during *first* startup, which populates this list already, THEN we explicitly init the list as part of *normal* startup.  Sigh.  So clear the list every time before we (re-)add the standard bumpmaps.
 	//llassert( LLStandardBumpmap::sStandardBumpmapCount == 0 );
 	clear();
-	llinfos << "Adding standard bumpmaps." << llendl;
+	LL_INFOS() << "Adding standard bumpmaps." << LL_ENDL;
 	gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount++] = LLStandardBumpmap("None");		// BE_NO_BUMP
 	gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount++] = LLStandardBumpmap("Brightness");	// BE_BRIGHTNESS
 	gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount++] = LLStandardBumpmap("Darkness");	// BE_DARKNESS
@@ -113,7 +113,7 @@ void LLStandardBumpmap::addstandard()
 	LLFILE* file = LLFile::fopen( file_name, "rt" );	 /*Flawfinder: ignore*/
 	if( !file )
 	{
-		llwarns << "Could not open std_bump <" << file_name << ">" << llendl;
+		LL_WARNS() << "Could not open std_bump <" << file_name << ">" << LL_ENDL;
 		return;
 	}
 
@@ -122,13 +122,13 @@ void LLStandardBumpmap::addstandard()
 	S32 fields_read = fscanf( file, "LLStandardBumpmap version %d", &file_version );
 	if( fields_read != 1 )
 	{
-		llwarns << "Bad LLStandardBumpmap header" << llendl;
+		LL_WARNS() << "Bad LLStandardBumpmap header" << LL_ENDL;
 		return;
 	}
 
 	if( file_version > STD_BUMP_LATEST_FILE_VERSION )
 	{
-		llwarns << "LLStandardBumpmap has newer version (" << file_version << ") than viewer (" << STD_BUMP_LATEST_FILE_VERSION << ")" << llendl;
+		LL_WARNS() << "LLStandardBumpmap has newer version (" << file_version << ") than viewer (" << STD_BUMP_LATEST_FILE_VERSION << ")" << LL_ENDL;
 		return;
 	}
 
@@ -145,11 +145,11 @@ void LLStandardBumpmap::addstandard()
 		}
 		if( fields_read != 2 )
 		{
-			llwarns << "Bad LLStandardBumpmap entry" << llendl;
+			LL_WARNS() << "Bad LLStandardBumpmap entry" << LL_ENDL;
 			return;
 		}
 
-// 		llinfos << "Loading bumpmap: " << bump_image_id << " from viewerart" << llendl;
+// 		LL_INFOS() << "Loading bumpmap: " << bump_image_id << " from viewerart" << LL_ENDL;
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mLabel = label;
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage = 
 			LLViewerTextureManager::getFetchedTexture(LLUUID(bump_image_id));	
@@ -165,7 +165,7 @@ void LLStandardBumpmap::addstandard()
 // static
 void LLStandardBumpmap::clear()
 {
-	llinfos << "Clearing standard bumpmaps." << llendl;
+	LL_INFOS() << "Clearing standard bumpmaps." << LL_ENDL;
 	for( U32 i = 0; i < LLStandardBumpmap::sStandardBumpmapCount; i++ )
 	{
 		gStandardBumpmapList[i].mLabel.assign("");
@@ -927,7 +927,7 @@ void LLBumpImageList::init()
 
 void LLBumpImageList::clear()
 {
-	llinfos << "Clearing dynamic bumpmaps." << llendl;
+	LL_INFOS() << "Clearing dynamic bumpmaps." << LL_ENDL;
 	// these will be re-populated on-demand
 	mBrightnessEntries.clear();
 	mDarknessEntries.clear();
@@ -1003,7 +1003,7 @@ void LLBumpImageList::updateImages()
 
 			if( destroy )
 			{
-				//llinfos << "*** Destroying bright " << (void*)image << llendl;
+				//LL_INFOS() << "*** Destroying bright " << (void*)image << LL_ENDL;
 				mBrightnessEntries.erase(curiter);   // deletes the image thanks to reference counting
 			}
 		}
@@ -1030,7 +1030,7 @@ void LLBumpImageList::updateImages()
 
 			if( destroy )
 			{
-				//llinfos << "*** Destroying dark " << (void*)image << llendl;;
+				//LL_INFOS() << "*** Destroying dark " << (void*)image << LL_ENDL;;
 				mDarknessEntries.erase(curiter);  // deletes the image thanks to reference counting
 			}
 		}

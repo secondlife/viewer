@@ -131,11 +131,11 @@ void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, const wid
 				// for the child widget
 				// You might need to add something like:
 				// static ParentWidgetRegistry::Register<ChildWidgetType> register("child_widget_name");
-				llwarns << child_name << " is not a valid child of " << node->getName()->mString << llendl;
+				LL_WARNS() << child_name << " is not a valid child of " << node->getName()->mString << LL_ENDL;
 			}
 			else
 			{
-				llwarns << "Could not create widget named " << child_node->getName()->mString << llendl;
+				LL_WARNS() << "Could not create widget named " << child_node->getName()->mString << LL_ENDL;
 			}
 		}
 

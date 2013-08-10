@@ -435,7 +435,7 @@ void LLPanelLandmarkInfo::populateFoldersList()
 	const LLViewerInventoryCategory* lmcat = gInventory.getCategory(landmarks_id);
 	if (!lmcat)
 	{
-		llwarns << "Cannot find the landmarks folder" << llendl;
+		LL_WARNS() << "Cannot find the landmarks folder" << LL_ENDL;
 	}
 	else
 	{
@@ -483,7 +483,7 @@ static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats)
 	LLViewerInventoryCategory* favorites_cat = gInventory.getCategory(favorites_id);
 	if (!favorites_cat)
 	{
-		llwarns << "Cannot find the favorites folder" << llendl;
+		LL_WARNS() << "Cannot find the favorites folder" << LL_ENDL;
 	}
 	else
 	{

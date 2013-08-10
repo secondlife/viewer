@@ -110,7 +110,7 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 	// File masks starting with "/" will match nothing, so we consider them invalid.
 	if (LLStringUtil::startsWith(mask, getDirDelimiter()))
 	{
-		llwarns << "Invalid file mask: " << mask << llendl;
+		LL_WARNS() << "Invalid file mask: " << mask << LL_ENDL;
 		llassert(!"Invalid file mask");
 	}
 
@@ -133,12 +133,12 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 			{
 				retry_count++;
 				result = errno;
-				llwarns << "Problem removing " << fullpath << " - errorcode: "
-						<< result << " attempt " << retry_count << llendl;
+				LL_WARNS() << "Problem removing " << fullpath << " - errorcode: "
+						<< result << " attempt " << retry_count << LL_ENDL;
 
 				if(retry_count >= 5)
 				{
-					llwarns << "Failed to remove " << fullpath << llendl ;
+					LL_WARNS() << "Failed to remove " << fullpath << LL_ENDL ;
 					return count ;
 				}
 
@@ -148,7 +148,7 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 			{
 				if (retry_count)
 				{
-					llwarns << "Successfully removed " << fullpath << llendl;
+					LL_WARNS() << "Successfully removed " << fullpath << LL_ENDL;
 				}
 				break;
 			}			
@@ -238,7 +238,7 @@ const std::string &LLDir::getLindenUserDir() const
 {
 	if (mLindenUserDir.empty())
 	{
-		lldebugs << "getLindenUserDir() called early, we don't have the user name yet - returning empty string to caller" << llendl;
+		LL_DEBUGS() << "getLindenUserDir() called early, we don't have the user name yet - returning empty string to caller" << LL_ENDL;
 	}
 
 	return mLindenUserDir;
@@ -491,9 +491,9 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 
 	if (prefix.empty())
 	{
-		llwarns << ELLPathToString(location)
+		LL_WARNS() << ELLPathToString(location)
 				<< ", '" << subdir1 << "', '" << subdir2 << "', '" << in_filename
-				<< "': prefix is empty, possible bad filename" << llendl;
+				<< "': prefix is empty, possible bad filename" << LL_ENDL;
 	}
 
 	std::string expanded_filename = add(add(prefix, subdir1), subdir2);
@@ -802,7 +802,7 @@ void LLDir::setLindenUserDir(const std::string &username)
 	}
 	else
 	{
-		llerrs << "NULL name for LLDir::setLindenUserDir" << llendl;
+		LL_ERRS() << "NULL name for LLDir::setLindenUserDir" << LL_ENDL;
 	}
 
 	dumpCurrentDirectories();	
@@ -816,7 +816,7 @@ void LLDir::setChatLogsDir(const std::string &path)
 	}
 	else
 	{
-		llwarns << "Invalid name for LLDir::setChatLogsDir" << llendl;
+		LL_WARNS() << "Invalid name for LLDir::setChatLogsDir" << LL_ENDL;
 	}
 }
 
@@ -841,7 +841,7 @@ void LLDir::setPerAccountChatLogsDir(const std::string &username)
 	}
 	else
 	{
-		llerrs << "NULL name for LLDir::setPerAccountChatLogsDir" << llendl;
+		LL_ERRS() << "NULL name for LLDir::setPerAccountChatLogsDir" << LL_ENDL;
 	}
 }
 
@@ -1011,13 +1011,13 @@ void dir_exists_or_crash(const std::string &dir_name)
 		{
 		   if(0 != LLFile::mkdir(dir_name, 0700))		// octal
 		   {
-			   llerrs << "Unable to create directory: " << dir_name << llendl;
+			   LL_ERRS() << "Unable to create directory: " << dir_name << LL_ENDL;
 		   }
 		}
 		else
 		{
-			llerrs << "Unable to stat: " << dir_name << " errno = " << stat_rv
-				   << llendl;
+			LL_ERRS() << "Unable to stat: " << dir_name << " errno = " << stat_rv
+				   << LL_ENDL;
 		}
 	}
 	else
@@ -1025,7 +1025,7 @@ void dir_exists_or_crash(const std::string &dir_name)
 		// data_dir exists, make sure it's a directory.
 		if(!S_ISDIR(dir_stat.st_mode))
 		{
-			llerrs << "Data directory collision: " << dir_name << llendl;
+			LL_ERRS() << "Data directory collision: " << dir_name << LL_ENDL;
 		}
 	}
 #endif

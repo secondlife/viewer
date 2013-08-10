@@ -233,7 +233,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 			verts.push_back(cv);
 			if (verts.size() >= 65535)
 			{
-				//llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << llendl;
+				//LL_ERRS() << "Attempted to write model exceeding 16-bit index buffer limitation." << LL_ENDL;
 				return LLModel::VERTEX_NUMBER_OVERFLOW ;
 			}
 			U16 index = (U16) (verts.size()-1);
@@ -437,7 +437,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 				verts.push_back(cv);
 				if (verts.size() >= 65535)
 				{
-					//llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << llendl;
+					//LL_ERRS() << "Attempted to write model exceeding 16-bit index buffer limitation." << LL_ENDL;
 					return LLModel::VERTEX_NUMBER_OVERFLOW ;
 				}
 				U16 index = (U16) (verts.size()-1);
@@ -737,12 +737,12 @@ std::string LLModel::getStatusString(U32 status)
 	{
 		if(status_strings[status] == std::string())
 		{
-			llerrs << "No valid status string for this status: " << (U32)status << llendl ;
+			LL_ERRS() << "No valid status string for this status: " << (U32)status << LL_ENDL ;
 		}
 		return status_strings[status] ;
 	}
 
-	llerrs << "Invalid model status: " << (U32)status << llendl ;
+	LL_ERRS() << "Invalid model status: " << (U32)status << LL_ENDL ;
 
 	return std::string() ;
 }
@@ -818,7 +818,7 @@ BOOL LLModel::createVolumeFacesFromDomMesh(domMesh* mesh)
 	}
 	else
 	{	
-		llwarns << "no mesh found" << llendl;
+		LL_WARNS() << "no mesh found" << LL_ENDL;
 	}
 	
 	return FALSE;
@@ -1077,14 +1077,14 @@ void LLModel::addFace(const LLVolumeFace& face)
 {
 	if (face.mNumVertices == 0)
 	{
-		llerrs << "Cannot add empty face." << llendl;
+		LL_ERRS() << "Cannot add empty face." << LL_ENDL;
 	}
 
 	mVolumeFaces.push_back(face);
 
 	if (mVolumeFaces.size() > MAX_MODEL_FACES)
 	{
-		llerrs << "Model prims cannot have more than " << MAX_MODEL_FACES << " faces!" << llendl;
+		LL_ERRS() << "Model prims cannot have more than " << MAX_MODEL_FACES << " faces!" << LL_ENDL;
 	}
 }
 
@@ -1106,7 +1106,7 @@ void LLModel::generateNormals(F32 angle_cutoff)
 
 		if (vol_face.mNumIndices > 65535)
 		{
-			llwarns << "Too many vertices for normal generation to work." << llendl;
+			LL_WARNS() << "Too many vertices for normal generation to work." << LL_ENDL;
 			continue;
 		}
 
@@ -1706,7 +1706,7 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 	{
 		if ((iter->first - pos).magVec() > 0.1f)
 		{
-			llerrs << "Couldn't find weight list." << llendl;
+			LL_ERRS() << "Couldn't find weight list." << LL_ENDL;
 		}
 
 		return iter->second;
@@ -1811,7 +1811,7 @@ bool LLModel::loadModel(std::istream& is)
 	{
 		if (!LLSDSerialize::fromBinary(header, is, 1024*1024*1024))
 		{
-			llwarns << "Mesh header parse error.  Not a valid mesh asset!" << llendl;
+			LL_WARNS() << "Mesh header parse error.  Not a valid mesh asset!" << LL_ENDL;
 			return false;
 		}
 	}
@@ -1841,7 +1841,7 @@ bool LLModel::loadModel(std::istream& is)
 	if (header[nm[lod]]["offset"].asInteger() == -1 || 
 		header[nm[lod]]["size"].asInteger() == 0 )
 	{ //cannot load requested LOD
-		llwarns << "LoD data is invalid!" << llendl;
+		LL_WARNS() << "LoD data is invalid!" << LL_ENDL;
 		return false;
 	}
 
@@ -1904,7 +1904,7 @@ bool LLModel::loadModel(std::istream& is)
 	}
 	else
 	{
-		llwarns << "unpackVolumeFaces failed!" << llendl;
+		LL_WARNS() << "unpackVolumeFaces failed!" << LL_ENDL;
 	}
 
 	return false;
@@ -1922,7 +1922,7 @@ bool LLModel::isMaterialListSubset( LLModel* ref )
 		
 		for (U32 dst = 0; dst < refCnt; ++dst)
 		{
-			//llinfos<<mMaterialList[src]<<" "<<ref->mMaterialList[dst]<<llendl;
+			//LL_INFOS()<<mMaterialList[src]<<" "<<ref->mMaterialList[dst]<<LL_ENDL;
 			foundRef = mMaterialList[src] == ref->mMaterialList[dst];									
 				
 			if ( foundRef )
@@ -1967,7 +1967,7 @@ bool LLModel::matchMaterialOrder(LLModel* ref, int& refFaceCnt, int& modelFaceCn
 	bool isASubset = isMaterialListSubset( ref );
 	if ( !isASubset )
 	{
-		llinfos<<"Material of model is not a subset of reference."<<llendl;
+		LL_INFOS()<<"Material of model is not a subset of reference."<<LL_ENDL;
 		return false;
 	}
 	
@@ -2418,7 +2418,7 @@ LLSD LLModel::Decomposition::asLLSD() const
 
 				if (vert_idx > p.size())
 				{
-					llerrs << "Index out of bounds" << llendl;
+					LL_ERRS() << "Index out of bounds" << LL_ENDL;
 				}
 			}
 		}
@@ -2438,7 +2438,7 @@ void LLModel::Decomposition::merge(const LLModel::Decomposition* rhs)
 
 	if (mMeshID != rhs->mMeshID)
 	{
-		llerrs << "Attempted to merge with decomposition of some other mesh." << llendl;
+		LL_ERRS() << "Attempted to merge with decomposition of some other mesh." << LL_ENDL;
 	}
 
 	if (mBaseHull.empty())

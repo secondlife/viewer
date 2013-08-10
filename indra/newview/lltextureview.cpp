@@ -776,7 +776,7 @@ void LLTextureView::draw()
 	
 		if (mPrintList)
 		{
-			llinfos << "ID\tMEM\tBOOST\tPRI\tWIDTH\tHEIGHT\tDISCARD" << llendl;
+			LL_INFOS() << "ID\tMEM\tBOOST\tPRI\tWIDTH\tHEIGHT\tDISCARD" << LL_ENDL;
 		}
 	
 		for (LLViewerTextureList::image_priority_list_t::iterator iter = gTextureList.mImageList.begin();
@@ -794,14 +794,14 @@ void LLTextureView::draw()
 			if (mPrintList)
 			{
 				S32 tex_mem = imagep->hasGLTexture() ? imagep->getTextureMemory() : 0 ;
-				llinfos << imagep->getID()
+				LL_INFOS() << imagep->getID()
 						<< "\t" << tex_mem
 						<< "\t" << imagep->getBoostLevel()
 						<< "\t" << imagep->getDecodePriority()
 						<< "\t" << imagep->getWidth()
 						<< "\t" << imagep->getHeight()
 						<< "\t" << cur_discard
-						<< llendl;
+						<< LL_ENDL;
 			}
 
 			if (imagep->getID() == LLAppViewer::getTextureFetch()->mDebugID)

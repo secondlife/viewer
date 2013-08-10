@@ -80,7 +80,7 @@ public:
 
 		if (status != 200)
 		{
-			llwarns << "Failed to get upload config (" << status << ")" << llendl;
+			LL_WARNS() << "Failed to get upload config (" << status << ")" << LL_ENDL;
 			LLWebProfile::reportImageUploadStatus(false);
 			return;
 		}
@@ -89,7 +89,7 @@ public:
 		Json::Reader reader;
 		if (!reader.parse(body, root))
 		{
-			llwarns << "Failed to parse upload config: " << reader.getFormatedErrorMessages() << llendl;
+			LL_WARNS() << "Failed to parse upload config: " << reader.getFormatedErrorMessages() << LL_ENDL;
 			LLWebProfile::reportImageUploadStatus(false);
 			return;
 		}
@@ -112,7 +112,7 @@ public:
 		config["caption"]					= data.get("caption", "").asString();
 
 		// Do the actual image upload using the configuration.
-		LL_DEBUGS("Snapshots") << "Got upload config, POSTing image to " << upload_url << ", config=[" << config << "]" << llendl;
+		LL_DEBUGS("Snapshots") << "Got upload config, POSTing image to " << upload_url << ", config=[" << config << "]" << LL_ENDL;
 		LLWebProfile::post(mImagep, config, upload_url);
 	}
 
@@ -135,7 +135,7 @@ public:
 	{
 		if (status != 200)
 		{
-			llwarns << "Failed to upload image: " << status << " " << reason << llendl;
+			LL_WARNS() << "Failed to upload image: " << status << " " << reason << LL_ENDL;
 			LLWebProfile::reportImageUploadStatus(false);
 			return;
 		}
@@ -144,8 +144,8 @@ public:
 		std::stringstream strstrm;
 		strstrm << istr.rdbuf();
 		const std::string body = strstrm.str();
-		llinfos << "Image uploaded." << llendl;
-		LL_DEBUGS("Snapshots") << "Uploading image succeeded. Response: [" << body << "]" << llendl;
+		LL_INFOS() << "Image uploaded." << LL_ENDL;
+		LL_DEBUGS("Snapshots") << "Uploading image succeeded. Response: [" << body << "]" << LL_ENDL;
 		LLWebProfile::reportImageUploadStatus(true);
 	}
 
@@ -171,13 +171,13 @@ public:
 			LLSD headers = LLViewerMedia::getHeaders();
 			headers["Cookie"] = LLWebProfile::getAuthCookie();
 			const std::string& redir_url = content["location"];
-			LL_DEBUGS("Snapshots") << "Got redirection URL: " << redir_url << llendl;
+			LL_DEBUGS("Snapshots") << "Got redirection URL: " << redir_url << LL_ENDL;
 			LLHTTPClient::get(redir_url, new LLWebProfileResponders::PostImageRedirectResponder, headers);
 		}
 		else
 		{
-			llwarns << "Unexpected POST status: " << status << " " << reason << llendl;
-			LL_DEBUGS("Snapshots") << "headers: [" << content << "]" << llendl;
+			LL_WARNS() << "Unexpected POST status: " << status << " " << reason << LL_ENDL;
+			LL_DEBUGS("Snapshots") << "headers: [" << content << "]" << LL_ENDL;
 			LLWebProfile::reportImageUploadStatus(false);
 		}
 	}
@@ -204,7 +204,7 @@ void LLWebProfile::uploadImage(LLPointer<LLImageFormatted> image, const std::str
 	config_url += "?caption=" + LLURI::escape(caption);
 	config_url += "&add_loc=" + std::string(add_location ? "1" : "0");
 
-	LL_DEBUGS("Snapshots") << "Requesting " << config_url << llendl;
+	LL_DEBUGS("Snapshots") << "Requesting " << config_url << LL_ENDL;
 	LLSD headers = LLViewerMedia::getHeaders();
 	headers["Cookie"] = getAuthCookie();
 	LLHTTPClient::get(config_url, new LLWebProfileResponders::ConfigResponder(image), headers);
@@ -213,7 +213,7 @@ void LLWebProfile::uploadImage(LLPointer<LLImageFormatted> image, const std::str
 // static
 void LLWebProfile::setAuthCookie(const std::string& cookie)
 {
-	LL_DEBUGS("Snapshots") << "Setting auth cookie: " << cookie << llendl;
+	LL_DEBUGS("Snapshots") << "Setting auth cookie: " << cookie << LL_ENDL;
 	sAuthCookie = cookie;
 }
 
@@ -222,7 +222,7 @@ void LLWebProfile::post(LLPointer<LLImageFormatted> image, const LLSD& config, c
 {
 	if (dynamic_cast<LLImagePNG*>(image.get()) == 0)
 	{
-		llwarns << "Image to upload is not a PNG" << llendl;
+		LL_WARNS() << "Image to upload is not a PNG" << LL_ENDL;
 		llassert(dynamic_cast<LLImagePNG*>(image.get()) != 0);
 		return;
 	}

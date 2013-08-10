@@ -400,7 +400,7 @@ void TimeBlock::dumpCurTimes()
 			<< std::setprecision(3) << total_time.valueInUnits<LLUnits::Milliseconds>() << " ms, "
 			<< num_calls << " calls";
 
-		llinfos << out_str.str() << llendl;
+		LL_INFOS() << out_str.str() << LL_ENDL;
 	}
 }
 

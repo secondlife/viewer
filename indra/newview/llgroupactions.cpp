@@ -130,14 +130,14 @@ void LLGroupActions::startCall(const LLUUID& group_id)
 
 	if (!gAgent.getGroupData(group_id, gdata))
 	{
-		llwarns << "Error getting group data" << llendl;
+		LL_WARNS() << "Error getting group data" << LL_ENDL;
 		return;
 	}
 
 	LLUUID session_id = gIMMgr->addSession(gdata.mName, IM_SESSION_GROUP_START, group_id, true);
 	if (session_id == LLUUID::null)
 	{
-		llwarns << "Error adding session" << llendl;
+		LL_WARNS() << "Error adding session" << LL_ENDL;
 		return;
 	}
 
@@ -183,8 +183,8 @@ void LLGroupActions::join(const LLUUID& group_id)
 	}
 	else
 	{
-		llwarns << "LLGroupMgr::getInstance()->getGroupData(" << group_id 
-			<< ") was NULL" << llendl;
+		LL_WARNS() << "LLGroupMgr::getInstance()->getGroupData(" << group_id 
+			<< ") was NULL" << LL_ENDL;
 	}
 }
 

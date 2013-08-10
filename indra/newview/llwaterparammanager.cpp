@@ -103,7 +103,7 @@ void LLWaterParamManager::loadPresetsFromDir(const std::string& dir)
 		std::string path = gDirUtilp->add(dir, file);
 		if (!loadPreset(path))
 		{
-			llwarns << "Error loading water preset from " << path << llendl;
+			LL_WARNS() << "Error loading water preset from " << path << LL_ENDL;
 		}
 	}
 }
@@ -202,7 +202,7 @@ void LLWaterParamManager::applyParams(const LLSD& params, bool interpolate)
 {
 	if (params.size() == 0)
 	{
-		llwarns << "Undefined water params" << llendl;
+		LL_WARNS() << "Undefined water params" << LL_ENDL;
 		return;
 	}
 

@@ -98,7 +98,7 @@ void check_curl_code(CURLcode code)
 	{
 		// linux appears to throw a curl error once per session for a bad initialization
 		// at a pretty random time (when enabling cookies).
-		llinfos << "curl error detected: " << curl_easy_strerror(code) << llendl;
+		LL_INFOS() << "curl error detected: " << curl_easy_strerror(code) << LL_ENDL;
 	}
 }
 
@@ -108,7 +108,7 @@ void check_curl_multi_code(CURLMcode code)
 	{
 		// linux appears to throw a curl error once per session for a bad initialization
 		// at a pretty random time (when enabling cookies).
-		llinfos << "curl multi error detected: " << curl_multi_strerror(code) << llendl;
+		LL_INFOS() << "curl multi error detected: " << curl_multi_strerror(code) << LL_ENDL;
 	}
 }
 
@@ -153,7 +153,7 @@ void LLCurl::Responder::errorWithContent(
 // virtual
 void LLCurl::Responder::error(U32 status, const std::string& reason)
 {
-	llinfos << mURL << " [" << status << "]: " << reason << llendl;
+	LL_INFOS() << mURL << " [" << status << "]: " << reason << LL_ENDL;
 }
 
 // virtual
@@ -178,7 +178,7 @@ void LLCurl::Responder::completedRaw(
 	const bool emit_errors = false;
 	if (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXML(content, istr, emit_errors))
 	{
-		llinfos << "Failed to deserialize LLSD. " << mURL << " [" << status << "]: " << reason << llendl;
+		LL_INFOS() << "Failed to deserialize LLSD. " << mURL << " [" << status << "]: " << reason << LL_ENDL;
 		content["reason"] = reason;
 	}
 
@@ -246,7 +246,7 @@ void LLCurl::Easy::releaseEasyHandle(CURL* handle)
 	if (!handle)
 	{
 		return ; //handle allocation failed.
-		//llerrs << "handle cannot be NULL!" << llendl;
+		//LL_ERRS() << "handle cannot be NULL!" << LL_ENDL;
 	}
 
 	LLMutexLock lock(sHandleMutexp) ;
@@ -268,7 +268,7 @@ void LLCurl::Easy::releaseEasyHandle(CURL* handle)
 	}
 	else
 	{
-		llerrs << "Invalid handle." << llendl;
+		LL_ERRS() << "Invalid handle." << LL_ENDL;
 	}
 }
 
@@ -287,7 +287,7 @@ LLCurl::Easy* LLCurl::Easy::getEasy()
 	if (!easy->mCurlEasyHandle)
 	{
 		// this can happen if we have too many open files (fails in c-ares/ares_init.c)
-		llwarns << "allocEasyHandle() returned NULL! Easy handles: " << gCurlEasyCount << " Multi handles: " << gCurlMultiCount << llendl;
+		LL_WARNS() << "allocEasyHandle() returned NULL! Easy handles: " << gCurlEasyCount << " Multi handles: " << gCurlMultiCount << LL_ENDL;
 		delete easy;
 		return NULL;
 	}
@@ -549,7 +549,7 @@ LLCurl::Multi::Multi(F32 idle_time_out)
 	mCurlMultiHandle = LLCurl::newMultiHandle();
 	if (!mCurlMultiHandle)
 	{
-		llwarns << "curl_multi_init() returned NULL! Easy handles: " << gCurlEasyCount << " Multi handles: " << gCurlMultiCount << llendl;
+		LL_WARNS() << "curl_multi_init() returned NULL! Easy handles: " << gCurlEasyCount << " Multi handles: " << gCurlMultiCount << LL_ENDL;
 		mCurlMultiHandle = LLCurl::newMultiHandle();
 	}
 	
@@ -824,8 +824,8 @@ S32 LLCurl::Multi::process()
 			else
 			{
 				response = 499;
-				//*TODO: change to llwarns
-				llerrs << "cleaned up curl request completed!" << llendl;
+				//*TODO: change to LL_WARNS()
+				LL_ERRS() << "cleaned up curl request completed!" << LL_ENDL;
 			}
 			if (response >= 400)
 			{
@@ -870,7 +870,7 @@ bool LLCurl::Multi::addEasy(Easy* easy)
 	check_curl_multi_code(mcode);
 	//if (mcode != CURLM_OK)
 	//{
-	//	llwarns << "Curl Error: " << curl_multi_strerror(mcode) << llendl;
+	//	LL_WARNS() << "Curl Error: " << curl_multi_strerror(mcode) << LL_ENDL;
 	//	return false;
 	//}
 	return true;
@@ -987,7 +987,7 @@ void LLCurlThread::addMulti(LLCurl::Multi* multi)
 
 	if (!addRequest(req))
 	{
-		llwarns << "curl request added when the thread is quitted" << llendl;
+		LL_WARNS() << "curl request added when the thread is quitted" << LL_ENDL;
 	}
 }
 	
@@ -1094,7 +1094,7 @@ bool LLCurlRequest::addEasy(LLCurl::Easy* easy)
 	
 	if (mProcessing)
 	{
-		llerrs << "Posting to a LLCurlRequest instance from within a responder is not allowed (causes DNS timeouts)." << llendl;
+		LL_ERRS() << "Posting to a LLCurlRequest instance from within a responder is not allowed (causes DNS timeouts)." << LL_ENDL;
 	}
 	bool res = mActiveMulti->addEasy(easy);
 	return res;
@@ -1158,7 +1158,7 @@ bool LLCurlRequest::post(const std::string& url,
 	easy->slist_append("Content-Type: application/llsd+xml");
 	easy->setHeaders();
 
-	lldebugs << "POSTING: " << bytes << " bytes." << llendl;
+	LL_DEBUGS() << "POSTING: " << bytes << " bytes." << LL_ENDL;
 	bool res = addEasy(easy);
 	return res;
 }
@@ -1186,7 +1186,7 @@ bool LLCurlRequest::post(const std::string& url,
 	easy->slist_append("Content-Type: application/octet-stream");
 	easy->setHeaders();
 
-	lldebugs << "POSTING: " << bytes << " bytes." << llendl;
+	LL_DEBUGS() << "POSTING: " << bytes << " bytes." << LL_ENDL;
 	bool res = addEasy(easy);
 	return res;
 }
@@ -1567,7 +1567,7 @@ void LLCurlEasyRequest::sendRequest(const std::string& url)
 {
 	llassert_always(!mRequestSent);
 	mRequestSent = true;
-	lldebugs << url << llendl;
+	LL_DEBUGS() << url << LL_ENDL;
 	if (isValid() && mEasy)
 	{
 		mEasy->setHeaders();
@@ -1774,7 +1774,7 @@ CURLM* LLCurl::newMultiHandle()
 
 	if(sTotalHandles + 1 > sMaxHandles)
 	{
-		llwarns << "no more handles available." << llendl ;
+		LL_WARNS() << "no more handles available." << LL_ENDL ;
 		return NULL ; //failed
 	}
 	sTotalHandles++;
@@ -1782,7 +1782,7 @@ CURLM* LLCurl::newMultiHandle()
 	CURLM* ret = curl_multi_init() ;
 	if(!ret)
 	{
-		llwarns << "curl_multi_init failed." << llendl ;
+		LL_WARNS() << "curl_multi_init failed." << LL_ENDL ;
 	}
 
 	return ret ;
@@ -1808,7 +1808,7 @@ CURL*  LLCurl::newEasyHandle()
 
 	if(sTotalHandles + 1 > sMaxHandles)
 	{
-		llwarns << "no more handles available." << llendl ;
+		LL_WARNS() << "no more handles available." << LL_ENDL ;
 		return NULL ; //failed
 	}
 	sTotalHandles++;
@@ -1816,7 +1816,7 @@ CURL*  LLCurl::newEasyHandle()
 	CURL* ret = curl_easy_init() ;
 	if(!ret)
 	{
-		llwarns << "curl_easy_init failed." << llendl ;
+		LL_WARNS() << "curl_easy_init failed." << LL_ENDL ;
 	}
 
 	return ret ;

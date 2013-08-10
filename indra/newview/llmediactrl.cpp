@@ -424,7 +424,7 @@ BOOL LLMediaCtrl::handleKeyHere( KEY key, MASK mask )
 //
 void LLMediaCtrl::onVisibilityChange ( BOOL new_visibility )
 {
-	llinfos << "visibility changed to " << (new_visibility?"true":"false") << llendl;
+	LL_INFOS() << "visibility changed to " << (new_visibility?"true":"false") << LL_ENDL;
 	if(mMediaSource)
 	{
 		mMediaSource->setVisible( new_visibility );
@@ -548,7 +548,7 @@ void LLMediaCtrl::navigateTo( std::string url_in, std::string mime_type)
 	    (LLStringUtil::compareInsensitive(url_in.substr(0, protocol2.length()), protocol2) == 0))
 	{
 		// TODO: Print out/log this attempt?
-		// llinfos << "Rejecting attempt to load restricted website :" << urlIn << llendl;
+		// LL_INFOS() << "Rejecting attempt to load restricted website :" << urlIn << LL_ENDL;
 		return;
 	}
 	
@@ -569,7 +569,7 @@ void LLMediaCtrl::navigateToLocalPage( const std::string& subdir, const std::str
 
 	if (expanded_filename.empty())
 	{
-		llwarns << "File " << filename << "not found" << llendl;
+		LL_WARNS() << "File " << filename << "not found" << LL_ENDL;
 		return;
 	}
 	if (ensureMediaSourceExists())
@@ -677,7 +677,7 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 		}
 		else
 		{
-			llwarns << "media source create failed " << llendl;
+			LL_WARNS() << "media source create failed " << LL_ENDL;
 			// return;
 		}
 	}

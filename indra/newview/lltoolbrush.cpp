@@ -403,7 +403,7 @@ BOOL LLToolBrushLand::handleHover( S32 x, S32 y, MASK mask )
 {
 	LL_DEBUGS("UserInput") << "hover handled by LLToolBrushLand ("
 								<< (hasMouseCapture() ? "active":"inactive")
-								<< ")" << llendl;
+								<< ")" << LL_ENDL;
 	mMouseX = x;
 	mMouseY = y;
 	mGotHover = TRUE;
@@ -456,7 +456,7 @@ void LLToolBrushLand::render()
 {
 	if(mGotHover)
 	{
-		//llinfos << "LLToolBrushLand::render()" << llendl;
+		//LL_INFOS() << "LLToolBrushLand::render()" << LL_ENDL;
 		LLVector3d spot;
 		if(gViewerWindow->mousePointOnLandGlobal(mMouseX, mMouseY, &spot))
 		{

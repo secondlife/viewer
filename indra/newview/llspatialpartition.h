@@ -79,7 +79,7 @@ public:
 
 	const LLDrawInfo& operator=(const LLDrawInfo& rhs)
 	{
-		llerrs << "Illegal operation!" << llendl;
+		LL_ERRS() << "Illegal operation!" << LL_ENDL;
 		return *this;
 	}
 
@@ -221,7 +221,7 @@ public:
 
 	const LLSpatialGroup& operator=(const LLSpatialGroup& rhs)
 	{
-		llerrs << "Illegal operation!" << llendl;
+		LL_ERRS() << "Illegal operation!" << LL_ENDL;
 		return *this;
 	}
 

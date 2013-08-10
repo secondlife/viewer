@@ -979,7 +979,7 @@ bool LLAvatarActions::handleRemove(const LLSD& notification, const LLSD& respons
 
 			case 1: // NO
 			default:
-				llinfos << "No removal performed." << llendl;
+				LL_INFOS() << "No removal performed." << LL_ENDL;
 				break;
 			}
 		}

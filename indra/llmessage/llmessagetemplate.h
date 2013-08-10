@@ -193,7 +193,7 @@ public:
 		LLMessageVariable** varp = &mMemberVariables[name];
 		if (*varp != NULL)
 		{
-			llerrs << name << " has already been used as a variable name!" << llendl;
+			LL_ERRS() << name << " has already been used as a variable name!" << LL_ENDL;
 		}
 		*varp = new LLMessageVariable(name, type, size);
 		if (((*varp)->getType() != MVT_VARIABLE)
@@ -301,8 +301,8 @@ public:
 		LLMessageBlock** member_blockp = &mMemberBlocks[blockp->mName];
 		if (*member_blockp != NULL)
 		{
-			llerrs << "Block " << blockp->mName
-				<< "has already been used as a block name!" << llendl;
+			LL_ERRS() << "Block " << blockp->mName
+				<< "has already been used as a block name!" << LL_ENDL;
 		}
 		*member_blockp = blockp;
 		if (  (mTotalSize != -1)

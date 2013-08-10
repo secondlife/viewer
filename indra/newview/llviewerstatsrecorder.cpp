@@ -49,7 +49,7 @@ LLViewerStatsRecorder::LLViewerStatsRecorder() :
 {
 	if (NULL != sInstance)
 	{
-		llerrs << "Attempted to create multiple instances of LLViewerStatsRecorder!" << llendl;
+		LL_ERRS() << "Attempted to create multiple instances of LLViewerStatsRecorder!" << LL_ENDL;
 	}
 	sInstance = this;
 	clearStats();
@@ -132,7 +132,7 @@ void LLViewerStatsRecorder::recordObjectUpdateEvent(U32 local_id, const EObjectU
 		mObjectCacheHitSize += msg_size;
 		break;
 	default:
-		llwarns << "Unknown update_type" << llendl;
+		LL_WARNS() << "Unknown update_type" << LL_ENDL;
 		break;
 	};
 }
@@ -154,7 +154,7 @@ void LLViewerStatsRecorder::recordCacheFullUpdate(U32 local_id, const EObjectUpd
 			mObjectCacheUpdateReplacements++;
 			break;
 		default:
-			llwarns << "Unknown update_result type" << llendl;
+			LL_WARNS() << "Unknown update_result type" << LL_ENDL;
 			break;
 	};
 }
@@ -173,7 +173,7 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 	if ( delta_time < interval || total_objects == 0) return;
 
 	mLastSnapshotTime = LLTimer::getTotalSeconds();
-	lldebugs << "ILX: " 
+	LL_DEBUGS() << "ILX: " 
 		<< mObjectCacheHitCount << " hits, " 
 		<< mObjectCacheMissFullCount << " full misses, "
 		<< mObjectCacheMissCrcCount << " crc misses, "
@@ -186,7 +186,7 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 		<< mObjectCacheUpdateAdds << " cache update adds, "
 		<< mObjectCacheUpdateReplacements << " cache update replacements, "
 		<< mObjectUpdateFailures << " update failures"
-		<< llendl;
+		<< LL_ENDL;
 
 	if (mObjectCacheFile == NULL)
 	{
@@ -220,12 +220,12 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 			data_size = data_msg.str().size();
 			if (fwrite(data_msg.str().c_str(), 1, data_size, mObjectCacheFile ) != data_size)
 			{
-				llwarns << "failed to write full headers to " << STATS_FILE_NAME << llendl;
+				LL_WARNS() << "failed to write full headers to " << STATS_FILE_NAME << LL_ENDL;
 			}
 		}
 		else
 		{
-			//llwarns << "Couldn't open " << STATS_FILE_NAME << " for logging." << llendl;
+			//LL_WARNS() << "Couldn't open " << STATS_FILE_NAME << " for logging." << LL_ENDL;
 			return;
 		}
 	}
@@ -257,7 +257,7 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 	data_size = data_msg.str().size();
 	if ( data_size != fwrite(data_msg.str().c_str(), 1, data_size, mObjectCacheFile ))
 	{
-				llwarns << "Unable to write complete column data to " << STATS_FILE_NAME << llendl;
+				LL_WARNS() << "Unable to write complete column data to " << STATS_FILE_NAME << LL_ENDL;
 	}
 
 	clearStats();

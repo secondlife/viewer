@@ -236,7 +236,7 @@ void LLPanelSnapshotPostcard::onTabButtonPress(S32 btn_idx)
 	other_btn->toggleState();
 	//other_btn->setEnabled(TRUE);
 
-	lldebugs << "Button #" << btn_idx << " (" << clicked_btn->getName() << ") clicked" << llendl;
+	LL_DEBUGS() << "Button #" << btn_idx << " (" << clicked_btn->getName() << ") clicked" << LL_ENDL;
 }
 
 void LLPanelSnapshotPostcard::onSend()

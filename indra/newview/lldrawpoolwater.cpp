@@ -98,7 +98,7 @@ void LLDrawPoolWater::restoreGL()
 
 LLDrawPool *LLDrawPoolWater::instancePool()
 {
-	llerrs << "Should never be calling instancePool on a water pool!" << llendl;
+	LL_ERRS() << "Should never be calling instancePool on a water pool!" << LL_ENDL;
 	return NULL;
 }
 

@@ -40,7 +40,7 @@ TraceBase::TraceBase( const char* name, const char* description )
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	if (LLTrace::get_master_thread_recorder() != NULL)
 	{
-		llerrs << "Attempting to declare trace object after program initialization.  Trace objects should be statically initialized." << llendl;
+		LL_ERRS() << "Attempting to declare trace object after program initialization.  Trace objects should be statically initialized." << LL_ENDL;
 	}
 #endif
 }

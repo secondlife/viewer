@@ -187,7 +187,7 @@ BOOL LLKeyboard::translateKey(const U16 os_key, KEY *out_key)
 	iter = mTranslateKeyMap.find(os_key);
 	if (iter == mTranslateKeyMap.end())
 	{
-		//llwarns << "Unknown virtual key " << os_key << llendl;
+		//LL_WARNS() << "Unknown virtual key " << os_key << LL_ENDL;
 		*out_key = 0;
 		return FALSE;
 	}
@@ -258,7 +258,7 @@ BOOL LLKeyboard::handleTranslatedKeyUp(KEY translated_key, U32 translated_mask)
 		handled = mCallbacks->handleTranslatedKeyUp(translated_key, translated_mask);
 	}
 	
-	LL_DEBUGS("UserInput") << "keyup -" << translated_key << "-" << llendl;
+	LL_DEBUGS("UserInput") << "keyup -" << translated_key << "-" << LL_ENDL;
 
 	return handled;
 }
@@ -321,7 +321,7 @@ BOOL LLKeyboard::keyFromString(const std::string& str, KEY *key)
 		*key = res;
 		return TRUE;
 	}
-	llwarns << "keyFromString failed: " << str << llendl;
+	LL_WARNS() << "keyFromString failed: " << str << LL_ENDL;
 	return FALSE;
 }
 
@@ -363,7 +363,7 @@ std::string LLKeyboard::stringFromAccelerator( MASK accel_mask, KEY key )
 	
 	if( trans == NULL )
 	{
-		llerrs << "No mKeyStringTranslator" << llendl;
+		LL_ERRS() << "No mKeyStringTranslator" << LL_ENDL;
 		return res;
 	}
 	

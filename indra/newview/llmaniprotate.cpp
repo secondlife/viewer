@@ -519,12 +519,12 @@ BOOL LLManipRotate::handleHover(S32 x, S32 y, MASK mask)
 			drag(x, y);
 		}
 
-		LL_DEBUGS("UserInput") << "hover handled by LLManipRotate (active)" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by LLManipRotate (active)" << LL_ENDL;		
 	}
 	else
 	{
 		highlightManipulators(x, y);
-		LL_DEBUGS("UserInput") << "hover handled by LLManipRotate (inactive)" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by LLManipRotate (inactive)" << LL_ENDL;		
 	}
 
 	gViewerWindow->setCursor(UI_CURSOR_TOOLROTATE);
@@ -1272,9 +1272,9 @@ LLVector3 LLManipRotate::getConstraintAxis()
 		else
 		{
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-			llerrs << "Got bogus hit part in LLManipRotate::getConstraintAxis():" << mManipPart << llendl;
+			LL_ERRS() << "Got bogus hit part in LLManipRotate::getConstraintAxis():" << mManipPart << LL_ENDL;
 #else
-			llwarns << "Got bogus hit part in LLManipRotate::getConstraintAxis():" << mManipPart << llendl;
+			LL_WARNS() << "Got bogus hit part in LLManipRotate::getConstraintAxis():" << mManipPart << LL_ENDL;
 #endif
 			axis.mV[0] = 1.f;
 		}

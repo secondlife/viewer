@@ -188,7 +188,7 @@ void LLContainerView::arrange(S32 width, S32 height, BOOL called_from_parent)
 			LLView *childp = *child_iter;
 			if (!childp->getVisible())
 			{
-				llwarns << "Incorrect visibility!" << llendl;
+				LL_WARNS() << "Incorrect visibility!" << LL_ENDL;
 			}
 			LLRect child_rect = childp->getRequiredRect();
 			child_height += child_rect.getHeight();

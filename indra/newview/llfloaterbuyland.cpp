@@ -877,7 +877,7 @@ void LLFloaterBuyLandUI::startTransaction(TransactionType type, const LLXMLRPCVa
 			method = "buyLandPrep";
 			break;
 		default:
-			llwarns << "LLFloaterBuyLandUI: Unknown transaction type!" << llendl;
+			LL_WARNS() << "LLFloaterBuyLandUI: Unknown transaction type!" << LL_ENDL;
 			return;
 	}
 

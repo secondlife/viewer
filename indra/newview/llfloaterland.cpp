@@ -936,7 +936,7 @@ void LLPanelLandGeneral::onClickRelease(void*)
 // static
 void LLPanelLandGeneral::onClickReclaim(void*)
 {
-	lldebugs << "LLPanelLandGeneral::onClickReclaim()" << llendl;
+	LL_DEBUGS() << "LLPanelLandGeneral::onClickReclaim()" << LL_ENDL;
 	LLViewerParcelMgr::getInstance()->reclaimParcel();
 }
 
@@ -1541,8 +1541,8 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 
 	if (!self)
 	{
-		llwarns << "Received message for nonexistent LLPanelLandObject"
-				<< llendl;
+		LL_WARNS() << "Received message for nonexistent LLPanelLandObject"
+				<< LL_ENDL;
 		return;
 	}
 	
@@ -1612,8 +1612,8 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 
 		self->mOwnerList->addNameItemRow(item_params);
 
-		lldebugs << "object owner " << owner_id << " (" << (is_group_owned ? "group" : "agent")
-				<< ") owns " << object_count << " objects." << llendl;
+		LL_DEBUGS() << "object owner " << owner_id << " (" << (is_group_owned ? "group" : "agent")
+				<< ") owns " << object_count << " objects." << LL_ENDL;
 	}
 	// check for no results
 	if (0 == self->mOwnerList->getItemCount())
@@ -1894,7 +1894,7 @@ BOOL LLPanelLandOptions::postBuild()
 	}
 	else
 	{
-		llwarns << "LLUICtrlFactory::getTexturePickerByName() returned NULL for 'snapshot_ctrl'" << llendl;
+		LL_WARNS() << "LLUICtrlFactory::getTexturePickerByName() returned NULL for 'snapshot_ctrl'" << LL_ENDL;
 	}
 
 

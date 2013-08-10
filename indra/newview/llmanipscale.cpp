@@ -413,7 +413,7 @@ BOOL LLManipScale::handleHover(S32 x, S32 y, MASK mask)
 		{
 			drag( x, y );
 		}
-		LL_DEBUGS("UserInput") << "hover handled by LLManipScale (active)" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by LLManipScale (active)" << LL_ENDL;		
 	}
 	else
 	{
@@ -524,7 +524,7 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
 				{
 					mHighlightedPart = manipulator->mManipID;
 
-					//llinfos << "Tried: " << mHighlightedPart << llendl;
+					//LL_INFOS() << "Tried: " << mHighlightedPart << LL_ENDL;
 					break;
 				}
 			}
@@ -543,7 +543,7 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
 		}
 	}
 
-	LL_DEBUGS("UserInput") << "hover handled by LLManipScale (inactive)" << llendl;
+	LL_DEBUGS("UserInput") << "hover handled by LLManipScale (inactive)" << LL_ENDL;
 }
 
 

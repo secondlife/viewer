@@ -321,9 +321,9 @@ namespace
 
 			if (configuration.isUndefined())
 			{
-				llwarns << filename() << " missing, ill-formed,"
+				LL_WARNS() << filename() << " missing, ill-formed,"
 							" or simply undefined; not changing configuration"
-						<< llendl;
+						<< LL_ENDL;
 				return false;
 			}
 		}

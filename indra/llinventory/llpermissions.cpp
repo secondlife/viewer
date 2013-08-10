@@ -116,7 +116,7 @@ LLUUID LLPermissions::getSafeOwner() const
 	}
 	else
 	{
-		llwarns << "LLPermissions::getSafeOwner() called with no valid owner!" << llendl;
+		LL_WARNS() << "LLPermissions::getSafeOwner() called with no valid owner!" << LL_ENDL;
 		LLUUID unused_uuid;
 		unused_uuid.generate();
 
@@ -665,7 +665,7 @@ BOOL LLPermissions::importFile(LLFILE* fp)
 		}
 		else
 		{
-			llinfos << "unknown keyword " << keyword << " in permissions import" << llendl;
+			LL_INFOS() << "unknown keyword " << keyword << " in permissions import" << LL_ENDL;
 		}
 	}
 	fix();
@@ -799,7 +799,7 @@ BOOL LLPermissions::importLegacyStream(std::istream& input_stream)
 		}
 		else
 		{
-			llinfos << "unknown keyword " << keyword << " in permissions import" << llendl;
+			LL_INFOS() << "unknown keyword " << keyword << " in permissions import" << LL_ENDL;
 		}
 	}
 	fix();
@@ -981,8 +981,8 @@ void LLAggregatePermissions::aggregateBit(EPermIndex idx, BOOL allowed)
 		mBits[idx] = allowed ? AP_ALL : AP_SOME;
 		break;
 	default:
-		llwarns << "Bad aggregateBit " << (S32)idx << " "
-				<< (allowed ? "true" : "false") << llendl;
+		LL_WARNS() << "Bad aggregateBit " << (S32)idx << " "
+				<< (allowed ? "true" : "false") << LL_ENDL;
 		break;
 	}
 }
@@ -1026,8 +1026,8 @@ void LLAggregatePermissions::aggregateIndex(EPermIndex idx, U8 bits)
 		}
 		break;
 	default:
-		llwarns << "Bad aggregate index " << (S32)idx << " "
-				<<  (S32)bits << llendl;
+		LL_WARNS() << "Bad aggregate index " << (S32)idx << " "
+				<<  (S32)bits << LL_ENDL;
 		break;
 	}
 }

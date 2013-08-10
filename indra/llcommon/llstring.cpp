@@ -110,7 +110,7 @@ bool _read_file_into_string(std::string& str, const std::string& filename)
 	llifstream ifs(filename, llifstream::binary);
 	if (!ifs.is_open())
 	{
-		llinfos << "Unable to open file " << filename << llendl;
+		LL_INFOS() << "Unable to open file " << filename << LL_ENDL;
 		return false;
 	}
 
@@ -188,7 +188,7 @@ S32 wchar_to_utf8chars(llwchar in_char, char* outchars)
 	}
 	else
 	{
-		llwarns << "Invalid Unicode character " << cur_char << "!" << llendl;
+		LL_WARNS() << "Invalid Unicode character " << cur_char << "!" << LL_ENDL;
 		*outchars++ = LL_UNKNOWN_CHAR;
 	}
 	return outchars - base;

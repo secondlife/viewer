@@ -156,7 +156,7 @@ void LLWorldMapMessage::processMapBlockReply(LLMessageSystem* msg, void**)
 	// There's only one flag that we ever use here
 	if (agent_flags != LAYER_FLAG)
 	{
-		llwarns << "Invalid map image type returned! layer = " << agent_flags << llendl;
+		LL_WARNS() << "Invalid map image type returned! layer = " << agent_flags << LL_ENDL;
 		return;
 	}
 

@@ -460,7 +460,7 @@ void LLFloaterReporter::showFromMenu(EReportType report_type)
 {
 	if (COMPLAINT_REPORT != report_type)
 	{
-		llwarns << "Unknown LLViewerReporter type : " << report_type << llendl;
+		LL_WARNS() << "Unknown LLViewerReporter type : " << report_type << LL_ENDL;
 		return;
 	}
 	
@@ -746,7 +746,7 @@ void LLFloaterReporter::takeScreenshot()
 	LLPointer<LLImageRaw> raw = new LLImageRaw;
 	if( !gViewerWindow->rawSnapshot(raw, IMAGE_WIDTH, IMAGE_HEIGHT, TRUE, FALSE, TRUE, FALSE))
 	{
-		llwarns << "Unable to take screenshot" << llendl;
+		LL_WARNS() << "Unable to take screenshot" << LL_ENDL;
 		return;
 	}
 	LLPointer<LLImageJ2C> upload_data = LLViewerTextureList::convertToUploadFile(raw);
@@ -765,7 +765,7 @@ void LLFloaterReporter::takeScreenshot()
 	}
 	else
 	{
-		llwarns << "Unknown LLFloaterReporter type" << llendl;
+		LL_WARNS() << "Unknown LLFloaterReporter type" << LL_ENDL;
 	}
 	mResourceDatap->mAssetInfo.mCreatorID = gAgentID;
 	mResourceDatap->mAssetInfo.setName("screenshot_name");
@@ -796,11 +796,11 @@ void LLFloaterReporter::takeScreenshot()
 
 void LLFloaterReporter::uploadImage()
 {
-	llinfos << "*** Uploading: " << llendl;
-	llinfos << "Type: " << LLAssetType::lookup(mResourceDatap->mAssetInfo.mType) << llendl;
-	llinfos << "UUID: " << mResourceDatap->mAssetInfo.mUuid << llendl;
-	llinfos << "Name: " << mResourceDatap->mAssetInfo.getName() << llendl;
-	llinfos << "Desc: " << mResourceDatap->mAssetInfo.getDescription() << llendl;
+	LL_INFOS() << "*** Uploading: " << LL_ENDL;
+	LL_INFOS() << "Type: " << LLAssetType::lookup(mResourceDatap->mAssetInfo.mType) << LL_ENDL;
+	LL_INFOS() << "UUID: " << mResourceDatap->mAssetInfo.mUuid << LL_ENDL;
+	LL_INFOS() << "Name: " << mResourceDatap->mAssetInfo.getName() << LL_ENDL;
+	LL_INFOS() << "Desc: " << mResourceDatap->mAssetInfo.getDescription() << LL_ENDL;
 
 	gAssetStorage->storeAssetData(mResourceDatap->mAssetInfo.mTransactionID,
 									mResourceDatap->mAssetInfo.mType,
@@ -824,20 +824,20 @@ void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, 
 
 		std::string err_msg("There was a problem uploading a report screenshot");
 		err_msg += " due to the following reason: " + args["REASON"].asString();
-		llwarns << err_msg << llendl;
+		LL_WARNS() << err_msg << LL_ENDL;
 		return;
 	}
 
 	if (data->mPreferredLocation != LLResourceData::INVALID_LOCATION)
 	{
-		llwarns << "Unknown report type : " << data->mPreferredLocation << llendl;
+		LL_WARNS() << "Unknown report type : " << data->mPreferredLocation << LL_ENDL;
 	}
 
 	LLFloaterReporter *self = LLFloaterReg::findTypedInstance<LLFloaterReporter>("reporter");
 	if (self)
 	{
 		self->mScreenID = uuid;
-		llinfos << "Got screen shot " << uuid << llendl;
+		LL_INFOS() << "Got screen shot " << uuid << LL_ENDL;
 		self->sendReportViaLegacy(self->gatherReport());
 		self->closeFloater();
 	}
