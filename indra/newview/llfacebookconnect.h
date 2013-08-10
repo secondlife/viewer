@@ -69,9 +69,11 @@ public:
 	
 	void storeInfo(const LLSD& info);
 	const LLSD& getInfo() const;
-    void clearContent();
+	void clearInfo();
 	void storeContent(const LLSD& content);
     const LLSD& getContent() const;
+	void clearContent();
+	void setDataDirty();
     
     void setConnectionState(EConnectionState connection_state);
 	void setConnected(bool connected);
@@ -92,6 +94,8 @@ private:
 	BOOL mConnected;
 	LLSD mInfo;
     LLSD mContent;
+	bool mRefreshInfo;
+	bool mRefreshContent;
 	
 	static boost::scoped_ptr<LLEventPump> sStateWatcher;
 	static boost::scoped_ptr<LLEventPump> sInfoWatcher;

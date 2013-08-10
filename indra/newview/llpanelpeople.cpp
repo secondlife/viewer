@@ -835,12 +835,16 @@ void LLPanelPeople::updateRecentList()
 
 bool LLPanelPeople::onConnectedToFacebook(const LLSD& data)
 {
-	if (data.get("enum").asInteger() == LLFacebookConnect::FB_CONNECTED)
-	{
-		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLPanelPeople");
+	LLSD::Integer connection_state = data.get("enum").asInteger();
 
+	if (connection_state == LLFacebookConnect::FB_CONNECTED)
+	{
 		LLFacebookConnect::instance().loadFacebookFriends();
 	}
+	else if(connection_state == LLFacebookConnect::FB_NOT_CONNECTED)
+	{
+		updateSuggestedFriendList();
+	};
 
 	return false;
 }
@@ -852,21 +856,16 @@ void LLPanelPeople::updateFacebookList(bool visible)
 		LLEventPumps::instance().obtain("FacebookConnectContent").stopListening("LLPanelPeople"); // just in case it is already listening
 		LLEventPumps::instance().obtain("FacebookConnectContent").listen("LLPanelPeople", boost::bind(&LLPanelPeople::updateSuggestedFriendList, this));
 
-		if (mTryToConnectToFbc)
-		{
-			// try to reconnect to facebook!
-			if (LLFacebookConnect::instance().isConnected())
-			{
-				LLFacebookConnect::instance().loadFacebookFriends();
-			}
-			else
-			{
-				LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLPanelPeople"); // just in case it is already listening
-				LLEventPumps::instance().obtain("FacebookConnectState").listen("LLPanelPeople", boost::bind(&LLPanelPeople::onConnectedToFacebook, this, _1));
-				LLFacebookConnect::instance().checkConnectionToFacebook();
-			}
+		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLPanelPeople"); // just in case it is already listening
+		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLPanelPeople", boost::bind(&LLPanelPeople::onConnectedToFacebook, this, _1));
 
-			// don't try again
+		if (LLFacebookConnect::instance().isConnected())
+		{
+			LLFacebookConnect::instance().loadFacebookFriends();
+		}
+		else if(mTryToConnectToFbc)
+		{
+			LLFacebookConnect::instance().checkConnectionToFacebook();
 			mTryToConnectToFbc = false;
 		}
     
@@ -874,6 +873,7 @@ void LLPanelPeople::updateFacebookList(bool visible)
 	}
 	else
 	{
+		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLPanelPeople");
 		LLEventPumps::instance().obtain("FacebookConnectContent").stopListening("LLPanelPeople");
 	}
 }

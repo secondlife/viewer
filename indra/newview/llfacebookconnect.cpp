@@ -197,9 +197,11 @@ public:
 		{
 			LL_DEBUGS("FacebookConnect") << "Disconnect successful. content: " << content << LL_ENDL;
 			
-			// Clear all facebook stuff
-            LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_NOT_CONNECTED);
+			// Clear data
+			LLFacebookConnect::instance().clearInfo();
 			LLFacebookConnect::instance().clearContent();
+			//Notify state change
+            LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_NOT_CONNECTED);
 		}
 		else
 		{
@@ -320,7 +322,9 @@ LLFacebookConnect::LLFacebookConnect()
 :	mConnectionState(FB_NOT_CONNECTED),
 	mConnected(false),
 	mInfo(),
-    mContent()
+    mContent(),
+	mRefreshInfo(false),
+	mRefreshContent(false)
 {
 }
 
@@ -388,18 +392,24 @@ void LLFacebookConnect::checkConnectionToFacebook(bool auto_connect)
 
 void LLFacebookConnect::loadFacebookInfo()
 {
-	const bool follow_redirects = false;
-	const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-	LLHTTPClient::get(getFacebookConnectURL("/info"), new LLFacebookInfoResponder(),
-		LLSD(), timeout, follow_redirects);
+	if(mRefreshInfo)
+	{
+		const bool follow_redirects = false;
+		const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
+		LLHTTPClient::get(getFacebookConnectURL("/info"), new LLFacebookInfoResponder(),
+			LLSD(), timeout, follow_redirects);
+	}
 }
 
 void LLFacebookConnect::loadFacebookFriends()
 {
-	const bool follow_redirects = false;
-	const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-	LLHTTPClient::get(getFacebookConnectURL("/friends"), new LLFacebookFriendsResponder(),
-					  LLSD(), timeout, follow_redirects);
+	if(mRefreshContent)
+	{
+		const bool follow_redirects = false;
+		const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
+		LLHTTPClient::get(getFacebookConnectURL("/friends"), new LLFacebookFriendsResponder(),
+			LLSD(), timeout, follow_redirects);
+	}
 }
 
 void LLFacebookConnect::postCheckin(const std::string& location, const std::string& name, const std::string& description, const std::string& image, const std::string& message)
@@ -495,6 +505,8 @@ void LLFacebookConnect::updateStatus(const std::string& message)
 void LLFacebookConnect::storeInfo(const LLSD& info)
 {
 	mInfo = info;
+	mRefreshInfo = false;
+
 	sInfoWatcher->post(info);
 }
 
@@ -503,9 +515,15 @@ const LLSD& LLFacebookConnect::getInfo() const
 	return mInfo;
 }
 
+void LLFacebookConnect::clearInfo()
+{
+	mInfo = LLSD();
+}
+
 void LLFacebookConnect::storeContent(const LLSD& content)
 {
     mContent = content;
+	mRefreshContent = false;
 
 	sContentWatcher->post(content);
 }
@@ -520,11 +538,18 @@ void LLFacebookConnect::clearContent()
     mContent = LLSD();
 }
 
+void LLFacebookConnect::setDataDirty()
+{
+	mRefreshInfo = true;
+	mRefreshContent = true;
+}
+
 void LLFacebookConnect::setConnectionState(LLFacebookConnect::EConnectionState connection_state)
 {
 	if(connection_state == FB_CONNECTED)
 	{
 		setConnected(true);
+		setDataDirty();
 	}
 	else if(connection_state == FB_NOT_CONNECTED)
 	{
