@@ -282,6 +282,7 @@ private:
 					if ((new_alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND) && !is_alpha_face)
 					{
 						new_alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
+						new_material->setDiffuseAlphaMode(LLMaterial::DIFFUSE_ALPHA_MODE_NONE);
 					}
 
 					bool is_default_blend_mode		= (new_alpha_mode == default_alpha_mode);
