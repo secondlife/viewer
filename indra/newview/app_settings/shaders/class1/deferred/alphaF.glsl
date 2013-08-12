@@ -531,12 +531,26 @@ void main()
 	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
 
+#if FOR_IMPOSTOR
+	vec4 color;
+	color.rgb = diff.rgb;
+	color.a   = diff.a;
+
+	// Insure we don't pollute depth with invis pixels in impostor rendering
+	//
+	if (color.a < 0.01)
+	{
+		discard;
+	}
+#else
+
 #ifdef USE_VERTEX_COLOR
 	float final_alpha = diff.a * vertex_color.a;
 	diff.rgb *= vertex_color.rgb;
 #else
 	float final_alpha = diff.a;
 #endif
+
 
 	vec4 gamma_diff = diff;	
 	diff.rgb = srgb_to_linear(diff.rgb);
@@ -567,11 +581,10 @@ void main()
 	ambient = (1.0-ambient);
 
 	color.rgb *= ambient;
-
 	color.rgb += atmosAffectDirectionalLight(final_da);
 	color.rgb *= gamma_diff.rgb;
 
-	color.rgb = mix(diff.rgb, color.rgb, final_alpha);
+	//color.rgb = mix(diff.rgb, color.rgb, final_alpha);
 
 	color.rgb = atmosLighting(color.rgb);
 	color.rgb = scaleSoftClip(color.rgb);
@@ -600,6 +613,8 @@ void main()
 
 #ifdef WATER_FOG
 	color = applyWaterFogDeferred(pos.xyz, color);
+#endif
+
 #endif
 
 	frag_color = color;

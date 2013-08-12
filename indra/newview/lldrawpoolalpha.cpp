@@ -93,7 +93,12 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 
 	if (pass == 0)
 	{
-		if (LLPipeline::sUnderWaterRender)
+		if (LLPipeline::sImpostorRender)
+		{
+			simple_shader = &gDeferredAlphaImpostorProgram;
+			fullbright_shader = &gDeferredFullbrightProgram;
+		}
+		else if (LLPipeline::sUnderWaterRender)
 		{
 			simple_shader = &gDeferredAlphaWaterProgram;
 			fullbright_shader = &gDeferredFullbrightWaterProgram;
@@ -116,7 +121,7 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 
 		simple_shader->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
 	}
-	else
+	else if (!LLPipeline::sImpostorRender)
 	{
 		//update depth buffer sampler
 		gPipeline.mScreen.flush();
@@ -156,7 +161,7 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 
 void LLDrawPoolAlpha::endPostDeferredPass(S32 pass) 
 { 
-	if (pass == 1)
+	if (pass == 1 && !LLPipeline::sImpostorRender)
 	{
 		gPipeline.mDeferredDepth.flush();
 		gPipeline.mScreen.bindTarget();

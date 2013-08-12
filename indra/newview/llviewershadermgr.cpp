@@ -197,6 +197,7 @@ LLGLSLShader			gDeferredShadowAlphaMaskProgram;
 LLGLSLShader			gDeferredAvatarShadowProgram;
 LLGLSLShader			gDeferredAttachmentShadowProgram;
 LLGLSLShader			gDeferredAlphaProgram;
+LLGLSLShader			gDeferredAlphaImpostorProgram;
 LLGLSLShader			gDeferredAlphaWaterProgram;
 LLGLSLShader			gDeferredAvatarEyesProgram;
 LLGLSLShader			gDeferredFullbrightProgram;
@@ -304,6 +305,8 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gDeferredMaterialWaterProgram[9+LLMaterial::SHADER_COUNT]);
 	mShaderList.push_back(&gDeferredMaterialWaterProgram[13+LLMaterial::SHADER_COUNT]);	
 	mShaderList.push_back(&gDeferredAlphaProgram);
+	mShaderList.push_back(&gDeferredAlphaProgram);
+	mShaderList.push_back(&gDeferredAlphaImpostorProgram);
 	mShaderList.push_back(&gDeferredAlphaWaterProgram);
 	mShaderList.push_back(&gDeferredSkinnedAlphaProgram);
 	mShaderList.push_back(&gDeferredFullbrightProgram);
@@ -1529,6 +1532,40 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		// Hack
 		gDeferredAlphaProgram.mFeatures.calculatesLighting = true;
 		gDeferredAlphaProgram.mFeatures.hasLighting = true;
+	}
+
+	if (success)
+	{
+		gDeferredAlphaImpostorProgram.mName = "Deferred Alpha Shader";
+
+		gDeferredAlphaImpostorProgram.mFeatures.calculatesLighting = false;
+		gDeferredAlphaImpostorProgram.mFeatures.hasLighting = false;
+		gDeferredAlphaImpostorProgram.mFeatures.isAlphaLighting = true;
+		gDeferredAlphaImpostorProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
+		if (mVertexShaderLevel[SHADER_DEFERRED] < 1)
+		{
+			gDeferredAlphaImpostorProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
+		}
+		else
+		{ //shave off some texture units for shadow maps
+			gDeferredAlphaImpostorProgram.mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels - 6, 1);
+		}
+
+		gDeferredAlphaImpostorProgram.mShaderFiles.clear();
+		gDeferredAlphaImpostorProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredAlphaImpostorProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredAlphaImpostorProgram.addPermutation("USE_INDEXED_TEX", "1");
+		gDeferredAlphaImpostorProgram.addPermutation("HAS_SHADOW", mVertexShaderLevel[SHADER_DEFERRED] > 1 ? "1" : "0");
+		gDeferredAlphaImpostorProgram.addPermutation("USE_VERTEX_COLOR", "1");
+		gDeferredAlphaImpostorProgram.addPermutation("FOR_IMPOSTOR", "1");
+
+		gDeferredAlphaImpostorProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+		success = gDeferredAlphaImpostorProgram.createShader(NULL, NULL);
+
+		// Hack
+		gDeferredAlphaImpostorProgram.mFeatures.calculatesLighting = true;
+		gDeferredAlphaImpostorProgram.mFeatures.hasLighting = true;
 	}
 
 	if (success)

@@ -364,6 +364,7 @@ extern LLGLSLShader			gDeferredPostGammaCorrectProgram;
 extern LLGLSLShader			gDeferredAvatarShadowProgram;
 extern LLGLSLShader			gDeferredAttachmentShadowProgram;
 extern LLGLSLShader			gDeferredAlphaProgram;
+extern LLGLSLShader			gDeferredAlphaImpostorProgram;
 extern LLGLSLShader			gDeferredFullbrightProgram;
 extern LLGLSLShader			gDeferredFullbrightAlphaMaskProgram;
 extern LLGLSLShader			gDeferredAlphaWaterProgram;

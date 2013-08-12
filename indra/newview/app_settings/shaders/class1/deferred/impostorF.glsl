@@ -86,6 +86,8 @@ void main()
 	vec4 norm = texture2D(normalMap,   vary_texcoord0.xy);
 	vec4 spec = texture2D(specularMap, vary_texcoord0.xy);
 
+	col.rgb = linear_to_srgb(col.rgb);
+
 	frag_data[0] = vec4(col.rgb, col.a);
 	frag_data[1] = spec;
 	frag_data[2] = vec4(norm.xy,0,0);
