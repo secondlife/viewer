@@ -909,20 +909,15 @@ void recovered_item_cb(const LLUUID& item_id, LLWearableType::EType type, LLView
 	}
 
 	LL_DEBUGS("Avatar") << self_av_string() << "Recovered item for type " << type << LL_ENDL;
-	LLViewerInventoryItem *itemp = gInventory.getItem(item_id);
+	LLConstPointer<LLInventoryObject> itemp = gInventory.getItem(item_id);
 	wearable->setItemID(item_id);
-	LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(recovered_item_link_cb,_1,type,wearable,holder));
 	holder->eraseTypeToRecover(type);
 	llassert(itemp);
 	if (itemp)
 	{
-		link_inventory_item( gAgent.getID(),
-							 item_id,
-							 LLAppearanceMgr::instance().getCOF(),
-							 itemp->getName(),
-							 itemp->getDescription(),
-							 LLAssetType::AT_LINK,
-							 cb);
+		LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(recovered_item_link_cb,_1,type,wearable,holder));
+
+		link_inventory_object(LLAppearanceMgr::instance().getCOF(), itemp, cb);
 	}
 }
 
@@ -1551,6 +1546,7 @@ void LLAppearanceMgr::shallowCopyCategoryContents(const LLUUID& src_id, const LL
 	LLInventoryModel::item_array_t* items;
 	gInventory.getDirectDescendentsOf(src_id, cats, items);
 	llinfos << "copying " << items->count() << " items" << llendl;
+	LLInventoryObject::const_object_list_t link_array;
 	for (LLInventoryModel::item_array_t::const_iterator iter = items->begin();
 		 iter != items->end();
 		 ++iter)
@@ -1561,14 +1557,7 @@ void LLAppearanceMgr::shallowCopyCategoryContents(const LLUUID& src_id, const LL
 			case LLAssetType::AT_LINK:
 			{
 				LL_DEBUGS("Avatar") << "linking inventory item " << item->getName() << llendl;
-				//getActualDescription() is used for a new description 
-				//to propagate ordering information saved in descriptions of links
-				link_inventory_item(gAgent.getID(),
-									item->getLinkedUUID(),
-									dst_id,
-									item->getName(),
-									item->getActualDescription(),
-									LLAssetType::AT_LINK, cb);
+				link_array.push_back(LLConstPointer<LLInventoryObject>(item));
 				break;
 			}
 			case LLAssetType::AT_LINK_FOLDER:
@@ -1578,12 +1567,7 @@ void LLAppearanceMgr::shallowCopyCategoryContents(const LLUUID& src_id, const LL
 				if (catp && catp->getPreferredType() != LLFolderType::FT_OUTFIT)
 				{
 					LL_DEBUGS("Avatar") << "linking inventory folder " << item->getName() << llendl;
-					link_inventory_item(gAgent.getID(),
-										item->getLinkedUUID(),
-										dst_id,
-										item->getName(),
-										item->getDescription(),
-										LLAssetType::AT_LINK_FOLDER, cb);
+					link_array.push_back(LLConstPointer<LLInventoryObject>(item));
 				}
 				break;
 			}
@@ -1605,6 +1589,11 @@ void LLAppearanceMgr::shallowCopyCategoryContents(const LLUUID& src_id, const LL
 				// Ignore non-outfit asset types
 				break;
 		}
+	}
+	if (!link_array.empty())
+	{
+		const bool resolve_links = true;
+		link_inventory_array(dst_id, link_array, cb, resolve_links);
 	}
 }
 
@@ -1753,42 +1742,6 @@ void LLAppearanceMgr::filterWearableItems(
 	}
 }
 
-// Create links to all listed items.
-void LLAppearanceMgr::linkAll(const LLUUID& cat_uuid,
-							  LLInventoryModel::item_array_t& items,
-							  LLPointer<LLInventoryCallback> cb)
-{
-	for (S32 i=0; i<items.count(); i++)
-	{
-		const LLInventoryItem* item = items.get(i).get();
-		link_inventory_item(gAgent.getID(),
-							item->getLinkedUUID(),
-							cat_uuid,
-							item->getName(),
-							item->getActualDescription(),
-							LLAssetType::AT_LINK,
-							cb);
-
-		const LLViewerInventoryCategory *cat = gInventory.getCategory(cat_uuid);
-		const std::string cat_name = cat ? cat->getName() : "CAT NOT FOUND";
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-		LL_DEBUGS("Avatar") << self_av_string() << "Linking Item [ name:" << item->getName() << " UUID:" << item->getUUID() << " ] to Category [ name:" << cat_name << " UUID:" << cat_uuid << " ] " << LL_ENDL;
-#endif
-	}
-}
-
-void LLAppearanceMgr::removeAll(LLInventoryModel::item_array_t& items_to_kill,
-							   LLPointer<LLInventoryCallback> cb)
-{
-	for (LLInventoryModel::item_array_t::iterator it = items_to_kill.begin();
-		 it != items_to_kill.end();
-		 ++it)
-	{
-		LLViewerInventoryItem *item = *it;
-		remove_inventory_item(item->getUUID(), cb);
-	}
-}
-
 void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 {
 	LLViewerInventoryCategory *pcat = gInventory.getCategory(category);
@@ -1934,8 +1887,7 @@ void LLAppearanceMgr::createBaseOutfitLink(const LLUUID& category, LLPointer<LLI
 
 	if (catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
 	{
-		link_inventory_item(gAgent.getID(), category, cof, catp->getName(), "",
-							LLAssetType::AT_LINK_FOLDER, link_waiter);
+		link_inventory_object(cof, catp, link_waiter);
 		new_outfit_name = catp->getName();
 	}
 	
@@ -2027,7 +1979,7 @@ void item_array_diff(LLInventoryModel::item_array_t& full_list,
 S32 LLAppearanceMgr::findExcessOrDuplicateItems(const LLUUID& cat_id,
 												 LLAssetType::EType type,
 												 S32 max_items,
-												 LLInventoryModel::item_array_t& items_to_kill)
+												 LLInventoryObject::object_list_t& items_to_kill)
 {
 	S32 to_kill_count = 0;
 
@@ -2045,7 +1997,7 @@ S32 LLAppearanceMgr::findExcessOrDuplicateItems(const LLUUID& cat_id,
 		 it != kill_items.end();
 		 ++it)
 	{
-		items_to_kill.push_back(*it);
+		items_to_kill.push_back(LLPointer<LLInventoryObject>(*it));
 		to_kill_count++;
 	}
 	return to_kill_count;
@@ -2053,7 +2005,7 @@ S32 LLAppearanceMgr::findExcessOrDuplicateItems(const LLUUID& cat_id,
 	
 
 void LLAppearanceMgr::findAllExcessOrDuplicateItems(const LLUUID& cat_id,
-													LLInventoryModel::item_array_t& items_to_kill)
+													LLInventoryObject::object_list_t& items_to_kill)
 {
 	findExcessOrDuplicateItems(cat_id,LLAssetType::AT_BODYPART,
 							   1, items_to_kill);
@@ -2065,14 +2017,13 @@ void LLAppearanceMgr::findAllExcessOrDuplicateItems(const LLUUID& cat_id,
 
 void LLAppearanceMgr::enforceCOFItemRestrictions(LLPointer<LLInventoryCallback> cb)
 {
-	LLInventoryModel::item_array_t items_to_kill;
+	LLInventoryObject::object_list_t items_to_kill;
 	findAllExcessOrDuplicateItems(getCOF(), items_to_kill);
 	if (items_to_kill.size()>0)
 	{
 		// Remove duplicate or excess wearables. Should normally be enforced at the UI level, but
 		// this should catch anything that gets through.
-		removeAll(items_to_kill, cb);
-		return;
+		remove_inventory_items(items_to_kill, cb);
 	}
 }
 
@@ -2525,7 +2476,7 @@ void LLAppearanceMgr::addCOFItemLink(const LLUUID &item_id,
 void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item,
 									 LLPointer<LLInventoryCallback> cb,
 									 const std::string description)
-{		
+{
 	const LLViewerInventoryItem *vitem = dynamic_cast<const LLViewerInventoryItem*>(item);
 	if (!vitem)
 	{
@@ -2577,18 +2528,10 @@ void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item,
 
 	if (!linked_already)
 	{
-		std::string link_description = description;
-		if (vitem->getIsLinkType())
-		{
-			link_description = vitem->getActualDescription();
-		}
-		link_inventory_item( gAgent.getID(),
-							 vitem->getLinkedUUID(),
-							 getCOF(),
-							 vitem->getName(),
-							 link_description,
-							 LLAssetType::AT_LINK,
-							 cb);
+		LLInventoryObject::const_object_list_t obj_array;
+		obj_array.push_back(LLConstPointer<LLInventoryObject>(vitem));
+		const bool resolve_links = true;
+		link_inventory_array(getCOF(), obj_array, cb, resolve_links);
 	}
 }
 

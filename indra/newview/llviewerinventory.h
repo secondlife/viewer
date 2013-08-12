@@ -351,14 +351,17 @@ void copy_inventory_item(
 	const std::string& new_name,
 	LLPointer<LLInventoryCallback> cb);
 
-void link_inventory_item(
-	const LLUUID& agent_id,
-	const LLUUID& item_id,
-	const LLUUID& parent_id,
-	const std::string& new_name,
-	const std::string& new_description,
-	const LLAssetType::EType asset_type,
-	LLPointer<LLInventoryCallback> cb);
+// utility functions for inventory linking.
+void link_inventory_object(const LLUUID& category,
+			 LLConstPointer<LLInventoryObject> baseobj,
+			 LLPointer<LLInventoryCallback> cb);
+void link_inventory_object(const LLUUID& category,
+			 const LLUUID& id,
+			 LLPointer<LLInventoryCallback> cb);
+void link_inventory_array(const LLUUID& category,
+			 LLInventoryObject::const_object_list_t& baseobj_array,
+			 LLPointer<LLInventoryCallback> cb,
+			 bool resolve_links = false);
 
 void move_inventory_item(
 	const LLUUID& agent_id,
@@ -380,6 +383,14 @@ void update_inventory_item(
 void update_inventory_category(
 	const LLUUID& cat_id,
 	const LLSD& updates,
+	LLPointer<LLInventoryCallback> cb);
+
+void remove_inventory_items(
+	LLInventoryObject::object_list_t& items,
+	LLPointer<LLInventoryCallback> cb);
+
+void remove_inventory_item(
+	LLPointer<LLInventoryObject> obj,
 	LLPointer<LLInventoryCallback> cb);
 
 void remove_inventory_item(

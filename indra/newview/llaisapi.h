@@ -130,6 +130,15 @@ protected:
 	/* virtual */ bool getResponseUUID(const LLSD& content, LLUUID& id);
 };
 
+class CreateInventoryCommand: public AISCommand
+{
+public:
+	CreateInventoryCommand(const LLUUID& parent_id, const LLSD& new_inventory, LLPointer<LLInventoryCallback> callback);
+
+private:
+	LLSD mNewInventory;
+};
+
 class AISUpdate
 {
 public:

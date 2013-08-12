@@ -3223,28 +3223,9 @@ void LLFolderBridge::pasteLinkFromClipboard()
 					dropToOutfit(item, move_is_into_current_outfit);
 				}
 			}
-			else if (LLInventoryCategory *cat = model->getCategory(object_id))
+			else if (LLConstPointer<LLInventoryObject> obj = model->getObject(object_id))
 			{
-				const std::string empty_description = "";
-				link_inventory_item(
-					gAgent.getID(),
-					cat->getUUID(),
-					parent_id,
-					cat->getName(),
-					empty_description,
-					LLAssetType::AT_LINK_FOLDER,
-					LLPointer<LLInventoryCallback>(NULL));
-			}
-			else if (LLInventoryItem *item = model->getItem(object_id))
-			{
-				link_inventory_item(
-					gAgent.getID(),
-					item->getLinkedUUID(),
-					parent_id,
-					item->getName(),
-					item->getDescription(),
-					LLAssetType::AT_LINK,
-					LLPointer<LLInventoryCallback>(NULL));
+				link_inventory_object(parent_id, obj, LLPointer<LLInventoryCallback>(NULL));
 			}
 		}
 		// Change mode to paste for next paste
@@ -3830,14 +3811,7 @@ void LLFolderBridge::dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_c
 	else
 	{
 		LLPointer<LLInventoryCallback> cb = NULL;
-		link_inventory_item(
-			gAgent.getID(),
-			inv_item->getLinkedUUID(),
-			mUUID,
-			inv_item->getName(),
-			inv_item->getDescription(),
-			LLAssetType::AT_LINK,
-			cb);
+		link_inventory_object(mUUID, LLConstPointer<LLInventoryObject>(inv_item), cb);
 	}
 }
 

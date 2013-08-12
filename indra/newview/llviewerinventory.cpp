@@ -1074,76 +1074,157 @@ void copy_inventory_item(
 	gAgent.sendReliableMessage();
 }
 
-void link_inventory_item(
-	const LLUUID& agent_id,
-	const LLUUID& item_id,
-	const LLUUID& parent_id,
-	const std::string& new_name,
-	const std::string& new_description,
-	const LLAssetType::EType asset_type,
-	LLPointer<LLInventoryCallback> cb)
+// Create link to single inventory object.
+void link_inventory_object(const LLUUID& category,
+			 LLConstPointer<LLInventoryObject> baseobj,
+			 LLPointer<LLInventoryCallback> cb)
 {
-	const LLInventoryObject *baseobj = gInventory.getObject(item_id);
 	if (!baseobj)
 	{
-		llwarns << "attempt to link to unknown item, linked-to-item's itemID " << item_id << llendl;
-		return;
-	}
-	if (baseobj && baseobj->getIsLinkType())
-	{
-		llwarns << "attempt to create a link to a link, linked-to-item's itemID " << item_id << llendl;
+		llwarns << "Attempt to link to non-existent object" << llendl;
 		return;
 	}
 
-	if (baseobj && !LLAssetType::lookupCanLink(baseobj->getType()))
+	LLInventoryObject::const_object_list_t obj_array;
+	obj_array.push_back(baseobj);
+	link_inventory_array(category, obj_array, cb);
+}
+
+void link_inventory_object(const LLUUID& category,
+			 const LLUUID& id,
+			 LLPointer<LLInventoryCallback> cb)
+{
+	LLConstPointer<LLInventoryObject> baseobj = gInventory.getObject(id);
+	link_inventory_object(category, baseobj, cb);
+}
+
+// Create links to all listed inventory objects.
+void link_inventory_array(const LLUUID& category,
+			 LLInventoryObject::const_object_list_t& baseobj_array,
+			 LLPointer<LLInventoryCallback> cb,
+			 bool resolve_links /* = false */)
+{
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	const LLViewerInventoryCategory *cat = gInventory.getCategory(category);
+	const std::string cat_name = cat ? cat->getName() : "CAT NOT FOUND";
+#endif
+	LLInventoryObject::const_object_list_t::const_iterator it = baseobj_array.begin();
+	LLInventoryObject::const_object_list_t::const_iterator end = baseobj_array.end();
+	LLSD links = LLSD::emptyArray();
+	for (; it != end; ++it)
 	{
-		// Fail if item can be found but is of a type that can't be linked.
-		// Arguably should fail if the item can't be found too, but that could
-		// be a larger behavioral change.
-		llwarns << "attempt to link an unlinkable item, type = " << baseobj->getActualType() << llendl;
-		return;
-	}
-	
-	LLUUID transaction_id;
-	LLInventoryType::EType inv_type = LLInventoryType::IT_NONE;
-	if (dynamic_cast<const LLInventoryCategory *>(baseobj))
-	{
-		inv_type = LLInventoryType::IT_CATEGORY;
-	}
-	else
-	{
-		const LLViewerInventoryItem *baseitem = dynamic_cast<const LLViewerInventoryItem *>(baseobj);
-		if (baseitem)
+		const LLInventoryObject* baseobj = *it;
+		if (!baseobj)
 		{
-			inv_type = baseitem->getInventoryType();
+			llwarns << "attempt to link to unknown object" << llendl;
+			continue;
+		}
+		if (!resolve_links && baseobj->getIsLinkType())
+		{
+			llwarns << "attempt to create a link to a link, linked-to-object's ID " << baseobj->getUUID() << llendl;
+			continue;
+		}
+
+		if (!LLAssetType::lookupCanLink(baseobj->getType()))
+		{
+			// Fail if item can be found but is of a type that can't be linked.
+			// Arguably should fail if the item can't be found too, but that could
+			// be a larger behavioral change.
+			llwarns << "attempt to link an unlinkable object, type = " << baseobj->getActualType() << llendl;
+			continue;
+		}
+		
+		LLInventoryType::EType inv_type = LLInventoryType::IT_NONE;
+		LLAssetType::EType asset_type = LLAssetType::AT_NONE;
+		std::string new_desc;
+		LLUUID linkee_id;
+		if (dynamic_cast<const LLInventoryCategory *>(baseobj))
+		{
+			inv_type = LLInventoryType::IT_CATEGORY;
+			asset_type = LLAssetType::AT_LINK_FOLDER;
+			linkee_id = baseobj->getUUID();
+		}
+		else
+		{
+			const LLViewerInventoryItem *baseitem = dynamic_cast<const LLViewerInventoryItem *>(baseobj);
+			if (baseitem)
+			{
+				inv_type = baseitem->getInventoryType();
+				new_desc = baseitem->getActualDescription();
+				switch (baseitem->getActualType())
+				{
+					case LLAssetType::AT_LINK:
+					case LLAssetType::AT_LINK_FOLDER:
+						linkee_id = baseobj->getLinkedUUID();
+						asset_type = baseitem->getActualType();
+						break;
+					default:
+						linkee_id = baseobj->getUUID();
+						asset_type = LLAssetType::AT_LINK;
+						break;
+				}
+			}
+			else
+			{
+				llwarns << "could not convert object into an item or category: " << baseobj->getUUID() << llendl;
+				continue;
+			}
+		}
+
+		LLSD link = LLSD::emptyMap();
+		link["linked_id"] = linkee_id;
+		link["type"] = (S8)asset_type;
+		link["inv_type"] = (S8)inv_type;
+		link["name"] = baseobj->getName();
+		link["desc"] = new_desc;
+		links.append(link);
+
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+		LL_DEBUGS("Inventory") << "Linking Object [ name:" << baseobj->getName() 
+							   << " UUID:" << baseobj->getUUID() 
+							   << " ] into Category [ name:" << cat_name 
+							   << " UUID:" << category << " ] " << LL_ENDL;
+#endif
+	}
+
+	bool ais_ran = false;
+	if (AISCommand::isAPIAvailable())
+	{
+		LLSD new_inventory = LLSD::emptyMap();
+		new_inventory["links"] = links;
+		LLPointer<AISCommand> cmd_ptr = new CreateInventoryCommand(category, new_inventory, cb);
+		ais_ran = cmd_ptr->run_command();
+	}
+
+	if (!ais_ran)
+	{
+		LLMessageSystem* msg = gMessageSystem;
+		for (LLSD::array_iterator iter = links.beginArray(); iter != links.endArray(); ++iter )
+		{
+			msg->newMessageFast(_PREHASH_LinkInventoryItem);
+			msg->nextBlock(_PREHASH_AgentData);
+			{
+				msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+				msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			}
+			msg->nextBlock(_PREHASH_InventoryBlock);
+			{
+				LLSD link = (*iter);
+				msg->addU32Fast(_PREHASH_CallbackID, gInventoryCallbacks.registerCB(cb));
+				msg->addUUIDFast(_PREHASH_FolderID, category);
+				msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null);
+				msg->addUUIDFast(_PREHASH_OldItemID, link["linked_id"].asUUID());
+				msg->addS8Fast(_PREHASH_Type, link["type"].asInteger());
+				msg->addS8Fast(_PREHASH_InvType, link["inv_type"].asInteger());
+				msg->addStringFast(_PREHASH_Name, link["name"].asString());
+				msg->addStringFast(_PREHASH_Description, link["desc"].asString());
+			}
+			gAgent.sendReliableMessage();
 		}
 	}
-
-#if 1 // debugging stuff
-	LLViewerInventoryCategory* cat = gInventory.getCategory(parent_id);
-	lldebugs << "cat: " << cat << llendl;
-	
-#endif
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessageFast(_PREHASH_LinkInventoryItem);
-	msg->nextBlock(_PREHASH_AgentData);
-	{
-		msg->addUUIDFast(_PREHASH_AgentID, agent_id);
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	}
-	msg->nextBlock(_PREHASH_InventoryBlock);
-	{
-		msg->addU32Fast(_PREHASH_CallbackID, gInventoryCallbacks.registerCB(cb));
-		msg->addUUIDFast(_PREHASH_FolderID, parent_id);
-		msg->addUUIDFast(_PREHASH_TransactionID, transaction_id);
-		msg->addUUIDFast(_PREHASH_OldItemID, item_id);
-		msg->addS8Fast(_PREHASH_Type, (S8)asset_type);
-		msg->addS8Fast(_PREHASH_InvType, (S8)inv_type);
-		msg->addStringFast(_PREHASH_Name, new_name);
-		msg->addStringFast(_PREHASH_Description, new_description);
-	}
-	gAgent.sendReliableMessage();
 }
+
+
 
 void move_inventory_item(
 	const LLUUID& agent_id,
@@ -1301,14 +1382,41 @@ void update_inventory_category(
 	}
 }
 
+void remove_inventory_items(
+	LLInventoryObject::object_list_t& items_to_kill,
+	LLPointer<LLInventoryCallback> cb)
+{
+	for (LLInventoryObject::object_list_t::iterator it = items_to_kill.begin();
+		 it != items_to_kill.end();
+		 ++it)
+	{
+		remove_inventory_item(*it, cb);
+	}
+}
+
 void remove_inventory_item(
 	const LLUUID& item_id,
 	LLPointer<LLInventoryCallback> cb)
 {
-	LLPointer<LLViewerInventoryItem> obj = gInventory.getItem(item_id);
-	LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << (obj ? obj->getName() : "(NOT FOUND)") << llendl;
+	LLPointer<LLInventoryObject> obj = gInventory.getItem(item_id);
+	if (obj)
+	{
+		remove_inventory_item(obj, cb);
+	}
+	else
+	{
+		LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << "(NOT FOUND)" << llendl;
+	}
+}
+
+void remove_inventory_item(
+	LLPointer<LLInventoryObject> obj,
+	LLPointer<LLInventoryCallback> cb)
+{
 	if(obj)
 	{
+		const LLUUID item_id(obj->getUUID());
+		LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << obj->getName() << llendl;
 		if (AISCommand::isAPIAvailable())
 		{
 			LLPointer<AISCommand> cmd_ptr = new RemoveItemCommand(item_id, cb);
@@ -1336,7 +1444,8 @@ void remove_inventory_item(
 	}
 	else
 	{
-		llwarns << "remove_inventory_item called for invalid or nonexistent item " << item_id << llendl;
+		// *TODO: Clean up callback?
+		llwarns << "remove_inventory_item called for invalid or nonexistent item." << llendl;
 	}
 }
 
@@ -1632,13 +1741,7 @@ void slam_inventory_folder(const LLUUID& folder_id,
 			 ++it)
 		{
 			const LLSD& item_contents = *it;
-			link_inventory_item(gAgent.getID(),
-								item_contents["linked_id"].asUUID(),
-								folder_id,
-								item_contents["name"].asString(),
-								item_contents["desc"].asString(),
-								LLAssetType::EType(item_contents["type"].asInteger()),
-								cb);
+			link_inventory_object(folder_id, item_contents["linked_id"].asUUID(), cb);
 		}
 		remove_folder_contents(folder_id,false,cb);
 	}

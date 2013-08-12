@@ -100,20 +100,9 @@ void AISCommand::httpSuccess()
 /*virtual*/
 void AISCommand::httpFailure()
 {
-	const LLSD& content = getContent();
+	LL_WARNS("Inventory") << dumpResponse() << LL_ENDL;
 	S32 status = getStatus();
-	const std::string& reason = getReason();
 	const LLSD& headers = getResponseHeaders();
-	if (!content.isMap())
-	{
-		LL_DEBUGS("Inventory") << "Malformed response contents " << content
-							   << " status " << status << " reason " << reason << LL_ENDL;
-	}
-	else
-	{
-		LL_DEBUGS("Inventory") << "failed with content: " << ll_pretty_print_sd(content)
-							   << " status " << status << " reason " << reason << LL_ENDL;
-	}
 	mRetryPolicy->onFailure(status, headers);
 	F32 seconds_to_wait;
 	if (mRetryPolicy->shouldRetry(seconds_to_wait))
@@ -273,6 +262,30 @@ UpdateCategoryCommand::UpdateCategoryCommand(const LLUUID& item_id,
 	headers["Content-Type"] = "application/llsd+xml";
 	F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
 	command_func_type cmd = boost::bind(&LLHTTPClient::patch, url, mUpdates, responder, headers, timeout);
+	setCommandFunc(cmd);
+}
+
+CreateInventoryCommand::CreateInventoryCommand(const LLUUID& parent_id,
+							 				   const LLSD& new_inventory,
+							 				   LLPointer<LLInventoryCallback> callback):
+	mNewInventory(new_inventory),
+	AISCommand(callback)
+{
+	std::string cap;
+	if (!getInvCap(cap))
+	{
+		llwarns << "No cap found" << llendl;
+		return;
+	}
+	LLUUID tid;
+	tid.generate();
+	std::string url = cap + std::string("/category/") + parent_id.asString() + "?tid=" + tid.asString();
+	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
+	LLCurl::ResponderPtr responder = this;
+	LLSD headers;
+	headers["Content-Type"] = "application/llsd+xml";
+	F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
+	command_func_type cmd = boost::bind(&LLHTTPClient::post, url, mNewInventory, responder, headers, timeout);
 	setCommandFunc(cmd);
 }
 
