@@ -45,7 +45,7 @@ TraceBase::TraceBase( const char* name, const char* description )
 #endif
 }
 
-const char* TraceBase::getUnitLabel()
+const char* TraceBase::getUnitLabel() const
 {
 	return "";
 }

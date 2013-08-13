@@ -1313,7 +1313,7 @@ void LLXUIParser::parserWarning(const std::string& message)
 {
 #ifdef LL_WINDOWS
 	// use Visual Studio friendly formatting of output message for easy access to originating xml
-	LL_WINDOWS_OUTPUT_DEBUG(llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()));
+	LL_INFOS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()) << LL_ENDL;
 #else
 	Parser::parserWarning(message);
 #endif
@@ -1322,8 +1322,8 @@ void LLXUIParser::parserWarning(const std::string& message)
 void LLXUIParser::parserError(const std::string& message)
 {
 #ifdef LL_WINDOWS
-        // use Visual Studio friendly formatting of output message for easy access to originating xml
-	LL_WINDOWS_OUTPUT_DEBUG(llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()));
+    // use Visual Studio friendly formatting of output message for easy access to originating xml
+	LL_INFOS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()) << LL_ENDL;
 #else
 	Parser::parserError(message);
 #endif
@@ -1641,7 +1641,7 @@ void LLSimpleXUIParser::parserWarning(const std::string& message)
 {
 #ifdef LL_WINDOWS
 	// use Visual Studio friendly formatting of output message for easy access to originating xml
-	LL_WINDOWS_OUTPUT_DEBUG(llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()));
+	LL_INFOS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()) << LL_ENDL;
 #else
 	Parser::parserWarning(message);
 #endif
@@ -1651,7 +1651,7 @@ void LLSimpleXUIParser::parserError(const std::string& message)
 {
 #ifdef LL_WINDOWS
         // use Visual Studio friendly formatting of output message for easy access to originating xml
-	LL_WINDOWS_OUTPUT_DEBUG(llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()));
+	LL_INFOS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()) << LL_ENDL;
 #else
 	Parser::parserError(message);
 #endif

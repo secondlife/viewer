@@ -58,7 +58,7 @@ class TraceBase
 public:
 	TraceBase(const char* name, const char* description);
 	virtual ~TraceBase() {};
-	virtual const char* getUnitLabel();
+	virtual const char* getUnitLabel() const;
 
 	const std::string& getName() const { return mName; }
 	const std::string& getDescription() const { return mDescription; }
@@ -129,7 +129,7 @@ public:
 	:	trace_t(name, description)
 	{}
 
-	/*virtual*/ const char* getUnitLabel() { return LLGetUnitLabel<T>::getUnitLabel(); }
+	/*virtual*/ const char* getUnitLabel() const { return LLGetUnitLabel<T>::getUnitLabel(); }
 
 };
 
@@ -153,7 +153,7 @@ public:
 	:	trace_t(name, description)
 	{}
 
-	/*virtual*/ const char* getUnitLabel() { return LLGetUnitLabel<T>::getUnitLabel(); }
+	/*virtual*/ const char* getUnitLabel() const { return LLGetUnitLabel<T>::getUnitLabel(); }
 };
 
 template<typename T, typename VALUE_T>
@@ -176,7 +176,7 @@ public:
 	:	trace_t(name, description)
 	{}
 
-	/*virtual*/ const char* getUnitLabel() { return LLGetUnitLabel<T>::getUnitLabel(); }
+	/*virtual*/ const char* getUnitLabel() const { return LLGetUnitLabel<T>::getUnitLabel(); }
 };
 
 template<typename T, typename VALUE_T>
@@ -227,7 +227,7 @@ public:
 	:	trace_t(name)
 	{}
 
-	/*virtual*/ const char* getUnitLabel() { return "B"; }
+	/*virtual*/ const char* getUnitLabel() const { return "B"; }
 
 	TraceType<MemStatAccumulator::AllocationCountFacet>& allocationCount() 
 	{ 

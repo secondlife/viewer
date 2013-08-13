@@ -53,6 +53,7 @@ namespace tut
 	template<> template<>
 	void units_object_t::test<1>()
 	{
+		LL_INFOS("test") << "Test" << LL_ENDL;
 		LLUnit<F32, Quatloos> float_quatloos;
 		ensure(float_quatloos == 0.f);
 
@@ -93,6 +94,11 @@ namespace tut
 
 		LLUnit<F32, Solari> solari(quatloos);
 		ensure(solari == 4096);
+
+		// division of integral unit
+		LLUnit<S32, Quatloos> single_quatloo(1);
+		LLUnit<F32, Latinum> quarter_latinum = single_quatloo;
+		ensure(quarter_latinum == 0.25f);
 	}
 
 	// conversions across non-base units

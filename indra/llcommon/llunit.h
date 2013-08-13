@@ -517,71 +517,79 @@ struct LLGetUnitLabel<LLUnit<STORAGE_T, T> >
 	static const char* getUnitLabel() { return T::getUnitLabel(); }
 };
 
-template<typename VALUE_TYPE>
+#define LL_UNIT_PROMOTE_VALUE(output_type, value) ((true ? (output_type)(1) : (value/value)) * value)
+
+template<typename INPUT_TYPE, typename OUTPUT_TYPE>
 struct LLUnitLinearOps
 {
-	typedef LLUnitLinearOps<VALUE_TYPE> self_t;
-	LLUnitLinearOps(VALUE_TYPE val) : mResult (val) {}
+	typedef LLUnitLinearOps<OUTPUT_TYPE, OUTPUT_TYPE> output_t;
 
-	operator VALUE_TYPE() const { return mResult; }
-	VALUE_TYPE mResult;
+	LLUnitLinearOps(INPUT_TYPE val) 
+	:	mInput (val)
+	{}
+
+	operator OUTPUT_TYPE() const { return (OUTPUT_TYPE)mInput; }
+	INPUT_TYPE mInput;
 
 	template<typename T>
-	self_t operator * (T other)
+	output_t operator * (T other)
 	{
-		return mResult * other;
+		return mInput * other;
 	}
 
 	template<typename T>
-	self_t operator / (T other)
+	output_t operator / (T other)
 	{
-		return mResult / other;
+		return LL_UNIT_PROMOTE_VALUE(OUTPUT_TYPE, mInput) / other;
 	}
 
 	template<typename T>
-	self_t operator + (T other)
+	output_t operator + (T other)
 	{
-		return mResult + other;
+		return mInput + other;
 	}
 
 	template<typename T>
-	self_t operator - (T other)
+	output_t operator - (T other)
 	{
-		return mResult - other;
+		return mInput - other;
 	}
 };
 
-template<typename VALUE_TYPE>
+template<typename INPUT_TYPE, typename OUTPUT_TYPE>
 struct LLUnitInverseLinearOps
 {
-	typedef LLUnitInverseLinearOps<VALUE_TYPE> self_t;
+	typedef LLUnitInverseLinearOps<OUTPUT_TYPE, OUTPUT_TYPE> output_t;
 
-	LLUnitInverseLinearOps(VALUE_TYPE val) : mResult (val) {}
-	operator VALUE_TYPE() const { return mResult; }
-	VALUE_TYPE mResult;
+	LLUnitInverseLinearOps(INPUT_TYPE val) 
+	:	mInput(val)
+	{}
+
+	operator OUTPUT_TYPE() const { return (OUTPUT_TYPE)mInput; }
+	INPUT_TYPE mInput;
 
 	template<typename T>
-	self_t operator * (T other)
+	output_t operator * (T other)
 	{
-		return mResult / other;
+		return LL_UNIT_PROMOTE_VALUE(OUTPUT_TYPE, mInput) / other;
 	}
 
 	template<typename T>
-	self_t operator / (T other)
+	output_t operator / (T other)
 	{
-		return mResult * other;
+		return mInput * other;
 	}
 
 	template<typename T>
-	self_t operator + (T other)
+	output_t operator + (T other)
 	{
-		return mResult - other;
+		return mInput - other;
 	}
 
 	template<typename T>
-	self_t operator - (T other)
+	output_t operator - (T other)
 	{
-		return mResult + other;
+		return mInput + other;
 	}
 };
 
@@ -613,13 +621,13 @@ struct unit_name                                                                
 template<typename S1, typename S2>                                                                      \
 void ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)                        \
 {                                                                                                       \
-	out = LLUnit<S2, base_unit_name>((S2)(LLUnitLinearOps<S1>(in.value()) conversion_operation));		\
+	out = LLUnit<S2, base_unit_name>((S2)(LLUnitLinearOps<S1, S2>(in.value()) conversion_operation));		\
 }                                                                                                       \
                                                                                                         \
 template<typename S1, typename S2>                                                                      \
 void ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, unit_name>& out)                        \
 {                                                                                                       \
-	out = LLUnit<S2, unit_name>((S2)(LLUnitInverseLinearOps<S1>(in.value()) conversion_operation));     \
+	out = LLUnit<S2, unit_name>((S2)(LLUnitInverseLinearOps<S1, S2>(in.value()) conversion_operation));     \
 }                                                                                               
 
 //

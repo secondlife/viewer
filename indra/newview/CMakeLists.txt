@@ -2259,11 +2259,6 @@ if (LL_TESTS)
     "${test_libs}"
     )
 
-  LL_ADD_INTEGRATION_TEST(llsimplestat
-    ""
-    "${test_libs}"
-    )
-
   LL_ADD_INTEGRATION_TEST(llviewerassetstats
     llviewerassetstats.cpp
     "${test_libs}"

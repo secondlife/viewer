@@ -321,8 +321,8 @@ namespace tut
 			stream << "<integer>42</integer>";
 		}
 		stream << "</array></llsd>";
-		llinfos << "HTTPServiceTestObject::test<7>"
-				<< stream.str().length() << llendl;
+		LL_INFOS() << "HTTPServiceTestObject::test<7>"
+				<< stream.str().length() << LL_ENDL;
 		std::string result = httpPOST("web/echo", stream.str());
 		ensure_starts_with("large echo status", result, "HTTP/1.0 200 OK\r\n");
 	}

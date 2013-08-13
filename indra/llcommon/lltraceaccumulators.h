@@ -223,7 +223,6 @@ namespace LLTrace
 	{
 	public:
 		typedef F64 value_t;
-		typedef F64 mean_t;
 
 		EventAccumulator()
 		:	mSum(NaN),
@@ -269,6 +268,7 @@ namespace LLTrace
 		F64	getLastValue() const         { return mLastValue; }
 		F64	getMean() const              { return mMean; }
 		F64 getStandardDeviation() const { return sqrtf(mSumOfSquares / mNumSamples); }
+		F64 getSumOfSquares() const		 { return mSumOfSquares; }
 		U32 getSampleCount() const       { return mNumSamples; }
 		bool hasValue() const			 { return mNumSamples > 0; }
 
@@ -289,7 +289,6 @@ namespace LLTrace
 	{
 	public:
 		typedef F64 value_t;
-		typedef F64 mean_t;
 
 		SampleAccumulator()
 		:	mSum(0),
@@ -353,6 +352,8 @@ namespace LLTrace
 		F64	getLastValue() const         { return mLastValue; }
 		F64	getMean() const              { return mMean; }
 		F64 getStandardDeviation() const { return sqrtf(mSumOfSquares / mTotalSamplingTime); }
+		F64 getSumOfSquares() const		 { return mSumOfSquares; }
+		LLUnitImplicit<F64, LLUnits::Seconds> getSamplingTime() { return mTotalSamplingTime; }
 		U32 getSampleCount() const       { return mNumSamples; }
 		bool hasValue() const            { return mHasValue; }
 
@@ -378,7 +379,6 @@ namespace LLTrace
 	{
 	public:
 		typedef F64 value_t;
-		typedef F64 mean_t;
 
 		CountAccumulator()
 		:	mSum(0),
@@ -419,20 +419,17 @@ namespace LLTrace
 	{
 	public:
 		typedef LLUnit<F64, LLUnits::Seconds> value_t;
-		typedef LLUnit<F64, LLUnits::Seconds> mean_t;
 		typedef TimeBlockAccumulator self_t;
 
 		// fake classes that allows us to view different facets of underlying statistic
 		struct CallCountFacet 
 		{
 			typedef U32 value_t;
-			typedef F32 mean_t;
 		};
 
 		struct SelfTimeFacet
 		{
 			typedef LLUnit<F64, LLUnits::Seconds> value_t;
-			typedef LLUnit<F64, LLUnits::Seconds> mean_t;
 		};
 
 		TimeBlockAccumulator();
@@ -486,19 +483,16 @@ namespace LLTrace
 		struct AllocationCountFacet 
 		{
 			typedef U32 value_t;
-			typedef F32 mean_t;
 		};
 
 		struct DeallocationCountFacet 
 		{
 			typedef U32 value_t;
-			typedef F32 mean_t;
 		};
 
 		struct ChildMemFacet
 		{
 			typedef LLUnit<F64, LLUnits::Bytes> value_t;
-			typedef LLUnit<F64, LLUnits::Bytes> mean_t;
 		};
 
 		MemStatAccumulator()

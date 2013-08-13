@@ -28,7 +28,6 @@
                  label="Basic"
                  follows="left|top|right"
                  show_label="true"
-                 show_bar="true"
                  setting="OpenDebugStatBasic">
         <stat_bar name="fps"
                   label="FPS"
