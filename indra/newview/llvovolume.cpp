@@ -334,15 +334,9 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 				if (!mTextureAnimp)
 				{
 					mTextureAnimp = new LLViewerTextureAnim(this);
+					mTexAnimMode = 0;
 				}
-				else
-				{
-					if (!(mTextureAnimp->mMode & LLTextureAnim::SMOOTH))
-					{
-						mTextureAnimp->reset();
-					}
-				}
-				mTexAnimMode = 0;
+				
 				mTextureAnimp->unpackTAMessage(mesgsys, block_num);
 			}
 			else
