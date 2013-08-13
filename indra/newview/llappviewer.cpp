@@ -294,7 +294,7 @@ U32 gForegroundFrameCount = 0; // number of frames that app window was in foregr
 LLPumpIO* gServicePump = NULL;
 
 LLUnitImplicit<U64, LLUnits::Microseconds> gFrameTime = 0;
-F32 gFrameTimeSeconds = 0.f;
+LLUnitImplicit<F32, LLUnits::Seconds> gFrameTimeSeconds = 0.f;
 LLUnitImplicit<F32, LLUnits::Seconds> gFrameIntervalSeconds = 0.f;
 F32 gFPSClamped = 10.f;						// Pretend we start at target rate.
 F32 gFrameDTClamped = 0.f;					// Time between adjacent checks to network for packets
@@ -1464,7 +1464,7 @@ bool LLAppViewer::mainLoop()
 					ms_sleep(500);
 				}
 
-				const F64 max_idle_time = llmin(.005f*10.0f*gFrameTimeSeconds, (0.005f)); // 5 ms a second
+				const F64 max_idle_time = llmin(.005*10.0*gFrameTimeSeconds, LLUnitImplicit<F32, LLUnits::Seconds>(0.005f)); // 5 ms a second
 				idleTimer.reset();
 				S32 total_work_pending = 0;
 				S32 total_io_pending = 0;	

@@ -999,10 +999,9 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	// Time _can_ go backwards, for example if the user changes the system clock.
 	// It doesn't cause any fatal problems (just some oddness with stats), so we shouldn't assert here.
 //	llassert(time > gFrameTime);
-	const F64 SEC_TO_MICROSEC = 1000000.f;
-	F64 time_diff = U64_to_F64(time - gFrameTime)/SEC_TO_MICROSEC;
+	LLUnit<F64, LLUnits::Seconds> time_diff = time - gFrameTime;
 	gFrameTime	= time;
-	F64 time_since_start = U64_to_F64(gFrameTime - gStartTime)/SEC_TO_MICROSEC;
+	LLUnit<F64, LLUnits::Seconds> time_since_start = gFrameTime - gStartTime;
 	gFrameTimeSeconds = time_since_start;
 
 	gFrameIntervalSeconds = gFrameTimeSeconds - last_time;
