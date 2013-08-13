@@ -54,7 +54,7 @@ static LLRegisterPanelClassWrapper<LLSocialAccountPanel> t_panel_account("llsoci
 
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const std::string DEFAULT_CHECKIN_LOCATION_URL = "http://maps.secondlife.com/";
-const std::string DEFAULT_CHECKIN_ICON_URL = "http://logok.org/wp-content/uploads/2010/07/podcastlogo1.jpg";
+const std::string DEFAULT_CHECKIN_ICON_URL = "http://map.secondlife.com.s3.amazonaws.com/map_placeholder.png";
 
 std::string get_map_url()
 {
